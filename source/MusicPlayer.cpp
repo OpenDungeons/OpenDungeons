@@ -1,6 +1,6 @@
 /*!
  * \file   MusicPlayer.cpp
- * \author oln, StefanP.MUC
+ * \author oln, StefanP.MUC, Bertram
  * \date   November 10 2010
  * \brief  Class "MusicPlayer" containing everything to play music tracks.
  *
@@ -24,29 +24,146 @@
 
 #include "LogManager.h"
 #include "ResourceManager.h"
-#include "Random.h"
 
 #include <OgreResourceGroupManager.h>
 
+//! \brief The max music volume value.
+const float MAX_VOLUME = 25.0f;
+
+// ODMusic class
+ODMusic::ODMusic(const std::string& filename)
+{
+    loadFromFile(filename);
+}
+
+bool ODMusic::loadFromFile(const std::string& filename)
+{
+    if (mMusic.openFromFile(filename) == false)
+    {
+        mMusicState = UNLOADED;
+        return false;
+    }
+
+    // Set convenient values for our use.
+    mMusic.setVolume(MAX_VOLUME);
+    mMusic.setAttenuation(0);
+    mMusic.setLoop(true);
+
+    mMusicState = STOPPED;
+    return true;
+}
+
+void ODMusic::play()
+{
+    if (mMusicState == UNLOADED)
+        return;
+    if (mMusicState != STOPPED && mMusicState != FADE_OUT)
+        return;
+
+    mMusic.setVolume(MAX_VOLUME);
+    mMusic.play();
+    mMusicState = PLAYING;
+}
+
+void ODMusic::stop()
+{
+    if (mMusicState == UNLOADED)
+        return;
+    if (mMusicState != PLAYING && mMusicState != FADE_IN)
+        return;
+
+    mMusic.setVolume(0.0f);
+    mMusic.stop();
+    mMusicState = STOPPED;
+}
+
+void ODMusic::fadeIn()
+{
+    if (mMusicState == UNLOADED)
+        return;
+
+    if (mMusicState != STOPPED && mMusicState != FADE_OUT)
+        return;
+
+    mMusic.play();
+    mMusicState = FADE_IN;
+}
+
+void ODMusic::fadeOut()
+{
+    if (mMusicState == UNLOADED)
+        return;
+    if (mMusicState != PLAYING && mMusicState != FADE_IN)
+        return;
+
+    if (mMusic.getVolume() > 0.0f)
+    {
+        mMusicState = FADE_OUT;
+    }
+    else
+    {
+        mMusic.stop();
+        mMusicState = STOPPED;
+    }
+}
+
+void ODMusic::update(float timeSinceLastUpdate)
+{
+    if (mMusicState == UNLOADED || mMusicState == STOPPED || mMusicState == PLAYING)
+        return;
+
+    // Handles fade in/outs
+    if (mMusicState == FADE_IN)
+    {
+        // Make the music volume gradually fade in
+        float volume = mMusic.getVolume();
+
+        volume += timeSinceLastUpdate * 10.0f;
+        if (volume >= MAX_VOLUME)
+        {
+            mMusic.setVolume(MAX_VOLUME);
+            mMusicState = PLAYING;
+            return;
+        }
+        else
+        {
+            mMusic.setVolume(volume);
+        }
+    }
+    else if (mMusicState == FADE_OUT)
+    {
+        // Make the music volume gradually fade in
+        float volume = mMusic.getVolume();
+
+        volume -= timeSinceLastUpdate * 10.0f;
+        if (volume <= 0.0f)
+        {
+            mMusic.setVolume(0.0f);
+            mMusic.stop();
+            mMusicState = STOPPED;
+            return;
+        }
+        else
+        {
+            mMusic.setVolume(volume);
+        }
+    }
+}
+
+
+// MusicPlayer class
 template<> MusicPlayer* Ogre::Singleton<MusicPlayer>::msSingleton = 0;
 
 MusicPlayer::MusicPlayer() :
     mLoaded(false),
-    mRandomized(false),
-    mCurrentTrack(0),
+    mCurrentTrack(std::string()),
     mIsPlaying(false)
 {
-    /* TODO: this should be changed somehow. Storing only tracknumbers
-     *       doesn't allow us to play a specific music in a special situation,
-     *       because we won't know which number it has.
-     */
-
     LogManager& logMgr = LogManager::getSingleton();
     logMgr.logMessage("Loading music...");
 
     //Get list of files in the resource.
     Ogre::StringVectorPtr musicFiles = ResourceManager::getSingleton().listAllMusicFiles();
-    mTracks.reserve(musicFiles->size());
 
     std::string path = ResourceManager::getSingletonPtr()->getMusicPath();
     /* Create sound objects for all files, Sound objects should be deleted
@@ -55,21 +172,25 @@ MusicPlayer::MusicPlayer() :
     for(Ogre::StringVector::iterator it = musicFiles->begin(),
             end = musicFiles->end(); it != end; ++it)
     {
-        logMgr.logMessage(path + "/" + *it);
-        Ogre::SharedPtr<sf::Music> track(new sf::Music());
-        //TODO - check for text encoding issues.
-        if(track->openFromFile(path + "/" + *it))
+        ODMusic* track = new ODMusic();
+        std::string trackName = *it;
+        logMgr.logMessage("Loading: " + trackName);
+
+        if(track->loadFromFile(path + trackName))
         {
-            track->setVolume(25.0f);
-            track->setAttenuation(0);
-            mTracks.push_back(track);
+            mTracks.insert(std::make_pair(trackName, track));
+        }
+        else
+        {
+            // Prevents invalid tracks from leaking memory
+            delete track;
         }
     }
 
     if(mTracks.empty())
     {
         logMgr.logMessage("No music files loaded... no music will be played",
-                Ogre::LML_CRITICAL);
+                Ogre::LML_NORMAL);
     }
     else
     {
@@ -80,9 +201,14 @@ MusicPlayer::MusicPlayer() :
 
 MusicPlayer::~MusicPlayer()
 {
+    // Delete the OD Music.
+    std::map<std::string, ODMusic*>::iterator it = mTracks.begin();
+    std::map<std::string, ODMusic*>::iterator it_end = mTracks.end();
+    for (; it != it_end; ++it)
+        delete it->second;
 }
 
-void MusicPlayer::update()
+void MusicPlayer::update(float timeSinceLastUpdate)
 {
     if(!mLoaded)
         return;
@@ -91,35 +217,30 @@ void MusicPlayer::update()
     if (!mIsPlaying)
         return;
 
-    /* TODO: after upgrading to SFML 2.0, we can use sf::Music::OnGetData()
-     * to achieve this instead of calling update() on every frame
-     * (in 1.6 it's private, but in 2.0 it's protected, so we then can
-     * override it)
-     */
-    if(mTracks[mCurrentTrack]->getStatus() == sf::Music::Stopped)
-    {
-        mIsPlaying = false;
-        next();
-    }
+    // Handle fade ins/fade outs.
+    std::map<std::string, ODMusic*>::iterator it = mTracks.begin();
+    std::map<std::string, ODMusic*>::iterator it_end = mTracks.end();
+    for (; it != it_end; ++it)
+        it->second->update(timeSinceLastUpdate);
 }
 
-void MusicPlayer::start(const unsigned int& trackNumber)
+void MusicPlayer::play(const std::string& trackName)
 {
     if(!mLoaded)
         return;
 
     // If the music is already playing, then don't restart it.
-    if (mIsPlaying && mCurrentTrack == trackNumber)
+    if (mIsPlaying && mCurrentTrack == trackName)
         return;
 
     if (mIsPlaying)
-        mTracks[mCurrentTrack]->stop();
+        mTracks[mCurrentTrack]->fadeOut();
 
-    if (trackNumber >= mTracks.size())
+    if (mTracks.find(trackName) == mTracks.end())
         return;
 
-    mCurrentTrack = trackNumber;
-    mTracks[mCurrentTrack]->play();
+    mCurrentTrack = trackName;
+    mTracks[mCurrentTrack]->fadeIn();
     mIsPlaying = true;
 }
 
@@ -128,36 +249,6 @@ void MusicPlayer::stop()
     if(!mLoaded || !mIsPlaying)
         return;
 
-    mTracks[mCurrentTrack]->stop();
+    mTracks[mCurrentTrack]->fadeOut();
     mIsPlaying = false;
-}
-
-void MusicPlayer::next()
-{
-    unsigned int newTrack = mCurrentTrack;
-
-    // if there is only one track, we just keep on playing it
-    unsigned int numTracks = mTracks.size();
-    if (numTracks == 1)
-    {
-        start(0);
-        return;
-    }
-
-    if(mRandomized)
-    {
-        while(newTrack == mCurrentTrack)
-        {
-            newTrack = Random::Uint(0, numTracks - 1);
-        }
-    }
-    else
-    {
-        if(++newTrack >= mTracks.size())
-        {
-            newTrack = 0;
-        }
-    }
-
-    start(newTrack);
 }

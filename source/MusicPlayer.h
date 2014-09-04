@@ -1,6 +1,6 @@
 /*!
  * \file   MusicPlayer.h
- * \author oln, StefanP.MUC
+ * \author oln, StefanP.MUC, Bertram
  * \date   November 10 2010
  * \brief  Header of class "MusicPlayer" containing everything to play
  *         music tracks.
@@ -25,10 +25,54 @@
 #define MUSICPLAYER_H
 
 #include <SFML/Audio.hpp>
-#include <OgreSharedPtr.h>
 #include <OgreSingleton.h>
 
-#include <vector>
+#include <map>
+#include <string>
+
+//! \brief A small class adding fade in/out support over sf::Music
+class ODMusic
+{
+public:
+    ODMusic(const std::string& filename);
+
+    ODMusic():
+        mMusicState(UNLOADED)
+    {}
+
+    ~ODMusic()
+    { mMusic.stop(); }
+
+    enum MusicState
+    {
+        UNLOADED = 0,
+        STOPPED,
+        PLAYING,
+        FADE_IN,
+        FADE_OUT
+    };
+
+    bool loadFromFile(const std::string& filename);
+
+    void play();
+    void stop();
+
+    void fadeIn();
+    void fadeOut();
+
+    //! \brief Handles potential fade in/out updates
+    //! \param timeSinceLastUpdate time in seconds since the last update.
+    //! \note The parameter comes from Ogre frameListener. See Ogre::FrameEvent
+    //! This is used to make the fade in/out framerate independent.
+    void update(float timeSinceLastUpdate);
+
+private:
+    //! \brief The SFML music object
+    sf::Music mMusic;
+
+    //! \brief The music current state
+    MusicState mMusicState;
+};
 
 //! \brief Class to manage playing of music.
 class MusicPlayer: public Ogre::Singleton<MusicPlayer>
@@ -41,35 +85,30 @@ public:
 
     virtual ~MusicPlayer();
 
-    //! \brief Check if current track is finished, and change to next track if it is.
-    void update();
+    //! \brief Takes care of updating the music states in case of fade in/out.
+    //! \param timeSinceLastUpdate time in seconds since the last update.
+    //! \note The parameter comes from Ogre frameListener. See Ogre::FrameEvent
+    //! This is used to make the fade in/out framerate independent.
+    void update(float timeSinceLastUpdate);
 
-    /** \brief Start music playback with trackNumber if any music is loaded.
-     *  \param  trackNumber number of the Track to play
+    /** \brief Start music playback with a fade in effect.
+     *  \param trackNname name of the track to play
+     *  \note The previous track is faded out.
      */
-    void start(const unsigned int& trackNumber);
+    void play(const std::string& trackName);
 
-    //! \brief Stops the currently played music
+    //! \brief Stops the currently played music with a fade out.
     void stop();
 
-    //! \brief Skip to the next track or a new random track
-    void next();
-
-    //! \brief Tells whether the tracks will be played in a random order.
-    inline const bool& isRandomized() const
-    { return mRandomized; }
-
-    //! \brief Sets whether the tracks will be played in a random order.
-    inline void setRandomize(const bool& randomize)
-    { mRandomized = randomize; }
-
 private:
-    std::vector<Ogre::SharedPtr<sf::Music> > mTracks;
+    //! \brief The tracks names and corresponding list
+    std::map<std::string, ODMusic*> mTracks;
+
+    //! \brief Tells whether the tracks are loaded in memory.
     bool mLoaded;
-    bool mRandomized;
 
     //! \brief The currently played track index
-    unsigned int mCurrentTrack;
+    std::string mCurrentTrack;
 
     //! \brief Whether the track is actually playing
     bool mIsPlaying;

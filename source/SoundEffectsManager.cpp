@@ -61,6 +61,7 @@ GameSound::GameSound(const std::string& filename, bool spatialSound)
 
 GameSound::~GameSound()
 {
+    mSound.stop();
     if (mSoundBuffer != NULL)
         delete mSoundBuffer;
 }
@@ -199,7 +200,7 @@ void SoundEffectsManager::initializeDefaultCreatureSounds()
     // 1 sound atm...
     {
         std::vector<GameSound*>& pickupSounds = crSound->mSoundsPerType[CreatureSound::PICKUP];
-        GameSound* gm = getGameSound(soundFolderPath + "Click/click.ogg", true);
+        GameSound* gm = getGameSound(soundFolderPath + "Game/click.ogg", true);
         pickupSounds.push_back(gm);
     }
 
@@ -207,7 +208,7 @@ void SoundEffectsManager::initializeDefaultCreatureSounds()
     // 1 sound atm...
     {
         std::vector<GameSound*>& dropSounds = crSound->mSoundsPerType[CreatureSound::DROP];
-        GameSound* gm = getGameSound(soundFolderPath + "RoomBuild/bump.ogg", true);
+        GameSound* gm = getGameSound(soundFolderPath + "Rooms/default_build.ogg", true);
         dropSounds.push_back(gm);
     }
 

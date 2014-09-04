@@ -132,6 +132,48 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
     }
 
     levelFile >> nextParam;
+    if (nextParam != "[Info]")
+    {
+        std::cout << "Invalid info start format." << std::endl;
+        std::cout << "Line was " << nextParam << std::endl;
+        return false;
+    }
+
+    // Read in the seats from the level file
+    while (true)
+    {
+        levelFile >> nextParam;
+        if (nextParam == "[/Info]")
+        {
+            break;
+        }
+        else if (nextParam == "Name")
+        {
+            levelFile >> nextParam;
+            gameMap.setLevelName(nextParam);
+            continue;
+        }
+        else if (nextParam == "Description")
+        {
+            levelFile >> nextParam;
+            gameMap.setLevelDescription(nextParam);
+            continue;
+        }
+        else if (nextParam == "Music")
+        {
+            levelFile >> nextParam;
+            gameMap.setLevelMusicFile(nextParam);
+            continue;
+        }
+        else if (nextParam == "FightMusic")
+        {
+            levelFile >> nextParam;
+            gameMap.setLevelFightMusicFile(nextParam);
+            continue;
+        }
+    }
+
+    levelFile >> nextParam;
     if (nextParam != "[Seats]")
     {
         std::cout << "Invalid seats start format." << std::endl;
@@ -382,6 +424,15 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     // Write the identifier string and the version number
     levelFile << ODApplication::VERSIONSTRING
             << "  # The version of OpenDungeons which created this file (for compatibility reasons).\n";
+
+    // Write map info
+    levelFile << "\n[Info]\n";
+    levelFile << "Name" << gameMap.getLevelName() << std::endl;
+    levelFile << "Description" << gameMap.getLevelDescription() << std::endl;
+    levelFile << "Music" << gameMap.getLevelMusicFile() << std::endl;
+    levelFile << "FightMusic" << gameMap.getLevelFightMusicFile() << std::endl;
+    levelFile << "[/Info]" << std::endl;
+
 
     // Write out the seats to the file
     levelFile << "\n[Seats]\n";
