@@ -216,7 +216,7 @@ Name                                   Author                  License          
 Name                                   Author                  License                 Source URL
 ------------------------------------------------------------------------------------------------------------------------
 Game/
--> click.ogg                           Svenskmand              CC-BY-SA 3.0
+-> click.ogg                           Allacrost               GPL 2.0+
 -> ClaimTile/Claim*.ogg                Svenskmand              CC-BY-SA 3.0
 -> RocksFalling/RocksFalling*.ogg      Svenskmand              CC-BY-SA 3.0
 
@@ -225,4 +225,5 @@ Creatures/Default/
 -> Digging/Digging*.ogg                Svenskmand              CC-BY-SA 3.0
 
 Rooms/
--> default_build.ogg                   remaxim                 CC-BY-SA 3.0, GPL 3.0   http://opengameart.org/content/falling-body
+-> default_build_room.ogg              remaxim                 CC-BY-SA 3.0, GPL 3.0   http://opengameart.org/content/falling-body
+-> default_build_trap.ogg              Svenskmand              CC-BY-SA 3.0

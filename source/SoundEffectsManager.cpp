@@ -130,14 +130,14 @@ void SoundEffectsManager::initializeInterfaceSounds()
 
     // Only one build room sound atm...
     {
-        GameSound* gm = getGameSound(soundFolderPath + "Rooms/default_build.ogg", false);
+        GameSound* gm = getGameSound(soundFolderPath + "Rooms/default_build_room.ogg", false);
         if (gm != NULL)
             mInterfaceSounds[BUILDROOM].push_back(gm);
     }
 
     // Only one build trap sound atm...
     {
-        GameSound* gm = getGameSound(soundFolderPath + "Rooms/default_build.ogg", false);
+        GameSound* gm = getGameSound(soundFolderPath + "Rooms/default_build_trap.ogg", false);
         if (gm != NULL)
             mInterfaceSounds[BUILDTRAP].push_back(gm);
     }
@@ -208,7 +208,7 @@ void SoundEffectsManager::initializeDefaultCreatureSounds()
     // 1 sound atm...
     {
         std::vector<GameSound*>& dropSounds = crSound->mSoundsPerType[CreatureSound::DROP];
-        GameSound* gm = getGameSound(soundFolderPath + "Rooms/default_build.ogg", true);
+        GameSound* gm = getGameSound(soundFolderPath + "Rooms/default_build_trap.ogg", true);
         dropSounds.push_back(gm);
     }
 

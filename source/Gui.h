@@ -136,9 +136,6 @@ private:
     //! \brief What happens after a click on Editor button in the main menu
     static bool mMMapEditorButtonPressed(const CEGUI::EventArgs& e);
 
-    //! \brief What happens after a click on Load Game in the main menu
-    static bool mMLoadButtonPressed     (const CEGUI::EventArgs& e);
-
     //! \brief What happens after a click on Options in the main menu
     static bool mMOptionsButtonPressed  (const CEGUI::EventArgs& e);
 

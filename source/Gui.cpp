@@ -250,6 +250,7 @@ bool Gui::miniMapclicked(const CEGUI::EventArgs& e)
     Ogre::Vector2 cc = frameListener.getMiniMap()->camera_2dPositionFromClick((int)ee.position.d_x,
         (int)ee.position.d_y);
     frameListener.cm->onMiniMapClick(cc);
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
 
     //std::cerr<< xx <<" "<< yy << " " <<std::endl;
     return true;
@@ -261,8 +262,8 @@ bool Gui::mMNewGameMultiButtonPressed(const CEGUI::EventArgs& e)
     if (!mm)
         return true;
 
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     mm->requestMenuMultiplayerMode();
-
     return true;
 }
 
@@ -272,6 +273,7 @@ bool Gui::dormitoryButtonPressed(const CEGUI::EventArgs& e)
     gameMap->getLocalPlayer()->setNewRoomType(Room::dormitory);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
     TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Dormitory");
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
 }
 
@@ -281,6 +283,7 @@ bool Gui::treasuryButtonPressed(const CEGUI::EventArgs& e)
     gameMap->getLocalPlayer()->setNewRoomType(Room::treasury);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
     TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Treasury");
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
 }
 
@@ -290,6 +293,7 @@ bool Gui::forgeButtonPressed(const CEGUI::EventArgs& e)
     gameMap->getLocalPlayer()->setNewRoomType(Room::forge);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
     TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Forge");
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
 }
 
@@ -299,6 +303,7 @@ bool Gui::trainingHallButtonPressed(const CEGUI::EventArgs& e)
     gameMap->getLocalPlayer()->setNewRoomType(Room::trainingHall);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
     TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Training Hall");
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
 }
 
@@ -308,6 +313,7 @@ bool Gui::libraryButtonPressed(const CEGUI::EventArgs& e)
     gameMap->getLocalPlayer()->setNewRoomType(Room::library);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
     TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Library");
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
 }
 
@@ -317,6 +323,7 @@ bool Gui::hatcheryButtonPressed(const CEGUI::EventArgs& e)
     gameMap->getLocalPlayer()->setNewRoomType(Room::hatchery);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
     TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Hatchery");
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
 }
 
@@ -326,6 +333,7 @@ bool Gui::cannonButtonPressed(const CEGUI::EventArgs& e)
     gameMap->getLocalPlayer()->setNewRoomType(Room::nullRoomType);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::cannon);
     TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Cannon");
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
 }
 
@@ -335,6 +343,7 @@ bool Gui::confirmExitYesButtonPressed(const CEGUI::EventArgs& e)
     if (!mm)
         return true;
 
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     mm->requestUnloadToParentGameMode();
 
     if(ODClient::getSingleton().isConnected())
@@ -357,6 +366,7 @@ bool Gui::confirmExitNoButtonPressed(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::GAME)
         return true;
 
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     static_cast<GameMode*>(mm->getCurrentMode())->popupExit(false);
     return true;
 }
@@ -370,6 +380,7 @@ bool Gui::editorGoldButtonPressed(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
         return true;
 
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::gold;
     return true;
 }
@@ -381,6 +392,7 @@ bool Gui::editorLavaButtonPressed(const CEGUI::EventArgs& e)
         return true;
 
     static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::lava;
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
 }
 
@@ -391,6 +403,7 @@ bool Gui::editorRockButtonPressed(const CEGUI::EventArgs& e)
         return true;
 
     static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::rock;
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
 }
 
@@ -401,6 +414,7 @@ bool Gui::editorWaterButtonPressed(const CEGUI::EventArgs& e)
         return true;
 
     static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::water;
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
 }
 
@@ -411,6 +425,7 @@ bool Gui::editorDirtButtonPressed(const CEGUI::EventArgs& e)
         return true;
 
     static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::dirt;
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
 }
 
@@ -421,6 +436,7 @@ bool Gui::editorClaimedButtonPressed(const CEGUI::EventArgs& e)
         return true;
 
     static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::claimed;
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
 }
 
@@ -432,8 +448,8 @@ bool Gui::mMNewGameButtonPressed(const CEGUI::EventArgs& e)
     if (!mm)
         return true;
 
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     mm->requestMenuSingleplayerMode();
-
     return true;
 }
 
@@ -443,12 +459,8 @@ bool Gui::mMMapEditorButtonPressed(const CEGUI::EventArgs& e)
     if (!mm)
         return true;
 
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     mm->requestEditorMode();
-    return true;
-}
-
-bool Gui::mMLoadButtonPressed(const CEGUI::EventArgs& e)
-{
     return true;
 }
 
@@ -468,8 +480,9 @@ bool Gui::mSKMBackButtonPressed(const CEGUI::EventArgs& e)
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
     if (!mm)
         return true;
-    mm->requestUnloadToParentGameMode();
 
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    mm->requestUnloadToParentGameMode();
     return true;
 }
 
@@ -479,8 +492,8 @@ bool Gui::mSKMListClicked(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::MENU_SKIRMISH)
         return true;
 
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     static_cast<MenuModeSkirmish*>(mm->getCurrentMode())->listLevelsClicked();
-
     return true;
 }
 
@@ -490,8 +503,8 @@ bool Gui::mSKMLoadButtonPressed(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::MENU_SKIRMISH)
         return true;
 
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     static_cast<MenuModeSkirmish*>(mm->getCurrentMode())->launchSelectedButtonPressed();
-
     return true;
 }
 
@@ -500,8 +513,9 @@ bool Gui::mMPMBackButtonPressed(const CEGUI::EventArgs& e)
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
     if (!mm)
         return true;
-    mm->requestUnloadToParentGameMode();
 
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    mm->requestUnloadToParentGameMode();
     return true;
 }
 
@@ -511,8 +525,8 @@ bool Gui::mMPMListClicked(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::MENU_MULTIPLAYER)
         return true;
 
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     static_cast<MenuModeMultiplayer*>(mm->getCurrentMode())->listLevelsClicked();
-
     return true;
 }
 
@@ -522,8 +536,8 @@ bool Gui::mMPMServerButtonPressed(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::MENU_MULTIPLAYER)
         return true;
 
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     static_cast<MenuModeMultiplayer*>(mm->getCurrentMode())->serverButtonPressed();
-
     return true;
 }
 
@@ -533,8 +547,8 @@ bool Gui::mMPMClientButtonPressed(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::MENU_MULTIPLAYER)
         return true;
 
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     static_cast<MenuModeMultiplayer*>(mm->getCurrentMode())->clientButtonPressed();
-
     return true;
 }
 
