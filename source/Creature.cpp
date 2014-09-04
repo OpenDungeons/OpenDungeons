@@ -81,10 +81,8 @@ Creature::Creature(GameMap* gameMap, CreatureDefinition* definition, bool forceN
     mAwakeness               (100.0),
     mHunger                  (0.0),
     mMaxHP                   (100.0),
-    mMaxMana                 (100.0),
     mLevel                   (1),
     mHp                      (100.0),
-    mMana                    (100.0),
     mExp                     (0.0),
     mDigRate                 (1.0),
     mDanceRate               (1.0),
@@ -119,8 +117,6 @@ Creature::Creature(GameMap* gameMap, CreatureDefinition* definition, bool forceN
 
     mMaxHP = mDefinition->getHpPerLevel();
     setHP(mMaxHP);
-    mMaxMana = mDefinition->getManaPerLevel();
-    setMana(mMaxMana);
     mMoveSpeed = mDefinition->getMoveSpeed();
     mDigRate = mDefinition->getDigRate();
     mDanceRate = mDefinition->getDanceRate();
@@ -138,10 +134,8 @@ Creature::Creature(GameMap* gameMap) :
     mAwakeness               (100.0),
     mHunger                  (0.0),
     mMaxHP                   (100.0),
-    mMaxMana                 (100.0),
     mLevel                   (1),
     mHp                      (100.0),
-    mMana                    (100.0),
     mExp                     (0.0),
     mDigRate                 (1.0),
     mDanceRate               (1.0),
@@ -225,7 +219,7 @@ std::string Creature::getFormat()
 {
     //NOTE:  When this format changes changes to RoomPortal::spawnCreature() may be necessary.
     return "className\tname\tposX\tposY\tposZ\tcolor\tweaponL"
-        + Weapon::getFormat() + "\tweaponR" + Weapon::getFormat() + "\tHP\tmana";
+        + Weapon::getFormat() + "\tweaponR" + Weapon::getFormat() + "\tHP";
 }
 
 //! \brief A matched function to transport creatures between files and over the network.
@@ -249,7 +243,6 @@ std::ostream& operator<<(std::ostream& os, Creature *c)
     os << c->getColor() << "\t";
     os << wL << "\t" << wR << "\t";
     os << c->getHP() << "\t";
-    os << c->getMana() << "\t";
     os << c->getLevel();
 
     // If we had to create dummy weapons for serialization, delete them now.
@@ -294,8 +287,6 @@ std::istream& operator>>(std::istream& is, Creature *c)
     is >> tempDouble;
     c->setHP(tempDouble);
     is >> tempDouble;
-    c->setMana(tempDouble);
-    is >> tempDouble;
     c->setLevel(tempDouble);
 
     return is;
@@ -323,13 +314,11 @@ ODPacket& operator<<(ODPacket& os, Creature *c)
     os << color;
     os << wL << wR;
     os << c->mHp;
-    os << c->mMana;
     os << c->mLevel;
     os << c->mDigRate;
     os << c->mDanceRate;
     os << c->mMoveSpeed;
     os << c->mMaxHP;
-    os << c->mMaxMana;
     os << c->mAwakeness;
     os << c->mHunger;
 
@@ -368,13 +357,11 @@ ODPacket& operator>>(ODPacket& is, Creature *c)
     c->setWeaponR(new Weapon(c->getGameMap(), std::string(), 0.0, 0.0, 0.0, std::string()));
     is >> c->mWeaponR;
     is >> c->mHp;
-    is >> c->mMana;
     is >> c->mLevel;
     is >> c->mDigRate;
     is >> c->mDanceRate;
     is >> c->mMoveSpeed;
     is >> c->mMaxHP;
-    is >> c->mMaxMana;
     is >> c->mAwakeness;
     is >> c->mHunger;
 
@@ -409,8 +396,7 @@ Creature* Creature::loadFromLine(const std::string& line, GameMap* gameMap)
                              Helper::toDouble(elems[12]), Helper::toDouble(elems[13]), "R", c));
 
     c->setHP(Helper::toDouble(elems[14]));
-    c->setMana(Helper::toDouble(elems[15]));
-    c->setLevel(Helper::toDouble(elems[16]));
+    c->setLevel(Helper::toDouble(elems[15]));
 
     return c;
 }
@@ -462,20 +448,7 @@ void Creature::setHP(double nHP)
 
 double Creature::getHP() const
 {
-    double tempDouble = mHp;
-    return tempDouble;
-}
-
-void Creature::setMana(double nMana)
-{
-    mMana = nMana;
-}
-
-double Creature::getMana() const
-{
-    double tempDouble = mMana;
-
-    return tempDouble;
+    return mHp;
 }
 
 void Creature::setIsOnMap(bool nIsOnMap)
@@ -604,13 +577,10 @@ void Creature::doTurn()
         mMoveSpeed += 0.4 / (getLevel() + 2.0);
 
         mMaxHP += mDefinition->getHpPerLevel();
-        mMaxMana += mDefinition->getManaPerLevel();
 
         // Test the max HP/mana against their absolute class maximums
         if (mMaxHP > mDefinition->getMaxHp())
             mMaxHP = mDefinition->getMaxHp();
-        if (mMaxMana > mDefinition->getMaxMana())
-            mMaxMana = mDefinition->getMaxMana();
 
         if(getGameMap()->isServerGameMap())
         {
@@ -634,11 +604,6 @@ void Creature::doTurn()
     mHp += 0.1;
     if (mHp > getMaxHp())
         mHp = getMaxHp();
-
-    // Regenerate mana.
-    mMana += 0.45;
-    if (mMana > mMaxMana)
-        mMana = mMaxMana;
 
     mAwakeness -= 0.15;
     if (mAwakeness < 0.0)
@@ -2388,12 +2353,8 @@ bool Creature::handleSleepAction()
         mHp += 1.0;
         if (mHp > mMaxHP)
             mHp = mMaxHP;
-        // Improve mana
-        mMana += 4.0;
-        if (mMana > mMaxMana)
-            mMana = mMaxMana;
 
-        if (mAwakeness >= 100.0 && mHp >= mMaxHP && mMana >= mMaxMana)
+        if (mAwakeness >= 100.0 && mHp >= mMaxHP)
             popAction();
     }
     return false;
@@ -2449,9 +2410,7 @@ void Creature::refreshFromCreature(Creature *creatureNewState)
     mDanceRate      = creatureNewState->mDanceRate;
     mMoveSpeed      = creatureNewState->mMoveSpeed;
     mMaxHP          = creatureNewState->mMaxHP;
-    mMaxMana        = creatureNewState->mMaxMana;
     mHp             = creatureNewState->mHp;
-    mMana           = creatureNewState->mMana;
     mAwakeness      = creatureNewState->mAwakeness;
     mHunger         = creatureNewState->mHunger;
 
