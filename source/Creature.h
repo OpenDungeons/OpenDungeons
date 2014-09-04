@@ -99,9 +99,6 @@ public:
     //! \brief True if the creature is on the map, false if not (e.g. when in hand)
     bool getIsOnMap() const;
 
-    //! \brief Gets the current mana
-    double getMana() const;
-
     //! \brief Gets the current dig rate
     double getDigRate() const
     { return mDigRate; }
@@ -131,7 +128,6 @@ public:
 
     void setHP(double nHP);
     void setIsOnMap(bool nIsOnMap);
-    void setMana(double nMana);
 
     //! \brief Attach a weapon mesh to the creature.
     //! Don't forget to create the meshes afterwards if needed.
@@ -186,7 +182,7 @@ public:
 
     //! \brief Check whether a creature has earned one level.
     bool checkLevelUp();
-    //! \brief Refreshes current creature with creatureNewState (hp, mana, scale, level, ...)
+    //! \brief Refreshes current creature with creatureNewState (hp, scale, level, ...)
     void refreshFromCreature(Creature *creatureNewState);
 
     /*! \brief Creates a list of Tile pointers in visibleTiles
@@ -340,13 +336,11 @@ private:
     double          mAwakeness;
     double          mHunger;
     double          mMaxHP;
-    double          mMaxMana;
 
     //! \brief The level of the creature
     unsigned int    mLevel;
 
     double          mHp;
-    double          mMana;
     double          mExp;
     double          mDigRate;
     double          mDanceRate;

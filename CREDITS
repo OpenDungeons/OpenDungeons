@@ -6,7 +6,7 @@ This file is listing each files present in this repository, its author and its c
 Each corresponding license is fully described in the licenses/ folder.
 Other text files (.txt, .cpp, .h., ...), except licensing, are licensed using the GPL 3.0 license.
 
-Latest update: 2014/08/29
+Latest update: 2014/09/03
 
 =============================
 ==  Configuration: config/ ==
@@ -215,20 +215,15 @@ Name                                   Author                  License          
 
 Name                                   Author                  License                 Source URL
 ------------------------------------------------------------------------------------------------------------------------
-ClaimTile/
--> Claim*.ogg                          Svenskmand              CC-BY-SA 3.0
+Game/
+-> click.ogg                           Allacrost               GPL 2.0+
+-> ClaimTile/Claim*.ogg                Svenskmand              CC-BY-SA 3.0
+-> RocksFalling/RocksFalling*.ogg      Svenskmand              CC-BY-SA 3.0
 
-Click/
--> Click.ogg                           Svenskmand              CC-BY-SA 3.0
+Creatures/Default/
+-> Battle/SwordBlock*.ogg              Svenskmand              CC-BY-SA 3.0
+-> Digging/Digging*.ogg                Svenskmand              CC-BY-SA 3.0
 
-Digging/
--> Digging*.ogg                        Svenskmand              CC-BY-SA 3.0
-
-RocksFalling/
--> RocksFalling*.ogg                   Svenskmand              CC-BY-SA 3.0
-
-RoomBuild/
--> bump.ogg                            remaxim                 CC-BY-SA 3.0, GPL 3.0   http://opengameart.org/content/falling-body
-
-Sword/
--> SwordBlock*.ogg                     Svenskmand              CC-BY-SA 3.0
+Rooms/
+-> default_build_room.ogg              remaxim                 CC-BY-SA 3.0, GPL 3.0   http://opengameart.org/content/falling-body
+-> default_build_trap.ogg              Svenskmand              CC-BY-SA 3.0

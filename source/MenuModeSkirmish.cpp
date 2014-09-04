@@ -51,7 +51,8 @@ void MenuModeSkirmish::activate()
     giveFocus();
 
     // Play the main menu music
-    MusicPlayer::getSingleton().start(0);
+    // TODO: Make this configurable.
+    MusicPlayer::getSingleton().play("Pal_Zoltan_Illes_OpenDungeons_maintheme.ogg");
 
     ODFrameListener::getSingleton().getClientGameMap()->setGamePaused(true);
 

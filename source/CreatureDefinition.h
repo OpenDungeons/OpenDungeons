@@ -59,9 +59,7 @@ public:
             double                  digRate     = 10.0,
             double                  danceRate   = 0.35,
             double                  hpPerLevel  = 5.0,
-            double                  manaPerLevel= 5.0,
             double                  maxHP       = 100.0,
-            double                  maxMana     = 100.0,
             double                  moveSpeed   = 1.0,
 
             Tile::TileClearType     tilePassability = Tile::walkableTile) :
@@ -76,9 +74,7 @@ public:
         mDigRate     (digRate),
         mDanceRate   (danceRate),
         mHpPerLevel  (hpPerLevel),
-        mManaPerLevel(manaPerLevel),
         mMaxHP       (maxHP),
-        mMaxMana     (maxMana),
         mMoveSpeed   (moveSpeed),
 
         mTilePassability         (tilePassability)
@@ -112,9 +108,7 @@ public:
     inline double               getDanceRate    () const    { return mDanceRate; }
     inline double               getDigRate      () const    { return mDigRate; }
     inline double               getHpPerLevel   () const    { return mHpPerLevel; }
-    inline double               getManaPerLevel () const    { return mManaPerLevel; }
     inline double               getMaxHp        () const    { return mMaxHP; }
-    inline double               getMaxMana      () const    { return mMaxMana; }
     inline const std::string&   getMeshName     () const    { return mMeshName; }
     inline double               getMoveSpeed    () const    { return mMoveSpeed; }
     inline const Ogre::Vector3& getScale        () const    { return mScale; }
@@ -158,14 +152,8 @@ private:
     //! \brief How much HP the creature gets per level up
     double mHpPerLevel;
 
-    //! \brief How much mana the creature gets per level up
-    double mManaPerLevel;
-
     //! \brief The maximum HP the creature can ever have
     double mMaxHP;
-
-    //! \brief The maximum mana the creature can ever have
-    double mMaxMana;
 
     //! \brief How fast the creature moves
     double mMoveSpeed;

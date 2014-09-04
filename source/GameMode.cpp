@@ -77,8 +77,7 @@ void GameMode::activate()
     giveFocus();
 
     // Play the game music.
-    // TODO: Actually, the game music should be part of the game data
-    MusicPlayer::getSingleton().start(1); // in game music
+    MusicPlayer::getSingleton().play(mGameMap->getLevelMusicFile()); // in game music
 
     if(mGameMap->getTurnNumber() != -1)
     {

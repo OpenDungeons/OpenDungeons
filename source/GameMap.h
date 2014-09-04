@@ -287,6 +287,30 @@ public:
     inline void setCreatureDefinitionFileName(const std::string& defFileName)
     { creatureDefinitionFilename = defFileName; }
 
+    inline const std::string& getLevelName() const
+    { return mMapInfoName; }
+
+    inline void setLevelName(const std::string& levelName)
+    { mMapInfoName = levelName; }
+
+    inline const std::string& getLevelDescription() const
+    { return mMapInfoDescription; }
+
+    inline void setLevelDescription(const std::string& levelDescription)
+    { mMapInfoDescription = levelDescription; }
+
+    inline const std::string& getLevelMusicFile() const
+    { return mMapInfoMusicFile; }
+
+    inline void setLevelMusicFile(const std::string& levelMusicFile)
+    { mMapInfoMusicFile = levelMusicFile; }
+
+    inline const std::string& getLevelFightMusicFile() const
+    { return mMapInfoFightMusicFile; }
+
+    inline void setLevelFightMusicFile(const std::string& levelFightMusicFile)
+    { mMapInfoFightMusicFile = levelFightMusicFile; }
+
     void createTilesMeshes(void);
     void hideAllTiles(void);
 
@@ -449,6 +473,12 @@ private:
     //! \brief Level related filenames.
     std::string levelFileName;
     std::string creatureDefinitionFilename;
+
+    //! \brief Map info
+    std::string mMapInfoName;
+    std::string mMapInfoDescription;
+    std::string mMapInfoMusicFile;
+    std::string mMapInfoFightMusicFile;
 
     //! \brief The creature definition data
     std::vector<boost::shared_ptr<CreatureDefinition> > classDescriptions;

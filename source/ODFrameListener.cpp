@@ -189,7 +189,7 @@ void ODFrameListener::exitApplication()
 
 void ODFrameListener::updateAnimations(Ogre::Real timeSinceLastFrame)
 {
-    MusicPlayer::getSingletonPtr()->update();
+    MusicPlayer::getSingleton().update(static_cast<float>(timeSinceLastFrame));
     RenderManager::getSingletonPtr()->processRenderRequests();
 
     mGameMap->updateAnimations(timeSinceLastFrame);

@@ -409,7 +409,7 @@ bool ODClient::processOneClientSocketMessage()
             if (tempTile != NULL)
             {
                 tempTile->claimTile(tmpTile.getColor());
-                SoundEffectsManager::getSingleton().playClaimedSound(tmpTile.getX(), tmpTile.getY());
+                SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::CLAIMED, tmpTile.getX(), tmpTile.getY());
             }
             break;
         }
