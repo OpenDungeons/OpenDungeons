@@ -50,8 +50,8 @@ class ODClient: public Ogre::Singleton<ODClient>,
      */
     void processClientNotifications();
 
-    //! \brief Connects to the server host:port after loading the map levelFilename
-    bool connect(const std::string& host, const int port, const std::string& levelFilename);
+    //! \brief Connects to the server host:port
+    bool connect(const std::string& host, const int port);
 
     //! \brief Adds a client notification to the client notification queue.
     void queueClientNotification(ClientNotification* n);

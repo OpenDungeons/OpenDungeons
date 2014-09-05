@@ -148,7 +148,7 @@ GameMap::~GameMap()
     delete mLocalPlayer;
 }
 
-bool GameMap::LoadLevel(const std::string& levelFilepath)
+bool GameMap::loadLevel(const std::string& levelFilepath)
 {
     // Read in the game map filepath
     std::string levelPath = ResourceManager::getSingletonPtr()->getResourcePath()

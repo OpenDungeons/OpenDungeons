@@ -72,7 +72,7 @@ public:
 
     //! \brief Load a level file (Part of the resource paths)
     //! \returns whether the file loaded correctly
-    bool LoadLevel(const std::string& levelFilepath);
+    bool loadLevel(const std::string& levelFilepath);
 
     //! \brief Setup the map memory to fit the given size.
     //! This methods also puts default (dirt) tiles on the new map.

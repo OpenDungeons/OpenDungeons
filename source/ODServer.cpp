@@ -65,7 +65,7 @@ bool ODServer::startServer(const std::string& levelFilename, bool replaceHumanPl
     // Read in the map. The map loading should be happen here and not in the server thread to
     // make sure it is valid before launching the server.
     GameMap* gameMap = mGameMap;
-    if (!gameMap->LoadLevel(levelFilename))
+    if (!gameMap->loadLevel(levelFilename))
         return false;
 
     // Fill seats with either player, AIs or nothing depending on the given faction.
@@ -439,22 +439,33 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         {
             if(std::string("connected").compare(clientSocket->getState()) != 0)
                 return false;
-            ODPacket packetSend;
             std::string version;
-            std::string levelFilename;
-            OD_ASSERT_TRUE(packetReceived >> version >> levelFilename);
+            OD_ASSERT_TRUE(packetReceived >> version);
 
-            // If the levelFilename is different, we refuse the client
-            if(levelFilename.compare(mLevelFilename) != 0)
+            // If the version is different, we refuse the client
+            if(version.compare(std::string("OpenDungeons V ") + ODApplication::VERSION) != 0)
             {
-                LogManager::getSingleton().logMessage("Server rejected client awaited map= "
-                    + mLevelFilename + ", received=" + levelFilename);
+                LogManager::getSingleton().logMessage("Server rejected client. Application version mismatch: required= "
+                    + ODApplication::VERSION + ", received=" + version);
                 return false;
             }
 
+            // Tell the client to load the given map
+            setClientState(clientSocket, "loadLevel");
+            ODPacket packetSend;
+            packetSend << ServerNotification::loadLevel << mLevelFilename;
+            sendMsgToClient(clientSocket, packetSend);
+            break;
+        }
+
+        case ClientNotification::levelOK:
+        {
+            if(std::string("loadLevel").compare(clientSocket->getState()) != 0)
+                return false;
+
             setClientState(clientSocket, "nick");
-            // Tell the client to give us their nickname and to clear their map
-            packetSend.clear();
+            // Tell the client to give us their nickname
+            ODPacket packetSend;
             packetSend << ServerNotification::pickNick;
             sendMsgToClient(clientSocket, packetSend);
             break;

@@ -53,7 +53,7 @@ EditorMode::EditorMode(ModeManager* modeManager):
 {
     // TODO: Permit loading any level.
     // Read in the default game map
-    mGameMap->LoadLevel("levels/Test.level");
+    mGameMap->loadLevel("levels/Test.level");
 
     // Set per default the input on the map
     mModeManager->getInputManager()->mMouseDownOnCEGUIWindow = false;

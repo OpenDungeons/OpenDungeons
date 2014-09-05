@@ -15,7 +15,7 @@
             <Property name="BackgroundEnabled" value="False" />
         </Window>
         <Window type="OD/MainMenuListbox" name="LevelSelect" >
-			<Property name="ForceVertScrollbar" value="True" />
+            <Property name="ForceVertScrollbar" value="True" />
             <Property name="Area" value="{{0.5,-383},{0,211},{0.5,383},{0,521}}" />
         </Window>
         <Window type="OD/MainMenuButton" name="BackButton" >
@@ -30,31 +30,31 @@
             <Property name="Area" value="{{0.7,-82},{0,554},{0.7,82},{0,644}}" />
             <Property name="Text" value="Client" />
         </Window>
-		<Window type="OD/StaticText" name="IpText" >
-			<Property name="Area" value="{{0.6,-40},{0,674},{0.6,0},{0,714}}" />
-			<Property name="Text" value="IP" />
-			<Property name="BackgroundEnabled" value="False" />
-			<Property name="FrameEnabled" value="False" />
-		</Window>
+        <Window type="OD/StaticText" name="IpText" >
+            <Property name="Area" value="{{0.6,-40},{0,674},{0.6,0},{0,714}}" />
+            <Property name="Text" value="IP" />
+            <Property name="BackgroundEnabled" value="False" />
+            <Property name="FrameEnabled" value="False" />
+        </Window>
         <Window type="OD/MainMenuEditbox" name="IpEdit" >
             <Property name="Area" value="{{0.6,0},{0,674},{0.6,164},{0,714}}" />
             <Property name="Text" value="" />
         </Window>
-		<Window type="OD/StaticText" name="NickText" >
-			<Property name="Area" value="{{0.3,-80},{0,674},{0.3,0},{0,714}}" />
-			<Property name="Text" value="Nickname" />
-			<Property name="BackgroundEnabled" value="False" />
-			<Property name="FrameEnabled" value="False" />
-		</Window>
+        <Window type="OD/StaticText" name="NickText" >
+            <Property name="Area" value="{{0.3,-80},{0,674},{0.3,0},{0,714}}" />
+            <Property name="Text" value="Nickname" />
+            <Property name="BackgroundEnabled" value="False" />
+            <Property name="FrameEnabled" value="False" />
+        </Window>
         <Window type="OD/MainMenuEditbox" name="NickEdit" >
             <Property name="Area" value="{{0.3,0},{0,674},{0.3,164},{0,714}}" />
             <Property name="Text" value="" />
         </Window>
-		<Window type="OD/StaticText" name="LoadingText" >
-			<Property name="Area" value="{{0.5,-80},{0,530},{0.5,80},{0,550}}" />
-			<Property name="Text" value="Loading..." />
-			<Property name="BackgroundEnabled" value="False" />
-			<Property name="FrameEnabled" value="False" />
-		</Window>
+        <Window type="OD/StaticText" name="LoadingText" >
+            <Property name="Area" value="{{0.5,-200},{0,530},{0.5,200},{0,550}}" />
+            <Property name="Text" value="Loading..." />
+            <Property name="BackgroundEnabled" value="False" />
+            <Property name="FrameEnabled" value="False" />
+        </Window>
     </Window>
 </GUILayout>
