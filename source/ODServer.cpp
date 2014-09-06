@@ -66,7 +66,10 @@ bool ODServer::startServer(const std::string& levelFilename, bool replaceHumanPl
     // make sure it is valid before launching the server.
     GameMap* gameMap = mGameMap;
     if (!gameMap->loadLevel(levelFilename))
+    {
+        logManager.logMessage("Couldn't start server. The level file can't be loaded: " + levelFilename);
         return false;
+    }
 
     // Fill seats with either player, AIs or nothing depending on the given faction.
     uint32_t i = 0;

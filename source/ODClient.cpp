@@ -99,6 +99,7 @@ bool ODClient::processOneClientSocketMessage()
             if (!gameMap->loadLevel(levelFilename))
             {
                 // We disconnect as we don't have the map.
+                logManager.logMessage("Disconnection. The level file can't be loaded: " + levelFilename);
                 disconnect();
                 return false;
             }
@@ -131,6 +132,7 @@ bool ODClient::processOneClientSocketMessage()
             // If no player seat, the game cannot be launched
             if (nbPlayerSeat == 0)
             {
+                logManager.logMessage("Disconnection. There is no available player seat in level: " + levelFilename);
                 disconnect();
                 return false;
             }

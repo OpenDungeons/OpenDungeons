@@ -151,7 +151,6 @@ void MenuModeMultiplayer::clientButtonPressed()
         tmpWin->show();
         return;
     }
-    // TODO: Better check the ip validity
 
     tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_EDIT_NICK);
     CEGUI::Editbox* editNick = static_cast<CEGUI::Editbox*>(tmpWin);
