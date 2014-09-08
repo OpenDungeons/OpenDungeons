@@ -82,72 +82,111 @@ void MenuModeMultiplayer::serverButtonPressed()
     CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_LIST_LEVELS);
     CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);
 
-    if(levelSelectList->getSelectedCount() > 0)
+    if(levelSelectList->getSelectedCount() == 0)
     {
         tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_TEXT_LOADING);
-        tmpWin->setText("Loading");
+        tmpWin->setText("Please select a level first.");
         tmpWin->show();
+        return;
+    }
 
-        tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_EDIT_NICK);
-        CEGUI::Editbox* editNick = static_cast<CEGUI::Editbox*>(tmpWin);
-        const std::string& str = editNick->getText().c_str();
-        std::string nick = boost::locale::conv::to_utf<char>(str, "Ascii");
-        Player *p = ODFrameListener::getSingleton().getClientGameMap()->getLocalPlayer();
-        p->setNick(nick);
+    tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_EDIT_NICK);
+    CEGUI::Editbox* editNick = static_cast<CEGUI::Editbox*>(tmpWin);
+    const std::string& str = editNick->getText().c_str();
+    // Remove potential characters leading to crash.
+    std::string nick = boost::locale::conv::to_utf<char>(str, "Ascii");
+    if (nick.empty())
+    {
+        tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_TEXT_LOADING);
+        tmpWin->setText("Please enter a nickname.");
+        tmpWin->show();
+        return;
+    }
+    else if (nick.length() > 20)
+    {
+        tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_TEXT_LOADING);
+        tmpWin->setText("Please enter a shorter nickname. (20 letters max.)");
+        tmpWin->show();
+        return;
+    }
 
-        CEGUI::ListboxItem*	selItem = levelSelectList->getFirstSelectedItem();
-        int id = selItem->getID();
+    Player* p = ODFrameListener::getSingleton().getClientGameMap()->getLocalPlayer();
+    p->setNick(nick);
 
-        // We are a server
-        std::string level = LEVEL_PATH + mListFiles[id] + LEVEL_EXTENSION;
-        ODServer::getSingleton().startServer(level, false);
+    tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_TEXT_LOADING);
+    tmpWin->setText("Loading...");
+    tmpWin->show();
 
-        // We connect ourself
-        if(ODClient::getSingleton().connect("", ODApplication::PORT_NUMBER, level))
-        {
-            mModeManager->requestGameMode(true);
-        }
-        else
-        {
-            LogManager::getSingleton().logMessage("ERROR: Could not connect to server for single player game !!!");
-        }
+    CEGUI::ListboxItem* selItem = levelSelectList->getFirstSelectedItem();
+    int id = selItem->getID();
+
+    // We are a server
+    std::string level = LEVEL_PATH + mListFiles[id] + LEVEL_EXTENSION;
+    ODServer::getSingleton().startServer(level, false);
+
+    // We connect ourself
+    if(ODClient::getSingleton().connect("", ODApplication::PORT_NUMBER))
+    {
+        mModeManager->requestGameMode(true);
+    }
+    else
+    {
+        LogManager::getSingleton().logMessage("ERROR: Could not connect to server for single player game !!!");
+        tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_TEXT_LOADING);
+        tmpWin->setText("Error: Couldn't connect to local server!");
+        tmpWin->show();
     }
 }
 
 void MenuModeMultiplayer::clientButtonPressed()
 {
-    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_LIST_LEVELS);
-    CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);
+    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_EDIT_IP);
+    CEGUI::Editbox* editIp = static_cast<CEGUI::Editbox*>(tmpWin);
+    const std::string ip = editIp->getText().c_str();
 
-    if(levelSelectList->getSelectedCount() > 0)
+    if (ip.empty())
     {
         tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_TEXT_LOADING);
-        tmpWin->setText("Loading");
+        tmpWin->setText("Please enter a server IP.");
         tmpWin->show();
+        return;
+    }
 
-        tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_EDIT_IP);
-        CEGUI::Editbox* editIp = static_cast<CEGUI::Editbox*>(tmpWin);
-        const std::string ip = editIp->getText().c_str();
+    tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_EDIT_NICK);
+    CEGUI::Editbox* editNick = static_cast<CEGUI::Editbox*>(tmpWin);
+    std::string str = editNick->getText().c_str();
+    // Remove potential characters leading to crash.
+    std::string nick = boost::locale::conv::to_utf<char>(str, "Ascii");
+    if (nick.empty())
+    {
+        tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_TEXT_LOADING);
+        tmpWin->setText("Please enter a nickname.");
+        tmpWin->show();
+        return;
+    }
+    else if (nick.length() > 20)
+    {
+        tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_TEXT_LOADING);
+        tmpWin->setText("Please enter a shorter nickname. (20 letters max.)");
+        tmpWin->show();
+        return;
+    }
 
-        tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_EDIT_NICK);
-        CEGUI::Editbox* editNick = static_cast<CEGUI::Editbox*>(tmpWin);
-        const std::string nick = editNick->getText().c_str();
-        ODFrameListener::getSingleton().getClientGameMap()->getLocalPlayer()->setNick(nick);
+    tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_TEXT_LOADING);
+    tmpWin->setText("Loading...");
+    tmpWin->show();
 
-        CEGUI::ListboxItem*	selItem = levelSelectList->getFirstSelectedItem();
-        int id = selItem->getID();
+    ODFrameListener::getSingleton().getClientGameMap()->getLocalPlayer()->setNick(nick);
 
-        std::string level = LEVEL_PATH + mListFiles[id] + LEVEL_EXTENSION;
-        if(ODClient::getSingleton().connect(ip, ODApplication::PORT_NUMBER, level))
-        {
-            mModeManager->requestGameMode();
-        }
-        else
-        {
-            // Error while connecting
-            tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_TEXT_LOADING);
-            tmpWin->setText("Could not connect to " + ip);
-        }
+    if(ODClient::getSingleton().connect(ip, ODApplication::PORT_NUMBER))
+    {
+        mModeManager->requestGameMode();
+    }
+    else
+    {
+        // Error while connecting
+        tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_TEXT_LOADING);
+        tmpWin->setText("Could not connect to: " + ip);
     }
 }
 
@@ -173,7 +212,8 @@ bool MenuModeMultiplayer::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseBu
         Gui::getSingletonPtr()->convertButton(id));
 }
 
-bool MenuModeMultiplayer::keyPressed(const OIS::KeyEvent &arg) {
+bool MenuModeMultiplayer::keyPressed(const OIS::KeyEvent &arg)
+{
     switch (arg.key)
     {
 

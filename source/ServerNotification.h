@@ -39,6 +39,7 @@ class ServerNotification
         enum ServerNotificationType
         {
             // Negociation for multiplayer
+            loadLevel, // Tells the client to load the level: + string LevelFilename
             pickNick,
             yourSeat,
             addPlayer,

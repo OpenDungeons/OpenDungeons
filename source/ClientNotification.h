@@ -34,6 +34,7 @@ public:
     {
         // Communication with server
         hello,
+        levelOK, // Tells the server the level loading was ok.
         setNick,
 
         chat,

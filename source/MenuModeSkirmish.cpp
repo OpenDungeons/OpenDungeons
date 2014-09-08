@@ -81,26 +81,35 @@ void MenuModeSkirmish::launchSelectedButtonPressed()
     CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_LIST_LEVELS);
     CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);
 
-    if(levelSelectList->getSelectedCount() > 0)
+    if(levelSelectList->getSelectedCount() == 0)
     {
         tmpWin = Gui::getSingleton().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);
+        tmpWin->setText("Please select a level first.");
         tmpWin->show();
+        return;
+    }
 
-        CEGUI::ListboxItem*	selItem = levelSelectList->getFirstSelectedItem();
-        int id = selItem->getID();
+    tmpWin = Gui::getSingleton().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);
+    tmpWin->setText("Loading...");
+    tmpWin->show();
 
-        std::string level = LEVEL_PATH + mListFiles[id] + LEVEL_EXTENSION;
-        // In single player mode, we act as a server
-        ODServer::getSingleton().startServer(level, true);
+    CEGUI::ListboxItem* selItem = levelSelectList->getFirstSelectedItem();
+    int id = selItem->getID();
 
-        if(ODClient::getSingleton().connect("", ODApplication::PORT_NUMBER, level))
-        {
-            mModeManager->requestGameMode(true);
-        }
-        else
-        {
-            LogManager::getSingleton().logMessage("ERROR: Could not connect to server for single player game !!!");
-        }
+    std::string level = LEVEL_PATH + mListFiles[id] + LEVEL_EXTENSION;
+    // In single player mode, we act as a server
+    ODServer::getSingleton().startServer(level, true);
+
+    if(ODClient::getSingleton().connect("", ODApplication::PORT_NUMBER))
+    {
+        mModeManager->requestGameMode(true);
+    }
+    else
+    {
+        LogManager::getSingleton().logMessage("ERROR: Could not connect to server for single player game !!!");
+        tmpWin = Gui::getSingleton().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);
+        tmpWin->setText("Error: Couldn't connect to local server!");
+        tmpWin->show();
     }
 }
 

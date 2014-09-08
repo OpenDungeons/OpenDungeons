@@ -68,7 +68,7 @@ bool ODClient::processOneClientSocketMessage()
         return false;
 
     // Get a reference to the LogManager
-    LogManager& logMgr = LogManager::getSingleton();
+    LogManager& logManager = LogManager::getSingleton();
 
     ODPacket packetReceived;
 
@@ -89,6 +89,62 @@ bool ODClient::processOneClientSocketMessage()
 
     switch(serverCommand)
     {
+        case ServerNotification::loadLevel:
+        {
+            std::string levelFilename;
+            OD_ASSERT_TRUE(packetReceived >> levelFilename);
+            // Read in the map. The map loading should be happen here and not in the server thread to
+            // make sure it is valid before launching the server.
+            RenderManager::getSingletonPtr()->processRenderRequests();
+            if (!gameMap->loadLevel(levelFilename))
+            {
+                // We disconnect as we don't have the map.
+                logManager.logMessage("Disconnection. The level file can't be loaded: " + levelFilename);
+                disconnect();
+                return false;
+            }
+
+            // We set local player
+            setPlayer(gameMap->getLocalPlayer());
+
+            // Fill seats with either player, AIs or nothing depending on the given faction.
+            uint32_t i = 0;
+            uint32_t nbAiSeat = 0;
+            uint32_t nbPlayerSeat = 0;
+            while (i < gameMap->numEmptySeats())
+            {
+                Seat* seat = gameMap->getEmptySeat(i);
+
+                if (seat->mFaction == "Player")
+                {
+                    ++nbPlayerSeat;
+                }
+                else if (seat->mFaction == "KeeperAI")
+                {
+                    ++nbAiSeat;
+                }
+                ++i;
+            }
+
+            logManager.logMessage("Map has: " + Ogre::StringConverter::toString(nbPlayerSeat) + " Human players");
+            logManager.logMessage("Map has: " + Ogre::StringConverter::toString(nbAiSeat) + " AI players");
+
+            // If no player seat, the game cannot be launched
+            if (nbPlayerSeat == 0)
+            {
+                logManager.logMessage("Disconnection. There is no available player seat in level: " + levelFilename);
+                disconnect();
+                return false;
+            }
+
+            mLevelFilename = levelFilename;
+
+            ODPacket packSend;
+            packSend << ClientNotification::levelOK;
+            send(packSend);
+            break;
+        }
+
         case ServerNotification::pickNick:
         {
             ODPacket packSend;
@@ -232,7 +288,7 @@ bool ODClient::processOneClientSocketMessage()
         {
             int64_t turnNum;
             OD_ASSERT_TRUE(packetReceived >> turnNum);
-            logMgr.logMessage("Client received turnStarted="
+            logManager.logMessage("Client received turnStarted="
                 + Ogre::StringConverter::toString((int32_t)turnNum));
             gameMap->setTurnNumber(turnNum);
 
@@ -357,7 +413,7 @@ bool ODClient::processOneClientSocketMessage()
             }
             else
             {
-                logMgr.logMessage("ERROR: Server told us to change animations for a nonexistent object="
+                logManager.logMessage("ERROR: Server told us to change animations for a nonexistent object="
                     + objName);
             }
             break;
@@ -620,7 +676,7 @@ bool ODClient::processOneClientSocketMessage()
 
         default:
         {
-            logMgr.logMessage("ERROR:  Unknown server command:"
+            logManager.logMessage("ERROR:  Unknown server command:"
                 + Ogre::StringConverter::toString(serverCommand));
             break;
         }
@@ -703,10 +759,8 @@ void ODClient::sendToServer(ODPacket& packetToSend)
     send(packetToSend);
 }
 
-bool ODClient::connect(const std::string& host, const int port, const std::string& levelFilename)
+bool ODClient::connect(const std::string& host, const int port)
 {
-    mLevelFilename = levelFilename;
-
     LogManager& logManager = LogManager::getSingleton();
     // Start the server socket listener as well as the server socket thread
     if (ODClient::getSingleton().isConnected())
@@ -720,48 +774,13 @@ bool ODClient::connect(const std::string& host, const int port, const std::strin
     if (gameMap == NULL)
         return false;
 
-    // We set local player
-    setPlayer(gameMap->getLocalPlayer());
-
-    // Read in the map. The map loading should be happen here and not in the server thread to
-    // make sure it is valid before launching the server.
-    RenderManager::getSingletonPtr()->processRenderRequests();
-    if (!gameMap->LoadLevel(levelFilename))
-        return false;
-
-    // Fill seats with either player, AIs or nothing depending on the given faction.
-    uint32_t i = 0;
-    uint32_t nbAiSeat = 0;
-    uint32_t nbPlayerSeat = 0;
-    while (i < gameMap->numEmptySeats())
-    {
-        Seat* seat = gameMap->getEmptySeat(i);
-
-        if (seat->mFaction == "Player")
-        {
-            ++nbPlayerSeat;
-        }
-        else if (seat->mFaction == "KeeperAI")
-        {
-            ++nbAiSeat;
-        }
-        ++i;
-    }
-
-    logManager.logMessage("Map has: " + Ogre::StringConverter::toString(nbPlayerSeat) + " Human players");
-    logManager.logMessage("Map has: " + Ogre::StringConverter::toString(nbAiSeat) + " AI players");
-
-    // If no player seat, the game cannot be launched
-    if (nbPlayerSeat == 0)
-        return false;
-
     if(!ODSocketClient::connect(host, port))
         return false;
 
     // Send a hello request to start the conversation with the server
     ODPacket packSend;
     packSend << ClientNotification::hello
-        << std::string("OpenDungeons V ") + ODApplication::VERSION << mLevelFilename;
+        << std::string("OpenDungeons V ") + ODApplication::VERSION;
     sendToServer(packSend);
 
     return true;
