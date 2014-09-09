@@ -1,7 +1,7 @@
 OpenDungeons_Version:0.4.9  # The version of OpenDungeons which created this file (for compatibility reasons).
 
 [Info]
-Name	Test Map (Skirmish)
+Name	Test Map Small (Skirmish)
 Description	A test map for the skirmish mode...
 Music	yd_Searching_ingame.ogg
 FightMusic	yd_Searching_ingame.ogg

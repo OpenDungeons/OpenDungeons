@@ -237,10 +237,11 @@ bool RoomTrainingHall::doUpkeep()
             }
             else
             {
-                creature->faceToward(tileDummy->x, tileDummy->y);
-                creature->setAnimationState("Attack1", true, false);
+                Ogre::Vector3 walkDirection(ro->getPosition().x - creature->getPosition().x, ro->getPosition().y - creature->getPosition().y, 0);
+                walkDirection.normalise();
+                creature->setAnimationState("Attack1", false, &walkDirection);
 
-                ro->setAnimationState("Triggered", false, false);
+                ro->setAnimationState("Triggered", false);
                 creature->recieveExp(5.0);
                 creature->jobDone(5.0);
                 creature->setJobCooldown(Random::Uint(3, 8));

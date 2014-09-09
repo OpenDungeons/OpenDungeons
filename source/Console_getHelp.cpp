@@ -142,6 +142,16 @@ string Console::getHelpText(std::string arg)
         return "addgold adds the given amount of gold to one player. It takes as arguments the color of the player to whom the gold should be given and the amount. If the player's treasuries are full, no more gold is given. Note that this command is available in server mode only. Example to give 5000 gold to player color 1 : addgold 1 5000";
     }
 
+    else if (arg.compare("logfloodfill") == 0)
+    {
+        return "logfloodfill Logs the FloodFillValues of all the Tiles in the GameMap";
+    }
+
+    else if (arg.compare("setdest") == 0)
+    {
+        return "setdest Sets the creature destination. The path will be computed if reachable. It takes as arguments the creature name, then the tile coordinales. Example : setdest Wizard1 10 10";
+    }
+
     else if (arg.compare("list") == 0 || arg.compare("ls") == 0)
     {
         return "List (or \"ls\" for short is a utility which lists various types of information about the current game.  Running list without an argument will produce a list of the lists available.  Running list with an argument displays the contents of that list.\n\nExample:\n"

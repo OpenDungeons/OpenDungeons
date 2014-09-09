@@ -255,9 +255,10 @@ void ODServer::startNewTurn(double timeSinceLastFrame)
 void ODServer::serverThread()
 {
     GameMap* gameMap = mGameMap;
+    sf::Clock clock;
+    double turnLengthMs = 1000.0 / ODApplication::turnsPerSecond;
     while(isConnected())
     {
-        double turnLengthMs = 1000.0 / ODApplication::turnsPerSecond;
         // doTask sould return after the length of 1 turn even if their are communications. When
         // it returns, we can launch next turn.
         doTask(static_cast<int32_t>(turnLengthMs));
@@ -304,7 +305,12 @@ void ODServer::serverThread()
         // After starting a new turn, we should process server notifications
         // before processing client messages. Otherwise, we could have weird issues
         // like allow picking up a dead creature for example.
-        startNewTurn(turnLengthMs / 1000.0);
+        // We make sure the server time is a little bit late regarding the clients to
+        // make sure server is not more advanced than clients. We do that because it is better for clients
+        // to wait for server. If server is in advance, he might send commands before the
+        // creatures arrive at their destination. That could result in weird issues like
+        // creatures goinf through walls.
+        startNewTurn(static_cast<double>(clock.restart().asSeconds()) * 0.95);
 
         processServerNotifications();
 

@@ -21,6 +21,7 @@ host
 list
 load
 loadGameMapFromTgaFile
+logfloodfill
 ls
 maxmessages
 maxtime
@@ -40,6 +41,7 @@ saveGameMapToTgaFile
 setcamerafovx
 setcamerafovy
 setcolor
+setdest
 startcreatureculling
 starttileculling
 switchpolygonmode

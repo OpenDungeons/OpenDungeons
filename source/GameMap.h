@@ -174,7 +174,8 @@ public:
     unsigned int numRoomsByTypeAndColor(Room::RoomType type,
                       int color) const;
     std::vector<Room*> getReachableRooms(const std::vector<Room*> &vec,
-                       Tile *startTile, Tile::TileClearType passability);
+                       Tile *startTile, const CreatureDefinition* creatureDef,
+                       int color);
     Room* getRoomByName(const std::string& name);
 
     //! \brief Traps related functions.
@@ -322,26 +323,24 @@ public:
 
     void doPlayerAITurn(double frameTime);
 
-    //! \brief Tells whether a path exists between two corrdinate points with the given passability.
-    bool pathExists(int x1, int y1, int x2, int y2, Tile::TileClearType passability, int color = 0);
+    //! \brief Tells whether a path exists between two corrdinate points for the given creature.
+    bool pathExists(int x1, int y1, int x2, int y2, const CreatureDefinition* creatureDef, int color);
 
     /*! \brief Calculates the walkable path between tiles (x1, y1) and (x2, y2).
      *
      * The search is carried out using the A-star search algorithm.
      * The path returned contains both the starting and ending tiles, and consists
-     * entirely of tiles which satify the 'passability' criterion specified in the
-     * search.  The returned tiles are also a "manhattan path" meaning that every
-     * successive tile is one of the 4 nearest neighbors of the previous tile in
-     * the path.  In most cases you will want to call GameMap::cutCorners on the
-     * returned path to shorten the number of steps on the path, as well as the
-     * actual walking distance along the path.
+     * entirely of tiles which satify the passability criterion specified by the creature
+     * definition.  A "manhattan path" is used what means that successive tile is one of
+     * the 4 nearest neighbors of the previous tile in the path.
+     * When building the path, we check if a diagonal can be used. We consider it can
+     * if the creature can go through the 4 tiles.
      * \param color The color param is used when searching a diggable path to know
      * what tile actually diggable for the given team color.
      */
-    std::list<Tile*> path(int x1, int y1, int x2, int y2,
-                          Tile::TileClearType passability, int color = 0);
-    std::list<Tile*> path(Creature *c1, Creature *c2, Tile::TileClearType passability, int color = 0);
-    std::list<Tile*> path(Tile *t1, Tile *t2, Tile::TileClearType passability, int color = 0);
+    std::list<Tile*> path(int x1, int y1, int x2, int y2, const CreatureDefinition* creatureDef, int color, bool throughDiggableTiles = false);
+    std::list<Tile*> path(Creature *c1, Creature *c2, const CreatureDefinition* creatureDef, int color, bool throughDiggableTiles = false);
+    std::list<Tile*> path(Tile *t1, Tile *t2, const CreatureDefinition* creatureDef, int color, bool throughDiggableTiles = false);
 
     /*! \brief Returns a list of valid tiles along a straight line from (x1, y1) to (x2, y2), NOTE: in spite of
      * the name, you do not need to be able to see through the tiles returned by this method.
@@ -358,12 +357,6 @@ public:
     //! \brief Loops over the visibleTiles and returns any creatures in those tiles whose color matches (or if invert is true, does not match) the given color parameter.
     std::vector<GameEntity*> getVisibleForce(std::vector<Tile*> visibleTiles, int color, bool invert);
 
-    //! \brief Determines whether or not you can travel along a path.
-    bool pathIsClear(std::list<Tile*> path, Tile::TileClearType passability);
-
-    //! \brief Loops over a path an replaces 'manhattan' paths with 'as the crow flies' paths.
-    void cutCorners(std::list<Tile*> &path, Tile::TileClearType passability);
-
     /** \brief Returns the as the crow flies distance between tiles located at the two coordinates given.
      * If tiles do not exist at these locations the function returns -1.0.
      */
@@ -371,12 +364,11 @@ public:
     Ogre::Real crowDistance(Tile *t1, Tile *t2);
     Ogre::Real crowDistance(Creature *c1, Creature *c2);
 
-    //! \brief Starts at the tile at the given coordinates and paints outward over all the tiles
-    //! whose passability matches the passability of the seed tile.
-    //! TODO: What is this used for?
-    unsigned int doFloodFill(int startX, int startY,
-                             Tile::TileClearType passability = Tile::walkableTile,
-                             int color = -1);
+    //! \brief Checks the neighboor tiles to see if the floodfill can be used. Floodfill consists on tagging all contiguous tiles
+    //! to be able to know before computing it if a path exists between 2 tiles. We do that to avoid computing paths when we
+    //! already know that no path exists.
+    bool doFloodFill(Tile* tile);
+    void refreshFloodFill(Tile* tile);
 
     //! \brief Temporarily disables the flood fill computations on this game map.
     void disableFloodFill()
@@ -439,6 +431,9 @@ public:
 
     int addGoldToSeat(int gold, int color);
 
+    void logFloodFileTiles();
+    void consoleSetCreatureDestination(const std::string& creatureName, int x, int y);
+
     int nextUniqueNumberFloodFilling();
 
     //! \brief This functions create unique names. They check that there
@@ -451,6 +446,7 @@ public:
     std::string nextUniqueNameMapLight();
 
 private:
+    void replaceFloodFill(Tile::FloodFillType floodFillType, int colorOld, int colorNew);
     bool mIsServerGameMap;
     //! \brief the Local player reference.
     Player* mLocalPlayer;
@@ -531,9 +527,6 @@ private:
     // GameMap (which will not be hard since they are called within the same thread context - a call to processDeletionQueues
     // after processing rendering messages will be enough)
     void processDeletionQueues();
-
-    //! \brief Tells whether a path is existing between the two coordinate points.
-    bool walkablePathExists(int x1, int y1, int x2, int y2);
 
     //! \brief Updates different entities states.
     //! Updates goals, count each team Workers, gold, mana and claimed tiles.
