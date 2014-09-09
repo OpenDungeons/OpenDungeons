@@ -583,7 +583,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             Player *player = clientSocket->getPlayer();
             Creature *creature = gameMap->getCreature(creatureName);
             OD_ASSERT_TRUE_MSG(creature != NULL, "name=" + creatureName);
-            if (creature != NULL)
+            if ((creature != NULL) && (creature->getIsOnMap()))
             {
                 int color = creature->getColor();
                 if(color == player->getSeat()->getColor())
