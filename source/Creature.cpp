@@ -1490,7 +1490,7 @@ bool Creature::handleDigTileAction()
             recieveExp(1.5 * mDefinition->getDigRate() / 20.0);
 
             // If the tile has been dug out, move into that tile and try to continue digging.
-            if (tempTile->getFullness() < 1)
+            if (tempTile->getFullness() == 0.0)
             {
                 recieveExp(2.5);
                 setAnimationState("Walk");

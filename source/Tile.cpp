@@ -96,10 +96,9 @@ void Tile::setFullness(double f)
     fullness = f;
 
     // If the tile was marked for digging and has been dug out, unmark it and set its fullness to 0.
-    if (fullness < 1 && isMarkedForDiggingByAnySeat() == true)
+    if (fullness == 0.0 && isMarkedForDiggingByAnySeat())
     {
         setMarkedForDiggingForAllSeats(false);
-        fullness = 0.0;
     }
 
     if ((oldFullness > 0.0) && (fullness == 0.0))
@@ -114,13 +113,13 @@ void Tile::setFullness(double f)
     //
     bool fillStatus[9];
     Tile *tempTile = getGameMap()->getTile(x, y + 1);
-    fillStatus[0] = (tempTile != NULL) ? tempTile->getFullness() > 0.1 : false;
+    fillStatus[0] = (tempTile != NULL) ? tempTile->getFullness() > 0.0 : false;
     tempTile = getGameMap()->getTile(x, y - 1);
-    fillStatus[1] = (tempTile != NULL) ? tempTile->getFullness() > 0.1 : false;
+    fillStatus[1] = (tempTile != NULL) ? tempTile->getFullness() > 0.0 : false;
     tempTile = getGameMap()->getTile(x - 1, y);
-    fillStatus[2] = (tempTile != NULL) ? tempTile->getFullness() > 0.1 : false;
+    fillStatus[2] = (tempTile != NULL) ? tempTile->getFullness() > 0.0 : false;
     tempTile = getGameMap()->getTile(x + 1, y);
-    fillStatus[3] = (tempTile != NULL) ? tempTile->getFullness() > 0.1 : false;
+    fillStatus[3] = (tempTile != NULL) ? tempTile->getFullness() > 0.0 : false;
 
     int fullNeighbors = 0;
     if (fillStatus[0])
@@ -389,7 +388,7 @@ bool Tile::permitsVision() const
 
 bool Tile::isBuildableUpon() const
 {
-    if(type != claimed || getFullness() > 0.01 || coveringTrap == true)
+    if(type != claimed || getFullness() > 0.0 || coveringTrap == true)
         return false;
 
     return (coveringRoom == NULL);
@@ -430,7 +429,7 @@ void Tile::setCoveringRoom(Room *r)
 
 bool Tile::isDiggable(int team_color_id) const
 {
-    if (getFullness() < 1)
+    if (getFullness() == 0.0)
         return false;
 
     // Return true for common types.
@@ -459,12 +458,12 @@ bool Tile::isDiggable(int team_color_id) const
 
 bool Tile::isGroundClaimable() const
 {
-    return ((type == dirt || type == gold || type == claimed) && getFullness() < 1);
+    return ((type == dirt || type == gold || type == claimed) && getFullness() == 0.0);
 }
 
 bool Tile::isWallClaimable(int team_color_id)
 {
-    if (getFullness() < 1)
+    if (getFullness() == 0.0)
         return false;
 
     if (type == lava || type == water || type == rock || type == gold)
@@ -475,7 +474,7 @@ bool Tile::isWallClaimable(int team_color_id)
     bool foundClaimedGroundTile = false;
     for (unsigned int j = 0; j < neighbors.size(); ++j)
     {
-        if (neighbors[j]->getFullness() > 1)
+        if (neighbors[j]->getFullness() > 0.0)
             continue;
 
         if (neighbors[j]->getType() == claimed
@@ -511,7 +510,7 @@ bool Tile::isWallClaimable(int team_color_id)
     int enemy_color_id = getColor(); // NOTE: != team_color_id here.
     for (unsigned int j = 0; j < neighbors.size(); ++j)
     {
-        if (neighbors[j]->getFullness() > 1)
+        if (neighbors[j]->getFullness() > 0.0)
             continue;
 
         if (neighbors[j]->getType() == claimed
@@ -531,7 +530,7 @@ bool Tile::isWallClaimable(int team_color_id)
 
 bool Tile::isWallClaimedForColor(int team_color_id)
 {
-    if (getFullness() < 1)
+    if (getFullness() == 0.0)
         return false;
 
     if (type != claimed)
@@ -1036,7 +1035,7 @@ double Tile::digOut(double digRate, bool doScaleDigRate)
 
     double amountDug = 0.0;
 
-    if (getFullness() < 1 || type == lava || type == water || type == rock)
+    if (getFullness() == 0.0 || type == lava || type == water || type == rock)
         return 0.0;
 
     if (digRate >= fullness)
@@ -1077,24 +1076,6 @@ double Tile::digOut(double digRate, bool doScaleDigRate)
     {
         amountDug = digRate;
         setFullness(fullness - digRate);
-    }
-
-    if (amountDug > 0.0 && amountDug < digRate)
-    {
-        double amountToDig = digRate - amountDug;
-        if (amountToDig < 0.05)
-            return amountDug;
-
-        amountToDig /= (double) neighbors.size();
-        for (unsigned int j = 0; j < neighbors.size(); ++j)
-        {
-            if (neighbors[j]->getType() == dirt)
-            {
-                Tile* tempTile = neighbors[j];
-                // Release and relock the semaphore since the digOut() routine will eventually need to lock it.
-                amountDug += tempTile->digOut(amountToDig);
-            }
-        }
     }
 
     return amountDug;
