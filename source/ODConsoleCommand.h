@@ -46,4 +46,39 @@ private:
     int mColor;
 };
 
+class ODConsoleCommandLogFloodFill : public ODConsoleCommand
+{
+public:
+    ODConsoleCommandLogFloodFill()
+    {
+    }
+
+protected:
+    virtual void execute(GameMap* gameMap)
+    {
+        gameMap->logFloodFileTiles();
+    }
+};
+
+class ODConsoleCommandSetCreatureDestination : public ODConsoleCommand
+{
+public:
+    ODConsoleCommandSetCreatureDestination(const std::string& creatureName, int x, int y):
+        mCreatureName(creatureName),
+        mX(x),
+        mY(y)
+    {
+    }
+
+protected:
+    virtual void execute(GameMap* gameMap)
+    {
+        gameMap->consoleSetCreatureDestination(mCreatureName, mX, mY);
+    }
+private:
+    std::string mCreatureName;
+    int mX;
+    int mY;
+};
+
 #endif // ODCONSOLECOMMAND_H

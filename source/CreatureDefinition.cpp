@@ -121,8 +121,7 @@ std::ostream& operator<<(std::ostream& os, CreatureDefinition* c)
     os << c->mHpPerLevel << "\t";
     os << c->mMaxHP << "\t";
     os << c->mSightRadius << "\t" << c->mDigRate << "\t" << c->mDanceRate << "\t"
-       << c->mMoveSpeed << "\t";
-    os << Tile::tilePassabilityToString(c->mTilePassability);
+       << c->mMoveSpeedGround << "\t" << c->mMoveSpeedWater << "\t" << c->mMoveSpeedLava;
     return os;
 }
 
@@ -135,9 +134,8 @@ std::istream& operator>>(std::istream& is, CreatureDefinition* c)
     is >> c->mBedMeshName >> c->mBedDim1 >> c->mBedDim2;
     is >> c->mScale.x >> c->mScale.y >> c->mScale.z;
     is >> c->mHpPerLevel >> c->mMaxHP;
-    is >> c->mSightRadius >> c->mDigRate >> c->mDanceRate >> c->mMoveSpeed;
-    is >> tempString;
-    c->mTilePassability = Tile::tilePassabilityFromString(tempString);
+    is >> c->mSightRadius >> c->mDigRate >> c->mDanceRate;
+    is >> c->mMoveSpeedGround >> c->mMoveSpeedWater >> c->mMoveSpeedLava;
 
     return is;
 }
@@ -146,7 +144,6 @@ ODPacket& operator<<(ODPacket& os, CreatureDefinition* c)
 {
     //TODO: Need to include maxHP/maxMana in the file format.
     std::string creatureJob = CreatureDefinition::creatureJobToString(c->mCreatureJob);
-    std::string tilePassability = Tile::tilePassabilityToString(c->mTilePassability);
     os << c->mClassName
        << creatureJob
        << c->mMeshName;
@@ -155,8 +152,7 @@ ODPacket& operator<<(ODPacket& os, CreatureDefinition* c)
     os << c->mHpPerLevel;
     os << c->mMaxHP;
     os << c->mSightRadius << c->mDigRate << c->mDanceRate
-       << c->mMoveSpeed;
-    os << tilePassability;
+       << c->mMoveSpeedGround << c->mMoveSpeedWater << c->mMoveSpeedLava;
     return os;
 }
 
@@ -169,9 +165,8 @@ ODPacket& operator>>(ODPacket& is, CreatureDefinition* c)
     is >> c->mBedMeshName >> c->mBedDim1 >> c->mBedDim2;
     is >> c->mScale.x >> c->mScale.y >> c->mScale.z;
     is >> c->mHpPerLevel >> c->mMaxHP;
-    is >> c->mSightRadius >> c->mDigRate >> c->mDanceRate >> c->mMoveSpeed;
-    is >> tempString;
-    c->mTilePassability = Tile::tilePassabilityFromString(tempString);
+    is >> c->mSightRadius >> c->mDigRate >> c->mDanceRate;
+    is >> c->mMoveSpeedGround >> c->mMoveSpeedWater >> c->mMoveSpeedLava;
 
     return is;
 }
@@ -198,6 +193,7 @@ void CreatureDefinition::loadFromLine(const std::string& line, CreatureDefinitio
     c->mSightRadius = Helper::toDouble(elems[11]);
     c->mDigRate = Helper::toDouble(elems[12]);
     c->mDanceRate = Helper::toDouble(elems[13]);
-    c->mMoveSpeed = Helper::toDouble(elems[14]);
-    c->mTilePassability = Tile::tilePassabilityFromString(elems[15]);
+    c->mMoveSpeedGround = Helper::toDouble(elems[14]);
+    c->mMoveSpeedWater = Helper::toDouble(elems[15]);
+    c->mMoveSpeedLava = Helper::toDouble(elems[16]);
 }

@@ -135,7 +135,7 @@ void RoomPortal::spawnCreature()
     std::cout << "Portal: " << getName() << "  spawn creature..." << std::endl;
 
     if (mPortalObject != NULL)
-        mPortalObject->setAnimationState("Spawn", false, false);
+        mPortalObject->setAnimationState("Spawn", false);
 
     // If the room has been destroyed, or has not yet been assigned any tiles, then we
     // cannot determine where to place the new creature and we should just give up.

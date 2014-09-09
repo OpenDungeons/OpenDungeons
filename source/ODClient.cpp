@@ -409,7 +409,7 @@ bool ODClient::processOneClientSocketMessage()
                     OD_ASSERT_TRUE(packetReceived >> walkDirection);
                     obj->setWalkDirection(walkDirection);
                 }
-                obj->setAnimationState(animState, false, loop);
+                obj->setAnimationState(animState, loop);
             }
             else
             {

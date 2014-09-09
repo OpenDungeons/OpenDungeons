@@ -425,11 +425,10 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
         // Same goes when we drop it on a non-existing tile.
         Tile* droppedTile = mGameMap->getTile(inputManager->mXPos, inputManager->mYPos);
         Creature* droppedCreature = mGameMap->getCreature(mDraggedCreature);
-        Tile::TileClearType passability = droppedCreature->getDefinition()->getTilePassability();
 
         Ogre::Real newXPos = (Ogre::Real)inputManager->mXPos;
         Ogre::Real newYPos = (Ogre::Real)inputManager->mYPos;
-        if (droppedTile == NULL || droppedTile->getTilePassability() != passability)
+        if (droppedTile == NULL || droppedTile->canCreatureGoThroughTile(droppedCreature->getDefinition()));
         {
             newXPos = (Ogre::Real)inputManager->mLStartDragX;
             newYPos = (Ogre::Real)inputManager->mLStartDragY;

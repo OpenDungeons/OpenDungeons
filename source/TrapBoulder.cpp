@@ -37,11 +37,12 @@ std::vector<GameEntity*> TrapBoulder::aimEnemy()
     std::vector<Tile*> visibleTiles;
     for(std::list<Tile*>::const_iterator it = tmp.begin(); it != tmp.end(); ++it)
     {
-        if((*it)->getTilePassability() == Tile::impassableTile)
+        Tile* tile = *it;
+        if(tile->getFullness() > 0.0)
         {
             break;
         }
-        visibleTiles.push_back(*it);
+        visibleTiles.push_back(tile);
     }
 
     //By defaut, you damage every attackable object in the line.

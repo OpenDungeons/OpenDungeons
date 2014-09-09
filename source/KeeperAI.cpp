@@ -190,7 +190,8 @@ bool KeeperAI::lookForGold()
 
     // Set a diggable path up to the first gold spot for the given team color
     int team_color_id = mAiWrapper.getPlayer().getSeat()->getColor();
-    std::list<Tile*> goldPath = mAiWrapper.getGameMap().path(central, firstGoldTile, Tile::diggableTile, team_color_id);
+    CreatureDefinition* classKobold = mAiWrapper.getGameMap().getClassDescription("Kobold");
+    std::list<Tile*> goldPath = mAiWrapper.getGameMap().path(central, firstGoldTile, classKobold, team_color_id, true);
     if (goldPath.empty())
     {
         mNoMoreReachableGold = true;

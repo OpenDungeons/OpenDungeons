@@ -92,7 +92,6 @@ void Tile::setFullness(double f)
 {
     int oldFullness = getFullness();
     int oldFullnessMeshNumber = fullnessMeshNumber;
-    TileClearType oldTilePassability = getTilePassability();
 
     fullness = f;
 
@@ -101,16 +100,12 @@ void Tile::setFullness(double f)
     {
         setMarkedForDiggingForAllSeats(false);
         fullness = 0.0;
-
-        //Play block destroy sound
-        SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::ROCKFALLING, x, y);
     }
 
-    // If the passability has changed we may have opened up new paths on the gameMap.
-    if (oldTilePassability != getTilePassability())
+    if ((oldFullness > 0.0) && (fullness == 0.0))
     {
         // Do a flood fill to update the contiguous region touching the tile.
-        getGameMap()->doFloodFill(x, y);
+        getGameMap()->refreshFloodFill(this);
     }
 
     // 		4 0 7		    180
@@ -387,47 +382,9 @@ int Tile::getFullnessMeshNumber() const
     return fullnessMeshNumber;
 }
 
-Tile::TileClearType Tile::getTilePassability() const
-{
-    // Check to see if the tile is filled in.
-    if (getFullness() >= 1)
-        return impassableTile;
-
-    //Check to see if there is a room with objects covering this tile preventing creatures from walking through it.
-    //FIXME: The second portion of this if statement throws a segfault.  Something is incorrectly setting the coveringRoom.
-    //NOTE: If this code is turned back on the coveringRoom variable is protected by a LockSemaphore.
-    //if(coveringRoom != NULL)// && !coveringRoom->tileIsPassable(this))
-    //return impassableTile;
-
-    switch (type)
-    {
-        case nullTileType:
-            return impassableTile;
-            break;
-
-        case dirt:
-        case gold:
-        case rock:
-        case claimed:
-            return walkableTile;
-            break;
-
-        case water:
-        case lava:
-            return flyableTile;
-            break;
-
-        default:
-            break;
-    }
-
-    return impassableTile;
-}
-
 bool Tile::permitsVision() const
 {
-    TileClearType clearType = getTilePassability();
-    return (clearType == walkableTile || clearType == flyableTile);
+    return (fullness == 0.0);
 }
 
 bool Tile::isBuildableUpon() const
@@ -658,30 +615,6 @@ void Tile::loadFromLine(const std::string& line, Tile *t)
     t->setFullnessValue(Helper::toDouble(elems[3]));
     //std::cout << "Tile: " << xLocation << ", " << yLocation << ", " << t->getName()
     //<< ", " << t->getFullness() << std::endl;
-}
-
-std::string Tile::tilePassabilityToString(TileClearType t)
-{
-    switch(t)
-    {
-        default:
-        case impassableTile:
-            return "impassableTile";
-        case walkableTile:
-            return "walkableTile";
-        case flyableTile:
-            return "flyableTile";
-    }
-}
-
-Tile::TileClearType Tile::tilePassabilityFromString(const::string& t)
-{
-    if (t == "flyableTile")
-        return flyableTile;
-    else if (t == "walkableTile")
-        return walkableTile;
-
-    return impassableTile;
 }
 
 std::string Tile::tileTypeToString(TileType t)
@@ -1208,6 +1141,111 @@ bool Tile::checkTileName(const std::string& tileName, int& x, int& y)
         return false;
 
     return true;
+}
+
+bool Tile::isFloodFillFilled()
+{
+    if(getFullness() > 0.0)
+        return true;
+
+    switch(getType())
+    {
+        case Tile::dirt:
+        case Tile::gold:
+        case Tile::claimed:
+        {
+            if((mFloodFillColor[Tile::FloodFillTypeGround] != -1) &&
+               (mFloodFillColor[Tile::FloodFillTypeGroundWater] != -1) &&
+               (mFloodFillColor[Tile::FloodFillTypeGroundLava] != -1) &&
+               (mFloodFillColor[Tile::FloodFillTypeGroundWaterLava] != -1))
+            {
+                return true;
+            }
+            break;
+        }
+        case Tile::water:
+        {
+            if((mFloodFillColor[Tile::FloodFillTypeGroundWater] != -1) &&
+               (mFloodFillColor[Tile::FloodFillTypeGroundWaterLava] != -1))
+            {
+                return true;
+            }
+            break;
+        }
+        case Tile::lava:
+        {
+            if((mFloodFillColor[Tile::FloodFillTypeGroundLava] != -1) &&
+               (mFloodFillColor[Tile::FloodFillTypeGroundWaterLava] != -1))
+            {
+                return true;
+            }
+            break;
+        }
+        default:
+            return true;
+    }
+
+    return false;
+}
+
+bool Tile::canCreatureGoThroughTile(const CreatureDefinition* creatureDef)
+{
+    if(getFullness() > 0)
+        return false;
+
+    switch(getType())
+    {
+        case Tile::dirt:
+        case Tile::gold:
+        case Tile::claimed:
+        {
+            if(creatureDef->getMoveSpeedGround() > 0.0)
+                return true;
+
+            break;
+        }
+        case Tile::water:
+        {
+            if(creatureDef->getMoveSpeedWater() > 0.0)
+                return true;
+
+            break;
+        }
+        case Tile::lava:
+        {
+            if(creatureDef->getMoveSpeedLava() > 0.0)
+                return true;
+
+            break;
+        }
+        default:
+            return false;
+    }
+    return false;
+}
+
+double Tile::getCreatureSpeedOnTile(const CreatureDefinition* creatureDef)
+{
+    switch(getType())
+    {
+        case Tile::dirt:
+        case Tile::gold:
+        case Tile::claimed:
+            return creatureDef->getMoveSpeedGround();
+        case Tile::water:
+            return creatureDef->getMoveSpeedWater();
+        case Tile::lava:
+            return creatureDef->getMoveSpeedLava();
+        default:
+            break;
+    }
+    return creatureDef->getMoveSpeedGround();
+}
+
+int Tile::getFloodFill(FloodFillType type)
+{
+    OD_ASSERT_TRUE(type < FloodFillTypeMax);
+    return mFloodFillColor[type];
 }
 
 // TODO : use this function where tiles are displayed in logs (mostly in ODClient and ODServer)
