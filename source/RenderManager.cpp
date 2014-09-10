@@ -1247,7 +1247,7 @@ void RenderManager::rtssTest()
 {
     generateRTSSShadersForMaterial("Claimed", "Claimed6Nor.png");
     generateRTSSShadersForMaterial("Claimedwall", "Claimedwall2_nor3.png");
-    generateRTSSShadersForMaterial("Dirt", "Dirt_dark_nor3.png");
+    //generateRTSSShadersForMaterial("Dirt", "Dirt_dark_nor3.png");
     generateRTSSShadersForMaterial("Dormitory", "Dirt_dark_nor3.png");
     //TODO - fix this model so it doesn't use the material name 'material'
     generateRTSSShadersForMaterial("Material", "Forge_normalmap.png");
@@ -1259,7 +1259,7 @@ void RenderManager::rtssTest()
     generateRTSSShadersForMaterial("TrainingPole", "trainingpole-tex-nm.png");
     generateRTSSShadersForMaterial("Kreatur", "Kreatur_nor2.png");
     generateRTSSShadersForMaterial("Wyvern", "Wyvern_red_normalmap.png");
-    generateRTSSShadersForMaterial("Gold", "Dirt_dark_nor3.png");
+    //generateRTSSShadersForMaterial("Gold", "Dirt_dark_nor3.png");
     generateRTSSShadersForMaterial("Roundshield");
     generateRTSSShadersForMaterial("Staff");
 
