@@ -113,7 +113,7 @@ Bookcase.mesh                          Danimal                 CC-BY-SA 3.0     
 Bookshelf.mesh                         Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058&sid=6f85d2bd3e4fbc933b186a696f033167#p59058
 Cannon.mesh                            Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
 Cannonball.mesh                        Andrew Buck             CC-BY-SA 3.0
-Cavehornet.mesh                        Skorpio                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058&sid=6f85d2bd3e4fbc933b186a696f033167#p59058
+Cavehornet.*                           Skorpio                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058&sid=6f85d2bd3e4fbc933b186a696f033167#p59058
 Chair.mesh                             Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Chicken.*                              Skorpio                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058&sid=6f85d2bd3e4fbc933b186a696f033167#p59058
 ChickenCoop.mesh                       Dm3d, Danimal           CC-BY-SA 3.0            http://opengameart.org/content/chicken-coop
@@ -141,7 +141,6 @@ Gnome.*                                Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL
 Goblin.*                               Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
 Gold*[0-9].mesh                        Skorpio                 CC-BY-SA 3.0, GPL 3.0
 GoldstackLv*.mesh                      Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058&sid=6f85d2bd3e4fbc933b186a696f033167#p59058
-Insect_low.003.skeleton                Skorpio                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058&sid=6f85d2bd3e4fbc933b186a696f033167#p59058
 Keeperhand.*                           Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Knight.*                               surt                    CC0                     http://opengameart.org/forumtopic/cc0-scraps
 Kobold.*                               surt                    CC0                     http://opengameart.org/forumtopic/cc0-scraps
@@ -164,6 +163,7 @@ Scarab.*                               killyoverdrive (OGA)    CC-BY-SA 3.0     
 Shelf.mesh                             Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058&sid=6f85d2bd3e4fbc933b186a696f033167#p59058
 Slime.*                                Grefuntor, D3dm         CC-BY 3.0, CC-BY-SA 3.0, GPL 2.0+ - http://opengameart.org/content/slime-mold
 Spider.mesh                            Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Spiketrap.*                            Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?f=38&t=5528&p=59348#p59322
 SquareSelector.mesh                    OD Team                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59066#p59066
 Staff.*                                Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Stool.mesh                             Skorpio                 CC-BY-SA 3.0, GPL 3.0
@@ -171,6 +171,7 @@ Table.mesh                             Skorpio                 CC-BY-SA 3.0, GPL
 Tentacle*                              Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Torch.mesh                             Skorpio                 CC-BY-SA 3.0, GPL 3.0
 TrainingDummy1.*                       Aaron Eads              CC-BY 3.0               http://forum.freegamedev.net/viewtopic.php?p=59058&sid=6f85d2bd3e4fbc933b186a696f033167#p59058
+TrainingDummy2.*                       Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?f=38&t=5528&p=59348#p59239
 TrainingPole.mesh                      p0ss                    CC-BY-SA 3.0            http://opengameart.org/content/wooden-training-pole
 Treasury.mesh                          Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Troll.*                                Dm3d                    CC-BY-SA 3.0            http://opengameart.org/content/rock-golem
