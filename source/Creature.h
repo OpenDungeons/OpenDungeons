@@ -124,6 +124,10 @@ public:
      */
     void setPosition(const Ogre::Vector3& v);
 
+    virtual double getMoveSpeed() const;
+
+    bool setDestination(Tile* tile);
+
     void drop(const Ogre::Vector3& v);
 
     void setHP(double nHP);
@@ -217,7 +221,7 @@ public:
     std::vector<GameEntity*> getVisibleForce(int color, bool invert);
 
     //! \brief Returns a pointer to the tile the creature is currently standing in.
-    Tile* positionTile();
+    Tile* positionTile() const;
 
     //! \brief Conform: AttackableObject - Returns a vector containing the tile the creature is in.
     std::vector<Tile*> getCoveredTiles();
@@ -378,8 +382,9 @@ private:
     CreatureAction peekAction();
 
     //! \brief A sub-function called by doTurn()
-    //! This one setup the next action push on the creature action stack.
-    void decideNextAction();
+    //! This one checks if there is something prioritary to do (like fighting). If it is the case,
+    //! it should empty the action list before adding what to do.
+    void decidePrioritaryAction();
 
     //! \brief A sub-function called by doTurn()
     //! This functions will hanlde the creature idle action logic.

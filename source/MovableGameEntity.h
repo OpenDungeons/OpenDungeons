@@ -61,16 +61,12 @@ public:
     //! \brief Stops the object where it is, and sets its animation state.
     virtual void stopWalking();
 
-    //! \brief Rotates the object so that it is facing toward the given x-y location.
-    void faceToward(int x, int y);
-    void faceToward(Ogre::Real x, Ogre::Real y);
-
     virtual double getMoveSpeed() const
     { return mMoveSpeed; }
 
     virtual void setMoveSpeed(double s);
 
-    virtual void setAnimationState(const std::string& state, bool setWalkDirection = false, bool loop = true);
+    virtual void setAnimationState(const std::string& state, bool loop = true, Ogre::Vector3* direction = NULL);
 
     virtual double getAnimationSpeedFactor();
     virtual void setAnimationSpeedFactor(double f);
@@ -81,22 +77,19 @@ public:
 
     void setWalkDirection(Ogre::Vector3& direction);
 
-    void setPosition(const Ogre::Vector3& v);
+    virtual void setPosition(const Ogre::Vector3& v);
 
     Ogre::AnimationState* mAnimationState;
     Ogre::SceneNode* mSceneNode;
 
 protected:
     std::deque<Ogre::Vector3> mWalkQueue;
-    double mMoveSpeed;
 
 private:
+    double mMoveSpeed;
     std::string mPrevAnimationState;
     bool mPrevAnimationStateLoop;
     double mAnimationSpeedFactor;
-    bool mWalkQueueFirstEntryAdded;
-    Ogre::Vector3 mWalkDirection;
-    double mShortestDistance;
     std::string mDestinationAnimationState;
 };
 

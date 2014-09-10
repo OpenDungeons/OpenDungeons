@@ -1011,6 +1011,34 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             frameListener->mCommandOutput += "\nERROR : This command is available on the server only\n";
         }
     }
+    else if (command.compare("setdest") == 0)
+    {
+        std::string creatureName;
+        int x, y;
+        tempSS.str(arguments);
+        tempSS >> creatureName >> x >> y;
+        if(ODServer::getSingleton().isConnected())
+        {
+            ODConsoleCommand* cc = new ODConsoleCommandSetCreatureDestination(creatureName, x, y);
+            ODServer::getSingleton().queueConsoleCommand(cc);
+        }
+        else
+        {
+            frameListener->mCommandOutput += "\nERROR : This command is available on the server only\n";
+        }
+    }
+    else if (command.compare("logfloodfill") == 0)
+    {
+        if(ODServer::getSingleton().isConnected())
+        {
+            ODConsoleCommand* cc = new ODConsoleCommandLogFloodFill();
+            ODServer::getSingleton().queueConsoleCommand(cc);
+        }
+        else
+        {
+            frameListener->mCommandOutput += "\nERROR : This command is available on the server only\n";
+        }
+    }
     else if (command.compare("possescreature") == 0)
     {
         tempSS.str("");

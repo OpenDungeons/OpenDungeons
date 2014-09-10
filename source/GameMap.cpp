@@ -84,7 +84,12 @@ public:
         g       (0),
         h       (0)
     {
-        setHeuristic(x1, y1, x2, y2);
+        h = computeHeuristic(x1, y1, x2, y2);
+    }
+
+    static double computeHeuristic(const int& x1, const int& y1, const int& x2, const int& y2)
+    {
+        return fabs(static_cast<double>(x2 - x1)) + fabs(static_cast<double>(y2 - y1));
     }
 
     void setHeuristic(const int& x1, const int& y1, const int& x2, const int& y2)
@@ -820,15 +825,46 @@ void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
     }
 }
 
-bool GameMap::pathExists(int x1, int y1, int x2, int y2,
-                         Tile::TileClearType passability, int color)
+bool GameMap::pathExists(int x1, int y1, int x2, int y2, const CreatureDefinition* creatureDef)
 {
-    return (passability == Tile::walkableTile)
-           ? walkablePathExists(x1, y1, x2, y2)
-           : path(x1, y1, x2, y2, passability, color).size() >= 2;
+    // If floodfill is not enabled, we cannot check if the path exists so we return true
+    if(!floodFillEnabled)
+        return true;
+
+    Tile* tileStart = getTile(x1, y1);
+    OD_ASSERT_TRUE(tileStart != NULL);
+    if(tileStart == NULL)
+        return false;
+
+    Tile* tileEnd = getTile(x2, y2);
+    OD_ASSERT_TRUE(tileEnd != NULL);
+    if(tileEnd == NULL)
+        return false;
+
+    if(!tileStart->canCreatureGoThroughTile(creatureDef) || !tileEnd->canCreatureGoThroughTile(creatureDef))
+        return false;
+
+    if((creatureDef->getMoveSpeedGround() > 0.0) &&
+        (creatureDef->getMoveSpeedWater() > 0.0) &&
+        (creatureDef->getMoveSpeedLava() > 0.0))
+    {
+        return (tileStart->mFloodFillColor[Tile::FloodFillTypeGroundWaterLava] == tileEnd->mFloodFillColor[Tile::FloodFillTypeGroundWaterLava]);
+    }
+    if((creatureDef->getMoveSpeedGround() > 0.0) &&
+        (creatureDef->getMoveSpeedWater() > 0.0))
+    {
+        return (tileStart->mFloodFillColor[Tile::FloodFillTypeGroundWater] == tileEnd->mFloodFillColor[Tile::FloodFillTypeGroundWater]);
+    }
+    if((creatureDef->getMoveSpeedGround() > 0.0) &&
+        (creatureDef->getMoveSpeedLava() > 0.0))
+    {
+        return (tileStart->mFloodFillColor[Tile::FloodFillTypeGroundLava] == tileEnd->mFloodFillColor[Tile::FloodFillTypeGroundLava]);
+    }
+
+    return (tileStart->mFloodFillColor[Tile::FloodFillTypeGround] == tileEnd->mFloodFillColor[Tile::FloodFillTypeGround]);
 }
 
-std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType passability, int color)
+std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const CreatureDefinition* creatureDef, int color, bool throughDiggableTiles)
 {
     ++numCallsTo_path;
     std::list<Tile*> returnList;
@@ -838,8 +874,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearTy
         return returnList;
 
     // If flood filling is enabled, we can possibly eliminate this path by checking to see if they two tiles are colored differently.
-    if (floodFillEnabled && passability == Tile::walkableTile
-            && !walkablePathExists(x1, y1, x2, y2))
+    if (!throughDiggableTiles && !pathExists(x1, y1, x2, y2, creatureDef))
         return returnList;
 
     // If the end tile was not found return an empty path
@@ -848,20 +883,13 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearTy
         return returnList;
 
     AstarEntry *currentEntry = new AstarEntry(getTile(x1, y1), x1, y1, x2, y2);
+    AstarEntry neighbor;
 
-    /* TODO:  Make the openList a priority queue sorted by the
-     *        cost to improve lookup times on retrieving the next open item.
-     */
-    std::list<AstarEntry*> openList;
+    std::vector<AstarEntry*> openList;
     openList.push_back(currentEntry);
 
-    /* TODO: make this a local variable don't forget to remove the
-     *       delete statement at the end of this function.
-     */
-    AstarEntry* neighbor = new AstarEntry;
-    std::list<AstarEntry*> closedList;
-    std::list<AstarEntry*>::iterator itr;
-    bool pathFound = false;
+    std::vector<AstarEntry*> closedList;
+    AstarEntry* destinationEntry = NULL;
     while (true)
     {
         // if the openList is empty we failed to find a path
@@ -869,13 +897,11 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearTy
             break;
 
         // Get the lowest fScore from the openList and move it to the closed list
-        std::list<AstarEntry*>::iterator itr = openList.begin(), smallestAstar =
-                                                   openList.begin();
-        while (itr != openList.end())
+        std::vector<AstarEntry*>::iterator smallestAstar = openList.begin();
+        for (std::vector<AstarEntry*>::iterator itr = openList.begin(); itr != openList.end(); ++itr)
         {
             if ((*itr)->fCost() < (*smallestAstar)->fCost())
                 smallestAstar = itr;
-            ++itr;
         }
 
         currentEntry = *smallestAstar;
@@ -885,164 +911,146 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearTy
         // We found the path, break out of the search loop
         if (currentEntry->getTile() == destination)
         {
-            pathFound = true;
+            destinationEntry = currentEntry;
             break;
         }
 
         // Check the tiles surrounding the current square
-        std::vector<Tile*> neighbors = currentEntry->getTile()->getAllNeighbors();
-        bool processNeighbor;
-        for (unsigned int i = 0; i < neighbors.size(); ++i)
+        bool areTilesPassable[4] = {false, false, false, false};
+        // Note : to disable diagonals, process tiles from 0 to 3. To allow them, process tiles from 0 to 7
+        for (unsigned int i = 0; i < 8; ++i)
         {
-            neighbor->setTile(neighbors[i]);
-
-            processNeighbor = true;
-            if (neighbor->getTile() == NULL)
+            Tile* neighborTile = NULL;
+            switch(i)
+            {
+                // We process the 4 adjacent tiles
+                case 0:
+                    neighborTile = getTile(currentEntry->getTile()->getX() - 1, currentEntry->getTile()->getY());
+                    break;
+                case 1:
+                    neighborTile = getTile(currentEntry->getTile()->getX() + 1, currentEntry->getTile()->getY());
+                    break;
+                case 2:
+                    neighborTile = getTile(currentEntry->getTile()->getX(), currentEntry->getTile()->getY() - 1);
+                    break;
+                case 3:
+                    neighborTile = getTile(currentEntry->getTile()->getX(), currentEntry->getTile()->getY() + 1);
+                    break;
+                // We process the 4 diagonal tiles. We only process a diagonal tile if the 2 tiles adjacent to the original one are
+                // passable.
+                case 4:
+                    if(areTilesPassable[0] && areTilesPassable[2])
+                        neighborTile = getTile(currentEntry->getTile()->getX() - 1, currentEntry->getTile()->getY() - 1);
+                    break;
+                case 5:
+                    if(areTilesPassable[0] && areTilesPassable[3])
+                        neighborTile = getTile(currentEntry->getTile()->getX() - 1, currentEntry->getTile()->getY() + 1);
+                    break;
+                case 6:
+                    if(areTilesPassable[1] && areTilesPassable[2])
+                        neighborTile = getTile(currentEntry->getTile()->getX() + 1, currentEntry->getTile()->getY() - 1);
+                    break;
+                case 7:
+                    if(areTilesPassable[1] && areTilesPassable[3])
+                        neighborTile = getTile(currentEntry->getTile()->getX() + 1, currentEntry->getTile()->getY() + 1);
+                    break;
+            }
+            if(neighborTile == NULL)
                 continue;
 
-            //TODO:  This code is duplicated in GameMap::pathIsClear, it should be moved into a function.
-            // See if the neighbor tile in question is passable
-            switch (passability)
+            neighbor.setTile(neighborTile);
+
+            bool processNeighbor = false;
+            if(neighbor.getTile()->canCreatureGoThroughTile(creatureDef))
             {
-            default:
-            case Tile::walkableTile:
-                if (neighbor->getTile()->getTilePassability() != Tile::walkableTile)
-                {
-                    processNeighbor = false; // skip this tile and go on to the next neighbor tile
-                }
-                break;
-
-            case Tile::flyableTile:
-                if (neighbor->getTile()->getTilePassability() != Tile::walkableTile
-                    && neighbor->getTile()->getTilePassability() != Tile::flyableTile)
-                {
-                    processNeighbor = false; // skip this tile and go on to the next neighbor tile
-                }
-                break;
-
-            case Tile::diggableTile:
-                if (neighbor->getTile()->getTilePassability() != Tile::walkableTile
-                    && neighbor->getTile()->isDiggable(color) == false)
-                {
-                    processNeighbor = false;
-                }
-                break;
-
-            case Tile::impassableTile:
-                break;
-            }
+                processNeighbor = true;
+                // We set passability for the 4 adjacent tiles only
+                if(i < 4)
+                    areTilesPassable[i] = true;
+             }
+            else if(throughDiggableTiles && neighbor.getTile()->isDiggable(color))
+                processNeighbor = true;
 
             if (!processNeighbor)
                 continue;
 
             // See if the neighbor is in the closed list
-            bool neighborFound = false;
-            std::list<AstarEntry*>::iterator itr = closedList.begin();
-            while (itr != closedList.end())
+            AstarEntry* neighborEntry = NULL;
+            for(std::vector<AstarEntry*>::iterator itr = closedList.begin(); itr != closedList.end(); ++itr)
             {
-                if (neighbor->getTile() == (*itr)->getTile())
+                if (neighbor.getTile() == (*itr)->getTile())
                 {
-                    neighborFound = true;
+                    neighborEntry = *itr;
                     break;
-                }
-                else
-                {
-                    ++itr;
                 }
             }
 
             // Ignore the neighbor if it is on the closed list
-            if (neighborFound)
+            if (neighborEntry != NULL)
                 continue;
 
             // See if the neighbor is in the open list
-            neighborFound = false;
-            itr = openList.begin();
-            while (itr != openList.end())
+            for(std::vector<AstarEntry*>::iterator itr = openList.begin(); itr != openList.end(); ++itr)
             {
-                if (neighbor->getTile() == (*itr)->getTile())
+                if (neighbor.getTile() == (*itr)->getTile())
                 {
-                    neighborFound = true;
+                    neighborEntry = *itr;
                     break;
-                }
-                else
-                {
-                    ++itr;
                 }
             }
 
             // If the neighbor is not in the open list
-            if (!neighborFound)
+            if (neighborEntry == NULL)
             {
-                // NOTE: This +1 weights all steps the same, diagonal steps
-                // should get a greater wieght iis they are included in the future
-                neighbor->setG(currentEntry->getG() + 1);
+                double weightToParent = AstarEntry::computeHeuristic(neighbor.getTile()->getX(), neighbor.getTile()->getY(),
+                    currentEntry->getTile()->getX(), currentEntry->getTile()->getY());
+                weightToParent /= currentEntry->getTile()->getCreatureSpeedOnTile(creatureDef);
+                neighbor.setG(currentEntry->getG() + weightToParent);
 
                 // Use the manhattan distance for the heuristic
-                currentEntry->setHeuristic(x1, y1, neighbor->getTile()->x, neighbor->getTile()->y);
-                neighbor->setParent(currentEntry);
+                neighbor.setHeuristic(neighbor.getTile()->getX(), neighbor.getTile()->getY(), x2, y2);
+                neighbor.setParent(currentEntry);
 
-                openList.push_back(new AstarEntry(*neighbor));
+                openList.push_back(new AstarEntry(neighbor));
             }
             else
             {
                 // If this path to the given neighbor tile is a shorter path than the
                 // one already given, make this the new parent.
-                // NOTE: This +1 weights all steps the same, diagonal steps
-                // should get a greater wieght iis they are included in the future
-                if (currentEntry->getG() + 1 < (*itr)->getG())
+                double weightToParent = AstarEntry::computeHeuristic(neighbor.getTile()->getX(), neighbor.getTile()->getY(),
+                    currentEntry->getTile()->getX(), currentEntry->getTile()->getY());
+                weightToParent /= currentEntry->getTile()->getCreatureSpeedOnTile(creatureDef);
+
+                if (currentEntry->getG() + weightToParent < neighborEntry->getG())
                 {
-                    // NOTE: This +1 weights all steps the same, diagonal steps
-                    // should get a greater wieght iis they are included in the future
-                    (*itr)->setG(currentEntry->getG() + 1);
-                    (*itr)->setParent(currentEntry);
+                    neighborEntry->setG(currentEntry->getG() + weightToParent);
+                    neighborEntry->setParent(currentEntry);
                 }
             }
         }
     }
 
-    if (pathFound)
+    if (destinationEntry != NULL)
     {
-        //Find the destination tile in the closed list
-        //TODO:  Optimize this by remembering this from above so this loop does not need to be carried out.
-        itr = closedList.begin();
-        while (itr != closedList.end())
-        {
-            if ((*itr)->getTile() == destination)
-                break;
-            else
-                ++itr;
-        }
-
         // Follow the parent chain back the the starting tile
-        currentEntry = (*itr);
+        AstarEntry* curEntry = destinationEntry;
         do
         {
-            if (currentEntry->getTile() != NULL)
+            if (curEntry->getTile() != NULL)
             {
-                returnList.push_front(currentEntry->getTile());
-                currentEntry = currentEntry->getParent();
+                returnList.push_front(curEntry->getTile());
+                curEntry = curEntry->getParent();
             }
 
-        } while (currentEntry != NULL);
+        } while (curEntry != NULL);
     }
 
     // Clean up the memory we allocated by deleting the astarEntries in the open and closed lists
-    itr = openList.begin();
-    while (itr != openList.end())
-    {
+    for (std::vector<AstarEntry*>::iterator itr = openList.begin(); itr != openList.end(); ++itr)
         delete *itr;
-        ++itr;
-    }
 
-    itr = closedList.begin();
-    while (itr != closedList.end())
-    {
+    for (std::vector<AstarEntry*>::iterator itr = closedList.begin(); itr != closedList.end(); ++itr)
         delete *itr;
-        ++itr;
-    }
-
-    delete neighbor;
 
     return returnList;
 }
@@ -1121,20 +1129,6 @@ Player* GameMap::getPlayerByColor(int color)
             return player;
     }
     return NULL;
-}
-
-bool GameMap::walkablePathExists(int x1, int y1, int x2, int y2)
-{
-    Tile* tempTile1 = getTile(x1, y1);
-    if (tempTile1)
-    {
-        Tile* tempTile2 = getTile(x2, y2);
-        return (tempTile2)
-               ? (tempTile1->floodFillColor == tempTile2->floodFillColor)
-               : false;
-    }
-
-    return false;
 }
 
 std::list<Tile*> GameMap::lineOfSight(int x0, int y0, int x1, int y1)
@@ -1384,104 +1378,6 @@ std::vector<GameEntity*> GameMap::getVisibleForce(std::vector<Tile*> visibleTile
     return returnList;
 }
 
-bool GameMap::pathIsClear(std::list<Tile*> path, Tile::TileClearType passability)
-{
-    if (path.empty())
-        return false;
-
-    std::list<Tile*>::iterator itr;
-
-    // Loop over tile in the path and check to see if it is clear
-    bool isClear = true;
-    for (itr = path.begin(); itr != path.end() && isClear; ++itr)
-    {
-        //TODO:  This code is duplicated in GameMap::path, it should be moved into a function.
-        // See if the path tile in question is passable
-        switch (passability)
-        {
-            // Walking creatures can only move through walkableTile's.
-        case Tile::walkableTile:
-            isClear = (isClear && ((*itr)->getTilePassability()
-                                   == Tile::walkableTile));
-            break;
-
-            // Flying creatures can move through walkableTile's or flyableTile's.
-        case Tile::flyableTile:
-            isClear = (isClear && ((*itr)->getTilePassability()
-                                   == Tile::walkableTile || (*itr)->getTilePassability()
-                                   == Tile::flyableTile));
-            break;
-
-            // No creatures can walk through impassableTile's
-        case Tile::impassableTile:
-            isClear = false;
-            break;
-
-        default:
-            std::cerr
-                << "\n\nERROR:  Unhandled tile type in GameMap::pathIsClear()\n\n";
-            exit(1);
-            break;
-        }
-    }
-
-    return isClear;
-}
-
-void GameMap::cutCorners(std::list<Tile*> &path, Tile::TileClearType passability)
-{
-    // Size must be >= 3 or else t3 and t4 can end up pointing at the same value
-    if (path.size() <= 3)
-        return;
-
-    std::list<Tile*>::iterator t1 = path.begin();
-    std::list<Tile*>::iterator t2 = t1;
-    ++t2;
-    std::list<Tile*>::iterator t3;
-    std::list<Tile*>::iterator t4;
-    std::list<Tile*>::iterator secondLast = path.end();
-    --secondLast;
-
-    // Loop t1 over all but the last tile in the path
-    while (t1 != path.end())
-    {
-        // Loop t2 from t1 until the end of the path
-        t2 = t1;
-        ++t2;
-
-        while (t2 != path.end())
-        {
-            // If we have a clear line of sight to t2, advance to
-            // the next tile else break out of the inner loop
-            std::list<Tile*> lineOfSightPath = lineOfSight((*t1)->x, (*t1)->y,
-                                               (*t2)->x, (*t2)->y);
-
-            if (pathIsClear(lineOfSightPath, passability))
-                ++t2;
-            else
-                break;
-        }
-
-        // Delete the tiles 'strictly between' t1 and t2
-        t3 = t1;
-        ++t3;
-        if (t3 != t2)
-        {
-            t4 = t2;
-            --t4;
-            if (t3 != t4)
-            {
-                path.erase(t3, t4);
-            }
-        }
-
-        t1 = t2;
-
-        secondLast = path.end();
-        --secondLast;
-    }
-}
-
 void GameMap::clearRooms()
 {
     for (unsigned int i = 0; i < rooms.size(); ++i)
@@ -1579,7 +1475,7 @@ unsigned int GameMap::numRoomsByTypeAndColor(Room::RoomType type, int color) con
 
 std::vector<Room*> GameMap::getReachableRooms(const std::vector<Room*>& vec,
                                               Tile* startTile,
-                                              Tile::TileClearType passability)
+                                              const CreatureDefinition* creatureDef)
 {
     std::vector<Room*> returnVector;
 
@@ -1589,7 +1485,7 @@ std::vector<Room*> GameMap::getReachableRooms(const std::vector<Room*>& vec,
         Tile* coveredTile = room->getCoveredTile(0);
         if (pathExists(startTile->x, startTile->y,
             coveredTile->x, coveredTile->y,
-            passability))
+            creatureDef))
         {
             returnVector.push_back(room);
         }
@@ -2085,42 +1981,155 @@ Ogre::Real GameMap::crowDistance(int x1, int x2, int y1, int y2)
                 + pow(static_cast<Ogre::Real>(y2 - y1), 2.0f));
 }
 
-unsigned int GameMap::doFloodFill(int startX, int startY, Tile::TileClearType passability, int color)
+bool GameMap::doFloodFill(Tile* tile)
 {
-    unsigned int tilesFlooded = 1;
-
     if (!floodFillEnabled)
-        return 0;
+        return false;
 
-    if (color < 0)
-    {
-        color = nextUniqueNumberFloodFilling();
-    }
+    if(tile->isFloodFillFilled())
+        return false;
 
-    // Check to see if we should color the current tile.
-    Tile *tempTile = getTile(startX, startY);
-    if (tempTile != NULL)
+    bool hasChanged = false;
+    // If a neigboor is colored with the same colors, we color the tile
+    std::vector<Tile*> tiles = tile->getAllNeighbors();
+    for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
     {
-        // If the tile is walkable, color it.
-        //FIXME:  This should be improved to use the "passability" parameter.
-        if (tempTile->getTilePassability() == Tile::walkableTile)
-            tempTile->floodFillColor = color;
-        else
-            return 0;
-    }
-
-    // Get the current tile's neighbors, loop over each of them.
-    std::vector<Tile*> neighbors = neighborTiles(startX, startY);
-    for (unsigned int i = 0; i < neighbors.size(); ++i)
-    {
-        if (neighbors[i]->floodFillColor != color)
+        Tile* neigh = *it;
+        switch(neigh->getType())
         {
-            tilesFlooded += doFloodFill(neighbors[i]->x, neighbors[i]->y,
-                                        passability, color);
+            case Tile::dirt:
+            case Tile::gold:
+            case Tile::claimed:
+            {
+                if((tile->mFloodFillColor[Tile::FloodFillTypeGround] == -1) &&
+                   (neigh->mFloodFillColor[Tile::FloodFillTypeGround] != -1))
+                {
+                    tile->mFloodFillColor[Tile::FloodFillTypeGround] = neigh->mFloodFillColor[Tile::FloodFillTypeGround];
+                    hasChanged = true;
+                }
+
+                if((tile->mFloodFillColor[Tile::FloodFillTypeGroundWater] == -1) &&
+                   (neigh->mFloodFillColor[Tile::FloodFillTypeGroundWater] != -1))
+                {
+                    tile->mFloodFillColor[Tile::FloodFillTypeGroundWater] = neigh->mFloodFillColor[Tile::FloodFillTypeGroundWater];
+                    hasChanged = true;
+                }
+
+                if((tile->mFloodFillColor[Tile::FloodFillTypeGroundLava] == -1) &&
+                   (neigh->mFloodFillColor[Tile::FloodFillTypeGroundLava] != -1))
+                {
+                    tile->mFloodFillColor[Tile::FloodFillTypeGroundLava] = neigh->mFloodFillColor[Tile::FloodFillTypeGroundLava];
+                    hasChanged = true;
+                }
+
+                if((tile->mFloodFillColor[Tile::FloodFillTypeGroundWaterLava] == -1) &&
+                   (neigh->mFloodFillColor[Tile::FloodFillTypeGroundWaterLava] != -1))
+                {
+                    tile->mFloodFillColor[Tile::FloodFillTypeGroundWaterLava] = neigh->mFloodFillColor[Tile::FloodFillTypeGroundWaterLava];
+                    hasChanged = true;
+                }
+
+                // If the tile is fully filled, no need to continue
+                if(tile->isFloodFillFilled())
+                    return true;
+
+                break;
+            }
+            case Tile::water:
+            {
+                if((tile->mFloodFillColor[Tile::FloodFillTypeGroundWater] == -1) &&
+                   (neigh->mFloodFillColor[Tile::FloodFillTypeGroundWater] != -1))
+                {
+                    tile->mFloodFillColor[Tile::FloodFillTypeGroundWater] = neigh->mFloodFillColor[Tile::FloodFillTypeGroundWater];
+                    hasChanged = true;
+                }
+
+                if((tile->mFloodFillColor[Tile::FloodFillTypeGroundWaterLava] == -1) &&
+                   (neigh->mFloodFillColor[Tile::FloodFillTypeGroundWaterLava] != -1))
+                {
+                    tile->mFloodFillColor[Tile::FloodFillTypeGroundWaterLava] = neigh->mFloodFillColor[Tile::FloodFillTypeGroundWaterLava];
+                    hasChanged = true;
+                }
+
+                // If the tile is fully filled, no need to continue
+                if(tile->isFloodFillFilled())
+                    return true;
+
+                break;
+            }
+            case Tile::lava:
+            {
+                if((tile->mFloodFillColor[Tile::FloodFillTypeGroundLava] == -1) &&
+                   (neigh->mFloodFillColor[Tile::FloodFillTypeGroundLava] != -1))
+                {
+                    tile->mFloodFillColor[Tile::FloodFillTypeGroundLava] = neigh->mFloodFillColor[Tile::FloodFillTypeGroundLava];
+                    hasChanged = true;
+                }
+
+                if((tile->mFloodFillColor[Tile::FloodFillTypeGroundWaterLava] == -1) &&
+                   (neigh->mFloodFillColor[Tile::FloodFillTypeGroundWaterLava] != -1))
+                {
+                    tile->mFloodFillColor[Tile::FloodFillTypeGroundWaterLava] = neigh->mFloodFillColor[Tile::FloodFillTypeGroundWaterLava];
+                    hasChanged = true;
+                }
+
+                // If the tile is fully filled, no need to continue
+                if(tile->isFloodFillFilled())
+                    return true;
+
+                break;
+            }
+            default:
+                return false;
         }
     }
 
-    return tilesFlooded;
+    return hasChanged;
+}
+
+void GameMap::replaceFloodFill(Tile::FloodFillType floodFillType, int colorOld, int colorNew)
+{
+    OD_ASSERT_TRUE(floodFillType < Tile::FloodFillType::FloodFillTypeMax);
+    if(floodFillType >= Tile::FloodFillType::FloodFillTypeMax)
+        return;
+
+    for (int jj = 0; jj < getMapSizeY(); ++jj)
+    {
+        for (int ii = 0; ii < getMapSizeX(); ++ii)
+        {
+            Tile* tile = getTile(ii,jj);
+            if(tile->mFloodFillColor[floodFillType] == colorOld)
+                tile->mFloodFillColor[floodFillType] = colorNew;
+        }
+    }
+}
+
+void GameMap::refreshFloodFill(Tile* tile)
+{
+    int colors[Tile::FloodFillTypeMax];
+    for(int i = 0; i < Tile::FloodFillTypeMax; ++i)
+        colors[i] = -1;
+
+    // If the tile has opened a new place, we use the same floodfillcolor for all the areas
+    std::vector<Tile*> neighTiles = tile->getAllNeighbors();
+    for(std::vector<Tile*>::iterator it = neighTiles.begin(); it != neighTiles.end(); ++it)
+    {
+        Tile* neigh = *it;
+        for(int i = 0; i < Tile::FloodFillTypeMax; ++i)
+        {
+            if(colors[i] == -1)
+            {
+                colors[i] = neigh->mFloodFillColor[i];
+                tile->mFloodFillColor[i] = neigh->mFloodFillColor[i];
+            }
+            else if((colors[i] != -1) &&
+               (neigh->mFloodFillColor[i] != -1) &&
+               (neigh->mFloodFillColor[i] != colors[i]))
+            {
+                replaceFloodFill(static_cast<Tile::FloodFillType>(i), neigh->mFloodFillColor[i], colors[i]);
+            }
+        }
+    }
 }
 
 void GameMap::enableFloodFill()
@@ -2131,37 +2140,101 @@ void GameMap::enableFloodFill()
     {
         for (int ii = 0; ii < getMapSizeX(); ++ii)
         {
-            getTile(ii,jj)->floodFillColor = -1;
+            for(int kk = 0; kk < Tile::FloodFillTypeMax; ++kk)
+            {
+                getTile(ii,jj)->mFloodFillColor[kk] = -1;
+            }
         }
 
     }
 
-    // Loop over the tiles again, this time flood filling when the flood fill color is -1.
-    // This will flood the map enough times to cover the whole map.
-
-    // TODO: The looping construct here has a potential race condition in that the endTile could change between the time
-    // when it is initialized and the end of this loop.  If this happens the loop could continue infinitely.
+    // The algorithm used to find a path is efficient when the path exists but not if it doesn't.
+    // To improve path finding, we tag the contiguous tiles to know if a path exists between 2 tiles or not.
+    // Because creatures can go through ground, water or lava, we process all of theses.
+    // Note : when a tile is digged, floodfill will have to be refreshed.
     floodFillEnabled = true;
 
-    for (int jj = 0; jj < getMapSizeY(); ++jj)
+    // To optimize floodfilling, we start by tagging the dirt tiles with fullness = 0
+    // because they are walkable for most creatures. When we will have tagged all
+    // thoses, we will deal with water/lava remaining (there can be some left if
+    // surrounded by not passable tiles).
+    while(true)
     {
-        for (int ii = 0; ii < getMapSizeX(); ++ii)
+        int yy = 0;
+
+        bool isTileFound;
+        isTileFound = false;
+        while(!isTileFound && (yy < getMapSizeY()))
         {
-            if (getTile(ii, jj)->floodFillColor == -1)
-                doFloodFill(ii , jj);
+            for(int xx = 0; xx < getMapSizeX(); ++xx)
+            {
+                Tile* tile = getTile(xx, yy);
+                if((tile->getFullness() == 0.0) &&
+                   (tile->mFloodFillColor[Tile::FloodFillTypeGround] == -1) &&
+                   ((tile->getType() == Tile::dirt) ||
+                    (tile->getType() == Tile::gold) ||
+                    (tile->getType() == Tile::claimed)))
+                {
+                    isTileFound = true;
+                    for(int i = 0; i < Tile::FloodFillTypeMax; ++i)
+                    {
+                        if(tile->mFloodFillColor[i] == -1)
+                            tile->mFloodFillColor[i] = nextUniqueNumberFloodFilling();
+                    }
+                    break;
+                }
+            }
+
+            if(!isTileFound)
+                ++yy;
+        }
+
+        // If there are no more walkable tiles, we stop. The only remaining tiles should be
+        // surrounded lava/water tiles. We ignore them as it would be time consuming to floodfill
+        // them for a case that will almost never happen. If it do happen, we will apply the standard
+        // algorithm without floodfill optimization.
+        if(!isTileFound)
+            break;
+
+        while(yy < getMapSizeY())
+        {
+            int nbTiles = 0;
+            for(int xx = 0; xx < getMapSizeX(); ++xx)
+            {
+                Tile* tile = getTile(xx, yy);
+                if(doFloodFill(tile))
+                    ++nbTiles;
+            }
+
+            // For optimization purposes, if a tile has changed, we go on the other side
+            if(nbTiles > 0)
+            {
+                for(int xx = getMapSizeX(); xx > 0; --xx)
+                {
+                    Tile* tile = getTile(xx - 1, yy);
+                    if(doFloodFill(tile))
+                        ++nbTiles;
+                }
+            }
+
+            // If at least one tile as been changed, we go back to the previous line
+            if((nbTiles > 0) && (yy > 0))
+                --yy;
+            else
+                ++yy;
         }
     }
 }
 
-std::list<Tile*> GameMap::path(Creature *c1, Creature *c2, Tile::TileClearType passability, int color)
+std::list<Tile*> GameMap::path(Creature *c1, Creature *c2, const CreatureDefinition* creatureDef, int color, bool throughDiggableTiles)
 {
     return path(c1->positionTile()->x, c1->positionTile()->y,
-                c2->positionTile()->x, c2->positionTile()->y, passability, color);
+                c2->positionTile()->x, c2->positionTile()->y, creatureDef, color, throughDiggableTiles);
 }
 
-std::list<Tile*> GameMap::path(Tile *t1, Tile *t2, Tile::TileClearType passability, int color)
+std::list<Tile*> GameMap::path(Tile *t1, Tile *t2, const CreatureDefinition* creatureDef, int color, bool throughDiggableTiles)
 {
-    return path(t1->x, t1->y, t2->x, t2->y, passability, color);
+    return path(t1->x, t1->y, t2->x, t2->y, creatureDef, color, throughDiggableTiles);
 }
 
 Ogre::Real GameMap::crowDistance(Creature *c1, Creature *c2)
@@ -2407,4 +2480,37 @@ std::string GameMap::nextUniqueNameMapLight()
         ret = MapLight::MAPLIGHT_NAME_PREFIX + Ogre::StringConverter::toString(mUniqueNumberMapLight);
     } while(getAnimatedObject(ret) != NULL);
     return ret;
+}
+
+void GameMap::logFloodFileTiles()
+{
+    for(int yy = 0; yy < getMapSizeY(); ++yy)
+    {
+        for(int xx = 0; xx < getMapSizeX(); ++xx)
+        {
+            Tile* tile = getTile(xx, yy);
+            std::string str = "Tile floodfill : " + Tile::displayAsString(tile) + " - fullness=" + Ogre::StringConverter::toString(tile->getFullness());
+            for(int i = 0; i < Tile::FloodFillTypeMax; ++i)
+            {
+                str += ", [" + Ogre::StringConverter::toString(i) + "]=" +
+                    Ogre::StringConverter::toString(tile->getFloodFill(static_cast<Tile::FloodFillType>(i)));
+            }
+            LogManager::getSingleton().logMessage(str);
+        }
+    }
+}
+
+void GameMap::consoleSetCreatureDestination(const std::string& creatureName, int x, int y)
+{
+    Creature* creature = getCreature(creatureName);
+    if(creature == NULL)
+        return;
+    Tile* tile = getTile(x, y);
+    if(tile == NULL)
+        return;
+    if(creature->positionTile() == NULL)
+        return;
+    creature->clearActionQueue();
+    creature->clearDestinations();
+    creature->setDestination(tile);
 }

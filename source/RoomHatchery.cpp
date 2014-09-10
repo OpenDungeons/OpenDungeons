@@ -371,8 +371,9 @@ bool RoomHatchery::doUpkeep()
         if(static_cast<int32_t>(creaturePosition.x) == static_cast<int32_t>(chickenPosition.x) &&
            static_cast<int32_t>(creaturePosition.y) == static_cast<int32_t>(chickenPosition.y))
         {
-            creature->faceToward(chickenPosition.x, chickenPosition.y);
-            creature->setAnimationState("Attack1", true, false);
+            Ogre::Vector3 walkDirection = chickenPosition - creaturePosition;
+            walkDirection.normalise();
+            creature->setAnimationState("Attack1", true, &walkDirection);
             ++mNbChickensEaten;
             mUnusedTiles.push_back(tileChicken);
             removeRoomObject(tileChicken);
@@ -387,7 +388,6 @@ bool RoomHatchery::doUpkeep()
         else if(!creature->isMoving())
         {
             // Move to the chicken
-            Ogre::Vector3 creaturePosition = creature->getPosition();
             creature->addDestination(chickenPosition.x, chickenPosition.y);
             creature->setAnimationState("Walk");
             ++it;

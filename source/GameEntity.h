@@ -108,7 +108,7 @@ class GameEntity
     //! \brief Pointer to the GameMap
     inline GameMap*             getGameMap      () const    { return gameMap; }
 
-    virtual Ogre::Vector3       getPosition     ()
+    virtual Ogre::Vector3       getPosition     () const
     {
         Ogre::Vector3 tempVector = position;
         return tempVector;

@@ -28,7 +28,6 @@
 
 MovableGameEntity::MovableGameEntity(GameMap* gameMap) :
         GameEntity(gameMap),
-        mWalkQueueFirstEntryAdded(false),
         mAnimationState(NULL),
         mDestinationAnimationState("Idle"),
         mSceneNode(NULL),
@@ -64,35 +63,23 @@ void MovableGameEntity::addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z)
 {
     Ogre::Vector3 destination(x, y, z);
 
-    // if there are currently no destinations in the walk queue
-    if (mWalkQueue.empty())
-    {
-        // Add the destination and set the remaining distance counter
-        mWalkQueue.push_back(destination);
-        mShortestDistance = getPosition().distance(mWalkQueue.front());
-        mWalkQueueFirstEntryAdded = true;
-    }
-    else
-    {
-        // Add the destination
-        mWalkQueue.push_back(destination);
-    }
+    mWalkQueue.push_back(destination);
 
-    if (getGameMap()->isServerGameMap())
+    if (!getGameMap()->isServerGameMap())
+        return;
+
+    try
     {
-        try
-        {
-            ServerNotification* serverNotification = new ServerNotification(
-                ServerNotification::animatedObjectAddDestination, NULL);
-            std::string name = getName();
-            serverNotification->mPacket << name << destination;
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
-        catch (std::bad_alloc&)
-        {
-            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in MovableGameEntity::addDestination", Ogre::LML_CRITICAL);
-            exit(1);
-        }
+        ServerNotification* serverNotification = new ServerNotification(
+            ServerNotification::animatedObjectAddDestination, NULL);
+        std::string name = getName();
+        serverNotification->mPacket << name << destination;
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
+    catch (std::bad_alloc&)
+    {
+        Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in MovableGameEntity::addDestination", Ogre::LML_CRITICAL);
+        exit(1);
     }
 }
 
@@ -154,41 +141,23 @@ void MovableGameEntity::clearDestinations()
 
 void MovableGameEntity::stopWalking()
 {
-    mWalkDirection = Ogre::Vector3::ZERO;
-
     // Set the animation state of this object to the state that was set for it to enter into after it reaches it's destination.
     setAnimationState(mDestinationAnimationState);
 }
 
-void MovableGameEntity::faceToward(int x, int y)
-{
-    faceToward(static_cast<Ogre::Real>(x), static_cast<Ogre::Real>(y));
-}
-
-void MovableGameEntity::faceToward(Ogre::Real x, Ogre::Real y)
-{
-    // Rotate the object to face the direction of the destination
-    Ogre::Vector3 tempPosition = getPosition();
-    tempPosition = Ogre::Vector3(x, y, tempPosition.z) - tempPosition;
-    tempPosition.normalise();
-    setWalkDirection(tempPosition);
-}
-
 void MovableGameEntity::setWalkDirection(Ogre::Vector3& direction)
 {
-    mWalkDirection = direction;
-
     if(getGameMap()->isServerGameMap())
         return;
 
     RenderRequest* request = new RenderRequest;
     request->type = RenderRequest::orientSceneNodeToward;
-    request->vec = mWalkDirection;
+    request->vec = direction;
     request->p = static_cast<void*>(this);
     RenderManager::queueRenderRequest(request);
 }
 
-void MovableGameEntity::setAnimationState(const std::string& state, bool setWalkDirection, bool loop)
+void MovableGameEntity::setAnimationState(const std::string& state, bool loop, Ogre::Vector3* direction)
 {
     // Ignore the command if the command is exactly the same as what we did last time,
     // this is not only faster it prevents non-looped actions
@@ -198,10 +167,9 @@ void MovableGameEntity::setAnimationState(const std::string& state, bool setWalk
 
     mPrevAnimationState = state;
 
-    if (state.compare("Walk") == 0 || state.compare("Flee") == 0)
-        setAnimationSpeedFactor(mMoveSpeed);
-    else
-        setAnimationSpeedFactor(1.0);
+    // NOTE : if we add support to increase speed like a spell or slapping, it
+    // would be nice to increase speed factor
+    setAnimationSpeedFactor(1.0);
 
     if (getGameMap()->isServerGameMap())
     {
@@ -210,9 +178,11 @@ void MovableGameEntity::setAnimationState(const std::string& state, bool setWalk
             ServerNotification* serverNotification = new ServerNotification(
                 ServerNotification::setObjectAnimationState, NULL);
             std::string name = getName();
-            serverNotification->mPacket << name << state << loop << setWalkDirection;
-            if(setWalkDirection)
-                serverNotification->mPacket << mWalkDirection;
+            serverNotification->mPacket << name << state << loop;
+            if(direction != NULL)
+                serverNotification->mPacket << true << *direction;
+            else
+                serverNotification->mPacket << false;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)
@@ -245,7 +215,7 @@ void MovableGameEntity::setAnimationSpeedFactor(double f)
 void MovableGameEntity::update(Ogre::Real timeSinceLastFrame)
 {
     // Advance the animation
-    if (mAnimationState != NULL)
+    if (!getGameMap()->isServerGameMap() && mAnimationState != NULL)
     {
         mAnimationState->addTime((Ogre::Real)(ODApplication::turnsPerSecond
                                  * timeSinceLastFrame
@@ -257,48 +227,45 @@ void MovableGameEntity::update(Ogre::Real timeSinceLastFrame)
 
     // Move the entity
 
-    // If the previously empty walk queue has had a destination added to it we need to rotate the entity to face its initial walk direction.
-    if (mWalkQueueFirstEntryAdded)
-    {
-        mWalkQueueFirstEntryAdded = false;
-        faceToward((int)mWalkQueue.front().x, (int)mWalkQueue.front().y);
-    }
-
     //FIXME: The moveDist should probably be tied to the scale of the entity as well
     //FIXME: When the client and the server are using different frame rates, the entities walk at different speeds
     double moveDist = ODApplication::turnsPerSecond
                       * getMoveSpeed()
                       * timeSinceLastFrame;
-    mShortestDistance -= moveDist;
+    Ogre::Vector3 newPosition = getPosition();
+    Ogre::Vector3 nextDest = mWalkQueue.front();
+    Ogre::Vector3 walkDirection = nextDest - newPosition;
+    walkDirection.normalise();
 
-    // Check to see if we have walked to, or past, the first destination in the queue
-    if (mShortestDistance <= 0.0)
+    while(moveDist > 0.0)
     {
-        // Compensate for any overshoot and place the creature at the intended destination
-        setPosition(mWalkQueue.front());
-        mWalkQueue.pop_front();
-
-        // If there are no more places to walk to still left in the queue
-        if (mWalkQueue.empty())
+        Ogre::Real distToNextDest = newPosition.distance(nextDest);
+        if(distToNextDest > moveDist)
         {
-            // Stop walking
-            stopWalking();
+            newPosition = newPosition + walkDirection * (Ogre::Real)moveDist;
+            break;
         }
-        else // There are still entries left in the queue
+        else
         {
-            // Turn to face the next direction
-            faceToward((int)mWalkQueue.front().x, (int)mWalkQueue.front().y);
+            // We have reached the destination. We go to the next if available
+            newPosition = nextDest;
+            moveDist -= distToNextDest;
+            mWalkQueue.pop_front();
+            if(mWalkQueue.empty())
+            {
+                // Stop walking
+                stopWalking();
+                break;
+            }
 
-            // Compute the distance to the next location in the queue and store it in the shortDistance datamember.
-            Ogre::Vector3 tempVector = mWalkQueue.front() - getPosition();
-            mShortestDistance = tempVector.normalise();
+            nextDest = mWalkQueue.front();
+            walkDirection = nextDest - newPosition;
+            walkDirection.normalise();
         }
     }
-    else // We have not reached the destination at the front of the queue
-    {
-        // Move the object closer to its destination by the amount it should travel this frame.
-        setPosition(getPosition() + mWalkDirection * (Ogre::Real)moveDist);
-    }
+
+    setWalkDirection(walkDirection);
+    setPosition(newPosition);
 }
 
 void MovableGameEntity::setPosition(const Ogre::Vector3& v)

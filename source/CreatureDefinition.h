@@ -60,9 +60,9 @@ public:
             double                  danceRate   = 0.35,
             double                  hpPerLevel  = 5.0,
             double                  maxHP       = 100.0,
-            double                  moveSpeed   = 1.0,
-
-            Tile::TileClearType     tilePassability = Tile::walkableTile) :
+            double                  moveSpeedGround     = 1.0,
+            double                  moveSpeedWater      = 0.0,
+            double                  moveSpeedLava       = 0.0) :
         mCreatureJob (job),
         mClassName   (className),
         mMeshName    (meshName),
@@ -75,9 +75,9 @@ public:
         mDanceRate   (danceRate),
         mHpPerLevel  (hpPerLevel),
         mMaxHP       (maxHP),
-        mMoveSpeed   (moveSpeed),
-
-        mTilePassability         (tilePassability)
+        mMoveSpeedGround    (moveSpeedGround),
+        mMoveSpeedWater     (moveSpeedWater),
+        mMoveSpeedLava      (moveSpeedLava)
     {}
 
     static CreatureJob creatureJobFromString(const std::string& s);
@@ -89,7 +89,7 @@ public:
     inline static std::string getFormat()
     {
         return "# className\tcreatureJob\tmeshName\tbedMeshName\tbedDim1\tbedDim2\tscaleX\tscaleY\tscaleZ\t"
-               "hp/level\tmana/level\tmaxHP\tmaxMana\tsightRadius\tdigRate\tdanceRate\tmoveSpeed\ttilePassability\n";
+               "hp/level\tmaxHP\tsightRadius\tdigRate\tdanceRate\tmoveSpeedGround\tmoveSpeedWater\tmoveSpeedLava\n";
     }
 
     friend std::ostream & operator <<(std::ostream & os, CreatureDefinition *c);
@@ -110,11 +110,11 @@ public:
     inline double               getHpPerLevel   () const    { return mHpPerLevel; }
     inline double               getMaxHp        () const    { return mMaxHP; }
     inline const std::string&   getMeshName     () const    { return mMeshName; }
-    inline double               getMoveSpeed    () const    { return mMoveSpeed; }
+    inline double               getMoveSpeedGround  () const    { return mMoveSpeedGround; }
+    inline double               getMoveSpeedWater   () const    { return mMoveSpeedWater; }
+    inline double               getMoveSpeedLava    () const    { return mMoveSpeedLava; }
     inline const Ogre::Vector3& getScale        () const    { return mScale; }
     inline double               getSightRadius  () const    { return mSightRadius; }
-
-    inline Tile::TileClearType  getTilePassability () const { return mTilePassability; }
 
 private:
     //NOTE: Anything added to this class must be included in the '=' operator for the Creature class.
@@ -155,11 +155,10 @@ private:
     //! \brief The maximum HP the creature can ever have
     double mMaxHP;
 
-    //! \brief How fast the creature moves
-    double mMoveSpeed;
-
-    //! \brief Tile passability (defines mostly if the creature is walking, flying, or etherreal)
-    Tile::TileClearType mTilePassability;
+    //! \brief How fast the creature moves (0 -> The creature cannot go through corresponding tile)
+    double mMoveSpeedGround;
+    double mMoveSpeedWater;
+    double mMoveSpeedLava;
 };
 
 #endif // CREATURECLASS_H

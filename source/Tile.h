@@ -35,6 +35,7 @@ class Player;
 class Room;
 class MapLight;
 class GameMap;
+class CreatureDefinition;
 
 /*! \brief The tile class contains information about tile type and contents and is the basic level bulding block.
  *
@@ -47,9 +48,9 @@ class Tile : public GameEntity
 {
 
 friend class TileContainersModificator;
+friend class GameMap;
 
 public:
-    // Changes to this enum must be reflected in Tile::getTilePassability()
     enum TileType
     {
         nullTileType = 0,
@@ -63,21 +64,11 @@ public:
         claimed = 6
     };
 
-    // Changes to this enum must be reflected in Tile::getTilePassability() as well as in GameMap::path()
-    enum TileClearType
-    {
-        impassableTile = 0,
-        walkableTile = 1,
-        flyableTile = 2,
-        diggableTile = 3
-    };
-
     Tile(GameMap* gameMap, int nX = 0, int nY = 0, TileType nType = dirt, double nFullness = 100.0) :
         GameEntity          (gameMap),
         x                   (nX),
         y                   (nY),
         colorDouble         (0.0),
-        floodFillColor      (-1),
         rotation            (0.0),
         type                (nType),
         selected            (false),
@@ -87,6 +78,10 @@ public:
         coveringTrap        (false),
         claimLight          (0)
     {
+        for(int i = 0; i < Tile::FloodFillTypeMax; i++)
+        {
+            mFloodFillColor[i] = -1;
+        }
         setColor(0);
         setObjectType(GameEntity::tile);
     }
@@ -129,15 +124,6 @@ public:
      * mesh to load to display a given tile type.
      */
     int getFullnessMeshNumber() const;
-
-    /*! \brief Returns the 'passability' state of a tile (impassableTile, walkableTile, etc.).
-     *
-     * The passability of a tile indicates what type of creatures may move into the
-     * given tile.  As an example, no creatures may move into an 'impassableTile'
-     * like Dirt100 and only flying creatures may move into a 'flyableTile' like
-     * Lava0.
-     */
-    TileClearType getTilePassability() const;
 
     //! \brief Tells whether a creature can see through a tile
     bool permitsVision() const;
@@ -272,11 +258,8 @@ public:
      */
     static std::string tileTypeToString(TileType t);
 
-    //! \brief Gives the tile passability string
-    static std::string tilePassabilityToString(TileClearType t);
-
-    //! \brief Gives the tile passability from the given string
-    static TileClearType tilePassabilityFromString(const::string& t);
+    bool canCreatureGoThroughTile(const CreatureDefinition* creatureDef);
+    double getCreatureSpeedOnTile(const CreatureDefinition* creatureDef);
 
     int getX() const
     { return x; }
@@ -291,7 +274,6 @@ public:
 
     int x, y;
     double colorDouble;
-    int floodFillColor;
     Ogre::Real rotation;
 
     //TODO properly implement these
@@ -307,6 +289,17 @@ protected:
     virtual void destroyMeshLocal();
     virtual void deleteYourselfLocal();
 private:
+    bool isFloodFillFilled();
+
+    enum FloodFillType
+    {
+        FloodFillTypeGround = 0,
+        FloodFillTypeGroundWater,
+        FloodFillTypeGroundLava,
+        FloodFillTypeGroundWaterLava,
+        FloodFillTypeMax
+    };
+
     TileType type;
     bool selected;
 
@@ -319,12 +312,15 @@ private:
     Room *coveringRoom;
     bool coveringTrap;
     MapLight *claimLight;
+    int mFloodFillColor[FloodFillTypeMax];
 
     /*! \brief Set the fullness value for the tile.
      *  This only sets the fullness variable. This function is here to change the value
      *  before a map object has been set. setFullness is called once a map is assigned.
      */
     void setFullnessValue(double f);
+
+    int getFloodFill(FloodFillType type);
 };
 
 #endif // TILE_H

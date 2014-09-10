@@ -209,4 +209,6 @@ For information on how to use a particular command, type help followed by the co
 \n\tfarclip - sets the far clipping distance\
 \n\tvisdebug - turns on visual debugging for a creature\
 \n\tdisconnect - stops a running server or client and returns to the map editor\
-\n\taithreads - sets the maximum number of creature AI threads on the server";
++\n\taithreads - sets the maximum number of creature AI threads on the server\
++\n\tsetdest - Sets the creature destination\
++\n\tlogfloodfill - Displays the FloodFillValues of all the Tiles in the GameMap";
