@@ -272,7 +272,6 @@ bool Gui::dormitoryButtonPressed(const CEGUI::EventArgs& e)
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::dormitory);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
-    TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Dormitory");
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
 }
@@ -282,7 +281,6 @@ bool Gui::treasuryButtonPressed(const CEGUI::EventArgs& e)
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::treasury);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
-    TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Treasury");
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
 }
@@ -292,7 +290,6 @@ bool Gui::forgeButtonPressed(const CEGUI::EventArgs& e)
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::forge);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
-    TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Forge");
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
 }
@@ -302,7 +299,6 @@ bool Gui::trainingHallButtonPressed(const CEGUI::EventArgs& e)
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::trainingHall);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
-    TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Training Hall");
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
 }
@@ -312,7 +308,6 @@ bool Gui::libraryButtonPressed(const CEGUI::EventArgs& e)
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::library);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
-    TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Library");
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
 }
@@ -322,7 +317,6 @@ bool Gui::hatcheryButtonPressed(const CEGUI::EventArgs& e)
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::hatchery);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
-    TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Hatchery");
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
 }
@@ -332,7 +326,6 @@ bool Gui::cannonButtonPressed(const CEGUI::EventArgs& e)
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::nullRoomType);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::cannon);
-    TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Cannon");
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
 }

@@ -698,6 +698,42 @@ ODPacket& operator<<(ODPacket& os, Room *r)
     return os;
 }
 
+const char* Room::getRoomNameFromRoomType(RoomType t)
+{
+    switch (t)
+    {
+    case nullRoomType:
+        return "NullRoomType";
+
+    case dungeonTemple:
+        return "DungeonTemple";
+
+    case dormitory:
+        return "Dormitory";
+
+    case treasury:
+        return "Treasury";
+
+    case portal:
+        return "Portal";
+
+    case forge:
+        return "Forge";
+
+    case trainingHall:
+        return "TrainingHall";
+
+    case library:
+        return "Library";
+
+    case hatchery:
+        return "Hatchery";
+
+    default:
+        return "UnknownRoomType";
+    }
+}
+
 const char* Room::getMeshNameFromRoomType(RoomType t)
 {
     switch (t)

@@ -23,8 +23,6 @@
 
 #include <OIS/OISMouse.h>
 #include <OIS/OISKeyboard.h>
-#include <OgreFrameListener.h>
-#include <OgreWindowEventUtilities.h>
 
 #include <iostream>
 
@@ -32,9 +30,7 @@ using std::endl; using std::cout;
 
 class AbstractApplicationMode :
     public OIS::MouseListener,
-    public OIS::KeyListener,
-    public Ogre::FrameListener,
-    public Ogre::WindowEventListener
+    public OIS::KeyListener
 {
 protected:
     // foreign reference, don't delete it.

@@ -108,6 +108,7 @@ public:
     }
 
     static const char* getMeshNameFromRoomType(RoomType t);
+    static const char* getRoomNameFromRoomType(RoomType t);
     static RoomType getRoomTypeFromMeshName(const std::string& s);
 
     static int costPerTile(RoomType t);
