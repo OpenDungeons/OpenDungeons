@@ -251,7 +251,7 @@ void MovableGameEntity::update(Ogre::Real timeSinceLastFrame)
             newPosition = nextDest;
             moveDist -= distToNextDest;
             mWalkQueue.pop_front();
-            if(mWalkQueue.size() == 0)
+            if(mWalkQueue.empty())
             {
                 // Stop walking
                 stopWalking();
