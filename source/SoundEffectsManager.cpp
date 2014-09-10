@@ -25,7 +25,9 @@
 #include <map>
 
 // class GameSound
-GameSound::GameSound(const std::string& filename, bool spatialSound)
+GameSound::GameSound(const std::string& filename, bool spatialSound):
+    mSound(NULL),
+    mSoundBuffer(NULL)
 {
     // Loads the buffer
     mSoundBuffer = new sf::SoundBuffer();
@@ -38,37 +40,46 @@ GameSound::GameSound(const std::string& filename, bool spatialSound)
 
     mFilename = filename;
 
+    mSound = new sf::Sound();
     // Loads the main sound object
-    mSound.setBuffer(*mSoundBuffer);
+    mSound->setBuffer(*mSoundBuffer);
 
-    mSound.setLoop(false);
+    mSound->setLoop(false);
 
     // Sets a correct attenuation value if the sound is spatial
     if (spatialSound == true)
     {
         // Set convenient spatial fading unit.
-        mSound.setVolume(100.0f);
-        mSound.setAttenuation(3.0f);
-        mSound.setMinDistance(3.0f);
+        mSound->setVolume(100.0f);
+        mSound->setAttenuation(3.0f);
+        mSound->setMinDistance(3.0f);
     }
     else // Disable attenuation for sounds that must heard the same way everywhere
     {
         // Prevents the sound from being too loud
-        mSound.setVolume(30.0f);
-        mSound.setAttenuation(0.0f);
+        mSound->setVolume(30.0f);
+        mSound->setAttenuation(0.0f);
     }
 }
 
 GameSound::~GameSound()
 {
-    mSound.stop();
+    // The sound object must be stopped and destroyed before its corresponding
+    // buffer to ensure detaching the sound stream from the sound source.
+    // This prevents a lot of warnings at app quit.
+    if (mSound != NULL)
+    {
+        mSound->stop();
+        delete mSound;
+    }
+
     if (mSoundBuffer != NULL)
         delete mSoundBuffer;
 }
 
 void GameSound::setPosition(float x, float y, float z)
 {
-    mSound.setPosition(x, y, z);
+    mSound->setPosition(x, y, z);
 }
 
 // SoundEffectsManager class
