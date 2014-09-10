@@ -825,7 +825,7 @@ void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
     }
 }
 
-bool GameMap::pathExists(int x1, int y1, int x2, int y2, const CreatureDefinition* creatureDef, int color)
+bool GameMap::pathExists(int x1, int y1, int x2, int y2, const CreatureDefinition* creatureDef)
 {
     // If floodfill is not enabled, we cannot check if the path exists so we return true
     if(!floodFillEnabled)
@@ -874,7 +874,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const CreatureDef
         return returnList;
 
     // If flood filling is enabled, we can possibly eliminate this path by checking to see if they two tiles are colored differently.
-    if (!throughDiggableTiles && !pathExists(x1, y1, x2, y2, creatureDef, color))
+    if (!throughDiggableTiles && !pathExists(x1, y1, x2, y2, creatureDef))
         return returnList;
 
     // If the end tile was not found return an empty path
@@ -1475,8 +1475,7 @@ unsigned int GameMap::numRoomsByTypeAndColor(Room::RoomType type, int color) con
 
 std::vector<Room*> GameMap::getReachableRooms(const std::vector<Room*>& vec,
                                               Tile* startTile,
-                                              const CreatureDefinition* creatureDef,
-                                              int color)
+                                              const CreatureDefinition* creatureDef)
 {
     std::vector<Room*> returnVector;
 
@@ -1486,7 +1485,7 @@ std::vector<Room*> GameMap::getReachableRooms(const std::vector<Room*>& vec,
         Tile* coveredTile = room->getCoveredTile(0);
         if (pathExists(startTile->x, startTile->y,
             coveredTile->x, coveredTile->y,
-            creatureDef, color))
+            creatureDef))
         {
             returnVector.push_back(room);
         }

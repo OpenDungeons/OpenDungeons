@@ -312,7 +312,7 @@ void ODServer::serverThread()
         // make sure server is not more advanced than clients. We do that because it is better for clients
         // to wait for server. If server is in advance, he might send commands before the
         // creatures arrive at their destination. That could result in weird issues like
-        // creatures goinf through walls.
+        // creatures going through walls.
         startNewTurn(static_cast<double>(clock.restart().asSeconds()) * 0.95);
 
         processServerNotifications();

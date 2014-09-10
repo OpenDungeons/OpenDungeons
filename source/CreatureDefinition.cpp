@@ -112,7 +112,6 @@ std::string CreatureDefinition::creatureJobToString(CreatureJob c)
 
 std::ostream& operator<<(std::ostream& os, CreatureDefinition* c)
 {
-    //TODO: Need to include maxHP/maxMana in the file format.
     os << c->mClassName << "\t"
        << CreatureDefinition::creatureJobToString(c->mCreatureJob)
        << "\t" << c->mMeshName << "\t";
@@ -142,7 +141,6 @@ std::istream& operator>>(std::istream& is, CreatureDefinition* c)
 
 ODPacket& operator<<(ODPacket& os, CreatureDefinition* c)
 {
-    //TODO: Need to include maxHP/maxMana in the file format.
     std::string creatureJob = CreatureDefinition::creatureJobToString(c->mCreatureJob);
     os << c->mClassName
        << creatureJob

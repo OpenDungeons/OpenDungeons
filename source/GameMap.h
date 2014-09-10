@@ -174,8 +174,7 @@ public:
     unsigned int numRoomsByTypeAndColor(Room::RoomType type,
                       int color) const;
     std::vector<Room*> getReachableRooms(const std::vector<Room*> &vec,
-                       Tile *startTile, const CreatureDefinition* creatureDef,
-                       int color);
+                       Tile *startTile, const CreatureDefinition* creatureDef);
     Room* getRoomByName(const std::string& name);
 
     //! \brief Traps related functions.
@@ -324,7 +323,7 @@ public:
     void doPlayerAITurn(double frameTime);
 
     //! \brief Tells whether a path exists between two corrdinate points for the given creature.
-    bool pathExists(int x1, int y1, int x2, int y2, const CreatureDefinition* creatureDef, int color);
+    bool pathExists(int x1, int y1, int x2, int y2, const CreatureDefinition* creatureDef);
 
     /*! \brief Calculates the walkable path between tiles (x1, y1) and (x2, y2).
      *

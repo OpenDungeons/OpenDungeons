@@ -800,7 +800,7 @@ void Creature::decidePrioritaryAction()
                 //        Shall they remain idle ? Shall they flee randomly ?
                 //        For now, we do nothing if the creature is weak
                 std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndColor(Room::dormitory, getColor());
-                tempRooms = getGameMap()->getReachableRooms(tempRooms, positionTile(), mDefinition, getColor());
+                tempRooms = getGameMap()->getReachableRooms(tempRooms, positionTile(), mDefinition);
                 if (!tempRooms.empty())
                 {
                     clearActionQueue();
@@ -991,7 +991,7 @@ bool Creature::handleIdleAction()
     {
         // Check to see if there are any dormitory owned by our color that we can reach.
         std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndColor(Room::dormitory, getColor());
-        tempRooms = getGameMap()->getReachableRooms(tempRooms, positionTile(), mDefinition, getColor());
+        tempRooms = getGameMap()->getReachableRooms(tempRooms, positionTile(), mDefinition);
         if (!tempRooms.empty())
         {
             pushAction(CreatureAction::findHome);
@@ -2432,7 +2432,7 @@ std::vector<GameEntity*> Creature::getReachableAttackableObjects(const std::vect
         GameEntity* entity = objectsToCheck[i];
         Tile* objectTile = entity->getCoveredTiles()[0];
         if (getGameMap()->pathExists(myTile->x, myTile->y, objectTile->x,
-                objectTile->y, mDefinition, getColor()))
+                objectTile->y, mDefinition))
         {
             tempVector.push_back(objectsToCheck[i]);
 
