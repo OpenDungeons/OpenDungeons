@@ -54,19 +54,19 @@ public:
 
     void play()
     {
-        mSound.stop();
-        mSound.play();
+        mSound->stop();
+        mSound->play();
     }
 
     void stop()
-    { mSound.stop(); }
+    { mSound->stop(); }
 
     const std::string& getFilename() const
     { return mFilename; }
 
 private:
     //! \brief The Main sound object
-    sf::Sound mSound;
+    sf::Sound* mSound;
 
     //! \brief The corresponding sound buffer, must not be destroyed
     //! before the sound object itself is deleted.
