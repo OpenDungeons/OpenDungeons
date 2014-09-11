@@ -1,16 +1,16 @@
-// TrainingDummy1 genrated by blender2ogre 0.6.0
+// TrainingDummy3 genrated by blender2ogre 0.6.0
 
-material TrainingDummy1 
+material TrainingDummy3 
 {
     receive_shadows on 
 
     technique
     {
-        pass TrainingDummy1
+        pass TrainingDummy3
         {
             ambient 0.800000011920929 0.800000011920929 0.800000011920929 1.0
             diffuse 0.800000011920929 0.800000011920929 0.800000011920929 1.0
-            specular 0.0 0.0 0.0 1.0 3.75
+            specular 0.2567567527294159 0.2567567527294159 0.2567567527294159 1.0 12.5
             emissive 0.0 0.0 0.0 1.0
 
             alpha_to_coverage off
@@ -32,7 +32,7 @@ material TrainingDummy1
 
             texture_unit 
             {
-                texture TrainingDummy1.png
+                texture TrainingDummy3.png
                 tex_address_mode wrap
                 scale 1.0 1.0
                 colour_op modulate

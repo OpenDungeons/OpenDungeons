@@ -174,7 +174,25 @@ Trap* Trap::createTrapFromPacket(GameMap* gameMap, const std::string& trapMeshNa
     return returnTrap;
 }
 
-std::string Trap::getMeshNameFromTrapType(TrapType t)
+const char* Trap::getTrapNameFromTrapType(TrapType t)
+{
+    switch (t)
+    {
+        case nullTrapType:
+            return "NullTrapType";
+
+        case cannon:
+            return "Cannon";
+
+        case boulder:
+            return "Boulder";
+
+        default:
+            return "UnknownTrapType";
+    }
+}
+
+const char* Trap::getMeshNameFromTrapType(TrapType t)
 {
     switch (t)
     {

@@ -1,16 +1,16 @@
-// TrainingDummy1 genrated by blender2ogre 0.6.0
+// Spiketrap genrated by blender2ogre 0.6.0
 
-material TrainingDummy1 
+material Spiketrap 
 {
     receive_shadows on 
 
     technique
     {
-        pass TrainingDummy1
+        pass Spiketrap
         {
-            ambient 0.800000011920929 0.800000011920929 0.800000011920929 1.0
-            diffuse 0.800000011920929 0.800000011920929 0.800000011920929 1.0
-            specular 0.0 0.0 0.0 1.0 3.75
+            ambient 0.699999988079071 0.699999988079071 0.699999988079071 1.0
+            diffuse 0.559999998807907 0.559999998807907 0.559999998807907 1.0
+            specular 0.19999998807907104 0.19999998807907104 0.19999998807907104 1.0 18.25
             emissive 0.0 0.0 0.0 1.0
 
             alpha_to_coverage off
@@ -32,7 +32,7 @@ material TrainingDummy1
 
             texture_unit 
             {
-                texture TrainingDummy1.png
+                texture Spike-trapTexture.png
                 tex_address_mode wrap
                 scale 1.0 1.0
                 colour_op modulate

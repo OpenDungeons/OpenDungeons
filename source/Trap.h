@@ -73,7 +73,8 @@ public:
     inline const TrapType& getType() const
     { return mType; }
 
-    static std::string getMeshNameFromTrapType(TrapType t);
+    static const char* getTrapNameFromTrapType(TrapType t);
+    static const char* getMeshNameFromTrapType(TrapType t);
     static TrapType getTrapTypeFromMeshName(std::string s);
 
     static int costPerTile(TrapType t);

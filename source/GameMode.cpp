@@ -117,7 +117,6 @@ void GameMode::handleCursorPositionUpdate()
 
 bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 {
-
     CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition((float)arg.state.X.abs, (float)arg.state.Y.abs);
 
     if (!isConnected())
@@ -129,56 +128,63 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
     if (frameListener->isTerminalActive())
         return true;
 
-    //If we have a room or trap (or later spell) selected, show what we
-    //have selected
-    //TODO: This should be changed, or combined with an icon or something later.
+    // If we have a room or trap (or later spell) selected, show what we have selected
+    // TODO: This should be changed, or combined with an icon or something later.
     Player* player = mGameMap->getLocalPlayer();
-    if (player && (player->getNewRoomType() != Room::nullRoomType
-        || player->getNewTrapType() != Trap::nullTrapType))
+    Room::RoomType selectedRoomType = player->getNewRoomType();
+    Trap::TrapType selectedTrapType = player->getNewTrapType();
+    if (player && (selectedRoomType != Room::nullRoomType
+        || selectedTrapType != Trap::nullTrapType))
     {
         TextRenderer::getSingleton().moveText(ODApplication::POINTER_INFO_STRING,
-                                              (Ogre::Real)(arg.state.X.abs + 30), (Ogre::Real)arg.state.Y.abs);
+            (Ogre::Real)(arg.state.X.abs + 30), (Ogre::Real)arg.state.Y.abs);
+        int nbTile = 1;
+        // If the player is dragging to build, we display the total price the room/trap will cost.
+        // If he is not, we display the price for 1 tile.
+        if(inputManager->mLMouseDown)
+        {
+            std::vector<Tile*> buildableTiles = mGameMap->getBuildableTilesForPlayerInArea(inputManager->mXPos,
+                inputManager->mYPos, inputManager->mLStartDragX, inputManager->mLStartDragY, player);
+            nbTile = buildableTiles.size();
+        }
+
+        // TODO : the first treasury tile nshould be free. This should be shown here
+        if(selectedRoomType != Room::nullRoomType)
+        {
+            int price = Room::costPerTile(selectedRoomType) * nbTile;
+            TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(Room::getRoomNameFromRoomType(selectedRoomType))
+                + " [" + Ogre::StringConverter::toString(price)+ "]");
+        }
+        else if(selectedTrapType != Trap::nullTrapType)
+        {
+            int price = Trap::costPerTile(selectedTrapType) * nbTile;
+            TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(Trap::getTrapNameFromTrapType(selectedTrapType))
+                + " [" + Ogre::StringConverter::toString(price)+ "]");
+        }
     }
 
     handleMouseWheel(arg);
 
-    Ogre::RaySceneQueryResult& result = ODFrameListener::getSingleton().doRaySceneQuery(arg);
-
-    Ogre::RaySceneQueryResult::iterator itr = result.begin();
-    Ogre::RaySceneQueryResult::iterator end = result.end();
-
-    std::string resultName;
-
-    // if (inputManager->mDragType == tileSelection || inputManager->mDragType == addNewRoom
-    //    || inputManager->mDragType == nullDragType) or anything else
+    handleCursorPositionUpdate();
 
     // Since this is a tile selection query we loop over the result set
     // and look for the first object which is actually a tile.
-    for (; itr != end; ++itr)
+    Ogre::RaySceneQueryResult& result = ODFrameListener::getSingleton().doRaySceneQuery(arg);
+    for (Ogre::RaySceneQueryResult::iterator itr = result.begin(); itr != result.end(); ++itr)
     {
         if (itr->movable == NULL)
             continue;
 
         // Check to see if the current query result is a tile.
-        resultName = itr->movable->getName();
+        std::string resultName = itr->movable->getName();
 
         // Checks which tile we are on (if any)
         if (!Tile::checkTileName(resultName, inputManager->mXPos, inputManager->mYPos))
             continue;
 
-        handleCursorPositionUpdate();
-
         // If we don't drag anything, there is no affected tiles to compute.
         if (!inputManager->mLMouseDown || inputManager->mDragType == nullDragType)
             break;
-
-        // Loop over the tiles in the rectangular selection region and set their setSelected flag accordingly.
-        //TODO: This function is horribly inefficient, it should loop over a rectangle selecting tiles by x-y coords
-        // rather than the reverse that it is doing now.
-        std::vector<Tile*> affectedTiles = mGameMap->rectangularRegion(inputManager->mXPos,
-                                                                        inputManager->mYPos,
-                                                                        inputManager->mLStartDragX,
-                                                                        inputManager->mLStartDragY);
 
         for (int jj = 0; jj < mGameMap->getMapSizeY(); ++jj)
         {
@@ -187,6 +193,14 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 mGameMap->getTile(ii, jj)->setSelected(false, player);
             }
         }
+
+        // Loop over the tiles in the rectangular selection region and set their setSelected flag accordingly.
+        //TODO: This function is horribly inefficient, it should loop over a rectangle selecting tiles by x-y coords
+        // rather than the reverse that it is doing now.
+        std::vector<Tile*> affectedTiles = mGameMap->rectangularRegion(inputManager->mXPos,
+                                                                        inputManager->mYPos,
+                                                                        inputManager->mLStartDragX,
+                                                                        inputManager->mLStartDragY);
 
         for( std::vector<Tile*>::iterator itr = affectedTiles.begin(); itr != affectedTiles.end(); ++itr)
         {
@@ -251,6 +265,19 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     }
 
     inputManager->mMouseDownOnCEGUIWindow = false;
+
+    // There is a bug in OIS. When playing in windowed mode, if we clic outside the window
+    // and then we restore the window, we will receive a clic event on the last place where
+    // the mouse was.
+    Ogre::RenderWindow* mainWindows = static_cast<Ogre::RenderWindow*>(
+        ODApplication::getSingleton().getRoot()->getRenderTarget("OpenDungeons " + ODApplication::VERSION));
+    if((!mainWindows->isFullScreen()) &&
+       ((arg.state.X.abs == 0) || (arg.state.Y.abs == 0) ||
+        (static_cast<Ogre::uint32>(arg.state.X.abs) == mainWindows->getWidth()) ||
+        (static_cast<Ogre::uint32>(arg.state.Y.abs) == mainWindows->getHeight())))
+    {
+        return true;
+    }
 
     if(mGameMap->getGamePaused())
         return true;
