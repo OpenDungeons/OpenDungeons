@@ -53,7 +53,10 @@ RoomObject* RoomTrainingHall::notifyActiveSpotCreated(ActiveSpotPlace place, Til
             Ogre::Real y = static_cast<Ogre::Real>(tile->getY());
             y += OFFSET_DUMMY;
             mUnusedDummies.push_back(tile);
-            return loadRoomObject(getGameMap(), "TrainingDummy2", tile, x, y, 0.0);
+            if(Random::Int(0,1) == 0)
+                return loadRoomObject(getGameMap(), "TrainingDummy2", tile, x, y, 0.0);
+            else
+                return loadRoomObject(getGameMap(), "TrainingDummy3", tile, x, y, 0.0);
         }
         case ActiveSpotPlace::activeSpotLeft:
         {
