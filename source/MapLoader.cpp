@@ -142,33 +142,39 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
     // Read in the seats from the level file
     while (true)
     {
-        levelFile >> nextParam;
+        // Information can contain spaces. We need to use std::getline to get content
+        std::getline(levelFile, nextParam);
+        std::string param;
         if (nextParam == "[/Info]")
         {
             break;
         }
-        else if (nextParam == "Name")
+
+        param = "Name\t";
+        if (nextParam.compare(0, param.size(), param) == 0)
         {
-            levelFile >> nextParam;
-            gameMap.setLevelName(nextParam);
+            gameMap.setLevelName(nextParam.substr(param.size()));
             continue;
         }
-        else if (nextParam == "Description")
+
+        param = "Description\t";
+        if (nextParam.compare(0, param.size(), param) == 0)
         {
-            levelFile >> nextParam;
-            gameMap.setLevelDescription(nextParam);
+            gameMap.setLevelDescription(nextParam.substr(param.size()));
             continue;
         }
-        else if (nextParam == "Music")
+
+        param = "Music\t";
+        if (nextParam.compare(0, param.size(), param) == 0)
         {
-            levelFile >> nextParam;
-            gameMap.setLevelMusicFile(nextParam);
+            gameMap.setLevelMusicFile(nextParam.substr(param.size()));
             continue;
         }
-        else if (nextParam == "FightMusic")
+
+        param = "FightMusic\t";
+        if (nextParam.compare(0, param.size(), param) == 0)
         {
-            levelFile >> nextParam;
-            gameMap.setLevelFightMusicFile(nextParam);
+            gameMap.setLevelFightMusicFile(nextParam.substr(param.size()));
             continue;
         }
     }
@@ -427,24 +433,32 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
 
     // Write map info
     levelFile << "\n[Info]\n";
-    levelFile << "Name" << gameMap.getLevelName() << std::endl;
-    levelFile << "Description" << gameMap.getLevelDescription() << std::endl;
-    levelFile << "Music" << gameMap.getLevelMusicFile() << std::endl;
-    levelFile << "FightMusic" << gameMap.getLevelFightMusicFile() << std::endl;
+    levelFile << "Name\t" << gameMap.getLevelName() << std::endl;
+    levelFile << "Description\t" << gameMap.getLevelDescription() << std::endl;
+    levelFile << "Music\t" << gameMap.getLevelMusicFile() << std::endl;
+    levelFile << "FightMusic\t" << gameMap.getLevelFightMusicFile() << std::endl;
     levelFile << "[/Info]" << std::endl;
 
 
     // Write out the seats to the file
     levelFile << "\n[Seats]\n";
     levelFile << "# " << Seat::getFormat() << "\n";
+    std::vector<Seat*> seats;
     for (unsigned int i = 0; i < gameMap.numEmptySeats(); ++i)
     {
-        levelFile << gameMap.getEmptySeat(i);
+        seats.push_back(gameMap.getEmptySeat(i));
     }
 
     for (unsigned int i = 0; i < gameMap.numFilledSeats(); ++i)
     {
-        levelFile << gameMap.getFilledSeat(i);
+        seats.push_back(gameMap.getFilledSeat(i));
+    }
+
+    std::sort(seats.begin(), seats.end(), Seat::sortByColor);
+    for (std::vector<Seat*>::iterator it = seats.begin(); it != seats.end(); ++it)
+    {
+        Seat* seat = *it;
+        levelFile << seat << std::endl;
     }
     levelFile << "[/Seats]" << std::endl;
 
@@ -521,56 +535,11 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     levelFile << "# Each team's spawn pool." << std::endl;
     levelFile << "# Describes what each team can spawn." << std::endl << std::endl;
 
-    // Creates a common seat vector
-    std::vector<Seat*> seats;
-    for (unsigned int i = 0; i < gameMap.numFilledSeats(); ++i)
-    {
-        Seat* seat = gameMap.getFilledSeat(i);
-        if (seat == NULL)
-            continue;
-
-        bool foundDuplicate = false;
-        for (unsigned int j = 0; j < seats.size(); ++j)
-        {
-            if (seats[j] == seat)
-            {
-                foundDuplicate = true;
-                break;
-            }
-        }
-
-        if (!foundDuplicate)
-            seats.push_back(seat);
-    }
-
-    for (unsigned int i = 0; i < gameMap.numEmptySeats(); ++i)
-    {
-        Seat* seat = gameMap.getEmptySeat(i);
-        if (seat == NULL)
-            continue;
-
-        bool foundDuplicate = false;
-        for (unsigned int j = 0; j < seats.size(); ++j)
-        {
-            if (seats[j] == seat)
-            {
-                foundDuplicate = true;
-                break;
-            }
-        }
-
-        if (!foundDuplicate)
-            seats.push_back(seat);
-    }
-
     // For each seat, add the spawn pool
-    for (unsigned int i = 0; i < seats.size(); ++i)
+    for (std::vector<Seat*>::iterator it = seats.begin(); it != seats.end(); ++it)
     {
         // Write out each spawn pools
-        Seat* seat = seats[i];
-        if (seat == NULL)
-            continue;
-
+        Seat* seat = *it;
         int team_color = seat->getColor();
         if (team_color == 0)
             continue;

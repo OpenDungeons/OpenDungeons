@@ -108,6 +108,8 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "notifyCreatureInfo";
         case ServerNotificationType::playCreatureSound:
             return "playCreatureSound";
+        case ServerNotificationType::refreshTiles:
+            return "refreshTiles";
         case ServerNotificationType::exit:
             return "exit";
         default:

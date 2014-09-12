@@ -69,6 +69,7 @@ public:
     {}
 
     static const std::string MAPLIGHT_NAME_PREFIX;
+    static const std::string MAPLIGHT_INDICATOR_PREFIX;
 
     void setLocation(const Ogre::Vector3& nPosition);
     void setDiffuseColor(Ogre::Real red, Ogre::Real green, Ogre::Real blue);
@@ -119,6 +120,8 @@ public:
     static std::string getFormat();
     friend ODPacket& operator<<(ODPacket& os, MapLight *m);
     friend ODPacket& operator>>(ODPacket& is, MapLight *m);
+    friend std::ostream& operator<<(std::ostream& os, MapLight *m);
+    friend std::istream& operator>>(std::istream& is, MapLight *m);
 
     //! \brief Loads the map light data from a level line.
     static void loadFromLine(const std::string& line, MapLight* m);

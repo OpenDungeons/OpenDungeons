@@ -133,8 +133,8 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
     Player* player = mGameMap->getLocalPlayer();
     Room::RoomType selectedRoomType = player->getNewRoomType();
     Trap::TrapType selectedTrapType = player->getNewTrapType();
-    if (player && (selectedRoomType != Room::nullRoomType
-        || selectedTrapType != Trap::nullTrapType))
+    if (selectedRoomType != Room::nullRoomType ||
+        selectedTrapType != Trap::nullTrapType)
     {
         TextRenderer::getSingleton().moveText(ODApplication::POINTER_INFO_STRING,
             (Ogre::Real)(arg.state.X.abs + 30), (Ogre::Real)arg.state.Y.abs);
@@ -148,7 +148,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
             nbTile = buildableTiles.size();
         }
 
-        // TODO : the first treasury tile nshould be free. This should be shown here
+        // TODO : the first treasury tile should be free. This should be shown here
         if(selectedRoomType != Room::nullRoomType)
         {
             int price = Room::costPerTile(selectedRoomType) * nbTile;
@@ -338,10 +338,9 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
                     ClientNotification::askCreatureDrop);
                 clientNotification->mPacket << curTile;
                 ODClient::getSingleton().queueClientNotification(clientNotification);
-                return true;
             }
 
-            mGameMap->getLocalPlayer()->dropCreature(curTile);
+            return true;
         }
     }
 
@@ -429,7 +428,8 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
         std::string resultName = itr->movable->getName();
 
-        if (resultName.find("Level_") == std::string::npos)
+        int x, y;
+        if (!Tile::checkTileName(resultName, x, y))
             continue;
 
         // Start by assuming this is a tileSelection drag.
@@ -500,8 +500,6 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     switch(dragType)
     {
         default:
-        case creature:
-        case mapLight:
             dragType = nullDragType;
             return true;
 

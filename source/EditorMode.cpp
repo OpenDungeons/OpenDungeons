@@ -34,6 +34,7 @@
 #include "CameraManager.h"
 #include "Console.h"
 #include "MusicPlayer.h"
+#include "ODClient.h"
 
 #include <OgreEntity.h>
 
@@ -44,27 +45,19 @@
 
 EditorMode::EditorMode(ModeManager* modeManager):
     AbstractApplicationMode(modeManager, ModeManager::EDITOR),
-    mCurrentTileType(Tile::dirt),
+    mCurrentTileType(Tile::TileType::nullTileType),
     mCurrentFullness(100.0),
     mGameMap(ODFrameListener::getSingletonPtr()->getClientGameMap()),
     mMouseX(0),
     mMouseY(0),
     mMouseLight(NULL)
 {
-    // TODO: Permit loading any level.
-    // Read in the default game map
-    mGameMap->loadLevel("levels/Test.level");
-
     // Set per default the input on the map
     mModeManager->getInputManager()->mMouseDownOnCEGUIWindow = false;
 
     // Keep track of the mouse light object
     Ogre::SceneManager* sceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
     mMouseLight = sceneMgr->getLight("MouseLight");
-
-    // Start on the map center
-    ODFrameListener::getSingleton().cm->setCameraPosition(Ogre::Vector3((Ogre::Real)mGameMap->getMapSizeX() / 2,
-                                                                        (Ogre::Real)mGameMap->getMapSizeY() / 2, MAX_CAMERA_Z));
 }
 
 EditorMode::~EditorMode()
@@ -80,23 +73,93 @@ void EditorMode::activate()
 
     // Stop the game music.
     MusicPlayer::getSingleton().stop();
+
+    mGameMap->setGamePaused(false);
 }
 
 bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
 {
     CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition((float)arg.state.X.abs, (float)arg.state.Y.abs);
 
-    if (ODFrameListener::getSingletonPtr()->isTerminalActive())
+    if (!isConnected())
         return true;
 
+    ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
+    InputManager* inputManager = mModeManager->getInputManager();
 
-    TextRenderer::getSingleton().moveText(ODApplication::POINTER_INFO_STRING,
-                                          (Ogre::Real)(arg.state.X.abs + 30), (Ogre::Real)arg.state.Y.abs);
+    if (frameListener->isTerminalActive())
+        return true;
+
+    Player* player = mGameMap->getLocalPlayer();
+    Room::RoomType selectedRoomType = player->getNewRoomType();
+    Trap::TrapType selectedTrapType = player->getNewTrapType();
+    if (player->getNewRoomType() != Room::nullRoomType
+        || player->getNewTrapType() != Trap::nullTrapType
+        || mCurrentTileType != Tile::TileType::nullTileType)
+    {
+        TextRenderer::getSingleton().moveText(ODApplication::POINTER_INFO_STRING,
+            (Ogre::Real)(arg.state.X.abs + 30), (Ogre::Real)arg.state.Y.abs);
+
+        if(selectedRoomType != Room::nullRoomType)
+        {
+            TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(Room::getRoomNameFromRoomType(selectedRoomType)));
+        }
+        else if(selectedTrapType != Trap::nullTrapType)
+        {
+            TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(Trap::getTrapNameFromTrapType(selectedTrapType)));
+        }
+        else if(mCurrentTileType != Tile::TileType::nullTileType)
+        {
+            TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(Tile::tileTypeToString(mCurrentTileType)));
+        }
+    }
 
     handleMouseWheel(arg);
 
-    // Handles drag type logic
-    handleMouseMovedDragType(arg);
+    handleCursorPositionUpdate();
+
+    // Since this is a tile selection query we loop over the result set
+    // and look for the first object which is actually a tile.
+    Ogre::RaySceneQueryResult& result = ODFrameListener::getSingleton().doRaySceneQuery(arg);
+    for (Ogre::RaySceneQueryResult::iterator itr = result.begin(); itr != result.end(); ++itr)
+    {
+        if (itr->movable == NULL)
+            continue;
+
+        // Check to see if the current query result is a tile.
+        std::string resultName = itr->movable->getName();
+
+        // Checks which tile we are on (if any)
+        if (!Tile::checkTileName(resultName, inputManager->mXPos, inputManager->mYPos))
+            continue;
+
+        // If we don't drag anything, there is no affected tiles to compute.
+        if (!inputManager->mLMouseDown || inputManager->mDragType == nullDragType)
+            break;
+
+        for (int jj = 0; jj < mGameMap->getMapSizeY(); ++jj)
+        {
+            for (int ii = 0; ii < mGameMap->getMapSizeX(); ++ii)
+            {
+                mGameMap->getTile(ii, jj)->setSelected(false, player);
+            }
+        }
+
+        // Loop over the tiles in the rectangular selection region and set their setSelected flag accordingly.
+        //TODO: This function is horribly inefficient, it should loop over a rectangle selecting tiles by x-y coords
+        // rather than the reverse that it is doing now.
+        std::vector<Tile*> affectedTiles = mGameMap->rectangularRegion(inputManager->mXPos,
+                                                                        inputManager->mYPos,
+                                                                        inputManager->mLStartDragX,
+                                                                        inputManager->mLStartDragY);
+
+        for( std::vector<Tile*>::iterator itr = affectedTiles.begin(); itr != affectedTiles.end(); ++itr)
+        {
+            (*itr)->setSelected(true, player);
+        }
+
+        break;
+    }
 
     return true;
 }
@@ -176,9 +239,6 @@ void EditorMode::handleMouseMovedDragType(const OIS::MouseEvent &arg)
     switch(inputManager->mDragType)
     {
     default:
-    case tileSelection:
-    case addNewRoom:
-    case nullDragType:
         // Since this is a tile selection query we loop over the result set and look for the first object which is actually a tile.
         for (; itr != end; ++itr)
         {
@@ -214,35 +274,23 @@ void EditorMode::handleMouseMovedDragType(const OIS::MouseEvent &arg)
         }
         return;
 
-    case mapLight:
-    {
-        // If we are dragging a map light we need to update its position to the current x-y location.
-        if (!inputManager->mLMouseDown)
-            return;
-
-        MapLight* tempMapLight = mGameMap->getMapLight(mDraggedMapLight);
-
-        if (tempMapLight != NULL)
-            tempMapLight->setPosition((Ogre::Real)inputManager->mXPos, (Ogre::Real)inputManager->mYPos,
-                                      tempMapLight->getPosition().z);
-
-        return;
-    }
-
     } // switch drag type
 }
 
 bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 {
-    CEGUI::GUIContext& ctxt = CEGUI::System::getSingleton().getDefaultGUIContext();
-    ctxt.injectMouseButtonDown(Gui::getSingletonPtr()->convertButton(id));
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(
+        Gui::getSingletonPtr()->convertButton(id));
 
-    // If the mouse press is on a CEGUI window ignore it
-    CEGUI::Window *tempWindow = ctxt.getWindowContainingMouse();
+    if (!isConnected())
+        return true;
+
+    CEGUI::Window *tempWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getWindowContainingMouse();
 
     InputManager* inputManager = mModeManager->getInputManager();
 
-    if (tempWindow != 0 && tempWindow->getName().compare("EDITORGUI") != 0)
+    // If the mouse press is on a CEGUI window ignore it
+    if (tempWindow != NULL && tempWindow->getName().compare("EDITORGUI") != 0)
     {
         inputManager->mMouseDownOnCEGUIWindow = true;
         return true;
@@ -250,100 +298,45 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
     inputManager->mMouseDownOnCEGUIWindow = false;
 
+    // There is a bug in OIS. When playing in windowed mode, if we clic outside the window
+    // and then we restore the window, we will receive a clic event on the last place where
+    // the mouse was.
+    Ogre::RenderWindow* mainWindows = static_cast<Ogre::RenderWindow*>(
+        ODApplication::getSingleton().getRoot()->getRenderTarget("OpenDungeons " + ODApplication::VERSION));
+    if((!mainWindows->isFullScreen()) &&
+       ((arg.state.X.abs == 0) || (arg.state.Y.abs == 0) ||
+        (static_cast<Ogre::uint32>(arg.state.X.abs) == mainWindows->getWidth()) ||
+        (static_cast<Ogre::uint32>(arg.state.Y.abs) == mainWindows->getHeight())))
+    {
+        return true;
+    }
+
     Ogre::RaySceneQueryResult &result = ODFrameListener::getSingleton().doRaySceneQuery(arg);
     Ogre::RaySceneQueryResult::iterator itr = result.begin();
 
-    std::string resultName;
-
-    // Left mouse button down
-    if (id == OIS::MB_Left)
+    if (id == OIS::MB_Middle)
     {
-        inputManager->mLMouseDown = true;
-        inputManager->mLStartDragX = inputManager->mXPos;
-        inputManager->mLStartDragY = inputManager->mYPos;
-
         // See if the mouse is over any creatures
-        for (; itr != result.end(); ++itr)
+        for (;itr != result.end(); ++itr)
         {
             if (itr->movable == NULL)
                 continue;
 
-            resultName = itr->movable->getName();
+            std::string resultName = itr->movable->getName();
 
             if (resultName.find(Creature::CREATURE_PREFIX) == std::string::npos)
                 continue;
 
-            // Begin dragging the creature
-            RenderManager* rdrMgr = RenderManager::getSingletonPtr();
-            Ogre::SceneManager* sceneMgr = rdrMgr->getSceneManager();
-            sceneMgr->getEntity("SquareSelector")->setVisible(false);
+            Creature* tempCreature = mGameMap->getCreature(resultName.substr(
+                Creature::CREATURE_PREFIX.length(), resultName.length()));
 
-            mDraggedCreature = resultName.substr(
-                                    Creature::CREATURE_PREFIX.length(),
-                                    resultName.length());
-            Ogre::SceneNode *node = sceneMgr->getSceneNode(mDraggedCreature + "_node");
-            rdrMgr->getCreatureSceneNode()->removeChild(node);
-            sceneMgr->getSceneNode("Hand_node")->addChild(node);
-            node->setPosition(0, 0, 0);
-            inputManager->mDragType = creature;
-
-            updateCursorText();
-
-            SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+            if (tempCreature != NULL)
+                tempCreature->createStatsWindow();
 
             return true;
+
         }
-
-        // If no creatures are under the  mouse run through the list again to check for lights
-        //TODO: These other code blocks that loop over the result list should probably use this same loop structure.
-        for (itr = result.begin(); itr != result.end(); ++itr)
-        {
-            if (itr->movable == NULL)
-                continue;
-
-            resultName = itr->movable->getName();
-
-            if (resultName.find("MapLightIndicator_") == std::string::npos)
-                continue;
-
-            inputManager->mDragType = mapLight;
-            mDraggedMapLight = resultName.substr(((std::string) "MapLightIndicator_").size(),
-                                                    resultName.size());
-            updateCursorText();
-
-            SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
-
-            return true;
-        }
-
-        // If no creatures or lights are under the  mouse run through the list again to check for tiles
-        for (itr = result.begin(); itr != result.end(); ++itr)
-        {
-            if (itr->movable == NULL)
-                continue;
-
-            if (resultName.find("Level_") == std::string::npos)
-                continue;
-
-            // Start by assuming this is a tileSelection drag.
-            inputManager->mDragType = tileSelection;
-
-            // If we have selected a room type to add to the map, use a addNewRoom drag type.
-            if (mGameMap->getLocalPlayer()->getNewRoomType() != Room::nullRoomType)
-            {
-                inputManager->mDragType = addNewRoom;
-            }
-            else
-            {
-                // If we have selected a trap type to add to the map, use a addNewTrap drag type.
-                if (mGameMap->getLocalPlayer()->getNewTrapType() != Trap::nullTrapType)
-                    inputManager->mDragType = addNewTrap;
-            }
-
-            updateCursorText();
-
-            break;
-        }
+        return true;
     }
 
     // Right mouse button down
@@ -357,32 +350,139 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         inputManager->mDragType = nullDragType;
         mGameMap->getLocalPlayer()->setNewRoomType(Room::nullRoomType);
         mGameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
+        mCurrentTileType = Tile::TileType::nullTileType;
+        TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "");
 
-        updateCursorText();
-    }
+        // If we right clicked with the mouse over a valid map tile, try to drop a creature onto the map.
+        Tile *curTile = mGameMap->getTile(inputManager->mXPos, inputManager->mYPos);
 
-    if (id == OIS::MB_Middle)
-    {
-        // See if the mouse is over any creatures
-        for (itr = result.begin(); itr != result.end(); ++itr)
+        if (curTile == NULL)
+            return true;
+
+        if (mGameMap->getLocalPlayer()->isDropCreaturePossible(curTile, 0, true))
         {
-            if (itr->movable == NULL)
-                continue;
-
-            resultName = itr->movable->getName();
-
-            if (resultName.find(Creature::CREATURE_PREFIX) == std::string::npos)
-                continue;
-
-            Creature* tempCreature = mGameMap->getCreature(resultName.substr(
-                Creature::CREATURE_PREFIX.length(), resultName.length()));
-
-            if (tempCreature != NULL)
-                tempCreature->createStatsWindow();
+            if(ODClient::getSingleton().isConnected())
+            {
+                // Send a message to the server telling it we want to drop the creature
+                ClientNotification *clientNotification = new ClientNotification(
+                    ClientNotification::askCreatureDrop);
+                clientNotification->mPacket << curTile;
+                ODClient::getSingleton().queueClientNotification(clientNotification);
+            }
 
             return true;
         }
     }
+
+    if (id != OIS::MB_Left)
+        return true;
+
+    // Left mouse button down
+    inputManager->mLMouseDown = true;
+    inputManager->mLStartDragX = inputManager->mXPos;
+    inputManager->mLStartDragY = inputManager->mYPos;
+
+    CameraManager* cm = ODFrameListener::getSingletonPtr()->cm;
+
+    // Check whether the player is already placing rooms or traps.
+    bool skipCreaturePickUp = false;
+    Player* player = mGameMap->getLocalPlayer();
+    if (player && (player->getNewRoomType() != Room::nullRoomType
+        || player->getNewTrapType() != Trap::nullTrapType))
+    {
+        skipCreaturePickUp = true;
+    }
+
+    // Check whether the player selection is over a wall and skip creature in that case
+    // to permit easier wall selection.
+    if (mGameMap->getTile(mMouseX, mMouseY)->getFullness() > 1.0)
+        skipCreaturePickUp = true;
+
+    // See if the mouse is over any creatures
+    for (;itr != result.end(); ++itr)
+    {
+        // Skip picking up creatures when placing rooms or traps
+        // as creatures often get in the way.
+        if (skipCreaturePickUp)
+            break;
+
+        if (itr->movable == NULL)
+            continue;
+
+        std::string resultName = itr->movable->getName();
+
+        if (resultName.find(Creature::CREATURE_PREFIX) == std::string::npos)
+            continue;
+
+        // Pick the creature up and put it in our hand
+        if(inputManager->mExpectCreatureClick)
+        {
+            mModeManager->requestFppMode();
+            const string& tmp_name =  (itr->movable->getName());
+            std::cerr << tmp_name.substr(9, tmp_name.size()) << std::endl;
+            cm->setFPPCamera(mGameMap->getCreature(tmp_name.substr(9, tmp_name.size())));
+            cm->setActiveCameraNode("FPP");
+            cm->setActiveCamera("FPP");
+
+            inputManager->mExpectCreatureClick = false;
+        }
+        else
+        {
+            // The creature name is after the creature prefix
+            std::string creatureName = resultName.substr(Creature::CREATURE_PREFIX.length());
+            Creature* currentCreature = mGameMap->getCreature(creatureName);
+            if (currentCreature == NULL)
+                continue;
+
+            if (currentCreature->getColor() == player->getSeat()->getColor())
+            {
+                if (ODClient::getSingleton().isConnected())
+                {
+                    // Send a message to the server telling it we want to pick up this creature
+                    ClientNotification *clientNotification = new ClientNotification(
+                        ClientNotification::askCreaturePickUp);
+                    std::string name = currentCreature->getName();
+                    clientNotification->mPacket << name;
+                    ODClient::getSingleton().queueClientNotification(clientNotification);
+                    return true;
+                }
+            }
+        }
+    }
+
+    // If no creatures or lights are under the  mouse run through the list again to check for tiles
+    for (itr = result.begin(); itr != result.end(); ++itr)
+    {
+        if (itr->movable == NULL)
+            continue;
+
+        std::string resultName = itr->movable->getName();
+
+        int x, y;
+        if (!Tile::checkTileName(resultName, x, y))
+            continue;
+
+        // If we have selected a room type to add to the map, use a addNewRoom drag type.
+        if (mGameMap->getLocalPlayer()->getNewRoomType() != Room::nullRoomType)
+        {
+            inputManager->mDragType = addNewRoom;
+        }
+
+        // If we have selected a trap type to add to the map, use a addNewTrap drag type.
+        else if (mGameMap->getLocalPlayer()->getNewTrapType() != Trap::nullTrapType)
+        {
+            inputManager->mDragType = addNewTrap;
+        }
+
+        // If we have selected a tile type, we use it
+        else if (mCurrentTileType != Tile::TileType::nullTileType)
+        {
+            inputManager->mDragType = changeTile;
+        }
+
+        break;
+    }
+
     return true;
 }
 
@@ -391,6 +491,8 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
     CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(Gui::getSingletonPtr()->convertButton(id));
 
     InputManager* inputManager = mModeManager->getInputManager();
+    int dragType = inputManager->mDragType;
+    inputManager->mDragType = nullDragType;
 
     // If the mouse press was on a CEGUI window ignore it
     if (inputManager->mMouseDownOnCEGUIWindow)
@@ -412,206 +514,78 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
         return true;
     }
 
-    // Left mouse button up
     if (id != OIS::MB_Left)
         return true;
 
+    // Left mouse button up
     inputManager->mLMouseDown = false;
 
-    // Check to see if we are moving a creature
-    if (inputManager->mDragType == creature)
+    switch(dragType)
     {
-        // If the user tries to drop the creature on a wall tile, then we put it back to its former place.
-        // Same goes when we drop it on a non-existing tile.
-        Tile* droppedTile = mGameMap->getTile(inputManager->mXPos, inputManager->mYPos);
-        Creature* droppedCreature = mGameMap->getCreature(mDraggedCreature);
+        default:
+            dragType = nullDragType;
+            return true;
 
-        Ogre::Real newXPos = (Ogre::Real)inputManager->mXPos;
-        Ogre::Real newYPos = (Ogre::Real)inputManager->mYPos;
-        if (droppedTile == NULL || droppedTile->canCreatureGoThroughTile(droppedCreature->getDefinition()));
-        {
-            newXPos = (Ogre::Real)inputManager->mLStartDragX;
-            newYPos = (Ogre::Real)inputManager->mLStartDragY;
-        }
-
-        // Remove the creature node from the selector and back to the game
-        RenderManager* rdrMgr = RenderManager::getSingletonPtr();
-        Ogre::SceneManager* sceneMgr = rdrMgr->getSceneManager();
-        Ogre::SceneNode* node = sceneMgr->getSceneNode(mDraggedCreature + "_node");
-        sceneMgr->getSceneNode("Hand_node")->removeChild(node);
-        rdrMgr->getCreatureSceneNode()->addChild(node);
-
-        inputManager->mDragType = nullDragType;
-        droppedCreature->setPosition(Ogre::Vector3(newXPos, newYPos, (Ogre::Real)0.0));
-        updateCursorText();
-        SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
-        return true;
+        // When either selecting a tile, adding room or a trap
+        // we do what's next.
+        case addNewRoom:
+        case addNewTrap:
+        case changeTile:
+            break;
     }
 
-    // Check to see if we are dragging a map light.
-    if (inputManager->mDragType == mapLight)
+    // On the client:  Inform the server about our choice
+    if(dragType == changeTile)
     {
-        MapLight *tempMapLight = mGameMap->getMapLight(mDraggedMapLight);
-
-        if (tempMapLight != NULL)
-            tempMapLight->setPosition((Ogre::Real)inputManager->mXPos, (Ogre::Real)inputManager->mYPos,
-                                      tempMapLight->getPosition().z);
-        inputManager->mDragType = nullDragType;
-        updateCursorText();
-        return true;
+        double fullness;
+        switch(mCurrentTileType)
+        {
+            case Tile::TileType::nullTileType:
+                return true;
+            case Tile::TileType::dirt:
+            case Tile::TileType::gold:
+            case Tile::TileType::rock:
+                fullness = mCurrentFullness;
+                break;
+            default:
+                fullness = 0.0;
+        }
+        int intTileType = static_cast<int>(mCurrentTileType);
+        ClientNotification *clientNotification = new ClientNotification(
+            ClientNotification::editorAskChangeTiles);
+        clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
+        clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
+        clientNotification->mPacket << intTileType;
+        clientNotification->mPacket << fullness;
+        ODClient::getSingleton().queueClientNotification(clientNotification);
     }
-
-    // Check to see if we are dragging out a selection of tiles or creating a new room
-    if (inputManager->mDragType != tileSelection && inputManager->mDragType != addNewRoom
-        && inputManager->mDragType != addNewTrap)
-        return true;
-
-    // If we are dragging out tiles.
-    if (inputManager->mDragType == tileSelection)
+    else if(dragType == addNewRoom)
     {
-        // Loop over the square region surrounding current mouse location
-        // and either set the tile type of the affected tiles or create new ones.
-        std::vector<Tile*> affectedTiles;
-
-        // Get selection range
-        int startX = inputManager->mLStartDragX;
-        int startY = inputManager->mLStartDragY;
-        int endX = inputManager->mXPos;
-        int endY = inputManager->mYPos;
-
-        // Handle possible inverted selections
-        if (startX > endX)
-        {
-            int temp = startX;
-            startX = endX;
-            endX = temp;
-        }
-        if (startY > endY)
-        {
-            int temp = startY;
-            startY = endY;
-            endY = temp;
-        }
-
-        for (int x = startX; x <= endX; ++x)
-        {
-            for (int y = startY; y <= endY; ++y)
-            {
-                Tile* currentTile = mGameMap->getTile(x, y);
-
-                // Check to see if the current tile already exists.
-                if (currentTile != NULL)
-                {
-                    // Do not add a wall upon a creature
-                    if (currentTile->numCreaturesInCell() > 0)
-                        continue;
-
-                    // It does exist so set its type and fullness.
-                    affectedTiles.push_back(currentTile);
-                    currentTile->setType(mCurrentTileType);
-                    currentTile->setFullness(mCurrentFullness);
-                    continue;
-                }
-
-                // The current tile does not exist so we need to create it.
-                Tile* myTile = new Tile(mGameMap, x, y, mCurrentTileType, mCurrentFullness);
-                myTile->setName(Tile::buildName(x, y));
-                myTile->createMesh();
-                mGameMap->addTile(myTile);
-                affectedTiles.push_back(myTile);
-            }
-        }
-
-        mGameMap->refreshBorderingTilesOf(affectedTiles);
-        inputManager->mDragType = nullDragType;
-        updateCursorText();
-        return true;
+        int intRoomType = static_cast<int>(mGameMap->getLocalPlayer()->getNewRoomType());
+        ClientNotification *clientNotification = new ClientNotification(
+            ClientNotification::editorAskBuildRoom);
+        clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
+        clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
+        clientNotification->mPacket << intRoomType;
+        ODClient::getSingleton().queueClientNotification(clientNotification);
     }
-
-    // Loop over the valid tiles in the affected region.  If we are doing a tileSelection (changing the tile type and fullness) this
-    // loop does that directly.  If, instead, we are doing an addNewRoom, this loop prunes out any tiles from the affectedTiles vector
-    // which cannot have rooms placed on them, then if the player has enough gold, etc to cover the selected tiles with the given room
-    // the next loop will actually create the room.  A similar pruning is done for traps.
-    std::vector<Tile*> affectedTiles = mGameMap->rectangularRegion(inputManager->mXPos,
-                                                                   inputManager->mYPos,
-                                                                   inputManager->mLStartDragX,
-                                                                   inputManager->mLStartDragY);
-    std::vector<Tile*>::iterator itr = affectedTiles.begin();
-
-    while (itr != affectedTiles.end())
+    else if(dragType == addNewTrap)
     {
-        Tile *currentTile = *itr;
-
-        if(inputManager->mDragType != addNewRoom && inputManager->mDragType != addNewTrap)
-            continue;
-
-        // If the tile already contains a room, prune it from the list of affected tiles.
-        if (!currentTile->isBuildableUpon())
-        {
-            itr = affectedTiles.erase(itr);
-            continue;
-        }
-
-        // If the currentTile is not empty, then remove it from the affectedTiles vector.
-        if (currentTile->getFullness() >= 1)
-        {
-            itr = affectedTiles.erase(itr);
-            continue;
-        }
-
-        ++itr;
+        ClientNotification *clientNotification = new ClientNotification(
+            ClientNotification::editorAskBuildTrap);
+        int intTrapType = static_cast<int>(mGameMap->getLocalPlayer()->getNewTrapType());
+        clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
+        clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
+        clientNotification->mPacket << intTrapType;
+        ODClient::getSingleton().queueClientNotification(clientNotification);
     }
-
-    // If we are adding new rooms the above loop will have pruned out the tiles not eligible
-    // for adding rooms to.  This block then actually adds rooms to the remaining tiles.
-    if (inputManager->mDragType == addNewRoom && !affectedTiles.empty())
-    {
-        Room* newRoom = Room::createRoom(mGameMap, mGameMap->getLocalPlayer()->getNewRoomType(),
-            affectedTiles, mGameMap->getLocalPlayer()->getSeat()->getColor());
-        Room::setupRoom(mGameMap, newRoom, mGameMap->getLocalPlayer());
-    }
-
-    // If we are adding new traps the above loop will have pruned out the tiles not eligible
-    // for adding traps to.  This block then actually adds traps to the remaining tiles.
-    else if (inputManager->mDragType == addNewTrap && !affectedTiles.empty())
-    {
-        Trap* newTrap = Trap::createTrap(mGameMap, mGameMap->getLocalPlayer()->getNewTrapType(),
-            affectedTiles, mGameMap->getLocalPlayer()->getSeat());
-
-        Trap::setupTrap(mGameMap, newTrap, mGameMap->getLocalPlayer());
-    }
-
-    mGameMap->refreshBorderingTilesOf(affectedTiles);
-    inputManager->mDragType = nullDragType;
-    updateCursorText();
     return true;
 }
 
 void EditorMode::updateCursorText()
 {
     // Gets the current action from the drag type
-    std::stringstream textSS("");
-    switch(mModeManager->getInputManager()->mDragType)
-    {
-    default:
-    case nullDragType:
-    case tileSelection:
-        textSS << "Tile type: " << Tile::tileTypeToString(mCurrentTileType);
-        break;
-    case creature:
-        textSS << "Creature: " << mDraggedCreature;
-        break;
-    case mapLight:
-        textSS << "Light: " << mDraggedMapLight;
-        break;
-    case addNewRoom:
-    case addNewTrap:
-        //TODO
-        break;
-    }
-
-    // Tells the current tile type and fullness;
-    TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, textSS.str());
+    std::stringstream textSS;
 
     // Update the fullness info
     CEGUI::Window *posWin = Gui::getSingletonPtr()->getGuiSheet(Gui::editorMenu)->getChild(Gui::EDITOR_FULLNESS);
@@ -717,10 +691,17 @@ bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
     // Quit the Editor Mode
     case OIS::KC_ESCAPE:
         regressMode();
+        mModeManager->shutdownGameMode();
         break;
 
     case OIS::KC_F8:
-        MapLoader::writeGameMapToFile(std::string("levels/Test.level") + ".out", *frameListener->getClientGameMap());
+        if(ODClient::getSingleton().isConnected())
+        {
+            // Send a message to the server telling it we want to drop the creature
+            ClientNotification *clientNotification = new ClientNotification(
+                ClientNotification::editorAskSaveMap);
+            ODClient::getSingleton().queueClientNotification(clientNotification);
+        }
         break;
 
     // Print a screenshot

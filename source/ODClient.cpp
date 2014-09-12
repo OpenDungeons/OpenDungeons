@@ -515,10 +515,13 @@ bool ODClient::processOneClientSocketMessage()
                 Tile tmpTile(gameMap);
                 OD_ASSERT_TRUE(packetReceived >> &tmpTile);
                 Tile* gameTile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-                OD_ASSERT_TRUE_MSG(gameTile != NULL, "tile=" + Ogre::StringConverter::toString(tmpTile.getX())
-                    + "," + Ogre::StringConverter::toString(tmpTile.getY()));
-                if(gameTile != NULL)
-                    tiles.push_back(gameTile);
+                OD_ASSERT_TRUE_MSG(gameTile != NULL, "tile=" + Tile::displayAsString(gameTile));
+                if(gameTile == NULL)
+                    continue;
+                gameTile->setType(Tile::TileType::claimed);
+                gameTile->setColor(color);
+                gameTile->setFullness(0.0);
+                tiles.push_back(gameTile);
             }
             Player* player = gameMap->getPlayerByColor(color);
             OD_ASSERT_TRUE_MSG(player != NULL, "color=" + Ogre::StringConverter::toString(color));
@@ -560,6 +563,12 @@ bool ODClient::processOneClientSocketMessage()
                 Tile tmpTile(gameMap);
                 OD_ASSERT_TRUE(packetReceived >> &tmpTile);
                 Tile* gameTile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
+                OD_ASSERT_TRUE_MSG(gameTile != NULL, "tile=" + Tile::displayAsString(gameTile));
+                if(gameTile == NULL)
+                    continue;
+                gameTile->setType(Tile::TileType::claimed);
+                gameTile->setColor(color);
+                gameTile->setFullness(0.0);
                 tiles.push_back(gameTile);
             }
             Player* player = gameMap->getPlayerByColor(color);
@@ -674,6 +683,26 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
+        case ServerNotification::refreshTiles:
+        {
+            int nbTiles;
+            OD_ASSERT_TRUE(packetReceived >> nbTiles);
+            std::vector<Tile*> tiles;
+            for(int i = 0; i < nbTiles; i++)
+            {
+                Tile tmpTile(gameMap);
+                OD_ASSERT_TRUE(packetReceived >> &tmpTile);
+                Tile* gameTile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
+                OD_ASSERT_TRUE(gameTile != NULL);
+                if(gameTile == NULL)
+                    continue;
+                gameTile->refreshFromTile(tmpTile);
+                tiles.push_back(gameTile);
+            }
+            gameMap->refreshBorderingTilesOf(tiles);
+            break;
+        }
+
         default:
         {
             logManager.logMessage("ERROR:  Unknown server command:"
@@ -709,46 +738,9 @@ void ODClient::processClientNotifications()
 
         switch (event->mType)
         {
-            case ClientNotification::askCreaturePickUp:
-                sendToServer(event->mPacket);
-                break;
-
-            case ClientNotification::askCreatureDrop:
-                sendToServer(event->mPacket);
-                break;
-
-            case ClientNotification::askMarkTile:
-                sendToServer(event->mPacket);
-                break;
-
-            case ClientNotification::askBuildRoom:
-                sendToServer(event->mPacket);
-                break;
-
-            case ClientNotification::askBuildTrap:
-                sendToServer(event->mPacket);
-                break;
-
-            case ClientNotification::chat:
-                sendToServer(event->mPacket);
-                break;
-
-            case ClientNotification::askCreatureInfos:
-                sendToServer(event->mPacket);
-                break;
-
+            // If there are specific things to do before sending, it can be done here
             default:
-                LogManager& logMgr = LogManager::getSingleton();
-                ODApplication::displayErrorMessage("Unhandled ClientNotification type encountered:"
-                    + Ogre::StringConverter::toString(event->mType));
-                logMgr.logMessage("Unhandled ClientNotification type encountered:"
-                    + Ogre::StringConverter::toString(event->mType));
-
-                // This is forcing a core dump so I can debug why this happened
-                // Enable this if needed
-                //Creature * throwAsegfault = NULL;
-                //throwAsegfault->getPosition();
-                //exit(1);
+                sendToServer(event->mPacket);
                 break;
         }
     }

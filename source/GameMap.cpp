@@ -788,7 +788,8 @@ void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
         if (startY <= 0.0)
             startY = 0.0;
 
-        ODFrameListener::getSingleton().cm->setCameraPosition(Ogre::Vector3(startX, startY, MAX_CAMERA_Z));
+        if(!isServerGameMap())
+            ODFrameListener::getSingleton().cm->setCameraPosition(Ogre::Vector3(startX, startY, MAX_CAMERA_Z));
 
         // Create ogre entities for the tiles, rooms, and creatures
         createAllEntities();

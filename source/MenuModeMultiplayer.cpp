@@ -122,7 +122,10 @@ void MenuModeMultiplayer::serverButtonPressed()
 
     // We are a server
     std::string level = LEVEL_PATH + mListFiles[id] + LEVEL_EXTENSION;
-    ODServer::getSingleton().startServer(level, false);
+    if(!ODServer::getSingleton().startServer(level, false, ODServer::ServerMode::ModeGame))
+    {
+        LogManager::getSingleton().logMessage("ERROR: Could not start server for multi player game !!!");
+    }
 
     // We connect ourself
     if(ODClient::getSingleton().connect("", ODApplication::PORT_NUMBER))
@@ -131,7 +134,7 @@ void MenuModeMultiplayer::serverButtonPressed()
     }
     else
     {
-        LogManager::getSingleton().logMessage("ERROR: Could not connect to server for single player game !!!");
+        LogManager::getSingleton().logMessage("ERROR: Could not connect to server for multi player game !!!");
         tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_TEXT_LOADING);
         tmpWin->setText("Error: Couldn't connect to local server!");
         tmpWin->show();

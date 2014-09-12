@@ -117,7 +117,7 @@ void Player::removeCreatureFromHand(int i)
     mCreaturesInHand.erase(mCreaturesInHand.begin() + i);
 }
 
-bool Player::isDropCreaturePossible(Tile *t, unsigned int index)
+bool Player::isDropCreaturePossible(Tile *t, unsigned int index, bool isEditorMode)
 {
     // if we have a creature to drop
     if (mCreaturesInHand.empty())
@@ -128,11 +128,14 @@ bool Player::isDropCreaturePossible(Tile *t, unsigned int index)
     // if the tile is a valid place to drop a creature
 
     // check whether the tile is a ground tile ...
-    if (t->getFullness() >= 1.0)
+    if (t->getFullness() > 0.0)
         return false;
 
-    // ... and that the creature can dig, or we're putting it on a claimed tile of the team color.
-    if ((tempCreature->getDigRate() < 0.1 || (t->getType() != Tile::dirt && t->getType() != Tile::gold))
+    // In editor mode, we allow creatures to be dropped anywhere if they can walk
+    if(isEditorMode && t->canCreatureGoThroughTile(tempCreature->getDefinition()))
+        return true;
+
+    if ((!tempCreature->getDefinition()->isWorker() || (t->getType() != Tile::dirt && t->getType() != Tile::gold))
             && (t->getType() != Tile::claimed || t->getColor() != getSeat()->getColor()))
         return false;
 

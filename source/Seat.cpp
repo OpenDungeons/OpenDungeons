@@ -204,7 +204,7 @@ void Seat::goalsHasChanged()
 
 std::string Seat::getFormat()
 {
-    return "color\tfaction\tstartingX\tstartingY\tcolorR\tcolorG\tcolorB";
+    return "color\tfaction\tstartingX\tstartingY\tcolorR\tcolorG\tcolorB\tstartingGold";
 }
 
 ODPacket& operator<<(ODPacket& os, Seat *s)
@@ -253,4 +253,28 @@ void Seat::refreshFromSeat(Seat* s)
     mManaDelta = s->mManaDelta;
     mNumClaimedTiles = s->mNumClaimedTiles;
     mHasGoalsChanged = s->mHasGoalsChanged;
+}
+
+bool Seat::sortByColor(Seat* s1, Seat* s2)
+{
+    return s1->mColor < s2->mColor;
+}
+
+std::ostream& operator<<(std::ostream& os, Seat *s)
+{
+    os << s->mColor << "\t" << s->mFaction << "\t" << s->mStartingX
+       << "\t"<< s->mStartingY;
+    os << "\t" << s->mColorValue.r << "\t" << s->mColorValue.g
+       << "\t" << s->mColorValue.b;
+    os << "\t" << s->mStartingGold;
+    return os;
+}
+
+std::istream& operator>>(std::istream& is, Seat *s)
+{
+    is >> s->mColor >> s->mFaction >> s->mStartingX >> s->mStartingY;
+    is >> s->mColorValue.r >> s->mColorValue.g >> s->mColorValue.b;
+    is >> s->mStartingGold;
+    s->mColorValue.a = 1.0;
+    return is;
 }

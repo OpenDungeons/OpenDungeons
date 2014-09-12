@@ -775,7 +775,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             // Make sure we are not already connected to a server or hosting a game.
             if (!frameListener->isConnected())
             {
-                if (ODServer::getSingleton().startServer(arguments, false))
+                if (ODServer::getSingleton().startServer(arguments, false, ODServer::ServerMode::ModeGame))
                 {
                     frameListener->mCommandOutput += "\nServer started successfully.\n";
 

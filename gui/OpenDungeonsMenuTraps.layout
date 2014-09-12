@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout version="4" >
+   <Window type="DefaultWindow" name="Traps" >
+       <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
+       <Property name="Text" value="Traps" />
+       <Property name="MaxSize" value="{{1,0},{1,0}}" />
+       <Property name="Visible" value="False" />
+       <Property name="RiseOnClickEnabled" value="False" />
+       <Window type="OD/ImageButton" name="CannonButton" >
+           <Property name="Area" value="{{0,20},{0,20},{0,80},{0,80}}" />
+           <Property name="NormalImage" value="OpenDungeonsIcons/CannonButton" />
+           <Property name="TooltipText" value="Buid a cannon" />
+           <Property name="InheritsAlpha" value="False" />
+       </Window>
+   </Window>
+</GUILayout>
