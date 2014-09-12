@@ -36,7 +36,8 @@ const std::string LEVEL_PATH = "./levels/multiplayer/";
 const std::string LEVEL_EXTENSION = ".level";
 
 MenuModeMultiplayer::MenuModeMultiplayer(ModeManager *modeManager):
-    AbstractApplicationMode(modeManager, ModeManager::MENU_MULTIPLAYER)
+    AbstractApplicationMode(modeManager, ModeManager::MENU_MULTIPLAYER),
+    mReadyToStartGame(false)
 {
 }
 
@@ -128,17 +129,17 @@ void MenuModeMultiplayer::serverButtonPressed()
     }
 
     // We connect ourself
-    if(ODClient::getSingleton().connect("", ODApplication::PORT_NUMBER))
-    {
-        mModeManager->requestGameMode(true);
-    }
-    else
+    if(!ODClient::getSingleton().connect("", ODApplication::PORT_NUMBER))
     {
         LogManager::getSingleton().logMessage("ERROR: Could not connect to server for multi player game !!!");
         tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_TEXT_LOADING);
         tmpWin->setText("Error: Couldn't connect to local server!");
         tmpWin->show();
+        return;
     }
+
+    // Makes the frame listener process client and server messages.
+    mReadyToStartGame = true;
 }
 
 void MenuModeMultiplayer::clientButtonPressed()
@@ -181,11 +182,7 @@ void MenuModeMultiplayer::clientButtonPressed()
 
     ODFrameListener::getSingleton().getClientGameMap()->getLocalPlayer()->setNick(nick);
 
-    if(ODClient::getSingleton().connect(ip, ODApplication::PORT_NUMBER))
-    {
-        mModeManager->requestGameMode();
-    }
-    else
+    if(!ODClient::getSingleton().connect(ip, ODApplication::PORT_NUMBER))
     {
         // Error while connecting
         tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_TEXT_LOADING);

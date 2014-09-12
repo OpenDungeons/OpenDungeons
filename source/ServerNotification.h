@@ -72,6 +72,7 @@ class ServerNotification
             // Pickup/drop creature for other players
             creaturePickedUp,
             creatureDropped,
+            playerFighting, // Tells the player he is under attack or attacking
 
             addCreature,
             removeCreature,

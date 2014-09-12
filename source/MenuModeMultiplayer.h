@@ -45,8 +45,16 @@ public:
     void clientButtonPressed();
     void listLevelsClicked();
 
+    virtual bool waitForGameStart()
+    {
+        return mReadyToStartGame;
+    }
+
 private:
     std::vector<std::string> mListFiles;
+
+    //! \brief Tells whether the menu is ready to start the game.
+    bool mReadyToStartGame;
 };
 
 #endif // MENUMODEMULTIPLAYER_H

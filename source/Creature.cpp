@@ -2128,6 +2128,12 @@ bool Creature::handleAttackAction()
             ServerNotification::playCreatureSound, getControllingPlayer());
         serverNotification->mPacket << name << CreatureSound::ATTACK;
         ODServer::getSingleton().queueServerNotification(serverNotification);
+
+        // Notify the player is attacking.
+        serverNotification = new ServerNotification(
+            ServerNotification::playerFighting, getControllingPlayer());
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+
     }
     catch (std::bad_alloc&)
     {
@@ -2743,6 +2749,11 @@ void Creature::takeDamage(double damage, Tile *tileTakingDamage)
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotification::creatureRefresh, getControllingPlayer());
             serverNotification->mPacket << this;
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+
+            // Notify the player is under attack.
+            serverNotification = new ServerNotification(
+                ServerNotification::playerFighting, getControllingPlayer());
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)

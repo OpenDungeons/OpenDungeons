@@ -213,10 +213,6 @@ void MusicPlayer::update(float timeSinceLastUpdate)
     if(!mLoaded)
         return;
 
-    // We don't play the next music if we decided not to play any music.
-    if (!mIsPlaying)
-        return;
-
     // Handle fade ins/fade outs.
     std::map<std::string, ODMusic*>::iterator it = mTracks.begin();
     std::map<std::string, ODMusic*>::iterator it_end = mTracks.end();
@@ -234,7 +230,10 @@ void MusicPlayer::play(const std::string& trackName)
         return;
 
     if (mIsPlaying)
+    {
         mTracks[mCurrentTrack]->fadeOut();
+        mIsPlaying = false;
+    }
 
     if (mTracks.find(trackName) == mTracks.end())
         return;

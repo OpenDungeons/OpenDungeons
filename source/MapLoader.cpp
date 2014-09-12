@@ -167,14 +167,18 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         param = "Music\t";
         if (nextParam.compare(0, param.size(), param) == 0)
         {
-            gameMap.setLevelMusicFile(nextParam.substr(param.size()));
+            std::string musicFile = nextParam.substr(param.size());
+            gameMap.setLevelMusicFile(musicFile);
+            LogManager::getSingleton().logMessage("Level Music: " + musicfile);
             continue;
         }
 
         param = "FightMusic\t";
         if (nextParam.compare(0, param.size(), param) == 0)
         {
+            std::string musicFile = nextParam.substr(param.size());
             gameMap.setLevelFightMusicFile(nextParam.substr(param.size()));
+            LogManager::getSingleton().logMessage("Level Fight Music: " + musicFile);
             continue;
         }
     }
@@ -346,7 +350,8 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         return false;
     }
     levelFile >> nextParam;
-    MapLoader::loadCreatureDefinition(nextParam, gameMap);
+    if (!MapLoader::loadCreatureDefinition(nextParam, gameMap))
+        return false;
 
     // Read in the creatures spawn pool for each team
     levelFile >> nextParam;

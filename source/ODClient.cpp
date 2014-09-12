@@ -33,6 +33,7 @@
 #include "MissileObject.h"
 #include "RoomObject.h"
 #include "LogManager.h"
+#include "ModeManager.h"
 
 #include <string>
 
@@ -138,6 +139,9 @@ bool ODClient::processOneClientSocketMessage()
             }
 
             mLevelFilename = levelFilename;
+
+            // Activate the game mode now the level is loaded
+            frameListener->getModeManager()->requestGameMode(true);
 
             ODPacket packSend;
             packSend << ClientNotification::levelOK;
@@ -586,6 +590,12 @@ bool ODClient::processOneClientSocketMessage()
             OD_ASSERT_TRUE_MSG(creature != NULL, "name=" + tmpCreature.getName());
             if(creature != NULL)
                 creature->refreshFromCreature(&tmpCreature);
+            break;
+        }
+
+        case ServerNotification::playerFighting:
+        {
+            gameMap->localPlayerIsFighting();
             break;
         }
 

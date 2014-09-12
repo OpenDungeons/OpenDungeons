@@ -46,6 +46,7 @@
 #include "RoomTreasury.h"
 #include "RoomObject.h"
 #include "Goal.h"
+#include "MusicPlayer.h"
 
 #include <OgreTimer.h>
 
@@ -56,6 +57,9 @@
 
 #include <cmath>
 #include <cstdlib>
+
+//! \brief The number of milliseconds the local player must stay out of danger to trigger the calm music again.
+const unsigned int UNDER_ATTACK_TIME_COUNT = 10000;
 
 using namespace std;
 
@@ -137,7 +141,8 @@ GameMap::GameMap(bool isServerGameMap) :
         numCallsTo_path(0),
         tileCoordinateMap(new TileCoordinateMap(100)),
         aiManager(*this),
-        mIsPaused(false)
+        mIsPaused(false),
+        mNoAttackOnLocalPlayerTime(0)
 {
     // Init the player
     mLocalPlayer = new Player();
@@ -160,8 +165,10 @@ bool GameMap::loadLevel(const std::string& levelFilepath)
                             + levelFilepath;
 
     // TODO The map loader class should be merged back to GameMap.
-    MapLoader::readGameMapFromFile(levelPath, *this);
-    setLevelFileName(levelFilepath);
+    if (MapLoader::readGameMapFromFile(levelPath, *this))
+        setLevelFileName(levelFilepath);
+    else
+        return false;
 
     return true;
 }
@@ -186,6 +193,7 @@ bool GameMap::createNewMap(int sizeX, int sizeY)
     }
 
     mTurnNumber = -1;
+    mNoAttackOnLocalPlayerTime = 0;
 
     return true;
 }
@@ -223,6 +231,7 @@ void GameMap::clearAll()
     clearAiManager();
 
     mTurnNumber = -1;
+    mNoAttackOnLocalPlayerTime = 0;
     resetUniqueNumbers();
 }
 
@@ -824,6 +833,35 @@ void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
 
         tempMapLight->advanceFlicker(timeSinceLastFrame);
     }
+
+    // Updates the time without attacks counter (for the client game map only)
+    if (mNoAttackOnLocalPlayerTime > 0)
+    {
+        // If enough turns have passed without damage taken, we consider being safe again.
+        if (mNoAttackOnLocalPlayerTime <= static_cast<unsigned int>(timeSinceLastFrame * 1000))
+        {
+            mNoAttackOnLocalPlayerTime = 0;
+            MusicPlayer::getSingleton().play(mMapInfoMusicFile);
+        }
+        else
+        {
+            mNoAttackOnLocalPlayerTime -= timeSinceLastFrame * 1000;
+        }
+    }
+}
+
+void GameMap::localPlayerIsFighting()
+{
+    if (mMapInfoFightMusicFile.empty())
+        return;
+
+    // The local player was safe, we trigger the battle music
+    bool startMusic = (mNoAttackOnLocalPlayerTime == 0);
+
+    mNoAttackOnLocalPlayerTime = UNDER_ATTACK_TIME_COUNT;
+
+    if (startMusic)
+        MusicPlayer::getSingleton().play(mMapInfoFightMusicFile);
 }
 
 bool GameMap::pathExists(int x1, int y1, int x2, int y2, const CreatureDefinition* creatureDef)

@@ -856,6 +856,34 @@ void Room::takeDamage(double damage, Tile* tileTakingDamage)
         return;
 
     mTileHP[tileTakingDamage] -= damage;
+
+    GameMap* gameMap = getGameMap();
+    if (gameMap == NULL)
+        return;
+
+    if(!gameMap->isServerGameMap())
+        return;
+
+    Seat* seat = getControllingSeat();
+    if (seat == NULL)
+        return;
+
+    Player* player = gameMap->getPlayerByColor(seat->getColor());
+    if (player == NULL)
+        return;
+
+    try
+    {
+        // Notify the player is under attack.
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotification::playerFighting, player);
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
+    catch (std::bad_alloc&)
+    {
+        OD_ASSERT_TRUE(false);
+        exit(1);
+    }
 }
 
 void Room::updateActiveSpots()

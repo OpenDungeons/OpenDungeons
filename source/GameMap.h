@@ -403,17 +403,24 @@ public:
 
     std::vector<Creature*> creatures;
 
-    bool isServerGameMap() {return mIsServerGameMap;}
+    bool isServerGameMap()
+    {
+        return mIsServerGameMap;
+    }
 
     bool getGamePaused()
     {
         return mIsPaused;
     }
 
-    void setGamePaused(bool b)
+    void setGamePaused(bool paused)
     {
-        mIsPaused = b;
+        mIsPaused = paused;
     }
+
+    //! \brief Tells the game map the local player is fighting.
+    //! This is used to trigger some battle music as long as the player's creatures/rooms are struggling.
+    void localPlayerIsFighting();
 
     //! \brief Refresh the tiles borders based a recent change on the map
     void refreshBorderingTilesOf(const std::vector<Tile*>& affectedTiles);
@@ -474,6 +481,15 @@ private:
     std::string mMapInfoDescription;
     std::string mMapInfoMusicFile;
     std::string mMapInfoFightMusicFile;
+
+    //! \brief This counter tells the game map whether the local player is under attack or not.
+    //! When an entity (Room or creature) of the local player is taking damage,
+    //! then the player is considered under attack for UNDER_ATTACK_TIME_COUNT.
+    //! If the local player's entities receive no more blows, the counter decreases on each updates.
+    //! If the turn counter is equal to 0, then the local player is considered out of danger for now.
+    //! All this is used to trigger the battle or "calm" music during the game.
+    //! Only the client game map should use it.
+    unsigned int mNoAttackOnLocalPlayerTime;
 
     //! \brief The creature definition data
     std::vector<boost::shared_ptr<CreatureDefinition> > classDescriptions;
