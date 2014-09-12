@@ -187,7 +187,11 @@ void MenuModeMultiplayer::clientButtonPressed()
         // Error while connecting
         tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_TEXT_LOADING);
         tmpWin->setText("Could not connect to: " + ip);
+        return;
     }
+
+    // Makes the frame listener process client and server messages.
+    mReadyToStartGame = true;
 }
 
 void MenuModeMultiplayer::listLevelsClicked()
