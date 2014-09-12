@@ -16,7 +16,7 @@ message(STATUS "looking for headers")
 find_path(CEGUI_INCLUDE_DIR CEGUI/CEGUI.h
     HINTS $ENV{CEGUIDIR}
     ${PC_CEGUI_INCLUDEDIR}
-    PATH_SUFFIXES include cegui/include cegui-0 include/cegui-0
+    PATH_SUFFIXES cegui-0 include/cegui-0 include cegui/include
     PATHS
     ~/Library/Frameworks
     /Library/Frameworks
@@ -30,7 +30,7 @@ find_path(CEGUI_INCLUDE_DIR CEGUI/CEGUI.h
     
 #Look for libs
 find_library(CEGUI_LIBRARY_REL
-  CEGUIBase CEGUIBase-0
+  CEGUIBase-0 CEGUIBase
   HINTS
   $ENV{CEGUIDIR}
   ${PC_CEGUI_LIBDIR}
@@ -45,7 +45,7 @@ find_library(CEGUI_LIBRARY_REL
 )
 
 find_library(CEGUI_LIBRARY_DBG
-  CEGUIBase_d CEGUIBase-0_d
+  CEGUIBase-0_d CEGUIBase_d
   HINTS
   $ENV{CEGUIDIR}
   ${PC_CEGUI_LIBDIR}
@@ -60,7 +60,7 @@ find_library(CEGUI_LIBRARY_DBG
 )
 
 find_library(CEGUI_OGRE_LIBRARY_REL
-  CEGUIOgreRenderer CEGUIOgreRenderer-0
+  CEGUIOgreRenderer-0 CEGUIOgreRenderer
   HINTS
   $ENV{CEGUIDIR}
   ${PC_CEGUI_LIBDIR}
@@ -75,7 +75,7 @@ find_library(CEGUI_OGRE_LIBRARY_REL
 )
 
 find_library(CEGUI_OGRE_LIBRARY_DBG
-  CEGUIOgreRenderer_d CEGUIOgreRenderer-0_d
+  CEGUIOgreRenderer-0_d CEGUIOgreRenderer_d
   HINTS
   $ENV{CEGUIDIR}
   ${PC_CEGUI_LIBDIR}
@@ -127,6 +127,4 @@ set(CEGUI_INCLUDE_DIRS ${CEGUI_INCLUDE_DIR})
 include(FindPackageHandleStandardArgs)
 #Set vars
 find_package_handle_standard_args(CEGUI DEFAULT_MSG
-                                    CEGUI_LIBRARY_RELEASE CEGUI_OGRE_LIBRARY_RELEASE CEGUI_INCLUDE_DIR)
-                                    
-
+                                  CEGUI_LIBRARY_RELEASE CEGUI_OGRE_LIBRARY_RELEASE CEGUI_INCLUDE_DIR)
