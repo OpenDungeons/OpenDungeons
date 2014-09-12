@@ -48,24 +48,17 @@ endif()
 ##################################
 #### ExplicitCompilerFlags #######
 ##################################
-if (MSVC)
-  set ( CMAKE_CXX_FLAGS "/GLOBAL_FLAGS_GO_HERE")
-  set ( CMAKE_CXX_FLAGS_DEBUG "/DEBUG_FLAGSS_GO_HERE")
-  set ( CMAKE_CXX_FLAGS_RELEASE  "/RELEASE_FLAGS_GO_HERE" )
-endif ()
 
-if (BORLAND)
-  set ( CMAKE_CXX_FLAGS "/GLOBAL_FLAGS_GO_HERE")
-  set ( CMAKE_CXX_FLAGS_DEBUG "/DEBUG_FLAGS_GO_HERE")
-  set ( CMAKE_CXX_FLAGS_RELEASE  "/RELEASE_FLAGS_GO_HERE" )
-endif ()
+if(MSVC)
+  # C++11 compilation flag is activated by default
+  # Optimisation flags can be added if deemed useful
+elseif(MINGW)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
+elseif(UNIX)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+endif()
 
-if (CMAKE_COMPILER_IS_GNUCXX)
-  set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wunused -Wno-deprecated -fno-strict-aliasing" CACHE STRING "compile flags" FORCE)
-  list( APPEND CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS}   -g -O2")
-  set ( CMAKE_CXX_FLAGS_RELEASE  "${CMAKE_CXX_FLAGS}   -O3 " )
-endif ()
-
+message(STATUS "CMake CXX Flags: " ${CMAKE_CXX_FLAGS})
 
 ##################################
 #### Source files (.cpp) #########
