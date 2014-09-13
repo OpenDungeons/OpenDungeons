@@ -211,8 +211,8 @@ public:
     bool assignAI(Player& player, const std::string& aiType, const std::string& parameters = std::string());
 
     //! \brief Returns a pointer to the i'th player structure stored by this GameMap.
-    Player* getPlayer(int index);
-    const Player* getPlayer(int index) const;
+    Player* getPlayer(unsigned int index);
+    const Player* getPlayer(unsigned int index) const;
 
     //! \brief Returns a pointer to the player structure stored by this GameMap whose name matches pName.
     Player* getPlayer(const std::string& cName);
@@ -418,10 +418,6 @@ public:
         mIsPaused = paused;
     }
 
-    //! \brief Tells the game map the local player is fighting.
-    //! This is used to trigger some battle music as long as the player's creatures/rooms are struggling.
-    void localPlayerIsFighting();
-
     //! \brief Refresh the tiles borders based a recent change on the map
     void refreshBorderingTilesOf(const std::vector<Tile*>& affectedTiles);
 
@@ -450,6 +446,10 @@ public:
     std::string nextUniqueNameRoomObj(const std::string& parentRoom);
     std::string nextUniqueNameTrap(const std::string& meshName);
     std::string nextUniqueNameMapLight();
+
+    //! \brief Tells the game map a given player is attacking or under attack.
+    //! Used on the server game map only.
+    void playerIsFighting(Player* player);
 
 private:
     void replaceFloodFill(Tile::FloodFillType floodFillType, int colorOld, int colorNew);
@@ -481,15 +481,6 @@ private:
     std::string mMapInfoDescription;
     std::string mMapInfoMusicFile;
     std::string mMapInfoFightMusicFile;
-
-    //! \brief This counter tells the game map whether the local player is under attack or not.
-    //! When an entity (Room or creature) of the local player is taking damage,
-    //! then the player is considered under attack for UNDER_ATTACK_TIME_COUNT.
-    //! If the local player's entities receive no more blows, the counter decreases on each updates.
-    //! If the turn counter is equal to 0, then the local player is considered out of danger for now.
-    //! All this is used to trigger the battle or "calm" music during the game.
-    //! Only the client game map should use it.
-    unsigned int mNoAttackOnLocalPlayerTime;
 
     //! \brief The creature definition data
     std::vector<boost::shared_ptr<CreatureDefinition> > classDescriptions;
@@ -552,6 +543,11 @@ private:
 
     //! \brief Resets the unique numbers
     void resetUniqueNumbers();
+
+    //! \brief Updates every player's fighting time value
+    //! and triggers potentiel calm music server notifications.
+    //! Used on the server game map only.
+    void updatePlayerFightingTime(Ogre::Real timeSinceLastFrame);
 };
 
 #endif // _GAMEMAP_H_

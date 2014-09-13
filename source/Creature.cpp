@@ -2129,10 +2129,7 @@ bool Creature::handleAttackAction()
         serverNotification->mPacket << name << CreatureSound::ATTACK;
         ODServer::getSingleton().queueServerNotification(serverNotification);
 
-        // Notify the player is attacking.
-        serverNotification = new ServerNotification(
-            ServerNotification::playerFighting, getControllingPlayer());
-        ODServer::getSingleton().queueServerNotification(serverNotification);
+        getGameMap()->playerIsFighting(getControllingPlayer());
 
     }
     catch (std::bad_alloc&)
@@ -2742,25 +2739,27 @@ std::string Creature::getStatsText()
 void Creature::takeDamage(double damage, Tile *tileTakingDamage)
 {
     mHp -= damage;
-    if(getGameMap()->isServerGameMap())
-    {
-        try
-        {
-            ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::creatureRefresh, getControllingPlayer());
-            serverNotification->mPacket << this;
-            ODServer::getSingleton().queueServerNotification(serverNotification);
+    if(!getGameMap()->isServerGameMap())
+        return;
 
-            // Notify the player is under attack.
-            serverNotification = new ServerNotification(
-                ServerNotification::playerFighting, getControllingPlayer());
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
-        catch (std::bad_alloc&)
-        {
-            OD_ASSERT_TRUE(false);
-            exit(1);
-        }
+    Player* player = getControllingPlayer();
+    if (player == NULL)
+        return;
+
+    // Tells the server game map the player is under attack.
+    getGameMap()->playerIsFighting(player);
+
+    try
+    {
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotification::creatureRefresh, player);
+        serverNotification->mPacket << this;
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
+    catch (std::bad_alloc&)
+    {
+        OD_ASSERT_TRUE(false);
+        exit(1);
     }
 }
 

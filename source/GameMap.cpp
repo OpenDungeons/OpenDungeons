@@ -46,7 +46,6 @@
 #include "RoomTreasury.h"
 #include "RoomObject.h"
 #include "Goal.h"
-#include "MusicPlayer.h"
 
 #include <OgreTimer.h>
 
@@ -58,8 +57,8 @@
 #include <cmath>
 #include <cstdlib>
 
-//! \brief The number of milliseconds the local player must stay out of danger to trigger the calm music again.
-const unsigned int UNDER_ATTACK_TIME_COUNT = 10000;
+//! \brief The number of seconds the local player must stay out of danger to trigger the calm music again.
+const unsigned int BATTLE_TIME_COUNT = 10.0f;
 
 using namespace std;
 
@@ -141,8 +140,7 @@ GameMap::GameMap(bool isServerGameMap) :
         numCallsTo_path(0),
         tileCoordinateMap(new TileCoordinateMap(100)),
         aiManager(*this),
-        mIsPaused(false),
-        mNoAttackOnLocalPlayerTime(0)
+        mIsPaused(false)
 {
     // Init the player
     mLocalPlayer = new Player();
@@ -193,7 +191,6 @@ bool GameMap::createNewMap(int sizeX, int sizeY)
     }
 
     mTurnNumber = -1;
-    mNoAttackOnLocalPlayerTime = 0;
 
     return true;
 }
@@ -231,7 +228,6 @@ void GameMap::clearAll()
     clearAiManager();
 
     mTurnNumber = -1;
-    mNoAttackOnLocalPlayerTime = 0;
     resetUniqueNumbers();
 }
 
@@ -820,7 +816,10 @@ void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
     }
 
     if(isServerGameMap())
+    {
+        updatePlayerFightingTime(timeSinceLastFrame);
         return;
+    }
 
     // Advance the "flickering" of the lights by the amount of time that has passed since the last frame.
     entities_number = numMapLights();
@@ -833,35 +832,65 @@ void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
 
         tempMapLight->advanceFlicker(timeSinceLastFrame);
     }
+}
 
-    // Updates the time without attacks counter (for the client game map only)
-    if (mNoAttackOnLocalPlayerTime > 0)
+void GameMap::updatePlayerFightingTime(Ogre::Real timeSinceLastFrame)
+{
+    // Updates fighting time for server players
+    for (unsigned int i = 0; i < players.size(); ++i)
     {
-        // If enough turns have passed without damage taken, we consider being safe again.
-        if (mNoAttackOnLocalPlayerTime <= static_cast<unsigned int>(timeSinceLastFrame * 1000))
+        Player* player = players[i];
+        if (player == NULL)
+            continue;
+
+        float fightingTime = player->getFightingTime();
+        if (fightingTime == 0.0f)
+            continue;
+
+        fightingTime -= timeSinceLastFrame;
+        // We can trigger the calm music again
+        if (fightingTime <= 0.0f)
         {
-            mNoAttackOnLocalPlayerTime = 0;
-            MusicPlayer::getSingleton().play(mMapInfoMusicFile);
+            fightingTime = 0.0f;
+            try
+            {
+                // Notify the player he is no longer under attack.
+                ServerNotification *serverNotification = new ServerNotification(
+                    ServerNotification::playerNoMoreFighting, player);
+                ODServer::getSingleton().queueServerNotification(serverNotification);
+            }
+            catch (std::bad_alloc&)
+            {
+                OD_ASSERT_TRUE(false);
+                exit(1);
+            }
         }
-        else
-        {
-            mNoAttackOnLocalPlayerTime -= timeSinceLastFrame * 1000;
-        }
+        player->setFightingTime(fightingTime);
     }
 }
 
-void GameMap::localPlayerIsFighting()
+void GameMap::playerIsFighting(Player* player)
 {
-    if (mMapInfoFightMusicFile.empty())
+    if (player == NULL)
         return;
 
-    // The local player was safe, we trigger the battle music
-    bool startMusic = (mNoAttackOnLocalPlayerTime == 0);
+    if (player->getFightingTime() == 0.0f)
+    {
+        try
+        {
+            // Notify the player he is no longer under attack.
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotification::playerFighting, player);
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+        catch (std::bad_alloc&)
+        {
+            OD_ASSERT_TRUE(false);
+            exit(1);
+        }
+    }
 
-    mNoAttackOnLocalPlayerTime = UNDER_ATTACK_TIME_COUNT;
-
-    if (startMusic)
-        MusicPlayer::getSingleton().play(mMapInfoFightMusicFile);
+    player->setFightingTime(BATTLE_TIME_COUNT);
 }
 
 bool GameMap::pathExists(int x1, int y1, int x2, int y2, const CreatureDefinition* creatureDef)
@@ -1115,14 +1144,18 @@ bool GameMap::assignAI(Player& player, const std::string& aiType, const std::str
     return false;
 }
 
-Player* GameMap::getPlayer(int index)
+Player* GameMap::getPlayer(unsigned int index)
 {
-    return players[index];
+    if (index < players.size())
+        return players[index];
+    return NULL;
 }
 
-const Player* GameMap::getPlayer(int index) const
+const Player* GameMap::getPlayer(unsigned int index) const
 {
-    return players[index];
+    if (index < players.size())
+        return players[index];
+    return NULL;
 }
 
 Player* GameMap::getPlayer(const std::string& pName)

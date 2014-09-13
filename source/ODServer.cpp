@@ -376,7 +376,15 @@ void ODServer::processServerNotifications()
 
             case ServerNotification::playerFighting:
             {
-                // Only the player whose seat changed is notified.
+                ODSocketClient* client = getClientFromPlayer(event->mConcernedPlayer);
+                OD_ASSERT_TRUE_MSG(client != NULL, "name=" + event->mConcernedPlayer->getNick());
+                if(client != NULL)
+                    sendMsgToClient(client, event->mPacket);
+                break;
+            }
+
+            case ServerNotification::playerNoMoreFighting:
+            {
                 ODSocketClient* client = getClientFromPlayer(event->mConcernedPlayer);
                 OD_ASSERT_TRUE_MSG(client != NULL, "name=" + event->mConcernedPlayer->getNick());
                 if(client != NULL)

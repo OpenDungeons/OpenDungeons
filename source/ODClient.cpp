@@ -34,6 +34,7 @@
 #include "RoomObject.h"
 #include "LogManager.h"
 #include "ModeManager.h"
+#include "MusicPlayer.h"
 
 #include <string>
 
@@ -595,7 +596,16 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotification::playerFighting:
         {
-            gameMap->localPlayerIsFighting();
+            std::string fightMusic = gameMap->getLevelFightMusicFile();
+            if (fightMusic.empty())
+                break;
+            MusicPlayer::getSingleton().play(fightMusic);
+            break;
+        }
+
+        case ServerNotification::playerNoMoreFighting:
+        {
+            MusicPlayer::getSingleton().play(gameMap->getLevelMusicFile());
             break;
         }
 

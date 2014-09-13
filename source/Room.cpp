@@ -872,18 +872,8 @@ void Room::takeDamage(double damage, Tile* tileTakingDamage)
     if (player == NULL)
         return;
 
-    try
-    {
-        // Notify the player is under attack.
-        ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::playerFighting, player);
-        ODServer::getSingleton().queueServerNotification(serverNotification);
-    }
-    catch (std::bad_alloc&)
-    {
-        OD_ASSERT_TRUE(false);
-        exit(1);
-    }
+    // Tells the server game map the player is under attack.
+    gameMap->playerIsFighting(player);
 }
 
 void Room::updateActiveSpots()

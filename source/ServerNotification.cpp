@@ -92,6 +92,8 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "creatureRefresh";
         case ServerNotificationType::playerFighting:
             return "playerFighting";
+        case ServerNotificationType::playerNoMoreFighting:
+            return "playerNoMoreFighting";
         case ServerNotificationType::tileClaimed:
             return "tileClaimed";
         case ServerNotificationType::refreshPlayerSeat:
