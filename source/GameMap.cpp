@@ -878,7 +878,7 @@ void GameMap::playerIsFighting(Player* player)
     {
         try
         {
-            // Notify the player he is no longer under attack.
+            // Notify the player he is now under attack.
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotification::playerFighting, player);
             ODServer::getSingleton().queueServerNotification(serverNotification);
