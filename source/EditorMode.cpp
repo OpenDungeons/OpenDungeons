@@ -434,18 +434,16 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
             if (currentCreature == NULL)
                 continue;
 
-            if (currentCreature->getColor() == player->getSeat()->getColor())
+            // In editor mode, we allow pickup of all creatures. No need to test color
+            if (ODClient::getSingleton().isConnected())
             {
-                if (ODClient::getSingleton().isConnected())
-                {
-                    // Send a message to the server telling it we want to pick up this creature
-                    ClientNotification *clientNotification = new ClientNotification(
-                        ClientNotification::askCreaturePickUp);
-                    std::string name = currentCreature->getName();
-                    clientNotification->mPacket << name;
-                    ODClient::getSingleton().queueClientNotification(clientNotification);
-                    return true;
-                }
+                // Send a message to the server telling it we want to pick up this creature
+                ClientNotification *clientNotification = new ClientNotification(
+                    ClientNotification::askCreaturePickUp);
+                std::string name = currentCreature->getName();
+                clientNotification->mPacket << name;
+                ODClient::getSingleton().queueClientNotification(clientNotification);
+                return true;
             }
         }
     }

@@ -593,7 +593,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             if ((creature != NULL) && (creature->getIsOnMap()))
             {
                 int color = creature->getColor();
-                if(color == player->getSeat()->getColor())
+                if((color == player->getSeat()->getColor()) ||
+                   (mServerMode = ServerMode::ModeEditor))
                 {
                     player->pickUpCreature(creature);
                     // We notify the player that he pickedup the creature
