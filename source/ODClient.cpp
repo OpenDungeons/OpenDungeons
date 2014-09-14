@@ -615,6 +615,8 @@ bool ODClient::processOneClientSocketMessage()
             OD_ASSERT_TRUE(packetReceived >> missile);
             gameMap->addMissileObject(missile);
             missile->createMesh();
+            SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::CANNONFIRING,
+                                                                   missile->getPosition());
             break;
         }
 
@@ -676,6 +678,16 @@ bool ODClient::processOneClientSocketMessage()
             Room* room = gameMap->getRoomByName(roomName);
             OD_ASSERT_TRUE_MSG(room != NULL, "roomName=" + roomName);
             room->removeAllRoomObject();
+            break;
+        }
+
+        case ServerNotification::depositGoldSound:
+        {
+            int xPos;
+            int yPos;
+            OD_ASSERT_TRUE(packetReceived >> xPos >> yPos);
+            SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::DEPOSITGOLD,
+                                                                   xPos, yPos);
             break;
         }
 

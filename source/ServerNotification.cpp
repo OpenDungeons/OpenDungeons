@@ -108,6 +108,8 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "removeRoomObject";
         case ServerNotificationType::removeAllRoomObjectFromRoom:
             return "removeAllRoomObjectFromRoom";
+        case ServerNotificationType::depositGoldSound:
+            return "depositGoldSound";
         case ServerNotificationType::notifyCreatureInfo:
             return "notifyCreatureInfo";
         case ServerNotificationType::playCreatureSound:

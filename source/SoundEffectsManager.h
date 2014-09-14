@@ -95,6 +95,8 @@ public:
         BUILDTRAP,
         ROCKFALLING,
         CLAIMED,
+        DEPOSITGOLD,
+        CANNONFIRING,
         NUM_INTERFACE_SOUNDS
     };
 

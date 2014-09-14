@@ -134,7 +134,7 @@ void SoundEffectsManager::initializeInterfaceSounds()
 
     // Only one dig select sound atm...
     {
-        GameSound* gm = getGameSound(soundFolderPath + "Game/click.ogg", false);
+        GameSound* gm = getGameSound(soundFolderPath + "Game/PickSelector.ogg", false);
         if (gm != NULL)
             mInterfaceSounds[DIGSELECT].push_back(gm);
     }
@@ -151,6 +151,13 @@ void SoundEffectsManager::initializeInterfaceSounds()
         GameSound* gm = getGameSound(soundFolderPath + "Rooms/default_build_trap.ogg", false);
         if (gm != NULL)
             mInterfaceSounds[BUILDTRAP].push_back(gm);
+    }
+
+    // Cannon firing sound
+    {
+        GameSound* gm = getGameSound(soundFolderPath + "Traps/cannon_firing.ogg", false);
+        if (gm != NULL)
+            mInterfaceSounds[CANNONFIRING].push_back(gm);
     }
 
     // Rock falling sounds
@@ -171,6 +178,16 @@ void SoundEffectsManager::initializeInterfaceSounds()
         GameSound* gm = getGameSound(soundFilenames[i], true);
         if (gm != NULL)
             mInterfaceSounds[CLAIMED].push_back(gm);
+    }
+
+    // Deposit gold sounds
+    soundFilenames.clear();
+    Helper::fillFilesList(soundFolderPath + "Game/DepositGold/", soundFilenames, ".ogg");
+    for (unsigned int i = 0; i < soundFilenames.size(); ++i)
+    {
+        GameSound* gm = getGameSound(soundFilenames[i], true);
+        if (gm != NULL)
+            mInterfaceSounds[DEPOSITGOLD].push_back(gm);
     }
 }
 
