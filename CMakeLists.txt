@@ -41,8 +41,8 @@ set(CMAKE_CONFIG_DIR "${CMAKE_SOURCE_DIR}/cmake/config")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake/modules)
 
 if(NOT CMAKE_BUILD_TYPE)
-    message(STATUS "CMake build type is not set, defaulting to 'Release'")
-    set(CMAKE_BUILD_TYPE "Release")
+    message(STATUS "CMake build type is not set, defaulting to 'RelWithDebInfo'")
+    set(CMAKE_BUILD_TYPE "RelWithDebInfo")
 endif()
 
 ##################################
@@ -50,12 +50,20 @@ endif()
 ##################################
 
 if(MSVC)
-  # C++11 compilation flag is activated by default
-  # Optimisation flags can be added if deemed useful
-elseif(MINGW)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
-elseif(UNIX)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    # C++11 compilation flag is activated by default
+    # Optimisation flags can be added if deemed useful
+else()
+    # Help getting compilation warnings
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+    if(MINGW)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
+        # This includes enough debug information to get something useful
+        # from Dr. Mingw while keeping binary size down. Almost useless
+        # with gdb, though.
+        set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -ggdb0 -gstabs2")
+    elseif(UNIX)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    endif()
 endif()
 
 message(STATUS "CMake CXX Flags: " ${CMAKE_CXX_FLAGS})
