@@ -4,7 +4,7 @@ OpenDungeons_Version:0.4.9  # The version of OpenDungeons which created this fil
 Name	Test Map Small Empty (Skirmish)
 Description	A test map for the skirmish mode to test path finding
 Music	yd_Searching_ingame.ogg
-FightMusic	yd_Searching_ingame.ogg
+FightMusic	The_Dark_Amulet.ogg
 [/Info]
 
 [Seats]

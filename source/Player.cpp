@@ -32,7 +32,8 @@ Player::Player() :
     mNewTrapType(Trap::nullTrapType),
     mGameMap(NULL),
     mSeat(NULL),
-    mHasAI(false)
+    mHasAI(false),
+    mFightingTime(0.0f)
 {
 }
 

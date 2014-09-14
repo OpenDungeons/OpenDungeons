@@ -856,6 +856,24 @@ void Room::takeDamage(double damage, Tile* tileTakingDamage)
         return;
 
     mTileHP[tileTakingDamage] -= damage;
+
+    GameMap* gameMap = getGameMap();
+    if (gameMap == NULL)
+        return;
+
+    if(!gameMap->isServerGameMap())
+        return;
+
+    Seat* seat = getControllingSeat();
+    if (seat == NULL)
+        return;
+
+    Player* player = gameMap->getPlayerByColor(seat->getColor());
+    if (player == NULL)
+        return;
+
+    // Tells the server game map the player is under attack.
+    gameMap->playerIsFighting(player);
 }
 
 void Room::updateActiveSpots()

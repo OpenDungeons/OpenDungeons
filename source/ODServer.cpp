@@ -374,6 +374,24 @@ void ODServer::processServerNotifications()
                 break;
             }
 
+            case ServerNotification::playerFighting:
+            {
+                ODSocketClient* client = getClientFromPlayer(event->mConcernedPlayer);
+                OD_ASSERT_TRUE_MSG(client != NULL, "name=" + event->mConcernedPlayer->getNick());
+                if(client != NULL)
+                    sendMsgToClient(client, event->mPacket);
+                break;
+            }
+
+            case ServerNotification::playerNoMoreFighting:
+            {
+                ODSocketClient* client = getClientFromPlayer(event->mConcernedPlayer);
+                OD_ASSERT_TRUE_MSG(client != NULL, "name=" + event->mConcernedPlayer->getNick());
+                if(client != NULL)
+                    sendMsgToClient(client, event->mPacket);
+                break;
+            }
+
             case ServerNotification::pickupCreature:
                 // This should not be a message as it is sent directly to the client
                 OD_ASSERT_TRUE(false);

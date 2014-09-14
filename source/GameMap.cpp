@@ -57,6 +57,9 @@
 #include <cmath>
 #include <cstdlib>
 
+//! \brief The number of seconds the local player must stay out of danger to trigger the calm music again.
+const float BATTLE_TIME_COUNT = 10.0f;
+
 using namespace std;
 
 /*! \brief A helper class for the A* search in the GameMap::path function.
@@ -160,8 +163,10 @@ bool GameMap::loadLevel(const std::string& levelFilepath)
                             + levelFilepath;
 
     // TODO The map loader class should be merged back to GameMap.
-    MapLoader::readGameMapFromFile(levelPath, *this);
-    setLevelFileName(levelFilepath);
+    if (MapLoader::readGameMapFromFile(levelPath, *this))
+        setLevelFileName(levelFilepath);
+    else
+        return false;
 
     return true;
 }
@@ -811,7 +816,10 @@ void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
     }
 
     if(isServerGameMap())
+    {
+        updatePlayerFightingTime(timeSinceLastFrame);
         return;
+    }
 
     // Advance the "flickering" of the lights by the amount of time that has passed since the last frame.
     entities_number = numMapLights();
@@ -824,6 +832,65 @@ void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
 
         tempMapLight->advanceFlicker(timeSinceLastFrame);
     }
+}
+
+void GameMap::updatePlayerFightingTime(Ogre::Real timeSinceLastFrame)
+{
+    // Updates fighting time for server players
+    for (unsigned int i = 0; i < players.size(); ++i)
+    {
+        Player* player = players[i];
+        if (player == NULL)
+            continue;
+
+        float fightingTime = player->getFightingTime();
+        if (fightingTime == 0.0f)
+            continue;
+
+        fightingTime -= timeSinceLastFrame;
+        // We can trigger the calm music again
+        if (fightingTime <= 0.0f)
+        {
+            fightingTime = 0.0f;
+            try
+            {
+                // Notify the player he is no longer under attack.
+                ServerNotification *serverNotification = new ServerNotification(
+                    ServerNotification::playerNoMoreFighting, player);
+                ODServer::getSingleton().queueServerNotification(serverNotification);
+            }
+            catch (std::bad_alloc&)
+            {
+                OD_ASSERT_TRUE(false);
+                exit(1);
+            }
+        }
+        player->setFightingTime(fightingTime);
+    }
+}
+
+void GameMap::playerIsFighting(Player* player)
+{
+    if (player == NULL)
+        return;
+
+    if (player->getFightingTime() == 0.0f)
+    {
+        try
+        {
+            // Notify the player he is now under attack.
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotification::playerFighting, player);
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+        catch (std::bad_alloc&)
+        {
+            OD_ASSERT_TRUE(false);
+            exit(1);
+        }
+    }
+
+    player->setFightingTime(BATTLE_TIME_COUNT);
 }
 
 bool GameMap::pathExists(int x1, int y1, int x2, int y2, const CreatureDefinition* creatureDef)
@@ -1077,14 +1144,18 @@ bool GameMap::assignAI(Player& player, const std::string& aiType, const std::str
     return false;
 }
 
-Player* GameMap::getPlayer(int index)
+Player* GameMap::getPlayer(unsigned int index)
 {
-    return players[index];
+    if (index < players.size())
+        return players[index];
+    return NULL;
 }
 
-const Player* GameMap::getPlayer(int index) const
+const Player* GameMap::getPlayer(unsigned int index) const
 {
-    return players[index];
+    if (index < players.size())
+        return players[index];
+    return NULL;
 }
 
 Player* GameMap::getPlayer(const std::string& pName)

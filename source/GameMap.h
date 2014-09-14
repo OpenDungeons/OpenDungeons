@@ -211,8 +211,8 @@ public:
     bool assignAI(Player& player, const std::string& aiType, const std::string& parameters = std::string());
 
     //! \brief Returns a pointer to the i'th player structure stored by this GameMap.
-    Player* getPlayer(int index);
-    const Player* getPlayer(int index) const;
+    Player* getPlayer(unsigned int index);
+    const Player* getPlayer(unsigned int index) const;
 
     //! \brief Returns a pointer to the player structure stored by this GameMap whose name matches pName.
     Player* getPlayer(const std::string& cName);
@@ -403,16 +403,19 @@ public:
 
     std::vector<Creature*> creatures;
 
-    bool isServerGameMap() {return mIsServerGameMap;}
+    bool isServerGameMap()
+    {
+        return mIsServerGameMap;
+    }
 
     bool getGamePaused()
     {
         return mIsPaused;
     }
 
-    void setGamePaused(bool b)
+    void setGamePaused(bool paused)
     {
-        mIsPaused = b;
+        mIsPaused = paused;
     }
 
     //! \brief Refresh the tiles borders based a recent change on the map
@@ -443,6 +446,10 @@ public:
     std::string nextUniqueNameRoomObj(const std::string& parentRoom);
     std::string nextUniqueNameTrap(const std::string& meshName);
     std::string nextUniqueNameMapLight();
+
+    //! \brief Tells the game map a given player is attacking or under attack.
+    //! Used on the server game map only.
+    void playerIsFighting(Player* player);
 
 private:
     void replaceFloodFill(Tile::FloodFillType floodFillType, int colorOld, int colorNew);
@@ -536,6 +543,11 @@ private:
 
     //! \brief Resets the unique numbers
     void resetUniqueNumbers();
+
+    //! \brief Updates every player's fighting time value
+    //! and triggers potentiel calm music server notifications.
+    //! Used on the server game map only.
+    void updatePlayerFightingTime(Ogre::Real timeSinceLastFrame);
 };
 
 #endif // _GAMEMAP_H_

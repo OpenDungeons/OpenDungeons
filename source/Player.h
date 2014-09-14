@@ -42,7 +42,7 @@ public:
     Player();
 
     const std::string& getNick() const
-    {return mNickname; }
+    { return mNickname; }
 
     Seat* getSeat()
     { return mSeat; }
@@ -107,6 +107,12 @@ public:
     inline void setNewTrapType(Trap::TrapType newTrapType)
     { mNewTrapType = newTrapType; }
 
+    inline float getFightingTime() const
+    { return mFightingTime; }
+
+    inline void setFightingTime(float fightingTime)
+    { mFightingTime = fightingTime; }
+
 private:
     //! \brief Room or trap tile type the player is currently willing to place on map.
     Room::RoomType mNewRoomType;
@@ -123,6 +129,13 @@ private:
 
     //! True: player is human. False: player is a computer.
     bool mHasAI;
+
+    //! \brief This counter tells for how much time is left before considering
+    //! the player to be out of struggle.
+    //! When > 0, the player is considered attacking or being attacked.
+    //! This member is used to trigger the calm or fighting music when incarnating
+    //! the local player.
+    float mFightingTime;
 
     //! \brief A simple mutator function to put the given creature into the player's hand,
     //! note this should NOT be called directly for creatures on the map,
