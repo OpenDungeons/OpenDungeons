@@ -49,9 +49,10 @@ public:
         mainMenu,
         skirmishMenu,
         multiplayerMenu,
+        editorMenu,
+        editorModeGui,
         optionsMenu,
-        inGameMenu,
-        editorMenu
+        inGameMenu
     };
 
     /*! \brief Constructor that initializes the whole CEGUI system
@@ -119,6 +120,10 @@ public:
     static const std::string MPM_LIST_LEVELS;
     static const std::string MPM_EDIT_IP;
     static const std::string MPM_EDIT_NICK;
+    static const std::string EDM_TEXT_LOADING;
+    static const std::string EDM_BUTTON_LAUNCH;
+    static const std::string EDM_BUTTON_BACK;
+    static const std::string EDM_LIST_LEVELS;
 
 private:
     //! \brief Assigns all event handlers to the GUI elements
@@ -150,6 +155,15 @@ private:
 
     //! \brief What happens after a click on the level list in the level selection menu
     static bool mSKMListClicked         (const CEGUI::EventArgs& e);
+
+    //! \brief What happens after a click on Back in the editor level selection menu
+    static bool mEDMBackButtonPressed   (const CEGUI::EventArgs& e);
+
+    //! \brief What happens after a click on Load in the editor level selection menu
+    static bool mEDMLoadButtonPressed   (const CEGUI::EventArgs& e);
+
+    //! \brief What happens after a click on the editor level list in the level selection menu
+    static bool mEDMListClicked         (const CEGUI::EventArgs& e);
 
     //! \brief What happens after a click on Back in the multiplayer menu
     static bool mMPMBackButtonPressed   (const CEGUI::EventArgs& e);

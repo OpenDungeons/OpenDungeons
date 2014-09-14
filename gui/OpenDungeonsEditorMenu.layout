@@ -1,132 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <GUILayout version="4" >
-    <Window type="DefaultWindow" name="EDITORGUI" >
-        <Property name="Area" value="{{0,-1},{0,-1},{1,-1},{1,-1}}" />
+    <Window type="OD/StaticImage" name="Background" >
+        <Property name="Area" value="{{0,0},{0,0},{1,2},{1,0}}" />
+        <Property name="Image" value="ODMainMenuBackground/MainMenuBackground" />
         <Property name="MaxSize" value="{{1,0},{1,0}}" />
-        <Window type="OD/StaticImage" name="HorizontalPipe" >
-            <Property name="Area" value="{{0,4},{0,11},{1,-220},{0,23}}" />
-            <Property name="Image" value="OpenDungeonsSkin/HorizontalPipe" />
+        <Property name="FrameEnabled" value="False" />
+        <Property name="BackgroundEnabled" value="False" />
+        <Window type="OD/StaticImage" name="WelcomeBanner" >
+            <Property name="Area" value="{{0.5,-383},{0,50},{0.5,383},{0,200}}" />
+            <Property name="Image" value="ODLogo/Logo" />
             <Property name="MaxSize" value="{{1,0},{1,0}}" />
             <Property name="FrameEnabled" value="False" />
-            <Property name="HorzFormatting" value="Tiled" />
             <Property name="BackgroundEnabled" value="False" />
-            <Window type="OD/StaticText" name="FullnessDisplay" >
-                <Property name="Area" value="{{0,5},{0,0},{0,180},{0,24}}" />
-                <Property name="Text" value="Tile Fullness: 100" />
-                <Property name="MaxSize" value="{{1,0},{1,0}}" />
-                <Property name="TooltipText" value="Your Gold" />
-                <Property name="HorzFormatting" value="RightAligned" />
-                <Property name="ClippedByParent" value="False" />
-                <Property name="VerticalAlignment" value="Centre" />
-                <Window type="OD/StaticImage" name="Icon" >
-                    <Property name="Area" value="{{0,0},{0,0},{0,30},{0,20}}" />
-                    <Property name="Image" value="OpenDungeonsIcons/GoldCoin" />
-                    <Property name="MaxSize" value="{{1,0},{1,0}}" />
-                    <Property name="AlwaysOnTop" value="True" />
-                    <Property name="TooltipText" value="Your Gold" />
-                    <Property name="FrameEnabled" value="False" />
-                    <Property name="ClippedByParent" value="False" />
-                    <Property name="BackgroundEnabled" value="False" />
-                    <Property name="VerticalAlignment" value="Centre" />
-                </Window>
-            </Window>
-            <Window type="OD/StaticText" name="PositionDisplay" >
-                <Property name="Area" value="{{0,190},{0,0},{0,391},{0,25}}" />
-                <Property name="Text" value="Cursor Position: 0, 0" />
-                <Property name="MaxSize" value="{{1,0},{1,0}}" />
-                <Property name="TooltipText" value="Your claimed territory" />
-                <Property name="HorzFormatting" value="RightAligned" />
-                <Property name="ClippedByParent" value="False" />
-                <Property name="VerticalAlignment" value="Centre" />
-                <Window type="OD/StaticImage" name="Icon" >
-                    <Property name="Area" value="{{0,0},{0,0},{0,30},{0,20}}" />
-                    <Property name="Image" value="OpenDungeonsIcons/TerritoryIcon" />
-                    <Property name="MaxSize" value="{{1,0},{1,0}}" />
-                    <Property name="AlwaysOnTop" value="True" />
-                    <Property name="TooltipText" value="Your claimed territory" />
-                    <Property name="FrameEnabled" value="False" />
-                    <Property name="ClippedByParent" value="False" />
-                    <Property name="BackgroundEnabled" value="False" />
-                    <Property name="VerticalAlignment" value="Centre" />
-                </Window>
-            </Window>
         </Window>
-        <Window type="OD/Button" name="OptionsButton" >
-            <Property name="Area" value="{{1,-277},{0,2},{1,-205},{0,35}}" />
-            <Property name="Text" value="Options" />
-            <Property name="AlwaysOnTop" value="True" />
-            <Property name="TooltipText" value="Options" />
-            <Property name="ClippedByParent" value="False" />
-            <Property name="Visible" value="False" />
+        <Window type="OD/StaticText" name="ChooseLevelText" >
+            <Property name="Area" value="{{0.5,-60},{0,200},{0.5,60},{0,220}}" />
+            <Property name="Text" value="Choose a level..." />
+            <Property name="BackgroundEnabled" value="False" />
+            <Property name="FrameEnabled" value="False" />
         </Window>
-        <Window type="OD/StaticImage" name="MiniMap" >
-            <Property name="Area" value="{{1,-201},{0,2},{1,-1},{0,202}}" />
-            <Property name="MaxSize" value="{{1,0},{1,0}}" />
-            <Property name="AlwaysOnTop" value="True" />
+        <Window type="OD/MainMenuListbox" name="LevelSelect" >
+            <Property name="ForceVertScrollbar" value="True" />
+            <Property name="Area" value="{{0.5,-383},{0,220},{0.5,383},{0,541}}" />
         </Window>
-        <Window type="OD/TabControl" name="MainTabControl" >
-            <Property name="Area" value="{{0,0},{1,-133},{1,0},{1,0}}" />
-            <Property name="TabHeight" value="{0,30}" />
-            <Property name="RiseOnClickEnabled" value="False" />
-            <Window type="DefaultWindow" name="Tiles" >
-                <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
-                <Property name="Text" value="Tiles" />
-                <Property name="MaxSize" value="{{1,0},{1,0}}" />
-                <Property name="RiseOnClickEnabled" value="False" />
-                <Window type="OD/ImageButton" name="DirtButton" >
-                    <Property name="Area" value="{{0,20},{0,20},{0,80},{0,80}}" />
-                    <Property name="NormalImage" value="OpenDungeonsSkin/DirtButton" />
-                    <Property name="TooltipText" value="Place dirt tiles." />
-                    <Property name="InheritsAlpha" value="False" />
-                </Window>
-                <Window type="OD/ImageButton" name="RockButton" >
-                    <Property name="Area" value="{{0,80},{0,20},{0,140},{0,80}}" />
-                    <Property name="NormalImage" value="OpenDungeonsSkin/RockButton" />
-                    <Property name="TooltipText" value="Place undiggable rock tiles." />
-                    <Property name="InheritsAlpha" value="False" />
-                </Window>
-                <Window type="OD/ImageButton" name="GoldButton" >
-                    <Property name="Area" value="{{0,140},{0,20},{0,200},{0,80}}" />
-                    <Property name="NormalImage" value="OpenDungeonsSkin/GoldButton" />
-                    <Property name="TooltipText" value="Place gold tiles." />
-                    <Property name="InheritsAlpha" value="False" />
-                </Window>
-                <Window type="OD/ImageButton" name="WaterButton" >
-                    <Property name="Area" value="{{0,200},{0,20},{0,260},{0,80}}" />
-                    <Property name="NormalImage" value="OpenDungeonsSkin/WaterButton" />
-                    <Property name="TooltipText" value="Place some water." />
-                    <Property name="InheritsAlpha" value="False" />
-                </Window>
-                <Window type="OD/ImageButton" name="LavaButton" >
-                    <Property name="Area" value="{{0,260},{0,20},{0,320},{0,80}}" />
-                    <Property name="NormalImage" value="OpenDungeonsSkin/LavaButton" />
-                    <Property name="TooltipText" value="Place some lava." />
-                    <Property name="InheritsAlpha" value="False" />
-                </Window>
-                <Window type="OD/ImageButton" name="ClaimedButton" >
-                    <Property name="Area" value="{{0,320},{0,20},{0,380},{0,80}}" />
-                    <Property name="NormalImage" value="OpenDungeonsSkin/ClaimedButton" />
-                    <Property name="TooltipText" value="Place some claimed/dungeon tiles." />
-                    <Property name="InheritsAlpha" value="False" />
-                </Window>
-            </Window>
-            <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuRooms.layout" name="RoomsImport" />
-            <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuTraps.layout" name="RoomsImport" />
-            <Window type="DefaultWindow" name="Creatures" >
-                <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
-                <Property name="Text" value="Creatures" />
-                <Property name="MaxSize" value="{{1,0},{1,0}}" />
-                <Property name="Visible" value="False" />
-                <Property name="RiseOnClickEnabled" value="False" />
-            </Window>
-            <Window type="DefaultWindow" name="Lights" >
-                <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
-                <Property name="Text" value="Lights" />
-                <Property name="MaxSize" value="{{1,0},{1,0}}" />
-                <Property name="Visible" value="False" />
-                <Property name="RiseOnClickEnabled" value="False" />
-            </Window>
+        <Window type="OD/MainMenuButton" name="LaunchGameButton" >
+            <Property name="Area" value="{{0.5,10},{0,574},{0.5,174},{0,664}}" />
+            <Property name="Text" value="Launch" />
+        </Window>
+        <Window type="OD/MainMenuButton" name="BackButton" >
+            <Property name="Area" value="{{0.5,-174},{0,574},{0.5,-10},{0,664}}" />
+            <Property name="Text" value="Back" />
+        </Window>
+        <Window type="OD/StaticText" name="LoadingText" >
+            <Property name="Area" value="{{0.5,-200},{0,550},{0.5,200},{0,570}}" />
+            <Property name="Text" value="Loading..." />
+            <Property name="BackgroundEnabled" value="False" />
+            <Property name="FrameEnabled" value="False" />
         </Window>
     </Window>
 </GUILayout>
