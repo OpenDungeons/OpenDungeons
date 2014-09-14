@@ -58,7 +58,7 @@
 #include <cstdlib>
 
 //! \brief The number of seconds the local player must stay out of danger to trigger the calm music again.
-const unsigned int BATTLE_TIME_COUNT = 10.0f;
+const float BATTLE_TIME_COUNT = 10.0f;
 
 using namespace std;
 

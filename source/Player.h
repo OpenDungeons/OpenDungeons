@@ -132,7 +132,7 @@ private:
 
     //! \brief This counter tells for how much time is left before considering
     //! the player to be out of struggle.
-    //! When > 0, the player is considered attacking of being attacked.
+    //! When > 0, the player is considered attacking or being attacked.
     //! This member is used to trigger the calm or fighting music when incarnating
     //! the local player.
     float mFightingTime;
