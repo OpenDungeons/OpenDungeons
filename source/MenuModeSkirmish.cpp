@@ -98,7 +98,7 @@ void MenuModeSkirmish::launchSelectedButtonPressed()
 
     std::string level = LEVEL_PATH + mListFiles[id] + LEVEL_EXTENSION;
     // In single player mode, we act as a server
-    if(!ODServer::getSingleton().startServer(level, true))
+    if(!ODServer::getSingleton().startServer(level, true, ODServer::ServerMode::ModeGame))
     {
         LogManager::getSingleton().logMessage("ERROR: Could not start server for single player game !!!");
     }

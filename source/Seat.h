@@ -149,9 +149,13 @@ public:
 
     int mStartingGold;
 
+    static bool sortByColor(Seat* s1, Seat* s2);
+
     static std::string getFormat();
     friend ODPacket& operator<<(ODPacket& os, Seat *s);
     friend ODPacket& operator>>(ODPacket& is, Seat *s);
+    friend std::ostream& operator<<(std::ostream& os, Seat *s);
+    friend std::istream& operator>>(std::istream& is, Seat *s);
 
     static void loadFromLine(const std::string& line, Seat *s);
 

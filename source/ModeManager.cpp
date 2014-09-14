@@ -27,6 +27,10 @@
 #include "Console.h"
 #include "ConsoleMode.h"
 #include "FppMode.h"
+#include "ODClient.h"
+#include "ODServer.h"
+#include "RenderManager.h"
+#include "ODFrameListener.h"
 
 ModeManager::ModeManager()
 {
@@ -158,4 +162,19 @@ void ModeManager::checkModeChange()
 
     mRequestedMode = NONE;
     mDiscardActualMode = false;
+}
+
+void ModeManager::shutdownGameMode()
+{
+    if(ODClient::getSingleton().isConnected())
+        ODClient::getSingleton().disconnect();
+    if(ODServer::getSingleton().isConnected())
+        ODServer::getSingleton().stopServer();
+
+    // Now that the server is stopped, we can clear the client game map
+    // We process RenderRequests in case there is graphical things pending
+    RenderManager::getSingleton().processRenderRequests();
+    ODFrameListener::getSingleton().getClientGameMap()->clearAll();
+    // We process again RenderRequests to destroy/delete what clearAll has put in the queue
+    RenderManager::getSingleton().processRenderRequests();
 }

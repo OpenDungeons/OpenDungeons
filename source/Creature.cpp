@@ -178,6 +178,14 @@ void Creature::createMeshLocal()
     request->vec    = static_cast<Creature*>(this)->getDefinition()->getScale();
     request->p = static_cast<void*>(this);
     RenderManager::queueRenderRequest(request);
+
+    // By default, we set the creature in idle state
+    request = new RenderRequest;
+    request->type = RenderRequest::setObjectAnimationState;
+    request->p = static_cast<void*>(this);
+    request->str = "Idle";
+    request->b = true;
+    RenderManager::queueRenderRequest(request);
 }
 
 void Creature::destroyMeshLocal()
@@ -218,7 +226,7 @@ std::string Creature::getFormat()
 {
     //NOTE:  When this format changes changes to RoomPortal::spawnCreature() may be necessary.
     return "className\tname\tposX\tposY\tposZ\tcolor\tweaponL"
-        + Weapon::getFormat() + "\tweaponR" + Weapon::getFormat() + "\tHP";
+        + Weapon::getFormat() + "\tweaponR" + Weapon::getFormat() + "\tHP\tLevel";
 }
 
 //! \brief A matched function to transport creatures between files and over the network.

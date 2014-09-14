@@ -46,7 +46,13 @@ public:
         askBuildRoom,
         askBuildTrap,
         ackNewTurn,
-        askCreatureInfos
+        askCreatureInfos,
+
+        //  Editor
+        editorAskSaveMap,
+        editorAskChangeTiles,
+        editorAskBuildRoom,
+        editorAskBuildTrap
     };
 
     ClientNotification(ClientNotificationType type);

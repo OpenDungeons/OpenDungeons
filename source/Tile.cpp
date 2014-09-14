@@ -1235,3 +1235,10 @@ std::string Tile::displayAsString(Tile* tile)
     return "[" + Ogre::StringConverter::toString(tile->x) + ","
          + Ogre::StringConverter::toString(tile->y)+ "]";
 }
+
+void Tile::refreshFromTile(const Tile& tile)
+{
+    type = tile.type;
+    setFullness(tile.fullness);
+    // Note : There will be no visual change until the tile mesh is refreshed
+}

@@ -634,7 +634,7 @@ std::ostream& operator<<(std::ostream& os, Room *r)
     if (r == NULL)
         return os;
 
-    os << r->getMeshName() << "\t" << r->getName() << "\t" << r->getColor() << "\n";
+    os << r->getMeshName() << "\t" << r->getColor() << "\n";
     os << r->mCoveredTiles.size() << "\n";
     for (unsigned int i = 0; i < r->mCoveredTiles.size(); ++i)
     {

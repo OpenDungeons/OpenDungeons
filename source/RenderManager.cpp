@@ -928,7 +928,7 @@ void RenderManager::rrCreateMapLight(const RenderRequest& renderRequest)
     if (renderRequest.b)
     {
         // Create the MapLightIndicator mesh so the light can be drug around in the map editor.
-        Ogre::Entity* lightEntity = mSceneManager->createEntity("MapLightIndicator_"
+        Ogre::Entity* lightEntity = mSceneManager->createEntity(MapLight::MAPLIGHT_INDICATOR_PREFIX
                                     + curMapLight->getName(), "Light.mesh");
         mapLightNode->attachObject(lightEntity);
     }
@@ -971,7 +971,7 @@ void RenderManager::rrDestroyMapLightVisualIndicator(const RenderRequest& render
     if (mSceneManager->hasLight(mapLightName))
     {
         Ogre::SceneNode* mapLightNode = mSceneManager->getSceneNode(mapLightName + "_node");
-        std::string mapLightIndicatorName = "MapLightIndicator_"
+        std::string mapLightIndicatorName = MapLight::MAPLIGHT_INDICATOR_PREFIX
                                             + curMapLight->getName();
         if (mSceneManager->hasEntity(mapLightIndicatorName))
         {

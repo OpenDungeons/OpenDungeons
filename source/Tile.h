@@ -283,6 +283,7 @@ public:
     void takeDamage(double damage, Tile *tileTakingDamage) {}
     double getHP(Tile *tile) {return 0;}
     std::vector<Tile*> getCoveredTiles() { return std::vector<Tile*>() ;}
+    void refreshFromTile(const Tile& tile);
 
 protected:
     virtual void createMeshLocal();

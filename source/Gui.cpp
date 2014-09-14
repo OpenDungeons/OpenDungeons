@@ -209,6 +209,34 @@ void Gui::assignEventHandlers()
     sheets[editorMenu]->getChild(EDITOR_CLAIMED_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
         CEGUI::Event::Subscriber(&editorClaimedButtonPressed));
+    // Game Mode controls
+    sheets[editorMenu]->getChild(BUTTON_DORMITORY)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&dormitoryButtonPressed));
+
+    sheets[editorMenu]->getChild(BUTTON_TREASURY)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&treasuryButtonPressed));
+
+    sheets[editorMenu]->getChild(BUTTON_FORGE)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&forgeButtonPressed));
+
+    sheets[editorMenu]->getChild(BUTTON_TRAININGHALL)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&trainingHallButtonPressed));
+
+    sheets[editorMenu]->getChild(BUTTON_LIBRARY)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&libraryButtonPressed));
+
+    sheets[editorMenu]->getChild(BUTTON_HATCHERY)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&hatcheryButtonPressed));
+
+    sheets[editorMenu]->getChild(BUTTON_CANNON)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&cannonButtonPressed));
 
     // Skirmish level select menu controls
     sheets[skirmishMenu]->getChild(SKM_BUTTON_LAUNCH)->subscribeEvent(
@@ -338,18 +366,8 @@ bool Gui::confirmExitYesButtonPressed(const CEGUI::EventArgs& e)
 
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     mm->requestUnloadToParentGameMode();
+    mm->shutdownGameMode();
 
-    if(ODClient::getSingleton().isConnected())
-        ODClient::getSingleton().disconnect();
-    if(ODServer::getSingleton().isConnected())
-        ODServer::getSingleton().stopServer();
-
-    // Now that the server is stopped, we can clear the client game map
-    // We process RenderRequests in case there is graphical things pending
-    RenderManager::getSingleton().processRenderRequests();
-    ODFrameListener::getSingleton().getClientGameMap()->clearAll();
-    // We process again RenderRequests to destroy/delete what clearAll has put in the queue
-    RenderManager::getSingleton().processRenderRequests();
     return true;
 }
 
@@ -451,6 +469,16 @@ bool Gui::mMMapEditorButtonPressed(const CEGUI::EventArgs& e)
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
     if (!mm)
         return true;
+
+    // TODO : use a proper screen to choose level
+    if(!ODServer::getSingleton().startServer("levels/Test.level", true, ODServer::ServerMode::ModeEditor))
+    {
+        LogManager::getSingleton().logMessage("ERROR: Could not start server for editor !!!");
+    }
+    if(!ODClient::getSingleton().connect("", ODApplication::PORT_NUMBER))
+    {
+        LogManager::getSingleton().logMessage("ERROR: Could not start client for editor !!!");
+    }
 
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     mm->requestEditorMode();

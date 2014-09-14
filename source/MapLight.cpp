@@ -29,6 +29,7 @@
 #include <sstream>
 
 const std::string MapLight::MAPLIGHT_NAME_PREFIX = "Map_light_";
+const std::string MapLight::MAPLIGHT_INDICATOR_PREFIX = "MapLightIndicator_";
 
 void MapLight::setLocation(const Ogre::Vector3& nPosition)
 {
@@ -229,4 +230,24 @@ void MapLight::loadFromLine(const std::string& line, MapLight* m)
     m->mAttenuationConstant = Helper::toDouble(elems[10]);
     m->mAttenuationLinear = Helper::toDouble(elems[11]);
     m->mAttenuationQuadratic = Helper::toDouble(elems[12]);
+}
+
+std::ostream& operator<<(std::ostream& os, MapLight *m)
+{
+    os << m->mPosition.x << "\t" << m->mPosition.y << "\t" << m->mPosition.z;
+    os << "\t" << m->mDiffuseColor.r << "\t" << m->mDiffuseColor.g << "\t" << m->mDiffuseColor.b;
+    os << "\t" << m->mSpecularColor.r << "\t" << m->mSpecularColor.g << "\t" << m->mSpecularColor.b;
+    os << "\t" << m->mAttenuationRange << "\t" << m->mAttenuationConstant;
+    os << "\t" << m->mAttenuationLinear << "\t" << m->mAttenuationQuadratic;
+    return os;
+}
+
+std::istream& operator>>(std::istream& is, MapLight *m)
+{
+    is >> m->mPosition.x >> m->mPosition.y >> m->mPosition.z;
+    is >> m->mDiffuseColor.r >> m->mDiffuseColor.g >> m->mDiffuseColor.b;
+    is >> m->mSpecularColor.r >> m->mSpecularColor.g >> m->mSpecularColor.b;
+    is >> m->mAttenuationRange >> m->mAttenuationConstant;
+    is >> m->mAttenuationLinear >> m->mAttenuationQuadratic;
+    return is;
 }

@@ -88,6 +88,8 @@ class ServerNotification
 
             playCreatureSound,
 
+            refreshTiles,
+
             exit
         };
 

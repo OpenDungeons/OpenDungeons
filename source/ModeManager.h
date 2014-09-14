@@ -109,6 +109,8 @@ public:
         mRequestedMode = PREV;
     }
 
+    void shutdownGameMode();
+
     //! \brief Actually change the game mode if needed
     void checkModeChange();
 

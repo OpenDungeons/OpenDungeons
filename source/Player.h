@@ -76,7 +76,7 @@ public:
     void pickUpCreature(Creature *c);
 
     //! \brief Check to see the first creatureInHand can be dropped on Tile t and do so if possible.
-    bool isDropCreaturePossible(Tile *t, unsigned int index = 0);
+    bool isDropCreaturePossible(Tile *t, unsigned int index = 0, bool isEditorMode = false);
 
     //! \brief Drops the creature on tile t
     void dropCreature(Tile *t, unsigned int index = 0);

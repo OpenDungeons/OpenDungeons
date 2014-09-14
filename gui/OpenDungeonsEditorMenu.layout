@@ -111,49 +111,8 @@
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
             </Window>
-            <Window type="DefaultWindow" name="Rooms" >
-                <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
-                <Property name="Text" value="Rooms" />
-                <Property name="MaxSize" value="{{1,0},{1,0}}" />
-                <Property name="RiseOnClickEnabled" value="False" />
-                <Window type="OD/ImageButton" name="DormitoryButton" >
-                    <Property name="Area" value="{{0,20},{0,20},{0,80},{0,80}}" />
-                    <Property name="NormalImage" value="OpenDungeonsIcons/DormitoryButton" />
-                    <Property name="TooltipText" value="Build sleeping places for your creatures" />
-                    <Property name="InheritsAlpha" value="False" />
-                </Window>
-                <Window type="OD/ImageButton" name="ForgeButton" >
-                    <Property name="Area" value="{{0,80},{0,20},{0,140},{0,80}}" />
-                    <Property name="NormalImage" value="OpenDungeonsIcons/ForgeButton" />
-                    <Property name="TooltipText" value="Build a Forge" />
-                    <Property name="InheritsAlpha" value="False" />
-                </Window>
-                <Window type="OD/ImageButton" name="TrainingHallButton" >
-                    <Property name="Area" value="{{0,140},{0,20},{0,200},{0,80}}" />
-                    <Property name="NormalImage" value="OpenDungeonsIcons/TrainingHallButton" />
-                    <Property name="TooltipText" value="Build a Training Hall" />
-                    <Property name="InheritsAlpha" value="False" />
-                </Window>
-                <Window type="OD/ImageButton" name="TreasuryButton" >
-                    <Property name="Area" value="{{0,200},{0,20},{0,260},{0,80}}" />
-                    <Property name="NormalImage" value="OpenDungeonsIcons/TreasuryButton" />
-                    <Property name="TooltipText" value="Build a treasury" />
-                    <Property name="InheritsAlpha" value="False" />
-                </Window>
-            </Window>
-            <Window type="DefaultWindow" name="Traps" >
-                <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
-                <Property name="Text" value="Traps" />
-                <Property name="MaxSize" value="{{1,0},{1,0}}" />
-                <Property name="Visible" value="False" />
-                <Property name="RiseOnClickEnabled" value="False" />
-                <Window type="OD/ImageButton" name="CannonButton" >
-                    <Property name="Area" value="{{0,20},{0,20},{0,80},{0,80}}" />
-                    <Property name="NormalImage" value="OpenDungeonsIcons/CannonButton" />
-                    <Property name="TooltipText" value="Buid a cannon" />
-                    <Property name="InheritsAlpha" value="False" />
-                </Window>
-            </Window>
+            <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuRooms.layout" name="RoomsImport" />
+            <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuTraps.layout" name="RoomsImport" />
             <Window type="DefaultWindow" name="Creatures" >
                 <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
                 <Property name="Text" value="Creatures" />

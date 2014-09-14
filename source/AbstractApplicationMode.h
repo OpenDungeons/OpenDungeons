@@ -49,11 +49,10 @@ public:
     //! \brief Input methods
     enum DragType
     {
-        creature,
-        mapLight,
         tileSelection,
         addNewRoom,
         addNewTrap,
+        changeTile,
         nullDragType
     };
 

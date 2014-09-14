@@ -24,6 +24,7 @@
 #include "MapLight.h"
 #include "ChatMessage.h"
 #include "ODConsoleCommand.h"
+#include "MapLoader.h"
 #include "LogManager.h"
 
 #include <SFML/Network.hpp>
@@ -44,7 +45,7 @@ ODServer::~ODServer()
     delete mGameMap;
 }
 
-bool ODServer::startServer(const std::string& levelFilename, bool replaceHumanPlayersByAi)
+bool ODServer::startServer(const std::string& levelFilename, bool replaceHumanPlayersByAi, ServerMode mode)
 {
     LogManager& logManager = LogManager::getSingleton();
 
@@ -64,6 +65,7 @@ bool ODServer::startServer(const std::string& levelFilename, bool replaceHumanPl
 
     // Read in the map. The map loading should be happen here and not in the server thread to
     // make sure it is valid before launching the server.
+    mServerMode = mode;
     GameMap* gameMap = mGameMap;
     if (!gameMap->loadLevel(levelFilename))
     {
@@ -250,9 +252,14 @@ void ODServer::startNewTurn(double timeSinceLastFrame)
         }
     }
 
-    gameMap->doTurn();
+    // We do not update turn in editor mode to not have creatures wande
+    if(mServerMode == ServerMode::ModeGame)
+    {
+        gameMap->doTurn();
+        gameMap->doPlayerAITurn(timeSinceLastFrame);
+    }
+
     gameMap->processDeletionQueues();
-    gameMap->doPlayerAITurn(timeSinceLastFrame);
 }
 
 void ODServer::serverThread()
@@ -586,7 +593,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             if ((creature != NULL) && (creature->getIsOnMap()))
             {
                 int color = creature->getColor();
-                if(color == player->getSeat()->getColor())
+                if((color == player->getSeat()->getColor()) ||
+                   (mServerMode = ServerMode::ModeEditor))
                 {
                     player->pickUpCreature(creature);
                     // We notify the player that he pickedup the creature
@@ -628,7 +636,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 + "," + Ogre::StringConverter::toString(tmpTile.getY()));
             if(tile != NULL)
             {
-                if(player->isDropCreaturePossible(tile))
+                if(player->isDropCreaturePossible(tile, 0, mServerMode == ServerMode::ModeEditor))
                 {
                     player->dropCreature(tile);
                     int color = player->getSeat()->getColor();
@@ -785,6 +793,174 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
+        case ClientNotification::editorAskSaveMap:
+        {
+            Player* player = clientSocket->getPlayer();
+            if(player->numCreaturesInHand() == 0)
+            {
+                MapLoader::writeGameMapToFile(mLevelFilename + ".out", *gameMap);
+                ODPacket packet;
+                packet << ServerNotification::chatServer;
+                std::string msg = "Map saved successfully";
+                packet << msg;
+                sendToAllClients(packet);
+            }
+            else
+            {
+                // We cannot save the map
+                ODPacket packet;
+                packet << ServerNotification::chatServer;
+                std::string msg = "Map could not be saved because player hand is not empty";
+                packet << msg;
+                sendToAllClients(packet);
+            }
+            break;
+        }
+
+        case ClientNotification::editorAskChangeTiles:
+        {
+            int x1, y1, x2, y2;
+            int intTileType;
+            double tileFullness;
+
+            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> intTileType >> tileFullness);
+            Tile::TileType tileType = static_cast<Tile::TileType>(intTileType);
+            std::vector<Tile*> selectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
+            std::vector<Tile*> affectedTiles;
+            for(std::vector<Tile*>::iterator it = selectedTiles.begin(); it != selectedTiles.end(); ++it)
+            {
+                Tile* tile = *it;
+                if(tile == NULL)
+                    continue;
+
+                // We do not change tiles where there is something
+                if(tile->numCreaturesInCell() > 0)
+                    continue;
+                if(tile->getCoveringRoom() != NULL)
+                    continue;
+                if(tile->getCoveringTrap())
+                    continue;
+
+                affectedTiles.push_back(tile);
+                tile->setType(tileType);
+                tile->setFullness(tileFullness);
+            }
+            if(!affectedTiles.empty())
+            {
+                ODPacket packet;
+                int nbTiles = affectedTiles.size();
+                packet << ServerNotification::refreshTiles;
+                packet << nbTiles;
+                for(std::vector<Tile*>::iterator it = affectedTiles.begin(); it != affectedTiles.end(); ++it)
+                {
+                    Tile* tile = *it;
+                    packet << tile;
+                }
+                sendToAllClients(packet);
+            }
+            break;
+        }
+
+        case ClientNotification::editorAskBuildRoom:
+        {
+            int x1, y1, x2, y2;
+            int intType;
+
+            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> intType);
+            Player* player = clientSocket->getPlayer();
+            int color = player->getSeat()->getColor();
+            std::vector<Tile*> selectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
+            std::vector<Tile*> affectedTiles;
+            for(std::vector<Tile*>::iterator it = selectedTiles.begin(); it != selectedTiles.end(); ++it)
+            {
+                Tile* tile = *it;
+                if(tile == NULL)
+                    continue;
+
+                // We do not change tiles where there is something
+                if(tile->numCreaturesInCell() > 0)
+                    continue;
+                if(tile->getCoveringRoom() != NULL)
+                    continue;
+                if(tile->getCoveringTrap())
+                    continue;
+                affectedTiles.push_back(tile);
+
+                tile->setType(Tile::TileType::claimed);
+                tile->setColor(color);
+                tile->setFullness(0.0);
+            }
+
+            if(!affectedTiles.empty())
+            {
+                Room::RoomType type = static_cast<Room::RoomType>(intType);
+                Room* room = gameMap->buildRoomForPlayer(affectedTiles, type, player);
+                // We build the message for the new room creation here with the original room size because
+                // it may change if a room is absorbed
+                ODPacket packet;
+                packet << ServerNotification::buildRoom;
+                int nbTiles = affectedTiles.size();
+                const std::string& name = room->getName();
+                packet << name << intType << color << nbTiles;
+                for(std::vector<Tile*>::iterator it = affectedTiles.begin(); it != affectedTiles.end(); ++it)
+                {
+                    Tile* tile = *it;
+                    packet << tile;
+                }
+                sendToAllClients(packet);
+            }
+            break;
+        }
+
+        case ClientNotification::editorAskBuildTrap:
+        {
+            int x1, y1, x2, y2;
+            int intType;
+
+            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> intType);
+            Player* player = clientSocket->getPlayer();
+            int color = player->getSeat()->getColor();
+            std::vector<Tile*> selectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
+            std::vector<Tile*> affectedTiles;
+            for(std::vector<Tile*>::iterator it = selectedTiles.begin(); it != selectedTiles.end(); ++it)
+            {
+                Tile* tile = *it;
+                if(tile == NULL)
+                    continue;
+
+                // We do not change tiles where there is something
+                if(tile->numCreaturesInCell() > 0)
+                    continue;
+                if(tile->getCoveringRoom() != NULL)
+                    continue;
+                if(tile->getCoveringTrap())
+                    continue;
+                affectedTiles.push_back(tile);
+
+                tile->setType(Tile::TileType::claimed);
+                tile->setColor(color);
+                tile->setFullness(0.0);
+            }
+
+            if(!affectedTiles.empty())
+            {
+                Trap::TrapType type = static_cast<Trap::TrapType>(intType);
+                Trap* trap = gameMap->buildTrapForPlayer(affectedTiles, type, player);
+                ODPacket packet;
+                packet << ServerNotification::buildTrap;
+                int nbTiles = affectedTiles.size();
+                const std::string& name = trap->getName();
+                packet << name << intType << color << nbTiles;
+                for(std::vector<Tile*>::iterator it = affectedTiles.begin(); it != affectedTiles.end(); ++it)
+                {
+                    Tile* tile = *it;
+                    packet << tile;
+                }
+                sendToAllClients(packet);
+            }
+            break;
+        }
+
         default:
         {
             LogManager::getSingleton().logMessage("ERROR:  Unhandled command received from client:"
@@ -832,7 +1008,7 @@ bool ODServer::notifyClientMessage(ODSocketClient *clientSocket)
         }
         catch (std::bad_alloc&)
         {
-            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in ODServer::processClientNotifications", Ogre::LML_CRITICAL);
+            OD_ASSERT_TRUE(false);
             exit(1);
         }
         // TODO : wait at least 1 minute if the client reconnects

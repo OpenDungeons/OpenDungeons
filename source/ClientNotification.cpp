@@ -50,6 +50,14 @@ std::string ClientNotification::typeString(ClientNotificationType type)
             return "ackNewTurn";
         case ClientNotificationType::askCreatureInfos:
             return "askCreatureInfos";
+        case ClientNotificationType::editorAskSaveMap:
+            return "editorAskSaveMap";
+        case ClientNotificationType::editorAskChangeTiles:
+            return "editorAskChangeTiles";
+        case ClientNotificationType::editorAskBuildRoom:
+            return "editorAskBuildRoom";
+        case ClientNotificationType::editorAskBuildTrap:
+            return "editorAskBuildTrap";
         default:
             LogManager::getSingleton().logMessage("ERROR: Unknown enum for ClientNotificationType="
                 + Ogre::StringConverter::toString(static_cast<int>(type)));
