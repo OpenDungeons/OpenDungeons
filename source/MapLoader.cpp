@@ -169,7 +169,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         {
             std::string musicFile = nextParam.substr(param.size());
             gameMap.setLevelMusicFile(musicFile);
-            LogManager::getSingleton().logMessage("Level Music: " + musicfile);
+            LogManager::getSingleton().logMessage("Level Music: " + musicFile);
             continue;
         }
 
