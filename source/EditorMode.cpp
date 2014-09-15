@@ -67,7 +67,7 @@ EditorMode::~EditorMode()
 void EditorMode::activate()
 {
     // Loads the corresponding Gui sheet.
-    Gui::getSingleton().loadGuiSheet(Gui::editorMenu);
+    Gui::getSingleton().loadGuiSheet(Gui::editorModeGui);
 
     giveFocus();
 
@@ -586,13 +586,13 @@ void EditorMode::updateCursorText()
     std::stringstream textSS;
 
     // Update the fullness info
-    CEGUI::Window *posWin = Gui::getSingletonPtr()->getGuiSheet(Gui::editorMenu)->getChild(Gui::EDITOR_FULLNESS);
+    CEGUI::Window *posWin = Gui::getSingletonPtr()->getGuiSheet(Gui::editorModeGui)->getChild(Gui::EDITOR_FULLNESS);
     textSS.str("");
     textSS << "Tile Fullness (T): " << mCurrentFullness << "%";
     posWin->setText(textSS.str());
 
     // Update the cursor position
-    posWin = Gui::getSingletonPtr()->getGuiSheet(Gui::editorMenu)->getChild(Gui::EDITOR_CURSOR_POS);
+    posWin = Gui::getSingletonPtr()->getGuiSheet(Gui::editorModeGui)->getChild(Gui::EDITOR_CURSOR_POS);
     textSS.str("");
     textSS << "Cursor: x: " << mMouseX << ", y: " << mMouseY;
     posWin->setText(textSS.str());

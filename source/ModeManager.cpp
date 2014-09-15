@@ -22,6 +22,7 @@
 #include "MenuMode.h"
 #include "MenuModeSkirmish.h"
 #include "MenuModeMultiplayer.h"
+#include "MenuModeEditor.h"
 #include "GameMode.h"
 #include "EditorMode.h"
 #include "Console.h"
@@ -106,6 +107,9 @@ void ModeManager::_addGameMode(ModeType mt)
         break;
     case MENU_MULTIPLAYER:
         mGameModes.push_back(new MenuModeMultiplayer(this));
+        break;
+    case MENU_EDITOR:
+        mGameModes.push_back(new MenuModeEditor(this));
         break;
     case GAME:
         mGameModes.push_back(new GameMode(this));

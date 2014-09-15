@@ -94,7 +94,8 @@ bool ODClient::processOneClientSocketMessage()
         case ServerNotification::loadLevel:
         {
             std::string levelFilename;
-            OD_ASSERT_TRUE(packetReceived >> levelFilename);
+            int32_t intServerMode;
+            OD_ASSERT_TRUE(packetReceived >> levelFilename >> intServerMode);
             // Read in the map. The map loading should be happen here and not in the server thread to
             // make sure it is valid before launching the server.
             RenderManager::getSingletonPtr()->processRenderRequests();
@@ -141,8 +142,20 @@ bool ODClient::processOneClientSocketMessage()
 
             mLevelFilename = levelFilename;
 
-            // Activate the game mode now the level is loaded
-            frameListener->getModeManager()->requestGameMode(true);
+            ODServer::ServerMode serverMode = static_cast<ODServer::ServerMode>(intServerMode);
+
+            // Activate the wanted mode now that the level is loaded
+            switch(serverMode)
+            {
+                case ODServer::ServerMode::ModeGame:
+                frameListener->getModeManager()->requestGameMode(true);
+                    break;
+                case ODServer::ServerMode::ModeEditor:
+                frameListener->getModeManager()->requestEditorMode(true);
+                    break;
+                default:
+                    OD_ASSERT_TRUE_MSG(false,"Unknown server mode=" + Ogre::StringConverter::toString(intServerMode));
+            }
 
             ODPacket packSend;
             packSend << ClientNotification::levelOK;

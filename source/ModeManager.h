@@ -40,6 +40,7 @@ public:
         MENU = 1,
         MENU_SKIRMISH,
         MENU_MULTIPLAYER,
+        MENU_EDITOR,
         GAME,
         EDITOR,
         CONSOLE,
@@ -71,6 +72,13 @@ public:
     void requestMenuMultiplayerMode(bool discardActualMode = false)
     {
         mRequestedMode = ModeManager::MENU_MULTIPLAYER;
+        mDiscardActualMode = discardActualMode;
+    }
+
+    //! \brief Request Editor menu mode at next update
+    void requestMenuEditorMode(bool discardActualMode = false)
+    {
+        mRequestedMode = ModeManager::MENU_EDITOR;
         mDiscardActualMode = discardActualMode;
     }
 

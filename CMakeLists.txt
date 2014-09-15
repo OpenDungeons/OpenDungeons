@@ -152,6 +152,7 @@ set(OD_SOURCEFILES
     ${SRC}/MapLight.cpp
     ${SRC}/MapLoader.cpp
     ${SRC}/MenuMode.cpp
+    ${SRC}/MenuModeEditor.cpp
     ${SRC}/MenuModeMultiplayer.cpp
     ${SRC}/MenuModeSkirmish.cpp
     ${SRC}/MiniMap.cpp

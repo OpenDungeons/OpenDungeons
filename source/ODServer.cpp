@@ -30,6 +30,8 @@
 #include <SFML/Network.hpp>
 #include <SFML/System.hpp>
 
+#include "boost/filesystem.hpp"
+
 const std::string ODServer::SERVER_INFORMATION = "SERVER_INFORMATION";
 
 template<> ODServer* Ogre::Singleton<ODServer>::msSingleton = 0;
@@ -487,7 +489,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             // Tell the client to load the given map
             setClientState(clientSocket, "loadLevel");
             ODPacket packetSend;
-            packetSend << ServerNotification::loadLevel << mLevelFilename;
+            int32_t intServerMode = static_cast<int32_t>(mServerMode);
+            packetSend << ServerNotification::loadLevel << mLevelFilename << intServerMode;
             sendMsgToClient(clientSocket, packetSend);
             break;
         }
@@ -816,7 +819,12 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             Player* player = clientSocket->getPlayer();
             if(player->numCreaturesInHand() == 0)
             {
-                MapLoader::writeGameMapToFile(mLevelFilename + ".out", *gameMap);
+                // If the file exists, we make a backup
+                const boost::filesystem::path levelPath(mLevelFilename);
+                if (boost::filesystem::exists(levelPath))
+                    boost::filesystem::rename(mLevelFilename, mLevelFilename + ".bak");
+
+                MapLoader::writeGameMapToFile(mLevelFilename, *gameMap);
                 ODPacket packet;
                 packet << ServerNotification::chatServer;
                 std::string msg = "Map saved successfully";

@@ -42,6 +42,7 @@
 #include "EditorMode.h"
 #include "MenuModeSkirmish.h"
 #include "MenuModeMultiplayer.h"
+#include "MenuModeEditor.h"
 #include "LogManager.h"
 
 #include <CEGUI/CEGUI.h>
@@ -73,6 +74,7 @@ Gui::Gui()
     sheets[mainMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMainMenu.layout");
     sheets[skirmishMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuSkirmish.layout");
     sheets[multiplayerMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuMultiplayer.layout");
+    sheets[editorModeGui] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorModeMenu.layout");
     sheets[editorMenu] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorMenu.layout");
 
     assignEventHandlers();
@@ -186,55 +188,55 @@ void Gui::assignEventHandlers()
             CEGUI::Event::Subscriber(&confirmExitNoButtonPressed));
 
     // Editor Mode controls
-    sheets[editorMenu]->getChild(EDITOR_LAVA_BUTTON)->subscribeEvent(
+    sheets[editorModeGui]->getChild(EDITOR_LAVA_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
         CEGUI::Event::Subscriber(&editorLavaButtonPressed));
 
-    sheets[editorMenu]->getChild(EDITOR_GOLD_BUTTON)->subscribeEvent(
+    sheets[editorModeGui]->getChild(EDITOR_GOLD_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
         CEGUI::Event::Subscriber(&editorGoldButtonPressed));
 
-    sheets[editorMenu]->getChild(EDITOR_ROCK_BUTTON)->subscribeEvent(
+    sheets[editorModeGui]->getChild(EDITOR_ROCK_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
         CEGUI::Event::Subscriber(&editorRockButtonPressed));
 
-    sheets[editorMenu]->getChild(EDITOR_WATER_BUTTON)->subscribeEvent(
+    sheets[editorModeGui]->getChild(EDITOR_WATER_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
         CEGUI::Event::Subscriber(&editorWaterButtonPressed));
 
-    sheets[editorMenu]->getChild(EDITOR_DIRT_BUTTON)->subscribeEvent(
+    sheets[editorModeGui]->getChild(EDITOR_DIRT_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
         CEGUI::Event::Subscriber(&editorDirtButtonPressed));
 
-    sheets[editorMenu]->getChild(EDITOR_CLAIMED_BUTTON)->subscribeEvent(
+    sheets[editorModeGui]->getChild(EDITOR_CLAIMED_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
         CEGUI::Event::Subscriber(&editorClaimedButtonPressed));
     // Game Mode controls
-    sheets[editorMenu]->getChild(BUTTON_DORMITORY)->subscribeEvent(
+    sheets[editorModeGui]->getChild(BUTTON_DORMITORY)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&dormitoryButtonPressed));
 
-    sheets[editorMenu]->getChild(BUTTON_TREASURY)->subscribeEvent(
+    sheets[editorModeGui]->getChild(BUTTON_TREASURY)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&treasuryButtonPressed));
 
-    sheets[editorMenu]->getChild(BUTTON_FORGE)->subscribeEvent(
+    sheets[editorModeGui]->getChild(BUTTON_FORGE)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&forgeButtonPressed));
 
-    sheets[editorMenu]->getChild(BUTTON_TRAININGHALL)->subscribeEvent(
+    sheets[editorModeGui]->getChild(BUTTON_TRAININGHALL)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&trainingHallButtonPressed));
 
-    sheets[editorMenu]->getChild(BUTTON_LIBRARY)->subscribeEvent(
+    sheets[editorModeGui]->getChild(BUTTON_LIBRARY)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&libraryButtonPressed));
 
-    sheets[editorMenu]->getChild(BUTTON_HATCHERY)->subscribeEvent(
+    sheets[editorModeGui]->getChild(BUTTON_HATCHERY)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&hatcheryButtonPressed));
 
-    sheets[editorMenu]->getChild(BUTTON_CANNON)->subscribeEvent(
+    sheets[editorModeGui]->getChild(BUTTON_CANNON)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&cannonButtonPressed));
 
@@ -267,6 +269,19 @@ void Gui::assignEventHandlers()
     sheets[multiplayerMenu]->getChild(MPM_LIST_LEVELS)->subscribeEvent(
         CEGUI::Listbox::EventMouseDoubleClick,
         CEGUI::Event::Subscriber(&mMPMListClicked));
+
+    // Editor level select menu controls
+    sheets[editorMenu]->getChild(EDM_BUTTON_LAUNCH)->subscribeEvent(
+        CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&mEDMLoadButtonPressed));
+
+    sheets[editorMenu]->getChild(EDM_BUTTON_BACK)->subscribeEvent(
+        CEGUI::PushButton::EventClicked,
+        CEGUI::Event::Subscriber(&mEDMBackButtonPressed));
+
+    sheets[editorMenu]->getChild(EDM_LIST_LEVELS)->subscribeEvent(
+        CEGUI::Listbox::EventMouseDoubleClick,
+        CEGUI::Event::Subscriber(&mEDMListClicked));
 }
 
 bool Gui::miniMapclicked(const CEGUI::EventArgs& e)
@@ -470,18 +485,8 @@ bool Gui::mMMapEditorButtonPressed(const CEGUI::EventArgs& e)
     if (!mm)
         return true;
 
-    // TODO : use a proper screen to choose level
-    if(!ODServer::getSingleton().startServer("levels/Test.level", true, ODServer::ServerMode::ModeEditor))
-    {
-        LogManager::getSingleton().logMessage("ERROR: Could not start server for editor !!!");
-    }
-    if(!ODClient::getSingleton().connect("", ODApplication::PORT_NUMBER))
-    {
-        LogManager::getSingleton().logMessage("ERROR: Could not start client for editor !!!");
-    }
-
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
-    mm->requestEditorMode();
+    mm->requestMenuEditorMode();
     return true;
 }
 
@@ -526,6 +531,39 @@ bool Gui::mSKMLoadButtonPressed(const CEGUI::EventArgs& e)
 
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     static_cast<MenuModeSkirmish*>(mm->getCurrentMode())->launchSelectedButtonPressed();
+    return true;
+}
+
+bool Gui::mEDMBackButtonPressed(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm)
+        return true;
+
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    mm->requestUnloadToParentGameMode();
+    return true;
+}
+
+bool Gui::mEDMListClicked(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_EDITOR)
+        return true;
+
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    static_cast<MenuModeEditor*>(mm->getCurrentMode())->listLevelsClicked();
+    return true;
+}
+
+bool Gui::mEDMLoadButtonPressed(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_EDITOR)
+        return true;
+
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    static_cast<MenuModeEditor*>(mm->getCurrentMode())->launchSelectedButtonPressed();
     return true;
 }
 
@@ -619,6 +657,11 @@ const std::string Gui::MPM_BUTTON_BACK = "BackButton";
 const std::string Gui::MPM_LIST_LEVELS = "LevelSelect";
 const std::string Gui::MPM_EDIT_IP = "IpEdit";
 const std::string Gui::MPM_EDIT_NICK = "NickEdit";
+
+const std::string Gui::EDM_TEXT_LOADING = "LoadingText";
+const std::string Gui::EDM_BUTTON_LAUNCH = "LaunchGameButton";
+const std::string Gui::EDM_BUTTON_BACK = "BackButton";
+const std::string Gui::EDM_LIST_LEVELS = "LevelSelect";
 
 const std::string Gui::EDITOR = "MainTabControl";
 const std::string Gui::EDITOR_LAVA_BUTTON = "MainTabControl/Tiles/LavaButton";
