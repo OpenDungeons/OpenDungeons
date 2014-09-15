@@ -22,6 +22,8 @@ set(${PROJECT_NAME}_PATCH_LEVEL   9)
 # Where we want the binary
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 
+# Compilation options
+option(ENABLE_WARNINGS "Compile the game with all standard warnings enabled" OFF)
 
 ##################################
 #### Useful variables ############
@@ -53,8 +55,10 @@ if(MSVC)
     # C++11 compilation flag is activated by default
     # Optimisation flags can be added if deemed useful
 else()
-    # Help getting compilation warnings
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+    if(ENABLE_WARNINGS)
+        # Help getting compilation warnings
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+    endif()
     if(MINGW)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
         # This includes enough debug information to get something useful
