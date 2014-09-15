@@ -6,7 +6,7 @@ This file is listing each files present in this repository, its author and its c
 Each corresponding license is fully described in the licenses/ folder.
 Other text files (.txt, .cpp, .h., ...), except licensing, are licensed using the GPL 3.0 license.
 
-Latest update: 2014/09/12
+Latest update: 2014/09/15
 
 =============================
 ==  Configuration: config/ ==
@@ -222,8 +222,10 @@ Name                                   Author                  License          
 ------------------------------------------------------------------------------------------------------------------------
 Game/
 -> click.ogg                           Allacrost               GPL 2.0+
+-> PickSelector.ogg                    cameronmusic            CC0                     https://www.freesound.org/people/cameronmusic/sounds/138412/
 -> ClaimTile/Claim*.ogg                Svenskmand              CC-BY-SA 3.0
 -> RocksFalling/RocksFalling*.ogg      Svenskmand              CC-BY-SA 3.0
+-> DepositGold/DepositGold*.ogg        jalastram               CC-BY 3.0               http://opengameart.org/content/coins-sounds
 
 Creatures/Default/
 -> Battle/SwordBlock*.ogg              Svenskmand              CC-BY-SA 3.0
@@ -232,3 +234,6 @@ Creatures/Default/
 Rooms/
 -> default_build_room.ogg              remaxim                 CC-BY-SA 3.0, GPL 3.0   http://opengameart.org/content/falling-body
 -> default_build_trap.ogg              Svenskmand              CC-BY-SA 3.0
+
+Traps/
+-> cannon_firing.ogg                   Iwan Gabovith           CC0                     http://opengameart.org/content/synthesized-explosion

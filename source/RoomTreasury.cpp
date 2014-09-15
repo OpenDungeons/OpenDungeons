@@ -17,9 +17,12 @@
 
 #include "RoomTreasury.h"
 
+#include "GameMap.h"
 #include "Tile.h"
 #include "RoomObject.h"
 #include "LogManager.h"
+#include "ODServer.h"
+#include "ServerNotification.h"
 
 #include <string>
 
@@ -135,8 +138,28 @@ int RoomTreasury::depositGold(int gold, Tile *tile)
         goldToDeposit -= goldDeposited;
     }
 
-    // Return the amount we were actually able to deposit (i.e. the amount we wanted to deposit minus the amount we were unable to deposit).
-    return gold - goldToDeposit;
+    // Return the amount we were actually able to deposit
+    // (i.e. the amount we wanted to deposit minus the amount we were unable to deposit).
+    int wasDeposited = gold - goldToDeposit;
+
+    if(getGameMap()->isServerGameMap() == false)
+        return wasDeposited;
+
+    // Tells the client to play a deposit gold sound
+    try
+    {
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotification::depositGoldSound, NULL);
+        serverNotification->mPacket << tile->getX() << tile->getY();
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
+    catch (std::bad_alloc&)
+    {
+        Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in RoomTreasury::depositGold", Ogre::LML_CRITICAL);
+        exit(1);
+    }
+
+    return wasDeposited;
 }
 
 int RoomTreasury::withdrawGold(int gold)

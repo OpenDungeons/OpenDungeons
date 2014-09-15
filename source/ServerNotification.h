@@ -86,6 +86,7 @@ class ServerNotification
             addRoomObject,
             removeRoomObject,
             removeAllRoomObjectFromRoom,
+            depositGoldSound, // Makes the client play a deposit gold sound at tile coordinates.
 
             notifyCreatureInfo,
 
