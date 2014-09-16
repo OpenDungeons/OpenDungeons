@@ -47,9 +47,9 @@ std::vector<GameEntity*> TrapBoulder::aimEnemy()
 
     //By defaut, you damage every attackable object in the line.
     std::vector<GameEntity*> v1 = getGameMap()->getVisibleForce(visibleTiles,
-            getColor(), true);
+            getSeat(), true);
     std::vector<GameEntity*> v2 = getGameMap()->getVisibleForce(visibleTiles,
-            getColor(), false); // we also attack our creatures
+            getSeat(), false); // we also attack our creatures
     for(std::vector<GameEntity*>::const_iterator it = v2.begin();
             it != v2.end(); ++it)
     {

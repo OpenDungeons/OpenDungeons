@@ -404,7 +404,8 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
             if (currentCreature == NULL)
                 continue;
 
-            if (currentCreature->getColor() == player->getSeat()->getColor())
+            // Checks on client side that the creature can be picked up
+            if (currentCreature->getSeat()->canOwnedCreatureBePickedUpBy(player->getSeat()))
             {
                 if (ODClient::getSingleton().isConnected())
                 {

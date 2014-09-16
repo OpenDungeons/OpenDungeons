@@ -45,14 +45,14 @@ public:
     void listLevelsClicked();
     virtual bool waitForGameStart()
     {
-        return mReadyToStartGame;
+        return mReadyToStartMode;
     }
 
 private:
     std::vector<std::string> mListFilesSkirmish;
     std::vector<std::string> mListFilesMultiplayer;
-    //! \brief Tells whether the menu is ready to start the game.
-    bool mReadyToStartGame;
+    //! \brief Tells whether the menu is ready
+    bool mReadyToStartMode;
 };
 
 #endif // MENUMODEEDITOR_H

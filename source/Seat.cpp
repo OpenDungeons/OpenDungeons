@@ -202,14 +202,45 @@ void Seat::goalsHasChanged()
     mHasGoalsChanged = true;
 }
 
+bool Seat::isAlliedSeat(Seat *seat)
+{
+    return getColor() == seat->getColor();
+}
+
+bool Seat::canOwnedCreatureBePickedUpBy(Seat* seat)
+{
+    // Note : if we want to allow players to pickup allied creatures, we can do that here.
+    if(this == seat)
+        return true;
+
+    return false;
+}
+
+bool Seat::canOwnedTileBeClaimedBy(Seat* seat)
+{
+    if(getColor() != seat->getColor())
+        return true;
+
+    return false;
+}
+
+bool Seat::canOwnedCreatureUseRoomFrom(Seat* seat)
+{
+     // Note : if we want to allow players to pickup allied creatures, we can do that here.
+    if(this == seat)
+        return true;
+
+    return false;
+}
+
 std::string Seat::getFormat()
 {
-    return "color\tfaction\tstartingX\tstartingY\tcolorR\tcolorG\tcolorB\tstartingGold";
+    return "id\tcolor\tfaction\tstartingX\tstartingY\tcolorR\tcolorG\tcolorB\tstartingGold";
 }
 
 ODPacket& operator<<(ODPacket& os, Seat *s)
 {
-    os << s->mColor << s->mFaction << s->mStartingX
+    os << s->mId << s->mColor << s->mFaction << s->mStartingX
        << s->mStartingY;
     os << s->mColorValue.r << s->mColorValue.g
        << s->mColorValue.b;
@@ -221,7 +252,7 @@ ODPacket& operator<<(ODPacket& os, Seat *s)
 
 ODPacket& operator>>(ODPacket& is, Seat *s)
 {
-    is >> s->mColor >> s->mFaction >> s->mStartingX >> s->mStartingY;
+    is >> s->mId >> s->mColor >> s->mFaction >> s->mStartingX >> s->mStartingY;
     is >> s->mColorValue.r >> s->mColorValue.g >> s->mColorValue.b;
     is >> s->mGold >> s->mMana >> s->mManaDelta >> s->mNumClaimedTiles;
     is >> s->mHasGoalsChanged;
@@ -234,14 +265,15 @@ void Seat::loadFromLine(const std::string& line, Seat *s)
 {
     std::vector<std::string> elems = Helper::split(line, '\t');
 
-    s->mColor = Helper::toInt(elems[0]);
-    s->mFaction = elems[1];
-    s->mStartingX = Helper::toInt(elems[2]);
-    s->mStartingY = Helper::toInt(elems[3]);
-    s->mColorValue.r = Helper::toDouble(elems[4]);
-    s->mColorValue.g = Helper::toDouble(elems[5]);
-    s->mColorValue.b = Helper::toDouble(elems[6]);
-    s->mStartingGold = Helper::toInt(elems[7]);
+    s->mId = Helper::toInt(elems[0]);
+    s->mColor = Helper::toInt(elems[1]);
+    s->mFaction = elems[2];
+    s->mStartingX = Helper::toInt(elems[3]);
+    s->mStartingY = Helper::toInt(elems[4]);
+    s->mColorValue.r = Helper::toDouble(elems[5]);
+    s->mColorValue.g = Helper::toDouble(elems[6]);
+    s->mColorValue.b = Helper::toDouble(elems[7]);
+    s->mStartingGold = Helper::toInt(elems[8]);
     s->mColorValue.a = 1.0;
 }
 
@@ -255,14 +287,14 @@ void Seat::refreshFromSeat(Seat* s)
     mHasGoalsChanged = s->mHasGoalsChanged;
 }
 
-bool Seat::sortByColor(Seat* s1, Seat* s2)
+bool Seat::sortById(Seat* s1, Seat* s2)
 {
-    return s1->mColor < s2->mColor;
+    return s1->mId < s2->mId;
 }
 
 std::ostream& operator<<(std::ostream& os, Seat *s)
 {
-    os << s->mColor << "\t" << s->mFaction << "\t" << s->mStartingX
+    os << s->mId << "\t" << s->mColor << "\t" << s->mFaction << "\t" << s->mStartingX
        << "\t"<< s->mStartingY;
     os << "\t" << s->mColorValue.r << "\t" << s->mColorValue.g
        << "\t" << s->mColorValue.b;
@@ -272,7 +304,7 @@ std::ostream& operator<<(std::ostream& os, Seat *s)
 
 std::istream& operator>>(std::istream& is, Seat *s)
 {
-    is >> s->mColor >> s->mFaction >> s->mStartingX >> s->mStartingY;
+    is >> s->mId >> s->mColor >> s->mFaction >> s->mStartingX >> s->mStartingY;
     is >> s->mColorValue.r >> s->mColorValue.g >> s->mColorValue.b;
     is >> s->mStartingGold;
     s->mColorValue.a = 1.0;

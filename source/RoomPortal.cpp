@@ -112,15 +112,14 @@ bool RoomPortal::doUpkeep()
     // Randomly choose to spawn a creature.
     const double maxCreatures = 15;
     //TODO:  Improve this probability calculation.
-    // Count how many creatures are controlled by this color, count both the ones on
-    // the gameMap and the ones in all the players of that colors' hands'.
-    double numCreatures = getGameMap()->getCreaturesByColor(getColor()).size();
-    Seat *controllingSeat = getGameMap()->getSeatByColor(getColor());
+    // Count how many creatures are controlled by this seat, count both the ones on
+    // the gameMap and in other players hand (in editor mode, for example, creatures can be
+    // picked up by other players)
+    double numCreatures = getGameMap()->getCreaturesBySeat(getSeat()).size();
     for(unsigned int i = 0, numPlayers = getGameMap()->numPlayers(); i < numPlayers; ++i)
     {
         Player *tempPlayer = getGameMap()->getPlayer(i);
-        if (tempPlayer->getSeat() == controllingSeat)
-            numCreatures += tempPlayer->numCreaturesInHand();
+        numCreatures += tempPlayer->numCreaturesInHand(getSeat());
     }
 
     double targetProbability = powl((maxCreatures - numCreatures) / maxCreatures, 1.5);
@@ -142,10 +141,7 @@ void RoomPortal::spawnCreature()
     if (mCoveredTiles.empty())
         return;
 
-    Seat* seat = getGameMap()->getSeatByColor(getColor());
-    if (seat == NULL)
-        return;
-
+    Seat* seat = getSeat();
     const std::vector<std::string> spawnPool = seat->getSpawnPool();
     if (spawnPool.empty())
         return;
@@ -158,7 +154,7 @@ void RoomPortal::spawnCreature()
     if (classToSpawn == NULL)
     {
         std::cout << "Warning: Invalid class name in spawn pool: " << creatureClassName
-            << ", for team: " << getColor() << std::endl;
+            << ", for seat id=" << getSeat()->getId() << std::endl;
         return;
     }
 
@@ -166,12 +162,12 @@ void RoomPortal::spawnCreature()
     Creature *newCreature = new Creature(getGameMap(), classToSpawn);
 
     LogManager::getSingleton().logMessage("Spawning a creature class=" + classToSpawn->getClassName()
-        + ", name=" + newCreature->getName() + ", color=" + Ogre::StringConverter::toString(getColor()));
+        + ", name=" + newCreature->getName() + ", seatId=" + Ogre::StringConverter::toString(getSeat()->getId()));
 
     // Set the creature specific parameters.
     //NOTE:  This needs to be modified manually when the level file creature format changes.
     newCreature->setPosition(Ogre::Vector3((Ogre::Real)mXCenter, (Ogre::Real)mYCenter, (Ogre::Real)0.0));
-    newCreature->setColor(getColor());
+    newCreature->setSeat(getSeat());
 
     //NOTE:  This needs to be modified manually when the level file weapon format changes.
     newCreature->setWeaponL(new Weapon(getGameMap(), "none", 0, 1.0, 0, "L", newCreature));
@@ -191,7 +187,7 @@ void RoomPortal::spawnCreature()
         try
         {
            ServerNotification *serverNotification = new ServerNotification(
-               ServerNotification::addCreature, newCreature->getControllingPlayer());
+               ServerNotification::addCreature, newCreature->getGameMap()->getPlayerBySeat(newCreature->getSeat()));
            const std::string& className = newCreature->getDefinition()->getClassName();
            const std::string& name = newCreature->getName();
            serverNotification->mPacket << className << name << newCreature;

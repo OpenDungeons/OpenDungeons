@@ -95,6 +95,9 @@ public:
     int getColor() const
     { return mColor; }
 
+    int getId() const
+    { return mId; }
+
     Ogre::ColourValue getColorValue() const
     { return mColorValue; }
 
@@ -118,6 +121,14 @@ public:
 
     const std::vector<std::string>& getSpawnPool() const
     { return mSpawnPool; }
+
+    //! \brief Returns true if the given seat is allied. False otherwise
+    bool isAlliedSeat(Seat *seat);
+
+    //! \brief Checks if the seat is allowed to do corresponding action
+    bool canOwnedCreatureBePickedUpBy(Seat* seat);
+    bool canOwnedTileBeClaimedBy(Seat* seat);
+    bool canOwnedCreatureUseRoomFrom(Seat* seat);
 
     //! \brief The color index of the players sitting in this seat.
     int mColor;
@@ -149,7 +160,7 @@ public:
 
     int mStartingGold;
 
-    static bool sortByColor(Seat* s1, Seat* s2);
+    static bool sortById(Seat* s1, Seat* s2);
 
     static std::string getFormat();
     friend ODPacket& operator<<(ODPacket& os, Seat *s);
@@ -181,6 +192,9 @@ private:
 
     //! \brief The total amount of gold coins in the keeper's treasury and in the dungeon heart.
     int mGold;
+
+    //! \brief The seat id. Allows to identify this seat. Must be unique per level file.
+    int mId;
 };
 
 #endif // SEAT_H

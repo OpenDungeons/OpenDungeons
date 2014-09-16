@@ -36,7 +36,7 @@ TrapCannon::TrapCannon(GameMap* gameMap) :
 std::vector<GameEntity*> TrapCannon::aimEnemy()
 {
     std::vector<Tile*> visibleTiles = getGameMap()->visibleTiles(mCoveredTiles[0], mRange);
-    std::vector<GameEntity*> enemyObjects = getGameMap()->getVisibleForce(visibleTiles, getColor(), true);
+    std::vector<GameEntity*> enemyObjects = getGameMap()->getVisibleForce(visibleTiles, getSeat(), true);
 
     if(enemyObjects.empty())
     {

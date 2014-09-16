@@ -544,12 +544,12 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
             else if (arguments.compare("rooms") == 0)
             {
-                tempSS << "Name:\tColor:\tNum tiles:\n\n";
+                tempSS << "Name:\tSeat Id:\tNum tiles:\n\n";
                 for (unsigned int i = 0; i < gameMap->numRooms(); ++i)
                 {
                     Room *currentRoom;
                     currentRoom = gameMap->getRoom(i);
-                    tempSS << currentRoom->getName() << "\t" << currentRoom->getColor()
+                    tempSS << currentRoom->getName() << "\t" << currentRoom->getSeat()->getId()
                             << "\t" << currentRoom->numCoveredTiles() << "\n";
                 }
             }
@@ -998,12 +998,12 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     }
     else if (command.compare("addgold") == 0)
     {
-        int color, gold;
+        int seatId, gold;
         tempSS.str(arguments);
-        tempSS >> color >> gold;
+        tempSS >> seatId >> gold;
         if(ODServer::getSingleton().isConnected())
         {
-            ODConsoleCommand* cc = new ODConsoleCommandAddGold(gold, color);
+            ODConsoleCommand* cc = new ODConsoleCommandAddGold(gold, seatId);
             ODServer::getSingleton().queueConsoleCommand(cc);
         }
         else

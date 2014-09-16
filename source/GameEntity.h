@@ -34,6 +34,7 @@
 class GameMap;
 class Tile;
 class Quadtree;
+class Seat;
 
 /*! \class GameEntity GameEntity.h
  *  \brief This class holds elements that are common to every object placed in the game
@@ -62,13 +63,13 @@ class GameEntity
           GameMap*        gameMap,
           std::string     nName       = std::string(),
           std::string     nMeshName   = std::string(),
-          int             nColor      = 0
+          Seat*           seat        = NULL
           ) :
     position    (Ogre::Vector3(0, 0, 0)),
     name        (nName),
     meshName    (nMeshName),
     meshExists  (false),
-    color       (nColor),
+    mSeat       (seat),
     active      (true),
     attackable  (true),
     objectType  (unknown),
@@ -90,8 +91,8 @@ class GameEntity
     //! \brief Get the mesh name of the object
     inline const std::string&   getMeshName     () const    { return meshName; }
 
-    //! \brief Get the id of the color that the objects belongs to
-    inline int                  getColor        () const    { return color; }
+    //! \brief Get the seat that the object belongs to
+    inline Seat*                getSeat         () const    { return mSeat; }
 
     //! \brief Get if the mesh is already existing
     inline bool                 isMeshExisting  () const    { return meshExists; }
@@ -121,8 +122,8 @@ class GameEntity
     //! \brief Set the name of the mesh file
     inline void setMeshName     (const std::string& nMeshName)  { meshName = nMeshName; }
 
-    //! \brief Set if the mesh exists
-    inline void setColor        (int nColor)                    { color = nColor; }
+    //! \brief Sets the seat this object belongs to
+    inline void setSeat         (Seat* seat)                    { mSeat = seat; }
 
     //! \brief Set if the mesh exists
     inline void setMeshExisting (bool isExisting)               { meshExists = isExisting; }
@@ -217,8 +218,8 @@ class GameEntity
     //! \brief Stores the existence state of the mesh
     bool            meshExists;
 
-    //! \brief The id of the color that the objcts belongs to
-    int             color;
+    //! \brief The seat that the object belongs to
+    Seat*           mSeat;
 
     //! \brief A flag saying whether the object is active (doing something on its own) or not
     bool            active;

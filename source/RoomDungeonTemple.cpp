@@ -100,7 +100,7 @@ void RoomDungeonTemple::produceKobold()
     newCreature->setPosition(Ogre::Vector3((Ogre::Real)mCoveredTiles[0]->x,
                                             (Ogre::Real)mCoveredTiles[0]->y,
                                             (Ogre::Real)0));
-    newCreature->setColor(getColor());
+    newCreature->setSeat(getSeat());
 
     // Default weapon is empty
     newCreature->setWeaponL(new Weapon(getGameMap(), "none", 0.0, 1.0, 0.0, "L", newCreature));
@@ -117,7 +117,7 @@ void RoomDungeonTemple::produceKobold()
         try
         {
            ServerNotification *serverNotification = new ServerNotification(
-               ServerNotification::addCreature, newCreature->getControllingPlayer());
+               ServerNotification::addCreature, newCreature->getGameMap()->getPlayerBySeat(newCreature->getSeat()));
            const std::string& className = newCreature->getDefinition()->getClassName();
            const std::string& name = newCreature->getName();
            serverNotification->mPacket << className << name << newCreature;

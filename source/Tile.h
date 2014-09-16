@@ -82,7 +82,7 @@ public:
         {
             mFloodFillColor[i] = -1;
         }
-        setColor(0);
+        setSeat(NULL);
         setObjectType(GameEntity::tile);
     }
 
@@ -201,8 +201,8 @@ public:
     void addNeighbor(Tile *n);Tile* getNeighbor(unsigned index);
     std::vector<Tile*> getAllNeighbors();
 
-    void claimForColor(int nColor, double nDanceRate);
-    void claimTile(int nColor);
+    void claimForSeat(Seat* seat, double nDanceRate);
+    void claimTile(Seat* seat);
     double digOut(double digRate, bool doScaleDigRate = false);
     double scaleDigRate(double digRate);
 
@@ -212,20 +212,22 @@ public:
     void setCoveringTrap(bool t);
 
     //! \brief Tells whether the tile is diggable by dig-capable creatures.
-    //! \brief The player team color index.
+    //! \brief The player seat.
     //! The function will check whether a tile is not already a reinforced wall owned by another team.
-    bool isDiggable(int team_color_id) const;
+    bool isDiggable(Seat* seat) const;
 
     //! \brief Tells whether the tile fullness is empty (ground tile) and can be claimed.
     bool isGroundClaimable() const;
 
-    //! \brief Tells whether the tile is a wall (fullness > 1) and can be claimed for the given team color.
+    //! \brief Tells whether the tile is a wall (fullness > 1) and can be claimed for the given seat.
     //! Reinforced walls by another team and hard rocks can't be claimed.
-    bool isWallClaimable(int team_color_id);
+    bool isWallClaimable(Seat* seat);
+    //! \brief Tells whether the tile is claimed for the given seat.
+    bool isClaimedForSeat(Seat* seat) const;
 
-    //! \brief Tells whether the given tile is a claimed wall of the given color.
+    //! \brief Tells whether the given tile is a claimed wall for the given seat team.
     //! Used to discover active spots for rooms.
-    bool isWallClaimedForColor(int team_color_id);
+    bool isWallClaimedForSeat(Seat* seat);
 
     //! \brief Tells whether a room can be built upon this tile.
     bool isBuildableUpon() const;

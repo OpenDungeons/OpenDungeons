@@ -60,13 +60,13 @@ public:
      * This function sets up some of the room's properties. If nameToUse is empty, a new unique name
      * will be generated. If not, the given one will be used
      */
-    static Room* createRoom(GameMap* gameMap, RoomType nType, const std::vector<Tile*> &nCoveredTiles, int nColor,
+    static Room* createRoom(GameMap* gameMap, RoomType nType, const std::vector<Tile*> &nCoveredTiles, Seat* seat,
         bool forceName = false, const std::string& name = "");
 
-    /** \brief Adds the room newRoom to the game map for the current player. If the border tiles
+    /** \brief Adds the room newRoom to the game map. If the border tiles
      * contains another room of same type, it will absorb them
      */
-    static void setupRoom(GameMap* gameMap, Room* newRoom, Player* player);
+    static void setupRoom(GameMap* gameMap, Room* newRoom);
 
     /*! \brief Moves all the covered tiles from room r into this one, the rooms should be of the same subtype.
      *  After this is called the other room should likely be removed from the game map and deleted.

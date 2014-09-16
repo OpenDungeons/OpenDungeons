@@ -32,7 +32,7 @@ GoalProtectDungeonTemple::GoalProtectDungeonTemple(const std::string& nName, con
 
 bool GoalProtectDungeonTemple::isMet(Seat *s)
 {
-    return (mGameMap->numRoomsByTypeAndColor(Room::dungeonTemple, s->getColor()) > 0);
+    return (mGameMap->numRoomsByTypeAndSeat(Room::dungeonTemple, s) > 0);
 }
 
 bool GoalProtectDungeonTemple::isUnmet(Seat *s)

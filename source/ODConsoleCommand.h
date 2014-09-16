@@ -29,21 +29,21 @@ public:
 class ODConsoleCommandAddGold : public ODConsoleCommand
 {
 public:
-    ODConsoleCommandAddGold(int gold, int color) :
+    ODConsoleCommandAddGold(int gold, int seatId) :
         mGold(gold),
-        mColor(color)
+        mSeatId(seatId)
     {
     }
 
 protected:
     virtual void execute(GameMap* gameMap)
     {
-        gameMap->addGoldToSeat(mGold, mColor);
+        gameMap->addGoldToSeat(mGold, mSeatId);
     }
 
 private:
     int mGold;
-    int mColor;
+    int mSeatId;
 };
 
 class ODConsoleCommandLogFloodFill : public ODConsoleCommand

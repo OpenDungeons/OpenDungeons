@@ -32,6 +32,7 @@ using  std::string;
 
 class RenderRequest;
 class GameMap;
+class Seat;
 
 namespace Ogre
 {
@@ -79,10 +80,10 @@ public:
 
     void rtssTest();
 
-    //! \brief Colorize an entity with the team id corresponding color.
+    //! \brief Colorize an entity with the team corresponding color.
     //! \Note: if the entity is marked for digging (wall tiles only), then a yellow color
     //! is added to the current colorization.
-    void colourizeEntity(Ogre::Entity *ent, int colour, bool markedForDigging = false);
+    void colourizeEntity(Ogre::Entity *ent, Seat* seat, bool markedForDigging = false);
 
     static const Ogre::Real BLENDER_UNITS_PER_OGRE_UNIT;
 
@@ -144,7 +145,7 @@ protected:
     //! \brief Colorize the material with the corresponding team id color.
     //! \note If the material (wall tiles only) is marked for digging, a yellow color is added
     //! to the given color.
-    std::string colourizeMaterial(const std::string& materialName, int colour, bool markedForDigging = false);
+    std::string colourizeMaterial(const std::string& materialName, Seat* seat, bool markedForDigging = false);
 private:
     bool mVisibleCreatures;
 

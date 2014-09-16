@@ -57,8 +57,9 @@ public:
     { mSeat = seat; }
 
     //! \brief A simple accessor function to return the number of creatures
-    //! this player is holding in his/her hand.
-    unsigned int numCreaturesInHand() const;
+    //! this player is holding in his/her hand that belongs to seat seat.
+    //! If seat is NULL, then returns the total number of creatures
+    unsigned int numCreaturesInHand(const Seat* seat = NULL) const;
 
     //! \brief A simple accessor function to return a pointer to the i'th creature in the players hand.
     Creature *getCreatureInHand(int i);

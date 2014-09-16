@@ -8,12 +8,12 @@ FightMusic	The_Dark_Amulet.ogg
 [/Info]
 
 [Seats]
-# color	faction	startingX	startingY	colorR	colorG	colorB	startingGold
-1	Player	51	16	0	0.4	0	1000
-2	KeeperAI	7	55	0.4	0	0	1000
-3	KeeperAI	91	55	0	0	0.4	1000
-4	KeeperAI	47	94	0.4	0.4	0.1	1000
-5	none	47	94	0.4	0.1	0.4	1000
+# seatId	color	faction	startingX	startingY	colorR	colorG	colorB	startingGold
+1	1	Player	51	16	0	0.4	0	1000
+2	2	KeeperAI	7	55	0.4	0	0	1000
+3	3	KeeperAI	91	55	0	0	0.4	1000
+4	4	KeeperAI	47	94	0.4	0.4	0.1	1000
+5	5	none	47	94	0.4	0.1	0.4	1000
 [/Seats]
 
 [Goals]
@@ -3503,7 +3503,7 @@ ProtectDungeonTemple	NULL
 [/Tiles]
 
 [Rooms]
-# meshName	color		NextLine: numTiles		Subsequent Lines: tileX	tileY
+# meshName	seatId		NextLine: numTiles		Subsequent Lines: tileX	tileY
 DungeonTemple	1
 25
 49	14
@@ -3930,7 +3930,7 @@ Hatchery	4
 [/Rooms]
 
 [Traps]
-# meshName	color		NextLine: numTiles		Subsequent Lines: tileX	tileY
+# meshName	seatId		NextLine: numTiles		Subsequent Lines: tileX	tileY
 Cannon	5
 1
 48	37
@@ -4084,49 +4084,49 @@ Dwarf3
 [/Spawn_Pools]
 
 [Creatures]
-# className	name	posX	posY	posZ	color	weaponLname	damage	range	defense	weaponRname	damage	range	defense	HP	mana
-Kobold	Kobold90	51	16	0	1	none	1	1	0	none	0	1	0	5	3	1
-Kobold	Kobold91	51	16	0	1	none	1	1	0	none	0	1	0	5	3	1
-Kobold	Kobold92	7	55	0	2	none	1	1	0	none	0	1	0	5	3	1
-Kobold	Kobold93	7	55	0	2	none	1	1	0	none	0	1	0	5	3	1
-Kobold	Kobold94	91	55	0	3	none	1	1	0	none	0	1	0	5	3	1
-Kobold	Kobold95	91	55	0	3	none	1	1	0	none	0	1	0	5	3	1
-Kobold	Kobold96	47	94	0	4	none	1	1	0	none	0	1	0	5	3	1
-Kobold	Kobold97	47	94	0	4	none	1	1	0	none	0	1	0	5	3	1
-Dwarf3	Dwarf99	9	15	0	5	Roundshield	0	1	1	Longsword	2	2	0	30	7	1
-Dwarf3	Dwarf98	9	16	0	5	Roundshield	0	1	1	Longsword	2	2	0	30	7	1
-Dwarf3	Dwarf97	9	17	0	5	Roundshield	0	1	1	Longsword	2	2	0	30	7	1
-Dwarf3	Dwarf96	9	18	0	5	Roundshield	0	1	1	Longsword	2	2	0	30	7	1
-Dwarf3	Dwarf95	9	19	0	5	Roundshield	0	1	1	Longsword	2	2	0	30	7	1
-Dwarf3	Dwarf94	9	20	0	5	Roundshield	0	1	1	Longsword	2	2	0	30	7	1
-Dwarf3	Dwarf93	9	21	0	5	Roundshield	0	1	1	Longsword	2	2	0	30	7	1
-Knight	Knight90	46	42	0	5	Roundshield	0	2	3	Longsword	2	2	0	40	3	1
-Knight	Knight91	47	42	0	5	Roundshield	0	2	3	Longsword	2	2	0	40	3	1
-Knight	Knight92	48	42	0	5	Roundshield	0	2	3	Sabre	2	2	0	40	3	1
-Knight	Knight93	49	42	0	5	Roundshield	0	2	3	Sabre	2	2	0	40	3	1
-Knight	Knight94	50	42	0	5	Roundshield	0	2	3	Sabre	2	2	0	40	3	1
-Knight	Knight95	51	42	0	5	Roundshield	0	2	3	Longsword	2	2	0	40	3	1
-Knight	Knight96	52	42	0	5	Longsword	2	2	0	Longsword	2	2	0	40	3	1
-Knight	Knight97	49	41	0	5	Longsword	2	2	0	Longsword	2	2	0	40	3	1
-Dragon	Dragon90	86	20	0	5	none	3	2	0	none	3	2	0	100	3	1
-Dragon	Dragon91	92	20	0	5	none	3	2	0	none	3	2	0	100	3	1
-Dragon	Dragon92	89	25	0	5	none	3	2	0	none	3	2	0	100	3	1
-Dragon	Dragon93	96	18	0	5	none	3	2	0	none	3	2	0	100	3	1
-Tentacle2	Tentacle90	73	23	0	5	none	1	2	0	none	1	2	0	20	3	1
-Tentacle2	Tentacle91	73	23	0	5	none	1	2	0	none	1	2	0	20	3	1
-Tentacle2	Tentacle92	73	23	0	5	none	1	2	0	none	1	2	0	20	3	1
-Tentacle2	Tentacle93	73	23	0	5	none	1	2	0	none	1	2	0	20	3	1
-Tentacle2	Tentacle94	75	12	0	5	none	1	2	0	none	1	2	0	20	3	1
-Tentacle2	Tentacle95	75	12	0	5	none	1	2	0	none	1	2	0	20	3	1
-Tentacle2	Tentacle96	75	12	0	5	none	1	2	0	none	1	2	0	20	3	1
-Tentacle2	Tentacle97	75	12	0	5	none	1	2	0	none	1	2	0	20	3	1
-Tentacle2	Tentacle98	72	5	0	5	none	1	2	0	none	1	2	0	20	3	1
-Tentacle2	Tentacle99	72	5	0	5	none	1	2	0	none	1	2	0	20	3	1
-Tentacle2	Tentacle100	69	37	0	5	none	1	2	0	none	1	2	0	20	3	1
-Tentacle2	Tentacle101	69	37	0	5	none	1	2	0	none	1	2	0	20	3	1
-Tentacle2	Tentacle102	69	37	0	5	none	1	2	0	none	1	2	0	20	3	1
-PitDemon	PitDemon90	49	57	0	5	none	4	2	0	none	4	2	0	125	3	1
-PitDemon	PitDemon91	49	57	0	5	none	4	2	0	none	4	2	0	125	3	10
+# className	name	posX	posY	posZ	seatId	weaponLname	damage	range	defense	weaponRname	damage	range	defense	HP	Level
+Kobold	Kobold90	51	16	0	1	none	1	1	0	none	0	1	0	5	1
+Kobold	Kobold91	51	16	0	1	none	1	1	0	none	0	1	0	5	1
+Kobold	Kobold92	7	55	0	2	none	1	1	0	none	0	1	0	5	1
+Kobold	Kobold93	7	55	0	2	none	1	1	0	none	0	1	0	5	1
+Kobold	Kobold94	91	55	0	3	none	1	1	0	none	0	1	0	5	1
+Kobold	Kobold95	91	55	0	3	none	1	1	0	none	0	1	0	5	1
+Kobold	Kobold96	47	94	0	4	none	1	1	0	none	0	1	0	5	1
+Kobold	Kobold97	47	94	0	4	none	1	1	0	none	0	1	0	5	1
+Dwarf3	Dwarf99	9	15	0	5	Roundshield	0	1	1	Longsword	2	2	0	30	1
+Dwarf3	Dwarf98	9	16	0	5	Roundshield	0	1	1	Longsword	2	2	0	30	1
+Dwarf3	Dwarf97	9	17	0	5	Roundshield	0	1	1	Longsword	2	2	0	30	1
+Dwarf3	Dwarf96	9	18	0	5	Roundshield	0	1	1	Longsword	2	2	0	30	1
+Dwarf3	Dwarf95	9	19	0	5	Roundshield	0	1	1	Longsword	2	2	0	30	1
+Dwarf3	Dwarf94	9	20	0	5	Roundshield	0	1	1	Longsword	2	2	0	30	1
+Dwarf3	Dwarf93	9	21	0	5	Roundshield	0	1	1	Longsword	2	2	0	30	1
+Knight	Knight90	46	42	0	5	Roundshield	0	2	3	Longsword	2	2	0	40	1
+Knight	Knight91	47	42	0	5	Roundshield	0	2	3	Longsword	2	2	0	40	1
+Knight	Knight92	48	42	0	5	Roundshield	0	2	3	Sabre	2	2	0	40	1
+Knight	Knight93	49	42	0	5	Roundshield	0	2	3	Sabre	2	2	0	40	1
+Knight	Knight94	50	42	0	5	Roundshield	0	2	3	Sabre	2	2	0	40	1
+Knight	Knight95	51	42	0	5	Roundshield	0	2	3	Longsword	2	2	0	40	1
+Knight	Knight96	52	42	0	5	Longsword	2	2	0	Longsword	2	2	0	40	1
+Knight	Knight97	49	41	0	5	Longsword	2	2	0	Longsword	2	2	0	40	1
+Dragon	Dragon90	86	20	0	5	none	3	2	0	none	3	2	0	100	1
+Dragon	Dragon91	92	20	0	5	none	3	2	0	none	3	2	0	100	1
+Dragon	Dragon92	89	25	0	5	none	3	2	0	none	3	2	0	100	1
+Dragon	Dragon93	96	18	0	5	none	3	2	0	none	3	2	0	100	1
+Tentacle2	Tentacle90	73	23	0	5	none	1	2	0	none	1	2	0	20	1
+Tentacle2	Tentacle91	73	23	0	5	none	1	2	0	none	1	2	0	20	1
+Tentacle2	Tentacle92	73	23	0	5	none	1	2	0	none	1	2	0	20	1
+Tentacle2	Tentacle93	73	23	0	5	none	1	2	0	none	1	2	0	20	1
+Tentacle2	Tentacle94	75	12	0	5	none	1	2	0	none	1	2	0	20	1
+Tentacle2	Tentacle95	75	12	0	5	none	1	2	0	none	1	2	0	20	1
+Tentacle2	Tentacle96	75	12	0	5	none	1	2	0	none	1	2	0	20	1
+Tentacle2	Tentacle97	75	12	0	5	none	1	2	0	none	1	2	0	20	1
+Tentacle2	Tentacle98	72	5	0	5	none	1	2	0	none	1	2	0	20	1
+Tentacle2	Tentacle99	72	5	0	5	none	1	2	0	none	1	2	0	20	1
+Tentacle2	Tentacle100	69	37	0	5	none	1	2	0	none	1	2	0	20	1
+Tentacle2	Tentacle101	69	37	0	5	none	1	2	0	none	1	2	0	20	1
+Tentacle2	Tentacle102	69	37	0	5	none	1	2	0	none	1	2	0	20	1
+PitDemon	PitDemon90	49	57	0	5	none	4	2	0	none	4	2	0	125	1
+PitDemon	PitDemon91	49	57	0	5	none	4	2	0	none	4	2	0	125	10
 
 
 [/Creatures]

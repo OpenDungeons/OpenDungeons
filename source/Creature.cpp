@@ -225,7 +225,7 @@ void Creature::deleteYourselfLocal()
 std::string Creature::getFormat()
 {
     //NOTE:  When this format changes changes to RoomPortal::spawnCreature() may be necessary.
-    return "className\tname\tposX\tposY\tposZ\tcolor\tweaponL"
+    return "className\tname\tposX\tposY\tposZ\tseatId\tweaponL"
         + Weapon::getFormat() + "\tweaponR" + Weapon::getFormat() + "\tHP\tLevel";
 }
 
@@ -244,10 +244,11 @@ std::ostream& operator<<(std::ostream& os, Creature *c)
 
     os << c->mDefinition->getClassName() << "\t" << c->getName() << "\t";
 
+    int seatId = c->getSeat()->getId();
     os << c->getPosition().x << "\t";
     os << c->getPosition().y << "\t";
     os << c->getPosition().z << "\t";
-    os << c->getColor() << "\t";
+    os << seatId << "\t";
     os << wL << "\t" << wR << "\t";
     os << c->getHP() << "\t";
     os << c->getLevel();
@@ -280,9 +281,10 @@ std::istream& operator>>(std::istream& is, Creature *c)
     is >> xLocation >> yLocation >> zLocation;
     c->setPosition(Ogre::Vector3((Ogre::Real)xLocation, (Ogre::Real)yLocation, (Ogre::Real)zLocation));
 
-    int color = 0;
-    is >> color;
-    c->setColor(color);
+    int seatId = 0;
+    is >> seatId;
+    Seat* seat = c->getGameMap()->getSeatById(seatId);
+    c->setSeat(seat);
 
     // TODO: Load weapon from a catalog file.
     c->setWeaponL(new Weapon(c->getGameMap(), std::string(), 0.0, 0.0, 0.0, std::string()));
@@ -316,9 +318,9 @@ ODPacket& operator<<(ODPacket& os, Creature *c)
     os << name;
 
     Ogre::Vector3 position = c->getPosition();
-    int color = c->getColor();
+    int seatId = c->getSeat()->getId();
     os << position;
-    os << color;
+    os << seatId;
     os << wL << wR;
     os << c->mHp;
     os << c->mLevel;
@@ -352,9 +354,10 @@ ODPacket& operator>>(ODPacket& is, Creature *c)
     is >> position;
     c->setPosition(position);
 
-    int color;
-    is >> color;
-    c->setColor(color);
+    int seatId;
+    is >> seatId;
+    Seat* seat = c->getGameMap()->getSeatById(seatId);
+    c->setSeat(seat);
 
     // TODO: Load weapon from a catalog file.
     c->setWeaponL(new Weapon(c->getGameMap(), std::string(), 0.0, 0.0, 0.0, std::string()));
@@ -391,7 +394,9 @@ Creature* Creature::loadFromLine(const std::string& line, GameMap* gameMap)
 
     c->setPosition(Ogre::Vector3((Ogre::Real)xLocation, (Ogre::Real)yLocation, (Ogre::Real)zLocation));
 
-    c->setColor(Helper::toInt(elems[5]));
+    int seatId = Helper::toInt(elems[5]);
+    Seat* seat = gameMap->getSeatById(seatId);
+    c->setSeat(seat);
 
     // TODO: Load weapons from a catalog file.
     c->setWeaponL(new Weapon(c->getGameMap(), elems[6], Helper::toDouble(elems[7]),
@@ -532,7 +537,7 @@ void Creature::doTurn()
         {
             try
             {
-                Player* player = getControllingPlayer();
+                Player* player = getGameMap()->getPlayerBySeat(getSeat());
                 ServerNotification *serverNotification = new ServerNotification(
                     ServerNotification::removeCreature, player);
                 std::string name = getName();
@@ -590,7 +595,7 @@ void Creature::doTurn()
             try
             {
                 ServerNotification *serverNotification = new ServerNotification(
-                    ServerNotification::creatureRefresh, getControllingPlayer());
+                    ServerNotification::creatureRefresh, getGameMap()->getPlayerBySeat(getSeat()));
                 serverNotification->mPacket << this;
                 ODServer::getSingleton().queueServerNotification(serverNotification);
             }
@@ -727,7 +732,7 @@ void Creature::doTurn()
     if(loops >= 20)
     {
         LogManager::getSingleton().logMessage("> 20 loops in Creature::doTurn name:" + getName() +
-                " colour: " + Ogre::StringConverter::toString(getColor()) + ". Breaking out..");
+                " seat id: " + Ogre::StringConverter::toString(getSeat()->getId()) + ". Breaking out..");
     }
 
     // Update the visual debugging entities
@@ -807,7 +812,7 @@ void Creature::decidePrioritaryAction()
                 // TODO : what shall we do with weak creature that do not have bed when no dormitory available ?
                 //        Shall they remain idle ? Shall they flee randomly ?
                 //        For now, we do nothing if the creature is weak
-                std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndColor(Room::dormitory, getColor());
+                std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndSeat(Room::dormitory, getSeat());
                 tempRooms = getGameMap()->getReachableRooms(tempRooms, positionTile(), mDefinition);
                 if (!tempRooms.empty())
                 {
@@ -837,7 +842,7 @@ bool Creature::handleIdleAction()
         // 4 - if the the tile he is in is claimed and one of the neigbboor tiles is not claimed, he will claim
         // 5 - If the tile he is in is claimed and one of the neigbboor tiles is a not claimed wall, he will claim
         Tile* position = positionTile();
-        int playerColor = getControllingPlayer()->getSeat()->getColor();
+        Seat* seat = getSeat();
         Tile* tileMarkedDig = NULL;
         Tile* tileToClaim = NULL;
         Tile* tileWallNotClaimed = NULL;
@@ -847,33 +852,33 @@ bool Creature::handleIdleAction()
             Tile* tile = *it;
 
             if(tileMarkedDig == NULL &&
-                tile->getMarkedForDigging(getControllingPlayer())
+                tile->getMarkedForDigging(getGameMap()->getPlayerBySeat(seat))
                 )
             {
                 tileMarkedDig = tile;
             }
             else if(tileToClaim == NULL &&
                 tile->getType() == Tile::claimed &&
-                tile->getColor() == playerColor &&
-                position->getType() == Tile::dirt &&
-                !position->isWallClaimable(playerColor)
+                tile->isClaimedForSeat(seat) &&
+                position->isGroundClaimable() &&
+                !position->isClaimedForSeat(seat)
                 )
             {
                 tileToClaim = position;
             }
             else if(tileToClaim == NULL &&
                 position->getType() == Tile::claimed &&
-                position->getColor() == playerColor &&
-                tile->getType() == Tile::dirt &&
-                !tile->isWallClaimable(playerColor)
+                position->isClaimedForSeat(seat) &&
+                tile->isGroundClaimable() &&
+                !tile->isClaimedForSeat(seat)
                 )
             {
                 tileToClaim = tile;
             }
             else if(tileWallNotClaimed == NULL &&
                 position->getType() == Tile::claimed &&
-                position->getColor() == playerColor &&
-                tile->isWallClaimable(playerColor)
+                position->isClaimedForSeat(seat) &&
+                tile->isWallClaimable(seat)
                 )
             {
                 tileWallNotClaimed = tile;
@@ -998,7 +1003,7 @@ bool Creature::handleIdleAction()
     if (!mDefinition->isWorker() && Random::Double(0.0, 1.0) < 0.5 && mHomeTile == NULL)
     {
         // Check to see if there are any dormitory owned by our color that we can reach.
-        std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndColor(Room::dormitory, getColor());
+        std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndSeat(Room::dormitory, getSeat());
         tempRooms = getGameMap()->getReachableRooms(tempRooms, positionTile(), mDefinition);
         if (!tempRooms.empty())
         {
@@ -1169,7 +1174,7 @@ bool Creature::handleClaimTileAction()
     }
 
     // See if the tile we are standing on can be claimed
-    if ((myTile->getColor() != getColor() || myTile->colorDouble < 1.0) && myTile->isGroundClaimable())
+    if ((!myTile->isClaimedForSeat(getSeat()) || myTile->colorDouble < 1.0) && myTile->isGroundClaimable())
     {
         //cout << "\nTrying to claim the tile I am standing on.";
         // Check to see if one of the tile's neighbors is claimed for our color
@@ -1178,14 +1183,14 @@ bool Creature::handleClaimTileAction()
         {
             // Check to see if the current neighbor is already claimed
             Tile* tempTile = neighbors[j];
-            if (tempTile->getColor() == getColor() && tempTile->colorDouble >= 1.0)
+            if (tempTile->isClaimedForSeat(getSeat()) && tempTile->colorDouble >= 1.0)
             {
                 //cout << "\t\tFound a neighbor that is claimed.";
                 // If we found a neighbor that is claimed for our side than we can start
                 // dancing on this tile.  If there is "left over" claiming that can be done
                 // it will spill over into neighboring tiles until it is gone.
                 setAnimationState("Claim");
-                myTile->claimForColor(getColor(), mDefinition->getDanceRate());
+                myTile->claimForSeat(getSeat(), mDefinition->getDanceRate());
                 recieveExp(1.5 * (mDefinition->getDanceRate() / (0.35 + 0.05 * getLevel())));
 
                 // Since we danced on a tile we are done for this turn
@@ -1205,7 +1210,7 @@ bool Creature::handleClaimTileAction()
         Tile* tempTile = neighbors[tempInt];
         //NOTE:  I don't think the "colorDouble" check should happen here.
         if (tempTile != NULL && tempTile->getFullness() == 0.0
-            && (tempTile->getColor() != getColor() || tempTile->colorDouble < 1.0)
+            && (!tempTile->isClaimedForSeat(getSeat()) || tempTile->colorDouble < 1.0)
             && tempTile->isGroundClaimable())
         {
             // The neighbor tile is a potential candidate for claiming, to be an actual candidate
@@ -1215,7 +1220,7 @@ bool Creature::handleClaimTileAction()
             for (unsigned int i = 0; i < neighbors2.size(); ++i)
             {
                 tempTile2 = neighbors2[i];
-                if (tempTile2->getColor() == getColor()
+                if (tempTile2->isClaimedForSeat(getSeat())
                         && tempTile2->colorDouble >= 1.0)
                 {
                     clearDestinations();
@@ -1237,7 +1242,7 @@ bool Creature::handleClaimTileAction()
         // if this tile is not fully claimed yet or the tile is of another player's color
         Tile* tempTile = mVisibleTiles[i];
         if (tempTile != NULL && tempTile->getFullness() == 0.0
-            && (tempTile->colorDouble < 1.0 || tempTile->getColor() != getColor())
+            && (tempTile->colorDouble < 1.0 || !tempTile->isClaimedForSeat(getSeat()))
             && tempTile->isGroundClaimable())
         {
             // Check to see if one of the tile's neighbors is claimed for our color
@@ -1245,7 +1250,7 @@ bool Creature::handleClaimTileAction()
             for (unsigned int j = 0; j < neighbors.size(); ++j)
             {
                 tempTile = neighbors[j];
-                if (tempTile->getColor() == getColor()
+                if (tempTile->isClaimedForSeat(getSeat())
                         && tempTile->colorDouble >= 1.0)
                 {
                     claimableTiles.push_back(tempTile);
@@ -1273,7 +1278,7 @@ bool Creature::handleClaimTileAction()
             neighbors = tempTile->getAllNeighbors();
             for (unsigned int i = 0; i < neighbors.size(); ++i)
             {
-                if (neighbors[i]->getColor() == getColor() && neighbors[i]->colorDouble >= 1.0)
+                if (neighbors[i]->isClaimedForSeat(getSeat()) && neighbors[i]->colorDouble >= 1.0)
                     ++numNeighborsClaimed;
             }
 
@@ -1353,7 +1358,7 @@ bool Creature::handleClaimWallTileAction()
     // See if any of the tiles is one of our neighbors
     bool wasANeighbor = false;
     std::vector<Tile*> creatureNeighbors = myTile->getAllNeighbors();
-    Player* tempPlayer = getControllingPlayer();
+    Player* tempPlayer = getGameMap()->getPlayerBySeat(getSeat());
     for (unsigned int i = 0; i < creatureNeighbors.size() && !wasANeighbor; ++i)
     {
         if (tempPlayer == NULL)
@@ -1361,14 +1366,14 @@ bool Creature::handleClaimWallTileAction()
 
         Tile* tempTile = creatureNeighbors[i];
 
-        if (!tempTile->isWallClaimable(getColor()))
+        if (!tempTile->isWallClaimable(getSeat()))
             continue;
 
         // Dig out the tile by decreasing the tile's fullness.
         Ogre::Vector3 walkDirection(tempTile->x - getPosition().x, tempTile->y - getPosition().y, 0);
         walkDirection.normalise();
         setAnimationState("Claim", true, &walkDirection);
-        tempTile->claimForColor(getColor(), mDefinition->getDanceRate());
+        tempTile->claimForSeat(getSeat(), mDefinition->getDanceRate());
         recieveExp(1.5 * mDefinition->getDanceRate() / 20.0);
 
         wasANeighbor = true;
@@ -1391,7 +1396,7 @@ bool Creature::handleClaimWallTileAction()
         {
             Tile* neighborTile = neighbors[j];
             if (neighborTile != NULL && neighborTile->getFullness() == 0.0)
-                possiblePaths.push_back(getGameMap()->path(positionTile(), neighborTile, mDefinition, getColor()));
+                possiblePaths.push_back(getGameMap()->path(positionTile(), neighborTile, mDefinition, getSeat()));
         }
     }
 
@@ -1463,7 +1468,7 @@ bool Creature::handleDigTileAction()
     // See if any of the tiles is one of our neighbors
     bool wasANeighbor = false;
     std::vector<Tile*> creatureNeighbors = myTile->getAllNeighbors();
-    Player* tempPlayer = getControllingPlayer();
+    Player* tempPlayer = getGameMap()->getPlayerBySeat(getSeat());
     for (unsigned int i = 0; i < creatureNeighbors.size() && !wasANeighbor; ++i)
     {
         if (tempPlayer == NULL)
@@ -1484,7 +1489,7 @@ bool Creature::handleDigTileAction()
             // isn't stuck when making a way through gold.
             double tempDouble = 5 * std::min(mDefinition->getDigRate(), tempTile->getFullness());
             mGold += (int)tempDouble;
-            getGameMap()->getSeatByColor(getColor())->mGoldMined += (int)tempDouble;
+            getSeat()->mGoldMined += static_cast<int>(tempDouble);
             recieveExp(5.0 * mDefinition->getDigRate() / 20.0);
         }
 
@@ -1514,7 +1519,7 @@ bool Creature::handleDigTileAction()
             {
                 std::string name = getName();
                 ServerNotification *serverNotification = new ServerNotification(
-                    ServerNotification::playCreatureSound, getControllingPlayer());
+                    ServerNotification::playCreatureSound, getGameMap()->getPlayerBySeat(getSeat()));
                 serverNotification->mPacket << name << CreatureSound::DIGGING;
                 ODServer::getSingleton().queueServerNotification(serverNotification);
             }
@@ -1556,7 +1561,7 @@ bool Creature::handleDigTileAction()
         {
             Tile* neighborTile = neighbors[j];
             if (neighborTile != NULL && neighborTile->getFullness() == 0.0)
-                possiblePaths.push_back(getGameMap()->path(positionTile(), neighborTile, mDefinition, getColor()));
+                possiblePaths.push_back(getGameMap()->path(positionTile(), neighborTile, mDefinition, getSeat()));
         }
     }
 
@@ -1652,13 +1657,13 @@ bool Creature::handleDepositGoldAction()
 
     // We were not standing in a treasury that has enough room for the gold we are carrying, so try to find one to walk to.
     // Check to see if our seat controls any treasuries.
-    std::vector<Room*> treasuriesOwned = getGameMap()->getRoomsByTypeAndColor(Room::treasury, getColor());
+    std::vector<Room*> treasuriesOwned = getGameMap()->getRoomsByTypeAndSeat(Room::treasury, getSeat());
     if (treasuriesOwned.empty())
     {
         // There are no treasuries available so just go back to what we were doing.
         popAction();
-        LogManager::getSingleton().logMessage("No space to put gold for creature for player "
-            + Ogre::StringConverter::toString(getColor()));
+        LogManager::getSingleton().logMessage("No space to put gold for creature for player seat id="
+            + Ogre::StringConverter::toString(getSeat()->getId()));
         return true;
     }
 
@@ -1675,7 +1680,7 @@ bool Creature::handleDepositGoldAction()
             // We have not yet found a valid path to a treasury, check to see if we can get to this treasury.
             unsigned int tempUnsigned = Random::Uint(0, treasuriesOwned[i]->numCoveredTiles() - 1);
             nearestTreasuryTile = treasuriesOwned[i]->getCoveredTile(tempUnsigned);
-            tempPath = getGameMap()->path(myTile, nearestTreasuryTile, mDefinition, getColor());
+            tempPath = getGameMap()->path(myTile, nearestTreasuryTile, mDefinition, getSeat());
             if (tempPath.size() >= 2 && static_cast<RoomTreasury*>(treasuriesOwned[i])->emptyStorageSpace() > 0)
             {
                 validPathFound = true;
@@ -1687,7 +1692,7 @@ bool Creature::handleDepositGoldAction()
             // We have already found at least one valid path to a treasury, see if this one is closer.
             unsigned int tempUnsigned = Random::Uint(0, treasuriesOwned[i]->numCoveredTiles() - 1);
             Tile* tempTile = treasuriesOwned[i]->getCoveredTile(tempUnsigned);
-            std::list<Tile*> tempPath2 = getGameMap()->path(myTile, tempTile, mDefinition, getColor());
+            std::list<Tile*> tempPath2 = getGameMap()->path(myTile, tempTile, mDefinition, getSeat());
             if (tempPath2.size() >= 2 && tempPath2.size() < nearestTreasuryDistance
                 && static_cast<RoomTreasury*>(treasuriesOwned[i])->emptyStorageSpace() > 0)
             {
@@ -1711,8 +1716,8 @@ bool Creature::handleDepositGoldAction()
     // If we get to here, there is either no treasuries controlled by us, or they are all
     // unreachable, or they are all full, so quit trying to deposit gold.
     popAction();
-    LogManager::getSingleton().logMessage("No space to put gold for creature for player "
-        + Ogre::StringConverter::toString(getColor()));
+    LogManager::getSingleton().logMessage("No space to put gold for creature for player seat id="
+        + Ogre::StringConverter::toString(getSeat()->getId()));
     return true;
 }
 
@@ -1733,7 +1738,7 @@ bool Creature::handleFindHomeAction(bool isForced)
     }
 
     Room* tempRoom = myTile->getCoveringRoom();
-    if (tempRoom != NULL && tempRoom->getType() == Room::dormitory)
+    if (tempRoom != NULL && tempRoom->getType() == Room::dormitory && getSeat()->canOwnedCreatureUseRoomFrom(tempRoom->getSeat()))
     {
         Room* roomHomeTile = NULL;
         if(mHomeTile != NULL)
@@ -1763,7 +1768,7 @@ bool Creature::handleFindHomeAction(bool isForced)
             mDefinition->getBedDim1(), mDefinition->getBedDim2());
         if(tempTile != NULL)
         {
-            std::list<Tile*> tempPath = getGameMap()->path(myTile, tempTile, mDefinition, getColor());
+            std::list<Tile*> tempPath = getGameMap()->path(myTile, tempTile, mDefinition, getSeat());
             if (setWalkPath(tempPath, 1, false))
             {
                 setAnimationState("Walk");
@@ -1782,7 +1787,7 @@ bool Creature::handleFindHomeAction(bool isForced)
     }
 
     // Check to see if we can walk to a dormitory that does have an open tile.
-    std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndColor(Room::dormitory, getColor());
+    std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndSeat(Room::dormitory, getSeat());
     std::random_shuffle(tempRooms.begin(), tempRooms.end());
     unsigned int nearestDormitoryDistance = 0;
     bool validPathFound = false;
@@ -1802,7 +1807,7 @@ bool Creature::handleFindHomeAction(bool isForced)
         // Check to see if either of the two possible bed orientations tried above resulted in a successful placement.
         if (tempTile != NULL)
         {
-            std::list<Tile*> tempPath2 = getGameMap()->path(myTile, tempTile, mDefinition, getColor());
+            std::list<Tile*> tempPath2 = getGameMap()->path(myTile, tempTile, mDefinition, getSeat());
 
             // Find out the minimum valid path length of the paths determined in the above block.
             if (!validPathFound)
@@ -1868,7 +1873,7 @@ bool Creature::handleJobAction(bool isForced)
         // See if we are in a room where we can work. If so, we try to add the creature. If it is ok, the room
         // will handle the creature from here to make it go where it should
         Room* tempRoom = myTile->getCoveringRoom();
-        if (tempRoom != NULL)
+        if ((tempRoom != NULL) && getSeat()->canOwnedCreatureUseRoomFrom(tempRoom->getSeat()))
         {
             // It is the room responsability to test if the creature is suited for working in it
             if(tempRoom->hasOpenCreatureSpot(this) && (tempRoom->getType() != Room::hatchery) && tempRoom->addCreatureUsingRoom(this))
@@ -1891,7 +1896,7 @@ bool Creature::handleJobAction(bool isForced)
     // for wizards, ...).
 
     // Get the list of trainingHalls controlled by our seat and make sure there is at least one.
-    std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndColor(Room::trainingHall, getColor());
+    std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndSeat(Room::trainingHall, getSeat());
 
     if (tempRooms.empty())
     {
@@ -1925,7 +1930,7 @@ bool Creature::handleJobAction(bool isForced)
     }
 
     Tile* tempTile = tempRoom->getCoveredTile(Random::Uint(0, tempRoom->numCoveredTiles() - 1));
-    std::list<Tile*> tempPath = getGameMap()->path(myTile, tempTile, mDefinition, getColor());
+    std::list<Tile*> tempPath = getGameMap()->path(myTile, tempTile, mDefinition, getSeat());
     if (tempPath.size() < maxTrainDistance && setWalkPath(tempPath, 2, false))
     {
         setAnimationState("Walk");
@@ -1966,7 +1971,7 @@ bool Creature::handleEatingAction(bool isForced)
         // See if we are in a hatchery. If so, we try to add the creature. If it is ok, the room
         // will handle the creature from here to make it go where it should
         Room* tempRoom = myTile->getCoveringRoom();
-        if ((tempRoom != NULL) && (tempRoom->getType() == Room::hatchery && tempRoom->hasOpenCreatureSpot(this)))
+        if ((tempRoom != NULL) && getSeat()->canOwnedCreatureUseRoomFrom(tempRoom->getSeat()) && (tempRoom->getType() == Room::hatchery) && tempRoom->hasOpenCreatureSpot(this))
         {
             if(tempRoom->addCreatureUsingRoom(this))
             {
@@ -1988,7 +1993,7 @@ bool Creature::handleEatingAction(bool isForced)
     // for wizards, ...)
 
     // Get the list of hatchery controlled by our seat and make sure there is at least one.
-    std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndColor(Room::hatchery, getColor());
+    std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndSeat(Room::hatchery, getSeat());
 
     if (tempRooms.empty())
     {
@@ -2023,7 +2028,7 @@ bool Creature::handleEatingAction(bool isForced)
     }
 
     Tile* tempTile = tempRoom->getCoveredTile(Random::Uint(0, tempRoom->numCoveredTiles() - 1));
-    std::list<Tile*> tempPath = getGameMap()->path(myTile, tempTile, mDefinition, getColor());
+    std::list<Tile*> tempPath = getGameMap()->path(myTile, tempTile, mDefinition, getSeat());
     if (tempPath.size() < maxDistance && setWalkPath(tempPath, 2, false))
     {
         setAnimationState("Walk");
@@ -2125,11 +2130,11 @@ bool Creature::handleAttackAction()
     {
         std::string name = getName();
         ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::playCreatureSound, getControllingPlayer());
+            ServerNotification::playCreatureSound, getGameMap()->getPlayerBySeat(getSeat()));
         serverNotification->mPacket << name << CreatureSound::ATTACK;
         ODServer::getSingleton().queueServerNotification(serverNotification);
 
-        getGameMap()->playerIsFighting(getControllingPlayer());
+        getGameMap()->playerIsFighting(getGameMap()->getPlayerBySeat(getSeat()));
 
     }
     catch (std::bad_alloc&)
@@ -2275,7 +2280,7 @@ bool Creature::handleManeuverAction()
     std::list<Tile*> tempPath = getGameMap()->path(positionTile()->x, positionTile()->y,
                                               (int)minimumFieldValue.getPosX() + Random::Double(-1.0 * tempDouble, tempDouble),
                                               (int)minimumFieldValue.getPosY() + Random::Double(-1.0 * tempDouble, tempDouble),
-                                              mDefinition, getColor());
+                                              mDefinition, getSeat());
 
     // Walk a maximum of N tiles before recomputing the destination since we are in combat.
     unsigned int tempUnsigned = 5;
@@ -2424,7 +2429,7 @@ void Creature::updateVisibleTiles()
 
 std::vector<GameEntity*> Creature::getVisibleEnemyObjects()
 {
-    return getVisibleForce(getColor(), true);
+    return getVisibleForce(getSeat(), true);
 }
 
 std::vector<GameEntity*> Creature::getReachableAttackableObjects(const std::vector<GameEntity*>& objectsToCheck,
@@ -2451,7 +2456,7 @@ std::vector<GameEntity*> Creature::getReachableAttackableObjects(const std::vect
                 continue;
 
             // TODO: If this could be computed without the path call that would be better.
-            tempPath = getGameMap()->path(myTile, objectTile, mDefinition, getColor());
+            tempPath = getGameMap()->path(myTile, objectTile, mDefinition, getSeat());
 
             if (!minRangeSet)
             {
@@ -2511,13 +2516,13 @@ std::vector<GameEntity*> Creature::getEnemyObjectsInRange(const std::vector<Game
 
 std::vector<GameEntity*> Creature::getVisibleAlliedObjects()
 {
-    return getVisibleForce(getColor(), false);
+    return getVisibleForce(getSeat(), false);
 }
 
 std::vector<Tile*> Creature::getVisibleMarkedTiles()
 {
     std::vector<Tile*> tempVector;
-    Player *tempPlayer = getControllingPlayer();
+    Player *tempPlayer = getGameMap()->getPlayerBySeat(getSeat());
 
     // Loop over all the visible tiles.
     for (unsigned int i = 0, size = mVisibleTiles.size(); i < size; ++i)
@@ -2538,16 +2543,16 @@ std::vector<Tile*> Creature::getVisibleClaimableWallTiles()
     for (unsigned int i = 0, size = mVisibleTiles.size(); i < size; ++i)
     {
         // Check to see if the tile is marked for digging.
-        if (mVisibleTiles[i]->isWallClaimable(getColor()))
+        if (mVisibleTiles[i]->isWallClaimable(getSeat()))
             claimableWallTiles.push_back(mVisibleTiles[i]);
     }
 
     return claimableWallTiles;
 }
 
-std::vector<GameEntity*> Creature::getVisibleForce(int color, bool invert)
+std::vector<GameEntity*> Creature::getVisibleForce(Seat* seat, bool invert)
 {
-    return getGameMap()->getVisibleForce(mVisibleTiles, color, invert);
+    return getGameMap()->getVisibleForce(mVisibleTiles, seat, invert);
 }
 
 void Creature::createVisualDebugEntities()
@@ -2731,7 +2736,8 @@ std::string Creature::getStatsText()
         tempSS << Ogre::StringConverter::toString(dest) << "/";
     }
     tempSS << std::endl;
-    tempSS << "Color: " << getColor() << std::endl;
+    tempSS << "Seat id: " << getSeat()->getId() << std::endl;
+    tempSS << "Seat color: " << getSeat()->getColor() << std::endl;
     tempSS << "Position: " << Ogre::StringConverter::toString(getPosition()) << std::endl;
     return tempSS.str();
 }
@@ -2742,7 +2748,7 @@ void Creature::takeDamage(double damage, Tile *tileTakingDamage)
     if(!getGameMap()->isServerGameMap())
         return;
 
-    Player* player = getControllingPlayer();
+    Player* player = getGameMap()->getPlayerBySeat(getSeat());
     if (player == NULL)
         return;
 
@@ -2774,12 +2780,6 @@ void Creature::recieveExp(double experience)
 bool Creature::getHasVisualDebuggingEntities()
 {
     return mHasVisualDebuggingEntities;
-}
-
-//FIXME: This should be made into getControllingSeat(), when this is done it can simply be a call to GameMap::getSeatByColor().
-Player* Creature::getControllingPlayer()
-{
-    return getGameMap()->getPlayerByColor(getColor());
 }
 
 void Creature::clearActionQueue()
@@ -2904,7 +2904,7 @@ bool Creature::setDestination(Tile* tile)
     if(posTile == NULL)
         return false;
 
-    std::list<Tile*> result = getGameMap()->path(posTile, tile, mDefinition, getColor());
+    std::list<Tile*> result = getGameMap()->path(posTile, tile, mDefinition, getSeat());
 
     if (setWalkPath(result, 2, false))
     {

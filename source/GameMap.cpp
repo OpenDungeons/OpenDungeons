@@ -343,14 +343,14 @@ unsigned int GameMap::numCreatures() const
     return creatures.size();
 }
 
-std::vector<Creature*> GameMap::getCreaturesByColor(int color)
+std::vector<Creature*> GameMap::getCreaturesBySeat(Seat* seat)
 {
     std::vector<Creature*> tempVector;
 
-    // Loop over all the creatures in the GameMap and add them to the temp vector if their color matches that of the desired seat.
+    // Loop over all the creatures in the GameMap and add them to the temp vector if their seat matches the one in parameter.
     for (unsigned int i = 0; i < creatures.size(); ++i)
     {
-        if (creatures[i]->getColor() == color)
+        if (creatures[i]->getSeat() == seat)
             tempVector.push_back(creatures[i]);
     }
 
@@ -586,14 +586,9 @@ void GameMap::doTurn()
         Creature *tempCreature = creatures[cptCreature];
         if (tempCreature->getHP() > 0.0)
         {
-            // Since the creature is still alive we add it to the controlled creatures.
-            Player *tempPlayer = tempCreature->getControllingPlayer();
-            if (tempPlayer != NULL)
-            {
-                Seat *tempSeat = tempPlayer->getSeat();
-
+            Seat *tempSeat = tempCreature->getSeat();
+            if(tempSeat != NULL)
                 ++(tempSeat->mNumCreaturesControlled);
-            }
         }
 
         ++cptCreature;
@@ -632,50 +627,50 @@ unsigned long int GameMap::doMiscUpkeep()
         filledSeats[i]->mNumCreaturesControlled = 0;
     }
 
-    // Count how many of each color kobold there are.
-    std::map<int, int> koboldColorCounts;
+    // Count how many of each kobold there are per seat.
+    std::map<Seat*, int> koboldCounts;
     for (unsigned int i = 0; i < numCreatures(); ++i)
     {
         Creature *tempCreature = creatures[i];
 
         if (tempCreature->getDefinition()->isWorker())
         {
-            int color = tempCreature->getColor();
-            ++koboldColorCounts[color];
+            Seat* seat = tempCreature->getSeat();
+            ++koboldCounts[seat];
         }
     }
 
-    // Count how many dungeon temples each color controls.
+    // Count how many dungeon temples each seat controls.
     std::vector<Room*> dungeonTemples = getRoomsByType(Room::dungeonTemple);
-    std::map<int, int> dungeonTempleColorCounts;
+    std::map<Seat*, int> dungeonTempleSeatCounts;
     for (unsigned int i = 0, size = dungeonTemples.size(); i < size; ++i)
     {
-        ++dungeonTempleColorCounts[dungeonTemples[i]->getColor()];
+        ++dungeonTempleSeatCounts[dungeonTemples[i]->getSeat()];
     }
 
-    // Compute how many kobolds each color should have as determined by the number of dungeon temples they control.
-    std::map<int, int>::iterator colorItr = dungeonTempleColorCounts.begin();
-    std::map<int, int> koboldsNeededPerColor;
-    while (colorItr != dungeonTempleColorCounts.end())
+    // Compute how many kobolds each seat should have as determined by the number of dungeon temples they control.
+    std::map<Seat*, int>::iterator itr = dungeonTempleSeatCounts.begin();
+    std::map<Seat*, int> koboldsNeededPerSeat;
+    while (itr != dungeonTempleSeatCounts.end())
     {
-        int color = colorItr->first;
-        int numDungeonTemples = colorItr->second;
-        int numKobolds = koboldColorCounts[color];
+        Seat* seat = itr->first;
+        int numDungeonTemples = itr->second;
+        int numKobolds = koboldCounts[seat];
         int numKoboldsNeeded = std::max(4 * numDungeonTemples - numKobolds, 0);
         numKoboldsNeeded = std::min(numKoboldsNeeded, numDungeonTemples);
-        koboldsNeededPerColor[color] = numKoboldsNeeded;
+        koboldsNeededPerSeat[seat] = numKoboldsNeeded;
 
-        ++colorItr;
+        ++itr;
     }
 
     // Loop back over all the dungeon temples and for each one decide if it should try to produce a kobold.
     for (unsigned int i = 0; i < dungeonTemples.size(); ++i)
     {
         RoomDungeonTemple *dungeonTemple = static_cast<RoomDungeonTemple*>(dungeonTemples[i]);
-        int color = dungeonTemple->getColor();
-        if (koboldsNeededPerColor[color] > 0)
+        Seat* seat = dungeonTemple->getSeat();
+        if (koboldsNeededPerSeat[seat] > 0)
         {
-            --koboldsNeededPerColor[color];
+            --koboldsNeededPerSeat[seat];
             dungeonTemple->produceKobold();
         }
     }
@@ -715,7 +710,7 @@ unsigned long int GameMap::doMiscUpkeep()
             tempSeat->mMana = 250000;
 
         // Update the count on how much gold is available in all of the treasuries claimed by the given seat.
-        tempSeat->mGold = getTotalGoldForColor(tempSeat->mColor);
+        tempSeat->mGold = getTotalGoldForSeat(tempSeat);
     }
 
     // Determine the number of tiles claimed by each seat.
@@ -737,7 +732,7 @@ unsigned long int GameMap::doMiscUpkeep()
             if (tempTile->getType() == Tile::claimed)
             {
                 // Increment the count of the seat who owns the tile.
-                tempSeat = getSeatByColor(tempTile->getColor());
+                tempSeat = tempTile->getSeat();
                 if (tempSeat != NULL)
                 {
                     tempSeat->incrementNumClaimedTiles();
@@ -932,7 +927,7 @@ bool GameMap::pathExists(int x1, int y1, int x2, int y2, const CreatureDefinitio
     return (tileStart->mFloodFillColor[Tile::FloodFillTypeGround] == tileEnd->mFloodFillColor[Tile::FloodFillTypeGround]);
 }
 
-std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const CreatureDefinition* creatureDef, int color, bool throughDiggableTiles)
+std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const CreatureDefinition* creatureDef, Seat* seat, bool throughDiggableTiles)
 {
     ++numCallsTo_path;
     std::list<Tile*> returnList;
@@ -941,7 +936,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const CreatureDef
     if (getTile(x1, y1) == NULL)
         return returnList;
 
-    // If flood filling is enabled, we can possibly eliminate this path by checking to see if they two tiles are colored differently.
+    // If flood filling is enabled, we can possibly eliminate this path by checking to see if they two tiles are floodfilled differently.
     if (!throughDiggableTiles && !pathExists(x1, y1, x2, y2, creatureDef))
         return returnList;
 
@@ -1036,7 +1031,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const CreatureDef
                 if(i < 4)
                     areTilesPassable[i] = true;
              }
-            else if(throughDiggableTiles && neighbor.getTile()->isDiggable(color))
+            else if(throughDiggableTiles && neighbor.getTile()->isDiggable(seat))
                 processNeighbor = true;
 
             if (!processNeighbor)
@@ -1189,15 +1184,29 @@ unsigned int GameMap::numPlayers() const
     return players.size();
 }
 
-Player* GameMap::getPlayerByColor(int color)
+Player* GameMap::getPlayerBySeatId(int seatId)
 {
-    if(!mIsServerGameMap && getLocalPlayer()->getSeat()->getColor() == color)
+    if(!mIsServerGameMap && getLocalPlayer()->getSeat()->getId() == seatId)
         return getLocalPlayer();
 
     for (std::vector<Player*>::iterator it = players.begin(); it != players.end(); ++it)
     {
         Player* player = *it;
-        if(player->getSeat()->getColor() == color)
+        if(player->getSeat()->getId() == seatId)
+            return player;
+    }
+    return NULL;
+}
+
+Player* GameMap::getPlayerBySeat(Seat* seat)
+{
+    if(!mIsServerGameMap && getLocalPlayer()->getSeat() == seat)
+        return getLocalPlayer();
+
+    for (std::vector<Player*>::iterator it = players.begin(); it != players.end(); ++it)
+    {
+        Player* player = *it;
+        if(player->getSeat() == seat)
             return player;
     }
     return NULL;
@@ -1393,7 +1402,7 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
     return tempVector;
 }
 
-std::vector<GameEntity*> GameMap::getVisibleForce(std::vector<Tile*> visibleTiles, int color, bool invert)
+std::vector<GameEntity*> GameMap::getVisibleForce(std::vector<Tile*> visibleTiles, Seat* seat, bool invert)
 {
     //TODO:  This function also needs to list Rooms, Traps, Doors, etc (maybe add GameMap::getAttackableObjectsInCell to do this).
     std::vector<GameEntity*> returnList;
@@ -1410,10 +1419,10 @@ std::vector<GameEntity*> GameMap::getVisibleForce(std::vector<Tile*> visibleTile
             // If it is an enemy
             if (tempCreature != NULL)
             {
-                // The invert flag is used to determine whether we want to return a list of those creatures
-                // whose color matches the one supplied or is any color but the one supplied.
-                if ((invert && tempCreature->getColor() != color) || (!invert
-                        && tempCreature->getColor() == color))
+                // The invert flag is used to determine whether we want to return a list of the creatures
+                // allied with supplied seat or the contrary.
+                if ((invert && !tempCreature->getSeat()->isAlliedSeat(seat)) || (!invert
+                        && tempCreature->getSeat()->isAlliedSeat(seat)))
                 {
                     // Add the current creature
                     returnList.push_back(tempCreature);
@@ -1425,9 +1434,9 @@ std::vector<GameEntity*> GameMap::getVisibleForce(std::vector<Tile*> visibleTile
         Room *tempRoom = (*itr)->getCoveringRoom();
         if (tempRoom != NULL)
         {
-            // Check to see if the color is appropriate based on the condition of the invert flag.
-            if ((invert && tempRoom->getColor() != color) || (!invert
-                    && tempRoom->getColor() != color))
+            // Check to see if the seat is appropriate based on the condition of the invert flag.
+            if ((invert && !tempRoom->getSeat()->isAlliedSeat(seat)) || (!invert
+                    && tempRoom->getSeat()->isAlliedSeat(seat)))
             {
                 // Check to see if the given room is already in the returnList.
                 bool roomFound = false;
@@ -1509,37 +1518,39 @@ std::vector<Room*> GameMap::getRoomsByType(Room::RoomType type)
     return returnList;
 }
 
-std::vector<Room*> GameMap::getRoomsByTypeAndColor(Room::RoomType type, int color)
+std::vector<Room*> GameMap::getRoomsByTypeAndSeat(Room::RoomType type, Seat* seat)
 {
     std::vector<Room*> returnList;
     for (unsigned int i = 0; i < rooms.size(); ++i)
     {
-        if (rooms[i]->getType() == type && rooms[i]->getColor() == color)
-            returnList.push_back(rooms[i]);
+        Room* room = rooms[i];
+        if (room->getType() == type && room->getSeat() == seat)
+            returnList.push_back(room);
     }
 
     return returnList;
 }
 
-std::vector<const Room*> GameMap::getRoomsByTypeAndColor(Room::RoomType type, int color) const
+std::vector<const Room*> GameMap::getRoomsByTypeAndSeat(Room::RoomType type, Seat* seat) const
 {
     std::vector<const Room*> returnList;
     for (unsigned int i = 0; i < rooms.size(); ++i)
     {
-        if (rooms[i]->getType() == type && rooms[i]->getColor() == color)
-            returnList.push_back(rooms[i]);
+        const Room* room = rooms[i];
+        if (room->getType() == type && room->getSeat() == seat)
+            returnList.push_back(room);
     }
 
     return returnList;
 }
 
-unsigned int GameMap::numRoomsByTypeAndColor(Room::RoomType type, int color) const
+unsigned int GameMap::numRoomsByTypeAndSeat(Room::RoomType type, Seat* seat) const
 {
     unsigned int count = 0;;
     std::vector<Room*>::const_iterator it;
     for (it = rooms.begin(); it != rooms.end(); ++it)
     {
-        if ((*it)->getType() == type && (*it)->getColor() == color)
+        if ((*it)->getType() == type && (*it)->getSeat() == seat)
             ++count;
     }
     return count;
@@ -1622,10 +1633,10 @@ unsigned int GameMap::numTraps()
     return traps.size();
 }
 
-int GameMap::getTotalGoldForColor(int color)
+int GameMap::getTotalGoldForSeat(Seat* seat)
 {
     int tempInt = 0;
-    std::vector<Room*> treasuriesOwned = getRoomsByTypeAndColor(Room::treasury, color);
+    std::vector<Room*> treasuriesOwned = getRoomsByTypeAndSeat(Room::treasury, seat);
     for (unsigned int i = 0; i < treasuriesOwned.size(); ++i)
     {
         tempInt += static_cast<RoomTreasury*>(treasuriesOwned[i])->getTotalGold();
@@ -1636,13 +1647,13 @@ int GameMap::getTotalGoldForColor(int color)
 
 bool GameMap::withdrawFromTreasuries(int gold, Seat* seat)
 {
-    // Check to see if there is enough gold available in all of the treasuries owned by the given color.
+    // Check to see if there is enough gold available in all of the treasuries owned by the given seat.
     if (seat->getGold() < gold)
         return false;
 
     // Loop over the treasuries withdrawing gold until the full amount has been withdrawn.
     int goldStillNeeded = gold;
-    std::vector<Room*> treasuriesOwned = getRoomsByTypeAndColor(Room::treasury, seat->getColor());
+    std::vector<Room*> treasuriesOwned = getRoomsByTypeAndSeat(Room::treasury, seat);
     for (unsigned int i = 0; i < treasuriesOwned.size() && goldStillNeeded > 0; ++i)
     {
         goldStillNeeded -= static_cast<RoomTreasury*>(treasuriesOwned[i])->withdrawGold(goldStillNeeded);
@@ -1768,21 +1779,21 @@ Seat* GameMap::getEmptySeat(const std::string& faction)
     return seat;
 }
 
-Seat* GameMap::popEmptySeat(int color)
+Seat* GameMap::popEmptySeat(int id)
 {
     Seat* seat = NULL;
     for (std::vector<Seat*>::iterator it = emptySeats.begin(); it != emptySeats.end(); ++it)
     {
-        if((*it)->getColor() == color)
+        if((*it)->getId() == id)
         {
             seat = *it;
             emptySeats.erase(it);
             filledSeats.push_back(seat);
-            break;
+            return seat;
         }
     }
 
-    return seat;
+    return NULL;
 }
 
 unsigned int GameMap::numEmptySeats() const
@@ -1820,35 +1831,22 @@ const Seat* GameMap::getFilledSeat(int index) const
     return filledSeats[index];
 }
 
-Seat* GameMap::popFilledSeat()
-{
-    Seat *s = NULL;
-    if (!filledSeats.empty())
-    {
-        s = filledSeats[0];
-        filledSeats.erase(filledSeats.begin());
-        emptySeats.push_back(s);
-    }
-
-    return s;
-}
-
 unsigned int GameMap::numFilledSeats() const
 {
     return filledSeats.size();
 }
 
-Seat* GameMap::getSeatByColor(int color)
+Seat* GameMap::getSeatById(int id)
 {
     for (unsigned int i = 0; i < filledSeats.size(); ++i)
     {
-        if (filledSeats[i]->getColor() == color)
+        if (filledSeats[i]->getId() == id)
             return filledSeats[i];
     }
 
     for (unsigned int i = 0; i < emptySeats.size(); ++i)
     {
-        if (emptySeats[i]->getColor() == color)
+        if (emptySeats[i]->getId() == id)
             return emptySeats[i];
     }
 
@@ -2298,15 +2296,15 @@ void GameMap::enableFloodFill()
     }
 }
 
-std::list<Tile*> GameMap::path(Creature *c1, Creature *c2, const CreatureDefinition* creatureDef, int color, bool throughDiggableTiles)
+std::list<Tile*> GameMap::path(Creature *c1, Creature *c2, const CreatureDefinition* creatureDef, Seat* seat, bool throughDiggableTiles)
 {
     return path(c1->positionTile()->x, c1->positionTile()->y,
-                c2->positionTile()->x, c2->positionTile()->y, creatureDef, color, throughDiggableTiles);
+                c2->positionTile()->x, c2->positionTile()->y, creatureDef, seat, throughDiggableTiles);
 }
 
-std::list<Tile*> GameMap::path(Tile *t1, Tile *t2, const CreatureDefinition* creatureDef, int color, bool throughDiggableTiles)
+std::list<Tile*> GameMap::path(Tile *t1, Tile *t2, const CreatureDefinition* creatureDef, Seat* seat, bool throughDiggableTiles)
 {
-    return path(t1->x, t1->y, t2->x, t2->y, creatureDef, color, throughDiggableTiles);
+    return path(t1->x, t1->y, t2->x, t2->y, creatureDef, seat, throughDiggableTiles);
 }
 
 Ogre::Real GameMap::crowDistance(Creature *c1, Creature *c2)
@@ -2358,7 +2356,7 @@ std::vector<Tile*> GameMap::getDiggableTilesForPlayerInArea(int x1, int y1, int 
     while (it != tiles.end())
     {
         Tile* tile = *it;
-        if (!tile->isDiggable(player->getSeat()->mColor))
+        if (!tile->isDiggable(player->getSeat()))
         {
             it = tiles.erase(it);
         }
@@ -2380,10 +2378,10 @@ std::vector<Tile*> GameMap::getBuildableTilesForPlayerInArea(int x1, int y1, int
         {
             it = tiles.erase(it);
         }
-        else if (!(tile->getFullness() < 1
+        else if (!(tile->getFullness() == 0.0
                     && tile->getType() == Tile::claimed
-                    && tile->colorDouble > 0.99
-                    && tile->getColor() == player->getSeat()->mColor))
+                    && tile->colorDouble >= 1.0
+                    && tile->isClaimedForSeat(player->getSeat())))
         {
             it = tiles.erase(it);
         }
@@ -2405,8 +2403,8 @@ void GameMap::markTilesForPlayer(std::vector<Tile*>& tiles, bool isDigSet, Playe
 
 Room* GameMap::buildRoomForPlayer(std::vector<Tile*>& tiles, Room::RoomType roomType, Player* player, bool forceName, const std::string& name)
 {
-    Room* newRoom = Room::createRoom(this, roomType, tiles, player->getSeat()->getColor(), forceName, name);
-    Room::setupRoom(this, newRoom, player);
+    Room* newRoom = Room::createRoom(this, roomType, tiles, player->getSeat(), forceName, name);
+    Room::setupRoom(this, newRoom);
     refreshBorderingTilesOf(tiles);
     return newRoom;
 }
@@ -2414,7 +2412,7 @@ Room* GameMap::buildRoomForPlayer(std::vector<Tile*>& tiles, Room::RoomType room
 Trap* GameMap::buildTrapForPlayer(std::vector<Tile*>& tiles, Trap::TrapType typeTrap, Player* player, bool forceName, const std::string& name)
 {
     Trap* newTrap = Trap::createTrap(this, typeTrap, tiles, player->getSeat(), forceName, name);
-    Trap::setupTrap(this, newTrap, player);
+    Trap::setupTrap(this, newTrap);
     refreshBorderingTilesOf(tiles);
     return newTrap;
 }
@@ -2466,9 +2464,13 @@ std::string GameMap::getGoalsStringForPlayer(Player* player)
     return tempSS.str();
 }
 
-int GameMap::addGoldToSeat(int gold, int color)
+int GameMap::addGoldToSeat(int gold, int seatId)
 {
-    std::vector<Room*> treasuriesOwned = getRoomsByTypeAndColor(Room::treasury, color);
+    Seat* seat = getSeatById(seatId);
+    if(seat == NULL)
+        return gold;
+
+    std::vector<Room*> treasuriesOwned = getRoomsByTypeAndSeat(Room::treasury, seat);
     for (std::vector<Room*>::iterator it = treasuriesOwned.begin(); it != treasuriesOwned.end(); ++it)
     {
         RoomTreasury* treasury = static_cast<RoomTreasury*>(*it);

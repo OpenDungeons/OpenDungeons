@@ -37,7 +37,7 @@ const std::string LEVEL_EXTENSION = ".level";
 
 MenuModeEditor::MenuModeEditor(ModeManager *modeManager):
     AbstractApplicationMode(modeManager, ModeManager::MENU_EDITOR),
-    mReadyToStartGame(false)
+    mReadyToStartMode(false)
 {
 }
 
@@ -131,7 +131,7 @@ void MenuModeEditor::launchSelectedButtonPressed()
     }
 
     // Makes the frame listener process client and server messages.
-    mReadyToStartGame = true;
+    mReadyToStartMode = true;
 }
 
 void MenuModeEditor::listLevelsClicked()

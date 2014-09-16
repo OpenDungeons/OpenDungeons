@@ -37,9 +37,19 @@ Player::Player() :
 {
 }
 
-unsigned int Player::numCreaturesInHand() const
+unsigned int Player::numCreaturesInHand(const Seat* seat) const
 {
-    return mCreaturesInHand.size();
+    if(seat == NULL)
+        return mCreaturesInHand.size();
+
+    unsigned int cpt = 0;
+    for(std::vector<Creature*>::const_iterator it = mCreaturesInHand.begin(); it != mCreaturesInHand.end(); ++it)
+    {
+        const Creature* creature = *it;
+        if(creature->getSeat() == seat)
+            ++cpt;
+    }
+    return cpt;
 }
 
 Creature* Player::getCreatureInHand(int i)
@@ -132,15 +142,19 @@ bool Player::isDropCreaturePossible(Tile *t, unsigned int index, bool isEditorMo
     if (t->getFullness() > 0.0)
         return false;
 
-    // In editor mode, we allow creatures to be dropped anywhere if they can walk
+    // In editor mode, we allow creatures to be dropped anywhere they can walk
     if(isEditorMode && t->canCreatureGoThroughTile(tempCreature->getDefinition()))
         return true;
 
-    if ((!tempCreature->getDefinition()->isWorker() || (t->getType() != Tile::dirt && t->getType() != Tile::gold))
-            && (t->getType() != Tile::claimed || t->getColor() != getSeat()->getColor()))
-        return false;
+    // If it is a worker, he can be dropped on dirt
+    if (tempCreature->getDefinition()->isWorker() && (t->getType() == Tile::dirt || t->getType() == Tile::gold))
+        return true;
 
-    return true;
+    // Every creature can be dropped on allied claimed tiles
+    if(t->getType() == Tile::claimed && t->getSeat() != NULL && t->getSeat()->isAlliedSeat(getSeat()))
+        return true;
+
+    return false;
 }
 
 void Player::dropCreature(Tile* t, unsigned int index)

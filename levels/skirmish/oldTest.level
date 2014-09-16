@@ -8,12 +8,12 @@ FightMusic	The_Dark_Amulet.ogg
 [/Info]
 
 [Seats]
-# color	faction	startingX	startingY	colorR	colorG	colorB	startingGold
-1	Player	200	200	0	0.4	0	1000
-2	KeeperAI	200	200	0.4	0	0	1000
-3	KeeperAI	200	200	0	0	0.4	1000
-4	none	200	200	0.4	0.4	0.1	1000
-5	none	200	200	0.4	0.1	0.4	1000
+# seatId	color	faction	startingX	startingY	colorR	colorG	colorB	startingGold
+1	1	Player	200	200	0	0.4	0	1000
+2	2	KeeperAI	200	200	0.4	0	0	1000
+3	3	KeeperAI	200	200	0	0	0.4	1000
+4	4	none	200	200	0.4	0.4	0.1	1000
+5	5	none	200	200	0.4	0.1	0.4	1000
 [/Seats]
 
 [Goals]
@@ -6383,7 +6383,7 @@ ProtectDungeonTemple	NULL
 [/Tiles]
 
 [Rooms]
-# meshName	color		NextLine: numTiles		Subsequent Lines: tileX	tileY
+# meshName	seatId		NextLine: numTiles		Subsequent Lines: tileX	tileY
 DungeonTemple	1
 25
 193	206
@@ -6608,7 +6608,7 @@ Dojo	1
 [/Rooms]
 
 [Traps]
-# meshName	color		NextLine: numTiles		Subsequent Lines: tileX	tileY
+# meshName	seatId		NextLine: numTiles		Subsequent Lines: tileX	tileY
 Cannon	1
 1
 186	199
@@ -6686,59 +6686,59 @@ Dwarf3
 [/Spawn_Pools]
 
 [Creatures]
-# className	name	posX	posY	posZ	color	weaponLname	damage	range	defense	weaponRname	damage	range	defense	HP	mana	Level
-Adventurer	Adventurer_001	196	200	0	1	none	7	4	0	none	8	3	0	155	2	1
-ConstructWorker	ConstructWorker1	196	230	0	1	none	1	4	3	none	8	4	0	125	3	1
-Gnome	Gnome2	192	229	0	2	Roundshield	1	4	3	Longsword	8	4	0	125	3	1
-Goblin	Goblin3	183	229	0	3	Roundshield	1	4	3	Longsword	8	4	0	125	3	1
-PitDemon	PitDemon5	210	236	0	5	none	1	4	3	none	8	4	0	125	3	1
-Spider	Spider6	198	231	0	1	none	1	4	3	none	8	4	0	125	3	1
-CaveHornet	Hornet1	198	231	0	1	none	1	4	3	none	8	4	0	125	3	1
-Wizard	Wizard7	190	229	0	2	Staff	7	10	3	none	1	4	0	125	3	1
-Tentacle1	Tentacle18	186	229	0	3	none	1	4	3	none	8	4	0	125	3	1
-Tentacle2	Tentacle29	203	230	0	4	none	1	4	3	none	8	4	0	125	3	1
-Troll	Troll10	209	231	0	5	none	1	4	3	none	8	4	0	125	3	1
-Troll	Troll11	193	214	0	1	Roundshield	1	4	3	Longsword	8	4	0	125	3	1
-Knight	Knight_c1	198	233	0	1	Roundshield	1	4	3	Longsword	8	4	0	125	3	1
-Knight	Knight_c2	192	233	0	2	Roundshield	1	4	3	Longsword	8	4	0	125	3	1
-Knight	Knight_c3	184	233	0	3	Roundshield	1	4	3	Longsword	8	4	0	125	3	1
-Knight	Knight_c4	204	233	0	4	Roundshield	1	4	3	Longsword	8	4	0	125	3	1
-Knight	Knight_c5	210	233	0	5	Roundshield	1	4	3	Longsword	8	4	0	125	3	1
-LizardMan	LizardMan_001	210	233	0	5	Roundshield	1	4	3	Longsword	8	4	0	125	3	1
-Kobold	Kobold	195	202	0	1	none	5	4	0	none	8	3	0	125	3	1
-Kobold	Kobold_012	188	200	0	1	Roundshield	0	0	5	Longsword	14	3	0	125	3	1
-Kobold	Kobold_007	193	218	0	1	none	5	4	0	none	8	3	0	125	3	1
-Wizard	Mage	193	213	0	1	Staff	7	9	0	none	8	3	0	80	50	1
-Wizard	Wiz	193	213	0	1	Staff	7	9	0	none	8	3	0	80	50	1
-BigKnight	King	191	216	0	1	Roundshield	0	0	5	Staff	10	3	7	180	10	1
-Knight	Knight_005	229	138	0	1	Roundshield	0	0	5	Longsword	14	3	0	155	2	1
-Knight	Knight_004	196	200	0	1	Longsword	7	4	0	none	8	3	0	155	2	1
-Knight	Knight_006	199	204	0	1	Longsword	14	4	0	Sabre	10	3	0	155	2	1
-Knight	Knight	188	198	0	1	none	8	4	0	Sabre	10	3	0	155	2	1
-Knight	Knight_007	191	207	0	1	none	8	4	0	Sabre	10	3	0	155	2	1
-Knight	Knight_003	184	201	0	1	none	14	4	0	Longsword	14	3	0	155	2	1
-Dragon	Dragon_001	159	108	0	1	none	10	4	0	none	8	3	0	200	25	1
-Dragon	Dragon_002	191	193	0	1	none	10	4	0	none	8	3	0	200	25	1
-Dragon	Dragon_003	195	204	0	1	none	10	4	0	none	8	3	0	200	25	1
-Dragon	Dragon_004	196	214	0	1	none	10	4	0	none	8	3	0	200	25	1
-Wyvern	Wyvern_001	177	90	0	1	none	8	3	0	none	6	3	0	150	5	1
-Wyvern	Wyvern_002	186	85	0	1	none	8	3	0	none	6	3	0	150	5	1
-Wyvern	Wyvern_003	183	105	0	1	none	8	3	0	none	6	3	0	150	5	1
-Dwarf1	Dwarf1_001	201	192	0	2	Roundshield	0	0	5	Sabre	10	3	0	145	7	1
-Dwarf2	Dwarf1_002	206	168	0	2	none	8	4	0	none	6	3	0	145	7	1
-Dwarf3	Dwarf1_004	213	157	0	2	none	8	4	0	none	6	3	0	145	7	1
-Dwarf2	Dwarf1_006	214	141	0	2	none	8	4	0	none	6	3	0	145	7	1
-Dwarf3	Dwarf1_007	212	143	0	2	none	8	4	0	none	6	3	0	145	7	1
-Dwarf3	Dwarf2_001	213	213	0	2	none	8	4	0	none	6	3	0	145	7	1
-Dwarf2	Dwarf2_002	202	191	0	2	none	6	4	0	Longsword	14	4	0	145	7	1
-Dwarf1	Dwarf3_001	201	192	0	2	Roundshield	0	0	5	Longsword	14	4	4	145	7	1
-LizardMan	LizardMan_002	206	172	0	3	none	12	4	0	none	6	4	0	180	10	1
-Kreatur	Kre	215	216	0	2	none	12	4	0	none	6	4	0	180	10	1
-Orc	Orc_0001	203	199	0	2	none	8	4	0	Longsword	14	4	0	165	10	1
-Orc	Orc_0002	207	212	0	2	none	8	4	0	Longsword	14	4	0	165	10	1
-Kreatur	Kreatur_001	155	110	0	3	none	12	4	0	none	6	4	0	180	10	1
-Kreatur	Kreatur_002	159	112	0	3	none	12	4	0	none	6	4	0	180	10	1
-Kreatur	Kreatur_003	158	103	0	3	none	12	4	0	none	6	4	0	180	10	1
-Kreatur	Kreatur_004	156	106	0	3	none	12	4	0	none	6	4	0	180	10	1
-Kreatur	Kreatur_006	163	112	0	3	none	12	4	0	none	6	4	0	180	10	1
+# className	name	posX	posY	posZ	seatId	weaponLname	damage	range	defense	weaponRname	damage	range	defense	HP	Level
+Adventurer	Adventurer_001	196	200	0	1	none	7	4	0	none	8	3	0	155	1
+ConstructWorker	ConstructWorker1	196	230	0	1	none	1	4	3	none	8	4	0	125	1
+Gnome	Gnome2	192	229	0	2	Roundshield	1	4	3	Longsword	8	4	0	125	1
+Goblin	Goblin3	183	229	0	3	Roundshield	1	4	3	Longsword	8	4	0	125	1
+PitDemon	PitDemon5	210	236	0	5	none	1	4	3	none	8	4	0	125	1
+Spider	Spider6	198	231	0	1	none	1	4	3	none	8	4	0	125	1
+CaveHornet	Hornet1	198	231	0	1	none	1	4	3	none	8	4	0	125	1
+Wizard	Wizard7	190	229	0	2	Staff	7	10	3	none	1	4	0	125	1
+Tentacle1	Tentacle18	186	229	0	3	none	1	4	3	none	8	4	0	125	1
+Tentacle2	Tentacle29	203	230	0	4	none	1	4	3	none	8	4	0	125	1
+Troll	Troll10	209	231	0	5	none	1	4	3	none	8	4	0	125	1
+Troll	Troll11	193	214	0	1	Roundshield	1	4	3	Longsword	8	4	0	125	1
+Knight	Knight_c1	198	233	0	1	Roundshield	1	4	3	Longsword	8	4	0	125	1
+Knight	Knight_c2	192	233	0	2	Roundshield	1	4	3	Longsword	8	4	0	125	1
+Knight	Knight_c3	184	233	0	3	Roundshield	1	4	3	Longsword	8	4	0	125	1
+Knight	Knight_c4	204	233	0	4	Roundshield	1	4	3	Longsword	8	4	0	125	1
+Knight	Knight_c5	210	233	0	5	Roundshield	1	4	3	Longsword	8	4	0	125	1
+LizardMan	LizardMan_001	210	233	0	5	Roundshield	1	4	3	Longsword	8	4	0	125	1
+Kobold	Kobold	195	202	0	1	none	5	4	0	none	8	3	0	125	1
+Kobold	Kobold_012	188	200	0	1	Roundshield	0	0	5	Longsword	14	3	0	125	1
+Kobold	Kobold_007	193	218	0	1	none	5	4	0	none	8	3	0	125	1
+Wizard	Mage	193	213	0	1	Staff	7	9	0	none	8	3	0	80	1
+Wizard	Wiz	193	213	0	1	Staff	7	9	0	none	8	3	0	80	1
+BigKnight	King	191	216	0	1	Roundshield	0	0	5	Staff	10	3	7	180	1
+Knight	Knight_005	229	138	0	1	Roundshield	0	0	5	Longsword	14	3	0	155	1
+Knight	Knight_004	196	200	0	1	Longsword	7	4	0	none	8	3	0	155	1
+Knight	Knight_006	199	204	0	1	Longsword	14	4	0	Sabre	10	3	0	155	1
+Knight	Knight	188	198	0	1	none	8	4	0	Sabre	10	3	0	155	1
+Knight	Knight_007	191	207	0	1	none	8	4	0	Sabre	10	3	0	155	1
+Knight	Knight_003	184	201	0	1	none	14	4	0	Longsword	14	3	0	155	1
+Dragon	Dragon_001	159	108	0	1	none	10	4	0	none	8	3	0	200	1
+Dragon	Dragon_002	191	193	0	1	none	10	4	0	none	8	3	0	200	1
+Dragon	Dragon_003	195	204	0	1	none	10	4	0	none	8	3	0	200	1
+Dragon	Dragon_004	196	214	0	1	none	10	4	0	none	8	3	0	200	1
+Wyvern	Wyvern_001	177	90	0	1	none	8	3	0	none	6	3	0	150	1
+Wyvern	Wyvern_002	186	85	0	1	none	8	3	0	none	6	3	0	150	1
+Wyvern	Wyvern_003	183	105	0	1	none	8	3	0	none	6	3	0	150	1
+Dwarf1	Dwarf1_001	201	192	0	2	Roundshield	0	0	5	Sabre	10	3	0	145	1
+Dwarf2	Dwarf1_002	206	168	0	2	none	8	4	0	none	6	3	0	145	1
+Dwarf3	Dwarf1_004	213	157	0	2	none	8	4	0	none	6	3	0	145	1
+Dwarf2	Dwarf1_006	214	141	0	2	none	8	4	0	none	6	3	0	145	1
+Dwarf3	Dwarf1_007	212	143	0	2	none	8	4	0	none	6	3	0	145	1
+Dwarf3	Dwarf2_001	213	213	0	2	none	8	4	0	none	6	3	0	145	1
+Dwarf2	Dwarf2_002	202	191	0	2	none	6	4	0	Longsword	14	4	0	145	1
+Dwarf1	Dwarf3_001	201	192	0	2	Roundshield	0	0	5	Longsword	14	4	4	145	1
+LizardMan	LizardMan_002	206	172	0	3	none	12	4	0	none	6	4	0	180	1
+Kreatur	Kre	215	216	0	2	none	12	4	0	none	6	4	0	180	1
+Orc	Orc_0001	203	199	0	2	none	8	4	0	Longsword	14	4	0	165	1
+Orc	Orc_0002	207	212	0	2	none	8	4	0	Longsword	14	4	0	165	1
+Kreatur	Kreatur_001	155	110	0	3	none	12	4	0	none	6	4	0	180	1
+Kreatur	Kreatur_002	159	112	0	3	none	12	4	0	none	6	4	0	180	1
+Kreatur	Kreatur_003	158	103	0	3	none	12	4	0	none	6	4	0	180	1
+Kreatur	Kreatur_004	156	106	0	3	none	12	4	0	none	6	4	0	180	1
+Kreatur	Kreatur_006	163	112	0	3	none	12	4	0	none	6	4	0	180	1
 [/Creatures]

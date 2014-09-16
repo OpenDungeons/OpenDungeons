@@ -380,12 +380,12 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
             continue;
 
         // Get the corresponding seat
-        int team_color = Helper::toInt(nextParam);
-        Seat* seat = gameMap.getSeatByColor(team_color);
+        int seatId = Helper::toInt(nextParam);
+        Seat* seat = gameMap.getSeatById(seatId);
         if (seat != NULL)
             seat->resetSpawnPool();
 
-        std::cout << "Spawn pool for team: " << team_color << std::endl;
+        std::cout << "Spawn pool for seat id: " << seatId << std::endl;
 
         while(true)
         {
@@ -459,7 +459,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
         seats.push_back(gameMap.getFilledSeat(i));
     }
 
-    std::sort(seats.begin(), seats.end(), Seat::sortByColor);
+    std::sort(seats.begin(), seats.end(), Seat::sortById);
     for (std::vector<Seat*>::iterator it = seats.begin(); it != seats.end(); ++it)
     {
         Seat* seat = *it;
@@ -545,8 +545,8 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     {
         // Write out each spawn pools
         Seat* seat = *it;
-        int team_color = seat->getColor();
-        if (team_color == 0)
+        int seatId = seat->getId();
+        if (seatId == 0)
             continue;
 
         const std::vector<std::string>& spawnPool = seat->getSpawnPool();
@@ -554,8 +554,8 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
             continue;
 
         levelFile << "[Spawn_Pool]" << std::endl
-            << "# team id" << std::endl
-            << team_color << std::endl
+            << "# seat id" << std::endl
+            << seatId << std::endl
             << "# Creature list" << std::endl;
 
         for (unsigned int j = 0; j < spawnPool.size(); ++j)

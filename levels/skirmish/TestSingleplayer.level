@@ -8,12 +8,12 @@ FightMusic	The_Dark_Amulet.ogg
 [/Info]
 
 [Seats]
-# color	faction	startingX	startingY	colorR	colorG	colorB	startingGold
-1	Player	195	207	0	0.4	0	1000
-2	KeeperAI	200	200	0.4	0	0	1000
-3	KeeperAI	200	200	0	0	0.4	1000
-4	KeeperAI	266	95	0.4	0.4	0.1	1000
-5	none	200	200	0.4	0.1	0.4	1000
+# seatId	color	faction	startingX	startingY	colorR	colorG	colorB	startingGold
+1	1	Player	195	207	0	0.4	0	1000
+2	2	KeeperAI	200	200	0.4	0	0	1000
+3	3	KeeperAI	200	200	0	0	0.4	1000
+4	4	KeeperAI	266	95	0.4	0.4	0.1	1000
+5	5	none	200	200	0.4	0.1	0.4	1000
 [/Seats]
 
 [Goals]
@@ -5654,7 +5654,7 @@ ProtectDungeonTemple	NULL
 [/Tiles]
 
 [Rooms]
-# meshName	color		NextLine: numTiles		Subsequent Lines: tileX	tileY
+# meshName	seatId		NextLine: numTiles		Subsequent Lines: tileX	tileY
 DungeonTemple	1
 25
 193	206
@@ -5853,7 +5853,7 @@ Treasury	4
 [/Rooms]
 
 [Traps]
-# meshName	color		NextLine: numTiles		Subsequent Lines: tileX	tileY
+# meshName	seatId		NextLine: numTiles		Subsequent Lines: tileX	tileY
 [/Traps]
 
 [Lights]
@@ -5950,38 +5950,38 @@ Dwarf3
 [/Spawn_Pools]
 
 [Creatures]
-# className	name	posX	posY	posZ	color	weaponLname	damage	range	defense	weaponRname	damage	range	defense	HP	mana	Level
-ConstructWorker	ConstructWorker1	193	206	0	1	none	1	4	3	none	8	4	0	125	3	1
-Gnome	Gnome2	194	311	0	2	Roundshield	1	4	3	Longsword	8	4	0	125	3	1
-Goblin	Goblin3	161	201	0	3	Roundshield	1	4	3	Longsword	8	4	0	125	3	1
-PitDemon	PitDemon5	159	202	0	5	none	1	4	3	none	8	4	0	125	3	1
-Wizard	Wizard7	199	311	0	2	Staff	7	10	3	none	1	4	0	125	3	1
-Tentacle1	Tentacle18	162	198	0	3	none	1	4	3	none	8	4	0	125	3	1
-Tentacle2	Tentacle29	158	201	0	4	none	1	4	3	none	8	4	0	125	3	1
-Troll	Troll10	186	235	0	5	none	1	4	3	none	8	4	0	125	3	1
-Knight	Knight_c2	192	311	0	2	Roundshield	1	4	3	Longsword	8	4	0	125	3	1
-Knight	Knight_c3	192	314	0	3	Roundshield	1	4	3	Longsword	8	4	0	125	3	1
-Knight	Knight_c4	196	315	0	4	Roundshield	1	4	3	Longsword	8	4	0	125	3	1
-Knight	Knight_c5	194	315	0	5	Roundshield	1	4	3	Longsword	8	4	0	125	3	1
-LizardMan	LizardMan_001	185	233	0	5	Roundshield	1	4	3	Longsword	8	4	0	125	3	1
-Kobold	Kobold	197	205	0	1	none	5	4	0	none	8	3	0	125	3	1
-Kobold	Kobold_012	193	205	0	1	Roundshield	0	0	5	Longsword	14	3	0	125	3	1
-Kobold	Kobold_007	195	205	0	1	none	5	4	0	none	8	3	0	125	3	1
-Dwarf1	Dwarf1_001	221	189	0	2	Roundshield	0	0	5	Sabre	10	3	0	145	7	1
-Dwarf2	Dwarf1_002	226	165	0	2	none	8	4	0	none	6	3	0	145	7	1
-Dwarf3	Dwarf1_004	213	157	0	2	none	8	4	0	none	6	3	0	145	7	1
-Dwarf2	Dwarf1_006	214	141	0	2	none	8	4	0	none	6	3	0	145	7	1
-Dwarf3	Dwarf1_007	212	143	0	2	none	8	4	0	none	6	3	0	145	7	1
-Dwarf3	Dwarf2_001	264	221	0	2	none	8	4	0	none	6	3	0	145	7	1
-Dwarf2	Dwarf2_002	216	185	0	2	none	6	4	0	Longsword	14	4	0	145	7	1
-Dwarf1	Dwarf3_001	217	187	0	2	Roundshield	0	0	5	Longsword	14	4	4	145	7	1
-LizardMan	LizardMan_002	229	168	0	3	none	12	4	0	none	6	4	0	180	10	1
+# className	name	posX	posY	posZ	seatId	weaponLname	damage	range	defense	weaponRname	damage	range	defense	HP	Level
+ConstructWorker	ConstructWorker1	193	206	0	1	none	1	4	3	none	8	4	0	125	1
+Gnome	Gnome2	194	311	0	2	Roundshield	1	4	3	Longsword	8	4	0	125	1
+Goblin	Goblin3	161	201	0	3	Roundshield	1	4	3	Longsword	8	4	0	125	1
+PitDemon	PitDemon5	159	202	0	5	none	1	4	3	none	8	4	0	125	1
+Wizard	Wizard7	199	311	0	2	Staff	7	10	3	none	1	4	0	125	1
+Tentacle1	Tentacle18	162	198	0	3	none	1	4	3	none	8	4	0	125	1
+Tentacle2	Tentacle29	158	201	0	4	none	1	4	3	none	8	4	0	125	1
+Troll	Troll10	186	235	0	5	none	1	4	3	none	8	4	0	125	1
+Knight	Knight_c2	192	311	0	2	Roundshield	1	4	3	Longsword	8	4	0	125	1
+Knight	Knight_c3	192	314	0	3	Roundshield	1	4	3	Longsword	8	4	0	125	1
+Knight	Knight_c4	196	315	0	4	Roundshield	1	4	3	Longsword	8	4	0	125	1
+Knight	Knight_c5	194	315	0	5	Roundshield	1	4	3	Longsword	8	4	0	125	1
+LizardMan	LizardMan_001	185	233	0	5	Roundshield	1	4	3	Longsword	8	4	0	125	1
+Kobold	Kobold	197	205	0	1	none	5	4	0	none	8	3	0	125	1
+Kobold	Kobold_012	193	205	0	1	Roundshield	0	0	5	Longsword	14	3	0	125	1
+Kobold	Kobold_007	195	205	0	1	none	5	4	0	none	8	3	0	125	1
+Dwarf1	Dwarf1_001	221	189	0	2	Roundshield	0	0	5	Sabre	10	3	0	145	1
+Dwarf2	Dwarf1_002	226	165	0	2	none	8	4	0	none	6	3	0	145	1
+Dwarf3	Dwarf1_004	213	157	0	2	none	8	4	0	none	6	3	0	145	1
+Dwarf2	Dwarf1_006	214	141	0	2	none	8	4	0	none	6	3	0	145	1
+Dwarf3	Dwarf1_007	212	143	0	2	none	8	4	0	none	6	3	0	145	1
+Dwarf3	Dwarf2_001	264	221	0	2	none	8	4	0	none	6	3	0	145	1
+Dwarf2	Dwarf2_002	216	185	0	2	none	6	4	0	Longsword	14	4	0	145	1
+Dwarf1	Dwarf3_001	217	187	0	2	Roundshield	0	0	5	Longsword	14	4	4	145	1
+LizardMan	LizardMan_002	229	168	0	3	none	12	4	0	none	6	4	0	180	1
 Kreatur	Kre	262	220	0	2	none	12	4	0	none	6	4	0	180	10	1
-Orc	Orc_0001	228	166	0	2	none	8	4	0	Longsword	14	4	0	165	10	1
-Orc	Orc_0002	262	222	0	2	none	8	4	0	Longsword	14	4	0	165	10	1
-Kreatur	Kreatur_001	161	113	0	3	none	12	4	0	none	6	4	0	180	10	1
-Kreatur	Kreatur_002	159	101	0	3	none	12	4	0	none	6	4	0	180	10	1
-Kreatur	Kreatur_003	176	98	0	3	none	12	4	0	none	6	4	0	180	10	1
-Kreatur	Kreatur_004	168	99	0	3	none	12	4	0	none	6	4	0	180	10	1
-Kreatur	Kreatur_006	162	100	0	3	none	12	4	0	none	6	4	0	180	10	1
+Orc	Orc_0001	228	166	0	2	none	8	4	0	Longsword	14	4	0	165	1
+Orc	Orc_0002	262	222	0	2	none	8	4	0	Longsword	14	4	0	165	1
+Kreatur	Kreatur_001	161	113	0	3	none	12	4	0	none	6	4	0	180	1
+Kreatur	Kreatur_002	159	101	0	3	none	12	4	0	none	6	4	0	180	1
+Kreatur	Kreatur_003	176	98	0	3	none	12	4	0	none	6	4	0	180	1
+Kreatur	Kreatur_004	168	99	0	3	none	12	4	0	none	6	4	0	180	1
+Kreatur	Kreatur_006	162	100	0	3	none	12	4	0	none	6	4	0	180	1
 [/Creatures]
