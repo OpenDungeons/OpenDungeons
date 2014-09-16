@@ -92,7 +92,7 @@ void Trap::deleteYourselfLocal()
 }
 
 Trap* Trap::createTrap(GameMap* gameMap, TrapType nType, const std::vector<Tile*> &nCoveredTiles,
-    Seat *nControllingSeat, bool forceName, const std::string& name, void* params)
+    Seat *seat, bool forceName, const std::string& name, void* params)
 {
     Trap *tempTrap = NULL;
 
@@ -122,7 +122,7 @@ Trap* Trap::createTrap(GameMap* gameMap, TrapType nType, const std::vector<Tile*
         exit(1);
     }
 
-    tempTrap->setControllingSeat(nControllingSeat);
+    tempTrap->setSeat(seat);
 
     tempTrap->setMeshName(getMeshNameFromTrapType(nType));
     tempTrap->mType = nType;
@@ -136,14 +136,13 @@ Trap* Trap::createTrap(GameMap* gameMap, TrapType nType, const std::vector<Tile*
         tempTrap->addCoveredTile(nCoveredTiles[i]);
 
     int nbTiles = nCoveredTiles.size();
-    int color = nControllingSeat->getColor();
     LogManager::getSingleton().logMessage("Adding trap " + tempTrap->getName() + ", nbTiles="
-        + Ogre::StringConverter::toString(nbTiles) + ", color=" + Ogre::StringConverter::toString(color));
+        + Ogre::StringConverter::toString(nbTiles) + ", seatId=" + Ogre::StringConverter::toString(seat->getId()));
 
     return tempTrap;
 }
 
-void Trap::setupTrap(GameMap* gameMap, Trap* newTrap, Player* player)
+void Trap::setupTrap(GameMap* gameMap, Trap* newTrap)
 {
     gameMap->addTrap(newTrap);
 
@@ -158,7 +157,7 @@ Trap* Trap::createTrapFromStream(GameMap* gameMap, const std::string& trapMeshNa
     is >> &tempTrap;
 
     Trap *returnTrap = createTrap(gameMap, tempTrap.mType, tempTrap.mCoveredTiles,
-        tempTrap.getControllingSeat(), !trapName.empty(), trapName);
+        tempTrap.getSeat(), !trapName.empty(), trapName);
     return returnTrap;
 }
 
@@ -170,7 +169,7 @@ Trap* Trap::createTrapFromPacket(GameMap* gameMap, const std::string& trapMeshNa
     is >> &tempTrap;
 
     Trap *returnTrap = createTrap(gameMap, tempTrap.mType, tempTrap.mCoveredTiles,
-        tempTrap.getControllingSeat(), !trapName.empty(), trapName);
+        tempTrap.getSeat(), !trapName.empty(), trapName);
     return returnTrap;
 }
 
@@ -366,7 +365,7 @@ void Trap::takeDamage(double damage, Tile *tileTakingDamage)
 
 std::string Trap::getFormat()
 {
-    return "meshName\tcolor\t\tNextLine: numTiles\t\tSubsequent Lines: tileX\ttileY";
+    return "meshName\tseatId\t\tNextLine: numTiles\t\tSubsequent Lines: tileX\ttileY";
 }
 
 std::istream& operator>>(std::istream& is, Trap *t)
@@ -376,7 +375,7 @@ std::istream& operator>>(std::istream& is, Trap *t)
     int tilesToLoad, tempX, tempY, tempInt;
 
     is >> tempInt;
-    t->setControllingSeat(t->getGameMap()->getSeatByColor(tempInt));
+    t->setSeat(t->getGameMap()->getSeatById(tempInt));
 
     is >> tilesToLoad;
     for (int i = 0; i < tilesToLoad; ++i)
@@ -386,8 +385,7 @@ std::istream& operator>>(std::istream& is, Trap *t)
         if (tempTile != NULL)
         {
             t->addCoveredTile(tempTile);
-            //FIXME: This next line will not be necessary when the tile color is properly set by the tile load routine.
-            tempTile->setColor(t->getControllingSeat()->getColor());
+            tempTile->setSeat(t->getSeat());
             tempTile->colorDouble = 1.0;
         }
     }
@@ -398,8 +396,9 @@ std::istream& operator>>(std::istream& is, Trap *t)
 
 std::ostream& operator<<(std::ostream& os, Trap *t)
 {
+    int seatId = t->getSeat()->getId();
     os << t->getMeshName() << "\t" << t->getName() << "\t";
-    os << t->getControllingSeat()->getColor() << "\n" << t->mCoveredTiles.size() << "\n";
+    os << seatId << "\n" << t->mCoveredTiles.size() << "\n";
     for (unsigned int i = 0; i < t->mCoveredTiles.size(); ++i)
     {
         Tile *tempTile = t->mCoveredTiles[i];
@@ -416,7 +415,7 @@ ODPacket& operator>>(ODPacket& is, Trap *t)
     int tilesToLoad, tempX, tempY, tempInt;
 
     is >> tempInt;
-    t->setControllingSeat(t->getGameMap()->getSeatByColor(tempInt));
+    t->setSeat(t->getGameMap()->getSeatById(tempInt));
 
     is >> tilesToLoad;
     for (int i = 0; i < tilesToLoad; ++i)
@@ -426,8 +425,7 @@ ODPacket& operator>>(ODPacket& is, Trap *t)
         if (tempTile != NULL)
         {
             t->addCoveredTile(tempTile);
-            //FIXME: This next line will not be necessary when the tile color is properly set by the tile load routine.
-            tempTile->setColor(t->getControllingSeat()->getColor());
+            tempTile->setSeat(t->getSeat());
             tempTile->colorDouble = 1.0;
         }
         else
@@ -446,8 +444,8 @@ ODPacket& operator<<(ODPacket& os, Trap *t)
     int nbTiles = t->mCoveredTiles.size();
     std::string meshName = t->getMeshName();
     std::string name = t->getName();
-    int color = t->getControllingSeat()->getColor();
-    os << meshName << name << color;
+    int seatId = t->getSeat()->getId();
+    os << meshName << name << seatId;
     os << nbTiles;
     for(std::vector<Tile*>::iterator it = t->mCoveredTiles.begin(); it != t->mCoveredTiles.end(); ++it)
     {

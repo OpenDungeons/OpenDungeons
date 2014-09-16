@@ -36,7 +36,6 @@
 class GameMap;
 class Creature;
 class Weapon;
-class Player;
 class BattleField;
 class CullingQuad;
 
@@ -217,8 +216,8 @@ public:
     std::vector<Tile*> getVisibleClaimableWallTiles();
 
     //! \brief Loops over the visibleTiles and returns any creatures in those tiles
-    //! whose color matches (or if invert is true, does not match) the given color parameter.
-    std::vector<GameEntity*> getVisibleForce(int color, bool invert);
+    //! allied with the given seat (or if invert is true, does not allied)
+    std::vector<GameEntity*> getVisibleForce(Seat* seat, bool invert);
 
     //! \brief Returns a pointer to the tile the creature is currently standing in.
     Tile* positionTile() const;
@@ -234,9 +233,6 @@ public:
 
     //! \brief Clears the action queue, except for the Idle action at the end.
     void clearActionQueue();
-
-    //! \brief Returns the first player whose color matches this creature's color.
-    Player* getControllingPlayer();
 
     /** \brief This function loops over the visible tiles and computes a score for each one indicating how
      * friendly or hostile that tile is and stores it in the battleField variable.

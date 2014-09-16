@@ -59,11 +59,11 @@ public:
      */
     //TODO: Use something better than a void pointer for params.
     static Trap* createTrap(GameMap* gameMap, TrapType nType, const std::vector<Tile*> &nCoveredTiles,
-        Seat *nControllingSeat, bool forceName = false, const std::string& name = "", void* params = NULL);
+        Seat *seat, bool forceName = false, const std::string& name = "", void* params = NULL);
 
-    /** \brief Adds the trap newTrap to the game map for the current player
+    /** \brief Adds the trap newTrap to the game map
      */
-    static void setupTrap(GameMap* gameMap, Trap* newTrap, Player* player);
+    static void setupTrap(GameMap* gameMap, Trap* newTrap);
 
     static Trap* createTrapFromStream(GameMap* gameMap, const std::string& trapMeshName, std::istream &is,
         const std::string& trapName);

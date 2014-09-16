@@ -95,7 +95,7 @@ bool ODServer::startServer(const std::string& levelFilename, bool replaceHumanPl
                 aiPlayer->setNick("Keeper AI " + Ogre::StringConverter::toString(uniqueAINumber++));
 
                 // The empty seat is removed by addPlayer(), so we loop without incrementing i
-                gameMap->addPlayer(aiPlayer, gameMap->popEmptySeat(seat->getColor()));
+                gameMap->addPlayer(aiPlayer, gameMap->popEmptySeat(seat->getId()));
                 gameMap->assignAI(*aiPlayer, "KeeperAI");
                 continue;
             }
@@ -111,7 +111,7 @@ bool ODServer::startServer(const std::string& levelFilename, bool replaceHumanPl
             aiPlayer->setNick("Keeper AI " + Ogre::StringConverter::toString(++uniqueAINumber));
 
             // The empty seat is removed by addPlayer(), so we loop without incrementing i
-            gameMap->addPlayer(aiPlayer, gameMap->popEmptySeat(seat->getColor()));
+            gameMap->addPlayer(aiPlayer, gameMap->popEmptySeat(seat->getId()));
             gameMap->assignAI(*aiPlayer, "KeeperAI");
             continue;
         }
@@ -304,7 +304,7 @@ void ODServer::serverThread()
                 {
                     Seat* seat = *it;
                     if(seat->mStartingGold > 0)
-                        gameMap->addGoldToSeat(seat->mStartingGold, seat->mColor);
+                        gameMap->addGoldToSeat(seat->mStartingGold, seat->getId());
                 }
             }
             else
@@ -526,13 +526,13 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             // The seat should be available since it has been checked before accepting the client connexion
             if(seat != NULL)
             {
-                int color = seat->getColor();
+                int seatId = seat->getId();
                 clientSocket->setPlayer(curPlayer);
-                gameMap->addPlayer(curPlayer, gameMap->popEmptySeat(color));
+                gameMap->addPlayer(curPlayer, gameMap->popEmptySeat(seatId));
                 // We notify the newly connected player to the others
                 packetSend.clear();
                 packetSend << ServerNotification::addPlayer << clientNick
-                    << color;
+                    << seatId;
                 for (std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
                 {
                     ODSocketClient *client = *it;
@@ -559,8 +559,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             sendMsgToClient(clientSocket, packetSend);
 
             packetSend.clear();
-            int color = seat->getColor();
-            packetSend << ServerNotification::yourSeat << color;
+            int seatId = seat->getId();
+            packetSend << ServerNotification::yourSeat << seatId;
             sendMsgToClient(clientSocket, packetSend);
 
             // We notify the pending players to the new one
@@ -571,9 +571,9 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 if (curPlayer != tempPlayer && tempPlayer != NULL)
                 {
                     packetSend.clear();
-                    int color = tempPlayer->getSeat()->getColor();
+                    int seatId = tempPlayer->getSeat()->getId();
                     std::string nick = tempPlayer->getNick();
-                    packetSend << ServerNotification::addPlayer << nick << color;
+                    packetSend << ServerNotification::addPlayer << nick << seatId;
                     sendMsgToClient(clientSocket, packetSend);
                 }
             }
@@ -582,8 +582,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
              setClientState(clientSocket, "ready");
             --mNbClientsNotReady;
             LogManager::getSingleton().logMessage("Player=" + curPlayer->getNick()
-                + " has been accepted in the game on color="
-                + Ogre::StringConverter::toString(seat->getColor()));
+                + " has been accepted in the game on seatId="
+                + Ogre::StringConverter::toString(seat->getId()));
             break;
         }
 
@@ -613,8 +613,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             OD_ASSERT_TRUE_MSG(creature != NULL, "name=" + creatureName);
             if ((creature != NULL) && (creature->getIsOnMap()))
             {
-                int color = creature->getColor();
-                if((color == player->getSeat()->getColor()) ||
+                int seatId = creature->getSeat()->getId();
+                if(creature->getSeat()->canOwnedCreatureBePickedUpBy(player->getSeat()) ||
                    (mServerMode = ServerMode::ModeEditor))
                 {
                     player->pickUpCreature(creature);
@@ -633,7 +633,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                             // We notify the other players that a creature has been picked up
                             ODPacket packetSend;
                             packetSend << ServerNotification::creaturePickedUp;
-                            packetSend << color << creatureName;
+                            packetSend << seatId << creatureName;
                             sendMsgToClient(tmpClient, packetSend);
                         }
                     }
@@ -641,7 +641,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 else
                 {
                     LogManager::getSingleton().logMessage("player=" + player->getNick()
-                        + " tried to pick up creature from different color=" + creatureName);
+                        + " tried to pick up creature from different seat id creatureName=" + creatureName);
                 }
             }
             break;
@@ -660,7 +660,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 if(player->isDropCreaturePossible(tile, 0, mServerMode == ServerMode::ModeEditor))
                 {
                     player->dropCreature(tile);
-                    int color = player->getSeat()->getColor();
+                    int seatId = player->getSeat()->getId();
                     ODPacket packet;
                     packet << ServerNotification::dropCreature;
                     packet << tile;
@@ -674,7 +674,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                         {
                             packet.clear();
                             packet << ServerNotification::creatureDropped;
-                            packet << color << tile;
+                            packet << seatId << tile;
                             sendMsgToClient(tmpClient, packet);
                         }
                     }
@@ -683,8 +683,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 {
                     LogManager::getSingleton().logMessage("player=" + player->getNick()
                         + " could not drop creature in hand on tile "
-                        + Ogre::StringConverter::toString(tile->getX())
-                        + "," + Ogre::StringConverter::toString(tile->getY()));
+                        + Tile::displayAsString(tile));
                 }
             }
             break;
@@ -740,9 +739,9 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     ODPacket packet;
                     packet << ServerNotification::buildRoom;
                     int nbTiles = tiles.size();
-                    int color = player->getSeat()->getColor();
+                    int seatId = player->getSeat()->getId();
                     const std::string& name = room->getName();
-                    packet << name << intType << color << nbTiles;
+                    packet << name << intType << seatId << nbTiles;
                     for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
                     {
                         Tile* tile = *it;
@@ -775,8 +774,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     ODPacket packet;
                     packet << ServerNotification::buildTrap;
                     int nbTiles = tiles.size();
-                    int color = player->getSeat()->getColor();
-                    packet << name << intType << color << nbTiles;
+                    int seatId = player->getSeat()->getId();
+                    packet << name << intType << seatId << nbTiles;
                     for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
                     {
                         Tile* tile = *it;
@@ -894,7 +893,6 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> intType);
             Player* player = clientSocket->getPlayer();
-            int color = player->getSeat()->getColor();
             std::vector<Tile*> selectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
             std::vector<Tile*> affectedTiles;
             for(std::vector<Tile*>::iterator it = selectedTiles.begin(); it != selectedTiles.end(); ++it)
@@ -913,7 +911,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 affectedTiles.push_back(tile);
 
                 tile->setType(Tile::TileType::claimed);
-                tile->setColor(color);
+                tile->setSeat(player->getSeat());
                 tile->setFullness(0.0);
             }
 
@@ -927,7 +925,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 packet << ServerNotification::buildRoom;
                 int nbTiles = affectedTiles.size();
                 const std::string& name = room->getName();
-                packet << name << intType << color << nbTiles;
+                int seatId = player->getSeat()->getId();
+                packet << name << intType << seatId << nbTiles;
                 for(std::vector<Tile*>::iterator it = affectedTiles.begin(); it != affectedTiles.end(); ++it)
                 {
                     Tile* tile = *it;
@@ -945,7 +944,6 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> intType);
             Player* player = clientSocket->getPlayer();
-            int color = player->getSeat()->getColor();
             std::vector<Tile*> selectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
             std::vector<Tile*> affectedTiles;
             for(std::vector<Tile*>::iterator it = selectedTiles.begin(); it != selectedTiles.end(); ++it)
@@ -964,7 +962,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 affectedTiles.push_back(tile);
 
                 tile->setType(Tile::TileType::claimed);
-                tile->setColor(color);
+                tile->setSeat(player->getSeat());
                 tile->setFullness(0.0);
             }
 
@@ -976,7 +974,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 packet << ServerNotification::buildTrap;
                 int nbTiles = affectedTiles.size();
                 const std::string& name = trap->getName();
-                packet << name << intType << color << nbTiles;
+                int seatId = player->getSeat()->getId();
+                packet << name << intType << seatId << nbTiles;
                 for(std::vector<Tile*>::iterator it = affectedTiles.begin(); it != affectedTiles.end(); ++it)
                 {
                     Tile* tile = *it;

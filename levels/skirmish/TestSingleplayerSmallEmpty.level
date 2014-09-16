@@ -8,8 +8,8 @@ FightMusic	The_Dark_Amulet.ogg
 [/Info]
 
 [Seats]
-# color	faction	startingX	startingY	colorR	colorG	colorB	startingGold
-1	Player	10	10	0	0.4	0	1000
+# seatId	color	faction	startingX	startingY	colorR	colorG	colorB	startingGold
+1	1	Player	10	10	0	0.4	0	1000
 [/Seats]
 
 [Goals]
@@ -2530,7 +2530,7 @@ ProtectDungeonTemple	NULL
 [/Tiles]
 
 [Rooms]
-# meshName	color		NextLine: numTiles		Subsequent Lines: tileX	tileY
+# meshName	seatId		NextLine: numTiles		Subsequent Lines: tileX	tileY
 DungeonTemple	1
 25
 7	7
@@ -2577,7 +2577,7 @@ Portal	1
 [/Rooms]
 
 [Traps]
-# meshName	color		NextLine: numTiles		Subsequent Lines: tileX	tileY
+# meshName	seatId		NextLine: numTiles		Subsequent Lines: tileX	tileY
 [/Traps]
 
 [Lights]
@@ -2619,7 +2619,7 @@ Slime
 [/Spawn_Pools]
 
 [Creatures]
-# className	name	posX	posY	posZ	color	weaponLname	damage	range	defense	weaponRname	damage	range	defense	HP	mana	Level
-ConstructWorker	ConstructWorker1	7	7	0	1	none	1	4	3	none	8	4	0	125	3	1
-Scarab	Scarab1	37	42	0	2	none	0	0	0	none	0	0	0	125	3	1
+# className	name	posX	posY	posZ	seatId	weaponLname	damage	range	defense	weaponRname	damage	range	defense	HP	Level
+ConstructWorker	ConstructWorker1	7	7	0	1	none	1	4	3	none	8	4	0	125	1
+Scarab	Scarab1	37	42	0	2	none	0	0	0	none	0	0	0	125	1
 [/Creatures]

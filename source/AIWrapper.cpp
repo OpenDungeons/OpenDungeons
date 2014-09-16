@@ -36,19 +36,20 @@ AIWrapper::~AIWrapper()
 bool AIWrapper::buildRoom(Room::RoomType newRoomType, int x1, int y1, int x2, int y2)
 {
     std::vector<Tile*> coveredTiles = getAffectedTiles(x1, y1, x2, y2);
-    int goldRequired = coveredTiles.size() * Room::costPerTile(newRoomType);
+    int nbTiles = coveredTiles.size();
+    int goldRequired = nbTiles * Room::costPerTile(newRoomType);
     if(gameMap.withdrawFromTreasuries(goldRequired, player.getSeat()))
     {
-        int color = player.getSeat()->getColor();
-        Room* newRoom = Room::createRoom(&gameMap, newRoomType, coveredTiles, color);
-        int nbTiles = coveredTiles.size();
+        Seat* seat = player.getSeat();
+        Room* newRoom = Room::createRoom(&gameMap, newRoomType, coveredTiles, seat);
         try
         {
+            int seatId = seat->getId();
             const std::string& name = newRoom->getName();
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotification::buildRoom, &player);
             int intType = static_cast<int32_t>(newRoom->getType());
-            serverNotification->mPacket << name << intType << color << nbTiles;
+            serverNotification->mPacket << name << intType << seatId << nbTiles;
             for(std::vector<Tile*>::iterator it = coveredTiles.begin(); it != coveredTiles.end(); ++it)
             {
                 Tile* tile = *it;
@@ -61,7 +62,7 @@ bool AIWrapper::buildRoom(Room::RoomType newRoomType, int x1, int y1, int x2, in
             OD_ASSERT_TRUE(false);
             exit(1);
         }
-        Room::setupRoom(&gameMap, newRoom, &player);
+        Room::setupRoom(&gameMap, newRoom);
         return true;
     }
 
@@ -75,7 +76,7 @@ bool AIWrapper::buildTrap(Trap::TrapType newTrapType, int x1, int y1, int x2, in
     if(gameMap.withdrawFromTreasuries(goldRequired, player.getSeat()))
     {
         Trap* newTrap = Trap::createTrap(&gameMap, newTrapType, coveredTiles, player.getSeat());
-        Trap::setupTrap(&gameMap, newTrap, &player);
+        Trap::setupTrap(&gameMap, newTrap);
         return true;
     }
     return false;
@@ -104,12 +105,12 @@ const std::vector<Creature*>& AIWrapper::getCreaturesInHand()
 std::vector<const Room*> AIWrapper::getOwnedRoomsByType(Room::RoomType type)
 {
     const GameMap& gm = gameMap;
-    return gm.getRoomsByTypeAndColor(type, seat.getColor());
+    return gm.getRoomsByTypeAndSeat(type, &seat);
 }
 
 Room* AIWrapper::getDungeonTemple()
 {
-    std::vector<Room*> dt = gameMap.getRoomsByTypeAndColor(Room::dungeonTemple, seat.getColor());
+    std::vector<Room*> dt = gameMap.getRoomsByTypeAndSeat(Room::dungeonTemple, &seat);
     if(!dt.empty())
         return dt.front();
     else
@@ -132,7 +133,7 @@ std::vector<Tile*> AIWrapper::getAffectedTiles(int x1, int y1, int x2, int y2)
     std::vector<Tile*>::iterator it = affectedTiles.begin();
     while(it != affectedTiles.end())
     {
-        if((*it)->getColor() != seat.getColor() || !(*it)->isBuildableUpon())
+        if((*it)->getSeat() != &seat || !(*it)->isBuildableUpon())
         {
             it = affectedTiles.erase(it);
         }

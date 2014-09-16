@@ -450,7 +450,7 @@ void RenderManager::rrRefreshTile(const RenderRequest& renderRequest)
         }
     }
 
-    colourizeEntity(ent, curTile->getColor(), curTile->getMarkedForDigging(mGameMap->getLocalPlayer()));
+    colourizeEntity(ent, curTile->getSeat(), curTile->getMarkedForDigging(mGameMap->getLocalPlayer()));
 
     // Link the tile mesh back to the relevant scene node so OGRE will render it
     Ogre::SceneNode* node = mSceneManager->getSceneNode(tileName + "_node");
@@ -499,7 +499,7 @@ void RenderManager::rrCreateTile(const RenderRequest& renderRequest)
 
     if (curTile->getType() == Tile::claimed)
     {
-        colourizeEntity(ent, curTile->getColor(), curTile->getMarkedForDigging(mGameMap->getLocalPlayer()));
+        colourizeEntity(ent, curTile->getSeat(), curTile->getMarkedForDigging(mGameMap->getLocalPlayer()));
     }
 
     Ogre::SceneNode* node = mSceneManager->getRootSceneNode()->createChildSceneNode(curTile->getOgreNamePrefix() + curTile->getName() + "_node");
@@ -1290,33 +1290,36 @@ Ogre::Entity* RenderManager::createEntity(const std::string& entityName, const s
     return ent;
 }
 
-void RenderManager::colourizeEntity(Ogre::Entity *ent, int colour, bool markedForDigging)
+void RenderManager::colourizeEntity(Ogre::Entity *ent, Seat* seat, bool markedForDigging)
 {
     //Disabled for normal mapping. This has to be implemented in some other way.
 
     // Colorize the the textures
     // Loop over the sub entities in the mesh
-    if (colour == 0 && !markedForDigging)
+    if (seat == NULL && !markedForDigging)
         return;
 
     for (unsigned int i = 0; i < ent->getNumSubEntities(); ++i)
     {
         Ogre::SubEntity *tempSubEntity = ent->getSubEntity(i);
-        tempSubEntity->setMaterialName(colourizeMaterial(tempSubEntity->getMaterialName(), colour, markedForDigging));
+        tempSubEntity->setMaterialName(colourizeMaterial(tempSubEntity->getMaterialName(), seat, markedForDigging));
     }
 }
 
-std::string RenderManager::colourizeMaterial(const std::string& materialName, int colour, bool markedForDigging)
+std::string RenderManager::colourizeMaterial(const std::string& materialName, Seat* seat, bool markedForDigging)
 {
     std::stringstream tempSS;
     Ogre::Technique *tempTechnique;
     Ogre::Pass *tempPass;
 
     tempSS.str("");
+    int seatId = 0;
+    if(seat != NULL)
+        seatId = seat->getId();
 
     // Create the material name.
-    if (colour > 0)
-        tempSS << "Color_" << colour << "_" ;
+    if (seatId > 0)
+        tempSS << "Color_" << seatId << "_" ;
 
     if (markedForDigging)
         tempSS << "dig_";
@@ -1333,8 +1336,7 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, in
     // If not yet, then do so
 
     // Check to see if we find a seat with the requested color, if not then just use the original, uncolored material.
-    Seat* tempSeat = mGameMap->getSeatByColor(colour);
-    if (tempSeat == NULL && markedForDigging == false)
+    if (seat == NULL && markedForDigging == false)
         return materialName;
 
     //std::cout << "\nMaterial does not exist, creating a new one.";
@@ -1359,11 +1361,11 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, in
             tempPass->setAmbient(color);
             tempPass->setDiffuse(color);
         }
-        else if (colour > 0)
+        else if (seatId > 0)
         {
             // Color the material with the Seat's color.
             tempPass = tempTechnique->getPass(0);
-            Ogre::ColourValue color = tempSeat->getColorValue();
+            Ogre::ColourValue color = seat->getColorValue();
             color.a = 0.3;
             tempPass->setEmissive(color);
             tempPass->setAmbient(color);

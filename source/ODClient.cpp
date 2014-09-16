@@ -148,10 +148,10 @@ bool ODClient::processOneClientSocketMessage()
             switch(serverMode)
             {
                 case ODServer::ServerMode::ModeGame:
-                frameListener->getModeManager()->requestGameMode(true);
+                    frameListener->getModeManager()->requestGameMode(true);
                     break;
                 case ODServer::ServerMode::ModeEditor:
-                frameListener->getModeManager()->requestEditorMode(true);
+                    frameListener->getModeManager()->requestEditorMode(true);
                     break;
                 default:
                     OD_ASSERT_TRUE_MSG(false,"Unknown server mode=" + Ogre::StringConverter::toString(intServerMode));
@@ -173,10 +173,10 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotification::yourSeat:
         {
-            int color;
-            OD_ASSERT_TRUE(packetReceived >> color);
-            Seat *tempSeat = gameMap->popEmptySeat(color);
-            OD_ASSERT_TRUE_MSG(tempSeat != NULL, "color=" + Ogre::StringConverter::toString(color));
+            int seatId;
+            OD_ASSERT_TRUE(packetReceived >> seatId);
+            Seat *tempSeat = gameMap->popEmptySeat(seatId);
+            OD_ASSERT_TRUE_MSG(tempSeat != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
             gameMap->getLocalPlayer()->setSeat(tempSeat);
             break;
         }
@@ -185,11 +185,11 @@ bool ODClient::processOneClientSocketMessage()
         {
             Player *tempPlayer = new Player();
             std::string nick;
-            int seatColor;
-            OD_ASSERT_TRUE(packetReceived >> nick >> seatColor);
+            int seatId;
+            OD_ASSERT_TRUE(packetReceived >> nick >> seatId);
             tempPlayer->setNick(nick);
-            Seat* seat = gameMap->popEmptySeat(seatColor);
-            OD_ASSERT_TRUE_MSG(seat != NULL, "color=" + Ogre::StringConverter::toString(seatColor));
+            Seat* seat = gameMap->popEmptySeat(seatId);
+            OD_ASSERT_TRUE_MSG(seat != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
             gameMap->addPlayer(tempPlayer, seat);
             frameListener->addChatMessage(new ChatMessage(ODServer::SERVER_INFORMATION,
                 "New player connected:" + tempPlayer->getNick()));
@@ -378,11 +378,11 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotification::creaturePickedUp:
         {
-            int playerColor;
+            int seatId;
             std::string creatureName;
-            OD_ASSERT_TRUE(packetReceived >> playerColor >> creatureName);
-            Player *tempPlayer = gameMap->getPlayerByColor(playerColor);
-            OD_ASSERT_TRUE_MSG(tempPlayer != NULL, "playerColor=" + Ogre::StringConverter::toString(playerColor));
+            OD_ASSERT_TRUE(packetReceived >> seatId >> creatureName);
+            Player *tempPlayer = gameMap->getPlayerBySeatId(seatId);
+            OD_ASSERT_TRUE_MSG(tempPlayer != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
             Creature *tempCreature = gameMap->getCreature(creatureName);
             OD_ASSERT_TRUE_MSG(tempCreature != NULL, "creatureName=" + creatureName);
             if (tempPlayer != NULL && tempCreature != NULL)
@@ -394,14 +394,13 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotification::creatureDropped:
         {
-            int playerColor;
+            int seatId;
             Tile tmpTile(gameMap);
-            OD_ASSERT_TRUE(packetReceived >> playerColor >> &tmpTile);
-            Player *tempPlayer = gameMap->getPlayerByColor(playerColor);
-            OD_ASSERT_TRUE_MSG(tempPlayer != NULL, "playerColor=" + Ogre::StringConverter::toString(playerColor));
+            OD_ASSERT_TRUE(packetReceived >> seatId >> &tmpTile);
+            Player *tempPlayer = gameMap->getPlayerBySeatId(seatId);
+            OD_ASSERT_TRUE_MSG(tempPlayer != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
             Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE_MSG(tile != NULL, "tile=" + Ogre::StringConverter::toString(tmpTile.getX())
-                + "," + Ogre::StringConverter::toString(tmpTile.getY()));
+            OD_ASSERT_TRUE_MSG(tile != NULL, "tile=" + Tile::displayAsString(&tmpTile));
             if (tempPlayer != NULL && tile != NULL)
             {
                 tempPlayer->dropCreature(tile);
@@ -478,11 +477,12 @@ bool ODClient::processOneClientSocketMessage()
             Tile tmpTile(gameMap);
             OD_ASSERT_TRUE(packetReceived >> &tmpTile);
             Tile *tempTile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE_MSG(tempTile != NULL, "tile=" + Ogre::StringConverter::toString(tmpTile.getX())
-                + "," + Ogre::StringConverter::toString(tmpTile.getY()));
+            OD_ASSERT_TRUE_MSG(tempTile != NULL, "tile=" + Tile::displayAsString(&tmpTile));
             if (tempTile != NULL)
             {
-                tempTile->claimTile(tmpTile.getColor());
+                Seat* seat = tmpTile.getSeat();
+                OD_ASSERT_TRUE_MSG(seat != NULL, "tile=" + Tile::displayAsString(&tmpTile));
+                tempTile->claimTile(seat);
                 SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::CLAIMED, tmpTile.getX(), tmpTile.getY());
             }
             break;
@@ -521,28 +521,27 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotification::buildRoom:
         {
-            int intType, color;
-            Room::RoomType type;
+            int intType, seatId;
             int nbTiles;
             std::string name;
-            OD_ASSERT_TRUE(packetReceived >> name >> intType>> color >> nbTiles);
-            type = static_cast<Room::RoomType>(intType);
+            OD_ASSERT_TRUE(packetReceived >> name >> intType>> seatId >> nbTiles);
+            Room::RoomType type = static_cast<Room::RoomType>(intType);
+            Player* player = gameMap->getPlayerBySeatId(seatId);
+            OD_ASSERT_TRUE_MSG(player != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
             std::vector<Tile*> tiles;
             for(int i = 0; i < nbTiles; i++)
             {
                 Tile tmpTile(gameMap);
                 OD_ASSERT_TRUE(packetReceived >> &tmpTile);
                 Tile* gameTile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-                OD_ASSERT_TRUE_MSG(gameTile != NULL, "tile=" + Tile::displayAsString(gameTile));
+                OD_ASSERT_TRUE_MSG(gameTile != NULL, "tile=" + Tile::displayAsString(&tmpTile));
                 if(gameTile == NULL)
                     continue;
                 gameTile->setType(Tile::TileType::claimed);
-                gameTile->setColor(color);
+                gameTile->setSeat(player->getSeat());
                 gameTile->setFullness(0.0);
                 tiles.push_back(gameTile);
             }
-            Player* player = gameMap->getPlayerByColor(color);
-            OD_ASSERT_TRUE_MSG(player != NULL, "color=" + Ogre::StringConverter::toString(color));
             gameMap->buildRoomForPlayer(tiles, type, player, true, name);
             SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUILDROOM);
             break;
@@ -569,12 +568,13 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotification::buildTrap:
         {
-            int intType, color;
-            Trap::TrapType type;
+            int intType, seatId;
             int nbTiles;
             std::string name;
-            OD_ASSERT_TRUE(packetReceived >> name >> intType >> color >> nbTiles);
-            type = static_cast<Trap::TrapType>(intType);
+            OD_ASSERT_TRUE(packetReceived >> name >> intType >> seatId >> nbTiles);
+            Player* player = gameMap->getPlayerBySeatId(seatId);
+            OD_ASSERT_TRUE_MSG(player != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
+            Trap::TrapType type = static_cast<Trap::TrapType>(intType);
             std::vector<Tile*> tiles;
             for(int i = 0; i < nbTiles; i++)
             {
@@ -585,12 +585,10 @@ bool ODClient::processOneClientSocketMessage()
                 if(gameTile == NULL)
                     continue;
                 gameTile->setType(Tile::TileType::claimed);
-                gameTile->setColor(color);
+                gameTile->setSeat(player->getSeat());
                 gameTile->setFullness(0.0);
                 tiles.push_back(gameTile);
             }
-            Player* player = gameMap->getPlayerByColor(color);
-            OD_ASSERT_TRUE_MSG(player != NULL, "color=" + Ogre::StringConverter::toString(color));
             gameMap->buildTrapForPlayer(tiles, type, player, true, name);
             SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUILDTRAP);
             break;

@@ -97,7 +97,7 @@ void Room::deleteYourselfLocal()
 }
 
 Room* Room::createRoom(GameMap* gameMap, RoomType nType, const std::vector<Tile*>& nCoveredTiles,
-    int nColor, bool forceName, const std::string& name)
+    Seat* seat, bool forceName, const std::string& name)
 {
     Room* tempRoom = NULL;
 
@@ -142,7 +142,7 @@ Room* Room::createRoom(GameMap* gameMap, RoomType nType, const std::vector<Tile*
     }
 
     tempRoom->setMeshExisting(false);
-    tempRoom->setColor(nColor);
+    tempRoom->setSeat(seat);
 
     //TODO: This should actually just call setType() but this will require a change to the >> operator.
     tempRoom->setMeshName(getMeshNameFromRoomType(nType));
@@ -158,7 +158,7 @@ Room* Room::createRoom(GameMap* gameMap, RoomType nType, const std::vector<Tile*
 
     int nbTiles = nCoveredTiles.size();
     LogManager::getSingleton().logMessage("Adding room " + tempRoom->getName() + ", nbTiles="
-        + Ogre::StringConverter::toString(nbTiles) + ", color=" + Ogre::StringConverter::toString(nColor));
+        + Ogre::StringConverter::toString(nbTiles) + ", seatId=" + Ogre::StringConverter::toString(seat->getId()));
 
     return tempRoom;
 }
@@ -174,10 +174,9 @@ bool Room::compareTile(Tile* tile1, Tile* tile2)
     return false;
 }
 
-void Room::setupRoom(GameMap* gameMap, Room* newRoom, Player* player)
+void Room::setupRoom(GameMap* gameMap, Room* newRoom)
 {
     gameMap->addRoom(newRoom);
-    newRoom->setControllingSeat(player->getSeat());
     std::vector<Tile*> coveredTiles = newRoom->getCoveredTiles();
 
     // Check all the tiles that border the newly created room and see if they
@@ -544,7 +543,7 @@ void Room::destroyRoomObjectMeshes()
 
 std::string Room::getFormat()
 {
-    return "meshName\tcolor\t\tNextLine: numTiles\t\tSubsequent Lines: tileX\ttileY";
+    return "meshName\tseatId\t\tNextLine: numTiles\t\tSubsequent Lines: tileX\ttileY";
 }
 
 bool Room::doUpkeep()
@@ -603,7 +602,7 @@ Room* Room::createRoomFromStream(GameMap* gameMap, const std::string& roomMeshNa
     tempRoom.setMeshName(roomMeshName);
     is >> &tempRoom;
 
-    return createRoom(gameMap, tempRoom.mType, tempRoom.mCoveredTiles, tempRoom.getColor(),
+    return createRoom(gameMap, tempRoom.mType, tempRoom.mCoveredTiles, tempRoom.getSeat(),
         !roomName.empty(), roomName);
 }
 
@@ -614,7 +613,9 @@ std::istream& operator>>(std::istream& is, Room* r)
     int tilesToLoad, tempX, tempY;
     int tempInt = 0;
     is >> tempInt;
-    r->setColor(tempInt);
+    Seat* seat = r->getGameMap()->getSeatById(tempInt);
+    OD_ASSERT_TRUE_MSG(seat != NULL, "seatId=" + Ogre::StringConverter::toString(tempInt));
+    r->setSeat(seat);
 
     is >> tilesToLoad;
     for (int i = 0; i < tilesToLoad; ++i)
@@ -634,7 +635,8 @@ std::ostream& operator<<(std::ostream& os, Room *r)
     if (r == NULL)
         return os;
 
-    os << r->getMeshName() << "\t" << r->getColor() << "\n";
+    int seatId = r->getSeat()->getId();
+    os << r->getMeshName() << "\t" << seatId << "\n";
     os << r->mCoveredTiles.size() << "\n";
     for (unsigned int i = 0; i < r->mCoveredTiles.size(); ++i)
     {
@@ -652,7 +654,7 @@ Room* Room::createRoomFromPacket(GameMap* gameMap, const std::string& roomMeshNa
     tempRoom.setMeshName(roomMeshName);
     is >> &tempRoom;
 
-    return createRoom(gameMap, tempRoom.mType, tempRoom.mCoveredTiles, tempRoom.getColor(),
+    return createRoom(gameMap, tempRoom.mType, tempRoom.mCoveredTiles, tempRoom.getSeat(),
         !roomName.empty(), roomName);
 }
 
@@ -664,7 +666,9 @@ ODPacket& operator>>(ODPacket& is, Room* r)
 
     int tempInt = 0;
     is >> tempInt;
-    r->setColor(tempInt);
+    Seat* seat = r->getGameMap()->getSeatById(tempInt);
+    OD_ASSERT_TRUE_MSG(seat != NULL, "seatId=" + Ogre::StringConverter::toString(tempInt));
+    r->setSeat(seat);
 
     is >> tilesToLoad;
     for (int i = 0; i < tilesToLoad; ++i)
@@ -686,9 +690,9 @@ ODPacket& operator<<(ODPacket& os, Room *r)
 
     std::string meshName = r->getMeshName();
     std::string name = r->getName();
-    int color = r->getColor();
+    int seatId = r->getSeat()->getId();
     int nbTiles = r->mCoveredTiles.size();
-    os << meshName << name << color << nbTiles;
+    os << meshName << name << seatId << nbTiles;
     for (std::vector<Tile*>::iterator it = r->mCoveredTiles.begin(); it != r->mCoveredTiles.end(); ++it)
     {
         Tile* tempTile = *it;
@@ -864,11 +868,11 @@ void Room::takeDamage(double damage, Tile* tileTakingDamage)
     if(!gameMap->isServerGameMap())
         return;
 
-    Seat* seat = getControllingSeat();
+    Seat* seat = getSeat();
     if (seat == NULL)
         return;
 
-    Player* player = gameMap->getPlayerByColor(seat->getColor());
+    Player* player = gameMap->getPlayerBySeatId(seat->getId());
     if (player == NULL)
         return;
 
@@ -973,7 +977,7 @@ void Room::updateActiveSpots()
         // Test for walls around
         // Up
         Tile* testTile = getGameMap()->getTile(centerTile->getX(), centerTile->getY() + 2);
-        if (testTile != NULL && testTile->isWallClaimedForColor(getColor()))
+        if (testTile != NULL && testTile->isWallClaimedForSeat(getSeat()))
         {
             Tile* topTile = getGameMap()->getTile(centerTile->getX(), centerTile->getY() + 1);
             if (topTile != NULL)
@@ -982,7 +986,7 @@ void Room::updateActiveSpots()
 
         // Down
         testTile = getGameMap()->getTile(centerTile->getX(), centerTile->getY() - 2);
-        if (testTile != NULL && testTile->isWallClaimedForColor(getColor()))
+        if (testTile != NULL && testTile->isWallClaimedForSeat(getSeat()))
         {
             Tile* bottomTile = getGameMap()->getTile(centerTile->getX(), centerTile->getY() - 1);
             if (bottomTile != NULL)
@@ -991,7 +995,7 @@ void Room::updateActiveSpots()
 
         // Left
         testTile = getGameMap()->getTile(centerTile->getX() - 2, centerTile->getY());
-        if (testTile != NULL && testTile->isWallClaimedForColor(getColor()))
+        if (testTile != NULL && testTile->isWallClaimedForSeat(getSeat()))
         {
             Tile* leftTile = getGameMap()->getTile(centerTile->getX() - 1, centerTile->getY());
             if (leftTile != NULL)
@@ -1000,7 +1004,7 @@ void Room::updateActiveSpots()
 
         // Right
         testTile = getGameMap()->getTile(centerTile->getX() + 2, centerTile->getY());
-        if (testTile != NULL && testTile->isWallClaimedForColor(getColor()))
+        if (testTile != NULL && testTile->isWallClaimedForSeat(getSeat()))
         {
             Tile* rightTile = getGameMap()->getTile(centerTile->getX() + 1, centerTile->getY());
             if (rightTile != NULL)

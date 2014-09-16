@@ -416,18 +416,18 @@ void Tile::setCoveringRoom(Room *r)
     // Set the tile as claimed and of the team color of the room
     if (coveringRoom == NULL)
     {
-        setColor(0);
+        setSeat(NULL);
         colorDouble = 0.0;
         setType(dirt);
         return;
     }
 
-    setColor(coveringRoom->getColor());
+    setSeat(coveringRoom->getSeat());
     colorDouble = 1.0;
     setType(claimed);
 }
 
-bool Tile::isDiggable(int team_color_id) const
+bool Tile::isDiggable(Seat* seat) const
 {
     if (getFullness() == 0.0)
         return false;
@@ -446,7 +446,7 @@ bool Tile::isDiggable(int team_color_id) const
     // type == claimed
 
     // For claimed walls, we check whether the walls is either claimed by the given player,
-    if (getColor() == team_color_id && colorDouble > 0.99)
+    if (isClaimedForSeat(seat) && colorDouble >= 1.0)
         return true;
 
     // or whether it isn't belonging to a specific team.
@@ -461,7 +461,7 @@ bool Tile::isGroundClaimable() const
     return ((type == dirt || type == gold || type == claimed) && getFullness() == 0.0);
 }
 
-bool Tile::isWallClaimable(int team_color_id)
+bool Tile::isWallClaimable(Seat* seat)
 {
     if (getFullness() == 0.0)
         return false;
@@ -469,7 +469,7 @@ bool Tile::isWallClaimable(int team_color_id)
     if (type == lava || type == water || type == rock || type == gold)
         return false;
 
-    // Check whether at least one neighbor is a claimed ground tile of the given color
+    // Check whether at least one neighbor is a claimed ground tile of the given seat
     // which is a condition to permit claiming the given wall tile.
     bool foundClaimedGroundTile = false;
     for (unsigned int j = 0; j < neighbors.size(); ++j)
@@ -479,7 +479,7 @@ bool Tile::isWallClaimable(int team_color_id)
 
         if (neighbors[j]->getType() == claimed
                 && neighbors[j]->colorDouble >= 1.0
-                && neighbors[j]->getColor() == team_color_id)
+                && neighbors[j]->isClaimedForSeat(seat))
         {
             foundClaimedGroundTile = true;
             break;
@@ -498,16 +498,21 @@ bool Tile::isWallClaimable(int team_color_id)
     // type == claimed
 
     // For claimed walls, we check whether it isn't belonging completely to a specific team.
-    if (colorDouble <= 0.99)
+    if (colorDouble < 1.0)
+        return true;
+
+    Seat* tileSeat = getSeat();
+    if (tileSeat == NULL)
         return true;
 
     // Or whether the wall tile is either claimed by the given player entirely already,
-    if (getColor() == team_color_id) // NOTE: colorDouble >= 1.0 here
+    // NOTE: colorDouble >= 1.0 here
+    if (isClaimedForSeat(seat))
         return false; // Already claimed.
 
+    // The wall is claimed by another team.
     // Or whether the enemy player that claimed the wall tile has got any ground tiles permitting to keep claiming that wall tile.
     foundClaimedGroundTile = false;
-    int enemy_color_id = getColor(); // NOTE: != team_color_id here.
     for (unsigned int j = 0; j < neighbors.size(); ++j)
     {
         if (neighbors[j]->getFullness() > 0.0)
@@ -515,7 +520,7 @@ bool Tile::isWallClaimable(int team_color_id)
 
         if (neighbors[j]->getType() == claimed
                 && neighbors[j]->colorDouble >= 1.0
-                && neighbors[j]->getColor() == enemy_color_id)
+                && neighbors[j]->isClaimedForSeat(tileSeat))
         {
             foundClaimedGroundTile = true;
             break;
@@ -528,7 +533,7 @@ bool Tile::isWallClaimable(int team_color_id)
     return false;
 }
 
-bool Tile::isWallClaimedForColor(int team_color_id)
+bool Tile::isWallClaimedForSeat(Seat* seat)
 {
     if (getFullness() == 0.0)
         return false;
@@ -539,7 +544,11 @@ bool Tile::isWallClaimedForColor(int team_color_id)
     if (colorDouble <= 0.99)
         return false;
 
-    if (getColor() != team_color_id)
+    Seat* tileSeat = getSeat();
+    if(tileSeat == NULL)
+        return false;
+
+    if (tileSeat->canOwnedTileBeClaimedBy(seat))
         return false;
 
     return true;
@@ -552,10 +561,13 @@ const char* Tile::getFormat()
 
 ODPacket& operator<<(ODPacket& os, Tile *t)
 {
-    int color = t->getColor();
+    Seat* seat = t->getSeat();
+    int seatId = 0;
+    if(seat != NULL)
+        seatId = seat->getId();
     int intType =static_cast<Tile::TileType>(t->getType());
     double fullness = t->getFullness();
-    os << color << t->x << t->y << intType << fullness;
+    os << seatId << t->x << t->y << intType << fullness;
 
     return os;
 }
@@ -566,8 +578,13 @@ ODPacket& operator>>(ODPacket& is, Tile *t)
     double tempDouble;
     std::stringstream ss;
 
+    // We set the seat if there is one
     is >> tempInt;
-    t->setColor(tempInt);
+    if(tempInt != 0)
+    {
+        Seat* seat = t->getGameMap()->getSeatById(tempInt);
+        t->setSeat(seat);
+    }
 
     is >> xLocation >> yLocation;
 
@@ -609,11 +626,21 @@ void Tile::loadFromLine(const std::string& line, Tile *t)
     t->x = xLocation;
     t->y = yLocation;
 
-    t->setType((Tile::TileType) Helper::toInt(elems[2]));
+    Tile::TileType tileType = static_cast<Tile::TileType>(Helper::toInt(elems[2]));
+    t->setType(tileType);
 
     t->setFullnessValue(Helper::toDouble(elems[3]));
-    //std::cout << "Tile: " << xLocation << ", " << yLocation << ", " << t->getName()
-    //<< ", " << t->getFullness() << std::endl;
+
+    // If the tile is claimed, there can be an optional parameter with the seat id
+    if(tileType != Tile::TileType::claimed || elems.size() < 5)
+        return;
+
+    int seatId = Helper::toInt(elems[4]);
+    Seat* seat = t->getGameMap()->getSeatById(seatId);
+    if(seat == NULL)
+        return;
+    t->setSeat(seat);
+    t->colorDouble = 1.0;
 }
 
 std::string Tile::tileTypeToString(TileType t)
@@ -791,7 +818,7 @@ void Tile::setMarkedForDigging(bool ss, Player *pp)
     /* If we are trying to mark a tile that is not dirt or gold
      * or is already dug out, ignore the request.
      */
-    if (ss && !isDiggable(pp->getSeat()->getColor()))
+    if (ss && !isDiggable(pp->getSeat()))
         return;
 
     // If the tile was already in the given state, we can return
@@ -916,20 +943,19 @@ void Tile::addNeighbor(Tile *n)
     neighbors.push_back(n);
 }
 
-void Tile::claimForColor(int nColor, double nDanceRate)
+void Tile::claimForSeat(Seat* seat, double nDanceRate)
 {
     double amountClaimed;
 
-    //std::cout << "Claiming for color" << std::endl;
-    // If the color is the same as ours we add to it, if it is an enemy color we subtract from it.
-    if (nColor == getColor())
+    // If the seat is allied, we add to it. If it is an enemy seat, we subtract from it.
+    Seat* tileSeat = getSeat();
+    if (tileSeat != NULL && tileSeat->isAlliedSeat(seat))
     {
         amountClaimed = std::min(nDanceRate, 1.0 - colorDouble);
-        //std::cout << "Claiming: Same color" << std::endl;
         colorDouble += nDanceRate;
         if (colorDouble >= 1.0)
         {
-            claimTile(nColor);
+            claimTile(seat);
 
             // We inform the clients that the tile has been claimed
             if(getGameMap()->isServerGameMap())
@@ -938,7 +964,7 @@ void Tile::claimForColor(int nColor, double nDanceRate)
                 {
                     // Inform the clients that the fullness has changed.
                     ServerNotification *serverNotification = new ServerNotification(
-                        ServerNotification::tileClaimed, getGameMap()->getPlayerByColor(nColor));
+                        ServerNotification::tileClaimed, getGameMap()->getPlayerBySeatId(seat->getId()));
                     serverNotification->mPacket << this;
 
                     ODServer::getSingleton().queueServerNotification(serverNotification);
@@ -950,19 +976,17 @@ void Tile::claimForColor(int nColor, double nDanceRate)
                 }
             }
 
-            //std::cout << "Claiming: color complete" << std::endl;
         }
     }
     else
     {
-        //std::cout << "Claiming: different color" << std::endl;
         amountClaimed = std::min(nDanceRate, 1.0 + colorDouble);
         colorDouble -= nDanceRate;
         if (colorDouble <= 0.0)
         {
-            // The tile is not yet claimed, but it is now our color.
+            // The tile is not yet claimed, but it is now an allied seat.
             colorDouble *= -1.0;
-            setColor(nColor);
+            setSeat(seat);
 
             if (colorDouble >= 1.0)
             {
@@ -1003,12 +1027,11 @@ void Tile::claimForColor(int nColor, double nDanceRate)
     */
 }
 
-void Tile::claimTile(int nColor)
+void Tile::claimTile(Seat* seat)
 {
     // Claim the tile.
-    // We need this because if we are a client, the tile may be
-    // from a different color
-    setColor(nColor);
+    // We need this because if we are a client, the tile may be from a non allied seat
+    setSeat(seat);
     colorDouble = 1.0;
     setType(Tile::claimed);
 
@@ -1223,6 +1246,25 @@ double Tile::getCreatureSpeedOnTile(const CreatureDefinition* creatureDef)
     return creatureDef->getMoveSpeedGround();
 }
 
+void Tile::refreshFromTile(const Tile& tile)
+{
+    type = tile.type;
+    setFullness(tile.fullness);
+    // Note : There will be no visual change until the tile mesh is refreshed
+}
+
+bool Tile::isClaimedForSeat(Seat* seat) const
+{
+    Seat* tileSeat = getSeat();
+    if(tileSeat == NULL)
+        return false;
+
+    if(tileSeat->canOwnedTileBeClaimedBy(seat))
+        return false;
+
+    return true;
+}
+
 int Tile::getFloodFill(FloodFillType type)
 {
     OD_ASSERT_TRUE(type < FloodFillTypeMax);
@@ -1234,11 +1276,4 @@ std::string Tile::displayAsString(Tile* tile)
 {
     return "[" + Ogre::StringConverter::toString(tile->x) + ","
          + Ogre::StringConverter::toString(tile->y)+ "]";
-}
-
-void Tile::refreshFromTile(const Tile& tile)
-{
-    type = tile.type;
-    setFullness(tile.fullness);
-    // Note : There will be no visual change until the tile mesh is refreshed
 }

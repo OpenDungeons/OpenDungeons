@@ -97,12 +97,13 @@ bool KeeperAI::buildSleepRoom()
     std::vector<Tile*> tiles = mAiWrapper.getGameMap().rectangularRegion(central->getX() - 2, central->getY() + 5,
                                                                          central->getX() + 2, central->getY() + 3);
     unsigned int numClaimedTiles = 0;
-    int team_color_id = mAiWrapper.getPlayer().getSeat()->getColor();
+    int seatId = mAiWrapper.getPlayer().getSeat()->getId();
+    Seat* teamSeat = mAiWrapper.getGameMap().getSeatById(seatId);
     for (std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
     {
         Tile* tile = *it;
         if (tile && tile->getType() == Tile::claimed && tile->getFullness() < 1.0
-                && tile->isBuildableUpon() && tile->getColor() == team_color_id
+                && tile->isBuildableUpon() && tile->isClaimedForSeat(teamSeat)
                 && tile->colorDouble > 0.99)
             ++numClaimedTiles;
     }
@@ -128,13 +129,14 @@ bool KeeperAI::buildTrainingHallRoom()
     // Check whether at least enough tiles are claimed.
     std::vector<Tile*> tiles = mAiWrapper.getGameMap().rectangularRegion(central->getX() - 2, central->getY() - 4,
                                                                          central->getX() + 2, central->getY() - 6);
+    int seatId = mAiWrapper.getPlayer().getSeat()->getId();
+    Seat* teamSeat = mAiWrapper.getGameMap().getSeatById(seatId);
     unsigned int numClaimedTiles = 0;
-    int team_color_id = mAiWrapper.getPlayer().getSeat()->getColor();
     for (std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
     {
         Tile* tile = *it;
         if (tile && tile->getType() == Tile::claimed && tile->getFullness() < 1.0
-                && tile->isBuildableUpon() && tile->getColor() == team_color_id
+                && tile->isBuildableUpon() && tile->isClaimedForSeat(teamSeat)
                 && tile->colorDouble > 0.99)
             ++numClaimedTiles;
     }
@@ -189,9 +191,10 @@ bool KeeperAI::lookForGold()
     }
 
     // Set a diggable path up to the first gold spot for the given team color
-    int team_color_id = mAiWrapper.getPlayer().getSeat()->getColor();
+    int seatId = mAiWrapper.getPlayer().getSeat()->getId();
+    Seat* teamSeat = mAiWrapper.getGameMap().getSeatById(seatId);
     CreatureDefinition* classKobold = mAiWrapper.getGameMap().getClassDescription("Kobold");
-    std::list<Tile*> goldPath = mAiWrapper.getGameMap().path(central, firstGoldTile, classKobold, team_color_id, true);
+    std::list<Tile*> goldPath = mAiWrapper.getGameMap().path(central, firstGoldTile, classKobold, teamSeat, true);
     if (goldPath.empty())
     {
         mNoMoreReachableGold = true;
@@ -202,14 +205,14 @@ bool KeeperAI::lookForGold()
     {
         // Make a three tile wide path when possible
         Tile* tile = *it;
-        if (tile && tile->isDiggable(team_color_id))
+        if (tile && tile->isDiggable(teamSeat))
             mAiWrapper.markTileForDigging(tile);
 
         // Set neighbors too so the path is wide enough
         std::vector<Tile*> neighborTiles = tile->getAllNeighbors();
         for(std::vector<Tile*>::iterator it2 = neighborTiles.begin(); it2 != neighborTiles.end(); ++it2)
         {
-            if ((*it2) && (*it2)->isDiggable(team_color_id))
+            if ((*it2) && (*it2)->isDiggable(teamSeat))
                 mAiWrapper.markTileForDigging(*it2);
         }
     }

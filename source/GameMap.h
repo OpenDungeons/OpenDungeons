@@ -117,7 +117,7 @@ public:
     unsigned int numCreatures() const;
 
     //! \brief Returns a vector containing all the creatures controlled by the given seat.
-    std::vector<Creature*> getCreaturesByColor(int color);
+    std::vector<Creature*> getCreaturesBySeat(Seat* seat);
 
     //! \brief Animated objects related functions.
     void clearAnimatedObjects();
@@ -167,12 +167,12 @@ public:
     unsigned int numRooms();
 
     std::vector<Room*> getRoomsByType(Room::RoomType type);
-    std::vector<Room*> getRoomsByTypeAndColor(Room::RoomType type,
-                        int color);
-    std::vector<const Room*> getRoomsByTypeAndColor(Room::RoomType type,
-                          int color) const;
-    unsigned int numRoomsByTypeAndColor(Room::RoomType type,
-                      int color) const;
+    std::vector<Room*> getRoomsByTypeAndSeat(Room::RoomType type,
+                        Seat* seat);
+    std::vector<const Room*> getRoomsByTypeAndSeat(Room::RoomType type,
+                          Seat* seat) const;
+    unsigned int numRoomsByTypeAndSeat(Room::RoomType type,
+                      Seat* seat) const;
     std::vector<Room*> getReachableRooms(const std::vector<Room*> &vec,
                        Tile *startTile, const CreatureDefinition* creatureDef);
     Room* getRoomByName(const std::string& name);
@@ -218,8 +218,9 @@ public:
     Player* getPlayer(const std::string& cName);
     const Player* getPlayer(const std::string& cName) const;
 
-    //! \brief Returns a pointer to the player with corresponding color stored by this GameMap.
-    Player* getPlayerByColor(int color);
+    //! \brief Returns a pointer to the player structure stored by this GameMap whose seat id matches seatId.
+    Player* getPlayerBySeatId(int seatId);
+    Player* getPlayerBySeat(Seat* seat);
 
     //! \brief Returns the number of player structures stored in this GameMap.
     unsigned int numPlayers() const;
@@ -237,9 +238,9 @@ public:
     //! \brief A simple accessor method to return the first Seat with the given faction.
     Seat* getEmptySeat(const std::string& faction);
 
-    //! \brief Removes the Seat with given color from the GameMap and returns a pointer to it,
+    //! \brief Removes the Seat with given id from the GameMap and returns a pointer to it,
     //! this is used when a Player "sits down" at the GameMap.
-    Seat* popEmptySeat(int color);
+    Seat* popEmptySeat(int id);
 
     //! \brief A simple accessor method to return the number of empty Seats on the GameMap.
     unsigned int numEmptySeats() const;
@@ -253,10 +254,9 @@ public:
     Seat* getFilledSeat(int index);
     const Seat* getFilledSeat(int index) const;
 
-    Seat* popFilledSeat();
     unsigned int numFilledSeats() const;
 
-    Seat* getSeatByColor(int color);
+    Seat* getSeatById(int id);
 
     void addWinningSeat(Seat *s);
     Seat* getWinningSeat(unsigned int index);
@@ -269,7 +269,7 @@ public:
     unsigned int numGoalsForAllSeats() const;
     void clearGoalsForAllSeats();
 
-    int getTotalGoldForColor(int color);
+    int getTotalGoldForSeat(Seat* seat);
     bool withdrawFromTreasuries(int gold, Seat* seat);
 
     inline void setCullingManger(CullingManager* tempCulm)
@@ -334,12 +334,12 @@ public:
      * the 4 nearest neighbors of the previous tile in the path.
      * When building the path, we check if a diagonal can be used. We consider it can
      * if the creature can go through the 4 tiles.
-     * \param color The color param is used when searching a diggable path to know
-     * what tile actually diggable for the given team color.
+     * \param seat The seat is used when searching a diggable path to know
+     * what tile actually diggable for the given team.
      */
-    std::list<Tile*> path(int x1, int y1, int x2, int y2, const CreatureDefinition* creatureDef, int color, bool throughDiggableTiles = false);
-    std::list<Tile*> path(Creature *c1, Creature *c2, const CreatureDefinition* creatureDef, int color, bool throughDiggableTiles = false);
-    std::list<Tile*> path(Tile *t1, Tile *t2, const CreatureDefinition* creatureDef, int color, bool throughDiggableTiles = false);
+    std::list<Tile*> path(int x1, int y1, int x2, int y2, const CreatureDefinition* creatureDef, Seat* seat, bool throughDiggableTiles = false);
+    std::list<Tile*> path(Creature *c1, Creature *c2, const CreatureDefinition* creatureDef, Seat* seat, bool throughDiggableTiles = false);
+    std::list<Tile*> path(Tile *t1, Tile *t2, const CreatureDefinition* creatureDef, Seat* seat, bool throughDiggableTiles = false);
 
     /*! \brief Returns a list of valid tiles along a straight line from (x1, y1) to (x2, y2), NOTE: in spite of
      * the name, you do not need to be able to see through the tiles returned by this method.
@@ -353,8 +353,8 @@ public:
     //! \brief Returns the tiles visible from the given start tile out to the specified sight radius.
     std::vector<Tile*> visibleTiles(Tile *startTile, double sightRadius);
 
-    //! \brief Loops over the visibleTiles and returns any creatures in those tiles whose color matches (or if invert is true, does not match) the given color parameter.
-    std::vector<GameEntity*> getVisibleForce(std::vector<Tile*> visibleTiles, int color, bool invert);
+    //! \brief Loops over the visibleTiles and returns any creatures in those tiles allied with the given seat (or if invert is true, is not allied)
+    std::vector<GameEntity*> getVisibleForce(std::vector<Tile*> visibleTiles, Seat* seat, bool invert);
 
     /** \brief Returns the as the crow flies distance between tiles located at the two coordinates given.
      * If tiles do not exist at these locations the function returns -1.0.
@@ -431,7 +431,7 @@ public:
     Trap* buildTrapForPlayer(std::vector<Tile*>& tiles, Trap::TrapType typeTrap, Player* player, bool forceName = false,
         const std::string& name = "");
 
-    int addGoldToSeat(int gold, int color);
+    int addGoldToSeat(int gold, int seatId);
 
     void logFloodFileTiles();
     void consoleSetCreatureDestination(const std::string& creatureName, int x, int y);

@@ -8,11 +8,11 @@ FightMusic	The_Dark_Amulet.ogg
 [/Info]
 
 [Seats]
-# color	faction	startingX	startingY	colorR	colorG	colorB	startingGold
-1	Player	10	10	0	0.4	0	1000
-2	KeeperAI	10	40	0.4	0	0	1000
-3	KeeperAI	40	10	0	0	0.4	1000
-4	KeeperAI	40	40	0.4	0.4	0.1	1000
+# seatId	color	faction	startingX	startingY	colorR	colorG	colorB	startingGold
+1	1	Player	10	10	0	0.4	0	1000
+2	1	KeeperAI	10	40	0.4	0	0	1000
+3	2	KeeperAI	40	10	0	0	0.4	1000
+4	2	KeeperAI	40	40	0.4	0.4	0.1	1000
 [/Seats]
 
 [Goals]
@@ -111,9 +111,9 @@ ProtectDungeonTemple	NULL
 10	9	1	0
 10	10	1	0
 10	11	1	0
-10	12	1	0
-10	13	1	0
-10	14	1	0
+10	12	6	0	1
+10	13	6	0	2
+10	14	6	0	3
 10	15	1	0
 10	24	2	100
 10	25	2	100
@@ -553,7 +553,7 @@ ProtectDungeonTemple	NULL
 [/Tiles]
 
 [Rooms]
-# meshName	color		NextLine: numTiles		Subsequent Lines: tileX	tileY
+# meshName	seatId		NextLine: numTiles		Subsequent Lines: tileX	tileY
 DungeonTemple	1
 25
 7	7
@@ -729,7 +729,7 @@ Treasury	4
 [/Rooms]
 
 [Traps]
-# meshName	color		NextLine: numTiles		Subsequent Lines: tileX	tileY
+# meshName	seatId		NextLine: numTiles		Subsequent Lines: tileX	tileY
 [/Traps]
 
 [Lights]
@@ -829,6 +829,6 @@ Dwarf3
 [/Spawn_Pools]
 
 [Creatures]
-# className	name	posX	posY	posZ	color	weaponLname	damage	range	defense	weaponRname	damage	range	defense	HP	mana	Level
-ConstructWorker	ConstructWorker1	7	7	0	1	none	1	4	3	none	8	4	0	125	3	1
+# className	name	posX	posY	posZ	seatId	weaponLname	damage	range	defense	weaponRname	damage	range	defense	HP	Level
+ConstructWorker	ConstructWorker1	7	7	0	1	none	1	4	3	none	8	4	0	125	1
 [/Creatures]
