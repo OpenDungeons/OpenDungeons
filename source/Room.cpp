@@ -187,7 +187,7 @@ void Room::setupRoom(GameMap* gameMap, Room* newRoom)
     {
         Room* borderingRoom = borderTiles[i]->getCoveringRoom();
         if (borderingRoom != NULL && borderingRoom->getType() == newRoom->getType()
-            && borderingRoom != newRoom)
+            && borderingRoom != newRoom && borderingRoom->getSeat() == newRoom->getSeat())
         {
             newRoom->absorbRoom(borderingRoom);
             gameMap->removeRoom(borderingRoom);

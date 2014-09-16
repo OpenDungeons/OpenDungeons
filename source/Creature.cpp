@@ -1738,7 +1738,7 @@ bool Creature::handleFindHomeAction(bool isForced)
     }
 
     Room* tempRoom = myTile->getCoveringRoom();
-    if (tempRoom != NULL && tempRoom->getType() == Room::dormitory)
+    if (tempRoom != NULL && tempRoom->getType() == Room::dormitory && getSeat()->canOwnedCreatureUseRoomFrom(tempRoom->getSeat()))
     {
         Room* roomHomeTile = NULL;
         if(mHomeTile != NULL)
@@ -1873,7 +1873,7 @@ bool Creature::handleJobAction(bool isForced)
         // See if we are in a room where we can work. If so, we try to add the creature. If it is ok, the room
         // will handle the creature from here to make it go where it should
         Room* tempRoom = myTile->getCoveringRoom();
-        if (tempRoom != NULL)
+        if ((tempRoom != NULL) && getSeat()->canOwnedCreatureUseRoomFrom(tempRoom->getSeat()))
         {
             // It is the room responsability to test if the creature is suited for working in it
             if(tempRoom->hasOpenCreatureSpot(this) && (tempRoom->getType() != Room::hatchery) && tempRoom->addCreatureUsingRoom(this))
@@ -1971,7 +1971,7 @@ bool Creature::handleEatingAction(bool isForced)
         // See if we are in a hatchery. If so, we try to add the creature. If it is ok, the room
         // will handle the creature from here to make it go where it should
         Room* tempRoom = myTile->getCoveringRoom();
-        if ((tempRoom != NULL) && (tempRoom->getType() == Room::hatchery && tempRoom->hasOpenCreatureSpot(this)))
+        if ((tempRoom != NULL) && getSeat()->canOwnedCreatureUseRoomFrom(tempRoom->getSeat()) && (tempRoom->getType() == Room::hatchery) && tempRoom->hasOpenCreatureSpot(this))
         {
             if(tempRoom->addCreatureUsingRoom(this))
             {

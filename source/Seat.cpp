@@ -224,6 +224,15 @@ bool Seat::canOwnedTileBeClaimedBy(Seat* seat)
     return false;
 }
 
+bool Seat::canOwnedCreatureUseRoomFrom(Seat* seat)
+{
+     // Note : if we want to allow players to pickup allied creatures, we can do that here.
+    if(this == seat)
+        return true;
+
+    return false;
+}
+
 std::string Seat::getFormat()
 {
     return "id\tcolor\tfaction\tstartingX\tstartingY\tcolorR\tcolorG\tcolorB\tstartingGold";

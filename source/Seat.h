@@ -128,6 +128,7 @@ public:
     //! \brief Checks if the seat is allowed to do corresponding action
     bool canOwnedCreatureBePickedUpBy(Seat* seat);
     bool canOwnedTileBeClaimedBy(Seat* seat);
+    bool canOwnedCreatureUseRoomFrom(Seat* seat);
 
     //! \brief The color index of the players sitting in this seat.
     int mColor;
