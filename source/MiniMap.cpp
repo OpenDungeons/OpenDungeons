@@ -43,19 +43,51 @@
 #include <cstdlib>
 
 MiniMap::MiniMap(GameMap* gm) :
-    mWidth(Gui::getSingleton().sheets[Gui::inGameMenu]->getChild(Gui::MINIMAP)->getPixelSize().d_width),
-    mHeight(Gui::getSingleton().sheets[Gui::inGameMenu]->getChild(Gui::MINIMAP)->getPixelSize().d_height),
-    mTopLeftCornerX(Gui::getSingleton().sheets[Gui::inGameMenu]->getChild(Gui::MINIMAP)->getUnclippedOuterRect().get().getPosition().d_x),
-    mTopLeftCornerY(Gui::getSingleton().sheets[Gui::inGameMenu]->getChild(Gui::MINIMAP)->getUnclippedOuterRect().get().getPosition().d_y),
+    mWidth(0),
+    mHeight(0),
+    mTopLeftCornerX(0),
+    mTopLeftCornerY(0),
     mGrainSize(4),
-    mTiles(nullptr),
+    mTiles(NULL),
     mGameMap(gm),
-    mPixelBox(new Ogre::PixelBox(mWidth, mHeight, 1, Ogre::PF_R8G8B8))
+    mPixelBox(NULL),
+    mSheetUsed(Gui::guiSheet::mainMenu)
 {
-    /* TODO: separate some of this code in own functions to make it possible
-     * to change cameras from outside (for example to recalculate it after a
-     * new level was loaded)
-     */
+}
+
+MiniMap::~MiniMap()
+{
+    if(mPixelBox != NULL)
+        delete mPixelBox;
+
+    if (mTiles != NULL)
+        delete [] mTiles;
+}
+
+void MiniMap::attachMiniMap(Gui::guiSheet sheet)
+{
+    // If is configured with the same sheet, no need to rebuild
+    if((mPixelBox != NULL) && (mSheetUsed == sheet))
+        return;
+
+    if(mPixelBox != NULL)
+    {
+        // The MiniMap has already been initialised. We free it
+        Gui::getSingleton().sheets[mSheetUsed]->getChild(Gui::MINIMAP)->setProperty("Image", "");
+        Ogre::TextureManager::getSingletonPtr()->remove("miniMapOgreTexture");
+        CEGUI::ImageManager::getSingletonPtr()->destroy("MiniMapImageset");
+        CEGUI::System::getSingletonPtr()->getRenderer()->destroyTexture("miniMapTextureGui");
+
+        delete mPixelBox;
+    }
+
+    mSheetUsed = sheet;
+    mWidth = Gui::getSingleton().sheets[sheet]->getChild(Gui::MINIMAP)->getPixelSize().d_width;
+    mHeight = Gui::getSingleton().sheets[sheet]->getChild(Gui::MINIMAP)->getPixelSize().d_height;
+    mTopLeftCornerX = Gui::getSingleton().sheets[sheet]->getChild(Gui::MINIMAP)->getUnclippedOuterRect().get().getPosition().d_x;
+    mTopLeftCornerY = Gui::getSingleton().sheets[sheet]->getChild(Gui::MINIMAP)->getUnclippedOuterRect().get().getPosition().d_y;
+    mPixelBox = new Ogre::PixelBox(mWidth, mHeight, 1, Ogre::PF_R8G8B8);
+
     allocateMiniMapMemory();
 
     // Image blank_image( Geometry(400, 300), Color(MaxRGB, MaxRGB, MaxRGB, 0));
@@ -76,18 +108,11 @@ MiniMap::MiniMap(GameMap* gm) :
 
     // Link the image to the minimap
     imageset.setTexture(&miniMapTextureGui);
-    CEGUI::Window* inGameMenu = Gui::getSingleton().sheets[Gui::inGameMenu];
-    inGameMenu->getChild(Gui::MINIMAP)->setProperty("Image", CEGUI::PropertyHelper<CEGUI::Image*>::toString(&imageset));
+
+    CEGUI::String str = Gui::getSingleton().sheets[sheet]->getChild(Gui::MINIMAP)->getProperty("Image");
+    Gui::getSingleton().sheets[sheet]->getChild(Gui::MINIMAP)->setProperty("Image", CEGUI::PropertyHelper<CEGUI::Image*>::toString(&imageset));
 
     mMiniMapOgreTexture->load();
-}
-
-MiniMap::~MiniMap()
-{
-    delete mPixelBox;
-
-    if (mTiles)
-        delete [] mTiles;
 }
 
 void MiniMap::allocateMiniMapMemory()

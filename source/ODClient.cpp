@@ -94,8 +94,7 @@ bool ODClient::processOneClientSocketMessage()
         case ServerNotification::loadLevel:
         {
             std::string levelFilename;
-            int32_t intServerMode;
-            OD_ASSERT_TRUE(packetReceived >> levelFilename >> intServerMode);
+            OD_ASSERT_TRUE(packetReceived >> levelFilename);
             // Read in the map. The map loading should be happen here and not in the server thread to
             // make sure it is valid before launching the server.
             RenderManager::getSingletonPtr()->processRenderRequests();
@@ -142,21 +141,6 @@ bool ODClient::processOneClientSocketMessage()
 
             mLevelFilename = levelFilename;
 
-            ODServer::ServerMode serverMode = static_cast<ODServer::ServerMode>(intServerMode);
-
-            // Activate the wanted mode now that the level is loaded
-            switch(serverMode)
-            {
-                case ODServer::ServerMode::ModeGame:
-                    frameListener->getModeManager()->requestGameMode(true);
-                    break;
-                case ODServer::ServerMode::ModeEditor:
-                    frameListener->getModeManager()->requestEditorMode(true);
-                    break;
-                default:
-                    OD_ASSERT_TRUE_MSG(false,"Unknown server mode=" + Ogre::StringConverter::toString(intServerMode));
-            }
-
             ODPacket packSend;
             packSend << ClientNotification::levelOK;
             send(packSend);
@@ -178,6 +162,28 @@ bool ODClient::processOneClientSocketMessage()
             Seat *tempSeat = gameMap->popEmptySeat(seatId);
             OD_ASSERT_TRUE_MSG(tempSeat != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
             gameMap->getLocalPlayer()->setSeat(tempSeat);
+            break;
+        }
+
+        case ServerNotification::clientAccepted:
+        {
+            int intServerMode;
+            OD_ASSERT_TRUE(packetReceived >> intServerMode);
+            ODServer::ServerMode serverMode = static_cast<ODServer::ServerMode>(intServerMode);
+
+            // Now that the we have received all needed information, we can launch the requested mode
+            switch(serverMode)
+            {
+                case ODServer::ServerMode::ModeGame:
+                    frameListener->getModeManager()->requestGameMode(true);
+                    break;
+                case ODServer::ServerMode::ModeEditor:
+                    frameListener->getModeManager()->requestEditorMode(true);
+                    break;
+                default:
+                    OD_ASSERT_TRUE_MSG(false,"Unknown server mode=" + Ogre::StringConverter::toString(intServerMode));
+            }
+
             break;
         }
 

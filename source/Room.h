@@ -173,6 +173,8 @@ public:
     //! \brief Updates the active spot lists.
     void updateActiveSpots();
 
+    static bool sortForMapSave(Room* r1, Room* r2);
+
 protected:
     enum ActiveSpotPlace
     {

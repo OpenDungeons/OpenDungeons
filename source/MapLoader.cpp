@@ -459,7 +459,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
         seats.push_back(gameMap.getFilledSeat(i));
     }
 
-    std::sort(seats.begin(), seats.end(), Seat::sortById);
+    std::sort(seats.begin(), seats.end(), Seat::sortForMapSave);
     for (std::vector<Seat*>::iterator it = seats.begin(); it != seats.end(); ++it)
     {
         Seat* seat = *it;
@@ -495,20 +495,27 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
             if (tempTile->getType() == Tile::dirt && tempTile->getFullness() >= 100.0)
                 continue;
 
-            levelFile << tempTile->x << "\t" << tempTile->y << "\t";
-            levelFile << tempTile->getType() << "\t" << tempTile->getFullness();
-
-            levelFile << std::endl;
+            levelFile << tempTile << std::endl;
         }
     }
     levelFile << "[/Tiles]" << std::endl;
 
+
+    std::vector<Room*> rooms;
+    for (unsigned int i = 0, num = gameMap.numRooms(); i < num; ++i)
+    {
+        rooms.push_back(gameMap.getRoom(i));
+    }
+
+    std::sort(rooms.begin(), rooms.end(), Room::sortForMapSave);
+
     // Write out the rooms to the file
     levelFile << "\n[Rooms]\n";
     levelFile << "# " << Room::getFormat() << "\n";
-    for (unsigned int i = 0, num = gameMap.numRooms(); i < num; ++i)
+    for (std::vector<Room*>::iterator it = rooms.begin(); it != rooms.end(); ++it)
     {
-        levelFile << gameMap.getRoom(i);
+        Room* room = *it;
+        levelFile << room;
     }
     levelFile << "[/Rooms]" << std::endl;
 

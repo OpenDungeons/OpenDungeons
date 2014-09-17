@@ -74,6 +74,9 @@ void GameMode::activate()
 
     Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild(Gui::EXIT_CONFIRMATION_POPUP)->hide();
 
+    MiniMap* minimap = ODFrameListener::getSingleton().getMiniMap();
+    minimap->attachMiniMap(Gui::guiSheet::inGameMenu);
+
     giveFocus();
 
     // Play the game music.

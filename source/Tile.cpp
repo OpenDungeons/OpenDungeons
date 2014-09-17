@@ -561,11 +561,25 @@ const char* Tile::getFormat()
     return "posX\tposY\ttype\tfullness";
 }
 
+std::ostream& operator<<(std::ostream& os, Tile *t)
+{
+    os << t->x << "\t" << t->y << "\t";
+    os << t->getType() << "\t" << t->getFullness();
+    Seat* seat = t->getSeat();
+    if(t->getType() != Tile::TileType::claimed || seat == NULL)
+        return os;
+
+    os << "\t" << seat->getId();
+
+    return os;
+}
+
 ODPacket& operator<<(ODPacket& os, Tile *t)
 {
     Seat* seat = t->getSeat();
     int seatId = 0;
-    if(seat != NULL)
+    // We only pass the seat to the client if the tile is fully claimed
+    if((seat != NULL) && (t->mClaimedPercentage >= 1.0))
         seatId = seat->getId();
     int intType =static_cast<Tile::TileType>(t->getType());
     double fullness = t->getFullness();
@@ -576,17 +590,12 @@ ODPacket& operator<<(ODPacket& os, Tile *t)
 
 ODPacket& operator>>(ODPacket& is, Tile *t)
 {
-    int tempInt, xLocation, yLocation;
-    double tempDouble;
+    int seatId, intTileType, xLocation, yLocation;
+    double fullness;
     std::stringstream ss;
 
     // We set the seat if there is one
-    is >> tempInt;
-    if(tempInt != 0)
-    {
-        Seat* seat = t->getGameMap()->getSeatById(tempInt);
-        t->setSeat(seat);
-    }
+    is >> seatId;
 
     is >> xLocation >> yLocation;
 
@@ -601,12 +610,20 @@ ODPacket& operator>>(ODPacket& is, Tile *t)
     t->x = xLocation;
     t->y = yLocation;
 
-    is >> tempInt;
-    t->setType(static_cast<Tile::TileType>(tempInt));
+    is >> intTileType;
+    Tile::TileType tileType = static_cast<Tile::TileType>(intTileType);
+    t->setType(tileType);
 
-    is >> tempDouble;
-    t->setFullnessValue(tempDouble);
+    is >> fullness;
+    t->setFullnessValue(fullness);
 
+    if((tileType != Tile::TileType::claimed) || (seatId == 0))
+        return is;
+    Seat* seat = t->getGameMap()->getSeatById(seatId);
+    if(seat == NULL)
+        return is;
+    t->setSeat(seat);
+    t->mClaimedPercentage = 1.0;
     return is;
 }
 
@@ -1252,6 +1269,9 @@ void Tile::refreshFromTile(const Tile& tile)
 {
     type = tile.type;
     setFullness(tile.fullness);
+    Seat* seat = tile.getSeat();
+    setSeat(seat);
+    mClaimedPercentage = tile.mClaimedPercentage;
     // Note : There will be no visual change until the tile mesh is refreshed
 }
 

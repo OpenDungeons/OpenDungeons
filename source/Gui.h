@@ -106,6 +106,7 @@ public:
     static const std::string EDITOR_CLAIMED_BUTTON;
     static const std::string EDITOR_FULLNESS;
     static const std::string EDITOR_CURSOR_POS;
+    static const std::string EDITOR_SEAT_ID;
     static const std::string EXIT_CONFIRMATION_POPUP;
     static const std::string EXIT_CONFIRMATION_POPUP_YES_BUTTON;
     static const std::string EXIT_CONFIRMATION_POPUP_NO_BUTTON;

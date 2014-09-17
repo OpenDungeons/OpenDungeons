@@ -60,6 +60,9 @@ private:
     //! < 1.0 means no walls.
     double mCurrentFullness;
 
+    //! \brief Current selected seat id
+    int mCurrentSeatId;
+
     //! \brief The creature node name being dragged by the mouse
     std::string mDraggedCreature;
 

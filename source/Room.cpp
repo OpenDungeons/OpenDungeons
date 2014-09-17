@@ -790,7 +790,7 @@ Room::RoomType Room::getRoomTypeFromMeshName(const std::string& s)
         return trainingHall;
     else if (s.compare("Library") == 0)
         return library;
-    else if (s.compare("Hatchery") == 0)
+    else if (s.compare("Farm") == 0)
         return hatchery;
     else
     {
@@ -1069,4 +1069,15 @@ RoomObject* Room::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
 void Room::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
 {
     removeRoomObject(tile);
+}
+
+bool Room::sortForMapSave(Room* r1, Room* r2)
+{
+    // We sort room by seat id then meshName
+    int seatId1 = r1->getSeat()->getId();
+    int seatId2 = r2->getSeat()->getId();
+    if(seatId1 == seatId2)
+        return r1->getMeshName().compare(r2->getMeshName()) < 0;
+
+    return seatId1 < seatId2;
 }

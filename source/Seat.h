@@ -160,7 +160,7 @@ public:
 
     int mStartingGold;
 
-    static bool sortById(Seat* s1, Seat* s2);
+    static bool sortForMapSave(Seat* s1, Seat* s2);
 
     static std::string getFormat();
     friend ODPacket& operator<<(ODPacket& os, Seat *s);

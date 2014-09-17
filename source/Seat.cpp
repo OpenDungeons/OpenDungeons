@@ -112,14 +112,15 @@ unsigned int Seat::checkAllGoals()
     std::vector<Goal*>::iterator currentGoal = mUncompleteGoals.begin();
     while (currentGoal != mUncompleteGoals.end())
     {
+        Goal* goal = *currentGoal;
         // Start by checking if the goal has been met by this seat.
-        if ((*currentGoal)->isMet(this))
+        if (goal->isMet(this))
         {
-            mCompletedGoals.push_back(*currentGoal);
+            mCompletedGoals.push_back(goal);
 
             // Add any subgoals upon completion to the list of outstanding goals.
-            for (unsigned int i = 0; i < (*currentGoal)->numSuccessSubGoals(); ++i)
-                mUncompleteGoals.push_back((*currentGoal)->getSuccessSubGoal(i));
+            for (unsigned int i = 0; i < goal->numSuccessSubGoals(); ++i)
+                mUncompleteGoals.push_back(goal->getSuccessSubGoal(i));
 
             currentGoal = mUncompleteGoals.erase(currentGoal);
 
@@ -127,13 +128,13 @@ unsigned int Seat::checkAllGoals()
         else
         {
             // If the goal has not been met, check to see if it cannot be met in the future.
-            if ((*currentGoal)->isFailed(this))
+            if (goal->isFailed(this))
             {
-                mFailedGoals.push_back(*currentGoal);
+                mFailedGoals.push_back(goal);
 
                 // Add any subgoals upon completion to the list of outstanding goals.
-                for (unsigned int i = 0; i < (*currentGoal)->numFailureSubGoals(); ++i)
-                    mUncompleteGoals.push_back((*currentGoal)->getFailureSubGoal(i));
+                for (unsigned int i = 0; i < goal->numFailureSubGoals(); ++i)
+                    mUncompleteGoals.push_back(goal->getFailureSubGoal(i));
 
                 currentGoal = mUncompleteGoals.erase(currentGoal);
             }
@@ -287,7 +288,7 @@ void Seat::refreshFromSeat(Seat* s)
     mHasGoalsChanged = s->mHasGoalsChanged;
 }
 
-bool Seat::sortById(Seat* s1, Seat* s2)
+bool Seat::sortForMapSave(Seat* s1, Seat* s2)
 {
     return s1->mId < s2->mId;
 }

@@ -80,7 +80,7 @@ void RoomHatchery::removeCoveredTile(Tile* tile, bool isRoomAbsorb)
     }
 
     // If no room absorb, we should not come here
-    OD_ASSERT_TRUE(isRoomAbsorb);
+    OD_ASSERT_TRUE_MSG(isRoomAbsorb, Tile::displayAsString(tile));
 }
 
 void RoomHatchery::absorbRoom(Room *r)
@@ -181,6 +181,7 @@ void RoomHatchery::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
         Tile* tmpTile = *it;
         removeRoomObject(tmpTile);
         mChickensFree.erase(it);
+        mUnusedTiles.push_back(tmpTile);
         return;
     }
 

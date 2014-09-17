@@ -49,6 +49,7 @@ class ServerNotification
             addMapLight,
             removeMapLight,
             addClass,
+            clientAccepted,
 
             chat,
             chatServer,

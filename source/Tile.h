@@ -49,6 +49,7 @@ class Tile : public GameEntity
 
 friend class TileContainersModificator;
 friend class GameMap;
+friend class ODServer;
 
 public:
     enum TileType
@@ -236,6 +237,8 @@ public:
 
     //! \brief Loads the tile data from a level line.
     static void loadFromLine(const std::string& line, Tile *t);
+
+    friend std::ostream& operator<<(std::ostream& os, Tile *t);
 
     /*! \brief The << operator is used for saving tiles to a file and sending them over the net.
      *

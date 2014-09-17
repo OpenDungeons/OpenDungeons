@@ -240,6 +240,10 @@ void Gui::assignEventHandlers()
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&cannonButtonPressed));
 
+    sheets[editorModeGui]->getChild(MINIMAP)->subscribeEvent(
+            CEGUI:: Window::EventMouseClick,
+            CEGUI::Event::Subscriber(&miniMapclicked));
+
     // Skirmish level select menu controls
     sheets[skirmishMenu]->getChild(SKM_BUTTON_LAUNCH)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
@@ -672,3 +676,4 @@ const std::string Gui::EDITOR_ROCK_BUTTON = "MainTabControl/Tiles/RockButton";
 const std::string Gui::EDITOR_CLAIMED_BUTTON = "MainTabControl/Tiles/ClaimedButton";
 const std::string Gui::EDITOR_FULLNESS = "HorizontalPipe/FullnessDisplay";
 const std::string Gui::EDITOR_CURSOR_POS = "HorizontalPipe/PositionDisplay";
+const std::string Gui::EDITOR_SEAT_ID = "HorizontalPipe/SeatIdDisplay";
