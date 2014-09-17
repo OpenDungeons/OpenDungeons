@@ -2380,7 +2380,7 @@ std::vector<Tile*> GameMap::getBuildableTilesForPlayerInArea(int x1, int y1, int
         }
         else if (!(tile->getFullness() == 0.0
                     && tile->getType() == Tile::claimed
-                    && tile->colorDouble >= 1.0
+                    && tile->getClaimedPercentage() >= 1.0
                     && tile->isClaimedForSeat(player->getSeat())))
         {
             it = tiles.erase(it);

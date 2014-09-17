@@ -104,7 +104,7 @@ bool KeeperAI::buildSleepRoom()
         Tile* tile = *it;
         if (tile && tile->getType() == Tile::claimed && tile->getFullness() < 1.0
                 && tile->isBuildableUpon() && tile->isClaimedForSeat(teamSeat)
-                && tile->colorDouble > 0.99)
+                && tile->getClaimedPercentage() >= 1.0)
             ++numClaimedTiles;
     }
     if (numClaimedTiles < 15)
@@ -137,7 +137,7 @@ bool KeeperAI::buildTrainingHallRoom()
         Tile* tile = *it;
         if (tile && tile->getType() == Tile::claimed && tile->getFullness() < 1.0
                 && tile->isBuildableUpon() && tile->isClaimedForSeat(teamSeat)
-                && tile->colorDouble > 0.99)
+                && tile->getClaimedPercentage() >= 1.0)
             ++numClaimedTiles;
     }
     if (numClaimedTiles < 15)

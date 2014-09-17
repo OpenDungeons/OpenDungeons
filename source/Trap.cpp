@@ -386,7 +386,6 @@ std::istream& operator>>(std::istream& is, Trap *t)
         {
             t->addCoveredTile(tempTile);
             tempTile->setSeat(t->getSeat());
-            tempTile->colorDouble = 1.0;
         }
     }
 
@@ -426,7 +425,6 @@ ODPacket& operator>>(ODPacket& is, Trap *t)
         {
             t->addCoveredTile(tempTile);
             tempTile->setSeat(t->getSeat());
-            tempTile->colorDouble = 1.0;
         }
         else
         {

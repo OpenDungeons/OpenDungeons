@@ -507,14 +507,16 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                 // There are only players if we are connected.
                 if (frameListener->isConnected())
                 {
-                    tempSS << "Player:\tNick:\tColor:\n\n";
+                    tempSS << "Player:\tNick:\tSeatId\tTeamId:\n\n";
                     tempSS << "me\t\t" << gameMap->getLocalPlayer()->getNick() << "\t"
-                            << gameMap->getLocalPlayer()->getSeat()->getColor() << "\n\n";
+                            << gameMap->getLocalPlayer()->getSeat()->getId() << "\t"
+                            << gameMap->getLocalPlayer()->getSeat()->getTeamId() << "\n\n";
                     for (unsigned int i = 0; i < gameMap->numPlayers(); ++i)
                     {
                         const Player *currentPlayer = gameMap->getPlayer(i);
                         tempSS << i << "\t\t" << currentPlayer->getNick() << "\t"
-                                << currentPlayer->getSeat()->getColor() << "\n";
+                                << currentPlayer->getSeat()->getId() << "\t"
+                                << currentPlayer->getSeat()->getTeamId() << "\n\n";
                     }
                 }
                 else

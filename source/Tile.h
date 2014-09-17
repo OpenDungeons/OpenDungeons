@@ -68,7 +68,7 @@ public:
         GameEntity          (gameMap),
         x                   (nX),
         y                   (nY),
-        colorDouble         (0.0),
+        mClaimedPercentage  (0.0),
         rotation            (0.0),
         type                (nType),
         selected            (false),
@@ -269,13 +269,17 @@ public:
     int getY() const
     { return y; }
 
+    double getClaimedPercentage()
+    {
+        return mClaimedPercentage;
+    }
+
     static std::string buildName(int x, int y);
     static bool checkTileName(const std::string& tileName, int& x, int& y);
 
     static std::string displayAsString(Tile* tile);
 
     int x, y;
-    double colorDouble;
     Ogre::Real rotation;
 
     //TODO properly implement these
@@ -316,6 +320,7 @@ private:
     bool coveringTrap;
     MapLight *claimLight;
     int mFloodFillColor[FloodFillTypeMax];
+    double mClaimedPercentage;
 
     /*! \brief Set the fullness value for the tile.
      *  This only sets the fullness variable. This function is here to change the value

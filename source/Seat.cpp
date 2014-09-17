@@ -21,7 +21,7 @@
 #include "Helper.h"
 
 Seat::Seat() :
-        mColor(0),
+        mTeamId(0),
         mStartingX(0),
         mStartingY(0),
         mMana(1000),
@@ -204,7 +204,7 @@ void Seat::goalsHasChanged()
 
 bool Seat::isAlliedSeat(Seat *seat)
 {
-    return getColor() == seat->getColor();
+    return getTeamId() == seat->getTeamId();
 }
 
 bool Seat::canOwnedCreatureBePickedUpBy(Seat* seat)
@@ -218,7 +218,7 @@ bool Seat::canOwnedCreatureBePickedUpBy(Seat* seat)
 
 bool Seat::canOwnedTileBeClaimedBy(Seat* seat)
 {
-    if(getColor() != seat->getColor())
+    if(getTeamId() != seat->getTeamId())
         return true;
 
     return false;
@@ -235,12 +235,12 @@ bool Seat::canOwnedCreatureUseRoomFrom(Seat* seat)
 
 std::string Seat::getFormat()
 {
-    return "id\tcolor\tfaction\tstartingX\tstartingY\tcolorR\tcolorG\tcolorB\tstartingGold";
+    return "id\tteamId\tfaction\tstartingX\tstartingY\tcolorR\tcolorG\tcolorB\tstartingGold";
 }
 
 ODPacket& operator<<(ODPacket& os, Seat *s)
 {
-    os << s->mId << s->mColor << s->mFaction << s->mStartingX
+    os << s->mId << s->mTeamId << s->mFaction << s->mStartingX
        << s->mStartingY;
     os << s->mColorValue.r << s->mColorValue.g
        << s->mColorValue.b;
@@ -252,7 +252,7 @@ ODPacket& operator<<(ODPacket& os, Seat *s)
 
 ODPacket& operator>>(ODPacket& is, Seat *s)
 {
-    is >> s->mId >> s->mColor >> s->mFaction >> s->mStartingX >> s->mStartingY;
+    is >> s->mId >> s->mTeamId >> s->mFaction >> s->mStartingX >> s->mStartingY;
     is >> s->mColorValue.r >> s->mColorValue.g >> s->mColorValue.b;
     is >> s->mGold >> s->mMana >> s->mManaDelta >> s->mNumClaimedTiles;
     is >> s->mHasGoalsChanged;
@@ -266,7 +266,7 @@ void Seat::loadFromLine(const std::string& line, Seat *s)
     std::vector<std::string> elems = Helper::split(line, '\t');
 
     s->mId = Helper::toInt(elems[0]);
-    s->mColor = Helper::toInt(elems[1]);
+    s->mTeamId = Helper::toInt(elems[1]);
     s->mFaction = elems[2];
     s->mStartingX = Helper::toInt(elems[3]);
     s->mStartingY = Helper::toInt(elems[4]);
@@ -294,7 +294,7 @@ bool Seat::sortById(Seat* s1, Seat* s2)
 
 std::ostream& operator<<(std::ostream& os, Seat *s)
 {
-    os << s->mId << "\t" << s->mColor << "\t" << s->mFaction << "\t" << s->mStartingX
+    os << s->mId << "\t" << s->mTeamId << "\t" << s->mFaction << "\t" << s->mStartingX
        << "\t"<< s->mStartingY;
     os << "\t" << s->mColorValue.r << "\t" << s->mColorValue.g
        << "\t" << s->mColorValue.b;
@@ -304,7 +304,7 @@ std::ostream& operator<<(std::ostream& os, Seat *s)
 
 std::istream& operator>>(std::istream& is, Seat *s)
 {
-    is >> s->mId >> s->mColor >> s->mFaction >> s->mStartingX >> s->mStartingY;
+    is >> s->mId >> s->mTeamId >> s->mFaction >> s->mStartingX >> s->mStartingY;
     is >> s->mColorValue.r >> s->mColorValue.g >> s->mColorValue.b;
     is >> s->mStartingGold;
     s->mColorValue.a = 1.0;
