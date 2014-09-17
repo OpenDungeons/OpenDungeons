@@ -67,6 +67,24 @@ GameMode::~GameMode()
 {
 }
 
+//! \brief Converts an int value into a 2 digits-long Hex string value.
+std::string intTo2Hex(int i)
+{
+  std::stringstream stream;
+  stream << std::setfill('0') << std::setw(2) << std::hex << i;
+  return stream.str();
+}
+
+//! \brief Gets the CEGUI ImageColours string property (AARRGGBB format) corresponding
+//! to the given Ogre ColourValue.
+std::string getImageColoursStringFromColourValue(const Ogre::ColourValue& color)
+{
+    std::string colourStr = intTo2Hex(static_cast<int>(color.a * 255.0f)) + intTo2Hex(static_cast<int>(color.r * 255.0f))
+        + intTo2Hex(static_cast<int>(color.g * 255.0f)) + intTo2Hex(static_cast<int>(color.b * 255.0f));
+    std::string imageColours = "tl:" + colourStr + " tr:" + colourStr + " bl:" + colourStr + " br:" + colourStr;
+    return imageColours;
+}
+
 void GameMode::activate()
 {
     // Loads the corresponding Gui sheet.
@@ -78,6 +96,11 @@ void GameMode::activate()
 
     // Play the game music.
     MusicPlayer::getSingleton().play(mGameMap->getLevelMusicFile()); // in game music
+
+    // Show the player seat color on the horizontal pipe - AARRGGBB format
+    // ex: "tl:FF0000FF tr:FF0000FF bl:FF0000FF br:FF0000FF"
+    std::string colorStr = getImageColoursStringFromColourValue(mGameMap->getLocalPlayer()->getSeat()->getColorValue());
+    Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild("HorizontalPipe")->setProperty("ImageColours", colorStr);
 
     if(mGameMap->getTurnNumber() != -1)
     {

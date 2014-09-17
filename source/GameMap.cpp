@@ -1862,6 +1862,14 @@ void GameMap::addWinningSeat(Seat *s)
             return;
     }
 
+    Player* player = getPlayerBySeat(s);
+    if (player && player->getHasAI() == false)
+    {
+        ServerNotification* serverNotification = new ServerNotification(ServerNotification::chat, player);
+        serverNotification->mPacket << "You have won!";
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
+
     winningSeats.push_back(s);
 }
 
@@ -2423,6 +2431,22 @@ std::string GameMap::getGoalsStringForPlayer(Player* player)
     std::stringstream tempSS("");
     Seat* seat = player->getSeat();
     seat->resetGoalsChanged();
+
+    if (playerIsAWinner)
+    {
+        tempSS << "\nCongratulations, you have completed this level.";
+    }
+    else if (seat->numFailedGoals() > 0)
+    {
+        // Loop over the list of completed goals for the seat we are sitting in an print them.
+        tempSS << "\nFailed Goals: (You cannot complete this level!)\n---------------------\n";
+        for (unsigned int i = 0; i < seat->numFailedGoals(); ++i)
+        {
+            Goal *tempGoal = seat->getFailedGoal(i);
+            tempSS << tempGoal->getFailedMessage(seat) << "\n";
+        }
+    }
+
     if (seat->numUncompleteGoals() > 0)
     {
         // Loop over the list of unmet goals for the seat we are sitting in an print them.
@@ -2443,22 +2467,6 @@ std::string GameMap::getGoalsStringForPlayer(Player* player)
             Goal *tempGoal = seat->getCompletedGoal(i);
             tempSS << tempGoal->getSuccessMessage(seat) << "\n";
         }
-    }
-
-    if (seat->numFailedGoals() > 0)
-    {
-        // Loop over the list of completed goals for the seat we are sitting in an print them.
-        tempSS << "\nFailed Goals: (You cannot complete this level!)\n---------------------\n";
-        for (unsigned int i = 0; i < seat->numFailedGoals(); ++i)
-        {
-            Goal *tempGoal = seat->getFailedGoal(i);
-            tempSS << tempGoal->getFailedMessage(seat) << "\n";
-        }
-    }
-
-    if (playerIsAWinner)
-    {
-        tempSS << "\nCongratulations, you have completed this level.";
     }
 
     return tempSS.str();
