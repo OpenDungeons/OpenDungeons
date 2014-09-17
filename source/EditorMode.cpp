@@ -397,7 +397,8 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     bool skipCreaturePickUp = false;
     Player* player = mGameMap->getLocalPlayer();
     if (player && (player->getNewRoomType() != Room::nullRoomType
-        || player->getNewTrapType() != Trap::nullTrapType))
+        || player->getNewTrapType() != Trap::nullTrapType
+        || mCurrentTileType != Tile::TileType::nullTileType))
     {
         skipCreaturePickUp = true;
     }

@@ -871,11 +871,12 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     continue;
 
                 // We do not change tiles where there is something
-                if(tile->numCreaturesInCell() > 0)
+                if((tile->numCreaturesInCell() > 0) &&
+                   ((tileFullness > 0.0) || (tileType == Tile::TileType::lava) || (tileType == Tile::TileType::water)))
                     continue;
                 if(tile->getCoveringRoom() != NULL)
                     continue;
-                if(tile->getCoveringTrap())
+                if(tile->getCoveringTrap() != NULL)
                     continue;
 
                 affectedTiles.push_back(tile);
@@ -916,12 +917,10 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 if(tile == NULL)
                     continue;
 
-                // We do not change tiles where there is something
-                if(tile->numCreaturesInCell() > 0)
-                    continue;
+                // We do not change tiles where there is something on the tile
                 if(tile->getCoveringRoom() != NULL)
                     continue;
-                if(tile->getCoveringTrap())
+                if(tile->getCoveringTrap() != NULL)
                     continue;
                 affectedTiles.push_back(tile);
 
@@ -969,11 +968,9 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     continue;
 
                 // We do not change tiles where there is something
-                if(tile->numCreaturesInCell() > 0)
-                    continue;
                 if(tile->getCoveringRoom() != NULL)
                     continue;
-                if(tile->getCoveringTrap())
+                if(tile->getCoveringTrap() != NULL)
                     continue;
                 affectedTiles.push_back(tile);
 
