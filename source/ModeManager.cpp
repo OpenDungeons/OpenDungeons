@@ -40,8 +40,8 @@ ModeManager::ModeManager()
 
 
     // Loads the main menu
-    mGameModes.push_back(new MenuMode(this));
-    mGameModes.back()->activate();
+    mApplicationModes.push_back(new MenuMode(this));
+    mApplicationModes.back()->activate();
 
     // NOTE: Console needs to exist BEFORE ASWrapper because it needs it for callback
     // TODO: Merge Console and Console Mode
@@ -64,8 +64,12 @@ ModeManager::ModeManager()
 
 ModeManager::~ModeManager()
 {
-    for (unsigned int i = 0; i < mGameModes.size(); ++i)
-        delete mGameModes[i];
+    for (std::vector<AbstractApplicationMode*>::iterator it = mApplicationModes.begin(); it != mApplicationModes.end(); ++it)
+    {
+        AbstractApplicationMode* appMode = *it;
+        appMode->exitMode();
+        delete appMode;
+    }
     delete mConsoleMode;
     delete mConsole;
     delete mInputManager;
@@ -77,7 +81,7 @@ AbstractApplicationMode* ModeManager::getCurrentMode()
     if (mIsInConsole)
         return mConsoleMode;
 
-    return mGameModes.back();
+    return mApplicationModes.back();
 }
 
 ModeManager::ModeType ModeManager::getCurrentModeType()
@@ -85,10 +89,10 @@ ModeManager::ModeType ModeManager::getCurrentModeType()
     return getCurrentMode()->getModeType();
 }
 
-void ModeManager::_addGameMode(ModeType mt)
+void ModeManager::addMode(ModeType mt)
 {
     // Check the current mode and return if it was already active.
-    if (mGameModes.back()->getModeType() == mt)
+    if (mApplicationModes.back()->getModeType() == mt)
         return;
 
     switch(mt)
@@ -100,25 +104,25 @@ void ModeManager::_addGameMode(ModeType mt)
         return;
         break;
     case MENU:
-        mGameModes.push_back(new MenuMode(this));
+        mApplicationModes.push_back(new MenuMode(this));
         break;
     case MENU_SKIRMISH:
-        mGameModes.push_back(new MenuModeSkirmish(this));
+        mApplicationModes.push_back(new MenuModeSkirmish(this));
         break;
     case MENU_MULTIPLAYER:
-        mGameModes.push_back(new MenuModeMultiplayer(this));
+        mApplicationModes.push_back(new MenuModeMultiplayer(this));
         break;
     case MENU_EDITOR:
-        mGameModes.push_back(new MenuModeEditor(this));
+        mApplicationModes.push_back(new MenuModeEditor(this));
         break;
     case GAME:
-        mGameModes.push_back(new GameMode(this));
+        mApplicationModes.push_back(new GameMode(this));
         break;
     case EDITOR:
-        mGameModes.push_back(new EditorMode(this));
+        mApplicationModes.push_back(new EditorMode(this));
         break;
     case FPP:
-        mGameModes.push_back(new FppMode(this));
+        mApplicationModes.push_back(new FppMode(this));
         break;
     default:
         break;
@@ -127,23 +131,25 @@ void ModeManager::_addGameMode(ModeType mt)
     // We're no more in console mode.
     mIsInConsole = false;
 
-    mGameModes.back()->activate();
+    mApplicationModes.back()->activate();
 }
 
-void ModeManager::_removeGameMode()
+void ModeManager::removeMode()
 {
     // If we were in the console, we simply switch back
     if (mIsInConsole)
     {
         mIsInConsole = false;
     }
-    else if (mGameModes.size() > 1)
+    else if (mApplicationModes.size() > 1)
     {
-        delete mGameModes.back();
-        mGameModes.pop_back();
+        AbstractApplicationMode* appMode = mApplicationModes.back();
+        appMode->exitMode();
+        delete appMode;
+        mApplicationModes.pop_back();
     }
 
-    mGameModes.back()->activate();
+    mApplicationModes.back()->activate();
 }
 
 void ModeManager::checkModeChange()
@@ -152,33 +158,19 @@ void ModeManager::checkModeChange()
         return;
 
     if(mRequestedMode == PREV)
-        _removeGameMode();
+        removeMode();
     else
     {
         if(mDiscardActualMode)
         {
-            AbstractApplicationMode* p = mGameModes.back();
-            delete mGameModes.back();
-            mGameModes.pop_back();
+            AbstractApplicationMode* appMode = mApplicationModes.back();
+            appMode->exitMode();
+            delete appMode;
+            mApplicationModes.pop_back();
         }
-        _addGameMode(mRequestedMode);
+        addMode(mRequestedMode);
     }
 
     mRequestedMode = NONE;
     mDiscardActualMode = false;
-}
-
-void ModeManager::shutdownGameMode()
-{
-    if(ODClient::getSingleton().isConnected())
-        ODClient::getSingleton().disconnect();
-    if(ODServer::getSingleton().isConnected())
-        ODServer::getSingleton().stopServer();
-
-    // Now that the server is stopped, we can clear the client game map
-    // We process RenderRequests in case there is graphical things pending
-    RenderManager::getSingleton().processRenderRequests();
-    ODFrameListener::getSingleton().getClientGameMap()->clearAll();
-    // We process again RenderRequests to destroy/delete what clearAll has put in the queue
-    RenderManager::getSingleton().processRenderRequests();
 }

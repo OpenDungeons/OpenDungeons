@@ -577,9 +577,9 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 }
             }
 
-             // The player received everything. He is ready
-             setClientState(clientSocket, "ready");
-             // We notify the client that everything is ready
+            // The player received everything. He is ready
+            setClientState(clientSocket, "ready");
+            // We notify the client that everything is ready
             packetSend.clear();
             int32_t intServerMode = static_cast<int32_t>(mServerMode);
             packetSend << ServerNotification::clientAccepted << intServerMode;

@@ -73,13 +73,13 @@ public:
         return mModeManager->getInputManager()->mKeyboard;
     }
 
-    //! Called when activating the new game mode
-    //! Used for instance, to load the corresponding Gui Sheet
+    //! Called when activating a new mode
+    //! Used for example, to load the corresponding Gui Sheet
     virtual void activate() = 0;
 
     void regressMode()
     {
-        mModeManager->requestUnloadToParentGameMode();
+        mModeManager->requestUnloadToParentMode();
     }
 
     ModeManager::ModeType getModeType() const
@@ -99,6 +99,8 @@ public:
     //! \brief Game mode specific rendering methods.
     virtual void onFrameStarted(const Ogre::FrameEvent& evt) = 0;
     virtual void onFrameEnded(const Ogre::FrameEvent& evt) = 0;
+
+    virtual void exitMode() {}
 
 protected:
     //! \brief Returns true if the key is to be processed by the chat.

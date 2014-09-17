@@ -35,6 +35,7 @@
 #include "Console.h"
 #include "MusicPlayer.h"
 #include "ODClient.h"
+#include "ODServer.h"
 
 #include <OgreEntity.h>
 
@@ -607,7 +608,7 @@ void EditorMode::updateCursorText()
     textSS << "Cursor: x: " << mMouseX << ", y: " << mMouseY;
     posWin->setText(textSS.str());
 
-    // Update the cursor position
+    // Update the seat id
     posWin = Gui::getSingletonPtr()->getGuiSheet(Gui::editorModeGui)->getChild(Gui::EDITOR_SEAT_ID);
     textSS.str("");
     textSS << "Seat id (Y): " << mCurrentSeatId;
@@ -709,7 +710,6 @@ bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
     // Quit the Editor Mode
     case OIS::KC_ESCAPE:
         regressMode();
-        mModeManager->shutdownGameMode();
         break;
 
     case OIS::KC_F8:
@@ -848,4 +848,19 @@ void EditorMode::onFrameStarted(const Ogre::FrameEvent& evt)
 
 void EditorMode::onFrameEnded(const Ogre::FrameEvent& evt)
 {
+}
+
+void EditorMode::exitMode()
+{
+    if(ODClient::getSingleton().isConnected())
+        ODClient::getSingleton().disconnect();
+    if(ODServer::getSingleton().isConnected())
+        ODServer::getSingleton().stopServer();
+
+    // Now that the server is stopped, we can clear the client game map
+    // We process RenderRequests in case there is graphical things pending
+    RenderManager::getSingleton().processRenderRequests();
+    ODFrameListener::getSingleton().getClientGameMap()->clearAll();
+    // We process again RenderRequests to destroy/delete what clearAll has put in the queue
+    RenderManager::getSingleton().processRenderRequests();
 }

@@ -52,6 +52,8 @@ public:
         return mGameMap;
     }
 
+    virtual void exitMode();
+
 private:
     //! \brief Tile type (Dirt, Lava, ...)
     Tile::TileType mCurrentTileType;

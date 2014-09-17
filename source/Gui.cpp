@@ -384,9 +384,7 @@ bool Gui::confirmExitYesButtonPressed(const CEGUI::EventArgs& e)
         return true;
 
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
-    mm->requestUnloadToParentGameMode();
-    mm->shutdownGameMode();
-
+    mm->requestUnloadToParentMode();
     return true;
 }
 
@@ -512,7 +510,7 @@ bool Gui::mSKMBackButtonPressed(const CEGUI::EventArgs& e)
         return true;
 
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
-    mm->requestUnloadToParentGameMode();
+    mm->requestUnloadToParentMode();
     return true;
 }
 
@@ -545,7 +543,7 @@ bool Gui::mEDMBackButtonPressed(const CEGUI::EventArgs& e)
         return true;
 
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
-    mm->requestUnloadToParentGameMode();
+    mm->requestUnloadToParentMode();
     return true;
 }
 
@@ -578,7 +576,7 @@ bool Gui::mMPMBackButtonPressed(const CEGUI::EventArgs& e)
         return true;
 
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
-    mm->requestUnloadToParentGameMode();
+    mm->requestUnloadToParentMode();
     return true;
 }
 

@@ -53,7 +53,7 @@
             </Window>
             <Window type="OD/StaticText" name="SeatIdDisplay" >
                 <Property name="Area" value="{{0,400},{0,0},{0,550},{0,25}}" />
-                <Property name="Text" value="Cursor Position: 0, 0" />
+                <Property name="Text" value="Seat id (Y): 0" />
                 <Property name="MaxSize" value="{{1,0},{1,0}}" />
                 <Property name="TooltipText" value="Selected Seat Id" />
                 <Property name="HorzFormatting" value="RightAligned" />
