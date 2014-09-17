@@ -18,7 +18,7 @@
     <Image height="18" name="VertScrollDownNormal" width="21" xPos="429" yPos="46" />
     <Image height="18" name="VertScrollUpHover" width="21" xPos="404" yPos="67" />
     <Image height="18" name="VertScrollDownHover" width="21" xPos="404" yPos="46" />
-    <Image height="6" name="MiniVertScrollBarSegment" width="11" xPos="434" yPos="86" />
+    <Image height="1" name="MiniVertScrollBarSegment" width="4" xPos="441" yPos="24" />
     <Image height="32" name="MiniVertScrollThumbNormal" width="21" xPos="429" yPos="9" />
     <Image height="13" name="MiniVertScrollThumbTopNormal" width="21" xPos="429" yPos="9" />
     <Image height="6" name="MiniVertScrollThumbMiddleNormal" width="21" xPos="429" yPos="22" />
@@ -31,7 +31,7 @@
     <Image height="18" name="MiniVertScrollDownNormal" width="21" xPos="429" yPos="46" />
     <Image height="18" name="MiniVertScrollUpHover" width="21" xPos="404" yPos="67" />
     <Image height="18" name="MiniVertScrollDownHover" width="21" xPos="404" yPos="46" />
-    <Image height="11" name="MiniHorzScrollBarSegment" width="6" xPos="496" yPos="87" />
+    <Image height="5" name="MiniHorzScrollBarSegment" width="1" xPos="478" yPos="90" />
     <Image height="21" name="MiniHorzScrollThumbNormal" width="32" xPos="463" yPos="82" />
     <Image height="21" name="MiniHorzScrollThumbLeftNormal" width="13" xPos="463" yPos="82" />
     <Image height="21" name="MiniHorzScrollThumbMiddleNormal" width="6" xPos="476" yPos="82" />
