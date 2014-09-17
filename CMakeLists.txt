@@ -1,6 +1,31 @@
 cmake_minimum_required(VERSION 2.8)
 
 ##################################
+#### Project settings ############
+##################################
+
+project(OpenDungeons)
+
+#postfix bin if we are on linux as we want to launch with a script
+if(WIN32)
+    set(PROJECT_BINARY_NAME "OpenDungeons")
+else()
+    set(PROJECT_BINARY_NAME "OpenDungeons.bin")
+endif()
+
+# Project version
+# TODO - make this set version string in source file automatically.
+set(${PROJECT_NAME}_MAJOR_VERSION 0)
+set(${PROJECT_NAME}_MINOR_VERSION 4)
+set(${PROJECT_NAME}_PATCH_LEVEL   9)
+
+# Where we want the binary
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
+
+# Compilation options
+option(OD_ENABLE_WARNINGS "Compile the game with all standard warnings enabled" OFF)
+
+##################################
 #### Useful variables ############
 ##################################
 
@@ -18,31 +43,45 @@ set(CMAKE_CONFIG_DIR "${CMAKE_SOURCE_DIR}/cmake/config")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake/modules)
 
 if(NOT CMAKE_BUILD_TYPE)
-    message(STATUS "CMake build type is not set, defaulting to 'Release'")
-    set(CMAKE_BUILD_TYPE "Release")
+    message(STATUS "CMake build type is not set, defaulting to 'RelWithDebInfo'")
+    set(CMAKE_BUILD_TYPE "RelWithDebInfo")
 endif()
 
 ##################################
 #### ExplicitCompilerFlags #######
 ##################################
-if (MSVC)
-  set ( CMAKE_CXX_FLAGS "/GLOBAL_FLAGS_GO_HERE")
-  set ( CMAKE_CXX_FLAGS_DEBUG "/DEBUG_FLAGSS_GO_HERE")
-  set ( CMAKE_CXX_FLAGS_RELEASE  "/RELEASE_FLAGS_GO_HERE" )
-endif ()
 
-if (BORLAND)
-  set ( CMAKE_CXX_FLAGS "/GLOBAL_FLAGS_GO_HERE")
-  set ( CMAKE_CXX_FLAGS_DEBUG "/DEBUG_FLAGS_GO_HERE")
-  set ( CMAKE_CXX_FLAGS_RELEASE  "/RELEASE_FLAGS_GO_HERE" )
-endif ()
+# CMAKE_CXX_FLAGS are meant to be defined using these two public strings
+# This makes it possible to have them explicitly displayed in CMake GUI
+# CMAKE_CXX_FLAGS can still be used to override our default defintions
+set(OD_OPT_FLAGS CACHE STRING "Optimization and optional compilation flags")
+set(OD_CXX11_FLAGS CACHE STRING "Compilation flags to enable C++11 support")
 
-if (CMAKE_COMPILER_IS_GNUCXX)
-  set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wunused -Wno-deprecated -fno-strict-aliasing" CACHE STRING "compile flags" FORCE)
-  list( APPEND CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS}   -g -O2")
-  set ( CMAKE_CXX_FLAGS_RELEASE  "${CMAKE_CXX_FLAGS}   -O3 " )
-endif ()
+if(MSVC)
+    # C++11 compilation flag is activated by default
+    # Optimisation flags can be added if deemed useful
+else()
+    if(OD_ENABLE_WARNINGS)
+        # Help getting compilation warnings
+        set(OD_OPT_FLAGS "${OD_OPT_FLAGS} -Wall")
+    endif()
+    if(MINGW)
+        if(NOT OD_CXX11_FLAGS)
+            set(OD_CXX11_FLAGS "-std=gnu++11" CACHE STRING "Compilation flags to enable C++11 support" FORCE)
+        endif()
+        # This includes enough debug information to get something useful
+        # from Dr. Mingw while keeping binary size down. Almost useless
+        # with gdb, though.
+        set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -ggdb0 -gstabs2")
+    elseif(UNIX)
+        if(NOT OD_CXX11_FLAGS)
+            set(OD_CXX11_FLAGS "-std=c++11" CACHE STRING "Compilation flags to enable C++11 support" FORCE)
+        endif()
+    endif()
+endif()
 
+set(CMAKE_CXX_FLAGS "${OD_CXX11_FLAGS} ${OD_OPT_FLAGS} ${CMAKE_CXX_FLAGS}")
+message(STATUS "CMake CXX Flags: " ${CMAKE_CXX_FLAGS})
 
 ##################################
 #### Source files (.cpp) #########
@@ -204,28 +243,6 @@ set(OD_SOURCEFILES
     ${SRC}/Vector3i.cpp
     ${SRC}/Weapon.cpp
 )
-
-##################################
-#### Project settings ############
-##################################
-
-project(OpenDungeons)
-
-#postfix bin if we are on linux as we want to launch with a script
-if(WIN32)
-    set(PROJECT_BINARY_NAME "OpenDungeons")
-else()
-    set(PROJECT_BINARY_NAME "OpenDungeons.bin")
-endif()
-
-# Project version
-# TODO - make this set version string in source file automatically.
-set(${PROJECT_NAME}_MAJOR_VERSION 0)
-set(${PROJECT_NAME}_MINOR_VERSION 4)
-set(${PROJECT_NAME}_PATCH_LEVEL   9)
-
-# Where we want the binary
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 
 ##################################
 #### Find packages ###############

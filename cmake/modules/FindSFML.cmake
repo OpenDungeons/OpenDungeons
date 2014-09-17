@@ -56,7 +56,7 @@ if(SFML_STATIC_LIBRARIES)
 endif()
 
 # deduce the libraries suffix from the options
-set(FIND_SFML_LIB_SUFFIX "")
+set(FIND_SFML_LIB_SUFFIX "" CACHE STRING "Suffix to add the the SFML2 library names")
 if(SFML_STATIC_LIBRARIES)
     set(FIND_SFML_LIB_SUFFIX "${FIND_SFML_LIB_SUFFIX}-s")
 endif()
@@ -64,6 +64,7 @@ endif()
 # find the SFML include directory
 find_path(SFML_INCLUDE_DIR SFML/Config.hpp
           PATH_SUFFIXES include
+                        include/SFML2
           PATHS
           ${SFML_ROOT}
           $ENV{SFML_ROOT}
