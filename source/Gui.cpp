@@ -650,20 +650,20 @@ const std::string Gui::EXIT_CONFIRMATION_POPUP_NO_BUTTON = "ConfirmExit/NoOption
 const std::string Gui::SKM_TEXT_LOADING = "LoadingText";
 const std::string Gui::SKM_BUTTON_LAUNCH = "LaunchGameButton";
 const std::string Gui::SKM_BUTTON_BACK = "BackButton";
-const std::string Gui::SKM_LIST_LEVELS = "LevelSelect";
+const std::string Gui::SKM_LIST_LEVELS = "LevelWindowFrame/LevelSelect";
 
 const std::string Gui::MPM_TEXT_LOADING = "LoadingText";
 const std::string Gui::MPM_BUTTON_SERVER = "ServerButton";
 const std::string Gui::MPM_BUTTON_CLIENT = "ClientButton";
 const std::string Gui::MPM_BUTTON_BACK = "BackButton";
-const std::string Gui::MPM_LIST_LEVELS = "LevelSelect";
+const std::string Gui::MPM_LIST_LEVELS = "LevelWindowFrame/LevelSelect";
 const std::string Gui::MPM_EDIT_IP = "IpEdit";
 const std::string Gui::MPM_EDIT_NICK = "NickEdit";
 
 const std::string Gui::EDM_TEXT_LOADING = "LoadingText";
 const std::string Gui::EDM_BUTTON_LAUNCH = "LaunchGameButton";
 const std::string Gui::EDM_BUTTON_BACK = "BackButton";
-const std::string Gui::EDM_LIST_LEVELS = "LevelSelect";
+const std::string Gui::EDM_LIST_LEVELS = "LevelWindowFrame/LevelSelect";
 
 const std::string Gui::EDITOR = "MainTabControl";
 const std::string Gui::EDITOR_LAVA_BUTTON = "MainTabControl/Tiles/LavaButton";

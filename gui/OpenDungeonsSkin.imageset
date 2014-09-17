@@ -61,4 +61,47 @@
     <Image height="12" name="HorizontalPipe" width="58" xPos="266" yPos="163" />
     <Image height="65" name="VerticalPipe" width="13" xPos="266" yPos="178" />
     <Image height="34" name="VerticalPipeBig" width="22" xPos="281" yPos="178" />
+    <Image height="62" name="ClientBrush" width="62" xPos="334" yPos="131" />
+    <Image height="36" name="WindowTopRight" width="36" xPos="449" yPos="123" />
+    <Image height="36" name="WindowTopLeft" width="36" xPos="411" yPos="123" />
+    <Image height="36" name="WindowBottomLeft" width="36" xPos="411" yPos="163" />
+    <Image height="36" name="WindowBottomRight" width="36" xPos="449" yPos="163" />
+    <Image height="36" name="WindowTopEdge" width="2" xPos="447" yPos="123" />
+    <Image height="36" name="WindowBottomEdge" width="2" xPos="447" yPos="163" />
+    <Image height="4" name="WindowRightEdge" width="36" xPos="449" yPos="159" />
+    <Image height="4" name="WindowLeftEdge" width="36" xPos="411" yPos="159" />
+    <Image height="32" name="TitleBarLeft" width="17" xPos="333" yPos="198" />
+    <Image height="32" name="TitleBarMiddle" width="17" xPos="358" yPos="198" />
+    <Image height="32" name="TitleBarRight" width="17" xPos="358" yPos="198" />
+    <Image height="32" name="SysAreaMiddle" width="17" xPos="358" yPos="198" />
+    <Image height="32" name="SysAreaRight" width="17" xPos="384" yPos="198" />
+    <Image height="14" name="SelectionBrush" width="14" xPos="419" yPos="92" />
+    <Image height="16" name="MouseTextBar" width="5" xPos="123" yPos="20" />
+    <Image height="4" name="EditBoxTopLeft" width="4" xPos="67" yPos="74" />
+    <Image height="8" name="EditBoxMiddle" width="32" xPos="71" yPos="78" />
+    <Image height="8" name="EditBoxRightEdge" width="4" xPos="103" yPos="78" />
+    <Image height="18" name="EditBoxCaret" width="4" xPos="137" yPos="19" />
+    <Image height="4" name="EditBoxBottomLeft" width="4" xPos="67" yPos="86" />
+    <Image height="4" name="EditBoxTopRight" width="4" xPos="103" yPos="74" />
+    <Image height="4" name="EditBoxBottomRight" width="4" xPos="103" yPos="86" />
+    <Image height="4" name="EditBoxBottomEdge" width="32" xPos="71" yPos="86" />
+    <Image height="4" name="EditBoxTopEdge" width="32" xPos="71" yPos="74" />
+    <Image height="8" name="EditBoxLeftEdge" width="4" xPos="67" yPos="78" />
+    <Image height="15" name="CloseButtonNormal" width="15" xPos="146" yPos="19" />
+    <Image height="15" name="CloseButtonHover" width="15" xPos="167" yPos="19" />
+    <Image height="15" name="CloseButtonPressed" width="15" xPos="188" yPos="19" />
+    <Image height="4" name="TooltipBottomLeft" width="4" xPos="67" yPos="104" />
+    <Image height="4" name="TooltipBottomRight" width="4" xPos="103" yPos="104" />
+    <Image height="4" name="TooltipTopRight" width="4" xPos="103" yPos="92" />
+    <Image height="4" name="TooltipTopLeft" width="4" xPos="67" yPos="92" />
+    <Image height="4" name="TooltipTopEdge" width="32" xPos="71" yPos="92" />
+    <Image height="4" name="TooltipBottomEdge" width="32" xPos="71" yPos="104" />
+    <Image height="8" name="TooltipLeftEdge" width="4" xPos="67" yPos="96" />
+    <Image height="8" name="TooltipRightEdge" width="4" xPos="103" yPos="96" />
+    <Image height="8" name="TooltipMiddle" width="32" xPos="71" yPos="96" />
+    <Image height="13" name="MouseMoveCursor" width="13" xPos="184" yPos="45" />
+    <Image height="13" name="MouseNoSoCursor" width="6" xPos="143" yPos="45" />
+    <Image height="5" name="MouseEsWeCursor" width="13" xPos="124" yPos="49" />
+    <Image height="12" name="MouseNwSeCursor" width="12" xPos="168" yPos="45" />
+    <Image height="12" name="MouseNeSwCursor" width="12" xPos="153" yPos="45" />
 </Imageset>

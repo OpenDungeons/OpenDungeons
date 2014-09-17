@@ -72,7 +72,7 @@ void MenuModeMultiplayer::activate()
         {
             CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(mListFiles[n]);
             item->setID(n);
-            item->setSelectionBrushImage("OpenDungeonsOldSkin/ListboxSelectionBrush");
+            item->setSelectionBrushImage("OpenDungeonsSkin/SelectionBrush");
             levelSelectList->addItem(item);
         }
     }

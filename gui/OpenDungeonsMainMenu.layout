@@ -30,5 +30,12 @@
             <Property name="Area" value="{{0.5,-82},{0,574},{0.5,82},{0,664}}" />
             <Property name="Text" value="Quit" />
         </Window>
+        <Window type="OD/StaticText" name="VersionText" >
+            <Property name="Area" value="{{0,673},{0,171},{0,773},{0,191}}" />
+            <Property name="Text" value="0.4.9" />
+            <Property name="MaxSize" value="{{1,0},{1,0}}" />
+            <Property name="FrameEnabled" value="False" />
+            <Property name="BackgroundEnabled" value="False" />
+        </Window>
     </Window>
 </GUILayout>

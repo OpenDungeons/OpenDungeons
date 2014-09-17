@@ -73,7 +73,7 @@ void MenuModeEditor::activate()
         {
             CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem("SKIRMISH - " + mListFilesSkirmish[n]);
             item->setID(n);
-            item->setSelectionBrushImage("OpenDungeonsOldSkin/ListboxSelectionBrush");
+            item->setSelectionBrushImage("OpenDungeonsSkin/SelectionBrush");
             levelSelectList->addItem(item);
         }
     }
@@ -84,7 +84,7 @@ void MenuModeEditor::activate()
         {
             CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem("MULTIPLAYER - " + mListFilesMultiplayer[n]);
             item->setID(n + mListFilesSkirmish.size());
-            item->setSelectionBrushImage("OpenDungeonsOldSkin/ListboxSelectionBrush");
+            item->setSelectionBrushImage("OpenDungeonsSkin/SelectionBrush");
             levelSelectList->addItem(item);
         }
     }
