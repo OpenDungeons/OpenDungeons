@@ -23,7 +23,7 @@ set(${PROJECT_NAME}_PATCH_LEVEL   9)
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 
 # Compilation options
-option(ENABLE_WARNINGS "Compile the game with all standard warnings enabled" OFF)
+option(OD_ENABLE_WARNINGS "Compile the game with all standard warnings enabled" OFF)
 
 ##################################
 #### Useful variables ############
@@ -51,25 +51,36 @@ endif()
 #### ExplicitCompilerFlags #######
 ##################################
 
+# CMAKE_CXX_FLAGS are meant to be defined using these two public strings
+# This makes it possible to have them explicitly displayed in CMake GUI
+# CMAKE_CXX_FLAGS can still be used to override our default defintions
+set(OD_OPT_FLAGS CACHE STRING "Optimization and optional compilation flags")
+set(OD_CXX11_FLAGS CACHE STRING "Compilation flags to enable C++11 support")
+
 if(MSVC)
     # C++11 compilation flag is activated by default
     # Optimisation flags can be added if deemed useful
 else()
-    if(ENABLE_WARNINGS)
+    if(OD_ENABLE_WARNINGS)
         # Help getting compilation warnings
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+        set(OD_OPT_FLAGS "${OD_OPT_FLAGS} -Wall")
     endif()
     if(MINGW)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
+        if(NOT OD_CXX11_FLAGS)
+            set(OD_CXX11_FLAGS "-std=gnu++11")
+        endif()
         # This includes enough debug information to get something useful
         # from Dr. Mingw while keeping binary size down. Almost useless
         # with gdb, though.
         set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -ggdb0 -gstabs2")
     elseif(UNIX)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+        if(NOT OD_CXX11_FLAGS)
+            set(OD_CXX11_FLAGS "-std=c++11")
+        endif()
     endif()
 endif()
 
+set(CMAKE_CXX_FLAGS "${OD_CXX11_FLAGS} ${OD_OPT_FLAGS} ${CMAKE_CXX_FLAGS}")
 message(STATUS "CMake CXX Flags: " ${CMAKE_CXX_FLAGS})
 
 ##################################
