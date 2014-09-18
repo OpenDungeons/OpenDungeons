@@ -7,16 +7,8 @@
         <Property name="MaxSize" value="{{1,0},{1,0}}" />
         <Property name="FrameEnabled" value="False" />
         <Property name="BackgroundEnabled" value="False" />
-        <Window type="OD/MainMenuButton" name="BackButton" >
-            <Property name="Area" value="{{0.3,3},{0,591},{0.3,167},{0,681}}" />
-            <Property name="Text" value="Back" />
-        </Window>
-        <Window type="OD/MainMenuButton" name="LaunchGameButton" >
-            <Property name="Area" value="{{0.5,23},{0,591},{0.5,187},{0,681}}" />
-            <Property name="Text" value="Start Editor" />
-        </Window>
         <Window type="OD/StaticText" name="LoadingText" >
-            <Property name="Area" value="{{0.5,-300},{0,547},{0.5,300},{0,567}}" />
+            <Property name="Area" value="{{0.5,-301},{0,672},{0.5,299},{0,692}}" />
             <Property name="Text" value="Loading..." />
             <Property name="MaxSize" value="{{1,0},{1,0}}" />
             <Property name="FrameEnabled" value="False" />
@@ -24,25 +16,27 @@
             <Property name="BackgroundEnabled" value="False" />
         </Window>
         <Window type="OD/FrameWindow" name="LevelWindowFrame" >
-            <Property name="Area" value="{{0.7,-615},{0,206},{0.7,199},{0,538}}" />
+            <Property name="Area" value="{{0.7,-614},{0,217},{0.7,200},{0,662}}" />
+            <Property name="Text" value="Please choose a Level to edit..." />
             <Window type="OD/Listbox" name="LevelSelect" >
                 <Property name="Area" value="{{0.5,-393},{0,43},{0.5,-84},{0,313}}" />
                 <Property name="ForceVertScrollbar" value="True" />
             </Window>
             <Window type="OD/StaticText" name="MapDescriptionText" >
-                <Property name="Area" value="{{0.6,-151},{0,49},{0.6,287},{0,310}}" />
+                <Property name="Area" value="{{0.6,-153},{0,43},{0.6,301},{0,313}}" />
                 <Property name="Text" value="Map Description Text" />
                 <Property name="MaxSize" value="{{1,0},{1,0}}" />
                 <Property name="FrameEnabled" value="False" />
                 <Property name="VertFormatting" value="TopAligned" />
                 <Property name="BackgroundEnabled" value="False" />
             </Window>
-            <Window type="OD/StaticText" name="ChooseLevelText" >
-                <Property name="Area" value="{{0.5,-385},{0,-2},{0.5,270},{0,27}}" />
-                <Property name="Text" value="Please Choose a Level to edit..." />
-                <Property name="MaxSize" value="{{1,0},{1,0}}" />
-                <Property name="FrameEnabled" value="False" />
-                <Property name="BackgroundEnabled" value="False" />
+            <Window type="OD/MainMenuButton" name="BackButton" >
+                <Property name="Area" value="{{0.3,-61},{0,335},{0.3,103},{0,425}}" />
+                <Property name="Text" value="Back" />
+            </Window>
+            <Window type="OD/MainMenuButton" name="LaunchGameButton" >
+                <Property name="Area" value="{{0.5,-2},{0,336},{0.5,162},{0,426}}" />
+                <Property name="Text" value="Start Editor" />
             </Window>
         </Window>
         <Window type="OD/StaticImage" name="WelcomeBanner" >
