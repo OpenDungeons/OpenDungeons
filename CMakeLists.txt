@@ -498,8 +498,9 @@ else()
     #only use d3d renderer plugins if we are on windows
     set(OPENDUNGEONS_COMMENT_D3D "#")
     #On linux, we should look in the standard paths for plugins
-    if("${OGRE_PLUGIN_DIR_REL}" STREQUAL "NOTFOUND")
+    if("${OGRE_PLUGIN_DIR_REL}" STREQUAL "")
         #Try pkgconfig if the ogre module doesn't set the plugin paths
+        message(STATUS "Looking for plugin path using pkgconfig...")
         find_package(PkgConfig)
         if(PKG_CONFIG_FOUND)
             execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} OGRE --variable=plugindir
