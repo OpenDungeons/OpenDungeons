@@ -5,15 +5,9 @@
     <Image height="64" name="WaterButton" width="64" xPos="191" yPos="433" />
     <Image height="64" name="DirtButton" width="64" xPos="255" yPos="433" />
     <Image height="64" name="ClaimedButton" width="64" xPos="319" yPos="433" />
-    <Image height="16" name="ButtonLeftNormal" width="12" xPos="67" yPos="20" />
-    <Image height="16" name="ButtonMiddleNormal" width="16" xPos="79" yPos="20" />
-    <Image height="16" name="ButtonRightNormal" width="12" xPos="95" yPos="20" />
-    <Image height="16" name="ButtonLeftPushed" width="12" xPos="67" yPos="38" />
-    <Image height="16" name="ButtonMiddlePushed" width="16" xPos="79" yPos="38" />
-    <Image height="16" name="ButtonRightPushed" width="12" xPos="95" yPos="38" />
-    <Image height="16" name="ButtonLeftHighlight" width="12" xPos="67" yPos="56" />
-    <Image height="16" name="ButtonMiddleHighlight" width="16" xPos="79" yPos="56" />
-    <Image height="16" name="ButtonRightHighlight" width="12" xPos="95" yPos="56" />
+    <Image height="4" name="ButtonTopLeftNormal" width="4" xPos="67" yPos="20" />
+    <Image height="8" name="ButtonMiddleNormal" width="32" xPos="71" yPos="24" />
+    <Image height="4" name="ButtonTopRightNormal" width="4" xPos="103" yPos="20" />
     <Image height="18" name="VertScrollUpNormal" width="21" xPos="429" yPos="67" />
     <Image height="18" name="VertScrollDownNormal" width="21" xPos="429" yPos="46" />
     <Image height="18" name="VertScrollUpHover" width="21" xPos="404" yPos="67" />
@@ -104,4 +98,28 @@
     <Image height="5" name="MouseEsWeCursor" width="13" xPos="124" yPos="49" />
     <Image height="12" name="MouseNwSeCursor" width="12" xPos="168" yPos="45" />
     <Image height="12" name="MouseNeSwCursor" width="12" xPos="153" yPos="45" />
+    <Image height="4" name="ButtonBottomLeftNormal" width="4" xPos="67" yPos="32" />
+    <Image height="4" name="ButtonBottomRightNormal" width="4" xPos="103" yPos="32" />
+    <Image height="8" name="ButtonLeftNormal" width="4" xPos="67" yPos="24" />
+    <Image height="8" name="ButtonRightNormal" width="4" xPos="103" yPos="24" />
+    <Image height="4" name="ButtonTopNormal" width="32" xPos="71" yPos="20" />
+    <Image height="4" name="ButtonBottomNormal" width="32" xPos="71" yPos="32" />
+    <Image height="4" name="ButtonTopLeftHighlight" width="4" xPos="67" yPos="56" />
+    <Image height="4" name="ButtonBottomLeftHighlight" width="4" xPos="67" yPos="68" />
+    <Image height="8" name="ButtonLeftHighlight" width="4" xPos="67" yPos="60" />
+    <Image height="8" name="ButtonRightHighlight" width="4" xPos="103" yPos="60" />
+    <Image height="4" name="ButtonTopRightHighlight" width="4" xPos="103" yPos="56" />
+    <Image height="4" name="ButtonBottomRightHighlight" width="4" xPos="103" yPos="68" />
+    <Image height="4" name="ButtonTopHighlight" width="32" xPos="71" yPos="56" />
+    <Image height="8" name="ButtonMiddleHighlight" width="32" xPos="71" yPos="60" />
+    <Image height="4" name="ButtonBottomHighlight" width="32" xPos="71" yPos="68" />
+    <Image height="4" name="ButtonTopLeftPushed" width="4" xPos="67" yPos="38" />
+    <Image height="8" name="ButtonLeftPushed" width="4" xPos="67" yPos="42" />
+    <Image height="4" name="ButtonBottomLeftPushed" width="4" xPos="67" yPos="50" />
+    <Image height="4" name="ButtonTopPushed" width="32" xPos="71" yPos="38" />
+    <Image height="4" name="ButtonBottomPushed" width="32" xPos="71" yPos="50" />
+    <Image height="8" name="ButtonMiddlePushed" width="32" xPos="71" yPos="42" />
+    <Image height="4" name="ButtonTopRightPushed" width="4" xPos="103" yPos="38" />
+    <Image height="4" name="ButtonBottomRightPushed" width="4" xPos="103" yPos="50" />
+    <Image height="8" name="ButtonRightPushed" width="4" xPos="103" yPos="42" />
 </Imageset>
