@@ -11,9 +11,13 @@
             <Property name="Area" value="{{0.5,-82},{0,211},{0.5,82},{0,301}}" />
             <Property name="Text" value="Skirmish" />
         </Window>
-        <Window type="OD/MainMenuButton" name="StartMultiplayerButton" >
-            <Property name="Area" value="{{0.5,-82},{0,331},{0.5,82},{0,421}}" />
-            <Property name="Text" value="Multiplayer" />
+        <Window type="OD/MainMenuButton" name="StartMultiplayerClientButton" >
+            <Property name="Area" value="{{0.43,-82},{0,331},{0.43,82},{0,421}}" />
+            <Property name="Text" value="Join Game" />
+        </Window>
+        <Window type="OD/MainMenuButton" name="StartMultiplayerServerButton" >
+            <Property name="Area" value="{{0.57,-82},{0,331},{0.57,82},{0,421}}" />
+            <Property name="Text" value="Host Game" />
         </Window>
         <Window type="OD/MainMenuButton" name="MapEditorButton" >
             <Property name="Area" value="{{0.5,-82},{0,451},{0.5,82},{0,541}}" />

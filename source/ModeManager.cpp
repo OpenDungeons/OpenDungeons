@@ -21,7 +21,8 @@
 #include "InputManager.h"
 #include "MenuMode.h"
 #include "MenuModeSkirmish.h"
-#include "MenuModeMultiplayer.h"
+#include "MenuModeMultiplayerClient.h"
+#include "MenuModeMultiplayerServer.h"
 #include "MenuModeEditor.h"
 #include "GameMode.h"
 #include "EditorMode.h"
@@ -109,8 +110,11 @@ void ModeManager::addMode(ModeType mt)
     case MENU_SKIRMISH:
         mApplicationModes.push_back(new MenuModeSkirmish(this));
         break;
-    case MENU_MULTIPLAYER:
-        mApplicationModes.push_back(new MenuModeMultiplayer(this));
+    case MENU_MULTIPLAYER_CLIENT:
+        mApplicationModes.push_back(new MenuModeMultiplayerClient(this));
+        break;
+    case MENU_MULTIPLAYER_SERVER:
+        mApplicationModes.push_back(new MenuModeMultiplayerServer(this));
         break;
     case MENU_EDITOR:
         mApplicationModes.push_back(new MenuModeEditor(this));

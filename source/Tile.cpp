@@ -388,18 +388,18 @@ bool Tile::permitsVision() const
 
 bool Tile::isBuildableUpon() const
 {
-    if(type != claimed || getFullness() > 0.0 || coveringTrap == true)
+    if(type != claimed || getFullness() > 0.0 || coveringTrap != NULL)
         return false;
 
     return (coveringRoom == NULL);
 }
 
-bool Tile::getCoveringTrap() const
+Trap* Tile::getCoveringTrap() const
 {
     return coveringTrap;
 }
 
-void Tile::setCoveringTrap(bool t)
+void Tile::setCoveringTrap(Trap* t)
 {
     coveringTrap = t;
     mClaimedPercentage = 1.0;

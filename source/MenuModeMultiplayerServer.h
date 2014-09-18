@@ -15,17 +15,17 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MENUMODEMULTIPLAYER_H
-#define MENUMODEMULTIPLAYER_H
+#ifndef MENUMODEMULTIPLAYERSERVER_H
+#define MENUMODEMULTIPLAYERSERVER_H
 
 #include "AbstractApplicationMode.h"
 
-class MenuModeMultiplayer: public AbstractApplicationMode
+class MenuModeMultiplayerServer: public AbstractApplicationMode
 {
 public:
-    MenuModeMultiplayer(ModeManager*);
+    MenuModeMultiplayerServer(ModeManager*);
 
-    virtual ~MenuModeMultiplayer();
+    virtual ~MenuModeMultiplayerServer();
 
     virtual bool mouseMoved     (const OIS::MouseEvent &arg);
     virtual bool mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id);
@@ -42,7 +42,6 @@ public:
     void activate();
 
     void serverButtonPressed();
-    void clientButtonPressed();
     void listLevelsClicked();
 
     virtual bool waitForGameStart()
@@ -57,4 +56,4 @@ private:
     bool mReadyToStartGame;
 };
 
-#endif // MENUMODEMULTIPLAYER_H
+#endif // MENUMODEMULTIPLAYERSERVER_H

@@ -39,7 +39,8 @@ public:
         NONE = 0, // No change requested
         MENU = 1,
         MENU_SKIRMISH,
-        MENU_MULTIPLAYER,
+        MENU_MULTIPLAYER_CLIENT,
+        MENU_MULTIPLAYER_SERVER,
         MENU_EDITOR,
         GAME,
         EDITOR,
@@ -69,9 +70,16 @@ public:
     }
 
     //! \brief Request Multiplayer menu mode at next update
-    void requestMenuMultiplayerMode(bool discardActualMode = false)
+    void requestMenuMultiplayerClientMode(bool discardActualMode = false)
     {
-        mRequestedMode = ModeManager::MENU_MULTIPLAYER;
+        mRequestedMode = ModeManager::MENU_MULTIPLAYER_CLIENT;
+        mDiscardActualMode = discardActualMode;
+    }
+
+    //! \brief Request Multiplayer menu mode at next update
+    void requestMenuMultiplayerServerMode(bool discardActualMode = false)
+    {
+        mRequestedMode = ModeManager::MENU_MULTIPLAYER_SERVER;
         mDiscardActualMode = discardActualMode;
     }
 

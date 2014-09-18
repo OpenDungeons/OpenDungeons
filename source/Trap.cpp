@@ -294,7 +294,7 @@ void Trap::addCoveredTile(Tile* t, double nHP)
 {
     mCoveredTiles.push_back(t);
     mTileHP[t] = nHP;
-    t->setCoveringTrap(true);
+    t->setCoveringTrap(this);
 }
 
 void Trap::removeCoveredTile(Tile* t)
@@ -304,7 +304,7 @@ void Trap::removeCoveredTile(Tile* t)
         if (t == mCoveredTiles[i])
         {
             mCoveredTiles.erase(mCoveredTiles.begin() + i);
-            t->setCoveringTrap(false);
+            t->setCoveringTrap(NULL);
             mTileHP.erase(t);
             break;
         }
