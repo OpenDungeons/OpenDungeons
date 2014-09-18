@@ -2649,14 +2649,8 @@ void Creature::createStatsWindow()
     CEGUI::Window* textWindow = wmgr->createWindow("OD/StaticText", "TextDisplay");
     textWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.15, 0)));
     textWindow->setSize(CEGUI::USize(CEGUI::UDim(0.9, 0), CEGUI::UDim(0.8, 0)));
-
-    CEGUI::Window* closeButton = wmgr->createWindow("OD/Button", "CloseButton");
-    closeButton->setPosition(CEGUI::UVector2(CEGUI::UDim(0.75, 0),CEGUI::UDim(0.80, 0)));
-    closeButton->setSize(CEGUI::USize(CEGUI::UDim(0, 60), CEGUI::UDim(0, 45)));
-    closeButton->setText("Close");
-    // Make the button close the window
-    closeButton->subscribeEvent(CEGUI::PushButton::EventClicked,
-                                CEGUI::Event::Subscriber(&Creature::CloseStatsWindow, this));
+    textWindow->setProperty("FrameEnabled", "False");
+    textWindow->setProperty("BackgroundEnabled", "False");
 
     // Search for the autoclose button and make it work
     CEGUI::Window* childWindow = mStatsWindow->getChild("__auto_closebutton__");
@@ -2668,7 +2662,6 @@ void Creature::createStatsWindow()
     childWindow->setText(getName() + " (" + getDefinition()->getClassName() + ")");
 
     mStatsWindow->addChild(textWindow);
-    mStatsWindow->addChild(closeButton);
     rootWindow->addChild(mStatsWindow);
     mStatsWindow->show();
 
