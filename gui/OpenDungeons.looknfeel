@@ -33,8 +33,14 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
+                <Image component="TopLeftCorner" name="OpenDungeonsSkin/ButtonTopLeftNormal" />
+                <Image component="TopRightCorner" name="OpenDungeonsSkin/ButtonTopRightNormal" />
+                <Image component="BottomLeftCorner" name="OpenDungeonsSkin/ButtonBottomLeftNormal" />
+                <Image component="BottomRightCorner" name="OpenDungeonsSkin/ButtonBottomRightNormal" />
                 <Image component="LeftEdge" name="OpenDungeonsSkin/ButtonLeftNormal" />
                 <Image component="RightEdge" name="OpenDungeonsSkin/ButtonRightNormal" />
+                <Image component="BottomEdge" name="OpenDungeonsSkin/ButtonBottomNormal" />
+                <Image component="TopEdge" name="OpenDungeonsSkin/ButtonTopNormal" />
                 <Image component="Background" name="OpenDungeonsSkin/ButtonMiddleNormal" />
             </FrameComponent>
             <ImageryComponent>
@@ -57,8 +63,14 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
+                <Image component="TopLeftCorner" name="OpenDungeonsSkin/ButtonTopLeftHighlight" />
+                <Image component="TopRightCorner" name="OpenDungeonsSkin/ButtonTopRightHighlight" />
+                <Image component="BottomLeftCorner" name="OpenDungeonsSkin/ButtonBottomLeftHighlight" />
+                <Image component="BottomRightCorner" name="OpenDungeonsSkin/ButtonBottomRightHighlight" />
                 <Image component="LeftEdge" name="OpenDungeonsSkin/ButtonLeftHighlight" />
                 <Image component="RightEdge" name="OpenDungeonsSkin/ButtonRightHighlight" />
+                <Image component="BottomEdge" name="OpenDungeonsSkin/ButtonBottomHighlight" />
+                <Image component="TopEdge" name="OpenDungeonsSkin/ButtonTopHighlight" />
                 <Image component="Background" name="OpenDungeonsSkin/ButtonMiddleHighlight" />
             </FrameComponent>
             <ImageryComponent>
@@ -81,8 +93,14 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
+                <Image component="TopLeftCorner" name="OpenDungeonsSkin/ButtonTopLeftPushed" />
+                <Image component="TopRightCorner" name="OpenDungeonsSkin/ButtonTopRightPushed" />
+                <Image component="BottomLeftCorner" name="OpenDungeonsSkin/ButtonBottomLeftPushed" />
+                <Image component="BottomRightCorner" name="OpenDungeonsSkin/ButtonBottomRightPushed" />
                 <Image component="LeftEdge" name="OpenDungeonsSkin/ButtonLeftPushed" />
                 <Image component="RightEdge" name="OpenDungeonsSkin/ButtonRightPushed" />
+                <Image component="BottomEdge" name="OpenDungeonsSkin/ButtonBottomPushed" />
+                <Image component="TopEdge" name="OpenDungeonsSkin/ButtonTopPushed" />
                 <Image component="Background" name="OpenDungeonsSkin/ButtonMiddlePushed" />
             </FrameComponent>
             <ImageryComponent>
