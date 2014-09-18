@@ -260,8 +260,12 @@ void Gui::assignEventHandlers()
         CEGUI::Event::Subscriber(&mSKMBackButtonPressed));
 
     sheets[skirmishMenu]->getChild(SKM_LIST_LEVELS)->subscribeEvent(
-        CEGUI::Listbox::EventMouseDoubleClick,
+        CEGUI::Listbox::EventMouseClick,
         CEGUI::Event::Subscriber(&mSKMListClicked));
+
+    sheets[skirmishMenu]->getChild(SKM_LIST_LEVELS)->subscribeEvent(
+        CEGUI::Listbox::EventMouseDoubleClick,
+        CEGUI::Event::Subscriber(&mSKMListDoubleClicked));
 
     // Multiplayer menu controls
     // Server part
@@ -553,6 +557,17 @@ bool Gui::mSKMListClicked(const CEGUI::EventArgs& e)
 
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     static_cast<MenuModeSkirmish*>(mm->getCurrentMode())->listLevelsClicked();
+    return true;
+}
+
+bool Gui::mSKMListDoubleClicked(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_SKIRMISH)
+        return true;
+
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    static_cast<MenuModeSkirmish*>(mm->getCurrentMode())->listLevelsDoubleClicked();
     return true;
 }
 

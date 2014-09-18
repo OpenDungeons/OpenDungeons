@@ -27,6 +27,7 @@
 #include "ODClient.h"
 #include "ODApplication.h"
 #include "LogManager.h"
+#include "MapLoader.h"
 
 #include <CEGUI/CEGUI.h>
 #include "boost/filesystem.hpp"
@@ -62,14 +63,19 @@ void MenuModeSkirmish::activate()
 
     tmpWin = Gui::getSingleton().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);
     tmpWin->hide();
-    mListFiles.clear();
+    mFilesList.clear();
+    mDescriptionList.clear();
     levelSelectList->resetList();
 
-    if(Helper::fillFileStemsList(LEVEL_PATH, mListFiles, LEVEL_EXTENSION))
+    if(Helper::fillFilesList(LEVEL_PATH, mFilesList, LEVEL_EXTENSION))
     {
-        for (int n = 0; n < mListFiles.size(); ++n)
+        for (int n = 0; n < mFilesList.size(); ++n)
         {
-            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(mListFiles[n]);
+            std::string filename = mFilesList[n];
+            std::string mapName = MapLoader::getMapName(filename);
+            std::string mapDescription = MapLoader::getMapDescription(filename);
+            mDescriptionList.push_back(mapDescription);
+            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(mapName);
             item->setID(n);
             item->setSelectionBrushImage("OpenDungeonsSkin/SelectionBrush");
             levelSelectList->addItem(item);
@@ -97,7 +103,7 @@ void MenuModeSkirmish::launchSelectedButtonPressed()
     CEGUI::ListboxItem* selItem = levelSelectList->getFirstSelectedItem();
     int id = selItem->getID();
 
-    std::string level = LEVEL_PATH + mListFiles[id] + LEVEL_EXTENSION;
+    std::string level = mFilesList[id];
     // In single player mode, we act as a server
     if(!ODServer::getSingleton().startServer(level, true, ODServer::ServerMode::ModeGame))
     {
@@ -117,7 +123,33 @@ void MenuModeSkirmish::launchSelectedButtonPressed()
     mReadyToStartGame = true;
 }
 
+void MenuModeSkirmish::updateDescription()
+{
+    // Get the level corresponding id
+    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_LIST_LEVELS);
+    CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);
+
+    CEGUI::Window* descTxt = Gui::getSingleton().getGuiSheet(Gui::skirmishMenu)->getChild("LevelWindowFrame/MapDescriptionText");
+
+    if(levelSelectList->getSelectedCount() == 0)
+    {
+        descTxt->setText("");
+        return;
+    }
+
+    CEGUI::ListboxItem* selItem = levelSelectList->getFirstSelectedItem();
+    int id = selItem->getID();
+
+    std::string description = mDescriptionList[id];
+    descTxt->setText(description);
+}
+
 void MenuModeSkirmish::listLevelsClicked()
+{
+    updateDescription();
+}
+
+void MenuModeSkirmish::listLevelsDoubleClicked()
 {
     launchSelectedButtonPressed();
 }

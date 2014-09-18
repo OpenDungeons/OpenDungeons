@@ -647,4 +647,176 @@ bool loadCreatureDefinition(const std::string& fileName, GameMap& gameMap)
     return true;
 }
 
+std::string getMapDescription(const std::string& fileName)
+{
+    std::stringstream mapInfo;
+
+    // Try to open the input file for reading and throw an error if we can't.
+    std::ifstream baseLevelFile(fileName.c_str(), std::ifstream::in);
+    if (!baseLevelFile.good())
+        return "Invalid map!";
+
+    // Read in the whole baseLevelFile, strip it of comments and feed it into
+    // the stringstream levelFile, to be read by the rest of the function.
+    std::stringstream levelFile;
+    std::string nextParam;
+    while (baseLevelFile.good())
+    {
+        std::getline(baseLevelFile, nextParam);
+        /* Find the first occurrence of the comment symbol on the
+         * line and return everything before that character.
+         */
+        levelFile << nextParam.substr(0, nextParam.find('#')) << "\n";
+    }
+
+    baseLevelFile.close();
+
+    // Read in the version number from the level file
+    levelFile >> nextParam;
+    if (nextParam.compare(ODApplication::VERSIONSTRING) != 0)
+        return "Invalid map!";
+
+    levelFile >> nextParam;
+    if (nextParam != "[Info]")
+        return "Invalid map!";
+
+    std::string mapDescription;
+
+    // Read in the seats from the level file
+    while (true)
+    {
+        // Information can contain spaces. We need to use std::getline to get content
+        std::getline(levelFile, nextParam);
+        std::string param;
+        if (nextParam == "[/Info]")
+        {
+            break;
+        }
+
+        param = "Name\t";
+        if (nextParam.compare(0, param.size(), param) == 0)
+        {
+            mapInfo << nextParam.substr(param.size()) << std::endl << std::endl;
+            continue;
+        }
+
+        param = "Description\t";
+        if (nextParam.compare(0, param.size(), param) == 0)
+        {
+            mapDescription = nextParam.substr(param.size());
+            continue;
+        }
+
+    }
+
+    levelFile >> nextParam;
+    if (nextParam != "[Seats]")
+    {
+        mapInfo << mapDescription;
+        return mapInfo.str();
+    }
+
+    // Read in the seats from the level file
+    int seatNumber = 0;
+    while (true)
+    {
+        levelFile >> nextParam;
+        if (nextParam == "[/Seats]")
+            break;
+
+        std::string entire_line = nextParam;
+        std::getline(levelFile, nextParam);
+        entire_line += nextParam;
+        //std::cout << entire_line << std::endl;
+
+        ++seatNumber;
+    }
+    mapInfo << "Players: " << seatNumber << std::endl << std::endl;
+
+    // Read in the goals that are shared by all players, the first player to complete all these goals is the winner.
+    levelFile >> nextParam;
+    if (nextParam != "[Goals]")
+    {
+        mapInfo << mapDescription;
+        return mapInfo.str();
+    }
+
+    while(true)
+    {
+        levelFile >> nextParam;
+        if (nextParam == "[/Goals]")
+            break;
+    }
+
+    levelFile >> nextParam;
+    if (nextParam != "[Tiles]")
+    {
+        mapInfo << mapDescription;
+        return mapInfo.str();
+    }
+
+    // Load the map size on next two lines
+    int mapSizeX;
+    int mapSizeY;
+    levelFile >> mapSizeX;
+    levelFile >> mapSizeY;
+
+    mapInfo << "Size: " << mapSizeX << "x" << mapSizeY << std::endl << std::endl;
+
+    mapInfo << mapDescription;
+    return mapInfo.str();
+}
+
+std::string getMapName(const std::string& fileName)
+{
+    // Try to open the input file for reading and throw an error if we can't.
+    std::ifstream baseLevelFile(fileName.c_str(), std::ifstream::in);
+    if (!baseLevelFile.good())
+        return fileName;
+
+    // Read in the whole baseLevelFile, strip it of comments and feed it into
+    // the stringstream levelFile, to be read by the rest of the function.
+    std::stringstream levelFile;
+    std::string nextParam;
+    while (baseLevelFile.good())
+    {
+        std::getline(baseLevelFile, nextParam);
+        /* Find the first occurrence of the comment symbol on the
+         * line and return everything before that character.
+         */
+        levelFile << nextParam.substr(0, nextParam.find('#')) << "\n";
+    }
+
+    baseLevelFile.close();
+
+    // Read in the version number from the level file
+    levelFile >> nextParam;
+    if (nextParam.compare(ODApplication::VERSIONSTRING) != 0)
+        return fileName;
+
+    levelFile >> nextParam;
+    if (nextParam != "[Info]")
+        return fileName;
+
+    // Read in the seats from the level file
+    while (true)
+    {
+        // Information can contain spaces. We need to use std::getline to get content
+        std::getline(levelFile, nextParam);
+        std::string param;
+        if (nextParam == "[/Info]")
+        {
+            break;
+        }
+
+        param = "Name\t";
+        if (nextParam.compare(0, param.size(), param) == 0)
+        {
+            return nextParam.substr(param.size());
+        }
+    }
+
+    return fileName;
+}
+
 } // Namespace MapLoader

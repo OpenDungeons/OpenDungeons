@@ -159,8 +159,11 @@ private:
     //! \brief What happens after a click on Load in the level selection menu
     static bool mSKMLoadButtonPressed   (const CEGUI::EventArgs& e);
 
-    //! \brief What happens after a click on the level list in the level selection menu
+    //! \brief What happens after a single click on the level list in the level selection menu
     static bool mSKMListClicked         (const CEGUI::EventArgs& e);
+
+    //! \brief What happens after a double click on the level list in the level selection menu
+    static bool mSKMListDoubleClicked   (const CEGUI::EventArgs& e);
 
     //! \brief What happens after a click on Back in the editor level selection menu
     static bool mEDMBackButtonPressed   (const CEGUI::EventArgs& e);
