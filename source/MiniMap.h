@@ -26,6 +26,7 @@
 #include "GameMap.h"
 #include "Tile.h"
 #include "Creature.h"
+#include "Gui.h"
 
 #include <OgreTexture.h>
 #include <OgrePixelFormat.h>
@@ -73,6 +74,8 @@ public:
 
     Ogre::Vector2 camera_2dPositionFromClick(int xx, int yy);
 
+    void attachMiniMap(Gui::guiSheet sheet);
+
 private:
     Ogre::uint mWidth;
     Ogre::uint mHeight;
@@ -90,6 +93,8 @@ private:
     Ogre::TexturePtr mMiniMapOgreTexture;
     Ogre::HardwarePixelBufferSharedPtr mPixelBuffer;
     Ogre::PixelBox* mPixelBox;
+
+    Gui::guiSheet mSheetUsed;
 
     void allocateMiniMapMemory();
 

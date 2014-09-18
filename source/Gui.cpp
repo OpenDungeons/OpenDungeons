@@ -240,6 +240,10 @@ void Gui::assignEventHandlers()
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&cannonButtonPressed));
 
+    sheets[editorModeGui]->getChild(MINIMAP)->subscribeEvent(
+            CEGUI:: Window::EventMouseClick,
+            CEGUI::Event::Subscriber(&miniMapclicked));
+
     // Skirmish level select menu controls
     sheets[skirmishMenu]->getChild(SKM_BUTTON_LAUNCH)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
@@ -380,9 +384,7 @@ bool Gui::confirmExitYesButtonPressed(const CEGUI::EventArgs& e)
         return true;
 
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
-    mm->requestUnloadToParentGameMode();
-    mm->shutdownGameMode();
-
+    mm->requestUnloadToParentMode();
     return true;
 }
 
@@ -508,7 +510,7 @@ bool Gui::mSKMBackButtonPressed(const CEGUI::EventArgs& e)
         return true;
 
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
-    mm->requestUnloadToParentGameMode();
+    mm->requestUnloadToParentMode();
     return true;
 }
 
@@ -541,7 +543,7 @@ bool Gui::mEDMBackButtonPressed(const CEGUI::EventArgs& e)
         return true;
 
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
-    mm->requestUnloadToParentGameMode();
+    mm->requestUnloadToParentMode();
     return true;
 }
 
@@ -574,7 +576,7 @@ bool Gui::mMPMBackButtonPressed(const CEGUI::EventArgs& e)
         return true;
 
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
-    mm->requestUnloadToParentGameMode();
+    mm->requestUnloadToParentMode();
     return true;
 }
 
@@ -672,3 +674,4 @@ const std::string Gui::EDITOR_ROCK_BUTTON = "MainTabControl/Tiles/RockButton";
 const std::string Gui::EDITOR_CLAIMED_BUTTON = "MainTabControl/Tiles/ClaimedButton";
 const std::string Gui::EDITOR_FULLNESS = "HorizontalPipe/FullnessDisplay";
 const std::string Gui::EDITOR_CURSOR_POS = "HorizontalPipe/PositionDisplay";
+const std::string Gui::EDITOR_SEAT_ID = "HorizontalPipe/SeatIdDisplay";

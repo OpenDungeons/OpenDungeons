@@ -50,6 +50,8 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "removeMapLight";
         case ServerNotificationType::addClass:
             return "addClass";
+        case ServerNotificationType::clientAccepted:
+            return "clientAccepted";
         case ServerNotificationType::chat:
             return "chat";
         case ServerNotificationType::chatServer:

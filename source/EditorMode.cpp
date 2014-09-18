@@ -35,6 +35,7 @@
 #include "Console.h"
 #include "MusicPlayer.h"
 #include "ODClient.h"
+#include "ODServer.h"
 
 #include <OgreEntity.h>
 
@@ -47,6 +48,7 @@ EditorMode::EditorMode(ModeManager* modeManager):
     AbstractApplicationMode(modeManager, ModeManager::EDITOR),
     mCurrentTileType(Tile::TileType::nullTileType),
     mCurrentFullness(100.0),
+    mCurrentSeatId(0),
     mGameMap(ODFrameListener::getSingletonPtr()->getClientGameMap()),
     mMouseX(0),
     mMouseY(0),
@@ -69,10 +71,17 @@ void EditorMode::activate()
     // Loads the corresponding Gui sheet.
     Gui::getSingleton().loadGuiSheet(Gui::editorModeGui);
 
+    MiniMap* minimap = ODFrameListener::getSingleton().getMiniMap();
+    minimap->attachMiniMap(Gui::guiSheet::editorModeGui);
+
     giveFocus();
 
     // Stop the game music.
     MusicPlayer::getSingleton().stop();
+
+    // By default, we set the current seat id to the connected player
+    Player* player = mGameMap->getLocalPlayer();
+    mCurrentSeatId = player->getSeat()->getId();
 
     mGameMap->setGamePaused(false);
 }
@@ -388,7 +397,8 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     bool skipCreaturePickUp = false;
     Player* player = mGameMap->getLocalPlayer();
     if (player && (player->getNewRoomType() != Room::nullRoomType
-        || player->getNewTrapType() != Trap::nullTrapType))
+        || player->getNewTrapType() != Trap::nullTrapType
+        || mCurrentTileType != Tile::TileType::nullTileType))
     {
         skipCreaturePickUp = true;
     }
@@ -543,6 +553,7 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
             case Tile::TileType::dirt:
             case Tile::TileType::gold:
             case Tile::TileType::rock:
+            case Tile::TileType::claimed:
                 fullness = mCurrentFullness;
                 break;
             default:
@@ -555,6 +566,7 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
         clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
         clientNotification->mPacket << intTileType;
         clientNotification->mPacket << fullness;
+        clientNotification->mPacket << mCurrentSeatId;
         ODClient::getSingleton().queueClientNotification(clientNotification);
     }
     else if(dragType == addNewRoom)
@@ -564,7 +576,7 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
             ClientNotification::editorAskBuildRoom);
         clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
         clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
-        clientNotification->mPacket << intRoomType;
+        clientNotification->mPacket << intRoomType << mCurrentSeatId;
         ODClient::getSingleton().queueClientNotification(clientNotification);
     }
     else if(dragType == addNewTrap)
@@ -574,7 +586,7 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
         int intTrapType = static_cast<int>(mGameMap->getLocalPlayer()->getNewTrapType());
         clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
         clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
-        clientNotification->mPacket << intTrapType;
+        clientNotification->mPacket << intTrapType << mCurrentSeatId;
         ODClient::getSingleton().queueClientNotification(clientNotification);
     }
     return true;
@@ -595,6 +607,12 @@ void EditorMode::updateCursorText()
     posWin = Gui::getSingletonPtr()->getGuiSheet(Gui::editorModeGui)->getChild(Gui::EDITOR_CURSOR_POS);
     textSS.str("");
     textSS << "Cursor: x: " << mMouseX << ", y: " << mMouseY;
+    posWin->setText(textSS.str());
+
+    // Update the seat id
+    posWin = Gui::getSingletonPtr()->getGuiSheet(Gui::editorModeGui)->getChild(Gui::EDITOR_SEAT_ID);
+    textSS.str("");
+    textSS << "Seat id (Y): " << mCurrentSeatId;
     posWin->setText(textSS.str());
 }
 
@@ -674,10 +692,8 @@ bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
 
     //Toggle mCurrentTileType
     case OIS::KC_R:
-    {
         mCurrentTileType = Tile::nextTileType(mCurrentTileType);
         updateCursorText();
-    }
         break;
 
     //Toggle mCurrentFullness
@@ -686,10 +702,15 @@ bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
         updateCursorText();
         break;
 
+    //Toggle mCurrentSeatId
+    case OIS::KC_Y:
+        mCurrentSeatId = mGameMap->nextSeatId(mCurrentSeatId);
+        updateCursorText();
+        break;
+
     // Quit the Editor Mode
     case OIS::KC_ESCAPE:
         regressMode();
-        mModeManager->shutdownGameMode();
         break;
 
     case OIS::KC_F8:
@@ -828,4 +849,19 @@ void EditorMode::onFrameStarted(const Ogre::FrameEvent& evt)
 
 void EditorMode::onFrameEnded(const Ogre::FrameEvent& evt)
 {
+}
+
+void EditorMode::exitMode()
+{
+    if(ODClient::getSingleton().isConnected())
+        ODClient::getSingleton().disconnect();
+    if(ODServer::getSingleton().isConnected())
+        ODServer::getSingleton().stopServer();
+
+    // Now that the server is stopped, we can clear the client game map
+    // We process RenderRequests in case there is graphical things pending
+    RenderManager::getSingleton().processRenderRequests();
+    ODFrameListener::getSingleton().getClientGameMap()->clearAll();
+    // We process again RenderRequests to destroy/delete what clearAll has put in the queue
+    RenderManager::getSingleton().processRenderRequests();
 }

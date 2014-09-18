@@ -402,6 +402,8 @@ bool Tile::getCoveringTrap() const
 void Tile::setCoveringTrap(bool t)
 {
     coveringTrap = t;
+    mClaimedPercentage = 1.0;
+    setType(claimed);
 }
 
 Room* Tile::getCoveringRoom()
@@ -417,13 +419,13 @@ void Tile::setCoveringRoom(Room *r)
     if (coveringRoom == NULL)
     {
         setSeat(NULL);
-        colorDouble = 0.0;
+        mClaimedPercentage = 0.0;
         setType(dirt);
         return;
     }
 
     setSeat(coveringRoom->getSeat());
-    colorDouble = 1.0;
+    mClaimedPercentage = 1.0;
     setType(claimed);
 }
 
@@ -446,11 +448,11 @@ bool Tile::isDiggable(Seat* seat) const
     // type == claimed
 
     // For claimed walls, we check whether the walls is either claimed by the given player,
-    if (isClaimedForSeat(seat) && colorDouble >= 1.0)
+    if (isClaimedForSeat(seat) && mClaimedPercentage >= 1.0)
         return true;
 
     // or whether it isn't belonging to a specific team.
-    if (colorDouble <= 0.0)
+    if (mClaimedPercentage <= 0.0)
         return true;
 
     return false;
@@ -478,7 +480,7 @@ bool Tile::isWallClaimable(Seat* seat)
             continue;
 
         if (neighbors[j]->getType() == claimed
-                && neighbors[j]->colorDouble >= 1.0
+                && neighbors[j]->getClaimedPercentage() >= 1.0
                 && neighbors[j]->isClaimedForSeat(seat))
         {
             foundClaimedGroundTile = true;
@@ -498,7 +500,7 @@ bool Tile::isWallClaimable(Seat* seat)
     // type == claimed
 
     // For claimed walls, we check whether it isn't belonging completely to a specific team.
-    if (colorDouble < 1.0)
+    if (mClaimedPercentage < 1.0)
         return true;
 
     Seat* tileSeat = getSeat();
@@ -506,7 +508,7 @@ bool Tile::isWallClaimable(Seat* seat)
         return true;
 
     // Or whether the wall tile is either claimed by the given player entirely already,
-    // NOTE: colorDouble >= 1.0 here
+    // NOTE: mClaimedPercentage >= 1.0 from here
     if (isClaimedForSeat(seat))
         return false; // Already claimed.
 
@@ -519,7 +521,7 @@ bool Tile::isWallClaimable(Seat* seat)
             continue;
 
         if (neighbors[j]->getType() == claimed
-                && neighbors[j]->colorDouble >= 1.0
+                && neighbors[j]->mClaimedPercentage >= 1.0
                 && neighbors[j]->isClaimedForSeat(tileSeat))
         {
             foundClaimedGroundTile = true;
@@ -541,7 +543,7 @@ bool Tile::isWallClaimedForSeat(Seat* seat)
     if (type != claimed)
         return false;
 
-    if (colorDouble <= 0.99)
+    if (mClaimedPercentage <= 0.99)
         return false;
 
     Seat* tileSeat = getSeat();
@@ -559,11 +561,25 @@ const char* Tile::getFormat()
     return "posX\tposY\ttype\tfullness";
 }
 
+std::ostream& operator<<(std::ostream& os, Tile *t)
+{
+    os << t->x << "\t" << t->y << "\t";
+    os << t->getType() << "\t" << t->getFullness();
+    Seat* seat = t->getSeat();
+    if(t->getType() != Tile::TileType::claimed || seat == NULL)
+        return os;
+
+    os << "\t" << seat->getId();
+
+    return os;
+}
+
 ODPacket& operator<<(ODPacket& os, Tile *t)
 {
     Seat* seat = t->getSeat();
     int seatId = 0;
-    if(seat != NULL)
+    // We only pass the seat to the client if the tile is fully claimed
+    if((seat != NULL) && (t->mClaimedPercentage >= 1.0))
         seatId = seat->getId();
     int intType =static_cast<Tile::TileType>(t->getType());
     double fullness = t->getFullness();
@@ -574,17 +590,12 @@ ODPacket& operator<<(ODPacket& os, Tile *t)
 
 ODPacket& operator>>(ODPacket& is, Tile *t)
 {
-    int tempInt, xLocation, yLocation;
-    double tempDouble;
+    int seatId, intTileType, xLocation, yLocation;
+    double fullness;
     std::stringstream ss;
 
     // We set the seat if there is one
-    is >> tempInt;
-    if(tempInt != 0)
-    {
-        Seat* seat = t->getGameMap()->getSeatById(tempInt);
-        t->setSeat(seat);
-    }
+    is >> seatId;
 
     is >> xLocation >> yLocation;
 
@@ -599,12 +610,20 @@ ODPacket& operator>>(ODPacket& is, Tile *t)
     t->x = xLocation;
     t->y = yLocation;
 
-    is >> tempInt;
-    t->setType(static_cast<Tile::TileType>(tempInt));
+    is >> intTileType;
+    Tile::TileType tileType = static_cast<Tile::TileType>(intTileType);
+    t->setType(tileType);
 
-    is >> tempDouble;
-    t->setFullnessValue(tempDouble);
+    is >> fullness;
+    t->setFullnessValue(fullness);
 
+    if((tileType != Tile::TileType::claimed) || (seatId == 0))
+        return is;
+    Seat* seat = t->getGameMap()->getSeatById(seatId);
+    if(seat == NULL)
+        return is;
+    t->setSeat(seat);
+    t->mClaimedPercentage = 1.0;
     return is;
 }
 
@@ -640,7 +659,7 @@ void Tile::loadFromLine(const std::string& line, Tile *t)
     if(seat == NULL)
         return;
     t->setSeat(seat);
-    t->colorDouble = 1.0;
+    t->mClaimedPercentage = 1.0;
 }
 
 std::string Tile::tileTypeToString(TileType t)
@@ -951,9 +970,9 @@ void Tile::claimForSeat(Seat* seat, double nDanceRate)
     Seat* tileSeat = getSeat();
     if (tileSeat != NULL && tileSeat->isAlliedSeat(seat))
     {
-        amountClaimed = std::min(nDanceRate, 1.0 - colorDouble);
-        colorDouble += nDanceRate;
-        if (colorDouble >= 1.0)
+        amountClaimed = std::min(nDanceRate, 1.0 - mClaimedPercentage);
+        mClaimedPercentage += nDanceRate;
+        if (mClaimedPercentage >= 1.0)
         {
             claimTile(seat);
 
@@ -980,17 +999,17 @@ void Tile::claimForSeat(Seat* seat, double nDanceRate)
     }
     else
     {
-        amountClaimed = std::min(nDanceRate, 1.0 + colorDouble);
-        colorDouble -= nDanceRate;
-        if (colorDouble <= 0.0)
+        amountClaimed = std::min(nDanceRate, 1.0 + mClaimedPercentage);
+        mClaimedPercentage -= nDanceRate;
+        if (mClaimedPercentage <= 0.0)
         {
             // The tile is not yet claimed, but it is now an allied seat.
-            colorDouble *= -1.0;
+            mClaimedPercentage *= -1.0;
             setSeat(seat);
 
-            if (colorDouble >= 1.0)
+            if (mClaimedPercentage >= 1.0)
             {
-                colorDouble = 1.0;
+                mClaimedPercentage = 1.0;
                 refreshMesh();
 
                 // Force all the neighbors to recheck their meshes as we have updated this tile.
@@ -1032,7 +1051,7 @@ void Tile::claimTile(Seat* seat)
     // Claim the tile.
     // We need this because if we are a client, the tile may be from a non allied seat
     setSeat(seat);
-    colorDouble = 1.0;
+    mClaimedPercentage = 1.0;
     setType(Tile::claimed);
 
     refreshMesh();
@@ -1250,6 +1269,9 @@ void Tile::refreshFromTile(const Tile& tile)
 {
     type = tile.type;
     setFullness(tile.fullness);
+    Seat* seat = tile.getSeat();
+    setSeat(seat);
+    mClaimedPercentage = tile.mClaimedPercentage;
     // Note : There will be no visual change until the tile mesh is refreshed
 }
 

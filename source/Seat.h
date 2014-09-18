@@ -92,8 +92,8 @@ public:
 
     void refreshFromSeat(Seat* s);
 
-    int getColor() const
-    { return mColor; }
+    int getTeamId() const
+    { return mTeamId; }
 
     int getId() const
     { return mId; }
@@ -130,8 +130,8 @@ public:
     bool canOwnedTileBeClaimedBy(Seat* seat);
     bool canOwnedCreatureUseRoomFrom(Seat* seat);
 
-    //! \brief The color index of the players sitting in this seat.
-    int mColor;
+    //! \brief The team id of the player sitting in this seat.
+    int mTeamId;
 
     //! \brief The name of the faction that this seat is playing as.
     std::string mFaction;
@@ -160,7 +160,7 @@ public:
 
     int mStartingGold;
 
-    static bool sortById(Seat* s1, Seat* s2);
+    static bool sortForMapSave(Seat* s1, Seat* s2);
 
     static std::string getFormat();
     friend ODPacket& operator<<(ODPacket& os, Seat *s);

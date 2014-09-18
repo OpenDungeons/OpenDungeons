@@ -110,16 +110,14 @@ public:
         mDiscardActualMode = discardActualMode;
      }
 
-    //! \brief Request unloading the current new game mode and activate the parent one
+    //! \brief Request unloading the current mode and activate the parent one
     //! at next update
-    void requestUnloadToParentGameMode()
+    void requestUnloadToParentMode()
     {
         mRequestedMode = PREV;
     }
 
-    void shutdownGameMode();
-
-    //! \brief Actually change the game mode if needed
+    //! \brief Actually change the mode if needed
     void checkModeChange();
 
     InputManager* getInputManager()
@@ -140,23 +138,23 @@ private:
     //! \brief The console instance
     Console* mConsole;
 
-    //! \brief The vector containing the loaded game modes.
+    //! \brief The vector containing the loaded modes.
     //! The active one is either the last one, or the console when
     //! mIsInConsole is equal to true.
-    std::vector<AbstractApplicationMode*> mGameModes;
+    std::vector<AbstractApplicationMode*> mApplicationModes;
 
-    //! \brief Tells which new game mode is requested.
+    //! \brief Tells which new mode is requested.
     ModeManager::ModeType mRequestedMode;
 
-    //! \brief When the new game mode will be set, if true, the actual one will be
+    //! \brief When the new mode will be set, if true, the actual one will be
     //! discarded. That allows to use temporary menu
     bool mDiscardActualMode;
 
     //! \brief The Angel Script wrapper, used in every game modes
     ASWrapper* mASWrapper;
 
-    void _addGameMode(ModeType);
-    void _removeGameMode();
+    void addMode(ModeType);
+    void removeMode();
 };
 
 #endif // MODEMANAGER_H

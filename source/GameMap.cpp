@@ -481,7 +481,9 @@ void GameMap::createAllEntities()
     // Create OGRE entities for the rooms
     for (unsigned int i = 0, num = numRooms(); i < num; ++i)
     {
-        getRoom(i)->createMesh();
+        Room* room = getRoom(i);
+        room->createMesh();
+        room->updateActiveSpots();
     }
 
     // Create OGRE entities for the rooms
@@ -867,6 +869,10 @@ void GameMap::updatePlayerFightingTime(Ogre::Real timeSinceLastFrame)
 void GameMap::playerIsFighting(Player* player)
 {
     if (player == NULL)
+        return;
+
+    // No need to notify AI players
+    if(player->getHasAI())
         return;
 
     if (player->getFightingTime() == 0.0f)
@@ -2388,7 +2394,7 @@ std::vector<Tile*> GameMap::getBuildableTilesForPlayerInArea(int x1, int y1, int
         }
         else if (!(tile->getFullness() == 0.0
                     && tile->getType() == Tile::claimed
-                    && tile->colorDouble >= 1.0
+                    && tile->getClaimedPercentage() >= 1.0
                     && tile->isClaimedForSeat(player->getSeat())))
         {
             it = tiles.erase(it);
@@ -2491,6 +2497,40 @@ int GameMap::addGoldToSeat(int gold, int seatId)
     }
 
     return gold;
+}
+
+int GameMap::nextSeatId(int SeatId)
+{
+    int firstSeatId = -1;
+    bool useNext = false;
+    for(std::vector<Seat*>::iterator it = emptySeats.begin(); it != emptySeats.end(); ++it)
+    {
+        Seat* seat = *it;
+        if(useNext)
+            return seat->getId();
+
+        if(firstSeatId == -1)
+            firstSeatId = seat->getId();
+
+        if(seat->getId() == SeatId)
+            useNext = true;
+    }
+
+    for(std::vector<Seat*>::iterator it = filledSeats.begin(); it != filledSeats.end(); ++it)
+    {
+        Seat* seat = *it;
+        if(useNext)
+            return seat->getId();
+
+        if(firstSeatId == -1)
+            firstSeatId = seat->getId();
+
+        if(seat->getId() == SeatId)
+            useNext = true;
+    }
+
+    // If we reach here, that means that we have to last seat id. We return the first one we could find
+    return firstSeatId;
 }
 
 std::string GameMap::nextUniqueNameCreature(const std::string& className)

@@ -8,7 +8,7 @@ FightMusic	The_Dark_Amulet.ogg
 [/Info]
 
 [Seats]
-# seatId	color	faction	startingX	startingY	colorR	colorG	colorB	startingGold
+# seatId	teamId	faction	startingX	startingY	colorR	colorG	colorB	startingGold
 1	1	Player	195	207	0	0.4	0	1000
 2	2	Player	252	211	0.4	0	0	1000
 3	3	KeeperAI	167	104	0	0	0.4	1000

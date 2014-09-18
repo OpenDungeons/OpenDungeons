@@ -8,7 +8,7 @@ FightMusic	The_Dark_Amulet.ogg
 [/Info]
 
 [Seats]
-# seatId	color	faction	startingX	startingY	colorR	colorG	colorB	startingGold
+# seatId	teamId	faction	startingX	startingY	colorR	colorG	colorB	startingGold
 1	1	Player	51	16	0	0.4	0	1000
 2	2	KeeperAI	7	55	0.4	0	0	1000
 3	3	KeeperAI	91	55	0	0	0.4	1000
@@ -3871,7 +3871,7 @@ Forge	4
 55	83
 55	84
 55	85
-Hatchery	4
+Farm	4
 25
 43	68
 43	69
@@ -3898,7 +3898,7 @@ Hatchery	4
 47	70
 47	71
 47	72
-Hatchery	4
+Farm	4
 25
 51	68
 51	69

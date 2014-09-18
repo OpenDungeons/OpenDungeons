@@ -51,6 +51,15 @@
                     <Property name="VerticalAlignment" value="Centre" />
                 </Window>
             </Window>
+            <Window type="OD/StaticText" name="SeatIdDisplay" >
+                <Property name="Area" value="{{0,400},{0,0},{0,550},{0,25}}" />
+                <Property name="Text" value="Seat id (Y): 0" />
+                <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                <Property name="TooltipText" value="Selected Seat Id" />
+                <Property name="HorzFormatting" value="RightAligned" />
+                <Property name="ClippedByParent" value="False" />
+                <Property name="VerticalAlignment" value="Centre" />
+            </Window>
         </Window>
         <Window type="OD/Button" name="OptionsButton" >
             <Property name="Area" value="{{1,-277},{0,2},{1,-205},{0,35}}" />

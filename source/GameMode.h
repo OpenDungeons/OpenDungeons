@@ -79,6 +79,8 @@ class  GameMode: public AbstractApplicationMode
 
     bool waitForGameStart() { return true; }
 
+    virtual void exitMode();
+
  protected:
     //! \brief Handle the keyboard input in normal mode
     virtual bool keyPressedNormal   (const OIS::KeyEvent &arg);

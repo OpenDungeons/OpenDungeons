@@ -1174,7 +1174,7 @@ bool Creature::handleClaimTileAction()
     }
 
     // See if the tile we are standing on can be claimed
-    if ((!myTile->isClaimedForSeat(getSeat()) || myTile->colorDouble < 1.0) && myTile->isGroundClaimable())
+    if ((!myTile->isClaimedForSeat(getSeat()) || myTile->getClaimedPercentage() < 1.0) && myTile->isGroundClaimable())
     {
         //cout << "\nTrying to claim the tile I am standing on.";
         // Check to see if one of the tile's neighbors is claimed for our color
@@ -1183,7 +1183,7 @@ bool Creature::handleClaimTileAction()
         {
             // Check to see if the current neighbor is already claimed
             Tile* tempTile = neighbors[j];
-            if (tempTile->isClaimedForSeat(getSeat()) && tempTile->colorDouble >= 1.0)
+            if (tempTile->isClaimedForSeat(getSeat()) && tempTile->getClaimedPercentage() >= 1.0)
             {
                 //cout << "\t\tFound a neighbor that is claimed.";
                 // If we found a neighbor that is claimed for our side than we can start
@@ -1208,9 +1208,8 @@ bool Creature::handleClaimTileAction()
         // If the current neighbor is claimable, walk into it and skip to the end of this turn
         int tempInt = Random::Uint(0, neighbors.size() - 1);
         Tile* tempTile = neighbors[tempInt];
-        //NOTE:  I don't think the "colorDouble" check should happen here.
         if (tempTile != NULL && tempTile->getFullness() == 0.0
-            && (!tempTile->isClaimedForSeat(getSeat()) || tempTile->colorDouble < 1.0)
+            && (!tempTile->isClaimedForSeat(getSeat()) || tempTile->getClaimedPercentage() < 1.0)
             && tempTile->isGroundClaimable())
         {
             // The neighbor tile is a potential candidate for claiming, to be an actual candidate
@@ -1221,7 +1220,7 @@ bool Creature::handleClaimTileAction()
             {
                 tempTile2 = neighbors2[i];
                 if (tempTile2->isClaimedForSeat(getSeat())
-                        && tempTile2->colorDouble >= 1.0)
+                        && tempTile2->getClaimedPercentage() >= 1.0)
                 {
                     clearDestinations();
                     addDestination((Ogre::Real)tempTile->x, (Ogre::Real)tempTile->y);
@@ -1242,7 +1241,7 @@ bool Creature::handleClaimTileAction()
         // if this tile is not fully claimed yet or the tile is of another player's color
         Tile* tempTile = mVisibleTiles[i];
         if (tempTile != NULL && tempTile->getFullness() == 0.0
-            && (tempTile->colorDouble < 1.0 || !tempTile->isClaimedForSeat(getSeat()))
+            && (tempTile->getClaimedPercentage() < 1.0 || !tempTile->isClaimedForSeat(getSeat()))
             && tempTile->isGroundClaimable())
         {
             // Check to see if one of the tile's neighbors is claimed for our color
@@ -1251,7 +1250,7 @@ bool Creature::handleClaimTileAction()
             {
                 tempTile = neighbors[j];
                 if (tempTile->isClaimedForSeat(getSeat())
-                        && tempTile->colorDouble >= 1.0)
+                        && tempTile->getClaimedPercentage() >= 1.0)
                 {
                     claimableTiles.push_back(tempTile);
                 }
@@ -1278,7 +1277,7 @@ bool Creature::handleClaimTileAction()
             neighbors = tempTile->getAllNeighbors();
             for (unsigned int i = 0; i < neighbors.size(); ++i)
             {
-                if (neighbors[i]->isClaimedForSeat(getSeat()) && neighbors[i]->colorDouble >= 1.0)
+                if (neighbors[i]->isClaimedForSeat(getSeat()) && neighbors[i]->getClaimedPercentage() >= 1.0)
                     ++numNeighborsClaimed;
             }
 
@@ -2737,7 +2736,7 @@ std::string Creature::getStatsText()
     }
     tempSS << std::endl;
     tempSS << "Seat id: " << getSeat()->getId() << std::endl;
-    tempSS << "Seat color: " << getSeat()->getColor() << std::endl;
+    tempSS << "Team id: " << getSeat()->getTeamId() << std::endl;
     tempSS << "Position: " << Ogre::StringConverter::toString(getPosition()) << std::endl;
     return tempSS.str();
 }

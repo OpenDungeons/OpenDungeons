@@ -489,8 +489,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             // Tell the client to load the given map
             setClientState(clientSocket, "loadLevel");
             ODPacket packetSend;
-            int32_t intServerMode = static_cast<int32_t>(mServerMode);
-            packetSend << ServerNotification::loadLevel << mLevelFilename << intServerMode;
+            packetSend << ServerNotification::loadLevel << mLevelFilename;
             sendMsgToClient(clientSocket, packetSend);
             break;
         }
@@ -578,8 +577,13 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 }
             }
 
-             // The player received everything. He is ready
-             setClientState(clientSocket, "ready");
+            // The player received everything. He is ready
+            setClientState(clientSocket, "ready");
+            // We notify the client that everything is ready
+            packetSend.clear();
+            int32_t intServerMode = static_cast<int32_t>(mServerMode);
+            packetSend << ServerNotification::clientAccepted << intServerMode;
+            sendMsgToClient(clientSocket, packetSend);
             --mNbClientsNotReady;
             LogManager::getSingleton().logMessage("Player=" + curPlayer->getNick()
                 + " has been accepted in the game on seatId="
@@ -847,11 +851,19 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             int x1, y1, x2, y2;
             int intTileType;
             double tileFullness;
+            int seatId;
 
-            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> intTileType >> tileFullness);
+            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> intTileType >> tileFullness >> seatId);
             Tile::TileType tileType = static_cast<Tile::TileType>(intTileType);
             std::vector<Tile*> selectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
             std::vector<Tile*> affectedTiles;
+            Seat* seat = NULL;
+            double claimedPercentage = 0.0;
+            if(tileType == Tile::TileType::claimed)
+            {
+                seat = gameMap->getSeatById(seatId);
+                claimedPercentage = 1.0;
+            }
             for(std::vector<Tile*>::iterator it = selectedTiles.begin(); it != selectedTiles.end(); ++it)
             {
                 Tile* tile = *it;
@@ -859,16 +871,19 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     continue;
 
                 // We do not change tiles where there is something
-                if(tile->numCreaturesInCell() > 0)
+                if((tile->numCreaturesInCell() > 0) &&
+                   ((tileFullness > 0.0) || (tileType == Tile::TileType::lava) || (tileType == Tile::TileType::water)))
                     continue;
                 if(tile->getCoveringRoom() != NULL)
                     continue;
-                if(tile->getCoveringTrap())
+                if(tile->getCoveringTrap() != NULL)
                     continue;
 
                 affectedTiles.push_back(tile);
                 tile->setType(tileType);
                 tile->setFullness(tileFullness);
+                tile->setSeat(seat);
+                tile->mClaimedPercentage = claimedPercentage;
             }
             if(!affectedTiles.empty())
             {
@@ -889,10 +904,11 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         case ClientNotification::editorAskBuildRoom:
         {
             int x1, y1, x2, y2;
-            int intType;
+            int intType, seatId;
 
-            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> intType);
-            Player* player = clientSocket->getPlayer();
+            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> intType >> seatId);
+            Player* player = gameMap->getPlayerBySeatId(seatId);
+            OD_ASSERT_TRUE_MSG(player != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
             std::vector<Tile*> selectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
             std::vector<Tile*> affectedTiles;
             for(std::vector<Tile*>::iterator it = selectedTiles.begin(); it != selectedTiles.end(); ++it)
@@ -901,12 +917,10 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 if(tile == NULL)
                     continue;
 
-                // We do not change tiles where there is something
-                if(tile->numCreaturesInCell() > 0)
-                    continue;
+                // We do not change tiles where there is something on the tile
                 if(tile->getCoveringRoom() != NULL)
                     continue;
-                if(tile->getCoveringTrap())
+                if(tile->getCoveringTrap() != NULL)
                     continue;
                 affectedTiles.push_back(tile);
 
@@ -940,10 +954,11 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         case ClientNotification::editorAskBuildTrap:
         {
             int x1, y1, x2, y2;
-            int intType;
+            int intType, seatId;
 
-            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> intType);
-            Player* player = clientSocket->getPlayer();
+            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> intType >> seatId);
+            Player* player = gameMap->getPlayerBySeatId(seatId);
+            OD_ASSERT_TRUE_MSG(player != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
             std::vector<Tile*> selectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
             std::vector<Tile*> affectedTiles;
             for(std::vector<Tile*>::iterator it = selectedTiles.begin(); it != selectedTiles.end(); ++it)
@@ -953,11 +968,9 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     continue;
 
                 // We do not change tiles where there is something
-                if(tile->numCreaturesInCell() > 0)
-                    continue;
                 if(tile->getCoveringRoom() != NULL)
                     continue;
-                if(tile->getCoveringTrap())
+                if(tile->getCoveringTrap() != NULL)
                     continue;
                 affectedTiles.push_back(tile);
 

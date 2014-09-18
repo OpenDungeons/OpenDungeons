@@ -52,6 +52,8 @@ public:
         return mGameMap;
     }
 
+    virtual void exitMode();
+
 private:
     //! \brief Tile type (Dirt, Lava, ...)
     Tile::TileType mCurrentTileType;
@@ -59,6 +61,9 @@ private:
     //! \brief how of the wall type is there (0 - 100.0)
     //! < 1.0 means no walls.
     double mCurrentFullness;
+
+    //! \brief Current selected seat id
+    int mCurrentSeatId;
 
     //! \brief The creature node name being dragged by the mouse
     std::string mDraggedCreature;

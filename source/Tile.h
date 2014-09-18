@@ -49,6 +49,7 @@ class Tile : public GameEntity
 
 friend class TileContainersModificator;
 friend class GameMap;
+friend class ODServer;
 
 public:
     enum TileType
@@ -68,7 +69,7 @@ public:
         GameEntity          (gameMap),
         x                   (nX),
         y                   (nY),
-        colorDouble         (0.0),
+        mClaimedPercentage  (0.0),
         rotation            (0.0),
         type                (nType),
         selected            (false),
@@ -237,6 +238,8 @@ public:
     //! \brief Loads the tile data from a level line.
     static void loadFromLine(const std::string& line, Tile *t);
 
+    friend std::ostream& operator<<(std::ostream& os, Tile *t);
+
     /*! \brief The << operator is used for saving tiles to a file and sending them over the net.
      *
      * This operator is used in conjunction with the >> operator to standardize
@@ -269,13 +272,17 @@ public:
     int getY() const
     { return y; }
 
+    double getClaimedPercentage()
+    {
+        return mClaimedPercentage;
+    }
+
     static std::string buildName(int x, int y);
     static bool checkTileName(const std::string& tileName, int& x, int& y);
 
     static std::string displayAsString(Tile* tile);
 
     int x, y;
-    double colorDouble;
     Ogre::Real rotation;
 
     //TODO properly implement these
@@ -316,6 +323,7 @@ private:
     bool coveringTrap;
     MapLight *claimLight;
     int mFloodFillColor[FloodFillTypeMax];
+    double mClaimedPercentage;
 
     /*! \brief Set the fullness value for the tile.
      *  This only sets the fullness variable. This function is here to change the value

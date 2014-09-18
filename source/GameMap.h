@@ -242,6 +242,8 @@ public:
     //! this is used when a Player "sits down" at the GameMap.
     Seat* popEmptySeat(int id);
 
+    int nextSeatId(int SeatId);
+
     //! \brief A simple accessor method to return the number of empty Seats on the GameMap.
     unsigned int numEmptySeats() const;
 
