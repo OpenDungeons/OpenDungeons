@@ -42,7 +42,10 @@ public:
     void activate();
 
     void serverButtonPressed();
+    void updateDescription();
+
     void listLevelsClicked();
+    void listLevelsDoubleClicked();
 
     virtual bool waitForGameStart()
     {
@@ -50,7 +53,8 @@ public:
     }
 
 private:
-    std::vector<std::string> mListFiles;
+    std::vector<std::string> mFilesList;
+    std::vector<std::string> mDescriptionList;
 
     //! \brief Tells whether the menu is ready to start the game.
     bool mReadyToStartGame;

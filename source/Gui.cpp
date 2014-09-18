@@ -274,8 +274,12 @@ void Gui::assignEventHandlers()
             CEGUI::Event::Subscriber(&mMPMServerButtonPressed));
 
     sheets[multiplayerServerMenu]->getChild(MPM_LIST_LEVELS)->subscribeEvent(
-        CEGUI::Listbox::EventMouseDoubleClick,
+        CEGUI::Listbox::EventMouseClick,
         CEGUI::Event::Subscriber(&mMPMListClicked));
+
+    sheets[multiplayerServerMenu]->getChild(MPM_LIST_LEVELS)->subscribeEvent(
+        CEGUI::Listbox::EventMouseDoubleClick,
+        CEGUI::Event::Subscriber(&mMPMListDoubleClicked));
 
     sheets[multiplayerServerMenu]->getChild(MPM_BUTTON_BACK)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
@@ -308,8 +312,12 @@ void Gui::assignEventHandlers()
         CEGUI::Event::Subscriber(&mEDMBackButtonPressed));
 
     sheets[editorMenu]->getChild(EDM_LIST_LEVELS)->subscribeEvent(
-        CEGUI::Listbox::EventMouseDoubleClick,
+        CEGUI::Listbox::EventMouseClick,
         CEGUI::Event::Subscriber(&mEDMListClicked));
+
+    sheets[editorMenu]->getChild(EDM_LIST_LEVELS)->subscribeEvent(
+        CEGUI::Listbox::EventMouseDoubleClick,
+        CEGUI::Event::Subscriber(&mEDMListDoubleClicked));
 }
 
 bool Gui::miniMapclicked(const CEGUI::EventArgs& e)
@@ -604,6 +612,17 @@ bool Gui::mEDMListClicked(const CEGUI::EventArgs& e)
     return true;
 }
 
+bool Gui::mEDMListDoubleClicked(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_EDITOR)
+        return true;
+
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    static_cast<MenuModeEditor*>(mm->getCurrentMode())->listLevelsDoubleClicked();
+    return true;
+}
+
 bool Gui::mEDMLoadButtonPressed(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
@@ -634,6 +653,17 @@ bool Gui::mMPMListClicked(const CEGUI::EventArgs& e)
 
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     static_cast<MenuModeMultiplayerServer*>(mm->getCurrentMode())->listLevelsClicked();
+    return true;
+}
+
+bool Gui::mMPMListDoubleClicked(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_MULTIPLAYER_SERVER)
+        return true;
+
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    static_cast<MenuModeMultiplayerServer*>(mm->getCurrentMode())->listLevelsDoubleClicked();
     return true;
 }
 

@@ -27,6 +27,7 @@
 #include "ODClient.h"
 #include "ODApplication.h"
 #include "LogManager.h"
+#include "MapLoader.h"
 
 #include <CEGUI/CEGUI.h>
 #include "boost/filesystem.hpp"
@@ -63,27 +64,37 @@ void MenuModeEditor::activate()
 
     tmpWin = Gui::getSingleton().getGuiSheet(Gui::editorMenu)->getChild(Gui::EDM_TEXT_LOADING);
     tmpWin->hide();
-    mListFilesSkirmish.clear();
-    mListFilesMultiplayer.clear();
+    mFilesList.clear();
+    mDescriptionList.clear();
     levelSelectList->resetList();
 
-    if(Helper::fillFileStemsList(LEVEL_PATH_SKIRMISH, mListFilesSkirmish, LEVEL_EXTENSION))
+    if(Helper::fillFilesList(LEVEL_PATH_SKIRMISH, mFilesList, LEVEL_EXTENSION))
     {
-        for (int n = 0; n < mListFilesSkirmish.size(); ++n)
+        for (int n = 0; n < mFilesList.size(); ++n)
         {
-            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem("SKIRMISH - " + mListFilesSkirmish[n]);
+            std::string filename = mFilesList[n];
+            std::string mapName = MapLoader::getMapName(filename);
+            std::string mapDescription = MapLoader::getMapDescription(filename);
+            mDescriptionList.push_back(mapDescription);
+            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem("SKIRMISH - " + mapName);
             item->setID(n);
             item->setSelectionBrushImage("OpenDungeonsSkin/SelectionBrush");
             levelSelectList->addItem(item);
         }
     }
 
-    if(Helper::fillFileStemsList(LEVEL_PATH_MULTIPLAYER, mListFilesMultiplayer, LEVEL_EXTENSION))
+    int skirmishSize = mFilesList.size();
+
+    if(Helper::fillFilesList(LEVEL_PATH_MULTIPLAYER, mFilesList, LEVEL_EXTENSION))
     {
-        for (int n = 0; n < mListFilesMultiplayer.size(); ++n)
+        for (int n = skirmishSize; n < mFilesList.size(); ++n)
         {
-            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem("MULTIPLAYER - " + mListFilesMultiplayer[n]);
-            item->setID(n + mListFilesSkirmish.size());
+            std::string filename = mFilesList[n];
+            std::string mapName = MapLoader::getMapName(filename);
+            std::string mapDescription = MapLoader::getMapDescription(filename);
+            mDescriptionList.push_back(mapDescription);
+            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem("MULTIPLAYER - " + mapName);
+            item->setID(n);
             item->setSelectionBrushImage("OpenDungeonsSkin/SelectionBrush");
             levelSelectList->addItem(item);
         }
@@ -110,11 +121,8 @@ void MenuModeEditor::launchSelectedButtonPressed()
     CEGUI::ListboxItem* selItem = levelSelectList->getFirstSelectedItem();
     int id = selItem->getID();
 
-    std::string level;
-    if(id < mListFilesSkirmish.size())
-        level = LEVEL_PATH_SKIRMISH + mListFilesSkirmish[id] + LEVEL_EXTENSION;
-    else
-        level = LEVEL_PATH_MULTIPLAYER + mListFilesMultiplayer[id - mListFilesSkirmish.size()] + LEVEL_EXTENSION;
+    std::string level = mFilesList[id];
+
     // In single player mode, we act as a server
     if(!ODServer::getSingleton().startServer(level, true, ODServer::ServerMode::ModeEditor))
     {
@@ -134,7 +142,33 @@ void MenuModeEditor::launchSelectedButtonPressed()
     mReadyToStartMode = true;
 }
 
+void MenuModeEditor::updateDescription()
+{
+    // Get the level corresponding id
+    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::editorMenu)->getChild(Gui::SKM_LIST_LEVELS);
+    CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);
+
+    CEGUI::Window* descTxt = Gui::getSingleton().getGuiSheet(Gui::editorMenu)->getChild("LevelWindowFrame/MapDescriptionText");
+
+    if(levelSelectList->getSelectedCount() == 0)
+    {
+        descTxt->setText("");
+        return;
+    }
+
+    CEGUI::ListboxItem* selItem = levelSelectList->getFirstSelectedItem();
+    int id = selItem->getID();
+
+    std::string description = mDescriptionList[id];
+    descTxt->setText(description);
+}
+
 void MenuModeEditor::listLevelsClicked()
+{
+    updateDescription();
+}
+
+void MenuModeEditor::listLevelsDoubleClicked()
 {
     launchSelectedButtonPressed();
 }

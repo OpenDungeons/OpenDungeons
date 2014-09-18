@@ -24,7 +24,7 @@
             </Window>
             <Window type="OD/StaticText" name="MapDescriptionText" >
                 <Property name="Area" value="{{0.6,-151},{0,43},{0.6,303},{0,313}}" />
-                <Property name="Text" value="Map Description Text" />
+                <Property name="Text" value="" />
                 <Property name="MaxSize" value="{{1,0},{1,0}}" />
                 <Property name="FrameEnabled" value="False" />
                 <Property name="VertFormatting" value="TopAligned" />

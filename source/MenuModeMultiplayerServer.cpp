@@ -27,6 +27,7 @@
 #include "ODClient.h"
 #include "ODApplication.h"
 #include "LogManager.h"
+#include "MapLoader.h"
 
 #include <CEGUI/CEGUI.h>
 #include <boost/filesystem.hpp>
@@ -63,14 +64,19 @@ void MenuModeMultiplayerServer::activate()
 
     tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerServerMenu)->getChild(Gui::MPM_TEXT_LOADING);
     tmpWin->hide();
-    mListFiles.clear();
+    mFilesList.clear();
+    mDescriptionList.clear();
     levelSelectList->resetList();
 
-    if(Helper::fillFileStemsList(LEVEL_PATH, mListFiles, LEVEL_EXTENSION))
+    if(Helper::fillFilesList(LEVEL_PATH, mFilesList, LEVEL_EXTENSION))
     {
-        for (int n = 0; n < mListFiles.size(); ++n)
+        for (int n = 0; n < mFilesList.size(); ++n)
         {
-            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(mListFiles[n]);
+            std::string filename = mFilesList[n];
+            std::string mapName = MapLoader::getMapName(filename);
+            std::string mapDescription = MapLoader::getMapDescription(filename);
+            mDescriptionList.push_back(mapDescription);
+            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(mapName);
             item->setID(n);
             item->setSelectionBrushImage("OpenDungeonsSkin/SelectionBrush");
             levelSelectList->addItem(item);
@@ -122,7 +128,7 @@ void MenuModeMultiplayerServer::serverButtonPressed()
     int id = selItem->getID();
 
     // We are a server
-    std::string level = LEVEL_PATH + mListFiles[id] + LEVEL_EXTENSION;
+    std::string level = mFilesList[id];
     if(!ODServer::getSingleton().startServer(level, false, ODServer::ServerMode::ModeGame))
     {
         LogManager::getSingleton().logMessage("ERROR: Could not start server for multi player game !!!");
@@ -142,7 +148,33 @@ void MenuModeMultiplayerServer::serverButtonPressed()
     mReadyToStartGame = true;
 }
 
+void MenuModeMultiplayerServer::updateDescription()
+{
+    // Get the level corresponding id
+    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerServerMenu)->getChild(Gui::SKM_LIST_LEVELS);
+    CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);
+
+    CEGUI::Window* descTxt = Gui::getSingleton().getGuiSheet(Gui::multiplayerServerMenu)->getChild("LevelWindowFrame/MapDescriptionText");
+
+    if(levelSelectList->getSelectedCount() == 0)
+    {
+        descTxt->setText("");
+        return;
+    }
+
+    CEGUI::ListboxItem* selItem = levelSelectList->getFirstSelectedItem();
+    int id = selItem->getID();
+
+    std::string description = mDescriptionList[id];
+    descTxt->setText(description);
+}
+
 void MenuModeMultiplayerServer::listLevelsClicked()
+{
+    updateDescription();
+}
+
+void MenuModeMultiplayerServer::listLevelsDoubleClicked()
 {
     serverButtonPressed();
 }
