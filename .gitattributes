@@ -11,7 +11,7 @@ art/ export-ignore
 *.h text eol=lf
 
 # NOTE: We no more automatically change the line endings of such windows files
-# as it is triggering random line-endings changes on utf8 linux systems.
+# as it is triggering random line-endings changes on utf8 linux systems, for instance.
 # See: https://github.com/OpenDungeons/OpenDungeons/issues/40
 #*.sln text eol=crlf
 
