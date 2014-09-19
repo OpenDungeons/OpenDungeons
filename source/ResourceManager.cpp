@@ -22,6 +22,7 @@
  */
 
 #include <cstdlib>
+#include <ctime>
 
 #include <dirent.h>
 #include <sys/stat.h>
@@ -44,8 +45,7 @@
 #endif
 
 #include <OgreString.h>
-
-#include "ODApplication.h"
+#include <OgreRenderTarget.h>
 
 #include "ResourceManager.h"
 
@@ -88,7 +88,6 @@ bool ResourceManager::hasFileEnding(const std::string& filename, const std::stri
  *  function macBundlePath does this for us.
  */
 ResourceManager::ResourceManager() :
-        mScreenshotCounter(0),
         mResourcePath("./"),
         mHomePath("./"),
         mPluginsPath(""),
@@ -245,12 +244,13 @@ Ogre::StringVectorPtr ResourceManager::listAllMusicFiles()
             listResourceNames(RESOURCEGROUPMUSIC);
 }
 
-void ResourceManager::takeScreenshot()
+void ResourceManager::takeScreenshot(Ogre::RenderTarget* renderTarget)
 {
-    //FIXME: the counter is reset after each start, this overwrites existing pictures
+    //FIXME: Could use normal date formatting here instead of time value
+    const std::time_t time = std::time(nullptr);
     std::ostringstream ss;
-    ss << "ODscreenshot_" << ++mScreenshotCounter << ".png";
-    ODApplication::getSingleton().getWindow()->writeContentsToFile(getHomePath() + ss.str());
+    ss << "ODscreenshot_" << time << ".png";
+    renderTarget->writeContentsToFile(getHomePath() + ss.str());
 }
 
 bool ResourceManager::createFolderIfNotExists(const std::string& name)

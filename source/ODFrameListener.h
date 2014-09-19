@@ -136,6 +136,9 @@ public:
 
     inline ModeManager* getModeManager() const
     { return mModeManager; }
+    
+    inline Ogre::RenderWindow* getRenderWindow()
+    { return mWindow; }
 
     void addChatMessage(ChatMessage* message);
 
