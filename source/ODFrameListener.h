@@ -134,6 +134,9 @@ public:
 
     inline ModeManager* getModeManager() const
     { return mModeManager; }
+    
+    inline Ogre::RenderWindow* getRenderWindow()
+    { return mWindow; }
 
     //! TODO Rename it and move it into private space.
     //! \brief The Camera manager

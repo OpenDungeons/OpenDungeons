@@ -47,7 +47,6 @@ void TileContainer::clearTiles()
     }
 }
 
-#include "LogManager.h"
 bool TileContainer::addTile(Tile* t)
 {
     if (t->x < getMapSizeX() && t->y < getMapSizeY() && t->x >= 0 && t->y >= 0)
