@@ -164,10 +164,10 @@ public:
         return 0.0;
     }
 
-    void takeDamage(double damage, Tile *tileTakingDamage);
+    void takeDamage(GameEntity* attacker, double damage, Tile *tileTakingDamage);
 
     //! \brief  Do nothing since Rooms do not have exp.
-    void recieveExp(double /*experience*/)
+    void receiveExp(double /*experience*/)
     {}
 
     //! \brief Updates the active spot lists.

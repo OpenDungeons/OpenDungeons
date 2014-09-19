@@ -264,13 +264,13 @@ void RoomHatchery::handleMoveChicken(RoomObject* chicken)
         return;
     }
 
-    Ogre::Vector3 actPositionChicken = chicken->getPosition();
-    int posChickenX = static_cast<int>(actPositionChicken.x);
-    int posChickenY = static_cast<int>(actPositionChicken.y);
+    Tile* tmpTile = chicken->getPositionTile();
+    int posChickenX = tmpTile->getX();
+    int posChickenY = tmpTile->getY();
     std::vector<Tile*> possibleTileMove;
     // We move chickens from 1 tile only to avoid slow creatures from running
     // for ages when the hatchery is big
-    Tile* tmpTile;
+    ;
     tmpTile = getGameMap()->getTile(posChickenX - 1, posChickenY);
     if((tmpTile != NULL) &&
        (std::find(mCoveredTiles.begin(), mCoveredTiles.end(), tmpTile) != mCoveredTiles.end()))
@@ -343,7 +343,7 @@ bool RoomHatchery::doUpkeep()
     {
         Creature* creature = it->first;
         Tile* tileChicken = it->second;
-        Tile* tileCreature = creature->positionTile();
+        Tile* tileCreature = creature->getPositionTile();
         if(tileCreature == NULL)
         {
             ++it;

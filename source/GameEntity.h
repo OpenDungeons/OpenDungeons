@@ -178,8 +178,9 @@ class GameEntity
     virtual double getDefense() const = 0;
 
     //! \brief Subtracts the given number of hitpoints from the object, the tile specifies where
-    //! the enemy inflicted the damage and the object can use this accordingly.
-    virtual void takeDamage(double damage, Tile *tileTakingDamage) = 0;
+    //! the enemy inflicted the damage and the object can use this accordingly. attacker is
+    //! the entity damaging
+    virtual void takeDamage(GameEntity* attacker, double damage, Tile *tileTakingDamage) = 0;
 
     Ogre::SceneNode* pSN;
 

@@ -290,7 +290,7 @@ void GameMap::addCreature(Creature *cc)
 {
     creatures.push_back(cc);
 
-    cc->positionTile()->addCreature(cc);
+    cc->getPositionTile()->addCreature(cc);
     if(!mIsServerGameMap)
         culm->mMyCullingQuad.insert(cc);
 
@@ -307,7 +307,7 @@ void GameMap::removeCreature(Creature *c)
         {
             // Creature found
             // Remove the creature from the tile it's in
-            c->positionTile()->removeCreature(c);
+            c->getPositionTile()->removeCreature(c);
             creatures.erase(creatures.begin() + i);
             break;
         }
@@ -894,21 +894,11 @@ void GameMap::playerIsFighting(Player* player)
     player->setFightingTime(BATTLE_TIME_COUNT);
 }
 
-bool GameMap::pathExists(int x1, int y1, int x2, int y2, const CreatureDefinition* creatureDef)
+bool GameMap::pathExists(Tile* tileStart, Tile* tileEnd, const CreatureDefinition* creatureDef)
 {
     // If floodfill is not enabled, we cannot check if the path exists so we return true
     if(!floodFillEnabled)
         return true;
-
-    Tile* tileStart = getTile(x1, y1);
-    OD_ASSERT_TRUE(tileStart != NULL);
-    if(tileStart == NULL)
-        return false;
-
-    Tile* tileEnd = getTile(x2, y2);
-    OD_ASSERT_TRUE(tileEnd != NULL);
-    if(tileEnd == NULL)
-        return false;
 
     if(!tileStart->canCreatureGoThroughTile(creatureDef) || !tileEnd->canCreatureGoThroughTile(creatureDef))
         return false;
@@ -939,16 +929,17 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const CreatureDef
     std::list<Tile*> returnList;
 
     // If the start tile was not found return an empty path
-    if (getTile(x1, y1) == NULL)
-        return returnList;
-
-    // If flood filling is enabled, we can possibly eliminate this path by checking to see if they two tiles are floodfilled differently.
-    if (!throughDiggableTiles && !pathExists(x1, y1, x2, y2, creatureDef))
+    Tile* start = getTile(x1, y1);
+    if (start == NULL)
         return returnList;
 
     // If the end tile was not found return an empty path
     Tile* destination = getTile(x2, y2);
     if (destination == NULL)
+        return returnList;
+
+    // If flood filling is enabled, we can possibly eliminate this path by checking to see if they two tiles are floodfilled differently.
+    if (!throughDiggableTiles && !pathExists(start, destination, creatureDef))
         return returnList;
 
     AstarEntry *currentEntry = new AstarEntry(getTile(x1, y1), x1, y1, x2, y2);
@@ -1444,19 +1435,8 @@ std::vector<GameEntity*> GameMap::getVisibleForce(std::vector<Tile*> visibleTile
             if ((invert && !tempRoom->getSeat()->isAlliedSeat(seat)) || (!invert
                     && tempRoom->getSeat()->isAlliedSeat(seat)))
             {
-                // Check to see if the given room is already in the returnList.
-                bool roomFound = false;
-                for (unsigned int i = 0; i < returnList.size(); ++i)
-                {
-                    if (returnList[i] == tempRoom)
-                    {
-                        roomFound = true;
-                        break;
-                    }
-                }
-
                 // If the room is not in the return list already then add it.
-                if (!roomFound)
+                if (std::find(returnList.begin(), returnList.end(), tempRoom) == returnList.end())
                     returnList.push_back(tempRoom);
             }
         }
@@ -1572,9 +1552,7 @@ std::vector<Room*> GameMap::getReachableRooms(const std::vector<Room*>& vec,
     {
         Room* room = vec[i];
         Tile* coveredTile = room->getCoveredTile(0);
-        if (pathExists(startTile->x, startTile->y,
-            coveredTile->x, coveredTile->y,
-            creatureDef))
+        if (pathExists(startTile, coveredTile, creatureDef))
         {
             returnVector.push_back(room);
         }
@@ -2304,8 +2282,8 @@ void GameMap::enableFloodFill()
 
 std::list<Tile*> GameMap::path(Creature *c1, Creature *c2, const CreatureDefinition* creatureDef, Seat* seat, bool throughDiggableTiles)
 {
-    return path(c1->positionTile()->x, c1->positionTile()->y,
-                c2->positionTile()->x, c2->positionTile()->y, creatureDef, seat, throughDiggableTiles);
+    return path(c1->getPositionTile()->x, c1->getPositionTile()->y,
+                c2->getPositionTile()->x, c2->getPositionTile()->y, creatureDef, seat, throughDiggableTiles);
 }
 
 std::list<Tile*> GameMap::path(Tile *t1, Tile *t2, const CreatureDefinition* creatureDef, Seat* seat, bool throughDiggableTiles)
@@ -2316,8 +2294,8 @@ std::list<Tile*> GameMap::path(Tile *t1, Tile *t2, const CreatureDefinition* cre
 Ogre::Real GameMap::crowDistance(Creature *c1, Creature *c2)
 {
     //TODO:  This is sub-optimal, improve it.
-    Tile* tempTile1 = c1->positionTile();
-    Tile* tempTile2 = c2->positionTile();
+    Tile* tempTile1 = c1->getPositionTile();
+    Tile* tempTile2 = c2->getPositionTile();
     return crowDistance(tempTile1->x, tempTile1->y, tempTile2->x, tempTile2->y);
 }
 
@@ -2622,9 +2600,101 @@ void GameMap::consoleSetCreatureDestination(const std::string& creatureName, int
     Tile* tile = getTile(x, y);
     if(tile == NULL)
         return;
-    if(creature->positionTile() == NULL)
+    if(creature->getPositionTile() == NULL)
         return;
     creature->clearActionQueue();
     creature->clearDestinations();
     creature->setDestination(tile);
+}
+
+bool GameMap::pathToBestFightingPosition(std::list<Tile*>& pathToTarget, Creature* attackingCreature,
+    Tile* attackedTile)
+{
+    // First, we search the tiles from where we can attack as far as possible
+    Tile* tileCreature = attackingCreature->getPositionTile();
+    if((tileCreature == NULL) || (attackedTile == NULL))
+        return false;
+
+    double rangeL = attackingCreature->getWeaponL()->getRange();
+    double rangeR = attackingCreature->getWeaponR()->getRange();
+    double range = std::max(rangeL, rangeR);
+
+    std::vector<Tile*> possibleTiles;
+    while(possibleTiles.empty() && range >= 0)
+    {
+        for(int i = -range; i <= range; ++i)
+        {
+            int diffY = range - std::abs(i);
+            Tile* tile;
+            tile = getTile(attackedTile->getX() + i, attackedTile->getY() + diffY);
+            if(tile != NULL && pathExists(tileCreature, tile, attackingCreature->getDefinition()))
+                possibleTiles.push_back(tile);
+
+            if(diffY == 0)
+                continue;
+
+            tile = getTile(attackedTile->getX() + i, attackedTile->getY() - diffY);
+            if(tile != NULL && pathExists(tileCreature, tile, attackingCreature->getDefinition()))
+                possibleTiles.push_back(tile);
+        }
+
+        // If we could find no tile within range, we decrease range and search again
+        if(possibleTiles.empty())
+            --range;
+    }
+
+    // If we found no tile, return empty list
+    if(possibleTiles.empty())
+        return false;
+
+    // To find the closest tile, we only consider distance to avoid too complex
+    Tile* closestTile = *possibleTiles.begin();
+    double shortestDist = std::pow(static_cast<double>(std::abs(closestTile->getX() - tileCreature->getX())), 2);
+    shortestDist += std::pow(static_cast<double>(std::abs(closestTile->getY() - tileCreature->getY())), 2);
+    for(std::vector<Tile*>::iterator it = (possibleTiles.begin() + 1); it != possibleTiles.end(); ++it)
+    {
+        Tile* tile = *it;
+        double dist = std::pow(static_cast<double>(std::abs(tile->getX() - tileCreature->getX())), 2);
+        dist += std::pow(static_cast<double>(std::abs(tile->getY() - tileCreature->getY())), 2);
+        if(dist < shortestDist)
+        {
+            shortestDist = dist;
+            closestTile = tile;
+        }
+    }
+
+    if(tileCreature == closestTile)
+        return true;
+
+    pathToTarget = path(tileCreature, closestTile, attackingCreature->getDefinition(), attackingCreature->getSeat());
+    return true;
+}
+
+GameEntity* GameMap::getClosestTileWhereGameEntityFromList(std::vector<GameEntity*> listObjects, Tile* origin, Tile*& attackedTile)
+{
+    if(listObjects.empty())
+        return NULL;
+
+    GameEntity* closestGameEntity = NULL;
+    double shortestDist = 0.0;
+    for(std::vector<GameEntity*>::iterator itObj = listObjects.begin(); itObj != listObjects.end(); ++itObj)
+    {
+        GameEntity* gameEntity = *itObj;
+        std::vector<Tile*> tiles = gameEntity->getCoveredTiles();
+        for(std::vector<Tile*>::iterator itTile = tiles.begin(); itTile != tiles.end(); ++itTile)
+        {
+            Tile* tile = *itTile;
+            OD_ASSERT_TRUE(tile != NULL);
+            double dist = std::pow(static_cast<double>(std::abs(tile->getX() - origin->getX())), 2);
+            dist += std::pow(static_cast<double>(std::abs(tile->getY() - origin->getY())), 2);
+            if(closestGameEntity == NULL || dist < shortestDist)
+            {
+                shortestDist = dist;
+                closestGameEntity = gameEntity;
+                attackedTile = tile;
+            }
+        }
+    }
+
+    return closestGameEntity;
 }

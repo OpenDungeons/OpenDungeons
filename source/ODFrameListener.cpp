@@ -29,7 +29,6 @@
 #include "Creature.h"
 #include "ChatMessage.h"
 #include "Sleep.h"
-#include "BattleField.h"
 #include "Trap.h"
 #include "GameMap.h"
 #include "MiniMap.h"

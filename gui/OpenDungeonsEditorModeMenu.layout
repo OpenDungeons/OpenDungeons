@@ -121,7 +121,7 @@
                 </Window>
             </Window>
             <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuRooms.layout" name="RoomsImport" />
-            <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuTraps.layout" name="RoomsImport" />
+            <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuTraps.layout" name="TrapImport" />
             <Window type="DefaultWindow" name="Creatures" >
                 <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
                 <Property name="Text" value="Creatures" />

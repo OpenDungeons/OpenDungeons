@@ -287,9 +287,9 @@ public:
 
     //TODO properly implement these
     bool doUpkeep(){ return true; }
-    void recieveExp(double experience){}
+    void receiveExp(double experience){}
     double getDefense() const  { return 0; }
-    void takeDamage(double damage, Tile *tileTakingDamage) {}
+    void takeDamage(GameEntity* attacker, double damage, Tile *tileTakingDamage) {}
     double getHP(Tile *tile) {return 0;}
     std::vector<Tile*> getCoveredTiles() { return std::vector<Tile*>() ;}
     void refreshFromTile(const Tile& tile);

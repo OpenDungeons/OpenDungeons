@@ -36,7 +36,6 @@
 class GameMap;
 class Creature;
 class Weapon;
-class BattleField;
 class CullingQuad;
 
 namespace CEGUI
@@ -200,8 +199,10 @@ public:
     std::vector<GameEntity*> getVisibleEnemyObjects();
 
     //! \brief Loops over objectsToCheck and returns a vector containing all the ones which can be reached via a valid path.
-    std::vector<GameEntity*> getReachableAttackableObjects(const std::vector<GameEntity*> &objectsToCheck,
-                                                           unsigned int *minRange, GameEntity **nearestObject);
+    std::vector<GameEntity*> getReachableAttackableObjects(const std::vector<GameEntity*> &objectsToCheck);
+
+    //! \brief Loops over objectsToCheck and returns a vector containing all the creatures in the list.
+    std::vector<GameEntity*> getCreaturesFromList(const std::vector<GameEntity*> &objectsToCheck, bool koboldsOnly);
 
     //! \brief Loops over the enemyObjectsToCheck vector and adds all enemy creatures within weapons range to a list which it returns.
     std::vector<GameEntity*> getEnemyObjectsInRange(const std::vector<GameEntity*> &enemyObjectsToCheck);
@@ -219,25 +220,20 @@ public:
     //! allied with the given seat (or if invert is true, does not allied)
     std::vector<GameEntity*> getVisibleForce(Seat* seat, bool invert);
 
-    //! \brief Returns a pointer to the tile the creature is currently standing in.
-    Tile* positionTile() const;
-
     //! \brief Conform: AttackableObject - Returns a vector containing the tile the creature is in.
     std::vector<Tile*> getCoveredTiles();
 
     //! \brief Conform: AttackableObject - Deducts a given amount of HP from this creature.
-    void takeDamage(double damage, Tile* tileTakingDamage);
+    void takeDamage(GameEntity* attacker, double damage, Tile* tileTakingDamage);
 
     //! \brief Conform: AttackableObject - Adds experience to this creature.
-    void recieveExp(double experience);
+    void receiveExp(double experience);
+
+    //! \brief Returns true if the given action is queued in the action list. False otherwise
+    bool isActionInList(CreatureAction::ActionType action);
 
     //! \brief Clears the action queue, except for the Idle action at the end.
     void clearActionQueue();
-
-    /** \brief This function loops over the visible tiles and computes a score for each one indicating how
-     * friendly or hostile that tile is and stores it in the battleField variable.
-     */
-    void computeBattlefield();
 
     //! \brief Displays a mesh on all of the tiles visible to the creature.
     void createVisualDebugEntities();
@@ -347,12 +343,12 @@ private:
     //! \brief Counter to let the creature stay some turns after its death
     unsigned int    mDeathCounter;
     int             mGold;
-    int             mBattleFieldAgeCounter;
     int             mJobCooldown;
     int             mEatCooldown;
+    //! \brief The number of turns we are doing the same action. If the action is popped or pushed, mNbTurnAction is set to 0
+    int             mNbTurnAction;
 
     Tile*           mPreviousPositionTile;
-    BattleField*    mBattleField;
     Room*           mJobRoom;
     Room*           mEatRoom;
     CEGUI::Window*  mStatsWindow;
@@ -360,12 +356,16 @@ private:
     std::vector<Tile*>              mVisibleTiles;
     std::vector<GameEntity*>        mVisibleEnemyObjects;
     std::vector<GameEntity*>        mReachableEnemyObjects;
-    std::vector<GameEntity*>        mEnemyObjectsInRange;
-    std::vector<GameEntity*>        mLivingEnemyObjectsInRange;
+    std::vector<GameEntity*>        mReachableEnemyCreatures;
     std::vector<GameEntity*>        mVisibleAlliedObjects;
     std::vector<GameEntity*>        mReachableAlliedObjects;
     std::deque<CreatureAction>      mActionQueue;
     std::list<Tile*>                mVisualDebugEntityTiles;
+
+
+    //! \brief Allows to keep track of the entity we are currently attacking
+    Tile*                           mAttackedTile;
+    GameEntity*                     mAttackedObject;
 
     //! \brief The creature sounds library reference.
     //! \warning Do not delete it. The pointer in handled in SoundEffectsManager.
@@ -376,6 +376,16 @@ private:
     void pushAction(CreatureAction action);
     void popAction();
     CreatureAction peekAction();
+
+    //! \brief Picks a destination far away in the visible tiles and goes there
+    //! Returns true if a valid Tile was found. The creature will go there
+    //! Returns false if no reachable Tile was found
+    bool wanderRandomly(const std::string& animationState);
+
+    //! \brief Search within listObjects the closest one and handle attacks (by moving or attacking)
+    //! canAttackObject is set to true is a foe is in the good range to hit (in this case, a fight action can be pushed)
+    //! returns true if a fitting object is found and false otherwise
+    bool fightClosestObjectInList(std::vector<GameEntity*> listObjects, bool& canAttackObject);
 
     //! \brief A sub-function called by doTurn()
     //! This one checks if there is something prioritary to do (like fighting). If it is the case,
@@ -439,14 +449,23 @@ private:
     bool handleAttackAction();
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature maneuver action logic.
+    //! This functions will hanlde the creature fighting action logic.
     //! \return true when another action should handled after that one.
-    bool handleManeuverAction();
+    bool handleFightAction();
 
     //! \brief A sub-function called by doTurn()
     //! This functions will hanlde the creature sleeping action logic.
     //! \return true when another action should handled after that one.
     bool handleSleepAction();
+
+    //! \brief A sub-function called by doTurn()
+    //! This functions will hanlde the creature fleeing action logic.
+    //! \return true when another action should handled after that one.
+    bool handleFleeAction();
+
+    //! \brief Returns true if creature is in bad mood. False otherwise. A creature in bad mood will more likely
+    //! flee or attack allied units
+    bool isInBadMood();
 };
 
 #endif // CREATURE_H
