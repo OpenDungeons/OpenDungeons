@@ -1,27 +1,10 @@
 <Imageset autoScaled="false" imagefile="OpenDungeonsOldSkin.png" name="OpenDungeonsOldSkin" nativeHorzRes="800" nativeVertRes="600" version="2">
-    <Image height="66" name="ClientBrush" width="66" xPos="0" yPos="1" />
-    <Image height="24" name="WindowLeftEdge" width="1" xPos="5" yPos="94" />
-    <Image height="24" name="WindowRightEdge" width="1" xPos="33" yPos="94" />
-    <Image height="1" name="WindowTopEdge" width="23" xPos="8" yPos="68" />
-    <Image height="1" name="WindowBottomEdge" width="25" xPos="7" yPos="143" />
-    <Image height="24" name="WindowTopLeft" width="6" xPos="1" yPos="68" />
-    <Image height="24" name="WindowTopRight" width="6" xPos="32" yPos="68" />
-    <Image height="24" name="WindowBottomLeft" width="6" xPos="1" yPos="120" />
-    <Image height="24" name="WindowBottomRight" width="6" xPos="32" yPos="120" />
     <Image height="12" name="CheckboxNormal" width="12" xPos="109" yPos="2" />
     <Image height="12" name="CheckboxHover" width="12" xPos="109" yPos="30" />
     <Image height="12" name="CheckboxMark" width="12" xPos="109" yPos="16" />
     <Image height="12" name="RadioButtonNormal" width="12" xPos="123" yPos="2" />
     <Image height="12" name="RadioButtonHover" width="12" xPos="123" yPos="30" />
     <Image height="12" name="RadioButtonMark" width="12" xPos="123" yPos="16" />
-    <Image height="16" name="TitlebarLeft" width="8" xPos="68" yPos="2" />
-    <Image height="16" name="TitlebarMiddle" width="8" xPos="78" yPos="2" />
-    <Image height="16" name="TitlebarRight" width="8" xPos="88" yPos="2" />
-    <Image height="17" name="NewTitlebarLeft" width="14" xPos="60" yPos="127" />
-    <Image height="17" name="NewTitlebarMiddle" width="14" xPos="75" yPos="127" />
-    <Image height="17" name="NewTitlebarRight" width="14" xPos="90" yPos="127" />
-    <Image height="17" name="SysAreaMiddle" width="14" xPos="105" yPos="127" />
-    <Image height="17" name="SysAreaRight" width="14" xPos="120" yPos="127" />
     <Image height="20" name="StaticLeft" width="2" xPos="266" yPos="99" />
     <Image height="20" name="StaticRight" width="2" xPos="280" yPos="99" />
     <Image height="2" name="StaticTop" width="2" xPos="273" yPos="93" />
@@ -36,34 +19,18 @@
     <Image height="12" name="ProgressBarRight" width="6" xPos="87" yPos="74" />
     <Image height="12" name="ProgressBarDimSegment" width="8" xPos="95" yPos="74" />
     <Image height="12" name="ProgressBarLitSegment" width="8" xPos="105" yPos="74" />
-    <Image height="18" name="EditBoxLeft" width="4" xPos="40" yPos="108" />
-    <Image height="18" name="EditBoxMiddle" width="8" xPos="44" yPos="108" />
-    <Image height="18" name="EditBoxRight" width="4" xPos="52" yPos="108" />
-    <Image height="18" name="EditBoxCarat" width="4" xPos="59" yPos="108" />
     <Image height="6" name="SpinnerUpNormal" width="10" xPos="67" yPos="110" />
     <Image height="6" name="SpinnerDownNormal" width="10" xPos="67" yPos="118" />
     <Image height="6" name="SpinnerUpHover" width="10" xPos="81" yPos="110" />
     <Image height="6" name="SpinnerDownHover" width="10" xPos="81" yPos="118" />
-    <Image height="16" name="TextSelectionBrush" width="16" xPos="7" yPos="70" />
     <Image height="8" name="VertScrollTop" width="20" xPos="181" yPos="2" />
     <Image height="8" name="VertScrollMiddle" width="20" xPos="181" yPos="12" />
     <Image height="8" name="VertScrollBottom" width="20" xPos="181" yPos="22" />
-    <Image height="10" name="VertScrollBarSegment" width="4" xPos="205" yPos="2" />
     <Image height="24" name="VertScrollThumbNormal" width="8" xPos="213" yPos="2" />
     <Image height="24" name="VertScrollThumbHover" width="8" xPos="223" yPos="2" />
     <Image height="48" name="VertSliderBody" width="9" xPos="233" yPos="2" />
     <Image height="6" name="VertSliderThumbNormal" width="15" xPos="216" yPos="28" />
     <Image height="6" name="VertSliderThumbHover" width="15" xPos="216" yPos="36" />
-    <Image height="8" name="ListboxLeft" width="6" xPos="42" yPos="88" />
-    <Image height="8" name="ListboxRight" width="7" xPos="60" yPos="88" />
-    <Image height="7" name="ListboxTop" width="8" xPos="50" yPos="79" />
-    <Image height="7" name="ListboxBottom" width="8" xPos="50" yPos="98" />
-    <Image height="7" name="ListboxTopLeft" width="6" xPos="42" yPos="79" />
-    <Image height="7" name="ListboxTopRight" width="7" xPos="60" yPos="79" />
-    <Image height="7" name="ListboxBottomLeft" width="7" xPos="41" yPos="99" />
-    <Image height="7" name="ListboxBottomRight" width="7" xPos="60" yPos="98" />
-    <Image height="8" name="ListboxBackdrop" width="8" xPos="50" yPos="88" />
-    <Image height="16" name="ListboxSelectionBrush" width="16" xPos="7" yPos="70" />
     <Image height="16" name="ComboboxEditLeft" width="8" xPos="137" yPos="2" />
     <Image height="16" name="ComboboxEditMiddle" width="8" xPos="148" yPos="2" />
     <Image height="16" name="ComboboxListButtonNormal" width="16" xPos="157" yPos="2" />
@@ -77,7 +44,6 @@
     <Image height="8" name="ComboboxListBottomLeft" width="8" xPos="138" yPos="58" />
     <Image height="8" name="ComboboxListBottomRight" width="8" xPos="158" yPos="58" />
     <Image height="8" name="ComboboxListBackdrop" width="8" xPos="148" yPos="48" />
-    <Image height="16" name="ComboboxSelectionBrush" width="16" xPos="7" yPos="70" />
     <Image height="1" name="ComboboxDividerLeft" width="14" xPos="137" yPos="68" />
     <Image height="1" name="ComboboxDividerMiddle" width="8" xPos="153" yPos="68" />
     <Image height="1" name="ComboboxDividerRight" width="16" xPos="163" yPos="68" />
@@ -96,7 +62,6 @@
     <Image height="8" name="MultiListBottomLeft" width="8" xPos="169" yPos="101" />
     <Image height="8" name="MultiListBottomRight" width="8" xPos="189" yPos="101" />
     <Image height="8" name="MultiListBackdrop" width="8" xPos="179" yPos="91" />
-    <Image height="14" name="MultiListSelectionBrush" width="14" xPos="9" yPos="71" />
     <Image height="12" name="AltProgressLeft" width="8" xPos="70" yPos="88" />
     <Image height="12" name="AltProgressMiddle" width="12" xPos="78" yPos="88" />
     <Image height="12" name="AltProgressRight" width="8" xPos="90" yPos="88" />
@@ -112,12 +77,6 @@
     <Image height="8" name="AltProgressLight8" width="4" xPos="141" yPos="97" />
     <Image height="8" name="AltProgressLight9" width="4" xPos="147" yPos="97" />
     <Image height="8" name="AltProgressLight10" width="4" xPos="153" yPos="97" />
-    <Image height="16" name="CloseButtonNormal" width="16" xPos="40" yPos="128" />
-    <Image height="16" name="CloseButtonHover" width="16" xPos="40" yPos="146" />
-    <Image height="16" name="CloseButtonPressed" width="16" xPos="40" yPos="164" />
-    <Image height="10" name="NewCloseButtonNormal" width="10" xPos="90" yPos="146" />
-    <Image height="10" name="NewCloseButtonHover" width="10" xPos="90" yPos="146" />
-    <Image height="10" name="NewCloseButtonPressed" width="10" xPos="90" yPos="146" />
     <Image height="8" name="MultiLineEditboxLeft" width="6" xPos="42" yPos="88" />
     <Image height="8" name="MultiLineEditboxRight" width="7" xPos="60" yPos="88" />
     <Image height="7" name="MultiLineEditboxTop" width="8" xPos="50" yPos="79" />
@@ -127,15 +86,7 @@
     <Image height="6" name="MultiLineEditboxBottomLeft" width="6" xPos="41" yPos="100" />
     <Image height="7" name="MultiLineEditboxBottomRight" width="7" xPos="60" yPos="98" />
     <Image height="8" name="MultiLineEditboxBackdrop" width="8" xPos="50" yPos="88" />
-    <Image height="14" name="MultiLineEditboxSelectionBrush" width="14" xPos="9" yPos="71" />
-    <Image height="17" name="MouseTarget" width="17" xPos="181" yPos="127" />
     <Image height="18" name="MouseArrow" width="17" xPos="138" yPos="127" />
-    <Image height="18" name="MouseMoveCursor" width="18" xPos="200" yPos="127" />
-    <Image height="18" name="MouseNoSoCursor" width="8" xPos="220" yPos="127" />
-    <Image height="8" name="MouseEsWeCursor" width="18" xPos="181" yPos="150" />
-    <Image height="16" name="MouseNeSwCursor" width="14" xPos="200" yPos="147" />
-    <Image height="16" name="MouseNwSeCursor" width="14" xPos="229" yPos="126" />
-    <Image height="18" name="MouseTextBar" width="7" xPos="172" yPos="127" />
     <Image height="1" name="TabHorizontalFiller" width="8" xPos="195" yPos="201" />
     <Image height="8" name="TabContentPaneMiddle" width="8" xPos="50" yPos="88" />
     <Image height="17" name="TabButtonScrollLeftNormal" width="16" xPos="96" yPos="108" />
@@ -154,15 +105,6 @@
     <Image height="7" name="TabButtonLowerLeftSelected" width="7" xPos="41" yPos="98" />
     <Image height="7" name="TabButtonLowerRightSelected" width="7" xPos="60" yPos="98" />
     <Image height="8" name="TabButtonMiddleSelected" width="8" xPos="50" yPos="88" />
-    <Image height="9" name="TooltipTopLeft" width="10" xPos="59" yPos="159" />
-    <Image height="10" name="TooltipTopRight" width="10" xPos="81" yPos="158" />
-    <Image height="10" name="TooltipBottomLeft" width="10" xPos="59" yPos="180" />
-    <Image height="10" name="TooltipBottomRight" width="10" xPos="81" yPos="180" />
-    <Image height="8" name="TooltipLeftEdge" width="10" xPos="59" yPos="170" />
-    <Image height="8" name="TooltipRightEdge" width="10" xPos="81" yPos="170" />
-    <Image height="9" name="TooltipTopEdge" width="8" xPos="71" yPos="159" />
-    <Image height="10" name="TooltipBottomEdge" width="8" xPos="71" yPos="180" />
-    <Image height="8" name="TooltipMiddle" width="8" xPos="71" yPos="170" />
     <Image height="3" name="MenuTopLeft" width="3" xPos="165" yPos="204" />
     <Image height="3" name="MenuTopRight" width="4" xPos="173" yPos="204" />
     <Image height="4" name="MenuBottomLeft" width="3" xPos="165" yPos="212" />
@@ -183,4 +125,5 @@
     <Image height="3" name="PopupMenuMiddle" width="3" xPos="189" yPos="208" />
     <Image height="5" name="PopupMenuArrowRight" width="5" xPos="178" yPos="204" />
     <Image height="5" name="PopupMenuArrowLeft" width="5" xPos="178" yPos="210" />
+    <Image height="10" name="VertScrollBarSegment" width="4" xPos="205" yPos="2" />
 </Imageset>

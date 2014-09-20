@@ -39,6 +39,14 @@ namespace MapLoader
     void writeGameMapToFile(const std::string& fileName, GameMap& gameMap);
 
     bool loadCreatureDefinition(const std::string& fileName, GameMap& gameMap);
+
+    // TODO: This is sub-optimal. Later we might want to create a map info struct
+    //! \brief Returns the main map info as a string
+    std::string getMapDescription(const std::string& fileName);
+
+    //! \brief Returns the map name as a string
+    //! or the filename if the map is invalid.
+    std::string getMapName(const std::string& fileName);
 };
 
 #endif // MAPLOADER_H

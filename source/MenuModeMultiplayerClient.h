@@ -15,17 +15,17 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MENUMODESKIRMISH_H
-#define MENUMODESKIRMISH_H
+#ifndef MENUMODEMULTIPLAYERCLIENT_H
+#define MENUMODEMULTIPLAYERCLIENT_H
 
 #include "AbstractApplicationMode.h"
 
-class MenuModeSkirmish: public AbstractApplicationMode
+class MenuModeMultiplayerClient: public AbstractApplicationMode
 {
 public:
-    MenuModeSkirmish(ModeManager*);
+    MenuModeMultiplayerClient(ModeManager*);
 
-    virtual ~MenuModeSkirmish();
+    virtual ~MenuModeMultiplayerClient();
 
     virtual bool mouseMoved     (const OIS::MouseEvent &arg);
     virtual bool mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id);
@@ -41,12 +41,7 @@ public:
     //! Used to call the corresponding Gui Sheet.
     void activate();
 
-    void launchSelectedButtonPressed();
-
-    void updateDescription();
-
-    void listLevelsClicked();
-    void listLevelsDoubleClicked();
+    void clientButtonPressed();
 
     virtual bool waitForGameStart()
     {
@@ -54,11 +49,8 @@ public:
     }
 
 private:
-    std::vector<std::string> mFilesList;
-    std::vector<std::string> mDescriptionList;
-
     //! \brief Tells whether the menu is ready to start the game.
     bool mReadyToStartGame;
 };
 
-#endif // MENUMODESKIRMISH_H
+#endif // MENUMODEMULTIPLAYERCLIENT_H

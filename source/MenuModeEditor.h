@@ -42,15 +42,20 @@ public:
     void activate();
 
     void launchSelectedButtonPressed();
+    void updateDescription();
+
     void listLevelsClicked();
+    void listLevelsDoubleClicked();
+
     virtual bool waitForGameStart()
     {
         return mReadyToStartMode;
     }
 
 private:
-    std::vector<std::string> mListFilesSkirmish;
-    std::vector<std::string> mListFilesMultiplayer;
+    std::vector<std::string> mFilesList;
+    std::vector<std::string> mDescriptionList;
+
     //! \brief Tells whether the menu is ready
     bool mReadyToStartMode;
 };

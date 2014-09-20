@@ -36,6 +36,7 @@ class Room;
 class MapLight;
 class GameMap;
 class CreatureDefinition;
+class Trap;
 
 /*! \brief The tile class contains information about tile type and contents and is the basic level bulding block.
  *
@@ -75,9 +76,9 @@ public:
         selected            (false),
         fullness            (nFullness),
         fullnessMeshNumber  (-1),
-        coveringRoom        (0),
-        coveringTrap        (false),
-        claimLight          (0)
+        coveringRoom        (NULL),
+        coveringTrap        (NULL),
+        claimLight          (NULL)
     {
         for(int i = 0; i < Tile::FloodFillTypeMax; i++)
         {
@@ -209,8 +210,8 @@ public:
 
     Room* getCoveringRoom();
     void setCoveringRoom(Room *r);
-    bool getCoveringTrap() const;
-    void setCoveringTrap(bool t);
+    Trap* getCoveringTrap() const;
+    void setCoveringTrap(Trap* t);
 
     //! \brief Tells whether the tile is diggable by dig-capable creatures.
     //! \brief The player seat.
@@ -319,9 +320,9 @@ private:
     std::vector<Tile*> neighbors;
     std::vector<Creature*> creaturesInCell;
     std::vector<Player*> playersMarkingTile;
-    Room *coveringRoom;
-    bool coveringTrap;
-    MapLight *claimLight;
+    Room* coveringRoom;
+    Trap* coveringTrap;
+    MapLight* claimLight;
     int mFloodFillColor[FloodFillTypeMax];
     double mClaimedPercentage;
 

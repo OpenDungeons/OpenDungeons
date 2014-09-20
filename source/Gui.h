@@ -48,7 +48,8 @@ public:
         hideGui,
         mainMenu,
         skirmishMenu,
-        multiplayerMenu,
+        multiplayerClientMenu,
+        multiplayerServerMenu,
         editorMenu,
         editorModeGui,
         optionsMenu,
@@ -94,7 +95,8 @@ public:
     static const std::string MM_BACKGROUND;
     static const std::string MM_WELCOME_MESSAGE;
     static const std::string MM_BUTTON_START_SKIRMISH;
-    static const std::string MM_BUTTON_START_MULTIPLAYER;
+    static const std::string MM_BUTTON_START_MULTIPLAYER_CLIENT;
+    static const std::string MM_BUTTON_START_MULTIPLAYER_SERVER;
     static const std::string MM_BUTTON_MAPEDITOR;
     static const std::string MM_BUTTON_QUIT;
     static const std::string EDITOR;
@@ -136,8 +138,11 @@ private:
     //! \brief What happens after a click on New Game in the main menu
     static bool mMNewGameButtonPressed  (const CEGUI::EventArgs& e);
 
-    //! \brief What happens after a click on Multiplayer button in the main menu
-    static bool mMNewGameMultiButtonPressed  (const CEGUI::EventArgs& e);
+    //! \brief What happens after a click on 'Join Game' button in the main menu
+    static bool mMNewGameMultiClientButtonPressed(const CEGUI::EventArgs& e);
+
+    //! \brief What happens after a click on 'Host Game' button in the main menu
+    static bool mMNewGameMultiServerButtonPressed(const CEGUI::EventArgs& e);
 
     //! \brief What happens after a click on Editor button in the main menu
     static bool mMMapEditorButtonPressed(const CEGUI::EventArgs& e);
@@ -154,8 +159,11 @@ private:
     //! \brief What happens after a click on Load in the level selection menu
     static bool mSKMLoadButtonPressed   (const CEGUI::EventArgs& e);
 
-    //! \brief What happens after a click on the level list in the level selection menu
+    //! \brief What happens after a single click on the level list in the level selection menu
     static bool mSKMListClicked         (const CEGUI::EventArgs& e);
+
+    //! \brief What happens after a double click on the level list in the level selection menu
+    static bool mSKMListDoubleClicked   (const CEGUI::EventArgs& e);
 
     //! \brief What happens after a click on Back in the editor level selection menu
     static bool mEDMBackButtonPressed   (const CEGUI::EventArgs& e);
@@ -165,6 +173,9 @@ private:
 
     //! \brief What happens after a click on the editor level list in the level selection menu
     static bool mEDMListClicked         (const CEGUI::EventArgs& e);
+
+    //! \brief What happens after a double click on the editor level list in the level selection menu
+    static bool mEDMListDoubleClicked   (const CEGUI::EventArgs& e);
 
     //! \brief What happens after a click on Back in the multiplayer menu
     static bool mMPMBackButtonPressed   (const CEGUI::EventArgs& e);
@@ -177,6 +188,9 @@ private:
 
     //! \brief What happens after a click on the level list in the multiplayer menu
     static bool mMPMListClicked         (const CEGUI::EventArgs& e);
+
+    //! \brief What happens after a double click on the level list in the multiplayer menu
+    static bool mMPMListDoubleClicked   (const CEGUI::EventArgs& e);
 
     // Button handlers game UI
     static bool miniMapclicked          (const CEGUI::EventArgs& e);
