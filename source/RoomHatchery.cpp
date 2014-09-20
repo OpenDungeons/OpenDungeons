@@ -270,7 +270,6 @@ void RoomHatchery::handleMoveChicken(RoomObject* chicken)
     std::vector<Tile*> possibleTileMove;
     // We move chickens from 1 tile only to avoid slow creatures from running
     // for ages when the hatchery is big
-    ;
     tmpTile = getGameMap()->getTile(posChickenX - 1, posChickenY);
     if((tmpTile != NULL) &&
        (std::find(mCoveredTiles.begin(), mCoveredTiles.end(), tmpTile) != mCoveredTiles.end()))

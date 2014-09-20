@@ -876,7 +876,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     continue;
                 if(tile->getCoveringRoom() != NULL)
                     continue;
-                if(tile->getCoveringTrap())
+                if(tile->getCoveringTrap() != NULL)
                     continue;
 
                 affectedTiles.push_back(tile);
@@ -920,7 +920,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 // We do not change tiles where there is something on the tile
                 if(tile->getCoveringRoom() != NULL)
                     continue;
-                if(tile->getCoveringTrap())
+                if(tile->getCoveringTrap() != NULL)
                     continue;
                 affectedTiles.push_back(tile);
 
@@ -970,7 +970,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 // We do not change tiles where there is something
                 if(tile->getCoveringRoom() != NULL)
                     continue;
-                if(tile->getCoveringTrap())
+                if(tile->getCoveringTrap() != NULL)
                     continue;
                 affectedTiles.push_back(tile);
 
