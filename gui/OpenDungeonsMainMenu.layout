@@ -8,19 +8,19 @@
         <Property name="FrameEnabled" value="False" />
         <Property name="BackgroundEnabled" value="False" />
         <Window type="OD/MainMenuButton" name="StartSkirmishButton" >
-            <Property name="Area" value="{{0.5,-82},{0,211},{0.5,82},{0,301}}" />
+            <Property name="Area" value="{{0.5,-350},{0,440},{0.5,-190},{0,530}}" />
             <Property name="Text" value="Skirmish" />
         </Window>
         <Window type="OD/MainMenuButton" name="StartMultiplayerClientButton" >
-            <Property name="Area" value="{{0.43,-82},{0,331},{0.43,82},{0,421}}" />
+            <Property name="Area" value="{{0.5,-170},{0,385},{0.5,-10},{0,475}}" />
             <Property name="Text" value="Join Game" />
         </Window>
         <Window type="OD/MainMenuButton" name="StartMultiplayerServerButton" >
-            <Property name="Area" value="{{0.57,-82},{0,331},{0.57,82},{0,421}}" />
+            <Property name="Area" value="{{0.5,-170},{0,495},{0.5,-10},{0,585}}" />
             <Property name="Text" value="Host Game" />
         </Window>
         <Window type="OD/MainMenuButton" name="MapEditorButton" >
-            <Property name="Area" value="{{0.5,-82},{0,451},{0.5,82},{0,541}}" />
+            <Property name="Area" value="{{0.5, 10},{0,440},{0.5,180},{0,530}}" />
             <Property name="Text" value="Map Editor" />
         </Window>
         <Window type="OD/StaticImage" name="WelcomeBanner" >
@@ -31,7 +31,7 @@
             <Property name="BackgroundEnabled" value="False" />
         </Window>
         <Window type="OD/MainMenuButton" name="QuitButton" >
-            <Property name="Area" value="{{0.5,-82},{0,574},{0.5,82},{0,664}}" />
+            <Property name="Area" value="{{0.5,200},{0,440},{0.5,360},{0,530}}" />
             <Property name="Text" value="Quit" />
         </Window>
         <Window type="OD/StaticText" name="VersionText" >
