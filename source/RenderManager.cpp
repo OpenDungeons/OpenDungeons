@@ -31,7 +31,6 @@
 #include "Weapon.h"
 #include "MissileObject.h"
 #include "Trap.h"
-#include "BattleField.h"
 #include "Player.h"
 #include "ODApplication.h"
 #include "ResourceManager.h"
@@ -82,7 +81,6 @@ RenderManager::RenderManager() :
     mRockSceneNode = mSceneManager->getRootSceneNode()->createChildSceneNode("Rock_scene_node");
     mCreatureSceneNode = mSceneManager->getRootSceneNode()->createChildSceneNode("Creature_scene_node");
     mRoomSceneNode = mSceneManager->getRootSceneNode()->createChildSceneNode("Room_scene_node");
-    mFieldSceneNode = mSceneManager->getRootSceneNode()->createChildSceneNode("Field_scene_node");
     mLightSceneNode = mSceneManager->getRootSceneNode()->createChildSceneNode("Light_scene_node");
 }
 
@@ -302,18 +300,6 @@ bool RenderManager::handleRenderRequest(const RenderRequest& renderRequest)
         delete curMapLight;
         break;
     }
-
-    case RenderRequest::createField:
-        rrCreateField(renderRequest);
-        break;
-
-    case RenderRequest::refreshField:
-        rrRefreshField(renderRequest);
-        break;
-
-    case RenderRequest::destroyField:
-        //FIXME: should there be something here?
-        break;
 
     case RenderRequest::pickUpCreature:
         rrPickUpCreature(renderRequest);
@@ -982,79 +968,6 @@ void RenderManager::rrDestroyMapLightVisualIndicator(const RenderRequest& render
             //mSceneManager->destroySceneNode(node->getName());
         }
     }
-}
-
-void RenderManager::rrCreateField(const RenderRequest& renderRequest)
-{
-    BattleField* curField = static_cast<BattleField*>(renderRequest.p);
-    double* tempDoublePtr = static_cast<double*>(renderRequest.p2);
-    Ogre::Real securityLevel = static_cast<Ogre::Real>(*tempDoublePtr);
-    delete tempDoublePtr;
-
-    FieldType::iterator fieldItr = curField->begin();
-    while (fieldItr != curField->end())
-    {
-        int x = fieldItr->getPosX();
-        int y = fieldItr->getPosY();
-        Ogre::Real securityLevel2 = static_cast<Ogre::Real>(fieldItr->getSecurityLevel());
-        //cout << "\ncreating field tile:  " << tempX << "
-        //"\t" << tempY << "\t" << securityLevel;
-        std::stringstream tempSS;
-        tempSS << curField->getOgreNamePrefix() << curField->getName() << "_" << x << "_" << y;
-        Ogre::Entity* fieldIndicatorEntity = mSceneManager->createEntity(tempSS.str(),
-                                             "Field_indicator.mesh");
-        Ogre::SceneNode* fieldIndicatorNode = mFieldSceneNode->createChildSceneNode(tempSS.str()
-                                              + "_node");
-        fieldIndicatorNode->setPosition(static_cast<Ogre::Real>(x),
-                                        static_cast<Ogre::Real>(y),
-                                        securityLevel + securityLevel2);
-        fieldIndicatorNode->attachObject(fieldIndicatorEntity);
-
-        ++fieldItr;
-    }
-}
-
-void RenderManager::rrRefreshField(const RenderRequest& renderRequest)
-{
-    BattleField* curField = static_cast<BattleField*> (renderRequest.p);
-    double* tempDoublePtr = static_cast<double*>(renderRequest.p2);
-    double securityLevel = *tempDoublePtr;
-    delete tempDoublePtr;
-
-    // Update existing meshes and create any new ones needed.
-    FieldType::iterator fieldItr = curField->begin();
-    while (fieldItr != curField->end())
-    {
-        int x = fieldItr->getPosX();
-        int y = fieldItr->getPosY();
-        double securityLevel2 = fieldItr->getSecurityLevel();
-
-        std::stringstream tempSS;
-        tempSS << curField->getOgreNamePrefix() << curField->getName() << "_" << x << "_" << y;
-
-        Ogre::SceneNode* fieldIndicatorNode = NULL;
-
-        if (mSceneManager->hasEntity(tempSS.str()))
-        {
-            // The mesh alread exists, just get the existing one
-            fieldIndicatorNode = mSceneManager->getSceneNode(tempSS.str() + "_node");
-        }
-        else
-        {
-            // The mesh does not exist, create a new one
-            Ogre::Entity* fieldIndicatorEntity = mSceneManager->createEntity(tempSS.str(),
-                                                 "Field_indicator.mesh");
-            fieldIndicatorNode = mFieldSceneNode->createChildSceneNode(tempSS.str() + "_node");
-            fieldIndicatorNode->attachObject(fieldIndicatorEntity);
-        }
-
-        fieldIndicatorNode->setPosition((Ogre::Real)x, (Ogre::Real)y,
-                                        (Ogre::Real)(securityLevel + securityLevel2));
-        ++fieldItr;
-    }
-
-    //TODO: Deleting is not done yet.
-    // Delete any meshes not in the field currently
 }
 
 void RenderManager::rrPickUpCreature(const RenderRequest& renderRequest)

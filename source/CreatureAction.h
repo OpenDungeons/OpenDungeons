@@ -30,19 +30,20 @@ public:
     enum ActionType
     {
         walkToTile, // Calculate a path to the tile and follow it each turn.
-        maneuver, // Like walkToTile but used for combat situations.
+        fight, // When seeing ennemy objects, the creature might decide to fight
         digTile, // (worker only) Dig out a tile, i.e. decrease its fullness.
         claimTile, // (worker only) "Dance" on tile to change its color.
         claimWallTile, // (worker only) "Dance" next to wall tile to change its color and set it as reinforced.
         depositGold, // (worker only) Carry gold that has been mined to a treasury.
         attackObject, // Do damage to an attackableObject withing range, if not in range begin maneuvering.
-        findHome, // Try to find a "home" tile in a dormitory somewhere where the creature can sleep.
+        findHome, // (fighters only) Try to find a "home" tile in a dormitory somewhere where the creature can sleep.
         findHomeForced, // Try to find a "home" tile in the dormitory where the creature is
-        sleep, // Try to go to its home tile to and sleep when it gets there.
+        sleep, // (fighters only) Try to go to its home tile to and sleep when it gets there.
         jobdecided, // (fighters only) Check to see if our seat controls a room where we can work (train, forge, search, ...)
         jobforced, // (fighters only)Check to see if we have been dropped on a room where we can work
         eatdecided, // (fighters only) Try to find a hatchery to eat
         eatforced, // (fighters only) Force eating if the creature is dropped in a hatchery
+        flee, // If a fighter is weak (low hp) or a worker is attacked by a fighter, he will flee
         idle // Stand around doing nothing.
     };
 

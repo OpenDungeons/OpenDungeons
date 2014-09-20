@@ -79,6 +79,9 @@ public:
 
     virtual void setPosition(const Ogre::Vector3& v);
 
+    //! \brief Retrieves the position tile from the game map
+    Tile* getPositionTile() const;
+
     Ogre::AnimationState* mAnimationState;
     Ogre::SceneNode* mSceneNode;
 

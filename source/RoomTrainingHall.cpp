@@ -218,7 +218,7 @@ bool RoomTrainingHall::doUpkeep()
     {
         Creature* creature = it->first;
         Tile* tileDummy = it->second;
-        Tile* tileCreature = creature->positionTile();
+        Tile* tileCreature = creature->getPositionTile();
         if(tileCreature == NULL)
             continue;
 
@@ -245,7 +245,7 @@ bool RoomTrainingHall::doUpkeep()
                 creature->setAnimationState("Attack1", false, &walkDirection);
 
                 ro->setAnimationState("Triggered", false);
-                creature->recieveExp(5.0);
+                creature->receiveExp(5.0);
                 creature->jobDone(5.0);
                 creature->setJobCooldown(Random::Uint(3, 8));
             }

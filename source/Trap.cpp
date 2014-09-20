@@ -281,7 +281,7 @@ void Trap::damage(std::vector<GameEntity*> enemyAttacked)
 {
     for(unsigned i = 0; i < enemyAttacked.size(); ++i)
     {
-        enemyAttacked[i]->takeDamage(Random::Double(mMinDamage, mMaxDamage), enemyAttacked[i]->getCoveredTiles()[0]);
+        enemyAttacked[i]->takeDamage(this, Random::Double(mMinDamage, mMaxDamage), enemyAttacked[i]->getCoveredTiles()[0]);
     }
 }
 
@@ -358,7 +358,7 @@ double Trap::getDefense() const
     return 0;
 }
 
-void Trap::takeDamage(double damage, Tile *tileTakingDamage)
+void Trap::takeDamage(GameEntity* attacker, double damage, Tile *tileTakingDamage)
 {
     mTileHP[tileTakingDamage] -= damage;
 }

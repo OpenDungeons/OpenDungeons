@@ -154,7 +154,6 @@ set(OD_SOURCEFILES
     ${SRC}/AIWrapper.cpp
     ${SRC}/ASWrapper.cpp
     ${SRC}/BaseAI.cpp
-    ${SRC}/BattleField.cpp
     ${SRC}/CameraManager.cpp
     ${SRC}/ChatMessage.cpp
     ${SRC}/ClientNotification.cpp

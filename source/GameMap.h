@@ -324,8 +324,8 @@ public:
 
     void doPlayerAITurn(double frameTime);
 
-    //! \brief Tells whether a path exists between two corrdinate points for the given creature.
-    bool pathExists(int x1, int y1, int x2, int y2, const CreatureDefinition* creatureDef);
+    //! \brief Tells whether a path exists between two tiles for the given creature type.
+    bool pathExists(Tile* tileStart, Tile* tileEnd, const CreatureDefinition* creatureDef);
 
     /*! \brief Calculates the walkable path between tiles (x1, y1) and (x2, y2).
      *
@@ -435,11 +435,18 @@ public:
 
     int addGoldToSeat(int gold, int seatId);
 
+    //! \brief Finds a path for the creature to the best tile within range from target
+    //! Returns true and path will contain the path if a path is found.
+    //! Returns false otherwise
+    bool pathToBestFightingPosition(std::list<Tile*>& pathToTarget, Creature* attackingCreature, Tile* attackedTile);
+
+    //! \brief Returns the closest tile from origin where a GameEntity in listObjects is
+    GameEntity* getClosestTileWhereGameEntityFromList(std::vector<GameEntity*> listObjects, Tile* origin, Tile*& attackedTile);
+
     void logFloodFileTiles();
     void consoleSetCreatureDestination(const std::string& creatureName, int x, int y);
 
     int nextUniqueNumberFloodFilling();
-
     //! \brief This functions create unique names. They check that there
     //! is no entity with the same name before returning
     std::string nextUniqueNameCreature(const std::string& className);

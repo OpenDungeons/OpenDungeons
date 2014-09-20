@@ -236,7 +236,7 @@ bool Seat::canOwnedCreatureUseRoomFrom(Seat* seat)
 
 std::string Seat::getFormat()
 {
-    return "id\tteamId\tfaction\tstartingX\tstartingY\tcolorR\tcolorG\tcolorB\tstartingGold";
+    return "seatId\tteamId\tfaction\tstartingX\tstartingY\tcolorR\tcolorG\tcolorB\tstartingGold";
 }
 
 ODPacket& operator<<(ODPacket& os, Seat *s)

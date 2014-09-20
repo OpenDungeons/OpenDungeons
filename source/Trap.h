@@ -104,8 +104,8 @@ public:
     //TODO:  Sort these into the proper places in the rest of the file.
     double getHP(Tile *tile);
     double getDefense() const;
-    void takeDamage(double damage, Tile *tileTakingDamage);
-    void recieveExp(double experience);
+    void takeDamage(GameEntity* attacker, double damage, Tile *tileTakingDamage);
+    void receiveExp(double experience);
 
 protected:
     virtual void createMeshLocal();

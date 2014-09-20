@@ -122,8 +122,6 @@ protected:
     void rrCreateMapLight(const RenderRequest& renderRequest);
     void rrDestroyMapLight(const RenderRequest& renderRequest);
     void rrDestroyMapLightVisualIndicator(const RenderRequest& renderRequest);
-    void rrCreateField(const RenderRequest& renderRequest);
-    void rrRefreshField(const RenderRequest& renderRequest);
     void rrPickUpCreature(const RenderRequest& renderRequest);
     void rrDropCreature(const RenderRequest& renderRequest);
     void rrRotateCreaturesInHand(const RenderRequest& renderRequest);
@@ -158,7 +156,6 @@ private:
     Ogre::SceneNode* mRoomSceneNode;
     Ogre::SceneNode* mCreatureSceneNode;
     Ogre::SceneNode* mLightSceneNode;
-    Ogre::SceneNode* mFieldSceneNode;
     Ogre::SceneNode* mRockSceneNode;
 
     //! \brief The game map reference. Don't delete it.

@@ -854,7 +854,7 @@ double Room::getHP(Tile *tile)
     return total;
 }
 
-void Room::takeDamage(double damage, Tile* tileTakingDamage)
+void Room::takeDamage(GameEntity* attacker, double damage, Tile* tileTakingDamage)
 {
     if (tileTakingDamage == NULL)
         return;

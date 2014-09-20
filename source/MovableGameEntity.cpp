@@ -282,3 +282,11 @@ void MovableGameEntity::setPosition(const Ogre::Vector3& v)
     RenderManager::queueRenderRequest(request);
 
 }
+
+Tile* MovableGameEntity::getPositionTile() const
+{
+    Ogre::Vector3 tempPosition = getPosition();
+
+    return getGameMap()->getTile(static_cast<int>(std::round(tempPosition.x)),
+                                 static_cast<int>(std::round(tempPosition.y)));
+}

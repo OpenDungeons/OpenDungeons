@@ -40,8 +40,8 @@ std::string CreatureAction::toString() const
     case walkToTile:
         return "walkToTile";
 
-    case maneuver:
-        return "maneuver";
+    case fight:
+        return "fight";
 
     case digTile:
         return "digTile";
@@ -75,6 +75,9 @@ std::string CreatureAction::toString() const
 
     case eatforced:
         return "eatforced";
+
+    case flee:
+        return "flee";
 
     case idle:
         return "idle";

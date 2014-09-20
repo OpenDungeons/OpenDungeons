@@ -44,10 +44,10 @@ public:
     bool doUpkeep()
     { return true; }
 
-    void recieveExp(double experience)
+    void receiveExp(double experience)
     {}
 
-    void takeDamage(double damage, Tile* tileTakingDamage)
+    void takeDamage(GameEntity* attacker, double damage, Tile* tileTakingDamage)
     {}
 
     double getDefense() const
