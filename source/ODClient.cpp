@@ -765,12 +765,6 @@ bool ODClient::processOneClientSocketMessage()
 
 void ODClient::processClientNotifications()
 {
-    ODPacket packSend;
-    Tile* tempTile = NULL;
-    Creature* tempCreature = NULL;
-    Player* tempPlayer = NULL;
-    bool flag = false;
-
     while (isConnected())
     {
         // Wait until a message is place in the queue

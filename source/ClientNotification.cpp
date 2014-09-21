@@ -62,6 +62,7 @@ std::string ClientNotification::typeString(ClientNotificationType type)
             LogManager::getSingleton().logMessage("ERROR: Unknown enum for ClientNotificationType="
                 + Ogre::StringConverter::toString(static_cast<int>(type)));
     }
+    return "";
 }
 
 ODPacket& operator<<(ODPacket& os, const ClientNotification::ClientNotificationType& nt)

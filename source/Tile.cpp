@@ -964,13 +964,11 @@ void Tile::addNeighbor(Tile *n)
 
 void Tile::claimForSeat(Seat* seat, double nDanceRate)
 {
-    double amountClaimed;
 
     // If the seat is allied, we add to it. If it is an enemy seat, we subtract from it.
     Seat* tileSeat = getSeat();
     if (tileSeat != NULL && tileSeat->isAlliedSeat(seat))
     {
-        amountClaimed = std::min(nDanceRate, 1.0 - mClaimedPercentage);
         mClaimedPercentage += nDanceRate;
         if (mClaimedPercentage >= 1.0)
         {
@@ -999,7 +997,6 @@ void Tile::claimForSeat(Seat* seat, double nDanceRate)
     }
     else
     {
-        amountClaimed = std::min(nDanceRate, 1.0 + mClaimedPercentage);
         mClaimedPercentage -= nDanceRate;
         if (mClaimedPercentage <= 0.0)
         {

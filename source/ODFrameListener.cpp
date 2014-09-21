@@ -260,7 +260,7 @@ void ODFrameListener::refreshChat()
         chatSS << "\nTo all : " + mChatString;
     }
 
-    int nbMsg = 0;
+    uint32_t nbMsg = 0;
     std::deque<ChatMessage*>::iterator it = mChatMessages.end();
     while (it != mChatMessages.begin())
     {

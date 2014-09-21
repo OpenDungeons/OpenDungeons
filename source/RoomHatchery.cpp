@@ -165,7 +165,6 @@ void RoomHatchery::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
     {
         for(std::map<Creature*,Tile*>::iterator it = mCreaturesChickens.begin(); it != mCreaturesChickens.end(); ++it)
         {
-            Tile* tmpTile = it->second;
             // A creature is hunting a chicken. We remove it. Removing the creature from the hatchery will
             // release the chicken. Then, we will remove it from the list of free chickens
             Creature* creature = it->first;

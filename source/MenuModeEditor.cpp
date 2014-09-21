@@ -70,7 +70,7 @@ void MenuModeEditor::activate()
 
     if(Helper::fillFilesList(LEVEL_PATH_SKIRMISH, mFilesList, LEVEL_EXTENSION))
     {
-        for (int n = 0; n < mFilesList.size(); ++n)
+        for (uint32_t n = 0; n < mFilesList.size(); ++n)
         {
             std::string filename = mFilesList[n];
             std::string mapName = MapLoader::getMapName(filename);
@@ -87,7 +87,7 @@ void MenuModeEditor::activate()
 
     if(Helper::fillFilesList(LEVEL_PATH_MULTIPLAYER, mFilesList, LEVEL_EXTENSION))
     {
-        for (int n = skirmishSize; n < mFilesList.size(); ++n)
+        for (uint32_t n = skirmishSize; n < mFilesList.size(); ++n)
         {
             std::string filename = mFilesList[n];
             std::string mapName = MapLoader::getMapName(filename);
