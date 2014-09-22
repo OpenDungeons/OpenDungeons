@@ -209,7 +209,7 @@ public:
     double digOut(double digRate, bool doScaleDigRate = false);
     double scaleDigRate(double digRate);
 
-    Room* getCoveringRoom();
+    Room* getCoveringRoom() const;
     void setCoveringRoom(Room *r);
     Trap* getCoveringTrap() const;
     void setCoveringTrap(Trap* t);

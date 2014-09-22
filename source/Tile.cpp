@@ -406,7 +406,7 @@ void Tile::setCoveringTrap(Trap* t)
     setType(claimed);
 }
 
-Room* Tile::getCoveringRoom()
+Room* Tile::getCoveringRoom() const
 {
     return coveringRoom;
 }
@@ -460,7 +460,8 @@ bool Tile::isDiggable(Seat* seat) const
 
 bool Tile::isGroundClaimable() const
 {
-    return ((type == dirt || type == gold || type == claimed) && getFullness() == 0.0);
+    return ((type == dirt || type == gold || type == claimed) && getFullness() == 0.0)
+        && (getCoveringRoom() == NULL);
 }
 
 bool Tile::isWallClaimable(Seat* seat)
