@@ -98,7 +98,7 @@ void Tile::setFullness(double f)
     // If the tile was marked for digging and has been dug out, unmark it and set its fullness to 0.
     if (fullness == 0.0 && isMarkedForDiggingByAnySeat())
     {
-        setMarkedForDiggingForAllSeats(false);
+        setMarkedForDiggingForAllPlayersExcept(false, NULL);
     }
 
     if ((oldFullness > 0.0) && (fullness == 0.0))
@@ -869,12 +869,18 @@ void Tile::setSelected(bool ss, Player* pp)
     }
 }
 
-void Tile::setMarkedForDiggingForAllSeats(bool s)
+void Tile::setMarkedForDiggingForAllPlayersExcept(bool s, Seat* exceptSeat)
 {
-    setMarkedForDigging(s, getGameMap()->getLocalPlayer());
+    Player* player = getGameMap()->getLocalPlayer();
+    if(exceptSeat == NULL || (player->getSeat() != NULL && !exceptSeat->isAlliedSeat(player->getSeat())))
+        setMarkedForDigging(s, player);
 
     for (unsigned int i = 0, num = getGameMap()->numPlayers(); i < num; ++i)
-        setMarkedForDigging(s, getGameMap()->getPlayer(i));
+    {
+        Player* player = getGameMap()->getPlayer(i);
+        if(exceptSeat == NULL || (player->getSeat() != NULL && !exceptSeat->isAlliedSeat(player->getSeat())))
+            setMarkedForDigging(s, player);
+    }
 }
 
 bool Tile::getMarkedForDigging(Player *p)
@@ -1050,6 +1056,9 @@ void Tile::claimTile(Seat* seat)
     setSeat(seat);
     mClaimedPercentage = 1.0;
     setType(Tile::claimed);
+
+    // If an ennemy player had marked this tile to dig, we disable it
+    setMarkedForDiggingForAllPlayersExcept(false, seat);
 
     refreshMesh();
 
