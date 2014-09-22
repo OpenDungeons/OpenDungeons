@@ -1414,22 +1414,25 @@ std::vector<GameEntity*> GameMap::getVisibleForce(std::vector<Tile*> visibleTile
         {
             Creature *tempCreature = (*itr)->getCreature(i);
             // If it is an enemy
-            if (tempCreature != NULL)
+            if(tempCreature == NULL)
+                continue;
+
+            if(tempCreature->getHP(NULL) <= 0)
+                continue;
+
+            // The invert flag is used to determine whether we want to return a list of the creatures
+            // allied with supplied seat or the contrary.
+            if ((invert && !tempCreature->getSeat()->isAlliedSeat(seat)) || (!invert
+                    && tempCreature->getSeat()->isAlliedSeat(seat)))
             {
-                // The invert flag is used to determine whether we want to return a list of the creatures
-                // allied with supplied seat or the contrary.
-                if ((invert && !tempCreature->getSeat()->isAlliedSeat(seat)) || (!invert
-                        && tempCreature->getSeat()->isAlliedSeat(seat)))
-                {
-                    // Add the current creature
-                    returnList.push_back(tempCreature);
-                }
+                // Add the current creature
+                returnList.push_back(tempCreature);
             }
         }
 
         // Check to see if the tile is covered by a Room, if it is then check to see if it should be added to the returnList.
         Room *tempRoom = (*itr)->getCoveringRoom();
-        if (tempRoom != NULL)
+        if ((tempRoom != NULL) && (tempRoom->getHP(NULL) > 0.0))
         {
             // Check to see if the seat is appropriate based on the condition of the invert flag.
             if ((invert && !tempRoom->getSeat()->isAlliedSeat(seat)) || (!invert

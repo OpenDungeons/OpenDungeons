@@ -2,7 +2,7 @@ OpenDungeons_Version:0.4.9  # The version of OpenDungeons which created this fil
 
 [Info]
 Name	Small Test Map (Multiplayer)
-Description	A small test map for the multiplayer mode...
+Description	A small test map for the multiplayer mode in free for all...
 Music	yd_Searching_ingame.ogg
 FightMusic	The_Dark_Amulet.ogg
 [/Info]
@@ -10,9 +10,9 @@ FightMusic	The_Dark_Amulet.ogg
 [Seats]
 # seatId	teamId	faction	startingX	startingY	colorR	colorG	colorB	startingGold
 1	1	Player	10	10	0	0.4	0	1000
-2	1	Player	10	40	0.4	0	0	1000
-3	2	KeeperAI	40	10	0	0	0.4	1000
-4	2	KeeperAI	40	40	0.4	0.4	0.1	1000
+2	2	Player	10	40	0.4	0	0	1000
+3	3	KeeperAI	40	10	0	0	0.4	1000
+4	4	KeeperAI	40	40	0.4	0.4	0.1	1000
 [/Seats]
 
 [Goals]
