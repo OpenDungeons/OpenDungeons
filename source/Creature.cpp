@@ -574,6 +574,9 @@ void Creature::doTurn()
     if(checkLevelUp())
     {
         setLevel(getLevel() + 1);
+
+        // Reset XP once the level has been acquired.
+        mExp = 0.0;
         //std::cout << "\n\n" << getName() << " has reached level " << getLevel() << "\n";
 
         if (mDefinition->isWorker())
