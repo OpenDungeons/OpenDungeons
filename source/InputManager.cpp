@@ -18,9 +18,9 @@
 #include "InputManager.h"
 
 #include "LogManager.h"
-#include "ODApplication.h"
+#include <OgreRenderWindow.h>
 
-InputManager::InputManager():
+InputManager::InputManager(Ogre::RenderWindow* renderWindow):
     mExpectCreatureClick(false),
     mLMouseDown(false),
     mRMouseDown(false),
@@ -43,7 +43,7 @@ InputManager::InputManager():
 
     // Get the Window attribute for OIS.
     size_t windowHnd = 0;
-    ODApplication::getSingleton().getWindow()->getCustomAttribute("WINDOW", &windowHnd);
+    renderWindow->getCustomAttribute("WINDOW", &windowHnd);
 
     std::ostringstream windowHndStr;
     windowHndStr << windowHnd;

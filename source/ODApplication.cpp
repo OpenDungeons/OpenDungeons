@@ -31,7 +31,6 @@
 #include "ResourceManager.h"
 #include "MiniMap.h"
 #include "LogManager.h"
-#include "Translation.h"
 #include "CameraManager.h"
 #include "ASWrapper.h"
 #include "Console.h"
@@ -43,12 +42,13 @@
 #include "ODClient.h"
 
 #include <OgreErrorDialog.h>
+#include <OgreRoot.h>
+#include <Overlay/OgreOverlaySystem.h>
+#include <OgreResourceGroupManager.h>
 
 #include <string>
 #include <sstream>
 #include <fstream>
-
-template<> ODApplication* Ogre::Singleton<ODApplication>::msSingleton = 0;
 
 ODApplication::ODApplication() :
     mRoot(NULL),
@@ -89,7 +89,6 @@ ODApplication::ODApplication() :
 
         LogManager* logManager = new LogManager();
         logManager->setLogDetail(Ogre::LL_BOREME);
-        new Translation();
 
         new ODServer();
         new ODClient();
@@ -119,7 +118,7 @@ ODApplication::ODApplication() :
         textRenderer->addTextBox(ODApplication::POINTER_INFO_STRING, "",
                                     0, 0, 200, 50, Ogre::ColourValue::White);
 
-        mFrameListener = new ODFrameListener(mWindow);
+        mFrameListener = new ODFrameListener(mWindow, mOverlaySystem);
         mRoot->addFrameListener(mFrameListener);
 
         mRoot->startRendering();
@@ -152,6 +151,7 @@ void ODApplication::cleanUp()
     if (mRoot)
     {
         mRoot->removeFrameListener(mFrameListener);
+        delete mOverlaySystem;
         delete mRoot;
     }
 
@@ -162,11 +162,10 @@ void ODApplication::cleanUp()
     delete TextRenderer::getSingletonPtr();
     delete Gui::getSingletonPtr();
     delete SoundEffectsManager::getSingletonPtr();
-    delete Translation::getSingletonPtr();
-    delete LogManager::getSingletonPtr();
-    delete ResourceManager::getSingletonPtr();
     delete ODServer::getSingletonPtr();
     delete ODClient::getSingletonPtr();
+    delete LogManager::getSingletonPtr();
+    delete ResourceManager::getSingletonPtr();
 }
 
 //TODO: find some better places for some of these

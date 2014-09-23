@@ -74,7 +74,7 @@ public:
     HermiteCatmullSpline xHCS;
     HermiteCatmullSpline yHCS;
 
-    CameraManager(Ogre::SceneManager*, GameMap*);
+    CameraManager(Ogre::SceneManager* sceneManager, GameMap* gameMap, Ogre::RenderWindow* renderWindow);
     ~CameraManager();
 
     inline void setCircleCenter( int XX, int YY)
@@ -195,9 +195,9 @@ public:
     Ogre::Camera* getCamera(const Ogre::String& ss);
 
     Ogre::Viewport* getViewport();
-    void createViewport();
 
 private:
+    void createViewport(Ogre::RenderWindow* renderWindow);
     bool mSwitchedPM;
     std::set<Ogre::String> mRegisteredCameraNames;
     std::set<Ogre::String> mRegisteredCameraNodeNames;

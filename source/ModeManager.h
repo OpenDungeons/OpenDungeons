@@ -28,6 +28,10 @@ class Console;
 class ConsoleMode;
 class CameraManager;
 
+namespace Ogre {
+  class RenderWindow;
+}
+
 class ModeManager
 {
     friend class Console;
@@ -49,7 +53,7 @@ public:
         PREV // Parent game mode requested
     };
 
-    ModeManager();
+    ModeManager(Ogre::RenderWindow* renderWindow);
     ~ModeManager();
 
     AbstractApplicationMode* getCurrentMode();

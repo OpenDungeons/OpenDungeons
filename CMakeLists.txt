@@ -137,12 +137,12 @@ set(OD_SOURCEFILES
     ${ANGELSCRIPT_ADDON_DIR}/scriptstdstring/scriptstdstring.cpp
 
     #Tinygettext sources
-    ${TINYGETTEXT_DIR}/dictionary_manager.cpp
-    ${TINYGETTEXT_DIR}/dictionary.cpp
-    ${TINYGETTEXT_DIR}/language.cpp
-    ${TINYGETTEXT_DIR}/plural_forms.cpp
-    ${TINYGETTEXT_DIR}/po_parser.cpp
-    ${TINYGETTEXT_DIR}/tinygettext.cpp
+#    ${TINYGETTEXT_DIR}/dictionary_manager.cpp
+#    ${TINYGETTEXT_DIR}/dictionary.cpp
+#    ${TINYGETTEXT_DIR}/language.cpp
+#    ${TINYGETTEXT_DIR}/plural_forms.cpp
+#    ${TINYGETTEXT_DIR}/po_parser.cpp
+#    ${TINYGETTEXT_DIR}/tinygettext.cpp
 
     #Tinyxml2 sources
     ${TINYXML_DIR}/tinyxml2.cpp
@@ -236,7 +236,7 @@ set(OD_SOURCEFILES
     ${SRC}/Tile.cpp
     ${SRC}/TileCoordinateMap.cpp
     ${SRC}/TileContainer.cpp
-    ${SRC}/Translation.cpp
+#    ${SRC}/Translation.cpp
     ${SRC}/Trap.cpp
     ${SRC}/TrapBoulder.cpp
     ${SRC}/TrapCannon.cpp

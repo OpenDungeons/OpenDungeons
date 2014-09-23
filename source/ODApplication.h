@@ -22,34 +22,25 @@
 #ifndef ODAPPLICATION_H
 #define ODAPPLICATION_H
 
-#include <OgreRenderWindow.h>
-#include <OgreRoot.h>
-#include <OgreCompositorManager.h>
-
-#include <OGRE/Overlay/OgreOverlaySystem.h>
-
 #include <string>
+
+namespace Ogre {
+  class Root;
+  class RenderWindow;
+  class OverlaySystem;
+}
 
 class GameMap;
 class ODFrameListener;
 
 //! \brief Base class which manages the startup of OpenDungeons.
-class ODApplication : public Ogre::Singleton<ODApplication>
+class ODApplication
 {
 public:
     //! Initializes the Application along with the ResourceManager
     ODApplication();
-
+    
     ~ODApplication();
-
-    inline Ogre::Root* getRoot() const
-    { return mRoot; }
-
-    inline Ogre::RenderWindow* getWindow() const
-    { return mWindow; }
-
-    inline Ogre::OverlaySystem* getOverlaySystem() const
-    { return mOverlaySystem; }
 
     //! \brief Display a GUI error message
     static void displayErrorMessage(const std::string& message, bool log = true);

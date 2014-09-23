@@ -30,12 +30,12 @@
 
 #include "GameMode.h"
 #include "LogManager.h"
-#include "ODApplication.h"
 #include "RenderManager.h"
 
 #include "ModeManager.h"
 
 #include <Overlay/OgreOverlayManager.h>
+#include <OgreRoot.h>
 
 template<> Console* Ogre::Singleton<Console>::msSingleton = 0;
 
@@ -60,7 +60,6 @@ Console::Console() :
     mCurHistPos(0)
 {
     LogManager::getSingleton().logMessage("*** Initializing Console ***");
-    ODApplication::getSingleton().getRoot()->addFrameListener(this);
     Ogre::OverlayManager& olMgr = Ogre::OverlayManager::getSingleton();
 
     // Create a panel
@@ -83,6 +82,7 @@ Console::Console() :
     // Add the text area to the panel
     mPanel->addChild(mTextbox);
 
+    Ogre::Root::getSingleton().addFrameListener(this);
     LogManager::getSingleton().getLog().addListener(this);
 }
 
@@ -90,7 +90,7 @@ Console::~Console()
 {
     LogManager::getSingleton().logMessage("*** Deinitializing Console ***");
     LogManager::getSingleton().getLog().removeListener(this);
-    ODApplication::getSingleton().getRoot()->removeFrameListener(this);
+    Ogre::Root::getSingleton().removeFrameListener(this);
     // Handled by Ogre.
     //delete mPanel;
     //delete mTextbox;
