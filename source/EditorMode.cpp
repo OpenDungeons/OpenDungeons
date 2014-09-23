@@ -21,7 +21,6 @@
 #include "ODFrameListener.h"
 #include "LogManager.h"
 #include "Gui.h"
-#include "ODApplication.h"
 #include "ResourceManager.h"
 #include "TextRenderer.h"
 #include "Creature.h"
@@ -36,8 +35,11 @@
 #include "MusicPlayer.h"
 #include "ODClient.h"
 #include "ODServer.h"
+#include "ODApplication.h"
 
 #include <OgreEntity.h>
+#include <OgreRoot.h>
+#include <OgreRenderWindow.h>
 
 #include <algorithm>
 #include <vector>
@@ -288,6 +290,7 @@ void EditorMode::handleMouseMovedDragType(const OIS::MouseEvent &arg)
 
 bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 {
+    //TODO: Lots of code duplicated here and in gameMode.cpp
     CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(
         Gui::getSingletonPtr()->convertButton(id));
 
@@ -311,7 +314,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     // and then we restore the window, we will receive a clic event on the last place where
     // the mouse was.
     Ogre::RenderWindow* mainWindows = static_cast<Ogre::RenderWindow*>(
-        ODApplication::getSingleton().getRoot()->getRenderTarget("OpenDungeons " + ODApplication::VERSION));
+        Ogre::Root::getSingleton().getRenderTarget("OpenDungeons " + ODApplication::VERSION));
     if((!mainWindows->isFullScreen()) &&
        ((arg.state.X.abs == 0) || (arg.state.Y.abs == 0) ||
         (static_cast<Ogre::uint32>(arg.state.X.abs) == mainWindows->getWidth()) ||

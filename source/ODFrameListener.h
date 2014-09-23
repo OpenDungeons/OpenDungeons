@@ -68,7 +68,7 @@ friend class ODClient;
 
 public:
     // Constructor takes a RenderWindow because it uses that to determine input context
-    ODFrameListener(Ogre::RenderWindow* win);
+    ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::OverlaySystem* overLaySystem);
     virtual ~ODFrameListener();
 
     void requestExit();

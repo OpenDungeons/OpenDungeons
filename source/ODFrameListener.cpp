@@ -22,7 +22,6 @@
 
 #include "ODFrameListener.h"
 
-#include "Console.h"
 #include "ODServer.h"
 #include "ServerNotification.h"
 #include "ODClient.h"
@@ -51,6 +50,7 @@
 #include "ASWrapper.h"
 
 #include <OgreLogManager.h>
+#include <OgreRenderWindow.h>
 #include <CEGUI/WindowManager.h>
 #include <CEGUI/EventArgs.h>
 #include <CEGUI/Window.h>
@@ -74,10 +74,10 @@ template<> ODFrameListener* Ogre::Singleton<ODFrameListener>::msSingleton = 0;
  * The primary function of this routine is to initialize variables, and start
  * up the OGRE system.
  */
-ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
+ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::OverlaySystem* overLaySystem) :
     cm(NULL),
     mInitialized(false),
-    mWindow(win),
+    mWindow(renderWindow),
     mShowDebugInfo(false),
     mContinue(true),
     mTerminalActive(false),
@@ -90,20 +90,20 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
     LogManager* logManager = LogManager::getSingletonPtr();
     logManager->logMessage("Creating frame listener...", Ogre::LML_NORMAL);
 
-    RenderManager* renderManager = new RenderManager();
+    RenderManager* renderManager = new RenderManager(overLaySystem);
 
     mGameMap = new GameMap(false);
 
     mMiniMap = new MiniMap(mGameMap);
 
-    cm = new CameraManager(renderManager->getSceneManager(), mGameMap);
+    cm = new CameraManager(renderManager->getSceneManager(), mGameMap, renderWindow);
 
     renderManager->setGameMap(mGameMap);
     renderManager->createScene(cm->getViewport());
 
     mRaySceneQuery = renderManager->getSceneManager()->createRayQuery(Ogre::Ray());
 
-    mModeManager = new ModeManager();
+    mModeManager = new ModeManager(renderWindow);
     cm->setModeManager(mModeManager);
 
     //Set initial mouse clipping size
@@ -422,7 +422,7 @@ void ODFrameListener::notifyChatChar(int text)
 {
     // Ogre::Overlay do not work with special characters. We have to convert
     // the String to make sure no such characters are used
-    string str;
+    std::string str;
     str.append(1, (char)text);
     mChatString = mChatString + boost::locale::conv::to_utf<char>(
         str, "Ascii");

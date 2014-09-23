@@ -18,12 +18,14 @@
 #ifndef INPUTMANAGER_H
 #define INPUTMANAGER_H
 
-#include "ModeManager.h"
-
 #include <OgreVector3.h>
 #include <OIS/OISMouse.h>
 #include <OIS/OISKeyboard.h>
 #include <OIS/OISInputManager.h>
+
+namespace Ogre {
+  class RenderWindow;
+}
 
 class InputManager
 {
@@ -41,7 +43,7 @@ public:
         nullDragType
     };
 
-    InputManager();
+    InputManager(Ogre::RenderWindow* renderWindow);
     ~InputManager();
 
     OIS::InputManager*  mInputManager;
