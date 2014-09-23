@@ -39,7 +39,6 @@ class ODApplication
 public:
     //! Initializes the Application along with the ResourceManager
     ODApplication();
-    
     ~ODApplication();
 
     //! \brief Display a GUI error message

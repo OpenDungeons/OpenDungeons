@@ -287,7 +287,6 @@ void EditorMode::handleMouseMovedDragType(const OIS::MouseEvent &arg)
 
 bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 {
-    //TODO: Lots of code duplicated here and in gameMode.cpp
     CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(
         Gui::getSingletonPtr()->convertButton(id));
 
