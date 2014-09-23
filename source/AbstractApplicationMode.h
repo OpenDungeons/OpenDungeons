@@ -26,8 +26,6 @@
 
 #include <iostream>
 
-using std::endl; using std::cout;
-
 class AbstractApplicationMode :
     public OIS::MouseListener,
     public OIS::KeyListener
@@ -37,7 +35,6 @@ protected:
     ModeManager* mModeManager;
 
 public:
-
     AbstractApplicationMode(ModeManager *modeManager, ModeManager::ModeType modeType):
         mModeManager(modeManager),
         mModeType(modeType)
