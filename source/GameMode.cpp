@@ -672,7 +672,7 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
 
     // Print a screenshot
     case OIS::KC_SYSRQ:
-        ResourceManager::getSingleton().takeScreenshot();
+        ResourceManager::getSingleton().takeScreenshot(frameListener->getRenderWindow());
         break;
 
     case OIS::KC_RETURN:

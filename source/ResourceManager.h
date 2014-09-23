@@ -28,6 +28,10 @@
 #include <OgreSingleton.h>
 #include <OgreStringVector.h>
 
+namespace Ogre {
+  class RenderTarget;
+}
+
 class ResourceManager : public Ogre::Singleton<ResourceManager>
 {
 public:
@@ -61,7 +65,7 @@ public:
     Ogre::StringVectorPtr listAllMusicFiles();
 
     //! \brief saves a screenshot
-    void takeScreenshot();
+    void takeScreenshot(Ogre::RenderTarget* renderTarget);
 
     inline const std::string& getResourcePath() const
     { return mResourcePath; }
@@ -99,7 +103,6 @@ protected:
     static std::string locateHomeFolder();
 
 private:
-    unsigned int mScreenshotCounter;
     std::string mResourcePath;
     std::string mHomePath;
     std::string mPluginsPath;
