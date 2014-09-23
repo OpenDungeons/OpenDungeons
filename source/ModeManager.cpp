@@ -29,14 +29,11 @@
 #include "Console.h"
 #include "ConsoleMode.h"
 #include "FppMode.h"
-#include "ODClient.h"
-#include "ODServer.h"
-#include "RenderManager.h"
-#include "ODFrameListener.h"
 
-ModeManager::ModeManager()
+
+ModeManager::ModeManager(Ogre::RenderWindow* renderWindow)
 {
-    mInputManager = new InputManager();
+    mInputManager = new InputManager(renderWindow);
     mInputManager->mKeyboard->setTextTranslation(OIS::Keyboard::Unicode);
 
 
@@ -46,11 +43,10 @@ ModeManager::ModeManager()
 
     // NOTE: Console needs to exist BEFORE ASWrapper because it needs it for callback
     // TODO: Merge Console and Console Mode
-    Console* console = new Console();
+    mConsole = new Console();
 
     // We set a console mode loaded in any case.
-    mConsole = console;
-    mConsoleMode = new ConsoleMode(this, console);
+    mConsoleMode = new ConsoleMode(this, mConsole);
     // The console isn't the active one when starting the game
     mIsInConsole = false;
 

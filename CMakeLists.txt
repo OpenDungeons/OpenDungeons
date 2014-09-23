@@ -35,7 +35,6 @@ set(DEPENDENCIES_DIR "${CMAKE_SOURCE_DIR}/dependencies")
 set(ANGELSCRIPT_DIR "${DEPENDENCIES_DIR}/angelscript")
 set(ANGELSCRIPT_SRC_DIR "${ANGELSCRIPT_DIR}/angelscript/source")
 set(ANGELSCRIPT_ADDON_DIR "${ANGELSCRIPT_DIR}/add_on")
-set(TINYGETTEXT_DIR "${DEPENDENCIES_DIR}/tinygettext")
 set(TINYXML_DIR "${DEPENDENCIES_DIR}/tinyxml2")
 
 #cmake paths
@@ -136,14 +135,6 @@ set(OD_SOURCEFILES
     ${ANGELSCRIPT_ADDON_DIR}/scripthelper/scripthelper.cpp
     ${ANGELSCRIPT_ADDON_DIR}/scriptstdstring/scriptstdstring.cpp
 
-    #Tinygettext sources
-    ${TINYGETTEXT_DIR}/dictionary_manager.cpp
-    ${TINYGETTEXT_DIR}/dictionary.cpp
-    ${TINYGETTEXT_DIR}/language.cpp
-    ${TINYGETTEXT_DIR}/plural_forms.cpp
-    ${TINYGETTEXT_DIR}/po_parser.cpp
-    ${TINYGETTEXT_DIR}/tinygettext.cpp
-
     #Tinyxml2 sources
     ${TINYXML_DIR}/tinyxml2.cpp
 
@@ -236,7 +227,6 @@ set(OD_SOURCEFILES
     ${SRC}/Tile.cpp
     ${SRC}/TileCoordinateMap.cpp
     ${SRC}/TileContainer.cpp
-    ${SRC}/Translation.cpp
     ${SRC}/Trap.cpp
     ${SRC}/TrapBoulder.cpp
     ${SRC}/TrapCannon.cpp
@@ -318,9 +308,6 @@ include_directories(
 
     #General external includes
     ${DEPENDENCIES_DIR}
-
-    #tinygettext includes
-    ${TINYGETTEXT_DIR}
 
     #tinyxml2 includes
     ${TINYXML_DIR}

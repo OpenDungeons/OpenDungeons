@@ -488,7 +488,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                 tempSS << "Class:\tCreature name:\tLocation:\tColor:\tLHand:\tRHand\n\n";
                 for (unsigned int i = 0; i < gameMap->numCreatures(); ++i)
                 {
-                    tempSS << gameMap->getCreature(i) << endl;
+                    tempSS << gameMap->getCreature(i) << std::endl;
                 }
             }
 
@@ -584,7 +584,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                     found2 = tempVector[j].find(suffix2);
                     if (found != string::npos && (!(found2 != string::npos)))
                     {
-                        tempSS << tempVector[j] << endl;
+                        tempSS << tempVector[j] << std::endl;
                     }
                 }
             }

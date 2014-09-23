@@ -31,17 +31,18 @@
 #include "CullingManager.h"
 #include "ODFrameListener.h"
 
-#include <OGRE/OgrePrerequisites.h>
-#include <OGRE/OgreSceneNode.h>
+#include <OgrePrerequisites.h>
+#include <OgreSceneNode.h>
 #include <OgreSceneManager.h>
 #include <OgreViewport.h>
+#include <OgreRenderWindow.h>
 
 #include <algorithm>
 
 using  std::set; using  std::swap; using  std::max; using  std::min;
 using  std::cerr; using std::endl;
 
-CameraManager::CameraManager(Ogre::SceneManager* tmpSceneManager, GameMap* gm) :
+CameraManager::CameraManager(Ogre::SceneManager* tmpSceneManager, GameMap* gm, Ogre::RenderWindow* renderWindow) :
     mSwitchedPM(false),
     mCircleMode(false),
     mCatmullSplineMode(false),
@@ -75,7 +76,7 @@ CameraManager::CameraManager(Ogre::SceneManager* tmpSceneManager, GameMap* gm) :
 
     gm->setCullingManger(mCullingManager);
 
-    createViewport();
+    createViewport(renderWindow);
     createCamera("RTS", 0.02, 300.0);
     createCameraNode("RTS", Ogre::Vector3((Ogre::Real)10.0,
                                               (Ogre::Real)10.0,
@@ -132,9 +133,9 @@ void CameraManager::createCameraNode(const Ogre::String& ss, Ogre::Vector3 xyz,
 
 
 //! \brief setup the viewports
-void CameraManager::createViewport()
+void CameraManager::createViewport(Ogre::RenderWindow* renderWindow)
 {
-    mViewport = ODApplication::getSingleton().getWindow()->addViewport(NULL);
+    mViewport = renderWindow->addViewport(NULL);
     mViewport->setBackgroundColour(Ogre::ColourValue(0, 0, 0));
 
 // TODO: Update registered camera if needed.

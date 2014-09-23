@@ -28,8 +28,6 @@
 #include <RTShaderSystem/OgreShaderGenerator.h>
 #include <RTShaderSystem/OgreShaderExNormalMapLighting.h>
 
-using  std::string;
-
 class RenderRequest;
 class GameMap;
 class Seat;
@@ -38,7 +36,7 @@ namespace Ogre
 {
 class SceneManager;
 class SceneNode;
-
+class OverlaySystem;
 
 /*namespace RTShader {
     class ShaderGenerator;
@@ -48,7 +46,7 @@ class SceneNode;
 class RenderManager: public Ogre::Singleton<RenderManager>
 {
 public:
-    RenderManager();
+    RenderManager(Ogre::OverlaySystem* overlaySystem);
     ~RenderManager();
 
     inline Ogre::SceneManager* getSceneManager() const

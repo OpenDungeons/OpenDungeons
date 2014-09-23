@@ -31,6 +31,9 @@
 
 #include "ODApplication.h"
 
+#include <OgrePlatform.h>
+#include <OgreException.h>
+
 #if defined WIN32
 // TODO : StackTracePrint do not work under windows (headers are different). We should try to find if
 // there is something equivalent
@@ -76,7 +79,7 @@ int main(int argc, char** argv)
 
     try
     {
-        new ODApplication;
+        ODApplication od;
     }
     catch (Ogre::Exception& e)
     {

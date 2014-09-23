@@ -32,7 +32,6 @@
 #include "MissileObject.h"
 #include "Trap.h"
 #include "Player.h"
-#include "ODApplication.h"
 #include "ResourceManager.h"
 #include "Seat.h"
 #include "MapLoader.h"
@@ -55,6 +54,8 @@
 #include <OgreSubMesh.h>
 #include <OgreCompositorManager.h>
 #include <OgreViewport.h>
+#include <OgreRoot.h>
+#include <Overlay/OgreOverlaySystem.h>
 
 //#include <RTShaderSystem/OgreShaderGenerator.h>
 #include <RTShaderSystem/OgreShaderExPerPixelLighting.h>
@@ -67,7 +68,7 @@ template<> RenderManager* Ogre::Singleton<RenderManager>::msSingleton = 0;
 
 const Ogre::Real RenderManager::BLENDER_UNITS_PER_OGRE_UNIT = 10.0;
 
-RenderManager::RenderManager() :
+RenderManager::RenderManager(Ogre::OverlaySystem* overlaySystem) :
     mVisibleCreatures(true),
     mGameMap(NULL),
     mViewport(NULL),
@@ -75,8 +76,8 @@ RenderManager::RenderManager() :
     mInitialized(false)
 {
     // Use Ogre::SceneType enum instead of string to identify the scene manager type; this is more robust!
-    mSceneManager = ODApplication::getSingletonPtr()->getRoot()->createSceneManager(Ogre::ST_INTERIOR, "SceneManager");
-    mSceneManager->addRenderQueueListener(ODApplication::getSingletonPtr()->getOverlaySystem());
+    mSceneManager = Ogre::Root::getSingleton().createSceneManager(Ogre::ST_INTERIOR, "SceneManager");
+    mSceneManager->addRenderQueueListener(overlaySystem);
 
     mRockSceneNode = mSceneManager->getRootSceneNode()->createChildSceneNode("Rock_scene_node");
     mCreatureSceneNode = mSceneManager->getRootSceneNode()->createChildSceneNode("Creature_scene_node");
