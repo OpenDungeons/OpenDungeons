@@ -177,7 +177,7 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
 
 void EditorMode::handleMouseWheel(const OIS::MouseEvent& arg)
 {
-    CameraManager* cm = ODFrameListener::getSingleton().cm;
+    ODFrameListener& frameListener = ODFrameListener::getSingleton();
 
     if (arg.state.Z.rel > 0)
     {
@@ -187,7 +187,7 @@ void EditorMode::handleMouseWheel(const OIS::MouseEvent& arg)
         }
         else
         {
-            cm->move(CameraManager::moveDown);
+            frameListener.moveCamera(CameraManager::moveDown);
         }
     }
     else if (arg.state.Z.rel < 0)
@@ -198,12 +198,12 @@ void EditorMode::handleMouseWheel(const OIS::MouseEvent& arg)
         }
         else
         {
-            cm->move(CameraManager::moveUp);
+            frameListener.moveCamera(CameraManager::moveUp);
         }
     }
     else
     {
-        cm->stopZooming();
+        frameListener.cameraStopZoom();
     }
 }
 
@@ -236,10 +236,6 @@ void EditorMode::handleCursorPositionUpdate()
 void EditorMode::handleMouseMovedDragType(const OIS::MouseEvent &arg)
 {
     ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
-    CameraManager* cm = frameListener->cm;
-    if (!cm)
-        return;
-
     Ogre::RaySceneQueryResult& result = frameListener->doRaySceneQuery(arg);
 
     Ogre::RaySceneQueryResult::iterator itr = result.begin();
@@ -393,8 +389,6 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     inputManager->mLStartDragX = inputManager->mXPos;
     inputManager->mLStartDragY = inputManager->mYPos;
 
-    CameraManager* cm = ODFrameListener::getSingletonPtr()->cm;
-
     // Check whether the player is already placing rooms or traps.
     bool skipCreaturePickUp = false;
     Player* player = mGameMap->getLocalPlayer();
@@ -429,6 +423,8 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         // Pick the creature up and put it in our hand
         if(inputManager->mExpectCreatureClick)
         {
+            // TODO : switch to FPP mode
+#if 0 // FPP mode do not exist yet but we keep track of what was done.
             mModeManager->requestFppMode();
             const string& tmp_name =  (itr->movable->getName());
             std::cerr << tmp_name.substr(9, tmp_name.size()) << std::endl;
@@ -437,6 +433,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
             cm->setActiveCamera("FPP");
 
             inputManager->mExpectCreatureClick = false;
+#endif // 0
         }
         else
         {
@@ -620,76 +617,75 @@ void EditorMode::updateCursorText()
 
 bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
 {
-    ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
-    if (frameListener->isTerminalActive())
+    ODFrameListener& frameListener = ODFrameListener::getSingleton();
+    if (frameListener.isTerminalActive())
         return true;
 
     // Inject key to Gui
     CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyDown((CEGUI::Key::Scan) arg.key);
     CEGUI::System::getSingleton().getDefaultGUIContext().injectChar(arg.text);
 
-    CameraManager& camMgr = *(frameListener->cm);
     InputManager* inputManager = mModeManager->getInputManager();
 
     switch (arg.key)
     {
     case OIS::KC_F11:
-        frameListener->toggleDebugInfo();
+        frameListener.toggleDebugInfo();
         break;
 
     case OIS::KC_GRAVE:
     case OIS::KC_F12:
         mModeManager->requestConsoleMode();
-        frameListener->setTerminalActive(true);
+        frameListener.setTerminalActive(true);
         Console::getSingleton().setVisible(true);
         break;
 
     case OIS::KC_LEFT:
     case OIS::KC_A:
         inputManager->mDirectionKeyPressed = true;
-        camMgr.move(camMgr.moveLeft); // Move left
+        frameListener.moveCamera(CameraManager::Direction::moveLeft);
         break;
 
     case OIS::KC_RIGHT:
     case OIS::KC_D:
         inputManager->mDirectionKeyPressed = true;
-        camMgr.move(camMgr.moveRight); // Move right
+        frameListener.moveCamera(CameraManager::Direction::moveRight);
         break;
 
     case OIS::KC_UP:
     case OIS::KC_W:
         inputManager->mDirectionKeyPressed = true;
-        camMgr.move(camMgr.moveForward); // Move forward
+        frameListener.moveCamera(CameraManager::Direction::moveForward);
         break;
 
     case OIS::KC_DOWN:
     case OIS::KC_S:
         inputManager->mDirectionKeyPressed = true;
-        camMgr.move(camMgr.moveBackward); // Move backward
+        frameListener.moveCamera(CameraManager::Direction::moveBackward);
         break;
 
     case OIS::KC_Q:
-        camMgr.move(camMgr.rotateLeft); // Turn left
+        frameListener.moveCamera(CameraManager::Direction::rotateLeft);
         break;
 
     case OIS::KC_E:
-        camMgr.move(camMgr.rotateRight); // Turn right
+        frameListener.moveCamera(CameraManager::Direction::rotateRight);
         break;
 
     case OIS::KC_PGUP:
-        camMgr.move(camMgr.rotateUp); // Tilt up
+        frameListener.moveCamera(CameraManager::Direction::rotateUp);
         break;
 
     case OIS::KC_PGDOWN:
-        camMgr.move(camMgr.rotateDown); // Tilt down
+        frameListener.moveCamera(CameraManager::Direction::rotateDown);
         break;
 
     case OIS::KC_HOME:
-        camMgr.move(camMgr.moveUp); // Move up
+        frameListener.moveCamera(CameraManager::Direction::moveUp);
         break;
 
     case OIS::KC_END:
-        camMgr.move(camMgr.moveDown); // Move down
+        frameListener.moveCamera(CameraManager::Direction::moveDown);
         break;
 
     //Toggle mCurrentTileType
@@ -727,7 +723,7 @@ bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
 
     // Print a screenshot
     case OIS::KC_SYSRQ:
-        ResourceManager::getSingleton().takeScreenshot(frameListener->getRenderWindow());
+        ResourceManager::getSingleton().takeScreenshot(frameListener.getRenderWindow());
         break;
 
     case OIS::KC_1:
@@ -754,11 +750,10 @@ bool EditorMode::keyReleased(const OIS::KeyEvent& arg)
 {
     CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyUp((CEGUI::Key::Scan) arg.key);
 
-    ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
-    if (frameListener->isTerminalActive())
+    ODFrameListener& frameListener = ODFrameListener::getSingleton();
+    if (frameListener.isTerminalActive())
         return true;
 
-    CameraManager& camMgr = *(frameListener->cm);
     InputManager* inputManager = mModeManager->getInputManager();
 
     switch (arg.key)
@@ -766,49 +761,49 @@ bool EditorMode::keyReleased(const OIS::KeyEvent& arg)
     case OIS::KC_LEFT:
     case OIS::KC_A:
         inputManager->mDirectionKeyPressed = false;
-        camMgr.move(camMgr.stopLeft);
+        frameListener.moveCamera(CameraManager::Direction::stopLeft);
         break;
 
     case OIS::KC_RIGHT:
     case OIS::KC_D:
         inputManager->mDirectionKeyPressed = false;
-        camMgr.move(camMgr.stopRight);
+        frameListener.moveCamera(CameraManager::Direction::stopRight);
         break;
 
     case OIS::KC_UP:
     case OIS::KC_W:
         inputManager->mDirectionKeyPressed = false;
-        camMgr.move(camMgr.stopForward);
+        frameListener.moveCamera(CameraManager::Direction::stopForward);
         break;
 
     case OIS::KC_DOWN:
     case OIS::KC_S:
         inputManager->mDirectionKeyPressed = false;
-        camMgr.move(camMgr.stopBackward);
+        frameListener.moveCamera(CameraManager::Direction::stopBackward);
         break;
 
     case OIS::KC_Q:
-        camMgr.move(camMgr.stopRotLeft);
+        frameListener.moveCamera(CameraManager::Direction::stopRotLeft);
         break;
 
     case OIS::KC_E:
-        camMgr.move(camMgr.stopRotRight);
+        frameListener.moveCamera(CameraManager::Direction::stopRotRight);
         break;
 
     case OIS::KC_PGUP:
-        camMgr.move(camMgr.stopRotUp);
+        frameListener.moveCamera(CameraManager::Direction::stopRotUp);
         break;
 
     case OIS::KC_PGDOWN:
-        camMgr.move(camMgr.stopRotDown);
+        frameListener.moveCamera(CameraManager::Direction::stopRotDown);
         break;
 
     case OIS::KC_HOME:
-        camMgr.stopZooming();
+        frameListener.cameraStopZoom();
         break;
 
     case OIS::KC_END:
-        camMgr.stopZooming();
+        frameListener.cameraStopZoom();
         break;
 
     default:
@@ -823,27 +818,24 @@ void EditorMode::handleHotkeys(OIS::KeyCode keycode)
     //keycode minus two because the codes are shifted by two against the actual number
     unsigned int keynumber = keycode - 2;
 
-    CameraManager* cm = ODFrameListener::getSingletonPtr()->cm;
+    ODFrameListener& frameListener = ODFrameListener::getSingleton();
     InputManager* inputManager = mModeManager->getInputManager();
 
     if (getKeyboard()->isModifierDown(OIS::Keyboard::Shift))
     {
         inputManager->mHotkeyLocationIsValid[keynumber] = true;
-        inputManager->mHotkeyLocation[keynumber] = cm->getCameraViewTarget();
+        inputManager->mHotkeyLocation[keynumber] = frameListener.getCameraViewTarget();
     }
     else
     {
         if (inputManager->mHotkeyLocationIsValid[keynumber])
-            cm->flyTo(inputManager->mHotkeyLocation[keynumber]);
+            frameListener.cameraFlyTo(inputManager->mHotkeyLocation[keynumber]);
     }
 }
 
 //! Rendering methods
 void EditorMode::onFrameStarted(const Ogre::FrameEvent& evt)
 {
-    CameraManager* cm = ODFrameListener::getSingletonPtr()->cm;
-    cm->moveCamera(evt.timeSinceLastFrame);
-
     MiniMap* minimap = ODFrameListener::getSingleton().getMiniMap();
     minimap->draw();
     minimap->swap();

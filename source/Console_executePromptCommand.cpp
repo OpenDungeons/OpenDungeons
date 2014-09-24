@@ -55,7 +55,6 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     std::stringstream tempSS;
 
     ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
-    CameraManager* cm = frameListener->cm;
     GameMap* gameMap = frameListener->mGameMap;
 
     /*
@@ -284,20 +283,15 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             Ogre::Real tempDouble = 0.0;
             tempSS.str(arguments);
             tempSS >> tempDouble;
-            cm->setRotateSpeed(Ogre::Degree(tempDouble));
+            frameListener->setCameraRotateSpeed(tempDouble);
             frameListener->mCommandOutput += "\nrotatespeed set to "
-                    + Ogre::StringConverter::toString(
-                            static_cast<Ogre::Real>(
-                                    cm->getRotateSpeed().valueDegrees()))
+                    + Ogre::StringConverter::toString(frameListener->getCameraRotateSpeedInDegrees())
                     + "\n";
         }
         else
         {
             frameListener->mCommandOutput += "\nCurrent rotatespeed is "
-                    + Ogre::StringConverter::toString(
-                            static_cast<Ogre::Real>(
-                                    cm->getRotateSpeed().valueDegrees()))
-                    + "\n";
+                    + Ogre::StringConverter::toString(frameListener->getCameraRotateSpeedInDegrees()) + "\n";
         }
     }
 
@@ -368,17 +362,17 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             Ogre::Real tempDouble;
             tempSS.str(arguments);
             tempSS >> tempDouble;
-            cm->getActiveCamera()->setNearClipDistance(tempDouble);
+            frameListener->setActiveCameraNearClipDistance(tempDouble);
             frameListener->mCommandOutput += "\nNear clip distance set to "
                     + Ogre::StringConverter::toString(
-                            cm->getActiveCamera()->getNearClipDistance())
+                            frameListener->getActiveCameraNearClipDistance())
                     + "\n";
         }
         else
         {
             frameListener->mCommandOutput += "\nCurrent near clip distance is "
                     + Ogre::StringConverter::toString(
-                            cm->getActiveCamera()->getNearClipDistance())
+                            frameListener->getActiveCameraNearClipDistance())
                     + "\n";
         }
     }
@@ -391,16 +385,16 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             Ogre::Real tempDouble;
             tempSS.str(arguments);
             tempSS >> tempDouble;
-            cm->getActiveCamera()->setFarClipDistance(tempDouble);
+            frameListener->setActiveCameraFarClipDistance(tempDouble);
             frameListener->mCommandOutput += "\nFar clip distance set to "
                     + Ogre::StringConverter::toString(
-                            cm->getActiveCamera()->getFarClipDistance()) + "\n";
+                            frameListener->getActiveCameraFarClipDistance()) + "\n";
         }
         else
         {
             frameListener->mCommandOutput += "\nCurrent far clip distance is "
                     + Ogre::StringConverter::toString(
-                            cm->getActiveCamera()->getFarClipDistance()) + "\n";
+                            frameListener->getActiveCameraFarClipDistance()) + "\n";
         }
     }
 
@@ -922,9 +916,11 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     }
 
 
-    else if (command.compare("catmullspline") == 0){
-        if(!arguments.empty()){
-
+    else if (command.compare("catmullspline") == 0)
+    {
+        if(!arguments.empty())
+        {
+            CameraManager* cm = frameListener->getCameraManager();
             int nn = 0;
 
             int tempInt1 = 0;
@@ -981,8 +977,9 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     }
     else if (command.compare("setcamerafovy") == 0)
     {
-        if(!arguments.empty()){
-
+        if(!arguments.empty())
+        {
+            CameraManager* cm = frameListener->getCameraManager();
             double tmp;
             tempSS.str(arguments);
             tempSS >> tmp;
@@ -1052,6 +1049,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     {
         if(!arguments.empty())
         {
+            CameraManager* cm = frameListener->getCameraManager();
             double centerX;
             double centerY;
             double radius;
@@ -1072,6 +1070,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     }
     else if (command.compare("switchpolygonmode") == 0)
     {
+        CameraManager* cm = frameListener->getCameraManager();
         cm->switchPM();
     }
     else if (command.compare("starttileculling") == 0)
