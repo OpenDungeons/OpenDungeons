@@ -28,9 +28,9 @@ TrapCannon::TrapCannon(GameMap* gameMap) :
 {
     mReloadTime = 5;
     mReloadTimeCounter = mReloadTime;
-    mRange = 12;
-    mMinDamage = 104;
-    mMaxDamage = 120;
+    mRange = 10;
+    mMinDamage = 5;
+    mMaxDamage = 10;
 }
 
 std::vector<GameEntity*> TrapCannon::aimEnemy()
