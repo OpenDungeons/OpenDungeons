@@ -75,7 +75,7 @@ template<> ODFrameListener* Ogre::Singleton<ODFrameListener>::msSingleton = 0;
  * up the OGRE system.
  */
 ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
-    cm(NULL),
+    mCameraManager(NULL),
     mInitialized(false),
     mWindow(win),
     mShowDebugInfo(false),
@@ -96,15 +96,15 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
 
     mMiniMap = new MiniMap(mGameMap);
 
-    cm = new CameraManager(renderManager->getSceneManager(), mGameMap);
+    mCameraManager = new CameraManager(renderManager->getSceneManager(), mGameMap);
 
     renderManager->setGameMap(mGameMap);
-    renderManager->createScene(cm->getViewport());
+    renderManager->createScene(mCameraManager->getViewport());
 
     mRaySceneQuery = renderManager->getSceneManager()->createRayQuery(Ogre::Ray());
 
     mModeManager = new ModeManager();
-    cm->setModeManager(mModeManager);
+    mCameraManager->setModeManager(mModeManager);
 
     //Set initial mouse clipping size
     windowResized(mWindow);
@@ -146,7 +146,7 @@ ODFrameListener::~ODFrameListener()
 
     if (mModeManager)
         delete mModeManager;
-    delete cm;
+    delete mCameraManager;
     delete mGameMap;
     delete mMiniMap;
     // We deinit it here since it was also created in this class.
@@ -226,10 +226,10 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
         currentMode->getKeyboard()->capture();
         currentMode->getMouse()->capture();
 
+        mCameraManager->updateCameraFrameTime(evt.timeSinceLastFrame);
         currentMode->onFrameStarted(evt);
 
-        if (cm != NULL)
-           cm->onFrameStarted();
+        mCameraManager->onFrameStarted();
 
         if((mGameMap->getGamePaused()) && (!mExitRequested))
             return true;
@@ -337,8 +337,7 @@ bool ODFrameListener::frameEnded(const Ogre::FrameEvent& evt)
     AbstractApplicationMode* currentMode = mModeManager->getCurrentMode();
     currentMode->onFrameEnded(evt);
 
-    if (cm != NULL)
-        cm->onFrameEnded();
+    mCameraManager->onFrameEnded();
 
     return true;
 }
@@ -353,7 +352,7 @@ Ogre::RaySceneQueryResult& ODFrameListener::doRaySceneQuery(const OIS::MouseEven
 {
     // Setup the ray scene query, use CEGUI's mouse position
     CEGUI::Vector2<float> mousePos = CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().getPosition();// * mMouseScale;
-    Ogre::Ray mouseRay = cm->getActiveCamera()->getCameraToViewportRay(mousePos.d_x / float(
+    Ogre::Ray mouseRay = mCameraManager->getActiveCamera()->getCameraToViewportRay(mousePos.d_x / float(
             arg.state.width), mousePos.d_y / float(arg.state.height));
     mRaySceneQuery->setRay(mouseRay);
     mRaySceneQuery->setSortByDistance(true);
@@ -439,4 +438,68 @@ void ODFrameListener::addChatMessage(ChatMessage *message)
     mChatMessages.push_back(message);
 }
 
+void ODFrameListener::setCameraPosition(const Ogre::Vector3& position)
+{
+    mCameraManager->setCameraPosition(position);
+}
 
+void ODFrameListener::moveCamera(CameraManager::Direction direction)
+{
+    mCameraManager->move(direction);
+}
+
+void ODFrameListener::cameraStopZoom()
+{
+    mCameraManager->stopZooming();
+}
+
+void ODFrameListener::setCameraRotateSpeed(Ogre::Real value)
+{
+    mCameraManager->setRotateSpeed(Ogre::Degree(value));
+}
+
+Ogre::Real ODFrameListener::getCameraRotateSpeedInDegrees()
+{
+    return mCameraManager->getRotateSpeed().valueDegrees();
+}
+
+void ODFrameListener::setActiveCameraNearClipDistance(Ogre::Real value)
+{
+    mCameraManager->getActiveCamera()->setNearClipDistance(value);
+}
+
+Ogre::Real ODFrameListener::getActiveCameraNearClipDistance()
+{
+    return mCameraManager->getActiveCamera()->getNearClipDistance();
+}
+
+void ODFrameListener::setActiveCameraFarClipDistance(Ogre::Real value)
+{
+    mCameraManager->getActiveCamera()->setFarClipDistance(value);
+}
+
+Ogre::Real ODFrameListener::getActiveCameraFarClipDistance()
+{
+    return mCameraManager->getActiveCamera()->getFarClipDistance();
+}
+
+const Ogre::Vector3 ODFrameListener::getCameraViewTarget()
+{
+    return mCameraManager->getCameraViewTarget();
+}
+
+void ODFrameListener::cameraFlyTo(const Ogre::Vector3& destination)
+{
+    mCameraManager->flyTo(destination);
+}
+
+void ODFrameListener::onMiniMapClick(int xPos, int yPos)
+{
+    Ogre::Vector2 cc = mMiniMap->camera_2dPositionFromClick(xPos, yPos);
+    mCameraManager->onMiniMapClick(cc);
+}
+
+CameraManager* ODFrameListener::getCameraManager()
+{
+    return mCameraManager;
+}

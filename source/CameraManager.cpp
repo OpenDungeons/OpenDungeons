@@ -214,7 +214,7 @@ Ogre::String CameraManager::switchPolygonMode()
 /*! \brief Sets the camera to a new location while still satisfying the
  * constraints placed on its movement
  */
-void CameraManager::moveCamera(const Ogre::Real frameTime)
+void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)
 {
     // Carry out the acceleration/deceleration calculations on the camera translation.
     Ogre::Real speed = mTranslateVector.normalise();

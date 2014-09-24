@@ -23,6 +23,8 @@
 #ifndef __ODFRAMELISTENER_H__
 #define __ODFRAMELISTENER_H__
 
+#include "CameraManager.h"
+
 #include <OgreFrameListener.h>
 #include <OgreWindowEventUtilities.h>
 #include <OgreSingleton.h>
@@ -135,10 +137,6 @@ public:
     inline ModeManager* getModeManager() const
     { return mModeManager; }
 
-    //! TODO Rename it and move it into private space.
-    //! \brief The Camera manager
-    CameraManager* cm;
-
     void addChatMessage(ChatMessage* message);
 
     //! \brief The console output
@@ -152,6 +150,21 @@ public:
     void notifyChatInputMode(bool isChatInputMode, bool sendChatMsg = false);
     void notifyChatChar(int text);
     void notifyChatCharDel();
+
+    //! \brief Accessors for camera manager
+    void setCameraPosition(const Ogre::Vector3& position);
+    void moveCamera(CameraManager::Direction direction);
+    void cameraStopZoom();
+    void setCameraRotateSpeed(Ogre::Real value);
+    Ogre::Real getCameraRotateSpeedInDegrees();
+    void setActiveCameraNearClipDistance(Ogre::Real value);
+    Ogre::Real getActiveCameraNearClipDistance();
+    void setActiveCameraFarClipDistance(Ogre::Real value);
+    Ogre::Real getActiveCameraFarClipDistance();
+    const Ogre::Vector3 getCameraViewTarget();
+    void cameraFlyTo(const Ogre::Vector3& destination);
+    void onMiniMapClick(int xPos, int yPos);
+    CameraManager* getCameraManager();
 
 private:
     //! \brief Tells whether the frame listener is initialized.
@@ -193,6 +206,9 @@ private:
     //! \brief The chat string for the local player
     std::string mChatString;
     bool mIsChatInputMode;
+
+    //! \brief The Camera manager
+    CameraManager* mCameraManager;
 
     //! \brief Actually exit application
     void exitApplication();

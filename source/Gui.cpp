@@ -326,9 +326,8 @@ bool Gui::miniMapclicked(const CEGUI::EventArgs& e)
 
     ODFrameListener& frameListener = ODFrameListener::getSingleton();
 
-    Ogre::Vector2 cc = frameListener.getMiniMap()->camera_2dPositionFromClick((int)ee.position.d_x,
-        (int)ee.position.d_y);
-    frameListener.cm->onMiniMapClick(cc);
+    frameListener.onMiniMapClick(static_cast<int>(ee.position.d_x),
+                                  static_cast<int>(ee.position.d_y));
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
 
     //std::cerr<< xx <<" "<< yy << " " <<std::endl;
