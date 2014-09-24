@@ -100,6 +100,7 @@ textures/
 -> TrainingDummy2_texture.png          Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59239#p59239
 -> TrainingDummy3.png                  P0ss                    CC-BY 3.0               http://forum.freegamedev.net/viewtopic.php?p=59351#p59351
 -> TrainingDummy4.png                  Nubiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?p=59621#p59621
+-> Lamp.png                            Nubiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?p=59621#p59621
 
 ======================
 ==  Models: models/ ==
@@ -149,9 +150,9 @@ Keeperhand.*                           Skorpio                 CC-BY-SA 3.0, GPL
 Knight.*                               surt                    CC0                     http://opengameart.org/forumtopic/cc0-scraps
 Kobold.*                               surt                    CC0                     http://opengameart.org/forumtopic/cc0-scraps
 Kreatur.*                              Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Lamp.mesh                              Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59621#p59621
 Lava*[0-9].mesh                        Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Library.mesh                           Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
-Light.mesh                             OD Team                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59066#p59066
 Lizardman.*                            Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
 Longsword.mesh                         Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
 mini_wood_barrel.mesh                  Nobiax/yughues          CC0

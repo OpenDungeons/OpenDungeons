@@ -732,9 +732,6 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                     std::string ip;
                     tempSS >> ip;
 
-                    // Destroy the meshes associated with the map lights that allow you to see/drag them in the map editor.
-                    gameMap->clearMapLightIndicators();
-
                     if (ODClient::getSingleton().connect(ip, ODApplication::PORT_NUMBER))
                     {
                         frameListener->mCommandOutput += "\nConnection successful.\n";
