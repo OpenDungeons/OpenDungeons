@@ -28,6 +28,7 @@
                 <Property name="MaxSize" value="{{1,0},{1,0}}" />
                 <Property name="FrameEnabled" value="False" />
                 <Property name="VertFormatting" value="TopAligned" />
+                <Property name="HorzFormatting" value="WordWrapLeftAligned" />
                 <Property name="BackgroundEnabled" value="False" />
             </Window>
             <Window type="OD/MainMenuButton" name="ServerButton" >

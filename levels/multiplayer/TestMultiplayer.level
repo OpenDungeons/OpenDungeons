@@ -1,8 +1,8 @@
 OpenDungeons_Version:0.4.9  # The version of OpenDungeons which created this file (for compatibility reasons).
 
 [Info]
-Name	Multiplayer Bigger test Map (Skirmish)
-Description	A bigger test map for the multiplayer mode...
+Name	Big Test Map
+Description	A bigger test map for the multiplayer mode, free for all...
 Music	yd_Searching_ingame.ogg
 FightMusic	The_Dark_Amulet.ogg
 [/Info]
