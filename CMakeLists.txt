@@ -23,7 +23,7 @@ set(${PROJECT_NAME}_PATCH_LEVEL   9)
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 
 # Compilation options
-option(OD_ENABLE_WARNINGS "Compile the game with all standard warnings enabled" OFF)
+option(OD_ENABLE_WARNINGS "Compile the game with all standard warnings enabled" ON)
 
 ##################################
 #### Useful variables ############
@@ -66,7 +66,7 @@ else()
     endif()
     if(MINGW)
         if(NOT OD_CXX11_FLAGS)
-            set(OD_CXX11_FLAGS "-std=gnu++11" CACHE STRING "Compilation flags to enable C++11 support" FORCE)
+            set(OD_CXX11_FLAGS "-std=gnu++11 -Wno-unused-local-typedefs -Wno-reorder -Wno-format" CACHE STRING "Compilation flags to enable C++11 support" FORCE)
         endif()
         # This includes enough debug information to get something useful
         # from Dr. Mingw while keeping binary size down. Almost useless
