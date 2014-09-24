@@ -770,26 +770,6 @@ void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
         LogManager::getSingleton().logMessage("Starting game map");
         setGamePaused(false);
 
-        // Check whether at least a local player was added.
-        Seat* localPlayerSeat = getLocalPlayer()->getSeat();
-        if (localPlayerSeat == NULL)
-        {
-            LogManager::getSingleton().logMessage("FATAL ERROR : Can't start the game: No seat set for local player");
-            exit(1);
-        }
-
-        // Move camera to starting position
-        Ogre::Real startX = (Ogre::Real)(localPlayerSeat->mStartingX);
-        Ogre::Real startY = (Ogre::Real)(localPlayerSeat->mStartingY);
-        // We make the temple appear in the center of the game view
-        startY = (Ogre::Real)(startY - 7.0);
-        // Bound check
-        if (startY <= 0.0)
-            startY = 0.0;
-
-        if(!isServerGameMap())
-            ODFrameListener::getSingleton().cm->setCameraPosition(Ogre::Vector3(startX, startY, MAX_CAMERA_Z));
-
         // Create ogre entities for the tiles, rooms, and creatures
         createAllEntities();
     }
