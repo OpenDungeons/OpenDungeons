@@ -23,6 +23,8 @@
 class ODConsoleCommand
 {
 public:
+    ODConsoleCommand() {}
+    virtual ~ODConsoleCommand() {}
     virtual void execute(GameMap* gameMap) = 0;
 };
 

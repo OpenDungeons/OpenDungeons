@@ -175,8 +175,9 @@ public:
     //! \brief This accessor function returns whether or not the tile has been marked to be dug out by a given Player p.
     bool getMarkedForDigging(Player *p);
 
-    //! \brief This is a simple helper function which just calls setMarkedForDigging() for everyone in the game (including me).
-    void setMarkedForDiggingForAllSeats(bool s);
+    //! \brief This is a simple helper function which just calls setMarkedForDigging() for everyone in the game except
+    //! allied to exceptSeat. If exceptSeat is NULL, it is called for every player
+    void setMarkedForDiggingForAllPlayersExcept(bool s, Seat* exceptSeat);
 
     //! \brief Tells whether the tile is selected for digging by any player/AI.
     bool isMarkedForDiggingByAnySeat();
@@ -208,7 +209,7 @@ public:
     double digOut(double digRate, bool doScaleDigRate = false);
     double scaleDigRate(double digRate);
 
-    Room* getCoveringRoom();
+    Room* getCoveringRoom() const;
     void setCoveringRoom(Room *r);
     Trap* getCoveringTrap() const;
     void setCoveringTrap(Trap* t);

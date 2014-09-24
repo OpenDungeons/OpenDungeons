@@ -54,7 +54,7 @@ class ODServer: public Ogre::Singleton<ODServer>,
          ModeEditor
      };
     ODServer();
-    ~ODServer();
+    virtual ~ODServer();
 
     bool startServer(const std::string& levelFilename, bool replaceHumanPlayersByAi, ServerMode mode);
     void stopServer();

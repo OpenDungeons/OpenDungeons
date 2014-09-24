@@ -520,14 +520,14 @@ void CullingQuad::holdRootSemaphore(){
     CullingQuad* cq = this ;
     while(cq->parent!=NULL)
 	cq=cq->parent;
-    MortuaryQuad *casted_cq = static_cast<MortuaryQuad*>(cq) ;
+//    MortuaryQuad *casted_cq = static_cast<MortuaryQuad*>(cq) ;
 };
 void CullingQuad::releaseRootSemaphore(){
     /* std::cerr<<std::endl<<std::endl<<"release"<<std::endl<<std::endl;  */
     CullingQuad* cq = this ;
     while(cq->parent!=NULL)
 	cq=cq->parent;
-    MortuaryQuad  *casted_cq = static_cast<MortuaryQuad*>(cq) ;
+//    MortuaryQuad  *casted_cq = static_cast<MortuaryQuad*>(cq) ;
 };
 
 

@@ -98,12 +98,12 @@ bool KeeperAI::buildSleepRoom()
                                                                          central->getX() + 2, central->getY() + 3);
     unsigned int numClaimedTiles = 0;
     int seatId = mAiWrapper.getPlayer().getSeat()->getId();
-    Seat* teamSeat = mAiWrapper.getGameMap().getSeatById(seatId);
+    Seat* seat = mAiWrapper.getGameMap().getSeatById(seatId);
     for (std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
     {
         Tile* tile = *it;
         if (tile && tile->getType() == Tile::claimed && tile->getFullness() < 1.0
-                && tile->isBuildableUpon() && tile->isClaimedForSeat(teamSeat)
+                && tile->isBuildableUpon() && tile->isClaimedForSeat(seat)
                 && tile->getClaimedPercentage() >= 1.0)
             ++numClaimedTiles;
     }

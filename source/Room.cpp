@@ -967,7 +967,6 @@ void Room::updateActiveSpots()
     }
 
     // Now that we've got the center tiles, we can test the tile around for walls.
-    GameMap* gameMap = getGameMap();
     for (unsigned int i = 0, size = centralActiveSpotTiles.size(); i < size; ++i)
     {
         Tile* centerTile = centralActiveSpotTiles[i];

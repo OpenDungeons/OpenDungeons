@@ -53,7 +53,7 @@ void MissileObject::createMeshLocal()
         return;
 
     RenderRequest* request = new RenderRequest;
-    request->type   = request->type = RenderRequest::createMissileObject;
+    request->type = RenderRequest::createMissileObject;
     request->p = static_cast<void*>(this);
     RenderManager::queueRenderRequest(request);
 }

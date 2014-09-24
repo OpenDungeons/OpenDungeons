@@ -343,7 +343,6 @@ ODPacket& operator<<(ODPacket& os, Creature *c)
  */
 ODPacket& operator>>(ODPacket& is, Creature *c)
 {
-    double tempDouble = 0.0;
     std::string tempString;
 
     is >> tempString;
@@ -922,6 +921,8 @@ bool Creature::handleIdleAction()
                 pushAction(CreatureAction::claimWallTile);
                 return true;
             }
+            default:
+                break;
         }
     }
 
@@ -2758,10 +2759,7 @@ bool Creature::isActionInList(CreatureAction::ActionType action)
     {
         CreatureAction& ca = *it;
         if (ca.getType() == action)
-        {
             return true;
-            break;
-        }
     }
     return false;
 }
@@ -2911,7 +2909,6 @@ bool Creature::wanderRandomly(const std::string& animationState)
     if(mVisibleTiles.empty())
         return false;
 
-    int nbTry = 5;
     Tile* tileDestination = NULL;
     int minPick = mVisibleTiles.size() * 4 / 5;
     int indexPick = Random::Int(minPick, mVisibleTiles.size() - 1);

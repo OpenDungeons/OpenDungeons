@@ -71,7 +71,6 @@ void ODSocketServer::doTask(int timeoutMs)
     while((timeoutMs == 0) ||
           (timeoutMs > mClockMainTask.getElapsedTime().asMilliseconds()))
     {
-        int timeoutMsAdjusted = 0;
         bool isSockReady;
         if(timeoutMs != 0)
         {

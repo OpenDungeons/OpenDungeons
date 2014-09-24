@@ -70,7 +70,7 @@ void MenuModeMultiplayerServer::activate()
 
     if(Helper::fillFilesList(LEVEL_PATH, mFilesList, LEVEL_EXTENSION))
     {
-        for (int n = 0; n < mFilesList.size(); ++n)
+        for (uint32_t n = 0; n < mFilesList.size(); ++n)
         {
             std::string filename = mFilesList[n];
             std::string mapName = MapLoader::getMapName(filename);

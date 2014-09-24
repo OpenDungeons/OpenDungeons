@@ -42,7 +42,7 @@ class ODSocketClient
             mLastTurnAck(-1)
         {}
 
-        ~ODSocketClient()
+        virtual ~ODSocketClient()
         {}
 
         // Client initialization
