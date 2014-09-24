@@ -39,6 +39,9 @@ public:
 
     void setText(const std::string& ID, const std::string& Text);
 
+    //! \brief Change the text color
+    void setColor(const std::string& ID, const Ogre::ColourValue& color);
+
     void moveText(const std::string& ID, Ogre::Real left, Ogre::Real top);
 
 private:
