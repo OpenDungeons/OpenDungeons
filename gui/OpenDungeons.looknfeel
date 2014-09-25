@@ -1592,7 +1592,7 @@
                 <Dim type="BottomEdge"><UnifiedDim scale="1.0" type="BottomEdge" /></Dim>
             </Area>
         </NamedArea>
-        <Child nameSuffix="__auto_incbtn__" type="OD/ImageButton">
+        <Child nameSuffix="__auto_incbtn__" type="OD/InvisibleButton">
             <Area>
                 <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
                 <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
@@ -1604,7 +1604,7 @@
             <Property name="HoverImage" value="OpenDungeonsSkin/MiniHorzScrollRightHover" />
             <Property name="PushedImage" value="OpenDungeonsSkin/MiniHorzScrollRightNormal" />
         </Child>
-        <Child nameSuffix="__auto_decbtn__" type="OD/ImageButton">
+        <Child nameSuffix="__auto_decbtn__" type="OD/InvisibleButton">
             <Area>
                 <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
                 <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>

@@ -21,8 +21,9 @@
 #include "RenderRequest.h"
 #include "GameMap.h"
 #include "Random.h"
-#include "ODClient.h"
-#include "ODServer.h"
+#include "ModeManager.h"
+#include "ODPacket.h"
+#include "ODFrameListener.h"
 
 #include "Helper.h"
 
@@ -73,7 +74,9 @@ void MapLight::createOgreEntity()
     request->type = RenderRequest::createMapLight;
     //TODO - this check should be put somewhere else / fixed
     request->p = static_cast<void*>(this);
-    request->b = (!ODServer::getSingleton().isConnected() && !ODClient::getSingleton().isConnected());
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    // Only show the visual light entity if we are in editor mode
+    request->b = (mm && mm->getCurrentModeType() == ModeManager::EDITOR);
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
@@ -96,10 +99,6 @@ void MapLight::destroyOgreEntity()
     RenderRequest* request = new RenderRequest;
     request->type = RenderRequest::destroyMapLight;
     request->p = this;
-    /* Check if we are in editor mode
-     * TODO this check should be elsewhere / fixed
-     */
-    request->b = (!ODServer::getSingleton().isConnected() && !ODClient::getSingleton().isConnected());
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);

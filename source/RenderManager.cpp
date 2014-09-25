@@ -916,7 +916,7 @@ void RenderManager::rrCreateMapLight(const RenderRequest& renderRequest)
     {
         // Create the MapLightIndicator mesh so the light can be drug around in the map editor.
         Ogre::Entity* lightEntity = mSceneManager->createEntity(MapLight::MAPLIGHT_INDICATOR_PREFIX
-                                    + curMapLight->getName(), "Light.mesh");
+                                    + curMapLight->getName(), "Lamp.mesh");
         mapLightNode->attachObject(lightEntity);
     }
 

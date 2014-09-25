@@ -731,29 +731,39 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             std::vector<Tile*> tiles = gameMap->getBuildableTilesForPlayerInArea(x1,
                 y1, x2, y2, player);
 
-            if(!tiles.empty())
+            if(tiles.empty())
+                break;
+
+            Room::RoomType type = static_cast<Room::RoomType>(intType);
+            int costPerTile = Room::costPerTile(type);
+            int goldRequired = tiles.size() * costPerTile;
+
+            // The first treasury tile doesn't cost anything to prevent a player from being stuck
+            // without any means to get gold.
+            // Thus, we check whether it is the current attempt and we remove the cost of one tile.
+            if (type == Room::treasury
+                    && gameMap->numRoomsByTypeAndSeat(Room::treasury, player->getSeat()) == 0)
+                goldRequired -= costPerTile;
+
+            if(gameMap->withdrawFromTreasuries(goldRequired, player->getSeat()) == false)
+                break;
+
+            Room* room = gameMap->buildRoomForPlayer(tiles, type, player);
+            // We build the message for the new room creation here with the original room size because
+            // it may change if a room is absorbed
+            ODPacket packet;
+            packet << ServerNotification::buildRoom;
+            int nbTiles = tiles.size();
+            int seatId = player->getSeat()->getId();
+            const std::string& name = room->getName();
+            packet << name << intType << seatId << nbTiles;
+            for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
             {
-                Room::RoomType type = static_cast<Room::RoomType>(intType);
-                int goldRequired = tiles.size() * Room::costPerTile(type);
-                if(gameMap->withdrawFromTreasuries(goldRequired, player->getSeat()))
-                {
-                    Room* room = gameMap->buildRoomForPlayer(tiles, type, player);
-                    // We build the message for the new room creation here with the original room size because
-                    // it may change if a room is absorbed
-                    ODPacket packet;
-                    packet << ServerNotification::buildRoom;
-                    int nbTiles = tiles.size();
-                    int seatId = player->getSeat()->getId();
-                    const std::string& name = room->getName();
-                    packet << name << intType << seatId << nbTiles;
-                    for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
-                    {
-                        Tile* tile = *it;
-                        packet << tile;
-                    }
-                    sendToAllClients(packet);
-                }
+                Tile* tile = *it;
+                packet << tile;
             }
+            sendToAllClients(packet);
+
             break;
         }
 
