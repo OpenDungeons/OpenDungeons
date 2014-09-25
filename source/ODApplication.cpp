@@ -149,12 +149,12 @@ void ODApplication::cleanUp()
 {
     LogManager* logManager = LogManager::getSingletonPtr();
     logManager->logMessage("Quitting main application...", Ogre::LML_CRITICAL);
-    
+
     logManager->logMessage("Stopping server...");
     ODServer::getSingleton().stopServer();
     logManager->logMessage("Disconnecting client...");
     ODClient::getSingleton().disconnect();
-    
+
     logManager->logMessage("Removing ODFrameListener from root...");
     mRoot->removeFrameListener(mFrameListener);
     logManager->logMessage("Deleting ODFrameListener...");
@@ -185,7 +185,11 @@ const unsigned int ODApplication::PORT_NUMBER = 31222;
 const double ODApplication::DEFAULT_FRAMES_PER_SECOND = 60.0;
 double ODApplication::MAX_FRAMES_PER_SECOND = DEFAULT_FRAMES_PER_SECOND;
 double ODApplication::turnsPerSecond = 1.4;
-const std::string ODApplication::VERSION = "0.4.9";
+#ifdef OD_VERSION
+const std::string ODApplication::VERSION = OD_VERSION;
+#else
+const std::string ODApplication::VERSION = "undefined";
+#endif
 const std::string ODApplication::VERSIONSTRING = "OpenDungeons_Version:" + VERSION;
 std::string ODApplication::MOTD = "Welcome to Open Dungeons\tVersion:  " + VERSION;
 const std::string ODApplication::POINTER_INFO_STRING = "pointerInfo";
