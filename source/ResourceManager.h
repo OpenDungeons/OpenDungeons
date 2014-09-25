@@ -56,7 +56,7 @@ public:
      *
      *  \return a vector with all file names
      */
-    std::vector<std::string> listAllFiles(const std::string& directoryName);
+    static std::vector<std::string> listAllFiles(const std::string& directoryName);
 
     /*! \brief returns all music files that Ogre knows of
      *
@@ -98,8 +98,6 @@ public:
     { return mOgreLogFile; }
 
 protected:
-    //! \brief Creates a folder if it doesn't already exist.
-    static bool createFolderIfNotExists(const std::string& folderName);
     static std::string locateHomeFolder();
 
 private:

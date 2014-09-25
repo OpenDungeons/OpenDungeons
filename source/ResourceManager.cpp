@@ -24,25 +24,14 @@
 #include <cstdlib>
 #include <ctime>
 
-#include <dirent.h>
-#include <sys/stat.h>
 #include <OgreConfigFile.h>
-
 #include <OgrePlatform.h>
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <userenv.h>
-#include <direct.h>
-#include <errno.h>
 
-#elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 #include <CoreFoundation/CoreFoundation.h>
-
-#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-#include <cerrno>
-#include <cstring>
 #endif
+
+#include <boost/filesystem.hpp>
 
 #include <OgreString.h>
 #include <OgreRenderTarget.h>
@@ -145,13 +134,12 @@ ResourceManager::ResourceManager() :
 #else
         mHomePath = locateHomeFolder() + "\\OpenDungeons\\";
 #endif
-
-
-        success = createFolderIfNotExists(mHomePath);
-        if(!success)
-        {
+        try {
+          boost::filesystem::create_directory(mHomePath);
+        }
+        catch (const boost::filesystem::filesystem_error& e) {
             //TODO - Exit gracefully
-            std::cerr << "Fatal error creating game storage folder" << std::endl;
+            std::cerr << "Fatal error creating game storage folder: " << e.what() <<  std::endl;
             exit(1);
         }
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
@@ -159,12 +147,13 @@ ResourceManager::ResourceManager() :
 #endif
 
     std::cout << "Home path is: " << mHomePath << std::endl;
-
-    //Create shader cache folder.
-    success = createFolderIfNotExists(mHomePath.c_str() + SHADERCACHESUBPATH);
-    if(!success)
-    {
-        std::cerr << "Fatal error creating shader cache folder" << std::endl;
+    
+    try {
+      boost::filesystem::create_directory(mHomePath.c_str() + SHADERCACHESUBPATH);
+    }
+    catch (const boost::filesystem::filesystem_error& e) {
+        //TODO - Exit gracefully
+        std::cerr << "Fatal error creating shader cache folder: " << e.what() <<  std::endl;
         exit(1);
     }
 
@@ -223,18 +212,15 @@ void ResourceManager::setupResources()
 std::vector<std::string> ResourceManager::listAllFiles(const std::string& directoryName)
 {
     std::vector<std::string> files;
+    using namespace boost::filesystem;
 
-    DIR* dir = opendir(directoryName.c_str());
-    if(dir)
+    if(is_directory(directoryName))
     {
-        struct dirent* dp;
-        while((dp = readdir(dir)) != 0)
-        {
-            files.push_back(dp->d_name);
+        for(directory_iterator it(directoryName); it != directory_iterator(); ++it)
+        { 
+            files.push_back(it->path().string());
         }
-        closedir(dir);
     }
-
     return files;
 }
 
@@ -251,75 +237,6 @@ void ResourceManager::takeScreenshot(Ogre::RenderTarget* renderTarget)
     std::ostringstream ss;
     ss << "ODscreenshot_" << time << ".png";
     renderTarget->writeContentsToFile(getHomePath() + ss.str());
-}
-
-bool ResourceManager::createFolderIfNotExists(const std::string& name)
-{
-#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-//Not implemented. Can probably use the same code as linux.
-#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-    struct stat statbuf;
-    if (stat(name.c_str(), &statbuf) != 0)
-    {
-        if(errno == ENOENT)
-        {
-            mkdir(name.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-            return true;
-        }
-        else
-        {
-            std::cerr << "Error reading directory: " << strerror(errno) << std::endl;
-            return false;
-        }
-    }
-    //Directory exists.
-    return true;
-#elif OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-    struct stat statBuf;
-    int result;
-
-    result = stat(name.c_str(), &statBuf);
-    if(result == 0)
-    {
-        //exists
-        if(statBuf.st_mode & _S_IFREG)
-        {
-            //.OpenDungeons is a file and not a directory, bail out.
-            std::cerr << "Error: \"" << name << "\" is a file" << std::endl;
-            return false;
-        }
-    }
-    else
-    {
-        //does not exist or inaccessible
-        switch(errno)
-        {
-        case ENOENT:
-            {
-                int dirCreated = ::_mkdir(name.c_str());
-                if(dirCreated != 0 && errno != EEXIST)
-                {
-                    //FIXME: Handle this properly.
-                    std::cerr << "Failed create subdirectory in home directory (" << name << ") !" << std::endl;
-                    return false;
-                }
-
-                break;
-            }
-        case EINVAL:
-            {
-                std::cerr << "Invalid parameter to stat()!" << std::endl;
-                return false;
-            }
-        default:
-            {
-                std::cerr << "Unexpected error in stat()!" << std::endl;
-                return false;
-            }
-        }
-    }
-    return true;
-#endif //OGRE_PLATFORM
 }
 
 std::string ResourceManager::locateHomeFolder()

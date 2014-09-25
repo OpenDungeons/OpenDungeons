@@ -338,8 +338,6 @@ if(WIN32)
     endif()
 
     if(MSVC)
-        #Provide dirent.h if visual studio is used
-        include_directories(${DEPENDENCIES_DIR}/dirent)
         include_directories(${OD_BOOST_INCLUDE_DIRS})
         link_directories(${OD_BOOST_LIB_DIRS})
     endif()
