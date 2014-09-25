@@ -99,8 +99,10 @@ textures/
 -> Spike-trapTexture.png               P0ss, Danimal           CC-BY 3.0               http://opengameart.org/content/spyke-trap-low-poly
 -> TrainingDummy2_texture.png          Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59239#p59239
 -> TrainingDummy3.png                  P0ss                    CC-BY 3.0               http://forum.freegamedev.net/viewtopic.php?p=59351#p59351
--> TrainingDummy4.png                  Nubiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?p=59621#p59621
--> Lamp.png                            Nubiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?p=59621#p59621
+-> TrainingDummy4.png                  Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?p=59621#p59621
+-> Lamp.png                            Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?p=59621#p59621
+-> Anvil.png                           Daniel74, Nubiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
+-> Forge.png                           Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
 
 ======================
 ==  Models: models/ ==
@@ -108,6 +110,7 @@ textures/
 
 Name                                   Author                  License                 Source URL
 ------------------------------------------------------------------------------------------------------------------------
+Anvil.mesh                             Daniel74                CC0                     http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
 Adventurer.*                           Danimal                 CC-BY-SA 3.0
 Axe1.mesh                              Skorpio                 CC-BY-SA 3.0, GPL 3.0
 barrel_destroyed.mesh                  Nobiax/yughues          CC0
@@ -138,7 +141,7 @@ Dwarf3.*                               thecubber (OGA), MrBeast (OGA), Skorpio
 Farm.mesh                              Danimal                 CC-BY-SA 3.0            (Texture by nobiax - CC0) - http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
 Field_indicator.mesh                   OD Team                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59066#p59066
 Fire.mesh                              Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Forge.mesh                             riidom                  CC-BY 3.0               http://opengameart.org/content/medieval-forge-v2
+Forge.mesh                             Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
 ForgeAnvilObject.mesh                  riidom                  CC-BY 3.0               http://opengameart.org/content/medieval-forge-v2
 ForgeForgeObject.mesh                  riidom                  CC-BY 3.0               http://opengameart.org/content/medieval-forge-v2
 ForgeTableObject.mesh                  riidom                  CC-BY 3.0               http://opengameart.org/content/medieval-forge-v2
