@@ -109,11 +109,16 @@ ResourceManager::ResourceManager() :
     mMacBundlePath = std::string(applePath + "/");
 
     mResourcePath = macBundlePath + "Contents/Resources/";
-#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+#else // Windows and linux
 
-    // getenv return value should not be touched/freed.
-    char* path = std::getenv("OPENDUNGEONS_DATA_PATH");
-    if(path != 0)
+    std::string path;
+#ifdef OD_DATA_PATH
+    path = std::string(OD_DATA_PATH);
+#else
+    path = ".";
+#endif
+
+    if(!path.empty())
     {
         mResourcePath = path;
         if (*mResourcePath.end() != '/')
@@ -121,33 +126,33 @@ ResourceManager::ResourceManager() :
             mResourcePath.append("/");
         }
     }
+
+    // Test whether there is data in "./" and remove the system path in that case.
+    // Useful for developers.
+    std::string resourceCfg = "./" + RESOURCECFG;
+    if (boost::filesystem::exists(resourceCfg.c_str()))
+        mResourcePath = "./";
 #endif
 
     /* If variable is not set, assume we are in a build dir and
      * use the current dir for config files.
      */
 #if (OGRE_PLATFORM == OGRE_PLATFORM_LINUX)
-    char* useHomeDir = std::getenv("OPENDUNGEONS_DATA_PATH");
-    if (useHomeDir != 0)
-    {
-        mHomePath = locateHomeFolder() + "/.OpenDungeons/";
+    mHomePath = locateHomeFolder() + "/.local/share/opendungeons/";
 #else
-        mHomePath = locateHomeFolder() + "\\OpenDungeons\\";
+    mHomePath = locateHomeFolder() + "\\OpenDungeons\\";
 #endif
-        try {
-          boost::filesystem::create_directory(mHomePath);
-        }
-        catch (const boost::filesystem::filesystem_error& e) {
-            //TODO - Exit gracefully
-            std::cerr << "Fatal error creating game storage folder: " << e.what() <<  std::endl;
-            exit(1);
-        }
-#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+    try {
+        boost::filesystem::create_directory(mHomePath);
     }
-#endif
+    catch (const boost::filesystem::filesystem_error& e) {
+        //TODO - Exit gracefully
+        std::cerr << "Fatal error creating game storage folder: " << e.what() <<  std::endl;
+        exit(1);
+    }
 
     std::cout << "Home path is: " << mHomePath << std::endl;
-    
+
     try {
       boost::filesystem::create_directory(mHomePath.c_str() + SHADERCACHESUBPATH);
     }
@@ -168,8 +173,6 @@ ResourceManager::ResourceManager() :
     mMusicPath = mResourcePath + MUSICSUBPATH;
     mLanguagePath = mResourcePath + LANGUAGESUBPATH;
     mShaderCachePath = mHomePath + SHADERCACHESUBPATH;
-
-    //Make shader cache folder if it does not exist.
 }
 
 void ResourceManager::setupResources()
@@ -217,7 +220,7 @@ std::vector<std::string> ResourceManager::listAllFiles(const std::string& direct
     if(is_directory(directoryName))
     {
         for(directory_iterator it(directoryName); it != directory_iterator(); ++it)
-        { 
+        {
             files.push_back(it->path().string());
         }
     }

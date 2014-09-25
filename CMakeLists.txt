@@ -4,13 +4,13 @@ cmake_minimum_required(VERSION 2.8)
 #### Project settings ############
 ##################################
 
-project(OpenDungeons)
+project(opendungeons)
 
 #postfix bin if we are on linux as we want to launch with a script
 if(WIN32)
     set(PROJECT_BINARY_NAME "OpenDungeons")
 else()
-    set(PROJECT_BINARY_NAME "OpenDungeons.bin")
+    set(PROJECT_BINARY_NAME "opendungeons.bin")
 endif()
 
 # Project version
@@ -20,6 +20,17 @@ set(OD_PATCH_LEVEL   9)
 
 # Set the project version ready to be used in the code.
 set(OD_VERSION "-DOD_VERSION=\\\"${OD_MAJOR_VERSION}.${OD_MINOR_VERSION}.${OD_PATCH_LEVEL}\\\"")
+
+# Set the data path depending on the platform
+if(WIN32)
+    set(OPENDUNGEONS_DATA_PATH ".")
+    set(OPENDUNGEONS_DATA_DEST ".")
+else()
+    #Set data location to where we install if we want to use the installer
+    set(OPENDUNGEONS_DATA_DEST share/games/${PROJECT_NAME})
+    set(OPENDUNGEONS_DATA_PATH ${CMAKE_INSTALL_PREFIX}/${OPENDUNGEONS_DATA_DEST} CACHE PATH "")
+endif()
+set(OD_DATA_PATH "-DOD_DATA_PATH=\\\"${OPENDUNGEONS_DATA_PATH}\\\"")
 
 # Where we want the binary
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
@@ -81,7 +92,7 @@ else()
     endif()
 endif()
 
-set(CMAKE_CXX_FLAGS "${OD_CXX11_FLAGS} ${OD_OPT_FLAGS} ${CMAKE_CXX_FLAGS} ${OD_VERSION}")
+set(CMAKE_CXX_FLAGS "${OD_CXX11_FLAGS} ${OD_OPT_FLAGS} ${CMAKE_CXX_FLAGS} ${OD_VERSION} ${OD_DATA_PATH}")
 message(STATUS "CMake CXX Flags: " ${CMAKE_CXX_FLAGS})
 
 ##################################
@@ -479,8 +490,6 @@ if(WIN32)
     #On windows, use current directory for plugins and data for now
     set(OPENDUNGEONS_OGRE_PLUGIN_DIR_REL "plugins")
     set(OPENDUNGEONS_OGRE_PLUGIN_DIR_DBG "plugins")
-    set(OPENDUNGEONS_DATA_PATH ".")
-    set(OPENDUNGEONS_DATA_DEST ".")
 else()
     #only use d3d renderer plugins if we are on windows
     set(OPENDUNGEONS_COMMENT_D3D "#")
@@ -509,10 +518,6 @@ else()
 
     message(STATUS "Plugin path rel: " ${OPENDUNGEONS_OGRE_PLUGIN_DIR_REL})
     message(STATUS "Plugin path dbg: " ${OPENDUNGEONS_OGRE_PLUGIN_DIR_DBG})
-
-    #Set data location to where we install if we want to use the installer
-    set(OPENDUNGEONS_DATA_DEST share/games/${PROJECT_NAME})
-    set(OPENDUNGEONS_DATA_PATH ${CMAKE_INSTALL_PREFIX}/${OPENDUNGEONS_DATA_DEST} CACHE PATH "")
 endif()
 
 #Do the configuration
