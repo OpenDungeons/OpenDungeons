@@ -56,7 +56,7 @@ RoomObject* RoomTrainingHall::notifyActiveSpotCreated(ActiveSpotPlace place, Til
             int result = Random::Int(0, 5);
             if(result < 2)
                 return loadRoomObject(getGameMap(), "TrainingDummy2", tile, x, y, 0.0);
-            else if (result < 5)
+            else if (result < 4)
                 return loadRoomObject(getGameMap(), "TrainingDummy3", tile, x, y, 0.0);
             else
                 return loadRoomObject(getGameMap(), "TrainingDummy4", tile, x, y, 0.0);
