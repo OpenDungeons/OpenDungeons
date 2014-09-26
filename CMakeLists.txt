@@ -14,10 +14,12 @@ else()
 endif()
 
 # Project version
-# TODO - make this set version string in source file automatically.
-set(${PROJECT_NAME}_MAJOR_VERSION 0)
-set(${PROJECT_NAME}_MINOR_VERSION 4)
-set(${PROJECT_NAME}_PATCH_LEVEL   9)
+set(OD_MAJOR_VERSION 0)
+set(OD_MINOR_VERSION 4)
+set(OD_PATCH_LEVEL   9)
+
+# Set the project version ready to be used in the code.
+set(OD_VERSION "-DOD_VERSION=\\\"${OD_MAJOR_VERSION}.${OD_MINOR_VERSION}.${OD_PATCH_LEVEL}\\\"")
 
 # Where we want the binary
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
@@ -79,7 +81,7 @@ else()
     endif()
 endif()
 
-set(CMAKE_CXX_FLAGS "${OD_CXX11_FLAGS} ${OD_OPT_FLAGS} ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "${OD_CXX11_FLAGS} ${OD_OPT_FLAGS} ${CMAKE_CXX_FLAGS} ${OD_VERSION}")
 message(STATUS "CMake CXX Flags: " ${CMAKE_CXX_FLAGS})
 
 ##################################

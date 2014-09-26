@@ -770,9 +770,6 @@ void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
         LogManager::getSingleton().logMessage("Starting game map");
         setGamePaused(false);
 
-        // Destroy the meshes associated with the map lights that allow you to see/drag them in the map editor.
-        clearMapLightIndicators();
-
         // Check whether at least a local player was added.
         Seat* localPlayerSeat = getLocalPlayer()->getSeat();
         if (localPlayerSeat == NULL)
@@ -1657,12 +1654,6 @@ void GameMap::clearMapLights()
     }
 
     mapLights.clear();
-}
-
-void GameMap::clearMapLightIndicators()
-{
-    for (unsigned int i = 0; i < mapLights.size(); ++i)
-        mapLights[i]->destroyOgreEntityVisualIndicator();
 }
 
 void GameMap::addMapLight(MapLight *m)

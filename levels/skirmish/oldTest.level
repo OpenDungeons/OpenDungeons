@@ -1,8 +1,8 @@
 OpenDungeons_Version:0.4.9  # The version of OpenDungeons which created this file (for compatibility reasons).
 
 [Info]
-Name	Old Test Map (Skirmish)
-Description	An old test map for the skirmish mode...
+Name	Old Test Map
+Description	An old test map for the skirmish mode. This is the original test map from Open Dungeons 0.4.8...
 Music	yd_Searching_ingame.ogg
 FightMusic	The_Dark_Amulet.ogg
 [/Info]

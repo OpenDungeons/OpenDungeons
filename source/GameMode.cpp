@@ -51,6 +51,10 @@
 #include <vector>
 #include <string>
 
+//! \brief Colors used by the room/trap text overlay
+static Ogre::ColourValue white = Ogre::ColourValue(1.0f, 1.0f, 1.0f, 1.0f);
+static Ogre::ColourValue red = Ogre::ColourValue(1.0f, 0.0f, 0.0, 1.0f);
+
 GameMode::GameMode(ModeManager *modeManager):
     AbstractApplicationMode(modeManager, ModeManager::GAME),
     mDigSetBool(false),
@@ -166,7 +170,8 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
     if (selectedRoomType != Room::nullRoomType ||
         selectedTrapType != Trap::nullTrapType)
     {
-        TextRenderer::getSingleton().moveText(ODApplication::POINTER_INFO_STRING,
+        TextRenderer& textRenderer = TextRenderer::getSingleton();
+        textRenderer.moveText(ODApplication::POINTER_INFO_STRING,
             (Ogre::Real)(arg.state.X.abs + 30), (Ogre::Real)arg.state.Y.abs);
         int nbTile = 1;
         // If the player is dragging to build, we display the total price the room/trap will cost.
@@ -178,17 +183,29 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
             nbTile = buildableTiles.size();
         }
 
-        // TODO : the first treasury tile should be free. This should be shown here
+        int gold = player->getSeat()->getGold();
+
         if(selectedRoomType != Room::nullRoomType)
         {
             int price = Room::costPerTile(selectedRoomType) * nbTile;
-            TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(Room::getRoomNameFromRoomType(selectedRoomType))
+
+            // Check whether the room type is the first treasury tile.
+            // In that case, the cost of the first tile is 0, to prevent the player from being stuck
+            // with no means to earn money.
+            if (selectedRoomType == Room::treasury && mGameMap->numRoomsByTypeAndSeat(Room::treasury, player->getSeat()) == 0)
+                price -= Room::costPerTile(selectedRoomType);
+
+            Ogre::ColourValue& textColor = (gold < price) ? red : white;
+            textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
+            textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Room::getRoomNameFromRoomType(selectedRoomType))
                 + " [" + Ogre::StringConverter::toString(price)+ "]");
         }
         else if(selectedTrapType != Trap::nullTrapType)
         {
             int price = Trap::costPerTile(selectedTrapType) * nbTile;
-            TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(Trap::getTrapNameFromTrapType(selectedTrapType))
+            Ogre::ColourValue& textColor = (gold < price) ? red : white;
+            textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
+            textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Trap::getTrapNameFromTrapType(selectedTrapType))
                 + " [" + Ogre::StringConverter::toString(price)+ "]");
         }
     }

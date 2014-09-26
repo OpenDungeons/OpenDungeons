@@ -34,7 +34,7 @@ RoomObject* RoomForge::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile
     {
         case ActiveSpotPlace::activeSpotCenter:
         {
-            return loadRoomObject(getGameMap(), "ForgeAnvilObject", tile);
+            return loadRoomObject(getGameMap(), "Anvil", tile);
         }
         case ActiveSpotPlace::activeSpotLeft:
         {

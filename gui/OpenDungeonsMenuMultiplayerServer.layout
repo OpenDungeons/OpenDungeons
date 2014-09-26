@@ -28,6 +28,7 @@
                 <Property name="MaxSize" value="{{1,0},{1,0}}" />
                 <Property name="FrameEnabled" value="False" />
                 <Property name="VertFormatting" value="TopAligned" />
+                <Property name="HorzFormatting" value="WordWrapLeftAligned" />
                 <Property name="BackgroundEnabled" value="False" />
             </Window>
             <Window type="OD/MainMenuButton" name="ServerButton" >
@@ -58,7 +59,7 @@
         </Window>
         <Window type="OD/StaticText" name="VersionText" >
             <Property name="Area" value="{{0.5,200},{0,171},{0.5,300},{0,191}}" />
-            <Property name="Text" value="0.4.9" />
+            <Property name="Text" value="undefined" />
             <Property name="MaxSize" value="{{1,0},{1,0}}" />
             <Property name="FrameEnabled" value="False" />
             <Property name="BackgroundEnabled" value="False" />

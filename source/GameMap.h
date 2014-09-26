@@ -193,7 +193,6 @@ public:
 
     //! \brief Map Lights related functions.
     void clearMapLights();
-    void clearMapLightIndicators();
     void addMapLight(MapLight *m);
     void removeMapLight(MapLight *m);
     MapLight* getMapLight(int index);

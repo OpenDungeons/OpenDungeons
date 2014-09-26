@@ -318,6 +318,13 @@ void Gui::assignEventHandlers()
     sheets[editorMenu]->getChild(EDM_LIST_LEVELS)->subscribeEvent(
         CEGUI::Listbox::EventMouseDoubleClick,
         CEGUI::Event::Subscriber(&mEDMListDoubleClicked));
+
+    // Set the game version
+    sheets[mainMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
+    sheets[skirmishMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
+    sheets[multiplayerServerMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
+    sheets[multiplayerClientMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
+    sheets[editorMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
 }
 
 bool Gui::miniMapclicked(const CEGUI::EventArgs& e)
