@@ -2,7 +2,7 @@
 # className	creatureJob	meshName	bedMeshName	bedDim1	bedDim2	scaleX	scaleY	scaleZ	hp/level	maxHP	sightRadius	digRate	danceRate	moveSpeedGround	moveSpeedWater	moveSpeedLava
 Wyvern	WeakFighter	Wyvern.mesh	Bed	2	2	0.35	0.35	0.35	2	60	15	0	0	1.5	1.5	0
 Knight	WeakFighter	Knight.mesh	Bed	1	2	0.5	0.5	0.5	3	90	15	0	0	1	0	0
-BigKnight	StrongFighter	Knight.mesh	ForgeForgeObject	3	3	0.5	0.5	0.5	5	150	15	0	0	0.8	0	0
+BigKnight	StrongFighter	Knight.mesh	Grindstone	3	3	0.5	0.5	0.5	5	150	15	0	0	0.8	0	0
 Kobold	BasicWorker	Kobold.mesh	Bed	1	2	0.04	0.04	0.04	1	30	15	20	0.42	2	1	0
 Dragon	StrongFighter	Dragon.mesh	GoldstackLv4	4	4	0.4	0.4	0.4	8	240	15	0	0	0.5	0.5	0.5
 Dwarf1	WeakFighter	Dwarf1.mesh	Bed	1	2	0.55	0.55	0.55	2	60	15	0	0	0.8	0	0
