@@ -27,11 +27,10 @@
 #include "MapLight.h"
 #include "LogManager.h"
 #include "Helper.h"
-
+#include "ResourceManager.h"
 
 #include <iostream>
 #include <sstream>
-
 
 using Ogre::uchar;
 
@@ -597,7 +596,7 @@ bool loadCreatureDefinition(const std::string& fileName, GameMap& gameMap)
     std::cout << "Load creature definition file: " << fileName << std::endl;
 
     // Try to open the input file for reading and throw an error if we can't.
-    std::ifstream creatureDefFile(fileName.c_str(), std::ifstream::in);
+    std::ifstream creatureDefFile(ResourceManager::getSingleton().getResourcePath() + fileName.c_str(), std::ifstream::in);
     if (!creatureDefFile.good())
     {
         std::cout << "ERROR: Creature definition file not found:  " << fileName << "\n\n\n";
