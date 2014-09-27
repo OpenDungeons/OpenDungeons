@@ -75,8 +75,11 @@ void MenuModeMultiplayerServer::activate()
         for (uint32_t n = 0; n < mFilesList.size(); ++n)
         {
             std::string filename = mFilesList[n];
-            std::string mapName = MapLoader::getMapName(filename);
-            std::string mapDescription = MapLoader::getMapDescription(filename);
+
+            LevelInfo levelInfo = MapLoader::getMapInfo(filename);
+            std::string mapName = levelInfo.mLevelName;
+            std::string mapDescription = levelInfo.mLevelDescription;
+
             mDescriptionList.push_back(mapDescription);
             CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(mapName);
             item->setID(n);

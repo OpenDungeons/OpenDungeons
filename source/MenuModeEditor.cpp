@@ -75,8 +75,11 @@ void MenuModeEditor::activate()
         for (uint32_t n = 0; n < mFilesList.size(); ++n)
         {
             std::string filename = mFilesList[n];
-            std::string mapName = MapLoader::getMapName(filename);
-            std::string mapDescription = MapLoader::getMapDescription(filename);
+
+            LevelInfo levelInfo = MapLoader::getMapInfo(filename);
+            std::string mapName = levelInfo.mLevelName;
+            std::string mapDescription = levelInfo.mLevelDescription;
+
             mDescriptionList.push_back(mapDescription);
             CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem("SKIRMISH - " + mapName);
             item->setID(n);
@@ -98,8 +101,11 @@ void MenuModeEditor::activate()
         for (uint32_t n = skirmishSize; n < mFilesList.size(); ++n)
         {
             std::string filename = mFilesList[n];
-            std::string mapName = MapLoader::getMapName(filename);
-            std::string mapDescription = MapLoader::getMapDescription(filename);
+
+            LevelInfo levelInfo = MapLoader::getMapInfo(filename);
+            std::string mapName = levelInfo.mLevelName;
+            std::string mapDescription = levelInfo.mLevelDescription;
+
             mDescriptionList.push_back(mapDescription);
             CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem("MULTIPLAYER - " + mapName);
             item->setID(n);

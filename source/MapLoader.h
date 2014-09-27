@@ -28,6 +28,19 @@
 
 class GameMap;
 
+//! \brief A small structure storing level info for the player
+struct LevelInfo
+{
+    LevelInfo()
+    {}
+
+    //! \brief The level visible name
+    std::string mLevelName;
+
+    //! \brief The level description, player's slot, size, ...
+    std::string mLevelDescription;
+};
+
 namespace MapLoader
 {
     bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap);
@@ -36,13 +49,8 @@ namespace MapLoader
 
     bool loadCreatureDefinition(const std::string& fileName, GameMap& gameMap);
 
-    // TODO: This is sub-optimal. Later we might want to create a map info struct
-    //! \brief Returns the main map info as a string
-    std::string getMapDescription(const std::string& fileName);
-
-    //! \brief Returns the map name as a string
-    //! or the filename if the map is invalid.
-    std::string getMapName(const std::string& fileName);
+    //! \brief Returns the main user map info
+    LevelInfo getMapInfo(const std::string& fileName);
 };
 
 #endif // MAPLOADER_H
