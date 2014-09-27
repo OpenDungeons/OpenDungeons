@@ -663,7 +663,8 @@ LevelInfo getMapInfo(const std::string& fileName)
     }
 
     // Read in the seats from the level file
-    int seatNumber = 0;
+    int playerSeatNumber = 0;
+    int AISeatNumber = 0;
     while (true)
     {
         levelFile >> nextParam;
@@ -675,9 +676,28 @@ LevelInfo getMapInfo(const std::string& fileName)
         entire_line += nextParam;
         //std::cout << entire_line << std::endl;
 
-        ++seatNumber;
+        Seat* seat = new Seat;
+        Seat::loadFromLine(entire_line, seat);
+
+        if (seat->getFaction() == "Player")
+            ++playerSeatNumber;
+        else if (seat->getFaction() == "KeeperAI")
+            ++AISeatNumber;
+
+        delete seat;
     }
-    mapInfo << "Players: " << seatNumber << std::endl << std::endl;
+
+    if (playerSeatNumber > 0 || AISeatNumber > 0)
+    {
+        if (playerSeatNumber > 0)
+            mapInfo << "Player slot(s): " << playerSeatNumber;
+        if (playerSeatNumber > 0 && AISeatNumber > 0)
+            mapInfo << " / AI: " << AISeatNumber;
+        else if (AISeatNumber > 0)
+            mapInfo << "AI: " << AISeatNumber;
+
+        mapInfo << std::endl << std::endl;
+    }
 
     // Read in the goals that are shared by all players, the first player to complete all these goals is the winner.
     levelFile >> nextParam;
