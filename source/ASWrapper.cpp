@@ -60,8 +60,9 @@ ASWrapper::ASWrapper() :
         mBuilder (new CScriptBuilder()),
         mContext (mEngine->CreateContext())
 {
-    LogManager::getSingleton().logMessage("*** Initialising script engine AngelScript ***");
-    LogManager::getSingleton().logMessage( asGetLibraryOptions());
+    LogManager& logManager = LogManager::getSingleton();
+    logManager.logMessage("*** Initialising script engine AngelScript ***");
+    logManager.logMessage(asGetLibraryOptions());
     //register function that gives out standard runtime information
     mEngine->SetMessageCallback(asMETHOD(ASWrapper, messageCallback), this, asCALL_THISCALL);
 
@@ -79,7 +80,9 @@ ASWrapper::ASWrapper() :
     {
         if(ResourceManager::hasFileEnding(*i, ".as"))
         {
-            mBuilder->AddSectionFromFile((scriptpath + *i).c_str());
+            std::string scriptFile = *i;
+            logManager.logMessage("Added Angel Script: " + scriptFile);
+            mBuilder->AddSectionFromFile(scriptFile.c_str());
         }
     }
 
