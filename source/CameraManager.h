@@ -157,7 +157,7 @@ public:
     bool onFrameStarted();
     bool onFrameEnded();
 
-    void moveCamera(const Ogre::Real frameTime);
+    void updateCameraFrameTime(const Ogre::Real frameTime);
     const Ogre::Vector3 getCameraViewTarget();
     void onMiniMapClick(Ogre ::Vector2 cc);
 

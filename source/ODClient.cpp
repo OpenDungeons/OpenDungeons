@@ -35,6 +35,7 @@
 #include "LogManager.h"
 #include "ModeManager.h"
 #include "MusicPlayer.h"
+#include "CameraManager.h"
 
 #include <string>
 
@@ -162,6 +163,15 @@ bool ODClient::processOneClientSocketMessage()
             Seat *tempSeat = gameMap->popEmptySeat(seatId);
             OD_ASSERT_TRUE_MSG(tempSeat != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
             gameMap->getLocalPlayer()->setSeat(tempSeat);
+            // Move camera to starting position
+            Ogre::Real startX = (Ogre::Real)(tempSeat->mStartingX);
+            Ogre::Real startY = (Ogre::Real)(tempSeat->mStartingY);
+            // We make the temple appear in the center of the game view
+            startY = (Ogre::Real)(startY - 7.0);
+            // Bound check
+            if (startY <= 0.0)
+            startY = 0.0;
+            frameListener->setCameraPosition(Ogre::Vector3(startX, startY, MAX_CAMERA_Z));
             break;
         }
 
@@ -500,7 +510,7 @@ bool ODClient::processOneClientSocketMessage()
             std::string goalsString;
             OD_ASSERT_TRUE(packetReceived >> &tmpSeat >> goalsString);
             getPlayer()->getSeat()->refreshFromSeat(&tmpSeat);
-            ODFrameListener::getSingleton().refreshPlayerDisplay(goalsString);
+            frameListener->refreshPlayerDisplay(goalsString);
             break;
         }
 
