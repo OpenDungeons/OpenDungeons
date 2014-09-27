@@ -48,7 +48,6 @@ set(DEPENDENCIES_DIR "${CMAKE_SOURCE_DIR}/dependencies")
 set(ANGELSCRIPT_DIR "${DEPENDENCIES_DIR}/angelscript")
 set(ANGELSCRIPT_SRC_DIR "${ANGELSCRIPT_DIR}/angelscript/source")
 set(ANGELSCRIPT_ADDON_DIR "${ANGELSCRIPT_DIR}/add_on")
-set(TINYXML_DIR "${DEPENDENCIES_DIR}/tinyxml2")
 
 #cmake paths
 set(CMAKE_CONFIG_DIR "${CMAKE_SOURCE_DIR}/cmake/config")
@@ -151,9 +150,6 @@ set(OD_SOURCEFILES
     ${ANGELSCRIPT_ADDON_DIR}/scriptbuilder/scriptbuilder.cpp
     ${ANGELSCRIPT_ADDON_DIR}/scripthelper/scripthelper.cpp
     ${ANGELSCRIPT_ADDON_DIR}/scriptstdstring/scriptstdstring.cpp
-
-    #Tinyxml2 sources
-    ${TINYXML_DIR}/tinyxml2.cpp
 
     #OpenDungeons sources
     ${SRC}/AbstractApplicationMode.cpp
@@ -325,9 +321,6 @@ include_directories(
 
     #General external includes
     ${DEPENDENCIES_DIR}
-
-    #tinyxml2 includes
-    ${TINYXML_DIR}
 
     #Angelscript includes
     ${ANGELSCRIPT_DIR}/angelscript/include
