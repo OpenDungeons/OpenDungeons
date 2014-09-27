@@ -28,12 +28,13 @@
 #include "ODApplication.h"
 #include "LogManager.h"
 #include "MapLoader.h"
+#include "ResourceManager.h"
 
 #include <CEGUI/CEGUI.h>
 #include "boost/filesystem.hpp"
 
-const std::string LEVEL_PATH_SKIRMISH = "./levels/skirmish/";
-const std::string LEVEL_PATH_MULTIPLAYER = "./levels/multiplayer/";
+const std::string LEVEL_PATH_SKIRMISH = "levels/skirmish/";
+const std::string LEVEL_PATH_MULTIPLAYER = "levels/multiplayer/";
 const std::string LEVEL_EXTENSION = ".level";
 
 MenuModeEditor::MenuModeEditor(ModeManager *modeManager):
@@ -68,7 +69,8 @@ void MenuModeEditor::activate()
     mDescriptionList.clear();
     levelSelectList->resetList();
 
-    if(Helper::fillFilesList(LEVEL_PATH_SKIRMISH, mFilesList, LEVEL_EXTENSION))
+    std::string levelPath = ResourceManager::getSingleton().getResourcePath() + LEVEL_PATH_SKIRMISH;
+    if(Helper::fillFilesList(levelPath, mFilesList, LEVEL_EXTENSION))
     {
         for (uint32_t n = 0; n < mFilesList.size(); ++n)
         {
@@ -80,12 +82,18 @@ void MenuModeEditor::activate()
             item->setID(n);
             item->setSelectionBrushImage("OpenDungeonsSkin/SelectionBrush");
             levelSelectList->addItem(item);
+
+            // We reconstruct the filename to be relative to the levels/ folder
+            // because we'll need a relative reference for the even local client.
+            std::string levelFile = LEVEL_PATH_SKIRMISH + boost::filesystem::path(mFilesList[n]).filename().string();
+            mFilesList[n] = levelFile;
         }
     }
 
     int skirmishSize = mFilesList.size();
 
-    if(Helper::fillFilesList(LEVEL_PATH_MULTIPLAYER, mFilesList, LEVEL_EXTENSION))
+    levelPath = ResourceManager::getSingleton().getResourcePath() + LEVEL_PATH_MULTIPLAYER;
+    if(Helper::fillFilesList(levelPath, mFilesList, LEVEL_EXTENSION))
     {
         for (uint32_t n = skirmishSize; n < mFilesList.size(); ++n)
         {
@@ -97,6 +105,11 @@ void MenuModeEditor::activate()
             item->setID(n);
             item->setSelectionBrushImage("OpenDungeonsSkin/SelectionBrush");
             levelSelectList->addItem(item);
+
+            // We reconstruct the filename to be relative to the levels/ folder
+            // because we'll need a relative reference for the even local client.
+            std::string levelFile = LEVEL_PATH_MULTIPLAYER + boost::filesystem::path(mFilesList[n]).filename().string();
+            mFilesList[n] = levelFile;
         }
     }
 }

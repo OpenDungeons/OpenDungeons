@@ -28,12 +28,13 @@
 #include "ODApplication.h"
 #include "LogManager.h"
 #include "MapLoader.h"
+#include "ResourceManager.h"
 
 #include <CEGUI/CEGUI.h>
 #include <boost/filesystem.hpp>
 #include <boost/locale.hpp>
 
-const std::string LEVEL_PATH = "./levels/multiplayer/";
+const std::string LEVEL_PATH = "levels/multiplayer/";
 const std::string LEVEL_EXTENSION = ".level";
 
 MenuModeMultiplayerServer::MenuModeMultiplayerServer(ModeManager *modeManager):
@@ -68,7 +69,8 @@ void MenuModeMultiplayerServer::activate()
     mDescriptionList.clear();
     levelSelectList->resetList();
 
-    if(Helper::fillFilesList(LEVEL_PATH, mFilesList, LEVEL_EXTENSION))
+    std::string levelPath = ResourceManager::getSingleton().getResourcePath() + LEVEL_PATH;
+    if(Helper::fillFilesList(levelPath, mFilesList, LEVEL_EXTENSION))
     {
         for (uint32_t n = 0; n < mFilesList.size(); ++n)
         {
@@ -80,6 +82,11 @@ void MenuModeMultiplayerServer::activate()
             item->setID(n);
             item->setSelectionBrushImage("OpenDungeonsSkin/SelectionBrush");
             levelSelectList->addItem(item);
+
+            // We reconstruct the filename to be relative to the levels/ folder
+            // because we'll need a relative reference for the clients.
+            std::string levelFile = LEVEL_PATH + boost::filesystem::path(mFilesList[n]).filename().string();
+            mFilesList[n] = levelFile;
         }
     }
 }
@@ -127,8 +134,9 @@ void MenuModeMultiplayerServer::serverButtonPressed()
     CEGUI::ListboxItem* selItem = levelSelectList->getFirstSelectedItem();
     int id = selItem->getID();
 
-    // We are a server
     std::string level = mFilesList[id];
+
+    // We are a server
     if(!ODServer::getSingleton().startServer(level, false, ODServer::ServerMode::ModeGame))
     {
         LogManager::getSingleton().logMessage("ERROR: Could not start server for multi player game !!!");
