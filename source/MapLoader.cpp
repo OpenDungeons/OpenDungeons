@@ -27,71 +27,12 @@
 #include "MapLight.h"
 #include "LogManager.h"
 #include "Helper.h"
-
+#include "ResourceManager.h"
 
 #include <iostream>
 #include <sstream>
 
-
-using Ogre::uchar;
-
 namespace MapLoader {
-
-bool writeGameMapFromTgaFile(const std::string& fileName, GameMap& gameMap)
-{
-    Ogre::Image mapImage;
-    uchar* pictureBuffer;
-    int numFaces = 1;
-    pictureBuffer = new uchar [numFaces*Ogre::PixelUtil::getMemorySize(gameMap.getMapSizeX(), gameMap.getMapSizeY(), 1, Ogre::PF_R8G8B8)];
-    mapImage.loadDynamicImage(pictureBuffer, gameMap.getMapSizeX(), gameMap.getMapSizeY(), 1, Ogre::PF_R8G8B8);
-
-    Ogre::ColourValue cv;
-    for(int ii = 0; ii < gameMap.getMapSizeX(); ++ii)
-    {
-        for(int jj = 0; jj < gameMap.getMapSizeY(); ++jj)
-	    {
-            cv.r = cv.g = cv.b = 0.1 * static_cast<float>(gameMap.getTile(ii, jj)->getType());
-            mapImage.setColourAt(cv, ii, jj, 0);
-	    }
-    }
-
-    mapImage.save(fileName);
-    delete [] pictureBuffer;
-    return true;
-}
-
-bool readGameMapFromTgaFile(const std::string& fileName, GameMap& gameMap)
-{
-    Ogre::Image img;
-    Ogre::ColourValue cv;
-    bool image_loaded = false;
-    std::ifstream ifs(fileName.c_str(), std::ios::binary|std::ios::in);
-    if (ifs.is_open())
-    {
-        Ogre::String tex_ext;
-        Ogre::String::size_type index_of_extension = fileName.find_last_of('.');
-        if (index_of_extension != Ogre::String::npos)
-        {
-            tex_ext = fileName.substr(index_of_extension + 1);
-            Ogre::DataStreamPtr data_stream(new Ogre::FileStreamDataStream(fileName, &ifs, false));
-
-            img.load(data_stream, tex_ext);
-            image_loaded = true;
-        }
-        ifs.close();
-    }
-
-    for(int ii = 0; ii < gameMap.getMapSizeX(); ++ii)
-    {
-        for(int jj = 0; jj < gameMap.getMapSizeY(); ++jj)
-        {
-            cv = img.getColourAt(ii, jj, 0);
-            int tileType = (int)10.0 * cv.r;
-            gameMap.getTile(ii, jj)->setType((Tile::TileType)tileType);
-        }
-    }
-    return image_loaded;
-}
 
 bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 {
@@ -597,7 +538,7 @@ bool loadCreatureDefinition(const std::string& fileName, GameMap& gameMap)
     std::cout << "Load creature definition file: " << fileName << std::endl;
 
     // Try to open the input file for reading and throw an error if we can't.
-    std::ifstream creatureDefFile(fileName.c_str(), std::ifstream::in);
+    std::ifstream creatureDefFile(ResourceManager::getSingleton().getResourcePath() + fileName.c_str(), std::ifstream::in);
     if (!creatureDefFile.good())
     {
         std::cout << "ERROR: Creature definition file not found:  " << fileName << "\n\n\n";
@@ -647,14 +588,17 @@ bool loadCreatureDefinition(const std::string& fileName, GameMap& gameMap)
     return true;
 }
 
-std::string getMapDescription(const std::string& fileName)
+LevelInfo getMapInfo(const std::string& fileName)
 {
-    std::stringstream mapInfo;
+    // Prepare an invalid level reference
+    static LevelInfo invalidLevel;
+    invalidLevel.mLevelName = "Invalid map!";
+    invalidLevel.mLevelDescription = invalidLevel.mLevelName;
 
     // Try to open the input file for reading and throw an error if we can't.
     std::ifstream baseLevelFile(fileName.c_str(), std::ifstream::in);
     if (!baseLevelFile.good())
-        return "Invalid map!";
+        return invalidLevel;
 
     // Read in the whole baseLevelFile, strip it of comments and feed it into
     // the stringstream levelFile, to be read by the rest of the function.
@@ -674,13 +618,14 @@ std::string getMapDescription(const std::string& fileName)
     // Read in the version number from the level file
     levelFile >> nextParam;
     if (nextParam.compare(ODApplication::VERSIONSTRING) != 0)
-        return "Invalid map!";
+        return invalidLevel;
 
     levelFile >> nextParam;
     if (nextParam != "[Info]")
-        return "Invalid map!";
+        return invalidLevel;
 
-    std::string mapDescription;
+    std::stringstream mapInfo;
+    LevelInfo levelInfo;
 
     // Read in the seats from the level file
     while (true)
@@ -696,14 +641,15 @@ std::string getMapDescription(const std::string& fileName)
         param = "Name\t";
         if (nextParam.compare(0, param.size(), param) == 0)
         {
-            mapInfo << nextParam.substr(param.size()) << std::endl << std::endl;
+            levelInfo.mLevelName = nextParam.substr(param.size());
+            mapInfo << levelInfo.mLevelName << std::endl << std::endl;
             continue;
         }
 
         param = "Description\t";
         if (nextParam.compare(0, param.size(), param) == 0)
         {
-            mapDescription = nextParam.substr(param.size());
+            mapInfo << nextParam.substr(param.size()) << std::endl << std::endl;
             continue;
         }
 
@@ -712,12 +658,13 @@ std::string getMapDescription(const std::string& fileName)
     levelFile >> nextParam;
     if (nextParam != "[Seats]")
     {
-        mapInfo << mapDescription;
-        return mapInfo.str();
+        levelInfo.mLevelDescription = mapInfo.str();
+        return levelInfo;
     }
 
     // Read in the seats from the level file
-    int seatNumber = 0;
+    int playerSeatNumber = 0;
+    int AISeatNumber = 0;
     while (true)
     {
         levelFile >> nextParam;
@@ -729,16 +676,35 @@ std::string getMapDescription(const std::string& fileName)
         entire_line += nextParam;
         //std::cout << entire_line << std::endl;
 
-        ++seatNumber;
+        Seat* seat = new Seat;
+        Seat::loadFromLine(entire_line, seat);
+
+        if (seat->getFaction() == "Player")
+            ++playerSeatNumber;
+        else if (seat->getFaction() == "KeeperAI")
+            ++AISeatNumber;
+
+        delete seat;
     }
-    mapInfo << "Players: " << seatNumber << std::endl << std::endl;
+
+    if (playerSeatNumber > 0 || AISeatNumber > 0)
+    {
+        if (playerSeatNumber > 0)
+            mapInfo << "Player slot(s): " << playerSeatNumber;
+        if (playerSeatNumber > 0 && AISeatNumber > 0)
+            mapInfo << " / AI: " << AISeatNumber;
+        else if (AISeatNumber > 0)
+            mapInfo << "AI: " << AISeatNumber;
+
+        mapInfo << std::endl << std::endl;
+    }
 
     // Read in the goals that are shared by all players, the first player to complete all these goals is the winner.
     levelFile >> nextParam;
     if (nextParam != "[Goals]")
     {
-        mapInfo << mapDescription;
-        return mapInfo.str();
+        levelInfo.mLevelDescription = mapInfo.str();
+        return levelInfo;
     }
 
     while(true)
@@ -751,8 +717,8 @@ std::string getMapDescription(const std::string& fileName)
     levelFile >> nextParam;
     if (nextParam != "[Tiles]")
     {
-        mapInfo << mapDescription;
-        return mapInfo.str();
+        levelInfo.mLevelDescription = mapInfo.str();
+        return levelInfo;
     }
 
     // Load the map size on next two lines
@@ -763,60 +729,8 @@ std::string getMapDescription(const std::string& fileName)
 
     mapInfo << "Size: " << mapSizeX << "x" << mapSizeY << std::endl << std::endl;
 
-    mapInfo << mapDescription;
-    return mapInfo.str();
-}
-
-std::string getMapName(const std::string& fileName)
-{
-    // Try to open the input file for reading and throw an error if we can't.
-    std::ifstream baseLevelFile(fileName.c_str(), std::ifstream::in);
-    if (!baseLevelFile.good())
-        return fileName;
-
-    // Read in the whole baseLevelFile, strip it of comments and feed it into
-    // the stringstream levelFile, to be read by the rest of the function.
-    std::stringstream levelFile;
-    std::string nextParam;
-    while (baseLevelFile.good())
-    {
-        std::getline(baseLevelFile, nextParam);
-        /* Find the first occurrence of the comment symbol on the
-         * line and return everything before that character.
-         */
-        levelFile << nextParam.substr(0, nextParam.find('#')) << "\n";
-    }
-
-    baseLevelFile.close();
-
-    // Read in the version number from the level file
-    levelFile >> nextParam;
-    if (nextParam.compare(ODApplication::VERSIONSTRING) != 0)
-        return fileName;
-
-    levelFile >> nextParam;
-    if (nextParam != "[Info]")
-        return fileName;
-
-    // Read in the seats from the level file
-    while (true)
-    {
-        // Information can contain spaces. We need to use std::getline to get content
-        std::getline(levelFile, nextParam);
-        std::string param;
-        if (nextParam == "[/Info]")
-        {
-            break;
-        }
-
-        param = "Name\t";
-        if (nextParam.compare(0, param.size(), param) == 0)
-        {
-            return nextParam.substr(param.size());
-        }
-    }
-
-    return fileName;
+    levelInfo.mLevelDescription = mapInfo.str();
+    return levelInfo;
 }
 
 } // Namespace MapLoader

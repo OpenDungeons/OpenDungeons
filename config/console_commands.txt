@@ -3,7 +3,6 @@ addcolor
 addcreature
 addgold
 addtiles
-aithreads
 ambientlight
 c
 catmullspline
@@ -20,7 +19,6 @@ help
 host
 list
 load
-loadGameMapFromTgaFile
 logfloodfill
 ls
 maxmessages
@@ -37,7 +35,6 @@ possescreature
 refreshmesh
 rotatespeed
 save
-saveGameMapToTgaFile
 setcamerafovx
 setcamerafovy
 setcolor

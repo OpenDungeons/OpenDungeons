@@ -487,6 +487,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             }
 
             // Tell the client to load the given map
+            LogManager::getSingleton().logMessage("Level relative path sent to client: " + mLevelFilename);
             setClientState(clientSocket, "loadLevel");
             ODPacket packetSend;
             packetSend << ServerNotification::loadLevel << mLevelFilename;

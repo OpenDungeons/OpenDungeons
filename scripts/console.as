@@ -85,7 +85,7 @@ void executeConsoleCommand(string &in com, string[] &in args)
             if(checkArgCount(argCount, 1))
             {
                 if(checkIfFloat(args[0]))
-                {                    
+                {
                     cameraManager.MoveSpeedAccel = 2.0 * args[0];
                     console.print("movespeed set to: " + cameraManager.MoveSpeed);
                 }
@@ -133,33 +133,6 @@ void executeConsoleCommand(string &in com, string[] &in args)
                 else
                 {
                     console.print("ERROR: Expected a floating point number in first argument.");
-                }
-            }
-        }
-    }
-
-    else if(com == "aithreads")
-    {
-        if(argCount == 0)
-        {
-            console.print("Current maximum number of creature AI threads: " + frameListener.GameMap.MaxAIThreads);
-        }
-        else
-        {
-            if(checkArgCount(argCount, 1))
-            {
-                if(checkIfInt(args[0]))
-                {
-                    const uint maxThreads = args[0];
-                    if(maxThreads > 0)
-                    {
-                        frameListener.GameMap.MaxAIThreads = maxThreads;
-                        console.print("Maximum number of creature AI threads set to: " + frameListener.GameMap.MaxAIThreads);
-                    }
-                    else
-                    {
-                        console.print("ERROR: Maximum number of threads must be greater zero.");
-                    }
                 }
             }
         }

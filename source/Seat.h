@@ -98,6 +98,9 @@ public:
     int getId() const
     { return mId; }
 
+    const std::string& getFaction() const
+    { return mFaction; }
+
     Ogre::ColourValue getColorValue() const
     { return mColorValue; }
 
@@ -130,6 +133,7 @@ public:
     bool canOwnedTileBeClaimedBy(Seat* seat);
     bool canOwnedCreatureUseRoomFrom(Seat* seat);
 
+    // TODO : most of these should be private
     //! \brief The team id of the player sitting in this seat.
     int mTeamId;
 
@@ -143,7 +147,6 @@ public:
     //! \brief The actual color that this color index translates into.
     Ogre::ColourValue mColorValue;
 
-	// TODO : most of these should be private
     //! \brief The amount of 'keeper mana' the player has.
     double mMana;
 
