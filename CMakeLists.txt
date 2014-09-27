@@ -79,8 +79,12 @@ else()
     endif()
     if(MINGW)
         if(NOT OD_CXX11_FLAGS)
-            set(OD_CXX11_FLAGS "-std=gnu++11 -Wno-unused-local-typedefs -Wno-reorder -Wno-format" CACHE STRING "Compilation flags to enable C++11 support" FORCE)
+            set(OD_CXX11_FLAGS "-std=gnu++11" CACHE STRING "Compilation flags to enable C++11 support" FORCE)
         endif()
+	# Disable some warnings on MinGW
+	if(OD_ENABLE_WARNINGS)
+	    set(OD_OPT_FLAGS "{OD_OPT_FLAGS} -Wno-unused-local-typedefs -Wno-reorder -Wno-format")
+	endif()
         # This includes enough debug information to get something useful
         # from Dr. Mingw while keeping binary size down. Almost useless
         # with gdb, though.
