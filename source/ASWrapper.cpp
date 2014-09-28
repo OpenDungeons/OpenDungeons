@@ -387,7 +387,12 @@ void ASWrapper::registerEverything()
     r = mEngine->RegisterObjectMethod("CameraManager",
             "float get_RotateSpeed()",
             asMETHOD(CameraManager, getRotateSpeed),
-            asCALL_THISCALL); assert(r >= 0);
+            asCALL_THISCALL);
+    // Test r and silences a compiler warning at the same time.
+    if (r < 0)
+    {
+        assert(false);
+    }
 }
 
 /*! \brief Passes the console input to the script that holds all the functions

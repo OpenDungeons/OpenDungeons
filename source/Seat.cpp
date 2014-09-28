@@ -21,17 +21,18 @@
 #include "Helper.h"
 
 Seat::Seat() :
-        mTeamId(0),
-        mStartingX(0),
-        mStartingY(0),
-        mMana(1000),
-        mManaDelta(0),
-        mHp(1000),
-        mGold(0),
-        mGoldMined(0),
-        mNumCreaturesControlled(0),
-        mNumClaimedTiles(0),
-        mHasGoalsChanged(true)
+    mTeamId(0),
+    mStartingX(0),
+    mStartingY(0),
+    mMana(1000),
+    mManaDelta(0),
+    mHp(1000),
+    mGoldMined(0),
+    mNumCreaturesControlled(0),
+    mNumClaimedTiles(0),
+    mHasGoalsChanged(true),
+    mGold(0),
+    mId(-1)
 {
 }
 

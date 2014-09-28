@@ -88,7 +88,6 @@ ResourceManager::ResourceManager() :
         mOgreCfgFile(""),
         mOgreLogFile("")
 {
-    bool success = false;
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
     //TODO - osx support
     char applePath[1024];

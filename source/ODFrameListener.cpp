@@ -75,17 +75,21 @@ template<> ODFrameListener* Ogre::Singleton<ODFrameListener>::msSingleton = 0;
  * up the OGRE system.
  */
 ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::OverlaySystem* overLaySystem) :
-    mCameraManager(NULL),
     mInitialized(false),
     mWindow(renderWindow),
+    mModeManager(NULL),
     mShowDebugInfo(false),
     mContinue(true),
     mTerminalActive(false),
     mTerminalWordWrap(78),
     mChatMaxMessages(10),
     mChatMaxTimeDisplay(20),
-    mIsChatInputMode(false),
-    mExitRequested(false)
+    mRaySceneQuery(NULL),
+    mGameMap(NULL),
+    mMiniMap(NULL),
+    mExitRequested(false),
+    mCameraManager(NULL),
+    mIsChatInputMode(false)
 {
     LogManager* logManager = LogManager::getSingletonPtr();
     logManager->logMessage("Creating frame listener...", Ogre::LML_NORMAL);

@@ -82,7 +82,7 @@ else()
         endif()
 	# Disable some warnings on MinGW
 	if(OD_ENABLE_WARNINGS)
-	    set(OD_OPT_FLAGS "{OD_OPT_FLAGS} -Wno-unused-local-typedefs -Wno-reorder -Wno-format")
+	    set(OD_OPT_FLAGS "{OD_OPT_FLAGS} -Wno-unused-local-typedefs -Wno-format")
 	endif()
         # This includes enough debug information to get something useful
         # from Dr. Mingw while keeping binary size down. Almost useless

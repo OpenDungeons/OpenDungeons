@@ -94,11 +94,11 @@ Creature::Creature(GameMap* gameMap, CreatureDefinition* definition, bool forceN
     mPreviousPositionTile    (NULL),
     mJobRoom                 (NULL),
     mEatRoom                 (NULL),
-    mAttackedObject          (NULL),
-    mAttackedTile            (NULL),
     mStatsWindow             (NULL),
-    mForceAction             (forcedActionNone),
-    mSound                   (SoundEffectsManager::getSingleton().getCreatureClassSounds(getName()))
+    mAttackedTile            (NULL),
+    mAttackedObject          (NULL),
+    mSound                   (SoundEffectsManager::getSingleton().getCreatureClassSounds(getName())),
+    mForceAction             (forcedActionNone)
 {
     assert(definition);
     if(forceName)
@@ -147,10 +147,11 @@ Creature::Creature(GameMap* gameMap) :
     mPreviousPositionTile    (NULL),
     mJobRoom                 (NULL),
     mEatRoom                 (NULL),
-    mForceAction             (forcedActionNone),
-    mAttackedObject          (NULL),
+    mStatsWindow             (NULL),
     mAttackedTile            (NULL),
-    mStatsWindow             (NULL)
+    mAttackedObject          (NULL),
+    mSound                   (NULL),
+    mForceAction             (forcedActionNone)
 {
     setObjectType(GameEntity::creature);
 }

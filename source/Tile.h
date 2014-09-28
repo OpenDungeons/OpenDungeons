@@ -70,7 +70,6 @@ public:
         GameEntity          (gameMap),
         x                   (nX),
         y                   (nY),
-        mClaimedPercentage  (0.0),
         rotation            (0.0),
         type                (nType),
         selected            (false),
@@ -78,7 +77,8 @@ public:
         fullnessMeshNumber  (-1),
         coveringRoom        (NULL),
         coveringTrap        (NULL),
-        claimLight          (NULL)
+        claimLight          (NULL),
+        mClaimedPercentage  (0.0)
     {
         for(int i = 0; i < Tile::FloodFillTypeMax; i++)
         {

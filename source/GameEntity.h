@@ -65,6 +65,7 @@ class GameEntity
           std::string     nMeshName   = std::string(),
           Seat*           seat        = NULL
           ) :
+    pSN         (NULL),
     position    (Ogre::Vector3(0, 0, 0)),
     name        (nName),
     meshName    (nMeshName),
@@ -72,8 +73,8 @@ class GameEntity
     mSeat       (seat),
     active      (true),
     attackable  (true),
-    objectType  (unknown),
     mIsDeleteRequested (false),
+    objectType  (unknown),
     gameMap     (NULL)
     {
         assert(gameMap !=  NULL);
