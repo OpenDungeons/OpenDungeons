@@ -12,12 +12,13 @@ Media source files: https://github.com/OpenDungeons/OpenDungeons-media-source
 Data files :
 ------------
 
-gui/             - CEGUI files + corresponding Gui images.
+config/          - Several game config files
+gui/             - CEGUI files + corresponding Gui images
 materials/       - Materials (models texturing scripts and textures)
 models/          - Model files
 music/           - Music files
 sounds/          - Game Sounds
-levels/          - Test levels for the game
+levels/          - Game levels
 scripts/         - Our AngelScript code files
 
 Code files:
@@ -27,10 +28,8 @@ cmake/           - Helper files for CMake
  |- config/      - Variable input files for the CMake script
  |- modules/     - Addon scripts for CMake to find dependencies
 dependencies/    - All external projects
- |- dirent.h     - Directory access on Windows
  |- angelscript/ - AngelScript SDK, our scripting language
  |- pthreads/    - Thread support for Windows
- |- tinygettext/ - Gettext alternative for multilang support
 documentation/   - Misc. files (incl. a Doxyfile and sketches)
 sources/         - All our own .cpp and .h files of the game
 .gitignore       - The files and folders that are ignored by git locally
@@ -53,9 +52,9 @@ More detailed, and usually up to date build instructions can be found at:
 To build the game run the following commands from the directory where this
 README file is. You will need CMake for this (http://cmake.org/).
 
-	cmake.
-	make
-	./OpenDungeons.bin
+    cmake .
+    make
+    ./opendungeons.bin
 
 To build the game, you will need to link against the following libraries:
 *  OGRE SDK (1.9.x)

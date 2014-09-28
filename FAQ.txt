@@ -62,14 +62,16 @@ Game content comes under Creative Commons license.
 1C. How much is it playable ?
 -----------------------------
 
-OD (as of March 2014) is still in Alpha, this means you can have a basic gameplay experience:
+OD (as of September 2014) is still in Alpha, this means you can have a basic but already stable gameplay experience:
 - Select tiles of dirt walls to dig them and gold to collect money.
-- With money, you build the basic room: Treasure rooms, Sleeping rooms, Training grounds, and forges.
-- The creatures you have will either dig the tiles of dirt, train, sleep or fight on their own.
-- You can grab and drop your own creatures near enemy ones to let them fight.
+- With money, you build the basic room: Treasure rooms, Sleeping rooms, Training grounds, ...
+- The creatures you have will either dig the tiles of dirt, train, sleep, eat, or fight on their own.
+- You can grab and drop your own creatures on claimed tiles near enemies to let them fight.
 
-In the default map given, You play as green in the center of the map,
-and must defeat the other creatures to win.
+- You can also play with friends on using the join/host game buttons.
+The game is supporting fixed alliances on certain map, so you can compete together against the AI.
+
+A few level are provided. Read their description in the loading menu for more info.
 
 
 1D. When will it be completed ?
@@ -105,9 +107,11 @@ explicit construct of new C++ standard : C++11.
 
 Each compiler has it's C++0x or C++11 flag, for GNU g++ it's :
 "g++ --std=c++11"
-On CMake, make sure to add that to the CMakeCxxFlags.
-Or type bash cmd 'cmake-gui' it opens graphical configurator, unfold the CMake node. And find 
-the  CMakeCxxFlags flag. 
+
+On CMake, it is normally added automatically to CMAKE_CXX_FLAGS.
+Or type bash cmd 'cmake-gui' it opens graphical configurator, unfold the CMake node. And find
+the CMAKE_CXX_FLAGS flag.
+
 
 2B. Help!, I cannot run OD !
 ----------------------------
@@ -119,17 +123,8 @@ EXCEPTION(6:FileNotFoundException): Cannot locate resource Dirt_10001000.mesh in
 group Autodetect or any other group. in ResourceGroupManager::openResource at
 /home/bender/Bureau/ogre/OgreMain <<
 
-Make sure you have the game data files installed.
-As of March 2014, the development branch of the official repository doesn't include them.
-You can grab the following directories from the SVN repo:
-http://sourceforge.net/p/opendungeons/svn/HEAD/tree/
-
-gui/
-materials/
-models/
-music/
-scripts/
-sounds/
+Make sure you have the game data files installed. If you're using the official repository,
+all the needed data should be provided.
 
 On windows, please note also that the necessary dlls must be copied in the same directory
 than the game data along with the main OD binary in order to let the game run.
@@ -145,11 +140,16 @@ is built for currently installed OGRE3D package's version. For most well-maintai
 distros it means they are from the SAME REPOSITORY.
 
 
--- Just after program start I get : 
- "   An internal Ogre3D error ocurred: OGRE EXCEPTION(7:InternalErrorException): Could not load dynamic library RenderSystem_GL.  System Error: RenderSystem_GL.so.1.9.0: cannot open shared object file: No such file or directory in DynLib::load at /tmp/buildd/ogre-1.9-1.9.0+dfsg1/OgreMain/src/OgreDynLib.cpp (line 109)  "
+-- Just after program start I get :
+ "   An internal Ogre3D error ocurred: OGRE EXCEPTION(7:InternalErrorException): Could not load dynamic library RenderSystem_GL.
+ System Error: RenderSystem_GL.so.1.9.0: cannot open shared object file:
+ No such file or directory in DynLib::load at /tmp/buildd/ogre-1.9-1.9.0+dfsg1/OgreMain/src/OgreDynLib.cpp (line 109)  "
 
-
-You'll have to edit the plugins.cfg and/or plugins_d.cfg files copied by CMake when imvoked and change the "PluginFolder=" line to where the GL Render system shared lib is located. (Usually the Ogre's libraries' native directory e.g. :  "PluginFolder=/usr/lib/x86_64-linux-gnu/OGRE-1.9.0/ " or "/usr/lib/OGRE") 
+Normally, cmake does detect the render plugins location, but in this case,
+you'll have to edit the plugins.cfg and/or plugins_d.cfg files copied by CMake when invoked
+and change the "PluginFolder=" line to where the GL Render system shared lib is located.
+(Usually the Ogre's libraries' native directory e.g.:
+"PluginFolder=/usr/lib/x86_64-linux-gnu/OGRE-1.9.0/ " or "/usr/lib/OGRE")
 
 
 3. Gameplay:
@@ -183,16 +183,15 @@ and make you have money, permitting you add more room tiles.
 You can drag dirt or gold tiles to select a square of tile to dig/undig.
 
 -- Editor:
-You can left-click on a creature and drag it to another location, when releasing the left button,
-the creature will be put on the new location.
-
+You can left-click on a creature and to pick it up, and right-click to release it.
 You can click on tiles to add walls of the currently selected type.
+You can change the current seat id of a room using the 'Y' key.
 
 
 3B. Key-shortcuts
 -----------------
 
-- Tilde: Open Console
+- Tilde/F12: Open Console
 
 -- Game:
 - T: Return to the Dungeon start location.
@@ -200,6 +199,7 @@ You can click on tiles to add walls of the currently selected type.
 -- Editor:
 - R: Change the tile type.
 - T: Change the tile fullness. (With a fullness of 0, you actually remove walls, and ground tiles of the given type.)
+- Y: Change the current seat id of the rooms/traps added.
 
 
 3C. Running Console and Console's commands
@@ -272,11 +272,12 @@ There is always something to improve in our code, though, and you are welcome to
 5C. General ideas and design patterns
 -------------------------------------
 
-The game uses the Control-Observation-Control pattern (as much as possible).  It uses the
-MessageQueue pattern to recieve rendering request from withing the main thread (the
-RenderRequest class). It uses the AbstractInterface pattern when implementing various
-input manager classes which interprets the OIS libraty due to user's interaction mode with
-application.
+The game code is using a standard client/server paradigm, where the server has his own thread and
+the client+rendering part has got another one.
+Simply put, this means the game internally keeps server data used as reference for the game state
+and communicates with the client part to make it stay in sync. This is working that way for local
+and lan games. This way, we ensure more robust code for lan games.
+This also means that if you want to update the game state, you have to "ask" the server to do so. ;)
 
 Overall, and anyway, try to have a clear view of what you want to achieve first, and start simple,
 components by components. Once you have a clear view of your components and how they interact
@@ -299,16 +300,16 @@ http://forum.freegamedev.net/viewtopic.php?f=35&t=5363
 Avoid using any functions from the old libC library, eg: <cstdio>
 (that is the standard library of the C language).
 
-I beg anyone to stop using one-character names for variables (poor capture
-of most editors' search function) [paul424] .
---> I myself beg for people to stop using temp as a variable name, except for one-liners.
+We beg anyone to stop using one-character names for variables (poor capture
+of most editors' search function).
+We also beg people to stop using temp* as a variable name.
 A variable always has a role, and can be named accordingly.
 
 Do not use Singletons which depends on other non-singleton classes
 (that is your code shouldn't do any >>hidden<< singleton initialization.)
 --> If you happen to do that, maybe it's meaning the singleton is simply a component
 of the mother class and can be accessed exclusively from the mother class,
-and can be un-singleton-ed. [Bertram]
+and can be un-singleton-ed.
 
 
 6. Used libraries and abbreviations:
@@ -319,13 +320,12 @@ and can be un-singleton-ed. [Bertram]
 
 Ogre - Version 1.9.x
 CEGUI - Version 0.8.x
-Boost system, thread, pool (same version than the one used by Ogre)
+Boost filesystem, locale, system, thread (same version than the one used by Ogre)
 SFML - Version 2.x
 OpenAL (Required by SFML)
 
 - Included in the repository (in 'dependencies/'):
 AngelScript
-TinyGetText
 pthread (Windows only)
 
 
