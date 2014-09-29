@@ -495,6 +495,12 @@ configure_file(${CMAKE_CONFIG_DIR}/plugins.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/pl
 configure_file(${CMAKE_CONFIG_DIR}/plugins_d.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/plugins_d.cfg)
 configure_file(${CMAKE_CONFIG_DIR}/resources.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/resources.cfg)
 configure_file(${CMAKE_CONFIG_DIR}/resources.zip.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/resources.zip.cfg)
+# Link icon with its full path when not installed in the /usr prefix since it might not be caught by the hicolor theme
+if(CMAKE_INSTALL_PREFIX STREQUAL "/usr")
+    set(OD_ICON_FULLPATH ${PROJECT_BINARY_NAME})
+else()
+    set(OD_ICON_FULLPATH ${OD_SHARE_PATH}/icons/hicolor/scalable/apps/opendungeons.svg)
+endif()
 configure_file(${CMAKE_CONFIG_DIR}/opendungeons.desktop.in ${CMAKE_CURRENT_BINARY_DIR}/opendungeons.desktop)
 
 ##################################
