@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=OpenDungeons
+GenericName=RTS game inspired by Dungeon Keeper
+Comment=RTS game inspired by Dungeon Keeper
+Exec=@OD_BIN_PATH@/opendungeons
+Icon=@OD_SHARE_PATH@/icons/hicolor/scalable/apps/opendungeons.svg
+Terminal=false
+Type=Application
+Categories=Game;StrategyGame;

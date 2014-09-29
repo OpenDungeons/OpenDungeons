@@ -30,6 +30,8 @@ else()
     set(OD_BIN_PATH ${CMAKE_INSTALL_PREFIX}/${OD_BIN_DEST} CACHE PATH "Absolute path to the game binary directory")
     set(OD_DATA_DEST share/games/${PROJECT_NAME})
     set(OD_DATA_PATH ${CMAKE_INSTALL_PREFIX}/${OD_DATA_DEST} CACHE PATH "Absolute path to the game data directory")
+    set(OD_SHARE_DEST share)
+    set(OD_SHARE_PATH ${CMAKE_INSTALL_PREFIX}/${OD_SHARE_DEST} CACHE PATH "Absolute path to the shared data directory (desktop file, icons, etc.)")
 endif()
 set(OD_DATA_PATH_FLAG "-DOD_DATA_PATH=\\\"${OD_DATA_PATH}\\\"")
 
@@ -496,6 +498,7 @@ configure_file(${CMAKE_CONFIG_DIR}/plugins.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/pl
 configure_file(${CMAKE_CONFIG_DIR}/plugins_d.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/plugins_d.cfg)
 configure_file(${CMAKE_CONFIG_DIR}/resources.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/resources.cfg)
 configure_file(${CMAKE_CONFIG_DIR}/resources.zip.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/resources.zip.cfg)
+configure_file(${CMAKE_CONFIG_DIR}/opendungeons.desktop.in ${CMAKE_CURRENT_BINARY_DIR}/opendungeons.desktop)
 
 ##################################
 #### Installation ################
@@ -514,6 +517,7 @@ if(UNIX)
                        ${CMAKE_SOURCE_DIR}/scripts
                        ${CMAKE_SOURCE_DIR}/sounds)
 
+    # Install required game files: binary, configuration files and resources
     install(TARGETS ${PROJECT_BINARY_NAME}
             DESTINATION ${OD_BIN_PATH}
             PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
@@ -521,6 +525,12 @@ if(UNIX)
             DESTINATION ${OD_DATA_PATH})
     install(DIRECTORY ${OD_RESOURCES}
             DESTINATION ${OD_DATA_PATH})
+
+    # Additional distribution content (desktop file, icons, etc.)
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/opendungeons.desktop
+            DESTINATION ${OD_SHARE_PATH}/applications)
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/dist/hicolor
+            DESTINATION ${OD_SHARE_PATH}/icons)
 endif()
 
 ##################################
