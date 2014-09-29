@@ -459,11 +459,11 @@ endif()
 
 if(WIN32)
     #On windows, use current directory for plugins and data for now
-    set(OPENDUNGEONS_OGRE_PLUGIN_DIR_REL "plugins")
-    set(OPENDUNGEONS_OGRE_PLUGIN_DIR_DBG "plugins")
+    set(OD_OGRE_PLUGIN_DIR_REL "plugins")
+    set(OD_OGRE_PLUGIN_DIR_DBG "plugins")
 else()
     #only use d3d renderer plugins if we are on windows
-    set(OPENDUNGEONS_COMMENT_D3D "#")
+    set(OD_COMMENT_D3D "#")
     #On linux, we should look in the standard paths for plugins
     if("${OGRE_PLUGIN_DIR_REL}" STREQUAL "")
         #Try pkgconfig if the ogre module doesn't set the plugin paths
@@ -476,19 +476,19 @@ else()
                 ERROR_VARIABLE  OD_PKGCONFIG_ERROR)
             if(OD_PKGCONFIG_FAILED)
                 message(STATUS "Failed to run pkgconfig when looking for plugin directory" ${OD_PLUGIN_DIR_TEMP} " Error:" ${OD_PKGCONFIG_ERROR})
-                get_filename_component(OPENDUNGEONS_OGRE_PLUGIN_DIR_REL ${OGRE_RenderSystem_GL_LIBRARY_REL} PATH)
+                get_filename_component(OD_OGRE_PLUGIN_DIR_REL ${OGRE_RenderSystem_GL_LIBRARY_REL} PATH)
             else()
-                set(OPENDUNGEONS_OGRE_PLUGIN_DIR_REL ${OD_PLUGIN_DIR_TEMP})
-                set(OPENDUNGEONS_OGRE_PLUGIN_DIR_DBG ${OD_PLUGIN_DIR_TEMP})
+                set(OD_OGRE_PLUGIN_DIR_REL ${OD_PLUGIN_DIR_TEMP})
+                set(OD_OGRE_PLUGIN_DIR_DBG ${OD_PLUGIN_DIR_TEMP})
             endif()
         endif()
     else()
-        set(OPENDUNGEONS_OGRE_PLUGIN_DIR_REL ${OGRE_PLUGIN_DIR_REL})
-        set(OPENDUNGEONS_OGRE_PLUGIN_DIR_DBG ${OGRE_PLUGIN_DIR_DBG})
+        set(OD_OGRE_PLUGIN_DIR_REL ${OGRE_PLUGIN_DIR_REL})
+        set(OD_OGRE_PLUGIN_DIR_DBG ${OGRE_PLUGIN_DIR_DBG})
     endif()
 
-    message(STATUS "Plugin path rel: " ${OPENDUNGEONS_OGRE_PLUGIN_DIR_REL})
-    message(STATUS "Plugin path dbg: " ${OPENDUNGEONS_OGRE_PLUGIN_DIR_DBG})
+    message(STATUS "Plugin path rel: " ${OD_OGRE_PLUGIN_DIR_REL})
+    message(STATUS "Plugin path dbg: " ${OD_OGRE_PLUGIN_DIR_DBG})
 endif()
 
 #Do the configuration
