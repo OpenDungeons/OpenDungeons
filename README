@@ -54,7 +54,7 @@ README file is. You will need CMake for this (http://cmake.org/).
 
     cmake .
     make
-    ./opendungeons.bin
+    ./opendungeons
 
 To build the game, you will need to link against the following libraries:
 *  OGRE SDK (1.9.x)
