@@ -6,11 +6,11 @@ cmake_minimum_required(VERSION 2.8)
 
 project(opendungeons)
 
-#postfix bin if we are on linux as we want to launch with a script
+# Set a capitalized exe name on Windows
 if(WIN32)
     set(PROJECT_BINARY_NAME "OpenDungeons")
 else()
-    set(PROJECT_BINARY_NAME "opendungeons.bin")
+    set(PROJECT_BINARY_NAME "opendungeons")
 endif()
 
 # Project version
@@ -56,6 +56,10 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake/modules)
 if(NOT CMAKE_BUILD_TYPE)
     message(STATUS "CMake build type is not set, defaulting to 'RelWithDebInfo'")
     set(CMAKE_BUILD_TYPE "RelWithDebInfo")
+endif()
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_definitions("-DOD_DEBUG")
 endif()
 
 ##################################
@@ -466,10 +470,6 @@ if(WIN32 AND MSVC_IDE)
     SET_TARGET_PROPERTIES(${PROJECT_BINARY_NAME} PROPERTIES LINK_FLAGS " /FORCE:MULTIPLE")
 endif()
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_definitions("-DOD_DEBUG")
-endif()
-
 ##################################
 #### Configure settings files ####
 ##################################
@@ -524,12 +524,6 @@ configure_file(${CMAKE_CONFIG_DIR}/plugins.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/pl
 configure_file(${CMAKE_CONFIG_DIR}/plugins_d.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/plugins_d.cfg)
 configure_file(${CMAKE_CONFIG_DIR}/resources.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/resources_install.cfg)
 configure_file(${CMAKE_CONFIG_DIR}/resources.zip.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/resources_install.zip.cfg)
-if(UNIX)
-    #On linux, set up the launcher script
-    #TODO - add key repeat thing
-    set(OPENDUNGEONS_BINARY_PATH ${CMAKE_INSTALL_PREFIX}/games/${PROJECT_BINARY_NAME} CACHE PATH "")
-    configure_file(${CMAKE_CONFIG_DIR}/OpenDungeons.in ${CMAKE_CURRENT_BINARY_DIR}/OpenDungeons)
-endif()
 
 ##################################
 #### Installation ################
@@ -544,19 +538,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/resources_install.cfg DESTINATION ${OP
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/resources_install.zip.cfg DESTINATION ${OPENDUNGEONS_DATA_DEST} RENAME resources.zip.cfg)
 
 if(NOT WIN32)
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/OpenDungeons DESTINATION ${BINDIR} PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-endif()
-
-##################################
-#### Copy files to binary dir ####
-##################################
-
-# Copy level and scripts dir from git to build dir if this is not an in-source build
-if( NOT ${CMAKE_CURRENT_SOURCE_DIR} EQUAL ${CMAKE_CURRENT_BINARY_DIR})
-    #if (EXISTS "levels/Test.level")
-    #    configure_file(levels/Test.level #${CMAKE_CURRENT_BINARY_DIR}/levels/Test.level)
-    #endif()
-    file(COPY scripts DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_BINARY_NAME} DESTINATION ${BINDIR} PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 endif()
 
 ##################################
