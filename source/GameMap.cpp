@@ -129,18 +129,18 @@ private:
 };
 
 GameMap::GameMap(bool isServerGameMap) :
-        mIsServerGameMap(isServerGameMap),
         culm(NULL),
         miscUpkeepTime(0),
         creatureTurnsTime(0),
+        mIsServerGameMap(isServerGameMap),
         mLocalPlayer(NULL),
         mTurnNumber(-1),
+        mIsPaused(false),
         creatureDefinitionFilename("levels/creatures.def"), // default name
         floodFillEnabled(false),
         numCallsTo_path(0),
         tileCoordinateMap(new TileCoordinateMap(100)),
-        aiManager(*this),
-        mIsPaused(false)
+        aiManager(*this)
 {
     // Init the player
     mLocalPlayer = new Player();

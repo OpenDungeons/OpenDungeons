@@ -37,8 +37,9 @@ const std::string ODServer::SERVER_INFORMATION = "SERVER_INFORMATION";
 template<> ODServer* Ogre::Singleton<ODServer>::msSingleton = 0;
 
 ODServer::ODServer() :
-    mNbClientsNotReady(0),
-    mGameMap(new GameMap(true))
+    mServerMode(ModeGame),
+    mGameMap(new GameMap(true)),
+    mNbClientsNotReady(0)
 {
 }
 

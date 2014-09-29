@@ -6,7 +6,7 @@ This file is listing each files present in this repository, its author and its c
 Each corresponding license is fully described in the licenses/ folder.
 Other text files (.txt, .cpp, .h., ...), except licensing, are licensed using the GPL 3.0 license.
 
-Latest update: 2014/09/25
+Latest update: 2014/09/28
 
 =============================
 ==  Configuration: config/ ==
@@ -45,11 +45,11 @@ OpenDungeonsIcons.png                  OD Team                 CC-BY-SA 3.0
 OpenDungeonsMainMenu.layout            Bertram                 GPL 3.0
 OpenDungeonsMenuMultiplayer.layout     hwoarangmy              GPL 3.0
 OpenDungeonsMenuSkirmish.layout        hwoarangmy              GPL 3.0
+OpenDungeonsOldSkin.imageset           OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
+OpenDungeonsOldSkin.png                OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
+OpenDungeonsSkin.imageset              OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
+OpenDungeonsSkin.png                   Bertram, StumpyStrust   CC-BY-SA 3.0            Own made GUI based on: http://opengameart.org/content/fantasy-ui-box
 OpenDungeonsSkin.scheme                OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
-gui/OpenDungeonsOldSkin.imageset       OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
-gui/OpenDungeonsOldSkin.png            OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
-gui/OpenDungeonsSkin.imageset          OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
-gui/OpenDungeonsSkin.png               Bertram, StumpyStrust   CC-BY-SA 3.0            Own made GUI based on: http://opengameart.org/content/fantasy-ui-box
 
 schemas/
 -> Animation.xsd                       OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
@@ -71,13 +71,16 @@ creatures.def                          Bertram                 GPL 3.0
 
 multiplayer/
 -> TestMultiplayer.level               hwoarangmy              GPL 3.0
--> TestMultiplayerSmall.level          hwoarangmy              GPL 3.0
+-> TestMultiplayerSmallFreeForAll.level hwoarangmy             GPL 3.0
+-> TestMultiplayerSmallAlliance.level  hwoarangmy              GPL 3.0
 
-singleplayer/
+skirmish/
 -> oldTest.level
 -> TestSingleplayer.level              hwoarangmy              GPL 3.0
 -> TestSingleplayerSmall.level         hwoarangmy              GPL 3.0
-
+-> TestSingleplayerSmallEmpty.level    hwoarangmy              GPL 3.0
+-> TestSingleplayerSmallPassability.level hwoarangmy           GPL 3.0
+-> Stonekeep siege.level               Danimal                 GPL 3.0
 
 =================================================
 ==  Ogre material files & textures: materials/ ==
@@ -101,8 +104,12 @@ textures/
 -> TrainingDummy3.png                  P0ss                    CC-BY 3.0               http://forum.freegamedev.net/viewtopic.php?p=59351#p59351
 -> TrainingDummy4.png                  Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?p=59621#p59621
 -> Lamp.png                            Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?p=59621#p59621
--> Anvil.png                           Daniel74, Nubiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
+-> Anvil.png                           Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
 -> Forge.png                           Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
+-> Chimney.png                         Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
+-> Foundry.png                         Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
+-> Grindstone.png                      Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
+
 
 ======================
 ==  Models: models/ ==
@@ -125,6 +132,7 @@ Cavehornet.*                           Skorpio                 CC-BY-SA 3.0     
 Chair.mesh                             Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Chicken.*                              Skorpio                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
 ChickenCoop.mesh                       Dm3d, Danimal           CC-BY-SA 3.0            http://opengameart.org/content/chicken-coop
+Chimney.mesh                           Daniel74                CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
 Claimed*                               Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Con_worker.*                           Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Cre_vision_indicator.mesh              Andrew Buck             CC-BY-SA 3.0
@@ -139,16 +147,14 @@ Dwarf2.*                               Skorpio                 CC-BY-SA 3.0, GPL
 Dwarf3.*                               thecubber (OGA), MrBeast (OGA), Skorpio
  ->                                                            CC-BY-SA 3.0, GPL 3.0   http://opengameart.org/content/dwarf-fixed
 Farm.mesh                              Danimal                 CC-BY-SA 3.0            (Texture by nobiax - CC0) - http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
-Field_indicator.mesh                   OD Team                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59066#p59066
 Fire.mesh                              Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Forge.mesh                             Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
-ForgeAnvilObject.mesh                  riidom                  CC-BY 3.0               http://opengameart.org/content/medieval-forge-v2
-ForgeForgeObject.mesh                  riidom                  CC-BY 3.0               http://opengameart.org/content/medieval-forge-v2
-ForgeTableObject.mesh                  riidom                  CC-BY 3.0               http://opengameart.org/content/medieval-forge-v2
+Foundry.mesh                           Daniel74                CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
 Gnome.*                                Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
 Goblin.*                               Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
 Gold*[0-9].mesh                        Skorpio                 CC-BY-SA 3.0, GPL 3.0
 GoldstackLv*.mesh                      Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
+Grindstone.mesh                        Daniel74                CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
 Keeperhand.*                           Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Knight.*                               surt                    CC0                     http://opengameart.org/forumtopic/cc0-scraps
 Kobold.*                               surt                    CC0                     http://opengameart.org/forumtopic/cc0-scraps

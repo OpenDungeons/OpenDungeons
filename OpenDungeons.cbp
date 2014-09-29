@@ -46,7 +46,6 @@
 			<Add directory="dependencies/angelscript/add_on/scriptstdstring" />
 			<Add directory="dependencies/angelscript/add_on/scriptbuilder" />
 			<Add directory="od-depends/include/SFML" />
-			<Add directory="dependencies/tinygettext" />
 		</Compiler>
 		<Linker>
 			<Add library="boost_system-mgw47-mt-1_51" />
@@ -157,24 +156,9 @@
 		<Unit filename="dependencies/angelscript/angelscript/source/as_typeinfo.h" />
 		<Unit filename="dependencies/angelscript/angelscript/source/as_variablescope.cpp" />
 		<Unit filename="dependencies/angelscript/angelscript/source/as_variablescope.h" />
-		<Unit filename="dependencies/dirent/dirent.h" />
 		<Unit filename="dependencies/pthreads/include/pthread.h" />
 		<Unit filename="dependencies/pthreads/include/sched.h" />
 		<Unit filename="dependencies/pthreads/include/semaphore.h" />
-		<Unit filename="dependencies/tinygettext/dictionary.cpp" />
-		<Unit filename="dependencies/tinygettext/dictionary.hpp" />
-		<Unit filename="dependencies/tinygettext/dictionary_manager.cpp" />
-		<Unit filename="dependencies/tinygettext/dictionary_manager.hpp" />
-		<Unit filename="dependencies/tinygettext/language.cpp" />
-		<Unit filename="dependencies/tinygettext/language.hpp" />
-		<Unit filename="dependencies/tinygettext/plural_forms.cpp" />
-		<Unit filename="dependencies/tinygettext/plural_forms.hpp" />
-		<Unit filename="dependencies/tinygettext/po_parser.cpp" />
-		<Unit filename="dependencies/tinygettext/po_parser.hpp" />
-		<Unit filename="dependencies/tinygettext/tinygettext.cpp" />
-		<Unit filename="dependencies/tinygettext/tinygettext.hpp" />
-		<Unit filename="dependencies/tinyxml2/tinyxml2.cpp" />
-		<Unit filename="dependencies/tinyxml2/tinyxml2.h" />
 		<Unit filename="source/AIFactory.cpp" />
 		<Unit filename="source/AIFactory.h" />
 		<Unit filename="source/AIManager.cpp" />

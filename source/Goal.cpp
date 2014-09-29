@@ -22,8 +22,8 @@
 
 Goal::Goal(const std::string& nName, const std::string& nArguments, GameMap* gameMap) :
     mName(nName),
-    mGameMap(gameMap),
-    mArguments(nArguments)
+    mArguments(nArguments),
+    mGameMap(gameMap)
 {
 }
 

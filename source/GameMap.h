@@ -398,12 +398,6 @@ public:
         mTurnNumber = turnNumber;
     }
 
-    CullingManager* culm;
-
-    unsigned long int miscUpkeepTime, creatureTurnsTime;
-
-    std::vector<Creature*> creatures;
-
     bool isServerGameMap()
     {
         return mIsServerGameMap;
@@ -458,6 +452,13 @@ public:
     //! \brief Tells the game map a given player is attacking or under attack.
     //! Used on the server game map only.
     void playerIsFighting(Player* player);
+
+    // FIXME: Needs to be private
+    CullingManager* culm;
+
+    unsigned long int miscUpkeepTime, creatureTurnsTime;
+
+    std::vector<Creature*> creatures;
 
 private:
     void replaceFloodFill(Tile::FloodFillType floodFillType, int colorOld, int colorNew);

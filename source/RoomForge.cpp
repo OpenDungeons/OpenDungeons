@@ -34,23 +34,23 @@ RoomObject* RoomForge::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile
     {
         case ActiveSpotPlace::activeSpotCenter:
         {
-            return loadRoomObject(getGameMap(), "Anvil", tile);
+            return loadRoomObject(getGameMap(), "Foundry", tile, 45.0);
         }
         case ActiveSpotPlace::activeSpotLeft:
         {
-            return loadRoomObject(getGameMap(), "ForgeForgeObject", tile, 270.0);
+            return loadRoomObject(getGameMap(), "Chimney", tile, 90.0);
         }
         case ActiveSpotPlace::activeSpotRight:
         {
-            return loadRoomObject(getGameMap(), "ForgeForgeObject", tile, 90.0);
+            return loadRoomObject(getGameMap(), "Chimney", tile, 270.0);
         }
         case ActiveSpotPlace::activeSpotTop:
         {
-            return loadRoomObject(getGameMap(), "ForgeTableObject", tile, 180.0);
+            return loadRoomObject(getGameMap(), "Grindstone", tile, 180.0);
         }
         case ActiveSpotPlace::activeSpotBottom:
         {
-            return loadRoomObject(getGameMap(), "ForgeTableObject", tile, 0.0);
+            return loadRoomObject(getGameMap(), "Anvil", tile, 0.0);
         }
     }
     return NULL;

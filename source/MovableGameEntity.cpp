@@ -27,14 +27,14 @@
 #include "LogManager.h"
 
 MovableGameEntity::MovableGameEntity(GameMap* gameMap) :
-        GameEntity(gameMap),
-        mAnimationState(NULL),
-        mDestinationAnimationState("Idle"),
-        mSceneNode(NULL),
-        mMoveSpeed(1.0),
-        mPrevAnimationStateLoop(true)
+    GameEntity(gameMap),
+    mAnimationState(NULL),
+    mSceneNode(NULL),
+    mMoveSpeed(1.0),
+    mPrevAnimationStateLoop(true),
+    mAnimationSpeedFactor(1.0),
+    mDestinationAnimationState("Idle")
 {
-    setAnimationSpeedFactor(1.0);
 }
 
 void MovableGameEntity::setMoveSpeed(double s)

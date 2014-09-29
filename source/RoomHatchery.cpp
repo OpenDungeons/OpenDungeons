@@ -26,8 +26,8 @@
 
 RoomHatchery::RoomHatchery(GameMap* gameMap) :
     Room(gameMap),
-    mSpawnChickenCooldown(0),
-    mNbChickensEaten(0)
+    mNbChickensEaten(0),
+    mSpawnChickenCooldown(0)
 {
     mType = hatchery;
 }
