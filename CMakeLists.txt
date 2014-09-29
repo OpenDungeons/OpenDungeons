@@ -23,14 +23,14 @@ set(OD_VERSION "-DOD_VERSION=\\\"${OD_MAJOR_VERSION}.${OD_MINOR_VERSION}.${OD_PA
 
 # Set the data path depending on the platform
 if(WIN32)
-    set(OPENDUNGEONS_DATA_PATH ".")
-    set(OPENDUNGEONS_DATA_DEST ".")
+    set(OD_DATA_PATH ".")
 else()
-    #Set data location to where we install if we want to use the installer
-    set(OPENDUNGEONS_DATA_DEST share/games/${PROJECT_NAME})
-    set(OPENDUNGEONS_DATA_PATH ${CMAKE_INSTALL_PREFIX}/${OPENDUNGEONS_DATA_DEST} CACHE PATH "")
+    # Set binary and data install locations if we want to use the installer
+    set(OD_BIN_PATH ${CMAKE_INSTALL_PREFIX}/games CACHE PATH "Absolute path to the game binary directory")
+    set(OD_DATA_PATH ${CMAKE_INSTALL_PREFIX}/share/games/${PROJECT_NAME} CACHE PATH "Absolute path to the game data directory")
+    set(OD_SHARE_PATH ${CMAKE_INSTALL_PREFIX}/share CACHE PATH "Absolute path to the shared data directory (desktop file, icons, etc.)")
 endif()
-set(OD_DATA_PATH "-DOD_DATA_PATH=\\\"${OPENDUNGEONS_DATA_PATH}\\\"")
+set(OD_DATA_PATH_FLAG "-DOD_DATA_PATH=\\\"${OD_DATA_PATH}\\\"")
 
 # Where we want the binary
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
@@ -101,7 +101,7 @@ else()
     endif()
 endif()
 
-set(CMAKE_CXX_FLAGS "${OD_CXX11_FLAGS} ${OD_OPT_FLAGS} ${CMAKE_CXX_FLAGS} ${OD_VERSION} ${OD_DATA_PATH}")
+set(CMAKE_CXX_FLAGS "${OD_CXX11_FLAGS} ${OD_OPT_FLAGS} ${CMAKE_CXX_FLAGS} ${OD_VERSION} ${OD_DATA_PATH_FLAG}")
 message(STATUS "CMake CXX Flags: " ${CMAKE_CXX_FLAGS})
 
 ##################################
@@ -370,24 +370,6 @@ endif()
 # Create the binary file (WIN32 makes sure there is no console window on windows.)
 add_executable(${PROJECT_BINARY_NAME} WIN32 ${OD_SOURCEFILES})
 
-# set path
-set(BINDIR games CACHE PATH "")
-
-##################################
-#### Install targets #############
-##################################
-
-# Add install target
-if(WIN32)
-    install(TARGETS ${PROJECT_BINARY_NAME}
-        DESTINATION .
-    )
-else ()
-    install(TARGETS ${PROJECT_BINARY_NAME}
-        DESTINATION ${BINDIR}
-    )
-endif()
-
 ##################################
 #### Link libraries ##############
 ##################################
@@ -474,24 +456,13 @@ endif()
 #### Configure settings files ####
 ##################################
 
-#Make a copy for use in the build directory, and later one copy for installing.
-configure_file(
-    ${CMAKE_CONFIG_DIR}/resources.cfg.in
-    ${CMAKE_CURRENT_BINARY_DIR}/resources.cfg
-)
-
-configure_file(
-    ${CMAKE_CONFIG_DIR}/resources.zip.cfg.in
-    ${CMAKE_CURRENT_BINARY_DIR}/resources.zip.cfg
-)
-
 if(WIN32)
     #On windows, use current directory for plugins and data for now
-    set(OPENDUNGEONS_OGRE_PLUGIN_DIR_REL "plugins")
-    set(OPENDUNGEONS_OGRE_PLUGIN_DIR_DBG "plugins")
+    set(OD_OGRE_PLUGIN_DIR_REL "plugins")
+    set(OD_OGRE_PLUGIN_DIR_DBG "plugins")
 else()
     #only use d3d renderer plugins if we are on windows
-    set(OPENDUNGEONS_COMMENT_D3D "#")
+    set(OD_COMMENT_D3D "#")
     #On linux, we should look in the standard paths for plugins
     if("${OGRE_PLUGIN_DIR_REL}" STREQUAL "")
         #Try pkgconfig if the ogre module doesn't set the plugin paths
@@ -504,41 +475,65 @@ else()
                 ERROR_VARIABLE  OD_PKGCONFIG_ERROR)
             if(OD_PKGCONFIG_FAILED)
                 message(STATUS "Failed to run pkgconfig when looking for plugin directory" ${OD_PLUGIN_DIR_TEMP} " Error:" ${OD_PKGCONFIG_ERROR})
-                get_filename_component(OPENDUNGEONS_OGRE_PLUGIN_DIR_REL ${OGRE_RenderSystem_GL_LIBRARY_REL} PATH)
+                get_filename_component(OD_OGRE_PLUGIN_DIR_REL ${OGRE_RenderSystem_GL_LIBRARY_REL} PATH)
             else()
-                set(OPENDUNGEONS_OGRE_PLUGIN_DIR_REL ${OD_PLUGIN_DIR_TEMP})
-                set(OPENDUNGEONS_OGRE_PLUGIN_DIR_DBG ${OD_PLUGIN_DIR_TEMP})
+                set(OD_OGRE_PLUGIN_DIR_REL ${OD_PLUGIN_DIR_TEMP})
+                set(OD_OGRE_PLUGIN_DIR_DBG ${OD_PLUGIN_DIR_TEMP})
             endif()
         endif()
     else()
-        set(OPENDUNGEONS_OGRE_PLUGIN_DIR_REL ${OGRE_PLUGIN_DIR_REL})
-        set(OPENDUNGEONS_OGRE_PLUGIN_DIR_DBG ${OGRE_PLUGIN_DIR_DBG})
+        set(OD_OGRE_PLUGIN_DIR_REL ${OGRE_PLUGIN_DIR_REL})
+        set(OD_OGRE_PLUGIN_DIR_DBG ${OGRE_PLUGIN_DIR_DBG})
     endif()
 
-    message(STATUS "Plugin path rel: " ${OPENDUNGEONS_OGRE_PLUGIN_DIR_REL})
-    message(STATUS "Plugin path dbg: " ${OPENDUNGEONS_OGRE_PLUGIN_DIR_DBG})
+    message(STATUS "Plugin path rel: " ${OD_OGRE_PLUGIN_DIR_REL})
+    message(STATUS "Plugin path dbg: " ${OD_OGRE_PLUGIN_DIR_DBG})
 endif()
 
 #Do the configuration
 configure_file(${CMAKE_CONFIG_DIR}/plugins.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/plugins.cfg)
 configure_file(${CMAKE_CONFIG_DIR}/plugins_d.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/plugins_d.cfg)
-configure_file(${CMAKE_CONFIG_DIR}/resources.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/resources_install.cfg)
-configure_file(${CMAKE_CONFIG_DIR}/resources.zip.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/resources_install.zip.cfg)
+configure_file(${CMAKE_CONFIG_DIR}/resources.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/resources.cfg)
+configure_file(${CMAKE_CONFIG_DIR}/resources.zip.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/resources.zip.cfg)
+# Link icon with its full path when not installed in the /usr prefix since it might not be caught by the hicolor theme
+if(CMAKE_INSTALL_PREFIX STREQUAL "/usr")
+    set(OD_ICON_FULLPATH ${PROJECT_BINARY_NAME})
+else()
+    set(OD_ICON_FULLPATH ${OD_SHARE_PATH}/icons/hicolor/scalable/apps/opendungeons.svg)
+endif()
+configure_file(${CMAKE_CONFIG_DIR}/opendungeons.desktop.in ${CMAKE_CURRENT_BINARY_DIR}/opendungeons.desktop)
 
 ##################################
 #### Installation ################
 ##################################
 
-#(This is currently not used)
+if(UNIX)
+    set(OD_CONFIGFILES ${CMAKE_CURRENT_BINARY_DIR}/plugins.cfg
+                       ${CMAKE_CURRENT_BINARY_DIR}/resources.cfg
+                       ${CMAKE_CURRENT_BINARY_DIR}/resources.zip.cfg)
 
-set(OPENDUNGEONS_CONFIGFILES ${CMAKE_CURRENT_SOURCE_DIR}/plugins.cfg)
+    set(OD_RESOURCES   ${CMAKE_SOURCE_DIR}/gui
+                       ${CMAKE_SOURCE_DIR}/levels
+                       ${CMAKE_SOURCE_DIR}/materials
+                       ${CMAKE_SOURCE_DIR}/models
+                       ${CMAKE_SOURCE_DIR}/music
+                       ${CMAKE_SOURCE_DIR}/scripts
+                       ${CMAKE_SOURCE_DIR}/sounds)
 
-install(FILES ${OPENDUNGEONS_CONFIGFILES} DESTINATION ${OPENDUNGEONS_DATA_DEST})
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/resources_install.cfg DESTINATION ${OPENDUNGEONS_DATA_DEST} RENAME resources.cfg)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/resources_install.zip.cfg DESTINATION ${OPENDUNGEONS_DATA_DEST} RENAME resources.zip.cfg)
+    # Install required game files: binary, configuration files and resources
+    install(TARGETS ${PROJECT_BINARY_NAME}
+            DESTINATION ${OD_BIN_PATH}
+            PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+    install(FILES ${OD_CONFIGFILES}
+            DESTINATION ${OD_DATA_PATH})
+    install(DIRECTORY ${OD_RESOURCES}
+            DESTINATION ${OD_DATA_PATH})
 
-if(NOT WIN32)
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_BINARY_NAME} DESTINATION ${BINDIR} PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+    # Additional distribution content (desktop file, icons, etc.)
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/opendungeons.desktop
+            DESTINATION ${OD_SHARE_PATH}/applications)
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/dist/hicolor
+            DESTINATION ${OD_SHARE_PATH}/icons)
 endif()
 
 ##################################

@@ -1,14 +1,15 @@
 # Defines plugins to load
 
 # Define plugin folder
-PluginFolder=@OPENDUNGEONS_OGRE_PLUGIN_DIR_REL@
+PluginFolder=@OD_OGRE_PLUGIN_DIR_REL@
 
 # Define plugins
-@OPENDUNGEONS_COMMENT_D3D@ Plugin=RenderSystem_Direct3D9
+@OD_COMMENT_D3D@ Plugin=RenderSystem_Direct3D9
 Plugin=RenderSystem_GL
 #Plugin=Plugin_ParticleFX
 
 #This is a card specific library, installed on some systems but not on others
+#Cg is also obsolete and nonfree
 #Plugin=Plugin_CgProgramManager
 
 #Scene manager
