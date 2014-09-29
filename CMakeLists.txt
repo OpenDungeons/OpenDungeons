@@ -23,14 +23,15 @@ set(OD_VERSION "-DOD_VERSION=\\\"${OD_MAJOR_VERSION}.${OD_MINOR_VERSION}.${OD_PA
 
 # Set the data path depending on the platform
 if(WIN32)
-    set(OPENDUNGEONS_DATA_PATH ".")
-    set(OPENDUNGEONS_DATA_DEST ".")
+    set(OD_DATA_PATH ".")
 else()
-    #Set data location to where we install if we want to use the installer
-    set(OPENDUNGEONS_DATA_DEST share/games/${PROJECT_NAME})
-    set(OPENDUNGEONS_DATA_PATH ${CMAKE_INSTALL_PREFIX}/${OPENDUNGEONS_DATA_DEST} CACHE PATH "")
+    # Set binary and data install locations if we want to use the installer
+    set(OD_BIN_DEST games)
+    set(OD_BIN_PATH ${CMAKE_INSTALL_PREFIX}/${OD_BIN_DEST} CACHE PATH "Absolute path to the game binary directory")
+    set(OD_DATA_DEST share/games/${PROJECT_NAME})
+    set(OD_DATA_PATH ${CMAKE_INSTALL_PREFIX}/${OD_DATA_DEST} CACHE PATH "Absolute path to the game data directory")
 endif()
-set(OD_DATA_PATH "-DOD_DATA_PATH=\\\"${OPENDUNGEONS_DATA_PATH}\\\"")
+set(OD_DATA_PATH_FLAG "-DOD_DATA_PATH=\\\"${OD_DATA_PATH}\\\"")
 
 # Where we want the binary
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
@@ -101,7 +102,7 @@ else()
     endif()
 endif()
 
-set(CMAKE_CXX_FLAGS "${OD_CXX11_FLAGS} ${OD_OPT_FLAGS} ${CMAKE_CXX_FLAGS} ${OD_VERSION} ${OD_DATA_PATH}")
+set(CMAKE_CXX_FLAGS "${OD_CXX11_FLAGS} ${OD_OPT_FLAGS} ${CMAKE_CXX_FLAGS} ${OD_VERSION} ${OD_DATA_PATH_FLAG}")
 message(STATUS "CMake CXX Flags: " ${CMAKE_CXX_FLAGS})
 
 ##################################
@@ -370,24 +371,6 @@ endif()
 # Create the binary file (WIN32 makes sure there is no console window on windows.)
 add_executable(${PROJECT_BINARY_NAME} WIN32 ${OD_SOURCEFILES})
 
-# set path
-set(BINDIR games CACHE PATH "")
-
-##################################
-#### Install targets #############
-##################################
-
-# Add install target
-if(WIN32)
-    install(TARGETS ${PROJECT_BINARY_NAME}
-        DESTINATION .
-    )
-else ()
-    install(TARGETS ${PROJECT_BINARY_NAME}
-        DESTINATION ${BINDIR}
-    )
-endif()
-
 ##################################
 #### Link libraries ##############
 ##################################
@@ -474,17 +457,6 @@ endif()
 #### Configure settings files ####
 ##################################
 
-#Make a copy for use in the build directory, and later one copy for installing.
-configure_file(
-    ${CMAKE_CONFIG_DIR}/resources.cfg.in
-    ${CMAKE_CURRENT_BINARY_DIR}/resources.cfg
-)
-
-configure_file(
-    ${CMAKE_CONFIG_DIR}/resources.zip.cfg.in
-    ${CMAKE_CURRENT_BINARY_DIR}/resources.zip.cfg
-)
-
 if(WIN32)
     #On windows, use current directory for plugins and data for now
     set(OPENDUNGEONS_OGRE_PLUGIN_DIR_REL "plugins")
@@ -522,23 +494,33 @@ endif()
 #Do the configuration
 configure_file(${CMAKE_CONFIG_DIR}/plugins.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/plugins.cfg)
 configure_file(${CMAKE_CONFIG_DIR}/plugins_d.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/plugins_d.cfg)
-configure_file(${CMAKE_CONFIG_DIR}/resources.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/resources_install.cfg)
-configure_file(${CMAKE_CONFIG_DIR}/resources.zip.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/resources_install.zip.cfg)
+configure_file(${CMAKE_CONFIG_DIR}/resources.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/resources.cfg)
+configure_file(${CMAKE_CONFIG_DIR}/resources.zip.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/resources.zip.cfg)
 
 ##################################
 #### Installation ################
 ##################################
 
-#(This is currently not used)
+if(UNIX)
+    set(OD_CONFIGFILES ${CMAKE_CURRENT_BINARY_DIR}/plugins.cfg
+                       ${CMAKE_CURRENT_BINARY_DIR}/resources.cfg
+                       ${CMAKE_CURRENT_BINARY_DIR}/resources.zip.cfg)
 
-set(OPENDUNGEONS_CONFIGFILES ${CMAKE_CURRENT_SOURCE_DIR}/plugins.cfg)
+    set(OD_RESOURCES   ${CMAKE_SOURCE_DIR}/gui
+                       ${CMAKE_SOURCE_DIR}/levels
+                       ${CMAKE_SOURCE_DIR}/materials
+                       ${CMAKE_SOURCE_DIR}/models
+                       ${CMAKE_SOURCE_DIR}/music
+                       ${CMAKE_SOURCE_DIR}/scripts
+                       ${CMAKE_SOURCE_DIR}/sounds)
 
-install(FILES ${OPENDUNGEONS_CONFIGFILES} DESTINATION ${OPENDUNGEONS_DATA_DEST})
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/resources_install.cfg DESTINATION ${OPENDUNGEONS_DATA_DEST} RENAME resources.cfg)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/resources_install.zip.cfg DESTINATION ${OPENDUNGEONS_DATA_DEST} RENAME resources.zip.cfg)
-
-if(NOT WIN32)
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_BINARY_NAME} DESTINATION ${BINDIR} PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+    install(TARGETS ${PROJECT_BINARY_NAME}
+            DESTINATION ${OD_BIN_PATH}
+            PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+    install(FILES ${OD_CONFIGFILES}
+            DESTINATION ${OD_DATA_PATH})
+    install(DIRECTORY ${OD_RESOURCES}
+            DESTINATION ${OD_DATA_PATH})
 endif()
 
 ##################################
