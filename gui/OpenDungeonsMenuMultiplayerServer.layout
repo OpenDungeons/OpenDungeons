@@ -16,19 +16,20 @@
             <Property name="BackgroundEnabled" value="False" />
         </Window>
         <Window type="OD/FrameWindow" name="LevelWindowFrame" >
-            <Property name="Area" value="{{0.7,-615},{0,207},{0.7,199},{0,657}}" />
+            <Property name="Area" value="{{0.5,-395},{0,207},{0.5,395},{0,647}}" />
             <Property name="Text" value="Please choose a Level..." />
+            <Property name="MaxSize" value="{{0,790},{0,440}}" />
+            <Property name="MinSize" value="{{0,790},{0,440}}" />
             <Window type="OD/Listbox" name="LevelSelect" >
-                <Property name="Area" value="{{0.5,-393},{0,43},{0.5,-84},{0,313}}" />
+                <Property name="Area" value="{{0,15},{0,35},{0.5,-40},{0.7,0}}" />
                 <Property name="ForceVertScrollbar" value="True" />
             </Window>
             <Window type="OD/StaticText" name="MapDescriptionText" >
-                <Property name="Area" value="{{0.6,-151},{0,43},{0.6,303},{0,313}}" />
-                <Property name="Text" value="" />
+                <Property name="Area" value="{{0.5,-20},{0,35},{1,-15},{0.7,0}}" />
                 <Property name="MaxSize" value="{{1,0},{1,0}}" />
                 <Property name="FrameEnabled" value="False" />
-                <Property name="VertFormatting" value="TopAligned" />
                 <Property name="HorzFormatting" value="WordWrapLeftAligned" />
+                <Property name="VertFormatting" value="TopAligned" />
                 <Property name="BackgroundEnabled" value="False" />
             </Window>
             <Window type="OD/MainMenuButton" name="ServerButton" >
