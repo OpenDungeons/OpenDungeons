@@ -110,6 +110,7 @@ void Seat::incrementNumClaimedTiles()
 unsigned int Seat::checkAllGoals()
 {
     // Loop over the goals vector and move any goals that have been met to the completed goals vector.
+    std::vector<Goal*> goalsToAdd;
     std::vector<Goal*>::iterator currentGoal = mUncompleteGoals.begin();
     while (currentGoal != mUncompleteGoals.end())
     {
@@ -121,7 +122,7 @@ unsigned int Seat::checkAllGoals()
 
             // Add any subgoals upon completion to the list of outstanding goals.
             for (unsigned int i = 0; i < goal->numSuccessSubGoals(); ++i)
-                mUncompleteGoals.push_back(goal->getSuccessSubGoal(i));
+                goalsToAdd.push_back(goal->getSuccessSubGoal(i));
 
             currentGoal = mUncompleteGoals.erase(currentGoal);
 
@@ -135,7 +136,7 @@ unsigned int Seat::checkAllGoals()
 
                 // Add any subgoals upon completion to the list of outstanding goals.
                 for (unsigned int i = 0; i < goal->numFailureSubGoals(); ++i)
-                    mUncompleteGoals.push_back(goal->getFailureSubGoal(i));
+                    goalsToAdd.push_back(goal->getFailureSubGoal(i));
 
                 currentGoal = mUncompleteGoals.erase(currentGoal);
             }
@@ -145,6 +146,12 @@ unsigned int Seat::checkAllGoals()
                 ++currentGoal;
             }
         }
+    }
+
+    for(std::vector<Goal*>::iterator it = goalsToAdd.begin(); it != goalsToAdd.end(); ++it)
+    {
+        Goal* goal = *it;
+        mUncompleteGoals.push_back(goal);
     }
 
     return numUncompleteGoals();
