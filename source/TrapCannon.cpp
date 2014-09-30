@@ -21,49 +21,35 @@
 #include "GameMap.h"
 #include "MissileObject.h"
 #include "Random.h"
+#include "LogManager.h"
 
 TrapCannon::TrapCannon(GameMap* gameMap) :
     ProximityTrap(gameMap),
     mCannonHeight(1.5)
 {
     mReloadTime = 5;
-    mReloadTimeCounter = mReloadTime;
     mRange = 10;
     mMinDamage = 5;
     mMaxDamage = 10;
 }
 
-std::vector<GameEntity*> TrapCannon::aimEnemy()
+bool TrapCannon::shoot(Tile* tile)
 {
-    std::vector<Tile*> visibleTiles = getGameMap()->visibleTiles(mCoveredTiles[0], mRange);
+    std::vector<Tile*> visibleTiles = getGameMap()->visibleTiles(tile, mRange);
     std::vector<GameEntity*> enemyObjects = getGameMap()->getVisibleForce(visibleTiles, getSeat(), true);
 
     if(enemyObjects.empty())
-    {
-        return std::vector<GameEntity*>();
-    }
+        return false;
 
     // Select an enemy to shoot at.
     GameEntity* targetEnemy = enemyObjects[Random::Uint(0, enemyObjects.size()-1)];
 
-    std::vector<GameEntity*> enemies = std::vector<GameEntity*>();
-    enemies.push_back(targetEnemy);
-    return enemies;
-}
-
-void TrapCannon::damage(std::vector<GameEntity*> enemyAttacked)
-{
-    ProximityTrap::damage(enemyAttacked);
-
-    if(enemyAttacked.empty())
-        return;
-
-    std::cout << "\nAdding cannonball from " << mCoveredTiles[0]->x << "," << mCoveredTiles[0]->y
-        << " to " << enemyAttacked[0]->getCoveredTiles()[0]->x << "," << enemyAttacked[0]->getCoveredTiles()[0]->y << std::endl;
-
+    // TODO : instead of dealing damages here, add to MissileObject the needed infos to make it damage the
+    // target when hit (to allow pickup before getting hurt or dodging)
+    targetEnemy->takeDamage(this, Random::Double(mMinDamage, mMaxDamage), targetEnemy->getCoveredTiles()[0]);
     // Create the cannonball to move toward the enemy creature.
     MissileObject *tempMissileObject = new MissileObject(getGameMap(),
-        "Cannonball", Ogre::Vector3((Ogre::Real)mCoveredTiles[0]->x, (Ogre::Real)mCoveredTiles[0]->y,
+        "Cannonball", Ogre::Vector3((Ogre::Real)tile->x, (Ogre::Real)tile->y,
                                     (Ogre::Real)mCannonHeight));
 
     //TODO: Make this a pseudo newtonian mechanics solver which computes a parabola passing through the cannon
@@ -71,7 +57,21 @@ void TrapCannon::damage(std::vector<GameEntity*> enemyAttacked)
     getGameMap()->addMissileObject(tempMissileObject);
     tempMissileObject->setMoveSpeed(8.0);
     tempMissileObject->createMesh();
-    tempMissileObject->addDestination((Ogre::Real)enemyAttacked[0]->getCoveredTiles()[0]->x,
-                                    (Ogre::Real)enemyAttacked[0]->getCoveredTiles()[0]->y,
+    tempMissileObject->addDestination((Ogre::Real)targetEnemy->getCoveredTiles()[0]->x,
+                                    (Ogre::Real)targetEnemy->getCoveredTiles()[0]->y,
                                     (Ogre::Real)mCannonHeight);
+    return true;
+}
+
+bool TrapCannon::isAttackable() const
+{
+    if(getHP(NULL) <= 0.0)
+        return false;
+
+    return true;
+}
+
+RoomObject* TrapCannon::notifyActiveSpotCreated(Tile* tile)
+{
+    return loadRoomObject(getGameMap(), "Cannon", tile, 90.0);
 }

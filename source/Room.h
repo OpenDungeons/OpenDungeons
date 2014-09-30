@@ -54,6 +54,8 @@ public:
     virtual ~Room()
     {}
 
+    virtual bool isAttackable() const;
+
     virtual std::string getOgreNamePrefix() { return "Room_"; }
 
     /*! \brief Creates a type specific subclass of room (dormitory, treasury, etc) and returns a pointer to it.
@@ -118,7 +120,7 @@ public:
     //! \brief Carry out per turn upkeep on the room.
     //! Do any generic upkeep here (i.e. any upkeep that all room types should do).
     //! All derived classes of room should call this function first during their doUpkeep() routine.
-    virtual bool doUpkeep();
+    virtual void doUpkeep();
 
     virtual void addCoveredTile(Tile* t, double nHP = defaultRoomTileHP, bool isRoomAbsorb = false);
     virtual void removeCoveredTile(Tile* t, bool isRoomAbsorb = false);
@@ -156,8 +158,7 @@ public:
 
     Tile* getCentralTile();
 
-    // Methods inherited from AttackableObject.
-    double getHP(Tile *tile);
+    double getHP(Tile *tile) const;
 
     virtual double getDefense() const
     {

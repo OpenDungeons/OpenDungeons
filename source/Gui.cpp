@@ -177,9 +177,13 @@ void Gui::assignEventHandlers()
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&hatcheryButtonPressed));
 
-    sheets[inGameMenu]->getChild(BUTTON_CANNON)->subscribeEvent(
+    sheets[inGameMenu]->getChild(BUTTON_TRAP_CANNON)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&cannonButtonPressed));
+
+    sheets[inGameMenu]->getChild(BUTTON_TRAP_SPIKE)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&spikeTrapButtonPressed));
 
     sheets[inGameMenu]->getChild(MINIMAP)->subscribeEvent(
             CEGUI:: Window::EventMouseClick,
@@ -242,9 +246,13 @@ void Gui::assignEventHandlers()
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&hatcheryButtonPressed));
 
-    sheets[editorModeGui]->getChild(BUTTON_CANNON)->subscribeEvent(
+    sheets[editorModeGui]->getChild(BUTTON_TRAP_CANNON)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&cannonButtonPressed));
+
+    sheets[editorModeGui]->getChild(BUTTON_TRAP_SPIKE)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&spikeTrapButtonPressed));
 
     sheets[editorModeGui]->getChild(MINIMAP)->subscribeEvent(
             CEGUI:: Window::EventMouseClick,
@@ -422,6 +430,15 @@ bool Gui::cannonButtonPressed(const CEGUI::EventArgs& e)
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::nullRoomType);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::cannon);
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    return true;
+}
+
+bool Gui::spikeTrapButtonPressed(const CEGUI::EventArgs& e)
+{
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
+    gameMap->getLocalPlayer()->setNewRoomType(Room::nullRoomType);
+    gameMap->getLocalPlayer()->setNewTrapType(Trap::spike);
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
 }
@@ -714,7 +731,8 @@ const std::string Gui::BUTTON_LIBRARY = "MainTabControl/Rooms/LibraryButton";
 const std::string Gui::BUTTON_HATCHERY = "MainTabControl/Rooms/HatcheryButton";
 const std::string Gui::BUTTON_TREASURY = "MainTabControl/Rooms/TreasuryButton";
 const std::string Gui::TAB_TRAPS = "MainTabControl/Traps";
-const std::string Gui::BUTTON_CANNON = "MainTabControl/Traps/CannonButton";
+const std::string Gui::BUTTON_TRAP_CANNON = "MainTabControl/Traps/CannonButton";
+const std::string Gui::BUTTON_TRAP_SPIKE = "MainTabControl/Traps/SpikeTrapButton";
 const std::string Gui::TAB_SPELLS = "MainTabControl/Spells";
 const std::string Gui::TAB_CREATURES = "MainTabControl/Creatures";
 const std::string Gui::TAB_COMBAT = "MainTabControl/Combat";

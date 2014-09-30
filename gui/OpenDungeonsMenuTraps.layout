@@ -13,5 +13,11 @@
            <Property name="TooltipText" value="Buid a cannon" />
            <Property name="InheritsAlpha" value="False" />
        </Window>
+       <Window type="OD/ImageButton" name="SpikeTrapButton" >
+           <Property name="Area" value="{{0,80},{0,20},{0,140},{0,80}}" />
+           <Property name="NormalImage" value="OpenDungeonsIcons/SpikeTrapButton" />
+           <Property name="TooltipText" value="Buid a spike trap" />
+           <Property name="InheritsAlpha" value="False" />
+       </Window>
    </Window>
 </GUILayout>

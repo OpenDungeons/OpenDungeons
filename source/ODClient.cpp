@@ -380,12 +380,11 @@ bool ODClient::processOneClientSocketMessage()
             OD_ASSERT_TRUE(packetReceived >> &tmpTile);
             Player *tempPlayer = gameMap->getLocalPlayer();
             Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE_MSG(tile != NULL, "tmpTile=" + Ogre::StringConverter::toString(tmpTile.getX())
-                + "," + Ogre::StringConverter::toString(tmpTile.getY()));
+            OD_ASSERT_TRUE_MSG(tile != NULL, "tile=" + Tile::displayAsString(&tmpTile));
             if (tile != NULL)
             {
-                tempPlayer->dropCreature(tile);
-                Creature* droppedCreature = tile->getCreature(0);
+                Creature* droppedCreature = tempPlayer->dropCreature(tile);
+                OD_ASSERT_TRUE(droppedCreature != NULL);
                 if (droppedCreature != NULL)
                     droppedCreature->playSound(CreatureSound::DROP);
             }
@@ -473,8 +472,7 @@ bool ODClient::processOneClientSocketMessage()
             OD_ASSERT_TRUE(packetReceived >> &tmpTile);
 
             Tile *tempTile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE_MSG(tempTile != NULL, "tile=" + Ogre::StringConverter::toString(tmpTile.getX())
-                + "," + Ogre::StringConverter::toString(tmpTile.getY()));
+            OD_ASSERT_TRUE_MSG(tempTile != NULL, "tile=" + Tile::displayAsString(&tmpTile));
             if (tempTile != NULL)
             {
                 tempTile->setFullness(tmpTile.getFullness());
@@ -525,8 +523,7 @@ bool ODClient::processOneClientSocketMessage()
                 Tile tmpTile(gameMap);
                 OD_ASSERT_TRUE(packetReceived >> &tmpTile);
                 Tile* gameTile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-                OD_ASSERT_TRUE_MSG(gameTile != NULL, "tile=" + Ogre::StringConverter::toString(tmpTile.getX())
-                    + "," + Ogre::StringConverter::toString(tmpTile.getY()));
+                OD_ASSERT_TRUE_MSG(gameTile != NULL, "tile=" + Tile::displayAsString(&tmpTile));
                 if(gameTile != NULL)
                     tiles.push_back(gameTile);
             }
@@ -571,12 +568,41 @@ bool ODClient::processOneClientSocketMessage()
             Room* room = gameMap->getRoomByName(roomName);
             OD_ASSERT_TRUE_MSG(room != NULL, "roomName=" + roomName);
             Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE_MSG(tile != NULL, "tile=" + Ogre::StringConverter::toString(tmpTile.getX())
-                + "," + Ogre::StringConverter::toString(tmpTile.getY()));
+            OD_ASSERT_TRUE_MSG(tile != NULL, "tile=" + Tile::displayAsString(&tmpTile));
             if((room != NULL) && (tile != NULL))
             {
                 room->removeCoveredTile(tile);
+                // If no more tiles, the room is removed
+                if (room->numCoveredTiles() <= 0)
+                {
+                    gameMap->removeRoom(room);
+                    room->deleteYourself();
+                    break;
+                }
                 room->updateActiveSpots();
+            }
+
+            break;
+        }
+
+        case ServerNotification::removeTrapTile:
+        {
+            std::string trapName;
+            Tile tmpTile(gameMap);
+            OD_ASSERT_TRUE(packetReceived >> trapName>> &tmpTile);
+            Trap* trap = gameMap->getTrapByName(trapName);
+            OD_ASSERT_TRUE_MSG(trap != NULL, "trapName=" + trapName);
+            Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
+            OD_ASSERT_TRUE_MSG(tile != NULL, "tile=" + Tile::displayAsString(&tmpTile));
+            if((trap != NULL) && (tile != NULL))
+            {
+                trap->removeCoveredTile(tile);
+                // If no more tiles, the room is removed
+                if (trap->numCoveredTiles() <= 0)
+                {
+                    gameMap->removeTrap(trap);
+                    trap->deleteYourself();
+                }
             }
 
             break;
@@ -663,51 +689,26 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotification::addRoomObject:
         {
-            std::string roomName;
-            OD_ASSERT_TRUE(packetReceived >> roomName);
-            Room* room = gameMap->getRoomByName(roomName);
-            OD_ASSERT_TRUE_MSG(room != NULL, "name=" + roomName);
-            Tile tmpTile(gameMap);
-            OD_ASSERT_TRUE(packetReceived >> &tmpTile);
-            Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE_MSG(tile != NULL, "tile=" + Ogre::StringConverter::toString(tmpTile.getX())
-                + "," + Ogre::StringConverter::toString(tmpTile.getY()));
-            RoomObject* tempRoomObject = new RoomObject(gameMap, room);
+            RoomObject* tempRoomObject = new RoomObject(gameMap);
             OD_ASSERT_TRUE(packetReceived >> tempRoomObject);
-            room->addRoomObject(tile, tempRoomObject);
+            gameMap->addRoomObject(tempRoomObject);
             tempRoomObject->createMesh();
             break;
         }
 
         case ServerNotification::removeRoomObject:
         {
-            std::string roomName;
-            Tile tmpTile(gameMap);
-            OD_ASSERT_TRUE(packetReceived >> roomName >> &tmpTile);
-            Room* room = gameMap->getRoomByName(roomName);
-            OD_ASSERT_TRUE_MSG(room != NULL, "name=" + roomName);
-            Tile *tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE_MSG(tile != NULL, "tile=" + Ogre::StringConverter::toString(tmpTile.getX())
-                + "," + Ogre::StringConverter::toString(tmpTile.getY()));
-            RoomObject* tempRoomObject = room->getRoomObjectFromTile(tile);
-            OD_ASSERT_TRUE_MSG(tempRoomObject != NULL, "roomName=" + roomName + ",tile="
-                + Ogre::StringConverter::toString(tmpTile.getX())
-                + "," + Ogre::StringConverter::toString(tmpTile.getY()));
-            room->removeRoomObject(tempRoomObject);
+            std::string name;
+            OD_ASSERT_TRUE(packetReceived >> name);
+            RoomObject* tempRoomObject = gameMap->getRoomObject(name);
+            OD_ASSERT_TRUE_MSG(tempRoomObject != NULL, "name=" + name);
+            gameMap->removeRoomObject(tempRoomObject);
+            tempRoomObject->deleteYourself();
             break;
         }
 
-        case ServerNotification::removeAllRoomObjectFromRoom:
-        {
-            std::string roomName;
-            Tile tmpTile(gameMap);
-            OD_ASSERT_TRUE(packetReceived >> roomName);
-            Room* room = gameMap->getRoomByName(roomName);
-            OD_ASSERT_TRUE_MSG(room != NULL, "roomName=" + roomName);
-            room->removeAllRoomObject();
-            break;
-        }
-
+        // TODO : for this kind of sound, it would be better to have a ServerNotification::playSpacialSound
+        // with parameter SoundEffectsManager::DEPOSITGOLD, xPos, yPos because we will probably need many of them
         case ServerNotification::depositGoldSound:
         {
             int xPos;

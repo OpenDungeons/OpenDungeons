@@ -130,8 +130,6 @@ private:
 
 GameMap::GameMap(bool isServerGameMap) :
         culm(NULL),
-        miscUpkeepTime(0),
-        creatureTurnsTime(0),
         mIsServerGameMap(isServerGameMap),
         mLocalPlayer(NULL),
         mTurnNumber(-1),
@@ -217,7 +215,11 @@ void GameMap::clearAll()
 
     clearMapLights();
     clearRooms();
+    // NOTE : clearRoomObjects should be called after clearRooms because clearRooms will try to remove the objects from the room
+    clearRoomObjects();
     clearTiles();
+    
+    clearActiveObjects();
 
     clearGoalsForAllSeats();
     clearEmptySeats();
@@ -250,6 +252,26 @@ void GameMap::clearAiManager()
 void GameMap::clearClasses()
 {
     classDescriptions.clear();
+}
+
+void GameMap::clearRoomObjects()
+{
+    for (std::vector<RoomObject*>::iterator it = mRoomObjects.begin(); it != mRoomObjects.end(); ++it)
+    {
+        RoomObject* obj = *it;
+        removeActiveObject(obj);
+        removeAnimatedObject(obj);
+        obj->deleteYourself();
+    }
+
+    mRoomObjects.clear();
+}
+
+void GameMap::clearActiveObjects()
+{
+    mActiveObjects.clear();
+    mActiveObjectsToAdd.clear();
+    mActiveObjectsToRemove.clear();
 }
 
 void GameMap::clearPlayers()
@@ -295,6 +317,7 @@ void GameMap::addCreature(Creature *cc)
         culm->mMyCullingQuad.insert(cc);
 
     addAnimatedObject(cc);
+    addActiveObject(cc);
     cc->setIsOnMap(true);
 }
 
@@ -314,6 +337,7 @@ void GameMap::removeCreature(Creature *c)
     }
 
     removeAnimatedObject(c);
+    removeActiveObject(c);
     c->setIsOnMap(false);
 }
 
@@ -350,7 +374,8 @@ std::vector<Creature*> GameMap::getCreaturesBySeat(Seat* seat)
     // Loop over all the creatures in the GameMap and add them to the temp vector if their seat matches the one in parameter.
     for (unsigned int i = 0; i < creatures.size(); ++i)
     {
-        if (creatures[i]->getSeat() == seat)
+        Creature* creature = creatures[i];
+        if (creature->getSeat() == seat && creature->getHP() > 0.0)
             tempVector.push_back(creatures[i]);
     }
 
@@ -402,6 +427,69 @@ MovableGameEntity* GameMap::getAnimatedObject(const std::string& name)
     return NULL;
 }
 
+void GameMap::addRoomObject(RoomObject *obj)
+{
+    if(isServerGameMap())
+    {
+        try
+        {
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotification::addRoomObject, NULL);
+            serverNotification->mPacket << obj;
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+        catch (std::bad_alloc&)
+        {
+            OD_ASSERT_TRUE(false);
+            exit(1);
+        }
+    }
+    mRoomObjects.push_back(obj);
+    addActiveObject(obj);
+    addAnimatedObject(obj);
+}
+
+void GameMap::removeRoomObject(RoomObject *obj)
+{
+    std::vector<RoomObject*>::iterator it = std::find(mRoomObjects.begin(), mRoomObjects.end(), obj);
+    OD_ASSERT_TRUE_MSG(it != mRoomObjects.end(), "obj name=" + obj->getName());
+    if(it == mRoomObjects.end())
+        return;
+
+    mRoomObjects.erase(it);
+
+    if(isServerGameMap())
+    {
+        try
+        {
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotification::removeRoomObject, NULL);
+            const std::string& name = obj->getName();
+            serverNotification->mPacket << name;
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+        catch (std::bad_alloc&)
+        {
+            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in Room::removeRoomObject", Ogre::LML_CRITICAL);
+            exit(1);
+        }
+    }
+    removeAnimatedObject(obj);
+    removeActiveObject(obj);
+}
+
+RoomObject* GameMap::getRoomObject(const std::string& name)
+{
+    for(std::vector<RoomObject*>::iterator it = mRoomObjects.begin(); it != mRoomObjects.end(); ++it)
+    {
+        RoomObject* obj = *it;
+        if(name.compare(obj->getName()) == 0)
+            return obj;
+    }
+    return NULL;
+}
+
+
 unsigned int GameMap::numAnimatedObjects()
 {
     return animatedObjects.size();
@@ -409,23 +497,39 @@ unsigned int GameMap::numAnimatedObjects()
 
 void GameMap::addActiveObject(GameEntity *a)
 {
-    if (a->isActive())
-        activeObjects.push_back(a);
+    // Active objects are only used on server side
+    if(!isServerGameMap())
+        return;
+
+    mActiveObjectsToAdd.push_back(a);
 }
 
 void GameMap::removeActiveObject(GameEntity *a)
 {
-    if (a->isActive())
+    // Active objects are only used on server side
+    if(!isServerGameMap())
+        return;
+
+    // Loop over the activeObjects looking for activeObject a
+    for (std::vector<GameEntity*>::iterator it = mActiveObjects.begin(); it != mActiveObjects.end(); ++it)
     {
-        // Loop over the activeObjects looking for activeObject a
-        for (unsigned int i = 0; i < activeObjects.size(); ++i)
+        GameEntity* ge = *it;
+        if (a == ge)
         {
-            if (a == activeObjects[i])
-            {
-                // ActiveObject found
-                activeObjects.erase(activeObjects.begin() + i);
-                break;
-            }
+            // ActiveObject found
+            mActiveObjectsToRemove.push_back(a);
+            return;
+        }
+    }
+
+    for (std::deque<GameEntity*>::iterator it = mActiveObjectsToAdd.begin(); it != mActiveObjectsToAdd.end(); ++it)
+    {
+        GameEntity* ge = *it;
+        if (a == ge)
+        {
+            // ActiveObject found
+            mActiveObjectsToRemove.push_back(a);
+            return;
         }
     }
 }
@@ -489,7 +593,9 @@ void GameMap::createAllEntities()
     // Create OGRE entities for the rooms
     for (unsigned int i = 0, num = numTraps(); i < num; ++i)
     {
-        getTrap(i)->createMesh();
+        Trap* trap = getTrap(i);
+        trap->createMesh();
+        trap->updateActiveSpots();
     }
     LogManager::getSingleton().logMessage("entities created");
 }
@@ -576,9 +682,7 @@ void GameMap::doTurn()
     std::cout << "\nComputing turn " << mTurnNumber;
     unsigned int numCallsTo_path_atStart = numCallsTo_path;
 
-    // Creatures turn should occur before miscUpkeep
-    creatureTurnsTime = doCreatureTurns();
-    miscUpkeepTime = doMiscUpkeep();
+    uint32_t miscUpkeepTime = doMiscUpkeep();
 
     // Count how many creatures the player controls
     unsigned int cptCreature = 0;
@@ -597,7 +701,8 @@ void GameMap::doTurn()
     }
 
     std::cout << "\nDuring this turn there were " << numCallsTo_path
-              - numCallsTo_path_atStart << " calls to GameMap::path().";
+              - numCallsTo_path_atStart << " calls to GameMap::path()."
+              << "miscUpkeepTime=" << miscUpkeepTime << std::endl;
 }
 
 void GameMap::doPlayerAITurn(double frameTime)
@@ -679,23 +784,32 @@ unsigned long int GameMap::doMiscUpkeep()
 
     // Carry out the upkeep round of all the active objects in the game.
     unsigned int activeObjectCount = 0;
-    while (activeObjectCount < activeObjects.size())
+    unsigned int nbActiveObjectCount = mActiveObjects.size();
+    while (activeObjectCount < nbActiveObjectCount)
     {
-        GameEntity* ge = activeObjects[activeObjectCount];
-        if (!ge->doUpkeep())
-        {
-            activeObjects.erase(activeObjects.begin() + activeObjectCount);
-        }
-        else
-        {
-            ++activeObjectCount;
-        }
+        GameEntity* ge = mActiveObjects[activeObjectCount];
+        ge->doUpkeep();
+
+        ++activeObjectCount;
     }
 
-    while (!newActiveObjects.empty()) // we create new active objects queued by active objects, such as cannon balls
+    // We add the queued active objects
+    while (!mActiveObjectsToAdd.empty())
     {
-        activeObjects.push_back(newActiveObjects.front());
-        newActiveObjects.pop();
+        GameEntity* ge = mActiveObjectsToAdd.front();
+        mActiveObjectsToAdd.pop_front();
+        mActiveObjects.push_back(ge);
+    }
+
+    // We remove the queued active objects
+    while (!mActiveObjectsToRemove.empty())
+    {
+        GameEntity* ge = mActiveObjectsToRemove.front();
+        mActiveObjectsToRemove.pop_front();
+        std::vector<GameEntity*>::iterator it = std::find(mActiveObjects.begin(), mActiveObjects.end(), ge);
+        OD_ASSERT_TRUE_MSG(it != mActiveObjects.end(), "name=" + ge->getName());
+        if(it != mActiveObjects.end())
+            mActiveObjects.erase(it);
     }
 
     // Carry out the upkeep round for each seat.  This means recomputing how much gold is
@@ -747,19 +861,6 @@ unsigned long int GameMap::doMiscUpkeep()
 
     timeTaken = stopwatch.getMicroseconds();
     return timeTaken;
-}
-
-unsigned long int GameMap::doCreatureTurns()
-{
-    Ogre::Timer stopwatch;
-
-    unsigned int numCreatures = creatures.size();
-    for (unsigned int i = 0; i < numCreatures; ++i)
-    {
-        creatures[i]->doTurn();
-    }
-
-    return stopwatch.getMicroseconds();
 }
 
 void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
@@ -1378,48 +1479,16 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
 
 std::vector<GameEntity*> GameMap::getVisibleForce(std::vector<Tile*> visibleTiles, Seat* seat, bool invert)
 {
-    //TODO:  This function also needs to list Rooms, Traps, Doors, etc (maybe add GameMap::getAttackableObjectsInCell to do this).
     std::vector<GameEntity*> returnList;
 
     // Loop over the visible tiles
-    for (std::vector<Tile*>::iterator itr = visibleTiles.begin(), end = visibleTiles.end();
-            itr != end; ++itr)
+    for (std::vector<Tile*>::iterator itr = visibleTiles.begin(); itr != visibleTiles.end(); ++itr)
     {
-        //TODO: Implement Tile::getAttackableObject() to let you list all attackableObjects in the tile in a single list.
-        // Loop over the creatures in the given tile
-        for (unsigned int i = 0; i < (*itr)->numCreaturesInCell(); ++i)
-        {
-            Creature *tempCreature = (*itr)->getCreature(i);
-            // If it is an enemy
-            if(tempCreature == NULL)
-                continue;
-
-            if(tempCreature->getHP(NULL) <= 0)
-                continue;
-
-            // The invert flag is used to determine whether we want to return a list of the creatures
-            // allied with supplied seat or the contrary.
-            if ((invert && !tempCreature->getSeat()->isAlliedSeat(seat)) || (!invert
-                    && tempCreature->getSeat()->isAlliedSeat(seat)))
-            {
-                // Add the current creature
-                returnList.push_back(tempCreature);
-            }
-        }
-
-        // Check to see if the tile is covered by a Room, if it is then check to see if it should be added to the returnList.
-        Room *tempRoom = (*itr)->getCoveringRoom();
-        if ((tempRoom != NULL) && (tempRoom->getHP(NULL) > 0.0))
-        {
-            // Check to see if the seat is appropriate based on the condition of the invert flag.
-            if ((invert && !tempRoom->getSeat()->isAlliedSeat(seat)) || (!invert
-                    && tempRoom->getSeat()->isAlliedSeat(seat)))
-            {
-                // If the room is not in the return list already then add it.
-                if (std::find(returnList.begin(), returnList.end(), tempRoom) == returnList.end())
-                    returnList.push_back(tempRoom);
-            }
-        }
+        Tile* tile = *itr;
+        OD_ASSERT_TRUE(tile != NULL);
+        if(tile == NULL)
+            continue;
+        tile->fillAttackableObjects(returnList, seat, invert);
     }
 
     return returnList;
@@ -1446,10 +1515,8 @@ void GameMap::addRoom(Room *r)
 
 void GameMap::removeRoom(Room *r)
 {
-    // For now, rooms are removed when absorbed by another room or when they have no more tile
+    // Rooms are removed when absorbed by another room or when they have no more tile
     // In both cases, the client have enough information to do that alone so no need to notify him
-    removeActiveObject(r);
-
     for (unsigned int i = 0; i < rooms.size(); ++i)
     {
         if (r == rooms[i])
@@ -1460,6 +1527,7 @@ void GameMap::removeRoom(Room *r)
             break;
         }
     }
+    removeActiveObject(r);
 }
 
 Room* GameMap::getRoom(int index)
@@ -1477,7 +1545,8 @@ std::vector<Room*> GameMap::getRoomsByType(Room::RoomType type)
     std::vector<Room*> returnList;
     for (unsigned int i = 0; i < rooms.size(); ++i)
     {
-        if (rooms[i]->getType() == type)
+        Room* room = rooms[i];
+        if (room->getType() == type  && room->getHP(NULL) > 0.0)
             returnList.push_back(rooms[i]);
     }
 
@@ -1490,7 +1559,7 @@ std::vector<Room*> GameMap::getRoomsByTypeAndSeat(Room::RoomType type, Seat* sea
     for (unsigned int i = 0; i < rooms.size(); ++i)
     {
         Room* room = rooms[i];
-        if (room->getType() == type && room->getSeat() == seat)
+        if (room->getType() == type && room->getSeat() == seat && room->getHP(NULL) > 0.0)
             returnList.push_back(room);
     }
 
@@ -1503,7 +1572,7 @@ std::vector<const Room*> GameMap::getRoomsByTypeAndSeat(Room::RoomType type, Sea
     for (unsigned int i = 0; i < rooms.size(); ++i)
     {
         const Room* room = rooms[i];
-        if (room->getType() == type && room->getSeat() == seat)
+        if (room->getType() == type && room->getSeat() == seat && room->getHP(NULL) > 0.0)
             returnList.push_back(room);
     }
 
@@ -1516,7 +1585,8 @@ unsigned int GameMap::numRoomsByTypeAndSeat(Room::RoomType type, Seat* seat) con
     std::vector<Room*>::const_iterator it;
     for (it = rooms.begin(); it != rooms.end(); ++it)
     {
-        if ((*it)->getType() == type && (*it)->getSeat() == seat)
+        Room* room = *it;
+        if (room->getType() == type && room->getSeat() == seat && room->getHP(NULL) > 0.0)
             ++count;
     }
     return count;
@@ -1553,6 +1623,18 @@ Room* GameMap::getRoomByName(const std::string& name)
     return NULL;
 }
 
+Trap* GameMap::getTrapByName(const std::string& name)
+{
+    for (std::vector<Trap*>::const_iterator it = traps.begin(); it != traps.end(); ++it)
+    {
+        Trap* trap = *it;
+        if(trap->getName().compare(name) == 0)
+            return trap;
+    }
+
+    return NULL;
+}
+
 void GameMap::clearTraps()
 {
     for (unsigned int i = 0; i < traps.size(); ++i)
@@ -1573,18 +1655,16 @@ void GameMap::addTrap(Trap *t)
 
 void GameMap::removeTrap(Trap *t)
 {
-    removeActiveObject(t);
-
     for (std::vector<Trap*>::iterator it = traps.begin(); it != traps.end(); ++it)
     {
         Trap* trap = *it;
         if (trap == t)
         {
-            t->deleteYourself();
             traps.erase(it);
             break;
         }
     }
+    removeActiveObject(t);
 }
 
 Trap* GameMap::getTrap(int index)
@@ -1823,7 +1903,7 @@ void GameMap::addWinningSeat(Seat *s)
     Player* player = getPlayerBySeat(s);
     if (player && player->getHasAI() == false)
     {
-        ServerNotification* serverNotification = new ServerNotification(ServerNotification::chat, player);
+        ServerNotification* serverNotification = new ServerNotification(ServerNotification::chatServer, player);
         serverNotification->mPacket << "You have won!";
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
@@ -1944,7 +2024,7 @@ void GameMap::addMissileObject(MissileObject *m)
     }
 
     missileObjects.push_back(m);
-    newActiveObjects.push(m);
+    addActiveObject(m);
     addAnimatedObject(m);
 }
 
@@ -1967,18 +2047,16 @@ void GameMap::removeMissileObject(MissileObject *m)
         }
     }
 
-    removeActiveObject(m);
-
     for (unsigned int i = 0; i < missileObjects.size(); ++i)
     {
         if (m == missileObjects[i])
         {
-            //TODO:  Loop over the tiles and make any whose coveringRoom variable points to this room point to NULL.
             missileObjects.erase(missileObjects.begin() + i);
             break;
         }
     }
 
+    removeActiveObject(m);
     removeAnimatedObject(m);
 }
 
@@ -2523,13 +2601,13 @@ std::string GameMap::nextUniqueNameRoom(const std::string& meshName)
     return ret;
 }
 
-std::string GameMap::nextUniqueNameRoomObj(const std::string& parentRoom)
+std::string GameMap::nextUniqueNameRoomObj(const std::string& baseName)
 {
     std::string ret;
     do
     {
         ++mUniqueNumberRoomObj;
-        ret = RoomObject::ROOMOBJECT_PREFIX + parentRoom + "_" + Ogre::StringConverter::toString(mUniqueNumberRoomObj);
+        ret = RoomObject::ROOMOBJECT_PREFIX + baseName + "_" + Ogre::StringConverter::toString(mUniqueNumberRoomObj);
     } while(getAnimatedObject(ret) != NULL);
     return ret;
 }

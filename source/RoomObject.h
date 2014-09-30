@@ -28,21 +28,21 @@
 class Room;
 class GameMap;
 
+// TODO : change name to GameObject as it is not linked to rooms anymore
 class RoomObject: public MovableGameEntity
 {
 public:
-    RoomObject(GameMap* gameMap, Room* nParentRoom, const std::string& nMeshName);
-    RoomObject(GameMap* gameMap, Room* nParentRoom);
+    //! \brief Creates a room object. It's name is built from baseName and some unique id from the gamemap.
+    //! We use baseName to help understand what's this object for when getting a log
+    RoomObject(GameMap* gameMap, const std::string& baseName, const std::string& nMeshName);
+    RoomObject(GameMap* gameMap);
 
     static const std::string ROOMOBJECT_PREFIX;
 
     virtual std::string getOgreNamePrefix() { return "RoomObject_"; }
 
-    Room* getParentRoom();
-
-    //TODO: implment these in a good way
-    bool doUpkeep()
-    { return true; }
+    virtual void doUpkeep()
+    {}
 
     void receiveExp(double experience)
     {}
@@ -53,7 +53,7 @@ public:
     double getDefense() const
     { return 0.0; }
 
-    double getHP(Tile *tile)
+    double getHP(Tile *tile) const
     { return 0; }
 
     std::vector<Tile*> getCoveredTiles()
@@ -71,9 +71,6 @@ protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
     virtual void deleteYourselfLocal();
-
-private:
-    Room* mParentRoom;
 };
 
 #endif // ROOMOBJECT_H

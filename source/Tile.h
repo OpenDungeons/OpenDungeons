@@ -198,9 +198,6 @@ public:
     //! \brief This function returns the count of the number of creatures in the tile.
     unsigned numCreaturesInCell() const;
 
-    //! \brief This function returns the i'th creature in the tile.
-    Creature* getCreature(unsigned int index);
-
     void addNeighbor(Tile *n);Tile* getNeighbor(unsigned index);
     std::vector<Tile*> getAllNeighbors();
 
@@ -287,14 +284,16 @@ public:
     int x, y;
     Ogre::Real rotation;
 
-    //TODO properly implement these
-    bool doUpkeep(){ return true; }
+    void doUpkeep(){}
     void receiveExp(double experience){}
     double getDefense() const  { return 0; }
     void takeDamage(GameEntity* attacker, double damage, Tile *tileTakingDamage) {}
-    double getHP(Tile *tile) {return 0;}
+    double getHP(Tile *tile) const {return 0;}
     std::vector<Tile*> getCoveredTiles() { return std::vector<Tile*>() ;}
     void refreshFromTile(const Tile& tile);
+
+    //! \brief Fills entities with all the attackable entities in the Tile
+    void fillAttackableObjects(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
 
 protected:
     virtual void createMeshLocal();

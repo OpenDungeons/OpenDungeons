@@ -307,10 +307,12 @@ void RoomHatchery::handleMoveChicken(RoomObject* chicken)
     chicken->setAnimationState("Walk");
 }
 
-bool RoomHatchery::doUpkeep()
+void RoomHatchery::doUpkeep()
 {
-    if(!Room::doUpkeep())
-        return false;
+    Room::doUpkeep();
+
+    if(mCoveredTiles.empty())
+        return;
 
     if(mNbChickensEaten > 0)
     {
@@ -400,7 +402,5 @@ bool RoomHatchery::doUpkeep()
         else
             ++it;
     }
-
-    return true;
 }
 

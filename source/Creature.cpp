@@ -17,7 +17,7 @@
 
 /*TODO list:
  * - replace hardcoded calculations by scripts and/or read the numbers from XML defintion files
- * - the doTurn() functions needs script support
+ * - the doUpkeep() functions needs script support
  */
 
 #include "Creature.h"
@@ -515,7 +515,7 @@ void Creature::detach()
     RenderManager::queueRenderRequest(request);
 }
 
-void Creature::doTurn()
+void Creature::doUpkeep()
 {
     // if creature is not on map, we do nothing
     if(!getIsOnMap())
@@ -720,7 +720,7 @@ void Creature::doTurn()
                     break;
 
                 default:
-                    LogManager::getSingleton().logMessage("ERROR:  Unhandled action type in Creature::doTurn():"
+                    LogManager::getSingleton().logMessage("ERROR:  Unhandled action type in Creature::doUpkeep():"
                         + Ogre::StringConverter::toString(topActionItem.getType()));
                     popAction();
                     loopBack = false;
@@ -729,14 +729,14 @@ void Creature::doTurn()
         }
         else
         {
-            LogManager::getSingleton().logMessage("ERROR:  Creature has empty action queue in doTurn(), this should not happen.");
+            LogManager::getSingleton().logMessage("ERROR:  Creature has empty action queue in doUpkeep(), this should not happen.");
             loopBack = false;
         }
     } while (loopBack && loops < 20);
 
     if(loops >= 20)
     {
-        LogManager::getSingleton().logMessage("> 20 loops in Creature::doTurn name:" + getName() +
+        LogManager::getSingleton().logMessage("> 20 loops in Creature::doUpkeep name:" + getName() +
                 " seat id: " + Ogre::StringConverter::toString(getSeat()->getId()) + ". Breaking out..");
     }
 
@@ -2944,4 +2944,12 @@ bool Creature::isInBadMood()
 {
     // TODO : set bad mood depending on the creature stats
     return (mAwakeness < 10.0 && mHunger > 90.0);
+}
+
+bool Creature::isAttackable() const
+{
+    if(mHp <= 0.0)
+        return false;
+
+    return true;
 }

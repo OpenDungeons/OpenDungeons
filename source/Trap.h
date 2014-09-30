@@ -30,6 +30,7 @@ class GameMap;
 class Player;
 class Seat;
 class Tile;
+class RoomObject;
 
 #include "Building.h"
 
@@ -44,7 +45,7 @@ class Trap : public Building
 public:
     enum TrapType
     {
-        nullTrapType = 0, cannon, boulder
+        nullTrapType = 0, cannon, spike, boulder
     };
 
     Trap(GameMap* gameMap);
@@ -80,12 +81,14 @@ public:
     static int costPerTile(TrapType t);
 
     // Functions which can be overridden by child classes.
-    virtual bool doUpkeep();
-    // TODO : what is this function for ??
-    virtual bool doUpkeep(Trap *t);
+    virtual void doUpkeep();
 
-    virtual std::vector<GameEntity*> aimEnemy();
-    virtual void damage(std::vector<GameEntity*>);
+    std::string getNameTile(Tile* tile);
+
+    virtual bool shoot(Tile* tile)
+    {
+        return true;
+    }
 
     virtual void addCoveredTile(Tile* t, double nHP = mDefaultTileHP);
     virtual void removeCoveredTile(Tile* t);
@@ -101,22 +104,39 @@ public:
     friend ODPacket& operator<<(ODPacket& os, Trap *t);
 
     // Methods inherited from AttackableObject.
-    //TODO:  Sort these into the proper places in the rest of the file.
-    double getHP(Tile *tile);
+    double getHP(Tile *tile) const;
     double getDefense() const;
     void takeDamage(GameEntity* attacker, double damage, Tile *tileTakingDamage);
     void receiveExp(double experience);
+    virtual bool shouldDisplayMeshOnGround()
+    {
+        return true;
+    }
+    // TODO : this should be shared between room and trap (probably in building ?)
+    void addRoomObject(Tile* targetTile, RoomObject* roomObject);
+    void removeRoomObject(Tile* tile);
+    void removeRoomObject(RoomObject* roomObject);
+    void removeAllRoomObject();
+    RoomObject* getRoomObjectFromTile(Tile* tile);
+    RoomObject* loadRoomObject(GameMap* gameMap, const std::string& meshName,
+        Tile* targetTile, double rotationAngle);
+    RoomObject* loadRoomObject(GameMap* gameMap, const std::string& meshName,
+        Tile* targetTile, double x, double y, double rotationAngle);
+    virtual void updateActiveSpots();
+    virtual RoomObject* notifyActiveSpotCreated(Tile* tile);
+    virtual void notifyActiveSpotRemoved(Tile* tile);
 
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
     virtual void deleteYourselfLocal();
     int mReloadTime;
-    int mReloadTimeCounter;
     double mMinDamage;
     double mMaxDamage;
     const static double mDefaultTileHP;// = 10.0;
 
+    std::map<Tile*, int> mReloadTimeCounters;
+    std::map<Tile*, RoomObject*> mRoomObjects;
     std::vector<Tile*> mCoveredTiles;
     std::map<Tile*, double> mTileHP;
     TrapType mType;

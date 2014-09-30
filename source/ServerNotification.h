@@ -58,6 +58,7 @@ class ServerNotification
             buildRoom,
             removeRoomTile,
             buildTrap,
+            removeTrapTile,
             turnStarted,
             setTurnsPerSecond,
 
@@ -86,7 +87,6 @@ class ServerNotification
             removeMissileObject,
             addRoomObject,
             removeRoomObject,
-            removeAllRoomObjectFromRoom,
             depositGoldSound, // Makes the client play a deposit gold sound at tile coordinates.
 
             notifyCreatureInfo,

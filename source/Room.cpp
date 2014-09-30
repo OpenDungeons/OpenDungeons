@@ -190,8 +190,8 @@ void Room::setupRoom(GameMap* gameMap, Room* newRoom)
             && borderingRoom != newRoom && borderingRoom->getSeat() == newRoom->getSeat())
         {
             newRoom->absorbRoom(borderingRoom);
-            gameMap->removeRoom(borderingRoom);
-            borderingRoom->deleteYourself();
+            // All the tiles from the aborbed room have been transfered to the new one
+            // No need to delete it since it will be removed during its next upkeep
             isRoomAbsorbed = true;
         }
     }
@@ -367,7 +367,7 @@ RoomObject* Room::loadRoomObject(GameMap* gameMap, const std::string& meshName,
 RoomObject* Room::loadRoomObject(GameMap* gameMap, const std::string& meshName,
     Tile* targetTile, double x, double y, double rotationAngle)
 {
-    RoomObject* tempRoomObject = new RoomObject(gameMap, this, meshName);
+    RoomObject* tempRoomObject = new RoomObject(gameMap, getName(), meshName);
     tempRoomObject->mX = (Ogre::Real)x;
     tempRoomObject->mY = (Ogre::Real)y;
     tempRoomObject->mRotationAngle = (Ogre::Real)rotationAngle;
@@ -380,29 +380,13 @@ void Room::addRoomObject(Tile* targetTile, RoomObject* roomObject)
     if(roomObject == NULL)
         return;
 
-    if(getGameMap()->isServerGameMap())
-    {
-        LogManager::getSingleton().logMessage("Adding room object " + roomObject->getName()
-            + ",room " + getName() + ",MeshName=" + roomObject->getMeshName()
-            + ",tile=" + Tile::displayAsString(targetTile));
-        try
-        {
-            ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::addRoomObject, NULL);
-            std::string name = getName();
-            serverNotification->mPacket << name << targetTile << roomObject;
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
-        catch (std::bad_alloc&)
-        {
-            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in Room::addRoomObject", Ogre::LML_CRITICAL);
-            exit(1);
-        }
-    }
+    LogManager::getSingleton().logMessage("Adding room object " + roomObject->getName()
+        + ",room " + getName() + ",MeshName=" + roomObject->getMeshName()
+        + ",tile=" + Tile::displayAsString(targetTile));
     Ogre::Vector3 objPos(static_cast<Ogre::Real>(targetTile->x), static_cast<Ogre::Real>(targetTile->y), 0);
     roomObject->setPosition(objPos);
     mRoomObjects[targetTile] = roomObject;
-    getGameMap()->addAnimatedObject(roomObject);
+    getGameMap()->addRoomObject(roomObject);
 }
 
 void Room::removeRoomObject(Tile* tile)
@@ -411,25 +395,9 @@ void Room::removeRoomObject(Tile* tile)
         return;
 
     RoomObject* roomObject = mRoomObjects[tile];
-    if(getGameMap()->isServerGameMap())
-    {
-        LogManager::getSingleton().logMessage("Removing room object " + roomObject->getName()
-            + " in room " + getName());
-        try
-        {
-            ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::removeRoomObject, NULL);
-            std::string name = getName();
-            serverNotification->mPacket << name << tile;
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
-        catch (std::bad_alloc&)
-        {
-            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in Room::removeRoomObject", Ogre::LML_CRITICAL);
-            exit(1);
-        }
-    }
-    getGameMap()->removeAnimatedObject(roomObject);
+    LogManager::getSingleton().logMessage("Removing room object " + roomObject->getName()
+        + " in room " + getName());
+    getGameMap()->removeRoomObject(roomObject);
     roomObject->deleteYourself();
     mRoomObjects.erase(tile);
 }
@@ -446,26 +414,9 @@ void Room::removeRoomObject(RoomObject* roomObject)
 
     if(it != mRoomObjects.end())
     {
-        if(getGameMap()->isServerGameMap())
-        {
-            LogManager::getSingleton().logMessage("Removing room object " + roomObject->getName()
-                + " in room " + getName());
-            try
-            {
-                Tile* tile = it->first;
-                ServerNotification *serverNotification = new ServerNotification(
-                    ServerNotification::removeRoomObject, NULL);
-                std::string name = getName();
-                serverNotification->mPacket << name << tile;
-                ODServer::getSingleton().queueServerNotification(serverNotification);
-            }
-            catch (std::bad_alloc&)
-            {
-                Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in Room::removeRoomObject", Ogre::LML_CRITICAL);
-                exit(1);
-            }
-        }
-        getGameMap()->removeAnimatedObject(roomObject);
+        LogManager::getSingleton().logMessage("Removing room object " + roomObject->getName()
+            + " in room " + getName());
+        getGameMap()->removeRoomObject(roomObject);
         roomObject->deleteYourself();
         mRoomObjects.erase(it);
     }
@@ -473,30 +424,14 @@ void Room::removeRoomObject(RoomObject* roomObject)
 
 void Room::removeAllRoomObject()
 {
-    if(mRoomObjects.size() == 0)
+    if(mRoomObjects.empty())
         return;
 
-    if(getGameMap()->isServerGameMap())
-    {
-        try
-        {
-            ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::removeAllRoomObjectFromRoom, NULL);
-            std::string name = getName();
-            serverNotification->mPacket << name;
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
-        catch (std::bad_alloc&)
-        {
-            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in Room::removeAllRoomObject", Ogre::LML_CRITICAL);
-            exit(1);
-        }
-    }
     std::map<Tile*, RoomObject*>::iterator itr = mRoomObjects.begin();
     while (itr != mRoomObjects.end())
     {
         RoomObject* roomObject = itr->second;
-        getGameMap()->removeAnimatedObject(roomObject);
+        getGameMap()->removeRoomObject(roomObject);
         roomObject->deleteYourself();
         ++itr;
     }
@@ -546,7 +481,7 @@ std::string Room::getFormat()
     return "meshName\tseatId\t\tNextLine: numTiles\t\tSubsequent Lines: tileX\ttileY";
 }
 
-bool Room::doUpkeep()
+void Room::doUpkeep()
 {
     // Loop over the tiles in Room r and remove any whose HP has dropped to zero.
     unsigned int i = 0;
@@ -590,9 +525,8 @@ bool Room::doUpkeep()
     {
         getGameMap()->removeRoom(this);
         deleteYourself();
+        return;
     }
-
-    return true;
 }
 
 Room* Room::createRoomFromStream(GameMap* gameMap, const std::string& roomMeshName, std::istream& is,
@@ -836,16 +770,20 @@ int Room::costPerTile(RoomType t)
     }
 }
 
-double Room::getHP(Tile *tile)
+double Room::getHP(Tile *tile) const
 {
     //NOTE: This function is the same as Trap::getHP(), consider making a base class to inherit this from.
     if (tile != NULL)
-        return mTileHP[tile];
+    {
+        std::map<Tile*, double>::const_iterator tileSearched = mTileHP.find(tile);
+        OD_ASSERT_TRUE(tileSearched != mTileHP.end());
+        return tileSearched->second;
+    }
 
     // If the tile give was NULL, we add the total HP of all the tiles in the room and return that.
     double total = 0.0;
 
-    for(std::map<Tile*, double>::iterator itr = mTileHP.begin(), end = mTileHP.end();
+    for(std::map<Tile*, double>::const_iterator itr = mTileHP.begin(), end = mTileHP.end();
         itr != end; ++itr)
     {
         total += itr->second;
@@ -1155,4 +1093,12 @@ bool Room::sortForMapSave(Room* r1, Room* r2)
         return r1->getMeshName().compare(r2->getMeshName()) < 0;
 
     return seatId1 < seatId2;
+}
+
+bool Room::isAttackable() const
+{
+    if(getHP(NULL) <= 0.0)
+        return false;
+
+    return true;
 }

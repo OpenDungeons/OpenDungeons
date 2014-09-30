@@ -36,7 +36,7 @@ public:
     int emptyStorageSpace();
     int depositGold(int gold, Tile *tile);
     int withdrawGold(int gold);
-    virtual bool doUpkeep();
+    virtual void doUpkeep();
 private:
     //! \brief Tells which room object is used to show how much the tile is full of gold.
     enum TreasuryTileFullness

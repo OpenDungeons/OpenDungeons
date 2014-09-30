@@ -15,15 +15,29 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRAPBOULDER_H
-#define TRAPBOULDER_H
+#ifndef TRAPSPIKE_H
+#define TRAPSPIKE_H
 
-#include "DirectionalTrap.h"
+#include "ProximityTrap.h"
 
-class TrapBoulder : public DirectionalTrap
+class TrapSpike : public ProximityTrap
 {
 public:
-    TrapBoulder(GameMap* gameMap, int x, int y);
+    TrapSpike(GameMap* gameMap);
+
+    virtual bool shoot(Tile* tile);
+    virtual bool isAttackable() const
+    {
+        return false;
+    }
+
+    virtual bool shouldDisplayMeshOnGround()
+    {
+        return false;
+    }
+
+    virtual RoomObject* notifyActiveSpotCreated(Tile* tile);
 };
 
-#endif // TRAPBOULDER_H
+#endif // TRAPSPIKE_H
+

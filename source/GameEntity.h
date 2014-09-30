@@ -71,8 +71,6 @@ class GameEntity
     meshName    (nMeshName),
     meshExists  (false),
     mSeat       (seat),
-    active      (true),
-    attackable  (true),
     mIsDeleteRequested (false),
     objectType  (unknown),
     gameMap     (NULL)
@@ -98,11 +96,8 @@ class GameEntity
     //! \brief Get if the mesh is already existing
     inline bool                 isMeshExisting  () const    { return meshExists; }
 
-    //! \brief Get if the object is active (doing sth. on its own) or not
-    inline bool                 isActive        () const    { return active; }
-
     //! \brief Get if the object can be attacked or not
-    inline bool                 isAttackable    () const    { return attackable; }
+    virtual bool                isAttackable    () const    { return false; }
 
     //! \brief Get the type of this object
     inline ObjectType           getObjectType   () const    { return objectType; }
@@ -166,14 +161,14 @@ class GameEntity
     };
 
     //! \brief defines what happens on each turn with this object
-    virtual bool    doUpkeep        () = 0;
+    virtual void    doUpkeep        () = 0;
 
     //! \brief Returns a list of the tiles that this object is in/covering.  For creatures and other small objects
     //! this will be a single tile, for larger objects like rooms this will be 1 or more tiles.
     virtual std::vector<Tile*> getCoveredTiles() = 0;
 
     //! \brief Returns the HP associated with the given tile of the object, it is up to the object how they want to treat the tile/HP relationship.
-    virtual double getHP(Tile *tile) = 0;
+    virtual double getHP(Tile *tile) const = 0;
 
     //! \brief Returns defense rating for the object, i.e. how much less than inflicted damage should it recieve.
     virtual double getDefense() const = 0;
@@ -222,12 +217,6 @@ class GameEntity
 
     //! \brief The seat that the object belongs to
     Seat*           mSeat;
-
-    //! \brief A flag saying whether the object is active (doing something on its own) or not
-    bool            active;
-
-    //! \brief A flag saying whether the object can be attacked or not
-    bool            attackable;
 
     //! \brief A flag saying whether the object has been requested to delete
     bool            mIsDeleteRequested;

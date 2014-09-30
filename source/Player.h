@@ -79,8 +79,8 @@ public:
     //! \brief Check to see the first creatureInHand can be dropped on Tile t and do so if possible.
     bool isDropCreaturePossible(Tile *t, unsigned int index = 0, bool isEditorMode = false);
 
-    //! \brief Drops the creature on tile t
-    void dropCreature(Tile *t, unsigned int index = 0);
+    //! \brief Drops the creature on tile t. Returns the dropped creature
+    Creature* dropCreature(Tile *t, unsigned int index = 0);
 
     void rotateCreaturesInHand(int n);
 

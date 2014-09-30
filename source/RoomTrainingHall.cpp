@@ -222,10 +222,12 @@ void RoomTrainingHall::removeCreatureUsingRoom(Creature* c)
     }
 }
 
-bool RoomTrainingHall::doUpkeep()
+void RoomTrainingHall::doUpkeep()
 {
-    if(!Room::doUpkeep())
-        return false;
+    Room::doUpkeep();
+
+    if (mCoveredTiles.empty())
+        return;
 
     // We add a probability to change dummies so that creatures do not use the same during too much time
     if(mCreaturesDummies.size() > 0 && Random::Int(5,50) < ++nbTurnsNoChangeDummies)
@@ -268,8 +270,6 @@ bool RoomTrainingHall::doUpkeep()
             }
         }
     }
-
-    return true;
 }
 
 void RoomTrainingHall::getCreatureWantedPos(Creature* creature, Tile* tileDummy,

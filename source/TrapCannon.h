@@ -25,8 +25,13 @@ class TrapCannon : public ProximityTrap
 public:
     TrapCannon(GameMap* gameMap);
 
-    std::vector<GameEntity*> aimEnemy();
-    void damage(std::vector<GameEntity*>);
+    virtual bool isAttackable() const;
+    virtual bool shoot(Tile* tile);
+    virtual bool shouldDisplayMeshOnGround()
+    {
+        return false;
+    }
+    virtual RoomObject* notifyActiveSpotCreated(Tile* tile);
 
 private:
     double mCannonHeight;

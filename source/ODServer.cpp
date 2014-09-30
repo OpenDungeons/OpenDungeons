@@ -672,8 +672,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             OD_ASSERT_TRUE(packetReceived >> &tmpTile);
             Player *player = clientSocket->getPlayer();
             Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE_MSG(tile != NULL, "tile=" + Ogre::StringConverter::toString(tmpTile.getX())
-                + "," + Ogre::StringConverter::toString(tmpTile.getY()));
+            OD_ASSERT_TRUE_MSG(tile != NULL, "tile=" + Tile::displayAsString(tile));
             if(tile != NULL)
             {
                 if(player->isDropCreaturePossible(tile, 0, mServerMode == ServerMode::ModeEditor))

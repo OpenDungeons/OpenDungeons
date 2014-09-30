@@ -176,6 +176,7 @@ public:
     std::vector<Room*> getReachableRooms(const std::vector<Room*> &vec,
                        Tile *startTile, const CreatureDefinition* creatureDef);
     Room* getRoomByName(const std::string& name);
+    Trap* getTrapByName(const std::string& name);
 
     //! \brief Traps related functions.
     void clearTraps();
@@ -445,9 +446,15 @@ public:
     std::string nextUniqueNameCreature(const std::string& className);
     std::string nextUniqueNameMissileObj();
     std::string nextUniqueNameRoom(const std::string& meshName);
-    std::string nextUniqueNameRoomObj(const std::string& parentRoom);
+    std::string nextUniqueNameRoomObj(const std::string& baseName);
     std::string nextUniqueNameTrap(const std::string& meshName);
     std::string nextUniqueNameMapLight();
+
+    void addRoomObject(RoomObject *obj);
+    void removeRoomObject(RoomObject *obj);
+    RoomObject* getRoomObject(const std::string& name);
+    void clearRoomObjects();
+    void clearActiveObjects();
 
     //! \brief Tells the game map a given player is attacking or under attack.
     //! Used on the server game map only.
@@ -455,8 +462,6 @@ public:
 
     // FIXME: Needs to be private
     CullingManager* culm;
-
-    unsigned long int miscUpkeepTime, creatureTurnsTime;
 
     std::vector<Creature*> creatures;
 
@@ -515,10 +520,13 @@ private:
     //! \brief Tells whether the map color flood filling is enabled.
     bool floodFillEnabled;
 
-    std::vector<GameEntity*> activeObjects;
+    std::vector<GameEntity*> mActiveObjects;
 
-    //! \brief  active objects that are created by other active object, i.e. : cannon balls
-    std::queue<GameEntity*> newActiveObjects;
+    //! \brief  active objects that are created are stored here. They will be added after the miscupkeep to avoid changing the list while we use it
+    std::deque<GameEntity*> mActiveObjectsToAdd;
+
+    //! \brief  active objects that are removed are stored here. They will be removed after the miscupkeep to avoid changing the list while we use it
+    std::deque<GameEntity*> mActiveObjectsToRemove;
 
     //! \brief Useless entities that need to be deleted. They will be deleted when processDeletionQueues is called
     std::vector<GameEntity*> entitiesToDelete;
@@ -530,6 +538,8 @@ private:
     unsigned int numCallsTo_path;
 
     TileCoordinateMap* tileCoordinateMap;
+
+    std::vector<RoomObject*> mRoomObjects;
 
     //! AI Handling manager
     AIManager aiManager;
@@ -544,11 +554,8 @@ private:
     void processDeletionQueues();
 
     //! \brief Updates different entities states.
-    //! Updates goals, count each team Workers, gold, mana and claimed tiles.
+    //! Updates active objects (creatures, rooms, ...), goals, count each team Workers, gold, mana and claimed tiles.
     unsigned long int doMiscUpkeep();
-
-    //! \brief Updates current creature actions
-    unsigned long int doCreatureTurns();
 
     //! \brief Resets the unique numbers
     void resetUniqueNumbers();

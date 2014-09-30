@@ -928,15 +928,6 @@ unsigned int Tile::numCreaturesInCell() const
     return creaturesInCell.size();
 }
 
-Creature* Tile::getCreature(unsigned int index)
-{
-    Creature* creature = NULL;
-    if (index < creaturesInCell.size())
-        creature = creaturesInCell[index];
-
-    return creature;
-}
-
 void Tile::addPlayerMarkingTile(Player *p)
 {
     playersMarkingTile.push_back(p);
@@ -980,6 +971,14 @@ void Tile::claimForSeat(Seat* seat, double nDanceRate)
         if (mClaimedPercentage >= 1.0)
         {
             claimTile(seat);
+
+            // If a trap is on this tile, we kill it
+            Trap* trap = getCoveringTrap();
+            if(trap != NULL)
+            {
+                double tileHp = trap->getHP(this);
+                trap->takeDamage(NULL, tileHp, this);
+            }
 
             // We inform the clients that the tile has been claimed
             if(getGameMap()->isServerGameMap())
@@ -1300,7 +1299,50 @@ int Tile::getFloodFill(FloodFillType type)
     return mFloodFillColor[type];
 }
 
-// TODO : use this function where tiles are displayed in logs (mostly in ODClient and ODServer)
+void Tile::fillAttackableObjects(std::vector<GameEntity*>& entities, Seat* seat, bool invert)
+{
+    for(std::vector<Creature*>::iterator it = creaturesInCell.begin(); it != creaturesInCell.end(); ++it)
+    {
+        Creature* creature = *it;
+        OD_ASSERT_TRUE(creature != NULL);
+        if((creature == NULL) || !creature->isAttackable())
+            continue;
+
+        // The invert flag is used to determine whether we want to return a list of the creatures
+        // allied with supplied seat or the contrary.
+        if ((invert && !creature->getSeat()->isAlliedSeat(seat)) || (!invert
+                && creature->getSeat()->isAlliedSeat(seat)))
+        {
+            // Add the current creature
+            entities.push_back(creature);
+        }
+    }
+
+    Room *room = getCoveringRoom();
+    if((room != NULL) && room->isAttackable())
+    {
+        if ((invert && !room->getSeat()->isAlliedSeat(seat)) || (!invert
+            && room->getSeat()->isAlliedSeat(seat)))
+        {
+            // If the room is not in the list already then add it.
+            if (std::find(entities.begin(), entities.end(), room) == entities.end())
+                entities.push_back(room);
+        }
+    }
+
+    Trap *trap = getCoveringTrap();
+    if((trap != NULL) && trap->isAttackable())
+    {
+        if ((invert && !trap->getSeat()->isAlliedSeat(seat)) || (!invert
+            && trap->getSeat()->isAlliedSeat(seat)))
+        {
+            // If the trap is not in the list already then add it.
+            if (std::find(entities.begin(), entities.end(), trap) == entities.end())
+                entities.push_back(trap);
+        }
+    }
+}
+
 std::string Tile::displayAsString(Tile* tile)
 {
     return "[" + Ogre::StringConverter::toString(tile->x) + ","

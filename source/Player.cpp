@@ -26,6 +26,7 @@
 #include "Weapon.h"
 #include "RenderRequest.h"
 #include "RenderManager.h"
+#include "LogManager.h"
 
 Player::Player() :
     mNewRoomType(Room::nullRoomType),
@@ -157,16 +158,17 @@ bool Player::isDropCreaturePossible(Tile *t, unsigned int index, bool isEditorMo
     return false;
 }
 
-void Player::dropCreature(Tile* t, unsigned int index)
+Creature* Player::dropCreature(Tile *t, unsigned int index)
 {
     // Add the creature to the map
+    OD_ASSERT_TRUE(index < mCreaturesInHand.size());
     Creature *c = mCreaturesInHand[index];
     mCreaturesInHand.erase(mCreaturesInHand.begin() + index);
     c->drop(Ogre::Vector3(static_cast<Ogre::Real>(t->x),
         static_cast<Ogre::Real>(t->y), 0.0));
 
     if(c->getGameMap()->isServerGameMap())
-        return;
+        return c;
 
     // If this is the result of another player dropping the creature it is currently not visible so we need to create a mesh for it
     //cout << "\nthis:  " << this << "\nme:  " << gameMap->getLocalPlayer() << endl;
@@ -187,6 +189,8 @@ void Player::dropCreature(Tile* t, unsigned int index)
         request->p2 = this;
         RenderManager::queueRenderRequest(request);
     }
+
+    return c;
 }
 
 void Player::rotateCreaturesInHand(int n)
