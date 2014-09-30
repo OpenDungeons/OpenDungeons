@@ -154,6 +154,14 @@ void RoomTrainingHall::refreshCreaturesDummies()
            creaturePosition.y != wantedY)
         {
             // We move to the good tile
+            std::list<Tile*> pathToDummy = getGameMap()->path(creature->getPositionTile(), tileDummy,
+                creature->getDefinition(), creature->getSeat());
+            OD_ASSERT_TRUE(!pathToDummy.empty());
+            if(pathToDummy.empty())
+                continue;
+
+            creature->setWalkPath(pathToDummy, 0, false);
+            // We add the last step to take account of the offset
             creature->addDestination(wantedX, wantedY);
             creature->setAnimationState("Walk");
         }
@@ -187,6 +195,12 @@ bool RoomTrainingHall::addCreatureUsingRoom(Creature* creature)
        creaturePosition.y != wantedY)
     {
         // We move to the good tile
+        std::list<Tile*> pathToDummy = getGameMap()->path(creature->getPositionTile(), tileDummy,
+            creature->getDefinition(), creature->getSeat());
+        OD_ASSERT_TRUE(!pathToDummy.empty());
+
+        creature->setWalkPath(pathToDummy, 0, false);
+        // We add the last step to take account of the offset
         creature->addDestination(wantedX, wantedY);
         creature->setAnimationState("Walk");
     }
