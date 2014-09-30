@@ -1019,6 +1019,14 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             frameListener->mCommandOutput += "\nERROR : This command is available on the server only\n";
         }
     }
+    else if (command.compare("listanims") == 0)
+    {
+        std::string meshName;
+        tempSS.str(arguments);
+        tempSS >> meshName;
+        std::string anims = RenderManager::consoleListAnimationsForMesh(meshName);
+        frameListener->mCommandOutput += "\nAnimations for " + meshName + anims;
+    }
     else if (command.compare("possescreature") == 0)
     {
         tempSS.str("");

@@ -226,4 +226,5 @@ For information on how to use a particular command, type help followed by the co
 \n\tdisconnect - stops a running server or client and returns to the map editor\
 +\n\taithreads - sets the maximum number of creature AI threads on the server\
 +\n\tsetdest - Sets the creature destination\
++\n\tlistanims - List all the animations for the given mesh\
 +\n\tlogfloodfill - Displays the FloodFillValues of all the Tiles in the GameMap";

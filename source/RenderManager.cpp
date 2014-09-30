@@ -1105,6 +1105,28 @@ void RenderManager::rrMoveSceneNode(const RenderRequest& renderRequest)
     }
 }
 
+std::string RenderManager::consoleListAnimationsForMesh(const std::string& meshName)
+{
+    if(!Ogre::ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(meshName + ".mesh"))
+        return "\nmesh not available for " + meshName;
+
+    std::string name = meshName + "consoleListAnimationsForMesh";
+    Ogre::Entity* objectEntity = msSingleton->mSceneManager->createEntity(name, meshName + ".mesh");
+    if (!objectEntity->hasSkeleton())
+        return "\nNo skeleton for " + meshName;
+
+    std::string ret;
+    Ogre::AnimationStateIterator animationStateIterator(
+            objectEntity->getAllAnimationStates()->getAnimationStateIterator());
+    while (animationStateIterator.hasMoreElements())
+    {
+        std::string animName = animationStateIterator.getNext()->getAnimationName();
+        ret += "\nAnimation " + animName;
+    }
+    msSingleton->mSceneManager->destroyEntity(objectEntity);
+   return ret;
+}
+
 bool RenderManager::generateRTSSShadersForMaterial(const std::string& materialName,
                                                    const std::string& normalMapTextureName,
                                                    Ogre::RTShader::NormalMapLighting::NormalMapSpace nmSpace)

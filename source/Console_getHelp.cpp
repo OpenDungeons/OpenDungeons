@@ -152,6 +152,11 @@ string Console::getHelpText(std::string arg)
         return "setdest Sets the creature destination. The path will be computed if reachable. It takes as arguments the creature name, then the tile coordinales. Example : setdest Wizard1 10 10";
     }
 
+    else if (arg.compare("listanims") == 0)
+    {
+        return "listanims List all the animations for the given mesh";
+    }
+
     else if (arg.compare("list") == 0 || arg.compare("ls") == 0)
     {
         return "List (or \"ls\" for short is a utility which lists various types of information about the current game.  Running list without an argument will produce a list of the lists available.  Running list with an argument displays the contents of that list.\n\nExample:\n"

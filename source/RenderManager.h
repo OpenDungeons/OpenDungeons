@@ -85,6 +85,9 @@ public:
 
     static const Ogre::Real BLENDER_UNITS_PER_OGRE_UNIT;
 
+    //! Debug function to be used for dev only. Beware, it should not be called from the server thread
+    static std::string consoleListAnimationsForMesh(const std::string& meshName);
+
 protected:
     //! \brief Put a render request in the queue (implementation)
     void queueRenderRequest_priv(RenderRequest* renderRequest);
