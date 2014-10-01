@@ -81,9 +81,8 @@ public:
     inline void setRange(const double nRange)
     { mRange = nRange; }
 
-    //TODO: implement these in a good way
-    bool doUpkeep()
-    { return true; }
+    void doUpkeep()
+    {}
 
     void receiveExp(double experience)
     {}
@@ -91,7 +90,7 @@ public:
     void takeDamage(GameEntity* attacker, double damage, Tile* tileTakingDamage)
     {}
 
-    double getHP(Tile* tile)
+    double getHP(Tile* tile) const
     { return 0.0; }
 
     std::vector<Tile*> getCoveredTiles()

@@ -24,7 +24,9 @@
 #include "RenderManager.h"
 #include "Seat.h"
 #include "GameMap.h"
+#include "RoomObject.h"
 #include "TrapCannon.h"
+#include "TrapSpike.h"
 #include "TrapBoulder.h"
 #include "Random.h"
 #include "Player.h"
@@ -35,7 +37,6 @@ const double Trap::mDefaultTileHP = 10.0;
 Trap::Trap(GameMap* gameMap) :
     Building(gameMap),
     mReloadTime(0),
-    mReloadTimeCounter(0),
     mMinDamage(0.0),
     mMaxDamage(0.0),
     mType(nullTrapType)
@@ -104,6 +105,9 @@ Trap* Trap::createTrap(GameMap* gameMap, TrapType nType, const std::vector<Tile*
         case cannon:
             tempTrap = new TrapCannon(gameMap);
             break;
+        case spike:
+            tempTrap = new TrapSpike(gameMap);
+            break;
         case boulder:
             if(params != NULL)
             {
@@ -147,9 +151,106 @@ void Trap::setupTrap(GameMap* gameMap, Trap* newTrap)
     gameMap->addTrap(newTrap);
 
     newTrap->createMesh();
+
+    newTrap->updateActiveSpots();
 }
 
-Trap* Trap::createTrapFromStream(GameMap* gameMap, const std::string& trapMeshName, std::istream &is,
+void Trap::addRoomObject(Tile* targetTile, RoomObject* roomObject)
+{
+    if(roomObject == NULL)
+        return;
+
+    LogManager::getSingleton().logMessage("Adding game object " + roomObject->getName()
+        + ",trap=" + getName() + ",MeshName=" + roomObject->getMeshName()
+        + ",tile=" + Tile::displayAsString(targetTile));
+
+    Ogre::Vector3 objPos(static_cast<Ogre::Real>(targetTile->x), static_cast<Ogre::Real>(targetTile->y), 0);
+    roomObject->setPosition(objPos);
+    mRoomObjects[targetTile] = roomObject;
+    getGameMap()->addRoomObject(roomObject);
+}
+
+void Trap::removeRoomObject(Tile* tile)
+{
+    if(mRoomObjects.count(tile) == 0)
+        return;
+
+    RoomObject* roomObject = mRoomObjects[tile];
+    LogManager::getSingleton().logMessage("Removing trap object " + roomObject->getName()
+        + " in trap=" + getName());
+    getGameMap()->removeRoomObject(roomObject);
+    roomObject->deleteYourself();
+    mRoomObjects.erase(tile);
+}
+
+void Trap::removeRoomObject(RoomObject* roomObject)
+{
+    std::map<Tile*, RoomObject*>::iterator it;
+
+    for (it = mRoomObjects.begin(); it != mRoomObjects.end(); ++it)
+    {
+        if(it->second == roomObject)
+            break;
+    }
+
+    if(it != mRoomObjects.end())
+    {
+        LogManager::getSingleton().logMessage("Removing trap object " + roomObject->getName()
+            + " in room " + getName());
+        getGameMap()->removeRoomObject(roomObject);
+        roomObject->deleteYourself();
+        mRoomObjects.erase(it);
+    }
+}
+
+void Trap::removeAllRoomObject()
+{
+    if(mRoomObjects.empty())
+        return;
+
+    std::map<Tile*, RoomObject*>::iterator itr = mRoomObjects.begin();
+    while (itr != mRoomObjects.end())
+    {
+        RoomObject* roomObject = itr->second;
+        getGameMap()->removeAnimatedObject(roomObject);
+        roomObject->deleteYourself();
+        ++itr;
+    }
+    mRoomObjects.clear();
+}
+
+RoomObject* Trap::getRoomObjectFromTile(Tile* tile)
+{
+    if(mRoomObjects.count(tile) == 0)
+        return NULL;
+
+    RoomObject* tempRoomObject = mRoomObjects[tile];
+    return tempRoomObject;
+}
+
+RoomObject* Trap::loadRoomObject(GameMap* gameMap, const std::string& meshName,
+    Tile* targetTile, double rotationAngle)
+{
+    OD_ASSERT_TRUE(targetTile != NULL);
+    if(targetTile == NULL)
+        return NULL;
+
+    return loadRoomObject(gameMap, meshName, targetTile, static_cast<double>(targetTile->x),
+        static_cast<double>(targetTile->y), rotationAngle);
+}
+
+RoomObject* Trap::loadRoomObject(GameMap* gameMap, const std::string& meshName,
+    Tile* targetTile, double x, double y, double rotationAngle)
+{
+    RoomObject* tempRoomObject = new RoomObject(gameMap, getName(), meshName);
+    tempRoomObject->mX = (Ogre::Real)x;
+    tempRoomObject->mY = (Ogre::Real)y;
+    tempRoomObject->mRotationAngle = (Ogre::Real)rotationAngle;
+
+    return tempRoomObject;
+}
+
+ Trap* Trap::createTrapFromStream(GameMap* gameMap, const std::string& trapMeshName, std::istream &is,
     const std::string& trapName)
 {
     Trap tempTrap(gameMap);
@@ -183,6 +284,9 @@ const char* Trap::getTrapNameFromTrapType(TrapType t)
         case cannon:
             return "Cannon";
 
+        case spike:
+            return "Spike";
+
         case boulder:
             return "Boulder";
 
@@ -201,6 +305,9 @@ const char* Trap::getMeshNameFromTrapType(TrapType t)
         case cannon:
             return "Cannon";
 
+        case spike:
+            return "Spiketrap";
+
         case boulder:
             return "Boulder";
 
@@ -215,6 +322,8 @@ Trap::TrapType Trap::getTrapTypeFromMeshName(std::string s)
         return cannon;
     else if (s.compare("Boulder") == 0)
         return boulder;
+    else if (s.compare("Spiketrap") == 0)
+        return spike;
     else if (s.compare("NullTrapType") == 0)
         return nullTrapType;
     else
@@ -237,6 +346,9 @@ int Trap::costPerTile(TrapType t)
         case cannon:
             return 500;
 
+        case spike:
+            return 400;
+
         case boulder:
             return 500;
 
@@ -245,49 +357,66 @@ int Trap::costPerTile(TrapType t)
     }
 }
 
-bool Trap::doUpkeep()
+void Trap::doUpkeep()
 {
-    if(mReloadTimeCounter > 0)
+    uint32_t i = 0;
+    bool oneTileRemoved = false;
+    while (i < mCoveredTiles.size())
     {
-        mReloadTimeCounter--;
-        return true;
-    }
-
-    std::vector<GameEntity*> enemyAttacked = aimEnemy();
-
-    damage(enemyAttacked);
-
-    if(!enemyAttacked.empty())
-    {
-        if(mReloadTime >= 0)
+        Tile* t = mCoveredTiles[i];
+        if (mTileHP[t] <= 0.0)
         {
-            // Begin the reload countdown.
-            mReloadTimeCounter = mReloadTime;
+            if(getGameMap()->isServerGameMap())
+            {
+                try
+                {
+                    ServerNotification *serverNotification = new ServerNotification(
+                        ServerNotification::removeTrapTile, NULL);
+                    std::string name = getName();
+                    serverNotification->mPacket << name << t;
+                    ODServer::getSingleton().queueServerNotification(serverNotification);
+                }
+                catch (std::bad_alloc&)
+                {
+                    OD_ASSERT_TRUE(false);
+                    exit(1);
+                }
+            }
+            removeCoveredTile(t);
+            oneTileRemoved = true;
         }
         else
+            ++i;
+    }
+
+    if (oneTileRemoved)
+    {
+        updateActiveSpots();
+
+        createMesh();
+    }
+
+    // If no more tiles, the trap is removed
+    if (numCoveredTiles() <= 0)
+    {
+        getGameMap()->removeTrap(this);
+        deleteYourself();
+        return;
+    }
+
+    for(std::vector<Tile*>::iterator it = mCoveredTiles.begin(); it != mCoveredTiles.end(); ++it)
+    {
+        Tile* tile = *it;
+        if(mReloadTimeCounters[tile] > 0)
         {
-            return false;
+            --mReloadTimeCounters[tile];
+            continue;
+        }
+        if(shoot(tile))
+        {
+            mReloadTimeCounters[tile] = mReloadTime;
         }
     }
-    return true;
-}
-
-bool Trap::doUpkeep(Trap* t)
-{
-    return t->doUpkeep();
-}
-
-void Trap::damage(std::vector<GameEntity*> enemyAttacked)
-{
-    for(unsigned i = 0; i < enemyAttacked.size(); ++i)
-    {
-        enemyAttacked[i]->takeDamage(this, Random::Double(mMinDamage, mMaxDamage), enemyAttacked[i]->getCoveredTiles()[0]);
-    }
-}
-
-std::vector<GameEntity*> Trap::aimEnemy()
-{
-    return std::vector<GameEntity*>();
 }
 
 void Trap::addCoveredTile(Tile* t, double nHP)
@@ -295,20 +424,36 @@ void Trap::addCoveredTile(Tile* t, double nHP)
     mCoveredTiles.push_back(t);
     mTileHP[t] = nHP;
     t->setCoveringTrap(this);
+    mReloadTimeCounters[t] = mReloadTime;
 }
 
 void Trap::removeCoveredTile(Tile* t)
 {
-    for (unsigned int i = 0; i < mCoveredTiles.size(); ++i)
+    bool removedTile = false;
+    for (std::vector<Tile*>::iterator it = mCoveredTiles.begin(); it != mCoveredTiles.end(); ++it)
     {
-        if (t == mCoveredTiles[i])
+        if (t == *it)
         {
-            mCoveredTiles.erase(mCoveredTiles.begin() + i);
+            mCoveredTiles.erase(it);
             t->setCoveringTrap(NULL);
             mTileHP.erase(t);
+            removedTile = true;
             break;
         }
     }
+    if (!removedTile)
+        return;
+
+    mReloadTimeCounters.erase(t);
+    if(getGameMap()->isServerGameMap())
+        return;
+
+    // Destroy the mesh for this tile.
+    RenderRequest *request = new RenderRequest;
+    request->type = RenderRequest::destroyTrap;
+    request->p = this;
+    request->p2 = t;
+    RenderManager::queueRenderRequest(request);
 }
 
 Tile* Trap::getCoveredTile(int index)
@@ -331,26 +476,26 @@ void Trap::clearCoveredTiles()
     mCoveredTiles.clear();
 }
 
-double Trap::getHP(Tile *tile)
+double Trap::getHP(Tile *tile) const
 {
     //NOTE: This function is the same as Room::getHP(), consider making a base class to inherit this from.
     if (tile != NULL)
     {
-        return mTileHP[tile];
+        std::map<Tile*, double>::const_iterator tileSearched = mTileHP.find(tile);
+        OD_ASSERT_TRUE(tileSearched != mTileHP.end());
+        return tileSearched->second;
     }
-    else
-    {
-        // If the tile give was NULL, we add the total HP of all the tiles in the room and return that.
-        double total = 0.0;
-        std::map<Tile*, double>::iterator itr = mTileHP.begin();
-        while (itr != mTileHP.end())
-        {
-            total += itr->second;
-            ++itr;
-        }
 
-        return total;
+    // If the tile given was NULL, we add the total HP of all the tiles in the room and return that.
+    double total = 0.0;
+
+    for(std::map<Tile*, double>::const_iterator itr = mTileHP.begin(), end = mTileHP.end();
+        itr != end; ++itr)
+    {
+        total += itr->second;
     }
+
+    return total;
 }
 
 double Trap::getDefense() const
@@ -361,6 +506,65 @@ double Trap::getDefense() const
 void Trap::takeDamage(GameEntity* attacker, double damage, Tile *tileTakingDamage)
 {
     mTileHP[tileTakingDamage] -= damage;
+}
+
+std::string Trap::getNameTile(Tile* tile)
+{
+    return getName() + "_tile_" + Ogre::StringConverter::toString(tile->x)
+        + "_" + Ogre::StringConverter::toString(tile->y);
+}
+
+void Trap::updateActiveSpots()
+{
+    // Active spots are handled by the server only
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    // For a trap, by default, every tile is an active spot
+    if(mCoveredTiles.size() > mRoomObjects.size())
+    {
+        // More tiles than room objects. This will happen when the trap is created
+        for(std::vector<Tile*>::iterator it = mCoveredTiles.begin(); it != mCoveredTiles.end(); ++it)
+        {
+            Tile* tile = *it;
+            RoomObject* obj = notifyActiveSpotCreated(tile);
+            if(obj == NULL)
+                continue;
+
+            addRoomObject(tile, obj);
+        }
+    }
+    else if(mCoveredTiles.size() < mRoomObjects.size())
+    {
+        // Less tiles than room objects. This will happen when a tile from this trap is destroyed
+        std::vector<Tile*> tilesToRemove;
+        for(std::map<Tile*, RoomObject*>::iterator it = mRoomObjects.begin(); it != mRoomObjects.end(); ++it)
+        {
+            Tile* tile = it->first;
+            // We store removed tiles
+            if(std::find(mCoveredTiles.begin(), mCoveredTiles.end(), tile) == mCoveredTiles.end())
+                tilesToRemove.push_back(tile);
+        }
+
+        // Then, we process removing (that will remove tiles from mRoomObjects)
+        OD_ASSERT_TRUE(!tilesToRemove.empty());
+        for(std::vector<Tile*>::iterator it = tilesToRemove.begin(); it != tilesToRemove.end(); ++it)
+        {
+            Tile* tile = *it;
+            if(mRoomObjects.count(tile) > 0)
+                notifyActiveSpotRemoved(tile);
+        }
+    }
+}
+
+RoomObject* Trap::notifyActiveSpotCreated(Tile* tile)
+{
+    return NULL;
+}
+
+void Trap::notifyActiveSpotRemoved(Tile* tile)
+{
+    removeRoomObject(tile);
 }
 
 std::string Trap::getFormat()
@@ -396,7 +600,7 @@ std::istream& operator>>(std::istream& is, Trap *t)
 std::ostream& operator<<(std::ostream& os, Trap *t)
 {
     int seatId = t->getSeat()->getId();
-    os << t->getMeshName() << "\t" << t->getName() << "\t";
+    os << t->getMeshName() << "\t";
     os << seatId << "\n" << t->mCoveredTiles.size() << "\n";
     for (unsigned int i = 0; i < t->mCoveredTiles.size(); ++i)
     {

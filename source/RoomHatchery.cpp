@@ -307,10 +307,12 @@ void RoomHatchery::handleMoveChicken(RoomObject* chicken)
     chicken->setAnimationState("Walk");
 }
 
-bool RoomHatchery::doUpkeep()
+void RoomHatchery::doUpkeep()
 {
-    if(!Room::doUpkeep())
-        return false;
+    Room::doUpkeep();
+
+    if(mCoveredTiles.empty())
+        return;
 
     if(mNbChickensEaten > 0)
     {
@@ -387,14 +389,18 @@ bool RoomHatchery::doUpkeep()
         else if(!creature->isMoving())
         {
             // Move to the chicken
-            creature->addDestination(chickenPosition.x, chickenPosition.y);
+            std::list<Tile*> pathToChicken = getGameMap()->path(static_cast<int32_t>(creaturePosition.x), static_cast<int32_t>(creaturePosition.y),
+                static_cast<int32_t>(chickenPosition.x), static_cast<int32_t>(chickenPosition.y), creature->getDefinition(), creature->getSeat());
+            OD_ASSERT_TRUE(!pathToChicken.empty());
+            if(pathToChicken.empty())
+                continue;
+
+            creature->setWalkPath(pathToChicken, 0, false);
             creature->setAnimationState("Walk");
             ++it;
         }
         else
             ++it;
     }
-
-    return true;
 }
 

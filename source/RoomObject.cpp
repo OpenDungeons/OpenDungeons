@@ -18,7 +18,6 @@
 #include "RoomObject.h"
 
 #include "RenderRequest.h"
-#include "Room.h"
 #include "GameMap.h"
 #include "RenderManager.h"
 
@@ -26,19 +25,17 @@
 
 const std::string RoomObject::ROOMOBJECT_PREFIX = "Room_Object_";
 
-RoomObject::RoomObject(GameMap* gameMap, Room* nParentRoom, const std::string& nMeshName) :
-    MovableGameEntity(gameMap),
-    mParentRoom(nParentRoom)
+RoomObject::RoomObject(GameMap* gameMap, const std::string& baseName, const std::string& nMeshName) :
+    MovableGameEntity(gameMap)
 {
     setObjectType(GameEntity::roomobject);
     setMeshName(nMeshName);
-    // Set a unique name for the room.
-    setName(gameMap->nextUniqueNameRoomObj(mParentRoom->getName()));
+    // Set a unique name for the object
+    setName(gameMap->nextUniqueNameRoomObj(baseName));
 }
 
-RoomObject::RoomObject(GameMap* gameMap, Room* nParentRoom) :
-    MovableGameEntity(gameMap),
-    mParentRoom(nParentRoom)
+RoomObject::RoomObject(GameMap* gameMap) :
+    MovableGameEntity(gameMap)
 {
     setObjectType(GameEntity::roomobject);
 }
@@ -52,7 +49,6 @@ void RoomObject::createMeshLocal()
 
     RenderRequest* request = new RenderRequest;
     request->type   = RenderRequest::createRoomObject;
-    request->p2     = getParentRoom();
     request->str    = getName();
     request->str2   = getMeshName();
     request->p      = static_cast<void*>(this);
@@ -68,7 +64,6 @@ void RoomObject::destroyMeshLocal()
 
     RenderRequest* request = new RenderRequest;
     request->type   = RenderRequest::destroyRoomObject;
-    request->p2     = getParentRoom();
     request->p      = static_cast<void*>(this);
     RenderManager::queueRenderRequest(request);
 }
@@ -83,11 +78,6 @@ void RoomObject::deleteYourselfLocal()
     request->type   = RenderRequest::deleteRoomObject;
     request->p      = static_cast<void*>(this);
     RenderManager::queueRenderRequest(request);
-}
-
-Room* RoomObject::getParentRoom()
-{
-    return mParentRoom;
 }
 
 const char* RoomObject::getFormat()

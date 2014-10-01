@@ -718,9 +718,12 @@ void RenderManager::rrCreateTrap(const RenderRequest& renderRequest)
     Trap* curTrap = static_cast<Trap*>(renderRequest.p);
     Tile* curTile = static_cast<Tile*>(renderRequest.p2);
 
+    // We do not display ground tile if not required
+    if(!curTrap->shouldDisplayMeshOnGround())
+        return;
+
     std::stringstream tempSS;
-    tempSS << curTrap->getOgreNamePrefix() << curTrap->getName() + "_tile_"
-    << curTile->x << "_" << curTile->y;
+    tempSS << curTrap->getOgreNamePrefix() << curTrap->getNameTile(curTile);
     std::string tempString = tempSS.str();
     Ogre::Entity* ent = mSceneManager->createEntity(tempString, curTrap->getMeshName() + ".mesh");
     Ogre::SceneNode* node = mRoomSceneNode->createChildSceneNode(tempString + "_node");
@@ -736,9 +739,12 @@ void RenderManager::rrDestroyTrap(const RenderRequest& renderRequest)
     Tile* curTile = static_cast<Tile*>(renderRequest.p2);
 
     std::stringstream tempSS;
-    tempSS << curTrap->getOgreNamePrefix() << curTrap->getName() + "_tile_" << curTile->x << "_"
-        << curTile->y;
+    tempSS << curTrap->getOgreNamePrefix() << curTrap->getNameTile(curTile);
     std::string tempString = tempSS.str();
+    // Traps do not necessarily use ground mesh. So, we remove it only if it exists
+    if(!mSceneManager->hasEntity(tempString))
+        return;
+
     Ogre::Entity* ent = mSceneManager->getEntity(tempString);
     Ogre::SceneNode* node = mSceneManager->getSceneNode(tempString + "_node");
     node->detachObject(ent);
@@ -1103,6 +1109,28 @@ void RenderManager::rrMoveSceneNode(const RenderRequest& renderRequest)
         Ogre::SceneNode* node = mSceneManager->getSceneNode(renderRequest.str);
         node->setPosition(renderRequest.vec);
     }
+}
+
+std::string RenderManager::consoleListAnimationsForMesh(const std::string& meshName)
+{
+    if(!Ogre::ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(meshName + ".mesh"))
+        return "\nmesh not available for " + meshName;
+
+    std::string name = meshName + "consoleListAnimationsForMesh";
+    Ogre::Entity* objectEntity = msSingleton->mSceneManager->createEntity(name, meshName + ".mesh");
+    if (!objectEntity->hasSkeleton())
+        return "\nNo skeleton for " + meshName;
+
+    std::string ret;
+    Ogre::AnimationStateIterator animationStateIterator(
+            objectEntity->getAllAnimationStates()->getAnimationStateIterator());
+    while (animationStateIterator.hasMoreElements())
+    {
+        std::string animName = animationStateIterator.getNext()->getAnimationName();
+        ret += "\nAnimation " + animName;
+    }
+    msSingleton->mSceneManager->destroyEntity(objectEntity);
+   return ret;
 }
 
 bool RenderManager::generateRTSSShadersForMaterial(const std::string& materialName,

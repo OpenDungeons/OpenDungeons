@@ -83,21 +83,14 @@ void MissileObject::deleteYourselfLocal()
     RenderManager::queueRenderRequest(request);
 }
 
-bool MissileObject::doUpkeep()
+void MissileObject::doUpkeep()
 {
     // TODO: check if we collide with a creature, if yes, do some damage and delete ourselves
-    return true;
-}
-
-void MissileObject::stopWalking()
-{
-    MovableGameEntity::stopWalking();
-    if(getGameMap()->isServerGameMap())
+    if(!isMoving())
     {
-        // On the client side, this will be done after receiving the
-        // corresponding message
-        getGameMap()->removeMissileObject(this);
-        deleteYourself();
+         getGameMap()->removeMissileObject(this);
+         deleteYourself();
+         return;
     }
 }
 

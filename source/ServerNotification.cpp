@@ -70,6 +70,8 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "removeRoomTile";
         case ServerNotificationType::buildTrap:
             return "buildTrap";
+        case ServerNotificationType::removeTrapTile:
+            return "removeTrapTile";
         case ServerNotificationType::animatedObjectAddDestination:
             return "animatedObjectAddDestination";
         case ServerNotificationType::animatedObjectClearDestinations:
@@ -108,8 +110,6 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "addRoomObject";
         case ServerNotificationType::removeRoomObject:
             return "removeRoomObject";
-        case ServerNotificationType::removeAllRoomObjectFromRoom:
-            return "removeAllRoomObjectFromRoom";
         case ServerNotificationType::depositGoldSound:
             return "depositGoldSound";
         case ServerNotificationType::notifyCreatureInfo:

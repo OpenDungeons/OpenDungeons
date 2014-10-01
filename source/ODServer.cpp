@@ -51,6 +51,7 @@ ODServer::~ODServer()
 bool ODServer::startServer(const std::string& levelFilename, bool replaceHumanPlayersByAi, ServerMode mode)
 {
     LogManager& logManager = LogManager::getSingleton();
+    logManager.logMessage("Asked to launch server with levelFilename=" + levelFilename);
 
     mLevelFilename = levelFilename;
 
@@ -79,6 +80,7 @@ bool ODServer::startServer(const std::string& levelFilename, bool replaceHumanPl
     // Fill seats with either player, AIs or nothing depending on the given faction.
     uint32_t i = 0;
     uint32_t uniqueAINumber = 0;
+    uint32_t uniqueInactiveNumber = 0;
     uint32_t nbPlayerSeat = 0;
     mNbClientsNotReady = 0;
     while (i < gameMap->numEmptySeats())
@@ -116,12 +118,23 @@ bool ODServer::startServer(const std::string& levelFilename, bool replaceHumanPl
             gameMap->assignAI(*aiPlayer, "KeeperAI");
             continue;
         }
+        else
+        {
+            // We create a virtual player that does nothing
+            Player* aiPlayer = new Player();
+            aiPlayer->setNick("Inactive player " + Ogre::StringConverter::toString(++uniqueInactiveNumber));
+
+            // The empty seat is removed by addPlayer(), so we loop without incrementing i
+            gameMap->addPlayer(aiPlayer, gameMap->popEmptySeat(seat->getId()));
+            continue;
+        }
 
         ++i;
     }
 
     logManager.logMessage("Added: " + Ogre::StringConverter::toString(nbPlayerSeat) + " Human players");
     logManager.logMessage("Added: " + Ogre::StringConverter::toString(uniqueAINumber) + " AI players");
+    logManager.logMessage("Added: " + Ogre::StringConverter::toString(uniqueInactiveNumber) + " inactive players");
 
     // If no player seat, the game cannot be launched
     if (nbPlayerSeat == 0)
@@ -659,8 +672,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             OD_ASSERT_TRUE(packetReceived >> &tmpTile);
             Player *player = clientSocket->getPlayer();
             Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE_MSG(tile != NULL, "tile=" + Ogre::StringConverter::toString(tmpTile.getX())
-                + "," + Ogre::StringConverter::toString(tmpTile.getY()));
+            OD_ASSERT_TRUE_MSG(tile != NULL, "tile=" + Tile::displayAsString(tile));
             if(tile != NULL)
             {
                 if(player->isDropCreaturePossible(tile, 0, mServerMode == ServerMode::ModeEditor))

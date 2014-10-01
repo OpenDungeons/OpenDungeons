@@ -30,7 +30,7 @@ public:
     ~RoomHatchery()
     {}
 
-    virtual bool doUpkeep();
+    virtual void doUpkeep();
     virtual bool hasOpenCreatureSpot(Creature* c);
     virtual bool addCreatureUsingRoom(Creature* c);
     virtual void removeCreatureUsingRoom(Creature* c);

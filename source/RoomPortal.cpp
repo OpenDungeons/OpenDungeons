@@ -98,15 +98,18 @@ void RoomPortal::removeCoveredTile(Tile* t, bool isRoomAbsorb)
     //recomputeCenterPosition();
 }
 
-bool RoomPortal::doUpkeep()
+void RoomPortal::doUpkeep()
 {
     // Call the super class Room::doUpkeep() function to do any generic upkeep common to all rooms.
     Room::doUpkeep();
 
+    if (mCoveredTiles.empty())
+        return;
+
     if (mSpawnCreatureCountdown > 0)
     {
         --mSpawnCreatureCountdown;
-        return true;
+        return;
     }
 
     // Randomly choose to spawn a creature.
@@ -125,8 +128,6 @@ bool RoomPortal::doUpkeep()
     double targetProbability = powl((maxCreatures - numCreatures) / maxCreatures, 1.5);
     if (Random::Double(0.0, 1.0) <= targetProbability)
         spawnCreature();
-
-    return true;
 }
 
 void RoomPortal::spawnCreature()

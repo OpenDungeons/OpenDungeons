@@ -46,12 +46,8 @@ public:
 
     std::string getOgreNamePrefix() { return "MissileObject_"; }
 
-    virtual bool doUpkeep();
+    virtual void doUpkeep();
 
-    //! \brief The missile reach the end of the travel and is destroyed.
-    virtual void stopWalking();
-
-    //TODO: implement those functions
     void receiveExp(double experience)
     {}
 
@@ -61,7 +57,7 @@ public:
     double getDefense() const
     { return 0.0; }
 
-    double getHP(Tile* tile)
+    double getHP(Tile* tile) const
     { return 0; }
 
     std::vector<Tile*> getCoveredTiles()

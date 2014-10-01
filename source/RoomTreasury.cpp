@@ -35,10 +35,12 @@ RoomTreasury::RoomTreasury(GameMap* gameMap) :
     mType = treasury;
 }
 
-bool RoomTreasury::doUpkeep()
+void RoomTreasury::doUpkeep()
 {
-    if(!Room::doUpkeep())
-        return false;
+    Room::doUpkeep();
+
+    if (mCoveredTiles.empty())
+        return;
 
     if(mGoldChanged)
     {
@@ -49,8 +51,6 @@ bool RoomTreasury::doUpkeep()
         }
         mGoldChanged = false;
     }
-
-    return true;
 }
 
 void RoomTreasury::absorbRoom(Room *r)

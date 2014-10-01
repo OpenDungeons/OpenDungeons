@@ -37,7 +37,7 @@ public:
     void absorbRoom(Room* room);
 
     //! \brief In addition to the standard upkeep, check to see if a new creature should be spawned.
-    bool doUpkeep();
+    void doUpkeep();
 
     //! \brief Creates a new creature whose class is probabalistic and adds it to the game map at the center of the portal.
     void spawnCreature();

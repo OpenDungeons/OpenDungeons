@@ -85,7 +85,7 @@ public:
     inline unsigned int getLevel() const
     { return mLevel; }
 
-    double getHP(Tile *tile)
+    double getHP(Tile *tile) const
     { return getHP(); }
 
     double getHP() const;
@@ -145,8 +145,8 @@ public:
 
     /*! \brief The main AI routine which decides what the creature will do and carries out that action.
      *
-     * The doTurn routine is the heart of the Creature AI subsystem.  The other,
-     * higher level, functions such as GameMap::doTurn() ultimately just call this
+     * The doUpkeep routine is the heart of the Creature AI subsystem.  The other,
+     * higher level, functions such as GameMap::doUpkeep() ultimately just call this
      * function to make the creatures act.
      *
      * The function begins in a pre-cognition phase which prepares the creature's
@@ -173,11 +173,9 @@ public:
      * In the future there should also be a post-cognition phase to do any
      * additional checks after it tries to move, etc.
      */
-    void doTurn();
+    void doUpkeep();
 
-    //TODO: convert doTurn to doUpkeep();
-    bool doUpkeep()
-    { return true; }
+    virtual bool isAttackable() const;
 
     double getHitroll(double range);
     double getDefense() const;

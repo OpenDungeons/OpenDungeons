@@ -18,6 +18,7 @@ fps
 help
 host
 list
+listanims
 load
 logfloodfill
 ls

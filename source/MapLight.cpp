@@ -106,7 +106,7 @@ void MapLight::destroyOgreEntity()
 
 void MapLight::destroyOgreEntityVisualIndicator()
 {
-    if (!mOgreEntityExists || !mOgreEntityVisualIndicatorExists)
+    if (!mOgreEntityVisualIndicatorExists)
         return;
 
     RenderRequest* request = new RenderRequest;

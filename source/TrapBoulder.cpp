@@ -17,62 +17,10 @@
 
 #include "TrapBoulder.h"
 
-#include "Tile.h"
-#include "GameMap.h"
-#include "MissileObject.h"
-
 TrapBoulder::TrapBoulder(GameMap* gameMap, int x, int y) :
     DirectionalTrap(gameMap, x, y)
 {
-    mReloadTime = -1;
-    mReloadTimeCounter = mReloadTime;
+    mReloadTime = 20;
     mMinDamage = 30;
     mMaxDamage = 40;
-}
-
-std::vector<GameEntity*> TrapBoulder::aimEnemy()
-{
-    std::list<Tile*> tmp = getGameMap()->lineOfSight(mCoveredTiles[0]->x,
-            mCoveredTiles[0]->y, mDir.first, mDir.second);
-    std::vector<Tile*> visibleTiles;
-    for(std::list<Tile*>::const_iterator it = tmp.begin(); it != tmp.end(); ++it)
-    {
-        Tile* tile = *it;
-        if(tile->getFullness() > 0.0)
-        {
-            break;
-        }
-        visibleTiles.push_back(tile);
-    }
-
-    //By defaut, you damage every attackable object in the line.
-    std::vector<GameEntity*> v1 = getGameMap()->getVisibleForce(visibleTiles,
-            getSeat(), true);
-    std::vector<GameEntity*> v2 = getGameMap()->getVisibleForce(visibleTiles,
-            getSeat(), false); // we also attack our creatures
-    for(std::vector<GameEntity*>::const_iterator it = v2.begin();
-            it != v2.end(); ++it)
-    {
-        v1.push_back(*it);
-    }
-
-    return v1;
-}
-
-// we launch a boulder AND damage creatures, in the futur, the missileobject will be in charge of damaging
-void TrapBoulder::damage(std::vector<GameEntity*> enemyAttacked)
-{
-    DirectionalTrap::damage(enemyAttacked);
-
-    if(enemyAttacked.empty())
-        return;
-
-    // when a Boulder.mesh file exists, do this:
-    //~ std::cout << "\nAdding boudler from " << coveredTiles[0]->x << "," << coveredTiles[0]->y << " to " << enemyAttacked.back()->getCoveredTiles()[0]->x << "," << enemyAttacked.back()->getCoveredTiles()[0]->y << std::endl;
-    //~ // Create the cannonball to move toward the enemy creature.
-    //~ MissileObject *tempMissileObject = new MissileObject("Boulder", Ogre::Vector3(coveredTiles[0]->x, coveredTiles[0]->y, 1));
-    //~ tempMissileObject->setMoveSpeed(1.0);
-    //~ tempMissileObject->createMesh();
-    //~ tempMissileObject->addDestination(enemyAttacked.back()->getCoveredTiles()[0]->x, enemyAttacked.back()->getCoveredTiles()[0]->y, 1);
-    //~ gameMap->addMissileObject(tempMissileObject);
 }

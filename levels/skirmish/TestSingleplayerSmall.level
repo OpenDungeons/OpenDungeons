@@ -188,8 +188,8 @@ ProtectDungeonTemple	NULL
 13	45	1	0
 14	7	1	0
 14	8	1	0
-14	9	1	0
-14	10	1	0
+14	9	6	0	3
+14	10	6	0	3
 14	11	1	0
 14	12	2	100
 14	13	2	100
@@ -730,6 +730,10 @@ Treasury	4
 
 [Traps]
 # meshName	seatId		NextLine: numTiles		Subsequent Lines: tileX	tileY
+Spiketrap	3
+2
+14	9
+14	10
 [/Traps]
 
 [Lights]

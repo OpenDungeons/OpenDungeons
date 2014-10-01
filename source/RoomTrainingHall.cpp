@@ -154,6 +154,14 @@ void RoomTrainingHall::refreshCreaturesDummies()
            creaturePosition.y != wantedY)
         {
             // We move to the good tile
+            std::list<Tile*> pathToDummy = getGameMap()->path(creature->getPositionTile(), tileDummy,
+                creature->getDefinition(), creature->getSeat());
+            OD_ASSERT_TRUE(!pathToDummy.empty());
+            if(pathToDummy.empty())
+                continue;
+
+            creature->setWalkPath(pathToDummy, 0, false);
+            // We add the last step to take account of the offset
             creature->addDestination(wantedX, wantedY);
             creature->setAnimationState("Walk");
         }
@@ -187,6 +195,14 @@ bool RoomTrainingHall::addCreatureUsingRoom(Creature* creature)
        creaturePosition.y != wantedY)
     {
         // We move to the good tile
+        std::list<Tile*> pathToDummy = getGameMap()->path(creature->getPositionTile(), tileDummy,
+            creature->getDefinition(), creature->getSeat());
+        OD_ASSERT_TRUE(!pathToDummy.empty());
+        if(pathToDummy.empty())
+            return true;
+
+        creature->setWalkPath(pathToDummy, 0, false);
+        // We add the last step to take account of the offset
         creature->addDestination(wantedX, wantedY);
         creature->setAnimationState("Walk");
     }
@@ -208,10 +224,12 @@ void RoomTrainingHall::removeCreatureUsingRoom(Creature* c)
     }
 }
 
-bool RoomTrainingHall::doUpkeep()
+void RoomTrainingHall::doUpkeep()
 {
-    if(!Room::doUpkeep())
-        return false;
+    Room::doUpkeep();
+
+    if (mCoveredTiles.empty())
+        return;
 
     // We add a probability to change dummies so that creatures do not use the same during too much time
     if(mCreaturesDummies.size() > 0 && Random::Int(5,50) < ++nbTurnsNoChangeDummies)
@@ -254,8 +272,6 @@ bool RoomTrainingHall::doUpkeep()
             }
         }
     }
-
-    return true;
 }
 
 void RoomTrainingHall::getCreatureWantedPos(Creature* creature, Tile* tileDummy,

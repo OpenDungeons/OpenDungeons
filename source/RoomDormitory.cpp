@@ -104,12 +104,6 @@ void RoomDormitory::createMeshLocal()
     }
 }
 
-bool RoomDormitory::doUpkeep()
-{
-    // Call the super class Room::doUpkeep() function to do any generic upkeep common to all rooms.
-    return Room::doUpkeep();
-}
-
 void RoomDormitory::addCoveredTile(Tile* t, double nHP, bool isRoomAbsorb)
 {
     Room::addCoveredTile(t, nHP, isRoomAbsorb);
