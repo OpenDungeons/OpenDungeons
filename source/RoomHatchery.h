@@ -36,7 +36,7 @@ public:
     virtual void removeCreatureUsingRoom(Creature* c);
     virtual void absorbRoom(Room *r);
     virtual void addCoveredTile(Tile* t, double nHP, bool isRoomAbsorb);
-    virtual void removeCoveredTile(Tile* t, bool isRoomAbsorb);
+    virtual bool removeCoveredTile(Tile* t, bool isRoomAbsorb);
 
 protected:
     virtual RoomObject* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);

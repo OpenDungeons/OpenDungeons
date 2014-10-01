@@ -35,9 +35,9 @@ RoomObject* RoomLibrary::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* ti
         case ActiveSpotPlace::activeSpotCenter:
         {
         if (Random::Int(0, 100) > 50)
-            return loadRoomObject(getGameMap(), "Podium", tile);
+            return loadRoomObject(getGameMap(), "Podium", tile, 0.0);
         else
-            return loadRoomObject(getGameMap(), "Bookcase", tile);
+            return loadRoomObject(getGameMap(), "Bookcase", tile, 0.0);
         }
         case ActiveSpotPlace::activeSpotLeft:
         {

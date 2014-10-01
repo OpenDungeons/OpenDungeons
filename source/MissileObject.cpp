@@ -88,9 +88,9 @@ void MissileObject::doUpkeep()
     // TODO: check if we collide with a creature, if yes, do some damage and delete ourselves
     if(!isMoving())
     {
-         getGameMap()->removeMissileObject(this);
-         deleteYourself();
-         return;
+        getGameMap()->removeMissileObject(this);
+        deleteYourself();
+        return;
     }
 }
 

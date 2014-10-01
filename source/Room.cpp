@@ -154,7 +154,7 @@ Room* Room::createRoom(GameMap* gameMap, RoomType nType, const std::vector<Tile*
         tempRoom->setName(gameMap->nextUniqueNameRoom(tempRoom->getMeshName()));
 
     for (unsigned int i = 0; i < nCoveredTiles.size(); ++i)
-        tempRoom->addCoveredTile(nCoveredTiles[i]);
+        tempRoom->addCoveredTile(nCoveredTiles[i], Room::DEFAULT_TILE_HP, false);
 
     int nbTiles = nCoveredTiles.size();
     LogManager::getSingleton().logMessage("Adding room " + tempRoom->getName() + ", nbTiles="
@@ -250,52 +250,41 @@ void Room::absorbRoom(Room *r)
     }
 }
 
+void Room::addCoveredTile(Tile* t, double nHP)
+{
+    addCoveredTile(t, nHP, false);
+}
+
 void Room::addCoveredTile(Tile* t, double nHP, bool isRoomAbsorb)
 {
-    mCoveredTiles.push_back(t);
-    mTileHP[t] = nHP;
+    Building::addCoveredTile(t, nHP);
     t->setCoveringRoom(this);
 }
 
-void Room::removeCoveredTile(Tile* t, bool isRoomAbsorb)
+bool Room::removeCoveredTile(Tile* t)
 {
-    bool removedTile = false;
-    for (unsigned int i = 0; i < mCoveredTiles.size(); ++i)
-    {
-        if (t == mCoveredTiles[i])
-        {
-            mCoveredTiles.erase(mCoveredTiles.begin() + i);
-            t->setCoveringRoom(NULL);
-            mTileHP.erase(t);
-            removedTile = true;
-            break;
-        }
-    }
+    return removeCoveredTile(t, false);
+}
 
-    if (!removedTile)
-        return;
+bool Room::removeCoveredTile(Tile* t, bool isRoomAbsorb)
+{
+    if(!Building::removeCoveredTile(t))
+        return false;
+
+    t->setCoveringRoom(NULL);
 
     if(getGameMap()->isServerGameMap())
-        return;
+        return true;
 
     // Destroy the mesh for this tile.
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::destroyRoom;
     request->p = this;
     request->p2 = t;
-
-    // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
 
     // NOTE: The active spot changes are done in upKeep()
-}
-
-Tile* Room::getCoveredTile(unsigned index)
-{
-    if (index >= mCoveredTiles.size())
-        return NULL;
-
-    return mCoveredTiles[index];
+    return true;
 }
 
 bool Room::addCreatureUsingRoom(Creature* c)
@@ -325,134 +314,6 @@ Creature* Room::getCreatureUsingRoom(unsigned index)
         return NULL;
 
     return mCreaturesUsingRoom[index];
-}
-
-Tile* Room::getCentralTile()
-{
-    if (mCoveredTiles.empty())
-        return NULL;
-
-    int minX, maxX, minY, maxY;
-    minX = maxX = mCoveredTiles[0]->getX();
-    minY = maxY = mCoveredTiles[0]->getY();
-
-    for(unsigned int i = 0, size = mCoveredTiles.size(); i < size; ++i)
-    {
-        int tempX = mCoveredTiles[i]->getX();
-        int tempY = mCoveredTiles[i]->getY();
-
-        if (tempX < minX)
-            minX = tempX;
-        if (tempY < minY)
-            minY = tempY;
-        if (tempX > maxX)
-            maxX = tempX;
-        if (tempY > maxY)
-            maxY = tempY;
-    }
-
-    return getGameMap()->getTile((minX + maxX) / 2, (minY + maxY) / 2);
-}
-
-RoomObject* Room::loadRoomObject(GameMap* gameMap, const std::string& meshName,
-    Tile* targetTile, double rotationAngle)
-{
-    if (targetTile == NULL)
-        targetTile = getCentralTile();
-
-    return loadRoomObject(gameMap, meshName, targetTile, static_cast<double>(targetTile->x),
-        static_cast<double>(targetTile->y), rotationAngle);
-}
-
-RoomObject* Room::loadRoomObject(GameMap* gameMap, const std::string& meshName,
-    Tile* targetTile, double x, double y, double rotationAngle)
-{
-    RoomObject* tempRoomObject = new RoomObject(gameMap, getName(), meshName);
-    tempRoomObject->mX = (Ogre::Real)x;
-    tempRoomObject->mY = (Ogre::Real)y;
-    tempRoomObject->mRotationAngle = (Ogre::Real)rotationAngle;
-
-    return tempRoomObject;
-}
-
-void Room::addRoomObject(Tile* targetTile, RoomObject* roomObject)
-{
-    if(roomObject == NULL)
-        return;
-
-    LogManager::getSingleton().logMessage("Adding room object " + roomObject->getName()
-        + ",room " + getName() + ",MeshName=" + roomObject->getMeshName()
-        + ",tile=" + Tile::displayAsString(targetTile));
-    Ogre::Vector3 objPos(static_cast<Ogre::Real>(targetTile->x), static_cast<Ogre::Real>(targetTile->y), 0);
-    roomObject->setPosition(objPos);
-    mRoomObjects[targetTile] = roomObject;
-    getGameMap()->addRoomObject(roomObject);
-}
-
-void Room::removeRoomObject(Tile* tile)
-{
-    if(mRoomObjects.count(tile) == 0)
-        return;
-
-    RoomObject* roomObject = mRoomObjects[tile];
-    LogManager::getSingleton().logMessage("Removing room object " + roomObject->getName()
-        + " in room " + getName());
-    getGameMap()->removeRoomObject(roomObject);
-    roomObject->deleteYourself();
-    mRoomObjects.erase(tile);
-}
-
-void Room::removeRoomObject(RoomObject* roomObject)
-{
-    std::map<Tile*, RoomObject*>::iterator it;
-
-    for (it = mRoomObjects.begin(); it != mRoomObjects.end(); ++it)
-    {
-        if(it->second == roomObject)
-            break;
-    }
-
-    if(it != mRoomObjects.end())
-    {
-        LogManager::getSingleton().logMessage("Removing room object " + roomObject->getName()
-            + " in room " + getName());
-        getGameMap()->removeRoomObject(roomObject);
-        roomObject->deleteYourself();
-        mRoomObjects.erase(it);
-    }
-}
-
-void Room::removeAllRoomObject()
-{
-    if(mRoomObjects.empty())
-        return;
-
-    std::map<Tile*, RoomObject*>::iterator itr = mRoomObjects.begin();
-    while (itr != mRoomObjects.end())
-    {
-        RoomObject* roomObject = itr->second;
-        getGameMap()->removeRoomObject(roomObject);
-        roomObject->deleteYourself();
-        ++itr;
-    }
-    mRoomObjects.clear();
-}
-
-RoomObject* Room::getRoomObjectFromTile(Tile* tile)
-{
-    if(mRoomObjects.count(tile) == 0)
-        return NULL;
-
-    RoomObject* tempRoomObject = mRoomObjects[tile];
-    return tempRoomObject;
-}
-
-RoomObject* Room::getFirstRoomObject()
-{
-    if (!mRoomObjects.empty())
-        return mRoomObjects.begin()->second;
-    else
-        return NULL;
 }
 
 void Room::createRoomObjectMeshes()
@@ -523,6 +384,7 @@ void Room::doUpkeep()
     // If no more tiles, the room is removed
     if (numCoveredTiles() == 0)
     {
+        LogManager::getSingleton().logMessage("Removing room " + getName());
         getGameMap()->removeRoom(this);
         deleteYourself();
         return;
@@ -557,7 +419,7 @@ std::istream& operator>>(std::istream& is, Room* r)
         is >> tempX >> tempY;
         Tile* tempTile = r->getGameMap()->getTile(tempX, tempY);
         if (tempTile != NULL)
-            r->addCoveredTile(tempTile);
+            r->addCoveredTile(tempTile, Room::DEFAULT_TILE_HP, false);
     }
 
     r->mType = Room::getRoomTypeFromMeshName(r->getMeshName());
@@ -610,7 +472,7 @@ ODPacket& operator>>(ODPacket& is, Room* r)
         is >> tempX >> tempY;
         Tile* tempTile = r->getGameMap()->getTile(tempX, tempY);
         if (tempTile != NULL)
-            r->addCoveredTile(tempTile);
+            r->addCoveredTile(tempTile, Room::DEFAULT_TILE_HP, false);
     }
 
     r->mType = Room::getRoomTypeFromMeshName(r->getMeshName());
@@ -768,54 +630,6 @@ int Room::costPerTile(RoomType t)
     default:
         return 0;
     }
-}
-
-double Room::getHP(Tile *tile) const
-{
-    //NOTE: This function is the same as Trap::getHP(), consider making a base class to inherit this from.
-    if (tile != NULL)
-    {
-        std::map<Tile*, double>::const_iterator tileSearched = mTileHP.find(tile);
-        OD_ASSERT_TRUE(tileSearched != mTileHP.end());
-        return tileSearched->second;
-    }
-
-    // If the tile give was NULL, we add the total HP of all the tiles in the room and return that.
-    double total = 0.0;
-
-    for(std::map<Tile*, double>::const_iterator itr = mTileHP.begin(), end = mTileHP.end();
-        itr != end; ++itr)
-    {
-        total += itr->second;
-    }
-
-    return total;
-}
-
-void Room::takeDamage(GameEntity* attacker, double damage, Tile* tileTakingDamage)
-{
-    if (tileTakingDamage == NULL)
-        return;
-
-    mTileHP[tileTakingDamage] -= damage;
-
-    GameMap* gameMap = getGameMap();
-    if (gameMap == NULL)
-        return;
-
-    if(!gameMap->isServerGameMap())
-        return;
-
-    Seat* seat = getSeat();
-    if (seat == NULL)
-        return;
-
-    Player* player = gameMap->getPlayerBySeatId(seat->getId());
-    if (player == NULL)
-        return;
-
-    // Tells the server game map the player is under attack.
-    gameMap->playerIsFighting(player);
 }
 
 void Room::updateActiveSpots()
@@ -1093,12 +907,4 @@ bool Room::sortForMapSave(Room* r1, Room* r2)
         return r1->getMeshName().compare(r2->getMeshName()) < 0;
 
     return seatId1 < seatId2;
-}
-
-bool Room::isAttackable() const
-{
-    if(getHP(NULL) <= 0.0)
-        return false;
-
-    return true;
 }

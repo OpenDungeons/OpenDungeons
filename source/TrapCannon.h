@@ -25,7 +25,6 @@ class TrapCannon : public ProximityTrap
 public:
     TrapCannon(GameMap* gameMap);
 
-    virtual bool isAttackable() const;
     virtual bool shoot(Tile* tile);
     virtual bool shouldDisplayMeshOnGround()
     {

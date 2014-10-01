@@ -218,7 +218,7 @@ void GameMap::clearAll()
     // NOTE : clearRoomObjects should be called after clearRooms because clearRooms will try to remove the objects from the room
     clearRoomObjects();
     clearTiles();
-    
+
     clearActiveObjects();
 
     clearGoalsForAllSeats();
@@ -2009,6 +2009,7 @@ void GameMap::addMissileObject(MissileObject *m)
 {
     if(isServerGameMap())
     {
+        LogManager::getSingleton().logMessage("Adding MissileObject " + m->getName());
         try
         {
             ServerNotification *serverNotification = new ServerNotification(
@@ -2032,6 +2033,7 @@ void GameMap::removeMissileObject(MissileObject *m)
 {
     if(isServerGameMap())
     {
+        LogManager::getSingleton().logMessage("Removing MissileObject " + m->getName());
         try
         {
             ServerNotification *serverNotification = new ServerNotification(

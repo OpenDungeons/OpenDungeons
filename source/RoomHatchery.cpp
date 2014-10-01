@@ -41,9 +41,10 @@ void RoomHatchery::addCoveredTile(Tile* t, double nHP, bool isRoomAbsorb)
         mUnusedTiles.push_back(t);
 }
 
-void RoomHatchery::removeCoveredTile(Tile* tile, bool isRoomAbsorb)
+bool RoomHatchery::removeCoveredTile(Tile* tile, bool isRoomAbsorb)
 {
-    Room::removeCoveredTile(tile, isRoomAbsorb);
+    if(!Room::removeCoveredTile(tile, isRoomAbsorb))
+        return false;
 
     for(std::map<Creature*,Tile*>::iterator it = mCreaturesChickens.begin(); it != mCreaturesChickens.end(); ++it)
     {
@@ -68,7 +69,7 @@ void RoomHatchery::removeCoveredTile(Tile* tile, bool isRoomAbsorb)
         Tile* tile = *it;
         removeRoomObject(tile);
         mChickensFree.erase(it);
-        return;
+        return true;
     }
 
     it = std::find(mUnusedTiles.begin(), mUnusedTiles.end(), tile);
@@ -76,11 +77,12 @@ void RoomHatchery::removeCoveredTile(Tile* tile, bool isRoomAbsorb)
     {
         // This tile was not used, no need to do anything else
         mUnusedTiles.erase(it);
-        return;
+        return true;
     }
 
     // If no room absorb, we should not come here
     OD_ASSERT_TRUE_MSG(isRoomAbsorb, Tile::displayAsString(tile));
+    return true;
 }
 
 void RoomHatchery::absorbRoom(Room *r)
@@ -110,7 +112,7 @@ RoomObject* RoomHatchery::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* t
         if(it != mUnusedTiles.end())
         {
             mUnusedTiles.erase(it);
-            return loadRoomObject(getGameMap(), "ChickenCoop", tile);
+            return loadRoomObject(getGameMap(), "ChickenCoop", tile, 0.0);
         }
 
         // We check if a creature is hunting this chicken. If is is the case, we free the chicken
@@ -134,7 +136,7 @@ RoomObject* RoomHatchery::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* t
             Tile* tmpTile = *it;
             removeRoomObject(tmpTile);
             mChickensFree.erase(it);
-            return loadRoomObject(getGameMap(), "ChickenCoop", tile);
+            return loadRoomObject(getGameMap(), "ChickenCoop", tile, 0.0);
         }
 
         OD_ASSERT_TRUE(false);
@@ -327,7 +329,7 @@ void RoomHatchery::doUpkeep()
 
             --mNbChickensEaten;
             mChickensFree.push_back(tileChicken);
-            RoomObject* chicken = loadRoomObject(getGameMap(), "Chicken", tileChicken);
+            RoomObject* chicken = loadRoomObject(getGameMap(), "Chicken", tileChicken, 0.0);
             addRoomObject(tileChicken, chicken);
             chicken->setMoveSpeed(0.4);
             chicken->createMesh();

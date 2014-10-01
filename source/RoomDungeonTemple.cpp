@@ -45,7 +45,10 @@ void RoomDungeonTemple::absorbRoom(Room* room)
     Room::absorbRoom(room);
 
     // Get back the temple mesh reference
-    mTempleObject = getFirstRoomObject();
+    if (!mRoomObjects.empty())
+        mTempleObject = mRoomObjects.begin()->second;
+    else
+        mTempleObject = NULL;
 }
 
 void RoomDungeonTemple::createMeshLocal()
@@ -62,7 +65,7 @@ void RoomDungeonTemple::createMeshLocal()
     if(!getGameMap()->isServerGameMap())
         return;
 
-    mTempleObject = loadRoomObject(getGameMap(), "DungeonTempleObject", getCentralTile());
+    mTempleObject = loadRoomObject(getGameMap(), "DungeonTempleObject", getCentralTile(), 0.0);
     addRoomObject(getCentralTile(), mTempleObject);
     createRoomObjectMeshes();
 }

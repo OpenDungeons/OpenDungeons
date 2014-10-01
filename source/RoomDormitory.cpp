@@ -23,6 +23,7 @@
 #include "GameMap.h"
 #include "RoomObject.h"
 #include "Creature.h"
+#include "LogManager.h"
 
 RoomDormitory::RoomDormitory(GameMap* gameMap) :
     Room(gameMap)
@@ -114,21 +115,30 @@ void RoomDormitory::addCoveredTile(Tile* t, double nHP, bool isRoomAbsorb)
         mCreatureSleepingInTile[t] = NULL;
 }
 
-void RoomDormitory::removeCoveredTile(Tile* t, bool isRoomAbsorb)
+bool RoomDormitory::removeCoveredTile(Tile* t, bool isRoomAbsorb)
 {
     if (t == NULL)
-        return;
+        return false;
 
-    Creature* c = mCreatureSleepingInTile[t];
-    if (c != NULL)
+    if(mCreatureSleepingInTile.count(t) > 0)
     {
-        // Inform the creature that it no longer has a place to sleep
-        // and remove the bed tile.
-        releaseTileForSleeping(t, c);
+        Creature* c = mCreatureSleepingInTile[t];
+        OD_ASSERT_TRUE(c != NULL);
+        if (c != NULL)
+        {
+            // Inform the creature that it no longer has a place to sleep
+            // and remove the bed tile.
+            releaseTileForSleeping(t, c);
+        }
     }
 
-    Room::removeCoveredTile(t, isRoomAbsorb);
-    mCreatureSleepingInTile.erase(t);
+    if(Room::removeCoveredTile(t, isRoomAbsorb))
+    {
+        mCreatureSleepingInTile.erase(t);
+        return true;
+    }
+
+    return false;
 }
 
 void RoomDormitory::clearCoveredTiles()

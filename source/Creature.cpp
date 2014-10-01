@@ -558,6 +558,7 @@ void Creature::doUpkeep()
 
             // Remove the creature from the game map and into the deletion queue, it will be deleted
             // when it is safe, i.e. all other pointers to it have been wiped from the program.
+            LogManager::getSingleton().logMessage("Removing creature " + getName());
             getGameMap()->removeCreature(this);
             deleteYourself();
         }
@@ -2850,14 +2851,13 @@ bool Creature::fightClosestObjectInList(std::vector<GameEntity*> listObjects, bo
     if(tileCreature == NULL)
         return false;
 
-    // We try to find closest ennemy object
-
+    // We try to find the closest enemy object
     Tile* attackedTile = NULL;
     GameEntity* attackedObject = getGameMap()->getClosestTileWhereGameEntityFromList(listObjects, tileCreature, attackedTile);
     if(attackedObject == NULL)
         return false;
 
-    // Now that we found the closest ennemy, we move to attack
+    // Now that we found the closest enemy, we move to attack
     std::list<Tile*> tempPath;
     if(!getGameMap()->pathToBestFightingPosition(tempPath, this, attackedTile))
     {
