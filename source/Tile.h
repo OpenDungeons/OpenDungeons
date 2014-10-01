@@ -292,7 +292,9 @@ public:
     std::vector<Tile*> getCoveredTiles() { return std::vector<Tile*>() ;}
     void refreshFromTile(const Tile& tile);
 
-    //! \brief Fills entities with all the attackable entities in the Tile
+    //! \brief Fills entities with all the attackable entities in the Tile. If invert is true,
+    //! the list will be filled with the ennemies with the given seat. If invert is false, it will be filled
+    //! with allies with the given seat.
     void fillAttackableObjects(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
 
 protected:

@@ -409,7 +409,7 @@ void Trap::doUpkeep()
         Tile* tile = *it;
         if(mReloadTimeCounters[tile] > 0)
         {
-            mReloadTimeCounters[tile]--;
+            --mReloadTimeCounters[tile];
             continue;
         }
         if(shoot(tile))

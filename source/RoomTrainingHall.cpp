@@ -198,6 +198,8 @@ bool RoomTrainingHall::addCreatureUsingRoom(Creature* creature)
         std::list<Tile*> pathToDummy = getGameMap()->path(creature->getPositionTile(), tileDummy,
             creature->getDefinition(), creature->getSeat());
         OD_ASSERT_TRUE(!pathToDummy.empty());
+        if(pathToDummy.empty())
+            return true;
 
         creature->setWalkPath(pathToDummy, 0, false);
         // We add the last step to take account of the offset

@@ -45,7 +45,10 @@ class Trap : public Building
 public:
     enum TrapType
     {
-        nullTrapType = 0, cannon, spike, boulder
+        nullTrapType = 0,
+        cannon,
+        spike,
+        boulder
     };
 
     Trap(GameMap* gameMap);

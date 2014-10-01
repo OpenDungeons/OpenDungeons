@@ -162,6 +162,9 @@ Creature* Player::dropCreature(Tile *t, unsigned int index)
 {
     // Add the creature to the map
     OD_ASSERT_TRUE(index < mCreaturesInHand.size());
+    if(index >= mCreaturesInHand.size())
+        return NULL;
+
     Creature *c = mCreaturesInHand[index];
     mCreaturesInHand.erase(mCreaturesInHand.begin() + index);
     c->drop(Ogre::Vector3(static_cast<Ogre::Real>(t->x),

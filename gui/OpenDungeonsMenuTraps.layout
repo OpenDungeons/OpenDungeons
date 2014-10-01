@@ -10,13 +10,13 @@
        <Window type="OD/ImageButton" name="CannonButton" >
            <Property name="Area" value="{{0,20},{0,20},{0,80},{0,80}}" />
            <Property name="NormalImage" value="OpenDungeonsIcons/CannonButton" />
-           <Property name="TooltipText" value="Buid a cannon" />
+           <Property name="TooltipText" value="Build a cannon" />
            <Property name="InheritsAlpha" value="False" />
        </Window>
        <Window type="OD/ImageButton" name="SpikeTrapButton" >
            <Property name="Area" value="{{0,80},{0,20},{0,140},{0,80}}" />
            <Property name="NormalImage" value="OpenDungeonsIcons/SpikeTrapButton" />
-           <Property name="TooltipText" value="Buid a spike trap" />
+           <Property name="TooltipText" value="Build a spike trap" />
            <Property name="InheritsAlpha" value="False" />
        </Window>
    </Window>
