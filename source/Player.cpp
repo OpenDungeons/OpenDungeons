@@ -124,9 +124,9 @@ void Player::pickUpCreature(Creature *c)
     }
 }
 
-void Player::removeCreatureFromHand(int i)
+void Player::clearCreatureInHand()
 {
-    mCreaturesInHand.erase(mCreaturesInHand.begin() + i);
+    mCreaturesInHand.clear();
 }
 
 bool Player::isDropCreaturePossible(Tile *t, unsigned int index, bool isEditorMode)

@@ -84,6 +84,9 @@ public:
 
     void rotateCreaturesInHand(int n);
 
+    //! \brief Clears all creatures that a player might have in his hand
+    void clearCreatureInHand();
+
     inline void setGameMap(GameMap* gameMap)
     { mGameMap = gameMap; }
 
@@ -142,11 +145,6 @@ private:
     //! note this should NOT be called directly for creatures on the map,
     //! for that you should use pickUpCreature() instead.
     void addCreatureToHand(Creature *c);
-
-    //! \brief A simple mutator function to remove a creature from the player's hand,
-    //! note this should NOT be called directly for creatures on the map,
-    //! for that you should use dropCreature() instead.
-    void removeCreatureFromHand(int i);
 };
 
 #endif // PLAYER_H

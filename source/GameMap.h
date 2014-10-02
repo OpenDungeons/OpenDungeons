@@ -22,7 +22,6 @@
 #include "AIManager.h"
 #include "Room.h"
 #include "TileContainer.h"
-#include "CreatureDefinition.h"
 
 #ifdef __MINGW32__
 #ifndef mode_t
@@ -46,6 +45,7 @@ class Goal;
 class MapLight;
 class MissileObject;
 class MovableGameEntity;
+class CreatureDefinition;
 
 class MiniMap;
 class CullingManager;
@@ -142,7 +142,6 @@ public:
      * members of that class.  Creature specific things like location, etc. are
      * then filled out for the individual creature.
      */
-    void addClassDescription(CreatureDefinition c);
     void addClassDescription(CreatureDefinition *c);
 
     //! \brief Returns a pointer to the first class description whose 'name' or index parameter matches the query.

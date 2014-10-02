@@ -281,6 +281,7 @@ void GameMap::clearPlayers()
     {
         delete players[ii];
     }
+    getLocalPlayer()->clearCreatureInHand();
 
     players.clear();
 }
@@ -299,12 +300,6 @@ void GameMap::resetUniqueNumbers()
 void GameMap::addClassDescription(CreatureDefinition *c)
 {
     boost::shared_ptr<CreatureDefinition> ptr(c);
-    classDescriptions.push_back(ptr);
-}
-
-void GameMap::addClassDescription(CreatureDefinition c)
-{
-    boost::shared_ptr<CreatureDefinition> ptr(new CreatureDefinition(c));
     classDescriptions.push_back(ptr);
 }
 
