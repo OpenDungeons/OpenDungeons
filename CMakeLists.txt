@@ -491,26 +491,44 @@ else()
 endif()
 
 #Do the configuration
-configure_file(${CMAKE_CONFIG_DIR}/plugins.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/plugins.cfg)
-configure_file(${CMAKE_CONFIG_DIR}/plugins_d.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/plugins_d.cfg)
-configure_file(${CMAKE_CONFIG_DIR}/resources.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/resources.cfg)
-configure_file(${CMAKE_CONFIG_DIR}/resources.zip.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/resources.zip.cfg)
+configure_file(${CMAKE_CONFIG_DIR}/plugins.cfg.in ${CMAKE_BINARY_DIR}/plugins.cfg)
+configure_file(${CMAKE_CONFIG_DIR}/plugins_d.cfg.in ${CMAKE_BINARY_DIR}/plugins_d.cfg)
+configure_file(${CMAKE_CONFIG_DIR}/resources.cfg.in ${CMAKE_BINARY_DIR}/resources.cfg)
+configure_file(${CMAKE_CONFIG_DIR}/resources.zip.cfg.in ${CMAKE_BINARY_DIR}/resources.zip.cfg)
 # Link icon with its full path when not installed in the /usr prefix since it might not be caught by the hicolor theme
 if(CMAKE_INSTALL_PREFIX STREQUAL "/usr")
     set(OD_ICON_FULLPATH ${PROJECT_BINARY_NAME})
 else()
     set(OD_ICON_FULLPATH ${OD_SHARE_PATH}/icons/hicolor/scalable/apps/opendungeons.svg)
 endif()
-configure_file(${CMAKE_CONFIG_DIR}/opendungeons.desktop.in ${CMAKE_CURRENT_BINARY_DIR}/opendungeons.desktop)
+configure_file(${CMAKE_CONFIG_DIR}/opendungeons.desktop.in ${CMAKE_BINARY_DIR}/opendungeons.desktop)
+
+##################################
+### Run-in-place customisation ###
+##################################
+
+# If the project is not built in the source directory, create symbolic links
+# pointing to the game resources so that the game can be run in place
+if(NOT CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR)
+    foreach(RES gui levels materials models music scripts sounds)
+        if(UNIX)
+            execute_process(COMMAND ln -s -r ${CMAKE_SOURCE_DIR}/${RES} ${CMAKE_BINARY_DIR}/${RES})
+        elseif(WIN32 AND ${CMAKE_SYSTEM_VERSION} GREATER 6.0) # Windows Vista or newer
+            # For some reason "COMMAND cmd.exe /c mklink /j" does not work as expected
+            # so we use a batch file to workaround it (cf. https://github.com/OpenDungeons/OpenDungeons/pull/206 for details)
+            execute_process(COMMAND cmd.exe /c ${CMAKE_SOURCE_DIR}/cmake/winsymlink.bat ${CMAKE_BINARY_DIR}/${RES} ${CMAKE_SOURCE_DIR}/${RES})
+        endif()
+    endforeach(RES)
+endif()
 
 ##################################
 #### Installation ################
 ##################################
 
 if(UNIX)
-    set(OD_CONFIGFILES ${CMAKE_CURRENT_BINARY_DIR}/plugins.cfg
-                       ${CMAKE_CURRENT_BINARY_DIR}/resources.cfg
-                       ${CMAKE_CURRENT_BINARY_DIR}/resources.zip.cfg)
+    set(OD_CONFIGFILES ${CMAKE_BINARY_DIR}/plugins.cfg
+                       ${CMAKE_BINARY_DIR}/resources.cfg
+                       ${CMAKE_BINARY_DIR}/resources.zip.cfg)
 
     set(OD_RESOURCES   ${CMAKE_SOURCE_DIR}/gui
                        ${CMAKE_SOURCE_DIR}/levels
@@ -530,7 +548,7 @@ if(UNIX)
             DESTINATION ${OD_DATA_PATH})
 
     # Additional distribution content (desktop file, icons, etc.)
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/opendungeons.desktop
+    install(FILES ${CMAKE_BINARY_DIR}/opendungeons.desktop
             DESTINATION ${OD_SHARE_PATH}/applications)
     install(DIRECTORY ${CMAKE_SOURCE_DIR}/dist/hicolor
             DESTINATION ${OD_SHARE_PATH}/icons)
