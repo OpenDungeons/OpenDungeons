@@ -202,9 +202,6 @@ public:
     //! \brief Loops over objectsToCheck and returns a vector containing all the creatures in the list.
     std::vector<GameEntity*> getCreaturesFromList(const std::vector<GameEntity*> &objectsToCheck, bool koboldsOnly);
 
-    //! \brief Loops over the enemyObjectsToCheck vector and adds all enemy creatures within weapons range to a list which it returns.
-    std::vector<GameEntity*> getEnemyObjectsInRange(const std::vector<GameEntity*> &enemyObjectsToCheck);
-
     //! \brief Loops over the visibleTiles and adds all allied creatures in each tile to a list which it returns.
     std::vector<GameEntity*> getVisibleAlliedObjects();
 
@@ -382,8 +379,15 @@ private:
 
     //! \brief Search within listObjects the closest one and handle attacks (by moving or attacking)
     //! canAttackObject is set to true is a foe is in the good range to hit (in this case, a fight action can be pushed)
+    //! If a foe can be attacked, mAttackedObject is set to the attackable entity and mAttackedTile to the attacked tile
     //! returns true if a fitting object is found and false otherwise
-    bool fightClosestObjectInList(std::vector<GameEntity*> listObjects, bool& canAttackObject);
+    bool fightClosestObjectInList(const std::vector<GameEntity*>& listObjects, bool& canAttackObject);
+
+    //! \brief Search within listObjects if an object is reachable and handle attacks (by moving or attacking)
+    //! canAttackObject is set to true is a foe is in the good range to hit (in this case, a fight action can be pushed)
+    //! If a foe can be attacked, mAttackedObject is set to the attackable entity and mAttackedTile to the attacked tile
+    //! returns true if a fitting object is found and false otherwise
+    bool fightInRangeObjectInList(const std::vector<GameEntity*>& listObjects, bool& canAttackObject);
 
     //! \brief A sub-function called by doTurn()
     //! This one checks if there is something prioritary to do (like fighting). If it is the case,

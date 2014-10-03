@@ -30,8 +30,6 @@ class Seat;
 class RoomObject;
 class GameMap;
 
-const double defaultRoomTileHP = 10.0;
-
 class Room : public Building
 {
 public:
@@ -53,8 +51,6 @@ public:
     Room(GameMap* gameMap);
     virtual ~Room()
     {}
-
-    virtual bool isAttackable() const;
 
     virtual std::string getOgreNamePrefix() { return "Room_"; }
 
@@ -87,20 +83,6 @@ public:
     static Room* createRoomFromPacket(GameMap* gameMap, const std::string& roomMeshName, ODPacket& is,
         const std::string& roomName);
 
-    /*! \brief Creates a child RoomObject mesh using the given mesh name and placing on the target tile,
-     *  if the tile is NULL the object appears in the room's center, the rotation angle is given in degrees.
-     */
-    RoomObject* loadRoomObject(GameMap* gameMap, const std::string& meshName, Tile *targetTile,
-        double rotationAngle = 0.0);
-    RoomObject* loadRoomObject(GameMap* gameMap, const std::string& meshName, Tile *targetTile,
-        double x, double y, double rotationAngle);
-    void addRoomObject(Tile* targetTile, RoomObject* roomObject);
-    void removeRoomObject(Tile* tile);
-    void removeRoomObject(RoomObject* roomObject);
-    void removeAllRoomObject();
-    RoomObject* getRoomObjectFromTile(Tile* tile);
-    RoomObject* getFirstRoomObject();
-
     void createRoomObjectMeshes();
     void destroyRoomObjectMeshes();
 
@@ -122,54 +104,16 @@ public:
     //! All derived classes of room should call this function first during their doUpkeep() routine.
     virtual void doUpkeep();
 
-    virtual void addCoveredTile(Tile* t, double nHP = defaultRoomTileHP, bool isRoomAbsorb = false);
-    virtual void removeCoveredTile(Tile* t, bool isRoomAbsorb = false);
-    virtual Tile* getCoveredTile(unsigned index);
-
-    /** \brief Returns all of the tiles which are part of this room,
-     *  this is to conform to the AttackableObject interface.
-     */
-    std::vector<Tile*> getCoveredTiles()
-    {
-        return mCoveredTiles;
-    }
-
-    virtual unsigned int numCoveredTiles()
-    {
-        return mCoveredTiles.size();
-    }
-
-    virtual void clearCoveredTiles()
-    {
-        mCoveredTiles.clear();
-    }
-
-    virtual bool tileIsPassable(Tile* t)
-    {
-        return true;
-    }
-
+    virtual void addCoveredTile(Tile* t, double nHP, bool isRoomAbsorb);
+    virtual bool removeCoveredTile(Tile* t, bool isRoomAbsorb);
+    virtual void addCoveredTile(Tile* t, double nHP);
+    virtual bool removeCoveredTile(Tile* t);
 
     //! \brief Adds a creature using the room. If the creature is allowed, true is returned
     virtual bool addCreatureUsingRoom(Creature* c);
     virtual void removeCreatureUsingRoom(Creature* c);
     virtual Creature* getCreatureUsingRoom(unsigned index);
     virtual bool hasOpenCreatureSpot(Creature* c) { return false; }
-
-    Tile* getCentralTile();
-
-    double getHP(Tile *tile) const;
-
-    virtual double getDefense() const
-    {
-        return 0.0;
-    }
-
-    void takeDamage(GameEntity* attacker, double damage, Tile *tileTakingDamage);
-
-    //! \brief  Do nothing since Rooms do not have exp.
-    void receiveExp(double /*experience*/)
-    {}
 
     //! \brief Updates the active spot lists.
     void updateActiveSpots();
@@ -185,8 +129,6 @@ protected:
         activeSpotLeft,
         activeSpotRight
     };
-    std::vector<Tile*> mCoveredTiles;
-    std::map<Tile*, double> mTileHP;
     std::vector<Creature*> mCreaturesUsingRoom;
     RoomType mType;
 
@@ -209,7 +151,6 @@ protected:
 private :
     void activeSpotCheckChange(ActiveSpotPlace place, const std::vector<Tile*>& originalSpotTiles,
         const std::vector<Tile*>& newSpotTiles);
-    std::map<Tile*, RoomObject*> mRoomObjects;
 
 };
 

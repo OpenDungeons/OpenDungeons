@@ -218,7 +218,7 @@ void GameMap::clearAll()
     // NOTE : clearRoomObjects should be called after clearRooms because clearRooms will try to remove the objects from the room
     clearRoomObjects();
     clearTiles();
-    
+
     clearActiveObjects();
 
     clearGoalsForAllSeats();
@@ -281,6 +281,7 @@ void GameMap::clearPlayers()
     {
         delete players[ii];
     }
+    getLocalPlayer()->clearCreatureInHand();
 
     players.clear();
 }
@@ -299,12 +300,6 @@ void GameMap::resetUniqueNumbers()
 void GameMap::addClassDescription(CreatureDefinition *c)
 {
     boost::shared_ptr<CreatureDefinition> ptr(c);
-    classDescriptions.push_back(ptr);
-}
-
-void GameMap::addClassDescription(CreatureDefinition c)
-{
-    boost::shared_ptr<CreatureDefinition> ptr(new CreatureDefinition(c));
     classDescriptions.push_back(ptr);
 }
 
@@ -2009,6 +2004,7 @@ void GameMap::addMissileObject(MissileObject *m)
 {
     if(isServerGameMap())
     {
+        LogManager::getSingleton().logMessage("Adding MissileObject " + m->getName());
         try
         {
             ServerNotification *serverNotification = new ServerNotification(
@@ -2032,6 +2028,7 @@ void GameMap::removeMissileObject(MissileObject *m)
 {
     if(isServerGameMap())
     {
+        LogManager::getSingleton().logMessage("Removing MissileObject " + m->getName());
         try
         {
             ServerNotification *serverNotification = new ServerNotification(

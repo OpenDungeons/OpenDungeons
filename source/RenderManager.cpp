@@ -649,8 +649,12 @@ void RenderManager::rrCreateRoom(const RenderRequest& renderRequest)
     Room* curRoom = static_cast<Room*>(renderRequest.p);
     Tile* curTile = static_cast<Tile*>(renderRequest.p2);
 
+    // We do not display ground tile if not required
+    if(!curRoom->shouldDisplayMeshOnGround())
+        return;
+
     std::stringstream tempSS;
-    tempSS << curRoom->getOgreNamePrefix() << curRoom->getName() << "_" << curTile->x << "_" << curTile->y;
+    tempSS << curRoom->getOgreNamePrefix() << curRoom->getNameTile(curTile);
     // Create the room ground tile
 
     Ogre::Entity* ent = mSceneManager->createEntity(tempSS.str(), curRoom->getMeshName() + ".mesh");
@@ -671,17 +675,19 @@ void RenderManager::rrDestroyRoom(const RenderRequest& renderRequest)
     Tile* curTile = static_cast<Tile*>(renderRequest.p2);
 
     std::stringstream tempSS;
-    tempSS << curRoom->getOgreNamePrefix() << curRoom->getName() << "_" << curTile->x << "_" << curTile->y;
+    tempSS << curRoom->getOgreNamePrefix() << curRoom->getNameTile(curTile);
 
-    if (mSceneManager->hasEntity(tempSS.str()))
-    {
-        Ogre::Entity* ent = mSceneManager->getEntity(tempSS.str());
-        Ogre::SceneNode* node = mSceneManager->getSceneNode(tempSS.str() + "_node");
-        node->detachObject(ent);
-        mRoomSceneNode->removeChild(node);
-        mSceneManager->destroyEntity(ent);
-        mSceneManager->destroySceneNode(node->getName());
-    }
+    std::string tempString = tempSS.str();
+    // Buildings do not necessarily use ground mesh. So, we remove it only if it exists
+    if(!mSceneManager->hasEntity(tempString))
+        return;
+
+    Ogre::Entity* ent = mSceneManager->getEntity(tempString);
+    Ogre::SceneNode* node = mSceneManager->getSceneNode(tempString + "_node");
+    node->detachObject(ent);
+    mRoomSceneNode->removeChild(node);
+    mSceneManager->destroyEntity(ent);
+    mSceneManager->destroySceneNode(node->getName());
 }
 
 void RenderManager::rrCreateRoomObject(const RenderRequest& renderRequest)
@@ -741,7 +747,7 @@ void RenderManager::rrDestroyTrap(const RenderRequest& renderRequest)
     std::stringstream tempSS;
     tempSS << curTrap->getOgreNamePrefix() << curTrap->getNameTile(curTile);
     std::string tempString = tempSS.str();
-    // Traps do not necessarily use ground mesh. So, we remove it only if it exists
+    // Buildings do not necessarily use ground mesh. So, we remove it only if it exists
     if(!mSceneManager->hasEntity(tempString))
         return;
 

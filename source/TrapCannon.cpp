@@ -63,14 +63,6 @@ bool TrapCannon::shoot(Tile* tile)
     return true;
 }
 
-bool TrapCannon::isAttackable() const
-{
-    if(getHP(NULL) <= 0.0)
-        return false;
-
-    return true;
-}
-
 RoomObject* TrapCannon::notifyActiveSpotCreated(Tile* tile)
 {
     return loadRoomObject(getGameMap(), "Cannon", tile, 90.0);

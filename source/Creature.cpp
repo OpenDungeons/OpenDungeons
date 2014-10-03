@@ -558,6 +558,7 @@ void Creature::doUpkeep()
 
             // Remove the creature from the game map and into the deletion queue, it will be deleted
             // when it is safe, i.e. all other pointers to it have been wiped from the program.
+            LogManager::getSingleton().logMessage("Removing creature " + getName());
             getGameMap()->removeCreature(this);
             deleteYourself();
         }
@@ -2223,7 +2224,7 @@ bool Creature::handleFightAction()
     }
 
     // If no creature, we attack the rest
-    if (fightClosestObjectInList(mReachableEnemyObjects, canAttackObject))
+    if (fightInRangeObjectInList(mReachableEnemyObjects, canAttackObject))
     {
         if(canAttackObject)
         {
@@ -2443,38 +2444,6 @@ std::vector<GameEntity*> Creature::getCreaturesFromList(const std::vector<GameEn
             continue;
 
         tempVector.push_back(entity);
-    }
-
-    return tempVector;
-}
-
-std::vector<GameEntity*> Creature::getEnemyObjectsInRange(const std::vector<GameEntity*> &enemyObjectsToCheck)
-{
-    std::vector<GameEntity*> tempVector;
-
-    // If there are no enemies to check we are done.
-    if (enemyObjectsToCheck.empty())
-        return tempVector;
-
-    // Find our location and calculate the square of the max weapon range we have.
-    Tile *myTile = getPositionTile();
-    double weaponRangeSquared = std::max(mWeaponL ? mWeaponL->getRange() : 0.0,
-                                         mWeaponR ? mWeaponR->getRange() : 0.0);
-    weaponRangeSquared *= weaponRangeSquared;
-
-    // Loop over the enemyObjectsToCheck and add any within range to the tempVector.
-    for (unsigned int i = 0; i < enemyObjectsToCheck.size(); ++i)
-    {
-        //TODO:  This should be improved so it picks the closest tile rather than just the [0] tile.
-        Tile *tempTile = enemyObjectsToCheck[i]->getCoveredTiles()[0];
-        if (tempTile == NULL)
-            continue;
-
-        double rSquared = std::pow(myTile->x - tempTile->x, 2.0) + std::pow(
-                myTile->y - tempTile->y, 2.0);
-
-        if (rSquared < weaponRangeSquared)
-            tempVector.push_back(enemyObjectsToCheck[i]);
     }
 
     return tempVector;
@@ -2839,7 +2808,7 @@ bool Creature::setDestination(Tile* tile)
     return false;
 }
 
-bool Creature::fightClosestObjectInList(std::vector<GameEntity*> listObjects, bool& canAttackObject)
+bool Creature::fightClosestObjectInList(const std::vector<GameEntity*>& listObjects, bool& canAttackObject)
 {
     canAttackObject = false;
     if(listObjects.empty())
@@ -2850,14 +2819,13 @@ bool Creature::fightClosestObjectInList(std::vector<GameEntity*> listObjects, bo
     if(tileCreature == NULL)
         return false;
 
-    // We try to find closest ennemy object
-
+    // We try to find the closest enemy object
     Tile* attackedTile = NULL;
     GameEntity* attackedObject = getGameMap()->getClosestTileWhereGameEntityFromList(listObjects, tileCreature, attackedTile);
     if(attackedObject == NULL)
         return false;
 
-    // Now that we found the closest ennemy, we move to attack
+    // Now that we found the closest enemy, we move to attack
     std::list<Tile*> tempPath;
     if(!getGameMap()->pathToBestFightingPosition(tempPath, this, attackedTile))
     {
@@ -2880,7 +2848,7 @@ bool Creature::fightClosestObjectInList(std::vector<GameEntity*> listObjects, bo
     // We have to move to the attacked tile. If we are 1 tile from our foe (tempPath contains 2 values), before
     // moving, we check if he is moving to the same tile as we are. If yes, we don't move
     // to avoid 2 creatures going to each others tiles for ages
-    if((tempPath.size() == 2)  && (attackedObject->getObjectType() == ObjectType::creature))
+    if((tempPath.size() == 2) && (attackedObject->getObjectType() == ObjectType::creature))
     {
         Creature* attackedCreature = static_cast<Creature*>(attackedObject);
         if(!attackedCreature->mWalkQueue.empty())
@@ -2896,6 +2864,91 @@ bool Creature::fightClosestObjectInList(std::vector<GameEntity*> listObjects, bo
                 return true;
             }
         }
+    }
+
+    if (setWalkPath(tempPath, 1, false))
+    {
+        setAnimationState("Walk");
+        pushAction(CreatureAction::walkToTile);
+    }
+
+    return true;
+}
+
+bool Creature::fightInRangeObjectInList(const std::vector<GameEntity*>& listObjects, bool& canAttackObject)
+{
+    canAttackObject = false;
+    if(listObjects.empty())
+        return false;
+
+    // We check if we are at the best range of our foe. That will allow ranged units to hit and run
+    Tile* tileCreature = getPositionTile();
+    if(tileCreature == NULL)
+        return false;
+
+    // We try to find the closest enemy object within attack range
+    GameEntity* closestEnnemyEntity = nullptr;
+    Tile* closestEnnemyTile = nullptr;
+    double closestEnnemyDist = 0.0;
+    Tile* closestNotInRangeEnnemyTile = nullptr;
+    double closestNotInRangeEnnemyDist = 0.0;
+
+    double weaponRangeSquared = std::max(mWeaponL ? mWeaponL->getRange() : 0.0,
+                                         mWeaponR ? mWeaponR->getRange() : 0.0);
+    weaponRangeSquared *= weaponRangeSquared;
+
+    // Loop over the enemyObjectsToCheck and add any within range to the tempVector.
+    for (std::vector<GameEntity*>::const_iterator it = listObjects.begin(); it != listObjects.end(); ++it)
+    {
+        GameEntity* gameEntity = *it;
+        std::vector<Tile*> tiles = gameEntity->getCoveredTiles();
+        for(std::vector<Tile*>::iterator itTile = tiles.begin(); itTile != tiles.end(); ++itTile)
+        {
+            Tile *tempTile = *itTile;
+            if (tempTile == NULL)
+                continue;
+
+            double rSquared = std::pow(tileCreature->x - tempTile->x, 2.0) + std::pow(
+                    tileCreature->y - tempTile->y, 2.0);
+
+            if (rSquared <= weaponRangeSquared)
+            {
+                if((closestEnnemyTile == nullptr) ||
+                   (rSquared < closestEnnemyDist))
+                {
+                    closestEnnemyDist = rSquared;
+                    closestEnnemyTile = tempTile;
+                    closestEnnemyEntity = gameEntity;
+                }
+            }
+            else
+            {
+                if((closestNotInRangeEnnemyTile == nullptr) ||
+                   (rSquared < closestNotInRangeEnnemyDist))
+                {
+                    closestNotInRangeEnnemyDist = rSquared;
+                    closestNotInRangeEnnemyTile = tempTile;
+                }
+            }
+        }
+    }
+
+    if(closestEnnemyEntity != nullptr)
+    {
+        mAttackedObject = closestEnnemyEntity;
+        mAttackedTile = closestEnnemyTile;
+        canAttackObject = true;
+        return true;
+    }
+
+    // There is no ennemy in range. We move to the closest non reachable
+    std::list<Tile*> tempPath;
+    if(!getGameMap()->pathToBestFightingPosition(tempPath, this, closestNotInRangeEnnemyTile))
+    {
+        // We couldn't find a way to the foe. We wander somewhere else
+        popAction();
+        wanderRandomly("Walk");
+        return true;
     }
 
     if (setWalkPath(tempPath, 1, false))
