@@ -700,7 +700,7 @@ void RenderManager::rrCreateRoomObject(const RenderRequest& renderRequest)
     Ogre::Entity* ent = mSceneManager->createEntity(tempString, meshName + ".mesh");
     Ogre::SceneNode* node = mRoomSceneNode->createChildSceneNode(tempString + "_node");
 
-    node->setPosition(Ogre::Vector3(curRoomObject->mX, curRoomObject->mY, 0.0));
+    node->setPosition(curRoomObject->getPosition());
     node->setScale(Ogre::Vector3(0.7, 0.7, 0.7));
     node->roll(Ogre::Degree(curRoomObject->mRotationAngle));
     node->attachObject(ent);

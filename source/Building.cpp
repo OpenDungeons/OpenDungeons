@@ -115,8 +115,7 @@ RoomObject* Building::loadRoomObject(GameMap* gameMap, const std::string& meshNa
     Tile* targetTile, double x, double y, double rotationAngle)
 {
     RoomObject* tempRoomObject = new RoomObject(gameMap, getName(), meshName);
-    tempRoomObject->mX = (Ogre::Real)x;
-    tempRoomObject->mY = (Ogre::Real)y;
+    tempRoomObject->setPosition(Ogre::Vector3((Ogre::Real)x, (Ogre::Real)y, 0.0f));
     tempRoomObject->mRotationAngle = (Ogre::Real)rotationAngle;
 
     return tempRoomObject;

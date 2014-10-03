@@ -89,8 +89,9 @@ ODPacket& operator<<(ODPacket& os, RoomObject* ro)
 {
     std::string name = ro->getName();
     std::string meshName = ro->getMeshName();
+    Ogre::Vector3 position = ro->getPosition();
     os << name << meshName;
-    os << ro->mX << ro->mY << ro->mRotationAngle;
+    os << position << ro->mRotationAngle;
     return os;
 }
 
@@ -98,14 +99,13 @@ ODPacket& operator>>(ODPacket& is, RoomObject* ro)
 {
     std::string name;
     Ogre::Real tmpReal;
+    Ogre::Vector3 position;
     is >> name;
     ro->setName(name);
     is >> name;
     ro->setMeshName(name);
-    is >> tmpReal;
-    ro->mX = tmpReal;
-    is >> tmpReal;
-    ro->mY = tmpReal;
+    is >> position;
+    ro->setPosition(position);
     is >> tmpReal;
     ro->mRotationAngle = tmpReal;
     return is;
