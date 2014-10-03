@@ -620,6 +620,7 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
             clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
             clientNotification->mPacket << mDigSetBool;
             ODClient::getSingleton().queueClientNotification(clientNotification);
+            mGameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::none);
             break;
         }
         case Player::SelectedAction::buildRoom:
