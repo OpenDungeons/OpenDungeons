@@ -781,6 +781,89 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
+        case ClientNotification::askSellRoomTiles:
+        {
+            int x1, y1, x2, y2;
+
+            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2);
+            Player* player = clientSocket->getPlayer();
+            std::vector<Tile*> tiles = gameMap->rectangularRegion(x1, y1, x2, y2);
+
+            if(tiles.empty())
+                break;
+
+            int goldRetrieved = 0;
+            std::set<Room*> roomsImpacted;
+            std::vector<Tile*> sentTiles;
+            for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
+            {
+                Tile* tile = *it;
+                if(tile->getCoveringRoom() == nullptr)
+                    continue;
+                Room* room = tile->getCoveringRoom();
+                if(!room->getSeat()->canRoomBeDestroyedBy(player->getSeat()))
+                    continue;
+
+                roomsImpacted.insert(room);
+                sentTiles.push_back(tile);
+                goldRetrieved += Room::costPerTile(room->getType()) / 2;
+                OD_ASSERT_TRUE(room->removeCoveredTile(tile));
+                const std::string& name = room->getName();
+                ODPacket packet;
+                packet << ServerNotification::removeRoomTile;
+                packet << name << tile;
+                sendToAllClients(packet);
+            }
+
+            // We update active spots of each impacted rooms
+            for(std::set<Room*>::iterator it = roomsImpacted.begin(); it != roomsImpacted.end(); ++it)
+            {
+                Room* room = *it;
+                room->updateActiveSpots();
+            }
+
+            // Note : no need to handle the free treasury tile because if there is no treasury tile, gold will be 0 anyway
+            gameMap->addGoldToSeat(goldRetrieved, player->getSeat()->getId());
+            break;
+        }
+
+        case ClientNotification::editorAskDestroyRoomTiles:
+        {
+            int x1, y1, x2, y2;
+
+            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2);
+            std::vector<Tile*> tiles = gameMap->rectangularRegion(x1, y1, x2, y2);
+
+            if(tiles.empty())
+                break;
+
+            std::set<Room*> roomsImpacted;
+            std::vector<Tile*> sentTiles;
+            for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
+            {
+                Tile* tile = *it;
+                if(tile->getCoveringRoom() == nullptr)
+                    continue;
+                Room* room = tile->getCoveringRoom();
+                roomsImpacted.insert(room);
+                sentTiles.push_back(tile);
+                OD_ASSERT_TRUE(room->removeCoveredTile(tile));
+                const std::string& name = room->getName();
+                ODPacket packet;
+                packet << ServerNotification::removeRoomTile;
+                packet << name << tile;
+                sendToAllClients(packet);
+            }
+
+            // We update active spots of each impacted rooms
+            for(std::set<Room*>::iterator it = roomsImpacted.begin(); it != roomsImpacted.end(); ++it)
+            {
+                Room* room = *it;
+                room->updateActiveSpots();
+            }
+            break;
+        }
+
         case ClientNotification::askBuildTrap:
         {
             int x1, y1, x2, y2;
@@ -811,6 +894,87 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     }
                     sendToAllClients(packet);
                 }
+            }
+            break;
+        }
+
+        case ClientNotification::askSellTrapTiles:
+        {
+            int x1, y1, x2, y2;
+
+            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2);
+            Player* player = clientSocket->getPlayer();
+            std::vector<Tile*> tiles = gameMap->rectangularRegion(x1, y1, x2, y2);
+
+            if(tiles.empty())
+                break;
+
+            int goldRetrieved = 0;
+            std::set<Trap*> trapsImpacted;
+            std::vector<Tile*> sentTiles;
+            for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
+            {
+                Tile* tile = *it;
+                if(tile->getCoveringTrap() == nullptr)
+                    continue;
+                Trap* trap = tile->getCoveringTrap();
+                if(!trap->getSeat()->canTrapBeDestroyedBy(player->getSeat()))
+                    continue;
+
+                trapsImpacted.insert(trap);
+                sentTiles.push_back(tile);
+                goldRetrieved += Trap::costPerTile(trap->getType()) / 2;
+                OD_ASSERT_TRUE(trap->removeCoveredTile(tile));
+                const std::string& name = trap->getName();
+                ODPacket packet;
+                packet << ServerNotification::removeTrapTile;
+                packet << name << tile;
+                sendToAllClients(packet);
+            }
+
+            // We update active spots of each impacted rooms
+            for(std::set<Trap*>::iterator it = trapsImpacted.begin(); it != trapsImpacted.end(); ++it)
+            {
+                Trap* trap = *it;
+                trap->updateActiveSpots();
+            }
+            gameMap->addGoldToSeat(goldRetrieved, player->getSeat()->getId());
+            break;
+        }
+
+        case ClientNotification::editorAskDestroyTrapTiles:
+        {
+            int x1, y1, x2, y2;
+
+            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2);
+            std::vector<Tile*> tiles = gameMap->rectangularRegion(x1, y1, x2, y2);
+
+            if(tiles.empty())
+                break;
+
+            std::set<Trap*> trapsImpacted;
+            std::vector<Tile*> sentTiles;
+            for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
+            {
+                Tile* tile = *it;
+                if(tile->getCoveringTrap() == nullptr)
+                    continue;
+                Trap* trap = tile->getCoveringTrap();
+                trapsImpacted.insert(trap);
+                sentTiles.push_back(tile);
+                OD_ASSERT_TRUE(trap->removeCoveredTile(tile));
+                const std::string& name = trap->getName();
+                ODPacket packet;
+                packet << ServerNotification::removeTrapTile;
+                packet << name << tile;
+                sendToAllClients(packet);
+            }
+
+            // We update active spots of each impacted rooms
+            for(std::set<Trap*>::iterator it = trapsImpacted.begin(); it != trapsImpacted.end(); ++it)
+            {
+                Trap* trap = *it;
+                trap->updateActiveSpots();
             }
             break;
         }

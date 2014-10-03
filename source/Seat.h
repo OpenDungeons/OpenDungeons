@@ -132,6 +132,8 @@ public:
     bool canOwnedCreatureBePickedUpBy(Seat* seat);
     bool canOwnedTileBeClaimedBy(Seat* seat);
     bool canOwnedCreatureUseRoomFrom(Seat* seat);
+    bool canRoomBeDestroyedBy(Seat* seat);
+    bool canTrapBeDestroyedBy(Seat* seat);
 
     // TODO : most of these should be private
     //! \brief The team id of the player sitting in this seat.

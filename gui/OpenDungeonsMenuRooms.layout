@@ -42,5 +42,11 @@
            <Property name="TooltipText" value="Build a Hatchery" />
            <Property name="InheritsAlpha" value="False" />
        </Window>
+       <Window type="OD/ImageButton" name="DestroyRoomButton" >
+           <Property name="Area" value="{{0,380},{0,20},{0,440},{0,80}}" />
+           <Property name="NormalImage" value="OpenDungeonsIcons/DestroyRoomButton" />
+           <Property name="TooltipText" value="Destroy a room (returns half its price)" />
+           <Property name="InheritsAlpha" value="False" />
+       </Window>
    </Window>
 </GUILayout>

@@ -44,8 +44,16 @@ std::string ClientNotification::typeString(ClientNotificationType type)
             return "askMarkTile";
         case ClientNotificationType::askBuildRoom:
             return "askBuildRoom";
+        case ClientNotificationType::askSellRoomTiles:
+            return "askSellRoomTiles";
+        case ClientNotificationType::editorAskDestroyRoomTiles:
+            return "editorAskDestroyRoomTiles";
         case ClientNotificationType::askBuildTrap:
             return "askBuildTrap";
+        case ClientNotificationType::askSellTrapTiles:
+            return "askSellTrapTiles";
+        case ClientNotificationType::editorAskDestroyTrapTiles:
+            return "editorAskDestroyTrapTiles";
         case ClientNotificationType::ackNewTurn:
             return "ackNewTurn";
         case ClientNotificationType::askCreatureInfos:

@@ -31,6 +31,7 @@
 Player::Player() :
     mNewRoomType(Room::nullRoomType),
     mNewTrapType(Trap::nullTrapType),
+    mCurrentAction(SelectedAction::none),
     mGameMap(NULL),
     mSeat(NULL),
     mHasAI(false),

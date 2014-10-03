@@ -688,12 +688,6 @@ std::string Tile::tileTypeToString(TileType t)
     }
 }
 
-Tile::TileType Tile::nextTileType(TileType t)
-{
-    return static_cast<TileType>((static_cast<int>(t) + 1)
-            % static_cast<int>(claimed));
-}
-
 int Tile::nextTileFullness(int f)
 {
 

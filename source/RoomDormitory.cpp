@@ -123,7 +123,6 @@ bool RoomDormitory::removeCoveredTile(Tile* t, bool isRoomAbsorb)
     if(mCreatureSleepingInTile.count(t) > 0)
     {
         Creature* c = mCreatureSleepingInTile[t];
-        OD_ASSERT_TRUE(c != NULL);
         if (c != NULL)
         {
             // Inform the creature that it no longer has a place to sleep

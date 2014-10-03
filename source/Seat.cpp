@@ -235,7 +235,22 @@ bool Seat::canOwnedTileBeClaimedBy(Seat* seat)
 
 bool Seat::canOwnedCreatureUseRoomFrom(Seat* seat)
 {
-     // Note : if we want to allow players to pickup allied creatures, we can do that here.
+    if(this == seat)
+        return true;
+
+    return false;
+}
+
+bool Seat::canRoomBeDestroyedBy(Seat* seat)
+{
+    if(this == seat)
+        return true;
+
+    return false;
+}
+
+bool Seat::canTrapBeDestroyedBy(Seat* seat)
+{
     if(this == seat)
         return true;
 

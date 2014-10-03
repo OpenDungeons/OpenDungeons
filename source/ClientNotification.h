@@ -44,7 +44,9 @@ public:
         askCreatureDrop,
         askMarkTile,
         askBuildRoom,
+        askSellRoomTiles,
         askBuildTrap,
+        askSellTrapTiles,
         ackNewTurn,
         askCreatureInfos,
 
@@ -52,7 +54,9 @@ public:
         editorAskSaveMap,
         editorAskChangeTiles,
         editorAskBuildRoom,
-        editorAskBuildTrap
+        editorAskBuildTrap,
+        editorAskDestroyRoomTiles,
+        editorAskDestroyTrapTiles
     };
 
     ClientNotification(ClientNotificationType type);

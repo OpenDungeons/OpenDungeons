@@ -30,19 +30,6 @@ namespace Ogre {
 class InputManager
 {
 public:
-
-    enum DragType
-    {
-        creature,
-        creaturePosses,
-        mapLight,
-        tileSelection,
-        tileBrushSelection,
-        addNewRoom,
-        addNewTrap,
-        nullDragType
-    };
-
     InputManager(Ogre::RenderWindow* renderWindow);
     ~InputManager();
 
@@ -62,7 +49,6 @@ public:
     int                 mXPos, mYPos;
     int                 mLStartDragX, mLStartDragY;
     int                 mRStartDragX, mRStartDragY;
-    int                 mDragType;
 };
 
 #endif // INPUTMANAGER_H
