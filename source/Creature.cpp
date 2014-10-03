@@ -1193,9 +1193,9 @@ bool Creature::handleClaimTileAction()
         std::vector<Tile*> neighbors = myTile->getAllNeighbors();
         for (unsigned int j = 0; j < neighbors.size(); ++j)
         {
-            // Check to see if the current neighbor is already claimed
+            // Check to see if the current neighbor is a claimed ground tile
             Tile* tempTile = neighbors[j];
-            if (tempTile->isClaimedForSeat(getSeat()) && tempTile->getClaimedPercentage() >= 1.0)
+            if (tempTile->isClaimedForSeat(getSeat()) && (tempTile->getFullness() == 0.0) && tempTile->getClaimedPercentage() >= 1.0)
             {
                 //cout << "\t\tFound a neighbor that is claimed.";
                 // If we found a neighbor that is claimed for our side than we can start
