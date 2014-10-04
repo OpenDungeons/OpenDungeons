@@ -295,13 +295,6 @@ bool RenderManager::handleRenderRequest(const RenderRequest& renderRequest)
         rrDestroyMapLightVisualIndicator(renderRequest);
         break;
 
-    case RenderRequest::deleteMapLight:
-    {
-        MapLight* curMapLight = static_cast<MapLight*> (renderRequest.p);
-        delete curMapLight;
-        break;
-    }
-
     case RenderRequest::pickUpCreature:
         rrPickUpCreature(renderRequest);
         break;
@@ -940,8 +933,7 @@ void RenderManager::rrCreateMapLight(const RenderRequest& renderRequest)
 
 void RenderManager::rrDestroyMapLight(const RenderRequest& renderRequest)
 {
-    MapLight* curMapLight = static_cast<MapLight*> (renderRequest.p);
-    std::string mapLightName = curMapLight->getOgreNamePrefix() + curMapLight->getName();
+    std::string mapLightName = renderRequest.str;
     if (mSceneManager->hasLight(mapLightName))
     {
         Ogre::Light* light = mSceneManager->getLight(mapLightName);
@@ -955,7 +947,7 @@ void RenderManager::rrDestroyMapLight(const RenderRequest& renderRequest)
         if (mSceneManager->hasEntity(mapLightName))
         {
             Ogre::Entity* mapLightIndicatorEntity = mSceneManager->getEntity(
-                curMapLight->getOgreNamePrefix() + curMapLight->getName());
+                mapLightName);
             lightNode->detachObject(mapLightIndicatorEntity);
         }
         mSceneManager->destroySceneNode(lightFlickerNode->getName());
@@ -965,13 +957,12 @@ void RenderManager::rrDestroyMapLight(const RenderRequest& renderRequest)
 
 void RenderManager::rrDestroyMapLightVisualIndicator(const RenderRequest& renderRequest)
 {
-    MapLight* curMapLight = static_cast<MapLight*>(renderRequest.p);
-    std::string mapLightName = curMapLight->getOgreNamePrefix() + curMapLight->getName();
+    std::string mapLightName = renderRequest.str;
     if (mSceneManager->hasLight(mapLightName))
     {
         Ogre::SceneNode* mapLightNode = mSceneManager->getSceneNode(mapLightName + "_node");
         std::string mapLightIndicatorName = MapLight::MAPLIGHT_INDICATOR_PREFIX
-                                            + curMapLight->getName();
+                                            + renderRequest.str2;
         if (mSceneManager->hasEntity(mapLightIndicatorName))
         {
             Ogre::Entity* mapLightIndicatorEntity = mSceneManager->getEntity(mapLightIndicatorName);

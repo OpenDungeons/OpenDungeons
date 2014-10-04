@@ -69,7 +69,6 @@ public:
         updateMapLight,
         destroyMapLight,
         destroyMapLightVisualIndicator,
-        deleteMapLight,
         moveSceneNode,
         orientSceneNodeToward,
         reorientSceneNode,

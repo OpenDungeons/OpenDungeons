@@ -278,6 +278,7 @@ bool ODClient::processOneClientSocketMessage()
             OD_ASSERT_TRUE_MSG(tempMapLight != NULL, "nameMapLight=" + nameMapLight);
             gameMap->removeMapLight(tempMapLight);
             tempMapLight->deleteYourself();
+            delete tempMapLight;
             break;
         }
 
