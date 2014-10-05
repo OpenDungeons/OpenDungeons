@@ -19,7 +19,7 @@ Wizard	WeakFighter	Wizard.mesh	Bed	1	2	0.5	0.5	0.5	3	70	15	0	0	0.7	0	0
 Tentacle1	WeakFighter	Tentacle.mesh	Anvil	1	1	0.6	0.6	0.6	2	50	15	0	0	1	0	0
 Tentacle2	WeakFighter	Tentacle2.mesh	Anvil	1	1	0.6	0.6	0.6	3	90	15	0	0	1.1	0	0
 Troll	StrongFighter	Troll.mesh	Bed	2	3	0.2	0.2	0.2	5	150	15	0	0	0.4	0	0
-Adventurer	WeakFighter	Adventurer.mesh	Bed	1	2	0.5	0.5	0.5	2	60	15	0	0	1.2	0	0
+Adventurer	WeakFighter	Adventurer.mesh	Hammock	1	2	0.5	0.5	0.5	2	60	15	0	0	1.2	0	0
 LizardMan	StrongFighter	Lizardman.mesh	Bed	1	2	0.5	0.5	0.5	5	150	15	0	0	1	0	0
 CaveHornet	StrongFighter	Cavehornet.mesh	Bed	1	2	0.4	0.4	0.4	2	40	15	0	0	2	2	0
 Scarab	StrongFighter	Scarab.mesh	Bed	4	4	0.2	0.2	0.2	6	180	15	0	0	0.7	0	0

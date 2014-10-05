@@ -6,7 +6,7 @@ This file is listing each files present in this repository, its author and its c
 Each corresponding license is fully described in the licenses/ folder.
 Other text files (.txt, .cpp, .h., ...), except licensing, are licensed using the GPL 3.0 license.
 
-Latest update: 2014/09/28
+Latest update: 2014/10/06
 
 =============================
 ==  Configuration: config/ ==
@@ -76,11 +76,12 @@ multiplayer/
 
 skirmish/
 -> oldTest.level
+-> Scream in the Dark.level            Bertram                 GPL 3.0
+-> Stonekeep siege.level               Danimal                 GPL 3.0
 -> TestSingleplayer.level              hwoarangmy              GPL 3.0
 -> TestSingleplayerSmall.level         hwoarangmy              GPL 3.0
 -> TestSingleplayerSmallEmpty.level    hwoarangmy              GPL 3.0
 -> TestSingleplayerSmallPassability.level hwoarangmy           GPL 3.0
--> Stonekeep siege.level               Danimal                 GPL 3.0
 
 =================================================
 ==  Ogre material files & textures: materials/ ==
@@ -95,20 +96,21 @@ scripts/
 
 textures/
 -> *.png                               Titus Tscharntke        CC0                     http://www.burningwell.org/ - photo sources for textures
--> Obsidian.png                        Reiner Flassig          CC-BY-SA/DE 2.0         Obsidian photo source - http://de.wikipedia.org/w/index.php?title=Datei:Obsi.jpg&filetimestamp=20070905143430
+-> Anvil.png                           Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
 -> Axe.png                             Skorpio                 CC-BY-SA 3.0, GPL 3.0
--> slimeDiffuse.png                    Grefuntor               CC-BY 3.0, CC-BY-SA 3.0, GPL 2.0+ - http://opengameart.org/content/slime-mold
 -> ChickenCoop_tex.png                 Dm3d                    CC-BY-SA 3.0            http://opengameart.org/content/chicken-coop
+-> Chimney.png                         Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
+-> Forge.png                           Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
+-> Foundry.png                         Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
+-> Grindstone.png                      Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
+-> Hammock.png                         Luke.RUSTLTD, Nobiax    CC0                     http://forum.freegamedev.net/viewtopic.php?p=59983#p59983
+-> Lamp.png                            Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?
+-> Obsidian.png                        Reiner Flassig          CC-BY-SA/DE 2.0         Obsidian photo source - http://de.wikipedia.org/w/index.php?title=Datei:Obsi.jpg&filetimestamp=20070905143430
+-> slimeDiffuse.png                    Grefuntor               CC-BY 3.0, CC-BY-SA 3.0, GPL 2.0+ - http://opengameart.org/content/slime-mold
 -> Spike-trapTexture.png               P0ss, Danimal           CC-BY 3.0               http://opengameart.org/content/spyke-trap-low-poly
 -> TrainingDummy2_texture.png          Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59239#p59239
 -> TrainingDummy3.png                  P0ss                    CC-BY 3.0               http://forum.freegamedev.net/viewtopic.php?p=59351#p59351
--> TrainingDummy4.png                  Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?p=59621#p59621
--> Lamp.png                            Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?p=59621#p59621
--> Anvil.png                           Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
--> Forge.png                           Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
--> Chimney.png                         Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
--> Foundry.png                         Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
--> Grindstone.png                      Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
+-> TrainingDummy4.png                  Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?p=59621#p59621p=59621#p59621
 
 
 ======================
@@ -155,6 +157,7 @@ Goblin.*                               Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL
 Gold*[0-9].mesh                        Skorpio                 CC-BY-SA 3.0, GPL 3.0
 GoldstackLv*.mesh                      Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
 Grindstone.mesh                        Daniel74                CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
+Hammock.mesh                           eugeneloza              CC0                     http://forum.freegamedev.net/viewtopic.php?p=59983#p59983
 Keeperhand.*                           Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Knight.*                               surt                    CC0                     http://opengameart.org/forumtopic/cc0-scraps
 Kobold.*                               surt                    CC0                     http://opengameart.org/forumtopic/cc0-scraps
