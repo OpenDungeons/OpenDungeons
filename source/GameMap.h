@@ -459,6 +459,15 @@ public:
     //! Used on the server game map only.
     void playerIsFighting(Player* player);
 
+    //! \brief Deletes the entities that have been marked to delete. This function should only be called once the
+    //! RenderManager has finished to render every object inside.
+    // TODO : at this time, this function is only used on the server GameMap because the RenderManager is responsible for
+    // deleting most of the entities of the client GameMap (and the server GameMap do not use RenderManager since it is not
+    // rendered). It could be nice to have the same behaviour and move the entities deletion from the RenderManager to the
+    // GameMap (which will not be hard since they are called within the same thread context - a call to processDeletionQueues
+    // after processing rendering messages will be enough)
+    void processDeletionQueues();
+
     // FIXME: Needs to be private
     CullingManager* culm;
 
@@ -542,15 +551,6 @@ private:
 
     //! AI Handling manager
     AIManager aiManager;
-
-    //! \brief Deletes the entities that have been marked to delete. This function should only be called once the
-    //! RenderManager has finished to render every object inside.
-    // TODO : at this time, this function is only used on the server GameMap because the RenderManager is responsible for
-    // deleting most of the entities of the client GameMap (and the server GameMap do not use RenderManager since it is not
-    // rendered). It could be nice to have the same behaviour and move the entities deletion from the RenderManager to the
-    // GameMap (which will not be hard since they are called within the same thread context - a call to processDeletionQueues
-    // after processing rendering messages will be enough)
-    void processDeletionQueues();
 
     //! \brief Updates different entities states.
     //! Updates active objects (creatures, rooms, ...), goals, count each team Workers, gold, mana and claimed tiles.

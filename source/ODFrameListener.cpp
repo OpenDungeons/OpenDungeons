@@ -89,7 +89,8 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::Overlay
     mMiniMap(NULL),
     mExitRequested(false),
     mCameraManager(NULL),
-    mIsChatInputMode(false)
+    mIsChatInputMode(false),
+    mLastTurn(-1)
 {
     LogManager* logManager = LogManager::getSingletonPtr();
     logManager->logMessage("Creating frame listener...", Ogre::LML_NORMAL);
@@ -177,6 +178,7 @@ void ODFrameListener::exitApplication()
     ODClient::getSingleton().notifyExit();
     ODServer::getSingleton().notifyExit();
     RenderManager::getSingletonPtr()->processRenderRequests();
+    mGameMap->processDeletionQueues();
     mGameMap->clearAll();
     RenderManager::getSingletonPtr()->getSceneManager()->destroyQuery(mRaySceneQuery);
 
@@ -219,7 +221,9 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     // If game is started, we update the game
     AbstractApplicationMode* currentMode = mModeManager->getCurrentMode();
 
-    if ((mGameMap->getTurnNumber() != -1) || (!currentMode->waitForGameStart()))
+    int64_t currentTurn = mGameMap->getTurnNumber();
+
+    if ((currentTurn != -1) || (!currentMode->waitForGameStart()))
     {
         if(!mExitRequested)
         {
@@ -237,6 +241,12 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 
         if((mGameMap->getGamePaused()) && (!mExitRequested))
             return true;
+        if( mLastTurn != currentTurn)
+        {
+            //Only do this once per turn.
+            mGameMap->processDeletionQueues();
+            mLastTurn = currentTurn;
+        }
     }
 
     //If an exit has been requested, start cleaning up.
@@ -246,6 +256,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
         mContinue = false;
         return mContinue;
     }
+
 
     ODClient::getSingleton().processClientSocketMessages();
     ODClient::getSingleton().processClientNotifications();

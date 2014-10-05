@@ -124,11 +124,8 @@ void MapLight::deleteYourself()
 {
     destroyOgreEntity();
 
-    if(mGameMap->isServerGameMap())
-    {
-        mGameMap->queueMapLightForDeletion(this);
-        return;
-    }
+    mGameMap->queueMapLightForDeletion(this);
+    return;
 }
 
 void MapLight::setPosition(Ogre::Real nX, Ogre::Real nY, Ogre::Real nZ)

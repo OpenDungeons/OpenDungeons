@@ -216,6 +216,9 @@ private:
     std::string mChatString;
     bool mIsChatInputMode;
 
+    //! \brief Variable to keep track of turn number for things that should only update once per turn.
+    int64_t mLastTurn;
+
     //! \brief Actually exit application
     void exitApplication();
 
