@@ -39,6 +39,16 @@ class Creature;
 class Player
 {
 public:
+    enum SelectedAction
+    {
+        none,
+        buildRoom,
+        buildTrap,
+        changeTile,
+        selectTile,
+        destroyRoom,
+        destroyTrap
+    };
     Player();
 
     const std::string& getNick() const
@@ -102,6 +112,9 @@ public:
     inline const Room::RoomType getNewRoomType()
     { return mNewRoomType; }
 
+    inline const SelectedAction getCurrentAction()
+    { return mCurrentAction; }
+
     inline void setNewRoomType(Room::RoomType newRoomType)
     { mNewRoomType = newRoomType; }
 
@@ -117,10 +130,14 @@ public:
     inline void setFightingTime(float fightingTime)
     { mFightingTime = fightingTime; }
 
+    inline void setCurrentAction(SelectedAction action)
+    { mCurrentAction = action; }
+
 private:
     //! \brief Room or trap tile type the player is currently willing to place on map.
     Room::RoomType mNewRoomType;
     Trap::TrapType mNewTrapType;
+    SelectedAction mCurrentAction;
 
     GameMap* mGameMap;
     Seat *mSeat;

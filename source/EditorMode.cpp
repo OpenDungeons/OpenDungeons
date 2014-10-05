@@ -102,26 +102,43 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
         return true;
 
     Player* player = mGameMap->getLocalPlayer();
-    Room::RoomType selectedRoomType = player->getNewRoomType();
-    Trap::TrapType selectedTrapType = player->getNewTrapType();
-    if (player->getNewRoomType() != Room::nullRoomType
-        || player->getNewTrapType() != Trap::nullTrapType
-        || mCurrentTileType != Tile::TileType::nullTileType)
+    Player::SelectedAction playerSelectedAction = player->getCurrentAction();
+    if (playerSelectedAction != Player::SelectedAction::none)
     {
         TextRenderer::getSingleton().moveText(ODApplication::POINTER_INFO_STRING,
             (Ogre::Real)(arg.state.X.abs + 30), (Ogre::Real)arg.state.Y.abs);
 
-        if(selectedRoomType != Room::nullRoomType)
+        switch(playerSelectedAction)
         {
-            TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(Room::getRoomNameFromRoomType(selectedRoomType)));
-        }
-        else if(selectedTrapType != Trap::nullTrapType)
-        {
-            TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(Trap::getTrapNameFromTrapType(selectedTrapType)));
-        }
-        else if(mCurrentTileType != Tile::TileType::nullTileType)
-        {
-            TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(Tile::tileTypeToString(mCurrentTileType)));
+            case Player::SelectedAction::buildRoom:
+            {
+                Room::RoomType selectedRoomType = player->getNewRoomType();
+                TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(Room::getRoomNameFromRoomType(selectedRoomType)));
+                break;
+            }
+            case Player::SelectedAction::buildTrap:
+            {
+                Trap::TrapType selectedTrapType = player->getNewTrapType();
+                TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(Trap::getTrapNameFromTrapType(selectedTrapType)));
+                break;
+            }
+            case Player::SelectedAction::changeTile:
+            {
+                TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(Tile::tileTypeToString(mCurrentTileType)));
+                break;
+            }
+            case Player::SelectedAction::destroyRoom:
+            {
+                TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Destroy room");
+                break;
+            }
+            case Player::SelectedAction::destroyTrap:
+            {
+                TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Destroy trap");
+                break;
+            }
+            default :
+                break;
         }
     }
 
@@ -145,7 +162,7 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
             continue;
 
         // If we don't drag anything, there is no affected tiles to compute.
-        if (!inputManager->mLMouseDown || inputManager->mDragType == nullDragType)
+        if (!inputManager->mLMouseDown || player->getCurrentAction() == Player::SelectedAction::none)
             break;
 
         for (int jj = 0; jj < mGameMap->getMapSizeY(); ++jj)
@@ -241,9 +258,10 @@ void EditorMode::handleMouseMovedDragType(const OIS::MouseEvent &arg)
     Ogre::RaySceneQueryResult::iterator itr = result.begin();
     Ogre::RaySceneQueryResult::iterator end = result.end();
 
+    Player* player = mGameMap->getLocalPlayer();
     InputManager* inputManager = mModeManager->getInputManager();
 
-    switch(inputManager->mDragType)
+    switch(player->getCurrentAction())
     {
     default:
         // Since this is a tile selection query we loop over the result set and look for the first object which is actually a tile.
@@ -262,7 +280,7 @@ void EditorMode::handleMouseMovedDragType(const OIS::MouseEvent &arg)
             handleCursorPositionUpdate();
 
             // If we don't drag anything, there is no affected tiles to compute.
-            if (!inputManager->mLMouseDown || inputManager->mDragType == nullDragType)
+            if (!inputManager->mLMouseDown || player->getCurrentAction() == Player::SelectedAction::none)
                 return;
 
             // Handle when dragging using the left mouse button
@@ -354,7 +372,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         inputManager->mRStartDragY = inputManager->mYPos;
 
         // Stop creating rooms, traps, etc.
-        inputManager->mDragType = nullDragType;
+        mGameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::none);
         mGameMap->getLocalPlayer()->setNewRoomType(Room::nullRoomType);
         mGameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
         mCurrentTileType = Tile::TileType::nullTileType;
@@ -392,9 +410,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     // Check whether the player is already placing rooms or traps.
     bool skipCreaturePickUp = false;
     Player* player = mGameMap->getLocalPlayer();
-    if (player && (player->getNewRoomType() != Room::nullRoomType
-        || player->getNewTrapType() != Trap::nullTrapType
-        || mCurrentTileType != Tile::TileType::nullTileType))
+    if (player && (player->getCurrentAction() != Player::SelectedAction::none))
     {
         skipCreaturePickUp = true;
     }
@@ -457,39 +473,6 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         }
     }
 
-    // If no creatures or lights are under the  mouse run through the list again to check for tiles
-    for (itr = result.begin(); itr != result.end(); ++itr)
-    {
-        if (itr->movable == NULL)
-            continue;
-
-        std::string resultName = itr->movable->getName();
-
-        int x, y;
-        if (!Tile::checkTileName(resultName, x, y))
-            continue;
-
-        // If we have selected a room type to add to the map, use a addNewRoom drag type.
-        if (mGameMap->getLocalPlayer()->getNewRoomType() != Room::nullRoomType)
-        {
-            inputManager->mDragType = addNewRoom;
-        }
-
-        // If we have selected a trap type to add to the map, use a addNewTrap drag type.
-        else if (mGameMap->getLocalPlayer()->getNewTrapType() != Trap::nullTrapType)
-        {
-            inputManager->mDragType = addNewTrap;
-        }
-
-        // If we have selected a tile type, we use it
-        else if (mCurrentTileType != Tile::TileType::nullTileType)
-        {
-            inputManager->mDragType = changeTile;
-        }
-
-        break;
-    }
-
     return true;
 }
 
@@ -498,9 +481,6 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
     CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(Gui::getSingletonPtr()->convertButton(id));
 
     InputManager* inputManager = mModeManager->getInputManager();
-    int dragType = inputManager->mDragType;
-    inputManager->mDragType = nullDragType;
-
     // If the mouse press was on a CEGUI window ignore it
     if (inputManager->mMouseDownOnCEGUIWindow)
         return true;
@@ -527,66 +507,79 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
     // Left mouse button up
     inputManager->mLMouseDown = false;
 
-    switch(dragType)
+    // On the client:  Inform the server about what we are doing
+    switch(mGameMap->getLocalPlayer()->getCurrentAction())
     {
-        default:
-            dragType = nullDragType;
-            return true;
-
-        // When either selecting a tile, adding room or a trap
-        // we do what's next.
-        case addNewRoom:
-        case addNewTrap:
-        case changeTile:
-            break;
-    }
-
-    // On the client:  Inform the server about our choice
-    if(dragType == changeTile)
-    {
-        double fullness;
-        switch(mCurrentTileType)
+        case Player::SelectedAction::changeTile:
         {
-            case Tile::TileType::nullTileType:
-                return true;
-            case Tile::TileType::dirt:
-            case Tile::TileType::gold:
-            case Tile::TileType::rock:
-            case Tile::TileType::claimed:
-                fullness = mCurrentFullness;
-                break;
-            default:
-                fullness = 0.0;
+            double fullness;
+            switch(mCurrentTileType)
+            {
+                case Tile::TileType::nullTileType:
+                    return true;
+                case Tile::TileType::dirt:
+                case Tile::TileType::gold:
+                case Tile::TileType::rock:
+                case Tile::TileType::claimed:
+                    fullness = mCurrentFullness;
+                    break;
+                default:
+                    fullness = 0.0;
+                    break;
+            }
+            int intTileType = static_cast<int>(mCurrentTileType);
+            ClientNotification *clientNotification = new ClientNotification(
+                ClientNotification::editorAskChangeTiles);
+            clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
+            clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
+            clientNotification->mPacket << intTileType;
+            clientNotification->mPacket << fullness;
+            clientNotification->mPacket << mCurrentSeatId;
+            ODClient::getSingleton().queueClientNotification(clientNotification);
+            break;
         }
-        int intTileType = static_cast<int>(mCurrentTileType);
-        ClientNotification *clientNotification = new ClientNotification(
-            ClientNotification::editorAskChangeTiles);
-        clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
-        clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
-        clientNotification->mPacket << intTileType;
-        clientNotification->mPacket << fullness;
-        clientNotification->mPacket << mCurrentSeatId;
-        ODClient::getSingleton().queueClientNotification(clientNotification);
-    }
-    else if(dragType == addNewRoom)
-    {
-        int intRoomType = static_cast<int>(mGameMap->getLocalPlayer()->getNewRoomType());
-        ClientNotification *clientNotification = new ClientNotification(
-            ClientNotification::editorAskBuildRoom);
-        clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
-        clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
-        clientNotification->mPacket << intRoomType << mCurrentSeatId;
-        ODClient::getSingleton().queueClientNotification(clientNotification);
-    }
-    else if(dragType == addNewTrap)
-    {
-        ClientNotification *clientNotification = new ClientNotification(
-            ClientNotification::editorAskBuildTrap);
-        int intTrapType = static_cast<int>(mGameMap->getLocalPlayer()->getNewTrapType());
-        clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
-        clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
-        clientNotification->mPacket << intTrapType << mCurrentSeatId;
-        ODClient::getSingleton().queueClientNotification(clientNotification);
+        case Player::SelectedAction::buildRoom:
+        {
+            int intRoomType = static_cast<int>(mGameMap->getLocalPlayer()->getNewRoomType());
+            ClientNotification *clientNotification = new ClientNotification(
+                ClientNotification::editorAskBuildRoom);
+            clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
+            clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
+            clientNotification->mPacket << intRoomType << mCurrentSeatId;
+            ODClient::getSingleton().queueClientNotification(clientNotification);
+            break;
+        }
+        case Player::SelectedAction::buildTrap:
+        {
+            ClientNotification *clientNotification = new ClientNotification(
+                ClientNotification::editorAskBuildTrap);
+            int intTrapType = static_cast<int>(mGameMap->getLocalPlayer()->getNewTrapType());
+            clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
+            clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
+            clientNotification->mPacket << intTrapType << mCurrentSeatId;
+            ODClient::getSingleton().queueClientNotification(clientNotification);
+            break;
+        }
+        case Player::SelectedAction::destroyRoom:
+        {
+            ClientNotification *clientNotification = new ClientNotification(
+                ClientNotification::editorAskDestroyRoomTiles);
+            clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
+            clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
+            ODClient::getSingleton().queueClientNotification(clientNotification);
+            break;
+        }
+        case Player::SelectedAction::destroyTrap:
+        {
+            ClientNotification *clientNotification = new ClientNotification(
+                ClientNotification::editorAskDestroyTrapTiles);
+            clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
+            clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
+            ODClient::getSingleton().queueClientNotification(clientNotification);
+            break;
+        }
+        default:
+            return true;
     }
     return true;
 }
@@ -686,12 +679,6 @@ bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
 
     case OIS::KC_END:
         frameListener.moveCamera(CameraManager::Direction::moveDown);
-        break;
-
-    //Toggle mCurrentTileType
-    case OIS::KC_R:
-        mCurrentTileType = Tile::nextTileType(mCurrentTileType);
-        updateCursorText();
         break;
 
     //Toggle mCurrentFullness

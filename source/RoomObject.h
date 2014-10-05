@@ -63,8 +63,6 @@ public:
     friend ODPacket& operator<<(ODPacket& os, RoomObject* o);
     friend ODPacket& operator>>(ODPacket& is, RoomObject* o);
 
-    Ogre::Real mX;
-    Ogre::Real mY;
     Ogre::Real mRotationAngle;
 
 protected:

@@ -18,10 +18,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
- * TODO: Make input user-definable
- */
-
 #include "GameMode.h"
 
 #include "ODClient.h"
@@ -165,48 +161,129 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
     // If we have a room or trap (or later spell) selected, show what we have selected
     // TODO: This should be changed, or combined with an icon or something later.
     Player* player = mGameMap->getLocalPlayer();
-    Room::RoomType selectedRoomType = player->getNewRoomType();
-    Trap::TrapType selectedTrapType = player->getNewTrapType();
-    if (selectedRoomType != Room::nullRoomType ||
-        selectedTrapType != Trap::nullTrapType)
+    if (player->getCurrentAction() != Player::SelectedAction::none)
     {
         TextRenderer& textRenderer = TextRenderer::getSingleton();
         textRenderer.moveText(ODApplication::POINTER_INFO_STRING,
             (Ogre::Real)(arg.state.X.abs + 30), (Ogre::Real)arg.state.Y.abs);
-        int nbTile = 1;
-        // If the player is dragging to build, we display the total price the room/trap will cost.
-        // If he is not, we display the price for 1 tile.
-        if(inputManager->mLMouseDown)
+
+        switch(player->getCurrentAction())
         {
-            std::vector<Tile*> buildableTiles = mGameMap->getBuildableTilesForPlayerInArea(inputManager->mXPos,
-                inputManager->mYPos, inputManager->mLStartDragX, inputManager->mLStartDragY, player);
-            nbTile = buildableTiles.size();
-        }
+            case Player::SelectedAction::buildRoom:
+            {
+                int nbTile = 1;
+                // If the player is dragging to build, we display the total price the room/trap will cost.
+                // If he is not, we display the price for 1 tile.
+                if(inputManager->mLMouseDown)
+                {
+                    std::vector<Tile*> buildableTiles = mGameMap->getBuildableTilesForPlayerInArea(inputManager->mXPos,
+                        inputManager->mYPos, inputManager->mLStartDragX, inputManager->mLStartDragY, player);
+                    nbTile = buildableTiles.size();
+                }
 
-        int gold = player->getSeat()->getGold();
+                int gold = player->getSeat()->getGold();
+                Room::RoomType selectedRoomType = player->getNewRoomType();
+                int price = Room::costPerTile(selectedRoomType) * nbTile;
 
-        if(selectedRoomType != Room::nullRoomType)
-        {
-            int price = Room::costPerTile(selectedRoomType) * nbTile;
+                // Check whether the room type is the first treasury tile.
+                // In that case, the cost of the first tile is 0, to prevent the player from being stuck
+                // with no means to earn money.
+                if (selectedRoomType == Room::treasury && mGameMap->numRoomsByTypeAndSeat(Room::treasury, player->getSeat()) == 0)
+                    price -= Room::costPerTile(selectedRoomType);
 
-            // Check whether the room type is the first treasury tile.
-            // In that case, the cost of the first tile is 0, to prevent the player from being stuck
-            // with no means to earn money.
-            if (selectedRoomType == Room::treasury && mGameMap->numRoomsByTypeAndSeat(Room::treasury, player->getSeat()) == 0)
-                price -= Room::costPerTile(selectedRoomType);
+                Ogre::ColourValue& textColor = (gold < price) ? red : white;
+                textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
+                textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Room::getRoomNameFromRoomType(selectedRoomType))
+                    + " [" + Ogre::StringConverter::toString(price)+ "]");
+                break;
+            }
+            case Player::SelectedAction::buildTrap:
+            {
+                int nbTile = 1;
+                // If the player is dragging to build, we display the total price the room/trap will cost.
+                // If he is not, we display the price for 1 tile.
+                if(inputManager->mLMouseDown)
+                {
+                    std::vector<Tile*> buildableTiles = mGameMap->getBuildableTilesForPlayerInArea(inputManager->mXPos,
+                        inputManager->mYPos, inputManager->mLStartDragX, inputManager->mLStartDragY, player);
+                    nbTile = buildableTiles.size();
+                }
 
-            Ogre::ColourValue& textColor = (gold < price) ? red : white;
-            textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
-            textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Room::getRoomNameFromRoomType(selectedRoomType))
-                + " [" + Ogre::StringConverter::toString(price)+ "]");
-        }
-        else if(selectedTrapType != Trap::nullTrapType)
-        {
-            int price = Trap::costPerTile(selectedTrapType) * nbTile;
-            Ogre::ColourValue& textColor = (gold < price) ? red : white;
-            textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
-            textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Trap::getTrapNameFromTrapType(selectedTrapType))
-                + " [" + Ogre::StringConverter::toString(price)+ "]");
+                int gold = player->getSeat()->getGold();
+                Trap::TrapType selectedTrapType = player->getNewTrapType();
+                int price = Trap::costPerTile(selectedTrapType) * nbTile;
+                Ogre::ColourValue& textColor = (gold < price) ? red : white;
+                textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
+                textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Trap::getTrapNameFromTrapType(selectedTrapType))
+                    + " [" + Ogre::StringConverter::toString(price)+ "]");
+                break;
+            }
+            case Player::SelectedAction::destroyRoom:
+            {
+                int goldRetrieved = 0;
+                std::vector<Tile*> tiles;
+                if(inputManager->mLMouseDown)
+                {
+                    tiles = mGameMap->rectangularRegion(inputManager->mXPos,
+                        inputManager->mYPos, inputManager->mLStartDragX, inputManager->mLStartDragY);
+                }
+                else
+                {
+                    Tile* tile = mGameMap->getTile(inputManager->mXPos, inputManager->mYPos);
+                    if(tile != NULL)
+                        tiles.push_back(tile);
+                }
+
+                for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
+                {
+                    Tile* tile = *it;
+                    if(tile->getCoveringRoom() == nullptr)
+                        continue;
+                    Room* room = tile->getCoveringRoom();
+                    if(!room->getSeat()->canRoomBeDestroyedBy(player->getSeat()))
+                        continue;
+
+                    goldRetrieved += Room::costPerTile(room->getType()) / 2;
+                }
+                textRenderer.setColor(ODApplication::POINTER_INFO_STRING, white);
+                textRenderer.setText(ODApplication::POINTER_INFO_STRING, "Destroy room ["
+                    + Ogre::StringConverter::toString(goldRetrieved)+ "]");
+                break;
+            }
+            case Player::SelectedAction::destroyTrap:
+            {
+                int goldRetrieved = 0;
+                std::vector<Tile*> tiles;
+                if(inputManager->mLMouseDown)
+                {
+                    tiles = mGameMap->rectangularRegion(inputManager->mXPos,
+                        inputManager->mYPos, inputManager->mLStartDragX, inputManager->mLStartDragY);
+                }
+                else
+                {
+                    Tile* tile = mGameMap->getTile(inputManager->mXPos, inputManager->mYPos);
+                    if(tile != NULL)
+                        tiles.push_back(tile);
+                }
+
+                for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
+                {
+                    Tile* tile = *it;
+                    if(tile->getCoveringTrap() == nullptr)
+                        continue;
+                    Trap* trap = tile->getCoveringTrap();
+                    if(!trap->getSeat()->canTrapBeDestroyedBy(player->getSeat()))
+                        continue;
+
+                    goldRetrieved += Trap::costPerTile(trap->getType()) / 2;
+                }
+                textRenderer.setColor(ODApplication::POINTER_INFO_STRING, white);
+                textRenderer.setText(ODApplication::POINTER_INFO_STRING, "Destroy trap ["
+                    + Ogre::StringConverter::toString(goldRetrieved)+ "]");
+                break;
+            }
+            default:
+                break;
         }
     }
 
@@ -230,7 +307,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
             continue;
 
         // If we don't drag anything, there is no affected tiles to compute.
-        if (!inputManager->mLMouseDown || inputManager->mDragType == nullDragType)
+        if (!inputManager->mLMouseDown || player->getCurrentAction() == Player::SelectedAction::none)
             break;
 
         for (int jj = 0; jj < mGameMap->getMapSizeY(); ++jj)
@@ -365,7 +442,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         inputManager->mRStartDragY = inputManager->mYPos;
 
         // Stop creating rooms, traps, etc.
-        inputManager->mDragType = nullDragType;
+        mGameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::none);
         mGameMap->getLocalPlayer()->setNewRoomType(Room::nullRoomType);
         mGameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
         TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "");
@@ -402,8 +479,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     // Check whether the player is already placing rooms or traps.
     bool skipCreaturePickUp = false;
     Player* player = mGameMap->getLocalPlayer();
-    if (player && (player->getNewRoomType() != Room::nullRoomType
-        || player->getNewTrapType() != Trap::nullTrapType))
+    if (player && (player->getCurrentAction() != Player::SelectedAction::none))
     {
         skipCreaturePickUp = true;
     }
@@ -469,37 +545,26 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         }
     }
 
-    // If no creatures or lights are under the  mouse run through the list again to check for tiles
-    for (itr = result.begin(); itr != result.end(); ++itr)
+    // If we are doing nothing and we click on a tile, it is a tile selection
+    if(player->getCurrentAction() == Player::SelectedAction::none)
     {
-        if (itr->movable == NULL)
-            continue;
-
-        std::string resultName = itr->movable->getName();
-
-        int x, y;
-        if (!Tile::checkTileName(resultName, x, y))
-            continue;
-
-        // Start by assuming this is a tileSelection drag.
-        inputManager->mDragType = tileSelection;
-
-        // If we have selected a room type to add to the map, use a addNewRoom drag type.
-        if (mGameMap->getLocalPlayer()->getNewRoomType() != Room::nullRoomType)
+        for (itr = result.begin(); itr != result.end(); ++itr)
         {
-            inputManager->mDragType = addNewRoom;
-        }
+            if (itr->movable == NULL)
+                continue;
 
-        // If we have selected a trap type to add to the map, use a addNewTrap drag type.
-        else if (mGameMap->getLocalPlayer()->getNewTrapType() != Trap::nullTrapType)
-        {
-            inputManager->mDragType = addNewTrap;
-        }
+            std::string resultName = itr->movable->getName();
 
-        break;
+            int x, y;
+            if (!Tile::checkTileName(resultName, x, y))
+                continue;
+
+            player->setCurrentAction(Player::SelectedAction::selectTile);
+            break;
+        }
     }
 
-    // If we are in a game we store the opposite of whether this tile is marked for diggin or not, this allows us to mark tiles
+    // If we are in a game we store the opposite of whether this tile is marked for digging or not, this allows us to mark tiles
     // by dragging out a selection starting from an unmarcked tile, or unmark them by starting the drag from a marked one.
     Tile *tempTile = mGameMap->getTile(inputManager->mXPos, inputManager->mYPos);
 
@@ -514,8 +579,6 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(Gui::getSingletonPtr()->convertButton(id));
 
     InputManager* inputManager = mModeManager->getInputManager();
-    int dragType = inputManager->mDragType;
-    inputManager->mDragType = nullDragType;
 
     // If the mouse press was on a CEGUI window ignore it
     if (inputManager->mMouseDownOnCEGUIWindow)
@@ -546,50 +609,64 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     // Left mouse button up
     inputManager->mLMouseDown = false;
 
-    switch(dragType)
+    // On the client:  Inform the server about what we are doing
+    switch(mGameMap->getLocalPlayer()->getCurrentAction())
     {
-        default:
-            dragType = nullDragType;
-            return true;
-
-        // When either selecting a tile, adding room or a trap
-        // we do what's next.
-        case tileSelection:
-        case addNewRoom:
-        case addNewTrap:
+        case Player::SelectedAction::selectTile:
+        {
+            ClientNotification *clientNotification = new ClientNotification(
+                ClientNotification::askMarkTile);
+            clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
+            clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
+            clientNotification->mPacket << mDigSetBool;
+            ODClient::getSingleton().queueClientNotification(clientNotification);
+            mGameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::none);
             break;
+        }
+        case Player::SelectedAction::buildRoom:
+        {
+            int intRoomType = static_cast<int>(mGameMap->getLocalPlayer()->getNewRoomType());
+            ClientNotification *clientNotification = new ClientNotification(
+                ClientNotification::askBuildRoom);
+            clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
+            clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
+            clientNotification->mPacket << intRoomType;
+            ODClient::getSingleton().queueClientNotification(clientNotification);
+            break;
+        }
+        case Player::SelectedAction::buildTrap:
+        {
+            ClientNotification *clientNotification = new ClientNotification(
+                ClientNotification::askBuildTrap);
+            int intTrapType = static_cast<int>(mGameMap->getLocalPlayer()->getNewTrapType());
+            clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
+            clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
+            clientNotification->mPacket << intTrapType;
+            ODClient::getSingleton().queueClientNotification(clientNotification);
+            break;
+        }
+        case Player::SelectedAction::destroyRoom:
+        {
+            ClientNotification *clientNotification = new ClientNotification(
+                ClientNotification::askSellRoomTiles);
+            clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
+            clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
+            ODClient::getSingleton().queueClientNotification(clientNotification);
+            break;
+        }
+        case Player::SelectedAction::destroyTrap:
+        {
+            ClientNotification *clientNotification = new ClientNotification(
+                ClientNotification::askSellTrapTiles);
+            clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
+            clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
+            ODClient::getSingleton().queueClientNotification(clientNotification);
+            break;
+        }
+        default:
+            return true;
     }
 
-    // On the client:  Inform the server about our choice
-    if(dragType == tileSelection)
-    {
-        ClientNotification *clientNotification = new ClientNotification(
-            ClientNotification::askMarkTile);
-        clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
-        clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
-        clientNotification->mPacket << mDigSetBool;
-        ODClient::getSingleton().queueClientNotification(clientNotification);
-    }
-    else if(dragType == addNewRoom)
-    {
-        int intRoomType = static_cast<int>(mGameMap->getLocalPlayer()->getNewRoomType());
-        ClientNotification *clientNotification = new ClientNotification(
-            ClientNotification::askBuildRoom);
-        clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
-        clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
-        clientNotification->mPacket << intRoomType;
-        ODClient::getSingleton().queueClientNotification(clientNotification);
-    }
-    else if(dragType == addNewTrap)
-    {
-        ClientNotification *clientNotification = new ClientNotification(
-            ClientNotification::askBuildTrap);
-        int intTrapType = static_cast<int>(mGameMap->getLocalPlayer()->getNewTrapType());
-        clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
-        clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
-        clientNotification->mPacket << intTrapType;
-        ODClient::getSingleton().queueClientNotification(clientNotification);
-    }
     return true;
 }
 

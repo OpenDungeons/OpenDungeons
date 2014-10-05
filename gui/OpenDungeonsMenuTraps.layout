@@ -19,5 +19,11 @@
            <Property name="TooltipText" value="Build a spike trap" />
            <Property name="InheritsAlpha" value="False" />
        </Window>
+       <Window type="OD/ImageButton" name="DestroyTrapButton" >
+           <Property name="Area" value="{{0,140},{0,20},{0,200},{0,80}}" />
+           <Property name="NormalImage" value="OpenDungeonsIcons/DestroyTrapButton" />
+           <Property name="TooltipText" value="Destroy a trap (returns half its price)" />
+           <Property name="InheritsAlpha" value="False" />
+       </Window>
    </Window>
 </GUILayout>

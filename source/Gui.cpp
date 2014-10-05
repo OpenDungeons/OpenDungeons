@@ -177,6 +177,10 @@ void Gui::assignEventHandlers()
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&hatcheryButtonPressed));
 
+    sheets[inGameMenu]->getChild(BUTTON_DESTROY_ROOM)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&destroyRoomButtonPressed));
+
     sheets[inGameMenu]->getChild(BUTTON_TRAP_CANNON)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&cannonButtonPressed));
@@ -184,6 +188,10 @@ void Gui::assignEventHandlers()
     sheets[inGameMenu]->getChild(BUTTON_TRAP_SPIKE)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&spikeTrapButtonPressed));
+
+    sheets[inGameMenu]->getChild(BUTTON_DESTROY_TRAP)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&destroyTrapButtonPressed));
 
     sheets[inGameMenu]->getChild(MINIMAP)->subscribeEvent(
             CEGUI:: Window::EventMouseClick,
@@ -230,6 +238,10 @@ void Gui::assignEventHandlers()
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&treasuryButtonPressed));
 
+    sheets[editorModeGui]->getChild(BUTTON_DESTROY_ROOM)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&destroyRoomButtonPressed));
+
     sheets[editorModeGui]->getChild(BUTTON_FORGE)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&forgeButtonPressed));
@@ -253,6 +265,10 @@ void Gui::assignEventHandlers()
     sheets[editorModeGui]->getChild(BUTTON_TRAP_SPIKE)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&spikeTrapButtonPressed));
+
+    sheets[editorModeGui]->getChild(BUTTON_DESTROY_TRAP)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&destroyTrapButtonPressed));
 
     sheets[editorModeGui]->getChild(MINIMAP)->subscribeEvent(
             CEGUI:: Window::EventMouseClick,
@@ -376,6 +392,7 @@ bool Gui::dormitoryButtonPressed(const CEGUI::EventArgs& e)
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::dormitory);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
+    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
 }
@@ -385,6 +402,17 @@ bool Gui::treasuryButtonPressed(const CEGUI::EventArgs& e)
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::treasury);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
+    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    return true;
+}
+
+bool Gui::destroyRoomButtonPressed(const CEGUI::EventArgs& e)
+{
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
+    gameMap->getLocalPlayer()->setNewRoomType(Room::nullRoomType);
+    gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
+    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::destroyRoom);
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
 }
@@ -394,6 +422,7 @@ bool Gui::forgeButtonPressed(const CEGUI::EventArgs& e)
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::forge);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
+    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
 }
@@ -403,6 +432,7 @@ bool Gui::trainingHallButtonPressed(const CEGUI::EventArgs& e)
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::trainingHall);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
+    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
 }
@@ -412,6 +442,7 @@ bool Gui::libraryButtonPressed(const CEGUI::EventArgs& e)
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::library);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
+    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
 }
@@ -421,6 +452,7 @@ bool Gui::hatcheryButtonPressed(const CEGUI::EventArgs& e)
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::hatchery);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
+    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
 }
@@ -430,6 +462,7 @@ bool Gui::cannonButtonPressed(const CEGUI::EventArgs& e)
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::nullRoomType);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::cannon);
+    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildTrap);
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
 }
@@ -439,6 +472,17 @@ bool Gui::spikeTrapButtonPressed(const CEGUI::EventArgs& e)
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::nullRoomType);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::spike);
+    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildTrap);
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    return true;
+}
+
+bool Gui::destroyTrapButtonPressed(const CEGUI::EventArgs& e)
+{
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
+    gameMap->getLocalPlayer()->setNewRoomType(Room::nullRoomType);
+    gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
+    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::destroyTrap);
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
 }
@@ -474,6 +518,8 @@ bool Gui::editorGoldButtonPressed(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
         return true;
 
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
+    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::gold;
     return true;
@@ -485,6 +531,8 @@ bool Gui::editorLavaButtonPressed(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
         return true;
 
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
+    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
     static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::lava;
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
@@ -496,6 +544,8 @@ bool Gui::editorRockButtonPressed(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
         return true;
 
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
+    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
     static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::rock;
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
@@ -507,6 +557,8 @@ bool Gui::editorWaterButtonPressed(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
         return true;
 
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
+    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
     static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::water;
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
@@ -518,6 +570,8 @@ bool Gui::editorDirtButtonPressed(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
         return true;
 
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
+    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
     static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::dirt;
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
@@ -529,6 +583,8 @@ bool Gui::editorClaimedButtonPressed(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
         return true;
 
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
+    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
     static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::claimed;
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
@@ -730,9 +786,11 @@ const std::string Gui::BUTTON_TRAININGHALL = "MainTabControl/Rooms/TrainingHallB
 const std::string Gui::BUTTON_LIBRARY = "MainTabControl/Rooms/LibraryButton";
 const std::string Gui::BUTTON_HATCHERY = "MainTabControl/Rooms/HatcheryButton";
 const std::string Gui::BUTTON_TREASURY = "MainTabControl/Rooms/TreasuryButton";
+const std::string Gui::BUTTON_DESTROY_ROOM = "MainTabControl/Rooms/DestroyRoomButton";
 const std::string Gui::TAB_TRAPS = "MainTabControl/Traps";
 const std::string Gui::BUTTON_TRAP_CANNON = "MainTabControl/Traps/CannonButton";
 const std::string Gui::BUTTON_TRAP_SPIKE = "MainTabControl/Traps/SpikeTrapButton";
+const std::string Gui::BUTTON_DESTROY_TRAP = "MainTabControl/Traps/DestroyTrapButton";
 const std::string Gui::TAB_SPELLS = "MainTabControl/Spells";
 const std::string Gui::TAB_CREATURES = "MainTabControl/Creatures";
 const std::string Gui::TAB_COMBAT = "MainTabControl/Combat";

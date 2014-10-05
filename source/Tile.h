@@ -61,8 +61,6 @@ public:
         rock = 3,
         water = 4,
         lava = 5,
-        //if the last type is changed it must also substitute the type
-        //  referenced in Tile::nextTileType()
         claimed = 6
     };
 
@@ -129,14 +127,6 @@ public:
 
     //! \brief Tells whether a creature can see through a tile
     bool permitsVision() const;
-
-    /*! \brief This is a helper function to scroll through the list of available tile types.
-     *
-     * This function is used in the map editor when the user presses the button to
-     * select the next tile type to be active in the user interface.  The active
-     * tile type is the one which is placed when the user clicks the mouse button.
-     */
-    static TileType nextTileType(TileType t);
 
     /*! \brief This is a helper function to scroll through the list of available fullness levels.
      *
