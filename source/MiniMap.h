@@ -33,6 +33,8 @@
 #include <OgreHardwarePixelBuffer.h>
 #include <CEGUI/RendererModules/Ogre/Renderer.h>
 
+#include <vector>
+
 struct Color
 {
 public:
@@ -87,7 +89,9 @@ private:
     Ogre::Vector2 mCamera_2dPosition;
     double mCosRotation, mSinRotation;
 
-    Color** mTiles;
+    typedef std::vector<Color> TileColorColumn_t;
+    typedef std::vector<TileColorColumn_t> TileColorArray_t;
+    TileColorArray_t mTiles;
     GameMap* mGameMap;
 
     Ogre::TexturePtr mMiniMapOgreTexture;

@@ -48,7 +48,7 @@ MiniMap::MiniMap(GameMap* gm) :
     mTopLeftCornerX(0),
     mTopLeftCornerY(0),
     mGrainSize(4),
-    mTiles(NULL),
+    mTiles(),
     mGameMap(gm),
     mPixelBox(NULL),
     mSheetUsed(Gui::guiSheet::mainMenu)
@@ -59,9 +59,6 @@ MiniMap::~MiniMap()
 {
     if(mPixelBox != NULL)
         delete mPixelBox;
-
-    if (mTiles != NULL)
-        delete [] mTiles;
 }
 
 void MiniMap::attachMiniMap(Gui::guiSheet sheet)
@@ -82,10 +79,13 @@ void MiniMap::attachMiniMap(Gui::guiSheet sheet)
     }
 
     mSheetUsed = sheet;
-    mWidth = Gui::getSingleton().sheets[sheet]->getChild(Gui::MINIMAP)->getPixelSize().d_width;
-    mHeight = Gui::getSingleton().sheets[sheet]->getChild(Gui::MINIMAP)->getPixelSize().d_height;
-    mTopLeftCornerX = Gui::getSingleton().sheets[sheet]->getChild(Gui::MINIMAP)->getUnclippedOuterRect().get().getPosition().d_x;
-    mTopLeftCornerY = Gui::getSingleton().sheets[sheet]->getChild(Gui::MINIMAP)->getUnclippedOuterRect().get().getPosition().d_y;
+    CEGUI::Window* window = Gui::getSingleton().sheets[sheet]->getChild(Gui::MINIMAP);
+
+    mWidth = window->getPixelSize().d_width;
+    mHeight = window->getPixelSize().d_height;
+
+    mTopLeftCornerX = window->getUnclippedOuterRect().get().getPosition().d_x;
+    mTopLeftCornerY = window->getUnclippedOuterRect().get().getPosition().d_y;
     mPixelBox = new Ogre::PixelBox(mWidth, mHeight, 1, Ogre::PF_R8G8B8);
 
     allocateMiniMapMemory();
@@ -104,27 +104,25 @@ void MiniMap::attachMiniMap(Gui::guiSheet sheet)
                                             ->getRenderer())->createTexture("miniMapTextureGui", mMiniMapOgreTexture);
 
     CEGUI::BasicImage& imageset = dynamic_cast<CEGUI::BasicImage&>(CEGUI::ImageManager::getSingletonPtr()->create("BasicImage", "MiniMapImageset"));
-    imageset.setArea(CEGUI::Rectf(CEGUI::Vector2f(0.0, 0.0), CEGUI::Size<float>((float)mWidth, (float)mHeight)));
+    imageset.setArea(CEGUI::Rectf(CEGUI::Vector2f(0.0, 0.0),
+                                      CEGUI::Size<float>(
+                                          static_cast<float>(mWidth), static_cast<float>(mHeight)
+                                      )
+                                  ));
 
     // Link the image to the minimap
     imageset.setTexture(&miniMapTextureGui);
-
-    CEGUI::String str = Gui::getSingleton().sheets[sheet]->getChild(Gui::MINIMAP)->getProperty("Image");
-    Gui::getSingleton().sheets[sheet]->getChild(Gui::MINIMAP)->setProperty("Image", CEGUI::PropertyHelper<CEGUI::Image*>::toString(&imageset));
+    window->setProperty("Image", CEGUI::PropertyHelper<CEGUI::Image*>::toString(&imageset));
 
     mMiniMapOgreTexture->load();
 }
 
 void MiniMap::allocateMiniMapMemory()
 {
-    if (mTiles)
-        delete [] mTiles;
-
-    mTiles = new Color* [mHeight];
-    for (Ogre::uint jj = 0; jj < mHeight; ++jj)
-    {
-        mTiles[jj] = new Color[mWidth];
-    }
+    //Make sure array is large enough so we don't try to draw out of bounds
+    size_t xSizePadded = static_cast<size_t>(mWidth) + mGrainSize - (static_cast<uint>(mWidth) % mGrainSize);
+    size_t ySizePadded = static_cast<size_t>(mHeight) + mGrainSize - (static_cast<uint>(mHeight) % mGrainSize);
+    mTiles.resize(xSizePadded, TileColorColumn_t(ySizePadded, Color(0, 0, 0)));
 }
 
 void MiniMap::updateCameraInfos(const Ogre::Vector3& vv, const double& rotation)
@@ -138,14 +136,14 @@ Ogre::Vector2 MiniMap::camera_2dPositionFromClick(int xx, int yy)
 {
     Ogre::Real mm, nn, oo, pp;
     // Compute move
-    mm = ((yy - mTopLeftCornerY) / double(mHeight) - 0.5);
-    nn = ((xx - mTopLeftCornerX) / double(mWidth) - 0.5);
+    mm = (yy - mTopLeftCornerY) / static_cast<double>(mHeight) - 0.5;
+    nn = (xx - mTopLeftCornerX) / static_cast<double>(mWidth) - 0.5;
     // Applying rotation
     oo = mm * mCosRotation - nn * mSinRotation;
     pp = mm * mSinRotation + nn * mCosRotation;
     // Apply result to camera
-    mCamera_2dPosition.x += (Ogre::Real)(oo * mHeight / mGrainSize);
-    mCamera_2dPosition.y += (Ogre::Real)(pp * mWidth / mGrainSize);
+    mCamera_2dPosition.x += static_cast<Ogre::Real>(oo * mHeight / mGrainSize);
+    mCamera_2dPosition.y += static_cast<Ogre::Real>(pp * mWidth / mGrainSize);
 
     return mCamera_2dPosition;
 }
@@ -171,13 +169,14 @@ void MiniMap::swap()
 void MiniMap::draw()
 {
     // Ogre::Vector3 halfCamera_2dPosition = mCamera_2dPosition / 2;
-    for (Ogre::uint ii = 0, mm = mCamera_2dPosition.x - mWidth / (2 * mGrainSize); ii < mWidth; ++mm, ii += mGrainSize)
+    for (int ii = 0, mm = mCamera_2dPosition.x - mWidth / (2 * mGrainSize); ii < mWidth; ++mm, ii += mGrainSize)
     {
-        for (Ogre::uint jj = 0, nn = mCamera_2dPosition.y - mHeight / (2 * mGrainSize); jj < mHeight; ++nn, jj += mGrainSize)
+        for (int jj = 0, nn = mCamera_2dPosition.y - mHeight / (2 * mGrainSize); jj < mHeight; ++nn, jj += mGrainSize)
         {
             // Applying rotation
-            int oo = mCamera_2dPosition.x + Helper::round((mm - mCamera_2dPosition.x) * mCosRotation - (nn - mCamera_2dPosition.y) * mSinRotation);
-            int pp = mCamera_2dPosition.y + Helper::round((mm - mCamera_2dPosition.x) * mSinRotation + (nn - mCamera_2dPosition.y) * mCosRotation);
+            int oo = mCamera_2dPosition.x + static_cast<int>((mm - mCamera_2dPosition.x) * mCosRotation - (nn - mCamera_2dPosition.y) * mSinRotation);
+            int pp = mCamera_2dPosition.y + static_cast<int>((mm - mCamera_2dPosition.x) * mSinRotation + (nn - mCamera_2dPosition.y) * mCosRotation);
+
             /*FIXME: even if we use a THREE byte pixel format (PF_R8G8B8),
              * for some reason it only works if we have FOUR increments
              * (the empty one is the unused alpha channel)

@@ -51,8 +51,9 @@ ODClient::~ODClient()
 }
 
 
-void ODClient::processClientSocketMessages()
+void ODClient::processClientSocketMessages(GameMap& gameMap)
 {
+    gameMap.processDeletionQueues();
     // If we receive message for a new turn, after processing every message,
     // we will refresh what is needed
     // We loop until no more data is available

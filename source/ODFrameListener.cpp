@@ -89,8 +89,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::Overlay
     mMiniMap(NULL),
     mExitRequested(false),
     mCameraManager(NULL),
-    mIsChatInputMode(false),
-    mLastTurn(-1)
+    mIsChatInputMode(false)
 {
     LogManager* logManager = LogManager::getSingletonPtr();
     logManager->logMessage("Creating frame listener...", Ogre::LML_NORMAL);
@@ -241,12 +240,6 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 
         if((mGameMap->getGamePaused()) && (!mExitRequested))
             return true;
-        if( mLastTurn != currentTurn)
-        {
-            //Only do this once per turn.
-            mGameMap->processDeletionQueues();
-            mLastTurn = currentTurn;
-        }
     }
 
     //If an exit has been requested, start cleaning up.
@@ -258,7 +251,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     }
 
 
-    ODClient::getSingleton().processClientSocketMessages();
+    ODClient::getSingleton().processClientSocketMessages(*mGameMap);
     ODClient::getSingleton().processClientNotifications();
 
     refreshChat();

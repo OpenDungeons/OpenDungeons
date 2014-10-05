@@ -2358,10 +2358,6 @@ Ogre::Real GameMap::crowDistance(Creature *c1, Creature *c2)
 
 void GameMap::processDeletionQueues()
 {
-    LogManager::getSingleton().logMessage("Processing deletion queues on turn "
-        + Ogre::StringConverter::toString(static_cast<int32_t>(mTurnNumber))
-        + (mIsServerGameMap ? " (Server)" : " (Client)"));
-
     while (entitiesToDelete.size() > 0)
     {
         GameEntity* entity = *entitiesToDelete.begin();
