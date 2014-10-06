@@ -18,7 +18,6 @@
 #ifndef _GAMEMAP_H_
 #define _GAMEMAP_H_
 
-#include "MiniMap.h"
 #include "AIManager.h"
 #include "Room.h"
 #include "TileContainer.h"
@@ -62,7 +61,6 @@ class CullingManager;
 class GameMap : public TileContainer
 {
 
-friend class MiniMap;
 friend class RenderManager;
 friend class ODServer;
 

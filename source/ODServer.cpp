@@ -26,6 +26,7 @@
 #include "ODConsoleCommand.h"
 #include "MapLoader.h"
 #include "LogManager.h"
+#include "Creature.h"
 
 #include <SFML/Network.hpp>
 #include <SFML/System.hpp>

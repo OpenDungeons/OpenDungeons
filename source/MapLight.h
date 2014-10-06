@@ -65,7 +65,7 @@ public:
         setAttenuation(range, constant, linear, quadratic);
     }
 
-    ~MapLight()
+    virtual ~MapLight()
     {}
 
     static const std::string MAPLIGHT_NAME_PREFIX;

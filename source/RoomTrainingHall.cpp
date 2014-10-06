@@ -21,6 +21,7 @@
 #include "Tile.h"
 #include "GameMap.h"
 #include "LogManager.h"
+#include "Creature.h"
 
 #include <Random.h>
 

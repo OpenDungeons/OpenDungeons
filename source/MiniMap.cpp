@@ -23,11 +23,7 @@
 
 #include "MiniMap.h"
 
-#include "ODApplication.h"
-#include "RenderManager.h"
-#include "Gui.h"
-#include "Creature.h"
-#include "Helper.h"
+#include "GameMap.h"
 
 #include <OgrePrerequisites.h>
 #include <OgreTextureManager.h>
@@ -81,14 +77,18 @@ void MiniMap::attachMiniMap(Gui::guiSheet sheet)
     mSheetUsed = sheet;
     CEGUI::Window* window = Gui::getSingleton().sheets[sheet]->getChild(Gui::MINIMAP);
 
-    mWidth = window->getPixelSize().d_width;
-    mHeight = window->getPixelSize().d_height;
+    float pixelWidth = window->getPixelSize().d_width;
+    float pixelHeight = window->getPixelSize().d_height;
+
+    //Make sure window is large enough so we don't try to draw out of bounds
+    mWidth = static_cast<size_t>(pixelWidth) + mGrainSize - (static_cast<uint>(pixelWidth) % mGrainSize);
+    mHeight = static_cast<size_t>(pixelHeight) + mGrainSize - (static_cast<uint>(pixelHeight) % mGrainSize);
+
+    mTiles.resize(mHeight, TileColorRow_t(mWidth, Color(0, 0, 0)));
 
     mTopLeftCornerX = window->getUnclippedOuterRect().get().getPosition().d_x;
     mTopLeftCornerY = window->getUnclippedOuterRect().get().getPosition().d_y;
     mPixelBox = new Ogre::PixelBox(mWidth, mHeight, 1, Ogre::PF_R8G8B8);
-
-    allocateMiniMapMemory();
 
     // Image blank_image( Geometry(400, 300), Color(MaxRGB, MaxRGB, MaxRGB, 0));
     mMiniMapOgreTexture = Ogre::TextureManager::getSingletonPtr()->createManual(
@@ -117,19 +117,11 @@ void MiniMap::attachMiniMap(Gui::guiSheet sheet)
     mMiniMapOgreTexture->load();
 }
 
-void MiniMap::allocateMiniMapMemory()
-{
-    //Make sure array is large enough so we don't try to draw out of bounds
-    size_t xSizePadded = static_cast<size_t>(mWidth) + mGrainSize - (static_cast<uint>(mWidth) % mGrainSize);
-    size_t ySizePadded = static_cast<size_t>(mHeight) + mGrainSize - (static_cast<uint>(mHeight) % mGrainSize);
-    mTiles.resize(xSizePadded, TileColorColumn_t(ySizePadded, Color(0, 0, 0)));
-}
-
 void MiniMap::updateCameraInfos(const Ogre::Vector3& vv, const double& rotation)
 {
     mCamera_2dPosition = Ogre::Vector2(vv.x, vv.y);
-    mCosRotation = cos(rotation - (PI/2.0));
-    mSinRotation = sin(rotation - (PI/2.0));
+    mCosRotation = cos(rotation);
+    mSinRotation = sin(rotation);
 }
 
 Ogre::Vector2 MiniMap::camera_2dPositionFromClick(int xx, int yy)
@@ -155,11 +147,11 @@ void MiniMap::swap()
     Ogre::uint8* pDest;
     pDest = static_cast<Ogre::uint8*>(mPixelBuffer->getCurrentLock().data) - 1;
 
-    for (Ogre::uint ii = 0; ii < mWidth; ++ii)
+    for (const TileColorRow_t& row : mTiles)
     {
-        for (Ogre::uint jj = 0; jj < mHeight; ++jj)
+        for(const Color& color : row)
         {
-            drawPixelToMemory(pDest, mTiles[ii][jj].RR, mTiles[ii][jj].GG, mTiles[ii][jj].BB);
+            drawPixelToMemory(pDest, color.RR, color.GG, color.BB);
         }
     }
 
@@ -168,10 +160,10 @@ void MiniMap::swap()
 
 void MiniMap::draw()
 {
-    // Ogre::Vector3 halfCamera_2dPosition = mCamera_2dPosition / 2;
     for (int ii = 0, mm = mCamera_2dPosition.x - mWidth / (2 * mGrainSize); ii < mWidth; ++mm, ii += mGrainSize)
     {
-        for (int jj = 0, nn = mCamera_2dPosition.y - mHeight / (2 * mGrainSize); jj < mHeight; ++nn, jj += mGrainSize)
+        //NOTE: (0,0) is in the bottom left in the game map, top left in textures, so we are reversing y order here.
+        for (int jj = mHeight - mGrainSize, nn = mCamera_2dPosition.y - mHeight / (2 * mGrainSize); jj >= 0; ++nn, jj -= mGrainSize)
         {
             // Applying rotation
             int oo = mCamera_2dPosition.x + static_cast<int>((mm - mCamera_2dPosition.x) * mCosRotation - (nn - mCamera_2dPosition.y) * mSinRotation);
@@ -192,7 +184,7 @@ void MiniMap::draw()
             switch (tile->getType())
             {
             case Tile::water:
-                drawPixel(ii, jj, 0x7F, 0xFF, 0xD4);
+                drawPixel(ii, jj, 0x00, 0x00, 0xFF);
                 break;
 
             case Tile::dirt:
@@ -200,7 +192,7 @@ void MiniMap::draw()
                 break;
 
             case Tile::lava:
-                drawPixel(ii, jj, 0xB2, 0x22, 0x22);
+                drawPixel(ii, jj, 0xFF, 0x22, 0x22);
                 break;
 
             case Tile::rock:
