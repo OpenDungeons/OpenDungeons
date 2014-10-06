@@ -77,12 +77,12 @@ void MiniMap::attachMiniMap(Gui::guiSheet sheet)
     mSheetUsed = sheet;
     CEGUI::Window* window = Gui::getSingleton().sheets[sheet]->getChild(Gui::MINIMAP);
 
-    float pixelWidth = window->getPixelSize().d_width;
-    float pixelHeight = window->getPixelSize().d_height;
+    unsigned pixelWidth = static_cast<unsigned>(window->getPixelSize().d_width);
+    unsigned pixelHeight = static_cast<unsigned>(window->getPixelSize().d_height);
 
     //Make sure window is large enough so we don't try to draw out of bounds
-    mWidth = static_cast<size_t>(pixelWidth) + mGrainSize - (static_cast<uint>(pixelWidth) % mGrainSize);
-    mHeight = static_cast<size_t>(pixelHeight) + mGrainSize - (static_cast<uint>(pixelHeight) % mGrainSize);
+    mWidth = pixelWidth + mGrainSize - (pixelWidth % mGrainSize);
+    mHeight = pixelHeight + mGrainSize - (pixelHeight % mGrainSize);
 
     mTiles.resize(mHeight, TileColorRow_t(mWidth, Color(0, 0, 0)));
 
