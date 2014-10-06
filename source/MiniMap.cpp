@@ -184,7 +184,7 @@ void MiniMap::draw()
             switch (tile->getType())
             {
             case Tile::water:
-                drawPixel(ii, jj, 0x00, 0x00, 0xFF);
+                drawPixel(ii, jj, 0x7F, 0xFF, 0xD4);
                 break;
 
             case Tile::dirt:
@@ -192,7 +192,7 @@ void MiniMap::draw()
                 break;
 
             case Tile::lava:
-                drawPixel(ii, jj, 0xFF, 0x22, 0x22);
+                drawPixel(ii, jj, 0xB2, 0x22, 0x22);
                 break;
 
             case Tile::rock:
