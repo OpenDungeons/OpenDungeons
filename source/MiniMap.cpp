@@ -35,6 +35,7 @@
 #include <CEGUI/ImageManager.h>
 #include <CEGUI/Size.h>
 #include <CEGUI/BasicImage.h>
+#include <CEGUI/RendererModules/Ogre/Renderer.h>
 
 #include <cstdlib>
 
@@ -77,17 +78,14 @@ void MiniMap::attachMiniMap(Gui::guiSheet sheet)
     mSheetUsed = sheet;
     CEGUI::Window* window = Gui::getSingleton().sheets[sheet]->getChild(Gui::MINIMAP);
 
-    unsigned pixelWidth = static_cast<unsigned>(window->getPixelSize().d_width);
-    unsigned pixelHeight = static_cast<unsigned>(window->getPixelSize().d_height);
+    unsigned int pixelWidth = static_cast<unsigned int>(window->getPixelSize().d_width);
+    unsigned int pixelHeight = static_cast<unsigned int>(window->getPixelSize().d_height);
 
     //Make sure window is large enough so we don't try to draw out of bounds
     mWidth = pixelWidth + mGrainSize - (pixelWidth % mGrainSize);
     mHeight = pixelHeight + mGrainSize - (pixelHeight % mGrainSize);
-
     mTiles.resize(mHeight, TileColorRow_t(mWidth, Color(0, 0, 0)));
 
-    mTopLeftCornerX = window->getUnclippedOuterRect().get().getPosition().d_x;
-    mTopLeftCornerY = window->getUnclippedOuterRect().get().getPosition().d_y;
     mPixelBox = new Ogre::PixelBox(mWidth, mHeight, 1, Ogre::PF_R8G8B8);
 
     // Image blank_image( Geometry(400, 300), Color(MaxRGB, MaxRGB, MaxRGB, 0));
@@ -115,6 +113,9 @@ void MiniMap::attachMiniMap(Gui::guiSheet sheet)
     window->setProperty("Image", CEGUI::PropertyHelper<CEGUI::Image*>::toString(&imageset));
 
     mMiniMapOgreTexture->load();
+
+    mTopLeftCornerX = window->getUnclippedOuterRect().get().getPosition().d_x;
+    mTopLeftCornerY = window->getUnclippedOuterRect().get().getPosition().d_y;
 }
 
 void MiniMap::updateCameraInfos(const Ogre::Vector3& vv, const double& rotation)
@@ -128,14 +129,14 @@ Ogre::Vector2 MiniMap::camera_2dPositionFromClick(int xx, int yy)
 {
     Ogre::Real mm, nn, oo, pp;
     // Compute move
-    mm = (yy - mTopLeftCornerY) / static_cast<double>(mHeight) - 0.5;
-    nn = (xx - mTopLeftCornerX) / static_cast<double>(mWidth) - 0.5;
+    mm = (xx - mTopLeftCornerX) / static_cast<double>(mWidth) - 0.5;
+    nn = (yy - mTopLeftCornerY) / static_cast<double>(mHeight) - 0.5;
     // Applying rotation
     oo = mm * mCosRotation - nn * mSinRotation;
     pp = mm * mSinRotation + nn * mCosRotation;
     // Apply result to camera
     mCamera_2dPosition.x += static_cast<Ogre::Real>(oo * mHeight / mGrainSize);
-    mCamera_2dPosition.y += static_cast<Ogre::Real>(pp * mWidth / mGrainSize);
+    mCamera_2dPosition.y -= static_cast<Ogre::Real>(pp * mWidth / mGrainSize);
 
     return mCamera_2dPosition;
 }
@@ -160,6 +161,7 @@ void MiniMap::swap()
 
 void MiniMap::draw()
 {
+
     for (int ii = 0, mm = mCamera_2dPosition.x - mWidth / (2 * mGrainSize); ii < mWidth; ++mm, ii += mGrainSize)
     {
         //NOTE: (0,0) is in the bottom left in the game map, top left in textures, so we are reversing y order here.

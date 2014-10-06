@@ -29,7 +29,6 @@
 #include <OgrePixelFormat.h>
 #include <OgreHardwarePixelBuffer.h>
 #include <OgreVector2.h>
-#include <CEGUI/RendererModules/Ogre/Renderer.h>
 
 #include <vector>
 
