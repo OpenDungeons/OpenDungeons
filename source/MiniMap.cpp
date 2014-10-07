@@ -162,10 +162,11 @@ void MiniMap::swap()
 void MiniMap::draw()
 {
 
-    for (int ii = 0, mm = mCamera_2dPosition.x - mWidth / (2 * mGrainSize); ii < mWidth; ++mm, ii += mGrainSize)
+    for (int ii = 0, mm = mCamera_2dPosition.x - mWidth / (2 * mGrainSize); ii < static_cast<int>(mWidth); ++mm, ii += mGrainSize)
     {
         //NOTE: (0,0) is in the bottom left in the game map, top left in textures, so we are reversing y order here.
-        for (int jj = mHeight - mGrainSize, nn = mCamera_2dPosition.y - mHeight / (2 * mGrainSize); jj >= 0; ++nn, jj -= mGrainSize)
+        for (int jj = static_cast<int>(mHeight) - static_cast<int>(mGrainSize), nn = mCamera_2dPosition.y - mHeight / (2 * mGrainSize);
+             jj >= 0; ++nn, jj -= mGrainSize)
         {
             // Applying rotation
             int oo = mCamera_2dPosition.x + static_cast<int>((mm - mCamera_2dPosition.x) * mCosRotation - (nn - mCamera_2dPosition.y) * mSinRotation);
