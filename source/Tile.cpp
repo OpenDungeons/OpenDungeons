@@ -415,15 +415,10 @@ void Tile::setCoveringRoom(Room *r)
 {
     coveringRoom = r;
 
-    // Set the tile as claimed and of the team color of the room
     if (coveringRoom == NULL)
-    {
-        setSeat(NULL);
-        mClaimedPercentage = 0.0;
-        setType(dirt);
         return;
-    }
 
+    // Set the tile as claimed and of the team color of the room
     setSeat(coveringRoom->getSeat());
     mClaimedPercentage = 1.0;
     setType(claimed);
