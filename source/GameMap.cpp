@@ -428,7 +428,7 @@ void GameMap::addRoomObject(RoomObject *obj)
     {
         try
         {
-            GameEntity::ObjectType objType = obj->getRoomObjectType();
+            RoomObject::RoomObjectType objType = obj->getRoomObjectType();
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotification::addRoomObject, NULL);
             serverNotification->mPacket << objType;
