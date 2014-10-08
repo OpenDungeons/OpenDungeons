@@ -22,6 +22,7 @@
 #include "GameMap.h"
 #include "ODServer.h"
 #include "ServerNotification.h"
+#include "Creature.h"
 #include "LogManager.h"
 
 AIWrapper::AIWrapper(GameMap& gameMap, Player& player)
