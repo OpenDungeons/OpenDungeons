@@ -251,6 +251,7 @@ set(OD_SOURCEFILES
     ${SRC}/TrapBoulder.cpp
     ${SRC}/TrapCannon.cpp
     ${SRC}/TrapSpike.cpp
+    ${SRC}/TreasuryObject.cpp
     ${SRC}/Vector3i.cpp
     ${SRC}/Weapon.cpp
 )

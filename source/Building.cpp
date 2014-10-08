@@ -19,6 +19,8 @@
 #include "RoomObject.h"
 #include "Tile.h"
 #include "GameMap.h"
+#include "ServerNotification.h"
+#include "ODServer.h"
 
 #include "LogManager.h"
 
@@ -114,9 +116,9 @@ RoomObject* Building::loadRoomObject(GameMap* gameMap, const std::string& meshNa
 RoomObject* Building::loadRoomObject(GameMap* gameMap, const std::string& meshName,
     Tile* targetTile, double x, double y, double rotationAngle)
 {
-    RoomObject* tempRoomObject = new RoomObject(gameMap, getName(), meshName);
+    RoomObject* tempRoomObject = new RoomObject(gameMap, getName(), meshName,
+        static_cast<Ogre::Real>(rotationAngle));
     tempRoomObject->setPosition(Ogre::Vector3((Ogre::Real)x, (Ogre::Real)y, 0.0f));
-    tempRoomObject->mRotationAngle = (Ogre::Real)rotationAngle;
 
     return tempRoomObject;
 }

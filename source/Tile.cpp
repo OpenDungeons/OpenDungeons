@@ -28,6 +28,7 @@
 #include "RenderManager.h"
 #include "Player.h"
 #include "Helper.h"
+#include "TreasuryObject.h"
 #include "LogManager.h"
 
 #include <cstddef>
@@ -1329,6 +1330,28 @@ void Tile::fillAttackableObjects(std::vector<GameEntity*>& entities, Seat* seat,
             if (std::find(entities.begin(), entities.end(), trap) == entities.end())
                 entities.push_back(trap);
         }
+    }
+}
+
+void Tile::addTreasuryObject(TreasuryObject* obj)
+{
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    if(mTreasuryObject == nullptr)
+    {
+        mTreasuryObject = obj;
+        return;
+    }
+
+    mTreasuryObject->mergeGold(obj);
+}
+
+void Tile::removeTreasuryObject(TreasuryObject* object)
+{
+    if(mTreasuryObject == object)
+    {
+        mTreasuryObject = nullptr;
     }
 }
 

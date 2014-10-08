@@ -27,19 +27,26 @@
 
 class Room;
 class GameMap;
+class Seat;
 
 // TODO : change name to GameObject as it is not linked to rooms anymore
 class RoomObject: public MovableGameEntity
 {
 public:
+    enum RoomObjectType
+    {
+        roomObject,
+        treasuryObject
+    };
     //! \brief Creates a room object. It's name is built from baseName and some unique id from the gamemap.
     //! We use baseName to help understand what's this object for when getting a log
-    RoomObject(GameMap* gameMap, const std::string& baseName, const std::string& nMeshName);
+    RoomObject(GameMap* gameMap, const std::string& baseName, const std::string& nMeshName, Ogre::Real rotationAngle);
     RoomObject(GameMap* gameMap);
 
     static const std::string ROOMOBJECT_PREFIX;
+    static const std::string ROOMOBJECT_OGRE_PREFIX;
 
-    virtual std::string getOgreNamePrefix() { return "RoomObject_"; }
+    virtual std::string getOgreNamePrefix() const { return ROOMOBJECT_OGRE_PREFIX; }
 
     virtual void doUpkeep()
     {}
@@ -59,16 +66,44 @@ public:
     std::vector<Tile*> getCoveredTiles()
     { return std::vector<Tile*>(); }
 
+    Ogre::Real getRotationAngle()
+    { return mRotationAngle; }
+
+    virtual RoomObjectType getRoomObjectType()
+    { return RoomObjectType::roomObject; }
+
+    virtual bool tryPickup(Seat* seat, bool isEditorMode)
+    { return false; }
+
+    virtual bool tryDrop(Seat* seat, Tile* tile, bool isEditorMode)
+    { return false; }
+
+    virtual void pickup();
+    virtual void setPosition(const Ogre::Vector3& v);
+
+    virtual void exportToPacket(ODPacket& packet);
+
+    static RoomObject* getRoomObjectFromLine(GameMap* gameMap, const std::string& line);
+    static RoomObject* getRoomObjectFromPacket(GameMap* gameMap, ODPacket& is);
     static const char* getFormat();
     friend ODPacket& operator<<(ODPacket& os, RoomObject* o);
     friend ODPacket& operator>>(ODPacket& is, RoomObject* o);
 
-    Ogre::Real mRotationAngle;
+    friend ODPacket& operator<<(ODPacket& os, const RoomObject::RoomObjectType& rot);
+    friend ODPacket& operator>>(ODPacket& is, RoomObject::RoomObjectType& rot);
+    friend std::ostream& operator<<(std::ostream& os, const RoomObject::RoomObjectType& rot);
+    friend std::istream& operator>>(std::istream& is, RoomObject::RoomObjectType& rot);
 
 protected:
+    virtual bool getIsOnMap()
+    { return mIsOnMap; }
+
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
     virtual void deleteYourselfLocal();
+    Ogre::Real mRotationAngle;
+private:
+    bool mIsOnMap;
 };
 
 #endif // ROOMOBJECT_H

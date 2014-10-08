@@ -39,8 +39,8 @@
 #include "MusicPlayer.h"
 #include "ODServer.h"
 #include "ODApplication.h"
+#include "RoomObject.h"
 #include "MiniMap.h"
-
 #include <OgreRoot.h>
 #include <OgreRenderWindow.h>
 
@@ -346,7 +346,7 @@ void GameMode::handleMouseWheel(const OIS::MouseEvent& arg)
     {
         if (getKeyboard()->isModifierDown(OIS::Keyboard::Ctrl))
         {
-            mGameMap->getLocalPlayer()->rotateCreaturesInHand(1);
+            mGameMap->getLocalPlayer()->rotateHand(1);
         }
         else
         {
@@ -357,7 +357,7 @@ void GameMode::handleMouseWheel(const OIS::MouseEvent& arg)
     {
         if (getKeyboard()->isModifierDown(OIS::Keyboard::Ctrl))
         {
-            mGameMap->getLocalPlayer()->rotateCreaturesInHand(-1);
+            mGameMap->getLocalPlayer()->rotateHand(-1);
         }
         else
         {
@@ -454,13 +454,13 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         if (curTile == NULL)
             return true;
 
-        if (mGameMap->getLocalPlayer()->isDropCreaturePossible(curTile))
+        if (mGameMap->getLocalPlayer()->isDropHandPossible(curTile))
         {
             if(ODClient::getSingleton().isConnected())
             {
                 // Send a message to the server telling it we want to drop the creature
                 ClientNotification *clientNotification = new ClientNotification(
-                    ClientNotification::askCreatureDrop);
+                    ClientNotification::askHandDrop);
                 clientNotification->mPacket << curTile;
                 ODClient::getSingleton().queueClientNotification(clientNotification);
             }
@@ -478,24 +478,24 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     inputManager->mLStartDragY = inputManager->mYPos;
 
     // Check whether the player is already placing rooms or traps.
-    bool skipCreaturePickUp = false;
+    bool skipPickUp = false;
     Player* player = mGameMap->getLocalPlayer();
     if (player && (player->getCurrentAction() != Player::SelectedAction::none))
     {
-        skipCreaturePickUp = true;
+        skipPickUp = true;
     }
 
     // Check whether the player selection is over a wall and skip creature in that case
     // to permit easier wall selection.
     if (mGameMap->getTile(mMouseX, mMouseY)->getFullness() > 1.0)
-        skipCreaturePickUp = true;
+        skipPickUp = true;
 
     // See if the mouse is over any creatures
     for (;itr != result.end(); ++itr)
     {
         // Skip picking up creatures when placing rooms or traps
         // as creatures often get in the way.
-        if (skipCreaturePickUp)
+        if (skipPickUp)
             break;
 
         if (itr->movable == NULL)
@@ -503,46 +503,68 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
         std::string resultName = itr->movable->getName();
 
-        if (resultName.find(Creature::CREATURE_PREFIX) == std::string::npos)
-            continue;
-
-        // Pick the creature up and put it in our hand
-        if(inputManager->mExpectCreatureClick)
+        if (resultName.find(Creature::CREATURE_PREFIX) != std::string::npos)
         {
-            // TODO : switch to FPP mode
-#if 0 // FPP mode do not exist yet but we keep track of what was done.
-            mModeManager->requestFppMode();
-            const string& tmp_name =  (itr->movable->getName());
-            std::cerr << tmp_name.substr(9, tmp_name.size()) << std::endl;
-            cm->setFPPCamera(mGameMap->getCreature(tmp_name.substr(9, tmp_name.size())));
-            cm->setActiveCameraNode("FPP");
-            cm->setActiveCamera("FPP");
-
-            inputManager->mExpectCreatureClick = false;
-#endif // 0
-        }
-        else
-        {
-            // The creature name is after the creature prefix
-            std::string creatureName = resultName.substr(Creature::CREATURE_PREFIX.length());
-            Creature* currentCreature = mGameMap->getCreature(creatureName);
-            if (currentCreature == NULL)
-                continue;
-
-            // Checks on client side that the creature can be picked up
-            if (currentCreature->getSeat()->canOwnedCreatureBePickedUpBy(player->getSeat()))
+            // Pick the creature up and put it in our hand
+            if(inputManager->mExpectCreatureClick)
             {
-                if (ODClient::getSingleton().isConnected())
+                // TODO : switch to FPP mode
+#if 0 // FPP mode do not exist yet but we keep track of what was done.
+                mModeManager->requestFppMode();
+                const string& tmp_name =  (itr->movable->getName());
+                std::cerr << tmp_name.substr(9, tmp_name.size()) << std::endl;
+                cm->setFPPCamera(mGameMap->getCreature(tmp_name.substr(9, tmp_name.size())));
+                cm->setActiveCameraNode("FPP");
+                cm->setActiveCamera("FPP");
+
+#endif // 0
+                inputManager->mExpectCreatureClick = false;
+            }
+            else
+            {
+                // The creature name is after the creature prefix
+                std::string creatureName = resultName.substr(Creature::CREATURE_PREFIX.length());
+                Creature* currentCreature = mGameMap->getCreature(creatureName);
+                if (currentCreature == NULL)
+                    continue;
+
+                // Checks on client side that the creature can be picked up
+                if ((currentCreature->tryPickup(player->getSeat(), false)) && ODClient::getSingleton().isConnected())
                 {
                     // Send a message to the server telling it we want to pick up this creature
                     ClientNotification *clientNotification = new ClientNotification(
-                        ClientNotification::askCreaturePickUp);
-                    std::string name = currentCreature->getName();
+                        ClientNotification::askEntityPickUp);
+                    const std::string& name = currentCreature->getName();
+                    clientNotification->mPacket << GameEntity::ObjectType::creature;
                     clientNotification->mPacket << name;
                     ODClient::getSingleton().queueClientNotification(clientNotification);
                     return true;
                 }
             }
+            continue;
+        }
+
+        if (resultName.find(RoomObject::ROOMOBJECT_OGRE_PREFIX) != std::string::npos)
+        {
+            // The creature name is after the creature prefix
+            std::string name = resultName.substr(RoomObject::ROOMOBJECT_OGRE_PREFIX.length());
+            RoomObject* obj = mGameMap->getRoomObject(name);
+            if ((obj == NULL) || (!obj->tryPickup(player->getSeat(), false)))
+                continue;
+
+            // Checks on client side that the creature can be picked up
+            if (ODClient::getSingleton().isConnected())
+            {
+                // Send a message to the server telling it we want to pick up this creature
+                ClientNotification *clientNotification = new ClientNotification(
+                    ClientNotification::askEntityPickUp);
+                const std::string& name = obj->getName();
+                clientNotification->mPacket << GameEntity::ObjectType::roomobject;
+                clientNotification->mPacket << name;
+                ODClient::getSingleton().queueClientNotification(clientNotification);
+                return true;
+            }
+            continue;
         }
     }
 

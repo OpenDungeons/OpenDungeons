@@ -80,14 +80,10 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "setObjectAnimationState";
         case ServerNotificationType::setMoveSpeed:
             return "setMoveSpeed";
-        case ServerNotificationType::pickupCreature:
-            return "pickupCreature";
-        case ServerNotificationType::dropCreature:
-            return "dropCreature";
-        case ServerNotificationType::creaturePickedUp:
-            return "creaturePickedUp";
-        case ServerNotificationType::creatureDropped:
-            return "creatureDropped";
+        case ServerNotificationType::entityPickedUp:
+            return "entityPickedUp";
+        case ServerNotificationType::entityDropped:
+            return "entityDropped";
         case ServerNotificationType::addCreature:
             return "addCreature";
         case ServerNotificationType::removeCreature:

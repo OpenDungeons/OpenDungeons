@@ -286,19 +286,19 @@ void RoomTrainingHall::getCreatureWantedPos(Creature* creature, Tile* tileDummy,
     wantedX = static_cast<Ogre::Real>(tileDummy->getX());
     wantedY = static_cast<Ogre::Real>(tileDummy->getY());
 
-    if(ro->mRotationAngle == 0.0)
+    if(ro->getRotationAngle() == 0.0)
     {
         wantedY -= OFFSET_CREATURE;
     }
-    else if(ro->mRotationAngle == 90.0)
+    else if(ro->getRotationAngle() == 90.0)
     {
         wantedX += OFFSET_CREATURE;
     }
-    else if(ro->mRotationAngle == 180.0)
+    else if(ro->getRotationAngle() == 180.0)
     {
         wantedY += OFFSET_CREATURE;
     }
-    else if(ro->mRotationAngle == 270.0)
+    else if(ro->getRotationAngle() == 270.0)
     {
         wantedX -= OFFSET_CREATURE;
     }

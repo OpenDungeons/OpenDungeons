@@ -26,6 +26,7 @@
 #include "Weapon.h"
 #include "RenderRequest.h"
 #include "RenderManager.h"
+#include "RoomObject.h"
 #include "LogManager.h"
 
 Player::Player() :
@@ -41,34 +42,31 @@ Player::Player() :
 
 unsigned int Player::numCreaturesInHand(const Seat* seat) const
 {
-    if(seat == NULL)
-        return mCreaturesInHand.size();
-
     unsigned int cpt = 0;
-    for(std::vector<Creature*>::const_iterator it = mCreaturesInHand.begin(); it != mCreaturesInHand.end(); ++it)
+    for(std::vector<GameEntity*>::const_iterator it = mObjectsInHand.begin(); it != mObjectsInHand.end(); ++it)
     {
-        const Creature* creature = *it;
-        if(creature->getSeat() == seat)
-            ++cpt;
+        const GameEntity* entity = *it;
+        if(entity->getObjectType() == GameEntity::ObjectType::creature)
+            continue;
+
+        if(seat != NULL && entity->getSeat() != seat)
+            continue;
+
+        ++cpt;
     }
     return cpt;
 }
 
-Creature* Player::getCreatureInHand(int i)
+unsigned int Player::numObjectsInHand() const
 {
-    return mCreaturesInHand[i];
+    return mObjectsInHand.size();
 }
 
-const Creature* Player::getCreatureInHand(int i) const
+void Player::addEntityToHand(GameEntity *entity)
 {
-    return mCreaturesInHand[i];
-}
-
-void Player::addCreatureToHand(Creature *c)
-{
-    if (mCreaturesInHand.empty())
+    if (mObjectsInHand.empty())
     {
-        mCreaturesInHand.push_back(c);
+        mObjectsInHand.push_back(entity);
         return;
     }
 
@@ -76,31 +74,44 @@ void Player::addCreatureToHand(Creature *c)
     // Since vectors have no push_front method,
     // we need to move all of the elements in the vector back one
     // and then add this one to the beginning.
-    mCreaturesInHand.push_back(NULL);
-    for (unsigned int j = mCreaturesInHand.size() - 1; j > 0; --j)
-        mCreaturesInHand[j] = mCreaturesInHand[j - 1];
+    mObjectsInHand.push_back(NULL);
+    for (unsigned int j = mObjectsInHand.size() - 1; j > 0; --j)
+        mObjectsInHand[j] = mObjectsInHand[j - 1];
 
-    mCreaturesInHand[0] = c;
+    mObjectsInHand[0] = entity;
 }
 
-void Player::pickUpCreature(Creature *c)
+void Player::pickUpEntity(GameEntity *entity, bool isEditorMode)
 {
-    assert(mGameMap != NULL);
-
     if (!ODServer::getSingleton().isConnected() && !ODClient::getSingleton().isConnected())
         return;
 
-    if(!c->tryPickup())
-       return;
+    if(entity->getObjectType() == GameEntity::ObjectType::creature)
+    {
+        Creature* creature = static_cast<Creature*>(entity);
+        if(!creature->tryPickup(getSeat(), isEditorMode))
+           return;
+
+       creature->pickup();
+
+        // Destroy the creature's visual debugging entities if it has them
+        if (!mGameMap->isServerGameMap() && creature->getHasVisualDebuggingEntities())
+            creature->destroyVisualDebugEntities();
+
+    }
+    else if(entity->getObjectType() == GameEntity::ObjectType::roomobject)
+    {
+        RoomObject* obj = static_cast<RoomObject*>(entity);
+        if(!obj->tryPickup(getSeat(), isEditorMode))
+           return;
+
+        obj->pickup();
+    }
 
     // Start tracking this creature as being in this player's hand
-    addCreatureToHand(c);
+    addEntityToHand(entity);
 
-    // Destroy the creature's visual debugging entities if it has them
-    if (!mGameMap->isServerGameMap() && c->getHasVisualDebuggingEntities())
-        c->destroyVisualDebugEntities();
-
-    if (c->getGameMap()->isServerGameMap())
+    if (mGameMap->isServerGameMap())
         return;
 
     // If it is actually the user picking up a creature we move the scene node.
@@ -109,70 +120,77 @@ void Player::pickUpCreature(Creature *c)
     {
         // Send a render request to move the crature into the "hand"
         RenderRequest *request = new RenderRequest;
-        request->type = RenderRequest::pickUpCreature;
-        request->p = c;
-
-        // Add the request to the queue of rendering operations to be performed before the next frame.
+        request->type = RenderRequest::pickUpEntity;
+        request->p = entity;
         RenderManager::queueRenderRequest(request);
     }
     else // it is just a message indicating another player has picked up a creature
     {
         // Hide the creature
         RenderRequest *request = new RenderRequest;
-        request->type = RenderRequest::detachCreature;
-        request->p = c;
+        request->type = RenderRequest::detachEntity;
+        request->p = entity;
         RenderManager::queueRenderRequest(request);
     }
 }
 
-void Player::clearCreatureInHand()
+void Player::clearObjectsInHand()
 {
-    mCreaturesInHand.clear();
+    mObjectsInHand.clear();
 }
 
-bool Player::isDropCreaturePossible(Tile *t, unsigned int index, bool isEditorMode)
+bool Player::isDropHandPossible(Tile *t, unsigned int index, bool isEditorMode)
 {
     // if we have a creature to drop
-    if (mCreaturesInHand.empty())
+    if (mObjectsInHand.empty())
         return false;
 
-    Creature* tempCreature = mCreaturesInHand[index];
-
-    // if the tile is a valid place to drop a creature
-
-    // check whether the tile is a ground tile ...
-    if (t->getFullness() > 0.0)
-        return false;
-
-    // In editor mode, we allow creatures to be dropped anywhere they can walk
-    if(isEditorMode && t->canCreatureGoThroughTile(tempCreature->getDefinition()))
-        return true;
-
-    // If it is a worker, he can be dropped on dirt
-    if (tempCreature->getDefinition()->isWorker() && (t->getType() == Tile::dirt || t->getType() == Tile::gold))
-        return true;
-
-    // Every creature can be dropped on allied claimed tiles
-    if(t->getType() == Tile::claimed && t->getSeat() != NULL && t->getSeat()->isAlliedSeat(getSeat()))
-        return true;
+    GameEntity* entity = mObjectsInHand[index];
+    if(entity != NULL && entity->getObjectType() == GameEntity::ObjectType::creature)
+    {
+        Creature* creature = static_cast<Creature*>(entity);
+        if(creature->tryDrop(getSeat(), t, isEditorMode))
+            return true;
+    }
+    else if(entity != NULL && entity->getObjectType() == GameEntity::ObjectType::roomobject)
+    {
+        RoomObject* obj = static_cast<RoomObject*>(entity);
+        if(obj->tryDrop(getSeat(), t, isEditorMode))
+            return true;
+    }
 
     return false;
 }
 
-Creature* Player::dropCreature(Tile *t, unsigned int index)
+GameEntity* Player::dropHand(Tile *t, unsigned int index)
 {
     // Add the creature to the map
-    OD_ASSERT_TRUE(index < mCreaturesInHand.size());
-    if(index >= mCreaturesInHand.size())
+    OD_ASSERT_TRUE(index < mObjectsInHand.size());
+    if(index >= mObjectsInHand.size())
         return NULL;
 
-    Creature *c = mCreaturesInHand[index];
-    mCreaturesInHand.erase(mCreaturesInHand.begin() + index);
-    c->drop(Ogre::Vector3(static_cast<Ogre::Real>(t->x),
-        static_cast<Ogre::Real>(t->y), 0.0));
+    GameEntity *entity = mObjectsInHand[index];
+    mObjectsInHand.erase(mObjectsInHand.begin() + index);
+    if(entity->getObjectType() == GameEntity::ObjectType::creature)
+    {
+        Creature* creature = static_cast<Creature*>(entity);
+        creature->drop(Ogre::Vector3(static_cast<Ogre::Real>(t->x),
+            static_cast<Ogre::Real>(t->y), 0.0));
 
-    if(c->getGameMap()->isServerGameMap())
-        return c;
+        if (!mGameMap->isServerGameMap() && (this == mGameMap->getLocalPlayer()))
+        {
+            creature->playSound(CreatureSound::DROP);
+        }
+    }
+    else if(entity->getObjectType() == GameEntity::ObjectType::roomobject)
+    {
+        RoomObject* obj = static_cast<RoomObject*>(entity);
+        obj->setPosition(Ogre::Vector3(static_cast<Ogre::Real>(t->x),
+            static_cast<Ogre::Real>(t->y), 0.0));
+    }
+
+    if(mGameMap->isServerGameMap())
+        return entity;
 
     // If this is the result of another player dropping the creature it is currently not visible so we need to create a mesh for it
     //cout << "\nthis:  " << this << "\nme:  " << gameMap->getLocalPlayer() << endl;
@@ -180,56 +198,53 @@ Creature* Player::dropCreature(Tile *t, unsigned int index)
     if (this != mGameMap->getLocalPlayer())
     {
         RenderRequest *request = new RenderRequest;
-        request->type = RenderRequest::attachCreature;
-        request->p = c;
+        request->type = RenderRequest::attachEntity;
+        request->p = entity;
         RenderManager::queueRenderRequest(request);
     }
     else // This is the result of the player on the local computer dropping the creature
     {
         // Send a render request to rearrange the creatures in the hand to move them all forward 1 place
         RenderRequest *request = new RenderRequest;
-        request->type = RenderRequest::dropCreature;
-        request->p = c;
+        request->type = RenderRequest::dropHand;
+        request->p = entity;
         request->p2 = this;
         RenderManager::queueRenderRequest(request);
     }
 
-    return c;
+    return entity;
 }
 
-void Player::rotateCreaturesInHand(int n)
+void Player::rotateHand(int n)
 {
     // If there are no creatures or only one creature in our hand, rotation doesn't change the order.
-    if (mCreaturesInHand.size() <= 1)
+    if (mObjectsInHand.size() <= 1)
         return;
 
     for (unsigned int i = 0; i < (unsigned int) fabs((double) n); ++i)
     {
         if (n > 0)
         {
-            Creature* tempCreature = mCreaturesInHand.back();
+            GameEntity* entity = mObjectsInHand.back();
 
-            //creaturesInHand.push_front(tempCreature);
             // Since vectors have no push_front method
             // we need to move all of the elements in the vector back one and then add this one to the beginning.
-            for (unsigned int j = mCreaturesInHand.size() - 1; j > 0; --j)
-                mCreaturesInHand[j] = mCreaturesInHand[j - 1];
+            for (unsigned int j = mObjectsInHand.size() - 1; j > 0; --j)
+                mObjectsInHand[j] = mObjectsInHand[j - 1];
 
-            mCreaturesInHand[0] = tempCreature;
+            mObjectsInHand[0] = entity;
 
         }
         else
         {
-            Creature* tempCreature = mCreaturesInHand.front();
-            mCreaturesInHand.erase(mCreaturesInHand.begin());
-            mCreaturesInHand.push_back(tempCreature);
+            GameEntity* entity = mObjectsInHand.front();
+            mObjectsInHand.erase(mObjectsInHand.begin());
+            mObjectsInHand.push_back(entity);
         }
     }
 
-    // Send a render request to move the crature into the "hand"
+    // Send a render request to move the entity into the "hand"
     RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::rotateCreaturesInHand;
-
-    // Add the request to the queue of rendering operations to be performed before the next frame.
+    request->type = RenderRequest::rotateHand;
     RenderManager::queueRenderRequest(request);
 }

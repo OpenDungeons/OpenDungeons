@@ -40,9 +40,9 @@ public:
     //Do we need more than a true/false here?
     bool buildRoom(Room::RoomType newRoomType, int x1, int y1, int x2, int y2);
     bool buildTrap(Trap::TrapType newRoomType, int x1, int y1, int x2, int y2);
-    bool dropCreature(int x, int y, int index);
+    bool dropHand(int x, int y, int index);
     bool pickUpCreature(Creature* creature);
-    const std::vector<Creature*>& getCreaturesInHand();
+    const std::vector<GameEntity*>& getObjectsInHand();
     std::vector<const Room*> getOwnedRoomsByType(Room::RoomType type);
     Room* getDungeonTemple();
     void markTileForDigging(Tile* tile);

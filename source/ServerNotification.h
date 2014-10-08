@@ -68,12 +68,8 @@ class ServerNotification
             animatedObjectClearDestinations,
             setObjectAnimationState,
             setMoveSpeed,
-            // Pickup/drop creature for concerned player
-            pickupCreature,
-            dropCreature,
-            // Pickup/drop creature for other players
-            creaturePickedUp,
-            creatureDropped,
+            entityPickedUp,
+            entityDropped,
 
             playerFighting, // Tells the player he is under attack or attacking
             playerNoMoreFighting, // Tells the player he is no longer under attack or attacking
