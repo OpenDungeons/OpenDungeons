@@ -39,6 +39,7 @@
 #include "MusicPlayer.h"
 #include "ODServer.h"
 #include "ODApplication.h"
+#include "MiniMap.h"
 
 #include <OgreRoot.h>
 #include <OgreRenderWindow.h>

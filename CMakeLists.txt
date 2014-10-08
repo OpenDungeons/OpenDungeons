@@ -511,14 +511,18 @@ configure_file(${CMAKE_CONFIG_DIR}/opendungeons.desktop.in ${CMAKE_BINARY_DIR}/o
 
 # If the project is not built in the source directory, create symbolic links
 # pointing to the game resources so that the game can be run in place
+# NOTE: This won't work on FAT filesystems
 if(NOT CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR)
     foreach(RES gui levels materials models music scripts sounds)
-        if(UNIX)
-            execute_process(COMMAND ln -s -r ${CMAKE_SOURCE_DIR}/${RES} ${CMAKE_BINARY_DIR}/${RES})
-        elseif(WIN32 AND ${CMAKE_SYSTEM_VERSION} GREATER 6.0) # Windows Vista or newer
-            # For some reason "COMMAND cmd.exe /c mklink /j" does not work as expected
-            # so we use a batch file to workaround it (cf. https://github.com/OpenDungeons/OpenDungeons/pull/206 for details)
-            execute_process(COMMAND cmd.exe /c ${CMAKE_SOURCE_DIR}/cmake/winsymlink.bat ${CMAKE_BINARY_DIR}/${RES} ${CMAKE_SOURCE_DIR}/${RES})
+        if(NOT EXISTS ${CMAKE_BINARY_DIR}/${RES})
+            message(STATUS "Creating symlink to ${CMAKE_SOURCE_DIR}/${RES} in ${CMAKE_BINARY_DIR}")
+            if(UNIX)
+                execute_process(COMMAND ln -s -r -T ${CMAKE_SOURCE_DIR}/${RES} ${CMAKE_BINARY_DIR}/${RES})
+            elseif(WIN32 AND ${CMAKE_SYSTEM_VERSION} GREATER 6.0) # Windows Vista or newer
+                # For some reason "COMMAND cmd.exe /c mklink /j" does not work as expected
+                # so we use a batch file to workaround it (cf. https://github.com/OpenDungeons/OpenDungeons/pull/206 for details)
+                execute_process(COMMAND cmd.exe /c ${CMAKE_SOURCE_DIR}/cmake/winsymlink.bat ${CMAKE_BINARY_DIR}/${RES} ${CMAKE_SOURCE_DIR}/${RES})
+            endif()
         endif()
     endforeach(RES)
 endif()

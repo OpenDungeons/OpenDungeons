@@ -23,15 +23,14 @@
 #ifndef MINIMAP_H_
 #define MINIMAP_H_
 
-#include "GameMap.h"
-#include "Tile.h"
-#include "Creature.h"
 #include "Gui.h"
 
 #include <OgreTexture.h>
 #include <OgrePixelFormat.h>
 #include <OgreHardwarePixelBuffer.h>
-#include <CEGUI/RendererModules/Ogre/Renderer.h>
+#include <OgreVector2.h>
+
+#include <vector>
 
 struct Color
 {
@@ -87,7 +86,11 @@ private:
     Ogre::Vector2 mCamera_2dPosition;
     double mCosRotation, mSinRotation;
 
-    Color** mTiles;
+    typedef std::vector<Color> TileColorRow_t;
+    typedef std::vector<TileColorRow_t> TileColorArray_t;
+    //!brief Vector containing colours to be drawn.
+    //NOTE: The tiles are laid out Y,X in the vector to iterate in the right order when drawing.
+    TileColorArray_t mTiles;
     GameMap* mGameMap;
 
     Ogre::TexturePtr mMiniMapOgreTexture;
@@ -96,15 +99,13 @@ private:
 
     Gui::guiSheet mSheetUsed;
 
-    void allocateMiniMapMemory();
-
     inline void drawPixel(int xx, int yy, Ogre::uint8 RR, Ogre::uint8 GG, Ogre::uint8 BB)
     {
         for(int gg = 0; gg < mGrainSize; ++gg)
         {
             for(int hh = 0; hh < mGrainSize; ++hh)
             {
-                mTiles[xx + gg][yy + hh] = Color(RR, GG, BB);
+                mTiles[yy + hh][xx + gg] = Color(RR, GG, BB);
             }
         }
 

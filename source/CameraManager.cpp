@@ -30,6 +30,7 @@
 #include "LogManager.h"
 #include "CullingManager.h"
 #include "ODFrameListener.h"
+#include "MiniMap.h"
 
 #include <OgrePrerequisites.h>
 #include <OgreSceneNode.h>

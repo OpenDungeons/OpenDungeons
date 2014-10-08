@@ -98,7 +98,7 @@ void MapLight::destroyOgreEntity()
 
     RenderRequest* request = new RenderRequest;
     request->type = RenderRequest::destroyMapLight;
-    request->p = this;
+    request->str = getNodeNameWithoutPostfix();
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
@@ -111,7 +111,8 @@ void MapLight::destroyOgreEntityVisualIndicator()
 
     RenderRequest* request = new RenderRequest;
     request->type = RenderRequest::destroyMapLightVisualIndicator;
-    request->p = this;
+    request->str = getNodeNameWithoutPostfix();
+    request->str2 = getName();
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
@@ -123,18 +124,8 @@ void MapLight::deleteYourself()
 {
     destroyOgreEntity();
 
-    if(mGameMap->isServerGameMap())
-    {
-        mGameMap->queueMapLightForDeletion(this);
-        return;
-    }
-
-    RenderRequest* request = new RenderRequest;
-    request->type = RenderRequest::deleteMapLight;
-    request->p = this;
-
-    // Add the request to the queue of rendering operations to be performed before the next frame.
-    RenderManager::queueRenderRequest(request);
+    mGameMap->queueMapLightForDeletion(this);
+    return;
 }
 
 void MapLight::setPosition(Ogre::Real nX, Ogre::Real nY, Ogre::Real nZ)

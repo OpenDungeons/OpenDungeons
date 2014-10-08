@@ -24,6 +24,8 @@
 
 #include <OgreSingleton.h>
 
+class GameMap;
+
 class ODClient: public Ogre::Singleton<ODClient>,
     public ODSocketClient
 {
@@ -39,7 +41,7 @@ class ODClient: public Ogre::Singleton<ODClient>,
      * A single instance of this thread is spawned by the client when it connects
      * to a server.
      */
-    void processClientSocketMessages();
+    void processClientSocketMessages(GameMap& gameMap);
 
     /*! \brief The function which monitors the clientNotificationQueue for new events and informs the server about them.
      *

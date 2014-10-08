@@ -205,6 +205,11 @@ class GameEntity
     //! \brief The position of this object
     Ogre::Vector3   position;
 
+    //! \brief Convinience function to get ogreNamePrefix + name
+    //! Used for nodes. The name does not include the _node and similar postfixes which are
+    //! added in RenderManager.
+    std::string getNodeNameWithoutPostfix();
+
   private:
     //! brief The name of the entity
     std::string     name;

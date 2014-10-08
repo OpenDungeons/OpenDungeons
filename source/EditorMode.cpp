@@ -17,6 +17,7 @@
 
 #include "EditorMode.h"
 
+#include "MiniMap.h"
 #include "MapLoader.h"
 #include "ODFrameListener.h"
 #include "LogManager.h"

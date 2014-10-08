@@ -63,3 +63,8 @@ void GameEntity::deleteYourself()
         getGameMap()->queueEntityForDeletion(this);
     }
 }
+
+std::string GameEntity::getNodeNameWithoutPostfix()
+{
+    return getOgreNamePrefix() + getName();
+}

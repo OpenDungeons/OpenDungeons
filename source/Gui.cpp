@@ -26,7 +26,6 @@
 
 #include "Gui.h"
 
-#include "MapLoader.h"
 #include "ODFrameListener.h"
 #include "GameMap.h"
 #include "Player.h"
@@ -36,7 +35,6 @@
 #include "ODServer.h"
 #include "ODClient.h"
 #include "CameraManager.h"
-#include "MiniMap.h"
 #include "ModeManager.h"
 #include "GameMode.h"
 #include "EditorMode.h"
@@ -45,6 +43,7 @@
 #include "MenuModeMultiplayerServer.h"
 #include "MenuModeEditor.h"
 #include "LogManager.h"
+#include "SoundEffectsManager.h"
 
 #include <CEGUI/CEGUI.h>
 #include <CEGUI/RendererModules/Ogre/Renderer.h>

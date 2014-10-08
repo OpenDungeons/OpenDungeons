@@ -85,7 +85,7 @@ public:
     void setPosition(Ogre::Real nX, Ogre::Real nY, Ogre::Real nZ);
     void setPosition(const Ogre::Vector3& nPosition);
 
-    virtual std::string getOgreNamePrefix() { return "MapLight_"; }
+    std::string getOgreNamePrefix() const { return "MapLight_"; }
 
     const std::string& getName() const
     { return mName; }
@@ -127,6 +127,12 @@ public:
     static void loadFromLine(const std::string& line, MapLight* m);
 
 private:
+    //! \brief Convinience function to get ogreNamePrefix + name
+    //! Used for nodes. The name does not include the _node and similar postfixes which are
+    //! added in RenderManager.
+    inline std::string getNodeNameWithoutPostfix() const
+    { return getOgreNamePrefix() + getName(); }
+
     GameMap* mGameMap;
 
     Ogre::Vector3 mPosition;
