@@ -5879,16 +5879,15 @@ Wyvern
 Dragon
 Orc
 Kreatur
-Gnome
 Goblin
 PitDemon
 Spider
-Wizard
 Tentacle1
 Tentacle2
 Troll
 LizardMan
 Scarab
+Slime
 [/Spawn_Pool]
 
 [Spawn_Pool]
@@ -5901,16 +5900,15 @@ Wyvern
 Dragon
 Orc
 Kreatur
-Gnome
 Goblin
 PitDemon
 Spider
-Wizard
 Tentacle1
 Tentacle2
 Troll
 LizardMan
 Scarab
+Slime
 [/Spawn_Pool]
 
 [Spawn_Pool]
@@ -5923,28 +5921,29 @@ Wyvern
 Dragon
 Orc
 Kreatur
-Gnome
 Goblin
 PitDemon
 Spider
-Wizard
 Tentacle1
 Tentacle2
 Troll
 LizardMan
 Scarab
+Slime
 [/Spawn_Pool]
 
 [Spawn_Pool]
 # team id
 4
 # Creature list & conditions
+Gnome
 Knight
 BigKnight
 Adventurer
 Dwarf1
 Dwarf2
 Dwarf3
+Wizard
 [/Spawn_Pool]
 
 [/Spawn_Pools]

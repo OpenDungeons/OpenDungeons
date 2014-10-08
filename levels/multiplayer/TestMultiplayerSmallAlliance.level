@@ -755,11 +755,9 @@ Wyvern
 Dragon
 Orc
 Kreatur
-Gnome
 Goblin
 PitDemon
 Spider
-Wizard
 Tentacle1
 Tentacle2
 Troll
@@ -778,11 +776,9 @@ Wyvern
 Dragon
 Orc
 Kreatur
-Gnome
 Goblin
 PitDemon
 Spider
-Wizard
 Tentacle1
 Tentacle2
 Troll
@@ -801,11 +797,9 @@ Wyvern
 Dragon
 Orc
 Kreatur
-Gnome
 Goblin
 PitDemon
 Spider
-Wizard
 Tentacle1
 Tentacle2
 Troll
@@ -818,12 +812,14 @@ Slime
 # team id
 4
 # Creature list & conditions
+Gnome
 Knight
 BigKnight
 Adventurer
 Dwarf1
 Dwarf2
 Dwarf3
+Wizard
 [/Spawn_Pool]
 
 [/Spawn_Pools]

@@ -759,11 +759,9 @@ Wyvern
 Dragon
 Orc
 Kreatur
-Gnome
 Goblin
 PitDemon
 Spider
-Wizard
 Tentacle1
 Tentacle2
 Troll
@@ -782,11 +780,9 @@ Wyvern
 Dragon
 Orc
 Kreatur
-Gnome
 Goblin
 PitDemon
 Spider
-Wizard
 Tentacle1
 Tentacle2
 Troll
@@ -805,11 +801,9 @@ Wyvern
 Dragon
 Orc
 Kreatur
-Gnome
 Goblin
 PitDemon
 Spider
-Wizard
 Tentacle1
 Tentacle2
 Troll
@@ -822,12 +816,14 @@ Slime
 # seat id
 4
 # Creature list
+Gnome
 Knight
 BigKnight
 Adventurer
 Dwarf1
 Dwarf2
 Dwarf3
+Wizard
 [/Spawn_Pool]
 
 [/Spawn_Pools]
