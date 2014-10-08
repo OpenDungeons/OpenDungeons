@@ -13,8 +13,15 @@ CMakeFiles
 #plugins
 #sounds
 
+ogre.cfg
+plugins.cfg
+plugins_d.cfg
+resources.cfg
+resources.zip.cfg
+resources_install.cfg
+resources_install.zip.cfg
+
 *.bin
-*.cfg
 *.dll
 *.exe
 *.log
@@ -34,13 +41,10 @@ CPackConfig.cmake
 CPackSourceConfig.cmake
 install_manifest.txt
 Makefile
-OpenDungeons
+opendungeons
 opendungeons.kdev4
-#plugins.cfg
-#plugins_d.cfg
-#resources.cfg
-#resources_install.cfg
-screenshot*
+opendungeons.desktop
+ODscreenshot*
 ogre.cfg
 shaderCache
 CMakeLists.txt.user

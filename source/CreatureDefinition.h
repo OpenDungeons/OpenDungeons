@@ -15,8 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CREATURECLASS_H
-#define CREATURECLASS_H
+#ifndef CREATUREDEFINITION_H
+#define CREATUREDEFINITION_H
 
 #include "Tile.h"
 #include "ODPacket.h"
@@ -31,24 +31,12 @@ class CreatureDefinition
 public:
     enum CreatureJob
     {
-        nullCreatureJob = 0,
-        basicWorker = 1,
-        advancedWorker,
-        scout,
-        weakFighter,
-        weakSpellcaster,
-        weakBuilder,
-        strongFighter,
-        strongSpellcaster,
-        strongBuilder,
-        guard,
-        specialCreature,
-        summon,
-        superCreature
+        Worker = 1, // Dig, claim tile and deposit gold. Only fights workers
+        Fighter,    // Sleep, eat, train and fight any enemy thing.
     };
 
     CreatureDefinition(
-            CreatureJob             job         = nullCreatureJob,
+            CreatureJob             job         = Fighter,
             const std::string&      className   = std::string(),
             const std::string&      meshName    = std::string(),
             const std::string&      bedMeshName = std::string(),
@@ -84,21 +72,13 @@ public:
     static std::string creatureJobToString(CreatureJob c);
 
     inline bool isWorker() const
-    { return (mCreatureJob == basicWorker || mCreatureJob == advancedWorker); }
+    { return (mCreatureJob == Worker); }
 
-    inline static std::string getFormat()
-    {
-        return "# className\tcreatureJob\tmeshName\tbedMeshName\tbedDim1\tbedDim2\tscaleX\tscaleY\tscaleZ\t"
-               "hp/level\tmaxHP\tsightRadius\tdigRate\tdanceRate\tmoveSpeedGround\tmoveSpeedWater\tmoveSpeedLava\n";
-    }
-
-    friend std::ostream & operator <<(std::ostream & os, CreatureDefinition *c);
-    friend std::istream & operator >>(std::istream & is, CreatureDefinition *c);
     friend ODPacket & operator <<(ODPacket & os, CreatureDefinition *c);
     friend ODPacket & operator >>(ODPacket & is, CreatureDefinition *c);
 
-    //! \brief Loads a definition from a line of the creature definition file.
-    static void loadFromLine(const std::string& line, CreatureDefinition* c);
+    //! \brief Loads a definition from the creature definition file sub [Creature][/Creature] part.
+    static bool load(std::stringstream& defFile, CreatureDefinition* c);
 
     inline CreatureJob          getCreatureJob  () const    { return mCreatureJob; }
     inline int                  getBedDim1      () const    { return mBedDim1; }
@@ -117,8 +97,6 @@ public:
     inline double               getSightRadius  () const    { return mSightRadius; }
 
 private:
-    //NOTE: Anything added to this class must be included in the '=' operator for the Creature class.
-
     //! \brief The job of the creature (e.g. worker, fighter, ...)
     CreatureJob mCreatureJob;
 
@@ -161,4 +139,4 @@ private:
     double mMoveSpeedLava;
 };
 
-#endif // CREATURECLASS_H
+#endif // CREATUREDEFINITION_H

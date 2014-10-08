@@ -6621,7 +6621,7 @@ Cannon	1
 
 # The file containing the creatures definition.
 [Creatures_Definition]
-levels/creatures.def
+config/creatures.cfg
 
 # Each team spawn pool
 # Describes what each team can spawn

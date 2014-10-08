@@ -5863,7 +5863,7 @@ Treasury	4
 
 # The file containing the creatures definition.
 [Creatures_Definition]
-levels/creatures.def
+config/creatures.cfg
 
 # Each team's spawn pool
 # Describes what each team can spawn

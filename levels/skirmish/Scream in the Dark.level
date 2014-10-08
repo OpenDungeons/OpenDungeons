@@ -5209,7 +5209,7 @@ Treasury	5
 
 # The file containing the creatures definition.
 [Creatures_Definition]
-levels/creatures.def
+config/creatures.cfg
 
 [Spawn_Pools]
 # Each team's spawn pool.
