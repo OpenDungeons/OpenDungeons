@@ -334,6 +334,8 @@ private:
 
     int getFloodFill(FloodFillType type);
 
+    //! \brief  We allow only one TreasuryObject per tile. If another one is dropped on the same tile,
+    //! it will be merged. It should not be deleted here as it is just a pointer to remind if there is one here.
     TreasuryObject* mTreasuryObject;
 };
 

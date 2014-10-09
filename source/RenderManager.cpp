@@ -356,16 +356,9 @@ bool RenderManager::handleRenderRequest(const RenderRequest& renderRequest)
 
 void RenderManager::processRenderRequests()
 {
-    /* If the renderQueue now contains 0 objects we should process this object and then
-    * release any of the other threads which were waiting on a renderQueue flush.
-    * FIXME: Noting is actually being done based on this, this should be used to implement
-    * a function making it easy to allow functions to wait on this.
-    */
     while (!mRenderQueue.empty())
     {
         // Remove the first item from the render queue
-
-
         RenderRequest *curReq = mRenderQueue.front();
         mRenderQueue.pop_front();
 
@@ -981,7 +974,6 @@ void RenderManager::rrPickUpEntity(const RenderRequest& renderRequest)
     Ogre::SceneNode* curEntityNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
     if(curEntity->getObjectType() == GameEntity::ObjectType::creature)
     {
-        //FIXME this variable name is a bit misleading
         mCreatureSceneNode->removeChild(curEntityNode);
     }
     else if(curEntity->getObjectType() == GameEntity::ObjectType::roomobject)

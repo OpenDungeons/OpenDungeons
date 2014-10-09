@@ -46,7 +46,7 @@ unsigned int Player::numCreaturesInHand(const Seat* seat) const
     for(std::vector<GameEntity*>::const_iterator it = mObjectsInHand.begin(); it != mObjectsInHand.end(); ++it)
     {
         const GameEntity* entity = *it;
-        if(entity->getObjectType() == GameEntity::ObjectType::creature)
+        if(entity->getObjectType() != GameEntity::ObjectType::creature)
             continue;
 
         if(seat != NULL && entity->getSeat() != seat)

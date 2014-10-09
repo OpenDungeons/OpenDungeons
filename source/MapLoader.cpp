@@ -83,7 +83,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
     // Read in the seats from the level file
     while (true)
     {
-        if(levelFile.eof())
+        if(!levelFile.good())
             return false;
         // Information can contain spaces. We need to use std::getline to get content
         std::getline(levelFile, nextParam);
@@ -137,7 +137,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
     // Read in the seats from the level file
     while (true)
     {
-        if(levelFile.eof())
+        if(!levelFile.good())
             return false;
 
         levelFile >> nextParam;
@@ -166,7 +166,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 
     while(true)
     {
-        if(levelFile.eof())
+        if(!levelFile.good())
             return false;
 
         levelFile >> nextParam;
@@ -201,7 +201,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 
     while (true)
     {
-        if(levelFile.eof())
+        if(!levelFile.good())
             return false;
 
         levelFile >> nextParam;
@@ -235,7 +235,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 
     while(true)
     {
-        if(levelFile.eof())
+        if(!levelFile.good())
             return false;
 
         levelFile >> nextParam;
@@ -259,7 +259,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 
     while(true)
     {
-        if(levelFile.eof())
+        if(!levelFile.good())
             return false;
 
         levelFile >> nextParam;
@@ -284,7 +284,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 
     while(true)
     {
-        if(levelFile.eof())
+        if(!levelFile.good())
             return false;
 
         levelFile >> nextParam;
@@ -325,7 +325,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 
     while(true)
     {
-        if(levelFile.eof())
+        if(!levelFile.good())
             return false;
 
         levelFile >> nextParam;
@@ -353,7 +353,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 
         while(true)
         {
-            if(levelFile.eof())
+            if(!levelFile.good())
                 return false;
 
             levelFile >> nextParam;
@@ -377,7 +377,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 
     while(true)
     {
-        if(levelFile.eof())
+        if(!levelFile.good())
             return false;
 
         levelFile >> nextParam;
@@ -600,7 +600,7 @@ bool loadCreatureDefinition(const std::string& fileName, GameMap& gameMap)
 
     while(true)
     {
-        if(defFile.eof())
+        if(!defFile.good())
             return false;
 
         defFile >> nextParam;
@@ -662,7 +662,7 @@ LevelInfo getMapInfo(const std::string& fileName)
     // Read in the seats from the level file
     while (true)
     {
-        if(levelFile.eof())
+        if(!levelFile.good())
             return invalidLevel;
         // Information can contain spaces. We need to use std::getline to get content
         std::getline(levelFile, nextParam);
@@ -701,7 +701,7 @@ LevelInfo getMapInfo(const std::string& fileName)
     int AISeatNumber = 0;
     while (true)
     {
-        if(levelFile.eof())
+        if(!levelFile.good())
             return invalidLevel;
 
         levelFile >> nextParam;
@@ -746,7 +746,7 @@ LevelInfo getMapInfo(const std::string& fileName)
 
     while(true)
     {
-        if(levelFile.eof())
+        if(!levelFile.good())
             return invalidLevel;
 
         levelFile >> nextParam;
