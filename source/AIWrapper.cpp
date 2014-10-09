@@ -22,6 +22,7 @@
 #include "GameMap.h"
 #include "ODServer.h"
 #include "ServerNotification.h"
+#include "Creature.h"
 #include "LogManager.h"
 
 AIWrapper::AIWrapper(GameMap& gameMap, Player& player)
@@ -82,24 +83,24 @@ bool AIWrapper::buildTrap(Trap::TrapType newTrapType, int x1, int y1, int x2, in
     return false;
 }
 
-bool AIWrapper::dropCreature(int x, int y, int index)
+bool AIWrapper::dropHand(int x, int y, int index)
 {
-    if(!player.isDropCreaturePossible(gameMap.getTile(x, y), index))
+    if(!player.isDropHandPossible(gameMap.getTile(x, y), index))
         return false;
 
-    player.dropCreature(gameMap.getTile(x, y), index);
+    player.dropHand(gameMap.getTile(x, y), index);
     return true;
 }
 
 bool AIWrapper::pickUpCreature(Creature* creature)
 {
-    player.pickUpCreature(creature);
+    player.pickUpEntity(creature, false);
     return true;
 }
 
-const std::vector<Creature*>& AIWrapper::getCreaturesInHand()
+const std::vector<GameEntity*>& AIWrapper::getObjectsInHand()
 {
-    return player.getCreaturesInHand();
+    return player.getObjectsInHand();
 }
 
 std::vector<const Room*> AIWrapper::getOwnedRoomsByType(Room::RoomType type)

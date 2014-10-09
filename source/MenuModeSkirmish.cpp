@@ -120,7 +120,7 @@ void MenuModeSkirmish::launchSelectedButtonPressed()
         LogManager::getSingleton().logMessage("ERROR: Could not start server for single player game !!!");
     }
 
-    if(!ODClient::getSingleton().connect("", ODApplication::PORT_NUMBER))
+    if(!ODClient::getSingleton().connect("localhost", ODApplication::PORT_NUMBER))
     {
         LogManager::getSingleton().logMessage("ERROR: Could not connect to server for single player game !!!");
         tmpWin = Gui::getSingleton().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);

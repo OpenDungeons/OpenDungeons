@@ -25,6 +25,7 @@
 #include "ChatMessage.h"
 #include "ODConsoleCommand.h"
 #include "MapLoader.h"
+#include "RoomObject.h"
 #include "LogManager.h"
 #include "Creature.h"
 
@@ -409,22 +410,12 @@ void ODServer::processServerNotifications()
                 break;
             }
 
-            case ServerNotification::pickupCreature:
+            case ServerNotification::entityPickedUp:
                 // This should not be a message as it is sent directly to the client
                 OD_ASSERT_TRUE(false);
                 break;
 
-            case ServerNotification::dropCreature:
-                // This should not be a message as it is sent directly to the client
-                OD_ASSERT_TRUE(false);
-                break;
-
-            case ServerNotification::creaturePickedUp:
-                // This should not be a message as it is sent directly to the client
-                OD_ASSERT_TRUE(false);
-                break;
-
-            case ServerNotification::creatureDropped:
+            case ServerNotification::entityDropped:
                 // This should not be a message as it is sent directly to the client
                 OD_ASSERT_TRUE(false);
                 break;
@@ -623,85 +614,90 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::askCreaturePickUp:
+        case ClientNotification::askEntityPickUp:
         {
-            std::string creatureName;
-            OD_ASSERT_TRUE(packetReceived >> creatureName);
+            std::string entityName;
+            GameEntity::ObjectType entityType;
+            OD_ASSERT_TRUE(packetReceived >> entityType >> entityName);
 
+            GameEntity* entity = nullptr;
             Player *player = clientSocket->getPlayer();
-            Creature *creature = gameMap->getCreature(creatureName);
-            OD_ASSERT_TRUE_MSG(creature != NULL, "name=" + creatureName);
-            if ((creature != NULL) && (creature->getIsOnMap()))
+            bool allowPickup = false;
+            switch(entityType)
             {
-                int seatId = creature->getSeat()->getId();
-                if(creature->getSeat()->canOwnedCreatureBePickedUpBy(player->getSeat()) ||
-                   (mServerMode = ServerMode::ModeEditor))
+                case GameEntity::ObjectType::creature:
                 {
-                    player->pickUpCreature(creature);
-                    // We notify the player that he pickedup the creature
-                    ODPacket packet;
-                    packet << ServerNotification::pickupCreature;
-                    packet << creatureName;
-                    sendMsgToClient(clientSocket, packet);
+                    Creature* creature = gameMap->getCreature(entityName);
+                    entity = creature;
+                    allowPickup = creature->tryPickup(player->getSeat(), mServerMode == ServerMode::ModeEditor);
+                    break;
+                }
+                case GameEntity::ObjectType::roomobject:
+                {
+                    RoomObject* obj = gameMap->getRoomObject(entityName);
+                    entity = obj;
+                    allowPickup = obj->tryPickup(player->getSeat(), mServerMode == ServerMode::ModeEditor);
+                    break;
+                }
+                default:
+                    // No need to display an error as it will be displayed in the following assert
+                    break;
+            }
+            OD_ASSERT_TRUE_MSG(entity != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
+            if(entity == nullptr)
+                break;
 
-                    // We notify the other players
-                    for (std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
-                    {
-                        ODSocketClient* tmpClient = *it;
-                        if(tmpClient->getPlayer() != player)
-                        {
-                            // We notify the other players that a creature has been picked up
-                            ODPacket packetSend;
-                            packetSend << ServerNotification::creaturePickedUp;
-                            packetSend << seatId << creatureName;
-                            sendMsgToClient(tmpClient, packetSend);
-                        }
-                    }
-                }
-                else
-                {
-                    LogManager::getSingleton().logMessage("player=" + player->getNick()
-                        + " tried to pick up creature from different seat id creatureName=" + creatureName);
-                }
+            if(!allowPickup)
+            {
+                LogManager::getSingleton().logMessage("player=" + player->getNick()
+                        + " could not pickup entity entityType="
+                        + Ogre::StringConverter::toString(static_cast<int32_t>(entityType))
+                        + ", entityName=" + entityName);
+                break;
+            }
+
+            int seatId = player->getSeat()->getId();
+            player->pickUpEntity(entity, mServerMode == ServerMode::ModeEditor);
+            // We notify the players
+            for (std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
+            {
+                ODSocketClient* tmpClient = *it;
+                // We notify the other players that a creature has been picked up
+                ODPacket packetSend;
+                packetSend << ServerNotification::entityPickedUp;
+                packetSend << mServerMode << seatId << entityType << entityName;
+                sendMsgToClient(tmpClient, packetSend);
             }
             break;
         }
 
-        case ClientNotification::askCreatureDrop:
+        case ClientNotification::askHandDrop:
         {
             Tile tmpTile(gameMap);
             OD_ASSERT_TRUE(packetReceived >> &tmpTile);
             Player *player = clientSocket->getPlayer();
             Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE_MSG(tile != NULL, "tile=" + Tile::displayAsString(tile));
-            if(tile != NULL)
+            OD_ASSERT_TRUE_MSG(tile != nullptr, "tile=" + Tile::displayAsString(tile));
+            if(tile != nullptr)
             {
-                if(player->isDropCreaturePossible(tile, 0, mServerMode == ServerMode::ModeEditor))
+                if(player->isDropHandPossible(tile, 0, mServerMode == ServerMode::ModeEditor))
                 {
-                    player->dropCreature(tile);
+                    // We notify the players
+                    OD_ASSERT_TRUE(player->dropHand(tile, 0) != NULL);
                     int seatId = player->getSeat()->getId();
-                    ODPacket packet;
-                    packet << ServerNotification::dropCreature;
-                    packet << tile;
-                    sendMsgToClient(clientSocket, packet);
-
-                    // We also notify the other players
                     for (std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
                     {
                         ODSocketClient* tmpClient = *it;
-                        if(tmpClient->getPlayer() != player)
-                        {
-                            packet.clear();
-                            packet << ServerNotification::creatureDropped;
-                            packet << seatId << tile;
-                            sendMsgToClient(tmpClient, packet);
-                        }
+                        ODPacket packet;
+                        packet << ServerNotification::entityDropped;
+                        packet << seatId << tile;
+                        sendMsgToClient(tmpClient, packet);
                     }
                 }
                 else
                 {
                     LogManager::getSingleton().logMessage("player=" + player->getNick()
-                        + " could not drop creature in hand on tile "
+                        + " could not drop entity in hand on tile "
                         + Tile::displayAsString(tile));
                 }
             }
@@ -1009,7 +1005,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         case ClientNotification::editorAskSaveMap:
         {
             Player* player = clientSocket->getPlayer();
-            if(player->numCreaturesInHand() == 0)
+            if(player->numObjectsInHand() == 0)
             {
                 // If the file exists, we make a backup
                 const boost::filesystem::path levelPath(mLevelFilename);
@@ -1297,4 +1293,18 @@ ODSocketClient* ODServer::getClientFromPlayer(Player* player)
     }
 
     return ret;
+}
+
+ODPacket& operator<<(ODPacket& os, const ODServer::ServerMode& sm)
+{
+    os << static_cast<int32_t>(sm);
+    return os;
+}
+
+ODPacket& operator>>(ODPacket& is, ODServer::ServerMode& sm)
+{
+    int32_t tmp;
+    is >> tmp;
+    sm = static_cast<ODServer::ServerMode>(tmp);
+    return is;
 }

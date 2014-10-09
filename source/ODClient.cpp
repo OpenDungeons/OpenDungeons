@@ -31,6 +31,7 @@
 #include "ODApplication.h"
 #include "RoomTreasury.h"
 #include "MissileObject.h"
+#include "TreasuryObject.h"
 #include "RoomObject.h"
 #include "LogManager.h"
 #include "ModeManager.h"
@@ -178,9 +179,8 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotification::clientAccepted:
         {
-            int intServerMode;
-            OD_ASSERT_TRUE(packetReceived >> intServerMode);
-            ODServer::ServerMode serverMode = static_cast<ODServer::ServerMode>(intServerMode);
+            ODServer::ServerMode serverMode;
+            OD_ASSERT_TRUE(packetReceived >> serverMode);
 
             // Now that the we have received all needed information, we can launch the requested mode
             switch(serverMode)
@@ -192,7 +192,7 @@ bool ODClient::processOneClientSocketMessage()
                     frameListener->getModeManager()->requestEditorMode(true);
                     break;
                 default:
-                    OD_ASSERT_TRUE_MSG(false,"Unknown server mode=" + Ogre::StringConverter::toString(intServerMode));
+                    OD_ASSERT_TRUE_MSG(false,"Unknown server mode=" + Ogre::StringConverter::toString(static_cast<int32_t>(serverMode)));
             }
 
             break;
@@ -360,55 +360,44 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::pickupCreature:
+        case ServerNotification::entityPickedUp:
         {
-            std::string creatureName;
-            OD_ASSERT_TRUE(packetReceived >> creatureName);
-            Player *localPlayer = gameMap->getLocalPlayer();
-            Creature *pickedCreature = gameMap->getCreature(creatureName);
-            OD_ASSERT_TRUE_MSG(pickedCreature != NULL, "creatureName=" + creatureName);
-            if (pickedCreature != NULL)
-            {
-                pickedCreature->playSound(CreatureSound::PICKUP);
-                localPlayer->pickUpCreature(pickedCreature);
-            }
-            break;
-        }
-
-        case ServerNotification::dropCreature:
-        {
-            Tile tmpTile(gameMap);
-            OD_ASSERT_TRUE(packetReceived >> &tmpTile);
-            Player *tempPlayer = gameMap->getLocalPlayer();
-            Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE_MSG(tile != NULL, "tile=" + Tile::displayAsString(&tmpTile));
-            if (tile != NULL)
-            {
-                Creature* droppedCreature = tempPlayer->dropCreature(tile);
-                OD_ASSERT_TRUE(droppedCreature != NULL);
-                if (droppedCreature != NULL)
-                    droppedCreature->playSound(CreatureSound::DROP);
-            }
-            break;
-        }
-
-        case ServerNotification::creaturePickedUp:
-        {
+            ODServer::ServerMode serverMode;
             int seatId;
-            std::string creatureName;
-            OD_ASSERT_TRUE(packetReceived >> seatId >> creatureName);
+            GameEntity::ObjectType entityType;
+            std::string entityName;
+            GameEntity* entity = nullptr;
+            OD_ASSERT_TRUE(packetReceived >> serverMode >> seatId >> entityType >> entityName);
             Player *tempPlayer = gameMap->getPlayerBySeatId(seatId);
-            OD_ASSERT_TRUE_MSG(tempPlayer != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
-            Creature *tempCreature = gameMap->getCreature(creatureName);
-            OD_ASSERT_TRUE_MSG(tempCreature != NULL, "creatureName=" + creatureName);
-            if (tempPlayer != NULL && tempCreature != NULL)
+            OD_ASSERT_TRUE_MSG(tempPlayer != nullptr, "seatId=" + Ogre::StringConverter::toString(seatId));
+            if(tempPlayer == nullptr)
+                break;
+
+            switch(entityType)
             {
-                tempPlayer->pickUpCreature(tempCreature);
+                case GameEntity::ObjectType::creature:
+                {
+                    entity = gameMap->getCreature(entityName);
+                    break;
+                }
+                case GameEntity::ObjectType::roomobject:
+                {
+                    entity = gameMap->getRoomObject(entityName);
+                    break;
+                }
+                default:
+                    // No need to display an error as it will be displayed in the following assert
+                    break;
             }
+            OD_ASSERT_TRUE_MSG(entity != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
+            if(entity == nullptr)
+                break;
+
+            tempPlayer->pickUpEntity(entity, serverMode == ODServer::ServerMode::ModeEditor);
             break;
         }
 
-        case ServerNotification::creatureDropped:
+        case ServerNotification::entityDropped:
         {
             int seatId;
             Tile tmpTile(gameMap);
@@ -419,7 +408,7 @@ bool ODClient::processOneClientSocketMessage()
             OD_ASSERT_TRUE_MSG(tile != NULL, "tile=" + Tile::displayAsString(&tmpTile));
             if (tempPlayer != NULL && tile != NULL)
             {
-                tempPlayer->dropCreature(tile);
+                OD_ASSERT_TRUE(tempPlayer->dropHand(tile) != NULL);
             }
             break;
         }
@@ -690,8 +679,8 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotification::addRoomObject:
         {
-            RoomObject* tempRoomObject = new RoomObject(gameMap);
-            OD_ASSERT_TRUE(packetReceived >> tempRoomObject);
+            RoomObject* tempRoomObject = RoomObject::getRoomObjectFromPacket(gameMap, packetReceived);
+            OD_ASSERT_TRUE(tempRoomObject != nullptr);
             gameMap->addRoomObject(tempRoomObject);
             tempRoomObject->createMesh();
             break;

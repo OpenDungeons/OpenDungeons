@@ -281,7 +281,7 @@ void GameMap::clearPlayers()
     {
         delete players[ii];
     }
-    getLocalPlayer()->clearCreatureInHand();
+    getLocalPlayer()->clearObjectsInHand();
 
     players.clear();
 }
@@ -428,9 +428,11 @@ void GameMap::addRoomObject(RoomObject *obj)
     {
         try
         {
+            RoomObject::RoomObjectType objType = obj->getRoomObjectType();
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotification::addRoomObject, NULL);
-            serverNotification->mPacket << obj;
+            serverNotification->mPacket << objType;
+            obj->exportToPacket(serverNotification->mPacket);
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)

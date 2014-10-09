@@ -175,12 +175,12 @@ bool RenderManager::handleRenderRequest(const RenderRequest& renderRequest)
         rrAttachTile(renderRequest);
         break;
 
-    case RenderRequest::detachCreature:
-        rrDetachCreature(renderRequest);
+    case RenderRequest::detachEntity:
+        rrDetachEntity(renderRequest);
         break;
 
-    case RenderRequest::attachCreature:
-        rrAttachCreature(renderRequest);
+    case RenderRequest::attachEntity:
+        rrAttachEntity(renderRequest);
         break;
 
     case RenderRequest::toggleCreatureVisibility:
@@ -295,16 +295,16 @@ bool RenderManager::handleRenderRequest(const RenderRequest& renderRequest)
         rrDestroyMapLightVisualIndicator(renderRequest);
         break;
 
-    case RenderRequest::pickUpCreature:
-        rrPickUpCreature(renderRequest);
+    case RenderRequest::pickUpEntity:
+        rrPickUpEntity(renderRequest);
         break;
 
-    case RenderRequest::dropCreature:
-        rrDropCreature(renderRequest);
+    case RenderRequest::dropHand:
+        rrDropHand(renderRequest);
         break;
 
-    case RenderRequest::rotateCreaturesInHand:
-        rrRotateCreaturesInHand(renderRequest);
+    case RenderRequest::rotateHand:
+        rrRotateHand(renderRequest);
         break;
 
     case RenderRequest::createCreatureVisualDebug:
@@ -356,16 +356,9 @@ bool RenderManager::handleRenderRequest(const RenderRequest& renderRequest)
 
 void RenderManager::processRenderRequests()
 {
-    /* If the renderQueue now contains 0 objects we should process this object and then
-    * release any of the other threads which were waiting on a renderQueue flush.
-    * FIXME: Noting is actually being done based on this, this should be used to implement
-    * a function making it easy to allow functions to wait on this.
-    */
     while (!mRenderQueue.empty())
     {
         // Remove the first item from the render queue
-
-
         RenderRequest *curReq = mRenderQueue.front();
         mRenderQueue.pop_front();
 
@@ -577,7 +570,7 @@ void RenderManager::rrAttachTile(const RenderRequest& renderRequest)
     }
 }
 
-void RenderManager::rrDetachCreature(const RenderRequest& renderRequest)
+void RenderManager::rrDetachEntity(const RenderRequest& renderRequest)
 {
     GameEntity* curEntity = static_cast<GameEntity*>(renderRequest.p);
     Ogre::SceneNode* creatureNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
@@ -585,12 +578,12 @@ void RenderManager::rrDetachCreature(const RenderRequest& renderRequest)
     curEntity->pSN->removeChild(creatureNode);
 }
 
-void RenderManager::rrAttachCreature(const RenderRequest& renderRequest)
+void RenderManager::rrAttachEntity(const RenderRequest& renderRequest)
 {
     GameEntity* curEntity = static_cast<GameEntity*>(renderRequest.p);
-    Ogre::SceneNode* creatureNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
+    Ogre::SceneNode* entityNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
 
-    curEntity->pSN->addChild(creatureNode);
+    curEntity->pSN->addChild(entityNode);
 }
 
 void RenderManager::rrToggleCreaturesVisibility()
@@ -695,7 +688,7 @@ void RenderManager::rrCreateRoomObject(const RenderRequest& renderRequest)
 
     node->setPosition(curRoomObject->getPosition());
     node->setScale(Ogre::Vector3(0.7, 0.7, 0.7));
-    node->roll(Ogre::Degree(curRoomObject->mRotationAngle));
+    node->roll(Ogre::Degree(curRoomObject->getRotationAngle()));
     node->attachObject(ent);
 }
 
@@ -974,58 +967,80 @@ void RenderManager::rrDestroyMapLightVisualIndicator(const RenderRequest& render
     }
 }
 
-void RenderManager::rrPickUpCreature(const RenderRequest& renderRequest)
+void RenderManager::rrPickUpEntity(const RenderRequest& renderRequest)
 {
-    Creature* curCreature = static_cast<Creature*>(renderRequest.p);
-    // Detach the creature from the creature scene node
-    Ogre::SceneNode* creatureNode = mSceneManager->getSceneNode(curCreature->getOgreNamePrefix() + curCreature->getName() + "_node");
-    //FIXME this variable name is a bit misleading
-    mCreatureSceneNode->removeChild(creatureNode);
+    GameEntity* curEntity = static_cast<GameEntity*>(renderRequest.p);
+    // Detach the entity from its scene node
+    Ogre::SceneNode* curEntityNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
+    if(curEntity->getObjectType() == GameEntity::ObjectType::creature)
+    {
+        mCreatureSceneNode->removeChild(curEntityNode);
+    }
+    else if(curEntity->getObjectType() == GameEntity::ObjectType::roomobject)
+    {
+        mRoomSceneNode->removeChild(curEntityNode);
+    }
 
     // Attach the creature to the hand scene node
-    mSceneManager->getSceneNode("Hand_node")->addChild(creatureNode);
+    mSceneManager->getSceneNode("Hand_node")->addChild(curEntityNode);
     //FIXME we should probably use setscale for this, because of rounding.
-    creatureNode->scale(0.333, 0.333, 0.333);
+    curEntityNode->scale(0.333, 0.333, 0.333);
 
     // Move the other creatures in the player's hand to make room for the one just picked up.
-    for (unsigned int i = 0; i < mGameMap->getLocalPlayer()->numCreaturesInHand(); ++i)
+    int i = 0;
+    const std::vector<GameEntity*>& objectsInHand = mGameMap->getLocalPlayer()->getObjectsInHand();
+    for (std::vector<GameEntity*>::const_iterator it = objectsInHand.begin(); it != objectsInHand.end(); ++it)
     {
-        curCreature = mGameMap->getLocalPlayer()->getCreatureInHand(i);
-        creatureNode = mSceneManager->getSceneNode(curCreature->getOgreNamePrefix() + curCreature->getName() + "_node");
-        creatureNode->setPosition((Ogre::Real)(i % 6 + 1), (Ogre::Real)(i / (int)6), (Ogre::Real)0.0);
+        const GameEntity* tmpEntity = *it;
+        Ogre::SceneNode* tmpEntityNode = mSceneManager->getSceneNode(tmpEntity->getOgreNamePrefix() + tmpEntity->getName() + "_node");
+        tmpEntityNode->setPosition((Ogre::Real)(i % 6 + 1), (Ogre::Real)(i / (int)6), (Ogre::Real)0.0);
+        ++i;
     }
 }
 
-void RenderManager::rrDropCreature(const RenderRequest& renderRequest)
+void RenderManager::rrDropHand(const RenderRequest& renderRequest)
 {
-    Creature* curCreature = static_cast<Creature*>(renderRequest.p);
+    GameEntity* curEntity = static_cast<GameEntity*>(renderRequest.p);
     Player* curPlayer = static_cast<Player*> (renderRequest.p2);
-    // Detach the creature from the "hand" scene node
-    Ogre::SceneNode* creatureNode = mSceneManager->getSceneNode(curCreature->getOgreNamePrefix() + curCreature->getName() + "_node");
-    mSceneManager->getSceneNode("Hand_node")->removeChild(creatureNode);
+    // Detach the entity from the "hand" scene node
+    Ogre::SceneNode* curEntityNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
+    mSceneManager->getSceneNode("Hand_node")->removeChild(curEntityNode);
 
     // Attach the creature from the creature scene node
-    mCreatureSceneNode->addChild(creatureNode);
-    creatureNode->setPosition(curCreature->getPosition());
-    creatureNode->scale(3.0, 3.0, 3.0);
+    if(curEntity->getObjectType() == GameEntity::ObjectType::creature)
+    {
+        mCreatureSceneNode->addChild(curEntityNode);
+    }
+    else if(curEntity->getObjectType() == GameEntity::ObjectType::roomobject)
+    {
+        mRoomSceneNode->addChild(curEntityNode);
+    }
+    curEntityNode->setPosition(curEntity->getPosition());
+    curEntityNode->scale(3.0, 3.0, 3.0);
 
     // Move the other creatures in the player's hand to replace the dropped one
-    for (unsigned int i = 0; i < curPlayer->numCreaturesInHand(); ++i)
+    int i = 0;
+    const std::vector<GameEntity*>& objectsInHand = curPlayer->getObjectsInHand();
+    for (std::vector<GameEntity*>::const_iterator it = objectsInHand.begin(); it != objectsInHand.end(); ++it)
     {
-        curCreature = curPlayer->getCreatureInHand(i);
-        creatureNode = mSceneManager->getSceneNode(curCreature->getOgreNamePrefix() + curCreature->getName() + "_node");
-        creatureNode->setPosition((Ogre::Real)(i % 6 + 1), (Ogre::Real)(i / (int)6), (Ogre::Real)0.0);
+        const GameEntity* tmpEntity = *it;
+        Ogre::SceneNode* tmpEntityNode = mSceneManager->getSceneNode(tmpEntity->getOgreNamePrefix() + tmpEntity->getName() + "_node");
+        tmpEntityNode->setPosition((Ogre::Real)(i % 6 + 1), (Ogre::Real)(i / (int)6), (Ogre::Real)0.0);
+        ++i;
     }
 }
 
-void RenderManager::rrRotateCreaturesInHand(const RenderRequest&)
+void RenderManager::rrRotateHand(const RenderRequest&)
 {
     // Loop over the creatures in our hand and redraw each of them in their new location.
-    for (unsigned int i = 0; i < mGameMap->getLocalPlayer()->numCreaturesInHand(); ++i)
+    int i = 0;
+    const std::vector<GameEntity*>& objectsInHand = mGameMap->getLocalPlayer()->getObjectsInHand();
+    for (std::vector<GameEntity*>::const_iterator it = objectsInHand.begin(); it != objectsInHand.end(); ++it)
     {
-        Creature* curCreature = mGameMap->getLocalPlayer()->getCreatureInHand(i);
-        Ogre::SceneNode* creatureNode = mSceneManager->getSceneNode(curCreature->getOgreNamePrefix() + curCreature->getName() + "_node");
-        creatureNode->setPosition((Ogre::Real)(i % 6 + 1), (Ogre::Real)(i / (int)6), (Ogre::Real)0.0);
+        const GameEntity* tmpEntity = *it;
+        Ogre::SceneNode* tmpEntityNode = mSceneManager->getSceneNode(tmpEntity->getOgreNamePrefix() + tmpEntity->getName() + "_node");
+        tmpEntityNode->setPosition((Ogre::Real)(i % 6 + 1), (Ogre::Real)(i / (int)6), (Ogre::Real)0.0);
+        ++i;
     }
 }
 

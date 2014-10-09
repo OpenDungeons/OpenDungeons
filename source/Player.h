@@ -70,32 +70,29 @@ public:
     //! this player is holding in his/her hand that belongs to seat seat.
     //! If seat is NULL, then returns the total number of creatures
     unsigned int numCreaturesInHand(const Seat* seat = NULL) const;
-
-    //! \brief A simple accessor function to return a pointer to the i'th creature in the players hand.
-    Creature *getCreatureInHand(int i);
-    const Creature* getCreatureInHand(int i) const;
+    unsigned int numObjectsInHand() const;
 
     /*! \brief Check to see if it is the user or another player picking up the creature and act accordingly.
      *
      * This function takes care of all of the operations required for a player to
-     * pick up a creature.  If the player is the user we need to move the creature
+     * pick up an object (creature, treasury, ...).  If the player is the user we need to move the creature
      * oncreen to the "hand" as well as add the creature to the list of creatures
      * in our own hand, this is done by setting moveToHand to true.  If move to
      * hand is false we just hide the creature (and stop its AI, etc.), rather than
      * making it follow the cursor.
      */
-    void pickUpCreature(Creature *c);
+    void pickUpEntity(GameEntity *entity, bool isEditorMode);
 
-    //! \brief Check to see the first creatureInHand can be dropped on Tile t and do so if possible.
-    bool isDropCreaturePossible(Tile *t, unsigned int index = 0, bool isEditorMode = false);
+    //! \brief Check to see the first object in hand can be dropped on Tile t and do so if possible.
+    bool isDropHandPossible(Tile *t, unsigned int index = 0, bool isEditorMode = false);
 
     //! \brief Drops the creature on tile t. Returns the dropped creature
-    Creature* dropCreature(Tile *t, unsigned int index = 0);
+    GameEntity* dropHand(Tile *t, unsigned int index = 0);
 
-    void rotateCreaturesInHand(int n);
+    void rotateHand(int n);
 
     //! \brief Clears all creatures that a player might have in his hand
-    void clearCreatureInHand();
+    void clearObjectsInHand();
 
     inline void setGameMap(GameMap* gameMap)
     { mGameMap = gameMap; }
@@ -106,8 +103,8 @@ public:
     inline void setHasAI(bool hasAI)
     { mHasAI = hasAI; }
 
-    inline const std::vector<Creature*>& getCreaturesInHand()
-    { return mCreaturesInHand; }
+    inline const std::vector<GameEntity*>& getObjectsInHand()
+    { return mObjectsInHand; }
 
     inline const Room::RoomType getNewRoomType()
     { return mNewRoomType; }
@@ -146,7 +143,7 @@ private:
     std::string mNickname;
 
     //! \brief The creature the player has got in hand.
-    std::vector<Creature*> mCreaturesInHand;
+    std::vector<GameEntity*> mObjectsInHand;
 
     //! True: player is human. False: player is a computer.
     bool mHasAI;
@@ -158,10 +155,10 @@ private:
     //! the local player.
     float mFightingTime;
 
-    //! \brief A simple mutator function to put the given creature into the player's hand,
+    //! \brief A simple mutator function to put the given entity into the player's hand,
     //! note this should NOT be called directly for creatures on the map,
-    //! for that you should use pickUpCreature() instead.
-    void addCreatureToHand(Creature *c);
+    //! for that you should use the correct function like pickUpEntity() instead.
+    void addEntityToHand(GameEntity *entity);
 };
 
 #endif // PLAYER_H

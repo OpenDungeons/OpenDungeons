@@ -39,6 +39,7 @@
 #include "Helper.h"
 #include "RoomTreasury.h"
 #include "RoomDormitory.h"
+#include "TreasuryObject.h"
 #include "ODClient.h"
 
 #include <CEGUI/System.h>
@@ -492,27 +493,6 @@ void Creature::setWeaponR(Weapon* wR)
 
     mWeaponR->setParentCreature(this);
     mWeaponR->setHandString("R");
-}
-
-void Creature::attach()
-{
-    RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::attachCreature;
-    request->p = this;
-
-    // Add the request to the queue of rendering operations to be performed before the next frame.
-    RenderManager::queueRenderRequest(request);
-}
-
-
-void Creature::detach()
-{
-    RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::detachCreature;
-    request->p = this;
-
-    // Add the request to the queue of rendering operations to be performed before the next frame.
-    RenderManager::queueRenderRequest(request);
 }
 
 void Creature::doUpkeep()
@@ -1667,15 +1647,6 @@ bool Creature::handleDepositGoldAction()
     // We were not standing in a treasury that has enough room for the gold we are carrying, so try to find one to walk to.
     // Check to see if our seat controls any treasuries.
     std::vector<Room*> treasuriesOwned = getGameMap()->getRoomsByTypeAndSeat(Room::treasury, getSeat());
-    if (treasuriesOwned.empty())
-    {
-        // There are no treasuries available so just go back to what we were doing.
-        popAction();
-        LogManager::getSingleton().logMessage("No space to put gold for creature for player seat id="
-            + Ogre::StringConverter::toString(getSeat()->getId()));
-        return true;
-    }
-
     Tile* nearestTreasuryTile = NULL;
     unsigned int nearestTreasuryDistance = 0;
     bool validPathFound = false;
@@ -1723,10 +1694,19 @@ bool Creature::handleDepositGoldAction()
     }
 
     // If we get to here, there is either no treasuries controlled by us, or they are all
-    // unreachable, or they are all full, so quit trying to deposit gold.
+    // unreachable, or they are all full, so we let the gold on the ground
     popAction();
-    LogManager::getSingleton().logMessage("No space to put gold for creature for player seat id="
-        + Ogre::StringConverter::toString(getSeat()->getId()));
+
+    Tile* tile = getPositionTile();
+    OD_ASSERT_TRUE_MSG(tile != nullptr, "tile=" + Tile::displayAsString(tile));
+    if(tile == nullptr)
+        return true;
+    TreasuryObject* obj = new TreasuryObject(getGameMap(), mGold);
+    mGold = 0;
+    Ogre::Vector3 pos(static_cast<Ogre::Real>(tile->x), static_cast<Ogre::Real>(tile->y), 0.0f);
+    obj->setPosition(pos);
+    getGameMap()->addRoomObject(obj);
+
     return true;
 }
 
@@ -2765,11 +2745,22 @@ CreatureAction Creature::peekAction()
     return tempAction;
 }
 
-bool Creature::tryPickup()
+bool Creature::tryPickup(Seat* seat, bool isEditorMode)
 {
     if (getHP() <= 0.0)
         return false;
 
+    if(!getIsOnMap())
+        return false;
+
+    if(!getSeat()->canOwnedCreatureBePickedUpBy(seat) && !isEditorMode)
+        return false;
+
+    return true;
+}
+
+void Creature::pickup()
+{
     // Stop the creature walking and set it off the map to prevent the AI from running on it.
     setIsOnMap(false);
     clearDestinations();
@@ -2778,8 +2769,27 @@ bool Creature::tryPickup()
     Tile* tile = getPositionTile();
     if(tile != NULL)
         tile->removeCreature(this);
+}
 
-    return true;
+bool Creature::tryDrop(Seat* seat, Tile* tile, bool isEditorMode)
+{
+    // check whether the tile is a ground tile ...
+    if (tile->getFullness() > 0.0)
+        return false;
+
+    // In editor mode, we allow creatures to be dropped anywhere they can walk
+    if(isEditorMode && tile->canCreatureGoThroughTile(getDefinition()))
+        return true;
+
+    // If it is a worker, he can be dropped on dirt
+    if (getDefinition()->isWorker() && (tile->getType() == Tile::dirt || tile->getType() == Tile::gold))
+        return true;
+
+    // Every creature can be dropped on allied claimed tiles
+    if(tile->getType() == Tile::claimed && tile->getSeat() != NULL && tile->getSeat()->isAlliedSeat(getSeat()))
+        return true;
+
+    return false;
 }
 
 void Creature::playSound(CreatureSound::SoundType soundType)

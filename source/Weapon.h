@@ -43,7 +43,7 @@ public:
         destroyMesh();
     }
 
-    virtual std::string getOgreNamePrefix() { return "Weapon_"; }
+    virtual std::string getOgreNamePrefix() const { return "Weapon_"; }
 
     static std::string getFormat();
     friend std::ostream& operator<<(std::ostream& os, Weapon *w);

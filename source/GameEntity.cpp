@@ -68,3 +68,17 @@ std::string GameEntity::getNodeNameWithoutPostfix()
 {
     return getOgreNamePrefix() + getName();
 }
+
+ODPacket& operator<<(ODPacket& os, const GameEntity::ObjectType& ot)
+{
+    os << static_cast<int32_t>(ot);
+    return os;
+}
+
+ODPacket& operator>>(ODPacket& is, GameEntity::ObjectType& ot)
+{
+    int32_t tmp;
+    is >> tmp;
+    ot = static_cast<GameEntity::ObjectType>(tmp);
+    return is;
+}

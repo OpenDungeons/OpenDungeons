@@ -37,6 +37,7 @@
 #include "ODClient.h"
 #include "ODServer.h"
 #include "ODApplication.h"
+#include "RoomObject.h"
 
 #include <OgreEntity.h>
 #include <OgreRoot.h>
@@ -201,7 +202,7 @@ void EditorMode::handleMouseWheel(const OIS::MouseEvent& arg)
     {
         if (getKeyboard()->isModifierDown(OIS::Keyboard::Ctrl))
         {
-            mGameMap->getLocalPlayer()->rotateCreaturesInHand(1);
+            mGameMap->getLocalPlayer()->rotateHand(1);
         }
         else
         {
@@ -212,7 +213,7 @@ void EditorMode::handleMouseWheel(const OIS::MouseEvent& arg)
     {
         if (getKeyboard()->isModifierDown(OIS::Keyboard::Ctrl))
         {
-            mGameMap->getLocalPlayer()->rotateCreaturesInHand(-1);
+            mGameMap->getLocalPlayer()->rotateHand(-1);
         }
         else
         {
@@ -385,13 +386,13 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         if (curTile == NULL)
             return true;
 
-        if (mGameMap->getLocalPlayer()->isDropCreaturePossible(curTile, 0, true))
+        if (mGameMap->getLocalPlayer()->isDropHandPossible(curTile, 0, true))
         {
             if(ODClient::getSingleton().isConnected())
             {
                 // Send a message to the server telling it we want to drop the creature
                 ClientNotification *clientNotification = new ClientNotification(
-                    ClientNotification::askCreatureDrop);
+                    ClientNotification::askHandDrop);
                 clientNotification->mPacket << curTile;
                 ODClient::getSingleton().queueClientNotification(clientNotification);
             }
@@ -434,43 +435,64 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
         std::string resultName = itr->movable->getName();
 
-        if (resultName.find(Creature::CREATURE_PREFIX) == std::string::npos)
-            continue;
-
-        // Pick the creature up and put it in our hand
-        if(inputManager->mExpectCreatureClick)
+        if (resultName.find(Creature::CREATURE_PREFIX) != std::string::npos)
         {
-            // TODO : switch to FPP mode
+            // Pick the creature up and put it in our hand
+            if(inputManager->mExpectCreatureClick)
+            {
+                // TODO : switch to FPP mode
 #if 0 // FPP mode do not exist yet but we keep track of what was done.
-            mModeManager->requestFppMode();
-            const string& tmp_name =  (itr->movable->getName());
-            std::cerr << tmp_name.substr(9, tmp_name.size()) << std::endl;
-            cm->setFPPCamera(mGameMap->getCreature(tmp_name.substr(9, tmp_name.size())));
-            cm->setActiveCameraNode("FPP");
-            cm->setActiveCamera("FPP");
+                mModeManager->requestFppMode();
+                const string& tmp_name =  (itr->movable->getName());
+                std::cerr << tmp_name.substr(9, tmp_name.size()) << std::endl;
+                cm->setFPPCamera(mGameMap->getCreature(tmp_name.substr(9, tmp_name.size())));
+                cm->setActiveCameraNode("FPP");
+                cm->setActiveCamera("FPP");
 
-            inputManager->mExpectCreatureClick = false;
 #endif // 0
-        }
-        else
-        {
-            // The creature name is after the creature prefix
-            std::string creatureName = resultName.substr(Creature::CREATURE_PREFIX.length());
-            Creature* currentCreature = mGameMap->getCreature(creatureName);
-            if (currentCreature == NULL)
-                continue;
+                inputManager->mExpectCreatureClick = false;
+            }
+            else
+            {
+                // The creature name is after the creature prefix
+                std::string creatureName = resultName.substr(Creature::CREATURE_PREFIX.length());
+                Creature* currentCreature = mGameMap->getCreature(creatureName);
+                if (currentCreature == NULL)
+                    continue;
 
-            // In editor mode, we allow pickup of all creatures. No need to test color
+                if ((currentCreature->tryPickup(player->getSeat(), true)) && ODClient::getSingleton().isConnected())
+                {
+                    // Send a message to the server telling it we want to pick up this creature
+                    ClientNotification *clientNotification = new ClientNotification(
+                        ClientNotification::askEntityPickUp);
+                    std::string name = currentCreature->getName();
+                    clientNotification->mPacket << GameEntity::ObjectType::creature;
+                    clientNotification->mPacket << name;
+                    ODClient::getSingleton().queueClientNotification(clientNotification);
+                    return true;
+                }
+            }
+            continue;
+        }
+        if(resultName.find(RoomObject::ROOMOBJECT_OGRE_PREFIX) != std::string::npos)
+        {
+            std::string name = resultName.substr(RoomObject::ROOMOBJECT_OGRE_PREFIX.length());
+            RoomObject* obj = mGameMap->getRoomObject(name);
+            if ((obj == NULL) || (!obj->tryPickup(player->getSeat(), true)))
+                 continue;
+
             if (ODClient::getSingleton().isConnected())
             {
-                // Send a message to the server telling it we want to pick up this creature
+                // Send a message to the server telling it we want to pick up this entity
                 ClientNotification *clientNotification = new ClientNotification(
-                    ClientNotification::askCreaturePickUp);
-                std::string name = currentCreature->getName();
+                    ClientNotification::askEntityPickUp);
+                const std::string& name = obj->getName();
+                clientNotification->mPacket << GameEntity::ObjectType::roomobject;
                 clientNotification->mPacket << name;
                 ODClient::getSingleton().queueClientNotification(clientNotification);
                 return true;
             }
+            continue;
         }
     }
 

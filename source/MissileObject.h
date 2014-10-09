@@ -44,7 +44,7 @@ public:
      */
     void setPosition(const Ogre::Vector3& v);
 
-    std::string getOgreNamePrefix() { return "MissileObject_"; }
+    std::string getOgreNamePrefix() const { return "MissileObject_"; }
 
     virtual void doUpkeep();
 

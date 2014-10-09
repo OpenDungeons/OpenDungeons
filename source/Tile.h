@@ -37,6 +37,7 @@ class MapLight;
 class GameMap;
 class CreatureDefinition;
 class Trap;
+class TreasuryObject;
 
 /*! \brief The tile class contains information about tile type and contents and is the basic level bulding block.
  *
@@ -76,7 +77,8 @@ public:
         coveringRoom        (NULL),
         coveringTrap        (NULL),
         claimLight          (NULL),
-        mClaimedPercentage  (0.0)
+        mClaimedPercentage  (0.0),
+        mTreasuryObject     (nullptr)
     {
         for(int i = 0; i < Tile::FloodFillTypeMax; i++)
         {
@@ -86,7 +88,7 @@ public:
         setObjectType(GameEntity::tile);
     }
 
-    std::string getOgreNamePrefix() { return "Tile_"; }
+    std::string getOgreNamePrefix() const { return "Tile_"; }
 
     /*! \brief A mutator to set the type (rock, claimed, etc.) of the tile.
      *
@@ -200,6 +202,12 @@ public:
     void setCoveringRoom(Room *r);
     Trap* getCoveringTrap() const;
     void setCoveringTrap(Trap* t);
+    // There can be only one treasury object at a time in a tile
+    TreasuryObject* getTreasuryObject() const
+    { return mTreasuryObject; }
+    // If a treasury object is added in a tile where there is already one, they are merged
+    void addTreasuryObject(TreasuryObject* object);
+    void removeTreasuryObject(TreasuryObject* object);
 
     //! \brief Tells whether the tile is diggable by dig-capable creatures.
     //! \brief The player seat.
@@ -325,6 +333,10 @@ private:
     void setFullnessValue(double f);
 
     int getFloodFill(FloodFillType type);
+
+    //! \brief  We allow only one TreasuryObject per tile. If another one is dropped on the same tile,
+    //! it will be merged. It should not be deleted here as it is just a pointer to remind if there is one here.
+    TreasuryObject* mTreasuryObject;
 };
 
 #endif // TILE_H

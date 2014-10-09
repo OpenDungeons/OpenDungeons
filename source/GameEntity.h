@@ -23,13 +23,15 @@
 #ifndef GAMEENTITY_H_
 #define GAMEENTITY_H_
 
+#include "RenderManager.h"
+#include "RenderRequest.h"
+#include "ODPacket.h"
+
 #include <cassert>
 #include <string>
 #include <vector>
 #include <OgreVector3.h>
 #include <OgreSceneNode.h>
-#include "RenderManager.h"
-#include "RenderRequest.h"
 
 class GameMap;
 class Tile;
@@ -82,7 +84,7 @@ class GameEntity
     virtual ~GameEntity(){}
 
     // ===== GETTERS =====
-    virtual std::string getOgreNamePrefix() = 0;
+    virtual std::string getOgreNamePrefix() const = 0;
 
     //! \brief Get the name of the object
     inline const std::string&   getName         () const    { return name; }
@@ -191,6 +193,9 @@ class GameEntity
 
         return ret;
     }
+
+    friend ODPacket& operator<<(ODPacket& os, const GameEntity::ObjectType& ot);
+    friend ODPacket& operator>>(ODPacket& is, GameEntity::ObjectType& ot);
 
   protected:
     //! \brief Function that implements the mesh creation

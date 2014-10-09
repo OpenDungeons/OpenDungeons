@@ -68,6 +68,8 @@ class ODServer: public Ogre::Singleton<ODServer>,
     void notifyExit();
 
     static const std::string SERVER_INFORMATION;
+    friend ODPacket& operator<<(ODPacket& os, const ODServer::ServerMode& sm);
+    friend ODPacket& operator>>(ODPacket& is, ODServer::ServerMode& sm);
 
 protected:
     bool notifyNewConnection(ODSocketClient *sock);

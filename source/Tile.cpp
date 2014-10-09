@@ -28,6 +28,7 @@
 #include "RenderManager.h"
 #include "Player.h"
 #include "Helper.h"
+#include "TreasuryObject.h"
 #include "LogManager.h"
 
 #include <cstddef>
@@ -415,15 +416,10 @@ void Tile::setCoveringRoom(Room *r)
 {
     coveringRoom = r;
 
-    // Set the tile as claimed and of the team color of the room
     if (coveringRoom == NULL)
-    {
-        setSeat(NULL);
-        mClaimedPercentage = 0.0;
-        setType(dirt);
         return;
-    }
 
+    // Set the tile as claimed and of the team color of the room
     setSeat(coveringRoom->getSeat());
     mClaimedPercentage = 1.0;
     setType(claimed);
@@ -1334,6 +1330,28 @@ void Tile::fillAttackableObjects(std::vector<GameEntity*>& entities, Seat* seat,
             if (std::find(entities.begin(), entities.end(), trap) == entities.end())
                 entities.push_back(trap);
         }
+    }
+}
+
+void Tile::addTreasuryObject(TreasuryObject* obj)
+{
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    if(mTreasuryObject == nullptr)
+    {
+        mTreasuryObject = obj;
+        return;
+    }
+
+    mTreasuryObject->mergeGold(obj);
+}
+
+void Tile::removeTreasuryObject(TreasuryObject* object)
+{
+    if(mTreasuryObject == object)
+    {
+        mTreasuryObject = nullptr;
     }
 }
 

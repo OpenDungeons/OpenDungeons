@@ -23,6 +23,7 @@
 #include "LogManager.h"
 #include "ODServer.h"
 #include "ServerNotification.h"
+#include "TreasuryObject.h"
 
 #include <string>
 
@@ -93,7 +94,21 @@ bool RoomTreasury::removeCoveredTile(Tile* t, bool isRoomAbsorb)
     if((mFullnessOfTile.count(t) > 0) && (mFullnessOfTile[t] != noGold))
         removeRoomObject(t);
 
-    mGoldInTile.erase(t);
+    if(mGoldInTile.count(t) > 0)
+    {
+        int value = mGoldInTile[t];
+        if(getGameMap()->isServerGameMap() && (value > 0))
+        {
+            LogManager::getSingleton().logMessage("Room " + getName()
+                + ", tile=" + Tile::displayAsString(t) + " releases gold amount = "
+                + Ogre::StringConverter::toString(value));
+            TreasuryObject* to = new TreasuryObject(getGameMap(), value);
+            Ogre::Vector3 pos(static_cast<Ogre::Real>(t->x), static_cast<Ogre::Real>(t->y), 0.0f);
+            to->setPosition(pos);
+            getGameMap()->addRoomObject(to);
+        }
+        mGoldInTile.erase(t);
+    }
     mFullnessOfTile.erase(t);
 
     //TODO:  When the tile contains gold we need to put it on the map as an item which can be picked up.
@@ -118,8 +133,6 @@ int RoomTreasury::emptyStorageSpace()
 
 int RoomTreasury::depositGold(int gold, Tile *tile)
 {
-    mGoldChanged = true;
-
     int goldDeposited, goldToDeposit = gold, emptySpace;
 
     // Start by trying to deposit the gold in the requested tile.
@@ -141,6 +154,11 @@ int RoomTreasury::depositGold(int gold, Tile *tile)
     // Return the amount we were actually able to deposit
     // (i.e. the amount we wanted to deposit minus the amount we were unable to deposit).
     int wasDeposited = gold - goldToDeposit;
+    // If we couldn't deposit anything, we do not notify
+    if(wasDeposited == 0)
+        return wasDeposited;
+
+    mGoldChanged = true;
 
     if(getGameMap()->isServerGameMap() == false)
         return wasDeposited;

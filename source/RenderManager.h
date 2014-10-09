@@ -98,8 +98,8 @@ protected:
     void rrRefreshTile(const RenderRequest& renderRequest);
     void rrCreateTile(const RenderRequest& renderRequest);
     void rrDestroyTile(const RenderRequest& renderRequest);
-    void rrDetachCreature(const RenderRequest& renderRequest);
-    void rrAttachCreature(const RenderRequest& renderRequest);
+    void rrDetachEntity(const RenderRequest& renderRequest);
+    void rrAttachEntity(const RenderRequest& renderRequest);
     void rrDetachTile(const RenderRequest& renderRequest);
     void rrAttachTile(const RenderRequest& renderRequest);
     void rrToggleCreaturesVisibility();
@@ -123,9 +123,9 @@ protected:
     void rrCreateMapLight(const RenderRequest& renderRequest);
     void rrDestroyMapLight(const RenderRequest& renderRequest);
     void rrDestroyMapLightVisualIndicator(const RenderRequest& renderRequest);
-    void rrPickUpCreature(const RenderRequest& renderRequest);
-    void rrDropCreature(const RenderRequest& renderRequest);
-    void rrRotateCreaturesInHand(const RenderRequest& renderRequest);
+    void rrPickUpEntity(const RenderRequest& renderRequest);
+    void rrDropHand(const RenderRequest& renderRequest);
+    void rrRotateHand(const RenderRequest& renderRequest);
     void rrCreateCreatureVisualDebug(const RenderRequest& renderRequest);
     void rrDestroyCreatureVisualDebug(const RenderRequest& renderRequest);
     void rrSetObjectAnimationState(const RenderRequest& renderRequest);

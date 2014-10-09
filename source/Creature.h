@@ -66,7 +66,7 @@ public:
     static const std::string CREATURE_PREFIX;
 
     //! \brief Conform: AttackableEntity - Returns the prefix used in the OGRE identifier for this object.
-    std::string getOgreNamePrefix()
+    std::string getOgreNamePrefix() const
     { return CREATURE_PREFIX; }
 
     void createStatsWindow();
@@ -239,9 +239,6 @@ public:
     //! \brief An accessor to return whether or not the creature has OGRE entities for its visual debugging entities.
     bool getHasVisualDebuggingEntities();
 
-    void attach();
-    void detach();
-
     static std::string getFormat();
     friend std::ostream& operator<<(std::ostream& os, Creature *c);
     friend std::istream& operator>>(std::istream& is, Creature *c);
@@ -260,7 +257,9 @@ public:
     //! \brief Checks if the creature can be picked up. If yes, this function does the needed
     //! to prepare for the pickup (removing creature from GameMap, changing states, ...).
     //! Returns true if the creature can be picked up
-    bool tryPickup();
+    bool tryPickup(Seat* seat, bool isEditorMode);
+    void pickup();
+    bool tryDrop(Seat* seat, Tile* tile, bool isEditorMode);
 
     inline void jobDone(double val)
     {

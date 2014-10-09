@@ -40,8 +40,8 @@ public:
         chat,
 
         // Notification in game
-        askCreaturePickUp,
-        askCreatureDrop,
+        askEntityPickUp,
+        askHandDrop,
         askMarkTile,
         askBuildRoom,
         askSellRoomTiles,
