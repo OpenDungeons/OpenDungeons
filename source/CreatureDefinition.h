@@ -60,7 +60,7 @@ public:
         mScale       (scale),
         mSightRadius (sightRadius),
         mDigRate     (digRate),
-        mDanceRate   (danceRate),
+        mClaimRate   (danceRate),
         mHpPerLevel  (hpPerLevel),
         mMaxHP       (maxHP),
         mMoveSpeedGround    (moveSpeedGround),
@@ -77,15 +77,16 @@ public:
     friend ODPacket & operator <<(ODPacket & os, CreatureDefinition *c);
     friend ODPacket & operator >>(ODPacket & is, CreatureDefinition *c);
 
-    //! \brief Loads a definition from the creature definition file sub [Creature][/Creature] part.
-    static bool load(std::stringstream& defFile, CreatureDefinition* c);
+    //! \brief Loads a definition from the creature definition file sub [Creature][/Creature] part
+    //! \returns A creature definition if valid, nulptr otherwise.
+    static CreatureDefinition* load(std::stringstream& defFile);
 
     inline CreatureJob          getCreatureJob  () const    { return mCreatureJob; }
     inline int                  getBedDim1      () const    { return mBedDim1; }
     inline int                  getBedDim2      () const    { return mBedDim2; }
     inline const std::string&   getBedMeshName  () const    { return mBedMeshName; }
     inline const std::string&   getClassName    () const    { return mClassName; }
-    inline double               getDanceRate    () const    { return mDanceRate; }
+    inline double               getClaimRate    () const    { return mClaimRate; }
     inline double               getDigRate      () const    { return mDigRate; }
     inline double               getHpPerLevel   () const    { return mHpPerLevel; }
     inline double               getMaxHp        () const    { return mMaxHP; }
@@ -119,13 +120,13 @@ private:
     Ogre::Vector3 mScale;
 
     //! \brief The inner radius where the creature sees everything
-    double mSightRadius;
+    int mSightRadius;
 
     //! \brief Fullness removed per turn of digging
     double mDigRate;
 
-    //! \brief How much the danced upon tile's color changes per turn of dancing
-    double mDanceRate;
+    //! \brief How quick a worker can claim a ground or wall tile.
+    double mClaimRate;
 
     //! \brief How much HP the creature gets per level up
     double mHpPerLevel;

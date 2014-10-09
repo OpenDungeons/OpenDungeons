@@ -619,10 +619,9 @@ bool loadCreatureDefinition(const std::string& fileName, GameMap& gameMap)
         }
 
         // Load the creature definition until a [/Creature] tag is found
-        CreatureDefinition* creatureDef = new CreatureDefinition;
-        if (!CreatureDefinition::load(defFile, creatureDef))
+        CreatureDefinition* creatureDef = CreatureDefinition::load(defFile);
+        if (creatureDef == nullptr)
         {
-            delete creatureDef;
             std::cout << "Invalid Creature definition format." << std::endl;
             return false;
         }

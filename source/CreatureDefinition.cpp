@@ -51,7 +51,7 @@ ODPacket& operator<<(ODPacket& os, CreatureDefinition* c)
     os << c->mScale.x << c->mScale.y << c->mScale.z;
     os << c->mHpPerLevel;
     os << c->mMaxHP;
-    os << c->mSightRadius << c->mDigRate << c->mDanceRate
+    os << c->mSightRadius << c->mDigRate << c->mClaimRate
        << c->mMoveSpeedGround << c->mMoveSpeedWater << c->mMoveSpeedLava;
     return os;
 }
@@ -65,32 +65,38 @@ ODPacket& operator>>(ODPacket& is, CreatureDefinition* c)
     is >> c->mBedMeshName >> c->mBedDim1 >> c->mBedDim2;
     is >> c->mScale.x >> c->mScale.y >> c->mScale.z;
     is >> c->mHpPerLevel >> c->mMaxHP;
-    is >> c->mSightRadius >> c->mDigRate >> c->mDanceRate;
+    is >> c->mSightRadius >> c->mDigRate >> c->mClaimRate;
     is >> c->mMoveSpeedGround >> c->mMoveSpeedWater >> c->mMoveSpeedLava;
 
     return is;
 }
 
-bool CreatureDefinition::load(std::stringstream& defFile, CreatureDefinition* c)
+CreatureDefinition* CreatureDefinition::load(std::stringstream& defFile)
 {
     if (!defFile.good())
-        return false;
+        return nullptr;
 
-    bool enoughInfo = false;
+    CreatureDefinition* creatureDef = new CreatureDefinition();
     std::string nextParam;
+    bool exit = false;
+    bool enoughInfo = false;
 
     while (defFile.good())
     {
+        if (exit)
+            break;
+
         defFile >> nextParam;
-        if (nextParam == "[/Creature]")
-            return enoughInfo;
-        if (nextParam == "[/Creatures]")
-            return enoughInfo;
+        if (nextParam == "[/Creature]" || nextParam == "[/Creatures]")
+        {
+            exit = true;
+            break;
+        }
 
         if (nextParam == "Name")
         {
             defFile >> nextParam;
-            c->mClassName = nextParam;
+            creatureDef->mClassName = nextParam;
             enoughInfo = true;
             continue;
         }
@@ -100,114 +106,124 @@ bool CreatureDefinition::load(std::stringstream& defFile, CreatureDefinition* c)
 
         while (defFile.good())
         {
+            if (exit)
+                break;
+
             defFile >> nextParam;
             if (nextParam == "[/Stats]")
                 break;
 
             // Handle ill-formed files.
-            if (nextParam == "[/Creature]")
-                return enoughInfo;
-            if (nextParam == "[/Creatures]")
-                return enoughInfo;
+            if (nextParam == "[/Creature]" || nextParam == "[/Creatures]")
+            {
+                exit = true;
+                break;
+            }
 
             if (nextParam == "CreatureJob")
             {
                 defFile >> nextParam;
-                c->mCreatureJob = CreatureDefinition::creatureJobFromString(nextParam);
+                creatureDef->mCreatureJob = CreatureDefinition::creatureJobFromString(nextParam);
                 continue;
             }
             else if (nextParam == "MeshName")
             {
                 defFile >> nextParam;
-                c->mMeshName = nextParam;
+                creatureDef->mMeshName = nextParam;
                 continue;
             }
             else if (nextParam == "MeshScaleX")
             {
                 defFile >> nextParam;
-                c->mScale.x = Helper::toDouble(nextParam);
+                creatureDef->mScale.x = Helper::toDouble(nextParam);
                 continue;
             }
             else if (nextParam == "MeshScaleY")
             {
                 defFile >> nextParam;
-                c->mScale.y = Helper::toDouble(nextParam);
+                creatureDef->mScale.y = Helper::toDouble(nextParam);
                 continue;
             }
             else if (nextParam == "MeshScaleZ")
             {
                 defFile >> nextParam;
-                c->mScale.z = Helper::toDouble(nextParam);
+                creatureDef->mScale.z = Helper::toDouble(nextParam);
                 continue;
             }
             else if (nextParam == "BedMeshName")
             {
                 defFile >> nextParam;
-                c->mBedMeshName = nextParam;
+                creatureDef->mBedMeshName = nextParam;
                 continue;
             }
             else if (nextParam == "BedDimX")
             {
                 defFile >> nextParam;
-                c->mBedDim1 = Helper::toInt(nextParam);
+                creatureDef->mBedDim1 = Helper::toInt(nextParam);
                 continue;
             }
             else if (nextParam == "BedDimY")
             {
                 defFile >> nextParam;
-                c->mBedDim2 = Helper::toInt(nextParam);
+                creatureDef->mBedDim2 = Helper::toInt(nextParam);
                 continue;
             }
             else if (nextParam == "HP/Level")
             {
                 defFile >> nextParam;
-                c->mHpPerLevel = Helper::toDouble(nextParam);
+                creatureDef->mHpPerLevel = Helper::toDouble(nextParam);
                 continue;
             }
             else if (nextParam == "MaxHP")
             {
                 defFile >> nextParam;
-                c->mMaxHP = Helper::toDouble(nextParam);
+                creatureDef->mMaxHP = Helper::toDouble(nextParam);
                 continue;
             }
             else if (nextParam == "TileSightRadius")
             {
                 defFile >> nextParam;
-                c->mSightRadius = Helper::toInt(nextParam); // Turn to int?
+                creatureDef->mSightRadius = Helper::toInt(nextParam);
                 continue;
             }
             else if (nextParam == "DigRate")
             {
                 defFile >> nextParam;
-                c->mDigRate = Helper::toDouble(nextParam);
+                creatureDef->mDigRate = Helper::toDouble(nextParam);
                 continue;
             }
             else if (nextParam == "ClaimRate")
             {
                 defFile >> nextParam;
-                c->mDanceRate = Helper::toDouble(nextParam); // Rename member to mClaimRate
+                creatureDef->mClaimRate = Helper::toDouble(nextParam);
                 continue;
             }
             else if (nextParam == "GroundMoveSpeed")
             {
                 defFile >> nextParam;
-                c->mMoveSpeedGround = Helper::toDouble(nextParam);
+                creatureDef->mMoveSpeedGround = Helper::toDouble(nextParam);
                 continue;
             }
             else if (nextParam == "WaterMoveSpeed")
             {
                 defFile >> nextParam;
-                c->mMoveSpeedWater = Helper::toDouble(nextParam);
+                creatureDef->mMoveSpeedWater = Helper::toDouble(nextParam);
                 continue;
             }
             else if (nextParam == "LavaMoveSpeed")
             {
                 defFile >> nextParam;
-                c->mMoveSpeedLava = Helper::toDouble(nextParam);
+                creatureDef->mMoveSpeedLava = Helper::toDouble(nextParam);
                 continue;
             }
         }
     }
 
-    return enoughInfo;
+    if (!enoughInfo)
+    {
+        delete creatureDef;
+        creatureDef = nullptr;
+    }
+
+    return creatureDef;
 }
