@@ -30,6 +30,9 @@ public:
     ~RoomHatchery()
     {}
 
+    virtual RoomType getType() const
+    { return RoomType::hatchery; }
+
     virtual void doUpkeep();
     virtual bool hasOpenCreatureSpot(Creature* c);
     virtual bool addCreatureUsingRoom(Creature* c);

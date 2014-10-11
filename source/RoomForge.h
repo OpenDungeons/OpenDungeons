@@ -25,6 +25,9 @@ class RoomForge: public Room
 public:
     RoomForge(GameMap* gameMap);
 
+    virtual RoomType getType() const
+    { return RoomType::forge; }
+
 protected:
     virtual RoomObject* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
 };

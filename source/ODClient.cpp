@@ -524,29 +524,26 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotification::buildRoom:
         {
-            int intType, seatId;
-            int nbTiles;
-            std::string name;
-            OD_ASSERT_TRUE(packetReceived >> name >> intType>> seatId >> nbTiles);
-            Room::RoomType type = static_cast<Room::RoomType>(intType);
-            Player* player = gameMap->getPlayerBySeatId(seatId);
-            OD_ASSERT_TRUE_MSG(player != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
-            std::vector<Tile*> tiles;
-            for(int i = 0; i < nbTiles; i++)
+            Room* room = Room::getRoomFromPacket(gameMap, packetReceived);
+            OD_ASSERT_TRUE(room != nullptr);
+            std::vector<Tile*> tiles = room->getCoveredTiles();
+            for(std::vector<Tile*>::const_iterator it = tiles.begin(); it != tiles.end(); ++it)
             {
-                Tile tmpTile(gameMap);
-                OD_ASSERT_TRUE(packetReceived >> &tmpTile);
-                Tile* gameTile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-                OD_ASSERT_TRUE_MSG(gameTile != NULL, "tile=" + Tile::displayAsString(&tmpTile));
-                if(gameTile == NULL)
-                    continue;
-                gameTile->setType(Tile::TileType::claimed);
-                gameTile->setSeat(player->getSeat());
-                gameTile->setFullness(0.0);
-                tiles.push_back(gameTile);
+                Tile* tile = *it;
+                tile->setType(Tile::TileType::claimed);
+                tile->setSeat(room->getSeat());
+                tile->setFullness(0.0);
             }
-            gameMap->buildRoomForPlayer(tiles, type, player, true, name);
-            SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUILDROOM);
+            gameMap->addRoom(room);
+            room->checkForRoomAbsorbtion();
+            room->createMesh();
+            room->updateActiveSpots();
+            gameMap->refreshBorderingTilesOf(tiles);
+
+            if(gameMap->getLocalPlayer()->getSeat() == room->getSeat())
+            {
+                SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUILDROOM);
+            }
             break;
         }
 
@@ -600,29 +597,24 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotification::buildTrap:
         {
-            int intType, seatId;
-            int nbTiles;
-            std::string name;
-            OD_ASSERT_TRUE(packetReceived >> name >> intType >> seatId >> nbTiles);
-            Player* player = gameMap->getPlayerBySeatId(seatId);
-            OD_ASSERT_TRUE_MSG(player != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
-            Trap::TrapType type = static_cast<Trap::TrapType>(intType);
-            std::vector<Tile*> tiles;
-            for(int i = 0; i < nbTiles; i++)
+            Trap* trap = Trap::getTrapFromPacket(gameMap, packetReceived);
+            OD_ASSERT_TRUE(trap != nullptr);
+            std::vector<Tile*> tiles = trap->getCoveredTiles();
+            for(std::vector<Tile*>::const_iterator it = tiles.begin(); it != tiles.end(); ++it)
             {
-                Tile tmpTile(gameMap);
-                OD_ASSERT_TRUE(packetReceived >> &tmpTile);
-                Tile* gameTile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-                OD_ASSERT_TRUE_MSG(gameTile != NULL, "tile=" + Tile::displayAsString(gameTile));
-                if(gameTile == NULL)
-                    continue;
-                gameTile->setType(Tile::TileType::claimed);
-                gameTile->setSeat(player->getSeat());
-                gameTile->setFullness(0.0);
-                tiles.push_back(gameTile);
+                Tile* tile = *it;
+                tile->setType(Tile::TileType::claimed);
+                tile->setSeat(trap->getSeat());
+                tile->setFullness(0.0);
             }
-            gameMap->buildTrapForPlayer(tiles, type, player, true, name);
-            SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUILDTRAP);
+            gameMap->addTrap(trap);
+            trap->createMesh();
+            trap->updateActiveSpots();
+
+            if(gameMap->getLocalPlayer()->getSeat() == trap->getSeat())
+            {
+                SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUILDTRAP);
+            }
             break;
         }
 

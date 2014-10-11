@@ -32,7 +32,7 @@ RoomTrainingHall::RoomTrainingHall(GameMap* gameMap) :
     Room(gameMap),
     nbTurnsNoChangeDummies(0)
 {
-    mType = trainingHall;
+    setMeshName("Dojo");
 }
 
 void RoomTrainingHall::absorbRoom(Room *r)

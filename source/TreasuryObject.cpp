@@ -16,7 +16,7 @@
  */
 
 #include "TreasuryObject.h"
-
+#include "ODPacket.h"
 #include "GameMap.h"
 #include "RoomTreasury.h"
 #include "LogManager.h"

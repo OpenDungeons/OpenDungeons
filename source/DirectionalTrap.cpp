@@ -26,6 +26,12 @@ DirectionalTrap::DirectionalTrap(GameMap* gameMap, int xdir, int ydir):
     mDir = std::pair<int, int>(xdir, ydir);
 }
 
+DirectionalTrap::DirectionalTrap(GameMap* gameMap):
+    Trap(gameMap)
+{
+    mDir = std::pair<int, int>(0, 0);
+}
+
 std::pair<int, int> DirectionalTrap::projectionOnBorder(int xdir, int ydir)
 {
     GameMap* gm = getGameMap();

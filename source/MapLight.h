@@ -18,7 +18,6 @@
 #ifndef MAPLIGHT_H
 #define MAPLIGHT_H
 
-#include "ODPacket.h"
 #include "GameMap.h"
 
 #include <OgrePrerequisites.h>
@@ -29,6 +28,7 @@
 #include <string>
 
 class GameMap;
+class ODPacket;
 
 class MapLight
 {

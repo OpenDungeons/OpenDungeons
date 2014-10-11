@@ -16,6 +16,7 @@
  */
 
 #include "Weapon.h"
+#include "ODPacket.h"
 #include "GameMap.h"
 
 Weapon::Weapon(GameMap* gameMap,

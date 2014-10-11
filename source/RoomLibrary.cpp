@@ -25,7 +25,7 @@
 RoomLibrary::RoomLibrary(GameMap* gameMap) :
     Room(gameMap)
 {
-    mType = library;
+    setMeshName("Library");
 }
 
 RoomObject* RoomLibrary::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)

@@ -19,7 +19,6 @@
 #define TILE_H
 
 #include "GameEntity.h"
-#include "ODPacket.h"
 
 #include <OgrePrerequisites.h>
 #include <OgreSceneNode.h>
@@ -38,6 +37,7 @@ class GameMap;
 class CreatureDefinition;
 class Trap;
 class TreasuryObject;
+class ODPacket;
 
 /*! \brief The tile class contains information about tile type and contents and is the basic level bulding block.
  *

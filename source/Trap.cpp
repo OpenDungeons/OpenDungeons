@@ -36,8 +36,7 @@ Trap::Trap(GameMap* gameMap) :
     Building(gameMap),
     mReloadTime(0),
     mMinDamage(0.0),
-    mMaxDamage(0.0),
-    mType(nullTrapType)
+    mMaxDamage(0.0)
 {
     setObjectType(GameEntity::trap);
 }
@@ -90,91 +89,74 @@ void Trap::deleteYourselfLocal()
     RenderManager::queueRenderRequest(request);
 }
 
-Trap* Trap::createTrap(GameMap* gameMap, TrapType nType, const std::vector<Tile*> &nCoveredTiles,
-    Seat *seat, bool forceName, const std::string& name, void* params)
+Trap* Trap::getTrapFromStream(GameMap* gameMap, std::istream &is)
 {
-    Trap *tempTrap = NULL;
+    Trap* tempTrap = nullptr;
+    TrapType nType;
+    is >> nType;
 
     switch (nType)
     {
         case nullTrapType:
-            tempTrap = NULL;
+            tempTrap = nullptr;
             break;
         case cannon:
             tempTrap = new TrapCannon(gameMap);
+            is >> tempTrap;
             break;
         case spike:
             tempTrap = new TrapSpike(gameMap);
+            is >> tempTrap;
             break;
         case boulder:
-            if(params != NULL)
-            {
-                int* p = (int*)params;
-                tempTrap = new TrapBoulder(gameMap, p[0], p[1]);
-            }
+            tempTrap = TrapBoulder::getTrapBoulderFromStream(gameMap, is);
             break;
+        default:
+            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(
+                static_cast<int>(nType)));
     }
-
-    if (tempTrap == NULL)
-    {
-        std::cerr
-        << "\n\n\nERROR: Trying to create a trap of unknown type, bailing out.\n";
-        std::cerr << "Sourcefile: " << __FILE__ << "\tLine: " << __LINE__
-        << "\n\n\n";
-        exit(1);
-    }
-
-    tempTrap->setSeat(seat);
-
-    tempTrap->setMeshName(getMeshNameFromTrapType(nType));
-    tempTrap->mType = nType;
-
-    if(forceName)
-        tempTrap->setName(name);
-    else
-        tempTrap->setName(gameMap->nextUniqueNameTrap(tempTrap->getMeshName()));
-
-    for (unsigned int i = 0; i < nCoveredTiles.size(); ++i)
-        tempTrap->addCoveredTile(nCoveredTiles[i], Trap::DEFAULT_TILE_HP);
-
-    int nbTiles = nCoveredTiles.size();
-    LogManager::getSingleton().logMessage("Adding trap " + tempTrap->getName() + ", nbTiles="
-        + Ogre::StringConverter::toString(nbTiles) + ", seatId=" + Ogre::StringConverter::toString(seat->getId()));
 
     return tempTrap;
 }
 
-void Trap::setupTrap(GameMap* gameMap, Trap* newTrap)
+Trap* Trap::getTrapFromPacket(GameMap* gameMap, ODPacket &is)
 {
-    gameMap->addTrap(newTrap);
+    Trap* tempTrap = nullptr;
+    TrapType nType;
+    is >> nType;
 
-    newTrap->createMesh();
+    switch (nType)
+    {
+        case nullTrapType:
+            tempTrap = nullptr;
+            break;
+        case cannon:
+            tempTrap = new TrapCannon(gameMap);
+            is >> tempTrap;
+            break;
+        case spike:
+            tempTrap = new TrapSpike(gameMap);
+            is >> tempTrap;
+            break;
+        case boulder:
+            tempTrap = TrapBoulder::getTrapBoulderFromPacket(gameMap, is);
+            break;
+        default:
+            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(
+                static_cast<int>(nType)));
+    }
 
-    newTrap->updateActiveSpots();
+    return tempTrap;
 }
 
-Trap* Trap::createTrapFromStream(GameMap* gameMap, const std::string& trapMeshName, std::istream &is,
-    const std::string& trapName)
+void Trap::exportToPacket(ODPacket& packet)
 {
-    Trap tempTrap(gameMap);
-    tempTrap.setMeshName(trapMeshName);
-    is >> &tempTrap;
-
-    Trap *returnTrap = createTrap(gameMap, tempTrap.mType, tempTrap.mCoveredTiles,
-        tempTrap.getSeat(), !trapName.empty(), trapName);
-    return returnTrap;
+    packet << this;
 }
 
-Trap* Trap::createTrapFromPacket(GameMap* gameMap, const std::string& trapMeshName, ODPacket &is,
-    const std::string& trapName)
+void Trap::exportToStream(std::ostream& os)
 {
-    Trap tempTrap(gameMap);
-    tempTrap.setMeshName(trapMeshName);
-    is >> &tempTrap;
-
-    Trap *returnTrap = createTrap(gameMap, tempTrap.mType, tempTrap.mCoveredTiles,
-        tempTrap.getSeat(), !trapName.empty(), trapName);
-    return returnTrap;
+    os << this;
 }
 
 const char* Trap::getTrapNameFromTrapType(TrapType t)
@@ -195,47 +177,6 @@ const char* Trap::getTrapNameFromTrapType(TrapType t)
 
         default:
             return "UnknownTrapType";
-    }
-}
-
-const char* Trap::getMeshNameFromTrapType(TrapType t)
-{
-    switch (t)
-    {
-        case nullTrapType:
-            return "NullTrapType";
-
-        case cannon:
-            return "Cannon";
-
-        case spike:
-            return "Spiketrap";
-
-        case boulder:
-            return "Boulder";
-
-        default:
-            return "UnknownTrapType";
-    }
-}
-
-Trap::TrapType Trap::getTrapTypeFromMeshName(std::string s)
-{
-    if (s.compare("Cannon") == 0)
-        return cannon;
-    else if (s.compare("Boulder") == 0)
-        return boulder;
-    else if (s.compare("Spiketrap") == 0)
-        return spike;
-    else if (s.compare("NullTrapType") == 0)
-        return nullTrapType;
-    else
-    {
-        std::cerr
-        << "\n\n\nERROR:  Trying to get trap type from unknown mesh name, bailing out.\n";
-        std::cerr << "Sourcefile: " << __FILE__ << "\tLine: " << __LINE__
-        << "\n\n\n";
-        exit(1);
     }
 }
 
@@ -402,15 +343,24 @@ void Trap::notifyActiveSpotRemoved(Tile* tile)
     removeRoomObject(tile);
 }
 
+void Trap::setupTrap(const std::string& name, Seat* seat, const std::vector<Tile*>& tiles)
+{
+    setName(name);
+    setSeat(seat);
+    for(std::vector<Tile*>::const_iterator it = tiles.begin(); it != tiles.end(); ++it)
+    {
+        Tile* tile = *it;
+        addCoveredTile(tile, Trap::DEFAULT_TILE_HP);
+    }
+}
+
 std::string Trap::getFormat()
 {
-    return "meshName\tseatId\t\tNextLine: numTiles\t\tSubsequent Lines: tileX\ttileY";
+    return "typeTrap\tseatId\tnumTiles\t\tSubsequent Lines: tileX\ttileY\t\tSubsequent Lines: optional specific data";
 }
 
 std::istream& operator>>(std::istream& is, Trap *t)
 {
-    // When we read map file, the mesh type is read before building the room. That's
-    // why we assume it is already set in the room
     int tilesToLoad, tempX, tempY, tempInt;
 
     is >> tempInt;
@@ -427,19 +377,17 @@ std::istream& operator>>(std::istream& is, Trap *t)
             tempTile->setSeat(t->getSeat());
         }
     }
-
-    t->mType = Trap::getTrapTypeFromMeshName(t->getMeshName());
     return is;
 }
 
 std::ostream& operator<<(std::ostream& os, Trap *t)
 {
+    int32_t nbTiles = t->mCoveredTiles.size();
     int seatId = t->getSeat()->getId();
-    os << t->getMeshName() << "\t";
-    os << seatId << "\n" << t->mCoveredTiles.size() << "\n";
-    for (unsigned int i = 0; i < t->mCoveredTiles.size(); ++i)
+    os << seatId << "\t" << nbTiles << "\n";
+    for(std::vector<Tile*>::iterator it = t->mCoveredTiles.begin(); it != t->mCoveredTiles.end(); ++it)
     {
-        Tile *tempTile = t->mCoveredTiles[i];
+        Tile *tempTile = *it;
         os << tempTile->x << "\t" << tempTile->y << "\n";
     }
 
@@ -448,9 +396,10 @@ std::ostream& operator<<(std::ostream& os, Trap *t)
 
 ODPacket& operator>>(ODPacket& is, Trap *t)
 {
-    // When we read map file, the mesh type is read before building the room. To have the
-    // same behaviour, we assume the same and that it is already set in the room
     int tilesToLoad, tempX, tempY, tempInt;
+    std::string name;
+    is >> name;
+    t->setName(name);
 
     is >> tempInt;
     t->setSeat(t->getGameMap()->getSeatById(tempInt));
@@ -471,18 +420,15 @@ ODPacket& operator>>(ODPacket& is, Trap *t)
                 + Ogre::StringConverter::toString(tempX) + "," + Ogre::StringConverter::toString(tempY));
         }
     }
-
-    t->mType = Trap::getTrapTypeFromMeshName(t->getMeshName());
     return is;
 }
 
 ODPacket& operator<<(ODPacket& os, Trap *t)
 {
     int nbTiles = t->mCoveredTiles.size();
-    std::string meshName = t->getMeshName();
-    std::string name = t->getName();
+    const std::string& name = t->getName();
     int seatId = t->getSeat()->getId();
-    os << meshName << name << seatId;
+    os << name << seatId;
     os << nbTiles;
     for(std::vector<Tile*>::iterator it = t->mCoveredTiles.begin(); it != t->mCoveredTiles.end(); ++it)
     {
@@ -490,5 +436,35 @@ ODPacket& operator<<(ODPacket& os, Trap *t)
         os << tempTile->x << tempTile->y;
     }
 
+    return os;
+}
+
+std::istream& operator>>(std::istream& is, Trap::TrapType& tt)
+{
+    uint32_t tmp;
+    is >> tmp;
+    tt = static_cast<Trap::TrapType>(tmp);
+    return is;
+}
+
+std::ostream& operator<<(std::ostream& os, const Trap::TrapType& tt)
+{
+    uint32_t tmp = static_cast<uint32_t>(tt);
+    os << tmp;
+    return os;
+}
+
+ODPacket& operator>>(ODPacket& is, Trap::TrapType& tt)
+{
+    uint32_t tmp;
+    is >> tmp;
+    tt = static_cast<Trap::TrapType>(tmp);
+    return is;
+}
+
+ODPacket& operator<<(ODPacket& os, const Trap::TrapType& tt)
+{
+    uint32_t tmp = static_cast<uint32_t>(tt);
+    os << tmp;
     return os;
 }

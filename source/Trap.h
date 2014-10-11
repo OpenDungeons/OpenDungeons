@@ -18,8 +18,6 @@
 #ifndef TRAP_H
 #define TRAP_H
 
-#include "ODPacket.h"
-
 #include <string>
 #include <vector>
 #include <istream>
@@ -31,6 +29,7 @@ class Player;
 class Seat;
 class Tile;
 class RoomObject;
+class ODPacket;
 
 #include "Building.h"
 
@@ -39,9 +38,6 @@ class RoomObject;
  */
 class Trap : public Building
 {
- /* TODO: Trap and room share a lot of things, so we might want to make a shared
- *  base-class, like "Building" or something.
- */
 public:
     enum TrapType
     {
@@ -57,29 +53,15 @@ public:
 
     virtual std::string getOgreNamePrefix() const { return "Trap_"; }
 
-    /*! \brief Creates a type specific subclass of trap and returns a pointer to it.
-     * This function also sets up some of the room's properties. If nameToUse is empty,
-     * a new unique name will be generated. If not, the given one will be used
-     */
-    //TODO: Use something better than a void pointer for params.
-    static Trap* createTrap(GameMap* gameMap, TrapType nType, const std::vector<Tile*> &nCoveredTiles,
-        Seat *seat, bool forceName = false, const std::string& name = "", void* params = NULL);
+    static Trap* getTrapFromStream(GameMap* gameMap, std::istream &is);
+    static Trap* getTrapFromPacket(GameMap* gameMap, ODPacket &is);
 
-    /** \brief Adds the trap newTrap to the game map
-     */
-    static void setupTrap(GameMap* gameMap, Trap* newTrap);
+    virtual void exportToStream(std::ostream& os);
+    virtual void exportToPacket(ODPacket& packet);
 
-    static Trap* createTrapFromStream(GameMap* gameMap, const std::string& trapMeshName, std::istream &is,
-        const std::string& trapName);
-    static Trap* createTrapFromPacket(GameMap* gameMap, const std::string& trapMeshName, ODPacket &is,
-        const std::string& trapName);
-
-    inline const TrapType& getType() const
-    { return mType; }
+    virtual const TrapType getType() const = 0;
 
     static const char* getTrapNameFromTrapType(TrapType t);
-    static const char* getMeshNameFromTrapType(TrapType t);
-    static TrapType getTrapTypeFromMeshName(std::string s);
 
     static int costPerTile(TrapType t);
 
@@ -91,6 +73,9 @@ public:
         return true;
     }
 
+    //! \brief Sets the name, seat and associates the given tiles with the trap
+    void setupTrap(const std::string& name, Seat* seat, const std::vector<Tile*>& tiles);
+
     virtual void addCoveredTile(Tile* t, double nHP);
     virtual bool removeCoveredTile(Tile* t);
     virtual void updateActiveSpots();
@@ -100,6 +85,10 @@ public:
     friend std::ostream& operator<<(std::ostream& os, Trap *t);
     friend ODPacket& operator>>(ODPacket& is, Trap *t);
     friend ODPacket& operator<<(ODPacket& os, Trap *t);
+    friend std::istream& operator>>(std::istream& is, Trap::TrapType& tt);
+    friend std::ostream& operator<<(std::ostream& os, const Trap::TrapType& tt);
+    friend ODPacket& operator>>(ODPacket& is, Trap::TrapType& tt);
+    friend ODPacket& operator<<(ODPacket& os, const Trap::TrapType& tt);
 
 protected:
     virtual void createMeshLocal();
@@ -112,7 +101,6 @@ protected:
     double mMaxDamage;
 
     std::map<Tile*, int> mReloadTimeCounters;
-    TrapType mType;
 };
 
 #endif // TRAP_H

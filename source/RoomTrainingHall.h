@@ -30,6 +30,9 @@ public:
     ~RoomTrainingHall()
     {}
 
+    virtual RoomType getType() const
+    { return RoomType::trainingHall; }
+
     virtual void doUpkeep();
     virtual bool hasOpenCreatureSpot(Creature* c);
     virtual bool addCreatureUsingRoom(Creature* c);

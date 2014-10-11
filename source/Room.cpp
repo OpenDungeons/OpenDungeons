@@ -41,7 +41,6 @@
 
 Room::Room(GameMap* gameMap):
     Building(gameMap),
-    mType(nullRoomType),
     mNumActiveSpots(0)
 {
     setObjectType(GameEntity::room);
@@ -96,73 +95,6 @@ void Room::deleteYourselfLocal()
     RenderManager::queueRenderRequest(request);
 }
 
-Room* Room::createRoom(GameMap* gameMap, RoomType nType, const std::vector<Tile*>& nCoveredTiles,
-    Seat* seat, bool forceName, const std::string& name)
-{
-    Room* tempRoom = NULL;
-
-    switch (nType)
-    {
-    default:
-    case nullRoomType:
-        tempRoom = NULL;
-        break;
-    case dormitory:
-        tempRoom = new RoomDormitory(gameMap);
-        break;
-    case treasury:
-        tempRoom = new RoomTreasury(gameMap);
-        break;
-    case portal:
-        tempRoom = new RoomPortal(gameMap);
-        break;
-    case dungeonTemple:
-        tempRoom = new RoomDungeonTemple(gameMap);
-        break;
-    case forge:
-        tempRoom = new RoomForge(gameMap);
-        break;
-    case trainingHall:
-        tempRoom = new RoomTrainingHall(gameMap);
-        break;
-    case library:
-        tempRoom = new RoomLibrary(gameMap);
-        break;
-    case hatchery:
-        tempRoom = new RoomHatchery(gameMap);
-        break;
-    }
-
-    if (tempRoom == NULL)
-    {
-        std::cerr << "ERROR: Trying to create a room of unknown type." << std::endl
-                  << "Sourcefile: " << __FILE__ << "\tLine: " << __LINE__
-                  << std::endl;
-        return tempRoom;
-    }
-
-    tempRoom->setMeshExisting(false);
-    tempRoom->setSeat(seat);
-
-    //TODO: This should actually just call setType() but this will require a change to the >> operator.
-    tempRoom->setMeshName(getMeshNameFromRoomType(nType));
-    tempRoom->mType = nType;
-
-    if(forceName)
-        tempRoom->setName(name);
-    else
-        tempRoom->setName(gameMap->nextUniqueNameRoom(tempRoom->getMeshName()));
-
-    for (unsigned int i = 0; i < nCoveredTiles.size(); ++i)
-        tempRoom->addCoveredTile(nCoveredTiles[i], Room::DEFAULT_TILE_HP, false);
-
-    int nbTiles = nCoveredTiles.size();
-    LogManager::getSingleton().logMessage("Adding room " + tempRoom->getName() + ", nbTiles="
-        + Ogre::StringConverter::toString(nbTiles) + ", seatId=" + Ogre::StringConverter::toString(seat->getId()));
-
-    return tempRoom;
-}
-
 bool Room::compareTile(Tile* tile1, Tile* tile2)
 {
     if(tile1->getX() < tile2->getX())
@@ -172,38 +104,6 @@ bool Room::compareTile(Tile* tile1, Tile* tile2)
         return (tile1->getY() < tile2->getY());
 
     return false;
-}
-
-void Room::setupRoom(GameMap* gameMap, Room* newRoom)
-{
-    gameMap->addRoom(newRoom);
-    std::vector<Tile*> coveredTiles = newRoom->getCoveredTiles();
-
-    // Check all the tiles that border the newly created room and see if they
-    // contain rooms which can be absorbed into this newly created room.
-    bool isRoomAbsorbed = false;
-    std::vector<Tile*> borderTiles = gameMap->tilesBorderedByRegion(coveredTiles);
-    for (unsigned int i = 0; i < borderTiles.size(); ++i)
-    {
-        Room* borderingRoom = borderTiles[i]->getCoveringRoom();
-        if (borderingRoom != NULL && borderingRoom->getType() == newRoom->getType()
-            && borderingRoom != newRoom && borderingRoom->getSeat() == newRoom->getSeat())
-        {
-            newRoom->absorbRoom(borderingRoom);
-            // All the tiles from the aborbed room have been transfered to the new one
-            // No need to delete it since it will be removed during its next upkeep
-            isRoomAbsorbed = true;
-        }
-    }
-
-    // We try to keep the same tile disposition as if the room was created like this in the first
-    // place to make sure room objects are disposed the same way
-    if(isRoomAbsorbed)
-        std::sort(newRoom->mCoveredTiles.begin(), newRoom->mCoveredTiles.end(), Room::compareTile);
-
-    newRoom->createMesh();
-
-    newRoom->updateActiveSpots();
 }
 
 void Room::absorbRoom(Room *r)
@@ -339,7 +239,7 @@ void Room::destroyRoomObjectMeshes()
 
 std::string Room::getFormat()
 {
-    return "meshName\tseatId\t\tNextLine: numTiles\t\tSubsequent Lines: tileX\ttileY";
+    return "typeRoom\tseatId\tnumTiles\t\tSubsequent Lines: tileX\ttileY";
 }
 
 void Room::doUpkeep()
@@ -391,105 +291,184 @@ void Room::doUpkeep()
     }
 }
 
-Room* Room::createRoomFromStream(GameMap* gameMap, const std::string& roomMeshName, std::istream& is,
-    const std::string& roomName)
+Room* Room::getRoomFromStream(GameMap* gameMap, std::istream& is)
 {
-    Room tempRoom(gameMap);
-    tempRoom.setMeshName(roomMeshName);
-    is >> &tempRoom;
+    Room* tempRoom = nullptr;
+    RoomType nType;
+    is >> nType;
 
-    return createRoom(gameMap, tempRoom.mType, tempRoom.mCoveredTiles, tempRoom.getSeat(),
-        !roomName.empty(), roomName);
+    switch (nType)
+    {
+        case nullRoomType:
+            tempRoom = nullptr;
+            break;
+        case dormitory:
+            tempRoom = new RoomDormitory(gameMap);
+            is >> tempRoom;
+            break;
+        case treasury:
+            tempRoom = new RoomTreasury(gameMap);
+            is >> tempRoom;
+            break;
+        case portal:
+            tempRoom = new RoomPortal(gameMap);
+            is >> tempRoom;
+            break;
+        case dungeonTemple:
+            tempRoom = new RoomDungeonTemple(gameMap);
+            is >> tempRoom;
+            break;
+        case forge:
+            tempRoom = new RoomForge(gameMap);
+            is >> tempRoom;
+            break;
+        case trainingHall:
+            tempRoom = new RoomTrainingHall(gameMap);
+            is >> tempRoom;
+            break;
+        case library:
+            tempRoom = new RoomLibrary(gameMap);
+            is >> tempRoom;
+            break;
+        case hatchery:
+            tempRoom = new RoomHatchery(gameMap);
+            is >> tempRoom;
+            break;
+        default:
+            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(
+                static_cast<int>(nType)));
+    }
+
+    return tempRoom;
 }
 
-std::istream& operator>>(std::istream& is, Room* r)
+Room* Room::getRoomFromPacket(GameMap* gameMap, ODPacket& is)
 {
-    assert(r);
+    Room* tempRoom = nullptr;
+    RoomType nType;
+    is >> nType;
 
+    switch (nType)
+    {
+        case nullRoomType:
+            tempRoom = nullptr;
+            break;
+        case dormitory:
+            tempRoom = new RoomDormitory(gameMap);
+            is >> tempRoom;
+            break;
+        case treasury:
+            tempRoom = new RoomTreasury(gameMap);
+            is >> tempRoom;
+            break;
+        case portal:
+            tempRoom = new RoomPortal(gameMap);
+            is >> tempRoom;
+            break;
+        case dungeonTemple:
+            tempRoom = new RoomDungeonTemple(gameMap);
+            is >> tempRoom;
+            break;
+        case forge:
+            tempRoom = new RoomForge(gameMap);
+            is >> tempRoom;
+            break;
+        case trainingHall:
+            tempRoom = new RoomTrainingHall(gameMap);
+            is >> tempRoom;
+            break;
+        case library:
+            tempRoom = new RoomLibrary(gameMap);
+            is >> tempRoom;
+            break;
+        case hatchery:
+            tempRoom = new RoomHatchery(gameMap);
+            is >> tempRoom;
+            break;
+        default:
+            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(
+                static_cast<int>(nType)));
+    }
+
+    return tempRoom;
+}
+
+void Room::exportToPacket(ODPacket& packet)
+{
+    packet << this;
+}
+
+void Room::exportToStream(std::ostream& os)
+{
+    os << this;
+}
+
+std::istream& operator>>(std::istream& is, Room* room)
+{
     int tilesToLoad, tempX, tempY;
     int tempInt = 0;
     is >> tempInt;
-    Seat* seat = r->getGameMap()->getSeatById(tempInt);
+    Seat* seat = room->getGameMap()->getSeatById(tempInt);
     OD_ASSERT_TRUE_MSG(seat != NULL, "seatId=" + Ogre::StringConverter::toString(tempInt));
-    r->setSeat(seat);
+    room->setSeat(seat);
 
     is >> tilesToLoad;
     for (int i = 0; i < tilesToLoad; ++i)
     {
         is >> tempX >> tempY;
-        Tile* tempTile = r->getGameMap()->getTile(tempX, tempY);
+        Tile* tempTile = room->getGameMap()->getTile(tempX, tempY);
         if (tempTile != NULL)
-            r->addCoveredTile(tempTile, Room::DEFAULT_TILE_HP, false);
+            room->addCoveredTile(tempTile, Room::DEFAULT_TILE_HP, false);
     }
 
-    r->mType = Room::getRoomTypeFromMeshName(r->getMeshName());
     return is;
 }
 
-std::ostream& operator<<(std::ostream& os, Room *r)
+std::ostream& operator<<(std::ostream& os, Room *room)
 {
-    if (r == NULL)
-        return os;
-
-    int seatId = r->getSeat()->getId();
-    os << r->getMeshName() << "\t" << seatId << "\n";
-    os << r->mCoveredTiles.size() << "\n";
-    for (unsigned int i = 0; i < r->mCoveredTiles.size(); ++i)
+    int seatId = room->getSeat()->getId();
+    int nbTiles = room->mCoveredTiles.size();
+    os << seatId << "\t" << nbTiles << "\n";
+    for (std::vector<Tile*>::iterator it = room->mCoveredTiles.begin(); it != room->mCoveredTiles.end(); ++it)
     {
-        Tile *tempTile = r->mCoveredTiles[i];
+        Tile *tempTile = *it;
         os << tempTile->x << "\t" << tempTile->y << "\n";
     }
 
     return os;
 }
 
-Room* Room::createRoomFromPacket(GameMap* gameMap, const std::string& roomMeshName, ODPacket& is,
-    const std::string& roomName)
+ODPacket& operator>>(ODPacket& is, Room* room)
 {
-    Room tempRoom(gameMap);
-    tempRoom.setMeshName(roomMeshName);
-    is >> &tempRoom;
-
-    return createRoom(gameMap, tempRoom.mType, tempRoom.mCoveredTiles, tempRoom.getSeat(),
-        !roomName.empty(), roomName);
-}
-
-ODPacket& operator>>(ODPacket& is, Room* r)
-{
-    assert(r);
-
+    std::string name;
     int tilesToLoad, tempX, tempY;
-
+    is >> name;
+    room->setName(name);
     int tempInt = 0;
     is >> tempInt;
-    Seat* seat = r->getGameMap()->getSeatById(tempInt);
+    Seat* seat = room->getGameMap()->getSeatById(tempInt);
     OD_ASSERT_TRUE_MSG(seat != NULL, "seatId=" + Ogre::StringConverter::toString(tempInt));
-    r->setSeat(seat);
+    room->setSeat(seat);
 
     is >> tilesToLoad;
     for (int i = 0; i < tilesToLoad; ++i)
     {
         is >> tempX >> tempY;
-        Tile* tempTile = r->getGameMap()->getTile(tempX, tempY);
+        Tile* tempTile = room->getGameMap()->getTile(tempX, tempY);
         if (tempTile != NULL)
-            r->addCoveredTile(tempTile, Room::DEFAULT_TILE_HP, false);
+            room->addCoveredTile(tempTile, Room::DEFAULT_TILE_HP, false);
     }
 
-    r->mType = Room::getRoomTypeFromMeshName(r->getMeshName());
     return is;
 }
 
-ODPacket& operator<<(ODPacket& os, Room *r)
+ODPacket& operator<<(ODPacket& os, Room *room)
 {
-    if (r == NULL)
-        return os;
-
-    std::string meshName = r->getMeshName();
-    std::string name = r->getName();
-    int seatId = r->getSeat()->getId();
-    int nbTiles = r->mCoveredTiles.size();
-    os << meshName << name << seatId << nbTiles;
-    for (std::vector<Tile*>::iterator it = r->mCoveredTiles.begin(); it != r->mCoveredTiles.end(); ++it)
+    const std::string& name = room->getName();
+    int seatId = room->getSeat()->getId();
+    int nbTiles = room->mCoveredTiles.size();
+    os << name << seatId << nbTiles;
+    for (std::vector<Tile*>::iterator it = room->mCoveredTiles.begin(); it != room->mCoveredTiles.end(); ++it)
     {
         Tile* tempTile = *it;
         os << tempTile->x << tempTile->y;
@@ -534,68 +513,6 @@ const char* Room::getRoomNameFromRoomType(RoomType t)
     }
 }
 
-const char* Room::getMeshNameFromRoomType(RoomType t)
-{
-    switch (t)
-    {
-    case nullRoomType:
-        return "NullRoomType";
-
-    case dungeonTemple:
-        return "DungeonTemple";
-
-    case dormitory:
-        return "Dormitory";
-
-    case treasury:
-        return "Treasury";
-
-    case portal:
-        return "Portal";
-
-    case forge:
-        return "Forge";
-
-    case trainingHall:
-        return "Dojo";
-
-    case library:
-        return "Library";
-
-    case hatchery:
-        return "Farm";
-
-    default:
-        return "UnknownRoomType";
-    }
-}
-
-Room::RoomType Room::getRoomTypeFromMeshName(const std::string& s)
-{
-    if (s.compare("DungeonTemple") == 0)
-        return dungeonTemple;
-    else if (s.compare("Dormitory") == 0)
-        return dormitory;
-    else if (s.compare("Treasury") == 0)
-        return treasury;
-    else if (s.compare("Portal") == 0)
-        return portal;
-    else if (s.compare("Forge") == 0)
-        return forge;
-    else if (s.compare("Dojo") == 0)
-        return trainingHall;
-    else if (s.compare("Library") == 0)
-        return library;
-    else if (s.compare("Farm") == 0)
-        return hatchery;
-    else
-    {
-        std::cerr << "\n\n\nERROR:  Trying to get room type from unknown mesh name, bailing out.\n";
-        std::cerr << "Sourcefile: " << __FILE__ << "\tLine: " << __LINE__ << "\n\n\n";
-        return nullRoomType;
-    }
-}
-
 int Room::costPerTile(RoomType t)
 {
     switch (t)
@@ -630,6 +547,41 @@ int Room::costPerTile(RoomType t)
     default:
         return 0;
     }
+}
+
+void Room::setupRoom(const std::string& name, Seat* seat, const std::vector<Tile*>& tiles)
+{
+    setName(name);
+    setSeat(seat);
+    for(std::vector<Tile*>::const_iterator it = tiles.begin(); it != tiles.end(); ++it)
+    {
+        Tile* tile = *it;
+        addCoveredTile(tile, Room::DEFAULT_TILE_HP);
+    }
+}
+
+void Room::checkForRoomAbsorbtion()
+{
+    bool isRoomAbsorbed = false;
+    std::vector<Tile*> borderTiles = getGameMap()->tilesBorderedByRegion(getCoveredTiles());
+    for (std::vector<Tile*>::iterator it = borderTiles.begin(); it != borderTiles.end(); ++it)
+    {
+        Tile* tile = *it;
+        Room* borderingRoom = tile->getCoveringRoom();
+        if (borderingRoom != nullptr && borderingRoom->getType() == getType()
+            && borderingRoom != this && borderingRoom->getSeat() == getSeat())
+        {
+            absorbRoom(borderingRoom);
+            // All the tiles from the absorbed room have been transfered to this one
+            // No need to delete it since it will be removed during its next upkeep
+            isRoomAbsorbed = true;
+        }
+    }
+
+    // We try to keep the same tile disposition as if the room was created like this in the first
+    // place to make sure room objects are disposed the same way
+    if(isRoomAbsorbed)
+        std::sort(mCoveredTiles.begin(), mCoveredTiles.end(), Room::compareTile);
 }
 
 void Room::updateActiveSpots()
@@ -907,4 +859,34 @@ bool Room::sortForMapSave(Room* r1, Room* r2)
         return r1->getMeshName().compare(r2->getMeshName()) < 0;
 
     return seatId1 < seatId2;
+}
+
+std::istream& operator>>(std::istream& is, Room::RoomType& rt)
+{
+    uint32_t tmp;
+    is >> tmp;
+    rt = static_cast<Room::RoomType>(tmp);
+    return is;
+}
+
+std::ostream& operator<<(std::ostream& os, const Room::RoomType& rt)
+{
+    uint32_t tmp = static_cast<uint32_t>(rt);
+    os << tmp;
+    return os;
+}
+
+ODPacket& operator>>(ODPacket& is, Room::RoomType& rt)
+{
+    uint32_t tmp;
+    is >> tmp;
+    rt = static_cast<Room::RoomType>(tmp);
+    return is;
+}
+
+ODPacket& operator<<(ODPacket& os, const Room::RoomType& rt)
+{
+    uint32_t tmp = static_cast<uint32_t>(rt);
+    os << tmp;
+    return os;
 }

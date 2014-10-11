@@ -22,6 +22,7 @@
 
 #include "CreatureSound.h"
 
+#include "ODPacket.h"
 #include "Random.h"
 
 CreatureSound::CreatureSound()

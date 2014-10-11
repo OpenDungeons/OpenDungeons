@@ -19,12 +19,13 @@
 #define CREATUREDEFINITION_H
 
 #include "Tile.h"
-#include "ODPacket.h"
 
 #include <OgreVector3.h>
 
 #include <string>
 #include <iostream>
+
+class ODPacket;
 
 class CreatureDefinition
 {
@@ -74,8 +75,8 @@ public:
     inline bool isWorker() const
     { return (mCreatureJob == Worker); }
 
-    friend ODPacket & operator <<(ODPacket & os, CreatureDefinition *c);
-    friend ODPacket & operator >>(ODPacket & is, CreatureDefinition *c);
+    friend ODPacket& operator <<(ODPacket& os, CreatureDefinition *c);
+    friend ODPacket& operator >>(ODPacket& is, CreatureDefinition *c);
 
     //! \brief Loads a definition from the creature definition file sub [Creature][/Creature] part
     //! \returns A creature definition if valid, nulptr otherwise.

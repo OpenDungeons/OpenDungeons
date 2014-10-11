@@ -31,7 +31,7 @@ RoomDungeonTemple::RoomDungeonTemple(GameMap* gameMap) :
     mWaitTurns(0),
     mTempleObject(NULL)
 {
-    mType = dungeonTemple;
+    setMeshName("DungeonTemple");
 }
 
 void RoomDungeonTemple::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)

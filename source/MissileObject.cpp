@@ -19,6 +19,7 @@
 
 #include "RenderRequest.h"
 #include "RenderManager.h"
+#include "ODPacket.h"
 #include "GameMap.h"
 
 #include <iostream>

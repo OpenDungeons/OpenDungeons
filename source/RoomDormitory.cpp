@@ -28,7 +28,7 @@
 RoomDormitory::RoomDormitory(GameMap* gameMap) :
     Room(gameMap)
 {
-    mType = dormitory;
+    setMeshName("Dormitory");
 }
 
 void RoomDormitory::absorbRoom(Room *r)

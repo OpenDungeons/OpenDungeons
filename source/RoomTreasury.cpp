@@ -33,7 +33,7 @@ RoomTreasury::RoomTreasury(GameMap* gameMap) :
     Room(gameMap),
     mGoldChanged(false)
 {
-    mType = treasury;
+    setMeshName("Treasury");
 }
 
 void RoomTreasury::doUpkeep()

@@ -1506,6 +1506,18 @@ void GameMap::clearRooms()
 
 void GameMap::addRoom(Room *r)
 {
+    if(isServerGameMap())
+    {
+        Room::RoomType type = r->getType();
+        int nbTiles = r->getCoveredTiles().size();
+        LogManager::getSingleton().logMessage("Adding room " + r->getName() + ", nbTiles="
+            + Ogre::StringConverter::toString(nbTiles) + ", seatId=" + Ogre::StringConverter::toString(r->getSeat()->getId()));
+
+        ServerNotification notif(ServerNotification::buildRoom, getPlayerBySeat(r->getSeat()));
+        notif.mPacket << type;
+        r->exportToPacket(notif.mPacket);
+        ODServer::getSingleton().sendAsyncMsgToAllClients(notif);
+    }
     rooms.push_back(r);
     addActiveObject(r);
 }
@@ -1644,10 +1656,22 @@ void GameMap::clearTraps()
     traps.clear();
 }
 
-void GameMap::addTrap(Trap *t)
+void GameMap::addTrap(Trap *trap)
 {
-    traps.push_back(t);
-    addActiveObject(t);
+    if(isServerGameMap())
+    {
+        Trap::TrapType type = trap->getType();
+        int nbTiles = trap->getCoveredTiles().size();
+        LogManager::getSingleton().logMessage("Adding trap " + trap->getName() + ", nbTiles="
+            + Ogre::StringConverter::toString(nbTiles) + ", seatId=" + Ogre::StringConverter::toString(trap->getSeat()->getId()));
+
+        ServerNotification notif(ServerNotification::buildTrap, getPlayerBySeat(trap->getSeat()));
+        notif.mPacket << type;
+        trap->exportToPacket(notif.mPacket);
+        ODServer::getSingleton().sendAsyncMsgToAllClients(notif);
+    }
+    traps.push_back(trap);
+    addActiveObject(trap);
 }
 
 void GameMap::removeTrap(Trap *t)
@@ -2441,22 +2465,6 @@ void GameMap::markTilesForPlayer(std::vector<Tile*>& tiles, bool isDigSet, Playe
     refreshBorderingTilesOf(tiles);
 }
 
-Room* GameMap::buildRoomForPlayer(std::vector<Tile*>& tiles, Room::RoomType roomType, Player* player, bool forceName, const std::string& name)
-{
-    Room* newRoom = Room::createRoom(this, roomType, tiles, player->getSeat(), forceName, name);
-    Room::setupRoom(this, newRoom);
-    refreshBorderingTilesOf(tiles);
-    return newRoom;
-}
-
-Trap* GameMap::buildTrapForPlayer(std::vector<Tile*>& tiles, Trap::TrapType typeTrap, Player* player, bool forceName, const std::string& name)
-{
-    Trap* newTrap = Trap::createTrap(this, typeTrap, tiles, player->getSeat(), forceName, name);
-    Trap::setupTrap(this, newTrap);
-    refreshBorderingTilesOf(tiles);
-    return newTrap;
-}
-
 std::string GameMap::getGoalsStringForPlayer(Player* player)
 {
     bool playerIsAWinner = seatIsAWinner(player->getSeat());
@@ -2753,4 +2761,26 @@ GameEntity* GameMap::getClosestTileWhereGameEntityFromList(std::vector<GameEntit
     }
 
     return closestGameEntity;
+}
+
+void GameMap::fillBuildableTilesAndPriceForPlayerInArea(int x1, int y1, int x2, int y2,
+    Player* player, Room::RoomType type, std::vector<Tile*>& tiles, int& goldRequired)
+{
+    goldRequired = 0;
+    tiles = getBuildableTilesForPlayerInArea(x1, y1, x2, y2, player);
+
+    if(tiles.empty())
+        return;
+
+    int costPerTile = Room::costPerTile(type);
+    goldRequired = tiles.size() * costPerTile;
+
+    // The first treasury tile doesn't cost anything to prevent a player from being stuck
+    // without any means to get gold.
+    // Thus, we check whether it is the current attempt and we remove the cost of one tile.
+    if (type == Room::treasury
+            && numRoomsByTypeAndSeat(Room::treasury, player->getSeat()) == 0)
+    {
+        goldRequired -= costPerTile;
+    }
 }

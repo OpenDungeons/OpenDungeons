@@ -29,6 +29,9 @@ class RoomPortal: public Room
 public:
     RoomPortal(GameMap* gameMap);
 
+    virtual RoomType getType() const
+    { return RoomType::portal; }
+
     // Functions overriding virtual functions in the Room base class.
     void addCoveredTile(Tile* t, double nHP, bool isRoomAbsorb);
     bool removeCoveredTile(Tile* t, bool isRoomAbsorb);
