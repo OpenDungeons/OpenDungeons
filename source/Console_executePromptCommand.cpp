@@ -439,20 +439,6 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         }
     }
 
-    // Adds the basic information about a type of creature (mesh name, scaling, etc)
-    else if (command.compare("addclass") == 0)
-    {
-        if (!arguments.empty())
-        {
-            CreatureDefinition *tempClass = new CreatureDefinition;
-            tempSS.str(arguments);
-            tempSS >> tempClass;
-
-            gameMap->addClassDescription(tempClass);
-        }
-
-    }
-
     // Print out various lists of information, the creatures in the
     // scene, the levels available for loading, etc
     else if (command.compare("list") == 0 || command.compare("ls") == 0)

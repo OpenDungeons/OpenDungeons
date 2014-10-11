@@ -86,7 +86,7 @@ Creature::Creature(GameMap* gameMap, CreatureDefinition* definition, bool forceN
     mHp                      (100.0),
     mExp                     (0.0),
     mDigRate                 (1.0),
-    mDanceRate               (1.0),
+    mClaimRate               (1.0),
     mDeathCounter            (NB_COUNTER_DEATH),
     mGold                    (0),
     mJobCooldown             (0),
@@ -120,7 +120,7 @@ Creature::Creature(GameMap* gameMap, CreatureDefinition* definition, bool forceN
     mMaxHP = mDefinition->getHpPerLevel();
     setHP(mMaxHP);
     mDigRate = mDefinition->getDigRate();
-    mDanceRate = mDefinition->getDanceRate();
+    mClaimRate = mDefinition->getClaimRate();
 }
 
 Creature::Creature(GameMap* gameMap) :
@@ -139,7 +139,7 @@ Creature::Creature(GameMap* gameMap) :
     mHp                      (100.0),
     mExp                     (0.0),
     mDigRate                 (1.0),
-    mDanceRate               (1.0),
+    mClaimRate               (1.0),
     mDeathCounter            (NB_COUNTER_DEATH),
     mGold                    (0),
     mJobCooldown             (0),
@@ -326,7 +326,7 @@ ODPacket& operator<<(ODPacket& os, Creature *c)
     os << c->mHp;
     os << c->mLevel;
     os << c->mDigRate;
-    os << c->mDanceRate;
+    os << c->mClaimRate;
     os << c->mMaxHP;
     os << c->mAwakeness;
     os << c->mHunger;
@@ -368,7 +368,7 @@ ODPacket& operator>>(ODPacket& is, Creature *c)
     is >> c->mHp;
     is >> c->mLevel;
     is >> c->mDigRate;
-    is >> c->mDanceRate;
+    is >> c->mClaimRate;
     is >> c->mMaxHP;
     is >> c->mAwakeness;
     is >> c->mHunger;
@@ -563,7 +563,7 @@ void Creature::doUpkeep()
         if (mDefinition->isWorker())
         {
             mDigRate += 4.0 * getLevel() / (getLevel() + 5.0);
-            mDanceRate += 0.12 * getLevel() / (getLevel() + 5.0);
+            mClaimRate += 0.12 * getLevel() / (getLevel() + 5.0);
             //std::cout << "New dig rate: " << mDigRate << "\tnew dance rate: " << mDanceRate << "\n";
         }
 
@@ -918,7 +918,7 @@ bool Creature::handleIdleAction()
         pushAction(CreatureAction::digTile);
     }
     // Decide to check for claimable tiles
-    else if (mDefinition->getDanceRate() > 0.0 && diceRoll < 0.9)
+    else if (mDefinition->getClaimRate() > 0.0 && diceRoll < 0.9)
     {
         loopBack = true;
         pushAction(CreatureAction::claimTile);
@@ -1182,8 +1182,8 @@ bool Creature::handleClaimTileAction()
                 // dancing on this tile.  If there is "left over" claiming that can be done
                 // it will spill over into neighboring tiles until it is gone.
                 setAnimationState("Claim");
-                myTile->claimForSeat(getSeat(), mDefinition->getDanceRate());
-                receiveExp(1.5 * (mDefinition->getDanceRate() / (0.35 + 0.05 * getLevel())));
+                myTile->claimForSeat(getSeat(), mDefinition->getClaimRate());
+                receiveExp(1.5 * (mDefinition->getClaimRate() / (0.35 + 0.05 * getLevel())));
 
                 // Since we danced on a tile we are done for this turn
                 return false;
@@ -1362,8 +1362,8 @@ bool Creature::handleClaimWallTileAction()
         Ogre::Vector3 walkDirection(tempTile->x - getPosition().x, tempTile->y - getPosition().y, 0);
         walkDirection.normalise();
         setAnimationState("Claim", true, &walkDirection);
-        tempTile->claimForSeat(getSeat(), mDefinition->getDanceRate());
-        receiveExp(1.5 * mDefinition->getDanceRate() / 20.0);
+        tempTile->claimForSeat(getSeat(), mDefinition->getClaimRate());
+        receiveExp(1.5 * mDefinition->getClaimRate() / 20.0);
 
         wasANeighbor = true;
         //std::cout << "Claiming wall" << std::endl;
@@ -2352,7 +2352,7 @@ void Creature::refreshFromCreature(Creature *creatureNewState)
     // in the transfert functions in this file using ODPacket
     mLevel          = creatureNewState->mLevel;
     mDigRate        = creatureNewState->mDigRate;
-    mDanceRate      = creatureNewState->mDanceRate;
+    mClaimRate      = creatureNewState->mClaimRate;
     mMaxHP          = creatureNewState->mMaxHP;
     mHp             = creatureNewState->mHp;
     mAwakeness      = creatureNewState->mAwakeness;
@@ -2620,7 +2620,7 @@ std::string Creature::getStatsText()
     if (getDefinition()->isWorker())
     {
         tempSS << "Dig Rate: : " << getDigRate() << std::endl;
-        tempSS << "Dance Rate: : " << mDanceRate << std::endl;
+        tempSS << "Dance Rate: : " << mClaimRate << std::endl;
     }
     tempSS << "Actions:";
     for(std::deque<CreatureAction>::iterator it = mActionQueue.begin(); it != mActionQueue.end(); ++it)

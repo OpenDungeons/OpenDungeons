@@ -591,32 +591,43 @@ bool loadCreatureDefinition(const std::string& fileName, GameMap& gameMap)
 
     // Read in the creature class descriptions
     defFile >> nextParam;
-    if (nextParam != "[Creatures_definition]")
+    if (nextParam != "[Creatures]")
     {
         std::cout << "Invalid Creature classes start format." << std::endl;
         std::cout << "Line was " << nextParam << std::endl;
         return false;
     }
 
-    while(true)
+    while(defFile.good())
     {
         if(!defFile.good())
             return false;
 
         defFile >> nextParam;
-        if (nextParam == "[/Creatures_definition]")
+        if (nextParam == "[/Creatures]")
             break;
 
-        std::string entire_line = nextParam;
-        std::getline(defFile, nextParam);
-        entire_line += nextParam;
-        //std::cout << entire_line << std::endl;
+        if (nextParam == "[/Creature]")
+            continue;
 
-        CreatureDefinition* tempClass = new CreatureDefinition;
-        CreatureDefinition::loadFromLine(entire_line, tempClass);
+        // Seek the [Creature] tag
+        if (nextParam != "[Creature]")
+        {
+            std::cout << "Invalid Creature start format." << std::endl;
+            std::cout << "Line was " << nextParam << std::endl;
+            return false;
+        }
 
-        gameMap.addClassDescription(tempClass);
+        // Load the creature definition until a [/Creature] tag is found
+        CreatureDefinition* creatureDef = CreatureDefinition::load(defFile);
+        if (creatureDef == nullptr)
+        {
+            std::cout << "Invalid Creature definition format." << std::endl;
+            return false;
+        }
+        gameMap.addClassDescription(creatureDef);
     }
+
     return true;
 }
 

@@ -333,7 +333,7 @@ private:
     double          mHp;
     double          mExp;
     double          mDigRate;
-    double          mDanceRate;
+    double          mClaimRate;
     //! \brief Counter to let the creature stay some turns after its death
     unsigned int    mDeathCounter;
     int             mGold;

@@ -15,8 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CREATURECLASS_H
-#define CREATURECLASS_H
+#ifndef CREATUREDEFINITION_H
+#define CREATUREDEFINITION_H
 
 #include "Tile.h"
 #include "ODPacket.h"
@@ -31,24 +31,12 @@ class CreatureDefinition
 public:
     enum CreatureJob
     {
-        nullCreatureJob = 0,
-        basicWorker = 1,
-        advancedWorker,
-        scout,
-        weakFighter,
-        weakSpellcaster,
-        weakBuilder,
-        strongFighter,
-        strongSpellcaster,
-        strongBuilder,
-        guard,
-        specialCreature,
-        summon,
-        superCreature
+        Worker = 1, // Dig, claim tile and deposit gold. Only fights workers
+        Fighter,    // Sleep, eat, train and fight any enemy thing.
     };
 
     CreatureDefinition(
-            CreatureJob             job         = nullCreatureJob,
+            CreatureJob             job         = Fighter,
             const std::string&      className   = std::string(),
             const std::string&      meshName    = std::string(),
             const std::string&      bedMeshName = std::string(),
@@ -72,7 +60,7 @@ public:
         mScale       (scale),
         mSightRadius (sightRadius),
         mDigRate     (digRate),
-        mDanceRate   (danceRate),
+        mClaimRate   (danceRate),
         mHpPerLevel  (hpPerLevel),
         mMaxHP       (maxHP),
         mMoveSpeedGround    (moveSpeedGround),
@@ -84,28 +72,21 @@ public:
     static std::string creatureJobToString(CreatureJob c);
 
     inline bool isWorker() const
-    { return (mCreatureJob == basicWorker || mCreatureJob == advancedWorker); }
+    { return (mCreatureJob == Worker); }
 
-    inline static std::string getFormat()
-    {
-        return "# className\tcreatureJob\tmeshName\tbedMeshName\tbedDim1\tbedDim2\tscaleX\tscaleY\tscaleZ\t"
-               "hp/level\tmaxHP\tsightRadius\tdigRate\tdanceRate\tmoveSpeedGround\tmoveSpeedWater\tmoveSpeedLava\n";
-    }
-
-    friend std::ostream & operator <<(std::ostream & os, CreatureDefinition *c);
-    friend std::istream & operator >>(std::istream & is, CreatureDefinition *c);
     friend ODPacket & operator <<(ODPacket & os, CreatureDefinition *c);
     friend ODPacket & operator >>(ODPacket & is, CreatureDefinition *c);
 
-    //! \brief Loads a definition from a line of the creature definition file.
-    static void loadFromLine(const std::string& line, CreatureDefinition* c);
+    //! \brief Loads a definition from the creature definition file sub [Creature][/Creature] part
+    //! \returns A creature definition if valid, nulptr otherwise.
+    static CreatureDefinition* load(std::stringstream& defFile);
 
     inline CreatureJob          getCreatureJob  () const    { return mCreatureJob; }
     inline int                  getBedDim1      () const    { return mBedDim1; }
     inline int                  getBedDim2      () const    { return mBedDim2; }
     inline const std::string&   getBedMeshName  () const    { return mBedMeshName; }
     inline const std::string&   getClassName    () const    { return mClassName; }
-    inline double               getDanceRate    () const    { return mDanceRate; }
+    inline double               getClaimRate    () const    { return mClaimRate; }
     inline double               getDigRate      () const    { return mDigRate; }
     inline double               getHpPerLevel   () const    { return mHpPerLevel; }
     inline double               getMaxHp        () const    { return mMaxHP; }
@@ -117,8 +98,6 @@ public:
     inline double               getSightRadius  () const    { return mSightRadius; }
 
 private:
-    //NOTE: Anything added to this class must be included in the '=' operator for the Creature class.
-
     //! \brief The job of the creature (e.g. worker, fighter, ...)
     CreatureJob mCreatureJob;
 
@@ -141,13 +120,13 @@ private:
     Ogre::Vector3 mScale;
 
     //! \brief The inner radius where the creature sees everything
-    double mSightRadius;
+    int mSightRadius;
 
     //! \brief Fullness removed per turn of digging
     double mDigRate;
 
-    //! \brief How much the danced upon tile's color changes per turn of dancing
-    double mDanceRate;
+    //! \brief How quick a worker can claim a ground or wall tile.
+    double mClaimRate;
 
     //! \brief How much HP the creature gets per level up
     double mHpPerLevel;
@@ -161,4 +140,4 @@ private:
     double mMoveSpeedLava;
 };
 
-#endif // CREATURECLASS_H
+#endif // CREATUREDEFINITION_H

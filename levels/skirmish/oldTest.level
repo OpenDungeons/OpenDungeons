@@ -6621,7 +6621,7 @@ Cannon	1
 
 # The file containing the creatures definition.
 [Creatures_Definition]
-levels/creatures.def
+config/creatures.cfg
 
 # Each team spawn pool
 # Describes what each team can spawn
@@ -6637,16 +6637,15 @@ Wyvern
 Dragon
 Orc
 Kreatur
-Gnome
 Goblin
 PitDemon
 Spider
-Wizard
 Tentacle1
 Tentacle2
 Troll
 LizardMan
 Scarab
+Slime
 [/Spawn_Pool]
 
 [Spawn_Pool]
@@ -6659,28 +6658,29 @@ Wyvern
 Dragon
 Orc
 Kreatur
-Gnome
 Goblin
 PitDemon
 Spider
-Wizard
 Tentacle1
 Tentacle2
 Troll
 LizardMan
 Scarab
+Slime
 [/Spawn_Pool]
 
 [Spawn_Pool]
 # team id
 3
 # Creature list & conditions
+Gnome
 Knight
 BigKnight
 Adventurer
 Dwarf1
 Dwarf2
 Dwarf3
+Wizard
 [/Spawn_Pool]
 
 [/Spawn_Pools]

@@ -5209,7 +5209,7 @@ Treasury	5
 
 # The file containing the creatures definition.
 [Creatures_Definition]
-levels/creatures.def
+config/creatures.cfg
 
 [Spawn_Pools]
 # Each team's spawn pool.
@@ -5224,15 +5224,14 @@ Wyvern
 Dragon
 Orc
 Kreatur
-Gnome
 Goblin
 PitDemon
 Spider
-Wizard
 Tentacle1
 Tentacle2
 Troll
 LizardMan
+Slime
 [/Spawn_Pool]
 
 [Spawn_Pool]
@@ -5244,15 +5243,14 @@ Wyvern
 Dragon
 Orc
 Kreatur
-Gnome
 Goblin
 PitDemon
 Spider
-Wizard
 Tentacle1
 Tentacle2
 Troll
 LizardMan
+Slime
 [/Spawn_Pool]
 
 [Spawn_Pool]
@@ -5264,15 +5262,14 @@ Wyvern
 Dragon
 Orc
 Kreatur
-Gnome
 Goblin
 PitDemon
 Spider
-Wizard
 Tentacle1
 Tentacle2
 Troll
 LizardMan
+Slime
 [/Spawn_Pool]
 
 [Spawn_Pool]
@@ -5284,25 +5281,26 @@ Wyvern
 Dragon
 Orc
 Kreatur
-Gnome
 Goblin
 PitDemon
 Spider
-Wizard
 Tentacle1
 Tentacle2
 Troll
 LizardMan
+Slime
 [/Spawn_Pool]
 
 [Spawn_Pool]
 # seat id
 5
 # Creature list
+Gnome
 Knight
 BigKnight
 Adventurer
 Dwarf3
+Wizard
 [/Spawn_Pool]
 
 [/Spawn_Pools]
