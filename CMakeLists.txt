@@ -514,7 +514,7 @@ configure_file(${CMAKE_CONFIG_DIR}/opendungeons.desktop.in ${CMAKE_BINARY_DIR}/o
 # pointing to the game resources so that the game can be run in place
 # NOTE: This won't work on FAT filesystems
 if(NOT CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR)
-    foreach(RES gui levels materials models music scripts sounds)
+    foreach(RES config gui levels materials models music scripts sounds)
         if(NOT EXISTS ${CMAKE_BINARY_DIR}/${RES})
             message(STATUS "Creating symlink to ${CMAKE_SOURCE_DIR}/${RES} in ${CMAKE_BINARY_DIR}")
             if(UNIX)
@@ -537,7 +537,8 @@ if(UNIX)
                        ${CMAKE_BINARY_DIR}/resources.cfg
                        ${CMAKE_BINARY_DIR}/resources.zip.cfg)
 
-    set(OD_RESOURCES   ${CMAKE_SOURCE_DIR}/gui
+    set(OD_RESOURCES   ${CMAKE_SOURCE_DIR}/config
+                       ${CMAKE_SOURCE_DIR}/gui
                        ${CMAKE_SOURCE_DIR}/levels
                        ${CMAKE_SOURCE_DIR}/materials
                        ${CMAKE_SOURCE_DIR}/models
