@@ -25,6 +25,9 @@ class RoomDungeonTemple: public Room
 public:
     RoomDungeonTemple(GameMap* gameMap);
 
+    virtual RoomType getType() const
+    { return RoomType::dungeonTemple; }
+
     //! \brief Get back a reference to the temple mesh after calling Room::absorbRoom()
     void absorbRoom(Room* room);
 

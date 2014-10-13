@@ -26,6 +26,9 @@ class RoomTreasury: public Room
 public:
     RoomTreasury(GameMap* gameMap);
 
+    virtual RoomType getType() const
+    { return RoomType::treasury; }
+
     // Functions overriding virtual functions in the Room base class.
     void absorbRoom(Room *r);
     void addCoveredTile(Tile* t, double nHP, bool isRoomAbsorb);

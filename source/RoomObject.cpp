@@ -17,6 +17,7 @@
 
 #include "RoomObject.h"
 
+#include "ODPacket.h"
 #include "RenderRequest.h"
 #include "GameMap.h"
 #include "RenderManager.h"

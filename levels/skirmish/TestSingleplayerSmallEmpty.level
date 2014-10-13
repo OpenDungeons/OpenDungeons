@@ -389,14 +389,14 @@ ProtectDungeonTemple	NULL
 7	4	1	0
 7	5	1	0
 7	6	1	0
-7	7	1	0
-7	8	1	0
-7	9	1	0
-7	10	1	0
-7	11	1	0
-7	12	1	0
-7	13	1	0
-7	14	1	0
+7	7	6	0	1
+7	8	6	0	1
+7	9	6	0	1
+7	10	6	0	1
+7	11	6	0	1
+7	12	6	0	1
+7	13	6	0	1
+7	14	6	0	1
 7	15	1	0
 7	16	1	0
 7	17	1	0
@@ -439,14 +439,14 @@ ProtectDungeonTemple	NULL
 8	4	1	0
 8	5	1	0
 8	6	1	0
-8	7	1	0
-8	8	1	0
-8	9	1	0
-8	10	1	0
-8	11	1	0
-8	12	1	0
-8	13	1	0
-8	14	1	0
+8	7	6	0	1
+8	8	6	0	1
+8	9	6	0	1
+8	10	6	0	1
+8	11	6	0	1
+8	12	6	0	1
+8	13	6	0	1
+8	14	6	0	1
 8	15	1	0
 8	16	1	0
 8	17	1	0
@@ -489,14 +489,14 @@ ProtectDungeonTemple	NULL
 9	4	1	0
 9	5	1	0
 9	6	1	0
-9	7	1	0
-9	8	1	0
-9	9	1	0
-9	10	1	0
-9	11	1	0
-9	12	1	0
-9	13	1	0
-9	14	1	0
+9	7	6	0	1
+9	8	6	0	1
+9	9	6	0	1
+9	10	6	0	1
+9	11	6	0	1
+9	12	6	0	1
+9	13	6	0	1
+9	14	6	0	1
 9	15	1	0
 9	16	1	0
 9	17	1	0
@@ -539,11 +539,11 @@ ProtectDungeonTemple	NULL
 10	4	1	0
 10	5	1	0
 10	6	1	0
-10	7	1	0
-10	8	1	0
-10	9	1	0
-10	10	1	0
-10	11	1	0
+10	7	6	0	1
+10	8	6	0	1
+10	9	6	0	1
+10	10	6	0	1
+10	11	6	0	1
 10	12	1	0
 10	13	1	0
 10	14	1	0
@@ -589,11 +589,11 @@ ProtectDungeonTemple	NULL
 11	4	1	0
 11	5	1	0
 11	6	1	0
-11	7	1	0
-11	8	1	0
-11	9	1	0
-11	10	1	0
-11	11	1	0
+11	7	6	0	1
+11	8	6	0	1
+11	9	6	0	1
+11	10	6	0	1
+11	11	6	0	1
 11	12	1	0
 11	13	1	0
 11	14	1	0
@@ -639,9 +639,9 @@ ProtectDungeonTemple	NULL
 12	4	1	0
 12	5	1	0
 12	6	1	0
-12	7	1	0
-12	8	1	0
-12	9	1	0
+12	7	6	0	1
+12	8	6	0	1
+12	9	6	0	1
 12	10	1	0
 12	11	1	0
 12	12	1	0
@@ -2531,9 +2531,9 @@ ProtectDungeonTemple	NULL
 [/Tiles]
 
 [Rooms]
-# meshName	seatId		NextLine: numTiles		Subsequent Lines: tileX	tileY
-DungeonTemple	1
-25
+# typeRoom	seatId	numTiles		Subsequent Lines: tileX	tileY
+[Room]
+1	1	25
 7	7
 7	8
 7	9
@@ -2559,13 +2559,9 @@ DungeonTemple	1
 11	9
 11	10
 11	11
-Treasury	1
-3
-12	7
-12	8
-12	9
-Portal	1
-9
+[/Room]
+[Room]
+4	1	9
 7	12
 7	13
 7	14
@@ -2575,10 +2571,17 @@ Portal	1
 9	12
 9	13
 9	14
+[/Room]
+[Room]
+3	1	3
+12	7
+12	8
+12	9
+[/Room]
 [/Rooms]
 
 [Traps]
-# meshName	seatId		NextLine: numTiles		Subsequent Lines: tileX	tileY
+# typeTrap	seatId	numTiles		Subsequent Lines: tileX	tileY		Subsequent Lines: optional specific data
 [/Traps]
 
 [Lights]
@@ -2590,12 +2593,12 @@ Portal	1
 [Creatures_Definition]
 config/creatures.cfg
 
-# Each team's spawn pool
-# Describes what each team can spawn
 [Spawn_Pools]
+# Each team's spawn pool.
+# Describes what each team can spawn.
 
 [Spawn_Pool]
-# team id
+# seat id
 1
 # Creature list
 ConstructWorker

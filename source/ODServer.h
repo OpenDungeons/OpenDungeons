@@ -19,6 +19,7 @@
 #define ODSERVER_H
 
 #include "ODSocketServer.h"
+#include "Room.h"
 
 #include <OgreSingleton.h>
 
@@ -61,6 +62,12 @@ class ODServer: public Ogre::Singleton<ODServer>,
 
     //! \brief Adds a server notification to the server notification queue.
     void queueServerNotification(ServerNotification* n);
+
+    //! \brief Sends an asynchronous message to every client. This function should be used really carefully as it can easily
+    //! make the game crash by sending messages in an unexpected order (changing the state of an entity that was not created, for example).
+    //! In most of the can, we will use it for messages that do not need synchronization with the game (example : chat) or
+    //! for messages that need to show reactivity (after a player does something like building a room or tried to pickup a creature).
+    void sendAsyncMsgToAllClients(ServerNotification& notif);
 
     //! \brief Adds a console command to the queue.
     void queueConsoleCommand(ODConsoleCommand* cc);
@@ -112,8 +119,6 @@ private:
     bool processClientNotifications(ODSocketClient* clientSocket);
 
     void processServerCommandQueue();
-
-    void sendToAllClients(ODPacket& packetSend);
 };
 
 #endif // ODSERVER_H

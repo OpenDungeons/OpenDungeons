@@ -38,8 +38,7 @@ public:
     int getGoldInTreasury() const;
 
     //Do we need more than a true/false here?
-    bool buildRoom(Room::RoomType newRoomType, int x1, int y1, int x2, int y2);
-    bool buildTrap(Trap::TrapType newRoomType, int x1, int y1, int x2, int y2);
+    bool buildRoom(Room* room, const std::vector<Tile*>& tiles);
     bool dropHand(int x, int y, int index);
     bool pickUpCreature(Creature* creature);
     const std::vector<GameEntity*>& getObjectsInHand();
@@ -51,7 +50,7 @@ public:
     GameMap& getGameMap() const
     { return gameMap; }
 
-    const Player& getPlayer() const
+    Player& getPlayer() const
     { return player; }
 
 private:

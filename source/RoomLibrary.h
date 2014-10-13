@@ -25,6 +25,9 @@ class RoomLibrary: public Room
 public:
     RoomLibrary(GameMap* gameMap);
 
+    virtual RoomType getType() const
+    { return RoomType::library; }
+
 protected:
     virtual RoomObject* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
 };

@@ -29,6 +29,7 @@
 #include "Room.h"
 #include "RoomObject.h"
 #include "Weapon.h"
+#include "ODPacket.h"
 
 void GameEntity::createMesh()
 {

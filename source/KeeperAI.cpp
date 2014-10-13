@@ -19,6 +19,8 @@
 
 #include "GameMap.h"
 #include "Tile.h"
+#include "RoomDormitory.h"
+#include "RoomTrainingHall.h"
 #include "LogManager.h"
 
 #include <vector>
@@ -92,26 +94,21 @@ bool KeeperAI::buildSleepRoom()
     if (mSleepRoomMade)
         return false;
 
+    GameMap& gameMap = mAiWrapper.getGameMap();
+    Player& player = mAiWrapper.getPlayer();
     Tile* central = mAiWrapper.getDungeonTemple()->getCentralTile();
-    // Check whether at least enough tiles are claimed.
-    std::vector<Tile*> tiles = mAiWrapper.getGameMap().rectangularRegion(central->getX() - 2, central->getY() + 5,
-                                                                         central->getX() + 2, central->getY() + 3);
-    unsigned int numClaimedTiles = 0;
-    int seatId = mAiWrapper.getPlayer().getSeat()->getId();
-    Seat* seat = mAiWrapper.getGameMap().getSeatById(seatId);
-    for (std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
-    {
-        Tile* tile = *it;
-        if (tile && tile->getType() == Tile::claimed && tile->getFullness() < 1.0
-                && tile->isBuildableUpon() && tile->isClaimedForSeat(seat)
-                && tile->getClaimedPercentage() >= 1.0)
-            ++numClaimedTiles;
-    }
-    if (numClaimedTiles < 15)
+    std::vector<Tile*> tiles;
+    int goldRequired;
+    gameMap.fillBuildableTilesAndPriceForPlayerInArea(central->getX() - 2, central->getY() + 5,
+        central->getX() + 2, central->getY() + 3, &player, Room::RoomType::dormitory, tiles, goldRequired);
+    if (tiles.size() < 15)
         return false;
 
-    mAiWrapper.buildRoom(Room::dormitory, central->getX() - 2, central->getY() + 5,
-                                         central->getX() + 2, central->getY() + 3);
+    if(gameMap.withdrawFromTreasuries(goldRequired, player.getSeat()) == false)
+        return false;
+
+    Room* room = new RoomDormitory(&gameMap);
+    mAiWrapper.buildRoom(room, tiles);
     mSleepRoomMade = true;
     return true;
 }
@@ -125,26 +122,21 @@ bool KeeperAI::buildTrainingHallRoom()
     if (mTrainingHallRoomMade)
         return false;
 
+    GameMap& gameMap = mAiWrapper.getGameMap();
+    Player& player = mAiWrapper.getPlayer();
     Tile* central = mAiWrapper.getDungeonTemple()->getCentralTile();
-    // Check whether at least enough tiles are claimed.
-    std::vector<Tile*> tiles = mAiWrapper.getGameMap().rectangularRegion(central->getX() - 2, central->getY() - 4,
-                                                                         central->getX() + 2, central->getY() - 6);
-    int seatId = mAiWrapper.getPlayer().getSeat()->getId();
-    Seat* teamSeat = mAiWrapper.getGameMap().getSeatById(seatId);
-    unsigned int numClaimedTiles = 0;
-    for (std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
-    {
-        Tile* tile = *it;
-        if (tile && tile->getType() == Tile::claimed && tile->getFullness() < 1.0
-                && tile->isBuildableUpon() && tile->isClaimedForSeat(teamSeat)
-                && tile->getClaimedPercentage() >= 1.0)
-            ++numClaimedTiles;
-    }
-    if (numClaimedTiles < 15)
+    std::vector<Tile*> tiles;
+    int goldRequired;
+    gameMap.fillBuildableTilesAndPriceForPlayerInArea(central->getX() - 2, central->getY() - 4,
+        central->getX() + 2, central->getY() - 6, &player, Room::RoomType::trainingHall, tiles, goldRequired);
+    if (tiles.size() < 15)
         return false;
 
-    mAiWrapper.buildRoom(Room::trainingHall, central->getX() - 2, central->getY() - 4,
-                                     central->getX() + 2, central->getY() - 6);
+    if(gameMap.withdrawFromTreasuries(goldRequired, player.getSeat()) == false)
+        return false;
+
+    RoomTrainingHall* room = new RoomTrainingHall(&gameMap);
+    mAiWrapper.buildRoom(room, tiles);
     mTrainingHallRoomMade = true;
     return true;
 }
@@ -191,10 +183,9 @@ bool KeeperAI::lookForGold()
     }
 
     // Set a diggable path up to the first gold spot for the given team color
-    int seatId = mAiWrapper.getPlayer().getSeat()->getId();
-    Seat* teamSeat = mAiWrapper.getGameMap().getSeatById(seatId);
+    Seat* seat = mAiWrapper.getPlayer().getSeat();
     CreatureDefinition* classKobold = mAiWrapper.getGameMap().getClassDescription("Kobold");
-    std::list<Tile*> goldPath = mAiWrapper.getGameMap().path(central, firstGoldTile, classKobold, teamSeat, true);
+    std::list<Tile*> goldPath = mAiWrapper.getGameMap().path(central, firstGoldTile, classKobold, seat, true);
     if (goldPath.empty())
     {
         mNoMoreReachableGold = true;
@@ -205,14 +196,14 @@ bool KeeperAI::lookForGold()
     {
         // Make a three tile wide path when possible
         Tile* tile = *it;
-        if (tile && tile->isDiggable(teamSeat))
+        if (tile && tile->isDiggable(seat))
             mAiWrapper.markTileForDigging(tile);
 
         // Set neighbors too so the path is wide enough
         std::vector<Tile*> neighborTiles = tile->getAllNeighbors();
         for(std::vector<Tile*>::iterator it2 = neighborTiles.begin(); it2 != neighborTiles.end(); ++it2)
         {
-            if ((*it2) && (*it2)->isDiggable(teamSeat))
+            if ((*it2) && (*it2)->isDiggable(seat))
                 mAiWrapper.markTileForDigging(*it2);
         }
     }

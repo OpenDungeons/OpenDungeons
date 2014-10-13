@@ -20,7 +20,6 @@
 
 #include "Building.h"
 #include "Tile.h"
-#include "ODPacket.h"
 
 #include <string>
 #include <deque>
@@ -29,6 +28,7 @@
 class Seat;
 class RoomObject;
 class GameMap;
+class ODPacket;
 
 class Room : public Building
 {
@@ -54,46 +54,26 @@ public:
 
     virtual std::string getOgreNamePrefix() const { return "Room_"; }
 
-    /*! \brief Creates a type specific subclass of room (dormitory, treasury, etc) and returns a pointer to it.
-     * This function sets up some of the room's properties. If nameToUse is empty, a new unique name
-     * will be generated. If not, the given one will be used
-     */
-    static Room* createRoom(GameMap* gameMap, RoomType nType, const std::vector<Tile*> &nCoveredTiles, Seat* seat,
-        bool forceName = false, const std::string& name = "");
-
-    /** \brief Adds the room newRoom to the game map. If the border tiles
-     * contains another room of same type, it will absorb them
-     */
-    static void setupRoom(GameMap* gameMap, Room* newRoom);
-
-    /*! \brief Moves all the covered tiles from room r into this one, the rooms should be of the same subtype.
-     *  After this is called the other room should likely be removed from the game map and deleted.
-     *  Note that Room objects are moved to the absorbing room.
-     */
     virtual void absorbRoom(Room* r);
 
     static std::string getFormat();
-    friend std::ostream& operator<<(std::ostream& os, Room *r);
-    friend std::istream& operator>>(std::istream& is, Room *r);
-    friend ODPacket& operator<<(ODPacket& os, Room *r);
-    friend ODPacket& operator>>(ODPacket& is, Room *r);
+    friend std::ostream& operator<<(std::ostream& os, Room *room);
+    friend std::istream& operator>>(std::istream& is, Room *room);
+    friend ODPacket& operator<<(ODPacket& os, Room *room);
+    friend ODPacket& operator>>(ODPacket& is, Room *room);
 
-    static Room* createRoomFromStream(GameMap* gameMap, const std::string& roomMeshName, std::istream& is,
-        const std::string& roomName);
-    static Room* createRoomFromPacket(GameMap* gameMap, const std::string& roomMeshName, ODPacket& is,
-        const std::string& roomName);
+    static Room* getRoomFromStream(GameMap* gameMap, std::istream& is);
+    static Room* getRoomFromPacket(GameMap* gameMap, ODPacket& is);
+
+    virtual void exportToStream(std::ostream& os);
+    virtual void exportToPacket(ODPacket& packet);
 
     void createRoomObjectMeshes();
     void destroyRoomObjectMeshes();
 
-    const RoomType& getType() const
-    {
-        return mType;
-    }
+    virtual RoomType getType() const = 0;
 
-    static const char* getMeshNameFromRoomType(RoomType t);
     static const char* getRoomNameFromRoomType(RoomType t);
-    static RoomType getRoomTypeFromMeshName(const std::string& s);
 
     static int costPerTile(RoomType t);
 
@@ -118,7 +98,19 @@ public:
     //! \brief Updates the active spot lists.
     void updateActiveSpots();
 
+    //! \brief Sets the name, seat and associates the given tiles with the room
+    void setupRoom(const std::string& name, Seat* seat, const std::vector<Tile*>& tiles);
+
+    //! \brief Checks on the neighboor tiles of the room if there are other rooms of the same type/same seat.
+    //! if so, it aborbs them
+    void checkForRoomAbsorbtion();
+
     static bool sortForMapSave(Room* r1, Room* r2);
+
+    friend std::istream& operator>>(std::istream& is, Room::RoomType& rt);
+    friend std::ostream& operator<<(std::ostream& os, const Room::RoomType& rt);
+    friend ODPacket& operator>>(ODPacket& is, Room::RoomType& rt);
+    friend ODPacket& operator<<(ODPacket& os, const Room::RoomType& rt);
 
 protected:
     enum ActiveSpotPlace
@@ -130,7 +122,6 @@ protected:
         activeSpotRight
     };
     std::vector<Creature*> mCreaturesUsingRoom;
-    RoomType mType;
 
     //! \brief Lists the active spots in the middle of 3x3 squares.
     std::vector<Tile*> mCentralActiveSpotTiles;

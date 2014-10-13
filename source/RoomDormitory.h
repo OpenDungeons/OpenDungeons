@@ -91,6 +91,9 @@ class RoomDormitory: public Room
 public:
     RoomDormitory(GameMap* gameMap);
 
+    virtual RoomType getType() const
+    { return RoomType::dormitory; }
+
     // Functions overriding virtual functions in the Room base class.
     void absorbRoom(Room *r);
     void addCoveredTile(Tile* t, double nHP, bool isRoomAbsorb);

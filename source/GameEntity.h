@@ -25,7 +25,6 @@
 
 #include "RenderManager.h"
 #include "RenderRequest.h"
-#include "ODPacket.h"
 
 #include <cassert>
 #include <string>
@@ -37,6 +36,7 @@ class GameMap;
 class Tile;
 class Quadtree;
 class Seat;
+class ODPacket;
 
 /*! \class GameEntity GameEntity.h
  *  \brief This class holds elements that are common to every object placed in the game

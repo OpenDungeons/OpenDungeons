@@ -30,7 +30,7 @@ RoomHatchery::RoomHatchery(GameMap* gameMap) :
     mNbChickensEaten(0),
     mSpawnChickenCooldown(0)
 {
-    mType = hatchery;
+    setMeshName("Farm");
 }
 
 void RoomHatchery::addCoveredTile(Tile* t, double nHP, bool isRoomAbsorb)

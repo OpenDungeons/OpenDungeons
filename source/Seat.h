@@ -18,7 +18,6 @@
 #ifndef SEAT_H
 #define SEAT_H
 
-#include "ODPacket.h"
 
 #include <OgreColourValue.h>
 #include <string>
@@ -27,6 +26,7 @@
 #include <istream>
 
 class Goal;
+class ODPacket;
 
 class Seat
 {

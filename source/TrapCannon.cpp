@@ -16,7 +16,7 @@
  */
 
 #include "TrapCannon.h"
-
+#include "ODPacket.h"
 #include "Tile.h"
 #include "GameMap.h"
 #include "MissileObject.h"
@@ -31,6 +31,7 @@ TrapCannon::TrapCannon(GameMap* gameMap) :
     mRange = 10;
     mMinDamage = 5;
     mMaxDamage = 10;
+    setMeshName("Cannon");
 }
 
 bool TrapCannon::shoot(Tile* tile)

@@ -20,10 +20,15 @@
 
 #include "ProximityTrap.h"
 
+class ODPacket;
+
 class TrapCannon : public ProximityTrap
 {
 public:
     TrapCannon(GameMap* gameMap);
+
+    virtual const TrapType getType() const
+    { return TrapType::cannon; }
 
     virtual bool shoot(Tile* tile);
     virtual bool shouldDisplayMeshOnGround()
@@ -31,6 +36,8 @@ public:
         return false;
     }
     virtual RoomObject* notifyActiveSpotCreated(Tile* tile);
+
+    static TrapCannon* getTrapCannonFromPacket(GameMap* gameMap, ODPacket& packet);
 
 private:
     double mCannonHeight;

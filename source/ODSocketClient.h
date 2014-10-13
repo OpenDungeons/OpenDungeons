@@ -18,13 +18,12 @@
 #ifndef ODSOCKETCLIENT_H
 #define ODSOCKETCLIENT_H
 
-#include "ODPacket.h"
-
 #include <SFML/Network.hpp>
 
 #include <string>
 
 class Player;
+class ODPacket;
 
 class ODSocketClient
 {

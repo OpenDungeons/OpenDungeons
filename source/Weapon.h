@@ -19,13 +19,13 @@
 #define WEAPON_H
 
 #include "GameEntity.h"
-#include "ODPacket.h"
 
 #include <string>
 #include <istream>
 #include <ostream>
 
 class Creature;
+class ODPacket;
 
 class Weapon : public GameEntity
 {

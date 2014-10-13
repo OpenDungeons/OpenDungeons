@@ -25,7 +25,7 @@
 RoomForge::RoomForge(GameMap* gameMap) :
     Room(gameMap)
 {
-    mType = forge;
+    setMeshName("Forge");
 }
 
 RoomObject* RoomForge::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)

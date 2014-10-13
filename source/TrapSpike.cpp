@@ -31,6 +31,7 @@ TrapSpike::TrapSpike(GameMap* gameMap) :
     mRange = 10;
     mMinDamage = 10;
     mMaxDamage = 15;
+    setMeshName("Spike");
 }
 
 bool TrapSpike::shoot(Tile* tile)

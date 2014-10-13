@@ -19,7 +19,6 @@
 #define ROOMOBJECT_H
 
 #include "MovableGameEntity.h"
-#include "ODPacket.h"
 
 #include <string>
 #include <istream>
@@ -28,8 +27,9 @@
 class Room;
 class GameMap;
 class Seat;
+class ODPacket;
 
-// TODO : change name to GameObject as it is not linked to rooms anymore
+// TODO : change name to RenderedMovableEntity as it is not linked to rooms anymore
 class RoomObject: public MovableGameEntity
 {
 public:

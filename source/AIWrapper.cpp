@@ -20,9 +20,8 @@
 #include "Seat.h"
 #include "Player.h"
 #include "GameMap.h"
-#include "ODServer.h"
-#include "ServerNotification.h"
 #include "Creature.h"
+#include "ODServer.h"
 #include "LogManager.h"
 
 AIWrapper::AIWrapper(GameMap& gameMap, Player& player)
@@ -34,53 +33,19 @@ AIWrapper::~AIWrapper()
 {
 }
 
-bool AIWrapper::buildRoom(Room::RoomType newRoomType, int x1, int y1, int x2, int y2)
+bool AIWrapper::buildRoom(Room* room, const std::vector<Tile*>& tiles)
 {
-    std::vector<Tile*> coveredTiles = getAffectedTiles(x1, y1, x2, y2);
-    int nbTiles = coveredTiles.size();
-    int goldRequired = nbTiles * Room::costPerTile(newRoomType);
-    if(gameMap.withdrawFromTreasuries(goldRequired, player.getSeat()))
-    {
-        Seat* seat = player.getSeat();
-        Room* newRoom = Room::createRoom(&gameMap, newRoomType, coveredTiles, seat);
-        try
-        {
-            int seatId = seat->getId();
-            const std::string& name = newRoom->getName();
-            ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::buildRoom, &player);
-            int intType = static_cast<int32_t>(newRoom->getType());
-            serverNotification->mPacket << name << intType << seatId << nbTiles;
-            for(std::vector<Tile*>::iterator it = coveredTiles.begin(); it != coveredTiles.end(); ++it)
-            {
-                Tile* tile = *it;
-                serverNotification->mPacket << tile;
-            }
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
-        catch (std::bad_alloc&)
-        {
-            OD_ASSERT_TRUE(false);
-            exit(1);
-        }
-        Room::setupRoom(&gameMap, newRoom);
-        return true;
-    }
+    if(!ODServer::getSingleton().isConnected())
+        return false;
 
-    return false;
-}
+    room->setupRoom(gameMap.nextUniqueNameRoom(room->getMeshName()), player.getSeat(), tiles);
+    gameMap.addRoom(room);
+    room->checkForRoomAbsorbtion();
+    room->createMesh();
+    room->updateActiveSpots();
+    gameMap.refreshBorderingTilesOf(tiles);
 
-bool AIWrapper::buildTrap(Trap::TrapType newTrapType, int x1, int y1, int x2, int y2)
-{
-    std::vector<Tile*> coveredTiles = getAffectedTiles(x1, y1, x2, y2);
-    int goldRequired = coveredTiles.size() * Trap::costPerTile(newTrapType);
-    if(gameMap.withdrawFromTreasuries(goldRequired, player.getSeat()))
-    {
-        Trap* newTrap = Trap::createTrap(&gameMap, newTrapType, coveredTiles, player.getSeat());
-        Trap::setupTrap(&gameMap, newTrap);
-        return true;
-    }
-    return false;
+    return true;
 }
 
 bool AIWrapper::dropHand(int x, int y, int index)

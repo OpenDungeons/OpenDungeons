@@ -22,7 +22,8 @@
 #define CREATURESOUND_H_
 
 #include "SoundEffectsManager.h"
-#include "ODPacket.h"
+
+class ODPacket;
 
 //! \brief Class to store the sound sources for an individual creature and handle sound playback.
 class CreatureSound

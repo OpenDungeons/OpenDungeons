@@ -19,7 +19,6 @@
 #define MISSILEOBJECT_H
 
 #include "MovableGameEntity.h"
-#include "ODPacket.h"
 
 #include <deque>
 #include <string>
@@ -27,6 +26,7 @@
 #include <OgreVector3.h>
 
 class GameMap;
+class ODPacket;
 
 //! \brief This class implements missile object launched by traps when they're triggered.
 class MissileObject: public MovableGameEntity

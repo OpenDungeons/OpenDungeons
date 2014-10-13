@@ -19,11 +19,12 @@
 #define ODSOCKETSERVER_H
 
 #include "ODSocketClient.h"
-#include "ODPacket.h"
 
 #include <SFML/Network.hpp>
 
 #include <string>
+
+class ODPacket;
 
 class ODSocketServer
 {

@@ -27,6 +27,7 @@ public:
     DirectionalTrap(GameMap* gameMap, int xdir, int ydir);
 
 protected:
+    DirectionalTrap(GameMap* gameMap);
     std::pair<int, int> mDir;
     std::pair<int, int> projectionOnBorder(int, int);
 };

@@ -18,6 +18,7 @@
 #include "Tile.h"
 
 #include "ODServer.h"
+#include "ODPacket.h"
 #include "ServerNotification.h"
 #include "Creature.h"
 #include "GameMap.h"

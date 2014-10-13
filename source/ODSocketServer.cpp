@@ -16,6 +16,7 @@
  */
 
 #include "ODSocketServer.h"
+#include "ODPacket.h"
 #include "Player.h"
 
 #include "LogManager.h"

@@ -17,6 +17,7 @@
 
 #include "Seat.h"
 
+#include "ODPacket.h"
 #include "Goal.h"
 #include "Helper.h"
 

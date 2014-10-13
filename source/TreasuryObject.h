@@ -19,7 +19,6 @@
 #define TREASURYOBJECT_H
 
 #include "RoomObject.h"
-#include "ODPacket.h"
 
 #include <string>
 #include <istream>
@@ -27,6 +26,7 @@
 
 class Room;
 class GameMap;
+class ODPacket;
 
 class TreasuryObject: public RoomObject
 {

@@ -20,11 +20,11 @@
 
 #include "ClientNotification.h"
 #include "ODSocketClient.h"
-#include "ODPacket.h"
 
 #include <OgreSingleton.h>
 
 class GameMap;
+class ODPacket;
 
 class ODClient: public Ogre::Singleton<ODClient>,
     public ODSocketClient

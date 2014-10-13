@@ -39,7 +39,7 @@ RoomPortal::RoomPortal(GameMap* gameMap) :
         mYCenter(0),
         mPortalObject(NULL)
 {
-    mType = portal;
+   setMeshName("Portal");
 }
 
 void RoomPortal::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)

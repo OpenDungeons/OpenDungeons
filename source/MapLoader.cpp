@@ -242,10 +242,20 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         if (nextParam == "[/Rooms]")
             break;
 
-        Room* tempRoom = Room::createRoomFromStream(&gameMap,nextParam, levelFile,
-            std::string());
+        if (nextParam != "[Room]")
+            return false;
 
+        Room* tempRoom = Room::getRoomFromStream(&gameMap, levelFile);
+        OD_ASSERT_TRUE(tempRoom != nullptr);
+        if(tempRoom == nullptr)
+            return false;
+
+        tempRoom->setName(gameMap.nextUniqueNameRoom(tempRoom->getMeshName()));
         gameMap.addRoom(tempRoom);
+
+        levelFile >> nextParam;
+        if (nextParam != "[/Room]")
+            return false;
     }
 
     // Read in the traps
@@ -266,11 +276,20 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         if (nextParam == "[/Traps]")
             break;
 
-        Trap* tempTrap = Trap::createTrapFromStream(&gameMap, nextParam, levelFile,
-            std::string());
-        tempTrap->createMesh();
+        if (nextParam != "[Trap]")
+            return false;
 
+        Trap* tempTrap = Trap::getTrapFromStream(&gameMap, levelFile);
+        OD_ASSERT_TRUE(tempTrap != nullptr);
+        if(tempTrap == nullptr)
+            return false;
+
+        tempTrap->setName(gameMap.nextUniqueNameTrap(tempTrap->getMeshName()));
         gameMap.addTrap(tempTrap);
+
+        levelFile >> nextParam;
+        if (nextParam != "[/Trap]")
+            return false;
     }
 
     // Read in the lights
@@ -484,8 +503,16 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     levelFile << "# " << Room::getFormat() << "\n";
     for (std::vector<Room*>::iterator it = rooms.begin(); it != rooms.end(); ++it)
     {
+        // Rooms with 0 tiles are removed during upkeep. In editor mode, we don't use upkeep so there might be some rooms with
+        // 0 tiles (if a room has been erased for example). For this reason, we don't save rooms with 0 tiles
         Room* room = *it;
-        levelFile << room;
+        if(room->getCoveredTiles().size() <= 0)
+            continue;
+
+        levelFile << "[Room]" << std::endl;
+        levelFile << room->getType() << "\t";
+        room->exportToStream(levelFile);
+        levelFile << "[/Room]" << std::endl;
     }
     levelFile << "[/Rooms]" << std::endl;
 
@@ -494,7 +521,16 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     levelFile << "# " << Trap::getFormat() << "\n";
     for (unsigned int i = 0; i < gameMap.numTraps(); ++i)
     {
-        levelFile << gameMap.getTrap(i);
+        // Traps with 0 tiles are removed during upkeep. In editor mode, we don't use upkeep so there might be some traps with
+        // 0 tiles (if a trap has been erased for example). For this reason, we don't save traps with 0 tiles
+        Trap* trap = gameMap.getTrap(i);
+        if(trap->getCoveredTiles().size() <= 0)
+            continue;
+
+        levelFile << "[Trap]" << std::endl;
+        levelFile << trap->getType() << "\t";
+        trap->exportToStream(levelFile);
+        levelFile << "[/Trap]" << std::endl;
     }
     levelFile << "[/Traps]" << std::endl;
 

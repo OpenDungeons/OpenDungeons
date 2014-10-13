@@ -16,6 +16,7 @@
  */
 
 #include "CreatureDefinition.h"
+#include "ODPacket.h"
 
 #include "Helper.h"
 

@@ -419,10 +419,6 @@ public:
     std::vector<Tile*> getBuildableTilesForPlayerInArea(int x1, int y1, int x2, int y2,
         Player* player);
     void markTilesForPlayer(std::vector<Tile*>& tiles, bool isDigSet, Player* player);
-    Room* buildRoomForPlayer(std::vector<Tile*>& tiles, Room::RoomType roomType, Player* player, bool forceName = false,
-        const std::string& name = "");
-    Trap* buildTrapForPlayer(std::vector<Tile*>& tiles, Trap::TrapType typeTrap, Player* player, bool forceName = false,
-        const std::string& name = "");
 
     int addGoldToSeat(int gold, int seatId);
 
@@ -460,6 +456,9 @@ public:
     //! \brief Deletes the entities that have been marked to delete. This function should only be called once the
     //! RenderManager has finished to render every object inside.
     void processDeletionQueues();
+
+    void fillBuildableTilesAndPriceForPlayerInArea(int x1, int y1, int x2, int y2,
+        Player* player, Room::RoomType type, std::vector<Tile*>& tiles, int& goldRequired);
 
     // FIXME: Needs to be private
     CullingManager* culm;

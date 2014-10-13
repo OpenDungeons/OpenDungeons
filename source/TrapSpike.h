@@ -25,6 +25,9 @@ class TrapSpike : public ProximityTrap
 public:
     TrapSpike(GameMap* gameMap);
 
+    virtual const TrapType getType() const
+    { return TrapType::spike; }
+
     virtual bool shoot(Tile* tile);
     virtual bool isAttackable() const
     {
