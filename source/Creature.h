@@ -325,12 +325,12 @@ private:
     bool            mHasVisualDebuggingEntities;
     double          mAwakeness;
     double          mHunger;
-    double          mMaxHP;
 
     //! \brief The level of the creature
     unsigned int    mLevel;
 
     double          mHp;
+    double          mMaxHP;
     double          mExp;
     double          mDigRate;
     double          mClaimRate;

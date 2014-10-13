@@ -81,9 +81,9 @@ Creature::Creature(GameMap* gameMap, CreatureDefinition* definition, bool forceN
     mHasVisualDebuggingEntities (false),
     mAwakeness               (100.0),
     mHunger                  (0.0),
-    mMaxHP                   (100.0),
     mLevel                   (1),
-    mHp                      (100.0),
+    mHp                      (10.0),
+    mMaxHP                   (10.0),
     mExp                     (0.0),
     mDigRate                 (1.0),
     mClaimRate               (1.0),
@@ -117,7 +117,7 @@ Creature::Creature(GameMap* gameMap, CreatureDefinition* definition, bool forceN
     setLevel(1);
     mExp = 0.0;
 
-    mMaxHP = mDefinition->getHpPerLevel();
+    mMaxHP = mDefinition->getMinHp();
     setHP(mMaxHP);
     mDigRate = mDefinition->getDigRate();
     mClaimRate = mDefinition->getClaimRate();
@@ -134,9 +134,9 @@ Creature::Creature(GameMap* gameMap) :
     mHasVisualDebuggingEntities (false),
     mAwakeness               (100.0),
     mHunger                  (0.0),
-    mMaxHP                   (100.0),
     mLevel                   (1),
-    mHp                      (100.0),
+    mHp                      (10.0),
+    mMaxHP                   (10.0),
     mExp                     (0.0),
     mDigRate                 (1.0),
     mClaimRate               (1.0),
@@ -569,10 +569,6 @@ void Creature::doUpkeep()
 
         mMaxHP += mDefinition->getHpPerLevel();
 
-        // Test the max HP/mana against their absolute class maximums
-        if (mMaxHP > mDefinition->getMaxHp())
-            mMaxHP = mDefinition->getMaxHp();
-
         if(getGameMap()->isServerGameMap())
         {
             try
@@ -592,15 +588,15 @@ void Creature::doUpkeep()
 
     // TODO : this is auto heal. It could be done on client side
     // Heal.
-    mHp += 0.1;
+    mHp += mDefinition->getHpHealPerTurn();
     if (mHp > getMaxHp())
         mHp = getMaxHp();
 
-    mAwakeness -= 0.15;
+    mAwakeness -= mDefinition->getAwakenessLostPerTurn();
     if (mAwakeness < 0.0)
         mAwakeness = 0.0;
 
-    mHunger += 0.15;
+    mHunger += mDefinition->getHungerGrowthPerTurn();
     if (mHunger > 100.0)
         mHunger = 100.0;
 
