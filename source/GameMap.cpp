@@ -426,6 +426,9 @@ void GameMap::addRoomObject(RoomObject *obj)
 {
     if(isServerGameMap())
     {
+        LogManager::getSingleton().logMessage("Adding rendered object " + obj->getName()
+            + ",MeshName=" + obj->getMeshName());
+
         try
         {
             RoomObject::RoomObjectType objType = obj->getRoomObjectType();

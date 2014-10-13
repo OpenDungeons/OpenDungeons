@@ -167,6 +167,7 @@ set(OD_SOURCEFILES
     ${SRC}/Building.cpp
     ${SRC}/CameraManager.cpp
     ${SRC}/ChatMessage.cpp
+    ${SRC}/ChickenEntity.cpp
     ${SRC}/ClientNotification.cpp
     ${SRC}/Console.cpp
     ${SRC}/Console_executePromptCommand.cpp

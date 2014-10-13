@@ -185,7 +185,7 @@ GameEntity* Player::dropHand(Tile *t, unsigned int index)
     else if(entity->getObjectType() == GameEntity::ObjectType::roomobject)
     {
         RoomObject* obj = static_cast<RoomObject*>(entity);
-        obj->setPosition(Ogre::Vector3(static_cast<Ogre::Real>(t->x),
+        obj->drop(Ogre::Vector3(static_cast<Ogre::Real>(t->x),
             static_cast<Ogre::Real>(t->y), 0.0));
     }
 

@@ -22,6 +22,7 @@
 #include "GameMap.h"
 #include "RenderManager.h"
 #include "TreasuryObject.h"
+#include "ChickenEntity.h"
 #include "LogManager.h"
 
 #include <iostream>
@@ -90,12 +91,13 @@ void RoomObject::deleteYourselfLocal()
 void RoomObject::pickup()
 {
     mIsOnMap = false;
+    clearDestinations();
 }
 
-void RoomObject::setPosition(const Ogre::Vector3& v)
+void RoomObject::drop(const Ogre::Vector3& v)
 {
-    MovableGameEntity::setPosition(v);
     mIsOnMap = true;
+    setPosition(v);
 }
 
 const char* RoomObject::getFormat()
@@ -147,6 +149,11 @@ RoomObject* RoomObject::getRoomObjectFromPacket(GameMap* gameMap, ODPacket& is)
         case RoomObjectType::treasuryObject:
         {
              obj = TreasuryObject::getTreasuryObjectFromPacket(gameMap, is);
+            break;
+        }
+        case RoomObjectType::chickenEntity:
+        {
+             obj = ChickenEntity::getChickenEntityFromPacket(gameMap, is);
             break;
         }
         default:

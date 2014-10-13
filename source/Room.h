@@ -133,7 +133,6 @@ protected:
     //! \brief The number of active spots.
     unsigned int mNumActiveSpots;
 
-protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
     virtual void deleteYourselfLocal();

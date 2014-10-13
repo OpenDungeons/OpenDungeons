@@ -37,6 +37,7 @@ class GameMap;
 class CreatureDefinition;
 class Trap;
 class TreasuryObject;
+class ChickenEntity;
 class ODPacket;
 
 /*! \brief The tile class contains information about tile type and contents and is the basic level bulding block.
@@ -295,6 +296,11 @@ public:
     //! with allies with the given seat.
     void fillAttackableObjects(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
 
+    bool addChickenEntity(ChickenEntity* chicken);
+    bool removeChickenEntity(ChickenEntity* chicken);
+    const std::vector<ChickenEntity*>& getChickenEntities()
+    { return mChickens; }
+
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
@@ -320,6 +326,11 @@ private:
     std::vector<Tile*> neighbors;
     std::vector<Creature*> creaturesInCell;
     std::vector<Player*> playersMarkingTile;
+
+    /*! \brief List of the chickens actually on this tile. It is handled by the chickens
+     * themselves and should not be deleted by the tile
+     */
+    std::vector<ChickenEntity*> mChickens;
     Room* coveringRoom;
     Trap* coveringTrap;
     MapLight* claimLight;

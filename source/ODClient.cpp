@@ -448,10 +448,10 @@ bool ODClient::processOneClientSocketMessage()
             OD_ASSERT_TRUE(packetReceived >> objName >> moveSpeed);
             MovableGameEntity *obj = gameMap->getAnimatedObject(objName);
             OD_ASSERT_TRUE_MSG(obj != NULL, "objName=" + objName + ", moveSpeed=" + Ogre::StringConverter::toString(moveSpeed));
-            if (obj != NULL)
-            {
-                obj->setMoveSpeed(moveSpeed);
-            }
+            if (obj == nullptr)
+                break;
+
+            obj->setMoveSpeed(moveSpeed);
             break;
         }
 

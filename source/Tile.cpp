@@ -1356,6 +1356,38 @@ void Tile::removeTreasuryObject(TreasuryObject* object)
     }
 }
 
+bool Tile::addChickenEntity(ChickenEntity* chicken)
+{
+    // Chickens are handled on server side only
+    if(!getGameMap()->isServerGameMap())
+        return true;
+
+    std::vector<ChickenEntity*>::iterator it = std::find(mChickens.begin(), mChickens.end(), chicken);
+    if(it == mChickens.end())
+    {
+        mChickens.push_back(chicken);
+        return true;
+    }
+
+    return false;
+}
+
+bool Tile::removeChickenEntity(ChickenEntity* chicken)
+{
+    // Chickens are handled on server side only
+    if(!getGameMap()->isServerGameMap())
+        return true;
+
+    std::vector<ChickenEntity*>::iterator it = std::find(mChickens.begin(), mChickens.end(), chicken);
+    if(it != mChickens.end())
+    {
+        mChickens.erase(it);
+        return true;
+    }
+
+    return false;
+}
+
 std::string Tile::displayAsString(Tile* tile)
 {
     return "[" + Ogre::StringConverter::toString(tile->x) + ","

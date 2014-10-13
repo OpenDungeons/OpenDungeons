@@ -36,7 +36,8 @@ public:
     enum RoomObjectType
     {
         roomObject,
-        treasuryObject
+        treasuryObject,
+        chickenEntity
     };
     //! \brief Creates a room object. It's name is built from baseName and some unique id from the gamemap.
     //! We use baseName to help understand what's this object for when getting a log
@@ -79,7 +80,7 @@ public:
     { return false; }
 
     virtual void pickup();
-    virtual void setPosition(const Ogre::Vector3& v);
+    virtual void drop(const Ogre::Vector3& v);
 
     virtual void exportToPacket(ODPacket& packet);
 

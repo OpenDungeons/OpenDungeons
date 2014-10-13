@@ -31,10 +31,6 @@ void Building::addRoomObject(Tile* targetTile, RoomObject* roomObject)
     if(roomObject == NULL)
         return;
 
-    LogManager::getSingleton().logMessage("Adding game object " + roomObject->getName()
-        + ",Building=" + getName() + ",MeshName=" + roomObject->getMeshName()
-        + ",tile=" + Tile::displayAsString(targetTile));
-
     Ogre::Vector3 objPos(static_cast<Ogre::Real>(targetTile->x), static_cast<Ogre::Real>(targetTile->y), 0);
     roomObject->setPosition(objPos);
     mRoomObjects[targetTile] = roomObject;
@@ -116,7 +112,13 @@ RoomObject* Building::loadRoomObject(GameMap* gameMap, const std::string& meshNa
 RoomObject* Building::loadRoomObject(GameMap* gameMap, const std::string& meshName,
     Tile* targetTile, double x, double y, double rotationAngle)
 {
-    RoomObject* tempRoomObject = new RoomObject(gameMap, getName(), meshName,
+    std::string baseName;
+    if(targetTile == nullptr)
+        baseName = getName();
+    else
+        baseName = getName() + "_" + Tile::displayAsString(targetTile);
+
+    RoomObject* tempRoomObject = new RoomObject(gameMap, baseName, meshName,
         static_cast<Ogre::Real>(rotationAngle));
     tempRoomObject->setPosition(Ogre::Vector3((Ogre::Real)x, (Ogre::Real)y, 0.0f));
 
