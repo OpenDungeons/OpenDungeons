@@ -47,8 +47,11 @@ public:
             double                  sightRadius = 15.0,
             double                  digRate     = 10.0,
             double                  danceRate   = 0.35,
+            double                  minHP       = 1.0,
             double                  hpPerLevel  = 5.0,
-            double                  maxHP       = 100.0,
+            double                  hpHealPerTurn = 0.1,
+            double                  awakenessLostPerTurn = 0.1,
+            double                  hungerGrowthPerTurn = 0.1,
             double                  moveSpeedGround     = 1.0,
             double                  moveSpeedWater      = 0.0,
             double                  moveSpeedLava       = 0.0) :
@@ -62,8 +65,11 @@ public:
         mSightRadius (sightRadius),
         mDigRate     (digRate),
         mClaimRate   (danceRate),
+        mMinHP       (minHP),
         mHpPerLevel  (hpPerLevel),
-        mMaxHP       (maxHP),
+        mHpHealPerTurn      (hpHealPerTurn),
+        mAwakenessLostPerTurn(awakenessLostPerTurn),
+        mHungerGrowthPerTurn(hungerGrowthPerTurn),
         mMoveSpeedGround    (moveSpeedGround),
         mMoveSpeedWater     (moveSpeedWater),
         mMoveSpeedLava      (moveSpeedLava)
@@ -89,8 +95,11 @@ public:
     inline const std::string&   getClassName    () const    { return mClassName; }
     inline double               getClaimRate    () const    { return mClaimRate; }
     inline double               getDigRate      () const    { return mDigRate; }
+    inline double               getMinHp        () const    { return mMinHP; }
     inline double               getHpPerLevel   () const    { return mHpPerLevel; }
-    inline double               getMaxHp        () const    { return mMaxHP; }
+    inline double               getHpHealPerTurn() const    { return mHpHealPerTurn; }
+    inline double               getAwakenessLostPerTurn() const{ return mAwakenessLostPerTurn; }
+    inline double               getHungerGrowthPerTurn() const { return mHungerGrowthPerTurn; }
     inline const std::string&   getMeshName     () const    { return mMeshName; }
     inline double               getMoveSpeedGround  () const    { return mMoveSpeedGround; }
     inline double               getMoveSpeedWater   () const    { return mMoveSpeedWater; }
@@ -129,11 +138,20 @@ private:
     //! \brief How quick a worker can claim a ground or wall tile.
     double mClaimRate;
 
+    //! \brief The minimum HP the creature can ever have
+    double mMinHP;
+
     //! \brief How much HP the creature gets per level up
     double mHpPerLevel;
 
-    //! \brief The maximum HP the creature can ever have
-    double mMaxHP;
+    //! \brief How much HP are healed per turn.
+    double mHpHealPerTurn;
+
+    //! \brief How much awakeness is lost per turn.
+    double mAwakenessLostPerTurn;
+
+    //! \brief How fast hunger grows per turn.
+    double mHungerGrowthPerTurn;
 
     //! \brief How fast the creature moves (0 -> The creature cannot go through corresponding tile)
     double mMoveSpeedGround;

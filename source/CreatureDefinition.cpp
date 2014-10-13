@@ -50,8 +50,11 @@ ODPacket& operator<<(ODPacket& os, CreatureDefinition* c)
        << c->mMeshName;
     os << c->mBedMeshName << c->mBedDim1 << c->mBedDim2;
     os << c->mScale.x << c->mScale.y << c->mScale.z;
+    os << c->mMinHP;
     os << c->mHpPerLevel;
-    os << c->mMaxHP;
+    os << c->mHpHealPerTurn;
+    os << c->mAwakenessLostPerTurn;
+    os << c->mHungerGrowthPerTurn;
     os << c->mSightRadius << c->mDigRate << c->mClaimRate
        << c->mMoveSpeedGround << c->mMoveSpeedWater << c->mMoveSpeedLava;
     return os;
@@ -65,7 +68,8 @@ ODPacket& operator>>(ODPacket& is, CreatureDefinition* c)
     is >> c->mMeshName;
     is >> c->mBedMeshName >> c->mBedDim1 >> c->mBedDim2;
     is >> c->mScale.x >> c->mScale.y >> c->mScale.z;
-    is >> c->mHpPerLevel >> c->mMaxHP;
+    is >> c->mMinHP >> c->mHpPerLevel >> c->mHpHealPerTurn;
+    is >> c->mAwakenessLostPerTurn >> c->mHungerGrowthPerTurn;
     is >> c->mSightRadius >> c->mDigRate >> c->mClaimRate;
     is >> c->mMoveSpeedGround >> c->mMoveSpeedWater >> c->mMoveSpeedLava;
 
@@ -169,16 +173,34 @@ CreatureDefinition* CreatureDefinition::load(std::stringstream& defFile)
                 creatureDef->mBedDim2 = Helper::toInt(nextParam);
                 continue;
             }
+            else if (nextParam == "MinHP")
+            {
+                defFile >> nextParam;
+                creatureDef->mMinHP = Helper::toDouble(nextParam);
+                continue;
+            }
             else if (nextParam == "HP/Level")
             {
                 defFile >> nextParam;
                 creatureDef->mHpPerLevel = Helper::toDouble(nextParam);
                 continue;
             }
-            else if (nextParam == "MaxHP")
+            else if (nextParam == "Heal/Turn")
             {
                 defFile >> nextParam;
-                creatureDef->mMaxHP = Helper::toDouble(nextParam);
+                creatureDef->mHpHealPerTurn = Helper::toDouble(nextParam);
+                continue;
+            }
+            else if (nextParam == "AwakenessLost/Turn")
+            {
+                defFile >> nextParam;
+                creatureDef->mAwakenessLostPerTurn = Helper::toDouble(nextParam);
+                continue;
+            }
+            else if (nextParam == "HungerGrowth/Turn")
+            {
+                defFile >> nextParam;
+                creatureDef->mHungerGrowthPerTurn = Helper::toDouble(nextParam);
                 continue;
             }
             else if (nextParam == "TileSightRadius")
