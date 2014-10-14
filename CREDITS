@@ -105,6 +105,7 @@ textures/
 -> Grindstone.png                      Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
 -> Hammock.png                         Luke.RUSTLTD, Nobiax    CC0                     http://forum.freegamedev.net/viewtopic.php?p=59983#p59983
 -> Lamp.png                            Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?
+-> LizardmanBed.png                    Nobiax, public domain   CC0                     http://forum.freegamedev.net/viewtopic.php?p=60197#p60197
 -> Obsidian.png                        Reiner Flassig          CC-BY-SA/DE 2.0         Obsidian photo source - http://de.wikipedia.org/w/index.php?title=Datei:Obsi.jpg&filetimestamp=20070905143430
 -> OrcBed.png                          Bart, p0ss              CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=60191#p60191
 -> slimeDiffuse.png                    Grefuntor               CC-BY 3.0, CC-BY-SA 3.0, GPL 2.0+ - http://opengameart.org/content/slime-mold
@@ -169,6 +170,7 @@ Lamp.mesh                              Danimal                 CC-BY-SA 3.0     
 Lava*[0-9].mesh                        Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Library.mesh                           Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
 Lizardman.*                            Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
+LizardmanBed.png                       Eugeneloza              CC0                     http://forum.freegamedev.net/viewtopic.php?p=60197#p60197
 Longsword.mesh                         Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
 mini_wood_barrel.mesh                  Nobiax/yughues          CC0
 Orc.*                                  Skorpio                 CC-BY-SA 3.0, GPL 3.0
