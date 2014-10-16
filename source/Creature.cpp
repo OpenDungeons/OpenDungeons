@@ -1702,7 +1702,7 @@ bool Creature::handleDepositGoldAction()
     mGold = 0;
     Ogre::Vector3 pos(static_cast<Ogre::Real>(tile->x), static_cast<Ogre::Real>(tile->y), 0.0f);
     obj->setPosition(pos);
-    getGameMap()->addRoomObject(obj);
+    getGameMap()->addRenderedMovableEntity(obj);
 
     return true;
 }

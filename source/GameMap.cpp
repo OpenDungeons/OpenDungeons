@@ -44,7 +44,7 @@
 #include "CullingManager.h"
 #include "RoomDungeonTemple.h"
 #include "RoomTreasury.h"
-#include "RoomObject.h"
+#include "RenderedMovableEntity.h"
 #include "Goal.h"
 
 #include <OgreTimer.h>
@@ -215,8 +215,8 @@ void GameMap::clearAll()
 
     clearMapLights();
     clearRooms();
-    // NOTE : clearRoomObjects should be called after clearRooms because clearRooms will try to remove the objects from the room
-    clearRoomObjects();
+    // NOTE : clearRenderedMovableEntities should be called after clearRooms because clearRooms will try to remove the objects from the room
+    clearRenderedMovableEntities();
     clearTiles();
 
     clearActiveObjects();
@@ -254,17 +254,17 @@ void GameMap::clearClasses()
     classDescriptions.clear();
 }
 
-void GameMap::clearRoomObjects()
+void GameMap::clearRenderedMovableEntities()
 {
-    for (std::vector<RoomObject*>::iterator it = mRoomObjects.begin(); it != mRoomObjects.end(); ++it)
+    for (std::vector<RenderedMovableEntity*>::iterator it = mRenderedMovableEntities.begin(); it != mRenderedMovableEntities.end(); ++it)
     {
-        RoomObject* obj = *it;
+        RenderedMovableEntity* obj = *it;
         removeActiveObject(obj);
         removeAnimatedObject(obj);
         obj->deleteYourself();
     }
 
-    mRoomObjects.clear();
+    mRenderedMovableEntities.clear();
 }
 
 void GameMap::clearActiveObjects()
@@ -422,7 +422,7 @@ MovableGameEntity* GameMap::getAnimatedObject(const std::string& name)
     return NULL;
 }
 
-void GameMap::addRoomObject(RoomObject *obj)
+void GameMap::addRenderedMovableEntity(RenderedMovableEntity *obj)
 {
     if(isServerGameMap())
     {
@@ -431,9 +431,9 @@ void GameMap::addRoomObject(RoomObject *obj)
 
         try
         {
-            RoomObject::RoomObjectType objType = obj->getRoomObjectType();
+            RenderedMovableEntity::RenderedMovableEntityType objType = obj->getRenderedMovableEntityType();
             ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::addRoomObject, NULL);
+                ServerNotification::addRenderedMovableEntity, NULL);
             serverNotification->mPacket << objType;
             obj->exportToPacket(serverNotification->mPacket);
             ODServer::getSingleton().queueServerNotification(serverNotification);
@@ -444,33 +444,33 @@ void GameMap::addRoomObject(RoomObject *obj)
             exit(1);
         }
     }
-    mRoomObjects.push_back(obj);
+    mRenderedMovableEntities.push_back(obj);
     addActiveObject(obj);
     addAnimatedObject(obj);
 }
 
-void GameMap::removeRoomObject(RoomObject *obj)
+void GameMap::removeRenderedMovableEntity(RenderedMovableEntity *obj)
 {
-    std::vector<RoomObject*>::iterator it = std::find(mRoomObjects.begin(), mRoomObjects.end(), obj);
-    OD_ASSERT_TRUE_MSG(it != mRoomObjects.end(), "obj name=" + obj->getName());
-    if(it == mRoomObjects.end())
+    std::vector<RenderedMovableEntity*>::iterator it = std::find(mRenderedMovableEntities.begin(), mRenderedMovableEntities.end(), obj);
+    OD_ASSERT_TRUE_MSG(it != mRenderedMovableEntities.end(), "obj name=" + obj->getName());
+    if(it == mRenderedMovableEntities.end())
         return;
 
-    mRoomObjects.erase(it);
+    mRenderedMovableEntities.erase(it);
 
     if(isServerGameMap())
     {
         try
         {
             ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::removeRoomObject, NULL);
+                ServerNotification::removeRenderedMovableEntity, NULL);
             const std::string& name = obj->getName();
             serverNotification->mPacket << name;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)
         {
-            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in Room::removeRoomObject", Ogre::LML_CRITICAL);
+            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in Room::removeRenderedMovableEntity", Ogre::LML_CRITICAL);
             exit(1);
         }
     }
@@ -478,11 +478,11 @@ void GameMap::removeRoomObject(RoomObject *obj)
     removeActiveObject(obj);
 }
 
-RoomObject* GameMap::getRoomObject(const std::string& name)
+RenderedMovableEntity* GameMap::getRenderedMovableEntity(const std::string& name)
 {
-    for(std::vector<RoomObject*>::iterator it = mRoomObjects.begin(); it != mRoomObjects.end(); ++it)
+    for(std::vector<RenderedMovableEntity*>::iterator it = mRenderedMovableEntities.begin(); it != mRenderedMovableEntities.end(); ++it)
     {
-        RoomObject* obj = *it;
+        RenderedMovableEntity* obj = *it;
         if(name.compare(obj->getName()) == 0)
             return obj;
     }
@@ -1500,7 +1500,7 @@ void GameMap::clearRooms()
     {
         Room *tempRoom = getRoom(i);
         removeActiveObject(tempRoom);
-        tempRoom->removeAllRoomObject();
+        tempRoom->removeAllBuildingObjects();
         tempRoom->deleteYourself();
     }
 
@@ -1534,7 +1534,7 @@ void GameMap::removeRoom(Room *r)
         if (r == rooms[i])
         {
             //TODO:  Loop over the tiles and make any whose coveringRoom variable points to this room point to NULL.
-            r->removeAllRoomObject();
+            r->removeAllBuildingObjects();
             rooms.erase(rooms.begin() + i);
             break;
         }
@@ -2614,7 +2614,7 @@ std::string GameMap::nextUniqueNameRoomObj(const std::string& baseName)
     do
     {
         ++mUniqueNumberRoomObj;
-        ret = RoomObject::ROOMOBJECT_PREFIX + baseName + "_" + Ogre::StringConverter::toString(mUniqueNumberRoomObj);
+        ret = RenderedMovableEntity::RENDEREDMOVABLEENTITY_PREFIX + baseName + "_" + Ogre::StringConverter::toString(mUniqueNumberRoomObj);
     } while(getAnimatedObject(ret) != NULL);
     return ret;
 }

@@ -68,17 +68,17 @@ public:
     }
 
 private:
-    //! \brief Room object position.
+    //! \brief Building object position.
     double mX;
     double mY;
 
     //! \brief Rotation of the model
     double mRotation;
 
-    //! \brief Creature owning the bed room object
+    //! \brief Creature owning the bed
     Creature* mCreature;
 
-    //! \brief The tile owning the room object.
+    //! \brief The tile owning the bed
     Tile* mCentralTile;
 
     //! \brief The list of tiles taken by the object
@@ -112,14 +112,14 @@ protected:
 private:
     bool tileCanAcceptBed(Tile *tile, int xDim, int yDim);
 
-    //! \brief Keeps track of the tiles taken by a creature bed room object
+    //! \brief Keeps track of the tiles taken by a creature bed
     std::map<Tile*, Creature*> mCreatureSleepingInTile;
 
     bool installBed(Tile* t, Creature* c, double xDim, double yDim,
         double rotationAngle);
     bool removeBed(Tile *t, Creature *c);
 
-    //! \brief Keeps track of info about the bed room objects in order to be able
+    //! \brief Keeps track of info about the beds in order to be able
     //! to recreate them.
     std::vector<BedRoomObjectInfo> mBedRoomObjectsInfo;
 };

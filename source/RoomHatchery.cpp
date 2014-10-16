@@ -16,7 +16,6 @@
  */
 
 #include "RoomHatchery.h"
-
 #include "Tile.h"
 #include "GameMap.h"
 #include "ChickenEntity.h"
@@ -33,11 +32,11 @@ RoomHatchery::RoomHatchery(GameMap* gameMap) :
     setMeshName("Farm");
 }
 
-RoomObject* RoomHatchery::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
+RenderedMovableEntity* RoomHatchery::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
 {
     // We add chicken coops on center tiles only
     if(place == ActiveSpotPlace::activeSpotCenter)
-        return loadRoomObject(getGameMap(), "ChickenCoop", tile, 0.0);
+        return loadBuildingObject(getGameMap(), "ChickenCoop", tile, 0.0);
 
     return NULL;
 }
@@ -47,7 +46,7 @@ void RoomHatchery::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
     if(place == ActiveSpotPlace::activeSpotCenter)
     {
         // We remove the chicken coop
-        removeRoomObject(tile);
+        removeBuildingObject(tile);
     }
 }
 
@@ -83,7 +82,7 @@ void RoomHatchery::doUpkeep()
             Ogre::Vector3 pos(static_cast<Ogre::Real>(tile->x), static_cast<Ogre::Real>(tile->y), 0.0f);
             chicken->setPosition(pos);
             tile->addChickenEntity(chicken);
-            getGameMap()->addRoomObject(chicken);
+            getGameMap()->addRenderedMovableEntity(chicken);
             chicken->setMoveSpeed(CHICKEN_SPEED);
             mSpawnChickenCooldown = 0;
         }

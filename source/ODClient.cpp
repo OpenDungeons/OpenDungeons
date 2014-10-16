@@ -32,7 +32,7 @@
 #include "RoomTreasury.h"
 #include "MissileObject.h"
 #include "TreasuryObject.h"
-#include "RoomObject.h"
+#include "RenderedMovableEntity.h"
 #include "LogManager.h"
 #include "ModeManager.h"
 #include "MusicPlayer.h"
@@ -380,9 +380,9 @@ bool ODClient::processOneClientSocketMessage()
                     entity = gameMap->getCreature(entityName);
                     break;
                 }
-                case GameEntity::ObjectType::roomobject:
+                case GameEntity::ObjectType::renderedMovableEntity:
                 {
-                    entity = gameMap->getRoomObject(entityName);
+                    entity = gameMap->getRenderedMovableEntity(entityName);
                     break;
                 }
                 default:
@@ -669,23 +669,23 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::addRoomObject:
+        case ServerNotification::addRenderedMovableEntity:
         {
-            RoomObject* tempRoomObject = RoomObject::getRoomObjectFromPacket(gameMap, packetReceived);
-            OD_ASSERT_TRUE(tempRoomObject != nullptr);
-            gameMap->addRoomObject(tempRoomObject);
-            tempRoomObject->createMesh();
+            RenderedMovableEntity* tempRenderedMovableEntity = RenderedMovableEntity::getRenderedMovableEntityFromPacket(gameMap, packetReceived);
+            OD_ASSERT_TRUE(tempRenderedMovableEntity != nullptr);
+            gameMap->addRenderedMovableEntity(tempRenderedMovableEntity);
+            tempRenderedMovableEntity->createMesh();
             break;
         }
 
-        case ServerNotification::removeRoomObject:
+        case ServerNotification::removeRenderedMovableEntity:
         {
             std::string name;
             OD_ASSERT_TRUE(packetReceived >> name);
-            RoomObject* tempRoomObject = gameMap->getRoomObject(name);
-            OD_ASSERT_TRUE_MSG(tempRoomObject != NULL, "name=" + name);
-            gameMap->removeRoomObject(tempRoomObject);
-            tempRoomObject->deleteYourself();
+            RenderedMovableEntity* tempRenderedMovableEntity = gameMap->getRenderedMovableEntity(name);
+            OD_ASSERT_TRUE_MSG(tempRenderedMovableEntity != NULL, "name=" + name);
+            gameMap->removeRenderedMovableEntity(tempRenderedMovableEntity);
+            tempRenderedMovableEntity->deleteYourself();
             break;
         }
 

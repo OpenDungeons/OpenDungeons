@@ -25,7 +25,7 @@
 #include "RenderRequest.h"
 #include "ODServer.h"
 #include "Room.h"
-#include "RoomObject.h"
+#include "RenderedMovableEntity.h"
 #include "MapLight.h"
 #include "Creature.h"
 #include "Weapon.h"
@@ -203,12 +203,12 @@ bool RenderManager::handleRenderRequest(const RenderRequest& renderRequest)
         rrDestroyRoom(renderRequest);
         break;
 
-    case RenderRequest::createRoomObject:
-        rrCreateRoomObject(renderRequest);
+    case RenderRequest::createRenderedMovableEntity:
+        rrCreateRenderedMovableEntity(renderRequest);
         break;
 
-    case RenderRequest::destroyRoomObject:
-        rrDestroyRoomObject(renderRequest);
+    case RenderRequest::destroyRenderedMovableEntity:
+        rrDestroyRenderedMovableEntity(renderRequest);
         break;
 
     case RenderRequest::createTrap:
@@ -240,10 +240,10 @@ bool RenderManager::handleRenderRequest(const RenderRequest& renderRequest)
         break;
     }
 
-    case RenderRequest::deleteRoomObject:
+    case RenderRequest::deleteRenderedMovableEntity:
     {
-        RoomObject* curRoomObject = static_cast<RoomObject*>(renderRequest.p);
-        delete curRoomObject;
+        RenderedMovableEntity* curRenderedMovableEntity = static_cast<RenderedMovableEntity*>(renderRequest.p);
+        delete curRenderedMovableEntity;
         break;
     }
 
@@ -676,28 +676,28 @@ void RenderManager::rrDestroyRoom(const RenderRequest& renderRequest)
     mSceneManager->destroySceneNode(node->getName());
 }
 
-void RenderManager::rrCreateRoomObject(const RenderRequest& renderRequest)
+void RenderManager::rrCreateRenderedMovableEntity(const RenderRequest& renderRequest)
 {
-    RoomObject* curRoomObject = static_cast<RoomObject*> (renderRequest.p);
+    RenderedMovableEntity* curRenderedMovableEntity = static_cast<RenderedMovableEntity*> (renderRequest.p);
     std::string name = renderRequest.str;
     std::string meshName = renderRequest.str2;
-    std::string tempString = curRoomObject->getOgreNamePrefix() + name;
+    std::string tempString = curRenderedMovableEntity->getOgreNamePrefix() + name;
 
     Ogre::Entity* ent = mSceneManager->createEntity(tempString, meshName + ".mesh");
     Ogre::SceneNode* node = mRoomSceneNode->createChildSceneNode(tempString + "_node");
 
-    node->setPosition(curRoomObject->getPosition());
+    node->setPosition(curRenderedMovableEntity->getPosition());
     node->setScale(Ogre::Vector3(0.7, 0.7, 0.7));
-    node->roll(Ogre::Degree(curRoomObject->getRotationAngle()));
+    node->roll(Ogre::Degree(curRenderedMovableEntity->getRotationAngle()));
     node->attachObject(ent);
 }
 
-void RenderManager::rrDestroyRoomObject(const RenderRequest& renderRequest)
+void RenderManager::rrDestroyRenderedMovableEntity(const RenderRequest& renderRequest)
 {
-    RoomObject* curRoomObject = static_cast<RoomObject*> (renderRequest.p);
+    RenderedMovableEntity* curRenderedMovableEntity = static_cast<RenderedMovableEntity*> (renderRequest.p);
 
-    std::string tempString = curRoomObject->getOgreNamePrefix()
-                             + curRoomObject->getName();
+    std::string tempString = curRenderedMovableEntity->getOgreNamePrefix()
+                             + curRenderedMovableEntity->getName();
     Ogre::Entity* ent = mSceneManager->getEntity(tempString);
     Ogre::SceneNode* node = mSceneManager->getSceneNode(tempString + "_node");
     node->detachObject(ent);
@@ -976,7 +976,7 @@ void RenderManager::rrPickUpEntity(const RenderRequest& renderRequest)
     {
         mCreatureSceneNode->removeChild(curEntityNode);
     }
-    else if(curEntity->getObjectType() == GameEntity::ObjectType::roomobject)
+    else if(curEntity->getObjectType() == GameEntity::ObjectType::renderedMovableEntity)
     {
         mRoomSceneNode->removeChild(curEntityNode);
     }
@@ -1011,7 +1011,7 @@ void RenderManager::rrDropHand(const RenderRequest& renderRequest)
     {
         mCreatureSceneNode->addChild(curEntityNode);
     }
-    else if(curEntity->getObjectType() == GameEntity::ObjectType::roomobject)
+    else if(curEntity->getObjectType() == GameEntity::ObjectType::renderedMovableEntity)
     {
         mRoomSceneNode->addChild(curEntityNode);
     }

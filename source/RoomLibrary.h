@@ -29,7 +29,7 @@ public:
     { return RoomType::library; }
 
 protected:
-    virtual RoomObject* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
+    virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
 };
 
 #endif // ROOMLIBRARY_H

@@ -26,7 +26,7 @@
 #include <iostream>
 
 class Seat;
-class RoomObject;
+class RenderedMovableEntity;
 class GameMap;
 class ODPacket;
 
@@ -68,8 +68,8 @@ public:
     virtual void exportToStream(std::ostream& os);
     virtual void exportToPacket(ODPacket& packet);
 
-    void createRoomObjectMeshes();
-    void destroyRoomObjectMeshes();
+    void createBuildingObjectMeshes();
+    void destroyBuildingObjectMeshes();
 
     virtual RoomType getType() const = 0;
 
@@ -136,7 +136,7 @@ protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
     virtual void deleteYourselfLocal();
-    virtual RoomObject* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
+    virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
     virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);
 private :
     void activeSpotCheckChange(ActiveSpotPlace place, const std::vector<Tile*>& originalSpotTiles,

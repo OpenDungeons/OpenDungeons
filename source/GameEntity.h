@@ -57,7 +57,7 @@ class GameEntity
   public:
     enum ObjectType
     {
-        unknown, creature, room, trap, weapon, roomobject, missileobject, tile
+        unknown, creature, room, trap, weapon, renderedMovableEntity, missileobject, tile
     };
 
     //! \brief Default constructor with default values

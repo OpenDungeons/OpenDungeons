@@ -443,10 +443,10 @@ public:
     std::string nextUniqueNameTrap(const std::string& meshName);
     std::string nextUniqueNameMapLight();
 
-    void addRoomObject(RoomObject *obj);
-    void removeRoomObject(RoomObject *obj);
-    RoomObject* getRoomObject(const std::string& name);
-    void clearRoomObjects();
+    void addRenderedMovableEntity(RenderedMovableEntity *obj);
+    void removeRenderedMovableEntity(RenderedMovableEntity *obj);
+    RenderedMovableEntity* getRenderedMovableEntity(const std::string& name);
+    void clearRenderedMovableEntities();
     void clearActiveObjects();
 
     //! \brief Tells the game map a given player is attacking or under attack.
@@ -539,7 +539,7 @@ private:
 
     TileCoordinateMap* tileCoordinateMap;
 
-    std::vector<RoomObject*> mRoomObjects;
+    std::vector<RenderedMovableEntity*> mRenderedMovableEntities;
 
     //! AI Handling manager
     AIManager aiManager;

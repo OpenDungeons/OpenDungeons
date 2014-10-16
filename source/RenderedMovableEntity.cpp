@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "RoomObject.h"
+#include "RenderedMovableEntity.h"
 
 #include "ODPacket.h"
 #include "RenderRequest.h"
@@ -27,28 +27,28 @@
 
 #include <iostream>
 
-const std::string RoomObject::ROOMOBJECT_PREFIX = "Room_Object_";
-const std::string RoomObject::ROOMOBJECT_OGRE_PREFIX = "RoomObject_";
+const std::string RenderedMovableEntity::RENDEREDMOVABLEENTITY_PREFIX = "RenderedMovableEntity_";
+const std::string RenderedMovableEntity::RENDEREDMOVABLEENTITY_OGRE_PREFIX = "OgreRenderedMovableEntity_";
 
-RoomObject::RoomObject(GameMap* gameMap, const std::string& baseName, const std::string& nMeshName, Ogre::Real rotationAngle) :
+RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap, const std::string& baseName, const std::string& nMeshName, Ogre::Real rotationAngle) :
     MovableGameEntity(gameMap),
     mRotationAngle(rotationAngle),
     mIsOnMap(true)
 {
-    setObjectType(GameEntity::roomobject);
+    setObjectType(GameEntity::renderedMovableEntity);
     setMeshName(nMeshName);
     // Set a unique name for the object
     setName(gameMap->nextUniqueNameRoomObj(baseName));
 }
 
-RoomObject::RoomObject(GameMap* gameMap) :
+RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap) :
     MovableGameEntity(gameMap),
     mIsOnMap(true)
 {
-    setObjectType(GameEntity::roomobject);
+    setObjectType(GameEntity::renderedMovableEntity);
 }
 
-void RoomObject::createMeshLocal()
+void RenderedMovableEntity::createMeshLocal()
 {
     MovableGameEntity::createMeshLocal();
 
@@ -56,14 +56,14 @@ void RoomObject::createMeshLocal()
         return;
 
     RenderRequest* request = new RenderRequest;
-    request->type   = RenderRequest::createRoomObject;
+    request->type   = RenderRequest::createRenderedMovableEntity;
     request->str    = getName();
     request->str2   = getMeshName();
     request->p      = static_cast<void*>(this);
     RenderManager::queueRenderRequest(request);
 }
 
-void RoomObject::destroyMeshLocal()
+void RenderedMovableEntity::destroyMeshLocal()
 {
     MovableGameEntity::destroyMeshLocal();
 
@@ -71,54 +71,54 @@ void RoomObject::destroyMeshLocal()
         return;
 
     RenderRequest* request = new RenderRequest;
-    request->type   = RenderRequest::destroyRoomObject;
+    request->type   = RenderRequest::destroyRenderedMovableEntity;
     request->p      = static_cast<void*>(this);
     RenderManager::queueRenderRequest(request);
 }
 
-void RoomObject::deleteYourselfLocal()
+void RenderedMovableEntity::deleteYourselfLocal()
 {
     MovableGameEntity::deleteYourselfLocal();
     if(getGameMap()->isServerGameMap())
         return;
 
     RenderRequest* request = new RenderRequest;
-    request->type   = RenderRequest::deleteRoomObject;
+    request->type   = RenderRequest::deleteRenderedMovableEntity;
     request->p      = static_cast<void*>(this);
     RenderManager::queueRenderRequest(request);
 }
 
-void RoomObject::pickup()
+void RenderedMovableEntity::pickup()
 {
     mIsOnMap = false;
     clearDestinations();
 }
 
-void RoomObject::drop(const Ogre::Vector3& v)
+void RenderedMovableEntity::drop(const Ogre::Vector3& v)
 {
     mIsOnMap = true;
     setPosition(v);
 }
 
-const char* RoomObject::getFormat()
+const char* RenderedMovableEntity::getFormat()
 {
     return "name\tmeshName";
 }
 
-RoomObject* RoomObject::getRoomObjectFromLine(GameMap* gameMap, const std::string& line)
+RenderedMovableEntity* RenderedMovableEntity::getRenderedMovableEntityFromLine(GameMap* gameMap, const std::string& line)
 {
-    RoomObject* obj = nullptr;
+    RenderedMovableEntity* obj = nullptr;
     std::stringstream ss(line);
-    RoomObject::RoomObjectType rot;
+    RenderedMovableEntity::RenderedMovableEntityType rot;
     OD_ASSERT_TRUE(ss >> rot);
     switch(rot)
     {
-        case RoomObjectType::roomObject:
+        case RenderedMovableEntityType::buildingObject:
         {
-            // Default type. Should not be saved in level file
+            // Default type. Used in buildings. Should not be saved in level file
             break;
         }
-        case RoomObjectType::treasuryObject:
+        case RenderedMovableEntityType::treasuryObject:
         {
             obj = TreasuryObject::getTreasuryObjectFromStream(gameMap, ss);
             break;
@@ -133,27 +133,27 @@ RoomObject* RoomObject::getRoomObjectFromLine(GameMap* gameMap, const std::strin
     return obj;
 }
 
-RoomObject* RoomObject::getRoomObjectFromPacket(GameMap* gameMap, ODPacket& is)
+RenderedMovableEntity* RenderedMovableEntity::getRenderedMovableEntityFromPacket(GameMap* gameMap, ODPacket& is)
 {
-    RoomObject* obj = nullptr;
-    RoomObjectType rot;
+    RenderedMovableEntity* obj = nullptr;
+    RenderedMovableEntityType rot;
     OD_ASSERT_TRUE(is >> rot);
     switch(rot)
     {
-        case RoomObjectType::roomObject:
+        case RenderedMovableEntityType::buildingObject:
         {
-            obj = new RoomObject(gameMap);
+            obj = new RenderedMovableEntity(gameMap);
             OD_ASSERT_TRUE(is >> obj);
             break;
         }
-        case RoomObjectType::treasuryObject:
+        case RenderedMovableEntityType::treasuryObject:
         {
-             obj = TreasuryObject::getTreasuryObjectFromPacket(gameMap, is);
+            obj = TreasuryObject::getTreasuryObjectFromPacket(gameMap, is);
             break;
         }
-        case RoomObjectType::chickenEntity:
+        case RenderedMovableEntityType::chickenEntity:
         {
-             obj = ChickenEntity::getChickenEntityFromPacket(gameMap, is);
+            obj = ChickenEntity::getChickenEntityFromPacket(gameMap, is);
             break;
         }
         default:
@@ -166,12 +166,12 @@ RoomObject* RoomObject::getRoomObjectFromPacket(GameMap* gameMap, ODPacket& is)
     return obj;
 }
 
-void RoomObject::exportToPacket(ODPacket& packet)
+void RenderedMovableEntity::exportToPacket(ODPacket& packet)
 {
     packet << this;
 }
 
-ODPacket& operator<<(ODPacket& os, RoomObject* ro)
+ODPacket& operator<<(ODPacket& os, RenderedMovableEntity* ro)
 {
     std::string name = ro->getName();
     std::string meshName = ro->getMeshName();
@@ -181,7 +181,7 @@ ODPacket& operator<<(ODPacket& os, RoomObject* ro)
     return os;
 }
 
-ODPacket& operator>>(ODPacket& is, RoomObject* ro)
+ODPacket& operator>>(ODPacket& is, RenderedMovableEntity* ro)
 {
     std::string name;
     Ogre::Vector3 position;
@@ -195,32 +195,32 @@ ODPacket& operator>>(ODPacket& is, RoomObject* ro)
     return is;
 }
 
-ODPacket& operator<<(ODPacket& os, const RoomObject::RoomObjectType& rot)
+ODPacket& operator<<(ODPacket& os, const RenderedMovableEntity::RenderedMovableEntityType& rot)
 {
-    uint32_t intType = static_cast<RoomObject::RoomObjectType>(rot);
+    uint32_t intType = static_cast<RenderedMovableEntity::RenderedMovableEntityType>(rot);
     os << intType;
     return os;
 }
 
-ODPacket& operator>>(ODPacket& is, RoomObject::RoomObjectType& rot)
+ODPacket& operator>>(ODPacket& is, RenderedMovableEntity::RenderedMovableEntityType& rot)
 {
     uint32_t intType;
     is >> intType;
-    rot = static_cast<RoomObject::RoomObjectType>(intType);
+    rot = static_cast<RenderedMovableEntity::RenderedMovableEntityType>(intType);
     return is;
 }
 
-std::ostream& operator<<(std::ostream& os, const RoomObject::RoomObjectType& rot)
+std::ostream& operator<<(std::ostream& os, const RenderedMovableEntity::RenderedMovableEntityType& rot)
 {
-    uint32_t intType = static_cast<RoomObject::RoomObjectType>(rot);
+    uint32_t intType = static_cast<RenderedMovableEntity::RenderedMovableEntityType>(rot);
     os << intType;
     return os;
 }
 
-std::istream& operator>>(std::istream& is, RoomObject::RoomObjectType& rot)
+std::istream& operator>>(std::istream& is, RenderedMovableEntity::RenderedMovableEntityType& rot)
 {
     uint32_t intType;
     is >> intType;
-    rot = static_cast<RoomObject::RoomObjectType>(intType);
+    rot = static_cast<RenderedMovableEntity::RenderedMovableEntityType>(intType);
     return is;
 }

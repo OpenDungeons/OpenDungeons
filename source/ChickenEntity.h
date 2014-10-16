@@ -18,7 +18,7 @@
 #ifndef CHICKENENTITY_H
 #define CHICKENENTITY_H
 
-#include "RoomObject.h"
+#include "RenderedMovableEntity.h"
 
 #include <string>
 #include <istream>
@@ -30,7 +30,7 @@ class GameMap;
 class Tile;
 class ODPacket;
 
-class ChickenEntity: public RoomObject
+class ChickenEntity: public RenderedMovableEntity
 {
 public:
     ChickenEntity(GameMap* gameMap, const std::string& hatcheryName);
@@ -38,8 +38,8 @@ public:
 
     virtual void doUpkeep();
 
-    virtual RoomObjectType getRoomObjectType()
-    { return RoomObjectType::chickenEntity; }
+    virtual RenderedMovableEntityType getRenderedMovableEntityType()
+    { return RenderedMovableEntityType::chickenEntity; }
 
     virtual bool tryPickup(Seat* seat, bool isEditorMode);
     virtual bool tryDrop(Seat* seat, Tile* tile, bool isEditorMode);

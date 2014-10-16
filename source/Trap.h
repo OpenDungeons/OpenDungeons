@@ -28,7 +28,7 @@ class GameMap;
 class Player;
 class Seat;
 class Tile;
-class RoomObject;
+class RenderedMovableEntity;
 class ODPacket;
 
 #include "Building.h"
@@ -94,7 +94,7 @@ protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
     virtual void deleteYourselfLocal();
-    virtual RoomObject* notifyActiveSpotCreated(Tile* tile);
+    virtual RenderedMovableEntity* notifyActiveSpotCreated(Tile* tile);
     virtual void notifyActiveSpotRemoved(Tile* tile);
     int mReloadTime;
     double mMinDamage;

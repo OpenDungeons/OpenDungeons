@@ -28,7 +28,7 @@ const int32_t NB_TURNS_OUTSIDE_HATCHERY_BEFORE_DIE = 30;
 const int32_t NB_TURNS_DIE_BEFORE_REMOVE = 5;
 
 ChickenEntity::ChickenEntity(GameMap* gameMap, const std::string& hatcheryName) :
-    RoomObject(gameMap, hatcheryName, "Chicken", 0.0f),
+    RenderedMovableEntity(gameMap, hatcheryName, "Chicken", 0.0f),
     mChickenState(ChickenState::free),
     nbTurnOutsideHatchery(0),
     nbTurnDie(0)
@@ -36,7 +36,7 @@ ChickenEntity::ChickenEntity(GameMap* gameMap, const std::string& hatcheryName) 
 }
 
 ChickenEntity::ChickenEntity(GameMap* gameMap) :
-    RoomObject(gameMap),
+    RenderedMovableEntity(gameMap),
     mChickenState(ChickenState::free),
     nbTurnOutsideHatchery(0),
     nbTurnDie(0)
@@ -74,7 +74,7 @@ void ChickenEntity::doUpkeep()
     {
         // No need to remove the chicken from its tile as it has already been in eatChicken
         // or when dying
-        getGameMap()->removeRoomObject(this);
+        getGameMap()->removeRenderedMovableEntity(this);
         deleteYourself();
         return;
     }
@@ -185,9 +185,8 @@ bool ChickenEntity::tryPickup(Seat* seat, bool isEditorMode)
 
 void ChickenEntity::pickup()
 {
-    RoomObject::pickup();
     Tile* tile = getPositionTile();
-    RoomObject::pickup();
+    RenderedMovableEntity::pickup();
     OD_ASSERT_TRUE_MSG(tile != nullptr, "tile=" + Tile::displayAsString(tile));
     if(tile == nullptr)
         return;
@@ -219,7 +218,7 @@ void ChickenEntity::setPosition(const Ogre::Vector3& v)
         return;
 
     Tile* oldTile = getPositionTile();
-    RoomObject::setPosition(v);
+    RenderedMovableEntity::setPosition(v);
     Tile* tile = getPositionTile();
     OD_ASSERT_TRUE_MSG(tile != nullptr, "tile=" + Tile::displayAsString(tile));
     if(tile == nullptr)

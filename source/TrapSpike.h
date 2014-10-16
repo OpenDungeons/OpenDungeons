@@ -39,7 +39,7 @@ public:
         return false;
     }
 
-    virtual RoomObject* notifyActiveSpotCreated(Tile* tile);
+    virtual RenderedMovableEntity* notifyActiveSpotCreated(Tile* tile);
 };
 
 #endif // TRAPSPIKE_H

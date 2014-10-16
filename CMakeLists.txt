@@ -225,6 +225,7 @@ set(OD_SOURCEFILES
     ${SRC}/PrefixTree.cpp
     ${SRC}/RadialVector2.cpp
     ${SRC}/Random.cpp
+    ${SRC}/RenderedMovableEntity.cpp
     ${SRC}/RenderManager.cpp
     ${SRC}/RenderRequest.cpp
     ${SRC}/ResourceManager.cpp
@@ -234,7 +235,6 @@ set(OD_SOURCEFILES
     ${SRC}/RoomForge.cpp
     ${SRC}/RoomHatchery.cpp
     ${SRC}/RoomLibrary.cpp
-    ${SRC}/RoomObject.cpp
     ${SRC}/RoomPortal.cpp
     ${SRC}/RoomTrainingHall.cpp
     ${SRC}/RoomTreasury.cpp

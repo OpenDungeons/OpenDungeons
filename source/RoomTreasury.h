@@ -41,7 +41,7 @@ public:
     int withdrawGold(int gold);
     virtual void doUpkeep();
 private:
-    //! \brief Tells which room object is used to show how much the tile is full of gold.
+    //! \brief Tells which mesh is used to show how much the tile is full of gold.
     enum TreasuryTileFullness
     {
         noGold = 0, quarter, half, threeQuarters, fullOfGold

@@ -16,7 +16,7 @@
  */
 
 #include "Building.h"
-#include "RoomObject.h"
+#include "RenderedMovableEntity.h"
 #include "Tile.h"
 #include "GameMap.h"
 #include "ServerNotification.h"
@@ -26,76 +26,76 @@
 
 const double Building::DEFAULT_TILE_HP = 10.0;
 
-void Building::addRoomObject(Tile* targetTile, RoomObject* roomObject)
+void Building::addBuildingObject(Tile* targetTile, RenderedMovableEntity* obj)
 {
-    if(roomObject == NULL)
+    if(obj == NULL)
         return;
 
     Ogre::Vector3 objPos(static_cast<Ogre::Real>(targetTile->x), static_cast<Ogre::Real>(targetTile->y), 0);
-    roomObject->setPosition(objPos);
-    mRoomObjects[targetTile] = roomObject;
-    getGameMap()->addRoomObject(roomObject);
+    obj->setPosition(objPos);
+    mBuildingObjects[targetTile] = obj;
+    getGameMap()->addRenderedMovableEntity(obj);
 }
 
-void Building::removeRoomObject(Tile* tile)
+void Building::removeBuildingObject(Tile* tile)
 {
-    if(mRoomObjects.count(tile) == 0)
+    if(mBuildingObjects.count(tile) == 0)
         return;
 
-    RoomObject* roomObject = mRoomObjects[tile];
-    LogManager::getSingleton().logMessage("Removing object " + roomObject->getName()
+    RenderedMovableEntity* obj = mBuildingObjects[tile];
+    LogManager::getSingleton().logMessage("Removing object " + obj->getName()
         + " in Building=" + getName());
-    getGameMap()->removeRoomObject(roomObject);
-    roomObject->deleteYourself();
-    mRoomObjects.erase(tile);
+    getGameMap()->removeRenderedMovableEntity(obj);
+    obj->deleteYourself();
+    mBuildingObjects.erase(tile);
 }
 
-void Building::removeRoomObject(RoomObject* roomObject)
+void Building::removeBuildingObject(RenderedMovableEntity* obj)
 {
-    std::map<Tile*, RoomObject*>::iterator it;
+    std::map<Tile*, RenderedMovableEntity*>::iterator it;
 
-    for (it = mRoomObjects.begin(); it != mRoomObjects.end(); ++it)
+    for (it = mBuildingObjects.begin(); it != mBuildingObjects.end(); ++it)
     {
-        if(it->second == roomObject)
+        if(it->second == obj)
             break;
     }
 
-    if(it != mRoomObjects.end())
+    if(it != mBuildingObjects.end())
     {
-        LogManager::getSingleton().logMessage("Removing object " + roomObject->getName()
+        LogManager::getSingleton().logMessage("Removing object " + obj->getName()
             + " in Building " + getName());
-        getGameMap()->removeRoomObject(roomObject);
-        roomObject->deleteYourself();
-        mRoomObjects.erase(it);
+        getGameMap()->removeRenderedMovableEntity(obj);
+        obj->deleteYourself();
+        mBuildingObjects.erase(it);
     }
 }
 
-void Building::removeAllRoomObject()
+void Building::removeAllBuildingObjects()
 {
-    if(mRoomObjects.empty())
+    if(mBuildingObjects.empty())
         return;
 
-    std::map<Tile*, RoomObject*>::iterator itr = mRoomObjects.begin();
-    while (itr != mRoomObjects.end())
+    std::map<Tile*, RenderedMovableEntity*>::iterator itr = mBuildingObjects.begin();
+    while (itr != mBuildingObjects.end())
     {
-        RoomObject* roomObject = itr->second;
-        getGameMap()->removeRoomObject(roomObject);
-        roomObject->deleteYourself();
+        RenderedMovableEntity* obj = itr->second;
+        getGameMap()->removeRenderedMovableEntity(obj);
+        obj->deleteYourself();
         ++itr;
     }
-    mRoomObjects.clear();
+    mBuildingObjects.clear();
 }
 
-RoomObject* Building::getRoomObjectFromTile(Tile* tile)
+RenderedMovableEntity* Building::getBuildingObjectFromTile(Tile* tile)
 {
-    if(mRoomObjects.count(tile) == 0)
+    if(mBuildingObjects.count(tile) == 0)
         return NULL;
 
-    RoomObject* tempRoomObject = mRoomObjects[tile];
-    return tempRoomObject;
+    RenderedMovableEntity* obj = mBuildingObjects[tile];
+    return obj;
 }
 
-RoomObject* Building::loadRoomObject(GameMap* gameMap, const std::string& meshName,
+RenderedMovableEntity* Building::loadBuildingObject(GameMap* gameMap, const std::string& meshName,
     Tile* targetTile, double rotationAngle)
 {
     if (targetTile == NULL)
@@ -105,11 +105,11 @@ RoomObject* Building::loadRoomObject(GameMap* gameMap, const std::string& meshNa
     if(targetTile == NULL)
         return NULL;
 
-    return loadRoomObject(gameMap, meshName, targetTile, static_cast<double>(targetTile->x),
+    return loadBuildingObject(gameMap, meshName, targetTile, static_cast<double>(targetTile->x),
         static_cast<double>(targetTile->y), rotationAngle);
 }
 
-RoomObject* Building::loadRoomObject(GameMap* gameMap, const std::string& meshName,
+RenderedMovableEntity* Building::loadBuildingObject(GameMap* gameMap, const std::string& meshName,
     Tile* targetTile, double x, double y, double rotationAngle)
 {
     std::string baseName;
@@ -118,11 +118,11 @@ RoomObject* Building::loadRoomObject(GameMap* gameMap, const std::string& meshNa
     else
         baseName = getName() + "_" + Tile::displayAsString(targetTile);
 
-    RoomObject* tempRoomObject = new RoomObject(gameMap, baseName, meshName,
+    RenderedMovableEntity* obj = new RenderedMovableEntity(gameMap, baseName, meshName,
         static_cast<Ogre::Real>(rotationAngle));
-    tempRoomObject->setPosition(Ogre::Vector3((Ogre::Real)x, (Ogre::Real)y, 0.0f));
+    obj->setPosition(Ogre::Vector3((Ogre::Real)x, (Ogre::Real)y, 0.0f));
 
-    return tempRoomObject;
+    return obj;
 }
 
 Tile* Building::getCentralTile()

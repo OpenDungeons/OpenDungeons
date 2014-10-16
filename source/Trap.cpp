@@ -24,7 +24,7 @@
 #include "RenderManager.h"
 #include "Seat.h"
 #include "GameMap.h"
-#include "RoomObject.h"
+#include "RenderedMovableEntity.h"
 #include "TrapCannon.h"
 #include "TrapSpike.h"
 #include "TrapBoulder.h"
@@ -297,24 +297,24 @@ void Trap::updateActiveSpots()
         return;
 
     // For a trap, by default, every tile is an active spot
-    if(mCoveredTiles.size() > mRoomObjects.size())
+    if(mCoveredTiles.size() > mBuildingObjects.size())
     {
-        // More tiles than room objects. This will happen when the trap is created
+        // More tiles than RenderedMovableEntity. This will happen when the trap is created
         for(std::vector<Tile*>::iterator it = mCoveredTiles.begin(); it != mCoveredTiles.end(); ++it)
         {
             Tile* tile = *it;
-            RoomObject* obj = notifyActiveSpotCreated(tile);
+            RenderedMovableEntity* obj = notifyActiveSpotCreated(tile);
             if(obj == NULL)
                 continue;
 
-            addRoomObject(tile, obj);
+            addBuildingObject(tile, obj);
         }
     }
-    else if(mCoveredTiles.size() < mRoomObjects.size())
+    else if(mCoveredTiles.size() < mBuildingObjects.size())
     {
-        // Less tiles than room objects. This will happen when a tile from this trap is destroyed
+        // Less tiles than RenderedMovableEntity. This will happen when a tile from this trap is destroyed
         std::vector<Tile*> tilesToRemove;
-        for(std::map<Tile*, RoomObject*>::iterator it = mRoomObjects.begin(); it != mRoomObjects.end(); ++it)
+        for(std::map<Tile*, RenderedMovableEntity*>::iterator it = mBuildingObjects.begin(); it != mBuildingObjects.end(); ++it)
         {
             Tile* tile = it->first;
             // We store removed tiles
@@ -322,25 +322,25 @@ void Trap::updateActiveSpots()
                 tilesToRemove.push_back(tile);
         }
 
-        // Then, we process removing (that will remove tiles from mRoomObjects)
+        // Then, we process removing (that will remove tiles from mBuildingObjects)
         OD_ASSERT_TRUE(!tilesToRemove.empty());
         for(std::vector<Tile*>::iterator it = tilesToRemove.begin(); it != tilesToRemove.end(); ++it)
         {
             Tile* tile = *it;
-            if(mRoomObjects.count(tile) > 0)
+            if(mBuildingObjects.count(tile) > 0)
                 notifyActiveSpotRemoved(tile);
         }
     }
 }
 
-RoomObject* Trap::notifyActiveSpotCreated(Tile* tile)
+RenderedMovableEntity* Trap::notifyActiveSpotCreated(Tile* tile)
 {
     return NULL;
 }
 
 void Trap::notifyActiveSpotRemoved(Tile* tile)
 {
-    removeRoomObject(tile);
+    removeBuildingObject(tile);
 }
 
 void Trap::setupTrap(const std::string& name, Seat* seat, const std::vector<Tile*>& tiles)

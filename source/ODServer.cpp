@@ -25,7 +25,7 @@
 #include "ChatMessage.h"
 #include "ODConsoleCommand.h"
 #include "MapLoader.h"
-#include "RoomObject.h"
+#include "RenderedMovableEntity.h"
 #include "LogManager.h"
 #include "Creature.h"
 #include "Trap.h"
@@ -650,9 +650,9 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     allowPickup = creature->tryPickup(player->getSeat(), mServerMode == ServerMode::ModeEditor);
                     break;
                 }
-                case GameEntity::ObjectType::roomobject:
+                case GameEntity::ObjectType::renderedMovableEntity:
                 {
-                    RoomObject* obj = gameMap->getRoomObject(entityName);
+                    RenderedMovableEntity* obj = gameMap->getRenderedMovableEntity(entityName);
                     entity = obj;
                     allowPickup = obj->tryPickup(player->getSeat(), mServerMode == ServerMode::ModeEditor);
                     break;

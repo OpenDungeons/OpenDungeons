@@ -26,7 +26,7 @@
 #include "Weapon.h"
 #include "RenderRequest.h"
 #include "RenderManager.h"
-#include "RoomObject.h"
+#include "RenderedMovableEntity.h"
 #include "LogManager.h"
 
 Player::Player() :
@@ -99,9 +99,9 @@ void Player::pickUpEntity(GameEntity *entity, bool isEditorMode)
             creature->destroyVisualDebugEntities();
 
     }
-    else if(entity->getObjectType() == GameEntity::ObjectType::roomobject)
+    else if(entity->getObjectType() == GameEntity::ObjectType::renderedMovableEntity)
     {
-        RoomObject* obj = static_cast<RoomObject*>(entity);
+        RenderedMovableEntity* obj = static_cast<RenderedMovableEntity*>(entity);
         if(!obj->tryPickup(getSeat(), isEditorMode))
            return;
 
@@ -152,9 +152,9 @@ bool Player::isDropHandPossible(Tile *t, unsigned int index, bool isEditorMode)
         if(creature->tryDrop(getSeat(), t, isEditorMode))
             return true;
     }
-    else if(entity != NULL && entity->getObjectType() == GameEntity::ObjectType::roomobject)
+    else if(entity != NULL && entity->getObjectType() == GameEntity::ObjectType::renderedMovableEntity)
     {
-        RoomObject* obj = static_cast<RoomObject*>(entity);
+        RenderedMovableEntity* obj = static_cast<RenderedMovableEntity*>(entity);
         if(obj->tryDrop(getSeat(), t, isEditorMode))
             return true;
     }
@@ -182,9 +182,9 @@ GameEntity* Player::dropHand(Tile *t, unsigned int index)
             creature->playSound(CreatureSound::DROP);
         }
     }
-    else if(entity->getObjectType() == GameEntity::ObjectType::roomobject)
+    else if(entity->getObjectType() == GameEntity::ObjectType::renderedMovableEntity)
     {
-        RoomObject* obj = static_cast<RoomObject*>(entity);
+        RenderedMovableEntity* obj = static_cast<RenderedMovableEntity*>(entity);
         obj->drop(Ogre::Vector3(static_cast<Ogre::Real>(t->x),
             static_cast<Ogre::Real>(t->y), 0.0));
     }

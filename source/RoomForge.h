@@ -29,7 +29,7 @@ public:
     { return RoomType::forge; }
 
 protected:
-    virtual RoomObject* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
+    virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
 };
 
 #endif // ROOMFORGE_H

@@ -19,7 +19,7 @@
 
 #include "GameMap.h"
 #include "Tile.h"
-#include "RoomObject.h"
+#include "RenderedMovableEntity.h"
 #include "LogManager.h"
 #include "ODServer.h"
 #include "ServerNotification.h"
@@ -92,7 +92,7 @@ bool RoomTreasury::removeCoveredTile(Tile* t, bool isRoomAbsorb)
 {
     // if the mesh has gold, we erase the mesh
     if((mFullnessOfTile.count(t) > 0) && (mFullnessOfTile[t] != noGold))
-        removeRoomObject(t);
+        removeBuildingObject(t);
 
     if(mGoldInTile.count(t) > 0)
     {
@@ -105,7 +105,7 @@ bool RoomTreasury::removeCoveredTile(Tile* t, bool isRoomAbsorb)
             TreasuryObject* to = new TreasuryObject(getGameMap(), value);
             Ogre::Vector3 pos(static_cast<Ogre::Real>(t->x), static_cast<Ogre::Real>(t->y), 0.0f);
             to->setPosition(pos);
-            getGameMap()->addRoomObject(to);
+            getGameMap()->addRenderedMovableEntity(to);
         }
         mGoldInTile.erase(t);
     }
@@ -265,12 +265,12 @@ void RoomTreasury::updateMeshesForTile(Tile* t)
 
     // If the fullness level has changed we need to destroy the existing treasury
     if (mFullnessOfTile[t] != noGold)
-        removeRoomObject(t);
+        removeBuildingObject(t);
 
     if (newFullness != noGold)
     {
-        RoomObject* ro = loadRoomObject(getGameMap(), getMeshNameForTreasuryTileFullness(newFullness), t, 0.0);
-        addRoomObject(t, ro);
+        RenderedMovableEntity* ro = loadBuildingObject(getGameMap(), getMeshNameForTreasuryTileFullness(newFullness), t, 0.0);
+        addBuildingObject(t, ro);
     }
 
     mFullnessOfTile[t] = newFullness;

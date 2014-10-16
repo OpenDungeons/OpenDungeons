@@ -27,7 +27,7 @@
 #include "Seat.h"
 
 class GameMap;
-class RoomObject;
+class RenderedMovableEntity;
 class Tile;
 
 /*! \class Building
@@ -56,17 +56,17 @@ public:
     void receiveExp(double /*experience*/)
     {}
 
-    void addRoomObject(Tile* targetTile, RoomObject* roomObject);
-    void removeRoomObject(Tile* tile);
-    void removeRoomObject(RoomObject* roomObject);
-    void removeAllRoomObject();
-    RoomObject* getRoomObjectFromTile(Tile* tile);
-    /*! \brief Creates a child RoomObject mesh using the given mesh name and placing on the target tile,
+    void addBuildingObject(Tile* targetTile, RenderedMovableEntity* obj);
+    void removeBuildingObject(Tile* tile);
+    void removeBuildingObject(RenderedMovableEntity* obj);
+    void removeAllBuildingObjects();
+    RenderedMovableEntity* getBuildingObjectFromTile(Tile* tile);
+    /*! \brief Creates a child RenderedMovableEntity mesh using the given mesh name and placing on the target tile,
      *  if the tile is NULL the object appears in the building's center, the rotation angle is given in degrees.
      */
-    RoomObject* loadRoomObject(GameMap* gameMap, const std::string& meshName,
+    RenderedMovableEntity* loadBuildingObject(GameMap* gameMap, const std::string& meshName,
         Tile* targetTile, double rotationAngle);
-    RoomObject* loadRoomObject(GameMap* gameMap, const std::string& meshName,
+    RenderedMovableEntity* loadBuildingObject(GameMap* gameMap, const std::string& meshName,
         Tile* targetTile, double x, double y, double rotationAngle);
     Tile* getCentralTile();
 
@@ -86,7 +86,7 @@ public:
         return true;
     }
 protected:
-    std::map<Tile*, RoomObject*> mRoomObjects;
+    std::map<Tile*, RenderedMovableEntity*> mBuildingObjects;
     std::vector<Tile*> mCoveredTiles;
     std::map<Tile*, double> mTileHP;
 

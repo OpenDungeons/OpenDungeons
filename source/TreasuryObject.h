@@ -18,7 +18,7 @@
 #ifndef TREASURYOBJECT_H
 #define TREASURYOBJECT_H
 
-#include "RoomObject.h"
+#include "RenderedMovableEntity.h"
 
 #include <string>
 #include <istream>
@@ -28,7 +28,7 @@ class Room;
 class GameMap;
 class ODPacket;
 
-class TreasuryObject: public RoomObject
+class TreasuryObject: public RenderedMovableEntity
 {
 public:
     TreasuryObject(GameMap* gameMap, int goldValue);
@@ -36,8 +36,8 @@ public:
 
     virtual void doUpkeep();
 
-    virtual RoomObjectType getRoomObjectType()
-    { return RoomObjectType::treasuryObject; }
+    virtual RenderedMovableEntityType getRenderedMovableEntityType()
+    { return RenderedMovableEntityType::treasuryObject; }
 
     virtual bool tryPickup(Seat* seat, bool isEditorMode);
     virtual bool tryDrop(Seat* seat, Tile* tile, bool isEditorMode);

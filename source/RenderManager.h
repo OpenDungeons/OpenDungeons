@@ -107,8 +107,8 @@ protected:
     void rrShowSquareSelector(const RenderRequest& renderRequest);
     void rrCreateRoom(const RenderRequest& renderRequest);
     void rrDestroyRoom(const RenderRequest& renderRequest);
-    void rrCreateRoomObject(const RenderRequest& renderRequest);
-    void rrDestroyRoomObject(const RenderRequest& renderRequest);
+    void rrCreateRenderedMovableEntity(const RenderRequest& renderRequest);
+    void rrDestroyRenderedMovableEntity(const RenderRequest& renderRequest);
     void rrCreateTrap(const RenderRequest& renderRequest);
     void rrDestroyTrap(const RenderRequest& renderRequest);
     void rrCreateCreature(const RenderRequest& renderRequest);

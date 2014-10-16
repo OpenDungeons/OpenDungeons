@@ -24,13 +24,13 @@
 #include <iostream>
 
 TreasuryObject::TreasuryObject(GameMap* gameMap, int goldValue) :
-    RoomObject(gameMap, "Treasury_", "GoldstackLv3", 0.0f),
+    RenderedMovableEntity(gameMap, "Treasury_", "GoldstackLv3", 0.0f),
     mGoldValue(goldValue)
 {
 }
 
 TreasuryObject::TreasuryObject(GameMap* gameMap) :
-    RoomObject(gameMap),
+    RenderedMovableEntity(gameMap),
     mGoldValue(0)
 {
     setMeshName("GoldstackLv3");
@@ -77,7 +77,7 @@ void TreasuryObject::doUpkeep()
     if(mGoldValue <= 0)
     {
         tile->removeTreasuryObject(this);
-        getGameMap()->removeRoomObject(this);
+        getGameMap()->removeRenderedMovableEntity(this);
         deleteYourself();
     }
 }
@@ -106,7 +106,7 @@ bool TreasuryObject::tryPickup(Seat* seat, bool isEditorMode)
 void TreasuryObject::pickup()
 {
     Tile* tile = getPositionTile();
-    RoomObject::pickup();
+    RenderedMovableEntity::pickup();
     OD_ASSERT_TRUE_MSG(tile != nullptr, "tile=" + Tile::displayAsString(tile));
     if(tile == nullptr)
         return;
@@ -132,7 +132,7 @@ bool TreasuryObject::tryDrop(Seat* seat, Tile* tile, bool isEditorMode)
 
 void TreasuryObject::setPosition(const Ogre::Vector3& v)
 {
-    RoomObject::setPosition(v);
+    RenderedMovableEntity::setPosition(v);
     Tile* tile = getPositionTile();
     OD_ASSERT_TRUE_MSG(tile != nullptr, "tile=" + Tile::displayAsString(tile));
     if(tile == nullptr)

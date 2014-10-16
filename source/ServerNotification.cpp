@@ -102,10 +102,10 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "addMissileObject";
         case ServerNotificationType::removeMissileObject:
             return "removeMissileObject";
-        case ServerNotificationType::addRoomObject:
-            return "addRoomObject";
-        case ServerNotificationType::removeRoomObject:
-            return "removeRoomObject";
+        case ServerNotificationType::addRenderedMovableEntity:
+            return "addRenderedMovableEntity";
+        case ServerNotificationType::removeRenderedMovableEntity:
+            return "removeRenderedMovableEntity";
         case ServerNotificationType::depositGoldSound:
             return "depositGoldSound";
         case ServerNotificationType::notifyCreatureInfo:

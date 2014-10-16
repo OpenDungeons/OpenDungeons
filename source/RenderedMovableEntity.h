@@ -15,8 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ROOMOBJECT_H
-#define ROOMOBJECT_H
+#ifndef RENDEREDMOVABLEENTITY_H
+#define RENDEREDMOVABLEENTITY_H
 
 #include "MovableGameEntity.h"
 
@@ -29,25 +29,24 @@ class GameMap;
 class Seat;
 class ODPacket;
 
-// TODO : change name to RenderedMovableEntity as it is not linked to rooms anymore
-class RoomObject: public MovableGameEntity
+class RenderedMovableEntity: public MovableGameEntity
 {
 public:
-    enum RoomObjectType
+    enum RenderedMovableEntityType
     {
-        roomObject,
+        buildingObject,
         treasuryObject,
         chickenEntity
     };
-    //! \brief Creates a room object. It's name is built from baseName and some unique id from the gamemap.
+    //! \brief Creates a RenderedMovableEntity. It's name is built from baseName and some unique id from the gamemap.
     //! We use baseName to help understand what's this object for when getting a log
-    RoomObject(GameMap* gameMap, const std::string& baseName, const std::string& nMeshName, Ogre::Real rotationAngle);
-    RoomObject(GameMap* gameMap);
+    RenderedMovableEntity(GameMap* gameMap, const std::string& baseName, const std::string& nMeshName, Ogre::Real rotationAngle);
+    RenderedMovableEntity(GameMap* gameMap);
 
-    static const std::string ROOMOBJECT_PREFIX;
-    static const std::string ROOMOBJECT_OGRE_PREFIX;
+    static const std::string RENDEREDMOVABLEENTITY_PREFIX;
+    static const std::string RENDEREDMOVABLEENTITY_OGRE_PREFIX;
 
-    virtual std::string getOgreNamePrefix() const { return ROOMOBJECT_OGRE_PREFIX; }
+    virtual std::string getOgreNamePrefix() const { return RENDEREDMOVABLEENTITY_OGRE_PREFIX; }
 
     virtual void doUpkeep()
     {}
@@ -70,8 +69,8 @@ public:
     Ogre::Real getRotationAngle()
     { return mRotationAngle; }
 
-    virtual RoomObjectType getRoomObjectType()
-    { return RoomObjectType::roomObject; }
+    virtual RenderedMovableEntityType getRenderedMovableEntityType()
+    { return RenderedMovableEntityType::buildingObject; }
 
     virtual bool tryPickup(Seat* seat, bool isEditorMode)
     { return false; }
@@ -84,16 +83,16 @@ public:
 
     virtual void exportToPacket(ODPacket& packet);
 
-    static RoomObject* getRoomObjectFromLine(GameMap* gameMap, const std::string& line);
-    static RoomObject* getRoomObjectFromPacket(GameMap* gameMap, ODPacket& is);
+    static RenderedMovableEntity* getRenderedMovableEntityFromLine(GameMap* gameMap, const std::string& line);
+    static RenderedMovableEntity* getRenderedMovableEntityFromPacket(GameMap* gameMap, ODPacket& is);
     static const char* getFormat();
-    friend ODPacket& operator<<(ODPacket& os, RoomObject* o);
-    friend ODPacket& operator>>(ODPacket& is, RoomObject* o);
+    friend ODPacket& operator<<(ODPacket& os, RenderedMovableEntity* o);
+    friend ODPacket& operator>>(ODPacket& is, RenderedMovableEntity* o);
 
-    friend ODPacket& operator<<(ODPacket& os, const RoomObject::RoomObjectType& rot);
-    friend ODPacket& operator>>(ODPacket& is, RoomObject::RoomObjectType& rot);
-    friend std::ostream& operator<<(std::ostream& os, const RoomObject::RoomObjectType& rot);
-    friend std::istream& operator>>(std::istream& is, RoomObject::RoomObjectType& rot);
+    friend ODPacket& operator<<(ODPacket& os, const RenderedMovableEntity::RenderedMovableEntityType& rot);
+    friend ODPacket& operator>>(ODPacket& is, RenderedMovableEntity::RenderedMovableEntityType& rot);
+    friend std::ostream& operator<<(std::ostream& os, const RenderedMovableEntity::RenderedMovableEntityType& rot);
+    friend std::istream& operator>>(std::istream& is, RenderedMovableEntity::RenderedMovableEntityType& rot);
 
 protected:
     virtual bool getIsOnMap()
@@ -107,4 +106,4 @@ private:
     bool mIsOnMap;
 };
 
-#endif // ROOMOBJECT_H
+#endif // RENDEREDMOVABLEENTITY_H

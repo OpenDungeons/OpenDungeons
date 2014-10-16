@@ -45,8 +45,8 @@ private:
     //! \brief The number of turns to wait before producing a worker
     int mWaitTurns;
 
-    //! \brief The reference of the temple room object
-    RoomObject* mTempleObject;
+    //! \brief The reference of the temple object
+    RenderedMovableEntity* mTempleObject;
 };
 
 #endif // ROOMDUNGEONTEMPLE_H

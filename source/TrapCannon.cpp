@@ -64,7 +64,7 @@ bool TrapCannon::shoot(Tile* tile)
     return true;
 }
 
-RoomObject* TrapCannon::notifyActiveSpotCreated(Tile* tile)
+RenderedMovableEntity* TrapCannon::notifyActiveSpotCreated(Tile* tile)
 {
-    return loadRoomObject(getGameMap(), "Cannon", tile, 90.0);
+    return loadBuildingObject(getGameMap(), "Cannon", tile, 90.0);
 }

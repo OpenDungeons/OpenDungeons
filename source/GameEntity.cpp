@@ -27,7 +27,7 @@
 #include "RenderManager.h"
 #include "RenderRequest.h"
 #include "Room.h"
-#include "RoomObject.h"
+#include "RenderedMovableEntity.h"
 #include "Weapon.h"
 #include "ODPacket.h"
 

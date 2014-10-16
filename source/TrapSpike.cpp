@@ -21,7 +21,7 @@
 #include "GameMap.h"
 #include "MissileObject.h"
 #include "Random.h"
-#include "RoomObject.h"
+#include "RenderedMovableEntity.h"
 #include "LogManager.h"
 
 TrapSpike::TrapSpike(GameMap* gameMap) :
@@ -42,7 +42,7 @@ bool TrapSpike::shoot(Tile* tile)
     if(enemyObjects.empty())
         return false;
 
-    RoomObject* spike = getRoomObjectFromTile(tile);
+    RenderedMovableEntity* spike = getBuildingObjectFromTile(tile);
     spike->setAnimationState("Triggered", false);
 
     // We damage every creature standing on the trap
@@ -67,7 +67,7 @@ bool TrapSpike::shoot(Tile* tile)
 }
 
 
-RoomObject* TrapSpike::notifyActiveSpotCreated(Tile* tile)
+RenderedMovableEntity* TrapSpike::notifyActiveSpotCreated(Tile* tile)
 {
-    return loadRoomObject(getGameMap(), "Spiketrap", tile, 0.0);
+    return loadBuildingObject(getGameMap(), "Spiketrap", tile, 0.0);
 }

@@ -21,7 +21,7 @@
 #include "ServerNotification.h"
 #include "Tile.h"
 #include "GameMap.h"
-#include "RoomObject.h"
+#include "RenderedMovableEntity.h"
 #include "Creature.h"
 #include "LogManager.h"
 
@@ -37,7 +37,7 @@ void RoomDormitory::absorbRoom(Room *r)
     if (oldRoom == NULL)
         return;
 
-    // We transfert the room objects
+    // We transfert the building objects
     mCreatureSleepingInTile.insert(oldRoom->mCreatureSleepingInTile.begin(), oldRoom->mCreatureSleepingInTile.end());
     oldRoom->mCreatureSleepingInTile.clear();
 
@@ -45,7 +45,7 @@ void RoomDormitory::absorbRoom(Room *r)
         oldRoom->mBedRoomObjectsInfo.begin(), oldRoom->mBedRoomObjectsInfo.end());
     oldRoom->mBedRoomObjectsInfo.clear();
 
-    // This function will copy the room objects (beds) into the new room
+    // This function will copy the building objects (beds) into the new room
     // and remove the old room covered tiles.
     Room::absorbRoom(r);
 }
@@ -54,7 +54,7 @@ void RoomDormitory::createMeshLocal()
 {
     Room::createMeshLocal();
 
-    // The client game map should not load room objects. They will be created
+    // The client game map should not load building objects. They will be created
     // by the messages sent by the server because some of them are randomly
     // created
     if(!getGameMap()->isServerGameMap())
@@ -64,7 +64,7 @@ void RoomDormitory::createMeshLocal()
     if (mCoveredTiles.empty())
         return;
 
-    // Recreate every room objects
+    // Recreate every building objects
     for (unsigned int i = 0; i < mBedRoomObjectsInfo.size(); ++i)
     {
         Creature* creature = mBedRoomObjectsInfo[i].getCreature();
@@ -87,9 +87,9 @@ void RoomDormitory::createMeshLocal()
         for (unsigned int j = 0; j < tilesTaken.size(); ++j)
             mCreatureSleepingInTile[tilesTaken[j]] = creature;
 
-        // And recreate the bed room object
-        RoomObject* ro = loadRoomObject(getGameMap(), def->getBedMeshName(), tile, x, y, rotationAngle);
-        addRoomObject(tile, ro);
+        // And recreate the bed object
+        RenderedMovableEntity* ro = loadBuildingObject(getGameMap(), def->getBedMeshName(), tile, x, y, rotationAngle);
+        addBuildingObject(tile, ro);
         ro->createMesh();
     }
 
@@ -232,8 +232,8 @@ bool RoomDormitory::installBed(Tile* t, Creature* c, double xDim, double yDim,
     }
 
     // Add the model
-    RoomObject* ro = loadRoomObject(getGameMap(), def->getBedMeshName(), t, bedInfo.getX(), bedInfo.getY(), rotationAngle);
-    addRoomObject(t, ro);
+    RenderedMovableEntity* ro = loadBuildingObject(getGameMap(), def->getBedMeshName(), t, bedInfo.getX(), bedInfo.getY(), rotationAngle);
+    addBuildingObject(t, ro);
     ro->createMesh();
     // Save the info for later...
     mBedRoomObjectsInfo.push_back(bedInfo);
@@ -260,9 +260,9 @@ bool RoomDormitory::removeBed(Tile* t, Creature* c)
 
     c->setHomeTile(NULL);
 
-    // Make the room object delete itself and remove it from the map
-    RoomObject* roomObject = getRoomObjectFromTile(t);
-    removeRoomObject(roomObject);
+    // Make the building object delete itself and remove it from the map
+    RenderedMovableEntity* roomObject = getBuildingObjectFromTile(t);
+    removeBuildingObject(roomObject);
 
     // Remove the bedinfo as well
     std::vector<BedRoomObjectInfo>::iterator it2 = mBedRoomObjectsInfo.begin();

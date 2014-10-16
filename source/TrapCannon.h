@@ -35,7 +35,7 @@ public:
     {
         return false;
     }
-    virtual RoomObject* notifyActiveSpotCreated(Tile* tile);
+    virtual RenderedMovableEntity* notifyActiveSpotCreated(Tile* tile);
 
     static TrapCannon* getTrapCannonFromPacket(GameMap* gameMap, ODPacket& packet);
 

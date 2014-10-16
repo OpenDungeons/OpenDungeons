@@ -25,7 +25,7 @@
 #include "RoomDormitory.h"
 #include "RoomTreasury.h"
 #include "RoomHatchery.h"
-#include "RoomObject.h"
+#include "RenderedMovableEntity.h"
 #include "ODServer.h"
 #include "ServerNotification.h"
 #include "Player.h"
@@ -68,7 +68,7 @@ void Room::destroyMeshLocal()
 {
     Building::destroyMeshLocal();
 
-    destroyRoomObjectMeshes();
+    destroyBuildingObjectMeshes();
     if(getGameMap()->isServerGameMap())
         return;
 
@@ -120,8 +120,8 @@ void Room::absorbRoom(Room *r)
     r->mBottomWallsActiveSpotTiles.clear();
     mNumActiveSpots += r->mNumActiveSpots;
 
-    mRoomObjects.insert(r->mRoomObjects.begin(), r->mRoomObjects.end());
-    r->mRoomObjects.clear();
+    mBuildingObjects.insert(r->mBuildingObjects.begin(), r->mBuildingObjects.end());
+    r->mBuildingObjects.clear();
     // Every creature working in this room should go to the new one (this is used
     // in the server map only)
     if(getGameMap()->isServerGameMap())
@@ -216,21 +216,21 @@ Creature* Room::getCreatureUsingRoom(unsigned index)
     return mCreaturesUsingRoom[index];
 }
 
-void Room::createRoomObjectMeshes()
+void Room::createBuildingObjectMeshes()
 {
-    // Loop over all the RoomObjects that are children of this room and create each mesh individually.
-    for(std::map<Tile*, RoomObject*>::iterator it = mRoomObjects.begin(); it != mRoomObjects.end(); ++it)
+    // Loop over all the RenderedMovableEntity that are children of this room and create each mesh individually.
+    for(std::map<Tile*, RenderedMovableEntity*>::iterator it = mBuildingObjects.begin(); it != mBuildingObjects.end(); ++it)
     {
-        RoomObject* ro = it->second;
+        RenderedMovableEntity* ro = it->second;
         ro->createMesh();
     }
 }
 
-void Room::destroyRoomObjectMeshes()
+void Room::destroyBuildingObjectMeshes()
 {
-    // Loop over all the RoomObjects that are children of this room and destroy each mesh individually.
-    std::map<Tile*, RoomObject*>::iterator itr = mRoomObjects.begin();
-    while (itr != mRoomObjects.end())
+    // Loop over all the BuildingObjects that are children of this room and destroy each mesh individually.
+    std::map<Tile*, RenderedMovableEntity*>::iterator itr = mBuildingObjects.begin();
+    while (itr != mBuildingObjects.end())
     {
         itr->second->destroyMesh();
         ++itr;
@@ -579,7 +579,7 @@ void Room::checkForRoomAbsorbtion()
     }
 
     // We try to keep the same tile disposition as if the room was created like this in the first
-    // place to make sure room objects are disposed the same way
+    // place to make sure building objects are disposed the same way
     if(isRoomAbsorbed)
         std::sort(mCoveredTiles.begin(), mCoveredTiles.end(), Room::compareTile);
 }
@@ -819,11 +819,11 @@ void Room::activeSpotCheckChange(ActiveSpotPlace place, const std::vector<Tile*>
         if(std::find(originalSpotTiles.begin(), originalSpotTiles.end(), tile) == originalSpotTiles.end())
         {
             // The tile do not exist
-            RoomObject* ro = notifyActiveSpotCreated(place, tile);
+            RenderedMovableEntity* ro = notifyActiveSpotCreated(place, tile);
             if(ro != NULL)
             {
                 // The room wants to build a room onject. We add it to the gamemap
-                addRoomObject(tile, ro);
+                addBuildingObject(tile, ro);
                 ro->createMesh();
             }
         }
@@ -840,14 +840,14 @@ void Room::activeSpotCheckChange(ActiveSpotPlace place, const std::vector<Tile*>
     }
 }
 
-RoomObject* Room::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
+RenderedMovableEntity* Room::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
 {
     return NULL;
 }
 
 void Room::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
 {
-    removeRoomObject(tile);
+    removeBuildingObject(tile);
 }
 
 bool Room::sortForMapSave(Room* r1, Room* r2)
