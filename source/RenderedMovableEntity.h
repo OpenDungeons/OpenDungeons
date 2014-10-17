@@ -36,7 +36,8 @@ public:
     {
         buildingObject,
         treasuryObject,
-        chickenEntity
+        chickenEntity,
+        missileObject
     };
     //! \brief Creates a RenderedMovableEntity. It's name is built from baseName and some unique id from the gamemap.
     //! We use baseName to help understand what's this object for when getting a log
@@ -81,13 +82,22 @@ public:
     virtual void pickup();
     virtual void drop(const Ogre::Vector3& v);
 
-    virtual void exportToPacket(ODPacket& packet);
+    /*! \brief Exports the headers needed to recreate the RenderedMovableEntity. For example, for
+     * missile objects type cannon, it exports RenderedMovableEntity::missileObject
+     * and MissileType::oneHit. The content of the RenderedMovableEntity will be exported
+     * by exportToPacket
+     */
+    virtual void exportHeadersToStream(std::ostream& os);
+    virtual void exportHeadersToPacket(ODPacket& os);
+    //! \brief Exports the data of the RenderedMovableEntity
+    virtual void exportToStream(std::ostream& os);
+    virtual void importFromStream(std::istream& is);
+    virtual void exportToPacket(ODPacket& os);
+    virtual void importFromPacket(ODPacket& is);
 
     static RenderedMovableEntity* getRenderedMovableEntityFromLine(GameMap* gameMap, const std::string& line);
     static RenderedMovableEntity* getRenderedMovableEntityFromPacket(GameMap* gameMap, ODPacket& is);
     static const char* getFormat();
-    friend ODPacket& operator<<(ODPacket& os, RenderedMovableEntity* o);
-    friend ODPacket& operator>>(ODPacket& is, RenderedMovableEntity* o);
 
     friend ODPacket& operator<<(ODPacket& os, const RenderedMovableEntity::RenderedMovableEntityType& rot);
     friend ODPacket& operator>>(ODPacket& is, RenderedMovableEntity::RenderedMovableEntityType& rot);
@@ -101,8 +111,8 @@ protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
     virtual void deleteYourselfLocal();
-    Ogre::Real mRotationAngle;
 private:
+    Ogre::Real mRotationAngle;
     bool mIsOnMap;
 };
 

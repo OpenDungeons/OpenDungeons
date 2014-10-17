@@ -23,6 +23,7 @@
 #include "RenderManager.h"
 #include "TreasuryObject.h"
 #include "ChickenEntity.h"
+#include "MissileObject.h"
 #include "LogManager.h"
 
 #include <iostream>
@@ -38,11 +39,12 @@ RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap, const std::string
     setObjectType(GameEntity::renderedMovableEntity);
     setMeshName(nMeshName);
     // Set a unique name for the object
-    setName(gameMap->nextUniqueNameRoomObj(baseName));
+    setName(gameMap->nextUniqueNameRenderedMovableEntity(baseName));
 }
 
 RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap) :
     MovableGameEntity(gameMap),
+    mRotationAngle(0.0),
     mIsOnMap(true)
 {
     setObjectType(GameEntity::renderedMovableEntity);
@@ -108,19 +110,29 @@ const char* RenderedMovableEntity::getFormat()
 RenderedMovableEntity* RenderedMovableEntity::getRenderedMovableEntityFromLine(GameMap* gameMap, const std::string& line)
 {
     RenderedMovableEntity* obj = nullptr;
-    std::stringstream ss(line);
+    std::stringstream is(line);
     RenderedMovableEntity::RenderedMovableEntityType rot;
-    OD_ASSERT_TRUE(ss >> rot);
+    OD_ASSERT_TRUE(is >> rot);
     switch(rot)
     {
         case RenderedMovableEntityType::buildingObject:
         {
-            // Default type. Used in buildings. Should not be saved in level file
+            obj = new RenderedMovableEntity(gameMap);
             break;
         }
         case RenderedMovableEntityType::treasuryObject:
         {
-            obj = TreasuryObject::getTreasuryObjectFromStream(gameMap, ss);
+            obj = TreasuryObject::getTreasuryObjectFromStream(gameMap, is);
+            break;
+        }
+        case RenderedMovableEntityType::chickenEntity:
+        {
+            obj = ChickenEntity::getChickenEntityFromStream(gameMap, is);
+            break;
+        }
+        case RenderedMovableEntityType::missileObject:
+        {
+            obj = MissileObject::getMissileObjectFromStream(gameMap, is);
             break;
         }
         default:
@@ -130,6 +142,11 @@ RenderedMovableEntity* RenderedMovableEntity::getRenderedMovableEntityFromLine(G
             break;
         }
     }
+
+    if(obj == nullptr)
+        return nullptr;
+
+    obj->importFromStream(is);
     return obj;
 }
 
@@ -143,7 +160,6 @@ RenderedMovableEntity* RenderedMovableEntity::getRenderedMovableEntityFromPacket
         case RenderedMovableEntityType::buildingObject:
         {
             obj = new RenderedMovableEntity(gameMap);
-            OD_ASSERT_TRUE(is >> obj);
             break;
         }
         case RenderedMovableEntityType::treasuryObject:
@@ -156,6 +172,11 @@ RenderedMovableEntity* RenderedMovableEntity::getRenderedMovableEntityFromPacket
             obj = ChickenEntity::getChickenEntityFromPacket(gameMap, is);
             break;
         }
+        case RenderedMovableEntityType::missileObject:
+        {
+            obj = MissileObject::getMissileObjectFromPacket(gameMap, is);
+            break;
+        }
         default:
         {
             OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(
@@ -163,36 +184,69 @@ RenderedMovableEntity* RenderedMovableEntity::getRenderedMovableEntityFromPacket
             break;
         }
     }
+
+    if(obj == nullptr)
+        return nullptr;
+
+    obj->importFromPacket(is);
     return obj;
 }
 
-void RenderedMovableEntity::exportToPacket(ODPacket& packet)
+void RenderedMovableEntity::exportHeadersToStream(std::ostream& os)
 {
-    packet << this;
+    os << getRenderedMovableEntityType() << "\t";
 }
 
-ODPacket& operator<<(ODPacket& os, RenderedMovableEntity* ro)
+void RenderedMovableEntity::exportHeadersToPacket(ODPacket& os)
 {
-    std::string name = ro->getName();
-    std::string meshName = ro->getMeshName();
-    Ogre::Vector3 position = ro->getPosition();
+    os << getRenderedMovableEntityType();
+}
+
+void RenderedMovableEntity::exportToPacket(ODPacket& os)
+{
+    std::string name = getName();
+    std::string meshName = getMeshName();
+    Ogre::Vector3 position = getPosition();
     os << name << meshName;
-    os << position << ro->mRotationAngle;
-    return os;
+    os << position << mRotationAngle;
 }
 
-ODPacket& operator>>(ODPacket& is, RenderedMovableEntity* ro)
+void RenderedMovableEntity::importFromPacket(ODPacket& is)
 {
     std::string name;
+    std::string meshName;
     Ogre::Vector3 position;
-    is >> name;
-    ro->setName(name);
-    is >> name;
-    ro->setMeshName(name);
-    is >> position;
-    ro->setPosition(position);
-    is >> ro->mRotationAngle;
-    return is;
+    OD_ASSERT_TRUE(is >> name);
+    setName(name);
+    OD_ASSERT_TRUE(is >> meshName);
+    setMeshName(meshName);
+    OD_ASSERT_TRUE(is >> position);
+    setPosition(position);
+    OD_ASSERT_TRUE(is >> mRotationAngle);
+}
+
+void RenderedMovableEntity::exportToStream(std::ostream& os)
+{
+    std::string name = getName();
+    std::string meshName = getMeshName();
+    Ogre::Vector3 position = getPosition();
+    os << name << "\t" << meshName << "\t";
+    os << position.x << "\t" << position.y << "\t" << position.z << "\t";
+    os << mRotationAngle << "\t";
+}
+
+void RenderedMovableEntity::importFromStream(std::istream& is)
+{
+    std::string name;
+    std::string meshName;
+    Ogre::Vector3 position;
+    OD_ASSERT_TRUE(is >> name);
+    setName(name);
+    OD_ASSERT_TRUE(is >> meshName);
+    setMeshName(meshName);
+    OD_ASSERT_TRUE(is >> position.x >> position.y >> position.z);
+    setPosition(position);
+    OD_ASSERT_TRUE(is >> mRotationAngle);
 }
 
 ODPacket& operator<<(ODPacket& os, const RenderedMovableEntity::RenderedMovableEntityType& rot)

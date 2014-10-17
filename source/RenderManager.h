@@ -118,8 +118,6 @@ protected:
     void rrScaleSceneNode(const RenderRequest& renderRequest);
     void rrCreateWeapon(const RenderRequest& renderRequest);
     void rrDestroyWeapon(const RenderRequest& renderRequest);
-    void rrCreateMissileObject(const RenderRequest& renderRequest);
-    void rrDestroyMissileObject(const RenderRequest& renderRequest);
     void rrCreateMapLight(const RenderRequest& renderRequest);
     void rrDestroyMapLight(const RenderRequest& renderRequest);
     void rrDestroyMapLightVisualIndicator(const RenderRequest& renderRequest);

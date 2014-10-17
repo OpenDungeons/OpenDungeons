@@ -79,8 +79,6 @@ class ServerNotification
             creatureRefresh,
             tileClaimed,
             refreshPlayerSeat,
-            addMissileObject,
-            removeMissileObject,
             addRenderedMovableEntity,
             removeRenderedMovableEntity,
             depositGoldSound, // Makes the client play a deposit gold sound at tile coordinates.

@@ -29,7 +29,6 @@
 #include "MapLight.h"
 #include "Creature.h"
 #include "Weapon.h"
-#include "MissileObject.h"
 #include "Trap.h"
 #include "Player.h"
 #include "ResourceManager.h"
@@ -275,14 +274,6 @@ bool RenderManager::handleRenderRequest(const RenderRequest& renderRequest)
         rrDestroyWeapon(renderRequest);
         break;
 
-    case RenderRequest::createMissileObject:
-        rrCreateMissileObject(renderRequest);
-        break;
-
-    case RenderRequest::destroyMissileObject:
-        rrDestroyMissileObject(renderRequest);
-        break;
-
     case RenderRequest::createMapLight:
         rrCreateMapLight(renderRequest);
         break;
@@ -330,13 +321,6 @@ bool RenderManager::handleRenderRequest(const RenderRequest& renderRequest)
     {
         Weapon* curWeapon = static_cast<Weapon*>(renderRequest.p);
         delete curWeapon;
-        break;
-    }
-
-    case RenderRequest::deleteMissileObject:
-    {
-        MissileObject* curMissileObject = static_cast<MissileObject*>(renderRequest.p);
-        delete curMissileObject;
         break;
     }
 
@@ -860,34 +844,6 @@ void RenderManager::rrDestroyWeapon(const RenderRequest& renderRequest)
         Ogre::Entity* ent = mSceneManager->getEntity(curWeapon->getOgreNamePrefix()
                             + curWeapon->getHandString() + "_" + curCreature->getName());
         mSceneManager->destroyEntity(ent);
-    }
-}
-
-void RenderManager::rrCreateMissileObject(const RenderRequest& renderRequest)
-{
-    MissileObject* curMissileObject = static_cast<MissileObject*>(renderRequest.p);
-    Ogre::Entity* ent = mSceneManager->createEntity(curMissileObject->getOgreNamePrefix()
-        + curMissileObject->getName(), curMissileObject->getMeshName() + ".mesh");
-    //TODO:  Make a new subroot scene node for these so lookups are faster
-    // since only a few missile objects should be onscreen at once.
-    Ogre::SceneNode* node = mCreatureSceneNode->createChildSceneNode(
-                                ent->getName() + "_node");
-    node->setPosition(curMissileObject->getPosition());
-    node->attachObject(ent);
-}
-
-void RenderManager::rrDestroyMissileObject(const RenderRequest& renderRequest)
-{
-    MissileObject* curMissileObject = static_cast<MissileObject*>(renderRequest.p);
-    std::string moName = curMissileObject->getOgreNamePrefix() + curMissileObject->getName();
-    if (mSceneManager->hasEntity(moName))
-    {
-        Ogre::Entity* ent = mSceneManager->getEntity(moName);
-        Ogre::SceneNode* node = mSceneManager->getSceneNode(moName + "_node");
-        node->detachObject(ent);
-        mCreatureSceneNode->removeChild(node);
-        mSceneManager->destroyEntity(ent);
-        mSceneManager->destroySceneNode(node->getName());
     }
 }
 

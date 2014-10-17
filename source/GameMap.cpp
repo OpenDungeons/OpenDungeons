@@ -36,7 +36,6 @@
 #include "Seat.h"
 #include "MapLight.h"
 #include "TileCoordinateMap.h"
-#include "MissileObject.h"
 #include "Weapon.h"
 #include "MapLoader.h"
 #include "LogManager.h"
@@ -211,7 +210,6 @@ void GameMap::clearAll()
     clearCreatures();
     clearClasses();
     clearTraps();
-    clearMissileObjects();
 
     clearMapLights();
     clearRooms();
@@ -292,7 +290,7 @@ void GameMap::resetUniqueNumbers()
     mUniqueNumberFloodFilling = 0;
     mUniqueNumberMissileObj = 0;
     mUniqueNumberRoom = 0;
-    mUniqueNumberRoomObj = 0;
+    mUniqueNumberRenderedMovableEntity = 0;
     mUniqueNumberTrap = 0;
     mUniqueNumberMapLight = 0;
 }
@@ -431,10 +429,9 @@ void GameMap::addRenderedMovableEntity(RenderedMovableEntity *obj)
 
         try
         {
-            RenderedMovableEntity::RenderedMovableEntityType objType = obj->getRenderedMovableEntityType();
             ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::addRenderedMovableEntity, NULL);
-            serverNotification->mPacket << objType;
+                ServerNotification::addRenderedMovableEntity, nullptr);
+            obj->exportHeadersToPacket(serverNotification->mPacket);
             obj->exportToPacket(serverNotification->mPacket);
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
@@ -1287,101 +1284,61 @@ Player* GameMap::getPlayerBySeat(Seat* seat)
     return NULL;
 }
 
-std::list<Tile*> GameMap::lineOfSight(int x0, int y0, int x1, int y1)
+std::list<Tile*> GameMap::tilesBetween(int x1, int y1, int x2, int y2)
 {
     std::list<Tile*> path;
 
-    // Calculate the components of the 'manhattan distance'
-    int Dx = x1 - x0;
-    int Dy = y1 - y0;
-
-    // Determine if the slope of the line is greater than 1
-    int steep = (abs(Dy) >= abs(Dx));
-    if (steep)
+    if(x2 == x1)
     {
-        std::swap(x0, y0);
-        std::swap(x1, y1);
-        // recompute Dx, Dy after swap
-        Dx = x1 - x0;
-        Dy = y1 - y0;
+        // Vertical line, no need to compute
+        int diffY = 1;
+        if(y1 > y2)
+            diffY = -1;
+
+        for(int y = y1; y != y2; y += diffY)
+        {
+            Tile* tile = getTile(x1, y);
+            if(tile == nullptr)
+                break;
+
+            path.push_back(tile);
+        }
     }
-
-    // Determine whether the x component is increasing or decreasing
-    int xstep = 1;
-    if (Dx < 0)
+    else
     {
-        xstep = -1;
-        Dx = -Dx;
-    }
+        double deltax = x2 - x1;
+        double deltay = y2 - y1;
+        double error = 0;
+        double deltaerr = std::abs(deltay / deltax);
+        int diffX = 1;
+        if(x1 > x2)
+            diffX = -1;
 
-    // Determine whether the y component is increasing or decreasing
-    int ystep = 1;
-    if (Dy < 0)
-    {
-        ystep = -1;
-        Dy = -Dy;
-    }
+        int diffY = 1;
+        if(y1 > y2)
+            diffY = -1;
 
-    // Loop over the pixels on the line and add them to the return list
-    int TwoDy = 2 * Dy;
-    int TwoDyTwoDx = TwoDy - 2 * Dx; // 2*Dy - 2*Dx
-    int E = TwoDy - Dx; //2*Dy - Dx
-    int y = y0;
-    int xDraw, yDraw;
-    for (int x = x0; x != x1; x += xstep)
-    {
-        // Treat a steep line as if it were actually its inverse
-        if (steep)
+        int y = y1;
+        for(int x = x1; x != x2; x += diffX)
         {
-            xDraw = y;
-            yDraw = x;
-        }
-        else
-        {
-            xDraw = x;
-            yDraw = y;
-        }
+            Tile* tile = getTile(x, y);
+            if(tile == nullptr)
+                break;
 
-        // If the tile exists, add it to the path.
-        Tile *currentTile = getTile(xDraw, yDraw);
-        if (currentTile != NULL)
-        {
-            path.push_back(currentTile);
-        }
-        else
-        {
-            // This should fix a bug where creatures "cut across" null sections of the map if they can see the other side.
-            path.clear();
-            return path;
-        }
-
-        // If the error has accumulated to the next tile, "increment" the y coordinate
-        if (E > 0)
-        {
-            // Also add the tile for this y-value for the next row over so that the line of sight consists of a 4-connected
-            // path (i.e. you can traverse the path without ever having to move "diagonal" on the square grid).
-            currentTile = getTile(xDraw + 1, y);
-            if (currentTile != NULL)
+            path.push_back(tile);
+            error += deltaerr;
+            if(error >= 0.5)
             {
-                path.push_back(currentTile);
+                y += diffY;
+                error = error - 1.0;
             }
-            else
-            {
-                // This should fix a bug where creatures "cut across" null sections of the map if they can see the other side.
-                path.clear();
-                return path;
-            }
-
-            // Now increment y to the value it will be for the next x-value.
-            E += TwoDyTwoDx; //E += 2*Dy - 2*Dx;
-            y = y + ystep;
-
-        }
-        else
-        {
-            E += TwoDy; //E += 2*Dy;
         }
     }
+
+    // We add the last tile
+    Tile* tile = getTile(x2, y2);
+    if(tile != nullptr)
+        path.push_back(tile);
 
     return path;
 }
@@ -1488,10 +1445,32 @@ std::vector<GameEntity*> GameMap::getVisibleForce(std::vector<Tile*> visibleTile
         OD_ASSERT_TRUE(tile != NULL);
         if(tile == NULL)
             continue;
-        tile->fillAttackableObjects(returnList, seat, invert);
+
+        tile->fillAttackableCreatures(returnList, seat, invert);
+        tile->fillAttackableRoom(returnList, seat, invert);
+        tile->fillAttackableTrap(returnList, seat, invert);
     }
 
     return returnList;
+}
+
+std::vector<GameEntity*> GameMap::getVisibleCreatures(std::vector<Tile*> visibleTiles, Seat* seat, bool invert)
+{
+    std::vector<GameEntity*> returnList;
+
+    // Loop over the visible tiles
+    for (std::vector<Tile*>::iterator itr = visibleTiles.begin(); itr != visibleTiles.end(); ++itr)
+    {
+        Tile* tile = *itr;
+        OD_ASSERT_TRUE(tile != NULL);
+        if(tile == NULL)
+            continue;
+
+        tile->fillAttackableCreatures(returnList, seat, invert);
+    }
+
+    return returnList;
+
 }
 
 void GameMap::clearRooms()
@@ -1511,13 +1490,12 @@ void GameMap::addRoom(Room *r)
 {
     if(isServerGameMap())
     {
-        Room::RoomType type = r->getType();
         int nbTiles = r->getCoveredTiles().size();
         LogManager::getSingleton().logMessage("Adding room " + r->getName() + ", nbTiles="
             + Ogre::StringConverter::toString(nbTiles) + ", seatId=" + Ogre::StringConverter::toString(r->getSeat()->getId()));
 
         ServerNotification notif(ServerNotification::buildRoom, getPlayerBySeat(r->getSeat()));
-        notif.mPacket << type;
+        r->exportHeadersToPacket(notif.mPacket);
         r->exportToPacket(notif.mPacket);
         ODServer::getSingleton().sendAsyncMsgToAllClients(notif);
     }
@@ -1663,13 +1641,12 @@ void GameMap::addTrap(Trap *trap)
 {
     if(isServerGameMap())
     {
-        Trap::TrapType type = trap->getType();
         int nbTiles = trap->getCoveredTiles().size();
         LogManager::getSingleton().logMessage("Adding trap " + trap->getName() + ", nbTiles="
             + Ogre::StringConverter::toString(nbTiles) + ", seatId=" + Ogre::StringConverter::toString(trap->getSeat()->getId()));
 
         ServerNotification notif(ServerNotification::buildTrap, getPlayerBySeat(trap->getSeat()));
-        notif.mPacket << type;
+        trap->exportHeadersToPacket(notif.mPacket);
         trap->exportToPacket(notif.mPacket);
         ODServer::getSingleton().sendAsyncMsgToAllClients(notif);
     }
@@ -2005,106 +1982,6 @@ void GameMap::clearGoalsForAllSeats()
         filledSeats[i]->clearUncompleteGoals();
         filledSeats[i]->clearCompletedGoals();
     }
-}
-
-void GameMap::clearMissileObjects()
-{
-    for (unsigned int i = 0; i < missileObjects.size(); ++i)
-    {
-        MissileObject* mo = missileObjects[i];
-        removeActiveObject(mo);
-
-        for (std::vector<MovableGameEntity*>::iterator it = animatedObjects.begin(); it != animatedObjects.end(); ++it)
-        {
-            MovableGameEntity* ao = *it;
-            if (mo == ao)
-            {
-                animatedObjects.erase(it);
-                break;
-            }
-        }
-        mo->deleteYourself();
-    }
-
-    missileObjects.clear();
-}
-
-void GameMap::addMissileObject(MissileObject *m)
-{
-    if(isServerGameMap())
-    {
-        LogManager::getSingleton().logMessage("Adding MissileObject " + m->getName());
-        try
-        {
-            ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::addMissileObject, NULL);
-            serverNotification->mPacket << m;
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
-        catch (std::bad_alloc&)
-        {
-            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in GameMap::addMissileObject", Ogre::LML_CRITICAL);
-            exit(1);
-        }
-    }
-
-    missileObjects.push_back(m);
-    addActiveObject(m);
-    addAnimatedObject(m);
-}
-
-void GameMap::removeMissileObject(MissileObject *m)
-{
-    if(isServerGameMap())
-    {
-        LogManager::getSingleton().logMessage("Removing MissileObject " + m->getName());
-        try
-        {
-            ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::removeMissileObject, NULL);
-            std::string name = m->getName();
-            serverNotification->mPacket << name;
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
-        catch (std::bad_alloc&)
-        {
-            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in GameMap::removeMissileObject", Ogre::LML_CRITICAL);
-            exit(1);
-        }
-    }
-
-    for (unsigned int i = 0; i < missileObjects.size(); ++i)
-    {
-        if (m == missileObjects[i])
-        {
-            missileObjects.erase(missileObjects.begin() + i);
-            break;
-        }
-    }
-
-    removeActiveObject(m);
-    removeAnimatedObject(m);
-}
-
-MissileObject* GameMap::getMissileObject(int index)
-{
-    return missileObjects[index];
-}
-
-MissileObject* GameMap::getMissileObject(const std::string& name)
-{
-    for(std::vector<MissileObject*>::iterator it = missileObjects.begin(); it != missileObjects.end(); ++it)
-    {
-        MissileObject* mo = *it;
-        if(mo->getName().compare(name) == 0)
-            return mo;
-    }
-    return NULL;
-}
-
-unsigned int GameMap::numMissileObjects()
-{
-    return missileObjects.size();
 }
 
 Ogre::Real GameMap::crowDistance(Tile *t1, Tile *t2)
@@ -2586,17 +2463,6 @@ int GameMap::nextUniqueNumberFloodFilling()
     return ++mUniqueNumberFloodFilling;
 }
 
-std::string GameMap::nextUniqueNameMissileObj()
-{
-    std::string ret;
-    do
-    {
-        ++mUniqueNumberMissileObj;
-        ret = MissileObject::MISSILEOBJECT_NAME_PREFIX + Ogre::StringConverter::toString(mUniqueNumberMissileObj);
-    } while(getAnimatedObject(ret) != NULL);
-    return ret;
-}
-
 std::string GameMap::nextUniqueNameRoom(const std::string& meshName)
 {
     std::string ret;
@@ -2608,13 +2474,13 @@ std::string GameMap::nextUniqueNameRoom(const std::string& meshName)
     return ret;
 }
 
-std::string GameMap::nextUniqueNameRoomObj(const std::string& baseName)
+std::string GameMap::nextUniqueNameRenderedMovableEntity(const std::string& baseName)
 {
     std::string ret;
     do
     {
-        ++mUniqueNumberRoomObj;
-        ret = RenderedMovableEntity::RENDEREDMOVABLEENTITY_PREFIX + baseName + "_" + Ogre::StringConverter::toString(mUniqueNumberRoomObj);
+        ++mUniqueNumberRenderedMovableEntity;
+        ret = RenderedMovableEntity::RENDEREDMOVABLEENTITY_PREFIX + baseName + "_" + Ogre::StringConverter::toString(mUniqueNumberRenderedMovableEntity);
     } while(getAnimatedObject(ret) != NULL);
     return ret;
 }
@@ -2648,7 +2514,9 @@ void GameMap::logFloodFileTiles()
         for(int xx = 0; xx < getMapSizeX(); ++xx)
         {
             Tile* tile = getTile(xx, yy);
-            std::string str = "Tile floodfill : " + Tile::displayAsString(tile) + " - fullness=" + Ogre::StringConverter::toString(tile->getFullness());
+            std::string str = "Tile floodfill : " + Tile::displayAsString(tile)
+                + " - fullness=" + Ogre::StringConverter::toString(tile->getFullness())
+                + " - seatId=" + std::string(tile->getSeat() == nullptr ? "0" : Ogre::StringConverter::toString(tile->getSeat()->getId()));
             for(int i = 0; i < Tile::FloodFillTypeMax; ++i)
             {
                 str += ", [" + Ogre::StringConverter::toString(i) + "]=" +

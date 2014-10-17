@@ -304,40 +304,37 @@ Room* Room::getRoomFromStream(GameMap* gameMap, std::istream& is)
             break;
         case dormitory:
             tempRoom = new RoomDormitory(gameMap);
-            is >> tempRoom;
             break;
         case treasury:
             tempRoom = new RoomTreasury(gameMap);
-            is >> tempRoom;
             break;
         case portal:
             tempRoom = new RoomPortal(gameMap);
-            is >> tempRoom;
             break;
         case dungeonTemple:
             tempRoom = new RoomDungeonTemple(gameMap);
-            is >> tempRoom;
             break;
         case forge:
             tempRoom = new RoomForge(gameMap);
-            is >> tempRoom;
             break;
         case trainingHall:
             tempRoom = new RoomTrainingHall(gameMap);
-            is >> tempRoom;
             break;
         case library:
             tempRoom = new RoomLibrary(gameMap);
-            is >> tempRoom;
             break;
         case hatchery:
             tempRoom = new RoomHatchery(gameMap);
-            is >> tempRoom;
             break;
         default:
             OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(
                 static_cast<int>(nType)));
     }
+
+    if(tempRoom == nullptr)
+        return nullptr;
+
+    tempRoom->importFromStream(is);
 
     return tempRoom;
 }
@@ -355,126 +352,39 @@ Room* Room::getRoomFromPacket(GameMap* gameMap, ODPacket& is)
             break;
         case dormitory:
             tempRoom = new RoomDormitory(gameMap);
-            is >> tempRoom;
             break;
         case treasury:
             tempRoom = new RoomTreasury(gameMap);
-            is >> tempRoom;
             break;
         case portal:
             tempRoom = new RoomPortal(gameMap);
-            is >> tempRoom;
             break;
         case dungeonTemple:
             tempRoom = new RoomDungeonTemple(gameMap);
-            is >> tempRoom;
             break;
         case forge:
             tempRoom = new RoomForge(gameMap);
-            is >> tempRoom;
             break;
         case trainingHall:
             tempRoom = new RoomTrainingHall(gameMap);
-            is >> tempRoom;
             break;
         case library:
             tempRoom = new RoomLibrary(gameMap);
-            is >> tempRoom;
             break;
         case hatchery:
             tempRoom = new RoomHatchery(gameMap);
-            is >> tempRoom;
             break;
         default:
             OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(
                 static_cast<int>(nType)));
     }
 
+    if(tempRoom == nullptr)
+        return nullptr;
+
+    tempRoom->importFromPacket(is);
+
     return tempRoom;
-}
-
-void Room::exportToPacket(ODPacket& packet)
-{
-    packet << this;
-}
-
-void Room::exportToStream(std::ostream& os)
-{
-    os << this;
-}
-
-std::istream& operator>>(std::istream& is, Room* room)
-{
-    int tilesToLoad, tempX, tempY;
-    int tempInt = 0;
-    is >> tempInt;
-    Seat* seat = room->getGameMap()->getSeatById(tempInt);
-    OD_ASSERT_TRUE_MSG(seat != NULL, "seatId=" + Ogre::StringConverter::toString(tempInt));
-    room->setSeat(seat);
-
-    is >> tilesToLoad;
-    for (int i = 0; i < tilesToLoad; ++i)
-    {
-        is >> tempX >> tempY;
-        Tile* tempTile = room->getGameMap()->getTile(tempX, tempY);
-        if (tempTile != NULL)
-            room->addCoveredTile(tempTile, Room::DEFAULT_TILE_HP, false);
-    }
-
-    return is;
-}
-
-std::ostream& operator<<(std::ostream& os, Room *room)
-{
-    int seatId = room->getSeat()->getId();
-    int nbTiles = room->mCoveredTiles.size();
-    os << seatId << "\t" << nbTiles << "\n";
-    for (std::vector<Tile*>::iterator it = room->mCoveredTiles.begin(); it != room->mCoveredTiles.end(); ++it)
-    {
-        Tile *tempTile = *it;
-        os << tempTile->x << "\t" << tempTile->y << "\n";
-    }
-
-    return os;
-}
-
-ODPacket& operator>>(ODPacket& is, Room* room)
-{
-    std::string name;
-    int tilesToLoad, tempX, tempY;
-    is >> name;
-    room->setName(name);
-    int tempInt = 0;
-    is >> tempInt;
-    Seat* seat = room->getGameMap()->getSeatById(tempInt);
-    OD_ASSERT_TRUE_MSG(seat != NULL, "seatId=" + Ogre::StringConverter::toString(tempInt));
-    room->setSeat(seat);
-
-    is >> tilesToLoad;
-    for (int i = 0; i < tilesToLoad; ++i)
-    {
-        is >> tempX >> tempY;
-        Tile* tempTile = room->getGameMap()->getTile(tempX, tempY);
-        if (tempTile != NULL)
-            room->addCoveredTile(tempTile, Room::DEFAULT_TILE_HP, false);
-    }
-
-    return is;
-}
-
-ODPacket& operator<<(ODPacket& os, Room *room)
-{
-    const std::string& name = room->getName();
-    int seatId = room->getSeat()->getId();
-    int nbTiles = room->mCoveredTiles.size();
-    os << name << seatId << nbTiles;
-    for (std::vector<Tile*>::iterator it = room->mCoveredTiles.begin(); it != room->mCoveredTiles.end(); ++it)
-    {
-        Tile* tempTile = *it;
-        os << tempTile->x << tempTile->y;
-    }
-
-    return os;
 }
 
 const char* Room::getRoomNameFromRoomType(RoomType t)
@@ -848,6 +758,84 @@ RenderedMovableEntity* Room::notifyActiveSpotCreated(ActiveSpotPlace place, Tile
 void Room::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
 {
     removeBuildingObject(tile);
+}
+
+void Room::exportHeadersToStream(std::ostream& os)
+{
+    os << getType() << "\t";
+}
+
+void Room::exportHeadersToPacket(ODPacket& os)
+{
+    os << getType();
+}
+
+void Room::exportToPacket(ODPacket& os)
+{
+    const std::string& name = getName();
+    int seatId = getSeat()->getId();
+    int nbTiles = mCoveredTiles.size();
+    os << name << seatId << nbTiles;
+    for (std::vector<Tile*>::iterator it = mCoveredTiles.begin(); it != mCoveredTiles.end(); ++it)
+    {
+        Tile* tempTile = *it;
+        os << tempTile->x << tempTile->y;
+    }
+}
+
+void Room::importFromPacket(ODPacket& is)
+{
+    std::string name;
+    int tilesToLoad, tempX, tempY;
+    OD_ASSERT_TRUE(is >> name);
+    setName(name);
+    int tempInt = 0;
+    OD_ASSERT_TRUE(is >> tempInt);
+    Seat* seat = getGameMap()->getSeatById(tempInt);
+    OD_ASSERT_TRUE_MSG(seat != NULL, "seatId=" + Ogre::StringConverter::toString(tempInt));
+    setSeat(seat);
+
+    OD_ASSERT_TRUE(is >> tilesToLoad);
+    for (int i = 0; i < tilesToLoad; ++i)
+    {
+        OD_ASSERT_TRUE(is >> tempX >> tempY);
+        Tile* tempTile = getGameMap()->getTile(tempX, tempY);
+        OD_ASSERT_TRUE_MSG(tempTile != NULL, "tile=" + Ogre::StringConverter::toString(tempX) + "," + Ogre::StringConverter::toString(tempY));
+        if (tempTile != NULL)
+            addCoveredTile(tempTile, Room::DEFAULT_TILE_HP, false);
+    }
+}
+
+void Room::exportToStream(std::ostream& os)
+{
+    int seatId = getSeat()->getId();
+    int nbTiles = mCoveredTiles.size();
+    os << seatId << "\t" << nbTiles << "\n";
+    for (std::vector<Tile*>::iterator it = mCoveredTiles.begin(); it != mCoveredTiles.end(); ++it)
+    {
+        Tile *tempTile = *it;
+        os << tempTile->x << "\t" << tempTile->y << "\n";
+    }
+}
+
+void Room::importFromStream(std::istream& is)
+{
+    int tilesToLoad, tempX, tempY;
+    int tempInt = 0;
+    OD_ASSERT_TRUE(is >> tempInt);
+    Seat* seat = getGameMap()->getSeatById(tempInt);
+    OD_ASSERT_TRUE_MSG(seat != NULL, "seatId=" + Ogre::StringConverter::toString(tempInt));
+    setSeat(seat);
+
+    OD_ASSERT_TRUE(is >> tilesToLoad);
+    for (int i = 0; i < tilesToLoad; ++i)
+    {
+        OD_ASSERT_TRUE(is >> tempX >> tempY);
+        Tile* tempTile = getGameMap()->getTile(tempX, tempY);
+        OD_ASSERT_TRUE_MSG(tempTile != NULL, "tile=" + Ogre::StringConverter::toString(tempX) + "," + Ogre::StringConverter::toString(tempY));
+        if (tempTile != NULL)
+            addCoveredTile(tempTile, Room::DEFAULT_TILE_HP, false);
+    }
 }
 
 bool Room::sortForMapSave(Room* r1, Room* r2)

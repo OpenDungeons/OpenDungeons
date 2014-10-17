@@ -42,19 +42,16 @@ public:
     { return RenderedMovableEntityType::chickenEntity; }
 
     virtual bool tryPickup(Seat* seat, bool isEditorMode);
-    virtual bool tryDrop(Seat* seat, Tile* tile, bool isEditorMode);
-
-    virtual void exportToPacket(ODPacket& packet);
     virtual void pickup();
+    virtual bool tryDrop(Seat* seat, Tile* tile, bool isEditorMode);
+    virtual void drop(const Ogre::Vector3& v);
+
     virtual void setPosition(const Ogre::Vector3& v);
     bool eatChicken(Creature* creature);
 
-    static const char* getFormat();
     static ChickenEntity* getChickenEntityFromStream(GameMap* gameMap, std::istream& is);
-    static ChickenEntity* getChickenEntityFromPacket(GameMap* gameMap, ODPacket& packet);
-    friend ODPacket& operator<<(ODPacket& os, ChickenEntity* obj);
-    friend ODPacket& operator>>(ODPacket& os, ChickenEntity* obj);
-    friend std::ostream& operator<<(std::ostream& os, ChickenEntity* obj);
+    static ChickenEntity* getChickenEntityFromPacket(GameMap* gameMap, ODPacket& is);
+    static const char* getFormat();
 private:
     enum ChickenState
     {
@@ -64,8 +61,9 @@ private:
         dead
     };
     ChickenState mChickenState;
-    int32_t nbTurnOutsideHatchery;
-    int32_t nbTurnDie;
+    int32_t mNbTurnOutsideHatchery;
+    int32_t mNbTurnDie;
+    bool mIsDropped;
 
     void addTileToListIfPossible(int x, int y, Room* currentHatchery, std::vector<Tile*>& possibleTileMove);
 };

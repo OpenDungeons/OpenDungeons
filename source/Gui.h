@@ -91,6 +91,7 @@ public:
     static const std::string TAB_TRAPS;
     static const std::string BUTTON_TRAP_CANNON;
     static const std::string BUTTON_TRAP_SPIKE;
+    static const std::string BUTTON_TRAP_BOULDER;
     static const std::string BUTTON_DESTROY_TRAP;
     static const std::string TAB_SPELLS;
     static const std::string TAB_CREATURES;
@@ -206,6 +207,7 @@ private:
     static bool hatcheryButtonPressed   (const CEGUI::EventArgs& e);
     static bool cannonButtonPressed     (const CEGUI::EventArgs& e);
     static bool spikeTrapButtonPressed  (const CEGUI::EventArgs& e);
+    static bool boulderTrapButtonPressed(const CEGUI::EventArgs& e);
     static bool destroyTrapButtonPressed(const CEGUI::EventArgs& e);
     static bool confirmExitYesButtonPressed     (const CEGUI::EventArgs& e);
     static bool confirmExitNoButtonPressed      (const CEGUI::EventArgs& e);

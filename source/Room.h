@@ -57,16 +57,20 @@ public:
     virtual void absorbRoom(Room* r);
 
     static std::string getFormat();
-    friend std::ostream& operator<<(std::ostream& os, Room *room);
-    friend std::istream& operator>>(std::istream& is, Room *room);
-    friend ODPacket& operator<<(ODPacket& os, Room *room);
-    friend ODPacket& operator>>(ODPacket& is, Room *room);
 
     static Room* getRoomFromStream(GameMap* gameMap, std::istream& is);
     static Room* getRoomFromPacket(GameMap* gameMap, ODPacket& is);
 
+    /*! \brief Exports the headers needed to recreate the Room. It allows to extend Room as much as wanted.
+     * The content of the Room will be exported by exportToPacket.
+     */
+    virtual void exportHeadersToStream(std::ostream& os);
+    virtual void exportHeadersToPacket(ODPacket& os);
+    //! \brief Exports the data of the RenderedMovableEntity
     virtual void exportToStream(std::ostream& os);
-    virtual void exportToPacket(ODPacket& packet);
+    virtual void importFromStream(std::istream& is);
+    virtual void exportToPacket(ODPacket& os);
+    virtual void importFromPacket(ODPacket& is);
 
     void createBuildingObjectMeshes();
     void destroyBuildingObjectMeshes();

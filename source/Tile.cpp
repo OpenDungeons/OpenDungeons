@@ -1290,7 +1290,7 @@ int Tile::getFloodFill(FloodFillType type)
     return mFloodFillColor[type];
 }
 
-void Tile::fillAttackableObjects(std::vector<GameEntity*>& entities, Seat* seat, bool invert)
+void Tile::fillAttackableCreatures(std::vector<GameEntity*>& entities, Seat* seat, bool invert)
 {
     for(std::vector<Creature*>::iterator it = creaturesInCell.begin(); it != creaturesInCell.end(); ++it)
     {
@@ -1305,10 +1305,14 @@ void Tile::fillAttackableObjects(std::vector<GameEntity*>& entities, Seat* seat,
                 && creature->getSeat()->isAlliedSeat(seat)))
         {
             // Add the current creature
-            entities.push_back(creature);
+            if (std::find(entities.begin(), entities.end(), creature) == entities.end())
+                entities.push_back(creature);
         }
     }
+}
 
+void Tile::fillAttackableRoom(std::vector<GameEntity*>& entities, Seat* seat, bool invert)
+{
     Room *room = getCoveringRoom();
     if((room != NULL) && room->isAttackable())
     {
@@ -1320,7 +1324,10 @@ void Tile::fillAttackableObjects(std::vector<GameEntity*>& entities, Seat* seat,
                 entities.push_back(room);
         }
     }
+}
 
+void Tile::fillAttackableTrap(std::vector<GameEntity*>& entities, Seat* seat, bool invert)
+{
     Trap *trap = getCoveringTrap();
     if((trap != NULL) && trap->isAttackable())
     {

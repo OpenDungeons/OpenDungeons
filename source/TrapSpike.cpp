@@ -19,7 +19,6 @@
 
 #include "Tile.h"
 #include "GameMap.h"
-#include "MissileObject.h"
 #include "Random.h"
 #include "RenderedMovableEntity.h"
 #include "LogManager.h"
@@ -38,36 +37,41 @@ bool TrapSpike::shoot(Tile* tile)
 {
     std::vector<Tile*> visibleTiles;
     visibleTiles.push_back(tile);
-    std::vector<GameEntity*> enemyObjects = getGameMap()->getVisibleForce(visibleTiles, getSeat(), true);
-    if(enemyObjects.empty())
+    std::vector<GameEntity*> enemyCreatures = getGameMap()->getVisibleCreatures(visibleTiles, getSeat(), true);
+    if(enemyCreatures.empty())
         return false;
 
     RenderedMovableEntity* spike = getBuildingObjectFromTile(tile);
     spike->setAnimationState("Triggered", false);
 
     // We damage every creature standing on the trap
-    for(std::vector<GameEntity*>::iterator it = enemyObjects.begin(); it != enemyObjects.end(); ++it)
+    for(std::vector<GameEntity*>::iterator it = enemyCreatures.begin(); it != enemyCreatures.end(); ++it)
     {
         GameEntity* target = *it;
-        if(target->getObjectType() != GameEntity::ObjectType::creature)
-            continue;
-
         target->takeDamage(this, Random::Double(mMinDamage, mMaxDamage), target->getCoveredTiles()[0]);
     }
-    std::vector<GameEntity*> alliedObjects = getGameMap()->getVisibleForce(visibleTiles, getSeat(), false);
-    for(std::vector<GameEntity*>::iterator it = alliedObjects.begin(); it != alliedObjects.end(); ++it)
+    std::vector<GameEntity*> alliedCreatures = getGameMap()->getVisibleCreatures(visibleTiles, getSeat(), false);
+    for(std::vector<GameEntity*>::iterator it = alliedCreatures.begin(); it != alliedCreatures.end(); ++it)
     {
         GameEntity* target = *it;
-        if(target->getObjectType() != GameEntity::ObjectType::creature)
-            continue;
-
         target->takeDamage(this, Random::Double(mMinDamage, mMaxDamage), target->getCoveredTiles()[0]);
     }
     return true;
 }
 
-
 RenderedMovableEntity* TrapSpike::notifyActiveSpotCreated(Tile* tile)
 {
     return loadBuildingObject(getGameMap(), "Spiketrap", tile, 0.0);
+}
+
+TrapSpike* TrapSpike::getTrapSpikeFromStream(GameMap* gameMap, std::istream &is)
+{
+    TrapSpike* trap = new TrapSpike(gameMap);
+    return trap;
+}
+
+TrapSpike* TrapSpike::getTrapSpikeFromPacket(GameMap* gameMap, ODPacket &is)
+{
+    TrapSpike* trap = new TrapSpike(gameMap);
+    return trap;
 }

@@ -101,12 +101,10 @@ Trap* Trap::getTrapFromStream(GameMap* gameMap, std::istream &is)
             tempTrap = nullptr;
             break;
         case cannon:
-            tempTrap = new TrapCannon(gameMap);
-            is >> tempTrap;
+            tempTrap = TrapCannon::getTrapCannonFromStream(gameMap, is);
             break;
         case spike:
-            tempTrap = new TrapSpike(gameMap);
-            is >> tempTrap;
+            tempTrap = TrapSpike::getTrapSpikeFromStream(gameMap, is);
             break;
         case boulder:
             tempTrap = TrapBoulder::getTrapBoulderFromStream(gameMap, is);
@@ -115,6 +113,11 @@ Trap* Trap::getTrapFromStream(GameMap* gameMap, std::istream &is)
             OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(
                 static_cast<int>(nType)));
     }
+
+    if(tempTrap == nullptr)
+        return nullptr;
+
+    tempTrap->importFromStream(is);
 
     return tempTrap;
 }
@@ -131,12 +134,10 @@ Trap* Trap::getTrapFromPacket(GameMap* gameMap, ODPacket &is)
             tempTrap = nullptr;
             break;
         case cannon:
-            tempTrap = new TrapCannon(gameMap);
-            is >> tempTrap;
+            tempTrap = TrapCannon::getTrapCannonFromPacket(gameMap, is);
             break;
         case spike:
-            tempTrap = new TrapSpike(gameMap);
-            is >> tempTrap;
+            tempTrap = TrapSpike::getTrapSpikeFromPacket(gameMap, is);
             break;
         case boulder:
             tempTrap = TrapBoulder::getTrapBoulderFromPacket(gameMap, is);
@@ -146,17 +147,12 @@ Trap* Trap::getTrapFromPacket(GameMap* gameMap, ODPacket &is)
                 static_cast<int>(nType)));
     }
 
+    if(tempTrap == nullptr)
+        return nullptr;
+
+    tempTrap->importFromPacket(is);
+
     return tempTrap;
-}
-
-void Trap::exportToPacket(ODPacket& packet)
-{
-    packet << this;
-}
-
-void Trap::exportToStream(std::ostream& os)
-{
-    os << this;
 }
 
 const char* Trap::getTrapNameFromTrapType(TrapType t)
@@ -359,84 +355,85 @@ std::string Trap::getFormat()
     return "typeTrap\tseatId\tnumTiles\t\tSubsequent Lines: tileX\ttileY\t\tSubsequent Lines: optional specific data";
 }
 
-std::istream& operator>>(std::istream& is, Trap *t)
+void Trap::exportHeadersToStream(std::ostream& os)
 {
-    int tilesToLoad, tempX, tempY, tempInt;
-
-    is >> tempInt;
-    t->setSeat(t->getGameMap()->getSeatById(tempInt));
-
-    is >> tilesToLoad;
-    for (int i = 0; i < tilesToLoad; ++i)
-    {
-        is >> tempX >> tempY;
-        Tile *tempTile = t->getGameMap()->getTile(tempX, tempY);
-        if (tempTile != NULL)
-        {
-            t->addCoveredTile(tempTile, Trap::DEFAULT_TILE_HP);
-            tempTile->setSeat(t->getSeat());
-        }
-    }
-    return is;
+    os << getType() << "\t";
 }
 
-std::ostream& operator<<(std::ostream& os, Trap *t)
+void Trap::exportHeadersToPacket(ODPacket& os)
 {
-    int32_t nbTiles = t->mCoveredTiles.size();
-    int seatId = t->getSeat()->getId();
-    os << seatId << "\t" << nbTiles << "\n";
-    for(std::vector<Tile*>::iterator it = t->mCoveredTiles.begin(); it != t->mCoveredTiles.end(); ++it)
-    {
-        Tile *tempTile = *it;
-        os << tempTile->x << "\t" << tempTile->y << "\n";
-    }
-
-    return os;
+    os << getType();
 }
 
-ODPacket& operator>>(ODPacket& is, Trap *t)
+void Trap::exportToPacket(ODPacket& os)
 {
-    int tilesToLoad, tempX, tempY, tempInt;
-    std::string name;
-    is >> name;
-    t->setName(name);
-
-    is >> tempInt;
-    t->setSeat(t->getGameMap()->getSeatById(tempInt));
-
-    is >> tilesToLoad;
-    for (int i = 0; i < tilesToLoad; ++i)
-    {
-        is >> tempX >> tempY;
-        Tile *tempTile = t->getGameMap()->getTile(tempX, tempY);
-        if (tempTile != NULL)
-        {
-            t->addCoveredTile(tempTile, Trap::DEFAULT_TILE_HP);
-            tempTile->setSeat(t->getSeat());
-        }
-        else
-        {
-            LogManager::getSingleton().logMessage("ERROR : trying to add trap on unkown tile "
-                + Ogre::StringConverter::toString(tempX) + "," + Ogre::StringConverter::toString(tempY));
-        }
-    }
-    return is;
-}
-
-ODPacket& operator<<(ODPacket& os, Trap *t)
-{
-    int nbTiles = t->mCoveredTiles.size();
-    const std::string& name = t->getName();
-    int seatId = t->getSeat()->getId();
+    int nbTiles = mCoveredTiles.size();
+    const std::string& name = getName();
+    int seatId = getSeat()->getId();
     os << name << seatId;
     os << nbTiles;
-    for(std::vector<Tile*>::iterator it = t->mCoveredTiles.begin(); it != t->mCoveredTiles.end(); ++it)
+    for(std::vector<Tile*>::iterator it = mCoveredTiles.begin(); it != mCoveredTiles.end(); ++it)
     {
         Tile *tempTile = *it;
         os << tempTile->x << tempTile->y;
     }
+}
 
-    return os;
+void Trap::importFromPacket(ODPacket& is)
+{
+    int tilesToLoad, tempX, tempY, tempInt;
+    std::string name;
+    OD_ASSERT_TRUE(is >> name);
+    setName(name);
+
+    OD_ASSERT_TRUE(is >> tempInt);
+    setSeat(getGameMap()->getSeatById(tempInt));
+
+    OD_ASSERT_TRUE(is >> tilesToLoad);
+    for (int i = 0; i < tilesToLoad; ++i)
+    {
+        OD_ASSERT_TRUE(is >> tempX >> tempY);
+        Tile *tempTile = getGameMap()->getTile(tempX, tempY);
+        OD_ASSERT_TRUE_MSG(tempTile != NULL, "tile=" + Ogre::StringConverter::toString(tempX) + "," + Ogre::StringConverter::toString(tempY));
+        if (tempTile != NULL)
+        {
+            addCoveredTile(tempTile, Trap::DEFAULT_TILE_HP);
+            tempTile->setSeat(getSeat());
+        }
+    }
+}
+
+void Trap::exportToStream(std::ostream& os)
+{
+    int32_t nbTiles = mCoveredTiles.size();
+    int seatId = getSeat()->getId();
+    os << seatId << "\t" << nbTiles << "\n";
+    for(std::vector<Tile*>::iterator it = mCoveredTiles.begin(); it != mCoveredTiles.end(); ++it)
+    {
+        Tile *tempTile = *it;
+        os << tempTile->x << "\t" << tempTile->y << "\n";
+    }
+}
+
+void Trap::importFromStream(std::istream& is)
+{
+    int tilesToLoad, tempX, tempY, tempInt;
+
+    OD_ASSERT_TRUE(is >> tempInt);
+    setSeat(getGameMap()->getSeatById(tempInt));
+
+    OD_ASSERT_TRUE(is >> tilesToLoad);
+    for (int i = 0; i < tilesToLoad; ++i)
+    {
+        OD_ASSERT_TRUE(is >> tempX >> tempY);
+        Tile *tempTile = getGameMap()->getTile(tempX, tempY);
+        OD_ASSERT_TRUE_MSG(tempTile != NULL, "tile=" + Ogre::StringConverter::toString(tempX) + "," + Ogre::StringConverter::toString(tempY));
+        if (tempTile != NULL)
+        {
+            addCoveredTile(tempTile, Trap::DEFAULT_TILE_HP);
+            tempTile->setSeat(getSeat());
+        }
+    }
 }
 
 std::istream& operator>>(std::istream& is, Trap::TrapType& tt)

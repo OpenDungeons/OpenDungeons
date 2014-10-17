@@ -73,9 +73,6 @@ public:
         orientSceneNodeToward,
         reorientSceneNode,
         scaleSceneNode,
-        createMissileObject,
-        destroyMissileObject,
-        deleteMissileObject, //setMissileObjectAnimationState,
         noRequest
     };
 

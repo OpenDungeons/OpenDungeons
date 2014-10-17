@@ -44,16 +44,17 @@ public:
     void mergeGold(TreasuryObject* obj);
     void addGold(int goldValue);
 
-    virtual void exportToPacket(ODPacket& packet);
+    virtual void exportToStream(std::ostream& os);
+    virtual void importFromStream(std::istream& is);
+    virtual void exportToPacket(ODPacket& os);
+    virtual void importFromPacket(ODPacket& is);
+
     virtual void pickup();
     virtual void setPosition(const Ogre::Vector3& v);
 
     static const char* getFormat();
     static TreasuryObject* getTreasuryObjectFromStream(GameMap* gameMap, std::istream& is);
-    static TreasuryObject* getTreasuryObjectFromPacket(GameMap* gameMap, ODPacket& packet);
-    friend ODPacket& operator<<(ODPacket& os, TreasuryObject* obj);
-    friend ODPacket& operator>>(ODPacket& os, TreasuryObject* obj);
-    friend std::ostream& operator<<(std::ostream& os, TreasuryObject* obj);
+    static TreasuryObject* getTreasuryObjectFromPacket(GameMap* gameMap, ODPacket& is);
 private:
     int mGoldValue;
 };

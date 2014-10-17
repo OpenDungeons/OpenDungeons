@@ -18,122 +18,74 @@
 #include "TrapBoulder.h"
 #include "ODPacket.h"
 #include "GameMap.h"
+#include "Random.h"
+#include "MissileBoulder.h"
 #include "LogManager.h"
 
-TrapBoulder::TrapBoulder(GameMap* gameMap, int x, int y) :
-    DirectionalTrap(gameMap, x, y)
-{
-    mReloadTime = 20;
-    mMinDamage = 30;
-    mMaxDamage = 40;
-    setMeshName("Boulder");
-}
-
 TrapBoulder::TrapBoulder(GameMap* gameMap) :
-    DirectionalTrap(gameMap)
+    Trap(gameMap)
 {
-    mReloadTime = 20;
-    mMinDamage = 30;
-    mMaxDamage = 40;
+    mReloadTime = 100;
+    mMinDamage = 100;
+    mMaxDamage = 120;
     setMeshName("Boulder");
 }
 
-TrapBoulder* TrapBoulder::getTrapBoulderFromStream(GameMap* gameMap, std::istream& is)
+TrapBoulder* TrapBoulder::getTrapBoulderFromStream(GameMap* gameMap, std::istream &is)
 {
     TrapBoulder* trap = new TrapBoulder(gameMap);
-    is >> trap;
     return trap;
 }
 
-TrapBoulder* TrapBoulder::getTrapBoulderFromPacket(GameMap* gameMap, ODPacket& is)
+TrapBoulder* TrapBoulder::getTrapBoulderFromPacket(GameMap* gameMap, ODPacket &is)
 {
     TrapBoulder* trap = new TrapBoulder(gameMap);
-    is >> trap;
     return trap;
 }
 
-std::istream& operator>>(std::istream& is, TrapBoulder *trap)
+bool TrapBoulder::shoot(Tile* tile)
 {
-    int tilesToLoad, tempX, tempY, tempInt;
-
-    is >> tempInt;
-    trap->setSeat(trap->getGameMap()->getSeatById(tempInt));
-
-    is >> tilesToLoad;
-    for (int i = 0; i < tilesToLoad; ++i)
+    std::vector<Tile*> tiles = tile->getAllNeighbors();
+    for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end();)
     {
-        is >> tempX >> tempY;
-        Tile *tempTile = trap->getGameMap()->getTile(tempX, tempY);
-        if (tempTile != NULL)
-        {
-            trap->addCoveredTile(tempTile, Trap::DEFAULT_TILE_HP);
-            tempTile->setSeat(trap->getSeat());
-        }
-    }
-    is >> tempX >> tempY;
-    trap->mDir = std::pair<int, int>(tempX, tempY);
+        Tile* tmpTile = *it;
+        std::vector<Tile*> vecTile;
+        vecTile.push_back(tmpTile);
 
-    return is;
-}
-
-std::ostream& operator<<(std::ostream& os, TrapBoulder *trap)
-{
-    int32_t nbTiles = trap->mCoveredTiles.size();
-    int seatId = trap->getSeat()->getId();
-    os << seatId << "\t" << nbTiles << "\n";
-    for(std::vector<Tile*>::iterator it = trap->mCoveredTiles.begin(); it != trap->mCoveredTiles.end(); ++it)
-    {
-        Tile *tempTile = *it;
-        os << tempTile->x << "\t" << tempTile->y << "\n";
-    }
-    os << trap->mDir.first << "\t" << trap->mDir.second << "\n";
-    return os;
-}
-
-ODPacket& operator>>(ODPacket& is, TrapBoulder *trap)
-{
-    int tilesToLoad, tempX, tempY, tempInt;
-    std::string name;
-    is >> name;
-    trap->setName(name);
-
-    is >> tempInt;
-    trap->setSeat(trap->getGameMap()->getSeatById(tempInt));
-
-    is >> tilesToLoad;
-    for (int i = 0; i < tilesToLoad; ++i)
-    {
-        is >> tempX >> tempY;
-        Tile *tempTile = trap->getGameMap()->getTile(tempX, tempY);
-        if (tempTile != NULL)
-        {
-            trap->addCoveredTile(tempTile, Trap::DEFAULT_TILE_HP);
-            tempTile->setSeat(trap->getSeat());
-        }
+        if(getGameMap()->getVisibleCreatures(vecTile, getSeat(), true).empty())
+            it = tiles.erase(it);
         else
-        {
-            LogManager::getSingleton().logMessage("ERROR : trying to add trap on unkown tile "
-                + Ogre::StringConverter::toString(tempX) + "," + Ogre::StringConverter::toString(tempY));
-        }
+            ++it;
     }
-    is >> tempX >> tempY;
-    trap->mDir = std::pair<int, int>(tempX, tempY);
-    return is;
+    if(tiles.empty())
+        return false;
+
+    // We take a random tile and launch boulder it
+    Tile* tileChoosen = tiles[Random::Uint(0, tiles.size() - 1)];
+    // We launch the boulder
+    Ogre::Vector3 direction(static_cast<Ogre::Real>(tileChoosen->getX() - tile->getX()),
+                            static_cast<Ogre::Real>(tileChoosen->getY() - tile->getY()),
+                            0);
+    Ogre::Vector3 position;
+    position.x = static_cast<Ogre::Real>(tile->getX());
+    position.y = static_cast<Ogre::Real>(tile->getY());
+    position.z = 0;
+    direction.normalise();
+    MissileBoulder* missile = new MissileBoulder(getGameMap(), getSeat(), getName(), "Boulder",
+        direction, Random::Double(mMinDamage, mMaxDamage));
+    missile->setPosition(position);
+    getGameMap()->addRenderedMovableEntity(missile);
+    missile->setMoveSpeed(1.0);
+    missile->createMesh();
+    // We don't want the missile to stay idle for 1 turn. Because we are in a doUpkeep context,
+    // we can safely call the missile doUpkeep as we know the engine will not call it the turn
+    // it has been added
+    missile->doUpkeep();
+
+    return true;
 }
 
-ODPacket& operator<<(ODPacket& os, TrapBoulder *trap)
+RenderedMovableEntity* TrapBoulder::notifyActiveSpotCreated(Tile* tile)
 {
-    int nbTiles = trap->mCoveredTiles.size();
-    const std::string& name = trap->getName();
-    int seatId = trap->getSeat()->getId();
-    os << name << seatId;
-    os << nbTiles;
-    for(std::vector<Tile*>::iterator it = trap->mCoveredTiles.begin(); it != trap->mCoveredTiles.end(); ++it)
-    {
-        Tile *tempTile = *it;
-        os << tempTile->x << tempTile->y;
-    }
-    os << trap->mDir.first << trap->mDir.second;
-
-    return os;
+    return loadBuildingObject(getGameMap(), "Boulder", tile, 0.0);
 }

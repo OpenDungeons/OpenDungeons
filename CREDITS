@@ -116,7 +116,8 @@ textures/
 -> TentacleBed.png                     West                    CC0                     http://forum.freegamedev.net/viewtopic.php?p=60091#p60091
 -> TrainingDummy2_texture.png          Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59239#p59239
 -> TrainingDummy3.png                  P0ss                    CC-BY 3.0               http://forum.freegamedev.net/viewtopic.php?p=59351#p59351
--> TrainingDummy4.png                  Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?p=59621#p59621p=59621#p59621
+-> TrainingDummy4.png                  Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?p=59621#p59621
+-> Boulder.png                         Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?p=59832#p59832
 
 
 ======================
@@ -210,6 +211,7 @@ Troll_Rock.mesh                        Dm3d                    CC-BY-SA 3.0     
 Water*                                 Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Wizard.*                               Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Wyvern.*                               Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
+Boulder.*                              Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59832#p59832
 
 
 ====================

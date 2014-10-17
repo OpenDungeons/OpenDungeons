@@ -18,7 +18,6 @@
 #include "ChickenEntity.h"
 #include "ODPacket.h"
 #include "GameMap.h"
-#include "RoomTreasury.h"
 #include "Random.h"
 #include "LogManager.h"
 
@@ -30,16 +29,18 @@ const int32_t NB_TURNS_DIE_BEFORE_REMOVE = 5;
 ChickenEntity::ChickenEntity(GameMap* gameMap, const std::string& hatcheryName) :
     RenderedMovableEntity(gameMap, hatcheryName, "Chicken", 0.0f),
     mChickenState(ChickenState::free),
-    nbTurnOutsideHatchery(0),
-    nbTurnDie(0)
+    mNbTurnOutsideHatchery(0),
+    mNbTurnDie(0),
+    mIsDropped(false)
 {
 }
 
 ChickenEntity::ChickenEntity(GameMap* gameMap) :
     RenderedMovableEntity(gameMap),
     mChickenState(ChickenState::free),
-    nbTurnOutsideHatchery(0),
-    nbTurnDie(0)
+    mNbTurnOutsideHatchery(0),
+    mNbTurnDie(0),
+    mIsDropped(false)
 {
     setMeshName("Chicken");
 }
@@ -52,7 +53,7 @@ void ChickenEntity::doUpkeep()
        return;
 
     Tile* tile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(tile != nullptr, "tile=" + Tile::displayAsString(tile));
+    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
     if(tile == nullptr)
         return;
 
@@ -61,9 +62,9 @@ void ChickenEntity::doUpkeep()
 
     if(mChickenState == ChickenState::dying)
     {
-        if(nbTurnDie < NB_TURNS_DIE_BEFORE_REMOVE)
+        if(mNbTurnDie < NB_TURNS_DIE_BEFORE_REMOVE)
         {
-            nbTurnDie++;
+            ++mNbTurnDie;
             return;
         }
         mChickenState = ChickenState::dead;
@@ -82,19 +83,19 @@ void ChickenEntity::doUpkeep()
     Room* currentHatchery = tile->getCoveringRoom();
     if((currentHatchery != nullptr) && (currentHatchery->getType() == Room::RoomType::hatchery))
     {
-        nbTurnOutsideHatchery = 0;
+        mNbTurnOutsideHatchery = 0;
     }
     else
     {
         // If we are outside a hatchery for too long, we die
-        if(nbTurnOutsideHatchery >= NB_TURNS_OUTSIDE_HATCHERY_BEFORE_DIE)
+        if(mNbTurnOutsideHatchery >= NB_TURNS_OUTSIDE_HATCHERY_BEFORE_DIE)
         {
             mChickenState = ChickenState::dying;
             tile->removeChickenEntity(this);
             setAnimationState("Die", false);
             return;
         }
-        ++nbTurnOutsideHatchery;
+        ++mNbTurnOutsideHatchery;
     }
 
     // Handle normal behaviour : move or pick (if not already moving)
@@ -173,8 +174,8 @@ bool ChickenEntity::tryPickup(Seat* seat, bool isEditorMode)
         return false;
 
     Tile* tile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(tile != NULL, "tile=" + Tile::displayAsString(tile));
-    if(tile == NULL)
+    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
+    if(tile == nullptr)
         return false;
 
     if(!tile->isClaimedForSeat(seat) && !isEditorMode)
@@ -187,7 +188,7 @@ void ChickenEntity::pickup()
 {
     Tile* tile = getPositionTile();
     RenderedMovableEntity::pickup();
-    OD_ASSERT_TRUE_MSG(tile != nullptr, "tile=" + Tile::displayAsString(tile));
+    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
     if(tile == nullptr)
         return;
     OD_ASSERT_TRUE(tile->removeChickenEntity(this));
@@ -209,6 +210,13 @@ bool ChickenEntity::tryDrop(Seat* seat, Tile* tile, bool isEditorMode)
     return false;
 }
 
+void ChickenEntity::drop(const Ogre::Vector3& v)
+{
+    mIsDropped = true;
+    RenderedMovableEntity::drop(v);
+    mIsDropped = false;
+}
+
 void ChickenEntity::setPosition(const Ogre::Vector3& v)
 {
     if(!getIsOnMap())
@@ -220,21 +228,22 @@ void ChickenEntity::setPosition(const Ogre::Vector3& v)
     Tile* oldTile = getPositionTile();
     RenderedMovableEntity::setPosition(v);
     Tile* tile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(tile != nullptr, "tile=" + Tile::displayAsString(tile));
+    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
     if(tile == nullptr)
         return;
-    if(tile == oldTile)
+    if(!mIsDropped && (tile == oldTile))
         return;
+
     if(oldTile != nullptr)
         oldTile->removeChickenEntity(this);
 
-    tile->addChickenEntity(this);
+    OD_ASSERT_TRUE(tile->addChickenEntity(this));
 }
 
 bool ChickenEntity::eatChicken(Creature* creature)
 {
     Tile* tile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(tile != nullptr, "tile=" + Tile::displayAsString(tile));
+    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
     if(tile == nullptr)
         return false;
 
@@ -246,72 +255,20 @@ bool ChickenEntity::eatChicken(Creature* creature)
     return true;
 }
 
+ChickenEntity* ChickenEntity::getChickenEntityFromStream(GameMap* gameMap, std::istream& is)
+{
+    ChickenEntity* obj = new ChickenEntity(gameMap);
+    return obj;
+}
+
+ChickenEntity* ChickenEntity::getChickenEntityFromPacket(GameMap* gameMap, ODPacket& is)
+{
+    ChickenEntity* obj = new ChickenEntity(gameMap);
+    return obj;
+}
+
 const char* ChickenEntity::getFormat()
 {
     // TODO : implement saving/loading in the level file
     return "position";
-}
-
-ChickenEntity* ChickenEntity::getChickenEntityFromStream(GameMap* gameMap, std::istream& is)
-{
-    ChickenEntity* obj = new ChickenEntity(gameMap);
-    Ogre::Vector3 position;
-    Ogre::Real x, y, z;
-    OD_ASSERT_TRUE(is >> x >> y >> z);
-    obj->setPosition(Ogre::Vector3(x, y, z));
-    Tile* tile = obj->getPositionTile();
-    OD_ASSERT_TRUE(tile != nullptr);
-    if(tile != nullptr)
-        tile->addChickenEntity(obj);
-    return obj;
-
-}
-
-ChickenEntity* ChickenEntity::getChickenEntityFromPacket(GameMap* gameMap, ODPacket& packet)
-{
-    ChickenEntity* obj = new ChickenEntity(gameMap);
-    OD_ASSERT_TRUE(packet >> obj);
-    Tile* tile = obj->getPositionTile();
-    OD_ASSERT_TRUE(tile != nullptr);
-    if(tile != nullptr)
-        tile->addChickenEntity(obj);
-
-    return obj;
-}
-
-void ChickenEntity::exportToPacket(ODPacket& packet)
-{
-    packet << this;
-}
-
-std::ostream& operator<<(std::ostream& os, ChickenEntity* obj)
-{
-    std::string name = obj->getName();
-    Ogre::Vector3 position = obj->getPosition();
-    os << name;
-    os << position.x;
-    os << position.y;
-    os << position.z;
-    return os;
-}
-
-ODPacket& operator>>(ODPacket& is, ChickenEntity* obj)
-{
-    std::string name;
-    OD_ASSERT_TRUE(is >> name);
-    obj->setName(name);
-    Ogre::Vector3 position;
-    OD_ASSERT_TRUE(is >> position);
-    obj->setPosition(position);
-    return is;
-}
-
-ODPacket& operator<<(ODPacket& os, ChickenEntity* obj)
-{
-    std::string name = obj->getName();
-    std::string meshName = obj->getMeshName();
-    Ogre::Vector3 position = obj->getPosition();
-    os << name;
-    os << position;
-    return os;
 }

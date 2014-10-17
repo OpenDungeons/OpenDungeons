@@ -18,25 +18,31 @@
 #ifndef TRAPBOULDER_H
 #define TRAPBOULDER_H
 
-#include "DirectionalTrap.h"
+#include "Trap.h"
 
-class TrapBoulder : public DirectionalTrap
+class TrapBoulder : public Trap
 {
 public:
-    TrapBoulder(GameMap* gameMap, int x, int y);
+    TrapBoulder(GameMap* gameMap);
 
-    static TrapBoulder* getTrapBoulderFromStream(GameMap* gameMap, std::istream& is);
-    static TrapBoulder* getTrapBoulderFromPacket(GameMap* gameMap, ODPacket& is);
+    static TrapBoulder* getTrapBoulderFromStream(GameMap* gameMap, std::istream &is);
+    static TrapBoulder* getTrapBoulderFromPacket(GameMap* gameMap, ODPacket &is);
 
     virtual const TrapType getType() const
     { return TrapType::boulder; }
 
-    friend std::istream& operator>>(std::istream& is, TrapBoulder *trap);
-    friend std::ostream& operator<<(std::ostream& os, TrapBoulder *trap);
-    friend ODPacket& operator>>(ODPacket& is, TrapBoulder *trap);
-    friend ODPacket& operator<<(ODPacket& os, TrapBoulder *trap);
-private:
-    TrapBoulder(GameMap* gameMap);
+    virtual bool shoot(Tile* tile);
+    virtual bool isAttackable() const
+    {
+        return false;
+    }
+
+    virtual bool shouldDisplayMeshOnGround()
+    {
+        return false;
+    }
+
+    virtual RenderedMovableEntity* notifyActiveSpotCreated(Tile* tile);
 };
 
 #endif // TRAPBOULDER_H

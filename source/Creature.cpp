@@ -1695,7 +1695,7 @@ bool Creature::handleDepositGoldAction()
     popAction();
 
     Tile* tile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(tile != nullptr, "tile=" + Tile::displayAsString(tile));
+    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
     if(tile == nullptr)
         return true;
     TreasuryObject* obj = new TreasuryObject(getGameMap(), mGold);
@@ -1955,6 +1955,15 @@ bool Creature::handleEatingAction(bool isForced)
         return false;
     }
 
+    if ((isForced && mHunger < 5.0) ||
+        (!isForced && mHunger <= Random::Double(0.0, 15.0)))
+    {
+        popAction();
+
+        stopEating();
+        return true;
+    }
+
     // If we are in a hatchery, we go to the closest chicken in it. If we are not
     // in a hatchery, we check if there is a free chicken and eat it if we see it
     Tile* closestChickenTile = nullptr;
@@ -2024,15 +2033,6 @@ bool Creature::handleEatingAction(bool isForced)
             pushAction(CreatureAction::walkToTile);
             return false;
         }
-    }
-
-    if ((isForced && mHunger < 5.0) ||
-        (!isForced && mHunger <= Random::Double(0.0, 25.0)))
-    {
-        popAction();
-
-        stopEating();
-        return true;
     }
 
     if(mEatRoom != nullptr)

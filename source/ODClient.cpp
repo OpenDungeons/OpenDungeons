@@ -30,7 +30,6 @@
 #include "Weapon.h"
 #include "ODApplication.h"
 #include "RoomTreasury.h"
-#include "MissileObject.h"
 #include "TreasuryObject.h"
 #include "RenderedMovableEntity.h"
 #include "LogManager.h"
@@ -343,7 +342,7 @@ bool ODClient::processOneClientSocketMessage()
             MovableGameEntity *tempAnimatedObject = gameMap->getAnimatedObject(objName);
             OD_ASSERT_TRUE_MSG(tempAnimatedObject != NULL, "objName=" + objName);
             if (tempAnimatedObject != NULL)
-                tempAnimatedObject->addDestination(vect.x, vect.y);
+                tempAnimatedObject->addDestination(vect.x, vect.y, vect.z);
 
             break;
         }
@@ -403,12 +402,12 @@ bool ODClient::processOneClientSocketMessage()
             Tile tmpTile(gameMap);
             OD_ASSERT_TRUE(packetReceived >> seatId >> &tmpTile);
             Player *tempPlayer = gameMap->getPlayerBySeatId(seatId);
-            OD_ASSERT_TRUE_MSG(tempPlayer != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
+            OD_ASSERT_TRUE_MSG(tempPlayer != nullptr, "seatId=" + Ogre::StringConverter::toString(seatId));
             Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE_MSG(tile != NULL, "tile=" + Tile::displayAsString(&tmpTile));
-            if (tempPlayer != NULL && tile != NULL)
+            OD_ASSERT_TRUE_MSG(tile != nullptr, "tile=" + Tile::displayAsString(&tmpTile));
+            if (tempPlayer != nullptr && tile != nullptr)
             {
-                OD_ASSERT_TRUE(tempPlayer->dropHand(tile) != NULL);
+                OD_ASSERT_TRUE(tempPlayer->dropHand(tile) != nullptr);
             }
             break;
         }
@@ -553,10 +552,10 @@ bool ODClient::processOneClientSocketMessage()
             Tile tmpTile(gameMap);
             OD_ASSERT_TRUE(packetReceived >> roomName>> &tmpTile);
             Room* room = gameMap->getRoomByName(roomName);
-            OD_ASSERT_TRUE_MSG(room != NULL, "roomName=" + roomName);
+            OD_ASSERT_TRUE_MSG(room != nullptr, "roomName=" + roomName);
             Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE_MSG(tile != NULL, "tile=" + Tile::displayAsString(&tmpTile));
-            if((room != NULL) && (tile != NULL))
+            OD_ASSERT_TRUE_MSG(tile != nullptr, "tile=" + Tile::displayAsString(&tmpTile));
+            if((room != nullptr) && (tile != nullptr))
             {
                 room->removeCoveredTile(tile);
                 // If no more tiles, the room is removed
@@ -578,10 +577,10 @@ bool ODClient::processOneClientSocketMessage()
             Tile tmpTile(gameMap);
             OD_ASSERT_TRUE(packetReceived >> trapName>> &tmpTile);
             Trap* trap = gameMap->getTrapByName(trapName);
-            OD_ASSERT_TRUE_MSG(trap != NULL, "trapName=" + trapName);
+            OD_ASSERT_TRUE_MSG(trap != nullptr, "trapName=" + trapName);
             Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE_MSG(tile != NULL, "tile=" + Tile::displayAsString(&tmpTile));
-            if((trap != NULL) && (tile != NULL))
+            OD_ASSERT_TRUE_MSG(tile != nullptr, "tile=" + Tile::displayAsString(&tmpTile));
+            if((trap != nullptr) && (tile != nullptr))
             {
                 trap->removeCoveredTile(tile);
                 // If no more tiles, the room is removed
@@ -641,31 +640,6 @@ bool ODClient::processOneClientSocketMessage()
         case ServerNotification::playerNoMoreFighting:
         {
             MusicPlayer::getSingleton().play(gameMap->getLevelMusicFile());
-            break;
-        }
-
-        case ServerNotification::addMissileObject:
-        {
-            MissileObject* missile = new MissileObject(gameMap);
-            OD_ASSERT_TRUE(packetReceived >> missile);
-            gameMap->addMissileObject(missile);
-            missile->createMesh();
-            SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::CANNONFIRING,
-                                                                   missile->getPosition());
-            break;
-        }
-
-        case ServerNotification::removeMissileObject:
-        {
-            std::string name;
-            OD_ASSERT_TRUE(packetReceived >> name);
-            MissileObject* missile = gameMap->getMissileObject(name);
-            OD_ASSERT_TRUE_MSG(missile != NULL, "name=" + name);
-            if(missile != NULL)
-            {
-                gameMap->removeMissileObject(missile);
-                missile->deleteYourself();
-            }
             break;
         }
 

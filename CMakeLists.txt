@@ -180,7 +180,6 @@ set(OD_SOURCEFILES
     ${SRC}/CullingManager.cpp
     ${SRC}/CullingQuad.cpp
     ${SRC}/DummyArrayClass.cpp
-    ${SRC}/DirectionalTrap.cpp
     ${SRC}/EditorMode.cpp
     ${SRC}/FppMode.cpp
     ${SRC}/GameEntity.cpp
@@ -207,7 +206,9 @@ set(OD_SOURCEFILES
     ${SRC}/MenuModeMultiplayerServer.cpp
     ${SRC}/MenuModeSkirmish.cpp
     ${SRC}/MiniMap.cpp
+    ${SRC}/MissileBoulder.cpp
     ${SRC}/MissileObject.cpp
+    ${SRC}/MissileOneHit.cpp
     ${SRC}/ModeManager.cpp
     ${SRC}/MortuaryQuad.cpp
     ${SRC}/MovableGameEntity.cpp

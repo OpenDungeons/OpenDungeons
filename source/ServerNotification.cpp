@@ -98,10 +98,6 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "tileClaimed";
         case ServerNotificationType::refreshPlayerSeat:
             return "refreshPlayerSeat";
-        case ServerNotificationType::addMissileObject:
-            return "addMissileObject";
-        case ServerNotificationType::removeMissileObject:
-            return "removeMissileObject";
         case ServerNotificationType::addRenderedMovableEntity:
             return "addRenderedMovableEntity";
         case ServerNotificationType::removeRenderedMovableEntity:
