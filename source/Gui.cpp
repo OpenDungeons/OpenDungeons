@@ -70,7 +70,7 @@ Gui::Gui()
     CEGUI::Window* myHide = wmgr->createWindow("DefaultWindow", "DummyWindow");
     sheets[hideGui] = myHide;
 
-    sheets[inGameMenu] = wmgr->loadLayoutFromFile("OpenDungeons.layout");
+    sheets[inGameMenu] = wmgr->loadLayoutFromFile("OpenDungeonsGameModeMenu.layout");
     sheets[mainMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMainMenu.layout");
     sheets[skirmishMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuSkirmish.layout");
     sheets[multiplayerClientMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuMultiplayerClient.layout");
