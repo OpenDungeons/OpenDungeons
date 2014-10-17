@@ -47,7 +47,7 @@ public:
     static MissileBoulder* getMissileBoulderFromPacket(GameMap* gameMap, ODPacket& packet);
 private:
     double mDamage;
-    int nbHits;
+    int mNbHits;
 };
 
 #endif // MISSILEBOULDER_H

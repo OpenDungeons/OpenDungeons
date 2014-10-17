@@ -27,14 +27,14 @@ MissileBoulder::MissileBoulder(GameMap* gameMap, Seat* seat, const std::string& 
         const Ogre::Vector3& direction, double damage) :
     MissileObject(gameMap, seat, senderName, meshName, direction, true),
     mDamage(damage),
-    nbHits(0)
+    mNbHits(0)
 {
 }
 
 MissileBoulder::MissileBoulder(GameMap* gameMap) :
     MissileObject(gameMap),
     mDamage(0.0),
-    nbHits(0)
+    mNbHits(0)
 {
 }
 
@@ -46,8 +46,8 @@ bool MissileBoulder::hitCreature(GameEntity* entity)
 
     Tile* hitTile = tiles[0];
     entity->takeDamage(this, mDamage, hitTile);
-    ++nbHits;
-    if(Random::Uint(0, 10 - nbHits) <= 0)
+    ++mNbHits;
+    if(Random::Uint(0, 10 - mNbHits) <= 0)
         return false;
 
     return true;
