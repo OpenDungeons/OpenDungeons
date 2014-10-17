@@ -7,6 +7,12 @@
         <Property name="MaxSize" value="{{1,0},{1,0}}" />
         <Property name="Visible" value="False" />
         <Property name="RiseOnClickEnabled" value="False" />
+        <Window type="OD/ImageButton" name="DestroyTrapButton" >
+            <Property name="Area" value="{{0,20},{0,20},{0,80},{0,80}}" />
+            <Property name="NormalImage" value="OpenDungeonsIcons/DestroyTrapButton" />
+            <Property name="TooltipText" value="Destroy a trap (returns half its price)" />
+            <Property name="InheritsAlpha" value="False" />
+        </Window>
         <Window type="OD/ImageButton" name="CannonButton" >
             <Property name="Area" value="{{0,100},{0,20},{0,160},{0,80}}" />
             <Property name="NormalImage" value="OpenDungeonsIcons/CannonButton" />
@@ -20,15 +26,9 @@
             <Property name="InheritsAlpha" value="False" />
         </Window>
         <Window type="OD/ImageButton" name="BoulderTrapButton" >
-            <Property name="Area" value="{{0,160},{0,20},{0,220},{0,80}}" />
+            <Property name="Area" value="{{0,220},{0,20},{0,280},{0,80}}" />
             <Property name="NormalImage" value="OpenDungeonsIcons/BoulderTrapButton" />
             <Property name="TooltipText" value="Build a boulder trap" />
-            <Property name="InheritsAlpha" value="False" />
-        </Window>
-        <Window type="OD/ImageButton" name="DestroyTrapButton" >
-            <Property name="Area" value="{{0,20},{0,20},{0,80},{0,80}}" />
-            <Property name="NormalImage" value="OpenDungeonsIcons/DestroyTrapButton" />
-            <Property name="TooltipText" value="Destroy a trap (returns half its price)" />
             <Property name="InheritsAlpha" value="False" />
         </Window>
     </Window>
