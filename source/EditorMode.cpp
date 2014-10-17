@@ -37,7 +37,7 @@
 #include "ODClient.h"
 #include "ODServer.h"
 #include "ODApplication.h"
-#include "RoomObject.h"
+#include "RenderedMovableEntity.h"
 
 #include <OgreEntity.h>
 #include <OgreRoot.h>
@@ -474,10 +474,10 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
             }
             continue;
         }
-        if(resultName.find(RoomObject::ROOMOBJECT_OGRE_PREFIX) != std::string::npos)
+        if(resultName.find(RenderedMovableEntity::RENDEREDMOVABLEENTITY_OGRE_PREFIX) != std::string::npos)
         {
-            std::string name = resultName.substr(RoomObject::ROOMOBJECT_OGRE_PREFIX.length());
-            RoomObject* obj = mGameMap->getRoomObject(name);
+            std::string name = resultName.substr(RenderedMovableEntity::RENDEREDMOVABLEENTITY_OGRE_PREFIX.length());
+            RenderedMovableEntity* obj = mGameMap->getRenderedMovableEntity(name);
             if ((obj == NULL) || (!obj->tryPickup(player->getSeat(), true)))
                  continue;
 
@@ -487,7 +487,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
                 ClientNotification *clientNotification = new ClientNotification(
                     ClientNotification::askEntityPickUp);
                 const std::string& name = obj->getName();
-                clientNotification->mPacket << GameEntity::ObjectType::roomobject;
+                clientNotification->mPacket << GameEntity::ObjectType::renderedMovableEntity;
                 clientNotification->mPacket << name;
                 ODClient::getSingleton().queueClientNotification(clientNotification);
                 return true;

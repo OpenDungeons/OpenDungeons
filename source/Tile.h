@@ -37,6 +37,7 @@ class GameMap;
 class CreatureDefinition;
 class Trap;
 class TreasuryObject;
+class ChickenEntity;
 class ODPacket;
 
 /*! \brief The tile class contains information about tile type and contents and is the basic level bulding block.
@@ -290,10 +291,18 @@ public:
     std::vector<Tile*> getCoveredTiles() { return std::vector<Tile*>() ;}
     void refreshFromTile(const Tile& tile);
 
-    //! \brief Fills entities with all the attackable entities in the Tile. If invert is true,
+    //! \brief Fills entities with all the attackable creatures in the Tile. If invert is true,
     //! the list will be filled with the ennemies with the given seat. If invert is false, it will be filled
-    //! with allies with the given seat.
-    void fillAttackableObjects(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
+    //! with allies with the given seat. For all theses functions, the list is checked to be sure
+    //! no entity is added twice
+    void fillAttackableCreatures(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
+    void fillAttackableRoom(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
+    void fillAttackableTrap(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
+
+    bool addChickenEntity(ChickenEntity* chicken);
+    bool removeChickenEntity(ChickenEntity* chicken);
+    const std::vector<ChickenEntity*>& getChickenEntities()
+    { return mChickens; }
 
 protected:
     virtual void createMeshLocal();
@@ -320,6 +329,11 @@ private:
     std::vector<Tile*> neighbors;
     std::vector<Creature*> creaturesInCell;
     std::vector<Player*> playersMarkingTile;
+
+    /*! \brief List of the chickens actually on this tile. It is handled by the chickens
+     * themselves and should not be deleted by the tile
+     */
+    std::vector<ChickenEntity*> mChickens;
     Room* coveringRoom;
     Trap* coveringTrap;
     MapLight* claimLight;

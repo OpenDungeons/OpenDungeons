@@ -275,8 +275,6 @@ public:
         if(mHunger < 0.0)
             mHunger = 0.0;
     }
-    inline void setEatCooldown(int val) { mEatCooldown = val; }
-    inline int getEatCooldown() { return mEatCooldown; }
 
     bool isJobRoom(Room* room);
     bool isEatRoom(Room* room);

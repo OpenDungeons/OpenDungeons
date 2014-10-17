@@ -15,8 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TREASURYOBJECT_H
-#define TREASURYOBJECT_H
+#ifndef CHICKENENTITY_H
+#define CHICKENENTITY_H
 
 #include "RenderedMovableEntity.h"
 
@@ -24,39 +24,48 @@
 #include <istream>
 #include <ostream>
 
+class Creature;
 class Room;
 class GameMap;
+class Tile;
 class ODPacket;
 
-class TreasuryObject: public RenderedMovableEntity
+class ChickenEntity: public RenderedMovableEntity
 {
 public:
-    TreasuryObject(GameMap* gameMap, int goldValue);
-    TreasuryObject(GameMap* gameMap);
+    ChickenEntity(GameMap* gameMap, const std::string& hatcheryName);
+    ChickenEntity(GameMap* gameMap);
 
     virtual void doUpkeep();
 
     virtual RenderedMovableEntityType getRenderedMovableEntityType()
-    { return RenderedMovableEntityType::treasuryObject; }
+    { return RenderedMovableEntityType::chickenEntity; }
 
     virtual bool tryPickup(Seat* seat, bool isEditorMode);
-    virtual bool tryDrop(Seat* seat, Tile* tile, bool isEditorMode);
-    void mergeGold(TreasuryObject* obj);
-    void addGold(int goldValue);
-
-    virtual void exportToStream(std::ostream& os);
-    virtual void importFromStream(std::istream& is);
-    virtual void exportToPacket(ODPacket& os);
-    virtual void importFromPacket(ODPacket& is);
-
     virtual void pickup();
-    virtual void setPosition(const Ogre::Vector3& v);
+    virtual bool tryDrop(Seat* seat, Tile* tile, bool isEditorMode);
+    virtual void drop(const Ogre::Vector3& v);
 
+    virtual void setPosition(const Ogre::Vector3& v);
+    bool eatChicken(Creature* creature);
+
+    static ChickenEntity* getChickenEntityFromStream(GameMap* gameMap, std::istream& is);
+    static ChickenEntity* getChickenEntityFromPacket(GameMap* gameMap, ODPacket& is);
     static const char* getFormat();
-    static TreasuryObject* getTreasuryObjectFromStream(GameMap* gameMap, std::istream& is);
-    static TreasuryObject* getTreasuryObjectFromPacket(GameMap* gameMap, ODPacket& is);
 private:
-    int mGoldValue;
+    enum ChickenState
+    {
+        free,
+        eaten,
+        dying,
+        dead
+    };
+    ChickenState mChickenState;
+    int32_t mNbTurnOutsideHatchery;
+    int32_t mNbTurnDie;
+    bool mIsDropped;
+
+    void addTileToListIfPossible(int x, int y, Room* currentHatchery, std::vector<Tile*>& possibleTileMove);
 };
 
-#endif // TREASURYOBJECT_H
+#endif // CHICKENENTITY_H

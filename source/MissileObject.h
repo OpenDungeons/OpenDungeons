@@ -18,61 +18,64 @@
 #ifndef MISSILEOBJECT_H
 #define MISSILEOBJECT_H
 
-#include "MovableGameEntity.h"
+#include "RenderedMovableEntity.h"
 
-#include <deque>
 #include <string>
+#include <istream>
+#include <ostream>
 
-#include <OgreVector3.h>
-
+class Creature;
+class Room;
 class GameMap;
+class Tile;
 class ODPacket;
 
-//! \brief This class implements missile object launched by traps when they're triggered.
-class MissileObject: public MovableGameEntity
+class MissileObject: public RenderedMovableEntity
 {
-friend class ODClient;
-
 public:
-    MissileObject(GameMap* gameMap, const std::string& nMeshName, const Ogre::Vector3& nPosition);
-
-    static const std::string MISSILEOBJECT_NAME_PREFIX;
-
-    /*! \brief Changes the missile's position to a new position.
-     *  Moves the creature to a new location in 3d space.  This function is
-     *  responsible for informing OGRE anything it needs to know.
-     */
-    void setPosition(const Ogre::Vector3& v);
-
-    std::string getOgreNamePrefix() const { return "MissileObject_"; }
+    enum MissileType
+    {
+        oneHit,
+        boulder
+    };
+    MissileObject(GameMap* gameMap, Seat* seat, const std::string& senderName,
+        const std::string& meshName, const Ogre::Vector3& direction, bool damageAllies);
+    MissileObject(GameMap* gameMap);
 
     virtual void doUpkeep();
 
-    void receiveExp(double experience)
-    {}
+    /*! brief Function called when the missile hits a wall. If it returns true, the missile direction
+     * will be set to nextDirection.
+     * If it returns false, the missile will be destroyed
+     */
+    virtual bool wallHitNextDirection(const Ogre::Vector3& actDirection, Tile* tile, Ogre::Vector3& nextDirection)
+    { return false; }
 
-    void takeDamage(GameEntity* attacker, double damage, Tile* tileTakingDamage)
-    {}
+    /*! brief Function called when the missile hits a creature. If it returns true, the missile continues
+     * If it returns false, the missile will be destroyed
+     */
+    virtual bool hitCreature(GameEntity* entity)
+    { return false; }
 
-    double getDefense() const
-    { return 0.0; }
+    virtual RenderedMovableEntityType getRenderedMovableEntityType()
+    { return RenderedMovableEntityType::missileObject; }
 
-    double getHP(Tile* tile) const
-    { return 0; }
+    virtual MissileType getMissileType() = 0;
 
-    std::vector<Tile*> getCoveredTiles()
-    { return std::vector<Tile*>(); }
+    virtual void exportHeadersToStream(std::ostream& os);
+    virtual void exportHeadersToPacket(ODPacket& os);
 
-    friend ODPacket& operator<<(ODPacket& os, MissileObject *mo);
-    friend ODPacket& operator>>(ODPacket& is, MissileObject *mo);
+    static MissileObject* getMissileObjectFromStream(GameMap* gameMap, std::istream& is);
+    static MissileObject* getMissileObjectFromPacket(GameMap* gameMap, ODPacket& is);
 
-protected:
-    virtual void createMeshLocal();
-    virtual void destroyMeshLocal();
-    virtual void deleteYourselfLocal();
+    friend ODPacket& operator<<(ODPacket& os, const MissileObject::MissileType& rot);
+    friend ODPacket& operator>>(ODPacket& is, MissileObject::MissileType& rot);
+    friend std::ostream& operator<<(std::ostream& os, const MissileObject::MissileType& rot);
+    friend std::istream& operator>>(std::istream& is, MissileObject::MissileType& rot);
 private:
-    //!\brief  For copy in ODClient
-    MissileObject(GameMap* gameMap);
+    Ogre::Vector3 mDirection;
+    bool mIsMissileAlive;
+    bool mDamageAllies;
 };
 
 #endif // MISSILEOBJECT_H

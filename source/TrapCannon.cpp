@@ -19,13 +19,15 @@
 #include "ODPacket.h"
 #include "Tile.h"
 #include "GameMap.h"
-#include "MissileObject.h"
+#include "MissileOneHit.h"
 #include "Random.h"
 #include "LogManager.h"
 
+const Ogre::Real CANNON_MISSILE_HEIGHT = 0.3;
+const Ogre::Real CANNON_MISSILE_SPEED = 5;
+
 TrapCannon::TrapCannon(GameMap* gameMap) :
-    ProximityTrap(gameMap),
-    mCannonHeight(1.5)
+    ProximityTrap(gameMap)
 {
     mReloadTime = 5;
     mRange = 10;
@@ -37,7 +39,7 @@ TrapCannon::TrapCannon(GameMap* gameMap) :
 bool TrapCannon::shoot(Tile* tile)
 {
     std::vector<Tile*> visibleTiles = getGameMap()->visibleTiles(tile, mRange);
-    std::vector<GameEntity*> enemyObjects = getGameMap()->getVisibleForce(visibleTiles, getSeat(), true);
+    std::vector<GameEntity*> enemyObjects = getGameMap()->getVisibleCreatures(visibleTiles, getSeat(), true);
 
     if(enemyObjects.empty())
         return false;
@@ -45,26 +47,43 @@ bool TrapCannon::shoot(Tile* tile)
     // Select an enemy to shoot at.
     GameEntity* targetEnemy = enemyObjects[Random::Uint(0, enemyObjects.size()-1)];
 
-    // TODO : instead of dealing damages here, add to MissileObject the needed infos to make it damage the
-    // target when hit (to allow pickup before getting hurt or dodging)
-    targetEnemy->takeDamage(this, Random::Double(mMinDamage, mMaxDamage), targetEnemy->getCoveredTiles()[0]);
     // Create the cannonball to move toward the enemy creature.
-    MissileObject *tempMissileObject = new MissileObject(getGameMap(),
-        "Cannonball", Ogre::Vector3((Ogre::Real)tile->x, (Ogre::Real)tile->y,
-                                    (Ogre::Real)mCannonHeight));
+    Ogre::Vector3 direction(static_cast<Ogre::Real>(targetEnemy->getCoveredTiles()[0]->x),
+                            static_cast<Ogre::Real>(targetEnemy->getCoveredTiles()[0]->y),
+                            CANNON_MISSILE_HEIGHT);
 
-    //TODO: Make this a pseudo newtonian mechanics solver which computes a parabola passing through the cannon
-    // and the enemy it is shooting at, add this as 10 or so destinations in the queue instead of just one.
-    getGameMap()->addMissileObject(tempMissileObject);
-    tempMissileObject->setMoveSpeed(8.0);
-    tempMissileObject->createMesh();
-    tempMissileObject->addDestination((Ogre::Real)targetEnemy->getCoveredTiles()[0]->x,
-                                    (Ogre::Real)targetEnemy->getCoveredTiles()[0]->y,
-                                    (Ogre::Real)mCannonHeight);
+    Ogre::Vector3 position;
+    position.x = static_cast<Ogre::Real>(tile->x);
+    position.y = static_cast<Ogre::Real>(tile->y);
+    position.z = CANNON_MISSILE_HEIGHT;
+    direction = direction - position;
+    direction.normalise();
+    MissileOneHit* missile = new MissileOneHit(getGameMap(), getSeat(), getName(), "Cannonball",
+        direction, Random::Double(mMinDamage, mMaxDamage), false);
+    missile->setPosition(position);
+    getGameMap()->addRenderedMovableEntity(missile);
+    missile->setMoveSpeed(CANNON_MISSILE_SPEED);
+    missile->createMesh();
+    // We don't want the missile to stay idle for 1 turn. Because we are in a doUpkeep context,
+    // we can safely call the missile doUpkeep as we know the engine will not call it the turn
+    // it has been added
+    missile->doUpkeep();
     return true;
 }
 
-RoomObject* TrapCannon::notifyActiveSpotCreated(Tile* tile)
+RenderedMovableEntity* TrapCannon::notifyActiveSpotCreated(Tile* tile)
 {
-    return loadRoomObject(getGameMap(), "Cannon", tile, 90.0);
+    return loadBuildingObject(getGameMap(), "Cannon", tile, 90.0);
+}
+
+TrapCannon* TrapCannon::getTrapCannonFromStream(GameMap* gameMap, std::istream &is)
+{
+    TrapCannon* trap = new TrapCannon(gameMap);
+    return trap;
+}
+
+TrapCannon* TrapCannon::getTrapCannonFromPacket(GameMap* gameMap, ODPacket &is)
+{
+    TrapCannon* trap = new TrapCannon(gameMap);
+    return trap;
 }

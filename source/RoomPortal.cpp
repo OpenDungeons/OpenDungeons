@@ -23,7 +23,7 @@
 #include "Player.h"
 #include "Creature.h"
 #include "Tile.h"
-#include "RoomObject.h"
+#include "RenderedMovableEntity.h"
 #include "GameMap.h"
 #include "Weapon.h"
 #include "CreatureAction.h"
@@ -44,7 +44,7 @@ RoomPortal::RoomPortal(GameMap* gameMap) :
 
 void RoomPortal::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
 {
-    // This Room keeps its room object until it is destroyed (it will be released when
+    // This Room keeps its building object until it is destroyed (they will be released when
     // the room is destroyed)
 }
 
@@ -53,8 +53,8 @@ void RoomPortal::absorbRoom(Room* room)
     Room::absorbRoom(room);
 
     // Get back the portal mesh reference
-    if (!mRoomObjects.empty())
-        mPortalObject = mRoomObjects.begin()->second;
+    if (!mBuildingObjects.empty())
+        mPortalObject = mBuildingObjects.begin()->second;
     else
         mPortalObject = NULL;
 }
@@ -67,15 +67,14 @@ void RoomPortal::createMeshLocal()
     if (mPortalObject != NULL)
         return;
 
-    // The client game map should not load room objects. They will be created
-    // by the messages sent by the server because some of them are randomly
-    // created
+    // The client game map should not load building objects. They will be created
+    // by the messages sent by the server because some of them are randomly created
     if(!getGameMap()->isServerGameMap())
         return;
 
-    mPortalObject = loadRoomObject(getGameMap(), "PortalObject", getCentralTile(), 0.0);
-    addRoomObject(getCentralTile(), mPortalObject);
-    createRoomObjectMeshes();
+    mPortalObject = loadBuildingObject(getGameMap(), "PortalObject", getCentralTile(), 0.0);
+    addBuildingObject(getCentralTile(), mPortalObject);
+    createBuildingObjectMeshes();
 
     mPortalObject->setAnimationState("Idle");
 }

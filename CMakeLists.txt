@@ -167,6 +167,7 @@ set(OD_SOURCEFILES
     ${SRC}/Building.cpp
     ${SRC}/CameraManager.cpp
     ${SRC}/ChatMessage.cpp
+    ${SRC}/ChickenEntity.cpp
     ${SRC}/ClientNotification.cpp
     ${SRC}/Console.cpp
     ${SRC}/Console_executePromptCommand.cpp
@@ -179,7 +180,6 @@ set(OD_SOURCEFILES
     ${SRC}/CullingManager.cpp
     ${SRC}/CullingQuad.cpp
     ${SRC}/DummyArrayClass.cpp
-    ${SRC}/DirectionalTrap.cpp
     ${SRC}/EditorMode.cpp
     ${SRC}/FppMode.cpp
     ${SRC}/GameEntity.cpp
@@ -206,7 +206,9 @@ set(OD_SOURCEFILES
     ${SRC}/MenuModeMultiplayerServer.cpp
     ${SRC}/MenuModeSkirmish.cpp
     ${SRC}/MiniMap.cpp
+    ${SRC}/MissileBoulder.cpp
     ${SRC}/MissileObject.cpp
+    ${SRC}/MissileOneHit.cpp
     ${SRC}/ModeManager.cpp
     ${SRC}/MortuaryQuad.cpp
     ${SRC}/MovableGameEntity.cpp
@@ -224,6 +226,7 @@ set(OD_SOURCEFILES
     ${SRC}/PrefixTree.cpp
     ${SRC}/RadialVector2.cpp
     ${SRC}/Random.cpp
+    ${SRC}/RenderedMovableEntity.cpp
     ${SRC}/RenderManager.cpp
     ${SRC}/RenderRequest.cpp
     ${SRC}/ResourceManager.cpp
@@ -233,7 +236,6 @@ set(OD_SOURCEFILES
     ${SRC}/RoomForge.cpp
     ${SRC}/RoomHatchery.cpp
     ${SRC}/RoomLibrary.cpp
-    ${SRC}/RoomObject.cpp
     ${SRC}/RoomPortal.cpp
     ${SRC}/RoomTrainingHall.cpp
     ${SRC}/RoomTreasury.cpp

@@ -19,6 +19,12 @@
             <Property name="TooltipText" value="Build a spike trap" />
             <Property name="InheritsAlpha" value="False" />
         </Window>
+        <Window type="OD/ImageButton" name="BoulderTrapButton" >
+            <Property name="Area" value="{{0,160},{0,20},{0,220},{0,80}}" />
+            <Property name="NormalImage" value="OpenDungeonsIcons/BoulderTrapButton" />
+            <Property name="TooltipText" value="Build a boulder trap" />
+            <Property name="InheritsAlpha" value="False" />
+        </Window>
         <Window type="OD/ImageButton" name="DestroyTrapButton" >
             <Property name="Area" value="{{0,20},{0,20},{0,80},{0,80}}" />
             <Property name="NormalImage" value="OpenDungeonsIcons/DestroyTrapButton" />

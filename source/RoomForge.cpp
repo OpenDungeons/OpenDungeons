@@ -19,7 +19,6 @@
 
 #include "Tile.h"
 #include "GameMap.h"
-#include "RoomObject.h"
 #include "Random.h"
 
 RoomForge::RoomForge(GameMap* gameMap) :
@@ -28,29 +27,29 @@ RoomForge::RoomForge(GameMap* gameMap) :
     setMeshName("Forge");
 }
 
-RoomObject* RoomForge::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
+RenderedMovableEntity* RoomForge::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
 {
     switch(place)
     {
         case ActiveSpotPlace::activeSpotCenter:
         {
-            return loadRoomObject(getGameMap(), "Foundry", tile, 45.0);
+            return loadBuildingObject(getGameMap(), "Foundry", tile, 45.0);
         }
         case ActiveSpotPlace::activeSpotLeft:
         {
-            return loadRoomObject(getGameMap(), "Chimney", tile, 90.0);
+            return loadBuildingObject(getGameMap(), "Chimney", tile, 90.0);
         }
         case ActiveSpotPlace::activeSpotRight:
         {
-            return loadRoomObject(getGameMap(), "Chimney", tile, 270.0);
+            return loadBuildingObject(getGameMap(), "Chimney", tile, 270.0);
         }
         case ActiveSpotPlace::activeSpotTop:
         {
-            return loadRoomObject(getGameMap(), "Grindstone", tile, 180.0);
+            return loadBuildingObject(getGameMap(), "Grindstone", tile, 180.0);
         }
         case ActiveSpotPlace::activeSpotBottom:
         {
-            return loadRoomObject(getGameMap(), "Anvil", tile, 0.0);
+            return loadBuildingObject(getGameMap(), "Anvil", tile, 0.0);
         }
     }
     return NULL;

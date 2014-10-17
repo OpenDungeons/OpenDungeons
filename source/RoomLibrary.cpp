@@ -19,7 +19,6 @@
 
 #include "Tile.h"
 #include "GameMap.h"
-#include "RoomObject.h"
 #include "Random.h"
 
 RoomLibrary::RoomLibrary(GameMap* gameMap) :
@@ -28,32 +27,32 @@ RoomLibrary::RoomLibrary(GameMap* gameMap) :
     setMeshName("Library");
 }
 
-RoomObject* RoomLibrary::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
+RenderedMovableEntity* RoomLibrary::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
 {
     switch(place)
     {
         case ActiveSpotPlace::activeSpotCenter:
         {
         if (Random::Int(0, 100) > 50)
-            return loadRoomObject(getGameMap(), "Podium", tile, 0.0);
+            return loadBuildingObject(getGameMap(), "Podium", tile, 0.0);
         else
-            return loadRoomObject(getGameMap(), "Bookcase", tile, 0.0);
+            return loadBuildingObject(getGameMap(), "Bookcase", tile, 0.0);
         }
         case ActiveSpotPlace::activeSpotLeft:
         {
-            return loadRoomObject(getGameMap(), "Bookshelf", tile, 90.0);
+            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 90.0);
         }
         case ActiveSpotPlace::activeSpotRight:
         {
-            return loadRoomObject(getGameMap(), "Bookshelf", tile, 270.0);
+            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 270.0);
         }
         case ActiveSpotPlace::activeSpotTop:
         {
-            return loadRoomObject(getGameMap(), "Bookshelf", tile, 0.0);
+            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 0.0);
         }
         case ActiveSpotPlace::activeSpotBottom:
         {
-            return loadRoomObject(getGameMap(), "Bookshelf", tile, 180.0);
+            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 180.0);
         }
     }
     return NULL;

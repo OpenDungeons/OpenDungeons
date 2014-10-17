@@ -34,13 +34,14 @@
 #include "Random.h"
 #include "ODServer.h"
 #include "ServerNotification.h"
-#include "LogManager.h"
 #include "CullingQuad.h"
 #include "Helper.h"
 #include "RoomTreasury.h"
 #include "RoomDormitory.h"
 #include "TreasuryObject.h"
+#include "ChickenEntity.h"
 #include "ODClient.h"
+#include "LogManager.h"
 
 #include <CEGUI/System.h>
 #include <CEGUI/WindowManager.h>
@@ -1694,14 +1695,14 @@ bool Creature::handleDepositGoldAction()
     popAction();
 
     Tile* tile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(tile != nullptr, "tile=" + Tile::displayAsString(tile));
+    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
     if(tile == nullptr)
         return true;
     TreasuryObject* obj = new TreasuryObject(getGameMap(), mGold);
     mGold = 0;
     Ogre::Vector3 pos(static_cast<Ogre::Real>(tile->x), static_cast<Ogre::Real>(tile->y), 0.0f);
     obj->setPosition(pos);
-    getGameMap()->addRoomObject(obj);
+    getGameMap()->addRenderedMovableEntity(obj);
 
     return true;
 }
@@ -1937,45 +1938,117 @@ bool Creature::handleEatingAction(bool isForced)
 {
     // Current creature tile position
     Tile* myTile = getPositionTile();
-
-    if ((isForced && mHunger < 5.0) ||
-        (!isForced && mHunger <= Random::Double(0.0, 25.0)))
+    OD_ASSERT_TRUE(myTile != nullptr);
+    if(myTile == nullptr)
     {
         popAction();
 
         stopEating();
         return true;
     }
-    // Make sure we are on the map.
-    else if (myTile != NULL)
-    {
-        // If we are already eating, nothing to do
-        if(mEatRoom != NULL)
-            return false;
 
-        // See if we are in a hatchery. If so, we try to add the creature. If it is ok, the room
-        // will handle the creature from here to make it go where it should
-        Room* tempRoom = myTile->getCoveringRoom();
-        if ((tempRoom != NULL) && getSeat()->canOwnedCreatureUseRoomFrom(tempRoom->getSeat()) && (tempRoom->getType() == Room::hatchery) && tempRoom->hasOpenCreatureSpot(this))
-        {
-            if(tempRoom->addCreatureUsingRoom(this))
-            {
-                mEatRoom = tempRoom;
-                return false;
-            }
-        }
-    }
-    else if (myTile == NULL)
+    if(mEatCooldown > 0)
     {
-        // We are not on the map, don't do anything.
-        popAction();
-
-        stopEating();
+        --mEatCooldown;
+        // We do nothing
+        setAnimationState("Idle");
         return false;
     }
 
-    // TODO : We should decide which room to use depending on the creatures preferences (library
-    // for wizards, ...)
+    if ((isForced && mHunger < 5.0) ||
+        (!isForced && mHunger <= Random::Double(0.0, 15.0)))
+    {
+        popAction();
+
+        stopEating();
+        return true;
+    }
+
+    // If we are in a hatchery, we go to the closest chicken in it. If we are not
+    // in a hatchery, we check if there is a free chicken and eat it if we see it
+    Tile* closestChickenTile = nullptr;
+    double closestChickenDist = 0.0;
+    for(std::vector<Tile*>::iterator it = mVisibleTiles.begin(); it != mVisibleTiles.end(); ++it)
+    {
+        Tile* tile = *it;
+        const std::vector<ChickenEntity*>& chickens = tile->getChickenEntities();
+        if(chickens.empty())
+            continue;
+
+        if((mEatRoom == nullptr) && (tile->getCoveringRoom() != nullptr) &&
+           (tile->getCoveringRoom()->getType() == Room::RoomType::hatchery))
+            continue;
+
+        if((mEatRoom != nullptr) && (tile->getCoveringRoom() != mEatRoom))
+            continue;
+
+        double dist = std::pow(static_cast<double>(std::abs(tile->getX() - myTile->getX())), 2);
+        dist += std::pow(static_cast<double>(std::abs(tile->getY() - myTile->getY())), 2);
+        if((closestChickenTile == nullptr) ||
+           (closestChickenDist > dist))
+        {
+            closestChickenTile = tile;
+            closestChickenDist = dist;
+        }
+    }
+
+    if(closestChickenTile != nullptr)
+    {
+        if(closestChickenDist <= 1.0)
+        {
+            // We eat the chicken
+            ChickenEntity* chicken = closestChickenTile->getChickenEntities().at(0);
+            chicken->eatChicken(this);
+            foodEaten(20);
+            mEatCooldown = Random::Int(3, 8);
+            Ogre::Vector3 walkDirection = Ogre::Vector3(closestChickenTile->getX(), closestChickenTile->getY(), 0) - getPosition();
+            walkDirection.normalise();
+            setAnimationState("Attack1", false, &walkDirection);
+            return false;
+        }
+
+        // We walk to the chicken
+        std::list<Tile*> pathToChicken = getGameMap()->path(myTile, closestChickenTile,
+            getDefinition(), getSeat());
+        OD_ASSERT_TRUE(!pathToChicken.empty());
+        if(pathToChicken.empty())
+        {
+            popAction();
+
+            stopEating();
+            return true;
+        }
+
+        // We make sure we don't go too far as the chicken is also moving
+        if(pathToChicken.size() > 2)
+        {
+            // We only keep 80% of the path
+            int nbTiles = 8 * pathToChicken.size() / 10;
+            pathToChicken.resize(nbTiles);
+        }
+
+        if(setWalkPath(pathToChicken, 0, false))
+        {
+            setAnimationState("Walk");
+            pushAction(CreatureAction::walkToTile);
+            return false;
+        }
+    }
+
+    if(mEatRoom != nullptr)
+        return false;
+
+    // See if we are in a hatchery. If so, we try to add the creature. If it is ok, the room
+    // will handle the creature from here to make it go where it should
+    Room* tempRoom = myTile->getCoveringRoom();
+    if ((tempRoom != nullptr) && getSeat()->canOwnedCreatureUseRoomFrom(tempRoom->getSeat()) && (tempRoom->getType() == Room::hatchery) && tempRoom->hasOpenCreatureSpot(this))
+    {
+        if(tempRoom->addCreatureUsingRoom(this))
+        {
+            mEatRoom = tempRoom;
+            return false;
+        }
+    }
 
     // Get the list of hatchery controlled by our seat and make sure there is at least one.
     std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndSeat(Room::hatchery, getSeat());
@@ -1989,9 +2062,8 @@ bool Creature::handleEatingAction(bool isForced)
     }
 
     // Pick a hatchery and try to walk to it.
-    // TODO : do we need a max distance for hatchery ?
     double maxDistance = 40.0;
-    Room* tempRoom = NULL;
+    tempRoom = nullptr;
     int nbTry = 5;
     do
     {

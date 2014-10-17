@@ -28,7 +28,7 @@ class GameMap;
 class Player;
 class Seat;
 class Tile;
-class RoomObject;
+class RenderedMovableEntity;
 class ODPacket;
 
 #include "Building.h"
@@ -56,9 +56,6 @@ public:
     static Trap* getTrapFromStream(GameMap* gameMap, std::istream &is);
     static Trap* getTrapFromPacket(GameMap* gameMap, ODPacket &is);
 
-    virtual void exportToStream(std::ostream& os);
-    virtual void exportToPacket(ODPacket& packet);
-
     virtual const TrapType getType() const = 0;
 
     static const char* getTrapNameFromTrapType(TrapType t);
@@ -80,11 +77,18 @@ public:
     virtual bool removeCoveredTile(Tile* t);
     virtual void updateActiveSpots();
 
+    /*! \brief Exports the headers needed to recreate the Trap. It allows to extend Traps as much as wanted.
+     * The content of the Trap will be exported by exportToPacket.
+     */
+    virtual void exportHeadersToStream(std::ostream& os);
+    virtual void exportHeadersToPacket(ODPacket& os);
+    //! \brief Exports the data of the RenderedMovableEntity
+    virtual void exportToStream(std::ostream& os);
+    virtual void importFromStream(std::istream& is);
+    virtual void exportToPacket(ODPacket& os);
+    virtual void importFromPacket(ODPacket& is);
+
     static std::string getFormat();
-    friend std::istream& operator>>(std::istream& is, Trap *t);
-    friend std::ostream& operator<<(std::ostream& os, Trap *t);
-    friend ODPacket& operator>>(ODPacket& is, Trap *t);
-    friend ODPacket& operator<<(ODPacket& os, Trap *t);
     friend std::istream& operator>>(std::istream& is, Trap::TrapType& tt);
     friend std::ostream& operator<<(std::ostream& os, const Trap::TrapType& tt);
     friend ODPacket& operator>>(ODPacket& is, Trap::TrapType& tt);
@@ -94,7 +98,7 @@ protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
     virtual void deleteYourselfLocal();
-    virtual RoomObject* notifyActiveSpotCreated(Tile* tile);
+    virtual RenderedMovableEntity* notifyActiveSpotCreated(Tile* tile);
     virtual void notifyActiveSpotRemoved(Tile* tile);
     int mReloadTime;
     double mMinDamage;

@@ -42,7 +42,6 @@ class Trap;
 class Seat;
 class Goal;
 class MapLight;
-class MissileObject;
 class MovableGameEntity;
 class CreatureDefinition;
 
@@ -181,13 +180,6 @@ public:
     void removeTrap(Trap *t);
     Trap* getTrap(int index);
     unsigned int numTraps();
-
-    void clearMissileObjects();
-    void addMissileObject(MissileObject *m);
-    void removeMissileObject(MissileObject *m);
-    MissileObject* getMissileObject(int index);
-    MissileObject* getMissileObject(const std::string& name);
-    unsigned int numMissileObjects();
 
     //! \brief Map Lights related functions.
     void clearMapLights();
@@ -340,20 +332,23 @@ public:
     std::list<Tile*> path(Creature *c1, Creature *c2, const CreatureDefinition* creatureDef, Seat* seat, bool throughDiggableTiles = false);
     std::list<Tile*> path(Tile *t1, Tile *t2, const CreatureDefinition* creatureDef, Seat* seat, bool throughDiggableTiles = false);
 
-    /*! \brief Returns a list of valid tiles along a straight line from (x1, y1) to (x2, y2), NOTE: in spite of
-     * the name, you do not need to be able to see through the tiles returned by this method.
+    /*! \brief Returns a list of valid tiles along a straight line from (x1, y1) to (x2, y2)
+     * independently from their fullness or type.
      *
      * This algorithm is from
-     * http://en.wikipedia.org/w/index.php?title=Bresenham%27s_line_algorithm&oldid=295047020
+     * http://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
      * A more detailed description of how it works can be found there.
      */
-    std::list<Tile*> lineOfSight(int x1, int y1, int x2, int y2);
+    std::list<Tile*> tilesBetween(int x1, int y1, int x2, int y2);
 
     //! \brief Returns the tiles visible from the given start tile out to the specified sight radius.
     std::vector<Tile*> visibleTiles(Tile *startTile, double sightRadius);
 
-    //! \brief Loops over the visibleTiles and returns any creatures in those tiles allied with the given seat (or if invert is true, is not allied)
+    //! \brief Loops over the visibleTiles and returns any creature/room/trap in those tiles allied with the given seat (or if invert is true, is not allied)
     std::vector<GameEntity*> getVisibleForce(std::vector<Tile*> visibleTiles, Seat* seat, bool invert);
+
+    //! \brief Loops over the visibleTiles and returns any creature in those tiles allied with the given seat (or if invert is true, is not allied)
+    std::vector<GameEntity*> getVisibleCreatures(std::vector<Tile*> visibleTiles, Seat* seat, bool invert);
 
     /** \brief Returns the as the crow flies distance between tiles located at the two coordinates given.
      * If tiles do not exist at these locations the function returns -1.0.
@@ -437,16 +432,16 @@ public:
     //! \brief This functions create unique names. They check that there
     //! is no entity with the same name before returning
     std::string nextUniqueNameCreature(const std::string& className);
-    std::string nextUniqueNameMissileObj();
+    std::string nextUniqueNameMissileObj(const std::string& baseName);
     std::string nextUniqueNameRoom(const std::string& meshName);
-    std::string nextUniqueNameRoomObj(const std::string& baseName);
+    std::string nextUniqueNameRenderedMovableEntity(const std::string& baseName);
     std::string nextUniqueNameTrap(const std::string& meshName);
     std::string nextUniqueNameMapLight();
 
-    void addRoomObject(RoomObject *obj);
-    void removeRoomObject(RoomObject *obj);
-    RoomObject* getRoomObject(const std::string& name);
-    void clearRoomObjects();
+    void addRenderedMovableEntity(RenderedMovableEntity *obj);
+    void removeRenderedMovableEntity(RenderedMovableEntity *obj);
+    RenderedMovableEntity* getRenderedMovableEntity(const std::string& name);
+    void clearRenderedMovableEntities();
     void clearActiveObjects();
 
     //! \brief Tells the game map a given player is attacking or under attack.
@@ -479,7 +474,7 @@ private:
     int mUniqueNumberFloodFilling;
     int mUniqueNumberMissileObj;
     int mUniqueNumberRoom;
-    int mUniqueNumberRoomObj;
+    int mUniqueNumberRenderedMovableEntity;
     int mUniqueNumberTrap;
     int mUniqueNumberMapLight;
 
@@ -506,7 +501,6 @@ private:
     std::vector<Room*> rooms;
     std::vector<Trap*> traps;
     std::vector<MapLight*> mapLights;
-    std::vector<MissileObject*> missileObjects;
 
     //! \brief Players and available game player slots (Seats)
     std::vector<Player*> players;
@@ -539,7 +533,7 @@ private:
 
     TileCoordinateMap* tileCoordinateMap;
 
-    std::vector<RoomObject*> mRoomObjects;
+    std::vector<RenderedMovableEntity*> mRenderedMovableEntities;
 
     //! AI Handling manager
     AIManager aiManager;

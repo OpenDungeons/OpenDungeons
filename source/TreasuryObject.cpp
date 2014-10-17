@@ -24,13 +24,13 @@
 #include <iostream>
 
 TreasuryObject::TreasuryObject(GameMap* gameMap, int goldValue) :
-    RoomObject(gameMap, "Treasury_", "GoldstackLv3", 0.0f),
+    RenderedMovableEntity(gameMap, "Treasury_", "GoldstackLv3", 0.0f),
     mGoldValue(goldValue)
 {
 }
 
 TreasuryObject::TreasuryObject(GameMap* gameMap) :
-    RoomObject(gameMap),
+    RenderedMovableEntity(gameMap),
     mGoldValue(0)
 {
     setMeshName("GoldstackLv3");
@@ -54,7 +54,7 @@ void TreasuryObject::doUpkeep()
 
     // We check if we are on a tile where there is a treasury room. If so, we add gold there
     Tile* tile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(tile != nullptr, "tile=" + Tile::displayAsString(tile));
+    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
     if(tile == nullptr)
         return;
 
@@ -77,7 +77,7 @@ void TreasuryObject::doUpkeep()
     if(mGoldValue <= 0)
     {
         tile->removeTreasuryObject(this);
-        getGameMap()->removeRoomObject(this);
+        getGameMap()->removeRenderedMovableEntity(this);
         deleteYourself();
     }
 }
@@ -93,8 +93,8 @@ bool TreasuryObject::tryPickup(Seat* seat, bool isEditorMode)
         return false;
 
     Tile* tile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(tile != NULL, "tile=" + Tile::displayAsString(tile));
-    if(tile == NULL)
+    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
+    if(tile == nullptr)
         return false;
 
     if(!tile->isClaimedForSeat(seat) && !isEditorMode)
@@ -106,8 +106,8 @@ bool TreasuryObject::tryPickup(Seat* seat, bool isEditorMode)
 void TreasuryObject::pickup()
 {
     Tile* tile = getPositionTile();
-    RoomObject::pickup();
-    OD_ASSERT_TRUE_MSG(tile != nullptr, "tile=" + Tile::displayAsString(tile));
+    RenderedMovableEntity::pickup();
+    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
     if(tile == nullptr)
         return;
 
@@ -132,9 +132,9 @@ bool TreasuryObject::tryDrop(Seat* seat, Tile* tile, bool isEditorMode)
 
 void TreasuryObject::setPosition(const Ogre::Vector3& v)
 {
-    RoomObject::setPosition(v);
+    RenderedMovableEntity::setPosition(v);
     Tile* tile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(tile != nullptr, "tile=" + Tile::displayAsString(tile));
+    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
     if(tile == nullptr)
         return;
 
@@ -151,56 +151,35 @@ const char* TreasuryObject::getFormat()
 TreasuryObject* TreasuryObject::getTreasuryObjectFromStream(GameMap* gameMap, std::istream& is)
 {
     TreasuryObject* obj = new TreasuryObject(gameMap);
-    Ogre::Vector3 position;
-    Ogre::Real x, y, z;
-    OD_ASSERT_TRUE(is >> x >> y >> z);
-    obj->setPosition(Ogre::Vector3(x, y, z));
-    OD_ASSERT_TRUE(is >> obj->mGoldValue);
     return obj;
-
 }
 
-TreasuryObject* TreasuryObject::getTreasuryObjectFromPacket(GameMap* gameMap, ODPacket& packet)
+TreasuryObject* TreasuryObject::getTreasuryObjectFromPacket(GameMap* gameMap, ODPacket& is)
 {
     TreasuryObject* obj = new TreasuryObject(gameMap);
-    OD_ASSERT_TRUE(packet >> obj);
     return obj;
 }
 
-void TreasuryObject::exportToPacket(ODPacket& packet)
+void TreasuryObject::exportToPacket(ODPacket& os)
 {
-    packet << this;
+    RenderedMovableEntity::exportToPacket(os);
+    os << mGoldValue;
 }
 
-std::ostream& operator<<(std::ostream& os, TreasuryObject* obj)
+void TreasuryObject::importFromPacket(ODPacket& is)
 {
-    std::string name = obj->getName();
-    Ogre::Vector3 position = obj->getPosition();
-    os << name;
-    os << position.x;
-    os << position.y;
-    os << position.z;
-    os << obj->mGoldValue;
-    return os;
+    RenderedMovableEntity::importFromPacket(is);
+    OD_ASSERT_TRUE(is >> mGoldValue);
 }
 
-ODPacket& operator>>(ODPacket& is, TreasuryObject* obj)
+void TreasuryObject::exportToStream(std::ostream& os)
 {
-    std::string name;
-    OD_ASSERT_TRUE(is >> name);
-    obj->setName(name);
-    Ogre::Vector3 position;
-    OD_ASSERT_TRUE(is >> position);
-    obj->setPosition(position);
-    return is;
+    RenderedMovableEntity::exportToStream(os);
+    os << mGoldValue << "\t";
 }
 
-ODPacket& operator<<(ODPacket& os, TreasuryObject* obj)
+void TreasuryObject::importFromStream(std::istream& is)
 {
-    std::string name = obj->getName();
-    std::string meshName = obj->getMeshName();
-    Ogre::Vector3 position = obj->getPosition();
-    os << name;
-    os << position;
-    return os;
+    RenderedMovableEntity::importFromStream(is);
+    OD_ASSERT_TRUE(is >> mGoldValue);
 }

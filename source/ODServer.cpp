@@ -25,7 +25,7 @@
 #include "ChatMessage.h"
 #include "ODConsoleCommand.h"
 #include "MapLoader.h"
-#include "RoomObject.h"
+#include "RenderedMovableEntity.h"
 #include "LogManager.h"
 #include "Creature.h"
 #include "Trap.h"
@@ -650,9 +650,9 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     allowPickup = creature->tryPickup(player->getSeat(), mServerMode == ServerMode::ModeEditor);
                     break;
                 }
-                case GameEntity::ObjectType::roomobject:
+                case GameEntity::ObjectType::renderedMovableEntity:
                 {
-                    RoomObject* obj = gameMap->getRoomObject(entityName);
+                    RenderedMovableEntity* obj = gameMap->getRenderedMovableEntity(entityName);
                     entity = obj;
                     allowPickup = obj->tryPickup(player->getSeat(), mServerMode == ServerMode::ModeEditor);
                     break;
@@ -691,7 +691,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             OD_ASSERT_TRUE(packetReceived >> &tmpTile);
             Player *player = clientSocket->getPlayer();
             Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE_MSG(tile != nullptr, "tile=" + Tile::displayAsString(tile));
+            OD_ASSERT_TRUE_MSG(tile != nullptr, "tile=" + Tile::displayAsString(&tmpTile));
             if(tile != nullptr)
             {
                 if(player->isDropHandPossible(tile, 0, mServerMode == ServerMode::ModeEditor))
@@ -752,7 +752,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             std::vector<Tile*> tiles;
             int goldRequired;
-            gameMap->fillBuildableTilesAndPriceForPlayerInArea(x1, y1, x2, y2, player, Room::RoomType::dormitory, tiles, goldRequired);
+            gameMap->fillBuildableTilesAndPriceForPlayerInArea(x1, y1, x2, y2, player, type, tiles, goldRequired);
             if(tiles.empty())
                 break;
 
@@ -941,9 +941,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 }
                 case Trap::TrapType::boulder:
                 {
-                    int x, y;
-                    OD_ASSERT_TRUE(packetReceived >> x >> y);
-                    trap = new TrapBoulder(gameMap, x, y);
+                    trap = new TrapBoulder(gameMap);
                     break;
                 }
                 default:
@@ -1297,9 +1295,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 }
                 case Trap::TrapType::boulder:
                 {
-                    int x, y;
-                    OD_ASSERT_TRUE(packetReceived >> x >> y);
-                    trap = new TrapBoulder(gameMap, x, y);
+                    trap = new TrapBoulder(gameMap);
                     break;
                 }
                 default:

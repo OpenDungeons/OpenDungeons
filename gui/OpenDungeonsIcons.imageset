@@ -19,5 +19,6 @@
 
     <Image height="60" name="CannonButton" width="60" xPos="132" yPos="159" />
     <Image height="60" name="SpikeTrapButton" width="60" xPos="194" yPos="159" />
+    <Image height="60" name="BoulderTrapButton" width="60" xPos="256" yPos="159" />
     <Image height="60" name="DestroyTrapButton" width="60" xPos="450" yPos="97" />
 </Imageset>

@@ -27,6 +27,9 @@ class TrapCannon : public ProximityTrap
 public:
     TrapCannon(GameMap* gameMap);
 
+    static TrapCannon* getTrapCannonFromStream(GameMap* gameMap, std::istream &is);
+    static TrapCannon* getTrapCannonFromPacket(GameMap* gameMap, ODPacket &is);
+
     virtual const TrapType getType() const
     { return TrapType::cannon; }
 
@@ -35,12 +38,7 @@ public:
     {
         return false;
     }
-    virtual RoomObject* notifyActiveSpotCreated(Tile* tile);
-
-    static TrapCannon* getTrapCannonFromPacket(GameMap* gameMap, ODPacket& packet);
-
-private:
-    double mCannonHeight;
+    virtual RenderedMovableEntity* notifyActiveSpotCreated(Tile* tile);
 };
 
 #endif // TRAPCANNON_H

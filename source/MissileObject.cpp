@@ -16,122 +16,233 @@
  */
 
 #include "MissileObject.h"
-
-#include "RenderRequest.h"
-#include "RenderManager.h"
 #include "ODPacket.h"
 #include "GameMap.h"
+#include "MissileBoulder.h"
+#include "MissileOneHit.h"
+#include "LogManager.h"
 
 #include <iostream>
-#include <sstream>
 
-const std::string MissileObject::MISSILEOBJECT_NAME_PREFIX = "Missile_Object_";
-
-MissileObject::MissileObject(GameMap* gameMap, const std::string& nMeshName, const Ogre::Vector3& nPosition) :
-    MovableGameEntity(gameMap)
+MissileObject::MissileObject(GameMap* gameMap, Seat* seat, const std::string& senderName,
+        const std::string& meshName, const Ogre::Vector3& direction, bool damageAllies) :
+    RenderedMovableEntity(gameMap, senderName, meshName, 0.0f),
+    mDirection(direction),
+    mIsMissileAlive(true),
+    mDamageAllies(damageAllies)
 {
-    setObjectType(GameEntity::missileobject);
-
-    setName(gameMap->nextUniqueNameMissileObj());
-
-    setMeshName(nMeshName);
-    setMeshExisting(false);
-    setPosition(nPosition);
+    setSeat(seat);
 }
 
 MissileObject::MissileObject(GameMap* gameMap) :
-    MovableGameEntity(gameMap)
+    RenderedMovableEntity(gameMap),
+    mDirection(Ogre::Vector3::ZERO),
+    mIsMissileAlive(true),
+    mDamageAllies(false)
 {
-    setObjectType(GameEntity::missileobject);
-    setMeshExisting(false);
-}
-
-void MissileObject::createMeshLocal()
-{
-    MovableGameEntity::createMeshLocal();
-
-    if(getGameMap()->isServerGameMap())
-        return;
-
-    RenderRequest* request = new RenderRequest;
-    request->type = RenderRequest::createMissileObject;
-    request->p = static_cast<void*>(this);
-    RenderManager::queueRenderRequest(request);
-}
-
-void MissileObject::destroyMeshLocal()
-{
-    MovableGameEntity::destroyMeshLocal();
-
-    if(getGameMap()->isServerGameMap())
-        return;
-
-    RenderRequest* request = new RenderRequest;
-    request->type = RenderRequest::destroyMissileObject;
-    request->p = static_cast<void*>(this);
-    RenderManager::queueRenderRequest(request);
-}
-
-void MissileObject::deleteYourselfLocal()
-{
-    MovableGameEntity::deleteYourselfLocal();
-    if(getGameMap()->isServerGameMap())
-        return;
-
-    RenderRequest* request = new RenderRequest;
-    request->type = RenderRequest::deleteMissileObject;
-    request->p = static_cast<void*>(this);
-    RenderManager::queueRenderRequest(request);
 }
 
 void MissileObject::doUpkeep()
 {
-    // TODO: check if we collide with a creature, if yes, do some damage and delete ourselves
-    if(!isMoving())
+    if(!getIsOnMap())
+        return;
+
+    if(!mIsMissileAlive)
     {
-        getGameMap()->removeMissileObject(this);
+        if(!isMoving())
+        {
+            getGameMap()->removeRenderedMovableEntity(this);
+            deleteYourself();
+        }
+        return;
+    }
+
+    Tile* tile = getPositionTile();
+    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
+    if(tile == nullptr)
+        return;
+
+    // We check if a creature is in our way. We start by taking the tile we will be on
+    Ogre::Vector3 position = getPosition();
+    double moveDist = getMoveSpeed();
+    Ogre::Vector3 destination = position + (moveDist * mDirection);
+
+    std::list<Tile*> tiles = getGameMap()->tilesBetween(static_cast<int>(position.x),
+        static_cast<int>(position.y), static_cast<int>(destination.x), static_cast<int>(destination.y));
+
+    OD_ASSERT_TRUE(!tiles.empty());
+    if(tiles.empty())
+    {
+        getGameMap()->removeRenderedMovableEntity(this);
         deleteYourself();
         return;
     }
+
+    Tile* lastTile = nullptr;
+    while(!tiles.empty() && mIsMissileAlive)
+    {
+        Tile* tmpTile = tiles.front();
+        tiles.pop_front();
+
+        if(tmpTile->getFullness() > 0.0)
+        {
+            Ogre::Vector3 nextDirection;
+            mIsMissileAlive = wallHitNextDirection(mDirection, lastTile, nextDirection);
+            if(!mIsMissileAlive)
+            {
+                destination -= moveDist * mDirection;
+                break;
+            }
+            else
+            {
+                position.x = static_cast<Ogre::Real>(lastTile->getX());
+                position.y = static_cast<Ogre::Real>(lastTile->getY());
+                addDestination(position.x, position.y, position.z);
+                // We compute next position
+                mDirection = nextDirection;
+                destination = position + (moveDist * mDirection);
+                tiles = getGameMap()->tilesBetween(static_cast<int>(position.x),
+                    static_cast<int>(position.y), static_cast<int>(destination.x), static_cast<int>(destination.y));
+
+                continue;
+            }
+        }
+
+        if(lastTile != nullptr)
+        {
+            Ogre::Vector3 lastPos;
+            lastPos.x = static_cast<Ogre::Real>(lastTile->getX());
+            lastPos.y = static_cast<Ogre::Real>(lastTile->getY());
+            lastPos.z = position.z;
+            Ogre::Vector3 curPos;
+            curPos.x = static_cast<Ogre::Real>(tmpTile->getX());
+            curPos.y = static_cast<Ogre::Real>(tmpTile->getY());
+            curPos.z = position.z;
+            moveDist -= lastPos.distance(curPos);
+        }
+        lastTile = tmpTile;
+
+        std::vector<Tile*> tileVector;
+        tileVector.push_back(tmpTile);
+        std::vector<GameEntity*> enemyCreatures = getGameMap()->getVisibleCreatures(tileVector, getSeat(), true);
+        for(std::vector<GameEntity*>::iterator it = enemyCreatures.begin(); it != enemyCreatures.end(); ++it)
+        {
+            GameEntity* creature = *it;
+            if(!hitCreature(creature))
+            {
+                destination -= moveDist * mDirection;
+                mIsMissileAlive = false;
+                break;
+            }
+        }
+
+        if(!mDamageAllies || !mIsMissileAlive)
+            continue;
+
+        std::vector<GameEntity*> alliedCreatures = getGameMap()->getVisibleCreatures(tileVector, getSeat(), false);
+        for(std::vector<GameEntity*>::iterator it = alliedCreatures.begin(); it != alliedCreatures.end(); ++it)
+        {
+            GameEntity* creature = *it;
+            if(!hitCreature(creature))
+            {
+                destination -= moveDist * mDirection;
+                mIsMissileAlive = false;
+                break;
+            }
+        }
+    }
+
+    addDestination(destination.x, destination.y, destination.z);
 }
 
-void MissileObject::setPosition(const Ogre::Vector3& v)
+void MissileObject::exportHeadersToStream(std::ostream& os)
 {
-    MovableGameEntity::setPosition(v);
-    if(getGameMap()->isServerGameMap())
-        return;
-
-    RenderRequest* request = new RenderRequest;
-    request->type = RenderRequest::moveSceneNode;
-    request->str = getOgreNamePrefix() + "_node";
-    request->vec = v;
-    RenderManager::queueRenderRequest(request);
+    RenderedMovableEntity::exportHeadersToStream(os);
+    os << getMissileType() << "\t";
 }
 
-ODPacket& operator<<(ODPacket& os, MissileObject *mo)
+void MissileObject::exportHeadersToPacket(ODPacket& os)
 {
-    std::string name =  mo->getName();
-    std::string meshName = mo->getMeshName();
-    double moveSpeed = mo->getMoveSpeed();
-    Ogre::Vector3 position = mo->getPosition();
-    os << meshName << position << name << moveSpeed;
+    RenderedMovableEntity::exportHeadersToPacket(os);
+    os << getMissileType();
+}
 
+MissileObject* MissileObject::getMissileObjectFromStream(GameMap* gameMap, std::istream& is)
+{
+    MissileObject* obj = nullptr;
+    MissileType type;
+    OD_ASSERT_TRUE(is >> type);
+    switch(type)
+    {
+        case MissileType::oneHit:
+        {
+            obj = MissileOneHit::getMissileOneHitFromStream(gameMap, is);
+            break;
+        }
+        case MissileType::boulder:
+        {
+            obj = MissileBoulder::getMissileBoulderFromStream(gameMap, is);
+            break;
+        }
+        default:
+            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(
+                static_cast<int>(type)));
+            break;
+    }
+    return obj;
+}
+
+MissileObject* MissileObject::getMissileObjectFromPacket(GameMap* gameMap, ODPacket& is)
+{
+    MissileObject* obj = nullptr;
+    MissileType type;
+    OD_ASSERT_TRUE(is >> type);
+    switch(type)
+    {
+        case MissileType::oneHit:
+        {
+            obj = MissileOneHit::getMissileOneHitFromPacket(gameMap, is);
+            break;
+        }
+        case MissileType::boulder:
+        {
+            obj = MissileBoulder::getMissileBoulderFromPacket(gameMap, is);
+            break;
+        }
+        default:
+            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(
+                static_cast<int>(type)));
+            break;
+    }
+    return obj;
+}
+
+ODPacket& operator<<(ODPacket& os, const MissileObject::MissileType& type)
+{
+    uint32_t intType = static_cast<MissileObject::MissileType>(type);
+    os << intType;
     return os;
 }
 
-ODPacket& operator>>(ODPacket& is, MissileObject *mo)
+ODPacket& operator>>(ODPacket& is, MissileObject::MissileType& type)
 {
-    std::string name;
-    std::string meshName;
-    Ogre::Vector3 position;
-    double moveSpeed;
-    is >> meshName;
-    mo->setMeshName(meshName);
-    is >> position;
-    mo->setPosition(position);
-    is >> name;
-    mo->setName(name);
-    is >> moveSpeed;
-    mo->setMoveSpeed(moveSpeed);
+    uint32_t intType;
+    is >> intType;
+    type = static_cast<MissileObject::MissileType>(intType);
+    return is;
+}
+
+std::ostream& operator<<(std::ostream& os, const MissileObject::MissileType& type)
+{
+    uint32_t intType = static_cast<MissileObject::MissileType>(type);
+    os << intType;
+    return os;
+}
+
+std::istream& operator>>(std::istream& is, MissileObject::MissileType& type)
+{
+    uint32_t intType;
+    is >> intType;
+    type = static_cast<MissileObject::MissileType>(intType);
     return is;
 }

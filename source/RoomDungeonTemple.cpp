@@ -22,7 +22,6 @@
 #include "Weapon.h"
 #include "CreatureAction.h"
 #include "CreatureSound.h"
-#include "RoomObject.h"
 #include "ODServer.h"
 #include "ServerNotification.h"
 
@@ -36,7 +35,7 @@ RoomDungeonTemple::RoomDungeonTemple(GameMap* gameMap) :
 
 void RoomDungeonTemple::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
 {
-    // This Room keeps its room object until it is destroyed (it will be released when
+    // This Room keeps its building object until it is destroyed (they will be released when
     // the room is destroyed)
 }
 
@@ -45,8 +44,8 @@ void RoomDungeonTemple::absorbRoom(Room* room)
     Room::absorbRoom(room);
 
     // Get back the temple mesh reference
-    if (!mRoomObjects.empty())
-        mTempleObject = mRoomObjects.begin()->second;
+    if (!mBuildingObjects.empty())
+        mTempleObject = mBuildingObjects.begin()->second;
     else
         mTempleObject = NULL;
 }
@@ -59,15 +58,15 @@ void RoomDungeonTemple::createMeshLocal()
     if (mTempleObject != NULL)
         return;
 
-    // The client game map should not load room objects. They will be created
+    // The client game map should not load building objects. They will be created
     // by the messages sent by the server because some of them are randomly
     // created
     if(!getGameMap()->isServerGameMap())
         return;
 
-    mTempleObject = loadRoomObject(getGameMap(), "DungeonTempleObject", getCentralTile(), 0.0);
-    addRoomObject(getCentralTile(), mTempleObject);
-    createRoomObjectMeshes();
+    mTempleObject = loadBuildingObject(getGameMap(), "DungeonTempleObject", getCentralTile(), 0.0);
+    addBuildingObject(getCentralTile(), mTempleObject);
+    createBuildingObjectMeshes();
 }
 
 void RoomDungeonTemple::destroyMeshLocal()

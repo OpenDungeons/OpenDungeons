@@ -40,7 +40,7 @@ public:
     virtual void absorbRoom(Room *r);
 
 protected:
-    virtual RoomObject* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
+    virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
     virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);
 private:
     static const Ogre::Real OFFSET_CREATURE;

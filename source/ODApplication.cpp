@@ -37,7 +37,6 @@
 #include "GameMap.h"
 #include "Random.h"
 #include "MapLight.h"
-#include "MissileObject.h"
 #include "ODServer.h"
 #include "ODClient.h"
 

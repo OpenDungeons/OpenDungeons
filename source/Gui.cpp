@@ -188,6 +188,10 @@ void Gui::assignEventHandlers()
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&spikeTrapButtonPressed));
 
+    sheets[inGameMenu]->getChild(BUTTON_TRAP_BOULDER)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&boulderTrapButtonPressed));
+
     sheets[inGameMenu]->getChild(BUTTON_DESTROY_TRAP)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&destroyTrapButtonPressed));
@@ -264,6 +268,10 @@ void Gui::assignEventHandlers()
     sheets[editorModeGui]->getChild(BUTTON_TRAP_SPIKE)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&spikeTrapButtonPressed));
+
+    sheets[editorModeGui]->getChild(BUTTON_TRAP_BOULDER)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&boulderTrapButtonPressed));
 
     sheets[editorModeGui]->getChild(BUTTON_DESTROY_TRAP)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
@@ -471,6 +479,16 @@ bool Gui::spikeTrapButtonPressed(const CEGUI::EventArgs& e)
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::nullRoomType);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::spike);
+    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildTrap);
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    return true;
+}
+
+bool Gui::boulderTrapButtonPressed(const CEGUI::EventArgs& e)
+{
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
+    gameMap->getLocalPlayer()->setNewRoomType(Room::nullRoomType);
+    gameMap->getLocalPlayer()->setNewTrapType(Trap::boulder);
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildTrap);
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
@@ -789,6 +807,7 @@ const std::string Gui::BUTTON_DESTROY_ROOM = "MainTabControl/Rooms/DestroyRoomBu
 const std::string Gui::TAB_TRAPS = "MainTabControl/Traps";
 const std::string Gui::BUTTON_TRAP_CANNON = "MainTabControl/Traps/CannonButton";
 const std::string Gui::BUTTON_TRAP_SPIKE = "MainTabControl/Traps/SpikeTrapButton";
+const std::string Gui::BUTTON_TRAP_BOULDER = "MainTabControl/Traps/BoulderTrapButton";
 const std::string Gui::BUTTON_DESTROY_TRAP = "MainTabControl/Traps/DestroyTrapButton";
 const std::string Gui::TAB_SPELLS = "MainTabControl/Spells";
 const std::string Gui::TAB_CREATURES = "MainTabControl/Creatures";

@@ -35,23 +35,12 @@ public:
 
     virtual void doUpkeep();
     virtual bool hasOpenCreatureSpot(Creature* c);
-    virtual bool addCreatureUsingRoom(Creature* c);
-    virtual void removeCreatureUsingRoom(Creature* c);
-    virtual void absorbRoom(Room *r);
-    virtual void addCoveredTile(Tile* t, double nHP, bool isRoomAbsorb);
-    virtual bool removeCoveredTile(Tile* t, bool isRoomAbsorb);
 
 protected:
-    virtual RoomObject* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
+    virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
     virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);
 private:
-    void moveChickens();
-    void handleMoveChicken(RoomObject* chicken);
-
-    std::vector<Tile*> mUnusedTiles;
-    std::vector<Tile*> mChickensFree;
-    int mNbChickensEaten;
-    std::map<Creature*,Tile*> mCreaturesChickens;
+    uint32_t getNbChickens();
     int32_t mSpawnChickenCooldown;
 };
 

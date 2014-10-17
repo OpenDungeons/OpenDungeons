@@ -59,9 +59,9 @@ public:
         createRoom,
         destroyRoom,
         deleteRoom,
-        createRoomObject,
-        destroyRoomObject,
-        deleteRoomObject,
+        createRenderedMovableEntity,
+        destroyRenderedMovableEntity,
+        deleteRenderedMovableEntity,
         createTrap,
         destroyTrap,
         deleteTrap,
@@ -73,9 +73,6 @@ public:
         orientSceneNodeToward,
         reorientSceneNode,
         scaleSceneNode,
-        createMissileObject,
-        destroyMissileObject,
-        deleteMissileObject, //setMissileObjectAnimationState,
         noRequest
     };
 

@@ -60,7 +60,7 @@ private:
     double mXCenter;
     double mYCenter;
 
-    RoomObject* mPortalObject;
+    RenderedMovableEntity* mPortalObject;
 };
 
 #endif // ROOMPORTAL_H
