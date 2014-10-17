@@ -969,28 +969,28 @@ void GameMap::playerIsFighting(Player* player)
     player->setFightingTime(BATTLE_TIME_COUNT);
 }
 
-bool GameMap::pathExists(Tile* tileStart, Tile* tileEnd, const CreatureDefinition* creatureDef)
+bool GameMap::pathExists(const Creature* creature, Tile* tileStart, Tile* tileEnd)
 {
     // If floodfill is not enabled, we cannot check if the path exists so we return true
     if(!floodFillEnabled)
         return true;
 
-    if(!tileStart->canCreatureGoThroughTile(creatureDef) || !tileEnd->canCreatureGoThroughTile(creatureDef))
+    if(creature == nullptr || !creature->canGoThroughTile(tileStart) || !creature->canGoThroughTile(tileEnd))
         return false;
 
-    if((creatureDef->getMoveSpeedGround() > 0.0) &&
-        (creatureDef->getMoveSpeedWater() > 0.0) &&
-        (creatureDef->getMoveSpeedLava() > 0.0))
+    if((creature->getMoveSpeedGround() > 0.0) &&
+        (creature->getMoveSpeedWater() > 0.0) &&
+        (creature->getMoveSpeedLava() > 0.0))
     {
         return (tileStart->mFloodFillColor[Tile::FloodFillTypeGroundWaterLava] == tileEnd->mFloodFillColor[Tile::FloodFillTypeGroundWaterLava]);
     }
-    if((creatureDef->getMoveSpeedGround() > 0.0) &&
-        (creatureDef->getMoveSpeedWater() > 0.0))
+    if((creature->getMoveSpeedGround() > 0.0) &&
+        (creature->getMoveSpeedWater() > 0.0))
     {
         return (tileStart->mFloodFillColor[Tile::FloodFillTypeGroundWater] == tileEnd->mFloodFillColor[Tile::FloodFillTypeGroundWater]);
     }
-    if((creatureDef->getMoveSpeedGround() > 0.0) &&
-        (creatureDef->getMoveSpeedLava() > 0.0))
+    if((creature->getMoveSpeedGround() > 0.0) &&
+        (creature->getMoveSpeedLava() > 0.0))
     {
         return (tileStart->mFloodFillColor[Tile::FloodFillTypeGroundLava] == tileEnd->mFloodFillColor[Tile::FloodFillTypeGroundLava]);
     }
@@ -998,23 +998,26 @@ bool GameMap::pathExists(Tile* tileStart, Tile* tileEnd, const CreatureDefinitio
     return (tileStart->mFloodFillColor[Tile::FloodFillTypeGround] == tileEnd->mFloodFillColor[Tile::FloodFillTypeGround]);
 }
 
-std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const CreatureDefinition* creatureDef, Seat* seat, bool throughDiggableTiles)
+std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* creature, Seat* seat, bool throughDiggableTiles)
 {
     ++numCallsTo_path;
     std::list<Tile*> returnList;
 
     // If the start tile was not found return an empty path
     Tile* start = getTile(x1, y1);
-    if (start == NULL)
+    if (start == nullptr)
         return returnList;
 
     // If the end tile was not found return an empty path
     Tile* destination = getTile(x2, y2);
-    if (destination == NULL)
+    if (destination == nullptr)
+        return returnList;
+
+    if (creature == nullptr)
         return returnList;
 
     // If flood filling is enabled, we can possibly eliminate this path by checking to see if they two tiles are floodfilled differently.
-    if (!throughDiggableTiles && !pathExists(start, destination, creatureDef))
+    if (!throughDiggableTiles && !pathExists(creature, start, destination))
         return returnList;
 
     AstarEntry *currentEntry = new AstarEntry(getTile(x1, y1), x1, y1, x2, y2);
@@ -1096,7 +1099,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const CreatureDef
             neighbor.setTile(neighborTile);
 
             bool processNeighbor = false;
-            if(neighbor.getTile()->canCreatureGoThroughTile(creatureDef))
+            if(creature->canGoThroughTile(neighbor.getTile()))
             {
                 processNeighbor = true;
                 // We set passability for the 4 adjacent tiles only
@@ -1139,7 +1142,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const CreatureDef
             {
                 double weightToParent = AstarEntry::computeHeuristic(neighbor.getTile()->getX(), neighbor.getTile()->getY(),
                     currentEntry->getTile()->getX(), currentEntry->getTile()->getY());
-                weightToParent /= currentEntry->getTile()->getCreatureSpeedOnTile(creatureDef);
+                weightToParent /= creature->getMoveSpeed(currentEntry->getTile());
                 neighbor.setG(currentEntry->getG() + weightToParent);
 
                 // Use the manhattan distance for the heuristic
@@ -1154,7 +1157,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const CreatureDef
                 // one already given, make this the new parent.
                 double weightToParent = AstarEntry::computeHeuristic(neighbor.getTile()->getX(), neighbor.getTile()->getY(),
                     currentEntry->getTile()->getX(), currentEntry->getTile()->getY());
-                weightToParent /= currentEntry->getTile()->getCreatureSpeedOnTile(creatureDef);
+                weightToParent /= creature->getMoveSpeed(currentEntry->getTile());
 
                 if (currentEntry->getG() + weightToParent < neighborEntry->getG())
                 {
@@ -1584,7 +1587,7 @@ unsigned int GameMap::numRoomsByTypeAndSeat(Room::RoomType type, Seat* seat) con
 
 std::vector<Room*> GameMap::getReachableRooms(const std::vector<Room*>& vec,
                                               Tile* startTile,
-                                              const CreatureDefinition* creatureDef)
+                                              const Creature* creature)
 {
     std::vector<Room*> returnVector;
 
@@ -1592,7 +1595,7 @@ std::vector<Room*> GameMap::getReachableRooms(const std::vector<Room*>& vec,
     {
         Room* room = vec[i];
         Tile* coveredTile = room->getCoveredTile(0);
-        if (pathExists(startTile, coveredTile, creatureDef))
+        if (pathExists(creature, startTile, coveredTile))
         {
             returnVector.push_back(room);
         }
@@ -2243,15 +2246,29 @@ void GameMap::enableFloodFill()
     }
 }
 
-std::list<Tile*> GameMap::path(Creature *c1, Creature *c2, const CreatureDefinition* creatureDef, Seat* seat, bool throughDiggableTiles)
+std::list<Tile*> GameMap::path(Creature *c1, Creature *c2, const Creature* creature, Seat* seat, bool throughDiggableTiles)
 {
     return path(c1->getPositionTile()->x, c1->getPositionTile()->y,
-                c2->getPositionTile()->x, c2->getPositionTile()->y, creatureDef, seat, throughDiggableTiles);
+                c2->getPositionTile()->x, c2->getPositionTile()->y, creature, seat, throughDiggableTiles);
 }
 
-std::list<Tile*> GameMap::path(Tile *t1, Tile *t2, const CreatureDefinition* creatureDef, Seat* seat, bool throughDiggableTiles)
+std::list<Tile*> GameMap::path(Tile *t1, Tile *t2, const Creature* creature, Seat* seat, bool throughDiggableTiles)
 {
-    return path(t1->x, t1->y, t2->x, t2->y, creatureDef, seat, throughDiggableTiles);
+    return path(t1->x, t1->y, t2->x, t2->y, creature, seat, throughDiggableTiles);
+}
+
+std::list<Tile*> GameMap::path(const Creature* creature, Tile* destination, bool throughDiggableTiles)
+{
+    if (destination == nullptr)
+        return std::list<Tile*>();
+
+    Tile* positionTile = creature->getPositionTile();
+    if (positionTile == nullptr)
+        return std::list<Tile*>();
+
+    return path(positionTile->getX(), positionTile->getY(),
+                destination->getX(), destination->getY(),
+                creature, creature->getSeat(), throughDiggableTiles);
 }
 
 Ogre::Real GameMap::crowDistance(Creature *c1, Creature *c2)
@@ -2562,14 +2579,14 @@ bool GameMap::pathToBestFightingPosition(std::list<Tile*>& pathToTarget, Creatur
             int diffY = range - std::abs(i);
             Tile* tile;
             tile = getTile(attackedTile->getX() + i, attackedTile->getY() + diffY);
-            if(tile != NULL && pathExists(tileCreature, tile, attackingCreature->getDefinition()))
+            if(tile != NULL && pathExists(attackingCreature, tileCreature, tile))
                 possibleTiles.push_back(tile);
 
             if(diffY == 0)
                 continue;
 
             tile = getTile(attackedTile->getX() + i, attackedTile->getY() - diffY);
-            if(tile != NULL && pathExists(tileCreature, tile, attackingCreature->getDefinition()))
+            if(tile != NULL && pathExists(attackingCreature, tileCreature, tile))
                 possibleTiles.push_back(tile);
         }
 
@@ -2601,7 +2618,7 @@ bool GameMap::pathToBestFightingPosition(std::list<Tile*>& pathToTarget, Creatur
     if(tileCreature == closestTile)
         return true;
 
-    pathToTarget = path(tileCreature, closestTile, attackingCreature->getDefinition(), attackingCreature->getSeat());
+    pathToTarget = path(tileCreature, closestTile, attackingCreature, attackingCreature->getSeat());
     return true;
 }
 

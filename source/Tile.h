@@ -261,9 +261,6 @@ public:
      */
     static std::string tileTypeToString(TileType t);
 
-    bool canCreatureGoThroughTile(const CreatureDefinition* creatureDef);
-    double getCreatureSpeedOnTile(const CreatureDefinition* creatureDef);
-
     int getX() const
     { return x; }
 

@@ -17,6 +17,7 @@
 
 #include "KeeperAI.h"
 
+#include "Creature.h"
 #include "GameMap.h"
 #include "Tile.h"
 #include "RoomDormitory.h"
@@ -182,10 +183,27 @@ bool KeeperAI::lookForGold()
         return false;
     }
 
-    // Set a diggable path up to the first gold spot for the given team color
+    // Set a diggable path up to the first gold spot for the given team color, by the first available kobold
     Seat* seat = mAiWrapper.getPlayer().getSeat();
-    CreatureDefinition* classKobold = mAiWrapper.getGameMap().getClassDescription("Kobold");
-    std::list<Tile*> goldPath = mAiWrapper.getGameMap().path(central, firstGoldTile, classKobold, seat, true);
+    std::vector<Creature*> creatures = mAiWrapper.getGameMap().getCreaturesBySeat(seat);
+
+    if (creatures.empty())
+        return false;
+
+    Creature* kobold = nullptr;
+    for (unsigned int i = 0; i < creatures.size(); ++i)
+    {
+        if (creatures[i]->getDefinition()->getClassName() == "Kobold")
+        {
+            kobold = creatures[i];
+            break;
+        }
+    }
+
+    if (kobold == nullptr)
+        return false;
+
+    std::list<Tile*> goldPath = mAiWrapper.getGameMap().path(central, firstGoldTile, kobold, seat, true);
     if (goldPath.empty())
     {
         mNoMoreReachableGold = true;

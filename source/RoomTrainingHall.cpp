@@ -155,8 +155,7 @@ void RoomTrainingHall::refreshCreaturesDummies()
            creaturePosition.y != wantedY)
         {
             // We move to the good tile
-            std::list<Tile*> pathToDummy = getGameMap()->path(creature->getPositionTile(), tileDummy,
-                creature->getDefinition(), creature->getSeat());
+            std::list<Tile*> pathToDummy = getGameMap()->path(creature, tileDummy);
             OD_ASSERT_TRUE(!pathToDummy.empty());
             if(pathToDummy.empty())
                 continue;
@@ -196,8 +195,7 @@ bool RoomTrainingHall::addCreatureUsingRoom(Creature* creature)
        creaturePosition.y != wantedY)
     {
         // We move to the good tile
-        std::list<Tile*> pathToDummy = getGameMap()->path(creature->getPositionTile(), tileDummy,
-            creature->getDefinition(), creature->getSeat());
+        std::list<Tile*> pathToDummy = getGameMap()->path(creature, tileDummy);
         OD_ASSERT_TRUE(!pathToDummy.empty());
         if(pathToDummy.empty())
             return true;
