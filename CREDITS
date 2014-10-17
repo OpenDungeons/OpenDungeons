@@ -6,7 +6,7 @@ This file is listing each files present in this repository, its author and its c
 Each corresponding license is fully described in the licenses/ folder.
 Other text files (.txt, .cpp, .h., ...), except licensing, are licensed using the GPL 3.0 license.
 
-Latest update: 2014/10/13
+Latest update: 2014/10/17
 
 =============================
 ==  Configuration: config/ ==
@@ -96,6 +96,7 @@ scripts/
 
 textures/
 -> *.png                               Titus Tscharntke        CC0                     http://www.burningwell.org/ - photo sources for textures
+-> AdventurerBed.png                   PantherOne              CC0                     http://opengameart.org/content/tent-pack
 -> Anvil.png                           Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
 -> Axe.png                             Skorpio                 CC-BY-SA 3.0, GPL 3.0
 -> ChickenCoop_tex.png                 Dm3d                    CC-BY-SA 3.0            http://opengameart.org/content/chicken-coop
@@ -108,6 +109,7 @@ textures/
 -> LizardmanBed.png                    Nobiax, public domain   CC0                     http://forum.freegamedev.net/viewtopic.php?p=60197#p60197
 -> Obsidian.png                        Reiner Flassig          CC-BY-SA/DE 2.0         Obsidian photo source - http://de.wikipedia.org/w/index.php?title=Datei:Obsi.jpg&filetimestamp=20070905143430
 -> OrcBed.png                          Bart, p0ss              CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=60191#p60191
+-> RangerBed.png                       PantherOne              CC0                     http://opengameart.org/content/tent-pack
 -> slimeDiffuse.png                    Grefuntor               CC-BY 3.0, CC-BY-SA 3.0, GPL 2.0+ - http://opengameart.org/content/slime-mold
 -> Spike-trapTexture.png               P0ss, Danimal           CC-BY 3.0               http://opengameart.org/content/spyke-trap-low-poly
 -> Spiderbed.png                       Eugeneloza, Nobiax      CC0                     http://forum.freegamedev.net/viewtopic.php?p=60089#p60089
@@ -125,6 +127,7 @@ Name                                   Author                  License          
 ------------------------------------------------------------------------------------------------------------------------
 Anvil.mesh                             Daniel74                CC0                     http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
 Adventurer.*                           Danimal                 CC-BY-SA 3.0
+AdventurerBed.mesh                     PantherOne              CC0                     http://opengameart.org/content/tent-pack
 Axe1.mesh                              Skorpio                 CC-BY-SA 3.0, GPL 3.0
 barrel_destroyed.mesh                  Nobiax/yughues          CC0
 Bed.mesh                               Clint Bellanger         CC0                     http://opengameart.org/content/bed-low-poly
@@ -178,6 +181,7 @@ OrcBed.mesh                            Eugeneloza              CC0              
 Pit_demon.*                            Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Podium.mesh                            DM3d                    CC-BY-SA 3.0, GPL 3.0   http://opengameart.org/content/podium
 Portal*                                Skorpio                 CC-BY-SA 3.0, GPL 3.0
+RangerBed.mesh                         PantherOne              CC0                     http://opengameart.org/content/tent-pack
 Rock*                                  Skorpio                 CC-BY-SA 3.0, GPL 3.0
 RoundShield.mesh                       Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
 RuinEntrance.mesh                      zerberros (OGA)         CC0                     http://opengameart.org/content/cementery-gate
