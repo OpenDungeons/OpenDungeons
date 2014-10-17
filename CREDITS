@@ -6,7 +6,7 @@ This file is listing each files present in this repository, its author and its c
 Each corresponding license is fully described in the licenses/ folder.
 Other text files (.txt, .cpp, .h., ...), except licensing, are licensed using the GPL 3.0 license.
 
-Latest update: 2014/10/17
+Latest update: 2014/10/18
 
 =============================
 ==  Configuration: config/ ==
@@ -101,10 +101,12 @@ textures/
 -> Axe.png                             Skorpio                 CC-BY-SA 3.0, GPL 3.0
 -> ChickenCoop_tex.png                 Dm3d                    CC-BY-SA 3.0            http://opengameart.org/content/chicken-coop
 -> Chimney.png                         Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
+-> DragonBed.png                       Dm3d                    GPL 2.0/GPL 3.0/CC-BY-SA 3.0  http://opengameart.org/content/goldpile
 -> Forge.png                           Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
 -> Foundry.png                         Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
 -> Grindstone.png                      Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
 -> Hammock.png                         Luke.RUSTLTD, Nobiax    CC0                     http://forum.freegamedev.net/viewtopic.php?p=59983#p59983
+-> ImpBed.png                          Nobiax CC0 and J. W. Bjerk (magic circle) CC-BY3 or GPL3 - http://opengameart.org/content/painterly-spell-icons-part-3 - http://opengameart.org/users/yughues
 -> Lamp.png                            Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?
 -> LizardmanBed.png                    Nobiax, public domain   CC0                     http://forum.freegamedev.net/viewtopic.php?p=60197#p60197
 -> Obsidian.png                        Reiner Flassig          CC-BY-SA/DE 2.0         Obsidian photo source - http://de.wikipedia.org/w/index.php?title=Datei:Obsi.jpg&filetimestamp=20070905143430
@@ -151,6 +153,7 @@ Dojo.mesh                              p0ss                    CC-BY-SA 3.0
 DojoRockObject.mesh                    p0ss                    CC-BY-SA 3.0
 Dormitory.mesh                         Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Dragon.*                               Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
+DragonBed.mesh                         Dm3d                    GPL 2.0/GPL 3.0/CC-BY-SA 3.0  http://opengameart.org/content/goldpile
 DungeonTemple*                         Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Dwarf1.*                               Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Dwarf2.*                               Skorpio                 CC-BY-SA 3.0, GPL 3.0
@@ -166,6 +169,7 @@ Gold*[0-9].mesh                        Skorpio                 CC-BY-SA 3.0, GPL
 GoldstackLv*.mesh                      Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
 Grindstone.mesh                        Daniel74                CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
 Hammock.mesh                           eugeneloza              CC0                     http://forum.freegamedev.net/viewtopic.php?p=59983#p59983
+ImpBed.mesh                            eugeneloza              CC0                     http://forum.freegamedev.net/viewtopic.php?p=60275#p60275
 Keeperhand.*                           Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Knight.*                               surt                    CC0                     http://opengameart.org/forumtopic/cc0-scraps
 Kobold.*                               surt                    CC0                     http://opengameart.org/forumtopic/cc0-scraps
