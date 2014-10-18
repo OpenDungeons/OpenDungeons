@@ -72,7 +72,9 @@ public:
             double                  physicalDefense     = 3.0,
             double                  physicalDefPerLevel = 0.2,
             double                  magicalDefense      = 1.5,
-            double                  magicalDefPerLevel  = 0.1) :
+            double                  magicalDefPerLevel  = 0.1,
+            double                  attackRange         = 1.0,
+            double                  atkRangePerLevel    = 0.0) :
         mCreatureJob (job),
         mClassName   (className),
         mMeshName    (meshName),
@@ -103,7 +105,9 @@ public:
         mPhysicalDefense    (physicalDefense),
         mPhysicalDefPerLevel(physicalDefPerLevel),
         mMagicalDefense     (magicalDefense),
-        mMagicalDefPerLevel (magicalDefPerLevel)
+        mMagicalDefPerLevel (magicalDefPerLevel),
+        mAttackRange        (attackRange),
+        mAtkRangePerLevel   (atkRangePerLevel)
     {}
 
     static CreatureJob creatureJobFromString(const std::string& s);
@@ -160,6 +164,9 @@ public:
     inline double               getPhysicalDefPerLevel () const { return mPhysicalDefPerLevel; }
     inline double               getMagicalDefense  () const     { return mMagicalDefense; }
     inline double               getMagicalDefPerLevel () const  { return mMagicalDefPerLevel; }
+
+    inline double               getAttackRange      () const    { return mAttackRange; }
+    inline double               getAtkRangePerLevel () const    { return mAtkRangePerLevel; }
 
 private:
     //! \brief The job of the creature (e.g. worker, fighter, ...)
@@ -232,6 +239,9 @@ private:
     double mPhysicalDefPerLevel;
     double mMagicalDefense;
     double mMagicalDefPerLevel;
+
+    double mAttackRange;
+    double mAtkRangePerLevel;
 };
 
 #endif // CREATUREDEFINITION_H

@@ -58,7 +58,7 @@ public:
     void takeDamage(GameEntity* attacker, double damage, Tile* tileTakingDamage)
     {}
 
-    double getDefense() const
+    double getPhysicalDefense() const
     { return 0.0; }
 
     double getHP(Tile *tile) const

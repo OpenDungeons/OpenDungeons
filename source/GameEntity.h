@@ -172,8 +172,12 @@ class GameEntity
     //! \brief Returns the HP associated with the given tile of the object, it is up to the object how they want to treat the tile/HP relationship.
     virtual double getHP(Tile *tile) const = 0;
 
-    //! \brief Returns defense rating for the object, i.e. how much less than inflicted damage should it recieve.
-    virtual double getDefense() const = 0;
+    //! \brief Returns the physical defense rating for the object.
+    virtual double getPhysicalDefense() const = 0;
+
+    //! \brief Returns the magical defense rating for the object.
+    virtual double getMagicalDefense() const
+    { return 0.0; }
 
     //! \brief Subtracts the given number of hitpoints from the object, the tile specifies where
     //! the enemy inflicted the damage and the object can use this accordingly. attacker is

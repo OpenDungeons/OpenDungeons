@@ -78,6 +78,7 @@ Creature::Creature(GameMap* gameMap, CreatureDefinition* definition, bool forceN
     mMagicalAttack           (0.0),
     mPhysicalDefense         (3.0),
     mMagicalDefense          (1.5),
+    mWeaponlessAtkRange      (1.0),
     mWeaponL                 (NULL),
     mWeaponR                 (NULL),
     mHomeTile                (NULL),
@@ -140,6 +141,7 @@ Creature::Creature(GameMap* gameMap, CreatureDefinition* definition, bool forceN
     mMagicalAttack = mDefinition->getMagicalAttack();
     mPhysicalDefense = mDefinition->getPhysicalDefense();
     mMagicalDefense = mDefinition->getMagicalDefense();
+    mWeaponlessAtkRange = mDefinition->getAttackRange();
 }
 
 Creature::Creature(GameMap* gameMap) :
@@ -149,6 +151,7 @@ Creature::Creature(GameMap* gameMap) :
     mMagicalAttack           (0.0),
     mPhysicalDefense         (3.0),
     mMagicalDefense          (1.5),
+    mWeaponlessAtkRange      (1.0),
     mWeaponL                 (NULL),
     mWeaponR                 (NULL),
     mHomeTile                (NULL),
@@ -392,6 +395,7 @@ ODPacket& operator<<(ODPacket& os, Creature* c)
     os << c->mMagicalAttack;
     os << c->mPhysicalDefense;
     os << c->mMagicalDefense;
+    os << c->mWeaponlessAtkRange;
 
     // Check creature weapons
     Weapon* wL = c->mWeaponL;
@@ -447,6 +451,7 @@ ODPacket& operator>>(ODPacket& is, Creature* c)
     is >> c->mMagicalAttack;
     is >> c->mPhysicalDefense;
     is >> c->mMagicalDefense;
+    is >> c->mWeaponlessAtkRange;
 
     // TODO: Load weapon from a catalog file.
     c->setWeaponL(new Weapon(c->getGameMap(), std::string(), 0.0, 0.0, 0.0, std::string()));
@@ -625,6 +630,7 @@ void Creature::doUpkeep()
         mMagicalAttack += mDefinition->getMagicalAtkPerLevel();
         mPhysicalDefense += mDefinition->getPhysicalDefPerLevel();
         mMagicalDefense += mDefinition->getMagicalDefPerLevel();
+        mWeaponlessAtkRange += mDefinition->getAtkRangePerLevel();
 
         if(getGameMap()->isServerGameMap())
         {
@@ -2250,13 +2256,18 @@ bool Creature::handleAttackAction()
 
     // Calculate how much damage we do.
     Tile* myTile = getPositionTile();
-    double damageDone = getHitroll(getGameMap()->crowDistance(myTile, attackedTile));
-    damageDone *= Random::Double(0.0, 1.0);
-    damageDone -= std::pow(Random::Double(0.0, 0.4), 2.0) * attackedObject->getDefense();
-
-    // Make sure the damage is positive.
-    if (damageDone < 0.0)
-        damageDone = 0.0;
+    Ogre::Real range = getGameMap()->crowDistance(myTile, attackedTile);
+    // Physical
+    double physDamage = getPhysicalDamage(range);
+    physDamage -= attackedObject->getPhysicalDefense();
+    if (physDamage < 0.0)
+        physDamage = 0.0;
+    // + Magical
+    double magDamage = getMagicalDamage(range);
+    magDamage -= attackedObject->getMagicalDefense();
+    if (magDamage < 0.0)
+        magDamage = 0.0;
+    double damageDone = physDamage + magDamage;
 
     // Do the damage and award experience points to both creatures.
     attackedObject->takeDamage(this, damageDone, attackedTile);
@@ -2443,10 +2454,12 @@ double Creature::getMoveSpeed(Tile* tile) const
     return mGroundSpeed;
 }
 
-double Creature::getHitroll(double range)
+double Creature::getPhysicalDamage(double range)
 {
-    // TODO: Separate physical from magical attack.
-    double hitroll = (mPhysicalAttack > 1.0) ? Random::Uint(1.0, mPhysicalAttack) : mPhysicalAttack;
+    double hitroll = 0.0;
+
+    if (mWeaponlessAtkRange >= range)
+        hitroll += Random::Uint(1.0, mPhysicalAttack);
 
     if (mWeaponL != NULL && mWeaponL->getRange() >= range)
         hitroll += mWeaponL->getDamage();
@@ -2456,14 +2469,46 @@ double Creature::getHitroll(double range)
     return hitroll;
 }
 
-double Creature::getDefense() const
+double Creature::getMagicalDamage(double range)
 {
-    // TODO: Separate physical from magical defense.
+    double hitroll = 0.0;
+
+    if (mWeaponlessAtkRange >= range)
+        hitroll += Random::Uint(0.0, mMagicalAttack);
+
+    // TODO: Add support for magical atk to equipment
+    /*
+    if (mWeaponL != NULL && mWeaponL->getRange() >= range)
+        hitroll += mWeaponL->getDamage();
+    if (mWeaponR != NULL && mWeaponR->getRange() >= range)
+        hitroll += mWeaponR->getDamage();
+    */
+
+    return hitroll;
+}
+
+double Creature::getPhysicalDefense() const
+{
     double defense = mPhysicalDefense;
+    if (mWeaponL != NULL)
+        defense += mWeaponL->getPhysicalDefense();
+    if (mWeaponR != NULL)
+        defense += mWeaponR->getPhysicalDefense();
+
+    return defense;
+}
+
+double Creature::getMagicalDefense() const
+{
+    double defense = mMagicalDefense;
+
+    // TODO: Add support for magical def to equipment
+    /*
     if (mWeaponL != NULL)
         defense += mWeaponL->getDefense();
     if (mWeaponR != NULL)
         defense += mWeaponR->getDefense();
+    */
 
     return defense;
 }
@@ -2699,7 +2744,7 @@ void Creature::createStatsWindow()
 
     mStatsWindow = wmgr->createWindow("OD/FrameWindow", std::string("CreatureStatsWindows_") + getName());
     mStatsWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.3, 0)));
-    mStatsWindow->setSize(CEGUI::USize(CEGUI::UDim(0, 300), CEGUI::UDim(0, 300)));
+    mStatsWindow->setSize(CEGUI::USize(CEGUI::UDim(0, 380), CEGUI::UDim(0, 350)));
 
     CEGUI::Window* textWindow = wmgr->createWindow("OD/StaticText", "TextDisplay");
     textWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.15, 0)));
@@ -2760,10 +2805,14 @@ std::string Creature::getStatsText()
         tempSS << "Awakeness: " << mAwakeness << std::endl;
         tempSS << "Hunger: " << mHunger << std::endl;
     }
-    tempSS << "Move speed: " << getMoveSpeed() << std::endl;
+    tempSS << "Move speed (Ground/Water/Lava): " << getMoveSpeedGround() << "/"
+        << getMoveSpeedWater() << "/" << getMoveSpeedLava() << std::endl;
+    tempSS << "Attack (Phys/Mag): " << mPhysicalAttack << "/" << mMagicalAttack << std::endl;
+    tempSS << "Weaponless Attack Range: " << mWeaponlessAtkRange << std::endl;
+    tempSS << "Weapon:" << std::endl;
     tempSS << "Left hand: Attack: " << mWeaponL->getDamage() << ", Range: " << mWeaponL->getRange() << std::endl;
     tempSS << "Right hand: Attack: " << mWeaponR->getDamage() << ", Range: " << mWeaponR->getRange() << std::endl;
-    tempSS << "Total Defense: " << getDefense() << std::endl;
+    tempSS << "Total Defense (Phys/Mag): " << getPhysicalDefense() << "/" << getMagicalDefense() << std::endl;
     if (getDefinition()->isWorker())
     {
         tempSS << "Dig Rate: : " << getDigRate() << std::endl;
@@ -3086,8 +3135,9 @@ bool Creature::fightInRangeObjectInList(const std::vector<GameEntity*>& listObje
     Tile* closestNotInRangeEnnemyTile = nullptr;
     double closestNotInRangeEnnemyDist = 0.0;
 
-    double weaponRangeSquared = std::max(mWeaponL ? mWeaponL->getRange() : 0.0,
-                                         mWeaponR ? mWeaponR->getRange() : 0.0);
+    // Use the weapon range when equipped, and the natural one when not.
+    double weaponRangeSquared = std::max(mWeaponL ? mWeaponL->getRange() : mWeaponlessAtkRange,
+                                         mWeaponR ? mWeaponR->getRange() : mWeaponlessAtkRange);
     weaponRangeSquared *= weaponRangeSquared;
 
     // Loop over the enemyObjectsToCheck and add any within range to the tempVector.

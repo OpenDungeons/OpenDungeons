@@ -57,10 +57,10 @@ public:
     inline void setDamage(const double nDamage)
     { mDamage = nDamage; }
 
-    inline double getDefense() const
+    inline double getPhysicalDefense() const
     { return mDefense; }
 
-    inline void setDefense(const double nDefense)
+    inline void setPhysicalDefense(const double nDefense)
     { mDefense = nDefense; }
 
     inline const std::string& getHandString() const

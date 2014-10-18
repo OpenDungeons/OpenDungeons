@@ -64,6 +64,7 @@ ODPacket& operator<<(ODPacket& os, CreatureDefinition* c)
     os << c->mMagicalAttack << c->mMagicalAtkPerLevel;
     os << c->mPhysicalDefense << c->mPhysicalDefPerLevel;
     os << c->mMagicalDefense << c->mMagicalDefPerLevel;
+    os << c->mAttackRange << c->mAtkRangePerLevel;
     return os;
 }
 
@@ -86,6 +87,7 @@ ODPacket& operator>>(ODPacket& is, CreatureDefinition* c)
     is >> c->mMagicalAttack >> c->mMagicalAtkPerLevel;
     is >> c->mPhysicalDefense >> c->mPhysicalDefPerLevel;
     is >> c->mMagicalDefense >> c->mMagicalDefPerLevel;
+    is >> c->mAttackRange >> c->mAtkRangePerLevel;
 
     return is;
 }
@@ -330,6 +332,18 @@ CreatureDefinition* CreatureDefinition::load(std::stringstream& defFile)
             {
                 defFile >> nextParam;
                 creatureDef->mMagicalDefPerLevel = Helper::toDouble(nextParam);
+                continue;
+            }
+            else if (nextParam == "AttackRange")
+            {
+                defFile >> nextParam;
+                creatureDef->mAttackRange = Helper::toDouble(nextParam);
+                continue;
+            }
+            else if (nextParam == "AtkRange/Level")
+            {
+                defFile >> nextParam;
+                creatureDef->mAtkRangePerLevel = Helper::toDouble(nextParam);
                 continue;
             }
         }

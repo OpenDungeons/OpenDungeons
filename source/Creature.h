@@ -189,8 +189,10 @@ public:
 
     virtual bool isAttackable() const;
 
-    double getHitroll(double range);
-    double getDefense() const;
+    double getPhysicalDamage(double range);
+    double getPhysicalDefense() const;
+    double getMagicalDamage(double range);
+    double getMagicalDefense() const;
 
     //! \brief Check whether a creature has earned one level.
     bool checkLevelUp();
@@ -334,6 +336,7 @@ private:
     double mMagicalAttack;
     double mPhysicalDefense;
     double mMagicalDefense;
+    double mWeaponlessAtkRange;
 
     //! \brief The weapon the creature is holding in its left hand or NULL if none.
     Weapon* mWeaponL;

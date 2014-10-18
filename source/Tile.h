@@ -282,7 +282,7 @@ public:
 
     void doUpkeep(){}
     void receiveExp(double experience){}
-    double getDefense() const  { return 0; }
+    double getPhysicalDefense() const  { return 0; }
     void takeDamage(GameEntity* attacker, double damage, Tile *tileTakingDamage) {}
     double getHP(Tile *tile) const {return 0;}
     std::vector<Tile*> getCoveredTiles() { return std::vector<Tile*>() ;}
