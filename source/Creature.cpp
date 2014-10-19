@@ -2513,6 +2513,19 @@ double Creature::getMagicalDefense() const
     return defense;
 }
 
+double Creature::getBestAttackRange() const
+{
+    double range = mWeaponlessAtkRange;
+
+    // Note: The damage check is here to avoid taking defense equipment in account.
+    if (mWeaponL != nullptr && mWeaponL->getRange() > range && mWeaponL->getDamage() > 0.0)
+        range = mWeaponL->getRange();
+    if (mWeaponR != nullptr && mWeaponR->getRange() > range && mWeaponR->getDamage() > 0.0)
+        range = mWeaponR->getRange();
+
+    return range;
+}
+
 //! \brief Increases the creature's level, adds bonuses to stat points, changes the mesh, etc.
 bool Creature::checkLevelUp()
 {
@@ -3136,8 +3149,7 @@ bool Creature::fightInRangeObjectInList(const std::vector<GameEntity*>& listObje
     double closestNotInRangeEnnemyDist = 0.0;
 
     // Use the weapon range when equipped, and the natural one when not.
-    double weaponRangeSquared = std::max(mWeaponL ? mWeaponL->getRange() : mWeaponlessAtkRange,
-                                         mWeaponR ? mWeaponR->getRange() : mWeaponlessAtkRange);
+    double weaponRangeSquared = getBestAttackRange();
     weaponRangeSquared *= weaponRangeSquared;
 
     // Loop over the enemyObjectsToCheck and add any within range to the tempVector.

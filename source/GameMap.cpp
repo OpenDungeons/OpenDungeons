@@ -2567,9 +2567,7 @@ bool GameMap::pathToBestFightingPosition(std::list<Tile*>& pathToTarget, Creatur
     if((tileCreature == NULL) || (attackedTile == NULL))
         return false;
 
-    double rangeL = attackingCreature->getWeaponL()->getRange();
-    double rangeR = attackingCreature->getWeaponR()->getRange();
-    double range = std::max(rangeL, rangeR);
+    double range = attackingCreature->getBestAttackRange();
 
     std::vector<Tile*> possibleTiles;
     while(possibleTiles.empty() && range >= 0)
@@ -2618,7 +2616,7 @@ bool GameMap::pathToBestFightingPosition(std::list<Tile*>& pathToTarget, Creatur
     if(tileCreature == closestTile)
         return true;
 
-    pathToTarget = path(tileCreature, closestTile, attackingCreature, attackingCreature->getSeat());
+    pathToTarget = path(attackingCreature, closestTile);
     return true;
 }
 

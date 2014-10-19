@@ -194,6 +194,10 @@ public:
     double getMagicalDamage(double range);
     double getMagicalDefense() const;
 
+    //! \brief Returns the currently best attack range of the creature.
+    //! \note Depends also on its equipment.
+    double getBestAttackRange() const;
+
     //! \brief Check whether a creature has earned one level.
     bool checkLevelUp();
     //! \brief Refreshes current creature with creatureNewState (hp, scale, level, ...)
