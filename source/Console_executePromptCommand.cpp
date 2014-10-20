@@ -417,25 +417,13 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             // Creature the creature and add it to the gameMap
             // TODO : ask the server to do that
             std::stringstream tempSS(arguments);
-            std::string className;
-            tempSS >> className;
-            CreatureDefinition *creatureClass = gameMap->getClassDescription(className);
-            if (creatureClass != NULL)
-            {
-                Creature *tempCreature = new Creature(gameMap, creatureClass);
-                tempSS >> tempCreature;
+            Creature *tempCreature = Creature::getCreatureFromStream(gameMap, tempSS);
 
-                tempCreature->createMesh();
-                tempCreature->getWeaponL()->createMesh();
-                tempCreature->getWeaponR()->createMesh();
-                gameMap->addCreature(tempCreature);
-                frameListener->mCommandOutput += "\nCreature added successfully\n";
-            }
-            else
-            {
-                frameListener->mCommandOutput
-                        += "\nInvalid creature class name, you need to first add a class with the \'addclass\' terminal command.\n";
-            }
+            tempCreature->createMesh();
+            tempCreature->getWeaponL()->createMesh();
+            tempCreature->getWeaponR()->createMesh();
+            gameMap->addCreature(tempCreature);
+            frameListener->mCommandOutput += "\nCreature added successfully\n";
         }
     }
 

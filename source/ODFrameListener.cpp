@@ -151,6 +151,9 @@ ODFrameListener::~ODFrameListener()
     if (mModeManager)
         delete mModeManager;
     delete mCameraManager;
+    mGameMap->clearAll();
+    RenderManager::getSingletonPtr()->processRenderRequests();
+    mGameMap->processDeletionQueues();
     delete mGameMap;
     delete mMiniMap;
     // We deinit it here since it was also created in this class.
@@ -177,8 +180,8 @@ void ODFrameListener::exitApplication()
     ODClient::getSingleton().notifyExit();
     ODServer::getSingleton().notifyExit();
     RenderManager::getSingletonPtr()->processRenderRequests();
-    mGameMap->processDeletionQueues();
     mGameMap->clearAll();
+    mGameMap->processDeletionQueues();
     RenderManager::getSingletonPtr()->getSceneManager()->destroyQuery(mRaySceneQuery);
 
     Ogre::LogManager::getSingleton().logMessage("Remove listener registration", Ogre::LML_NORMAL);
@@ -195,6 +198,7 @@ void ODFrameListener::updateAnimations(Ogre::Real timeSinceLastFrame)
 {
     MusicPlayer::getSingleton().update(static_cast<float>(timeSinceLastFrame));
     RenderManager::getSingletonPtr()->processRenderRequests();
+    mGameMap->processDeletionQueues();
 
     mGameMap->updateAnimations(timeSinceLastFrame);
 }

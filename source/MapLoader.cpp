@@ -394,6 +394,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         return false;
     }
 
+    uint32_t nbCreatures = 0;
     while(true)
     {
         if(!levelFile.good())
@@ -403,15 +404,19 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         if (nextParam == "[/Creatures]")
             break;
 
-        std::string entire_line = nextParam;
-        std::getline(levelFile, nextParam);
-        entire_line += nextParam;
-        //std::cout << "Entire line: " << entire_line << std::endl;
+        if (nextParam != "[Creature]")
+            return false;
 
-        Creature* tempCreature = Creature::loadFromLine(entire_line, &gameMap);
-
+        Creature* tempCreature = Creature::getCreatureFromStream(&gameMap, levelFile);
+        OD_ASSERT_TRUE(tempCreature != nullptr);
         gameMap.addCreature(tempCreature);
+        ++nbCreatures;
+
+        levelFile >> nextParam;
+        if (nextParam != "[/Creature]")
+            return false;
     }
+    std::cout << "Loaded " << nbCreatures << " creatures in level" << std::endl;
 
     return true;
 }
@@ -510,7 +515,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
             continue;
 
         levelFile << "[Room]" << std::endl;
-        levelFile << room->getType() << "\t";
+        room->exportHeadersToStream(levelFile);
         room->exportToStream(levelFile);
         levelFile << "[/Room]" << std::endl;
     }
@@ -528,7 +533,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
             continue;
 
         levelFile << "[Trap]" << std::endl;
-        levelFile << trap->getType() << "\t";
+        trap->exportHeadersToStream(levelFile);
         trap->exportToStream(levelFile);
         levelFile << "[/Trap]" << std::endl;
     }
@@ -587,7 +592,10 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
         //NOTE: This code is duplicated in the client side method
         //"addclass" defined in src/Client.cpp and readGameMapFromFile.
         //Changes to this code should be reflected in that code as well
-        levelFile << gameMap.getCreature(i) << std::endl;
+        Creature* creature = gameMap.getCreature(i);
+        levelFile << "[Creature]" << std::endl;
+        creature->exportToStream(levelFile);
+        levelFile << std::endl << "[/Creature]" << std::endl;
     }
     levelFile << "[/Creatures]" << std::endl;
 

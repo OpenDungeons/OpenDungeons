@@ -983,4 +983,5 @@ void GameMode::exitMode()
     ODFrameListener::getSingleton().getClientGameMap()->clearAll();
     // We process again RenderRequests to destroy/delete what clearAll has put in the queue
     RenderManager::getSingleton().processRenderRequests();
+    ODFrameListener::getSingleton().getClientGameMap()->processDeletionQueues();
 }

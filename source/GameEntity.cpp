@@ -57,12 +57,10 @@ void GameEntity::deleteYourself()
         return;
 
     mIsDeleteRequested = true;
+
     deleteYourselfLocal();
 
-    if(getGameMap()->isServerGameMap())
-    {
-        getGameMap()->queueEntityForDeletion(this);
-    }
+    getGameMap()->queueEntityForDeletion(this);
 }
 
 std::string GameEntity::getNodeNameWithoutPostfix()

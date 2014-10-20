@@ -45,6 +45,7 @@ class OverlaySystem;
 
 class RenderManager: public Ogre::Singleton<RenderManager>
 {
+    friend class RenderRequest;
 public:
     RenderManager(Ogre::OverlaySystem* overlaySystem);
     ~RenderManager();
@@ -88,13 +89,12 @@ public:
     //! Debug function to be used for dev only. Beware, it should not be called from the server thread
     static std::string consoleListAnimationsForMesh(const std::string& meshName);
 
-protected:
+private:
     //! \brief Put a render request in the queue (implementation)
     void queueRenderRequest_priv(RenderRequest* renderRequest);
 
     //Render request functions
 
-    //TODO - could some of these be merged?
     void rrRefreshTile(const RenderRequest& renderRequest);
     void rrCreateTile(const RenderRequest& renderRequest);
     void rrDestroyTile(const RenderRequest& renderRequest);
@@ -143,7 +143,7 @@ protected:
     //! \note If the material (wall tiles only) is marked for digging, a yellow color is added
     //! to the given color.
     std::string colourizeMaterial(const std::string& materialName, Seat* seat, bool markedForDigging = false);
-private:
+
     bool mVisibleCreatures;
 
     std::deque<RenderRequest*> mRenderQueue;

@@ -118,12 +118,10 @@ void RoomDungeonTemple::produceKobold()
     {
         try
         {
-           ServerNotification *serverNotification = new ServerNotification(
+            ServerNotification *serverNotification = new ServerNotification(
                ServerNotification::addCreature, newCreature->getGameMap()->getPlayerBySeat(newCreature->getSeat()));
-           const std::string& className = newCreature->getDefinition()->getClassName();
-           const std::string& name = newCreature->getName();
-           serverNotification->mPacket << className << name << newCreature;
-           ODServer::getSingleton().queueServerNotification(serverNotification);
+            newCreature->exportToPacket(serverNotification->mPacket);
+            ODServer::getSingleton().queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)
         {

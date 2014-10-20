@@ -72,18 +72,6 @@ void Weapon::destroyMeshLocal()
     RenderManager::queueRenderRequest(request);
 }
 
-void Weapon::deleteYourselfLocal()
-{
-    GameEntity::deleteYourselfLocal();
-    if(getGameMap()->isServerGameMap())
-        return;
-
-    RenderRequest* request = new RenderRequest;
-    request->type = RenderRequest::deleteWeapon;
-    request->p = static_cast<void*>(this);
-    RenderManager::queueRenderRequest(request);
-}
-
 std::string Weapon::getFormat()
 {
     //NOTE:  When this format changes changes to RoomPortal::spawnCreature() may be necessary.

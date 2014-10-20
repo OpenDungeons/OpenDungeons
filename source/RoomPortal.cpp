@@ -191,9 +191,7 @@ void RoomPortal::spawnCreature()
         {
            ServerNotification *serverNotification = new ServerNotification(
                ServerNotification::addCreature, newCreature->getGameMap()->getPlayerBySeat(newCreature->getSeat()));
-           const std::string& className = newCreature->getDefinition()->getClassName();
-           const std::string& name = newCreature->getName();
-           serverNotification->mPacket << className << name << newCreature;
+           newCreature->exportToPacket(serverNotification->mPacket);
            ODServer::getSingleton().queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)

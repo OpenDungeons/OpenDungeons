@@ -97,7 +97,6 @@ public:
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
-    virtual void deleteYourselfLocal();
     virtual RenderedMovableEntity* notifyActiveSpotCreated(Tile* tile);
     virtual void notifyActiveSpotRemoved(Tile* tile);
     int mReloadTime;

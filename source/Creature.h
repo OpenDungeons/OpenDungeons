@@ -58,9 +58,8 @@ class Creature: public MovableGameEntity
     friend class CullingQuad;
     friend class ODClient;
 public:
-    //! \brief Constructor for creatures. If generateUniqueName is false, the name should be set with
-    //! setName()
-    Creature(GameMap* gameMap, CreatureDefinition* definition, bool forceName = false, const std::string& name = "");
+    //! \brief Constructor for creatures. It generates an unique name
+    Creature(GameMap* gameMap, CreatureDefinition* definition);
     virtual ~Creature();
 
     static const std::string CREATURE_PREFIX;
@@ -259,20 +258,15 @@ public:
 
     //! \FIXME Those functions are lacking parameters to be actually functional
     //! \brief Get the text format of creatures in level files (already spawned at startup).
-    //! \returns A string describing the IO format of the << and >> operators.
+    //! \returns A string describing the IO format the creatures need to have in file.
     static std::string getFormat();
-    //! \brief A function saving creatures already present in level when writing it.
-    friend std::ostream& operator<<(std::ostream& os, Creature *c);
-    //! \brief A function loading creatures already present in level when loading it.
-    friend std::istream& operator>>(std::istream& is, Creature *c);
-    //! \brief Loads the creature data from a level line.
-    static Creature* loadFromLine(const std::string& line, GameMap* gameMap);
 
-    //! \brief A function to transport the full creature's state between files and over the network.
-    //! Not used for level files.
-    friend ODPacket& operator<<(ODPacket& os, Creature *c);
-    friend ODPacket& operator>>(ODPacket& is, Creature *c);
-
+    static Creature* getCreatureFromStream(GameMap* gameMap, std::istream& is);
+    static Creature* getCreatureFromPacket(GameMap* gameMap, ODPacket& is);
+    virtual void exportToPacket(ODPacket& os);
+    virtual void importFromPacket(ODPacket& is);
+    virtual void exportToStream(std::ostream& os);
+    virtual void importFromStream(std::istream& is);
     inline void setQuad(CullingQuad* cq)
     { mTracingCullingQuad = cq; }
 

@@ -151,7 +151,6 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
 
 bool RenderManager::handleRenderRequest(const RenderRequest& renderRequest)
 {
-    //TODO - could we improve this somehow? Maybe an array of function pointers?
     switch (renderRequest.type)
     {
     case RenderRequest::refreshTile:
@@ -218,34 +217,6 @@ bool RenderManager::handleRenderRequest(const RenderRequest& renderRequest)
         rrDestroyTrap(renderRequest);
         break;
 
-    case RenderRequest::deleteRoom:
-    {
-        Room* curRoom = static_cast<Room*> (renderRequest.p);
-        delete curRoom;
-        break;
-    }
-
-    case RenderRequest::deleteTrap:
-    {
-        Trap* curTrap = static_cast<Trap*> (renderRequest.p);
-        delete curTrap;
-        break;
-    }
-
-    case RenderRequest::deleteTile:
-    {
-        Tile* curTile = static_cast<Tile*> (renderRequest.p);
-        delete curTile;
-        break;
-    }
-
-    case RenderRequest::deleteRenderedMovableEntity:
-    {
-        RenderedMovableEntity* curRenderedMovableEntity = static_cast<RenderedMovableEntity*>(renderRequest.p);
-        delete curRenderedMovableEntity;
-        break;
-    }
-
     case RenderRequest::createCreature:
         rrCreateCreature(renderRequest);
         break;
@@ -309,20 +280,6 @@ bool RenderManager::handleRenderRequest(const RenderRequest& renderRequest)
     case RenderRequest::setObjectAnimationState:
         rrSetObjectAnimationState(renderRequest);
         break;
-
-    case RenderRequest::deleteCreature:
-    {
-        Creature* curCreature = static_cast<Creature*>(renderRequest.p);
-        delete curCreature;
-        break;
-    }
-
-    case RenderRequest::deleteWeapon:
-    {
-        Weapon* curWeapon = static_cast<Weapon*>(renderRequest.p);
-        delete curWeapon;
-        break;
-    }
 
     case RenderRequest::moveSceneNode:
         rrMoveSceneNode(renderRequest);

@@ -97,9 +97,10 @@ bool ODClient::processOneClientSocketMessage()
         {
             std::string levelFilename;
             OD_ASSERT_TRUE(packetReceived >> levelFilename);
-            // Read in the map. The map loading should be happen here and not in the server thread to
+            // Read in the map. The map loading should happen here and not in the server thread to
             // make sure it is valid before launching the server.
             RenderManager::getSingletonPtr()->processRenderRequests();
+            ODFrameListener::getSingleton().getClientGameMap()->processDeletionQueues();
             if (!gameMap->loadLevel(levelFilename))
             {
                 // We disconnect as we don't have the map.
@@ -291,12 +292,7 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotification::addCreature:
         {
-            std::string className;
-            std::string name;
-            OD_ASSERT_TRUE(packetReceived >> className >> name);
-            CreatureDefinition *creatureClass = gameMap->getClassDescription(className);
-            Creature *newCreature = new Creature(gameMap, creatureClass, true, name);
-            OD_ASSERT_TRUE(packetReceived >> newCreature);
+            Creature *newCreature = Creature::getCreatureFromPacket(gameMap, packetReceived);
             gameMap->addCreature(newCreature);
             newCreature->createMesh();
             newCreature->getWeaponL()->createMesh();
@@ -620,7 +616,7 @@ bool ODClient::processOneClientSocketMessage()
         case ServerNotification::creatureRefresh:
         {
             Creature tmpCreature(gameMap);
-            OD_ASSERT_TRUE(packetReceived >> &tmpCreature);
+            tmpCreature.importFromPacket(packetReceived);
             Creature* creature = gameMap->getCreature(tmpCreature.getName());
             OD_ASSERT_TRUE_MSG(creature != NULL, "name=" + tmpCreature.getName());
             if(creature != NULL)

@@ -184,7 +184,13 @@ config/creatures.cfg
 
 [Creatures]
 # className	name	posX	posY	posZ	seatId	weaponLname	damage	range	defense	weaponRname	damage	range	defense	HP	Level
+[Creature]
 ConstructWorker	ConstructWorker1	1	1	0	1	none	1	4	3	none	8	4	0	125	1
+[/Creature]
+[Creature]
 PitDemon	Lava	2	2	0	1	none	1	4	3	none	8	4	0	125	1
+[/Creature]
+[Creature]
 Slime	Water	2	2	0	1	none	1	4	3	none	8	4	0	125	1
+[/Creature]
 [/Creatures]
