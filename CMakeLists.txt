@@ -158,104 +158,119 @@ set(OD_SOURCEFILES
     ${ANGELSCRIPT_ADDON_DIR}/scriptstdstring/scriptstdstring.cpp
 
     #OpenDungeons sources
-    ${SRC}/AbstractApplicationMode.cpp
-    ${SRC}/AIFactory.cpp
-    ${SRC}/AIManager.cpp
-    ${SRC}/AIWrapper.cpp
-    ${SRC}/ASWrapper.cpp
-    ${SRC}/BaseAI.cpp
-    ${SRC}/Building.cpp
-    ${SRC}/CameraManager.cpp
-    ${SRC}/ChatMessage.cpp
-    ${SRC}/ChickenEntity.cpp
-    ${SRC}/ClientNotification.cpp
-    ${SRC}/Console.cpp
-    ${SRC}/Console_executePromptCommand.cpp
-    ${SRC}/Console_getHelp.cpp
-    ${SRC}/ConsoleMode.cpp
-    ${SRC}/Creature.cpp
-    ${SRC}/CreatureAction.cpp
-    ${SRC}/CreatureDefinition.cpp
-    ${SRC}/CreatureSound.cpp
-    ${SRC}/CullingManager.cpp
-    ${SRC}/CullingQuad.cpp
-    ${SRC}/DummyArrayClass.cpp
-    ${SRC}/EditorMode.cpp
-    ${SRC}/FppMode.cpp
-    ${SRC}/GameEntity.cpp
-    ${SRC}/GameMap.cpp
-    ${SRC}/GameMode.cpp
-    ${SRC}/GoalClaimNTiles.cpp
-    ${SRC}/Goal.cpp
-    ${SRC}/GoalKillAllEnemies.cpp
-    ${SRC}/GoalMineNGold.cpp
-    ${SRC}/GoalProtectCreature.cpp
-    ${SRC}/GoalProtectDungeonTemple.cpp
-    ${SRC}/Gui.cpp
-    ${SRC}/Helper.cpp
-    ${SRC}/HermiteCatmullSpline.cpp
-    ${SRC}/InputManager.cpp
-    ${SRC}/KeeperAI.cpp
-    ${SRC}/LogManager.cpp
-    ${SRC}/main.cpp
-    ${SRC}/MapLight.cpp
-    ${SRC}/MapLoader.cpp
-    ${SRC}/MenuMode.cpp
-    ${SRC}/MenuModeEditor.cpp
-    ${SRC}/MenuModeMultiplayerClient.cpp
-    ${SRC}/MenuModeMultiplayerServer.cpp
-    ${SRC}/MenuModeSkirmish.cpp
-    ${SRC}/MiniMap.cpp
-    ${SRC}/MissileBoulder.cpp
-    ${SRC}/MissileObject.cpp
-    ${SRC}/MissileOneHit.cpp
-    ${SRC}/ModeManager.cpp
-    ${SRC}/MortuaryQuad.cpp
-    ${SRC}/MovableGameEntity.cpp
-    ${SRC}/MusicPlayer.cpp
-    ${SRC}/NullAI.cpp
+    ${SRC}/ai/AIFactory.cpp
+    ${SRC}/ai/AIManager.cpp
+    ${SRC}/ai/AIWrapper.cpp
+    ${SRC}/ai/BaseAI.cpp
+    ${SRC}/ai/KeeperAI.cpp
+    ${SRC}/ai/NullAI.cpp
+
+    ${SRC}/camera/CameraManager.cpp
+    ${SRC}/camera/CullingManager.cpp
+    ${SRC}/camera/CullingQuad.cpp
+    ${SRC}/camera/DummyArrayClass.cpp
+    ${SRC}/camera/HermiteCatmullSpline.cpp
+    ${SRC}/camera/MortuaryQuad.cpp
+    ${SRC}/camera/RadialVector2.cpp
+    ${SRC}/camera/SlopeWalk.cpp
+
+    ${SRC}/entities/Building.cpp
+    ${SRC}/entities/ChickenEntity.cpp
+    ${SRC}/entities/Creature.cpp
+    ${SRC}/entities/CreatureAction.cpp
+    ${SRC}/entities/CreatureDefinition.cpp
+    ${SRC}/entities/CreatureSound.cpp
+    ${SRC}/entities/GameEntity.cpp
+    ${SRC}/entities/MapLight.cpp
+    ${SRC}/entities/MissileBoulder.cpp
+    ${SRC}/entities/MissileObject.cpp
+    ${SRC}/entities/MissileOneHit.cpp
+    ${SRC}/entities/MovableGameEntity.cpp
+    ${SRC}/entities/RenderedMovableEntity.cpp
+    ${SRC}/entities/Tile.cpp
+    ${SRC}/entities/TreasuryObject.cpp
+    ${SRC}/entities/Weapon.cpp
+
+    ${SRC}/game/Player.cpp
+    ${SRC}/game/Seat.cpp
+    ${SRC}/game/Spell.cpp
+
+    ${SRC}/gamemap/GameMap.cpp
+    ${SRC}/gamemap/MapLoader.cpp
+    ${SRC}/gamemap/MiniMap.cpp
+    ${SRC}/gamemap/TileCoordinateMap.cpp
+    ${SRC}/gamemap/TileContainer.cpp
+
+    ${SRC}/goals/GoalClaimNTiles.cpp
+    ${SRC}/goals/Goal.cpp
+    ${SRC}/goals/GoalKillAllEnemies.cpp
+    ${SRC}/goals/GoalMineNGold.cpp
+    ${SRC}/goals/GoalProtectCreature.cpp
+    ${SRC}/goals/GoalProtectDungeonTemple.cpp
+
+    ${SRC}/modes/AbstractApplicationMode.cpp
+    ${SRC}/modes/Console.cpp
+    ${SRC}/modes/Console_executePromptCommand.cpp
+    ${SRC}/modes/Console_getHelp.cpp
+    ${SRC}/modes/ConsoleMode.cpp
+    ${SRC}/modes/EditorMode.cpp
+    ${SRC}/modes/FppMode.cpp
+    ${SRC}/modes/GameMode.cpp
+    ${SRC}/modes/InputManager.cpp
+    ${SRC}/modes/MenuMode.cpp
+    ${SRC}/modes/MenuModeEditor.cpp
+    ${SRC}/modes/MenuModeMultiplayerClient.cpp
+    ${SRC}/modes/MenuModeMultiplayerServer.cpp
+    ${SRC}/modes/MenuModeSkirmish.cpp
+    ${SRC}/modes/ModeManager.cpp
+    ${SRC}/modes/PrefixTree.cpp
+
+
+    ${SRC}/network/ChatMessage.cpp
+    ${SRC}/network/ClientNotification.cpp
+    ${SRC}/network/ODClient.cpp
+    ${SRC}/network/ODPacket.cpp
+    ${SRC}/network/ODServer.cpp
+    ${SRC}/network/ODSocketClient.cpp
+    ${SRC}/network/ODSocketServer.cpp
+    ${SRC}/network/ServerNotification.cpp
+
+    ${SRC}/render/Gui.cpp
+    ${SRC}/render/ODFrameListener.cpp
+    ${SRC}/render/RenderManager.cpp
+    ${SRC}/render/RenderRequest.cpp
+    ${SRC}/render/TextRenderer.cpp
+
+    ${SRC}/rooms/Room.cpp
+    ${SRC}/rooms/RoomDormitory.cpp
+    ${SRC}/rooms/RoomDungeonTemple.cpp
+    ${SRC}/rooms/RoomForge.cpp
+    ${SRC}/rooms/RoomHatchery.cpp
+    ${SRC}/rooms/RoomLibrary.cpp
+    ${SRC}/rooms/RoomPortal.cpp
+    ${SRC}/rooms/RoomTrainingHall.cpp
+    ${SRC}/rooms/RoomTreasury.cpp
+
+    ${SRC}/scripting/ASWrapper.cpp
+
+    ${SRC}/sound/MusicPlayer.cpp
+    ${SRC}/sound/SoundEffectsManager.cpp
+
+    ${SRC}/traps/ProximityTrap.cpp
+    ${SRC}/traps/Trap.cpp
+    ${SRC}/traps/TrapBoulder.cpp
+    ${SRC}/traps/TrapCannon.cpp
+    ${SRC}/traps/TrapSpike.cpp
+
+    ${SRC}/utils/Helper.cpp
+    ${SRC}/utils/LogManager.cpp
+    ${SRC}/utils/Random.cpp
+    ${SRC}/utils/ResourceManager.cpp
+    ${SRC}/utils/StackTracePrint.cpp
+    ${SRC}/utils/Vector3i.cpp
+
     ${SRC}/ODApplication.cpp
-    ${SRC}/ODClient.cpp
-    ${SRC}/ODFrameListener.cpp
-    ${SRC}/ODPacket.cpp
-    ${SRC}/ODServer.cpp
-    ${SRC}/ODSocketClient.cpp
-    ${SRC}/ODSocketServer.cpp
-    ${SRC}/Player.cpp
-    ${SRC}/ProximityTrap.cpp
-    ${SRC}/PrefixTree.cpp
-    ${SRC}/RadialVector2.cpp
-    ${SRC}/Random.cpp
-    ${SRC}/RenderedMovableEntity.cpp
-    ${SRC}/RenderManager.cpp
-    ${SRC}/RenderRequest.cpp
-    ${SRC}/ResourceManager.cpp
-    ${SRC}/Room.cpp
-    ${SRC}/RoomDormitory.cpp
-    ${SRC}/RoomDungeonTemple.cpp
-    ${SRC}/RoomForge.cpp
-    ${SRC}/RoomHatchery.cpp
-    ${SRC}/RoomLibrary.cpp
-    ${SRC}/RoomPortal.cpp
-    ${SRC}/RoomTrainingHall.cpp
-    ${SRC}/RoomTreasury.cpp
-    ${SRC}/Seat.cpp
-    ${SRC}/ServerNotification.cpp
-    ${SRC}/SlopeWalk.cpp
-    ${SRC}/SoundEffectsManager.cpp
-    ${SRC}/Spell.cpp
-    ${SRC}/StackTracePrint.cpp
-    ${SRC}/TextRenderer.cpp
-    ${SRC}/Tile.cpp
-    ${SRC}/TileCoordinateMap.cpp
-    ${SRC}/TileContainer.cpp
-    ${SRC}/Trap.cpp
-    ${SRC}/TrapBoulder.cpp
-    ${SRC}/TrapCannon.cpp
-    ${SRC}/TrapSpike.cpp
-    ${SRC}/TreasuryObject.cpp
-    ${SRC}/Vector3i.cpp
-    ${SRC}/Weapon.cpp
+    ${SRC}/main.cpp
 )
 
 ##################################

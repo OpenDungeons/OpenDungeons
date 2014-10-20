@@ -43,7 +43,7 @@ void setErrorHandler()
 }
 #elif defined (__i386__) | defined (__x86_64__)  // Only for supported platforms
 
-#include "StackTracePrint.h"
+#include "utils/StackTracePrint.h"
 
 //! \brief Init the error hanlder used to get a full stacktrace when crashing
 void setErrorHandler()
