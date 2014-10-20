@@ -83,18 +83,6 @@ void Room::destroyMeshLocal()
     }
 }
 
-void Room::deleteYourselfLocal()
-{
-    Building::deleteYourselfLocal();
-    if(getGameMap()->isServerGameMap())
-        return;
-
-    RenderRequest* request = new RenderRequest;
-    request->type = RenderRequest::deleteRoom;
-    request->p = static_cast<void*>(this);
-    RenderManager::queueRenderRequest(request);
-}
-
 bool Room::compareTile(Tile* tile1, Tile* tile2)
 {
     if(tile1->getX() < tile2->getX())

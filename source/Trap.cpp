@@ -77,18 +77,6 @@ void Trap::destroyMeshLocal()
     }
 }
 
-void Trap::deleteYourselfLocal()
-{
-    Building::deleteYourselfLocal();
-    if(getGameMap()->isServerGameMap())
-        return;
-
-    RenderRequest* request = new RenderRequest;
-    request->type = RenderRequest::deleteTrap;
-    request->p = static_cast<void*>(this);
-    RenderManager::queueRenderRequest(request);
-}
-
 Trap* Trap::getTrapFromStream(GameMap* gameMap, std::istream &is)
 {
     Trap* tempTrap = nullptr;

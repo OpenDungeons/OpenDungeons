@@ -67,6 +67,9 @@ public:
     GameMap(bool isServerGameMap);
     ~GameMap();
 
+    const std::string serverStr()
+    { return std::string( mIsServerGameMap ? "SERVER - " : "CLIENT - "); }
+
     //! \brief Load a level file (Part of the resource paths)
     //! \returns whether the file loaded correctly
     bool loadLevel(const std::string& levelFilepath);

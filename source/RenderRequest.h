@@ -36,7 +36,6 @@ public:
         createTile = 0,
         refreshTile,
         destroyTile,
-        deleteTile,
         temporalMarkTile,
         attachTile,
         detachTile,
@@ -46,25 +45,20 @@ public:
         showSquareSelector,
         createCreature,
         destroyCreature,
-        deleteCreature,
         setObjectAnimationState,
         createCreatureVisualDebug,
         destroyCreatureVisualDebug,
         createWeapon,
         destroyWeapon,
-        deleteWeapon,
         pickUpEntity,
         dropHand,
         rotateHand,
         createRoom,
         destroyRoom,
-        deleteRoom,
         createRenderedMovableEntity,
         destroyRenderedMovableEntity,
-        deleteRenderedMovableEntity,
         createTrap,
         destroyTrap,
-        deleteTrap,
         createMapLight,
         updateMapLight,
         destroyMapLight,
@@ -89,7 +83,6 @@ public:
     Ogre::Vector3 vec;
     Ogre::Quaternion quaternion;
     bool b;
-    //TODO:  Add a pointer called destroyMe which is used to pass a void pointer which should be deleted after it is used, this can replace the need for str and vec.
 };
 
 #endif // RENDERREQUEST_H

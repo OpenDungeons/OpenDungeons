@@ -110,7 +110,6 @@ protected:
 
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
-    virtual void deleteYourselfLocal();
 private:
     Ogre::Real mRotationAngle;
     bool mIsOnMap;

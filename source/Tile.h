@@ -304,7 +304,6 @@ public:
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
-    virtual void deleteYourselfLocal();
 private:
     bool isFloodFillFilled();
 

@@ -78,18 +78,6 @@ void RenderedMovableEntity::destroyMeshLocal()
     RenderManager::queueRenderRequest(request);
 }
 
-void RenderedMovableEntity::deleteYourselfLocal()
-{
-    MovableGameEntity::deleteYourselfLocal();
-    if(getGameMap()->isServerGameMap())
-        return;
-
-    RenderRequest* request = new RenderRequest;
-    request->type   = RenderRequest::deleteRenderedMovableEntity;
-    request->p      = static_cast<void*>(this);
-    RenderManager::queueRenderRequest(request);
-}
-
 void RenderedMovableEntity::pickup()
 {
     mIsOnMap = false;

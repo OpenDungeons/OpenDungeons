@@ -149,6 +149,7 @@ GameMap::GameMap(bool isServerGameMap) :
 GameMap::~GameMap()
 {
     clearAll();
+    processDeletionQueues();
     delete tileCoordinateMap;
     delete mLocalPlayer;
 }
@@ -303,6 +304,8 @@ void GameMap::addClassDescription(CreatureDefinition *c)
 
 void GameMap::addCreature(Creature *cc)
 {
+    LogManager::getSingleton().logMessage(serverStr() + "Adding Creature " + cc->getName());
+
     creatures.push_back(cc);
 
     cc->getPositionTile()->addCreature(cc);
@@ -422,11 +425,10 @@ MovableGameEntity* GameMap::getAnimatedObject(const std::string& name)
 
 void GameMap::addRenderedMovableEntity(RenderedMovableEntity *obj)
 {
+    LogManager::getSingleton().logMessage(serverStr() + "Adding rendered object " + obj->getName()
+        + ",MeshName=" + obj->getMeshName());
     if(isServerGameMap())
     {
-        LogManager::getSingleton().logMessage("Adding rendered object " + obj->getName()
-            + ",MeshName=" + obj->getMeshName());
-
         try
         {
             ServerNotification *serverNotification = new ServerNotification(
@@ -1491,12 +1493,11 @@ void GameMap::clearRooms()
 
 void GameMap::addRoom(Room *r)
 {
+    int nbTiles = r->getCoveredTiles().size();
+    LogManager::getSingleton().logMessage(serverStr() + "Adding room " + r->getName() + ", nbTiles="
+        + Ogre::StringConverter::toString(nbTiles) + ", seatId=" + Ogre::StringConverter::toString(r->getSeat()->getId()));
     if(isServerGameMap())
     {
-        int nbTiles = r->getCoveredTiles().size();
-        LogManager::getSingleton().logMessage("Adding room " + r->getName() + ", nbTiles="
-            + Ogre::StringConverter::toString(nbTiles) + ", seatId=" + Ogre::StringConverter::toString(r->getSeat()->getId()));
-
         ServerNotification notif(ServerNotification::buildRoom, getPlayerBySeat(r->getSeat()));
         r->exportHeadersToPacket(notif.mPacket);
         r->exportToPacket(notif.mPacket);
@@ -1642,12 +1643,12 @@ void GameMap::clearTraps()
 
 void GameMap::addTrap(Trap *trap)
 {
+    int nbTiles = trap->getCoveredTiles().size();
+    LogManager::getSingleton().logMessage(serverStr() + "Adding trap " + trap->getName() + ", nbTiles="
+        + Ogre::StringConverter::toString(nbTiles) + ", seatId=" + Ogre::StringConverter::toString(trap->getSeat()->getId()));
+
     if(isServerGameMap())
     {
-        int nbTiles = trap->getCoveredTiles().size();
-        LogManager::getSingleton().logMessage("Adding trap " + trap->getName() + ", nbTiles="
-            + Ogre::StringConverter::toString(nbTiles) + ", seatId=" + Ogre::StringConverter::toString(trap->getSeat()->getId()));
-
         ServerNotification notif(ServerNotification::buildTrap, getPlayerBySeat(trap->getSeat()));
         trap->exportHeadersToPacket(notif.mPacket);
         trap->exportToPacket(notif.mPacket);
@@ -1722,6 +1723,7 @@ void GameMap::clearMapLights()
 
 void GameMap::addMapLight(MapLight *m)
 {
+    LogManager::getSingleton().logMessage(serverStr() + "Adding MapLight " + m->getName());
     mapLights.push_back(m);
 
     /*

@@ -139,7 +139,6 @@ protected:
 
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
-    virtual void deleteYourselfLocal();
     virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
     virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);
 private :

@@ -71,7 +71,7 @@ static const int NB_TURN_FLEE_MAX = 5;
 
 const std::string Creature::CREATURE_PREFIX = "Creature_";
 
-Creature::Creature(GameMap* gameMap, CreatureDefinition* definition, bool forceName, const std::string& name) :
+Creature::Creature(GameMap* gameMap, CreatureDefinition* definition) :
     MovableGameEntity        (gameMap),
     mTracingCullingQuad      (NULL),
     mPhysicalAttack          (1.0),
@@ -107,14 +107,10 @@ Creature::Creature(GameMap* gameMap, CreatureDefinition* definition, bool forceN
     mStatsWindow             (NULL),
     mAttackedTile            (NULL),
     mAttackedObject          (NULL),
-    mSound                   (SoundEffectsManager::getSingleton().getCreatureClassSounds(getName())),
+    mSound                   (SoundEffectsManager::getSingleton().getCreatureClassSounds(definition->getClassName())),
     mForceAction             (forcedActionNone)
 {
-    assert(definition);
-    if(forceName)
-        setName(name);
-    else
-        setName(getGameMap()->nextUniqueNameCreature(definition->getClassName()));
+    setName(getGameMap()->nextUniqueNameCreature(definition->getClassName()));
 
     setIsOnMap(false);
 
@@ -183,7 +179,15 @@ Creature::Creature(GameMap* gameMap) :
     mSound                   (NULL),
     mForceAction             (forcedActionNone)
 {
+    setIsOnMap(false);
+
     setObjectType(GameEntity::creature);
+
+    pushAction(CreatureAction::idle);
+
+    // Note: We reset the creature to level 1 in that case.
+    setLevel(1);
+    mExp = 0.0;
 }
 
 /* Destructor is needed when removing from Quadtree */
@@ -194,6 +198,11 @@ Creature::~Creature()
         mTracingCullingQuad->entry->creature_list.remove(this);
         mTracingCullingQuad->mortuaryInsert(this);
     }
+
+    if(mWeaponL != nullptr)
+        delete mWeaponL;
+    if(mWeaponR != nullptr)
+        delete mWeaponR;
 }
 
 void Creature::createMeshLocal()
@@ -240,15 +249,13 @@ void Creature::deleteYourselfLocal()
     if(getPositionTile() != 0)
         getPositionTile()->removeCreature(this);
 
-    getWeaponL()->deleteYourself();
-    getWeaponR()->deleteYourself();
-    if(getGameMap()->isServerGameMap())
-        return;
+    if(mWeaponL != nullptr)
+        mWeaponL->deleteYourself();
+    mWeaponL = nullptr;
 
-    RenderRequest* request = new RenderRequest;
-    request->type = RenderRequest::deleteCreature;
-    request->p = static_cast<void*>(this);
-    RenderManager::queueRenderRequest(request);
+    if(mWeaponR != nullptr)
+        mWeaponR->deleteYourself();
+    mWeaponR = nullptr;
 }
 
 std::string Creature::getFormat()
@@ -258,209 +265,196 @@ std::string Creature::getFormat()
         + Weapon::getFormat() + "\tweaponR" + Weapon::getFormat() + "\tHP\tLevel";
 }
 
-std::ostream& operator<<(std::ostream& os, Creature *c)
+void Creature::exportToStream(std::ostream& os)
 {
-    assert(c);
-
     // Check creature weapons
-    Weapon* wL = c->mWeaponL;
+    Weapon* wL = mWeaponL;
     if (wL == NULL)
-        wL = new Weapon(c->getGameMap(), "none", 0.0, 1.0, 0.0, "L", c);
-    Weapon* wR = c->mWeaponR;
+        wL = new Weapon(getGameMap(), "none", 0.0, 1.0, 0.0, "L", this);
+    Weapon* wR = mWeaponR;
     if (wR == NULL)
-        wR = new Weapon(c->getGameMap(), "none", 0.0, 1.0, 0.0, "R", c);
+        wR = new Weapon(getGameMap(), "none", 0.0, 1.0, 0.0, "R", this);
 
-    os << c->mDefinition->getClassName() << "\t" << c->getName() << "\t";
+    os << mDefinition->getClassName() << "\t" << getName() << "\t";
 
-    int seatId = c->getSeat()->getId();
-    os << c->getPosition().x << "\t";
-    os << c->getPosition().y << "\t";
-    os << c->getPosition().z << "\t";
+    int seatId = getSeat()->getId();
+    os << getPosition().x << "\t";
+    os << getPosition().y << "\t";
+    os << getPosition().z << "\t";
     os << seatId << "\t";
     os << wL << "\t" << wR << "\t";
-    os << c->getHP() << "\t";
-    os << c->getLevel();
+    os << getHP() << "\t";
+    os << getLevel();
     // FIXME : Lacks current XP, and other stats.
 
     // If we had to create dummy weapons for serialization, delete them now.
-    if (c->mWeaponL == NULL)
+    if (mWeaponL == NULL)
         delete wL;
-    if (c->mWeaponR == NULL)
+    if (mWeaponR == NULL)
         delete wR;
-
-    return os;
 }
 
-std::istream& operator>>(std::istream& is, Creature *c)
+void Creature::importFromStream(std::istream& is)
 {
     double xLocation = 0.0, yLocation = 0.0, zLocation = 0.0;
     double tempDouble = 0.0;
     std::string tempString;
 
-    is >> tempString;
+    OD_ASSERT_TRUE(is >> tempString);
+    mDefinition = getGameMap()->getClassDescription(tempString);
+    OD_ASSERT_TRUE_MSG(mDefinition != nullptr, "Definition=" + tempString);
+
+    mMaxHP = mDefinition->getMinHp();
+    setHP(mMaxHP);
+    mDigRate = mDefinition->getDigRate();
+    mClaimRate = mDefinition->getClaimRate();
+    mSound = SoundEffectsManager::getSingleton().getCreatureClassSounds(tempString);
+
+    OD_ASSERT_TRUE(is >> tempString);
 
     if (tempString.compare("autoname") == 0)
-        tempString = c->getGameMap()->nextUniqueNameCreature(c->getDefinition()->getClassName());
+        tempString = getGameMap()->nextUniqueNameCreature(mDefinition->getClassName());
 
-    c->setName(tempString);
+    setName(tempString);
 
-    is >> xLocation >> yLocation >> zLocation;
-    c->setPosition(Ogre::Vector3((Ogre::Real)xLocation, (Ogre::Real)yLocation, (Ogre::Real)zLocation));
+    OD_ASSERT_TRUE(is >> xLocation >> yLocation >> zLocation);
+    setPosition(Ogre::Vector3((Ogre::Real)xLocation, (Ogre::Real)yLocation, (Ogre::Real)zLocation));
 
     int seatId = 0;
-    is >> seatId;
-    Seat* seat = c->getGameMap()->getSeatById(seatId);
-    c->setSeat(seat);
+    OD_ASSERT_TRUE(is >> seatId);
+    Seat* seat = getGameMap()->getSeatById(seatId);
+    setSeat(seat);
 
     // TODO: Load weapon from a catalog file.
-    c->setWeaponL(new Weapon(c->getGameMap(), std::string(), 0.0, 0.0, 0.0, std::string()));
-    is >> c->mWeaponL;
+    setWeaponL(new Weapon(getGameMap(), std::string(), 0.0, 0.0, 0.0, std::string()));
+    OD_ASSERT_TRUE(is >> mWeaponL);
 
-    c->setWeaponR(new Weapon(c->getGameMap(), std::string(), 0.0, 0.0, 0.0, std::string()));
-    is >> c->mWeaponR;
+    setWeaponR(new Weapon(getGameMap(), std::string(), 0.0, 0.0, 0.0, std::string()));
+    OD_ASSERT_TRUE(is >> mWeaponR);
 
-    is >> tempDouble;
-    c->setHP(tempDouble);
-    is >> tempDouble;
-    c->setLevel(tempDouble);
+    OD_ASSERT_TRUE(is >> tempDouble);
+    setHP(tempDouble);
+    OD_ASSERT_TRUE(is >> tempDouble);
+    setLevel(tempDouble);
     // FIXME : Lacks current XP, and other stats.
-
-    return is;
 }
 
-Creature* Creature::loadFromLine(const std::string& line, GameMap* gameMap)
+Creature* Creature::getCreatureFromStream(GameMap* gameMap, std::istream& is)
 {
-    assert(gameMap);
-    std::vector<std::string> elems = Helper::split(line, '\t');
-    CreatureDefinition *creatureClass = gameMap->getClassDescription(elems[0]);
-    std::string creatureName = elems[1];
-    Creature* c = new Creature(gameMap, creatureClass, true, creatureName);
-
-    if (creatureName.compare("autoname") == 0)
-        creatureName = gameMap->nextUniqueNameCreature(creatureClass->getClassName());
-    c->setName(creatureName);
-
-    double xLocation = Helper::toDouble(elems[2]);
-    double yLocation = Helper::toDouble(elems[3]);
-    double zLocation = Helper::toDouble(elems[4]);
-
-    c->setPosition(Ogre::Vector3((Ogre::Real)xLocation, (Ogre::Real)yLocation, (Ogre::Real)zLocation));
-
-    int seatId = Helper::toInt(elems[5]);
-    Seat* seat = gameMap->getSeatById(seatId);
-    c->setSeat(seat);
-
-    // TODO: Load weapons from a catalog file.
-    c->setWeaponL(new Weapon(c->getGameMap(), elems[6], Helper::toDouble(elems[7]),
-                             Helper::toDouble(elems[8]), Helper::toDouble(elems[9]), "L", c));
-
-    c->setWeaponR(new Weapon(c->getGameMap(), elems[10], Helper::toDouble(elems[11]),
-                             Helper::toDouble(elems[12]), Helper::toDouble(elems[13]), "R", c));
-
-    c->setHP(Helper::toDouble(elems[14]));
-    c->setLevel(Helper::toDouble(elems[15]));
-    // FIXME : Lacks current XP, and other stats.
-
-    return c;
+    Creature* creature = new Creature(gameMap);
+    creature->importFromStream(is);
+    return creature;
 }
 
-ODPacket& operator<<(ODPacket& os, Creature* c)
+Creature* Creature::getCreatureFromPacket(GameMap* gameMap, ODPacket& is)
 {
-    assert(c);
+    Creature* creature = new Creature(gameMap);
+    creature->importFromPacket(is);
+    return creature;
+}
 
-    std::string name = c->getName();
+void Creature::exportToPacket(ODPacket& os)
+{
+    std::string className = mDefinition->getClassName();
+    os << className;
+
+    std::string name = getName();
     os << name;
 
-    Ogre::Vector3 position = c->getPosition();
-    int seatId = c->getSeat()->getId();
+    Ogre::Vector3 position = getPosition();
+    int seatId = getSeat()->getId();
     os << position;
     os << seatId;
 
-    os << c->mLevel;
-    os << c->mExp;
+    os << mLevel;
+    os << mExp;
 
-    os << c->mHp;
-    os << c->mMaxHP;
+    os << mHp;
+    os << mMaxHP;
 
-    os << c->mDigRate;
-    os << c->mClaimRate;
-    os << c->mAwakeness;
-    os << c->mHunger;
+    os << mDigRate;
+    os << mClaimRate;
+    os << mAwakeness;
+    os << mHunger;
 
-    os << c->mGroundSpeed;
-    os << c->mWaterSpeed;
-    os << c->mLavaSpeed;
+    os << mGroundSpeed;
+    os << mWaterSpeed;
+    os << mLavaSpeed;
 
-    os << c->mPhysicalAttack;
-    os << c->mMagicalAttack;
-    os << c->mPhysicalDefense;
-    os << c->mMagicalDefense;
-    os << c->mWeaponlessAtkRange;
+    os << mPhysicalAttack;
+    os << mMagicalAttack;
+    os << mPhysicalDefense;
+    os << mMagicalDefense;
+    os << mWeaponlessAtkRange;
 
     // Check creature weapons
-    Weapon* wL = c->mWeaponL;
+    Weapon* wL = mWeaponL;
     if (wL == NULL)
-        wL = new Weapon(c->getGameMap(), "none", 0.0, 1.0, 0.0, "L", c);
-    Weapon* wR = c->mWeaponR;
+        wL = new Weapon(getGameMap(), "none", 0.0, 1.0, 0.0, "L", this);
+    Weapon* wR = mWeaponR;
     if (wR == NULL)
-        wR = new Weapon(c->getGameMap(), "none", 0.0, 1.0, 0.0, "R", c);
+        wR = new Weapon(getGameMap(), "none", 0.0, 1.0, 0.0, "R", this);
 
     os << wL << wR;
 
     // If we had to create dummy weapons for serialization, delete them now.
-    if (c->mWeaponL == NULL)
+    if (mWeaponL == NULL)
         delete wL;
-    if (c->mWeaponR == NULL)
+    if (mWeaponR == NULL)
         delete wR;
-
-    return os;
 }
 
-ODPacket& operator>>(ODPacket& is, Creature* c)
+void Creature::importFromPacket(ODPacket& is)
 {
     std::string tempString;
 
-    is >> tempString;
-    c->setName(tempString);
+    OD_ASSERT_TRUE(is >> tempString);
+    mDefinition = getGameMap()->getClassDescription(tempString);
+    OD_ASSERT_TRUE_MSG(mDefinition != nullptr, "Definition=" + tempString);
+
+    mMaxHP = mDefinition->getMinHp();
+    setHP(mMaxHP);
+    mSound = SoundEffectsManager::getSingleton().getCreatureClassSounds(tempString);
+
+    OD_ASSERT_TRUE(is >> tempString);
+    setName(tempString);
 
     Ogre::Vector3 position;
-    is >> position;
-    c->setPosition(position);
+    OD_ASSERT_TRUE(is >> position);
+    setPosition(position);
 
     int seatId;
-    is >> seatId;
-    Seat* seat = c->getGameMap()->getSeatById(seatId);
-    c->setSeat(seat);
+    OD_ASSERT_TRUE(is >> seatId);
+    Seat* seat = getGameMap()->getSeatById(seatId);
+    setSeat(seat);
 
-    is >> c->mLevel;
-    is >> c->mExp;
+    OD_ASSERT_TRUE(is >> mLevel);
+    OD_ASSERT_TRUE(is >> mExp);
 
-    is >> c->mHp;
-    is >> c->mMaxHP;
+    OD_ASSERT_TRUE(is >> mHp);
+    OD_ASSERT_TRUE(is >> mMaxHP);
 
-    is >> c->mDigRate;
-    is >> c->mClaimRate;
-    is >> c->mAwakeness;
-    is >> c->mHunger;
+    OD_ASSERT_TRUE(is >> mDigRate);
+    OD_ASSERT_TRUE(is >> mClaimRate);
+    OD_ASSERT_TRUE(is >> mAwakeness);
+    OD_ASSERT_TRUE(is >> mHunger);
 
-    is >> c->mGroundSpeed;
-    is >> c->mWaterSpeed;
-    is >> c->mLavaSpeed;
+    OD_ASSERT_TRUE(is >> mGroundSpeed);
+    OD_ASSERT_TRUE(is >> mWaterSpeed);
+    OD_ASSERT_TRUE(is >> mLavaSpeed);
 
-    is >> c->mPhysicalAttack;
-    is >> c->mMagicalAttack;
-    is >> c->mPhysicalDefense;
-    is >> c->mMagicalDefense;
-    is >> c->mWeaponlessAtkRange;
+    OD_ASSERT_TRUE(is >> mPhysicalAttack);
+    OD_ASSERT_TRUE(is >> mMagicalAttack);
+    OD_ASSERT_TRUE(is >> mPhysicalDefense);
+    OD_ASSERT_TRUE(is >> mMagicalDefense);
+    OD_ASSERT_TRUE(is >> mWeaponlessAtkRange);
 
     // TODO: Load weapon from a catalog file.
-    c->setWeaponL(new Weapon(c->getGameMap(), std::string(), 0.0, 0.0, 0.0, std::string()));
-    is >> c->mWeaponL;
+    setWeaponL(new Weapon(getGameMap(), std::string(), 0.0, 0.0, 0.0, std::string()));
+    OD_ASSERT_TRUE(is >> mWeaponL);
 
-    c->setWeaponR(new Weapon(c->getGameMap(), std::string(), 0.0, 0.0, 0.0, std::string()));
-    is >> c->mWeaponR;
-
-    return is;
+    setWeaponR(new Weapon(getGameMap(), std::string(), 0.0, 0.0, 0.0, std::string()));
+    OD_ASSERT_TRUE(is >> mWeaponR);
 }
 
 void Creature::setPosition(const Ogre::Vector3& v)
@@ -568,10 +562,10 @@ void Creature::doUpkeep()
         {
             try
             {
+                const std::string& name = getName();
                 Player* player = getGameMap()->getPlayerBySeat(getSeat());
                 ServerNotification *serverNotification = new ServerNotification(
                     ServerNotification::removeCreature, player);
-                std::string name = getName();
                 serverNotification->mPacket << name;
                 ODServer::getSingleton().queueServerNotification(serverNotification);
             }
@@ -638,7 +632,7 @@ void Creature::doUpkeep()
             {
                 ServerNotification *serverNotification = new ServerNotification(
                     ServerNotification::creatureRefresh, getGameMap()->getPlayerBySeat(getSeat()));
-                serverNotification->mPacket << this;
+                exportToPacket(serverNotification->mPacket);
                 ODServer::getSingleton().queueServerNotification(serverNotification);
             }
             catch (std::bad_alloc&)
@@ -2868,7 +2862,7 @@ void Creature::takeDamage(GameEntity* attacker, double damage, Tile *tileTakingD
     {
         ServerNotification *serverNotification = new ServerNotification(
             ServerNotification::creatureRefresh, player);
-        serverNotification->mPacket << this;
+        exportToPacket(serverNotification->mPacket);
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
     catch (std::bad_alloc&)

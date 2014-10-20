@@ -5346,8 +5346,16 @@ Wizard
 
 [Creatures]
 # className	name	posX	posY	posZ	seatId	weaponLname	damage	range	defense	weaponRname	damage	range	defense	HP	Level
+[Creature]
 Dragon	Dragon1	13	55	0	5	none	3	2	0	none	3	2	0	30	10
+[/Creature]
+[Creature]
 Dragon	Dragon2	13	54	0	5	none	3	2	0	none	3	2	0	30	10
+[/Creature]
+[Creature]
 Dragon	Dragon3	87	58	0	5	none	3	2	0	none	3	2	0	30	10
+[/Creature]
+[Creature]
 Dragon	Dragon4	87	57	0	5	none	3	2	0	none	3	2	0	30	10
+[/Creature]
 [/Creatures]

@@ -2624,6 +2624,10 @@ Slime
 
 [Creatures]
 # className	name	posX	posY	posZ	seatId	weaponLname	damage	range	defense	weaponRname	damage	range	defense	HP	Level
+[Creature]
 ConstructWorker	ConstructWorker1	7	7	0	1	none	1	4	3	none	8	4	0	125	1
+[/Creature]
+[Creature]
 Scarab	Scarab1	37	42	0	2	none	0	0	0	none	0	0	0	125	1
+[/Creature]
 [/Creatures]
