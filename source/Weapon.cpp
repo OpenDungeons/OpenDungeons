@@ -92,7 +92,7 @@ std::string Weapon::getFormat()
 
 std::ostream& operator<<(std::ostream& os, Weapon *w)
 {
-    os << w->getName() << "\t" << w->getDamage() << "\t" << w->getRange() << "\t" << w->getDefense();
+    os << w->getName() << "\t" << w->getDamage() << "\t" << w->getRange() << "\t" << w->getPhysicalDefense();
     return os;
 }
 

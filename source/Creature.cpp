@@ -74,6 +74,11 @@ const std::string Creature::CREATURE_PREFIX = "Creature_";
 Creature::Creature(GameMap* gameMap, CreatureDefinition* definition, bool forceName, const std::string& name) :
     MovableGameEntity        (gameMap),
     mTracingCullingQuad      (NULL),
+    mPhysicalAttack          (1.0),
+    mMagicalAttack           (0.0),
+    mPhysicalDefense         (3.0),
+    mMagicalDefense          (1.5),
+    mWeaponlessAtkRange      (1.0),
     mWeaponL                 (NULL),
     mWeaponR                 (NULL),
     mHomeTile                (NULL),
@@ -86,8 +91,11 @@ Creature::Creature(GameMap* gameMap, CreatureDefinition* definition, bool forceN
     mHp                      (10.0),
     mMaxHP                   (10.0),
     mExp                     (0.0),
-    mDigRate                 (1.0),
-    mClaimRate               (1.0),
+    mGroundSpeed             (1.0),
+    mWaterSpeed              (0.0),
+    mLavaSpeed               (0.0),
+    mDigRate                 (0.0),
+    mClaimRate               (0.0),
     mDeathCounter            (NB_COUNTER_DEATH),
     mGold                    (0),
     mJobCooldown             (0),
@@ -120,13 +128,30 @@ Creature::Creature(GameMap* gameMap, CreatureDefinition* definition, bool forceN
 
     mMaxHP = mDefinition->getMinHp();
     setHP(mMaxHP);
+
+    mGroundSpeed = mDefinition->getMoveSpeedGround();
+    mWaterSpeed = mDefinition->getMoveSpeedWater();
+    mLavaSpeed = mDefinition->getMoveSpeedLava();
+
     mDigRate = mDefinition->getDigRate();
     mClaimRate = mDefinition->getClaimRate();
+
+    // Fighting stats
+    mPhysicalAttack = mDefinition->getPhysicalAttack();
+    mMagicalAttack = mDefinition->getMagicalAttack();
+    mPhysicalDefense = mDefinition->getPhysicalDefense();
+    mMagicalDefense = mDefinition->getMagicalDefense();
+    mWeaponlessAtkRange = mDefinition->getAttackRange();
 }
 
 Creature::Creature(GameMap* gameMap) :
     MovableGameEntity        (gameMap),
     mTracingCullingQuad      (NULL),
+    mPhysicalAttack          (1.0),
+    mMagicalAttack           (0.0),
+    mPhysicalDefense         (3.0),
+    mMagicalDefense          (1.5),
+    mWeaponlessAtkRange      (1.0),
     mWeaponL                 (NULL),
     mWeaponR                 (NULL),
     mHomeTile                (NULL),
@@ -139,8 +164,11 @@ Creature::Creature(GameMap* gameMap) :
     mHp                      (10.0),
     mMaxHP                   (10.0),
     mExp                     (0.0),
-    mDigRate                 (1.0),
-    mClaimRate               (1.0),
+    mGroundSpeed             (1.0),
+    mWaterSpeed              (0.0),
+    mLavaSpeed               (0.0),
+    mDigRate                 (0.0),
+    mClaimRate               (0.0),
     mDeathCounter            (NB_COUNTER_DEATH),
     mGold                    (0),
     mJobCooldown             (0),
@@ -223,15 +251,13 @@ void Creature::deleteYourselfLocal()
     RenderManager::queueRenderRequest(request);
 }
 
-//! \brief A function which returns a string describing the IO format of the << and >> operators.
 std::string Creature::getFormat()
 {
-    //NOTE:  When this format changes changes to RoomPortal::spawnCreature() may be necessary.
+    //NOTE:  When this format changes, other changes to RoomPortal::spawnCreature() may be necessary.
     return "className\tname\tposX\tposY\tposZ\tseatId\tweaponL"
         + Weapon::getFormat() + "\tweaponR" + Weapon::getFormat() + "\tHP\tLevel";
 }
 
-//! \brief A matched function to transport creatures between files and over the network.
 std::ostream& operator<<(std::ostream& os, Creature *c)
 {
     assert(c);
@@ -254,6 +280,7 @@ std::ostream& operator<<(std::ostream& os, Creature *c)
     os << wL << "\t" << wR << "\t";
     os << c->getHP() << "\t";
     os << c->getLevel();
+    // FIXME : Lacks current XP, and other stats.
 
     // If we had to create dummy weapons for serialization, delete them now.
     if (c->mWeaponL == NULL)
@@ -264,9 +291,6 @@ std::ostream& operator<<(std::ostream& os, Creature *c)
     return os;
 }
 
-/*! \brief A matched function to transport creatures between files and over the network.
- *
- */
 std::istream& operator>>(std::istream& is, Creature *c)
 {
     double xLocation = 0.0, yLocation = 0.0, zLocation = 0.0;
@@ -299,80 +323,7 @@ std::istream& operator>>(std::istream& is, Creature *c)
     c->setHP(tempDouble);
     is >> tempDouble;
     c->setLevel(tempDouble);
-
-    return is;
-}
-
-//! \brief A matched function to transport creatures between files and over the network.
-ODPacket& operator<<(ODPacket& os, Creature *c)
-{
-    assert(c);
-
-    // Check creature weapons
-    Weapon* wL = c->mWeaponL;
-    if (wL == NULL)
-        wL = new Weapon(c->getGameMap(), "none", 0.0, 1.0, 0.0, "L", c);
-    Weapon* wR = c->mWeaponR;
-    if (wR == NULL)
-        wR = new Weapon(c->getGameMap(), "none", 0.0, 1.0, 0.0, "R", c);
-
-    std::string name = c->getName();
-    os << name;
-
-    Ogre::Vector3 position = c->getPosition();
-    int seatId = c->getSeat()->getId();
-    os << position;
-    os << seatId;
-    os << wL << wR;
-    os << c->mHp;
-    os << c->mLevel;
-    os << c->mDigRate;
-    os << c->mClaimRate;
-    os << c->mMaxHP;
-    os << c->mAwakeness;
-    os << c->mHunger;
-
-    // If we had to create dummy weapons for serialization, delete them now.
-    if (c->mWeaponL == NULL)
-        delete wL;
-    if (c->mWeaponR == NULL)
-        delete wR;
-
-    return os;
-}
-
-/*! \brief A matched function to transport creatures between files and over the network.
- *
- */
-ODPacket& operator>>(ODPacket& is, Creature *c)
-{
-    std::string tempString;
-
-    is >> tempString;
-    c->setName(tempString);
-
-    Ogre::Vector3 position;
-    is >> position;
-    c->setPosition(position);
-
-    int seatId;
-    is >> seatId;
-    Seat* seat = c->getGameMap()->getSeatById(seatId);
-    c->setSeat(seat);
-
-    // TODO: Load weapon from a catalog file.
-    c->setWeaponL(new Weapon(c->getGameMap(), std::string(), 0.0, 0.0, 0.0, std::string()));
-    is >> c->mWeaponL;
-
-    c->setWeaponR(new Weapon(c->getGameMap(), std::string(), 0.0, 0.0, 0.0, std::string()));
-    is >> c->mWeaponR;
-    is >> c->mHp;
-    is >> c->mLevel;
-    is >> c->mDigRate;
-    is >> c->mClaimRate;
-    is >> c->mMaxHP;
-    is >> c->mAwakeness;
-    is >> c->mHunger;
+    // FIXME : Lacks current XP, and other stats.
 
     return is;
 }
@@ -408,8 +359,108 @@ Creature* Creature::loadFromLine(const std::string& line, GameMap* gameMap)
 
     c->setHP(Helper::toDouble(elems[14]));
     c->setLevel(Helper::toDouble(elems[15]));
+    // FIXME : Lacks current XP, and other stats.
 
     return c;
+}
+
+ODPacket& operator<<(ODPacket& os, Creature* c)
+{
+    assert(c);
+
+    std::string name = c->getName();
+    os << name;
+
+    Ogre::Vector3 position = c->getPosition();
+    int seatId = c->getSeat()->getId();
+    os << position;
+    os << seatId;
+
+    os << c->mLevel;
+    os << c->mExp;
+
+    os << c->mHp;
+    os << c->mMaxHP;
+
+    os << c->mDigRate;
+    os << c->mClaimRate;
+    os << c->mAwakeness;
+    os << c->mHunger;
+
+    os << c->mGroundSpeed;
+    os << c->mWaterSpeed;
+    os << c->mLavaSpeed;
+
+    os << c->mPhysicalAttack;
+    os << c->mMagicalAttack;
+    os << c->mPhysicalDefense;
+    os << c->mMagicalDefense;
+    os << c->mWeaponlessAtkRange;
+
+    // Check creature weapons
+    Weapon* wL = c->mWeaponL;
+    if (wL == NULL)
+        wL = new Weapon(c->getGameMap(), "none", 0.0, 1.0, 0.0, "L", c);
+    Weapon* wR = c->mWeaponR;
+    if (wR == NULL)
+        wR = new Weapon(c->getGameMap(), "none", 0.0, 1.0, 0.0, "R", c);
+
+    os << wL << wR;
+
+    // If we had to create dummy weapons for serialization, delete them now.
+    if (c->mWeaponL == NULL)
+        delete wL;
+    if (c->mWeaponR == NULL)
+        delete wR;
+
+    return os;
+}
+
+ODPacket& operator>>(ODPacket& is, Creature* c)
+{
+    std::string tempString;
+
+    is >> tempString;
+    c->setName(tempString);
+
+    Ogre::Vector3 position;
+    is >> position;
+    c->setPosition(position);
+
+    int seatId;
+    is >> seatId;
+    Seat* seat = c->getGameMap()->getSeatById(seatId);
+    c->setSeat(seat);
+
+    is >> c->mLevel;
+    is >> c->mExp;
+
+    is >> c->mHp;
+    is >> c->mMaxHP;
+
+    is >> c->mDigRate;
+    is >> c->mClaimRate;
+    is >> c->mAwakeness;
+    is >> c->mHunger;
+
+    is >> c->mGroundSpeed;
+    is >> c->mWaterSpeed;
+    is >> c->mLavaSpeed;
+
+    is >> c->mPhysicalAttack;
+    is >> c->mMagicalAttack;
+    is >> c->mPhysicalDefense;
+    is >> c->mMagicalDefense;
+    is >> c->mWeaponlessAtkRange;
+
+    // TODO: Load weapon from a catalog file.
+    c->setWeaponL(new Weapon(c->getGameMap(), std::string(), 0.0, 0.0, 0.0, std::string()));
+    is >> c->mWeaponL;
+
+    c->setWeaponR(new Weapon(c->getGameMap(), std::string(), 0.0, 0.0, 0.0, std::string()));
+    is >> c->mWeaponR;
+
+    return is;
 }
 
 void Creature::setPosition(const Ogre::Vector3& v)
@@ -563,12 +614,23 @@ void Creature::doUpkeep()
 
         if (mDefinition->isWorker())
         {
-            mDigRate += 4.0 * getLevel() / (getLevel() + 5.0);
-            mClaimRate += 0.12 * getLevel() / (getLevel() + 5.0);
+            mDigRate += mDefinition->getDigRatePerLevel();
+            mClaimRate += mDefinition->getClaimRatePerLevel();
             //std::cout << "New dig rate: " << mDigRate << "\tnew dance rate: " << mDanceRate << "\n";
         }
 
+        // Improve the base stats
         mMaxHP += mDefinition->getHpPerLevel();
+        mGroundSpeed += mDefinition->getGroundSpeedPerLevel();
+        mWaterSpeed += mDefinition->getWaterSpeedPerLevel();
+        mLavaSpeed += mDefinition->getLavaSpeedPerLevel();
+
+        // Improve fighting stats
+        mPhysicalAttack += mDefinition->getPhysicalAtkPerLevel();
+        mMagicalAttack += mDefinition->getMagicalAtkPerLevel();
+        mPhysicalDefense += mDefinition->getPhysicalDefPerLevel();
+        mMagicalDefense += mDefinition->getMagicalDefPerLevel();
+        mWeaponlessAtkRange += mDefinition->getAtkRangePerLevel();
 
         if(getGameMap()->isServerGameMap())
         {
@@ -611,7 +673,7 @@ void Creature::doUpkeep()
 
     std::vector<Tile*> markedTiles;
 
-    if (mDefinition->getDigRate() > 0.0)
+    if (mDigRate > 0.0)
         markedTiles = getVisibleMarkedTiles();
 
     decidePrioritaryAction();
@@ -934,7 +996,7 @@ bool Creature::handleIdleAction()
     // If a fighter is weak, he should try to sleep
     if (isWeak && !mDefinition->isWorker())
     {
-        if((mHomeTile != NULL) && (getGameMap()->pathExists(getPositionTile(), mHomeTile, getDefinition())))
+        if((mHomeTile != NULL) && (getGameMap()->pathExists(this, getPositionTile(), mHomeTile)))
         {
             pushAction(CreatureAction::sleep);
             return true;
@@ -944,7 +1006,7 @@ bool Creature::handleIdleAction()
         if(mHomeTile == NULL)
         {
             std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndSeat(Room::dormitory, getSeat());
-            tempRooms = getGameMap()->getReachableRooms(tempRooms, getPositionTile(), mDefinition);
+            tempRooms = getGameMap()->getReachableRooms(tempRooms, getPositionTile(), this);
             if (!tempRooms.empty())
             {
                 clearDestinations();
@@ -997,7 +1059,7 @@ bool Creature::handleIdleAction()
     {
         // Check to see if there are any dormitory owned by our color that we can reach.
         std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndSeat(Room::dormitory, getSeat());
-        tempRooms = getGameMap()->getReachableRooms(tempRooms, getPositionTile(), mDefinition);
+        tempRooms = getGameMap()->getReachableRooms(tempRooms, getPositionTile(), this);
         if (!tempRooms.empty())
         {
             pushAction(CreatureAction::findHome);
@@ -1382,7 +1444,7 @@ bool Creature::handleClaimWallTileAction()
         {
             Tile* neighborTile = neighbors[j];
             if (neighborTile != NULL && neighborTile->getFullness() == 0.0)
-                possiblePaths.push_back(getGameMap()->path(getPositionTile(), neighborTile, mDefinition, getSeat()));
+                possiblePaths.push_back(getGameMap()->path(this, neighborTile));
         }
     }
 
@@ -1547,7 +1609,7 @@ bool Creature::handleDigTileAction()
         {
             Tile* neighborTile = neighbors[j];
             if (neighborTile != NULL && neighborTile->getFullness() == 0.0)
-                possiblePaths.push_back(getGameMap()->path(getPositionTile(), neighborTile, mDefinition, getSeat()));
+                possiblePaths.push_back(getGameMap()->path(this, neighborTile));
         }
     }
 
@@ -1657,7 +1719,7 @@ bool Creature::handleDepositGoldAction()
             // We have not yet found a valid path to a treasury, check to see if we can get to this treasury.
             unsigned int tempUnsigned = Random::Uint(0, treasuriesOwned[i]->numCoveredTiles() - 1);
             nearestTreasuryTile = treasuriesOwned[i]->getCoveredTile(tempUnsigned);
-            tempPath = getGameMap()->path(myTile, nearestTreasuryTile, mDefinition, getSeat());
+            tempPath = getGameMap()->path(this, nearestTreasuryTile);
             if (tempPath.size() >= 2 && static_cast<RoomTreasury*>(treasuriesOwned[i])->emptyStorageSpace() > 0)
             {
                 validPathFound = true;
@@ -1669,7 +1731,7 @@ bool Creature::handleDepositGoldAction()
             // We have already found at least one valid path to a treasury, see if this one is closer.
             unsigned int tempUnsigned = Random::Uint(0, treasuriesOwned[i]->numCoveredTiles() - 1);
             Tile* tempTile = treasuriesOwned[i]->getCoveredTile(tempUnsigned);
-            std::list<Tile*> tempPath2 = getGameMap()->path(myTile, tempTile, mDefinition, getSeat());
+            std::list<Tile*> tempPath2 = getGameMap()->path(this, tempTile);
             if (tempPath2.size() >= 2 && tempPath2.size() < nearestTreasuryDistance
                 && static_cast<RoomTreasury*>(treasuriesOwned[i])->emptyStorageSpace() > 0)
             {
@@ -1754,7 +1816,7 @@ bool Creature::handleFindHomeAction(bool isForced)
             mDefinition->getBedDim1(), mDefinition->getBedDim2());
         if(tempTile != NULL)
         {
-            std::list<Tile*> tempPath = getGameMap()->path(myTile, tempTile, mDefinition, getSeat());
+            std::list<Tile*> tempPath = getGameMap()->path(this, tempTile);
             if (setWalkPath(tempPath, 1, false))
             {
                 setAnimationState("Walk");
@@ -1793,7 +1855,7 @@ bool Creature::handleFindHomeAction(bool isForced)
         // Check to see if either of the two possible bed orientations tried above resulted in a successful placement.
         if (tempTile != NULL)
         {
-            std::list<Tile*> tempPath2 = getGameMap()->path(myTile, tempTile, mDefinition, getSeat());
+            std::list<Tile*> tempPath2 = getGameMap()->path(this, tempTile);
 
             // Find out the minimum valid path length of the paths determined in the above block.
             if (!validPathFound)
@@ -1916,7 +1978,7 @@ bool Creature::handleJobAction(bool isForced)
     }
 
     Tile* tempTile = tempRoom->getCoveredTile(Random::Uint(0, tempRoom->numCoveredTiles() - 1));
-    std::list<Tile*> tempPath = getGameMap()->path(myTile, tempTile, mDefinition, getSeat());
+    std::list<Tile*> tempPath = getGameMap()->path(this, tempTile);
     if (tempPath.size() < maxTrainDistance && setWalkPath(tempPath, 2, false))
     {
         setAnimationState("Walk");
@@ -2008,8 +2070,7 @@ bool Creature::handleEatingAction(bool isForced)
         }
 
         // We walk to the chicken
-        std::list<Tile*> pathToChicken = getGameMap()->path(myTile, closestChickenTile,
-            getDefinition(), getSeat());
+        std::list<Tile*> pathToChicken = getGameMap()->path(this, closestChickenTile);
         OD_ASSERT_TRUE(!pathToChicken.empty());
         if(pathToChicken.empty())
         {
@@ -2085,7 +2146,7 @@ bool Creature::handleEatingAction(bool isForced)
     }
 
     Tile* tempTile = tempRoom->getCoveredTile(Random::Uint(0, tempRoom->numCoveredTiles() - 1));
-    std::list<Tile*> tempPath = getGameMap()->path(myTile, tempTile, mDefinition, getSeat());
+    std::list<Tile*> tempPath = getGameMap()->path(this, tempTile);
     if (tempPath.size() < maxDistance && setWalkPath(tempPath, 2, false))
     {
         setAnimationState("Walk");
@@ -2195,13 +2256,18 @@ bool Creature::handleAttackAction()
 
     // Calculate how much damage we do.
     Tile* myTile = getPositionTile();
-    double damageDone = getHitroll(getGameMap()->crowDistance(myTile, attackedTile));
-    damageDone *= Random::Double(0.0, 1.0);
-    damageDone -= std::pow(Random::Double(0.0, 0.4), 2.0) * attackedObject->getDefense();
-
-    // Make sure the damage is positive.
-    if (damageDone < 0.0)
-        damageDone = 0.0;
+    Ogre::Real range = getGameMap()->crowDistance(myTile, attackedTile);
+    // Physical
+    double physDamage = getPhysicalDamage(range);
+    physDamage -= attackedObject->getPhysicalDefense();
+    if (physDamage < 0.0)
+        physDamage = 0.0;
+    // + Magical
+    double magDamage = getMagicalDamage(range);
+    magDamage -= attackedObject->getMagicalDefense();
+    if (magDamage < 0.0)
+        magDamage = 0.0;
+    double damageDone = physDamage + magDamage;
 
     // Do the damage and award experience points to both creatures.
     attackedObject->takeDamage(this, damageDone, attackedTile);
@@ -2332,13 +2398,13 @@ bool Creature::handleFleeAction()
 
     // We try to go closer to the dungeon temple. If we are too near or if we cannot go there, we will flee randomly
     std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndSeat(Room::RoomType::dungeonTemple, getSeat());
-    tempRooms = getGameMap()->getReachableRooms(tempRooms, getPositionTile(), mDefinition);
+    tempRooms = getGameMap()->getReachableRooms(tempRooms, getPositionTile(), this);
     if(!tempRooms.empty())
     {
         // We can go to one dungeon temple
         Room* room = tempRooms[Random::Int(0, tempRooms.size() - 1)];
         Tile* tile = room->getCoveredTiles()[0];
-        std::list<Tile*> result = getGameMap()->path(getPositionTile(), tile, getDefinition(), getSeat());
+        std::list<Tile*> result = getGameMap()->path(this, tile);
         // If we are not too near from the dungeon temple, we go there
         if(result.size() > 5)
         {
@@ -2359,43 +2425,105 @@ bool Creature::handleFleeAction()
 
 double Creature::getMoveSpeed() const
 {
-    Tile* tile = getPositionTile();
-    OD_ASSERT_TRUE(tile != NULL);
-    if(tile == NULL)
+    return getMoveSpeed(getPositionTile());
+}
+
+double Creature::getMoveSpeed(Tile* tile) const
+{
+    OD_ASSERT_TRUE(tile != nullptr);
+    if(tile == nullptr)
         return 1.0;
     OD_ASSERT_TRUE_MSG(tile->getFullness() == 0, (getGameMap()->isServerGameMap()?std::string("1"):std::string("0"))
         + " creature=" + getName() + ",tile=" + Tile::displayAsString(tile)
         + ",Fullness=" + Ogre::StringConverter::toString(tile->getFullness()));
 
-    // TODO : the formula at each level up was mMoveSpeed += 0.4 / (getLevel() + 2.0); Shall we keep it ?
-    double moveSpeed = 1.0 + (0.01 * static_cast<double>(getLevel() - 1));
-    moveSpeed *= tile->getCreatureSpeedOnTile(getDefinition());
+    switch(tile->getType())
+    {
+        case Tile::dirt:
+        case Tile::gold:
+        case Tile::claimed:
+            return mGroundSpeed;
+        case Tile::water:
+            return mWaterSpeed;
+        case Tile::lava:
+            return mLavaSpeed;
+        default:
+            break;
+    }
 
-    return moveSpeed;
+    return mGroundSpeed;
 }
 
-double Creature::getHitroll(double range)
+double Creature::getPhysicalDamage(double range)
 {
-    double tempHitroll = 1.0;
+    double hitroll = 0.0;
+
+    if (mWeaponlessAtkRange >= range)
+        hitroll += Random::Uint(1.0, mPhysicalAttack);
 
     if (mWeaponL != NULL && mWeaponL->getRange() >= range)
-        tempHitroll += mWeaponL->getDamage();
+        hitroll += mWeaponL->getDamage();
     if (mWeaponR != NULL && mWeaponR->getRange() >= range)
-        tempHitroll += mWeaponR->getDamage();
-    tempHitroll *= log((double) log((double) getLevel() + 1) + 1);
+        hitroll += mWeaponR->getDamage();
 
-    return tempHitroll;
+    return hitroll;
 }
 
-double Creature::getDefense() const
+double Creature::getMagicalDamage(double range)
 {
-    double returnValue = 3.0;
-    if (mWeaponL != NULL)
-        returnValue += mWeaponL->getDefense();
-    if (mWeaponR != NULL)
-        returnValue += mWeaponR->getDefense();
+    double hitroll = 0.0;
 
-    return returnValue;
+    if (mWeaponlessAtkRange >= range)
+        hitroll += Random::Uint(0.0, mMagicalAttack);
+
+    // TODO: Add support for magical atk to equipment
+    /*
+    if (mWeaponL != NULL && mWeaponL->getRange() >= range)
+        hitroll += mWeaponL->getDamage();
+    if (mWeaponR != NULL && mWeaponR->getRange() >= range)
+        hitroll += mWeaponR->getDamage();
+    */
+
+    return hitroll;
+}
+
+double Creature::getPhysicalDefense() const
+{
+    double defense = mPhysicalDefense;
+    if (mWeaponL != NULL)
+        defense += mWeaponL->getPhysicalDefense();
+    if (mWeaponR != NULL)
+        defense += mWeaponR->getPhysicalDefense();
+
+    return defense;
+}
+
+double Creature::getMagicalDefense() const
+{
+    double defense = mMagicalDefense;
+
+    // TODO: Add support for magical def to equipment
+    /*
+    if (mWeaponL != NULL)
+        defense += mWeaponL->getDefense();
+    if (mWeaponR != NULL)
+        defense += mWeaponR->getDefense();
+    */
+
+    return defense;
+}
+
+double Creature::getBestAttackRange() const
+{
+    double range = mWeaponlessAtkRange;
+
+    // Note: The damage check is here to avoid taking defense equipment in account.
+    if (mWeaponL != nullptr && mWeaponL->getRange() > range && mWeaponL->getDamage() > 0.0)
+        range = mWeaponL->getRange();
+    if (mWeaponR != nullptr && mWeaponR->getRange() > range && mWeaponR->getDamage() > 0.0)
+        range = mWeaponR->getRange();
+
+    return range;
 }
 
 //! \brief Increases the creature's level, adds bonuses to stat points, changes the mesh, etc.
@@ -2425,6 +2553,15 @@ void Creature::refreshFromCreature(Creature *creatureNewState)
     mHp             = creatureNewState->mHp;
     mAwakeness      = creatureNewState->mAwakeness;
     mHunger         = creatureNewState->mHunger;
+
+    mGroundSpeed    = creatureNewState->mGroundSpeed;
+    mWaterSpeed     = creatureNewState->mWaterSpeed;
+    mLavaSpeed      = creatureNewState->mLavaSpeed;
+
+    mPhysicalAttack = creatureNewState->mPhysicalAttack;
+    mMagicalAttack  = creatureNewState->mMagicalAttack;
+    mPhysicalDefense = creatureNewState->mPhysicalDefense;
+    mMagicalDefense = creatureNewState->mMagicalDefense;
 
     // Scale up the mesh.
     if ((oldLevel != getLevel()) && isMeshExisting() && ((getLevel() <= 30 && getLevel() % 2 == 0) || (getLevel() > 30 && getLevel()
@@ -2468,7 +2605,7 @@ std::vector<GameEntity*> Creature::getReachableAttackableObjects(const std::vect
             continue;
 
         Tile* objectTile = entity->getCoveredTiles()[0];
-        if (getGameMap()->pathExists(myTile, objectTile, mDefinition))
+        if (getGameMap()->pathExists(this, myTile, objectTile))
             tempVector.push_back(objectsToCheck[i]);
     }
 
@@ -2620,7 +2757,7 @@ void Creature::createStatsWindow()
 
     mStatsWindow = wmgr->createWindow("OD/FrameWindow", std::string("CreatureStatsWindows_") + getName());
     mStatsWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.3, 0)));
-    mStatsWindow->setSize(CEGUI::USize(CEGUI::UDim(0, 300), CEGUI::UDim(0, 300)));
+    mStatsWindow->setSize(CEGUI::USize(CEGUI::UDim(0, 380), CEGUI::UDim(0, 350)));
 
     CEGUI::Window* textWindow = wmgr->createWindow("OD/StaticText", "TextDisplay");
     textWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.15, 0)));
@@ -2681,10 +2818,14 @@ std::string Creature::getStatsText()
         tempSS << "Awakeness: " << mAwakeness << std::endl;
         tempSS << "Hunger: " << mHunger << std::endl;
     }
-    tempSS << "Move speed: " << getMoveSpeed() << std::endl;
+    tempSS << "Move speed (Ground/Water/Lava): " << getMoveSpeedGround() << "/"
+        << getMoveSpeedWater() << "/" << getMoveSpeedLava() << std::endl;
+    tempSS << "Attack (Phys/Mag): " << mPhysicalAttack << "/" << mMagicalAttack << std::endl;
+    tempSS << "Weaponless Attack Range: " << mWeaponlessAtkRange << std::endl;
+    tempSS << "Weapon:" << std::endl;
     tempSS << "Left hand: Attack: " << mWeaponL->getDamage() << ", Range: " << mWeaponL->getRange() << std::endl;
     tempSS << "Right hand: Attack: " << mWeaponR->getDamage() << ", Range: " << mWeaponR->getRange() << std::endl;
-    tempSS << "Total Defense: " << getDefense() << std::endl;
+    tempSS << "Total Defense (Phys/Mag): " << getPhysicalDefense() << "/" << getMagicalDefense() << std::endl;
     if (getDefinition()->isWorker())
     {
         tempSS << "Dig Rate: : " << getDigRate() << std::endl;
@@ -2839,6 +2980,42 @@ void Creature::pickup()
         tile->removeCreature(this);
 }
 
+bool Creature::canGoThroughTile(const Tile* tile) const
+{
+    if(tile == nullptr || tile->getFullness() > 0)
+        return false;
+
+    switch(tile->getType())
+    {
+        case Tile::dirt:
+        case Tile::gold:
+        case Tile::claimed:
+        {
+            if(mGroundSpeed > 0.0)
+                return true;
+
+            break;
+        }
+        case Tile::water:
+        {
+            if(mWaterSpeed > 0.0)
+                return true;
+
+            break;
+        }
+        case Tile::lava:
+        {
+            if(mLavaSpeed > 0.0)
+                return true;
+
+            break;
+        }
+        default:
+            return false;
+    }
+    return false;
+}
+
 bool Creature::tryDrop(Seat* seat, Tile* tile, bool isEditorMode)
 {
     // check whether the tile is a ground tile ...
@@ -2846,7 +3023,7 @@ bool Creature::tryDrop(Seat* seat, Tile* tile, bool isEditorMode)
         return false;
 
     // In editor mode, we allow creatures to be dropped anywhere they can walk
-    if(isEditorMode && tile->canCreatureGoThroughTile(getDefinition()))
+    if(isEditorMode && canGoThroughTile(tile))
         return true;
 
     // If it is a worker, he can be dropped on dirt
@@ -2875,7 +3052,7 @@ bool Creature::setDestination(Tile* tile)
     if(posTile == NULL)
         return false;
 
-    std::list<Tile*> result = getGameMap()->path(posTile, tile, mDefinition, getSeat());
+    std::list<Tile*> result = getGameMap()->path(this, tile);
 
     if (setWalkPath(result, 2, false))
     {
@@ -2971,8 +3148,8 @@ bool Creature::fightInRangeObjectInList(const std::vector<GameEntity*>& listObje
     Tile* closestNotInRangeEnnemyTile = nullptr;
     double closestNotInRangeEnnemyDist = 0.0;
 
-    double weaponRangeSquared = std::max(mWeaponL ? mWeaponL->getRange() : 0.0,
-                                         mWeaponR ? mWeaponR->getRange() : 0.0);
+    // Use the weapon range when equipped, and the natural one when not.
+    double weaponRangeSquared = getBestAttackRange();
     weaponRangeSquared *= weaponRangeSquared;
 
     // Loop over the enemyObjectsToCheck and add any within range to the tempVector.
@@ -3050,7 +3227,7 @@ bool Creature::wanderRandomly(const std::string& animationState)
     while((tileDestination == NULL) && (indexPick > 0))
     {
         Tile* tile = mVisibleTiles[indexPick];
-        if(getGameMap()->pathExists(getPositionTile(), tile, getDefinition()))
+        if(getGameMap()->pathExists(this, getPositionTile(), tile))
             tileDestination = tile;
 
         --indexPick;
@@ -3059,8 +3236,7 @@ bool Creature::wanderRandomly(const std::string& animationState)
     if(tileDestination == NULL)
         return false;
 
-    std::list<Tile*> result = getGameMap()->path(getPositionTile(), tileDestination,
-        getDefinition(), getSeat());
+    std::list<Tile*> result = getGameMap()->path(this, tileDestination);
     if (setWalkPath(result, 1, false))
     {
         setAnimationState(animationState);

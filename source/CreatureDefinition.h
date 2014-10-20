@@ -45,16 +45,36 @@ public:
             int                     bedDim2     = 1,
             const Ogre::Vector3&    scale       = Ogre::Vector3(1, 1, 1),
             double                  sightRadius = 15.0,
+
             double                  digRate     = 10.0,
-            double                  danceRate   = 0.35,
+            double                  digRatePerLevel = 2.1,
+            double                  claimRate   = 0.35,
+            double                  claimRatePerLevel = 0.06,
+
             double                  minHP       = 1.0,
             double                  hpPerLevel  = 5.0,
             double                  hpHealPerTurn = 0.1,
+
             double                  awakenessLostPerTurn = 0.1,
             double                  hungerGrowthPerTurn = 0.1,
+
             double                  moveSpeedGround     = 1.0,
             double                  moveSpeedWater      = 0.0,
-            double                  moveSpeedLava       = 0.0) :
+            double                  moveSpeedLava       = 0.0,
+            double                  groundSpeedPerLevel = 0.02,
+            double                  waterSpeedPerLevel  = 0.0,
+            double                  lavaSpeedPerLevel   = 0.0,
+
+            double                  physicalAttack      = 1.0,
+            double                  physicalAtkPerLevel = 0.6,
+            double                  magicalAttack       = 0.8,
+            double                  magicalAtkPerLevel  = 0.4,
+            double                  physicalDefense     = 3.0,
+            double                  physicalDefPerLevel = 0.2,
+            double                  magicalDefense      = 1.5,
+            double                  magicalDefPerLevel  = 0.1,
+            double                  attackRange         = 1.0,
+            double                  atkRangePerLevel    = 0.0) :
         mCreatureJob (job),
         mClassName   (className),
         mMeshName    (meshName),
@@ -64,7 +84,9 @@ public:
         mScale       (scale),
         mSightRadius (sightRadius),
         mDigRate     (digRate),
-        mClaimRate   (danceRate),
+        mDigRatePerLevel (digRatePerLevel),
+        mClaimRate   (claimRate),
+        mClaimRatePerLevel(claimRatePerLevel),
         mMinHP       (minHP),
         mHpPerLevel  (hpPerLevel),
         mHpHealPerTurn      (hpHealPerTurn),
@@ -72,7 +94,20 @@ public:
         mHungerGrowthPerTurn(hungerGrowthPerTurn),
         mMoveSpeedGround    (moveSpeedGround),
         mMoveSpeedWater     (moveSpeedWater),
-        mMoveSpeedLava      (moveSpeedLava)
+        mMoveSpeedLava      (moveSpeedLava),
+        mGroundSpeedPerLevel(groundSpeedPerLevel),
+        mWaterSpeedPerLevel (waterSpeedPerLevel),
+        mLavaSpeedPerLevel  (lavaSpeedPerLevel),
+        mPhysicalAttack     (physicalAttack),
+        mPhysicalAtkPerLevel(physicalAtkPerLevel),
+        mMagicalAttack      (magicalAttack),
+        mMagicalAtkPerLevel (magicalAtkPerLevel),
+        mPhysicalDefense    (physicalDefense),
+        mPhysicalDefPerLevel(physicalDefPerLevel),
+        mMagicalDefense     (magicalDefense),
+        mMagicalDefPerLevel (magicalDefPerLevel),
+        mAttackRange        (attackRange),
+        mAtkRangePerLevel   (atkRangePerLevel)
     {}
 
     static CreatureJob creatureJobFromString(const std::string& s);
@@ -89,23 +124,49 @@ public:
     static CreatureDefinition* load(std::stringstream& defFile);
 
     inline CreatureJob          getCreatureJob  () const    { return mCreatureJob; }
+    inline const std::string&   getClassName    () const    { return mClassName; }
+
+    inline const std::string&   getMeshName     () const    { return mMeshName; }
+    inline const Ogre::Vector3& getScale        () const    { return mScale; }
+
+    inline const std::string&   getBedMeshName  () const    { return mBedMeshName; }
     inline int                  getBedDim1      () const    { return mBedDim1; }
     inline int                  getBedDim2      () const    { return mBedDim2; }
-    inline const std::string&   getBedMeshName  () const    { return mBedMeshName; }
-    inline const std::string&   getClassName    () const    { return mClassName; }
+
+    inline double               getSightRadius  () const    { return mSightRadius; }
+
     inline double               getClaimRate    () const    { return mClaimRate; }
+    inline double               getClaimRatePerLevel() const{ return mClaimRatePerLevel; }
     inline double               getDigRate      () const    { return mDigRate; }
+    inline double               getDigRatePerLevel() const  { return mDigRatePerLevel; }
+
     inline double               getMinHp        () const    { return mMinHP; }
     inline double               getHpPerLevel   () const    { return mHpPerLevel; }
     inline double               getHpHealPerTurn() const    { return mHpHealPerTurn; }
+
     inline double               getAwakenessLostPerTurn() const{ return mAwakenessLostPerTurn; }
     inline double               getHungerGrowthPerTurn() const { return mHungerGrowthPerTurn; }
-    inline const std::string&   getMeshName     () const    { return mMeshName; }
+
     inline double               getMoveSpeedGround  () const    { return mMoveSpeedGround; }
     inline double               getMoveSpeedWater   () const    { return mMoveSpeedWater; }
     inline double               getMoveSpeedLava    () const    { return mMoveSpeedLava; }
-    inline const Ogre::Vector3& getScale        () const    { return mScale; }
-    inline double               getSightRadius  () const    { return mSightRadius; }
+
+    inline double               getGroundSpeedPerLevel() const  { return mGroundSpeedPerLevel; }
+    inline double               getWaterSpeedPerLevel () const  { return mWaterSpeedPerLevel; }
+    inline double               getLavaSpeedPerLevel  () const  { return mLavaSpeedPerLevel; }
+
+
+    inline double               getPhysicalAttack() const       { return mPhysicalAttack; }
+    inline double               getPhysicalAtkPerLevel () const { return mPhysicalAtkPerLevel; }
+    inline double               getMagicalAttack  () const      { return mMagicalAttack; }
+    inline double               getMagicalAtkPerLevel () const  { return mMagicalAtkPerLevel; }
+    inline double               getPhysicalDefense() const      { return mPhysicalDefense; }
+    inline double               getPhysicalDefPerLevel () const { return mPhysicalDefPerLevel; }
+    inline double               getMagicalDefense  () const     { return mMagicalDefense; }
+    inline double               getMagicalDefPerLevel () const  { return mMagicalDefPerLevel; }
+
+    inline double               getAttackRange      () const    { return mAttackRange; }
+    inline double               getAtkRangePerLevel () const    { return mAtkRangePerLevel; }
 
 private:
     //! \brief The job of the creature (e.g. worker, fighter, ...)
@@ -135,8 +196,14 @@ private:
     //! \brief Fullness removed per turn of digging
     double mDigRate;
 
+    //! \brief How much dig rate is earned at each level up.
+    double mDigRatePerLevel;
+
     //! \brief How quick a worker can claim a ground or wall tile.
     double mClaimRate;
+
+    //! \brief How much claim rate is earned at each level up.
+    double mClaimRatePerLevel;
 
     //! \brief The minimum HP the creature can ever have
     double mMinHP;
@@ -157,6 +224,24 @@ private:
     double mMoveSpeedGround;
     double mMoveSpeedWater;
     double mMoveSpeedLava;
+
+    //! \brief how much speed is earn per level on each tile type.
+    double mGroundSpeedPerLevel;
+    double mWaterSpeedPerLevel;
+    double mLavaSpeedPerLevel;
+
+    //! \brief Physical and magical attack/defense stats (without equipment)
+    double mPhysicalAttack;
+    double mPhysicalAtkPerLevel;
+    double mMagicalAttack;
+    double mMagicalAtkPerLevel;
+    double mPhysicalDefense;
+    double mPhysicalDefPerLevel;
+    double mMagicalDefense;
+    double mMagicalDefPerLevel;
+
+    double mAttackRange;
+    double mAtkRangePerLevel;
 };
 
 #endif // CREATUREDEFINITION_H

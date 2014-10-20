@@ -1208,60 +1208,6 @@ bool Tile::isFloodFillFilled()
     return false;
 }
 
-bool Tile::canCreatureGoThroughTile(const CreatureDefinition* creatureDef)
-{
-    if(getFullness() > 0)
-        return false;
-
-    switch(getType())
-    {
-        case Tile::dirt:
-        case Tile::gold:
-        case Tile::claimed:
-        {
-            if(creatureDef->getMoveSpeedGround() > 0.0)
-                return true;
-
-            break;
-        }
-        case Tile::water:
-        {
-            if(creatureDef->getMoveSpeedWater() > 0.0)
-                return true;
-
-            break;
-        }
-        case Tile::lava:
-        {
-            if(creatureDef->getMoveSpeedLava() > 0.0)
-                return true;
-
-            break;
-        }
-        default:
-            return false;
-    }
-    return false;
-}
-
-double Tile::getCreatureSpeedOnTile(const CreatureDefinition* creatureDef)
-{
-    switch(getType())
-    {
-        case Tile::dirt:
-        case Tile::gold:
-        case Tile::claimed:
-            return creatureDef->getMoveSpeedGround();
-        case Tile::water:
-            return creatureDef->getMoveSpeedWater();
-        case Tile::lava:
-            return creatureDef->getMoveSpeedLava();
-        default:
-            break;
-    }
-    return creatureDef->getMoveSpeedGround();
-}
-
 void Tile::refreshFromTile(const Tile& tile)
 {
     type = tile.type;

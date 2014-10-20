@@ -122,7 +122,19 @@ public:
      */
     void setPosition(const Ogre::Vector3& v);
 
+    //! \brief Gets the move speed on the current tile.
     virtual double getMoveSpeed() const;
+
+    //! \brief Gets the move speed on the current tile.
+    double getMoveSpeed(Tile* tile) const;
+
+    //! \brief Gets the creature depending the terrain type.
+    double getMoveSpeedGround() const
+    { return mGroundSpeed; }
+    double getMoveSpeedWater() const
+    { return mWaterSpeed; }
+    double getMoveSpeedLava() const
+    { return mLavaSpeed; }
 
     bool setDestination(Tile* tile);
 
@@ -177,8 +189,14 @@ public:
 
     virtual bool isAttackable() const;
 
-    double getHitroll(double range);
-    double getDefense() const;
+    double getPhysicalDamage(double range);
+    double getPhysicalDefense() const;
+    double getMagicalDamage(double range);
+    double getMagicalDefense() const;
+
+    //! \brief Returns the currently best attack range of the creature.
+    //! \note Depends also on its equipment.
+    double getBestAttackRange() const;
 
     //! \brief Check whether a creature has earned one level.
     bool checkLevelUp();
@@ -239,14 +257,21 @@ public:
     //! \brief An accessor to return whether or not the creature has OGRE entities for its visual debugging entities.
     bool getHasVisualDebuggingEntities();
 
+    //! \FIXME Those functions are lacking parameters to be actually functional
+    //! \brief Get the text format of creatures in level files (already spawned at startup).
+    //! \returns A string describing the IO format of the << and >> operators.
     static std::string getFormat();
+    //! \brief A function saving creatures already present in level when writing it.
     friend std::ostream& operator<<(std::ostream& os, Creature *c);
+    //! \brief A function loading creatures already present in level when loading it.
     friend std::istream& operator>>(std::istream& is, Creature *c);
+    //! \brief Loads the creature data from a level line.
+    static Creature* loadFromLine(const std::string& line, GameMap* gameMap);
+
+    //! \brief A function to transport the full creature's state between files and over the network.
+    //! Not used for level files.
     friend ODPacket& operator<<(ODPacket& os, Creature *c);
     friend ODPacket& operator>>(ODPacket& is, Creature *c);
-
-    //! \brief Loads the map light data from a level line.
-    static Creature* loadFromLine(const std::string& line, GameMap* gameMap);
 
     inline void setQuad(CullingQuad* cq)
     { mTracingCullingQuad = cq; }
@@ -288,6 +313,9 @@ public:
     //! \brief Play a spatial sound at the creature position of the corresponding type.
     void playSound(CreatureSound::SoundType soundType);
 
+    //! \brief Tells whether the creature can go through the given tile.
+    bool canGoThroughTile(const Tile* tile) const;
+
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
@@ -306,6 +334,13 @@ private:
     Creature(GameMap* gameMap);
 
     CullingQuad* mTracingCullingQuad;
+
+    //! \brief Natural physical and magical attack and defense (without equipment)
+    double mPhysicalAttack;
+    double mMagicalAttack;
+    double mPhysicalDefense;
+    double mMagicalDefense;
+    double mWeaponlessAtkRange;
 
     //! \brief The weapon the creature is holding in its left hand or NULL if none.
     Weapon* mWeaponL;
@@ -327,11 +362,18 @@ private:
     //! \brief The level of the creature
     unsigned int    mLevel;
 
+    //! \brief The creature stats
     double          mHp;
     double          mMaxHP;
     double          mExp;
+    double          mGroundSpeed;
+    double          mWaterSpeed;
+    double          mLavaSpeed;
+
+    //! \brief Workers only
     double          mDigRate;
     double          mClaimRate;
+
     //! \brief Counter to let the creature stay some turns after its death
     unsigned int    mDeathCounter;
     int             mGold;

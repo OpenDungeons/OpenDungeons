@@ -55,8 +55,16 @@ ODPacket& operator<<(ODPacket& os, CreatureDefinition* c)
     os << c->mHpHealPerTurn;
     os << c->mAwakenessLostPerTurn;
     os << c->mHungerGrowthPerTurn;
-    os << c->mSightRadius << c->mDigRate << c->mClaimRate
-       << c->mMoveSpeedGround << c->mMoveSpeedWater << c->mMoveSpeedLava;
+    os << c->mSightRadius;
+    os << c->mDigRate << c->mDigRatePerLevel;
+    os << c->mClaimRate << c->mClaimRatePerLevel;
+    os << c->mMoveSpeedGround << c->mMoveSpeedWater << c->mMoveSpeedLava;
+    os << c->mGroundSpeedPerLevel << c->mWaterSpeedPerLevel << c->mLavaSpeedPerLevel;
+    os << c->mPhysicalAttack << c->mPhysicalAtkPerLevel;
+    os << c->mMagicalAttack << c->mMagicalAtkPerLevel;
+    os << c->mPhysicalDefense << c->mPhysicalDefPerLevel;
+    os << c->mMagicalDefense << c->mMagicalDefPerLevel;
+    os << c->mAttackRange << c->mAtkRangePerLevel;
     return os;
 }
 
@@ -70,8 +78,16 @@ ODPacket& operator>>(ODPacket& is, CreatureDefinition* c)
     is >> c->mScale.x >> c->mScale.y >> c->mScale.z;
     is >> c->mMinHP >> c->mHpPerLevel >> c->mHpHealPerTurn;
     is >> c->mAwakenessLostPerTurn >> c->mHungerGrowthPerTurn;
-    is >> c->mSightRadius >> c->mDigRate >> c->mClaimRate;
+    is >> c->mSightRadius;
+    is >> c->mDigRate >> c->mDigRatePerLevel;
+    is >> c->mClaimRate >> c->mClaimRatePerLevel;
     is >> c->mMoveSpeedGround >> c->mMoveSpeedWater >> c->mMoveSpeedLava;
+    is >> c->mGroundSpeedPerLevel >> c->mWaterSpeedPerLevel >> c->mLavaSpeedPerLevel;
+    is >> c->mPhysicalAttack >> c->mPhysicalAtkPerLevel;
+    is >> c->mMagicalAttack >> c->mMagicalAtkPerLevel;
+    is >> c->mPhysicalDefense >> c->mPhysicalDefPerLevel;
+    is >> c->mMagicalDefense >> c->mMagicalDefPerLevel;
+    is >> c->mAttackRange >> c->mAtkRangePerLevel;
 
     return is;
 }
@@ -215,10 +231,22 @@ CreatureDefinition* CreatureDefinition::load(std::stringstream& defFile)
                 creatureDef->mDigRate = Helper::toDouble(nextParam);
                 continue;
             }
+            else if (nextParam == "DigRate/Level")
+            {
+                defFile >> nextParam;
+                creatureDef->mDigRatePerLevel = Helper::toDouble(nextParam);
+                continue;
+            }
             else if (nextParam == "ClaimRate")
             {
                 defFile >> nextParam;
                 creatureDef->mClaimRate = Helper::toDouble(nextParam);
+                continue;
+            }
+            else if (nextParam == "ClaimRate/Level")
+            {
+                defFile >> nextParam;
+                creatureDef->mClaimRatePerLevel = Helper::toDouble(nextParam);
                 continue;
             }
             else if (nextParam == "GroundMoveSpeed")
@@ -237,6 +265,85 @@ CreatureDefinition* CreatureDefinition::load(std::stringstream& defFile)
             {
                 defFile >> nextParam;
                 creatureDef->mMoveSpeedLava = Helper::toDouble(nextParam);
+                continue;
+            }
+            else if (nextParam == "GroundSpeed/Level")
+            {
+                defFile >> nextParam;
+                creatureDef->mGroundSpeedPerLevel = Helper::toDouble(nextParam);
+                continue;
+            }
+            else if (nextParam == "WaterSpeed/Level")
+            {
+                defFile >> nextParam;
+                creatureDef->mWaterSpeedPerLevel = Helper::toDouble(nextParam);
+                continue;
+            }
+            else if (nextParam == "LavaSpeed/Level")
+            {
+                defFile >> nextParam;
+                creatureDef->mLavaSpeedPerLevel = Helper::toDouble(nextParam);
+                continue;
+            }
+
+            else if (nextParam == "PhysicalAttack")
+            {
+                defFile >> nextParam;
+                creatureDef->mPhysicalAttack = Helper::toDouble(nextParam);
+                continue;
+            }
+            else if (nextParam == "PhysicalAtk/Level")
+            {
+                defFile >> nextParam;
+                creatureDef->mPhysicalAtkPerLevel = Helper::toDouble(nextParam);
+                continue;
+            }
+            else if (nextParam == "MagicalAttack")
+            {
+                defFile >> nextParam;
+                creatureDef->mMagicalAttack = Helper::toDouble(nextParam);
+                continue;
+            }
+            else if (nextParam == "MagicalAtk/Level")
+            {
+                defFile >> nextParam;
+                creatureDef->mMagicalAtkPerLevel = Helper::toDouble(nextParam);
+                continue;
+            }
+            else if (nextParam == "PhysicalDefense")
+            {
+                defFile >> nextParam;
+                creatureDef->mPhysicalDefense = Helper::toDouble(nextParam);
+                continue;
+            }
+            else if (nextParam == "PhysicalDef/Level")
+            {
+                defFile >> nextParam;
+                creatureDef->mPhysicalDefPerLevel = Helper::toDouble(nextParam);
+                continue;
+            }
+            else if (nextParam == "MagicalDefense")
+            {
+                defFile >> nextParam;
+                creatureDef->mMagicalDefense = Helper::toDouble(nextParam);
+                continue;
+            }
+            else if (nextParam == "MagicalDef/Level")
+            {
+                defFile >> nextParam;
+                creatureDef->mMagicalDefPerLevel = Helper::toDouble(nextParam);
+                continue;
+            }
+            else if (nextParam == "AttackRange")
+            {
+                defFile >> nextParam;
+                creatureDef->mAttackRange = Helper::toDouble(nextParam);
+                continue;
+            }
+            else if (nextParam == "AtkRange/Level")
+            {
+                defFile >> nextParam;
+                creatureDef->mAtkRangePerLevel = Helper::toDouble(nextParam);
                 continue;
             }
         }

@@ -170,7 +170,7 @@ public:
     unsigned int numRoomsByTypeAndSeat(Room::RoomType type,
                       Seat* seat) const;
     std::vector<Room*> getReachableRooms(const std::vector<Room*> &vec,
-                       Tile *startTile, const CreatureDefinition* creatureDef);
+                       Tile *startTile, const Creature* creature);
     Room* getRoomByName(const std::string& name);
     Trap* getTrapByName(const std::string& name);
 
@@ -313,8 +313,8 @@ public:
 
     void doPlayerAITurn(double frameTime);
 
-    //! \brief Tells whether a path exists between two tiles for the given creature type.
-    bool pathExists(Tile* tileStart, Tile* tileEnd, const CreatureDefinition* creatureDef);
+    //! \brief Tells whether a path exists between two tiles for the given creature.
+    bool pathExists(const Creature* creature, Tile* tileStart, Tile* tileEnd);
 
     /*! \brief Calculates the walkable path between tiles (x1, y1) and (x2, y2).
      *
@@ -328,9 +328,11 @@ public:
      * \param seat The seat is used when searching a diggable path to know
      * what tile actually diggable for the given team.
      */
-    std::list<Tile*> path(int x1, int y1, int x2, int y2, const CreatureDefinition* creatureDef, Seat* seat, bool throughDiggableTiles = false);
-    std::list<Tile*> path(Creature *c1, Creature *c2, const CreatureDefinition* creatureDef, Seat* seat, bool throughDiggableTiles = false);
-    std::list<Tile*> path(Tile *t1, Tile *t2, const CreatureDefinition* creatureDef, Seat* seat, bool throughDiggableTiles = false);
+    std::list<Tile*> path(int x1, int y1, int x2, int y2, const Creature* creature, Seat* seat, bool throughDiggableTiles = false);
+    std::list<Tile*> path(Creature *c1, Creature *c2, const Creature* creature, Seat* seat, bool throughDiggableTiles = false);
+    std::list<Tile*> path(Tile *t1, Tile *t2, const Creature* creature, Seat* seat, bool throughDiggableTiles = false);
+    //! \note Returns a path for the given creature to the given destination.
+    std::list<Tile*> path(const Creature* creature, Tile* destination, bool throughDiggableTiles = false);
 
     /*! \brief Returns a list of valid tiles along a straight line from (x1, y1) to (x2, y2)
      * independently from their fullness or type.

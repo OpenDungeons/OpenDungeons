@@ -216,7 +216,7 @@ double Building::getHP(Tile *tile) const
     return total;
 }
 
-double Building::getDefense() const
+double Building::getPhysicalDefense() const
 {
     return 0;
 }
