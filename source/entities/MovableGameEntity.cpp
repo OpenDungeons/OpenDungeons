@@ -220,8 +220,8 @@ void MovableGameEntity::update(Ogre::Real timeSinceLastFrame)
 
     // Move the entity
 
-    //FIXME: The moveDist should probably be tied to the scale of the entity as well
-    //FIXME: When the client and the server are using different frame rates, the entities walk at different speeds
+    // Note: When the client and the server are using different frame rates, the entities walk at different speeds
+    // If this happens to become a problem, resyncing mechanisms will be needed.
     double moveDist = ODApplication::turnsPerSecond
                       * getMoveSpeed()
                       * timeSinceLastFrame;

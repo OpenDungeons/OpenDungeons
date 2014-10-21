@@ -68,6 +68,9 @@ public:
 
     virtual void setAnimationState(const std::string& state, bool loop = true, Ogre::Vector3* direction = NULL);
 
+    virtual const std::string& getAnimationState() const
+    { return mPrevAnimationState; }
+
     virtual double getAnimationSpeedFactor();
     virtual void setAnimationSpeedFactor(double f);
 

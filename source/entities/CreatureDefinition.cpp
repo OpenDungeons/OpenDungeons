@@ -65,6 +65,7 @@ ODPacket& operator<<(ODPacket& os, CreatureDefinition* c)
     os << c->mPhysicalDefense << c->mPhysicalDefPerLevel;
     os << c->mMagicalDefense << c->mMagicalDefPerLevel;
     os << c->mAttackRange << c->mAtkRangePerLevel;
+    os << c->mAttackWarmupTime;
     return os;
 }
 
@@ -88,6 +89,7 @@ ODPacket& operator>>(ODPacket& is, CreatureDefinition* c)
     is >> c->mPhysicalDefense >> c->mPhysicalDefPerLevel;
     is >> c->mMagicalDefense >> c->mMagicalDefPerLevel;
     is >> c->mAttackRange >> c->mAtkRangePerLevel;
+    is >> c->mAttackWarmupTime;
 
     return is;
 }
@@ -344,6 +346,12 @@ CreatureDefinition* CreatureDefinition::load(std::stringstream& defFile)
             {
                 defFile >> nextParam;
                 creatureDef->mAtkRangePerLevel = Helper::toDouble(nextParam);
+                continue;
+            }
+            else if (nextParam == "AttackWarmupTime")
+            {
+                defFile >> nextParam;
+                creatureDef->mAttackWarmupTime = Helper::toDouble(nextParam);
                 continue;
             }
         }

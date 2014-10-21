@@ -2623,11 +2623,11 @@ Slime
 [/Spawn_Pools]
 
 [Creatures]
-# className	name	posX	posY	posZ	seatId	weaponLname	damage	range	defense	weaponRname	damage	range	defense	HP	Level
+# SeatId	ClassName	Name	Level	CurrentXP	CurrenHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeapon name	damage	range	defense	RightWeapon name	damage	range	defense
 [Creature]
-ConstructWorker	ConstructWorker1	7	7	0	1	none	1	4	3	none	8	4	0	125	1
+1	ConstructWorker	ConstructWorker1	1	0	125	100	0	0	7	7	0	none	1	4	3	none	8	4	0	
 [/Creature]
 [Creature]
-Scarab	Scarab1	37	42	0	2	none	0	0	0	none	0	0	0	125	1
+2	Scarab	Scarab1	1	0	125	100	0	0	37	42	0	none	0	0	0	none	0	0	0	
 [/Creature]
 [/Creatures]

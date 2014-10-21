@@ -135,6 +135,10 @@ public:
     double getMoveSpeedLava() const
     { return mLavaSpeed; }
 
+    //! \brief Updates the entity path, movement, and direction, and creature attack time
+    //! \param timeSinceLastFrame the elapsed time since last displayed frame in seconds.
+    virtual void update(Ogre::Real timeSinceLastFrame);
+
     bool setDestination(Tile* tile);
 
     void drop(const Ogre::Vector3& v);
@@ -336,6 +340,9 @@ private:
     double mMagicalDefense;
     double mWeaponlessAtkRange;
 
+    //! \brief The time left before being to draw an attack in seconds
+    double mAttackWarmupTime;
+
     //! \brief The weapon the creature is holding in its left hand or NULL if none.
     Weapon* mWeaponL;
 
@@ -501,6 +508,9 @@ private:
     //! \brief Returns true if creature is in bad mood. False otherwise. A creature in bad mood will more likely
     //! flee or attack allied units
     bool isInBadMood();
+
+    //! \brief Restores the creature's stats according to the given level
+    void buildStats(unsigned int level);
 };
 
 #endif // CREATURE_H
