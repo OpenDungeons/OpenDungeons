@@ -44,12 +44,9 @@ class RenderManager;
 class AbstractApplicationMode;
 class ModeManager;
 class CameraManager;
-class SoundEffectsHelper;
 class ChatMessage;
 class GameMap;
 class MiniMap;
-class GameContext;
-class EditorContext;
 class CameraManager;
 
 /*! \brief The main OGRE rendering class.

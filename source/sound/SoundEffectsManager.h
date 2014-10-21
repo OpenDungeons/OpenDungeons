@@ -27,6 +27,7 @@
 // Forward declarations
 class CreatureDefinition;
 class CreatureSound;
+class ODPacket;
 
 // The Z value to use for tile positioned sounds.
 // Tiles are from -0.25 to 3.0 in z value, the floor is at 0,
@@ -115,6 +116,10 @@ public:
     //! \brief Gives the creature sounds list relative to the creature class.
     //! \warning The CreatureSound* object is to be deleted only by the sound manager.
     CreatureSound* getCreatureClassSounds(const std::string& className);
+
+    //! \brief Used to transfer InterfaceSounds type over the network.
+    friend ODPacket& operator<<(ODPacket& os, const SoundEffectsManager::InterfaceSound& st);
+    friend ODPacket& operator>>(ODPacket& is, SoundEffectsManager::InterfaceSound& st);
 
 private:
     //! \brief Every interface or genric in game sounds
