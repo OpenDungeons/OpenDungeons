@@ -56,10 +56,7 @@ void Room::createMeshLocal()
     std::vector<Tile*> coveredTiles = getCoveredTiles();
     for (unsigned int i = 0, nb = coveredTiles.size(); i < nb; ++i)
     {
-        RenderRequest* request = new RenderRequest;
-        request->type = RenderRequest::createRoom;
-        request->p    = static_cast<void*>(this);
-        request->p2   = coveredTiles[i];
+        RenderRequest* request = new RenderRequestCreateBuilding(this, coveredTiles[i]);
         RenderManager::queueRenderRequest(request);
     }
 }
@@ -75,10 +72,7 @@ void Room::destroyMeshLocal()
     std::vector<Tile*> coveredTiles = getCoveredTiles();
     for (unsigned int i = 0, nb = coveredTiles.size(); i < nb; ++i)
     {
-        RenderRequest* request = new RenderRequest;
-        request->type = RenderRequest::destroyRoom;
-        request->p    = static_cast<void*>(this);
-        request->p2   = coveredTiles[i];
+        RenderRequest* request = new RenderRequestDestroyBuilding(this, coveredTiles[i]);
         RenderManager::queueRenderRequest(request);
     }
 }
@@ -165,10 +159,7 @@ bool Room::removeCoveredTile(Tile* t, bool isRoomAbsorb)
         return true;
 
     // Destroy the mesh for this tile.
-    RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::destroyRoom;
-    request->p = this;
-    request->p2 = t;
+    RenderRequest *request = new RenderRequestDestroyBuilding(this, t);
     RenderManager::queueRenderRequest(request);
 
     // NOTE: The active spot changes are done in upKeep()

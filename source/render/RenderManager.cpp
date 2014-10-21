@@ -149,152 +149,6 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     Ogre::CompositorManager::getSingleton().addCompositor(mViewport, "B&W");
 }
 
-bool RenderManager::handleRenderRequest(const RenderRequest& renderRequest)
-{
-    switch (renderRequest.type)
-    {
-    case RenderRequest::refreshTile:
-        rrRefreshTile(renderRequest);
-        break;
-
-    case RenderRequest::createTile:
-        rrCreateTile(renderRequest);
-        break;
-
-    case RenderRequest::destroyTile:
-        rrDestroyTile(renderRequest);
-        break;
-
-    case RenderRequest::detachTile:
-        rrDetachTile(renderRequest);
-        break;
-
-    case RenderRequest::attachTile:
-        rrAttachTile(renderRequest);
-        break;
-
-    case RenderRequest::detachEntity:
-        rrDetachEntity(renderRequest);
-        break;
-
-    case RenderRequest::attachEntity:
-        rrAttachEntity(renderRequest);
-        break;
-
-    case RenderRequest::toggleCreatureVisibility:
-        rrToggleCreaturesVisibility();
-        break;
-
-    case RenderRequest::temporalMarkTile:
-        rrTemporalMarkTile(renderRequest);
-        break;
-
-    case RenderRequest::showSquareSelector:
-        rrShowSquareSelector(renderRequest);
-        break;
-
-    case RenderRequest::createRoom:
-        rrCreateRoom(renderRequest);
-        break;
-
-    case RenderRequest::destroyRoom:
-        rrDestroyRoom(renderRequest);
-        break;
-
-    case RenderRequest::createRenderedMovableEntity:
-        rrCreateRenderedMovableEntity(renderRequest);
-        break;
-
-    case RenderRequest::destroyRenderedMovableEntity:
-        rrDestroyRenderedMovableEntity(renderRequest);
-        break;
-
-    case RenderRequest::createTrap:
-        rrCreateTrap(renderRequest);
-        break;
-
-    case RenderRequest::destroyTrap:
-        rrDestroyTrap(renderRequest);
-        break;
-
-    case RenderRequest::createCreature:
-        rrCreateCreature(renderRequest);
-        break;
-
-    case RenderRequest::destroyCreature:
-        rrDestroyCreature(renderRequest);
-        break;
-
-    case RenderRequest::orientSceneNodeToward:
-        rrOrientSceneNodeToward(renderRequest);
-        break;
-
-    case RenderRequest::reorientSceneNode:
-        rrReorientSceneNode(renderRequest);
-        break;
-
-    case RenderRequest::scaleSceneNode:
-        rrScaleSceneNode(renderRequest);
-        break;
-
-    case RenderRequest::createWeapon:
-        rrCreateWeapon(renderRequest);
-        break;
-
-    case RenderRequest::destroyWeapon:
-        rrDestroyWeapon(renderRequest);
-        break;
-
-    case RenderRequest::createMapLight:
-        rrCreateMapLight(renderRequest);
-        break;
-
-    case RenderRequest::destroyMapLight:
-        rrDestroyMapLight(renderRequest);
-        break;
-
-    case RenderRequest::destroyMapLightVisualIndicator:
-        rrDestroyMapLightVisualIndicator(renderRequest);
-        break;
-
-    case RenderRequest::pickUpEntity:
-        rrPickUpEntity(renderRequest);
-        break;
-
-    case RenderRequest::dropHand:
-        rrDropHand(renderRequest);
-        break;
-
-    case RenderRequest::rotateHand:
-        rrRotateHand(renderRequest);
-        break;
-
-    case RenderRequest::createCreatureVisualDebug:
-        rrCreateCreatureVisualDebug(renderRequest);
-        break;
-
-    case RenderRequest::destroyCreatureVisualDebug:
-        rrDestroyCreatureVisualDebug(renderRequest);
-        break;
-
-    case RenderRequest::setObjectAnimationState:
-        rrSetObjectAnimationState(renderRequest);
-        break;
-
-    case RenderRequest::moveSceneNode:
-        rrMoveSceneNode(renderRequest);
-        break;
-
-    case RenderRequest::noRequest:
-        break;
-
-    default:
-        std::cerr << "WARNING: Unhandled render request! Request type number: " << renderRequest.type << std::endl;
-        return false;
-    }
-    return true;
-}
-
 void RenderManager::processRenderRequests()
 {
     while (!mRenderQueue.empty())
@@ -304,7 +158,7 @@ void RenderManager::processRenderRequests()
         mRenderQueue.pop_front();
 
         // Handle the request
-        handleRenderRequest (*curReq);
+        curReq->executeRequest(this);
 
         delete curReq;
         curReq = NULL;
@@ -313,15 +167,12 @@ void RenderManager::processRenderRequests()
 
 void RenderManager::queueRenderRequest_priv(RenderRequest* renderRequest)
 {
-    renderRequest->turnNumber = mGameMap->getTurnNumber();
-
     mRenderQueue.push_back(renderRequest);
 }
 
-void RenderManager::rrRefreshTile(const RenderRequest& renderRequest)
+void RenderManager::rrRefreshTile(Tile* curTile)
 {
     int rt = 0;
-    Tile* curTile = static_cast<Tile*>(renderRequest.p);
     std::string tileName = curTile->getOgreNamePrefix() + curTile->getName();
 
     if (!mSceneManager->hasSceneNode(tileName + "_node"))
@@ -374,11 +225,9 @@ void RenderManager::rrRefreshTile(const RenderRequest& renderRequest)
 }
 
 
-void RenderManager::rrCreateTile(const RenderRequest& renderRequest)
+void RenderManager::rrCreateTile(Tile* curTile)
 {
     int rt = 0;
-    Tile* curTile = static_cast<Tile*> (renderRequest.p);
-
     std::string meshName = Tile::meshNameFromNeighbors(curTile->getType(),
                                                        curTile->getFullnessMeshNumber(),
                                                        mGameMap->getNeighborsTypes(curTile),
@@ -436,10 +285,8 @@ void RenderManager::rrCreateTile(const RenderRequest& renderRequest)
     node->roll(Ogre::Degree((Ogre::Real)(-1 * rt * 90)));
 }
 
-void RenderManager::rrDestroyTile (const RenderRequest& renderRequest)
+void RenderManager::rrDestroyTile(Tile* curTile)
 {
-    Tile* curTile = static_cast<Tile*>(renderRequest.p);
-
     if (mSceneManager->hasEntity(curTile->getOgreNamePrefix() + curTile->getName()))
     {
         Ogre::Entity* ent = mSceneManager->getEntity(curTile->getOgreNamePrefix() + curTile->getName());
@@ -450,13 +297,12 @@ void RenderManager::rrDestroyTile (const RenderRequest& renderRequest)
     }
 }
 
-void RenderManager::rrTemporalMarkTile(const RenderRequest& renderRequest)
+void RenderManager::rrTemporalMarkTile(Tile* curTile)
 {
     Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
     Ogre::Entity* ent;
     std::stringstream ss;
     std::stringstream ss2;
-    Tile* curTile = static_cast<Tile*>(renderRequest.p);
 
     bool bb = curTile->getSelected();
 
@@ -486,18 +332,16 @@ void RenderManager::rrTemporalMarkTile(const RenderRequest& renderRequest)
     ent->setVisible(bb);
 }
 
-void RenderManager::rrDetachTile(const RenderRequest& renderRequest)
+void RenderManager::rrDetachTile(GameEntity* curEntity)
 {
-    GameEntity* curEntity = static_cast<GameEntity*>(renderRequest.p);
     Ogre::SceneNode* tileNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
 
     curEntity->pSN=(tileNode->getParentSceneNode());
     curEntity->pSN->removeChild(tileNode);
 }
 
-void RenderManager::rrAttachTile(const RenderRequest& renderRequest)
+void RenderManager::rrAttachTile(GameEntity* curEntity)
 {
-    GameEntity* curEntity = static_cast<GameEntity*>(renderRequest.p);
     Ogre::SceneNode* creatureNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
 
     Ogre::SceneNode* parentNode = creatureNode->getParentSceneNode();
@@ -511,17 +355,15 @@ void RenderManager::rrAttachTile(const RenderRequest& renderRequest)
     }
 }
 
-void RenderManager::rrDetachEntity(const RenderRequest& renderRequest)
+void RenderManager::rrDetachEntity(GameEntity* curEntity)
 {
-    GameEntity* curEntity = static_cast<GameEntity*>(renderRequest.p);
     Ogre::SceneNode* creatureNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
 
     curEntity->pSN->removeChild(creatureNode);
 }
 
-void RenderManager::rrAttachEntity(const RenderRequest& renderRequest)
+void RenderManager::rrAttachEntity(GameEntity* curEntity)
 {
-    GameEntity* curEntity = static_cast<GameEntity*>(renderRequest.p);
     Ogre::SceneNode* entityNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
 
     curEntity->pSN->addChild(entityNode);
@@ -540,8 +382,6 @@ void RenderManager::rrToggleCreaturesVisibility()
             // (*it)->pSN=((*it)->sceneNode->getParentSceneNode());
             //pSN->removeChild((*it)->
                 (*it)->pSN->addChild((*it)->mSceneNode);
-            //  addAnimatedObject(*it);
-            // (*it)->createMesh();
         }
     }
     else
@@ -553,38 +393,27 @@ void RenderManager::rrToggleCreaturesVisibility()
                 (*it)->pSN=((*it)->mSceneNode->getParentSceneNode());
                 (*it)->pSN->removeChild((*it)->mSceneNode);
             }
-
-            // removeAnimatedObject(*it);
-            // (*it)->destroyMesh();
         }
     }
 }
 
-void RenderManager::rrShowSquareSelector(const RenderRequest& renderRequest)
+void RenderManager::rrShowSquareSelector(const Ogre::Real& xPos, const Ogre::Real& yPos)
 {
-    int* xPos = static_cast<int*>(renderRequest.p);
-    int* yPos = static_cast<int*>(renderRequest.p2);
-
     mSceneManager->getEntity("SquareSelector")->setVisible(true);
-    mSceneManager->getSceneNode("SquareSelectorNode")->setPosition((Ogre::Real)*xPos,
-                                                                  (Ogre::Real)*yPos,
-                                                                  (Ogre::Real)0);
+    mSceneManager->getSceneNode("SquareSelectorNode")->setPosition(xPos, yPos, 0.0);
 }
 
-void RenderManager::rrCreateRoom(const RenderRequest& renderRequest)
+void RenderManager::rrCreateBuilding(Building* curBuilding, Tile* curTile)
 {
-    Room* curRoom = static_cast<Room*>(renderRequest.p);
-    Tile* curTile = static_cast<Tile*>(renderRequest.p2);
-
     // We do not display ground tile if not required
-    if(!curRoom->shouldDisplayMeshOnGround())
+    if(!curBuilding->shouldDisplayMeshOnGround())
         return;
 
     std::stringstream tempSS;
-    tempSS << curRoom->getOgreNamePrefix() << curRoom->getNameTile(curTile);
+    tempSS << curBuilding->getOgreNamePrefix() << curBuilding->getNameTile(curTile);
     // Create the room ground tile
 
-    Ogre::Entity* ent = mSceneManager->createEntity(tempSS.str(), curRoom->getMeshName() + ".mesh");
+    Ogre::Entity* ent = mSceneManager->createEntity(tempSS.str(), curBuilding->getMeshName() + ".mesh");
     Ogre::SceneNode* node = mRoomSceneNode->createChildSceneNode(tempSS.str() + "_node");
 
     node->setPosition(static_cast<Ogre::Real>(curTile->x),
@@ -596,13 +425,10 @@ void RenderManager::rrCreateRoom(const RenderRequest& renderRequest)
     node->attachObject(ent);
 }
 
-void RenderManager::rrDestroyRoom(const RenderRequest& renderRequest)
+void RenderManager::rrDestroyBuilding(Building* curBuilding, Tile* curTile)
 {
-    Room* curRoom = static_cast<Room*>(renderRequest.p);
-    Tile* curTile = static_cast<Tile*>(renderRequest.p2);
-
     std::stringstream tempSS;
-    tempSS << curRoom->getOgreNamePrefix() << curRoom->getNameTile(curTile);
+    tempSS << curBuilding->getOgreNamePrefix() << curBuilding->getNameTile(curTile);
 
     std::string tempString = tempSS.str();
     // Buildings do not necessarily use ground mesh. So, we remove it only if it exists
@@ -617,12 +443,10 @@ void RenderManager::rrDestroyRoom(const RenderRequest& renderRequest)
     mSceneManager->destroySceneNode(node->getName());
 }
 
-void RenderManager::rrCreateRenderedMovableEntity(const RenderRequest& renderRequest)
+void RenderManager::rrCreateRenderedMovableEntity(RenderedMovableEntity* curRenderedMovableEntity)
 {
-    RenderedMovableEntity* curRenderedMovableEntity = static_cast<RenderedMovableEntity*> (renderRequest.p);
-    std::string name = renderRequest.str;
-    std::string meshName = renderRequest.str2;
-    std::string tempString = curRenderedMovableEntity->getOgreNamePrefix() + name;
+    std::string meshName = curRenderedMovableEntity->getMeshName();
+    std::string tempString = curRenderedMovableEntity->getOgreNamePrefix() + curRenderedMovableEntity->getName();
 
     Ogre::Entity* ent = mSceneManager->createEntity(tempString, meshName + ".mesh");
     Ogre::SceneNode* node = mRoomSceneNode->createChildSceneNode(tempString + "_node");
@@ -633,10 +457,8 @@ void RenderManager::rrCreateRenderedMovableEntity(const RenderRequest& renderReq
     node->attachObject(ent);
 }
 
-void RenderManager::rrDestroyRenderedMovableEntity(const RenderRequest& renderRequest)
+void RenderManager::rrDestroyRenderedMovableEntity(RenderedMovableEntity* curRenderedMovableEntity)
 {
-    RenderedMovableEntity* curRenderedMovableEntity = static_cast<RenderedMovableEntity*> (renderRequest.p);
-
     std::string tempString = curRenderedMovableEntity->getOgreNamePrefix()
                              + curRenderedMovableEntity->getName();
     Ogre::Entity* ent = mSceneManager->getEntity(tempString);
@@ -646,50 +468,10 @@ void RenderManager::rrDestroyRenderedMovableEntity(const RenderRequest& renderRe
     mSceneManager->destroyEntity(ent);
 }
 
-void RenderManager::rrCreateTrap(const RenderRequest& renderRequest)
+void RenderManager::rrCreateCreature(Creature* curCreature)
 {
-    Trap* curTrap = static_cast<Trap*>(renderRequest.p);
-    Tile* curTile = static_cast<Tile*>(renderRequest.p2);
-
-    // We do not display ground tile if not required
-    if(!curTrap->shouldDisplayMeshOnGround())
-        return;
-
-    std::stringstream tempSS;
-    tempSS << curTrap->getOgreNamePrefix() << curTrap->getNameTile(curTile);
-    std::string tempString = tempSS.str();
-    Ogre::Entity* ent = mSceneManager->createEntity(tempString, curTrap->getMeshName() + ".mesh");
-    Ogre::SceneNode* node = mRoomSceneNode->createChildSceneNode(tempString + "_node");
-    node->setPosition(static_cast<Ogre::Real>(curTile->x),
-                      static_cast<Ogre::Real>(curTile->y),
-                      0.0f);
-    node->attachObject(ent);
-}
-
-void RenderManager::rrDestroyTrap(const RenderRequest& renderRequest)
-{
-    Trap* curTrap = static_cast<Trap*>(renderRequest.p);
-    Tile* curTile = static_cast<Tile*>(renderRequest.p2);
-
-    std::stringstream tempSS;
-    tempSS << curTrap->getOgreNamePrefix() << curTrap->getNameTile(curTile);
-    std::string tempString = tempSS.str();
-    // Buildings do not necessarily use ground mesh. So, we remove it only if it exists
-    if(!mSceneManager->hasEntity(tempString))
-        return;
-
-    Ogre::Entity* ent = mSceneManager->getEntity(tempString);
-    Ogre::SceneNode* node = mSceneManager->getSceneNode(tempString + "_node");
-    node->detachObject(ent);
-    mSceneManager->destroySceneNode(node->getName());
-    mSceneManager->destroyEntity(ent);
-}
-
-void RenderManager::rrCreateCreature(const RenderRequest& renderRequest)
-{
-    Creature* curCreature = static_cast<Creature*>(renderRequest.p);
-    std::string meshName = renderRequest.str;
-    Ogre::Vector3 scale = renderRequest.vec;
+    const std::string& meshName = curCreature->getDefinition()->getMeshName();
+    const Ogre::Vector3& scale = curCreature->getDefinition()->getScale();
 
     assert(curCreature != 0);
     //assert(curCreature->getDefinition() != 0);
@@ -716,9 +498,8 @@ void RenderManager::rrCreateCreature(const RenderRequest& renderRequest)
     // curCreature->pSN->removeChild(node);
 }
 
-void RenderManager::rrDestroyCreature(const RenderRequest& renderRequest)
+void RenderManager::rrDestroyCreature(Creature* curCreature)
 {
-    Creature* curCreature = static_cast<Creature*>(renderRequest.p);
     std::string creatureName = curCreature->getOgreNamePrefix() + curCreature->getName();
     if (mSceneManager->hasEntity(creatureName))
     {
@@ -732,48 +513,32 @@ void RenderManager::rrDestroyCreature(const RenderRequest& renderRequest)
     curCreature->mSceneNode = NULL;
 }
 
-void RenderManager::rrOrientSceneNodeToward(const RenderRequest& renderRequest)
+void RenderManager::rrOrientSceneNodeToward(MovableGameEntity* gameEntity, const Ogre::Vector3& direction)
 {
-    MovableGameEntity* gameEntity = static_cast<MovableGameEntity*>(renderRequest.p);
     Ogre::SceneNode* node = mSceneManager->getSceneNode(gameEntity->getOgreNamePrefix() + gameEntity->getName() + "_node");
     Ogre::Vector3 tempVector = node->getOrientation() * Ogre::Vector3::NEGATIVE_UNIT_Y;
 
     // Work around 180 degree quaternion rotation quirk
-    if ((1.0f + tempVector.dotProduct(renderRequest.vec)) < 0.0001f)
+    if ((1.0f + tempVector.dotProduct(direction)) < 0.0001f)
     {
         node->roll(Ogre::Degree(180));
     }
     else
     {
-        node->rotate(tempVector.getRotationTo(renderRequest.vec));
+        node->rotate(tempVector.getRotationTo(direction));
     }
 }
 
-void RenderManager::rrReorientSceneNode(const RenderRequest& renderRequest)
+void RenderManager::rrScaleSceneNode(Ogre::SceneNode* node, const Ogre::Vector3& scale)
 {
-    Ogre::SceneNode* node = static_cast<Ogre::SceneNode*>(renderRequest.p);
-
     if (node != NULL)
     {
-        node->rotate(renderRequest.quaternion);
+        node->scale(scale);
     }
 }
 
-void RenderManager::rrScaleSceneNode(const RenderRequest& renderRequest)
+void RenderManager::rrCreateWeapon(Creature* curCreature, Weapon* curWeapon)
 {
-    Ogre::SceneNode* node = static_cast<Ogre::SceneNode*>(renderRequest.p);
-
-    if (node != NULL)
-    {
-        node->scale(renderRequest.vec);
-    }
-}
-
-void RenderManager::rrCreateWeapon(const RenderRequest& renderRequest)
-{
-    Weapon* curWeapon = static_cast<Weapon*>( renderRequest.p);
-    Creature* curCreature = static_cast<Creature*>(renderRequest.p2);
-
     Ogre::Entity* ent = mSceneManager->getEntity(curCreature->getOgreNamePrefix() + curCreature->getName());
     //colourizeEntity(ent, curCreature->color);
     Ogre::Entity* weaponEntity = mSceneManager->createEntity(curWeapon->getOgreNamePrefix()
@@ -791,11 +556,8 @@ void RenderManager::rrCreateWeapon(const RenderRequest& renderRequest)
                             rotationQuaternion);
 }
 
-void RenderManager::rrDestroyWeapon(const RenderRequest& renderRequest)
+void RenderManager::rrDestroyWeapon(Creature* curCreature, Weapon* curWeapon)
 {
-    Weapon* curWeapon = static_cast<Weapon*>(renderRequest.p);
-    Creature* curCreature = static_cast<Creature*>(renderRequest.p2);
-
     if (curWeapon->getName().compare("none") != 0)
     {
         Ogre::Entity* ent = mSceneManager->getEntity(curWeapon->getOgreNamePrefix()
@@ -804,10 +566,8 @@ void RenderManager::rrDestroyWeapon(const RenderRequest& renderRequest)
     }
 }
 
-void RenderManager::rrCreateMapLight(const RenderRequest& renderRequest)
+void RenderManager::rrCreateMapLight(MapLight* curMapLight, bool displayVisual)
 {
-    MapLight* curMapLight = static_cast<MapLight*> (renderRequest.p);
-
     // Create the light and attach it to the lightSceneNode.
     std::string mapLightName = curMapLight->getOgreNamePrefix() + curMapLight->getName();
     Ogre::Light* light = mSceneManager->createLight(mapLightName);
@@ -822,8 +582,7 @@ void RenderManager::rrCreateMapLight(const RenderRequest& renderRequest)
     Ogre::SceneNode* mapLightNode = mLightSceneNode->createChildSceneNode(mapLightName + "_node");
     mapLightNode->setPosition(curMapLight->getPosition());
 
-    //TODO - put this in request so we don't have to include the globals here.
-    if (renderRequest.b)
+    if (displayVisual)
     {
         // Create the MapLightIndicator mesh so the light can be drug around in the map editor.
         Ogre::Entity* lightEntity = mSceneManager->createEntity(MapLight::MAPLIGHT_INDICATOR_PREFIX
@@ -837,9 +596,9 @@ void RenderManager::rrCreateMapLight(const RenderRequest& renderRequest)
     flickerNode->attachObject(light);
 }
 
-void RenderManager::rrDestroyMapLight(const RenderRequest& renderRequest)
+void RenderManager::rrDestroyMapLight(MapLight* curMapLight)
 {
-    std::string mapLightName = renderRequest.str;
+    std::string mapLightName = curMapLight->getOgreNamePrefix() + curMapLight->getName();
     if (mSceneManager->hasLight(mapLightName))
     {
         Ogre::Light* light = mSceneManager->getLight(mapLightName);
@@ -861,14 +620,14 @@ void RenderManager::rrDestroyMapLight(const RenderRequest& renderRequest)
     }
 }
 
-void RenderManager::rrDestroyMapLightVisualIndicator(const RenderRequest& renderRequest)
+void RenderManager::rrDestroyMapLightVisualIndicator(MapLight* curMapLight)
 {
-    std::string mapLightName = renderRequest.str;
+    std::string mapLightName = curMapLight->getOgreNamePrefix() + curMapLight->getName();
     if (mSceneManager->hasLight(mapLightName))
     {
         Ogre::SceneNode* mapLightNode = mSceneManager->getSceneNode(mapLightName + "_node");
         std::string mapLightIndicatorName = MapLight::MAPLIGHT_INDICATOR_PREFIX
-                                            + renderRequest.str2;
+                                            + curMapLight->getName();
         if (mSceneManager->hasEntity(mapLightIndicatorName))
         {
             Ogre::Entity* mapLightIndicatorEntity = mSceneManager->getEntity(mapLightIndicatorName);
@@ -880,9 +639,8 @@ void RenderManager::rrDestroyMapLightVisualIndicator(const RenderRequest& render
     }
 }
 
-void RenderManager::rrPickUpEntity(const RenderRequest& renderRequest)
+void RenderManager::rrPickUpEntity(GameEntity* curEntity)
 {
-    GameEntity* curEntity = static_cast<GameEntity*>(renderRequest.p);
     // Detach the entity from its scene node
     Ogre::SceneNode* curEntityNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
     if(curEntity->getObjectType() == GameEntity::ObjectType::creature)
@@ -911,10 +669,8 @@ void RenderManager::rrPickUpEntity(const RenderRequest& renderRequest)
     }
 }
 
-void RenderManager::rrDropHand(const RenderRequest& renderRequest)
+void RenderManager::rrDropHand(GameEntity* curEntity)
 {
-    GameEntity* curEntity = static_cast<GameEntity*>(renderRequest.p);
-    Player* curPlayer = static_cast<Player*> (renderRequest.p2);
     // Detach the entity from the "hand" scene node
     Ogre::SceneNode* curEntityNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
     mSceneManager->getSceneNode("Hand_node")->removeChild(curEntityNode);
@@ -933,7 +689,7 @@ void RenderManager::rrDropHand(const RenderRequest& renderRequest)
 
     // Move the other creatures in the player's hand to replace the dropped one
     int i = 0;
-    const std::vector<GameEntity*>& objectsInHand = curPlayer->getObjectsInHand();
+    const std::vector<GameEntity*>& objectsInHand = mGameMap->getLocalPlayer()->getObjectsInHand();
     for (std::vector<GameEntity*>::const_iterator it = objectsInHand.begin(); it != objectsInHand.end(); ++it)
     {
         const GameEntity* tmpEntity = *it;
@@ -943,7 +699,7 @@ void RenderManager::rrDropHand(const RenderRequest& renderRequest)
     }
 }
 
-void RenderManager::rrRotateHand(const RenderRequest&)
+void RenderManager::rrRotateHand()
 {
     // Loop over the creatures in our hand and redraw each of them in their new location.
     int i = 0;
@@ -957,11 +713,8 @@ void RenderManager::rrRotateHand(const RenderRequest&)
     }
 }
 
-void RenderManager::rrCreateCreatureVisualDebug(const RenderRequest& renderRequest)
+void RenderManager::rrCreateCreatureVisualDebug(Creature* curCreature, Tile* curTile)
 {
-    Tile* curTile = static_cast<Tile*>(renderRequest.p);
-    Creature* curCreature = static_cast<Creature*>( renderRequest.p2);
-
     if (curTile != NULL && curCreature != NULL)
     {
         std::stringstream tempSS;
@@ -980,11 +733,8 @@ void RenderManager::rrCreateCreatureVisualDebug(const RenderRequest& renderReque
     }
 }
 
-void RenderManager::rrDestroyCreatureVisualDebug(const RenderRequest& renderRequest)
+void RenderManager::rrDestroyCreatureVisualDebug(Creature* curCreature, Tile* curTile)
 {
-    Tile* curTile = static_cast<Tile*>(renderRequest.p);
-    Creature* curCreature = static_cast<Creature*>(renderRequest.p2);
-
     std::stringstream tempSS;
     tempSS << "Vision_indicator_" << curCreature->getName() << "_"
     << curTile->x << "_" << curTile->y;
@@ -999,15 +749,14 @@ void RenderManager::rrDestroyCreatureVisualDebug(const RenderRequest& renderRequ
     }
 }
 
-void RenderManager::rrSetObjectAnimationState(const RenderRequest& renderRequest)
+void RenderManager::rrSetObjectAnimationState(MovableGameEntity* curAnimatedObject, const std::string& animation, bool loop)
 {
-    MovableGameEntity* curAnimatedObject = static_cast<MovableGameEntity*>(renderRequest.p);
     Ogre::Entity* objectEntity = mSceneManager->getEntity(
                                      curAnimatedObject->getOgreNamePrefix()
                                      + curAnimatedObject->getName());
 
     if (objectEntity->hasSkeleton()
-            && objectEntity->getSkeleton()->hasAnimation(renderRequest.str))
+            && objectEntity->getSkeleton()->hasAnimation(animation))
     {
         // Disable the animation for all of the animations on this entity.
         Ogre::AnimationStateIterator animationStateIterator(
@@ -1020,19 +769,19 @@ void RenderManager::rrSetObjectAnimationState(const RenderRequest& renderRequest
         // Enable the animation specified in the RenderRequest object.
         // FIXME:, make a function rather than using a public var
         curAnimatedObject->mAnimationState = objectEntity->getAnimationState(
-                                                renderRequest.str);
+                                                animation);
         curAnimatedObject->mAnimationState->setTimePosition(0);
-        curAnimatedObject->mAnimationState->setLoop(renderRequest.b);
+        curAnimatedObject->mAnimationState->setLoop(loop);
         curAnimatedObject->mAnimationState->setEnabled(true);
     }
     //TODO:  Handle the case where this entity does not have the requested animation.
 }
-void RenderManager::rrMoveSceneNode(const RenderRequest& renderRequest)
+void RenderManager::rrMoveSceneNode(const std::string& sceneNodeName, const Ogre::Vector3& position)
 {
-    if (mSceneManager->hasSceneNode(renderRequest.str))
+    if (mSceneManager->hasSceneNode(sceneNodeName))
     {
-        Ogre::SceneNode* node = mSceneManager->getSceneNode(renderRequest.str);
-        node->setPosition(renderRequest.vec);
+        Ogre::SceneNode* node = mSceneManager->getSceneNode(sceneNodeName);
+        node->setPosition(position);
     }
 }
 

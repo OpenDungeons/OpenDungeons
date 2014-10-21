@@ -30,7 +30,15 @@
 
 class RenderRequest;
 class GameMap;
+class Building;
 class Seat;
+class Tile;
+class GameEntity;
+class MovableGameEntity;
+class MapLight;
+class Creature;
+class RenderedMovableEntity;
+class Weapon;
 
 namespace Ogre
 {
@@ -94,43 +102,36 @@ private:
     void queueRenderRequest_priv(RenderRequest* renderRequest);
 
     //Render request functions
-
-    void rrRefreshTile(const RenderRequest& renderRequest);
-    void rrCreateTile(const RenderRequest& renderRequest);
-    void rrDestroyTile(const RenderRequest& renderRequest);
-    void rrDetachEntity(const RenderRequest& renderRequest);
-    void rrAttachEntity(const RenderRequest& renderRequest);
-    void rrDetachTile(const RenderRequest& renderRequest);
-    void rrAttachTile(const RenderRequest& renderRequest);
+    void rrRefreshTile(Tile* curTile);
+    void rrCreateTile(Tile* curTile);
+    void rrDestroyTile(Tile* curTile);
+    void rrDetachEntity(GameEntity* curEntity);
+    void rrAttachEntity(GameEntity* curEntity);
+    void rrDetachTile(GameEntity* curEntity);
+    void rrAttachTile(GameEntity* curEntity);
     void rrToggleCreaturesVisibility();
-    void rrTemporalMarkTile(const RenderRequest& renderRequest);
-    void rrShowSquareSelector(const RenderRequest& renderRequest);
-    void rrCreateRoom(const RenderRequest& renderRequest);
-    void rrDestroyRoom(const RenderRequest& renderRequest);
-    void rrCreateRenderedMovableEntity(const RenderRequest& renderRequest);
-    void rrDestroyRenderedMovableEntity(const RenderRequest& renderRequest);
-    void rrCreateTrap(const RenderRequest& renderRequest);
-    void rrDestroyTrap(const RenderRequest& renderRequest);
-    void rrCreateCreature(const RenderRequest& renderRequest);
-    void rrDestroyCreature(const RenderRequest& renderRequest);
-    void rrOrientSceneNodeToward(const RenderRequest& renderRequest);
-    void rrReorientSceneNode(const RenderRequest& renderRequest);
-    void rrScaleSceneNode(const RenderRequest& renderRequest);
-    void rrCreateWeapon(const RenderRequest& renderRequest);
-    void rrDestroyWeapon(const RenderRequest& renderRequest);
-    void rrCreateMapLight(const RenderRequest& renderRequest);
-    void rrDestroyMapLight(const RenderRequest& renderRequest);
-    void rrDestroyMapLightVisualIndicator(const RenderRequest& renderRequest);
-    void rrPickUpEntity(const RenderRequest& renderRequest);
-    void rrDropHand(const RenderRequest& renderRequest);
-    void rrRotateHand(const RenderRequest& renderRequest);
-    void rrCreateCreatureVisualDebug(const RenderRequest& renderRequest);
-    void rrDestroyCreatureVisualDebug(const RenderRequest& renderRequest);
-    void rrSetObjectAnimationState(const RenderRequest& renderRequest);
-    void rrMoveSceneNode(const RenderRequest& renderRequest);
-
-    //! \brief Handle the renderRequest requested
-    bool handleRenderRequest(const RenderRequest& renderRequest);
+    void rrTemporalMarkTile(Tile* curTile);
+    void rrShowSquareSelector(const Ogre::Real& xPos, const Ogre::Real& yPos);
+    void rrCreateBuilding(Building* curBuilding, Tile* curTile);
+    void rrDestroyBuilding(Building* curBuilding, Tile* curTile);
+    void rrCreateRenderedMovableEntity(RenderedMovableEntity* curRenderedMovableEntity);
+    void rrDestroyRenderedMovableEntity(RenderedMovableEntity* curRenderedMovableEntity);
+    void rrCreateCreature(Creature* curCreature);
+    void rrDestroyCreature(Creature* curCreature);
+    void rrOrientSceneNodeToward(MovableGameEntity* gameEntity, const Ogre::Vector3& direction);
+    void rrScaleSceneNode(Ogre::SceneNode* node, const Ogre::Vector3& scale);
+    void rrCreateWeapon(Creature* curCreature, Weapon* curWeapon);
+    void rrDestroyWeapon(Creature* curCreature, Weapon* curWeapon);
+    void rrCreateMapLight(MapLight* curMapLight, bool displayVisual);
+    void rrDestroyMapLight(MapLight* curMapLight);
+    void rrDestroyMapLightVisualIndicator(MapLight* curMapLight);
+    void rrPickUpEntity(GameEntity* curEntity);
+    void rrDropHand(GameEntity* curEntity);
+    void rrRotateHand();
+    void rrCreateCreatureVisualDebug(Creature* curCreature, Tile* curTile);
+    void rrDestroyCreatureVisualDebug(Creature* curCreature, Tile* curTile);
+    void rrSetObjectAnimationState(MovableGameEntity* curAnimatedObject, const std::string& animation, bool loop);
+    void rrMoveSceneNode(const std::string& sceneNodeName, const Ogre::Vector3& position);
 
     bool generateRTSSShadersForMaterial(const std::string& materialName,
                                         const std::string& normalMapTextureName = "",

@@ -144,21 +144,13 @@ class GameEntity
 
     inline void show()
     {
-        RenderRequest *request = new RenderRequest;
-        request->type = RenderRequest::attachTile;
-        request->p = static_cast<void*>(this);
-
-        // Add the request to the queue of rendering operations to be performed before the next frame.
+        RenderRequest *request = new RenderRequestAttachTile(this);
         RenderManager::queueRenderRequest(request);
     };
 
     inline void hide()
     {
-        RenderRequest *request = new RenderRequest;
-        request->type = RenderRequest::detachTile;
-        request->p = static_cast<void*>(this);
-
-        // Add the request to the queue of rendering operations to be performed before the next frame.
+        RenderRequest *request = new RenderRequestDetachTile(this);
         RenderManager::queueRenderRequest(request);
     };
 

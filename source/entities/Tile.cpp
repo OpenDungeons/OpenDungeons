@@ -54,9 +54,7 @@ void Tile::createMeshLocal()
     if(getGameMap()->isServerGameMap())
         return;
 
-    RenderRequest* request = new RenderRequest;
-    request->type   = RenderRequest::createTile;
-    request->p = static_cast<void*>(this);
+    RenderRequest* request = new RenderRequestCreateTile(this);
     RenderManager::queueRenderRequest(request);
 }
 
@@ -67,9 +65,7 @@ void Tile::destroyMeshLocal()
     if(getGameMap()->isServerGameMap())
         return;
 
-    RenderRequest* request = new RenderRequest;
-    request->type = RenderRequest::destroyTile;
-    request->p = static_cast<void*>(this);
+    RenderRequest* request = new RenderRequestDestroyTile(this);
     RenderManager::queueRenderRequest(request);
 }
 
@@ -812,9 +808,7 @@ void Tile::refreshMesh()
     if(getGameMap()->isServerGameMap())
         return;
 
-    RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::refreshTile;
-    request->p = static_cast<void*>(this);
+    RenderRequest *request = new RenderRequestRefreshTile(this);
     RenderManager::queueRenderRequest(request);
 }
 
@@ -844,13 +838,7 @@ void Tile::setSelected(bool ss, Player* pp)
     {
         selected = ss;
 
-        RenderRequest *request = new RenderRequest;
-
-        request->type = RenderRequest::temporalMarkTile;
-        request->p = static_cast<void*>(this);
-        request->p2 = static_cast<void*>(pp);
-
-        // Add the request to the queue of rendering operations to be performed before the next frame.
+        RenderRequest *request = new RenderRequestTemporalMarkTile(this);
         RenderManager::queueRenderRequest(request);
     }
 }

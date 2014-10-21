@@ -220,19 +220,11 @@ void Creature::createMeshLocal()
     if(getGameMap()->isServerGameMap())
         return;
 
-    RenderRequest* request = new RenderRequest;
-    request->type   = RenderRequest::createCreature;
-    request->str    = static_cast<Creature*>(this)->getDefinition()->getMeshName();
-    request->vec    = static_cast<Creature*>(this)->getDefinition()->getScale();
-    request->p = static_cast<void*>(this);
+    RenderRequest* request = new RenderRequestCreateCreature(this);
     RenderManager::queueRenderRequest(request);
 
     // By default, we set the creature in idle state
-    request = new RenderRequest;
-    request->type = RenderRequest::setObjectAnimationState;
-    request->p = static_cast<void*>(this);
-    request->str = "Idle";
-    request->b = true;
+    request = new RenderRequestSetObjectAnimationState(this, "Idle", true);
     RenderManager::queueRenderRequest(request);
 }
 
@@ -245,9 +237,7 @@ void Creature::destroyMeshLocal()
         return;
 
     destroyStatsWindow();
-    RenderRequest* request = new RenderRequest;
-    request->type = RenderRequest::destroyCreature;
-    request->p = static_cast<void*>(this);
+    RenderRequest* request = new RenderRequestDestroyCreature(this);
     RenderManager::queueRenderRequest(request);
 }
 
@@ -2574,10 +2564,7 @@ void Creature::refreshFromCreature(Creature *creatureNewState)
         if (scaleFactor > 1.03)
             scaleFactor = 1.04;
 
-        RenderRequest *request = new RenderRequest;
-        request->type = RenderRequest::scaleSceneNode;
-        request->p = mSceneNode;
-        request->vec = Ogre::Vector3(scaleFactor, scaleFactor, scaleFactor);
+        RenderRequest *request = new RenderRequestScaleSceneNode(mSceneNode, Ogre::Vector3(scaleFactor, scaleFactor, scaleFactor));
         RenderManager::queueRenderRequest(request);
     }
 }
@@ -2692,13 +2679,7 @@ void Creature::createVisualDebugEntities()
         if (currentTile == NULL)
             continue;
 
-        // Create a render request to create a mesh for the current visible tile.
-        RenderRequest *request = new RenderRequest;
-        request->type = RenderRequest::createCreatureVisualDebug;
-        request->p = currentTile;
-        request->p2 = static_cast<void*>(this);
-
-        // Add the request to the queue of rendering operations to be performed before the next frame.
+        RenderRequest *request = new RenderRequestCreateCreatureVisualDebug(this, currentTile);
         RenderManager::queueRenderRequest(request);
 
         mVisualDebugEntityTiles.push_back(currentTile);
@@ -2719,13 +2700,7 @@ void Creature::destroyVisualDebugEntities()
         if (currentTile == NULL)
             continue;
 
-        // Destroy the mesh for the current visible tile
-        RenderRequest *request = new RenderRequest;
-        request->type = RenderRequest::destroyCreatureVisualDebug;
-        request->p = currentTile;
-        request->p2 = static_cast<void*>(this);
-
-        // Add the request to the queue of rendering operations to be performed before the next frame.
+        RenderRequest *request = new RenderRequestDestroyCreatureVisualDebug(this, currentTile);
         RenderManager::queueRenderRequest(request);
     }
 

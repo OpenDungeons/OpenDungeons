@@ -48,11 +48,7 @@ void Weapon::createMeshLocal()
     if(getName().compare("none") == 0)
         return;
 
-    RenderRequest* request = new RenderRequest;
-    request->type   = RenderRequest::createWeapon;
-    request->p      = static_cast<void*>(this);
-    request->p2     = getParentCreature();
-    request->p3     = new std::string(getHandString());
+    RenderRequest* request = new RenderRequestCreateWeapon(getParentCreature(), this);
     RenderManager::queueRenderRequest(request);
 }
 
@@ -66,10 +62,7 @@ void Weapon::destroyMeshLocal()
     if (getName().compare("none") == 0)
         return;
 
-    RenderRequest* request = new RenderRequest;
-    request->type   = RenderRequest::destroyWeapon;
-    request->p      = static_cast<void*>(this);
-    request->p2     = getParentCreature();
+    RenderRequest* request = new RenderRequestDestroyWeapon(getParentCreature(), this);
     RenderManager::queueRenderRequest(request);
 }
 

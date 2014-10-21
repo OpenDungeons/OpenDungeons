@@ -18,9 +18,20 @@
 #ifndef RENDERREQUEST_H
 #define RENDERREQUEST_H
 
+#include "RenderManager.h"
+
 #include <string>
 #include <OgreVector3.h>
 #include <OgreQuaternion.h>
+
+class Tile;
+class GameEntity;
+class Building;
+class Creature;
+class RenderedMovableEntity;
+class Weapon;
+class MapLight;
+class MovableGameEntity;
 
 /*! \brief A data structure to be used for requesting that the OGRE rendering thread perform certain tasks.
  *
@@ -31,58 +42,452 @@
 class RenderRequest
 {
 public:
-    enum RequestType
-    {
-        createTile = 0,
-        refreshTile,
-        destroyTile,
-        temporalMarkTile,
-        attachTile,
-        detachTile,
-        attachEntity,
-        detachEntity,
-        toggleCreatureVisibility,
-        showSquareSelector,
-        createCreature,
-        destroyCreature,
-        setObjectAnimationState,
-        createCreatureVisualDebug,
-        destroyCreatureVisualDebug,
-        createWeapon,
-        destroyWeapon,
-        pickUpEntity,
-        dropHand,
-        rotateHand,
-        createRoom,
-        destroyRoom,
-        createRenderedMovableEntity,
-        destroyRenderedMovableEntity,
-        createTrap,
-        destroyTrap,
-        createMapLight,
-        updateMapLight,
-        destroyMapLight,
-        destroyMapLightVisualIndicator,
-        moveSceneNode,
-        orientSceneNodeToward,
-        reorientSceneNode,
-        scaleSceneNode,
-        noRequest
-    };
+    RenderRequest() {}
+    virtual ~RenderRequest() {}
 
-    RenderRequest();
+    virtual void executeRequest(RenderManager* manager) = 0;
+protected:
+    //Render request functions
+    void rrRefreshTile(RenderManager* manager, Tile* curTile)
+    { manager->rrRefreshTile(curTile); }
+    void rrCreateTile(RenderManager* manager, Tile* curTile)
+    { manager->rrCreateTile(curTile); }
+    void rrDestroyTile(RenderManager* manager, Tile* curTile)
+    { manager->rrDestroyTile(curTile); }
+    void rrDetachEntity(RenderManager* manager, GameEntity* curEntity)
+    { manager->rrDetachEntity(curEntity); }
+    void rrAttachEntity(RenderManager* manager, GameEntity* curEntity)
+    { manager->rrAttachEntity(curEntity); }
+    void rrDetachTile(RenderManager* manager, GameEntity* curEntity)
+    { manager->rrDetachTile(curEntity); }
+    void rrAttachTile(RenderManager* manager, GameEntity* curEntity)
+    { manager->rrAttachTile(curEntity); }
+    void rrToggleCreaturesVisibility(RenderManager* manager)
+    { manager->rrToggleCreaturesVisibility(); }
+    void rrTemporalMarkTile(RenderManager* manager, Tile* curTile)
+    { manager->rrTemporalMarkTile(curTile); }
+    void rrShowSquareSelector(RenderManager* manager, const Ogre::Real& xPos, const Ogre::Real& yPos)
+    { manager->rrShowSquareSelector(xPos, yPos); }
+    void rrCreateBuilding(RenderManager* manager, Building* curBuilding, Tile* curTile)
+    { manager->rrCreateBuilding(curBuilding, curTile); }
+    void rrDestroyBuilding(RenderManager* manager, Building* curBuilding, Tile* curTile)
+    { manager->rrDestroyBuilding(curBuilding, curTile); }
+    void rrCreateRenderedMovableEntity(RenderManager* manager, RenderedMovableEntity* curRenderedMovableEntity)
+    { manager->rrCreateRenderedMovableEntity(curRenderedMovableEntity); }
+    void rrDestroyRenderedMovableEntity(RenderManager* manager, RenderedMovableEntity* curRenderedMovableEntity)
+    { manager->rrDestroyRenderedMovableEntity(curRenderedMovableEntity); }
+    void rrCreateCreature(RenderManager* manager, Creature* curCreature)
+    { manager->rrCreateCreature(curCreature); }
+    void rrDestroyCreature(RenderManager* manager, Creature* curCreature)
+    { manager->rrDestroyCreature(curCreature); }
+    void rrOrientSceneNodeToward(RenderManager* manager, MovableGameEntity* gameEntity, const Ogre::Vector3& direction)
+    { manager->rrOrientSceneNodeToward(gameEntity, direction); }
+    void rrScaleSceneNode(RenderManager* manager, Ogre::SceneNode* node, const Ogre::Vector3& scale)
+    { manager->rrScaleSceneNode(node, scale); }
+    void rrCreateWeapon(RenderManager* manager, Creature* curCreature, Weapon* curWeapon)
+    { manager->rrCreateWeapon(curCreature, curWeapon); }
+    void rrDestroyWeapon(RenderManager* manager, Creature* curCreature, Weapon* curWeapon)
+    { manager->rrDestroyWeapon(curCreature, curWeapon); }
+    void rrCreateMapLight(RenderManager* manager, MapLight* curMapLight, bool displayVisual)
+    { manager->rrCreateMapLight(curMapLight, displayVisual); }
+    void rrDestroyMapLight(RenderManager* manager, MapLight* curMapLight)
+    { manager->rrDestroyMapLight(curMapLight); }
+    void rrDestroyMapLightVisualIndicator(RenderManager* manager, MapLight* curMapLight)
+    { manager->rrDestroyMapLightVisualIndicator(curMapLight); }
+    void rrPickUpEntity(RenderManager* manager, GameEntity* curEntity)
+    { manager->rrPickUpEntity(curEntity); }
+    void rrDropHand(RenderManager* manager, GameEntity* curEntity)
+    { manager->rrDropHand(curEntity); }
+    void rrRotateHand(RenderManager* manager)
+    { manager->rrRotateHand(); }
+    void rrCreateCreatureVisualDebug(RenderManager* manager, Creature* curCreature, Tile* curTile)
+    { manager->rrCreateCreatureVisualDebug(curCreature, curTile); }
+    void rrDestroyCreatureVisualDebug(RenderManager* manager, Creature* curCreature, Tile* curTile)
+    { manager->rrDestroyCreatureVisualDebug(curCreature, curTile); }
+    void rrSetObjectAnimationState(RenderManager* manager, MovableGameEntity* curAnimatedObject, const std::string& animation, bool loop)
+    { manager->rrSetObjectAnimationState(curAnimatedObject, animation, loop); }
+    void rrMoveSceneNode(RenderManager* manager, const std::string& sceneNodeName, const Ogre::Vector3& position)
+    { manager->rrMoveSceneNode(sceneNodeName, position); }
+};
 
-    long int turnNumber;
-    RequestType type;
-    //TODO - can we use a union here instead?
-    void *p;
-    void *p2;
-    void *p3;
-    std::string str;
-    std::string str2;
-    Ogre::Vector3 vec;
-    Ogre::Quaternion quaternion;
-    bool b;
+class RenderRequestRefreshTile : public RenderRequest
+{
+public:
+    RenderRequestRefreshTile(Tile* tile) :
+        mTile(tile)
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrRefreshTile(manager, mTile); }
+private:
+    Tile* mTile;
+};
+
+class RenderRequestCreateTile : public RenderRequest
+{
+public:
+    RenderRequestCreateTile(Tile* tile) :
+        mTile(tile)
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrCreateTile(manager, mTile); }
+private:
+    Tile* mTile;
+};
+
+class RenderRequestDestroyTile : public RenderRequest
+{
+public:
+    RenderRequestDestroyTile(Tile* tile) :
+        mTile(tile)
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrDestroyTile(manager, mTile); }
+private:
+    Tile* mTile;
+};
+
+class RenderRequestTemporalMarkTile : public RenderRequest
+{
+public:
+    RenderRequestTemporalMarkTile(Tile* tile) :
+        mTile(tile)
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrTemporalMarkTile(manager, mTile); }
+private:
+    Tile* mTile;
+};
+
+class RenderRequestDetachTile : public RenderRequest
+{
+public:
+    RenderRequestDetachTile(GameEntity* entity) :
+        mEntity(entity)
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrDetachTile(manager, mEntity); }
+private:
+    GameEntity* mEntity;
+};
+
+class RenderRequestAttachTile : public RenderRequest
+{
+public:
+    RenderRequestAttachTile(GameEntity* entity) :
+        mEntity(entity)
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrAttachTile(manager, mEntity); }
+private:
+    GameEntity* mEntity;
+};
+
+class RenderRequestDetachEntity : public RenderRequest
+{
+public:
+    RenderRequestDetachEntity(GameEntity* entity) :
+        mEntity(entity)
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrDetachEntity(manager, mEntity); }
+private:
+    GameEntity* mEntity;
+};
+
+class RenderRequestAttachEntity : public RenderRequest
+{
+public:
+    RenderRequestAttachEntity(GameEntity* entity) :
+        mEntity(entity)
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrAttachEntity(manager, mEntity); }
+private:
+    GameEntity* mEntity;
+};
+
+class RenderRequestToggleCreaturesVisibility : public RenderRequest
+{
+public:
+    RenderRequestToggleCreaturesVisibility()
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrToggleCreaturesVisibility(manager); }
+};
+
+class RenderRequestShowSquareSelector : public RenderRequest
+{
+public:
+    RenderRequestShowSquareSelector(Ogre::Real x, Ogre::Real y) :
+        mX(x),
+        mY(y)
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrShowSquareSelector(manager, mX, mY); }
+private:
+    Ogre::Real mX;
+    Ogre::Real mY;
+};
+
+class RenderRequestCreateBuilding : public RenderRequest
+{
+public:
+    RenderRequestCreateBuilding(Building* building, Tile* tile) :
+        mBuilding(building),
+        mTile(tile)
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrCreateBuilding(manager, mBuilding, mTile); }
+private:
+    Building* mBuilding;
+    Tile* mTile;
+};
+
+class RenderRequestDestroyBuilding : public RenderRequest
+{
+public:
+    RenderRequestDestroyBuilding(Building* building, Tile* tile) :
+        mBuilding(building),
+        mTile(tile)
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrDestroyBuilding(manager, mBuilding, mTile); }
+private:
+    Building* mBuilding;
+    Tile* mTile;
+};
+
+class RenderRequestCreateRenderedMovableEntity : public RenderRequest
+{
+public:
+    RenderRequestCreateRenderedMovableEntity(RenderedMovableEntity* renderedMovableEntity) :
+        mRenderedMovableEntity(renderedMovableEntity)
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrCreateRenderedMovableEntity(manager, mRenderedMovableEntity); }
+private:
+    RenderedMovableEntity* mRenderedMovableEntity;
+};
+
+class RenderRequestDestroyRenderedMovableEntity : public RenderRequest
+{
+public:
+    RenderRequestDestroyRenderedMovableEntity(RenderedMovableEntity* renderedMovableEntity) :
+        mRenderedMovableEntity(renderedMovableEntity)
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrDestroyRenderedMovableEntity(manager, mRenderedMovableEntity); }
+private:
+    RenderedMovableEntity* mRenderedMovableEntity;
+};
+
+class RenderRequestCreateCreature : public RenderRequest
+{
+public:
+    RenderRequestCreateCreature(Creature* creature) :
+        mCreature(creature)
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrCreateCreature(manager, mCreature); }
+private:
+    Creature* mCreature;
+};
+
+class RenderRequestDestroyCreature : public RenderRequest
+{
+public:
+    RenderRequestDestroyCreature(Creature* creature) :
+        mCreature(creature)
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrDestroyCreature(manager, mCreature); }
+private:
+    Creature* mCreature;
+};
+
+class RenderRequestOrientSceneNodeToward : public RenderRequest
+{
+public:
+    RenderRequestOrientSceneNodeToward(MovableGameEntity* gameEntity, const Ogre::Vector3& direction) :
+        mGameEntity(gameEntity),
+        mDirection(direction)
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrOrientSceneNodeToward(manager, mGameEntity, mDirection); }
+private:
+    MovableGameEntity* mGameEntity;
+    Ogre::Vector3 mDirection;
+};
+
+class RenderRequestScaleSceneNode : public RenderRequest
+{
+public:
+    RenderRequestScaleSceneNode(Ogre::SceneNode* node, const Ogre::Vector3& scale) :
+        mNode(node),
+        mScale(scale)
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrScaleSceneNode(manager, mNode, mScale); }
+private:
+    Ogre::SceneNode* mNode;
+    Ogre::Vector3 mScale;
+};
+
+class RenderRequestCreateWeapon : public RenderRequest
+{
+public:
+    RenderRequestCreateWeapon(Creature* creature, Weapon* weapon) :
+        mCreature(creature),
+        mWeapon(weapon)
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrCreateWeapon(manager, mCreature, mWeapon); }
+private:
+    Creature* mCreature;
+    Weapon* mWeapon;
+};
+
+class RenderRequestDestroyWeapon : public RenderRequest
+{
+public:
+    RenderRequestDestroyWeapon(Creature* creature, Weapon* weapon) :
+        mCreature(creature),
+        mWeapon(weapon)
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrDestroyWeapon(manager, mCreature, mWeapon); }
+private:
+    Creature* mCreature;
+    Weapon* mWeapon;
+};
+
+class RenderRequestCreateMapLight : public RenderRequest
+{
+public:
+    RenderRequestCreateMapLight(MapLight* mapLight, bool displayVisual) :
+        mMapLight(mapLight),
+        mDisplayVisual(displayVisual)
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrCreateMapLight(manager, mMapLight, mDisplayVisual); }
+private:
+    MapLight* mMapLight;
+    bool mDisplayVisual;
+};
+
+class RenderRequestDestroyMapLight : public RenderRequest
+{
+public:
+    RenderRequestDestroyMapLight(MapLight* mapLight) :
+        mMapLight(mapLight)
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrDestroyMapLight(manager, mMapLight); }
+private:
+    MapLight* mMapLight;
+};
+
+class RenderRequestDestroyMapLightVisualIndicator : public RenderRequest
+{
+public:
+    RenderRequestDestroyMapLightVisualIndicator(MapLight* mapLight) :
+        mMapLight(mapLight)
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrDestroyMapLightVisualIndicator(manager, mMapLight); }
+private:
+    MapLight* mMapLight;
+};
+
+class RenderRequestPickUpEntity : public RenderRequest
+{
+public:
+    RenderRequestPickUpEntity(GameEntity* entity) :
+        mEntity(entity)
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrPickUpEntity(manager, mEntity); }
+private:
+    GameEntity* mEntity;
+};
+
+class RenderRequestDropHand : public RenderRequest
+{
+public:
+    RenderRequestDropHand(GameEntity* entity) :
+        mEntity(entity)
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrDropHand(manager, mEntity); }
+private:
+    GameEntity* mEntity;
+};
+
+class RenderRequestRotateHand : public RenderRequest
+{
+public:
+    RenderRequestRotateHand()
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrRotateHand(manager); }
+};
+
+class RenderRequestCreateCreatureVisualDebug : public RenderRequest
+{
+public:
+    RenderRequestCreateCreatureVisualDebug(Creature* creature, Tile* tile) :
+        mCreature(creature),
+        mTile(tile)
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrCreateCreatureVisualDebug(manager, mCreature, mTile); }
+private:
+    Creature* mCreature;
+    Tile* mTile;
+};
+
+class RenderRequestDestroyCreatureVisualDebug : public RenderRequest
+{
+public:
+    RenderRequestDestroyCreatureVisualDebug(Creature* creature, Tile* tile) :
+        mCreature(creature),
+        mTile(tile)
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrDestroyCreatureVisualDebug(manager, mCreature, mTile); }
+private:
+    Creature* mCreature;
+    Tile* mTile;
+};
+
+class RenderRequestSetObjectAnimationState : public RenderRequest
+{
+public:
+    RenderRequestSetObjectAnimationState(MovableGameEntity* animatedObject, const std::string& animation, bool loop) :
+        mAnimatedObject(animatedObject),
+        mAnimation(animation),
+        mLoop(loop)
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrSetObjectAnimationState(manager, mAnimatedObject, mAnimation, mLoop); }
+private:
+    MovableGameEntity* mAnimatedObject;
+    std::string mAnimation;
+    bool mLoop;
+};
+
+class RenderRequestMoveSceneNode : public RenderRequest
+{
+public:
+    RenderRequestMoveSceneNode(const std::string& sceneNodeName, const Ogre::Vector3& position) :
+        mSceneNodeName(sceneNodeName),
+        mPosition(position)
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrMoveSceneNode(manager, mSceneNodeName, mPosition); }
+private:
+    std::string mSceneNodeName;
+    Ogre::Vector3 mPosition;
 };
 
 #endif // RENDERREQUEST_H
