@@ -661,13 +661,11 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotification::playSpatialSound:
         {
-            // Note: We need to handle the soundType as an int or the >> operator won't recognize
-            // its type on certain systems.
-            int soundType;
+            SoundEffectsManager::InterfaceSound soundType;
             int xPos;
             int yPos;
             OD_ASSERT_TRUE(packetReceived >> soundType >> xPos >> yPos);
-            SoundEffectsManager::getSingleton().playInterfaceSound(static_cast<SoundEffectsManager::InterfaceSound>(soundType),
+            SoundEffectsManager::getSingleton().playInterfaceSound(soundType,
                                                                    xPos, yPos);
             break;
         }

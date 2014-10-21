@@ -22,6 +22,7 @@
 #include "utils/ResourceManager.h"
 #include "utils/Random.h"
 #include "utils/LogManager.h"
+#include "network/ODPacket.h"
 
 #include <map>
 
@@ -328,4 +329,18 @@ GameSound* SoundEffectsManager::getGameSound(const std::string& filename, bool s
     }
 
     return it->second;
+}
+
+ODPacket& operator<<(ODPacket& os, const SoundEffectsManager::InterfaceSound& st)
+{
+    os << static_cast<int32_t>(st);
+    return os;
+}
+
+ODPacket& operator>>(ODPacket& is, SoundEffectsManager::InterfaceSound& st)
+{
+    int32_t tmp;
+    is >> tmp;
+    st = static_cast<SoundEffectsManager::InterfaceSound>(tmp);
+    return is;
 }

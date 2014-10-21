@@ -169,7 +169,7 @@ int RoomTreasury::depositGold(int gold, Tile *tile)
     {
         ServerNotification *serverNotification = new ServerNotification(
             ServerNotification::playSpatialSound, NULL);
-        serverNotification->mPacket << static_cast<int>(SoundEffectsManager::DEPOSITGOLD) << tile->getX() << tile->getY();
+        serverNotification->mPacket << SoundEffectsManager::DEPOSITGOLD << tile->getX() << tile->getY();
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
     catch (std::bad_alloc&)
