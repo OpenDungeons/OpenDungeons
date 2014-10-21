@@ -3042,8 +3042,8 @@ bool Creature::tryDrop(Seat* seat, Tile* tile, bool isEditorMode)
 
 void Creature::playSound(CreatureSound::SoundType soundType)
 {
-    mSound->setPosition(getPosition());
-    mSound->play(soundType);
+    Ogre::Vector3 pos = getPosition();
+    mSound->play(soundType, pos.x, pos.y, pos.z);
 }
 
 bool Creature::setDestination(Tile* tile)

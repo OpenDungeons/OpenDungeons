@@ -36,7 +36,7 @@ CreatureSound::CreatureSound()
     }
 }
 
-void CreatureSound::play(SoundType type)
+void CreatureSound::play(SoundType type, float x, float y, float z)
 {
     std::vector<GameSound*>& soundList = mSoundsPerType[type];
     if (soundList.empty())
@@ -52,29 +52,10 @@ void CreatureSound::play(SoundType type)
     }
 
     // Then play the new sound
-    soundList[newSoundIdPlayed]->play();
+    soundList[newSoundIdPlayed]->play(x, y, z);
     mLastSoundPlayedPerTypeId[type] = newSoundIdPlayed;
 }
 
-void CreatureSound::setPosition(Ogre::Vector3 p)
-{
-    setPosition(p.x, p.y, p.z);
-}
-
-void CreatureSound::setPosition(float x, float y, float z)
-{
-    std::vector<std::vector<GameSound*> >::iterator it;
-    for (it = mSoundsPerType.begin(); it != mSoundsPerType.end(); ++it)
-    {
-        std::vector<GameSound*>& soundList = *it;
-        for (unsigned int i = 0; i < soundList.size(); ++i)
-        {
-            GameSound* gm = soundList[i];
-            if (gm != NULL)
-                gm->setPosition(x, y, z);
-        }
-    }
-}
 
 ODPacket& operator<<(ODPacket& os, const CreatureSound::SoundType& nt)
 {

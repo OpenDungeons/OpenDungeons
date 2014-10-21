@@ -77,9 +77,24 @@ GameSound::~GameSound()
         delete mSoundBuffer;
 }
 
-void GameSound::setPosition(float x, float y, float z)
+void GameSound::play(float x, float y, float z)
 {
+    // Check whether the sound is spatial
+    if (mSound->getAttenuation() > 0.0f)
+    {
+        // Check the distance against the listener height and cull the sound accordingly.
+        // This permits to hear only the sound of the area seen in game,
+        // and avoid glitches in heard sounds.
+        sf::Vector3f lis = sf::Listener::getPosition();
+        float distance2 = (lis.x - x) * (lis.x - x) + (lis.y - y) * (lis.y - y);
+        double height2 = (lis.z * lis.z) + (lis.z * lis.z);
+
+        if (distance2 > height2)
+            return;
+    }
+
     mSound->setPosition(x, y, z);
+    mSound->play();
 }
 
 // SoundEffectsManager class
@@ -265,8 +280,7 @@ void SoundEffectsManager::playInterfaceSound(InterfaceSound soundType, float XPo
     if (soundId < 0)
         return;
 
-    sounds[soundId]->setPosition(XPos, YPos, height);
-    sounds[soundId]->play();
+    sounds[soundId]->play(XPos, YPos, height);
 }
 
 CreatureSound* SoundEffectsManager::getCreatureClassSounds(const std::string& /*className*/)
