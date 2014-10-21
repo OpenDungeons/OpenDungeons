@@ -13,7 +13,7 @@ FightMusic	The_Dark_Amulet.ogg
 2	1	KeeperAI	89	15	0	0	0.4	1000
 3	2	KeeperAI	91	55	0.2	0.4	0.8	1000
 4	2	KeeperAI	47	94	0.1	0.4	0.1	1000
-5	3	KeeperAI	47	94	0	0	0	1000
+5	3	KeeperAI	47	94	0.2	0.2	0.2	1000
 [/Seats]
 
 [Goals]
