@@ -244,6 +244,11 @@ void Trap::doUpkeep()
         if(shoot(tile))
         {
             mReloadTimeCounters[tile] = mReloadTime;
+
+            // Warn the player the trap has triggered
+            GameMap* gameMap = getGameMap();
+            if (gameMap->isServerGameMap())
+                gameMap->playerIsFighting(gameMap->getPlayerBySeat(getSeat()));
         }
     }
 }
