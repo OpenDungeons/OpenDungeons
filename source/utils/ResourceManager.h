@@ -108,7 +108,7 @@ private:
 
     //! \brief The user custom data path
     //! \example "~/.local/share/opendungeons" on linux
-    //! \example %APPDATA% "%USERPROFILE%\Application Data" on windows
+    //! \example %APPDATA% "%USERPROFILE%\Application Data\opendungeons" on windows
     std::string mUserDataPath;
 
     //! \brief The user custom config path
