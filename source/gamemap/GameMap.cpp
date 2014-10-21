@@ -955,30 +955,46 @@ void GameMap::updatePlayerFightingTime(Ogre::Real timeSinceLastFrame)
 
 void GameMap::playerIsFighting(Player* player)
 {
-    if (player == NULL)
+    if (player == nullptr)
         return;
 
-    // No need to notify AI players
-    if(player->getHasAI())
+    // No need to check for inactive players
+    if (player->getSeat() == nullptr)
         return;
 
-    if (player->getFightingTime() == 0.0f)
+    int teamId = player->getSeat()->getTeamId();
+
+    // Get every player's allies
+    for (unsigned int i = 0; i < players.size(); ++i)
     {
-        try
-        {
-            // Notify the player he is now under attack.
-            ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::playerFighting, player);
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
-        catch (std::bad_alloc&)
-        {
-            OD_ASSERT_TRUE(false);
-            exit(1);
-        }
-    }
+        Player* ally = players[i];
+        // No need to warn AI about music
+        if (!ally || ally->getHasAI())
+            continue;
 
-    player->setFightingTime(BATTLE_TIME_COUNT);
+        if (ally->getSeat() == nullptr || ally->getSeat()->getTeamId() != teamId)
+            continue;
+
+        // Warn the ally about the battle
+        if (ally->getFightingTime() == 0.0f)
+        {
+            try
+            {
+                // Notify the player he is now under attack.
+                ServerNotification *serverNotification = new ServerNotification(
+                    ServerNotification::playerFighting, ally);
+                ODServer::getSingleton().queueServerNotification(serverNotification);
+            }
+            catch (std::bad_alloc&)
+            {
+                OD_ASSERT_TRUE(false);
+                exit(1);
+            }
+        }
+
+        // Reset its fighting time anyway
+        ally->setFightingTime(BATTLE_TIME_COUNT);
+    }
 }
 
 bool GameMap::pathExists(const Creature* creature, Tile* tileStart, Tile* tileEnd)

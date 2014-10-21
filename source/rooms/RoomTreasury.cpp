@@ -24,6 +24,7 @@
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
 #include "entities/TreasuryObject.h"
+#include "sound/SoundEffectsManager.h"
 
 #include <string>
 
@@ -167,8 +168,8 @@ int RoomTreasury::depositGold(int gold, Tile *tile)
     try
     {
         ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::depositGoldSound, NULL);
-        serverNotification->mPacket << tile->getX() << tile->getY();
+            ServerNotification::playSpatialSound, NULL);
+        serverNotification->mPacket << static_cast<int>(SoundEffectsManager::DEPOSITGOLD) << tile->getX() << tile->getY();
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
     catch (std::bad_alloc&)

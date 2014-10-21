@@ -81,11 +81,10 @@ class ServerNotification
             refreshPlayerSeat,
             addRenderedMovableEntity,
             removeRenderedMovableEntity,
-            depositGoldSound, // Makes the client play a deposit gold sound at tile coordinates.
-
             notifyCreatureInfo,
 
-            playCreatureSound,
+            playSpatialSound, // Makes the client play a sound at tile coordinates.
+            playCreatureSound, // Play a sound at the creature position
 
             refreshTiles,
 

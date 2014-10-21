@@ -49,14 +49,8 @@ public:
     bool isInitialized() const
     { return !(mSoundBuffer == NULL); }
 
-    //! \brief Set the sound spatial position
-    void setPosition(float x, float y, float z);
-
-    void play()
-    {
-        mSound->stop();
-        mSound->play();
-    }
+    //! \brief Play at the given spatial position
+    void play(float x, float y, float z);
 
     void stop()
     { mSound->stop(); }
