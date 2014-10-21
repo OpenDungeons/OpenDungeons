@@ -74,7 +74,8 @@ public:
             double                  magicalDefense      = 1.5,
             double                  magicalDefPerLevel  = 0.1,
             double                  attackRange         = 1.0,
-            double                  atkRangePerLevel    = 0.0) :
+            double                  atkRangePerLevel    = 0.0,
+            double                  attackWarmupTime    = 1.0) :
         mCreatureJob (job),
         mClassName   (className),
         mMeshName    (meshName),
@@ -107,7 +108,8 @@ public:
         mMagicalDefense     (magicalDefense),
         mMagicalDefPerLevel (magicalDefPerLevel),
         mAttackRange        (attackRange),
-        mAtkRangePerLevel   (atkRangePerLevel)
+        mAtkRangePerLevel   (atkRangePerLevel),
+        mAttackWarmupTime   (attackWarmupTime)
     {}
 
     static CreatureJob creatureJobFromString(const std::string& s);
@@ -167,6 +169,8 @@ public:
 
     inline double               getAttackRange      () const    { return mAttackRange; }
     inline double               getAtkRangePerLevel () const    { return mAtkRangePerLevel; }
+
+    inline double               getAttackWarmupTime () const    { return mAttackWarmupTime; }
 
 private:
     //! \brief The job of the creature (e.g. worker, fighter, ...)
@@ -240,8 +244,12 @@ private:
     double mMagicalDefense;
     double mMagicalDefPerLevel;
 
+    //! \brief Weapon-less attack range and growth
     double mAttackRange;
     double mAtkRangePerLevel;
+
+    //! \brief The time to wait before dealing a blow, in seconds.
+    double mAttackWarmupTime;
 };
 
 #endif // CREATUREDEFINITION_H

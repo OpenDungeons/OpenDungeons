@@ -88,6 +88,7 @@ Creature::Creature(GameMap* gameMap, CreatureDefinition* definition) :
     mPhysicalDefense         (3.0),
     mMagicalDefense          (1.5),
     mWeaponlessAtkRange      (1.0),
+    mAttackWarmupTime        (1.0),
     mWeaponL                 (NULL),
     mWeaponR                 (NULL),
     mHomeTile                (NULL),
@@ -147,6 +148,7 @@ Creature::Creature(GameMap* gameMap, CreatureDefinition* definition) :
     mPhysicalDefense = mDefinition->getPhysicalDefense();
     mMagicalDefense = mDefinition->getMagicalDefense();
     mWeaponlessAtkRange = mDefinition->getAttackRange();
+    mAttackWarmupTime = mDefinition->getAttackWarmupTime();
 }
 
 Creature::Creature(GameMap* gameMap) :
@@ -157,6 +159,7 @@ Creature::Creature(GameMap* gameMap) :
     mPhysicalDefense         (3.0),
     mMagicalDefense          (1.5),
     mWeaponlessAtkRange      (1.0),
+    mAttackWarmupTime        (1.0),
     mWeaponL                 (NULL),
     mWeaponR                 (NULL),
     mHomeTile                (NULL),
@@ -376,6 +379,7 @@ void Creature::buildStats(unsigned int level)
     mPhysicalDefense = mDefinition->getPhysicalDefense();
     mMagicalDefense = mDefinition->getMagicalDefense();
     mWeaponlessAtkRange = mDefinition->getAttackRange();
+    mAttackWarmupTime = mDefinition->getAttackWarmupTime();
 
     // Improve the stats to the current level
     double multiplier = level - 1;
@@ -601,6 +605,20 @@ void Creature::setWeaponR(Weapon* wR)
 
     mWeaponR->setParentCreature(this);
     mWeaponR->setHandString("R");
+}
+
+void Creature::update(Ogre::Real timeSinceLastFrame)
+{
+    // Update movements, direction, ...
+    MovableGameEntity::update(timeSinceLastFrame);
+
+    if (getGameMap()->isServerGameMap())
+    {
+        // Reduce the attack warmup time left for creatures on the server side
+        // When they are attacking
+        if (mAttackWarmupTime > 0.0)
+            mAttackWarmupTime -= timeSinceLastFrame;
+    }
 }
 
 void Creature::doUpkeep()
@@ -2281,6 +2299,13 @@ bool Creature::handleAttackAction()
     if (mAttackedTile == NULL)
         return true;
 
+    // The warmup time isn't yet finished.
+    if (mAttackWarmupTime > 0.0)
+        return true;
+
+    // Reset the warmup time
+    mAttackWarmupTime = mDefinition->getAttackWarmupTime();
+
     Tile* attackedTile = mAttackedTile;
     GameEntity* attackedObject = mAttackedObject;
     mAttackedTile = NULL;
@@ -2291,7 +2316,7 @@ bool Creature::handleAttackAction()
     // Turn to face the creature we are attacking and set the animation state to Attack.
     Ogre::Vector3 walkDirection(attackedTile->x - getPosition().x, attackedTile->y - getPosition().y, 0);
     walkDirection.normalise();
-    setAnimationState("Attack1", true, &walkDirection);
+    setAnimationState("Attack1", false, &walkDirection);
 
     try
     {
@@ -3005,9 +3030,7 @@ void Creature::popAction()
 
 CreatureAction Creature::peekAction()
 {
-    CreatureAction tempAction = mActionQueue.front();
-
-    return tempAction;
+    return mActionQueue.front();
 }
 
 bool Creature::tryPickup(Seat* seat, bool isEditorMode)
