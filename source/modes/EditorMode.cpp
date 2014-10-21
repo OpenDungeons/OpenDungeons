@@ -239,15 +239,13 @@ void EditorMode::handleCursorPositionUpdate()
     mMouseY = inputManager->mYPos;
 
     // Make the mouse light follow the mouse
-    mMouseLight->setPosition((Ogre::Real)mMouseX, (Ogre::Real)mMouseY, 2.0);
+    Ogre::Real x = static_cast<Ogre::Real>(mMouseX);
+    Ogre::Real y = static_cast<Ogre::Real>(mMouseY);
+    mMouseLight->setPosition(x, y, 2.0);
 
     // Make the square selector follow the mouse
-    RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::showSquareSelector;
-    request->p = static_cast<void*>(&mMouseX);
-    request->p2 = static_cast<void*>(&mMouseY);
-    // Add the request to the queue of rendering operations to be performed before the next frame.
-    RenderManager::queueRenderRequest(request); // NOTE: will delete the request member for us.
+    RenderRequest *request = new RenderRequestShowSquareSelector(x, y);
+    RenderManager::queueRenderRequest(request);
 
     updateCursorText();
 }

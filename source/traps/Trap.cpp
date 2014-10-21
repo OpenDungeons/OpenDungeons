@@ -51,10 +51,7 @@ void Trap::createMeshLocal()
     std::vector<Tile*> coveredTiles = getCoveredTiles();
     for (unsigned int i = 0, nb = coveredTiles.size(); i < nb; ++i)
     {
-        RenderRequest* request = new RenderRequest;
-        request->type = RenderRequest::createTrap;
-        request->p    = static_cast<void*>(this);
-        request->p2   = coveredTiles[i];
+        RenderRequest* request = new RenderRequestCreateBuilding(this, coveredTiles[i]);
         RenderManager::queueRenderRequest(request);
     }
 }
@@ -69,10 +66,7 @@ void Trap::destroyMeshLocal()
     std::vector<Tile*> coveredTiles = getCoveredTiles();
     for (unsigned int i = 0, nb = coveredTiles.size(); i < nb; ++i)
     {
-        RenderRequest *request = new RenderRequest;
-        request->type = RenderRequest::destroyTrap;
-        request->p    = static_cast<void*>(this);
-        request->p2   = coveredTiles[i];
+        RenderRequest *request = new RenderRequestDestroyBuilding(this, coveredTiles[i]);
         RenderManager::queueRenderRequest(request);
     }
 }
@@ -266,10 +260,7 @@ bool Trap::removeCoveredTile(Tile* t)
         return true;
 
     // Destroy the mesh for this tile.
-    RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::destroyTrap;
-    request->p = this;
-    request->p2 = t;
+    RenderRequest *request = new RenderRequestDestroyBuilding(this, t);
     RenderManager::queueRenderRequest(request);
     return true;
 }

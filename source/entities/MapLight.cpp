@@ -69,15 +69,9 @@ void MapLight::createOgreEntity()
     if(mGameMap->isServerGameMap())
         return;
 
-    RenderRequest* request = new RenderRequest;
-    request->type = RenderRequest::createMapLight;
-    //TODO - this check should be put somewhere else / fixed
-    request->p = static_cast<void*>(this);
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
     // Only show the visual light entity if we are in editor mode
-    request->b = (mm && mm->getCurrentModeType() == ModeManager::EDITOR);
-
-    // Add the request to the queue of rendering operations to be performed before the next frame.
+    RenderRequest* request = new RenderRequestCreateMapLight(this, mm && mm->getCurrentModeType() == ModeManager::EDITOR);
     RenderManager::queueRenderRequest(request);
 
     mOgreEntityVisualIndicatorExists = true;
@@ -95,11 +89,7 @@ void MapLight::destroyOgreEntity()
 
     destroyOgreEntityVisualIndicator();
 
-    RenderRequest* request = new RenderRequest;
-    request->type = RenderRequest::destroyMapLight;
-    request->str = getNodeNameWithoutPostfix();
-
-    // Add the request to the queue of rendering operations to be performed before the next frame.
+    RenderRequest* request = new RenderRequestDestroyMapLight(this);
     RenderManager::queueRenderRequest(request);
 }
 
@@ -108,12 +98,7 @@ void MapLight::destroyOgreEntityVisualIndicator()
     if (!mOgreEntityVisualIndicatorExists)
         return;
 
-    RenderRequest* request = new RenderRequest;
-    request->type = RenderRequest::destroyMapLightVisualIndicator;
-    request->str = getNodeNameWithoutPostfix();
-    request->str2 = getName();
-
-    // Add the request to the queue of rendering operations to be performed before the next frame.
+    RenderRequest* request = new RenderRequestDestroyMapLightVisualIndicator(this);
     RenderManager::queueRenderRequest(request);
 
     mOgreEntityVisualIndicatorExists = false;
@@ -136,13 +121,7 @@ void MapLight::setPosition(const Ogre::Vector3& nPosition)
 {
     mPosition = nPosition;
 
-    // Create a RenderRequest to notify the render queue that the scene node for this creature needs to be moved.
-    RenderRequest* request = new RenderRequest;
-    request->type = RenderRequest::moveSceneNode;
-    request->str = getOgreNamePrefix() + mName + "_node";
-    request->vec = mPosition;
-
-    // Add the request to the queue of rendering operations to be performed before the next frame.
+    RenderRequest* request = new RenderRequestMoveSceneNode(getOgreNamePrefix() + mName + "_node", mPosition);
     RenderManager::queueRenderRequest(request);
 }
 
@@ -162,13 +141,7 @@ void MapLight::advanceFlicker(Ogre::Real time)
 
     mFlickerPosition = Ogre::Vector3(sin(mThetaX), sin(mThetaY), sin(mThetaZ));
 
-    // Create a RenderRequest to notify the render queue that the scene node for this creature needs to be moved.
-    RenderRequest* request = new RenderRequest;
-    request->type = RenderRequest::moveSceneNode;
-    request->str = getOgreNamePrefix() + mName + "_flicker_node";
-    request->vec = mFlickerPosition;
-
-    // Add the request to the queue of rendering operations to be performed before the next frame.
+    RenderRequest* request = new RenderRequestMoveSceneNode(getOgreNamePrefix() + mName + "_flicker_node", mFlickerPosition);
     RenderManager::queueRenderRequest(request);
 }
 

@@ -124,17 +124,13 @@ void Player::pickUpEntity(GameEntity *entity, bool isEditorMode)
     if (this == mGameMap->getLocalPlayer())
     {
         // Send a render request to move the crature into the "hand"
-        RenderRequest *request = new RenderRequest;
-        request->type = RenderRequest::pickUpEntity;
-        request->p = entity;
+        RenderRequest *request = new RenderRequestPickUpEntity(entity);
         RenderManager::queueRenderRequest(request);
     }
     else // it is just a message indicating another player has picked up a creature
     {
         // Hide the creature
-        RenderRequest *request = new RenderRequest;
-        request->type = RenderRequest::detachEntity;
-        request->p = entity;
+        RenderRequest *request = new RenderRequestDetachEntity(entity);
         RenderManager::queueRenderRequest(request);
     }
 }
@@ -202,18 +198,13 @@ GameEntity* Player::dropHand(Tile *t, unsigned int index)
     //cout.flush();
     if (this != mGameMap->getLocalPlayer())
     {
-        RenderRequest *request = new RenderRequest;
-        request->type = RenderRequest::attachEntity;
-        request->p = entity;
+        RenderRequest *request = new RenderRequestAttachEntity(entity);
         RenderManager::queueRenderRequest(request);
     }
     else // This is the result of the player on the local computer dropping the creature
     {
         // Send a render request to rearrange the creatures in the hand to move them all forward 1 place
-        RenderRequest *request = new RenderRequest;
-        request->type = RenderRequest::dropHand;
-        request->p = entity;
-        request->p2 = this;
+        RenderRequest *request = new RenderRequestDropHand(entity);
         RenderManager::queueRenderRequest(request);
     }
 
@@ -249,7 +240,6 @@ void Player::rotateHand(int n)
     }
 
     // Send a render request to move the entity into the "hand"
-    RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::rotateHand;
+    RenderRequest *request = new RenderRequestRotateHand;
     RenderManager::queueRenderRequest(request);
 }

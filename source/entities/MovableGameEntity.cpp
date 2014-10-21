@@ -151,10 +151,7 @@ void MovableGameEntity::setWalkDirection(Ogre::Vector3& direction)
     if(getGameMap()->isServerGameMap())
         return;
 
-    RenderRequest* request = new RenderRequest;
-    request->type = RenderRequest::orientSceneNodeToward;
-    request->vec = direction;
-    request->p = static_cast<void*>(this);
+    RenderRequest* request = new RenderRequestOrientSceneNodeToward(this, direction);
     RenderManager::queueRenderRequest(request);
 }
 
@@ -193,12 +190,7 @@ void MovableGameEntity::setAnimationState(const std::string& state, bool loop, O
         return;
     }
 
-    // Add the request to the queue of rendering operations to be performed before the next frame.
-    RenderRequest* request = new RenderRequest;
-    request->type = RenderRequest::setObjectAnimationState;
-    request->p = static_cast<void*>(this);
-    request->str = state;
-    request->b = loop;
+    RenderRequest* request = new RenderRequestSetObjectAnimationState(this, state, loop);
     RenderManager::queueRenderRequest(request);
 }
 
@@ -275,11 +267,7 @@ void MovableGameEntity::setPosition(const Ogre::Vector3& v)
     if(getGameMap()->isServerGameMap())
         return;
 
-    // Create a RenderRequest to notify the render queue that the scene node for this creature needs to be moved.
-    RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::moveSceneNode;
-    request->str = getOgreNamePrefix() + getName() + "_node";
-    request->vec = v;
+    RenderRequest* request = new RenderRequestMoveSceneNode(getOgreNamePrefix() + getName() + "_node", v);
     RenderManager::queueRenderRequest(request);
 
 }

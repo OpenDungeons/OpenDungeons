@@ -238,7 +238,6 @@ set(OD_SOURCEFILES
     ${SRC}/render/Gui.cpp
     ${SRC}/render/ODFrameListener.cpp
     ${SRC}/render/RenderManager.cpp
-    ${SRC}/render/RenderRequest.cpp
     ${SRC}/render/TextRenderer.cpp
 
     ${SRC}/rooms/Room.cpp
