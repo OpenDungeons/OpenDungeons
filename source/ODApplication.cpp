@@ -67,7 +67,7 @@ ODApplication::ODApplication() :
                                resMgr->getCfgFile(),
                                resMgr->getLogFile());
 
-        resMgr->setupResources();
+        resMgr->setupOgreResources();
 
         /* TODO: Skip this and use root.restoreConfig()
          * to load configuration settings if we are sure there are valid ones

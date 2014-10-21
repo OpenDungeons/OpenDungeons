@@ -39,27 +39,24 @@ public:
     ~ResourceManager()
     {}
 
+    //! \brief Initializes the Ogre resources path
+    //! \note Used after the Ogre Root initialization
+    void setupOgreResources();
+
     /*! \brief check if a filename has a specific extension
-     *
      *  \param filename The filename, like "filename.ext"
      *  \param ending   The extension, like ".ext"
-     *
      *  \return true or false depending if the filename has the extension or not
      */
     static bool hasFileEnding(const std::string& filename, const std::string& ending);
 
-    void setupResources();
-
     /*! \brief gets all files within a directory
-     *
-     *  \param diretoryName the directory to scan for files
-     *
+     *  \param directoryName the directory to scan for files
      *  \return a vector with all file names
      */
     static std::vector<std::string> listAllFiles(const std::string& directoryName);
 
     /*! \brief returns all music files that Ogre knows of
-     *
      *  \return a vector with all file names
      */
     Ogre::StringVectorPtr listAllMusicFiles();
@@ -67,11 +64,14 @@ public:
     //! \brief saves a screenshot
     void takeScreenshot(Ogre::RenderTarget* renderTarget);
 
-    inline const std::string& getResourcePath() const
-    { return mResourcePath; }
+    inline const std::string& getGameDataPath() const
+    { return mGameDataPath; }
 
-    inline const std::string& getHomePath() const
-    { return mHomePath; }
+    inline const std::string& getUserDataPath() const
+    { return mUserDataPath; }
+
+    inline const std::string& getUserConfigPath() const
+    { return mUserConfigPath; }
 
     inline const std::string& getPluginsPath() const
     { return mPluginsPath; }
@@ -97,21 +97,38 @@ public:
     inline const std::string& getLogFile() const
     { return mOgreLogFile; }
 
-protected:
-    static std::string locateHomeFolder();
-
 private:
-    std::string mResourcePath;
-    std::string mHomePath;
+    //! \brief The application data path
+    //! \example "/usr/share/game/opendungeons" on linux
+    //! \example "C:/opendungeons" on windows
+    std::string mGameDataPath;
+
+    //! \brief Specific mac bundle path
+    std::string mMacBundlePath;
+
+    //! \brief The user custom data path
+    //! \example "~/.local/share/opendungeons" on linux
+    //! \example %APPDATA% "%USERPROFILE%\Application Data\opendungeons" on windows
+    std::string mUserDataPath;
+
+    //! \brief The user custom config path
+    //! \example "~/.config/opendungeons" on linux
+    //! Same as home path + "cfg/" on Windows.
+    std::string mUserConfigPath;
+
+    //! \brief The Ogre config file
+    std::string mOgreCfgFile;
+
+    //! \brief Main files in the user data path
+    std::string mOgreLogFile;
+    std::string mShaderCachePath;
+
+    //! \brief Specific data sub-paths.
     std::string mPluginsPath;
     std::string mMusicPath;
     std::string mSoundPath;
     std::string mScriptPath;
     std::string mLanguagePath;
-    std::string mMacBundlePath;
-    std::string mShaderCachePath;
-    std::string mOgreCfgFile;
-    std::string mOgreLogFile;
 
     static const std::string PLUGINSCFG;
     static const std::string RESOURCECFG;
@@ -125,6 +142,14 @@ private:
 
     static const std::string RESOURCEGROUPMUSIC;
     static const std::string RESOURCEGROUPSOUND;
+
+    //! \brief Setup user data and config path
+    void setupUserDataFolders();
+
+    //! \brief Setup the game data path
+    //! \note If game data path is found in the current folder,
+    //! then the local data path will be used.
+    void setupDataPath();
 };
 
 #endif // RESOURCEMANAGER_H_

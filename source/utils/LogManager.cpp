@@ -35,7 +35,7 @@ LogManager::LogManager()
      * as log writes from ogre itself won't be thread-safe in this case.
      */
     mGameLog = Ogre::LogManager::getSingleton().createLog(
-        ResourceManager::getSingleton().getHomePath() + GAMELOG_NAME);
+        ResourceManager::getSingleton().getUserDataPath() + GAMELOG_NAME);
     sem_init(&logLockSemaphore, 0, 1);
 #else
     mGameLog = Ogre::LogManager::getSingleton().getDefaultLog();
@@ -55,7 +55,7 @@ void LogManager::logMessage(const std::string& message, Ogre::LogMessageLevel lm
 
         std::stringstream ss;
         ss.imbue(loc);
-        ss << "[" << boost::posix_time::second_clock::universal_time() << "] " << message;
+        ss << "[" << boost::posix_time::second_clock::local_time() << "] " << message;
         mGameLog->logMessage(ss.str(), lml, maskDebug);
     }
     else

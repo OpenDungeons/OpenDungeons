@@ -21,22 +21,32 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cstdlib>
-#include <ctime>
+#include "utils/ResourceManager.h"
 
 #include <OgreConfigFile.h>
 #include <OgrePlatform.h>
 
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+#include <pwd.h> // getpwuid()
+#endif
+
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 #include <CoreFoundation/CoreFoundation.h>
+#include <pwd.h> // getpwuid()
+#endif
+
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+#include <shlobj.h> //to get paths related functions
+#ifndef PATH_MAX
+    #define PATH_MAX _MAX_PATH   // redefine _MAX_PATH to be compatible with Darwin's PATH_MAX
+#endif
 #endif
 
 #include <boost/filesystem.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 #include <OgreString.h>
 #include <OgreRenderTarget.h>
-
-#include "utils/ResourceManager.h"
 
 template<> ResourceManager* Ogre::Singleton<ResourceManager>::msSingleton = 0;
 #if defined(OD_DEBUG)
@@ -57,18 +67,6 @@ const std::string ResourceManager::LOGFILENAME = "opendungeons.log";
 const std::string ResourceManager::RESOURCEGROUPMUSIC = "Music";
 const std::string ResourceManager::RESOURCEGROUPSOUND = "Sound";
 
-bool ResourceManager::hasFileEnding(const std::string& filename, const std::string& ending)
-{
-    return (filename.length() < ending.length())
-            ? false
-            : filename.compare(filename.length() - ending.length(),
-                    ending.length(), ending) == 0;
-}
-
-/* TODO: insert some general easy-access functions that do all the
- * OgreResourceManager calls (e.g. returning all sound and music names/files)
- */
-
 /*! \brief Initializes all paths and reads the ogre config file.
  *
  *  Provide a nice cross platform solution for locating the configuration
@@ -77,19 +75,27 @@ bool ResourceManager::hasFileEnding(const std::string& filename, const std::stri
  *  function macBundlePath does this for us.
  */
 ResourceManager::ResourceManager() :
-        mResourcePath("./"),
-        mHomePath("./"),
+        mGameDataPath("./"),
+        mMacBundlePath(""),
+        mUserDataPath("./"),
+        mUserConfigPath("./"),
+        mOgreCfgFile(""),
+        mOgreLogFile(""),
+        mShaderCachePath(""),
         mPluginsPath(""),
         mMusicPath(""),
         mSoundPath(""),
         mScriptPath(""),
-        mLanguagePath(""),
-        mMacBundlePath(""),
-        mOgreCfgFile(""),
-        mOgreLogFile("")
+        mLanguagePath("")
+{
+    setupDataPath();
+    setupUserDataFolders();
+}
+
+void ResourceManager::setupDataPath()
 {
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-    //TODO - osx support
+    //TODO - Test osx support
     char applePath[1024];
     CFBundleRef mainBundle = CFBundleGetMainBundle();
     assert(mainBundle);
@@ -107,7 +113,7 @@ ResourceManager::ResourceManager() :
 
     mMacBundlePath = std::string(applePath + "/");
 
-    mResourcePath = macBundlePath + "Contents/Resources/";
+    mGameDataPath = mMacBundlePath + "Contents/Resources/";
 #else // Windows and linux
 
     std::string path;
@@ -119,10 +125,10 @@ ResourceManager::ResourceManager() :
 
     if(!path.empty())
     {
-        mResourcePath = path;
-        if (*mResourcePath.end() != '/')
+        mGameDataPath = path;
+        if (*mGameDataPath.end() != '/')
         {
-            mResourcePath.append("/");
+            mGameDataPath.append("/");
         }
     }
 
@@ -130,30 +136,108 @@ ResourceManager::ResourceManager() :
     // Useful for developers.
     std::string resourceCfg = "./" + RESOURCECFG;
     if (boost::filesystem::exists(resourceCfg.c_str()))
-        mResourcePath = "./";
+        mGameDataPath = "./";
 #endif
 
-    /* If variable is not set, assume we are in a build dir and
-     * use the current dir for config files.
-     */
-#if (OGRE_PLATFORM == OGRE_PLATFORM_LINUX)
-    mHomePath = locateHomeFolder() + "/.local/share/opendungeons/";
-#else
-    mHomePath = locateHomeFolder() + "\\OpenDungeons\\";
+    std::cout << "Game data path is: " << mUserConfigPath << std::endl;
+
+#ifndef OGRE_STATIC_LIB
+    mPluginsPath = mGameDataPath + PLUGINSCFG;
 #endif
+    mScriptPath = mGameDataPath + SCRIPTSUBPATH;
+    mSoundPath = mGameDataPath + SOUNDSUBPATH;
+    mMusicPath = mGameDataPath + MUSICSUBPATH;
+    mLanguagePath = mGameDataPath + LANGUAGESUBPATH;
+}
+
+void ResourceManager::setupUserDataFolders()
+{
+    // Empty the members so we can check their validity later.
+    mUserDataPath.clear();
+    mUserConfigPath.clear();
+
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+    passwd* pw = getpwuid(getuid());
+    if(pw)
+    {
+        mUserDataPath = std::string(pw->pw_dir) + "/Library/Application Support/opendungeons/";
+        mUserConfigPath = mUserDataPath + "cfg/";
+    }
+#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+    // $XDG_DATA_HOME/opendungeons/
+    // equals to: ~/.local/share/opendungeons/ most of the time
+    if (std::getenv("XDG_DATA_HOME"))
+    {
+        mUserDataPath = std::string(std::getenv("XDG_DATA_HOME")) + "/opendungeons/";
+    }
+    else
+    {
+        // We create a sane default if possible: ~/.local/share/opendungeons
+        passwd *pw = getpwuid(getuid());
+        if(pw)
+        {
+            mUserDataPath = std::string(pw->pw_dir) + "/.local/share/opendungeons/";
+        }
+    }
+
+    // $XDG_CONFIG_HOME/opendungeons
+    // equals to: ~/.config/opendungeons/ most of the time
+    if (std::getenv("XDG_CONFIG_HOME"))
+    {
+        mUserConfigPath = std::string(std::getenv("XDG_CONFIG_HOME")) + "/opendungeons/";
+    }
+    else
+    {
+        // We create a sane default if possible: ~/.config/opendungeons
+        passwd *pw = getpwuid(getuid());
+        if(pw)
+        {
+            mUserConfigPath = std::string(pw->pw_dir) + "/.config/opendungeons/";
+        }
+    }
+
+#elif OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+    char path[MAX_PATH];
+    // %APPDATA% (%USERPROFILE%\Application Data)
+    if(SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_APPDATA, NULL, 0, path)))
+    {
+        mUserDataPath = std::string(path) + "/opendungeons/";
+        mUserConfigPath = mUserDataPath + "cfg/";
+    }
+#else
+#error("Unknown platform!")
+#endif
+
+    // Use local defaults if everything else failed.
+    if (mUserDataPath.empty())
+        mUserDataPath = "./";
+    if (mUserConfigPath.empty())
+        mUserConfigPath = "./cfg/";
+
     try {
-        boost::filesystem::create_directory(mHomePath);
+        boost::filesystem::create_directories(mUserDataPath);
     }
     catch (const boost::filesystem::filesystem_error& e) {
         //TODO - Exit gracefully
-        std::cerr << "Fatal error creating game storage folder: " << e.what() <<  std::endl;
+        std::cerr << "Fatal error creating user data folder: " << e.what() <<  std::endl;
         exit(1);
     }
 
-    std::cout << "Home path is: " << mHomePath << std::endl;
+    std::cout << "User data path is: " << mUserDataPath << std::endl;
 
     try {
-      boost::filesystem::create_directory(mHomePath.c_str() + SHADERCACHESUBPATH);
+        boost::filesystem::create_directories(mUserConfigPath);
+    }
+    catch (const boost::filesystem::filesystem_error& e) {
+        //TODO - Exit gracefully
+        std::cerr << "Fatal error creating user config folder: " << e.what() <<  std::endl;
+        exit(1);
+    }
+
+    std::cout << "User config path is: " << mUserConfigPath << std::endl;
+
+    try {
+      boost::filesystem::create_directories(mUserDataPath.c_str() + SHADERCACHESUBPATH);
     }
     catch (const boost::filesystem::filesystem_error& e) {
         //TODO - Exit gracefully
@@ -161,23 +245,15 @@ ResourceManager::ResourceManager() :
         exit(1);
     }
 
-#ifndef OGRE_STATIC_LIB
-    mPluginsPath = mResourcePath + PLUGINSCFG;
-#endif
-
-    mOgreCfgFile = mHomePath + CONFIGFILENAME;
-    mOgreLogFile = mHomePath + LOGFILENAME;
-    mScriptPath = mResourcePath + SCRIPTSUBPATH;
-    mSoundPath = mResourcePath + SOUNDSUBPATH;
-    mMusicPath = mResourcePath + MUSICSUBPATH;
-    mLanguagePath = mResourcePath + LANGUAGESUBPATH;
-    mShaderCachePath = mHomePath + SHADERCACHESUBPATH;
+    mOgreCfgFile = mUserConfigPath + CONFIGFILENAME;
+    mOgreLogFile = mUserDataPath + LOGFILENAME;
+    mShaderCachePath = mUserDataPath + SHADERCACHESUBPATH;
 }
 
-void ResourceManager::setupResources()
+void ResourceManager::setupOgreResources()
 {
     Ogre::ConfigFile cf;
-    cf.load(mResourcePath + RESOURCECFG);
+    cf.load(mGameDataPath + RESOURCECFG);
 
     // Go through all sections & settings in the file
     Ogre::ConfigFile::SectionIterator seci = cf.getSectionIterator();
@@ -193,7 +269,7 @@ void ResourceManager::setupResources()
         for (i = settings->begin(); i != settings->end(); ++i)
         {
             typeName = i->first;
-            archName = mResourcePath + i->second;
+            archName = mGameDataPath + i->second;
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
             // OS X does not set the working directory relative to the app,
             // In order to make things portable on OS X we need to provide
@@ -209,6 +285,14 @@ void ResourceManager::setupResources()
 #endif
         }
     }
+}
+
+bool ResourceManager::hasFileEnding(const std::string& filename, const std::string& ending)
+{
+    return (filename.length() < ending.length())
+            ? false
+            : filename.compare(filename.length() - ending.length(),
+                    ending.length(), ending) == 0;
 }
 
 std::vector<std::string> ResourceManager::listAllFiles(const std::string& directoryName)
@@ -234,52 +318,13 @@ Ogre::StringVectorPtr ResourceManager::listAllMusicFiles()
 
 void ResourceManager::takeScreenshot(Ogre::RenderTarget* renderTarget)
 {
-    //FIXME: Could use normal date formatting here instead of time value
-    const std::time_t time = std::time(nullptr);
+    static int screenShotCounter = 0;
+
+    static std::locale loc(std::wcout.getloc(), new boost::posix_time::wtime_facet(L"%Y-%m-%d_%H%M%S"));
+
     std::ostringstream ss;
-    ss << "ODscreenshot_" << time << ".png";
-    renderTarget->writeContentsToFile(getHomePath() + ss.str());
-}
-
-std::string ResourceManager::locateHomeFolder()
-{
-    std::string homeFolderPath;
-    char* path = 0;
-#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-//Not implemented. Can probably use the same code as linux.
-return ".";
-#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-//On linux and similar, use home dir
-    //http://linux.die.net/man/3/getpwuid
-    path = std::getenv("HOME");
-    homeFolderPath = (path != 0)
-                ? path
-                : "./";
-#elif OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-    path = std::getenv("USERPROFILE");
-    if(path == 0)
-    {
-        path = std::getenv("HOMEDRIVE");
-        char* pathb = std::getenv("HOMEPATH");
-        if(path == 0 || pathb == 0)
-        {
-            path = std::getenv("HOME");
-            homeFolderPath = (path != 0)
-                ? path
-                : "./";
-        }
-        else
-        {
-            homeFolderPath = std::string(path) + pathb;
-        }
-    }
-    else
-    {
-        homeFolderPath = path;
-    }
-#else
-#error("Unknown platform!")
-#endif
-
-    return homeFolderPath;
+    ss.imbue(loc);
+    ss << "ODscreenshot_" << boost::posix_time::second_clock::local_time()
+       << "_" << screenShotCounter++ << ".png";
+    renderTarget->writeContentsToFile(getUserDataPath() + ss.str());
 }
