@@ -21,8 +21,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cstdlib>
-#include <ctime>
+#include "utils/ResourceManager.h"
 
 #include <OgreConfigFile.h>
 #include <OgrePlatform.h>
@@ -44,11 +43,10 @@
 #endif
 
 #include <boost/filesystem.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 #include <OgreString.h>
 #include <OgreRenderTarget.h>
-
-#include "utils/ResourceManager.h"
 
 template<> ResourceManager* Ogre::Singleton<ResourceManager>::msSingleton = 0;
 #if defined(OD_DEBUG)
@@ -321,12 +319,12 @@ Ogre::StringVectorPtr ResourceManager::listAllMusicFiles()
 void ResourceManager::takeScreenshot(Ogre::RenderTarget* renderTarget)
 {
     static int screenShotCounter = 0;
-    const std::time_t time = std::time(nullptr);
-    struct std::tm* timeinfo = localtime(&time); // Doesn't need to be deleted
-    char buffer[80];
-    strftime(buffer, 80, "%F_%X", timeinfo);
+
+    static std::locale loc(std::wcout.getloc(), new boost::posix_time::wtime_facet(L"%Y-%m-%d_%H%M%S"));
 
     std::ostringstream ss;
-    ss << "ODscreenshot_" << buffer << "_" << screenShotCounter++ << ".png";
+    ss.imbue(loc);
+    ss << "ODscreenshot_" << boost::posix_time::second_clock::local_time()
+       << "_" << screenShotCounter++ << ".png";
     renderTarget->writeContentsToFile(getUserDataPath() + ss.str());
 }

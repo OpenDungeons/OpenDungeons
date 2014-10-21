@@ -55,7 +55,7 @@ void LogManager::logMessage(const std::string& message, Ogre::LogMessageLevel lm
 
         std::stringstream ss;
         ss.imbue(loc);
-        ss << "[" << boost::posix_time::second_clock::universal_time() << "] " << message;
+        ss << "[" << boost::posix_time::second_clock::local_time() << "] " << message;
         mGameLog->logMessage(ss.str(), lml, maskDebug);
     }
     else
