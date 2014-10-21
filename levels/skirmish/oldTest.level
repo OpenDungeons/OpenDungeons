@@ -6702,167 +6702,167 @@ Wizard
 [/Spawn_Pools]
 
 [Creatures]
-# className	name	posX	posY	posZ	seatId	weaponLname	damage	range	defense	weaponRname	damage	range	defense	HP	Level
+# SeatId	ClassName	Name	Level	CurrentXP	CurrenHP	CurrentAwakeness		CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeapon name	damage	range	defense	RightWeapon name	damage	range	defense
 [Creature]
-Adventurer	Adventurer_001	196	200	0	1	none	7	4	0	none	8	3	0	155	1
+1	Adventurer	Adventurer_001	1	0	150	100	0	0	196	200	0	none	7	4	0	none	8	3	0	
 [/Creature]
 [Creature]
-ConstructWorker	ConstructWorker1	196	230	0	1	none	1	4	3	none	8	4	0	125	1
+1	ConstructWorker	ConstructWorker1	1	0	150	100	0	0	196	230	0	none	1	4	3	none	8	4	0	
 [/Creature]
 [Creature]
-Gnome	Gnome2	192	229	0	2	Roundshield	1	4	3	Longsword	8	4	0	125	1
+2	Gnome	Gnome2	1	0	150	100	0	0	192	229	0	Roundshield	1	4	3	Longsword	8	4	0	
 [/Creature]
 [Creature]
-Goblin	Goblin3	183	229	0	3	Roundshield	1	4	3	Longsword	8	4	0	125	1
+1	Goblin	Goblin3	1	0	150	100	0	0	183	229	0	Roundshield	1	4	3	Longsword	8	4	0	
 [/Creature]
 [Creature]
-PitDemon	PitDemon5	210	236	0	5	none	1	4	3	none	8	4	0	125	1
+5	PitDemon	PitDemon5	1	0	150	100	0	0	210	236	0	none	1	4	3	none	8	4	0	
 [/Creature]
 [Creature]
-Spider	Spider6	198	231	0	1	none	1	4	3	none	8	4	0	125	1
+1	Spider	Spider6	1	0	150	100	0	0	198	231	0	none	1	4	3	none	8	4	0	
 [/Creature]
 [Creature]
-CaveHornet	Hornet1	198	231	0	1	none	1	4	3	none	8	4	0	125	1
+1	CaveHornet	CaveHornet1	1	0	150	100	0	0	198	231	0	none	1	4	3	none	8	4	0	
 [/Creature]
 [Creature]
-Wizard	Wizard7	190	229	0	2	Staff	7	10	3	none	1	4	0	125	1
+2	Wizard	Wizard7	1	0	150	100	0	0	190	229	0	Staff	7	10	3	none	1	4	0	
 [/Creature]
 [Creature]
-Tentacle1	Tentacle18	186	229	0	3	none	1	4	3	none	8	4	0	125	1
+3	Tentacle1	Tentacle18	1	0	150	100	0	0	186	229	0	none	1	4	3	none	8	4	0	
 [/Creature]
 [Creature]
-Tentacle2	Tentacle29	203	230	0	4	none	1	4	3	none	8	4	0	125	1
+4	Tentacle2	Tentacle29	1	0	150	100	0	0	203	230	0	none	1	4	3	none	8	4	0	
 [/Creature]
 [Creature]
-Troll	Troll10	209	231	0	5	none	1	4	3	none	8	4	0	125	1
+5	Troll	Troll10	1	0	150	100	0	0	209	231	0	none	1	4	3	none	8	4	0	
 [/Creature]
 [Creature]
-Troll	Troll11	193	214	0	1	Roundshield	1	4	3	Longsword	8	4	0	125	1
+1	Troll	Troll11	1	0	150	100	0	0	193	214	0	Roundshield	1	4	3	Longsword	8	4	0	
 [/Creature]
 [Creature]
-Knight	Knight_c1	198	233	0	1	Roundshield	1	4	3	Longsword	8	4	0	125	1
+1	Knight	Knight_c1	1	0	150	100	0	0	198	233	0	Roundshield	1	4	3	Longsword	8	4	0	
 [/Creature]
 [Creature]
-Knight	Knight_c2	192	233	0	2	Roundshield	1	4	3	Longsword	8	4	0	125	1
+2	Knight	Knight_c2	1	0	150	100	0	0	192	233	0	Roundshield	1	4	3	Longsword	8	4	0	
 [/Creature]
 [Creature]
-Knight	Knight_c3	184	233	0	3	Roundshield	1	4	3	Longsword	8	4	0	125	1
+3	Knight	Knight_c3	1	0	150	100	0	0	184	233	0	Roundshield	1	4	3	Longsword	8	4	0	
 [/Creature]
 [Creature]
-Knight	Knight_c4	204	233	0	4	Roundshield	1	4	3	Longsword	8	4	0	125	1
+4	Knight	Knight_c4	1	0	150	100	0	0	204	233	0	Roundshield	1	4	3	Longsword	8	4	0	
 [/Creature]
 [Creature]
-Knight	Knight_c5	210	233	0	5	Roundshield	1	4	3	Longsword	8	4	0	125	1
+5	Knight	Knight_c5	1	0	150	100	0	0	210	233	0	Roundshield	1	4	3	Longsword	8	4	0	
 [/Creature]
 [Creature]
-LizardMan	LizardMan_001	210	233	0	5	Roundshield	1	4	3	Longsword	8	4	0	125	1
+5	LizardMan	LizardMan_001	1	0	150	100	0	0	210	233	0	Roundshield	1	4	3	Longsword	8	4	0	
 [/Creature]
 [Creature]
-Kobold	Kobold	195	202	0	1	none	5	4	0	none	8	3	0	125	1
+1	Kobold	Kobold	1	0	150	100	0	0	195	202	0	none	5	4	0	none	8	3	0	
 [/Creature]
 [Creature]
-Kobold	Kobold_012	188	200	0	1	Roundshield	0	0	5	Longsword	14	3	0	125	1
+1	Kobold	Kobold_012	1	0	150	100	0	0	188	200	0	Roundshield	0	0	5	Longsword	14	3	0	
 [/Creature]
 [Creature]
-Kobold	Kobold_007	193	218	0	1	none	5	4	0	none	8	3	0	125	1
+1	Kobold	Kobold_007	1	0	150	100	0	0	193	218	0	none	5	4	0	none	8	3	0	
 [/Creature]
 [Creature]
-Wizard	Mage	193	213	0	1	Staff	7	9	0	none	8	3	0	80	1
+1	Wizard	Mage	1	0	150	100	0	0	193	213	0	Staff	7	9	0	none	8	3	0	
 [/Creature]
 [Creature]
-Wizard	Wiz	193	213	0	1	Staff	7	9	0	none	8	3	0	80	1
+1	Wizard	Wiz	1	0	150	100	0	0	193	213	0	Staff	7	9	0	none	8	3	0	
 [/Creature]
 [Creature]
-BigKnight	King	191	216	0	1	Roundshield	0	0	5	Staff	10	3	7	180	1
+1	BigKnight	King	1	0	150	100	0	0	191	216	0	Roundshield	0	0	5	Staff	10	3	7	
 [/Creature]
 [Creature]
-Knight	Knight_005	229	138	0	1	Roundshield	0	0	5	Longsword	14	3	0	155	1
+1	Knight	Knight_005	1	0	150	100	0	0	229	138	0	Roundshield	0	0	5	Longsword	14	3	0	
 [/Creature]
 [Creature]
-Knight	Knight_004	196	200	0	1	Longsword	7	4	0	none	8	3	0	155	1
+1	Knight	Knight_004	1	0	150	100	0	0	196	200	0	Longsword	7	4	0	none	8	3	0	
 [/Creature]
 [Creature]
-Knight	Knight_006	199	204	0	1	Longsword	14	4	0	Sabre	10	3	0	155	1
+1	Knight	Knight_006	1	0	150	100	0	0	199	204	0	Longsword	14	4	0	Sabre	10	3	0	
 [/Creature]
 [Creature]
-Knight	Knight	188	198	0	1	none	8	4	0	Sabre	10	3	0	155	1
+1	Knight	Knight	1	0	150	100	0	0	188	198	0	none	8	4	0	Sabre	10	3	0	
 [/Creature]
 [Creature]
-Knight	Knight_007	191	207	0	1	none	8	4	0	Sabre	10	3	0	155	1
+1	Knight	Knight_007	1	0	150	100	0	0	191	207	0	none	8	4	0	Sabre	10	3	0	
 [/Creature]
 [Creature]
-Knight	Knight_003	184	201	0	1	none	14	4	0	Longsword	14	3	0	155	1
+1	Knight	Knight_003	1	0	150	100	0	0	184	201	0	none	14	4	0	Longsword	14	3	0	
 [/Creature]
 [Creature]
-Dragon	Dragon_001	159	108	0	1	none	10	4	0	none	8	3	0	200	1
+1	Dragon	Dragon_001	1	0	150	100	0	0	159	108	0	none	10	4	0	none	8	3	0	
 [/Creature]
 [Creature]
-Dragon	Dragon_002	191	193	0	1	none	10	4	0	none	8	3	0	200	1
+1	Dragon	Dragon_002	1	0	150	100	0	0	191	193	0	none	10	4	0	none	8	3	0	
 [/Creature]
 [Creature]
-Dragon	Dragon_003	195	204	0	1	none	10	4	0	none	8	3	0	200	1
+1	Dragon	Dragon_003	1	0	150	100	0	0	193	204	0	none	10	4	0	none	8	3	0	
 [/Creature]
 [Creature]
-Dragon	Dragon_004	196	214	0	1	none	10	4	0	none	8	3	0	200	1
+1	Dragon	Dragon_004	5	0	150	100	0	0	196	214	0	none	10	4	0	none	8	3	0	
 [/Creature]
 [Creature]
-Wyvern	Wyvern_001	177	90	0	1	none	8	3	0	none	6	3	0	150	1
+1	Wyvern	Wyvern_001	1	0	150	100	0	0	177	90	0	none	8	3	0	none	6	3	0	
 [/Creature]
 [Creature]
-Wyvern	Wyvern_002	186	85	0	1	none	8	3	0	none	6	3	0	150	1
+1	Wyvern	Wyvern_002	1	0	150	100	0	0	186	85	0	none	8	3	0	none	6	3	0	
 [/Creature]
 [Creature]
-Wyvern	Wyvern_003	183	105	0	1	none	8	3	0	none	6	3	0	150	1
+1	Wyvern	Wyvern_003	1	0	150	100	0	0	183	105	0	none	8	3	0	none	6	3	0	
 [/Creature]
 [Creature]
-Dwarf1	Dwarf1_001	201	192	0	2	Roundshield	0	0	5	Sabre	10	3	0	145	1
+2	Dwarf1	Dwarf1_001	1	0	150	100	0	0	201	192	0	Roundshield	0	0	5	Sabre	10	3	0	
 [/Creature]
 [Creature]
-Dwarf2	Dwarf1_002	206	168	0	2	none	8	4	0	none	6	3	0	145	1
+2	Dwarf2	Dwarf2_001	1	0	150	100	0	0	206	168	0	none	8	4	0	none	6	3	0	
 [/Creature]
 [Creature]
-Dwarf3	Dwarf1_004	213	157	0	2	none	8	4	0	none	6	3	0	145	1
+2	Dwarf3	Dwarf3_001	1	0	150	100	0	0	213	157	0	none	8	4	0	none	6	3	0	
 [/Creature]
 [Creature]
-Dwarf2	Dwarf1_006	214	141	0	2	none	8	4	0	none	6	3	0	145	1
+2	Dwarf2	Dwarf2_002	1	0	150	100	0	0	214	141	0	none	8	4	0	none	6	3	0	
 [/Creature]
 [Creature]
-Dwarf3	Dwarf1_007	212	143	0	2	none	8	4	0	none	6	3	0	145	1
+2	Dwarf3	Dwarf3_002	1	0	150	100	0	0	212	143	0	none	8	4	0	none	6	3	0	
 [/Creature]
 [Creature]
-Dwarf3	Dwarf2_001	213	213	0	2	none	8	4	0	none	6	3	0	145	1
+2	Dwarf3	Dwarf3_003	1	0	150	100	0	0	213	213	0	none	8	4	0	none	6	3	0	
 [/Creature]
 [Creature]
-Dwarf2	Dwarf2_002	202	191	0	2	none	6	4	0	Longsword	14	4	0	145	1
+2	Dwarf2	Dwarf2_003	1	0	150	100	0	0	202	191	0	none	6	4	0	Longsword	14	4	0	
 [/Creature]
 [Creature]
-Dwarf1	Dwarf3_001	201	192	0	2	Roundshield	0	0	5	Longsword	14	4	4	145	1
+2	Dwarf1	Dwarf1_002	1	0	150	100	0	0	201	192	0	Roundshield	0	0	5	Longsword	14	4	4	
 [/Creature]
 [Creature]
-LizardMan	LizardMan_002	206	172	0	3	none	12	4	0	none	6	4	0	180	1
+3	LizardMan	LizardMan_002	1	0	150	100	0	0	206	172	0	none	12	4	0	none	6	4	0	
 [/Creature]
 [Creature]
-Kreatur	Kre	215	216	0	2	none	12	4	0	none	6	4	0	180	1
+3	Kreatur	Kre	1	0	150	100	0	0	215	216	0	none	12	4	0	none	6	4	0	
 [/Creature]
 [Creature]
-Orc	Orc_0001	203	199	0	2	none	8	4	0	Longsword	14	4	0	165	1
+2	Orc	Orc_001	1	0	150	100	0	0	203	199	0	none	8	4	0	Longsword	14	4	0	
 [/Creature]
 [Creature]
-Orc	Orc_0002	207	212	0	2	none	8	4	0	Longsword	14	4	0	165	1
+2	Orc	Orc_002	1	0	150	100	0	0	207	212	0	none	8	4	0	Longsword	14	4	0	
 [/Creature]
 [Creature]
-Kreatur	Kreatur_001	155	110	0	3	none	12	4	0	none	6	4	0	180	1
+3	Kreatur	Kreatur_001	1	0	150	100	0	0	155	110	0	none	12	4	0	none	6	4	0	
 [/Creature]
 [Creature]
-Kreatur	Kreatur_002	159	112	0	3	none	12	4	0	none	6	4	0	180	1
+3	Kreatur	Kreatur_002	1	0	150	100	0	0	159	112	0	none	12	4	0	none	6	4	0	
 [/Creature]
 [Creature]
-Kreatur	Kreatur_003	158	103	0	3	none	12	4	0	none	6	4	0	180	1
+3	Kreatur	Kreatur_003	1	0	150	100	0	0	158	103	0	none	12	4	0	none	6	4	0	
 [/Creature]
 [Creature]
-Kreatur	Kreatur_004	156	106	0	3	none	12	4	0	none	6	4	0	180	1
+3	Kreatur	Kreatur_004	1	0	150	100	0	0	156	106	0	none	12	4	0	none	6	4	0	
 [/Creature]
 [Creature]
-Kreatur	Kreatur_006	163	112	0	3	none	12	4	0	none	6	4	0	180	1
+3	Kreatur	Kreatur_005	1	0	150	100	0	0	163	112	0	none	12	4	0	none	6	4	0	
 [/Creature]
 [/Creatures]

@@ -501,6 +501,9 @@ private:
     //! \brief Returns true if creature is in bad mood. False otherwise. A creature in bad mood will more likely
     //! flee or attack allied units
     bool isInBadMood();
+
+    //! \brief Restores the creature's stats according to the given level
+    void buildStats(unsigned int level);
 };
 
 #endif // CREATURE_H

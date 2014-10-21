@@ -842,11 +842,11 @@ Wizard
 [/Spawn_Pools]
 
 [Creatures]
-# className	name	posX	posY	posZ	seatId	weaponLname	damage	range	defense	weaponRname	damage	range	defense	HP	Level
+# SeatId	ClassName	Name	Level	CurrentXP	CurrenHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeapon name	damage	range	defense	RightWeapon name	damage	range	defense
 [Creature]
-BigKnight	BigKnight1	7	7	0	1	none	1	1	3	none	8	1	0	125	1
+1	BigKnight	BigKnight1	1	0	125	100	0	0	7	7	0	none	1	1	3	none	8	1	0	
 [/Creature]
 [Creature]
-Adventurer	Adventurer2	7	8	0	1	none	1	3	3	none	8	3	0	125	1
+1	Adventurer	Adventurer2	1	0	125	100	0	0	7	8	0	none	1	3	3	none	8	3	0	
 [/Creature]
 [/Creatures]

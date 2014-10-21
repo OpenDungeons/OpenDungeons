@@ -270,12 +270,23 @@ void Creature::deleteYourselfLocal()
 std::string Creature::getFormat()
 {
     //NOTE:  When this format changes, other changes to RoomPortal::spawnCreature() may be necessary.
-    return "className\tname\tposX\tposY\tposZ\tseatId\tweaponL"
-        + Weapon::getFormat() + "\tweaponR" + Weapon::getFormat() + "\tHP\tLevel";
+    return "SeatId\tClassName\tName\tLevel\tCurrentXP\tCurrenHP\tCurrentAwakeness\t"
+           "CurrentHunger\tGoldToDeposit\tPosX\tPosY\tPosZ\tLeftWeapon "
+           + Weapon::getFormat() +"\tRightWeapon " + Weapon::getFormat();
 }
 
 void Creature::exportToStream(std::ostream& os)
 {
+    int seatId = getSeat()->getId();
+    os << seatId << "\t";
+    os << mDefinition->getClassName() << "\t" << getName() << "\t";
+    os << getLevel() << "\t" << mExp << "\t" << getHP() << "\t";
+    os << mAwakeness << "\t" << mHunger << "\t" << mGold << "\t";
+
+    os << getPosition().x << "\t";
+    os << getPosition().y << "\t";
+    os << getPosition().z << "\t";
+
     // Check creature weapons
     Weapon* wL = mWeaponL;
     if (wL == NULL)
@@ -284,17 +295,7 @@ void Creature::exportToStream(std::ostream& os)
     if (wR == NULL)
         wR = new Weapon(getGameMap(), "none", 0.0, 1.0, 0.0, "R", this);
 
-    os << mDefinition->getClassName() << "\t" << getName() << "\t";
-
-    int seatId = getSeat()->getId();
-    os << getPosition().x << "\t";
-    os << getPosition().y << "\t";
-    os << getPosition().z << "\t";
-    os << seatId << "\t";
     os << wL << "\t" << wR << "\t";
-    os << getHP() << "\t";
-    os << getLevel();
-    // FIXME : Lacks current XP, and other stats.
 
     // If we had to create dummy weapons for serialization, delete them now.
     if (mWeaponL == NULL)
@@ -309,43 +310,92 @@ void Creature::importFromStream(std::istream& is)
     double tempDouble = 0.0;
     std::string tempString;
 
-    OD_ASSERT_TRUE(is >> tempString);
-    mDefinition = getGameMap()->getClassDescription(tempString);
-    OD_ASSERT_TRUE_MSG(mDefinition != nullptr, "Definition=" + tempString);
-
-    mMaxHP = mDefinition->getMinHp();
-    setHP(mMaxHP);
-    mDigRate = mDefinition->getDigRate();
-    mClaimRate = mDefinition->getClaimRate();
-    mSound = SoundEffectsManager::getSingleton().getCreatureClassSounds(tempString);
-
-    OD_ASSERT_TRUE(is >> tempString);
-
-    if (tempString.compare("autoname") == 0)
-        tempString = getGameMap()->nextUniqueNameCreature(mDefinition->getClassName());
-
-    setName(tempString);
-
-    OD_ASSERT_TRUE(is >> xLocation >> yLocation >> zLocation);
-    setPosition(Ogre::Vector3((Ogre::Real)xLocation, (Ogre::Real)yLocation, (Ogre::Real)zLocation));
-
     int seatId = 0;
     OD_ASSERT_TRUE(is >> seatId);
     Seat* seat = getGameMap()->getSeatById(seatId);
     setSeat(seat);
 
-    // TODO: Load weapon from a catalog file.
-    setWeaponL(new Weapon(getGameMap(), std::string(), 0.0, 0.0, 0.0, std::string()));
-    OD_ASSERT_TRUE(is >> mWeaponL);
+    // class name
+    OD_ASSERT_TRUE(is >> tempString);
+    mDefinition = getGameMap()->getClassDescription(tempString);
+    OD_ASSERT_TRUE_MSG(mDefinition != nullptr, "Definition=" + tempString);
+    mSound = SoundEffectsManager::getSingleton().getCreatureClassSounds(tempString);
 
-    setWeaponR(new Weapon(getGameMap(), std::string(), 0.0, 0.0, 0.0, std::string()));
-    OD_ASSERT_TRUE(is >> mWeaponR);
+    // name
+    OD_ASSERT_TRUE(is >> tempString);
+    if (tempString.compare("autoname") == 0)
+        tempString = getGameMap()->nextUniqueNameCreature(mDefinition->getClassName());
+    setName(tempString);
+
+    OD_ASSERT_TRUE(is >> tempDouble);
+    buildStats(tempDouble);
+
+    OD_ASSERT_TRUE(is >> tempDouble);
+    mExp = tempDouble;
 
     OD_ASSERT_TRUE(is >> tempDouble);
     setHP(tempDouble);
+
     OD_ASSERT_TRUE(is >> tempDouble);
-    setLevel(tempDouble);
-    // FIXME : Lacks current XP, and other stats.
+    mAwakeness = tempDouble;
+
+    OD_ASSERT_TRUE(is >> tempDouble);
+    mHunger = tempDouble;
+
+    OD_ASSERT_TRUE(is >> tempDouble);
+    mGold = static_cast<int>(tempDouble);
+
+    OD_ASSERT_TRUE(is >> xLocation >> yLocation >> zLocation);
+    setPosition(Ogre::Vector3((Ogre::Real)xLocation, (Ogre::Real)yLocation, (Ogre::Real)zLocation));
+
+    // TODO: Load weapon from a catalog file.
+    if (mWeaponL == nullptr)
+        setWeaponL(new Weapon(getGameMap(), std::string(), 0.0, 0.0, 0.0, std::string()));
+    OD_ASSERT_TRUE(is >> mWeaponL);
+
+    if (mWeaponR == nullptr)
+        setWeaponR(new Weapon(getGameMap(), std::string(), 0.0, 0.0, 0.0, std::string()));
+    OD_ASSERT_TRUE(is >> mWeaponR);
+}
+
+void Creature::buildStats(unsigned int level)
+{
+    if (level > MAX_LEVEL)
+        return;
+
+    // Get the base value
+    mMaxHP = mDefinition->getMinHp();
+    mDigRate = mDefinition->getDigRate();
+    mClaimRate = mDefinition->getClaimRate();
+    mGroundSpeed = mDefinition->getMoveSpeedGround();
+    mWaterSpeed = mDefinition->getMoveSpeedWater();
+    mLavaSpeed  = mDefinition->getMoveSpeedLava();
+
+    mPhysicalAttack = mDefinition->getPhysicalAttack();
+    mMagicalAttack = mDefinition->getMagicalAttack();
+    mPhysicalDefense = mDefinition->getPhysicalDefense();
+    mMagicalDefense = mDefinition->getMagicalDefense();
+    mWeaponlessAtkRange = mDefinition->getAttackRange();
+
+    // Improve the stats to the current level
+    double multiplier = level - 1;
+    if (multiplier == 0.0)
+        return;
+
+    mMaxHP += mDefinition->getHpPerLevel() * multiplier;
+    mDigRate += mDefinition->getDigRatePerLevel() * multiplier;
+    mClaimRate += mDefinition->getClaimRatePerLevel() * multiplier;
+    mGroundSpeed += mDefinition->getGroundSpeedPerLevel() * multiplier;
+    mWaterSpeed += mDefinition->getWaterSpeedPerLevel() * multiplier;
+    mLavaSpeed += mDefinition->getLavaSpeedPerLevel() * multiplier;
+
+    mPhysicalAttack += mDefinition->getPhysicalAtkPerLevel() * multiplier;
+    mMagicalAttack += mDefinition->getMagicalAtkPerLevel() * multiplier;
+    mPhysicalDefense += mDefinition->getPhysicalDefPerLevel() * multiplier;
+    mMagicalDefense += mDefinition->getMagicalDefPerLevel() * multiplier;
+    mWeaponlessAtkRange += mDefinition->getAtkRangePerLevel() * multiplier;
+
+    setLevel(level);
 }
 
 Creature* Creature::getCreatureFromStream(GameMap* gameMap, std::istream& is)
@@ -508,7 +558,10 @@ void Creature::drop(const Ogre::Vector3& v)
 
 void Creature::setHP(double nHP)
 {
-    mHp = nHP;
+    if (nHP > mMaxHP)
+        mHp = mMaxHP;
+    else
+        mHp = nHP;
 }
 
 double Creature::getHP() const
