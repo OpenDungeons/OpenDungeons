@@ -21,6 +21,7 @@
 #include "utils/Helper.h"
 #include "utils/ResourceManager.h"
 #include "utils/Random.h"
+#include "utils/LogManager.h"
 
 #include <map>
 
@@ -274,6 +275,7 @@ void SoundEffectsManager::setListenerPosition(const Ogre::Vector3& position, con
 
 void SoundEffectsManager::playInterfaceSound(InterfaceSound soundType, float XPos, float YPos, float height)
 {
+    OD_ASSERT_TRUE(soundType < mInterfaceSounds.size());
     if (soundType >= mInterfaceSounds.size())
         return;
 
