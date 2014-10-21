@@ -274,6 +274,9 @@ void SoundEffectsManager::setListenerPosition(const Ogre::Vector3& position, con
 
 void SoundEffectsManager::playInterfaceSound(InterfaceSound soundType, float XPos, float YPos, float height)
 {
+    if (soundType >= mInterfaceSounds.size())
+        return;
+
     std::vector<GameSound*>& sounds = mInterfaceSounds[soundType];
 
     unsigned int soundId = Random::Uint(0, sounds.size() - 1);

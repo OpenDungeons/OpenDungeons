@@ -659,14 +659,15 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        // TODO : for this kind of sound, it would be better to have a ServerNotification::playSpacialSound
-        // with parameter SoundEffectsManager::DEPOSITGOLD, xPos, yPos because we will probably need many of them
-        case ServerNotification::depositGoldSound:
+        case ServerNotification::playSpatialSound:
         {
+            // Note: We need to handle the soundType as an int or the >> operator won't recognize
+            // its type on certain systems.
+            int soundType;
             int xPos;
             int yPos;
-            OD_ASSERT_TRUE(packetReceived >> xPos >> yPos);
-            SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::DEPOSITGOLD,
+            OD_ASSERT_TRUE(packetReceived >> soundType >> xPos >> yPos);
+            SoundEffectsManager::getSingleton().playInterfaceSound(static_cast<SoundEffectsManager::InterfaceSound>(soundType),
                                                                    xPos, yPos);
             break;
         }
