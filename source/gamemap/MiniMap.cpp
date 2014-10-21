@@ -184,26 +184,40 @@ void MiniMap::draw()
                 continue;
             }
 
+            if (tile->getMarkedForDigging(mGameMap->getLocalPlayer()))
+            {
+                drawPixel(ii, jj, 0xFF, 0xA8, 0x00);
+                continue;
+            }
+
             switch (tile->getType())
             {
             case Tile::water:
-                drawPixel(ii, jj, 0x7F, 0xFF, 0xD4);
+                drawPixel(ii, jj, 0x21, 0x36, 0x7A);
                 break;
-
-            case Tile::dirt:
-                drawPixel(ii, jj, 0x8B, 0x45, 0x13);
-                break;
-
             case Tile::lava:
                 drawPixel(ii, jj, 0xB2, 0x22, 0x22);
                 break;
 
+            case Tile::dirt:
+                if (tile->getFullness() <= 0.0)
+                    drawPixel(ii, jj, 0x3B, 0x1D, 0x08);
+                else
+                    drawPixel(ii, jj, 0x5B, 0x2D, 0x0C);
+                break;
+
             case Tile::rock:
-                drawPixel(ii, jj, 0xA9, 0xA9, 0xA9);
+                if (tile->getFullness() <= 0.0)
+                    drawPixel(ii, jj, 0x30, 0x30, 0x30);
+                else
+                    drawPixel(ii, jj, 0x41, 0x41, 0x41);
                 break;
 
             case Tile::gold:
-                drawPixel(ii, jj, 0xFF, 0xD7, 0xD0);
+                if (tile->getFullness() <= 0.0)
+                    drawPixel(ii, jj, 0x3B, 0x1D, 0x08);
+                else
+                    drawPixel(ii, jj, 0xB5, 0xB3, 0x2F);
                 break;
 
             case Tile::claimed:
@@ -212,11 +226,17 @@ void MiniMap::draw()
                 if (tempSeat != NULL)
                 {
                     Ogre::ColourValue color = tempSeat->getColorValue();
-                    drawPixel(ii, jj, color.r*255.0, color.g*255.0, color.b*255.0);
+                    if (tile->getFullness() <= 0.0)
+                        drawPixel(ii, jj, color.r*200.0, color.g*200.0, color.b*200.0);
+                    else
+                        drawPixel(ii, jj, color.r*255.0, color.g*255.0, color.b*255.0);
                 }
                 else
                 {
-                    drawPixel(ii, jj, 0x94, 0x00, 0xD3);
+                    if (tile->getFullness() <= 0.0)
+                        drawPixel(ii, jj, 0x5C, 0x37, 0x1B);
+                    else
+                        drawPixel(ii, jj, 0x86, 0x50, 0x28);
                 }
                 break;
             }
