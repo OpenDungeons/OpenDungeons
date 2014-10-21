@@ -167,7 +167,7 @@ GameMap::~GameMap()
 bool GameMap::loadLevel(const std::string& levelFilepath)
 {
     // Read in the game map filepath
-    std::string levelPath = ResourceManager::getSingletonPtr()->getResourcePath()
+    std::string levelPath = ResourceManager::getSingletonPtr()->getGameDataPath()
                             + levelFilepath;
 
     // TODO The map loader class should be merged back to GameMap.

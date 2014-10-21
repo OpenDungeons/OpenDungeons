@@ -35,7 +35,7 @@ LogManager::LogManager()
      * as log writes from ogre itself won't be thread-safe in this case.
      */
     mGameLog = Ogre::LogManager::getSingleton().createLog(
-        ResourceManager::getSingleton().getHomePath() + GAMELOG_NAME);
+        ResourceManager::getSingleton().getUserDataPath() + GAMELOG_NAME);
     sem_init(&logLockSemaphore, 0, 1);
 #else
     mGameLog = Ogre::LogManager::getSingleton().getDefaultLog();

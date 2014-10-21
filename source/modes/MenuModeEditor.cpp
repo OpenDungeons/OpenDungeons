@@ -69,7 +69,7 @@ void MenuModeEditor::activate()
     mDescriptionList.clear();
     levelSelectList->resetList();
 
-    std::string levelPath = ResourceManager::getSingleton().getResourcePath() + LEVEL_PATH_SKIRMISH;
+    std::string levelPath = ResourceManager::getSingleton().getGameDataPath() + LEVEL_PATH_SKIRMISH;
     if(Helper::fillFilesList(levelPath, mFilesList, LEVEL_EXTENSION))
     {
         for (uint32_t n = 0; n < mFilesList.size(); ++n)
@@ -95,7 +95,7 @@ void MenuModeEditor::activate()
 
     int skirmishSize = mFilesList.size();
 
-    levelPath = ResourceManager::getSingleton().getResourcePath() + LEVEL_PATH_MULTIPLAYER;
+    levelPath = ResourceManager::getSingleton().getGameDataPath() + LEVEL_PATH_MULTIPLAYER;
     if(Helper::fillFilesList(levelPath, mFilesList, LEVEL_EXTENSION))
     {
         for (uint32_t n = skirmishSize; n < mFilesList.size(); ++n)

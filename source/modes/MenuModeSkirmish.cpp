@@ -68,7 +68,7 @@ void MenuModeSkirmish::activate()
     mDescriptionList.clear();
     levelSelectList->resetList();
 
-    std::string levelPath = ResourceManager::getSingleton().getResourcePath() + LEVEL_PATH;
+    std::string levelPath = ResourceManager::getSingleton().getGameDataPath() + LEVEL_PATH;
     if(Helper::fillFilesList(levelPath, mFilesList, LEVEL_EXTENSION))
     {
         for (uint32_t n = 0; n < mFilesList.size(); ++n)
