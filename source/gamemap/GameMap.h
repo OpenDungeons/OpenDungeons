@@ -120,6 +120,9 @@ public:
     //! \brief Returns a vector containing all the creatures controlled by the given seat.
     std::vector<Creature*> getCreaturesBySeat(Seat* seat);
 
+    Creature* getWorkerToPickupBySeat(Seat* seat);
+    Creature* getFighterToPickupBySeat(Seat* seat);
+
     //! \brief Animated objects related functions.
     void clearAnimatedObjects();
     void addAnimatedObject(MovableGameEntity *a);

@@ -95,6 +95,8 @@ public:
     static const std::string BUTTON_DESTROY_TRAP;
     static const std::string TAB_SPELLS;
     static const std::string TAB_CREATURES;
+    static const std::string BUTTON_CREATURE_WORKER;
+    static const std::string BUTTON_CREATURE_FIGHTER;
     static const std::string TAB_COMBAT;
     static const std::string MM_BACKGROUND;
     static const std::string MM_WELCOME_MESSAGE;
@@ -113,6 +115,7 @@ public:
     static const std::string EDITOR_FULLNESS;
     static const std::string EDITOR_CURSOR_POS;
     static const std::string EDITOR_SEAT_ID;
+    static const std::string EDITOR_CREATURE_SPAWN;
     static const std::string EXIT_CONFIRMATION_POPUP;
     static const std::string EXIT_CONFIRMATION_POPUP_YES_BUTTON;
     static const std::string EXIT_CONFIRMATION_POPUP_NO_BUTTON;
@@ -209,6 +212,8 @@ private:
     static bool spikeTrapButtonPressed  (const CEGUI::EventArgs& e);
     static bool boulderTrapButtonPressed(const CEGUI::EventArgs& e);
     static bool destroyTrapButtonPressed(const CEGUI::EventArgs& e);
+    static bool workerCreatureButtonPressed     (const CEGUI::EventArgs& e);
+    static bool fighterCreatureButtonPressed    (const CEGUI::EventArgs& e);
     static bool confirmExitYesButtonPressed     (const CEGUI::EventArgs& e);
     static bool confirmExitNoButtonPressed      (const CEGUI::EventArgs& e);
 

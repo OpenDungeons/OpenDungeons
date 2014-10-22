@@ -983,3 +983,32 @@ void GameMode::exitMode()
     RenderManager::getSingleton().processRenderRequests();
     ODFrameListener::getSingleton().getClientGameMap()->processDeletionQueues();
 }
+
+void GameMode::notifyGuiAction(GuiAction guiAction)
+{
+    switch(guiAction)
+    {
+            case GuiAction::ButtonPressedCreatureWorker:
+            {
+                if(ODClient::getSingleton().isConnected())
+                {
+                    ClientNotification *clientNotification = new ClientNotification(
+                        ClientNotification::askPickupWorker);
+                    ODClient::getSingleton().queueClientNotification(clientNotification);
+                }
+                break;
+            }
+            case GuiAction::ButtonPressedCreatureFighter:
+            {
+                if(ODClient::getSingleton().isConnected())
+                {
+                    ClientNotification *clientNotification = new ClientNotification(
+                        ClientNotification::askPickupFighter);
+                    ODClient::getSingleton().queueClientNotification(clientNotification);
+                }
+                break;
+            }
+            default:
+                break;
+    }
+}

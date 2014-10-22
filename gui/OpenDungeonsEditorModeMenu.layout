@@ -60,6 +60,15 @@
                 <Property name="ClippedByParent" value="False" />
                 <Property name="VerticalAlignment" value="Centre" />
             </Window>
+            <Window type="OD/StaticText" name="CreatureSpawnDisplay" >
+                <Property name="Area" value="{{0,550},{0,0},{0,750},{0,25}}" />
+                <Property name="Text" value="Creature (C): ?" />
+                <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                <Property name="TooltipText" value="Selected Creature to spawn" />
+                <Property name="HorzFormatting" value="RightAligned" />
+                <Property name="ClippedByParent" value="False" />
+                <Property name="VerticalAlignment" value="Centre" />
+            </Window>
         </Window>
         <Window type="OD/Button" name="OptionsButton" >
             <Property name="Area" value="{{1,-277},{0,2},{1,-205},{0,35}}" />
@@ -122,13 +131,7 @@
             </Window>
             <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuRooms.layout" name="RoomsImport" />
             <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuTraps.layout" name="TrapImport" />
-            <Window type="DefaultWindow" name="Creatures" >
-                <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
-                <Property name="Text" value="Creatures" />
-                <Property name="MaxSize" value="{{1,0},{1,0}}" />
-                <Property name="Visible" value="False" />
-                <Property name="RiseOnClickEnabled" value="False" />
-            </Window>
+            <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuCreatures.layout" name="CreaturesImport" />
             <Window type="DefaultWindow" name="Lights" >
                 <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
                 <Property name="Text" value="Lights" />

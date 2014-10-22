@@ -388,6 +388,236 @@ std::vector<Creature*> GameMap::getCreaturesBySeat(Seat* seat)
     return tempVector;
 }
 
+Creature* GameMap::getWorkerToPickupBySeat(Seat* seat)
+{
+    // 1 - Take idle worker
+    // 2 - Take fighting/fleeing
+    // 3 - Take claimers
+    // 4 - Take diggers
+    // 5 - Take gold digger/depositers or all the rest
+    // For each, we pickup the highest leveled available
+
+    uint32_t idleWorkerLevel = 0;
+    Creature* idleWorker = nullptr;
+    uint32_t fightingWorkerLevel = 0;
+    Creature* fightingWorker = nullptr;
+    uint32_t claimerWorkerLevel = 0;
+    Creature* claimerWorker = nullptr;
+    uint32_t diggerWorkerLevel = 0;
+    Creature* diggerWorker = nullptr;
+    uint32_t otherWorkerLevel = 0;
+    Creature* otherWorker = nullptr;
+    std::vector<Creature*> creatures = getCreaturesBySeat(seat);
+    for(std::vector<Creature*>::iterator it = creatures.begin(); it != creatures.end(); ++it)
+    {
+        Creature* creature = *it;
+        if(!creature->getDefinition()->isWorker())
+            continue;
+
+        if(!creature->tryPickup(seat, false))
+            continue;
+
+        bool isIdle = true;
+        bool isFighting = false;
+        bool isClaiming = false;
+        bool isDigging = false;
+
+        const std::deque<CreatureAction>& actions = creature->getActionQueue();
+        for(std::deque<CreatureAction>::const_iterator itAction = actions.begin(); itAction != actions.end(); ++itAction)
+        {
+            const CreatureAction& action = *itAction;
+            switch(action.getType())
+            {
+                case CreatureAction::ActionType::fight:
+                case CreatureAction::ActionType::attackObject:
+                case CreatureAction::ActionType::flee:
+                    isIdle = false;
+                    isFighting = true;
+                    break;
+
+                case CreatureAction::ActionType::claimTile:
+                    isIdle = false;
+                    isClaiming = true;
+                    break;
+
+                case CreatureAction::ActionType::digTile:
+                    isIdle = false;
+                    isDigging = true;
+                    break;
+
+                case CreatureAction::ActionType::idle:
+                case CreatureAction::ActionType::walkToTile:
+                    // We do nothing
+                    break;
+
+                default:
+                    // Other
+                    isIdle = false;
+                    break;
+            }
+        }
+
+        if(isIdle)
+        {
+            if(creature->getLevel() > idleWorkerLevel)
+            {
+                idleWorker = creature;
+                idleWorkerLevel = creature->getLevel();
+            }
+        }
+        else if(isFighting)
+        {
+            if(creature->getLevel() > fightingWorkerLevel)
+            {
+                fightingWorker = creature;
+                fightingWorkerLevel = creature->getLevel();
+            }
+        }
+        else if(isClaiming)
+        {
+            if(creature->getLevel() > claimerWorkerLevel)
+            {
+                claimerWorker = creature;
+                claimerWorkerLevel = creature->getLevel();
+            }
+        }
+        else if(isDigging)
+        {
+            if(creature->getLevel() > diggerWorkerLevel)
+            {
+                diggerWorker = creature;
+                diggerWorkerLevel = creature->getLevel();
+            }
+        }
+        else
+        {
+            if(creature->getLevel() > otherWorkerLevel)
+            {
+                otherWorker = creature;
+                otherWorkerLevel = creature->getLevel();
+            }
+        }
+    }
+    if(idleWorker != nullptr)
+        return idleWorker;
+    else if(fightingWorker != nullptr)
+        return fightingWorker;
+    else if(claimerWorker != nullptr)
+        return claimerWorker;
+    else if(diggerWorker != nullptr)
+        return diggerWorker;
+    else if(otherWorker != nullptr)
+        return otherWorker;
+
+    return nullptr;
+}
+
+Creature* GameMap::getFighterToPickupBySeat(Seat* seat)
+{
+    // 1 - Take fleeing fighters
+    // 2 - Take idle fighters
+    // 3 - Take busy (working/eating) fighters
+    // 4 - Then take fighting fighters or all the rest
+    // For each, we pickup the highest leveled available
+
+    uint32_t idleFighterLevel = 0;
+    Creature* idleFighter = nullptr;
+    uint32_t fleeingFighterLevel = 0;
+    Creature* fleeingFighter = nullptr;
+    uint32_t busyFighterLevel = 0;
+    Creature* busyFighter = nullptr;
+    uint32_t otherFighterLevel = 0;
+    Creature* otherFighter = nullptr;
+    std::vector<Creature*> creatures = getCreaturesBySeat(seat);
+    for(std::vector<Creature*>::iterator it = creatures.begin(); it != creatures.end(); ++it)
+    {
+        Creature* creature = *it;
+        if(creature->getDefinition()->isWorker())
+            continue;
+
+        if(!creature->tryPickup(seat, false))
+            continue;
+
+        bool isIdle = true;
+        bool isFleeing = false;
+        bool isBusy = false;
+
+        const std::deque<CreatureAction>& actions = creature->getActionQueue();
+        for(std::deque<CreatureAction>::const_iterator itAction = actions.begin(); itAction != actions.end(); ++itAction)
+        {
+            const CreatureAction& action = *itAction;
+            switch(action.getType())
+            {
+                case CreatureAction::ActionType::flee:
+                    isIdle = false;
+                    isFleeing = true;
+                    break;
+
+                case CreatureAction::ActionType::eatdecided:
+                case CreatureAction::ActionType::eatforced:
+                case CreatureAction::ActionType::jobdecided:
+                case CreatureAction::ActionType::jobforced:
+                    isIdle = false;
+                    isBusy = true;
+                    break;
+
+                case CreatureAction::ActionType::idle:
+                case CreatureAction::ActionType::walkToTile:
+                    // We do nothing
+                    break;
+
+                default:
+                    // Other
+                    isIdle = false;
+                    break;
+            }
+        }
+
+        if(isFleeing)
+        {
+            if(creature->getLevel() > fleeingFighterLevel)
+            {
+                fleeingFighter = creature;
+                fleeingFighterLevel = creature->getLevel();
+            }
+        }
+        else if(isIdle)
+        {
+            if(creature->getLevel() > idleFighterLevel)
+            {
+                idleFighter = creature;
+                idleFighterLevel = creature->getLevel();
+            }
+        }
+        else if(isBusy)
+        {
+            if(creature->getLevel() > busyFighterLevel)
+            {
+                busyFighter = creature;
+                busyFighterLevel = creature->getLevel();
+            }
+        }
+        else
+        {
+            if(creature->getLevel() > otherFighterLevel)
+            {
+                otherFighter = creature;
+                otherFighterLevel = creature->getLevel();
+            }
+        }
+    }
+    if(fleeingFighter != nullptr)
+        return fleeingFighter;
+    else if(idleFighter != nullptr)
+        return idleFighter;
+    else if(busyFighter != nullptr)
+        return busyFighter;
+    else if(otherFighter != nullptr)
+        return otherFighter;
+
+    return nullptr;
+}
+
 void GameMap::clearAnimatedObjects()
 {
     animatedObjects.clear();

@@ -28,6 +28,7 @@
 #include "entities/RenderedMovableEntity.h"
 #include "utils/LogManager.h"
 #include "entities/Creature.h"
+#include "entities/Weapon.h"
 #include "traps/Trap.h"
 #include "traps/TrapCannon.h"
 #include "traps/TrapSpike.h"
@@ -714,6 +715,44 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
+        case ClientNotification::askPickupWorker:
+        {
+            Player *player = clientSocket->getPlayer();
+            Creature* creature = gameMap->getWorkerToPickupBySeat(player->getSeat());
+            if(creature == nullptr)
+                break;
+
+            int seatId = player->getSeat()->getId();
+            player->pickUpEntity(creature, mServerMode == ServerMode::ModeEditor);
+            // We notify the players
+            ODPacket packetSend;
+            GameEntity::ObjectType entityType = creature->getObjectType();
+            const std::string& entityName = creature->getName();
+            packetSend << ServerNotification::entityPickedUp;
+            packetSend << mServerMode << seatId << entityType << entityName;
+            sendMsgToAllClients(packetSend);
+            break;
+        }
+
+        case ClientNotification::askPickupFighter:
+        {
+            Player *player = clientSocket->getPlayer();
+            Creature* creature = gameMap->getFighterToPickupBySeat(player->getSeat());
+            if(creature == nullptr)
+                break;
+
+            int seatId = player->getSeat()->getId();
+            player->pickUpEntity(creature, mServerMode == ServerMode::ModeEditor);
+            // We notify the players
+            ODPacket packetSend;
+            GameEntity::ObjectType entityType = creature->getObjectType();
+            const std::string& entityName = creature->getName();
+            packetSend << ServerNotification::entityPickedUp;
+            packetSend << mServerMode << seatId << entityType << entityName;
+            sendMsgToAllClients(packetSend);
+            break;
+        }
+
         case ClientNotification::askMarkTile:
         {
             int x1, y1, x2, y2;
@@ -870,6 +909,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
         case ClientNotification::editorAskDestroyRoomTiles:
         {
+            OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
+                + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
             int x1, y1, x2, y2;
 
             OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2);
@@ -1003,6 +1044,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
         case ClientNotification::editorAskDestroyTrapTiles:
         {
+            OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
+                + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
             int x1, y1, x2, y2;
 
             OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2);
@@ -1065,6 +1108,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
         case ClientNotification::editorAskSaveMap:
         {
+            OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
+                + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
             Player* player = clientSocket->getPlayer();
             if(player->numObjectsInHand() == 0)
             {
@@ -1092,6 +1137,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
         case ClientNotification::editorAskChangeTiles:
         {
+            OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
+                + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
             int x1, y1, x2, y2;
             int intTileType;
             double tileFullness;
@@ -1146,6 +1193,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
         case ClientNotification::editorAskBuildRoom:
         {
+            OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
+                + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
             int x1, y1, x2, y2;
             int seatId;
             Room::RoomType type;
@@ -1244,6 +1293,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
         case ClientNotification::editorAskBuildTrap:
         {
+            OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
+                + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
             int x1, y1, x2, y2;
             int seatId;
             Trap::TrapType type;
@@ -1310,6 +1361,83 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             gameMap->addTrap(trap);
             trap->createMesh();
             trap->updateActiveSpots();
+            break;
+        }
+
+        case ClientNotification::editorCreateWorker:
+        {
+            OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
+                + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
+            Player* player = clientSocket->getPlayer();
+            int seatId;
+            OD_ASSERT_TRUE(packetReceived >> seatId);
+            Player* playerCreature = gameMap->getPlayerBySeatId(seatId);
+            OD_ASSERT_TRUE_MSG(playerCreature != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
+            CreatureDefinition *classToSpawn = gameMap->getClassDescription("Kobold");
+            OD_ASSERT_TRUE(classToSpawn != nullptr);
+            if(classToSpawn == nullptr)
+                break;
+            Creature* newCreature = new Creature(gameMap, classToSpawn);
+            newCreature->setSeat(playerCreature->getSeat());
+            newCreature->setWeaponL(new Weapon(gameMap, "none", 0.0, 1.0, 0.0, "L", newCreature));
+            newCreature->setWeaponR(new Weapon(gameMap, "none", 0.0, 1.0, 0.0, "R", newCreature));
+
+            newCreature->createMesh();
+            newCreature->getWeaponL()->createMesh();
+            newCreature->getWeaponR()->createMesh();
+            gameMap->addCreature(newCreature);
+
+            ODPacket packetSend;
+            packetSend << ServerNotification::addCreature;
+            newCreature->exportToPacket(packetSend);
+            sendMsgToAllClients(packetSend);
+
+            player->pickUpEntity(newCreature, mServerMode == ServerMode::ModeEditor);
+            packetSend.clear();
+            GameEntity::ObjectType entityType = newCreature->getObjectType();
+            const std::string& entityName = newCreature->getName();
+            packetSend << ServerNotification::entityPickedUp;
+            packetSend << mServerMode << player->getSeat()->getId() << entityType << entityName;
+            sendMsgToAllClients(packetSend);
+            break;
+        }
+
+        case ClientNotification::editorCreateFighter:
+        {
+            OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
+                + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
+            Player* player = clientSocket->getPlayer();
+            int seatId;
+            std::string className;
+            OD_ASSERT_TRUE(packetReceived >> seatId >> className);
+            Player* playerCreature = gameMap->getPlayerBySeatId(seatId);
+            OD_ASSERT_TRUE_MSG(playerCreature != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
+            CreatureDefinition *classToSpawn = gameMap->getClassDescription(className);
+            OD_ASSERT_TRUE_MSG(classToSpawn != nullptr, "Couldn't spawn creature class=" + className);
+            if(classToSpawn == nullptr)
+                break;
+            Creature* newCreature = new Creature(gameMap, classToSpawn);
+            newCreature->setSeat(playerCreature->getSeat());
+            newCreature->setWeaponL(new Weapon(gameMap, "none", 0.0, 1.0, 0.0, "L", newCreature));
+            newCreature->setWeaponR(new Weapon(gameMap, "none", 0.0, 1.0, 0.0, "R", newCreature));
+
+            newCreature->createMesh();
+            newCreature->getWeaponL()->createMesh();
+            newCreature->getWeaponR()->createMesh();
+            gameMap->addCreature(newCreature);
+
+            ODPacket packetSend;
+            packetSend << ServerNotification::addCreature;
+            newCreature->exportToPacket(packetSend);
+            sendMsgToAllClients(packetSend);
+
+            player->pickUpEntity(newCreature, mServerMode == ServerMode::ModeEditor);
+            packetSend.clear();
+            GameEntity::ObjectType entityType = newCreature->getObjectType();
+            const std::string& entityName = newCreature->getName();
+            packetSend << ServerNotification::entityPickedUp;
+            packetSend << mServerMode << player->getSeat()->getId() << entityType << entityName;
+            sendMsgToAllClients(packetSend);
             break;
         }
 
