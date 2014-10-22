@@ -2601,7 +2601,15 @@ bool Creature::checkLevelUp()
     if (getLevel() >= MAX_LEVEL)
         return false;
 
-    if (mExp < mDefinition->getXPNeededWhenLevel(getLevel()))
+    // Check the returned value.
+    double newXP = mDefinition->getXPNeededWhenLevel(getLevel());
+
+    // An error occured
+    OD_ASSERT_TRUE(newXP > 0.0);
+    if (newXP <= 0.0)
+        return false;
+
+    if (mExp < newXP)
         return false;
 
     return true;

@@ -23,12 +23,13 @@
 
 double CreatureDefinition::getXPNeededWhenLevel(unsigned int level) const
 {
+    // This should never happen
     OD_ASSERT_TRUE(level < MAX_LEVEL);
     OD_ASSERT_TRUE(level < mXPTable.size());
     OD_ASSERT_TRUE(level > 0);
-    // Return a default value in that case
+    // Return 0.0, meaning there is an error.
     if (level >= MAX_LEVEL || level < 1 || level >= mXPTable.size())
-        return 100.0;
+        return 0.0;
 
     return mXPTable[level - 1];
 }
