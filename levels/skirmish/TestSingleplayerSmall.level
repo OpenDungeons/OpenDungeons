@@ -858,12 +858,12 @@ Wizard
 [Creatures]
 # SeatId	ClassName	Name	Level	CurrentXP	CurrenHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeapon name	damage	range	defense	RightWeapon name	damage	range	defense
 [Creature]
-1	BigKnight	BigKnight1	1	0	125	100	0	0	7	7	0	none	1	1	3	none	8	1	0	
+1	BigKnight	BigKnight1	1	0	125	100	0	0	7	7	0	none	1	1	3	none	8	1	0
 [/Creature]
 [Creature]
-1	Adventurer	Adventurer2	1	0	125	100	0	0	7	8	0	none	1	3	3	none	8	3	0	
+1	Adventurer	Adventurer2	1	0	125	100	0	0	7	8	0	none	1	3	3	none	8	3	0
 [/Creature]
 [Creature]
-Dragon	Dragon1	12	9	0	3	none	0	1	0	none	0	1	0	5	1
+3 Dragon	Dragon1	1	0	125	100	0	0	7	7	0	none	1	1	3	none	8	1	0
 [/Creature]
 [/Creatures]
