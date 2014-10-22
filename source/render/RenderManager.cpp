@@ -189,7 +189,7 @@ void RenderManager::rrRefreshTile(Tile* curTile)
 
     Ogre::Entity* ent = mSceneManager->createEntity(tileName, meshName);
 
-    if(curTile->getType() == Tile::gold)
+    if(curTile->getType() == Tile::gold && curTile->getFullness() > 0.0)
     {
         for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii)
         {
@@ -221,6 +221,12 @@ void RenderManager::rrRefreshTile(Tile* curTile)
     node->attachObject(ent);
     node->resetOrientation();
     node->roll(Ogre::Degree((Ogre::Real)(-1 * rt * 90)));
+
+    // Test whether the tile should be shown
+    if (curTile->getCoveringRoom() != nullptr || curTile->getCoveringTrap() != nullptr)
+        ent->setVisible(false);
+    else
+        ent->setVisible(true);
 }
 
 
@@ -282,6 +288,12 @@ void RenderManager::rrCreateTile(Tile* curTile)
                                  (Ogre::Real)(5.0 / BLENDER_UNITS_PER_OGRE_UNIT)));
     node->resetOrientation();
     node->roll(Ogre::Degree((Ogre::Real)(-1 * rt * 90)));
+
+    // Test whether the tile should be shown
+    if (curTile->getCoveringRoom() != nullptr || curTile->getCoveringTrap() != nullptr)
+        ent->setVisible(false);
+    else
+        ent->setVisible(true);
 }
 
 void RenderManager::rrDestroyTile(Tile* curTile)
@@ -389,11 +401,15 @@ void RenderManager::rrCreateBuilding(Building* curBuilding, Tile* curTile)
 
     node->setPosition(static_cast<Ogre::Real>(curTile->x),
                        static_cast<Ogre::Real>(curTile->y),
-                       static_cast<Ogre::Real>(0.02f));
+                       static_cast<Ogre::Real>(0.0f));
     node->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,
                                  BLENDER_UNITS_PER_OGRE_UNIT,
                                  BLENDER_UNITS_PER_OGRE_UNIT));
     node->attachObject(ent);
+
+    // Hide the tile being under
+    Ogre::Entity* tileEnt = mSceneManager->getEntity(curTile->getOgreNamePrefix() + curTile->getName());
+    tileEnt->setVisible(false);
 }
 
 void RenderManager::rrDestroyBuilding(Building* curBuilding, Tile* curTile)
@@ -412,6 +428,10 @@ void RenderManager::rrDestroyBuilding(Building* curBuilding, Tile* curTile)
     mRoomSceneNode->removeChild(node);
     mSceneManager->destroyEntity(ent);
     mSceneManager->destroySceneNode(node->getName());
+
+    // Show the tile being under
+    Ogre::Entity* tileEnt = mSceneManager->getEntity(curTile->getOgreNamePrefix() + curTile->getName());
+    tileEnt->setVisible(true);
 }
 
 void RenderManager::rrCreateRenderedMovableEntity(RenderedMovableEntity* curRenderedMovableEntity)
