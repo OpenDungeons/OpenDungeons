@@ -122,7 +122,7 @@ public:
     friend ODPacket& operator>>(ODPacket& is, SoundEffectsManager::InterfaceSound& st);
 
 private:
-    //! \brief Every interface or genric in game sounds
+    //! \brief Every interface or generic in game sounds
     //! \note the GameSound here are handled by the game sound cache.
     std::map<InterfaceSound, std::vector<GameSound*> > mInterfaceSounds;
 

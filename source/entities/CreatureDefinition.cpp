@@ -19,6 +19,20 @@
 
 #include "network/ODPacket.h"
 #include "utils/Helper.h"
+#include "utils/LogManager.h"
+
+double CreatureDefinition::getXPNeededWhenLevel(unsigned int level) const
+{
+    // This should never happen
+    OD_ASSERT_TRUE(level < MAX_LEVEL);
+    OD_ASSERT_TRUE(level < mXPTable.size());
+    OD_ASSERT_TRUE(level > 0);
+    // Return 0.0, meaning there is an error.
+    if (level >= MAX_LEVEL || level < 1 || level >= mXPTable.size())
+        return 0.0;
+
+    return mXPTable[level - 1];
+}
 
 CreatureDefinition::CreatureJob CreatureDefinition::creatureJobFromString(const std::string& s)
 {
@@ -66,6 +80,10 @@ ODPacket& operator<<(ODPacket& os, CreatureDefinition* c)
     os << c->mMagicalDefense << c->mMagicalDefPerLevel;
     os << c->mAttackRange << c->mAtkRangePerLevel;
     os << c->mAttackWarmupTime;
+
+    for (unsigned int i = 0; i < c->mXPTable.size(); ++i)
+        os << c->mXPTable[i];
+
     return os;
 }
 
@@ -90,6 +108,13 @@ ODPacket& operator>>(ODPacket& is, CreatureDefinition* c)
     is >> c->mMagicalDefense >> c->mMagicalDefPerLevel;
     is >> c->mAttackRange >> c->mAtkRangePerLevel;
     is >> c->mAttackWarmupTime;
+
+    for (unsigned int i = 0; i < c->mXPTable.size(); ++i)
+    {
+        double xpValue;
+        is >> xpValue;
+        c->mXPTable[i] = xpValue;
+    }
 
     return is;
 }
@@ -121,6 +146,12 @@ CreatureDefinition* CreatureDefinition::load(std::stringstream& defFile)
             defFile >> nextParam;
             creatureDef->mClassName = nextParam;
             enoughInfo = true;
+            continue;
+        }
+
+        if (nextParam == "[XP]")
+        {
+            loadXPTable(defFile, creatureDef);
             continue;
         }
 
@@ -364,4 +395,37 @@ CreatureDefinition* CreatureDefinition::load(std::stringstream& defFile)
     }
 
     return creatureDef;
+}
+
+void CreatureDefinition::loadXPTable(std::stringstream& defFile, CreatureDefinition* creatureDef)
+{
+    if (creatureDef == nullptr)
+        return;
+
+    std::string nextParam;
+    bool exit = false;
+
+    // The XP index
+    unsigned int i = 0;
+
+    while (defFile.good())
+    {
+        if (exit)
+            break;
+
+        defFile >> nextParam;
+        if (nextParam == "[/XP]" || nextParam == "[/Stats]" ||
+            nextParam == "[/Creature]" || nextParam == "[/Creatures]")
+        {
+            exit = true;
+            break;
+        }
+
+        // Ignore values after the max level
+        OD_ASSERT_TRUE(i < MAX_LEVEL - 1);
+        if (i >= MAX_LEVEL - 1)
+            continue;
+
+        creatureDef->mXPTable[i++] = Helper::toDouble(nextParam);
+    }
 }

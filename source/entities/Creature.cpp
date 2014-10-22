@@ -73,7 +73,6 @@
 
 #define NB_COUNTER_DEATH        10
 
-static const int MAX_LEVEL = 30;
 //TODO: make this read from definition file?
 static const int MaxGoldCarriedByWorkers = 1500;
 static const int NB_TURN_FLEE_MAX = 5;
@@ -2597,13 +2596,20 @@ double Creature::getBestAttackRange() const
     return range;
 }
 
-//! \brief Increases the creature's level, adds bonuses to stat points, changes the mesh, etc.
 bool Creature::checkLevelUp()
 {
     if (getLevel() >= MAX_LEVEL)
         return false;
 
-    if (mExp < 5 * (getLevel() + std::pow(getLevel() / 3.0, 2)))
+    // Check the returned value.
+    double newXP = mDefinition->getXPNeededWhenLevel(getLevel());
+
+    // An error occured
+    OD_ASSERT_TRUE(newXP > 0.0);
+    if (newXP <= 0.0)
+        return false;
+
+    if (mExp < newXP)
         return false;
 
     return true;
@@ -2633,13 +2639,13 @@ void Creature::refreshFromCreature(Creature *creatureNewState)
     mMagicalAttack  = creatureNewState->mMagicalAttack;
     mPhysicalDefense = creatureNewState->mPhysicalDefense;
     mMagicalDefense = creatureNewState->mMagicalDefense;
+    mWeaponlessAtkRange = creatureNewState->mWeaponlessAtkRange;
 
     // Scale up the mesh.
-    if ((oldLevel != getLevel()) && isMeshExisting() && ((getLevel() <= 30 && getLevel() % 2 == 0) || (getLevel() > 30 && getLevel()
-            % 3 == 0)))
+    if (oldLevel != getLevel() && isMeshExisting() && getLevel() % 2 == 0)
     {
         Ogre::Real scaleFactor = (Ogre::Real)(1.0 + static_cast<double>(getLevel()) / 250.0);
-        if (scaleFactor > 1.03)
+        if (scaleFactor > 1.04)
             scaleFactor = 1.04;
 
         RenderRequest *request = new RenderRequestScaleSceneNode(mSceneNode, Ogre::Vector3(scaleFactor, scaleFactor, scaleFactor));
