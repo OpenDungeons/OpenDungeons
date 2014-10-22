@@ -2639,13 +2639,13 @@ void Creature::refreshFromCreature(Creature *creatureNewState)
     mMagicalAttack  = creatureNewState->mMagicalAttack;
     mPhysicalDefense = creatureNewState->mPhysicalDefense;
     mMagicalDefense = creatureNewState->mMagicalDefense;
+    mWeaponlessAtkRange = creatureNewState->mWeaponlessAtkRange;
 
     // Scale up the mesh.
-    if ((oldLevel != getLevel()) && isMeshExisting() && ((getLevel() <= 30 && getLevel() % 2 == 0) || (getLevel() > 30 && getLevel()
-            % 3 == 0)))
+    if (oldLevel != getLevel() && isMeshExisting() && getLevel() % 2 == 0)
     {
         Ogre::Real scaleFactor = (Ogre::Real)(1.0 + static_cast<double>(getLevel()) / 250.0);
-        if (scaleFactor > 1.03)
+        if (scaleFactor > 1.04)
             scaleFactor = 1.04;
 
         RenderRequest *request = new RenderRequestScaleSceneNode(mSceneNode, Ogre::Vector3(scaleFactor, scaleFactor, scaleFactor));
