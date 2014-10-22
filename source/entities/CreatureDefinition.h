@@ -27,6 +27,9 @@
 
 class ODPacket;
 
+//! \brief The maximum level of a creature
+static const int MAX_LEVEL = 30;
+
 class CreatureDefinition
 {
 public:
@@ -110,7 +113,9 @@ public:
         mAttackRange        (attackRange),
         mAtkRangePerLevel   (atkRangePerLevel),
         mAttackWarmupTime   (attackWarmupTime)
-    {}
+    {
+        mXPTable.assign(MAX_LEVEL - 1, 100.0);
+    }
 
     static CreatureJob creatureJobFromString(const std::string& s);
     static std::string creatureJobToString(CreatureJob c);
@@ -122,7 +127,7 @@ public:
     friend ODPacket& operator >>(ODPacket& is, CreatureDefinition *c);
 
     //! \brief Loads a definition from the creature definition file sub [Creature][/Creature] part
-    //! \returns A creature definition if valid, nulptr otherwise.
+    //! \returns A creature definition if valid, nullptr otherwise.
     static CreatureDefinition* load(std::stringstream& defFile);
 
     inline CreatureJob          getCreatureJob  () const    { return mCreatureJob; }
@@ -171,6 +176,8 @@ public:
     inline double               getAtkRangePerLevel () const    { return mAtkRangePerLevel; }
 
     inline double               getAttackWarmupTime () const    { return mAttackWarmupTime; }
+
+    double                      getXPNeededWhenLevel(unsigned int level) const;
 
 private:
     //! \brief The job of the creature (e.g. worker, fighter, ...)
@@ -250,6 +257,13 @@ private:
 
     //! \brief The time to wait before dealing a blow, in seconds.
     double mAttackWarmupTime;
+
+    //! \brief The XP table, used to know how XP is needed to reach the next level.
+    //! \note The creature starting at level 1, it can only change its level MAX_LEVEL - 1 times.
+    std::vector<double> mXPTable;
+
+    //! \brief Loads the creature XP values for the current definition.
+    static void loadXPTable(std::stringstream& defFile, CreatureDefinition* creatureDef);
 };
 
 #endif // CREATUREDEFINITION_H

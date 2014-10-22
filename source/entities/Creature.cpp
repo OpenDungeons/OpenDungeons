@@ -73,7 +73,6 @@
 
 #define NB_COUNTER_DEATH        10
 
-static const int MAX_LEVEL = 30;
 //TODO: make this read from definition file?
 static const int MaxGoldCarriedByWorkers = 1500;
 static const int NB_TURN_FLEE_MAX = 5;
@@ -2597,13 +2596,12 @@ double Creature::getBestAttackRange() const
     return range;
 }
 
-//! \brief Increases the creature's level, adds bonuses to stat points, changes the mesh, etc.
 bool Creature::checkLevelUp()
 {
     if (getLevel() >= MAX_LEVEL)
         return false;
 
-    if (mExp < 5 * (getLevel() + std::pow(getLevel() / 3.0, 2)))
+    if (mExp < mDefinition->getXPNeededWhenLevel(getLevel()))
         return false;
 
     return true;
