@@ -248,6 +248,9 @@ public:
     //! \brief Returns true if the given action is queued in the action list. False otherwise
     bool isActionInList(CreatureAction::ActionType action);
 
+    const std::deque<CreatureAction>& getActionQueue()
+    { return mActionQueue; }
+
     //! \brief Clears the action queue, except for the Idle action at the end.
     void clearActionQueue();
 

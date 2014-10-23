@@ -53,6 +53,7 @@ EditorMode::EditorMode(ModeManager* modeManager):
     mCurrentTileType(Tile::TileType::nullTileType),
     mCurrentFullness(100.0),
     mCurrentSeatId(0),
+    mCurrentCreatureIndex(0),
     mGameMap(ODFrameListener::getSingletonPtr()->getClientGameMap()),
     mMouseX(0),
     mMouseY(0),
@@ -627,6 +628,17 @@ void EditorMode::updateCursorText()
     textSS.str("");
     textSS << "Seat id (Y): " << mCurrentSeatId;
     posWin->setText(textSS.str());
+
+    // Update the seat id
+    posWin = Gui::getSingletonPtr()->getGuiSheet(Gui::editorModeGui)->getChild(Gui::EDITOR_CREATURE_SPAWN);
+    textSS.str("");
+    CreatureDefinition* def = mGameMap->getClassDescription(mCurrentCreatureIndex);
+    if(def == nullptr)
+        textSS << "Creature (C): ?";
+    else
+        textSS << "Creature (C): " << def->getClassName();
+
+    posWin->setText(textSS.str());
 }
 
 bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
@@ -711,6 +723,15 @@ bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
     //Toggle mCurrentSeatId
     case OIS::KC_Y:
         mCurrentSeatId = mGameMap->nextSeatId(mCurrentSeatId);
+        updateCursorText();
+        break;
+
+    //Toggle mCurrentCreatureIndex
+    case OIS::KC_C:
+        if(++mCurrentCreatureIndex >= mGameMap->numClassDescriptions())
+        {
+            mCurrentCreatureIndex = 0;
+        }
         updateCursorText();
         break;
 
@@ -867,4 +888,40 @@ void EditorMode::exitMode()
     // We process again RenderRequests to destroy/delete what clearAll has put in the queue
     RenderManager::getSingleton().processRenderRequests();
     ODFrameListener::getSingleton().getClientGameMap()->processDeletionQueues();
+}
+
+void EditorMode::notifyGuiAction(GuiAction guiAction)
+{
+    switch(guiAction)
+    {
+            case GuiAction::ButtonPressedCreatureWorker:
+            {
+                if(ODClient::getSingleton().isConnected())
+                {
+                    ClientNotification *clientNotification = new ClientNotification(
+                        ClientNotification::editorCreateWorker);
+                    clientNotification->mPacket << mCurrentSeatId;
+                    ODClient::getSingleton().queueClientNotification(clientNotification);
+                }
+                break;
+            }
+            case GuiAction::ButtonPressedCreatureFighter:
+            {
+                if(ODClient::getSingleton().isConnected())
+                {
+                    CreatureDefinition* def = mGameMap->getClassDescription(mCurrentCreatureIndex);
+                    OD_ASSERT_TRUE(def != nullptr);
+                    if(def == nullptr)
+                        break;
+                    ClientNotification *clientNotification = new ClientNotification(
+                        ClientNotification::editorCreateFighter);
+                    clientNotification->mPacket << mCurrentSeatId;
+                    clientNotification->mPacket << def->getClassName();
+                    ODClient::getSingleton().queueClientNotification(clientNotification);
+                }
+                break;
+            }
+            default:
+                break;
+    }
 }

@@ -49,6 +49,8 @@ public:
         askSellTrapTiles,
         ackNewTurn,
         askCreatureInfos,
+        askPickupWorker,
+        askPickupFighter,
 
         //  Editor
         editorAskSaveMap,
@@ -56,7 +58,9 @@ public:
         editorAskBuildRoom,
         editorAskBuildTrap,
         editorAskDestroyRoomTiles,
-        editorAskDestroyTrapTiles
+        editorAskDestroyTrapTiles,
+        editorCreateWorker,
+        editorCreateFighter
     };
 
     ClientNotification(ClientNotificationType type);

@@ -196,6 +196,14 @@ void Gui::assignEventHandlers()
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&destroyTrapButtonPressed));
 
+    sheets[inGameMenu]->getChild(BUTTON_CREATURE_WORKER)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&workerCreatureButtonPressed));
+
+    sheets[inGameMenu]->getChild(BUTTON_CREATURE_FIGHTER)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&fighterCreatureButtonPressed));
+
     sheets[inGameMenu]->getChild(MINIMAP)->subscribeEvent(
             CEGUI:: Window::EventMouseClick,
             CEGUI::Event::Subscriber(&miniMapclicked));
@@ -276,6 +284,14 @@ void Gui::assignEventHandlers()
     sheets[editorModeGui]->getChild(BUTTON_DESTROY_TRAP)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&destroyTrapButtonPressed));
+
+    sheets[editorModeGui]->getChild(BUTTON_CREATURE_WORKER)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&workerCreatureButtonPressed));
+
+    sheets[editorModeGui]->getChild(BUTTON_CREATURE_FIGHTER)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&fighterCreatureButtonPressed));
 
     sheets[editorModeGui]->getChild(MINIMAP)->subscribeEvent(
             CEGUI:: Window::EventMouseClick,
@@ -501,6 +517,28 @@ bool Gui::destroyTrapButtonPressed(const CEGUI::EventArgs& e)
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::destroyTrap);
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    return true;
+}
+
+bool Gui::workerCreatureButtonPressed(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if ((mm == nullptr) || (mm->getCurrentMode() == nullptr))
+        return true;
+
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    mm->getCurrentMode()->notifyGuiAction(AbstractApplicationMode::GuiAction::ButtonPressedCreatureWorker);
+    return true;
+}
+
+bool Gui::fighterCreatureButtonPressed(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if ((mm == nullptr) || (mm->getCurrentMode() == nullptr))
+        return true;
+
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    mm->getCurrentMode()->notifyGuiAction(AbstractApplicationMode::GuiAction::ButtonPressedCreatureFighter);
     return true;
 }
 
@@ -811,6 +849,8 @@ const std::string Gui::BUTTON_TRAP_BOULDER = "MainTabControl/Traps/BoulderTrapBu
 const std::string Gui::BUTTON_DESTROY_TRAP = "MainTabControl/Traps/DestroyTrapButton";
 const std::string Gui::TAB_SPELLS = "MainTabControl/Spells";
 const std::string Gui::TAB_CREATURES = "MainTabControl/Creatures";
+const std::string Gui::BUTTON_CREATURE_WORKER = "MainTabControl/Creatures/WorkerButton";
+const std::string Gui::BUTTON_CREATURE_FIGHTER = "MainTabControl/Creatures/FighterButton";
 const std::string Gui::TAB_COMBAT = "MainTabControl/Combat";
 
 const std::string Gui::MM_BACKGROUND = "Background";
@@ -852,3 +892,4 @@ const std::string Gui::EDITOR_CLAIMED_BUTTON = "MainTabControl/Tiles/ClaimedButt
 const std::string Gui::EDITOR_FULLNESS = "HorizontalPipe/FullnessDisplay";
 const std::string Gui::EDITOR_CURSOR_POS = "HorizontalPipe/PositionDisplay";
 const std::string Gui::EDITOR_SEAT_ID = "HorizontalPipe/SeatIdDisplay";
+const std::string Gui::EDITOR_CREATURE_SPAWN = "HorizontalPipe/CreatureSpawnDisplay";

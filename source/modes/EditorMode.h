@@ -54,6 +54,8 @@ public:
 
     virtual void exitMode();
 
+    virtual void notifyGuiAction(GuiAction guiAction);
+
 private:
     //! \brief Tile type (Dirt, Lava, ...)
     Tile::TileType mCurrentTileType;
@@ -64,6 +66,9 @@ private:
 
     //! \brief Current selected seat id
     int mCurrentSeatId;
+
+    //! \brief Current selected creature to spawn
+    uint32_t mCurrentCreatureIndex;
 
     //! \brief The creature node name being dragged by the mouse
     std::string mDraggedCreature;

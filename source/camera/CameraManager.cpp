@@ -151,10 +151,13 @@ void CameraManager::createViewport(Ogre::RenderWindow* renderWindow)
 
 void CameraManager::setFPPCamera(Creature* cc)
 {
+    // That should be done in the RenderManager
+#if 0
     Ogre::SceneNode* tmpNode = mSceneManager->getSceneNode("FPP_node");
     tmpNode->getParentSceneNode()->removeChild(tmpNode);
     tmpNode->setInheritOrientation(true);
     cc->mSceneNode->addChild(tmpNode);
+#endif // 0
 }
 
 Ogre::SceneNode* CameraManager::getActiveCameraNode()
