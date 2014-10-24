@@ -29,8 +29,6 @@
 #endif //mode_t
 #endif //mingw32
 
-#include <boost/shared_ptr.hpp>
-
 #include <map>
 #include <string>
 #include <cstdint>
@@ -45,6 +43,7 @@ class Goal;
 class MapLight;
 class MovableGameEntity;
 class CreatureDefinition;
+class Weapon;
 
 class MiniMap;
 class CullingManager;
@@ -137,6 +136,9 @@ public:
     //! \brief Deletes the data structure for all the creature classes in the GameMap.
     void clearClasses();
 
+    //! \brief Deletes the data structure for all the weapons in the GameMap.
+    void clearWeapons();
+
     /*! \brief Adds the address of a new class description to be stored in this GameMap.
      *
      * The class descriptions take the form of a creature data structure with most
@@ -151,9 +153,18 @@ public:
     //! \brief Returns a pointer to the first class description whose 'name' or index parameter matches the query.
     CreatureDefinition* getClassDescription(int index);
     CreatureDefinition* getClassDescription(const std::string& className);
+    CreatureDefinition* getClassDescriptionForTuning(const std::string& name);
 
     //! \brief Returns the total number of class descriptions stored in this game map.
     unsigned int numClassDescriptions();
+
+    void saveLevelClassDescriptions(std::ofstream& levelFile);
+
+    void addWeapon(Weapon *weapon);
+    Weapon* getWeapon(const std::string& name);
+    Weapon* getWeaponForTuning(const std::string& name);
+    uint32_t numWeapons();
+    void saveLevelEquipments(std::ofstream& levelFile);
 
     //! \brief Calls the deleteYourself() method on each of the rooms in the game map as well as clearing the vector of stored rooms.
     void clearRooms();
@@ -278,12 +289,6 @@ public:
 
     inline void setLevelFileName(const std::string& nlevelFileName)
     { levelFileName = nlevelFileName; }
-
-    inline const std::string& getCreatureDefinitionFileName() const
-    { return creatureDefinitionFilename; }
-
-    inline void setCreatureDefinitionFileName(const std::string& defFileName)
-    { creatureDefinitionFilename = defFileName; }
 
     inline const std::string& getLevelName() const
     { return mMapInfoName; }
@@ -501,7 +506,8 @@ private:
     std::string mMapInfoFightMusicFile;
 
     //! \brief The creature definition data
-    std::vector<boost::shared_ptr<CreatureDefinition> > classDescriptions;
+    std::vector<std::pair<CreatureDefinition*,CreatureDefinition*> > mClassDescriptions;
+    std::vector<std::pair<Weapon*,Weapon*> > mWeapons;
 
     //Mutable to allow locking in const functions.
     std::vector<MovableGameEntity*> animatedObjects;

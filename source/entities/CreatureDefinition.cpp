@@ -125,17 +125,27 @@ CreatureDefinition* CreatureDefinition::load(std::stringstream& defFile)
         return nullptr;
 
     CreatureDefinition* creatureDef = new CreatureDefinition();
+    if(!update(creatureDef, defFile))
+    {
+        delete creatureDef;
+        creatureDef = nullptr;
+    }
+
+    return creatureDef;
+
+}
+
+bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstream& defFile)
+{
     std::string nextParam;
     bool exit = false;
-    bool enoughInfo = false;
-
     while (defFile.good())
     {
         if (exit)
             break;
 
         defFile >> nextParam;
-        if (nextParam == "[/Creature]" || nextParam == "[/Creatures]")
+        if (nextParam == "[/Creature]" || nextParam == "[/CreatureDefinitions]")
         {
             exit = true;
             break;
@@ -145,7 +155,6 @@ CreatureDefinition* CreatureDefinition::load(std::stringstream& defFile)
         {
             defFile >> nextParam;
             creatureDef->mClassName = nextParam;
-            enoughInfo = true;
             continue;
         }
 
@@ -168,7 +177,7 @@ CreatureDefinition* CreatureDefinition::load(std::stringstream& defFile)
                 break;
 
             // Handle ill-formed files.
-            if (nextParam == "[/Creature]" || nextParam == "[/Creatures]")
+            if (nextParam == "[/Creature]" || nextParam == "[/CreatureDefinitions]")
             {
                 exit = true;
                 break;
@@ -388,13 +397,127 @@ CreatureDefinition* CreatureDefinition::load(std::stringstream& defFile)
         }
     }
 
-    if (!enoughInfo)
+    if (creatureDef->mClassName.empty())
     {
-        delete creatureDef;
-        creatureDef = nullptr;
+        return false;
     }
 
-    return creatureDef;
+    return true;
+}
+
+void CreatureDefinition::writeCreatureDefinitionDiff(CreatureDefinition* def1, CreatureDefinition* def2, std::ofstream& file)
+{
+    file << "[Creature]" << std::endl;
+    file << "    Name\t" << def2->mClassName << std::endl;
+    file << "    [Stats]" << std::endl;
+
+    if(def1 == nullptr || (def1->mCreatureJob != def2->mCreatureJob))
+        file << "    CreatureJob\t" << creatureJobToString(def2->mCreatureJob) << std::endl;
+
+    if(def1 == nullptr || (def1->mMeshName.compare(def2->mMeshName) != 0))
+        file << "    MeshName\t" << def2->mMeshName << std::endl;
+
+    if(def1 == nullptr || (def1->mScale.x != def2->mScale.x))
+        file << "    MeshScaleX\t" << def2->mScale.x << std::endl;
+
+    if(def1 == nullptr || (def1->mScale.y != def2->mScale.y))
+        file << "    MeshScaleY\t" << def2->mScale.y << std::endl;
+
+    if(def1 == nullptr || (def1->mScale.z != def2->mScale.z))
+        file << "    MeshScaleZ\t" << def2->mScale.z << std::endl;
+
+    if(def1 == nullptr || (def1->mBedMeshName.compare(def2->mBedMeshName) != 0))
+        file << "    BedMeshName\t" << def2->mBedMeshName << std::endl;
+
+    if(def1 == nullptr || (def1->mBedDim1 != def2->mBedDim1))
+        file << "    BedDimX\t" << def2->mBedDim1 << std::endl;
+
+    if(def1 == nullptr || (def1->mBedDim2 != def2->mBedDim2))
+        file << "    BedDimY\t" << def2->mBedDim2 << std::endl;
+
+    if(def1 == nullptr || (def1->mMinHP != def2->mMinHP))
+        file << "    MinHP\t" << def2->mMinHP << std::endl;
+
+    if(def1 == nullptr || (def1->mHpPerLevel != def2->mHpPerLevel))
+        file << "    HP/Level\t" << def2->mHpPerLevel << std::endl;
+
+    if(def1 == nullptr || (def1->mHpHealPerTurn != def2->mHpHealPerTurn))
+        file << "    Heal/Turn\t" << def2->mHpHealPerTurn << std::endl;
+
+    if(def1 == nullptr || (def1->mAwakenessLostPerTurn != def2->mAwakenessLostPerTurn))
+        file << "    AwakenessLost/Turn\t" << def2->mAwakenessLostPerTurn << std::endl;
+
+    if(def1 == nullptr || (def1->mHungerGrowthPerTurn != def2->mHungerGrowthPerTurn))
+        file << "    HungerGrowth/Turn\t" << def2->mHungerGrowthPerTurn << std::endl;
+
+    if(def1 == nullptr || (def1->mSightRadius != def2->mSightRadius))
+        file << "    TileSightRadius\t" << def2->mSightRadius << std::endl;
+
+    if(def1 == nullptr || (def1->mDigRate != def2->mDigRate))
+        file << "    DigRate\t" << def2->mDigRate << std::endl;
+
+    if(def1 == nullptr || (def1->mDigRatePerLevel != def2->mDigRatePerLevel))
+        file << "    DigRate/Level\t" << def2->mDigRatePerLevel << std::endl;
+
+    if(def1 == nullptr || (def1->mClaimRate != def2->mClaimRate))
+        file << "    ClaimRate\t" << def2->mClaimRate << std::endl;
+
+    if(def1 == nullptr || (def1->mClaimRatePerLevel != def2->mClaimRatePerLevel))
+        file << "    ClaimRate/Level\t" << def2->mClaimRatePerLevel << std::endl;
+
+    if(def1 == nullptr || (def1->mMoveSpeedGround != def2->mMoveSpeedGround))
+        file << "    GroundMoveSpeed\t" << def2->mMoveSpeedGround << std::endl;
+
+    if(def1 == nullptr || (def1->mMoveSpeedWater != def2->mMoveSpeedWater))
+        file << "    WaterMoveSpeed\t" << def2->mMoveSpeedWater << std::endl;
+
+    if(def1 == nullptr || (def1->mMoveSpeedLava != def2->mMoveSpeedLava))
+        file << "    LavaMoveSpeed\t" << def2->mMoveSpeedLava << std::endl;
+
+    if(def1 == nullptr || (def1->mGroundSpeedPerLevel != def2->mGroundSpeedPerLevel))
+        file << "    GroundSpeed/Level\t" << def2->mGroundSpeedPerLevel << std::endl;
+
+    if(def1 == nullptr || (def1->mWaterSpeedPerLevel != def2->mWaterSpeedPerLevel))
+        file << "    WaterSpeed/Level\t" << def2->mWaterSpeedPerLevel << std::endl;
+
+    if(def1 == nullptr || (def1->mLavaSpeedPerLevel != def2->mLavaSpeedPerLevel))
+        file << "    LavaSpeed/Level\t" << def2->mLavaSpeedPerLevel << std::endl;
+
+    if(def1 == nullptr || (def1->mPhysicalAttack != def2->mPhysicalAttack))
+        file << "    PhysicalAttack\t" << def2->mPhysicalAttack << std::endl;
+
+    if(def1 == nullptr || (def1->mPhysicalAtkPerLevel != def2->mPhysicalAtkPerLevel))
+        file << "    PhysicalAtk/Level\t" << def2->mPhysicalAtkPerLevel << std::endl;
+
+    if(def1 == nullptr || (def1->mMagicalAttack != def2->mMagicalAttack))
+        file << "    MagicalAttack\t" << def2->mMagicalAttack << std::endl;
+
+    if(def1 == nullptr || (def1->mMagicalAtkPerLevel != def2->mMagicalAtkPerLevel))
+        file << "    MagicalAtk/Level\t" << def2->mMagicalAtkPerLevel << std::endl;
+
+    if(def1 == nullptr || (def1->mPhysicalDefense != def2->mPhysicalDefense))
+        file << "    PhysicalDefense\t" << def2->mPhysicalDefense << std::endl;
+
+    if(def1 == nullptr || (def1->mPhysicalDefPerLevel != def2->mPhysicalDefPerLevel))
+        file << "    PhysicalDef/Level\t" << def2->mPhysicalDefPerLevel << std::endl;
+
+    if(def1 == nullptr || (def1->mMagicalDefense != def2->mMagicalDefense))
+        file << "    MagicalDefense\t" << def2->mMagicalDefense << std::endl;
+
+    if(def1 == nullptr || (def1->mMagicalDefPerLevel != def2->mMagicalDefPerLevel))
+        file << "    MagicalDef/Level\t" << def2->mMagicalDefPerLevel << std::endl;
+
+    if(def1 == nullptr || (def1->mAttackRange != def2->mAttackRange))
+        file << "    AttackRange\t" << def2->mAttackRange << std::endl;
+
+    if(def1 == nullptr || (def1->mAtkRangePerLevel != def2->mAtkRangePerLevel))
+        file << "    AtkRange/Level\t" << def2->mAtkRangePerLevel << std::endl;
+
+    if(def1 == nullptr || (def1->mAttackWarmupTime != def2->mAttackWarmupTime))
+        file << "    AttackWarmupTime\t" << def2->mAttackWarmupTime << std::endl;
+
+    file << "    [/Stats]" << std::endl;
+    file << "[/Creature]" << std::endl;
 }
 
 void CreatureDefinition::loadXPTable(std::stringstream& defFile, CreatureDefinition* creatureDef)

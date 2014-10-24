@@ -40,8 +40,8 @@ public:
     };
 
     CreatureDefinition(
-            CreatureJob             job         = Fighter,
             const std::string&      className   = std::string(),
+            CreatureJob             job         = Fighter,
             const std::string&      meshName    = std::string(),
             const std::string&      bedMeshName = std::string(),
             int                     bedDim1     = 1,
@@ -119,6 +119,7 @@ public:
 
     static CreatureJob creatureJobFromString(const std::string& s);
     static std::string creatureJobToString(CreatureJob c);
+    static void writeCreatureDefinitionDiff(CreatureDefinition* def1, CreatureDefinition* def2, std::ofstream& file);
 
     inline bool isWorker() const
     { return (mCreatureJob == Worker); }
@@ -129,6 +130,7 @@ public:
     //! \brief Loads a definition from the creature definition file sub [Creature][/Creature] part
     //! \returns A creature definition if valid, nullptr otherwise.
     static CreatureDefinition* load(std::stringstream& defFile);
+    static bool update(CreatureDefinition* creatureDef, std::stringstream& defFile);
 
     inline CreatureJob          getCreatureJob  () const    { return mCreatureJob; }
     inline const std::string&   getClassName    () const    { return mClassName; }

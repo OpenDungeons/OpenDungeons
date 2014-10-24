@@ -282,8 +282,8 @@ public:
 
     void doUpkeep(){}
     void receiveExp(double experience){}
-    double getPhysicalDefense() const  { return 0; }
-    void takeDamage(GameEntity* attacker, double damage, Tile *tileTakingDamage) {}
+    double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile *tileTakingDamage)
+    { return 0.0; }
     double getHP(Tile *tile) const {return 0;}
     std::vector<Tile*> getCoveredTiles() { return std::vector<Tile*>() ;}
     void refreshFromTile(const Tile& tile);

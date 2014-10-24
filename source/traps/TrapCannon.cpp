@@ -59,7 +59,7 @@ bool TrapCannon::shoot(Tile* tile)
     direction = direction - position;
     direction.normalise();
     MissileOneHit* missile = new MissileOneHit(getGameMap(), getSeat(), getName(), "Cannonball",
-        direction, Random::Double(mMinDamage, mMaxDamage), false);
+        direction, Random::Double(mMinDamage, mMaxDamage), 0.0, false);
     missile->setPosition(position);
     getGameMap()->addRenderedMovableEntity(missile);
     missile->setMoveSpeed(CANNON_MISSILE_SPEED);

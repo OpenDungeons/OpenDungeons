@@ -48,13 +48,13 @@ bool TrapSpike::shoot(Tile* tile)
     for(std::vector<GameEntity*>::iterator it = enemyCreatures.begin(); it != enemyCreatures.end(); ++it)
     {
         GameEntity* target = *it;
-        target->takeDamage(this, Random::Double(mMinDamage, mMaxDamage), target->getCoveredTiles()[0]);
+        target->takeDamage(this, Random::Double(mMinDamage, mMaxDamage), 0.0, target->getCoveredTiles()[0]);
     }
     std::vector<GameEntity*> alliedCreatures = getGameMap()->getVisibleCreatures(visibleTiles, getSeat(), false);
     for(std::vector<GameEntity*>::iterator it = alliedCreatures.begin(); it != alliedCreatures.end(); ++it)
     {
         GameEntity* target = *it;
-        target->takeDamage(this, Random::Double(mMinDamage, mMaxDamage), target->getCoveredTiles()[0]);
+        target->takeDamage(this, Random::Double(mMinDamage, mMaxDamage), 0.0, target->getCoveredTiles()[0]);
     }
     return true;
 }

@@ -88,8 +88,8 @@ Creature::Creature(GameMap* gameMap, CreatureDefinition* definition) :
     mMagicalDefense          (1.5),
     mWeaponlessAtkRange      (1.0),
     mAttackWarmupTime        (1.0),
-    mWeaponL                 (NULL),
-    mWeaponR                 (NULL),
+    mWeaponL                 (nullptr),
+    mWeaponR                 (nullptr),
     mHomeTile                (NULL),
     mDefinition              (definition),
     mIsOnMap                 (false),
@@ -159,8 +159,8 @@ Creature::Creature(GameMap* gameMap) :
     mMagicalDefense          (1.5),
     mWeaponlessAtkRange      (1.0),
     mAttackWarmupTime        (1.0),
-    mWeaponL                 (NULL),
-    mWeaponR                 (NULL),
+    mWeaponL                 (nullptr),
+    mWeaponR                 (nullptr),
     mHomeTile                (NULL),
     mDefinition              (NULL),
     mIsOnMap                 (false),
@@ -209,32 +209,28 @@ Creature::~Creature()
         mTracingCullingQuad->entry->creature_list.remove(this);
         mTracingCullingQuad->mortuaryInsert(this);
     }
-
-    if(mWeaponL != nullptr)
-        delete mWeaponL;
-    if(mWeaponR != nullptr)
-        delete mWeaponR;
 }
 
 void Creature::createMeshLocal()
 {
     MovableGameEntity::createMeshLocal();
-    if(getGameMap()->isServerGameMap())
-        return;
+    if(!getGameMap()->isServerGameMap())
+    {
+        RenderRequest* request = new RenderRequestCreateCreature(this);
+        RenderManager::queueRenderRequest(request);
 
-    RenderRequest* request = new RenderRequestCreateCreature(this);
-    RenderManager::queueRenderRequest(request);
+        // By default, we set the creature in idle state
+        request = new RenderRequestSetObjectAnimationState(this, "Idle", true);
+        RenderManager::queueRenderRequest(request);
+    }
 
-    // By default, we set the creature in idle state
-    request = new RenderRequestSetObjectAnimationState(this, "Idle", true);
-    RenderManager::queueRenderRequest(request);
+    createMeshWeapons();
 }
 
 void Creature::destroyMeshLocal()
 {
+    destroyMeshWeapons();
     MovableGameEntity::destroyMeshLocal();
-    getWeaponL()->destroyMesh();
-    getWeaponR()->destroyMesh();
     if(getGameMap()->isServerGameMap())
         return;
 
@@ -249,51 +245,71 @@ void Creature::deleteYourselfLocal()
     // If standing on a valid tile, notify that tile we are no longer there.
     if(getPositionTile() != 0)
         getPositionTile()->removeCreature(this);
+}
+
+void Creature::createMeshWeapons()
+{
+    if(getGameMap()->isServerGameMap())
+        return;
 
     if(mWeaponL != nullptr)
-        mWeaponL->deleteYourself();
-    mWeaponL = nullptr;
-
+    {
+        RenderRequest* request = new RenderRequestCreateWeapon(this, mWeaponL, "L");
+        RenderManager::queueRenderRequest(request);
+    }
     if(mWeaponR != nullptr)
-        mWeaponR->deleteYourself();
-    mWeaponR = nullptr;
+    {
+        RenderRequest* request = new RenderRequestCreateWeapon(this, mWeaponR, "R");
+        RenderManager::queueRenderRequest(request);
+    }
+}
+
+void Creature::destroyMeshWeapons()
+{
+    if(getGameMap()->isServerGameMap())
+        return;
+
+    if(mWeaponL != nullptr)
+    {
+        RenderRequest* request = new RenderRequestDestroyWeapon(this, mWeaponL, "L");
+        RenderManager::queueRenderRequest(request);
+    }
+    if(mWeaponR != nullptr)
+    {
+        RenderRequest* request = new RenderRequestDestroyWeapon(this, mWeaponR, "R");
+        RenderManager::queueRenderRequest(request);
+    }
 }
 
 std::string Creature::getFormat()
 {
     //NOTE:  When this format changes, other changes to RoomPortal::spawnCreature() may be necessary.
     return "SeatId\tClassName\tName\tLevel\tCurrentXP\tCurrenHP\tCurrentAwakeness\t"
-           "CurrentHunger\tGoldToDeposit\tPosX\tPosY\tPosZ\tLeftWeapon "
-           + Weapon::getFormat() +"\tRightWeapon " + Weapon::getFormat();
+           "CurrentHunger\tGoldToDeposit\tPosX\tPosY\tPosZ\tLeftWeaponName\tRightWeaponName";
 }
 
 void Creature::exportToStream(std::ostream& os)
 {
     int seatId = getSeat()->getId();
-    os << seatId << "\t";
-    os << mDefinition->getClassName() << "\t" << getName() << "\t";
-    os << getLevel() << "\t" << mExp << "\t" << getHP() << "\t";
-    os << mAwakeness << "\t" << mHunger << "\t" << mGold << "\t";
+    os << seatId;
+    os << "\t" << mDefinition->getClassName() << "\t" << getName();
+    os << "\t" << getLevel() << "\t" << mExp << "\t" << getHP();
+    os << "\t" << mAwakeness << "\t" << mHunger << "\t" << mGold;
 
-    os << getPosition().x << "\t";
-    os << getPosition().y << "\t";
-    os << getPosition().z << "\t";
+    os << "\t" << getPosition().x;
+    os << "\t" << getPosition().y;
+    os << "\t" << getPosition().z;
 
     // Check creature weapons
-    Weapon* wL = mWeaponL;
-    if (wL == NULL)
-        wL = new Weapon(getGameMap(), "none", 0.0, 1.0, 0.0, "L", this);
-    Weapon* wR = mWeaponR;
-    if (wR == NULL)
-        wR = new Weapon(getGameMap(), "none", 0.0, 1.0, 0.0, "R", this);
+    if(mWeaponL != nullptr)
+        os << "\t" << mWeaponL->getName();
+    else
+        os << "\tnone";
 
-    os << wL << "\t" << wR << "\t";
-
-    // If we had to create dummy weapons for serialization, delete them now.
-    if (mWeaponL == NULL)
-        delete wL;
-    if (mWeaponR == NULL)
-        delete wR;
+    if(mWeaponR != nullptr)
+        os << "\t" << mWeaponR->getName();
+    else
+        os << "\tnone";
 }
 
 void Creature::importFromStream(std::istream& is)
@@ -340,14 +356,19 @@ void Creature::importFromStream(std::istream& is)
     OD_ASSERT_TRUE(is >> xLocation >> yLocation >> zLocation);
     setPosition(Ogre::Vector3((Ogre::Real)xLocation, (Ogre::Real)yLocation, (Ogre::Real)zLocation));
 
-    // TODO: Load weapon from a catalog file.
-    if (mWeaponL == nullptr)
-        setWeaponL(new Weapon(getGameMap(), std::string(), 0.0, 0.0, 0.0, std::string()));
-    OD_ASSERT_TRUE(is >> mWeaponL);
+    OD_ASSERT_TRUE(is >> tempString);
+    if(tempString != "none")
+    {
+        mWeaponL = getGameMap()->getWeapon(tempString);
+        OD_ASSERT_TRUE_MSG(mWeaponL != nullptr, "Unknown weapon name=" + tempString);
+    }
 
-    if (mWeaponR == nullptr)
-        setWeaponR(new Weapon(getGameMap(), std::string(), 0.0, 0.0, 0.0, std::string()));
-    OD_ASSERT_TRUE(is >> mWeaponR);
+    OD_ASSERT_TRUE(is >> tempString);
+    if(tempString != "none")
+    {
+        mWeaponR = getGameMap()->getWeapon(tempString);
+        OD_ASSERT_TRUE_MSG(mWeaponR != nullptr, "Unknown weapon name=" + tempString);
+    }
 }
 
 void Creature::buildStats(unsigned int level)
@@ -439,21 +460,15 @@ void Creature::exportToPacket(ODPacket& os)
     os << mMagicalDefense;
     os << mWeaponlessAtkRange;
 
-    // Check creature weapons
-    Weapon* wL = mWeaponL;
-    if (wL == NULL)
-        wL = new Weapon(getGameMap(), "none", 0.0, 1.0, 0.0, "L", this);
-    Weapon* wR = mWeaponR;
-    if (wR == NULL)
-        wR = new Weapon(getGameMap(), "none", 0.0, 1.0, 0.0, "R", this);
+    if(mWeaponL != nullptr)
+        os << mWeaponL->getName();
+    else
+        os << "none";
 
-    os << wL << wR;
-
-    // If we had to create dummy weapons for serialization, delete them now.
-    if (mWeaponL == NULL)
-        delete wL;
-    if (mWeaponR == NULL)
-        delete wR;
+    if(mWeaponR != nullptr)
+        os << mWeaponR->getName();
+    else
+        os << "none";
 }
 
 void Creature::importFromPacket(ODPacket& is)
@@ -501,12 +516,19 @@ void Creature::importFromPacket(ODPacket& is)
     OD_ASSERT_TRUE(is >> mMagicalDefense);
     OD_ASSERT_TRUE(is >> mWeaponlessAtkRange);
 
-    // TODO: Load weapon from a catalog file.
-    setWeaponL(new Weapon(getGameMap(), std::string(), 0.0, 0.0, 0.0, std::string()));
-    OD_ASSERT_TRUE(is >> mWeaponL);
+    OD_ASSERT_TRUE(is >> tempString);
+    if(tempString != "none")
+    {
+        mWeaponL = getGameMap()->getWeapon(tempString);
+        OD_ASSERT_TRUE_MSG(mWeaponL != nullptr, "Unknown weapon name=" + tempString);
+    }
 
-    setWeaponR(new Weapon(getGameMap(), std::string(), 0.0, 0.0, 0.0, std::string()));
-    OD_ASSERT_TRUE(is >> mWeaponR);
+    OD_ASSERT_TRUE(is >> tempString);
+    if(tempString != "none")
+    {
+        mWeaponR = getGameMap()->getWeapon(tempString);
+        OD_ASSERT_TRUE_MSG(mWeaponR != nullptr, "Unknown weapon name=" + tempString);
+    }
 }
 
 void Creature::setPosition(const Ogre::Vector3& v)
@@ -570,30 +592,6 @@ void Creature::setIsOnMap(bool nIsOnMap)
 bool Creature::getIsOnMap() const
 {
     return mIsOnMap;
-}
-
-void Creature::setWeaponL(Weapon* wL)
-{
-    if (mWeaponL)
-        delete mWeaponL;
-    mWeaponL = wL;
-    if (!mWeaponL)
-        return;
-
-    mWeaponL->setParentCreature(this);
-    mWeaponL->setHandString("L");
-}
-
-void Creature::setWeaponR(Weapon* wR)
-{
-    if (mWeaponR)
-        delete mWeaponR;
-    mWeaponR = wR;
-    if (!mWeaponR)
-        return;
-
-    mWeaponR->setParentCreature(this);
-    mWeaponR->setHandString("R");
 }
 
 void Creature::update(Ogre::Real timeSinceLastFrame)
@@ -2327,20 +2325,8 @@ bool Creature::handleAttackAction()
     // Calculate how much damage we do.
     Tile* myTile = getPositionTile();
     Ogre::Real range = getGameMap()->crowDistance(myTile, attackedTile);
-    // Physical
-    double physDamage = getPhysicalDamage(range);
-    physDamage -= attackedObject->getPhysicalDefense();
-    if (physDamage < 0.0)
-        physDamage = 0.0;
-    // + Magical
-    double magDamage = getMagicalDamage(range);
-    magDamage -= attackedObject->getMagicalDefense();
-    if (magDamage < 0.0)
-        magDamage = 0.0;
-    double damageDone = physDamage + magDamage;
-
     // Do the damage and award experience points to both creatures.
-    attackedObject->takeDamage(this, damageDone, attackedTile);
+    double damageDone = attackedObject->takeDamage(this, getPhysicalDamage(range), getMagicalDamage(range), attackedTile);
     double expGained;
     expGained = 1.0 + 0.2 * std::pow(damageDone, 1.3);
     mAwakeness -= 0.5;
@@ -2532,9 +2518,9 @@ double Creature::getPhysicalDamage(double range)
         hitroll += Random::Uint(1.0, mPhysicalAttack);
 
     if (mWeaponL != NULL && mWeaponL->getRange() >= range)
-        hitroll += mWeaponL->getDamage();
+        hitroll += mWeaponL->getPhysicalDamage();
     if (mWeaponR != NULL && mWeaponR->getRange() >= range)
-        hitroll += mWeaponR->getDamage();
+        hitroll += mWeaponR->getPhysicalDamage();
 
     return hitroll;
 }
@@ -2546,13 +2532,10 @@ double Creature::getMagicalDamage(double range)
     if (mWeaponlessAtkRange >= range)
         hitroll += Random::Uint(0.0, mMagicalAttack);
 
-    // TODO: Add support for magical atk to equipment
-    /*
     if (mWeaponL != NULL && mWeaponL->getRange() >= range)
-        hitroll += mWeaponL->getDamage();
+        hitroll += mWeaponL->getMagicalDamage();
     if (mWeaponR != NULL && mWeaponR->getRange() >= range)
-        hitroll += mWeaponR->getDamage();
-    */
+        hitroll += mWeaponR->getMagicalDamage();
 
     return hitroll;
 }
@@ -2571,14 +2554,10 @@ double Creature::getPhysicalDefense() const
 double Creature::getMagicalDefense() const
 {
     double defense = mMagicalDefense;
-
-    // TODO: Add support for magical def to equipment
-    /*
     if (mWeaponL != NULL)
-        defense += mWeaponL->getDefense();
+        defense += mWeaponL->getMagicalDefense();
     if (mWeaponR != NULL)
-        defense += mWeaponR->getDefense();
-    */
+        defense += mWeaponR->getMagicalDefense();
 
     return defense;
 }
@@ -2588,9 +2567,9 @@ double Creature::getBestAttackRange() const
     double range = mWeaponlessAtkRange;
 
     // Note: The damage check is here to avoid taking defense equipment in account.
-    if (mWeaponL != nullptr && mWeaponL->getRange() > range && mWeaponL->getDamage() > 0.0)
+    if (mWeaponL != nullptr && mWeaponL->getRange() > range && (mWeaponL->getPhysicalDamage() > 0.0 && mWeaponL->getMagicalDamage() > 0.0))
         range = mWeaponL->getRange();
-    if (mWeaponR != nullptr && mWeaponR->getRange() > range && mWeaponR->getDamage() > 0.0)
+    if (mWeaponR != nullptr && mWeaponR->getRange() > range && (mWeaponR->getPhysicalDamage() > 0.0 && mWeaponR->getMagicalDamage() > 0.0))
         range = mWeaponR->getRange();
 
     return range;
@@ -2882,11 +2861,16 @@ std::string Creature::getStatsText()
     }
     tempSS << "Move speed (Ground/Water/Lava): " << getMoveSpeedGround() << "/"
         << getMoveSpeedWater() << "/" << getMoveSpeedLava() << std::endl;
-    tempSS << "Attack (Phys/Mag): " << mPhysicalAttack << "/" << mMagicalAttack << std::endl;
-    tempSS << "Weaponless Attack Range: " << mWeaponlessAtkRange << std::endl;
-    tempSS << "Weapon:" << std::endl;
-    tempSS << "Left hand: Attack: " << mWeaponL->getDamage() << ", Range: " << mWeaponL->getRange() << std::endl;
-    tempSS << "Right hand: Attack: " << mWeaponR->getDamage() << ", Range: " << mWeaponR->getRange() << std::endl;
+    tempSS << "Atk(Phy/Mag): " << mPhysicalAttack << "/" << mMagicalAttack << ", Range: " << mWeaponlessAtkRange << std::endl;
+    tempSS << "Weapons:" << std::endl;
+    if(mWeaponL == nullptr)
+        tempSS << "Left hand: none" << std::endl;
+    else
+        tempSS << "Left hand: " << mWeaponL->getName() << "-Atk(Phy/Mag): " << mWeaponL->getPhysicalDamage() << "/" << mWeaponL->getMagicalDamage() << ", Range: " << mWeaponL->getRange() << std::endl;
+    if(mWeaponR == nullptr)
+        tempSS << "Right hand: none" << std::endl;
+    else
+        tempSS << "Right hand: " << mWeaponR->getName() << "-Atk(Phy/Mag): " << mWeaponR->getPhysicalDamage() << "/" << mWeaponR->getMagicalDamage() << ", Range: " << mWeaponR->getRange() << std::endl;
     tempSS << "Total Defense (Phys/Mag): " << getPhysicalDefense() << "/" << getMagicalDefense() << std::endl;
     if (getDefinition()->isWorker())
     {
@@ -2913,15 +2897,18 @@ std::string Creature::getStatsText()
     return tempSS.str();
 }
 
-void Creature::takeDamage(GameEntity* attacker, double damage, Tile *tileTakingDamage)
+double Creature::takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile *tileTakingDamage)
 {
-    mHp -= damage;
+    physicalDamage -= getPhysicalDefense();
+    magicalDamage -= getMagicalDefense();
+    mHp -= physicalDamage;
+    mHp -= magicalDamage;
     if(!getGameMap()->isServerGameMap())
-        return;
+        return physicalDamage + magicalDamage;
 
     Player* player = getGameMap()->getPlayerBySeat(getSeat());
     if (player == NULL)
-        return;
+        return physicalDamage + magicalDamage;
 
     // Tells the server game map the player is under attack.
     getGameMap()->playerIsFighting(player);
@@ -2942,7 +2929,7 @@ void Creature::takeDamage(GameEntity* attacker, double damage, Tile *tileTakingD
     // If we are a worker attacked by a worker, we fight. Otherwise, we flee (if it is a fighter, a trap,
     // or whatever)
     if(!getDefinition()->isWorker())
-        return;
+        return physicalDamage + magicalDamage;
 
     bool flee = true;
     if(attacker->getObjectType() == ObjectType::creature)
@@ -2960,8 +2947,9 @@ void Creature::takeDamage(GameEntity* attacker, double damage, Tile *tileTakingD
         clearDestinations();
         clearActionQueue();
         pushAction(CreatureAction::flee);
-        return;
+        return physicalDamage + magicalDamage;
     }
+    return physicalDamage + magicalDamage;
 }
 
 void Creature::receiveExp(double experience)

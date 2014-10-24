@@ -84,10 +84,10 @@ protected:
     { manager->rrOrientSceneNodeToward(gameEntity, direction); }
     void rrScaleSceneNode(RenderManager* manager, Ogre::SceneNode* node, const Ogre::Vector3& scale)
     { manager->rrScaleSceneNode(node, scale); }
-    void rrCreateWeapon(RenderManager* manager, Creature* curCreature, Weapon* curWeapon)
-    { manager->rrCreateWeapon(curCreature, curWeapon); }
-    void rrDestroyWeapon(RenderManager* manager, Creature* curCreature, Weapon* curWeapon)
-    { manager->rrDestroyWeapon(curCreature, curWeapon); }
+    void rrCreateWeapon(RenderManager* manager, Creature* curCreature, Weapon* curWeapon, const std::string& hand)
+    { manager->rrCreateWeapon(curCreature, curWeapon, hand); }
+    void rrDestroyWeapon(RenderManager* manager, Creature* curCreature, Weapon* curWeapon, const std::string& hand)
+    { manager->rrDestroyWeapon(curCreature, curWeapon, hand); }
     void rrCreateMapLight(RenderManager* manager, MapLight* curMapLight, bool displayVisual)
     { manager->rrCreateMapLight(curMapLight, displayVisual); }
     void rrDestroyMapLight(RenderManager* manager, MapLight* curMapLight)
@@ -336,29 +336,33 @@ private:
 class RenderRequestCreateWeapon : public RenderRequest
 {
 public:
-    RenderRequestCreateWeapon(Creature* creature, Weapon* weapon) :
+    RenderRequestCreateWeapon(Creature* creature, Weapon* weapon, const std::string& hand) :
         mCreature(creature),
-        mWeapon(weapon)
+        mWeapon(weapon),
+        mHand(hand)
     {}
     virtual void executeRequest(RenderManager* manager)
-    { rrCreateWeapon(manager, mCreature, mWeapon); }
+    { rrCreateWeapon(manager, mCreature, mWeapon, mHand); }
 private:
     Creature* mCreature;
     Weapon* mWeapon;
+    std::string mHand;
 };
 
 class RenderRequestDestroyWeapon : public RenderRequest
 {
 public:
-    RenderRequestDestroyWeapon(Creature* creature, Weapon* weapon) :
+    RenderRequestDestroyWeapon(Creature* creature, Weapon* weapon, const std::string& hand) :
         mCreature(creature),
-        mWeapon(weapon)
+        mWeapon(weapon),
+        mHand(hand)
     {}
     virtual void executeRequest(RenderManager* manager)
-    { rrDestroyWeapon(manager, mCreature, mWeapon); }
+    { rrDestroyWeapon(manager, mCreature, mWeapon, mHand); }
 private:
     Creature* mCreature;
     Weapon* mWeapon;
+    std::string mHand;
 };
 
 class RenderRequestCreateMapLight : public RenderRequest

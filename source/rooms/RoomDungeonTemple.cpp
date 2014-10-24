@@ -104,13 +104,7 @@ void RoomDungeonTemple::produceKobold()
                                             (Ogre::Real)0));
     newCreature->setSeat(getSeat());
 
-    // Default weapon is empty
-    newCreature->setWeaponL(new Weapon(getGameMap(), "none", 0.0, 1.0, 0.0, "L", newCreature));
-    newCreature->setWeaponR(new Weapon(getGameMap(), "none", 0.0, 1.0, 0.0, "R", newCreature));
-
     newCreature->createMesh();
-    newCreature->getWeaponL()->createMesh();
-    newCreature->getWeaponR()->createMesh();
     getGameMap()->addCreature(newCreature);
 
     // Inform the clients

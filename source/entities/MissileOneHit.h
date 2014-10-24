@@ -34,7 +34,7 @@ class MissileOneHit: public MissileObject
 {
 public:
     MissileOneHit(GameMap* gameMap, Seat* seat, const std::string& senderName, const std::string& meshName,
-        const Ogre::Vector3& direction, double damage, bool damageAllies);
+        const Ogre::Vector3& direction, double physicalDamage, double magicalDamage, bool damageAllies);
     MissileOneHit(GameMap* gameMap);
 
     virtual MissileType getMissileType()
@@ -45,7 +45,8 @@ public:
     static MissileOneHit* getMissileOneHitFromStream(GameMap* gameMap, std::istream& is);
     static MissileOneHit* getMissileOneHitFromPacket(GameMap* gameMap, ODPacket& packet);
 private:
-    double mDamage;
+    double mPhysicalDamage;
+    double mMagicalDamage;
 };
 
 #endif // MISSILEONEHIT_H

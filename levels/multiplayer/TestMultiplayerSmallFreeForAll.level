@@ -749,10 +749,6 @@ ProtectDungeonTemple	NULL
 12	7	3.75	0.9	0.8	0.6	0.2	0.2	0.2	50	0.012	0.32	0.0018
 [/Lights]
 
-# The file containing the creatures definition.
-[Creatures_Definition]
-config/creatures.cfg
-
 [Spawn_Pools]
 # Each team's spawn pool.
 # Describes what each team can spawn.
@@ -837,8 +833,8 @@ Wizard
 [/Spawn_Pools]
 
 [Creatures]
-# SeatId	ClassName	Name	Level	CurrentXP	CurrenHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeapon name	damage	range	defense	RightWeapon name	damage	range	defense
+# SeatId	ClassName	Name	Level	CurrentXP	CurrenHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeaponName RightWeaponName
 [Creature]
-1	ConstructWorker	ConstructWorker1	1	0	125	100	0	0	7	7	0	none	1	4	3	none	8	4	0	
+1	ConstructWorker	ConstructWorker1	1	0	125	100	0	0	7	7	0	none	none
 [/Creature]
 [/Creatures]

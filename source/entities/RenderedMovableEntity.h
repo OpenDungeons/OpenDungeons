@@ -55,10 +55,7 @@ public:
     void receiveExp(double experience)
     {}
 
-    void takeDamage(GameEntity* attacker, double damage, Tile* tileTakingDamage)
-    {}
-
-    double getPhysicalDefense() const
+    double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile* tileTakingDamage)
     { return 0.0; }
 
     double getHP(Tile *tile) const

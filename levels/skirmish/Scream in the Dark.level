@@ -5246,10 +5246,6 @@ ProtectDungeonTemple	NULL
 # posX	posY	posZ	diffuseR	diffuseG	diffuseB	specularR	specularG	specularB	attenRange	attenConst	attenLin	attenQuad
 [/Lights]
 
-# The file containing the creatures definition.
-[Creatures_Definition]
-config/creatures.cfg
-
 [Spawn_Pools]
 # Each team's spawn pool.
 # Describes what each team can spawn.
@@ -5345,17 +5341,17 @@ Wizard
 [/Spawn_Pools]
 
 [Creatures]
-# SeatId	ClassName	Name	Level	CurrentXP	CurrenHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeapon name	damage	range	defense	RightWeapon name	damage	range	defense
+# SeatId	ClassName	Name	Level	CurrentXP	CurrenHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeaponName RightWeaponName
 [Creature]
-5	Dragon	Dragon1	10	0	30	100	0	0	13	55	0	none	3	2	0	none	3	2	0	
+5	Dragon	Dragon1	10	0	30	100	0	0	13	55	0	none	none
 [/Creature]
 [Creature]
-5	Dragon	Dragon2	10	0	30	100	0	0	13	54	0	none	3	2	0	none	3	2	0	
+5	Dragon	Dragon2	10	0	30	100	0	0	13	54	0	none	none
 [/Creature]
 [Creature]
-5	Dragon	Dragon3	10	0	30	100	0	0	87	58	0	none	3	2	0	none	3	2	0	
+5	Dragon	Dragon3	10	0	30	100	0	0	87	58	0	none	none
 [/Creature]
 [Creature]
-5	Dragon	Dragon4	10	0	30	100	0	0	87	57	0	none	3	2	0	none	3	2	0	
+5	Dragon	Dragon4	10	0	30	100	0	0	87	57	0	none	none
 [/Creature]
 [/Creatures]
