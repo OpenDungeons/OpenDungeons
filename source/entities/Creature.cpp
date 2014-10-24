@@ -284,8 +284,8 @@ void Creature::destroyMeshWeapons()
 std::string Creature::getFormat()
 {
     //NOTE:  When this format changes, other changes to RoomPortal::spawnCreature() may be necessary.
-    return "SeatId\tClassName\tName\tLevel\tCurrentXP\tCurrenHP\tCurrentAwakeness\t"
-           "CurrentHunger\tGoldToDeposit\tPosX\tPosY\tPosZ\tLeftWeaponName\tRightWeaponName";
+    return "SeatId\tClassName\tName\tLevel\tCurrentXP\tCurrentHP\tCurrentAwakeness\t"
+           "CurrentHunger\tGoldToDeposit\tPosX\tPosY\tPosZ\tLeftWeapon\tRightWeapon";
 }
 
 void Creature::exportToStream(std::ostream& os)

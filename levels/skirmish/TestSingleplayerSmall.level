@@ -931,7 +931,7 @@ BigDragon
 [/Spawn_Pools]
 
 [Creatures]
-# SeatId	ClassName	Name	Level	CurrentXP	CurrenHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeaponName	RightWeaponName
+# SeatId	ClassName	Name	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeapon	RightWeapon
 [Creature]
 1	BigKnight	BigKnight1	1	0	4	100	0	0	7	7	0	Longsword	none
 [/Creature]

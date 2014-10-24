@@ -5341,7 +5341,7 @@ Wizard
 [/Spawn_Pools]
 
 [Creatures]
-# SeatId	ClassName	Name	Level	CurrentXP	CurrenHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeaponName RightWeaponName
+# SeatId	ClassName	Name	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeapon RightWeapon
 [Creature]
 5	Dragon	Dragon1	10	0	30	100	0	0	13	55	0	none	none
 [/Creature]
