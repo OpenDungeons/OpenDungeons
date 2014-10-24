@@ -2899,8 +2899,8 @@ std::string Creature::getStatsText()
 
 double Creature::takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile *tileTakingDamage)
 {
-    physicalDamage -= getPhysicalDefense();
-    magicalDamage -= getMagicalDefense();
+    physicalDamage = std::max(physicalDamage - getPhysicalDefense(), 0.0);
+    magicalDamage = std::max(magicalDamage - getMagicalDefense(), 0.0);
     mHp -= physicalDamage;
     mHp -= magicalDamage;
     if(!getGameMap()->isServerGameMap())
