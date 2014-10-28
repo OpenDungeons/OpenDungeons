@@ -40,6 +40,7 @@
 #include "rooms/RoomPortal.h"
 #include "rooms/RoomTrainingHall.h"
 #include "rooms/RoomTreasury.h"
+#include "utils/ConfigManager.h"
 
 #include <SFML/Network.hpp>
 #include <SFML/System.hpp>
@@ -155,7 +156,7 @@ bool ODServer::startServer(const std::string& levelFilename, bool replaceHumanPl
         return false;
 
     // Set up the socket to listen on the specified port
-    if (!createServer(ODApplication::PORT_NUMBER))
+    if (!createServer(ConfigManager::getSingleton().getNetworkPort()))
     {
         logManager.logMessage("ERROR:  Server could not create server socket!");
         return false;
@@ -448,6 +449,9 @@ void ODServer::processServerNotifications()
 
             case ServerNotification::playerWon:
             {
+                if(event->mConcernedPlayer->getHasAI())
+                    break;
+
                 ODSocketClient* client = getClientFromPlayer(event->mConcernedPlayer);
                 OD_ASSERT_TRUE_MSG(client != NULL, "name=" + event->mConcernedPlayer->getNick());
                 if(client != NULL)
@@ -497,15 +501,13 @@ void ODServer::processServerNotifications()
                 ODPacket packetAllied;
                 packetAllied << ServerNotification::chatServer;
                 packetAllied << "An allied has lost his dungeon temples";
-                ODSocketClient* clientConcerned = getClientFromPlayer(event->mConcernedPlayer);
-                OD_ASSERT_TRUE_MSG(clientConcerned != NULL, "name=" + event->mConcernedPlayer->getNick());
                 for (std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
                 {
                     ODSocketClient* client = *it;
                     if(!event->mConcernedPlayer->getSeat()->isAlliedSeat(client->getPlayer()->getSeat()))
                             continue;
 
-                    if(client != clientConcerned)
+                    if(client->getPlayer() != event->mConcernedPlayer)
                     {
                         sendMsgToClient(client, packetAllied);
                     }
@@ -1446,7 +1448,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             OD_ASSERT_TRUE(packetReceived >> seatId);
             Player* playerCreature = gameMap->getPlayerBySeatId(seatId);
             OD_ASSERT_TRUE_MSG(playerCreature != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
-            CreatureDefinition *classToSpawn = gameMap->getClassDescription("Kobold");
+            const CreatureDefinition *classToSpawn = gameMap->getClassDescription("Kobold");
             OD_ASSERT_TRUE(classToSpawn != nullptr);
             if(classToSpawn == nullptr)
                 break;
@@ -1481,7 +1483,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             OD_ASSERT_TRUE(packetReceived >> seatId >> className);
             Player* playerCreature = gameMap->getPlayerBySeatId(seatId);
             OD_ASSERT_TRUE_MSG(playerCreature != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
-            CreatureDefinition *classToSpawn = gameMap->getClassDescription(className);
+            const CreatureDefinition *classToSpawn = gameMap->getClassDescription(className);
             OD_ASSERT_TRUE_MSG(classToSpawn != nullptr, "Couldn't spawn creature class=" + className);
             if(classToSpawn == nullptr)
                 break;

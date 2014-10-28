@@ -189,9 +189,6 @@ class GameEntity
     //! \brief Function that implements the mesh deletion
     virtual void    destroyMeshLocal     () {};
 
-    //! \brief Function that implements the mesh deletion
-    virtual void    deleteYourselfLocal  () {};
-
     //! \brief The position of this object
     Ogre::Vector3   position;
 

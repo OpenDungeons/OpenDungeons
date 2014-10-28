@@ -24,6 +24,7 @@ Weapon* Weapon::load(std::stringstream& defFile)
 {
     if (!defFile.good())
         return nullptr;
+
     Weapon* weapon = new Weapon();
     if(!update(weapon, defFile))
     {
@@ -41,7 +42,9 @@ bool Weapon::update(Weapon* weapon, std::stringstream& defFile)
         if (exit)
             break;
 
-        defFile >> nextParam;
+        if(!(defFile >> nextParam))
+            break;
+
         if (nextParam == "[/Equipment]" || nextParam == "[/EquipmentDefinitions]")
             break;
 
@@ -60,7 +63,9 @@ bool Weapon::update(Weapon* weapon, std::stringstream& defFile)
             if (exit)
                 break;
 
-            defFile >> nextParam;
+            if(!(defFile >> nextParam))
+                break;
+
             if (nextParam == "[/Stats]")
                 break;
 
@@ -123,7 +128,7 @@ bool Weapon::update(Weapon* weapon, std::stringstream& defFile)
     return true;
 }
 
-void Weapon::writeWeaponDiff(Weapon* def1, Weapon* def2, std::ofstream& file)
+void Weapon::writeWeaponDiff(const Weapon* def1, const Weapon* def2, std::ofstream& file)
 {
     file << "[Equipment]" << std::endl;
     file << "    Name\t" << def2->mName << std::endl;

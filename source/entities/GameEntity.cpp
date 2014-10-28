@@ -58,8 +58,6 @@ void GameEntity::deleteYourself()
 
     mIsDeleteRequested = true;
 
-    deleteYourselfLocal();
-
     getGameMap()->queueEntityForDeletion(this);
 }
 

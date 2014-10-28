@@ -144,7 +144,9 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
         if (exit)
             break;
 
-        defFile >> nextParam;
+        if(!(defFile >> nextParam))
+            break;
+
         if (nextParam == "[/Creature]" || nextParam == "[/CreatureDefinitions]")
         {
             exit = true;
@@ -172,7 +174,9 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
             if (exit)
                 break;
 
-            defFile >> nextParam;
+            if(!(defFile >> nextParam))
+                break;
+
             if (nextParam == "[/Stats]")
                 break;
 
@@ -405,7 +409,7 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
     return true;
 }
 
-void CreatureDefinition::writeCreatureDefinitionDiff(CreatureDefinition* def1, CreatureDefinition* def2, std::ofstream& file)
+void CreatureDefinition::writeCreatureDefinitionDiff(const CreatureDefinition* def1, const CreatureDefinition* def2, std::ofstream& file)
 {
     file << "[Creature]" << std::endl;
     file << "    Name\t" << def2->mClassName << std::endl;
@@ -536,7 +540,9 @@ void CreatureDefinition::loadXPTable(std::stringstream& defFile, CreatureDefinit
         if (exit)
             break;
 
-        defFile >> nextParam;
+        if(!(defFile >> nextParam))
+            break;
+
         if (nextParam == "[/XP]" || nextParam == "[/Stats]" ||
             nextParam == "[/Creature]" || nextParam == "[/Creatures]")
         {

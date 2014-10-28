@@ -181,7 +181,6 @@ int Trap::costPerTile(TrapType t)
 
 void Trap::doUpkeep()
 {
-    uint32_t i = 0;
     std::vector<Tile*> tilesToRemove;
     for (Tile* tile : mCoveredTiles)
     {

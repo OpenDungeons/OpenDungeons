@@ -54,6 +54,7 @@
 #include "traps/Trap.h"
 
 #include "utils/LogManager.h"
+#include "utils/ConfigManager.h"
 #include "utils/ResourceManager.h"
 
 #include <OgreTimer.h>
@@ -143,7 +144,6 @@ GameMap::GameMap(bool isServerGameMap) :
         mLocalPlayer(NULL),
         mTurnNumber(-1),
         mIsPaused(false),
-        creatureDefinitionFilename("levels/creatures.def"), // default name
         floodFillEnabled(false),
         numCallsTo_path(0),
         tileCoordinateMap(new TileCoordinateMap(100)),
@@ -166,13 +166,21 @@ GameMap::~GameMap()
 
 bool GameMap::loadLevel(const std::string& levelFilepath)
 {
-    // Read in the game map config files
-    std::string creatureDefFile = ResourceManager::getSingleton().getConfigPath() + "creatures.cfg";
-    if (!MapLoader::loadCreatureDefinition(creatureDefFile, *this))
-        return false;
-    std::string equipmentsFile = ResourceManager::getSingleton().getConfigPath() + "equipments.cfg";
-    if (!MapLoader::loadEquipments(equipmentsFile, *this))
-        return false;
+    // We reset the creature definitions
+    clearClasses();
+    const std::vector<const CreatureDefinition*>& classes = ConfigManager::getSingleton().getCreatureDefinitions();
+    for(const CreatureDefinition* def : classes)
+    {
+        addClassDescription(def);
+    }
+
+    // We reset the weapons definitions
+    clearWeapons();
+    const std::vector<const Weapon*>& weapons = ConfigManager::getSingleton().getWeapons();
+    for(const Weapon* def : weapons)
+    {
+        addWeapon(def);
+    }
 
     // Read in the game map filepath
     std::string levelPath = ResourceManager::getSingletonPtr()->getGameDataPath()
@@ -269,28 +277,20 @@ void GameMap::clearAiManager()
 
 void GameMap::clearClasses()
 {
-    for (std::vector<std::pair<CreatureDefinition*,CreatureDefinition*> >::iterator it = mClassDescriptions.begin(); it != mClassDescriptions.end(); ++it)
+    for (std::pair<const CreatureDefinition*,CreatureDefinition*>& def : mClassDescriptions)
     {
-        std::pair<CreatureDefinition*,CreatureDefinition*>& def = *it;
-        if(def.second != def.first)
+        if(def.second != nullptr)
             delete def.second;
-
-        if(def.first != nullptr)
-            delete def.first;
     }
     mClassDescriptions.clear();
 }
 
 void GameMap::clearWeapons()
 {
-    for (std::vector<std::pair<Weapon*,Weapon*> >::iterator it = mWeapons.begin(); it != mWeapons.end(); ++it)
+    for (std::pair<const Weapon*,Weapon*>& def : mWeapons)
     {
-        std::pair<Weapon*,Weapon*>& def = *it;
-        if(def.second != def.first)
+        if(def.second != nullptr)
             delete def.second;
-
-        if(def.first != nullptr)
-            delete def.first;
     }
     mWeapons.clear();
 }
@@ -337,25 +337,27 @@ void GameMap::resetUniqueNumbers()
     mUniqueNumberMapLight = 0;
 }
 
-void GameMap::addClassDescription(CreatureDefinition *c)
+void GameMap::addClassDescription(const CreatureDefinition *c)
 {
-    mClassDescriptions.push_back(std::pair<CreatureDefinition*,CreatureDefinition*>(c,c));
+    mClassDescriptions.push_back(std::pair<const CreatureDefinition*,CreatureDefinition*>(c, nullptr));
 }
 
-void GameMap::addWeapon(Weapon* weapon)
+void GameMap::addWeapon(const Weapon* weapon)
 {
-    mWeapons.push_back(std::pair<Weapon*,Weapon*>(weapon,weapon));
+    mWeapons.push_back(std::pair<const Weapon*,Weapon*>(weapon, nullptr));
 }
 
-Weapon* GameMap::getWeapon(const std::string& name)
+const Weapon* GameMap::getWeapon(const std::string& name)
 {
-    for (std::vector<std::pair<Weapon*,Weapon*> >::iterator it = mWeapons.begin(); it != mWeapons.end(); ++it)
+    for (std::pair<const Weapon*,Weapon*>& def : mWeapons)
     {
-        std::pair<Weapon*,Weapon*>& def = *it;
-        if (def.second->getName().compare(name) == 0)
+        if(def.second != nullptr)
         {
-            return def.second;
+            if (def.second->getName().compare(name) == 0)
+                return def.second;
         }
+        else if(def.first->getName().compare(name) == 0)
+            return def.first;
     }
 
     return NULL;
@@ -363,23 +365,25 @@ Weapon* GameMap::getWeapon(const std::string& name)
 
 Weapon* GameMap::getWeaponForTuning(const std::string& name)
 {
-    for (std::vector<std::pair<Weapon*,Weapon*> >::iterator it = mWeapons.begin(); it != mWeapons.end(); ++it)
+    for (std::pair<const Weapon*,Weapon*>& def : mWeapons)
     {
-        std::pair<Weapon*,Weapon*>& def = *it;
-        if (def.second->getName().compare(name) == 0)
+        if(def.second != nullptr)
+        {
+            if (def.second->getName().compare(name) == 0)
+                return def.second;
+        }
+        else if(def.first->getName().compare(name) == 0)
         {
             // If the definition is not a copy, we make one because we want to keep the original so we are able
             // to save the changes if the map is saved
-            if(def.second == def.first)
-                def.second = new Weapon(*def.first);
-
+            def.second = new Weapon(*def.first);
             return def.second;
         }
     }
 
     // It is a new definition
     Weapon* def = new Weapon(name);
-    mWeapons.push_back(std::pair<Weapon*,Weapon*>(nullptr, def));
+    mWeapons.push_back(std::pair<const Weapon*,Weapon*>(nullptr, def));
     return def;
 }
 
@@ -390,10 +394,9 @@ uint32_t GameMap::numWeapons()
 
 void GameMap::saveLevelEquipments(std::ofstream& levelFile)
 {
-    for (std::vector<std::pair<Weapon*,Weapon*> >::iterator it = mWeapons.begin(); it != mWeapons.end(); ++it)
+    for (std::pair<const Weapon*,Weapon*>& def : mWeapons)
     {
-        std::pair<Weapon*,Weapon*>& def = *it;
-        if(def.first == def.second)
+        if(def.second == nullptr)
             continue;
 
         Weapon::writeWeaponDiff(def.first, def.second, levelFile);
@@ -445,15 +448,17 @@ void GameMap::queueMapLightForDeletion(MapLight *ml)
     mapLightsToDelete.push_back(ml);
 }
 
-CreatureDefinition* GameMap::getClassDescription(const std::string& className)
+const CreatureDefinition* GameMap::getClassDescription(const std::string& className)
 {
-    for (std::vector<std::pair<CreatureDefinition*,CreatureDefinition*> >::iterator it = mClassDescriptions.begin(); it != mClassDescriptions.end(); ++it)
+    for (std::pair<const CreatureDefinition*,CreatureDefinition*>& def : mClassDescriptions)
     {
-        std::pair<CreatureDefinition*,CreatureDefinition*>& def = *it;
-        if (def.second->getClassName().compare(className) == 0)
+        if (def.second != nullptr)
         {
-            return def.second;
+            if(def.second->getClassName().compare(className) == 0)
+                return def.second;
         }
+        else if(def.first->getClassName().compare(className) == 0)
+            return def.first;
     }
 
     return NULL;
@@ -461,23 +466,23 @@ CreatureDefinition* GameMap::getClassDescription(const std::string& className)
 
 CreatureDefinition* GameMap::getClassDescriptionForTuning(const std::string& name)
 {
-    for (std::vector<std::pair<CreatureDefinition*,CreatureDefinition*> >::iterator it = mClassDescriptions.begin(); it != mClassDescriptions.end(); ++it)
+    for (std::pair<const CreatureDefinition*,CreatureDefinition*>& def : mClassDescriptions)
     {
-        std::pair<CreatureDefinition*,CreatureDefinition*>& def = *it;
-        if (def.second->getClassName().compare(name) == 0)
+        if(def.second != nullptr)
         {
-            // If the definition is not a copy, we make one because we want to keep the original so we are able
-            // to save the changes if the map is saved
-            if(def.second == def.first)
-                def.second = new CreatureDefinition(*def.first);
-
+            if (def.second->getClassName().compare(name) == 0)
+                return def.second;
+        }
+        else if(def.first->getClassName().compare(name) == 0)
+        {
+            def.second = new CreatureDefinition(*def.first);
             return def.second;
         }
     }
 
     // It is a new definition
     CreatureDefinition* def = new CreatureDefinition(name);
-    mClassDescriptions.push_back(std::pair<CreatureDefinition*,CreatureDefinition*>(nullptr, def));
+    mClassDescriptions.push_back(std::pair<const CreatureDefinition*,CreatureDefinition*>(nullptr, def));
     return def;
 }
 
@@ -893,10 +898,9 @@ unsigned int GameMap::numClassDescriptions()
 
 void GameMap::saveLevelClassDescriptions(std::ofstream& levelFile)
 {
-    for (std::vector<std::pair<CreatureDefinition*,CreatureDefinition*> >::iterator it = mClassDescriptions.begin(); it != mClassDescriptions.end(); ++it)
+    for (std::pair<const CreatureDefinition*,CreatureDefinition*>& def : mClassDescriptions)
     {
-        std::pair<CreatureDefinition*,CreatureDefinition*>& def = *it;
-        if(def.first == def.second)
+        if(def.second == nullptr)
             continue;
 
         CreatureDefinition::writeCreatureDefinitionDiff(def.first, def.second, levelFile);
@@ -915,10 +919,13 @@ const Creature* GameMap::getCreature(int index) const
     return tempCreature;
 }
 
-CreatureDefinition* GameMap::getClassDescription(int index)
+const CreatureDefinition* GameMap::getClassDescription(int index)
 {
-    std::pair<CreatureDefinition*,CreatureDefinition*>& def = mClassDescriptions[index];
-    return def.second;
+    std::pair<const CreatureDefinition*,CreatureDefinition*>& def = mClassDescriptions[index];
+    if(def.second != nullptr)
+        return def.second;
+    else
+        return def.first;
 }
 
 void GameMap::createAllEntities()
@@ -1535,7 +1542,11 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* c
             {
                 double weightToParent = AstarEntry::computeHeuristic(neighbor.getTile()->getX(), neighbor.getTile()->getY(),
                     currentEntry->getTile()->getX(), currentEntry->getTile()->getY());
-                weightToParent /= creature->getMoveSpeed(currentEntry->getTile());
+
+                if(currentEntry->getTile()->getFullness() == 0)
+                    weightToParent /= creature->getMoveSpeed(currentEntry->getTile());
+                else
+                    weightToParent /= creature->getMoveSpeedGround();
                 neighbor.setG(currentEntry->getG() + weightToParent);
 
                 // Use the manhattan distance for the heuristic
@@ -1550,7 +1561,11 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* c
                 // one already given, make this the new parent.
                 double weightToParent = AstarEntry::computeHeuristic(neighbor.getTile()->getX(), neighbor.getTile()->getY(),
                     currentEntry->getTile()->getX(), currentEntry->getTile()->getY());
-                weightToParent /= creature->getMoveSpeed(currentEntry->getTile());
+
+                if(currentEntry->getTile()->getFullness() == 0)
+                    weightToParent /= creature->getMoveSpeed(currentEntry->getTile());
+                else
+                    weightToParent /= creature->getMoveSpeedGround();
 
                 if (currentEntry->getG() + weightToParent < neighborEntry->getG())
                 {

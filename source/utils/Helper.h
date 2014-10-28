@@ -65,6 +65,7 @@ namespace Helper
     std::vector<std::string> split(const std::string& line, char delimiter);
 
     int toInt(const std::string& text);
+    uint32_t toUInt32(const std::string& text);
 
     double toDouble(const std::string& text);
 
@@ -82,6 +83,10 @@ namespace Helper
     bool fillFileStemsList(const std::string& path,
                            std::vector<std::string>& listFiles,
                            const std::string& fileExtension);
+
+    //! \brief opens the file fileName and adds the uncommented lines to the stream.
+    //! Returns true is the file could be open and false if an error occurs
+    bool readFileWithoutComments(const std::string& fileName, std::stringstream& stream);
 }
 
 #endif // HELPER_H_

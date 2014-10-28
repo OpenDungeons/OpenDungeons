@@ -91,7 +91,7 @@ void RoomDungeonTemple::produceKobold()
         return;
 
     // Create a new creature and copy over the class-based creature parameters.
-    CreatureDefinition *classToSpawn = getGameMap()->getClassDescription("Kobold");
+    const CreatureDefinition *classToSpawn = getGameMap()->getClassDescription("Kobold");
     if (classToSpawn == NULL)
     {
         std::cout << "Error: No 'Kobold' creature definition" << std::endl;

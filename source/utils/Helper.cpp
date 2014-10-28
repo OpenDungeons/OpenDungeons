@@ -48,6 +48,14 @@ namespace Helper
         return number;
     }
 
+    uint32_t toUInt32(const std::string& text)
+    {
+        std::stringstream ss(text);
+        uint32_t number = 0;
+        ss >> number;
+        return number;
+    }
+
     double toDouble(const std::string& text)
     {
         std::stringstream ss(text);
@@ -96,6 +104,33 @@ namespace Helper
                     listFiles.push_back(itr->path().filename().stem().string());
             }
         }
+        return true;
+    }
+
+    bool readFileWithoutComments(const std::string& fileName, std::stringstream& stream)
+    {
+        // Try to open the input file for reading and throw an error if we can't.
+        std::ifstream baseLevelFile(fileName.c_str(), std::ifstream::in);
+        if (!baseLevelFile.good())
+        {
+            std::cerr << "ERROR: File not found:  " << fileName << "\n\n\n";
+            return false;
+        }
+
+        // Read in the whole baseLevelFile, strip it of comments and feed it into
+        // the stream.
+        std::string nextParam;
+        while (baseLevelFile.good())
+        {
+            std::getline(baseLevelFile, nextParam);
+            /* Find the first occurrence of the comment symbol on the
+             * line and return everything before that character.
+             */
+            stream << nextParam.substr(0, nextParam.find('#')) << "\n";
+        }
+
+        baseLevelFile.close();
+
         return true;
     }
 } // namespace Helper

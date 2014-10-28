@@ -632,7 +632,7 @@ void EditorMode::updateCursorText()
     // Update the seat id
     posWin = Gui::getSingletonPtr()->getGuiSheet(Gui::editorModeGui)->getChild(Gui::EDITOR_CREATURE_SPAWN);
     textSS.str("");
-    CreatureDefinition* def = mGameMap->getClassDescription(mCurrentCreatureIndex);
+    const CreatureDefinition* def = mGameMap->getClassDescription(mCurrentCreatureIndex);
     if(def == nullptr)
         textSS << "Creature (C): ?";
     else
@@ -909,7 +909,7 @@ void EditorMode::notifyGuiAction(GuiAction guiAction)
             {
                 if(ODClient::getSingleton().isConnected())
                 {
-                    CreatureDefinition* def = mGameMap->getClassDescription(mCurrentCreatureIndex);
+                    const CreatureDefinition* def = mGameMap->getClassDescription(mCurrentCreatureIndex);
                     OD_ASSERT_TRUE(def != nullptr);
                     if(def == nullptr)
                         break;

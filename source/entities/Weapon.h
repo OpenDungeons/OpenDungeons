@@ -31,7 +31,6 @@ class Weapon
 public:
     Weapon(const std::string& name) :
        mName(name),
-       mMeshName(""),
        mPhysicalDamage(0.0),
        mMagicalDamage(0.0),
        mRange(0.0),
@@ -49,7 +48,7 @@ public:
     static bool update(Weapon* weapon, std::stringstream& defFile);
     //! \brief Writes the differences between def1 and def2 in the given file. Note that def1 can be null. In
     //! this case, every parameters in def2 will be written. def2 cannot be null.
-    static void writeWeaponDiff(Weapon* def1, Weapon* def2, std::ofstream& file);
+    static void writeWeaponDiff(const Weapon* def1, const Weapon* def2, std::ofstream& file);
 
     inline const std::string getOgreNamePrefix() const
     { return "Weapon_"; }
@@ -77,8 +76,6 @@ public:
 
 private:
     Weapon() :
-       mName(""),
-       mMeshName(""),
        mPhysicalDamage(0.0),
        mMagicalDamage(0.0),
        mRange(0.0),

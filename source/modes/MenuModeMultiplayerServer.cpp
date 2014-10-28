@@ -28,6 +28,7 @@
 #include "ODApplication.h"
 #include "utils/LogManager.h"
 #include "gamemap/MapLoader.h"
+#include "utils/ConfigManager.h"
 #include "utils/ResourceManager.h"
 
 #include <CEGUI/CEGUI.h>
@@ -146,7 +147,7 @@ void MenuModeMultiplayerServer::serverButtonPressed()
     }
 
     // We connect ourself
-    if(!ODClient::getSingleton().connect("", ODApplication::PORT_NUMBER))
+    if(!ODClient::getSingleton().connect("", ConfigManager::getSingleton().getNetworkPort()))
     {
         LogManager::getSingleton().logMessage("ERROR: Could not connect to server for multi player game !!!");
         tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerServerMenu)->getChild(Gui::MPM_TEXT_LOADING);

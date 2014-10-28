@@ -29,6 +29,7 @@
 #include "utils/LogManager.h"
 #include "gamemap/MapLoader.h"
 #include "utils/ResourceManager.h"
+#include "utils/ConfigManager.h"
 
 #include <CEGUI/CEGUI.h>
 #include "boost/filesystem.hpp"
@@ -148,7 +149,7 @@ void MenuModeEditor::launchSelectedButtonPressed()
         LogManager::getSingleton().logMessage("ERROR: Could not start server for editor !!!");
     }
 
-    if(!ODClient::getSingleton().connect("", ODApplication::PORT_NUMBER))
+    if(!ODClient::getSingleton().connect("", ConfigManager::getSingleton().getNetworkPort()))
     {
         LogManager::getSingleton().logMessage("ERROR: Could not connect to server for editor !!!");
         tmpWin = Gui::getSingleton().getGuiSheet(Gui::editorMenu)->getChild(Gui::EDM_TEXT_LOADING);

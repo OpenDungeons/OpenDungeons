@@ -36,6 +36,7 @@
 #include "modes/Console.h"
 #include "gamemap/GameMap.h"
 #include "utils/Random.h"
+#include "utils/ConfigManager.h"
 #include "entities/MapLight.h"
 #include "network/ODServer.h"
 #include "network/ODClient.h"
@@ -69,6 +70,10 @@ ODApplication::ODApplication() :
 
         resMgr->setupOgreResources();
 
+        LogManager* logManager = new LogManager();
+        logManager->setLogDetail(Ogre::LL_BOREME);
+        new ConfigManager;
+
         /* TODO: Skip this and use root.restoreConfig()
          * to load configuration settings if we are sure there are valid ones
          * saved in ogre.cfg
@@ -85,9 +90,6 @@ ODApplication::ODApplication() :
         mOverlaySystem = new Ogre::OverlaySystem();
 
         mWindow = mRoot->initialise(true, "OpenDungeons " + VERSION);
-
-        LogManager* logManager = new LogManager();
-        logManager->setLogDetail(Ogre::LL_BOREME);
 
         new ODServer();
         new ODClient();
@@ -172,6 +174,8 @@ void ODApplication::cleanUp()
     delete ODServer::getSingletonPtr();
     logManager->logMessage("Deleting ODClient...");
     delete ODClient::getSingletonPtr();
+    logManager->logMessage("Deleting ConfigManager...");
+    delete ConfigManager::getSingletonPtr();
     logManager->logMessage("Deleting ResourceManager...");
     delete ResourceManager::getSingletonPtr();
     logManager->logMessage("Deleting LogManager and Ogre::Root...");
@@ -180,7 +184,6 @@ void ODApplication::cleanUp()
 }
 
 //TODO: find some better places for some of these
-const unsigned int ODApplication::PORT_NUMBER = 31222;
 const double ODApplication::DEFAULT_FRAMES_PER_SECOND = 60.0;
 double ODApplication::MAX_FRAMES_PER_SECOND = DEFAULT_FRAMES_PER_SECOND;
 double ODApplication::turnsPerSecond = 1.4;

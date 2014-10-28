@@ -59,7 +59,7 @@ class Creature: public MovableGameEntity
     friend class ODClient;
 public:
     //! \brief Constructor for creatures. It generates an unique name
-    Creature(GameMap* gameMap, CreatureDefinition* definition);
+    Creature(GameMap* gameMap, const CreatureDefinition* definition);
     virtual ~Creature();
 
     static const std::string CREATURE_PREFIX;
@@ -101,11 +101,11 @@ public:
     { return mDigRate; }
 
     //! \brief Gets pointer to the Weapon in left hand
-    Weapon* getWeaponL() const
+    const Weapon* getWeaponL() const
     { return mWeaponL; }
 
     //! \brief Gets pointer to the Weapon in right hand
-    Weapon* getWeaponR() const
+    const Weapon* getWeaponR() const
     { return mWeaponR; }
 
     //! \brief Pointer to the creatures home tile, where its bed is located
@@ -315,7 +315,6 @@ public:
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
-    virtual void deleteYourselfLocal();
 private:
     enum ForceAction
     {
@@ -344,11 +343,13 @@ private:
     //! \brief The time left before being to draw an attack in seconds
     double mAttackWarmupTime;
 
-    //! \brief The weapon the creature is holding in its left hand or NULL if none. Should not be deleted
-    Weapon* mWeaponL;
+    //! \brief The weapon the creature is holding in its left hand or NULL if none. It will be set by a pointer
+    //! managed by the game map and thus, should not be deleted by the creature class
+    const Weapon* mWeaponL;
 
-    //! \brief The weapon the creature is holding in its right hand or NULL if none. Should not be deleted
-    Weapon* mWeaponR;
+    //! \brief The weapon the creature is holding in its right hand or NULL if none. It will be set by a pointer
+    //! managed by the game map and thus, should not be deleted by the creature class
+    const Weapon* mWeaponR;
 
     //! \brief The creatures home tile (where its bed is located)
     Tile *mHomeTile;
