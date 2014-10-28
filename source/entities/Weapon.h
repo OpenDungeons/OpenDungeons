@@ -47,6 +47,8 @@ public:
     //! \returns A Weapon if valid, nullptr otherwise.
     static Weapon* load(std::stringstream& defFile);
     static bool update(Weapon* weapon, std::stringstream& defFile);
+    //! \brief Writes the differences between def1 and def2 in the given file. Note that def1 can be null. In
+    //! this case, every parameters in def2 will be written. def2 cannot be null.
     static void writeWeaponDiff(Weapon* def1, Weapon* def2, std::ofstream& file);
 
     inline const std::string getOgreNamePrefix() const

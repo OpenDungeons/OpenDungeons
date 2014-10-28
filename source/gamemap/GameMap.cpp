@@ -1116,10 +1116,19 @@ unsigned long int GameMap::doMiscUpkeep()
         ++dungeonTempleSeatCounts[dungeonTemples[i]->getSeat()];
     }
 
+    // We check if a player has lost all his dungeon temples
+    for(std::vector<Player*>::iterator it = players.begin(); it != players.end(); ++it)
+    {
+        Player* player = *it;
+        if(dungeonTempleSeatCounts.count(player->getSeat()) > 0)
+            continue;
+
+        player->notifyNoMoreDungeonTemple();
+    }
+
     // Compute how many kobolds each seat should have as determined by the number of dungeon temples they control.
-    std::map<Seat*, int>::iterator itr = dungeonTempleSeatCounts.begin();
     std::map<Seat*, int> koboldsNeededPerSeat;
-    while (itr != dungeonTempleSeatCounts.end())
+    for (std::map<Seat*, int>::iterator itr = dungeonTempleSeatCounts.begin(); itr != dungeonTempleSeatCounts.end(); ++itr)
     {
         Seat* seat = itr->first;
         int numDungeonTemples = itr->second;
@@ -1127,8 +1136,6 @@ unsigned long int GameMap::doMiscUpkeep()
         int numKoboldsNeeded = std::max(4 * numDungeonTemples - numKobolds, 0);
         numKoboldsNeeded = std::min(numKoboldsNeeded, numDungeonTemples);
         koboldsNeededPerSeat[seat] = numKoboldsNeeded;
-
-        ++itr;
     }
 
     // Loop back over all the dungeon temples and for each one decide if it should try to produce a kobold.
@@ -1173,18 +1180,26 @@ unsigned long int GameMap::doMiscUpkeep()
             mActiveObjects.erase(it);
     }
 
+
     // Carry out the upkeep round for each seat.  This means recomputing how much gold is
     // available in their treasuries, how much mana they gain/lose during this turn, etc.
     for (unsigned int i = 0; i < filledSeats.size(); ++i)
     {
         tempSeat = filledSeats[i];
 
-        // Add the amount of mana this seat accrued this turn.
-        //cout << "\nSeat " << i << " has " << tempSeat->numClaimedTiles << " claimed tiles.";
-        tempSeat->mManaDelta = 50 + tempSeat->getNumClaimedTiles();
-        tempSeat->mMana += tempSeat->mManaDelta;
-        if (tempSeat->mMana > 250000)
-            tempSeat->mMana = 250000;
+        // Add the amount of mana this seat accrued this turn if the player has a dungeon temple
+        std::vector<Room*> dungeonTemples = getRoomsByTypeAndSeat(Room::RoomType::dungeonTemple, tempSeat);
+        if(dungeonTemples.empty())
+        {
+            tempSeat->mManaDelta = 0;
+        }
+        else
+        {
+            tempSeat->mManaDelta = 50 + tempSeat->getNumClaimedTiles();
+            tempSeat->mMana += tempSeat->mManaDelta;
+            if (tempSeat->mMana > 250000)
+                tempSeat->mMana = 250000;
+        }
 
         // Update the count on how much gold is available in all of the treasuries claimed by the given seat.
         tempSeat->mGold = getTotalGoldForSeat(tempSeat);
@@ -1215,8 +1230,6 @@ unsigned long int GameMap::doMiscUpkeep()
                     tempSeat->incrementNumClaimedTiles();
                 }
             }
-
-
         }
     }
 
@@ -2287,8 +2300,7 @@ void GameMap::addWinningSeat(Seat *s)
     Player* player = getPlayerBySeat(s);
     if (player && player->getHasAI() == false)
     {
-        ServerNotification* serverNotification = new ServerNotification(ServerNotification::chatServer, player);
-        serverNotification->mPacket << "You have won!";
+        ServerNotification* serverNotification = new ServerNotification(ServerNotification::playerWon, player);
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 

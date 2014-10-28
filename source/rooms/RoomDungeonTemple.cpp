@@ -110,17 +110,9 @@ void RoomDungeonTemple::produceKobold()
     // Inform the clients
     if (getGameMap()->isServerGameMap())
     {
-        try
-        {
-            ServerNotification *serverNotification = new ServerNotification(
-               ServerNotification::addCreature, newCreature->getGameMap()->getPlayerBySeat(newCreature->getSeat()));
-            newCreature->exportToPacket(serverNotification->mPacket);
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
-        catch (std::bad_alloc&)
-        {
-            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in RoomDungeonTemple::produceKobold", Ogre::LML_CRITICAL);
-            exit(1);
-        }
+        ServerNotification *serverNotification = new ServerNotification(
+           ServerNotification::addCreature, getGameMap()->getPlayerBySeat(getSeat()));
+        newCreature->exportToPacket(serverNotification->mPacket);
+        ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 }

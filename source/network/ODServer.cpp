@@ -446,6 +446,80 @@ void ODServer::processServerNotifications()
                 break;
             }
 
+            case ServerNotification::playerWon:
+            {
+                ODSocketClient* client = getClientFromPlayer(event->mConcernedPlayer);
+                OD_ASSERT_TRUE_MSG(client != NULL, "name=" + event->mConcernedPlayer->getNick());
+                if(client != NULL)
+                {
+                    ODPacket packet;
+                    packet << ServerNotification::chatServer;
+                    packet << "You Won";
+                    sendMsgToClient(client, packet);
+                }
+                break;
+            }
+
+            case ServerNotification::playerLost:
+            {
+                // We check if there is still a player in the team with a dungeon temple. If yes, we notify the player he lost his dungeon
+                // if no, we notify the team they lost
+                std::vector<Room*> dungeonTemples = gameMap->getRoomsByType(Room::RoomType::dungeonTemple);
+                bool hasTeamLost = true;
+                for(std::vector<Room*>::iterator it = dungeonTemples.begin(); it != dungeonTemples.end(); ++it)
+                {
+                    Room* dungeonTemple = *it;
+                    if(event->mConcernedPlayer->getSeat()->isAlliedSeat(dungeonTemple->getSeat()))
+                    {
+                        hasTeamLost = false;
+                        break;
+                    }
+                }
+
+                if(hasTeamLost)
+                {
+                    // This message will be sent in skirmissh or multiplayer so it should not talk about team. If we want to be
+                    // more precise, we shall handle the case
+                    ODPacket packet;
+                    packet << ServerNotification::chatServer;
+                    packet << "You lost the game";
+                    for (std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
+                    {
+                        ODSocketClient* client = *it;
+                        if(!event->mConcernedPlayer->getSeat()->isAlliedSeat(client->getPlayer()->getSeat()))
+                            continue;
+
+                        sendMsgToClient(client, packet);
+                    }
+                    break;
+                }
+
+                ODPacket packetAllied;
+                packetAllied << ServerNotification::chatServer;
+                packetAllied << "An allied has lost his dungeon temples";
+                ODSocketClient* clientConcerned = getClientFromPlayer(event->mConcernedPlayer);
+                OD_ASSERT_TRUE_MSG(clientConcerned != NULL, "name=" + event->mConcernedPlayer->getNick());
+                for (std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
+                {
+                    ODSocketClient* client = *it;
+                    if(!event->mConcernedPlayer->getSeat()->isAlliedSeat(client->getPlayer()->getSeat()))
+                            continue;
+
+                    if(client != clientConcerned)
+                    {
+                        sendMsgToClient(client, packetAllied);
+                    }
+                    else
+                    {
+                        ODPacket packet;
+                        packet << ServerNotification::chatServer;
+                        packet << "You lost your dungeon temples";
+                        sendMsgToClient(client, packet);
+                    }
+                }
+                break;
+            }
+
             case ServerNotification::buildTrap:
                 // This should not be a message as it is sent directly to the client
                 // TODO : this should be used like buildRoom when the AI will build traps

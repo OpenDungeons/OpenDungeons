@@ -505,7 +505,10 @@ private:
     std::string mMapInfoMusicFile;
     std::string mMapInfoFightMusicFile;
 
-    //! \brief The creature definition data
+    //! \brief The creature definition data. We use a pair to be able to make the difference between the original
+    //! data from the global creature definition file and the specific data from the level file. With this trick,
+    //! we will be able to compare and write the differences in the level file.
+    //! It is the same for weapons.
     std::vector<std::pair<CreatureDefinition*,CreatureDefinition*> > mClassDescriptions;
     std::vector<std::pair<Weapon*,Weapon*> > mWeapons;
 

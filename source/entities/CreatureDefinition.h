@@ -119,6 +119,8 @@ public:
 
     static CreatureJob creatureJobFromString(const std::string& s);
     static std::string creatureJobToString(CreatureJob c);
+    //! \brief Writes the differences between def1 and def2 in the given file. Note that def1 can be null. In
+    //! this case, every parameters in def2 will be written. def2 cannot be null.
     static void writeCreatureDefinitionDiff(CreatureDefinition* def1, CreatureDefinition* def2, std::ofstream& file);
 
     inline bool isWorker() const

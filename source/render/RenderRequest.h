@@ -62,8 +62,6 @@ protected:
     { manager->rrDetachTile(curEntity); }
     void rrAttachTile(RenderManager* manager, GameEntity* curEntity)
     { manager->rrAttachTile(curEntity); }
-    void rrToggleCreaturesVisibility(RenderManager* manager)
-    { manager->rrToggleCreaturesVisibility(); }
     void rrTemporalMarkTile(RenderManager* manager, Tile* curTile)
     { manager->rrTemporalMarkTile(curTile); }
     void rrShowSquareSelector(RenderManager* manager, const Ogre::Real& xPos, const Ogre::Real& yPos)
@@ -204,15 +202,6 @@ public:
     { rrAttachEntity(manager, mEntity); }
 private:
     GameEntity* mEntity;
-};
-
-class RenderRequestToggleCreaturesVisibility : public RenderRequest
-{
-public:
-    RenderRequestToggleCreaturesVisibility()
-    {}
-    virtual void executeRequest(RenderManager* manager)
-    { rrToggleCreaturesVisibility(manager); }
 };
 
 class RenderRequestShowSquareSelector : public RenderRequest

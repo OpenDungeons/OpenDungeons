@@ -56,6 +56,10 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "chat";
         case ServerNotificationType::chatServer:
             return "chatServer";
+        case ServerNotificationType::playerWon:
+            return "playerWon";
+        case ServerNotificationType::playerLost:
+            return "playerLost";
         case ServerNotificationType::markTiles:
             return "markTiles";
         case ServerNotificationType::turnStarted:

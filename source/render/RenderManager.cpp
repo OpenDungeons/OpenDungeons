@@ -68,7 +68,6 @@ template<> RenderManager* Ogre::Singleton<RenderManager>::msSingleton = 0;
 const Ogre::Real RenderManager::BLENDER_UNITS_PER_OGRE_UNIT = 10.0;
 
 RenderManager::RenderManager(Ogre::OverlaySystem* overlaySystem) :
-    mVisibleCreatures(true),
     mGameMap(NULL),
     mViewport(NULL),
     mShaderGenerator(NULL),
@@ -367,34 +366,6 @@ void RenderManager::rrAttachEntity(GameEntity* curEntity)
     Ogre::SceneNode* entityNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
 
     curEntity->pSN->addChild(entityNode);
-}
-
-void RenderManager::rrToggleCreaturesVisibility()
-{
-    mVisibleCreatures = !mVisibleCreatures;
-
-    if(mVisibleCreatures)
-    {
-        for(std::vector<Creature*>::iterator it = mGameMap->creatures.begin(); it != mGameMap->creatures.end(); ++it)
-        {
-            if((*it)->isMeshExisting() && (*it)->mSceneNode != NULL)
-
-            // (*it)->pSN=((*it)->sceneNode->getParentSceneNode());
-            //pSN->removeChild((*it)->
-                (*it)->pSN->addChild((*it)->mSceneNode);
-        }
-    }
-    else
-    {
-        for(std::vector<Creature*>::iterator it = mGameMap->creatures.begin(); it != mGameMap->creatures.end(); ++it)
-        {
-            if((*it)->isMeshExisting() && (*it)->mSceneNode!=NULL)
-            {
-                (*it)->pSN=((*it)->mSceneNode->getParentSceneNode());
-                (*it)->pSN->removeChild((*it)->mSceneNode);
-            }
-        }
-    }
 }
 
 void RenderManager::rrShowSquareSelector(const Ogre::Real& xPos, const Ogre::Real& yPos)
