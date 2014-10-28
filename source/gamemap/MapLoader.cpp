@@ -24,6 +24,7 @@
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
 #include "entities/MapLight.h"
+#include "entities/Weapon.h"
 
 #include "traps/Trap.h"
 
@@ -325,20 +326,81 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         gameMap.addMapLight(tempLight);
     }
 
-    // Load the creatures defintions filename and file.
     levelFile >> nextParam;
-    if (nextParam != "[Creatures_Definition]")
+    if (nextParam == "[CreatureDefinitions]")
     {
-        std::cout << "Invalid Creatures definition start format." << std::endl;
-        std::cout << "Line was " << nextParam << std::endl;
-        return false;
+        while(levelFile.good())
+        {
+            levelFile >> nextParam;
+            if (nextParam == "[/CreatureDefinitions]")
+                break;
+
+            if (nextParam == "[/Creature]")
+                continue;
+
+            // Seek the [Creature] tag
+            if (nextParam != "[Creature]")
+            {
+                std::cout << "Invalid Creature start format." << std::endl;
+                std::cout << "Line was " << nextParam << std::endl;
+                return false;
+            }
+
+            levelFile >> nextParam;
+            if (nextParam == "Name")
+            {
+                levelFile >> nextParam;
+                CreatureDefinition* def = gameMap.getClassDescriptionForTuning(nextParam);
+                if (def == nullptr)
+                {
+                    std::cout << "Invalid Creature definition format." << std::endl;
+                    return false;
+                }
+                if(!CreatureDefinition::update(def, levelFile))
+                    return false;
+            }
+        }
+
+        levelFile >> nextParam;
     }
-    levelFile >> nextParam;
-    if (!MapLoader::loadCreatureDefinition(nextParam, gameMap))
-        return false;
+
+    if (nextParam == "[EquipmentDefinitions]")
+    {
+        while(levelFile.good())
+        {
+            levelFile >> nextParam;
+            if (nextParam == "[/EquipmentDefinitions]")
+                break;
+
+            if (nextParam == "[/Equipment]")
+                continue;
+
+            if (nextParam != "[Equipment]")
+            {
+                std::cout << "Invalid Weapon start format." << std::endl;
+                std::cout << "Line was " << nextParam << std::endl;
+                return false;
+            }
+
+            levelFile >> nextParam;
+            if (nextParam == "Name")
+            {
+                levelFile >> nextParam;
+                Weapon* def = gameMap.getWeaponForTuning(nextParam);
+                if (def == nullptr)
+                {
+                    std::cout << "Invalid Weapon definition format." << std::endl;
+                    return false;
+                }
+                if(!Weapon::update(def, levelFile))
+                    return false;
+            }
+        }
+
+        levelFile >> nextParam;
+    }
 
     // Read in the creatures spawn pool for each team
-    levelFile >> nextParam;
     if (nextParam != "[Spawn_Pools]")
     {
         std::cout << "Invalid 'Spawn Pools' start format." << std::endl;
@@ -552,10 +614,13 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     }
     levelFile << "[/Lights]" << std::endl;
 
-    // Write out where to find the creatures definition file.
-    levelFile << "\n# The file containing the creatures definition." << std::endl
-    << "[Creatures_Definition]" << std::endl
-    << gameMap.getCreatureDefinitionFileName() << std::endl;
+    levelFile << std::endl << "[CreatureDefinitions]" << std::endl;
+    gameMap.saveLevelClassDescriptions(levelFile);
+    levelFile << "[/CreatureDefinitions]" << std::endl;
+
+    levelFile << std::endl << "[EquipmentDefinitions]" << std::endl;
+    gameMap.saveLevelEquipments(levelFile);
+    levelFile << "[/EquipmentDefinitions]" << std::endl;
 
     // Write out the spawn pools
     levelFile << "\n[Spawn_Pools]\n";
@@ -606,11 +671,76 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     levelFile.close();
 }
 
+bool loadEquipments(const std::string& fileName, GameMap& gameMap)
+{
+    // First, clear the previous weapons
+    gameMap.clearWeapons();
+    std::cout << "Load equipment definition file: " << fileName << std::endl;
+
+    // Try to open the input file for reading and throw an error if we can't.
+    std::ifstream equipmentFile(ResourceManager::getSingleton().getGameDataPath() + fileName.c_str(), std::ifstream::in);
+    if (!equipmentFile.good())
+    {
+        std::cout << "ERROR: Creature definition file not found:  " << fileName << "\n\n\n";
+        return false;
+    }
+
+    // Read in the whole equipmentFile, strip it of comments and feed it into
+    // the stringstream defFile, to be read by the rest of the function.
+    std::stringstream defFile;
+    std::string nextParam;
+    while (equipmentFile.good())
+    {
+        std::getline(equipmentFile, nextParam);
+        /* Find the first occurrence of the comment symbol on the
+         * line and return everything before that character.
+         */
+        defFile << nextParam.substr(0, nextParam.find('#')) << "\n";
+    }
+
+    equipmentFile.close();
+
+    // Load weapons
+    defFile >> nextParam;
+    if (nextParam != "[EquipmentDefinitions]")
+    {
+        std::cout << "Invalid Weapons classes start format." << std::endl;
+        std::cout << "Line was " << nextParam << std::endl;
+        return false;
+    }
+
+    while(defFile.good())
+    {
+        defFile >> nextParam;
+        if (nextParam == "[/EquipmentDefinitions]")
+            break;
+
+        if (nextParam == "[/Equipment]")
+            continue;
+
+        if (nextParam != "[Equipment]")
+        {
+            std::cout << "Invalid Weapon start format." << std::endl;
+            std::cout << "Line was " << nextParam << std::endl;
+            return false;
+        }
+
+        // Load the definition
+        Weapon* weapon = Weapon::load(defFile);
+        if (weapon == nullptr)
+        {
+            std::cout << "Invalid Creature definition format." << std::endl;
+            return false;
+        }
+        gameMap.addWeapon(weapon);
+    }
+    return true;
+}
+
 bool loadCreatureDefinition(const std::string& fileName, GameMap& gameMap)
 {
     // First, clear the previous creature definitions
     gameMap.clearClasses();
-    gameMap.setCreatureDefinitionFileName(fileName);
 
     std::cout << "Load creature definition file: " << fileName << std::endl;
 
@@ -639,7 +769,7 @@ bool loadCreatureDefinition(const std::string& fileName, GameMap& gameMap)
 
     // Read in the creature class descriptions
     defFile >> nextParam;
-    if (nextParam != "[Creatures]")
+    if (nextParam != "[CreatureDefinitions]")
     {
         std::cout << "Invalid Creature classes start format." << std::endl;
         std::cout << "Line was " << nextParam << std::endl;
@@ -648,11 +778,8 @@ bool loadCreatureDefinition(const std::string& fileName, GameMap& gameMap)
 
     while(defFile.good())
     {
-        if(!defFile.good())
-            return false;
-
         defFile >> nextParam;
-        if (nextParam == "[/Creatures]")
+        if (nextParam == "[/CreatureDefinitions]")
             break;
 
         if (nextParam == "[/Creature]")

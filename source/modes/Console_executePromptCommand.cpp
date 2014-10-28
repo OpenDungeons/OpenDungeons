@@ -420,8 +420,6 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             Creature *tempCreature = Creature::getCreatureFromStream(gameMap, tempSS);
 
             tempCreature->createMesh();
-            tempCreature->getWeaponL()->createMesh();
-            tempCreature->getWeaponR()->createMesh();
             gameMap->addCreature(tempCreature);
             frameListener->mCommandOutput += "\nCreature added successfully\n";
         }

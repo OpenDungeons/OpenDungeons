@@ -27,7 +27,6 @@
 #include "game/Player.h"
 #include "entities/MapLight.h"
 #include "entities/Creature.h"
-#include "entities/Weapon.h"
 #include "ODApplication.h"
 #include "rooms/RoomTreasury.h"
 #include "entities/TreasuryObject.h"
@@ -295,8 +294,6 @@ bool ODClient::processOneClientSocketMessage()
             Creature *newCreature = Creature::getCreatureFromPacket(gameMap, packetReceived);
             gameMap->addCreature(newCreature);
             newCreature->createMesh();
-            newCreature->getWeaponL()->createMesh();
-            newCreature->getWeaponR()->createMesh();
             break;
         }
 

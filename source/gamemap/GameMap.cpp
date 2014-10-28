@@ -166,6 +166,14 @@ GameMap::~GameMap()
 
 bool GameMap::loadLevel(const std::string& levelFilepath)
 {
+    // Read in the game map config files
+    std::string creatureDefFile = ResourceManager::getSingleton().getConfigPath() + "creatures.cfg";
+    if (!MapLoader::loadCreatureDefinition(creatureDefFile, *this))
+        return false;
+    std::string equipmentsFile = ResourceManager::getSingleton().getConfigPath() + "equipments.cfg";
+    if (!MapLoader::loadEquipments(equipmentsFile, *this))
+        return false;
+
     // Read in the game map filepath
     std::string levelPath = ResourceManager::getSingletonPtr()->getGameDataPath()
                             + levelFilepath;
@@ -220,6 +228,7 @@ void GameMap::clearAll()
 {
     clearCreatures();
     clearClasses();
+    clearWeapons();
     clearTraps();
 
     clearMapLights();
@@ -260,7 +269,30 @@ void GameMap::clearAiManager()
 
 void GameMap::clearClasses()
 {
-    classDescriptions.clear();
+    for (std::vector<std::pair<CreatureDefinition*,CreatureDefinition*> >::iterator it = mClassDescriptions.begin(); it != mClassDescriptions.end(); ++it)
+    {
+        std::pair<CreatureDefinition*,CreatureDefinition*>& def = *it;
+        if(def.second != def.first)
+            delete def.second;
+
+        if(def.first != nullptr)
+            delete def.first;
+    }
+    mClassDescriptions.clear();
+}
+
+void GameMap::clearWeapons()
+{
+    for (std::vector<std::pair<Weapon*,Weapon*> >::iterator it = mWeapons.begin(); it != mWeapons.end(); ++it)
+    {
+        std::pair<Weapon*,Weapon*>& def = *it;
+        if(def.second != def.first)
+            delete def.second;
+
+        if(def.first != nullptr)
+            delete def.first;
+    }
+    mWeapons.clear();
 }
 
 void GameMap::clearRenderedMovableEntities()
@@ -285,7 +317,6 @@ void GameMap::clearActiveObjects()
 
 void GameMap::clearPlayers()
 {
-
     for (unsigned int ii = 0; ii < numPlayers(); ++ii)
     {
         delete players[ii];
@@ -308,8 +339,65 @@ void GameMap::resetUniqueNumbers()
 
 void GameMap::addClassDescription(CreatureDefinition *c)
 {
-    boost::shared_ptr<CreatureDefinition> ptr(c);
-    classDescriptions.push_back(ptr);
+    mClassDescriptions.push_back(std::pair<CreatureDefinition*,CreatureDefinition*>(c,c));
+}
+
+void GameMap::addWeapon(Weapon* weapon)
+{
+    mWeapons.push_back(std::pair<Weapon*,Weapon*>(weapon,weapon));
+}
+
+Weapon* GameMap::getWeapon(const std::string& name)
+{
+    for (std::vector<std::pair<Weapon*,Weapon*> >::iterator it = mWeapons.begin(); it != mWeapons.end(); ++it)
+    {
+        std::pair<Weapon*,Weapon*>& def = *it;
+        if (def.second->getName().compare(name) == 0)
+        {
+            return def.second;
+        }
+    }
+
+    return NULL;
+}
+
+Weapon* GameMap::getWeaponForTuning(const std::string& name)
+{
+    for (std::vector<std::pair<Weapon*,Weapon*> >::iterator it = mWeapons.begin(); it != mWeapons.end(); ++it)
+    {
+        std::pair<Weapon*,Weapon*>& def = *it;
+        if (def.second->getName().compare(name) == 0)
+        {
+            // If the definition is not a copy, we make one because we want to keep the original so we are able
+            // to save the changes if the map is saved
+            if(def.second == def.first)
+                def.second = new Weapon(*def.first);
+
+            return def.second;
+        }
+    }
+
+    // It is a new definition
+    Weapon* def = new Weapon(name);
+    mWeapons.push_back(std::pair<Weapon*,Weapon*>(nullptr, def));
+    return def;
+}
+
+uint32_t GameMap::numWeapons()
+{
+    return mWeapons.size();
+}
+
+void GameMap::saveLevelEquipments(std::ofstream& levelFile)
+{
+    for (std::vector<std::pair<Weapon*,Weapon*> >::iterator it = mWeapons.begin(); it != mWeapons.end(); ++it)
+    {
+        std::pair<Weapon*,Weapon*>& def = *it;
+        if(def.first == def.second)
+            continue;
+
+        Weapon::writeWeaponDiff(def.first, def.second, levelFile);
+    }
 }
 
 void GameMap::addCreature(Creature *cc)
@@ -359,13 +447,38 @@ void GameMap::queueMapLightForDeletion(MapLight *ml)
 
 CreatureDefinition* GameMap::getClassDescription(const std::string& className)
 {
-    for (unsigned int i = 0; i < classDescriptions.size(); ++i)
+    for (std::vector<std::pair<CreatureDefinition*,CreatureDefinition*> >::iterator it = mClassDescriptions.begin(); it != mClassDescriptions.end(); ++it)
     {
-        if (classDescriptions[i]->getClassName().compare(className) == 0)
-            return classDescriptions[i].get();
+        std::pair<CreatureDefinition*,CreatureDefinition*>& def = *it;
+        if (def.second->getClassName().compare(className) == 0)
+        {
+            return def.second;
+        }
     }
 
     return NULL;
+}
+
+CreatureDefinition* GameMap::getClassDescriptionForTuning(const std::string& name)
+{
+    for (std::vector<std::pair<CreatureDefinition*,CreatureDefinition*> >::iterator it = mClassDescriptions.begin(); it != mClassDescriptions.end(); ++it)
+    {
+        std::pair<CreatureDefinition*,CreatureDefinition*>& def = *it;
+        if (def.second->getClassName().compare(name) == 0)
+        {
+            // If the definition is not a copy, we make one because we want to keep the original so we are able
+            // to save the changes if the map is saved
+            if(def.second == def.first)
+                def.second = new CreatureDefinition(*def.first);
+
+            return def.second;
+        }
+    }
+
+    // It is a new definition
+    CreatureDefinition* def = new CreatureDefinition(name);
+    mClassDescriptions.push_back(std::pair<CreatureDefinition*,CreatureDefinition*>(nullptr, def));
+    return def;
 }
 
 unsigned int GameMap::numCreatures() const
@@ -775,7 +888,19 @@ void GameMap::removeActiveObject(GameEntity *a)
 
 unsigned int GameMap::numClassDescriptions()
 {
-    return classDescriptions.size();
+    return mClassDescriptions.size();
+}
+
+void GameMap::saveLevelClassDescriptions(std::ofstream& levelFile)
+{
+    for (std::vector<std::pair<CreatureDefinition*,CreatureDefinition*> >::iterator it = mClassDescriptions.begin(); it != mClassDescriptions.end(); ++it)
+    {
+        std::pair<CreatureDefinition*,CreatureDefinition*>& def = *it;
+        if(def.first == def.second)
+            continue;
+
+        CreatureDefinition::writeCreatureDefinitionDiff(def.first, def.second, levelFile);
+    }
 }
 
 Creature* GameMap::getCreature(int index)
@@ -792,7 +917,8 @@ const Creature* GameMap::getCreature(int index) const
 
 CreatureDefinition* GameMap::getClassDescription(int index)
 {
-    return classDescriptions[index].get();
+    std::pair<CreatureDefinition*,CreatureDefinition*>& def = mClassDescriptions[index];
+    return def.second;
 }
 
 void GameMap::createAllEntities()
@@ -811,8 +937,6 @@ void GameMap::createAllEntities()
     {
         Creature *currentCreature = getCreature(i);
         currentCreature->createMesh();
-        currentCreature->getWeaponL()->createMesh();
-        currentCreature->getWeaponR()->createMesh();
     }
 
     // Create OGRE entities for the map lights.
@@ -855,8 +979,6 @@ void GameMap::destroyAllEntities()
     for (unsigned int i = 0; i < numCreatures(); ++i)
     {
         Creature *currentCreature = getCreature(i);
-        currentCreature->getWeaponL()->destroyMesh();
-        currentCreature->getWeaponR()->destroyMesh();
         currentCreature->destroyMesh();
     }
 

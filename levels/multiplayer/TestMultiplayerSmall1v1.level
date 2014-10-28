@@ -1,8 +1,8 @@
 OpenDungeons_Version:0.4.9  # The version of OpenDungeons which created this file (for compatibility reasons).
 
 [Info]
-Name	Small Test Map
-Description	A small test map for the multiplayer mode in free for all...
+Name	Small Test Map 1v1
+Description	A small test map for the multiplayer mode 1v1
 Music	yd_Searching_ingame.ogg
 FightMusic	The_Dark_Amulet.ogg
 [/Info]
@@ -11,8 +11,6 @@ FightMusic	The_Dark_Amulet.ogg
 # seatId	teamId	faction	startingX	startingY	colorR	colorG	colorB	startingGold
 1	1	Player	10	10	0	0.4	0	1000
 2	2	Player	10	40	0.4	0	0	1000
-3	3	KeeperAI	40	10	0	0	0.4	1000
-4	4	KeeperAI	40	40	0.4	0.4	0.1	1000
 [/Seats]
 
 [Goals]
@@ -362,186 +360,24 @@ ProtectDungeonTemple	NULL
 35	25	2	100
 36	24	2	100
 36	25	2	100
-37	7	6	0	3
-37	8	6	0	3
-37	9	6	0	3
-37	10	6	0	3
-37	11	6	0	3
-37	12	6	0	3
-37	13	6	0	3
-37	14	6	0	3
-37	15	1	0
 37	24	2	100
 37	25	2	100
-37	37	6	0	4
-37	38	6	0	4
-37	39	6	0	4
-37	40	6	0	4
-37	41	6	0	4
-37	42	6	0	4
-37	43	6	0	4
-37	44	6	0	4
-37	45	1	0
-38	7	6	0	3
-38	8	6	0	3
-38	9	6	0	3
-38	10	6	0	3
-38	11	6	0	3
-38	12	6	0	3
-38	13	6	0	3
-38	14	6	0	3
-38	15	1	0
 38	24	2	100
 38	25	2	100
-38	37	6	0	4
-38	38	6	0	4
-38	39	6	0	4
-38	40	6	0	4
-38	41	6	0	4
-38	42	6	0	4
-38	43	6	0	4
-38	44	6	0	4
-38	45	1	0
-39	7	6	0	3
-39	8	6	0	3
-39	9	6	0	3
-39	10	6	0	3
-39	11	6	0	3
-39	12	6	0	3
-39	13	6	0	3
-39	14	6	0	3
-39	15	1	0
 39	24	2	100
 39	25	2	100
-39	37	6	0	4
-39	38	6	0	4
-39	39	6	0	4
-39	40	6	0	4
-39	41	6	0	4
-39	42	6	0	4
-39	43	6	0	4
-39	44	6	0	4
-39	45	1	0
-40	7	6	0	3
-40	8	6	0	3
-40	9	6	0	3
-40	10	6	0	3
-40	11	6	0	3
-40	12	1	0
-40	13	1	0
-40	14	1	0
-40	15	1	0
 40	24	2	100
 40	25	2	100
-40	37	6	0	4
-40	38	6	0	4
-40	39	6	0	4
-40	40	6	0	4
-40	41	6	0	4
-40	42	1	0
-40	43	1	0
-40	44	1	0
-40	45	1	0
-41	7	6	0	3
-41	8	6	0	3
-41	9	6	0	3
-41	10	6	0	3
-41	11	6	0	3
-41	12	1	0
-41	13	1	0
-41	14	1	0
-41	15	1	0
 41	24	2	100
 41	25	2	100
-41	37	6	0	4
-41	38	6	0	4
-41	39	6	0	4
-41	40	6	0	4
-41	41	6	0	4
-41	42	1	0
-41	43	1	0
-41	44	1	0
-41	45	1	0
-42	7	6	0	3
-42	8	6	0	3
-42	9	6	0	3
-42	10	1	0
-42	11	1	0
-42	12	1	0
-42	13	1	0
-42	14	1	0
-42	15	1	0
 42	24	2	100
 42	25	2	100
-42	37	6	0	4
-42	38	6	0	4
-42	39	6	0	4
-42	40	1	0
-42	41	1	0
-42	42	1	0
-42	43	1	0
-42	44	1	0
-42	45	1	0
-43	7	1	0
-43	8	1	0
-43	9	1	0
-43	10	1	0
-43	11	1	0
-43	12	2	100
-43	13	2	100
-43	14	2	100
-43	15	1	0
 43	24	2	100
 43	25	2	100
-43	37	1	0
-43	38	1	0
-43	39	1	0
-43	40	1	0
-43	41	1	0
-43	42	2	100
-43	43	2	100
-43	44	2	100
-43	45	1	0
-44	7	1	0
-44	8	1	0
-44	9	1	0
-44	10	1	0
-44	11	1	0
-44	12	2	100
-44	13	2	100
-44	14	2	100
-44	15	1	0
 44	24	2	100
 44	25	2	100
-44	37	1	0
-44	38	1	0
-44	39	1	0
-44	40	1	0
-44	41	1	0
-44	42	2	100
-44	43	2	100
-44	44	2	100
-44	45	1	0
-45	7	1	0
-45	8	1	0
-45	9	1	0
-45	10	1	0
-45	11	1	0
-45	12	1	0
-45	13	1	0
-45	14	1	0
-45	15	1	0
 45	24	2	100
 45	25	2	100
-45	37	1	0
-45	38	1	0
-45	39	1	0
-45	40	1	0
-45	41	1	0
-45	42	1	0
-45	43	1	0
-45	44	1	0
-45	45	1	0
 46	24	2	100
 46	25	2	100
 47	24	2	100
@@ -646,98 +482,6 @@ ProtectDungeonTemple	NULL
 12	38
 12	39
 [/Room]
-[Room]
-1	3	25
-37	7
-37	8
-37	9
-37	10
-37	11
-38	7
-38	8
-38	9
-38	10
-38	11
-39	7
-39	8
-39	9
-39	10
-39	11
-40	7
-40	8
-40	9
-40	10
-40	11
-41	7
-41	8
-41	9
-41	10
-41	11
-[/Room]
-[Room]
-4	3	9
-37	12
-37	13
-37	14
-38	12
-38	13
-38	14
-39	12
-39	13
-39	14
-[/Room]
-[Room]
-3	3	3
-42	7
-42	8
-42	9
-[/Room]
-[Room]
-1	4	25
-37	37
-37	38
-37	39
-37	40
-37	41
-38	37
-38	38
-38	39
-38	40
-38	41
-39	37
-39	38
-39	39
-39	40
-39	41
-40	37
-40	38
-40	39
-40	40
-40	41
-41	37
-41	38
-41	39
-41	40
-41	41
-[/Room]
-[Room]
-4	4	9
-37	42
-37	43
-37	44
-38	42
-38	43
-38	44
-39	42
-39	43
-39	44
-[/Room]
-[Room]
-3	4	3
-42	37
-42	38
-42	39
-[/Room]
 [/Rooms]
 
 [Traps]
@@ -748,6 +492,12 @@ ProtectDungeonTemple	NULL
 # posX	posY	posZ	diffuseR	diffuseG	diffuseB	specularR	specularG	specularB	attenRange	attenConst	attenLin	attenQuad
 12	7	3.75	0.9	0.8	0.6	0.2	0.2	0.2	50	0.012	0.32	0.0018
 [/Lights]
+
+[CreatureDefinitions]
+[/CreatureDefinitions]
+
+[EquipmentDefinitions]
+[/EquipmentDefinitions]
 
 [Spawn_Pools]
 # Each team's spawn pool.
@@ -795,46 +545,11 @@ Scarab
 Slime
 [/Spawn_Pool]
 
-[Spawn_Pool]
-# seat id
-3
-# Creature list
-ConstructWorker
-CaveHornet
-Wyvern
-Dragon
-Orc
-Kreatur
-Goblin
-PitDemon
-Spider
-Tentacle1
-Tentacle2
-Troll
-LizardMan
-Scarab
-Slime
-[/Spawn_Pool]
-
-[Spawn_Pool]
-# seat id
-4
-# Creature list
-Gnome
-Knight
-BigKnight
-Adventurer
-Dwarf1
-Dwarf2
-Dwarf3
-Wizard
-[/Spawn_Pool]
-
 [/Spawn_Pools]
 
 [Creatures]
-# SeatId	ClassName	Name	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeapon RightWeapon
+# SeatId	ClassName	Name	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeapon	RightWeapon
 [Creature]
-1	ConstructWorker	ConstructWorker1	1	0	125	100	0	0	7	7	0	none	none
+1	ConstructWorker	ConstructWorker1	1	0	4	100	0	0	7	7	0	none	none
 [/Creature]
 [/Creatures]

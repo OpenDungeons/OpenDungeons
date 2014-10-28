@@ -44,6 +44,8 @@ namespace MapLoader
 
     void writeGameMapToFile(const std::string& fileName, GameMap& gameMap);
 
+    bool loadEquipments(const std::string& fileName, GameMap& gameMap);
+
     bool loadCreatureDefinition(const std::string& fileName, GameMap& gameMap);
 
     //! \brief Returns the main user map info

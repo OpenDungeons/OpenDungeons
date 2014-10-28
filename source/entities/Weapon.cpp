@@ -17,90 +17,136 @@
 
 #include "entities/Weapon.h"
 
-#include "gamemap/GameMap.h"
-#include "network/ODPacket.h"
+#include "utils/Helper.h"
+#include "utils/LogManager.h"
 
-Weapon::Weapon(GameMap* gameMap,
-       const std::string& name,
-       double             damage,
-       double             range,
-       double             defense,
-       const std::string& handString,
-       Creature*          parent):
-    GameEntity     (gameMap, name, std::string(), 0),
-    mHandString    (handString),
-    mDamage        (damage),
-    mRange         (range),
-    mDefense       (defense),
-    mParentCreature(parent)
+Weapon* Weapon::load(std::stringstream& defFile)
 {
-    // TODO: Makes this obtained with a true parameter
-    setMeshName(name + ".mesh");
+    if (!defFile.good())
+        return nullptr;
+    Weapon* weapon = new Weapon();
+    if(!update(weapon, defFile))
+    {
+        delete weapon;
+        weapon = nullptr;
+    }
+    return weapon;
+}
+bool Weapon::update(Weapon* weapon, std::stringstream& defFile)
+{
+    std::string nextParam;
+    bool exit = false;
+    while (defFile.good())
+    {
+        if (exit)
+            break;
+
+        defFile >> nextParam;
+        if (nextParam == "[/Equipment]" || nextParam == "[/EquipmentDefinitions]")
+            break;
+
+        if (nextParam == "Name")
+        {
+            defFile >> nextParam;
+            weapon->mName = nextParam;
+            continue;
+        }
+
+        if (nextParam != "[Stats]")
+            continue;
+
+        while (defFile.good())
+        {
+            if (exit)
+                break;
+
+            defFile >> nextParam;
+            if (nextParam == "[/Stats]")
+                break;
+
+            // Handle ill-formed files.
+            if (nextParam == "[/Equipment]" || nextParam == "[/EquipmentDefinitions]")
+            {
+                exit = true;
+                break;
+            }
+
+            if (nextParam == "MeshName")
+            {
+                defFile >> nextParam;
+                weapon->mMeshName = nextParam;
+                continue;
+            }
+
+            if (nextParam == "PhysicalDamage")
+            {
+                defFile >> nextParam;
+                weapon->mPhysicalDamage = Helper::toDouble(nextParam);
+                continue;
+            }
+
+            if (nextParam == "MagicalDamage")
+            {
+                defFile >> nextParam;
+                weapon->mMagicalDamage = Helper::toDouble(nextParam);
+                continue;
+            }
+
+            if (nextParam == "Range")
+            {
+                defFile >> nextParam;
+                weapon->mRange = Helper::toDouble(nextParam);
+                continue;
+            }
+
+            if (nextParam == "PhysicalDefense")
+            {
+                defFile >> nextParam;
+                weapon->mPhysicalDefense = Helper::toDouble(nextParam);
+                continue;
+            }
+
+            if (nextParam == "MagicalDefense")
+            {
+                defFile >> nextParam;
+                weapon->mMagicalDefense = Helper::toDouble(nextParam);
+                continue;
+            }
+        }
+    }
+
+    if (weapon->mName.empty() || weapon->mMeshName.empty())
+    {
+        return false;
+    }
+
+    return true;
 }
 
-void Weapon::createMeshLocal()
+void Weapon::writeWeaponDiff(Weapon* def1, Weapon* def2, std::ofstream& file)
 {
-    GameEntity::createMeshLocal();
+    file << "[Equipment]" << std::endl;
+    file << "    Name\t" << def2->mName << std::endl;
+    file << "    [Stats]" << std::endl;
 
-    if(getGameMap()->isServerGameMap())
-        return;
+    if(def1 == nullptr || (def1->mMeshName.compare(def2->mMeshName) != 0))
+        file << "    MeshName\t" << def2->mMeshName << std::endl;
 
-    if(getName().compare("none") == 0)
-        return;
+    if(def1 == nullptr || (def1->mPhysicalDamage != def2->mPhysicalDamage))
+        file << "    PhysicalDamage\t" << def2->mPhysicalDamage << std::endl;
 
-    RenderRequest* request = new RenderRequestCreateWeapon(getParentCreature(), this);
-    RenderManager::queueRenderRequest(request);
-}
+    if(def1 == nullptr || (def1->mMagicalDamage != def2->mMagicalDamage))
+        file << "    MagicalDamage\t" << def2->mMagicalDamage << std::endl;
 
-void Weapon::destroyMeshLocal()
-{
-    GameEntity::destroyMeshLocal();
+    if(def1 == nullptr || (def1->mRange != def2->mRange))
+        file << "    Range\t" << def2->mRange << std::endl;
 
-    if(getGameMap()->isServerGameMap())
-        return;
+    if(def1 == nullptr || (def1->mPhysicalDefense != def2->mPhysicalDefense))
+        file << "    PhysicalDefense\t" << def2->mPhysicalDefense << std::endl;
 
-    if (getName().compare("none") == 0)
-        return;
+    if(def1 == nullptr || (def1->mMagicalDefense != def2->mMagicalDefense))
+        file << "    MagicalDefense\t" << def2->mMagicalDefense << std::endl;
 
-    RenderRequest* request = new RenderRequestDestroyWeapon(getParentCreature(), this);
-    RenderManager::queueRenderRequest(request);
-}
-
-std::string Weapon::getFormat()
-{
-    //NOTE:  When this format changes changes to RoomPortal::spawnCreature() may be necessary.
-    return "name\tdamage\trange\tdefense";
-}
-
-std::ostream& operator<<(std::ostream& os, Weapon *w)
-{
-    os << w->getName() << "\t" << w->getDamage() << "\t" << w->getRange() << "\t" << w->getPhysicalDefense();
-    return os;
-}
-
-std::istream& operator>>(std::istream& is, Weapon *w)
-{
-    std::string name;
-    is >> name >> w->mDamage >> w->mRange >> w->mDefense;
-    w->setName(name);
-    w->setMeshName(name + ".mesh");
-
-    return is;
-}
-
-ODPacket& operator<<(ODPacket& os, Weapon *w)
-{
-    std::string name = w->getName();
-    os << name << w->mDamage << w->mRange << w->mDefense;
-    return os;
-}
-
-ODPacket& operator>>(ODPacket& is, Weapon *w)
-{
-    std::string name;
-    is >> name >> w->mDamage >> w->mRange >> w->mDefense;
-    w->setName(name);
-    w->setMeshName(name + ".mesh");
-
-    return is;
+    file << "    [/Stats]" << std::endl;
+    file << "[/Equipment]" << std::endl;
 }

@@ -79,6 +79,9 @@ public:
     inline const std::string& getMusicPath() const
     { return mMusicPath; }
 
+    inline const std::string& getConfigPath() const
+    { return mConfigPath; }
+
     inline const std::string& getScriptPath() const
     { return mScriptPath; }
 
@@ -124,6 +127,7 @@ private:
     std::string mShaderCachePath;
 
     //! \brief Specific data sub-paths.
+    std::string mConfigPath;
     std::string mPluginsPath;
     std::string mMusicPath;
     std::string mSoundPath;
@@ -135,6 +139,7 @@ private:
     static const std::string MUSICSUBPATH;
     static const std::string SOUNDSUBPATH;
     static const std::string SCRIPTSUBPATH;
+    static const std::string CONFIGSUBPATH;
     static const std::string LANGUAGESUBPATH;
     static const std::string SHADERCACHESUBPATH;
     static const std::string CONFIGFILENAME;

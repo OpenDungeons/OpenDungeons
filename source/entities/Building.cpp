@@ -217,29 +217,27 @@ double Building::getHP(Tile *tile) const
     return total;
 }
 
-double Building::getPhysicalDefense() const
+double Building::takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile *tileTakingDamage)
 {
-    return 0;
-}
-
-void Building::takeDamage(GameEntity* attacker, double damage, Tile *tileTakingDamage)
-{
-    mTileHP[tileTakingDamage] -= damage;
+    mTileHP[tileTakingDamage] -= physicalDamage;
+    mTileHP[tileTakingDamage] -= magicalDamage;
 
     GameMap* gameMap = getGameMap();
     if(!gameMap->isServerGameMap())
-        return;
+        return physicalDamage + magicalDamage;
 
     Seat* seat = getSeat();
     if (seat == NULL)
-        return;
+        return physicalDamage + magicalDamage;
 
     Player* player = gameMap->getPlayerBySeatId(seat->getId());
     if (player == NULL)
-        return;
+        return physicalDamage + magicalDamage;
 
     // Tells the server game map the player is under attack.
     gameMap->playerIsFighting(player);
+
+    return physicalDamage + magicalDamage;
 }
 
 std::string Building::getNameTile(Tile* tile)
