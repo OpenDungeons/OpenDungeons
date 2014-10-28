@@ -98,13 +98,6 @@
             <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuRooms.layout" name="RoomsImport" />
             <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuTraps.layout" name="RoomsImport" />
             <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuCreatures.layout" name="CreaturesImport" />
-            <Window type="DefaultWindow" name="Spells" >
-                <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
-                <Property name="Text" value="Spells" />
-                <Property name="MaxSize" value="{{1,0},{1,0}}" />
-                <Property name="Visible" value="False" />
-                <Property name="RiseOnClickEnabled" value="False" />
-            </Window>
         </Window>
         <Window type="OD/MainMenuButton" name="ConfirmExit" >
             <Property name="Area" value="{{0.5,-200},{0.5,-100},{0.5,200},{0.5,100}}" />
