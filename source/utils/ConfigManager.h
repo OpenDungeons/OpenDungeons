@@ -35,8 +35,12 @@ public:
     Ogre::ColourValue getColorFromId(const std::string& id) const;
     const std::vector<const CreatureDefinition*>& getCreatureDefinitions() const
     { return mCreatureDefs; }
+    const CreatureDefinition* getCreatureDefinition(const std::string& name) const;
+
     const std::vector<const Weapon*>& getWeapons() const
     { return mWeapons; }
+    const Weapon* getWeapon(const std::string& name) const;
+
     uint32_t getNetworkPort() const
     { return mNetworkPort; }
 

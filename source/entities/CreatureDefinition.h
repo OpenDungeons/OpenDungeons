@@ -190,6 +190,9 @@ private:
     //! \brief The name of the creatures class
     std::string mClassName;
 
+    //! \brief The name of the creature definition this one is based on (can be empty if no base class)
+    std::string mBaseDefinition;
+
     //! \brief The name of the model file
     std::string mMeshName;
 

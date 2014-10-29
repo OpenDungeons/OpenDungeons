@@ -408,6 +408,28 @@ bool ConfigManager::loadEquipements(const std::string& fileName)
     return true;
 }
 
+const CreatureDefinition* ConfigManager::getCreatureDefinition(const std::string& name) const
+{
+    for(const CreatureDefinition* def : mCreatureDefs)
+    {
+        if(name.compare(def->getClassName()) == 0)
+            return def;
+    }
+
+    return nullptr;
+}
+
+const Weapon* ConfigManager::getWeapon(const std::string& name) const
+{
+    for(const Weapon* def : mWeapons)
+    {
+        if(name.compare(def->getName()) == 0)
+            return def;
+    }
+
+    return nullptr;
+}
+
 Ogre::ColourValue ConfigManager::getColorFromId(const std::string& id) const
 {
     if(mSeatColors.count(id) > 0)

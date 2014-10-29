@@ -84,6 +84,8 @@ private:
     {}
 
     std::string     mName;
+    //! \brief the Weapon name this class extends. Can be empty if no class extended
+    std::string     mBaseDefinition;
     std::string     mMeshName;
     double          mPhysicalDamage;
     double          mMagicalDamage;
