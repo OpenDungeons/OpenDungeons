@@ -482,7 +482,7 @@ void ODServer::processServerNotifications()
 
                 if(hasTeamLost)
                 {
-                    // This message will be sent in skirmissh or multiplayer so it should not talk about team. If we want to be
+                    // This message will be sent in skirmish or multiplayer so it should not talk about team. If we want to be
                     // more precise, we shall handle the case
                     ODPacket packet;
                     packet << ServerNotification::chatServer;
@@ -500,7 +500,7 @@ void ODServer::processServerNotifications()
 
                 ODPacket packetAllied;
                 packetAllied << ServerNotification::chatServer;
-                packetAllied << "An allied has lost his dungeon temples";
+                packetAllied << "An ally has lost";
                 for (std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
                 {
                     ODSocketClient* client = *it;
@@ -515,7 +515,7 @@ void ODServer::processServerNotifications()
                     {
                         ODPacket packet;
                         packet << ServerNotification::chatServer;
-                        packet << "You lost your dungeon temples";
+                        packet << "You lost";
                         sendMsgToClient(client, packet);
                     }
                 }
