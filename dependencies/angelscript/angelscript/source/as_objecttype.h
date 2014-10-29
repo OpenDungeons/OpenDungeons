@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2013 Andreas Jonsson
+   Copyright (c) 2003-2014 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied 
    warranty. In no event will the authors be held liable for any 
@@ -51,27 +51,6 @@ BEGIN_AS_NAMESPACE
 
 // TODO: memory: Need to minimize used memory here, because not all types use all properties of the class
 
-// TODO: The type id should have flags for diferenciating between value types and reference types. It should also have a flag for differenciating interface types.
-
-// Additional flag to the class object type
-const asDWORD asOBJ_IMPLICIT_HANDLE  = 0x00400000;
-const asDWORD asOBJ_TYPEDEF          = 0x40000000;
-const asDWORD asOBJ_ENUM             = 0x10000000;
-const asDWORD asOBJ_TEMPLATE_SUBTYPE = 0x20000000;
-
-
-
-// asOBJ_GC is used to indicate that the type can potentially 
-// form circular references, thus is garbage collected.
-
-// The fact that an object is garbage collected doesn't imply that an other object  
-// that can reference it also must be garbage collected, only if the garbage collected 
-// object can reference the other object as well.
-
-// For registered types however, we set the flag asOBJ_GC if the GC 
-// behaviours are registered. For script types that contain any such type we 
-// automatically make garbage collected as well, because we cannot know what type
-// of references that object can contain, and must assume the worst.
 
 struct asSTypeBehaviour
 {
@@ -157,7 +136,7 @@ public:
 	int              GetTypeId() const;
 	int              GetSubTypeId(asUINT subtypeIndex = 0) const;
 	asIObjectType   *GetSubType(asUINT subtypeIndex = 0) const;
-	asUINT			 GetSubTypeCount() const;
+	asUINT           GetSubTypeCount() const;
 
 	// Interfaces
 	asUINT           GetInterfaceCount() const;
@@ -178,7 +157,7 @@ public:
 	// Properties
 	asUINT      GetPropertyCount() const;
 	int         GetProperty(asUINT index, const char **name, int *typeId, bool *isPrivate, int *offset, bool *isReference, asDWORD *accessMask) const;
-	const char *GetPropertyDeclaration(asUINT index) const;
+	const char *GetPropertyDeclaration(asUINT index, bool includeNamespace = false) const;
 
 	// Behaviours
 	asUINT             GetBehaviourCount() const;
@@ -194,6 +173,8 @@ public:
 public:
 	asCObjectType(asCScriptEngine *engine);
 	~asCObjectType();
+	void DropFromEngine();
+	void DestroyInternal();
 
 	void Orphan(asCModule *module);
 	int  GetRefCount();
@@ -213,9 +194,13 @@ public:
 	asCString                    name;
 	asSNameSpace                *nameSpace;
 	int                          size;
+#ifdef WIP_16BYTE_ALIGN
+	int                          alignment;
+#endif
 	asCArray<asCObjectProperty*> properties;
 	asCArray<int>                methods;
 	asCArray<asCObjectType*>     interfaces;
+	asCArray<asUINT>             interfaceVFTOffsets;
 	asCArray<asSEnumValue*>      enumValues;
 	asCObjectType *              derivedFrom;
 	asCArray<asCScriptFunction*> virtualFunctionTable;

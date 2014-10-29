@@ -402,7 +402,8 @@ void ASWrapper::registerEverything()
  */
 void ASWrapper::executeConsoleCommand(const std::vector<std::string>& fullCommand)
 {
-    CScriptArray* arguments = new CScriptArray(fullCommand.size() - 1, mStringArray);
+    //CScriptArray* arguments = new CScriptArray(fullCommand.size() - 1, mStringArray);
+    CScriptArray* arguments = CScriptArray::Create(mStringArray, static_cast<asUint>(fullCommand.size() - 1));
     for(asUINT i = 0, size = arguments->GetSize(); i < size; ++i)
     {
     	*(static_cast<std::string*>(arguments->At(i))) = fullCommand[i + 1];
@@ -413,5 +414,4 @@ void ASWrapper::executeConsoleCommand(const std::vector<std::string>& fullComman
     mContext->SetArgAddress(0, const_cast<std::string*>(&fullCommand[0]));
     mContext->SetArgObject(1, arguments);
     mContext->Execute();
-    delete arguments;
 }

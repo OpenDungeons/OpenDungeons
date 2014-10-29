@@ -21,7 +21,8 @@
 #include <list>
 #include <angelscript.h>
 #include "../../../add_on/scriptstdstring/scriptstdstring.h"
-#include "../../../add_on/scriptany/scriptany.h"
+#include "../../../add_on/scriptarray/scriptarray.h"
+#include "../../../add_on/scriptdictionary/scriptdictionary.h"
 #include "../../../add_on/contextmgr/contextmgr.h"
 
 using namespace std;
@@ -152,11 +153,14 @@ void ConfigureEngine(asIScriptEngine *engine)
 	// on how to register a custom string type, and other object types.
 	RegisterStdString(engine);
 
-	// Register the script any type
-	// This type will allow the script to pass a variable argument type to the function
+	// Register the script array type
+	RegisterScriptArray(engine, false);
+
+	// Register the script dictionary type
+	// This type will allow the script to pass a dictionary of arguments to the function
 	// thus making the CreateCoRoutine much more flexible in how necessary values are 
-	// passed to the new function. The implementation is in "/add_on/scriptany/scriptany.cpp"
-	RegisterScriptAny(engine);
+	// passed to the new function. The implementation is in "/add_on/scriptdictionary/scriptdictionary.cpp"
+	RegisterScriptDictionary(engine);
 
 	// Register the functions that the scripts will be allowed to use
 	r = engine->RegisterGlobalFunction("void Print(string &in)", asFUNCTION(PrintString), asCALL_CDECL); assert( r >= 0 );
@@ -170,20 +174,14 @@ int CompileScript(asIScriptEngine *engine)
 	int r;
 
 	const char *script = 
-	"class ThreadArg                            \n"
-	"{                                          \n"
-	"  int count;                               \n"
-	"  string str;                              \n"
-	"};                                         \n"
 	"void main()                                \n"
 	"{                                          \n"
     "  for(;;)                                  \n"
 	"  {                                        \n"
 	"    int count = 10;                        \n"
-	"    ThreadArg a;                           \n"
-	"    a.count = 3;                           \n"
-	"    a.str = ' B';                          \n"
-	"    createCoRoutine('thread2', any(@a));   \n"
+	"    createCoRoutine(thread2,               \n"
+	"      dictionary = {{'count', 3},          \n"
+	"                    {'str', ' B'}});       \n"
 	"    while( count-- > 0 )                   \n"
 	"    {                                      \n"
 	"      Print('A :' + count + '\\n');        \n"
@@ -191,12 +189,10 @@ int CompileScript(asIScriptEngine *engine)
 	"    }                                      \n"
 	"  }                                        \n"
 	"}                                          \n"
-	"void thread2(any @arg)                     \n"
+	"void thread2(dictionary @args)             \n"
 	"{                                          \n"
-	"  ThreadArg @a;                            \n"
-	"  arg.retrieve(@a);                        \n"
-	"  int count = a.count;                     \n"
-	"  string str = a.str;                      \n"
+	"  int count = int(args['count']);          \n"
+	"  string str = string(args['str']);        \n"
 	"  while( count-- > 0 )                     \n"
 	"  {                                        \n"
 	"    Print(str + ':' + count + '\\n');      \n"

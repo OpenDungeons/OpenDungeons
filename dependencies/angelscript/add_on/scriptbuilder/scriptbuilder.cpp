@@ -17,7 +17,9 @@ using namespace std;
 BEGIN_AS_NAMESPACE
 
 // Helper functions
-static const char *GetCurrentDir(char *buf, size_t size);
+static string GetCurrentDir();
+static string GetAbsolutePath(const string &path);
+
 
 CScriptBuilder::CScriptBuilder()
 {
@@ -84,11 +86,11 @@ int CScriptBuilder::AddSectionFromFile(const char *filename)
 	return 0;
 }
 
-int CScriptBuilder::AddSectionFromMemory(const char *sectionName, const char *scriptCode, unsigned int scriptLength)
+int CScriptBuilder::AddSectionFromMemory(const char *sectionName, const char *scriptCode, unsigned int scriptLength, int lineOffset)
 {
 	if( IncludeIfNotAlreadyIncluded(sectionName) )
 	{
-		int r = ProcessScriptSection(scriptCode, scriptLength, sectionName);
+		int r = ProcessScriptSection(scriptCode, scriptLength, sectionName, lineOffset);
 		if( r < 0 )
 			return r;
 		else
@@ -155,8 +157,7 @@ int CScriptBuilder::LoadScriptSection(const char *filename)
 	if( f == 0 )
 	{
 		// Write a message to the engine's message callback
-		char buf[256];
-		string msg = "Failed to open script file '" + string(GetCurrentDir(buf, 256)) + "\\" + scriptFile + "'";
+		string msg = "Failed to open script file '" + GetAbsolutePath(scriptFile) + "'";
 		engine->WriteMessage(filename, 0, 0, asMSGTYPE_ERROR, msg.c_str());
 
 		// TODO: Write the file where this one was included from
@@ -186,17 +187,16 @@ int CScriptBuilder::LoadScriptSection(const char *filename)
 	if( c == 0 && len > 0 )
 	{
 		// Write a message to the engine's message callback
-		char buf[256];
-		string msg = "Failed to load script file '" + string(GetCurrentDir(buf, 256)) + scriptFile + "'";
+		string msg = "Failed to load script file '" + GetAbsolutePath(scriptFile) + "'";
 		engine->WriteMessage(filename, 0, 0, asMSGTYPE_ERROR, msg.c_str());
 		return -1;
 	}
 
 	// Process the script section even if it is zero length so that the name is registered
-	return ProcessScriptSection(code.c_str(), (unsigned int)(code.length()), filename);
+	return ProcessScriptSection(code.c_str(), (unsigned int)(code.length()), filename, 0);
 }
 
-int CScriptBuilder::ProcessScriptSection(const char *script, unsigned int length, const char *sectionname)
+int CScriptBuilder::ProcessScriptSection(const char *script, unsigned int length, const char *sectionname, int lineOffset)
 {
 	vector<string> includes;
 
@@ -449,7 +449,7 @@ int CScriptBuilder::ProcessScriptSection(const char *script, unsigned int length
 
 	// Build the actual script
 	engine->SetEngineProperty(asEP_COPY_SCRIPT_SECTIONS, true);
-	module->AddScriptSection(sectionname, modifiedScript.c_str(), modifiedScript.size());
+	module->AddScriptSection(sectionname, modifiedScript.c_str(), modifiedScript.size(), lineOffset);
 
 	if( includes.size() > 0 )
 	{
@@ -911,15 +911,24 @@ const char *CScriptBuilder::GetMetadataStringForTypeMethod(int typeId, asIScript
 }
 #endif
 
-static const char *GetCurrentDir(char *buf, size_t size)
+string GetAbsolutePath(const string &file)
 {
+	if( (file.length() > 0 && (file[0] == '/' || file [0] == '\\')) ||
+		file.find(":") != string::npos )
+		return file;
+
+	return GetCurrentDir() + "/" + file;	
+}
+
+string GetCurrentDir()
+{
+	char buffer[1024];
 #ifdef _MSC_VER
 #ifdef _WIN32_WCE
     static TCHAR apppath[MAX_PATH] = TEXT("");
     if (!apppath[0])
     {
         GetModuleFileName(NULL, apppath, MAX_PATH);
-
 
         int appLen = _tcslen(apppath);
 
@@ -939,25 +948,26 @@ static const char *GetCurrentDir(char *buf, size_t size)
         apppath[appLen] = TEXT('\0');
     }
 #ifdef _UNICODE
-    wcstombs(buf, apppath, min(size, wcslen(apppath)*sizeof(wchar_t)));
+    wcstombs(buffer, apppath, min(1024, wcslen(apppath)*sizeof(wchar_t)));
 #else
-    memcpy(buf, apppath, min(size, strlen(apppath)));
+    memcpy(buffer, apppath, min(1024, strlen(apppath)));
 #endif
 
-    return buf;
+    return buffer;
 #elif defined(__S3E__)
 	// Marmalade uses its own portable C library
-	return getcwd(buf, (int)size);
+	return getcwd(buffer, (int)1024);
 #elif _XBOX_VER >= 200
 	// XBox 360 doesn't support the getcwd function, just use the root folder
-	assert( size >= 7 );
-	sprintf(buf, "game:\\");
-	return buf;
+	return "game:\\";
+#elif defined(_M_ARM)
+	// TODO: How to determine current working dir on Windows Phone?
+	return ""; 
 #else
-	return _getcwd(buf, (int)size);
+	return _getcwd(buffer, (int)1024);
 #endif // _MSC_VER
 #elif defined(__APPLE__)
-	return getcwd(buf, size);
+	return getcwd(buffer, 1024);
 #else
 	return "";
 #endif

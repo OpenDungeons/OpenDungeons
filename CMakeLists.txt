@@ -13,6 +13,8 @@ else()
     set(PROJECT_BINARY_NAME "opendungeons")
 endif()
 
+set(AS_LIBRARY_NAME "angelscript_lib")
+
 # Project version
 set(OD_MAJOR_VERSION 0)
 set(OD_MINOR_VERSION 4)
@@ -109,8 +111,7 @@ message(STATUS "CMake CXX Flags: " ${CMAKE_CXX_FLAGS})
 ##################################
 
 #Add new .cpp files here so that they get compiled
-
-set(OD_SOURCEFILES
+set(AS_SOURCEFILES
     #AngelScript sources
     ${ANGELSCRIPT_SRC_DIR}/as_atomic.cpp
     ${ANGELSCRIPT_SRC_DIR}/as_builder.cpp
@@ -156,6 +157,8 @@ set(OD_SOURCEFILES
     ${ANGELSCRIPT_ADDON_DIR}/scriptbuilder/scriptbuilder.cpp
     ${ANGELSCRIPT_ADDON_DIR}/scripthelper/scripthelper.cpp
     ${ANGELSCRIPT_ADDON_DIR}/scriptstdstring/scriptstdstring.cpp
+)
+set(OD_SOURCEFILES
 
     #OpenDungeons sources
     ${SRC}/ai/AIFactory.cpp
@@ -386,12 +389,16 @@ endif()
 #### Binary ######################
 ##################################
 
+add_library(${AS_LIBRARY_NAME} ${AS_SOURCEFILES})
+
 # Create the binary file (WIN32 makes sure there is no console window on windows.)
 add_executable(${PROJECT_BINARY_NAME} WIN32 ${OD_SOURCEFILES})
 
 ##################################
 #### Link libraries ##############
 ##################################
+
+target_link_libraries(${PROJECT_BINARY_NAME} ${AS_LIBRARY_NAME})
 
 # Link libraries
 target_link_libraries(

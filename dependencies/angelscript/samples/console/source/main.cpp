@@ -67,7 +67,7 @@ int main(int argc, char **argv)
 		// Trim unused characters
 		input.resize(strlen(input.c_str()));
 
-		int pos;
+		size_t pos;
 		if( (pos = input.find(" ")) != string::npos )
 		{
 			cmd = input.substr(0, pos);
@@ -220,10 +220,10 @@ void DeleteVariable(asIScriptEngine *engine, string &arg)
 	}
 
 	// trim the string to find the variable name
-	int p1 = arg.find_first_not_of(" \n\r\t");
+	size_t p1 = arg.find_first_not_of(" \n\r\t");
 	if( p1 != string::npos )
 		arg = arg.substr(p1, -1);
-	int p2 = arg.find_last_not_of(" \n\r\t");
+	size_t p2 = arg.find_last_not_of(" \n\r\t");
 	if( p2 != string::npos )
 		arg = arg.substr(0, p2+1);
 
@@ -278,10 +278,10 @@ void DeleteFunction(asIScriptEngine *engine, string &arg)
 	}
 
 	// trim the string to find the variable name
-	int p1 = arg.find_first_not_of(" \n\r\t");
+	size_t p1 = arg.find_first_not_of(" \n\r\t");
 	if( p1 != string::npos )
 		arg = arg.substr(p1, -1);
-	int p2 = arg.find_last_not_of(" \n\r\t");
+	size_t p2 = arg.find_last_not_of(" \n\r\t");
 	if( p2 != string::npos )
 		arg = arg.substr(0, p2+1);
 

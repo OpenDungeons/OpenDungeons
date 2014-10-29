@@ -15,6 +15,353 @@ BODY { FONT-SIZE: 12px; FONT-FAMILY: Arial; }
 
 <h1>AngelScript Change Log</h1>
 
+<h2>Version 2.29.2 - 2014/10/21</h2>
+
+<ul>
+<li>Bug fixes
+<ul>
+<li>Fixed bug when compiling expressions using opCall on objects returned by reference from previous call (Thanks Sir Ementaler)
+<li>Empty initialization lists are now properly working where a repeat pattern is expected (Thanks cvet)
+<li>Fixed bug when global variable expression had casts between script classes (Thanks cvet)
+<li>Fixed incorrect warning on literal -9223372036854775808 (Thanks iraxef)
+<li>Compiler was incorrectly accepting syntax as object@(expr) (Thanks iraxef)
+<li>Taking the address of an imported function now works as it should (Thanks Wipe)
+<li>Fixed crash in compiler when compiling initialization lists with 'null' as one of the elements (Thanks iraxef)
+<li>Identity comparison on handle received as parameter by reference wasn't working (Thanks iraxef)
+<li>Application no longer crashes if an asIObjectType is released after the engine has been released
+<li>Template instances now receive the member properties that were registered for the template (Thanks Samichama)
+<li>Template types can now use other template types as method arguments where the sub-types are shared (Thanks Samichama)
+<li>Fixed bug in compiler with use of implicit value conversion and temporary variables (Thanks Jason Goepel)
+</ul>
+<li>Library interface
+<ul>
+<li>Improved compiler compatibility of asGetTypeTraits to support Xcode/Clang (Thanks PhilCK)
+<li>Script interfaces now return the module that owns them with GetModule (Thanks cvet)
+</ul>
+<li>Library
+<ul>
+<li>Added asEP_DISABLE_INTEGER_DIVISION that makes all divisions with integer values result in doubles (Thanks Jason Goepel)
+<li>Improved performance of shutting down the engine (Thanks ThyReaper)
+<li>Compiler warns when variable in inner scope hides variable of same name in outer scope (Thanks carew)
+<li>Compiler warns when overloading inherited class method and default args in the methods cause conflicts (Thanks Aaron Baker)
+<li>Compiler automatically resolves ambiguous enum values on comparisons (Thanks Jason Goepel)
+</ul>
+<li>Script language
+<ul>
+<li>Script classes can now implement opConv and opImplConv to support type conversions
+<li>Passing a non-lvalue expression to a &amp;out argument will now yield compiler error instead of warning
+</ul>
+<li>Virtual machine
+<ul>
+<li>Updated asBC_CALLBND so that imported functions can now be bound to application registered functions too (Thanks gjl)
+</ul>
+<li>Add-ons
+<ul>
+<li>The array and grid add-ons no longer set a script exception if the initialization list is empty
+<li>Fixed problem with storing/retrieving enum values from the dictionary (Thanks iraxef)
+<li>Concatenation with integers and string now properly supports 64bit types (Thanks iraxef)
+<li>dictionary::get now supports retrieving stored handle by value if type is compatible (Thanks iraxef)
+<li>CScriptBuilder::AddSectionFromMemory now has an optional lineOffset argument (Thanks Boost113)
+<li>CScriptBuilder will report the correct path to the include files that fails to load (Thanks gjl)
+<li>Fixed bug in CScriptFile when reading ints for least significant byte first (Thanks gjl)
+</ul>
+</ul>
+
+<h2>Version 2.29.1 - 2014/07/20</h2>
+
+<ul>
+<li>Bug fixes
+<ul>
+<li>Fixed compiler assert failure with unsafe references and deferred arguments (Thanks AgentC)
+<li>Fixed problem with enumerating entities after removing a config group (Thanks Robert42)
+<li>Fixed buffer overflow problem when Prepare() with virtual script function near the end of the stack memory (Thanks GGLucas)
+<li>Fixed parser bug when local variable had the same name as a type in different namespace (Thanks cvet)
+<li>Fixed errors with saved bytecode when using template types declared in namespace (Thanks cvet)
+</ul>
+<li>Library
+<ul>
+<li>Improved compiler error messages
+<li>The module's ResetGlobalVars uses the context callbacks to support debugging initialization of global variables without informing a pre-created context
+<li>The context callbacks are disabled before destroying the engine to avoid creation of new contexts while cleaning up objects
+<li>Added asEP_ALTER_SYNTAX_NAMED_ARGS to optionally support the previous syntax for named args
+<li>asOBJ_TEMPLATE can now be used with value types too
+</ul>
+<li>Library interface
+<ul>
+<li>Added asGetTypeTraits&lt;T&gt;() as part of the official interface
+</ul>
+<li>Script language
+<ul>
+<li>Changed the syntax for named arguments to "arg: expr" to avoid confusion when local variable has the same name as the argument (Thanks Kevin Ingwersen)
+<li>Added support for declaring classes as abstract to prevent instantiation (Thanks Scott Bean)
+</ul>
+<li>Add-ons &amp; Samples
+<ul>
+<li>Added null-pointer check in CDebugger::ToString and fixed some compiler warnings (Thanks Dominique Dumont)
+<li>Array elements are initialized to zero by default (Thanks cvet)
+<li>Fixed null pointer access bug in grid add-on (Thanks Bitsauce)
+<li>GetTypeTraits&lt;T&gt;() has been removed from the helper add-on
+<li>Replaced the helper function PrintException with GetExceptionInfo that returns the information in a string
+<li>The asrun sample is now using the ContextMgr add-on to support co-routines
+<li>The ContextMgr uses the RequestContext instead of CreateContext to take advantage of the context callbacks
+<li>Fixed bug in closeTo math function when one of the arguments was 0
+</ul>
+</ul>
+
+<h2>Version 2.29.0 - 2014/06/09</h2>
+
+<ul>
+<li>Bug fixes
+<ul>
+<li>Function handles were incorrectly treated as handles in value assignment
+<li>Fixed RWX section in as_callfunc_arm_gcc.S (Thanks Julian Ospald)
+<li>Fixed assert failure with implicit cast and get accessor (Thanks Amer Koleci)
+<li>Fixed opCall on global variable (Thanks gjl)
+<li>Fixed crash when calling opCall on a property accessor on a global variable (Thanks gjl)
+<li>Fixed bug in compiler where temporary variable could be overwritten when calling overloaded operators (Thanks Jason Goepel)
+<li>Fixed bug in tokenizer for one line comments on the last line of a script (Thanks Jason Goepel)
+<li>Fixed bug with explicit construct call and reference types (Thanks Roel Binnendijk)
+<li>Fixed bug in GetDeclaration when returning the list pattern (Thanks agentprog)
+<li>GetSubTypeId and GetSubType now works for registered template specializations too (Thanks Jason Goepel)
+<li>Loading bytecode with funcdefs declared from script wasn't working identical to building from source (Thanks cvet)
+<li>GarbageCollect(asGC_FULL_CYCLE | asGC_DESTROY_GARBAGE) will now properly destroy the garbage in the new generation too (Thanks Maciej Biedrzycki)
+<li>Stack unwinding now works on Linux 64bit with native calling conventions
+<li>Fixed bug in compiler that allowed expression with name of function without doing anything with it (Thanks iraxef)
+<li>Engine no longer silently accept registering template methods where the template subtype is passed by value
+<li>Mixin classes in parent namespace can now be properly included in a class (Thanks cvet)
+<li>Compiler now gives an error when script declares handle to handle (Thanks iraxef)
+</ul>
+<li>Library
+<ul>
+<li>Added the flag asOBJ_APP_ARRAY to support registering types that are really C arrays
+<li>The parameter names from the declaration are now stored in the functions (Thanks GGLucas)
+<li>The parameter names are stored with the saved bytecode, unless debug information is stripped
+<li>Improved C++ exception handling to avoid deleting object that was never returned (Thanks Polyák István)
+<li>CreateScriptObject will return null if the object constructor throws C++ exception
+<li>The template callback can now write error messages to facilitate the understanding of why a template cannot be instantiated (Thanks JaviCervera)
+<li>Compiling the library with Sun CC for SPARC is now possible, though without native calling conventions (Thanks Andrey Bergman)
+<li>Improved error message when trying to pass class method as argument (Thanks Grimshaw)
+<li>Types registered with asOBJ_ASHANDLE should now provide the opHndlAssign method to support handle assignments
+<li>Types registered with asOBJ_ASHANDLE can also register the opAssign method to support value assignments
+<li>CreateScriptObjectCopy now uses the copy constructor for value types, if available
+<li>The asBEHAVE_VALUE_CAST behaviour now supports the generic form 'void f(?&amp;out)'
+<li>Improved runtime performance by avoiding increasing/decreasing refcount of script object in class methods (Thanks GGLucas)
+</ul>
+<li>Library interface
+<ul>
+<li>asIScriptFunction::GetDeclaration has an optional argument to include the parameter names (Thanks GGLucas)
+<li>Added asIScriptFunction::GetParam that can optionally return both the name and default argument in addition to the type id
+<li>Deprecated asIScriptFunction::GetParamTypeId
+<li>Added GetObjectTypeByDecl to both engine and module
+<li>Removed old deprecated methods
+<li>Modules, contexts, and functions now also support multiple user data
+<li>Added the global functions asAllocMem and asFreeMem that call the registered custom memory functions
+<li>Added RequestContext, ReturnContext, SetContextCallbacks to engine
+<li>Added the argument numIterations to GarbageCollect to support multiple iterations without having to call the method multiple times
+<li>GetStringFactoryReturnTypeId now has an optional argument to return information on the reference (Thanks agentprog)
+<li>Added support for registering functor objects as class methods with asCALL_THISCALL_OBJLAST and asCALL_THISCALL_OBJFIRST (Thanks Jordi Oliveras)
+</ul>
+<li>Script language
+<ul>
+<li>Named arguments in function calls are now supported (Thanks GGLucas)
+<li>auto can now be used to tell the compiler to resolve the type of a variable from the initialization expression (Thanks GGLucas)
+</ul>
+<li>Add-ons
+<ul>
+<li>The GetTypeTraits&lt;T&gt;() helper function automatically detects when to use asOBJ_APP_ARRAY
+<li>Added default factory and resize method to the grid
+<li>Array and grid properly handle exceptions while constructing elements (Thanks Polyák István)
+<li>Fixed compilation error with xcode 5.1 in dictionary (Thanks Jordi Oliveras Rovira)
+<li>The array and grid addons use the asAllocMem and asFreeMem as default memory routines
+<li>CScriptHandle implements the opHndlAssign instead of the opAssign
+<li>Dictionary now has the opIndex that can be used to directly assign and retrieve values without using the set/get methods
+<li>Dictionary uses asAllocMem and asFreeMem, and has factory functions to create instances
+<li>The context manager now uses funcdefs and dictionary to create co-routines
+<li>WriteConfigToFile wasn't saving the return type for the string factory correctly (Thanks agentprog)
+<li>Added helper functions WriteConfigToStream and ConfigEngineFromStream
+<li>Fixed compilation error with CScriptArray in asrun
+</ul>
+</ul>
+
+<h2>Version 2.28.2 - 2014/03/18</h2>
+
+<ul>
+<li>Bug fixes
+<ul>
+<li>The Library can now be compiled for WinXP with multithread support again (Thanks carnalis)
+<li>Fixed crash after loading bytecode with initialization lists holding ref types by value (Thanks loboWu)
+<li>Fixed bug with saved bytecode and initialization lists that skip values
+<li>Tokenizer was splitting identifiers that started with keywords that ended with numbers, e.g. int8 (Thanks loboWu)
+<li>GetObjectTypeById crashed if the typeId represented a template instance type that had already been released (Thanks iraxef)
+<li>Corrected some compiler warnings (Thanks arpeggiodragon)
+<li>Fixed crash when returning primitive value implicitly cast from global handle (Thanks Jason Goepel)
+<li>Fixed assert failure in compiler when using opAssign that returns a value instead of a reference (Thanks simong)
+<li>Fixed memory leak with registered cast behaviours on template types (Thanks Jason Goepel)
+<li>Fixed bug with missing implicit ref cast when passing object to parameter as inout reference (Thanks Jason Goepel)
+<li>Fixed bug when passing 'null' or 'void' to var type argument
+</ul>
+<li>Library
+<ul>
+<li>It's now possible to use repeat_same in list pattern to tell compiler that all lines must be of the same length
+<li>The compiler will warn if JIT compiler is used and script is built without JIT entry points (Thanks gjl)
+<li>Compiler no longer warns on sign change for bitwise operator with negative enum value (Thanks _Vicious_)
+<li>Reduced size of saved bytecode
+<li>Changed GarbageCollect so that it can now be executed for a full cycle in a parallel thread
+<li>Implemented C++11 move operators for the internal asCString type (Thanks iraxef)
+<li>Compiler now casts to common base class when comparing two handles (Thanks Aaron Baker)
+<li>When unsafe references is turned on the compiler allows passing literal constants to const references (Thanks Jason Goepel)
+<li>Improved implicit cast of object to primitive in math expressions (Thanks Jason Goepel)
+<li>Optimization to use the copy constructor instead of the assignment when preparing temp object for func argument
+<li>Optimization to avoid copy when passing ref type to const &in parameter (Thanks Jason Goepel)
+</ul>
+<li>Script language
+<ul>
+<li>Anonymous objects can now be initialized in expressions with lists
+<li>The opIndex operator overload now supports multiple arguments
+<li>Functor objects can now be implemented by implementing opCall methods in the class (Thanks gjl)
+</ul>
+<li>Add-ons
+<ul>
+<li>Implemented closeTo() in the math add-on (Thanks haegarr)
+<li>GetTypeTraits<T>() no longer incorrectly identifies C++ arrays as asOBJ_APP_CLASS (Thanks eezstreet)
+<li>The script array now supports user defined memory routines (Thanks FDsagizi)
+<li>The script array should be allocated with factory functions instead of directly with new (Thanks iraxef)
+<li>Added GetTypeId to the dictionary to retrieve the type id of the stored value (Thanks iraxef)
+<li>The dictionary now has an iterator on the C++ side that supports C++ range-for loops (Thanks iraxef)
+<li>Implemented the grid template add-on
+</ul>
+</ul>
+
+<h2>Version 2.28.1 - 2014/01/31</h2>
+
+<ul>
+<li>Bug fixes
+<ul>
+<li>Fixed improper warning of used types when releasing engine and having circular references between registered types (Thanks Jason Goepel)
+<li>Fixed memory leak on registering opAssign twice for the same object type (Thanks Jason Goepel)
+<li>Compiler will not used enum values from registered enum types if the module doesn't have access to it
+<li>Fixed assert failure in Execute when forgetting to set the object on a class method call (Thanks simps)
+<li>Compiler now uses the default args declared in derived methods instead of the default args in base method (Thanks Aaron Baker)
+<li>Fixed the position reported for errors while compiling global variables
+<li>Compiler wasn't searching parent namespaces when resolving the symbol for class inheritance (Thanks Agnis)
+<li>Fixed linker error on Windows RT with ARM due to misaligned code in as_callfunc_arm_msvc.asm (Thanks NiteLordz)
+<li>Fixed crash with THISCALL_ASGLOBAL and virtual methods (Thanks Macobyte)
+<li>Implicit cast didn't work in initialization of global vars (Thanks Jason Goepel)
+<li>Incorrect bytecode sequence when compiling initialization list for dictionary containing values from global string variables (Thanks Jordi Oliveras Rovira)
+<li>Compiler was incorrectly converting both results to const in ?: if one of the expressions was null (Thanks FDsagizi)
+<li>Fixed memory leak on iOS when passing complex object by value to registered function (Thanks FDsagizi)
+<li>Fixed intermittent crash with registered object properties of template instance types (Thanks aliascc)
+<li>Fixed crash when attempting to assign a script object to another of another type (Thanks Philip Bennefall)
+<li>Fixed crash when registering two or more methods for an object type uses template instance types in parameters or return value (Thanks iraxef)
+</ul>
+<li>Library
+<ul>
+<li>Defined default arg for asSFuncPtr constructor to allow trivial instanciation (Thanks _Vicious_)
+<li>Added verification to avoid use of context from a different engine to call functions (Thanks GGLucas)
+<li>Removed some more unused code in AS_NO_COMPILER mode
+<li>Optimized compiler performance with faster lookups (Thanks GGLucas)
+<li>Added check against attempts to register multiple list factories (Thanks Jason Goepel)
+<li>Compiler is able to resolve ambiguous enum values if it can determine the enum type from the destination (Thanks Jason Goepel)
+<li>Slightly reduced memory consumption as virtual functions no longer store the default args
+<li>Linux with ARM now supports native calling conventions for both soft-float ABI and hard-float ABI
+<li>Compiler is capable of using constructors with default args as default constructor (Thanks Sir Ementaler)
+<li>An error will now be returned when building an empty script
+<li>Saving bytecode for an empty module will now return an error
+<li>The overhead for calling interface methods is reduced by adding the methods in the virtual function table (Thanks GGLucas)
+<li>asIScriptEngine::GetObjectTypeByName can now return template types too
+<li>POD value types are now allocated inline when members of script classes (Thanks GGLucas)
+<li>Ternary condition operator now converts either case to const @ if the other is const @ (Thanks _Vicious_)
+<li>Multithreading is now supported on Windows Store Apps too
+<li>Slightly reduced size of saved bytecode
+<li>Improved error messages when loading invalid bytecode
+</ul>
+<li>Script language
+<ul>
+<li>Added the operators ** and **= for exponent math operations (Thanks Jason Goepel)
+<li>The methods opPow and opPow_r can be used to overload the exponent math operator (Thanks Jason Goepel)
+</ul>
+<li>Virtual machine
+<ul>
+<li>Added the instructions POWi, POWu, POWf, POWd, POWdi, POWi64, POWu64 (Thanks Jason Goepel)
+</ul>
+<li>Add-ons & samples
+<ul>
+<li>WriteConfigToFile now writes the engine properties too
+<li>asbuild sample updated to set the engine properties as informed in config file
+<li>Added GetTypeId to the script handle to make it easier to work with function pointers (Thanks Ava Skoog)
+<li>Implemented FindByRef in the script array (Thanks Marcus L)
+<li>CDebugger now has a RegisterToStringCallback to allow custom conversion of types to strings for the debug output
+<li>Fixed assert failure in CScriptWeakRef (Thanks Squared'D)
+<li>WriteConfigToFile escapes quote characters in default arg expressions (Thanks alraz.exe)
+<li>asbuild sample updated to treat the escaped quote characters properly (Thanks alraz.exe)
+<li>CScriptHandle will hold a reference to engine to avoid crash if engine is released before the contained reference (Thanks Samuel Villarreal)
+</ul>
+</ul>
+
+<h2>Version 2.28.0 - 2013/11/02</h2>
+
+<ul>
+<li>Bug fixes
+<ul>
+<li>The GET_WEAKREF_FLAG behaviour is now registered for the script types in AS_MAX_PORTABILITY too (Thanks orimoto)
+<li>Fixed stack alignment problem with native calling convention for Linux and ARM (Thanks loboWu)
+<li>Fixed null pointer access during compilation if JIT compiler is used (Thanks Andrew Ackermann)
+<li>Fixed null pointer access when calling GetMethodByDecl on template instance type (Thanks Jason Goepel)
+<li>Fixed memory leak with default args and shared functions (Thanks thd.MM)
+<li>Fixed crash on registering function with autohandles for unknown type (Thanks Jason Goepel)
+<li>Fixed crash on registering template specialization twice (Thanks Jason Goepel)
+<li>Fixed bug with passing handle to ?& arg with unsafe references (Thanks FDsagizi)
+<li>opEquals with funcdef works again (Thanks Violet CLM)
+<li>Fixed bug with implicit casts of large integer constants and uint64 (Thanks Apmyp)
+<li>Fixed bug in IsNested when called with parameter (Thanks Jordi Oliveras Rovira)
+<li>Fixed crash in compiler when resolving function pointers with namespace (Thanks Violet CLM)
+<li>Conditional operator ?: implicitly converts 0 to the type of the other expression again (Thanks FDsagizi)
+<li>Reusing existing module without discarding it no longer accumulates memory in engine (Thanks Scott Bean)
+<li>The object type for script classes that formed circular reference with base class wasn't resolved by gc (Thanks Scott Bean)
+<li>FindNextLineWithCode() works properly for class constructors where class has non-primitive members too (Thanks Scott Bean)
+<li>GetTypeDeclaration now work correctly for registered template specializations (Thanks zexee)
+<li>Fixed crash with chained handle assignments (Thanks FDsagizi)
+<li>Fixed compiler errors with Borland (Thanks Viacheslav Polyakov)
+<li>Fixed assert failure in compiler on explicit ref cast of void expression (Thanks AgentC)
+</ul>
+<li>Library
+<ul>
+<li>The list factory behaviour now receives a pointer to a buffer with all values instead of just the expected length
+<li>Engine now properly supports use of autohandles in template factories
+<li>Assembler code for Linux + ARM is now unified to support both normal and thumb mode (Thanks loboWu)
+<li>The engine uses the registered list pattern to dynamically determine the elements in the list buffer
+<li>Optimized tokenizer with the use of jump tables (Thanks GGLucas)
+<li>Added compiler warning on implicit conversion from float to integer (Thanks FDsagizi)
+<li>FindNextLineWithCode() is able to find the first line with code from where the function has been declared
+<li>Added code to detect and warn instead of crashing if application attempts to resurrect script object during its destruction (Thanks Tuukka Pensala)
+<li>The function declaration for constructors and destructors now show the object type name instead of _beh_x_ (Thanks Jason Goepel)
+<li>Added support for atomics and posix threads with Android 2.3+ (Thanks Jordi Oliveras Rovira)
+<li>The engine no longer writes parser errors to message callback in the GetByDecl methods (Thanks kaveldun)
+<li>Updated config to correctly identify iOS with 64bit arm (Thanks taliska)
+</ul>
+<li>Library interface
+<ul>
+<li>Added GetModuleCount and GetModuleByIndex for enumerating existing modules (Thanks Vitaly Akimov)
+<li>asBEHAVE_LIST_FACTORY must declare the expected pattern for the initialization list
+<li>Added asBEHAVE_LIST_CONSTRUCT to allow value types to be initialized with lists too
+<li>GetVarDecl and GetPropertyDeclaration now take an optional includeNamespace argument (Thanks zexee)
+</ul>
+<li>Virtual machine
+<ul>
+<li>Implemented the bytecodes asBC_AllocMem, asBC_SetListSize, asBC_SetListType and asBC_PshListElmnt for handling initialization lists
+<li>asBC_FREE has been enhanced to allow it to destroy the content of an initialization list
+</ul>
+<li>Add-ons
+<ul>
+<li>The script array add-on uses the new form for the initialization list
+<li>The weakref add-on now works properly in AS_MAX_PORTABILITY too
+<li>Fixed bug in script array resize() method that could cause a crash if reserving too much memory (Thanks Philip Bennefall)
+<li>Fixed compiler error in CDebugger add-on when using the AngelScript namespace (Thanks Jordi Oliveras Rovira)
+<li>The dictionary add-on now supports initialization lists
+<li>The Complex math add-on now supports initialization lists
+</ul>
+</ul>
+
 <h2>Version 2.27.1 - 2013/08/16</h2>
 
 <ul>

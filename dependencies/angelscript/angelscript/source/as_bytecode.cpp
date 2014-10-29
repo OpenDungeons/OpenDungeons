@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2013 Andreas Jonsson
+   Copyright (c) 2003-2014 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied
    warranty. In no event will the authors be held liable for any
@@ -126,7 +126,8 @@ void asCByteCode::GetVarsUsed(asCArray<int> &vars)
 			     asBCInfo[curr->op].type == asBCTYPE_rW_DW_ARG ||
 			     asBCInfo[curr->op].type == asBCTYPE_wW_DW_ARG ||
 			     asBCInfo[curr->op].type == asBCTYPE_wW_QW_ARG ||
-				 asBCInfo[curr->op].type == asBCTYPE_rW_W_DW_ARG )
+				 asBCInfo[curr->op].type == asBCTYPE_rW_W_DW_ARG ||
+				 asBCInfo[curr->op].type == asBCTYPE_rW_DW_DW_ARG )
 		{
 			InsertIfNotExists(vars, curr->wArg[0]);
 		}
@@ -165,7 +166,8 @@ bool asCByteCode::IsVarUsed(int offset)
 				 asBCInfo[curr->op].type == asBCTYPE_rW_DW_ARG ||
 				 asBCInfo[curr->op].type == asBCTYPE_wW_DW_ARG ||
 				 asBCInfo[curr->op].type == asBCTYPE_wW_QW_ARG ||
-				 asBCInfo[curr->op].type == asBCTYPE_rW_W_DW_ARG )
+				 asBCInfo[curr->op].type == asBCTYPE_rW_W_DW_ARG ||
+				 asBCInfo[curr->op].type == asBCTYPE_rW_DW_DW_ARG )
 		{
 			if( curr->wArg[0] == offset )
 				return true;
@@ -211,7 +213,9 @@ void asCByteCode::ExchangeVar(int oldOffset, int newOffset)
 				 asBCInfo[curr->op].type == asBCTYPE_wW_W_ARG  ||
 				 asBCInfo[curr->op].type == asBCTYPE_rW_DW_ARG ||
 				 asBCInfo[curr->op].type == asBCTYPE_wW_DW_ARG ||
-				 asBCInfo[curr->op].type == asBCTYPE_wW_QW_ARG )
+				 asBCInfo[curr->op].type == asBCTYPE_wW_QW_ARG ||
+				 asBCInfo[curr->op].type == asBCTYPE_rW_W_DW_ARG ||
+				 asBCInfo[curr->op].type == asBCTYPE_rW_DW_DW_ARG )
 		{
 			if( curr->wArg[0] == oldOffset )
 				curr->wArg[0] = (short)newOffset;
@@ -860,7 +864,6 @@ void asCByteCode::OptimizeLocally(const asCArray<int> &tempVariableOffsets)
 
 				instr = GoForward(curr);
 			}
-
 		}
 		else if( currOp == asBC_RDSPtr )
 		{
@@ -1176,6 +1179,7 @@ bool asCByteCode::IsTempVarReadByInstr(asCByteInstruction *curr, int offset)
 			  asBCInfo[curr->op].type == asBCTYPE_rW_DW_ARG ||
 			  asBCInfo[curr->op].type == asBCTYPE_rW_QW_ARG ||
 			  asBCInfo[curr->op].type == asBCTYPE_rW_W_DW_ARG ||
+			  asBCInfo[curr->op].type == asBCTYPE_rW_DW_DW_ARG ||
 			  curr->op == asBC_FREE) &&  // FREE both read and write to the variable
 			  int(curr->wArg[0]) == offset )
 		return true;
@@ -1548,6 +1552,7 @@ int asCByteCode::GetSize()
 
 void asCByteCode::AddCode(asCByteCode *bc)
 {
+	if( bc == this ) return;
 	if( bc->first )
 	{
 		if( first == 0 )
@@ -1913,6 +1918,10 @@ void asCByteCode::Output(asDWORD *array)
 				*(((asWORD*)ap)+1) = 0; // Clear upper bytes
 				memcpy(ap+1, &instr->arg, instr->GetSize()*4-4);
 				break;
+			case asBCTYPE_rW_DW_DW_ARG:
+				*(((asWORD*)ap)+1) = instr->wArg[0];
+				memcpy(ap+1, &instr->arg, instr->GetSize()*4-4);
+				break;
 			default:
 				// How did we get here?
 				asASSERT(false);
@@ -2070,7 +2079,9 @@ void asCByteCode::DebugOutput(const char *name, asCScriptEngine *engine, asCScri
 	fprintf(file, "Variables: \n");
 	for( n = 0; n < func->scriptData->variables.GetLength(); n++ )
 	{
-		fprintf(file, " %.3d: %s %s\n", func->scriptData->variables[n]->stackOffset, func->scriptData->variables[n]->type.Format().AddressOf(), func->scriptData->variables[n]->name.AddressOf());
+		int idx = func->scriptData->objVariablePos.IndexOf(func->scriptData->variables[n]->stackOffset);
+		bool isOnHeap = asUINT(idx) < func->scriptData->objVariablesOnHeap ? true : false;
+		fprintf(file, " %.3d: %s%s %s\n", func->scriptData->variables[n]->stackOffset, isOnHeap ? "(heap) " : "", func->scriptData->variables[n]->type.Format().AddressOf(), func->scriptData->variables[n]->name.AddressOf());
 	}
 	asUINT offset = 0;
 	if( func->objectType )
@@ -2090,7 +2101,11 @@ void asCByteCode::DebugOutput(const char *name, asCScriptEngine *engine, asCScri
 			}
 		}
 		if( !found )
-			fprintf(file, " %.3d: %s {noname param}\n", offset, func->parameterTypes[n].Format().AddressOf());
+		{
+			int idx = func->scriptData->objVariablePos.IndexOf(offset);
+			bool isOnHeap = asUINT(idx) < func->scriptData->objVariablesOnHeap ? true : false;
+			fprintf(file, " %.3d: %s%s {noname param}\n", offset, isOnHeap ? "(heap) " : "", func->parameterTypes[n].Format().AddressOf());
+		}
 
 		offset -= func->parameterTypes[n].GetSizeOnStackDWords();
 	}
@@ -2106,7 +2121,16 @@ void asCByteCode::DebugOutput(const char *name, asCScriptEngine *engine, asCScri
 			}
 		}
 		if( !found )
-			fprintf(file, " %.3d: %s {noname}\n", func->scriptData->objVariablePos[n], func->scriptData->objVariableTypes[n]->name.AddressOf());
+		{
+			if( func->scriptData->objVariableTypes[n] )
+			{
+				int idx = func->scriptData->objVariablePos.IndexOf(func->scriptData->objVariablePos[n]);
+				bool isOnHeap = asUINT(idx) < func->scriptData->objVariablesOnHeap ? true : false;
+				fprintf(file, " %.3d: %s%s {noname}\n", func->scriptData->objVariablePos[n], isOnHeap ? "(heap) " : "", func->scriptData->objVariableTypes[n]->name.AddressOf());
+			}
+			else
+				fprintf(file, " %.3d: null handle {noname}\n", func->scriptData->objVariablePos[n]);
+		}
 	}
 	fprintf(file, "\n\n");
 
@@ -2132,9 +2156,9 @@ void asCByteCode::DebugOutput(const char *name, asCScriptEngine *engine, asCScri
 		case asBCTYPE_W_ARG:
 			if( instr->op == asBC_STR )
 			{
-				int id = instr->wArg[0];
+				int id = asWORD(instr->wArg[0]);
 				const asCString &str = engine->GetConstantString(id);
-				fprintf(file, "   %-8s %d         (l:%ld s:\"%.10s\")\n", asBCInfo[instr->op].name, instr->wArg[0], (long int)str.GetLength(), str.AddressOf());
+				fprintf(file, "   %-8s %d         (l:%ld s:\"%.10s\")\n", asBCInfo[instr->op].name, asWORD(instr->wArg[0]), (long int)str.GetLength(), str.AddressOf());
 			}
 			else
 				fprintf(file, "   %-8s %d\n", asBCInfo[instr->op].name, instr->wArg[0]);
@@ -2252,6 +2276,10 @@ void asCByteCode::DebugOutput(const char *name, asCScriptEngine *engine, asCScri
 			}
 			else
 				fprintf(file, "   %-8s %u, %d\n", asBCInfo[instr->op].name, *(int*)ARG_DW(instr->arg), *(int*)(ARG_DW(instr->arg)+1));
+			break;
+
+		case asBCTYPE_rW_DW_DW_ARG:
+			fprintf(file, "   %-8s v%d, %u, %u\n", asBCInfo[instr->op].name, instr->wArg[0], *(int*)ARG_DW(instr->arg), *(int*)(ARG_DW(instr->arg)+1));
 			break;
 
 		case asBCTYPE_QW_DW_ARG:
@@ -2438,6 +2466,24 @@ int asCByteCode::InstrW_DW(asEBCInstr bc, asWORD a, asDWORD b)
 	last->op       = bc;
 	last->wArg[0]  = a;
 	*((int*) ARG_DW(last->arg)) = b;
+	last->size     = asBCTypeSize[asBCInfo[bc].type];
+	last->stackInc = asBCInfo[bc].stackInc;
+
+	return last->stackInc;
+}
+
+int asCByteCode::InstrSHORT_DW_DW(asEBCInstr bc, short a, asDWORD b, asDWORD c)
+{
+	asASSERT(asBCInfo[bc].type == asBCTYPE_rW_DW_DW_ARG);
+	asASSERT(asBCInfo[bc].stackInc == 0);
+
+	if( AddInstruction() < 0 )
+		return 0;
+
+	last->op       = bc;
+	last->wArg[0]  = a;
+	*(int*)ARG_DW(last->arg) = b;
+	*(int*)(ARG_DW(last->arg)+1) = c;
 	last->size     = asBCTypeSize[asBCInfo[bc].type];
 	last->stackInc = asBCInfo[bc].stackInc;
 

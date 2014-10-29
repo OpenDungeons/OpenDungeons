@@ -6,9 +6,6 @@
 			<Projects Include="AngelScriptBCC_Static.cbproj">
 				<Dependencies/>
 			</Projects>
-			<Projects Include="..\..\..\tests\test_feature\projects\BCBuilder\test_feature.cbproj">
-				<Dependencies>AngelScriptBCC_Static.cbproj</Dependencies>
-			</Projects>
 			<Projects Include="AngelScriptBCC.cbproj">
 				<Dependencies>AngelScriptBCC_Static.cbproj</Dependencies>
 			</Projects>
@@ -29,15 +26,6 @@
 		<Target Name="AngelScriptBCC_Static:Make">
 			<MSBuild Targets="Make" Projects="AngelScriptBCC_Static.cbproj"/>
 		</Target>
-		<Target DependsOnTargets="AngelScriptBCC_Static" Name="test_feature">
-			<MSBuild Projects="..\..\..\tests\test_feature\projects\BCBuilder\test_feature.cbproj"/>
-		</Target>
-		<Target DependsOnTargets="AngelScriptBCC_Static:Clean" Name="test_feature:Clean">
-			<MSBuild Targets="Clean" Projects="..\..\..\tests\test_feature\projects\BCBuilder\test_feature.cbproj"/>
-		</Target>
-		<Target DependsOnTargets="AngelScriptBCC_Static:Make" Name="test_feature:Make">
-			<MSBuild Targets="Make" Projects="..\..\..\tests\test_feature\projects\BCBuilder\test_feature.cbproj"/>
-		</Target>
 		<Target DependsOnTargets="AngelScriptBCC_Static" Name="AngelScriptBCC">
 			<MSBuild Projects="AngelScriptBCC.cbproj"/>
 		</Target>
@@ -48,13 +36,13 @@
 			<MSBuild Targets="Make" Projects="AngelScriptBCC.cbproj"/>
 		</Target>
 		<Target Name="Build">
-			<CallTarget Targets="AngelScriptBCC_Static;test_feature;AngelScriptBCC"/>
+			<CallTarget Targets="AngelScriptBCC_Static;AngelScriptBCC"/>
 		</Target>
 		<Target Name="Clean">
-			<CallTarget Targets="AngelScriptBCC_Static:Clean;test_feature:Clean;AngelScriptBCC:Clean"/>
+			<CallTarget Targets="AngelScriptBCC_Static:Clean;AngelScriptBCC:Clean"/>
 		</Target>
 		<Target Name="Make">
-			<CallTarget Targets="AngelScriptBCC_Static:Make;test_feature:Make;AngelScriptBCC:Make"/>
+			<CallTarget Targets="AngelScriptBCC_Static:Make;AngelScriptBCC:Make"/>
 		</Target>
 		<Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 	</Project>

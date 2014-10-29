@@ -6,11 +6,15 @@
 
    void           print(const string &in str);
    array<string> @getCommandLineArgs();
+   void           createCoRoutine(coroutine @func, dictionary @args);
+   void           yield();
 
   Some objects that are available:
 
+   funcdef void coroutine(dictionary@)
    string
    array<T>
+   dictionary
    file
 
 */
@@ -56,9 +60,14 @@ int main()
     Link @link = Link();
     @link.next = link;
   }
-  for( int n = 0; n < 1000; n++ )
+  
+  // Use a co-routine to fill an array with objects
+  array<Link@> links;
+  createCoRoutine(fillArray, dictionary = {{'my array', @links}});
+  for( int n = 0; n < 10; n++ )
   {
-    Link @link = Link();
+    print("The size of the array is currently " + links.length() + "\n");
+    yield();
   }
 
   return 0;
@@ -79,6 +88,18 @@ void function()
   }
 }
 
+// A co-routine
+void fillArray(dictionary @dict)
+{
+  array<Link@> @links = cast<array<Link@>>(dict['my array']);
+  for( int n = 0; n < 50; n++ )
+  {
+    links.insertLast(Link());
+    if( n % 10 == 9 )
+      yield();
+  }
+}
+
 string getDefaultString()
 {
   return "default";
@@ -88,3 +109,15 @@ class Link
 {
   Link @next;
 }
+
+class PrintOnDestruct
+{
+  ~PrintOnDestruct()
+  {
+    print("I'm being destroyed now\n");
+  }
+}
+
+// This object will only be destroyed after the 
+// script has finished execution. 
+PrintOnDestruct pod;

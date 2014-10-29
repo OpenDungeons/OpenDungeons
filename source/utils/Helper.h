@@ -64,8 +64,10 @@ namespace Helper
     //! \brief Split a line based on a delimiter.
     std::vector<std::string> split(const std::string& line, char delimiter);
 
+    [[gnu::deprecated("use std::stoi instead")]]
     int toInt(const std::string& text);
 
+    [[gnu::deprecated("use std::stod instead")]]
     double toDouble(const std::string& text);
 
     // Needed on MSVC <2012

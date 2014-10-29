@@ -42,18 +42,12 @@ namespace Helper
 
     int toInt(const std::string& text)
     {
-        std::stringstream ss(text);
-        int number = 0;
-        ss >> number;
-        return number;
+        return std::stoi(text);
     }
 
     double toDouble(const std::string& text)
     {
-        std::stringstream ss(text);
-        double number = 0.0;
-        ss >> number;
-        return number;
+        return std::stod(text);
     }
 
     int round(double d)

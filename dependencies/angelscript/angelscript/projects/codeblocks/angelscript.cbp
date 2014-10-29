@@ -6,18 +6,46 @@
 		<Option pch_mode="0" />
 		<Option compiler="gcc" />
 		<Build>
-			<Target title="Release">
-				<Option output="../../lib/libangelscript.a" prefix_auto="0" extension_auto="0" />
+			<Target title="Debug">
+				<Option output="../../lib/libangelscriptd.a" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="" />
-				<Option object_output="objs/Release" />
+				<Option object_output="objs/debug" />
 				<Option type="2" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Option projectResourceIncludeDirsRelation="2" />
 				<Compiler>
-					<Add option="-O2" />
-					<Add option="-Wall" />
-					<Add option="-fno-strict-aliasing" />
+					<Add option="-g" />
+					<Add option="-m32" />
+					<Add option="-DANGELSCRIPT_EXPORT" />
+					<Add option="-D_DEBUG" />
+				</Compiler>
+			</Target>
+			<Target title="Debug 64">
+				<Option output="../../lib/libangelscript64d.a" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="" />
+				<Option object_output="objs/debug_64" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option projectResourceIncludeDirsRelation="2" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-m64" />
+					<Add option="-DANGELSCRIPT_EXPORT" />
+					<Add option="-D_DEBUG" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="../../lib/libangelscript.a" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="" />
+				<Option object_output="objs/release" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option projectResourceIncludeDirsRelation="2" />
+				<Compiler>
+					<Add option="-O3" />
 					<Add option="-m32" />
 					<Add option="-DANGELSCRIPT_EXPORT" />
 					<Add option="-DNDEBUG" />
@@ -26,15 +54,13 @@
 			<Target title="Release 64">
 				<Option output="../../lib/libangelscript64.a" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="" />
-				<Option object_output="objs/release 64" />
+				<Option object_output="objs/release_64" />
 				<Option type="2" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Option projectResourceIncludeDirsRelation="2" />
 				<Compiler>
-					<Add option="-O2" />
-					<Add option="-Wall" />
-					<Add option="-fno-strict-aliasing" />
+					<Add option="-O3" />
 					<Add option="-m64" />
 					<Add option="-DANGELSCRIPT_EXPORT" />
 					<Add option="-DNDEBUG" />
@@ -42,8 +68,14 @@
 			</Target>
 		</Build>
 		<VirtualTargets>
-			<Add alias="All" targets="Release;" />
+			<Add alias="All" targets="Debug;Debug 64;Release;Release 64;" />
 		</VirtualTargets>
+		<Compiler>
+			<Add option="-std=c++11" />
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+			<Add option="-fno-strict-aliasing" />
+		</Compiler>
 		<Unit filename="../../include/angelscript.h" />
 		<Unit filename="../../source/as_array.h" />
 		<Unit filename="../../source/as_atomic.cpp" />

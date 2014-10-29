@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2013 Andreas Jonsson
+   Copyright (c) 2003-2014 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied 
    warranty. In no event will the authors be held liable for any 
@@ -47,6 +47,7 @@ asCReader::asCReader(asCModule* _module, asIBinaryStream* _stream, asCScriptEngi
  : module(_module), stream(_stream), engine(_engine)
 {
 	error = false;
+	bytesRead = 0;
 }
 
 void asCReader::ReadData(void *data, asUINT size)
@@ -59,6 +60,7 @@ void asCReader::ReadData(void *data, asUINT size)
 	for( int n = size-1; n >= 0; n-- )
 		stream->Read(((asBYTE*)data)+n, 1);
 #endif
+	bytesRead += size;
 }
 
 int asCReader::Read(bool *wasDebugInfoStripped)
@@ -79,12 +81,14 @@ int asCReader::Read(bool *wasDebugInfoStripped)
 		asUINT i;
 		for( i = 0; i < module->scriptFunctions.GetLength(); i++ )
 			if( !dontTranslate.MoveTo(0, module->scriptFunctions[i]) )
-				module->scriptFunctions[i]->scriptData->byteCode.SetLength(0);
+				if( module->scriptFunctions[i]->scriptData )
+					module->scriptFunctions[i]->scriptData->byteCode.SetLength(0);
 
 		asCSymbolTable<asCGlobalProperty>::iterator it = module->scriptGlobals.List();
 		for( ; it; it++ )
 			if( (*it)->GetInitFunc() )
-				(*it)->GetInitFunc()->scriptData->byteCode.SetLength(0);
+				if( (*it)->GetInitFunc()->scriptData )
+					(*it)->GetInitFunc()->scriptData->byteCode.SetLength(0);
 
 		module->InternalReset();
 	}
@@ -104,6 +108,20 @@ int asCReader::Read(bool *wasDebugInfoStripped)
 	return r;
 }
 
+int asCReader::Error(const char *msg)
+{
+	// Don't write if it has already been reported an error earlier
+	if( !error )
+	{
+		asCString str;
+		str.Format(msg, bytesRead);
+		engine->WriteMessage("", 0, 0, asMSGTYPE_ERROR, str.AddressOf());
+		error = true;
+	}
+
+	return asERROR;
+}
+
 int asCReader::ReadInner() 
 {
 	// This function will load each entity one by one from the stream.
@@ -119,12 +137,15 @@ int asCReader::ReadInner()
 
 	// Read enums
 	count = ReadEncodedUInt();
-	module->enumTypes.Allocate(count, 0);
+	module->enumTypes.Allocate(count, false);
 	for( i = 0; i < count && !error; i++ )
 	{
 		asCObjectType *ot = asNEW(asCObjectType)(engine);
 		if( ot == 0 )
+		{
+			error = true;
 			return asOUT_OF_MEMORY;
+		}
 
 		ReadObjectTypeDeclaration(ot, 1);
 
@@ -132,9 +153,9 @@ int asCReader::ReadInner()
 		bool sharedExists = false;
 		if( ot->IsShared() )
 		{
-			for( asUINT n = 0; n < engine->classTypes.GetLength(); n++ )
+			for( asUINT n = 0; n < engine->scriptTypes.GetLength(); n++ )
 			{
-				asCObjectType *t = engine->classTypes[n];
+				asCObjectType *t = engine->scriptTypes[n];
 				if( t && 
 					t->IsShared() &&
 					t->name == ot->name &&
@@ -152,7 +173,12 @@ int asCReader::ReadInner()
 		if( sharedExists )
 			existingShared.Insert(ot, true);
 		else
-			engine->classTypes.PushLast(ot);
+		{
+			engine->scriptTypes.PushLast(ot);
+
+			// Set this module as the owner
+			ot->module = module;
+		}
 		module->enumTypes.PushLast(ot);
 		ot->AddRef();
 		ReadObjectTypeDeclaration(ot, 2);
@@ -163,12 +189,15 @@ int asCReader::ReadInner()
 	// classTypes[]
 	// First restore the structure names, then the properties
 	count = ReadEncodedUInt();
-	module->classTypes.Allocate(count, 0);
+	module->classTypes.Allocate(count, false);
 	for( i = 0; i < count && !error; ++i )
 	{
 		asCObjectType *ot = asNEW(asCObjectType)(engine);
 		if( ot == 0 )
+		{
+			error = true;
 			return asOUT_OF_MEMORY;
+		}
 
 		ReadObjectTypeDeclaration(ot, 1);
 
@@ -176,9 +205,9 @@ int asCReader::ReadInner()
 		bool sharedExists = false;
 		if( ot->IsShared() )
 		{
-			for( asUINT n = 0; n < engine->classTypes.GetLength(); n++ )
+			for( asUINT n = 0; n < engine->scriptTypes.GetLength(); n++ )
 			{
-				asCObjectType *t = engine->classTypes[n];
+				asCObjectType *t = engine->scriptTypes[n];
 				if( t &&
 					t->IsShared() &&
 					t->name == ot->name &&
@@ -197,7 +226,7 @@ int asCReader::ReadInner()
 			existingShared.Insert(ot, true);
 		else
 		{
-			engine->classTypes.PushLast(ot);
+			engine->scriptTypes.PushLast(ot);
 
 			// Set this module as the owner
 			ot->module = module;
@@ -210,7 +239,7 @@ int asCReader::ReadInner()
 
 	// Read func defs
 	count = ReadEncodedUInt();
-	module->funcDefs.Allocate(count, 0);
+	module->funcDefs.Allocate(count, false);
 	for( i = 0; i < count && !error; i++ )
 	{
 		bool isNew;
@@ -249,7 +278,7 @@ int asCReader::ReadInner()
 			}
 		}
 		else
-			error = true;
+			Error(TXT_INVALID_BYTECODE_d);
 	}
 
 	// Read interface methods
@@ -277,15 +306,19 @@ int asCReader::ReadInner()
 
 	// Read typedefs
 	count = ReadEncodedUInt();
-	module->typeDefs.Allocate(count, 0);
+	module->typeDefs.Allocate(count, false);
 	for( i = 0; i < count && !error; i++ )
 	{
 		asCObjectType *ot = asNEW(asCObjectType)(engine);
 		if( ot == 0 )
+		{
+			error = true;
 			return asOUT_OF_MEMORY;
+		}
 
 		ReadObjectTypeDeclaration(ot, 1);
-		engine->classTypes.PushLast(ot);
+		ot->module = module;
+		engine->scriptTypes.PushLast(ot);
 		module->typeDefs.PushLast(ot);
 		ot->AddRef();
 		ReadObjectTypeDeclaration(ot, 2);
@@ -298,9 +331,9 @@ int asCReader::ReadInner()
 	if( count && engine->ep.disallowGlobalVars )
 	{
 		engine->WriteMessage("", 0, 0, asMSGTYPE_ERROR, TXT_GLOBAL_VARS_NOT_ALLOWED);
-		error = true;
+		Error(TXT_INVALID_BYTECODE_d);
 	}
-	module->scriptGlobals.Allocate(count, 0);
+	module->scriptGlobals.Allocate(count, false);
 	for( i = 0; i < count && !error; ++i ) 
 	{
 		ReadGlobalProperty();
@@ -315,7 +348,7 @@ int asCReader::ReadInner()
 		func = ReadFunction(isNew);
 		if( func == 0 )
 		{
-			error = true;
+			Error(TXT_INVALID_BYTECODE_d);
 			break;
 		}
 		
@@ -359,29 +392,36 @@ int asCReader::ReadInner()
 		func = ReadFunction(isNew, false, false);
 		if( func )
 		{
+			// All the global functions were already loaded while loading the scriptFunctions, here
+			// we're just re-reading the refernces to know which goes into the globalFunctions array
+			asASSERT( !isNew );
+
 			module->globalFunctions.Put(func);
 			func->AddRef();
 		}
 		else
-			error = true;
+			Error(TXT_INVALID_BYTECODE_d);
 	}
 
 	if( error ) return asERROR;
 
 	// bindInformations[]
 	count = ReadEncodedUInt();
-	module->bindInformations.Allocate(count, 0);
+	module->bindInformations.Allocate(count, false);
 	for( i = 0; i < count && !error; ++i )
 	{
 		sBindInfo *info = asNEW(sBindInfo);
 		if( info == 0 )
+		{
+			error = true;
 			return asOUT_OF_MEMORY;
+		}
 
 		bool isNew;
 		info->importedFunctionSignature = ReadFunction(isNew, false, false);
 		if( info->importedFunctionSignature == 0 )
 		{
-			error = true;
+			Error(TXT_INVALID_BYTECODE_d);
 			break;
 		}
 
@@ -405,7 +445,7 @@ int asCReader::ReadInner()
 
 	// usedTypes[]
 	count = ReadEncodedUInt();
-	usedTypes.Allocate(count, 0);
+	usedTypes.Allocate(count, false);
 	for( i = 0; i < count && !error; ++i )
 	{
 		asCObjectType *ot = ReadObjectType();
@@ -454,7 +494,13 @@ int asCReader::ReadInner()
 				asCString str;
 				str.Format(TXT_INSTANCING_INVLD_TMPL_TYPE_s_s, usedTypes[i]->name.AddressOf(), sub.AddressOf());
 				engine->WriteMessage("", 0, 0, asMSGTYPE_ERROR, str.AddressOf());
-				error = true;
+				Error(TXT_INVALID_BYTECODE_d);
+			}
+			else
+			{
+				// If the callback said this template instance won't be garbage collected then remove the flag
+				if( dontGarbageCollect )
+					usedTypes[i]->flags &= ~asOBJ_GC;
 			}
 		}
 	}
@@ -501,7 +547,7 @@ void asCReader::ReadUsedStringConstants()
 
 	asUINT count;
 	count = ReadEncodedUInt();
-	usedStringConstants.Allocate(count, 0);
+	usedStringConstants.Allocate(count, false);
 	for( asUINT i = 0; i < count; ++i ) 
 	{
 		ReadString(&str);
@@ -514,6 +560,12 @@ void asCReader::ReadUsedFunctions()
 	asUINT count;
 	count = ReadEncodedUInt();
 	usedFunctions.SetLength(count);
+	if( usedFunctions.GetLength() != count )
+	{
+		// Out of memory
+		error = true;
+		return;
+	}
 	memset(usedFunctions.AddressOf(), 0, sizeof(asCScriptFunction *)*count);
 
 	for( asUINT n = 0; n < usedFunctions.GetLength(); n++ )
@@ -534,21 +586,44 @@ void asCReader::ReadUsedFunctions()
 		{
 			asCScriptFunction func(engine, c == 'm' ? module : 0, asFUNC_DUMMY);
 			ReadFunctionSignature(&func);
+			if( error )
+			{
+				func.funcType = asFUNC_DUMMY;
+				return;
+			}
 
 			// Find the correct function
 			if( c == 'm' )
 			{
-				for( asUINT i = 0; i < module->scriptFunctions.GetLength(); i++ )
+				if( func.funcType == asFUNC_IMPORTED )
 				{
-					asCScriptFunction *f = module->scriptFunctions[i];
-					if( !func.IsSignatureEqual(f) ||
-						func.objectType != f->objectType ||
-						func.funcType != f->funcType || 
-						func.nameSpace != f->nameSpace )
-						continue;
+					for( asUINT i = 0; i < module->bindInformations.GetLength(); i++ )
+					{
+						asCScriptFunction *f = module->bindInformations[i]->importedFunctionSignature;
+						if( !func.IsSignatureEqual(f) ||
+							func.objectType != f->objectType ||
+							func.funcType != f->funcType || 
+							func.nameSpace != f->nameSpace )
+							continue;
 
-					usedFunctions[n] = f;
-					break;
+						usedFunctions[n] = f;
+						break;
+					}
+				}
+				else
+				{
+					for( asUINT i = 0; i < module->scriptFunctions.GetLength(); i++ )
+					{
+						asCScriptFunction *f = module->scriptFunctions[i];
+						if( !func.IsSignatureEqual(f) ||
+							func.objectType != f->objectType ||
+							func.funcType != f->funcType || 
+							func.nameSpace != f->nameSpace )
+							continue;
+
+						usedFunctions[n] = f;
+						break;
+					}
 				}
 			}
 			else
@@ -569,13 +644,19 @@ void asCReader::ReadUsedFunctions()
 
 			// Set the type to dummy so it won't try to release the id
 			func.funcType = asFUNC_DUMMY;
+
+			if( usedFunctions[n] == 0 )
+			{
+				Error(TXT_INVALID_BYTECODE_d);
+				return;
+			}
 		}
 	}
 }
 
 void asCReader::ReadFunctionSignature(asCScriptFunction *func)
 {
-	int i, count;
+	asUINT i, count;
 	asCDataType dt;
 	int num;
 
@@ -583,50 +664,74 @@ void asCReader::ReadFunctionSignature(asCScriptFunction *func)
 	if( func->name == DELEGATE_FACTORY )
 	{
 		// It's not necessary to read anymore, everything is known 
-		for( asUINT n = 0; n < engine->registeredGlobalFuncs.GetLength(); n++ )
-		{
-			asCScriptFunction *f = engine->registeredGlobalFuncs[n];
-			if( f->name == DELEGATE_FACTORY )
-			{
-				func->returnType     = f->returnType;
-				func->parameterTypes = f->parameterTypes;
-				func->inOutFlags     = f->inOutFlags;
-				func->funcType       = f->funcType;
-				func->defaultArgs    = f->defaultArgs;
-				func->nameSpace      = f->nameSpace;
-				return;
-			}
-		}
-		asASSERT( false );
+		asCScriptFunction *f = engine->registeredGlobalFuncs.GetFirst(engine->nameSpaces[0], DELEGATE_FACTORY);
+		asASSERT( f );
+		func->returnType     = f->returnType;
+		func->parameterTypes = f->parameterTypes;
+		func->inOutFlags     = f->inOutFlags;
+		func->funcType       = f->funcType;
+		func->defaultArgs    = f->defaultArgs;
+		func->nameSpace      = f->nameSpace;
 		return;
 	}
 
 	ReadDataType(&func->returnType);
 
 	count = ReadEncodedUInt();
-	func->parameterTypes.Allocate(count, 0);
+	if( count > 256 )
+	{
+		// Too many arguments, must be something wrong in the file
+		Error(TXT_INVALID_BYTECODE_d);
+		return;
+	}
+	func->parameterTypes.Allocate(count, false);
 	for( i = 0; i < count; ++i ) 
 	{
 		ReadDataType(&dt);
 		func->parameterTypes.PushLast(dt);
 	}
 
+	func->inOutFlags.SetLength(func->parameterTypes.GetLength());
+	if( func->inOutFlags.GetLength() != func->parameterTypes.GetLength() )
+	{
+		// Out of memory
+		error = true;
+		return;
+	}
+	memset(func->inOutFlags.AddressOf(), 0, sizeof(asETypeModifiers)*func->inOutFlags.GetLength());
 	count = ReadEncodedUInt();
-	func->inOutFlags.Allocate(count, 0);
+	if( count > func->parameterTypes.GetLength() )
+	{
+		// Cannot be more than the number of arguments
+		Error(TXT_INVALID_BYTECODE_d);
+		return;
+	}
 	for( i = 0; i < count; ++i )
 	{
 		num = ReadEncodedUInt();
-		func->inOutFlags.PushLast(static_cast<asETypeModifiers>(num));
+		func->inOutFlags[i] = static_cast<asETypeModifiers>(num);
 	}
 
 	func->funcType = (asEFuncType)ReadEncodedUInt();
 
 	// Read the default args, from last to first
 	count = ReadEncodedUInt();
+	if( count > func->parameterTypes.GetLength() )
+	{
+		// Cannot be more than the number of arguments
+		Error(TXT_INVALID_BYTECODE_d);
+		return;
+	}
 	if( count )
 	{
 		func->defaultArgs.SetLength(func->parameterTypes.GetLength());
-		memset(func->defaultArgs.AddressOf(), 0, sizeof(asCString*)*func->parameterTypes.GetLength());
+		if( func->defaultArgs.GetLength() != func->parameterTypes.GetLength() )
+		{
+			// Out of memory
+			error = true;
+			return;
+		}
+		memset(func->defaultArgs.AddressOf(), 0, sizeof(asCString*)*func->defaultArgs.GetLength());
 		for( i = 0; i < count; i++ )
 		{
 			asCString *str = asNEW(asCString);
@@ -680,14 +785,14 @@ asCScriptFunction *asCReader::ReadFunction(bool &isNew, bool addToModule, bool a
 			return savedFunctions[index];
 		else
 		{
-			error = true;
+			Error(TXT_INVALID_BYTECODE_d);
 			return 0;
 		}
 	}
 
 	// Load the new function
 	isNew = true;
-	asCScriptFunction *func = asNEW(asCScriptFunction)(engine,module,asFUNC_DUMMY);
+	asCScriptFunction *func = asNEW(asCScriptFunction)(engine,0,asFUNC_DUMMY);
 	if( func == 0 )
 	{
 		// Out of memory
@@ -701,10 +806,22 @@ asCScriptFunction *asCReader::ReadFunction(bool &isNew, bool addToModule, bool a
 	int num;
 
 	ReadFunctionSignature(func);
+	if( error )
+	{
+		func->DestroyHalfCreated();
+		return 0;
+	}
 
 	if( func->funcType == asFUNC_SCRIPT )
 	{
 		func->AllocateScriptFunctionData();
+		if( func->scriptData == 0 )
+		{
+			// Out of memory
+			error = true;
+			func->DestroyHalfCreated();
+			return 0;
+		}
 
 		if( addToGC && !addToModule )
 			engine->gc.AddScriptObjectToGC(func, &engine->functionBehaviours);
@@ -714,9 +831,9 @@ asCScriptFunction *asCReader::ReadFunction(bool &isNew, bool addToModule, bool a
 		func->scriptData->variableSpace = ReadEncodedUInt();
 
 		count = ReadEncodedUInt();
-		func->scriptData->objVariablePos.Allocate(count, 0);
-		func->scriptData->objVariableTypes.Allocate(count, 0);
-		func->scriptData->funcVariableTypes.Allocate(count, 0);
+		func->scriptData->objVariablePos.Allocate(count, false);
+		func->scriptData->objVariableTypes.Allocate(count, false);
+		func->scriptData->funcVariableTypes.Allocate(count, false);
 		for( i = 0; i < count; ++i )
 		{
 			func->scriptData->objVariableTypes.PushLast(ReadObjectType());
@@ -724,6 +841,13 @@ asCScriptFunction *asCReader::ReadFunction(bool &isNew, bool addToModule, bool a
 			func->scriptData->funcVariableTypes.PushLast((asCScriptFunction*)(asPWORD)idx);
 			num = ReadEncodedUInt();
 			func->scriptData->objVariablePos.PushLast(num);
+
+			if( error )
+			{
+				// No need to continue (the error has already been reported before)
+				func->DestroyHalfCreated();
+				return 0;
+			}
 		}
 		if( count > 0 )
 			func->scriptData->objVariablesOnHeap = ReadEncodedUInt();
@@ -743,12 +867,26 @@ asCScriptFunction *asCReader::ReadFunction(bool &isNew, bool addToModule, bool a
 		{
 			length = ReadEncodedUInt();
 			func->scriptData->lineNumbers.SetLength(length);
+			if( int(func->scriptData->lineNumbers.GetLength()) != length )
+			{
+				// Out of memory
+				error = true;
+				func->DestroyHalfCreated();
+				return 0;
+			}
 			for( i = 0; i < length; ++i )
 				func->scriptData->lineNumbers[i] = ReadEncodedUInt();
 
 			// Read the array of script sections 
 			length = ReadEncodedUInt();
 			func->scriptData->sectionIdxs.SetLength(length);
+			if( int(func->scriptData->sectionIdxs.GetLength()) != length )
+			{
+				// Out of memory
+				error = true;
+				func->DestroyHalfCreated();
+				return 0;
+			}
 			for( i = 0; i < length; ++i )
 			{
 				if( (i & 1) == 0 )
@@ -762,13 +900,11 @@ asCScriptFunction *asCReader::ReadFunction(bool &isNew, bool addToModule, bool a
 			}
 		}
 
-		ReadData(&func->isShared, 1);
-
 		// Read the variable information
 		if( !noDebugInfo )
 		{
 			length = ReadEncodedUInt();
-			func->scriptData->variables.Allocate(length, 0);
+			func->scriptData->variables.Allocate(length, false);
 			for( i = 0; i < length; i++ )
 			{
 				asSScriptVariable *var = asNEW(asSScriptVariable);
@@ -776,6 +912,7 @@ asCScriptFunction *asCReader::ReadFunction(bool &isNew, bool addToModule, bool a
 				{
 					// Out of memory
 					error = true;
+					func->DestroyHalfCreated();
 					return 0;
 				}
 				func->scriptData->variables.PushLast(var);
@@ -784,10 +921,20 @@ asCScriptFunction *asCReader::ReadFunction(bool &isNew, bool addToModule, bool a
 				var->stackOffset = ReadEncodedUInt();
 				ReadString(&var->name);
 				ReadDataType(&var->type);
+
+				if( error )
+				{
+					// No need to continue (the error has already been reported before)
+					func->DestroyHalfCreated();
+					return 0;
+				}
 			}
 		}
 
-		ReadData(&func->dontCleanUpOnException, 1);
+		char bits;
+		ReadData(&bits, 1);
+		func->isShared               = bits & 1 ? true : false;
+		func->dontCleanUpOnException = bits & 2 ? true : false;
 
 		// Read script section name
 		if( !noDebugInfo )
@@ -795,9 +942,25 @@ asCScriptFunction *asCReader::ReadFunction(bool &isNew, bool addToModule, bool a
 			asCString name;
 			ReadString(&name);
 			func->scriptData->scriptSectionIdx = engine->GetScriptSectionNameIndex(name.AddressOf());
+			func->scriptData->declaredAt = ReadEncodedUInt();
+		}
+
+		// Read parameter names
+		if( !noDebugInfo )
+		{
+			asUINT count = asUINT(ReadEncodedUInt64());
+			if( count > func->parameterTypes.GetLength() )
+			{
+				error = true;
+				func->DestroyHalfCreated();
+				return 0;
+			}
+			func->parameterNames.SetLength(count);
+			for( asUINT n = 0; n < count; n++ )
+				ReadString(&func->parameterNames[n]);
 		}
 	}
-	else if( func->funcType == asFUNC_VIRTUAL )
+	else if( func->funcType == asFUNC_VIRTUAL || func->funcType == asFUNC_INTERFACE )
 	{
 		func->vfTableIdx = ReadEncodedUInt();
 	}
@@ -806,6 +969,7 @@ asCScriptFunction *asCReader::ReadFunction(bool &isNew, bool addToModule, bool a
 	{
 		// The refCount is already 1
 		module->scriptFunctions.PushLast(func);
+		func->module = module;
 	}
 	if( addToEngine )
 	{
@@ -861,7 +1025,7 @@ void asCReader::ReadObjectTypeDeclaration(asCObjectType *ot, int phase)
 			bool sharedExists = existingShared.MoveTo(0, ot);
 			if( !sharedExists )
 			{
-				ot->enumValues.Allocate(count, 0);
+				ot->enumValues.Allocate(count, false);
 				for( int n = 0; n < count; n++ )
 				{
 					asSEnumValue *e = asNEW(asSEnumValue);
@@ -900,7 +1064,7 @@ void asCReader::ReadObjectTypeDeclaration(asCObjectType *ot, int phase)
 						asCString str;
 						str.Format(TXT_SHARED_s_DOESNT_MATCH_ORIGINAL, ot->GetName());
 						engine->WriteMessage("", 0, 0, asMSGTYPE_ERROR, str.AddressOf());
-						error = true;
+						Error(TXT_INVALID_BYTECODE_d);
 					}
 				}
 			}
@@ -923,7 +1087,7 @@ void asCReader::ReadObjectTypeDeclaration(asCObjectType *ot, int phase)
 					asCString str;
 					str.Format(TXT_SHARED_s_DOESNT_MATCH_ORIGINAL, ot->GetName());
 					engine->WriteMessage("", 0, 0, asMSGTYPE_ERROR, str.AddressOf());
-					error = true;
+					Error(TXT_INVALID_BYTECODE_d);
 				}
 			}
 			else
@@ -933,29 +1097,35 @@ void asCReader::ReadObjectTypeDeclaration(asCObjectType *ot, int phase)
 					ot->derivedFrom->AddRef();
 			}
 
-			// interfaces[]
+			// interfaces[] / interfaceVFTOffsets[]
 			int size = ReadEncodedUInt();
 			if( sharedExists )
 			{
 				for( int n = 0; n < size; n++ )
 				{
 					asCObjectType *intf = ReadObjectType();
+					ReadEncodedUInt();
+
 					if( !ot->Implements(intf) )
 					{
 						asCString str;
 						str.Format(TXT_SHARED_s_DOESNT_MATCH_ORIGINAL, ot->GetName());
 						engine->WriteMessage("", 0, 0, asMSGTYPE_ERROR, str.AddressOf());
-						error = true;
+						Error(TXT_INVALID_BYTECODE_d);
 					}
 				}
 			}
 			else
 			{
-				ot->interfaces.Allocate(size,0);
+				ot->interfaces.Allocate(size, false);
+				ot->interfaceVFTOffsets.Allocate(size, false);
 				for( int n = 0; n < size; n++ )
 				{
 					asCObjectType *intf = ReadObjectType();
 					ot->interfaces.PushLast(intf);
+
+					asUINT offset = ReadEncodedUInt();
+					ot->interfaceVFTOffsets.PushLast(offset);
 				}
 			}
 
@@ -979,7 +1149,7 @@ void asCReader::ReadObjectTypeDeclaration(asCObjectType *ot, int phase)
 						asCString str;
 						str.Format(TXT_SHARED_s_DOESNT_MATCH_ORIGINAL, ot->GetName());
 						engine->WriteMessage("", 0, 0, asMSGTYPE_ERROR, str.AddressOf());
-						error = true;
+						Error(TXT_INVALID_BYTECODE_d);
 					}
 					if( func )
 					{
@@ -1037,7 +1207,7 @@ void asCReader::ReadObjectTypeDeclaration(asCObjectType *ot, int phase)
 								asCString str;
 								str.Format(TXT_SHARED_s_DOESNT_MATCH_ORIGINAL, ot->GetName());
 								engine->WriteMessage("", 0, 0, asMSGTYPE_ERROR, str.AddressOf());
-								error = true;
+								Error(TXT_INVALID_BYTECODE_d);
 							}
 							if( isNew )
 							{
@@ -1058,8 +1228,7 @@ void asCReader::ReadObjectTypeDeclaration(asCObjectType *ot, int phase)
 					}
 					else
 					{
-						// TODO: Write message
-						error = true;
+						Error(TXT_INVALID_BYTECODE_d);
 					}
 
 					func = ReadFunction(isNew, !sharedExists, !sharedExists, !sharedExists);
@@ -1089,7 +1258,7 @@ void asCReader::ReadObjectTypeDeclaration(asCObjectType *ot, int phase)
 								asCString str;
 								str.Format(TXT_SHARED_s_DOESNT_MATCH_ORIGINAL, ot->GetName());
 								engine->WriteMessage("", 0, 0, asMSGTYPE_ERROR, str.AddressOf());
-								error = true;
+								Error(TXT_INVALID_BYTECODE_d);
 							}
 							if( isNew )
 							{
@@ -1110,8 +1279,7 @@ void asCReader::ReadObjectTypeDeclaration(asCObjectType *ot, int phase)
 					}
 					else
 					{
-						// TODO: Write message
-						error = true;
+						Error(TXT_INVALID_BYTECODE_d);
 					}
 				}
 			}
@@ -1149,7 +1317,7 @@ void asCReader::ReadObjectTypeDeclaration(asCObjectType *ot, int phase)
 							asCString str;
 							str.Format(TXT_SHARED_s_DOESNT_MATCH_ORIGINAL, ot->GetName());
 							engine->WriteMessage("", 0, 0, asMSGTYPE_ERROR, str.AddressOf());
-							error = true;
+							Error(TXT_INVALID_BYTECODE_d);
 						}
 						if( isNew )
 						{
@@ -1178,8 +1346,7 @@ void asCReader::ReadObjectTypeDeclaration(asCObjectType *ot, int phase)
 				}
 				else
 				{
-					// TODO: Write message
-					error = true;
+					Error(TXT_INVALID_BYTECODE_d);
 				}
 			}
 
@@ -1215,7 +1382,7 @@ void asCReader::ReadObjectTypeDeclaration(asCObjectType *ot, int phase)
 							asCString str;
 							str.Format(TXT_SHARED_s_DOESNT_MATCH_ORIGINAL, ot->GetName());
 							engine->WriteMessage("", 0, 0, asMSGTYPE_ERROR, str.AddressOf());
-							error = true;
+							Error(TXT_INVALID_BYTECODE_d);
 						}
 						if( isNew )
 						{
@@ -1234,8 +1401,7 @@ void asCReader::ReadObjectTypeDeclaration(asCObjectType *ot, int phase)
 				}
 				else
 				{
-					// TODO: Write message
-					error = true;
+					Error(TXT_INVALID_BYTECODE_d);
 				}
 			}
 		}
@@ -1254,8 +1420,7 @@ asWORD asCReader::ReadEncodedUInt16()
 	asDWORD dw = ReadEncodedUInt();
 	if( (dw>>16) != 0 && (dw>>16) != 0xFFFF )
 	{
-		// TODO: Write message
-		error = true;
+		Error(TXT_INVALID_BYTECODE_d);
 	}
 
 	return asWORD(dw & 0xFFFF);
@@ -1266,8 +1431,7 @@ asUINT asCReader::ReadEncodedUInt()
 	asQWORD qw = ReadEncodedUInt64();
 	if( (qw>>32) != 0 && (qw>>32) != 0xFFFFFFFF )
 	{
-		// TODO: Write message
-		error = true;
+		Error(TXT_INVALID_BYTECODE_d);
 	}
 
 	return asUINT(qw & 0xFFFFFFFFu);
@@ -1369,7 +1533,7 @@ void asCReader::ReadString(asCString* str)
 		if( n < savedStrings.GetLength() )
 			*str = savedStrings[n];
 		else
-			error = true;
+			Error(TXT_INVALID_BYTECODE_d);
 	}
 }
 
@@ -1389,21 +1553,17 @@ void asCReader::ReadGlobalProperty()
 	asCGlobalProperty *prop = module->AllocateGlobalProperty(name.AddressOf(), type, nameSpace);
 
 	// Read the initialization function
-	bool f;
-	ReadData(&f, 1);
-	if( f )
+	bool isNew;
+	// Do not add the function to the GC at this time. It will 
+	// only be added to the GC when the module releases the property
+	asCScriptFunction *func = ReadFunction(isNew, false, true, false);
+	if( func )
 	{
-		bool isNew;
-		// Do not add the function to the GC at this time. It will 
-		// only be added to the GC when the module releases the property
-		asCScriptFunction *func = ReadFunction(isNew, false, true, false);
-		if( func )
-		{
-			prop->SetInitFunc(func);
-			func->Release();
-		}
-		else
-			error = true;
+		// Make sure the function knows it is owned by the module
+		func->module = module;
+
+		prop->SetInitFunc(func);
+		func->Release();
 	}
 }
 
@@ -1424,16 +1584,17 @@ void asCReader::ReadObjectProperty(asCObjectType *ot)
 
 void asCReader::ReadDataType(asCDataType *dt) 
 {
-	eTokenType tokenType;
-
-	tokenType = (eTokenType)ReadEncodedUInt();
-	if( tokenType == 0 )
+	// Check if this is a previously used type
+	asUINT n = ReadEncodedUInt();
+	if( n != 0 )
 	{
 		// Get the datatype from the cache
-		asUINT n = ReadEncodedUInt();
-		*dt = savedDataTypes[n];
+		*dt = savedDataTypes[n-1];
 		return;
 	}
+
+	// Read the type definition
+	eTokenType tokenType = (eTokenType)ReadEncodedUInt();
 
 	// Reserve a spot in the savedDataTypes
 	size_t saveSlot = savedDataTypes.GetLength();
@@ -1441,25 +1602,25 @@ void asCReader::ReadDataType(asCDataType *dt)
 
 	// Read the datatype for the first time
 	asCObjectType *objType = 0;
-	bool isObjectHandle  = false;
-	bool isReadOnly      = false;
-	bool isHandleToConst = false;
-	bool isReference     = false;
-
 	if( tokenType == ttIdentifier )
-	{
 		objType = ReadObjectType();
-		ReadData(&isObjectHandle, 1);
-		ReadData(&isHandleToConst, 1);
-	}
-	ReadData(&isReference, 1);
-	ReadData(&isReadOnly, 1);
+
+	struct
+	{
+		char isObjectHandle :1;
+		char isHandleToConst:1;
+		char isReference    :1;
+		char isReadOnly     :1;
+	} bits = {0};
+	asASSERT( sizeof(bits) == 1 );
+	ReadData(&bits, 1);
 
 	asCScriptFunction *funcDef = 0;
 	if( tokenType == ttIdentifier && objType && objType->name == "_builtin_function_" )
 	{
 		asCScriptFunction func(engine, module, asFUNC_DUMMY);
 		ReadFunctionSignature(&func);
+		if( error ) return;
 		for( asUINT n = 0; n < engine->registeredFuncDefs.GetLength(); n++ )
 		{
 			// TODO: access: Only return the definitions that the module has access to
@@ -1494,16 +1655,16 @@ void asCReader::ReadDataType(asCDataType *dt)
 		*dt = asCDataType::CreateObject(objType, false);
 	else
 		*dt = asCDataType::CreatePrimitive(tokenType, false);
-	if( isObjectHandle )
+	if( bits.isObjectHandle )
 	{
-		dt->MakeReadOnly(isHandleToConst);
+		dt->MakeReadOnly(bits.isHandleToConst ? true : false);
 		
 		// Here we must allow a scoped type to be a handle 
 		// e.g. if the datatype is for a system function
 		dt->MakeHandle(true, true);
 	}
-	dt->MakeReadOnly(isReadOnly);
-	dt->MakeReference(isReference);
+	dt->MakeReadOnly(bits.isReadOnly ? true : false);
+	dt->MakeReference(bits.isReference ? true : false);
 
 	// Update the previously saved slot
 	savedDataTypes[saveSlot] = *dt;
@@ -1517,15 +1678,18 @@ asCObjectType* asCReader::ReadObjectType()
 	if( ch == 'a' )
 	{
 		// Read the name of the template type
-		asCString typeName;
+		asCString typeName, ns;
 		ReadString(&typeName);
-		asCObjectType *tmpl = engine->GetObjectType(typeName.AddressOf(), engine->nameSpaces[0]);
+		ReadString(&ns);
+		asSNameSpace *nameSpace = engine->AddNameSpace(ns.AddressOf());
+
+		asCObjectType *tmpl = engine->GetRegisteredObjectType(typeName.AddressOf(), nameSpace);
 		if( tmpl == 0 )
 		{
 			asCString str;
 			str.Format(TXT_TEMPLATE_TYPE_s_DOESNT_EXIST, typeName.AddressOf());
 			engine->WriteMessage("", 0, 0, asMSGTYPE_ERROR, str.AddressOf());
-			error = true;
+			Error(TXT_INVALID_BYTECODE_d);
 			return 0;
 		}
 
@@ -1569,9 +1733,19 @@ asCObjectType* asCReader::ReadObjectType()
 			asCString str;
 			str.Format(TXT_INSTANCING_INVLD_TMPL_TYPE_s_s, typeName.AddressOf(), sub.AddressOf());
 			engine->WriteMessage("", 0, 0, asMSGTYPE_ERROR, str.AddressOf());
-			error = true;
+			Error(TXT_INVALID_BYTECODE_d);
 			return 0;
 		}
+	}
+	else if( ch == 'l' )
+	{
+		asCObjectType *st = ReadObjectType();
+		if( st == 0 || st->beh.listFactory == 0 )
+		{
+			Error(TXT_INVALID_BYTECODE_d);
+			return 0;
+		}
+		ot = engine->GetListPatternType(st->beh.listFactory);
 	}
 	else if( ch == 's' )
 	{
@@ -1595,7 +1769,7 @@ asCObjectType* asCReader::ReadObjectType()
 			asCString str;
 			str.Format(TXT_TEMPLATE_SUBTYPE_s_DOESNT_EXIST, typeName.AddressOf());
 			engine->WriteMessage("", 0, 0, asMSGTYPE_ERROR, str.AddressOf());
-			error = true;
+			Error(TXT_INVALID_BYTECODE_d);
 			return 0;
 		}
 	}
@@ -1607,20 +1781,19 @@ asCObjectType* asCReader::ReadObjectType()
 		ReadString(&ns);
 		asSNameSpace *nameSpace = engine->AddNameSpace(ns.AddressOf());
 
-
 		if( typeName.GetLength() && typeName != "_builtin_object_" && typeName != "_builtin_function_" )
 		{
 			// Find the object type
 			ot = module->GetObjectType(typeName.AddressOf(), nameSpace);
 			if( !ot )
-				ot = engine->GetObjectType(typeName.AddressOf(), nameSpace);
+				ot = engine->GetRegisteredObjectType(typeName.AddressOf(), nameSpace);
 			
 			if( ot == 0 )
 			{
 				asCString str;
 				str.Format(TXT_OBJECT_TYPE_s_DOESNT_EXIST, typeName.AddressOf());
 				engine->WriteMessage("", 0, 0, asMSGTYPE_ERROR, str.AddressOf());
-				error = true;
+				Error(TXT_INVALID_BYTECODE_d);
 				return 0;
 			}
 		}
@@ -1638,7 +1811,7 @@ asCObjectType* asCReader::ReadObjectType()
 	else
 	{
 		// No object type
-		asASSERT( ch == '\0' );
+		asASSERT( ch == '\0' || error );
 		ot = 0;
 	}
 
@@ -1838,6 +2011,22 @@ void asCReader::ReadByteCode(asCScriptFunction *func)
 				bc += 2;
 			}
 			break;
+		case asBCTYPE_rW_DW_DW_ARG:
+			{
+				*(asBYTE*)(bc) = b;
+
+				// Read the 1st argument
+				asWORD w = ReadEncodedUInt16();
+				*(((asWORD*)bc)+1) = w;
+				bc++;
+
+				// Read the 2nd argument
+				*bc++ = ReadEncodedUInt();
+
+				// Read the 3rd argument
+				*bc++ = ReadEncodedUInt();
+			}
+			break;
 		default:
 			{
 				// This should never happen
@@ -1876,7 +2065,7 @@ void asCReader::ReadByteCode(asCScriptFunction *func)
 void asCReader::ReadUsedTypeIds()
 {
 	asUINT count = ReadEncodedUInt();
-	usedTypeIds.Allocate(count, 0);
+	usedTypeIds.Allocate(count, false);
 	for( asUINT n = 0; n < count; n++ )
 	{
 		asCDataType dt;
@@ -1889,7 +2078,7 @@ void asCReader::ReadUsedGlobalProps()
 {
 	int c = ReadEncodedUInt();
 
-	usedGlobalProperties.Allocate(c, 0);
+	usedGlobalProperties.Allocate(c, false);
 
 	for( int n = 0; n < c; n++ )
 	{
@@ -1919,8 +2108,7 @@ void asCReader::ReadUsedGlobalProps()
 
 		if( prop == 0 )
 		{
-			// TODO: Write error message to the callback
-			error = true;
+			Error(TXT_INVALID_BYTECODE_d);
 		}
 	}
 }
@@ -1935,8 +2123,7 @@ void asCReader::ReadUsedObjectProps()
 		asCObjectType *objType = ReadObjectType();
 		if( objType == 0 )
 		{
-			// TODO: Write error message to callback
-			error = true;
+			Error(TXT_INVALID_BYTECODE_d);
 			break;
 		}
 
@@ -1958,8 +2145,7 @@ void asCReader::ReadUsedObjectProps()
 
 		if( !found )
 		{
-			// TODO: Write error message to callback
-			error = true;
+			Error(TXT_INVALID_BYTECODE_d);
 			return;
 		}
 	}
@@ -1969,9 +2155,7 @@ short asCReader::FindObjectPropOffset(asWORD index)
 {
 	if( index >= usedObjectProperties.GetLength() )
 	{
-		// TODO: Write to message callback
-		asASSERT(false);
-		error = true;
+		Error(TXT_INVALID_BYTECODE_d);
 		return 0;
 	}
 
@@ -1984,8 +2168,7 @@ asCScriptFunction *asCReader::FindFunction(int idx)
 		return usedFunctions[idx];
 	else
 	{
-		// TODO: Write to message callback
-		error = true;
+		Error(TXT_INVALID_BYTECODE_d);
 		return 0;
 	}
 }
@@ -2000,15 +2183,16 @@ void asCReader::TranslateFunction(asCScriptFunction *func)
 	// Pre-compute the size of each instruction in order to translate jump offsets
 	asUINT n;
 	asDWORD *bc = func->scriptData->byteCode.AddressOf();
-	asCArray<asUINT> bcSizes(func->scriptData->byteCode.GetLength());
-	asCArray<asUINT> instructionNbrToPos(func->scriptData->byteCode.GetLength());
-	for( n = 0; n < func->scriptData->byteCode.GetLength(); )
+	asUINT bcLength = (asUINT)func->scriptData->byteCode.GetLength();
+	asCArray<asUINT> bcSizes(bcLength);
+	asCArray<asUINT> instructionNbrToPos(bcLength);
+	for( n = 0; n < bcLength; )
 	{
 		int c = *(asBYTE*)&bc[n];
 		asUINT size = asBCTypeSize[asBCInfo[c].type];
 		if( size == 0 )
 		{
-			error = true;
+			Error(TXT_INVALID_BYTECODE_d);
 			return;
 		}
 		bcSizes.PushLast(size);
@@ -2017,11 +2201,10 @@ void asCReader::TranslateFunction(asCScriptFunction *func)
 	}
 
 	asUINT bcNum = 0;
-	for( n = 0; n < func->scriptData->byteCode.GetLength(); bcNum++ )
+	for( n = 0; n < bcLength; bcNum++ )
 	{
 		int c = *(asBYTE*)&bc[n];
-		if( c == asBC_FREE ||
-			c == asBC_REFCPY || 
+		if( c == asBC_REFCPY || 
 			c == asBC_RefCpyV ||
 			c == asBC_OBJTYPE )
 		{
@@ -2053,8 +2236,18 @@ void asCReader::TranslateFunction(asCScriptFunction *func)
 			int *tid = (int*)&bc[n+2];
 			*tid = FindTypeId(*tid);
 
-			// Translate the prop index into the property offset
-			*(((short*)&bc[n])+2) = FindObjectPropOffset(*(((short*)&bc[n])+2));
+			asCObjectType *ot = engine->GetObjectTypeFromTypeId(*tid);
+			if( ot && (ot->flags & asOBJ_LIST_PATTERN) )
+			{
+				// List patterns have a different way of adjusting the offsets
+				SListAdjuster *listAdj = listAdjusters[listAdjusters.GetLength()-1];
+				*(((short*)&bc[n])+2) = (short)listAdj->AdjustOffset(*(((short*)&bc[n])+2));
+			}
+			else
+			{
+				// Translate the prop index into the property offset
+				*(((short*)&bc[n])+2) = FindObjectPropOffset(*(((short*)&bc[n])+2));
+			}
 		}
 		else if( c == asBC_COPY )
 		{
@@ -2075,8 +2268,7 @@ void asCReader::TranslateFunction(asCScriptFunction *func)
 				asCDataType dt = engine->GetDataTypeFromTypeId(*tid);
 				if( !dt.IsValid() )
 				{
-					// TODO: Write error to message
-					error = true;
+					Error(TXT_INVALID_BYTECODE_d);
 				}
 				else
 					asBC_SWORDARG0(&bc[n]) = (short)dt.GetSizeInMemoryDWords();
@@ -2101,8 +2293,7 @@ void asCReader::TranslateFunction(asCScriptFunction *func)
 				*fid = f->id;
 			else
 			{
-				// TODO: Write to message callback
-				error = true;
+				Error(TXT_INVALID_BYTECODE_d);
 				return;
 			}
 		}
@@ -2128,8 +2319,7 @@ void asCReader::TranslateFunction(asCScriptFunction *func)
 					*fid = f->id;
 				else
 				{
-					// TODO: Write to message callback
-					error = true;
+					Error(TXT_INVALID_BYTECODE_d);
 					return;
 				}
 			}
@@ -2143,8 +2333,7 @@ void asCReader::TranslateFunction(asCScriptFunction *func)
 				*arg = (asWORD)usedStringConstants[*arg];
 			else
 			{
-				// TODO: Write to message callback
-				error = true;
+				Error(TXT_INVALID_BYTECODE_d);
 				return;
 			}
 		}
@@ -2159,15 +2348,13 @@ void asCReader::TranslateFunction(asCScriptFunction *func)
 					*fid = bi->importedFunctionSignature->id;
 				else
 				{
-					// TODO: Write to message callback
-					error = true;
+					Error(TXT_INVALID_BYTECODE_d);
 					return;
 				}
 			}
 			else
 			{
-				// TODO: Write to message callback
-				error = true;
+				Error(TXT_INVALID_BYTECODE_d);
 				return;
 			}
 		}
@@ -2186,8 +2373,7 @@ void asCReader::TranslateFunction(asCScriptFunction *func)
 				*(void**)index = usedGlobalProperties[*(asUINT*)index];
 			else
 			{
-				// TODO: Write to message callback
-				error = true;
+				Error(TXT_INVALID_BYTECODE_d);
 				return;
 			}
 		}
@@ -2218,6 +2404,64 @@ void asCReader::TranslateFunction(asCScriptFunction *func)
 			// The size is dword offset 
 			bc[n+1] = size;
 		}
+		else if( c == asBC_AllocMem )
+		{
+			// The size of the allocated memory is only known after all the elements has been seen.
+			// This helper class will collect this information and adjust the size when the 
+			// corresponding asBC_FREE is encountered
+
+			// The adjuster also needs to know the list type so it can know the type of the elements
+			asCObjectType *ot = func->GetObjectTypeOfLocalVar(asBC_SWORDARG0(&bc[n]));
+			listAdjusters.PushLast(asNEW(SListAdjuster)(this, &bc[n], ot));
+		}
+		else if( c == asBC_FREE )
+		{
+			// Translate the index to the true object type
+			asPWORD *pot = (asPWORD*)&bc[n+1];
+			*(asCObjectType**)pot = FindObjectType(*(int*)pot);
+
+			asCObjectType *ot = *(asCObjectType**)pot;
+			if( ot && (ot->flags & asOBJ_LIST_PATTERN) )
+			{
+				if( listAdjusters.GetLength() == 0 )
+				{
+					Error(TXT_INVALID_BYTECODE_d);
+					return;
+				}
+
+				// Finalize the adjustment of the list buffer that was initiated with asBC_AllocMem
+				SListAdjuster *list = listAdjusters.PopLast();
+				list->AdjustAllocMem();
+				asDELETE(list, SListAdjuster);
+			}
+		}
+		else if( c == asBC_SetListSize )
+		{
+			// Adjust the offset in the list where the size is informed
+			SListAdjuster *listAdj = listAdjusters[listAdjusters.GetLength()-1];
+			bc[n+1] = listAdj->AdjustOffset(bc[n+1]);
+
+			// Inform the list adjuster how many values will be repeated
+			listAdj->SetRepeatCount(bc[n+2]);
+		}
+		else if( c == asBC_PshListElmnt )
+		{
+			// Adjust the offset in the list where the size is informed
+			SListAdjuster *listAdj = listAdjusters[listAdjusters.GetLength()-1];
+			bc[n+1] = listAdj->AdjustOffset(bc[n+1]);
+		}
+		else if( c == asBC_SetListType )
+		{
+			// Adjust the offset in the list where the typeid is informed
+			SListAdjuster *listAdj = listAdjusters[listAdjusters.GetLength()-1];
+			bc[n+1] = listAdj->AdjustOffset(bc[n+1]);
+
+			// Translate the type id
+			bc[n+2] = FindTypeId(bc[n+2]);
+
+			// Inform the list adjuster the type id of the next element
+			listAdj->SetNextType(bc[n+2]);
+		}
 
 		n += asBCTypeSize[asBCInfo[c].type];
 	}
@@ -2227,7 +2471,7 @@ void asCReader::TranslateFunction(asCScriptFunction *func)
 
 	// Adjust all variable positions in the bytecode
 	bc = func->scriptData->byteCode.AddressOf();
-	for( n = 0; n < func->scriptData->byteCode.GetLength(); )
+	for( n = 0; n < bcLength; )
 	{
 		int c = *(asBYTE*)&bc[n];
 		switch( asBCInfo[c].type )
@@ -2240,6 +2484,7 @@ void asCReader::TranslateFunction(asCScriptFunction *func)
 		case asBCTYPE_wW_W_ARG:
 		case asBCTYPE_rW_QW_ARG:
 		case asBCTYPE_rW_W_DW_ARG:
+		case asBCTYPE_rW_DW_DW_ARG:
 			{
 				asBC_SWORDARG0(&bc[n]) = (short)AdjustStackPosition(asBC_SWORDARG0(&bc[n]));
 			}
@@ -2295,7 +2540,7 @@ void asCReader::TranslateFunction(asCScriptFunction *func)
 	//                 This will also make the AdjustGetOffset() function quicker as it can 
 	//                 receive the called function directly instead of having to search for it.
 	bc = func->scriptData->byteCode.AddressOf();
-	for( n = 0; n < func->scriptData->byteCode.GetLength(); )
+	for( n = 0; n < bcLength; )
 	{
 		int c = *(asBYTE*)&bc[n];
 
@@ -2324,6 +2569,193 @@ void asCReader::TranslateFunction(asCScriptFunction *func)
 		func->scriptData->sectionIdxs[n] = instructionNbrToPos[func->scriptData->sectionIdxs[n]];
 
 	CalculateStackNeeded(func);
+}
+
+asCReader::SListAdjuster::SListAdjuster(asCReader *rd, asDWORD *bc, asCObjectType *listType) : 
+	reader(rd), allocMemBC(bc), maxOffset(0), patternType(listType), repeatCount(0), lastOffset(-1), nextOffset(0), nextTypeId(-1)
+{
+	asASSERT( patternType && (patternType->flags & asOBJ_LIST_PATTERN) );
+
+	// Find the first expected value in the list
+	asSListPatternNode *node = patternType->engine->scriptFunctions[patternType->templateSubTypes[0].GetBehaviour()->listFactory]->listPattern;
+	asASSERT( node && node->type == asLPT_START );
+	patternNode = node->next;
+}
+
+int asCReader::SListAdjuster::AdjustOffset(int offset)
+{
+	if( offset < lastOffset )
+	{
+		reader->Error(TXT_INVALID_BYTECODE_d);
+		return 0;
+	}
+
+	// If it is the same offset being accessed again, just return the same adjusted value
+	if( lastOffset == offset )
+		return lastAdjustedOffset;
+
+	lastOffset = offset;
+	lastAdjustedOffset = maxOffset;
+
+	// What is being expected at this position?
+	if( patternNode->type == asLPT_REPEAT || patternNode->type == asLPT_REPEAT_SAME )
+	{
+		// Align the offset to 4 bytes boundary
+		if( maxOffset & 0x3 )
+		{
+			maxOffset += 4 - (maxOffset & 0x3);
+			lastAdjustedOffset = maxOffset;
+		}
+
+		// Don't move the patternNode yet because the caller must make a call to SetRepeatCount too
+		maxOffset += 4;
+		nextOffset = offset+1;
+		return lastAdjustedOffset;
+	}
+	else if( patternNode->type == asLPT_TYPE )
+	{
+		const asCDataType &dt = reinterpret_cast<asSListPatternDataTypeNode*>(patternNode)->dataType;
+		if( dt.GetTokenType() == ttQuestion )
+		{
+			if( nextTypeId != -1 )
+			{
+				if( repeatCount > 0 )
+					repeatCount--;
+
+				asCDataType dt = patternType->engine->GetDataTypeFromTypeId(nextTypeId);
+				asUINT size;
+				if( dt.IsObjectHandle() || (dt.GetObjectType() && (dt.GetObjectType()->flags & asOBJ_REF)) )
+					size = AS_PTR_SIZE*4;
+				else
+					size = dt.GetSizeInMemoryBytes();
+
+				// Align the offset to 4 bytes boundary
+				if( size >= 4 && (maxOffset & 0x3) )
+				{
+					maxOffset += 4 - (maxOffset & 0x3);
+					lastAdjustedOffset = maxOffset;
+				}
+
+				// Only move the patternNode if we're not expecting any more repeated entries
+				if( repeatCount == 0 )
+					patternNode = patternNode->next;
+
+				nextTypeId = -1;
+
+				maxOffset += size;
+				nextOffset = offset+1;
+				return lastAdjustedOffset;
+			}
+			else
+			{
+				// Align the offset to 4 bytes boundary
+				if( maxOffset & 0x3 )
+				{
+					maxOffset += 4 - (maxOffset & 0x3);
+					lastAdjustedOffset = maxOffset;
+				}
+
+				// The first adjustment is for the typeId
+				maxOffset += 4;
+				nextOffset = offset+1;
+				return lastAdjustedOffset;
+			}
+		}
+		else
+		{
+			// Determine the size of the element
+			asUINT size;
+			asCDataType dt = reinterpret_cast<asSListPatternDataTypeNode*>(patternNode)->dataType;
+			if( dt.IsObjectHandle() || (dt.GetObjectType() && (dt.GetObjectType()->flags & asOBJ_REF)) )
+				size = AS_PTR_SIZE*4;
+			else
+				size = dt.GetSizeInMemoryBytes();
+
+			// If values are skipped, the offset needs to be incremented
+			while( nextOffset <= offset )
+			{
+				if( repeatCount > 0 )
+					repeatCount--;
+
+				// Align the offset to 4 bytes boundary
+				if( size >= 4 && (maxOffset & 0x3) )
+					maxOffset += 4 - (maxOffset & 0x3);
+
+				lastAdjustedOffset = maxOffset;
+				nextOffset += 1;
+				maxOffset += size;
+			}
+
+			// Only move the patternNode if we're not expecting any more repeated entries
+			if( repeatCount == 0 )
+				patternNode = patternNode->next;
+
+			nextOffset = offset+1;
+			return lastAdjustedOffset;
+		}
+	}
+	else if( patternNode->type == asLPT_START )
+	{
+		if( repeatCount > 0 )
+			repeatCount--;
+		SInfo info = {repeatCount, patternNode};
+		stack.PushLast(info);
+
+		repeatCount = 0;
+		patternNode = patternNode->next;
+
+		lastOffset--;
+		return AdjustOffset(offset);
+	}
+	else if( patternNode->type == asLPT_END )
+	{
+		if( stack.GetLength() == 0 )
+		{
+			reader->Error(TXT_INVALID_BYTECODE_d);
+			return 0;
+		}
+
+		SInfo info = stack.PopLast();
+		repeatCount = info.repeatCount;
+		if( repeatCount )
+			patternNode = info.startNode;
+		else
+			patternNode = patternNode->next;
+
+		lastOffset--;
+		return AdjustOffset(offset);
+	}
+	else
+	{
+		// Something is wrong with the pattern list declaration
+		reader->Error(TXT_INVALID_BYTECODE_d);
+		return 0;
+	}
+
+	UNREACHABLE_RETURN;
+}
+
+void asCReader::SListAdjuster::SetRepeatCount(asUINT rc)
+{
+	// Make sure the list is expecting a repeat at this location
+	asASSERT( patternNode->type == asLPT_REPEAT || patternNode->type == asLPT_REPEAT_SAME );
+
+	// Now move to the next patternNode
+	patternNode = patternNode->next;
+
+	repeatCount = rc;
+}
+
+void asCReader::SListAdjuster::AdjustAllocMem()
+{
+	allocMemBC[1] = maxOffset;
+}
+
+void asCReader::SListAdjuster::SetNextType(int typeId)
+{
+	asASSERT( nextTypeId == -1 );
+
+	nextTypeId = typeId;
 }
 
 void asCReader::CalculateStackNeeded(asCScriptFunction *func)
@@ -2576,7 +3008,7 @@ int asCReader::AdjustStackPosition(int pos)
 	else if( pos >= 0 ) 
 		pos += (short)adjustByPos[pos];
 	else if( -pos >= (int)adjustNegativeStackByPos.GetLength() )
-		error = true;
+		Error(TXT_INVALID_BYTECODE_d);
 	else
 		pos += (short)adjustNegativeStackByPos[-pos];
 
@@ -2670,8 +3102,7 @@ int asCReader::AdjustGetOffset(int offset, asCScriptFunction *func, asDWORD prog
 
 	if( calledFunc == 0 )
 	{
-		// TODO: Report error
-		error = true;
+		Error(TXT_INVALID_BYTECODE_d);
 		return offset;
 	}
 
@@ -2720,8 +3151,7 @@ int asCReader::FindTypeId(int idx)
 		return usedTypeIds[idx];
 	else
 	{
-		// TODO: Write to message callback
-		error = true;
+		Error(TXT_INVALID_BYTECODE_d);
 		return 0;
 	}
 }
@@ -2730,8 +3160,7 @@ asCObjectType *asCReader::FindObjectType(int idx)
 {
 	if( idx < 0 || idx >= (int)usedTypes.GetLength() )
 	{
-		// TODO: Write to message callback
-		error = true;
+		Error(TXT_INVALID_BYTECODE_d);
 		return 0;
 	}
 
@@ -2948,7 +3377,14 @@ void asCWriter::WriteFunctionSignature(asCScriptFunction *func)
 	for( i = 0; i < count; ++i ) 
 		WriteDataType(&func->parameterTypes[i]);
 	
-	count = (asUINT)func->inOutFlags.GetLength();
+	// Only write the inout flags if any of them are set
+	count = 0;
+	for( i = asUINT(func->inOutFlags.GetLength()); i > 0; i-- )
+		if( func->inOutFlags[i-1] != asTM_NONE )
+		{
+			count = i;
+			break;
+		}
 	WriteEncodedInt64(count);
 	for( i = 0; i < count; ++i )
 		WriteEncodedInt64(func->inOutFlags[i]);
@@ -3079,8 +3515,6 @@ void asCWriter::WriteFunction(asCScriptFunction* func)
 			}
 		}
 
-		WriteData(&func->isShared, 1);
-
 		// Write the variable information
 		if( !stripDebugInfo )
 		{
@@ -3096,7 +3530,10 @@ void asCWriter::WriteFunction(asCScriptFunction* func)
 			}
 		}
 
-		WriteData(&func->dontCleanUpOnException, 1);
+		char bits = 0;
+		bits += func->isShared ? 1 : 0;
+		bits += func->dontCleanUpOnException ? 2 : 0;
+		WriteData(&bits,1);
 
 		// Store script section name
 		if( !stripDebugInfo )
@@ -3108,10 +3545,21 @@ void asCWriter::WriteFunction(asCScriptFunction* func)
 				char c = 0;
 				WriteData(&c, 1);
 			}
+			WriteEncodedInt64(func->scriptData->declaredAt);
+		}
+
+		// Store the parameter names
+		if( !stripDebugInfo )
+		{
+			asUINT count = asUINT(func->parameterNames.GetLength());
+			WriteEncodedInt64(count);
+			for( asUINT n = 0; n < count; n++ )
+				WriteString(&func->parameterNames[n]);
 		}
 	}
-	else if( func->funcType == asFUNC_VIRTUAL )
+	else if( func->funcType == asFUNC_VIRTUAL || func->funcType == asFUNC_INTERFACE )
 	{
+		// TODO: Do we really need to store this? It can probably be reconstructed by the reader
 		WriteEncodedInt64(func->vfTableIdx);
 	}
 }
@@ -3126,6 +3574,8 @@ void asCWriter::WriteObjectTypeDeclaration(asCObjectType *ot, int phase)
 		WriteData(&ot->flags, 4);
 
 		// size
+		// TODO: Do we really need to store this? The reader should be able to 
+		//       determine the correct size from the object type's flags
 		if( (ot->flags & asOBJ_SCRIPT_OBJECT) && ot->size > 0 )
 		{
 			// The size for script objects may vary from platform to platform so 
@@ -3165,16 +3615,21 @@ void asCWriter::WriteObjectTypeDeclaration(asCObjectType *ot, int phase)
 		{
 			WriteObjectType(ot->derivedFrom);
 
-			// interfaces[]
+			// interfaces[] / interfaceVFTOffsets[]
+			// TOOD: Is it really necessary to store the VFTOffsets? Can't the reader calculate those?
 			int size = (asUINT)ot->interfaces.GetLength();
 			WriteEncodedInt64(size);
 			asUINT n;
+			asASSERT( ot->interfaces.GetLength() == ot->interfaceVFTOffsets.GetLength() );
 			for( n = 0; n < ot->interfaces.GetLength(); n++ )
 			{
 				WriteObjectType(ot->interfaces[n]);
+				WriteEncodedInt64(ot->interfaceVFTOffsets[n]);
 			}
 
 			// behaviours
+			// TODO: Default behaviours should just be stored as a indicator  
+			//       to avoid storing the actual function object
 			if( !ot->IsInterface() && ot->flags != asOBJ_TYPEDEF && ot->flags != asOBJ_ENUM )
 			{
 				WriteFunction(engine->scriptFunctions[ot->beh.destruct]);
@@ -3188,6 +3643,8 @@ void asCWriter::WriteObjectTypeDeclaration(asCObjectType *ot, int phase)
 			}
 
 			// methods[]
+			// TODO: Avoid storing inherited methods in interfaces, as the reader
+			//       can add those directly from the base interface
 			size = (int)ot->methods.GetLength();
 			WriteEncodedInt64(size);
 			for( n = 0; n < ot->methods.GetLength(); n++ )
@@ -3196,6 +3653,7 @@ void asCWriter::WriteObjectTypeDeclaration(asCObjectType *ot, int phase)
 			}
 
 			// virtualFunctionTable[]
+			// TODO: Is it really necessary to store this? Can't it be easily rebuilt by the reader
 			size = (int)ot->virtualFunctionTable.GetLength();
 			WriteEncodedInt64(size);
 			for( n = 0; n < (asUINT)size; n++ )
@@ -3331,18 +3789,7 @@ void asCWriter::WriteGlobalProperty(asCGlobalProperty* prop)
 	WriteDataType(&prop->type);
 
 	// Store the initialization function
-	if( prop->GetInitFunc() )
-	{
-		bool f = true;
-		WriteData(&f, 1);
-
-		WriteFunction(prop->GetInitFunc());
-	}
-	else
-	{
-		bool f = false;
-		WriteData(&f, 1);
-	}
+	WriteFunction(prop->GetInitFunc());
 }
 
 void asCWriter::WriteObjectProperty(asCObjectProperty* prop) 
@@ -3359,31 +3806,36 @@ void asCWriter::WriteDataType(const asCDataType *dt)
 	{
 		if( *dt == savedDataTypes[n] )
 		{
-			asUINT c = 0;
-			WriteEncodedInt64(c);
-			WriteEncodedInt64(n);
+			WriteEncodedInt64(n+1);
 			return;
 		}
 	}
 
+	// Indicate a new type with a null byte
+	asUINT c = 0;
+	WriteEncodedInt64(c);
+
 	// Save the new datatype
 	savedDataTypes.PushLast(*dt);
 
-	bool b;
 	int t = dt->GetTokenType();
 	WriteEncodedInt64(t);
 	if( t == ttIdentifier )
-	{
 		WriteObjectType(dt->GetObjectType());
-		b = dt->IsObjectHandle();
-		WriteData(&b, 1);
-		b = dt->IsHandleToConst();
-		WriteData(&b, 1);
-	}
-	b = dt->IsReference();
-	WriteData(&b, 1);
-	b = dt->IsReadOnly();
-	WriteData(&b, 1);
+
+	struct
+	{
+		char isObjectHandle :1;
+		char isHandleToConst:1;
+		char isReference    :1;
+		char isReadOnly     :1;
+	} bits = {0};
+
+	bits.isObjectHandle  = dt->IsObjectHandle();
+	bits.isHandleToConst = dt->IsHandleToConst();
+	bits.isReference     = dt->IsReference();
+	bits.isReadOnly      = dt->IsReadOnly();
+	WriteData(&bits, 1);
 
 	if( t == ttIdentifier && dt->GetObjectType()->name == "_builtin_function_" )
 	{
@@ -3400,25 +3852,36 @@ void asCWriter::WriteObjectType(asCObjectType* ot)
 		// Check for template instances/specializations
 		if( ot->templateSubTypes.GetLength() )
 		{
-			ch = 'a';
-			WriteData(&ch, 1);
-			WriteString(&ot->name);
-
-			WriteEncodedInt64(ot->templateSubTypes.GetLength());
-			for( asUINT n = 0; n < ot->templateSubTypes.GetLength(); n++ )
+			// Check for list pattern type or template type
+			if( ot->flags & asOBJ_LIST_PATTERN )
 			{
-				if( ot->templateSubTypes[0].IsObject() || ot->templateSubTypes[0].IsEnumType() )
+				ch = 'l';
+				WriteData(&ch, 1);
+				WriteObjectType(ot->templateSubTypes[0].GetObjectType());
+			}
+			else
+			{
+				ch = 'a';
+				WriteData(&ch, 1);
+				WriteString(&ot->name);
+				WriteString(&ot->nameSpace->name);
+
+				WriteEncodedInt64(ot->templateSubTypes.GetLength());
+				for( asUINT n = 0; n < ot->templateSubTypes.GetLength(); n++ )
 				{
-					ch = 's';
-					WriteData(&ch, 1);
-					WriteDataType(&ot->templateSubTypes[0]);
-				}
-				else
-				{
-					ch = 't';
-					WriteData(&ch, 1);
-					eTokenType t = ot->templateSubTypes[0].GetTokenType();
-					WriteEncodedInt64(t);
+					if( ot->templateSubTypes[0].IsObject() || ot->templateSubTypes[0].IsEnumType() )
+					{
+						ch = 's';
+						WriteData(&ch, 1);
+						WriteDataType(&ot->templateSubTypes[0]);
+					}
+					else
+					{
+						ch = 't';
+						WriteData(&ch, 1);
+						eTokenType t = ot->templateSubTypes[0].GetTokenType();
+						WriteEncodedInt64(t);
+					}
 				}
 			}
 		}
@@ -3723,8 +4186,7 @@ void asCWriter::WriteByteCode(asCScriptFunction *func)
 				*(int*)&tmp[1+AS_PTR_SIZE] = 1+FindFunctionIndex(engine->scriptFunctions[*(int*)&tmp[1+AS_PTR_SIZE]]);
 			}
 		}
-		else if( c == asBC_FREE    || // wW_PTR_ARG
-			     c == asBC_REFCPY  || // PTR_ARG
+		else if( c == asBC_REFCPY  || // PTR_ARG
 				 c == asBC_RefCpyV || // wW_PTR_ARG
 				 c == asBC_OBJTYPE )  // PTR_ARG
 		{
@@ -3743,7 +4205,7 @@ void asCWriter::WriteByteCode(asCScriptFunction *func)
 			*(int*)(tmp+1) = FindTypeIdIdx(*(int*)(tmp+1));
 		}
 		else if( c == asBC_ADDSi ||      // W_DW_ARG
-			     c == asBC_LoadThisR )   // W_DW_ARG	 
+			     c == asBC_LoadThisR )   // W_DW_ARG
 		{
 			// Translate property offsets into indices
 			*(((short*)tmp)+1) = (short)FindObjectPropIndex(*(((short*)tmp)+1), *(int*)(tmp+1));
@@ -3754,8 +4216,19 @@ void asCWriter::WriteByteCode(asCScriptFunction *func)
 		else if( c == asBC_LoadRObjR ||    // rW_W_DW_ARG
 			     c == asBC_LoadVObjR )     // rW_W_DW_ARG
 		{
-			// Translate property offsets into indices
-			*(((short*)tmp)+2) = (short)FindObjectPropIndex(*(((short*)tmp)+2), *(int*)(tmp+2));
+			asCObjectType *ot = engine->GetObjectTypeFromTypeId(*(int*)(tmp+2));
+			if( ot->flags & asOBJ_LIST_PATTERN )
+			{
+				// List patterns have a different way of translating the offsets
+				SListAdjuster *listAdj = listAdjusters[listAdjusters.GetLength()-1];
+				*(((short*)tmp)+2) = (short)listAdj->AdjustOffset(*(((short*)tmp)+2), ot);
+			}
+			else
+			{
+				// Translate property offsets into indices
+				// TODO: optimize: Pass the object type directly to the method instead of the type id
+				*(((short*)tmp)+2) = (short)FindObjectPropIndex(*(((short*)tmp)+2), *(int*)(tmp+2));
+			}
 
 			// Translate type ids into indices
 			*(int*)(tmp+2) = FindTypeIdIdx(*(int*)(tmp+2));
@@ -3844,7 +4317,58 @@ void asCWriter::WriteByteCode(asCScriptFunction *func)
 			// Adjust the offset according to the function call that comes after
 			asBC_WORDARG0(tmp) = (asWORD)AdjustGetOffset(asBC_WORDARG0(tmp), func, asDWORD(bc - startBC));
 		}
+		else if( c == asBC_AllocMem )
+		{
+			// It's not necessary to store the size of the list buffer, as it will be recalculated in the reader
+			asBC_DWORDARG(tmp) = 0;
 
+			// Determine the type of the list pattern from the variable
+			short var = asBC_WORDARG0(tmp);
+			asCObjectType *ot = func->GetObjectTypeOfLocalVar(var);
+
+			// Create this helper object to adjust the offset of the elements accessed in the buffer
+			listAdjusters.PushLast(asNEW(SListAdjuster)(ot));
+		}
+		else if( c == asBC_FREE ) // wW_PTR_ARG
+		{
+			// Translate object type pointers into indices
+			asCObjectType *ot = *(asCObjectType**)(tmp+1);
+			*(asPWORD*)(tmp+1) = FindObjectTypeIdx(ot);
+
+			// Pop and destroy the list adjuster helper that was created with asBC_AllocMem
+			if( ot && (ot->flags & asOBJ_LIST_PATTERN) )
+			{
+				SListAdjuster *list = listAdjusters.PopLast();
+				asDELETE(list, SListAdjuster);
+			}
+		}
+		else if( c == asBC_SetListSize )
+		{
+			// Adjust the offset in the initialization list
+			SListAdjuster *listAdj = listAdjusters[listAdjusters.GetLength()-1];
+			tmp[1] = listAdj->AdjustOffset(tmp[1], listAdj->patternType);
+
+			// Tell the adjuster how many repeated values there are
+			listAdj->SetRepeatCount(tmp[2]);
+		}
+		else if( c == asBC_PshListElmnt )   // W_DW_ARG
+		{
+			// Adjust the offset in the initialization list
+			SListAdjuster *listAdj = listAdjusters[listAdjusters.GetLength()-1];
+			tmp[1] = listAdj->AdjustOffset(tmp[1], listAdj->patternType);
+		}
+		else if( c == asBC_SetListType )
+		{
+			// Adjust the offset in the initialization list
+			SListAdjuster *listAdj = listAdjusters[listAdjusters.GetLength()-1];
+			tmp[1] = listAdj->AdjustOffset(tmp[1], listAdj->patternType);
+
+			// Inform the adjuster of the type id of the next element
+			listAdj->SetNextType(tmp[2]);
+
+			// Translate the type id
+			tmp[2] = FindTypeIdIdx(tmp[2]);
+		}
 		// Adjust the variable offsets
 		switch( asBCInfo[c].type )
 		{
@@ -3856,6 +4380,7 @@ void asCWriter::WriteByteCode(asCScriptFunction *func)
 		case asBCTYPE_wW_W_ARG:
 		case asBCTYPE_rW_QW_ARG:
 		case asBCTYPE_rW_W_DW_ARG:
+		case asBCTYPE_rW_DW_DW_ARG:
 			{
 				asBC_SWORDARG0(tmp) = (short)AdjustStackPosition(asBC_SWORDARG0(tmp));
 			}
@@ -4046,6 +4571,23 @@ void asCWriter::WriteByteCode(asCScriptFunction *func)
 				WriteEncodedInt64(qw);
 			}
 			break;
+		case asBCTYPE_rW_DW_DW_ARG:
+			{
+				// Write the instruction code
+				asBYTE b = (asBYTE)c;
+				WriteData(&b, 1);
+
+				// Write the short argument
+				short w = *(((short*)tmp)+1);
+				WriteEncodedInt64(w);
+
+				// Write the dword argument
+				WriteEncodedInt64((int)tmp[1]);
+
+				// Write the dword argument
+				WriteEncodedInt64((int)tmp[2]);
+			}
+			break;
 		default:
 			{
 				// This should never happen
@@ -4061,6 +4603,157 @@ void asCWriter::WriteByteCode(asCScriptFunction *func)
 		bc += asBCTypeSize[asBCInfo[c].type];
 		length -= asBCTypeSize[asBCInfo[c].type];
 	}
+}
+
+asCWriter::SListAdjuster::SListAdjuster(asCObjectType *ot) : patternType(ot), repeatCount(0), entries(0), lastOffset(-1), nextOffset(0), nextTypeId(-1)
+{ 
+	asASSERT( ot && (ot->flags & asOBJ_LIST_PATTERN) ); 
+
+	// Find the first expected value in the list
+	asSListPatternNode *node = ot->engine->scriptFunctions[patternType->templateSubTypes[0].GetBehaviour()->listFactory]->listPattern;
+	asASSERT( node && node->type == asLPT_START );
+	patternNode = node->next;
+}
+
+int asCWriter::SListAdjuster::AdjustOffset(int offset, asCObjectType *listPatternType)
+{
+	// TODO: cleanup: The listPatternType parameter is not needed
+	asASSERT( patternType == listPatternType );
+	UNUSED_VAR(listPatternType);
+	
+	asASSERT( offset >= lastOffset );
+
+	// If it is the same offset being accessed again, just return the same adjusted value
+	if( offset == lastOffset )
+		return entries-1;
+
+	asASSERT( offset >= nextOffset );
+
+	// Update last offset for next call
+	lastOffset = offset;
+
+	// What is being expected at this position?
+	if( patternNode->type == asLPT_REPEAT || patternNode->type == asLPT_REPEAT_SAME )
+	{
+		// Don't move the patternNode yet because the caller must make a call to SetRepeatCount too
+		nextOffset = offset + 4;
+		return entries++;
+	}
+	else if( patternNode->type == asLPT_TYPE )
+	{
+		const asCDataType &dt = reinterpret_cast<asSListPatternDataTypeNode*>(patternNode)->dataType;
+		if( dt.GetTokenType() == ttQuestion )
+		{
+			// The bytecode need to inform the type that will 
+			// come next and then adjust that position too before 
+			// we can move to the next node
+			if( nextTypeId != -1 )
+			{
+				nextOffset = offset + 4;
+
+				if( repeatCount > 0 )
+					repeatCount--;
+
+				// Only move the patternNode if we're not expecting any more repeated entries
+				if( repeatCount == 0 )
+					patternNode = patternNode->next;
+
+				nextTypeId = -1;
+			}
+		}
+		else 
+		{
+			if( repeatCount > 0 )
+			{
+				// Was any value skipped?
+				asUINT size;
+				if( dt.IsObjectHandle() || (dt.GetObjectType() && (dt.GetObjectType()->flags & asOBJ_REF)) )
+					size = AS_PTR_SIZE*4;
+				else
+					size = dt.GetSizeInMemoryBytes();
+
+				int count = 0;
+				while( nextOffset <= offset )
+				{
+					count++;
+					nextOffset += size;
+
+					// Align the offset on 4 byte boundaries
+					if( size >= 4 && (nextOffset & 0x3) )
+						nextOffset += 4 - (nextOffset & 0x3);
+				}
+
+				if( --count > 0 )
+				{
+					// Skip these values
+					repeatCount -= count;
+					entries += count;
+				}
+
+				nextOffset = offset + size;
+				repeatCount--;
+			}
+
+			// Only move the patternNode if we're not expecting any more repeated entries
+			if( repeatCount == 0 )
+				patternNode = patternNode->next;
+		}
+
+		return entries++;
+	}
+	else if( patternNode->type == asLPT_START )
+	{
+		if( repeatCount > 0 )
+			repeatCount--;
+		SInfo info = {repeatCount, patternNode};
+		stack.PushLast(info);
+
+		repeatCount = 0;
+		patternNode = patternNode->next;
+
+		lastOffset--;
+		return AdjustOffset(offset, listPatternType);
+	}
+	else if( patternNode->type == asLPT_END )
+	{
+		SInfo info = stack.PopLast();
+		repeatCount = info.repeatCount;
+		if( repeatCount )
+			patternNode = info.startNode;
+		else
+			patternNode = patternNode->next;
+
+		lastOffset--;
+		return AdjustOffset(offset, listPatternType);
+	}
+	else
+	{
+		// Something is wrong with the pattern list declaration
+		asASSERT( false );
+	}
+
+	return 0;
+}
+
+void asCWriter::SListAdjuster::SetRepeatCount(asUINT rc)
+{
+	// Make sure the list is expecting a repeat at this location
+	asASSERT( patternNode->type == asLPT_REPEAT || patternNode->type == asLPT_REPEAT_SAME );
+
+	// Now move to the next patternNode
+	patternNode = patternNode->next;
+
+	repeatCount = rc;
+}
+
+void asCWriter::SListAdjuster::SetNextType(int typeId)
+{
+	// Make sure the list is expecting a type at this location
+	asASSERT( patternNode->type == asLPT_TYPE && 
+	          reinterpret_cast<asSListPatternDataTypeNode*>(patternNode)->dataType.GetTokenType() == ttQuestion );
+
+	// Inform the type id for the next adjustment 
+	nextTypeId = typeId;
 }
 
 void asCWriter::WriteUsedTypeIds()

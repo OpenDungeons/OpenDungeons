@@ -446,6 +446,9 @@ asINT64 CScriptFile::ReadInt(asUINT bytes)
 		unsigned int n = 0;
 		for( ; n < bytes; n++ )
 			val |= asQWORD(buf[n]) << ((bytes-n-1)*8);
+
+		// Check the most significant byte to determine if the rest 
+		// of the qword must be filled to give a negative value
 		if( buf[0] & 0x80 )
 			for( ; n < 8; n++ )
 				val |= asQWORD(0xFF) << (n*8);
@@ -455,7 +458,10 @@ asINT64 CScriptFile::ReadInt(asUINT bytes)
 		unsigned int n = 0;
 		for( ; n < bytes; n++ )
 			val |= asQWORD(buf[n]) << (n*8);
-		if( buf[0] & 0x80 )
+
+		// Check the most significant byte to determine if the rest 
+		// of the qword must be filled to give a negative value
+		if( buf[bytes-1] & 0x80 )
 			for( ; n < 8; n++ )
 				val |= asQWORD(0xFF) << (n*8);
 	}

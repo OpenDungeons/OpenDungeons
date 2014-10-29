@@ -12,6 +12,7 @@ set(ANGELSCRIPT_SOURCE
         ../../source/as_callfunc_x86.cpp
         ../../source/as_callfunc_x64_gcc.cpp
         ../../source/as_callfunc_x64_msvc.cpp
+        ../../source/as_callfunc_x64_mingw.cpp
         ../../source/as_compiler.cpp
         ../../source/as_configgroup.cpp
         ../../source/as_context.cpp

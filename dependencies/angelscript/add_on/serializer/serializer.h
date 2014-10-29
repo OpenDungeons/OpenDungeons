@@ -30,7 +30,7 @@ struct CUserType
 	virtual ~CUserType() {};
 	virtual void Store(CSerializedValue *val, void *ptr) = 0;
 	virtual void Restore(CSerializedValue *val, void *ptr) = 0;
-	virtual void CleanupUserData(CSerializedValue *val) {}
+	virtual void CleanupUserData(CSerializedValue * /*val*/) {}
 };
 
 

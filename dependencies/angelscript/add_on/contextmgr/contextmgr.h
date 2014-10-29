@@ -17,7 +17,7 @@
 
 BEGIN_AS_NAMESPACE
 
-class CScriptAny;
+class CScriptDictionary;
 
 // The internal structure for holding contexts
 struct SContextInfo;
@@ -28,29 +28,30 @@ typedef asUINT (*TIMEFUNC_t)();
 class CContextMgr
 {
 public:
-    CContextMgr();
-    ~CContextMgr();
+	CContextMgr();
+	~CContextMgr();
 
 	// Set the function that the manager will use to obtain the time in milliseconds
-    void SetGetTimeCallback(TIMEFUNC_t func);
+	void SetGetTimeCallback(TIMEFUNC_t func);
 
-    // Registers the script function
+	// Registers the following:
 	//
 	//  void sleep(uint milliseconds)
 	//
-    // The application must set the get time callback for this to work
-    void RegisterThreadSupport(asIScriptEngine *engine);
+	// The application must set the get time callback for this to work
+	void RegisterThreadSupport(asIScriptEngine *engine);
 
-	// Registers the script functions
+	// Registers the following:
 	//
-	//  void createCoRoutine(const string &in functionName, any @arg)
+	//  funcdef void coroutine(dictionary@)
+	//  void createCoRoutine(coroutine @func, dictionary @args)
 	//  void yield()
 	void RegisterCoRoutineSupport(asIScriptEngine *engine);
 
 	// Create a new context, prepare it with the function id, then return 
 	// it so that the application can pass the argument values. The context
 	// will be released by the manager after the execution has completed.
-    asIScriptContext *AddContext(asIScriptEngine *engine, asIScriptFunction *func);
+	asIScriptContext *AddContext(asIScriptEngine *engine, asIScriptFunction *func);
 
 	// Create a new context, prepare it with the function id, then return
 	// it so that the application can pass the argument values. The context
@@ -60,23 +61,24 @@ public:
 	// Execute each script that is not currently sleeping. The function returns after 
 	// each script has been executed once. The application should call this function
 	// for each iteration of the message pump, or game loop, or whatever.
-    void ExecuteScripts();
+	// Returns the number of scripts still in execution.
+	int ExecuteScripts();
 
 	// Put a script to sleep for a while
-    void SetSleeping(asIScriptContext *ctx, asUINT milliSeconds);
+	void SetSleeping(asIScriptContext *ctx, asUINT milliSeconds);
 
 	// Switch the execution to the next co-routine in the group.
 	// Returns true if the switch was successful.
 	void NextCoRoutine();
 
 	// Abort all scripts
-    void AbortAll();
+	void AbortAll();
 
 protected:
 	std::vector<SContextInfo*> m_threads;
 	std::vector<SContextInfo*> m_freeThreads;
 	asUINT                     m_currentThread;
-    TIMEFUNC_t                 m_getTimeFunc;
+	TIMEFUNC_t                 m_getTimeFunc;
 
 	// Statistics for Garbage Collection
 	asUINT   m_numExecutions;

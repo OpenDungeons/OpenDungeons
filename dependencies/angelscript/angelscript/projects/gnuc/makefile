@@ -99,7 +99,7 @@ BIN = $(LIBDIR)/$(LIB)
 
 ifeq ($(TARGETPLATFORM), iphone)
 	OBJ += $(OBJDIR)/as_callfunc_arm_xcode.o
-else ifeq ($(TARGETPLATFORM), android)
+else 
 	OBJ += $(OBJDIR)/as_callfunc_arm_gcc.o
 endif
 

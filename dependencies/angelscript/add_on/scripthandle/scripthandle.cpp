@@ -55,6 +55,8 @@ void CScriptHandle::ReleaseHandle()
 		asIScriptEngine *engine = m_type->GetEngine();
 		engine->ReleaseScriptObject(m_ref, m_type);
 
+		engine->Release();
+
 		m_ref  = 0;
 		m_type = 0;
 	}
@@ -66,21 +68,16 @@ void CScriptHandle::AddRefHandle()
 	{
 		asIScriptEngine *engine = m_type->GetEngine();
 		engine->AddRefScriptObject(m_ref, m_type);
+
+		// Hold on to the engine so it isn't destroyed while
+		// a reference to a script object is still held
+		engine->AddRef();
 	}
 }
 
 CScriptHandle &CScriptHandle::operator =(const CScriptHandle &other)
 {
-	// Don't do anything if it is the same reference
-	if( m_ref == other.m_ref )
-		return *this;
-
-	ReleaseHandle();
-
-	m_ref  = other.m_ref;
-	m_type = other.m_type;
-
-	AddRefHandle();
+	Set(other.m_ref, other.m_type);
 
 	return *this;
 }
@@ -97,9 +94,22 @@ void CScriptHandle::Set(void *ref, asIObjectType *type)
 	AddRefHandle();
 }
 
-asIObjectType *CScriptHandle::GetType()
+asIObjectType *CScriptHandle::GetType() const
 {
 	return m_type;
+}
+
+int CScriptHandle::GetTypeId() const
+{
+	if( m_type == 0 ) return 0;
+
+	if( m_type->GetFlags() & asOBJ_SCRIPT_FUNCTION )
+	{
+		asIScriptFunction *func = reinterpret_cast<asIScriptFunction*>(m_ref);
+		return func->GetTypeId() | asTYPEID_OBJHANDLE;
+	}
+
+	return m_type->GetTypeId() | asTYPEID_OBJHANDLE;
 }
 
 // This method shouldn't be called from the application 
@@ -125,6 +135,14 @@ CScriptHandle &CScriptHandle::Assign(void *ref, int typeId)
 	asIScriptContext *ctx    = asGetActiveContext();
 	asIScriptEngine  *engine = ctx->GetEngine();
 	asIObjectType    *type   = engine->GetObjectTypeById(typeId);
+
+	// If the argument is another CScriptHandle, we should copy the content instead
+	if( type && strcmp(type->GetName(), "ref") == 0 )
+	{
+		CScriptHandle *r = (CScriptHandle*)ref;
+		ref  = r->m_ref;
+		type = r->m_type;
+	}
 
 	Set(ref, type);
 
@@ -202,7 +220,7 @@ void CScriptHandle::Cast(void **outRef, int typeId)
 		}
 
 		// Must increase the ref count as we're returning a new reference to the object
-		AddRefHandle();
+		engine->AddRefScriptObject(m_ref, m_type);
 		*outRef = m_ref;
 	}
 	else if( m_type->GetFlags() & asOBJ_SCRIPT_OBJECT )
@@ -211,15 +229,15 @@ void CScriptHandle::Cast(void **outRef, int typeId)
 		if( engine->IsHandleCompatibleWithObject(m_ref, m_type->GetTypeId(), typeId) )
 		{
 			// The script type is compatible so we can simply return the same pointer
-			AddRefHandle();
+			engine->AddRefScriptObject(m_ref, m_type);
 			*outRef = m_ref;
 		}
 	}
 	else
 	{
-		// TODO: Check for the existance of a reference cast behaviour. 
+		// TODO: Check for the existance of a reference cast behaviour.
 		//       Both implicit and explicit casts may be used
-		//       Calling the reference cast behaviour may change the actual 
+		//       Calling the reference cast behaviour may change the actual
 		//       pointer so the AddRef must be called on the new pointer
 	}
 }
@@ -236,8 +254,8 @@ void RegisterScriptHandle_Native(asIScriptEngine *engine)
 	r = engine->RegisterObjectBehaviour("ref", asBEHAVE_CONSTRUCT, "void f(const ?&in)", asFUNCTIONPR(Construct, (CScriptHandle *, void *, int), void), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
 	r = engine->RegisterObjectBehaviour("ref", asBEHAVE_DESTRUCT, "void f()", asFUNCTIONPR(Destruct, (CScriptHandle *), void), asCALL_CDECL_OBJFIRST); assert( r >= 0 );
 	r = engine->RegisterObjectBehaviour("ref", asBEHAVE_REF_CAST, "void f(?&out)", asMETHODPR(CScriptHandle, Cast, (void **, int), void), asCALL_THISCALL); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("ref", "ref &opAssign(const ref &in)", asMETHOD(CScriptHandle, operator=), asCALL_THISCALL); assert( r >= 0 );
-	r = engine->RegisterObjectMethod("ref", "ref &opAssign(const ?&in)", asMETHOD(CScriptHandle, Assign), asCALL_THISCALL); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("ref", "ref &opHndlAssign(const ref &in)", asMETHOD(CScriptHandle, operator=), asCALL_THISCALL); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("ref", "ref &opHndlAssign(const ?&in)", asMETHOD(CScriptHandle, Assign), asCALL_THISCALL); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("ref", "bool opEquals(const ref &in) const", asMETHODPR(CScriptHandle, operator==, (const CScriptHandle &) const, bool), asCALL_THISCALL); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("ref", "bool opEquals(const ?&in) const", asMETHODPR(CScriptHandle, Equals, (void*, int) const, bool), asCALL_THISCALL); assert( r >= 0 );
 }
