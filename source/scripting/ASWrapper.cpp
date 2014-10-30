@@ -193,8 +193,6 @@ void ASWrapper::registerEverything()
      * the functions are getters ans setter.
      */
 
-
-
     //return value of engine for assert check
     int r = 0;
 
