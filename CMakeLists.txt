@@ -13,7 +13,7 @@ else()
     set(PROJECT_BINARY_NAME "opendungeons")
 endif()
 
-set(AS_LIBRARY_NAME "libangelscript")
+set(AS_LIBRARY_NAME "angelscript")
 
 # Project version
 set(OD_MAJOR_VERSION 0)
