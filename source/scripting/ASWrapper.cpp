@@ -193,6 +193,8 @@ void ASWrapper::registerEverything()
      * the functions are getters ans setter.
      */
 
+
+
     //return value of engine for assert check
     int r = 0;
 
@@ -402,8 +404,9 @@ void ASWrapper::registerEverything()
  */
 void ASWrapper::executeConsoleCommand(const std::vector<std::string>& fullCommand)
 {
-    //CScriptArray* arguments = new CScriptArray(fullCommand.size() - 1, mStringArray);
-    CScriptArray* arguments = CScriptArray::Create(mStringArray, static_cast<asUint>(fullCommand.size() - 1));
+    //Create string array of function arguments for executeConsoleCommand angelscript function.
+    //CScriptArray seems to be managed automatically by angelscript context using reference counting.
+    CScriptArray* arguments = CScriptArray::Create(mStringArray, static_cast<asUINT>(fullCommand.size() - 1));
     for(asUINT i = 0, size = arguments->GetSize(); i < size; ++i)
     {
     	*(static_cast<std::string*>(arguments->At(i))) = fullCommand[i + 1];

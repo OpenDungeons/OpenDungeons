@@ -13,7 +13,7 @@ else()
     set(PROJECT_BINARY_NAME "opendungeons")
 endif()
 
-set(AS_LIBRARY_NAME "angelscript_lib")
+set(AS_LIBRARY_NAME "libangelscript")
 
 # Project version
 set(OD_MAJOR_VERSION 0)
@@ -117,16 +117,17 @@ set(AS_SOURCEFILES
     ${ANGELSCRIPT_SRC_DIR}/as_builder.cpp
     ${ANGELSCRIPT_SRC_DIR}/as_bytecode.cpp
     ${ANGELSCRIPT_SRC_DIR}/as_callfunc.cpp
-    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_arm.cpp
-    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_mips.cpp
-    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_ppc.cpp
-    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_ppc_64.cpp
-    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_sh4.cpp
+#Disabling exotic platforms for now
+#    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_arm.cpp
+#    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_mips.cpp
+#    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_ppc.cpp
+#    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_ppc_64.cpp
+#    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_sh4.cpp
     ${ANGELSCRIPT_SRC_DIR}/as_callfunc_x64_gcc.cpp
     ${ANGELSCRIPT_SRC_DIR}/as_callfunc_x64_msvc.cpp
     ${ANGELSCRIPT_SRC_DIR}/as_callfunc_x64_mingw.cpp
     ${ANGELSCRIPT_SRC_DIR}/as_callfunc_x86.cpp
-    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_xenon.cpp
+#    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_xenon.cpp
     ${ANGELSCRIPT_SRC_DIR}/as_compiler.cpp
     ${ANGELSCRIPT_SRC_DIR}/as_configgroup.cpp
     ${ANGELSCRIPT_SRC_DIR}/as_context.cpp
@@ -389,6 +390,7 @@ endif()
 #### Binary ######################
 ##################################
 
+# Create the angelscript library file
 add_library(${AS_LIBRARY_NAME} ${AS_SOURCEFILES})
 
 # Create the binary file (WIN32 makes sure there is no console window on windows.)
@@ -398,6 +400,7 @@ add_executable(${PROJECT_BINARY_NAME} WIN32 ${OD_SOURCEFILES})
 #### Link libraries ##############
 ##################################
 
+# Link angelscript
 target_link_libraries(${PROJECT_BINARY_NAME} ${AS_LIBRARY_NAME})
 
 # Link libraries
