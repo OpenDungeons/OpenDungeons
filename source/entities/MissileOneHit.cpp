@@ -25,15 +25,17 @@
 #include <iostream>
 
 MissileOneHit::MissileOneHit(GameMap* gameMap, Seat* seat, const std::string& senderName, const std::string& meshName,
-        const Ogre::Vector3& direction, double damage, bool damageAllies) :
+        const Ogre::Vector3& direction, double physicalDamage, double magicalDamage, bool damageAllies) :
     MissileObject(gameMap, seat, senderName, meshName, direction, damageAllies),
-    mDamage(damage)
+    mPhysicalDamage(physicalDamage),
+    mMagicalDamage(magicalDamage)
 {
 }
 
 MissileOneHit::MissileOneHit(GameMap* gameMap) :
-    MissileObject(gameMap),
-    mDamage(0.0)
+        MissileObject(gameMap),
+    mPhysicalDamage(0.0),
+    mMagicalDamage(0.0)
 {
 }
 
@@ -44,7 +46,7 @@ bool MissileOneHit::hitCreature(GameEntity* entity)
         return true;
 
     Tile* hitTile = tiles[0];
-    entity->takeDamage(this, mDamage, hitTile);
+    entity->takeDamage(this, mPhysicalDamage, mMagicalDamage, hitTile);
     return false;
 }
 

@@ -4012,10 +4012,6 @@ ProtectDungeonTemple	NULL
 47	94	3.75	0.9	0.8	0.6	0.2	0.2	0.2	50	0.012	0.32	0.0018
 [/Lights]
 
-# The file containing the creatures definition.
-[Creatures_Definition]
-config/creatures.cfg
-
 [Spawn_Pools]
 # Each team's spawn pool.
 # Describes what each team can spawn.
@@ -4094,131 +4090,131 @@ Wizard
 [/Spawn_Pools]
 
 [Creatures]
-# SeatId	ClassName	Name	Level	CurrentXP	CurrenHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeapon name	damage	range	defense	RightWeapon name	damage	range	defense
+# SeatId	ClassName	Name	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeapon RightWeapon
 [Creature]
-1	Kobold	Kobold90	1	0	5	100	0	0	51	16	0	none	1	1	0	none	0	1	0	
+1	Kobold	Kobold90	1	0	5	100	0	0	51	16	0	none	none
 [/Creature]
 [Creature]
-1	Kobold	Kobold91	1	0	5	100	0	0	51	16	0	none	1	1	0	none	0	1	0	
+1	Kobold	Kobold91	1	0	5	100	0	0	51	16	0	none	none
 [/Creature]
 [Creature]
-2	Kobold	Kobold92	1	0	5	100	0	0	7	55	0	none	1	1	0	none	0	1	0	
+2	Kobold	Kobold92	1	0	5	100	0	0	7	55	0	none	none
 [/Creature]
 [Creature]
-2	Kobold	Kobold93	1	0	5	100	0	0	7	55	0	none	1	1	0	none	0	1	0	
+2	Kobold	Kobold93	1	0	5	100	0	0	7	55	0	none	none
 [/Creature]
 [Creature]
-3	Kobold	Kobold94	1	0	5	100	0	0	91	55	0	none	1	1	0	none	0	1	0	
+3	Kobold	Kobold94	1	0	5	100	0	0	91	55	0	none	none
 [/Creature]
 [Creature]
-3	Kobold	Kobold95	1	0	5	100	0	0	91	55	0	none	1	1	0	none	0	1	0	
+3	Kobold	Kobold95	1	0	5	100	0	0	91	55	0	none	none
 [/Creature]
 [Creature]
-4	Kobold	Kobold96	1	0	5	100	0	0	47	94	0	none	1	1	0	none	0	1	0	
+4	Kobold	Kobold96	1	0	5	100	0	0	47	94	0	none	none
 [/Creature]
 [Creature]
-4	Kobold	Kobold97	1	0	5	100	0	0	47	94	0	none	1	1	0	none	0	1	0	
+4	Kobold	Kobold97	1	0	5	100	0	0	47	94	0	none	none
 [/Creature]
 [Creature]
-5	Dwarf3	Dwarf99	1	0	30	100	0	0	9	15	0	Roundshield	0	1	1	Longsword	2	2	0	
+5	Dwarf3	Dwarf99	1	0	30	100	0	0	9	15	0	Roundshield	Longsword
 [/Creature]
 [Creature]
-5	Dwarf3	Dwarf98	1	0	30	100	0	0	9	16	0	Roundshield	0	1	1	Longsword	2	2	0	
+5	Dwarf3	Dwarf98	1	0	30	100	0	0	9	16	0	Roundshield	Longsword
 [/Creature]
 [Creature]
-5	Dwarf3	Dwarf97	1	0	30	100	0	0	9	17	0	Roundshield	0	1	1	Longsword	2	2	0	
+5	Dwarf3	Dwarf97	1	0	30	100	0	0	9	17	0	Roundshield	Longsword
 [/Creature]
 [Creature]
-5	Dwarf3	Dwarf96	1	0	30	100	0	0	9	18	0	Roundshield	0	1	1	Longsword	2	2	0	
+5	Dwarf3	Dwarf96	1	0	30	100	0	0	9	18	0	Roundshield	Longsword
 [/Creature]
 [Creature]
-5	Dwarf3	Dwarf95	1	0	30	100	0	0	9	19	0	Roundshield	0	1	1	Longsword	2	2	0	
+5	Dwarf3	Dwarf95	1	0	30	100	0	0	9	19	0	Roundshield	Longsword
 [/Creature]
 [Creature]
-5	Dwarf3	Dwarf94	1	0	30	100	0	0	9	20	0	Roundshield	0	1	1	Longsword	2	2	0	
+5	Dwarf3	Dwarf94	1	0	30	100	0	0	9	20	0	Roundshield	Longsword
 [/Creature]
 [Creature]
-5	Dwarf3	Dwarf93	1	0	30	100	0	0	9	21	0	Roundshield	0	1	1	Longsword	2	2	0	
+5	Dwarf3	Dwarf93	1	0	30	100	0	0	9	21	0	Roundshield	Longsword
 [/Creature]
 [Creature]
-5	Knight	Knight90	1	0	40	100	0	0	46	42	0	Roundshield	0	2	3	Longsword	2	2	0	
+5	Knight	Knight90	1	0	40	100	0	0	46	42	0	Roundshield	Longsword
 [/Creature]
 [Creature]
-5	Knight	Knight91	1	0	40	100	0	0	47	42	0	Roundshield	0	2	3	Longsword	2	2	0	
+5	Knight	Knight91	1	0	40	100	0	0	47	42	0	Roundshield	Longsword
 [/Creature]
 [Creature]
-5	Knight	Knight92	1	0	40	100	0	0	48	42	0	Roundshield	0	2	3	Sabre	2	2	0	
+5	Knight	Knight92	1	0	40	100	0	0	48	42	0	Roundshield	Sabre
 [/Creature]
 [Creature]
-5	Knight	Knight93	1	0	40	100	0	0	49	42	0	Roundshield	0	2	3	Sabre	2	2	0	
+5	Knight	Knight93	1	0	40	100	0	0	49	42	0	Roundshield	Sabre
 [/Creature]
 [Creature]
-5	Knight	Knight94	1	0	40	100	0	0	50	42	0	Roundshield	0	2	3	Sabre	2	2	0	
+5	Knight	Knight94	1	0	40	100	0	0	50	42	0	Roundshield	Sabre
 [/Creature]
 [Creature]
-5	Knight	Knight95	1	0	40	100	0	0	51	42	0	Roundshield	0	2	3	Longsword	2	2	0	
+5	Knight	Knight95	1	0	40	100	0	0	51	42	0	Roundshield	Longsword
 [/Creature]
 [Creature]
-5	Knight	Knight96	1	0	40	100	0	0	52	42	0	Longsword	2	2	0	Longsword	2	2	0	
+5	Knight	Knight96	1	0	40	100	0	0	52	42	0	Longsword	Longsword
 [/Creature]
 [Creature]
-5	Knight	Knight97	1	0	40	100	0	0	49	41	0	Longsword	2	2	0	Longsword	2	2	0	
+5	Knight	Knight97	1	0	40	100	0	0	49	41	0	Longsword	Longsword
 [/Creature]
 [Creature]
-5	Dragon	Dragon90	1	0	100	100	0	0	86	20	0	none	3	2	0	none	3	2	0	
+5	Dragon	Dragon90	1	0	100	100	0	0	86	20	0	none	none
 [/Creature]
 [Creature]
-5	Dragon	Dragon91	1	0	100	100	0	0	92	20	0	none	3	2	0	none	3	2	0	
+5	Dragon	Dragon91	1	0	100	100	0	0	92	20	0	none	none
 [/Creature]
 [Creature]
-5	Dragon	Dragon92	1	0	100	100	0	0	89	25	0	none	3	2	0	none	3	2	0	
+5	Dragon	Dragon92	1	0	100	100	0	0	89	25	0	none	none
 [/Creature]
 [Creature]
-5	Dragon	Dragon93	1	0	100	100	0	0	96	18	0	none	3	2	0	none	3	2	0	
+5	Dragon	Dragon93	1	0	100	100	0	0	96	18	0	none	none
 [/Creature]
 [Creature]
-5	Tentacle2	Tentacle90	1	0	20	100	0	0	73	23	0	none	1	2	0	none	1	2	0	
+5	Tentacle2	Tentacle90	1	0	20	100	0	0	73	23	0	none	none
 [/Creature]
 [Creature]
-5	Tentacle2	Tentacle91	1	0	20	100	0	0	73	23	0	none	1	2	0	none	1	2	0	
+5	Tentacle2	Tentacle91	1	0	20	100	0	0	73	23	0	none	none
 [/Creature]
 [Creature]
-5	Tentacle2	Tentacle92	1	0	20	100	0	0	73	23	0	none	1	2	0	none	1	2	0	
+5	Tentacle2	Tentacle92	1	0	20	100	0	0	73	23	0	none	none
 [/Creature]
 [Creature]
-5	Tentacle2	Tentacle93	1	0	20	100	0	0	73	23	0	none	1	2	0	none	1	2	0	
+5	Tentacle2	Tentacle93	1	0	20	100	0	0	73	23	0	none	none
 [/Creature]
 [Creature]
-5	Tentacle2	Tentacle94	1	0	20	100	0	0	75	12	0	none	1	2	0	none	1	2	0	
+5	Tentacle2	Tentacle94	1	0	20	100	0	0	75	12	0	none	none
 [/Creature]
 [Creature]
-5	Tentacle2	Tentacle95	1	0	20	100	0	0	75	12	0	none	1	2	0	none	1	2	0	
+5	Tentacle2	Tentacle95	1	0	20	100	0	0	75	12	0	none	none
 [/Creature]
 [Creature]
-5	Tentacle2	Tentacle96	1	0	20	100	0	0	75	12	0	none	1	2	0	none	1	2	0	
+5	Tentacle2	Tentacle96	1	0	20	100	0	0	75	12	0	none	none
 [/Creature]
 [Creature]
-5	Tentacle2	Tentacle97	1	0	20	100	0	0	75	12	0	none	1	2	0	none	1	2	0	
+5	Tentacle2	Tentacle97	1	0	20	100	0	0	75	12	0	none	none
 [/Creature]
 [Creature]
-5	Tentacle2	Tentacle98	1	0	20	100	0	0	72	5	0	none	1	2	0	none	1	2	0	
+5	Tentacle2	Tentacle98	1	0	20	100	0	0	72	5	0	none	none
 [/Creature]
 [Creature]
-5	Tentacle2	Tentacle99	1	0	20	100	0	0	72	5	0	none	1	2	0	none	1	2	0	
+5	Tentacle2	Tentacle99	1	0	20	100	0	0	72	5	0	none	none
 [/Creature]
 [Creature]
-5	Tentacle2	Tentacle100	1	0	20	100	0	0	69	37	0	none	1	2	0	none	1	2	0	
+5	Tentacle2	Tentacle100	1	0	20	100	0	0	69	37	0	none	none
 [/Creature]
 [Creature]
-5	Tentacle2	Tentacle101	1	0	20	100	0	0	69	37	0	none	1	2	0	none	1	2	0	
+5	Tentacle2	Tentacle101	1	0	20	100	0	0	69	37	0	none	none
 [/Creature]
 [Creature]
-5	Tentacle2	Tentacle102	1	0	20	100	0	0	69	37	0	none	1	2	0	none	1	2	0	
+5	Tentacle2	Tentacle102	1	0	20	100	0	0	69	37	0	none	none
 [/Creature]
 [Creature]
-5	PitDemon	PitDemon90	1	0	125	100	0	0	49	57	0	none	4	2	0	none	4	2	0	
+5	PitDemon	PitDemon90	1	0	125	100	0	0	49	57	0	none	none
 [/Creature]
 [Creature]
-5	PitDemon	PitDemon91	10	0	125	100	0	0	49	57	0	none	4	2	0	none	4	2	0	
+5	PitDemon	PitDemon91	10	0	125	100	0	0	49	57	0	none	none
 [/Creature]
 [/Creatures]

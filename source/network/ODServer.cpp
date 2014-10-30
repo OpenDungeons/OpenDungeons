@@ -28,7 +28,6 @@
 #include "entities/RenderedMovableEntity.h"
 #include "utils/LogManager.h"
 #include "entities/Creature.h"
-#include "entities/Weapon.h"
 #include "traps/Trap.h"
 #include "traps/TrapCannon.h"
 #include "traps/TrapSpike.h"
@@ -1379,12 +1378,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 break;
             Creature* newCreature = new Creature(gameMap, classToSpawn);
             newCreature->setSeat(playerCreature->getSeat());
-            newCreature->setWeaponL(new Weapon(gameMap, "none", 0.0, 1.0, 0.0, "L", newCreature));
-            newCreature->setWeaponR(new Weapon(gameMap, "none", 0.0, 1.0, 0.0, "R", newCreature));
 
             newCreature->createMesh();
-            newCreature->getWeaponL()->createMesh();
-            newCreature->getWeaponR()->createMesh();
             gameMap->addCreature(newCreature);
 
             ODPacket packetSend;
@@ -1418,12 +1413,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 break;
             Creature* newCreature = new Creature(gameMap, classToSpawn);
             newCreature->setSeat(playerCreature->getSeat());
-            newCreature->setWeaponL(new Weapon(gameMap, "none", 0.0, 1.0, 0.0, "L", newCreature));
-            newCreature->setWeaponR(new Weapon(gameMap, "none", 0.0, 1.0, 0.0, "R", newCreature));
 
             newCreature->createMesh();
-            newCreature->getWeaponL()->createMesh();
-            newCreature->getWeaponR()->createMesh();
             gameMap->addCreature(newCreature);
 
             ODPacket packetSend;

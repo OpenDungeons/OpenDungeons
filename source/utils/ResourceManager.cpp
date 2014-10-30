@@ -58,6 +58,7 @@ const std::string ResourceManager::PLUGINSCFG = "plugins.cfg";
 const std::string ResourceManager::RESOURCECFG = "resources.cfg";
 const std::string ResourceManager::MUSICSUBPATH = "music/";
 const std::string ResourceManager::SOUNDSUBPATH = "sounds/";
+const std::string ResourceManager::CONFIGSUBPATH = "config/";
 const std::string ResourceManager::SCRIPTSUBPATH = "scripts/";
 const std::string ResourceManager::LANGUAGESUBPATH = "lang/";
 const std::string ResourceManager::SHADERCACHESUBPATH = "shaderCache/";
@@ -82,6 +83,7 @@ ResourceManager::ResourceManager() :
         mOgreCfgFile(""),
         mOgreLogFile(""),
         mShaderCachePath(""),
+        mConfigPath(""),
         mPluginsPath(""),
         mMusicPath(""),
         mSoundPath(""),
@@ -145,6 +147,7 @@ void ResourceManager::setupDataPath()
     mPluginsPath = mGameDataPath + PLUGINSCFG;
 #endif
     mScriptPath = mGameDataPath + SCRIPTSUBPATH;
+    mConfigPath = mGameDataPath + CONFIGSUBPATH;
     mSoundPath = mGameDataPath + SOUNDSUBPATH;
     mMusicPath = mGameDataPath + MUSICSUBPATH;
     mLanguagePath = mGameDataPath + LANGUAGESUBPATH;

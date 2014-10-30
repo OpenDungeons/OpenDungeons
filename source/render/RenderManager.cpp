@@ -537,15 +537,15 @@ void RenderManager::rrScaleSceneNode(Ogre::SceneNode* node, const Ogre::Vector3&
     }
 }
 
-void RenderManager::rrCreateWeapon(Creature* curCreature, Weapon* curWeapon)
+void RenderManager::rrCreateWeapon(Creature* curCreature, Weapon* curWeapon, const std::string& hand)
 {
     Ogre::Entity* ent = mSceneManager->getEntity(curCreature->getOgreNamePrefix() + curCreature->getName());
     //colourizeEntity(ent, curCreature->color);
     Ogre::Entity* weaponEntity = mSceneManager->createEntity(curWeapon->getOgreNamePrefix()
-                                 + curWeapon->getHandString() + "_" + curCreature->getName(),
+                                 + hand + "_" + curCreature->getName(),
                                  curWeapon->getMeshName());
     Ogre::Bone* weaponBone = ent->getSkeleton()->getBone(
-                                 curWeapon->getOgreNamePrefix() + curWeapon->getHandString());
+                                 curWeapon->getOgreNamePrefix() + hand);
 
     // Rotate by -90 degrees around the x-axis from the bone's rotation.
     Ogre::Quaternion rotationQuaternion;
@@ -556,14 +556,11 @@ void RenderManager::rrCreateWeapon(Creature* curCreature, Weapon* curWeapon)
                             rotationQuaternion);
 }
 
-void RenderManager::rrDestroyWeapon(Creature* curCreature, Weapon* curWeapon)
+void RenderManager::rrDestroyWeapon(Creature* curCreature, Weapon* curWeapon, const std::string& hand)
 {
-    if (curWeapon->getName().compare("none") != 0)
-    {
-        Ogre::Entity* ent = mSceneManager->getEntity(curWeapon->getOgreNamePrefix()
-                            + curWeapon->getHandString() + "_" + curCreature->getName());
-        mSceneManager->destroyEntity(ent);
-    }
+     Ogre::Entity* ent = mSceneManager->getEntity(curWeapon->getOgreNamePrefix()
+         + hand + "_" + curCreature->getName());
+     mSceneManager->destroyEntity(ent);
 }
 
 void RenderManager::rrCreateMapLight(MapLight* curMapLight, bool displayVisual)

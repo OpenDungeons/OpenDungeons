@@ -21,7 +21,6 @@
 
 #include "entities/Creature.h"
 #include "entities/RenderedMovableEntity.h"
-#include "entities/Weapon.h"
 
 #include "gamemap/GameMap.h"
 

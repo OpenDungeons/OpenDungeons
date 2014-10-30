@@ -18,93 +18,79 @@
 #ifndef WEAPON_H
 #define WEAPON_H
 
-#include "entities/GameEntity.h"
-
 #include <string>
 #include <istream>
 #include <ostream>
 
 class Creature;
 class ODPacket;
+class WeaponDefinition;
 
-class Weapon : public GameEntity
+class Weapon
 {
 public:
-    Weapon(GameMap*           gameMap,
-           const std::string& name,
-           double             damage,
-           double             range,
-           double             defense,
-           const std::string& handString,
-           Creature*          parent = NULL);
+    Weapon(const std::string& name) :
+       mName(name),
+       mMeshName(""),
+       mPhysicalDamage(0.0),
+       mMagicalDamage(0.0),
+       mRange(0.0),
+       mPhysicalDefense(0.0),
+       mMagicalDefense(0.0)
+    {}
 
     virtual ~Weapon()
     {
-        destroyMesh();
     }
 
-    virtual std::string getOgreNamePrefix() const { return "Weapon_"; }
+    //! \brief Loads a definition from the equipment file sub [Equipment][/Equipment] part
+    //! \returns A Weapon if valid, nullptr otherwise.
+    static Weapon* load(std::stringstream& defFile);
+    static bool update(Weapon* weapon, std::stringstream& defFile);
+    static void writeWeaponDiff(Weapon* def1, Weapon* def2, std::ofstream& file);
 
-    static std::string getFormat();
-    friend std::ostream& operator<<(std::ostream& os, Weapon *w);
-    friend std::istream& operator>>(std::istream& is, Weapon *w);
-    friend ODPacket& operator<<(ODPacket& os, Weapon *w);
-    friend ODPacket& operator>>(ODPacket& is, Weapon *w);
+    inline const std::string getOgreNamePrefix() const
+    { return "Weapon_"; }
 
-    inline double getDamage() const
-    { return mDamage; }
+    inline const std::string& getName() const
+    { return mName; }
 
-    inline void setDamage(const double nDamage)
-    { mDamage = nDamage; }
+    inline const std::string& getMeshName() const
+    { return mMeshName; }
 
-    inline double getPhysicalDefense() const
-    { return mDefense; }
+    inline double getPhysicalDamage() const
+    { return mPhysicalDamage; }
 
-    inline void setPhysicalDefense(const double nDefense)
-    { mDefense = nDefense; }
-
-    inline const std::string& getHandString() const
-    { return mHandString; }
-
-    inline void setHandString(const std::string& nHandString)
-    { mHandString = nHandString; }
-
-    inline Creature* getParentCreature() const
-    { return mParentCreature; }
-
-    inline void setParentCreature(Creature* nParent)
-    { mParentCreature = nParent; }
+    inline double getMagicalDamage() const
+    { return mMagicalDamage; }
 
     inline double getRange() const
     { return mRange; }
 
-    inline void setRange(const double nRange)
-    { mRange = nRange; }
+    inline double getPhysicalDefense() const
+    { return mPhysicalDefense; }
 
-    void doUpkeep()
-    {}
+    inline double getMagicalDefense() const
+    { return mMagicalDefense; }
 
-    void receiveExp(double experience)
-    {}
-
-    void takeDamage(GameEntity* attacker, double damage, Tile* tileTakingDamage)
-    {}
-
-    double getHP(Tile* tile) const
-    { return 0.0; }
-
-    std::vector<Tile*> getCoveredTiles()
-    { return std::vector<Tile*>(); }
-
-protected:
-    virtual void createMeshLocal();
-    virtual void destroyMeshLocal();
 private:
-    std::string mHandString;
-    double      mDamage;
-    double      mRange;
-    double      mDefense;
-    Creature*   mParentCreature;
+    Weapon() :
+       mName(""),
+       mMeshName(""),
+       mPhysicalDamage(0.0),
+       mMagicalDamage(0.0),
+       mRange(0.0),
+       mPhysicalDefense(0.0),
+       mMagicalDefense(0.0)
+    {}
+
+    std::string     mName;
+    std::string     mMeshName;
+    double          mPhysicalDamage;
+    double          mMagicalDamage;
+    double          mRange;
+    double          mPhysicalDefense;
+    double          mMagicalDefense;
 };
 
 #endif // WEAPON_H

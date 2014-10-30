@@ -172,15 +172,9 @@ void RoomPortal::spawnCreature()
     newCreature->setPosition(Ogre::Vector3((Ogre::Real)mXCenter, (Ogre::Real)mYCenter, (Ogre::Real)0.0));
     newCreature->setSeat(getSeat());
 
-    //NOTE:  This needs to be modified manually when the level file weapon format changes.
-    newCreature->setWeaponL(new Weapon(getGameMap(), "none", 0, 1.0, 0, "L", newCreature));
-    newCreature->setWeaponR(new Weapon(getGameMap(), "none", 0, 1.0, 0, "R", newCreature));
-
     // Add the creature to the gameMap and create meshes so it is visible.
     getGameMap()->addCreature(newCreature);
     newCreature->createMesh();
-    newCreature->getWeaponL()->createMesh();
-    newCreature->getWeaponR()->createMesh();
 
     mSpawnCreatureCountdown = Random::Uint(15, 30);
 

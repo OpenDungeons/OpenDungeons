@@ -146,11 +146,6 @@ public:
     void setHP(double nHP);
     void setIsOnMap(bool nIsOnMap);
 
-    //! \brief Attach a weapon mesh to the creature.
-    //! Don't forget to create the meshes afterwards if needed.
-    void setWeaponL(Weapon* wL);
-    void setWeaponR(Weapon* wR);
-
     inline void setHomeTile(Tile* ht)
     { mHomeTile = ht; }
 
@@ -240,7 +235,7 @@ public:
     std::vector<Tile*> getCoveredTiles();
 
     //! \brief Conform: AttackableObject - Deducts a given amount of HP from this creature.
-    void takeDamage(GameEntity* attacker, double damage, Tile* tileTakingDamage);
+    double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile* tileTakingDamage);
 
     //! \brief Conform: AttackableObject - Adds experience to this creature.
     void receiveExp(double experience);
@@ -331,6 +326,9 @@ private:
         forcedActionClaimWallTile
     };
 
+    void createMeshWeapons();
+    void destroyMeshWeapons();
+
     //! \brief Constructor for sending creatures through network. It should not be used in game.
     Creature(GameMap* gameMap);
 
@@ -346,10 +344,10 @@ private:
     //! \brief The time left before being to draw an attack in seconds
     double mAttackWarmupTime;
 
-    //! \brief The weapon the creature is holding in its left hand or NULL if none.
+    //! \brief The weapon the creature is holding in its left hand or NULL if none. Should not be deleted
     Weapon* mWeaponL;
 
-    //! \brief The weapon the creature is holding in its right hand or NULL if none.
+    //! \brief The weapon the creature is holding in its right hand or NULL if none. Should not be deleted
     Weapon* mWeaponR;
 
     //! \brief The creatures home tile (where its bed is located)

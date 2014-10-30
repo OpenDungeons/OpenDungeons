@@ -120,8 +120,8 @@ private:
     void rrDestroyCreature(Creature* curCreature);
     void rrOrientSceneNodeToward(MovableGameEntity* gameEntity, const Ogre::Vector3& direction);
     void rrScaleSceneNode(Ogre::SceneNode* node, const Ogre::Vector3& scale);
-    void rrCreateWeapon(Creature* curCreature, Weapon* curWeapon);
-    void rrDestroyWeapon(Creature* curCreature, Weapon* curWeapon);
+    void rrCreateWeapon(Creature* curCreature, Weapon* curWeapon, const std::string& hand);
+    void rrDestroyWeapon(Creature* curCreature, Weapon* curWeapon, const std::string& hand);
     void rrCreateMapLight(MapLight* curMapLight, bool displayVisual);
     void rrDestroyMapLight(MapLight* curMapLight);
     void rrDestroyMapLightVisualIndicator(MapLight* curMapLight);

@@ -78,8 +78,7 @@ public:
     virtual unsigned int numCoveredTiles();
     virtual void clearCoveredTiles();
     double getHP(Tile *tile) const;
-    double getPhysicalDefense() const;
-    void takeDamage(GameEntity* attacker, double damage, Tile *tileTakingDamage);
+    double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile *tileTakingDamage);
     std::string getNameTile(Tile* tile);
     virtual bool shouldDisplayMeshOnGround()
     {
