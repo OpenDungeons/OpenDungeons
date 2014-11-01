@@ -8,8 +8,8 @@ FightMusic	The_Dark_Amulet.ogg
 [/Info]
 
 [Seats]
-# seatId	teamId	faction	startingX	startingY	colorR	colorG	colorB	startingGold
-1	1	Player	1	1	0	0.4	0	1000
+# seatId	teamId	faction	startingX	startingY	color	startingGold
+1	1	Player	1	1	1	1000
 [/Seats]
 
 [Goals]

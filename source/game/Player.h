@@ -94,6 +94,9 @@ public:
     //! \brief Clears all creatures that a player might have in his hand
     void clearObjectsInHand();
 
+    //! \brief Clears all creatures that a player might have in his hand
+    void notifyNoMoreDungeonTemple();
+
     inline void setGameMap(GameMap* gameMap)
     { mGameMap = gameMap; }
 
@@ -154,6 +157,8 @@ private:
     //! This member is used to trigger the calm or fighting music when incarnating
     //! the local player.
     float mFightingTime;
+
+    bool mIsPlayerLostSent;
 
     //! \brief A simple mutator function to put the given entity into the player's hand,
     //! note this should NOT be called directly for creatures on the map,

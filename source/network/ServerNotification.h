@@ -53,6 +53,8 @@ class ServerNotification
 
             chat,
             chatServer,
+            playerWon,
+            playerLost,
 
             markTiles,
             buildRoom,

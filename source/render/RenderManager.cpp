@@ -68,7 +68,6 @@ template<> RenderManager* Ogre::Singleton<RenderManager>::msSingleton = 0;
 const Ogre::Real RenderManager::BLENDER_UNITS_PER_OGRE_UNIT = 10.0;
 
 RenderManager::RenderManager(Ogre::OverlaySystem* overlaySystem) :
-    mVisibleCreatures(true),
     mGameMap(NULL),
     mViewport(NULL),
     mShaderGenerator(NULL),
@@ -369,34 +368,6 @@ void RenderManager::rrAttachEntity(GameEntity* curEntity)
     curEntity->pSN->addChild(entityNode);
 }
 
-void RenderManager::rrToggleCreaturesVisibility()
-{
-    mVisibleCreatures = !mVisibleCreatures;
-
-    if(mVisibleCreatures)
-    {
-        for(std::vector<Creature*>::iterator it = mGameMap->creatures.begin(); it != mGameMap->creatures.end(); ++it)
-        {
-            if((*it)->isMeshExisting() && (*it)->mSceneNode != NULL)
-
-            // (*it)->pSN=((*it)->sceneNode->getParentSceneNode());
-            //pSN->removeChild((*it)->
-                (*it)->pSN->addChild((*it)->mSceneNode);
-        }
-    }
-    else
-    {
-        for(std::vector<Creature*>::iterator it = mGameMap->creatures.begin(); it != mGameMap->creatures.end(); ++it)
-        {
-            if((*it)->isMeshExisting() && (*it)->mSceneNode!=NULL)
-            {
-                (*it)->pSN=((*it)->mSceneNode->getParentSceneNode());
-                (*it)->pSN->removeChild((*it)->mSceneNode);
-            }
-        }
-    }
-}
-
 void RenderManager::rrShowSquareSelector(const Ogre::Real& xPos, const Ogre::Real& yPos)
 {
     mSceneManager->getEntity("SquareSelector")->setVisible(true);
@@ -537,7 +508,7 @@ void RenderManager::rrScaleSceneNode(Ogre::SceneNode* node, const Ogre::Vector3&
     }
 }
 
-void RenderManager::rrCreateWeapon(Creature* curCreature, Weapon* curWeapon, const std::string& hand)
+void RenderManager::rrCreateWeapon(Creature* curCreature, const Weapon* curWeapon, const std::string& hand)
 {
     Ogre::Entity* ent = mSceneManager->getEntity(curCreature->getOgreNamePrefix() + curCreature->getName());
     //colourizeEntity(ent, curCreature->color);
@@ -556,7 +527,7 @@ void RenderManager::rrCreateWeapon(Creature* curCreature, Weapon* curWeapon, con
                             rotationQuaternion);
 }
 
-void RenderManager::rrDestroyWeapon(Creature* curCreature, Weapon* curWeapon, const std::string& hand)
+void RenderManager::rrDestroyWeapon(Creature* curCreature, const Weapon* curWeapon, const std::string& hand)
 {
      Ogre::Entity* ent = mSceneManager->getEntity(curWeapon->getOgreNamePrefix()
          + hand + "_" + curCreature->getName());
@@ -926,13 +897,12 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, Se
     Ogre::Pass *tempPass;
 
     tempSS.str("");
-    int seatId = 0;
-    if(seat != NULL)
-        seatId = seat->getId();
 
     // Create the material name.
-    if (seatId > 0)
-        tempSS << "Color_" << seatId << "_" ;
+    if(seat != nullptr)
+        tempSS << "Color_" << seat->getColorId() << "_" ;
+    else
+        tempSS << "Color_0_" ;
 
     if (markedForDigging)
         tempSS << "dig_";
@@ -974,7 +944,7 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, Se
             tempPass->setAmbient(color);
             tempPass->setDiffuse(color);
         }
-        else if (seatId > 0)
+        else if (seat != nullptr)
         {
             // Color the material with the Seat's color.
             tempPass = tempTechnique->getPass(0);

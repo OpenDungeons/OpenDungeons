@@ -41,29 +41,12 @@ namespace MapLoader {
 
 bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 {
-    // Try to open the input file for reading and throw an error if we can't.
-    std::ifstream baseLevelFile(fileName.c_str(), std::ifstream::in);
-    if (!baseLevelFile.good())
-    {
-        std::cerr << "ERROR: File not found:  " << fileName << "\n\n\n";
-        return false;
-    }
 
-    // Read in the whole baseLevelFile, strip it of comments and feed it into
-    // the stringstream levelFile, to be read by the rest of the function.
     std::stringstream levelFile;
+    if(!Helper::readFileWithoutComments(fileName, levelFile))
+        return false;
+
     std::string nextParam;
-    while (baseLevelFile.good())
-    {
-        std::getline(baseLevelFile, nextParam);
-        /* Find the first occurrence of the comment symbol on the
-         * line and return everything before that character.
-         */
-        levelFile << nextParam.substr(0, nextParam.find('#')) << "\n";
-    }
-
-    baseLevelFile.close();
-
     // Read in the version number from the level file
     levelFile >> nextParam;
     if (nextParam.compare(ODApplication::VERSIONSTRING) != 0)
@@ -671,141 +654,6 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     levelFile.close();
 }
 
-bool loadEquipments(const std::string& fileName, GameMap& gameMap)
-{
-    // First, clear the previous weapons
-    gameMap.clearWeapons();
-    std::cout << "Load equipment definition file: " << fileName << std::endl;
-
-    // Try to open the input file for reading and throw an error if we can't.
-    std::ifstream equipmentFile(ResourceManager::getSingleton().getGameDataPath() + fileName.c_str(), std::ifstream::in);
-    if (!equipmentFile.good())
-    {
-        std::cout << "ERROR: Creature definition file not found:  " << fileName << "\n\n\n";
-        return false;
-    }
-
-    // Read in the whole equipmentFile, strip it of comments and feed it into
-    // the stringstream defFile, to be read by the rest of the function.
-    std::stringstream defFile;
-    std::string nextParam;
-    while (equipmentFile.good())
-    {
-        std::getline(equipmentFile, nextParam);
-        /* Find the first occurrence of the comment symbol on the
-         * line and return everything before that character.
-         */
-        defFile << nextParam.substr(0, nextParam.find('#')) << "\n";
-    }
-
-    equipmentFile.close();
-
-    // Load weapons
-    defFile >> nextParam;
-    if (nextParam != "[EquipmentDefinitions]")
-    {
-        std::cout << "Invalid Weapons classes start format." << std::endl;
-        std::cout << "Line was " << nextParam << std::endl;
-        return false;
-    }
-
-    while(defFile.good())
-    {
-        defFile >> nextParam;
-        if (nextParam == "[/EquipmentDefinitions]")
-            break;
-
-        if (nextParam == "[/Equipment]")
-            continue;
-
-        if (nextParam != "[Equipment]")
-        {
-            std::cout << "Invalid Weapon start format." << std::endl;
-            std::cout << "Line was " << nextParam << std::endl;
-            return false;
-        }
-
-        // Load the definition
-        Weapon* weapon = Weapon::load(defFile);
-        if (weapon == nullptr)
-        {
-            std::cout << "Invalid Creature definition format." << std::endl;
-            return false;
-        }
-        gameMap.addWeapon(weapon);
-    }
-    return true;
-}
-
-bool loadCreatureDefinition(const std::string& fileName, GameMap& gameMap)
-{
-    // First, clear the previous creature definitions
-    gameMap.clearClasses();
-
-    std::cout << "Load creature definition file: " << fileName << std::endl;
-
-    // Try to open the input file for reading and throw an error if we can't.
-    std::ifstream creatureDefFile(ResourceManager::getSingleton().getGameDataPath() + fileName.c_str(), std::ifstream::in);
-    if (!creatureDefFile.good())
-    {
-        std::cout << "ERROR: Creature definition file not found:  " << fileName << "\n\n\n";
-        return false;
-    }
-
-    // Read in the whole creatureDefFile, strip it of comments and feed it into
-    // the stringstream defFile, to be read by the rest of the function.
-    std::stringstream defFile;
-    std::string nextParam;
-    while (creatureDefFile.good())
-    {
-        std::getline(creatureDefFile, nextParam);
-        /* Find the first occurrence of the comment symbol on the
-         * line and return everything before that character.
-         */
-        defFile << nextParam.substr(0, nextParam.find('#')) << "\n";
-    }
-
-    creatureDefFile.close();
-
-    // Read in the creature class descriptions
-    defFile >> nextParam;
-    if (nextParam != "[CreatureDefinitions]")
-    {
-        std::cout << "Invalid Creature classes start format." << std::endl;
-        std::cout << "Line was " << nextParam << std::endl;
-        return false;
-    }
-
-    while(defFile.good())
-    {
-        defFile >> nextParam;
-        if (nextParam == "[/CreatureDefinitions]")
-            break;
-
-        if (nextParam == "[/Creature]")
-            continue;
-
-        // Seek the [Creature] tag
-        if (nextParam != "[Creature]")
-        {
-            std::cout << "Invalid Creature start format." << std::endl;
-            std::cout << "Line was " << nextParam << std::endl;
-            return false;
-        }
-
-        // Load the creature definition until a [/Creature] tag is found
-        CreatureDefinition* creatureDef = CreatureDefinition::load(defFile);
-        if (creatureDef == nullptr)
-        {
-            std::cout << "Invalid Creature definition format." << std::endl;
-            return false;
-        }
-        gameMap.addClassDescription(creatureDef);
-    }
-
-    return true;
-}
-
 LevelInfo getMapInfo(const std::string& fileName)
 {
     // Prepare an invalid level reference
@@ -813,26 +661,11 @@ LevelInfo getMapInfo(const std::string& fileName)
     invalidLevel.mLevelName = "Invalid map!";
     invalidLevel.mLevelDescription = invalidLevel.mLevelName;
 
-    // Try to open the input file for reading and throw an error if we can't.
-    std::ifstream baseLevelFile(fileName.c_str(), std::ifstream::in);
-    if (!baseLevelFile.good())
+    std::stringstream levelFile;
+    if(!Helper::readFileWithoutComments(fileName, levelFile))
         return invalidLevel;
 
-    // Read in the whole baseLevelFile, strip it of comments and feed it into
-    // the stringstream levelFile, to be read by the rest of the function.
-    std::stringstream levelFile;
     std::string nextParam;
-    while (baseLevelFile.good())
-    {
-        std::getline(baseLevelFile, nextParam);
-        /* Find the first occurrence of the comment symbol on the
-         * line and return everything before that character.
-         */
-        levelFile << nextParam.substr(0, nextParam.find('#')) << "\n";
-    }
-
-    baseLevelFile.close();
-
     // Read in the version number from the level file
     levelFile >> nextParam;
     if (nextParam.compare(ODApplication::VERSIONSTRING) != 0)

@@ -19,6 +19,7 @@
 
 #include "goals/Goal.h"
 #include "network/ODPacket.h"
+#include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 
 Seat::Seat() :
@@ -260,15 +261,14 @@ bool Seat::canTrapBeDestroyedBy(Seat* seat)
 
 std::string Seat::getFormat()
 {
-    return "seatId\tteamId\tfaction\tstartingX\tstartingY\tcolorR\tcolorG\tcolorB\tstartingGold";
+    return "seatId\tteamId\tfaction\tstartingX\tstartingY\tcolor\tstartingGold";
 }
 
 ODPacket& operator<<(ODPacket& os, Seat *s)
 {
     os << s->mId << s->mTeamId << s->mFaction << s->mStartingX
        << s->mStartingY;
-    os << s->mColorValue.r << s->mColorValue.g
-       << s->mColorValue.b;
+    os << s->mColorId;
     os << s->mGold << s->mMana << s->mManaDelta << s->mNumClaimedTiles;
     os << s->mHasGoalsChanged;
 
@@ -278,10 +278,10 @@ ODPacket& operator<<(ODPacket& os, Seat *s)
 ODPacket& operator>>(ODPacket& is, Seat *s)
 {
     is >> s->mId >> s->mTeamId >> s->mFaction >> s->mStartingX >> s->mStartingY;
-    is >> s->mColorValue.r >> s->mColorValue.g >> s->mColorValue.b;
+    is >> s->mColorId;
     is >> s->mGold >> s->mMana >> s->mManaDelta >> s->mNumClaimedTiles;
     is >> s->mHasGoalsChanged;
-    s->mColorValue.a = 1.0;
+    s->mColorValue = ConfigManager::getSingleton().getColorFromId(s->mColorId);
 
     return is;
 }
@@ -295,11 +295,9 @@ void Seat::loadFromLine(const std::string& line, Seat *s)
     s->mFaction = elems[2];
     s->mStartingX = Helper::toInt(elems[3]);
     s->mStartingY = Helper::toInt(elems[4]);
-    s->mColorValue.r = Helper::toDouble(elems[5]);
-    s->mColorValue.g = Helper::toDouble(elems[6]);
-    s->mColorValue.b = Helper::toDouble(elems[7]);
-    s->mStartingGold = Helper::toInt(elems[8]);
-    s->mColorValue.a = 1.0;
+    s->mColorId = elems[5];
+    s->mStartingGold = Helper::toInt(elems[6]);
+    s->mColorValue = ConfigManager::getSingleton().getColorFromId(s->mColorId);
 }
 
 void Seat::refreshFromSeat(Seat* s)
@@ -321,8 +319,7 @@ std::ostream& operator<<(std::ostream& os, Seat *s)
 {
     os << s->mId << "\t" << s->mTeamId << "\t" << s->mFaction << "\t" << s->mStartingX
        << "\t"<< s->mStartingY;
-    os << "\t" << s->mColorValue.r << "\t" << s->mColorValue.g
-       << "\t" << s->mColorValue.b;
+    os << "\t" << s->mColorId;
     os << "\t" << s->mStartingGold;
     return os;
 }
@@ -330,8 +327,8 @@ std::ostream& operator<<(std::ostream& os, Seat *s)
 std::istream& operator>>(std::istream& is, Seat *s)
 {
     is >> s->mId >> s->mTeamId >> s->mFaction >> s->mStartingX >> s->mStartingY;
-    is >> s->mColorValue.r >> s->mColorValue.g >> s->mColorValue.b;
+    is >> s->mColorId;
     is >> s->mStartingGold;
-    s->mColorValue.a = 1.0;
+    s->mColorValue = ConfigManager::getSingleton().getColorFromId(s->mColorId);
     return is;
 }

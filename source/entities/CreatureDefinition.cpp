@@ -18,6 +18,7 @@
 #include "entities/CreatureDefinition.h"
 
 #include "network/ODPacket.h"
+#include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
@@ -139,12 +140,18 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
 {
     std::string nextParam;
     bool exit = false;
+    // Parameters that should not be overriden if a Creature definition is extended. They will be set after
+    // the class is copied if there is a base class
+    std::string name = creatureDef->mClassName;
+    std::string baseDefinition;
     while (defFile.good())
     {
         if (exit)
             break;
 
-        defFile >> nextParam;
+        if(!(defFile >> nextParam))
+            break;
+
         if (nextParam == "[/Creature]" || nextParam == "[/CreatureDefinitions]")
         {
             exit = true;
@@ -153,8 +160,19 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
 
         if (nextParam == "Name")
         {
-            defFile >> nextParam;
-            creatureDef->mClassName = nextParam;
+            defFile >> name;
+            continue;
+        }
+
+        if (nextParam == "BaseDefinition")
+        {
+            defFile >> baseDefinition;
+            const CreatureDefinition* def = ConfigManager::getSingleton().getCreatureDefinition(baseDefinition);
+            OD_ASSERT_TRUE_MSG(def != nullptr, "Couldn't find base class " + baseDefinition);
+            if(def == nullptr)
+                return false;
+
+            *creatureDef = *def;
             continue;
         }
 
@@ -172,7 +190,9 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
             if (exit)
                 break;
 
-            defFile >> nextParam;
+            if(!(defFile >> nextParam))
+                break;
+
             if (nextParam == "[/Stats]")
                 break;
 
@@ -397,18 +417,29 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
         }
     }
 
-    if (creatureDef->mClassName.empty())
+    if (name.empty())
     {
+        OD_ASSERT_TRUE(false);
         return false;
     }
+    creatureDef->mClassName = name;
+    creatureDef->mBaseDefinition = baseDefinition;
 
     return true;
 }
 
-void CreatureDefinition::writeCreatureDefinitionDiff(CreatureDefinition* def1, CreatureDefinition* def2, std::ofstream& file)
+void CreatureDefinition::writeCreatureDefinitionDiff(const CreatureDefinition* def1, const CreatureDefinition* def2, std::ofstream& file)
 {
     file << "[Creature]" << std::endl;
     file << "    Name\t" << def2->mClassName << std::endl;
+    if(!def2->mBaseDefinition.empty())
+    {
+        // If there is a base definition, we take it as the reference no matter what def1 is because
+        // we want to write only the differences between the reference and def2
+        def1 = ConfigManager::getSingleton().getCreatureDefinition(def2->mBaseDefinition);
+        OD_ASSERT_TRUE_MSG(def1 != nullptr, "BaseDefinition=" + def2->mBaseDefinition);
+        file << "    BaseDefinition\t" << def2->mBaseDefinition << std::endl;
+    }
     file << "    [Stats]" << std::endl;
 
     if(def1 == nullptr || (def1->mCreatureJob != def2->mCreatureJob))
@@ -536,7 +567,9 @@ void CreatureDefinition::loadXPTable(std::stringstream& defFile, CreatureDefinit
         if (exit)
             break;
 
-        defFile >> nextParam;
+        if(!(defFile >> nextParam))
+            break;
+
         if (nextParam == "[/XP]" || nextParam == "[/Stats]" ||
             nextParam == "[/Creature]" || nextParam == "[/Creatures]")
         {

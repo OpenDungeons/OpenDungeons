@@ -27,6 +27,7 @@
 #include "modes/Console.h"
 #include "ODApplication.h"
 #include "render/ODFrameListener.h"
+#include "utils/ConfigManager.h"
 
 //TODO: make rest of commands scriptable
 /*! \brief Process the commandline from the terminal and carry out the actions
@@ -123,7 +124,7 @@ string Console::getHelpText(std::string arg)
     else if (arg.compare("host") == 0)
     {
         std::stringstream s;
-        s << ODApplication::PORT_NUMBER;
+        s << ConfigManager::getSingleton().getNetworkPort();
         return "Starts a server thread running on this machine.  This utility takes a port number as an argument.  The port number is the port to listen on for a connection.  The default (if no argument is given) is to use" + s.str() + "for the port number.";
     }
 

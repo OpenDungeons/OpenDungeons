@@ -62,8 +62,6 @@ protected:
     { manager->rrDetachTile(curEntity); }
     void rrAttachTile(RenderManager* manager, GameEntity* curEntity)
     { manager->rrAttachTile(curEntity); }
-    void rrToggleCreaturesVisibility(RenderManager* manager)
-    { manager->rrToggleCreaturesVisibility(); }
     void rrTemporalMarkTile(RenderManager* manager, Tile* curTile)
     { manager->rrTemporalMarkTile(curTile); }
     void rrShowSquareSelector(RenderManager* manager, const Ogre::Real& xPos, const Ogre::Real& yPos)
@@ -84,9 +82,9 @@ protected:
     { manager->rrOrientSceneNodeToward(gameEntity, direction); }
     void rrScaleSceneNode(RenderManager* manager, Ogre::SceneNode* node, const Ogre::Vector3& scale)
     { manager->rrScaleSceneNode(node, scale); }
-    void rrCreateWeapon(RenderManager* manager, Creature* curCreature, Weapon* curWeapon, const std::string& hand)
+    void rrCreateWeapon(RenderManager* manager, Creature* curCreature, const Weapon* curWeapon, const std::string& hand)
     { manager->rrCreateWeapon(curCreature, curWeapon, hand); }
-    void rrDestroyWeapon(RenderManager* manager, Creature* curCreature, Weapon* curWeapon, const std::string& hand)
+    void rrDestroyWeapon(RenderManager* manager, Creature* curCreature, const Weapon* curWeapon, const std::string& hand)
     { manager->rrDestroyWeapon(curCreature, curWeapon, hand); }
     void rrCreateMapLight(RenderManager* manager, MapLight* curMapLight, bool displayVisual)
     { manager->rrCreateMapLight(curMapLight, displayVisual); }
@@ -204,15 +202,6 @@ public:
     { rrAttachEntity(manager, mEntity); }
 private:
     GameEntity* mEntity;
-};
-
-class RenderRequestToggleCreaturesVisibility : public RenderRequest
-{
-public:
-    RenderRequestToggleCreaturesVisibility()
-    {}
-    virtual void executeRequest(RenderManager* manager)
-    { rrToggleCreaturesVisibility(manager); }
 };
 
 class RenderRequestShowSquareSelector : public RenderRequest
@@ -336,7 +325,7 @@ private:
 class RenderRequestCreateWeapon : public RenderRequest
 {
 public:
-    RenderRequestCreateWeapon(Creature* creature, Weapon* weapon, const std::string& hand) :
+    RenderRequestCreateWeapon(Creature* creature, const Weapon* weapon, const std::string& hand) :
         mCreature(creature),
         mWeapon(weapon),
         mHand(hand)
@@ -345,14 +334,14 @@ public:
     { rrCreateWeapon(manager, mCreature, mWeapon, mHand); }
 private:
     Creature* mCreature;
-    Weapon* mWeapon;
+    const Weapon* mWeapon;
     std::string mHand;
 };
 
 class RenderRequestDestroyWeapon : public RenderRequest
 {
 public:
-    RenderRequestDestroyWeapon(Creature* creature, Weapon* weapon, const std::string& hand) :
+    RenderRequestDestroyWeapon(Creature* creature, const Weapon* weapon, const std::string& hand) :
         mCreature(creature),
         mWeapon(weapon),
         mHand(hand)
@@ -361,7 +350,7 @@ public:
     { rrDestroyWeapon(manager, mCreature, mWeapon, mHand); }
 private:
     Creature* mCreature;
-    Weapon* mWeapon;
+    const Weapon* mWeapon;
     std::string mHand;
 };
 

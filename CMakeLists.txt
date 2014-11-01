@@ -261,6 +261,7 @@ set(OD_SOURCEFILES
     ${SRC}/traps/TrapCannon.cpp
     ${SRC}/traps/TrapSpike.cpp
 
+    ${SRC}/utils/ConfigManager.cpp
     ${SRC}/utils/Helper.cpp
     ${SRC}/utils/LogManager.cpp
     ${SRC}/utils/Random.cpp

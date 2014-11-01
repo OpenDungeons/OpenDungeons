@@ -26,6 +26,7 @@
 #include "network/ODServer.h"
 #include "network/ODClient.h"
 #include "ODApplication.h"
+#include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
 
 #include <CEGUI/CEGUI.h>
@@ -98,7 +99,7 @@ void MenuModeMultiplayerClient::clientButtonPressed()
 
     ODFrameListener::getSingleton().getClientGameMap()->getLocalPlayer()->setNick(nick);
 
-    if(!ODClient::getSingleton().connect(ip, ODApplication::PORT_NUMBER))
+    if(!ODClient::getSingleton().connect(ip, ConfigManager::getSingleton().getNetworkPort()))
     {
         // Error while connecting
         tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerClientMenu)->getChild(Gui::MPM_TEXT_LOADING);

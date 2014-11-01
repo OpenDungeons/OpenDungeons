@@ -35,6 +35,7 @@
 #include "network/ServerNotification.h"
 #include "network/ODClient.h"
 #include "utils/ResourceManager.h"
+#include "utils/ConfigManager.h"
 #include "camera/CullingManager.h"
 #include "entities/Weapon.h"
 #include "modes/ODConsoleCommand.h"
@@ -447,7 +448,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                 tempSS << "Class:\tMesh:\tScale:\tHP:\tMana:\tSightRadius:\tDigRate:\tMovespeed:\n\n";
                 for (unsigned int i = 0; i < gameMap->numClassDescriptions(); ++i)
                 {
-                    CreatureDefinition *currentClassDesc = gameMap->getClassDescription(i);
+                    const CreatureDefinition *currentClassDesc = gameMap->getClassDescription(i);
                     tempSS << currentClassDesc << "\n";
                 }
             }
@@ -682,7 +683,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                     std::string ip;
                     tempSS >> ip;
 
-                    if (ODClient::getSingleton().connect(ip, ODApplication::PORT_NUMBER))
+                    if (ODClient::getSingleton().connect(ip, ConfigManager::getSingleton().getNetworkPort()))
                     {
                         frameListener->mCommandOutput += "\nConnection successful.\n";
                     }

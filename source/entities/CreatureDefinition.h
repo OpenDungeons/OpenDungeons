@@ -119,7 +119,9 @@ public:
 
     static CreatureJob creatureJobFromString(const std::string& s);
     static std::string creatureJobToString(CreatureJob c);
-    static void writeCreatureDefinitionDiff(CreatureDefinition* def1, CreatureDefinition* def2, std::ofstream& file);
+    //! \brief Writes the differences between def1 and def2 in the given file. Note that def1 can be null. In
+    //! this case, every parameters in def2 will be written. def2 cannot be null.
+    static void writeCreatureDefinitionDiff(const CreatureDefinition* def1, const CreatureDefinition* def2, std::ofstream& file);
 
     inline bool isWorker() const
     { return (mCreatureJob == Worker); }
@@ -187,6 +189,9 @@ private:
 
     //! \brief The name of the creatures class
     std::string mClassName;
+
+    //! \brief The name of the creature definition this one is based on (can be empty if no base class)
+    std::string mBaseDefinition;
 
     //! \brief The name of the model file
     std::string mMeshName;

@@ -44,7 +44,6 @@ public:
     //! \brief Display a GUI error message
     static void displayErrorMessage(const std::string& message, bool log = true);
 
-    static const unsigned int PORT_NUMBER;
     static const double DEFAULT_FRAMES_PER_SECOND;
     static double MAX_FRAMES_PER_SECOND;
     static double turnsPerSecond;

@@ -945,14 +945,6 @@ void Tile::claimForSeat(Seat* seat, double nDanceRate)
         {
             claimTile(seat);
 
-            // If a trap is on this tile, we kill it
-            Trap* trap = getCoveringTrap();
-            if(trap != NULL)
-            {
-                double tileHp = trap->getHP(this);
-                trap->takeDamage(NULL, tileHp, tileHp, this);
-            }
-
             // We inform the clients that the tile has been claimed
             if(getGameMap()->isServerGameMap())
             {

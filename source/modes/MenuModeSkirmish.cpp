@@ -28,6 +28,7 @@
 #include "ODApplication.h"
 #include "utils/LogManager.h"
 #include "gamemap/MapLoader.h"
+#include "utils/ConfigManager.h"
 #include "utils/ResourceManager.h"
 
 #include <CEGUI/CEGUI.h>
@@ -120,7 +121,7 @@ void MenuModeSkirmish::launchSelectedButtonPressed()
         LogManager::getSingleton().logMessage("ERROR: Could not start server for single player game !!!");
     }
 
-    if(!ODClient::getSingleton().connect("localhost", ODApplication::PORT_NUMBER))
+    if(!ODClient::getSingleton().connect("localhost", ConfigManager::getSingleton().getNetworkPort()))
     {
         LogManager::getSingleton().logMessage("ERROR: Could not connect to server for single player game !!!");
         tmpWin = Gui::getSingleton().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);

@@ -101,7 +101,10 @@ public:
     const std::string& getFaction() const
     { return mFaction; }
 
-    Ogre::ColourValue getColorValue() const
+    const std::string& getColorId() const
+    { return mColorId; }
+
+    const Ogre::ColourValue& getColorValue() const
     { return mColorValue; }
 
     inline int getGold() const
@@ -146,9 +149,6 @@ public:
     int mStartingX;
     int mStartingY;
 
-    //! \brief The actual color that this color index translates into.
-    Ogre::ColourValue mColorValue;
-
     //! \brief The amount of 'keeper mana' the player has.
     double mMana;
 
@@ -177,6 +177,10 @@ public:
 
 private:
     void goalsHasChanged();
+
+    //! \brief The actual color that this color index translates into.
+    std::string mColorId;
+    Ogre::ColourValue mColorValue;
 
     //! \brief Currently unmet goals, the first Seat to empty this wins.
     std::vector<Goal*> mUncompleteGoals;

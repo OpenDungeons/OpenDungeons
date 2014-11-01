@@ -153,7 +153,7 @@ void RoomPortal::spawnCreature()
     std::string creatureClassName = spawnPool.at(randomValue);
 
     //TODO: Later check conditions before spawning a creature
-    CreatureDefinition* classToSpawn = getGameMap()->getClassDescription(creatureClassName);
+    const CreatureDefinition* classToSpawn = getGameMap()->getClassDescription(creatureClassName);
     if (classToSpawn == NULL)
     {
         std::cout << "Warning: Invalid class name in spawn pool: " << creatureClassName

@@ -17,6 +17,7 @@
 
 #include "entities/Weapon.h"
 
+#include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
@@ -24,6 +25,7 @@ Weapon* Weapon::load(std::stringstream& defFile)
 {
     if (!defFile.good())
         return nullptr;
+
     Weapon* weapon = new Weapon();
     if(!update(weapon, defFile))
     {
@@ -36,19 +38,36 @@ bool Weapon::update(Weapon* weapon, std::stringstream& defFile)
 {
     std::string nextParam;
     bool exit = false;
+    // Parameters that should not be overriden if a Creature definition is extended. They will be set after
+    // the class is copied if there is a base class
+    std::string name = weapon->mName;
+    std::string baseDefinition;
     while (defFile.good())
     {
         if (exit)
             break;
 
-        defFile >> nextParam;
+        if(!(defFile >> nextParam))
+            break;
+
         if (nextParam == "[/Equipment]" || nextParam == "[/EquipmentDefinitions]")
             break;
 
         if (nextParam == "Name")
         {
-            defFile >> nextParam;
-            weapon->mName = nextParam;
+            defFile >> name;
+            continue;
+        }
+
+        if (nextParam == "BaseDefinition")
+        {
+            defFile >> baseDefinition;
+            const Weapon* def = ConfigManager::getSingleton().getWeapon(baseDefinition);
+            OD_ASSERT_TRUE_MSG(def != nullptr, "Couldn't find base class " + baseDefinition);
+            if(def == nullptr)
+                return false;
+
+            *weapon = *def;
             continue;
         }
 
@@ -60,7 +79,9 @@ bool Weapon::update(Weapon* weapon, std::stringstream& defFile)
             if (exit)
                 break;
 
-            defFile >> nextParam;
+            if(!(defFile >> nextParam))
+                break;
+
             if (nextParam == "[/Stats]")
                 break;
 
@@ -115,18 +136,30 @@ bool Weapon::update(Weapon* weapon, std::stringstream& defFile)
         }
     }
 
-    if (weapon->mName.empty() || weapon->mMeshName.empty())
+    if (name.empty() || weapon->mMeshName.empty())
     {
+        OD_ASSERT_TRUE(false);
         return false;
     }
+
+    weapon->mName = name;
+    weapon->mBaseDefinition = baseDefinition;
 
     return true;
 }
 
-void Weapon::writeWeaponDiff(Weapon* def1, Weapon* def2, std::ofstream& file)
+void Weapon::writeWeaponDiff(const Weapon* def1, const Weapon* def2, std::ofstream& file)
 {
     file << "[Equipment]" << std::endl;
     file << "    Name\t" << def2->mName << std::endl;
+    if(!def2->mBaseDefinition.empty())
+    {
+        // If there is a base definition, we take it as the reference no matter what def1 is because
+        // we want to write only the differences between reference and def2
+        def1 = ConfigManager::getSingleton().getWeapon(def2->mBaseDefinition);
+        OD_ASSERT_TRUE_MSG(def1 != nullptr, "BaseDefinition=" + def2->mBaseDefinition);
+        file << "    BaseDefinition\t" << def2->mBaseDefinition << std::endl;
+    }
     file << "    [Stats]" << std::endl;
 
     if(def1 == nullptr || (def1->mMeshName.compare(def2->mMeshName) != 0))

@@ -148,11 +148,11 @@ public:
      * members of that class.  Creature specific things like location, etc. are
      * then filled out for the individual creature.
      */
-    void addClassDescription(CreatureDefinition *c);
+    void addClassDescription(const CreatureDefinition *c);
 
     //! \brief Returns a pointer to the first class description whose 'name' or index parameter matches the query.
-    CreatureDefinition* getClassDescription(int index);
-    CreatureDefinition* getClassDescription(const std::string& className);
+    const CreatureDefinition* getClassDescription(int index);
+    const CreatureDefinition* getClassDescription(const std::string& className);
     CreatureDefinition* getClassDescriptionForTuning(const std::string& name);
 
     //! \brief Returns the total number of class descriptions stored in this game map.
@@ -160,8 +160,8 @@ public:
 
     void saveLevelClassDescriptions(std::ofstream& levelFile);
 
-    void addWeapon(Weapon *weapon);
-    Weapon* getWeapon(const std::string& name);
+    void addWeapon(const Weapon *weapon);
+    const Weapon* getWeapon(const std::string& name);
     Weapon* getWeaponForTuning(const std::string& name);
     uint32_t numWeapons();
     void saveLevelEquipments(std::ofstream& levelFile);
@@ -497,7 +497,6 @@ private:
 
     //! \brief Level related filenames.
     std::string levelFileName;
-    std::string creatureDefinitionFilename;
 
     //! \brief Map info
     std::string mMapInfoName;
@@ -505,9 +504,12 @@ private:
     std::string mMapInfoMusicFile;
     std::string mMapInfoFightMusicFile;
 
-    //! \brief The creature definition data
-    std::vector<std::pair<CreatureDefinition*,CreatureDefinition*> > mClassDescriptions;
-    std::vector<std::pair<Weapon*,Weapon*> > mWeapons;
+    //! \brief The creature definition data. We use a pair to be able to make the difference between the original
+    //! data from the global creature definition file and the specific data from the level file. With this trick,
+    //! we will be able to compare and write the differences in the level file.
+    //! It is the same for weapons.
+    std::vector<std::pair<const CreatureDefinition*,CreatureDefinition*> > mClassDescriptions;
+    std::vector<std::pair<const Weapon*,Weapon*> > mWeapons;
 
     //Mutable to allow locking in const functions.
     std::vector<MovableGameEntity*> animatedObjects;

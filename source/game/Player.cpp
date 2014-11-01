@@ -40,7 +40,8 @@ Player::Player() :
     mGameMap(NULL),
     mSeat(NULL),
     mHasAI(false),
-    mFightingTime(0.0f)
+    mFightingTime(0.0f),
+    mIsPlayerLostSent(false)
 {
 }
 
@@ -241,4 +242,16 @@ void Player::rotateHand(int n)
     // Send a render request to move the entity into the "hand"
     RenderRequest *request = new RenderRequestRotateHand;
     RenderManager::queueRenderRequest(request);
+}
+
+void Player::notifyNoMoreDungeonTemple()
+{
+    if(mIsPlayerLostSent)
+        return;
+
+    mIsPlayerLostSent = true;
+    ServerNotification *serverNotification = new ServerNotification(
+        ServerNotification::playerLost, this);
+    ODServer::getSingleton().queueServerNotification(serverNotification);
+
 }

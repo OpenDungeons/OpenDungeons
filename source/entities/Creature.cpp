@@ -79,7 +79,7 @@ static const int NB_TURN_FLEE_MAX = 5;
 
 const std::string Creature::CREATURE_PREFIX = "Creature_";
 
-Creature::Creature(GameMap* gameMap, CreatureDefinition* definition) :
+Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
     MovableGameEntity        (gameMap),
     mTracingCullingQuad      (NULL),
     mPhysicalAttack          (1.0),
@@ -237,14 +237,6 @@ void Creature::destroyMeshLocal()
     destroyStatsWindow();
     RenderRequest* request = new RenderRequestDestroyCreature(this);
     RenderManager::queueRenderRequest(request);
-}
-
-void Creature::deleteYourselfLocal()
-{
-    MovableGameEntity::deleteYourselfLocal();
-    // If standing on a valid tile, notify that tile we are no longer there.
-    if(getPositionTile() != 0)
-        getPositionTile()->removeCreature(this);
 }
 
 void Creature::createMeshWeapons()
@@ -2489,9 +2481,10 @@ double Creature::getMoveSpeed(Tile* tile) const
     OD_ASSERT_TRUE(tile != nullptr);
     if(tile == nullptr)
         return 1.0;
-    OD_ASSERT_TRUE_MSG(tile->getFullness() == 0, (getGameMap()->isServerGameMap()?std::string("1"):std::string("0"))
+    OD_ASSERT_TRUE_MSG(tile->getFullness() == 0, getGameMap()->serverStr()
         + " creature=" + getName() + ",tile=" + Tile::displayAsString(tile)
-        + ",Fullness=" + Ogre::StringConverter::toString(tile->getFullness()));
+        + ",tile fullness=" + Ogre::StringConverter::toString(tile->getFullness())
+        + ",position=" + Ogre::StringConverter::toString(getPosition()));
 
     switch(tile->getType())
     {
@@ -2901,14 +2894,14 @@ double Creature::takeDamage(GameEntity* attacker, double physicalDamage, double 
 {
     physicalDamage = std::max(physicalDamage - getPhysicalDefense(), 0.0);
     magicalDamage = std::max(magicalDamage - getMagicalDefense(), 0.0);
-    mHp -= physicalDamage;
-    mHp -= magicalDamage;
+    double damageDone = std::min(mHp, physicalDamage + magicalDamage);
+    mHp -= damageDone;
     if(!getGameMap()->isServerGameMap())
-        return physicalDamage + magicalDamage;
+        return damageDone;
 
     Player* player = getGameMap()->getPlayerBySeat(getSeat());
     if (player == NULL)
-        return physicalDamage + magicalDamage;
+        return damageDone;
 
     // Tells the server game map the player is under attack.
     getGameMap()->playerIsFighting(player);
@@ -2929,7 +2922,7 @@ double Creature::takeDamage(GameEntity* attacker, double physicalDamage, double 
     // If we are a worker attacked by a worker, we fight. Otherwise, we flee (if it is a fighter, a trap,
     // or whatever)
     if(!getDefinition()->isWorker())
-        return physicalDamage + magicalDamage;
+        return damageDone;
 
     bool flee = true;
     if(attacker->getObjectType() == ObjectType::creature)
@@ -2947,9 +2940,9 @@ double Creature::takeDamage(GameEntity* attacker, double physicalDamage, double 
         clearDestinations();
         clearActionQueue();
         pushAction(CreatureAction::flee);
-        return physicalDamage + magicalDamage;
+        return damageDone;
     }
-    return physicalDamage + magicalDamage;
+    return damageDone;
 }
 
 void Creature::receiveExp(double experience)

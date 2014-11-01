@@ -40,6 +40,7 @@
 #include "rooms/RoomPortal.h"
 #include "rooms/RoomTrainingHall.h"
 #include "rooms/RoomTreasury.h"
+#include "utils/ConfigManager.h"
 
 #include <SFML/Network.hpp>
 #include <SFML/System.hpp>
@@ -155,7 +156,7 @@ bool ODServer::startServer(const std::string& levelFilename, bool replaceHumanPl
         return false;
 
     // Set up the socket to listen on the specified port
-    if (!createServer(ODApplication::PORT_NUMBER))
+    if (!createServer(ConfigManager::getSingleton().getNetworkPort()))
     {
         logManager.logMessage("ERROR:  Server could not create server socket!");
         return false;
@@ -443,6 +444,81 @@ void ODServer::processServerNotifications()
                 std::string& faction = event->mConcernedPlayer->getSeat()->mFaction;
                 OD_ASSERT_TRUE_MSG(faction != "Player", faction);
                 sendMsgToAllClients(event->mPacket);
+                break;
+            }
+
+            case ServerNotification::playerWon:
+            {
+                if(event->mConcernedPlayer->getHasAI())
+                    break;
+
+                ODSocketClient* client = getClientFromPlayer(event->mConcernedPlayer);
+                OD_ASSERT_TRUE_MSG(client != NULL, "name=" + event->mConcernedPlayer->getNick());
+                if(client != NULL)
+                {
+                    ODPacket packet;
+                    packet << ServerNotification::chatServer;
+                    packet << "You Won";
+                    sendMsgToClient(client, packet);
+                }
+                break;
+            }
+
+            case ServerNotification::playerLost:
+            {
+                // We check if there is still a player in the team with a dungeon temple. If yes, we notify the player he lost his dungeon
+                // if no, we notify the team they lost
+                std::vector<Room*> dungeonTemples = gameMap->getRoomsByType(Room::RoomType::dungeonTemple);
+                bool hasTeamLost = true;
+                for(std::vector<Room*>::iterator it = dungeonTemples.begin(); it != dungeonTemples.end(); ++it)
+                {
+                    Room* dungeonTemple = *it;
+                    if(event->mConcernedPlayer->getSeat()->isAlliedSeat(dungeonTemple->getSeat()))
+                    {
+                        hasTeamLost = false;
+                        break;
+                    }
+                }
+
+                if(hasTeamLost)
+                {
+                    // This message will be sent in skirmish or multiplayer so it should not talk about team. If we want to be
+                    // more precise, we shall handle the case
+                    ODPacket packet;
+                    packet << ServerNotification::chatServer;
+                    packet << "You lost the game";
+                    for (std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
+                    {
+                        ODSocketClient* client = *it;
+                        if(!event->mConcernedPlayer->getSeat()->isAlliedSeat(client->getPlayer()->getSeat()))
+                            continue;
+
+                        sendMsgToClient(client, packet);
+                    }
+                    break;
+                }
+
+                ODPacket packetAllied;
+                packetAllied << ServerNotification::chatServer;
+                packetAllied << "An ally has lost";
+                for (std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
+                {
+                    ODSocketClient* client = *it;
+                    if(!event->mConcernedPlayer->getSeat()->isAlliedSeat(client->getPlayer()->getSeat()))
+                            continue;
+
+                    if(client->getPlayer() != event->mConcernedPlayer)
+                    {
+                        sendMsgToClient(client, packetAllied);
+                    }
+                    else
+                    {
+                        ODPacket packet;
+                        packet << ServerNotification::chatServer;
+                        packet << "You lost";
+                        sendMsgToClient(client, packet);
+                    }
+                }
                 break;
             }
 
@@ -1372,7 +1448,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             OD_ASSERT_TRUE(packetReceived >> seatId);
             Player* playerCreature = gameMap->getPlayerBySeatId(seatId);
             OD_ASSERT_TRUE_MSG(playerCreature != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
-            CreatureDefinition *classToSpawn = gameMap->getClassDescription("Kobold");
+            const CreatureDefinition *classToSpawn = gameMap->getClassDescription("Kobold");
             OD_ASSERT_TRUE(classToSpawn != nullptr);
             if(classToSpawn == nullptr)
                 break;
@@ -1407,7 +1483,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             OD_ASSERT_TRUE(packetReceived >> seatId >> className);
             Player* playerCreature = gameMap->getPlayerBySeatId(seatId);
             OD_ASSERT_TRUE_MSG(playerCreature != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
-            CreatureDefinition *classToSpawn = gameMap->getClassDescription(className);
+            const CreatureDefinition *classToSpawn = gameMap->getClassDescription(className);
             OD_ASSERT_TRUE_MSG(classToSpawn != nullptr, "Couldn't spawn creature class=" + className);
             if(classToSpawn == nullptr)
                 break;

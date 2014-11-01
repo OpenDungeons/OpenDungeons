@@ -91,7 +91,7 @@ void RoomDungeonTemple::produceKobold()
         return;
 
     // Create a new creature and copy over the class-based creature parameters.
-    CreatureDefinition *classToSpawn = getGameMap()->getClassDescription("Kobold");
+    const CreatureDefinition *classToSpawn = getGameMap()->getClassDescription("Kobold");
     if (classToSpawn == NULL)
     {
         std::cout << "Error: No 'Kobold' creature definition" << std::endl;
@@ -110,17 +110,9 @@ void RoomDungeonTemple::produceKobold()
     // Inform the clients
     if (getGameMap()->isServerGameMap())
     {
-        try
-        {
-            ServerNotification *serverNotification = new ServerNotification(
-               ServerNotification::addCreature, newCreature->getGameMap()->getPlayerBySeat(newCreature->getSeat()));
-            newCreature->exportToPacket(serverNotification->mPacket);
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
-        catch (std::bad_alloc&)
-        {
-            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in RoomDungeonTemple::produceKobold", Ogre::LML_CRITICAL);
-            exit(1);
-        }
+        ServerNotification *serverNotification = new ServerNotification(
+           ServerNotification::addCreature, getGameMap()->getPlayerBySeat(getSeat()));
+        newCreature->exportToPacket(serverNotification->mPacket);
+        ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 }

@@ -181,38 +181,35 @@ int Trap::costPerTile(TrapType t)
 
 void Trap::doUpkeep()
 {
-    uint32_t i = 0;
-    bool oneTileRemoved = false;
-    while (i < mCoveredTiles.size())
+    std::vector<Tile*> tilesToRemove;
+    for (Tile* tile : mCoveredTiles)
     {
-        Tile* t = mCoveredTiles[i];
-        if (mTileHP[t] <= 0.0)
+        if(tile->getClaimedPercentage() >= 1.0 && !getSeat()->isAlliedSeat(tile->getSeat()))
         {
-            if(getGameMap()->isServerGameMap())
-            {
-                try
-                {
-                    ServerNotification *serverNotification = new ServerNotification(
-                        ServerNotification::removeTrapTile, NULL);
-                    std::string name = getName();
-                    serverNotification->mPacket << name << t;
-                    ODServer::getSingleton().queueServerNotification(serverNotification);
-                }
-                catch (std::bad_alloc&)
-                {
-                    OD_ASSERT_TRUE(false);
-                    exit(1);
-                }
-            }
-            removeCoveredTile(t);
-            oneTileRemoved = true;
+            tilesToRemove.push_back(tile);
+            continue;
         }
-        else
-            ++i;
+
+        if (mTileHP[tile] <= 0.0)
+        {
+            tilesToRemove.push_back(tile);
+            continue;
+        }
     }
 
-    if (oneTileRemoved)
+    if (!tilesToRemove.empty())
     {
+        for(Tile* tile : tilesToRemove)
+        {
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotification::removeTrapTile, getGameMap()->getPlayerBySeat(getSeat()));
+            std::string name = getName();
+            serverNotification->mPacket << name << tile;
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+
+            removeCoveredTile(tile);
+        }
+
         updateActiveSpots();
 
         createMesh();
