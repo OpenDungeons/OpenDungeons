@@ -5,8 +5,8 @@ material Cannonball : RTSS/PerPixel_SinglePass
 	{
 		pass
 		{
-		    specular 1.0 1.0 1.0 128
-		
+		    specular 1.0 1.0 1.0 128.0
+
 			texture_unit
 			{
 				texture Black.png

@@ -6,8 +6,8 @@ material ReflGold/TWOSIDE
         {
             ambient 0.0 0.0 0.0
             diffuse 0.9 0.9 0.9
-            specular 0.1 0.1 0.1 9800.0
-            emissive 0.0 0.0 0.0 1
+            specular 0.1 0.1 0.1 1.0 98.0
+            emissive 0.0 0.0 0.0 1.0
             texture_unit
             {
                 texture Env_gold.png
@@ -26,8 +26,8 @@ material ReflGold
         {
             ambient 0.0 0.0 0.0
             diffuse 0.9 0.9 0.9
-            specular 0.1 0.1 0.1 9800.0
-            emissive 0.0 0.0 0.0 1
+            specular 0.1 0.1 0.1 1.0 98.0
+            emissive 0.0 0.0 0.0 1.0
             texture_unit
             {
                 texture Env_gold.png
