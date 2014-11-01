@@ -141,13 +141,15 @@ public:
     static int nextTileFullness(int f);
 
     //! \brief This is a helper function that generates a mesh filename from a tile type and a fullness mesh number.
-    static std::string meshNameFromFullness(TileType t, int fullnessMeshNumber);
-
-    //! \brief This is a helper function that generates a mesh filename from a tile type and a fullness mesh number.
     //! \TODO Define what is a postfix.
     static std::string meshNameFromNeighbors(TileType myType, int fullnessMeshNumber, const TileType* neighbors,
                                              const bool* neighborsFullness, int &rt);
 
+    //! \brief Generate the tile mesh name in ss from other parameters.
+    //! \param postFixInt an array 0 and 1 set according to neighbor mesh types and fullness.
+    //! \param fMN The fullness of the tile (Atm, only tested whether > 0)
+    //! \param myType The tile type (dirt, gold, ...)
+    //! TODO This will have to be replaced by a proper tileset config file.
     static void meshNameAux(std::stringstream &ss, int &postfixInt, int& fMN, TileType myType);
 
     //! \brief This function puts a message in the renderQueue to change the mesh for this tile.
