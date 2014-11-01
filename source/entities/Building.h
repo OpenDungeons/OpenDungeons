@@ -80,10 +80,19 @@ public:
     double getHP(Tile *tile) const;
     double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile *tileTakingDamage);
     std::string getNameTile(Tile* tile);
-    virtual bool shouldDisplayMeshOnGround()
+
+    //! \brief Tells whether the building tile should be displayed.
+    virtual bool shouldDisplayBuildingTile()
     {
         return true;
     }
+
+    //! \brief Tells whether the ground tile below the building tile should be displayed.
+    virtual bool shouldDisplayGroundTile()
+    {
+        return false;
+    }
+
 protected:
     std::map<Tile*, RenderedMovableEntity*> mBuildingObjects;
     std::vector<Tile*> mCoveredTiles;

@@ -37,7 +37,15 @@ public:
         return false;
     }
 
-    virtual bool shouldDisplayMeshOnGround()
+    //! \brief There is no building tile for this trap
+    virtual bool shouldDisplayBuildingTile()
+    {
+        return false;
+    }
+
+    //! \brief The trap object covers the whole tile under
+    //! so there is no need to show it.
+    virtual bool shouldDisplayGroundTile()
     {
         return false;
     }

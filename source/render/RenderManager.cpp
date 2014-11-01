@@ -223,8 +223,10 @@ void RenderManager::rrRefreshTile(Tile* curTile)
     node->roll(Ogre::Degree((Ogre::Real)(-1 * rt * 90)));
 
     // Test whether the tile should be shown
-    if (curTile->getCoveringRoom() != nullptr || curTile->getCoveringTrap() != nullptr)
+    if (curTile->getCoveringRoom() != nullptr)
         ent->setVisible(false);
+    else if (curTile->getCoveringTrap() != nullptr)
+        ent->setVisible(curTile->getCoveringTrap()->shouldDisplayGroundTile());
     else
         ent->setVisible(true);
 }
@@ -290,8 +292,10 @@ void RenderManager::rrCreateTile(Tile* curTile)
     node->roll(Ogre::Degree((Ogre::Real)(-1 * rt * 90)));
 
     // Test whether the tile should be shown
-    if (curTile->getCoveringRoom() != nullptr || curTile->getCoveringTrap() != nullptr)
+    if (curTile->getCoveringRoom() != nullptr)
         ent->setVisible(false);
+    else if (curTile->getCoveringTrap() != nullptr)
+        ent->setVisible(curTile->getCoveringTrap()->shouldDisplayGroundTile());
     else
         ent->setVisible(true);
 }
@@ -388,28 +392,26 @@ void RenderManager::rrShowSquareSelector(const Ogre::Real& xPos, const Ogre::Rea
 
 void RenderManager::rrCreateBuilding(Building* curBuilding, Tile* curTile)
 {
-    // We do not display ground tile if not required
-    if(!curBuilding->shouldDisplayMeshOnGround())
-        return;
+    if (curBuilding->shouldDisplayBuildingTile())
+    {
+        std::stringstream tempSS;
+        tempSS << curBuilding->getOgreNamePrefix() << curBuilding->getNameTile(curTile);
+        // Create the room ground tile
 
-    std::stringstream tempSS;
-    tempSS << curBuilding->getOgreNamePrefix() << curBuilding->getNameTile(curTile);
-    // Create the room ground tile
+        Ogre::Entity* ent = mSceneManager->createEntity(tempSS.str(), curBuilding->getMeshName() + ".mesh");
+        Ogre::SceneNode* node = mRoomSceneNode->createChildSceneNode(tempSS.str() + "_node");
 
-    Ogre::Entity* ent = mSceneManager->createEntity(tempSS.str(), curBuilding->getMeshName() + ".mesh");
-    Ogre::SceneNode* node = mRoomSceneNode->createChildSceneNode(tempSS.str() + "_node");
+        node->setPosition(static_cast<Ogre::Real>(curTile->x),
+                        static_cast<Ogre::Real>(curTile->y),
+                        static_cast<Ogre::Real>(0.0f));
+        node->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,
+                                    BLENDER_UNITS_PER_OGRE_UNIT,
+                                    BLENDER_UNITS_PER_OGRE_UNIT));
+        node->attachObject(ent);
+    }
 
-    node->setPosition(static_cast<Ogre::Real>(curTile->x),
-                       static_cast<Ogre::Real>(curTile->y),
-                       static_cast<Ogre::Real>(0.0f));
-    node->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,
-                                 BLENDER_UNITS_PER_OGRE_UNIT,
-                                 BLENDER_UNITS_PER_OGRE_UNIT));
-    node->attachObject(ent);
-
-    // Hide the tile being under
     Ogre::Entity* tileEnt = mSceneManager->getEntity(curTile->getOgreNamePrefix() + curTile->getName());
-    tileEnt->setVisible(false);
+    tileEnt->setVisible(curBuilding->shouldDisplayGroundTile());
 }
 
 void RenderManager::rrDestroyBuilding(Building* curBuilding, Tile* curTile)
@@ -743,8 +745,23 @@ void RenderManager::rrSetObjectAnimationState(MovableGameEntity* curAnimatedObje
                                      curAnimatedObject->getOgreNamePrefix()
                                      + curAnimatedObject->getName());
 
-    if (objectEntity->hasSkeleton()
-            && objectEntity->getSkeleton()->hasAnimation(animation))
+    // Can't animate entities without skeleton
+    if (!objectEntity->hasSkeleton())
+        return;
+
+    std::string anim = animation;
+
+    // Handle the case where this entity does not have the requested animation.
+    if (!objectEntity->getSkeleton()->hasAnimation(anim))
+    {
+        // Try to change the unexisting animation to a close existing one.
+        if (anim == "Flee")
+            anim = "Walk";
+        else
+            anim = "Idle";
+    }
+
+    if (objectEntity->getSkeleton()->hasAnimation(anim))
     {
         // Disable the animation for all of the animations on this entity.
         Ogre::AnimationStateIterator animationStateIterator(
@@ -756,13 +773,11 @@ void RenderManager::rrSetObjectAnimationState(MovableGameEntity* curAnimatedObje
 
         // Enable the animation specified in the RenderRequest object.
         // FIXME:, make a function rather than using a public var
-        curAnimatedObject->mAnimationState = objectEntity->getAnimationState(
-                                                animation);
+        curAnimatedObject->mAnimationState = objectEntity->getAnimationState(anim);
         curAnimatedObject->mAnimationState->setTimePosition(0);
         curAnimatedObject->mAnimationState->setLoop(loop);
         curAnimatedObject->mAnimationState->setEnabled(true);
     }
-    //TODO:  Handle the case where this entity does not have the requested animation.
 }
 void RenderManager::rrMoveSceneNode(const std::string& sceneNodeName, const Ogre::Vector3& position)
 {
