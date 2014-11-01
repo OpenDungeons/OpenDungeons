@@ -255,6 +255,11 @@ set(OD_SOURCEFILES
     ${SRC}/sound/MusicPlayer.cpp
     ${SRC}/sound/SoundEffectsManager.cpp
 
+    ${SRC}/spawnconditions/SpawnCondition.cpp
+    ${SRC}/spawnconditions/SpawnConditionCreature.cpp
+    ${SRC}/spawnconditions/SpawnConditionGold.cpp
+    ${SRC}/spawnconditions/SpawnConditionRoom.cpp
+
     ${SRC}/traps/ProximityTrap.cpp
     ${SRC}/traps/Trap.cpp
     ${SRC}/traps/TrapBoulder.cpp

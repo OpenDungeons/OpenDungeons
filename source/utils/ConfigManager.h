@@ -23,6 +23,7 @@
 
 class CreatureDefinition;
 class Weapon;
+class SpawnCondition;
 
 //! \brief This class is used to manage global configuration such as network configuration, global creature stats, ...
 //! It should NOT be used to load level specific stuff. For that, there if GameMap.
@@ -44,6 +45,11 @@ public:
     uint32_t getNetworkPort() const
     { return mNetworkPort; }
 
+    uint32_t getBaseSpawnPoint() const
+    { return mBaseSpawnPoint; }
+
+    const std::vector<const SpawnCondition*>& getCreatureSpawnConditions(const CreatureDefinition* def) const;
+
 private:
     //! \brief Function used to load the global configuration. They should return true if the configuration
     //! is ok and false if a mandatory parameter is missing
@@ -53,13 +59,17 @@ private:
     bool loadGlobalGameConfig(std::stringstream& configFile);
     bool loadCreatureDefinitions(const std::string& fileName);
     bool loadEquipements(const std::string& fileName);
+    bool loadSpawnConditions(const std::string& fileName);
 
     std::map<std::string, Ogre::ColourValue> mSeatColors;
     std::vector<const CreatureDefinition*> mCreatureDefs;
     std::vector<const Weapon*> mWeapons;
     std::string mFilenameCreatureDefinition;
     std::string mFilenameEquipmentDefinition;
+    std::string mFilenameSpawnConditions;
     uint32_t mNetworkPort;
+    uint32_t mBaseSpawnPoint;
+    std::map<const CreatureDefinition*, std::vector<const SpawnCondition*> > mCreatureSpawnConditions;
 };
 
 #endif //CONFIGMANAGER_H

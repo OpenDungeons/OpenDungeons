@@ -15,14 +15,22 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "entities/CreatureDefinition.h"
+
 #include "game/Seat.h"
+#include "gamemap/GameMap.h"
 
 #include "goals/Goal.h"
 #include "network/ODPacket.h"
+
+#include "spawnconditions/SpawnCondition.h"
+
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
+#include "utils/LogManager.h"
+#include "utils/Random.h"
 
-Seat::Seat() :
+Seat::Seat(GameMap* gameMap) :
     mTeamId(0),
     mStartingX(0),
     mStartingY(0),
@@ -31,6 +39,7 @@ Seat::Seat() :
     mHp(1000),
     mGoldMined(0),
     mNumCreaturesControlled(0),
+    mGameMap(gameMap),
     mNumClaimedTiles(0),
     mHasGoalsChanged(true),
     mGold(0),
@@ -259,6 +268,77 @@ bool Seat::canTrapBeDestroyedBy(Seat* seat)
     return false;
 }
 
+void Seat::addSpawnableCreature(const std::string& creature_name)
+{
+    const CreatureDefinition* def = ConfigManager::getSingleton().getCreatureDefinition(creature_name);
+    OD_ASSERT_TRUE_MSG(def != nullptr, "creature_name=" + creature_name);
+    if(def == nullptr)
+        return;
+    mSpawnPool.push_back(std::pair<const CreatureDefinition*, bool>(def, false));
+}
+
+
+void Seat::writeSpawnPool(std::ofstream& file) const
+{
+    for(std::pair<const CreatureDefinition*, bool> def : mSpawnPool)
+    {
+        file << def.first->getClassName() << std::endl;
+    }
+}
+
+const CreatureDefinition* Seat::getNextCreatureClassToSpawn()
+{
+    std::vector<std::pair<const CreatureDefinition*, int32_t> > defSpawnable;
+    int32_t nbPointsTotal = 0;
+    for(std::pair<const CreatureDefinition*, bool>& def : mSpawnPool)
+    {
+        const std::vector<const SpawnCondition*>& conditions = ConfigManager::getSingleton().getCreatureSpawnConditions(def.first);
+        int32_t nbPointsConditions = 0;
+        for(const SpawnCondition* condition : conditions)
+        {
+            int32_t nbPointsCondition = 0;
+            if(!condition->computePointsForSeat(mGameMap, this, nbPointsCondition))
+            {
+                nbPointsConditions = -1;
+                break;
+            }
+            nbPointsConditions += nbPointsCondition;
+        }
+
+        // Check if the creature can spawn. nbPointsConditions < 0 can happen if a condition is not met or if there are too many
+        // negative points. In both cases, we don't want the creature to spawn
+        if(nbPointsConditions < 0)
+            continue;
+
+        // Check if it is the first time this conditions have been fullfilled. If yes, we force this creature to spawn
+        if(!def.second && !conditions.empty())
+        {
+            def.second = true;
+            return def.first;
+        }
+        nbPointsConditions += ConfigManager::getSingleton().getBaseSpawnPoint();
+        defSpawnable.push_back(std::pair<const CreatureDefinition*, int32_t>(def.first, nbPointsConditions));
+        nbPointsTotal += nbPointsConditions;
+    }
+
+    if(defSpawnable.empty())
+        return nullptr;
+
+    // We choose randomly a creature to spawn according to there points
+    int32_t cpt = Random::Int(0, nbPointsTotal);
+    for(std::pair<const CreatureDefinition*, int32_t>& def : defSpawnable)
+    {
+        if(cpt < def.second)
+            return def.first;
+
+        cpt -= def.second;
+    }
+
+    // It is not normal to come here
+    OD_ASSERT_TRUE(false);
+    return nullptr;
+}
+
 std::string Seat::getFormat()
 {
     return "seatId\tteamId\tfaction\tstartingX\tstartingY\tcolor\tstartingGold";
@@ -284,6 +364,16 @@ ODPacket& operator>>(ODPacket& is, Seat *s)
     s->mColorValue = ConfigManager::getSingleton().getColorFromId(s->mColorId);
 
     return is;
+}
+
+const std::string Seat::getFactionFromLine(const std::string& line)
+{
+    std::vector<std::string> elems = Helper::split(line, '\t');
+    OD_ASSERT_TRUE_MSG(elems.size() > 2, "line=" + line);
+    if(elems.size() > 2)
+        return elems[2];
+
+    return std::string();
 }
 
 void Seat::loadFromLine(const std::string& line, Seat *s)

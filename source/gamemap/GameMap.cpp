@@ -496,11 +496,10 @@ std::vector<Creature*> GameMap::getCreaturesBySeat(Seat* seat)
     std::vector<Creature*> tempVector;
 
     // Loop over all the creatures in the GameMap and add them to the temp vector if their seat matches the one in parameter.
-    for (unsigned int i = 0; i < creatures.size(); ++i)
+    for (Creature* creature : creatures)
     {
-        Creature* creature = creatures[i];
         if (creature->getSeat() == seat && creature->getHP() > 0.0)
-            tempVector.push_back(creatures[i]);
+            tempVector.push_back(creature);
     }
 
     return tempVector;

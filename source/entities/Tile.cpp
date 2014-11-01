@@ -1198,6 +1198,9 @@ bool Tile::isClaimedForSeat(Seat* seat) const
     if(tileSeat == NULL)
         return false;
 
+    if(mClaimedPercentage < 1.0)
+        return false;
+
     if(tileSeat->canOwnedTileBeClaimedBy(seat))
         return false;
 

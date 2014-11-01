@@ -117,16 +117,8 @@ void RoomPortal::doUpkeep()
     // Randomly choose to spawn a creature.
     const double maxCreatures = 15;
     //TODO:  Improve this probability calculation.
-    // Count how many creatures are controlled by this seat, count both the ones on
-    // the gameMap and in other players hand (in editor mode, for example, creatures can be
-    // picked up by other players)
+    // Count how many creatures are controlled by this seat
     double numCreatures = getGameMap()->getCreaturesBySeat(getSeat()).size();
-    for(unsigned int i = 0, numPlayers = getGameMap()->numPlayers(); i < numPlayers; ++i)
-    {
-        Player *tempPlayer = getGameMap()->getPlayer(i);
-        numCreatures += tempPlayer->numCreaturesInHand(getSeat());
-    }
-
     double targetProbability = powl((maxCreatures - numCreatures) / maxCreatures, 1.5);
     if (Random::Double(0.0, 1.0) <= targetProbability)
         spawnCreature();
@@ -144,22 +136,11 @@ void RoomPortal::spawnCreature()
     if (mCoveredTiles.empty())
         return;
 
+    // We check if a creature can spawn
     Seat* seat = getSeat();
-    const std::vector<std::string> spawnPool = seat->getSpawnPool();
-    if (spawnPool.empty())
+    const CreatureDefinition* classToSpawn = seat->getNextCreatureClassToSpawn();
+    if (classToSpawn == nullptr)
         return;
-
-    double randomValue = Random::Int(0, spawnPool.size() - 1);
-    std::string creatureClassName = spawnPool.at(randomValue);
-
-    //TODO: Later check conditions before spawning a creature
-    const CreatureDefinition* classToSpawn = getGameMap()->getClassDescription(creatureClassName);
-    if (classToSpawn == NULL)
-    {
-        std::cout << "Warning: Invalid class name in spawn pool: " << creatureClassName
-            << ", for seat id=" << getSeat()->getId() << std::endl;
-        return;
-    }
 
     // Create a new creature and copy over the class-based creature parameters.
     Creature *newCreature = new Creature(getGameMap(), classToSpawn);
