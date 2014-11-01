@@ -69,9 +69,6 @@ ASWrapper::ASWrapper() :
     //bind all objects, functions, etc to AngelScript
     registerEverything();
 
-    //save the string[] type because it's often used for console interaction
-    mStringArray = mEngine->GetObjectTypeById(mEngine->GetTypeIdByDecl("string[]"));
-
     //load all .as files from /scripts folder using the ScriptBuilder addond so we can access them
     mBuilder->StartNewModule(mEngine, "asModule");
     const std::string& scriptpath = ResourceManager::getSingleton().getScriptPath();
@@ -88,6 +85,9 @@ ASWrapper::ASWrapper() :
 
     //Compile AS code, syntax errors will be printed to our Console
     mBuilder->BuildModule();
+
+    //save the string[] type because it's often used for console interaction
+    mStringArray = mEngine->GetObjectTypeById(mEngine->GetTypeIdByDecl("string[]"));
 }
 
 //! \brief closes AngelScript
