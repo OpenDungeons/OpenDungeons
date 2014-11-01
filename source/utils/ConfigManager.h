@@ -21,6 +21,8 @@
 #include <OgreSingleton.h>
 #include <OgreColourValue.h>
 
+#include <cstdint>
+
 class CreatureDefinition;
 class Weapon;
 class SpawnCondition;

@@ -24,7 +24,10 @@
 #include "network/ServerNotification.h"
 #include "render/RenderRequest.h"
 #include "render/RenderManager.h"
+
+#include "utils/Helper.h"
 #include "utils/LogManager.h"
+
 #include "ODApplication.h"
 
 MovableGameEntity::MovableGameEntity(GameMap* gameMap) :
@@ -276,6 +279,6 @@ Tile* MovableGameEntity::getPositionTile() const
 {
     Ogre::Vector3 tempPosition = getPosition();
 
-    return getGameMap()->getTile(static_cast<int>(std::round(tempPosition.x)),
-                                 static_cast<int>(std::round(tempPosition.y)));
+    return getGameMap()->getTile(Helper::round(tempPosition.x),
+                                 Helper::round(tempPosition.y));
 }

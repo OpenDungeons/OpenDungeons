@@ -27,6 +27,7 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <cstdint>
 
 //! \brief Math constant pi. Always use this one, never M_PI from <cmath> (it's not portable)
 const double PI = 3.141592653589793238462643;

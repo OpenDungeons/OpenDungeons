@@ -84,11 +84,11 @@ public:
     inline void setChatMaxMessages(unsigned int nM)
     { mChatMaxMessages = nM; }
 
-    inline unsigned int getChatMaxTimeDisplay() const
+    inline float getChatMaxTimeDisplay() const
     { return mChatMaxTimeDisplay; }
 
-    inline void setChatMaxTimeDisplay(unsigned int nT)
-    { mChatMaxTimeDisplay = nT; }
+    inline void setChatMaxTimeDisplay(float chatMaxTimeDisplay)
+    { mChatMaxTimeDisplay = chatMaxTimeDisplay; }
 
     //! \brief Toggle the display of debug info (default key used to do that: F11)
     void toggleDebugInfo()
