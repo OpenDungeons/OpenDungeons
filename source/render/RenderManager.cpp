@@ -224,7 +224,7 @@ void RenderManager::rrRefreshTile(Tile* curTile)
 
     // Test whether the tile should be shown
     if (curTile->getCoveringRoom() != nullptr)
-        ent->setVisible(false);
+        ent->setVisible(curTile->getCoveringRoom()->shouldDisplayGroundTile());
     else if (curTile->getCoveringTrap() != nullptr)
         ent->setVisible(curTile->getCoveringTrap()->shouldDisplayGroundTile());
     else
@@ -293,7 +293,7 @@ void RenderManager::rrCreateTile(Tile* curTile)
 
     // Test whether the tile should be shown
     if (curTile->getCoveringRoom() != nullptr)
-        ent->setVisible(false);
+        ent->setVisible(curTile->getCoveringRoom()->shouldDisplayGroundTile());
     else if (curTile->getCoveringTrap() != nullptr)
         ent->setVisible(curTile->getCoveringTrap()->shouldDisplayGroundTile());
     else
