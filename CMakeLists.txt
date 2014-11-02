@@ -321,9 +321,9 @@ if(WIN32 AND ${OGRE_FOUND})
     endif()
 endif()
 
-if(MINGW)
+if(MINGW OR UNIX)
     # We need to specify the compiler here that Ogre used to compile boost
-    find_package(Boost COMPONENTS thread system filesystem locale REQUIRED)
+    find_package(Boost COMPONENTS system filesystem locale REQUIRED)
 endif()
 
 #OpenAL
@@ -334,11 +334,6 @@ if(WIN32 AND ${SFML_FOUND})
 endif()
 
 find_package(OpenAL REQUIRED)
-
-if(UNIX)
-    find_package(Threads REQUIRED)
-    find_package(Boost COMPONENTS thread system filesystem locale REQUIRED)
-endif()
 
 ##################################
 #### Headers and linking #########
@@ -381,10 +376,6 @@ if(WIN32)
         include_directories(${OD_BOOST_INCLUDE_DIRS})
         link_directories(${OD_BOOST_LIB_DIRS})
     endif()
-
-    #Pthreads on windows
-    include_directories(${DEPENDENCIES_DIR}/pthreads/include/)
-    link_directories(${DEPENDENCIES_DIR}/pthreads/lib/)
 endif()
 
 ##################################
@@ -440,7 +431,7 @@ target_link_libraries(
     debug ${SFML_NETWORK_LIBRARY_DEBUG}
 )
 
-# Link pthreads. (And also userenv if we are on windows.)
+# Set compiler options on windows, and link to windows-specific libs
 if(WIN32)
     if(MSVC_IDE)
         #Set some extra compiler flags
@@ -452,27 +443,23 @@ if(WIN32)
         set( CMAKE_CXX_FLAGS_RELEASE "${PLATFORM_C_FLAGS}" )
         set( CMAKE_CXX_FLAGS_DEBUG "${PLATFORM_C_FLAGS_DEBUG}" )
 
-        #Link to pthreads
+        #TODO: Do we still need to link with winsock?
+        #Link to winsock
         target_link_libraries(
             ${PROJECT_BINARY_NAME}
 
-            "pthreadVC2.lib"
             "ws2_32.lib"
             Userenv
         )
-        message( STATUS "Using win pthreads" )
     elseif(MINGW)
         target_link_libraries(
             ${PROJECT_BINARY_NAME}
 
-            "libpthreadGC2.a"
             "ws2_32"
             Userenv
         )
 
     endif()
-else()
-    target_link_libraries (${PROJECT_BINARY_NAME} ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
 # We need to force output because of the boost lib used, defining two times the

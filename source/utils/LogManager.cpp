@@ -21,7 +21,7 @@
 
 #include <OgreLogManager.h>
 
-#include "boost/date_time/posix_time/posix_time.hpp"
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 template<> LogManager* Ogre::Singleton<LogManager>::msSingleton = 0;
 
@@ -36,7 +36,6 @@ LogManager::LogManager()
      */
     mGameLog = Ogre::LogManager::getSingleton().createLog(
         ResourceManager::getSingleton().getUserDataPath() + GAMELOG_NAME);
-    sem_init(&logLockSemaphore, 0, 1);
 #else
     mGameLog = Ogre::LogManager::getSingleton().getDefaultLog();
 #endif
@@ -46,7 +45,7 @@ void LogManager::logMessage(const std::string& message, Ogre::LogMessageLevel lm
                             bool maskDebug, bool addTimeStamp)
 {
 #ifdef LOGMANAGER_USE_LOCKS
-    sem_wait(&logLockSemaphore);
+    std::lock_guard<std::mutex> lock(mLogLockMutex);
 #endif
     if(addTimeStamp)
     {
@@ -62,31 +61,26 @@ void LogManager::logMessage(const std::string& message, Ogre::LogMessageLevel lm
     {
         mGameLog->logMessage(message, lml, maskDebug);
     }
-#ifdef LOGMANAGER_USE_LOCKS
-    sem_post(&logLockSemaphore);
-#endif
 }
 
 void LogManager::setLogDetail(Ogre::LoggingLevel ll)
 {
 #ifdef LOGMANAGER_USE_LOCKS
-    sem_wait(&logLockSemaphore);
+    std::lock_guard<std::mutex> lock(mLogLockMutex);
 #endif
     mGameLog->setLogDetail(ll);
-#ifdef LOGMANAGER_USE_LOCKS
-    sem_post(&logLockSemaphore);
-#endif
 }
 
 Ogre::LoggingLevel LogManager::getLogDetail()
 {
     Ogre::LoggingLevel ret;
 #ifdef LOGMANAGER_USE_LOCKS
-    sem_wait(&logLockSemaphore);
+    {
+        std::lock_guard<std::mutex> lock(mLogLockMutex);
 #endif
-    ret = mGameLog->getLogDetail();
+        ret = mGameLog->getLogDetail();
 #ifdef LOGMANAGER_USE_LOCKS
-    sem_post(&logLockSemaphore);
+    }
 #endif
     return ret;
 }

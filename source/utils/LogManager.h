@@ -30,7 +30,7 @@
 #endif
 
 #ifdef LOGMANAGER_USE_LOCKS
-#include <semaphore.h>
+#include <mutex>
 #endif
 
 #define OD_STRING_S(x) #x
@@ -66,7 +66,7 @@ public:
 private:
     Ogre::Log* mGameLog;
 #ifdef LOGMANAGER_USE_LOCKS
-    sem_t logLockSemaphore;
+    std::mutex mLogLockMutex;
 #endif
 };
 
