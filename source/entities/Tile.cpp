@@ -701,19 +701,31 @@ int Tile::nextTileFullness(int f)
     }
 }
 
+//TODO: Turn this whole hardcoded thing into a static tileset configuration file.
 std::string Tile::meshNameFromNeighbors(TileType myType, int fullnessMeshNumber,
                                         const TileType* neighbors, const bool* neighborsFullness, int& rt)
 {
+    // neighbors and neighborFullness arrays are filled this way:
+    // x = given tile
+    // Number = array index
+    // -------------
+    // | 1 | 2 | 3 |
+    // -------------
+    // | 0 | x | 4 |
+    // -------------
+    // | 7 | 6 | 5 |
+    // -------------
+
     std::stringstream ss;
     //FIXME - define postfix somewhere
     int postfixInt = 0;
     unsigned char shiftedAroundBits;
 
     // get the integer from neighbors[], using it as a number coded in binary base
-    for(int ii = 8; ii >=1; ii--)
+    for(int ii = 8; ii >=1; --ii)
     {
         postfixInt *=2;
-        postfixInt += ((neighbors[(ii)%8] == myType &&  (!(myType!=water && myType!=lava)  || neighborsFullness[(ii)%8]  )) // || (!(myType!=water && myType!=lava) ||  fullnessMeshNumber > 0   )
+        postfixInt += ((neighbors[(ii)%8] == myType &&  (!(myType!=water && myType!=lava)  || neighborsFullness[(ii)%8]  ))
                       );
     }
 
@@ -754,7 +766,7 @@ std::string Tile::meshNameFromNeighbors(TileType myType, int fullnessMeshNumber,
     // rotate the postfix number, as long , as we won't find Exisitng mesh
 
     // cerr <<  ss.str() << endl ;
-    for(rt = 0; !Ogre::ResourceGroupManager::getSingletonPtr()->resourceExists("Graphics", ss.str()) && rt < 4; rt++)
+    for(rt = 0; !Ogre::ResourceGroupManager::getSingletonPtr()->resourceExists("Graphics", ss.str()) && rt < 4; ++rt)
     {
         shiftedAroundBits = postfixInt &  0xC0;
         postfixInt <<= 2;
@@ -771,7 +783,6 @@ std::string Tile::meshNameFromNeighbors(TileType myType, int fullnessMeshNumber,
         // cerr <<  ss.str()<< endl ;
     }
 
-    //DEBUG find the name of the missing mesh
     // Bad hack to workaround a bug with the file Dirt_10001111.mesh
     // Since the corresponding file used must be turned by 180°, this ugly hack handles the rotation
     // manually.
@@ -783,14 +794,38 @@ std::string Tile::meshNameFromNeighbors(TileType myType, int fullnessMeshNumber,
             rt = 2;
     }
 
-    return ss.str();
-}
+    // Second bad hack to workaround a bug with the Dirt tiles next to other tiles on the right
+    // Since the corresponding file used must be turned by 180°, this ugly hack handles the rotation
+    // manually.
+    if (neighbors[2] == myType && neighbors[6] == myType && neighbors[4] == myType
+        && (neighbors[0] != myType || !neighborsFullness[0])
+        && neighborsFullness[2] && neighborsFullness[6] && neighborsFullness[4])
+    {
+        if (fullnessMeshNumber > 0 && (myType == Tile::dirt || myType == Tile::gold || myType == Tile::rock))
+        {
+            ss.str("");
+            ss.clear();
+            ss << "Dirt_10001111.mesh";
+            rt = 3;
+        }
+    }
 
-std::string Tile::meshNameFromFullness(TileType t, int fullnessMeshNumber)
-{
-    std::stringstream ss;
-    //FIXME - define postfix somewhere
-    ss << tileTypeToString(t) << "_" << (fullnessMeshNumber > 0 ?  "11111111" : "00000000" ) << ".mesh";
+    // Third bad hack to workaround a bug with the Dirt tiles next to other tiles on the left
+    // Since the corresponding file used must be turned by 180°, this ugly hack handles the rotation
+    // manually.
+    if (neighbors[2] == myType && neighbors[0] == myType && neighbors[6] == myType
+        && (neighbors[4] != myType || !neighborsFullness[4])
+        && neighborsFullness[2] && neighborsFullness[0] && neighborsFullness[6])
+    {
+        if (fullnessMeshNumber > 0 && (myType == Tile::dirt || myType == Tile::gold || myType == Tile::rock))
+        {
+            ss.str("");
+            ss.clear();
+            ss << "Dirt_10001111.mesh";
+            rt = 1;
+        }
+    }
+
     return ss.str();
 }
 

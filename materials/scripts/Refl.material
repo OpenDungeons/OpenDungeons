@@ -6,7 +6,7 @@ material Refl
         {
             ambient 0.0 0.0 0.0
             diffuse 1.0 1.0 1.0
-            specular 0.2 0.2 0.2 9800.0
+            specular 0.2 0.2 0.2 1.0 98.0
             emissive 0.0 0.0 0.0 1
             texture_unit
             {

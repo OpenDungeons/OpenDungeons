@@ -37,9 +37,16 @@ public:
         return false;
     }
 
-    virtual bool shouldDisplayMeshOnGround()
+    //! \brief There is no building tile for this trap.
+    virtual bool shouldDisplayBuildingTile()
     {
         return false;
+    }
+
+    //! \brief The boulder trap should let the ground tile visible.
+    virtual bool shouldDisplayGroundTile()
+    {
+        return true;
     }
 
     virtual RenderedMovableEntity* notifyActiveSpotCreated(Tile* tile);

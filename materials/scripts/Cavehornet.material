@@ -1,8 +1,8 @@
 // Cavehornet genrated by blender2ogre 0.6.0
 
-material Cavehornet 
+material Cavehornet
 {
-    receive_shadows on 
+    receive_shadows on
 
     technique
     {
@@ -19,23 +19,26 @@ material Cavehornet
             depth_check on
             depth_func less_equal
             depth_write on
-            illumination_stage 
+            illumination_stage
             light_clip_planes off
             light_scissor off
             lighting on
             normalise_normals off
             polygon_mode solid
-            scene_blend one zero
-            scene_blend_op add
             shading gouraud
             transparent_sorting on
 
-            texture_unit 
+            // We use blending, so that we can see the underlying texture.
+            scene_blend alpha_blend
+            lighting off
+
+            texture_unit
             {
                 texture Cavehornet_col.png
                 tex_address_mode wrap
                 scale 1.0 1.0
-                colour_op alpha_blend
+                // We're using a half transparent blending
+                alpha_op_ex source1 src_manual src_texture 0.5
             }
         }
     }

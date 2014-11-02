@@ -34,10 +34,19 @@ public:
     { return TrapType::cannon; }
 
     virtual bool shoot(Tile* tile);
-    virtual bool shouldDisplayMeshOnGround()
+
+    //! \brief There is no building tile for this trap.
+    virtual bool shouldDisplayBuildingTile()
     {
         return false;
     }
+
+    //! \brief The cannon should show the ground tile under.
+    virtual bool shouldDisplayGroundTile()
+    {
+        return true;
+    }
+
     virtual RenderedMovableEntity* notifyActiveSpotCreated(Tile* tile);
 };
 

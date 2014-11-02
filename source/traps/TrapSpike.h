@@ -37,9 +37,17 @@ public:
         return false;
     }
 
-    virtual bool shouldDisplayMeshOnGround()
+    //! \brief There is no building tile for this trap
+    virtual bool shouldDisplayBuildingTile()
     {
         return false;
+    }
+
+    //! \brief The trap object covers the whole tile under
+    //! but while it built, the ground tile still must be shown.
+    virtual bool shouldDisplayGroundTile()
+    {
+        return true;
     }
 
     virtual RenderedMovableEntity* notifyActiveSpotCreated(Tile* tile);
