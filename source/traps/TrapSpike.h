@@ -44,10 +44,10 @@ public:
     }
 
     //! \brief The trap object covers the whole tile under
-    //! so there is no need to show it.
+    //! but while it built, the ground tile still must be shown.
     virtual bool shouldDisplayGroundTile()
     {
-        return false;
+        return true;
     }
 
     virtual RenderedMovableEntity* notifyActiveSpotCreated(Tile* tile);
