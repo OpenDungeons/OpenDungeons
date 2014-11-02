@@ -3150,8 +3150,8 @@ bool Creature::fightClosestObjectInList(const std::vector<GameEntity*>& listObje
         if(!attackedCreature->mWalkQueue.empty())
         {
             Ogre::Vector3 attackedCreatureDest = attackedCreature->mWalkQueue.front();
-            int x = static_cast<int>(std::round(attackedCreatureDest.x));
-            int y = static_cast<int>(std::round(attackedCreatureDest.y));
+            int x = Helper::round(attackedCreatureDest.x);
+            int y = Helper::round(attackedCreatureDest.y);
             Tile* tileAttackedCreatureDest = getGameMap()->getTile(x, y);
             Tile* tileDest = tempPath.back();
             if(tileAttackedCreatureDest == tileDest)

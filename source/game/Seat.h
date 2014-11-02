@@ -27,6 +27,8 @@
 
 class Goal;
 class ODPacket;
+class GameMap;
+class CreatureDefinition;
 
 class Seat
 {
@@ -34,7 +36,7 @@ public:
     friend class GameMap;
     friend class ODClient;
     // Constructors
-    Seat();
+    Seat(GameMap* gameMap);
 
     //! \brief Adds a goal to the vector of goals which must be completed by this seat before it can be declared a winner.
     void addGoal(Goal* g);
@@ -122,11 +124,11 @@ public:
     void resetSpawnPool()
     { mSpawnPool.clear(); }
 
-    void addSpawnableCreature(const std::string& creature_name)
-    { mSpawnPool.push_back(creature_name); }
+    void addSpawnableCreature(const std::string& creature_name);
 
-    const std::vector<std::string>& getSpawnPool() const
-    { return mSpawnPool; }
+    void writeSpawnPool(std::ofstream& file) const;
+
+    const CreatureDefinition* getNextCreatureClassToSpawn();
 
     //! \brief Returns true if the given seat is allied. False otherwise
     bool isAlliedSeat(Seat *seat);
@@ -174,9 +176,13 @@ public:
     friend std::istream& operator>>(std::istream& is, Seat *s);
 
     static void loadFromLine(const std::string& line, Seat *s);
+    static const std::string getFactionFromLine(const std::string& line);
 
 private:
     void goalsHasChanged();
+
+    //! \brief The game map this seat belongs to
+    GameMap* mGameMap;
 
     //! \brief The actual color that this color index translates into.
     std::string mColorId;
@@ -191,8 +197,10 @@ private:
     //! \brief Currently failed goals which cannot possibly be met in the future.
     std::vector<Goal*> mFailedGoals;
 
-    //! \brief The creatures the current seat is allowed to spawn (when following the conditions)
-    std::vector<std::string> mSpawnPool;
+    //! \brief The creatures the current seat is allowed to spawn (when following the conditions). CreatureDefinition
+    //! are managed by the configuration manager and should NOT be deleted. The boolean will be set to false at beginning
+    //! if the spawning conditions are not empty and are met, we will set it to true and force spawning of the related creature
+    std::vector<std::pair<const CreatureDefinition*, bool> > mSpawnPool;
 
     //! \brief How many tiles have been claimed by this seat, updated in GameMap::doTurn().
     unsigned int mNumClaimedTiles;

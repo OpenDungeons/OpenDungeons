@@ -486,7 +486,7 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotification::refreshPlayerSeat:
         {
-            Seat tmpSeat;
+            Seat tmpSeat(gameMap);
             std::string goalsString;
             OD_ASSERT_TRUE(packetReceived >> &tmpSeat >> goalsString);
             getPlayer()->getSeat()->refreshFromSeat(&tmpSeat);

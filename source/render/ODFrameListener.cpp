@@ -72,7 +72,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::Overlay
     mTerminalActive(false),
     mTerminalWordWrap(78),
     mChatMaxMessages(10),
-    mChatMaxTimeDisplay(20),
+    mChatMaxTimeDisplay(20.0f),
     mRaySceneQuery(NULL),
     mGameMap(NULL),
     mMiniMap(NULL),

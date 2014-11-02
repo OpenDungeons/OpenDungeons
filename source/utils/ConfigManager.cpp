@@ -18,6 +18,8 @@
 #include "entities/CreatureDefinition.h"
 #include "entities/Weapon.h"
 
+#include "spawnconditions/SpawnCondition.h"
+
 #include "utils/ConfigManager.h"
 #include "utils/ResourceManager.h"
 #include "utils/Helper.h"
@@ -26,7 +28,8 @@
 template<> ConfigManager* Ogre::Singleton<ConfigManager>::msSingleton = 0;
 
 ConfigManager::ConfigManager() :
-    mNetworkPort(0)
+    mNetworkPort(0),
+    mBaseSpawnPoint(10)
 {
     if(!loadGlobalConfig())
     {
@@ -41,6 +44,12 @@ ConfigManager::ConfigManager() :
     }
     fileName = ResourceManager::getSingleton().getConfigPath() + mFilenameEquipmentDefinition;
     if(!loadEquipements(fileName))
+    {
+        OD_ASSERT_TRUE(false);
+        exit(1);
+    }
+    fileName = ResourceManager::getSingleton().getConfigPath() + mFilenameSpawnConditions;
+    if(!loadSpawnConditions(fileName))
     {
         OD_ASSERT_TRUE(false);
         exit(1);
@@ -177,9 +186,14 @@ bool ConfigManager::loadGlobalConfigDefinitionFiles(std::stringstream& configFil
             mFilenameEquipmentDefinition = fileName;
             filesOk |= 2;
         }
+        else if(type == "SpawnConditions")
+        {
+            mFilenameSpawnConditions = fileName;
+            filesOk |= 4;
+        }
     }
 
-    if(filesOk != 0x03)
+    if(filesOk != 0x07)
     {
         OD_ASSERT_TRUE_MSG(false, "Missing parameter file filesOk=" + Ogre::StringConverter::toString(filesOk));
         return false;
@@ -361,7 +375,7 @@ bool ConfigManager::loadCreatureDefinitions(const std::string& fileName)
 
 bool ConfigManager::loadEquipements(const std::string& fileName)
 {
-    LogManager::getSingleton().logMessage("Load creature definition file: " + fileName);
+    LogManager::getSingleton().logMessage("Load weapon definition file: " + fileName);
     std::stringstream defFile;
     if(!Helper::readFileWithoutComments(fileName, defFile))
     {
@@ -374,7 +388,7 @@ bool ConfigManager::loadEquipements(const std::string& fileName)
     defFile >> nextParam;
     if (nextParam != "[EquipmentDefinitions]")
     {
-        OD_ASSERT_TRUE_MSG(false, "Invalid Creature classes start format. Line was " + nextParam);
+        OD_ASSERT_TRUE_MSG(false, "Invalid weapon start format. Line was " + nextParam);
         return false;
     }
 
@@ -408,6 +422,93 @@ bool ConfigManager::loadEquipements(const std::string& fileName)
     return true;
 }
 
+bool ConfigManager::loadSpawnConditions(const std::string& fileName)
+{
+    LogManager::getSingleton().logMessage("Load creature spawn conditions file: " + fileName);
+    std::stringstream defFile;
+    if(!Helper::readFileWithoutComments(fileName, defFile))
+    {
+        OD_ASSERT_TRUE_MSG(false, "Couldn't read " + fileName);
+        return false;
+    }
+
+    std::string nextParam;
+    // Read in the creature class descriptions
+    defFile >> nextParam;
+    if (nextParam != "[SpawnConditions]")
+    {
+        OD_ASSERT_TRUE_MSG(false, "Invalid creature spawn condition start format. Line was " + nextParam);
+        return false;
+    }
+
+    bool exit = false;
+    while(defFile.good() && !exit)
+    {
+        if(!(defFile >> nextParam))
+            break;
+
+        if (nextParam == "[/SpawnConditions]")
+            break;
+
+        if (nextParam == "[/SpawnCondition]")
+            continue;
+
+        if (nextParam == "BaseSpawnPoint")
+        {
+            defFile >> nextParam;
+            mBaseSpawnPoint = Helper::toUInt32(nextParam);
+            continue;
+        }
+
+        if (nextParam != "[SpawnCondition]")
+        {
+            OD_ASSERT_TRUE_MSG(false, "Invalid creature spawn condition format. Line was " + nextParam);
+            return false;
+        }
+
+        if(!(defFile >> nextParam))
+                break;
+        if (nextParam != "CreatureClass")
+        {
+            OD_ASSERT_TRUE_MSG(false, "Invalid creature spawn condition format. Line was " + nextParam);
+            return false;
+        }
+        defFile >> nextParam;
+        const CreatureDefinition* creatureDefinition = getCreatureDefinition(nextParam);
+        if(creatureDefinition == nullptr)
+        {
+            OD_ASSERT_TRUE_MSG(false, "nextParam=" + nextParam);
+            return false;
+        }
+
+        while(defFile.good())
+        {
+            if(!(defFile >> nextParam))
+                break;
+
+            if (nextParam == "[/SpawnCondition]")
+                break;
+
+            if (nextParam != "[Condition]")
+            {
+                OD_ASSERT_TRUE_MSG(false, "Invalid creature spawn condition format. nextParam=" + nextParam);
+                return false;
+            }
+
+            // Load the definition
+            SpawnCondition* def = SpawnCondition::load(defFile);
+            if (def == nullptr)
+            {
+                OD_ASSERT_TRUE_MSG(false, "Invalid creature spawn condition format");
+                return false;
+            }
+            mCreatureSpawnConditions[creatureDefinition].push_back(def);
+        }
+    }
+
+    return true;
+}
+
 const CreatureDefinition* ConfigManager::getCreatureDefinition(const std::string& name) const
 {
     for(const CreatureDefinition* def : mCreatureDefs)
@@ -436,4 +537,12 @@ Ogre::ColourValue ConfigManager::getColorFromId(const std::string& id) const
         return mSeatColors.at(id);
 
     return Ogre::ColourValue();
+}
+
+const std::vector<const SpawnCondition*>& ConfigManager::getCreatureSpawnConditions(const CreatureDefinition* def) const
+{
+    if(mCreatureSpawnConditions.count(def) == 0)
+        return SpawnCondition::EMPTY_SPAWNCONDITIONS;
+
+    return mCreatureSpawnConditions.at(def);
 }

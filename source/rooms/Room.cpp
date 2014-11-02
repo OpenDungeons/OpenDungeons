@@ -366,7 +366,7 @@ Room* Room::getRoomFromPacket(GameMap* gameMap, ODPacket& is)
     return tempRoom;
 }
 
-const char* Room::getRoomNameFromRoomType(RoomType t)
+const std::string Room::getRoomNameFromRoomType(RoomType t)
 {
     switch (t)
     {
@@ -400,6 +400,35 @@ const char* Room::getRoomNameFromRoomType(RoomType t)
     default:
         return "UnknownRoomType";
     }
+}
+
+Room::RoomType Room::getRoomTypeFromRoomName(const std::string& name)
+{
+    if(name.compare("DungeonTemple") == 0)
+        return dungeonTemple;
+
+    if(name.compare("Dormitory") == 0)
+        return dormitory;
+
+    if(name.compare("Treasury") == 0)
+        return treasury;
+
+    if(name.compare("Portal") == 0)
+        return portal;
+
+    if(name.compare("Forge") == 0)
+        return forge;
+
+    if(name.compare("TrainingHall") == 0)
+        return trainingHall;
+
+    if(name.compare("Library") == 0)
+        return library;
+
+    if(name.compare("Hatchery") == 0)
+        return hatchery;
+
+    return nullRoomType;
 }
 
 int Room::costPerTile(RoomType t)

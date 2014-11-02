@@ -114,7 +114,7 @@ void RoomTrainingHall::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile
     }
 
     std::vector<Tile*>::iterator itEr = std::find(mUnusedDummies.begin(), mUnusedDummies.end(), tile);
-    OD_ASSERT_TRUE(itEr != mUnusedDummies.end());
+    OD_ASSERT_TRUE_MSG(itEr != mUnusedDummies.end(), "name=" + getName() + ", tile=" + Tile::displayAsString(tile));
     if(itEr != mUnusedDummies.end())
         mUnusedDummies.erase(itEr);
 }

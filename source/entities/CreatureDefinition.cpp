@@ -553,6 +553,7 @@ void CreatureDefinition::writeCreatureDefinitionDiff(const CreatureDefinition* d
 
 void CreatureDefinition::loadXPTable(std::stringstream& defFile, CreatureDefinition* creatureDef)
 {
+    OD_ASSERT_TRUE(creatureDef != nullptr);
     if (creatureDef == nullptr)
         return;
 
