@@ -61,6 +61,9 @@ std::string CreatureAction::toString() const
     case findHome:
         return "findHome";
 
+    case findHomeForced:
+        return "findHomeForced";
+
     case sleep:
         return "sleep";
 
@@ -81,8 +84,7 @@ std::string CreatureAction::toString() const
 
     case idle:
         return "idle";
-
-    default:
-        return "unhandledAct";
     }
+
+    return "unhandledAct";
 }

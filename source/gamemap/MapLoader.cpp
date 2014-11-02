@@ -137,7 +137,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         entire_line += nextParam;
         //std::cout << entire_line << std::endl;
 
-        Seat* tempSeat = new Seat;
+        Seat* tempSeat = new Seat(&gameMap);
         Seat::loadFromLine(entire_line, tempSeat);
 
         gameMap.addEmptySeat(tempSeat);
@@ -619,17 +619,12 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
         if (seatId == 0)
             continue;
 
-        const std::vector<std::string>& spawnPool = seat->getSpawnPool();
-        if (spawnPool.empty())
-            continue;
-
         levelFile << "[Spawn_Pool]" << std::endl
             << "# seat id" << std::endl
             << seatId << std::endl
             << "# Creature list" << std::endl;
 
-        for (unsigned int j = 0; j < spawnPool.size(); ++j)
-            levelFile << spawnPool.at(j) << std::endl;
+        seat->writeSpawnPool(levelFile);
 
         levelFile << "[/Spawn_Pool]" << std::endl << std::endl;
     }
@@ -732,15 +727,11 @@ LevelInfo getMapInfo(const std::string& fileName)
         entire_line += nextParam;
         //std::cout << entire_line << std::endl;
 
-        Seat* seat = new Seat;
-        Seat::loadFromLine(entire_line, seat);
-
-        if (seat->getFaction() == "Player")
+        const std::string faction = Seat::getFactionFromLine(entire_line);
+        if (faction == "Player")
             ++playerSeatNumber;
-        else if (seat->getFaction() == "KeeperAI")
+        else if (faction == "KeeperAI")
             ++AISeatNumber;
-
-        delete seat;
     }
 
     if (playerSeatNumber > 0 || AISeatNumber > 0)

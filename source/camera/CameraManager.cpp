@@ -477,33 +477,51 @@ void CameraManager::move(const Direction direction, double aux)
         break;
 
     case moveUp:
-    case stopDown:
         mZChange += mMoveSpeed;
         break;
 
+    case stopDown:
+        mZChange = 0;
+        break;
+
     case moveDown:
-    case stopUp:
         mZChange -= mMoveSpeed;
         break;
 
+    case stopUp:
+        mZChange = 0;
+        break;
+
     case rotateLeft:
-    case stopRotRight:
         mSwivelDegrees += 1.3 * mRotateSpeed;
         break;
 
+    case stopRotRight:
+        mSwivelDegrees = 0;
+        break;
+
     case rotateRight:
-    case stopRotLeft:
         mSwivelDegrees -= 1.3 * mRotateSpeed;
         break;
 
+    case stopRotLeft:
+        mSwivelDegrees = 0;
+        break;
+
     case rotateUp:
-    case stopRotDown:
         mRotateLocalVector.x += mRotateSpeed.valueDegrees();
         break;
 
+    case stopRotDown:
+        mRotateLocalVector.x = 0;
+        break;
+
     case rotateDown:
-    case stopRotUp:
         mRotateLocalVector.x -= mRotateSpeed.valueDegrees();
+        break;
+
+    case stopRotUp:
+        mRotateLocalVector.x = 0;
         break;
 
     case randomRotateX:

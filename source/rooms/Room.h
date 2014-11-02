@@ -77,7 +77,8 @@ public:
 
     virtual RoomType getType() const = 0;
 
-    static const char* getRoomNameFromRoomType(RoomType t);
+    static const std::string getRoomNameFromRoomType(RoomType t);
+    static RoomType getRoomTypeFromRoomName(const std::string& name);
 
     static int costPerTile(RoomType t);
 
@@ -101,6 +102,9 @@ public:
 
     //! \brief Updates the active spot lists.
     void updateActiveSpots();
+
+    inline unsigned int getNumActiveSpots() const
+    { return mNumActiveSpots; }
 
     //! \brief Sets the name, seat and associates the given tiles with the room
     void setupRoom(const std::string& name, Seat* seat, const std::vector<Tile*>& tiles);

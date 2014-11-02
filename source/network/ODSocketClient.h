@@ -21,6 +21,7 @@
 #include <SFML/Network.hpp>
 
 #include <string>
+#include <cstdint>
 
 class Player;
 class ODPacket;
