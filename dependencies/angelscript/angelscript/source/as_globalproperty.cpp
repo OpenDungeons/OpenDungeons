@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2012 Andreas Jonsson
+   Copyright (c) 2003-2014 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied 
    warranty. In no event will the authors be held liable for any 
@@ -50,7 +50,12 @@ asCGlobalProperty::asCGlobalProperty()
 
 asCGlobalProperty::~asCGlobalProperty()
 { 
+#ifndef WIP_16BYTE_ALIGNED
 	if( memoryAllocated ) { asDELETEARRAY(memory); } 
+#else
+	if( memoryAllocated ) { asDELETEARRAYALIGNED(memory); } 
+#endif
+
 	if( initFunc )
 		initFunc->Release();
 }
@@ -92,7 +97,12 @@ void asCGlobalProperty::AllocateMemory()
 { 
 	if( type.GetSizeOnStackDWords() > 2 ) 
 	{ 
+#ifndef WIP_16BYTE_ALIGNED
 		memory = asNEWARRAY(asDWORD, type.GetSizeOnStackDWords()); 
+#else
+		// TODO: Avoid aligned allocation if not needed to reduce the waste of memory for the alignment
+		memory = asNEWARRAYALIGNED(asDWORD, type.GetSizeOnStackDWords(), type.GetAlignment()); 
+#endif
 		memoryAllocated = true; 
 	} 
 }

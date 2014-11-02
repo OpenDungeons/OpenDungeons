@@ -13,6 +13,8 @@ else()
     set(PROJECT_BINARY_NAME "opendungeons")
 endif()
 
+set(AS_LIBRARY_NAME "angelscript")
+
 # Project version
 set(OD_MAJOR_VERSION 0)
 set(OD_MINOR_VERSION 4)
@@ -109,23 +111,23 @@ message(STATUS "CMake CXX Flags: " ${CMAKE_CXX_FLAGS})
 ##################################
 
 #Add new .cpp files here so that they get compiled
-
-set(OD_SOURCEFILES
+set(AS_SOURCEFILES
     #AngelScript sources
     ${ANGELSCRIPT_SRC_DIR}/as_atomic.cpp
     ${ANGELSCRIPT_SRC_DIR}/as_builder.cpp
     ${ANGELSCRIPT_SRC_DIR}/as_bytecode.cpp
     ${ANGELSCRIPT_SRC_DIR}/as_callfunc.cpp
-    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_arm.cpp
-    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_mips.cpp
-    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_ppc.cpp
-    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_ppc_64.cpp
-    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_sh4.cpp
+#Disabling exotic platforms for now
+#    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_arm.cpp
+#    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_mips.cpp
+#    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_ppc.cpp
+#    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_ppc_64.cpp
+#    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_sh4.cpp
     ${ANGELSCRIPT_SRC_DIR}/as_callfunc_x64_gcc.cpp
     ${ANGELSCRIPT_SRC_DIR}/as_callfunc_x64_msvc.cpp
     ${ANGELSCRIPT_SRC_DIR}/as_callfunc_x64_mingw.cpp
     ${ANGELSCRIPT_SRC_DIR}/as_callfunc_x86.cpp
-    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_xenon.cpp
+#    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_xenon.cpp
     ${ANGELSCRIPT_SRC_DIR}/as_compiler.cpp
     ${ANGELSCRIPT_SRC_DIR}/as_configgroup.cpp
     ${ANGELSCRIPT_SRC_DIR}/as_context.cpp
@@ -156,6 +158,8 @@ set(OD_SOURCEFILES
     ${ANGELSCRIPT_ADDON_DIR}/scriptbuilder/scriptbuilder.cpp
     ${ANGELSCRIPT_ADDON_DIR}/scripthelper/scripthelper.cpp
     ${ANGELSCRIPT_ADDON_DIR}/scriptstdstring/scriptstdstring.cpp
+)
+set(OD_SOURCEFILES
 
     #OpenDungeons sources
     ${SRC}/ai/AIFactory.cpp
@@ -387,12 +391,18 @@ endif()
 #### Binary ######################
 ##################################
 
+# Create the angelscript library file
+add_library(${AS_LIBRARY_NAME} ${AS_SOURCEFILES})
+
 # Create the binary file (WIN32 makes sure there is no console window on windows.)
 add_executable(${PROJECT_BINARY_NAME} WIN32 ${OD_SOURCEFILES})
 
 ##################################
 #### Link libraries ##############
 ##################################
+
+# Link angelscript
+target_link_libraries(${PROJECT_BINARY_NAME} ${AS_LIBRARY_NAME})
 
 # Link libraries
 target_link_libraries(

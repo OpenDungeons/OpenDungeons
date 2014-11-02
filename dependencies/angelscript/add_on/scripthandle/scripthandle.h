@@ -33,7 +33,8 @@ public:
 	void Cast(void **outRef, int typeId);
 
 	// Returns the type of the reference held
-	asIObjectType *GetType();
+	asIObjectType *GetType() const;
+	int            GetTypeId() const;
 
 protected:
 	// These functions need to have access to protected

@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2012 Andreas Jonsson
+   Copyright (c) 2003-2014 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied
    warranty. In no event will the authors be held liable for any
@@ -70,11 +70,11 @@ public:
 	T       *AddressOf();
 	const T *AddressOf() const;
 
-	void Concatenate(const asCArray<T> &);
+	bool Concatenate(const asCArray<T> &);
 	void Concatenate(T*, unsigned int count);
 
-	bool Exists(T &element) const;
-	int  IndexOf(T &element) const;
+	bool Exists(const T &element) const;
+	int  IndexOf(const T &element) const;
 	void RemoveIndex(size_t index);          // Removes the entry without reordering the array
 	void RemoveValue(const T &element);      // Removes the value without reordering the array
 	void RemoveIndexUnordered(size_t index); // Removes the entry without keeping the order
@@ -443,16 +443,28 @@ bool asCArray<T>::operator !=(const asCArray<T> &other) const
 	return !(*this == other);
 }
 
+
+// Returns false if the concatenation wasn't successful due to out of memory
 template <class T>
-void asCArray<T>::Concatenate(const asCArray<T> &other)
+bool asCArray<T>::Concatenate(const asCArray<T> &other)
 {
 	if( maxLength < length + other.length )
+	{
 		Allocate(length + other.length, true);
+		if( maxLength < length + other.length )
+		{
+			// Out of memory
+			return false;
+		}
+	}
 
 	for( size_t n = 0; n < other.length; n++ )
 		array[length+n] = other.array[n];
 
 	length += other.length;
+
+	// Success
+	return true;
 }
 
 template <class T>
@@ -463,13 +475,13 @@ void asCArray<T>::Concatenate(T* array, unsigned int count)
 }
 
 template <class T>
-bool asCArray<T>::Exists(T &e) const
+bool asCArray<T>::Exists(const T &e) const
 {
 	return IndexOf(e) == -1 ? false : true;
 }
 
 template <class T>
-int asCArray<T>::IndexOf(T &e) const
+int asCArray<T>::IndexOf(const T &e) const
 {
 	for( size_t n = 0; n < length; n++ )
 		if( array[n] == e ) return static_cast<int>(n);

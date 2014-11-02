@@ -152,6 +152,11 @@ static void ComplexInitConstructor(float r, float i, Complex *self)
 	new(self) Complex(r,i);
 }
 
+static void ComplexListConstructor(float *list, Complex *self)
+{
+	new(self) Complex(list[0], list[1]);
+}
+
 //--------------------------------
 // Registration
 //-------------------------------------
@@ -168,10 +173,11 @@ static void RegisterScriptMathComplex_Native(asIScriptEngine *engine)
 	r = engine->RegisterObjectProperty("complex", "float i", asOFFSET(Complex, i)); assert( r >= 0 );
 
 	// Register the constructors
-	r = engine->RegisterObjectBehaviour("complex", asBEHAVE_CONSTRUCT,  "void f()",                    asFUNCTION(ComplexDefaultConstructor), asCALL_CDECL_OBJLAST); assert( r >= 0 );
-	r = engine->RegisterObjectBehaviour("complex", asBEHAVE_CONSTRUCT,  "void f(const complex &in)",   asFUNCTION(ComplexCopyConstructor), asCALL_CDECL_OBJLAST); assert( r >= 0 );
-	r = engine->RegisterObjectBehaviour("complex", asBEHAVE_CONSTRUCT,  "void f(float)",               asFUNCTION(ComplexConvConstructor), asCALL_CDECL_OBJLAST); assert( r >= 0 );
-	r = engine->RegisterObjectBehaviour("complex", asBEHAVE_CONSTRUCT,  "void f(float, float)",        asFUNCTION(ComplexInitConstructor), asCALL_CDECL_OBJLAST); assert( r >= 0 );
+	r = engine->RegisterObjectBehaviour("complex", asBEHAVE_CONSTRUCT,      "void f()",                             asFUNCTION(ComplexDefaultConstructor), asCALL_CDECL_OBJLAST); assert( r >= 0 );
+	r = engine->RegisterObjectBehaviour("complex", asBEHAVE_CONSTRUCT,      "void f(const complex &in)",            asFUNCTION(ComplexCopyConstructor), asCALL_CDECL_OBJLAST); assert( r >= 0 );
+	r = engine->RegisterObjectBehaviour("complex", asBEHAVE_CONSTRUCT,      "void f(float)",                        asFUNCTION(ComplexConvConstructor), asCALL_CDECL_OBJLAST); assert( r >= 0 );
+	r = engine->RegisterObjectBehaviour("complex", asBEHAVE_CONSTRUCT,      "void f(float, float)",                 asFUNCTION(ComplexInitConstructor), asCALL_CDECL_OBJLAST); assert( r >= 0 );
+	r = engine->RegisterObjectBehaviour("complex", asBEHAVE_LIST_CONSTRUCT, "void f(const int &in) {float, float}", asFUNCTION(ComplexListConstructor), asCALL_CDECL_OBJLAST); assert( r >= 0 );
 
 	// Register the operator overloads
 	r = engine->RegisterObjectMethod("complex", "complex &opAddAssign(const complex &in)", asMETHODPR(Complex, operator+=, (const Complex &), Complex&), asCALL_THISCALL); assert( r >= 0 );

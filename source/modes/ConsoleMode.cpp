@@ -155,7 +155,7 @@ bool ConsoleMode::keyPressed(const OIS::KeyEvent &arg)
                 if(!mConsole->executePromptCommand(command, arguments))
                 {
                     LogManager::getSingleton().logMessage("Console command: " + command
-                        + " - arguments: " + arguments + " - actionscript");
+                        + " - arguments: " + arguments + " - angelscript");
                     ASWrapper::getSingleton().executeConsoleCommand(params);
                 }
 

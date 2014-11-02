@@ -58,7 +58,7 @@ namespace Helper
     }
 
     double toDouble(const std::string& text)
-    {
+    {    
         std::stringstream ss(text);
         double number = 0.0;
         ss >> number;

@@ -69,9 +69,6 @@ ASWrapper::ASWrapper() :
     //bind all objects, functions, etc to AngelScript
     registerEverything();
 
-    //save the string[] type because it's often used for console interaction
-    mStringArray = mEngine->GetObjectTypeById(mEngine->GetTypeIdByDecl("string[]"));
-
     //load all .as files from /scripts folder using the ScriptBuilder addond so we can access them
     mBuilder->StartNewModule(mEngine, "asModule");
     const std::string& scriptpath = ResourceManager::getSingleton().getScriptPath();
@@ -88,6 +85,9 @@ ASWrapper::ASWrapper() :
 
     //Compile AS code, syntax errors will be printed to our Console
     mBuilder->BuildModule();
+
+    //save the string[] type because it's often used for console interaction
+    mStringArray = mEngine->GetObjectTypeById(mEngine->GetTypeIdByDecl("string[]"));
 }
 
 //! \brief closes AngelScript
@@ -402,7 +402,9 @@ void ASWrapper::registerEverything()
  */
 void ASWrapper::executeConsoleCommand(const std::vector<std::string>& fullCommand)
 {
-    CScriptArray* arguments = new CScriptArray(fullCommand.size() - 1, mStringArray);
+    //Create string array of function arguments for executeConsoleCommand angelscript function.
+    //CScriptArray seems to be managed automatically by angelscript context using reference counting.
+    CScriptArray* arguments = CScriptArray::Create(mStringArray, static_cast<asUINT>(fullCommand.size() - 1));
     for(asUINT i = 0, size = arguments->GetSize(); i < size; ++i)
     {
     	*(static_cast<std::string*>(arguments->At(i))) = fullCommand[i + 1];
@@ -413,5 +415,4 @@ void ASWrapper::executeConsoleCommand(const std::vector<std::string>& fullComman
     mContext->SetArgAddress(0, const_cast<std::string*>(&fullCommand[0]));
     mContext->SetArgObject(1, arguments);
     mContext->Execute();
-    delete arguments;
 }
