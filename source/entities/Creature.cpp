@@ -717,7 +717,7 @@ void Creature::doUpkeep()
         mHunger = 100.0;
 
     // Look at the surrounding area
-    updateVisibleTiles();
+    updateTilesInSight();
     mVisibleEnemyObjects         = getVisibleEnemyObjects();
     mReachableEnemyObjects       = getReachableAttackableObjects(mVisibleEnemyObjects);
     mReachableEnemyCreatures     = getCreaturesFromList(mReachableEnemyObjects, getDefinition()->isWorker());
@@ -1198,10 +1198,10 @@ bool Creature::handleIdleAction()
                 // If there are no workers around, choose tiles far away to "roam" the dungeon.
                 if (!workerFound)
                 {
-                    if (!mVisibleTiles.empty())
+                    if (!mTilesWithinSightRadius.empty())
                     {
-                        tileDest = mVisibleTiles[static_cast<unsigned int>(Random::Double(0.6, 0.8)
-                                                                           * (mVisibleTiles.size() - 1))];
+                        tileDest = mTilesWithinSightRadius[static_cast<unsigned int>(Random::Double(0.6, 0.8)
+                                                                           * (mTilesWithinSightRadius.size() - 1))];
                     }
                 }
             }
@@ -1209,11 +1209,11 @@ bool Creature::handleIdleAction()
         else
         {
             // Randomly choose a tile near where we are standing to walk to.
-            if (!mVisibleTiles.empty())
+            if (!mTilesWithinSightRadius.empty())
             {
-                unsigned int tileIndex = static_cast<unsigned int>(mVisibleTiles.size()
+                unsigned int tileIndex = static_cast<unsigned int>(mTilesWithinSightRadius.size()
                                                                    * Random::Double(0.1, 0.3));
-                tileDest = mVisibleTiles[tileIndex];
+                tileDest = mTilesWithinSightRadius[tileIndex];
             }
         }
     }
@@ -1222,9 +1222,10 @@ bool Creature::handleIdleAction()
         // Workers only.
 
         // Choose a tile far away from our current position to wander to.
-        if (!mVisibleTiles.empty())
+        if (!mTilesWithinSightRadius.empty())
         {
-            tileDest = mVisibleTiles[Random::Uint(mVisibleTiles.size() / 2, mVisibleTiles.size() - 1)];
+            tileDest = mTilesWithinSightRadius[Random::Uint(mTilesWithinSightRadius.size() / 2,
+                                                            mTilesWithinSightRadius.size() - 1)];
         }
     }
 
@@ -1340,16 +1341,16 @@ bool Creature::handleClaimTileAction()
     //cout << "\nLooking at the visible tiles to see if I can claim a tile.";
     // If we still haven't found a tile to claim, check the rest of the visible tiles
     std::vector<Tile*> claimableTiles;
-    for (unsigned int i = 0; i < mVisibleTiles.size(); ++i)
+    for (unsigned int i = 0; i < mTilesWithinSightRadius.size(); ++i)
     {
         // if this tile is not fully claimed yet or the tile is of another player's color
-        Tile* tempTile = mVisibleTiles[i];
+        Tile* tempTile = mTilesWithinSightRadius[i];
         if (tempTile != NULL && tempTile->getFullness() == 0.0
             && (tempTile->getClaimedPercentage() < 1.0 || !tempTile->isClaimedForSeat(getSeat()))
             && tempTile->isGroundClaimable())
         {
             // Check to see if one of the tile's neighbors is claimed for our color
-            neighbors = mVisibleTiles[i]->getAllNeighbors();
+            neighbors = mTilesWithinSightRadius[i]->getAllNeighbors();
             for (unsigned int j = 0; j < neighbors.size(); ++j)
             {
                 tempTile = neighbors[j];
@@ -2083,9 +2084,8 @@ bool Creature::handleEatingAction(bool isForced)
     // in a hatchery, we check if there is a free chicken and eat it if we see it
     Tile* closestChickenTile = nullptr;
     double closestChickenDist = 0.0;
-    for(std::vector<Tile*>::iterator it = mVisibleTiles.begin(); it != mVisibleTiles.end(); ++it)
+    for(Tile* tile : mTilesWithinSightRadius)
     {
-        Tile* tile = *it;
         const std::vector<ChickenEntity*>& chickens = tile->getChickenEntities();
         if(chickens.empty())
             continue;
@@ -2625,8 +2625,16 @@ void Creature::refreshFromCreature(Creature *creatureNewState)
     }
 }
 
-void Creature::updateVisibleTiles()
+void Creature::updateTilesInSight()
 {
+    Tile* posTile = getPositionTile();
+    if (posTile == nullptr)
+        return;
+
+    // The tiles with sight radius without constraints
+    mTilesWithinSightRadius = getGameMap()->circularRegion(posTile->getX(), posTile->getY(), mDefinition->getSightRadius());
+
+    // Only the tiles the creature can "see".
     mVisibleTiles = getGameMap()->visibleTiles(getPositionTile(), mDefinition->getSightRadius());
 }
 
@@ -2691,11 +2699,11 @@ std::vector<Tile*> Creature::getVisibleMarkedTiles()
     Player *tempPlayer = getGameMap()->getPlayerBySeat(getSeat());
 
     // Loop over all the visible tiles.
-    for (unsigned int i = 0, size = mVisibleTiles.size(); i < size; ++i)
+    for (unsigned int i = 0, size = mTilesWithinSightRadius.size(); i < size; ++i)
     {
         // Check to see if the tile is marked for digging.
-        if (tempPlayer != NULL && mVisibleTiles[i]->getMarkedForDigging(tempPlayer))
-            tempVector.push_back(mVisibleTiles[i]);
+        if (tempPlayer != NULL && mTilesWithinSightRadius[i]->getMarkedForDigging(tempPlayer))
+            tempVector.push_back(mTilesWithinSightRadius[i]);
     }
 
     return tempVector;
@@ -2706,11 +2714,11 @@ std::vector<Tile*> Creature::getVisibleClaimableWallTiles()
     std::vector<Tile*> claimableWallTiles;
 
     // Loop over all the visible tiles.
-    for (unsigned int i = 0, size = mVisibleTiles.size(); i < size; ++i)
+    for (unsigned int i = 0, size = mTilesWithinSightRadius.size(); i < size; ++i)
     {
         // Check to see if the tile is marked for digging.
-        if (mVisibleTiles[i]->isWallClaimable(getSeat()))
-            claimableWallTiles.push_back(mVisibleTiles[i]);
+        if (mTilesWithinSightRadius[i]->isWallClaimable(getSeat()))
+            claimableWallTiles.push_back(mTilesWithinSightRadius[i]);
     }
 
     return claimableWallTiles;
@@ -2727,8 +2735,8 @@ void Creature::createVisualDebugEntities()
     mVisualDebugEntityTiles.clear();
 
     Tile *currentTile = NULL;
-    updateVisibleTiles();
-    for (unsigned int i = 0; i < mVisibleTiles.size(); ++i)
+    updateTilesInSight();
+    for (unsigned int i = 0; i < mTilesWithinSightRadius.size(); ++i)
     {
         currentTile = mVisibleTiles[i];
 
@@ -2747,7 +2755,7 @@ void Creature::destroyVisualDebugEntities()
     mHasVisualDebuggingEntities = false;
 
     Tile *currentTile = NULL;
-    updateVisibleTiles();
+    updateTilesInSight();
     std::list<Tile*>::iterator itr;
     for (itr = mVisualDebugEntityTiles.begin(); itr != mVisualDebugEntityTiles.end(); ++itr)
     {
@@ -3259,15 +3267,15 @@ bool Creature::fightInRangeObjectInList(const std::vector<GameEntity*>& listObje
 bool Creature::wanderRandomly(const std::string& animationState)
 {
     // We pick randomly a visible tile far away (at the end of visible tiles)
-    if(mVisibleTiles.empty())
+    if(mTilesWithinSightRadius.empty())
         return false;
 
     Tile* tileDestination = NULL;
-    int minPick = mVisibleTiles.size() * 4 / 5;
-    int indexPick = Random::Int(minPick, mVisibleTiles.size() - 1);
+    int minPick = mTilesWithinSightRadius.size() * 4 / 5;
+    int indexPick = Random::Int(minPick, mTilesWithinSightRadius.size() - 1);
     while((tileDestination == NULL) && (indexPick > 0))
     {
-        Tile* tile = mVisibleTiles[indexPick];
+        Tile* tile = mTilesWithinSightRadius[indexPick];
         if(getGameMap()->pathExists(this, getPositionTile(), tile))
             tileDestination = tile;
 

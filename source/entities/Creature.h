@@ -201,13 +201,9 @@ public:
     //! \brief Refreshes current creature with creatureNewState (hp, scale, level, ...)
     void refreshFromCreature(Creature *creatureNewState);
 
-    /*! \brief Creates a list of Tile pointers in visibleTiles
-     *
-     * The tiles are currently determined to be visible or not, according only to
-     * the distance they are away from the creature.  Because of this they can
-     * currently see through walls, etc.
-     */
-    void updateVisibleTiles();
+    //! \brief Updates the lists of tiles within sight radius.
+    //! And the tiles the creature can "see" (removing the ones behind walls).
+    void updateTilesInSight();
 
     //! \brief Loops over the visibleTiles and adds all enemy creatures in each tile to a list which it returns.
     std::vector<GameEntity*> getVisibleEnemyObjects();
@@ -390,7 +386,13 @@ private:
     Room*           mEatRoom;
     CEGUI::Window*  mStatsWindow;
 
+    //! \brief Every tiles within the creature sight radius, used for common actions.
+    std::vector<Tile*>              mTilesWithinSightRadius;
+
+    //! \brief Only visible tiles, not hidden for other tiles,
+    //! used for actions linked to enemies.
     std::vector<Tile*>              mVisibleTiles;
+
     std::vector<GameEntity*>        mVisibleEnemyObjects;
     std::vector<GameEntity*>        mReachableEnemyObjects;
     std::vector<GameEntity*>        mReachableEnemyCreatures;
