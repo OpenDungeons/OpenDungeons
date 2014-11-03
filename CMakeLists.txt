@@ -436,41 +436,19 @@ target_link_libraries(
     debug ${SFML_NETWORK_LIBRARY_DEBUG}
 )
 
-# Set compiler options on windows, and link to windows-specific libs
-if(WIN32)
-    if(MSVC_IDE)
-        #Set some extra compiler flags
-        #TODO - investigate if these are what they should be
-        set( PLATFORM_C_FLAGS "/W3 /MD /Od /D \"WIN32\" /D \"_WINDOWS\" /Gm /Gy /fp:fast /ZI /EHsc" )
-        set( PLATFORM_C_FLAGS_DEBUG "/W3 /MDd /Od /Gm /Gy /fp:fast /ZI /DOD_DEBUG" )
+# Set compiler options in MSVC
+if(WIN32 AND MSVC_IDE)
+    #Set some extra compiler flags
+    #TODO - investigate if these are what they should be
+    set( PLATFORM_C_FLAGS "/W3 /MD /Od /D \"WIN32\" /D \"_WINDOWS\" /Gm /Gy /fp:fast /ZI /EHsc" )
+    set( PLATFORM_C_FLAGS_DEBUG "/W3 /MDd /Od /Gm /Gy /fp:fast /ZI /DOD_DEBUG" )
 
-        set( CMAKE_CXX_FLAGS "${PLATFORM_C_FLAGS}" )
-        set( CMAKE_CXX_FLAGS_RELEASE "${PLATFORM_C_FLAGS}" )
-        set( CMAKE_CXX_FLAGS_DEBUG "${PLATFORM_C_FLAGS_DEBUG}" )
-
-        #TODO: Do we still need to link with winsock?
-        #Link to winsock
-        target_link_libraries(
-            ${PROJECT_BINARY_NAME}
-
-            "ws2_32.lib"
-            Userenv
-        )
-    elseif(MINGW)
-        target_link_libraries(
-            ${PROJECT_BINARY_NAME}
-
-            "ws2_32"
-            Userenv
-        )
-
-    endif()
-endif()
-
+    set( CMAKE_CXX_FLAGS "${PLATFORM_C_FLAGS}" )
+    set( CMAKE_CXX_FLAGS_RELEASE "${PLATFORM_C_FLAGS}" )
+    set( CMAKE_CXX_FLAGS_DEBUG "${PLATFORM_C_FLAGS_DEBUG}" )
 # We need to force output because of the boost lib used, defining two times the
 # same set of functions, once for Ogre, once for OD. It is harmless in our case
 # to select this option.
-if(WIN32 AND MSVC_IDE)
     SET_TARGET_PROPERTIES(${PROJECT_BINARY_NAME} PROPERTIES LINK_FLAGS " /FORCE:MULTIPLE")
 endif()
 
