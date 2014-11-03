@@ -29,7 +29,6 @@ cmake/           - Helper files for CMake
  |- modules/     - Addon scripts for CMake to find dependencies
 dependencies/    - All external projects
  |- angelscript/ - AngelScript SDK, our scripting language
- |- pthreads/    - Thread support for Windows
 documentation/   - Misc. files (incl. a Doxyfile and sketches)
 sources/         - All our own .cpp and .h files of the game
 .gitignore       - The files and folders that are ignored by git locally
@@ -60,7 +59,6 @@ To build the game, you will need to link against the following libraries:
 *  OGRE SDK (1.9.x)
 *  boost (same version than the one used by Ogre)
 *  CEGUI SDK (0.8.x)
-*  pthreads-win32 (for windows only)
 *  SFML (2.x)
 
 On windows, make sure you have the MSVC corresponding SDK, or either compile from source.

@@ -320,13 +320,12 @@ and can be un-singleton-ed.
 
 Ogre - Version 1.9.x
 CEGUI - Version 0.8.x
-Boost filesystem, locale, system, thread (same version than the one used by Ogre)
+Boost filesystem, locale, system (same version than the one used by Ogre)
 SFML - Version 2.x
 OpenAL (Required by SFML)
 
 - Included in the repository (in 'dependencies/'):
 AngelScript
-pthread (Windows only)
 
 
 6B. Abbreviations
