@@ -73,14 +73,10 @@ bool KeeperAI::MakeSomePlace()
 
     Tile* central = mAiWrapper.getDungeonTemple()->getCentralTile();
     std::vector<Tile*> tiles = mAiWrapper.getGameMap().circularRegion(central->getX(), central->getY(), 8);
-    for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
+    for(Tile* tile : tiles)
     {
-        Tile* tile = *it;
-        if(tile && tile->getType() == Tile::dirt && tile->getFullness() > 1.0)
-        {
-            // Make place for some rooms
-            mAiWrapper.markTileForDigging(tile);
-        }
+        // Make place for some rooms
+        mAiWrapper.markTileForDigging(tile);
     }
     mSomePlaceMade = true;
     return true;

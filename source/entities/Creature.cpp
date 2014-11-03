@@ -724,10 +724,8 @@ void Creature::doUpkeep()
     mVisibleAlliedObjects        = getVisibleAlliedObjects();
     mReachableAlliedObjects      = getReachableAttackableObjects(mVisibleAlliedObjects);
 
-    std::vector<Tile*> markedTiles;
-
     if (mDigRate > 0.0)
-        markedTiles = getVisibleMarkedTiles();
+        updateVisibleMarkedTiles();
 
     decidePrioritaryAction();
 
@@ -1024,7 +1022,7 @@ bool Creature::handleIdleAction()
     }
 
     // Decide to check for diggable tiles
-    if (mDefinition->getDigRate() > 0.0 && !getVisibleMarkedTiles().empty())
+    if (mDefinition->getDigRate() > 0.0 && !mVisibleMarkedTiles.empty())
     {
         loopBack = true;
         pushAction(CreatureAction::digTile);
@@ -1265,11 +1263,10 @@ bool Creature::handleClaimTileAction()
     if(mForceAction != forcedActionClaimTile)
     {
         // Randomly decide to stop claiming with a small probability
-        std::vector<Tile*> markedTiles = getVisibleMarkedTiles();
-        if (Random::Double(0.0, 1.0) < 0.1 + 0.2 * markedTiles.size())
+        if (Random::Double(0.0, 1.0) < 0.1 + 0.2 * mVisibleMarkedTiles.size())
         {
             // If there are any visible tiles marked for digging start working on that.
-            if (!markedTiles.empty())
+            if (!mVisibleMarkedTiles.empty())
             {
                 popAction();
                 pushAction(CreatureAction::digTile);
@@ -1442,11 +1439,10 @@ bool Creature::handleClaimWallTileAction()
     // Randomly decide to stop claiming with a small probability
     if(mForceAction != forcedActionClaimWallTile)
     {
-        std::vector<Tile*> markedTiles = getVisibleMarkedTiles();
-        if (Random::Double(0.0, 1.0) < 0.1 + 0.2 * markedTiles.size())
+        if (Random::Double(0.0, 1.0) < 0.1 + 0.2 * mVisibleMarkedTiles.size())
         {
             // If there are any visible tiles marked for digging start working on that.
-            if (!markedTiles.empty())
+            if (!mVisibleMarkedTiles.empty())
             {
                 popAction();
                 pushAction(CreatureAction::digTile);
@@ -1655,10 +1651,9 @@ bool Creature::handleDigTileAction()
 
     // Find paths to all of the neighbor tiles for all of the marked visible tiles.
     std::vector<std::list<Tile*> > possiblePaths;
-    std::vector<Tile*> markedTiles = getVisibleMarkedTiles();
-    for (unsigned int i = 0; i < markedTiles.size(); ++i)
+    for (unsigned int i = 0; i < mVisibleMarkedTiles.size(); ++i)
     {
-        std::vector<Tile*> neighbors = markedTiles[i]->getAllNeighbors();
+        std::vector<Tile*> neighbors = mVisibleMarkedTiles[i]->getAllNeighbors();
         for (unsigned int j = 0; j < neighbors.size(); ++j)
         {
             Tile* neighborTile = neighbors[j];
@@ -2693,20 +2688,34 @@ std::vector<GameEntity*> Creature::getVisibleAlliedObjects()
     return getVisibleForce(getSeat(), false);
 }
 
-std::vector<Tile*> Creature::getVisibleMarkedTiles()
+void Creature::updateVisibleMarkedTiles()
 {
-    std::vector<Tile*> tempVector;
-    Player *tempPlayer = getGameMap()->getPlayerBySeat(getSeat());
+    mVisibleMarkedTiles.clear();
+    Player *player = getGameMap()->getPlayerBySeat(getSeat());
+    if (player == nullptr)
+        return;
 
     // Loop over all the visible tiles.
-    for (unsigned int i = 0, size = mTilesWithinSightRadius.size(); i < size; ++i)
+    for (Tile* tile : mTilesWithinSightRadius)
     {
-        // Check to see if the tile is marked for digging.
-        if (tempPlayer != NULL && mTilesWithinSightRadius[i]->getMarkedForDigging(tempPlayer))
-            tempVector.push_back(mTilesWithinSightRadius[i]);
-    }
+        // Check to see whether the tile is marked for digging
+        if (tile == nullptr || !tile->getMarkedForDigging(player))
+            continue;
 
-    return tempVector;
+        // and can be reached by the creature
+        std::vector<Tile*> neighbors = tile->getAllNeighbors();
+        for (Tile* neighborTile : neighbors)
+        {
+            if (neighborTile == nullptr || neighborTile->getFullness() > 0.0)
+                continue;
+
+            if (getGameMap()->pathExists(this, getPositionTile(), neighborTile))
+            {
+                mVisibleMarkedTiles.push_back(tile);
+                break;
+            }
+        }
+    }
 }
 
 std::vector<Tile*> Creature::getVisibleClaimableWallTiles()
@@ -2714,11 +2723,25 @@ std::vector<Tile*> Creature::getVisibleClaimableWallTiles()
     std::vector<Tile*> claimableWallTiles;
 
     // Loop over all the visible tiles.
-    for (unsigned int i = 0, size = mTilesWithinSightRadius.size(); i < size; ++i)
+    for (Tile* tile : mTilesWithinSightRadius)
     {
-        // Check to see if the tile is marked for digging.
-        if (mTilesWithinSightRadius[i]->isWallClaimable(getSeat()))
-            claimableWallTiles.push_back(mTilesWithinSightRadius[i]);
+        // Check to see whether the tile is a claimable wall
+        if (tile == nullptr || !tile->isWallClaimable(getSeat()))
+            continue;
+
+        // and can be reached by the creature
+        std::vector<Tile*> neighbors = tile->getAllNeighbors();
+        for (Tile* neighborTile : neighbors)
+        {
+            if (neighborTile == nullptr || neighborTile->getFullness() > 0.0)
+                continue;
+
+            if (getGameMap()->pathExists(this, getPositionTile(), neighborTile))
+            {
+                claimableWallTiles.push_back(tile);
+                break;
+            }
+        }
     }
 
     return claimableWallTiles;
