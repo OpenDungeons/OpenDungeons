@@ -13,13 +13,16 @@ Data files :
 ------------
 
 config/          - Several game config files
+dist/            - Icons and linux desktop entry file.
 gui/             - CEGUI files + corresponding Gui images
+levels/          - Game levels
+licenses/        - License files used for game data and code
 materials/       - Materials (models texturing scripts and textures)
 models/          - Model files
 music/           - Music files
-sounds/          - Game Sounds
-levels/          - Game levels
+packs/           - Ogre files useful to run the starting pop-up
 scripts/         - Our AngelScript code files
+sounds/          - Game Sounds
 
 Code files:
 -----------
@@ -29,7 +32,6 @@ cmake/           - Helper files for CMake
  |- modules/     - Addon scripts for CMake to find dependencies
 dependencies/    - All external projects
  |- angelscript/ - AngelScript SDK, our scripting language
-documentation/   - Misc. files (incl. a Doxyfile and sketches)
 sources/         - All our own .cpp and .h files of the game
 .gitignore       - The files and folders that are ignored by git locally
 CMakeLists.txt   - CMake script for generating the Makefile and IDE projects
