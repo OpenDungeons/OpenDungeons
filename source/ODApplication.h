@@ -63,6 +63,10 @@ private:
     //! \brief by both the RenderManager and the TextRenderer.
     Ogre::OverlaySystem* mOverlaySystem;
 
+    //! \brief Keep in mind whether the game has been properly initialized.
+    //! Used when leaving the application in case someone cancelled the Ogre config pop-up.
+    bool mInitialized;
+
     //! \brief Delete the various singleton objects and clean up other stuff
     void cleanUp();
 };

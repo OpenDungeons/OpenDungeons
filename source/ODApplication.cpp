@@ -51,8 +51,9 @@
 #include <fstream>
 
 ODApplication::ODApplication() :
-    mRoot(NULL),
-    mWindow(NULL)
+    mRoot(nullptr),
+    mWindow(nullptr),
+    mInitialized(false)
 {
     try
     {
@@ -123,6 +124,8 @@ ODApplication::ODApplication() :
         mRoot->addFrameListener(mFrameListener);
 
         mRoot->startRendering();
+
+        mInitialized = true;
     }
     catch(const Ogre::Exception& e)
     {
@@ -151,29 +154,34 @@ void ODApplication::cleanUp()
     LogManager* logManager = LogManager::getSingletonPtr();
     logManager->logMessage("Quitting main application...", Ogre::LML_CRITICAL);
 
-    logManager->logMessage("Stopping server...");
-    ODServer::getSingleton().stopServer();
-    logManager->logMessage("Disconnecting client...");
-    ODClient::getSingleton().disconnect();
+    if (mInitialized)
+    {
+        logManager->logMessage("Stopping server...");
+        ODServer::getSingleton().stopServer();
 
-    logManager->logMessage("Removing ODFrameListener from root...");
-    mRoot->removeFrameListener(mFrameListener);
-    logManager->logMessage("Deleting ODFrameListener...");
-    delete mFrameListener;
-    logManager->logMessage("Deleting Ogre::OverlaySystem...");
-    delete mOverlaySystem;
-    logManager->logMessage("Deleting MusicPlayer...");
-    delete MusicPlayer::getSingletonPtr();
-    logManager->logMessage("Deleting TextRenderer...");
-    delete TextRenderer::getSingletonPtr();
-    logManager->logMessage("Deleting Gui...");
-    delete Gui::getSingletonPtr();
-    logManager->logMessage("Deleting SoundEffectsManager...");
-    delete SoundEffectsManager::getSingletonPtr();
-    logManager->logMessage("Deleting ODServer...");
-    delete ODServer::getSingletonPtr();
-    logManager->logMessage("Deleting ODClient...");
-    delete ODClient::getSingletonPtr();
+        logManager->logMessage("Disconnecting client...");
+        ODClient::getSingleton().disconnect();
+
+        logManager->logMessage("Removing ODFrameListener from root...");
+        mRoot->removeFrameListener(mFrameListener);
+        logManager->logMessage("Deleting ODFrameListener...");
+        delete mFrameListener;
+        logManager->logMessage("Deleting Ogre::OverlaySystem...");
+        delete mOverlaySystem;
+        logManager->logMessage("Deleting MusicPlayer...");
+        delete MusicPlayer::getSingletonPtr();
+        logManager->logMessage("Deleting TextRenderer...");
+        delete TextRenderer::getSingletonPtr();
+        logManager->logMessage("Deleting Gui...");
+        delete Gui::getSingletonPtr();
+        logManager->logMessage("Deleting SoundEffectsManager...");
+        delete SoundEffectsManager::getSingletonPtr();
+        logManager->logMessage("Deleting ODServer...");
+        delete ODServer::getSingletonPtr();
+        logManager->logMessage("Deleting ODClient...");
+        delete ODClient::getSingletonPtr();
+    }
+
     logManager->logMessage("Deleting ConfigManager...");
     delete ConfigManager::getSingletonPtr();
     logManager->logMessage("Deleting ResourceManager...");
@@ -181,6 +189,8 @@ void ODApplication::cleanUp()
     logManager->logMessage("Deleting LogManager and Ogre::Root...");
     delete LogManager::getSingletonPtr();
     delete mRoot;
+
+    mInitialized = false;
 }
 
 //TODO: find some better places for some of these
