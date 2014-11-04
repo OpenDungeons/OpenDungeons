@@ -1490,10 +1490,9 @@ bool Creature::handleClaimWallTileAction()
     for (unsigned int i = 0; i < wallTiles.size(); ++i)
     {
         std::vector<Tile*> neighbors = wallTiles[i]->getAllNeighbors();
-        for (unsigned int j = 0; j < neighbors.size(); ++j)
+        for (Tile* neighborTile : neighbors)
         {
-            Tile* neighborTile = neighbors[j];
-            if (neighborTile != NULL && neighborTile->getFullness() == 0.0)
+            if (getGameMap()->pathExists(this, getPositionTile(), neighborTile))
                 possiblePaths.push_back(getGameMap()->path(this, neighborTile));
         }
     }
@@ -1654,10 +1653,9 @@ bool Creature::handleDigTileAction()
     for (unsigned int i = 0; i < mVisibleMarkedTiles.size(); ++i)
     {
         std::vector<Tile*> neighbors = mVisibleMarkedTiles[i]->getAllNeighbors();
-        for (unsigned int j = 0; j < neighbors.size(); ++j)
+        for (Tile* neighborTile : neighbors)
         {
-            Tile* neighborTile = neighbors[j];
-            if (neighborTile != NULL && neighborTile->getFullness() == 0.0)
+            if (getGameMap()->pathExists(this, getPositionTile(), neighborTile))
                 possiblePaths.push_back(getGameMap()->path(this, neighborTile));
         }
     }
@@ -2706,7 +2704,7 @@ void Creature::updateVisibleMarkedTiles()
         std::vector<Tile*> neighbors = tile->getAllNeighbors();
         for (Tile* neighborTile : neighbors)
         {
-            if (neighborTile == nullptr || neighborTile->getFullness() > 0.0)
+            if (neighborTile == nullptr)
                 continue;
 
             if (getGameMap()->pathExists(this, getPositionTile(), neighborTile))
@@ -2733,7 +2731,7 @@ std::vector<Tile*> Creature::getVisibleClaimableWallTiles()
         std::vector<Tile*> neighbors = tile->getAllNeighbors();
         for (Tile* neighborTile : neighbors)
         {
-            if (neighborTile == nullptr || neighborTile->getFullness() > 0.0)
+            if (neighborTile == nullptr)
                 continue;
 
             if (getGameMap()->pathExists(this, getPositionTile(), neighborTile))
@@ -3054,7 +3052,7 @@ void Creature::pickup()
 
 bool Creature::canGoThroughTile(const Tile* tile) const
 {
-    if(tile == nullptr || tile->getFullness() > 0)
+    if(tile == nullptr)
         return false;
 
     switch(tile->getType())
@@ -3063,6 +3061,10 @@ bool Creature::canGoThroughTile(const Tile* tile) const
         case Tile::gold:
         case Tile::claimed:
         {
+            // Note: We don't care about water or lava fullness.
+            if (tile->getFullness() > 0.0)
+                return false;
+
             if(mGroundSpeed > 0.0)
                 return true;
 
