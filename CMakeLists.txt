@@ -286,6 +286,7 @@ set(OD_SOURCEFILES
 #### Find packages ###############
 ##################################
 
+find_package(Threads REQUIRED)
 find_package(OIS REQUIRED)
 find_package(OGRE REQUIRED)
 find_package(CEGUI REQUIRED)
@@ -396,6 +397,9 @@ add_executable(${PROJECT_BINARY_NAME} WIN32 ${OD_SOURCEFILES})
 ##################################
 #### Link libraries ##############
 ##################################
+
+# Add threads when linking AngelScript
+target_link_libraries (${AS_LIBRARY_NAME} ${CMAKE_THREAD_LIBS_INIT})
 
 # Link angelscript
 target_link_libraries(${PROJECT_BINARY_NAME} ${AS_LIBRARY_NAME})
