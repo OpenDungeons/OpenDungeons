@@ -6,8 +6,6 @@ cmake_minimum_required(VERSION 2.8)
 
 project(opendungeons)
 
-include(CTest)
-
 # Set a capitalized exe name on Windows
 if(WIN32)
     set(PROJECT_BINARY_NAME "OpenDungeons")
@@ -41,6 +39,13 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 
 # Compilation options
 option(OD_ENABLE_WARNINGS "Compile the game with all standard warnings enabled" ON)
+
+# enable/disable unit tests
+option(OD_BUILD_TESTING "Compile unit tests (to enable unit tests both this and BUILD_TESTING has to be on." OFF)
+
+if(OD_BUILD_TESTING)
+    include(CTest)
+endif()
 
 ##################################
 #### Useful variables ############
@@ -467,7 +472,7 @@ endif()
 #### Unit testing ################
 ##################################
 
-if(BUILD_TESTING)
+if(BUILD_TESTING AND OD_BUILD_TESTING)
     find_package(Boost OPTIONAL_COMPONENTS unit_test_framework)
     if(Boost_UNIT_TEST_FRAMEWORK_FOUND)
         message(STATUS "boost testing framework found, enabling tests")
