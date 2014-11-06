@@ -6,6 +6,8 @@ cmake_minimum_required(VERSION 2.8)
 
 project(opendungeons)
 
+include(CTest)
+
 # Set a capitalized exe name on Windows
 if(WIN32)
     set(PROJECT_BINARY_NAME "OpenDungeons")
@@ -53,7 +55,11 @@ set(ANGELSCRIPT_ADDON_DIR "${ANGELSCRIPT_DIR}/add_on")
 
 #cmake paths
 set(CMAKE_CONFIG_DIR "${CMAKE_SOURCE_DIR}/cmake/config")
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake/modules)
+set(CMAKE_MODULE_PATH
+    ${CMAKE_MODULE_PATH}
+    ${CMAKE_SOURCE_DIR}/cmake/modules
+    ${CMAKE_SOURCE_DIR}/cmake/modules/BoostTestTargets
+)
 
 if(NOT CMAKE_BUILD_TYPE)
     message(STATUS "CMake build type is not set, defaulting to 'RelWithDebInfo'")
@@ -373,6 +379,7 @@ include_directories(
 
 if(WIN32)
     if(MINGW)
+        #TODO: Why are we linking boost here? It's linked again later.
         # Boost
         link_libraries(${Boost_LIBRARIES})
         include_directories(${Boost_INCLUDE_DIRS})
@@ -399,7 +406,7 @@ add_executable(${PROJECT_BINARY_NAME} WIN32 ${OD_SOURCEFILES})
 ##################################
 
 # Add threads when linking AngelScript
-target_link_libraries (${AS_LIBRARY_NAME} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(${AS_LIBRARY_NAME} ${CMAKE_THREAD_LIBS_INIT})
 
 # Link angelscript
 target_link_libraries(${PROJECT_BINARY_NAME} ${AS_LIBRARY_NAME})
@@ -454,6 +461,20 @@ if(WIN32 AND MSVC_IDE)
 # same set of functions, once for Ogre, once for OD. It is harmless in our case
 # to select this option.
     SET_TARGET_PROPERTIES(${PROJECT_BINARY_NAME} PROPERTIES LINK_FLAGS " /FORCE:MULTIPLE")
+endif()
+
+##################################
+#### Unit testing ################
+##################################
+
+if(BUILD_TESTING)
+    find_package(Boost OPTIONAL_COMPONENTS unit_test_framework)
+    if(Boost_UNIT_TEST_FRAMEWORK_FOUND)
+        message(STATUS "boost testing framework found, enabling tests")
+        add_subdirectory("${SRC}/tests")
+    else()
+        message(STATUS "boost testing framework not found, not enabling tests")
+    endif()
 endif()
 
 ##################################
