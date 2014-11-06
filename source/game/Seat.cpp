@@ -324,7 +324,7 @@ const CreatureDefinition* Seat::getNextCreatureClassToSpawn()
     if(defSpawnable.empty())
         return nullptr;
 
-    // We choose randomly a creature to spawn according to there points
+    // We choose randomly a creature to spawn according to their points
     int32_t cpt = Random::Int(0, nbPointsTotal);
     for(std::pair<const CreatureDefinition*, int32_t>& def : defSpawnable)
     {
