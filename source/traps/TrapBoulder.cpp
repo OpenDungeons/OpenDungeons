@@ -81,6 +81,7 @@ bool TrapBoulder::shoot(Tile* tile)
     // we can safely call the missile doUpkeep as we know the engine will not call it the turn
     // it has been added
     missile->doUpkeep();
+    missile->setAnimationState("Triggered", true);
 
     return true;
 }
