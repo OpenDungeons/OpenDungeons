@@ -47,17 +47,9 @@ public:
     void listLevelsClicked();
     void listLevelsDoubleClicked();
 
-    virtual bool waitForGameStart()
-    {
-        return mReadyToStartMode;
-    }
-
 private:
     std::vector<std::string> mFilesList;
     std::vector<std::string> mDescriptionList;
-
-    //! \brief Tells whether the menu is ready
-    bool mReadyToStartMode;
 };
 
 #endif // MENUMODEEDITOR_H

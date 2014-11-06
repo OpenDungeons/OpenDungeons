@@ -36,6 +36,12 @@ std::string ClientNotification::typeString(ClientNotificationType type)
             return "setNick";
         case ClientNotificationType::chat:
             return "chat";
+        case ClientNotificationType::readyForSeatConfiguration:
+            return "readyForSeatConfiguration";
+        case ClientNotificationType::seatConfigurationSet:
+            return "seatConfigurationSet";
+        case ClientNotificationType::seatConfigurationRefresh:
+            return "seatConfigurationRefresh";
         case ClientNotificationType::askEntityPickUp:
             return "askEntityPickUp";
         case ClientNotificationType::askHandDrop:

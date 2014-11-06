@@ -210,9 +210,8 @@ public:
     //! \brief Deletes the data structure for all the players in the GameMap.
     void clearPlayers();
 
-    //! \brief Adds a pointer to a player structure to the players stored by this GameMap. Assigns the
-    //! seat to the player
-    void addPlayer(Player *player, Seat* seat);
+    //! \brief Adds a pointer to a player structure to the players stored by this GameMap
+    bool addPlayer(Player *player);
 
     //! \brief Assigns an ai to the chosen player
     bool assignAI(Player& player, const std::string& aiType, const std::string& parameters = std::string());
@@ -225,6 +224,12 @@ public:
     Player* getPlayer(const std::string& cName);
     const Player* getPlayer(const std::string& cName) const;
 
+    const std::vector<Player*>& getPlayers() const
+    { return mPlayers; }
+
+    const std::vector<Seat*>& getSeats() const
+    { return mSeats; }
+
     //! \brief Returns a pointer to the player structure stored by this GameMap whose seat id matches seatId.
     Player* getPlayerBySeatId(int seatId);
     Player* getPlayerBySeat(Seat* seat);
@@ -232,38 +237,16 @@ public:
     //! \brief Returns the number of player structures stored in this GameMap.
     unsigned int numPlayers() const;
 
-    //! \brief A simple mutator method to clear the vector of empty Seats stored in the GameMap.
-    void clearEmptySeats();
+    //! \brief A simple mutator method to clear the vector of Seats stored in the GameMap.
+    void clearSeats();
 
-    //! \brief A simple mutator method to add another empty Seat to the GameMap.
-    void addEmptySeat(Seat* s);
-
-    //! \brief A simple accessor method to return the given Seat.
-    Seat* getEmptySeat(int index);
-    const Seat* getEmptySeat(int index) const;
-
-    //! \brief A simple accessor method to return the first Seat with the given faction.
-    Seat* getEmptySeat(const std::string& faction);
-
-    //! \brief Removes the Seat with given id from the GameMap and returns a pointer to it,
-    //! this is used when a Player "sits down" at the GameMap.
-    Seat* popEmptySeat(int id);
+    //! \brief A simple mutator method to add another Seat to the GameMap.
+    void addSeat(Seat* s);
 
     int nextSeatId(int SeatId);
 
-    //! \brief A simple accessor method to return the number of empty Seats on the GameMap.
-    unsigned int numEmptySeats() const;
-
     void clearFilledSeats();
     void clearAiManager();
-
-    void addFilledSeat(Seat *s);
-
-    //! \brief A simple accessor method to return the given filled Seat.
-    Seat* getFilledSeat(int index);
-    const Seat* getFilledSeat(int index) const;
-
-    unsigned int numFilledSeats() const;
 
     Seat* getSeatById(int id);
 
@@ -386,11 +369,20 @@ public:
      */
     void enableFloodFill();
 
+    inline void setLocalPlayer(Player* player)
+    { mLocalPlayer = player; }
+
     inline Player* getLocalPlayer()
     { return mLocalPlayer; }
 
     inline const Player* getLocalPlayer() const
     { return mLocalPlayer; }
+
+    inline const std::string& getLocalPlayerNick()
+    { return mLocalPlayerNick; }
+
+    inline void setLocalPlayerNick(const std::string& nick)
+    { mLocalPlayerNick = nick; }
 
     //! \brief Updates the different entities animations.
     void updateAnimations(Ogre::Real timeSinceLastFrame);
@@ -477,8 +469,11 @@ public:
 private:
     void replaceFloodFill(Tile::FloodFillType floodFillType, int colorOld, int colorNew);
     bool mIsServerGameMap;
-    //! \brief the Local player reference.
+    //! \brief the Local player reference. The local player will also be in the player list so this pointer
+    //! should not be deleted as it will be handled like every other in the list.
     Player* mLocalPlayer;
+
+    std::string mLocalPlayerNick;
 
     //! \brief The current server turn number.
     int64_t mTurnNumber;
@@ -520,9 +515,8 @@ private:
     std::vector<MapLight*> mapLights;
 
     //! \brief Players and available game player slots (Seats)
-    std::vector<Player*> players;
-    std::vector<Seat*> emptySeats;
-    std::vector<Seat*> filledSeats;
+    std::vector<Player*> mPlayers;
+    std::vector<Seat*> mSeats;
     std::vector<Seat*> winningSeats;
 
     //! \brief Common player goals

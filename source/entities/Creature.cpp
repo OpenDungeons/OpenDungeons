@@ -1581,12 +1581,9 @@ bool Creature::handleDigTileAction()
         // If the tile is a gold tile accumulate gold for this creature.
         if (tempTile->getType() == Tile::gold)
         {
-            //FIXME: Make sure we can't dig gold if the creature has max gold.
-            // Or let gold on the ground, until there is space so that the player
-            // isn't stuck when making a way through gold.
             double tempDouble = 5 * std::min(mDefinition->getDigRate(), tempTile->getFullness());
             mGold += (int)tempDouble;
-            getSeat()->mGoldMined += static_cast<int>(tempDouble);
+            getSeat()->addGoldMined(static_cast<int>(tempDouble));
             receiveExp(5.0 * mDefinition->getDigRate() / 20.0);
         }
 

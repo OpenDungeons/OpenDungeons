@@ -122,8 +122,8 @@ void ODSocketServer::doTask(int timeoutMs)
             }
             else
             {
-                std::vector<ODSocketClient*>::iterator it = mSockClients.begin();
-                while (it != mSockClients.end())
+
+                for(std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end();)
                 {
                     ODSocketClient* client = *it;
                     if((mSockSelector.isReady(client->mSockClient)) &&
@@ -131,6 +131,7 @@ void ODSocketServer::doTask(int timeoutMs)
                     {
                         // The server wants to remove the client
                         it = mSockClients.erase(it);
+                        mSockSelector.remove(client->mSockClient);
                         client->disconnect();
                         delete client;
                     }
@@ -159,7 +160,7 @@ void ODSocketServer::sendMsgToAllClients(ODPacket& packetReceived)
     for (std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
     {
         ODSocketClient* client = *it;
-        if (!client)
+        if (!client || !client->isConnected())
             continue;
 
         client->send(packetReceived);

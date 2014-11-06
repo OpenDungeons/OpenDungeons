@@ -8,12 +8,12 @@ FightMusic	The_Dark_Amulet.ogg
 [/Info]
 
 [Seats]
-# seatId	teamId	faction	startingX	startingY	color	startingGold
-1	1	Player	51	16	1	1000
-2	2	KeeperAI	7	55	2	1000
-3	3	KeeperAI	91	55	3	1000
-4	4	KeeperAI	47	94	4	1000
-5	5	none	47	94	5	1000
+# seatId	teamId	player	faction	startingX	startingY	color	startingGold
+1	1	Human	Keeper	51	16	1	1000
+2	2	AI	Keeper	7	55	2	1000
+3	3	AI	Keeper	91	55	3	1000
+4	4	AI	Keeper	47	94	4	1000
+5	5	Inactive	Keeper	47	94	5	1000
 [/Seats]
 
 [Goals]
@@ -4011,83 +4011,6 @@ ProtectDungeonTemple	NULL
 51	16	3.75	0.9	0.8	0.6	0.2	0.2	0.2	50	0.012	0.32	0.0018
 47	94	3.75	0.9	0.8	0.6	0.2	0.2	0.2	50	0.012	0.32	0.0018
 [/Lights]
-
-[Spawn_Pools]
-# Each team's spawn pool.
-# Describes what each team can spawn.
-
-[Spawn_Pool]
-# seat id
-1
-# Creature list
-CaveHornet
-Wyvern
-Dragon
-Orc
-Kreatur
-Goblin
-PitDemon
-Spider
-Tentacle1
-Tentacle2
-Troll
-LizardMan
-Slime
-[/Spawn_Pool]
-
-[Spawn_Pool]
-# seat id
-2
-# Creature list
-CaveHornet
-Wyvern
-Dragon
-Orc
-Kreatur
-Goblin
-PitDemon
-Spider
-Tentacle1
-Tentacle2
-Troll
-LizardMan
-Slime
-[/Spawn_Pool]
-
-[Spawn_Pool]
-# seat id
-3
-# Creature list
-CaveHornet
-Wyvern
-Dragon
-Orc
-Kreatur
-Goblin
-PitDemon
-Spider
-Tentacle1
-Tentacle2
-Troll
-LizardMan
-Slime
-[/Spawn_Pool]
-
-[Spawn_Pool]
-# seat id
-4
-# Creature list
-Gnome
-Knight
-BigKnight
-Adventurer
-Dwarf1
-Dwarf2
-Dwarf3
-Wizard
-[/Spawn_Pool]
-
-[/Spawn_Pools]
 
 [Creatures]
 # SeatId	ClassName	Name	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeapon RightWeapon

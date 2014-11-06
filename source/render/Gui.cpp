@@ -38,6 +38,7 @@
 #include "modes/ModeManager.h"
 #include "modes/GameMode.h"
 #include "modes/EditorMode.h"
+#include "modes/MenuModeConfigureSeats.h"
 #include "modes/MenuModeSkirmish.h"
 #include "modes/MenuModeMultiplayerClient.h"
 #include "modes/MenuModeMultiplayerServer.h"
@@ -77,6 +78,7 @@ Gui::Gui()
     sheets[multiplayerServerMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuMultiplayerServer.layout");
     sheets[editorModeGui] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorModeMenu.layout");
     sheets[editorMenu] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorMenu.layout");
+    sheets[configureSeats] =  wmgr->loadLayoutFromFile("OpenDungeonsMenuConfigureSeats.layout");
 
     assignEventHandlers();
 }
@@ -365,6 +367,15 @@ void Gui::assignEventHandlers()
     sheets[editorMenu]->getChild(EDM_LIST_LEVELS)->subscribeEvent(
         CEGUI::Listbox::EventMouseDoubleClick,
         CEGUI::Event::Subscriber(&mEDMListDoubleClicked));
+
+    // Configure seats windows
+    sheets[configureSeats]->getChild(CSM_BUTTON_BACK)->subscribeEvent(
+        CEGUI::PushButton::EventClicked,
+        CEGUI::Event::Subscriber(&mCSMBackButtonPressed));
+
+    sheets[configureSeats]->getChild(CSM_BUTTON_LAUNCH)->subscribeEvent(
+        CEGUI::PushButton::EventClicked,
+        CEGUI::Event::Subscriber(&mCSMLoadButtonPressed));
 
     // Set the game version
     sheets[mainMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
@@ -823,6 +834,28 @@ bool Gui::mMPMClientButtonPressed(const CEGUI::EventArgs& e)
     return true;
 }
 
+bool Gui::mCSMLoadButtonPressed(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_CONFIGURE_SEATS)
+        return true;
+
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    static_cast<MenuModeConfigureSeats*>(mm->getCurrentMode())->launchSelectedButtonPressed();
+    return true;
+}
+
+bool Gui::mCSMBackButtonPressed(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_CONFIGURE_SEATS)
+        return true;
+
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    static_cast<MenuModeConfigureSeats*>(mm->getCurrentMode())->goBack();
+    return true;
+}
+
 /* These constants are used to access the GUI element
  * NOTE: when add/remove/rename a GUI element, don't forget to change it here
  */
@@ -881,6 +914,9 @@ const std::string Gui::EDM_TEXT_LOADING = "LoadingText";
 const std::string Gui::EDM_BUTTON_LAUNCH = "LevelWindowFrame/LaunchGameButton";
 const std::string Gui::EDM_BUTTON_BACK = "LevelWindowFrame/BackButton";
 const std::string Gui::EDM_LIST_LEVELS = "LevelWindowFrame/LevelSelect";
+
+const std::string Gui::CSM_BUTTON_LAUNCH = "ListPlayers/LaunchGameButton";
+const std::string Gui::CSM_BUTTON_BACK = "ListPlayers/BackButton";
 
 const std::string Gui::EDITOR = "MainTabControl";
 const std::string Gui::EDITOR_LAVA_BUTTON = "MainTabControl/Tiles/LavaButton";

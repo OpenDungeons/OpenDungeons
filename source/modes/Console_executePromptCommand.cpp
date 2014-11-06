@@ -510,11 +510,12 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             else if (arguments.compare("colors") == 0 || arguments.compare("colours") == 0)
             {
                 tempSS << "Number:\tRed:\tGreen:\tBlue:\n";
-                for (unsigned int i = 0; i < gameMap->numFilledSeats(); ++i)
+                const std::vector<Seat*> seats = gameMap->getSeats();
+                for (Seat* seat : seats)
                 {
-                    Ogre::ColourValue color = gameMap->getFilledSeat(i)->getColorValue();
+                    Ogre::ColourValue color = seat->getColorValue();
 
-                    tempSS << "\n" << i << "\t\t" << color.r
+                    tempSS << "\n" << seat->getId() << "\t\t" << color.r
                            << "\t\t" << color.g << "\t\t" << color.b;
                 }
             }
@@ -612,22 +613,6 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         frameListener->mCommandOutput += "\nRecreating all meshes.\n";
     }*/
 
-    // Set your nickname
-    else if (command.compare("nick") == 0)
-    {
-        if (!arguments.empty())
-        {
-            gameMap->getLocalPlayer()->setNick(arguments);
-            frameListener->mCommandOutput += "\nNickname set to:  ";
-        }
-        else
-        {
-            frameListener->mCommandOutput += "\nCurrent nickname is:  ";
-        }
-
-        frameListener->mCommandOutput += gameMap->getLocalPlayer()->getNick() + "\n";
-    }
-
     /*
     // Set chat message variables
     else if (command.compare("maxtime") == 0)
@@ -713,42 +698,6 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
         frameListener->mCommandOutput += "\n";
 
-    }
-
-    // Host a server
-    else if (command.compare("host") == 0)
-    {
-        // Make sure we have set a nickname.
-        if ((!gameMap->getLocalPlayer()->getNick().empty()) &&
-            (!arguments.empty()))
-        {
-            // Make sure we are not already connected to a server or hosting a game.
-            if (!frameListener->isConnected())
-            {
-                if (ODServer::getSingleton().startServer(arguments, false, ODServer::ServerMode::ModeGame))
-                {
-                    frameListener->mCommandOutput += "\nServer started successfully.\n";
-
-                    // Automatically closes the terminal
-                    frameListener->mTerminalActive = false;
-                }
-                else
-                {
-                    frameListener->mCommandOutput += "\nERROR:  Could not start server!\n";
-                }
-
-            }
-            else
-            {
-                frameListener->mCommandOutput
-                        += "\nERROR:  You are already connected to a game or are already hosting a game!\n";
-            }
-        }
-        else
-        {
-            frameListener->mCommandOutput
-                    += "\nYou must set a nick with the \"nick\" command before you can host a server.\n";
-        }
     }
 
     // Send help command information to all players

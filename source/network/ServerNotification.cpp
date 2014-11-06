@@ -34,14 +34,14 @@ std::string ServerNotification::typeString(ServerNotificationType type)
     {
         case ServerNotificationType::pickNick:
             return "pickNick";
-        case ServerNotificationType::yourSeat:
-            return "yourSeat";
-        case ServerNotificationType::addPlayer:
-            return "addPlayer";
+        case ServerNotificationType::addPlayers:
+            return "addPlayers";
+        case ServerNotificationType::removePlayers:
+            return "removePlayers";
+        case ServerNotificationType::startGameMode:
+            return "startGameMode";
         case ServerNotificationType::newMap:
             return "newMap";
-        case ServerNotificationType::turnsPerSecond:
-            return "turnsPerSecond";
         case ServerNotificationType::addTile:
             return "addTile";
         case ServerNotificationType::addMapLight:
@@ -52,6 +52,10 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "addClass";
         case ServerNotificationType::clientAccepted:
             return "clientAccepted";
+        case ServerNotificationType::clientRejected:
+            return "clientRejected";
+        case ServerNotificationType::seatConfigurationRefresh:
+            return "seatConfigurationRefresh";
         case ServerNotificationType::chat:
             return "chat";
         case ServerNotificationType::chatServer:

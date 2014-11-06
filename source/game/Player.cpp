@@ -33,12 +33,13 @@
 
 #include "utils/LogManager.h"
 
-Player::Player() :
+Player::Player(GameMap* gameMap, int32_t id) :
+    mId(id),
     mNewRoomType(Room::nullRoomType),
     mNewTrapType(Trap::nullTrapType),
     mCurrentAction(SelectedAction::none),
-    mGameMap(NULL),
-    mSeat(NULL),
+    mGameMap(gameMap),
+    mSeat(nullptr),
     mHasAI(false),
     mFightingTime(0.0f),
     mIsPlayerLostSent(false)

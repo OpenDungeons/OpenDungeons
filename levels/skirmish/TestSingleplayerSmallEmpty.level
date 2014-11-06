@@ -8,9 +8,9 @@ FightMusic	The_Dark_Amulet.ogg
 [/Info]
 
 [Seats]
-# seatId	teamId	faction	startingX	startingY	color	startingGold
-1	1	Player	10	10	1	1000
-2	2	None	10	10	2	1000
+# seatId	teamId	player	faction	startingX	startingY	color	startingGold
+1	1	Choice	Keeper	10	10	1	1000
+2	2	Inactive	Keeper	10	10	2	1000
 [/Seats]
 
 [Goals]
@@ -2588,35 +2588,6 @@ ProtectDungeonTemple	NULL
 # posX	posY	posZ	diffuseR	diffuseG	diffuseB	specularR	specularG	specularB	attenRange	attenConst	attenLin	attenQuad
 12	7	3.75	0.9	0.8	0.6	0.2	0.2	0.2	50	0.012	0.32	0.0018
 [/Lights]
-
-[Spawn_Pools]
-# Each team's spawn pool.
-# Describes what each team can spawn.
-
-[Spawn_Pool]
-# seat id
-1
-# Creature list
-ConstructWorker
-CaveHornet
-Wyvern
-Dragon
-Orc
-Kreatur
-Gnome
-Goblin
-PitDemon
-Spider
-Wizard
-Tentacle1
-Tentacle2
-Troll
-LizardMan
-Scarab
-Slime
-[/Spawn_Pool]
-
-[/Spawn_Pools]
 
 [Creatures]
 # SeatId	ClassName	Name	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeapon RightWeapon

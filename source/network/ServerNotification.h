@@ -41,15 +41,17 @@ class ServerNotification
             // Negociation for multiplayer
             loadLevel, // Tells the client to load the level: + string LevelFilename
             pickNick,
-            yourSeat,
-            addPlayer,
+            addPlayers,
+            removePlayers,
+            startGameMode,
             newMap,
-            turnsPerSecond,
             addTile,
             addMapLight,
             removeMapLight,
             addClass,
             clientAccepted,
+            clientRejected,
+            seatConfigurationRefresh,
 
             chat,
             chatServer,

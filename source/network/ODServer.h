@@ -51,13 +51,24 @@ class ODServer: public Ogre::Singleton<ODServer>,
  public:
      enum ServerMode
      {
-         ModeGame,
+         ModeNone,
+         ModeGameSinglePlayer,
+         ModeGameMultiPlayer,
          ModeEditor
+     };
+     enum ServerState
+     {
+         StateNone,
+         StateConfiguration,
+         StateGame
      };
     ODServer();
     virtual ~ODServer();
 
-    bool startServer(const std::string& levelFilename, bool replaceHumanPlayersByAi, ServerMode mode);
+    inline ServerMode getServerMode() const
+    { return mServerMode; }
+
+    bool startServer(const std::string& levelFilename, ServerMode mode);
     void stopServer();
 
     //! \brief Adds a server notification to the server notification queue.
@@ -85,10 +96,10 @@ protected:
 
 private:
     ServerMode mServerMode;
+    ServerState mServerState;
     GameMap *mGameMap;
     std::string mLevelFilename;
-
-    int32_t mNbClientsNotReady;
+    bool mSeatsConfigured;
 
     std::deque<ServerNotification*> mServerNotificationQueue;
     std::deque<ODConsoleCommand*> mConsoleCommandQueue;

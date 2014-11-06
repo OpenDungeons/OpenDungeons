@@ -46,6 +46,7 @@ public:
         MENU_MULTIPLAYER_CLIENT,
         MENU_MULTIPLAYER_SERVER,
         MENU_EDITOR,
+        MENU_CONFIGURE_SEATS,
         GAME,
         EDITOR,
         CONSOLE,
@@ -119,6 +120,13 @@ public:
     void requestGameMode(bool discardActualMode = false)
     {
         mRequestedMode = ModeType::GAME;
+        mDiscardActualMode = discardActualMode;
+     }
+
+    //! \brief Request loading game mode at next update
+    void requestConfigureSeatsMode(bool discardActualMode = false)
+    {
+        mRequestedMode = ModeType::MENU_CONFIGURE_SEATS;
         mDiscardActualMode = discardActualMode;
      }
 

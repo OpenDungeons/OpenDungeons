@@ -32,15 +32,15 @@
 #include "utils/ConfigManager.h"
 
 #include <CEGUI/CEGUI.h>
-#include "boost/filesystem.hpp"
+
+#include <boost/filesystem.hpp>
 
 const std::string LEVEL_PATH_SKIRMISH = "levels/skirmish/";
 const std::string LEVEL_PATH_MULTIPLAYER = "levels/multiplayer/";
 const std::string LEVEL_EXTENSION = ".level";
 
 MenuModeEditor::MenuModeEditor(ModeManager *modeManager):
-    AbstractApplicationMode(modeManager, ModeManager::MENU_EDITOR),
-    mReadyToStartMode(false)
+    AbstractApplicationMode(modeManager, ModeManager::MENU_EDITOR)
 {
 }
 
@@ -144,12 +144,15 @@ void MenuModeEditor::launchSelectedButtonPressed()
     std::string level = mFilesList[id];
 
     // In single player mode, we act as a server
-    if(!ODServer::getSingleton().startServer(level, true, ODServer::ServerMode::ModeEditor))
+    if(!ODServer::getSingleton().startServer(level, ODServer::ServerMode::ModeEditor))
     {
         LogManager::getSingleton().logMessage("ERROR: Could not start server for editor !!!");
+        tmpWin = Gui::getSingleton().getGuiSheet(Gui::editorMenu)->getChild(Gui::EDM_TEXT_LOADING);
+        tmpWin->setText("ERROR: Could not start server for editor !!!");
+        tmpWin->show();
     }
 
-    if(!ODClient::getSingleton().connect("", ConfigManager::getSingleton().getNetworkPort()))
+    if(!ODClient::getSingleton().connect("localhost", ConfigManager::getSingleton().getNetworkPort()))
     {
         LogManager::getSingleton().logMessage("ERROR: Could not connect to server for editor !!!");
         tmpWin = Gui::getSingleton().getGuiSheet(Gui::editorMenu)->getChild(Gui::EDM_TEXT_LOADING);
@@ -157,9 +160,6 @@ void MenuModeEditor::launchSelectedButtonPressed()
         tmpWin->show();
         return;
     }
-
-    // Makes the frame listener process client and server messages.
-    mReadyToStartMode = true;
 }
 
 void MenuModeEditor::updateDescription()

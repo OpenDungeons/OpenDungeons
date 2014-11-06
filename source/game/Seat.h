@@ -19,6 +19,7 @@
 #define SEAT_H
 
 
+#include <OgreVector3.h>
 #include <OgreColourValue.h>
 #include <string>
 #include <vector>
@@ -29,6 +30,7 @@ class Goal;
 class ODPacket;
 class GameMap;
 class CreatureDefinition;
+class Player;
 
 class Seat
 {
@@ -37,6 +39,9 @@ public:
     friend class ODClient;
     // Constructors
     Seat(GameMap* gameMap);
+
+    inline Player* getPlayer()
+    { return mPlayer; }
 
     //! \brief Adds a goal to the vector of goals which must be completed by this seat before it can be declared a winner.
     void addGoal(Goal* g);
@@ -100,8 +105,14 @@ public:
     int getId() const
     { return mId; }
 
+    const std::string& getFactionOriginal() const
+    { return mFactionOriginal; }
+
     const std::string& getFaction() const
     { return mFaction; }
+
+    void setFaction(const std::string& faction)
+    { mFaction = faction; }
 
     const std::string& getColorId() const
     { return mColorId; }
@@ -121,12 +132,27 @@ public:
     inline double getManaDelta() const
     { return mManaDelta; }
 
-    void resetSpawnPool()
-    { mSpawnPool.clear(); }
+    inline int getStartingGold() const
+    { return mStartingGold; }
 
-    void addSpawnableCreature(const std::string& creature_name);
+    inline Ogre::Vector3 getStartingPosition() const
+    { return Ogre::Vector3(static_cast<Ogre::Real>(mStartingX), static_cast<Ogre::Real>(mStartingY), 0); }
 
-    void writeSpawnPool(std::ofstream& file) const;
+    inline void addGoldMined(int quantity)
+    { mGoldMined += quantity; }
+
+    const std::string& getPlayerTypeOriginal() const
+    { return mPlayerTypeOriginal; }
+
+    const std::string& getPlayerType() const
+    { return mPlayerType; }
+
+    void setPlayerType(const std::string& playerType)
+    { mPlayerType = playerType; }
+
+    void setPlayer(Player* player);
+
+    void initSpawnPool();
 
     const CreatureDefinition* getNextCreatureClassToSpawn();
 
@@ -140,33 +166,6 @@ public:
     bool canRoomBeDestroyedBy(Seat* seat);
     bool canTrapBeDestroyedBy(Seat* seat);
 
-    // TODO : most of these should be private
-    //! \brief The team id of the player sitting in this seat.
-    int mTeamId;
-
-    //! \brief The name of the faction that this seat is playing as.
-    std::string mFaction;
-
-    //! \brief The starting camera location (in tile coordinates) of this seat.
-    int mStartingX;
-    int mStartingY;
-
-    //! \brief The amount of 'keeper mana' the player has.
-    double mMana;
-
-    //! \brief The amount of 'keeper mana' the player gains/loses per turn, updated in GameMap::doTurn().
-    double mManaDelta;
-
-    //! \brief The amount of 'keeper HP' the player has.
-    double mHp;
-
-    //! \brief The total amount of gold coins mined by workers under this seat's control.
-    int mGoldMined;
-
-    int mNumCreaturesControlled;
-
-    int mStartingGold;
-
     static bool sortForMapSave(Seat* s1, Seat* s2);
 
     static std::string getFormat();
@@ -178,11 +177,53 @@ public:
     static void loadFromLine(const std::string& line, Seat *s);
     static const std::string getFactionFromLine(const std::string& line);
 
+    static const std::string PLAYER_TYPE_HUMAN;
+    static const std::string PLAYER_TYPE_AI;
+    static const std::string PLAYER_TYPE_INACTIVE;
+    static const std::string PLAYER_TYPE_CHOICE;
+
+    static const std::string PLAYER_FACTION_CHOICE;
+
 private:
     void goalsHasChanged();
 
     //! \brief The game map this seat belongs to
     GameMap* mGameMap;
+
+    //! \brief The player sitting on this seat
+    Player* mPlayer;
+
+    //! \brief The team id of the player sitting in this seat.
+    int mTeamId;
+
+    //! \brief The type of player (can be Human or AI).
+    std::string mPlayerType;
+
+    //! \brief The type of player (can be Human or AI).
+    std::string mPlayerTypeOriginal;
+
+    //! \brief The name of the faction that this seat is playing as (can be Keeper or Hero).
+    std::string mFaction;
+
+    //! \brief The name of the faction that this seat is playing as (can be Keeper or Hero).
+    std::string mFactionOriginal;
+
+    //! \brief The amount of 'keeper mana' the player has.
+    double mMana;
+
+    //! \brief The amount of 'keeper mana' the player gains/loses per turn, updated in GameMap::doTurn().
+    double mManaDelta;
+
+    //! \brief The starting camera location (in tile coordinates) of this seat.
+    int mStartingX;
+    int mStartingY;
+
+    //! \brief The total amount of gold coins mined by workers under this seat's control.
+    int mGoldMined;
+
+    int mNumCreaturesControlled;
+
+    int mStartingGold;
 
     //! \brief The actual color that this color index translates into.
     std::string mColorId;

@@ -15,17 +15,26 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MENUMODEMULTIPLAYERCLIENT_H
-#define MENUMODEMULTIPLAYERCLIENT_H
+#ifndef MENUMODECONFIGURESEATS_H
+#define MENUMODECONFIGURESEATS_H
 
 #include "AbstractApplicationMode.h"
 
-class MenuModeMultiplayerClient: public AbstractApplicationMode
+class Seat;
+class Player;
+class ODPacket;
+
+namespace CEGUI
+{
+    class EventArgs;
+}
+
+class MenuModeConfigureSeats: public AbstractApplicationMode
 {
 public:
-    MenuModeMultiplayerClient(ModeManager*);
+    MenuModeConfigureSeats(ModeManager*);
 
-    virtual ~MenuModeMultiplayerClient();
+    virtual ~MenuModeConfigureSeats();
 
     virtual bool mouseMoved     (const OIS::MouseEvent &arg);
     virtual bool mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id);
@@ -41,7 +50,20 @@ public:
     //! Used to call the corresponding Gui Sheet.
     void activate();
 
-    void clientButtonPressed();
+    void launchSelectedButtonPressed();
+    void goBack();
+
+    bool comboChanged(const CEGUI::EventArgs& ea);
+    void addPlayer(const std::string& nick, int32_t id);
+    void removePlayer(int32_t id);
+
+    void refreshSeatConfiguration(ODPacket& packet);
+
+private:
+    std::vector<Seat*> mSeats;
+    std::vector<std::pair<std::string, int32_t> > mPlayers;
+
+    void fireSeatConfigurationToServer(bool isFinal);
 };
 
-#endif // MENUMODEMULTIPLAYERCLIENT_H
+#endif // MENUMODECONFIGURESEATS_H

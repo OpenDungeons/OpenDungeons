@@ -40,6 +40,7 @@ void MenuMode::activate()
     MusicPlayer::getSingleton().play("Pal_Zoltan_Illes_OpenDungeons_maintheme.ogg");
 
     GameMap* gameMap = ODFrameListener::getSingletonPtr()->getClientGameMap();
+    gameMap->clearAll();
     gameMap->setGamePaused(true);
 }
 
