@@ -99,11 +99,11 @@ protected:
     virtual void destroyMeshLocal();
     virtual RenderedMovableEntity* notifyActiveSpotCreated(Tile* tile);
     virtual void notifyActiveSpotRemoved(Tile* tile);
-    int mReloadTime;
+    uint32_t mReloadTime;
     double mMinDamage;
     double mMaxDamage;
 
-    std::map<Tile*, int> mReloadTimeCounters;
+    std::map<Tile*, uint32_t> mReloadTimeCounters;
 };
 
 #endif // TRAP_H

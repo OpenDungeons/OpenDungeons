@@ -18,16 +18,17 @@
 #include "traps/TrapBoulder.h"
 #include "network/ODPacket.h"
 #include "gamemap/GameMap.h"
-#include "utils/Random.h"
 #include "entities/MissileBoulder.h"
+#include "utils/ConfigManager.h"
+#include "utils/Random.h"
 #include "utils/LogManager.h"
 
 TrapBoulder::TrapBoulder(GameMap* gameMap) :
     Trap(gameMap)
 {
-    mReloadTime = 100;
-    mMinDamage = 100;
-    mMaxDamage = 120;
+    mReloadTime = ConfigManager::getSingleton().getTrapConfigUInt32("BoulderReloadTurns");
+    mMinDamage = ConfigManager::getSingleton().getTrapConfigDouble("BoulderDamagePerHitMin");
+    mMaxDamage = ConfigManager::getSingleton().getTrapConfigDouble("BoulderDamagePerHitMax");
     setMeshName("Boulder");
 }
 

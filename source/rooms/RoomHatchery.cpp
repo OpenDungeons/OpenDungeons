@@ -19,6 +19,7 @@
 #include "entities/Tile.h"
 #include "gamemap/GameMap.h"
 #include "entities/ChickenEntity.h"
+#include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
 #include "utils/Random.h"
 
@@ -52,9 +53,8 @@ void RoomHatchery::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
 uint32_t RoomHatchery::getNbChickens()
 {
     uint32_t nbChickens = 0;
-    for(std::vector<Tile*>::iterator it = mCoveredTiles.begin(); it != mCoveredTiles.end(); ++it)
+    for(Tile* tile : mCoveredTiles)
     {
-        Tile* tile = *it;
         const std::vector<ChickenEntity*>& chickens = tile->getChickenEntities();
         nbChickens += chickens.size();
     }
@@ -70,24 +70,29 @@ void RoomHatchery::doUpkeep()
         return;
 
     uint32_t nbChickens = getNbChickens();
-    if(nbChickens < mNumActiveSpots)
+    if(nbChickens >= mNumActiveSpots)
+        return;
+
+    // Chickens have been eaten. We check when we will spawn another one
+    ++mSpawnChickenCooldown;
+    if(mSpawnChickenCooldown < ConfigManager::getSingleton().getRoomConfigUInt32("HatcheryChickenSpawnRate"))
+        return;
+
+    // We spawn 1 chicken per chicken coop (until chickens are maxed)
+    for(Tile* chickenCoopTile : mCentralActiveSpotTiles)
     {
-        // Chickens have been eaten. We check when we will spawn another one
-        ++mSpawnChickenCooldown;
-        if(mSpawnChickenCooldown >= 10)
-        {
-            Tile* tile = mCoveredTiles[Random::Uint(0, mCoveredTiles.size() - 1)];
-            ChickenEntity* chicken = new ChickenEntity(getGameMap(), getName());
-            Ogre::Vector3 pos(static_cast<Ogre::Real>(tile->x), static_cast<Ogre::Real>(tile->y), 0.0f);
-            chicken->setPosition(pos);
-            tile->addChickenEntity(chicken);
-            getGameMap()->addRenderedMovableEntity(chicken);
-            chicken->setMoveSpeed(CHICKEN_SPEED);
-            mSpawnChickenCooldown = 0;
-        }
+        ChickenEntity* chicken = new ChickenEntity(getGameMap(), getName());
+        Ogre::Vector3 pos(static_cast<Ogre::Real>(chickenCoopTile->x), static_cast<Ogre::Real>(chickenCoopTile->y), 0.0f);
+        chicken->setPosition(pos);
+        chickenCoopTile->addChickenEntity(chicken);
+        getGameMap()->addRenderedMovableEntity(chicken);
+        chicken->setMoveSpeed(CHICKEN_SPEED);
+        ++nbChickens;
+        if(nbChickens >= mNumActiveSpots)
+            break;
     }
-    else
-        mSpawnChickenCooldown = 0;
+
+    mSpawnChickenCooldown = 0;
 }
 
 bool RoomHatchery::hasOpenCreatureSpot(Creature* c)

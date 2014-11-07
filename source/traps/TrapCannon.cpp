@@ -20,6 +20,7 @@
 #include "entities/Tile.h"
 #include "gamemap/GameMap.h"
 #include "entities/MissileOneHit.h"
+#include "utils/ConfigManager.h"
 #include "utils/Random.h"
 #include "utils/LogManager.h"
 
@@ -29,10 +30,10 @@ const Ogre::Real CANNON_MISSILE_SPEED = 5;
 TrapCannon::TrapCannon(GameMap* gameMap) :
     ProximityTrap(gameMap)
 {
-    mReloadTime = 5;
-    mRange = 10;
-    mMinDamage = 5;
-    mMaxDamage = 10;
+    mReloadTime = ConfigManager::getSingleton().getTrapConfigUInt32("CannonReloadTurns");
+    mRange = ConfigManager::getSingleton().getTrapConfigUInt32("CannonRange");
+    mMinDamage = ConfigManager::getSingleton().getTrapConfigDouble("CannonDamagePerHitMin");
+    mMaxDamage = ConfigManager::getSingleton().getTrapConfigDouble("CannonDamagePerHitMax");
     setMeshName("Cannon");
 }
 

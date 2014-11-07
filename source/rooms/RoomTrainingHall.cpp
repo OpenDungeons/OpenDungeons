@@ -17,11 +17,12 @@
 
 #include "rooms/RoomTrainingHall.h"
 
+#include "entities/Creature.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 #include "gamemap/GameMap.h"
+#include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
-#include "entities/Creature.h"
 #include "utils/Random.h"
 
 const Ogre::Real RoomTrainingHall::OFFSET_CREATURE = 0.3;
@@ -264,9 +265,10 @@ void RoomTrainingHall::doUpkeep()
                 creature->setAnimationState("Attack1", false, &walkDirection);
 
                 ro->setAnimationState("Triggered", false);
-                creature->receiveExp(5.0);
-                creature->jobDone(5.0);
-                creature->setJobCooldown(Random::Uint(3, 8));
+                creature->receiveExp(ConfigManager::getSingleton().getRoomConfigDouble("HatcheryHpRecoveredPerChicken"));
+                creature->jobDone(ConfigManager::getSingleton().getRoomConfigDouble("TrainHallAwaknessPerAttack"));
+                creature->setJobCooldown(Random::Uint(ConfigManager::getSingleton().getRoomConfigUInt32("TrainHallCooldownHitMin"),
+                    ConfigManager::getSingleton().getRoomConfigUInt32("TrainHallCooldownHitMax")));
             }
         }
     }
