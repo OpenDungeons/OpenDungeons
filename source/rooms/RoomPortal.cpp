@@ -116,7 +116,6 @@ void RoomPortal::doUpkeep()
 
     // Randomly choose to spawn a creature.
     const double maxCreatures = 15;
-    //TODO:  Improve this probability calculation.
     // Count how many creatures are controlled by this seat
     double numCreatures = getGameMap()->getCreaturesBySeat(getSeat()).size();
     double targetProbability = powl((maxCreatures - numCreatures) / maxCreatures, 1.5);

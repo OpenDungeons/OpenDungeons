@@ -40,7 +40,7 @@ bool GoalMineNGold::isMet(Seat *s)
 std::string GoalMineNGold::getDescription(Seat *s)
 {
     std::stringstream tempSS;
-    tempSS << "Mined " << s->mGoldMined << " of " << mGoldToMine
+    tempSS << "Mined " << s->getGoldMined() << " of " << mGoldToMine
             << " gold coins.";
     return tempSS.str();
 }

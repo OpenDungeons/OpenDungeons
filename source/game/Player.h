@@ -38,6 +38,7 @@ class Creature;
  */
 class Player
 {
+    friend class Seat;
 public:
     enum SelectedAction
     {
@@ -49,7 +50,10 @@ public:
         destroyRoom,
         destroyTrap
     };
-    Player();
+    Player(GameMap* gameMap, int32_t id);
+
+    inline int32_t getId() const
+    { return mId; }
 
     const std::string& getNick() const
     { return mNickname; }
@@ -62,9 +66,6 @@ public:
 
     void setNick (const std::string& nick)
     { mNickname = nick; }
-
-    void setSeat(Seat* seat)
-    { mSeat = seat; }
 
     //! \brief A simple accessor function to return the number of creatures
     //! this player is holding in his/her hand that belongs to seat seat.
@@ -96,9 +97,6 @@ public:
 
     //! \brief Clears all creatures that a player might have in his hand
     void notifyNoMoreDungeonTemple();
-
-    inline void setGameMap(GameMap* gameMap)
-    { mGameMap = gameMap; }
 
     inline bool getHasAI() const
     { return mHasAI; }
@@ -134,6 +132,11 @@ public:
     { mCurrentAction = action; }
 
 private:
+    //! \brief Player ID is only used during seat configuration phase
+    //! During the game, one should use the seat ID to identify a player because
+    //! every AI player has an id = 0.
+    //! ID is unique only for human players
+    int32_t mId;
     //! \brief Room or trap tile type the player is currently willing to place on map.
     Room::RoomType mNewRoomType;
     Trap::TrapType mNewTrapType;

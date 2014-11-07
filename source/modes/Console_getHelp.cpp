@@ -121,13 +121,6 @@ string Console::getHelpText(std::string arg)
                 + "ambientlight 0.4 0.6 0.5\n\nThe above command sets the ambient light color to red=0.4, green=0.6, and blue = 0.5.";
     }
 
-    else if (arg.compare("host") == 0)
-    {
-        std::stringstream s;
-        s << ConfigManager::getSingleton().getNetworkPort();
-        return "Starts a server thread running on this machine.  This utility takes a port number as an argument.  The port number is the port to listen on for a connection.  The default (if no argument is given) is to use" + s.str() + "for the port number.";
-    }
-
     else if (arg.compare("connnect") == 0)
     {
         return "Connect establishes a connection with a server.  It takes as its argument an IP address specified in dotted decimal notation (such as 192.168.1.100), and starts a client thread which monitors the connection for events.";

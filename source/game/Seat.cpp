@@ -30,16 +30,22 @@
 #include "utils/LogManager.h"
 #include "utils/Random.h"
 
+const std::string Seat::PLAYER_TYPE_HUMAN = "Human";
+const std::string Seat::PLAYER_TYPE_AI = "AI";
+const std::string Seat::PLAYER_TYPE_INACTIVE = "Inactive";
+const std::string Seat::PLAYER_TYPE_CHOICE = "Choice";
+const std::string Seat::PLAYER_FACTION_CHOICE = "Choice";
+
 Seat::Seat(GameMap* gameMap) :
+    mGameMap(gameMap),
+    mPlayer(nullptr),
     mTeamId(0),
-    mStartingX(0),
-    mStartingY(0),
     mMana(1000),
     mManaDelta(0),
-    mHp(1000),
+    mStartingX(0),
+    mStartingY(0),
     mGoldMined(0),
     mNumCreaturesControlled(0),
-    mGameMap(gameMap),
     mNumClaimedTiles(0),
     mHasGoalsChanged(true),
     mGold(0),
@@ -268,21 +274,22 @@ bool Seat::canTrapBeDestroyedBy(Seat* seat)
     return false;
 }
 
-void Seat::addSpawnableCreature(const std::string& creature_name)
+void Seat::setPlayer(Player* player)
 {
-    const CreatureDefinition* def = ConfigManager::getSingleton().getCreatureDefinition(creature_name);
-    OD_ASSERT_TRUE_MSG(def != nullptr, "creature_name=" + creature_name);
-    if(def == nullptr)
-        return;
-    mSpawnPool.push_back(std::pair<const CreatureDefinition*, bool>(def, false));
+    OD_ASSERT_TRUE_MSG(mPlayer == nullptr, "A player=" + mPlayer->getNick() + " already on seat id="
+        + Ogre::StringConverter::toString(getId()));
+
+    mPlayer = player;
+    mPlayer->mSeat = this;
 }
 
-
-void Seat::writeSpawnPool(std::ofstream& file) const
+void Seat::initSpawnPool()
 {
-    for(std::pair<const CreatureDefinition*, bool> def : mSpawnPool)
+    const std::vector<const CreatureDefinition*>& pool = ConfigManager::getSingleton().getFactionSpawnPool(mFaction);
+    OD_ASSERT_TRUE_MSG(!pool.empty(), "Empty spawn pool for faction=" + mFaction);
+    for(const CreatureDefinition* def : pool)
     {
-        file << def.first->getClassName() << std::endl;
+        mSpawnPool.push_back(std::pair<const CreatureDefinition*, bool>(def, false));
     }
 }
 
@@ -324,7 +331,7 @@ const CreatureDefinition* Seat::getNextCreatureClassToSpawn()
     if(defSpawnable.empty())
         return nullptr;
 
-    // We choose randomly a creature to spawn according to there points
+    // We choose randomly a creature to spawn according to their points
     int32_t cpt = Random::Int(0, nbPointsTotal);
     for(std::pair<const CreatureDefinition*, int32_t>& def : defSpawnable)
     {
@@ -341,12 +348,12 @@ const CreatureDefinition* Seat::getNextCreatureClassToSpawn()
 
 std::string Seat::getFormat()
 {
-    return "seatId\tteamId\tfaction\tstartingX\tstartingY\tcolor\tstartingGold";
+    return "seatId\tteamId\tplayer\tfaction\tstartingX\tstartingY\tcolor\tstartingGold";
 }
 
 ODPacket& operator<<(ODPacket& os, Seat *s)
 {
-    os << s->mId << s->mTeamId << s->mFaction << s->mStartingX
+    os << s->mId << s->mTeamId << s->mPlayerType << s->mFaction << s->mStartingX
        << s->mStartingY;
     os << s->mColorId;
     os << s->mGold << s->mMana << s->mManaDelta << s->mNumClaimedTiles;
@@ -357,7 +364,8 @@ ODPacket& operator<<(ODPacket& os, Seat *s)
 
 ODPacket& operator>>(ODPacket& is, Seat *s)
 {
-    is >> s->mId >> s->mTeamId >> s->mFaction >> s->mStartingX >> s->mStartingY;
+    is >> s->mId >> s->mTeamId >> s->mPlayerType;
+    is >> s->mFaction >> s->mStartingX >> s->mStartingY;
     is >> s->mColorId;
     is >> s->mGold >> s->mMana >> s->mManaDelta >> s->mNumClaimedTiles;
     is >> s->mHasGoalsChanged;
@@ -368,10 +376,11 @@ ODPacket& operator>>(ODPacket& is, Seat *s)
 
 const std::string Seat::getFactionFromLine(const std::string& line)
 {
+    const uint32_t indexFactionInLine = 3;
     std::vector<std::string> elems = Helper::split(line, '\t');
-    OD_ASSERT_TRUE_MSG(elems.size() > 2, "line=" + line);
-    if(elems.size() > 2)
-        return elems[2];
+    OD_ASSERT_TRUE_MSG(elems.size() > indexFactionInLine, "line=" + line);
+    if(elems.size() > indexFactionInLine)
+        return elems[indexFactionInLine];
 
     return std::string();
 }
@@ -380,13 +389,15 @@ void Seat::loadFromLine(const std::string& line, Seat *s)
 {
     std::vector<std::string> elems = Helper::split(line, '\t');
 
-    s->mId = Helper::toInt(elems[0]);
-    s->mTeamId = Helper::toInt(elems[1]);
-    s->mFaction = elems[2];
-    s->mStartingX = Helper::toInt(elems[3]);
-    s->mStartingY = Helper::toInt(elems[4]);
-    s->mColorId = elems[5];
-    s->mStartingGold = Helper::toInt(elems[6]);
+    int32_t i = 0;
+    s->mId = Helper::toInt(elems[i++]);
+    s->mTeamId = Helper::toInt(elems[i++]);
+    s->mPlayerType = elems[i++];
+    s->mFaction = elems[i++];
+    s->mStartingX = Helper::toInt(elems[i++]);
+    s->mStartingY = Helper::toInt(elems[i++]);
+    s->mColorId = elems[i++];
+    s->mStartingGold = Helper::toInt(elems[i++]);
     s->mColorValue = ConfigManager::getSingleton().getColorFromId(s->mColorId);
 }
 
@@ -407,7 +418,7 @@ bool Seat::sortForMapSave(Seat* s1, Seat* s2)
 
 std::ostream& operator<<(std::ostream& os, Seat *s)
 {
-    os << s->mId << "\t" << s->mTeamId << "\t" << s->mFaction << "\t" << s->mStartingX
+    os << s->mId << "\t" << s->mTeamId << "\t" << s->mPlayerType << "\t" << s->mFaction << "\t" << s->mStartingX
        << "\t"<< s->mStartingY;
     os << "\t" << s->mColorId;
     os << "\t" << s->mStartingGold;
@@ -416,7 +427,7 @@ std::ostream& operator<<(std::ostream& os, Seat *s)
 
 std::istream& operator>>(std::istream& is, Seat *s)
 {
-    is >> s->mId >> s->mTeamId >> s->mFaction >> s->mStartingX >> s->mStartingY;
+    is >> s->mId >> s->mTeamId >> s->mPlayerType >> s->mFaction >> s->mStartingX >> s->mStartingY;
     is >> s->mColorId;
     is >> s->mStartingGold;
     s->mColorValue = ConfigManager::getSingleton().getColorFromId(s->mColorId);

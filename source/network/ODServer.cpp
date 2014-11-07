@@ -52,9 +52,10 @@ const std::string ODServer::SERVER_INFORMATION = "SERVER_INFORMATION";
 template<> ODServer* Ogre::Singleton<ODServer>::msSingleton = 0;
 
 ODServer::ODServer() :
-    mServerMode(ModeGame),
+    mServerMode(ServerMode::ModeNone),
+    mServerState(ServerState::StateNone),
     mGameMap(new GameMap(true)),
-    mNbClientsNotReady(0)
+    mSeatsConfigured(false)
 {
 }
 
@@ -63,12 +64,13 @@ ODServer::~ODServer()
     delete mGameMap;
 }
 
-bool ODServer::startServer(const std::string& levelFilename, bool replaceHumanPlayersByAi, ServerMode mode)
+bool ODServer::startServer(const std::string& levelFilename, ServerMode mode)
 {
     LogManager& logManager = LogManager::getSingleton();
     logManager.logMessage("Asked to launch server with levelFilename=" + levelFilename);
 
     mLevelFilename = levelFilename;
+    mSeatsConfigured = false;
 
     // Start the server socket listener as well as the server socket thread
     if (isConnected())
@@ -85,79 +87,21 @@ bool ODServer::startServer(const std::string& levelFilename, bool replaceHumanPl
     // Read in the map. The map loading should be happen here and not in the server thread to
     // make sure it is valid before launching the server.
     mServerMode = mode;
+    mServerState = ServerState::StateConfiguration;
     GameMap* gameMap = mGameMap;
     if (!gameMap->loadLevel(levelFilename))
     {
+        mServerMode = ServerMode::ModeNone;
+        mServerState = ServerState::StateNone;
         logManager.logMessage("Couldn't start server. The level file can't be loaded: " + levelFilename);
         return false;
     }
 
-    // Fill seats with either player, AIs or nothing depending on the given faction.
-    uint32_t i = 0;
-    uint32_t uniqueAINumber = 0;
-    uint32_t uniqueInactiveNumber = 0;
-    uint32_t nbPlayerSeat = 0;
-    mNbClientsNotReady = 0;
-    while (i < gameMap->numEmptySeats())
-    {
-        Seat* seat = gameMap->getEmptySeat(i);
-
-        if (seat->mFaction == "Player")
-        {
-            ++nbPlayerSeat;
-            // Add local player on first slot available.
-            if(replaceHumanPlayersByAi && nbPlayerSeat > 1)
-            {
-                // NOTE - AI should later have definable names maybe?.
-                Player* aiPlayer = new Player();
-                aiPlayer->setNick("Keeper AI " + Ogre::StringConverter::toString(uniqueAINumber++));
-
-                // The empty seat is removed by addPlayer(), so we loop without incrementing i
-                gameMap->addPlayer(aiPlayer, gameMap->popEmptySeat(seat->getId()));
-                gameMap->assignAI(*aiPlayer, "KeeperAI");
-                continue;
-            }
-            else
-            {
-                ++mNbClientsNotReady;
-            }
-        }
-        else if (seat->mFaction == "KeeperAI")
-        {
-            // NOTE - AI should later have definable names maybe?.
-            Player* aiPlayer = new Player();
-            aiPlayer->setNick("Keeper AI " + Ogre::StringConverter::toString(++uniqueAINumber));
-
-            // The empty seat is removed by addPlayer(), so we loop without incrementing i
-            gameMap->addPlayer(aiPlayer, gameMap->popEmptySeat(seat->getId()));
-            gameMap->assignAI(*aiPlayer, "KeeperAI");
-            continue;
-        }
-        else
-        {
-            // We create a virtual player that does nothing
-            Player* aiPlayer = new Player();
-            aiPlayer->setNick("Inactive player " + Ogre::StringConverter::toString(++uniqueInactiveNumber));
-
-            // The empty seat is removed by addPlayer(), so we loop without incrementing i
-            gameMap->addPlayer(aiPlayer, gameMap->popEmptySeat(seat->getId()));
-            continue;
-        }
-
-        ++i;
-    }
-
-    logManager.logMessage("Added: " + Ogre::StringConverter::toString(nbPlayerSeat) + " Human players");
-    logManager.logMessage("Added: " + Ogre::StringConverter::toString(uniqueAINumber) + " AI players");
-    logManager.logMessage("Added: " + Ogre::StringConverter::toString(uniqueInactiveNumber) + " inactive players");
-
-    // If no player seat, the game cannot be launched
-    if (nbPlayerSeat == 0)
-        return false;
-
     // Set up the socket to listen on the specified port
     if (!createServer(ConfigManager::getSingleton().getNetworkPort()))
     {
+        mServerMode = ServerMode::ModeNone;
+        mServerState = ServerState::StateNone;
         logManager.logMessage("ERROR:  Server could not create server socket!");
         return false;
     }
@@ -215,9 +159,8 @@ void ODServer::startNewTurn(double timeSinceLastFrame)
 
     // We wait until every client acknowledge the turn to start the next one. This way, we ensure
     // synchronisation is not too bad
-    for (std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
+    for (ODSocketClient* client : mSockClients)
     {
-        ODSocketClient* client = *it;
         if(client->getLastTurnAck() != turn)
             return;
     }
@@ -288,11 +231,22 @@ void ODServer::startNewTurn(double timeSinceLastFrame)
         }
     }
 
-    // We do not update turn in editor mode to not have creatures wande
-    if(mServerMode == ServerMode::ModeGame)
+    switch(mServerMode)
     {
-        gameMap->doTurn();
-        gameMap->doPlayerAITurn(timeSinceLastFrame);
+        case ServerMode::ModeGameSinglePlayer:
+        case ServerMode::ModeGameMultiPlayer:
+        {
+            gameMap->doTurn();
+            gameMap->doPlayerAITurn(timeSinceLastFrame);
+            break;
+        }
+        case ServerMode::ModeEditor:
+            // We do not update turn in editor mode to not have creatures wander
+            break;
+        case ServerMode::ModeNone:
+            // It is not normal to have no mode selected and starting turns
+            OD_ASSERT_TRUE(false);
+            break;
     }
 
     gameMap->processDeletionQueues();
@@ -312,7 +266,7 @@ void ODServer::serverThread()
         if(gameMap->getTurnNumber() == -1)
         {
             // The game is not started
-            if(mNbClientsNotReady == 0)
+            if(mSeatsConfigured)
             {
                 // Every client is connected and ready, we can launch the game
                 try
@@ -334,11 +288,13 @@ void ODServer::serverThread()
                 gameMap->createAllEntities();
 
                 // Fill starting gold
-                for(std::vector<Seat*>::iterator it = gameMap->filledSeats.begin(); it != gameMap->filledSeats.end(); ++it)
+                for(Seat* seat : gameMap->getSeats())
                 {
-                    Seat* seat = *it;
-                    if(seat->mStartingGold > 0)
-                        gameMap->addGoldToSeat(seat->mStartingGold, seat->getId());
+                    if(seat->getPlayer() == nullptr)
+                        continue;
+
+                    if(seat->getStartingGold() > 0)
+                        gameMap->addGoldToSeat(seat->getStartingGold(), seat->getId());
                 }
             }
             else
@@ -441,7 +397,7 @@ void ODServer::processServerNotifications()
             case ServerNotification::buildRoom:
             {
                 // This message should only be sent by ai players (human players are notified directly)
-                std::string& faction = event->mConcernedPlayer->getSeat()->mFaction;
+                const std::string& faction = event->mConcernedPlayer->getSeat()->getFaction();
                 OD_ASSERT_TRUE_MSG(faction != "Player", faction);
                 sendMsgToAllClients(event->mPacket);
                 break;
@@ -562,6 +518,16 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
     // If the client closed the connection
     if (status != ODSocketClient::ODComStatus::OK)
     {
+        // If a client disconnects during seat configuration, we delete him from the list
+        if(mServerState != ServerState::StateConfiguration)
+            return (status != ODSocketClient::ODComStatus::Error);
+
+        uint32_t nbPlayers = 1;
+        ODPacket packetSend;
+        packetSend << ServerNotification::removePlayers << nbPlayers;
+        int32_t id = clientSocket->getPlayer()->getId();
+        packetSend << id;
+        sendMsgToAllClients(packetSend);
         return (status != ODSocketClient::ODComStatus::Error);
     }
 
@@ -589,7 +555,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             LogManager::getSingleton().logMessage("Level relative path sent to client: " + mLevelFilename);
             setClientState(clientSocket, "loadLevel");
             ODPacket packetSend;
-            packetSend << ServerNotification::loadLevel << mLevelFilename;
+            packetSend << ServerNotification::loadLevel << mLevelFilename << mServerMode;
             sendMsgToClient(clientSocket, packetSend);
             break;
         }
@@ -612,82 +578,230 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             if(std::string("nick").compare(clientSocket->getState()) != 0)
                 return false;
 
-            ODPacket packetSend;
             // Pick nick
             std::string clientNick;
             OD_ASSERT_TRUE(packetReceived >> clientNick);
 
-            // Create a player structure for the client
-            Player *curPlayer;
-            Seat* seat = gameMap->getEmptySeat("Player");
-            curPlayer = new Player;
+            // NOTE : playerId 0 is reserved for inactive players and  1 is reserved for AI
+            int32_t playerId = mSockClients.size() + 10;
+            Player* curPlayer = new Player(gameMap, playerId);
             curPlayer->setNick(clientNick);
-            // The seat should be available since it has been checked before accepting the client connexion
-            if(seat != NULL)
+            clientSocket->setPlayer(curPlayer);
+            setClientState(clientSocket, "ready");
+
+            if(mServerMode != ServerMode::ModeEditor)
+                break;
+
+            // On editor mode, we configure automatically seats
+            mServerState = ServerState::StateGame;
+            const std::vector<Seat*>& seats = gameMap->getSeats();
+            OD_ASSERT_TRUE(!seats.empty());
+            if(seats.empty())
+                break;
+
+            Seat* seat = seats[0];
+            seat->setPlayer(curPlayer);
+            ODPacket packetSend;
+            packetSend << ServerNotification::clientAccepted << ODApplication::turnsPerSecond;
+            int32_t nbPlayers = 1;
+            packetSend << nbPlayers;
+            const std::string& nick = clientSocket->getPlayer()->getNick();
+            int32_t id = clientSocket->getPlayer()->getId();
+            int seatId = seat->getId();
+            packetSend << nick << id << seatId;
+            sendMsgToClient(clientSocket, packetSend);
+
+            packetSend.clear();
+            packetSend << ServerNotification::startGameMode << seatId << mServerMode;
+            sendMsgToClient(clientSocket, packetSend);
+            mSeatsConfigured = true;
+            break;
+        }
+
+        case ClientNotification::readyForSeatConfiguration:
+        {
+            if(std::string("ready").compare(clientSocket->getState()) != 0)
+                return false;
+
+            ODPacket packetSend;
+            // We notify to the newly connected player all the currently connected players (including himself
+            uint32_t nbPlayers = mSockClients.size();
+            packetSend << ServerNotification::addPlayers << nbPlayers;
+            for (ODSocketClient* client : mSockClients)
             {
-                int seatId = seat->getId();
-                clientSocket->setPlayer(curPlayer);
-                gameMap->addPlayer(curPlayer, gameMap->popEmptySeat(seatId));
-                // We notify the newly connected player to the others
-                packetSend.clear();
-                packetSend << ServerNotification::addPlayer << clientNick
-                    << seatId;
-                for (std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
+                const std::string& nick = client->getPlayer()->getNick();
+                int32_t id = client->getPlayer()->getId();
+                packetSend << nick << id;
+            }
+            sendMsgToClient(clientSocket, packetSend);
+
+            // Then, we notify the newly connected client to every client
+            const std::string& clientNick = clientSocket->getPlayer()->getNick();
+            int32_t clientPlayerId = clientSocket->getPlayer()->getId();
+            packetSend.clear();
+            nbPlayers = 1;
+            packetSend << ServerNotification::addPlayers << nbPlayers;
+            packetSend << clientNick << clientPlayerId;
+            for (ODSocketClient* client : mSockClients)
+            {
+                if(clientSocket == client)
+                    continue;
+
+                sendMsgToClient(client, packetSend);
+            }
+            break;
+        }
+
+        case ClientNotification::seatConfigurationRefresh:
+        {
+            std::vector<Seat*> seats = gameMap->getSeats();
+            ODPacket packetSend;
+            packetSend << ServerNotification::seatConfigurationRefresh;
+            for(Seat* seat : seats)
+            {
+                int seatId;
+                bool isSet;
+                OD_ASSERT_TRUE(packetReceived >> seatId);
+                OD_ASSERT_TRUE(seatId == seat->getId());
+                packetSend << seatId;
+
+                OD_ASSERT_TRUE(packetReceived >> isSet);
+                packetSend << isSet;
+                if(isSet)
                 {
-                    ODSocketClient *client = *it;
-                    if(clientSocket != client)
+                    uint32_t factionIndex;
+                    OD_ASSERT_TRUE(packetReceived >> factionIndex);
+                    packetSend << factionIndex;
+                }
+                OD_ASSERT_TRUE(packetReceived >> isSet);
+                packetSend << isSet;
+                if(isSet)
+                {
+                    int32_t playerId;
+                    OD_ASSERT_TRUE(packetReceived >> playerId);
+                    packetSend << playerId;
+                }
+            }
+            sendMsgToAllClients(packetSend);
+            break;
+        }
+
+        case ClientNotification::seatConfigurationSet:
+        {
+            // We change server state to make sure no new client will be accepted
+            OD_ASSERT_TRUE_MSG(mServerState == ServerState::StateConfiguration, "Wrong server state="
+                + Ogre::StringConverter::toString(static_cast<int>(mServerState)));
+            mServerState = ServerState::StateGame;
+
+            std::vector<Seat*> seats = gameMap->getSeats();
+            const std::vector<std::string>& factions = ConfigManager::getSingleton().getFactions();
+            for(Seat* seat : seats)
+            {
+                int seatId;
+                bool isSet;
+                uint32_t factionIndex;
+                int32_t playerId;
+                OD_ASSERT_TRUE(packetReceived >> seatId);
+                OD_ASSERT_TRUE(seatId == seat->getId());
+                OD_ASSERT_TRUE(packetReceived >> isSet);
+                // It is not acceptable to have an incompletely configured seat
+                OD_ASSERT_TRUE(isSet);
+                OD_ASSERT_TRUE(packetReceived >> factionIndex);
+                OD_ASSERT_TRUE(factionIndex < factions.size());
+                seat->setFaction(factions[factionIndex]);
+
+                OD_ASSERT_TRUE(packetReceived >> isSet);
+                // It is not acceptable to have an incompletely configured seat
+                OD_ASSERT_TRUE(isSet);
+                OD_ASSERT_TRUE(packetReceived >> playerId);
+                switch(playerId)
+                {
+                    case 0:
                     {
-                        sendMsgToClient(client, packetSend);
+                        // It is an inactive player
+                        break;
+                    }
+                    case 1:
+                    {
+                        // It is an AI
+                        // We set player id = 0 for AI players. ID is only used during seat configuration phase
+                        // During the game, one should use the seat ID to identify a player
+                        Player* aiPlayer = new Player(gameMap, 0);
+                        aiPlayer->setNick("Keeper AI " + Ogre::StringConverter::toString(seatId));
+                        gameMap->addPlayer(aiPlayer);
+                        seat->setPlayer(aiPlayer);
+                        gameMap->assignAI(*aiPlayer, "KeeperAI");
+                        break;
+                    }
+                    default:
+                    {
+                        // Human player
+                        for (ODSocketClient* client : mSockClients)
+                        {
+                            if((client->getState().compare("ready") == 0) &&
+                               (client->getPlayer()->getId() == playerId))
+                            {
+                                seat->setPlayer(client->getPlayer());
+                                gameMap->addPlayer(client->getPlayer());
+                                break;
+                            }
+                        }
+                        break;
                     }
                 }
+
+                // If a player is assigned to this seat, we create his spawn pool
+                if(seat->getPlayer() != nullptr)
+                    seat->initSpawnPool();
+                else
+                    LogManager::getSingleton().logMessage("No spawn pool created for seat id="
+                        + Ogre::StringConverter::toString(seat->getId()));
             }
-            else
+
+            // Now, we can disconnect the players that were not configured
+            std::vector<ODSocketClient*> clientsToRemove;
+            for (ODSocketClient* client : mSockClients)
             {
-                // No seat available. We disconnect the client
-                delete curPlayer;
-                return false;
+                if(client->getPlayer()->getSeat() == nullptr)
+                    clientsToRemove.push_back(client);
             }
 
-            // Send over the information about the game. Clients can connect only before
-            // a game is launched (it would be too long to transfer all data otherwise).
-            // So we assume that they have loaded the same map (we have tested it as well
-            // as we could previously). We just need to send them information about the
-            // players
-            packetSend.clear();
-            packetSend << ServerNotification::turnsPerSecond << ODApplication::turnsPerSecond;
-            sendMsgToClient(clientSocket, packetSend);
-
-            packetSend.clear();
-            int seatId = seat->getId();
-            packetSend << ServerNotification::yourSeat << seatId;
-            sendMsgToClient(clientSocket, packetSend);
-
-            // We notify the pending players to the new one
-            for (unsigned int i = 0; i < gameMap->numPlayers(); ++i)
+            if(!clientsToRemove.empty())
             {
-                // Don't tell the client about its own player structure
-                Player* tempPlayer = gameMap->getPlayer(i);
-                if (curPlayer != tempPlayer && tempPlayer != NULL)
+                ODPacket packetSend;
+                packetSend << ServerNotification::clientRejected;
+                for(ODSocketClient* client : clientsToRemove)
                 {
-                    packetSend.clear();
-                    int seatId = tempPlayer->getSeat()->getId();
-                    std::string nick = tempPlayer->getNick();
-                    packetSend << ServerNotification::addPlayer << nick << seatId;
-                    sendMsgToClient(clientSocket, packetSend);
+                    sendMsgToClient(client, packetSend);
+                    delete client->getPlayer();
+                    client->setPlayer(nullptr);
+                    client->disconnect();
                 }
             }
 
-            // The player received everything. He is ready
-            setClientState(clientSocket, "ready");
-            // We notify the client that everything is ready
-            packetSend.clear();
-            int32_t intServerMode = static_cast<int32_t>(mServerMode);
-            packetSend << ServerNotification::clientAccepted << intServerMode;
-            sendMsgToClient(clientSocket, packetSend);
-            --mNbClientsNotReady;
-            LogManager::getSingleton().logMessage("Player=" + curPlayer->getNick()
-                + " has been accepted in the game on seatId="
-                + Ogre::StringConverter::toString(seat->getId()));
+            ODPacket packetSend;
+            packetSend << ServerNotification::clientAccepted << ODApplication::turnsPerSecond;
+            const std::vector<Player*>& players = gameMap->getPlayers();
+            int32_t nbPlayers = players.size();
+            packetSend << nbPlayers;
+            for (Player* player : players)
+            {
+                packetSend << player->getNick() << player->getId() << player->getSeat()->getId();
+            }
+            sendMsgToAllClients(packetSend);
+
+            for (ODSocketClient* client : mSockClients)
+            {
+                if(!client->isConnected())
+                    continue;
+
+                ODPacket packetSend;
+                int seatId = client->getPlayer()->getSeat()->getId();
+                packetSend << ServerNotification::startGameMode << seatId << mServerMode;
+                sendMsgToClient(client, packetSend);
+            }
+
+            mSeatsConfigured = true;
             break;
         }
 
@@ -1275,8 +1389,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             Room::RoomType type;
 
             OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> type >> seatId);
-            Player* player = gameMap->getPlayerBySeatId(seatId);
-            OD_ASSERT_TRUE_MSG(player != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
+            Seat* seat = gameMap->getSeatById(seatId);
+            OD_ASSERT_TRUE_MSG(seat != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
             std::vector<Tile*> selectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
             std::vector<Tile*> tiles;
             // We start by changing the tiles so that the room can be built
@@ -1294,7 +1408,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 tiles.push_back(tile);
 
                 tile->setType(Tile::TileType::claimed);
-                tile->setSeat(player->getSeat());
+                tile->setSeat(seat);
                 tile->setFullness(0.0);
             }
 
@@ -1356,7 +1470,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             if(room == nullptr)
                 break;
 
-            room->setupRoom(gameMap->nextUniqueNameRoom(room->getMeshName()), player->getSeat(), tiles);
+            room->setupRoom(gameMap->nextUniqueNameRoom(room->getMeshName()), seat, tiles);
 
             gameMap->addRoom(room);
             room->checkForRoomAbsorbtion();
@@ -1375,8 +1489,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             Trap::TrapType type;
 
             OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> type >> seatId);
-            Player* player = gameMap->getPlayerBySeatId(seatId);
-            OD_ASSERT_TRUE_MSG(player != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
+            Seat* seat = gameMap->getSeatById(seatId);
+            OD_ASSERT_TRUE_MSG(seat != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
             std::vector<Tile*> selectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
             std::vector<Tile*> tiles;
             // We start by changing the tiles so that the trap can be built
@@ -1394,7 +1508,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 tiles.push_back(tile);
 
                 tile->setType(Tile::TileType::claimed);
-                tile->setSeat(player->getSeat());
+                tile->setSeat(seat);
                 tile->setFullness(0.0);
             }
 
@@ -1432,7 +1546,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             if(trap == nullptr)
                 break;
 
-            trap->setupTrap(gameMap->nextUniqueNameTrap(trap->getMeshName()), player->getSeat(), tiles);
+            trap->setupTrap(gameMap->nextUniqueNameTrap(trap->getMeshName()), seat, tiles);
             gameMap->addTrap(trap);
             trap->createMesh();
             trap->updateActiveSpots();
@@ -1446,14 +1560,14 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             Player* player = clientSocket->getPlayer();
             int seatId;
             OD_ASSERT_TRUE(packetReceived >> seatId);
-            Player* playerCreature = gameMap->getPlayerBySeatId(seatId);
-            OD_ASSERT_TRUE_MSG(playerCreature != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
+            Seat* seatCreature = gameMap->getSeatById(seatId);
+            OD_ASSERT_TRUE_MSG(seatCreature != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
             const CreatureDefinition *classToSpawn = gameMap->getClassDescription("Kobold");
             OD_ASSERT_TRUE(classToSpawn != nullptr);
             if(classToSpawn == nullptr)
                 break;
             Creature* newCreature = new Creature(gameMap, classToSpawn);
-            newCreature->setSeat(playerCreature->getSeat());
+            newCreature->setSeat(seatCreature);
 
             newCreature->createMesh();
             gameMap->addCreature(newCreature);
@@ -1481,14 +1595,14 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             int seatId;
             std::string className;
             OD_ASSERT_TRUE(packetReceived >> seatId >> className);
-            Player* playerCreature = gameMap->getPlayerBySeatId(seatId);
-            OD_ASSERT_TRUE_MSG(playerCreature != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
+            Seat* seatCreature = gameMap->getSeatById(seatId);
+            OD_ASSERT_TRUE_MSG(seatCreature != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
             const CreatureDefinition *classToSpawn = gameMap->getClassDescription(className);
             OD_ASSERT_TRUE_MSG(classToSpawn != nullptr, "Couldn't spawn creature class=" + className);
             if(classToSpawn == nullptr)
                 break;
             Creature* newCreature = new Creature(gameMap, classToSpawn);
-            newCreature->setSeat(playerCreature->getSeat());
+            newCreature->setSeat(seatCreature);
 
             newCreature->createMesh();
             gameMap->addCreature(newCreature);
@@ -1524,13 +1638,27 @@ bool ODServer::notifyNewConnection(ODSocketClient *clientSocket)
     if (gameMap == NULL)
         return false;
 
-    setClientState(clientSocket, "connected");
-    // TODO : the seat should be popped and saved in the client so that we can keep track if several clients
-    // connects at same time (otherwise, clients could be accepted even if no seat available). But this
-    // would require to be careful because if the connection is refused for
-    // some reason, it has to be turned available again for another player
-    Seat* seat = gameMap->getEmptySeat("Player");
-    return (seat != NULL);
+    switch(mServerState)
+    {
+        case ServerState::StateNone:
+        {
+            // It is not normal to receive new connexions while not connected. We are in an unexpected state
+            OD_ASSERT_TRUE(false);
+            return false;
+        }
+        case ServerState::StateConfiguration:
+        {
+            setClientState(clientSocket, "connected");
+            return true;
+        }
+        case ServerState::StateGame:
+        {
+            // TODO : handle re-connexion if a client was disconnected and tries to reconnect
+            return false;
+        }
+    }
+
+    return false;
 }
 
 bool ODServer::notifyClientMessage(ODSocketClient *clientSocket)
@@ -1538,21 +1666,25 @@ bool ODServer::notifyClientMessage(ODSocketClient *clientSocket)
     bool ret = processClientNotifications(clientSocket);
     if(!ret)
     {
-        try
+        LogManager::getSingleton().logMessage("Client disconnected state=" + clientSocket->getState());
+        if(std::string("ready").compare(clientSocket->getState()) == 0)
         {
-            ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::chatServer, clientSocket->getPlayer());
-            std::string msg = clientSocket->getPlayer()->getNick()
-                + " disconnected";
-            serverNotification->mPacket << msg;
-            queueServerNotification(serverNotification);
+            try
+            {
+                ServerNotification *serverNotification = new ServerNotification(
+                    ServerNotification::chatServer, clientSocket->getPlayer());
+                std::string msg = clientSocket->getPlayer()->getNick()
+                    + " disconnected";
+                serverNotification->mPacket << msg;
+                queueServerNotification(serverNotification);
+            }
+            catch (std::bad_alloc&)
+            {
+                OD_ASSERT_TRUE(false);
+                exit(1);
+            }
         }
-        catch (std::bad_alloc&)
-        {
-            OD_ASSERT_TRUE(false);
-            exit(1);
-        }
-        // TODO : wait at least 1 minute if the client reconnects
+        // TODO : wait at least 1 minute if the client reconnects if deconnexion happens during game
     }
     return ret;
 }
@@ -1561,8 +1693,6 @@ void ODServer::stopServer()
 {
     // We start by stopping server to make sure no new message comes
     ODSocketServer::stopServer();
-
-    mNbClientsNotReady = 0;
 
     // Now that the server is stopped, we can remove all pending messages
     while(!mServerNotificationQueue.empty())

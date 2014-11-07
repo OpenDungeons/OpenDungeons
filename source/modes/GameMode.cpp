@@ -777,9 +777,7 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
         if(isConnected()) // If we are in a game.
         {
             Seat* tempSeat = mGameMap->getLocalPlayer()->getSeat();
-            frameListener.cameraFlyTo(Ogre::Vector3((Ogre::Real)tempSeat->mStartingX,
-                                                   (Ogre::Real)tempSeat->mStartingY,
-                                                   (Ogre::Real)0.0));
+            frameListener.cameraFlyTo(tempSeat->getStartingPosition());
         }
         break;
 

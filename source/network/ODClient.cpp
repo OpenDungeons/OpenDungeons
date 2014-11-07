@@ -33,6 +33,7 @@
 #include "entities/RenderedMovableEntity.h"
 #include "utils/LogManager.h"
 #include "modes/ModeManager.h"
+#include "modes/MenuModeConfigureSeats.h"
 #include "sound/MusicPlayer.h"
 #include "camera/CameraManager.h"
 
@@ -95,7 +96,8 @@ bool ODClient::processOneClientSocketMessage()
         case ServerNotification::loadLevel:
         {
             std::string levelFilename;
-            OD_ASSERT_TRUE(packetReceived >> levelFilename);
+            ODServer::ServerMode serverMode;
+            OD_ASSERT_TRUE(packetReceived >> levelFilename >> serverMode);
             // Read in the map. The map loading should happen here and not in the server thread to
             // make sure it is valid before launching the server.
             RenderManager::getSingletonPtr()->processRenderRequests();
@@ -108,83 +110,149 @@ bool ODClient::processOneClientSocketMessage()
                 return false;
             }
 
-            // We set local player
-            setPlayer(gameMap->getLocalPlayer());
-
-            // Fill seats with either player, AIs or nothing depending on the given faction.
-            uint32_t i = 0;
-            uint32_t nbAiSeat = 0;
-            uint32_t nbPlayerSeat = 0;
-            while (i < gameMap->numEmptySeats())
-            {
-                Seat* seat = gameMap->getEmptySeat(i);
-
-                if (seat->mFaction == "Player")
-                {
-                    ++nbPlayerSeat;
-                }
-                else if (seat->mFaction == "KeeperAI")
-                {
-                    ++nbAiSeat;
-                }
-                ++i;
-            }
-
-            logManager.logMessage("Map has: " + Ogre::StringConverter::toString(nbPlayerSeat) + " Human players");
-            logManager.logMessage("Map has: " + Ogre::StringConverter::toString(nbAiSeat) + " AI players");
-
-            // If no player seat, the game cannot be launched
-            if (nbPlayerSeat == 0)
-            {
-                logManager.logMessage("Disconnection. There is no available player seat in level: " + levelFilename);
-                disconnect();
-                return false;
-            }
-
             mLevelFilename = levelFilename;
 
             ODPacket packSend;
             packSend << ClientNotification::levelOK;
             send(packSend);
+
+            // We can proceed to configure seat level
+            switch(serverMode)
+            {
+                case ODServer::ServerMode::ModeGameSinglePlayer:
+                case ODServer::ServerMode::ModeGameMultiPlayer:
+                    frameListener->getModeManager()->requestConfigureSeatsMode(true);
+                    break;
+                case ODServer::ServerMode::ModeEditor:
+                    break;
+                default:
+                    OD_ASSERT_TRUE_MSG(false,"Unknown server mode=" + Ogre::StringConverter::toString(static_cast<int32_t>(serverMode)));
+                    break;
+            }
             break;
         }
 
         case ServerNotification::pickNick:
         {
             ODPacket packSend;
-            packSend << ClientNotification::setNick << gameMap->getLocalPlayer()->getNick();
+            packSend << ClientNotification::setNick << gameMap->getLocalPlayerNick();
             send(packSend);
             break;
         }
 
-        case ServerNotification::yourSeat:
+        case ServerNotification::seatConfigurationRefresh:
         {
-            int seatId;
-            OD_ASSERT_TRUE(packetReceived >> seatId);
-            Seat *tempSeat = gameMap->popEmptySeat(seatId);
-            OD_ASSERT_TRUE_MSG(tempSeat != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
-            gameMap->getLocalPlayer()->setSeat(tempSeat);
-            // Move camera to starting position
-            Ogre::Real startX = (Ogre::Real)(tempSeat->mStartingX);
-            Ogre::Real startY = (Ogre::Real)(tempSeat->mStartingY);
-            // We make the temple appear in the center of the game view
-            startY = (Ogre::Real)(startY - 7.0);
-            // Bound check
-            if (startY <= 0.0)
-            startY = 0.0;
-            frameListener->setCameraPosition(Ogre::Vector3(startX, startY, MAX_CAMERA_Z));
+            if(frameListener->getModeManager()->getCurrentModeType() != ModeManager::ModeType::MENU_CONFIGURE_SEATS)
+                break;
+
+            MenuModeConfigureSeats* mode = static_cast<MenuModeConfigureSeats*>(frameListener->getModeManager()->getCurrentMode());
+            mode->refreshSeatConfiguration(packetReceived);
+            break;
+        }
+
+        case ServerNotification::addPlayers:
+        {
+            if(frameListener->getModeManager()->getCurrentModeType() != ModeManager::ModeType::MENU_CONFIGURE_SEATS)
+            {
+                OD_ASSERT_TRUE_MSG(false, "Wrong mode " + Ogre::StringConverter::toString(frameListener->getModeManager()->getCurrentModeType()));
+                break;
+            }
+
+            MenuModeConfigureSeats* mode = static_cast<MenuModeConfigureSeats*>(frameListener->getModeManager()->getCurrentMode());
+            uint32_t nbPlayers;
+            OD_ASSERT_TRUE(packetReceived >> nbPlayers);
+            for(uint32_t i = 0; i < nbPlayers; ++i)
+            {
+                std::string nick;
+                int32_t id;
+                OD_ASSERT_TRUE(packetReceived >> nick >> id);
+                mode->addPlayer(nick, id);
+
+                frameListener->addChatMessage(new ChatMessage(ODServer::SERVER_INFORMATION,
+                    "New player connected:" + nick));
+            }
+            break;
+        }
+
+        case ServerNotification::removePlayers:
+        {
+            if(frameListener->getModeManager()->getCurrentModeType() != ModeManager::ModeType::MENU_CONFIGURE_SEATS)
+            {
+                OD_ASSERT_TRUE_MSG(false, "Wrong mode " + Ogre::StringConverter::toString(frameListener->getModeManager()->getCurrentModeType()));
+                break;
+            }
+
+            MenuModeConfigureSeats* mode = static_cast<MenuModeConfigureSeats*>(frameListener->getModeManager()->getCurrentMode());
+            uint32_t nbPlayers;
+            OD_ASSERT_TRUE(packetReceived >> nbPlayers);
+            for(uint32_t i = 0; i < nbPlayers; ++i)
+            {
+                int32_t id;
+                OD_ASSERT_TRUE(packetReceived >> id);
+                mode->removePlayer(id);
+            }
             break;
         }
 
         case ServerNotification::clientAccepted:
         {
+            int32_t nbPlayers;
+            OD_ASSERT_TRUE(packetReceived >> ODApplication::turnsPerSecond);
+
+            OD_ASSERT_TRUE(packetReceived >> nbPlayers);
+            for(int i = 0; i < nbPlayers; ++i)
+            {
+                std::string nick;
+                int32_t playerId;
+                int32_t seatId;
+                OD_ASSERT_TRUE(packetReceived >> nick >> playerId >> seatId);
+                Player *tempPlayer = new Player(gameMap, playerId);
+                tempPlayer->setNick(nick);
+                gameMap->addPlayer(tempPlayer);
+
+                Seat* seat = gameMap->getSeatById(seatId);
+                OD_ASSERT_TRUE(seat != nullptr);
+                seat->setPlayer(tempPlayer);
+            }
+            break;
+        }
+
+        case ServerNotification::clientRejected:
+        {
+            // If should be in seat configuration. If we are rejected, we regress mode
+            ModeManager::ModeType modeType = frameListener->getModeManager()->getCurrentModeType();
+            OD_ASSERT_TRUE_MSG(modeType == ModeManager::ModeType::MENU_CONFIGURE_SEATS, "Wrong mode type="
+                + Ogre::StringConverter::toString(static_cast<int>(modeType)));
+            if(modeType != ModeManager::ModeType::MENU_CONFIGURE_SEATS)
+                break;
+
+            MenuModeConfigureSeats* mode = static_cast<MenuModeConfigureSeats*>(frameListener->getModeManager()->getCurrentMode());
+            mode->goBack();
+            break;
+        }
+
+        case ServerNotification::startGameMode:
+        {
+            int seatId;
+            OD_ASSERT_TRUE(packetReceived >> seatId);
+            const std::vector<Player*>& players = gameMap->getPlayers();
+            for(Player* player : players)
+            {
+                if(player->getSeat()->getId() == seatId)
+                {
+                    setPlayer(player);
+                    gameMap->setLocalPlayer(player);
+                }
+            }
+
             ODServer::ServerMode serverMode;
             OD_ASSERT_TRUE(packetReceived >> serverMode);
 
             // Now that the we have received all needed information, we can launch the requested mode
             switch(serverMode)
             {
-                case ODServer::ServerMode::ModeGame:
+                case ODServer::ServerMode::ModeGameSinglePlayer:
+                case ODServer::ServerMode::ModeGameMultiPlayer:
                     frameListener->getModeManager()->requestGameMode(true);
                     break;
                 case ODServer::ServerMode::ModeEditor:
@@ -194,21 +262,18 @@ bool ODClient::processOneClientSocketMessage()
                     OD_ASSERT_TRUE_MSG(false,"Unknown server mode=" + Ogre::StringConverter::toString(static_cast<int32_t>(serverMode)));
             }
 
-            break;
-        }
+            Seat *tempSeat = gameMap->getSeatById(seatId);
+            OD_ASSERT_TRUE_MSG(tempSeat != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
 
-        case ServerNotification::addPlayer:
-        {
-            Player *tempPlayer = new Player();
-            std::string nick;
-            int seatId;
-            OD_ASSERT_TRUE(packetReceived >> nick >> seatId);
-            tempPlayer->setNick(nick);
-            Seat* seat = gameMap->popEmptySeat(seatId);
-            OD_ASSERT_TRUE_MSG(seat != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
-            gameMap->addPlayer(tempPlayer, seat);
-            frameListener->addChatMessage(new ChatMessage(ODServer::SERVER_INFORMATION,
-                "New player connected:" + tempPlayer->getNick()));
+            // Move camera to starting position
+            Ogre::Real startX = static_cast<Ogre::Real>(tempSeat->mStartingX);
+            Ogre::Real startY = static_cast<Ogre::Real>(tempSeat->mStartingY);
+            // We make the temple appear in the center of the game view
+            startY = startY - 7.0f;
+            // Bound check
+            if (startY <= 0.0)
+            startY = 0.0;
+            frameListener->setCameraPosition(Ogre::Vector3(startX, startY, MAX_CAMERA_Z));
             break;
         }
 
@@ -235,12 +300,6 @@ bool ODClient::processOneClientSocketMessage()
         case ServerNotification::newMap:
         {
             gameMap->clearAll();
-            break;
-        }
-
-        case ServerNotification::turnsPerSecond:
-        {
-            OD_ASSERT_TRUE(packetReceived >> ODApplication::turnsPerSecond);
             break;
         }
 

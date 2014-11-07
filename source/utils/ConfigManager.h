@@ -52,6 +52,11 @@ public:
 
     const std::vector<const SpawnCondition*>& getCreatureSpawnConditions(const CreatureDefinition* def) const;
 
+    const std::vector<const CreatureDefinition*>& getFactionSpawnPool(const std::string& faction) const;
+
+    const std::vector<std::string>& getFactions() const
+    { return mFactions; }
+
 private:
     //! \brief Function used to load the global configuration. They should return true if the configuration
     //! is ok and false if a mandatory parameter is missing
@@ -62,6 +67,7 @@ private:
     bool loadCreatureDefinitions(const std::string& fileName);
     bool loadEquipements(const std::string& fileName);
     bool loadSpawnConditions(const std::string& fileName);
+    bool loadFactions(const std::string& fileName);
 
     std::map<std::string, Ogre::ColourValue> mSeatColors;
     std::vector<const CreatureDefinition*> mCreatureDefs;
@@ -69,9 +75,12 @@ private:
     std::string mFilenameCreatureDefinition;
     std::string mFilenameEquipmentDefinition;
     std::string mFilenameSpawnConditions;
+    std::string mFilenameFactions;
     uint32_t mNetworkPort;
     uint32_t mBaseSpawnPoint;
     std::map<const CreatureDefinition*, std::vector<const SpawnCondition*> > mCreatureSpawnConditions;
+    std::map<const std::string, std::vector<const CreatureDefinition*> > mFactionSpawnPool;
+    std::vector<std::string> mFactions;
 };
 
 #endif //CONFIGMANAGER_H

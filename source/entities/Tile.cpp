@@ -880,10 +880,6 @@ void Tile::setSelected(bool ss, Player* pp)
 
 void Tile::setMarkedForDiggingForAllPlayersExcept(bool s, Seat* exceptSeat)
 {
-    Player* player = getGameMap()->getLocalPlayer();
-    if(exceptSeat == NULL || (player->getSeat() != NULL && !exceptSeat->isAlliedSeat(player->getSeat())))
-        setMarkedForDigging(s, player);
-
     for (unsigned int i = 0, num = getGameMap()->numPlayers(); i < num; ++i)
     {
         Player* player = getGameMap()->getPlayer(i);

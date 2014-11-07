@@ -25,6 +25,8 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
+const std::vector<const CreatureDefinition*> EMPTY_SPAWNPOOL;
+
 template<> ConfigManager* Ogre::Singleton<ConfigManager>::msSingleton = 0;
 
 ConfigManager::ConfigManager() :
@@ -50,6 +52,12 @@ ConfigManager::ConfigManager() :
     }
     fileName = ResourceManager::getSingleton().getConfigPath() + mFilenameSpawnConditions;
     if(!loadSpawnConditions(fileName))
+    {
+        OD_ASSERT_TRUE(false);
+        exit(1);
+    }
+    fileName = ResourceManager::getSingleton().getConfigPath() + mFilenameFactions;
+    if(!loadFactions(fileName))
     {
         OD_ASSERT_TRUE(false);
         exit(1);
@@ -191,9 +199,14 @@ bool ConfigManager::loadGlobalConfigDefinitionFiles(std::stringstream& configFil
             mFilenameSpawnConditions = fileName;
             filesOk |= 4;
         }
+        else if(type == "Factions")
+        {
+            mFilenameFactions = fileName;
+            filesOk |= 8;
+        }
     }
 
-    if(filesOk != 0x07)
+    if(filesOk != 0x0F)
     {
         OD_ASSERT_TRUE_MSG(false, "Missing parameter file filesOk=" + Ogre::StringConverter::toString(filesOk));
         return false;
@@ -441,8 +454,7 @@ bool ConfigManager::loadSpawnConditions(const std::string& fileName)
         return false;
     }
 
-    bool exit = false;
-    while(defFile.good() && !exit)
+    while(defFile.good())
     {
         if(!(defFile >> nextParam))
             break;
@@ -509,6 +521,97 @@ bool ConfigManager::loadSpawnConditions(const std::string& fileName)
     return true;
 }
 
+bool ConfigManager::loadFactions(const std::string& fileName)
+{
+    LogManager::getSingleton().logMessage("Load factions file: " + fileName);
+    std::stringstream defFile;
+    if(!Helper::readFileWithoutComments(fileName, defFile))
+    {
+        OD_ASSERT_TRUE_MSG(false, "Couldn't read " + fileName);
+        return false;
+    }
+
+    std::string nextParam;
+    // Read in the creature class descriptions
+    defFile >> nextParam;
+    if (nextParam != "[Factions]")
+    {
+        OD_ASSERT_TRUE_MSG(false, "Invalid factions start format. Line was " + nextParam);
+        return false;
+    }
+
+    while(defFile.good())
+    {
+        if(!(defFile >> nextParam))
+            break;
+
+        if (nextParam == "[/Factions]")
+            break;
+
+        if (nextParam != "[Faction]")
+        {
+            OD_ASSERT_TRUE_MSG(false, "Invalid faction. Line was " + nextParam);
+            return false;
+        }
+
+        std::string factionName;
+        while(defFile.good())
+        {
+            if(!(defFile >> nextParam))
+                break;
+
+            if (nextParam == "[/Faction]")
+                break;
+
+            if (nextParam == "[/Factions]")
+                break;
+
+            if (nextParam == "Name")
+            {
+                defFile >> factionName;
+                continue;
+            }
+
+            if (nextParam != "[SpawnPool]")
+            {
+                OD_ASSERT_TRUE_MSG(false, "Invalid faction. Line was " + nextParam);
+                return false;
+            }
+
+            if(factionName.empty())
+            {
+                OD_ASSERT_TRUE_MSG(false, "Empty or missing faction name is not allowed");
+                return false;
+            }
+            mFactions.push_back(factionName);
+
+            while(defFile.good())
+            {
+                if(!(defFile >> nextParam))
+                    break;
+
+                if (nextParam == "[/SpawnPool]")
+                    break;
+
+                if (nextParam == "[/Faction]")
+                    break;
+
+                if (nextParam == "[/Factions]")
+                    break;
+
+                const CreatureDefinition* creatureDefinition = getCreatureDefinition(nextParam);
+                OD_ASSERT_TRUE_MSG(creatureDefinition != nullptr, "factionName=" + factionName + ", class=" + nextParam);
+                if(creatureDefinition == nullptr)
+                    continue;
+
+                mFactionSpawnPool[factionName].push_back(creatureDefinition);
+            }
+        }
+    }
+
+    return true;
+}
+
 const CreatureDefinition* ConfigManager::getCreatureDefinition(const std::string& name) const
 {
     for(const CreatureDefinition* def : mCreatureDefs)
@@ -545,4 +648,12 @@ const std::vector<const SpawnCondition*>& ConfigManager::getCreatureSpawnConditi
         return SpawnCondition::EMPTY_SPAWNCONDITIONS;
 
     return mCreatureSpawnConditions.at(def);
+}
+
+const std::vector<const CreatureDefinition*>& ConfigManager::getFactionSpawnPool(const std::string& faction) const
+{
+    if(mFactionSpawnPool.count(faction) == 0)
+        return EMPTY_SPAWNPOOL;
+
+    return mFactionSpawnPool.at(faction);
 }

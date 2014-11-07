@@ -48,17 +48,9 @@ public:
     void listLevelsClicked();
     void listLevelsDoubleClicked();
 
-    virtual bool waitForGameStart()
-    {
-        return mReadyToStartGame;
-    }
-
 private:
     std::vector<std::string> mFilesList;
     std::vector<std::string> mDescriptionList;
-
-    //! \brief Tells whether the menu is ready to start the game.
-    bool mReadyToStartGame;
 };
 
 #endif // MENUMODESKIRMISH_H

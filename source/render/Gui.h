@@ -53,7 +53,8 @@ public:
         editorMenu,
         editorModeGui,
         optionsMenu,
-        inGameMenu
+        inGameMenu,
+        configureSeats
     };
 
     /*! \brief Constructor that initializes the whole CEGUI system
@@ -134,6 +135,8 @@ public:
     static const std::string EDM_BUTTON_LAUNCH;
     static const std::string EDM_BUTTON_BACK;
     static const std::string EDM_LIST_LEVELS;
+    static const std::string CSM_BUTTON_LAUNCH;
+    static const std::string CSM_BUTTON_BACK;
 
 private:
     //! \brief Assigns all event handlers to the GUI elements
@@ -198,6 +201,12 @@ private:
 
     //! \brief What happens after a double click on the level list in the multiplayer menu
     static bool mMPMListDoubleClicked   (const CEGUI::EventArgs& e);
+
+    //! \brief What happens after a click on Back in the level seat configuration menu
+    static bool mCSMBackButtonPressed   (const CEGUI::EventArgs& e);
+
+    //! \brief What happens after a click on Load in the level seat configuration menu
+    static bool mCSMLoadButtonPressed   (const CEGUI::EventArgs& e);
 
     // Button handlers game UI
     static bool miniMapclicked          (const CEGUI::EventArgs& e);

@@ -38,8 +38,7 @@ const std::string LEVEL_PATH = "levels/skirmish/";
 const std::string LEVEL_EXTENSION = ".level";
 
 MenuModeSkirmish::MenuModeSkirmish(ModeManager *modeManager):
-    AbstractApplicationMode(modeManager, ModeManager::MENU_SKIRMISH),
-    mReadyToStartGame(false)
+    AbstractApplicationMode(modeManager, ModeManager::MENU_SKIRMISH)
 {
 }
 
@@ -116,9 +115,13 @@ void MenuModeSkirmish::launchSelectedButtonPressed()
 
     std::string level = mFilesList[id];
     // In single player mode, we act as a server
-    if(!ODServer::getSingleton().startServer(level, true, ODServer::ServerMode::ModeGame))
+    if(!ODServer::getSingleton().startServer(level, ODServer::ServerMode::ModeGameSinglePlayer))
     {
         LogManager::getSingleton().logMessage("ERROR: Could not start server for single player game !!!");
+        tmpWin = Gui::getSingleton().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);
+        tmpWin->setText("ERROR: Could not start server for single player game !!!");
+        tmpWin->show();
+        return;
     }
 
     if(!ODClient::getSingleton().connect("localhost", ConfigManager::getSingleton().getNetworkPort()))
@@ -129,9 +132,6 @@ void MenuModeSkirmish::launchSelectedButtonPressed()
         tmpWin->show();
         return;
     }
-
-    // Makes the frame listener process client and server messages.
-    mReadyToStartGame = true;
 }
 
 void MenuModeSkirmish::updateDescription()

@@ -33,8 +33,7 @@
 #include <boost/locale.hpp>
 
 MenuModeMultiplayerClient::MenuModeMultiplayerClient(ModeManager *modeManager):
-    AbstractApplicationMode(modeManager, ModeManager::MENU_MULTIPLAYER_CLIENT),
-    mReadyToStartGame(false)
+    AbstractApplicationMode(modeManager, ModeManager::MENU_MULTIPLAYER_CLIENT)
 {
 }
 
@@ -97,7 +96,7 @@ void MenuModeMultiplayerClient::clientButtonPressed()
     tmpWin->setText("Loading...");
     tmpWin->show();
 
-    ODFrameListener::getSingleton().getClientGameMap()->getLocalPlayer()->setNick(nick);
+    ODFrameListener::getSingleton().getClientGameMap()->setLocalPlayerNick(nick);
 
     if(!ODClient::getSingleton().connect(ip, ConfigManager::getSingleton().getNetworkPort()))
     {
@@ -106,9 +105,6 @@ void MenuModeMultiplayerClient::clientButtonPressed()
         tmpWin->setText("Could not connect to: " + ip);
         return;
     }
-
-    // Makes the frame listener process client and server messages.
-    mReadyToStartGame = true;
 }
 
 bool MenuModeMultiplayerClient::mouseMoved(const OIS::MouseEvent &arg)

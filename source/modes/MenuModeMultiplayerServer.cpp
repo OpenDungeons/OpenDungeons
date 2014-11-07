@@ -39,8 +39,7 @@ const std::string LEVEL_PATH = "levels/multiplayer/";
 const std::string LEVEL_EXTENSION = ".level";
 
 MenuModeMultiplayerServer::MenuModeMultiplayerServer(ModeManager *modeManager):
-    AbstractApplicationMode(modeManager, ModeManager::MENU_MULTIPLAYER_SERVER),
-    mReadyToStartGame(false)
+    AbstractApplicationMode(modeManager, ModeManager::MENU_MULTIPLAYER_SERVER)
 {
 }
 
@@ -128,8 +127,7 @@ void MenuModeMultiplayerServer::serverButtonPressed()
         return;
     }
 
-    Player* p = ODFrameListener::getSingleton().getClientGameMap()->getLocalPlayer();
-    p->setNick(nick);
+    ODFrameListener::getSingleton().getClientGameMap()->setLocalPlayerNick(nick);
 
     tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerServerMenu)->getChild(Gui::MPM_TEXT_LOADING);
     tmpWin->setText("Loading...");
@@ -141,13 +139,17 @@ void MenuModeMultiplayerServer::serverButtonPressed()
     std::string level = mFilesList[id];
 
     // We are a server
-    if(!ODServer::getSingleton().startServer(level, false, ODServer::ServerMode::ModeGame))
+    if(!ODServer::getSingleton().startServer(level, ODServer::ServerMode::ModeGameMultiPlayer))
     {
         LogManager::getSingleton().logMessage("ERROR: Could not start server for multi player game !!!");
+        tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerServerMenu)->getChild(Gui::MPM_TEXT_LOADING);
+        tmpWin->setText("ERROR: Could not start server for multi player game !!!");
+        tmpWin->show();
+        return;
     }
 
     // We connect ourself
-    if(!ODClient::getSingleton().connect("", ConfigManager::getSingleton().getNetworkPort()))
+    if(!ODClient::getSingleton().connect("localhost", ConfigManager::getSingleton().getNetworkPort()))
     {
         LogManager::getSingleton().logMessage("ERROR: Could not connect to server for multi player game !!!");
         tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerServerMenu)->getChild(Gui::MPM_TEXT_LOADING);
@@ -155,9 +157,6 @@ void MenuModeMultiplayerServer::serverButtonPressed()
         tmpWin->show();
         return;
     }
-
-    // Makes the frame listener process client and server messages.
-    mReadyToStartGame = true;
 }
 
 void MenuModeMultiplayerServer::updateDescription()

@@ -20,6 +20,7 @@
 #include "scripting/ASWrapper.h"
 #include "InputManager.h"
 #include "MenuMode.h"
+#include "modes/MenuModeConfigureSeats.h"
 #include "modes/MenuModeSkirmish.h"
 #include "modes/MenuModeMultiplayerClient.h"
 #include "modes/MenuModeMultiplayerServer.h"
@@ -114,6 +115,9 @@ void ModeManager::addMode(ModeType mt)
         break;
     case MENU_EDITOR:
         mApplicationModes.push_back(new MenuModeEditor(this));
+        break;
+    case MENU_CONFIGURE_SEATS:
+        mApplicationModes.push_back(new MenuModeConfigureSeats(this));
         break;
     case GAME:
         mApplicationModes.push_back(new GameMode(this));

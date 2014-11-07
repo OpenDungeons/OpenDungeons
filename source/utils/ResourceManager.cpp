@@ -128,7 +128,7 @@ void ResourceManager::setupDataPath()
     if(!path.empty())
     {
         mGameDataPath = path;
-        if (*mGameDataPath.end() != '/')
+        if (*mGameDataPath.rbegin() != '/')
         {
             mGameDataPath.append("/");
         }

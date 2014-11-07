@@ -230,7 +230,6 @@ For information on how to use a particular command, type help followed by the co
 \n\tmousespeed - sets the mouse speed\
 \n\tambientlight - set the ambient light color\
 \n\tconnect - connect to a server\
-\n\thost - host a server\
 \n\tchat - send a message to other people in the game\
 \n\tnearclip - sets the near clipping distance\
 \n\tfarclip - sets the far clipping distance\

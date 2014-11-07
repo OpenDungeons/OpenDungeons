@@ -215,25 +215,22 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 
     int64_t currentTurn = mGameMap->getTurnNumber();
 
-    if ((currentTurn != -1) || (!currentMode->waitForGameStart()))
+    if(!mExitRequested)
     {
-        if(!mExitRequested)
-        {
-            // Updates animations independant from the server new turn event
-            updateAnimations(evt.timeSinceLastFrame);
-        }
-
-        currentMode->getKeyboard()->capture();
-        currentMode->getMouse()->capture();
-
-        mCameraManager->updateCameraFrameTime(evt.timeSinceLastFrame);
-        currentMode->onFrameStarted(evt);
-
-        mCameraManager->onFrameStarted();
-
-        if((mGameMap->getGamePaused()) && (!mExitRequested))
-            return true;
+        // Updates animations independant from the server new turn event
+        updateAnimations(evt.timeSinceLastFrame);
     }
+
+    currentMode->getKeyboard()->capture();
+    currentMode->getMouse()->capture();
+
+    mCameraManager->updateCameraFrameTime(evt.timeSinceLastFrame);
+    currentMode->onFrameStarted(evt);
+
+    mCameraManager->onFrameStarted();
+
+    if((currentTurn != -1) && (mGameMap->getGamePaused()) && (!mExitRequested))
+        return true;
 
     //If an exit has been requested, start cleaning up.
     if(mExitRequested == true || mContinue == false)

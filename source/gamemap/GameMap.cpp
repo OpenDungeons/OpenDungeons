@@ -70,6 +70,8 @@
 //! \brief The number of seconds the local player must stay out of danger to trigger the calm music again.
 const float BATTLE_TIME_COUNT = 10.0f;
 
+const std::string DEFAULT_NICK = "Player";
+
 using namespace std;
 
 /*! \brief A helper class for the A* search in the GameMap::path function.
@@ -139,9 +141,10 @@ private:
 };
 
 GameMap::GameMap(bool isServerGameMap) :
-        culm(NULL),
+        culm(nullptr),
         mIsServerGameMap(isServerGameMap),
-        mLocalPlayer(NULL),
+        mLocalPlayer(nullptr),
+        mLocalPlayerNick(DEFAULT_NICK),
         mTurnNumber(-1),
         mIsPaused(false),
         floodFillEnabled(false),
@@ -149,10 +152,6 @@ GameMap::GameMap(bool isServerGameMap) :
         tileCoordinateMap(new TileCoordinateMap(100)),
         aiManager(*this)
 {
-    // Init the player
-    mLocalPlayer = new Player();
-    mLocalPlayer->setNick("defaultNickName");
-    mLocalPlayer->setGameMap(this);
     resetUniqueNumbers();
 }
 
@@ -161,7 +160,6 @@ GameMap::~GameMap()
     clearAll();
     processDeletionQueues();
     delete tileCoordinateMap;
-    delete mLocalPlayer;
 }
 
 bool GameMap::loadLevel(const std::string& levelFilepath)
@@ -248,13 +246,13 @@ void GameMap::clearAll()
     clearActiveObjects();
 
     clearGoalsForAllSeats();
-    clearEmptySeats();
-    getLocalPlayer()->setSeat(NULL);
+    clearSeats();
+    mLocalPlayer = nullptr;
     clearPlayers();
-    clearFilledSeats();
 
     clearAiManager();
 
+    mLocalPlayerNick = DEFAULT_NICK;
     mTurnNumber = -1;
     resetUniqueNumbers();
 }
@@ -317,13 +315,10 @@ void GameMap::clearActiveObjects()
 
 void GameMap::clearPlayers()
 {
-    for (unsigned int ii = 0; ii < numPlayers(); ++ii)
-    {
-        delete players[ii];
-    }
-    getLocalPlayer()->clearObjectsInHand();
+    for (Player* player : mPlayers)
+        delete player;
 
-    players.clear();
+    mPlayers.clear();
 }
 
 void GameMap::resetUniqueNumbers()
@@ -1086,19 +1081,22 @@ unsigned long int GameMap::doMiscUpkeep()
 
     // Loop over all the filled seats in the game and check all the unfinished goals for each seat.
     // Add any seats with no remaining goals to the winningSeats vector.
-    for (unsigned int i = 0; i < numFilledSeats(); ++i)
+    for (Seat* seat : mSeats)
     {
+        if(seat->getPlayer() == nullptr)
+            continue;
+
         // Check the previously completed goals to make sure they are still met.
-        filledSeats[i]->checkAllCompletedGoals();
+        seat->checkAllCompletedGoals();
 
         // Check the goals and move completed ones to the completedGoals list for the seat.
         //NOTE: Once seats are placed on this list, they stay there even if goals are unmet.  We may want to change this.
-        if (filledSeats[i]->checkAllGoals() == 0
-                && filledSeats[i]->numFailedGoals() == 0)
-            addWinningSeat(filledSeats[i]);
+        if (seat->checkAllGoals() == 0
+                && seat->numFailedGoals() == 0)
+            addWinningSeat(seat);
 
         // Set the creatures count to 0. It will be reset by the next count in doTurn()
-        filledSeats[i]->mNumCreaturesControlled = 0;
+        seat->mNumCreaturesControlled = 0;
     }
 
     // Count how many of each kobold there are per seat.
@@ -1117,15 +1115,18 @@ unsigned long int GameMap::doMiscUpkeep()
     // Count how many dungeon temples each seat controls.
     std::vector<Room*> dungeonTemples = getRoomsByType(Room::dungeonTemple);
     std::map<Seat*, int> dungeonTempleSeatCounts;
-    for (unsigned int i = 0, size = dungeonTemples.size(); i < size; ++i)
+    for (Room* dungeonTemple : dungeonTemples)
     {
-        ++dungeonTempleSeatCounts[dungeonTemples[i]->getSeat()];
+        // We don't consider spawning for unused dungeon temples
+        if(dungeonTemple->getSeat()->getPlayer() == nullptr)
+            continue;
+
+        ++dungeonTempleSeatCounts[dungeonTemple->getSeat()];
     }
 
     // We check if a player has lost all his dungeon temples
-    for(std::vector<Player*>::iterator it = players.begin(); it != players.end(); ++it)
+    for(Player* player : mPlayers)
     {
-        Player* player = *it;
         if(dungeonTempleSeatCounts.count(player->getSeat()) > 0)
             continue;
 
@@ -1189,35 +1190,33 @@ unsigned long int GameMap::doMiscUpkeep()
 
     // Carry out the upkeep round for each seat.  This means recomputing how much gold is
     // available in their treasuries, how much mana they gain/lose during this turn, etc.
-    for (unsigned int i = 0; i < filledSeats.size(); ++i)
+    for (Seat* seat : mSeats)
     {
-        tempSeat = filledSeats[i];
+        if(seat->getPlayer() == nullptr)
+            continue;
 
         // Add the amount of mana this seat accrued this turn if the player has a dungeon temple
-        std::vector<Room*> dungeonTemples = getRoomsByTypeAndSeat(Room::RoomType::dungeonTemple, tempSeat);
+        std::vector<Room*> dungeonTemples = getRoomsByTypeAndSeat(Room::RoomType::dungeonTemple, seat);
         if(dungeonTemples.empty())
         {
-            tempSeat->mManaDelta = 0;
+            seat->mManaDelta = 0;
         }
         else
         {
-            tempSeat->mManaDelta = 50 + tempSeat->getNumClaimedTiles();
-            tempSeat->mMana += tempSeat->mManaDelta;
-            if (tempSeat->mMana > 250000)
-                tempSeat->mMana = 250000;
+            seat->mManaDelta = 50 + seat->getNumClaimedTiles();
+            seat->mMana += seat->mManaDelta;
+            if (seat->mMana > 250000)
+                seat->mMana = 250000;
         }
 
         // Update the count on how much gold is available in all of the treasuries claimed by the given seat.
-        tempSeat->mGold = getTotalGoldForSeat(tempSeat);
+        seat->mGold = getTotalGoldForSeat(seat);
     }
 
     // Determine the number of tiles claimed by each seat.
     // Begin by setting the number of claimed tiles for each seat to 0.
-    for (unsigned int i = 0; i < filledSeats.size(); ++i)
-        filledSeats[i]->setNumClaimedTiles(0);
-
-    for (unsigned int i = 0; i < emptySeats.size(); ++i)
-        emptySeats[i]->setNumClaimedTiles(0);
+    for (Seat* seat : mSeats)
+        seat->setNumClaimedTiles(0);
 
     // Now loop over all of the tiles, if the tile is claimed increment the given seats count.
     for (int jj = 0; jj < getMapSizeY(); ++jj)
@@ -1292,9 +1291,8 @@ void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
 void GameMap::updatePlayerFightingTime(Ogre::Real timeSinceLastFrame)
 {
     // Updates fighting time for server players
-    for (unsigned int i = 0; i < players.size(); ++i)
+    for (Player* player : mPlayers)
     {
-        Player* player = players[i];
         if (player == NULL)
             continue;
 
@@ -1336,9 +1334,8 @@ void GameMap::playerIsFighting(Player* player)
     int teamId = player->getSeat()->getTeamId();
 
     // Get every player's allies
-    for (unsigned int i = 0; i < players.size(); ++i)
+    for (Player* ally : mPlayers)
     {
-        Player* ally = players[i];
         // No need to warn AI about music
         if (!ally || ally->getHasAI())
             continue;
@@ -1600,12 +1597,11 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* c
     return returnList;
 }
 
-void GameMap::addPlayer(Player* player, Seat* seat)
+bool GameMap::addPlayer(Player* player)
 {
-    player->setSeat(seat);
-    player->setGameMap(this);
-    players.push_back(player);
-    LogManager::getSingleton().logMessage("Added player: " + player->getNick());
+    mPlayers.push_back(player);
+    LogManager::getSingleton().logMessage(serverStr() + "Added player: " + player->getNick());
+    return true;
 }
 
 bool GameMap::assignAI(Player& player, const std::string& aiType, const std::string& parameters)
@@ -1623,25 +1619,25 @@ bool GameMap::assignAI(Player& player, const std::string& aiType, const std::str
 
 Player* GameMap::getPlayer(unsigned int index)
 {
-    if (index < players.size())
-        return players[index];
+    if (index < mPlayers.size())
+        return mPlayers[index];
     return NULL;
 }
 
 const Player* GameMap::getPlayer(unsigned int index) const
 {
-    if (index < players.size())
-        return players[index];
+    if (index < mPlayers.size())
+        return mPlayers[index];
     return NULL;
 }
 
 Player* GameMap::getPlayer(const std::string& pName)
 {
-    for (unsigned int i = 0; i < numPlayers(); ++i)
+    for (Player* player : mPlayers)
     {
-        if (players[i]->getNick().compare(pName) == 0)
+        if (player->getNick().compare(pName) == 0)
         {
-            return players[i];
+            return player;
         }
     }
 
@@ -1650,11 +1646,11 @@ Player* GameMap::getPlayer(const std::string& pName)
 
 const Player* GameMap::getPlayer(const std::string& pName) const
 {
-    for (unsigned int i = 0; i < numPlayers(); ++i)
+    for (Player* player : mPlayers)
     {
-        if (players[i]->getNick().compare(pName) == 0)
+        if (player->getNick().compare(pName) == 0)
         {
-            return players[i];
+            return player;
         }
     }
 
@@ -1663,17 +1659,13 @@ const Player* GameMap::getPlayer(const std::string& pName) const
 
 unsigned int GameMap::numPlayers() const
 {
-    return players.size();
+    return mPlayers.size();
 }
 
 Player* GameMap::getPlayerBySeatId(int seatId)
 {
-    if(!mIsServerGameMap && getLocalPlayer()->getSeat()->getId() == seatId)
-        return getLocalPlayer();
-
-    for (std::vector<Player*>::iterator it = players.begin(); it != players.end(); ++it)
+    for (Player* player : mPlayers)
     {
-        Player* player = *it;
         if(player->getSeat()->getId() == seatId)
             return player;
     }
@@ -1682,12 +1674,8 @@ Player* GameMap::getPlayerBySeatId(int seatId)
 
 Player* GameMap::getPlayerBySeat(Seat* seat)
 {
-    if(!mIsServerGameMap && getLocalPlayer()->getSeat() == seat)
-        return getLocalPlayer();
-
-    for (std::vector<Player*>::iterator it = players.begin(); it != players.end(); ++it)
+    for (Player* player : mPlayers)
     {
-        Player* player = *it;
         if(player->getSeat() == seat)
             return player;
     }
@@ -2183,123 +2171,37 @@ unsigned int GameMap::numMapLights()
     return mapLights.size();
 }
 
-void GameMap::clearEmptySeats()
+void GameMap::clearSeats()
 {
-    for (unsigned int i = 0; i < numEmptySeats(); ++i)
-        delete emptySeats[i];
-
-    emptySeats.clear();
+    for (Seat* seat : mSeats)
+    {
+        delete seat;
+    }
+    mSeats.clear();
 }
 
-void GameMap::addEmptySeat(Seat *s)
+void GameMap::addSeat(Seat *s)
 {
+    OD_ASSERT_TRUE(s != nullptr);
     if (s == NULL)
         return;
 
-    emptySeats.push_back(s);
+    mSeats.push_back(s);
 
     // Add the goals for all seats to this seat.
     for (unsigned int i = 0; i < numGoalsForAllSeats(); ++i)
         s->addGoal(getGoalForAllSeats(i));
-}
-
-Seat* GameMap::getEmptySeat(int index)
-{
-    return emptySeats[index];
-}
-
-const Seat* GameMap::getEmptySeat(int index) const
-{
-    return emptySeats[index];
-}
-
-Seat* GameMap::getEmptySeat(const std::string& faction)
-{
-    Seat* seat = NULL;
-    for (std::vector<Seat*>::iterator it = emptySeats.begin(); it != emptySeats.end(); ++it)
-    {
-        if((*it)->mFaction == faction)
-        {
-            seat = *it;
-            break;
-        }
-    }
-
-    return seat;
-}
-
-Seat* GameMap::popEmptySeat(int id)
-{
-    Seat* seat = NULL;
-    for (std::vector<Seat*>::iterator it = emptySeats.begin(); it != emptySeats.end(); ++it)
-    {
-        if((*it)->getId() == id)
-        {
-            seat = *it;
-            emptySeats.erase(it);
-            filledSeats.push_back(seat);
-            return seat;
-        }
-    }
-
-    return NULL;
-}
-
-unsigned int GameMap::numEmptySeats() const
-{
-    return emptySeats.size();
-}
-
-void GameMap::clearFilledSeats()
-{
-    for (unsigned int i = 0; i < numFilledSeats(); ++i)
-        delete filledSeats[i];
-
-    filledSeats.clear();
-}
-
-void GameMap::addFilledSeat(Seat *s)
-{
-    if (s == NULL)
-        return;
-
-    filledSeats.push_back(s);
-
-    // Add the goals for all seats to this seat.
-    for (unsigned int i = 0; i < numGoalsForAllSeats(); ++i)
-        s->addGoal(getGoalForAllSeats(i));
-}
-
-Seat* GameMap::getFilledSeat(int index)
-{
-    return filledSeats[index];
-}
-
-const Seat* GameMap::getFilledSeat(int index) const
-{
-    return filledSeats[index];
-}
-
-unsigned int GameMap::numFilledSeats() const
-{
-    return filledSeats.size();
 }
 
 Seat* GameMap::getSeatById(int id)
 {
-    for (unsigned int i = 0; i < filledSeats.size(); ++i)
+    for (Seat* seat : mSeats)
     {
-        if (filledSeats[i]->getId() == id)
-            return filledSeats[i];
+        if (seat->getId() == id)
+            return seat;
     }
 
-    for (unsigned int i = 0; i < emptySeats.size(); ++i)
-    {
-        if (emptySeats[i]->getId() == id)
-            return emptySeats[i];
-    }
-
-    return NULL;
+    return nullptr;
 }
 
 void GameMap::addWinningSeat(Seat *s)
@@ -2351,12 +2253,8 @@ void GameMap::addGoalForAllSeats(Goal *g)
     goalsForAllSeats.push_back(g);
 
     // Add the goal to each of the empty seats currently in the game.
-    for (unsigned int i = 0, num = numEmptySeats(); i < num; ++i)
-        emptySeats[i]->addGoal(g);
-
-    // Add the goal to each of the filled seats currently in the game.
-    for (unsigned int i = 0, num = numFilledSeats(); i < num; ++i)
-        filledSeats[i]->addGoal(g);
+    for (Seat* seat : mSeats)
+        seat->addGoal(g);
 }
 
 Goal* GameMap::getGoalForAllSeats(unsigned int i)
@@ -2379,17 +2277,10 @@ void GameMap::clearGoalsForAllSeats()
     goalsForAllSeats.clear();
 
     // Add the goal to each of the empty seats currently in the game.
-    for (unsigned int i = 0; i < numEmptySeats(); ++i)
+    for (Seat* seat : mSeats)
     {
-        emptySeats[i]->clearUncompleteGoals();
-        emptySeats[i]->clearCompletedGoals();
-    }
-
-    // Add the goal to each of the filled seats currently in the game.
-    for (unsigned int i = 0; i < numFilledSeats(); ++i)
-    {
-        filledSeats[i]->clearUncompleteGoals();
-        filledSeats[i]->clearCompletedGoals();
+        seat->clearUncompleteGoals();
+        seat->clearCompletedGoals();
     }
 }
 
@@ -2840,22 +2731,8 @@ int GameMap::nextSeatId(int SeatId)
 {
     int firstSeatId = -1;
     bool useNext = false;
-    for(std::vector<Seat*>::iterator it = emptySeats.begin(); it != emptySeats.end(); ++it)
+    for(Seat* seat : mSeats)
     {
-        Seat* seat = *it;
-        if(useNext)
-            return seat->getId();
-
-        if(firstSeatId == -1)
-            firstSeatId = seat->getId();
-
-        if(seat->getId() == SeatId)
-            useNext = true;
-    }
-
-    for(std::vector<Seat*>::iterator it = filledSeats.begin(); it != filledSeats.end(); ++it)
-    {
-        Seat* seat = *it;
         if(useNext)
             return seat->getId();
 

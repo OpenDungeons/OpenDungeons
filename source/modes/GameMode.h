@@ -77,8 +77,6 @@ class  GameMode: public AbstractApplicationMode
     //! \brief Called when exit button is pressed
     void popupExit(bool pause);
 
-    bool waitForGameStart() { return true; }
-
     virtual void exitMode();
 
     virtual void notifyGuiAction(GuiAction guiAction);

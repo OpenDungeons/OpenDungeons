@@ -36,6 +36,11 @@ public:
         hello,
         levelOK, // Tells the server the level loading was ok.
         setNick,
+        readyForSeatConfiguration,
+        // Messages that should be sent only by the client side of the server
+        // (where the game configuration is done)
+        seatConfigurationSet,
+        seatConfigurationRefresh,
 
         chat,
 
