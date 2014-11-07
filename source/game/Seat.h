@@ -105,9 +105,6 @@ public:
     int getId() const
     { return mId; }
 
-    const std::string& getFactionOriginal() const
-    { return mFactionOriginal; }
-
     const std::string& getFaction() const
     { return mFaction; }
 
@@ -140,9 +137,6 @@ public:
 
     inline void addGoldMined(int quantity)
     { mGoldMined += quantity; }
-
-    const std::string& getPlayerTypeOriginal() const
-    { return mPlayerTypeOriginal; }
 
     const std::string& getPlayerType() const
     { return mPlayerType; }
@@ -199,14 +193,8 @@ private:
     //! \brief The type of player (can be Human or AI).
     std::string mPlayerType;
 
-    //! \brief The type of player (can be Human or AI).
-    std::string mPlayerTypeOriginal;
-
     //! \brief The name of the faction that this seat is playing as (can be Keeper or Hero).
     std::string mFaction;
-
-    //! \brief The name of the faction that this seat is playing as (can be Keeper or Hero).
-    std::string mFactionOriginal;
 
     //! \brief The amount of 'keeper mana' the player has.
     double mMana;

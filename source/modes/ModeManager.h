@@ -123,7 +123,7 @@ public:
         mDiscardActualMode = discardActualMode;
      }
 
-    //! \brief Request loading game mode at next update
+    //! \brief Request loading the game seat configuration screen
     void requestConfigureSeatsMode(bool discardActualMode = false)
     {
         mRequestedMode = ModeType::MENU_CONFIGURE_SEATS;

@@ -286,7 +286,7 @@ void Seat::setPlayer(Player* player)
 void Seat::initSpawnPool()
 {
     const std::vector<const CreatureDefinition*>& pool = ConfigManager::getSingleton().getFactionSpawnPool(mFaction);
-    OD_ASSERT_TRUE_MSG(!pool.empty(), "Empty spwn pool for faction=" + mFaction);
+    OD_ASSERT_TRUE_MSG(!pool.empty(), "Empty spawn pool for faction=" + mFaction);
     for(const CreatureDefinition* def : pool)
     {
         mSpawnPool.push_back(std::pair<const CreatureDefinition*, bool>(def, false));
@@ -353,7 +353,7 @@ std::string Seat::getFormat()
 
 ODPacket& operator<<(ODPacket& os, Seat *s)
 {
-    os << s->mId << s->mTeamId << s->mPlayerTypeOriginal << s->mPlayerType << s->mFactionOriginal << s->mFaction << s->mStartingX
+    os << s->mId << s->mTeamId << s->mPlayerType << s->mFaction << s->mStartingX
        << s->mStartingY;
     os << s->mColorId;
     os << s->mGold << s->mMana << s->mManaDelta << s->mNumClaimedTiles;
@@ -364,8 +364,8 @@ ODPacket& operator<<(ODPacket& os, Seat *s)
 
 ODPacket& operator>>(ODPacket& is, Seat *s)
 {
-    is >> s->mId >> s->mTeamId >> s->mPlayerTypeOriginal >> s->mPlayerType;
-    is >> s->mFactionOriginal >> s->mFaction >> s->mStartingX >> s->mStartingY;
+    is >> s->mId >> s->mTeamId >> s->mPlayerType;
+    is >> s->mFaction >> s->mStartingX >> s->mStartingY;
     is >> s->mColorId;
     is >> s->mGold >> s->mMana >> s->mManaDelta >> s->mNumClaimedTiles;
     is >> s->mHasGoalsChanged;
@@ -392,8 +392,8 @@ void Seat::loadFromLine(const std::string& line, Seat *s)
     int32_t i = 0;
     s->mId = Helper::toInt(elems[i++]);
     s->mTeamId = Helper::toInt(elems[i++]);
-    s->mPlayerTypeOriginal = elems[i++];
-    s->mFactionOriginal = elems[i++];
+    s->mPlayerType = elems[i++];
+    s->mFaction = elems[i++];
     s->mStartingX = Helper::toInt(elems[i++]);
     s->mStartingY = Helper::toInt(elems[i++]);
     s->mColorId = elems[i++];
@@ -418,7 +418,7 @@ bool Seat::sortForMapSave(Seat* s1, Seat* s2)
 
 std::ostream& operator<<(std::ostream& os, Seat *s)
 {
-    os << s->mId << "\t" << s->mTeamId << "\t" << s->mPlayerTypeOriginal << "\t" << s->mFactionOriginal << "\t" << s->mStartingX
+    os << s->mId << "\t" << s->mTeamId << "\t" << s->mPlayerType << "\t" << s->mFaction << "\t" << s->mStartingX
        << "\t"<< s->mStartingY;
     os << "\t" << s->mColorId;
     os << "\t" << s->mStartingGold;
@@ -427,7 +427,7 @@ std::ostream& operator<<(std::ostream& os, Seat *s)
 
 std::istream& operator>>(std::istream& is, Seat *s)
 {
-    is >> s->mId >> s->mTeamId >> s->mPlayerTypeOriginal >> s->mFactionOriginal >> s->mStartingX >> s->mStartingY;
+    is >> s->mId >> s->mTeamId >> s->mPlayerType >> s->mFaction >> s->mStartingX >> s->mStartingY;
     is >> s->mColorId;
     is >> s->mStartingGold;
     s->mColorValue = ConfigManager::getSingleton().getColorFromId(s->mColorId);

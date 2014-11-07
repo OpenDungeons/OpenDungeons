@@ -134,7 +134,7 @@ public:
 private:
     //! \brief Player ID is only used during seat configuration phase
     //! During the game, one should use the seat ID to identify a player because
-    //! every AI player has an AI = 0.
+    //! every AI player has an id = 0.
     //! ID is unique only for human players
     int32_t mId;
     //! \brief Room or trap tile type the player is currently willing to place on map.

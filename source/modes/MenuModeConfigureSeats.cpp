@@ -92,13 +92,13 @@ void MenuModeConfigureSeats::activate()
     // for human only, it is the one. If not, we use the first a human can use
     for(Seat* seat : seats)
     {
-        if(seat->getPlayerTypeOriginal().compare(Seat::PLAYER_TYPE_HUMAN) == 0)
+        if(seat->getPlayerType().compare(Seat::PLAYER_TYPE_HUMAN) == 0)
         {
             bestSeatHumanSeatId = seat->getId();
             break;
         }
         else if((bestSeatHumanSeatId == -1) &&
-                (seat->getPlayerTypeOriginal().compare(Seat::PLAYER_TYPE_CHOICE) == 0))
+                (seat->getPlayerType().compare(Seat::PLAYER_TYPE_CHOICE) == 0))
         {
             bestSeatHumanSeatId = seat->getId();
         }
@@ -126,7 +126,7 @@ void MenuModeConfigureSeats::activate()
         combo->setArea(CEGUI::UDim(0,100), CEGUI::UDim(0,70 + offset), CEGUI::UDim(0.3,0), CEGUI::UDim(0,200));
         combo->setReadOnly(true);
         combo->setEnabled(enabled);
-        if(seat->getFactionOriginal().compare(Seat::PLAYER_FACTION_CHOICE) == 0)
+        if(seat->getFaction().compare(Seat::PLAYER_FACTION_CHOICE) == 0)
         {
             uint32_t cptFaction = 0;
             for(const std::string& faction : factions)
@@ -145,7 +145,19 @@ void MenuModeConfigureSeats::activate()
         }
         else
         {
-            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(seat->getFactionOriginal(), 0);
+            uint32_t cptFaction = 0;
+            for(const std::string& faction : factions)
+            {
+                if(seat->getFaction().compare(faction) == 0)
+                    break;
+
+                ++cptFaction;
+            }
+            // If the faction is not found, we set it to the first defined
+            if(cptFaction >= factions.size())
+                cptFaction = 0;
+
+            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(factions[cptFaction], cptFaction);
             item->setSelectionBrushImage(selImg);
             combo->addItem(item);
             combo->setText(item->getText());
@@ -159,23 +171,23 @@ void MenuModeConfigureSeats::activate()
         combo->setArea(CEGUI::UDim(0.5,10), CEGUI::UDim(0,70 + offset), CEGUI::UDim(0.3,0), CEGUI::UDim(0,200));
         combo->setReadOnly(true);
         combo->setEnabled(enabled);
-        if(seat->getPlayerTypeOriginal().compare(Seat::PLAYER_TYPE_INACTIVE) == 0)
+        if(seat->getPlayerType().compare(Seat::PLAYER_TYPE_INACTIVE) == 0)
         {
-            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(seat->getPlayerTypeOriginal(), 0);
+            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(seat->getPlayerType(), 0);
             item->setSelectionBrushImage(selImg);
             combo->addItem(item);
             combo->setText(item->getText());
             combo->setEnabled(false);
         }
-        else if(seat->getPlayerTypeOriginal().compare(Seat::PLAYER_TYPE_AI) == 0)
+        else if(seat->getPlayerType().compare(Seat::PLAYER_TYPE_AI) == 0)
         {
-            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(seat->getPlayerTypeOriginal(), 1);
+            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(seat->getPlayerType(), 1);
             item->setSelectionBrushImage(selImg);
             combo->addItem(item);
             combo->setText(item->getText());
             combo->setEnabled(false);
         }
-        else if(seat->getPlayerTypeOriginal().compare(Seat::PLAYER_TYPE_CHOICE) == 0)
+        else if(seat->getPlayerType().compare(Seat::PLAYER_TYPE_CHOICE) == 0)
         {
             CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(Seat::PLAYER_TYPE_AI, 1);
             item->setSelectionBrushImage(selImg);
@@ -242,8 +254,8 @@ bool MenuModeConfigureSeats::comboChanged(const CEGUI::EventArgs& ea)
         for(Seat* seat : mSeats)
         {
             // We only add players to combos where a human player can play
-            if((seat->getPlayerTypeOriginal().compare(Seat::PLAYER_TYPE_INACTIVE) == 0) ||
-               (seat->getPlayerTypeOriginal().compare(Seat::PLAYER_TYPE_AI) == 0))
+            if((seat->getPlayerType().compare(Seat::PLAYER_TYPE_INACTIVE) == 0) ||
+               (seat->getPlayerType().compare(Seat::PLAYER_TYPE_AI) == 0))
             {
                 continue;
             }
@@ -387,8 +399,8 @@ void MenuModeConfigureSeats::fireSeatConfigurationToServer(bool isFinal)
         selItem = combo->getSelectedItem();
         if(selItem != nullptr)
         {
-            uint32_t selIndex = selItem->getID();
-            notif->mPacket << true << selIndex;
+            uint32_t factionIndex = selItem->getID();
+            notif->mPacket << true << factionIndex;
         }
         else
         {
@@ -420,7 +432,7 @@ void MenuModeConfigureSeats::refreshSeatConfiguration(ODPacket& packet)
     CEGUI::Window* playersWin = Gui::getSingleton().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers");
     CEGUI::Combobox* combo;
     bool isSelected;
-    uint32_t selIndex = 0;
+    uint32_t factionIndex = 0;
     int32_t playerId = 0;
     for(Seat* seat : mSeats)
     {
@@ -433,12 +445,12 @@ void MenuModeConfigureSeats::refreshSeatConfiguration(ODPacket& packet)
         OD_ASSERT_TRUE(packet >> isSelected);
         if(isSelected)
         {
-            OD_ASSERT_TRUE(packet >> selIndex);
+            OD_ASSERT_TRUE(packet >> factionIndex);
         }
         for(uint32_t i = 0; i < combo->getItemCount(); ++i)
         {
             CEGUI::ListboxItem* selItem = combo->getListboxItemFromIndex(i);
-            if(isSelected && selItem->getID() == selIndex)
+            if(isSelected && selItem->getID() == factionIndex)
             {
                 combo->setItemSelectState(selItem, true);
                 combo->setText(selItem->getText());
