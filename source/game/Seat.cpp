@@ -285,10 +285,15 @@ void Seat::setPlayer(Player* player)
 
 void Seat::initSpawnPool()
 {
-    const std::vector<const CreatureDefinition*>& pool = ConfigManager::getSingleton().getFactionSpawnPool(mFaction);
+    const std::vector<std::string>& pool = ConfigManager::getSingleton().getFactionSpawnPool(mFaction);
     OD_ASSERT_TRUE_MSG(!pool.empty(), "Empty spawn pool for faction=" + mFaction);
-    for(const CreatureDefinition* def : pool)
+    for(const std::string& defName : pool)
     {
+        const CreatureDefinition* def = mGameMap->getClassDescription(defName);
+        OD_ASSERT_TRUE_MSG(def != nullptr, "defName=" + defName);
+        if(def == nullptr)
+            continue;
+
         mSpawnPool.push_back(std::pair<const CreatureDefinition*, bool>(def, false));
     }
 }

@@ -25,7 +25,7 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-const std::vector<const CreatureDefinition*> EMPTY_SPAWNPOOL;
+const std::vector<std::string> EMPTY_SPAWNPOOL;
 
 template<> ConfigManager* Ogre::Singleton<ConfigManager>::msSingleton = 0;
 
@@ -621,12 +621,13 @@ bool ConfigManager::loadFactions(const std::string& fileName)
                 if (nextParam == "[/Factions]")
                     break;
 
+                // We check if the creature definition exists
                 const CreatureDefinition* creatureDefinition = getCreatureDefinition(nextParam);
                 OD_ASSERT_TRUE_MSG(creatureDefinition != nullptr, "factionName=" + factionName + ", class=" + nextParam);
                 if(creatureDefinition == nullptr)
                     continue;
 
-                mFactionSpawnPool[factionName].push_back(creatureDefinition);
+                mFactionSpawnPool[factionName].push_back(nextParam);
             }
         }
     }
@@ -826,7 +827,7 @@ const std::vector<const SpawnCondition*>& ConfigManager::getCreatureSpawnConditi
     return mCreatureSpawnConditions.at(def);
 }
 
-const std::vector<const CreatureDefinition*>& ConfigManager::getFactionSpawnPool(const std::string& faction) const
+const std::vector<std::string>& ConfigManager::getFactionSpawnPool(const std::string& faction) const
 {
     if(mFactionSpawnPool.count(faction) == 0)
         return EMPTY_SPAWNPOOL;

@@ -785,6 +785,18 @@ ProtectDungeonTemple	NULL
     [/Stats]
 [/Creature]
 [Creature]
+    Name	Adventurer
+    [Stats]
+    WeaponSpawnL	RustyShield
+    [/Stats]
+[/Creature]
+[Creature]
+    Name	Wizard
+    [Stats]
+    WeaponSpawnL	RustyShield
+    [/Stats]
+[/Creature]
+[Creature]
     Name	BigDragon
     [Stats]
     CreatureJob	Fighter

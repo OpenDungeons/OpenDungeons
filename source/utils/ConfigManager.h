@@ -52,7 +52,7 @@ public:
 
     const std::vector<const SpawnCondition*>& getCreatureSpawnConditions(const CreatureDefinition* def) const;
 
-    const std::vector<const CreatureDefinition*>& getFactionSpawnPool(const std::string& faction) const;
+    const std::vector<std::string>& getFactionSpawnPool(const std::string& faction) const;
 
     const std::vector<std::string>& getFactions() const
     { return mFactions; }
@@ -95,7 +95,7 @@ private:
     uint32_t mNetworkPort;
     uint32_t mBaseSpawnPoint;
     std::map<const CreatureDefinition*, std::vector<const SpawnCondition*> > mCreatureSpawnConditions;
-    std::map<const std::string, std::vector<const CreatureDefinition*> > mFactionSpawnPool;
+    std::map<const std::string, std::vector<std::string> > mFactionSpawnPool;
     std::vector<std::string> mFactions;
     std::map<const std::string, std::string> mRoomsConfig;
     std::map<const std::string, std::string> mTrapsConfig;
