@@ -19,17 +19,17 @@
 
 #include "entities/Tile.h"
 #include "gamemap/GameMap.h"
-#include "utils/Random.h"
 #include "entities/RenderedMovableEntity.h"
+#include "utils/ConfigManager.h"
+#include "utils/Random.h"
 #include "utils/LogManager.h"
 
 TrapSpike::TrapSpike(GameMap* gameMap) :
     ProximityTrap(gameMap)
 {
-    mReloadTime = 5;
-    mRange = 10;
-    mMinDamage = 10;
-    mMaxDamage = 15;
+    mReloadTime = ConfigManager::getSingleton().getTrapConfigUInt32("SpikeReloadTurns");
+    mMinDamage = ConfigManager::getSingleton().getTrapConfigDouble("SpikeDamagePerHitMin");
+    mMaxDamage = ConfigManager::getSingleton().getTrapConfigDouble("SpikeDamagePerHitMax");
     setMeshName("Spike");
 }
 

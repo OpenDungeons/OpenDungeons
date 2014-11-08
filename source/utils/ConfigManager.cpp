@@ -62,6 +62,18 @@ ConfigManager::ConfigManager() :
         OD_ASSERT_TRUE(false);
         exit(1);
     }
+    fileName = ResourceManager::getSingleton().getConfigPath() + mFilenameRooms;
+    if(!loadRooms(fileName))
+    {
+        OD_ASSERT_TRUE(false);
+        exit(1);
+    }
+    fileName = ResourceManager::getSingleton().getConfigPath() + mFilenameTraps;
+    if(!loadTraps(fileName))
+    {
+        OD_ASSERT_TRUE(false);
+        exit(1);
+    }
 }
 
 ConfigManager::~ConfigManager()
@@ -204,9 +216,19 @@ bool ConfigManager::loadGlobalConfigDefinitionFiles(std::stringstream& configFil
             mFilenameFactions = fileName;
             filesOk |= 8;
         }
+        else if(type == "Rooms")
+        {
+            mFilenameRooms = fileName;
+            filesOk |= 0x10;
+        }
+        else if(type == "Traps")
+        {
+            mFilenameTraps = fileName;
+            filesOk |= 0x20;
+        }
     }
 
-    if(filesOk != 0x0F)
+    if(filesOk != 0x3F)
     {
         OD_ASSERT_TRUE_MSG(false, "Missing parameter file filesOk=" + Ogre::StringConverter::toString(filesOk));
         return false;
@@ -610,6 +632,160 @@ bool ConfigManager::loadFactions(const std::string& fileName)
     }
 
     return true;
+}
+
+bool ConfigManager::loadRooms(const std::string& fileName)
+{
+    LogManager::getSingleton().logMessage("Load Rooms file: " + fileName);
+    std::stringstream defFile;
+    if(!Helper::readFileWithoutComments(fileName, defFile))
+    {
+        OD_ASSERT_TRUE_MSG(false, "Couldn't read " + fileName);
+        return false;
+    }
+
+    std::string nextParam;
+    // Read in the creature class descriptions
+    defFile >> nextParam;
+    if (nextParam != "[Rooms]")
+    {
+        OD_ASSERT_TRUE_MSG(false, "Invalid factions start format. Line was " + nextParam);
+        return false;
+    }
+
+    while(defFile.good())
+    {
+        if(!(defFile >> nextParam))
+            break;
+
+        if (nextParam == "[/Rooms]")
+            break;
+
+        defFile >> mRoomsConfig[nextParam];
+    }
+
+    return true;
+}
+
+bool ConfigManager::loadTraps(const std::string& fileName)
+{
+    LogManager::getSingleton().logMessage("Load traps file: " + fileName);
+    std::stringstream defFile;
+    if(!Helper::readFileWithoutComments(fileName, defFile))
+    {
+        OD_ASSERT_TRUE_MSG(false, "Couldn't read " + fileName);
+        return false;
+    }
+
+    std::string nextParam;
+    // Read in the creature class descriptions
+    defFile >> nextParam;
+    if (nextParam != "[Traps]")
+    {
+        OD_ASSERT_TRUE_MSG(false, "Invalid Traps start format. Line was " + nextParam);
+        return false;
+    }
+
+    while(defFile.good())
+    {
+        if(!(defFile >> nextParam))
+            break;
+
+        if (nextParam == "[/Traps]")
+            break;
+
+        defFile >> mTrapsConfig[nextParam];
+    }
+
+    return true;
+}
+
+const std::string ConfigManager::getRoomConfigString(const std::string& param) const
+{
+    if(mRoomsConfig.count(param) <= 0)
+    {
+        OD_ASSERT_TRUE_MSG(false, "Unknown parameter param=" + param);
+        return std::string();
+    }
+
+    return mRoomsConfig.at(param);
+}
+
+uint32_t ConfigManager::getRoomConfigUInt32(const std::string& param) const
+{
+    if(mRoomsConfig.count(param) <= 0)
+    {
+        OD_ASSERT_TRUE_MSG(false, "Unknown parameter param=" + param);
+        return 0;
+    }
+
+    return Helper::toUInt32(mRoomsConfig.at(param));
+}
+
+int32_t ConfigManager::getRoomConfigInt32(const std::string& param) const
+{
+    if(mRoomsConfig.count(param) <= 0)
+    {
+        OD_ASSERT_TRUE_MSG(false, "Unknown parameter param=" + param);
+        return 0;
+    }
+
+    return Helper::toInt(mRoomsConfig.at(param));
+}
+
+double ConfigManager::getRoomConfigDouble(const std::string& param) const
+{
+    if(mRoomsConfig.count(param) <= 0)
+    {
+        OD_ASSERT_TRUE_MSG(false, "Unknown parameter param=" + param);
+        return 0.0;
+    }
+
+    return Helper::toDouble(mRoomsConfig.at(param));
+}
+
+const std::string ConfigManager::getTrapConfigString(const std::string& param) const
+{
+    if(mTrapsConfig.count(param) <= 0)
+    {
+        OD_ASSERT_TRUE_MSG(false, "Unknown parameter param=" + param);
+        return std::string();
+    }
+
+    return mTrapsConfig.at(param);
+}
+
+uint32_t ConfigManager::getTrapConfigUInt32(const std::string& param) const
+{
+    if(mTrapsConfig.count(param) <= 0)
+    {
+        OD_ASSERT_TRUE_MSG(false, "Unknown parameter param=" + param);
+        return 0;
+    }
+
+    return Helper::toUInt32(mTrapsConfig.at(param));
+}
+
+int32_t ConfigManager::getTrapConfigInt32(const std::string& param) const
+{
+    if(mTrapsConfig.count(param) <= 0)
+    {
+        OD_ASSERT_TRUE_MSG(false, "Unknown parameter param=" + param);
+        return 0;
+    }
+
+    return Helper::toInt(mTrapsConfig.at(param));
+}
+
+double ConfigManager::getTrapConfigDouble(const std::string& param) const
+{
+    if(mTrapsConfig.count(param) <= 0)
+    {
+        OD_ASSERT_TRUE_MSG(false, "Unknown parameter param=" + param);
+        return 0.0;
+    }
+
+    return Helper::toDouble(mTrapsConfig.at(param));
 }
 
 const CreatureDefinition* ConfigManager::getCreatureDefinition(const std::string& name) const

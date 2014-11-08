@@ -41,7 +41,7 @@ protected:
     virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);
 private:
     uint32_t getNbChickens();
-    int32_t mSpawnChickenCooldown;
+    uint32_t mSpawnChickenCooldown;
 };
 
 #endif // ROOMHATCHERY_H

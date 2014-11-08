@@ -57,6 +57,18 @@ public:
     const std::vector<std::string>& getFactions() const
     { return mFactions; }
 
+    //! Rooms configuration
+    const std::string getRoomConfigString(const std::string& param) const;
+    uint32_t getRoomConfigUInt32(const std::string& param) const;
+    int32_t getRoomConfigInt32(const std::string& param) const;
+    double getRoomConfigDouble(const std::string& param) const;
+
+    //! Traps configuration
+    const std::string getTrapConfigString(const std::string& param) const;
+    uint32_t getTrapConfigUInt32(const std::string& param) const;
+    int32_t getTrapConfigInt32(const std::string& param) const;
+    double getTrapConfigDouble(const std::string& param) const;
+
 private:
     //! \brief Function used to load the global configuration. They should return true if the configuration
     //! is ok and false if a mandatory parameter is missing
@@ -68,6 +80,8 @@ private:
     bool loadEquipements(const std::string& fileName);
     bool loadSpawnConditions(const std::string& fileName);
     bool loadFactions(const std::string& fileName);
+    bool loadRooms(const std::string& fileName);
+    bool loadTraps(const std::string& fileName);
 
     std::map<std::string, Ogre::ColourValue> mSeatColors;
     std::vector<const CreatureDefinition*> mCreatureDefs;
@@ -76,11 +90,15 @@ private:
     std::string mFilenameEquipmentDefinition;
     std::string mFilenameSpawnConditions;
     std::string mFilenameFactions;
+    std::string mFilenameRooms;
+    std::string mFilenameTraps;
     uint32_t mNetworkPort;
     uint32_t mBaseSpawnPoint;
     std::map<const CreatureDefinition*, std::vector<const SpawnCondition*> > mCreatureSpawnConditions;
     std::map<const std::string, std::vector<const CreatureDefinition*> > mFactionSpawnPool;
     std::vector<std::string> mFactions;
+    std::map<const std::string, std::string> mRoomsConfig;
+    std::map<const std::string, std::string> mTrapsConfig;
 };
 
 #endif //CONFIGMANAGER_H

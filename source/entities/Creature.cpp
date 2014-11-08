@@ -47,6 +47,7 @@
 
 #include "sound/SoundEffectsManager.h"
 
+#include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/Random.h"
@@ -2104,8 +2105,10 @@ bool Creature::handleEatingAction(bool isForced)
             // We eat the chicken
             ChickenEntity* chicken = closestChickenTile->getChickenEntities().at(0);
             chicken->eatChicken(this);
-            foodEaten(20);
-            mEatCooldown = Random::Int(3, 8);
+            foodEaten(ConfigManager::getSingleton().getRoomConfigDouble("HatcheryHungerPerChicken"));
+            mEatCooldown = Random::Int(ConfigManager::getSingleton().getRoomConfigUInt32("HatcheryCooldownChickenMin"),
+                ConfigManager::getSingleton().getRoomConfigUInt32("HatcheryCooldownChickenMax"));
+            mHp += ConfigManager::getSingleton().getRoomConfigDouble("HatcheryHpRecoveredPerChicken");
             Ogre::Vector3 walkDirection = Ogre::Vector3(closestChickenTile->getX(), closestChickenTile->getY(), 0) - getPosition();
             walkDirection.normalise();
             setAnimationState("Attack1", false, &walkDirection);
