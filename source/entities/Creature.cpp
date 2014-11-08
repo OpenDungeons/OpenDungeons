@@ -149,6 +149,12 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
     mMagicalDefense = mDefinition->getMagicalDefense();
     mWeaponlessAtkRange = mDefinition->getAttackRange();
     mAttackWarmupTime = mDefinition->getAttackWarmupTime();
+
+    if(mDefinition->getWeaponSpawnL().compare("none") != 0)
+        mWeaponL = gameMap->getWeapon(mDefinition->getWeaponSpawnL());
+
+    if(mDefinition->getWeaponSpawnR().compare("none") != 0)
+        mWeaponR = gameMap->getWeapon(mDefinition->getWeaponSpawnR());
 }
 
 Creature::Creature(GameMap* gameMap) :
@@ -334,7 +340,12 @@ void Creature::importFromStream(std::istream& is)
     OD_ASSERT_TRUE(is >> tempDouble);
     mExp = tempDouble;
 
-    OD_ASSERT_TRUE(is >> tempDouble);
+    std::string strHp;
+    OD_ASSERT_TRUE(is >> strHp);
+    if(strHp.compare("max") == 0)
+        tempDouble = mMaxHP;
+    else
+        tempDouble = Helper::toDouble(strHp);
     setHP(tempDouble);
 
     OD_ASSERT_TRUE(is >> tempDouble);

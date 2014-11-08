@@ -81,6 +81,8 @@ ODPacket& operator<<(ODPacket& os, CreatureDefinition* c)
     os << c->mMagicalDefense << c->mMagicalDefPerLevel;
     os << c->mAttackRange << c->mAtkRangePerLevel;
     os << c->mAttackWarmupTime;
+    os << c->mWeaponSpawnL;
+    os << c->mWeaponSpawnR;
 
     for (unsigned int i = 0; i < c->mXPTable.size(); ++i)
         os << c->mXPTable[i];
@@ -109,6 +111,8 @@ ODPacket& operator>>(ODPacket& is, CreatureDefinition* c)
     is >> c->mMagicalDefense >> c->mMagicalDefPerLevel;
     is >> c->mAttackRange >> c->mAtkRangePerLevel;
     is >> c->mAttackWarmupTime;
+    is >> c->mWeaponSpawnL;
+    is >> c->mWeaponSpawnR;
 
     for (unsigned int i = 0; i < c->mXPTable.size(); ++i)
     {
@@ -414,6 +418,16 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
                 creatureDef->mAttackWarmupTime = Helper::toDouble(nextParam);
                 continue;
             }
+            else if (nextParam == "WeaponSpawnL")
+            {
+                defFile >> creatureDef->mWeaponSpawnL;
+                continue;
+            }
+            else if (nextParam == "WeaponSpawnR")
+            {
+                defFile >> creatureDef->mWeaponSpawnR;
+                continue;
+            }
         }
     }
 
@@ -546,6 +560,12 @@ void CreatureDefinition::writeCreatureDefinitionDiff(const CreatureDefinition* d
 
     if(def1 == nullptr || (def1->mAttackWarmupTime != def2->mAttackWarmupTime))
         file << "    AttackWarmupTime\t" << def2->mAttackWarmupTime << std::endl;
+
+    if(def1 == nullptr || (def1->mWeaponSpawnL.compare(def2->mWeaponSpawnL) != 0))
+        file << "    WeaponSpawnL\t" << def2->mWeaponSpawnL << std::endl;
+
+    if(def1 == nullptr || (def1->mWeaponSpawnR.compare(def2->mWeaponSpawnR) != 0))
+        file << "    WeaponSpawnL\t" << def2->mWeaponSpawnR << std::endl;
 
     file << "    [/Stats]" << std::endl;
     file << "[/Creature]" << std::endl;
