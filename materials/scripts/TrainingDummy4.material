@@ -1,8 +1,8 @@
 // TrainingDummy4 genrated by blender2ogre 0.6.0
 
-material TrainingDummy4 
+material TrainingDummy4
 {
-    receive_shadows on 
+    receive_shadows on
 
     technique
     {
@@ -19,7 +19,7 @@ material TrainingDummy4
             depth_check on
             depth_func less_equal
             depth_write on
-            illumination_stage 
+            illumination_stage
             light_clip_planes off
             light_scissor off
             lighting on
@@ -30,7 +30,7 @@ material TrainingDummy4
             shading gouraud
             transparent_sorting on
 
-            texture_unit 
+            texture_unit
             {
                 texture TrainingDummy4.png
                 tex_address_mode wrap

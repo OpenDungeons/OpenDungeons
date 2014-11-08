@@ -1152,6 +1152,13 @@ bool Creature::handleIdleAction()
 
     // Workers should move around randomly at large jumps.  Non-workers either wander short distances or follow workers.
     Tile* tileDest = NULL;
+    // Define reachable tiles from the tiles within radius
+    std::vector<Tile*> reachableTiles;
+    for (Tile* tile: mTilesWithinSightRadius)
+    {
+        if (getGameMap()->pathExists(this, getPositionTile(), tile))
+            reachableTiles.push_back(tile);
+    }
 
     if (!mDefinition->isWorker())
     {
@@ -1197,10 +1204,10 @@ bool Creature::handleIdleAction()
                 // If there are no workers around, choose tiles far away to "roam" the dungeon.
                 if (!workerFound)
                 {
-                    if (!mTilesWithinSightRadius.empty())
+                    if (!reachableTiles.empty())
                     {
-                        tileDest = mTilesWithinSightRadius[static_cast<unsigned int>(Random::Double(0.6, 0.8)
-                                                                           * (mTilesWithinSightRadius.size() - 1))];
+                        tileDest = reachableTiles[static_cast<unsigned int>(Random::Double(0.6, 0.8)
+                                                                           * (reachableTiles.size() - 1))];
                     }
                 }
             }
@@ -1208,11 +1215,11 @@ bool Creature::handleIdleAction()
         else
         {
             // Randomly choose a tile near where we are standing to walk to.
-            if (!mTilesWithinSightRadius.empty())
+            if (!reachableTiles.empty())
             {
-                unsigned int tileIndex = static_cast<unsigned int>(mTilesWithinSightRadius.size()
+                unsigned int tileIndex = static_cast<unsigned int>(reachableTiles.size()
                                                                    * Random::Double(0.1, 0.3));
-                tileDest = mTilesWithinSightRadius[tileIndex];
+                tileDest = reachableTiles[tileIndex];
             }
         }
     }
@@ -1221,10 +1228,10 @@ bool Creature::handleIdleAction()
         // Workers only.
 
         // Choose a tile far away from our current position to wander to.
-        if (!mTilesWithinSightRadius.empty())
+        if (!reachableTiles.empty())
         {
-            tileDest = mTilesWithinSightRadius[Random::Uint(mTilesWithinSightRadius.size() / 2,
-                                                            mTilesWithinSightRadius.size() - 1)];
+            tileDest = reachableTiles[Random::Uint(reachableTiles.size() / 2,
+                                                   reachableTiles.size() - 1)];
         }
     }
 
@@ -3295,20 +3302,18 @@ bool Creature::wanderRandomly(const std::string& animationState)
     if(mTilesWithinSightRadius.empty())
         return false;
 
-    Tile* tileDestination = NULL;
-    int minPick = mTilesWithinSightRadius.size() * 4 / 5;
-    int indexPick = Random::Int(minPick, mTilesWithinSightRadius.size() - 1);
-    while((tileDestination == NULL) && (indexPick > 0))
+    // Add reachable tiles only before searching for one of them
+    std::vector<Tile*> reachableTiles;
+    for (Tile* tile: mTilesWithinSightRadius)
     {
-        Tile* tile = mTilesWithinSightRadius[indexPick];
-        if(getGameMap()->pathExists(this, getPositionTile(), tile))
-            tileDestination = tile;
-
-        --indexPick;
+        if (getGameMap()->pathExists(this, getPositionTile(), tile))
+            reachableTiles.push_back(tile);
     }
 
-    if(tileDestination == NULL)
+    if (reachableTiles.empty())
         return false;
+
+    Tile* tileDestination = reachableTiles[Random::Uint(0, reachableTiles.size() - 1)];
 
     std::list<Tile*> result = getGameMap()->path(this, tileDestination);
     if (setWalkPath(result, 1, false))
