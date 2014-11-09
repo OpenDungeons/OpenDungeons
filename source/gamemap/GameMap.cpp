@@ -324,7 +324,6 @@ void GameMap::clearPlayers()
 void GameMap::resetUniqueNumbers()
 {
     mUniqueNumberCreature = 0;
-    mUniqueNumberFloodFilling = 0;
     mUniqueNumberMissileObj = 0;
     mUniqueNumberRoom = 0;
     mUniqueNumberRenderedMovableEntity = 0;
@@ -2309,9 +2308,8 @@ bool GameMap::doFloodFill(Tile* tile)
     bool hasChanged = false;
     // If a neigboor is colored with the same colors, we color the tile
     std::vector<Tile*> tiles = tile->getAllNeighbors();
-    for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
+    for(Tile* neigh : tiles)
     {
-        Tile* neigh = *it;
         switch(neigh->getType())
         {
             case Tile::dirt:
@@ -2345,11 +2343,6 @@ bool GameMap::doFloodFill(Tile* tile)
                     tile->mFloodFillColor[Tile::FloodFillTypeGroundWaterLava] = neigh->mFloodFillColor[Tile::FloodFillTypeGroundWaterLava];
                     hasChanged = true;
                 }
-
-                // If the tile is fully filled, no need to continue
-                if(tile->isFloodFillFilled())
-                    return true;
-
                 break;
             }
             case Tile::water:
@@ -2367,11 +2360,6 @@ bool GameMap::doFloodFill(Tile* tile)
                     tile->mFloodFillColor[Tile::FloodFillTypeGroundWaterLava] = neigh->mFloodFillColor[Tile::FloodFillTypeGroundWaterLava];
                     hasChanged = true;
                 }
-
-                // If the tile is fully filled, no need to continue
-                if(tile->isFloodFillFilled())
-                    return true;
-
                 break;
             }
             case Tile::lava:
@@ -2389,16 +2377,15 @@ bool GameMap::doFloodFill(Tile* tile)
                     tile->mFloodFillColor[Tile::FloodFillTypeGroundWaterLava] = neigh->mFloodFillColor[Tile::FloodFillTypeGroundWaterLava];
                     hasChanged = true;
                 }
-
-                // If the tile is fully filled, no need to continue
-                if(tile->isFloodFillFilled())
-                    return true;
-
                 break;
             }
             default:
-                return false;
+                continue;
         }
+
+        // If the tile is fully filled, no need to continue
+        if(tile->isFloodFillFilled())
+            return true;
     }
 
     return hasChanged;
@@ -2475,6 +2462,7 @@ void GameMap::enableFloodFill()
     // because they are walkable for most creatures. When we will have tagged all
     // thoses, we will deal with water/lava remaining (there can be some left if
     // surrounded by not passable tiles).
+    int floodFillValue = 0;
     while(true)
     {
         int yy = 0;
@@ -2496,7 +2484,7 @@ void GameMap::enableFloodFill()
                     for(int i = 0; i < Tile::FloodFillTypeMax; ++i)
                     {
                         if(tile->mFloodFillColor[i] == -1)
-                            tile->mFloodFillColor[i] = nextUniqueNumberFloodFilling();
+                            tile->mFloodFillColor[i] = ++floodFillValue;
                     }
                     break;
                 }
@@ -2526,9 +2514,9 @@ void GameMap::enableFloodFill()
             // For optimization purposes, if a tile has changed, we go on the other side
             if(nbTiles > 0)
             {
-                for(int xx = getMapSizeX(); xx > 0; --xx)
+                for(int xx = getMapSizeX() - 1; xx >= 0; --xx)
                 {
-                    Tile* tile = getTile(xx - 1, yy);
+                    Tile* tile = getTile(xx, yy);
                     if(doFloodFill(tile))
                         ++nbTiles;
                 }
@@ -2756,11 +2744,6 @@ std::string GameMap::nextUniqueNameCreature(const std::string& className)
         ret = className + Ogre::StringConverter::toString(mUniqueNumberCreature);
     } while(getAnimatedObject(ret) != NULL);
     return ret;
-}
-
-int GameMap::nextUniqueNumberFloodFilling()
-{
-    return ++mUniqueNumberFloodFilling;
 }
 
 std::string GameMap::nextUniqueNameRoom(const std::string& meshName)
