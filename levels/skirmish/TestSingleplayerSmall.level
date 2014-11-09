@@ -834,6 +834,8 @@ ProtectDungeonTemple	NULL
     AttackRange	1
     AtkRange/Level	0
     AttackWarmupTime	1.5
+    WeaponSpawnL	none
+    WeaponSpawnL	none
     [/Stats]
 [/Creature]
 [/CreatureDefinitions]

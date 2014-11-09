@@ -292,7 +292,11 @@ void Creature::exportToStream(std::ostream& os)
     int seatId = getSeat()->getId();
     os << seatId;
     os << "\t" << mDefinition->getClassName() << "\t" << getName();
-    os << "\t" << getLevel() << "\t" << mExp << "\t" << getHP();
+    os << "\t" << getLevel() << "\t" << mExp << "\t";
+    if(getHP() < mMaxHP)
+        os << getHP();
+    else
+        os << "max";
     os << "\t" << mAwakeness << "\t" << mHunger << "\t" << mGold;
 
     os << "\t" << getPosition().x;
