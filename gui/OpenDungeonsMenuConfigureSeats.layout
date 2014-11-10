@@ -45,6 +45,12 @@
                <Property name="FrameEnabled" value="False" />
                <Property name="BackgroundEnabled" value="False" />
             </Window>
+            <Window type="OD/StaticText" name="TextTeamIdTitle" >
+               <Property name="Area" value="{{1,-80},{0,40},{1,-20},{0,70}}" />
+               <Property name="Text" value="Team" />
+               <Property name="FrameEnabled" value="False" />
+               <Property name="BackgroundEnabled" value="False" />
+            </Window>
             <Window type="OD/MainMenuButton" name="BackButton" >
                 <Property name="Area" value="{{0.5,-228},{1,-100},{0.5,-64},{1,-20}}" />
                 <Property name="Text" value="Back" />
