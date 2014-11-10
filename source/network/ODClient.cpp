@@ -96,8 +96,7 @@ bool ODClient::processOneClientSocketMessage()
         case ServerNotification::loadLevel:
         {
             std::string levelFilename;
-            ODServer::ServerMode serverMode;
-            OD_ASSERT_TRUE(packetReceived >> levelFilename >> serverMode);
+            OD_ASSERT_TRUE(packetReceived >> levelFilename);
             // Read in the map. The map loading should happen here and not in the server thread to
             // make sure it is valid before launching the server.
             RenderManager::getSingletonPtr()->processRenderRequests();
@@ -115,6 +114,17 @@ bool ODClient::processOneClientSocketMessage()
             ODPacket packSend;
             packSend << ClientNotification::levelOK;
             send(packSend);
+            break;
+        }
+
+        case ServerNotification::pickNick:
+        {
+            ODServer::ServerMode serverMode;
+            OD_ASSERT_TRUE(packetReceived >> serverMode);
+
+            ODPacket packSend;
+            packSend << ClientNotification::setNick << gameMap->getLocalPlayerNick();
+            send(packSend);
 
             // We can proceed to configure seat level
             switch(serverMode)
@@ -129,14 +139,6 @@ bool ODClient::processOneClientSocketMessage()
                     OD_ASSERT_TRUE_MSG(false,"Unknown server mode=" + Ogre::StringConverter::toString(static_cast<int32_t>(serverMode)));
                     break;
             }
-            break;
-        }
-
-        case ServerNotification::pickNick:
-        {
-            ODPacket packSend;
-            packSend << ClientNotification::setNick << gameMap->getLocalPlayerNick();
-            send(packSend);
             break;
         }
 

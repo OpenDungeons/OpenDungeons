@@ -13,7 +13,7 @@ FightMusic	The_Dark_Amulet.ogg
 2	2	Choice	Choice	252	211	2	1000
 3	3	Choice	Choice	167	104	3	1000
 4	4	Choice	Choice	266	92	4	1000
-5	5	none	200	200	5	1000
+5	5	Inactive	Keeper	200	200	5	1000
 [/Seats]
 
 [Goals]
