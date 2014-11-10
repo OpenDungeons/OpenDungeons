@@ -37,6 +37,7 @@
 #include <boost/filesystem.hpp>
 
 const std::string TEXT_SEAT_ID_PREFIX = "TextSeat";
+const std::string TEXT_TEAM_ID_PREFIX = "TextTeam";
 const std::string COMBOBOX_PLAYER_FACTION_PREFIX = "ComboPlayerFactionSeat";
 const std::string COMBOBOX_PLAYER_PREFIX = "ComboPlayerSeat";
 
@@ -56,6 +57,8 @@ MenuModeConfigureSeats::~MenuModeConfigureSeats()
         name = COMBOBOX_PLAYER_FACTION_PREFIX + Ogre::StringConverter::toString(seat->getId());
         tmpWin->destroyChild(name);
         name = COMBOBOX_PLAYER_PREFIX + Ogre::StringConverter::toString(seat->getId());
+        tmpWin->destroyChild(name);
+        name = TEXT_TEAM_ID_PREFIX + Ogre::StringConverter::toString(seat->getId());
         tmpWin->destroyChild(name);
     }
 }
@@ -80,6 +83,11 @@ void MenuModeConfigureSeats::activate()
     CEGUI::Window* msgWin = Gui::getSingleton().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("LoadingText");
     msgWin->setText("Loading...");
     msgWin->setVisible(false);
+
+    if(ODServer::getSingleton().isConnected())
+        tmpWin->setText("Please configure map : " + gameMap->getLevelName());
+    else
+        tmpWin->setText("Host is configuring map : " + gameMap->getLevelName());
 
     const std::vector<std::string>& factions = ConfigManager::getSingleton().getFactions();
     const CEGUI::Image* selImg = &CEGUI::ImageManager::getSingleton().get("OpenDungeonsSkin/SelectionBrush");
@@ -203,6 +211,14 @@ void MenuModeConfigureSeats::activate()
             }
         }
         combo->subscribeEvent(CEGUI::Combobox::EventListSelectionAccepted, CEGUI::SubscriberSlot(&MenuModeConfigureSeats::comboChanged, this));
+
+        name = TEXT_TEAM_ID_PREFIX + Ogre::StringConverter::toString(seat->getId());
+        CEGUI::DefaultWindow* textTeamId = static_cast<CEGUI::DefaultWindow*>(winMgr.createWindow("OD/StaticText", name));
+        tmpWin->addChild(textTeamId);
+        textTeamId->setArea(CEGUI::UDim(1,-60), CEGUI::UDim(0,65 + offset), CEGUI::UDim(0,40), CEGUI::UDim(0,30));
+        textTeamId->setText(Ogre::StringConverter::toString(seat->getTeamId()));
+        textTeamId->setProperty("FrameEnabled", "False");
+        textTeamId->setProperty("BackgroundEnabled", "False");
 
         offset += 30;
     }

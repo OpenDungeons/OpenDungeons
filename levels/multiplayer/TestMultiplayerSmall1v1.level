@@ -502,6 +502,6 @@ ProtectDungeonTemple	NULL
 [Creatures]
 # SeatId	ClassName	Name	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeapon	RightWeapon
 [Creature]
-1	ConstructWorker	ConstructWorker1	1	0	4	100	0	0	7	7	0	none	none
+1	ConstructWorker	ConstructWorker1	1	0	max	100	0	0	7	7	0	none	none
 [/Creature]
 [/Creatures]

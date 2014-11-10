@@ -785,6 +785,18 @@ ProtectDungeonTemple	NULL
     [/Stats]
 [/Creature]
 [Creature]
+    Name	Adventurer
+    [Stats]
+    WeaponSpawnL	RustyShield
+    [/Stats]
+[/Creature]
+[Creature]
+    Name	Wizard
+    [Stats]
+    WeaponSpawnL	RustyShield
+    [/Stats]
+[/Creature]
+[Creature]
     Name	BigDragon
     [Stats]
     CreatureJob	Fighter
@@ -822,6 +834,8 @@ ProtectDungeonTemple	NULL
     AttackRange	1
     AtkRange/Level	0
     AttackWarmupTime	1.5
+    WeaponSpawnL	none
+    WeaponSpawnL	none
     [/Stats]
 [/Creature]
 [/CreatureDefinitions]
@@ -852,9 +866,9 @@ ProtectDungeonTemple	NULL
 1	BigKnight	BigKnight1	1	0	4	100	0	0	7	7	0	Longsword	none
 [/Creature]
 [Creature]
-1	Adventurer	Adventurer2	1	0	2	100	0	0	7	8	0	none	SpecialStaff
+1	Adventurer	Adventurer2	1	0	max	100	0	0	7	8	0	none	SpecialStaff
 [/Creature]
 [Creature]
-3	BigDragon	Dragon1	1	0	35	100	0	0	10	4	0	none	none
+3	BigDragon	Dragon1	1	0	max	100	0	0	10	4	0	none	none
 [/Creature]
 [/Creatures]

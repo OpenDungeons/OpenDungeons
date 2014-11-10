@@ -112,7 +112,9 @@ public:
         mMagicalDefPerLevel (magicalDefPerLevel),
         mAttackRange        (attackRange),
         mAtkRangePerLevel   (atkRangePerLevel),
-        mAttackWarmupTime   (attackWarmupTime)
+        mAttackWarmupTime   (attackWarmupTime),
+        mWeaponSpawnL       ("none"),
+        mWeaponSpawnR       ("none")
     {
         mXPTable.assign(MAX_LEVEL - 1, 100.0);
     }
@@ -180,6 +182,9 @@ public:
     inline double               getAtkRangePerLevel () const    { return mAtkRangePerLevel; }
 
     inline double               getAttackWarmupTime () const    { return mAttackWarmupTime; }
+
+    const std::string&          getWeaponSpawnL () const        { return mWeaponSpawnL; }
+    const std::string&          getWeaponSpawnR () const        { return mWeaponSpawnR; }
 
     double                      getXPNeededWhenLevel(unsigned int level) const;
 
@@ -264,6 +269,10 @@ private:
 
     //! \brief The time to wait before dealing a blow, in seconds.
     double mAttackWarmupTime;
+
+    //! \brief Weapons a creature should spawn with ("none" if no weapon)
+    std::string mWeaponSpawnL;
+    std::string mWeaponSpawnR;
 
     //! \brief The XP table, used to know how XP is needed to reach the next level.
     //! \note The creature starting at level 1, it can only change its level MAX_LEVEL - 1 times.

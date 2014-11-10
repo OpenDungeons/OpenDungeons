@@ -434,7 +434,6 @@ public:
     void logFloodFileTiles();
     void consoleSetCreatureDestination(const std::string& creatureName, int x, int y);
 
-    int nextUniqueNumberFloodFilling();
     //! \brief This functions create unique names. They check that there
     //! is no entity with the same name before returning
     std::string nextUniqueNameCreature(const std::string& className);
@@ -480,7 +479,6 @@ private:
 
     //! \brief Unique numbers to ensure names are unique
     int mUniqueNumberCreature;
-    int mUniqueNumberFloodFilling;
     int mUniqueNumberMissileObj;
     int mUniqueNumberRoom;
     int mUniqueNumberRenderedMovableEntity;

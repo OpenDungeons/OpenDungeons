@@ -5249,15 +5249,15 @@ ProtectDungeonTemple	NULL
 [Creatures]
 # SeatId	ClassName	Name	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeapon RightWeapon
 [Creature]
-5	Dragon	Dragon1	10	0	30	100	0	0	13	55	0	none	none
+5	Dragon	Dragon1	10	0	max	100	0	0	13	55	0	none	none
 [/Creature]
 [Creature]
-5	Dragon	Dragon2	10	0	30	100	0	0	13	54	0	none	none
+5	Dragon	Dragon2	10	0	max	100	0	0	13	54	0	none	none
 [/Creature]
 [Creature]
-5	Dragon	Dragon3	10	0	30	100	0	0	87	58	0	none	none
+5	Dragon	Dragon3	10	0	max	100	0	0	87	58	0	none	none
 [/Creature]
 [Creature]
-5	Dragon	Dragon4	10	0	30	100	0	0	87	57	0	none	none
+5	Dragon	Dragon4	10	0	max	100	0	0	87	57	0	none	none
 [/Creature]
 [/Creatures]

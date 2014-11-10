@@ -448,6 +448,7 @@ void RenderManager::rrCreateRenderedMovableEntity(RenderedMovableEntity* curRend
     node->setScale(Ogre::Vector3(0.7, 0.7, 0.7));
     node->roll(Ogre::Degree(curRenderedMovableEntity->getRotationAngle()));
     node->attachObject(ent);
+    curRenderedMovableEntity->pSN = (node->getParentSceneNode());
 }
 
 void RenderManager::rrDestroyRenderedMovableEntity(RenderedMovableEntity* curRenderedMovableEntity)

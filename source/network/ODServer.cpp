@@ -555,7 +555,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             LogManager::getSingleton().logMessage("Level relative path sent to client: " + mLevelFilename);
             setClientState(clientSocket, "loadLevel");
             ODPacket packetSend;
-            packetSend << ServerNotification::loadLevel << mLevelFilename << mServerMode;
+            packetSend << ServerNotification::loadLevel << mLevelFilename;
             sendMsgToClient(clientSocket, packetSend);
             break;
         }
@@ -568,7 +568,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             setClientState(clientSocket, "nick");
             // Tell the client to give us their nickname
             ODPacket packetSend;
-            packetSend << ServerNotification::pickNick;
+            packetSend << ServerNotification::pickNick << mServerMode;
             sendMsgToClient(clientSocket, packetSend);
             break;
         }
@@ -582,7 +582,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             std::string clientNick;
             OD_ASSERT_TRUE(packetReceived >> clientNick);
 
-            // NOTE : playerId 0 is reserved for inactive players and  1 is reserved for AI
+            // NOTE : playerId 0 is reserved for inactive players and 1 is reserved for AI
             int32_t playerId = mSockClients.size() + 10;
             Player* curPlayer = new Player(gameMap, playerId);
             curPlayer->setNick(clientNick);
