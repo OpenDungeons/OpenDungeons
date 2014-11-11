@@ -23,6 +23,7 @@
 /* TODO: do intense testing that everything works
  * TODO: switch from TextRenderer to Console
  */
+#if 0
 
 #include "modes/Console.h"
 #include "ODApplication.h"
@@ -213,3 +214,4 @@ string Console::getHelpText(std::string arg)
         return "Help for command:  \"" + ODFrameListener::getSingletonPtr()->mArguments + "\" not found.";
     }
 }
+#endif //if 0

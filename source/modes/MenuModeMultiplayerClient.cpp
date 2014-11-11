@@ -33,7 +33,7 @@
 #include <boost/locale.hpp>
 
 MenuModeMultiplayerClient::MenuModeMultiplayerClient(ModeManager *modeManager):
-    AbstractApplicationMode(modeManager, ModeManager::MENU_MULTIPLAYER_CLIENT)
+    AbstractApplicationMode(modeManager, ModeType::MENU_MULTIPLAYER_CLIENT)
 {
 }
 

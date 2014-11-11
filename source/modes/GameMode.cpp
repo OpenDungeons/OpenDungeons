@@ -35,7 +35,6 @@
 #include "render/RenderRequest.h"
 #include "render/RenderManager.h"
 #include "camera/CameraManager.h"
-#include "modes/Console.h"
 #include "sound/MusicPlayer.h"
 #include "network/ODServer.h"
 #include "ODApplication.h"
@@ -53,7 +52,7 @@ static Ogre::ColourValue white = Ogre::ColourValue(1.0f, 1.0f, 1.0f, 1.0f);
 static Ogre::ColourValue red = Ogre::ColourValue(1.0f, 0.0f, 0.0, 1.0f);
 
 GameMode::GameMode(ModeManager *modeManager):
-    AbstractApplicationMode(modeManager, ModeManager::GAME),
+    AbstractApplicationMode(modeManager, ModeType::GAME),
     mDigSetBool(false),
     mGameMap(ODFrameListener::getSingletonPtr()->getClientGameMap()),
     mMouseX(0),
@@ -151,11 +150,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
     if (!isConnected())
         return true;
 
-    ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
     InputManager* inputManager = mModeManager->getInputManager();
-
-    if (frameListener->isTerminalActive())
-        return true;
 
     // If we have a room or trap (or later spell) selected, show what we have selected
     // TODO: This should be changed, or combined with an icon or something later.
@@ -693,10 +688,6 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
 bool GameMode::keyPressed(const OIS::KeyEvent &arg)
 {
-    ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
-    if (frameListener->isTerminalActive())
-        return true;
-
     // Inject key to Gui
     CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyDown((CEGUI::Key::Scan) arg.key);
     CEGUI::System::getSingleton().getDefaultGUIContext().injectChar(arg.text);
@@ -721,8 +712,6 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
     case OIS::KC_GRAVE:
     case OIS::KC_F12:
         mModeManager->requestConsoleMode();
-        frameListener.setTerminalActive(true);
-        Console::getSingleton().setVisible(true);
         break;
 
     case OIS::KC_LEFT:
@@ -838,10 +827,6 @@ bool GameMode::keyPressedChat(const OIS::KeyEvent &arg)
 bool GameMode::keyReleased(const OIS::KeyEvent &arg)
 {
     CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyUp((CEGUI::Key::Scan) arg.key);
-
-    ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
-    if (frameListener->isTerminalActive())
-        return true;
 
     if(std::find(mKeysChatPressed.begin(), mKeysChatPressed.end(), arg.key) != mKeysChatPressed.end())
         return keyReleasedChat(arg);

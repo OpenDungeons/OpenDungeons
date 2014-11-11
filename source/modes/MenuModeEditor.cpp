@@ -40,7 +40,7 @@ const std::string LEVEL_PATH_MULTIPLAYER = "levels/multiplayer/";
 const std::string LEVEL_EXTENSION = ".level";
 
 MenuModeEditor::MenuModeEditor(ModeManager *modeManager):
-    AbstractApplicationMode(modeManager, ModeManager::MENU_EDITOR)
+    AbstractApplicationMode(modeManager, ModeType::MENU_EDITOR)
 {
 }
 

@@ -236,9 +236,8 @@ set(OD_SOURCEFILES
     ${SRC}/goals/GoalProtectDungeonTemple.cpp
 
     ${SRC}/modes/AbstractApplicationMode.cpp
-    ${SRC}/modes/Console.cpp
-    ${SRC}/modes/Console_executePromptCommand.cpp
-    ${SRC}/modes/Console_getHelp.cpp
+    ${SRC}/modes/Command.cpp
+    ${SRC}/modes/ConsoleInterface.cpp
     ${SRC}/modes/ConsoleMode.cpp
     ${SRC}/modes/EditorMode.cpp
     ${SRC}/modes/FppMode.cpp
@@ -252,7 +251,7 @@ set(OD_SOURCEFILES
     ${SRC}/modes/MenuModeReplay.cpp
     ${SRC}/modes/MenuModeSkirmish.cpp
     ${SRC}/modes/ModeManager.cpp
-    ${SRC}/modes/PrefixTree.cpp
+    ${SRC}/modes/ModeManagerInterface.cpp
 
 
     ${SRC}/network/ChatMessage.cpp
@@ -442,7 +441,7 @@ target_link_libraries(
     ${OPENAL_LIBRARY}
     ${OIS_LIBRARIES}
     ${CEGUI_LIBRARIES_RELEASE}
-    #${CEGUI_LIBRARIES_DEBUG}
+    ${CEGUI_LIBRARIES_DEBUG}
 )
 
 # The name of the OGRE Overlay library is available as CMAKE variable, also discovering debug versions correctly; please leave it like that!

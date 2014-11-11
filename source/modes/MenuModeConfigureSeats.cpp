@@ -42,7 +42,7 @@ const std::string COMBOBOX_PLAYER_FACTION_PREFIX = "ComboPlayerFactionSeat";
 const std::string COMBOBOX_PLAYER_PREFIX = "ComboPlayerSeat";
 
 MenuModeConfigureSeats::MenuModeConfigureSeats(ModeManager *modeManager):
-    AbstractApplicationMode(modeManager, ModeManager::MENU_CONFIGURE_SEATS)
+    AbstractApplicationMode(modeManager, ModeType::MENU_CONFIGURE_SEATS)
 {
 }
 

@@ -24,20 +24,22 @@
 #include <OIS/OISMouse.h>
 #include <OIS/OISKeyboard.h>
 
+#include <boost/noncopyable.hpp>
+
 #include <iostream>
+
+class Gui;
 
 class AbstractApplicationMode :
     public OIS::MouseListener,
-    public OIS::KeyListener
+    public OIS::KeyListener,
+    private boost::noncopyable
 {
-protected:
-    // foreign reference, don't delete it.
-    ModeManager* mModeManager;
-
 public:
-    AbstractApplicationMode(ModeManager *modeManager, ModeManager::ModeType modeType):
+    AbstractApplicationMode(ModeManager *modeManager, ModeType modeType):
         mModeManager(modeManager),
-        mModeType(modeType)
+        mModeType(modeType),
+        mGui(modeManager->getGui())
     {}
 
     virtual ~AbstractApplicationMode()
@@ -88,7 +90,7 @@ public:
         mModeManager->requestUnloadToParentMode();
     }
 
-    ModeManager::ModeType getModeType() const
+    ModeType getModeType() const
     {
         return mModeType;
     }
@@ -114,7 +116,9 @@ protected:
     virtual int getChatChar         (const OIS::KeyEvent &arg);
 
     // The game mode type;
-    ModeManager::ModeType mModeType;
+    ModeManager* mModeManager;
+    ModeType mModeType;
+    Gui* mGui;
 };
 
 #endif // ABSTRACTAPPLICATIONMODE_H

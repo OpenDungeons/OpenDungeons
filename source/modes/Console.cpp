@@ -23,6 +23,7 @@
 /* TODO: do intense testing that everything works
  * TODO: switch from TextRenderer to Console
  */
+#if 0
 
 #include "modes/Console.h"
 
@@ -327,3 +328,4 @@ void Console::scrollText(const bool direction)
         }
     }
 }
+#endif //if 0

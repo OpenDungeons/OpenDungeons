@@ -55,7 +55,8 @@ public:
         optionsMenu,
         inGameMenu,
         replayMenu,
-        configureSeats
+        configureSeats,
+        console
     };
 
     /*! \brief Constructor that initializes the whole CEGUI system
@@ -145,6 +146,8 @@ public:
     static const std::string REM_BUTTON_DELETE;
     static const std::string REM_BUTTON_BACK;
     static const std::string REM_LIST_REPLAYS;
+    static const std::string CONSOLE_EDITBOX;
+    static const std::string CONSOLE_LISTBOX;
 
 private:
     //! \brief Assigns all event handlers to the GUI elements

@@ -147,7 +147,7 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotification::seatConfigurationRefresh:
         {
-            if(frameListener->getModeManager()->getCurrentModeType() != ModeManager::ModeType::MENU_CONFIGURE_SEATS)
+            if(frameListener->getModeManager()->getCurrentModeType() != ModeType::MENU_CONFIGURE_SEATS)
                 break;
 
             MenuModeConfigureSeats* mode = static_cast<MenuModeConfigureSeats*>(frameListener->getModeManager()->getCurrentMode());
@@ -157,9 +157,10 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotification::addPlayers:
         {
-            if(frameListener->getModeManager()->getCurrentModeType() != ModeManager::ModeType::MENU_CONFIGURE_SEATS)
+            if(frameListener->getModeManager()->getCurrentModeType() != ModeType::MENU_CONFIGURE_SEATS)
             {
-                OD_ASSERT_TRUE_MSG(false, "Wrong mode " + Ogre::StringConverter::toString(frameListener->getModeManager()->getCurrentModeType()));
+                OD_ASSERT_TRUE_MSG(false, "Wrong mode " + Ogre::StringConverter::toString(
+                                       static_cast<int>(frameListener->getModeManager()->getCurrentModeType())));
                 break;
             }
 
@@ -181,9 +182,10 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotification::removePlayers:
         {
-            if(frameListener->getModeManager()->getCurrentModeType() != ModeManager::ModeType::MENU_CONFIGURE_SEATS)
+            if(frameListener->getModeManager()->getCurrentModeType() != ModeType::MENU_CONFIGURE_SEATS)
             {
-                OD_ASSERT_TRUE_MSG(false, "Wrong mode " + Ogre::StringConverter::toString(frameListener->getModeManager()->getCurrentModeType()));
+                OD_ASSERT_TRUE_MSG(false, "Wrong mode " + Ogre::StringConverter::toString(
+                                       static_cast<int>(frameListener->getModeManager()->getCurrentModeType())));
                 break;
             }
 
@@ -225,10 +227,10 @@ bool ODClient::processOneClientSocketMessage()
         case ServerNotification::clientRejected:
         {
             // If should be in seat configuration. If we are rejected, we regress mode
-            ModeManager::ModeType modeType = frameListener->getModeManager()->getCurrentModeType();
-            OD_ASSERT_TRUE_MSG(modeType == ModeManager::ModeType::MENU_CONFIGURE_SEATS, "Wrong mode type="
+            ModeType modeType = frameListener->getModeManager()->getCurrentModeType();
+            OD_ASSERT_TRUE_MSG(modeType == ModeType::MENU_CONFIGURE_SEATS, "Wrong mode type="
                 + Ogre::StringConverter::toString(static_cast<int>(modeType)));
-            if(modeType != ModeManager::ModeType::MENU_CONFIGURE_SEATS)
+            if(modeType != ModeType::MENU_CONFIGURE_SEATS)
                 break;
 
             MenuModeConfigureSeats* mode = static_cast<MenuModeConfigureSeats*>(frameListener->getModeManager()->getCurrentMode());

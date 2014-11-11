@@ -19,20 +19,22 @@
 #define CONSOLEMODE_H
 
 #include "AbstractApplicationMode.h"
+#include "ConsoleInterface.h"
 
 #include <list>
 #include <string>
 
-
-using std::string; using std::list;
-
-class PrefixTree;
+namespace CEGUI {
+    class Window;
+    class EventArgs;
+    class String;
+}
 
 class  ConsoleMode: public AbstractApplicationMode
 {
 public:
 
-    ConsoleMode(ModeManager*, Console*);
+    ConsoleMode(ModeManager*);
 
     virtual ~ConsoleMode();
 
@@ -51,12 +53,14 @@ public:
     void activate();
 
 private:
-    Console* mConsole;
-    PrefixTree* mPrefixTree;
-    list<std::string>* mLl;
-    std::string mPrefix;
-    bool mNonTagKeyPressed;
-    std::list<std::string>::iterator mIt;
+    bool sendButtonClick(const CEGUI::EventArgs& e);
+    void executeCommand(const CEGUI::String& command);
+    void printToWindow(const std::string& text);
+
+    CEGUI::Window* mConsoleHistoryWindow;
+    CEGUI::Window* mEditBoxWindow;
+
+    ConsoleInterface mConsoleInterface;
 };
 
 #endif // CONSOLEMODE_H

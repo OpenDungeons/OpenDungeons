@@ -32,7 +32,6 @@
 #include "gamemap/MiniMap.h"
 #include "utils/LogManager.h"
 #include "camera/CameraManager.h"
-#include "scripting/ASWrapper.h"
 #include "modes/Console.h"
 #include "gamemap/GameMap.h"
 #include "utils/Random.h"
