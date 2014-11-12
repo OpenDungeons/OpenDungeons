@@ -199,11 +199,11 @@ void Gui::assignEventHandlers()
             CEGUI::Event::Subscriber(&destroyTrapButtonPressed));
 
     sheets[inGameMenu]->getChild(BUTTON_CREATURE_WORKER)->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
+            CEGUI::Window::EventMouseClick,
             CEGUI::Event::Subscriber(&workerCreatureButtonPressed));
 
     sheets[inGameMenu]->getChild(BUTTON_CREATURE_FIGHTER)->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
+            CEGUI::Window::EventMouseClick,
             CEGUI::Event::Subscriber(&fighterCreatureButtonPressed));
 
     sheets[inGameMenu]->getChild(MINIMAP)->subscribeEvent(
@@ -288,11 +288,11 @@ void Gui::assignEventHandlers()
             CEGUI::Event::Subscriber(&destroyTrapButtonPressed));
 
     sheets[editorModeGui]->getChild(BUTTON_CREATURE_WORKER)->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
+            CEGUI::Window::EventMouseClick,
             CEGUI::Event::Subscriber(&workerCreatureButtonPressed));
 
     sheets[editorModeGui]->getChild(BUTTON_CREATURE_FIGHTER)->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
+            CEGUI::Window::EventMouseClick,
             CEGUI::Event::Subscriber(&fighterCreatureButtonPressed));
 
     sheets[editorModeGui]->getChild(MINIMAP)->subscribeEvent(
