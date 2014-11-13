@@ -25,6 +25,7 @@
 #include "rooms/RoomDormitory.h"
 #include "rooms/RoomTreasury.h"
 #include "rooms/RoomHatchery.h"
+#include "rooms/RoomCrypt.h"
 #include "entities/RenderedMovableEntity.h"
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
@@ -305,6 +306,9 @@ Room* Room::getRoomFromStream(GameMap* gameMap, std::istream& is)
         case hatchery:
             tempRoom = new RoomHatchery(gameMap);
             break;
+        case crypt:
+            tempRoom = new RoomCrypt(gameMap);
+            break;
         default:
             OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(
                 static_cast<int>(nType)));
@@ -353,6 +357,9 @@ Room* Room::getRoomFromPacket(GameMap* gameMap, ODPacket& is)
         case hatchery:
             tempRoom = new RoomHatchery(gameMap);
             break;
+        case crypt:
+            tempRoom = new RoomCrypt(gameMap);
+            break;
         default:
             OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(
                 static_cast<int>(nType)));
@@ -397,6 +404,9 @@ const std::string Room::getRoomNameFromRoomType(RoomType t)
     case hatchery:
         return "Hatchery";
 
+    case crypt:
+        return "Crypt";
+
     default:
         return "UnknownRoomType";
     }
@@ -428,6 +438,9 @@ Room::RoomType Room::getRoomTypeFromRoomName(const std::string& name)
     if(name.compare("Hatchery") == 0)
         return hatchery;
 
+    if(name.compare("Crypt") == 0)
+        return crypt;
+
     return nullRoomType;
 }
 
@@ -444,11 +457,14 @@ int Room::costPerTile(RoomType t)
     case portal:
         return 0;
 
+    case treasury:
+        return 25;
+
     case dormitory:
         return 75;
 
-    case treasury:
-        return 25;
+    case hatchery:
+        return 100;
 
     case forge:
         return 150;
@@ -459,8 +475,8 @@ int Room::costPerTile(RoomType t)
     case library:
         return 200;
 
-    case hatchery:
-        return 100;
+    case crypt:
+        return 225;
 
     default:
         return 0;

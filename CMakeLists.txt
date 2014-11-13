@@ -47,6 +47,20 @@ if(OD_BUILD_TESTING)
     include(CTest)
 endif()
 
+if (UNIX AND NOT APPLE)
+    # Linux option - Do not grab the keyboard when using OIS
+    # This is breaking the game's input on certain linux distributions and thus, must stay an option for now...
+    option(OD_LINUX_NO_KEYBOARD_GRAB "Do not grab keyboard input when using OIS under Linux. Permits input in other applications." ON)
+
+    # Defines the value for the preprocessor.
+    if(OD_LINUX_NO_KEYBOARD_GRAB)
+        message(STATUS "Linux (OIS): x11_keyboard_grab = false")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DOD_LINUX_NO_KEYBOARD_GRAB")
+    else()
+        message(STATUS "Linux (OIS): x11_keyboard_grab = true")
+    endif()
+endif()
+
 ##################################
 #### Useful variables ############
 ##################################
@@ -257,6 +271,7 @@ set(OD_SOURCEFILES
     ${SRC}/render/TextRenderer.cpp
 
     ${SRC}/rooms/Room.cpp
+    ${SRC}/rooms/RoomCrypt.cpp
     ${SRC}/rooms/RoomDormitory.cpp
     ${SRC}/rooms/RoomDungeonTemple.cpp
     ${SRC}/rooms/RoomForge.cpp

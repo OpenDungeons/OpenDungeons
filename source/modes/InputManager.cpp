@@ -58,7 +58,11 @@ InputManager::InputManager(Ogre::RenderWindow* renderWindow):
 #elif defined OIS_LINUX_PLATFORM
     paramList.insert(std::make_pair(std::string("x11_mouse_grab"), std::string("false")));
     paramList.insert(std::make_pair(std::string("x11_mouse_hide"), std::string("false")));
+#if defined OD_LINUX_NO_KEYBOARD_GRAB
+    paramList.insert(std::make_pair(std::string("x11_keyboard_grab"), std::string("false")));
+#else
     paramList.insert(std::make_pair(std::string("x11_keyboard_grab"), std::string("true")));
+#endif
     paramList.insert(std::make_pair(std::string("XAutoRepeatOn"), std::string("true")));
 #endif
 

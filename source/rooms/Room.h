@@ -44,7 +44,8 @@ public:
         forge,
         trainingHall,
         library,
-        hatchery
+        hatchery,
+        crypt
     };
 
     // Constructors and operators
