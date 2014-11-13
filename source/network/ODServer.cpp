@@ -772,10 +772,14 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 packetSend << ServerNotification::clientRejected;
                 for(ODSocketClient* client : clientsToRemove)
                 {
+                    Player* player = client->getPlayer();
+                    LogManager::getSingleton().logMessage("Rejecting player id="
+                        + Ogre::StringConverter::toString(player->getId())
+                        + ", nick=" + player->getNick());
+                    setClientState(client, "rejected");
                     sendMsgToClient(client, packetSend);
-                    delete client->getPlayer();
+                    delete player;
                     client->setPlayer(nullptr);
-                    client->disconnect();
                 }
             }
 
@@ -792,7 +796,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             for (ODSocketClient* client : mSockClients)
             {
-                if(!client->isConnected())
+                if(!client->isConnected() || (client->getPlayer() == nullptr))
                     continue;
 
                 ODPacket packetSend;
