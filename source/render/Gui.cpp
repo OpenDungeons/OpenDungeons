@@ -178,6 +178,10 @@ void Gui::assignEventHandlers()
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&hatcheryButtonPressed));
 
+    sheets[inGameMenu]->getChild(BUTTON_CRYPT)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&cryptButtonPressed));
+
     sheets[inGameMenu]->getChild(BUTTON_DESTROY_ROOM)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&destroyRoomButtonPressed));
@@ -485,6 +489,16 @@ bool Gui::hatcheryButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::hatchery);
+    gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
+    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    return true;
+}
+
+bool Gui::cryptButtonPressed(const CEGUI::EventArgs& e)
+{
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
+    gameMap->getLocalPlayer()->setNewRoomType(Room::crypt);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
@@ -874,6 +888,7 @@ const std::string Gui::BUTTON_TRAININGHALL = "MainTabControl/Rooms/TrainingHallB
 const std::string Gui::BUTTON_LIBRARY = "MainTabControl/Rooms/LibraryButton";
 const std::string Gui::BUTTON_HATCHERY = "MainTabControl/Rooms/HatcheryButton";
 const std::string Gui::BUTTON_TREASURY = "MainTabControl/Rooms/TreasuryButton";
+const std::string Gui::BUTTON_CRYPT = "MainTabControl/Rooms/CryptButton";
 const std::string Gui::BUTTON_DESTROY_ROOM = "MainTabControl/Rooms/DestroyRoomButton";
 const std::string Gui::TAB_TRAPS = "MainTabControl/Traps";
 const std::string Gui::BUTTON_TRAP_CANNON = "MainTabControl/Traps/CannonButton";

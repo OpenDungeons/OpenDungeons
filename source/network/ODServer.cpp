@@ -32,6 +32,7 @@
 #include "traps/TrapCannon.h"
 #include "traps/TrapSpike.h"
 #include "traps/TrapBoulder.h"
+#include "rooms/RoomCrypt.h"
 #include "rooms/RoomDormitory.h"
 #include "rooms/RoomDungeonTemple.h"
 #include "rooms/RoomForge.h"
@@ -1035,6 +1036,11 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     room = new RoomTreasury(gameMap);
                     break;
                 }
+                case Room::RoomType::crypt:
+                {
+                    room = new RoomCrypt(gameMap);
+                    break;
+                }
                 default:
                     OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(
                         static_cast<int>(type)));
@@ -1461,6 +1467,11 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 case Room::RoomType::treasury:
                 {
                     room = new RoomTreasury(gameMap);
+                    break;
+                }
+                case Room::RoomType::crypt:
+                {
+                    room = new RoomCrypt(gameMap);
                     break;
                 }
                 default:

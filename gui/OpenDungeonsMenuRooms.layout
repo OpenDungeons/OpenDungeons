@@ -42,6 +42,12 @@
             <Property name="TooltipText" value="Build a Hatchery" />
             <Property name="InheritsAlpha" value="False" />
         </Window>
+        <Window type="OD/ImageButton" name="CryptButton" >
+            <Property name="Area" value="{{0,460},{0,21},{0,520},{0,81}}" />
+            <Property name="NormalImage" value="OpenDungeonsIcons/CryptButton" />
+            <Property name="TooltipText" value="Build a Crypt" />
+            <Property name="InheritsAlpha" value="False" />
+        </Window>
         <Window type="OD/ImageButton" name="DestroyRoomButton" >
             <Property name="Area" value="{{0,20},{0,20},{0,80},{0,80}}" />
             <Property name="NormalImage" value="OpenDungeonsIcons/DestroyRoomButton" />

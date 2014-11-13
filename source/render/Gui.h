@@ -88,6 +88,7 @@ public:
     static const std::string BUTTON_LIBRARY;
     static const std::string BUTTON_HATCHERY;
     static const std::string BUTTON_TREASURY;
+    static const std::string BUTTON_CRYPT;
     static const std::string BUTTON_DESTROY_ROOM;
     static const std::string TAB_TRAPS;
     static const std::string BUTTON_TRAP_CANNON;
@@ -217,6 +218,7 @@ private:
     static bool trainingHallButtonPressed (const CEGUI::EventArgs& e);
     static bool libraryButtonPressed    (const CEGUI::EventArgs& e);
     static bool hatcheryButtonPressed   (const CEGUI::EventArgs& e);
+    static bool cryptButtonPressed      (const CEGUI::EventArgs& e);
     static bool cannonButtonPressed     (const CEGUI::EventArgs& e);
     static bool spikeTrapButtonPressed  (const CEGUI::EventArgs& e);
     static bool boulderTrapButtonPressed(const CEGUI::EventArgs& e);
