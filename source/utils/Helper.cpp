@@ -33,7 +33,7 @@ namespace Helper
         std::stringstream ss(line);
         std::vector<std::string> elems;
         std::string item;
-        while (std::getline(ss, item, '\t'))
+        while (std::getline(ss, item, delimiter))
         {
             elems.push_back(item);
             //std::cout << item << std::endl;
@@ -58,7 +58,7 @@ namespace Helper
     }
 
     double toDouble(const std::string& text)
-    {    
+    {
         std::stringstream ss(text);
         double number = 0.0;
         ss >> number;

@@ -39,7 +39,7 @@ const std::string Seat::PLAYER_FACTION_CHOICE = "Choice";
 Seat::Seat(GameMap* gameMap) :
     mGameMap(gameMap),
     mPlayer(nullptr),
-    mTeamId(0),
+    mTeamId(-1),
     mMana(1000),
     mManaDelta(0),
     mStartingX(0),
@@ -51,6 +51,14 @@ Seat::Seat(GameMap* gameMap) :
     mGold(0),
     mId(-1)
 {
+}
+
+void Seat::setTeamId(int teamId)
+{
+    OD_ASSERT_TRUE_MSG(std::find(mAvailableTeamIds.begin(), mAvailableTeamIds.end(),
+        teamId) != mAvailableTeamIds.end(), "Unknown team id=" + Ogre::StringConverter::toString(teamId)
+        + ", for seat id=" + Ogre::StringConverter::toString(getId()));
+    mTeamId = teamId;
 }
 
 void Seat::addGoal(Goal* g)
@@ -396,7 +404,11 @@ void Seat::loadFromLine(const std::string& line, Seat *s)
 
     int32_t i = 0;
     s->mId = Helper::toInt(elems[i++]);
-    s->mTeamId = Helper::toInt(elems[i++]);
+    std::vector<std::string> teamIds = Helper::split(elems[i++], '/');
+    for(const std::string& strTeamId : teamIds)
+    {
+        s->mAvailableTeamIds.push_back(Helper::toInt(strTeamId));
+    }
     s->mPlayerType = elems[i++];
     s->mFaction = elems[i++];
     s->mStartingX = Helper::toInt(elems[i++]);
@@ -423,18 +435,30 @@ bool Seat::sortForMapSave(Seat* s1, Seat* s2)
 
 std::ostream& operator<<(std::ostream& os, Seat *s)
 {
-    os << s->mId << "\t" << s->mTeamId << "\t" << s->mPlayerType << "\t" << s->mFaction << "\t" << s->mStartingX
+    os << s->mId;
+    // If the team id is set, we save it. Otherwise, we save all the available team ids
+    // That way, save map will work in both editor and in game.
+    if(s->mTeamId != -1)
+    {
+        os << "\t" << s->mTeamId;
+    }
+    else
+    {
+        int cpt = 0;
+        for(int teamId : s->mAvailableTeamIds)
+        {
+            if(cpt == 0)
+                os << "\t";
+            else
+                os << "/";
+
+            os << teamId;
+            ++cpt;
+        }
+    }
+    os << "\t" << s->mPlayerType << "\t" << s->mFaction << "\t" << s->mStartingX
        << "\t"<< s->mStartingY;
     os << "\t" << s->mColorId;
     os << "\t" << s->mStartingGold;
     return os;
-}
-
-std::istream& operator>>(std::istream& is, Seat *s)
-{
-    is >> s->mId >> s->mTeamId >> s->mPlayerType >> s->mFaction >> s->mStartingX >> s->mStartingY;
-    is >> s->mColorId;
-    is >> s->mStartingGold;
-    s->mColorValue = ConfigManager::getSingleton().getColorFromId(s->mColorId);
-    return is;
 }

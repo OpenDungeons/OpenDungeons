@@ -37,7 +37,7 @@
 #include <boost/filesystem.hpp>
 
 const std::string TEXT_SEAT_ID_PREFIX = "TextSeat";
-const std::string TEXT_TEAM_ID_PREFIX = "TextTeam";
+const std::string COMBOBOX_TEAM_ID_PREFIX = "ComboTeam";
 const std::string COMBOBOX_PLAYER_FACTION_PREFIX = "ComboPlayerFactionSeat";
 const std::string COMBOBOX_PLAYER_PREFIX = "ComboPlayerSeat";
 
@@ -58,7 +58,7 @@ MenuModeConfigureSeats::~MenuModeConfigureSeats()
         tmpWin->destroyChild(name);
         name = COMBOBOX_PLAYER_PREFIX + Ogre::StringConverter::toString(seat->getId());
         tmpWin->destroyChild(name);
-        name = TEXT_TEAM_ID_PREFIX + Ogre::StringConverter::toString(seat->getId());
+        name = COMBOBOX_TEAM_ID_PREFIX + Ogre::StringConverter::toString(seat->getId());
         tmpWin->destroyChild(name);
     }
 }
@@ -134,6 +134,7 @@ void MenuModeConfigureSeats::activate()
         combo->setArea(CEGUI::UDim(0,100), CEGUI::UDim(0,70 + offset), CEGUI::UDim(0.3,0), CEGUI::UDim(0,200));
         combo->setReadOnly(true);
         combo->setEnabled(enabled);
+        combo->setSortingEnabled(true);
         if(seat->getFaction().compare(Seat::PLAYER_FACTION_CHOICE) == 0)
         {
             uint32_t cptFaction = 0;
@@ -179,6 +180,7 @@ void MenuModeConfigureSeats::activate()
         combo->setArea(CEGUI::UDim(0.5,10), CEGUI::UDim(0,70 + offset), CEGUI::UDim(0.3,0), CEGUI::UDim(0,200));
         combo->setReadOnly(true);
         combo->setEnabled(enabled);
+        combo->setSortingEnabled(true);
         if(seat->getPlayerType().compare(Seat::PLAYER_TYPE_INACTIVE) == 0)
         {
             CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(seat->getPlayerType(), 0);
@@ -212,13 +214,43 @@ void MenuModeConfigureSeats::activate()
         }
         combo->subscribeEvent(CEGUI::Combobox::EventListSelectionAccepted, CEGUI::SubscriberSlot(&MenuModeConfigureSeats::comboChanged, this));
 
-        name = TEXT_TEAM_ID_PREFIX + Ogre::StringConverter::toString(seat->getId());
-        CEGUI::DefaultWindow* textTeamId = static_cast<CEGUI::DefaultWindow*>(winMgr.createWindow("OD/StaticText", name));
-        tmpWin->addChild(textTeamId);
-        textTeamId->setArea(CEGUI::UDim(1,-60), CEGUI::UDim(0,65 + offset), CEGUI::UDim(0,40), CEGUI::UDim(0,30));
-        textTeamId->setText(Ogre::StringConverter::toString(seat->getTeamId()));
-        textTeamId->setProperty("FrameEnabled", "False");
-        textTeamId->setProperty("BackgroundEnabled", "False");
+        name = COMBOBOX_TEAM_ID_PREFIX + Ogre::StringConverter::toString(seat->getId());
+        combo = static_cast<CEGUI::Combobox*>(winMgr.createWindow("OD/Combobox", name));
+        tmpWin->addChild(combo);
+        combo->setArea(CEGUI::UDim(1,-80), CEGUI::UDim(0,70 + offset), CEGUI::UDim(0,60), CEGUI::UDim(0,200));
+        combo->setReadOnly(true);
+        combo->setEnabled(enabled);
+        combo->setSortingEnabled(true);
+        const std::vector<int>& availableTeamIds = seat->getAvailableTeamIds();
+        OD_ASSERT_TRUE_MSG(!availableTeamIds.empty(), "Empty availableTeamIds for seat id="
+            + Ogre::StringConverter::toString(seat->getId()));
+        if(availableTeamIds.size() > 1)
+        {
+            uint32_t cptTeamId = 0;
+            for(int teamId : availableTeamIds)
+            {
+                CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(Ogre::StringConverter::toString(teamId), teamId);
+                item->setSelectionBrushImage(selImg);
+                combo->addItem(item);
+                // At creation, we set the combo to the first available choice
+                if(cptTeamId == 0)
+                {
+                    combo->setItemSelectState(item, true);
+                    combo->setText(item->getText());
+                }
+                ++cptTeamId;
+            }
+        }
+        else if(!availableTeamIds.empty())
+        {
+            int teamId = availableTeamIds[0];
+            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(Ogre::StringConverter::toString(teamId), teamId);
+            item->setSelectionBrushImage(selImg);
+            combo->addItem(item);
+            combo->setText(item->getText());
+            combo->setEnabled(false);
+        }
+        combo->subscribeEvent(CEGUI::Combobox::EventListSelectionAccepted, CEGUI::SubscriberSlot(&MenuModeConfigureSeats::comboChanged, this));
 
         offset += 30;
     }
@@ -397,6 +429,16 @@ void MenuModeConfigureSeats::fireSeatConfigurationToServer(bool isFinal)
                 msgWin->setVisible(true);
                 return;
             }
+            name = COMBOBOX_TEAM_ID_PREFIX + Ogre::StringConverter::toString(seat->getId());
+            combo = static_cast<CEGUI::Combobox*>(playersWin->getChild(name));
+            selItem = combo->getSelectedItem();
+            if(selItem == nullptr)
+            {
+                CEGUI::Window* msgWin = Gui::getSingleton().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("LoadingText");
+                msgWin->setText("Player is not well configured for seat " + Ogre::StringConverter::toString(seat->getId()));
+                msgWin->setVisible(true);
+                return;
+            }
         }
     }
 
@@ -435,6 +477,19 @@ void MenuModeConfigureSeats::fireSeatConfigurationToServer(bool isFinal)
         {
             notif->mPacket << false;
         }
+
+        name = COMBOBOX_TEAM_ID_PREFIX + Ogre::StringConverter::toString(seat->getId());
+        combo = static_cast<CEGUI::Combobox*>(playersWin->getChild(name));
+        selItem = combo->getSelectedItem();
+        if(selItem != nullptr)
+        {
+            int32_t teamId = selItem->getID();
+            notif->mPacket << true << teamId;
+        }
+        else
+        {
+            notif->mPacket << false;
+        }
     }
     ODClient::getSingleton().queueClientNotification(notif);
 }
@@ -448,8 +503,6 @@ void MenuModeConfigureSeats::refreshSeatConfiguration(ODPacket& packet)
     CEGUI::Window* playersWin = Gui::getSingleton().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers");
     CEGUI::Combobox* combo;
     bool isSelected;
-    uint32_t factionIndex = 0;
-    int32_t playerId = 0;
     for(Seat* seat : mSeats)
     {
         int seatId;
@@ -459,6 +512,7 @@ void MenuModeConfigureSeats::refreshSeatConfiguration(ODPacket& packet)
         name = COMBOBOX_PLAYER_FACTION_PREFIX + Ogre::StringConverter::toString(seat->getId());
         combo = static_cast<CEGUI::Combobox*>(playersWin->getChild(name));
         OD_ASSERT_TRUE(packet >> isSelected);
+        uint32_t factionIndex = 0;
         if(isSelected)
         {
             OD_ASSERT_TRUE(packet >> factionIndex);
@@ -478,6 +532,7 @@ void MenuModeConfigureSeats::refreshSeatConfiguration(ODPacket& packet)
         name = COMBOBOX_PLAYER_PREFIX + Ogre::StringConverter::toString(seat->getId());
         combo = static_cast<CEGUI::Combobox*>(playersWin->getChild(name));
         OD_ASSERT_TRUE(packet >> isSelected);
+        int32_t playerId = 0;
         if(isSelected)
         {
             OD_ASSERT_TRUE(packet >> playerId);
@@ -486,6 +541,26 @@ void MenuModeConfigureSeats::refreshSeatConfiguration(ODPacket& packet)
         {
             CEGUI::ListboxItem* selItem = combo->getListboxItemFromIndex(i);
             if(isSelected && selItem->getID() == static_cast<uint32_t>(playerId))
+            {
+                combo->setItemSelectState(selItem, true);
+                combo->setText(selItem->getText());
+            }
+            else
+                combo->setItemSelectState(selItem, false);
+        }
+
+        name = COMBOBOX_TEAM_ID_PREFIX + Ogre::StringConverter::toString(seat->getId());
+        combo = static_cast<CEGUI::Combobox*>(playersWin->getChild(name));
+        OD_ASSERT_TRUE(packet >> isSelected);
+        int32_t teamId = 0;
+        if(isSelected)
+        {
+            OD_ASSERT_TRUE(packet >> teamId);
+        }
+        for(uint32_t i = 0; i < combo->getItemCount(); ++i)
+        {
+            CEGUI::ListboxItem* selItem = combo->getListboxItemFromIndex(i);
+            if(isSelected && selItem->getID() == static_cast<uint32_t>(teamId))
             {
                 combo->setItemSelectState(selItem, true);
                 combo->setText(selItem->getText());

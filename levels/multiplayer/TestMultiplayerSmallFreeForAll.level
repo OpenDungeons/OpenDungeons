@@ -9,10 +9,10 @@ FightMusic	The_Dark_Amulet.ogg
 
 [Seats]
 # seatId	teamId	player	faction	startingX	startingY	color	startingGold
-1	1	Choice	Choice	10	10	1	1000
-2	2	Choice	Choice	10	40	2	1000
-3	3	Choice	Choice	40	10	3	1000
-4	4	Choice	Choice	40	40	4	1000
+1	1/2/3/4	Choice	Choice	10	10	1	1000
+2	2/3/4/1	Choice	Choice	10	40	2	1000
+3	3/4/1/2	Choice	Choice	40	10	3	1000
+4	4/1/2/3	Choice	Choice	40	40	4	1000
 [/Seats]
 
 [Goals]
