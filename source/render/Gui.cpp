@@ -275,6 +275,10 @@ void Gui::assignEventHandlers()
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&hatcheryButtonPressed));
 
+    sheets[editorModeGui]->getChild(BUTTON_CRYPT)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&cryptButtonPressed));
+
     sheets[editorModeGui]->getChild(BUTTON_TRAP_CANNON)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&cannonButtonPressed));
