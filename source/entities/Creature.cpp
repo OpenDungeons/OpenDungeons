@@ -718,7 +718,6 @@ void Creature::doUpkeep()
         }
     }
 
-    // TODO : this is auto heal. It could be done on client side
     // Heal.
     mHp += mDefinition->getHpHealPerTurn();
     if (mHp > getMaxHp())
@@ -975,7 +974,7 @@ bool Creature::handleIdleAction()
             }
         }
         bool forceGoldDeposit = false;
-        if(mGold > 0)
+        if((mGold > 0) && (mDigRate > 0.0))
         {
             Room* room = position->getCoveringRoom();
             if((room != NULL) && (room->getType() == Room::treasury))
@@ -993,15 +992,15 @@ bool Creature::handleIdleAction()
             pushAction(CreatureAction::depositGold);
             return true;
         }
-        else if(tileMarkedDig != NULL)
+        else if((tileMarkedDig != NULL) && (mDigRate > 0.0))
         {
             mForceAction = forcedActionDigTile;
         }
-        else if(tileToClaim != NULL)
+        else if((tileToClaim != NULL) && (mClaimRate > 0.0))
         {
             mForceAction = forcedActionClaimTile;
         }
-        else if(tileWallNotClaimed != NULL)
+        else if((tileWallNotClaimed != NULL) && (mClaimRate > 0.0))
         {
             mForceAction = forcedActionClaimWallTile;
         }
@@ -1038,22 +1037,20 @@ bool Creature::handleIdleAction()
     }
 
     // Decide to check for diggable tiles
-    if (mDefinition->getDigRate() > 0.0 && !mVisibleMarkedTiles.empty())
+    if (mDigRate > 0.0 && !mVisibleMarkedTiles.empty())
     {
         loopBack = true;
         pushAction(CreatureAction::digTile);
     }
     // Decide to check for claimable tiles
-    else if (mDefinition->getClaimRate() > 0.0 && diceRoll < 0.9)
+    else if (mClaimRate > 0.0 && diceRoll < 0.9)
     {
         loopBack = true;
         pushAction(CreatureAction::claimTile);
     }
     // Decide to deposit the gold we are carrying into a treasury.
-    else if (mDefinition->getDigRate() > 0.0 && mGold > 0)
+    else if (mDigRate > 0.0 && mGold > 0)
     {
-        //TODO: We need a flag to see if we have tried to do this
-        // so the creature won't get confused if we are out of space.
         loopBack = true;
         pushAction(CreatureAction::depositGold);
     }
@@ -1315,8 +1312,8 @@ bool Creature::handleClaimTileAction()
                 // dancing on this tile.  If there is "left over" claiming that can be done
                 // it will spill over into neighboring tiles until it is gone.
                 setAnimationState("Claim");
-                myTile->claimForSeat(getSeat(), mDefinition->getClaimRate());
-                receiveExp(1.5 * (mDefinition->getClaimRate() / (0.35 + 0.05 * getLevel())));
+                myTile->claimForSeat(getSeat(), mClaimRate);
+                receiveExp(1.5 * (mClaimRate / (0.35 + 0.05 * getLevel())));
 
                 // Since we danced on a tile we are done for this turn
                 return false;
@@ -1494,8 +1491,8 @@ bool Creature::handleClaimWallTileAction()
         Ogre::Vector3 walkDirection(tempTile->x - getPosition().x, tempTile->y - getPosition().y, 0);
         walkDirection.normalise();
         setAnimationState("Claim", true, &walkDirection);
-        tempTile->claimForSeat(getSeat(), mDefinition->getClaimRate());
-        receiveExp(1.5 * mDefinition->getClaimRate() / 20.0);
+        tempTile->claimForSeat(getSeat(), mClaimRate);
+        receiveExp(1.5 * mClaimRate / 20.0);
 
         wasANeighbor = true;
         //std::cout << "Claiming wall" << std::endl;
@@ -1604,20 +1601,20 @@ bool Creature::handleDigTileAction()
         // If the tile is a gold tile accumulate gold for this creature.
         if (tempTile->getType() == Tile::gold)
         {
-            double tempDouble = 5 * std::min(mDefinition->getDigRate(), tempTile->getFullness());
+            double tempDouble = 5 * std::min(mDigRate, tempTile->getFullness());
             mGold += (int)tempDouble;
             getSeat()->addGoldMined(static_cast<int>(tempDouble));
-            receiveExp(5.0 * mDefinition->getDigRate() / 20.0);
+            receiveExp(5.0 * mDigRate / 20.0);
         }
 
         // Dig out the tile by decreasing the tile's fullness.
         Ogre::Vector3 walkDirection(tempTile->x - getPosition().x, tempTile->y - getPosition().y, 0);
         walkDirection.normalise();
         setAnimationState("Dig", true, &walkDirection);
-        double amountDug = tempTile->digOut(mDefinition->getDigRate(), true);
+        double amountDug = tempTile->digOut(mDigRate, true);
         if(amountDug > 0.0)
         {
-            receiveExp(1.5 * mDefinition->getDigRate() / 20.0);
+            receiveExp(1.5 * mDigRate / 20.0);
 
             // If the tile has been dug out, move into that tile and try to continue digging.
             if (tempTile->getFullness() == 0.0)

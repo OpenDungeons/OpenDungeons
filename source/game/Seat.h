@@ -102,6 +102,11 @@ public:
     int getTeamId() const
     { return mTeamId; }
 
+    void setTeamId(int teamId);
+
+    const std::vector<int>& getAvailableTeamIds() const
+    { return mAvailableTeamIds; }
+
     int getId() const
     { return mId; }
 
@@ -166,7 +171,6 @@ public:
     friend ODPacket& operator<<(ODPacket& os, Seat *s);
     friend ODPacket& operator>>(ODPacket& is, Seat *s);
     friend std::ostream& operator<<(std::ostream& os, Seat *s);
-    friend std::istream& operator>>(std::istream& is, Seat *s);
 
     static void loadFromLine(const std::string& line, Seat *s);
     static const std::string getFactionFromLine(const std::string& line);
@@ -225,6 +229,9 @@ private:
 
     //! \brief Currently failed goals which cannot possibly be met in the future.
     std::vector<Goal*> mFailedGoals;
+
+    //! \brief Team ids this seat can use defined in the level file.
+    std::vector<int> mAvailableTeamIds;
 
     //! \brief The creatures the current seat is allowed to spawn (when following the conditions). CreatureDefinition
     //! are managed by the configuration manager and should NOT be deleted. The boolean will be set to false at beginning

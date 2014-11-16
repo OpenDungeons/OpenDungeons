@@ -682,6 +682,14 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     OD_ASSERT_TRUE(packetReceived >> playerId);
                     packetSend << playerId;
                 }
+                OD_ASSERT_TRUE(packetReceived >> isSet);
+                packetSend << isSet;
+                if(isSet)
+                {
+                    int32_t teamId;
+                    OD_ASSERT_TRUE(packetReceived >> teamId);
+                    packetSend << teamId;
+                }
             }
             sendMsgToAllClients(packetSend);
             break;
@@ -702,6 +710,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 bool isSet;
                 uint32_t factionIndex;
                 int32_t playerId;
+                int32_t teamId;
                 OD_ASSERT_TRUE(packetReceived >> seatId);
                 OD_ASSERT_TRUE(seatId == seat->getId());
                 OD_ASSERT_TRUE(packetReceived >> isSet);
@@ -750,6 +759,12 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                         break;
                     }
                 }
+
+                OD_ASSERT_TRUE(packetReceived >> isSet);
+                // It is not acceptable to have an incompletely configured seat
+                OD_ASSERT_TRUE(isSet);
+                OD_ASSERT_TRUE(packetReceived >> teamId);
+                seat->setTeamId(teamId);
 
                 // If a player is assigned to this seat, we create his spawn pool
                 if(seat->getPlayer() != nullptr)
