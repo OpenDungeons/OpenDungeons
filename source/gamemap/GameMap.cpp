@@ -485,6 +485,20 @@ unsigned int GameMap::numCreatures() const
     return creatures.size();
 }
 
+std::vector<Creature*> GameMap::getCreaturesByAlliedSeat(Seat* seat)
+{
+    std::vector<Creature*> tempVector;
+
+    // Loop over all the creatures in the GameMap and add them to the temp vector if their seat matches the one in parameter.
+    for (Creature* creature : creatures)
+    {
+        if (seat->isAlliedSeat(creature->getSeat()) && creature->getHP() > 0.0)
+            tempVector.push_back(creature);
+    }
+
+    return tempVector;
+}
+
 std::vector<Creature*> GameMap::getCreaturesBySeat(Seat* seat)
 {
     std::vector<Creature*> tempVector;
@@ -640,9 +654,8 @@ Creature* GameMap::getFighterToPickupBySeat(Seat* seat)
     uint32_t otherFighterLevel = 0;
     Creature* otherFighter = nullptr;
     std::vector<Creature*> creatures = getCreaturesBySeat(seat);
-    for(std::vector<Creature*>::iterator it = creatures.begin(); it != creatures.end(); ++it)
+    for(Creature* creature : creatures)
     {
-        Creature* creature = *it;
         if(creature->getDefinition()->isWorker())
             continue;
 
@@ -1336,7 +1349,7 @@ void GameMap::playerIsFighting(Player* player)
     for (Player* ally : mPlayers)
     {
         // No need to warn AI about music
-        if (!ally || ally->getHasAI())
+        if (!ally || !ally->getIsHuman())
             continue;
 
         if (ally->getSeat() == nullptr || ally->getSeat()->getTeamId() != teamId)
@@ -1607,7 +1620,6 @@ bool GameMap::assignAI(Player& player, const std::string& aiType, const std::str
 {
     if (aiManager.assignAI(player, aiType, parameters))
     {
-        player.setHasAI(true);
         LogManager::getSingleton().logMessage("Assign AI: " + aiType + ", to player: " + player.getNick());
         return true;
     }
@@ -2213,7 +2225,7 @@ void GameMap::addWinningSeat(Seat *s)
     }
 
     Player* player = getPlayerBySeat(s);
-    if (player && player->getHasAI() == false)
+    if (player && player->getIsHuman())
     {
         ServerNotification* serverNotification = new ServerNotification(ServerNotification::playerWon, player);
         ODServer::getSingleton().queueServerNotification(serverNotification);
@@ -2416,9 +2428,8 @@ void GameMap::refreshFloodFill(Tile* tile)
 
     // If the tile has opened a new place, we use the same floodfillcolor for all the areas
     std::vector<Tile*> neighTiles = tile->getAllNeighbors();
-    for(std::vector<Tile*>::iterator it = neighTiles.begin(); it != neighTiles.end(); ++it)
+    for(Tile* neigh : neighTiles)
     {
-        Tile* neigh = *it;
         for(int i = 0; i < Tile::FloodFillTypeMax; ++i)
         {
             if(colors[i] == -1)

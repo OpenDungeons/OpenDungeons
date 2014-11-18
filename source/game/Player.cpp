@@ -40,7 +40,7 @@ Player::Player(GameMap* gameMap, int32_t id) :
     mCurrentAction(SelectedAction::none),
     mGameMap(gameMap),
     mSeat(nullptr),
-    mHasAI(false),
+    mIsHuman(false),
     mFightingTime(0.0f),
     mIsPlayerLostSent(false)
 {
@@ -118,7 +118,29 @@ void Player::pickUpEntity(GameEntity *entity, bool isEditorMode)
     addEntityToHand(entity);
 
     if (mGameMap->isServerGameMap())
-        return;
+    {
+        // If the player is a human, we send an asynchronous message to be as reactive as
+        // possible. If it is an AI, we queue the message because it might have been created
+        // during this turn (and, thus, not exist on client side)
+        int seatId = getSeat()->getId();
+        GameEntity::ObjectType entityType = entity->getObjectType();
+        const std::string& entityName = entity->getName();
+        if(getIsHuman())
+        {
+            ServerNotification serverNotification(ServerNotification::entityPickedUp, this);
+            serverNotification.mPacket << isEditorMode << seatId << entityType << entityName;
+            ODServer::getSingleton().sendAsyncMsgToAllClients(serverNotification);
+            return;
+        }
+        else
+        {
+            ServerNotification* serverNotification = new ServerNotification(ServerNotification::entityPickedUp,
+                this);
+            serverNotification->mPacket << isEditorMode << seatId << entityType << entityName;
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+            return;
+        }
+    }
 
     // If it is actually the user picking up a creature we move the scene node.
     // Otherwise we just hide the creature from the map.
@@ -192,7 +214,27 @@ GameEntity* Player::dropHand(Tile *t, unsigned int index)
     }
 
     if(mGameMap->isServerGameMap())
-        return entity;
+    {
+        // If the player is a human, we send an asynchronous message to be as reactive as
+        // possible. If it is an AI, we queue the message because it might have been created
+        // during this turn (and, thus, not exist on client side)
+        int seatId = getSeat()->getId();
+        if(getIsHuman())
+        {
+            ServerNotification serverNotification(ServerNotification::entityDropped, this);
+            serverNotification.mPacket << seatId << t;
+            ODServer::getSingleton().sendAsyncMsgToAllClients(serverNotification);
+            return entity;
+        }
+        else
+        {
+            ServerNotification* serverNotification = new ServerNotification(ServerNotification::entityDropped,
+                this);
+            serverNotification->mPacket << seatId << t;
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+            return entity;
+        }
+    }
 
     // If this is the result of another player dropping the creature it is currently not visible so we need to create a mesh for it
     //cout << "\nthis:  " << this << "\nme:  " << gameMap->getLocalPlayer() << endl;

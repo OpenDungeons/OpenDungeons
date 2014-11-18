@@ -82,7 +82,7 @@ void Tile::setType(TileType t)
 
 void Tile::setFullness(double f)
 {
-    int oldFullness = getFullness();
+    double oldFullness = getFullness();
     int oldFullnessMeshNumber = fullnessMeshNumber;
 
     fullness = f;
@@ -968,34 +968,9 @@ void Tile::claimForSeat(Seat* seat, double nDanceRate)
 {
 
     // If the seat is allied, we add to it. If it is an enemy seat, we subtract from it.
-    Seat* tileSeat = getSeat();
-    if (tileSeat != NULL && tileSeat->isAlliedSeat(seat))
+    if (getSeat() != NULL && getSeat()->isAlliedSeat(seat))
     {
         mClaimedPercentage += nDanceRate;
-        if (mClaimedPercentage >= 1.0)
-        {
-            claimTile(seat);
-
-            // We inform the clients that the tile has been claimed
-            if(getGameMap()->isServerGameMap())
-            {
-                try
-                {
-                    // Inform the clients that the fullness has changed.
-                    ServerNotification *serverNotification = new ServerNotification(
-                        ServerNotification::tileClaimed, getGameMap()->getPlayerBySeatId(seat->getId()));
-                    serverNotification->mPacket << this;
-
-                    ODServer::getSingleton().queueServerNotification(serverNotification);
-                }
-                catch (std::bad_alloc&)
-                {
-                    std::cerr << "\n\nERROR:  bad alloc in Tile::setFullness\n\n";
-                    exit(1);
-                }
-            }
-
-        }
     }
     else
     {
@@ -1005,25 +980,22 @@ void Tile::claimForSeat(Seat* seat, double nDanceRate)
             // The tile is not yet claimed, but it is now an allied seat.
             mClaimedPercentage *= -1.0;
             setSeat(seat);
+        }
+    }
 
-            if (mClaimedPercentage >= 1.0)
-            {
-                mClaimedPercentage = 1.0;
-                refreshMesh();
+    if ((getSeat() != NULL) && (mClaimedPercentage >= 1.0) &&
+        (getSeat()->isAlliedSeat(seat)))
+    {
+        claimTile(seat);
 
-                // Force all the neighbors to recheck their meshes as we have updated this tile.
-                for (unsigned int j = 0; j < neighbors.size(); ++j)
-                {
-                    neighbors[j]->refreshMesh();
-                    // Update potential active spots.
-                    Room* room = neighbors[j]->getCoveringRoom();
-                    if (room != NULL)
-                    {
-                        room->updateActiveSpots();
-                        room->createMesh();
-                    }
-                }
-            }
+        // We inform the clients that the tile has been claimed
+        if(getGameMap()->isServerGameMap())
+        {
+            // Inform the clients that the fullness has changed.
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotification::tileClaimed, getGameMap()->getPlayerBySeatId(seat->getId()));
+            serverNotification->mPacket << this;
+            ODServer::getSingleton().queueServerNotification(serverNotification);
         }
     }
 

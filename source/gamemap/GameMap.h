@@ -117,6 +117,7 @@ public:
     unsigned int numCreatures() const;
 
     //! \brief Returns a vector containing all the creatures controlled by the given seat.
+    std::vector<Creature*> getCreaturesByAlliedSeat(Seat* seat);
     std::vector<Creature*> getCreaturesBySeat(Seat* seat);
 
     Creature* getWorkerToPickupBySeat(Seat* seat);

@@ -191,6 +191,7 @@ set(OD_SOURCEFILES
     ${SRC}/ai/AIManager.cpp
     ${SRC}/ai/AIWrapper.cpp
     ${SRC}/ai/BaseAI.cpp
+    ${SRC}/ai/Keeper2AI.cpp
     ${SRC}/ai/KeeperAI.cpp
     ${SRC}/ai/NullAI.cpp
 

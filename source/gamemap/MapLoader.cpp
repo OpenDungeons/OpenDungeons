@@ -623,6 +623,7 @@ LevelInfo getMapInfo(const std::string& fileName)
     // Read in the seats from the level file
     int playerSeatNumber = 0;
     int AISeatNumber = 0;
+    int seatConfigurable = 0;
     while (true)
     {
         if(!levelFile.good())
@@ -638,22 +639,36 @@ LevelInfo getMapInfo(const std::string& fileName)
         //std::cout << entire_line << std::endl;
 
         const std::string faction = Seat::getFactionFromLine(entire_line);
-        if (faction == "Player")
+        if (faction == Seat::PLAYER_TYPE_HUMAN)
             ++playerSeatNumber;
-        else if (faction == "KeeperAI")
+        else if (faction == Seat::PLAYER_TYPE_CHOICE)
+            ++seatConfigurable;
+        else if (faction == Seat::PLAYER_TYPE_AI)
             ++AISeatNumber;
     }
 
     if (playerSeatNumber > 0 || AISeatNumber > 0)
     {
-        if (playerSeatNumber > 0)
-            mapInfo << "Player slot(s): " << playerSeatNumber;
-        if (playerSeatNumber > 0 && AISeatNumber > 0)
-            mapInfo << " / AI: " << AISeatNumber;
-        else if (AISeatNumber > 0)
-            mapInfo << "AI: " << AISeatNumber;
+        std::string str;
 
-        mapInfo << std::endl << std::endl;
+        if (playerSeatNumber > 0)
+            str += "Player slot(s): " + Ogre::StringConverter::toString(playerSeatNumber);
+        if (AISeatNumber > 0)
+        {
+            if(!str.empty())
+                str += " / ";
+
+            str += "AI: " + Ogre::StringConverter::toString(AISeatNumber);
+        }
+        if (seatConfigurable > 0)
+        {
+            if(!str.empty())
+                str += " / ";
+
+            str += "Configurable: " + Ogre::StringConverter::toString(seatConfigurable);
+        }
+
+        mapInfo << str << std::endl << std::endl;
     }
 
     // Read in the goals that are shared by all players, the first player to complete all these goals is the winner.

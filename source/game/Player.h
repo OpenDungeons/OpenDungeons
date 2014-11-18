@@ -98,11 +98,11 @@ public:
     //! \brief Clears all creatures that a player might have in his hand
     void notifyNoMoreDungeonTemple();
 
-    inline bool getHasAI() const
-    { return mHasAI; }
+    inline bool getIsHuman() const
+    { return mIsHuman; }
 
-    inline void setHasAI(bool hasAI)
-    { mHasAI = hasAI; }
+    inline void setIsHuman(bool isHuman)
+    { mIsHuman = isHuman; }
 
     inline const std::vector<GameEntity*>& getObjectsInHand()
     { return mObjectsInHand; }
@@ -151,8 +151,8 @@ private:
     //! \brief The creature the player has got in hand.
     std::vector<GameEntity*> mObjectsInHand;
 
-    //! True: player is human. False: player is a computer.
-    bool mHasAI;
+    //! True: player is human. False: player is a computer/inactive.
+    bool mIsHuman;
 
     //! \brief This counter tells for how much time is left before considering
     //! the player to be out of struggle.
