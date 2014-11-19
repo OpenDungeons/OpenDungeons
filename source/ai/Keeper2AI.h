@@ -37,12 +37,12 @@ protected:
     //! \brief Checks if a room is needed. If yes, it will check if place is available
     //! and start digging for it.
     //! Returns true if the action has been done and false if nothing has been done
-    bool handleRooms(double frameTime);
+    bool handleRooms();
 
     //! \brief Look for gold and make way up to it.
     //! \brief Returns whether the action could succeed.
     //! It will also return false once it's done.
-    bool lookForGold(double frameTime);
+    bool lookForGold();
 
     //! \brief Picks up wounded creatures and drops then in the dungeon temple
     void saveWoundedCreatures();
@@ -55,12 +55,13 @@ private:
 
     bool buildMostNeededRoom();
 
-    double mLastTimeLookingForRooms;
+    int mCooldownCheckTreasury;
+    int mCooldownLookingForRooms;
     int mRoomPosX;
     int mRoomPosY;
     int mRoomSize;
     bool mNoMoreReachableGold;
-    double mLastTimeLookingForGold;
+    int mCooldownLookingForGold;
     int mCooldownDefense;
 };
 

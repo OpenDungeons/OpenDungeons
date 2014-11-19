@@ -34,17 +34,15 @@
 
 AIFactoryRegister<Keeper2AI> Keeper2AI::reg("Keeper2AI");
 
-const double TIME_LOOK_ROOM = 60.0 * 2.0;
-const double TIME_LOOK_GOLD = 60.0 * 10.0;
-
 Keeper2AI::Keeper2AI(GameMap& gameMap, Player& player, const std::string& parameters):
     BaseAI(gameMap, player, parameters),
-    mLastTimeLookingForRooms(0.0),
+    mCooldownCheckTreasury(0),
+    mCooldownLookingForRooms(0),
     mRoomPosX(-1),
     mRoomPosY(-1),
     mRoomSize(-1),
     mNoMoreReachableGold(false),
-    mLastTimeLookingForGold(0.0),
+    mCooldownLookingForGold(0),
     mCooldownDefense(0)
 {
 }
@@ -62,10 +60,10 @@ bool Keeper2AI::doTurn(double frameTime)
     if (checkTreasury())
         return true;
 
-    if (handleRooms(frameTime))
+    if (handleRooms())
         return true;
 
-    if (lookForGold(frameTime))
+    if (lookForGold())
         return true;
 
     return true;
@@ -73,6 +71,14 @@ bool Keeper2AI::doTurn(double frameTime)
 
 bool Keeper2AI::checkTreasury()
 {
+    // If the treasury gets destroyed, we don't want the AI to build each turn the
+    // free treasury
+    if(mCooldownCheckTreasury > 0)
+    {
+        --mCooldownCheckTreasury;
+        return false;
+    }
+
     GameMap& gameMap = mAiWrapper.getGameMap();
     Player& player = mAiWrapper.getPlayer();
     std::vector<Room*> treasuriesOwned = gameMap.getRoomsByTypeAndSeat(Room::treasury,
@@ -136,6 +142,7 @@ bool Keeper2AI::checkTreasury()
 
                     Room* room = new RoomTreasury(&gameMap);
                     mAiWrapper.buildRoom(room, tiles);
+                    mCooldownCheckTreasury = Random::Int(10,30);
                     return true;
                 }
             }
@@ -145,7 +152,8 @@ bool Keeper2AI::checkTreasury()
     int widerSide = gameMap.getMapSizeX() > gameMap.getMapSizeY() ?
         gameMap.getMapSizeX() : gameMap.getMapSizeY();
 
-    // We search for the closest gold tile
+    // If we have found no tile available to an existing treasury, we search for the closest
+    // buildable claimed tile available
     Tile* firstAvailableTile = nullptr;
     for(int32_t distance = 1; distance < widerSide; ++distance)
     {
@@ -251,18 +259,19 @@ bool Keeper2AI::checkTreasury()
 
     Room* room = new RoomTreasury(&gameMap);
     mAiWrapper.buildRoom(room, tiles);
+    mCooldownCheckTreasury = Random::Int(10,30);
     return true;
 }
 
-bool Keeper2AI::handleRooms(double frameTime)
+bool Keeper2AI::handleRooms()
 {
-    if(mLastTimeLookingForRooms > 0.0)
+    if(mCooldownLookingForRooms > 0)
     {
-        mLastTimeLookingForRooms -= frameTime * 10.0;
+        --mCooldownLookingForRooms;
         return false;
     }
 
-    mLastTimeLookingForRooms = TIME_LOOK_ROOM;
+    mCooldownLookingForRooms = Random::Int(30,60);
 
     // We check if the last built room is done
     if(mRoomSize != -1)
@@ -322,18 +331,18 @@ bool Keeper2AI::handleRooms(double frameTime)
     return true;
 }
 
-bool Keeper2AI::lookForGold(double frameTime)
+bool Keeper2AI::lookForGold()
 {
     if (mNoMoreReachableGold)
         return false;
 
-    if(mLastTimeLookingForGold > 0.0)
+    if(mCooldownLookingForGold > 0)
     {
-        mLastTimeLookingForGold -= frameTime * 10.0;
+        --mCooldownLookingForGold;
         return false;
     }
 
-    mLastTimeLookingForGold = TIME_LOOK_GOLD;
+    mCooldownLookingForGold = Random::Int(70,120);
 
     GameMap& gameMap = mAiWrapper.getGameMap();
     // Do we need gold ?
