@@ -41,7 +41,7 @@ public:
 
 private:
     GameMap& gameMap;
-    AIList aiList;
+    AIList mAiList;
 };
 
 #endif // AIMANAGER_H

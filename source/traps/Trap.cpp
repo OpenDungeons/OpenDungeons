@@ -33,7 +33,7 @@
 #include "utils/LogManager.h"
 
 Trap::Trap(GameMap* gameMap) :
-    Building(gameMap),
+    Building(gameMap, BuildingType::trap),
     mReloadTime(0),
     mMinDamage(0.0),
     mMaxDamage(0.0)

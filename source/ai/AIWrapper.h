@@ -45,14 +45,27 @@ public:
     Room* getDungeonTemple();
     void markTileForDigging(Tile* tile);
 
-    //Should remove these when we have the needed functions
     GameMap& getGameMap() const
     { return gameMap; }
 
     Player& getPlayer() const
     { return player; }
 
+    //! \brief Searches for the best place where to place a room around the given tile. It will take
+    //! into account any constructible tile (even if not digged yet). On success, it returns true and bestX
+    //! and bestY will be set accordingly. It will return false if no constructible square of wantedSize
+    //! is found
+    bool findBestPlaceForRoom(Tile* tile, Seat* playerSeat, int32_t wantedSize, bool useWalls,
+        int32_t& bestX, int32_t& bestY);
+
+    bool digWayToTile(Tile* tileStart, Tile* tileEnd);
+    bool computePointsForRoom(Tile* tile, Seat* playerSeat, int32_t wantedSize,
+        bool bottomLeft2TopRight, bool useWalls, int32_t& points);
+
 private:
+    bool shouldGroundTileBeConsideredForBestPlaceForRoom(Tile* tile, Seat* playerSeat);
+    bool shouldWallTileBeConsideredForBestPlaceForRoom(Tile* tile, Seat* playerSeat);
+
     std::vector<Tile*> getAffectedTiles(int x1, int y1, int x2, int y2);
 
     GameMap& gameMap;

@@ -386,27 +386,28 @@ void ODServer::processServerNotifications()
             }
 
             case ServerNotification::entityPickedUp:
-                // This should not be a message as it is sent directly to the client
-                OD_ASSERT_TRUE(false);
+                // This message should not be sent by human players (they are notified asynchronously)
+                OD_ASSERT_TRUE_MSG(!event->mConcernedPlayer->getIsHuman(), "nick=" + event->mConcernedPlayer->getNick());
+                sendMsgToAllClients(event->mPacket);
                 break;
 
             case ServerNotification::entityDropped:
-                // This should not be a message as it is sent directly to the client
-                OD_ASSERT_TRUE(false);
+                // This message should not be sent by human players (they are notified asynchronously)
+                OD_ASSERT_TRUE_MSG(!event->mConcernedPlayer->getIsHuman(), "nick=" + event->mConcernedPlayer->getNick());
+                sendMsgToAllClients(event->mPacket);
                 break;
 
             case ServerNotification::buildRoom:
             {
-                // This message should only be sent by ai players (human players are notified directly)
-                const std::string& faction = event->mConcernedPlayer->getSeat()->getFaction();
-                OD_ASSERT_TRUE_MSG(faction != "Player", faction);
+                // This message should not be sent by human players (they are notified asynchronously)
+                OD_ASSERT_TRUE_MSG(!event->mConcernedPlayer->getIsHuman(), "nick=" + event->mConcernedPlayer->getNick());
                 sendMsgToAllClients(event->mPacket);
                 break;
             }
 
             case ServerNotification::playerWon:
             {
-                if(event->mConcernedPlayer->getHasAI())
+                if(!event->mConcernedPlayer->getIsHuman())
                     break;
 
                 ODSocketClient* client = getClientFromPlayer(event->mConcernedPlayer);
@@ -587,6 +588,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             int32_t playerId = mSockClients.size() + 10;
             Player* curPlayer = new Player(gameMap, playerId);
             curPlayer->setNick(clientNick);
+            curPlayer->setIsHuman(true);
             clientSocket->setPlayer(curPlayer);
             setClientState(clientSocket, "ready");
 
@@ -740,7 +742,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                         aiPlayer->setNick("Keeper AI " + Ogre::StringConverter::toString(seatId));
                         gameMap->addPlayer(aiPlayer);
                         seat->setPlayer(aiPlayer);
-                        gameMap->assignAI(*aiPlayer, "KeeperAI");
+                        gameMap->assignAI(*aiPlayer, "Keeper2AI");
                         break;
                     }
                     default:
@@ -884,14 +886,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 break;
             }
 
-            int seatId = player->getSeat()->getId();
             player->pickUpEntity(entity, mServerMode == ServerMode::ModeEditor);
-            // We notify the players
-            // We notify the other players that a creature has been picked up
-            ODPacket packetSend;
-            packetSend << ServerNotification::entityPickedUp;
-            packetSend << mServerMode << seatId << entityType << entityName;
-            sendMsgToAllClients(packetSend);
             break;
         }
 
@@ -908,11 +903,6 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 {
                     // We notify the players
                     OD_ASSERT_TRUE(player->dropHand(tile, 0) != NULL);
-                    int seatId = player->getSeat()->getId();
-                    ODPacket packet;
-                    packet << ServerNotification::entityDropped;
-                    packet << seatId << tile;
-                    sendMsgToAllClients(packet);
                 }
                 else
                 {
@@ -931,15 +921,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             if(creature == nullptr)
                 break;
 
-            int seatId = player->getSeat()->getId();
             player->pickUpEntity(creature, mServerMode == ServerMode::ModeEditor);
-            // We notify the players
-            ODPacket packetSend;
-            GameEntity::ObjectType entityType = creature->getObjectType();
-            const std::string& entityName = creature->getName();
-            packetSend << ServerNotification::entityPickedUp;
-            packetSend << mServerMode << seatId << entityType << entityName;
-            sendMsgToAllClients(packetSend);
             break;
         }
 
@@ -950,15 +932,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             if(creature == nullptr)
                 break;
 
-            int seatId = player->getSeat()->getId();
             player->pickUpEntity(creature, mServerMode == ServerMode::ModeEditor);
-            // We notify the players
-            ODPacket packetSend;
-            GameEntity::ObjectType entityType = creature->getObjectType();
-            const std::string& entityName = creature->getName();
-            packetSend << ServerNotification::entityPickedUp;
-            packetSend << mServerMode << seatId << entityType << entityName;
-            sendMsgToAllClients(packetSend);
             break;
         }
 
@@ -1608,12 +1582,6 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             sendMsgToAllClients(packetSend);
 
             player->pickUpEntity(newCreature, mServerMode == ServerMode::ModeEditor);
-            packetSend.clear();
-            GameEntity::ObjectType entityType = newCreature->getObjectType();
-            const std::string& entityName = newCreature->getName();
-            packetSend << ServerNotification::entityPickedUp;
-            packetSend << mServerMode << player->getSeat()->getId() << entityType << entityName;
-            sendMsgToAllClients(packetSend);
             break;
         }
 
@@ -1643,12 +1611,6 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             sendMsgToAllClients(packetSend);
 
             player->pickUpEntity(newCreature, mServerMode == ServerMode::ModeEditor);
-            packetSend.clear();
-            GameEntity::ObjectType entityType = newCreature->getObjectType();
-            const std::string& entityName = newCreature->getName();
-            packetSend << ServerNotification::entityPickedUp;
-            packetSend << mServerMode << player->getSeat()->getId() << entityType << entityName;
-            sendMsgToAllClients(packetSend);
             break;
         }
 

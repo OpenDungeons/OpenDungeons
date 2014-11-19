@@ -37,24 +37,24 @@ bool AIManager::assignAI(Player& player, const std::string& type, const std::str
     if(ai == NULL)
         return false;
 
-    aiList.push_back(ai);
+    mAiList.push_back(ai);
     return true;
 }
 
 bool AIManager::doTurn(double frameTime)
 {
-    for(AIList::iterator it = aiList.begin(); it != aiList.end(); ++it)
+    for(BaseAI* ai : mAiList)
     {
-        (*it)->doTurn(frameTime);
+        ai->doTurn(frameTime);
     }
     return true;
 }
 
 void AIManager::clearAIList()
 {
-    for(AIList::iterator it = aiList.begin(); it != aiList.end(); ++it)
+    for(BaseAI* ai : mAiList)
     {
-        delete *it;
+        delete ai;
     }
-    aiList.clear();
+    mAiList.clear();
 }
