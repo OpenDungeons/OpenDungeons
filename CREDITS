@@ -67,8 +67,6 @@ schemas/
 
 Name                                   Author                  License                 Source URL
 ------------------------------------------------------------------------------------------------------------------------
-creatures.def                          Bertram                 GPL 3.0
-
 multiplayer/
 -> TestMultiplayer.level               hwoarangmy              GPL 3.0
 -> TestMultiplayerSmallFreeForAll.level hwoarangmy             GPL 3.0
@@ -99,6 +97,7 @@ textures/
 -> AdventurerBed.png                   PantherOne              CC0                     http://opengameart.org/content/tent-pack
 -> Anvil.png                           Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
 -> Axe.png                             Skorpio                 CC-BY-SA 3.0, GPL 3.0
+-> Cavehornet*.png                     Skorpio                 CC-BY-SA 3.0, GPL 3.0
 -> CelticCross.png                     Yughues                 CC0                     http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
 -> ChickenCoop_tex.png                 Dm3d                    CC-BY-SA 3.0            http://opengameart.org/content/chicken-coop
 -> Chimney.png                         Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
@@ -145,7 +144,7 @@ Bookcase.mesh                          Danimal                 CC-BY-SA 3.0     
 Bookshelf.mesh                         Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
 Cannon.mesh                            Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
 Cannonball.mesh                        Andrew Buck             CC-BY-SA 3.0
-Cavehornet.*                           Skorpio                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
+CaveHornet.*                           Skorpio, Danimal        CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
 CelticCross.mesh                       Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
 Chicken.*                              Skorpio                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
 ChickenCoop.mesh                       Dm3d, Danimal           CC-BY-SA 3.0            http://opengameart.org/content/chicken-coop
