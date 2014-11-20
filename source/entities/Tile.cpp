@@ -636,7 +636,18 @@ void Tile::loadFromLine(const std::string& line, Tile *t)
     Tile::TileType tileType = static_cast<Tile::TileType>(Helper::toInt(elems[2]));
     t->setType(tileType);
 
-    t->setFullnessValue(Helper::toDouble(elems[3]));
+    // If the tile type is lava or water, we ignore fullness
+    switch(tileType)
+    {
+        case Tile::water:
+        case Tile::lava:
+            t->setFullnessValue(0.0);
+            break;
+
+        default:
+            t->setFullnessValue(Helper::toDouble(elems[3]));
+            break;
+    }
 
     // If the tile is claimed, there can be an optional parameter with the seat id
     if(tileType != Tile::TileType::claimed || elems.size() < 5)
