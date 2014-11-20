@@ -70,6 +70,9 @@ public:
     inline const std::string& getUserDataPath() const
     { return mUserDataPath; }
 
+    inline const std::string& getReplayDataPath() const
+    { return mReplayPath; }
+
     inline const std::string& getUserConfigPath() const
     { return mUserConfigPath; }
 
@@ -133,6 +136,7 @@ private:
     std::string mSoundPath;
     std::string mScriptPath;
     std::string mLanguagePath;
+    std::string mReplayPath;
 
     static const std::string PLUGINSCFG;
     static const std::string RESOURCECFG;

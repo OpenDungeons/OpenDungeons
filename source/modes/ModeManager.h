@@ -47,6 +47,7 @@ public:
         MENU_MULTIPLAYER_SERVER,
         MENU_EDITOR,
         MENU_CONFIGURE_SEATS,
+        MENU_REPLAY,
         GAME,
         EDITOR,
         CONSOLE,
@@ -71,6 +72,13 @@ public:
     void requestMenuSingleplayerMode(bool discardActualMode = false)
     {
         mRequestedMode = ModeManager::MENU_SKIRMISH;
+        mDiscardActualMode = discardActualMode;
+    }
+
+    //! \brief Request loading level selection menu mode at next update
+    void requestMenuReplayMode(bool discardActualMode = false)
+    {
+        mRequestedMode = ModeManager::MENU_REPLAY;
         mDiscardActualMode = discardActualMode;
     }
 

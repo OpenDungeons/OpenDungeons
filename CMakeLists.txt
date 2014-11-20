@@ -252,6 +252,7 @@ set(OD_SOURCEFILES
     ${SRC}/modes/MenuModeEditor.cpp
     ${SRC}/modes/MenuModeMultiplayerClient.cpp
     ${SRC}/modes/MenuModeMultiplayerServer.cpp
+    ${SRC}/modes/MenuModeReplay.cpp
     ${SRC}/modes/MenuModeSkirmish.cpp
     ${SRC}/modes/ModeManager.cpp
     ${SRC}/modes/PrefixTree.cpp

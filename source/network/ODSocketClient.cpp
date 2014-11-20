@@ -19,13 +19,16 @@
 #include "network/ODPacket.h"
 
 #include "utils/LogManager.h"
+#include "utils/ResourceManager.h"
 
 #include <OgreStringConverter.h>
 
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/filesystem.hpp>
+
 bool ODSocketClient::connect(const std::string& host, const int port)
 {
-    mIsConnected = false;
-
+    mSource = ODSource::none;
     // As we use selector, there is no need to set the socket as not-blocking
     sf::Socket::Status status = mSockClient.connect(host, port);
     if (status != sf::Socket::Done)
@@ -36,38 +39,101 @@ bool ODSocketClient::connect(const std::string& host, const int port)
     }
     mSockSelector.add(mSockClient);
     LogManager::getSingleton().logMessage("Connected to server successfully");
-    mIsConnected = true;
+    static std::locale loc(std::wcout.getloc(), new boost::posix_time::time_facet("%Y%m%d_%H%M%S"));
+    std::ostringstream ss;
+    ss.imbue(loc);
+    ss << "replay_" << boost::posix_time::second_clock::local_time();
+    std::string filename = ResourceManager::getSingleton().getReplayDataPath() + ss.str() + ".odr";
+
+    mReplayOutputStream.open(filename, std::ios::out | std::ios::binary);
+    mGameClock.restart();
+    mSource = ODSource::network;
+    return true;
+}
+
+bool ODSocketClient::replay(const std::string& filename)
+{
+    LogManager::getSingleton().logMessage("Reading replay from file " + filename);
+    mReplayInputStream.open(filename, std::ios::in | std::ios::binary);
+    mGameClock.restart();
+    mSource = ODSource::file;
     return true;
 }
 
 void ODSocketClient::disconnect()
 {
-    mIsConnected = false;
-
-    // Remove any remaining client sockets from the socket selector,
-    // if there is any left.
-    mSockSelector.clear();
-
-    mSockClient.disconnect();
+    ODSource src = mSource;
+    mSource = ODSource::none;
+    switch(src)
+    {
+        case ODSource::none:
+        {
+            // Nothing to do
+            return;
+        }
+        case ODSource::network:
+        {
+            // Remove any remaining client sockets from the socket selector,
+            // if there is any left.
+            mReplayOutputStream.close();
+            mSockSelector.clear();
+            mSockClient.disconnect();
+            return;
+        }
+        case ODSource::file:
+        {
+            mReplayInputStream.close();
+            return;
+        }
+    }
 }
 
 bool ODSocketClient::isDataAvailable()
 {
-    // There is only 1 socket in the selector so it ld be ready if
-    // wait returns true but it doesn't hurt to return isReady...
-    if(mSockSelector.wait(sf::milliseconds(5)))
-        return mSockSelector.isReady(mSockClient);
-    else
-        return false;
+    switch(mSource)
+    {
+        case ODSource::none:
+        {
+            return false;
+        }
+        case ODSource::network:
+        {
+            // There is only 1 socket in the selector so it should be ready if
+            // wait returns true but it doesn't hurt to return isReady...
+            if(!mSockSelector.wait(sf::milliseconds(5)))
+                return false;
+            return mSockSelector.isReady(mSockClient);
+        }
+        case ODSource::file:
+        {
+            if(mReplayInputStream.eof())
+                return false;
+
+            if(mPendingTimestamp == -1)
+                mPendingTimestamp = mPendingPacket.readPacket(mReplayInputStream);
+
+            if(mPendingTimestamp < 0)
+                return false;
+
+            if(mPendingTimestamp < mGameClock.getElapsedTime().asMilliseconds())
+                return true;
+
+            return false;
+        }
+    }
+
+    return false;
 }
 
 ODSocketClient::ODComStatus ODSocketClient::send(ODPacket& s)
 {
+    if(mSource != ODSource::network)
+        return ODComStatus::OK;
+
     sf::Socket::Status status = mSockClient.send(s.mPacket);
     if (status == sf::Socket::Done)
-    {
         return ODComStatus::OK;
-    }
+
     LogManager::getSingleton().logMessage("ERROR : Could not send data from client status="
         + Ogre::StringConverter::toString(status));
     return ODComStatus::Error;
@@ -75,23 +141,45 @@ ODSocketClient::ODComStatus ODSocketClient::send(ODPacket& s)
 
 ODSocketClient::ODComStatus ODSocketClient::recv(ODPacket& s)
 {
-    sf::Socket::Status status = mSockClient.receive(s.mPacket);
-    if (status == sf::Socket::Done)
+    switch(mSource)
     {
-        return ODComStatus::OK;
+        case ODSource::none:
+        {
+            // We should not try to send anything until connected
+            OD_ASSERT_TRUE(false);
+            return ODComStatus::Error;
+        }
+        case ODSource::network:
+        {
+            sf::Socket::Status status = mSockClient.receive(s.mPacket);
+            if (status == sf::Socket::Done)
+            {
+                s.writePacket(mGameClock.getElapsedTime().asMilliseconds(),
+                    mReplayOutputStream);
+                return ODComStatus::OK;
+            }
+            else if((!mSockClient.isBlocking()) &&
+                    (status == sf::Socket::NotReady))
+            {
+                    return ODComStatus::NotReady;
+            }
+            LogManager::getSingleton().logMessage("ERROR : Could not receive data from client status="
+                + Ogre::StringConverter::toString(status));
+            return ODComStatus::Error;
+        }
+        case ODSource::file:
+        {
+            OD_ASSERT_TRUE(mPendingPacket != 0);
+            s = mPendingPacket;
+            mPendingTimestamp = -1;
+            return ODComStatus::OK;
+        }
     }
-    else if((!mSockClient.isBlocking()) &&
-            (status == sf::Socket::NotReady))
-    {
-            return ODComStatus::NotReady;
-    }
-    LogManager::getSingleton().logMessage("ERROR : Could not receive data from client status="
-        + Ogre::StringConverter::toString(status));
     return ODComStatus::Error;
 }
 
 bool ODSocketClient::isConnected()
 {
-    return mIsConnected;
+    return mSource != ODSource::none;
 }
 

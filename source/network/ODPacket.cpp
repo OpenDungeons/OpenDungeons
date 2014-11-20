@@ -239,3 +239,33 @@ void ODPacket::clear()
 {
     mPacket.clear();
 }
+
+void ODPacket::writePacket(int32_t timestamp, std::ofstream& os)
+{
+    int32_t bufferSize = mPacket.getDataSize();
+    const char* buffer = static_cast<const char*>(mPacket.getData());
+    os.write(reinterpret_cast<const char*>(&timestamp), sizeof(int32_t));
+    os.write(reinterpret_cast<const char*>(&bufferSize), sizeof(int32_t));
+    os.write(buffer, bufferSize);
+}
+
+int32_t ODPacket::readPacket(std::ifstream& is)
+{
+    int32_t timestamp;
+    int32_t bufferSize;
+
+    is.read(reinterpret_cast<char*>(&timestamp), sizeof(int32_t));
+    if(is.eof())
+        return -1;
+
+    is.read(reinterpret_cast<char*>(&bufferSize), sizeof(int32_t));
+    if(is.eof())
+        return -1;
+
+    char buffer[bufferSize];
+    is.read(buffer, bufferSize);
+    mPacket.clear();
+    mPacket.append(buffer, bufferSize);
+
+    return timestamp;
+}

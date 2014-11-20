@@ -54,6 +54,7 @@ public:
         editorModeGui,
         optionsMenu,
         inGameMenu,
+        replayMenu,
         configureSeats
     };
 
@@ -103,6 +104,7 @@ public:
     static const std::string MM_BACKGROUND;
     static const std::string MM_WELCOME_MESSAGE;
     static const std::string MM_BUTTON_START_SKIRMISH;
+    static const std::string MM_BUTTON_START_REPLAY;
     static const std::string MM_BUTTON_START_MULTIPLAYER_CLIENT;
     static const std::string MM_BUTTON_START_MULTIPLAYER_SERVER;
     static const std::string MM_BUTTON_MAPEDITOR;
@@ -138,6 +140,11 @@ public:
     static const std::string EDM_LIST_LEVELS;
     static const std::string CSM_BUTTON_LAUNCH;
     static const std::string CSM_BUTTON_BACK;
+    static const std::string REM_TEXT_LOADING;
+    static const std::string REM_BUTTON_LAUNCH;
+    static const std::string REM_BUTTON_DELETE;
+    static const std::string REM_BUTTON_BACK;
+    static const std::string REM_LIST_REPLAYS;
 
 private:
     //! \brief Assigns all event handlers to the GUI elements
@@ -148,6 +155,9 @@ private:
     // Button handlers main menu
     //! \brief What happens after a click on New Game in the main menu
     static bool mMNewGameButtonPressed  (const CEGUI::EventArgs& e);
+
+    //! \brief What happens after a click on New Game in the main menu
+    static bool mMReplayButtonPressed  (const CEGUI::EventArgs& e);
 
     //! \brief What happens after a click on 'Join Game' button in the main menu
     static bool mMNewGameMultiClientButtonPressed(const CEGUI::EventArgs& e);
@@ -208,6 +218,21 @@ private:
 
     //! \brief What happens after a click on Load in the level seat configuration menu
     static bool mCSMLoadButtonPressed   (const CEGUI::EventArgs& e);
+
+    //! \brief What happens after a click on Back in the replay menu
+    static bool mREMBackButtonPressed   (const CEGUI::EventArgs& e);
+
+    //! \brief What happens after a click on Load in the replay menu
+    static bool mREMLoadButtonPressed   (const CEGUI::EventArgs& e);
+
+    //! \brief What happens after a click on delete button in the replay menu
+    static bool mREMDeleteButtonPressed   (const CEGUI::EventArgs& e);
+
+    //! \brief What happens after a single click on the replay list in the replay menu
+    static bool mREMListClicked         (const CEGUI::EventArgs& e);
+
+    //! \brief What happens after a double click on the replay list in the replay menu
+    static bool mREMListDoubleClicked   (const CEGUI::EventArgs& e);
 
     // Button handlers game UI
     static bool miniMapclicked          (const CEGUI::EventArgs& e);

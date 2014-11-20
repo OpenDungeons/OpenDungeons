@@ -76,9 +76,19 @@ void MenuModeMultiplayerServer::activate()
         {
             std::string filename = mFilesList[n];
 
-            LevelInfo levelInfo = MapLoader::getMapInfo(filename);
-            std::string mapName = levelInfo.mLevelName;
-            std::string mapDescription = levelInfo.mLevelDescription;
+            LevelInfo levelInfo;
+            std::string mapName;
+            std::string mapDescription;
+            if(MapLoader::getMapInfo(filename, levelInfo))
+            {
+                mapName = levelInfo.mLevelName;
+                mapDescription = levelInfo.mLevelDescription;
+            }
+            else
+            {
+                mapName = "invalid map";
+                mapDescription = "invalid map";
+            }
 
             mDescriptionList.push_back(mapDescription);
             CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(mapName);

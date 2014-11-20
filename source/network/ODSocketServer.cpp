@@ -101,7 +101,7 @@ void ODSocketServer::doTask(int timeoutMs)
                     if(notifyNewConnection(mNewClient))
                     {
                         // The server wants to keep the client
-                        mNewClient->mIsConnected = true;
+                        mNewClient->mSource = ODSocketClient::ODSource::network;
                         mSockSelector.add(mNewClient->mSockClient);
                         mSockClients.push_back(mNewClient);
 

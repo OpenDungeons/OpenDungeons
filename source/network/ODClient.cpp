@@ -50,7 +50,6 @@ ODClient::~ODClient()
 {
 }
 
-
 void ODClient::processClientSocketMessages(GameMap& gameMap)
 {
     gameMap.processDeletionQueues();
@@ -824,11 +823,6 @@ bool ODClient::connect(const std::string& host, const int port)
         return false;
     }
 
-    // Start by loading map
-    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
-    if (gameMap == NULL)
-        return false;
-
     if(!ODSocketClient::connect(host, port))
         return false;
 
@@ -837,6 +831,22 @@ bool ODClient::connect(const std::string& host, const int port)
     packSend << ClientNotification::hello
         << std::string("OpenDungeons V ") + ODApplication::VERSION;
     sendToServer(packSend);
+
+    return true;
+}
+
+bool ODClient::replay(const std::string& filename)
+{
+    LogManager& logManager = LogManager::getSingleton();
+    // Start the server socket listener as well as the server socket thread
+    if (ODClient::getSingleton().isConnected())
+    {
+        logManager.logMessage("Couldn't try to launch replay: The client is already connected");
+        return false;
+    }
+
+    if(!ODSocketClient::replay(filename))
+        return false;
 
     return true;
 }

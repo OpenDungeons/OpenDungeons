@@ -125,6 +125,16 @@ class ODPacket
          */
         void clear();
 
+        /*! \brief Writes the packet content to the given ofstream.
+         */
+        void writePacket(int32_t timestamp, std::ofstream& os);
+
+        /*! \brief Reads the packet content from the given ifstream.
+         *         Returns the timestamp at which the packet has been sent.
+         *         If EOF has been reached, returns -1
+         */
+        int32_t readPacket(std::ifstream& is);
+
     private:
         sf::Packet mPacket;
 

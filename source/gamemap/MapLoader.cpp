@@ -559,35 +559,30 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     levelFile.close();
 }
 
-LevelInfo getMapInfo(const std::string& fileName)
+bool getMapInfo(const std::string& fileName, LevelInfo& levelInfo)
 {
     // Prepare an invalid level reference
-    static LevelInfo invalidLevel;
-    invalidLevel.mLevelName = "Invalid map!";
-    invalidLevel.mLevelDescription = invalidLevel.mLevelName;
-
     std::stringstream levelFile;
     if(!Helper::readFileWithoutComments(fileName, levelFile))
-        return invalidLevel;
+        return false;
 
     std::string nextParam;
     // Read in the version number from the level file
     levelFile >> nextParam;
     if (nextParam.compare(ODApplication::VERSIONSTRING) != 0)
-        return invalidLevel;
+        return false;
 
     levelFile >> nextParam;
     if (nextParam != "[Info]")
-        return invalidLevel;
+        return false;
 
     std::stringstream mapInfo;
-    LevelInfo levelInfo;
 
     // Read in the seats from the level file
     while (true)
     {
         if(!levelFile.good())
-            return invalidLevel;
+            return false;
         // Information can contain spaces. We need to use std::getline to get content
         std::getline(levelFile, nextParam);
         std::string param;
@@ -617,7 +612,7 @@ LevelInfo getMapInfo(const std::string& fileName)
     if (nextParam != "[Seats]")
     {
         levelInfo.mLevelDescription = mapInfo.str();
-        return levelInfo;
+        return true;
     }
 
     // Read in the seats from the level file
@@ -627,7 +622,7 @@ LevelInfo getMapInfo(const std::string& fileName)
     while (true)
     {
         if(!levelFile.good())
-            return invalidLevel;
+            return false;
 
         levelFile >> nextParam;
         if (nextParam == "[/Seats]")
@@ -676,13 +671,13 @@ LevelInfo getMapInfo(const std::string& fileName)
     if (nextParam != "[Goals]")
     {
         levelInfo.mLevelDescription = mapInfo.str();
-        return levelInfo;
+        return true;
     }
 
     while(true)
     {
         if(!levelFile.good())
-            return invalidLevel;
+            return false;
 
         levelFile >> nextParam;
         if (nextParam == "[/Goals]")
@@ -693,7 +688,7 @@ LevelInfo getMapInfo(const std::string& fileName)
     if (nextParam != "[Tiles]")
     {
         levelInfo.mLevelDescription = mapInfo.str();
-        return levelInfo;
+        return true;
     }
 
     // Load the map size on next two lines
@@ -705,7 +700,7 @@ LevelInfo getMapInfo(const std::string& fileName)
     mapInfo << "Size: " << mapSizeX << "x" << mapSizeY << std::endl << std::endl;
 
     levelInfo.mLevelDescription = mapInfo.str();
-    return levelInfo;
+    return true;
 }
 
 } // Namespace MapLoader
