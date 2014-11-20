@@ -295,6 +295,15 @@ void ODFrameListener::refreshChat()
         chatSS << "\ntriangleCount: " << mWindow->getStatistics().triangleCount;
         chatSS << "\nBatches: " << mWindow->getStatistics().batchCount;
         chatSS << "\nTurn number:  " <<  static_cast<int32_t>(mGameMap->getTurnNumber());
+        if(ODClient::getSingleton().isConnected())
+        {
+            int32_t gameTime = ODClient::getSingleton().getGameTimeMillis() / 1000;
+            int32_t seconds = gameTime % 60;
+            gameTime /= 60;
+            int32_t minutes = gameTime % 60;
+            gameTime /= 60;
+            chatSS << "\nElapsed time:  " << gameTime << ":" << minutes << ":" << seconds;
+        }
     }
 
     std::string strDisplay = chatSS.str();

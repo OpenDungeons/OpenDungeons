@@ -18,13 +18,16 @@
 #ifndef ODSOCKETCLIENT_H
 #define ODSOCKETCLIENT_H
 
+#include <network/ODPacket.h>
+
 #include <SFML/Network.hpp>
 
 #include <string>
 #include <cstdint>
+#include <fstream>
+#include <istream>
 
 class Player;
-class ODPacket;
 
 class ODSocketClient
 {
@@ -36,10 +39,18 @@ class ODSocketClient
             OK, NotReady, Error
         };
 
+        enum ODSource
+        {
+            none,
+            network,
+            file
+        };
+
         ODSocketClient():
-            mIsConnected(false),
+            mSource(ODSource::none),
             mPlayer(NULL),
-            mLastTurnAck(-1)
+            mLastTurnAck(-1),
+            mPendingTimestamp(-1)
         {}
 
         virtual ~ODSocketClient()
@@ -54,9 +65,14 @@ class ODSocketClient
         void setLastTurnAck(int64_t lastTurnAck) { mLastTurnAck = lastTurnAck; }
         const std::string& getState() {return mState;}
         bool isDataAvailable();
+        int32_t getGameTimeMillis()
+        { return mGameClock.getElapsedTime().asMilliseconds(); }
 
     protected:
         virtual bool connect(const std::string& host, const int port);
+        virtual bool replay(const std::string& filename);
+        inline ODSource getSource() const
+        { return mSource; }
 
         // Data Transimission
         /*! \brief Sends a packet through the network
@@ -74,12 +90,19 @@ class ODSocketClient
 
     private :
         void setState(const std::string& state) {mState = state;}
+
+        ODSource mSource;
         sf::SocketSelector mSockSelector;
         sf::TcpSocket mSockClient;
-        bool mIsConnected;
         Player* mPlayer;
         int64_t mLastTurnAck;
         std::string mState;
+
+        sf::Clock mGameClock;
+        std::ifstream mReplayInputStream;
+        std::ofstream mReplayOutputStream;
+        ODPacket mPendingPacket;
+        int32_t mPendingTimestamp;
 };
 
 #endif // ODSOCKETCLIENT_H

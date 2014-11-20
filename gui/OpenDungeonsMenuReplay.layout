@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout version="4" >
+    <Window type="OD/StaticImage" name="Background" >
+        <Property name="Area" value="{{0,0},{0,0},{1,2},{1,0}}" />
+        <Property name="Image" value="ODMainMenuBackground/MainMenuBackground" />
+        <Property name="MaxSize" value="{{1,0},{1,0}}" />
+        <Property name="FrameEnabled" value="False" />
+        <Property name="BackgroundEnabled" value="False" />
+        <Window type="OD/StaticText" name="LoadingText" >
+            <Property name="Area" value="{{0.5,-301},{0.5,240},{0.5,299},{0.5,260}}" />
+            <Property name="Text" value="Loading..." />
+            <Property name="MaxSize" value="{{1,0},{1,0}}" />
+            <Property name="FrameEnabled" value="False" />
+            <Property name="HorzFormatting" value="CentreAligned" />
+            <Property name="BackgroundEnabled" value="False" />
+        </Window>
+        <Window type="OD/StaticImage" name="WelcomeBanner" >
+            <Property name="Area" value="{{0.5,-320},{0,52},{0.5,320},{0,191}}" />
+            <Property name="Image" value="ODLogo/Logo" />
+            <Property name="MaxSize" value="{{1,0},{1,0}}" />
+            <Property name="FrameEnabled" value="False" />
+            <Property name="BackgroundEnabled" value="False" />
+        </Window>
+        <Window type="OD/StaticText" name="VersionText" >
+            <Property name="Area" value="{{0.5,200},{0,171},{0.5,300},{0,191}}" />
+            <Property name="Text" value="undefined" />
+            <Property name="MaxSize" value="{{1,0},{1,0}}" />
+            <Property name="FrameEnabled" value="False" />
+            <Property name="BackgroundEnabled" value="False" />
+        </Window>
+        <Window type="OD/FrameWindow" name="LevelWindowFrame" >
+            <Property name="Area" value="{{0.5,-315},{0.5,-180},{0.5,315},{0.5,240}}" />
+            <Property name="Text" value="Please choose a Replay..." />
+            <Property name="MaxSize" value="{{0,790},{0,470}}" />
+            <Property name="MinSize" value="{{0,630},{0,420}}" />
+            <Property name="AlwaysOnTop" value="True" />
+            <Window type="OD/Listbox" name="ReplaySelect" >
+                <Property name="Area" value="{{0,15},{0,40},{0.5,-20},{0.7,0}}" />
+                <Property name="ForceVertScrollbar" value="True" />
+            </Window>
+            <Window type="OD/StaticText" name="MapDescriptionText" >
+                <Property name="Area" value="{{0.5,0},{0,40},{1,-15},{0.7,0}}" />
+                <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                <Property name="FrameEnabled" value="False" />
+                <Property name="HorzFormatting" value="WordWrapLeftAligned" />
+                <Property name="VertFormatting" value="TopAligned" />
+                <Property name="BackgroundEnabled" value="False" />
+            </Window>
+            <Window type="OD/MainMenuButton" name="BackButton" >
+                <Property name="Area" value="{{0,10},{0.75,0},{0,210},{0.75,80}}" />
+                <Property name="Text" value="Back" />
+            </Window>
+            <Window type="OD/MainMenuButton" name="DeleteReplayButton" >
+                <Property name="Area" value="{{0.5,-100},{0.75,0},{0.5,100},{0.75,80}}" />
+                <Property name="Text" value="Delete replay" />
+            </Window>
+            <Window type="OD/MainMenuButton" name="LaunchReplayButton" >
+                <Property name="Area" value="{{1,-210},{0.75,0},{1,-10},{0.75,80}}" />
+                <Property name="Text" value="Start Replay" />
+            </Window>
+        </Window>
+    </Window>
+</GUILayout>

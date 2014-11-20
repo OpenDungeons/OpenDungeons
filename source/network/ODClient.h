@@ -55,6 +55,9 @@ class ODClient: public Ogre::Singleton<ODClient>,
     //! \brief Connects to the server host:port
     bool connect(const std::string& host, const int port);
 
+    //! \brief Connects to the server host:port
+    bool replay(const std::string& filename);
+
     //! \brief Adds a client notification to the client notification queue.
     void queueClientNotification(ClientNotification* n);
 

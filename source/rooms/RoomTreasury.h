@@ -40,6 +40,14 @@ public:
     int depositGold(int gold, Tile *tile);
     int withdrawGold(int gold);
     virtual void doUpkeep();
+
+protected:
+    // Because treasury do not use active spots, we don't want the default
+    // behaviour (removing the active spot tile) as it could result in removing an
+    // unwanted treasury
+    void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
+    {}
+
 private:
     //! \brief Tells which mesh is used to show how much the tile is full of gold.
     enum TreasuryTileFullness

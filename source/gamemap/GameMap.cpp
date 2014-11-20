@@ -814,6 +814,8 @@ void GameMap::addRenderedMovableEntity(RenderedMovableEntity *obj)
 
 void GameMap::removeRenderedMovableEntity(RenderedMovableEntity *obj)
 {
+    LogManager::getSingleton().logMessage(serverStr() + "Removing rendered object " + obj->getName()
+        + ",MeshName=" + obj->getMeshName());
     std::vector<RenderedMovableEntity*>::iterator it = std::find(mRenderedMovableEntities.begin(), mRenderedMovableEntities.end(), obj);
     OD_ASSERT_TRUE_MSG(it != mRenderedMovableEntities.end(), "obj name=" + obj->getName());
     if(it == mRenderedMovableEntities.end())
@@ -2460,7 +2462,6 @@ void GameMap::enableFloodFill()
                 getTile(ii,jj)->mFloodFillColor[kk] = -1;
             }
         }
-
     }
 
     // The algorithm used to find a path is efficient when the path exists but not if it doesn't.
@@ -2473,6 +2474,7 @@ void GameMap::enableFloodFill()
     // because they are walkable for most creatures. When we will have tagged all
     // thoses, we will deal with water/lava remaining (there can be some left if
     // surrounded by not passable tiles).
+    Tile::FloodFillType currentType = Tile::FloodFillTypeGround;
     int floodFillValue = 0;
     while(true)
     {
@@ -2485,19 +2487,50 @@ void GameMap::enableFloodFill()
             for(int xx = 0; xx < getMapSizeX(); ++xx)
             {
                 Tile* tile = getTile(xx, yy);
-                if((tile->getFullness() == 0.0) &&
-                   (tile->mFloodFillColor[Tile::FloodFillTypeGround] == -1) &&
-                   ((tile->getType() == Tile::dirt) ||
-                    (tile->getType() == Tile::gold) ||
-                    (tile->getType() == Tile::claimed)))
+                if(tile->getFullness() > 0.0)
+                    continue;
+
+                if(currentType == Tile::FloodFillTypeGround)
                 {
-                    isTileFound = true;
-                    for(int i = 0; i < Tile::FloodFillTypeMax; ++i)
+                    if((tile->mFloodFillColor[Tile::FloodFillTypeGround] == -1) &&
+                       ((tile->getType() == Tile::dirt) ||
+                        (tile->getType() == Tile::gold) ||
+                        (tile->getType() == Tile::claimed)))
                     {
-                        if(tile->mFloodFillColor[i] == -1)
-                            tile->mFloodFillColor[i] = ++floodFillValue;
+                        isTileFound = true;
+                        for(int i = 0; i < Tile::FloodFillTypeMax; ++i)
+                        {
+                            if(tile->mFloodFillColor[i] == -1)
+                                tile->mFloodFillColor[i] = ++floodFillValue;
+                        }
+                        break;
                     }
-                    break;
+                }
+                else if(currentType == Tile::FloodFillTypeGroundWater)
+                {
+                    if((tile->mFloodFillColor[Tile::FloodFillTypeGroundWater] == -1) &&
+                       (tile->getType() == Tile::water))
+                    {
+                        isTileFound = true;
+                        if(tile->mFloodFillColor[Tile::FloodFillTypeGroundWater] == -1)
+                            tile->mFloodFillColor[Tile::FloodFillTypeGroundWater] = ++floodFillValue;
+                        if(tile->mFloodFillColor[Tile::FloodFillTypeGroundWaterLava] == -1)
+                            tile->mFloodFillColor[Tile::FloodFillTypeGroundWaterLava] = ++floodFillValue;
+                        break;
+                    }
+                }
+                else if(currentType == Tile::FloodFillTypeGroundLava)
+                {
+                    if((tile->mFloodFillColor[Tile::FloodFillTypeGroundLava] == -1) &&
+                       (tile->getType() == Tile::lava))
+                    {
+                        isTileFound = true;
+                        if(tile->mFloodFillColor[Tile::FloodFillTypeGroundLava] == -1)
+                            tile->mFloodFillColor[Tile::FloodFillTypeGroundLava] = ++floodFillValue;
+                        if(tile->mFloodFillColor[Tile::FloodFillTypeGroundWaterLava] == -1)
+                            tile->mFloodFillColor[Tile::FloodFillTypeGroundWaterLava] = ++floodFillValue;
+                        break;
+                    }
                 }
             }
 
@@ -2505,10 +2538,37 @@ void GameMap::enableFloodFill()
                 ++yy;
         }
 
-        // If there are no more walkable tiles, we stop. The only remaining tiles should be
-        // surrounded lava/water tiles. We ignore them as it would be time consuming to floodfill
-        // them for a case that will almost never happen. If it do happen, we will apply the standard
-        // algorithm without floodfill optimization.
+        // If there are no more walkable tiles, we go for water. Then, for lava. After that, floodfill should be complete
+        if(!isTileFound)
+        {
+            switch(currentType)
+            {
+                case Tile::FloodFillTypeGround:
+                {
+                    // There are no more ground tiles. We go for water tiles
+                    currentType = Tile::FloodFillTypeGroundWater;
+                    isTileFound = true;
+                    break;
+                }
+                case Tile::FloodFillTypeGroundWater:
+                {
+                    // There are no more ground tiles. We go for water tiles
+                    currentType = Tile::FloodFillTypeGroundLava;
+                    isTileFound = true;
+                    break;
+                }
+                case Tile::FloodFillTypeGroundLava:
+                {
+                    // There are no more tiles. We can stop
+                    break;
+                }
+                default:
+                    OD_ASSERT_TRUE_MSG(false, "Unexpected enum value=" + Ogre::StringConverter::toString(
+                        static_cast<int>(currentType)));
+                    break;
+            }
+        }
+
         if(!isTileFound)
             break;
 

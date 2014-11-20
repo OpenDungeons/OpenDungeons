@@ -43,6 +43,7 @@
 #include "modes/MenuModeMultiplayerClient.h"
 #include "modes/MenuModeMultiplayerServer.h"
 #include "modes/MenuModeEditor.h"
+#include "modes/MenuModeReplay.h"
 #include "utils/LogManager.h"
 #include "sound/SoundEffectsManager.h"
 
@@ -79,6 +80,7 @@ Gui::Gui()
     sheets[editorModeGui] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorModeMenu.layout");
     sheets[editorMenu] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorMenu.layout");
     sheets[configureSeats] =  wmgr->loadLayoutFromFile("OpenDungeonsMenuConfigureSeats.layout");
+    sheets[replayMenu] =  wmgr->loadLayoutFromFile("OpenDungeonsMenuReplay.layout");
 
     assignEventHandlers();
 }
@@ -136,6 +138,10 @@ void Gui::assignEventHandlers()
     sheets[mainMenu]->getChild(MM_BUTTON_START_SKIRMISH)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mMNewGameButtonPressed));
+
+    sheets[mainMenu]->getChild(MM_BUTTON_START_REPLAY)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&mMReplayButtonPressed));
 
     sheets[mainMenu]->getChild(MM_BUTTON_START_MULTIPLAYER_CLIENT)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
@@ -385,12 +391,35 @@ void Gui::assignEventHandlers()
         CEGUI::PushButton::EventClicked,
         CEGUI::Event::Subscriber(&mCSMLoadButtonPressed));
 
+    // Replay menu controls
+    sheets[replayMenu]->getChild(REM_BUTTON_LAUNCH)->subscribeEvent(
+        CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&mREMLoadButtonPressed));
+
+    // Replay menu controls
+    sheets[replayMenu]->getChild(REM_BUTTON_DELETE)->subscribeEvent(
+        CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&mREMDeleteButtonPressed));
+
+    sheets[replayMenu]->getChild(REM_BUTTON_BACK)->subscribeEvent(
+        CEGUI::PushButton::EventClicked,
+        CEGUI::Event::Subscriber(&mREMBackButtonPressed));
+
+    sheets[replayMenu]->getChild(REM_LIST_REPLAYS)->subscribeEvent(
+        CEGUI::Listbox::EventMouseClick,
+        CEGUI::Event::Subscriber(&mREMListClicked));
+
+    sheets[replayMenu]->getChild(REM_LIST_REPLAYS)->subscribeEvent(
+        CEGUI::Listbox::EventMouseDoubleClick,
+        CEGUI::Event::Subscriber(&mREMListDoubleClicked));
+
     // Set the game version
     sheets[mainMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
     sheets[skirmishMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
     sheets[multiplayerServerMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
     sheets[multiplayerClientMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
     sheets[editorMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
+    sheets[replayMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
 }
 
 bool Gui::miniMapclicked(const CEGUI::EventArgs& e)
@@ -687,6 +716,17 @@ bool Gui::mMNewGameButtonPressed(const CEGUI::EventArgs& e)
     return true;
 }
 
+bool Gui::mMReplayButtonPressed(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm)
+        return true;
+
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    mm->requestMenuReplayMode();
+    return true;
+}
+
 bool Gui::mMMapEditorButtonPressed(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
@@ -874,6 +914,61 @@ bool Gui::mCSMBackButtonPressed(const CEGUI::EventArgs& e)
     return true;
 }
 
+bool Gui::mREMBackButtonPressed(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm)
+        return true;
+
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    mm->requestUnloadToParentMode();
+    return true;
+}
+
+bool Gui::mREMListClicked(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_REPLAY)
+        return true;
+
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    static_cast<MenuModeReplay*>(mm->getCurrentMode())->listReplaysClicked();
+    return true;
+}
+
+bool Gui::mREMListDoubleClicked(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_REPLAY)
+        return true;
+
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    static_cast<MenuModeReplay*>(mm->getCurrentMode())->listReplaysDoubleClicked();
+    return true;
+}
+
+bool Gui::mREMLoadButtonPressed(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_REPLAY)
+        return true;
+
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    static_cast<MenuModeReplay*>(mm->getCurrentMode())->launchSelectedButtonPressed();
+    return true;
+}
+
+bool Gui::mREMDeleteButtonPressed(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_REPLAY)
+        return true;
+
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    static_cast<MenuModeReplay*>(mm->getCurrentMode())->deleteSelectedButtonPressed();
+    return true;
+}
+
 /* These constants are used to access the GUI element
  * NOTE: when add/remove/rename a GUI element, don't forget to change it here
  */
@@ -908,6 +1003,7 @@ const std::string Gui::TAB_COMBAT = "MainTabControl/Combat";
 const std::string Gui::MM_BACKGROUND = "Background";
 const std::string Gui::MM_WELCOME_MESSAGE = "WelcomeBanner";
 const std::string Gui::MM_BUTTON_START_SKIRMISH = "StartSkirmishButton";
+const std::string Gui::MM_BUTTON_START_REPLAY = "StartReplayButton";
 const std::string Gui::MM_BUTTON_START_MULTIPLAYER_CLIENT = "StartMultiplayerClientButton";
 const std::string Gui::MM_BUTTON_START_MULTIPLAYER_SERVER = "StartMultiplayerServerButton";
 const std::string Gui::MM_BUTTON_MAPEDITOR = "MapEditorButton";
@@ -948,3 +1044,9 @@ const std::string Gui::EDITOR_FULLNESS = "HorizontalPipe/FullnessDisplay";
 const std::string Gui::EDITOR_CURSOR_POS = "HorizontalPipe/PositionDisplay";
 const std::string Gui::EDITOR_SEAT_ID = "HorizontalPipe/SeatIdDisplay";
 const std::string Gui::EDITOR_CREATURE_SPAWN = "HorizontalPipe/CreatureSpawnDisplay";
+
+const std::string Gui::REM_TEXT_LOADING = "LoadingText";
+const std::string Gui::REM_BUTTON_LAUNCH = "LevelWindowFrame/LaunchReplayButton";
+const std::string Gui::REM_BUTTON_DELETE = "LevelWindowFrame/DeleteReplayButton";
+const std::string Gui::REM_BUTTON_BACK = "LevelWindowFrame/BackButton";
+const std::string Gui::REM_LIST_REPLAYS = "LevelWindowFrame/ReplaySelect";

@@ -15,12 +15,13 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ai/NullAI.h"
-#include "ai/AIWrapper.h"
 #include "ai/AIManager.h"
+#include "ai/KeeperAI.h"
+
+#include "utils/LogManager.h"
 
 AIManager::AIManager(GameMap& gameMap)
-    : gameMap(gameMap)
+    : mGameMap(gameMap)
 {
 }
 
@@ -31,11 +32,15 @@ AIManager::~AIManager()
 
 bool AIManager::assignAI(Player& player, const std::string& type, const std::string& params)
 {
-    //NOTE: These factory functions could probably be done in a more elegang manner
-    BaseAI* ai = AIFactory::createInstance(type, gameMap, player, params);
+    BaseAI* ai = nullptr;
+    if(type.compare("KeeperAI") == 0)
+        ai = new KeeperAI(mGameMap, player);
 
-    if(ai == NULL)
+    if(ai == nullptr)
+    {
+        LogManager::getSingleton().logMessage("Couldn't find requested AI type=" + type);
         return false;
+    }
 
     mAiList.push_back(ai);
     return true;

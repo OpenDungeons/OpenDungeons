@@ -40,7 +40,7 @@ public:
     void clearAIList();
 
 private:
-    GameMap& gameMap;
+    GameMap& mGameMap;
     AIList mAiList;
 };
 

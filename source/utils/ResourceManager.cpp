@@ -248,6 +248,16 @@ void ResourceManager::setupUserDataFolders()
         exit(1);
     }
 
+    mReplayPath = mUserDataPath + "replay/";
+    try {
+      boost::filesystem::create_directories(mReplayPath);
+    }
+    catch (const boost::filesystem::filesystem_error& e) {
+        //TODO - Exit gracefully
+        std::cerr << "Fatal error creating replay folder: " << e.what() <<  std::endl;
+        exit(1);
+    }
+
     mOgreCfgFile = mUserConfigPath + CONFIGFILENAME;
     mOgreLogFile = mUserDataPath + LOGFILENAME;
     mShaderCachePath = mUserDataPath + SHADERCACHESUBPATH;
@@ -323,7 +333,7 @@ void ResourceManager::takeScreenshot(Ogre::RenderTarget* renderTarget)
 {
     static int screenShotCounter = 0;
 
-    static std::locale loc(std::wcout.getloc(), new boost::posix_time::wtime_facet(L"%Y-%m-%d_%H%M%S"));
+    static std::locale loc(std::wcout.getloc(), new boost::posix_time::time_facet("%Y-%m-%d_%H%M%S"));
 
     std::ostringstream ss;
     ss.imbue(loc);

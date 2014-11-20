@@ -32,8 +32,7 @@ void Building::addBuildingObject(Tile* targetTile, RenderedMovableEntity* obj)
     if(obj == NULL)
         return;
 
-    Ogre::Vector3 objPos(static_cast<Ogre::Real>(targetTile->x), static_cast<Ogre::Real>(targetTile->y), 0);
-    obj->setPosition(objPos);
+    // We assume the object position has been already set (most of the time in loadBuildingObject)
     mBuildingObjects[targetTile] = obj;
     getGameMap()->addRenderedMovableEntity(obj);
 }
@@ -44,8 +43,6 @@ void Building::removeBuildingObject(Tile* tile)
         return;
 
     RenderedMovableEntity* obj = mBuildingObjects[tile];
-    LogManager::getSingleton().logMessage("Removing object " + obj->getName()
-        + " in Building=" + getName());
     getGameMap()->removeRenderedMovableEntity(obj);
     obj->deleteYourself();
     mBuildingObjects.erase(tile);
@@ -63,8 +60,6 @@ void Building::removeBuildingObject(RenderedMovableEntity* obj)
 
     if(it != mBuildingObjects.end())
     {
-        LogManager::getSingleton().logMessage("Removing object " + obj->getName()
-            + " in Building " + getName());
         getGameMap()->removeRenderedMovableEntity(obj);
         obj->deleteYourself();
         mBuildingObjects.erase(it);

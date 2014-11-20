@@ -50,7 +50,7 @@ void LogManager::logMessage(const std::string& message, Ogre::LogMessageLevel lm
     if(addTimeStamp)
     {
         static std::locale loc(std::wcout.getloc(),
-            new boost::posix_time::wtime_facet(L"%Y%m%d_%H%M%S"));
+            new boost::posix_time::time_facet("%Y%m%d_%H%M%S"));
 
         std::stringstream ss;
         ss.imbue(loc);

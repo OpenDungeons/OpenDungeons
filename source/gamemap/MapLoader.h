@@ -48,8 +48,9 @@ namespace MapLoader
 
     bool loadCreatureDefinition(const std::string& fileName, GameMap& gameMap);
 
-    //! \brief Returns the main user map info
-    LevelInfo getMapInfo(const std::string& fileName);
+    //! \brief Reads the main user map info. Returns true if the level could be read and levelInfo is set to
+    //! corresponding info. Returns false otherwise.
+    bool getMapInfo(const std::string& fileName, LevelInfo& levelInfo);
 };
 
 #endif // MAPLOADER_H
