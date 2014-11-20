@@ -65,10 +65,14 @@ class ODSocketClient
         void setLastTurnAck(int64_t lastTurnAck) { mLastTurnAck = lastTurnAck; }
         const std::string& getState() {return mState;}
         bool isDataAvailable();
+        int32_t getGameTimeMillis()
+        { return mGameClock.getElapsedTime().asMilliseconds(); }
 
     protected:
         virtual bool connect(const std::string& host, const int port);
         virtual bool replay(const std::string& filename);
+        inline ODSource getSource() const
+        { return mSource; }
 
         // Data Transimission
         /*! \brief Sends a packet through the network

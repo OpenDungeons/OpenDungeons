@@ -138,6 +138,10 @@ bool ODClient::processOneClientSocketMessage()
                     OD_ASSERT_TRUE_MSG(false,"Unknown server mode=" + Ogre::StringConverter::toString(static_cast<int32_t>(serverMode)));
                     break;
             }
+            // If we are watching a replay, we force stopping the processing loop to
+            // allow changing mode (because there is no synchronization as there is no server)
+            if(getSource() == ODSource::file)
+                return false;
             break;
         }
 
@@ -275,6 +279,10 @@ bool ODClient::processOneClientSocketMessage()
             if (startY <= 0.0)
             startY = 0.0;
             frameListener->setCameraPosition(Ogre::Vector3(startX, startY, MAX_CAMERA_Z));
+            // If we are watching a replay, we force stopping the processing loop to
+            // allow changing mode (because there is no synchronization as there is no server)
+            if(getSource() == ODSource::file)
+                return false;
             break;
         }
 
