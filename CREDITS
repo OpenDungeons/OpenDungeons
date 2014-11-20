@@ -6,7 +6,7 @@ This file is listing each files present in this repository, its author and its c
 Each corresponding license is fully described in the licenses/ folder.
 Other text files (.txt, .cpp, .h., ...), except licensing, are licensed using the GPL 3.0 license.
 
-Latest update: 2014/11/14
+Latest update: 2014/11/20
 
 =============================
 ==  Configuration: config/ ==
@@ -15,7 +15,7 @@ Latest update: 2014/11/14
 Name                                   Author                  License                 Source URL
 ------------------------------------------------------------------------------------------------------------------------
 console_commands.txt                   Tom Luchowski           GPL 3.0
-
+*.cfg                                  OD Team                 GPL 3.0
 
 ===================
 ==   GUI: gui/   ==
@@ -147,7 +147,6 @@ Cannon.mesh                            Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL
 Cannonball.mesh                        Andrew Buck             CC-BY-SA 3.0
 Cavehornet.*                           Skorpio                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
 CelticCross.mesh                       Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
-Chair.mesh                             Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Chicken.*                              Skorpio                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
 ChickenCoop.mesh                       Dm3d, Danimal           CC-BY-SA 3.0            http://opengameart.org/content/chicken-coop
 Chimney.mesh                           Daniel74                CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
@@ -202,7 +201,6 @@ RoundShield.mesh                       Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL
 RuinEntrance.mesh                      zerberros (OGA)         CC0                     http://opengameart.org/content/cementery-gate
 Sabre.mesh                             Andrew Buck             CC-BY-SA 3.0
 Scarab.*                               killyoverdrive (OGA)    CC-BY-SA 3.0            http://opengameart.org/content/beetle-golem-animated
-Shelf.mesh                             Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
 Slime.*                                Grefuntor, D3dm         CC-BY 3.0, CC-BY-SA 3.0, GPL 2.0+ - http://opengameart.org/content/slime-mold
 Spider.*                               DennisH2010, Danimal    CC-BY 3.0               http://www.blendswap.com/blends/view/26798 - http://forum.freegamedev.net/viewtopic.php?p=60530#p60530
 Spiderbed.mesh                         Eugeneloza              CC0                     http://forum.freegamedev.net/viewtopic.php?p=60089#p60089
@@ -210,16 +208,13 @@ Spiketrap.*                            Danimal                 CC-BY 3.0        
 SquareSelector.mesh                    OD Team                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59066#p59066
 Staff.*                                Skorpio                 CC-BY-SA 3.0, GPL 3.0
 StoneCoffin.mesh                       Yughues                 CC0                     http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
-Stool.mesh                             Skorpio                 CC-BY-SA 3.0, GPL 3.0
 TentacleBed.mesh                       Eugeneloza              CC0                     http://forum.freegamedev.net/viewtopic.php?p=60091#p60091
-Table.mesh                             Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Tentacle*                              Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Torch.mesh                             Skorpio                 CC-BY-SA 3.0, GPL 3.0
 TrainingDummy1.*                       Aaron Eads              CC-BY 3.0               http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
 TrainingDummy2.*                       Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?f=38&t=5528&p=59348#p59239
 TrainingDummy3.*                       Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59351#p59351
 TrainingDummy4.*                       Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59621#p59621
-TrainingPole.mesh                      p0ss                    CC-BY-SA 3.0            http://opengameart.org/content/wooden-training-pole
 Treasury.mesh                          Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Troll.*                                Dm3d                    CC-BY-SA 3.0            http://opengameart.org/content/rock-golem
 Troll_Rock.mesh                        Dm3d                    CC-BY-SA 3.0            http://opengameart.org/content/rock-golem
