@@ -34,7 +34,7 @@ RoomDormitory::RoomDormitory(GameMap* gameMap) :
 void RoomDormitory::absorbRoom(Room *r)
 {
     RoomDormitory* oldRoom = static_cast<RoomDormitory*>(r);
-    if (oldRoom == NULL)
+    if (oldRoom == nullptr)
         return;
 
     // We transfert the building objects
@@ -50,61 +50,6 @@ void RoomDormitory::absorbRoom(Room *r)
     Room::absorbRoom(r);
 }
 
-void RoomDormitory::createMeshLocal()
-{
-    Room::createMeshLocal();
-
-    // The client game map should not load building objects. They will be created
-    // by the messages sent by the server because some of them are randomly
-    // created
-    if(!getGameMap()->isServerGameMap())
-        return;
-
-    // Recreate the meshes with the new size.
-    if (mCoveredTiles.empty())
-        return;
-
-    // Recreate every building objects
-    for (unsigned int i = 0; i < mBedRoomObjectsInfo.size(); ++i)
-    {
-        Creature* creature = mBedRoomObjectsInfo[i].getCreature();
-        if (creature == NULL)
-            continue;
-
-        const CreatureDefinition* def = creature->getDefinition();
-        if (def == NULL)
-            continue;
-
-        double x = mBedRoomObjectsInfo[i].getX();
-        double y = mBedRoomObjectsInfo[i].getY();
-        double rotationAngle = mBedRoomObjectsInfo[i].getRotation();
-        Tile* tile = mBedRoomObjectsInfo[i].getCentralTile();
-        // Tell the creature about its setHomeTile
-        creature->setHomeTile(tile);
-
-        // Reload the creature taking tiles data.
-        const std::vector<Tile*>& tilesTaken = mBedRoomObjectsInfo[i].getTilesTaken();
-        for (unsigned int j = 0; j < tilesTaken.size(); ++j)
-            mCreatureSleepingInTile[tilesTaken[j]] = creature;
-
-        // And recreate the bed object
-        RenderedMovableEntity* ro = loadBuildingObject(getGameMap(), def->getBedMeshName(), tile, x, y, rotationAngle);
-        addBuildingObject(tile, ro);
-        ro->createMesh();
-    }
-
-    // Add NULL creature in the mCreatureSleepingInTile map where there a nobody,
-    // so that getOpenTiles() can later find empty slots for new beds.
-    for (unsigned int i = 0; i < mCoveredTiles.size(); ++i)
-    {
-        Tile* tile = mCoveredTiles[i];
-        if (mCreatureSleepingInTile.find(tile) != mCreatureSleepingInTile.end())
-            continue;
-
-        mCreatureSleepingInTile[tile] = NULL;
-    }
-}
-
 void RoomDormitory::addCoveredTile(Tile* t, double nHP, bool isRoomAbsorb)
 {
     Room::addCoveredTile(t, nHP, isRoomAbsorb);
@@ -112,18 +57,19 @@ void RoomDormitory::addCoveredTile(Tile* t, double nHP, bool isRoomAbsorb)
     // Only initialize the tile to NULL if it is a tile being added to a new room.  If it is being absorbed
     // from another room the map value will already have been set and we don't want to override it.
     if (!isRoomAbsorb)
-        mCreatureSleepingInTile[t] = NULL;
+        mCreatureSleepingInTile[t] = nullptr;
 }
 
 bool RoomDormitory::removeCoveredTile(Tile* t, bool isRoomAbsorb)
 {
-    if (t == NULL)
+    OD_ASSERT_TRUE(t != nullptr);
+    if (t == nullptr)
         return false;
 
     if(mCreatureSleepingInTile.count(t) > 0)
     {
         Creature* c = mCreatureSleepingInTile[t];
-        if (c != NULL)
+        if (c != nullptr)
         {
             // Inform the creature that it no longer has a place to sleep
             // and remove the bed tile.
@@ -150,11 +96,10 @@ std::vector<Tile*> RoomDormitory::getOpenTiles()
 {
     std::vector<Tile*> returnVector;
 
-    for (std::map<Tile*, Creature*>::iterator itr = mCreatureSleepingInTile.begin();
-         itr != mCreatureSleepingInTile.end(); ++itr)
+    for (std::pair<Tile* const, Creature*>& p : mCreatureSleepingInTile)
     {
-        if (itr->second == NULL)
-            returnVector.push_back(itr->first);
+        if (p.second == nullptr)
+            returnVector.push_back(p.first);
     }
 
     return returnVector;
@@ -162,11 +107,11 @@ std::vector<Tile*> RoomDormitory::getOpenTiles()
 
 bool RoomDormitory::claimTileForSleeping(Tile* t, Creature* c)
 {
-    if (t == NULL || c == NULL)
+    if (t == nullptr || c == nullptr)
         return false;
 
     // Check to see if there is already a creature which has claimed this tile for sleeping.
-    if (mCreatureSleepingInTile[t] != NULL)
+    if (mCreatureSleepingInTile[t] != nullptr)
         return false;
 
     const CreatureDefinition* def = c->getDefinition();
@@ -196,29 +141,8 @@ bool RoomDormitory::claimTileForSleeping(Tile* t, Creature* c)
     if (!spaceIsBigEnough)
         return false;
 
-    return installBed(t, c, xDim, yDim, rotationAngle);
-}
-
-bool RoomDormitory::releaseTileForSleeping(Tile* t, Creature* c)
-{
-    // If the creature is not in the gamemap anymore, no need to notify that its bed
-    // is to be removed as the clients will handle that by themselves
-    if(getGameMap()->getCreature(c->getName()) == NULL)
-        return true;
-
-    return removeBed(t, c);
-}
-
-bool RoomDormitory::installBed(Tile* t, Creature* c, double xDim, double yDim,
-    double rotationAngle)
-{
-    const CreatureDefinition* def = c->getDefinition();
-    if(def == NULL)
-        return false;
-
-    BedRoomObjectInfo bedInfo(t->x + xDim / 2.0 - 0.5,
-                              t->y + yDim / 2.0 - 0.5,
-                              rotationAngle, c, t);
+    BedRoomObjectInfo bedInfo(t->x + xDim / 2.0 - 0.5, t->y + yDim / 2.0 - 0.5,
+        rotationAngle, c, t);
 
     // Mark all of the affected tiles as having this creature sleeping in them.
     for (int i = 0; i < xDim; ++i)
@@ -240,42 +164,40 @@ bool RoomDormitory::installBed(Tile* t, Creature* c, double xDim, double yDim,
     return true;
 }
 
-bool RoomDormitory::removeBed(Tile* t, Creature* c)
+bool RoomDormitory::releaseTileForSleeping(Tile* t, Creature* c)
 {
-    if (c == NULL)
+    OD_ASSERT_TRUE(c != nullptr);
+    if (c == nullptr)
         return false;
 
     if (mCreatureSleepingInTile.find(t) == mCreatureSleepingInTile.end())
         return false;
 
     // Loop over all the tiles in this room and if they are slept on by creature c then set them back to NULL.
-    for (std::map<Tile*, Creature*>::iterator itr = mCreatureSleepingInTile.begin();
-         itr != mCreatureSleepingInTile.end(); ++itr)
+    for (std::pair<Tile* const, Creature*>& p : mCreatureSleepingInTile)
     {
-        if (itr->second == c)
+        if (p.second == c)
         {
-            itr->second = NULL;
+            p.second = nullptr;
         }
     }
 
-    c->setHomeTile(NULL);
+    Tile* homeTile = c->getHomeTile();
+    OD_ASSERT_TRUE_MSG(homeTile != nullptr, "creatureName=" + c->getName());
+    c->setHomeTile(nullptr);
 
     // Make the building object delete itself and remove it from the map
-    RenderedMovableEntity* roomObject = getBuildingObjectFromTile(t);
+    RenderedMovableEntity* roomObject = getBuildingObjectFromTile(homeTile);
     removeBuildingObject(roomObject);
 
     // Remove the bedinfo as well
-    std::vector<BedRoomObjectInfo>::iterator it2 = mBedRoomObjectsInfo.begin();
-    while (it2 != mBedRoomObjectsInfo.end())
+    for (std::vector<BedRoomObjectInfo>::iterator it = mBedRoomObjectsInfo.begin(); it != mBedRoomObjectsInfo.end();)
     {
-        if ((*it2).getCentralTile() == t)
-        {
-            it2 = mBedRoomObjectsInfo.erase(it2);
-        }
+        BedRoomObjectInfo& infos = *it;
+        if (infos.getOwningTile() == homeTile)
+            it = mBedRoomObjectsInfo.erase(it);
         else
-        {
-            ++it2;
-        }
+            ++it;
     }
 
     return true;
@@ -293,7 +215,7 @@ Tile* RoomDormitory::getLocationForBed(int xDim, int yDim)
     std::vector<Tile*> tempVector = getOpenTiles();
     unsigned int area = xDim * yDim;
     if (tempVector.size() < area)
-        return NULL;
+        return nullptr;
 
     // Randomly shuffle the open tiles in tempVector so that the dormitory are filled up in a random order.
     std::random_shuffle(tempVector.begin(), tempVector.end());
@@ -306,7 +228,7 @@ Tile* RoomDormitory::getLocationForBed(int xDim, int yDim)
     }
 
     // We got to the end of the open tile list without finding an open tile for the bed so return NULL to indicate failure.
-    return NULL;
+    return nullptr;
 }
 
 bool RoomDormitory::tileCanAcceptBed(Tile *tile, int xDim, int yDim)
@@ -324,7 +246,7 @@ bool RoomDormitory::tileCanAcceptBed(Tile *tile, int xDim, int yDim)
         return true;
 
     // If the tile is invalid or not part of this room then the bed cannot be placed in this room.
-    if (tile == NULL || tile->getCoveringRoom() != this)
+    if (tile == nullptr || tile->getCoveringRoom() != this)
         return false;
 
     // Create a 2 dimensional array of booleans initially all set to false.

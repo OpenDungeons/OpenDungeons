@@ -29,7 +29,7 @@ public:
         mY(y),
         mRotation(rotation),
         mCreature(creature),
-        mCentralTile(tile)
+        mOwningTile(tile)
     {}
 
     double getX() const
@@ -52,9 +52,9 @@ public:
         return mCreature;
     }
 
-    Tile* getCentralTile()
+    Tile* getOwningTile()
     {
-        return mCentralTile;
+        return mOwningTile;
     }
 
     const std::vector<Tile*>& getTilesTaken()
@@ -79,7 +79,7 @@ private:
     Creature* mCreature;
 
     //! \brief The tile owning the bed
-    Tile* mCentralTile;
+    Tile* mOwningTile;
 
     //! \brief The list of tiles taken by the object
     std::vector<Tile*> mTilesTaken;
@@ -87,7 +87,6 @@ private:
 
 class RoomDormitory: public Room
 {
-    friend class ODClient;
 public:
     RoomDormitory(GameMap* gameMap);
 
@@ -107,17 +106,17 @@ public:
     Tile* getLocationForBed(int xDim, int yDim);
 
 protected:
-    void createMeshLocal();
+    // Because dormitory do not use active spots, we don't want the default
+    // behaviour (removing the active spot tile) as it could result in removing an
+    // unwanted bed
+    void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
+    {}
 
 private:
     bool tileCanAcceptBed(Tile *tile, int xDim, int yDim);
 
     //! \brief Keeps track of the tiles taken by a creature bed
     std::map<Tile*, Creature*> mCreatureSleepingInTile;
-
-    bool installBed(Tile* t, Creature* c, double xDim, double yDim,
-        double rotationAngle);
-    bool removeBed(Tile *t, Creature *c);
 
     //! \brief Keeps track of info about the beds in order to be able
     //! to recreate them.

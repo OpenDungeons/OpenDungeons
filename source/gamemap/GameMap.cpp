@@ -814,6 +814,8 @@ void GameMap::addRenderedMovableEntity(RenderedMovableEntity *obj)
 
 void GameMap::removeRenderedMovableEntity(RenderedMovableEntity *obj)
 {
+    LogManager::getSingleton().logMessage(serverStr() + "Removing rendered object " + obj->getName()
+        + ",MeshName=" + obj->getMeshName());
     std::vector<RenderedMovableEntity*>::iterator it = std::find(mRenderedMovableEntities.begin(), mRenderedMovableEntities.end(), obj);
     OD_ASSERT_TRUE_MSG(it != mRenderedMovableEntities.end(), "obj name=" + obj->getName());
     if(it == mRenderedMovableEntities.end())
