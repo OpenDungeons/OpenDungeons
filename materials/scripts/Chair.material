@@ -1,7 +1,0 @@
-import base_material from "general.material"
-material Chair : base_material
-{
-    set_texture_alias diffuseMap Chair_col.png
-    set_texture_alias specMap Chair_spec.png
-    set_texture_alias normalMap Chair_nor.png
-}

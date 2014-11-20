@@ -1,7 +1,0 @@
-import base_material from "general.material"
-material Stool : base_material
-{
-    set_texture_alias diffuseMap Stool_col.png
-    set_texture_alias specMap Stool_spec.png
-    set_texture_alias normalMap Stool_nor.png
-}
