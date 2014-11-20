@@ -2562,6 +2562,10 @@ void GameMap::enableFloodFill()
                     // There are no more tiles. We can stop
                     break;
                 }
+                default:
+                    OD_ASSERT_TRUE_MSG(false, "Unexpected enum value=" + Ogre::StringConverter::toString(
+                        static_cast<int>(currentType)));
+                    break;
             }
         }
 

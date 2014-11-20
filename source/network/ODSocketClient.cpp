@@ -62,6 +62,7 @@ bool ODSocketClient::replay(const std::string& filename)
 
 void ODSocketClient::disconnect()
 {
+    mPendingTimestamp = -1;
     ODSource src = mSource;
     mSource = ODSource::none;
     switch(src)
