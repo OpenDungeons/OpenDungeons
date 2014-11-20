@@ -187,13 +187,9 @@ set(AS_SOURCEFILES
 set(OD_SOURCEFILES
 
     #OpenDungeons sources
-    ${SRC}/ai/AIFactory.cpp
     ${SRC}/ai/AIManager.cpp
-    ${SRC}/ai/AIWrapper.cpp
     ${SRC}/ai/BaseAI.cpp
-    ${SRC}/ai/Keeper2AI.cpp
     ${SRC}/ai/KeeperAI.cpp
-    ${SRC}/ai/NullAI.cpp
 
     ${SRC}/camera/CameraManager.cpp
     ${SRC}/camera/CullingManager.cpp

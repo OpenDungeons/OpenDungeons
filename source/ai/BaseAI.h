@@ -18,10 +18,14 @@
 #ifndef BASEAI_H
 #define BASEAI_H
 
-#include "ai/AIWrapper.h"
-#include "ai/AIManager.h"
-
 #include <string>
+#include <vector>
+
+class GameMap;
+class Player;
+class Room;
+class Tile;
+class Seat;
 
 class BaseAI
 {
@@ -40,8 +44,26 @@ public:
 
 protected:
     virtual bool initialize(const std::string& parameters);
+    Room* getDungeonTemple();
+    bool buildRoom(Room* room, const std::vector<Tile*>& tiles);
 
-    AIWrapper mAiWrapper;
+    //! \brief Searches for the best place where to place a room around the given tile. It will take
+    //! into account any constructible tile (even if not digged yet). On success, it returns true and bestX
+    //! and bestY will be set accordingly. It will return false if no constructible square of wantedSize
+    //! is found
+    bool findBestPlaceForRoom(Tile* tile, Seat* playerSeat, int32_t wantedSize, bool useWalls,
+        int32_t& bestX, int32_t& bestY);
+
+    bool digWayToTile(Tile* tileStart, Tile* tileEnd);
+    bool computePointsForRoom(Tile* tile, Seat* playerSeat, int32_t wantedSize,
+        bool bottomLeft2TopRight, bool useWalls, int32_t& points);
+
+    GameMap& mGameMap;
+    Player& mPlayer;
+
+private:
+    bool shouldGroundTileBeConsideredForBestPlaceForRoom(Tile* tile, Seat* playerSeat);
+    bool shouldWallTileBeConsideredForBestPlaceForRoom(Tile* tile, Seat* playerSeat);
 };
 
 #endif // BASEAI_H

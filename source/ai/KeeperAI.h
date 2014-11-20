@@ -19,7 +19,6 @@
 #define KEEPERAI_H
 
 #include "ai/BaseAI.h"
-#include "ai/AIFactory.h"
 
 class KeeperAI : public BaseAI
 {
@@ -29,34 +28,38 @@ public:
     virtual bool doTurn(double frameTime);
 
 protected:
-    //! \brief Create some room around the temple.
-    //! \brief Returns whether the action could succeed.
-    //! It will also return false once it's done.
-    bool MakeSomePlace();
+    //! \brief Checks if the AI has a treasury. If not, we search for the first available tile
+    //! to add it
+    //! Returns true if the action has been done and false if nothing has been done
+    bool checkTreasury();
 
-    //! \brief Create a sleep room once we've got enough gold
-    //! \brief Returns whether the action could succeed.
-    //! It will also return false once it's done.
-    bool buildSleepRoom();
-
-    //! \brief Create a trainingHall room once we've got enough gold
-    //! \brief Returns whether the action could succeed.
-    //! It will also return false once it's done.
-    bool buildTrainingHallRoom();
+    //! \brief Checks if a room is needed. If yes, it will check if place is available
+    //! and start digging for it.
+    //! Returns true if the action has been done and false if nothing has been done
+    bool handleRooms();
 
     //! \brief Look for gold and make way up to it.
     //! \brief Returns whether the action could succeed.
     //! It will also return false once it's done.
     bool lookForGold();
 
-private:
-    static AIFactoryRegister<KeeperAI> reg;
+    //! \brief Picks up wounded creatures and drops then in the dungeon temple
+    void saveWoundedCreatures();
 
-    bool mSomePlaceMade;
-    bool mSleepRoomMade;
-    bool mTrainingHallRoomMade;
+    //! \brief Checks if we are under attack and does the needed if it is the case
+    void handleDefense();
+
+private:
+    bool buildMostNeededRoom();
+
+    int mCooldownCheckTreasury;
+    int mCooldownLookingForRooms;
+    int mRoomPosX;
+    int mRoomPosY;
+    int mRoomSize;
     bool mNoMoreReachableGold;
-    double mLastTimeLookingForGold;
+    int mCooldownLookingForGold;
+    int mCooldownDefense;
 };
 
 #endif // KEEPERAI_H

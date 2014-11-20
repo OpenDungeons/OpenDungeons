@@ -742,7 +742,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                         aiPlayer->setNick("Keeper AI " + Ogre::StringConverter::toString(seatId));
                         gameMap->addPlayer(aiPlayer);
                         seat->setPlayer(aiPlayer);
-                        gameMap->assignAI(*aiPlayer, "Keeper2AI");
+                        gameMap->assignAI(*aiPlayer, "KeeperAI");
                         break;
                     }
                     default:
