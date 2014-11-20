@@ -18,7 +18,7 @@
 #include "ai/KeeperAI.h"
 
 #include "entities/Creature.h"
-#include "gameMap/GameMap.h"
+#include "gamemap/GameMap.h"
 #include "entities/Tile.h"
 #include "rooms/RoomCrypt.h"
 #include "rooms/RoomDormitory.h"

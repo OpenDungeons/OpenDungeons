@@ -21,7 +21,7 @@
 
 #include "game/Player.h"
 
-#include "gameMap/GameMap.h"
+#include "gamemap/GameMap.h"
 
 #include "network/ODServer.h"
 
