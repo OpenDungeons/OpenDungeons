@@ -156,7 +156,7 @@ bool RoomDormitory::claimTileForSleeping(Tile* t, Creature* c)
     }
 
     // Add the model
-    RenderedMovableEntity* ro = loadBuildingObject(getGameMap(), def->getBedMeshName(), t, bedInfo.getX(), bedInfo.getY(), rotationAngle);
+    RenderedMovableEntity* ro = loadBuildingObject(getGameMap(), def->getBedMeshName(), t, bedInfo.getX(), bedInfo.getY(), rotationAngle, false);
     addBuildingObject(t, ro);
     ro->createMesh();
     // Save the info for later...

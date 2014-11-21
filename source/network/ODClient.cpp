@@ -392,6 +392,12 @@ bool ODClient::processOneClientSocketMessage()
             ODPacket packSend;
             packSend << ClientNotification::ackNewTurn << turnNum;
             send(packSend);
+
+            // For the first turn, we stop processing events because we want the gamemap to
+            // be initialized
+            if(turnNum == 0)
+                return false;
+
             break;
         }
 

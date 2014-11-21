@@ -25,7 +25,6 @@
 #include "utils/LogManager.h"
 
 const Ogre::Real CANNON_MISSILE_HEIGHT = 0.3;
-const Ogre::Real CANNON_MISSILE_SPEED = 5;
 
 TrapCannon::TrapCannon(GameMap* gameMap) :
     ProximityTrap(gameMap)
@@ -63,7 +62,7 @@ bool TrapCannon::shoot(Tile* tile)
         direction, Random::Double(mMinDamage, mMaxDamage), 0.0, false);
     missile->setPosition(position);
     getGameMap()->addRenderedMovableEntity(missile);
-    missile->setMoveSpeed(CANNON_MISSILE_SPEED);
+    missile->setMoveSpeed(ConfigManager::getSingleton().getTrapConfigDouble("CannonSpeed"));
     missile->createMesh();
     // We don't want the missile to stay idle for 1 turn. Because we are in a doUpkeep context,
     // we can safely call the missile doUpkeep as we know the engine will not call it the turn
@@ -74,7 +73,7 @@ bool TrapCannon::shoot(Tile* tile)
 
 RenderedMovableEntity* TrapCannon::notifyActiveSpotCreated(Tile* tile)
 {
-    return loadBuildingObject(getGameMap(), "Cannon", tile, 90.0);
+    return loadBuildingObject(getGameMap(), "Cannon", tile, 90.0, false);
 }
 
 TrapCannon* TrapCannon::getTrapCannonFromStream(GameMap* gameMap, std::istream &is)

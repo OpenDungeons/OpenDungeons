@@ -75,9 +75,9 @@ public:
      *  if the tile is NULL the object appears in the building's center, the rotation angle is given in degrees.
      */
     RenderedMovableEntity* loadBuildingObject(GameMap* gameMap, const std::string& meshName,
-        Tile* targetTile, double rotationAngle);
+        Tile* targetTile, double rotationAngle, bool hideCoveredTile);
     RenderedMovableEntity* loadBuildingObject(GameMap* gameMap, const std::string& meshName,
-        Tile* targetTile, double x, double y, double rotationAngle);
+        Tile* targetTile, double x, double y, double rotationAngle, bool hideCoveredTile);
     Tile* getCentralTile();
 
     virtual bool isAttackable() const;

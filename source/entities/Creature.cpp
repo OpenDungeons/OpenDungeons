@@ -2493,10 +2493,17 @@ double Creature::getMoveSpeed(Tile* tile) const
     OD_ASSERT_TRUE(tile != nullptr);
     if(tile == nullptr)
         return 1.0;
-    OD_ASSERT_TRUE_MSG(tile->getFullness() == 0, getGameMap()->serverStr()
-        + " creature=" + getName() + ",tile=" + Tile::displayAsString(tile)
-        + ",tile fullness=" + Ogre::StringConverter::toString(tile->getFullness())
-        + ",position=" + Ogre::StringConverter::toString(getPosition()));
+    if(tile->getFullness() > 0)
+    {
+        // This happens often because of slight wrong synchronization between server
+        // and client. If this problem becomes too visible (creatures walking through walls),
+        // synchronization should be adjusted (by decreasing time passing on server side to
+        // make the clients wait)
+        LogManager::getSingleton().logMessage("Creature walking on unpassable tile " + getGameMap()->serverStr()
+            + " creature=" + getName() + ",tile=" + Tile::displayAsString(tile)
+            + ",tile fullness=" + Ogre::StringConverter::toString(tile->getFullness())
+            + ",position=" + Ogre::StringConverter::toString(getPosition()));
+    }
 
     switch(tile->getType())
     {

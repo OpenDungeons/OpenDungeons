@@ -61,7 +61,7 @@ bool TrapSpike::shoot(Tile* tile)
 
 RenderedMovableEntity* TrapSpike::notifyActiveSpotCreated(Tile* tile)
 {
-    return loadBuildingObject(getGameMap(), "Spiketrap", tile, 0.0);
+    return loadBuildingObject(getGameMap(), "Spiketrap", tile, 0.0, true);
 }
 
 TrapSpike* TrapSpike::getTrapSpikeFromStream(GameMap* gameMap, std::istream &is)

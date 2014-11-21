@@ -28,7 +28,7 @@ const int32_t NB_TURNS_OUTSIDE_HATCHERY_BEFORE_DIE = 30;
 const int32_t NB_TURNS_DIE_BEFORE_REMOVE = 5;
 
 ChickenEntity::ChickenEntity(GameMap* gameMap, const std::string& hatcheryName) :
-    RenderedMovableEntity(gameMap, hatcheryName, "Chicken", 0.0f),
+    RenderedMovableEntity(gameMap, hatcheryName, "Chicken", 0.0f, false),
     mChickenState(ChickenState::free),
     mNbTurnOutsideHatchery(0),
     mNbTurnDie(0),

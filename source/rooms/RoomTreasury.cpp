@@ -270,7 +270,7 @@ void RoomTreasury::updateMeshesForTile(Tile* t)
 
     if (newFullness != noGold)
     {
-        RenderedMovableEntity* ro = loadBuildingObject(getGameMap(), getMeshNameForTreasuryTileFullness(newFullness), t, 0.0);
+        RenderedMovableEntity* ro = loadBuildingObject(getGameMap(), getMeshNameForTreasuryTileFullness(newFullness), t, 0.0, false);
         addBuildingObject(t, ro);
     }
 

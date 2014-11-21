@@ -56,11 +56,11 @@ RenderedMovableEntity* RoomTrainingHall::notifyActiveSpotCreated(ActiveSpotPlace
             mUnusedDummies.push_back(tile);
             int result = Random::Int(0, 5);
             if(result < 2)
-                return loadBuildingObject(getGameMap(), "TrainingDummy2", tile, x, y, 0.0);
+                return loadBuildingObject(getGameMap(), "TrainingDummy2", tile, x, y, 0.0, false);
             else if (result < 4)
-                return loadBuildingObject(getGameMap(), "TrainingDummy3", tile, x, y, 0.0);
+                return loadBuildingObject(getGameMap(), "TrainingDummy3", tile, x, y, 0.0, false);
             else
-                return loadBuildingObject(getGameMap(), "TrainingDummy4", tile, x, y, 0.0);
+                return loadBuildingObject(getGameMap(), "TrainingDummy4", tile, x, y, 0.0, false);
         }
         case ActiveSpotPlace::activeSpotLeft:
         {
@@ -68,7 +68,7 @@ RenderedMovableEntity* RoomTrainingHall::notifyActiveSpotCreated(ActiveSpotPlace
             Ogre::Real y = static_cast<Ogre::Real>(tile->getY());
             x -= OFFSET_DUMMY;
             mUnusedDummies.push_back(tile);
-            return loadBuildingObject(getGameMap(), "TrainingDummy1", tile, x, y, 90.0);
+            return loadBuildingObject(getGameMap(), "TrainingDummy1", tile, x, y, 90.0, false);
         }
         case ActiveSpotPlace::activeSpotRight:
         {
@@ -76,7 +76,7 @@ RenderedMovableEntity* RoomTrainingHall::notifyActiveSpotCreated(ActiveSpotPlace
             Ogre::Real y = static_cast<Ogre::Real>(tile->getY());
             x += OFFSET_DUMMY;
             mUnusedDummies.push_back(tile);
-            return loadBuildingObject(getGameMap(), "TrainingDummy1", tile, x, y, 270.0);
+            return loadBuildingObject(getGameMap(), "TrainingDummy1", tile, x, y, 270.0, false);
         }
         case ActiveSpotPlace::activeSpotTop:
         {
@@ -84,7 +84,7 @@ RenderedMovableEntity* RoomTrainingHall::notifyActiveSpotCreated(ActiveSpotPlace
             Ogre::Real y = static_cast<Ogre::Real>(tile->getY());
             y += OFFSET_DUMMY;
             mUnusedDummies.push_back(tile);
-            return loadBuildingObject(getGameMap(), "TrainingDummy1", tile, x, y, 0.0);
+            return loadBuildingObject(getGameMap(), "TrainingDummy1", tile, x, y, 0.0, false);
         }
         case ActiveSpotPlace::activeSpotBottom:
         {
@@ -92,7 +92,7 @@ RenderedMovableEntity* RoomTrainingHall::notifyActiveSpotCreated(ActiveSpotPlace
             Ogre::Real y = static_cast<Ogre::Real>(tile->getY());
             y -= OFFSET_DUMMY;
             mUnusedDummies.push_back(tile);
-            return loadBuildingObject(getGameMap(), "TrainingDummy1", tile, x, y, 180.0);
+            return loadBuildingObject(getGameMap(), "TrainingDummy1", tile, x, y, 180.0, false);
         }
     }
     return NULL;

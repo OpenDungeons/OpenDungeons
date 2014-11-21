@@ -198,6 +198,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
         return false;
 
     CEGUI::System::getSingleton().injectTimePulse(evt.timeSinceLastFrame);
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectTimePulse(evt.timeSinceLastFrame);
 
     // Sleep to limit the framerate to the max value
     // FIXME: This 2.0 should be a 1.0 but this gives the correct result.  This probably indicates a bug.

@@ -73,6 +73,8 @@ public:
     friend std::ostream& operator<<(std::ostream& os, const MissileObject::MissileType& rot);
     friend std::istream& operator>>(std::istream& is, MissileObject::MissileType& rot);
 private:
+    bool computeDestination(const Ogre::Vector3& position, double moveDist, const Ogre::Vector3& direction,
+        Ogre::Vector3& destination, std::list<Tile*>& tiles);
     Ogre::Vector3 mDirection;
     bool mIsMissileAlive;
     bool mDamageAllies;

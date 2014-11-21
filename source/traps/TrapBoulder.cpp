@@ -76,7 +76,7 @@ bool TrapBoulder::shoot(Tile* tile)
         direction, Random::Double(mMinDamage, mMaxDamage));
     missile->setPosition(position);
     getGameMap()->addRenderedMovableEntity(missile);
-    missile->setMoveSpeed(1.0);
+    missile->setMoveSpeed(ConfigManager::getSingleton().getTrapConfigDouble("BoulderSpeed"));
     missile->createMesh();
     // We don't want the missile to stay idle for 1 turn. Because we are in a doUpkeep context,
     // we can safely call the missile doUpkeep as we know the engine will not call it the turn
@@ -89,5 +89,5 @@ bool TrapBoulder::shoot(Tile* tile)
 
 RenderedMovableEntity* TrapBoulder::notifyActiveSpotCreated(Tile* tile)
 {
-    return loadBuildingObject(getGameMap(), "Boulder", tile, 0.0);
+    return loadBuildingObject(getGameMap(), "Boulder", tile, 0.0, false);
 }

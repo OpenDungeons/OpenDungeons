@@ -34,25 +34,25 @@ RenderedMovableEntity* RoomLibrary::notifyActiveSpotCreated(ActiveSpotPlace plac
         case ActiveSpotPlace::activeSpotCenter:
         {
         if (Random::Int(0, 100) > 50)
-            return loadBuildingObject(getGameMap(), "Podium", tile, 0.0);
+            return loadBuildingObject(getGameMap(), "Podium", tile, 0.0, false);
         else
-            return loadBuildingObject(getGameMap(), "Bookcase", tile, 0.0);
+            return loadBuildingObject(getGameMap(), "Bookcase", tile, 0.0, false);
         }
         case ActiveSpotPlace::activeSpotLeft:
         {
-            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 90.0);
+            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 90.0, false);
         }
         case ActiveSpotPlace::activeSpotRight:
         {
-            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 270.0);
+            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 270.0, false);
         }
         case ActiveSpotPlace::activeSpotTop:
         {
-            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 0.0);
+            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 0.0, false);
         }
         case ActiveSpotPlace::activeSpotBottom:
         {
-            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 180.0);
+            return loadBuildingObject(getGameMap(), "Bookshelf", tile, 180.0, false);
         }
     }
     return NULL;
