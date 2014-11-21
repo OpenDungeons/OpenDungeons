@@ -62,23 +62,18 @@ void MissileObject::doUpkeep()
     Tile* tile = getPositionTile();
     OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
     if(tile == nullptr)
-        return;
-
-    // We check if a creature is in our way. We start by taking the tile we will be on
-    Ogre::Vector3 position = getPosition();
-    double moveDist = getMoveSpeed();
-    Ogre::Vector3 destination = position + (moveDist * mDirection);
-
-    std::list<Tile*> tiles = getGameMap()->tilesBetween(static_cast<int>(position.x),
-        static_cast<int>(position.y), static_cast<int>(destination.x), static_cast<int>(destination.y));
-
-    OD_ASSERT_TRUE(!tiles.empty());
-    if(tiles.empty())
     {
         getGameMap()->removeRenderedMovableEntity(this);
         deleteYourself();
         return;
     }
+
+    // We check if a creature is in our way. We start by taking the tile we will be on
+    Ogre::Vector3 position = getPosition();
+    double moveDist = getMoveSpeed();
+    Ogre::Vector3 destination;
+    std::list<Tile*> tiles;
+    mIsMissileAlive = computeDestination(position, moveDist, mDirection, destination, tiles);
 
     Tile* lastTile = nullptr;
     while(!tiles.empty() && mIsMissileAlive)
@@ -92,7 +87,8 @@ void MissileObject::doUpkeep()
             mIsMissileAlive = wallHitNextDirection(mDirection, lastTile, nextDirection);
             if(!mIsMissileAlive)
             {
-                destination -= moveDist * mDirection;
+                destination.x = static_cast<Ogre::Real>(lastTile->getX());
+                destination.y = static_cast<Ogre::Real>(lastTile->getY());
                 break;
             }
             else
@@ -102,10 +98,7 @@ void MissileObject::doUpkeep()
                 addDestination(position.x, position.y, position.z);
                 // We compute next position
                 mDirection = nextDirection;
-                destination = position + (moveDist * mDirection);
-                tiles = getGameMap()->tilesBetween(static_cast<int>(position.x),
-                    static_cast<int>(position.y), static_cast<int>(destination.x), static_cast<int>(destination.y));
-
+                mIsMissileAlive = computeDestination(position, moveDist, mDirection, destination, tiles);
                 continue;
             }
         }
@@ -155,6 +148,34 @@ void MissileObject::doUpkeep()
     }
 
     addDestination(destination.x, destination.y, destination.z);
+}
+
+bool MissileObject::computeDestination(const Ogre::Vector3& position, double moveDist, const Ogre::Vector3& direction,
+        Ogre::Vector3& destination, std::list<Tile*>& tiles)
+{
+    destination = position + (moveDist * direction);
+    tiles = getGameMap()->tilesBetween(static_cast<int>(position.x),
+        static_cast<int>(position.y), static_cast<int>(destination.x), static_cast<int>(destination.y));
+    OD_ASSERT_TRUE(!tiles.empty());
+    if(tiles.empty())
+        return false;
+
+    // If we get out of the map, we take the last tile as the destination
+    if((direction.x > 0.0 && destination.x > static_cast<Ogre::Real>(getGameMap()->getMapSizeX() - 1)) ||
+       (direction.x < 0.0 && destination.x < 0.0) ||
+       (direction.y > 0 && destination.y > static_cast<Ogre::Real>(getGameMap()->getMapSizeY() - 1)) ||
+       (direction.y < 0 && destination.y < 0))
+    {
+        Tile* lastTile = tiles.back();
+        destination.x = static_cast<Ogre::Real>(lastTile->getX());
+        destination.y = static_cast<Ogre::Real>(lastTile->getY());
+
+        // We are in the last position, we can die
+        if(tiles.size() <= 1)
+            return false;
+    }
+
+    return true;
 }
 
 void MissileObject::exportHeadersToStream(std::ostream& os)
