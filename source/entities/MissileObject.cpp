@@ -28,7 +28,7 @@
 
 MissileObject::MissileObject(GameMap* gameMap, Seat* seat, const std::string& senderName,
         const std::string& meshName, const Ogre::Vector3& direction, bool damageAllies) :
-    RenderedMovableEntity(gameMap, senderName, meshName, 0.0f),
+    RenderedMovableEntity(gameMap, senderName, meshName, 0.0f, false),
     mDirection(direction),
     mIsMissileAlive(true),
     mDamageAllies(damageAllies)

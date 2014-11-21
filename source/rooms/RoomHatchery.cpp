@@ -36,7 +36,7 @@ RenderedMovableEntity* RoomHatchery::notifyActiveSpotCreated(ActiveSpotPlace pla
 {
     // We add chicken coops on center tiles only
     if(place == ActiveSpotPlace::activeSpotCenter)
-        return loadBuildingObject(getGameMap(), "ChickenCoop", tile, 0.0);
+        return loadBuildingObject(getGameMap(), "ChickenCoop", tile, 0.0, false);
 
     return NULL;
 }

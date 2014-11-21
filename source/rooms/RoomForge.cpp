@@ -33,23 +33,23 @@ RenderedMovableEntity* RoomForge::notifyActiveSpotCreated(ActiveSpotPlace place,
     {
         case ActiveSpotPlace::activeSpotCenter:
         {
-            return loadBuildingObject(getGameMap(), "Foundry", tile, 45.0);
+            return loadBuildingObject(getGameMap(), "Foundry", tile, 45.0, false);
         }
         case ActiveSpotPlace::activeSpotLeft:
         {
-            return loadBuildingObject(getGameMap(), "Chimney", tile, 90.0);
+            return loadBuildingObject(getGameMap(), "Chimney", tile, 90.0, false);
         }
         case ActiveSpotPlace::activeSpotRight:
         {
-            return loadBuildingObject(getGameMap(), "Chimney", tile, 270.0);
+            return loadBuildingObject(getGameMap(), "Chimney", tile, 270.0, false);
         }
         case ActiveSpotPlace::activeSpotTop:
         {
-            return loadBuildingObject(getGameMap(), "Grindstone", tile, 180.0);
+            return loadBuildingObject(getGameMap(), "Grindstone", tile, 180.0, false);
         }
         case ActiveSpotPlace::activeSpotBottom:
         {
-            return loadBuildingObject(getGameMap(), "Anvil", tile, 0.0);
+            return loadBuildingObject(getGameMap(), "Anvil", tile, 0.0, false);
         }
     }
     return NULL;

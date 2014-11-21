@@ -73,7 +73,7 @@ bool TrapCannon::shoot(Tile* tile)
 
 RenderedMovableEntity* TrapCannon::notifyActiveSpotCreated(Tile* tile)
 {
-    return loadBuildingObject(getGameMap(), "Cannon", tile, 90.0);
+    return loadBuildingObject(getGameMap(), "Cannon", tile, 90.0, false);
 }
 
 TrapCannon* TrapCannon::getTrapCannonFromStream(GameMap* gameMap, std::istream &is)

@@ -89,5 +89,5 @@ bool TrapBoulder::shoot(Tile* tile)
 
 RenderedMovableEntity* TrapBoulder::notifyActiveSpotCreated(Tile* tile)
 {
-    return loadBuildingObject(getGameMap(), "Boulder", tile, 0.0);
+    return loadBuildingObject(getGameMap(), "Boulder", tile, 0.0, false);
 }

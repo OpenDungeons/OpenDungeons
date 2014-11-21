@@ -25,7 +25,7 @@
 #include <iostream>
 
 TreasuryObject::TreasuryObject(GameMap* gameMap, int goldValue) :
-    RenderedMovableEntity(gameMap, "Treasury_", "GoldstackLv3", 0.0f),
+    RenderedMovableEntity(gameMap, "Treasury_", "GoldstackLv3", 0.0f, false),
     mGoldValue(goldValue)
 {
 }

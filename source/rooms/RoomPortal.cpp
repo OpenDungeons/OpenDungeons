@@ -72,7 +72,7 @@ void RoomPortal::createMeshLocal()
     if(!getGameMap()->isServerGameMap())
         return;
 
-    mPortalObject = loadBuildingObject(getGameMap(), "PortalObject", getCentralTile(), 0.0);
+    mPortalObject = loadBuildingObject(getGameMap(), "PortalObject", getCentralTile(), 0.0, false);
     addBuildingObject(getCentralTile(), mPortalObject);
     createBuildingObjectMeshes();
 

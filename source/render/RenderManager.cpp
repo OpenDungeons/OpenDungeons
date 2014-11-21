@@ -177,6 +177,10 @@ void RenderManager::rrRefreshTile(Tile* curTile)
     if (!mSceneManager->hasSceneNode(tileName + "_node"))
         return;
 
+    // We keep visibility if the tile is refreshed
+    Ogre::Entity* entity = mSceneManager->getEntity(tileName);
+    bool visible = entity->getVisible();
+
     // Unlink and delete the old mesh
     mSceneManager->getSceneNode(tileName + "_node")->detachObject(tileName);
     mSceneManager->destroyEntity(tileName);
@@ -188,6 +192,7 @@ void RenderManager::rrRefreshTile(Tile* curTile)
                                                        rt);
 
     Ogre::Entity* ent = mSceneManager->createEntity(tileName, meshName);
+    ent->setVisible(visible);
 
     if(curTile->getType() == Tile::gold && curTile->getFullness() > 0.0)
     {
@@ -222,13 +227,8 @@ void RenderManager::rrRefreshTile(Tile* curTile)
     node->resetOrientation();
     node->roll(Ogre::Degree((Ogre::Real)(-1 * rt * 90)));
 
-    // Test whether the tile should be shown
-    if (curTile->getCoveringRoom() != nullptr)
-        ent->setVisible(curTile->getCoveringRoom()->shouldDisplayGroundTile());
-    else if (curTile->getCoveringTrap() != nullptr)
-        ent->setVisible(curTile->getCoveringTrap()->shouldDisplayGroundTile());
-    else
-        ent->setVisible(true);
+    // Refresh visibility
+    ent->setVisible(visible);
 }
 
 
@@ -449,6 +449,21 @@ void RenderManager::rrCreateRenderedMovableEntity(RenderedMovableEntity* curRend
     node->roll(Ogre::Degree(curRenderedMovableEntity->getRotationAngle()));
     node->attachObject(ent);
     curRenderedMovableEntity->pSN = (node->getParentSceneNode());
+
+    // If it is required, we hide the tile
+    if(curRenderedMovableEntity->getHideCoveredTile())
+    {
+        Tile* posTile = curRenderedMovableEntity->getPositionTile();
+        if(posTile == nullptr)
+            return;
+
+        std::string tileName = posTile->getOgreNamePrefix() + posTile->getName();
+        if (!mSceneManager->hasEntity(tileName))
+            return;
+
+        Ogre::Entity* entity = mSceneManager->getEntity(tileName);
+        entity->setVisible(false);
+    }
 }
 
 void RenderManager::rrDestroyRenderedMovableEntity(RenderedMovableEntity* curRenderedMovableEntity)
@@ -460,6 +475,26 @@ void RenderManager::rrDestroyRenderedMovableEntity(RenderedMovableEntity* curRen
     node->detachObject(ent);
     mSceneManager->destroySceneNode(node->getName());
     mSceneManager->destroyEntity(ent);
+
+    // If it was hidden, we display the tile
+    if(curRenderedMovableEntity->getHideCoveredTile())
+    {
+        Tile* posTile = curRenderedMovableEntity->getPositionTile();
+        if(posTile == nullptr)
+            return;
+
+        std::string tileName = posTile->getOgreNamePrefix() + posTile->getName();
+        if (!mSceneManager->hasEntity(tileName))
+            return;
+
+        Ogre::Entity* entity = mSceneManager->getEntity(tileName);
+        if (posTile->getCoveringRoom() != nullptr)
+            entity->setVisible(posTile->getCoveringRoom()->shouldDisplayGroundTile());
+        else if (posTile->getCoveringTrap() != nullptr)
+            entity->setVisible(posTile->getCoveringTrap()->shouldDisplayGroundTile());
+        else
+            entity->setVisible(true);
+    }
 }
 
 void RenderManager::rrCreateCreature(Creature* curCreature)
@@ -805,10 +840,17 @@ std::string RenderManager::consoleListAnimationsForMesh(const std::string& meshN
     while (animationStateIterator.hasMoreElements())
     {
         std::string animName = animationStateIterator.getNext()->getAnimationName();
-        ret += "\nAnimation " + animName;
+        ret += "\nAnimation: " + animName;
+    }
+
+    Ogre::Skeleton::BoneIterator boneIterator = objectEntity->getSkeleton()->getBoneIterator();
+    while (boneIterator.hasMoreElements())
+    {
+        std::string boneName = boneIterator.getNext()->getName();
+        ret += "\nBone: " + boneName;
     }
     msSingleton->mSceneManager->destroyEntity(objectEntity);
-   return ret;
+    return ret;
 }
 
 bool RenderManager::generateRTSSShadersForMaterial(const std::string& materialName,

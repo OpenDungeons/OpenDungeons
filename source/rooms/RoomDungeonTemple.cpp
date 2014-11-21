@@ -64,7 +64,7 @@ void RoomDungeonTemple::createMeshLocal()
     if(!getGameMap()->isServerGameMap())
         return;
 
-    mTempleObject = loadBuildingObject(getGameMap(), "DungeonTempleObject", getCentralTile(), 0.0);
+    mTempleObject = loadBuildingObject(getGameMap(), "DungeonTempleObject", getCentralTile(), 0.0, false);
     addBuildingObject(getCentralTile(), mTempleObject);
     createBuildingObjectMeshes();
 }

@@ -35,27 +35,27 @@ RenderedMovableEntity* RoomCrypt::notifyActiveSpotCreated(ActiveSpotPlace place,
         {
             int rnd = Random::Int(0, 100);
             if (rnd < 33)
-                return loadBuildingObject(getGameMap(), "KnightCoffin", tile, 0.0);
+                return loadBuildingObject(getGameMap(), "KnightCoffin", tile, 0.0, false);
             else if (rnd < 66)
-                return loadBuildingObject(getGameMap(), "CelticCross", tile, 0.0);
+                return loadBuildingObject(getGameMap(), "CelticCross", tile, 0.0, false);
             else
-                return loadBuildingObject(getGameMap(), "StoneCoffin", tile, 0.0);
+                return loadBuildingObject(getGameMap(), "StoneCoffin", tile, 0.0, false);
         }
         case ActiveSpotPlace::activeSpotLeft:
         {
-            return loadBuildingObject(getGameMap(), "KnightStatue", tile, 90.0);
+            return loadBuildingObject(getGameMap(), "KnightStatue", tile, 90.0, false);
         }
         case ActiveSpotPlace::activeSpotRight:
         {
-            return loadBuildingObject(getGameMap(), "KnightStatue", tile, 270.0);
+            return loadBuildingObject(getGameMap(), "KnightStatue", tile, 270.0, false);
         }
         case ActiveSpotPlace::activeSpotTop:
         {
-            return loadBuildingObject(getGameMap(), "KnightStatue2", tile, 0.0);
+            return loadBuildingObject(getGameMap(), "KnightStatue2", tile, 0.0, false);
         }
         case ActiveSpotPlace::activeSpotBottom:
         {
-            return loadBuildingObject(getGameMap(), "KnightStatue2", tile, 180.0);
+            return loadBuildingObject(getGameMap(), "KnightStatue2", tile, 180.0, false);
         }
     }
     return NULL;

@@ -32,10 +32,12 @@
 const std::string RenderedMovableEntity::RENDEREDMOVABLEENTITY_PREFIX = "RenderedMovableEntity_";
 const std::string RenderedMovableEntity::RENDEREDMOVABLEENTITY_OGRE_PREFIX = "OgreRenderedMovableEntity_";
 
-RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap, const std::string& baseName, const std::string& nMeshName, Ogre::Real rotationAngle) :
+RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap, const std::string& baseName, const std::string& nMeshName,
+        Ogre::Real rotationAngle, bool hideCoveredTile) :
     MovableGameEntity(gameMap),
     mRotationAngle(rotationAngle),
-    mIsOnMap(true)
+    mIsOnMap(true),
+    mHideCoveredTile(hideCoveredTile)
 {
     setObjectType(GameEntity::renderedMovableEntity);
     setMeshName(nMeshName);
@@ -46,7 +48,8 @@ RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap, const std::string
 RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap) :
     MovableGameEntity(gameMap),
     mRotationAngle(0.0),
-    mIsOnMap(true)
+    mIsOnMap(true),
+    mHideCoveredTile(false)
 {
     setObjectType(GameEntity::renderedMovableEntity);
 }
@@ -191,7 +194,7 @@ void RenderedMovableEntity::exportToPacket(ODPacket& os)
     std::string meshName = getMeshName();
     Ogre::Vector3 position = getPosition();
     os << name << meshName;
-    os << position << mRotationAngle;
+    os << position << mRotationAngle << mHideCoveredTile;
 }
 
 void RenderedMovableEntity::importFromPacket(ODPacket& is)
@@ -206,6 +209,7 @@ void RenderedMovableEntity::importFromPacket(ODPacket& is)
     OD_ASSERT_TRUE(is >> position);
     setPosition(position);
     OD_ASSERT_TRUE(is >> mRotationAngle);
+    OD_ASSERT_TRUE(is >> mHideCoveredTile);
 }
 
 void RenderedMovableEntity::exportToStream(std::ostream& os)
