@@ -65,25 +65,41 @@ void SmallSpiderEntity::doUpkeep()
     if(isMoving())
         return;
 
-    int posSpiderX = tile->getX();
-    int posSpiderY = tile->getY();
-    std::vector<Tile*> possibleTileMove;
-    // We move spiders from 1 tile only
-    addTileToListIfPossible(posSpiderX - 1, posSpiderY, currentCrypt, possibleTileMove);
-    addTileToListIfPossible(posSpiderX + 1, posSpiderY, currentCrypt, possibleTileMove);
-    addTileToListIfPossible(posSpiderX, posSpiderY - 1, currentCrypt, possibleTileMove);
-    addTileToListIfPossible(posSpiderX, posSpiderY + 1, currentCrypt, possibleTileMove);
+    std::vector<Tile*> moves;
+    // We randomly choose some tiles to walk
+    int posX = tile->getX();
+    int posY = tile->getY();
+    while((Random::Int(1,3) > 1) && (moves.size() < 3))
+    {
+        std::vector<Tile*> possibleTileMove;
+        addTileToListIfPossible(posX - 1, posY, currentCrypt, possibleTileMove);
+        addTileToListIfPossible(posX + 1, posY, currentCrypt, possibleTileMove);
+        addTileToListIfPossible(posX, posY - 1, currentCrypt, possibleTileMove);
+        addTileToListIfPossible(posX, posY + 1, currentCrypt, possibleTileMove);
+        addTileToListIfPossible(posX - 1, posY - 1, currentCrypt, possibleTileMove);
+        addTileToListIfPossible(posX + 1, posY + 1, currentCrypt, possibleTileMove);
+        addTileToListIfPossible(posX - 1, posY - 1, currentCrypt, possibleTileMove);
+        addTileToListIfPossible(posX + 1, posY + 1, currentCrypt, possibleTileMove);
 
-    // We cannot move. That can happen if all the nearby tiles have been destroyed
-    if(possibleTileMove.empty())
+        // We cannot move. That can happen if all the nearby tiles have been destroyed
+        if(possibleTileMove.empty())
+            break;
+
+        Tile* tileDest = possibleTileMove[Random::Uint(0, possibleTileMove.size() - 1)];
+        moves.push_back(tileDest);
+        posX = tileDest->getX();
+        posY = tileDest->getY();
+    }
+
+    if(moves.empty())
+    {
+        setAnimationState("Idle");
         return;
+    }
 
-    uint32_t indexTile = Random::Uint(0, possibleTileMove.size() - 1);
-    Tile* tileDest = possibleTileMove[indexTile];
-    Ogre::Real x = static_cast<Ogre::Real>(tileDest->getX());
-    Ogre::Real y = static_cast<Ogre::Real>(tileDest->getY());
+    for(Tile* tileDest : moves)
+        addDestination(static_cast<Ogre::Real>(tileDest->getX()), static_cast<Ogre::Real>(tileDest->getY()));
 
-    addDestination(x, y);
     setAnimationState("Walk");
 }
 
