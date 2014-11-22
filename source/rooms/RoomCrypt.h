@@ -28,6 +28,7 @@ public:
     virtual RoomType getType() const
     { return RoomType::crypt; }
 
+    void doUpkeep();
 protected:
     virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
 };
