@@ -17,6 +17,7 @@
 
 #include "rooms/RoomCrypt.h"
 
+#include "entities/SmallSpiderEntity.h"
 #include "entities/Tile.h"
 #include "gamemap/GameMap.h"
 #include "utils/Random.h"
@@ -61,3 +62,22 @@ RenderedMovableEntity* RoomCrypt::notifyActiveSpotCreated(ActiveSpotPlace place,
     return NULL;
 }
 
+void RoomCrypt::doUpkeep()
+{
+    Room::doUpkeep();
+
+    if(mCoveredTiles.empty())
+        return;
+
+    // Each central active spot has a probability to spawn a spider
+    for(Tile* tile : mCentralActiveSpotTiles)
+    {
+        if(Random::Int(1, 10) > 1)
+            continue;
+
+        SmallSpiderEntity* spider = new SmallSpiderEntity(getGameMap(), getName(), 10);
+        Ogre::Vector3 pos(static_cast<Ogre::Real>(tile->x), static_cast<Ogre::Real>(tile->y), 0.0f);
+        spider->setPosition(pos);
+        getGameMap()->addRenderedMovableEntity(spider);
+    }
+}

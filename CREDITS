@@ -115,6 +115,7 @@ textures/
 -> OrcBed.png                          Bart, p0ss              CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=60191#p60191
 -> RangerBed.png                       PantherOne              CC0                     http://opengameart.org/content/tent-pack
 -> slimeDiffuse.png                    Grefuntor               CC-BY 3.0, CC-BY-SA 3.0, GPL 2.0+ - http://opengameart.org/content/slime-mold
+-> SmallSpider.png                     Skorpio                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=60887#p60851
 -> Spike-trapTexture.png               P0ss, Danimal           CC-BY 3.0               http://opengameart.org/content/spyke-trap-low-poly
 -> Spider.png                          DennisH2010             CC-BY 3.0               http://www.blendswap.com/blends/view/26798
 -> Spiderbed.png                       Eugeneloza, Nobiax      CC0                     http://forum.freegamedev.net/viewtopic.php?p=60089#p60089
@@ -201,6 +202,7 @@ RuinEntrance.mesh                      zerberros (OGA)         CC0              
 Sabre.mesh                             Andrew Buck             CC-BY-SA 3.0
 Scarab.*                               killyoverdrive (OGA)    CC-BY-SA 3.0            http://opengameart.org/content/beetle-golem-animated
 Slime.*                                Grefuntor, D3dm         CC-BY 3.0, CC-BY-SA 3.0, GPL 2.0+ - http://opengameart.org/content/slime-mold
+SmallSpider.*                          Skorpio                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=60887#p60851
 Spider.*                               DennisH2010, Danimal    CC-BY 3.0               http://www.blendswap.com/blends/view/26798 - http://forum.freegamedev.net/viewtopic.php?p=60530#p60530
 Spiderbed.mesh                         Eugeneloza              CC0                     http://forum.freegamedev.net/viewtopic.php?p=60089#p60089
 Spiketrap.*                            Danimal                 CC-BY 3.0               http://opengameart.org/content/spyke-trap-low-poly

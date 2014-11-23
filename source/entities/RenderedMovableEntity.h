@@ -37,6 +37,7 @@ public:
         buildingObject,
         treasuryObject,
         chickenEntity,
+        smallSpiderEntity,
         missileObject
     };
     //! \brief Creates a RenderedMovableEntity. It's name is built from baseName and some unique id from the gamemap.

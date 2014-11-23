@@ -20,6 +20,7 @@
 #include "entities/TreasuryObject.h"
 #include "entities/ChickenEntity.h"
 #include "entities/MissileObject.h"
+#include "entities/SmallSpiderEntity.h"
 
 #include "gamemap/GameMap.h"
 #include "network/ODPacket.h"
@@ -161,6 +162,11 @@ RenderedMovableEntity* RenderedMovableEntity::getRenderedMovableEntityFromPacket
         case RenderedMovableEntityType::missileObject:
         {
             obj = MissileObject::getMissileObjectFromPacket(gameMap, is);
+            break;
+        }
+        case RenderedMovableEntityType::smallSpiderEntity:
+        {
+            obj = SmallSpiderEntity::getSmallSpiderEntityFromPacket(gameMap, is);
             break;
         }
         default:
