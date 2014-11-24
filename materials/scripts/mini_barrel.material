@@ -1,8 +1,0 @@
-mini_wood_barrel
-import base_material from "general.material"
-material mini_wood_barrel : base_material
-{
-    set_texture_alias diffuseMap mini_diffus.tga
-    set_texture_alias specMap mini_specular.tga
-    set_texture_alias normalMap mini_normal.tga
-}
