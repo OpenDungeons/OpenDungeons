@@ -192,7 +192,7 @@ void ODFrameListener::updateAnimations(Ogre::Real timeSinceLastFrame)
     mGameMap->updateAnimations(timeSinceLastFrame);
 }
 
-bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
+bool ODFrameListener::frameRenderingQueued(const Ogre::FrameEvent& evt)
 {
     if (mWindow->isClosed())
         return false;
