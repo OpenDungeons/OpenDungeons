@@ -22,6 +22,13 @@
 
 #include "gamemap/GameMap.h"
 
+#include <CEGUI/EventArgs.h>
+
+namespace CEGUI
+{
+class Window;
+}
+
 class  GameMode: public AbstractApplicationMode
 {
  public:
@@ -117,6 +124,16 @@ private:
 
     InputMode mCurrentInputMode;
     std::vector<OIS::KeyCode> mKeysChatPressed;
+
+    //! \brief A simple window displaying the common game controls.
+    //! Useful in the way of a true settings menu.
+    CEGUI::Window* mHelpWindow;
+
+    //! \brief Creates the help window.
+    void createHelpWindow();
+
+    //! \brief help Hides the help window.
+    bool hideHelpWindow(const CEGUI::EventArgs& /*e*/);
 
     //! \brief Handle updating the selector position on screen
     void handleCursorPositionUpdate();

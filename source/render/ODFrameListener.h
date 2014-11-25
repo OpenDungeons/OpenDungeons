@@ -103,15 +103,16 @@ public:
     //! \brief Unattach OIS before window shutdown (very important under Linux)
     virtual void windowClosed(Ogre::RenderWindow* rw);
 
-    /*! \brief The main rendering function for the OGRE 3d environment.
+    /*! \brief The main function for the OGRE 3d environment.
      *
-     * This function is the one which actually carries out all of the rendering in
-     * the OGRE 3d system.  Since all the rendering must happen here, one of the
-     * operations performed by this function is the processing of a request queue
-     * full of RenderRequest structures.
+     * This function is triggered by Ogre 3D once all the rendering has been bound to GPU,
+     * giving time to the CPU to handle updates. Hence, we're placing our update logic here
+     * to use the CPU while it's less busy and earn performance.
      */
-    bool frameStarted (const Ogre::FrameEvent& evt);
-    bool frameEnded (const Ogre::FrameEvent& evt);
+    bool frameRenderingQueued(const Ogre::FrameEvent& evt);
+
+    //! \brief Triggered once a frame rendering has ended.
+    bool frameEnded(const Ogre::FrameEvent& evt);
 
     //! \brief Exit the game.
     bool quit(const CEGUI::EventArgs &e);
