@@ -2,16 +2,6 @@
 .directory
 build
 CMakeFiles
-#fonts
-#graphics
-#gui
-#lang
-#levels
-#materials
-#models
-#music
-#plugins
-#sounds
 
 ogre.cfg
 plugins.cfg
@@ -28,6 +18,7 @@ resources_install.zip.cfg
 *.o
 *.sh
 *.zip
+*.a
 
 *~*
 .*.swp
