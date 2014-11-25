@@ -47,13 +47,6 @@ class ODPacket;
  */
 class GameEntity
 {
-
-/* TODO list:
- * - complete the constructor
- * - add semaphores if/where needed
- * - static removeDeadObjects should not be in here (maybe in GameMap?)
- */
-
   public:
     enum ObjectType
     {
@@ -65,10 +58,12 @@ class GameEntity
           GameMap*        gameMap,
           std::string     nName       = std::string(),
           std::string     nMeshName   = std::string(),
+          float           opacity     = 1.0f,
           Seat*           seat        = nullptr
           ) :
     mRendererSceneNode (nullptr),
     position    (Ogre::Vector3(0, 0, 0)),
+    mOpacity    (opacity),
     name        (nName),
     meshName    (nMeshName),
     meshExists  (false),
@@ -99,6 +94,9 @@ class GameEntity
     //! \brief Get if the mesh is already existing
     inline bool                 isMeshExisting  () const    { return meshExists; }
 
+    //! \brief Get if the mesh is already existing
+    inline float                getOpacity      () const    { return mOpacity; }
+
     //! \brief Get if the object can be attacked or not
     virtual bool                isAttackable    () const    { return false; }
 
@@ -122,6 +120,13 @@ class GameEntity
 
     //! \brief Set if the mesh exists
     inline void setMeshExisting (bool isExisting)               { meshExists = isExisting; }
+
+    //! \brief Set the entity opacity
+    void setMeshOpacity(float opacity);
+
+    //! \brief Set the entity opacity value whithout refreshing it. Useful at construction.
+    void setOpacity(float opacity)
+    { mOpacity = opacity; }
 
     //! \brief Set the type of the object. Should be done in all final derived constructors
     inline void setObjectType   (ObjectType nType)              { objectType = nType; }
@@ -207,6 +212,9 @@ class GameEntity
 
     //! \brief The position of this object
     Ogre::Vector3   position;
+
+    //! \brief The model current opacity
+    float           mOpacity;
 
     //! \brief Convinience function to get ogreNamePrefix + name
     //! Used for nodes. The name does not include the _node and similar postfixes which are

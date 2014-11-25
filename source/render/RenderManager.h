@@ -90,7 +90,10 @@ public:
     //! \brief Colorize an entity with the team corresponding color.
     //! \Note: if the entity is marked for digging (wall tiles only), then a yellow color
     //! is added to the current colorization.
-    void colourizeEntity(Ogre::Entity *ent, Seat* seat, bool markedForDigging = false);
+    void colourizeEntity(Ogre::Entity* ent, Seat* seat, bool markedForDigging = false);
+
+    //! \brief Set the entity's opacity
+    void setEntityOpacity(Ogre::Entity* ent, float opacity);
 
     static const Ogre::Real BLENDER_UNITS_PER_OGRE_UNIT;
 
@@ -113,6 +116,7 @@ private:
     void rrDestroyBuilding(Building* curBuilding, Tile* curTile);
     void rrCreateRenderedMovableEntity(RenderedMovableEntity* curRenderedMovableEntity);
     void rrDestroyRenderedMovableEntity(RenderedMovableEntity* curRenderedMovableEntity);
+    void rrUpdateEntityOpacity(GameEntity* entity);
     void rrCreateCreature(Creature* curCreature);
     void rrDestroyCreature(Creature* curCreature);
     void rrOrientSceneNodeToward(MovableGameEntity* gameEntity, const Ogre::Vector3& direction);
@@ -142,7 +146,12 @@ private:
     //! \brief Colorize the material with the corresponding team id color.
     //! \note If the material (wall tiles only) is marked for digging, a yellow color is added
     //! to the given color.
+    //! \returns The new material name according to the current colorization.
     std::string colourizeMaterial(const std::string& materialName, Seat* seat, bool markedForDigging = false);
+
+    //! \brief Makes the material be transparent with the given opacity (0.0f - 1.0f)
+    //! \returns The new material name according to the current opacity.
+    std::string setMaterialOpacity(const std::string& materialName, float opacity);
 
     std::deque<RenderRequest*> mRenderQueue;
 

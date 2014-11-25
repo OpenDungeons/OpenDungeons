@@ -730,6 +730,17 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
+        case ServerNotification::setEntityOpacity:
+        {
+            std::string name;
+            float opacity;
+            OD_ASSERT_TRUE(packetReceived >> name >> opacity);
+            RenderedMovableEntity* renderedMovableEntity = gameMap->getRenderedMovableEntity(name);
+            OD_ASSERT_TRUE_MSG(renderedMovableEntity != nullptr, "name=" + name);
+            renderedMovableEntity->setMeshOpacity(opacity);
+            break;
+        }
+
         case ServerNotification::playSpatialSound:
         {
             SoundEffectsManager::InterfaceSound soundType;

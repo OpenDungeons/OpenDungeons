@@ -50,6 +50,9 @@ public:
     }
 
     virtual RenderedMovableEntity* notifyActiveSpotCreated(Tile* tile);
+
+    virtual void deactivate();
+    virtual void activate();
 };
 
 #endif // TRAPBOULDER_H

@@ -70,6 +70,10 @@ public:
         return true;
     }
 
+    //! \brief Tells whether the trap is activated.
+    bool isActivated() const
+    { return mIsActivated; }
+
     //! \brief Sets the name, seat and associates the given tiles with the trap
     void setupTrap(const std::string& name, Seat* seat, const std::vector<Tile*>& tiles);
 
@@ -99,6 +103,18 @@ protected:
     virtual void destroyMeshLocal();
     virtual RenderedMovableEntity* notifyActiveSpotCreated(Tile* tile);
     virtual void notifyActiveSpotRemoved(Tile* tile);
+
+    //! \brief Triggered when the trap is activated
+    virtual void activate()
+    { mIsActivated = true; }
+
+    //! \brief Triggered when deactivated.
+    virtual void deactivate()
+    { mIsActivated = false; }
+
+    //! \brief Tells whether the trap is activated.
+    bool mIsActivated;
+
     uint32_t mReloadTime;
     double mMinDamage;
     double mMaxDamage;

@@ -34,6 +34,7 @@
 
 Trap::Trap(GameMap* gameMap) :
     Building(gameMap, BuildingType::trap),
+    mIsActivated(false),
     mReloadTime(0),
     mMinDamage(0.0),
     mMaxDamage(0.0)
@@ -232,6 +233,12 @@ void Trap::doUpkeep()
             --mReloadTimeCounters[tile];
             continue;
         }
+
+        // Activate the trap if it was deactivated.
+        if (!mIsActivated)
+            activate();
+
+        // The trap shoot method will optionally deactivate the trap.
         if(shoot(tile))
         {
             mReloadTimeCounters[tile] = mReloadTime;

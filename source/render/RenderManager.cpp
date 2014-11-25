@@ -385,6 +385,9 @@ void RenderManager::rrCreateBuilding(Building* curBuilding, Tile* curTile)
                                     BLENDER_UNITS_PER_OGRE_UNIT,
                                     BLENDER_UNITS_PER_OGRE_UNIT));
         node->attachObject(ent);
+
+        if (curBuilding->getOpacity() < 1.0f)
+            setEntityOpacity(ent, curBuilding->getOpacity());
     }
 
     Ogre::Entity* tileEnt = mSceneManager->getEntity(curTile->getOgreNamePrefix() + curTile->getName());
@@ -413,24 +416,25 @@ void RenderManager::rrDestroyBuilding(Building* curBuilding, Tile* curTile)
     tileEnt->setVisible(true);
 }
 
-void RenderManager::rrCreateRenderedMovableEntity(RenderedMovableEntity* curRenderedMovableEntity)
+void RenderManager::rrCreateRenderedMovableEntity(RenderedMovableEntity* renderedMovableEntity)
 {
-    std::string meshName = curRenderedMovableEntity->getMeshName();
-    std::string tempString = curRenderedMovableEntity->getOgreNamePrefix() + curRenderedMovableEntity->getName();
+    std::string meshName = renderedMovableEntity->getMeshName();
+    std::string tempString = renderedMovableEntity->getOgreNamePrefix() + renderedMovableEntity->getName();
 
     Ogre::Entity* ent = mSceneManager->createEntity(tempString, meshName + ".mesh");
     Ogre::SceneNode* node = mRoomSceneNode->createChildSceneNode(tempString + "_node");
 
-    node->setPosition(curRenderedMovableEntity->getPosition());
+    node->setPosition(renderedMovableEntity->getPosition());
     node->setScale(Ogre::Vector3(0.7, 0.7, 0.7));
-    node->roll(Ogre::Degree(curRenderedMovableEntity->getRotationAngle()));
+    node->roll(Ogre::Degree(renderedMovableEntity->getRotationAngle()));
     node->attachObject(ent);
-    curRenderedMovableEntity->mRendererSceneNode = (node->getParentSceneNode());
+
+    renderedMovableEntity->mRendererSceneNode = (node->getParentSceneNode());
 
     // If it is required, we hide the tile
-    if(curRenderedMovableEntity->getHideCoveredTile())
+    if(renderedMovableEntity->getHideCoveredTile())
     {
-        Tile* posTile = curRenderedMovableEntity->getPositionTile();
+        Tile* posTile = renderedMovableEntity->getPositionTile();
         if(posTile == nullptr)
             return;
 
@@ -441,6 +445,9 @@ void RenderManager::rrCreateRenderedMovableEntity(RenderedMovableEntity* curRend
         Ogre::Entity* entity = mSceneManager->getEntity(tileName);
         entity->setVisible(false);
     }
+
+    if (renderedMovableEntity->getOpacity() < 1.0f)
+        setEntityOpacity(ent, renderedMovableEntity->getOpacity());
 }
 
 void RenderManager::rrDestroyRenderedMovableEntity(RenderedMovableEntity* curRenderedMovableEntity)
@@ -472,6 +479,19 @@ void RenderManager::rrDestroyRenderedMovableEntity(RenderedMovableEntity* curRen
         else
             entity->setVisible(true);
     }
+}
+
+void RenderManager::rrUpdateEntityOpacity(GameEntity* entity)
+{
+    std::string entStr = entity->getOgreNamePrefix() + entity->getName();
+    Ogre::Entity* ogreEnt = mSceneManager->getEntity(entStr);
+    if (ogreEnt == nullptr)
+    {
+        std::cout << "Couldn't find " << entStr << std::endl;
+        return;
+    }
+
+    setEntityOpacity(ogreEnt, entity->getOpacity());
 }
 
 void RenderManager::rrCreateCreature(Creature* curCreature)
@@ -1020,4 +1040,84 @@ void RenderManager::rrReleaseCarriedEntity(Creature* carrier, GameEntity* carrie
     carrierNode->removeChild(carriedNode);
     carried->mRendererSceneNode->addChild(carriedNode);
     carriedNode->setInheritScale(true);
+}
+
+void RenderManager::setEntityOpacity(Ogre::Entity* ent, float opacity)
+{
+    for (unsigned int i = 0; i < ent->getNumSubEntities(); ++i)
+    {
+        Ogre::SubEntity* subEntity = ent->getSubEntity(i);
+        subEntity->setMaterialName(setMaterialOpacity(subEntity->getMaterialName(), opacity));
+    }
+}
+
+std::string RenderManager::setMaterialOpacity(const std::string& materialName, float opacity)
+{
+    if (opacity < 0.0f || opacity > 1.0f)
+        return materialName;
+
+    std::stringstream newMaterialName;
+    newMaterialName.str("");
+
+    // Check whether the material name has alreay got an _alpha_ suffix and remove it.
+    size_t alphaPos = materialName.find("_alpha_");
+    // Create the material name accordingly.
+    if (alphaPos == std::string::npos)
+        newMaterialName << materialName;
+    else
+        newMaterialName << materialName.substr(0, alphaPos);
+
+    // Only precise the opactiy when its useful, otherwise give the original material name.
+    if (opacity != 1.0f)
+        newMaterialName << "_alpha_" << static_cast<int>(opacity * 255.0f);
+
+    Ogre::MaterialPtr newMaterial = Ogre::MaterialPtr(Ogre::MaterialManager::getSingleton().getByName(newMaterialName.str()));
+
+    // If this texture has been copied and colourized, we can return
+    if (!newMaterial.isNull())
+        return newMaterialName.str();
+
+    // If not yet, then do so
+    newMaterial = Ogre::MaterialPtr(Ogre::MaterialManager::getSingleton().getByName(materialName))->clone(newMaterialName.str());
+
+    // Loop over the techniques for the new material
+    for (unsigned int j = 0; j < newMaterial->getNumTechniques(); ++j)
+    {
+        Ogre::Technique* technique = newMaterial->getTechnique(j);
+        if (technique->getNumPasses() == 0)
+            continue;
+
+        // Color the material with yellow on the latest pass
+        // so we're sure to see the taint.
+        Ogre::Pass* pass = technique->getPass(technique->getNumPasses() - 1);
+        Ogre::ColourValue color = pass->getEmissive();
+        color.a = opacity;
+        pass->setEmissive(color);
+
+        color = pass->getSpecular();
+        color.a = opacity;
+        pass->setSpecular(color);
+
+        color = pass->getAmbient();
+        color.a = opacity;
+        pass->setAmbient(color);
+
+        color = pass->getDiffuse();
+        color.a = opacity;
+        pass->setDiffuse(color);
+
+        if (opacity < 1.0f)
+        {
+            pass->setSceneBlending(Ogre::SBT_TRANSPARENT_ALPHA);
+            pass->setDepthWriteEnabled(false);
+        }
+        else
+        {
+            // Use sane default, but this should never happen...
+            pass->setSceneBlending(Ogre::SBT_MODULATE);
+            pass->setDepthWriteEnabled(true);
+        }
+    }
+
+    return newMaterialName.str();
 }

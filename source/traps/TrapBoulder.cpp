@@ -84,10 +84,36 @@ bool TrapBoulder::shoot(Tile* tile)
     missile->doUpkeep();
     missile->setAnimationState("Triggered", true);
 
+    // Deactivate the trap until reloaded.
+    deactivate();
+
     return true;
 }
 
 RenderedMovableEntity* TrapBoulder::notifyActiveSpotCreated(Tile* tile)
 {
-    return loadBuildingObject(getGameMap(), "Boulder", tile, 0.0, false);
+    return loadBuildingObject(getGameMap(), "Boulder", tile, 0.0, false,
+                              isActivated() ? 1.0f : 0.5f);
+}
+
+void TrapBoulder::activate()
+{
+    Trap::activate();
+
+    RenderedMovableEntity* entity = getBuildingObjectFromTile(getCoveredTile(0));
+    if (entity == nullptr)
+        return;
+
+    entity->setMeshOpacity(1.0f);
+}
+
+void TrapBoulder::deactivate()
+{
+    Trap::deactivate();
+
+    RenderedMovableEntity* entity = getBuildingObjectFromTile(getCoveredTile(0));
+    if (entity == nullptr)
+        return;
+
+    entity->setMeshOpacity(0.5f);
 }

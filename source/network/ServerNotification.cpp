@@ -110,6 +110,8 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "addRenderedMovableEntity";
         case ServerNotificationType::removeRenderedMovableEntity:
             return "removeRenderedMovableEntity";
+        case setEntityOpacity:
+            return "setEntityOpacity";
         case ServerNotificationType::playSpatialSound:
             return "playSpatialSound";
         case ServerNotificationType::notifyCreatureInfo:

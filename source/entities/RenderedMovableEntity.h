@@ -43,7 +43,7 @@ public:
     //! \brief Creates a RenderedMovableEntity. It's name is built from baseName and some unique id from the gamemap.
     //! We use baseName to help understand what's this object for when getting a log
     RenderedMovableEntity(GameMap* gameMap, const std::string& baseName, const std::string& nMeshName,
-        Ogre::Real rotationAngle, bool hideCoveredTile);
+        Ogre::Real rotationAngle, bool hideCoveredTile, float opacity = 1.0f);
     RenderedMovableEntity(GameMap* gameMap);
 
     static const std::string RENDEREDMOVABLEENTITY_PREFIX;
@@ -69,7 +69,7 @@ public:
     std::vector<Tile*> getCoveredTiles()
     { return std::vector<Tile*>(); }
 
-    Ogre::Real getRotationAngle()
+    Ogre::Real getRotationAngle() const
     { return mRotationAngle; }
 
     virtual RenderedMovableEntityType getRenderedMovableEntityType()

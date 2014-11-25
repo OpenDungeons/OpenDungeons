@@ -70,6 +70,8 @@ protected:
     { manager->rrCreateRenderedMovableEntity(curRenderedMovableEntity); }
     void rrDestroyRenderedMovableEntity(RenderManager* manager, RenderedMovableEntity* curRenderedMovableEntity)
     { manager->rrDestroyRenderedMovableEntity(curRenderedMovableEntity); }
+    void rrUpdateEntityOpacity(RenderManager* manager, GameEntity* entity)
+    { manager->rrUpdateEntityOpacity(entity); }
     void rrCreateCreature(RenderManager* manager, Creature* curCreature)
     { manager->rrCreateCreature(curCreature); }
     void rrDestroyCreature(RenderManager* manager, Creature* curCreature)
@@ -485,6 +487,18 @@ public:
 private:
     Creature* mCarrier;
     GameEntity* mCarried;
+};
+
+class RenderRequestUpdateEntityOpacity : public RenderRequest
+{
+public:
+    RenderRequestUpdateEntityOpacity(GameEntity* entity) :
+        mEntity(entity)
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrUpdateEntityOpacity(manager, mEntity); }
+private:
+    GameEntity* mEntity;
 };
 
 #endif // RENDERREQUEST_H
