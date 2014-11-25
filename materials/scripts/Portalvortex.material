@@ -1,0 +1,27 @@
+// Portalvortex genrated by blender2ogre 0.6.0
+
+material Portalvortex
+{
+    receive_shadows on
+    technique
+    {
+        pass
+        {
+            ambient 0.00000 0.00000 0.00000 1.000000
+            diffuse 0.640000 0.640000 0.640000 1.000000
+            specular 0.500000 0.500000 0.500000 1.000000 12.500000
+            emissive 1.0 1.0 1.0 1.000000
+            scene_blend alpha_blend
+            depth_write off
+            cull_hardware none
+            cull_software none
+            texture_unit
+            {
+                texture Portalvortex.png
+                tex_address_mode wrap
+                filtering trilinear
+                colour_op alpha_blend
+            }
+        }
+    }
+}
