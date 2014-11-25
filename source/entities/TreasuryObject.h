@@ -52,6 +52,8 @@ public:
     virtual void pickup();
     virtual void setPosition(const Ogre::Vector3& v);
 
+    virtual void notifyEntityCarried(bool isCarried);
+
     static const char* getFormat();
     static TreasuryObject* getTreasuryObjectFromStream(GameMap* gameMap, std::istream& is);
     static TreasuryObject* getTreasuryObjectFromPacket(GameMap* gameMap, ODPacket& is);

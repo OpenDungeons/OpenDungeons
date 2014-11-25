@@ -1291,6 +1291,9 @@ void Tile::fillCarryableEntities(std::vector<GameEntity*>& entities)
         if (std::find(entities.begin(), entities.end(), creature) == entities.end())
             entities.push_back(creature);
     }
+
+    if ((mTreasuryObject != nullptr) && (std::find(entities.begin(), entities.end(), mTreasuryObject) == entities.end()))
+        entities.push_back(mTreasuryObject);
 }
 
 void Tile::addTreasuryObject(TreasuryObject* obj)
