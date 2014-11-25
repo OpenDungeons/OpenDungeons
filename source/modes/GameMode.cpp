@@ -41,6 +41,10 @@
 #include "ODApplication.h"
 #include "entities/RenderedMovableEntity.h"
 #include "gamemap/MiniMap.h"
+
+#include <CEGUI/WindowManager.h>
+#include <CEGUI/widgets/PushButton.h>
+
 #include <OgreRoot.h>
 #include <OgreRenderWindow.h>
 
@@ -58,7 +62,8 @@ GameMode::GameMode(ModeManager *modeManager):
     mGameMap(ODFrameListener::getSingletonPtr()->getClientGameMap()),
     mMouseX(0),
     mMouseY(0),
-    mCurrentInputMode(InputModeNormal)
+    mCurrentInputMode(InputModeNormal),
+    mHelpWindow(nullptr)
 {
     // Set per default the input on the map
     mModeManager->getInputManager()->mMouseDownOnCEGUIWindow = false;
@@ -70,6 +75,8 @@ GameMode::GameMode(ModeManager *modeManager):
 
 GameMode::~GameMode()
 {
+    if (mHelpWindow != nullptr)
+        mHelpWindow->destroy();
 }
 
 //! \brief Converts an int value into a 2 digits-long Hex string value.
@@ -714,6 +721,14 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
 
     switch (arg.key)
     {
+    case OIS::KC_F1:
+        // We create the window only at first call.
+        // Note: If we create it in the constructor, the window gets created
+        // in the wrong gui context and is never shown...
+        createHelpWindow();
+        mHelpWindow->show();
+        break;
+
     case OIS::KC_F11:
         frameListener.toggleDebugInfo();
         break;
@@ -1009,4 +1024,68 @@ void GameMode::notifyGuiAction(GuiAction guiAction)
             default:
                 break;
     }
+}
+
+void GameMode::createHelpWindow()
+{
+    if (mHelpWindow != nullptr)
+        return;
+
+    CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
+    CEGUI::Window* rootWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow();
+
+    mHelpWindow = wmgr->createWindow("OD/FrameWindow", std::string("GameHelpWindow"));
+    mHelpWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.12, 0)));
+    mHelpWindow->setSize(CEGUI::USize(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.7, 0)));
+
+    CEGUI::Window* textWindow = wmgr->createWindow("OD/StaticText", "TextDisplay");
+    textWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.10, 0)));
+    textWindow->setSize(CEGUI::USize(CEGUI::UDim(0.9, 0), CEGUI::UDim(0.9, 0)));
+    textWindow->setProperty("FrameEnabled", "False");
+    textWindow->setProperty("BackgroundEnabled", "False");
+    textWindow->setProperty("VertFormatting", "TopAligned");
+    textWindow->setProperty("HorzFormatting", "WordWrapLeftAligned");
+
+    // Search for the autoclose button and make it work
+    CEGUI::Window* childWindow = mHelpWindow->getChild("__auto_closebutton__");
+    childWindow->subscribeEvent(CEGUI::PushButton::EventClicked,
+                                CEGUI::Event::Subscriber(&GameMode::hideHelpWindow, this));
+
+    // Set the window title
+    childWindow = mHelpWindow->getChild("__auto_titlebar__");
+    childWindow->setText("OpenDungeons Quick Help");
+
+    mHelpWindow->addChild(textWindow);
+    rootWindow->addChild(mHelpWindow);
+
+    std::stringstream txt("");
+    txt << "Welcome to the OpenDungeons quick help!" << std::endl << std::endl
+        << "To move the camera: Use the arrow keys or W,A,S,D." << std::endl
+        << "To rotate the camera, you can use either: A, or E." << std::endl
+        << "Use the mouse wheel to go lower or higher, or Home, End." << std::endl
+        << "And finally, you can use Page Up, Page Down, to look up or down." << std::endl << std::endl;
+    txt << "You can left-click on the map's dirt walls to mark them. Your kobold workers will then "
+        << "dig them for you. They will also claim tiles, turning them into stone with your color at their center." << std::endl
+        << "Certain blocks are made of gold. You should look for them and make you workers dig those tiles in priority."
+        << "Once you have enough gold, you can build room tiles that will permit to make your fighter creatures do many things "
+        << "such as sleeping, eating, training, ... Certain rooms also attracts new creatures types." << std::endl;
+    txt << "Gold taken by your workers is put in your treasury rooms. If you haven't any, the first treasury room square tile is free of charge..."
+        << std::endl << std::endl
+        << "You can also left-click on one of your creatures to pick it up and right click somewhere else to put it back. "
+        << "Very useful to help a creature in battle or force a worker to do a specific task..." << std::endl
+        << "Note that you can place workers on any of your claimed tiles and unclaimed dirt tiles, "
+        << "but you can place fighters only on claim tiles and nothing at all on enemy claimed tiles." << std::endl;
+    txt << "Your workers will also fortify walls, turning them into your color. Those cannot be broken by enemies until no more "
+        << "claimed tiles around are of your color." << std::endl
+        << "Last but not least, you can also grab gold left on the floor once your workers have claimed the corresponding tile, "
+        << "and you can build rooms/drop creatures on allied claimed tiles (when in the same team). Don't forget you can also build traps!";
+    txt << std::endl << std::endl << "Be evil, be cunning, your opponents will do the same, and have fun! ;)";
+    textWindow->setText(txt.str());
+}
+
+bool GameMode::hideHelpWindow(const CEGUI::EventArgs& /*e*/)
+{
+    if (mHelpWindow != nullptr)
+        mHelpWindow->hide();
+    return true;
 }
