@@ -351,13 +351,13 @@ void RenderManager::rrTemporalMarkTile(Tile* curTile)
 void RenderManager::rrDetachEntity(GameEntity* curEntity)
 {
     Ogre::SceneNode* node = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
-    curEntity->mRendererSceneNode->removeChild(node);
+    curEntity->getSceneNode()->removeChild(node);
 }
 
 void RenderManager::rrAttachEntity(GameEntity* curEntity)
 {
     Ogre::SceneNode* entityNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
-    curEntity->mRendererSceneNode->addChild(entityNode);
+    curEntity->getSceneNode()->addChild(entityNode);
 }
 
 void RenderManager::rrShowSquareSelector(const Ogre::Real& xPos, const Ogre::Real& yPos)
@@ -429,7 +429,7 @@ void RenderManager::rrCreateRenderedMovableEntity(RenderedMovableEntity* rendere
     node->roll(Ogre::Degree(renderedMovableEntity->getRotationAngle()));
     node->attachObject(ent);
 
-    renderedMovableEntity->mRendererSceneNode = (node->getParentSceneNode());
+    renderedMovableEntity->setSceneNode(node->getParentSceneNode());
 
     // If it is required, we hide the tile
     if(renderedMovableEntity->getHideCoveredTile())
@@ -520,7 +520,7 @@ void RenderManager::rrCreateCreature(Creature* curCreature)
     node->setPosition(curCreature->getPosition());
     node->setScale(scale);
     node->attachObject(ent);
-    curCreature->mRendererSceneNode = (node->getParentSceneNode());
+    curCreature->setSceneNode(node->getParentSceneNode());
 }
 
 void RenderManager::rrDestroyCreature(Creature* curCreature)
@@ -535,7 +535,7 @@ void RenderManager::rrDestroyCreature(Creature* curCreature)
         mSceneManager->destroyEntity(ent);
         mSceneManager->destroySceneNode(node->getName());
     }
-    curCreature->mSceneNode = NULL;
+    curCreature->setSceneNode(nullptr);
 }
 
 void RenderManager::rrOrientSceneNodeToward(MovableGameEntity* gameEntity, const Ogre::Vector3& direction)

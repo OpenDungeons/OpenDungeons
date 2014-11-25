@@ -37,19 +37,19 @@
 
 void GameEntity::createMesh()
 {
-    if (meshExists)
+    if (mMeshExists)
         return;
 
-    meshExists = true;
+    mMeshExists = true;
     createMeshLocal();
 }
 
 void GameEntity::destroyMesh()
 {
-    if(!meshExists)
+    if(!mMeshExists)
         return;
 
-    meshExists = false;
+    mMeshExists = false;
 
     destroyMeshLocal();
 }
