@@ -107,8 +107,6 @@ private:
     void rrDestroyTile(Tile* curTile);
     void rrDetachEntity(GameEntity* curEntity);
     void rrAttachEntity(GameEntity* curEntity);
-    void rrDetachTile(GameEntity* curEntity);
-    void rrAttachTile(GameEntity* curEntity);
     void rrTemporalMarkTile(Tile* curTile);
     void rrShowSquareSelector(const Ogre::Real& xPos, const Ogre::Real& yPos);
     void rrCreateBuilding(Building* curBuilding, Tile* curTile);
@@ -131,6 +129,8 @@ private:
     void rrDestroyCreatureVisualDebug(Creature* curCreature, Tile* curTile);
     void rrSetObjectAnimationState(MovableGameEntity* curAnimatedObject, const std::string& animation, bool loop);
     void rrMoveSceneNode(const std::string& sceneNodeName, const Ogre::Vector3& position);
+    void rrCarryEntity(Creature* carrier, GameEntity* carried);
+    void rrReleaseCarriedEntity(Creature* carrier, GameEntity* carried);
 
     bool generateRTSSShadersForMaterial(const std::string& materialName,
                                         const std::string& normalMapTextureName = "",

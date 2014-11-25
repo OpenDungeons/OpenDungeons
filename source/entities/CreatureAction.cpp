@@ -82,6 +82,9 @@ std::string CreatureAction::toString() const
     case flee:
         return "flee";
 
+    case carryEntity:
+        return "carryEntity";
+
     case idle:
         return "idle";
     }

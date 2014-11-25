@@ -920,22 +920,20 @@ bool Tile::isMarkedForDiggingByAnySeat()
 
 void Tile::addCreature(Creature *c)
 {
+    if(std::find(creaturesInCell.begin(), creaturesInCell.end(), c) != creaturesInCell.end())
+        return;
+
     creaturesInCell.push_back(c);
 }
 
 void Tile::removeCreature(Creature *c)
 {
     // Check to see if the given crature is actually in this tile
-    std::vector<Creature*>::iterator itr;
-    for (itr = creaturesInCell.begin(); itr != creaturesInCell.end(); ++itr)
-    {
-        if ((*itr) == c)
-        {
-            // Remove the creature from the list
-            creaturesInCell.erase(itr);
-            break;
-        }
-    }
+    std::vector<Creature*>::iterator it = std::find(creaturesInCell.begin(), creaturesInCell.end(), c);
+    if(it == creaturesInCell.end())
+        return;
+
+    creaturesInCell.erase(it);
 }
 
 unsigned int Tile::numCreaturesInCell() const
@@ -1229,9 +1227,8 @@ int Tile::getFloodFill(FloodFillType type)
 
 void Tile::fillAttackableCreatures(std::vector<GameEntity*>& entities, Seat* seat, bool invert)
 {
-    for(std::vector<Creature*>::iterator it = creaturesInCell.begin(); it != creaturesInCell.end(); ++it)
+    for(Creature* creature : creaturesInCell)
     {
-        Creature* creature = *it;
         OD_ASSERT_TRUE(creature != NULL);
         if((creature == NULL) || !creature->isAttackable())
             continue;
@@ -1278,12 +1275,30 @@ void Tile::fillAttackableTrap(std::vector<GameEntity*>& entities, Seat* seat, bo
     }
 }
 
+
+void Tile::fillCarryableEntities(std::vector<GameEntity*>& entities)
+{
+    // Dead creatures are carryable
+    for(Creature* creature : creaturesInCell)
+    {
+        OD_ASSERT_TRUE(creature != NULL);
+        if(creature == NULL)
+            continue;
+
+        if(creature->getHP() > 0)
+            continue;
+
+        if (std::find(entities.begin(), entities.end(), creature) == entities.end())
+            entities.push_back(creature);
+    }
+}
+
 void Tile::addTreasuryObject(TreasuryObject* obj)
 {
     if(!getGameMap()->isServerGameMap())
         return;
 
-    if(mTreasuryObject == nullptr)
+    if((mTreasuryObject == nullptr) || (mTreasuryObject == obj))
     {
         mTreasuryObject = obj;
         return;

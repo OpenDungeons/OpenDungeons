@@ -297,6 +297,7 @@ public:
     void fillAttackableCreatures(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
     void fillAttackableRoom(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
     void fillAttackableTrap(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
+    void fillCarryableEntities(std::vector<GameEntity*>& entities);
 
     bool addChickenEntity(ChickenEntity* chicken);
     bool removeChickenEntity(ChickenEntity* chicken);

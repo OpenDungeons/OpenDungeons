@@ -91,6 +91,8 @@ class ServerNotification
             playCreatureSound, // Play a sound at the creature position
 
             refreshTiles,
+            carryEntity,
+            releaseCarriedEntity,
 
             exit
         };

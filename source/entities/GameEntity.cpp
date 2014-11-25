@@ -30,6 +30,7 @@
 #include "render/RenderManager.h"
 #include "render/RenderRequest.h"
 #include "rooms/Room.h"
+#include "utils/Helper.h"
 
 void GameEntity::createMesh()
 {
@@ -64,6 +65,14 @@ void GameEntity::deleteYourself()
 std::string GameEntity::getNodeNameWithoutPostfix()
 {
     return getOgreNamePrefix() + getName();
+}
+
+Tile* GameEntity::getPositionTile() const
+{
+    Ogre::Vector3 tempPosition = getPosition();
+
+    return getGameMap()->getTile(Helper::round(tempPosition.x),
+                                 Helper::round(tempPosition.y));
 }
 
 ODPacket& operator<<(ODPacket& os, const GameEntity::ObjectType& ot)

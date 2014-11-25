@@ -58,10 +58,6 @@ protected:
     { manager->rrDetachEntity(curEntity); }
     void rrAttachEntity(RenderManager* manager, GameEntity* curEntity)
     { manager->rrAttachEntity(curEntity); }
-    void rrDetachTile(RenderManager* manager, GameEntity* curEntity)
-    { manager->rrDetachTile(curEntity); }
-    void rrAttachTile(RenderManager* manager, GameEntity* curEntity)
-    { manager->rrAttachTile(curEntity); }
     void rrTemporalMarkTile(RenderManager* manager, Tile* curTile)
     { manager->rrTemporalMarkTile(curTile); }
     void rrShowSquareSelector(RenderManager* manager, const Ogre::Real& xPos, const Ogre::Real& yPos)
@@ -106,6 +102,10 @@ protected:
     { manager->rrSetObjectAnimationState(curAnimatedObject, animation, loop); }
     void rrMoveSceneNode(RenderManager* manager, const std::string& sceneNodeName, const Ogre::Vector3& position)
     { manager->rrMoveSceneNode(sceneNodeName, position); }
+    void rrCarryEntity(RenderManager* manager, Creature* carrier, GameEntity* carried)
+    { manager->rrCarryEntity(carrier, carried); }
+    void rrReleaseCarriedEntity(RenderManager* manager, Creature* carrier, GameEntity* carried)
+    { manager->rrReleaseCarriedEntity(carrier, carried); }
 };
 
 class RenderRequestRefreshTile : public RenderRequest
@@ -154,30 +154,6 @@ public:
     { rrTemporalMarkTile(manager, mTile); }
 private:
     Tile* mTile;
-};
-
-class RenderRequestDetachTile : public RenderRequest
-{
-public:
-    RenderRequestDetachTile(GameEntity* entity) :
-        mEntity(entity)
-    {}
-    virtual void executeRequest(RenderManager* manager)
-    { rrDetachTile(manager, mEntity); }
-private:
-    GameEntity* mEntity;
-};
-
-class RenderRequestAttachTile : public RenderRequest
-{
-public:
-    RenderRequestAttachTile(GameEntity* entity) :
-        mEntity(entity)
-    {}
-    virtual void executeRequest(RenderManager* manager)
-    { rrAttachTile(manager, mEntity); }
-private:
-    GameEntity* mEntity;
 };
 
 class RenderRequestDetachEntity : public RenderRequest
@@ -481,6 +457,34 @@ public:
 private:
     std::string mSceneNodeName;
     Ogre::Vector3 mPosition;
+};
+
+class RenderRequestCarryEntity : public RenderRequest
+{
+public:
+    RenderRequestCarryEntity(Creature* carrier, GameEntity* carried) :
+        mCarrier(carrier),
+        mCarried(carried)
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrCarryEntity(manager, mCarrier, mCarried); }
+private:
+    Creature* mCarrier;
+    GameEntity* mCarried;
+};
+
+class RenderRequestReleaseCarriedEntity : public RenderRequest
+{
+public:
+    RenderRequestReleaseCarriedEntity(Creature* carrier, GameEntity* carried) :
+        mCarrier(carrier),
+        mCarried(carried)
+    {}
+    virtual void executeRequest(RenderManager* manager)
+    { rrReleaseCarriedEntity(manager, mCarrier, mCarried); }
+private:
+    Creature* mCarrier;
+    GameEntity* mCarried;
 };
 
 #endif // RENDERREQUEST_H

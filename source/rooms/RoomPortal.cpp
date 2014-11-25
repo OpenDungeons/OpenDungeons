@@ -27,6 +27,7 @@
 #include "gamemap/GameMap.h"
 #include "entities/Weapon.h"
 #include "entities/CreatureAction.h"
+#include "utils/ConfigManager.h"
 #include "utils/Random.h"
 #include "utils/LogManager.h"
 
@@ -115,7 +116,7 @@ void RoomPortal::doUpkeep()
     }
 
     // Randomly choose to spawn a creature.
-    const double maxCreatures = 15;
+    const double maxCreatures = ConfigManager::getSingleton().getMaxCreaturesPerSeat();
     // Count how many creatures are controlled by this seat
     double numCreatures = getGameMap()->getCreaturesBySeat(getSeat()).size();
     double targetProbability = powl((maxCreatures - numCreatures) / maxCreatures, 1.5);

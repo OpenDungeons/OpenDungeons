@@ -273,6 +273,7 @@ void RenderManager::rrCreateTile(Tile* curTile)
     }
 
     Ogre::SceneNode* node = mSceneManager->getRootSceneNode()->createChildSceneNode(curTile->getOgreNamePrefix() + curTile->getName() + "_node");
+    curTile->mRendererSceneNode = (node->getParentSceneNode());
 
     Ogre::MeshPtr meshPtr = ent->getMesh();
     unsigned short src, dest;
@@ -347,41 +348,16 @@ void RenderManager::rrTemporalMarkTile(Tile* curTile)
     ent->setVisible(bb);
 }
 
-void RenderManager::rrDetachTile(GameEntity* curEntity)
-{
-    Ogre::SceneNode* tileNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
-
-    curEntity->pSN=(tileNode->getParentSceneNode());
-    curEntity->pSN->removeChild(tileNode);
-}
-
-void RenderManager::rrAttachTile(GameEntity* curEntity)
-{
-    Ogre::SceneNode* creatureNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
-
-    Ogre::SceneNode* parentNode = creatureNode->getParentSceneNode();
-    if (parentNode == nullptr)
-    {
-        curEntity->pSN->addChild(creatureNode);
-    }
-    else
-    {
-        curEntity->pSN = parentNode;
-    }
-}
-
 void RenderManager::rrDetachEntity(GameEntity* curEntity)
 {
-    Ogre::SceneNode* creatureNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
-
-    curEntity->pSN->removeChild(creatureNode);
+    Ogre::SceneNode* node = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
+    curEntity->mRendererSceneNode->removeChild(node);
 }
 
 void RenderManager::rrAttachEntity(GameEntity* curEntity)
 {
     Ogre::SceneNode* entityNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
-
-    curEntity->pSN->addChild(entityNode);
+    curEntity->mRendererSceneNode->addChild(entityNode);
 }
 
 void RenderManager::rrShowSquareSelector(const Ogre::Real& xPos, const Ogre::Real& yPos)
@@ -401,6 +377,7 @@ void RenderManager::rrCreateBuilding(Building* curBuilding, Tile* curTile)
         Ogre::Entity* ent = mSceneManager->createEntity(tempSS.str(), curBuilding->getMeshName() + ".mesh");
         Ogre::SceneNode* node = mRoomSceneNode->createChildSceneNode(tempSS.str() + "_node");
 
+        curBuilding->mRendererSceneNode = node->getParentSceneNode();
         node->setPosition(static_cast<Ogre::Real>(curTile->x),
                         static_cast<Ogre::Real>(curTile->y),
                         static_cast<Ogre::Real>(0.0f));
@@ -448,7 +425,7 @@ void RenderManager::rrCreateRenderedMovableEntity(RenderedMovableEntity* curRend
     node->setScale(Ogre::Vector3(0.7, 0.7, 0.7));
     node->roll(Ogre::Degree(curRenderedMovableEntity->getRotationAngle()));
     node->attachObject(ent);
-    curRenderedMovableEntity->pSN = (node->getParentSceneNode());
+    curRenderedMovableEntity->mRendererSceneNode = (node->getParentSceneNode());
 
     // If it is required, we hide the tile
     if(curRenderedMovableEntity->getHideCoveredTile())
@@ -523,8 +500,7 @@ void RenderManager::rrCreateCreature(Creature* curCreature)
     node->setPosition(curCreature->getPosition());
     node->setScale(scale);
     node->attachObject(ent);
-    curCreature->pSN = (node->getParentSceneNode());
-    // curCreature->pSN->removeChild(node);
+    curCreature->mRendererSceneNode = (node->getParentSceneNode());
 }
 
 void RenderManager::rrDestroyCreature(Creature* curCreature)
@@ -669,14 +645,7 @@ void RenderManager::rrPickUpEntity(GameEntity* curEntity)
 {
     // Detach the entity from its scene node
     Ogre::SceneNode* curEntityNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
-    if(curEntity->getObjectType() == GameEntity::ObjectType::creature)
-    {
-        mCreatureSceneNode->removeChild(curEntityNode);
-    }
-    else if(curEntity->getObjectType() == GameEntity::ObjectType::renderedMovableEntity)
-    {
-        mRoomSceneNode->removeChild(curEntityNode);
-    }
+    curEntity->mRendererSceneNode->removeChild(curEntityNode);
 
     // Attach the creature to the hand scene node
     mSceneManager->getSceneNode("Hand_node")->addChild(curEntityNode);
@@ -702,14 +671,7 @@ void RenderManager::rrDropHand(GameEntity* curEntity)
     mSceneManager->getSceneNode("Hand_node")->removeChild(curEntityNode);
 
     // Attach the creature from the creature scene node
-    if(curEntity->getObjectType() == GameEntity::ObjectType::creature)
-    {
-        mCreatureSceneNode->addChild(curEntityNode);
-    }
-    else if(curEntity->getObjectType() == GameEntity::ObjectType::renderedMovableEntity)
-    {
-        mRoomSceneNode->addChild(curEntityNode);
-    }
+    curEntity->mRendererSceneNode->addChild(curEntityNode);
     curEntityNode->setPosition(curEntity->getPosition());
     curEntityNode->scale(3.0, 3.0, 3.0);
 
@@ -1035,5 +997,27 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, Se
     }
 
     return tempSS.str();
+}
 
+void RenderManager::rrCarryEntity(Creature* carrier, GameEntity* carried)
+{
+    Ogre::Entity* carrierEnt = mSceneManager->getEntity(carrier->getOgreNamePrefix() + carrier->getName());
+    Ogre::Entity* carriedEnt = mSceneManager->getEntity(carried->getOgreNamePrefix() + carried->getName());
+    Ogre::SceneNode* carrierNode = mSceneManager->getSceneNode(carrierEnt->getName() + "_node");
+    Ogre::SceneNode* carriedNode = mSceneManager->getSceneNode(carriedEnt->getName() + "_node");
+    carried->mRendererSceneNode->removeChild(carriedNode);
+    carriedNode->setInheritScale(false);
+    carriedNode->setPosition(carrierNode->getPosition());
+    carrierNode->addChild(carriedNode);
+}
+
+void RenderManager::rrReleaseCarriedEntity(Creature* carrier, GameEntity* carried)
+{
+    Ogre::Entity* carrierEnt = mSceneManager->getEntity(carrier->getOgreNamePrefix() + carrier->getName());
+    Ogre::Entity* carriedEnt = mSceneManager->getEntity(carried->getOgreNamePrefix() + carried->getName());
+    Ogre::SceneNode* carrierNode = mSceneManager->getSceneNode(carrierEnt->getName() + "_node");
+    Ogre::SceneNode* carriedNode = mSceneManager->getSceneNode(carriedEnt->getName() + "_node");
+    carrierNode->removeChild(carriedNode);
+    carried->mRendererSceneNode->addChild(carriedNode);
+    carriedNode->setInheritScale(true);
 }

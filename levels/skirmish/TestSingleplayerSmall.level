@@ -48,6 +48,11 @@ ProtectDungeonTemple	NULL
 4	24	2	100
 4	25	2	100
 5	1	1	0
+5	7	1	0
+5	9	1	0
+5	11	1	0
+5	13	1	0
+5	15	1	0
 5	24	2	100
 5	25	2	100
 6	1	1	0
@@ -198,6 +203,9 @@ ProtectDungeonTemple	NULL
 13	13	2	100
 13	14	2	100
 13	15	1	0
+13	16	6	0	1
+13	17	6	0	1
+13	18	6	0	1
 13	24	2	100
 13	25	2	100
 13	37	1	0
@@ -220,6 +228,9 @@ ProtectDungeonTemple	NULL
 14	13	2	100
 14	14	2	100
 14	15	1	0
+14	16	6	0	1
+14	17	6	0	1
+14	18	6	0	1
 14	24	2	100
 14	25	2	100
 14	37	1	0
@@ -241,6 +252,9 @@ ProtectDungeonTemple	NULL
 15	13	1	0
 15	14	1	0
 15	15	1	0
+15	16	6	0	1
+15	17	6	0	1
+15	18	6	0	1
 15	24	2	100
 15	25	2	100
 15	37	1	0
@@ -849,7 +863,7 @@ ProtectDungeonTemple	NULL
     BedDimX	2
     BedDimY	2
     MinHP	35
-    HP/Level	15
+    HP/Level	10
     Heal/Turn	1
     AwakenessLost/Turn	0.15
     HungerGrowth/Turn	0.15
@@ -878,6 +892,14 @@ ProtectDungeonTemple	NULL
     WeaponSpawnL	none
     WeaponSpawnL	none
     [/Stats]
+    [XP]
+    # 2-10
+    6	12	20	29	39	50	62	76	90
+    # 11-20
+    106	123	140	159	179	200	246	271	323	351
+    # 21-30
+    379	409	440	473	506	540	576	613	650	700
+    [/XP]
 [/Creature]
 [/CreatureDefinitions]
 
@@ -911,5 +933,20 @@ ProtectDungeonTemple	NULL
 [/Creature]
 [Creature]
 3	BigDragon	Dragon1	1	0	max	100	0	0	10	4	0	none	none
+[/Creature]
+[Creature]
+3	Tentacle1	Tentacle11	1	0	max	100	0	0	5	15	0	none	none
+[/Creature]
+[Creature]
+3	Tentacle1	Tentacle12	1	0	max	100	0	0	5	11	0	none	none
+[/Creature]
+[Creature]
+3	Tentacle1	Tentacle13	1	0	max	100	0	0	5	13	0	none	none
+[/Creature]
+[Creature]
+3	Tentacle1	Tentacle14	1	0	max	100	0	0	5	9	0	none	none
+[/Creature]
+[Creature]
+3	Tentacle1	Tentacle15	1	0	max	100	0	0	5	7	0	none	none
 [/Creature]
 [/Creatures]

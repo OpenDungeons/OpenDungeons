@@ -65,9 +65,9 @@ class GameEntity
           GameMap*        gameMap,
           std::string     nName       = std::string(),
           std::string     nMeshName   = std::string(),
-          Seat*           seat        = NULL
+          Seat*           seat        = nullptr
           ) :
-    pSN         (NULL),
+    mRendererSceneNode (nullptr),
     position    (Ogre::Vector3(0, 0, 0)),
     name        (nName),
     meshName    (nMeshName),
@@ -75,9 +75,10 @@ class GameEntity
     mSeat       (seat),
     mIsDeleteRequested (false),
     objectType  (unknown),
-    gameMap     (NULL)
+    gameMap     (nullptr),
+    mIsOnMap    (true)
     {
-        assert(gameMap !=  NULL);
+        assert(gameMap !=  nullptr);
         this->gameMap = gameMap;
     }
 
@@ -140,15 +141,18 @@ class GameEntity
 
     inline void show()
     {
-        RenderRequest *request = new RenderRequestAttachTile(this);
+        RenderRequest *request = new RenderRequestAttachEntity(this);
         RenderManager::queueRenderRequest(request);
     };
 
     inline void hide()
     {
-        RenderRequest *request = new RenderRequestDetachTile(this);
+        RenderRequest *request = new RenderRequestDetachEntity(this);
         RenderManager::queueRenderRequest(request);
     };
+
+    //! \brief Retrieves the position tile from the game map
+    Tile* getPositionTile() const;
 
     //! \brief defines what happens on each turn with this object
     virtual void    doUpkeep        () = 0;
@@ -165,7 +169,19 @@ class GameEntity
     //! the entity damaging
     virtual double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile *tileTakingDamage) = 0;
 
-    Ogre::SceneNode* pSN;
+    //! \brief Called when the entity is being carried
+    virtual void notifyEntityCarried(bool isCarried)
+    {}
+
+    virtual bool getIsOnMap()
+    { return mIsOnMap; }
+
+    virtual void setIsOnMap(bool isOnMap)
+    { mIsOnMap = isOnMap; }
+
+    //! Used by the renderer to save the scene node this entity belongs to. This is usefull
+    //! when the entity is removed from the scene (during pickup for example)
+    Ogre::SceneNode* mRendererSceneNode;
 
     static std::vector<GameEntity*> removeDeadObjects(const std::vector<GameEntity*> &objects)
     {
@@ -218,6 +234,10 @@ class GameEntity
 
     //! \brief Pointer to the GameMap object.
     GameMap*        gameMap;
+
+    //! \brief Whether the entity is on map or not (for example, when it is
+    //! picked up, it is not on map)
+    bool            mIsOnMap;
 };
 
 #endif /* GAMEENTITY_H_ */

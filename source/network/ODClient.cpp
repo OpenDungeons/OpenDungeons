@@ -785,6 +785,79 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
+        case ServerNotification::carryEntity:
+        {
+            std::string carrierName;
+            GameEntity::ObjectType entityType;
+            std::string carriedName;
+            OD_ASSERT_TRUE(packetReceived >> carrierName >> entityType >> carriedName);
+            Creature* carrier = gameMap->getCreature(carrierName);
+            OD_ASSERT_TRUE_MSG(carrier != nullptr, "carrierName=" + carrierName);
+            if(carrier == nullptr)
+                break;
+
+            GameEntity* carried = nullptr;
+            switch(entityType)
+            {
+                case GameEntity::ObjectType::creature:
+                {
+                    carried = gameMap->getCreature(carriedName);
+                    break;
+                }
+                case GameEntity::ObjectType::renderedMovableEntity:
+                {
+                    carried = gameMap->getRenderedMovableEntity(carriedName);
+                    break;
+                }
+                default:
+                    // No need to display an error as it will be displayed in the following assert
+                    break;
+            }
+            OD_ASSERT_TRUE_MSG(carried != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", carriedName=" + carriedName);
+            if(carried == nullptr)
+                break;
+
+            carrier->carryEntity(carried);
+            break;
+        }
+
+        case ServerNotification::releaseCarriedEntity:
+        {
+            std::string carrierName;
+            GameEntity::ObjectType entityType;
+            std::string carriedName;
+            Ogre::Vector3 pos;
+            OD_ASSERT_TRUE(packetReceived >> carrierName >> entityType >> carriedName >> pos);
+            Creature* carrier = gameMap->getCreature(carrierName);
+            OD_ASSERT_TRUE_MSG(carrier != nullptr, "carrierName=" + carrierName);
+            if(carrier == nullptr)
+                break;
+
+            GameEntity* carried = nullptr;
+            switch(entityType)
+            {
+                case GameEntity::ObjectType::creature:
+                {
+                    carried = gameMap->getCreature(carriedName);
+                    break;
+                }
+                case GameEntity::ObjectType::renderedMovableEntity:
+                {
+                    carried = gameMap->getRenderedMovableEntity(carriedName);
+                    break;
+                }
+                default:
+                    // No need to display an error as it will be displayed in the following assert
+                    break;
+            }
+            OD_ASSERT_TRUE_MSG(carried != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", carriedName=" + carriedName);
+            if(carried == nullptr)
+                break;
+            carrier->releaseCarriedEntity();
+            carried->setPosition(pos);
+            break;
+        }
+
         default:
         {
             logManager.logMessage("ERROR:  Unknown server command:"
