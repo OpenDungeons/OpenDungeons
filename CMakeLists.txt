@@ -21,7 +21,11 @@ set(OD_MINOR_VERSION 4)
 set(OD_PATCH_LEVEL   9)
 
 # Set the project version ready to be used in the code.
-set(OD_VERSION "-DOD_VERSION=\\\"${OD_MAJOR_VERSION}.${OD_MINOR_VERSION}.${OD_PATCH_LEVEL}\\\"")
+if(MSVC)
+    set(OD_VERSION "/DOD_VERSION=\\\"${OD_MAJOR_VERSION}.${OD_MINOR_VERSION}.${OD_PATCH_LEVEL}\\\"")
+else()
+    set(OD_VERSION "-DOD_VERSION=\\\"${OD_MAJOR_VERSION}.${OD_MINOR_VERSION}.${OD_PATCH_LEVEL}\\\"")
+endif()
 
 # Set the data path depending on the platform
 if(WIN32)
@@ -32,7 +36,12 @@ else()
     set(OD_DATA_PATH ${CMAKE_INSTALL_PREFIX}/share/games/${PROJECT_NAME} CACHE PATH "Absolute path to the game data directory")
     set(OD_SHARE_PATH ${CMAKE_INSTALL_PREFIX}/share CACHE PATH "Absolute path to the shared data directory (desktop file, icons, etc.)")
 endif()
-set(OD_DATA_PATH_FLAG "-DOD_DATA_PATH=\\\"${OD_DATA_PATH}\\\"")
+
+if(MSVC)
+    set(OD_DATA_PATH_FLAG "/DOD_DATA_PATH=\\\"${OD_DATA_PATH}\\\"")
+else()
+    set(OD_DATA_PATH_FLAG "-DOD_DATA_PATH=\\\"${OD_DATA_PATH}\\\"")
+endif()
 
 # Where we want the binary
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
@@ -86,7 +95,11 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_definitions("-DOD_DEBUG")
+    if(MSVC)
+        add_definitions("/DOD_DEBUG")
+    else()
+        add_definitions("-DOD_DEBUG")
+    endif()
 endif()
 
 ##################################
