@@ -77,7 +77,7 @@ void GameEntity::setMeshOpacity(float opacity)
     {
         ServerNotification* serverNotification = new ServerNotification(ServerNotification::setEntityOpacity, nullptr);
         std::string name = getName();
-        serverNotification->mPacket << name << opacity;
+        serverNotification->mPacket << getObjectType() << name << opacity;
         ODServer::getSingleton().queueServerNotification(serverNotification);
         return;
     }

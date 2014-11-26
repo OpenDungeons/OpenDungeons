@@ -484,10 +484,10 @@ void RenderManager::rrDestroyRenderedMovableEntity(RenderedMovableEntity* curRen
 void RenderManager::rrUpdateEntityOpacity(GameEntity* entity)
 {
     std::string entStr = entity->getOgreNamePrefix() + entity->getName();
-    Ogre::Entity* ogreEnt = mSceneManager->getEntity(entStr);
+    Ogre::Entity* ogreEnt = mSceneManager->hasEntity(entStr) ? mSceneManager->getEntity(entStr) : nullptr;
     if (ogreEnt == nullptr)
     {
-        std::cout << "Couldn't find " << entStr << std::endl;
+        LogManager::getSingleton().logMessage("Update opacity: Couldn't find entity: " + entStr);
         return;
     }
 
