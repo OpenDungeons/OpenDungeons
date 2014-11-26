@@ -24,6 +24,8 @@
  * TODO: switch from TextRenderer to Console
  */
 
+#if 0
+
 #include "modes/Console.h"
 #include "render/RenderManager.h"
 #include "gamemap/MapLoader.h"
@@ -1045,3 +1047,4 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
     return true;
 }
+#endif //if 0

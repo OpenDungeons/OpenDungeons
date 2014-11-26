@@ -24,7 +24,7 @@
 #include "sound/MusicPlayer.h"
 
 MenuMode::MenuMode(ModeManager *modeManager):
-    AbstractApplicationMode(modeManager, ModeManager::MENU)
+    AbstractApplicationMode(modeManager, ModeType::MENU)
 {
 }
 

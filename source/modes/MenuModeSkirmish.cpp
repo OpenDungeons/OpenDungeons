@@ -38,7 +38,7 @@ const std::string LEVEL_PATH = "levels/skirmish/";
 const std::string LEVEL_EXTENSION = ".level";
 
 MenuModeSkirmish::MenuModeSkirmish(ModeManager *modeManager):
-    AbstractApplicationMode(modeManager, ModeManager::MENU_SKIRMISH)
+    AbstractApplicationMode(modeManager, ModeType::MENU_SKIRMISH)
 {
 }
 

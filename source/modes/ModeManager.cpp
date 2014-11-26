@@ -17,73 +17,53 @@
 
 #include "modes/ModeManager.h"
 
-#include "scripting/ASWrapper.h"
-#include "InputManager.h"
-#include "MenuMode.h"
+//#include "scripting/ASWrapper.h"
+#include "modes/InputManager.h"
+#include "modes/ConsoleMode.h"
+#include "modes/EditorMode.h"
+#include "modes/FppMode.h"
+#include "modes/GameMode.h"
+#include "modes/MenuMode.h"
 #include "modes/MenuModeConfigureSeats.h"
 #include "modes/MenuModeSkirmish.h"
 #include "modes/MenuModeMultiplayerClient.h"
 #include "modes/MenuModeMultiplayerServer.h"
 #include "modes/MenuModeEditor.h"
 #include "modes/MenuModeReplay.h"
-#include "modes/GameMode.h"
-#include "modes/EditorMode.h"
-#include "modes/Console.h"
-#include "ConsoleMode.h"
-#include "FppMode.h"
+#include "render/Gui.h"
 
 
 ModeManager::ModeManager(Ogre::RenderWindow* renderWindow)
+    : mInputManager(renderWindow), mGui(Gui::getSingletonPtr()),
+      mConsoleMode(new ConsoleMode(this)),
+      mIsInConsole(false),
+      mRequestedMode(ModeType::NONE),
+      mDiscardActualMode(false)
 {
-    mInputManager = new InputManager(renderWindow);
-    mInputManager->mKeyboard->setTextTranslation(OIS::Keyboard::Unicode);
-
-
     // Loads the main menu
-    mApplicationModes.push_back(new MenuMode(this));
+    mApplicationModes.emplace_back(new MenuMode(this));
     mApplicationModes.back()->activate();
 
-    // NOTE: Console needs to exist BEFORE ASWrapper because it needs it for callback
-    // TODO: Merge Console and Console Mode
-    mConsole = new Console();
-
-    // We set a console mode loaded in any case.
-    mConsoleMode = new ConsoleMode(this, mConsole);
-    // The console isn't the active one when starting the game
-    mIsInConsole = false;
-
-    // Don't change the application mode for now.
-    mRequestedMode = NONE;
-
     // Init the Angel Script wrapper for game modes
-    mASWrapper = new ASWrapper();
+//    mASWrapper = new ASWrapper();
 
-    mDiscardActualMode = false;
 }
 
 ModeManager::~ModeManager()
 {
-    for (std::vector<AbstractApplicationMode*>::iterator it = mApplicationModes.begin(); it != mApplicationModes.end(); ++it)
+    for (auto& appMode : mApplicationModes)
     {
-        AbstractApplicationMode* appMode = *it;
         appMode->exitMode();
-        delete appMode;
     }
-    delete mConsoleMode;
-    delete mConsole;
-    delete mInputManager;
-    delete mASWrapper;
+//    delete mASWrapper;
 }
 
 AbstractApplicationMode* ModeManager::getCurrentMode()
 {
-    if (mIsInConsole)
-        return mConsoleMode;
-
-    return mApplicationModes.back();
+    return mApplicationModes.back().get();
 }
 
-ModeManager::ModeType ModeManager::getCurrentModeType()
+ModeType ModeManager::getCurrentModeType()
 {
     return getCurrentMode()->getModeType();
 }
@@ -97,40 +77,40 @@ void ModeManager::addMode(ModeType mt)
     switch(mt)
     {
     // We use a unique console instance.
-    case CONSOLE:
+    case ModeType::CONSOLE:
         mIsInConsole = true;
         mConsoleMode->activate();
         return;
         break;
-    case MENU:
-        mApplicationModes.push_back(new MenuMode(this));
+    case ModeType::MENU:
+        mApplicationModes.emplace_back(new MenuMode(this));
         break;
-    case MENU_SKIRMISH:
-        mApplicationModes.push_back(new MenuModeSkirmish(this));
+    case ModeType::MENU_SKIRMISH:
+        mApplicationModes.emplace_back(new MenuModeSkirmish(this));
         break;
-    case MENU_REPLAY:
-        mApplicationModes.push_back(new MenuModeReplay(this));
+    case ModeType::MENU_REPLAY:
+        mApplicationModes.emplace_back(new MenuModeReplay(this));
         break;
-    case MENU_MULTIPLAYER_CLIENT:
-        mApplicationModes.push_back(new MenuModeMultiplayerClient(this));
+    case ModeType::MENU_MULTIPLAYER_CLIENT:
+        mApplicationModes.emplace_back(new MenuModeMultiplayerClient(this));
         break;
-    case MENU_MULTIPLAYER_SERVER:
-        mApplicationModes.push_back(new MenuModeMultiplayerServer(this));
+    case ModeType::MENU_MULTIPLAYER_SERVER:
+        mApplicationModes.emplace_back(new MenuModeMultiplayerServer(this));
         break;
-    case MENU_EDITOR:
-        mApplicationModes.push_back(new MenuModeEditor(this));
+    case ModeType::MENU_EDITOR:
+        mApplicationModes.emplace_back(new MenuModeEditor(this));
         break;
-    case MENU_CONFIGURE_SEATS:
-        mApplicationModes.push_back(new MenuModeConfigureSeats(this));
+    case ModeType::MENU_CONFIGURE_SEATS:
+        mApplicationModes.emplace_back(new MenuModeConfigureSeats(this));
         break;
-    case GAME:
-        mApplicationModes.push_back(new GameMode(this));
+    case ModeType::GAME:
+        mApplicationModes.emplace_back(new GameMode(this));
         break;
-    case EDITOR:
-        mApplicationModes.push_back(new EditorMode(this));
+    case ModeType::EDITOR:
+        mApplicationModes.emplace_back(new EditorMode(this));
         break;
-    case FPP:
-        mApplicationModes.push_back(new FppMode(this));
+    case ModeType::FPP:
+        mApplicationModes.emplace_back(new FppMode(this));
         break;
     default:
         break;
@@ -151,9 +131,7 @@ void ModeManager::removeMode()
     }
     else if (mApplicationModes.size() > 1)
     {
-        AbstractApplicationMode* appMode = mApplicationModes.back();
-        appMode->exitMode();
-        delete appMode;
+        mApplicationModes.back()->exitMode();
         mApplicationModes.pop_back();
     }
 
@@ -162,23 +140,21 @@ void ModeManager::removeMode()
 
 void ModeManager::checkModeChange()
 {
-    if (mRequestedMode == NONE)
+    if (mRequestedMode == ModeType::NONE)
         return;
 
-    if(mRequestedMode == PREV)
+    if(mRequestedMode == ModeType::PREV)
         removeMode();
     else
     {
         if(mDiscardActualMode)
         {
-            AbstractApplicationMode* appMode = mApplicationModes.back();
-            appMode->exitMode();
-            delete appMode;
+            mApplicationModes.back()->exitMode();
             mApplicationModes.pop_back();
         }
         addMode(mRequestedMode);
     }
 
-    mRequestedMode = NONE;
+    mRequestedMode = ModeType::NONE;
     mDiscardActualMode = false;
 }

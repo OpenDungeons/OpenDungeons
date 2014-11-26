@@ -25,12 +25,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* TODO list:
- * - possible improvements to compilation of scripts? (AS has an addon)
- * - bind all needed classes
- * - find out if we really need all the asserts (binary size, start up time).
- */
-
 #include <string>
 
 #include "angelscript.h"
@@ -39,15 +33,15 @@
 #include "scriptstdstring.h"
 #include "scriptbuilder.h"
 
-#include "camera/CameraManager.h"
-#include "modes/Console.h"
-#include "entities/Creature.h"
-#include "gamemap/GameMap.h"
-#include "utils/Helper.h"
+//#include "camera/CameraManager.h"
+//#include "modes/Console.h"
+//#include "entities/Creature.h"
+//#include "gamemap/GameMap.h"
+//#include "utils/Helper.h"
 #include "utils/LogManager.h"
-#include "gamemap/MapLoader.h"
-#include "ODApplication.h"
-#include "render/ODFrameListener.h"
+//#include "gamemap/MapLoader.h"
+//#include "ODApplication.h"
+//#include "render/ODFrameListener.h"
 #include "utils/ResourceManager.h"
 
 #include "scripting/ASWrapper.h"
@@ -136,7 +130,7 @@ void ASWrapper::messageCallback(const asSMessageInfo* msg, void* param)
     std::ostringstream output;
     output << "AS: " << msg->section << "(" << msg->row << ", "
             << msg->col << ") : " << type << " : \n  " << msg->message;
-    Console::getSingleton().print(output.str());
+//    Console::getSingleton().print(output.str());
     LogManager::getSingleton().logMessage(output.str());
 }
 
@@ -195,7 +189,7 @@ void ASWrapper::registerEverything()
 
     //return value of engine for assert check
     int r = 0;
-
+#if 0
     //helper functions
     r = mEngine->RegisterGlobalFunction(
             "int stringToInt(string &in)",
@@ -248,7 +242,7 @@ void ASWrapper::registerEverything()
     r = mEngine->RegisterGlobalProperty(
             "double MAXFPS",
             &ODApplication::MAX_FRAMES_PER_SECOND); assert(r >= 0);
-
+/*
     //Console
     r = mEngine->RegisterObjectType(
             "Console", 0, asOBJ_REF | asOBJ_NOHANDLE); assert(r >= 0);
@@ -259,7 +253,7 @@ void ASWrapper::registerEverything()
             "void print(string)",
             asMETHOD(Console, print),
             asCALL_THISCALL); assert(r >= 0);
-
+*/
     //LogManager
     r = mEngine->RegisterObjectType(
             "LogManager", 0, asOBJ_REF | asOBJ_NOHANDLE); assert(r >= 0);
@@ -388,6 +382,7 @@ void ASWrapper::registerEverything()
             "float get_RotateSpeed()",
             asMETHOD(CameraManager, getRotateSpeed),
             asCALL_THISCALL);
+#endif
     // Test r and silences a compiler warning at the same time.
     if (r < 0)
     {

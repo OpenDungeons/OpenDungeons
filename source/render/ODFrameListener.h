@@ -62,7 +62,6 @@ class ODFrameListener :
         public Ogre::WindowEventListener
 {
 
-friend class Console;
 friend class ODClient;
 
 public:
@@ -71,12 +70,6 @@ public:
     virtual ~ODFrameListener();
 
     void requestExit();
-
-    inline bool isTerminalActive () const
-    { return mTerminalActive; }
-
-    inline void setTerminalActive(bool active)
-    { mTerminalActive = active; }
 
     inline unsigned int getChatMaxMessages() const
     { return mChatMaxMessages; }
@@ -140,12 +133,6 @@ public:
 
     void addChatMessage(ChatMessage* message);
 
-    //! \brief The console output
-    void setConsoleCommandOutput(const std::string& output)
-    {
-        mCommandOutput = output;
-    }
-
     MiniMap* getMiniMap() {return mMiniMap;}
 
     void notifyChatInputMode(bool isChatInputMode, bool sendChatMsg = false);
@@ -181,7 +168,6 @@ private:
 
     bool                    mShowDebugInfo;
     bool                    mContinue;
-    bool                    mTerminalActive;
     int                     mTerminalWordWrap;
     unsigned int            mChatMaxMessages;
     float                   mChatMaxTimeDisplay;
@@ -198,14 +184,7 @@ private:
     //! \brief To see if the frameListener wants to exit
     bool mExitRequested;
 
-    // Console variables
-    std::string mCommand, mArguments, mPrompt;
-
-    //! \brief The console output
-    std::string mCommandOutput;
-
     std::deque<ChatMessage*> mChatMessages;
-    std::string mPromptCommand;
 
     //! \brief The Camera manager
     CameraManager* mCameraManager;

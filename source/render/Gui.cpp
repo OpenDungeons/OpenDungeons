@@ -81,6 +81,7 @@ Gui::Gui()
     sheets[editorMenu] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorMenu.layout");
     sheets[configureSeats] =  wmgr->loadLayoutFromFile("OpenDungeonsMenuConfigureSeats.layout");
     sheets[replayMenu] =  wmgr->loadLayoutFromFile("OpenDungeonsMenuReplay.layout");
+    sheets[console] = wmgr->loadLayoutFromFile("OpenDungeonsConsoleMode.layout");
 
     assignEventHandlers();
 }
@@ -119,7 +120,7 @@ CEGUI::Window* Gui::getGuiSheet(const guiSheet& sheet)
     {
         return sheets[sheet];
     }
-    return NULL;
+    return nullptr;
 }
 
 void Gui::assignEventHandlers()
@@ -209,11 +210,11 @@ void Gui::assignEventHandlers()
             CEGUI::Event::Subscriber(&destroyTrapButtonPressed));
 
     sheets[inGameMenu]->getChild(BUTTON_CREATURE_WORKER)->subscribeEvent(
-            CEGUI::Window::EventMouseClick,
+            CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&workerCreatureButtonPressed));
 
     sheets[inGameMenu]->getChild(BUTTON_CREATURE_FIGHTER)->subscribeEvent(
-            CEGUI::Window::EventMouseClick,
+            CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&fighterCreatureButtonPressed));
 
     sheets[inGameMenu]->getChild(MINIMAP)->subscribeEvent(
@@ -302,11 +303,11 @@ void Gui::assignEventHandlers()
             CEGUI::Event::Subscriber(&destroyTrapButtonPressed));
 
     sheets[editorModeGui]->getChild(BUTTON_CREATURE_WORKER)->subscribeEvent(
-            CEGUI::Window::EventMouseClick,
+            CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&workerCreatureButtonPressed));
 
     sheets[editorModeGui]->getChild(BUTTON_CREATURE_FIGHTER)->subscribeEvent(
-            CEGUI::Window::EventMouseClick,
+            CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&fighterCreatureButtonPressed));
 
     sheets[editorModeGui]->getChild(MINIMAP)->subscribeEvent(
@@ -614,7 +615,7 @@ bool Gui::confirmExitYesButtonPressed(const CEGUI::EventArgs& e)
 bool Gui::confirmExitNoButtonPressed(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::GAME)
+    if (!mm || mm->getCurrentModeType() != ModeType::GAME)
         return true;
 
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
@@ -628,7 +629,7 @@ bool Gui::confirmExitNoButtonPressed(const CEGUI::EventArgs& e)
 bool Gui::editorGoldButtonPressed(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
+    if (!mm || mm->getCurrentModeType() != ModeType::EDITOR)
         return true;
 
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
@@ -641,7 +642,7 @@ bool Gui::editorGoldButtonPressed(const CEGUI::EventArgs& e)
 bool Gui::editorLavaButtonPressed(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
+    if (!mm || mm->getCurrentModeType() != ModeType::EDITOR)
         return true;
 
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
@@ -654,7 +655,7 @@ bool Gui::editorLavaButtonPressed(const CEGUI::EventArgs& e)
 bool Gui::editorRockButtonPressed(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
+    if (!mm || mm->getCurrentModeType() != ModeType::EDITOR)
         return true;
 
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
@@ -667,7 +668,7 @@ bool Gui::editorRockButtonPressed(const CEGUI::EventArgs& e)
 bool Gui::editorWaterButtonPressed(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
+    if (!mm || mm->getCurrentModeType() != ModeType::EDITOR)
         return true;
 
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
@@ -680,7 +681,7 @@ bool Gui::editorWaterButtonPressed(const CEGUI::EventArgs& e)
 bool Gui::editorDirtButtonPressed(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
+    if (!mm || mm->getCurrentModeType() != ModeType::EDITOR)
         return true;
 
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
@@ -693,7 +694,7 @@ bool Gui::editorDirtButtonPressed(const CEGUI::EventArgs& e)
 bool Gui::editorClaimedButtonPressed(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
+    if (!mm || mm->getCurrentModeType() != ModeType::EDITOR)
         return true;
 
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
@@ -763,7 +764,7 @@ bool Gui::mSKMBackButtonPressed(const CEGUI::EventArgs& e)
 bool Gui::mSKMListClicked(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_SKIRMISH)
+    if (!mm || mm->getCurrentModeType() != ModeType::MENU_SKIRMISH)
         return true;
 
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
@@ -774,7 +775,7 @@ bool Gui::mSKMListClicked(const CEGUI::EventArgs& e)
 bool Gui::mSKMListDoubleClicked(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_SKIRMISH)
+    if (!mm || mm->getCurrentModeType() != ModeType::MENU_SKIRMISH)
         return true;
 
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
@@ -785,7 +786,7 @@ bool Gui::mSKMListDoubleClicked(const CEGUI::EventArgs& e)
 bool Gui::mSKMLoadButtonPressed(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_SKIRMISH)
+    if (!mm || mm->getCurrentModeType() != ModeType::MENU_SKIRMISH)
         return true;
 
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
@@ -807,7 +808,7 @@ bool Gui::mEDMBackButtonPressed(const CEGUI::EventArgs& e)
 bool Gui::mEDMListClicked(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_EDITOR)
+    if (!mm || mm->getCurrentModeType() != ModeType::MENU_EDITOR)
         return true;
 
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
@@ -818,7 +819,7 @@ bool Gui::mEDMListClicked(const CEGUI::EventArgs& e)
 bool Gui::mEDMListDoubleClicked(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_EDITOR)
+    if (!mm || mm->getCurrentModeType() != ModeType::MENU_EDITOR)
         return true;
 
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
@@ -829,7 +830,7 @@ bool Gui::mEDMListDoubleClicked(const CEGUI::EventArgs& e)
 bool Gui::mEDMLoadButtonPressed(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_EDITOR)
+    if (!mm || mm->getCurrentModeType() != ModeType::MENU_EDITOR)
         return true;
 
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
@@ -851,7 +852,7 @@ bool Gui::mMPMBackButtonPressed(const CEGUI::EventArgs& e)
 bool Gui::mMPMListClicked(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_MULTIPLAYER_SERVER)
+    if (!mm || mm->getCurrentModeType() != ModeType::MENU_MULTIPLAYER_SERVER)
         return true;
 
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
@@ -862,7 +863,7 @@ bool Gui::mMPMListClicked(const CEGUI::EventArgs& e)
 bool Gui::mMPMListDoubleClicked(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_MULTIPLAYER_SERVER)
+    if (!mm || mm->getCurrentModeType() != ModeType::MENU_MULTIPLAYER_SERVER)
         return true;
 
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
@@ -873,7 +874,7 @@ bool Gui::mMPMListDoubleClicked(const CEGUI::EventArgs& e)
 bool Gui::mMPMServerButtonPressed(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_MULTIPLAYER_SERVER)
+    if (!mm || mm->getCurrentModeType() != ModeType::MENU_MULTIPLAYER_SERVER)
         return true;
 
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
@@ -884,7 +885,7 @@ bool Gui::mMPMServerButtonPressed(const CEGUI::EventArgs& e)
 bool Gui::mMPMClientButtonPressed(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_MULTIPLAYER_CLIENT)
+    if (!mm || mm->getCurrentModeType() != ModeType::MENU_MULTIPLAYER_CLIENT)
         return true;
 
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
@@ -895,7 +896,7 @@ bool Gui::mMPMClientButtonPressed(const CEGUI::EventArgs& e)
 bool Gui::mCSMLoadButtonPressed(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_CONFIGURE_SEATS)
+    if (!mm || mm->getCurrentModeType() != ModeType::MENU_CONFIGURE_SEATS)
         return true;
 
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
@@ -906,7 +907,7 @@ bool Gui::mCSMLoadButtonPressed(const CEGUI::EventArgs& e)
 bool Gui::mCSMBackButtonPressed(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_CONFIGURE_SEATS)
+    if (!mm || mm->getCurrentModeType() != ModeType::MENU_CONFIGURE_SEATS)
         return true;
 
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
@@ -928,7 +929,7 @@ bool Gui::mREMBackButtonPressed(const CEGUI::EventArgs& e)
 bool Gui::mREMListClicked(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_REPLAY)
+    if (!mm || mm->getCurrentModeType() != ModeType::MENU_REPLAY)
         return true;
 
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
@@ -939,7 +940,7 @@ bool Gui::mREMListClicked(const CEGUI::EventArgs& e)
 bool Gui::mREMListDoubleClicked(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_REPLAY)
+    if (!mm || mm->getCurrentModeType() != ModeType::MENU_REPLAY)
         return true;
 
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
@@ -950,7 +951,7 @@ bool Gui::mREMListDoubleClicked(const CEGUI::EventArgs& e)
 bool Gui::mREMLoadButtonPressed(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_REPLAY)
+    if (!mm || mm->getCurrentModeType() != ModeType::MENU_REPLAY)
         return true;
 
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
@@ -961,7 +962,7 @@ bool Gui::mREMLoadButtonPressed(const CEGUI::EventArgs& e)
 bool Gui::mREMDeleteButtonPressed(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_REPLAY)
+    if (!mm || mm->getCurrentModeType() != ModeType::MENU_REPLAY)
         return true;
 
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
@@ -1050,3 +1051,5 @@ const std::string Gui::REM_BUTTON_LAUNCH = "LevelWindowFrame/LaunchReplayButton"
 const std::string Gui::REM_BUTTON_DELETE = "LevelWindowFrame/DeleteReplayButton";
 const std::string Gui::REM_BUTTON_BACK = "LevelWindowFrame/BackButton";
 const std::string Gui::REM_LIST_REPLAYS = "LevelWindowFrame/ReplaySelect";
+const std::string Gui::CONSOLE_EDITBOX = "Console/Editbox";
+const std::string Gui::CONSOLE_LISTBOX = "Console/Listbox";

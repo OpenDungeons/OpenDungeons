@@ -71,6 +71,7 @@ InputManager::InputManager(Ogre::RenderWindow* renderWindow):
 
     //setup Keyboard
     mKeyboard = static_cast<OIS::Keyboard*>(mInputManager->createInputObject(OIS::OISKeyboard, true));
+    mKeyboard->setTextTranslation(OIS::Keyboard::Unicode);
 
     //setup Mouse
     mMouse = static_cast<OIS::Mouse*>(mInputManager->createInputObject(OIS::OISMouse, true));

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout version="4" >
+    <Window type="OD/FrameWindow" name="ConsoleWindow" >
+        <Property name="Area" value="{{0,0},{0,0},{1,0},{0.5,0}}" />
+        <Property name="MaxSize" value="{{1,0},{1,0}}" />
+        <Window type="OD/MultiLineEditbox" name="ConsoleHistoryWindow" >
+            <Property name="Area" value="{{0,0},{0,0},{1,0},{1,-30}}" />
+        </Window>
+        <Window type="OD/Button" name="SendButton" >
+            <Property name="Area" value="{{1,-50},{1,-30},{1,-1},{1,-1}}" />
+            <Property name="Text" value="Send" />
+            <Property name="AlwaysOnTop" value="True" />
+            <Property name="TooltipText" value="Send" />
+        </Window>
+        <Window type="OD/Editbox" name="Editbox" >
+            <Property name="Area" value="{{0,0},{1,-30},{1,-50},{1,-1}}" />
+            <Property name="Text" value="" />
+            <Property name="AlwaysOnTop" value="True" />
+        </Window>
+    </Window>
+</GUILayout>

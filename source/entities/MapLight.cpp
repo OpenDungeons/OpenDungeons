@@ -71,7 +71,7 @@ void MapLight::createOgreEntity()
 
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
     // Only show the visual light entity if we are in editor mode
-    RenderRequest* request = new RenderRequestCreateMapLight(this, mm && mm->getCurrentModeType() == ModeManager::EDITOR);
+    RenderRequest* request = new RenderRequestCreateMapLight(this, mm && mm->getCurrentModeType() == ModeType::EDITOR);
     RenderManager::queueRenderRequest(request);
 
     mOgreEntityVisualIndicatorExists = true;

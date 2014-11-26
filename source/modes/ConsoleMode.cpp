@@ -18,57 +18,65 @@
 #include "ConsoleMode.h"
 
 #include "render/Gui.h"
-#include "modes/Console.h"
 #include "utils/LogManager.h"
-#include "scripting/ASWrapper.h"
+//#include "scripting/ASWrapper.h"
 #include "render/RenderManager.h"
-#include "PrefixTree.h"
-#include "render/ODFrameListener.h"
+#include "sound/SoundEffectsManager.h"
 
+#include <CEGUI/widgets/PushButton.h>
+
+#include <functional>
 #include <list>
 #include <string>
 
 const std::string CONSOLE_COMMANDS = "./config/console_commands.txt";
 
-ConsoleMode::ConsoleMode(ModeManager* modeManager, Console* console):
-    AbstractApplicationMode(modeManager, ModeManager::CONSOLE),
-    mConsole(console),
-    mPrefixTree(NULL),
-    mLl(NULL),
-    mNonTagKeyPressed(true)
+ConsoleMode::ConsoleMode(ModeManager* modeManager):
+    AbstractApplicationMode(modeManager, ModeType::CONSOLE),
+    mConsoleHistoryWindow(nullptr),
+    mEditBoxWindow(nullptr),
+    mConsoleInterface(std::bind(&ConsoleMode::printToWindow, this, std::placeholders::_1))
 {
-    mPrefixTree = new PrefixTree();
-    mLl = new list<string>();
-    mPrefixTree->readStringsFromFile(CONSOLE_COMMANDS.c_str());
+    CEGUI::Window* consoleRootWindow = modeManager->getGui()->getGuiSheet(Gui::guiSheet::console);
+    if(consoleRootWindow != nullptr)
+    {
+        try
+        {
+            mConsoleHistoryWindow = consoleRootWindow->getChild("ConsoleHistoryWindow");
+            mEditBoxWindow = consoleRootWindow->getChild("Editbox");
+            CEGUI::Window* sendButton = consoleRootWindow->getChild("SendButton");
+            sendButton->subscribeEvent(CEGUI::PushButton::EventClicked,
+                                       CEGUI::Event::Subscriber(&ConsoleMode::sendButtonClick, this));
+        }
+        catch(const CEGUI::Exception& e)
+        {
+            LogManager::getSingleton().logMessage(std::string("ERROR: Failed to create console window. Exception: ") + e.what(),
+                                                  Ogre::LogMessageLevel::LML_CRITICAL);
+        }
+    }
+    else
+    {
+        LogManager::getSingleton().logMessage("ERROR: Could not find console GUI sheet",
+                                              Ogre::LogMessageLevel::LML_CRITICAL);
+    }
 }
 
 ConsoleMode::~ConsoleMode()
 {
-    delete mPrefixTree;
-    delete mLl;
 }
 
 void ConsoleMode::activate()
 {
+    LogManager::getSingleton().logMessage("Activating console");
     // Loads the corresponding Gui sheet.
-    Gui::getSingleton().loadGuiSheet(Gui::hideGui);
-
+    Gui::getSingleton().loadGuiSheet(Gui::console);
     giveFocus();
 }
 
 bool ConsoleMode::mouseMoved(const OIS::MouseEvent &arg)
 {
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition((float)arg.state.X.abs, (float)arg.state.Y.abs);
-    if(arg.state.Z.rel == 0 || !mConsole->mVisible)
-        return false;
-
-    if(getKeyboard()->isModifierDown(OIS::Keyboard::Ctrl))
-        mConsole->scrollHistory(arg.state.Z.rel > 0);
-    else
-        mConsole->scrollText(arg.state.Z.rel > 0);
-
-    mConsole->mUpdateOverlay = true;
-    return true;
+    return CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition(
+                static_cast<float>(arg.state.X.abs), static_cast<float>(arg.state.Y.abs));
 }
 
 bool ConsoleMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id){
@@ -83,138 +91,105 @@ bool ConsoleMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID i
 
 bool ConsoleMode::keyPressed(const OIS::KeyEvent &arg)
 {
-    if (!mConsole->mVisible)
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyDown((CEGUI::Key::Scan) arg.key);
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectChar(arg.text);
+
+    if(!mEditBoxWindow || !mConsoleHistoryWindow)
+    {
+        LogManager::getSingleton().logMessage("Error: Console windows are not initialised.");
         return false;
-
-    if(arg.key == OIS::KC_TAB)
-    {
-        if(!mNonTagKeyPressed)
-        {
-            // it points to postfix candidate
-            if (mIt == mLl->end())
-            {
-                mConsole->mPrompt = mPrefix;
-                mIt = mLl->begin();
-            }
-            else{
-                mConsole->mPrompt = mPrefix + *mIt;
-                ++mIt;
-            }
-        }
-        else
-        {
-            mLl->clear();
-            mPrefixTree->complete(mConsole->mPrompt.c_str(), mLl);
-            mPrefix = mConsole->mPrompt ;
-            mIt = mLl->begin();
-        }
-
-        mNonTagKeyPressed= false;
     }
-    else
+
+    switch(arg.key)
     {
-        mNonTagKeyPressed = true;
-        switch(arg.key)
+        case OIS::KC_TAB:
         {
+            const CEGUI::String& cmd = mEditBoxWindow->getText();
+            auto completedCommand = mConsoleInterface.tryCompleteCommand(cmd.c_str());
+            if(completedCommand)
+            {
+                mEditBoxWindow->setText(*completedCommand);
+            }
+            break;
+        }
         case OIS::KC_GRAVE:
         case OIS::KC_ESCAPE:
         case OIS::KC_F12:
+        {
             regressMode();
-            mConsole->setVisible(false);
-            ODFrameListener::getSingleton().setTerminalActive(false);
             break;
-
+        }
         case OIS::KC_RETURN:
         {
-            //only do this for non-empty input
-            if(!mConsole->mPrompt.empty())
+            if(mEditBoxWindow->isActive())
             {
-                //print our input and push it to the history
-                mConsole->print(mConsole->mPrompt);
-                mConsole->mHistory.push_back(mConsole->mPrompt);
-                ++mConsole->mCurHistPos;
-
-                //split the input into it's space-separated "words"
-                std::vector<Ogre::String> params = mConsole->split(mConsole->mPrompt, ' ');
-
-                //TODO: remove this until AS console handler is ready
-                Ogre::String command = params[0];
-                Ogre::String arguments;
-                for(size_t i = 1; i< params.size(); ++i)
-                {
-                    arguments += params[i];
-                    if(i < params.size() - 1)
-                    {
-                        arguments += ' ';
-                    }
-                }
-                //remove until this point
-
-                //TODO: remove executePromptCommand after it is fully converted
-                //for now try hardcoded commands, and if none is found try AS
-                if(!mConsole->executePromptCommand(command, arguments))
-                {
-                    LogManager::getSingleton().logMessage("Console command: " + command
-                        + " - arguments: " + arguments + " - angelscript");
-                    ASWrapper::getSingleton().executeConsoleCommand(params);
-                }
-
-                mConsole->mPrompt.clear();
-            }
-            else
-            {
-                // Set history position back to last entry
-                mConsole->mCurHistPos = mConsole->mHistory.size();
+                const CEGUI::String& cmd = mEditBoxWindow->getText();
+                executeCommand(cmd);
+                mEditBoxWindow->setText("");
             }
             break;
         }
         case OIS::KC_BACK:
-            mConsole->mPrompt = mConsole->mPrompt.substr(0, mConsole->mPrompt.length() - 1);
             break;
 
         case OIS::KC_PGUP:
-            mConsole->scrollText(true);
             break;
 
         case OIS::KC_PGDOWN:
-            mConsole->scrollText(false);
             break;
 
         case OIS::KC_UP:
-            mConsole->scrollHistory(true);
-            break;
-
-        case OIS::KC_DOWN:
-            mConsole->scrollHistory(false);
-            break;
-
-        case OIS::KC_F10:
         {
-            LogManager::getSingleton().logMessage("RTSS test----------");
-            RenderManager::getSingleton().rtssTest();
-            break;
-        }
-
-        default:
-            if (std::string("abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ,.<>/?1234567890-=\\!@#$%^&*()_+|;\':\"[]{}").find(
-                            arg.text) != std::string::npos)
+            const CEGUI::String& currentCommand = mEditBoxWindow->getText();
+            auto scrolledCommand = mConsoleInterface.scrollCommandHistoryPositionUp(currentCommand.c_str());
+            if(scrolledCommand)
             {
-                mConsole->mPrompt += arg.text;
+                mEditBoxWindow->setText(*scrolledCommand);
             }
             break;
         }
+        case OIS::KC_DOWN:
+        {
+            auto scrolledCommand = mConsoleInterface.scrollCommandHistoryPositionDown();
+            if(scrolledCommand)
+            {
+                mEditBoxWindow->setText(*scrolledCommand);
+            }
+            break;
+        }
+        default:
+            break;
     }
-
-    mConsole->mUpdateOverlay = true;
     return true;
 }
 
 bool ConsoleMode::keyReleased(const OIS::KeyEvent &arg)
 {
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyUp((CEGUI::Key::Scan) arg.key);
     return true;
 }
 
 void ConsoleMode::handleHotkeys(OIS::KeyCode keycode)
 {
 
+}
+
+bool ConsoleMode::sendButtonClick(const CEGUI::EventArgs &e)
+{
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    executeCommand(mEditBoxWindow->getText());
+    return true;
+}
+
+void ConsoleMode::executeCommand(const CEGUI::String &command)
+{
+    mConsoleInterface.tryExecuteCommand(command.c_str(), ModeType::CONSOLE, mModeManager);
+}
+
+void ConsoleMode::printToWindow(const std::string& string)
+{
+    if(mConsoleHistoryWindow)
+    {
+        mConsoleHistoryWindow->appendText(string);
+    }
 }

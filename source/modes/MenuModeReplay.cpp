@@ -38,7 +38,7 @@
 const std::string REPLAY_EXTENSION = ".odr";
 
 MenuModeReplay::MenuModeReplay(ModeManager *modeManager):
-    AbstractApplicationMode(modeManager, ModeManager::MENU_REPLAY)
+    AbstractApplicationMode(modeManager, ModeType::MENU_REPLAY)
 {
 }
 

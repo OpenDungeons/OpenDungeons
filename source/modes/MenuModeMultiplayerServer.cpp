@@ -39,7 +39,7 @@ const std::string LEVEL_PATH = "levels/multiplayer/";
 const std::string LEVEL_EXTENSION = ".level";
 
 MenuModeMultiplayerServer::MenuModeMultiplayerServer(ModeManager *modeManager):
-    AbstractApplicationMode(modeManager, ModeManager::MENU_MULTIPLAYER_SERVER)
+    AbstractApplicationMode(modeManager, ModeType::MENU_MULTIPLAYER_SERVER)
 {
 }
 

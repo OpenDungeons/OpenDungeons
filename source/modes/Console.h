@@ -23,6 +23,8 @@
 #ifndef CONSOLE_H_
 #define CONSOLE_H_
 
+#if 0
+
 #include "modes/GameMode.h"
 #include "gamemap/GameMap.h"
 #include "render/Gui.h"
@@ -95,7 +97,6 @@ public:
                         bool maskDebug, const Ogre::String& logName, bool& skipThisMessage);
     bool executePromptCommand(const std::string& command, std::string arguments);
     std::string getHelpText(std::string arg);
-    void printText(const std::string& text);
 
 private:
     // Console variables
@@ -136,5 +137,5 @@ private:
     void scrollHistory (const bool direction);
     void scrollText (const bool direction);
 };
-
+#endif // if 0
 #endif // CONSOLE_H_

@@ -18,109 +18,106 @@
 #ifndef MODEMANAGER_H
 #define MODEMANAGER_H
 
+#include <boost/noncopyable.hpp>
+
 #include <vector>
 #include <string>
+#include <memory>
+
+#include "ModeManagerInterface.h"
+#include "modes/InputManager.h"
 
 class AbstractApplicationMode;
 class ASWrapper;
 class InputManager;
-class Console;
 class ConsoleMode;
 class CameraManager;
+class Gui;
 
 namespace Ogre {
   class RenderWindow;
 }
 
-class ModeManager
+class ModeManager : public ModeManagerInterface
 {
-    friend class Console;
-
 public:
 
-    enum ModeType
-    {
-        NONE = 0, // No change requested
-        MENU = 1,
-        MENU_SKIRMISH,
-        MENU_MULTIPLAYER_CLIENT,
-        MENU_MULTIPLAYER_SERVER,
-        MENU_EDITOR,
-        MENU_CONFIGURE_SEATS,
-        MENU_REPLAY,
-        GAME,
-        EDITOR,
-        CONSOLE,
-        FPP,
-        PREV // Parent game mode requested
-    };
+    using ModePtr_t = std::unique_ptr<AbstractApplicationMode>;
 
     ModeManager(Ogre::RenderWindow* renderWindow);
     ~ModeManager();
 
+    //! \brief Returns the current mode
+    //! Returns the current mode. (If consoleMOde is the current mode, the next mode is returned.)
     AbstractApplicationMode* getCurrentMode();
     ModeType getCurrentModeType();
+
+    //! \brief Returns true if the console is active.
+    bool isInConsole()
+    {
+        return mIsInConsole;
+    }
 
     //! \brief Request loading main menu mode at next update
     void requestMenuMode(bool discardActualMode = false)
     {
-        mRequestedMode = ModeManager::MENU;
+        mRequestedMode = ModeType::MENU;
         mDiscardActualMode = discardActualMode;
     }
 
     //! \brief Request loading level selection menu mode at next update
     void requestMenuSingleplayerMode(bool discardActualMode = false)
     {
-        mRequestedMode = ModeManager::MENU_SKIRMISH;
+        mRequestedMode = ModeType::MENU_SKIRMISH;
         mDiscardActualMode = discardActualMode;
     }
 
     //! \brief Request loading level selection menu mode at next update
     void requestMenuReplayMode(bool discardActualMode = false)
     {
-        mRequestedMode = ModeManager::MENU_REPLAY;
+        mRequestedMode = ModeType::MENU_REPLAY;
         mDiscardActualMode = discardActualMode;
     }
 
     //! \brief Request Multiplayer menu mode at next update
     void requestMenuMultiplayerClientMode(bool discardActualMode = false)
     {
-        mRequestedMode = ModeManager::MENU_MULTIPLAYER_CLIENT;
+        mRequestedMode = ModeType::MENU_MULTIPLAYER_CLIENT;
         mDiscardActualMode = discardActualMode;
     }
 
     //! \brief Request Multiplayer menu mode at next update
     void requestMenuMultiplayerServerMode(bool discardActualMode = false)
     {
-        mRequestedMode = ModeManager::MENU_MULTIPLAYER_SERVER;
+        mRequestedMode = ModeType::MENU_MULTIPLAYER_SERVER;
         mDiscardActualMode = discardActualMode;
     }
 
     //! \brief Request Editor menu mode at next update
     void requestMenuEditorMode(bool discardActualMode = false)
     {
-        mRequestedMode = ModeManager::MENU_EDITOR;
+        mRequestedMode = ModeType::MENU_EDITOR;
         mDiscardActualMode = discardActualMode;
     }
 
     //! \brief Request loading editor mode at next update
     void requestEditorMode(bool discardActualMode = false)
     {
-        mRequestedMode = ModeManager::EDITOR;
+        mRequestedMode = ModeType::EDITOR;
         mDiscardActualMode = discardActualMode;
     }
 
     //! \brief Request loading console mode at next update
     void requestConsoleMode(bool discardActualMode = false)
     {
-        mRequestedMode = ModeManager::CONSOLE;
+        mRequestedMode = ModeType::CONSOLE;
         mDiscardActualMode = discardActualMode;
     }
 
     //! \brief Request loading FPP mode at next update
     void requestFppMode(bool discardActualMode = false)
     {
-        mRequestedMode = ModeManager::FPP;
+        mRequestedMode = ModeType::FPP;
         mDiscardActualMode = discardActualMode;
     }
 
@@ -142,44 +139,50 @@ public:
     //! at next update
     void requestUnloadToParentMode()
     {
-        mRequestedMode = PREV;
+        mRequestedMode = ModeType::PREV;
     }
 
     //! \brief Actually change the mode if needed
     void checkModeChange();
 
+    //! \brief Return a reference to the input manager
     InputManager* getInputManager()
     {
-        return mInputManager;
+        return &mInputManager;
+    }
+
+    Gui* getGui()
+    {
+        return mGui;
     }
 
 private:
-    //! \brief The common input manager reference
-    InputManager* mInputManager;
+    //! \brief The common input manager
+    InputManager mInputManager;
+
+    //! \brief GUI reference
+    Gui* mGui;
 
     //! \brief A unique console mode instance, shared between game modes.
-    ConsoleMode* mConsoleMode;
+    ModePtr_t mConsoleMode;
 
     //! \brief Tells whether the user is in console mode.
     bool mIsInConsole;
 
-    //! \brief The console instance
-    Console* mConsole;
-
     //! \brief The vector containing the loaded modes.
     //! The active one is either the last one, or the console when
     //! mIsInConsole is equal to true.
-    std::vector<AbstractApplicationMode*> mApplicationModes;
+    std::vector<ModePtr_t> mApplicationModes;
 
     //! \brief Tells which new mode is requested.
-    ModeManager::ModeType mRequestedMode;
+    ModeType mRequestedMode;
 
     //! \brief When the new mode will be set, if true, the actual one will be
     //! discarded. That allows to use temporary menu
     bool mDiscardActualMode;
 
     //! \brief The Angel Script wrapper, used in every game modes
-    ASWrapper* mASWrapper;
+//    ASWrapper* mASWrapper;
 
     void addMode(ModeType);
     void removeMode();

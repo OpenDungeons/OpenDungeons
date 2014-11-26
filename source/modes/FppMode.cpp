@@ -20,7 +20,7 @@
 #include "render/Gui.h"
 
 FppMode::FppMode(ModeManager *modeManager):
-    AbstractApplicationMode(modeManager, ModeManager::FPP)
+    AbstractApplicationMode(modeManager, ModeType::FPP)
 {
 }
 
