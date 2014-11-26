@@ -26,12 +26,15 @@
 #include "utils/LogManager.h"
 
 const std::vector<std::string> EMPTY_SPAWNPOOL;
+const std::string EMPTY_STRING;
 
 template<> ConfigManager* Ogre::Singleton<ConfigManager>::msSingleton = 0;
 
 ConfigManager::ConfigManager() :
     mNetworkPort(0),
-    mBaseSpawnPoint(10)
+    mBaseSpawnPoint(10),
+    mCreatureDeathCounter(10),
+    mMaxCreaturesPerSeat(15)
 {
     if(!loadGlobalConfig())
     {
@@ -346,6 +349,20 @@ bool ConfigManager::loadGlobalGameConfig(std::stringstream& configFile)
             configFile >> nextParam;
             mNetworkPort = Helper::toUInt32(nextParam);
             paramsOk |= 1;
+        }
+
+        if(nextParam == "CreatureDeathCounter")
+        {
+            configFile >> nextParam;
+            mCreatureDeathCounter = Helper::toUInt32(nextParam);
+            // Not mandatory
+        }
+
+        if(nextParam == "MaxCreaturesPerSeat")
+        {
+            configFile >> nextParam;
+            mMaxCreaturesPerSeat = Helper::toUInt32(nextParam);
+            // Not mandatory
         }
     }
 
@@ -701,12 +718,12 @@ bool ConfigManager::loadTraps(const std::string& fileName)
     return true;
 }
 
-const std::string ConfigManager::getRoomConfigString(const std::string& param) const
+const std::string& ConfigManager::getRoomConfigString(const std::string& param) const
 {
     if(mRoomsConfig.count(param) <= 0)
     {
         OD_ASSERT_TRUE_MSG(false, "Unknown parameter param=" + param);
-        return std::string();
+        return EMPTY_STRING;
     }
 
     return mRoomsConfig.at(param);
@@ -745,12 +762,12 @@ double ConfigManager::getRoomConfigDouble(const std::string& param) const
     return Helper::toDouble(mRoomsConfig.at(param));
 }
 
-const std::string ConfigManager::getTrapConfigString(const std::string& param) const
+const std::string& ConfigManager::getTrapConfigString(const std::string& param) const
 {
     if(mTrapsConfig.count(param) <= 0)
     {
         OD_ASSERT_TRUE_MSG(false, "Unknown parameter param=" + param);
-        return std::string();
+        return EMPTY_STRING;
     }
 
     return mTrapsConfig.at(param);

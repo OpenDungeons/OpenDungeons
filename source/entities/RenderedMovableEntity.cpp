@@ -37,7 +37,6 @@ RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap, const std::string
         Ogre::Real rotationAngle, bool hideCoveredTile) :
     MovableGameEntity(gameMap),
     mRotationAngle(rotationAngle),
-    mIsOnMap(true),
     mHideCoveredTile(hideCoveredTile)
 {
     setObjectType(GameEntity::renderedMovableEntity);
@@ -49,7 +48,6 @@ RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap, const std::string
 RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap) :
     MovableGameEntity(gameMap),
     mRotationAngle(0.0),
-    mIsOnMap(true),
     mHideCoveredTile(false)
 {
     setObjectType(GameEntity::renderedMovableEntity);
@@ -79,13 +77,13 @@ void RenderedMovableEntity::destroyMeshLocal()
 
 void RenderedMovableEntity::pickup()
 {
-    mIsOnMap = false;
+    setIsOnMap(false);
     clearDestinations();
 }
 
 void RenderedMovableEntity::drop(const Ogre::Vector3& v)
 {
-    mIsOnMap = true;
+    setIsOnMap(true);
     setPosition(v);
 }
 

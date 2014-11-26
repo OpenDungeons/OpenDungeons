@@ -28,9 +28,19 @@ public:
     virtual RoomType getType() const
     { return RoomType::crypt; }
 
+    void absorbRoom(Room *r);
+
     void doUpkeep();
+
+    bool hasCarryEntitySpot(GameEntity* carriedEntity);
+    Tile* askSpotForCarriedEntity(GameEntity* carriedEntity);
+    void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity);
 protected:
     virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
+    virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);
+private:
+    std::map<Tile*,std::pair<Creature*, int32_t> > mRottingCreatures;
+    int32_t mRottenPoints;
 };
 
 #endif // ROOMCRYPT_H

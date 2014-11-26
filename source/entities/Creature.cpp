@@ -42,6 +42,7 @@
 #include "render/RenderRequest.h"
 #include "render/RenderManager.h"
 
+#include "rooms/RoomCrypt.h"
 #include "rooms/RoomTreasury.h"
 #include "rooms/RoomDormitory.h"
 
@@ -72,8 +73,6 @@
 #define snprintf_is_banned_in_OD_code _snprintf
 #endif
 
-#define NB_COUNTER_DEATH        10
-
 //TODO: make this read from definition file?
 static const int MaxGoldCarriedByWorkers = 1500;
 static const int NB_TURN_FLEE_MAX = 5;
@@ -93,7 +92,6 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
     mWeaponR                 (nullptr),
     mHomeTile                (NULL),
     mDefinition              (definition),
-    mIsOnMap                 (false),
     mHasVisualDebuggingEntities (false),
     mAwakeness               (100.0),
     mHunger                  (0.0),
@@ -106,7 +104,7 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
     mLavaSpeed               (0.0),
     mDigRate                 (0.0),
     mClaimRate               (0.0),
-    mDeathCounter            (NB_COUNTER_DEATH),
+    mDeathCounter            (0),
     mGold                    (0),
     mJobCooldown             (0),
     mEatCooldown             (0),
@@ -118,7 +116,9 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
     mAttackedTile            (NULL),
     mAttackedObject          (NULL),
     mSound                   (SoundEffectsManager::getSingleton().getCreatureClassSounds(definition->getClassName())),
-    mForceAction             (forcedActionNone)
+    mForceAction             (forcedActionNone),
+    mCarriedEntity           (nullptr),
+    mCarriedEntityDest       (nullptr)
 {
     setName(getGameMap()->nextUniqueNameCreature(definition->getClassName()));
 
@@ -170,7 +170,6 @@ Creature::Creature(GameMap* gameMap) :
     mWeaponR                 (nullptr),
     mHomeTile                (NULL),
     mDefinition              (NULL),
-    mIsOnMap                 (false),
     mHasVisualDebuggingEntities (false),
     mAwakeness               (100.0),
     mHunger                  (0.0),
@@ -183,7 +182,7 @@ Creature::Creature(GameMap* gameMap) :
     mLavaSpeed               (0.0),
     mDigRate                 (0.0),
     mClaimRate               (0.0),
-    mDeathCounter            (NB_COUNTER_DEATH),
+    mDeathCounter            (0),
     mGold                    (0),
     mJobCooldown             (0),
     mEatCooldown             (0),
@@ -195,7 +194,9 @@ Creature::Creature(GameMap* gameMap) :
     mAttackedTile            (NULL),
     mAttackedObject          (NULL),
     mSound                   (NULL),
-    mForceAction             (forcedActionNone)
+    mForceAction             (forcedActionNone),
+    mCarriedEntity           (nullptr),
+    mCarriedEntityDest       (nullptr)
 {
     setIsOnMap(false);
 
@@ -592,16 +593,6 @@ double Creature::getHP() const
     return mHp;
 }
 
-void Creature::setIsOnMap(bool nIsOnMap)
-{
-    mIsOnMap = nIsOnMap;
-}
-
-bool Creature::getIsOnMap() const
-{
-    return mIsOnMap;
-}
-
 void Creature::update(Ogre::Real timeSinceLastFrame)
 {
     // Update movements, direction, ...
@@ -626,14 +617,14 @@ void Creature::doUpkeep()
     if (getHP() <= 0.0)
     {
         // Let the creature lay dead on the ground for a few turns before removing it from the GameMap.
-        if (mDeathCounter == NB_COUNTER_DEATH)
+        if (mDeathCounter == 0)
         {
             stopJob();
             stopEating();
             clearDestinations();
             setAnimationState("Die", false);
         }
-        else if (mDeathCounter <= 0)
+        else if (mDeathCounter >= ConfigManager::getSingleton().getCreatureDeathCounter())
         {
             try
             {
@@ -664,7 +655,7 @@ void Creature::doUpkeep()
             deleteYourself();
         }
 
-        --mDeathCounter;
+        ++mDeathCounter;
         return;
     }
 
@@ -750,6 +741,8 @@ void Creature::doUpkeep()
     unsigned int loops = 0;
     ++mNbTurnAction;
 
+    mIsCarryActionTested = false;
+
     do
     {
         ++loops;
@@ -823,6 +816,10 @@ void Creature::doUpkeep()
 
                 case CreatureAction::flee:
                     loopBack = handleFleeAction();
+                    break;
+
+                case CreatureAction::carryEntity:
+                    loopBack = handleCarryableEntities();
                     break;
 
                 default:
@@ -973,6 +970,7 @@ bool Creature::handleIdleAction()
                 tileWallNotClaimed = tile;
             }
         }
+
         bool forceGoldDeposit = false;
         if((mGold > 0) && (mDigRate > 0.0))
         {
@@ -982,6 +980,12 @@ bool Creature::handleIdleAction()
                 forceGoldDeposit = true;
             }
         }
+
+        std::vector<GameEntity*> carryable;
+        position->fillCarryableEntities(carryable);
+        bool forceCarryObject = false;
+        if(!carryable.empty())
+            forceCarryObject = true;
 
         // Now, we can decide
         if(forceGoldDeposit)
@@ -1003,6 +1007,12 @@ bool Creature::handleIdleAction()
         else if((tileWallNotClaimed != NULL) && (mClaimRate > 0.0))
         {
             mForceAction = forcedActionClaimWallTile;
+        }
+        else if(forceCarryObject)
+        {
+            mForceAction = forcedActionNone;
+            pushAction(CreatureAction::carryEntity);
+            return true;
         }
         else
         {
@@ -1041,6 +1051,13 @@ bool Creature::handleIdleAction()
     {
         loopBack = true;
         pushAction(CreatureAction::digTile);
+    }
+    // Decide to check for dead creature to carry to the crypt
+    else if (mDefinition->isWorker() && diceRoll < 0.3)
+    {
+        loopBack = true;
+        pushAction(CreatureAction::carryEntity);
+        return true;
     }
     // Decide to check for claimable tiles
     else if (mClaimRate > 0.0 && diceRoll < 0.9)
@@ -2483,6 +2500,107 @@ bool Creature::handleFleeAction()
     return false;
 }
 
+bool Creature::handleCarryableEntities()
+{
+    if(mIsCarryActionTested)
+    {
+        popAction();
+        return true;
+    }
+
+    mIsCarryActionTested = true;
+    Tile* myTile = getPositionTile();
+    OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
+    if(myTile == nullptr)
+    {
+        popAction();
+        return true;
+    }
+
+    // If we are not carrying anything, we check if there is something carryable around
+    if(mCarriedEntity == nullptr)
+    {
+        std::vector<Building*> buildings = getGameMap()->getReachableBuildingsPerSeat(getSeat(), myTile, this);
+        std::vector<GameEntity*> carryableEntities = getGameMap()->getVisibleCarryableEntities(mVisibleTiles);
+        std::vector<GameEntity*> availableEntities;
+        Building* buildingWants = nullptr;
+        Tile* tileDest = nullptr;
+        for(GameEntity* entity : carryableEntities)
+        {
+            // We check if a buildings wants this entity
+            buildingWants = nullptr;
+            for(Building* building : buildings)
+            {
+                if(building->hasCarryEntitySpot(entity))
+                {
+                    buildingWants = building;
+                    break;
+                }
+            }
+            if(buildingWants == nullptr)
+                continue;
+
+            Tile* carryableEntTile = entity->getPositionTile();
+
+            // We are on the same tile. If we can book a spot, we start carrying
+            if(carryableEntTile == myTile)
+            {
+                tileDest = buildingWants->askSpotForCarriedEntity(entity);
+                if(tileDest == nullptr)
+                {
+                    // The building doesn't want the entity after all
+                    buildingWants = nullptr;
+                    continue;
+                }
+                carryEntity(entity);
+                break;
+            }
+
+            if(!getGameMap()->pathExists(this, myTile, carryableEntTile))
+                continue;
+
+            availableEntities.push_back(entity);
+        }
+
+        if(mCarriedEntity == nullptr)
+        {
+            // If there are no carryable entity, we do something else
+            if(availableEntities.empty())
+            {
+                popAction();
+                return true;
+            }
+
+            uint32_t index = Random::Uint(0,availableEntities.size()-1);
+            GameEntity* entity = availableEntities[index];
+            Tile* t = entity->getPositionTile();
+            OD_ASSERT_TRUE_MSG(t != nullptr, "entity=" + entity->getName());
+            if(!setDestination(t))
+            {
+                popAction();
+                return true;
+            }
+
+            return false;
+        }
+
+        // We have carried something. Now, we go to the building
+        mCarriedEntityDest = buildingWants;
+
+        if(setDestination(tileDest))
+            return false;
+
+        // Problem while setting destination
+        popAction();
+        return true;
+    }
+
+    // If we are in this state while carrying something, we should be at the destination
+    releaseCarriedEntity();
+    popAction();
+    return true;
+}
+
 double Creature::getMoveSpeed() const
 {
     return getMoveSpeed(getPositionTile());
@@ -3030,6 +3148,7 @@ void Creature::clearActionQueue()
     mActionQueue.clear();
     stopJob();
     stopEating();
+    releaseCarriedEntity();
     mActionQueue.push_front(CreatureAction::idle);
 }
 
@@ -3357,4 +3476,83 @@ bool Creature::isAttackable() const
         return false;
 
     return true;
+}
+
+void Creature::notifyEntityCarried(bool isCarried)
+{
+    Tile* myTile = getPositionTile();
+    OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
+    if(myTile == nullptr)
+        return;
+    if(isCarried)
+    {
+        setIsOnMap(false);
+        myTile->removeCreature(this);
+    }
+    else
+    {
+        setIsOnMap(true);
+        myTile->addCreature(this);
+    }
+}
+
+void Creature::carryEntity(GameEntity* carriedEntity)
+{
+    OD_ASSERT_TRUE(carriedEntity != nullptr);
+    OD_ASSERT_TRUE(mCarriedEntity == nullptr);
+    mCarriedEntity = carriedEntity;
+    if(carriedEntity == nullptr)
+        return;
+
+    if(getGameMap()->isServerGameMap())
+    {
+        carriedEntity->notifyEntityCarried(true);
+        const std::string& name = getName();
+        ObjectType entityType = carriedEntity->getObjectType();
+        const std::string& carriedName = carriedEntity->getName();
+        Player* player = getGameMap()->getPlayerBySeat(getSeat());
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotification::carryEntity, player);
+        serverNotification->mPacket << name << entityType << carriedName;
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
+    else
+    {
+        RenderRequest *request = new RenderRequestCarryEntity(this, carriedEntity);
+        RenderManager::queueRenderRequest(request);
+    }
+}
+
+void Creature::releaseCarriedEntity()
+{
+    GameEntity* carriedEntity = mCarriedEntity;
+    Building* carriedEntityDest = mCarriedEntityDest;
+
+    mCarriedEntity = nullptr;
+    mCarriedEntityDest = nullptr;
+
+    if(carriedEntity == nullptr)
+        return;
+
+    if(!getGameMap()->isServerGameMap())
+    {
+        RenderRequest *request = new RenderRequestReleaseCarriedEntity(this, carriedEntity);
+        RenderManager::queueRenderRequest(request);
+    }
+    else
+    {
+        Ogre::Vector3 pos = getPosition();
+        carriedEntity->setPosition(pos);
+        carriedEntity->notifyEntityCarried(false);
+        const std::string& carrierName = getName();
+        const std::string& carriedName = carriedEntity->getName();
+        Player* player = getGameMap()->getPlayerBySeat(getSeat());
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotification::releaseCarriedEntity, player);
+        serverNotification->mPacket << carrierName << carriedEntity->getObjectType() << carriedName << pos;
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
+
+    if(carriedEntityDest != nullptr)
+        carriedEntityDest->notifyCarryingStateChanged(this, carriedEntity);
 }

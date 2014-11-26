@@ -107,14 +107,10 @@ public:
     friend std::istream& operator>>(std::istream& is, RenderedMovableEntity::RenderedMovableEntityType& rot);
 
 protected:
-    virtual bool getIsOnMap()
-    { return mIsOnMap; }
-
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
 private:
     Ogre::Real mRotationAngle;
-    bool mIsOnMap;
     bool mHideCoveredTile;
 };
 

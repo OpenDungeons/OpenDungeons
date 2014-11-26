@@ -17,13 +17,22 @@
 
 #include "rooms/RoomCrypt.h"
 
+#include "entities/Creature.h"
 #include "entities/SmallSpiderEntity.h"
 #include "entities/Tile.h"
 #include "gamemap/GameMap.h"
+#include "network/ODServer.h"
+#include "network/ServerNotification.h"
+#include "utils/ConfigManager.h"
+#include "utils/LogManager.h"
 #include "utils/Random.h"
 
+const int32_t OFFSET_TILE_X = 0;
+const int32_t OFFSET_TILE_Y = -1;
+
 RoomCrypt::RoomCrypt(GameMap* gameMap) :
-    Room(gameMap)
+    Room(gameMap),
+    mRottenPoints(0)
 {
     setMeshName("Crypt");
 }
@@ -34,6 +43,7 @@ RenderedMovableEntity* RoomCrypt::notifyActiveSpotCreated(ActiveSpotPlace place,
     {
         case ActiveSpotPlace::activeSpotCenter:
         {
+            mRottingCreatures[tile] = std::pair<Creature*,int32_t>(nullptr, -1);
             int rnd = Random::Int(0, 100);
             if (rnd < 33)
                 return loadBuildingObject(getGameMap(), "KnightCoffin", tile, 0.0, false);
@@ -59,7 +69,34 @@ RenderedMovableEntity* RoomCrypt::notifyActiveSpotCreated(ActiveSpotPlace place,
             return loadBuildingObject(getGameMap(), "KnightStatue2", tile, 180.0, false);
         }
     }
-    return NULL;
+    return nullptr;
+}
+
+void RoomCrypt::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
+{
+    Room::notifyActiveSpotRemoved(place, tile);
+    if(place != ActiveSpotPlace::activeSpotCenter)
+        return;
+
+    std::pair<Creature*,int32_t> rottingCreature = mRottingCreatures[tile];
+    mRottingCreatures.erase(tile);
+    if(rottingCreature.first == nullptr)
+        return;
+
+    // If the dead creature is already rotting, we add it back to its tile so that it can continue
+    // its normal dead creature life ^^
+    if(rottingCreature.second != -1)
+        tile->addCreature(rottingCreature.first);
+}
+
+void RoomCrypt::absorbRoom(Room *r)
+{
+    RoomCrypt* rc = static_cast<RoomCrypt*>(r);
+    mRottingCreatures.insert(rc->mRottingCreatures.begin(), rc->mRottingCreatures.end());
+    rc->mRottingCreatures.clear();
+    mRottenPoints += rc->mRottenPoints;
+
+    Room::absorbRoom(r);
 }
 
 void RoomCrypt::doUpkeep()
@@ -80,4 +117,150 @@ void RoomCrypt::doUpkeep()
         spider->setPosition(pos);
         getGameMap()->addRenderedMovableEntity(spider);
     }
+
+    // We increment rotting creatures counter
+    for(std::pair<Tile* const, std::pair<Creature*, int32_t> >& p : mRottingCreatures)
+    {
+        if((p.second.first == nullptr) || (p.second.second == -1))
+            continue;
+
+        ++p.second.second;
+        if(p.second.second < ConfigManager::getSingleton().getRoomConfigInt32("CryptRotNbTurns"))
+            continue;
+
+        // We add the rotten creature points to the room and release the active spot
+        Creature* c = p.second.first;
+        mRottenPoints += c->getMaxHp();
+
+        const std::string& name = c->getName();
+        Player* player = getGameMap()->getPlayerBySeat(c->getSeat());
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotification::removeCreature, player);
+        serverNotification->mPacket << name;
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+
+        getGameMap()->removeCreature(c);
+        c->deleteYourself();
+        p.second.first = nullptr;
+        p.second.second = -1;
+
+        int32_t maxCreatures = ConfigManager::getSingleton().getMaxCreaturesPerSeat();
+        int32_t numCreatures = getGameMap()->getCreaturesBySeat(getSeat()).size();
+        int32_t cryptPointsForSpawn = ConfigManager::getSingleton().getRoomConfigInt32("CryptPointsForSpawn");
+        if((numCreatures < maxCreatures) &&
+           (mRottenPoints >= cryptPointsForSpawn))
+        {
+            Tile* tileSpawn = p.first;
+            mRottenPoints -= cryptPointsForSpawn;
+            const std::string& className = ConfigManager::getSingleton().getRoomConfigString("CryptSpawnClass");
+            const CreatureDefinition* classToSpawn = getGameMap()->getClassDescription(className);
+            OD_ASSERT_TRUE_MSG(classToSpawn != nullptr, "className=" + className);
+            if(classToSpawn == nullptr)
+                continue;
+            // Create a new creature and copy over the class-based creature parameters.
+            Creature *newCreature = new Creature(getGameMap(), classToSpawn);
+            newCreature->setPosition(Ogre::Vector3((Ogre::Real)tileSpawn->getX(), (Ogre::Real)tileSpawn->getY(), (Ogre::Real)0.0));
+            newCreature->setSeat(getSeat());
+
+            // Add the creature to the gameMap and create meshes so it is visible.
+            getGameMap()->addCreature(newCreature);
+            newCreature->createMesh();
+
+            // Inform the clients
+           ServerNotification *serverNotification = new ServerNotification(
+               ServerNotification::addCreature, newCreature->getGameMap()->getPlayerBySeat(newCreature->getSeat()));
+           newCreature->exportToPacket(serverNotification->mPacket);
+           ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+    }
+}
+
+bool RoomCrypt::hasCarryEntitySpot(GameEntity* carriedEntity)
+{
+    if(carriedEntity->getObjectType() != GameEntity::ObjectType::creature)
+        return false;
+
+    Creature* creature = static_cast<Creature*>(carriedEntity);
+    if(creature->getHP() > 0.0)
+        return false;
+
+    for(std::pair<Tile* const, std::pair<Creature*, int32_t> >& p : mRottingCreatures)
+    {
+        if(p.second.first == nullptr)
+            return true;
+    }
+    return false;
+}
+
+Tile* RoomCrypt::askSpotForCarriedEntity(GameEntity* carriedEntity)
+{
+    OD_ASSERT_TRUE_MSG(carriedEntity->getObjectType() == GameEntity::ObjectType::creature,
+        "room=" + getName() + ", entity=" + carriedEntity->getName());
+    if(carriedEntity->getObjectType() != GameEntity::ObjectType::creature)
+        return nullptr;
+
+    Creature* creature = static_cast<Creature*>(carriedEntity);
+    for(std::pair<Tile* const, std::pair<Creature*, int32_t> >& p : mRottingCreatures)
+    {
+        if(p.second.first == nullptr)
+        {
+            p.second.first = creature;
+            p.second.second = -1;
+            Tile* spot = p.first;
+            Tile* t = getGameMap()->getTile(spot->getX() + OFFSET_TILE_X,
+                spot->getY() + OFFSET_TILE_Y);
+            OD_ASSERT_TRUE_MSG(t != nullptr, "room=" + getName() + ", spot="
+                + Tile::displayAsString(spot));
+            return t;
+        }
+    }
+    return nullptr;
+}
+
+void RoomCrypt::notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity)
+{
+    for(std::pair<Tile* const, std::pair<Creature*, int32_t> >& p : mRottingCreatures)
+    {
+        if(p.second.first == carriedEntity)
+        {
+            // We check if the carrier is at the expected destination
+            Tile* carrierTile = carrier->getPositionTile();
+            OD_ASSERT_TRUE_MSG(carrierTile != nullptr, "carrier=" + carrier->getName());
+            if(carrierTile == nullptr)
+            {
+                p.second.first = nullptr;
+                p.second.second = -1;
+                return;
+            }
+
+            Tile* spot = p.first;
+            Tile* tileExpected = getGameMap()->getTile(spot->getX() + OFFSET_TILE_X,
+                spot->getY() + OFFSET_TILE_Y);
+            if(tileExpected != carrierTile)
+            {
+                p.second.first = nullptr;
+                p.second.second = -1;
+                return;
+            }
+
+            // The carrier has brought the dead creature
+            OD_ASSERT_TRUE_MSG(carriedEntity->getObjectType() == GameEntity::ObjectType::creature,
+                "room=" + getName() + ", entity=" + carriedEntity->getName());
+
+            Creature* deadCreature = static_cast<Creature*>(carriedEntity);
+            Tile* tileDeadCreature = deadCreature->getPositionTile();
+            OD_ASSERT_TRUE_MSG(tileDeadCreature != nullptr, "deadCreature=" + deadCreature->getName());
+            if(tileDeadCreature == nullptr)
+                return;
+            // Start rotting
+            tileDeadCreature->removeCreature(deadCreature);
+            deadCreature->setIsOnMap(false);
+            p.second.second = 0;
+            return;
+        }
+    }
+
+    // We couldn't find the entity in the list. That may happen if the active spot has
+    // been erased between the time the carrier tried to come and the time it arrived.
+    // In any case, nothing to do
 }

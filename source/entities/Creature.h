@@ -93,9 +93,6 @@ public:
     double getMaxHp()const
     { return mMaxHP; }
 
-    //! \brief True if the creature is on the map, false if not (e.g. when in hand)
-    bool getIsOnMap() const;
-
     //! \brief Gets the current dig rate
     double getDigRate() const
     { return mDigRate; }
@@ -144,7 +141,6 @@ public:
     void drop(const Ogre::Vector3& v);
 
     void setHP(double nHP);
-    void setIsOnMap(bool nIsOnMap);
 
     inline void setHomeTile(Tile* ht)
     { mHomeTile = ht; }
@@ -308,6 +304,8 @@ public:
     //! \brief Tells whether the creature can go through the given tile.
     bool canGoThroughTile(const Tile* tile) const;
 
+    virtual void notifyEntityCarried(bool isCarried);
+
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
@@ -353,7 +351,6 @@ private:
     //! \brief Pointer to the struct holding the general type of the creature with its values
     const CreatureDefinition* mDefinition;
 
-    bool            mIsOnMap;
     bool            mHasVisualDebuggingEntities;
     double          mAwakeness;
     double          mHunger;
@@ -414,6 +411,10 @@ private:
     CreatureSound*                  mSound;
 
     ForceAction                     mForceAction;
+
+    bool                            mIsCarryActionTested;
+    GameEntity*                     mCarriedEntity;
+    Building*                       mCarriedEntityDest;
 
     void pushAction(CreatureAction action);
     void popAction();
@@ -512,12 +513,22 @@ private:
     //! \return true when another action should handled after that one.
     bool handleFleeAction();
 
+    //! \brief A sub-function called by doTurn()
+    //! This functions will hanlde the creature action logic about finding a carryable entity.
+    //! And trying to carry it to a suitable building
+    //! \return true when another action should handled after that one.
+    bool handleCarryableEntities();
+
     //! \brief Returns true if creature is in bad mood. False otherwise. A creature in bad mood will more likely
     //! flee or attack allied units
     bool isInBadMood();
 
     //! \brief Restores the creature's stats according to the given level
     void buildStats(unsigned int level);
+
+    void carryEntity(GameEntity* carriedEntity);
+
+    void releaseCarriedEntity();
 };
 
 #endif // CREATURE_H

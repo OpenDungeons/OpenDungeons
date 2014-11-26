@@ -44,6 +44,7 @@ public:
         eatdecided, // (fighters only) Try to find a hatchery to eat
         eatforced, // (fighters only) Force eating if the creature is dropped in a hatchery
         flee, // If a fighter is weak (low hp) or a worker is attacked by a fighter, he will flee
+        carryEntity, // (worker only) Carry an entity to a suitable building
         idle // Stand around doing nothing.
     };
 

@@ -190,6 +190,8 @@ public:
                       Seat* seat) const;
     std::vector<Room*> getReachableRooms(const std::vector<Room*> &vec,
                        Tile *startTile, const Creature* creature);
+    std::vector<Building*> getReachableBuildingsPerSeat(Seat* seat,
+        Tile *startTile, const Creature* creature);
     Room* getRoomByName(const std::string& name);
     Trap* getTrapByName(const std::string& name);
 
@@ -347,6 +349,9 @@ public:
 
     //! \brief Loops over the visibleTiles and returns any creature in those tiles allied with the given seat (or if invert is true, is not allied)
     std::vector<GameEntity*> getVisibleCreatures(std::vector<Tile*> visibleTiles, Seat* seat, bool invert);
+
+    //! \brief Loops over the visibleTiles and returns any carryable entity in those tiles
+    std::vector<GameEntity*> getVisibleCarryableEntities(std::vector<Tile*> visibleTiles);
 
     /** \brief Returns the as the crow flies distance between tiles located at the two coordinates given.
      * If tiles do not exist at these locations the function returns -1.0.

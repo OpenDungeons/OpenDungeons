@@ -143,6 +143,24 @@ void TreasuryObject::setPosition(const Ogre::Vector3& v)
 
 }
 
+void TreasuryObject::notifyEntityCarried(bool isCarried)
+{
+    Tile* myTile = getPositionTile();
+    OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
+    if(myTile == nullptr)
+        return;
+    if(isCarried)
+    {
+        setIsOnMap(false);
+        myTile->removeTreasuryObject(this);
+    }
+    else
+    {
+        setIsOnMap(true);
+        myTile->addTreasuryObject(this);
+    }
+}
+
 const char* TreasuryObject::getFormat()
 {
     // TODO : implement saving/loading in the level file

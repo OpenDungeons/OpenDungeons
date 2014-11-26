@@ -1881,7 +1881,23 @@ std::vector<GameEntity*> GameMap::getVisibleCreatures(std::vector<Tile*> visible
     }
 
     return returnList;
+}
 
+std::vector<GameEntity*> GameMap::getVisibleCarryableEntities(std::vector<Tile*> visibleTiles)
+{
+    std::vector<GameEntity*> returnList;
+
+    // Loop over the visible tiles
+    for (Tile* tile : visibleTiles)
+    {
+        OD_ASSERT_TRUE(tile != NULL);
+        if(tile == NULL)
+            continue;
+
+        tile->fillCarryableEntities(returnList);
+    }
+
+    return returnList;
 }
 
 void GameMap::clearRooms()
@@ -1981,15 +1997,13 @@ std::vector<const Room*> GameMap::getRoomsByTypeAndSeat(Room::RoomType type, Sea
 
 unsigned int GameMap::numRoomsByTypeAndSeat(Room::RoomType type, Seat* seat) const
 {
-    unsigned int count = 0;;
-    std::vector<Room*>::const_iterator it;
-    for (it = rooms.begin(); it != rooms.end(); ++it)
+    int cptRooms = 0;
+    for (Room* room : rooms)
     {
-        Room* room = *it;
         if (room->getType() == type && room->getSeat() == seat && room->getHP(NULL) > 0.0)
-            ++count;
+            ++cptRooms;
     }
-    return count;
+    return cptRooms;
 }
 
 std::vector<Room*> GameMap::getReachableRooms(const std::vector<Room*>& vec,
@@ -2009,6 +2023,41 @@ std::vector<Room*> GameMap::getReachableRooms(const std::vector<Room*>& vec,
     }
 
     return returnVector;
+}
+
+std::vector<Building*> GameMap::getReachableBuildingsPerSeat(Seat* seat,
+       Tile *startTile, const Creature* creature)
+{
+    std::vector<Building*> returnList;
+    for (Room* room : rooms)
+    {
+        if (room->getSeat() != seat)
+            continue;
+
+        if (room->getHP(NULL) <= 0.0)
+            continue;
+
+        if(!pathExists(creature, startTile, room->getCoveredTiles()[0]))
+            continue;
+
+        returnList.push_back(room);
+    }
+
+    for (Trap* trap : traps)
+    {
+        if (trap->getSeat() != seat)
+            continue;
+
+        if (trap->getHP(NULL) <= 0.0)
+            continue;
+
+        if(!pathExists(creature, startTile, trap->getCoveredTiles()[0]))
+            continue;
+
+        returnList.push_back(trap);
+    }
+
+    return returnList;
 }
 
 Room* GameMap::getRoomByName(const std::string& name)

@@ -276,3 +276,34 @@ void RoomTreasury::updateMeshesForTile(Tile* t)
 
     mFullnessOfTile[t] = newFullness;
 }
+
+bool RoomTreasury::hasCarryEntitySpot(GameEntity* carriedEntity)
+{
+    // We might accept more gold than empty space (for example, if there are 100 gold left
+    // and 2 different workers want to bring a treasury) but we don't care
+    if(carriedEntity->getObjectType() != GameEntity::ObjectType::renderedMovableEntity)
+        return false;
+
+    RenderedMovableEntity* renderedEntity = static_cast<RenderedMovableEntity*>(carriedEntity);
+    if(renderedEntity->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::treasuryObject)
+        return false;
+
+    if(emptyStorageSpace() <= 0)
+        return false;
+
+    return true;
+}
+
+Tile* RoomTreasury::askSpotForCarriedEntity(GameEntity* carriedEntity)
+{
+    if(!hasCarryEntitySpot(carriedEntity))
+        return nullptr;
+
+    return mCoveredTiles[0];
+}
+
+void RoomTreasury::notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity)
+{
+    // If a treasury is deposited on the treasury, no need to handle it here.
+    // It will handle himself alone
+}

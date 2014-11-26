@@ -44,6 +44,12 @@ public:
     { return mWeapons; }
     const Weapon* getWeapon(const std::string& name) const;
 
+    uint32_t getCreatureDeathCounter() const
+    { return mCreatureDeathCounter; }
+
+    uint32_t getMaxCreaturesPerSeat() const
+    { return mMaxCreaturesPerSeat; }
+
     uint32_t getNetworkPort() const
     { return mNetworkPort; }
 
@@ -58,13 +64,13 @@ public:
     { return mFactions; }
 
     //! Rooms configuration
-    const std::string getRoomConfigString(const std::string& param) const;
+    const std::string& getRoomConfigString(const std::string& param) const;
     uint32_t getRoomConfigUInt32(const std::string& param) const;
     int32_t getRoomConfigInt32(const std::string& param) const;
     double getRoomConfigDouble(const std::string& param) const;
 
     //! Traps configuration
-    const std::string getTrapConfigString(const std::string& param) const;
+    const std::string& getTrapConfigString(const std::string& param) const;
     uint32_t getTrapConfigUInt32(const std::string& param) const;
     int32_t getTrapConfigInt32(const std::string& param) const;
     double getTrapConfigDouble(const std::string& param) const;
@@ -94,6 +100,8 @@ private:
     std::string mFilenameTraps;
     uint32_t mNetworkPort;
     uint32_t mBaseSpawnPoint;
+    uint32_t mCreatureDeathCounter;
+    uint32_t mMaxCreaturesPerSeat;
     std::map<const CreatureDefinition*, std::vector<const SpawnCondition*> > mCreatureSpawnConditions;
     std::map<const std::string, std::vector<std::string> > mFactionSpawnPool;
     std::vector<std::string> mFactions;
