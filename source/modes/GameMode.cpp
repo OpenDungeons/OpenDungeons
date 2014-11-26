@@ -1068,13 +1068,13 @@ void GameMode::createHelpWindow()
         << "dig them for you. They will also claim tiles, turning them into stone with your color at their center." << std::endl
         << "Certain blocks are made of gold. You should look for them and make you workers dig those tiles in priority."
         << "Once you have enough gold, you can build room tiles that will permit to make your fighter creatures do many things "
-        << "such as sleeping, eating, training, ... Certain rooms also attracts new creatures types." << std::endl;
+        << "such as sleeping, eating, training, ... Certain rooms also attract new creatures types." << std::endl;
     txt << "Gold taken by your workers is put in your treasury rooms. If you haven't any, the first treasury room square tile is free of charge..."
         << std::endl << std::endl
         << "You can also left-click on one of your creatures to pick it up and right click somewhere else to put it back. "
         << "Very useful to help a creature in battle or force a worker to do a specific task..." << std::endl
         << "Note that you can place workers on any of your claimed tiles and unclaimed dirt tiles, "
-        << "but you can place fighters only on claim tiles and nothing at all on enemy claimed tiles." << std::endl;
+        << "but you can place fighters only on claimed tiles and nothing at all on enemy claimed tiles." << std::endl;
     txt << "Your workers will also fortify walls, turning them into your color. Those cannot be broken by enemies until no more "
         << "claimed tiles around are of your color." << std::endl
         << "Last but not least, you can also grab gold left on the floor once your workers have claimed the corresponding tile, "
