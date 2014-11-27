@@ -730,6 +730,38 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
+        case ServerNotification::setEntityOpacity:
+        {
+            std::string name;
+            float opacity;
+            GameEntity::ObjectType entityType;
+            OD_ASSERT_TRUE(packetReceived >> entityType >> name >> opacity);
+
+            GameEntity* entity = nullptr;
+            switch(entityType)
+            {
+                case GameEntity::ObjectType::creature:
+                {
+                    entity = gameMap->getCreature(name);
+                    break;
+                }
+                case GameEntity::ObjectType::renderedMovableEntity:
+                {
+                    entity = gameMap->getRenderedMovableEntity(name);
+                    break;
+                }
+                default:
+                    // No need to display an error as it will be displayed in the following assert
+                    break;
+            }
+            OD_ASSERT_TRUE_MSG(entity != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", name=" + name);
+
+            if(entity)
+                entity->setMeshOpacity(opacity);
+
+            break;
+        }
+
         case ServerNotification::playSpatialSound:
         {
             SoundEffectsManager::InterfaceSound soundType;

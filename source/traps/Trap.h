@@ -33,6 +33,43 @@ class ODPacket;
 
 #include "entities/Building.h"
 
+//! \brief A small class telling whether a trap tile is activated.
+class TrapTileInfo
+{
+public:
+    TrapTileInfo():
+        mIsActivated(false),
+        mReloadTime(0)
+    {}
+
+    TrapTileInfo(uint32_t reloadTime, bool activated):
+        mIsActivated(activated),
+        mReloadTime(reloadTime)
+    {}
+
+    uint32_t getReloadTime() const
+    { return mReloadTime; }
+
+    void decreaseReloadTime()
+    {
+        if (mReloadTime > 0)
+            --mReloadTime;
+    }
+
+    bool isActivated() const
+    { return mIsActivated; }
+
+    void setReloadTime(uint32_t reloadTime)
+    { mReloadTime = reloadTime; }
+
+    void setActivated(bool activated)
+    { mIsActivated = activated; }
+
+private:
+    bool mIsActivated;
+    uint32_t mReloadTime;
+};
+
 /*! \class Trap Trap.h
  *  \brief Defines a trap
  */
@@ -70,6 +107,9 @@ public:
         return true;
     }
 
+    //! \brief Tells whether the trap is activated.
+    bool isActivated(Tile* tile) const;
+
     //! \brief Sets the name, seat and associates the given tiles with the trap
     void setupTrap(const std::string& name, Seat* seat, const std::vector<Tile*>& tiles);
 
@@ -99,11 +139,19 @@ protected:
     virtual void destroyMeshLocal();
     virtual RenderedMovableEntity* notifyActiveSpotCreated(Tile* tile);
     virtual void notifyActiveSpotRemoved(Tile* tile);
+
+    //! \brief Triggered when the trap is activated
+    virtual void activate(Tile* tile);
+
+    //! \brief Triggered when deactivated.
+    virtual void deactivate(Tile* tile);
+
     uint32_t mReloadTime;
     double mMinDamage;
     double mMaxDamage;
 
-    std::map<Tile*, uint32_t> mReloadTimeCounters;
+    //! \brief Tells the current reloading time left for each tiles and whether it is activated.
+    std::map<Tile*, TrapTileInfo> mTrapTiles;
 };
 
 #endif // TRAP_H

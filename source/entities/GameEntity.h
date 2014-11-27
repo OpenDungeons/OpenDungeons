@@ -47,13 +47,6 @@ class ODPacket;
  */
 class GameEntity
 {
-
-/* TODO list:
- * - complete the constructor
- * - add semaphores if/where needed
- * - static removeDeadObjects should not be in here (maybe in GameMap?)
- */
-
   public:
     enum ObjectType
     {
@@ -63,99 +56,128 @@ class GameEntity
     //! \brief Default constructor with default values
     GameEntity(
           GameMap*        gameMap,
-          std::string     nName       = std::string(),
-          std::string     nMeshName   = std::string(),
+          std::string     name       = std::string(),
+          std::string     meshName   = std::string(),
+          float           opacity     = 1.0f,
           Seat*           seat        = nullptr
           ) :
-    mRendererSceneNode (nullptr),
-    position    (Ogre::Vector3(0, 0, 0)),
-    name        (nName),
-    meshName    (nMeshName),
-    meshExists  (false),
-    mSeat       (seat),
+    mPosition          (Ogre::Vector3(0, 0, 0)),
+    mOpacity           (opacity),
+    mName              (name),
+    mMeshName          (meshName),
+    mMeshExists        (false),
+    mSeat              (seat),
     mIsDeleteRequested (false),
-    objectType  (unknown),
-    gameMap     (nullptr),
-    mIsOnMap    (true)
+    mObjectType        (unknown),
+    mGameMap           (gameMap),
+    mIsOnMap           (true),
+    mRendererSceneNode (nullptr)
     {
-        assert(gameMap !=  nullptr);
-        this->gameMap = gameMap;
+        assert(mGameMap != nullptr);
     }
 
-    virtual ~GameEntity(){}
+    virtual ~GameEntity() {}
 
     // ===== GETTERS =====
     virtual std::string getOgreNamePrefix() const = 0;
 
     //! \brief Get the name of the object
-    inline const std::string&   getName         () const    { return name; }
+    inline const std::string& getName() const
+    { return mName; }
 
     //! \brief Get the mesh name of the object
-    inline const std::string&   getMeshName     () const    { return meshName; }
+    inline const std::string& getMeshName() const
+    { return mMeshName; }
 
     //! \brief Get the seat that the object belongs to
-    inline Seat*                getSeat         () const    { return mSeat; }
+    inline Seat* getSeat() const
+    { return mSeat; }
 
     //! \brief Get if the mesh is already existing
-    inline bool                 isMeshExisting  () const    { return meshExists; }
+    inline bool isMeshExisting() const
+    { return mMeshExists; }
+
+    //! \brief Get if the mesh is already existing
+    inline float getOpacity() const
+    { return mOpacity; }
 
     //! \brief Get if the object can be attacked or not
-    virtual bool                isAttackable    () const    { return false; }
+    virtual bool isAttackable() const
+    { return false; }
 
     //! \brief Get the type of this object
-    inline ObjectType           getObjectType   () const    { return objectType; }
+    inline ObjectType getObjectType() const
+    { return mObjectType; }
 
     //! \brief Pointer to the GameMap
-    inline GameMap*             getGameMap      () const    { return gameMap; }
+    inline GameMap* getGameMap() const
+    { return mGameMap; }
 
-    virtual Ogre::Vector3       getPosition     () const    { return position; }
+    virtual Ogre::Vector3 getPosition() const
+    { return mPosition; }
+
+    inline Ogre::SceneNode* getSceneNode() const
+    { return mRendererSceneNode; }
 
     // ===== SETTERS =====
     //! \brief Set the name of the entity
-    inline void setName         (const std::string& nName)      { name = nName; }
+    inline void setName(const std::string& name)
+    { mName = name; }
 
     //! \brief Set the name of the mesh file
-    inline void setMeshName     (const std::string& nMeshName)  { meshName = nMeshName; }
+    inline void setMeshName(const std::string& meshName)
+    { mMeshName = meshName; }
 
     //! \brief Sets the seat this object belongs to
-    inline void setSeat         (Seat* seat)                    { mSeat = seat; }
+    inline void setSeat(Seat* seat)
+    { mSeat = seat; }
 
     //! \brief Set if the mesh exists
-    inline void setMeshExisting (bool isExisting)               { meshExists = isExisting; }
+    inline void setMeshExisting(bool isExisting)
+    { mMeshExists = isExisting; }
+
+    //! \brief Set the entity opacity
+    void setMeshOpacity(float opacity);
+
+    //! \brief Set the entity opacity value whithout refreshing it. Useful at construction.
+    void setOpacity(float opacity)
+    { mOpacity = opacity; }
 
     //! \brief Set the type of the object. Should be done in all final derived constructors
-    inline void setObjectType   (ObjectType nType)              { objectType = nType; }
+    inline void setObjectType (ObjectType type)
+    { mObjectType = type; }
 
-    virtual void                setPosition                     (const Ogre::Vector3& v)
-    {
-        position = v;
-    }
+    virtual void setPosition(const Ogre::Vector3& v)
+    { mPosition = v; }
+
+    inline void setSceneNode(Ogre::SceneNode* sceneNode)
+    { mRendererSceneNode = sceneNode; }
 
     // ===== METHODS =====
     //! \brief Function that calls the mesh creation. If the mesh is already created, does nothing
-    void    createMesh      ();
+    void createMesh();
     //! \brief Function that calls the mesh destruction. If the mesh is not created, does nothing
-    void    destroyMesh     ();
+    void destroyMesh();
     //! \brief Function that schedules the object destruction. This function should not be called twice
-    void    deleteYourself  ();
+    void deleteYourself();
 
     inline void show()
     {
-        RenderRequest *request = new RenderRequestAttachEntity(this);
+        RenderRequest* request = new RenderRequestAttachEntity(this);
         RenderManager::queueRenderRequest(request);
-    };
+    }
 
     inline void hide()
     {
-        RenderRequest *request = new RenderRequestDetachEntity(this);
+        RenderRequest* request = new RenderRequestDetachEntity(this);
         RenderManager::queueRenderRequest(request);
-    };
+    }
 
     //! \brief Retrieves the position tile from the game map
     Tile* getPositionTile() const;
 
     //! \brief defines what happens on each turn with this object
-    virtual void    doUpkeep        () = 0;
+    virtual void doUpkeep() = 0;
 
     //! \brief Returns a list of the tiles that this object is in/covering.  For creatures and other small objects
     //! this will be a single tile, for larger objects like rooms this will be 1 or more tiles.
@@ -179,10 +201,6 @@ class GameEntity
     virtual void setIsOnMap(bool isOnMap)
     { mIsOnMap = isOnMap; }
 
-    //! Used by the renderer to save the scene node this entity belongs to. This is usefull
-    //! when the entity is removed from the scene (during pickup for example)
-    Ogre::SceneNode* mRendererSceneNode;
-
     static std::vector<GameEntity*> removeDeadObjects(const std::vector<GameEntity*> &objects)
     {
         std::vector<GameEntity*> ret;
@@ -200,13 +218,16 @@ class GameEntity
 
   protected:
     //! \brief Function that implements the mesh creation
-    virtual void    createMeshLocal      () {};
+    virtual void createMeshLocal() {};
 
     //! \brief Function that implements the mesh deletion
-    virtual void    destroyMeshLocal     () {};
+    virtual void destroyMeshLocal() {};
 
     //! \brief The position of this object
-    Ogre::Vector3   position;
+    Ogre::Vector3 mPosition;
+
+    //! \brief The model current opacity
+    float mOpacity;
 
     //! \brief Convinience function to get ogreNamePrefix + name
     //! Used for nodes. The name does not include the _node and similar postfixes which are
@@ -215,30 +236,33 @@ class GameEntity
 
   private:
     //! brief The name of the entity
-    std::string     name;
+    std::string mName;
 
     //! \brief The name of the mesh
-    std::string     meshName;
+    std::string mMeshName;
 
     //! \brief Stores the existence state of the mesh
-    bool            meshExists;
+    bool mMeshExists;
 
     //! \brief The seat that the object belongs to
-    Seat*           mSeat;
+    Seat* mSeat;
 
     //! \brief A flag saying whether the object has been requested to delete
-    bool            mIsDeleteRequested;
+    bool mIsDeleteRequested;
 
     //! \brief What kind of object is it
-    ObjectType      objectType;
+    ObjectType mObjectType;
 
     //! \brief Pointer to the GameMap object.
-    GameMap*        gameMap;
+    GameMap* mGameMap;
 
     //! \brief Whether the entity is on map or not (for example, when it is
     //! picked up, it is not on map)
-    bool            mIsOnMap;
+    bool mIsOnMap;
+
+    //! Used by the renderer to save the scene node this entity belongs to. This is useful
+    //! when the entity is removed from the scene (during pickup for example)
+    Ogre::SceneNode* mRendererSceneNode;
 };
 
-#endif /* GAMEENTITY_H_ */
-
+#endif // GAMEENTITY_H_

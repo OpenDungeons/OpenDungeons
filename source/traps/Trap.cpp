@@ -227,14 +227,20 @@ void Trap::doUpkeep()
     for(std::vector<Tile*>::iterator it = mCoveredTiles.begin(); it != mCoveredTiles.end(); ++it)
     {
         Tile* tile = *it;
-        if(mReloadTimeCounters[tile] > 0)
+        if(mTrapTiles[tile].getReloadTime() > 0)
         {
-            --mReloadTimeCounters[tile];
+            mTrapTiles[tile].decreaseReloadTime();
             continue;
         }
+
+        // Activate the trap if it was deactivated.
+        if (!mTrapTiles[tile].isActivated())
+            activate(tile);
+
+        // The trap shoot method will optionally deactivate the trap.
         if(shoot(tile))
         {
-            mReloadTimeCounters[tile] = mReloadTime;
+            mTrapTiles[tile].setReloadTime(mReloadTime);
 
             // Warn the player the trap has triggered
             GameMap* gameMap = getGameMap();
@@ -248,7 +254,9 @@ void Trap::addCoveredTile(Tile* t, double nHP)
 {
     Building::addCoveredTile(t, nHP);
     t->setCoveringTrap(this);
-    mReloadTimeCounters[t] = mReloadTime;
+
+    // The trap starts deactivated.
+    mTrapTiles[t] = TrapTileInfo(mReloadTime, false);
 }
 
 bool Trap::removeCoveredTile(Tile* t)
@@ -257,7 +265,8 @@ bool Trap::removeCoveredTile(Tile* t)
         return false;
 
     t->setCoveringTrap(NULL);
-    mReloadTimeCounters.erase(t);
+    mTrapTiles.erase(t);
+
     if(getGameMap()->isServerGameMap())
         return true;
 
@@ -318,6 +327,31 @@ RenderedMovableEntity* Trap::notifyActiveSpotCreated(Tile* tile)
 void Trap::notifyActiveSpotRemoved(Tile* tile)
 {
     removeBuildingObject(tile);
+}
+
+void Trap::activate(Tile* tile)
+{
+    if (tile == nullptr)
+        return;
+
+    mTrapTiles[tile].setActivated(true);
+}
+
+void Trap::deactivate(Tile* tile)
+{
+    if (tile == nullptr)
+        return;
+
+    mTrapTiles[tile].setActivated(false);
+}
+
+bool Trap::isActivated(Tile* tile) const
+{
+    std::map<Tile*, TrapTileInfo>::const_iterator it = mTrapTiles.find(tile);
+    if (it == mTrapTiles.end())
+        return false;
+
+    return it->second.isActivated();
 }
 
 void Trap::setupTrap(const std::string& name, Seat* seat, const std::vector<Tile*>& tiles)

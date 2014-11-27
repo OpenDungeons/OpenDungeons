@@ -27,6 +27,9 @@
 
 #include "gamemap/GameMap.h"
 #include "network/ODPacket.h"
+#include "network/ODServer.h"
+#include "network/ServerNotification.h"
+
 #include "render/RenderManager.h"
 #include "render/RenderRequest.h"
 #include "rooms/Room.h"
@@ -34,19 +37,19 @@
 
 void GameEntity::createMesh()
 {
-    if (meshExists)
+    if (mMeshExists)
         return;
 
-    meshExists = true;
+    mMeshExists = true;
     createMeshLocal();
 }
 
 void GameEntity::destroyMesh()
 {
-    if(!meshExists)
+    if(!mMeshExists)
         return;
 
-    meshExists = false;
+    mMeshExists = false;
 
     destroyMeshLocal();
 }
@@ -60,6 +63,27 @@ void GameEntity::deleteYourself()
     mIsDeleteRequested = true;
 
     getGameMap()->queueEntityForDeletion(this);
+}
+
+
+void GameEntity::setMeshOpacity(float opacity)
+{
+    if (opacity < 0.0f || opacity > 1.0f)
+        return;
+
+    mOpacity = opacity;
+
+    if(getGameMap()->isServerGameMap())
+    {
+        ServerNotification* serverNotification = new ServerNotification(ServerNotification::setEntityOpacity, nullptr);
+        std::string name = getName();
+        serverNotification->mPacket << getObjectType() << name << opacity;
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+        return;
+    }
+
+    RenderRequest* request = new RenderRequestUpdateEntityOpacity(this);
+    RenderManager::queueRenderRequest(request);
 }
 
 std::string GameEntity::getNodeNameWithoutPostfix()
