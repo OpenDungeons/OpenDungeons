@@ -62,10 +62,10 @@ bool TrapBoulder::shoot(Tile* tile)
         return false;
 
     // We take a random tile and launch boulder it
-    Tile* tileChoosen = tiles[Random::Uint(0, tiles.size() - 1)];
+    Tile* tileChosen = tiles[Random::Uint(0, tiles.size() - 1)];
     // We launch the boulder
-    Ogre::Vector3 direction(static_cast<Ogre::Real>(tileChoosen->getX() - tile->getX()),
-                            static_cast<Ogre::Real>(tileChoosen->getY() - tile->getY()),
+    Ogre::Vector3 direction(static_cast<Ogre::Real>(tileChosen->getX() - tile->getX()),
+                            static_cast<Ogre::Real>(tileChosen->getY() - tile->getY()),
                             0);
     Ogre::Vector3 position;
     position.x = static_cast<Ogre::Real>(tile->getX());
@@ -85,7 +85,7 @@ bool TrapBoulder::shoot(Tile* tile)
     missile->setAnimationState("Triggered", true);
 
     // Deactivate the trap until reloaded.
-    deactivate();
+    deactivate(tile);
 
     return true;
 }
@@ -93,25 +93,25 @@ bool TrapBoulder::shoot(Tile* tile)
 RenderedMovableEntity* TrapBoulder::notifyActiveSpotCreated(Tile* tile)
 {
     return loadBuildingObject(getGameMap(), "Boulder", tile, 0.0, false,
-                              isActivated() ? 1.0f : 0.5f);
+                              isActivated(tile) ? 1.0f : 0.5f);
 }
 
-void TrapBoulder::activate()
+void TrapBoulder::activate(Tile* tile)
 {
-    Trap::activate();
+    Trap::activate(tile);
 
-    RenderedMovableEntity* entity = getBuildingObjectFromTile(getCoveredTile(0));
+    RenderedMovableEntity* entity = getBuildingObjectFromTile(tile);
     if (entity == nullptr)
         return;
 
     entity->setMeshOpacity(1.0f);
 }
 
-void TrapBoulder::deactivate()
+void TrapBoulder::deactivate(Tile* tile)
 {
-    Trap::deactivate();
+    Trap::deactivate(tile);
 
-    RenderedMovableEntity* entity = getBuildingObjectFromTile(getCoveredTile(0));
+    RenderedMovableEntity* entity = getBuildingObjectFromTile(tile);
     if (entity == nullptr)
         return;
 
