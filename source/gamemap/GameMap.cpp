@@ -845,13 +845,12 @@ void GameMap::removeRenderedMovableEntity(RenderedMovableEntity *obj)
 
 RenderedMovableEntity* GameMap::getRenderedMovableEntity(const std::string& name)
 {
-    for(std::vector<RenderedMovableEntity*>::iterator it = mRenderedMovableEntities.begin(); it != mRenderedMovableEntities.end(); ++it)
+    for(RenderedMovableEntity* renderedMovableEntity : mRenderedMovableEntities)
     {
-        RenderedMovableEntity* obj = *it;
-        if(name.compare(obj->getName()) == 0)
-            return obj;
+        if(name.compare(renderedMovableEntity->getName()) == 0)
+            return renderedMovableEntity;
     }
-    return NULL;
+    return nullptr;
 }
 
 
@@ -1021,36 +1020,22 @@ void GameMap::destroyAllEntities()
 
 Creature* GameMap::getCreature(const std::string& cName)
 {
-    //TODO: This function should look the name up in a map of creature names onto pointers, care should also be taken to minimize calls to this function.
-    Creature *returnValue = NULL;
-
-    for (unsigned int i = 0; i < creatures.size(); ++i)
+    for (Creature* creature : creatures)
     {
-        if (creatures[i]->getName().compare(cName) == 0)
-        {
-            returnValue = creatures[i];
-            break;
-        }
+        if (creature->getName().compare(cName) == 0)
+            return creature;
     }
-
-    return returnValue;
+    return nullptr;
 }
 
 const Creature* GameMap::getCreature(const std::string& cName) const
 {
-    //TODO: This function should look the name up in a map of creature names onto pointers, care should also be taken to minimize calls to this function.
-    Creature *returnValue = NULL;
-
-    for (unsigned int i = 0; i < creatures.size(); ++i)
+    for (Creature* creature : creatures)
     {
-        if (creatures[i]->getName().compare(cName) == 0)
-        {
-            returnValue = creatures[i];
-            break;
-        }
+        if (creature->getName().compare(cName) == 0)
+            return creature;
     }
-
-    return returnValue;
+    return nullptr;
 }
 
 void GameMap::doTurn()
@@ -2908,6 +2893,24 @@ std::string GameMap::nextUniqueNameMapLight()
         ret = MapLight::MAPLIGHT_NAME_PREFIX + Ogre::StringConverter::toString(mUniqueNumberMapLight);
     } while(getAnimatedObject(ret) != NULL);
     return ret;
+}
+
+GameEntity* GameMap::getEntityFromTypeAndName(GameEntity::ObjectType entityType,
+    const std::string& entityName)
+{
+    switch(entityType)
+    {
+        case GameEntity::ObjectType::creature:
+            return getCreature(entityName);
+
+        case GameEntity::ObjectType::renderedMovableEntity:
+            return getRenderedMovableEntity(entityName);
+
+        default:
+            break;
+    }
+
+    return nullptr;
 }
 
 void GameMap::logFloodFileTiles()

@@ -68,6 +68,8 @@ public:
     std::string getOgreNamePrefix() const
     { return CREATURE_PREFIX; }
 
+    bool canDisplayStatsWindow(Seat* seat)
+    { return true; }
     void createStatsWindow();
     void destroyStatsWindow();
     bool CloseStatsWindow(const CEGUI::EventArgs& /*e*/);
@@ -305,6 +307,9 @@ public:
     bool canGoThroughTile(const Tile* tile) const;
 
     virtual void notifyEntityCarried(bool isCarried);
+
+    bool canSlap(Seat* seat, bool isEditorMode);
+    void slap(bool isEditorMode);
 
 protected:
     virtual void createMeshLocal();

@@ -119,9 +119,6 @@ private:
     int mMouseX;
     int mMouseY;
 
-    //! \brief The Mouse environment light following the mouse, don't delete it.
-    Ogre::Light* mMouseLight;
-
     InputMode mCurrentInputMode;
     std::vector<OIS::KeyCode> mKeysChatPressed;
 

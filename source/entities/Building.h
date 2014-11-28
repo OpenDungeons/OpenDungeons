@@ -40,24 +40,14 @@ class Tile;
 class Building : public GameEntity
 {
 public:
-    enum BuildingType
-    {
-        room,
-        trap
-    };
-
     //! \brief Default constructor with default values
-    Building(GameMap* gameMap, BuildingType buildingType) :
-        GameEntity(gameMap),
-        mBuildingType(buildingType)
+    Building(GameMap* gameMap) :
+        GameEntity(gameMap)
     {}
 
     const static double DEFAULT_TILE_HP;
 
     virtual ~Building() {}
-
-    BuildingType getBuildingType() const
-    { return mBuildingType; }
 
     //! \brief Updates the active spot lists. Active spots are places where objects can be added
     virtual void updateActiveSpots() = 0;
@@ -126,8 +116,6 @@ protected:
     std::map<Tile*, RenderedMovableEntity*> mBuildingObjects;
     std::vector<Tile*> mCoveredTiles;
     std::map<Tile*, double> mTileHP;
-
-    BuildingType mBuildingType;
 };
 
 #endif // BUILDING_H_

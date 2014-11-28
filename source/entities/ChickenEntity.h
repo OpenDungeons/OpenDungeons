@@ -49,6 +49,11 @@ public:
     virtual void setPosition(const Ogre::Vector3& v);
     bool eatChicken(Creature* creature);
 
+    bool canSlap(Seat* seat, bool isEditorMode);
+
+    void slap(bool isEditorMode)
+    { mIsSlapped = true; }
+
     static ChickenEntity* getChickenEntityFromStream(GameMap* gameMap, std::istream& is);
     static ChickenEntity* getChickenEntityFromPacket(GameMap* gameMap, ODPacket& is);
     static const char* getFormat();
@@ -64,6 +69,7 @@ private:
     int32_t mNbTurnOutsideHatchery;
     int32_t mNbTurnDie;
     bool mIsDropped;
+    bool mIsSlapped;
 
     void addTileToListIfPossible(int x, int y, Room* currentHatchery, std::vector<Tile*>& possibleTileMove);
 };

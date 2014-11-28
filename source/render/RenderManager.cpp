@@ -68,9 +68,10 @@ template<> RenderManager* Ogre::Singleton<RenderManager>::msSingleton = 0;
 const Ogre::Real RenderManager::BLENDER_UNITS_PER_OGRE_UNIT = 10.0;
 
 RenderManager::RenderManager(Ogre::OverlaySystem* overlaySystem) :
-    mGameMap(NULL),
-    mViewport(NULL),
-    mShaderGenerator(NULL),
+    mHandAnimationState(nullptr),
+    mGameMap(nullptr),
+    mViewport(nullptr),
+    mShaderGenerator(nullptr),
     mInitialized(false)
 {
     // Use Ogre::SceneType enum instead of string to identify the scene manager type; this is more robust!
@@ -122,12 +123,12 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
 
     // Create the scene nodes that will follow the mouse pointer.
     // Create the single tile selection mesh
-    Ogre::Entity* ent = mSceneManager->createEntity("SquareSelector", "SquareSelector.mesh");
+    Ogre::Entity* squareSelectorEnt = mSceneManager->createEntity("SquareSelector", "SquareSelector.mesh");
     Ogre::SceneNode* node = mSceneManager->getRootSceneNode()->createChildSceneNode("SquareSelectorNode");
     node->translate(Ogre::Vector3(0, 0, 0));
     node->scale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,
                               BLENDER_UNITS_PER_OGRE_UNIT, 0.45 * BLENDER_UNITS_PER_OGRE_UNIT));
-    node->attachObject(ent);
+    node->attachObject(squareSelectorEnt);
     Ogre::SceneNode *node2 = node->createChildSceneNode("Hand_node");
     node2->setPosition((Ogre::Real)(0.0 / BLENDER_UNITS_PER_OGRE_UNIT),
                        (Ogre::Real)(0.0 / BLENDER_UNITS_PER_OGRE_UNIT),
@@ -135,6 +136,21 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     node2->scale(Ogre::Vector3((Ogre::Real)(1.0 / BLENDER_UNITS_PER_OGRE_UNIT),
                                (Ogre::Real)(1.0 / BLENDER_UNITS_PER_OGRE_UNIT),
                                (Ogre::Real)(1.0 / BLENDER_UNITS_PER_OGRE_UNIT)));
+
+    Ogre::Entity* keeperHandEnt = mSceneManager->createEntity("keeperHandEnt", "Keeperhand.mesh");
+    mHandAnimationState = keeperHandEnt->getAnimationState("Walk");
+    mHandAnimationState->setTimePosition(0);
+    mHandAnimationState->setLoop(true);
+    mHandAnimationState->setEnabled(true);
+
+    Ogre::SceneNode* node3 = node->createChildSceneNode("KeeperHand_node");
+    node3->setPosition((Ogre::Real)(0.0 / BLENDER_UNITS_PER_OGRE_UNIT),
+                       (Ogre::Real)(-1.0 / BLENDER_UNITS_PER_OGRE_UNIT),
+                       (Ogre::Real)(4.0 / BLENDER_UNITS_PER_OGRE_UNIT));
+    node3->scale(Ogre::Vector3((Ogre::Real)(0.2 / BLENDER_UNITS_PER_OGRE_UNIT),
+                               (Ogre::Real)(0.2 / BLENDER_UNITS_PER_OGRE_UNIT),
+                               (Ogre::Real)(0.2 / BLENDER_UNITS_PER_OGRE_UNIT)));
+    node3->attachObject(keeperHandEnt);
 
     // Create the light which follows the single tile selection mesh
     Ogre::Light* light = mSceneManager->createLight("MouseLight");
@@ -148,7 +164,7 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     Ogre::CompositorManager::getSingleton().addCompositor(mViewport, "B&W");
 }
 
-void RenderManager::processRenderRequests()
+void RenderManager::processRenderRequests(Ogre::Real timeSinceLastFrame)
 {
     while (!mRenderQueue.empty())
     {
@@ -162,6 +178,19 @@ void RenderManager::processRenderRequests()
         delete curReq;
         curReq = NULL;
     }
+
+    if(mHandAnimationState == nullptr)
+        return;
+
+    mHandAnimationState->addTime(timeSinceLastFrame);
+    if(mHandAnimationState->hasEnded())
+    {
+        Ogre::Entity* ent = mSceneManager->getEntity("keeperHandEnt");
+        mHandAnimationState = ent->getAnimationState("Walk");
+        mHandAnimationState->setTimePosition(0);
+        mHandAnimationState->setLoop(true);
+    }
+
 }
 
 void RenderManager::queueRenderRequest_priv(RenderRequest* renderRequest)
@@ -358,12 +387,6 @@ void RenderManager::rrAttachEntity(GameEntity* curEntity)
 {
     Ogre::SceneNode* entityNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
     curEntity->getSceneNode()->addChild(entityNode);
-}
-
-void RenderManager::rrShowSquareSelector(const Ogre::Real& xPos, const Ogre::Real& yPos)
-{
-    mSceneManager->getEntity("SquareSelector")->setVisible(true);
-    mSceneManager->getSceneNode("SquareSelectorNode")->setPosition(xPos, yPos, 0.0);
 }
 
 void RenderManager::rrCreateBuilding(Building* curBuilding, Tile* curTile)
@@ -1120,4 +1143,20 @@ std::string RenderManager::setMaterialOpacity(const std::string& materialName, f
     }
 
     return newMaterialName.str();
+}
+
+void RenderManager::moveCursor(Ogre::Real x, Ogre::Real y)
+{
+    mSceneManager->getSceneNode("SquareSelectorNode")->setPosition(x, y, 0.0);
+    Ogre::Light* mouseLight = mSceneManager->getLight("MouseLight");
+    mouseLight->setPosition(x, y, 2.0);
+}
+
+void RenderManager::entitySlapped()
+{
+    Ogre::Entity* ent = mSceneManager->getEntity("keeperHandEnt");
+    mHandAnimationState = ent->getAnimationState("Idle");
+    mHandAnimationState->setTimePosition(0);
+    mHandAnimationState->setLoop(false);
+    mHandAnimationState->setEnabled(true);
 }

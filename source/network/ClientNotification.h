@@ -56,6 +56,7 @@ public:
         askCreatureInfos,
         askPickupWorker,
         askPickupFighter,
+        askSlapEntity,
 
         //  Editor
         editorAskSaveMap,

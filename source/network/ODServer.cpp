@@ -397,6 +397,12 @@ void ODServer::processServerNotifications()
                 sendMsgToAllClients(event->mPacket);
                 break;
 
+            case ServerNotification::entitySlapped:
+                // This message should not be sent by human players (they are notified asynchronously)
+                OD_ASSERT_TRUE_MSG(!event->mConcernedPlayer->getIsHuman(), "nick=" + event->mConcernedPlayer->getNick());
+                sendMsgToAllClients(event->mPacket);
+                break;
+
             case ServerNotification::buildRoom:
             {
                 // This message should not be sent by human players (they are notified asynchronously)
@@ -850,33 +856,12 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             GameEntity::ObjectType entityType;
             OD_ASSERT_TRUE(packetReceived >> entityType >> entityName);
 
-            GameEntity* entity = nullptr;
             Player *player = clientSocket->getPlayer();
-            bool allowPickup = false;
-            switch(entityType)
-            {
-                case GameEntity::ObjectType::creature:
-                {
-                    Creature* creature = gameMap->getCreature(entityName);
-                    entity = creature;
-                    allowPickup = creature->tryPickup(player->getSeat(), mServerMode == ServerMode::ModeEditor);
-                    break;
-                }
-                case GameEntity::ObjectType::renderedMovableEntity:
-                {
-                    RenderedMovableEntity* obj = gameMap->getRenderedMovableEntity(entityName);
-                    entity = obj;
-                    allowPickup = obj->tryPickup(player->getSeat(), mServerMode == ServerMode::ModeEditor);
-                    break;
-                }
-                default:
-                    // No need to display an error as it will be displayed in the following assert
-                    break;
-            }
+            GameEntity* entity = gameMap->getEntityFromTypeAndName(entityType, entityName);
             OD_ASSERT_TRUE_MSG(entity != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
             if(entity == nullptr)
                 break;
-
+            bool allowPickup = entity->tryPickup(player->getSeat(), mServerMode == ServerMode::ModeEditor);
             if(!allowPickup)
             {
                 LogManager::getSingleton().logMessage("player=" + player->getNick()
@@ -961,6 +946,41 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 }
                 sendMsgToClient(clientSocket, packet);
             }
+            break;
+        }
+
+        case ClientNotification::askSlapEntity:
+        {
+            GameEntity::ObjectType entityType;
+            std::string entityName;
+            Player* player = clientSocket->getPlayer();
+            OD_ASSERT_TRUE(packetReceived >> entityType >> entityName);
+            GameEntity* entity = gameMap->getEntityFromTypeAndName(entityType, entityName);
+            OD_ASSERT_TRUE_MSG(entity != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
+            if(entity == nullptr)
+                break;
+
+
+            bool isEditorMode = (mServerMode == ServerMode::ModeEditor);
+            if(!entity->canSlap(player->getSeat(), isEditorMode))
+            {
+                LogManager::getSingleton().logMessage("player=" + player->getNick()
+                        + " could not slap entity entityType="
+                        + Ogre::StringConverter::toString(static_cast<int32_t>(entityType))
+                        + ", entityName=" + entityName);
+                break;
+            }
+
+            entity->slap(isEditorMode);
+
+            ODPacket packet;
+            int seatId = player->getSeat()->getId();
+            packet << ServerNotification::entitySlapped;
+            packet << isEditorMode;
+            packet << seatId;
+            packet << entityType;
+            packet << entityName;
+            sendMsgToAllClients(packet);
             break;
         }
 

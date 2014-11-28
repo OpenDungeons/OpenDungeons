@@ -26,6 +26,8 @@
 
 #include <iostream>
 
+class GameEntity;
+
 class AbstractApplicationMode :
     public OIS::MouseListener,
     public OIS::KeyListener
@@ -105,6 +107,8 @@ public:
     virtual void onFrameEnded(const Ogre::FrameEvent& evt) = 0;
 
     virtual void exitMode() {}
+
+    GameEntity* getEntityFromOgreName(const std::string& entityName);
 
 protected:
     //! \brief Returns true if the key is to be processed by the chat.

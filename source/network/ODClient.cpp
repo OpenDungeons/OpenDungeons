@@ -432,29 +432,13 @@ bool ODClient::processOneClientSocketMessage()
             int seatId;
             GameEntity::ObjectType entityType;
             std::string entityName;
-            GameEntity* entity = nullptr;
             OD_ASSERT_TRUE(packetReceived >> isEditorMode >> seatId >> entityType >> entityName);
             Player *tempPlayer = gameMap->getPlayerBySeatId(seatId);
             OD_ASSERT_TRUE_MSG(tempPlayer != nullptr, "seatId=" + Ogre::StringConverter::toString(seatId));
             if(tempPlayer == nullptr)
                 break;
 
-            switch(entityType)
-            {
-                case GameEntity::ObjectType::creature:
-                {
-                    entity = gameMap->getCreature(entityName);
-                    break;
-                }
-                case GameEntity::ObjectType::renderedMovableEntity:
-                {
-                    entity = gameMap->getRenderedMovableEntity(entityName);
-                    break;
-                }
-                default:
-                    // No need to display an error as it will be displayed in the following assert
-                    break;
-            }
+            GameEntity* entity = gameMap->getEntityFromTypeAndName(entityType, entityName);
             OD_ASSERT_TRUE_MSG(entity != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
             if(entity == nullptr)
                 break;
@@ -476,6 +460,31 @@ bool ODClient::processOneClientSocketMessage()
             {
                 OD_ASSERT_TRUE(tempPlayer->dropHand(tile) != nullptr);
             }
+            break;
+        }
+
+        case ServerNotification::entitySlapped:
+        {
+            bool isEditorMode;
+            int seatId;
+            GameEntity::ObjectType entityType;
+            std::string entityName;
+            OD_ASSERT_TRUE(packetReceived >> isEditorMode >> seatId >> entityType >> entityName);
+            Player *tempPlayer = gameMap->getPlayerBySeatId(seatId);
+            OD_ASSERT_TRUE_MSG(tempPlayer != nullptr, "seatId=" + Ogre::StringConverter::toString(seatId));
+            if (tempPlayer == nullptr)
+                break;
+
+            GameEntity* entity = gameMap->getEntityFromTypeAndName(entityType, entityName);
+            OD_ASSERT_TRUE_MSG(entity != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
+            if(entity == nullptr)
+                break;
+
+            entity->slap(isEditorMode);
+
+            if(tempPlayer != gameMap->getLocalPlayer())
+                break;
+            RenderManager::getSingleton().entitySlapped();
             break;
         }
 
@@ -828,23 +837,7 @@ bool ODClient::processOneClientSocketMessage()
             if(carrier == nullptr)
                 break;
 
-            GameEntity* carried = nullptr;
-            switch(entityType)
-            {
-                case GameEntity::ObjectType::creature:
-                {
-                    carried = gameMap->getCreature(carriedName);
-                    break;
-                }
-                case GameEntity::ObjectType::renderedMovableEntity:
-                {
-                    carried = gameMap->getRenderedMovableEntity(carriedName);
-                    break;
-                }
-                default:
-                    // No need to display an error as it will be displayed in the following assert
-                    break;
-            }
+            GameEntity* carried = gameMap->getEntityFromTypeAndName(entityType, carriedName);
             OD_ASSERT_TRUE_MSG(carried != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", carriedName=" + carriedName);
             if(carried == nullptr)
                 break;
@@ -865,23 +858,7 @@ bool ODClient::processOneClientSocketMessage()
             if(carrier == nullptr)
                 break;
 
-            GameEntity* carried = nullptr;
-            switch(entityType)
-            {
-                case GameEntity::ObjectType::creature:
-                {
-                    carried = gameMap->getCreature(carriedName);
-                    break;
-                }
-                case GameEntity::ObjectType::renderedMovableEntity:
-                {
-                    carried = gameMap->getRenderedMovableEntity(carriedName);
-                    break;
-                }
-                default:
-                    // No need to display an error as it will be displayed in the following assert
-                    break;
-            }
+            GameEntity* carried = gameMap->getEntityFromTypeAndName(entityType, carriedName);
             OD_ASSERT_TRUE_MSG(carried != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", carriedName=" + carriedName);
             if(carried == nullptr)
                 break;

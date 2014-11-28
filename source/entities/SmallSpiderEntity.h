@@ -41,11 +41,18 @@ public:
     virtual RenderedMovableEntityType getRenderedMovableEntityType()
     { return RenderedMovableEntityType::smallSpiderEntity; }
 
+    bool canSlap(Seat* seat, bool isEditorMode);
+
+    void slap(bool isEditorMode)
+    { mIsSlapped = true; }
+
     static SmallSpiderEntity* getSmallSpiderEntityFromPacket(GameMap* gameMap, ODPacket& is);
     static const char* getFormat();
+
 private:
     void addTileToListIfPossible(int x, int y, Room* currentCrypt, std::vector<Tile*>& possibleTileMove);
     int32_t mNbTurnLife;
+    bool mIsSlapped;
 };
 
 #endif // SMALLSPIDERENTITY_H

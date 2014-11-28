@@ -201,17 +201,27 @@ class GameEntity
     virtual void setIsOnMap(bool isOnMap)
     { mIsOnMap = isOnMap; }
 
-    static std::vector<GameEntity*> removeDeadObjects(const std::vector<GameEntity*> &objects)
-    {
-        std::vector<GameEntity*> ret;
-        for(unsigned int i = 0, size = objects.size(); i < size; ++i)
-        {
-            if (objects[i]->getHP(NULL) > 0.0)
-            ret.push_back(objects[i]);
-        }
+    //! \brief Called when the stat windows is displayed
+    virtual bool canDisplayStatsWindow(Seat* seat)
+    { return false; }
+    virtual void createStatsWindow()
+    {}
 
-        return ret;
-    }
+    //! \brief Called when the entity is being slapped
+    virtual bool canSlap(Seat* seat, bool isEditorMode)
+    { return false; }
+    virtual void slap(bool isEditorMode)
+    {}
+
+    //! \brief Called when the entity is being picked up /dropped
+    virtual bool tryPickup(Seat* seat, bool isEditorMode)
+    { return false; }
+    virtual void pickup()
+    {}
+    virtual bool tryDrop(Seat* seat, Tile* tile, bool isEditorMode)
+    { return false; }
+    virtual void drop(const Ogre::Vector3& v)
+    {}
 
     friend ODPacket& operator<<(ODPacket& os, const GameEntity::ObjectType& ot);
     friend ODPacket& operator>>(ODPacket& is, GameEntity::ObjectType& ot);

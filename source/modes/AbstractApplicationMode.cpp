@@ -17,8 +17,13 @@
 
 #include "modes/AbstractApplicationMode.h"
 
+#include "entities/Creature.h"
+#include "entities/RenderedMovableEntity.h"
+
 #include "network/ODServer.h"
 #include "network/ODClient.h"
+
+#include "render/ODFrameListener.h"
 
 bool AbstractApplicationMode::isConnected()
 {
@@ -44,4 +49,22 @@ bool AbstractApplicationMode::isChatKey(const OIS::KeyEvent &arg)
 int AbstractApplicationMode::getChatChar(const OIS::KeyEvent &arg)
 {
     return arg.text;
+}
+
+GameEntity* AbstractApplicationMode::getEntityFromOgreName(const std::string& entityName)
+{
+    GameMap* gameMap = ODFrameListener::getSingletonPtr()->getClientGameMap();
+    if (entityName.find(Creature::CREATURE_PREFIX) != std::string::npos)
+    {
+        // It is a creature
+        std::string name = entityName.substr(Creature::CREATURE_PREFIX.length());
+        return gameMap->getCreature(name);
+    }
+    else if (entityName.find(RenderedMovableEntity::RENDEREDMOVABLEENTITY_OGRE_PREFIX) != std::string::npos)
+    {
+        std::string name = entityName.substr(RenderedMovableEntity::RENDEREDMOVABLEENTITY_OGRE_PREFIX.length());
+        return gameMap->getRenderedMovableEntity(name);
+    }
+
+    return nullptr;
 }

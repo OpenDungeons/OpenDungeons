@@ -28,13 +28,15 @@ const int32_t NB_TURNS_DIE_BEFORE_REMOVE = 0;
 
 SmallSpiderEntity::SmallSpiderEntity(GameMap* gameMap, const std::string& cryptName, int32_t nbTurnLife) :
     RenderedMovableEntity(gameMap, cryptName, "SmallSpider", 0.0f, false),
-    mNbTurnLife(nbTurnLife)
+    mNbTurnLife(nbTurnLife),
+    mIsSlapped(false)
 {
 }
 
 SmallSpiderEntity::SmallSpiderEntity(GameMap* gameMap) :
     RenderedMovableEntity(gameMap),
-    mNbTurnLife(0)
+    mNbTurnLife(0),
+    mIsSlapped(false)
 {
     setMeshName("SmallSpider");
 }
@@ -54,7 +56,7 @@ void SmallSpiderEntity::doUpkeep()
 
     // If the spider is outside the crypt or too old, it dies
     Room* currentCrypt = tile->getCoveringRoom();
-    if((mNbTurnLife <= 0) || (currentCrypt == nullptr) || (currentCrypt->getType() != Room::RoomType::crypt))
+    if(mIsSlapped || (mNbTurnLife <= 0) || (currentCrypt == nullptr) || (currentCrypt->getType() != Room::RoomType::crypt))
     {
         getGameMap()->removeRenderedMovableEntity(this);
         deleteYourself();
@@ -101,6 +103,25 @@ void SmallSpiderEntity::doUpkeep()
         addDestination(static_cast<Ogre::Real>(tileDest->getX()), static_cast<Ogre::Real>(tileDest->getY()));
 
     setAnimationState("Walk");
+}
+
+bool SmallSpiderEntity::canSlap(Seat* seat, bool isEditorMode)
+{
+    Tile* tile = getPositionTile();
+    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
+    if(tile == nullptr)
+        return false;
+
+    Room* currentCrypt = tile->getCoveringRoom();
+    if(currentCrypt == nullptr)
+        return false;
+    if(currentCrypt->getType() != Room::RoomType::crypt)
+        return false;
+
+    if(currentCrypt->getSeat() != seat)
+        return false;
+
+    return !mIsSlapped;
 }
 
 void SmallSpiderEntity::addTileToListIfPossible(int x, int y, Room* currentCrypt, std::vector<Tile*>& possibleTileMove)

@@ -454,6 +454,8 @@ public:
     RenderedMovableEntity* getRenderedMovableEntity(const std::string& name);
     void clearRenderedMovableEntities();
     void clearActiveObjects();
+    GameEntity* getEntityFromTypeAndName(GameEntity::ObjectType entityType,
+        const std::string& entityName);
 
     //! \brief Tells the game map a given player is attacking or under attack.
     //! Used on the server game map only.
