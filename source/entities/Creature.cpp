@@ -3556,3 +3556,48 @@ void Creature::releaseCarriedEntity()
     if(carriedEntityDest != nullptr)
         carriedEntityDest->notifyCarryingStateChanged(this, carriedEntity);
 }
+
+bool Creature::canSlap(Seat* seat, bool isEditorMode)
+{
+    Tile* tile = getPositionTile();
+    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
+    if(tile == nullptr)
+        return false;
+
+    if(getHP() <= 0.0)
+        return false;
+
+    if(isEditorMode)
+        return true;
+
+    // Only the owning player can slap a creature
+    if(getSeat() != seat)
+        return false;
+
+    return true;
+}
+
+void Creature::slap(bool isEditorMode)
+{
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    // In editor mode, we remove the creature
+    if(isEditorMode)
+    {
+        const std::string& name = getName();
+        Player* player = getGameMap()->getPlayerBySeat(getSeat());
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotification::removeCreature, player);
+        serverNotification->mPacket << name;
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+
+        getGameMap()->removeCreature(this);
+        deleteYourself();
+        return;
+    }
+
+    // TODO : on server side, we should boost speed for a time and decrease mood/hp
+    mHp -= mMaxHP * ConfigManager::getSingleton().getSlapDamagePercent() / 100.0;
+
+}

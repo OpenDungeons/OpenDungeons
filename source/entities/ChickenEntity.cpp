@@ -32,7 +32,8 @@ ChickenEntity::ChickenEntity(GameMap* gameMap, const std::string& hatcheryName) 
     mChickenState(ChickenState::free),
     mNbTurnOutsideHatchery(0),
     mNbTurnDie(0),
-    mIsDropped(false)
+    mIsDropped(false),
+    mIsSlapped(false)
 {
 }
 
@@ -41,7 +42,8 @@ ChickenEntity::ChickenEntity(GameMap* gameMap) :
     mChickenState(ChickenState::free),
     mNbTurnOutsideHatchery(0),
     mNbTurnDie(0),
-    mIsDropped(false)
+    mIsDropped(false),
+    mIsSlapped(false)
 {
     setMeshName("Chicken");
 }
@@ -81,22 +83,21 @@ void ChickenEntity::doUpkeep()
         return;
     }
 
+
     Room* currentHatchery = tile->getCoveringRoom();
     if((currentHatchery != nullptr) && (currentHatchery->getType() == Room::RoomType::hatchery))
-    {
         mNbTurnOutsideHatchery = 0;
-    }
     else
-    {
-        // If we are outside a hatchery for too long, we die
-        if(mNbTurnOutsideHatchery >= NB_TURNS_OUTSIDE_HATCHERY_BEFORE_DIE)
-        {
-            mChickenState = ChickenState::dying;
-            tile->removeChickenEntity(this);
-            setAnimationState("Die", false);
-            return;
-        }
         ++mNbTurnOutsideHatchery;
+
+    // If we are outside a hatchery for too long, we die
+    if(mIsSlapped || (mNbTurnOutsideHatchery >= NB_TURNS_OUTSIDE_HATCHERY_BEFORE_DIE))
+    {
+        mChickenState = ChickenState::dying;
+        clearDestinations();
+        tile->removeChickenEntity(this);
+        setAnimationState("Die", false);
+        return;
     }
 
     // Handle normal behaviour : move or pick (if not already moving)
@@ -170,7 +171,7 @@ bool ChickenEntity::tryPickup(Seat* seat, bool isEditorMode)
 
     // We do not let it be picked up as it will be removed during next upkeep. However, this is
     // true only on server side. On client side, if a chicken is available, it can be picked up (it will
-    // be up to the server to validate or not).
+    // be up to the server to validate or not) because the client do not know the chicken state.
     if(getGameMap()->isServerGameMap() && (mChickenState != ChickenState::free))
         return false;
 
@@ -179,7 +180,13 @@ bool ChickenEntity::tryPickup(Seat* seat, bool isEditorMode)
     if(tile == nullptr)
         return false;
 
-    if(!tile->isClaimedForSeat(seat) && !isEditorMode)
+    if(isEditorMode)
+        return true;
+
+    if(!tile->isClaimedForSeat(seat))
+        return false;
+
+    if(tile->getSeat() != seat)
         return false;
 
     return true;
@@ -254,6 +261,34 @@ bool ChickenEntity::eatChicken(Creature* creature)
     OD_ASSERT_TRUE(tile->removeChickenEntity(this));
     mChickenState = ChickenState::eaten;
     return true;
+}
+
+bool ChickenEntity::canSlap(Seat* seat, bool isEditorMode)
+{
+    if(!getIsOnMap())
+        return false;
+
+    // We do not let it be picked up as it will be removed during next upkeep. However, this is
+    // true only on server side. On client side, if a chicken is available, it can be picked up (it will
+    // be up to the server to validate or not) because the client do not know the chicken state.
+    if(getGameMap()->isServerGameMap() && (mChickenState != ChickenState::free))
+        return false;
+
+    Tile* tile = getPositionTile();
+    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
+    if(tile == nullptr)
+        return false;
+
+    if(isEditorMode)
+        return !mIsSlapped;
+
+    if(!tile->isClaimedForSeat(seat))
+        return false;
+
+    if(tile->getSeat() != seat)
+        return false;
+
+    return !mIsSlapped;
 }
 
 ChickenEntity* ChickenEntity::getChickenEntityFromStream(GameMap* gameMap, std::istream& is)

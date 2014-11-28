@@ -50,6 +50,9 @@ public:
     uint32_t getMaxCreaturesPerSeat() const
     { return mMaxCreaturesPerSeat; }
 
+    double getSlapDamagePercent() const
+    { return mSlapDamagePercent; }
+
     uint32_t getNetworkPort() const
     { return mNetworkPort; }
 
@@ -102,6 +105,7 @@ private:
     uint32_t mBaseSpawnPoint;
     uint32_t mCreatureDeathCounter;
     uint32_t mMaxCreaturesPerSeat;
+    double mSlapDamagePercent;
     std::map<const CreatureDefinition*, std::vector<const SpawnCondition*> > mCreatureSpawnConditions;
     std::map<const std::string, std::vector<std::string> > mFactionSpawnPool;
     std::vector<std::string> mFactions;

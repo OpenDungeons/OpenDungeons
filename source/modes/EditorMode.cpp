@@ -29,7 +29,6 @@
 #include "game/Seat.h"
 #include "traps/Trap.h"
 #include "game/Player.h"
-#include "render/RenderRequest.h"
 #include "render/RenderManager.h"
 #include "camera/CameraManager.h"
 #include "modes/Console.h"
@@ -56,15 +55,10 @@ EditorMode::EditorMode(ModeManager* modeManager):
     mCurrentCreatureIndex(0),
     mGameMap(ODFrameListener::getSingletonPtr()->getClientGameMap()),
     mMouseX(0),
-    mMouseY(0),
-    mMouseLight(NULL)
+    mMouseY(0)
 {
     // Set per default the input on the map
     mModeManager->getInputManager()->mMouseDownOnCEGUIWindow = false;
-
-    // Keep track of the mouse light object
-    Ogre::SceneManager* sceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
-    mMouseLight = sceneMgr->getLight("MouseLight");
 }
 
 EditorMode::~EditorMode()
@@ -242,11 +236,7 @@ void EditorMode::handleCursorPositionUpdate()
     // Make the mouse light follow the mouse
     Ogre::Real x = static_cast<Ogre::Real>(mMouseX);
     Ogre::Real y = static_cast<Ogre::Real>(mMouseY);
-    mMouseLight->setPosition(x, y, 2.0);
-
-    // Make the square selector follow the mouse
-    RenderRequest *request = new RenderRequestShowSquareSelector(x, y);
-    RenderManager::queueRenderRequest(request);
+    RenderManager::getSingleton().moveCursor(x, y);
 
     updateCursorText();
 }
@@ -350,14 +340,11 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
             std::string resultName = itr->movable->getName();
 
-            if (resultName.find(Creature::CREATURE_PREFIX) == std::string::npos)
+            GameEntity* entity = getEntityFromOgreName(resultName);
+            if (entity == nullptr || !entity->canDisplayStatsWindow(mGameMap->getLocalPlayer()->getSeat()))
                 continue;
 
-            Creature* tempCreature = mGameMap->getCreature(resultName.substr(
-                Creature::CREATURE_PREFIX.length(), resultName.length()));
-
-            if (tempCreature != NULL)
-                tempCreature->createStatsWindow();
+            entity->createStatsWindow();
 
             return true;
 
@@ -385,18 +372,55 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         if (curTile == NULL)
             return true;
 
-        if (mGameMap->getLocalPlayer()->isDropHandPossible(curTile, 0, true))
-        {
-            if(ODClient::getSingleton().isConnected())
-            {
-                // Send a message to the server telling it we want to drop the creature
-                ClientNotification *clientNotification = new ClientNotification(
-                    ClientNotification::askHandDrop);
-                clientNotification->mPacket << curTile;
-                ODClient::getSingleton().queueClientNotification(clientNotification);
-            }
 
-            return true;
+        if(mGameMap->getLocalPlayer()->numObjectsInHand() > 0)
+        {
+            // If we right clicked with the mouse over a valid map tile, try to drop what we have in hand on the map.
+            Tile *curTile = mGameMap->getTile(inputManager->mXPos, inputManager->mYPos);
+
+            if (curTile == NULL)
+                return true;
+
+            if (mGameMap->getLocalPlayer()->isDropHandPossible(curTile, 0, true))
+            {
+                if(ODClient::getSingleton().isConnected())
+                {
+                    // Send a message to the server telling it we want to drop the creature
+                    ClientNotification *clientNotification = new ClientNotification(
+                        ClientNotification::askHandDrop);
+                    clientNotification->mPacket << curTile;
+                    ODClient::getSingleton().queueClientNotification(clientNotification);
+                }
+
+                return true;
+            }
+        }
+        else
+        {
+            // No creature in hand. We check if we want to slap something
+            for (;itr != result.end(); ++itr)
+            {
+                if (itr->movable == NULL)
+                    continue;
+
+                std::string resultName = itr->movable->getName();
+
+                GameEntity* entity = getEntityFromOgreName(resultName);
+                if (entity == nullptr || !entity->canSlap(mGameMap->getLocalPlayer()->getSeat(), true))
+                    continue;
+
+                if(ODClient::getSingleton().isConnected())
+                {
+                    const std::string& entityName = entity->getName();
+                    GameEntity::ObjectType entityType = entity->getObjectType();
+                    ClientNotification *clientNotification = new ClientNotification(
+                        ClientNotification::askSlapEntity);
+                    clientNotification->mPacket << entityType << entityName;
+                    ODClient::getSingleton().queueClientNotification(clientNotification);
+                }
+
+                return true;
+            }
         }
     }
 
@@ -434,65 +458,21 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
         std::string resultName = itr->movable->getName();
 
-        if (resultName.find(Creature::CREATURE_PREFIX) != std::string::npos)
-        {
-            // Pick the creature up and put it in our hand
-            if(inputManager->mExpectCreatureClick)
-            {
-                // TODO : switch to FPP mode
-#if 0 // FPP mode do not exist yet but we keep track of what was done.
-                mModeManager->requestFppMode();
-                const string& tmp_name =  (itr->movable->getName());
-                std::cerr << tmp_name.substr(9, tmp_name.size()) << std::endl;
-                cm->setFPPCamera(mGameMap->getCreature(tmp_name.substr(9, tmp_name.size())));
-                cm->setActiveCameraNode("FPP");
-                cm->setActiveCamera("FPP");
-
-#endif // 0
-                inputManager->mExpectCreatureClick = false;
-            }
-            else
-            {
-                // The creature name is after the creature prefix
-                std::string creatureName = resultName.substr(Creature::CREATURE_PREFIX.length());
-                Creature* currentCreature = mGameMap->getCreature(creatureName);
-                if (currentCreature == NULL)
-                    continue;
-
-                if ((currentCreature->tryPickup(player->getSeat(), true)) && ODClient::getSingleton().isConnected())
-                {
-                    // Send a message to the server telling it we want to pick up this creature
-                    ClientNotification *clientNotification = new ClientNotification(
-                        ClientNotification::askEntityPickUp);
-                    std::string name = currentCreature->getName();
-                    clientNotification->mPacket << GameEntity::ObjectType::creature;
-                    clientNotification->mPacket << name;
-                    ODClient::getSingleton().queueClientNotification(clientNotification);
-                    return true;
-                }
-            }
+        GameEntity* entity = getEntityFromOgreName(resultName);
+        if (entity == nullptr || !entity->tryPickup(player->getSeat(), false))
             continue;
-        }
-        if(resultName.find(RenderedMovableEntity::RENDEREDMOVABLEENTITY_OGRE_PREFIX) != std::string::npos)
-        {
-            std::string name = resultName.substr(RenderedMovableEntity::RENDEREDMOVABLEENTITY_OGRE_PREFIX.length());
-            RenderedMovableEntity* obj = mGameMap->getRenderedMovableEntity(name);
-            if ((obj == NULL) || (!obj->tryPickup(player->getSeat(), true)))
-                 continue;
 
-            if (ODClient::getSingleton().isConnected())
-            {
-                // Send a message to the server telling it we want to pick up this entity
-                ClientNotification *clientNotification = new ClientNotification(
-                    ClientNotification::askEntityPickUp);
-                const std::string& name = obj->getName();
-                clientNotification->mPacket << GameEntity::ObjectType::renderedMovableEntity;
-                clientNotification->mPacket << name;
-                ODClient::getSingleton().queueClientNotification(clientNotification);
-                return true;
-            }
-            continue;
+        if (ODClient::getSingleton().isConnected())
+        {
+            GameEntity::ObjectType entityType = entity->getObjectType();
+            const std::string& entityName = entity->getName();
+            ClientNotification *clientNotification = new ClientNotification(
+                ClientNotification::askEntityPickUp);
+            clientNotification->mPacket << entityType;
+            clientNotification->mPacket << entityName;
+            ODClient::getSingleton().queueClientNotification(clientNotification);
         }
+        return true;
     }
 
     return true;

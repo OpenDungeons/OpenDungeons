@@ -34,7 +34,8 @@ ConfigManager::ConfigManager() :
     mNetworkPort(0),
     mBaseSpawnPoint(10),
     mCreatureDeathCounter(10),
-    mMaxCreaturesPerSeat(15)
+    mMaxCreaturesPerSeat(15),
+    mSlapDamagePercent(15)
 {
     if(!loadGlobalConfig())
     {
@@ -362,6 +363,13 @@ bool ConfigManager::loadGlobalGameConfig(std::stringstream& configFile)
         {
             configFile >> nextParam;
             mMaxCreaturesPerSeat = Helper::toUInt32(nextParam);
+            // Not mandatory
+        }
+
+        if(nextParam == "SlapDamagePercent")
+        {
+            configFile >> nextParam;
+            mSlapDamagePercent = Helper::toDouble(nextParam);
             // Not mandatory
         }
     }

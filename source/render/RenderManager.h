@@ -45,6 +45,7 @@ namespace Ogre
 class SceneManager;
 class SceneNode;
 class OverlaySystem;
+class AnimationState;
 
 /*namespace RTShader {
     class ShaderGenerator;
@@ -65,8 +66,7 @@ public:
     { mGameMap = gameMap; }
 
     //! \brief Loop through the render requests in the queue and process them
-    void processRenderRequests();
-    void updateAnimations();
+    void processRenderRequests(Ogre::Real timeSinceLastFrame = 0);
 
     //! \brief starts the compositor compositorName.
     void triggerCompositor(const std::string& compositorName);
@@ -80,11 +80,6 @@ public:
         msSingleton->queueRenderRequest_priv(renderRequest);
     }
 
-    Ogre::SceneNode* getCreatureSceneNode()
-    {
-        return mCreatureSceneNode;
-    }
-
     void rtssTest();
 
     //! \brief Colorize an entity with the team corresponding color.
@@ -94,6 +89,10 @@ public:
 
     //! \brief Set the entity's opacity
     void setEntityOpacity(Ogre::Entity* ent, float opacity);
+
+    //! Beware this should be called on client side only (not from the server thread)
+    void moveCursor(Ogre::Real x, Ogre::Real y);
+    void entitySlapped();
 
     static const Ogre::Real BLENDER_UNITS_PER_OGRE_UNIT;
 
@@ -111,7 +110,6 @@ private:
     void rrDetachEntity(GameEntity* curEntity);
     void rrAttachEntity(GameEntity* curEntity);
     void rrTemporalMarkTile(Tile* curTile);
-    void rrShowSquareSelector(const Ogre::Real& xPos, const Ogre::Real& yPos);
     void rrCreateBuilding(Building* curBuilding, Tile* curTile);
     void rrDestroyBuilding(Building* curBuilding, Tile* curTile);
     void rrCreateRenderedMovableEntity(RenderedMovableEntity* curRenderedMovableEntity);
@@ -163,6 +161,8 @@ private:
     Ogre::SceneNode* mCreatureSceneNode;
     Ogre::SceneNode* mLightSceneNode;
     Ogre::SceneNode* mRockSceneNode;
+
+    Ogre::AnimationState* mHandAnimationState;
 
     //! \brief The game map reference. Don't delete it.
     GameMap* mGameMap;

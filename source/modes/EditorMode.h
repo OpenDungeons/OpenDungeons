@@ -83,9 +83,6 @@ private:
     int mMouseX;
     int mMouseY;
 
-    //! \brief The Mouse environment light following the mouse, don't delete it.
-    Ogre::Light* mMouseLight;
-
     //! \brief A sub-function called by mouseMoved()
     //! It will handle each drag type and permit easy early inner return
     void handleMouseMovedDragType(const OIS::MouseEvent& arg);

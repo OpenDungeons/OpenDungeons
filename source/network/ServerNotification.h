@@ -74,6 +74,7 @@ class ServerNotification
             setMoveSpeed,
             entityPickedUp,
             entityDropped,
+            entitySlapped,
 
             playerFighting, // Tells the player he is under attack or attacking
             playerNoMoreFighting, // Tells the player he is no longer under attack or attacking

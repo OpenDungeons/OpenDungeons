@@ -60,8 +60,6 @@ protected:
     { manager->rrAttachEntity(curEntity); }
     void rrTemporalMarkTile(RenderManager* manager, Tile* curTile)
     { manager->rrTemporalMarkTile(curTile); }
-    void rrShowSquareSelector(RenderManager* manager, const Ogre::Real& xPos, const Ogre::Real& yPos)
-    { manager->rrShowSquareSelector(xPos, yPos); }
     void rrCreateBuilding(RenderManager* manager, Building* curBuilding, Tile* curTile)
     { manager->rrCreateBuilding(curBuilding, curTile); }
     void rrDestroyBuilding(RenderManager* manager, Building* curBuilding, Tile* curTile)
@@ -180,20 +178,6 @@ public:
     { rrAttachEntity(manager, mEntity); }
 private:
     GameEntity* mEntity;
-};
-
-class RenderRequestShowSquareSelector : public RenderRequest
-{
-public:
-    RenderRequestShowSquareSelector(Ogre::Real x, Ogre::Real y) :
-        mX(x),
-        mY(y)
-    {}
-    virtual void executeRequest(RenderManager* manager)
-    { rrShowSquareSelector(manager, mX, mY); }
-private:
-    Ogre::Real mX;
-    Ogre::Real mY;
 };
 
 class RenderRequestCreateBuilding : public RenderRequest
