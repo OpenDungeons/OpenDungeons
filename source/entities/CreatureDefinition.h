@@ -28,7 +28,7 @@
 class ODPacket;
 
 //! \brief The maximum level of a creature
-static const int MAX_LEVEL = 30;
+static const uint32_t MAX_LEVEL = 30;
 
 class CreatureDefinition
 {
