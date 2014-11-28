@@ -41,7 +41,7 @@
 #include <sstream>
 
 Room::Room(GameMap* gameMap):
-    Building(gameMap, BuildingType::room),
+    Building(gameMap),
     mNumActiveSpots(0)
 {
     setObjectType(GameEntity::room);
