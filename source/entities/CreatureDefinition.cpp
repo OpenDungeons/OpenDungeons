@@ -570,7 +570,7 @@ void CreatureDefinition::writeCreatureDefinitionDiff(const CreatureDefinition* d
     file << "    [/Stats]" << std::endl;
 
     bool isSame = true;
-    for(uint32_t i = 0; i < MAX_LEVEL; ++i)
+    for(uint32_t i = 0; i < (MAX_LEVEL - 1); ++i)
     {
         if(def1 == nullptr || (def1->mXPTable[i] != def2->mXPTable[i]))
         {
