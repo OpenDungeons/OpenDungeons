@@ -568,6 +568,37 @@ void CreatureDefinition::writeCreatureDefinitionDiff(const CreatureDefinition* d
         file << "    WeaponSpawnL\t" << def2->mWeaponSpawnR << std::endl;
 
     file << "    [/Stats]" << std::endl;
+
+    bool isSame = true;
+    for(uint32_t i = 0; i < (MAX_LEVEL - 1); ++i)
+    {
+        if(def1 == nullptr || (def1->mXPTable[i] != def2->mXPTable[i]))
+        {
+            isSame = false;
+            break;
+        }
+    }
+    if(!isSame)
+    {
+        file << "    [XP]" << std::endl;
+        uint32_t i = 2;
+        uint32_t levelMax;
+        while(i <= MAX_LEVEL)
+        {
+            levelMax = std::min(i + 10U - (i % 10), MAX_LEVEL);
+            file << "    # " << i <<"-" << levelMax << std::endl;
+            file << "    ";
+
+            while(i < levelMax)
+            {
+                file << def2->mXPTable[i - 2] << "\t";
+                ++i;
+            }
+            file << def2->mXPTable[i - 2] << std::endl;
+            ++i;
+        }
+        file << "    [/XP]" << std::endl;
+    }
     file << "[/Creature]" << std::endl;
 }
 
