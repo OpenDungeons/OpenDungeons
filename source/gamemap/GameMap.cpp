@@ -2355,8 +2355,7 @@ bool GameMap::doFloodFill(Tile* tile)
 
     bool hasChanged = false;
     // If a neigboor is colored with the same colors, we color the tile
-    std::vector<Tile*> tiles = tile->getAllNeighbors();
-    for(Tile* neigh : tiles)
+    for(Tile* neigh : tile->getAllNeighbors())
     {
         switch(neigh->getType())
         {
@@ -2463,8 +2462,7 @@ void GameMap::refreshFloodFill(Tile* tile)
         colors[i] = -1;
 
     // If the tile has opened a new place, we use the same floodfillcolor for all the areas
-    std::vector<Tile*> neighTiles = tile->getAllNeighbors();
-    for(Tile* neigh : neighTiles)
+    for(Tile* neigh : tile->getAllNeighbors())
     {
         for(int i = 0; i < Tile::FloodFillTypeMax; ++i)
         {

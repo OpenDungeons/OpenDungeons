@@ -194,7 +194,8 @@ public:
     unsigned numCreaturesInCell() const;
 
     void addNeighbor(Tile *n);Tile* getNeighbor(unsigned index);
-    std::vector<Tile*> getAllNeighbors();
+    const std::vector<Tile*> getAllNeighbors() const
+    { return mNeighbors; }
 
     void claimForSeat(Seat* seat, double nDanceRate);
     void claimTile(Seat* seat);
@@ -325,9 +326,9 @@ private:
     double fullness;
     int fullnessMeshNumber;
 
-    std::vector<Tile*> neighbors;
-    std::vector<Creature*> creaturesInCell;
-    std::vector<Player*> playersMarkingTile;
+    std::vector<Tile*> mNeighbors;
+    std::vector<Creature*> mCreaturesInCell;
+    std::vector<Player*> mPlayersMarkingTile;
 
     /*! \brief List of the chickens actually on this tile. It is handled by the chickens
      * themselves and should not be deleted by the tile

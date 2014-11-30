@@ -462,14 +462,14 @@ bool Tile::isWallClaimable(Seat* seat)
     // Check whether at least one neighbor is a claimed ground tile of the given seat
     // which is a condition to permit claiming the given wall tile.
     bool foundClaimedGroundTile = false;
-    for (unsigned int j = 0; j < neighbors.size(); ++j)
+    for (Tile* tile : mNeighbors)
     {
-        if (neighbors[j]->getFullness() > 0.0)
+        if (tile->getFullness() > 0.0)
             continue;
 
-        if (neighbors[j]->getType() == claimed
-                && neighbors[j]->getClaimedPercentage() >= 1.0
-                && neighbors[j]->isClaimedForSeat(seat))
+        if (tile->getType() == claimed
+                && tile->getClaimedPercentage() >= 1.0
+                && tile->isClaimedForSeat(seat))
         {
             foundClaimedGroundTile = true;
             break;
@@ -503,14 +503,14 @@ bool Tile::isWallClaimable(Seat* seat)
     // The wall is claimed by another team.
     // Or whether the enemy player that claimed the wall tile has got any ground tiles permitting to keep claiming that wall tile.
     foundClaimedGroundTile = false;
-    for (unsigned int j = 0; j < neighbors.size(); ++j)
+    for (Tile* tile : mNeighbors)
     {
-        if (neighbors[j]->getFullness() > 0.0)
+        if (tile->getFullness() > 0.0)
             continue;
 
-        if (neighbors[j]->getType() == claimed
-                && neighbors[j]->mClaimedPercentage >= 1.0
-                && neighbors[j]->isClaimedForSeat(tileSeat))
+        if (tile->getType() == claimed
+                && tile->mClaimedPercentage >= 1.0
+                && tile->isClaimedForSeat(tileSeat))
         {
             foundClaimedGroundTile = true;
             break;
@@ -902,9 +902,9 @@ void Tile::setMarkedForDiggingForAllPlayersExcept(bool s, Seat* exceptSeat)
 bool Tile::getMarkedForDigging(Player *p)
 {
     // Loop over any players who have marked this tile and see if 'p' is one of them
-    for (unsigned int i = 0, size = playersMarkingTile.size(); i < size; ++i)
+    for (unsigned int i = 0, size = mPlayersMarkingTile.size(); i < size; ++i)
     {
-        if (playersMarkingTile[i] == p)
+        if (mPlayersMarkingTile[i] == p)
         {
             return true;
         }
@@ -915,44 +915,44 @@ bool Tile::getMarkedForDigging(Player *p)
 
 bool Tile::isMarkedForDiggingByAnySeat()
 {
-    return !playersMarkingTile.empty();
+    return !mPlayersMarkingTile.empty();
 }
 
 void Tile::addCreature(Creature *c)
 {
-    if(std::find(creaturesInCell.begin(), creaturesInCell.end(), c) != creaturesInCell.end())
+    if(std::find(mCreaturesInCell.begin(), mCreaturesInCell.end(), c) != mCreaturesInCell.end())
         return;
 
-    creaturesInCell.push_back(c);
+    mCreaturesInCell.push_back(c);
 }
 
 void Tile::removeCreature(Creature *c)
 {
     // Check to see if the given crature is actually in this tile
-    std::vector<Creature*>::iterator it = std::find(creaturesInCell.begin(), creaturesInCell.end(), c);
-    if(it == creaturesInCell.end())
+    std::vector<Creature*>::iterator it = std::find(mCreaturesInCell.begin(), mCreaturesInCell.end(), c);
+    if(it == mCreaturesInCell.end())
         return;
 
-    creaturesInCell.erase(it);
+    mCreaturesInCell.erase(it);
 }
 
 unsigned int Tile::numCreaturesInCell() const
 {
-    return creaturesInCell.size();
+    return mCreaturesInCell.size();
 }
 
 void Tile::addPlayerMarkingTile(Player *p)
 {
-    playersMarkingTile.push_back(p);
+    mPlayersMarkingTile.push_back(p);
 }
 
 void Tile::removePlayerMarkingTile(Player *p)
 {
-    for (unsigned int i = 0; i < playersMarkingTile.size(); ++i)
+    for (unsigned int i = 0; i < mPlayersMarkingTile.size(); ++i)
     {
-        if (p == playersMarkingTile[i])
+        if (p == mPlayersMarkingTile[i])
         {
-            playersMarkingTile.erase(playersMarkingTile.begin() + i);
+            mPlayersMarkingTile.erase(mPlayersMarkingTile.begin() + i);
             return;
         }
     }
@@ -960,17 +960,17 @@ void Tile::removePlayerMarkingTile(Player *p)
 
 unsigned int Tile::numPlayersMarkingTile() const
 {
-    return playersMarkingTile.size();
+    return mPlayersMarkingTile.size();
 }
 
 Player* Tile::getPlayerMarkingTile(int index)
 {
-    return playersMarkingTile[index];
+    return mPlayersMarkingTile[index];
 }
 
 void Tile::addNeighbor(Tile *n)
 {
-    neighbors.push_back(n);
+    mNeighbors.push_back(n);
 }
 
 void Tile::claimForSeat(Seat* seat, double nDanceRate)
@@ -1040,11 +1040,11 @@ void Tile::claimTile(Seat* seat)
     refreshMesh();
 
     // Force all the neighbors to recheck their meshes as we have updated this tile.
-    for (unsigned int j = 0; j < neighbors.size(); ++j)
+    for (Tile* tile : mNeighbors)
     {
-        neighbors[j]->refreshMesh();
+        tile->refreshMesh();
         // Update potential active spots.
-        Room* room = neighbors[j]->getCoveringRoom();
+        Room* room = tile->getCoveringRoom();
         if (room != NULL)
         {
             room->updateActiveSpots();
@@ -1086,10 +1086,10 @@ double Tile::digOut(double digRate, bool doScaleDigRate)
             }
         }
 
-        for (unsigned int j = 0; j < neighbors.size(); ++j)
+        for (Tile* tile : mNeighbors)
         {
             // Update potential active spots.
-            Room* room = neighbors[j]->getCoveringRoom();
+            Room* room = tile->getCoveringRoom();
             if (room != NULL)
             {
                 room->updateActiveSpots();
@@ -1120,12 +1120,7 @@ double Tile::scaleDigRate(double digRate)
 
 Tile* Tile::getNeighbor(unsigned int index)
 {
-    return neighbors[index];
-}
-
-std::vector<Tile*> Tile::getAllNeighbors()
-{
-    return neighbors;
+    return mNeighbors[index];
 }
 
 std::string Tile::buildName(int x, int y)
@@ -1227,7 +1222,7 @@ int Tile::getFloodFill(FloodFillType type)
 
 void Tile::fillAttackableCreatures(std::vector<GameEntity*>& entities, Seat* seat, bool invert)
 {
-    for(Creature* creature : creaturesInCell)
+    for(Creature* creature : mCreaturesInCell)
     {
         OD_ASSERT_TRUE(creature != NULL);
         if((creature == NULL) || !creature->isAttackable())
@@ -1279,7 +1274,7 @@ void Tile::fillAttackableTrap(std::vector<GameEntity*>& entities, Seat* seat, bo
 void Tile::fillCarryableEntities(std::vector<GameEntity*>& entities)
 {
     // Dead creatures are carryable
-    for(Creature* creature : creaturesInCell)
+    for(Creature* creature : mCreaturesInCell)
     {
         OD_ASSERT_TRUE(creature != NULL);
         if(creature == NULL)

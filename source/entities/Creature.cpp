@@ -932,11 +932,8 @@ bool Creature::handleIdleAction()
         Tile* tileMarkedDig = NULL;
         Tile* tileToClaim = NULL;
         Tile* tileWallNotClaimed = NULL;
-        std::vector<Tile*> creatureNeighbors = position->getAllNeighbors();
-        for (std::vector<Tile*>::iterator it = creatureNeighbors.begin(); it != creatureNeighbors.end(); ++it)
+        for (Tile* tile : position->getAllNeighbors())
         {
-            Tile* tile = *it;
-
             if(tileMarkedDig == NULL &&
                 tile->getMarkedForDigging(getGameMap()->getPlayerBySeat(seat))
                 )
@@ -1317,11 +1314,9 @@ bool Creature::handleClaimTileAction()
     {
         //cout << "\nTrying to claim the tile I am standing on.";
         // Check to see if one of the tile's neighbors is claimed for our color
-        std::vector<Tile*> neighbors = myTile->getAllNeighbors();
-        for (unsigned int j = 0; j < neighbors.size(); ++j)
+        for (Tile* tempTile : myTile->getAllNeighbors())
         {
             // Check to see if the current neighbor is a claimed ground tile
-            Tile* tempTile = neighbors[j];
             if (tempTile->isClaimedForSeat(getSeat()) && (tempTile->getFullness() == 0.0) && tempTile->getClaimedPercentage() >= 1.0)
             {
                 //cout << "\t\tFound a neighbor that is claimed.";
@@ -1353,11 +1348,8 @@ bool Creature::handleClaimTileAction()
         {
             // The neighbor tile is a potential candidate for claiming, to be an actual candidate
             // though it must have a neighbor of its own that is already claimed for our side.
-            Tile* tempTile2;
-            std::vector<Tile*> neighbors2 = tempTile->getAllNeighbors();
-            for (unsigned int i = 0; i < neighbors2.size(); ++i)
+            for (Tile* tempTile2 : tempTile->getAllNeighbors())
             {
-                tempTile2 = neighbors2[i];
                 if (tempTile2->isClaimedForSeat(getSeat())
                         && tempTile2->getClaimedPercentage() >= 1.0)
                 {
@@ -1375,23 +1367,20 @@ bool Creature::handleClaimTileAction()
     //cout << "\nLooking at the visible tiles to see if I can claim a tile.";
     // If we still haven't found a tile to claim, check the rest of the visible tiles
     std::vector<Tile*> claimableTiles;
-    for (unsigned int i = 0; i < mTilesWithinSightRadius.size(); ++i)
+    for (Tile* tempTile : mTilesWithinSightRadius)
     {
         // if this tile is not fully claimed yet or the tile is of another player's color
-        Tile* tempTile = mTilesWithinSightRadius[i];
         if (tempTile != NULL && tempTile->getFullness() == 0.0
             && (tempTile->getClaimedPercentage() < 1.0 || !tempTile->isClaimedForSeat(getSeat()))
             && tempTile->isGroundClaimable())
         {
             // Check to see if one of the tile's neighbors is claimed for our color
-            neighbors = mTilesWithinSightRadius[i]->getAllNeighbors();
-            for (unsigned int j = 0; j < neighbors.size(); ++j)
+            for (Tile* t : tempTile->getAllNeighbors())
             {
-                tempTile = neighbors[j];
-                if (tempTile->isClaimedForSeat(getSeat())
-                        && tempTile->getClaimedPercentage() >= 1.0)
+                if (t->isClaimedForSeat(getSeat())
+                        && t->getClaimedPercentage() >= 1.0)
                 {
-                    claimableTiles.push_back(tempTile);
+                    claimableTiles.push_back(t);
                 }
             }
         }
@@ -1413,10 +1402,9 @@ bool Creature::handleClaimTileAction()
             tempTile = claimableTiles[Random::Uint(0, claimableTiles.size() - 1)];
 
             // Count how many of the candidate tile's neighbors are already claimed.
-            neighbors = tempTile->getAllNeighbors();
-            for (unsigned int i = 0; i < neighbors.size(); ++i)
+            for (Tile* t : tempTile->getAllNeighbors())
             {
-                if (neighbors[i]->isClaimedForSeat(getSeat()) && neighbors[i]->getClaimedPercentage() >= 1.0)
+                if (t->isClaimedForSeat(getSeat()) && t->getClaimedPercentage() >= 1.0)
                     ++numNeighborsClaimed;
             }
 
@@ -1492,14 +1480,14 @@ bool Creature::handleClaimWallTileAction()
 
     // See if any of the tiles is one of our neighbors
     bool wasANeighbor = false;
-    std::vector<Tile*> creatureNeighbors = myTile->getAllNeighbors();
     Player* tempPlayer = getGameMap()->getPlayerBySeat(getSeat());
-    for (unsigned int i = 0; i < creatureNeighbors.size() && !wasANeighbor; ++i)
+    for (Tile* tempTile : myTile->getAllNeighbors())
     {
-        if (tempPlayer == NULL)
+        if(wasANeighbor)
             break;
 
-        Tile* tempTile = creatureNeighbors[i];
+        if (tempPlayer == NULL)
+            break;
 
         if (!tempTile->isWallClaimable(getSeat()))
             continue;
@@ -1526,8 +1514,7 @@ bool Creature::handleClaimWallTileAction()
     std::vector<Tile*> wallTiles = getVisibleClaimableWallTiles();
     for (unsigned int i = 0; i < wallTiles.size(); ++i)
     {
-        std::vector<Tile*> neighbors = wallTiles[i]->getAllNeighbors();
-        for (Tile* neighborTile : neighbors)
+        for (Tile* neighborTile : wallTiles[i]->getAllNeighbors())
         {
             if (getGameMap()->pathExists(this, getPositionTile(), neighborTile))
                 possiblePaths.push_back(getGameMap()->path(this, neighborTile));
@@ -1603,12 +1590,13 @@ bool Creature::handleDigTileAction()
     bool wasANeighbor = false;
     std::vector<Tile*> creatureNeighbors = myTile->getAllNeighbors();
     Player* tempPlayer = getGameMap()->getPlayerBySeat(getSeat());
-    for (unsigned int i = 0; i < creatureNeighbors.size() && !wasANeighbor; ++i)
+    for (Tile* tempTile : creatureNeighbors)
     {
-        if (tempPlayer == NULL)
+        if(wasANeighbor)
             break;
 
-        Tile* tempTile = creatureNeighbors[i];
+        if (tempPlayer == NULL)
+            break;
 
         if (!tempTile->getMarkedForDigging(tempPlayer))
             continue;
@@ -1686,8 +1674,7 @@ bool Creature::handleDigTileAction()
     std::vector<std::list<Tile*> > possiblePaths;
     for (unsigned int i = 0; i < mVisibleMarkedTiles.size(); ++i)
     {
-        std::vector<Tile*> neighbors = mVisibleMarkedTiles[i]->getAllNeighbors();
-        for (Tile* neighborTile : neighbors)
+        for (Tile* neighborTile : mVisibleMarkedTiles[i]->getAllNeighbors())
         {
             if (getGameMap()->pathExists(this, getPositionTile(), neighborTile))
                 possiblePaths.push_back(getGameMap()->path(this, neighborTile));
@@ -2845,8 +2832,7 @@ void Creature::updateVisibleMarkedTiles()
             continue;
 
         // and can be reached by the creature
-        std::vector<Tile*> neighbors = tile->getAllNeighbors();
-        for (Tile* neighborTile : neighbors)
+        for (Tile* neighborTile : tile->getAllNeighbors())
         {
             if (neighborTile == nullptr)
                 continue;
@@ -2872,8 +2858,7 @@ std::vector<Tile*> Creature::getVisibleClaimableWallTiles()
             continue;
 
         // and can be reached by the creature
-        std::vector<Tile*> neighbors = tile->getAllNeighbors();
-        for (Tile* neighborTile : neighbors)
+        for (Tile* neighborTile : tile->getAllNeighbors())
         {
             if (neighborTile == nullptr)
                 continue;

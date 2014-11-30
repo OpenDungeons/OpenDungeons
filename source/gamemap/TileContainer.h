@@ -78,7 +78,7 @@ public:
     std::vector<Tile*> tilesBorderedByRegion(const std::vector<Tile*> &region);
 
     //! \brief Returns the (up to) 4 nearest neighbor tiles of the tile located at (x, y).
-    std::vector<Tile*> neighborTiles(int x, int y);
+    const std::vector<Tile*> neighborTiles(int x, int y) const;
 
     //! \brief Gets the map size
     int getMapSizeX() const
