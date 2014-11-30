@@ -2100,7 +2100,8 @@ bool Creature::handleEatingAction(bool isForced)
     double closestChickenDist = 0.0;
     for(Tile* tile : mTilesWithinSightRadius)
     {
-        const std::vector<ChickenEntity*>& chickens = tile->getChickenEntities();
+        std::vector<GameEntity*> chickens;
+        tile->fillChickenEntities(chickens);
         if(chickens.empty())
             continue;
 
@@ -2126,7 +2127,10 @@ bool Creature::handleEatingAction(bool isForced)
         if(closestChickenDist <= 1.0)
         {
             // We eat the chicken
-            ChickenEntity* chicken = closestChickenTile->getChickenEntities().at(0);
+            std::vector<GameEntity*> chickens;
+            closestChickenTile->fillChickenEntities(chickens);
+            OD_ASSERT_TRUE(!chickens.empty());
+            ChickenEntity* chicken = static_cast<ChickenEntity*>(chickens.at(0));
             chicken->eatChicken(this);
             foodEaten(ConfigManager::getSingleton().getRoomConfigDouble("HatcheryHungerPerChicken"));
             mEatCooldown = Random::Int(ConfigManager::getSingleton().getRoomConfigUInt32("HatcheryCooldownChickenMin"),

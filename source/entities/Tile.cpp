@@ -20,6 +20,7 @@
 #include "entities/Creature.h"
 #include "entities/MapLight.h"
 #include "entities/TreasuryObject.h"
+#include "entities/ChickenEntity.h"
 
 #include "game/Player.h"
 #include "game/Seat.h"
@@ -901,14 +902,8 @@ void Tile::setMarkedForDiggingForAllPlayersExcept(bool s, Seat* exceptSeat)
 
 bool Tile::getMarkedForDigging(Player *p)
 {
-    // Loop over any players who have marked this tile and see if 'p' is one of them
-    for (unsigned int i = 0, size = mPlayersMarkingTile.size(); i < size; ++i)
-    {
-        if (mPlayersMarkingTile[i] == p)
-        {
-            return true;
-        }
-    }
+    if(std::find(mPlayersMarkingTile.begin(), mPlayersMarkingTile.end(), p) != mPlayersMarkingTile.end())
+        return true;
 
     return false;
 }
@@ -918,27 +913,29 @@ bool Tile::isMarkedForDiggingByAnySeat()
     return !mPlayersMarkingTile.empty();
 }
 
-void Tile::addCreature(Creature *c)
+bool Tile::addCreature(Creature *c)
 {
-    if(std::find(mCreaturesInCell.begin(), mCreaturesInCell.end(), c) != mCreaturesInCell.end())
-        return;
+    if(!getGameMap()->isServerGameMap())
+        return true;
 
-    mCreaturesInCell.push_back(c);
+    if(std::find(mEntitiesInTile.begin(), mEntitiesInTile.end(), c) != mEntitiesInTile.end())
+        return false;
+
+    mEntitiesInTile.push_back(c);
+    return true;
 }
 
-void Tile::removeCreature(Creature *c)
+bool Tile::removeCreature(Creature *c)
 {
-    // Check to see if the given crature is actually in this tile
-    std::vector<Creature*>::iterator it = std::find(mCreaturesInCell.begin(), mCreaturesInCell.end(), c);
-    if(it == mCreaturesInCell.end())
-        return;
+    if(!getGameMap()->isServerGameMap())
+        return true;
 
-    mCreaturesInCell.erase(it);
-}
+    std::vector<GameEntity*>::iterator it = std::find(mEntitiesInTile.begin(), mEntitiesInTile.end(), c);
+    if(it == mEntitiesInTile.end())
+        return false;
 
-unsigned int Tile::numCreaturesInCell() const
-{
-    return mCreaturesInCell.size();
+    mEntitiesInTile.erase(it);
+    return true;
 }
 
 void Tile::addPlayerMarkingTile(Player *p)
@@ -948,14 +945,11 @@ void Tile::addPlayerMarkingTile(Player *p)
 
 void Tile::removePlayerMarkingTile(Player *p)
 {
-    for (unsigned int i = 0; i < mPlayersMarkingTile.size(); ++i)
-    {
-        if (p == mPlayersMarkingTile[i])
-        {
-            mPlayersMarkingTile.erase(mPlayersMarkingTile.begin() + i);
-            return;
-        }
-    }
+    std::vector<Player*>::iterator it = std::find(mPlayersMarkingTile.begin(), mPlayersMarkingTile.end(), p);
+    if(it == mPlayersMarkingTile.end())
+        return;
+
+    mPlayersMarkingTile.erase(it);
 }
 
 unsigned int Tile::numPlayersMarkingTile() const
@@ -1222,20 +1216,23 @@ int Tile::getFloodFill(FloodFillType type)
 
 void Tile::fillAttackableCreatures(std::vector<GameEntity*>& entities, Seat* seat, bool invert)
 {
-    for(Creature* creature : mCreaturesInCell)
+    for(GameEntity* entity : mEntitiesInTile)
     {
-        OD_ASSERT_TRUE(creature != NULL);
-        if((creature == NULL) || !creature->isAttackable())
+        OD_ASSERT_TRUE(entity != NULL);
+        if((entity == NULL) || entity->getObjectType() != GameEntity::ObjectType::creature)
+            continue;
+
+        if(!entity->isAttackable())
             continue;
 
         // The invert flag is used to determine whether we want to return a list of the creatures
         // allied with supplied seat or the contrary.
-        if ((invert && !creature->getSeat()->isAlliedSeat(seat)) || (!invert
-                && creature->getSeat()->isAlliedSeat(seat)))
+        if ((invert && !entity->getSeat()->isAlliedSeat(seat)) || (!invert
+                && entity->getSeat()->isAlliedSeat(seat)))
         {
             // Add the current creature
-            if (std::find(entities.begin(), entities.end(), creature) == entities.end())
-                entities.push_back(creature);
+            if (std::find(entities.begin(), entities.end(), entity) == entities.end())
+                entities.push_back(entity);
         }
     }
 }
@@ -1270,47 +1267,108 @@ void Tile::fillAttackableTrap(std::vector<GameEntity*>& entities, Seat* seat, bo
     }
 }
 
-
 void Tile::fillCarryableEntities(std::vector<GameEntity*>& entities)
 {
-    // Dead creatures are carryable
-    for(Creature* creature : mCreaturesInCell)
+    for(GameEntity* entity : mEntitiesInTile)
     {
-        OD_ASSERT_TRUE(creature != NULL);
-        if(creature == NULL)
+        OD_ASSERT_TRUE(entity != NULL);
+        if(entity == NULL)
             continue;
 
-        if(creature->getHP() > 0)
-            continue;
+        switch(entity->getObjectType())
+        {
+            case GameEntity::ObjectType::creature:
+            {
+                // Dead creatures are carryable
+                Creature* c = static_cast<Creature*>(entity);
+                if(c->getHP() > 0)
+                    continue;
 
-        if (std::find(entities.begin(), entities.end(), creature) == entities.end())
-            entities.push_back(creature);
+                break;
+            }
+            case GameEntity::ObjectType::renderedMovableEntity:
+            {
+                // treasuryObject are carryable
+                RenderedMovableEntity* rme = static_cast<RenderedMovableEntity*>(entity);
+                if(rme->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::treasuryObject)
+                    continue;
+
+                break;
+            }
+            default:
+                continue;
+        }
+
+        if (std::find(entities.begin(), entities.end(), entity) == entities.end())
+            entities.push_back(entity);
     }
-
-    if ((mTreasuryObject != nullptr) && (std::find(entities.begin(), entities.end(), mTreasuryObject) == entities.end()))
-        entities.push_back(mTreasuryObject);
 }
 
-void Tile::addTreasuryObject(TreasuryObject* obj)
+void Tile::fillChickenEntities(std::vector<GameEntity*>& entities)
+{
+    for(GameEntity* entity : mEntitiesInTile)
+    {
+        OD_ASSERT_TRUE(entity != NULL);
+        if(entity == NULL)
+            continue;
+
+        if(entity->getObjectType() != GameEntity::ObjectType::renderedMovableEntity)
+            continue;
+        RenderedMovableEntity* rme = static_cast<RenderedMovableEntity*>(entity);
+        if(rme->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::chickenEntity)
+            continue;
+
+        if (std::find(entities.begin(), entities.end(), entity) == entities.end())
+            entities.push_back(entity);
+    }
+}
+
+bool Tile::addTreasuryObject(TreasuryObject* obj)
 {
     if(!getGameMap()->isServerGameMap())
-        return;
+        return true;
 
-    if((mTreasuryObject == nullptr) || (mTreasuryObject == obj))
+    if (std::find(mEntitiesInTile.begin(), mEntitiesInTile.end(), obj) != mEntitiesInTile.end())
+        return false;
+
+    // If there is already a treasury object, we merge it
+    bool isMerged = false;
+    for(GameEntity* entity : mEntitiesInTile)
     {
-        mTreasuryObject = obj;
-        return;
+        OD_ASSERT_TRUE(entity != NULL);
+        if(entity == NULL)
+            continue;
+
+        if(entity->getObjectType() != GameEntity::ObjectType::renderedMovableEntity)
+            continue;
+        RenderedMovableEntity* rme = static_cast<RenderedMovableEntity*>(entity);
+        if(rme->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::treasuryObject)
+            continue;
+
+        TreasuryObject* treasury = static_cast<TreasuryObject*>(entity);
+        treasury->mergeGold(obj);
+        isMerged = true;
+        break;
     }
 
-    mTreasuryObject->mergeGold(obj);
+    if(!isMerged)
+        mEntitiesInTile.push_back(obj);
+
+    return true;
 }
 
-void Tile::removeTreasuryObject(TreasuryObject* object)
+bool Tile::removeTreasuryObject(TreasuryObject* object)
 {
-    if(mTreasuryObject == object)
-    {
-        mTreasuryObject = nullptr;
-    }
+    // TreasuryObject are handled on server side only
+    if(!getGameMap()->isServerGameMap())
+        return true;
+
+    std::vector<GameEntity*>::iterator it = std::find(mEntitiesInTile.begin(), mEntitiesInTile.end(), object);
+    if(it == mEntitiesInTile.end())
+        return false;
+
+    mEntitiesInTile.erase(it);
+    return true;
 }
 
 bool Tile::addChickenEntity(ChickenEntity* chicken)
@@ -1319,14 +1377,11 @@ bool Tile::addChickenEntity(ChickenEntity* chicken)
     if(!getGameMap()->isServerGameMap())
         return true;
 
-    std::vector<ChickenEntity*>::iterator it = std::find(mChickens.begin(), mChickens.end(), chicken);
-    if(it == mChickens.end())
-    {
-        mChickens.push_back(chicken);
-        return true;
-    }
+    if(std::find(mEntitiesInTile.begin(), mEntitiesInTile.end(), chicken) != mEntitiesInTile.end())
+        return false;
 
-    return false;
+    mEntitiesInTile.push_back(chicken);
+    return true;
 }
 
 bool Tile::removeChickenEntity(ChickenEntity* chicken)
@@ -1335,14 +1390,12 @@ bool Tile::removeChickenEntity(ChickenEntity* chicken)
     if(!getGameMap()->isServerGameMap())
         return true;
 
-    std::vector<ChickenEntity*>::iterator it = std::find(mChickens.begin(), mChickens.end(), chicken);
-    if(it != mChickens.end())
-    {
-        mChickens.erase(it);
-        return true;
-    }
+    std::vector<GameEntity*>::iterator it = std::find(mEntitiesInTile.begin(), mEntitiesInTile.end(), chicken);
+    if(it == mEntitiesInTile.end())
+        return false;
 
-    return false;
+    mEntitiesInTile.erase(it);
+    return true;
 }
 
 std::string Tile::displayAsString(Tile* tile)

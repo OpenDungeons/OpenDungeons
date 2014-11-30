@@ -266,7 +266,7 @@ std::vector<Tile*> TileContainer::tilesBorderedByRegion(const std::vector<Tile*>
         // Get the tiles bordering the current tile and loop over them.
         for (Tile* t2 : t1->getAllNeighbors())
         {
-            // We add the tile in the return list if it is not already there or in in the region
+            // We add the tile in the return list if it is not already there or in the region
             if((std::find(region.begin(), region.end(), t2) == region.end()) &&
                (std::find(returnList.begin(), returnList.end(), t2) == returnList.end()))
             {

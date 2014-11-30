@@ -1356,7 +1356,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             Tile::TileType tileType = static_cast<Tile::TileType>(intTileType);
             std::vector<Tile*> selectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
             std::vector<Tile*> affectedTiles;
-            Seat* seat = NULL;
+            Seat* seat = nullptr;
             double claimedPercentage = 0.0;
             if(tileType == Tile::TileType::claimed)
             {
@@ -1366,16 +1366,16 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             for(std::vector<Tile*>::iterator it = selectedTiles.begin(); it != selectedTiles.end(); ++it)
             {
                 Tile* tile = *it;
-                if(tile == NULL)
+                if(tile == nullptr)
                     continue;
 
                 // We do not change tiles where there is something
-                if((tile->numCreaturesInCell() > 0) &&
+                if((tile->numEntitiesInTile() > 0) &&
                    ((tileFullness > 0.0) || (tileType == Tile::TileType::lava) || (tileType == Tile::TileType::water)))
                     continue;
-                if(tile->getCoveringRoom() != NULL)
+                if(tile->getCoveringRoom() != nullptr)
                     continue;
-                if(tile->getCoveringTrap() != NULL)
+                if(tile->getCoveringTrap() != nullptr)
                     continue;
 
                 affectedTiles.push_back(tile);
