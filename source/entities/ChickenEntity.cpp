@@ -84,8 +84,18 @@ void ChickenEntity::doUpkeep()
     }
 
 
-    Room* currentHatchery = tile->getCoveringRoom();
-    if((currentHatchery != nullptr) && (currentHatchery->getType() == Room::RoomType::hatchery))
+    Room* currentHatchery = nullptr;
+    if((tile->getCoveringBuilding() != nullptr) &&
+       (tile->getCoveringBuilding()->toRoom() != nullptr))
+    {
+        Room* room = currentHatchery = tile->getCoveringBuilding()->toRoom();
+        if(room->getType() == Room::RoomType::hatchery)
+        {
+            currentHatchery = room;
+        }
+    }
+
+    if(currentHatchery != nullptr)
         mNbTurnOutsideHatchery = 0;
     else
         ++mNbTurnOutsideHatchery;
@@ -157,7 +167,7 @@ void ChickenEntity::addTileToListIfPossible(int x, int y, Room* currentHatchery,
 
     }
 
-    if((currentHatchery != nullptr) && (currentHatchery != tile->getCoveringRoom()))
+    if((currentHatchery != nullptr) && (currentHatchery != tile->getCoveringBuilding()))
         return;
 
     // We can move on this tile

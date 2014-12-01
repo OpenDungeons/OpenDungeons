@@ -381,38 +381,21 @@ bool Tile::permitsVision() const
 
 bool Tile::isBuildableUpon() const
 {
-    if(type != claimed || getFullness() > 0.0 || coveringTrap != NULL)
+    if(type != claimed || getFullness() > 0.0 || mCoveringBuilding != nullptr)
         return false;
 
-    return (coveringRoom == NULL);
+    return true;
 }
 
-Trap* Tile::getCoveringTrap() const
+void Tile::setCoveringBuilding(Building *building)
 {
-    return coveringTrap;
-}
+    mCoveringBuilding = building;
 
-void Tile::setCoveringTrap(Trap* t)
-{
-    coveringTrap = t;
-    mClaimedPercentage = 1.0;
-    setType(claimed);
-}
-
-Room* Tile::getCoveringRoom() const
-{
-    return coveringRoom;
-}
-
-void Tile::setCoveringRoom(Room *r)
-{
-    coveringRoom = r;
-
-    if (coveringRoom == NULL)
+    if (mCoveringBuilding == nullptr)
         return;
 
-    // Set the tile as claimed and of the team color of the room
-    setSeat(coveringRoom->getSeat());
+    // Set the tile as claimed and of the team color of the building
+    setSeat(mCoveringBuilding->getSeat());
     mClaimedPercentage = 1.0;
     setType(claimed);
 }
@@ -449,7 +432,7 @@ bool Tile::isDiggable(Seat* seat) const
 bool Tile::isGroundClaimable() const
 {
     return ((type == dirt || type == gold || type == claimed) && getFullness() == 0.0)
-        && (getCoveringRoom() == NULL);
+        && ((getCoveringBuilding() == nullptr) || (getCoveringBuilding()->getObjectType() != GameEntity::ObjectType::room));
 }
 
 bool Tile::isWallClaimable(Seat* seat)
@@ -1038,11 +1021,11 @@ void Tile::claimTile(Seat* seat)
     {
         tile->refreshMesh();
         // Update potential active spots.
-        Room* room = tile->getCoveringRoom();
-        if (room != NULL)
+        Building* building = tile->getCoveringBuilding();
+        if (building != NULL)
         {
-            room->updateActiveSpots();
-            room->createMesh();
+            building->updateActiveSpots();
+            building->createMesh();
         }
     }
 }
@@ -1083,11 +1066,11 @@ double Tile::digOut(double digRate, bool doScaleDigRate)
         for (Tile* tile : mNeighbors)
         {
             // Update potential active spots.
-            Room* room = tile->getCoveringRoom();
-            if (room != NULL)
+            Building* building = tile->getCoveringBuilding();
+            if (building != nullptr)
             {
-                room->updateActiveSpots();
-                room->createMesh();
+                building->updateActiveSpots();
+                building->createMesh();
             }
         }
     }
@@ -1214,7 +1197,7 @@ int Tile::getFloodFill(FloodFillType type)
     return mFloodFillColor[type];
 }
 
-void Tile::fillAttackableCreatures(std::vector<GameEntity*>& entities, Seat* seat, bool invert)
+void Tile::fillWithAttackableCreatures(std::vector<GameEntity*>& entities, Seat* seat, bool invert)
 {
     for(GameEntity* entity : mEntitiesInTile)
     {
@@ -1237,37 +1220,41 @@ void Tile::fillAttackableCreatures(std::vector<GameEntity*>& entities, Seat* sea
     }
 }
 
-void Tile::fillAttackableRoom(std::vector<GameEntity*>& entities, Seat* seat, bool invert)
+void Tile::fillWithAttackableRoom(std::vector<GameEntity*>& entities, Seat* seat, bool invert)
 {
-    Room *room = getCoveringRoom();
-    if((room != NULL) && room->isAttackable())
+    Building *building = getCoveringBuilding();
+    if((building != nullptr) &&
+       (building->getObjectType() == GameEntity::ObjectType::room) &&
+       building->isAttackable())
     {
-        if ((invert && !room->getSeat()->isAlliedSeat(seat)) || (!invert
-            && room->getSeat()->isAlliedSeat(seat)))
+        if ((invert && !building->getSeat()->isAlliedSeat(seat)) || (!invert
+            && building->getSeat()->isAlliedSeat(seat)))
         {
             // If the room is not in the list already then add it.
-            if (std::find(entities.begin(), entities.end(), room) == entities.end())
-                entities.push_back(room);
+            if (std::find(entities.begin(), entities.end(), building) == entities.end())
+                entities.push_back(building);
         }
     }
 }
 
-void Tile::fillAttackableTrap(std::vector<GameEntity*>& entities, Seat* seat, bool invert)
+void Tile::fillWithAttackableTrap(std::vector<GameEntity*>& entities, Seat* seat, bool invert)
 {
-    Trap *trap = getCoveringTrap();
-    if((trap != NULL) && trap->isAttackable())
+    Building *building = getCoveringBuilding();
+    if((building != nullptr) &&
+       (building->getObjectType() == GameEntity::ObjectType::trap) &&
+       building->isAttackable())
     {
-        if ((invert && !trap->getSeat()->isAlliedSeat(seat)) || (!invert
-            && trap->getSeat()->isAlliedSeat(seat)))
+        if ((invert && !building->getSeat()->isAlliedSeat(seat)) || (!invert
+            && building->getSeat()->isAlliedSeat(seat)))
         {
             // If the trap is not in the list already then add it.
-            if (std::find(entities.begin(), entities.end(), trap) == entities.end())
-                entities.push_back(trap);
+            if (std::find(entities.begin(), entities.end(), building) == entities.end())
+                entities.push_back(building);
         }
     }
 }
 
-void Tile::fillCarryableEntities(std::vector<GameEntity*>& entities)
+void Tile::fillWithCarryableEntities(std::vector<GameEntity*>& entities)
 {
     for(GameEntity* entity : mEntitiesInTile)
     {
@@ -1304,7 +1291,7 @@ void Tile::fillCarryableEntities(std::vector<GameEntity*>& entities)
     }
 }
 
-void Tile::fillChickenEntities(std::vector<GameEntity*>& entities)
+void Tile::fillWithChickenEntities(std::vector<GameEntity*>& entities)
 {
     for(GameEntity* entity : mEntitiesInTile)
     {

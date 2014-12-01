@@ -253,7 +253,7 @@ void Trap::doUpkeep()
 void Trap::addCoveredTile(Tile* t, double nHP)
 {
     Building::addCoveredTile(t, nHP);
-    t->setCoveringTrap(this);
+    t->setCoveringBuilding(this);
 
     // The trap starts deactivated.
     mTrapTiles[t] = TrapTileInfo(mReloadTime, false);
@@ -264,7 +264,7 @@ bool Trap::removeCoveredTile(Tile* t)
     if(!Building::removeCoveredTile(t))
         return false;
 
-    t->setCoveringTrap(NULL);
+    t->setCoveringBuilding(nullptr);
     mTrapTiles.erase(t);
 
     if(getGameMap()->isServerGameMap())

@@ -55,7 +55,7 @@ uint32_t RoomHatchery::getNbChickens()
     std::vector<GameEntity*> chickens;
     for(Tile* tile : mCoveredTiles)
     {
-        tile->fillChickenEntities(chickens);
+        tile->fillWithChickenEntities(chickens);
     }
 
     return chickens.size();

@@ -75,9 +75,7 @@ public:
         selected            (false),
         fullness            (nFullness),
         fullnessMeshNumber  (-1),
-        coveringRoom        (NULL),
-        coveringTrap        (NULL),
-        claimLight          (NULL),
+        mCoveringBuilding   (nullptr),
         mClaimedPercentage  (0.0)
     {
         for(int i = 0; i < Tile::FloodFillTypeMax; i++)
@@ -194,7 +192,7 @@ public:
     { return mEntitiesInTile.size(); }
 
     void addNeighbor(Tile *n);Tile* getNeighbor(unsigned index);
-    const std::vector<Tile*> getAllNeighbors() const
+    const std::vector<Tile*>& getAllNeighbors() const
     { return mNeighbors; }
 
     void claimForSeat(Seat* seat, double nDanceRate);
@@ -202,10 +200,9 @@ public:
     double digOut(double digRate, bool doScaleDigRate = false);
     double scaleDigRate(double digRate);
 
-    Room* getCoveringRoom() const;
-    void setCoveringRoom(Room *r);
-    Trap* getCoveringTrap() const;
-    void setCoveringTrap(Trap* t);
+    Building* getCoveringBuilding() const
+    { return mCoveringBuilding; }
+    void setCoveringBuilding(Building *building);
     //! \brief Add a tresaury object in this tile. There can be only one per tile so if there is already one, they are merged
     bool addTreasuryObject(TreasuryObject* object);
     bool removeTreasuryObject(TreasuryObject* object);
@@ -292,11 +289,11 @@ public:
     //! the list will be filled with the ennemies with the given seat. If invert is false, it will be filled
     //! with allies with the given seat. For all theses functions, the list is checked to be sure
     //! no entity is added twice
-    void fillAttackableCreatures(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
-    void fillAttackableRoom(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
-    void fillAttackableTrap(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
-    void fillCarryableEntities(std::vector<GameEntity*>& entities);
-    void fillChickenEntities(std::vector<GameEntity*>& entities);
+    void fillWithAttackableCreatures(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
+    void fillWithAttackableRoom(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
+    void fillWithAttackableTrap(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
+    void fillWithCarryableEntities(std::vector<GameEntity*>& entities);
+    void fillWithChickenEntities(std::vector<GameEntity*>& entities);
 
     bool addChickenEntity(ChickenEntity* chicken);
     bool removeChickenEntity(ChickenEntity* chicken);
@@ -328,9 +325,7 @@ private:
     /*! \brief List of the entities actually on this tile. Most of the creatures actions will rely on this list
      */
     std::vector<GameEntity*> mEntitiesInTile;
-    Room* coveringRoom;
-    Trap* coveringTrap;
-    MapLight* claimLight;
+    Building* mCoveringBuilding;
     int mFloodFillColor[FloodFillTypeMax];
     double mClaimedPercentage;
 

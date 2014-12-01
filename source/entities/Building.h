@@ -29,6 +29,8 @@
 class GameMap;
 class RenderedMovableEntity;
 class Tile;
+class Room;
+class Trap;
 
 /*! \class Building
  *  \brief This class holds elements that are common to Building like Rooms or Traps
@@ -111,6 +113,11 @@ public:
     //! example, if it was killed or picked up during process)
     virtual void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity)
     {}
+
+    //! \brief If the building is a room, returns a pointer to this. Else, returns nullptr
+    Room* toRoom();
+    //! \brief If the building is a trap, returns a pointer to this. Else, returns nullptr
+    Trap* toTrap();
 
 protected:
     std::map<Tile*, RenderedMovableEntity*> mBuildingObjects;

@@ -246,7 +246,7 @@ bool RoomDormitory::tileCanAcceptBed(Tile *tile, int xDim, int yDim)
         return true;
 
     // If the tile is invalid or not part of this room then the bed cannot be placed in this room.
-    if (tile == nullptr || tile->getCoveringRoom() != this)
+    if (tile == nullptr || tile->getCoveringBuilding() != this)
         return false;
 
     // Create a 2 dimensional array of booleans initially all set to false.

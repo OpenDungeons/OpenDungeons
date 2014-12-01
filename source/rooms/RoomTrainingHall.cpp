@@ -265,7 +265,7 @@ void RoomTrainingHall::doUpkeep()
                 creature->setAnimationState("Attack1", false, &walkDirection);
 
                 ro->setAnimationState("Triggered", false);
-                creature->receiveExp(ConfigManager::getSingleton().getRoomConfigDouble("HatcheryHpRecoveredPerChicken"));
+                creature->receiveExp(ConfigManager::getSingleton().getRoomConfigDouble("TrainHallXpPerAttack"));
                 creature->jobDone(ConfigManager::getSingleton().getRoomConfigDouble("TrainHallAwaknessPerAttack"));
                 creature->setJobCooldown(Random::Uint(ConfigManager::getSingleton().getRoomConfigUInt32("TrainHallCooldownHitMin"),
                     ConfigManager::getSingleton().getRoomConfigUInt32("TrainHallCooldownHitMax")));

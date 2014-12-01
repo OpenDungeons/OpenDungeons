@@ -55,8 +55,15 @@ void SmallSpiderEntity::doUpkeep()
     --mNbTurnLife;
 
     // If the spider is outside the crypt or too old, it dies
-    Room* currentCrypt = tile->getCoveringRoom();
-    if(mIsSlapped || (mNbTurnLife <= 0) || (currentCrypt == nullptr) || (currentCrypt->getType() != Room::RoomType::crypt))
+    Room* currentCrypt = nullptr;
+    if((tile->getCoveringBuilding() != nullptr) &&
+       (tile->getCoveringBuilding()->toRoom() != nullptr) &&
+       (tile->getCoveringBuilding()->toRoom()->getType() == Room::crypt))
+    {
+       currentCrypt = tile->getCoveringBuilding()->toRoom();
+    }
+
+    if(mIsSlapped || (mNbTurnLife <= 0) || (currentCrypt == nullptr))
     {
         getGameMap()->removeRenderedMovableEntity(this);
         deleteYourself();
@@ -112,10 +119,12 @@ bool SmallSpiderEntity::canSlap(Seat* seat, bool isEditorMode)
     if(tile == nullptr)
         return false;
 
-    Room* currentCrypt = tile->getCoveringRoom();
+    Building* currentCrypt = tile->getCoveringBuilding();
     if(currentCrypt == nullptr)
         return false;
-    if(currentCrypt->getType() != Room::RoomType::crypt)
+    if(currentCrypt->toRoom() == nullptr)
+        return false;
+    if(currentCrypt->toRoom()->getType() != Room::RoomType::crypt)
         return false;
 
     if(currentCrypt->getSeat() != seat)
@@ -130,7 +139,7 @@ void SmallSpiderEntity::addTileToListIfPossible(int x, int y, Room* currentCrypt
     if(tile == nullptr)
         return;
 
-    if(currentCrypt != tile->getCoveringRoom())
+    if(currentCrypt != tile->getCoveringBuilding())
         return;
 
     // We can move on this tile

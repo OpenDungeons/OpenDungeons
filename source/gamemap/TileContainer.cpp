@@ -278,7 +278,7 @@ std::vector<Tile*> TileContainer::tilesBorderedByRegion(const std::vector<Tile*>
     return returnList;
 }
 
-const std::vector<Tile*> TileContainer::neighborTiles(int x, int y) const
+const std::vector<Tile*>& TileContainer::neighborTiles(int x, int y) const
 {
     Tile *tempTile = getTile(x, y);
     if (tempTile == NULL)

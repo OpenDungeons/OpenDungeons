@@ -230,12 +230,15 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                         tiles.push_back(tile);
                 }
 
-                for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
+                for(Tile* tile : tiles)
                 {
-                    Tile* tile = *it;
-                    if(tile->getCoveringRoom() == nullptr)
+                    if((tile->getCoveringBuilding() == nullptr) ||
+                       (tile->getCoveringBuilding()->toRoom() == nullptr))
+                    {
                         continue;
-                    Room* room = tile->getCoveringRoom();
+                    }
+
+                    Room* room = tile->getCoveringBuilding()->toRoom();
                     if(!room->getSeat()->canRoomBeDestroyedBy(player->getSeat()))
                         continue;
 
@@ -262,12 +265,14 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                         tiles.push_back(tile);
                 }
 
-                for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
+                for(Tile* tile : tiles)
                 {
-                    Tile* tile = *it;
-                    if(tile->getCoveringTrap() == nullptr)
+                    if((tile->getCoveringBuilding() == nullptr) ||
+                       (tile->getCoveringBuilding()->toTrap() == nullptr))
+                    {
                         continue;
-                    Trap* trap = tile->getCoveringTrap();
+                    }
+                    Trap* trap = tile->getCoveringBuilding()->toTrap();
                     if(!trap->getSeat()->canTrapBeDestroyedBy(player->getSeat()))
                         continue;
 

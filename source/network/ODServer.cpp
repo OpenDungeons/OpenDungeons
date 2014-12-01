@@ -1084,12 +1084,14 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             int goldRetrieved = 0;
             std::set<Room*> roomsImpacted;
             std::vector<Tile*> sentTiles;
-            for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
+            for(Tile* tile : tiles)
             {
-                Tile* tile = *it;
-                if(tile->getCoveringRoom() == nullptr)
+                if((tile->getCoveringBuilding() == nullptr) ||
+                   (tile->getCoveringBuilding()->toRoom() == nullptr))
+                {
                     continue;
-                Room* room = tile->getCoveringRoom();
+                }
+                Room* room = tile->getCoveringBuilding()->toRoom();
                 if(!room->getSeat()->canRoomBeDestroyedBy(player->getSeat()))
                     continue;
 
@@ -1129,12 +1131,14 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             std::set<Room*> roomsImpacted;
             std::vector<Tile*> sentTiles;
-            for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
+            for(Tile* tile : tiles)
             {
-                Tile* tile = *it;
-                if(tile->getCoveringRoom() == nullptr)
+                if((tile->getCoveringBuilding() == nullptr) ||
+                   (tile->getCoveringBuilding()->toRoom() == nullptr))
+                {
                     continue;
-                Room* room = tile->getCoveringRoom();
+                }
+                Room* room = tile->getCoveringBuilding()->toRoom();
                 roomsImpacted.insert(room);
                 sentTiles.push_back(tile);
                 OD_ASSERT_TRUE(room->removeCoveredTile(tile));
@@ -1221,12 +1225,14 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             int goldRetrieved = 0;
             std::set<Trap*> trapsImpacted;
             std::vector<Tile*> sentTiles;
-            for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
+            for(Tile* tile : tiles)
             {
-                Tile* tile = *it;
-                if(tile->getCoveringTrap() == nullptr)
+                if((tile->getCoveringBuilding() == nullptr) ||
+                   (tile->getCoveringBuilding()->toTrap() == nullptr))
+                {
                     continue;
-                Trap* trap = tile->getCoveringTrap();
+                }
+                Trap* trap = tile->getCoveringBuilding()->toTrap();
                 if(!trap->getSeat()->canTrapBeDestroyedBy(player->getSeat()))
                     continue;
 
@@ -1264,12 +1270,14 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             std::set<Trap*> trapsImpacted;
             std::vector<Tile*> sentTiles;
-            for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
+            for(Tile* tile : tiles)
             {
-                Tile* tile = *it;
-                if(tile->getCoveringTrap() == nullptr)
+                if((tile->getCoveringBuilding() == nullptr) ||
+                   (tile->getCoveringBuilding()->toTrap() == nullptr))
+                {
                     continue;
-                Trap* trap = tile->getCoveringTrap();
+                }
+                Trap* trap = tile->getCoveringBuilding()->toTrap();
                 trapsImpacted.insert(trap);
                 sentTiles.push_back(tile);
                 OD_ASSERT_TRUE(trap->removeCoveredTile(tile));
@@ -1363,19 +1371,13 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 seat = gameMap->getSeatById(seatId);
                 claimedPercentage = 1.0;
             }
-            for(std::vector<Tile*>::iterator it = selectedTiles.begin(); it != selectedTiles.end(); ++it)
+            for(Tile* tile : selectedTiles)
             {
-                Tile* tile = *it;
-                if(tile == nullptr)
-                    continue;
-
                 // We do not change tiles where there is something
                 if((tile->numEntitiesInTile() > 0) &&
                    ((tileFullness > 0.0) || (tileType == Tile::TileType::lava) || (tileType == Tile::TileType::water)))
                     continue;
-                if(tile->getCoveringRoom() != nullptr)
-                    continue;
-                if(tile->getCoveringTrap() != nullptr)
+                if(tile->getCoveringBuilding() != nullptr)
                     continue;
 
                 affectedTiles.push_back(tile);
@@ -1413,16 +1415,10 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             std::vector<Tile*> selectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
             std::vector<Tile*> tiles;
             // We start by changing the tiles so that the room can be built
-            for(std::vector<Tile*>::iterator it = selectedTiles.begin(); it != selectedTiles.end(); ++it)
+            for(Tile* tile : selectedTiles)
             {
-                Tile* tile = *it;
-                if(tile == NULL)
-                    continue;
-
                 // We do not change tiles where there is something on the tile
-                if(tile->getCoveringRoom() != NULL)
-                    continue;
-                if(tile->getCoveringTrap() != NULL)
+                if(tile->getCoveringBuilding() != nullptr)
                     continue;
                 tiles.push_back(tile);
 
@@ -1518,16 +1514,10 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             std::vector<Tile*> selectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
             std::vector<Tile*> tiles;
             // We start by changing the tiles so that the trap can be built
-            for(std::vector<Tile*>::iterator it = selectedTiles.begin(); it != selectedTiles.end(); ++it)
+            for(Tile* tile : selectedTiles)
             {
-                Tile* tile = *it;
-                if(tile == NULL)
-                    continue;
-
                 // We do not change tiles where there is something
-                if(tile->getCoveringRoom() != NULL)
-                    continue;
-                if(tile->getCoveringTrap() != NULL)
+                if(tile->getCoveringBuilding() != nullptr)
                     continue;
                 tiles.push_back(tile);
 
