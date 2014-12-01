@@ -129,8 +129,9 @@ void RoomCrypt::doUpkeep()
             continue;
 
         // We add the rotten creature points to the room and release the active spot
+        double coef = 1.0 + static_cast<double>(mNumActiveSpots - mCentralActiveSpotTiles.size()) * ConfigManager::getSingleton().getRoomConfigDouble("CryptBonusWallActiveSpot");
         Creature* c = p.second.first;
-        mRottenPoints += c->getMaxHp();
+        mRottenPoints += static_cast<int32_t>(c->getMaxHp() * coef);
 
         const std::string& name = c->getName();
         Player* player = getGameMap()->getPlayerBySeat(c->getSeat());
