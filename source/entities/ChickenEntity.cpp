@@ -87,7 +87,7 @@ void ChickenEntity::doUpkeep()
     Room* currentHatchery = nullptr;
     if(tile->getCoveringRoom() != nullptr)
     {
-        Room* room = currentHatchery = tile->getCoveringRoom();
+        Room* room = tile->getCoveringRoom();
         if(room->getType() == Room::RoomType::hatchery)
         {
             currentHatchery = room;

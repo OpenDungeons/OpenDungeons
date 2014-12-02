@@ -1097,6 +1097,10 @@ double Tile::scaleDigRate(double digRate)
 
 Tile* Tile::getNeighbor(unsigned int index)
 {
+    OD_ASSERT_TRUE_MSG(index < mNeighbors.size(), "tile=" + displayAsString(this));
+    if(index >= mNeighbors.size())
+        return nullptr;
+
     return mNeighbors[index];
 }
 
