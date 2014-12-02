@@ -60,11 +60,10 @@ void TreasuryObject::doUpkeep()
         return;
 
     if((mGoldValue > 0) &&
-       (tile->getCoveringBuilding() != nullptr) &&
-       (tile->getCoveringBuilding()->toRoom() != nullptr) &&
-       (tile->getCoveringBuilding()->toRoom()->getType() == Room::treasury))
+       (tile->getCoveringRoom() != nullptr) &&
+       (tile->getCoveringRoom()->getType() == Room::treasury))
     {
-        RoomTreasury* roomTreasury = static_cast<RoomTreasury*>(tile->getCoveringBuilding());
+        RoomTreasury* roomTreasury = static_cast<RoomTreasury*>(tile->getCoveringRoom());
         int goldDeposited = roomTreasury->depositGold(mGoldValue, tile);
         // We withdraw the amount we could deposit
         addGold(-goldDeposited);

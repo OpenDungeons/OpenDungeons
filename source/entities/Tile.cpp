@@ -431,8 +431,8 @@ bool Tile::isDiggable(Seat* seat) const
 
 bool Tile::isGroundClaimable() const
 {
-    return ((type == dirt || type == gold || type == claimed) && getFullness() == 0.0)
-        && ((getCoveringBuilding() == nullptr) || (getCoveringBuilding()->getObjectType() != GameEntity::ObjectType::room));
+    return ((type == dirt || type == gold || type == claimed) && getFullness() == 0.0
+        && getCoveringRoom() == nullptr);
 }
 
 bool Tile::isWallClaimable(Seat* seat)
@@ -1222,34 +1222,32 @@ void Tile::fillWithAttackableCreatures(std::vector<GameEntity*>& entities, Seat*
 
 void Tile::fillWithAttackableRoom(std::vector<GameEntity*>& entities, Seat* seat, bool invert)
 {
-    Building *building = getCoveringBuilding();
-    if((building != nullptr) &&
-       (building->getObjectType() == GameEntity::ObjectType::room) &&
-       building->isAttackable())
+    Room* room = getCoveringRoom();
+    if((room != nullptr) &&
+       room->isAttackable())
     {
-        if ((invert && !building->getSeat()->isAlliedSeat(seat)) || (!invert
-            && building->getSeat()->isAlliedSeat(seat)))
+        if ((invert && !room->getSeat()->isAlliedSeat(seat)) || (!invert
+            && room->getSeat()->isAlliedSeat(seat)))
         {
             // If the room is not in the list already then add it.
-            if (std::find(entities.begin(), entities.end(), building) == entities.end())
-                entities.push_back(building);
+            if (std::find(entities.begin(), entities.end(), room) == entities.end())
+                entities.push_back(room);
         }
     }
 }
 
 void Tile::fillWithAttackableTrap(std::vector<GameEntity*>& entities, Seat* seat, bool invert)
 {
-    Building *building = getCoveringBuilding();
-    if((building != nullptr) &&
-       (building->getObjectType() == GameEntity::ObjectType::trap) &&
-       building->isAttackable())
+    Trap* trap = getCoveringTrap();
+    if((trap != nullptr) &&
+       trap->isAttackable())
     {
-        if ((invert && !building->getSeat()->isAlliedSeat(seat)) || (!invert
-            && building->getSeat()->isAlliedSeat(seat)))
+        if ((invert && !trap->getSeat()->isAlliedSeat(seat)) || (!invert
+            && trap->getSeat()->isAlliedSeat(seat)))
         {
             // If the trap is not in the list already then add it.
-            if (std::find(entities.begin(), entities.end(), building) == entities.end())
-                entities.push_back(building);
+            if (std::find(entities.begin(), entities.end(), trap) == entities.end())
+                entities.push_back(trap);
         }
     }
 }
@@ -1383,6 +1381,28 @@ bool Tile::removeChickenEntity(ChickenEntity* chicken)
 
     mEntitiesInTile.erase(it);
     return true;
+}
+
+Room* Tile::getCoveringRoom() const
+{
+    if(mCoveringBuilding == nullptr)
+        return nullptr;
+
+    if(mCoveringBuilding->getObjectType() != ObjectType::room)
+        return nullptr;
+
+    return static_cast<Room*>(mCoveringBuilding);
+}
+
+Trap* Tile::getCoveringTrap() const
+{
+    if(mCoveringBuilding == nullptr)
+        return nullptr;
+
+    if(mCoveringBuilding->getObjectType() != ObjectType::trap)
+        return nullptr;
+
+    return static_cast<Trap*>(mCoveringBuilding);
 }
 
 std::string Tile::displayAsString(Tile* tile)

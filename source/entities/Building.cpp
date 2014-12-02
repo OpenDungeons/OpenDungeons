@@ -248,19 +248,3 @@ bool Building::isAttackable() const
 
     return true;
 }
-
-Room* Building::toRoom()
-{
-    if(getObjectType() != ObjectType::room)
-        return nullptr;
-
-    return static_cast<Room*>(this);
-}
-
-Trap* Building::toTrap()
-{
-    if(getObjectType() != ObjectType::trap)
-        return nullptr;
-
-    return static_cast<Trap*>(this);
-}

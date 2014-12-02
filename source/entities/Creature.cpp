@@ -970,10 +970,9 @@ bool Creature::handleIdleAction()
 
         bool forceGoldDeposit = false;
         if((mGold > 0) && (mDigRate > 0.0) &&
-           (position->getCoveringBuilding() != nullptr) &&
-           (position->getCoveringBuilding()->toRoom() != nullptr))
+           (position->getCoveringRoom() != nullptr))
         {
-            Room* room = position->getCoveringBuilding()->toRoom();
+            Room* room = position->getCoveringRoom();
             if(room->getType() == Room::treasury)
             {
                 forceGoldDeposit = true;
@@ -1107,10 +1106,9 @@ bool Creature::handleIdleAction()
         mForceAction = forcedActionNone;
         Tile* tile = getPositionTile();
         if((tile != nullptr) &&
-           (tile->getCoveringBuilding() != nullptr) &&
-           (tile->getCoveringBuilding()->toRoom() != nullptr))
+           (tile->getCoveringRoom() != nullptr))
         {
-            Room* room = tile->getCoveringBuilding()->toRoom();
+            Room* room = tile->getCoveringRoom();
             // we see if we are in an hatchery
             if((room->getType() == Room::hatchery) && room->hasOpenCreatureSpot(this))
             {
@@ -1757,9 +1755,8 @@ bool Creature::handleDepositGoldAction()
     if (myTile == nullptr)
         return false;
 
-    if ((myTile->getCoveringBuilding() != nullptr) &&
-        (myTile->getCoveringBuilding()->toRoom() != nullptr) &&
-        (myTile->getCoveringBuilding()->toRoom()->getType() == Room::treasury))
+    if ((myTile->getCoveringRoom() != nullptr) &&
+        (myTile->getCoveringRoom()->getType() == Room::treasury))
     {
         // Deposit as much of the gold we are carrying as we can into this treasury.
         mGold -= static_cast<RoomTreasury*>(myTile->getCoveringBuilding())->depositGold(mGold, myTile);
@@ -1855,17 +1852,16 @@ bool Creature::handleFindHomeAction(bool isForced)
         return false;
     }
 
-    if((myTile->getCoveringBuilding() != nullptr) &&
-       (myTile->getCoveringBuilding()->toRoom() != nullptr) &&
-       (getSeat()->canOwnedCreatureUseRoomFrom(myTile->getCoveringBuilding()->getSeat())) &&
-       (myTile->getCoveringBuilding()->toRoom()->getType() == Room::dormitory))
+    if((myTile->getCoveringRoom() != nullptr) &&
+       (getSeat()->canOwnedCreatureUseRoomFrom(myTile->getCoveringRoom()->getSeat())) &&
+       (myTile->getCoveringRoom()->getType() == Room::dormitory))
     {
         Room* roomHomeTile = nullptr;
         if(mHomeTile != nullptr)
         {
-            roomHomeTile = mHomeTile->getCoveringBuilding()->toRoom();
+            roomHomeTile = mHomeTile->getCoveringRoom();
             // Same dormitory nothing to do
-            if(roomHomeTile == myTile->getCoveringBuilding())
+            if(roomHomeTile == myTile->getCoveringRoom())
             {
                 popAction();
                 return true;
@@ -1992,11 +1988,10 @@ bool Creature::handleJobAction(bool isForced)
 
         // See if we are in a room where we can work. If so, we try to add the creature. If it is ok, the room
         // will handle the creature from here to make it go where it should
-        if((myTile->getCoveringBuilding() != nullptr) &&
-           (myTile->getCoveringBuilding()->toRoom() != nullptr) &&
-           (getSeat()->canOwnedCreatureUseRoomFrom(myTile->getCoveringBuilding()->getSeat())))
+        if((myTile->getCoveringRoom() != nullptr) &&
+           (getSeat()->canOwnedCreatureUseRoomFrom(myTile->getCoveringRoom()->getSeat())))
         {
-            Room* tempRoom = myTile->getCoveringBuilding()->toRoom();
+            Room* tempRoom = myTile->getCoveringRoom();
             // It is the room responsability to test if the creature is suited for working in it
             if(tempRoom->hasOpenCreatureSpot(this) && (tempRoom->getType() != Room::hatchery) && tempRoom->addCreatureUsingRoom(this))
             {
@@ -2111,9 +2106,9 @@ bool Creature::handleEatingAction(bool isForced)
         if(chickens.empty())
             continue;
 
-        if((mEatRoom == nullptr) && (tile->getCoveringBuilding() != nullptr) &&
-           (tile->getCoveringBuilding()->toRoom() != nullptr) &&
-           (tile->getCoveringBuilding()->toRoom()->getType() == Room::RoomType::hatchery))
+        if((mEatRoom == nullptr) &&
+           (tile->getCoveringRoom() != nullptr) &&
+           (tile->getCoveringRoom()->getType() == Room::RoomType::hatchery))
         {
             // We are not in a hatchery and the currently processed tile is a hatchery. We
             // cannot eat any chicken there
@@ -2185,13 +2180,12 @@ bool Creature::handleEatingAction(bool isForced)
 
     // See if we are in a hatchery. If so, we try to add the creature. If it is ok, the room
     // will handle the creature from here to make it go where it should
-    if((myTile->getCoveringBuilding() != nullptr) &&
-       (myTile->getCoveringBuilding()->toRoom() != nullptr) &&
-       (getSeat()->canOwnedCreatureUseRoomFrom(myTile->getCoveringBuilding()->getSeat())) &&
-       (myTile->getCoveringBuilding()->toRoom()->getType() == Room::hatchery) &&
-       (myTile->getCoveringBuilding()->toRoom()->hasOpenCreatureSpot(this)))
+    if((myTile->getCoveringRoom() != nullptr) &&
+       (getSeat()->canOwnedCreatureUseRoomFrom(myTile->getCoveringRoom()->getSeat())) &&
+       (myTile->getCoveringRoom()->getType() == Room::hatchery) &&
+       (myTile->getCoveringRoom()->hasOpenCreatureSpot(this)))
     {
-        Room* tempRoom = myTile->getCoveringBuilding()->toRoom();
+        Room* tempRoom = myTile->getCoveringRoom();
         if(tempRoom->addCreatureUsingRoom(this))
         {
             mEatRoom = tempRoom;

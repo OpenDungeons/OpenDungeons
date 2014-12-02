@@ -1086,12 +1086,10 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             std::vector<Tile*> sentTiles;
             for(Tile* tile : tiles)
             {
-                if((tile->getCoveringBuilding() == nullptr) ||
-                   (tile->getCoveringBuilding()->toRoom() == nullptr))
-                {
+                if(tile->getCoveringRoom() == nullptr)
                     continue;
-                }
-                Room* room = tile->getCoveringBuilding()->toRoom();
+
+                Room* room = tile->getCoveringRoom();
                 if(!room->getSeat()->canRoomBeDestroyedBy(player->getSeat()))
                     continue;
 
@@ -1133,12 +1131,10 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             std::vector<Tile*> sentTiles;
             for(Tile* tile : tiles)
             {
-                if((tile->getCoveringBuilding() == nullptr) ||
-                   (tile->getCoveringBuilding()->toRoom() == nullptr))
-                {
+                if(tile->getCoveringRoom() == nullptr)
                     continue;
-                }
-                Room* room = tile->getCoveringBuilding()->toRoom();
+
+                Room* room = tile->getCoveringRoom();
                 roomsImpacted.insert(room);
                 sentTiles.push_back(tile);
                 OD_ASSERT_TRUE(room->removeCoveredTile(tile));
@@ -1227,12 +1223,10 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             std::vector<Tile*> sentTiles;
             for(Tile* tile : tiles)
             {
-                if((tile->getCoveringBuilding() == nullptr) ||
-                   (tile->getCoveringBuilding()->toTrap() == nullptr))
-                {
+                if(tile->getCoveringTrap() == nullptr)
                     continue;
-                }
-                Trap* trap = tile->getCoveringBuilding()->toTrap();
+
+                Trap* trap = tile->getCoveringTrap();
                 if(!trap->getSeat()->canTrapBeDestroyedBy(player->getSeat()))
                     continue;
 
@@ -1272,12 +1266,10 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             std::vector<Tile*> sentTiles;
             for(Tile* tile : tiles)
             {
-                if((tile->getCoveringBuilding() == nullptr) ||
-                   (tile->getCoveringBuilding()->toTrap() == nullptr))
-                {
+                if(tile->getCoveringTrap() == nullptr)
                     continue;
-                }
-                Trap* trap = tile->getCoveringBuilding()->toTrap();
+
+                Trap* trap = tile->getCoveringTrap();
                 trapsImpacted.insert(trap);
                 sentTiles.push_back(tile);
                 OD_ASSERT_TRUE(trap->removeCoveredTile(tile));

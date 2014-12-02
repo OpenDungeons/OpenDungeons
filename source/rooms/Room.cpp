@@ -499,12 +499,12 @@ void Room::checkForRoomAbsorbtion()
     bool isRoomAbsorbed = false;
     for (Tile* tile : getGameMap()->tilesBorderedByRegion(getCoveredTiles()))
     {
-        if((tile->getCoveringBuilding() != nullptr) &&
-           (tile->getCoveringBuilding()->toRoom() != nullptr) &&
-           (tile->getCoveringBuilding()->getSeat() == getSeat()) &&
-           (tile->getCoveringBuilding()->toRoom()->getType() == getType()))
+        Room* room = tile->getCoveringRoom();
+        if((room != nullptr) &&
+           (room->getSeat() == getSeat()) &&
+           (room->getType() == getType()))
         {
-            absorbRoom(tile->getCoveringBuilding()->toRoom());
+            absorbRoom(room);
             // All the tiles from the absorbed room have been transfered to this one
             // No need to delete it since it will be removed during its next upkeep
             isRoomAbsorbed = true;

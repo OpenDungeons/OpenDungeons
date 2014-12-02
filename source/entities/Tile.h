@@ -202,6 +202,13 @@ public:
 
     Building* getCoveringBuilding() const
     { return mCoveringBuilding; }
+    //! \brief Proxy that checks if there is a covering building and if it is a room. If yes, returns
+    //! a pointer to the covering room
+    Room* getCoveringRoom() const;
+    //! \brief Proxy that checks if there is a covering building and if it is a trap. If yes, returns
+    //! a pointer to the covering trap
+    Trap* getCoveringTrap() const;
+
     void setCoveringBuilding(Building *building);
     //! \brief Add a tresaury object in this tile. There can be only one per tile so if there is already one, they are merged
     bool addTreasuryObject(TreasuryObject* object);

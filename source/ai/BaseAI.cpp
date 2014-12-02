@@ -83,8 +83,7 @@ bool BaseAI::shouldGroundTileBeConsideredForBestPlaceForRoom(Tile* tile, Seat* m
             for(Tile* t : tile->getAllNeighbors())
             {
                 if(t->isClaimedForSeat(mPlayerSeat) &&
-                    (t->getCoveringBuilding() != nullptr) &&
-                    (t->getCoveringBuilding()->getObjectType() == GameEntity::ObjectType::room))
+                    (t->getCoveringRoom() != nullptr))
                 {
                     return false;
                 }

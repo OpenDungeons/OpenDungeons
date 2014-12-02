@@ -56,11 +56,10 @@ void SmallSpiderEntity::doUpkeep()
 
     // If the spider is outside the crypt or too old, it dies
     Room* currentCrypt = nullptr;
-    if((tile->getCoveringBuilding() != nullptr) &&
-       (tile->getCoveringBuilding()->toRoom() != nullptr) &&
-       (tile->getCoveringBuilding()->toRoom()->getType() == Room::crypt))
+    if((tile->getCoveringRoom() != nullptr) &&
+       (tile->getCoveringRoom()->getType() == Room::crypt))
     {
-       currentCrypt = tile->getCoveringBuilding()->toRoom();
+       currentCrypt = tile->getCoveringRoom();
     }
 
     if(mIsSlapped || (mNbTurnLife <= 0) || (currentCrypt == nullptr))
@@ -119,12 +118,10 @@ bool SmallSpiderEntity::canSlap(Seat* seat, bool isEditorMode)
     if(tile == nullptr)
         return false;
 
-    Building* currentCrypt = tile->getCoveringBuilding();
+    Room* currentCrypt = tile->getCoveringRoom();
     if(currentCrypt == nullptr)
         return false;
-    if(currentCrypt->toRoom() == nullptr)
-        return false;
-    if(currentCrypt->toRoom()->getType() != Room::RoomType::crypt)
+    if(currentCrypt->getType() != Room::RoomType::crypt)
         return false;
 
     if(currentCrypt->getSeat() != seat)

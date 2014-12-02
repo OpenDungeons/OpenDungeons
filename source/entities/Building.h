@@ -114,11 +114,6 @@ public:
     virtual void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity)
     {}
 
-    //! \brief If the building is a room, returns a pointer to this. Else, returns nullptr
-    Room* toRoom();
-    //! \brief If the building is a trap, returns a pointer to this. Else, returns nullptr
-    Trap* toTrap();
-
 protected:
     std::map<Tile*, RenderedMovableEntity*> mBuildingObjects;
     std::vector<Tile*> mCoveredTiles;
