@@ -20,6 +20,8 @@
 
 #include "AbstractApplicationMode.h"
 
+#include <cstdint>
+
 class Seat;
 class Player;
 class ODPacket;

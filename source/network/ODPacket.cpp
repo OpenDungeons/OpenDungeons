@@ -262,10 +262,12 @@ int32_t ODPacket::readPacket(std::ifstream& is)
     if(is.eof())
         return -1;
 
-    char buffer[bufferSize];
+    char* buffer = new char[bufferSize];
     is.read(buffer, bufferSize);
     mPacket.clear();
     mPacket.append(buffer, bufferSize);
+
+    delete buffer;
 
     return timestamp;
 }
