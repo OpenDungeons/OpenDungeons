@@ -7,9 +7,6 @@ ogre.cfg
 plugins.cfg
 plugins_d.cfg
 resources.cfg
-resources.zip.cfg
-resources_install.cfg
-resources_install.zip.cfg
 
 *.bin
 *.dll

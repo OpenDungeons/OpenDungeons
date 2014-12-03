@@ -53,13 +53,14 @@ More detailed, and usually up to date build instructions can be found at:
 To build the game run the following commands from the directory where this
 README file is. You will need CMake for this (http://cmake.org/).
 
-    cmake .
+    mkdir build && cd build
+    cmake ..
     make
     ./opendungeons
 
 To build the game, you will need to link against the following libraries:
 *  OGRE SDK (1.9.x)
-*  boost (same version than the one used by Ogre)
+*  boost (same version as the one used by Ogre)
 *  CEGUI SDK (0.8.x)
 *  SFML (2.x)
 
