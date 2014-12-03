@@ -141,7 +141,7 @@ void Room::addCoveredTile(Tile* t, double nHP)
 void Room::addCoveredTile(Tile* t, double nHP, bool isRoomAbsorb)
 {
     Building::addCoveredTile(t, nHP);
-    t->setCoveringRoom(this);
+    t->setCoveringBuilding(this);
 }
 
 bool Room::removeCoveredTile(Tile* t)
@@ -154,7 +154,7 @@ bool Room::removeCoveredTile(Tile* t, bool isRoomAbsorb)
     if(!Building::removeCoveredTile(t))
         return false;
 
-    t->setCoveringRoom(NULL);
+    t->setCoveringBuilding(nullptr);
 
     if(getGameMap()->isServerGameMap())
         return true;
@@ -497,19 +497,22 @@ void Room::setupRoom(const std::string& name, Seat* seat, const std::vector<Tile
 void Room::checkForRoomAbsorbtion()
 {
     bool isRoomAbsorbed = false;
-    std::vector<Tile*> borderTiles = getGameMap()->tilesBorderedByRegion(getCoveredTiles());
-    for (std::vector<Tile*>::iterator it = borderTiles.begin(); it != borderTiles.end(); ++it)
+    for (Tile* tile : getGameMap()->tilesBorderedByRegion(getCoveredTiles()))
     {
-        Tile* tile = *it;
-        Room* borderingRoom = tile->getCoveringRoom();
-        if (borderingRoom != nullptr && borderingRoom->getType() == getType()
-            && borderingRoom != this && borderingRoom->getSeat() == getSeat())
-        {
-            absorbRoom(borderingRoom);
-            // All the tiles from the absorbed room have been transfered to this one
-            // No need to delete it since it will be removed during its next upkeep
-            isRoomAbsorbed = true;
-        }
+        Room* room = tile->getCoveringRoom();
+        if(room == nullptr)
+            continue;
+        if(room == this)
+            continue;
+        if(room->getSeat() != getSeat())
+            continue;
+        if(room->getType() != getType())
+            continue;
+
+        absorbRoom(room);
+        // All the tiles from the absorbed room have been transfered to this one
+        // No need to delete it since it will be removed during its next upkeep
+        isRoomAbsorbed = true;
     }
 
     // We try to keep the same tile disposition as if the room was created like this in the first
@@ -620,7 +623,7 @@ void Room::updateActiveSpots()
             for(int k = 0; k < 3; ++k)
             {
                 Tile* testTile2 = getGameMap()->getTile(centerTile->getX() + k - 1, centerTile->getY() + 2);
-                if((testTile2 == NULL) || (testTile2->getCoveringRoom() != this))
+                if((testTile2 == NULL) || (testTile2->getCoveringBuilding() != this))
                 {
                     isFound = false;
                     break;
@@ -650,7 +653,7 @@ void Room::updateActiveSpots()
             for(int k = 0; k < 3; ++k)
             {
                 Tile* testTile2 = getGameMap()->getTile(centerTile->getX() + k - 1, centerTile->getY() - 2);
-                if((testTile2 == NULL) || (testTile2->getCoveringRoom() != this))
+                if((testTile2 == NULL) || (testTile2->getCoveringBuilding() != this))
                 {
                     isFound = false;
                     break;
@@ -680,7 +683,7 @@ void Room::updateActiveSpots()
             for(int k = 0; k < 3; ++k)
             {
                 Tile* testTile2 = getGameMap()->getTile(centerTile->getX() - 2, centerTile->getY() + k - 1);
-                if((testTile2 == NULL) || (testTile2->getCoveringRoom() != this))
+                if((testTile2 == NULL) || (testTile2->getCoveringBuilding() != this))
                 {
                     isFound = false;
                     break;
@@ -710,7 +713,7 @@ void Room::updateActiveSpots()
             for(int k = 0; k < 3; ++k)
             {
                 Tile* testTile2 = getGameMap()->getTile(centerTile->getX() + 2, centerTile->getY() + k - 1);
-                if((testTile2 == NULL) || (testTile2->getCoveringRoom() != this))
+                if((testTile2 == NULL) || (testTile2->getCoveringBuilding() != this))
                 {
                     isFound = false;
                     break;

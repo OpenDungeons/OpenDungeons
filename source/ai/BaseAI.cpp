@@ -76,16 +76,14 @@ bool BaseAI::shouldGroundTileBeConsideredForBestPlaceForRoom(Tile* tile, Seat* m
             // We check if we can build on that tile and if there is no building currently
             if(!tile->isClaimedForSeat(mPlayerSeat))
                 return false;
-            if(tile->getCoveringRoom() != nullptr)
-                return false;
-            if(tile->getCoveringTrap() != nullptr)
+            if(tile->getCoveringBuilding() != nullptr)
                 return false;
 
             // We don't want to break a wall where there are activespots from another one
             for(Tile* t : tile->getAllNeighbors())
             {
                 if(t->isClaimedForSeat(mPlayerSeat) &&
-                    t->getCoveringRoom() != nullptr)
+                    (t->getCoveringRoom() != nullptr))
                 {
                     return false;
                 }

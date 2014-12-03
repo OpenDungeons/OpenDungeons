@@ -52,14 +52,13 @@ void RoomHatchery::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
 
 uint32_t RoomHatchery::getNbChickens()
 {
-    uint32_t nbChickens = 0;
+    std::vector<GameEntity*> chickens;
     for(Tile* tile : mCoveredTiles)
     {
-        const std::vector<ChickenEntity*>& chickens = tile->getChickenEntities();
-        nbChickens += chickens.size();
+        tile->fillWithChickenEntities(chickens);
     }
 
-    return nbChickens;
+    return chickens.size();
 }
 
 void RoomHatchery::doUpkeep()

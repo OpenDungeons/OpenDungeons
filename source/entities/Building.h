@@ -29,6 +29,8 @@
 class GameMap;
 class RenderedMovableEntity;
 class Tile;
+class Room;
+class Trap;
 
 /*! \class Building
  *  \brief This class holds elements that are common to Building like Rooms or Traps

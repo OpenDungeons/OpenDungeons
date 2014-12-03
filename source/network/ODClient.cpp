@@ -321,10 +321,9 @@ bool ODClient::processOneClientSocketMessage()
 
             // Loop over the tile's neighbors to force them to recheck
             // their mesh to see if they can use an optimized one
-            std::vector<Tile*> neighbors = newTile->getAllNeighbors();
-            for (unsigned int i = 0; i < neighbors.size(); ++i)
+            for (Tile* tile : newTile->getAllNeighbors())
             {
-                neighbors[i]->setFullness(neighbors[i]->getFullness());
+                tile->setFullness(tile->getFullness());
             }
             break;
         }
@@ -542,9 +541,8 @@ bool ODClient::processOneClientSocketMessage()
             {
                 tempTile->setFullness(tmpTile.getFullness());
                 std::vector<Tile*> neighbors = tempTile->getAllNeighbors();
-                for (std::vector<Tile*>::iterator it = neighbors.begin(); it != neighbors.end(); ++it)
+                for (Tile* neighbor : neighbors)
                 {
-                    Tile* neighbor = *it;
                     neighbor->setFullness(neighbor->getFullness());
                 }
             }

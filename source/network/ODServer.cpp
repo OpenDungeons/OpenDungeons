@@ -1084,11 +1084,11 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             int goldRetrieved = 0;
             std::set<Room*> roomsImpacted;
             std::vector<Tile*> sentTiles;
-            for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
+            for(Tile* tile : tiles)
             {
-                Tile* tile = *it;
                 if(tile->getCoveringRoom() == nullptr)
                     continue;
+
                 Room* room = tile->getCoveringRoom();
                 if(!room->getSeat()->canRoomBeDestroyedBy(player->getSeat()))
                     continue;
@@ -1129,11 +1129,11 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             std::set<Room*> roomsImpacted;
             std::vector<Tile*> sentTiles;
-            for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
+            for(Tile* tile : tiles)
             {
-                Tile* tile = *it;
                 if(tile->getCoveringRoom() == nullptr)
                     continue;
+
                 Room* room = tile->getCoveringRoom();
                 roomsImpacted.insert(room);
                 sentTiles.push_back(tile);
@@ -1221,11 +1221,11 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             int goldRetrieved = 0;
             std::set<Trap*> trapsImpacted;
             std::vector<Tile*> sentTiles;
-            for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
+            for(Tile* tile : tiles)
             {
-                Tile* tile = *it;
                 if(tile->getCoveringTrap() == nullptr)
                     continue;
+
                 Trap* trap = tile->getCoveringTrap();
                 if(!trap->getSeat()->canTrapBeDestroyedBy(player->getSeat()))
                     continue;
@@ -1264,11 +1264,11 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             std::set<Trap*> trapsImpacted;
             std::vector<Tile*> sentTiles;
-            for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
+            for(Tile* tile : tiles)
             {
-                Tile* tile = *it;
                 if(tile->getCoveringTrap() == nullptr)
                     continue;
+
                 Trap* trap = tile->getCoveringTrap();
                 trapsImpacted.insert(trap);
                 sentTiles.push_back(tile);
@@ -1356,26 +1356,20 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             Tile::TileType tileType = static_cast<Tile::TileType>(intTileType);
             std::vector<Tile*> selectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
             std::vector<Tile*> affectedTiles;
-            Seat* seat = NULL;
+            Seat* seat = nullptr;
             double claimedPercentage = 0.0;
             if(tileType == Tile::TileType::claimed)
             {
                 seat = gameMap->getSeatById(seatId);
                 claimedPercentage = 1.0;
             }
-            for(std::vector<Tile*>::iterator it = selectedTiles.begin(); it != selectedTiles.end(); ++it)
+            for(Tile* tile : selectedTiles)
             {
-                Tile* tile = *it;
-                if(tile == NULL)
-                    continue;
-
                 // We do not change tiles where there is something
-                if((tile->numCreaturesInCell() > 0) &&
+                if((tile->numEntitiesInTile() > 0) &&
                    ((tileFullness > 0.0) || (tileType == Tile::TileType::lava) || (tileType == Tile::TileType::water)))
                     continue;
-                if(tile->getCoveringRoom() != NULL)
-                    continue;
-                if(tile->getCoveringTrap() != NULL)
+                if(tile->getCoveringBuilding() != nullptr)
                     continue;
 
                 affectedTiles.push_back(tile);
@@ -1413,16 +1407,10 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             std::vector<Tile*> selectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
             std::vector<Tile*> tiles;
             // We start by changing the tiles so that the room can be built
-            for(std::vector<Tile*>::iterator it = selectedTiles.begin(); it != selectedTiles.end(); ++it)
+            for(Tile* tile : selectedTiles)
             {
-                Tile* tile = *it;
-                if(tile == NULL)
-                    continue;
-
                 // We do not change tiles where there is something on the tile
-                if(tile->getCoveringRoom() != NULL)
-                    continue;
-                if(tile->getCoveringTrap() != NULL)
+                if(tile->getCoveringBuilding() != nullptr)
                     continue;
                 tiles.push_back(tile);
 
@@ -1518,16 +1506,10 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             std::vector<Tile*> selectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
             std::vector<Tile*> tiles;
             // We start by changing the tiles so that the trap can be built
-            for(std::vector<Tile*>::iterator it = selectedTiles.begin(); it != selectedTiles.end(); ++it)
+            for(Tile* tile : selectedTiles)
             {
-                Tile* tile = *it;
-                if(tile == NULL)
-                    continue;
-
                 // We do not change tiles where there is something
-                if(tile->getCoveringRoom() != NULL)
-                    continue;
-                if(tile->getCoveringTrap() != NULL)
+                if(tile->getCoveringBuilding() != nullptr)
                     continue;
                 tiles.push_back(tile);
 

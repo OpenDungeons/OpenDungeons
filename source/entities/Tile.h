@@ -75,11 +75,8 @@ public:
         selected            (false),
         fullness            (nFullness),
         fullnessMeshNumber  (-1),
-        coveringRoom        (NULL),
-        coveringTrap        (NULL),
-        claimLight          (NULL),
-        mClaimedPercentage  (0.0),
-        mTreasuryObject     (nullptr)
+        mCoveringBuilding   (nullptr),
+        mClaimedPercentage  (0.0)
     {
         for(int i = 0; i < Tile::FloodFillTypeMax; i++)
         {
@@ -185,32 +182,37 @@ public:
     Player* getPlayerMarkingTile(int index);
 
     //! \brief This function adds a creature to the list of creatures in this tile.
-    void addCreature(Creature *c);
+    bool addCreature(Creature *c);
 
     //! \brief This function removes a creature to the list of creatures in this tile.
-    void removeCreature(Creature *c);
+    bool removeCreature(Creature *c);
 
     //! \brief This function returns the count of the number of creatures in the tile.
-    unsigned numCreaturesInCell() const;
+    unsigned int numEntitiesInTile() const
+    { return mEntitiesInTile.size(); }
 
     void addNeighbor(Tile *n);Tile* getNeighbor(unsigned index);
-    std::vector<Tile*> getAllNeighbors();
+    const std::vector<Tile*>& getAllNeighbors() const
+    { return mNeighbors; }
 
     void claimForSeat(Seat* seat, double nDanceRate);
     void claimTile(Seat* seat);
     double digOut(double digRate, bool doScaleDigRate = false);
     double scaleDigRate(double digRate);
 
+    Building* getCoveringBuilding() const
+    { return mCoveringBuilding; }
+    //! \brief Proxy that checks if there is a covering building and if it is a room. If yes, returns
+    //! a pointer to the covering room
     Room* getCoveringRoom() const;
-    void setCoveringRoom(Room *r);
+    //! \brief Proxy that checks if there is a covering building and if it is a trap. If yes, returns
+    //! a pointer to the covering trap
     Trap* getCoveringTrap() const;
-    void setCoveringTrap(Trap* t);
-    // There can be only one treasury object at a time in a tile
-    TreasuryObject* getTreasuryObject() const
-    { return mTreasuryObject; }
-    // If a treasury object is added in a tile where there is already one, they are merged
-    void addTreasuryObject(TreasuryObject* object);
-    void removeTreasuryObject(TreasuryObject* object);
+
+    void setCoveringBuilding(Building *building);
+    //! \brief Add a tresaury object in this tile. There can be only one per tile so if there is already one, they are merged
+    bool addTreasuryObject(TreasuryObject* object);
+    bool removeTreasuryObject(TreasuryObject* object);
 
     //! \brief Tells whether the tile is diggable by dig-capable creatures.
     //! \brief The player seat.
@@ -294,15 +296,14 @@ public:
     //! the list will be filled with the ennemies with the given seat. If invert is false, it will be filled
     //! with allies with the given seat. For all theses functions, the list is checked to be sure
     //! no entity is added twice
-    void fillAttackableCreatures(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
-    void fillAttackableRoom(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
-    void fillAttackableTrap(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
-    void fillCarryableEntities(std::vector<GameEntity*>& entities);
+    void fillWithAttackableCreatures(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
+    void fillWithAttackableRoom(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
+    void fillWithAttackableTrap(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
+    void fillWithCarryableEntities(std::vector<GameEntity*>& entities);
+    void fillWithChickenEntities(std::vector<GameEntity*>& entities);
 
     bool addChickenEntity(ChickenEntity* chicken);
     bool removeChickenEntity(ChickenEntity* chicken);
-    const std::vector<ChickenEntity*>& getChickenEntities()
-    { return mChickens; }
 
 protected:
     virtual void createMeshLocal();
@@ -325,17 +326,13 @@ private:
     double fullness;
     int fullnessMeshNumber;
 
-    std::vector<Tile*> neighbors;
-    std::vector<Creature*> creaturesInCell;
-    std::vector<Player*> playersMarkingTile;
+    std::vector<Tile*> mNeighbors;
+    std::vector<Player*> mPlayersMarkingTile;
 
-    /*! \brief List of the chickens actually on this tile. It is handled by the chickens
-     * themselves and should not be deleted by the tile
+    /*! \brief List of the entities actually on this tile. Most of the creatures actions will rely on this list
      */
-    std::vector<ChickenEntity*> mChickens;
-    Room* coveringRoom;
-    Trap* coveringTrap;
-    MapLight* claimLight;
+    std::vector<GameEntity*> mEntitiesInTile;
+    Building* mCoveringBuilding;
     int mFloodFillColor[FloodFillTypeMax];
     double mClaimedPercentage;
 
@@ -346,10 +343,6 @@ private:
     void setFullnessValue(double f);
 
     int getFloodFill(FloodFillType type);
-
-    //! \brief  We allow only one TreasuryObject per tile. If another one is dropped on the same tile,
-    //! it will be merged. It should not be deleted here as it is just a pointer to remind if there is one here.
-    TreasuryObject* mTreasuryObject;
 };
 
 #endif // TILE_H

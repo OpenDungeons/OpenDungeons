@@ -644,7 +644,7 @@ void Creature::doUpkeep()
             // If the creature has a homeTile where it sleeps, its bed needs to be destroyed.
             if (getHomeTile() != 0)
             {
-                RoomDormitory* home = static_cast<RoomDormitory*>(getHomeTile()->getCoveringRoom());
+                RoomDormitory* home = static_cast<RoomDormitory*>(getHomeTile()->getCoveringBuilding());
                 home->releaseTileForSleeping(getHomeTile(), this);
             }
 
@@ -932,11 +932,8 @@ bool Creature::handleIdleAction()
         Tile* tileMarkedDig = NULL;
         Tile* tileToClaim = NULL;
         Tile* tileWallNotClaimed = NULL;
-        std::vector<Tile*> creatureNeighbors = position->getAllNeighbors();
-        for (std::vector<Tile*>::iterator it = creatureNeighbors.begin(); it != creatureNeighbors.end(); ++it)
+        for (Tile* tile : position->getAllNeighbors())
         {
-            Tile* tile = *it;
-
             if(tileMarkedDig == NULL &&
                 tile->getMarkedForDigging(getGameMap()->getPlayerBySeat(seat))
                 )
@@ -972,17 +969,18 @@ bool Creature::handleIdleAction()
         }
 
         bool forceGoldDeposit = false;
-        if((mGold > 0) && (mDigRate > 0.0))
+        if((mGold > 0) && (mDigRate > 0.0) &&
+           (position->getCoveringRoom() != nullptr))
         {
             Room* room = position->getCoveringRoom();
-            if((room != NULL) && (room->getType() == Room::treasury))
+            if(room->getType() == Room::treasury)
             {
                 forceGoldDeposit = true;
             }
         }
 
         std::vector<GameEntity*> carryable;
-        position->fillCarryableEntities(carryable);
+        position->fillWithCarryableEntities(carryable);
         bool forceCarryObject = false;
         if(!carryable.empty())
             forceCarryObject = true;
@@ -1107,29 +1105,27 @@ bool Creature::handleIdleAction()
     {
         mForceAction = forcedActionNone;
         Tile* tile = getPositionTile();
-        if(tile != NULL)
+        if((tile != nullptr) &&
+           (tile->getCoveringRoom() != nullptr))
         {
             Room* room = tile->getCoveringRoom();
-            if(room != NULL)
+            // we see if we are in an hatchery
+            if((room->getType() == Room::hatchery) && room->hasOpenCreatureSpot(this))
             {
-                // we see if we are in an hatchery
-                if((room->getType() == Room::hatchery) && room->hasOpenCreatureSpot(this))
-                {
-                    pushAction(CreatureAction::eatforced);
-                    return true;
-                }
-                else if(room->getType() == Room::dormitory)
-                {
-                    pushAction(CreatureAction::sleep);
-                    pushAction(CreatureAction::findHomeForced);
-                    return true;
-                }
-                // If not, can we work in this room ?
-                else if((room->getType() != Room::hatchery) && room->hasOpenCreatureSpot(this))
-                {
-                    pushAction(CreatureAction::jobforced);
-                    return true;
-                }
+                pushAction(CreatureAction::eatforced);
+                return true;
+            }
+            else if(room->getType() == Room::dormitory)
+            {
+                pushAction(CreatureAction::sleep);
+                pushAction(CreatureAction::findHomeForced);
+                return true;
+            }
+            // If not, can we work in this room ?
+            else if((room->getType() != Room::hatchery) && room->hasOpenCreatureSpot(this))
+            {
+                pushAction(CreatureAction::jobforced);
+                return true;
             }
         }
     }
@@ -1317,11 +1313,9 @@ bool Creature::handleClaimTileAction()
     {
         //cout << "\nTrying to claim the tile I am standing on.";
         // Check to see if one of the tile's neighbors is claimed for our color
-        std::vector<Tile*> neighbors = myTile->getAllNeighbors();
-        for (unsigned int j = 0; j < neighbors.size(); ++j)
+        for (Tile* tempTile : myTile->getAllNeighbors())
         {
             // Check to see if the current neighbor is a claimed ground tile
-            Tile* tempTile = neighbors[j];
             if (tempTile->isClaimedForSeat(getSeat()) && (tempTile->getFullness() == 0.0) && tempTile->getClaimedPercentage() >= 1.0)
             {
                 //cout << "\t\tFound a neighbor that is claimed.";
@@ -1353,11 +1347,8 @@ bool Creature::handleClaimTileAction()
         {
             // The neighbor tile is a potential candidate for claiming, to be an actual candidate
             // though it must have a neighbor of its own that is already claimed for our side.
-            Tile* tempTile2;
-            std::vector<Tile*> neighbors2 = tempTile->getAllNeighbors();
-            for (unsigned int i = 0; i < neighbors2.size(); ++i)
+            for (Tile* tempTile2 : tempTile->getAllNeighbors())
             {
-                tempTile2 = neighbors2[i];
                 if (tempTile2->isClaimedForSeat(getSeat())
                         && tempTile2->getClaimedPercentage() >= 1.0)
                 {
@@ -1375,23 +1366,20 @@ bool Creature::handleClaimTileAction()
     //cout << "\nLooking at the visible tiles to see if I can claim a tile.";
     // If we still haven't found a tile to claim, check the rest of the visible tiles
     std::vector<Tile*> claimableTiles;
-    for (unsigned int i = 0; i < mTilesWithinSightRadius.size(); ++i)
+    for (Tile* tempTile : mTilesWithinSightRadius)
     {
         // if this tile is not fully claimed yet or the tile is of another player's color
-        Tile* tempTile = mTilesWithinSightRadius[i];
         if (tempTile != NULL && tempTile->getFullness() == 0.0
             && (tempTile->getClaimedPercentage() < 1.0 || !tempTile->isClaimedForSeat(getSeat()))
             && tempTile->isGroundClaimable())
         {
             // Check to see if one of the tile's neighbors is claimed for our color
-            neighbors = mTilesWithinSightRadius[i]->getAllNeighbors();
-            for (unsigned int j = 0; j < neighbors.size(); ++j)
+            for (Tile* t : tempTile->getAllNeighbors())
             {
-                tempTile = neighbors[j];
-                if (tempTile->isClaimedForSeat(getSeat())
-                        && tempTile->getClaimedPercentage() >= 1.0)
+                if (t->isClaimedForSeat(getSeat())
+                        && t->getClaimedPercentage() >= 1.0)
                 {
-                    claimableTiles.push_back(tempTile);
+                    claimableTiles.push_back(t);
                 }
             }
         }
@@ -1413,10 +1401,9 @@ bool Creature::handleClaimTileAction()
             tempTile = claimableTiles[Random::Uint(0, claimableTiles.size() - 1)];
 
             // Count how many of the candidate tile's neighbors are already claimed.
-            neighbors = tempTile->getAllNeighbors();
-            for (unsigned int i = 0; i < neighbors.size(); ++i)
+            for (Tile* t : tempTile->getAllNeighbors())
             {
-                if (neighbors[i]->isClaimedForSeat(getSeat()) && neighbors[i]->getClaimedPercentage() >= 1.0)
+                if (t->isClaimedForSeat(getSeat()) && t->getClaimedPercentage() >= 1.0)
                     ++numNeighborsClaimed;
             }
 
@@ -1492,14 +1479,14 @@ bool Creature::handleClaimWallTileAction()
 
     // See if any of the tiles is one of our neighbors
     bool wasANeighbor = false;
-    std::vector<Tile*> creatureNeighbors = myTile->getAllNeighbors();
     Player* tempPlayer = getGameMap()->getPlayerBySeat(getSeat());
-    for (unsigned int i = 0; i < creatureNeighbors.size() && !wasANeighbor; ++i)
+    for (Tile* tempTile : myTile->getAllNeighbors())
     {
-        if (tempPlayer == NULL)
+        if(wasANeighbor)
             break;
 
-        Tile* tempTile = creatureNeighbors[i];
+        if (tempPlayer == NULL)
+            break;
 
         if (!tempTile->isWallClaimable(getSeat()))
             continue;
@@ -1526,8 +1513,7 @@ bool Creature::handleClaimWallTileAction()
     std::vector<Tile*> wallTiles = getVisibleClaimableWallTiles();
     for (unsigned int i = 0; i < wallTiles.size(); ++i)
     {
-        std::vector<Tile*> neighbors = wallTiles[i]->getAllNeighbors();
-        for (Tile* neighborTile : neighbors)
+        for (Tile* neighborTile : wallTiles[i]->getAllNeighbors())
         {
             if (getGameMap()->pathExists(this, getPositionTile(), neighborTile))
                 possiblePaths.push_back(getGameMap()->path(this, neighborTile));
@@ -1603,12 +1589,13 @@ bool Creature::handleDigTileAction()
     bool wasANeighbor = false;
     std::vector<Tile*> creatureNeighbors = myTile->getAllNeighbors();
     Player* tempPlayer = getGameMap()->getPlayerBySeat(getSeat());
-    for (unsigned int i = 0; i < creatureNeighbors.size() && !wasANeighbor; ++i)
+    for (Tile* tempTile : creatureNeighbors)
     {
-        if (tempPlayer == NULL)
+        if(wasANeighbor)
             break;
 
-        Tile* tempTile = creatureNeighbors[i];
+        if (tempPlayer == NULL)
+            break;
 
         if (!tempTile->getMarkedForDigging(tempPlayer))
             continue;
@@ -1686,8 +1673,7 @@ bool Creature::handleDigTileAction()
     std::vector<std::list<Tile*> > possiblePaths;
     for (unsigned int i = 0; i < mVisibleMarkedTiles.size(); ++i)
     {
-        std::vector<Tile*> neighbors = mVisibleMarkedTiles[i]->getAllNeighbors();
-        for (Tile* neighborTile : neighbors)
+        for (Tile* neighborTile : mVisibleMarkedTiles[i]->getAllNeighbors())
         {
             if (getGameMap()->pathExists(this, getPositionTile(), neighborTile))
                 possiblePaths.push_back(getGameMap()->path(this, neighborTile));
@@ -1766,14 +1752,14 @@ bool Creature::handleDepositGoldAction()
 {
     // Check to see if we are standing in a treasury.
     Tile* myTile = getPositionTile();
-    if (myTile == NULL)
+    if (myTile == nullptr)
         return false;
 
-    Room* tempRoom = myTile->getCoveringRoom();
-    if (tempRoom != NULL && tempRoom->getType() == Room::treasury)
+    if ((myTile->getCoveringRoom() != nullptr) &&
+        (myTile->getCoveringRoom()->getType() == Room::treasury))
     {
         // Deposit as much of the gold we are carrying as we can into this treasury.
-        mGold -= static_cast<RoomTreasury*>(tempRoom)->depositGold(mGold, myTile);
+        mGold -= static_cast<RoomTreasury*>(myTile->getCoveringBuilding())->depositGold(mGold, myTile);
 
         // Depending on how much gold we have left (what did not fit in this treasury) we may want to continue
         // looking for another treasury to put the gold into.  Roll a dice to see if we want to quit looking not.
@@ -1866,25 +1852,26 @@ bool Creature::handleFindHomeAction(bool isForced)
         return false;
     }
 
-    Room* tempRoom = myTile->getCoveringRoom();
-    if (tempRoom != NULL && tempRoom->getType() == Room::dormitory && getSeat()->canOwnedCreatureUseRoomFrom(tempRoom->getSeat()))
+    if((myTile->getCoveringRoom() != nullptr) &&
+       (getSeat()->canOwnedCreatureUseRoomFrom(myTile->getCoveringRoom()->getSeat())) &&
+       (myTile->getCoveringRoom()->getType() == Room::dormitory))
     {
-        Room* roomHomeTile = NULL;
-        if(mHomeTile != NULL)
+        Room* roomHomeTile = nullptr;
+        if(mHomeTile != nullptr)
         {
             roomHomeTile = mHomeTile->getCoveringRoom();
             // Same dormitory nothing to do
-            if(roomHomeTile == tempRoom)
+            if(roomHomeTile == myTile->getCoveringRoom())
             {
                 popAction();
                 return true;
             }
         }
 
-        if (static_cast<RoomDormitory*>(tempRoom)->claimTileForSleeping(myTile, this))
+        if (static_cast<RoomDormitory*>(myTile->getCoveringBuilding())->claimTileForSleeping(myTile, this))
         {
             // We could install the bed in the dormitory. If we already had one, we remove it
-            if(roomHomeTile != NULL)
+            if(roomHomeTile != nullptr)
                 static_cast<RoomDormitory*>(roomHomeTile)->releaseTileForSleeping(mHomeTile, this);
 
             mHomeTile = myTile;
@@ -1893,7 +1880,7 @@ bool Creature::handleFindHomeAction(bool isForced)
         }
 
         // The tile where we are is not claimable. We search if there is another in this dormitory
-        Tile* tempTile = static_cast<RoomDormitory*>(tempRoom)->getLocationForBed(
+        Tile* tempTile = static_cast<RoomDormitory*>(myTile->getCoveringBuilding())->getLocationForBed(
             mDefinition->getBedDim1(), mDefinition->getBedDim2());
         if(tempTile != NULL)
         {
@@ -2001,9 +1988,10 @@ bool Creature::handleJobAction(bool isForced)
 
         // See if we are in a room where we can work. If so, we try to add the creature. If it is ok, the room
         // will handle the creature from here to make it go where it should
-        Room* tempRoom = myTile->getCoveringRoom();
-        if ((tempRoom != NULL) && getSeat()->canOwnedCreatureUseRoomFrom(tempRoom->getSeat()))
+        if((myTile->getCoveringRoom() != nullptr) &&
+           (getSeat()->canOwnedCreatureUseRoomFrom(myTile->getCoveringRoom()->getSeat())))
         {
+            Room* tempRoom = myTile->getCoveringRoom();
             // It is the room responsability to test if the creature is suited for working in it
             if(tempRoom->hasOpenCreatureSpot(this) && (tempRoom->getType() != Room::hatchery) && tempRoom->addCreatureUsingRoom(this))
             {
@@ -2113,15 +2101,21 @@ bool Creature::handleEatingAction(bool isForced)
     double closestChickenDist = 0.0;
     for(Tile* tile : mTilesWithinSightRadius)
     {
-        const std::vector<ChickenEntity*>& chickens = tile->getChickenEntities();
+        std::vector<GameEntity*> chickens;
+        tile->fillWithChickenEntities(chickens);
         if(chickens.empty())
             continue;
 
-        if((mEatRoom == nullptr) && (tile->getCoveringRoom() != nullptr) &&
+        if((mEatRoom == nullptr) &&
+           (tile->getCoveringRoom() != nullptr) &&
            (tile->getCoveringRoom()->getType() == Room::RoomType::hatchery))
+        {
+            // We are not in a hatchery and the currently processed tile is a hatchery. We
+            // cannot eat any chicken there
             continue;
+        }
 
-        if((mEatRoom != nullptr) && (tile->getCoveringRoom() != mEatRoom))
+        if((mEatRoom != nullptr) && (tile->getCoveringBuilding() != mEatRoom))
             continue;
 
         double dist = std::pow(static_cast<double>(std::abs(tile->getX() - myTile->getX())), 2);
@@ -2139,7 +2133,10 @@ bool Creature::handleEatingAction(bool isForced)
         if(closestChickenDist <= 1.0)
         {
             // We eat the chicken
-            ChickenEntity* chicken = closestChickenTile->getChickenEntities().at(0);
+            std::vector<GameEntity*> chickens;
+            closestChickenTile->fillWithChickenEntities(chickens);
+            OD_ASSERT_TRUE(!chickens.empty());
+            ChickenEntity* chicken = static_cast<ChickenEntity*>(chickens.at(0));
             chicken->eatChicken(this);
             foodEaten(ConfigManager::getSingleton().getRoomConfigDouble("HatcheryHungerPerChicken"));
             mEatCooldown = Random::Int(ConfigManager::getSingleton().getRoomConfigUInt32("HatcheryCooldownChickenMin"),
@@ -2183,9 +2180,12 @@ bool Creature::handleEatingAction(bool isForced)
 
     // See if we are in a hatchery. If so, we try to add the creature. If it is ok, the room
     // will handle the creature from here to make it go where it should
-    Room* tempRoom = myTile->getCoveringRoom();
-    if ((tempRoom != nullptr) && getSeat()->canOwnedCreatureUseRoomFrom(tempRoom->getSeat()) && (tempRoom->getType() == Room::hatchery) && tempRoom->hasOpenCreatureSpot(this))
+    if((myTile->getCoveringRoom() != nullptr) &&
+       (getSeat()->canOwnedCreatureUseRoomFrom(myTile->getCoveringRoom()->getSeat())) &&
+       (myTile->getCoveringRoom()->getType() == Room::hatchery) &&
+       (myTile->getCoveringRoom()->hasOpenCreatureSpot(this)))
     {
+        Room* tempRoom = myTile->getCoveringRoom();
         if(tempRoom->addCreatureUsingRoom(this))
         {
             mEatRoom = tempRoom;
@@ -2206,7 +2206,7 @@ bool Creature::handleEatingAction(bool isForced)
 
     // Pick a hatchery and try to walk to it.
     double maxDistance = 40.0;
-    tempRoom = nullptr;
+    Room* tempRoom = nullptr;
     int nbTry = 5;
     do
     {
@@ -2845,8 +2845,7 @@ void Creature::updateVisibleMarkedTiles()
             continue;
 
         // and can be reached by the creature
-        std::vector<Tile*> neighbors = tile->getAllNeighbors();
-        for (Tile* neighborTile : neighbors)
+        for (Tile* neighborTile : tile->getAllNeighbors())
         {
             if (neighborTile == nullptr)
                 continue;
@@ -2872,8 +2871,7 @@ std::vector<Tile*> Creature::getVisibleClaimableWallTiles()
             continue;
 
         // and can be reached by the creature
-        std::vector<Tile*> neighbors = tile->getAllNeighbors();
-        for (Tile* neighborTile : neighbors)
+        for (Tile* neighborTile : tile->getAllNeighbors())
         {
             if (neighborTile == nullptr)
                 continue;

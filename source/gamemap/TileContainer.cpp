@@ -17,6 +17,8 @@
 
 #include "gamemap/TileContainer.h"
 
+const std::vector<Tile*> EMPTY_TILES;
+
 TileContainer::TileContainer():
     mMapSizeX(0),
     mMapSizeY(0),
@@ -256,56 +258,31 @@ std::vector<Tile*> TileContainer::circularRegion(int x, int y, double radius) co
 
 std::vector<Tile*> TileContainer::tilesBorderedByRegion(const std::vector<Tile*> &region)
 {
-    std::vector<Tile*> neighbors, returnList;
+    std::vector<Tile*> returnList;
 
     // Loop over all the tiles in the specified region.
-    for (unsigned int i = 0; i < region.size(); ++i)
+    for (Tile* t1 : region)
     {
         // Get the tiles bordering the current tile and loop over them.
-        neighbors = region[i]->getAllNeighbors();
-        for (unsigned int j = 0; j < neighbors.size(); ++j)
+        for (Tile* t2 : t1->getAllNeighbors())
         {
-            bool neighborFound = false;
-
-            // Check to see if the current neighbor is one of the tiles in the region.
-            for (unsigned int k = 0; k < region.size(); ++k)
+            // We add the tile in the return list if it is not already there or in the region
+            if((std::find(region.begin(), region.end(), t2) == region.end()) &&
+               (std::find(returnList.begin(), returnList.end(), t2) == returnList.end()))
             {
-                if (region[k] == neighbors[j])
-                {
-                    neighborFound = true;
-                    break;
-                }
+                returnList.push_back(t2);
             }
-
-            if (!neighborFound)
-            {
-                // Check to see if the current neighbor is already in the returnList.
-                for (unsigned int k = 0; k < returnList.size(); ++k)
-                {
-                    if (returnList[k] == neighbors[j])
-                    {
-                        neighborFound = true;
-                        break;
-                    }
-                }
-            }
-
-            // If the given neighbor was not already in the returnList, then add it.
-            if (!neighborFound)
-                returnList.push_back(neighbors[j]);
         }
     }
 
     return returnList;
 }
 
-std::vector<Tile*> TileContainer::neighborTiles(int x, int y)
+const std::vector<Tile*>& TileContainer::neighborTiles(int x, int y) const
 {
-    std::vector<Tile*> tempVector;
-
     Tile *tempTile = getTile(x, y);
-    if (tempTile != NULL)
-        tempVector = tempTile->getAllNeighbors();
+    if (tempTile == NULL)
+        return EMPTY_TILES;
 
-    return tempVector;
+    return tempTile->getAllNeighbors();
 }

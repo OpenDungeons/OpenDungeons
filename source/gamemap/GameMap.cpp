@@ -1842,9 +1842,9 @@ std::vector<GameEntity*> GameMap::getVisibleForce(std::vector<Tile*> visibleTile
         if(tile == NULL)
             continue;
 
-        tile->fillAttackableCreatures(returnList, seat, invert);
-        tile->fillAttackableRoom(returnList, seat, invert);
-        tile->fillAttackableTrap(returnList, seat, invert);
+        tile->fillWithAttackableCreatures(returnList, seat, invert);
+        tile->fillWithAttackableRoom(returnList, seat, invert);
+        tile->fillWithAttackableTrap(returnList, seat, invert);
     }
 
     return returnList;
@@ -1862,7 +1862,7 @@ std::vector<GameEntity*> GameMap::getVisibleCreatures(std::vector<Tile*> visible
         if(tile == NULL)
             continue;
 
-        tile->fillAttackableCreatures(returnList, seat, invert);
+        tile->fillWithAttackableCreatures(returnList, seat, invert);
     }
 
     return returnList;
@@ -1879,7 +1879,7 @@ std::vector<GameEntity*> GameMap::getVisibleCarryableEntities(std::vector<Tile*>
         if(tile == NULL)
             continue;
 
-        tile->fillCarryableEntities(returnList);
+        tile->fillWithCarryableEntities(returnList);
     }
 
     return returnList;
@@ -2100,6 +2100,7 @@ void GameMap::addTrap(Trap *trap)
 
 void GameMap::removeTrap(Trap *t)
 {
+    LogManager::getSingleton().logMessage(serverStr() + "Removing trap " + t->getName());
     for (std::vector<Trap*>::iterator it = traps.begin(); it != traps.end(); ++it)
     {
         Trap* trap = *it;
@@ -2355,8 +2356,7 @@ bool GameMap::doFloodFill(Tile* tile)
 
     bool hasChanged = false;
     // If a neigboor is colored with the same colors, we color the tile
-    std::vector<Tile*> tiles = tile->getAllNeighbors();
-    for(Tile* neigh : tiles)
+    for(Tile* neigh : tile->getAllNeighbors())
     {
         switch(neigh->getType())
         {
@@ -2463,8 +2463,7 @@ void GameMap::refreshFloodFill(Tile* tile)
         colors[i] = -1;
 
     // If the tile has opened a new place, we use the same floodfillcolor for all the areas
-    std::vector<Tile*> neighTiles = tile->getAllNeighbors();
-    for(Tile* neigh : neighTiles)
+    for(Tile* neigh : tile->getAllNeighbors())
     {
         for(int i = 0; i < Tile::FloodFillTypeMax; ++i)
         {

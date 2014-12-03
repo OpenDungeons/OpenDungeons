@@ -322,10 +322,8 @@ void RenderManager::rrCreateTile(Tile* curTile)
     node->roll(Ogre::Degree((Ogre::Real)(-1 * rt * 90)));
 
     // Test whether the tile should be shown
-    if (curTile->getCoveringRoom() != nullptr)
-        ent->setVisible(curTile->getCoveringRoom()->shouldDisplayGroundTile());
-    else if (curTile->getCoveringTrap() != nullptr)
-        ent->setVisible(curTile->getCoveringTrap()->shouldDisplayGroundTile());
+    if (curTile->getCoveringBuilding() != nullptr)
+        ent->setVisible(curTile->getCoveringBuilding()->shouldDisplayGroundTile());
     else
         ent->setVisible(true);
 }
@@ -495,10 +493,8 @@ void RenderManager::rrDestroyRenderedMovableEntity(RenderedMovableEntity* curRen
             return;
 
         Ogre::Entity* entity = mSceneManager->getEntity(tileName);
-        if (posTile->getCoveringRoom() != nullptr)
-            entity->setVisible(posTile->getCoveringRoom()->shouldDisplayGroundTile());
-        else if (posTile->getCoveringTrap() != nullptr)
-            entity->setVisible(posTile->getCoveringTrap()->shouldDisplayGroundTile());
+        if (posTile->getCoveringBuilding() != nullptr)
+            entity->setVisible(posTile->getCoveringBuilding()->shouldDisplayGroundTile());
         else
             entity->setVisible(true);
     }

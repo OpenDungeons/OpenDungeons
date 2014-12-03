@@ -59,19 +59,14 @@ void TreasuryObject::doUpkeep()
     if(tile == nullptr)
         return;
 
-    if(mGoldValue > 0)
+    if((mGoldValue > 0) &&
+       (tile->getCoveringRoom() != nullptr) &&
+       (tile->getCoveringRoom()->getType() == Room::treasury))
     {
-        Room* room = tile->getCoveringRoom();
-        if(room != nullptr)
-        {
-            if(room->getType() == Room::RoomType::treasury)
-            {
-                RoomTreasury* roomTreasury = static_cast<RoomTreasury*>(room);
-                int goldDeposited = roomTreasury->depositGold(mGoldValue, tile);
-                // We withdraw the amount we could deposit
-                addGold(-goldDeposited);
-            }
-        }
+        RoomTreasury* roomTreasury = static_cast<RoomTreasury*>(tile->getCoveringRoom());
+        int goldDeposited = roomTreasury->depositGold(mGoldValue, tile);
+        // We withdraw the amount we could deposit
+        addGold(-goldDeposited);
     }
 
     // If we are empty, we can remove safely
