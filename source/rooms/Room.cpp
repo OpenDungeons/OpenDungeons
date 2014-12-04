@@ -47,37 +47,6 @@ Room::Room(GameMap* gameMap):
     setObjectType(GameEntity::room);
 }
 
-void Room::createMeshLocal()
-{
-    Building::createMeshLocal();
-
-    if(getGameMap()->isServerGameMap())
-        return;
-
-    std::vector<Tile*> coveredTiles = getCoveredTiles();
-    for (unsigned int i = 0, nb = coveredTiles.size(); i < nb; ++i)
-    {
-        RenderRequest* request = new RenderRequestCreateBuilding(this, coveredTiles[i]);
-        RenderManager::queueRenderRequest(request);
-    }
-}
-
-void Room::destroyMeshLocal()
-{
-    Building::destroyMeshLocal();
-
-    destroyBuildingObjectMeshes();
-    if(getGameMap()->isServerGameMap())
-        return;
-
-    std::vector<Tile*> coveredTiles = getCoveredTiles();
-    for (unsigned int i = 0, nb = coveredTiles.size(); i < nb; ++i)
-    {
-        RenderRequest* request = new RenderRequestDestroyBuilding(this, coveredTiles[i]);
-        RenderManager::queueRenderRequest(request);
-    }
-}
-
 bool Room::compareTile(Tile* tile1, Tile* tile2)
 {
     if(tile1->getX() < tile2->getX())
@@ -103,68 +72,36 @@ void Room::absorbRoom(Room *r)
     r->mBottomWallsActiveSpotTiles.clear();
     mNumActiveSpots += r->mNumActiveSpots;
 
-    mBuildingObjects.insert(r->mBuildingObjects.begin(), r->mBuildingObjects.end());
-    r->mBuildingObjects.clear();
-    // Every creature working in this room should go to the new one (this is used
-    // in the server map only)
+    // Every creature working in this room should go to the new one (this is used in the server map only)
     if(getGameMap()->isServerGameMap())
     {
-        while(r->mCreaturesUsingRoom.size() > 0)
+        for(Creature* creature : r->mCreaturesUsingRoom)
         {
-            Creature* creature = r->mCreaturesUsingRoom[0];
             if(creature->isJobRoom(r))
                 creature->changeJobRoom(this);
             else if(creature->isEatRoom(r))
                 creature->changeEatRoom(this);
             else
             {
-                OD_ASSERT_TRUE(false);
-                r->mCreaturesUsingRoom.erase(r->mCreaturesUsingRoom.begin());
+                OD_ASSERT_TRUE_MSG(false, "creature=" + creature->getName() + ", oldRoom=" + r->getName() + ", newRoom=" + getName());
             }
         }
+        mCreaturesUsingRoom.insert(mCreaturesUsingRoom.end(), r->mCreaturesUsingRoom.begin(), r->mCreaturesUsingRoom.end());
+        r->mCreaturesUsingRoom.clear();
     }
 
-    while (r->numCoveredTiles() > 0)
+    mBuildingObjects.insert(r->mBuildingObjects.begin(), r->mBuildingObjects.end());
+    r->mBuildingObjects.clear();
+
+    for(Tile* tile : r->mCoveredTiles)
     {
-        Tile *tempTile = r->getCoveredTile(0);
-        double hp = r->getHP(tempTile);
-        r->removeCoveredTile(tempTile, true);
-        addCoveredTile(tempTile, hp, true);
+        double hp = r->getHP(tile);
+        Building::addCoveredTile(tile, hp);
     }
-}
-
-void Room::addCoveredTile(Tile* t, double nHP)
-{
-    addCoveredTile(t, nHP, false);
-}
-
-void Room::addCoveredTile(Tile* t, double nHP, bool isRoomAbsorb)
-{
-    Building::addCoveredTile(t, nHP);
-    t->setCoveringBuilding(this);
-}
-
-bool Room::removeCoveredTile(Tile* t)
-{
-    return removeCoveredTile(t, false);
-}
-
-bool Room::removeCoveredTile(Tile* t, bool isRoomAbsorb)
-{
-    if(!Building::removeCoveredTile(t))
-        return false;
-
-    t->setCoveringBuilding(nullptr);
-
-    if(getGameMap()->isServerGameMap())
-        return true;
-
-    // Destroy the mesh for this tile.
-    RenderRequest *request = new RenderRequestDestroyBuilding(this, t);
-    RenderManager::queueRenderRequest(request);
-
-    // NOTE: The active spot changes are done in upKeep()
-    return true;
+    // We don't need to insert r->mTileHP and r->mCoveredTiles because it has already been done in Building::addCoveredTile
+    r->destroyMesh();
+    r->mCoveredTiles.clear();
+    r->mTileHP.clear();
 }
 
 bool Room::addCreatureUsingRoom(Creature* c)
@@ -196,27 +133,6 @@ Creature* Room::getCreatureUsingRoom(unsigned index)
     return mCreaturesUsingRoom[index];
 }
 
-void Room::createBuildingObjectMeshes()
-{
-    // Loop over all the RenderedMovableEntity that are children of this room and create each mesh individually.
-    for(std::map<Tile*, RenderedMovableEntity*>::iterator it = mBuildingObjects.begin(); it != mBuildingObjects.end(); ++it)
-    {
-        RenderedMovableEntity* ro = it->second;
-        ro->createMesh();
-    }
-}
-
-void Room::destroyBuildingObjectMeshes()
-{
-    // Loop over all the BuildingObjects that are children of this room and destroy each mesh individually.
-    std::map<Tile*, RenderedMovableEntity*>::iterator itr = mBuildingObjects.begin();
-    while (itr != mBuildingObjects.end())
-    {
-        itr->second->destroyMesh();
-        ++itr;
-    }
-}
-
 std::string Room::getFormat()
 {
     return "typeRoom\tseatId\tnumTiles\t\tSubsequent Lines: tileX\ttileY";
@@ -232,22 +148,12 @@ void Room::doUpkeep()
         Tile* t = mCoveredTiles[i];
         if (mTileHP[t] <= 0.0)
         {
-            if(getGameMap()->isServerGameMap())
-            {
-                try
-                {
-                    ServerNotification *serverNotification = new ServerNotification(
-                        ServerNotification::removeRoomTile, NULL);
-                    std::string name = getName();
-                    serverNotification->mPacket << name << t;
-                    ODServer::getSingleton().queueServerNotification(serverNotification);
-                }
-                catch (std::bad_alloc&)
-                {
-                    Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in Room::removeCoveredTile", Ogre::LML_CRITICAL);
-                    exit(1);
-                }
-            }
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotification::removeRoomTile, nullptr);
+            std::string name = getName();
+            serverNotification->mPacket << name << t;
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+
             removeCoveredTile(t);
             oneTileRemoved = true;
         }
@@ -829,7 +735,7 @@ void Room::importFromPacket(ODPacket& is)
         Tile* tempTile = getGameMap()->getTile(tempX, tempY);
         OD_ASSERT_TRUE_MSG(tempTile != NULL, "tile=" + Ogre::StringConverter::toString(tempX) + "," + Ogre::StringConverter::toString(tempY));
         if (tempTile != NULL)
-            addCoveredTile(tempTile, Room::DEFAULT_TILE_HP, false);
+            addCoveredTile(tempTile, Room::DEFAULT_TILE_HP);
     }
 }
 
@@ -861,7 +767,7 @@ void Room::importFromStream(std::istream& is)
         Tile* tempTile = getGameMap()->getTile(tempX, tempY);
         OD_ASSERT_TRUE_MSG(tempTile != NULL, "tile=" + Ogre::StringConverter::toString(tempX) + "," + Ogre::StringConverter::toString(tempY));
         if (tempTile != NULL)
-            addCoveredTile(tempTile, Room::DEFAULT_TILE_HP, false);
+            addCoveredTile(tempTile, Room::DEFAULT_TILE_HP);
     }
 }
 

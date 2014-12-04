@@ -294,11 +294,21 @@ public:
     bool isJobRoom(Room* room);
     bool isEatRoom(Room* room);
 
-    //! \brief Allows to change the room the creature is using (when room absorbtion for example)
-    void changeJobRoom(Room* newRoom);
+    //! \brief Allows to change the room the creature is using (when room absorbtion for example). Beware, the room
+    //! change logic has to be handled elsewhere
+    void changeJobRoom(Room* newRoom)
+    { mJobRoom = newRoom; }
 
-    //! \brief Allows to change the room the creature is using (when room absorbtion for example)
-    void changeEatRoom(Room* newRoom);
+    //! \brief Allows to change the room the creature is using (when room absorbtion for example). Beware, the room
+    //! change logic has to be handled elsewhere
+    void changeEatRoom(Room* newRoom)
+    { mEatRoom = newRoom; }
+
+    //! \brief Makes the creature stop its job (releases the job room)
+    void stopJob();
+
+    //! \brief Makes the creature stop eating (releases the hatchery)
+    void stopEating();
 
     //! \brief Play a spatial sound at the creature position of the corresponding type.
     void playSound(CreatureSound::SoundType soundType);
@@ -491,12 +501,6 @@ private:
     //! This functions will hanlde the creature eating action logic.
     //! \return true when another action should handled after that one.
     bool handleEatingAction(bool isForced);
-
-    //! \brief Makes the creature stop its job (releases the job room)
-    void stopJob();
-
-    //! \brief Makes the creature stop eating (releases the hatchery)
-    void stopEating();
 
     //! \brief A sub-function called by doTurn()
     //! This functions will hanlde the creature attack action logic.

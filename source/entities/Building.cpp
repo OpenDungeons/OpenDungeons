@@ -27,6 +27,36 @@
 
 const double Building::DEFAULT_TILE_HP = 10.0;
 
+void Building::createMeshLocal()
+{
+    GameEntity::createMeshLocal();
+
+    if(getGameMap()->isServerGameMap())
+        return;
+
+    std::vector<Tile*> coveredTiles = getCoveredTiles();
+    for (Tile* tile : coveredTiles)
+    {
+        RenderRequest* request = new RenderRequestCreateBuilding(this, tile);
+        RenderManager::queueRenderRequest(request);
+    }
+}
+
+void Building::destroyMeshLocal()
+{
+    GameEntity::destroyMeshLocal();
+
+    if(getGameMap()->isServerGameMap())
+        return;
+
+    std::vector<Tile*> coveredTiles = getCoveredTiles();
+    for (Tile* tile : coveredTiles)
+    {
+        RenderRequest* request = new RenderRequestDestroyBuilding(this, tile);
+        RenderManager::queueRenderRequest(request);
+    }
+}
+
 void Building::addBuildingObject(Tile* targetTile, RenderedMovableEntity* obj)
 {
     if(obj == NULL)
@@ -152,6 +182,7 @@ void Building::addCoveredTile(Tile* t, double nHP)
 {
     mCoveredTiles.push_back(t);
     mTileHP[t] = nHP;
+    t->setCoveringBuilding(this);
 }
 
 bool Building::removeCoveredTile(Tile* t)
@@ -162,6 +193,14 @@ bool Building::removeCoveredTile(Tile* t)
         {
             mCoveredTiles.erase(it);
             mTileHP.erase(t);
+            t->setCoveringBuilding(nullptr);
+
+            if(getGameMap()->isServerGameMap())
+                return true;
+
+            // Destroy the mesh for this tile.
+            RenderRequest *request = new RenderRequestDestroyBuilding(this, t);
+            RenderManager::queueRenderRequest(request);
             return true;
         }
     }
@@ -203,10 +242,9 @@ double Building::getHP(Tile *tile) const
     // If the tile given was NULL, we add the total HP of all the tiles in the room and return that.
     double total = 0.0;
 
-    for(std::map<Tile*, double>::const_iterator itr = mTileHP.begin(), end = mTileHP.end();
-        itr != end; ++itr)
+    for(const std::pair<Tile* const, double>& p : mTileHP)
     {
-        total += itr->second;
+        total += p.second;
     }
 
     return total;

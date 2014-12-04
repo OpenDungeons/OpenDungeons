@@ -2248,20 +2248,20 @@ bool Creature::handleEatingAction(bool isForced)
 
 void Creature::stopJob()
 {
-    if (mJobRoom == NULL)
+    if (mJobRoom == nullptr)
         return;
 
     mJobRoom->removeCreatureUsingRoom(this);
-    mJobRoom = NULL;
+    mJobRoom = nullptr;
 }
 
 void Creature::stopEating()
 {
-    if (mEatRoom == NULL)
+    if (mEatRoom == nullptr)
         return;
 
     mEatRoom->removeCreatureUsingRoom(this);
-    mEatRoom = NULL;
+    mEatRoom = nullptr;
 }
 
 bool Creature::isJobRoom(Room* room)
@@ -2272,30 +2272,6 @@ bool Creature::isJobRoom(Room* room)
 bool Creature::isEatRoom(Room* room)
 {
     return mEatRoom == room;
-}
-
-void Creature::changeJobRoom(Room* newRoom)
-{
-    if (mJobRoom != NULL)
-        mJobRoom->removeCreatureUsingRoom(this);
-
-
-    if(newRoom != NULL && newRoom->addCreatureUsingRoom(this))
-        mJobRoom = newRoom;
-    else
-        mJobRoom = NULL;
-}
-
-void Creature::changeEatRoom(Room* newRoom)
-{
-    if (mEatRoom != NULL)
-        mEatRoom->removeCreatureUsingRoom(this);
-
-
-    if(newRoom != NULL && newRoom->addCreatureUsingRoom(this))
-        mEatRoom = newRoom;
-    else
-        mEatRoom = NULL;
 }
 
 bool Creature::handleAttackAction()

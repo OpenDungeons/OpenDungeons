@@ -2019,7 +2019,7 @@ std::vector<Building*> GameMap::getReachableBuildingsPerSeat(Seat* seat,
         if (room->getSeat() != seat)
             continue;
 
-        if (room->getHP(NULL) <= 0.0)
+        if (room->getHP(nullptr) <= 0.0)
             continue;
 
         if(!pathExists(creature, startTile, room->getCoveredTiles()[0]))

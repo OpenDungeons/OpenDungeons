@@ -95,8 +95,8 @@ public:
 
     // Functions overriding virtual functions in the Room base class.
     void absorbRoom(Room *r);
-    void addCoveredTile(Tile* t, double nHP, bool isRoomAbsorb);
-    bool removeCoveredTile(Tile* t, bool isRoomAbsorb);
+    void addCoveredTile(Tile* t, double nHP);
+    bool removeCoveredTile(Tile* t);
     void clearCoveredTiles();
 
     // Functions specific to this class.

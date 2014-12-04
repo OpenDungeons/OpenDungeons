@@ -41,36 +41,6 @@ Trap::Trap(GameMap* gameMap) :
     setObjectType(GameEntity::trap);
 }
 
-void Trap::createMeshLocal()
-{
-    Building::createMeshLocal();
-
-    if(getGameMap()->isServerGameMap())
-        return;
-
-    std::vector<Tile*> coveredTiles = getCoveredTiles();
-    for (unsigned int i = 0, nb = coveredTiles.size(); i < nb; ++i)
-    {
-        RenderRequest* request = new RenderRequestCreateBuilding(this, coveredTiles[i]);
-        RenderManager::queueRenderRequest(request);
-    }
-}
-
-void Trap::destroyMeshLocal()
-{
-    Building::destroyMeshLocal();
-
-    if(getGameMap()->isServerGameMap())
-        return;
-
-    std::vector<Tile*> coveredTiles = getCoveredTiles();
-    for (unsigned int i = 0, nb = coveredTiles.size(); i < nb; ++i)
-    {
-        RenderRequest *request = new RenderRequestDestroyBuilding(this, coveredTiles[i]);
-        RenderManager::queueRenderRequest(request);
-    }
-}
-
 Trap* Trap::getTrapFromStream(GameMap* gameMap, std::istream &is)
 {
     Trap* tempTrap = nullptr;
@@ -253,7 +223,6 @@ void Trap::doUpkeep()
 void Trap::addCoveredTile(Tile* t, double nHP)
 {
     Building::addCoveredTile(t, nHP);
-    t->setCoveringBuilding(this);
 
     // The trap starts deactivated.
     mTrapTiles[t] = TrapTileInfo(mReloadTime, false);
@@ -264,15 +233,8 @@ bool Trap::removeCoveredTile(Tile* t)
     if(!Building::removeCoveredTile(t))
         return false;
 
-    t->setCoveringBuilding(nullptr);
     mTrapTiles.erase(t);
 
-    if(getGameMap()->isServerGameMap())
-        return true;
-
-    // Destroy the mesh for this tile.
-    RenderRequest *request = new RenderRequestDestroyBuilding(this, t);
-    RenderManager::queueRenderRequest(request);
     return true;
 }
 

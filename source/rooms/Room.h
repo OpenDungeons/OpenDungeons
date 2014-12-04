@@ -73,9 +73,6 @@ public:
     virtual void exportToPacket(ODPacket& os);
     virtual void importFromPacket(ODPacket& is);
 
-    void createBuildingObjectMeshes();
-    void destroyBuildingObjectMeshes();
-
     virtual RoomType getType() const = 0;
 
     static const std::string getRoomNameFromRoomType(RoomType t);
@@ -89,11 +86,6 @@ public:
     //! Do any generic upkeep here (i.e. any upkeep that all room types should do).
     //! All derived classes of room should call this function first during their doUpkeep() routine.
     virtual void doUpkeep();
-
-    virtual void addCoveredTile(Tile* t, double nHP, bool isRoomAbsorb);
-    virtual bool removeCoveredTile(Tile* t, bool isRoomAbsorb);
-    virtual void addCoveredTile(Tile* t, double nHP);
-    virtual bool removeCoveredTile(Tile* t);
 
     //! \brief Adds a creature using the room. If the creature is allowed, true is returned
     virtual bool addCreatureUsingRoom(Creature* c);
@@ -142,8 +134,6 @@ protected:
     //! \brief The number of active spots.
     unsigned int mNumActiveSpots;
 
-    virtual void createMeshLocal();
-    virtual void destroyMeshLocal();
     virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
     virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);
 private :

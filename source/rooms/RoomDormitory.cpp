@@ -50,17 +50,16 @@ void RoomDormitory::absorbRoom(Room *r)
     Room::absorbRoom(r);
 }
 
-void RoomDormitory::addCoveredTile(Tile* t, double nHP, bool isRoomAbsorb)
+void RoomDormitory::addCoveredTile(Tile* t, double nHP)
 {
-    Room::addCoveredTile(t, nHP, isRoomAbsorb);
+    Room::addCoveredTile(t, nHP);
 
     // Only initialize the tile to NULL if it is a tile being added to a new room.  If it is being absorbed
     // from another room the map value will already have been set and we don't want to override it.
-    if (!isRoomAbsorb)
-        mCreatureSleepingInTile[t] = nullptr;
+    mCreatureSleepingInTile[t] = nullptr;
 }
 
-bool RoomDormitory::removeCoveredTile(Tile* t, bool isRoomAbsorb)
+bool RoomDormitory::removeCoveredTile(Tile* t)
 {
     OD_ASSERT_TRUE(t != nullptr);
     if (t == nullptr)
@@ -77,7 +76,7 @@ bool RoomDormitory::removeCoveredTile(Tile* t, bool isRoomAbsorb)
         }
     }
 
-    if(Room::removeCoveredTile(t, isRoomAbsorb))
+    if(Room::removeCoveredTile(t))
     {
         mCreatureSleepingInTile.erase(t);
         return true;

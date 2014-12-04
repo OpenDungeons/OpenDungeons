@@ -66,7 +66,7 @@ void RoomDungeonTemple::createMeshLocal()
 
     mTempleObject = loadBuildingObject(getGameMap(), "DungeonTempleObject", getCentralTile(), 0.0, false);
     addBuildingObject(getCentralTile(), mTempleObject);
-    createBuildingObjectMeshes();
+
 }
 
 void RoomDungeonTemple::destroyMeshLocal()
