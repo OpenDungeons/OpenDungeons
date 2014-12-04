@@ -1,42 +1,28 @@
 // Slime genrated by blender2ogre 0.6.0
 
-material Slime 
-{
-    receive_shadows on 
-
-    technique
+    import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
+    material Slime
     {
-        pass Slime
+        receive_shadows on
+        technique
         {
-            ambient 0.800000011920929 0.800000011920929 0.800000011920929 0.0
-            diffuse 0.6400000190734865 0.6400000190734865 0.6400000190734865 0.0
-            specular 0.25 0.25 0.25 0.0 12.5
-            emissive 0.0 0.0 0.0 0.0
-
-            alpha_to_coverage off
-            colour_write on
-            cull_hardware clockwise
-            depth_check on
-            depth_func less_equal
-            depth_write on
-            illumination_stage 
-            light_clip_planes off
-            light_scissor off
-            lighting on
-            normalise_normals off
-            polygon_mode solid
-            scene_blend one zero
-            scene_blend_op add
-            shading gouraud
-            transparent_sorting on
-
-            texture_unit 
+            pass
             {
-                texture slimeDiffuse.png
-                tex_address_mode wrap
-                scale 1.0 1.0
-                colour_op alpha_blend
+                ambient 0.0 0.0 0.0 0.7
+                diffuse 0.0 0.0 0.0 0.7
+                specular 0.0 0.0 0.0 0.7
+                emissive 0.0 0.0 0.0 0.7
+                scene_blend alpha_blend
+                depth_write off
+                cull_hardware none
+                cull_software none
+                texture_unit
+                {
+                    texture slimeDiffuse.png
+                    tex_address_mode wrap
+                    filtering trilinear
+                    colour_op alpha_blend
+                }
             }
         }
     }
-}

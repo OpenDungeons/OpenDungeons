@@ -7,7 +7,7 @@ material Tentacle RTSS/NormalMapping_MultiPass
         {
             texture_unit decalmap
             {
-                texture Tentakel_diff_yellow7.png
+                texture Tentacle-Albine.png
             }
         }
     }
