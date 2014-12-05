@@ -96,12 +96,21 @@ void Room::absorbRoom(Room *r)
     for(Tile* tile : r->mCoveredTiles)
     {
         double hp = r->getHP(tile);
+        // We don't want to notify the room for the addition of the tile because it is not a new tile. That's why
+        // we call Building::addCoveredTile and not Room::addCoveredTile. If a room wants to handle its ground mesh
+        // differently, it can override reorderRoomAfterAbsorbtion.
         Building::addCoveredTile(tile, hp);
     }
     // We don't need to insert r->mTileHP and r->mCoveredTiles because it has already been done in Building::addCoveredTile
-    r->destroyMesh();
     r->mCoveredTiles.clear();
     r->mTileHP.clear();
+}
+
+void Room::reorderRoomAfterAbsorbtion()
+{
+    // We try to keep the same tile disposition as if the room was created like this in the first
+    // place to make sure building objects are disposed the same way
+    std::sort(mCoveredTiles.begin(), mCoveredTiles.end(), Room::compareTile);
 }
 
 bool Room::addCreatureUsingRoom(Creature* c)
@@ -421,10 +430,8 @@ void Room::checkForRoomAbsorbtion()
         isRoomAbsorbed = true;
     }
 
-    // We try to keep the same tile disposition as if the room was created like this in the first
-    // place to make sure building objects are disposed the same way
     if(isRoomAbsorbed)
-        std::sort(mCoveredTiles.begin(), mCoveredTiles.end(), Room::compareTile);
+        reorderRoomAfterAbsorbtion();
 }
 
 void Room::updateActiveSpots()

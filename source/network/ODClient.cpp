@@ -608,8 +608,8 @@ bool ODClient::processOneClientSocketMessage()
                 tile->setFullness(0.0);
             }
             gameMap->addRoom(room);
-            room->checkForRoomAbsorbtion();
             room->createMesh();
+            room->checkForRoomAbsorbtion();
             room->updateActiveSpots();
             gameMap->refreshBorderingTilesOf(tiles);
 

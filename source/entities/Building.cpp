@@ -275,7 +275,7 @@ double Building::takeDamage(GameEntity* attacker, double physicalDamage, double 
 
 std::string Building::getNameTile(Tile* tile)
 {
-    return getName() + "_tile_" + Ogre::StringConverter::toString(tile->x)
+    return getMeshName() + "_tile_" + Ogre::StringConverter::toString(tile->x)
         + "_" + Ogre::StringConverter::toString(tile->y);
 }
 

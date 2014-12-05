@@ -56,6 +56,8 @@ public:
     virtual std::string getOgreNamePrefix() const { return "Room_"; }
 
     virtual void absorbRoom(Room* r);
+    //! \brief This function will be called when a new room is created if another room has been absorbed.
+    virtual void reorderRoomAfterAbsorbtion();
 
     static std::string getFormat();
 
