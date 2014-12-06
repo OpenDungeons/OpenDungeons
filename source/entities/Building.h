@@ -115,6 +115,9 @@ public:
     {}
 
 protected:
+    virtual void createMeshLocal();
+    virtual void destroyMeshLocal();
+
     std::map<Tile*, RenderedMovableEntity*> mBuildingObjects;
     std::vector<Tile*> mCoveredTiles;
     std::map<Tile*, double> mTileHP;

@@ -135,8 +135,6 @@ public:
     friend ODPacket& operator<<(ODPacket& os, const Trap::TrapType& tt);
 
 protected:
-    virtual void createMeshLocal();
-    virtual void destroyMeshLocal();
     virtual RenderedMovableEntity* notifyActiveSpotCreated(Tile* tile);
     virtual void notifyActiveSpotRemoved(Tile* tile);
 

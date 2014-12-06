@@ -33,8 +33,8 @@ public:
     { return RoomType::portal; }
 
     // Functions overriding virtual functions in the Room base class.
-    void addCoveredTile(Tile* t, double nHP, bool isRoomAbsorb);
-    bool removeCoveredTile(Tile* t, bool isRoomAbsorb);
+    void addCoveredTile(Tile* t, double nHP);
+    bool removeCoveredTile(Tile* t);
 
     //! \brief Get back a reference to the portal mesh after calling Room::absorbRoom()
     void absorbRoom(Room* room);

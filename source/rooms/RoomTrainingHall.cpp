@@ -37,11 +37,14 @@ RoomTrainingHall::RoomTrainingHall(GameMap* gameMap) :
 
 void RoomTrainingHall::absorbRoom(Room *r)
 {
+    Room::absorbRoom(r);
+
     RoomTrainingHall* rd = static_cast<RoomTrainingHall*>(r);
     mUnusedDummies.insert(mUnusedDummies.end(), rd->mUnusedDummies.begin(), rd->mUnusedDummies.end());
     rd->mUnusedDummies.clear();
 
-    Room::absorbRoom(r);
+    mCreaturesDummies.insert(rd->mCreaturesDummies.begin(), rd->mCreaturesDummies.end());
+    rd->mCreaturesDummies.clear();
 }
 
 RenderedMovableEntity* RoomTrainingHall::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
@@ -108,8 +111,8 @@ void RoomTrainingHall::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile
         if(tmpTile == tile)
         {
             Creature* creature = it->first;
-            creature->changeJobRoom(NULL);
-            // changeJobRoom should have released mCreaturesDummies[creature]. Now, we just need to release the unused dummy
+            creature->stopJob();
+            // stopJob should have released mCreaturesDummies[creature]. Now, we just need to release the unused dummy
             break;
         }
     }
@@ -231,7 +234,7 @@ void RoomTrainingHall::doUpkeep()
         return;
 
     // We add a probability to change dummies so that creatures do not use the same during too much time
-    if(mCreaturesDummies.size() > 0 && Random::Int(5,50) < ++nbTurnsNoChangeDummies)
+    if(mCreaturesDummies.size() > 0 && Random::Int(50,150) < ++nbTurnsNoChangeDummies)
         refreshCreaturesDummies();
 
     for(std::map<Creature*,Tile*>::iterator it = mCreaturesDummies.begin(); it != mCreaturesDummies.end(); ++it)

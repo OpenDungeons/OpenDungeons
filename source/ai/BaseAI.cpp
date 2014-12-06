@@ -53,8 +53,8 @@ bool BaseAI::buildRoom(Room* room, const std::vector<Tile*>& tiles)
 {
     room->setupRoom(mGameMap.nextUniqueNameRoom(room->getMeshName()), mPlayer.getSeat(), tiles);
     mGameMap.addRoom(room);
-    room->checkForRoomAbsorbtion();
     room->createMesh();
+    room->checkForRoomAbsorbtion();
     room->updateActiveSpots();
     mGameMap.refreshBorderingTilesOf(tiles);
 
