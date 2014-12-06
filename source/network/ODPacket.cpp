@@ -21,6 +21,9 @@
 #define OD_INT64TOINT32L(valInt64)              (static_cast<int32_t>(valInt64))
 #define OD_INT32TOINT64(valInt32h,valInt32l)    ((((static_cast<int64_t>(valInt32h)) << 32) & static_cast<int64_t>(0xFFFFFFFF00000000)) + ((static_cast<int64_t>(valInt32l)) & static_cast<int64_t>(0x00000000FFFFFFFF)))
 
+// The max buffer size when reading packets.
+const int32_t BUFFER_SIZE = 1024;
+
 ODPacket& ODPacket::operator >>(bool& data)
 {
     mPacket>>data;
@@ -252,20 +255,25 @@ void ODPacket::writePacket(int32_t timestamp, std::ofstream& os)
 int32_t ODPacket::readPacket(std::ifstream& is)
 {
     int32_t timestamp;
-    int32_t bufferSize;
+    int32_t packetSize;
 
     is.read(reinterpret_cast<char*>(&timestamp), sizeof(int32_t));
     if(is.eof())
         return -1;
 
-    is.read(reinterpret_cast<char*>(&bufferSize), sizeof(int32_t));
+    is.read(reinterpret_cast<char*>(&packetSize), sizeof(int32_t));
     if(is.eof())
         return -1;
 
-    char buffer[bufferSize];
-    is.read(buffer, bufferSize);
     mPacket.clear();
-    mPacket.append(buffer, bufferSize);
+    char buffer[BUFFER_SIZE];
+    while(packetSize > 0)
+    {
+        int32_t sizeToRead = std::min(packetSize, BUFFER_SIZE);
+        is.read(buffer, sizeToRead);
+        mPacket.append(buffer, sizeToRead);
+        packetSize -= sizeToRead;
+    }
 
     return timestamp;
 }
