@@ -103,6 +103,9 @@ public:
     inline const std::string& getLogFile() const
     { return mOgreLogFile; }
 
+    inline const std::string& getCeguiLogFile() const
+    { return mCeguiLogFile; }
+
 private:
     //! \brief The application data path
     //! \example "/usr/share/game/opendungeons" on linux
@@ -127,6 +130,7 @@ private:
 
     //! \brief Main files in the user data path
     std::string mOgreLogFile;
+    std::string mCeguiLogFile;
     std::string mShaderCachePath;
 
     //! \brief Specific data sub-paths.
@@ -148,6 +152,7 @@ private:
     static const std::string SHADERCACHESUBPATH;
     static const std::string CONFIGFILENAME;
     static const std::string LOGFILENAME;
+    static const std::string CEGUILOGFILENAME;
 
     static const std::string RESOURCEGROUPMUSIC;
     static const std::string RESOURCEGROUPSOUND;

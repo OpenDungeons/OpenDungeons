@@ -45,10 +45,13 @@
 #include "modes/MenuModeEditor.h"
 #include "modes/MenuModeReplay.h"
 #include "utils/LogManager.h"
+#include "utils/ResourceManager.h"
 #include "sound/SoundEffectsManager.h"
 
 #include <CEGUI/CEGUI.h>
 #include <CEGUI/RendererModules/Ogre/Renderer.h>
+#include <CEGUI/RendererModules/Ogre/ResourceProvider.h>
+#include <CEGUI/RendererModules/Ogre/ImageCodec.h>
 #include <CEGUI/SchemeManager.h>
 #include <CEGUI/System.h>
 #include <CEGUI/WindowManager.h>
@@ -59,7 +62,11 @@ template<> Gui* Ogre::Singleton<Gui>::msSingleton = 0;
 
 Gui::Gui()
 {
-    CEGUI::OgreRenderer::bootstrapSystem();
+    CEGUI::OgreRenderer& renderer = CEGUI::OgreRenderer::create();
+    CEGUI::OgreResourceProvider& rp = CEGUI::OgreRenderer::createOgreResourceProvider();
+    CEGUI::OgreImageCodec& ic = CEGUI::OgreRenderer::createOgreImageCodec();
+    CEGUI::System::create(renderer, &rp, static_cast<CEGUI::XMLParser*>(nullptr), &ic, nullptr, "",
+                          ResourceManager::getSingleton().getCeguiLogFile());
 
     CEGUI::SchemeManager::getSingleton().createFromFile("OpenDungeonsSkin.scheme");
 

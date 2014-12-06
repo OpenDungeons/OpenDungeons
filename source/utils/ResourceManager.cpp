@@ -64,6 +64,7 @@ const std::string ResourceManager::LANGUAGESUBPATH = "lang/";
 const std::string ResourceManager::SHADERCACHESUBPATH = "shaderCache/";
 const std::string ResourceManager::CONFIGFILENAME = "ogre.cfg";
 const std::string ResourceManager::LOGFILENAME = "opendungeons.log";
+const std::string ResourceManager::CEGUILOGFILENAME = "CEGUI.log";
 
 const std::string ResourceManager::RESOURCEGROUPMUSIC = "Music";
 const std::string ResourceManager::RESOURCEGROUPSOUND = "Sound";
@@ -77,18 +78,8 @@ const std::string ResourceManager::RESOURCEGROUPSOUND = "Sound";
  */
 ResourceManager::ResourceManager() :
         mGameDataPath("./"),
-        mMacBundlePath(""),
         mUserDataPath("./"),
-        mUserConfigPath("./"),
-        mOgreCfgFile(""),
-        mOgreLogFile(""),
-        mShaderCachePath(""),
-        mConfigPath(""),
-        mPluginsPath(""),
-        mMusicPath(""),
-        mSoundPath(""),
-        mScriptPath(""),
-        mLanguagePath("")
+        mUserConfigPath("./")
 {
     setupDataPath();
     setupUserDataFolders();
@@ -260,6 +251,7 @@ void ResourceManager::setupUserDataFolders()
 
     mOgreCfgFile = mUserConfigPath + CONFIGFILENAME;
     mOgreLogFile = mUserDataPath + LOGFILENAME;
+    mCeguiLogFile = mUserDataPath + CEGUILOGFILENAME;
     mShaderCachePath = mUserDataPath + SHADERCACHESUBPATH;
 }
 
