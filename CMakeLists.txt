@@ -215,6 +215,7 @@ set(OD_SOURCEFILES
 
     ${SRC}/entities/Building.cpp
     ${SRC}/entities/ChickenEntity.cpp
+    ${SRC}/entities/CraftedTrap.cpp
     ${SRC}/entities/Creature.cpp
     ${SRC}/entities/CreatureAction.cpp
     ${SRC}/entities/CreatureDefinition.cpp

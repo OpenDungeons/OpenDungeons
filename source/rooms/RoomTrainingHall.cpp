@@ -152,7 +152,8 @@ void RoomTrainingHall::refreshCreaturesDummies()
 
         // Set destination to the newly affected dummies if there was a change
         Ogre::Vector3 creaturePosition = creature->getPosition();
-        Ogre::Real wantedX, wantedY;
+        Ogre::Real wantedX = -1;
+        Ogre::Real wantedY = -1;
         getCreatureWantedPos(creature, tileDummy, wantedX, wantedY);
         if(creaturePosition.x != wantedX ||
            creaturePosition.y != wantedY)
@@ -192,7 +193,8 @@ bool RoomTrainingHall::addCreatureUsingRoom(Creature* creature)
     mUnusedDummies.erase(mUnusedDummies.begin() + index);
     mCreaturesDummies[creature] = tileDummy;
     Ogre::Vector3 creaturePosition = creature->getPosition();
-    Ogre::Real wantedX, wantedY;
+    Ogre::Real wantedX = -1;
+    Ogre::Real wantedY = -1;
     getCreatureWantedPos(creature, tileDummy, wantedX, wantedY);
     if(creaturePosition.x != wantedX ||
        creaturePosition.y != wantedY)
@@ -245,7 +247,8 @@ void RoomTrainingHall::doUpkeep()
         if(tileCreature == NULL)
             continue;
 
-        Ogre::Real wantedX, wantedY;
+        Ogre::Real wantedX = -1;
+        Ogre::Real wantedY = -1;
         getCreatureWantedPos(creature, tileDummy, wantedX, wantedY);
 
         RenderedMovableEntity* ro = getBuildingObjectFromTile(tileDummy);

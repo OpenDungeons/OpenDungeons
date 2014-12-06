@@ -431,21 +431,7 @@ bool BaseAI::digWayToTile(Tile* tileStart, Tile* tileEnd)
 
     // Set a diggable path up to the first gold spot for the given team color, by the first available kobold
     Seat* seat = mPlayer.getSeat();
-    std::vector<Creature*> creatures = mGameMap.getCreaturesBySeat(seat);
-
-    if (creatures.empty())
-        return false;
-
-    Creature* kobold = nullptr;
-    for (Creature* creature : creatures)
-    {
-        if (creature->getDefinition()->getClassName() == "Kobold")
-        {
-            kobold = creature;
-            break;
-        }
-    }
-
+    Creature* kobold = mGameMap.getKoboldForPathFinding(seat);
     if (kobold == nullptr)
         return false;
 

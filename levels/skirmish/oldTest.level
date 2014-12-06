@@ -6623,10 +6623,10 @@ ProtectDungeonTemple	NULL
 [/Rooms]
 
 [Traps]
-# typeTrap	seatId	numTiles		Subsequent Lines: tileX	tileY		Subsequent Lines: optional specific data
+# typeTrap	seatId	numTiles		Subsequent Lines: tileX	tileY	isActivated(0/1)		Subsequent Lines: optional specific data
 [Trap]
 1	1	1
-186	199
+186	199	1
 [/Trap]
 [/Traps]
 
@@ -6635,8 +6635,14 @@ ProtectDungeonTemple	NULL
 193	205	3.75	0.9	0.8	0.6	0.2	0.2	0.2	50	0.012	0.32	0.0018
 [/Lights]
 
+[CreatureDefinitions]
+[/CreatureDefinitions]
+
+[EquipmentDefinitions]
+[/EquipmentDefinitions]
+
 [Creatures]
-# SeatId	ClassName	Name	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeapon RightWeapon
+# SeatId	ClassName	Name	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeapon	RightWeapon
 [Creature]
 1	Adventurer	Adventurer_001	1	0	max	100	0	0	196	200	0	none	none
 [/Creature]

@@ -2947,6 +2947,19 @@ void GameMap::consoleSetCreatureDestination(const std::string& creatureName, int
     creature->setDestination(tile);
 }
 
+Creature* GameMap::getKoboldForPathFinding(Seat* seat)
+{
+    std::vector<Creature*> creatures = getCreaturesBySeat(seat);
+    for (Creature* creature : creatures)
+    {
+        if (creature->getDefinition()->getClassName() == "Kobold")
+        {
+            return creature;
+        }
+    }
+    return nullptr;
+}
+
 bool GameMap::pathToBestFightingPosition(std::list<Tile*>& pathToTarget, Creature* attackingCreature,
     Tile* attackedTile)
 {

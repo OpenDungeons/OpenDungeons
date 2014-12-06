@@ -429,6 +429,9 @@ public:
 
     int addGoldToSeat(int gold, int seatId);
 
+    //! \brief Searches for a kobold owned by the seat for path finding
+    Creature* getKoboldForPathFinding(Seat* seat);
+
     //! \brief Finds a path for the creature to the best tile within range from target
     //! Returns true and path will contain the path if a path is found.
     //! Returns false otherwise

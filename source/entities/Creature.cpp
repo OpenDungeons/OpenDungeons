@@ -118,7 +118,7 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
     mSound                   (SoundEffectsManager::getSingleton().getCreatureClassSounds(definition->getClassName())),
     mForceAction             (forcedActionNone),
     mCarriedEntity           (nullptr),
-    mCarriedEntityDest       (nullptr)
+    mCarriedEntityDestType   (GameEntity::ObjectType::unknown)
 {
     setName(getGameMap()->nextUniqueNameCreature(definition->getClassName()));
 
@@ -196,7 +196,7 @@ Creature::Creature(GameMap* gameMap) :
     mSound                   (NULL),
     mForceAction             (forcedActionNone),
     mCarriedEntity           (nullptr),
-    mCarriedEntityDest       (nullptr)
+    mCarriedEntityDestType   (GameEntity::ObjectType::unknown)
 {
     setIsOnMap(false);
 
@@ -2561,7 +2561,8 @@ bool Creature::handleCarryableEntities()
         }
 
         // We have carried something. Now, we go to the building
-        mCarriedEntityDest = buildingWants;
+        mCarriedEntityDestType = buildingWants->getObjectType();
+        mCarriedEntityDestName = buildingWants->getName();
 
         if(setDestination(tileDest))
             return false;
@@ -3500,10 +3501,12 @@ void Creature::carryEntity(GameEntity* carriedEntity)
 void Creature::releaseCarriedEntity()
 {
     GameEntity* carriedEntity = mCarriedEntity;
-    Building* carriedEntityDest = mCarriedEntityDest;
+    GameEntity::ObjectType carriedEntityDestType = mCarriedEntityDestType;
+    std::string carriedEntityDestName = mCarriedEntityDestName;
 
     mCarriedEntity = nullptr;
-    mCarriedEntityDest = nullptr;
+    mCarriedEntityDestType = GameEntity::ObjectType::unknown;
+    mCarriedEntityDestName.clear();
 
     if(carriedEntity == nullptr)
         return;
@@ -3527,8 +3530,32 @@ void Creature::releaseCarriedEntity()
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 
-    if(carriedEntityDest != nullptr)
-        carriedEntityDest->notifyCarryingStateChanged(this, carriedEntity);
+    Building* dest = nullptr;
+    switch(carriedEntityDestType)
+    {
+        case GameEntity::ObjectType::room:
+        {
+            dest = getGameMap()->getRoomByName(carriedEntityDestName);
+            break;
+        }
+        case GameEntity::ObjectType::trap:
+        {
+            dest = getGameMap()->getTrapByName(carriedEntityDestName);
+            break;
+        }
+        default:
+            break;
+    }
+    if(dest == nullptr)
+    {
+        // We couldn't find the destination. This can happen if it has been destroyed while
+        // we were carrying the entity
+        LogManager::getSingleton().logMessage("Couldn't carry entity=" + carriedEntity->getName()
+            + " to entity name=" + carriedEntityDestName);
+        return;
+    }
+
+    dest->notifyCarryingStateChanged(this, carriedEntity);
 }
 
 bool Creature::canSlap(Seat* seat, bool isEditorMode)

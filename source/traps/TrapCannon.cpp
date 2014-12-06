@@ -24,6 +24,7 @@
 #include "utils/Random.h"
 #include "utils/LogManager.h"
 
+const std::string TrapCannon::MESH_CANON = "Cannon";
 const Ogre::Real CANNON_MISSILE_HEIGHT = 0.3;
 
 TrapCannon::TrapCannon(GameMap* gameMap) :
@@ -33,6 +34,7 @@ TrapCannon::TrapCannon(GameMap* gameMap) :
     mRange = ConfigManager::getSingleton().getTrapConfigUInt32("CannonRange");
     mMinDamage = ConfigManager::getSingleton().getTrapConfigDouble("CannonDamagePerHitMin");
     mMaxDamage = ConfigManager::getSingleton().getTrapConfigDouble("CannonDamagePerHitMax");
+    mNbShootsBeforeDeactivation = ConfigManager::getSingleton().getTrapConfigUInt32("CannonNbShootsBeforeDeactivation");
     setMeshName("Cannon");
 }
 
@@ -73,7 +75,7 @@ bool TrapCannon::shoot(Tile* tile)
 
 RenderedMovableEntity* TrapCannon::notifyActiveSpotCreated(Tile* tile)
 {
-    return loadBuildingObject(getGameMap(), "Cannon", tile, 90.0, false);
+    return loadBuildingObject(getGameMap(), MESH_CANON, tile, 90.0, false, isActivated(tile) ? 1.0f : 0.5f);
 }
 
 TrapCannon* TrapCannon::getTrapCannonFromStream(GameMap* gameMap, std::istream &is)

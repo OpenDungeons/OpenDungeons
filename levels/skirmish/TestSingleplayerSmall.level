@@ -806,24 +806,24 @@ ProtectDungeonTemple	NULL
 [/Rooms]
 
 [Traps]
-# typeTrap	seatId	numTiles		Subsequent Lines: tileX	tileY		Subsequent Lines: optional specific data
+# typeTrap	seatId	numTiles		Subsequent Lines: tileX	tileY	isActivated(0/1)		Subsequent Lines: optional specific data
 [Trap]
 2	3	2
-17	9
-17	10
+17	9	1
+17	10	0
 [/Trap]
 [Trap]
 1	3	2
-17	12
-17	13
+17	12	1
+17	13	1
 [/Trap]
 [Trap]
 3	3	1
-17	7
+17	7	1
 [/Trap]
 [Trap]
 3	3	1
-14	2
+14	2	1
 [/Trap]
 [/Traps]
 

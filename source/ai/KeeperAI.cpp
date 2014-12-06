@@ -103,16 +103,7 @@ bool KeeperAI::checkTreasury()
 
     Tile* central = getDungeonTemple()->getCentralTile();
 
-    Creature* kobold = nullptr;
-    for (Creature* creature : mGameMap.getCreaturesBySeat(mPlayer.getSeat()))
-    {
-        if (creature->getDefinition()->getClassName() == "Kobold")
-        {
-            kobold = creature;
-            break;
-        }
-    }
-
+    Creature* kobold = mGameMap.getKoboldForPathFinding(mPlayer.getSeat());
     if (kobold == nullptr)
         return false;
 

@@ -25,6 +25,8 @@ class ODPacket;
 class TrapCannon : public ProximityTrap
 {
 public:
+    static const std::string MESH_CANON;
+
     TrapCannon(GameMap* gameMap);
 
     static TrapCannon* getTrapCannonFromStream(GameMap* gameMap, std::istream &is);

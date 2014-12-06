@@ -24,12 +24,15 @@
 #include "utils/Random.h"
 #include "utils/LogManager.h"
 
+const std::string TrapSpike::MESH_SPIKE = "Spiketrap";
+
 TrapSpike::TrapSpike(GameMap* gameMap) :
     ProximityTrap(gameMap)
 {
     mReloadTime = ConfigManager::getSingleton().getTrapConfigUInt32("SpikeReloadTurns");
     mMinDamage = ConfigManager::getSingleton().getTrapConfigDouble("SpikeDamagePerHitMin");
     mMaxDamage = ConfigManager::getSingleton().getTrapConfigDouble("SpikeDamagePerHitMax");
+    mNbShootsBeforeDeactivation = ConfigManager::getSingleton().getTrapConfigUInt32("SpikeNbShootsBeforeDeactivation");
     setMeshName("Spike");
 }
 
@@ -61,7 +64,7 @@ bool TrapSpike::shoot(Tile* tile)
 
 RenderedMovableEntity* TrapSpike::notifyActiveSpotCreated(Tile* tile)
 {
-    return loadBuildingObject(getGameMap(), "Spiketrap", tile, 0.0, true);
+    return loadBuildingObject(getGameMap(), MESH_SPIKE, tile, 0.0, false, isActivated(tile) ? 1.0f : 0.7f);
 }
 
 TrapSpike* TrapSpike::getTrapSpikeFromStream(GameMap* gameMap, std::istream &is)
