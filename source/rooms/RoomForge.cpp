@@ -25,6 +25,7 @@
 #include "gamemap/GameMap.h"
 
 #include "utils/ConfigManager.h"
+#include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/Random.h"
 
@@ -259,7 +260,7 @@ void RoomForge::doUpkeep()
         if(ro == NULL)
             continue;
         // We consider that the creature is in the good place if it is in the expected tile and not moving
-        Tile* expectedDest = getGameMap()->getTile(static_cast<int>(wantedX), static_cast<int>(wantedY));
+        Tile* expectedDest = getGameMap()->getTile(Helper::round(wantedX), Helper::round(wantedY));
         OD_ASSERT_TRUE_MSG(expectedDest != nullptr, "room=" + getName() + ", creature=" + creature->getName());
         if(expectedDest == nullptr)
             continue;
