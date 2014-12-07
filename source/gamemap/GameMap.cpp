@@ -1903,6 +1903,11 @@ void GameMap::addRoom(Room *r)
     int nbTiles = r->getCoveredTiles().size();
     LogManager::getSingleton().logMessage(serverStr() + "Adding room " + r->getName() + ", nbTiles="
         + Ogre::StringConverter::toString(nbTiles) + ", seatId=" + Ogre::StringConverter::toString(r->getSeat()->getId()));
+    for(Tile* tile : r->getCoveredTiles())
+    {
+        LogManager::getSingleton().logMessage(serverStr() + "Adding room " + r->getName() + ", tile=" + Tile::displayAsString(tile));
+    }
+
     if(isServerGameMap())
     {
         ServerNotification notif(ServerNotification::buildRoom, getPlayerBySeat(r->getSeat()));

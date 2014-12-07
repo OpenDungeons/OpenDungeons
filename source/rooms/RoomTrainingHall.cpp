@@ -22,6 +22,7 @@
 #include "entities/Tile.h"
 #include "gamemap/GameMap.h"
 #include "utils/ConfigManager.h"
+#include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/Random.h"
 
@@ -142,9 +143,8 @@ void RoomTrainingHall::refreshCreaturesDummies()
         "mUnusedDummies.size()=" + Ogre::StringConverter::toString(static_cast<int>(mUnusedDummies.size()))
         + "mCreaturesUsingRoom.size()=" + Ogre::StringConverter::toString(static_cast<int>(mCreaturesUsingRoom.size())));
 
-    for(std::vector<Creature*>::iterator it = mCreaturesUsingRoom.begin(); it != mCreaturesUsingRoom.end(); ++it)
+    for(Creature* creature : mCreaturesUsingRoom)
     {
-        Creature* creature = *it;
         int index = Random::Int(0, mUnusedDummies.size() - 1);
         Tile* tileDummy = mUnusedDummies[index];
         mUnusedDummies.erase(mUnusedDummies.begin() + index);
@@ -239,10 +239,10 @@ void RoomTrainingHall::doUpkeep()
     if(mCreaturesDummies.size() > 0 && Random::Int(50,150) < ++nbTurnsNoChangeDummies)
         refreshCreaturesDummies();
 
-    for(std::map<Creature*,Tile*>::iterator it = mCreaturesDummies.begin(); it != mCreaturesDummies.end(); ++it)
+    for(const std::pair<Creature* const,Tile*>& p : mCreaturesDummies)
     {
-        Creature* creature = it->first;
-        Tile* tileDummy = it->second;
+        Creature* creature = p.first;
+        Tile* tileDummy = p.second;
         Tile* tileCreature = creature->getPositionTile();
         if(tileCreature == NULL)
             continue;
@@ -255,9 +255,13 @@ void RoomTrainingHall::doUpkeep()
         OD_ASSERT_TRUE(ro != NULL);
         if(ro == NULL)
             continue;
-        Ogre::Vector3 creaturePosition = creature->getPosition();
-        if(creaturePosition.x == wantedX &&
-           creaturePosition.y == wantedY)
+        // We consider that the creature is in the good place if it is in the expected tile and not moving
+        Tile* expectedDest = getGameMap()->getTile(Helper::round(wantedX), Helper::round(wantedY));
+        OD_ASSERT_TRUE_MSG(expectedDest != nullptr, "room=" + getName() + ", creature=" + creature->getName());
+        if(expectedDest == nullptr)
+            continue;
+        if((tileCreature == expectedDest) &&
+           !creature->isMoving())
         {
             if (creature->getJobCooldown() > 0)
             {

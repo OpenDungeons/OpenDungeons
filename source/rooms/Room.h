@@ -136,6 +136,7 @@ protected:
 
     virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
     virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);
+
     //! \brief This function will be called when a new room is created if another room has been absorbed.
     virtual void reorderRoomAfterAbsorbtion();
 private :

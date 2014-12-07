@@ -145,7 +145,7 @@ bool RoomForge::hasOpenCreatureSpot(Creature* c)
     if(nbCraftedItems >= (getNumActiveSpots() - mCreaturesSpots.size()))
         return false;
 
-    return mUnusedSpots.size() > 0;
+    return !mUnusedSpots.empty();
 }
 
 bool RoomForge::addCreatureUsingRoom(Creature* creature)
@@ -258,9 +258,13 @@ void RoomForge::doUpkeep()
         OD_ASSERT_TRUE(ro != NULL);
         if(ro == NULL)
             continue;
-        Ogre::Vector3 creaturePosition = creature->getPosition();
-        if(creaturePosition.x == wantedX &&
-           creaturePosition.y == wantedY)
+        // We consider that the creature is in the good place if it is in the expected tile and not moving
+        Tile* expectedDest = getGameMap()->getTile(static_cast<int>(wantedX), static_cast<int>(wantedY));
+        OD_ASSERT_TRUE_MSG(expectedDest != nullptr, "room=" + getName() + ", creature=" + creature->getName());
+        if(expectedDest == nullptr)
+            continue;
+        if((tileCreature == expectedDest) &&
+           !creature->isMoving())
         {
             if (creature->getJobCooldown() > 0)
             {

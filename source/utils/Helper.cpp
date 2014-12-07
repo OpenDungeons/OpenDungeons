@@ -70,6 +70,11 @@ namespace Helper
         return static_cast<int>(d + 0.5);
     }
 
+    int round(float f)
+    {
+        return static_cast<int>(f + 0.5f);
+    }
+
     bool fillFilesList(const std::string& path,
                        std::vector<std::string>& listFiles,
                        const std::string& fileExtension)

@@ -372,10 +372,11 @@ int32_t Trap::getNeededForgePointsPerTrap(TrapType trapType)
             return 60;
         case TrapType::boulder:
             return 70;
-        // There should be no default to make sure there is a warning if a new trap is added
+        default:
+            OD_ASSERT_TRUE_MSG(false, "Asked for wrong trap type=" + Ogre::StringConverter::toString(static_cast<int32_t>(trapType)));
+            break;
     }
     // We shouldn't go here
-    OD_ASSERT_TRUE_MSG(false, "Asked for wrong trap type=" + Ogre::StringConverter::toString(static_cast<int32_t>(trapType)));
     return 0;
 }
 
@@ -469,7 +470,7 @@ void Trap::notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEnti
             return;
         }
 
-        // The carrier has brought carrief trap
+        // The carrier has brought carried trap
         CraftedTrap* craftedTrap = trapTileInfo.getCarriedCraftedTrap();
         OD_ASSERT_TRUE_MSG(tile->removeCraftedTrap(craftedTrap), "trap=" + getName()
             + ", craftedTrap=" + craftedTrap->getName()
