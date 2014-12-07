@@ -1062,7 +1062,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 break;
 
             room->setupRoom(gameMap->nextUniqueNameRoom(room->getMeshName()), player->getSeat(), tiles);
-            gameMap->addRoom(room);
+            gameMap->addRoom(room, true);
             room->createMesh();
             room->checkForRoomAbsorbtion();
             room->updateActiveSpots();
@@ -1484,7 +1484,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             room->setupRoom(gameMap->nextUniqueNameRoom(room->getMeshName()), seat, tiles);
 
-            gameMap->addRoom(room);
+            gameMap->addRoom(room, true);
             room->createMesh();
             room->checkForRoomAbsorbtion();
             room->updateActiveSpots();

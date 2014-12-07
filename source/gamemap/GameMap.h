@@ -170,8 +170,10 @@ public:
     //! \brief Calls the deleteYourself() method on each of the rooms in the game map as well as clearing the vector of stored rooms.
     void clearRooms();
 
-    //! \brief A simple mutator method to add the given Room to the GameMap.
-    void addRoom(Room *r);
+    //! \brief A simple mutator method to add the given Room to the GameMap. If sendAsyncMsg is true, an asynchronous server message
+    //! will be sent to every players. If false, it will be synchronous. Asynchronous messages should be used for human players
+    //! to increase time reaction.
+    void addRoom(Room *r, bool sendAsyncMsg);
 
     void removeRoom(Room *r);
 

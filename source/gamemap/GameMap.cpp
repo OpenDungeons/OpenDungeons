@@ -1898,7 +1898,7 @@ void GameMap::clearRooms()
     rooms.clear();
 }
 
-void GameMap::addRoom(Room *r)
+void GameMap::addRoom(Room *r, bool sendAsyncMsg)
 {
     int nbTiles = r->getCoveredTiles().size();
     LogManager::getSingleton().logMessage(serverStr() + "Adding room " + r->getName() + ", nbTiles="
@@ -1910,10 +1910,20 @@ void GameMap::addRoom(Room *r)
 
     if(isServerGameMap())
     {
-        ServerNotification notif(ServerNotification::buildRoom, getPlayerBySeat(r->getSeat()));
-        r->exportHeadersToPacket(notif.mPacket);
-        r->exportToPacket(notif.mPacket);
-        ODServer::getSingleton().sendAsyncMsgToAllClients(notif);
+        if(sendAsyncMsg)
+        {
+            ServerNotification notif(ServerNotification::buildRoom, getPlayerBySeat(r->getSeat()));
+            r->exportHeadersToPacket(notif.mPacket);
+            r->exportToPacket(notif.mPacket);
+            ODServer::getSingleton().sendAsyncMsgToAllClients(notif);
+        }
+        else
+        {
+            ServerNotification* serverNotification = new ServerNotification(ServerNotification::buildRoom, getPlayerBySeat(r->getSeat()));
+            r->exportHeadersToPacket(serverNotification->mPacket);
+            r->exportToPacket(serverNotification->mPacket);
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
     }
     rooms.push_back(r);
     addActiveObject(r);

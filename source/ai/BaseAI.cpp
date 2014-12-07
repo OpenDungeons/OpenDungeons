@@ -52,7 +52,7 @@ Room* BaseAI::getDungeonTemple()
 bool BaseAI::buildRoom(Room* room, const std::vector<Tile*>& tiles)
 {
     room->setupRoom(mGameMap.nextUniqueNameRoom(room->getMeshName()), mPlayer.getSeat(), tiles);
-    mGameMap.addRoom(room);
+    mGameMap.addRoom(room, false);
     room->createMesh();
     room->checkForRoomAbsorbtion();
     room->updateActiveSpots();
