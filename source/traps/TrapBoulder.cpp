@@ -23,12 +23,15 @@
 #include "utils/Random.h"
 #include "utils/LogManager.h"
 
+const std::string TrapBoulder::MESH_BOULDER = "Boulder";
+
 TrapBoulder::TrapBoulder(GameMap* gameMap) :
     Trap(gameMap)
 {
     mReloadTime = ConfigManager::getSingleton().getTrapConfigUInt32("BoulderReloadTurns");
     mMinDamage = ConfigManager::getSingleton().getTrapConfigDouble("BoulderDamagePerHitMin");
     mMaxDamage = ConfigManager::getSingleton().getTrapConfigDouble("BoulderDamagePerHitMax");
+    mNbShootsBeforeDeactivation = ConfigManager::getSingleton().getTrapConfigUInt32("BoulderNbShootsBeforeDeactivation");
     setMeshName("Boulder");
 }
 
@@ -84,36 +87,11 @@ bool TrapBoulder::shoot(Tile* tile)
     missile->doUpkeep();
     missile->setAnimationState("Triggered", true);
 
-    // Deactivate the trap until reloaded.
-    deactivate(tile);
-
     return true;
 }
 
 RenderedMovableEntity* TrapBoulder::notifyActiveSpotCreated(Tile* tile)
 {
-    return loadBuildingObject(getGameMap(), "Boulder", tile, 0.0, false,
+    return loadBuildingObject(getGameMap(), MESH_BOULDER, tile, 0.0, false,
                               isActivated(tile) ? 1.0f : 0.5f);
-}
-
-void TrapBoulder::activate(Tile* tile)
-{
-    Trap::activate(tile);
-
-    RenderedMovableEntity* entity = getBuildingObjectFromTile(tile);
-    if (entity == nullptr)
-        return;
-
-    entity->setMeshOpacity(1.0f);
-}
-
-void TrapBoulder::deactivate(Tile* tile)
-{
-    Trap::deactivate(tile);
-
-    RenderedMovableEntity* entity = getBuildingObjectFromTile(tile);
-    if (entity == nullptr)
-        return;
-
-    entity->setMeshOpacity(0.5f);
 }

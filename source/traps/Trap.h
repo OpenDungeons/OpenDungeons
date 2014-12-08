@@ -24,6 +24,8 @@
 #include <ostream>
 #include <map>
 
+class CraftedTrap;
+class Creature;
 class GameMap;
 class Player;
 class Seat;
@@ -39,21 +41,43 @@ class TrapTileInfo
 public:
     TrapTileInfo():
         mIsActivated(false),
-        mReloadTime(0)
+        mReloadTime(0),
+        mCraftedTrap(nullptr),
+        mNbShootsBeforeDeactivation(0)
     {}
 
     TrapTileInfo(uint32_t reloadTime, bool activated):
         mIsActivated(activated),
-        mReloadTime(reloadTime)
+        mReloadTime(reloadTime),
+        mCraftedTrap(nullptr),
+        mNbShootsBeforeDeactivation(0)
     {}
 
-    uint32_t getReloadTime() const
-    { return mReloadTime; }
-
-    void decreaseReloadTime()
+    bool decreaseReloadTime()
     {
-        if (mReloadTime > 0)
+        if (mReloadTime > 1)
+        {
             --mReloadTime;
+            return true;
+        }
+
+        mReloadTime = 0;
+        return false;
+    }
+
+    void setActivated(bool activated)
+    { mIsActivated = activated; }
+
+    bool decreaseShoot()
+    {
+        if (mNbShootsBeforeDeactivation > 1)
+        {
+            --mNbShootsBeforeDeactivation;
+            return true;
+        }
+
+        mNbShootsBeforeDeactivation = 0;
+        return false;
     }
 
     bool isActivated() const
@@ -62,12 +86,20 @@ public:
     void setReloadTime(uint32_t reloadTime)
     { mReloadTime = reloadTime; }
 
-    void setActivated(bool activated)
-    { mIsActivated = activated; }
+    void setNbShootsBeforeDeactivation(int32_t nbShoot)
+    { mNbShootsBeforeDeactivation = nbShoot; }
+
+    void setCarriedCraftedTrap(CraftedTrap* craftedTrap)
+    { mCraftedTrap = craftedTrap; }
+
+    CraftedTrap* getCarriedCraftedTrap() const
+    { return mCraftedTrap; }
 
 private:
     bool mIsActivated;
     uint32_t mReloadTime;
+    CraftedTrap* mCraftedTrap;
+    int32_t mNbShootsBeforeDeactivation;
 };
 
 /*! \class Trap Trap.h
@@ -103,9 +135,7 @@ public:
     virtual void doUpkeep();
 
     virtual bool shoot(Tile* tile)
-    {
-        return true;
-    }
+    { return true; }
 
     //! \brief Tells whether the trap is activated.
     bool isActivated(Tile* tile) const;
@@ -116,6 +146,13 @@ public:
     virtual void addCoveredTile(Tile* t, double nHP);
     virtual bool removeCoveredTile(Tile* t);
     virtual void updateActiveSpots();
+
+    static int32_t getNeededForgePointsPerTrap(TrapType trapType);
+    virtual bool isNeededCraftedTrap() const;
+
+    bool hasCarryEntitySpot(GameEntity* carriedEntity);
+    Tile* askSpotForCarriedEntity(GameEntity* carriedEntity);
+    void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity);
 
     /*! \brief Exports the headers needed to recreate the Trap. It allows to extend Traps as much as wanted.
      * The content of the Trap will be exported by exportToPacket.
@@ -144,6 +181,7 @@ protected:
     //! \brief Triggered when deactivated.
     virtual void deactivate(Tile* tile);
 
+    uint32_t mNbShootsBeforeDeactivation;
     uint32_t mReloadTime;
     double mMinDamage;
     double mMaxDamage;

@@ -38,6 +38,7 @@ class CreatureDefinition;
 class Trap;
 class TreasuryObject;
 class ChickenEntity;
+class CraftedTrap;
 class ODPacket;
 
 /*! \brief The tile class contains information about tile type and contents and is the basic level bulding block.
@@ -301,9 +302,13 @@ public:
     void fillWithAttackableTrap(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
     void fillWithCarryableEntities(std::vector<GameEntity*>& entities);
     void fillWithChickenEntities(std::vector<GameEntity*>& entities);
+    void fillWithCraftedTraps(std::vector<GameEntity*>& entities);
 
     bool addChickenEntity(ChickenEntity* chicken);
     bool removeChickenEntity(ChickenEntity* chicken);
+
+    bool addCraftedTrap(CraftedTrap* craftedTrap);
+    bool removeCraftedTrap(CraftedTrap* craftedTrap);
 
 protected:
     virtual void createMeshLocal();

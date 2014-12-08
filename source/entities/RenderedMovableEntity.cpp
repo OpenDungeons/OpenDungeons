@@ -21,6 +21,7 @@
 #include "entities/ChickenEntity.h"
 #include "entities/MissileObject.h"
 #include "entities/SmallSpiderEntity.h"
+#include "entities/CraftedTrap.h"
 
 #include "gamemap/GameMap.h"
 #include "network/ODPacket.h"
@@ -122,6 +123,11 @@ RenderedMovableEntity* RenderedMovableEntity::getRenderedMovableEntityFromLine(G
             obj = MissileObject::getMissileObjectFromStream(gameMap, is);
             break;
         }
+        case RenderedMovableEntityType::craftedTrap:
+        {
+            obj = CraftedTrap::getCraftedTrapFromStream(gameMap, is);
+            break;
+        }
         default:
         {
             OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(
@@ -167,6 +173,11 @@ RenderedMovableEntity* RenderedMovableEntity::getRenderedMovableEntityFromPacket
         case RenderedMovableEntityType::smallSpiderEntity:
         {
             obj = SmallSpiderEntity::getSmallSpiderEntityFromPacket(gameMap, is);
+            break;
+        }
+        case RenderedMovableEntityType::craftedTrap:
+        {
+            obj = CraftedTrap::getCraftedTrapFromPacket(gameMap, is);
             break;
         }
         default:

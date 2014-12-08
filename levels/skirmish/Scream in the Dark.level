@@ -3818,7 +3818,7 @@ ProtectDungeonTemple	NULL
 89	21	6	0	2
 89	22	6	0	2
 89	23	6	100	2
-89	25	5	100
+89	25	5	0
 89	32	5	0
 89	33	5	0
 89	34	5	0
@@ -5028,6 +5028,34 @@ ProtectDungeonTemple	NULL
 89	93
 [/Room]
 [Room]
+3	4	1
+81	92
+[/Room]
+[Room]
+3	4	1
+81	88
+[/Room]
+[Room]
+3	4	1
+92	87
+[/Room]
+[Room]
+3	4	1
+83	87
+[/Room]
+[Room]
+3	4	1
+90	88
+[/Room]
+[Room]
+3	4	1
+88	87
+[/Room]
+[Room]
+3	4	1
+86	88
+[/Room]
+[Room]
 3	4	8
 86	92
 87	91
@@ -5037,34 +5065,6 @@ ProtectDungeonTemple	NULL
 89	91
 89	92
 90	92
-[/Room]
-[Room]
-3	4	1
-86	88
-[/Room]
-[Room]
-3	4	1
-88	87
-[/Room]
-[Room]
-3	4	1
-90	88
-[/Room]
-[Room]
-3	4	1
-83	87
-[/Room]
-[Room]
-3	4	1
-92	87
-[/Room]
-[Room]
-3	4	1
-81	92
-[/Room]
-[Room]
-3	4	1
-81	88
 [/Room]
 [Room]
 6	5	65
@@ -5266,15 +5266,21 @@ ProtectDungeonTemple	NULL
 [/Rooms]
 
 [Traps]
-# typeTrap	seatId	numTiles		Subsequent Lines: tileX	tileY		Subsequent Lines: optional specific data
+# typeTrap	seatId	numTiles		Subsequent Lines: tileX	tileY	isActivated(0/1)		Subsequent Lines: optional specific data
 [/Traps]
 
 [Lights]
 # posX	posY	posZ	diffuseR	diffuseG	diffuseB	specularR	specularG	specularB	attenRange	attenConst	attenLin	attenQuad
 [/Lights]
 
+[CreatureDefinitions]
+[/CreatureDefinitions]
+
+[EquipmentDefinitions]
+[/EquipmentDefinitions]
+
 [Creatures]
-# SeatId	ClassName	Name	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeapon RightWeapon
+# SeatId	ClassName	Name	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeapon	RightWeapon
 [Creature]
 5	Dragon	Dragon1	10	0	max	100	0	0	13	55	0	none	none
 [/Creature]

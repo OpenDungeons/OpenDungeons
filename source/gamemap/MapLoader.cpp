@@ -239,7 +239,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
             return false;
 
         tempRoom->setName(gameMap.nextUniqueNameRoom(tempRoom->getMeshName()));
-        gameMap.addRoom(tempRoom);
+        gameMap.addRoom(tempRoom, false);
 
         levelFile >> nextParam;
         if (nextParam != "[/Room]")

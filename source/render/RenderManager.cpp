@@ -446,7 +446,7 @@ void RenderManager::rrCreateRenderedMovableEntity(RenderedMovableEntity* rendere
     Ogre::SceneNode* node = mRoomSceneNode->createChildSceneNode(tempString + "_node");
 
     node->setPosition(renderedMovableEntity->getPosition());
-    node->setScale(Ogre::Vector3(0.7, 0.7, 0.7));
+    node->setScale(renderedMovableEntity->getScale());
     node->roll(Ogre::Degree(renderedMovableEntity->getRotationAngle()));
     node->attachObject(ent);
 

@@ -23,6 +23,8 @@
 class TrapBoulder : public Trap
 {
 public:
+    static const std::string MESH_BOULDER;
+
     TrapBoulder(GameMap* gameMap);
 
     static TrapBoulder* getTrapBoulderFromStream(GameMap* gameMap, std::istream &is);
@@ -50,9 +52,6 @@ public:
     }
 
     virtual RenderedMovableEntity* notifyActiveSpotCreated(Tile* tile);
-
-    virtual void deactivate(Tile* tile);
-    virtual void activate(Tile* tile);
 };
 
 #endif // TRAPBOULDER_H

@@ -60,6 +60,8 @@ bool Room::compareTile(Tile* tile1, Tile* tile2)
 
 void Room::absorbRoom(Room *r)
 {
+    LogManager::getSingleton().logMessage(getGameMap()->serverStr() + "Room=" + getName() + " is aborbing room=" + r->getName());
+
     mCentralActiveSpotTiles.insert(mCentralActiveSpotTiles.end(), r->mCentralActiveSpotTiles.begin(), r->mCentralActiveSpotTiles.end());
     r->mCentralActiveSpotTiles.clear();
     mLeftWallsActiveSpotTiles.insert(mLeftWallsActiveSpotTiles.end(), r->mLeftWallsActiveSpotTiles.begin(), r->mLeftWallsActiveSpotTiles.end());

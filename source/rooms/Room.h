@@ -56,8 +56,6 @@ public:
     virtual std::string getOgreNamePrefix() const { return "Room_"; }
 
     virtual void absorbRoom(Room* r);
-    //! \brief This function will be called when a new room is created if another room has been absorbed.
-    virtual void reorderRoomAfterAbsorbtion();
 
     static std::string getFormat();
 
@@ -138,6 +136,9 @@ protected:
 
     virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
     virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);
+
+    //! \brief This function will be called when a new room is created if another room has been absorbed.
+    virtual void reorderRoomAfterAbsorbtion();
 private :
     void activeSpotCheckChange(ActiveSpotPlace place, const std::vector<Tile*>& originalSpotTiles,
         const std::vector<Tile*>& newSpotTiles);

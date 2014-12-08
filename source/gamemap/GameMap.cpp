@@ -1898,17 +1898,32 @@ void GameMap::clearRooms()
     rooms.clear();
 }
 
-void GameMap::addRoom(Room *r)
+void GameMap::addRoom(Room *r, bool sendAsyncMsg)
 {
     int nbTiles = r->getCoveredTiles().size();
     LogManager::getSingleton().logMessage(serverStr() + "Adding room " + r->getName() + ", nbTiles="
         + Ogre::StringConverter::toString(nbTiles) + ", seatId=" + Ogre::StringConverter::toString(r->getSeat()->getId()));
+    for(Tile* tile : r->getCoveredTiles())
+    {
+        LogManager::getSingleton().logMessage(serverStr() + "Adding room " + r->getName() + ", tile=" + Tile::displayAsString(tile));
+    }
+
     if(isServerGameMap())
     {
-        ServerNotification notif(ServerNotification::buildRoom, getPlayerBySeat(r->getSeat()));
-        r->exportHeadersToPacket(notif.mPacket);
-        r->exportToPacket(notif.mPacket);
-        ODServer::getSingleton().sendAsyncMsgToAllClients(notif);
+        if(sendAsyncMsg)
+        {
+            ServerNotification notif(ServerNotification::buildRoom, getPlayerBySeat(r->getSeat()));
+            r->exportHeadersToPacket(notif.mPacket);
+            r->exportToPacket(notif.mPacket);
+            ODServer::getSingleton().sendAsyncMsgToAllClients(notif);
+        }
+        else
+        {
+            ServerNotification* serverNotification = new ServerNotification(ServerNotification::buildRoom, getPlayerBySeat(r->getSeat()));
+            r->exportHeadersToPacket(serverNotification->mPacket);
+            r->exportToPacket(serverNotification->mPacket);
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
     }
     rooms.push_back(r);
     addActiveObject(r);
@@ -2945,6 +2960,19 @@ void GameMap::consoleSetCreatureDestination(const std::string& creatureName, int
     creature->clearActionQueue();
     creature->clearDestinations();
     creature->setDestination(tile);
+}
+
+Creature* GameMap::getKoboldForPathFinding(Seat* seat)
+{
+    std::vector<Creature*> creatures = getCreaturesBySeat(seat);
+    for (Creature* creature : creatures)
+    {
+        if (creature->getDefinition()->getClassName() == "Kobold")
+        {
+            return creature;
+        }
+    }
+    return nullptr;
 }
 
 bool GameMap::pathToBestFightingPosition(std::list<Tile*>& pathToTarget, Creature* attackingCreature,

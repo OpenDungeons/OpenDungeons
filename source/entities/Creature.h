@@ -429,7 +429,8 @@ private:
 
     bool                            mIsCarryActionTested;
     GameEntity*                     mCarriedEntity;
-    Building*                       mCarriedEntityDest;
+    GameEntity::ObjectType          mCarriedEntityDestType;
+    std::string                     mCarriedEntityDestName;
 
     void pushAction(CreatureAction action);
     void popAction();

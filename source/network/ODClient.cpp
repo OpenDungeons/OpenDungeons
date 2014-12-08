@@ -607,7 +607,7 @@ bool ODClient::processOneClientSocketMessage()
                 tile->setSeat(room->getSeat());
                 tile->setFullness(0.0);
             }
-            gameMap->addRoom(room);
+            gameMap->addRoom(room, true);
             room->createMesh();
             room->checkForRoomAbsorbtion();
             room->updateActiveSpots();

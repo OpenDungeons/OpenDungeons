@@ -3947,62 +3947,62 @@ ProtectDungeonTemple	NULL
 [/Rooms]
 
 [Traps]
-# typeTrap	seatId	numTiles		Subsequent Lines: tileX	tileY		Subsequent Lines: optional specific data
+# typeTrap	seatId	numTiles		Subsequent Lines: tileX	tileY	isActivated(0/1)		Subsequent Lines: optional specific data
 [Trap]
 1	5	1
-48	37
+48	37	1
 [/Trap]
 [Trap]
 1	5	1
-50	37
+50	37	1
 [/Trap]
 [Trap]
 1	5	1
-17	16
+17	16	1
 [/Trap]
 [Trap]
 1	5	1
-17	20
+17	20	1
 [/Trap]
 [Trap]
 1	5	1
-46	47
+46	47	1
 [/Trap]
 [Trap]
 1	5	1
-48	47
+48	47	1
 [/Trap]
 [Trap]
 1	5	1
-50	47
+50	47	1
 [/Trap]
 [Trap]
 1	5	1
-52	47
+52	47	1
 [/Trap]
 [Trap]
 1	5	1
-43	66
+43	66	1
 [/Trap]
 [Trap]
 1	5	1
-46	66
+46	66	1
 [/Trap]
 [Trap]
 1	5	1
-48	66
+48	66	1
 [/Trap]
 [Trap]
 1	5	1
-50	66
+50	66	1
 [/Trap]
 [Trap]
 1	5	1
-52	66
+52	66	1
 [/Trap]
 [Trap]
 1	5	1
-55	66
+55	66	1
 [/Trap]
 [/Traps]
 

@@ -23,6 +23,8 @@
 class TrapSpike : public ProximityTrap
 {
 public:
+    static const std::string MESH_SPIKE;
+
     TrapSpike(GameMap* gameMap);
 
     static TrapSpike* getTrapSpikeFromStream(GameMap* gameMap, std::istream &is);

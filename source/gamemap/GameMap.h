@@ -170,8 +170,12 @@ public:
     //! \brief Calls the deleteYourself() method on each of the rooms in the game map as well as clearing the vector of stored rooms.
     void clearRooms();
 
-    //! \brief A simple mutator method to add the given Room to the GameMap.
-    void addRoom(Room *r);
+    //! \brief A simple mutator method to add the given Room to the GameMap. If sendAsyncMsg is true, an asynchronous server message
+    //! will be sent to every players. If false, it will be synchronous. Asynchronous messages should be used for human players
+    //! to increase time reaction. This is useful because when AI looses a room, it could try to rebuild it during the same turn. But
+    //! because the remove tile is sent synchronously, if the build message was sent asynchronously, it would be received before the
+    //! remove message. That would result in Ogre crashing because there are 2 identical tiles.
+    void addRoom(Room *r, bool sendAsyncMsg);
 
     void removeRoom(Room *r);
 
@@ -428,6 +432,9 @@ public:
     void markTilesForPlayer(std::vector<Tile*>& tiles, bool isDigSet, Player* player);
 
     int addGoldToSeat(int gold, int seatId);
+
+    //! \brief Searches for a kobold owned by the seat for path finding
+    Creature* getKoboldForPathFinding(Seat* seat);
 
     //! \brief Finds a path for the creature to the best tile within range from target
     //! Returns true and path will contain the path if a path is found.

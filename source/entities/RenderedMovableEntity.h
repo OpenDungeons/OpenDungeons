@@ -38,6 +38,7 @@ public:
         treasuryObject,
         chickenEntity,
         smallSpiderEntity,
+        craftedTrap,
         missileObject
     };
     //! \brief Creates a RenderedMovableEntity. It's name is built from baseName and some unique id from the gamemap.
@@ -56,6 +57,9 @@ public:
 
     virtual void doUpkeep()
     {}
+
+    virtual Ogre::Vector3 getScale() const
+    { return Ogre::Vector3(0.7,0.7,0.7); }
 
     void receiveExp(double experience)
     {}

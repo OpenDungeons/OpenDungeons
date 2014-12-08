@@ -21,6 +21,7 @@
 #include "entities/MapLight.h"
 #include "entities/TreasuryObject.h"
 #include "entities/ChickenEntity.h"
+#include "entities/CraftedTrap.h"
 
 #include "game/Player.h"
 #include "game/Seat.h"
@@ -1279,9 +1280,15 @@ void Tile::fillWithCarryableEntities(std::vector<GameEntity*>& entities)
             {
                 // treasuryObject are carryable
                 RenderedMovableEntity* rme = static_cast<RenderedMovableEntity*>(entity);
-                if(rme->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::treasuryObject)
-                    continue;
+                switch(rme->getRenderedMovableEntityType())
+                {
+                    case RenderedMovableEntity::RenderedMovableEntityType::treasuryObject:
+                    case RenderedMovableEntity::RenderedMovableEntityType::craftedTrap:
+                        break;
 
+                    default:
+                        continue;
+                }
                 break;
             }
             default:
@@ -1305,6 +1312,25 @@ void Tile::fillWithChickenEntities(std::vector<GameEntity*>& entities)
             continue;
         RenderedMovableEntity* rme = static_cast<RenderedMovableEntity*>(entity);
         if(rme->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::chickenEntity)
+            continue;
+
+        if (std::find(entities.begin(), entities.end(), entity) == entities.end())
+            entities.push_back(entity);
+    }
+}
+
+void Tile::fillWithCraftedTraps(std::vector<GameEntity*>& entities)
+{
+    for(GameEntity* entity : mEntitiesInTile)
+    {
+        OD_ASSERT_TRUE(entity != NULL);
+        if(entity == NULL)
+            continue;
+
+        if(entity->getObjectType() != GameEntity::ObjectType::renderedMovableEntity)
+            continue;
+        RenderedMovableEntity* rme = static_cast<RenderedMovableEntity*>(entity);
+        if(rme->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::craftedTrap)
             continue;
 
         if (std::find(entities.begin(), entities.end(), entity) == entities.end())
@@ -1380,6 +1406,33 @@ bool Tile::removeChickenEntity(ChickenEntity* chicken)
         return true;
 
     std::vector<GameEntity*>::iterator it = std::find(mEntitiesInTile.begin(), mEntitiesInTile.end(), chicken);
+    if(it == mEntitiesInTile.end())
+        return false;
+
+    mEntitiesInTile.erase(it);
+    return true;
+}
+
+bool Tile::addCraftedTrap(CraftedTrap* craftedTrap)
+{
+    // CraftedTrap are handled on server side only
+    if(!getGameMap()->isServerGameMap())
+        return true;
+
+    if(std::find(mEntitiesInTile.begin(), mEntitiesInTile.end(), craftedTrap) != mEntitiesInTile.end())
+        return false;
+
+    mEntitiesInTile.push_back(craftedTrap);
+    return true;
+}
+
+bool Tile::removeCraftedTrap(CraftedTrap* craftedTrap)
+{
+    // CraftedTrap are handled on server side only
+    if(!getGameMap()->isServerGameMap())
+        return true;
+
+    std::vector<GameEntity*>::iterator it = std::find(mEntitiesInTile.begin(), mEntitiesInTile.end(), craftedTrap);
     if(it == mEntitiesInTile.end())
         return false;
 

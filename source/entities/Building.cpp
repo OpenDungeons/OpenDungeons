@@ -187,6 +187,7 @@ void Building::addCoveredTile(Tile* t, double nHP)
 
 bool Building::removeCoveredTile(Tile* t)
 {
+    LogManager::getSingleton().logMessage(getGameMap()->serverStr() + "building=" + getName() + ", removing covered tile=" + Tile::displayAsString(t));
     for (std::vector<Tile*>::iterator it = mCoveredTiles.begin(); it != mCoveredTiles.end(); ++it)
     {
         if (t == *it)
@@ -204,6 +205,7 @@ bool Building::removeCoveredTile(Tile* t)
             return true;
         }
     }
+    OD_ASSERT_TRUE_MSG(false, getGameMap()->serverStr() + "building=" + getName() + ", removing unknown covered tile=" + Tile::displayAsString(t));
     return false;
 }
 
