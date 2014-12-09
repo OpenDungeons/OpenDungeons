@@ -759,14 +759,24 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                 {
                     if (!tempCreature->getHasVisualDebuggingEntities())
                     {
-                        tempCreature->createVisualDebugEntities();
+                        if(ODClient::getSingleton().isConnected())
+                        {
+                            const std::string& name = tempCreature->getName();
+                            ODConsoleCommand* cc = new ODConsoleCommandDisplayCreatureVisualDebug(name, true);
+                            ODServer::getSingleton().queueConsoleCommand(cc);
+                        }
                         frameListener->mCommandOutput
                                 += "\nVisual debugging entities created for creature:  "
                                         + arguments + "\n";
                     }
                     else
                     {
-                        tempCreature->destroyVisualDebugEntities();
+                        if(ODClient::getSingleton().isConnected())
+                        {
+                            const std::string& name = tempCreature->getName();
+                            ODConsoleCommand* cc = new ODConsoleCommandDisplayCreatureVisualDebug(name, false);
+                            ODServer::getSingleton().queueConsoleCommand(cc);
+                        }
                         frameListener->mCommandOutput
                                 += "\nVisual debugging entities destroyed for creature:  "
                                         + arguments + "\n";

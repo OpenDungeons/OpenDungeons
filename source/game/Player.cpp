@@ -99,11 +99,6 @@ void Player::pickUpEntity(GameEntity *entity, bool isEditorMode)
            return;
 
        creature->pickup();
-
-        // Destroy the creature's visual debugging entities if it has them
-        if (!mGameMap->isServerGameMap() && creature->getHasVisualDebuggingEntities())
-            creature->destroyVisualDebugEntities();
-
     }
     else if(entity->getObjectType() == GameEntity::ObjectType::renderedMovableEntity)
     {

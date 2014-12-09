@@ -210,7 +210,7 @@ void ODServer::startNewTurn(double timeSinceLastFrame)
         {
             std::string& name = *itCreatures;
             Creature* creature = gameMap->getCreature(name);
-            if(creature == NULL)
+            if(creature == nullptr)
                 itCreatures = creatures.erase(itCreatures);
             else
             {

@@ -2869,16 +2869,28 @@ void GameMap::logFloodFileTiles()
 void GameMap::consoleSetCreatureDestination(const std::string& creatureName, int x, int y)
 {
     Creature* creature = getCreature(creatureName);
-    if(creature == NULL)
+    if(creature == nullptr)
         return;
     Tile* tile = getTile(x, y);
-    if(tile == NULL)
+    if(tile == nullptr)
         return;
-    if(creature->getPositionTile() == NULL)
+    if(creature->getPositionTile() == nullptr)
         return;
     creature->clearActionQueue();
     creature->clearDestinations();
     creature->setDestination(tile);
+}
+
+void GameMap::consoleDisplayCreatureVisualDebug(const std::string& creatureName, bool enable)
+{
+    Creature* creature = getCreature(creatureName);
+    if(creature == nullptr)
+        return;
+
+    if(enable)
+        creature->computeVisualDebugEntities();
+    else
+        creature->stopComputeVisualDebugEntities();
 }
 
 Creature* GameMap::getKoboldForPathFinding(Seat* seat)

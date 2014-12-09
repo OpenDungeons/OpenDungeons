@@ -786,9 +786,44 @@ bool ODClient::processOneClientSocketMessage()
             std::string infos;
             OD_ASSERT_TRUE(packetReceived >> name >> infos);
             Creature* creature = gameMap->getCreature(name);
-            OD_ASSERT_TRUE_MSG(creature != NULL, "name=" + name);
-            if(creature != NULL)
+            OD_ASSERT_TRUE_MSG(creature != nullptr, "name=" + name);
+            if(creature != nullptr)
                 creature->updateStatsWindow(infos);
+            break;
+        }
+
+        case ServerNotification::refreshCreatureVisDebug:
+        {
+            std::string name;
+            bool isDebugVisibleTilesActive;
+            OD_ASSERT_TRUE(packetReceived >> name >> isDebugVisibleTilesActive);
+            Creature* creature = gameMap->getCreature(name);
+            OD_ASSERT_TRUE_MSG(creature != nullptr, "name=" + name);
+            if(creature == nullptr)
+                break;
+
+            if(!isDebugVisibleTilesActive)
+            {
+                creature->destroyVisualDebugEntities();
+                break;
+            }
+
+            uint32_t nbTiles;
+            OD_ASSERT_TRUE(packetReceived >> nbTiles);
+            std::vector<Tile*> tiles;
+            while(nbTiles > 0)
+            {
+                --nbTiles;
+                Tile tmpTile(gameMap);
+                OD_ASSERT_TRUE(packetReceived >> &tmpTile);
+                Tile* gameTile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
+                OD_ASSERT_TRUE_MSG(gameTile != nullptr, "tile=" + Tile::displayAsString(&tmpTile));
+                if(gameTile == nullptr)
+                    continue;
+
+                tiles.push_back(gameTile);
+            }
+            creature->refreshVisualDebugEntities(tiles);
             break;
         }
 

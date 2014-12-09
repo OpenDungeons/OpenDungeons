@@ -88,6 +88,7 @@ class ServerNotification
             removeRenderedMovableEntity,
             setEntityOpacity,
             notifyCreatureInfo,
+            refreshCreatureVisDebug,
 
             playSpatialSound, // Makes the client play a sound at tile coordinates.
             playCreatureSound, // Play a sound at the creature position
