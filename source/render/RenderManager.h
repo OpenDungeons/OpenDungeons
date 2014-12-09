@@ -66,7 +66,7 @@ public:
     { mGameMap = gameMap; }
 
     //! \brief Loop through the render requests in the queue and process them
-    void processRenderRequests(Ogre::Real timeSinceLastFrame = 0);
+    void updateRenderAnimations(Ogre::Real timeSinceLastFrame);
 
     //! \brief starts the compositor compositorName.
     void triggerCompositor(const std::string& compositorName);
@@ -74,10 +74,10 @@ public:
     //! \brief setup the scene
     void createScene(Ogre::Viewport*);
 
-    //! \brief Put a render request in the queue (helper function to avoid having to fetch the singleton)
-    static void queueRenderRequest(RenderRequest* renderRequest)
+    //! \brief Executes a render request in the queue (helper function to avoid having to fetch the singleton)
+    static void executeRenderRequest(RenderRequest& renderRequest)
     {
-        msSingleton->queueRenderRequest_priv(renderRequest);
+        msSingleton->executeRenderRequest_priv(renderRequest);
     }
 
     void rtssTest();
@@ -101,7 +101,7 @@ public:
 
 private:
     //! \brief Put a render request in the queue (implementation)
-    void queueRenderRequest_priv(RenderRequest* renderRequest);
+    void executeRenderRequest_priv(RenderRequest& renderRequest);
 
     //Render request functions
     void rrRefreshTile(Tile* curTile);
@@ -151,8 +151,6 @@ private:
     //! \returns The new material name according to the current opacity.
     std::string setMaterialOpacity(const std::string& materialName, float opacity);
 
-    std::deque<RenderRequest*> mRenderQueue;
-
     //! \brief The main scene manager reference. Don't delete it.
     Ogre::SceneManager* mSceneManager;
 
@@ -160,7 +158,6 @@ private:
     Ogre::SceneNode* mRoomSceneNode;
     Ogre::SceneNode* mCreatureSceneNode;
     Ogre::SceneNode* mLightSceneNode;
-    Ogre::SceneNode* mRockSceneNode;
 
     Ogre::AnimationState* mHandAnimationState;
 

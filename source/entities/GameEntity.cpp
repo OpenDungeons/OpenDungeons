@@ -82,8 +82,8 @@ void GameEntity::setMeshOpacity(float opacity)
         return;
     }
 
-    RenderRequest* request = new RenderRequestUpdateEntityOpacity(this);
-    RenderManager::queueRenderRequest(request);
+    RenderRequestUpdateEntityOpacity request(this);
+    RenderManager::executeRenderRequest(request);
 }
 
 std::string GameEntity::getNodeNameWithoutPostfix()

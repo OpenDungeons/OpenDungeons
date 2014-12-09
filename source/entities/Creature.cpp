@@ -222,12 +222,12 @@ void Creature::createMeshLocal()
     MovableGameEntity::createMeshLocal();
     if(!getGameMap()->isServerGameMap())
     {
-        RenderRequest* request = new RenderRequestCreateCreature(this);
-        RenderManager::queueRenderRequest(request);
+        RenderRequestCreateCreature request1(this);
+        RenderManager::executeRenderRequest(request1);
 
         // By default, we set the creature in idle state
-        request = new RenderRequestSetObjectAnimationState(this, "Idle", true);
-        RenderManager::queueRenderRequest(request);
+        RenderRequestSetObjectAnimationState request2(this, "Idle", true);
+        RenderManager::executeRenderRequest(request2);
     }
 
     createMeshWeapons();
@@ -241,8 +241,8 @@ void Creature::destroyMeshLocal()
         return;
 
     destroyStatsWindow();
-    RenderRequest* request = new RenderRequestDestroyCreature(this);
-    RenderManager::queueRenderRequest(request);
+    RenderRequestDestroyCreature request(this);
+    RenderManager::executeRenderRequest(request);
 }
 
 void Creature::createMeshWeapons()
@@ -252,13 +252,13 @@ void Creature::createMeshWeapons()
 
     if(mWeaponL != nullptr)
     {
-        RenderRequest* request = new RenderRequestCreateWeapon(this, mWeaponL, "L");
-        RenderManager::queueRenderRequest(request);
+        RenderRequestCreateWeapon request(this, mWeaponL, "L");
+        RenderManager::executeRenderRequest(request);
     }
     if(mWeaponR != nullptr)
     {
-        RenderRequest* request = new RenderRequestCreateWeapon(this, mWeaponR, "R");
-        RenderManager::queueRenderRequest(request);
+        RenderRequestCreateWeapon request(this, mWeaponR, "R");
+        RenderManager::executeRenderRequest(request);
     }
 }
 
@@ -269,13 +269,13 @@ void Creature::destroyMeshWeapons()
 
     if(mWeaponL != nullptr)
     {
-        RenderRequest* request = new RenderRequestDestroyWeapon(this, mWeaponL, "L");
-        RenderManager::queueRenderRequest(request);
+        RenderRequestDestroyWeapon request(this, mWeaponL, "L");
+        RenderManager::executeRenderRequest(request);
     }
     if(mWeaponR != nullptr)
     {
-        RenderRequest* request = new RenderRequestDestroyWeapon(this, mWeaponR, "R");
-        RenderManager::queueRenderRequest(request);
+        RenderRequestDestroyWeapon request(this, mWeaponR, "R");
+        RenderManager::executeRenderRequest(request);
     }
 }
 
@@ -2734,8 +2734,8 @@ void Creature::refreshFromCreature(Creature *creatureNewState)
         if (scaleFactor > 1.04)
             scaleFactor = 1.04;
 
-        RenderRequest *request = new RenderRequestScaleSceneNode(mSceneNode, Ogre::Vector3(scaleFactor, scaleFactor, scaleFactor));
-        RenderManager::queueRenderRequest(request);
+        RenderRequestScaleSceneNode request(mSceneNode, Ogre::Vector3(scaleFactor, scaleFactor, scaleFactor));
+        RenderManager::executeRenderRequest(request);
     }
 }
 
@@ -2914,8 +2914,8 @@ void Creature::refreshVisualDebugEntities(const std::vector<Tile*>& tiles)
         if(std::find(mVisualDebugEntityTiles.begin(), mVisualDebugEntityTiles.end(), tile) != mVisualDebugEntityTiles.end())
             continue;
 
-        RenderRequest *request = new RenderRequestCreateCreatureVisualDebug(this, tile);
-        RenderManager::queueRenderRequest(request);
+        RenderRequestCreateCreatureVisualDebug request(this, tile);
+        RenderManager::executeRenderRequest(request);
 
         mVisualDebugEntityTiles.push_back(tile);
     }
@@ -2932,8 +2932,8 @@ void Creature::refreshVisualDebugEntities(const std::vector<Tile*>& tiles)
 
         it = mVisualDebugEntityTiles.erase(it);
 
-        RenderRequest *request = new RenderRequestDestroyCreatureVisualDebug(this, tile);
-        RenderManager::queueRenderRequest(request);
+        RenderRequestDestroyCreatureVisualDebug request(this, tile);
+        RenderManager::executeRenderRequest(request);
     }
 }
 
@@ -2964,8 +2964,8 @@ void Creature::destroyVisualDebugEntities()
         if (tile == nullptr)
             continue;
 
-        RenderRequest *request = new RenderRequestDestroyCreatureVisualDebug(this, tile);
-        RenderManager::queueRenderRequest(request);
+        RenderRequestDestroyCreatureVisualDebug request(this, tile);
+        RenderManager::executeRenderRequest(request);
     }
     mVisualDebugEntityTiles.clear();
 }
@@ -3556,8 +3556,8 @@ void Creature::carryEntity(GameEntity* carriedEntity)
     }
     else
     {
-        RenderRequest *request = new RenderRequestCarryEntity(this, carriedEntity);
-        RenderManager::queueRenderRequest(request);
+        RenderRequestCarryEntity request(this, carriedEntity);
+        RenderManager::executeRenderRequest(request);
     }
 }
 
@@ -3576,8 +3576,8 @@ void Creature::releaseCarriedEntity()
 
     if(!getGameMap()->isServerGameMap())
     {
-        RenderRequest *request = new RenderRequestReleaseCarriedEntity(this, carriedEntity);
-        RenderManager::queueRenderRequest(request);
+        RenderRequestReleaseCarriedEntity request(this, carriedEntity);
+        RenderManager::executeRenderRequest(request);
     }
     else
     {

@@ -958,11 +958,7 @@ void GameMode::exitMode()
         ODServer::getSingleton().stopServer();
 
     // Now that the server is stopped, we can clear the client game map
-    // We process RenderRequests in case there is graphical things pending
-    RenderManager::getSingleton().processRenderRequests();
     ODFrameListener::getSingleton().getClientGameMap()->clearAll();
-    // We process again RenderRequests to destroy/delete what clearAll has put in the queue
-    RenderManager::getSingleton().processRenderRequests();
     ODFrameListener::getSingleton().getClientGameMap()->processDeletionQueues();
 }
 

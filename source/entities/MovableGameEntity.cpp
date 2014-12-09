@@ -154,8 +154,8 @@ void MovableGameEntity::setWalkDirection(Ogre::Vector3& direction)
     if(getGameMap()->isServerGameMap())
         return;
 
-    RenderRequest* request = new RenderRequestOrientSceneNodeToward(this, direction);
-    RenderManager::queueRenderRequest(request);
+    RenderRequestOrientSceneNodeToward request(this, direction);
+    RenderManager::executeRenderRequest(request);
 }
 
 void MovableGameEntity::setAnimationState(const std::string& state, bool loop, Ogre::Vector3* direction)
@@ -193,8 +193,8 @@ void MovableGameEntity::setAnimationState(const std::string& state, bool loop, O
         return;
     }
 
-    RenderRequest* request = new RenderRequestSetObjectAnimationState(this, state, loop);
-    RenderManager::queueRenderRequest(request);
+    RenderRequestSetObjectAnimationState request(this, state, loop);
+    RenderManager::executeRenderRequest(request);
 }
 
 double MovableGameEntity::getAnimationSpeedFactor()
@@ -270,7 +270,7 @@ void MovableGameEntity::setPosition(const Ogre::Vector3& v)
     if(getGameMap()->isServerGameMap())
         return;
 
-    RenderRequest* request = new RenderRequestMoveSceneNode(getOgreNamePrefix() + getName() + "_node", v);
-    RenderManager::queueRenderRequest(request);
+    RenderRequestMoveSceneNode request(getOgreNamePrefix() + getName() + "_node", v);
+    RenderManager::executeRenderRequest(request);
 
 }

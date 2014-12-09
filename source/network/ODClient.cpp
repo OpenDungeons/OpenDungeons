@@ -98,7 +98,6 @@ bool ODClient::processOneClientSocketMessage()
             OD_ASSERT_TRUE(packetReceived >> levelFilename);
             // Read in the map. The map loading should happen here and not in the server thread to
             // make sure it is valid before launching the server.
-            RenderManager::getSingletonPtr()->processRenderRequests();
             ODFrameListener::getSingleton().getClientGameMap()->processDeletionQueues();
             if (!gameMap->loadLevel(levelFilename))
             {
