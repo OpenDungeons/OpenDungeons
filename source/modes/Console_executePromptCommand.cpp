@@ -986,20 +986,20 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     }
     else if (command.compare("starttileculling") == 0)
     {
-            gameMap->culm->startTileCulling();
+            gameMap->getCullingManger()->startTileCulling();
     }
     else if (command.compare("stoptileculling") == 0)
     {
-            gameMap->culm->stopTileCulling();
+            gameMap->getCullingManger()->stopTileCulling();
     }
 
     else if (command.compare("startcreatureculling") == 0)
     {
-            gameMap->culm->startCreatureCulling();
+            gameMap->getCullingManger()->startCreatureCulling();
     }
     else if (command.compare("startdb") == 0)
     {
-            gameMap->culm->startDebugging();
+            gameMap->getCullingManger()->startDebugging();
     }
 
     else if (command.compare("triggercompositor") == 0)

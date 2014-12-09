@@ -271,14 +271,17 @@ public:
     int getTotalGoldForSeat(Seat* seat);
     bool withdrawFromTreasuries(int gold, Seat* seat);
 
-    inline void setCullingManger(CullingManager* tempCulm)
-    { culm = tempCulm; }
+    inline void setCullingManger(CullingManager* cullingManager)
+    { mCullingManager = cullingManager; }
+
+    inline CullingManager* getCullingManger() const
+    { return mCullingManager; }
 
     inline const std::string& getLevelFileName() const
-    { return levelFileName; }
+    { return mLevelFileName; }
 
-    inline void setLevelFileName(const std::string& nlevelFileName)
-    { levelFileName = nlevelFileName; }
+    inline void setLevelFileName(const std::string& levelFileName)
+    { mLevelFileName = levelFileName; }
 
     inline const std::string& getLevelName() const
     { return mMapInfoName; }
@@ -372,7 +375,7 @@ public:
 
     //! \brief Temporarily disables the flood fill computations on this game map.
     void disableFloodFill()
-    { floodFillEnabled = false; }
+    { mFloodFillEnabled = false; }
 
     /** \brief Re-enables the flood filling on the game map, also recomputes the painting on the
      * whole map since the passabilities may have changed since the flood filling was disabled.
@@ -475,14 +478,11 @@ public:
     void fillBuildableTilesAndPriceForPlayerInArea(int x1, int y1, int x2, int y2,
         Player* player, Room::RoomType type, std::vector<Tile*>& tiles, int& goldRequired);
 
-    // FIXME: Needs to be private
-    CullingManager* culm;
-
-    std::vector<Creature*> creatures;
-
 private:
     void replaceFloodFill(Tile::FloodFillType floodFillType, int colorOld, int colorNew);
     bool mIsServerGameMap;
+
+    CullingManager* mCullingManager;
     //! \brief the Local player reference. The local player will also be in the player list so this pointer
     //! should not be deleted as it will be handled like every other in the list.
     Player* mLocalPlayer;
@@ -504,13 +504,15 @@ private:
     bool mIsPaused;
 
     //! \brief Level related filenames.
-    std::string levelFileName;
+    std::string mLevelFileName;
 
     //! \brief Map info
     std::string mMapInfoName;
     std::string mMapInfoDescription;
     std::string mMapInfoMusicFile;
     std::string mMapInfoFightMusicFile;
+
+    std::vector<Creature*> mCreatures;
 
     //! \brief The creature definition data. We use a pair to be able to make the difference between the original
     //! data from the global creature definition file and the specific data from the level file. With this trick,
@@ -520,23 +522,23 @@ private:
     std::vector<std::pair<const Weapon*,Weapon*> > mWeapons;
 
     //Mutable to allow locking in const functions.
-    std::vector<MovableGameEntity*> animatedObjects;
+    std::vector<MovableGameEntity*> mAnimatedObjects;
 
     //! \brief Map Entities
-    std::vector<Room*> rooms;
-    std::vector<Trap*> traps;
-    std::vector<MapLight*> mapLights;
+    std::vector<Room*> mRooms;
+    std::vector<Trap*> mTraps;
+    std::vector<MapLight*> mMapLights;
 
     //! \brief Players and available game player slots (Seats)
     std::vector<Player*> mPlayers;
     std::vector<Seat*> mSeats;
-    std::vector<Seat*> winningSeats;
+    std::vector<Seat*> mWinningSeats;
 
     //! \brief Common player goals
-    std::vector<Goal*> goalsForAllSeats;
+    std::vector<Goal*> mGoalsForAllSeats;
 
     //! \brief Tells whether the map color flood filling is enabled.
-    bool floodFillEnabled;
+    bool mFloodFillEnabled;
 
     std::vector<GameEntity*> mActiveObjects;
 
@@ -547,20 +549,20 @@ private:
     std::deque<GameEntity*> mActiveObjectsToRemove;
 
     //! \brief Useless entities that need to be deleted. They will be deleted when processDeletionQueues is called
-    std::vector<GameEntity*> entitiesToDelete;
+    std::vector<GameEntity*> mEntitiesToDelete;
 
     //! \brief Useless MapLights that need to be deleted. They will be deleted when processDeletionQueues is called
-    std::vector<MapLight*> mapLightsToDelete;
+    std::vector<MapLight*> mMapLightsToDelete;
 
     //! \brief Debug member used to know how many call to pathfinding has been made within the same turn.
-    unsigned int numCallsTo_path;
+    unsigned int mNumCallsTo_path;
 
-    TileCoordinateMap* tileCoordinateMap;
+    TileCoordinateMap* mTileCoordinateMap;
 
     std::vector<RenderedMovableEntity*> mRenderedMovableEntities;
 
     //! AI Handling manager
-    AIManager aiManager;
+    AIManager mAiManager;
 
     //! \brief Updates different entities states.
     //! Updates active objects (creatures, rooms, ...), goals, count each team Workers, gold, mana and claimed tiles.
