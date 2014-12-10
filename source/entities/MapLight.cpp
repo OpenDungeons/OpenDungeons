@@ -21,7 +21,6 @@
 #include "modes/ModeManager.h"
 #include "network/ODPacket.h"
 #include "render/RenderManager.h"
-#include "render/RenderRequest.h"
 #include "render/ODFrameListener.h"
 #include "utils/Helper.h"
 #include "utils/Random.h"
@@ -71,8 +70,7 @@ void MapLight::createOgreEntity()
 
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
     // Only show the visual light entity if we are in editor mode
-    RenderRequestCreateMapLight request(this, mm && mm->getCurrentModeType() == ModeManager::EDITOR);
-    RenderManager::executeRenderRequest(request);
+    RenderManager::getSingleton().rrCreateMapLight(this, mm && mm->getCurrentModeType() == ModeManager::EDITOR);
 
     mOgreEntityVisualIndicatorExists = true;
 }
@@ -89,8 +87,7 @@ void MapLight::destroyOgreEntity()
 
     destroyOgreEntityVisualIndicator();
 
-    RenderRequestDestroyMapLight request(this);
-    RenderManager::executeRenderRequest(request);
+    RenderManager::getSingleton().rrDestroyMapLight(this);
 }
 
 void MapLight::destroyOgreEntityVisualIndicator()
@@ -98,8 +95,7 @@ void MapLight::destroyOgreEntityVisualIndicator()
     if (!mOgreEntityVisualIndicatorExists)
         return;
 
-    RenderRequestDestroyMapLightVisualIndicator request(this);
-    RenderManager::executeRenderRequest(request);
+    RenderManager::getSingleton().rrDestroyMapLightVisualIndicator(this);
 
     mOgreEntityVisualIndicatorExists = false;
 }
@@ -121,8 +117,7 @@ void MapLight::setPosition(const Ogre::Vector3& nPosition)
 {
     mPosition = nPosition;
 
-    RenderRequestMoveSceneNode request(getOgreNamePrefix() + mName + "_node", mPosition);
-    RenderManager::executeRenderRequest(request);
+    RenderManager::getSingleton().rrMoveSceneNode(getOgreNamePrefix() + mName + "_node", mPosition);
 }
 
 void MapLight::advanceFlicker(Ogre::Real time)
@@ -141,8 +136,7 @@ void MapLight::advanceFlicker(Ogre::Real time)
 
     mFlickerPosition = Ogre::Vector3(sin(mThetaX), sin(mThetaY), sin(mThetaZ));
 
-    RenderRequestMoveSceneNode request(getOgreNamePrefix() + mName + "_flicker_node", mFlickerPosition);
-    RenderManager::executeRenderRequest(request);
+    RenderManager::getSingleton().rrMoveSceneNode(getOgreNamePrefix() + mName + "_flicker_node", mFlickerPosition);
 }
 
 std::string MapLight::getFormat()

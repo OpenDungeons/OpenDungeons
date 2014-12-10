@@ -27,7 +27,6 @@
 #include "network/ODPacket.h"
 
 #include "render/RenderManager.h"
-#include "render/RenderRequest.h"
 #include "utils/LogManager.h"
 
 #include <iostream>
@@ -63,8 +62,7 @@ void RenderedMovableEntity::createMeshLocal()
     if(getGameMap()->isServerGameMap())
         return;
 
-    RenderRequestCreateRenderedMovableEntity request(this);
-    RenderManager::executeRenderRequest(request);
+    RenderManager::getSingleton().rrCreateRenderedMovableEntity(this);
 }
 
 void RenderedMovableEntity::destroyMeshLocal()
@@ -74,8 +72,7 @@ void RenderedMovableEntity::destroyMeshLocal()
     if(getGameMap()->isServerGameMap())
         return;
 
-    RenderRequestDestroyRenderedMovableEntity request(this);
-    RenderManager::executeRenderRequest(request);
+    RenderManager::getSingleton().rrDestroyRenderedMovableEntity(this);
 }
 
 void RenderedMovableEntity::pickup()

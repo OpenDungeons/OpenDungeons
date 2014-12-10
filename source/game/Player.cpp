@@ -28,7 +28,6 @@
 #include "network/ServerNotification.h"
 #include "network/ODClient.h"
 
-#include "render/RenderRequest.h"
 #include "render/RenderManager.h"
 
 #include "utils/LogManager.h"
@@ -142,14 +141,12 @@ void Player::pickUpEntity(GameEntity *entity, bool isEditorMode)
     if (this == mGameMap->getLocalPlayer())
     {
         // Send a render request to move the crature into the "hand"
-        RenderRequestPickUpEntity request(entity);
-        RenderManager::executeRenderRequest(request);
+        RenderManager::getSingleton().rrPickUpEntity(entity, this);
     }
     else // it is just a message indicating another player has picked up a creature
     {
         // Hide the creature
-        RenderRequestDetachEntity request(entity);
-        RenderManager::executeRenderRequest(request);
+        RenderManager::getSingleton().rrDetachEntity(entity);
     }
 }
 
@@ -236,14 +233,12 @@ GameEntity* Player::dropHand(Tile *t, unsigned int index)
     //cout.flush();
     if (this != mGameMap->getLocalPlayer())
     {
-        RenderRequestAttachEntity request(entity);
-        RenderManager::executeRenderRequest(request);
+        RenderManager::getSingleton().rrAttachEntity(entity);
     }
     else // This is the result of the player on the local computer dropping the creature
     {
         // Send a render request to rearrange the creatures in the hand to move them all forward 1 place
-        RenderRequestDropHand request(entity);
-        RenderManager::executeRenderRequest(request);
+        RenderManager::getSingleton().rrDropHand(entity, this);
     }
 
     return entity;
@@ -278,8 +273,7 @@ void Player::rotateHand(int n)
     }
 
     // Send a render request to move the entity into the "hand"
-    RenderRequestRotateHand request;
-    RenderManager::executeRenderRequest(request);
+    RenderManager::getSingleton().rrRotateHand(this);
 }
 
 void Player::notifyNoMoreDungeonTemple()

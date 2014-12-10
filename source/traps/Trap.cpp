@@ -22,8 +22,6 @@
 #include "entities/CraftedTrap.h"
 #include "entities/Creature.h"
 #include "entities/Tile.h"
-#include "render/RenderRequest.h"
-#include "render/RenderManager.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "entities/RenderedMovableEntity.h"

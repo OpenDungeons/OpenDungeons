@@ -22,7 +22,6 @@
 #include "gamemap/GameMap.h"
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
-#include "render/RenderRequest.h"
 #include "render/RenderManager.h"
 
 #include "utils/Helper.h"
@@ -32,8 +31,7 @@
 
 MovableGameEntity::MovableGameEntity(GameMap* gameMap) :
     GameEntity(gameMap),
-    mAnimationState(NULL),
-    mSceneNode(NULL),
+    mAnimationState(nullptr),
     mMoveSpeed(1.0),
     mPrevAnimationStateLoop(true),
     mAnimationSpeedFactor(1.0),
@@ -154,8 +152,7 @@ void MovableGameEntity::setWalkDirection(Ogre::Vector3& direction)
     if(getGameMap()->isServerGameMap())
         return;
 
-    RenderRequestOrientSceneNodeToward request(this, direction);
-    RenderManager::executeRenderRequest(request);
+    RenderManager::getSingleton().rrOrientSceneNodeToward(this, direction);
 }
 
 void MovableGameEntity::setAnimationState(const std::string& state, bool loop, Ogre::Vector3* direction)
@@ -193,8 +190,7 @@ void MovableGameEntity::setAnimationState(const std::string& state, bool loop, O
         return;
     }
 
-    RenderRequestSetObjectAnimationState request(this, state, loop);
-    RenderManager::executeRenderRequest(request);
+    RenderManager::getSingleton().rrSetObjectAnimationState(this, state, loop);
 }
 
 double MovableGameEntity::getAnimationSpeedFactor()
@@ -211,9 +207,9 @@ void MovableGameEntity::setAnimationSpeedFactor(double f)
 void MovableGameEntity::update(Ogre::Real timeSinceLastFrame)
 {
     // Advance the animation
-    if (!getGameMap()->isServerGameMap() && mAnimationState != NULL)
+    if (!getGameMap()->isServerGameMap() && getAnimationState() != NULL)
     {
-        mAnimationState->addTime((Ogre::Real)(ODApplication::turnsPerSecond
+        getAnimationState()->addTime((Ogre::Real)(ODApplication::turnsPerSecond
                                  * timeSinceLastFrame
                                  * getAnimationSpeedFactor()));
     }
@@ -270,7 +266,6 @@ void MovableGameEntity::setPosition(const Ogre::Vector3& v)
     if(getGameMap()->isServerGameMap())
         return;
 
-    RenderRequestMoveSceneNode request(getOgreNamePrefix() + getName() + "_node", v);
-    RenderManager::executeRenderRequest(request);
+    RenderManager::getSingleton().rrMoveSceneNode(getOgreNamePrefix() + getName() + "_node", v);
 
 }

@@ -32,9 +32,7 @@
 #include "game/Player.h"
 #include "entities/Tile.h"
 #include "entities/Creature.h"
-#include "render/RenderRequest.h"
 #include "gamemap/GameMap.h"
-#include "render/RenderManager.h"
 #include "game/Seat.h"
 #include "utils/LogManager.h"
 

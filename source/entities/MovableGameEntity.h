@@ -68,9 +68,6 @@ public:
 
     virtual void setAnimationState(const std::string& state, bool loop = true, Ogre::Vector3* direction = NULL);
 
-    virtual const std::string& getAnimationState() const
-    { return mPrevAnimationState; }
-
     virtual double getAnimationSpeedFactor();
     virtual void setAnimationSpeedFactor(double f);
 
@@ -82,13 +79,17 @@ public:
 
     virtual void setPosition(const Ogre::Vector3& v);
 
-    Ogre::AnimationState* mAnimationState;
-    Ogre::SceneNode* mSceneNode;
+    inline void setAnimationState(Ogre::AnimationState* animationState)
+    { mAnimationState = animationState; }
+
+    inline Ogre::AnimationState* getAnimationState() const
+    { return mAnimationState; }
 
 protected:
     std::deque<Ogre::Vector3> mWalkQueue;
 
 private:
+    Ogre::AnimationState* mAnimationState;
     double mMoveSpeed;
     std::string mPrevAnimationState;
     bool mPrevAnimationStateLoop;

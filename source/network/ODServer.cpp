@@ -337,9 +337,8 @@ void ODServer::processServerNotifications()
         ServerNotification *event = mServerNotificationQueue.front();
         mServerNotificationQueue.pop_front();
 
-        //FIXME:  This really should never happen but the queue does occasionally pop a NULL.
-        //This is probably a bug somewhere else where a NULL is being place in the queue.
-        if (event == NULL)
+        OD_ASSERT_TRUE(event != nullptr);
+        if(event == nullptr)
             continue;
 
         switch (event->mType)

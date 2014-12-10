@@ -91,7 +91,6 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::Overlay
 
     mCameraManager = new CameraManager(renderManager->getSceneManager(), mGameMap, renderWindow);
 
-    renderManager->setGameMap(mGameMap);
     renderManager->createScene(mCameraManager->getViewport());
 
     mRaySceneQuery = renderManager->getSceneManager()->createRayQuery(Ogre::Ray());
