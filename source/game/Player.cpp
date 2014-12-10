@@ -214,7 +214,8 @@ GameEntity* Player::dropHand(Tile *t, unsigned int index)
         if(getIsHuman())
         {
             ServerNotification serverNotification(ServerNotification::entityDropped, this);
-            serverNotification.mPacket << seatId << t;
+            serverNotification.mPacket << seatId;
+            mGameMap->tileToPacket(serverNotification.mPacket, t);
             ODServer::getSingleton().sendAsyncMsgToAllClients(serverNotification);
             return entity;
         }
@@ -222,7 +223,8 @@ GameEntity* Player::dropHand(Tile *t, unsigned int index)
         {
             ServerNotification* serverNotification = new ServerNotification(ServerNotification::entityDropped,
                 this);
-            serverNotification->mPacket << seatId << t;
+            serverNotification->mPacket << seatId;
+            mGameMap->tileToPacket(serverNotification->mPacket, t);
             ODServer::getSingleton().queueServerNotification(serverNotification);
             return entity;
         }

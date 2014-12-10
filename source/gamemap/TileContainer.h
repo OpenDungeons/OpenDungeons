@@ -22,9 +22,10 @@
 
 #include <sstream>
 
+class ODPacket;
+
 class TileContainer
 {
-
 friend class TileContainersModificator;
 
 public:
@@ -48,6 +49,11 @@ public:
      * This function does not lock.
      */
     Tile* getTile(int x, int y) const;
+
+    //! \brief This functions exports the needed to retrieve a tile for networking.
+    //! The tile informations are not embedded, only the needed to identify the tile
+    void tileToPacket(ODPacket& packet, Tile* tile) const;
+    Tile* tileFromPacket(ODPacket& packet) const;
 
     Tile::TileType getSafeTileType(Tile* tt );
     bool getSafeTileFullness(Tile* tt );

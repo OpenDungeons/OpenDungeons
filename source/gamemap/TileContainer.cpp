@@ -17,6 +17,10 @@
 
 #include "gamemap/TileContainer.h"
 
+#include "network/ODPacket.h"
+
+#include "utils/LogManager.h"
+
 const std::vector<Tile*> EMPTY_TILES;
 
 TileContainer::TileContainer():
@@ -94,16 +98,31 @@ void TileContainer::setTileNeighbors(Tile *t)
 
 Tile* TileContainer::getTile(int xx, int yy) const
 {
-    if(mTiles == NULL)
-        return NULL;
+    if(mTiles == nullptr)
+        return nullptr;
 
     if (xx < getMapSizeX() && yy < getMapSizeY() && xx >= 0 && yy >= 0)
         return mTiles[xx][yy];
     else
     {
         // std :: cerr << " invalid x,y coordinates to getTile" << std :: endl;
-        return NULL;
+        return nullptr;
     }
+}
+
+void TileContainer::tileToPacket(ODPacket& packet, Tile* tile) const
+{
+    int32_t x = tile->getX();
+    int32_t y = tile->getY();
+    packet << x << y;
+}
+
+Tile* TileContainer::tileFromPacket(ODPacket& packet) const
+{
+    int32_t x;
+    int32_t y;
+    OD_ASSERT_TRUE(packet >> x >> y);
+    return getTile(x, y);
 }
 
 const Tile::TileType* TileContainer::getNeighborsTypes(Tile* curTile)

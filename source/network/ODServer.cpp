@@ -183,9 +183,8 @@ void ODServer::startNewTurn(double timeSinceLastFrame)
     gameMap->updateAnimations(timeSinceLastFrame);
 
     // We notify the clients about what they got
-    for (std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
+    for (ODSocketClient* sock : mSockClients)
     {
-        ODSocketClient* sock = *it;
         Player* player = sock->getPlayer();
         try
         {
@@ -433,9 +432,8 @@ void ODServer::processServerNotifications()
                 // if no, we notify the team they lost
                 std::vector<Room*> dungeonTemples = gameMap->getRoomsByType(Room::RoomType::dungeonTemple);
                 bool hasTeamLost = true;
-                for(std::vector<Room*>::iterator it = dungeonTemples.begin(); it != dungeonTemples.end(); ++it)
+                for(Room* dungeonTemple : dungeonTemples)
                 {
-                    Room* dungeonTemple = *it;
                     if(event->mConcernedPlayer->getSeat()->isAlliedSeat(dungeonTemple->getSeat()))
                     {
                         hasTeamLost = false;
@@ -450,9 +448,8 @@ void ODServer::processServerNotifications()
                     ODPacket packet;
                     packet << ServerNotification::chatServer;
                     packet << "You lost the game";
-                    for (std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
+                    for (ODSocketClient* client : mSockClients)
                     {
-                        ODSocketClient* client = *it;
                         if(!event->mConcernedPlayer->getSeat()->isAlliedSeat(client->getPlayer()->getSeat()))
                             continue;
 
@@ -464,9 +461,8 @@ void ODServer::processServerNotifications()
                 ODPacket packetAllied;
                 packetAllied << ServerNotification::chatServer;
                 packetAllied << "An ally has lost";
-                for (std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
+                for (ODSocketClient* client : mSockClients)
                 {
-                    ODSocketClient* client = *it;
                     if(!event->mConcernedPlayer->getSeat()->isAlliedSeat(client->getPlayer()->getSeat()))
                             continue;
 
@@ -876,11 +872,9 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
         case ClientNotification::askHandDrop:
         {
-            Tile tmpTile(gameMap);
-            OD_ASSERT_TRUE(packetReceived >> &tmpTile);
             Player *player = clientSocket->getPlayer();
-            Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE_MSG(tile != nullptr, "tile=" + Tile::displayAsString(&tmpTile));
+            Tile* tile = gameMap->tileFromPacket(packetReceived);
+            OD_ASSERT_TRUE(tile != nullptr);
             if(tile != nullptr)
             {
                 if(player->isDropHandPossible(tile, 0, mServerMode == ServerMode::ModeEditor))
@@ -936,10 +930,9 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 packet << ServerNotification::markTiles;
                 int nbTiles = tiles.size();
                 packet << isDigSet << nbTiles;
-                for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
+                for(Tile* tile : tiles)
                 {
-                    Tile* tile = *it;
-                    packet << tile;
+                    gameMap->tileToPacket(packet, tile);
                     // We also update the server game map
                     tile->setMarkedForDigging(isDigSet, player);
                 }
@@ -1098,16 +1091,14 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 OD_ASSERT_TRUE(room->removeCoveredTile(tile));
                 const std::string& name = room->getName();
                 ServerNotification notif(ServerNotification::removeRoomTile, player);
-                notif.mPacket << name << tile;
+                notif.mPacket << name;
+                gameMap->tileToPacket(notif.mPacket, tile);
                 sendAsyncMsgToAllClients(notif);
             }
 
             // We update active spots of each impacted rooms
-            for(std::set<Room*>::iterator it = roomsImpacted.begin(); it != roomsImpacted.end(); ++it)
-            {
-                Room* room = *it;
+            for(Room* room : roomsImpacted)
                 room->updateActiveSpots();
-            }
 
             // Note : no need to handle the free treasury tile because if there is no treasury tile, gold will be 0 anyway
             gameMap->addGoldToSeat(goldRetrieved, player->getSeat()->getId());
@@ -1139,16 +1130,15 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 OD_ASSERT_TRUE(room->removeCoveredTile(tile));
                 const std::string& name = room->getName();
                 ServerNotification notif(ServerNotification::removeRoomTile, clientSocket->getPlayer());
-                notif.mPacket << name << tile;
+                notif.mPacket << name;
+                gameMap->tileToPacket(notif.mPacket, tile);
                 sendAsyncMsgToAllClients(notif);
             }
 
             // We update active spots of each impacted rooms
-            for(std::set<Room*>::iterator it = roomsImpacted.begin(); it != roomsImpacted.end(); ++it)
-            {
-                Room* room = *it;
+            for(Room* room : roomsImpacted)
                 room->updateActiveSpots();
-            }
+
             break;
         }
 
@@ -1235,16 +1225,15 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 OD_ASSERT_TRUE(trap->removeCoveredTile(tile));
                 const std::string& name = trap->getName();
                 ServerNotification notif(ServerNotification::removeTrapTile, player);
-                notif.mPacket << name << tile;
+                notif.mPacket << name;
+                gameMap->tileToPacket(notif.mPacket, tile);
                 sendAsyncMsgToAllClients(notif);
             }
 
             // We update active spots of each impacted rooms
-            for(std::set<Trap*>::iterator it = trapsImpacted.begin(); it != trapsImpacted.end(); ++it)
-            {
-                Trap* trap = *it;
+            for(Trap* trap : trapsImpacted)
                 trap->updateActiveSpots();
-            }
+
             gameMap->addGoldToSeat(goldRetrieved, player->getSeat()->getId());
             break;
         }
@@ -1274,16 +1263,15 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 OD_ASSERT_TRUE(trap->removeCoveredTile(tile));
                 const std::string& name = trap->getName();
                 ServerNotification notif(ServerNotification::removeTrapTile, clientSocket->getPlayer());
-                notif.mPacket << name << tile;
+                notif.mPacket << name;
+                gameMap->tileToPacket(notif.mPacket, tile);
                 sendAsyncMsgToAllClients(notif);
             }
 
             // We update active spots of each impacted rooms
-            for(std::set<Trap*>::iterator it = trapsImpacted.begin(); it != trapsImpacted.end(); ++it)
-            {
-                Trap* trap = *it;
+            for(Trap* trap : trapsImpacted)
                 trap->updateActiveSpots();
-            }
+
             break;
         }
 
@@ -1379,12 +1367,11 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             }
             if(!affectedTiles.empty())
             {
-                int nbTiles = affectedTiles.size();
+                uint32_t nbTiles = affectedTiles.size();
                 ServerNotification notif(ServerNotification::refreshTiles, clientSocket->getPlayer());
                 notif.mPacket << nbTiles;
-                for(std::vector<Tile*>::iterator it = affectedTiles.begin(); it != affectedTiles.end(); ++it)
+                for(Tile* tile : affectedTiles)
                 {
-                    Tile* tile = *it;
                     notif.mPacket << tile;
                 }
                 sendAsyncMsgToAllClients(notif);
@@ -1723,9 +1710,8 @@ ODSocketClient* ODServer::getClientFromPlayer(Player* player)
 {
     ODSocketClient* ret = NULL;
 
-    for (std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
+    for (ODSocketClient* client : mSockClients)
     {
-        ODSocketClient* client = *it;
         if(client->getPlayer() == player)
         {
             ret = client;

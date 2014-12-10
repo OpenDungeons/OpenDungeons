@@ -448,12 +448,11 @@ bool ODClient::processOneClientSocketMessage()
         case ServerNotification::entityDropped:
         {
             int seatId;
-            Tile tmpTile(gameMap);
-            OD_ASSERT_TRUE(packetReceived >> seatId >> &tmpTile);
+            OD_ASSERT_TRUE(packetReceived >> seatId);
+            Tile* tile = gameMap->tileFromPacket(packetReceived);
+            OD_ASSERT_TRUE(tile != nullptr);
             Player *tempPlayer = gameMap->getPlayerBySeatId(seatId);
             OD_ASSERT_TRUE_MSG(tempPlayer != nullptr, "seatId=" + Ogre::StringConverter::toString(seatId));
-            Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE_MSG(tile != nullptr, "tile=" + Tile::displayAsString(&tmpTile));
             if (tempPlayer != nullptr && tile != nullptr)
             {
                 OD_ASSERT_TRUE(tempPlayer->dropHand(tile) != nullptr);
@@ -528,42 +527,6 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::tileFullnessChange:
-        {
-            Tile tmpTile(gameMap);
-
-            OD_ASSERT_TRUE(packetReceived >> &tmpTile);
-
-            Tile *tempTile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE_MSG(tempTile != NULL, "tile=" + Tile::displayAsString(&tmpTile));
-            if (tempTile != NULL)
-            {
-                tempTile->setFullness(tmpTile.getFullness());
-                std::vector<Tile*> neighbors = tempTile->getAllNeighbors();
-                for (Tile* neighbor : neighbors)
-                {
-                    neighbor->setFullness(neighbor->getFullness());
-                }
-            }
-            break;
-        }
-
-        case ServerNotification::tileClaimed:
-        {
-            Tile tmpTile(gameMap);
-            OD_ASSERT_TRUE(packetReceived >> &tmpTile);
-            Tile *tempTile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE_MSG(tempTile != NULL, "tile=" + Tile::displayAsString(&tmpTile));
-            if (tempTile != NULL)
-            {
-                Seat* seat = tmpTile.getSeat();
-                OD_ASSERT_TRUE_MSG(seat != NULL, "tile=" + Tile::displayAsString(&tmpTile));
-                tempTile->claimTile(seat);
-                SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::CLAIMED, tmpTile.getX(), tmpTile.getY());
-            }
-            break;
-        }
-
         case ServerNotification::refreshPlayerSeat:
         {
             Seat tmpSeat(gameMap);
@@ -582,12 +545,10 @@ bool ODClient::processOneClientSocketMessage()
             std::vector<Tile*> tiles;
             for(int i = 0; i < nbTiles; i++)
             {
-                Tile tmpTile(gameMap);
-                OD_ASSERT_TRUE(packetReceived >> &tmpTile);
-                Tile* gameTile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-                OD_ASSERT_TRUE_MSG(gameTile != NULL, "tile=" + Tile::displayAsString(&tmpTile));
-                if(gameTile != NULL)
-                    tiles.push_back(gameTile);
+                Tile* tile = gameMap->tileFromPacket(packetReceived);
+                OD_ASSERT_TRUE(tile != nullptr);
+                if(tile != NULL)
+                    tiles.push_back(tile);
             }
             gameMap->markTilesForPlayer(tiles, isDigSet, gameMap->getLocalPlayer());
             SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::DIGSELECT);
@@ -622,12 +583,11 @@ bool ODClient::processOneClientSocketMessage()
         case ServerNotification::removeRoomTile:
         {
             std::string roomName;
-            Tile tmpTile(gameMap);
-            OD_ASSERT_TRUE(packetReceived >> roomName>> &tmpTile);
+            OD_ASSERT_TRUE(packetReceived >> roomName);
+            Tile* tile = gameMap->tileFromPacket(packetReceived);
+            OD_ASSERT_TRUE(tile != nullptr);
             Room* room = gameMap->getRoomByName(roomName);
             OD_ASSERT_TRUE_MSG(room != nullptr, "roomName=" + roomName);
-            Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE_MSG(tile != nullptr, "tile=" + Tile::displayAsString(&tmpTile));
             if((room != nullptr) && (tile != nullptr))
             {
                 room->removeCoveredTile(tile);
@@ -647,12 +607,11 @@ bool ODClient::processOneClientSocketMessage()
         case ServerNotification::removeTrapTile:
         {
             std::string trapName;
-            Tile tmpTile(gameMap);
-            OD_ASSERT_TRUE(packetReceived >> trapName>> &tmpTile);
+            OD_ASSERT_TRUE(packetReceived >> trapName);
+            Tile* tile = gameMap->tileFromPacket(packetReceived);
+            OD_ASSERT_TRUE(tile != nullptr);
             Trap* trap = gameMap->getTrapByName(trapName);
             OD_ASSERT_TRUE_MSG(trap != nullptr, "trapName=" + trapName);
-            Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE_MSG(tile != nullptr, "tile=" + Tile::displayAsString(&tmpTile));
             if((trap != nullptr) && (tile != nullptr))
             {
                 trap->removeCoveredTile(tile);
@@ -813,14 +772,12 @@ bool ODClient::processOneClientSocketMessage()
             while(nbTiles > 0)
             {
                 --nbTiles;
-                Tile tmpTile(gameMap);
-                OD_ASSERT_TRUE(packetReceived >> &tmpTile);
-                Tile* gameTile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-                OD_ASSERT_TRUE_MSG(gameTile != nullptr, "tile=" + Tile::displayAsString(&tmpTile));
-                if(gameTile == nullptr)
+                Tile* tile = gameMap->tileFromPacket(packetReceived);
+                OD_ASSERT_TRUE(tile != nullptr);
+                if(tile == nullptr)
                     continue;
 
-                tiles.push_back(gameTile);
+                tiles.push_back(tile);
             }
             creature->refreshVisualDebugEntities(tiles);
             break;
@@ -840,16 +797,17 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotification::refreshTiles:
         {
-            int nbTiles;
+            uint32_t nbTiles;
             OD_ASSERT_TRUE(packetReceived >> nbTiles);
             std::vector<Tile*> tiles;
-            for(int i = 0; i < nbTiles; i++)
+            while(nbTiles > 0)
             {
+                --nbTiles;
                 Tile tmpTile(gameMap);
                 OD_ASSERT_TRUE(packetReceived >> &tmpTile);
                 Tile* gameTile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-                OD_ASSERT_TRUE(gameTile != NULL);
-                if(gameTile == NULL)
+                OD_ASSERT_TRUE(gameTile != nullptr);
+                if(gameTile == nullptr)
                     continue;
                 gameTile->refreshFromTile(tmpTile);
                 tiles.push_back(gameTile);

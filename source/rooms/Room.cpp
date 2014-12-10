@@ -160,7 +160,8 @@ void Room::doUpkeep()
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotification::removeRoomTile, nullptr);
             std::string name = getName();
-            serverNotification->mPacket << name << t;
+            serverNotification->mPacket << name;
+            getGameMap()->tileToPacket(serverNotification->mPacket, t);
             ODServer::getSingleton().queueServerNotification(serverNotification);
 
             removeCoveredTile(t);

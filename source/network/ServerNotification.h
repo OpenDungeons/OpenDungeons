@@ -58,15 +58,12 @@ class ServerNotification
             playerWon,
             playerLost,
 
-            markTiles,
             buildRoom,
             removeRoomTile,
             buildTrap,
             removeTrapTile,
             turnStarted,
             setTurnsPerSecond,
-
-            tileFullnessChange,
 
             animatedObjectAddDestination,
             animatedObjectClearDestinations,
@@ -82,7 +79,6 @@ class ServerNotification
             addCreature,
             removeCreature,
             creatureRefresh,
-            tileClaimed,
             refreshPlayerSeat,
             addRenderedMovableEntity,
             removeRenderedMovableEntity,
@@ -93,6 +89,7 @@ class ServerNotification
             playSpatialSound, // Makes the client play a sound at tile coordinates.
             playCreatureSound, // Play a sound at the creature position
 
+            markTiles,
             refreshTiles,
             carryEntity,
             releaseCarriedEntity,

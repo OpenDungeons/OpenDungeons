@@ -2875,7 +2875,7 @@ void Creature::computeVisualDebugEntities()
         serverNotification->mPacket << nbTiles;
 
         for (Tile* tile : mVisibleTiles)
-            serverNotification->mPacket << tile;
+            getGameMap()->tileToPacket(serverNotification->mPacket, tile);
     }
     else
     {

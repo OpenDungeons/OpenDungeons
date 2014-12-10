@@ -175,7 +175,8 @@ void Trap::doUpkeep()
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotification::removeTrapTile, getGameMap()->getPlayerBySeat(getSeat()));
             std::string name = getName();
-            serverNotification->mPacket << name << tile;
+            serverNotification->mPacket << name;
+            getGameMap()->tileToPacket(serverNotification->mPacket, tile);
             ODServer::getSingleton().queueServerNotification(serverNotification);
 
             removeCoveredTile(tile);
