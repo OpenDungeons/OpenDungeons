@@ -56,8 +56,8 @@ void Tile::createMeshLocal()
     if(getGameMap()->isServerGameMap())
         return;
 
-    RenderRequest* request = new RenderRequestCreateTile(this);
-    RenderManager::queueRenderRequest(request);
+    RenderRequestCreateTile request(this);
+    RenderManager::executeRenderRequest(request);
 }
 
 void Tile::destroyMeshLocal()
@@ -67,8 +67,8 @@ void Tile::destroyMeshLocal()
     if(getGameMap()->isServerGameMap())
         return;
 
-    RenderRequest* request = new RenderRequestDestroyTile(this);
-    RenderManager::queueRenderRequest(request);
+    RenderRequestDestroyTile request(this);
+    RenderManager::executeRenderRequest(request);
 }
 
 void Tile::setType(TileType t)
@@ -839,8 +839,8 @@ void Tile::refreshMesh()
     if(getGameMap()->isServerGameMap())
         return;
 
-    RenderRequest *request = new RenderRequestRefreshTile(this);
-    RenderManager::queueRenderRequest(request);
+    RenderRequestRefreshTile request(this);
+    RenderManager::executeRenderRequest(request);
 }
 
 void Tile::setMarkedForDigging(bool ss, Player *pp)
@@ -869,8 +869,8 @@ void Tile::setSelected(bool ss, Player* pp)
     {
         selected = ss;
 
-        RenderRequest *request = new RenderRequestTemporalMarkTile(this);
-        RenderManager::queueRenderRequest(request);
+        RenderRequestTemporalMarkTile request(this);
+        RenderManager::executeRenderRequest(request);
     }
 }
 

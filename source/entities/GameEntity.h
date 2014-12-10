@@ -163,14 +163,14 @@ class GameEntity
 
     inline void show()
     {
-        RenderRequest* request = new RenderRequestAttachEntity(this);
-        RenderManager::queueRenderRequest(request);
+        RenderRequestAttachEntity request(this);
+        RenderManager::executeRenderRequest(request);
     }
 
     inline void hide()
     {
-        RenderRequest* request = new RenderRequestDetachEntity(this);
-        RenderManager::queueRenderRequest(request);
+        RenderRequestDetachEntity request(this);
+        RenderManager::executeRenderRequest(request);
     }
 
     //! \brief Retrieves the position tile from the game map

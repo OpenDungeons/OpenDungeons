@@ -243,10 +243,17 @@ public:
     //! \brief Clears the action queue, except for the Idle action at the end.
     void clearActionQueue();
 
-    //! \brief Displays a mesh on all of the tiles visible to the creature.
-    void createVisualDebugEntities();
+    //! \brief Computes the tiles visible for the creature and sends a message to the clients to mark those tiles. This function
+    //! should be called on server side only
+    void computeVisualDebugEntities();
 
-    //! \brief Destroy the meshes created by createVisualDebuggingEntities().
+    //! \brief Displays a mesh on all of the tiles in the list. This function should be called on client side only
+    void refreshVisualDebugEntities(const std::vector<Tile*>& tiles);
+
+    //! \brief Sends a message to the clients to stop displaying the tiles this creature sees
+    void stopComputeVisualDebugEntities();
+
+    //! \brief Destroy the meshes created by createVisualDebuggingEntities(). This function should be called on client side only
     void destroyVisualDebugEntities();
 
     //! \brief An accessor to return whether or not the creature has OGRE entities for its visual debugging entities.
@@ -393,7 +400,6 @@ private:
     //! \brief The number of turns we are doing the same action. If the action is popped or pushed, mNbTurnAction is set to 0
     int             mNbTurnAction;
 
-    Tile*           mPreviousPositionTile;
     Room*           mJobRoom;
     Room*           mEatRoom;
     CEGUI::Window*  mStatsWindow;
@@ -414,7 +420,7 @@ private:
     std::vector<GameEntity*>        mVisibleAlliedObjects;
     std::vector<GameEntity*>        mReachableAlliedObjects;
     std::deque<CreatureAction>      mActionQueue;
-    std::list<Tile*>                mVisualDebugEntityTiles;
+    std::vector<Tile*>              mVisualDebugEntityTiles;
 
 
     //! \brief Allows to keep track of the entity we are currently attacking

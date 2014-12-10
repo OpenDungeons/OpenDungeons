@@ -83,4 +83,23 @@ private:
     int mY;
 };
 
+class ODConsoleCommandDisplayCreatureVisualDebug : public ODConsoleCommand
+{
+public:
+    ODConsoleCommandDisplayCreatureVisualDebug(const std::string& creatureName, bool enable):
+        mCreatureName(creatureName),
+        mEnable(enable)
+    {
+    }
+
+protected:
+    virtual void execute(GameMap* gameMap)
+    {
+        gameMap->consoleDisplayCreatureVisualDebug(mCreatureName, mEnable);
+    }
+private:
+    std::string mCreatureName;
+    bool mEnable;
+};
+
 #endif // ODCONSOLECOMMAND_H

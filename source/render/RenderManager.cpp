@@ -78,7 +78,6 @@ RenderManager::RenderManager(Ogre::OverlaySystem* overlaySystem) :
     mSceneManager = Ogre::Root::getSingleton().createSceneManager(Ogre::ST_INTERIOR, "SceneManager");
     mSceneManager->addRenderQueueListener(overlaySystem);
 
-    mRockSceneNode = mSceneManager->getRootSceneNode()->createChildSceneNode("Rock_scene_node");
     mCreatureSceneNode = mSceneManager->getRootSceneNode()->createChildSceneNode("Creature_scene_node");
     mRoomSceneNode = mSceneManager->getRootSceneNode()->createChildSceneNode("Room_scene_node");
     mLightSceneNode = mSceneManager->getRootSceneNode()->createChildSceneNode("Light_scene_node");
@@ -164,21 +163,8 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     Ogre::CompositorManager::getSingleton().addCompositor(mViewport, "B&W");
 }
 
-void RenderManager::processRenderRequests(Ogre::Real timeSinceLastFrame)
+void RenderManager::updateRenderAnimations(Ogre::Real timeSinceLastFrame)
 {
-    while (!mRenderQueue.empty())
-    {
-        // Remove the first item from the render queue
-        RenderRequest *curReq = mRenderQueue.front();
-        mRenderQueue.pop_front();
-
-        // Handle the request
-        curReq->executeRequest(this);
-
-        delete curReq;
-        curReq = NULL;
-    }
-
     if(mHandAnimationState == nullptr)
         return;
 
@@ -193,9 +179,9 @@ void RenderManager::processRenderRequests(Ogre::Real timeSinceLastFrame)
 
 }
 
-void RenderManager::queueRenderRequest_priv(RenderRequest* renderRequest)
+void RenderManager::executeRenderRequest_priv(RenderRequest& renderRequest)
 {
-    mRenderQueue.push_back(renderRequest);
+    renderRequest.executeRequest(this);
 }
 
 void RenderManager::rrRefreshTile(Tile* curTile)
@@ -742,7 +728,7 @@ void RenderManager::rrRotateHand()
 
 void RenderManager::rrCreateCreatureVisualDebug(Creature* curCreature, Tile* curTile)
 {
-    if (curTile != NULL && curCreature != NULL)
+    if (curTile != nullptr && curCreature != nullptr)
     {
         std::stringstream tempSS;
         tempSS << "Vision_indicator_" << curCreature->getName() << "_"

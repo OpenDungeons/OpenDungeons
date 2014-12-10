@@ -37,8 +37,8 @@ void Building::createMeshLocal()
     std::vector<Tile*> coveredTiles = getCoveredTiles();
     for (Tile* tile : coveredTiles)
     {
-        RenderRequest* request = new RenderRequestCreateBuilding(this, tile);
-        RenderManager::queueRenderRequest(request);
+        RenderRequestCreateBuilding request(this, tile);
+        RenderManager::executeRenderRequest(request);
     }
 }
 
@@ -52,8 +52,8 @@ void Building::destroyMeshLocal()
     std::vector<Tile*> coveredTiles = getCoveredTiles();
     for (Tile* tile : coveredTiles)
     {
-        RenderRequest* request = new RenderRequestDestroyBuilding(this, tile);
-        RenderManager::queueRenderRequest(request);
+        RenderRequestDestroyBuilding request(this, tile);
+        RenderManager::executeRenderRequest(request);
     }
 }
 
@@ -200,8 +200,8 @@ bool Building::removeCoveredTile(Tile* t)
                 return true;
 
             // Destroy the mesh for this tile.
-            RenderRequest *request = new RenderRequestDestroyBuilding(this, t);
-            RenderManager::queueRenderRequest(request);
+            RenderRequestDestroyBuilding request(this, t);
+            RenderManager::executeRenderRequest(request);
             return true;
         }
     }

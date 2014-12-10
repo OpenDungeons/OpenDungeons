@@ -63,8 +63,8 @@ void RenderedMovableEntity::createMeshLocal()
     if(getGameMap()->isServerGameMap())
         return;
 
-    RenderRequest* request = new RenderRequestCreateRenderedMovableEntity(this);
-    RenderManager::queueRenderRequest(request);
+    RenderRequestCreateRenderedMovableEntity request(this);
+    RenderManager::executeRenderRequest(request);
 }
 
 void RenderedMovableEntity::destroyMeshLocal()
@@ -74,8 +74,8 @@ void RenderedMovableEntity::destroyMeshLocal()
     if(getGameMap()->isServerGameMap())
         return;
 
-    RenderRequest* request = new RenderRequestDestroyRenderedMovableEntity(this);
-    RenderManager::queueRenderRequest(request);
+    RenderRequestDestroyRenderedMovableEntity request(this);
+    RenderManager::executeRenderRequest(request);
 }
 
 void RenderedMovableEntity::pickup()

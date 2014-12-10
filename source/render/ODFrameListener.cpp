@@ -141,7 +141,6 @@ ODFrameListener::~ODFrameListener()
         delete mModeManager;
     delete mCameraManager;
     mGameMap->clearAll();
-    RenderManager::getSingletonPtr()->processRenderRequests();
     mGameMap->processDeletionQueues();
     delete mGameMap;
     delete mMiniMap;
@@ -168,7 +167,6 @@ void ODFrameListener::exitApplication()
 
     ODClient::getSingleton().notifyExit();
     ODServer::getSingleton().notifyExit();
-    RenderManager::getSingletonPtr()->processRenderRequests();
     mGameMap->clearAll();
     mGameMap->processDeletionQueues();
     RenderManager::getSingletonPtr()->getSceneManager()->destroyQuery(mRaySceneQuery);
@@ -186,7 +184,7 @@ void ODFrameListener::exitApplication()
 void ODFrameListener::updateAnimations(Ogre::Real timeSinceLastFrame)
 {
     MusicPlayer::getSingleton().update(static_cast<float>(timeSinceLastFrame));
-    RenderManager::getSingletonPtr()->processRenderRequests(timeSinceLastFrame);
+    RenderManager::getSingleton().updateRenderAnimations(timeSinceLastFrame);
     mGameMap->processDeletionQueues();
 
     mGameMap->updateAnimations(timeSinceLastFrame);

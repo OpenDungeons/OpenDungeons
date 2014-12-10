@@ -99,11 +99,6 @@ void Player::pickUpEntity(GameEntity *entity, bool isEditorMode)
            return;
 
        creature->pickup();
-
-        // Destroy the creature's visual debugging entities if it has them
-        if (!mGameMap->isServerGameMap() && creature->getHasVisualDebuggingEntities())
-            creature->destroyVisualDebugEntities();
-
     }
     else if(entity->getObjectType() == GameEntity::ObjectType::renderedMovableEntity)
     {
@@ -147,14 +142,14 @@ void Player::pickUpEntity(GameEntity *entity, bool isEditorMode)
     if (this == mGameMap->getLocalPlayer())
     {
         // Send a render request to move the crature into the "hand"
-        RenderRequest *request = new RenderRequestPickUpEntity(entity);
-        RenderManager::queueRenderRequest(request);
+        RenderRequestPickUpEntity request(entity);
+        RenderManager::executeRenderRequest(request);
     }
     else // it is just a message indicating another player has picked up a creature
     {
         // Hide the creature
-        RenderRequest *request = new RenderRequestDetachEntity(entity);
-        RenderManager::queueRenderRequest(request);
+        RenderRequestDetachEntity request(entity);
+        RenderManager::executeRenderRequest(request);
     }
 }
 
@@ -241,14 +236,14 @@ GameEntity* Player::dropHand(Tile *t, unsigned int index)
     //cout.flush();
     if (this != mGameMap->getLocalPlayer())
     {
-        RenderRequest *request = new RenderRequestAttachEntity(entity);
-        RenderManager::queueRenderRequest(request);
+        RenderRequestAttachEntity request(entity);
+        RenderManager::executeRenderRequest(request);
     }
     else // This is the result of the player on the local computer dropping the creature
     {
         // Send a render request to rearrange the creatures in the hand to move them all forward 1 place
-        RenderRequest *request = new RenderRequestDropHand(entity);
-        RenderManager::queueRenderRequest(request);
+        RenderRequestDropHand request(entity);
+        RenderManager::executeRenderRequest(request);
     }
 
     return entity;
@@ -283,8 +278,8 @@ void Player::rotateHand(int n)
     }
 
     // Send a render request to move the entity into the "hand"
-    RenderRequest *request = new RenderRequestRotateHand;
-    RenderManager::queueRenderRequest(request);
+    RenderRequestRotateHand request;
+    RenderManager::executeRenderRequest(request);
 }
 
 void Player::notifyNoMoreDungeonTemple()

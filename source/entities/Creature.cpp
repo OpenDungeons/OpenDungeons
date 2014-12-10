@@ -109,7 +109,6 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
     mJobCooldown             (0),
     mEatCooldown             (0),
     mNbTurnAction            (0),
-    mPreviousPositionTile    (NULL),
     mJobRoom                 (NULL),
     mEatRoom                 (NULL),
     mStatsWindow             (NULL),
@@ -187,7 +186,6 @@ Creature::Creature(GameMap* gameMap) :
     mJobCooldown             (0),
     mEatCooldown             (0),
     mNbTurnAction            (0),
-    mPreviousPositionTile    (NULL),
     mJobRoom                 (NULL),
     mEatRoom                 (NULL),
     mStatsWindow             (NULL),
@@ -224,12 +222,12 @@ void Creature::createMeshLocal()
     MovableGameEntity::createMeshLocal();
     if(!getGameMap()->isServerGameMap())
     {
-        RenderRequest* request = new RenderRequestCreateCreature(this);
-        RenderManager::queueRenderRequest(request);
+        RenderRequestCreateCreature request1(this);
+        RenderManager::executeRenderRequest(request1);
 
         // By default, we set the creature in idle state
-        request = new RenderRequestSetObjectAnimationState(this, "Idle", true);
-        RenderManager::queueRenderRequest(request);
+        RenderRequestSetObjectAnimationState request2(this, "Idle", true);
+        RenderManager::executeRenderRequest(request2);
     }
 
     createMeshWeapons();
@@ -243,8 +241,8 @@ void Creature::destroyMeshLocal()
         return;
 
     destroyStatsWindow();
-    RenderRequest* request = new RenderRequestDestroyCreature(this);
-    RenderManager::queueRenderRequest(request);
+    RenderRequestDestroyCreature request(this);
+    RenderManager::executeRenderRequest(request);
 }
 
 void Creature::createMeshWeapons()
@@ -254,13 +252,13 @@ void Creature::createMeshWeapons()
 
     if(mWeaponL != nullptr)
     {
-        RenderRequest* request = new RenderRequestCreateWeapon(this, mWeaponL, "L");
-        RenderManager::queueRenderRequest(request);
+        RenderRequestCreateWeapon request(this, mWeaponL, "L");
+        RenderManager::executeRenderRequest(request);
     }
     if(mWeaponR != nullptr)
     {
-        RenderRequest* request = new RenderRequestCreateWeapon(this, mWeaponR, "R");
-        RenderManager::queueRenderRequest(request);
+        RenderRequestCreateWeapon request(this, mWeaponR, "R");
+        RenderManager::executeRenderRequest(request);
     }
 }
 
@@ -271,13 +269,13 @@ void Creature::destroyMeshWeapons()
 
     if(mWeaponL != nullptr)
     {
-        RenderRequest* request = new RenderRequestDestroyWeapon(this, mWeaponL, "L");
-        RenderManager::queueRenderRequest(request);
+        RenderRequestDestroyWeapon request(this, mWeaponL, "L");
+        RenderManager::executeRenderRequest(request);
     }
     if(mWeaponR != nullptr)
     {
-        RenderRequest* request = new RenderRequestDestroyWeapon(this, mWeaponR, "R");
-        RenderManager::queueRenderRequest(request);
+        RenderRequestDestroyWeapon request(this, mWeaponR, "R");
+        RenderManager::executeRenderRequest(request);
     }
 }
 
@@ -578,6 +576,8 @@ void Creature::drop(const Ogre::Vector3& v)
     setIsOnMap(true);
     setPosition(v);
     mForceAction = forcedActionSearchAction;
+    if(getHasVisualDebuggingEntities())
+        computeVisualDebugEntities();
 }
 
 void Creature::setHP(double nHP)
@@ -595,8 +595,18 @@ double Creature::getHP() const
 
 void Creature::update(Ogre::Real timeSinceLastFrame)
 {
+    Tile* previousPositionTile = getPositionTile();
     // Update movements, direction, ...
     MovableGameEntity::update(timeSinceLastFrame);
+
+    // Update the visual debugging entities
+    //if we are standing in a different tile than we were last turn
+    if (mHasVisualDebuggingEntities &&
+        getGameMap()->isServerGameMap() &&
+        (getPositionTile() != previousPositionTile))
+    {
+        computeVisualDebugEntities();
+    }
 
     if (getGameMap()->isServerGameMap())
     {
@@ -841,16 +851,6 @@ void Creature::doUpkeep()
     {
         LogManager::getSingleton().logMessage("> 20 loops in Creature::doUpkeep name:" + getName() +
                 " seat id: " + Ogre::StringConverter::toString(getSeat()->getId()) + ". Breaking out..");
-    }
-
-    // Update the visual debugging entities
-    //if we are standing in a different tile than we were last turn
-    if (mHasVisualDebuggingEntities && getPositionTile() != mPreviousPositionTile)
-    {
-        //TODO: This destroy and re-create is kind of a hack as its likely only a few
-        //tiles will actually change.
-        destroyVisualDebugEntities();
-        createVisualDebugEntities();
     }
 }
 
@@ -2734,8 +2734,8 @@ void Creature::refreshFromCreature(Creature *creatureNewState)
         if (scaleFactor > 1.04)
             scaleFactor = 1.04;
 
-        RenderRequest *request = new RenderRequestScaleSceneNode(mSceneNode, Ogre::Vector3(scaleFactor, scaleFactor, scaleFactor));
-        RenderManager::queueRenderRequest(request);
+        RenderRequestScaleSceneNode request(mSceneNode, Ogre::Vector3(scaleFactor, scaleFactor, scaleFactor));
+        RenderManager::executeRenderRequest(request);
     }
 }
 
@@ -2869,45 +2869,105 @@ std::vector<GameEntity*> Creature::getVisibleForce(Seat* seat, bool invert)
     return getGameMap()->getVisibleForce(mVisibleTiles, seat, invert);
 }
 
-void Creature::createVisualDebugEntities()
+void Creature::computeVisualDebugEntities()
 {
+    if(!getGameMap()->isServerGameMap())
+        return;
+
     mHasVisualDebuggingEntities = true;
-    mVisualDebugEntityTiles.clear();
 
-    Tile *currentTile = NULL;
     updateTilesInSight();
-    for (unsigned int i = 0; i < mTilesWithinSightRadius.size(); ++i)
-    {
-        currentTile = mVisibleTiles[i];
 
-        if (currentTile == NULL)
+    ServerNotification *serverNotification = new ServerNotification(
+        ServerNotification::refreshCreatureVisDebug, nullptr);
+
+    const std::string& name = getName();
+    serverNotification->mPacket << name;
+    serverNotification->mPacket << true;
+    if(getIsOnMap())
+    {
+        uint32_t nbTiles = mVisibleTiles.size();
+        serverNotification->mPacket << nbTiles;
+
+        for (Tile* tile : mVisibleTiles)
+            serverNotification->mPacket << tile;
+    }
+    else
+    {
+        uint32_t nbTiles = 0;
+        serverNotification->mPacket << nbTiles;
+    }
+
+    ODServer::getSingleton().queueServerNotification(serverNotification);
+}
+
+void Creature::refreshVisualDebugEntities(const std::vector<Tile*>& tiles)
+{
+    if(getGameMap()->isServerGameMap())
+        return;
+
+    mHasVisualDebuggingEntities = true;
+
+    for (Tile* tile : tiles)
+    {
+        // We check if the visual debug is already on this tile
+        if(std::find(mVisualDebugEntityTiles.begin(), mVisualDebugEntityTiles.end(), tile) != mVisualDebugEntityTiles.end())
             continue;
 
-        RenderRequest *request = new RenderRequestCreateCreatureVisualDebug(this, currentTile);
-        RenderManager::queueRenderRequest(request);
+        RenderRequestCreateCreatureVisualDebug request(this, tile);
+        RenderManager::executeRenderRequest(request);
 
-        mVisualDebugEntityTiles.push_back(currentTile);
+        mVisualDebugEntityTiles.push_back(tile);
     }
+
+    // now, we check if visual debug should be removed from a tile
+    for (std::vector<Tile*>::iterator it = mVisualDebugEntityTiles.begin(); it != mVisualDebugEntityTiles.end();)
+    {
+        Tile* tile = *it;
+        if(std::find(tiles.begin(), tiles.end(), tile) != tiles.end())
+        {
+            ++it;
+            continue;
+        }
+
+        it = mVisualDebugEntityTiles.erase(it);
+
+        RenderRequestDestroyCreatureVisualDebug request(this, tile);
+        RenderManager::executeRenderRequest(request);
+    }
+}
+
+void Creature::stopComputeVisualDebugEntities()
+{
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    mHasVisualDebuggingEntities = false;
+
+    ServerNotification *serverNotification = new ServerNotification(
+        ServerNotification::refreshCreatureVisDebug, nullptr);
+    const std::string& name = getName();
+    serverNotification->mPacket << name;
+    serverNotification->mPacket << false;
+    ODServer::getSingleton().queueServerNotification(serverNotification);
 }
 
 void Creature::destroyVisualDebugEntities()
 {
+    if(getGameMap()->isServerGameMap())
+        return;
+
     mHasVisualDebuggingEntities = false;
 
-    Tile *currentTile = NULL;
-    updateTilesInSight();
-    std::list<Tile*>::iterator itr;
-    for (itr = mVisualDebugEntityTiles.begin(); itr != mVisualDebugEntityTiles.end(); ++itr)
+    for (Tile* tile : mVisualDebugEntityTiles)
     {
-        currentTile = *itr;
-
-        if (currentTile == NULL)
+        if (tile == nullptr)
             continue;
 
-        RenderRequest *request = new RenderRequestDestroyCreatureVisualDebug(this, currentTile);
-        RenderManager::queueRenderRequest(request);
+        RenderRequestDestroyCreatureVisualDebug request(this, tile);
+        RenderManager::executeRenderRequest(request);
     }
-
+    mVisualDebugEntityTiles.clear();
 }
 
 std::vector<Tile*> Creature::getCoveredTiles()
@@ -3168,6 +3228,9 @@ void Creature::pickup()
     Tile* tile = getPositionTile();
     if(tile != NULL)
         tile->removeCreature(this);
+
+    if(getHasVisualDebuggingEntities())
+        computeVisualDebugEntities();
 }
 
 bool Creature::canGoThroughTile(const Tile* tile) const
@@ -3493,8 +3556,8 @@ void Creature::carryEntity(GameEntity* carriedEntity)
     }
     else
     {
-        RenderRequest *request = new RenderRequestCarryEntity(this, carriedEntity);
-        RenderManager::queueRenderRequest(request);
+        RenderRequestCarryEntity request(this, carriedEntity);
+        RenderManager::executeRenderRequest(request);
     }
 }
 
@@ -3513,8 +3576,8 @@ void Creature::releaseCarriedEntity()
 
     if(!getGameMap()->isServerGameMap())
     {
-        RenderRequest *request = new RenderRequestReleaseCarriedEntity(this, carriedEntity);
-        RenderManager::queueRenderRequest(request);
+        RenderRequestReleaseCarriedEntity request(this, carriedEntity);
+        RenderManager::executeRenderRequest(request);
     }
     else
     {

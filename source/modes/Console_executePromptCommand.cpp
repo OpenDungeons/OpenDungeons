@@ -759,14 +759,24 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                 {
                     if (!tempCreature->getHasVisualDebuggingEntities())
                     {
-                        tempCreature->createVisualDebugEntities();
+                        if(ODClient::getSingleton().isConnected())
+                        {
+                            const std::string& name = tempCreature->getName();
+                            ODConsoleCommand* cc = new ODConsoleCommandDisplayCreatureVisualDebug(name, true);
+                            ODServer::getSingleton().queueConsoleCommand(cc);
+                        }
                         frameListener->mCommandOutput
                                 += "\nVisual debugging entities created for creature:  "
                                         + arguments + "\n";
                     }
                     else
                     {
-                        tempCreature->destroyVisualDebugEntities();
+                        if(ODClient::getSingleton().isConnected())
+                        {
+                            const std::string& name = tempCreature->getName();
+                            ODConsoleCommand* cc = new ODConsoleCommandDisplayCreatureVisualDebug(name, false);
+                            ODServer::getSingleton().queueConsoleCommand(cc);
+                        }
                         frameListener->mCommandOutput
                                 += "\nVisual debugging entities destroyed for creature:  "
                                         + arguments + "\n";
@@ -986,20 +996,20 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     }
     else if (command.compare("starttileculling") == 0)
     {
-            gameMap->culm->startTileCulling();
+            gameMap->getCullingManger()->startTileCulling();
     }
     else if (command.compare("stoptileculling") == 0)
     {
-            gameMap->culm->stopTileCulling();
+            gameMap->getCullingManger()->stopTileCulling();
     }
 
     else if (command.compare("startcreatureculling") == 0)
     {
-            gameMap->culm->startCreatureCulling();
+            gameMap->getCullingManger()->startCreatureCulling();
     }
     else if (command.compare("startdb") == 0)
     {
-            gameMap->culm->startDebugging();
+            gameMap->getCullingManger()->startDebugging();
     }
 
     else if (command.compare("triggercompositor") == 0)
