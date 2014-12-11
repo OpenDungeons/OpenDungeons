@@ -933,7 +933,7 @@ void GameMap::createAllEntities()
     // Create OGRE entities for the map lights.
     for (MapLight* mapLight: mMapLights)
     {
-        mapLight->createOgreEntity();
+        mapLight->createMesh();
     }
 
     // Create OGRE entities for the rooms
@@ -973,7 +973,7 @@ void GameMap::destroyAllEntities()
     // Destroy OGRE entities for the map lights.
     for (MapLight* mapLight : mMapLights)
     {
-        mapLight->destroyOgreEntity();
+        mapLight->destroyMesh();
     }
 
     // Destroy OGRE entities for the rooms
@@ -1234,15 +1234,6 @@ void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
     {
         updatePlayerFightingTime(timeSinceLastFrame);
         return;
-    }
-
-    // Advance the "flickering" of the lights by the amount of time that has passed since the last frame.
-    for (MapLight* tempMapLight : mMapLights)
-    {
-        if (tempMapLight == nullptr)
-            continue;
-
-        tempMapLight->advanceFlicker(timeSinceLastFrame);
     }
 }
 
@@ -2118,6 +2109,7 @@ void GameMap::clearMapLights()
 {
     for (MapLight* mapLight : mMapLights)
     {
+        removeAnimatedObject(mapLight);
         mapLight->deleteYourself();
     }
 
@@ -2128,6 +2120,8 @@ void GameMap::addMapLight(MapLight *m)
 {
     LogManager::getSingleton().logMessage(serverStr() + "Adding MapLight " + m->getName());
     mMapLights.push_back(m);
+
+    addAnimatedObject(m);
 }
 
 void GameMap::removeMapLight(MapLight *m)
@@ -2138,6 +2132,8 @@ void GameMap::removeMapLight(MapLight *m)
         return;
 
     mMapLights.erase(it);
+
+    removeAnimatedObject(m);
 }
 
 MapLight* GameMap::getMapLight(int index)

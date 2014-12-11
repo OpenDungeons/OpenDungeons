@@ -18,7 +18,7 @@
 #ifndef MAPLIGHT_H
 #define MAPLIGHT_H
 
-#include "gamemap/GameMap.h"
+#include "entities/MovableGameEntity.h"
 
 #include <OgrePrerequisites.h>
 #include <OgreVector3.h>
@@ -30,40 +30,18 @@
 class GameMap;
 class ODPacket;
 
-class MapLight
+class MapLight: public MovableGameEntity
 {
 public:
     //! \brief Constructor for making Map lights. If useUniqueName is false, setName() should be called
     MapLight(GameMap*              gameMap,
-             bool                  generateUniqueName,
-             const Ogre::Vector3&  nPosition   = Ogre::Vector3(0, 0, 0),
              Ogre::Real            red         = 0.0,
              Ogre::Real            green       = 0.0,
              Ogre::Real            blue        = 0.0,
              Ogre::Real            range       = 0.0,
              Ogre::Real            constant    = 0.0,
              Ogre::Real            linear      = 0.0,
-             Ogre::Real            quadratic   = 0.0) :
-        mOgreEntityExists                (false),
-        mOgreEntityVisualIndicatorExists (false),
-        mThetaX                          (0.0),
-        mThetaY                          (0.0),
-        mThetaZ                          (0.0),
-        mFactorX                         (0),
-        mFactorY                         (0),
-        mFactorZ                         (0)
-    {
-        mGameMap = gameMap;
-        if(generateUniqueName)
-        {
-            mName = mGameMap->nextUniqueNameMapLight();
-        }
-
-        setPosition(nPosition);
-        setDiffuseColor(red, green, blue);
-        setSpecularColor(red, green, blue);
-        setAttenuation(range, constant, linear, quadratic);
-    }
+             Ogre::Real            quadratic   = 0.0);
 
     virtual ~MapLight()
     {}
@@ -71,26 +49,20 @@ public:
     static const std::string MAPLIGHT_NAME_PREFIX;
     static const std::string MAPLIGHT_INDICATOR_PREFIX;
 
-    void setLocation(const Ogre::Vector3& nPosition);
-    void setDiffuseColor(Ogre::Real red, Ogre::Real green, Ogre::Real blue);
-    void setSpecularColor(Ogre::Real red, Ogre::Real green, Ogre::Real blue);
-    void setAttenuation(Ogre::Real range, Ogre::Real constant,
-                        Ogre::Real linear, Ogre::Real quadratic);
+    virtual std::string getOgreNamePrefix() const
+    { return MAPLIGHT_NAME_PREFIX; }
 
-    void createOgreEntity();
-    void destroyOgreEntity();
-    void destroyOgreEntityVisualIndicator();
-    void deleteYourself();
+    virtual void doUpkeep()
+    {}
 
-    void setPosition(Ogre::Real nX, Ogre::Real nY, Ogre::Real nZ);
-    void setPosition(const Ogre::Vector3& nPosition);
+    virtual std::vector<Tile*> getCoveredTiles()
+    { return std::vector<Tile*>(); }
 
-    virtual std::string getOgreNamePrefix() const { return "MapLight_"; }
-    const std::string& getName() const
-    { return mName; }
+    virtual double getHP(Tile *tile) const
+    { return 0.0; }
 
-    const Ogre::Vector3& getPosition() const
-    { return mPosition; }
+    virtual double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile *tileTakingDamage)
+    { return 0.0; }
 
     const Ogre::ColourValue& getDiffuseColor() const
     { return mDiffuseColor; }
@@ -114,7 +86,7 @@ public:
      * \param time The time variable indicates how much time has elapsed since the last update
      * in seconds.
      */
-    void advanceFlicker(Ogre::Real time);
+    void update(Ogre::Real timeSinceLastFrame);
 
     static std::string getFormat();
     friend ODPacket& operator<<(ODPacket& os, MapLight *m);
@@ -125,11 +97,11 @@ public:
     //! \brief Loads the map light data from a level line.
     static void loadFromLine(const std::string& line, MapLight* m);
 
+protected:
+    virtual void createMeshLocal();
+    virtual void destroyMeshLocal();
+
 private:
-    GameMap* mGameMap;
-
-    Ogre::Vector3 mPosition;
-
     Ogre::ColourValue mDiffuseColor;
     Ogre::ColourValue mSpecularColor;
 
@@ -138,21 +110,13 @@ private:
     Ogre::Real mAttenuationLinear;
     Ogre::Real mAttenuationQuadratic;
 
-    //! \brief The entity unique name.
-    std::string mName;
-
-    bool mOgreEntityExists;
-    bool mOgreEntityVisualIndicatorExists;
-
-    Ogre::Vector3 mFlickerPosition;
-
     Ogre::Real mThetaX;
     Ogre::Real mThetaY;
     Ogre::Real mThetaZ;
 
-    int mFactorX;
-    int mFactorY;
-    int mFactorZ;
+    Ogre::Real mFactorX;
+    Ogre::Real mFactorY;
+    Ogre::Real mFactorZ;
 };
 
 #endif // MAPLIGHT_H

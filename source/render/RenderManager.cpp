@@ -611,6 +611,8 @@ void RenderManager::rrCreateMapLight(MapLight* curMapLight, bool displayVisual)
 
     // Create the base node that the "flicker_node" and the mesh attach to.
     Ogre::SceneNode* mapLightNode = mLightSceneNode->createChildSceneNode(mapLightName + "_node");
+    curMapLight->setEntityNode(mapLightNode);
+    curMapLight->setParentSceneNode(mapLightNode->getParentSceneNode());
     mapLightNode->setPosition(curMapLight->getPosition());
 
     if (displayVisual)

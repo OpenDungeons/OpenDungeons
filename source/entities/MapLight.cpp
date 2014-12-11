@@ -30,113 +30,63 @@
 const std::string MapLight::MAPLIGHT_NAME_PREFIX = "Map_light_";
 const std::string MapLight::MAPLIGHT_INDICATOR_PREFIX = "MapLightIndicator_";
 
-void MapLight::setLocation(const Ogre::Vector3& nPosition)
-{
-    //TODO: This needs to make a RenderRequest to actually move the light.
-    mPosition = nPosition;
-}
-
-void MapLight::setDiffuseColor(Ogre::Real red, Ogre::Real green, Ogre::Real blue)
+MapLight::MapLight(GameMap* gameMap, Ogre::Real red, Ogre::Real green, Ogre::Real blue,
+        Ogre::Real range, Ogre::Real constant, Ogre::Real linear, Ogre::Real quadratic) :
+    MovableGameEntity                   (gameMap),
+    mThetaX                             (0.0),
+    mThetaY                             (0.0),
+    mThetaZ                             (0.0),
+    mFactorX                            (0.0),
+    mFactorY                            (0.0),
+    mFactorZ                            (0.0)
 {
     mDiffuseColor = Ogre::ColourValue(red, green, blue);
-    //TODO: Call refresh of the OGRE entity.
-}
-
-void MapLight::setSpecularColor(Ogre::Real red, Ogre::Real green, Ogre::Real blue)
-{
     mSpecularColor = Ogre::ColourValue(red, green, blue);
-    //TODO: Call refresh of the OGRE entity.
-}
-
-void MapLight::setAttenuation(Ogre::Real range, Ogre::Real constant,
-                              Ogre::Real linear, Ogre::Real quadratic)
-{
     mAttenuationRange = range;
     mAttenuationConstant = constant;
     mAttenuationLinear = linear;
     mAttenuationQuadratic = quadratic;
-    //TODO: Call refresh of the OGRE entity.
 }
 
-void MapLight::createOgreEntity()
+void MapLight::createMeshLocal()
 {
-    if (mOgreEntityExists)
-        return;
+    MovableGameEntity::createMeshLocal();
 
-    mOgreEntityExists = true;
-
-    if(mGameMap->isServerGameMap())
+    if(getGameMap()->isServerGameMap())
         return;
 
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
     // Only show the visual light entity if we are in editor mode
     RenderManager::getSingleton().rrCreateMapLight(this, mm && mm->getCurrentModeType() == ModeManager::EDITOR);
-
-    mOgreEntityVisualIndicatorExists = true;
 }
 
-void MapLight::destroyOgreEntity()
+void MapLight::destroyMeshLocal()
 {
-    if (!mOgreEntityExists)
-        return;
+    MovableGameEntity::destroyMeshLocal();
 
-    mOgreEntityExists = false;
-
-    if(mGameMap->isServerGameMap())
-        return;
-
-    destroyOgreEntityVisualIndicator();
-
-    RenderManager::getSingleton().rrDestroyMapLight(this);
-}
-
-void MapLight::destroyOgreEntityVisualIndicator()
-{
-    if (!mOgreEntityVisualIndicatorExists)
+    if(getGameMap()->isServerGameMap())
         return;
 
     RenderManager::getSingleton().rrDestroyMapLightVisualIndicator(this);
 
-    mOgreEntityVisualIndicatorExists = false;
+    RenderManager::getSingleton().rrDestroyMapLight(this);
 }
 
-void MapLight::deleteYourself()
+void MapLight::update(Ogre::Real timeSinceLastFrame)
 {
-    destroyOgreEntity();
-
-    mGameMap->queueMapLightForDeletion(this);
-    return;
-}
-
-void MapLight::setPosition(Ogre::Real nX, Ogre::Real nY, Ogre::Real nZ)
-{
-    setPosition(Ogre::Vector3(nX, nY, nZ));
-}
-
-void MapLight::setPosition(const Ogre::Vector3& nPosition)
-{
-    mPosition = nPosition;
-
-    RenderManager::getSingleton().rrMoveSceneNode(getOgreNamePrefix() + mName + "_node", mPosition);
-}
-
-void MapLight::advanceFlicker(Ogre::Real time)
-{
-
-    mThetaX += (Ogre::Real)(mFactorX * 3.14 * time);
-    mThetaY += (Ogre::Real)(mFactorY * 3.14 * time);
-    mThetaZ += (Ogre::Real)(mFactorZ * 3.14 * time);
+    mThetaX += static_cast<Ogre::Real>(mFactorX * 3.0 * timeSinceLastFrame);
+    mThetaY += static_cast<Ogre::Real>(mFactorY * 3.0 * timeSinceLastFrame);
+    mThetaZ += static_cast<Ogre::Real>(mFactorZ * 3.0 * timeSinceLastFrame);
 
     if (Random::Double(0.0, 1.0) < 0.1)
-        mFactorX *= -1;
+        mFactorX *= -1.0;
     if (Random::Double(0.0, 1.0) < 0.1)
-        mFactorY *= -1;
+        mFactorY *= -1.0;
     if (Random::Double(0.0, 1.0) < 0.1)
-        mFactorZ *= -1;
+        mFactorZ *= -1.0;
 
-    mFlickerPosition = Ogre::Vector3(sin(mThetaX), sin(mThetaY), sin(mThetaZ));
-
-    RenderManager::getSingleton().rrMoveSceneNode(getOgreNamePrefix() + mName + "_flicker_node", mFlickerPosition);
+    Ogre::Vector3 flickerPosition = Ogre::Vector3(sin(mThetaX), sin(mThetaY), sin(mThetaZ));
+    RenderManager::getSingleton().rrMoveSceneNode(getOgreNamePrefix() + getName() + "_flicker_node", flickerPosition);
 }
 
 std::string MapLight::getFormat()
