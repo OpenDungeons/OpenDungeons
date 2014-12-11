@@ -36,10 +36,7 @@ void Building::createMeshLocal()
 
     std::vector<Tile*> coveredTiles = getCoveredTiles();
     for (Tile* tile : coveredTiles)
-    {
-        RenderRequestCreateBuilding request(this, tile);
-        RenderManager::executeRenderRequest(request);
-    }
+        RenderManager::getSingleton().rrCreateBuilding(this, tile);
 }
 
 void Building::destroyMeshLocal()
@@ -51,10 +48,7 @@ void Building::destroyMeshLocal()
 
     std::vector<Tile*> coveredTiles = getCoveredTiles();
     for (Tile* tile : coveredTiles)
-    {
-        RenderRequestDestroyBuilding request(this, tile);
-        RenderManager::executeRenderRequest(request);
-    }
+        RenderManager::getSingleton().rrDestroyBuilding(this, tile);
 }
 
 void Building::addBuildingObject(Tile* targetTile, RenderedMovableEntity* obj)
@@ -200,8 +194,7 @@ bool Building::removeCoveredTile(Tile* t)
                 return true;
 
             // Destroy the mesh for this tile.
-            RenderRequestDestroyBuilding request(this, t);
-            RenderManager::executeRenderRequest(request);
+            RenderManager::getSingleton().rrDestroyBuilding(this, t);
             return true;
         }
     }

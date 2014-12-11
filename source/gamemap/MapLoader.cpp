@@ -303,8 +303,9 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         entire_line += nextParam;
         //std::cout << "Entire line: " << entire_line << std::endl;
 
-        MapLight* tempLight = new MapLight(&gameMap, true);
+        MapLight* tempLight = new MapLight(&gameMap);
         MapLight::loadFromLine(entire_line, tempLight);
+        tempLight->setName(gameMap.nextUniqueNameMapLight());
 
         gameMap.addMapLight(tempLight);
     }

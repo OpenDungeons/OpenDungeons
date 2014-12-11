@@ -32,9 +32,7 @@
 #include "game/Player.h"
 #include "entities/Tile.h"
 #include "entities/Creature.h"
-#include "render/RenderRequest.h"
 #include "gamemap/GameMap.h"
-#include "render/RenderManager.h"
 #include "game/Seat.h"
 #include "utils/LogManager.h"
 
@@ -162,7 +160,8 @@ void Room::doUpkeep()
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotification::removeRoomTile, nullptr);
             std::string name = getName();
-            serverNotification->mPacket << name << t;
+            serverNotification->mPacket << name;
+            getGameMap()->tileToPacket(serverNotification->mPacket, t);
             ODServer::getSingleton().queueServerNotification(serverNotification);
 
             removeCoveredTile(t);

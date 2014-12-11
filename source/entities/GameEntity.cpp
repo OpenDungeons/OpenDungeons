@@ -31,7 +31,6 @@
 #include "network/ServerNotification.h"
 
 #include "render/RenderManager.h"
-#include "render/RenderRequest.h"
 #include "rooms/Room.h"
 #include "utils/Helper.h"
 
@@ -82,8 +81,7 @@ void GameEntity::setMeshOpacity(float opacity)
         return;
     }
 
-    RenderRequestUpdateEntityOpacity request(this);
-    RenderManager::executeRenderRequest(request);
+    RenderManager::getSingleton().rrUpdateEntityOpacity(this);
 }
 
 std::string GameEntity::getNodeNameWithoutPostfix()

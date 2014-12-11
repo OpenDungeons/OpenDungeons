@@ -388,7 +388,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
                     // Send a message to the server telling it we want to drop the creature
                     ClientNotification *clientNotification = new ClientNotification(
                         ClientNotification::askHandDrop);
-                    clientNotification->mPacket << curTile;
+                    mGameMap->tileToPacket(clientNotification->mPacket, curTile);
                     ODClient::getSingleton().queueClientNotification(clientNotification);
                 }
 

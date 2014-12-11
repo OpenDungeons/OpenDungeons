@@ -70,8 +70,6 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "turnStarted";
         case ServerNotificationType::setTurnsPerSecond:
             return "setTurnsPerSecond";
-        case ServerNotificationType::tileFullnessChange:
-            return "tileFullnessChange";
         case ServerNotificationType::buildRoom:
             return "buildRoom";
         case ServerNotificationType::removeRoomTile:
@@ -102,8 +100,6 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "playerFighting";
         case ServerNotificationType::playerNoMoreFighting:
             return "playerNoMoreFighting";
-        case ServerNotificationType::tileClaimed:
-            return "tileClaimed";
         case ServerNotificationType::refreshPlayerSeat:
             return "refreshPlayerSeat";
         case ServerNotificationType::addRenderedMovableEntity:

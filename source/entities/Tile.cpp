@@ -33,7 +33,6 @@
 #include "network/ServerNotification.h"
 
 #include "render/RenderManager.h"
-#include "render/RenderRequest.h"
 
 #include "sound/SoundEffectsManager.h"
 
@@ -56,8 +55,7 @@ void Tile::createMeshLocal()
     if(getGameMap()->isServerGameMap())
         return;
 
-    RenderRequestCreateTile request(this);
-    RenderManager::executeRenderRequest(request);
+    RenderManager::getSingleton().rrCreateTile(this, getGameMap()->getLocalPlayer());
 }
 
 void Tile::destroyMeshLocal()
@@ -67,8 +65,7 @@ void Tile::destroyMeshLocal()
     if(getGameMap()->isServerGameMap())
         return;
 
-    RenderRequestDestroyTile request(this);
-    RenderManager::executeRenderRequest(request);
+    RenderManager::getSingleton().rrDestroyTile(this);
 }
 
 void Tile::setType(TileType t)
@@ -839,8 +836,7 @@ void Tile::refreshMesh()
     if(getGameMap()->isServerGameMap())
         return;
 
-    RenderRequestRefreshTile request(this);
-    RenderManager::executeRenderRequest(request);
+    RenderManager::getSingleton().rrRefreshTile(this, getGameMap()->getLocalPlayer());
 }
 
 void Tile::setMarkedForDigging(bool ss, Player *pp)
@@ -869,8 +865,7 @@ void Tile::setSelected(bool ss, Player* pp)
     {
         selected = ss;
 
-        RenderRequestTemporalMarkTile request(this);
-        RenderManager::executeRenderRequest(request);
+        RenderManager::getSingleton().rrTemporalMarkTile(this);
     }
 }
 
@@ -979,8 +974,10 @@ void Tile::claimForSeat(Seat* seat, double nDanceRate)
         if(getGameMap()->isServerGameMap())
         {
             // Inform the clients that the fullness has changed.
+            uint32_t nbTiles = 1;
             ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::tileClaimed, getGameMap()->getPlayerBySeatId(seat->getId()));
+                ServerNotification::refreshTiles, getGameMap()->getPlayerBySeatId(seat->getId()));
+            serverNotification->mPacket << nbTiles;
             serverNotification->mPacket << this;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
@@ -1049,19 +1046,13 @@ double Tile::digOut(double digRate, bool doScaleDigRate)
         // If we are a sever, the clients need to be told about the change to the tile's fullness.
         if (getGameMap()->isServerGameMap())
         {
-            try
-            {
-                // Inform the clients that the fullness has changed.
-                ServerNotification *serverNotification = new ServerNotification(
-                    ServerNotification::tileFullnessChange, NULL);
-                serverNotification->mPacket << this;
-                ODServer::getSingleton().queueServerNotification(serverNotification);
-            }
-            catch (std::bad_alloc&)
-            {
-                std::cerr << "\n\nERROR:  bad alloc in Tile::setFullness\n\n";
-                exit(1);
-            }
+            // Inform the clients that the fullness has changed.
+            uint32_t nbTiles = 1;
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotification::refreshTiles, nullptr);
+            serverNotification->mPacket << nbTiles;
+            serverNotification->mPacket << this;
+            ODServer::getSingleton().queueServerNotification(serverNotification);
         }
 
         for (Tile* tile : mNeighbors)

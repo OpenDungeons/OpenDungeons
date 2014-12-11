@@ -27,7 +27,6 @@
 #include "network/ODPacket.h"
 
 #include "render/RenderManager.h"
-#include "render/RenderRequest.h"
 #include "utils/LogManager.h"
 
 #include <iostream>
@@ -63,8 +62,7 @@ void RenderedMovableEntity::createMeshLocal()
     if(getGameMap()->isServerGameMap())
         return;
 
-    RenderRequestCreateRenderedMovableEntity request(this);
-    RenderManager::executeRenderRequest(request);
+    RenderManager::getSingleton().rrCreateRenderedMovableEntity(this);
 }
 
 void RenderedMovableEntity::destroyMeshLocal()
@@ -74,8 +72,7 @@ void RenderedMovableEntity::destroyMeshLocal()
     if(getGameMap()->isServerGameMap())
         return;
 
-    RenderRequestDestroyRenderedMovableEntity request(this);
-    RenderManager::executeRenderRequest(request);
+    RenderManager::getSingleton().rrDestroyRenderedMovableEntity(this);
 }
 
 void RenderedMovableEntity::pickup()
@@ -209,23 +206,20 @@ void RenderedMovableEntity::exportToPacket(ODPacket& os)
 {
     std::string name = getName();
     std::string meshName = getMeshName();
-    Ogre::Vector3 position = getPosition();
     os << name << meshName;
-    os << position << mRotationAngle << mHideCoveredTile << getOpacity();
+    os << mPosition << mRotationAngle << mHideCoveredTile << getOpacity();
 }
 
 void RenderedMovableEntity::importFromPacket(ODPacket& is)
 {
     std::string name;
     std::string meshName;
-    Ogre::Vector3 position;
     float opacity;
     OD_ASSERT_TRUE(is >> name);
     setName(name);
     OD_ASSERT_TRUE(is >> meshName);
     setMeshName(meshName);
-    OD_ASSERT_TRUE(is >> position);
-    setPosition(position);
+    OD_ASSERT_TRUE(is >> mPosition);
     OD_ASSERT_TRUE(is >> mRotationAngle);
 
     OD_ASSERT_TRUE(is >> mHideCoveredTile);
@@ -238,9 +232,8 @@ void RenderedMovableEntity::exportToStream(std::ostream& os)
 {
     std::string name = getName();
     std::string meshName = getMeshName();
-    Ogre::Vector3 position = getPosition();
     os << name << "\t" << meshName << "\t";
-    os << position.x << "\t" << position.y << "\t" << position.z << "\t";
+    os << mPosition.x << "\t" << mPosition.y << "\t" << mPosition.z << "\t";
     os << mRotationAngle << "\t" << getOpacity();
 }
 
@@ -248,14 +241,12 @@ void RenderedMovableEntity::importFromStream(std::istream& is)
 {
     std::string name;
     std::string meshName;
-    Ogre::Vector3 position;
     float opacity;
     OD_ASSERT_TRUE(is >> name);
     setName(name);
     OD_ASSERT_TRUE(is >> meshName);
     setMeshName(meshName);
-    OD_ASSERT_TRUE(is >> position.x >> position.y >> position.z);
-    setPosition(position);
+    OD_ASSERT_TRUE(is >> mPosition.x >> mPosition.y >> mPosition.z);
     OD_ASSERT_TRUE(is >> mRotationAngle);
 
     OD_ASSERT_TRUE(is >> opacity);

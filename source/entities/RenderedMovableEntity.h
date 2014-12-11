@@ -79,12 +79,6 @@ public:
     virtual RenderedMovableEntityType getRenderedMovableEntityType()
     { return RenderedMovableEntityType::buildingObject; }
 
-    virtual bool tryPickup(Seat* seat, bool isEditorMode)
-    { return false; }
-
-    virtual bool tryDrop(Seat* seat, Tile* tile, bool isEditorMode)
-    { return false; }
-
     virtual void pickup();
     virtual void drop(const Ogre::Vector3& v);
 

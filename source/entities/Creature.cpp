@@ -39,7 +39,6 @@
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
 
-#include "render/RenderRequest.h"
 #include "render/RenderManager.h"
 
 #include "rooms/RoomCrypt.h"
@@ -222,12 +221,10 @@ void Creature::createMeshLocal()
     MovableGameEntity::createMeshLocal();
     if(!getGameMap()->isServerGameMap())
     {
-        RenderRequestCreateCreature request1(this);
-        RenderManager::executeRenderRequest(request1);
+        RenderManager::getSingleton().rrCreateCreature(this);
 
         // By default, we set the creature in idle state
-        RenderRequestSetObjectAnimationState request2(this, "Idle", true);
-        RenderManager::executeRenderRequest(request2);
+        RenderManager::getSingleton().rrSetObjectAnimationState(this, "Idle", true);
     }
 
     createMeshWeapons();
@@ -241,8 +238,7 @@ void Creature::destroyMeshLocal()
         return;
 
     destroyStatsWindow();
-    RenderRequestDestroyCreature request(this);
-    RenderManager::executeRenderRequest(request);
+    RenderManager::getSingleton().rrDestroyCreature(this);
 }
 
 void Creature::createMeshWeapons()
@@ -251,15 +247,10 @@ void Creature::createMeshWeapons()
         return;
 
     if(mWeaponL != nullptr)
-    {
-        RenderRequestCreateWeapon request(this, mWeaponL, "L");
-        RenderManager::executeRenderRequest(request);
-    }
+        RenderManager::getSingleton().rrCreateWeapon(this, mWeaponL, "L");
+
     if(mWeaponR != nullptr)
-    {
-        RenderRequestCreateWeapon request(this, mWeaponR, "R");
-        RenderManager::executeRenderRequest(request);
-    }
+        RenderManager::getSingleton().rrCreateWeapon(this, mWeaponR, "R");
 }
 
 void Creature::destroyMeshWeapons()
@@ -268,15 +259,10 @@ void Creature::destroyMeshWeapons()
         return;
 
     if(mWeaponL != nullptr)
-    {
-        RenderRequestDestroyWeapon request(this, mWeaponL, "L");
-        RenderManager::executeRenderRequest(request);
-    }
+        RenderManager::getSingleton().rrDestroyWeapon(this, mWeaponL, "L");
+
     if(mWeaponR != nullptr)
-    {
-        RenderRequestDestroyWeapon request(this, mWeaponR, "R");
-        RenderManager::executeRenderRequest(request);
-    }
+        RenderManager::getSingleton().rrDestroyWeapon(this, mWeaponR, "R");
 }
 
 std::string Creature::getFormat()
@@ -298,9 +284,9 @@ void Creature::exportToStream(std::ostream& os)
         os << "max";
     os << "\t" << mAwakeness << "\t" << mHunger << "\t" << mGold;
 
-    os << "\t" << getPosition().x;
-    os << "\t" << getPosition().y;
-    os << "\t" << getPosition().z;
+    os << "\t" << mPosition.x;
+    os << "\t" << mPosition.y;
+    os << "\t" << mPosition.z;
 
     // Check creature weapons
     if(mWeaponL != nullptr)
@@ -316,7 +302,7 @@ void Creature::exportToStream(std::ostream& os)
 
 void Creature::importFromStream(std::istream& is)
 {
-    double xLocation = 0.0, yLocation = 0.0, zLocation = 0.0;
+    Ogre::Real xLocation = 0.0, yLocation = 0.0, zLocation = 0.0;
     double tempDouble = 0.0;
     std::string tempString;
 
@@ -361,7 +347,7 @@ void Creature::importFromStream(std::istream& is)
     mGold = static_cast<int>(tempDouble);
 
     OD_ASSERT_TRUE(is >> xLocation >> yLocation >> zLocation);
-    setPosition(Ogre::Vector3((Ogre::Real)xLocation, (Ogre::Real)yLocation, (Ogre::Real)zLocation));
+    mPosition = Ogre::Vector3(xLocation, yLocation, zLocation);
 
     OD_ASSERT_TRUE(is >> tempString);
     if(tempString != "none")
@@ -441,9 +427,8 @@ void Creature::exportToPacket(ODPacket& os)
     std::string name = getName();
     os << name;
 
-    Ogre::Vector3 position = getPosition();
     int seatId = getSeat()->getId();
-    os << position;
+    os << mPosition;
     os << seatId;
 
     os << mLevel;
@@ -493,9 +478,7 @@ void Creature::importFromPacket(ODPacket& is)
     OD_ASSERT_TRUE(is >> tempString);
     setName(tempString);
 
-    Ogre::Vector3 position;
-    OD_ASSERT_TRUE(is >> position);
-    setPosition(position);
+    OD_ASSERT_TRUE(is >> mPosition);
 
     int seatId;
     OD_ASSERT_TRUE(is >> seatId);
@@ -2734,8 +2717,7 @@ void Creature::refreshFromCreature(Creature *creatureNewState)
         if (scaleFactor > 1.04)
             scaleFactor = 1.04;
 
-        RenderRequestScaleSceneNode request(mSceneNode, Ogre::Vector3(scaleFactor, scaleFactor, scaleFactor));
-        RenderManager::executeRenderRequest(request);
+        RenderManager::getSingleton().rrScaleEntity(this, Ogre::Vector3(scaleFactor, scaleFactor, scaleFactor));
     }
 }
 
@@ -2890,7 +2872,7 @@ void Creature::computeVisualDebugEntities()
         serverNotification->mPacket << nbTiles;
 
         for (Tile* tile : mVisibleTiles)
-            serverNotification->mPacket << tile;
+            getGameMap()->tileToPacket(serverNotification->mPacket, tile);
     }
     else
     {
@@ -2914,8 +2896,7 @@ void Creature::refreshVisualDebugEntities(const std::vector<Tile*>& tiles)
         if(std::find(mVisualDebugEntityTiles.begin(), mVisualDebugEntityTiles.end(), tile) != mVisualDebugEntityTiles.end())
             continue;
 
-        RenderRequestCreateCreatureVisualDebug request(this, tile);
-        RenderManager::executeRenderRequest(request);
+        RenderManager::getSingleton().rrCreateCreatureVisualDebug(this, tile);
 
         mVisualDebugEntityTiles.push_back(tile);
     }
@@ -2932,8 +2913,7 @@ void Creature::refreshVisualDebugEntities(const std::vector<Tile*>& tiles)
 
         it = mVisualDebugEntityTiles.erase(it);
 
-        RenderRequestDestroyCreatureVisualDebug request(this, tile);
-        RenderManager::executeRenderRequest(request);
+        RenderManager::getSingleton().rrDestroyCreatureVisualDebug(this, tile);
     }
 }
 
@@ -2964,8 +2944,7 @@ void Creature::destroyVisualDebugEntities()
         if (tile == nullptr)
             continue;
 
-        RenderRequestDestroyCreatureVisualDebug request(this, tile);
-        RenderManager::executeRenderRequest(request);
+        RenderManager::getSingleton().rrDestroyCreatureVisualDebug(this, tile);
     }
     mVisualDebugEntityTiles.clear();
 }
@@ -3556,8 +3535,7 @@ void Creature::carryEntity(GameEntity* carriedEntity)
     }
     else
     {
-        RenderRequestCarryEntity request(this, carriedEntity);
-        RenderManager::executeRenderRequest(request);
+        RenderManager::getSingleton().rrCarryEntity(this, carriedEntity);
     }
 }
 
@@ -3576,8 +3554,7 @@ void Creature::releaseCarriedEntity()
 
     if(!getGameMap()->isServerGameMap())
     {
-        RenderRequestReleaseCarriedEntity request(this, carriedEntity);
-        RenderManager::executeRenderRequest(request);
+        RenderManager::getSingleton().rrReleaseCarriedEntity(this, carriedEntity);
     }
     else
     {

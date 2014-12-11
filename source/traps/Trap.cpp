@@ -22,8 +22,6 @@
 #include "entities/CraftedTrap.h"
 #include "entities/Creature.h"
 #include "entities/Tile.h"
-#include "render/RenderRequest.h"
-#include "render/RenderManager.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "entities/RenderedMovableEntity.h"
@@ -177,7 +175,8 @@ void Trap::doUpkeep()
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotification::removeTrapTile, getGameMap()->getPlayerBySeat(getSeat()));
             std::string name = getName();
-            serverNotification->mPacket << name << tile;
+            serverNotification->mPacket << name;
+            getGameMap()->tileToPacket(serverNotification->mPacket, tile);
             ODServer::getSingleton().queueServerNotification(serverNotification);
 
             removeCoveredTile(tile);

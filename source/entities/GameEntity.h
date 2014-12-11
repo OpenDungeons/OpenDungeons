@@ -24,7 +24,6 @@
 #define GAMEENTITY_H_
 
 #include "render/RenderManager.h"
-#include "render/RenderRequest.h"
 
 #include <cassert>
 #include <string>
@@ -71,7 +70,8 @@ class GameEntity
     mObjectType        (unknown),
     mGameMap           (gameMap),
     mIsOnMap           (true),
-    mRendererSceneNode (nullptr)
+    mParentSceneNode   (nullptr),
+    mEntityNode        (nullptr)
     {
         assert(mGameMap != nullptr);
     }
@@ -116,8 +116,11 @@ class GameEntity
     virtual Ogre::Vector3 getPosition() const
     { return mPosition; }
 
-    inline Ogre::SceneNode* getSceneNode() const
-    { return mRendererSceneNode; }
+    inline Ogre::SceneNode* getParentSceneNode() const
+    { return mParentSceneNode; }
+
+    inline Ogre::SceneNode* getEntityNode() const
+    { return mEntityNode; }
 
     // ===== SETTERS =====
     //! \brief Set the name of the entity
@@ -150,8 +153,11 @@ class GameEntity
     virtual void setPosition(const Ogre::Vector3& v)
     { mPosition = v; }
 
-    inline void setSceneNode(Ogre::SceneNode* sceneNode)
-    { mRendererSceneNode = sceneNode; }
+    inline void setParentSceneNode(Ogre::SceneNode* sceneNode)
+    { mParentSceneNode = sceneNode; }
+
+    inline void setEntityNode(Ogre::SceneNode* sceneNode)
+    { mEntityNode = sceneNode; }
 
     // ===== METHODS =====
     //! \brief Function that calls the mesh creation. If the mesh is already created, does nothing
@@ -163,14 +169,12 @@ class GameEntity
 
     inline void show()
     {
-        RenderRequestAttachEntity request(this);
-        RenderManager::executeRenderRequest(request);
+        RenderManager::getSingleton().rrAttachEntity(this);
     }
 
     inline void hide()
     {
-        RenderRequestDetachEntity request(this);
-        RenderManager::executeRenderRequest(request);
+        RenderManager::getSingleton().rrDetachEntity(this);
     }
 
     //! \brief Retrieves the position tile from the game map
@@ -272,7 +276,10 @@ class GameEntity
 
     //! Used by the renderer to save the scene node this entity belongs to. This is useful
     //! when the entity is removed from the scene (during pickup for example)
-    Ogre::SceneNode* mRendererSceneNode;
+    Ogre::SceneNode* mParentSceneNode;
+
+    //! Used by the renderer to save this entity's node
+    Ogre::SceneNode* mEntityNode;
 };
 
 #endif // GAMEENTITY_H_

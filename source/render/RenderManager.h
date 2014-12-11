@@ -28,7 +28,6 @@
 #include <RTShaderSystem/OgreShaderGenerator.h>
 #include <RTShaderSystem/OgreShaderExNormalMapLighting.h>
 
-class RenderRequest;
 class GameMap;
 class Building;
 class Seat;
@@ -37,6 +36,7 @@ class GameEntity;
 class MovableGameEntity;
 class MapLight;
 class Creature;
+class Player;
 class RenderedMovableEntity;
 class Weapon;
 
@@ -54,16 +54,12 @@ class AnimationState;
 
 class RenderManager: public Ogre::Singleton<RenderManager>
 {
-    friend class RenderRequest;
 public:
     RenderManager(Ogre::OverlaySystem* overlaySystem);
     ~RenderManager();
 
     inline Ogre::SceneManager* getSceneManager() const
     { return mSceneManager; }
-
-    inline void setGameMap(GameMap* gameMap)
-    { mGameMap = gameMap; }
 
     //! \brief Loop through the render requests in the queue and process them
     void updateRenderAnimations(Ogre::Real timeSinceLastFrame);
@@ -73,12 +69,6 @@ public:
 
     //! \brief setup the scene
     void createScene(Ogre::Viewport*);
-
-    //! \brief Executes a render request in the queue (helper function to avoid having to fetch the singleton)
-    static void executeRenderRequest(RenderRequest& renderRequest)
-    {
-        msSingleton->executeRenderRequest_priv(renderRequest);
-    }
 
     void rtssTest();
 
@@ -99,13 +89,9 @@ public:
     //! Debug function to be used for dev only. Beware, it should not be called from the server thread
     static std::string consoleListAnimationsForMesh(const std::string& meshName);
 
-private:
-    //! \brief Put a render request in the queue (implementation)
-    void executeRenderRequest_priv(RenderRequest& renderRequest);
-
     //Render request functions
-    void rrRefreshTile(Tile* curTile);
-    void rrCreateTile(Tile* curTile);
+    void rrRefreshTile(Tile* curTile, Player* localPlayer);
+    void rrCreateTile(Tile* curTile, Player* localPlayer);
     void rrDestroyTile(Tile* curTile);
     void rrDetachEntity(GameEntity* curEntity);
     void rrAttachEntity(GameEntity* curEntity);
@@ -117,23 +103,25 @@ private:
     void rrUpdateEntityOpacity(GameEntity* entity);
     void rrCreateCreature(Creature* curCreature);
     void rrDestroyCreature(Creature* curCreature);
-    void rrOrientSceneNodeToward(MovableGameEntity* gameEntity, const Ogre::Vector3& direction);
-    void rrScaleSceneNode(Ogre::SceneNode* node, const Ogre::Vector3& scale);
+    void rrOrientEntityToward(MovableGameEntity* gameEntity, const Ogre::Vector3& direction);
+    void rrScaleEntity(GameEntity* entity, const Ogre::Vector3& scale);
     void rrCreateWeapon(Creature* curCreature, const Weapon* curWeapon, const std::string& hand);
     void rrDestroyWeapon(Creature* curCreature, const Weapon* curWeapon, const std::string& hand);
     void rrCreateMapLight(MapLight* curMapLight, bool displayVisual);
     void rrDestroyMapLight(MapLight* curMapLight);
     void rrDestroyMapLightVisualIndicator(MapLight* curMapLight);
-    void rrPickUpEntity(GameEntity* curEntity);
-    void rrDropHand(GameEntity* curEntity);
-    void rrRotateHand();
+    void rrPickUpEntity(GameEntity* curEntity, Player* localPlayer);
+    void rrDropHand(GameEntity* curEntity, Player* localPlayer);
+    void rrRotateHand(Player* localPlayer);
     void rrCreateCreatureVisualDebug(Creature* curCreature, Tile* curTile);
     void rrDestroyCreatureVisualDebug(Creature* curCreature, Tile* curTile);
     void rrSetObjectAnimationState(MovableGameEntity* curAnimatedObject, const std::string& animation, bool loop);
-    void rrMoveSceneNode(const std::string& sceneNodeName, const Ogre::Vector3& position);
+    void rrMoveEntity(GameEntity* entity, const Ogre::Vector3& position);
+    void rrMoveMapLightFlicker(MapLight* mapLight, const Ogre::Vector3& position);
     void rrCarryEntity(Creature* carrier, GameEntity* carried);
     void rrReleaseCarriedEntity(Creature* carrier, GameEntity* carried);
 
+private:
     bool generateRTSSShadersForMaterial(const std::string& materialName,
                                         const std::string& normalMapTextureName = "",
                                         Ogre::RTShader::NormalMapLighting::NormalMapSpace nmSpace = Ogre::RTShader::NormalMapLighting::NMS_TANGENT);
@@ -160,9 +148,6 @@ private:
     Ogre::SceneNode* mLightSceneNode;
 
     Ogre::AnimationState* mHandAnimationState;
-
-    //! \brief The game map reference. Don't delete it.
-    GameMap* mGameMap;
 
     Ogre::Viewport* mViewport;
     Ogre::RTShader::ShaderGenerator* mShaderGenerator;
