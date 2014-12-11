@@ -547,7 +547,7 @@ void RenderManager::rrDestroyCreature(Creature* curCreature)
     }
 }
 
-void RenderManager::rrOrientSceneNodeToward(MovableGameEntity* gameEntity, const Ogre::Vector3& direction)
+void RenderManager::rrOrientEntityToward(MovableGameEntity* gameEntity, const Ogre::Vector3& direction)
 {
     Ogre::SceneNode* node = mSceneManager->getSceneNode(gameEntity->getOgreNamePrefix() + gameEntity->getName() + "_node");
     Ogre::Vector3 tempVector = node->getOrientation() * Ogre::Vector3::NEGATIVE_UNIT_Y;
@@ -563,12 +563,13 @@ void RenderManager::rrOrientSceneNodeToward(MovableGameEntity* gameEntity, const
     }
 }
 
-void RenderManager::rrScaleSceneNode(Ogre::SceneNode* node, const Ogre::Vector3& scale)
+void RenderManager::rrScaleEntity(GameEntity* entity, const Ogre::Vector3& scale)
 {
-    if (node != NULL)
-    {
-        node->scale(scale);
-    }
+    OD_ASSERT_TRUE_MSG(entity->getEntityNode() != nullptr, "entity=" + entity->getName());
+    if(entity->getEntityNode() == nullptr)
+        return;
+
+    entity->getEntityNode()->scale(scale);
 }
 
 void RenderManager::rrCreateWeapon(Creature* curCreature, const Weapon* curWeapon, const std::string& hand)
@@ -627,6 +628,7 @@ void RenderManager::rrCreateMapLight(MapLight* curMapLight, bool displayVisual)
     // the base node.  This node carries the light itself.
     Ogre::SceneNode* flickerNode = mapLightNode->createChildSceneNode(mapLightName + "_flicker_node");
     flickerNode->attachObject(light);
+    curMapLight->setFlickerNode(flickerNode);
 }
 
 void RenderManager::rrDestroyMapLight(MapLight* curMapLight)
@@ -806,13 +808,22 @@ void RenderManager::rrSetObjectAnimationState(MovableGameEntity* curAnimatedObje
         curAnimatedObject->getAnimationState()->setEnabled(true);
     }
 }
-void RenderManager::rrMoveSceneNode(const std::string& sceneNodeName, const Ogre::Vector3& position)
+void RenderManager::rrMoveEntity(GameEntity* entity, const Ogre::Vector3& position)
 {
-    if (mSceneManager->hasSceneNode(sceneNodeName))
-    {
-        Ogre::SceneNode* node = mSceneManager->getSceneNode(sceneNodeName);
-        node->setPosition(position);
-    }
+    OD_ASSERT_TRUE_MSG(entity->getEntityNode() != nullptr, "Entity do not have node=" + entity->getName());
+    if(entity->getEntityNode() == nullptr)
+        return;
+
+    entity->getEntityNode()->setPosition(position);
+}
+
+void RenderManager::rrMoveMapLightFlicker(MapLight* mapLight, const Ogre::Vector3& position)
+{
+    OD_ASSERT_TRUE_MSG(mapLight->getFlickerNode() != nullptr, "MapLight do not have flicker=" + mapLight->getName());
+    if(mapLight->getFlickerNode() == nullptr)
+        return;
+
+    mapLight->getFlickerNode()->setPosition(position);
 }
 
 std::string RenderManager::consoleListAnimationsForMesh(const std::string& meshName)

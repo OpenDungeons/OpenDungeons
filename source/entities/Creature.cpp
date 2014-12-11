@@ -284,9 +284,9 @@ void Creature::exportToStream(std::ostream& os)
         os << "max";
     os << "\t" << mAwakeness << "\t" << mHunger << "\t" << mGold;
 
-    os << "\t" << getPosition().x;
-    os << "\t" << getPosition().y;
-    os << "\t" << getPosition().z;
+    os << "\t" << mPosition.x;
+    os << "\t" << mPosition.y;
+    os << "\t" << mPosition.z;
 
     // Check creature weapons
     if(mWeaponL != nullptr)
@@ -302,7 +302,7 @@ void Creature::exportToStream(std::ostream& os)
 
 void Creature::importFromStream(std::istream& is)
 {
-    double xLocation = 0.0, yLocation = 0.0, zLocation = 0.0;
+    Ogre::Real xLocation = 0.0, yLocation = 0.0, zLocation = 0.0;
     double tempDouble = 0.0;
     std::string tempString;
 
@@ -347,7 +347,7 @@ void Creature::importFromStream(std::istream& is)
     mGold = static_cast<int>(tempDouble);
 
     OD_ASSERT_TRUE(is >> xLocation >> yLocation >> zLocation);
-    setPosition(Ogre::Vector3((Ogre::Real)xLocation, (Ogre::Real)yLocation, (Ogre::Real)zLocation));
+    mPosition = Ogre::Vector3(xLocation, yLocation, zLocation);
 
     OD_ASSERT_TRUE(is >> tempString);
     if(tempString != "none")
@@ -427,9 +427,8 @@ void Creature::exportToPacket(ODPacket& os)
     std::string name = getName();
     os << name;
 
-    Ogre::Vector3 position = getPosition();
     int seatId = getSeat()->getId();
-    os << position;
+    os << mPosition;
     os << seatId;
 
     os << mLevel;
@@ -479,9 +478,7 @@ void Creature::importFromPacket(ODPacket& is)
     OD_ASSERT_TRUE(is >> tempString);
     setName(tempString);
 
-    Ogre::Vector3 position;
-    OD_ASSERT_TRUE(is >> position);
-    setPosition(position);
+    OD_ASSERT_TRUE(is >> mPosition);
 
     int seatId;
     OD_ASSERT_TRUE(is >> seatId);
@@ -2720,7 +2717,7 @@ void Creature::refreshFromCreature(Creature *creatureNewState)
         if (scaleFactor > 1.04)
             scaleFactor = 1.04;
 
-        RenderManager::getSingleton().rrScaleSceneNode(getEntityNode(), Ogre::Vector3(scaleFactor, scaleFactor, scaleFactor));
+        RenderManager::getSingleton().rrScaleEntity(this, Ogre::Vector3(scaleFactor, scaleFactor, scaleFactor));
     }
 }
 

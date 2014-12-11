@@ -46,6 +46,12 @@ public:
     virtual ~MapLight()
     {}
 
+    inline Ogre::SceneNode* getFlickerNode() const
+    { return mFlickerNode; }
+
+    inline void setFlickerNode(Ogre::SceneNode* node)
+    { mFlickerNode = node; }
+
     static const std::string MAPLIGHT_NAME_PREFIX;
     static const std::string MAPLIGHT_INDICATOR_PREFIX;
 
@@ -88,6 +94,7 @@ public:
      */
     void update(Ogre::Real timeSinceLastFrame);
 
+
     static std::string getFormat();
     friend ODPacket& operator<<(ODPacket& os, MapLight *m);
     friend ODPacket& operator>>(ODPacket& is, MapLight *m);
@@ -117,6 +124,8 @@ private:
     Ogre::Real mFactorX;
     Ogre::Real mFactorY;
     Ogre::Real mFactorZ;
+
+    Ogre::SceneNode* mFlickerNode;
 };
 
 #endif // MAPLIGHT_H

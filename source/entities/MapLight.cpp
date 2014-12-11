@@ -38,7 +38,8 @@ MapLight::MapLight(GameMap* gameMap, Ogre::Real red, Ogre::Real green, Ogre::Rea
     mThetaZ                             (0.0),
     mFactorX                            (0.0),
     mFactorY                            (0.0),
-    mFactorZ                            (0.0)
+    mFactorZ                            (0.0),
+    mFlickerNode                        (nullptr)
 {
     mDiffuseColor = Ogre::ColourValue(red, green, blue);
     mSpecularColor = Ogre::ColourValue(red, green, blue);
@@ -74,6 +75,9 @@ void MapLight::destroyMeshLocal()
 
 void MapLight::update(Ogre::Real timeSinceLastFrame)
 {
+    if(getGameMap()->isServerGameMap())
+        return;
+
     mThetaX += static_cast<Ogre::Real>(mFactorX * 3.0 * timeSinceLastFrame);
     mThetaY += static_cast<Ogre::Real>(mFactorY * 3.0 * timeSinceLastFrame);
     mThetaZ += static_cast<Ogre::Real>(mFactorZ * 3.0 * timeSinceLastFrame);
@@ -86,7 +90,7 @@ void MapLight::update(Ogre::Real timeSinceLastFrame)
         mFactorZ *= -1.0;
 
     Ogre::Vector3 flickerPosition = Ogre::Vector3(sin(mThetaX), sin(mThetaY), sin(mThetaZ));
-    RenderManager::getSingleton().rrMoveSceneNode(getOgreNamePrefix() + getName() + "_flicker_node", flickerPosition);
+    RenderManager::getSingleton().rrMoveMapLightFlicker(this, flickerPosition);
 }
 
 std::string MapLight::getFormat()

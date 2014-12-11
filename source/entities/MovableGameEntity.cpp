@@ -152,7 +152,7 @@ void MovableGameEntity::setWalkDirection(Ogre::Vector3& direction)
     if(getGameMap()->isServerGameMap())
         return;
 
-    RenderManager::getSingleton().rrOrientSceneNodeToward(this, direction);
+    RenderManager::getSingleton().rrOrientEntityToward(this, direction);
 }
 
 void MovableGameEntity::setAnimationState(const std::string& state, bool loop, Ogre::Vector3* direction)
@@ -266,6 +266,6 @@ void MovableGameEntity::setPosition(const Ogre::Vector3& v)
     if(getGameMap()->isServerGameMap())
         return;
 
-    RenderManager::getSingleton().rrMoveSceneNode(getOgreNamePrefix() + getName() + "_node", v);
+    RenderManager::getSingleton().rrMoveEntity(this, v);
 
 }

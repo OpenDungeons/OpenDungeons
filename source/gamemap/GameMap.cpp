@@ -1221,13 +1221,16 @@ void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
     if(mIsPaused)
         return;
 
-    // Update the animations on any AnimatedObjects which have them
-    for(MovableGameEntity* currentAnimatedObject : mAnimatedObjects)
+    if(getTurnNumber() > 0)
     {
-        if (currentAnimatedObject == nullptr)
-            continue;
+        // Update the animations on any AnimatedObjects which have them
+        for(MovableGameEntity* currentAnimatedObject : mAnimatedObjects)
+        {
+            if (currentAnimatedObject == nullptr)
+                continue;
 
-        currentAnimatedObject->update(timeSinceLastFrame);
+            currentAnimatedObject->update(timeSinceLastFrame);
+        }
     }
 
     if(isServerGameMap())

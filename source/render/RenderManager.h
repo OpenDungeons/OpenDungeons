@@ -103,8 +103,8 @@ public:
     void rrUpdateEntityOpacity(GameEntity* entity);
     void rrCreateCreature(Creature* curCreature);
     void rrDestroyCreature(Creature* curCreature);
-    void rrOrientSceneNodeToward(MovableGameEntity* gameEntity, const Ogre::Vector3& direction);
-    void rrScaleSceneNode(Ogre::SceneNode* node, const Ogre::Vector3& scale);
+    void rrOrientEntityToward(MovableGameEntity* gameEntity, const Ogre::Vector3& direction);
+    void rrScaleEntity(GameEntity* entity, const Ogre::Vector3& scale);
     void rrCreateWeapon(Creature* curCreature, const Weapon* curWeapon, const std::string& hand);
     void rrDestroyWeapon(Creature* curCreature, const Weapon* curWeapon, const std::string& hand);
     void rrCreateMapLight(MapLight* curMapLight, bool displayVisual);
@@ -116,7 +116,8 @@ public:
     void rrCreateCreatureVisualDebug(Creature* curCreature, Tile* curTile);
     void rrDestroyCreatureVisualDebug(Creature* curCreature, Tile* curTile);
     void rrSetObjectAnimationState(MovableGameEntity* curAnimatedObject, const std::string& animation, bool loop);
-    void rrMoveSceneNode(const std::string& sceneNodeName, const Ogre::Vector3& position);
+    void rrMoveEntity(GameEntity* entity, const Ogre::Vector3& position);
+    void rrMoveMapLightFlicker(MapLight* mapLight, const Ogre::Vector3& position);
     void rrCarryEntity(Creature* carrier, GameEntity* carried);
     void rrReleaseCarriedEntity(Creature* carrier, GameEntity* carried);
 
