@@ -126,10 +126,6 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
 
     pushAction(CreatureAction::idle);
 
-    // Note: We reset the creature to level 1 in that case.
-    setLevel(1);
-    mExp = 0.0;
-
     mMaxHP = mDefinition->getMinHp();
     setHP(mMaxHP);
 
@@ -200,10 +196,6 @@ Creature::Creature(GameMap* gameMap) :
     setObjectType(GameEntity::creature);
 
     pushAction(CreatureAction::idle);
-
-    // Note: We reset the creature to level 1 in that case.
-    setLevel(1);
-    mExp = 0.0;
 }
 
 /* Destructor is needed when removing from Quadtree */
@@ -323,19 +315,12 @@ void Creature::importFromStream(std::istream& is)
         tempString = getGameMap()->nextUniqueNameCreature(mDefinition->getClassName());
     setName(tempString);
 
-    OD_ASSERT_TRUE(is >> tempDouble);
-    buildStats(tempDouble);
+    OD_ASSERT_TRUE(is >> mLevel);
 
-    OD_ASSERT_TRUE(is >> tempDouble);
-    mExp = tempDouble;
+    OD_ASSERT_TRUE(is >> mExp);
 
     std::string strHp;
     OD_ASSERT_TRUE(is >> strHp);
-    if(strHp.compare("max") == 0)
-        tempDouble = mMaxHP;
-    else
-        tempDouble = Helper::toDouble(strHp);
-    setHP(tempDouble);
 
     OD_ASSERT_TRUE(is >> tempDouble);
     mAwakeness = tempDouble;
@@ -362,13 +347,17 @@ void Creature::importFromStream(std::istream& is)
         mWeaponR = getGameMap()->getWeapon(tempString);
         OD_ASSERT_TRUE_MSG(mWeaponR != nullptr, "Unknown weapon name=" + tempString);
     }
+    mLevel = std::min(MAX_LEVEL, mLevel);
+    buildStats();
+
+    if(strHp.compare("max") == 0)
+        mHp = mMaxHP;
+    else
+        mHp = Helper::toDouble(strHp);
 }
 
-void Creature::buildStats(unsigned int level)
+void Creature::buildStats()
 {
-    if (level > MAX_LEVEL)
-        return;
-
     // Get the base value
     mMaxHP = mDefinition->getMinHp();
     mDigRate = mDefinition->getDigRate();
@@ -385,7 +374,7 @@ void Creature::buildStats(unsigned int level)
     mAttackWarmupTime = mDefinition->getAttackWarmupTime();
 
     // Improve the stats to the current level
-    double multiplier = level - 1;
+    double multiplier = mLevel - 1;
     if (multiplier == 0.0)
         return;
 
@@ -401,8 +390,6 @@ void Creature::buildStats(unsigned int level)
     mPhysicalDefense += mDefinition->getPhysicalDefPerLevel() * multiplier;
     mMagicalDefense += mDefinition->getMagicalDefPerLevel() * multiplier;
     mWeaponlessAtkRange += mDefinition->getAtkRangePerLevel() * multiplier;
-
-    setLevel(level);
 }
 
 Creature* Creature::getCreatureFromStream(GameMap* gameMap, std::istream& is)
@@ -600,6 +587,45 @@ void Creature::update(Ogre::Real timeSinceLastFrame)
     }
 }
 
+void Creature::computeVisibleTiles()
+{
+    if (getHP() <= 0.0)
+        return;
+
+    if (!getIsOnMap())
+        return;
+
+    // Look at the surrounding area
+    updateTilesInSight();
+    for(Tile* tile : mVisibleTiles)
+    {
+        getSeat()->notifyVisionOnTile(tile);
+    }
+}
+
+void Creature::setLevel(unsigned int level)
+{
+    // Reset XP once the level has been acquired.
+    mLevel = std::min(MAX_LEVEL, level);
+    mExp = 0.0;
+
+    if(!getGameMap()->isServerGameMap())
+    {
+        refreshCreature();
+        return;
+    }
+
+    buildStats();
+
+    const std::string& name = getName();
+    ServerNotification *serverNotification = new ServerNotification(
+        ServerNotification::creatureRefresh, getGameMap()->getPlayerBySeat(getSeat()));
+    serverNotification->mPacket << name;
+    serverNotification->mPacket << mLevel;
+    ODServer::getSingleton().queueServerNotification(serverNotification);
+
+}
+
 void Creature::doUpkeep()
 {
     // if creature is not on map, we do nothing
@@ -658,49 +684,7 @@ void Creature::doUpkeep()
 
     // Check to see if we have earned enough experience to level up.
     if(checkLevelUp())
-    {
-        setLevel(getLevel() + 1);
-
-        // Reset XP once the level has been acquired.
-        mExp = 0.0;
-        //std::cout << "\n\n" << getName() << " has reached level " << getLevel() << "\n";
-
-        if (mDefinition->isWorker())
-        {
-            mDigRate += mDefinition->getDigRatePerLevel();
-            mClaimRate += mDefinition->getClaimRatePerLevel();
-            //std::cout << "New dig rate: " << mDigRate << "\tnew dance rate: " << mDanceRate << "\n";
-        }
-
-        // Improve the base stats
-        mMaxHP += mDefinition->getHpPerLevel();
-        mGroundSpeed += mDefinition->getGroundSpeedPerLevel();
-        mWaterSpeed += mDefinition->getWaterSpeedPerLevel();
-        mLavaSpeed += mDefinition->getLavaSpeedPerLevel();
-
-        // Improve fighting stats
-        mPhysicalAttack += mDefinition->getPhysicalAtkPerLevel();
-        mMagicalAttack += mDefinition->getMagicalAtkPerLevel();
-        mPhysicalDefense += mDefinition->getPhysicalDefPerLevel();
-        mMagicalDefense += mDefinition->getMagicalDefPerLevel();
-        mWeaponlessAtkRange += mDefinition->getAtkRangePerLevel();
-
-        if(getGameMap()->isServerGameMap())
-        {
-            try
-            {
-                ServerNotification *serverNotification = new ServerNotification(
-                    ServerNotification::creatureRefresh, getGameMap()->getPlayerBySeat(getSeat()));
-                exportToPacket(serverNotification->mPacket);
-                ODServer::getSingleton().queueServerNotification(serverNotification);
-            }
-            catch (std::bad_alloc&)
-            {
-                OD_ASSERT_TRUE(false);
-                exit(1);
-            }
-        }
-    }
+        setLevel(mLevel + 1);
 
     // Heal.
     mHp += mDefinition->getHpHealPerTurn();
@@ -715,8 +699,6 @@ void Creature::doUpkeep()
     if (mHunger > 100.0)
         mHunger = 100.0;
 
-    // Look at the surrounding area
-    updateTilesInSight();
     mVisibleEnemyObjects         = getVisibleEnemyObjects();
     mReachableEnemyObjects       = getReachableAttackableObjects(mVisibleEnemyObjects);
     mReachableEnemyCreatures     = getCreaturesFromList(mReachableEnemyObjects, getDefinition()->isWorker());
@@ -2684,41 +2666,17 @@ bool Creature::checkLevelUp()
     return true;
 }
 
-void Creature::refreshFromCreature(Creature *creatureNewState)
+Ogre::Vector3 Creature::getScale() const
 {
-    // We save the actual level to check if there is a levelup
-    unsigned int oldLevel = mLevel;
-    // TODO : send a messageServerNotification::creatureRefresh each time we want
-    // to refresh a creature (when loss HP from combat, level up or whatever).
-    // The creature update should be here and the data should be transfered
-    // in the transfert functions in this file using ODPacket
-    mLevel          = creatureNewState->mLevel;
-    mDigRate        = creatureNewState->mDigRate;
-    mClaimRate      = creatureNewState->mClaimRate;
-    mMaxHP          = creatureNewState->mMaxHP;
-    mHp             = creatureNewState->mHp;
-    mAwakeness      = creatureNewState->mAwakeness;
-    mHunger         = creatureNewState->mHunger;
+    Ogre::Vector3 scale = getDefinition()->getScale();
+    Ogre::Real scaleFactor = static_cast<Ogre::Real>(1.0 + 0.02 * static_cast<double>(getLevel()));
+    scale *= scaleFactor;
+    return scale;
+}
 
-    mGroundSpeed    = creatureNewState->mGroundSpeed;
-    mWaterSpeed     = creatureNewState->mWaterSpeed;
-    mLavaSpeed      = creatureNewState->mLavaSpeed;
-
-    mPhysicalAttack = creatureNewState->mPhysicalAttack;
-    mMagicalAttack  = creatureNewState->mMagicalAttack;
-    mPhysicalDefense = creatureNewState->mPhysicalDefense;
-    mMagicalDefense = creatureNewState->mMagicalDefense;
-    mWeaponlessAtkRange = creatureNewState->mWeaponlessAtkRange;
-
-    // Scale up the mesh.
-    if (oldLevel != getLevel() && isMeshExisting() && getLevel() % 2 == 0)
-    {
-        Ogre::Real scaleFactor = (Ogre::Real)(1.0 + static_cast<double>(getLevel()) / 250.0);
-        if (scaleFactor > 1.04)
-            scaleFactor = 1.04;
-
-        RenderManager::getSingleton().rrScaleEntity(this, Ogre::Vector3(scaleFactor, scaleFactor, scaleFactor));
-    }
+void Creature::refreshCreature()
+{
+    RenderManager::getSingleton().rrScaleEntity(this);
 }
 
 void Creature::updateTilesInSight()
@@ -3092,19 +3050,6 @@ double Creature::takeDamage(GameEntity* attacker, double physicalDamage, double 
 
     // Tells the server game map the player is under attack.
     getGameMap()->playerIsFighting(player);
-
-    try
-    {
-        ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::creatureRefresh, player);
-        exportToPacket(serverNotification->mPacket);
-        ODServer::getSingleton().queueServerNotification(serverNotification);
-    }
-    catch (std::bad_alloc&)
-    {
-        OD_ASSERT_TRUE(false);
-        exit(1);
-    }
 
     // If we are a worker attacked by a worker, we fight. Otherwise, we flee (if it is a fighter, a trap,
     // or whatever)

@@ -944,10 +944,10 @@ ProtectDungeonTemple	NULL
 3	Tentacle1	Tentacle11	1	0	max	100	0	0	5	15	0	none	none
 [/Creature]
 [Creature]
-3	Tentacle1	Tentacle12	1	0	max	100	0	0	5	11	0	none	none
+3	Tentacle1	Tentacle12	10	0	max	100	0	0	5	11	0	none	none
 [/Creature]
 [Creature]
-3	Tentacle1	Tentacle13	1	0	max	100	0	0	5	13	0	none	none
+3	Tentacle1	Tentacle13	25	0	max	100	0	0	5	13	0	none	none
 [/Creature]
 [Creature]
 3	Tentacle1	Tentacle14	1	0	max	100	0	0	5	9	0	none	none

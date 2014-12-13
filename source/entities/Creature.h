@@ -148,8 +148,7 @@ public:
     { mHomeTile = ht; }
 
     //! \brief Set the level of the creature
-    inline void setLevel(unsigned int nL)
-    { mLevel = nL; }
+    void setLevel(unsigned int level);
 
     /*! \brief The main AI routine which decides what the creature will do and carries out that action.
      *
@@ -183,6 +182,9 @@ public:
      */
     void doUpkeep();
 
+    //! \brief Computes the visible tiles and tags them to know which are visible
+    void computeVisibleTiles();
+
     virtual bool isAttackable() const;
 
     double getPhysicalDamage(double range);
@@ -196,8 +198,9 @@ public:
 
     //! \brief Check whether a creature has earned one level.
     bool checkLevelUp();
-    //! \brief Refreshes current creature with creatureNewState (hp, scale, level, ...)
-    void refreshFromCreature(Creature *creatureNewState);
+
+    //! \brief Refreshes current creature size to adapt to its current level
+    void refreshCreature();
 
     //! \brief Updates the lists of tiles within sight radius.
     //! And the tiles the creature can "see" (removing the ones behind walls).
@@ -258,6 +261,8 @@ public:
 
     //! \brief An accessor to return whether or not the creature has OGRE entities for its visual debugging entities.
     bool getHasVisualDebuggingEntities();
+
+    virtual Ogre::Vector3 getScale() const;
 
     //! \FIXME Those functions are lacking parameters to be actually functional
     //! \brief Get the text format of creatures in level files (already spawned at startup).
@@ -539,8 +544,8 @@ private:
     //! flee or attack allied units
     bool isInBadMood();
 
-    //! \brief Restores the creature's stats according to the given level
-    void buildStats(unsigned int level);
+    //! \brief Restores the creature's stats according to its current level
+    void buildStats();
 
     void carryEntity(GameEntity* carriedEntity);
 

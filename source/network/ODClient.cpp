@@ -649,14 +649,15 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotification::creatureRefresh:
         {
-            Creature tmpCreature(gameMap);
-            tmpCreature.importFromPacket(packetReceived);
-            Creature* creature = gameMap->getCreature(tmpCreature.getName());
-            OD_ASSERT_TRUE_MSG(creature != nullptr, "name=" + tmpCreature.getName());
+            std::string name;
+            unsigned int level;
+            OD_ASSERT_TRUE(packetReceived >> name >> level);
+            Creature* creature = gameMap->getCreature(name);
+            OD_ASSERT_TRUE_MSG(creature != nullptr, "name=" + name);
             if(creature == nullptr)
                 break;
 
-            creature->refreshFromCreature(&tmpCreature);
+            creature->setLevel(level);
             break;
         }
 
@@ -783,6 +784,39 @@ bool ODClient::processOneClientSocketMessage()
                 tiles.push_back(tile);
             }
             creature->refreshVisualDebugEntities(tiles);
+            break;
+        }
+
+        case ServerNotification::refreshSeatVisDebug:
+        {
+            int seatId;
+            bool isDebugVisibleTilesActive;
+            OD_ASSERT_TRUE(packetReceived >> seatId >> isDebugVisibleTilesActive);
+            Seat* seat = gameMap->getSeatById(seatId);
+            OD_ASSERT_TRUE_MSG(seat != nullptr, "seatId=" + Ogre::StringConverter::toString(seatId));
+            if(seat == nullptr)
+                break;
+
+            if(!isDebugVisibleTilesActive)
+            {
+                seat->stopVisualDebugEntities();
+                break;
+            }
+
+            uint32_t nbTiles;
+            OD_ASSERT_TRUE(packetReceived >> nbTiles);
+            std::vector<Tile*> tiles;
+            while(nbTiles > 0)
+            {
+                --nbTiles;
+                Tile* tile = gameMap->tileFromPacket(packetReceived);
+                OD_ASSERT_TRUE(tile != nullptr);
+                if(tile == nullptr)
+                    continue;
+
+                tiles.push_back(tile);
+            }
+            seat->refreshVisualDebugEntities(tiles);
             break;
         }
 

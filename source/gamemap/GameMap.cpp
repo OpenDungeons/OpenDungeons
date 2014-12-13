@@ -1121,6 +1121,33 @@ unsigned long int GameMap::doMiscUpkeep()
         }
     }
 
+    // At each upkeep, we re-compute tiles with vision
+    for (Seat* seat : mSeats)
+    {
+        seat->clearTilesWithVision();
+    }
+
+    // Compute vision
+    for (int jj = 0; jj < getMapSizeY(); ++jj)
+    {
+        for (int ii = 0; ii < getMapSizeX(); ++ii)
+        {
+            getTile(ii,jj)->computeVisibleTiles();
+        }
+    }
+    for (Creature* creature : mCreatures)
+    {
+        creature->computeVisibleTiles();
+    }
+
+    for (Seat* seat : mSeats)
+    {
+        if(!seat->getIsDebuggingVision())
+            continue;
+
+        seat->displaySeatVisualDebug(true);
+    }
+
     // Carry out the upkeep round of all the active objects in the game.
     unsigned int activeObjectCount = 0;
     unsigned int nbActiveObjectCount = mActiveObjects.size();
@@ -2890,6 +2917,24 @@ void GameMap::consoleDisplayCreatureVisualDebug(const std::string& creatureName,
         creature->computeVisualDebugEntities();
     else
         creature->stopComputeVisualDebugEntities();
+}
+
+void GameMap::consoleDisplaySeatVisualDebug(int seatId, bool enable)
+{
+    Seat* seat = getSeatById(seatId);
+    if(seat == nullptr)
+        return;
+
+    seat->displaySeatVisualDebug(enable);
+}
+
+void GameMap::consoleSetLevelCreature(const std::string& creatureName, uint32_t level)
+{
+    Creature* creature = getCreature(creatureName);
+    if(creature == nullptr)
+        return;
+
+    creature->setLevel(level);
 }
 
 Creature* GameMap::getKoboldForPathFinding(Seat* seat)

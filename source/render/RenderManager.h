@@ -104,7 +104,7 @@ public:
     void rrCreateCreature(Creature* curCreature);
     void rrDestroyCreature(Creature* curCreature);
     void rrOrientEntityToward(MovableGameEntity* gameEntity, const Ogre::Vector3& direction);
-    void rrScaleEntity(GameEntity* entity, const Ogre::Vector3& scale);
+    void rrScaleEntity(GameEntity* entity);
     void rrCreateWeapon(Creature* curCreature, const Weapon* curWeapon, const std::string& hand);
     void rrDestroyWeapon(Creature* curCreature, const Weapon* curWeapon, const std::string& hand);
     void rrCreateMapLight(MapLight* curMapLight, bool displayVisual);
@@ -115,6 +115,8 @@ public:
     void rrRotateHand(Player* localPlayer);
     void rrCreateCreatureVisualDebug(Creature* curCreature, Tile* curTile);
     void rrDestroyCreatureVisualDebug(Creature* curCreature, Tile* curTile);
+    void rrCreateSeatVisionVisualDebug(int seatId, Tile* tile);
+    void rrDestroySeatVisionVisualDebug(int seatId, Tile* tile);
     void rrSetObjectAnimationState(MovableGameEntity* curAnimatedObject, const std::string& animation, bool loop);
     void rrMoveEntity(GameEntity* entity, const Ogre::Vector3& position);
     void rrMoveMapLightFlicker(MapLight* mapLight, const Ogre::Vector3& position);

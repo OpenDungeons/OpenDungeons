@@ -25,6 +25,9 @@
 
 #include "spawnconditions/SpawnCondition.h"
 
+#include "network/ServerNotification.h"
+#include "network/ODServer.h"
+
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
@@ -49,7 +52,8 @@ Seat::Seat(GameMap* gameMap) :
     mNumClaimedTiles(0),
     mHasGoalsChanged(true),
     mGold(0),
-    mId(-1)
+    mId(-1),
+    mIsDebuggingVision(false)
 {
 }
 
@@ -357,6 +361,110 @@ const CreatureDefinition* Seat::getNextCreatureClassToSpawn()
     // It is not normal to come here
     OD_ASSERT_TRUE(false);
     return nullptr;
+}
+
+void Seat::clearTilesWithVision()
+{
+    mTilesWithVision.clear();
+}
+
+void Seat::notifyVisionOnTile(Tile* tile)
+{
+    if(std::find(mTilesWithVision.begin(), mTilesWithVision.end(), tile) != mTilesWithVision.end())
+        return;
+
+    mTilesWithVision.push_back(tile);
+}
+
+bool Seat::hasVisionOnTile(Tile* tile)
+{
+    if(std::find(mTilesWithVision.begin(), mTilesWithVision.end(), tile) != mTilesWithVision.end())
+        return true;
+
+    return false;
+}
+
+void Seat::stopVisualDebugEntities()
+{
+    if(mGameMap->isServerGameMap())
+        return;
+
+    mIsDebuggingVision = false;
+
+    for (Tile* tile : mVisualDebugEntityTiles)
+    {
+        if (tile == nullptr)
+            continue;
+
+        RenderManager::getSingleton().rrDestroySeatVisionVisualDebug(getId(), tile);
+    }
+    mVisualDebugEntityTiles.clear();
+
+}
+
+void Seat::refreshVisualDebugEntities(const std::vector<Tile*>& tiles)
+{
+    if(mGameMap->isServerGameMap())
+        return;
+
+    mIsDebuggingVision = true;
+
+    for (Tile* tile : tiles)
+    {
+        // We check if the visual debug is already on this tile
+        if(std::find(mVisualDebugEntityTiles.begin(), mVisualDebugEntityTiles.end(), tile) != mVisualDebugEntityTiles.end())
+            continue;
+
+        RenderManager::getSingleton().rrCreateSeatVisionVisualDebug(getId(), tile);
+
+        mVisualDebugEntityTiles.push_back(tile);
+    }
+
+    // now, we check if visual debug should be removed from a tile
+    for (std::vector<Tile*>::iterator it = mVisualDebugEntityTiles.begin(); it != mVisualDebugEntityTiles.end();)
+    {
+        Tile* tile = *it;
+        if(std::find(tiles.begin(), tiles.end(), tile) != tiles.end())
+        {
+            ++it;
+            continue;
+        }
+
+        it = mVisualDebugEntityTiles.erase(it);
+
+        RenderManager::getSingleton().rrDestroySeatVisionVisualDebug(getId(), tile);
+    }
+}
+
+void Seat::displaySeatVisualDebug(bool enable)
+{
+    if(!mGameMap->isServerGameMap())
+        return;
+
+    mIsDebuggingVision = enable;
+    int seatId = getId();
+    if(enable)
+    {
+        uint32_t nbTiles = mTilesWithVision.size();
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotification::refreshSeatVisDebug, nullptr);
+        serverNotification->mPacket << seatId;
+        serverNotification->mPacket << true;
+        serverNotification->mPacket << nbTiles;
+        for(Tile* tile : mTilesWithVision)
+        {
+            mGameMap->tileToPacket(serverNotification->mPacket, tile);
+        }
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
+    else
+    {
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotification::refreshSeatVisDebug, nullptr);
+        serverNotification->mPacket << seatId;
+        serverNotification->mPacket << false;
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
 }
 
 std::string Seat::getFormat()
