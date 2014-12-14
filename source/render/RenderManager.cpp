@@ -676,15 +676,14 @@ void RenderManager::rrPickUpEntity(GameEntity* curEntity, Player* localPlayer)
     // Attach the creature to the hand scene node
     mSceneManager->getSceneNode("Hand_node")->addChild(curEntityNode);
     Ogre::Vector3 scale = curEntity->getScale();
-    scale /= 3.0;
+    scale *= 0.33;
     curEntityNode->setScale(scale);
 
     // Move the other creatures in the player's hand to make room for the one just picked up.
     int i = 0;
     const std::vector<GameEntity*>& objectsInHand = localPlayer->getObjectsInHand();
-    for (std::vector<GameEntity*>::const_iterator it = objectsInHand.begin(); it != objectsInHand.end(); ++it)
+    for (GameEntity* tmpEntity : objectsInHand)
     {
-        const GameEntity* tmpEntity = *it;
         Ogre::SceneNode* tmpEntityNode = mSceneManager->getSceneNode(tmpEntity->getOgreNamePrefix() + tmpEntity->getName() + "_node");
         tmpEntityNode->setPosition((Ogre::Real)(i % 6 + 1), (Ogre::Real)(i / (int)6), (Ogre::Real)0.0);
         ++i;
@@ -705,9 +704,8 @@ void RenderManager::rrDropHand(GameEntity* curEntity, Player* localPlayer)
     // Move the other creatures in the player's hand to replace the dropped one
     int i = 0;
     const std::vector<GameEntity*>& objectsInHand = localPlayer->getObjectsInHand();
-    for (std::vector<GameEntity*>::const_iterator it = objectsInHand.begin(); it != objectsInHand.end(); ++it)
+    for (GameEntity* tmpEntity : objectsInHand)
     {
-        const GameEntity* tmpEntity = *it;
         Ogre::SceneNode* tmpEntityNode = mSceneManager->getSceneNode(tmpEntity->getOgreNamePrefix() + tmpEntity->getName() + "_node");
         tmpEntityNode->setPosition((Ogre::Real)(i % 6 + 1), (Ogre::Real)(i / (int)6), (Ogre::Real)0.0);
         ++i;
@@ -719,9 +717,8 @@ void RenderManager::rrRotateHand(Player* localPlayer)
     // Loop over the creatures in our hand and redraw each of them in their new location.
     int i = 0;
     const std::vector<GameEntity*>& objectsInHand = localPlayer->getObjectsInHand();
-    for (std::vector<GameEntity*>::const_iterator it = objectsInHand.begin(); it != objectsInHand.end(); ++it)
+    for (GameEntity* tmpEntity : objectsInHand)
     {
-        const GameEntity* tmpEntity = *it;
         Ogre::SceneNode* tmpEntityNode = mSceneManager->getSceneNode(tmpEntity->getOgreNamePrefix() + tmpEntity->getName() + "_node");
         tmpEntityNode->setPosition((Ogre::Real)(i % 6 + 1), (Ogre::Real)(i / (int)6), (Ogre::Real)0.0);
         ++i;
