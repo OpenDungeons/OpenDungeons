@@ -122,6 +122,9 @@ class GameEntity
     inline Ogre::SceneNode* getEntityNode() const
     { return mEntityNode; }
 
+    virtual Ogre::Vector3 getScale() const
+    { return Ogre::Vector3::UNIT_SCALE; }
+
     // ===== SETTERS =====
     //! \brief Set the name of the entity
     inline void setName(const std::string& name)

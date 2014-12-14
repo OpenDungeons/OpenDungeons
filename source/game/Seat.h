@@ -31,6 +31,7 @@ class ODPacket;
 class GameMap;
 class CreatureDefinition;
 class Player;
+class Tile;
 
 class Seat
 {
@@ -143,6 +144,9 @@ public:
     inline void addGoldMined(int quantity)
     { mGoldMined += quantity; }
 
+    inline bool getIsDebuggingVision()
+    { return mIsDebuggingVision; }
+
     const std::string& getPlayerType() const
     { return mPlayerType; }
 
@@ -164,6 +168,19 @@ public:
     bool canOwnedCreatureUseRoomFrom(Seat* seat);
     bool canRoomBeDestroyedBy(Seat* seat);
     bool canTrapBeDestroyedBy(Seat* seat);
+
+    void clearTilesWithVision();
+    void notifyVisionOnTile(Tile* tile);
+
+    //! \brief Returns true if this seat can see the given tile and false otherwise
+    bool hasVisionOnTile(Tile* tile);
+
+    //! \brief Server side to display the tile this seat has vision on
+    void displaySeatVisualDebug(bool enable);
+
+    //! \brief Client side to display the tile this seat has vision on
+    void refreshVisualDebugEntities(const std::vector<Tile*>& tiles);
+    void stopVisualDebugEntities();
 
     static bool sortForMapSave(Seat* s1, Seat* s2);
 
@@ -238,6 +255,10 @@ private:
     //! if the spawning conditions are not empty and are met, we will set it to true and force spawning of the related creature
     std::vector<std::pair<const CreatureDefinition*, bool> > mSpawnPool;
 
+    //! \brief List of the tiles this seat has vision on
+    std::vector<Tile*> mTilesWithVision;
+    std::vector<Tile*> mVisualDebugEntityTiles;
+
     //! \brief How many tiles have been claimed by this seat, updated in GameMap::doTurn().
     unsigned int mNumClaimedTiles;
 
@@ -248,6 +269,8 @@ private:
 
     //! \brief The seat id. Allows to identify this seat. Must be unique per level file.
     int mId;
+
+    bool mIsDebuggingVision;
 };
 
 #endif // SEAT_H

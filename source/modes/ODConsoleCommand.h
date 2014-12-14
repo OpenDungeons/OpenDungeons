@@ -102,4 +102,42 @@ private:
     bool mEnable;
 };
 
+class ODConsoleCommandDisplaySeatVisualDebug : public ODConsoleCommand
+{
+public:
+    ODConsoleCommandDisplaySeatVisualDebug(int seatId, bool enable):
+        mSeatId(seatId),
+        mEnable(enable)
+    {
+    }
+
+protected:
+    virtual void execute(GameMap* gameMap)
+    {
+        gameMap->consoleDisplaySeatVisualDebug(mSeatId, mEnable);
+    }
+private:
+    int mSeatId;
+    bool mEnable;
+};
+
+class ODConsoleCommandSetLevelCreature : public ODConsoleCommand
+{
+public:
+    ODConsoleCommandSetLevelCreature(const std::string& creatureName, uint32_t level):
+        mCreatureName(creatureName),
+        mLevel(level)
+    {
+    }
+
+protected:
+    virtual void execute(GameMap* gameMap)
+    {
+        gameMap->consoleSetLevelCreature(mCreatureName, mLevel);
+    }
+private:
+    std::string mCreatureName;
+    uint32_t mLevel;
+};
+
 #endif // ODCONSOLECOMMAND_H

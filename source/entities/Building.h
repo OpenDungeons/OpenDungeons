@@ -51,6 +51,8 @@ public:
 
     virtual ~Building() {}
 
+    Ogre::Vector3 getScale() const;
+
     //! \brief Updates the active spot lists. Active spots are places where objects can be added
     virtual void updateActiveSpots() = 0;
 

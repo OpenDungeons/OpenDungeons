@@ -86,6 +86,8 @@ class ServerNotification
             notifyCreatureInfo,
             refreshCreatureVisDebug,
 
+            refreshSeatVisDebug,
+
             playSpatialSound, // Makes the client play a sound at tile coordinates.
             playCreatureSound, // Play a sound at the creature position
 

@@ -450,6 +450,8 @@ public:
     void logFloodFileTiles();
     void consoleSetCreatureDestination(const std::string& creatureName, int x, int y);
     void consoleDisplayCreatureVisualDebug(const std::string& creatureName, bool enable);
+    void consoleDisplaySeatVisualDebug(int seatId, bool enable);
+    void consoleSetLevelCreature(const std::string& creatureName, uint32_t level);
 
     //! \brief This functions create unique names. They check that there
     //! is no entity with the same name before returning

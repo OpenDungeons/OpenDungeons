@@ -296,9 +296,7 @@ void RenderManager::rrCreateTile(Tile* curTile, Player* localPlayer)
     curTile->setParentSceneNode(node->getParentSceneNode());
     curTile->setEntityNode(node);
 
-    node->setScale(Ogre::Vector3((Ogre::Real)(4.0 / BLENDER_UNITS_PER_OGRE_UNIT),
-                                 (Ogre::Real)(4.0 / BLENDER_UNITS_PER_OGRE_UNIT),
-                                 (Ogre::Real)(5.0 / BLENDER_UNITS_PER_OGRE_UNIT)));
+    node->setScale(curTile->getScale());
     node->resetOrientation();
     node->roll(Ogre::Degree((Ogre::Real)(-1 * rt * 90)));
 
@@ -386,9 +384,7 @@ void RenderManager::rrCreateBuilding(Building* curBuilding, Tile* curTile)
         node->setPosition(static_cast<Ogre::Real>(curTile->x),
                         static_cast<Ogre::Real>(curTile->y),
                         static_cast<Ogre::Real>(0.0f));
-        node->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,
-                                    BLENDER_UNITS_PER_OGRE_UNIT,
-                                    BLENDER_UNITS_PER_OGRE_UNIT));
+        node->setScale(curBuilding->getScale());
         node->attachObject(ent);
 
         if (curBuilding->getOpacity() < 1.0f)
@@ -505,10 +501,7 @@ void RenderManager::rrUpdateEntityOpacity(GameEntity* entity)
 void RenderManager::rrCreateCreature(Creature* curCreature)
 {
     const std::string& meshName = curCreature->getDefinition()->getMeshName();
-    const Ogre::Vector3& scale = curCreature->getDefinition()->getScale();
-
-    assert(curCreature != 0);
-    //assert(curCreature->getDefinition() != 0);
+    const Ogre::Vector3& scale = curCreature->getScale();
 
     // Load the mesh for the creature
     std::string creatureName = curCreature->getOgreNamePrefix() + curCreature->getName();
@@ -563,13 +556,13 @@ void RenderManager::rrOrientEntityToward(MovableGameEntity* gameEntity, const Og
     }
 }
 
-void RenderManager::rrScaleEntity(GameEntity* entity, const Ogre::Vector3& scale)
+void RenderManager::rrScaleEntity(GameEntity* entity)
 {
     OD_ASSERT_TRUE_MSG(entity->getEntityNode() != nullptr, "entity=" + entity->getName());
     if(entity->getEntityNode() == nullptr)
         return;
 
-    entity->getEntityNode()->scale(scale);
+    entity->getEntityNode()->setScale(entity->getScale());
 }
 
 void RenderManager::rrCreateWeapon(Creature* curCreature, const Weapon* curWeapon, const std::string& hand)
@@ -682,15 +675,15 @@ void RenderManager::rrPickUpEntity(GameEntity* curEntity, Player* localPlayer)
 
     // Attach the creature to the hand scene node
     mSceneManager->getSceneNode("Hand_node")->addChild(curEntityNode);
-    //FIXME we should probably use setscale for this, because of rounding.
-    curEntityNode->scale(0.333, 0.333, 0.333);
+    Ogre::Vector3 scale = curEntity->getScale();
+    scale *= 0.33;
+    curEntityNode->setScale(scale);
 
     // Move the other creatures in the player's hand to make room for the one just picked up.
     int i = 0;
     const std::vector<GameEntity*>& objectsInHand = localPlayer->getObjectsInHand();
-    for (std::vector<GameEntity*>::const_iterator it = objectsInHand.begin(); it != objectsInHand.end(); ++it)
+    for (GameEntity* tmpEntity : objectsInHand)
     {
-        const GameEntity* tmpEntity = *it;
         Ogre::SceneNode* tmpEntityNode = mSceneManager->getSceneNode(tmpEntity->getOgreNamePrefix() + tmpEntity->getName() + "_node");
         tmpEntityNode->setPosition((Ogre::Real)(i % 6 + 1), (Ogre::Real)(i / (int)6), (Ogre::Real)0.0);
         ++i;
@@ -706,14 +699,13 @@ void RenderManager::rrDropHand(GameEntity* curEntity, Player* localPlayer)
     // Attach the creature from the creature scene node
     curEntity->getParentSceneNode()->addChild(curEntityNode);
     curEntityNode->setPosition(curEntity->getPosition());
-    curEntityNode->scale(3.0, 3.0, 3.0);
+    curEntityNode->setScale(curEntity->getScale());;
 
     // Move the other creatures in the player's hand to replace the dropped one
     int i = 0;
     const std::vector<GameEntity*>& objectsInHand = localPlayer->getObjectsInHand();
-    for (std::vector<GameEntity*>::const_iterator it = objectsInHand.begin(); it != objectsInHand.end(); ++it)
+    for (GameEntity* tmpEntity : objectsInHand)
     {
-        const GameEntity* tmpEntity = *it;
         Ogre::SceneNode* tmpEntityNode = mSceneManager->getSceneNode(tmpEntity->getOgreNamePrefix() + tmpEntity->getName() + "_node");
         tmpEntityNode->setPosition((Ogre::Real)(i % 6 + 1), (Ogre::Real)(i / (int)6), (Ogre::Real)0.0);
         ++i;
@@ -725,9 +717,8 @@ void RenderManager::rrRotateHand(Player* localPlayer)
     // Loop over the creatures in our hand and redraw each of them in their new location.
     int i = 0;
     const std::vector<GameEntity*>& objectsInHand = localPlayer->getObjectsInHand();
-    for (std::vector<GameEntity*>::const_iterator it = objectsInHand.begin(); it != objectsInHand.end(); ++it)
+    for (GameEntity* tmpEntity : objectsInHand)
     {
-        const GameEntity* tmpEntity = *it;
         Ogre::SceneNode* tmpEntityNode = mSceneManager->getSceneNode(tmpEntity->getOgreNamePrefix() + tmpEntity->getName() + "_node");
         tmpEntityNode->setPosition((Ogre::Real)(i % 6 + 1), (Ogre::Real)(i / (int)6), (Ogre::Real)0.0);
         ++i;
@@ -740,7 +731,7 @@ void RenderManager::rrCreateCreatureVisualDebug(Creature* curCreature, Tile* cur
     {
         std::stringstream tempSS;
         tempSS << "Vision_indicator_" << curCreature->getName() << "_"
-        << curTile->x << "_" << curTile->y;
+            << curTile->x << "_" << curTile->y;
 
         Ogre::Entity* visIndicatorEntity = mSceneManager->createEntity(tempSS.str(),
                                            "Cre_vision_indicator.mesh");
@@ -758,7 +749,43 @@ void RenderManager::rrDestroyCreatureVisualDebug(Creature* curCreature, Tile* cu
 {
     std::stringstream tempSS;
     tempSS << "Vision_indicator_" << curCreature->getName() << "_"
-    << curTile->x << "_" << curTile->y;
+        << curTile->x << "_" << curTile->y;
+    if (mSceneManager->hasEntity(tempSS.str()))
+    {
+        Ogre::Entity* visIndicatorEntity = mSceneManager->getEntity(tempSS.str());
+        Ogre::SceneNode* visIndicatorNode = mSceneManager->getSceneNode(tempSS.str() + "_node");
+
+        visIndicatorNode->detachAllObjects();
+        mSceneManager->destroyEntity(visIndicatorEntity);
+        mSceneManager->destroySceneNode(visIndicatorNode);
+    }
+}
+
+void RenderManager::rrCreateSeatVisionVisualDebug(int seatId, Tile* tile)
+{
+    if (tile != nullptr)
+    {
+        std::stringstream tempSS;
+        tempSS << "Seat_Vision_indicator" << seatId << "_"
+            << tile->x << "_" << tile->y;
+
+        Ogre::Entity* visIndicatorEntity = mSceneManager->createEntity(tempSS.str(),
+                                           "Cre_vision_indicator.mesh");
+        Ogre::SceneNode* visIndicatorNode = mCreatureSceneNode->createChildSceneNode(tempSS.str()
+                                            + "_node");
+        visIndicatorNode->attachObject(visIndicatorEntity);
+        visIndicatorNode->setPosition(Ogre::Vector3((Ogre::Real)tile->x, (Ogre::Real)tile->y, (Ogre::Real)0));
+        visIndicatorNode->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,
+                                   BLENDER_UNITS_PER_OGRE_UNIT,
+                                   BLENDER_UNITS_PER_OGRE_UNIT));
+    }
+}
+
+void RenderManager::rrDestroySeatVisionVisualDebug(int seatId, Tile* tile)
+{
+    std::stringstream tempSS;
+    tempSS << "Seat_Vision_indicator" << seatId << "_"
+        << tile->x << "_" << tile->y;
     if (mSceneManager->hasEntity(tempSS.str()))
     {
         Ogre::Entity* visIndicatorEntity = mSceneManager->getEntity(tempSS.str());

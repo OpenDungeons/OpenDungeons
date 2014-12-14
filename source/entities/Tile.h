@@ -153,6 +153,8 @@ public:
     //! \brief This function puts a message in the renderQueue to change the mesh for this tile.
     void refreshMesh();
 
+    virtual Ogre::Vector3 getScale() const;
+
     //! \brief This function marks the tile as being selected through a mouse click or drag.
     void setSelected(bool ss, Player *pp);
 
@@ -309,6 +311,10 @@ public:
 
     bool addCraftedTrap(CraftedTrap* craftedTrap);
     bool removeCraftedTrap(CraftedTrap* craftedTrap);
+
+    //! \brief Computes the visible tiles and tags them to know which are visible
+    void computeVisibleTiles();
+    void notifyVision(Seat* seat);
 
 protected:
     virtual void createMeshLocal();

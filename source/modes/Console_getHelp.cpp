@@ -165,6 +165,20 @@ string Console::getHelpText(std::string arg)
                 + "visdebug skeletor\n\nThe above command wil turn on visual debugging for the creature named \'skeletor\'.  The same command will turn it back off again.";
     }
 
+    else if (arg.compare("seatvisdebug") == 0)
+    {
+        return "Visual debugging is a way to see all the tiles a given seat can see.\n\nExample:\n"
+                + mPrompt
+                + "seatvisdebug 1\n\nThe above command will show every tiles seat 1 can see.  The same command will turn it off.";
+    }
+
+    else if (arg.compare("setlevel") == 0)
+    {
+        return "Sets the level of a given creature.\n\nExample:\n"
+                + mPrompt
+                + "setlevel BigKnight1 10\n\nThe above command will set the creature \'BigKnight1\' to 10.";
+    }
+
     else if (arg.compare("turnspersecond") == 0 || arg.compare("tps") == 0)
     {
         return "turnspersecond (or \"tps\" for short is a utility which displays or sets the speed at which the game is running.\n\nExample:\n"

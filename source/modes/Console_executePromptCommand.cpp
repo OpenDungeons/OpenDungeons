@@ -802,6 +802,98 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         }
     }
 
+    // Start the visual debugging indicators for a given creature
+    else if (command.compare("seatvisdebug") == 0)
+    {
+        if (ODServer::getSingleton().isConnected())
+        {
+            if (arguments.length() > 0)
+            {
+                tempSS.str(arguments);
+                int seatId;
+                tempSS >> seatId;
+                // Activate visual debugging
+                Seat* seat = gameMap->getSeatById(seatId);
+                if (seat != NULL)
+                {
+                    if (!seat->getIsDebuggingVision())
+                    {
+                        if(ODClient::getSingleton().isConnected())
+                        {
+                            ODConsoleCommand* cc = new ODConsoleCommandDisplaySeatVisualDebug(seatId, true);
+                            ODServer::getSingleton().queueConsoleCommand(cc);
+                        }
+                        frameListener->mCommandOutput
+                                += "\nVisual debugging entities created for seat:  "
+                                        + arguments + "\n";
+                    }
+                    else
+                    {
+                        if(ODClient::getSingleton().isConnected())
+                        {
+                            ODConsoleCommand* cc = new ODConsoleCommandDisplaySeatVisualDebug(seatId, false);
+                            ODServer::getSingleton().queueConsoleCommand(cc);
+                        }
+                        frameListener->mCommandOutput
+                                += "\nVisual debugging entities destroyed for seat:  "
+                                        + arguments + "\n";
+                    }
+                }
+                else
+                {
+                    frameListener->mCommandOutput
+                            += "\nCould not create visual debugging entities for seat:  "
+                                    + arguments + "\n";
+                }
+            }
+            else
+            {
+                frameListener->mCommandOutput
+                        += "\nERROR:  You must supply a valid seat id debug vision for.\n";
+            }
+        }
+        else
+        {
+            frameListener->mCommandOutput
+                    += "\nERROR:  Visual debugging only works when you are hosting a game.\n";
+        }
+    }
+
+    // Changes the level of a given creature
+    else if (command.compare("setlevel") == 0)
+    {
+        if (ODServer::getSingleton().isConnected())
+        {
+            if (arguments.length() > 0)
+            {
+                tempSS.str(arguments);
+                std::string name;
+                int level;
+                tempSS >> name;
+                tempSS >> level;
+                // Activate visual debugging
+                if(ODClient::getSingleton().isConnected())
+                {
+                    ODConsoleCommand* cc = new ODConsoleCommandSetLevelCreature(name, level);
+                    ODServer::getSingleton().queueConsoleCommand(cc);
+                }
+                frameListener->mCommandOutput
+                        += "\nCommand sent to change creature level:  "
+                                + arguments + "\n";
+            }
+            else
+            {
+                frameListener->mCommandOutput
+                        += "\nERROR:  You must supply a valid creature name.\n";
+            }
+        }
+        else
+        {
+            frameListener->mCommandOutput
+                    += "\nERROR:  Only the server can change a creature level.\n";
+        }
+    }
+
     else if (command.compare("bspline") == 0)
     {
         if(!arguments.empty())

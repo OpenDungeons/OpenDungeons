@@ -35,10 +35,12 @@ possescreature
 refreshmesh
 rotatespeed
 save
+seatvisdebug
 setcamerafovx
 setcamerafovy
 setcolor
 setdest
+setlevel
 startcreatureculling
 starttileculling
 switchpolygonmode

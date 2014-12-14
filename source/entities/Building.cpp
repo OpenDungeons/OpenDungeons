@@ -51,6 +51,13 @@ void Building::destroyMeshLocal()
         RenderManager::getSingleton().rrDestroyBuilding(this, tile);
 }
 
+Ogre::Vector3 Building::getScale() const
+{
+    return Ogre::Vector3(RenderManager::BLENDER_UNITS_PER_OGRE_UNIT,
+        RenderManager::BLENDER_UNITS_PER_OGRE_UNIT,
+        RenderManager::BLENDER_UNITS_PER_OGRE_UNIT);
+}
+
 void Building::addBuildingObject(Tile* targetTile, RenderedMovableEntity* obj)
 {
     if(obj == NULL)

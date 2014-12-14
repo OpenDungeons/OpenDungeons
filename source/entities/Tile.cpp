@@ -79,6 +79,13 @@ void Tile::setType(TileType t)
     }
 }
 
+Ogre::Vector3 Tile::getScale() const
+{
+    return Ogre::Vector3(static_cast<Ogre::Real>(4.0 / RenderManager::BLENDER_UNITS_PER_OGRE_UNIT),
+        static_cast<Ogre::Real>(4.0 / RenderManager::BLENDER_UNITS_PER_OGRE_UNIT),
+        static_cast<Ogre::Real>(5.0 / RenderManager::BLENDER_UNITS_PER_OGRE_UNIT));
+}
+
 void Tile::setFullness(double f)
 {
     double oldFullness = getFullness();
@@ -1451,6 +1458,24 @@ Trap* Tile::getCoveringTrap() const
         return nullptr;
 
     return static_cast<Trap*>(mCoveringBuilding);
+}
+
+void Tile::computeVisibleTiles()
+{
+    if(type != claimed)
+        return;
+
+    // A claimed tile can see it self and its neighboors
+    getSeat()->notifyVisionOnTile(this);
+    for(Tile* tile : mNeighbors)
+    {
+        getSeat()->notifyVisionOnTile(tile);
+    }
+}
+
+void Tile::notifyVision(Seat* seat)
+{
+    seat->notifyVisionOnTile(this);
 }
 
 std::string Tile::displayAsString(Tile* tile)
