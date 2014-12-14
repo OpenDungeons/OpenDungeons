@@ -560,6 +560,7 @@ else()
     set(OD_ICON_FULLPATH ${OD_SHARE_PATH}/icons/hicolor/scalable/apps/opendungeons.svg)
 endif()
 configure_file(${CMAKE_CONFIG_DIR}/opendungeons.desktop.in ${CMAKE_BINARY_DIR}/opendungeons.desktop)
+configure_file(${CMAKE_CONFIG_DIR}/opendungeons.6.in ${CMAKE_BINARY_DIR}/opendungeons.6)
 
 ##################################
 ### Run-in-place customisation ###
@@ -609,9 +610,13 @@ if(UNIX)
     install(DIRECTORY ${OD_RESOURCES}
             DESTINATION ${OD_DATA_PATH})
 
-    # Additional distribution content (desktop file, icons, etc.)
+    # Additional distribution content (desktop file, icons, man page, doc)
     install(FILES ${CMAKE_BINARY_DIR}/opendungeons.desktop
             DESTINATION ${OD_SHARE_PATH}/applications)
+    install(FILES ${CMAKE_BINARY_DIR}/opendungeons.6
+            DESTINATION ${OD_SHARE_PATH}/man/man6)
+    install(FILES ${CMAKE_SOURCE_DIR}/{CREDITS,FAQ.txt}
+            DESTINATION ${OD_SHARE_PATH}/doc/${PROJECT_NAME})
     install(DIRECTORY ${CMAKE_SOURCE_DIR}/dist/hicolor
             DESTINATION ${OD_SHARE_PATH}/icons)
 endif()
@@ -622,11 +627,11 @@ endif()
 
 #Not used at the moment, more flexible to do the deb packages manually
 #TODO - set up for making tarballs
-set(CPACK_SOURCE_IGNORE_FILES "~$" "${CMAKE_SOURCE_DIR}.*/.svn/" "${CMAKE_SOURCE_DIR}/debian/")
-set(CPACK_PACKAGE_NAME opendungeons)
-set(CPACK_PACKAGE_VERSION ${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION}.${${PROJECT_NAME}_PATCH_LEVEL})
-set(CPACK_PACKAGE_CONTACT OpenDungeons Team)
-set(CPACK_GENERATOR "DEB")
-set(CPACK_SOURCE_GENERATOR "DEB")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libcegui (>= 0.8.3), libois-1.2.0, libsfml-audio2.0, libopenal1, libogremain-1.9.0")
-include(CPack)
+# set(CPACK_SOURCE_IGNORE_FILES "~$" "${CMAKE_SOURCE_DIR}.*/.svn/" "${CMAKE_SOURCE_DIR}/debian/")
+# set(CPACK_PACKAGE_NAME opendungeons)
+# set(CPACK_PACKAGE_VERSION ${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION}.${${PROJECT_NAME}_PATCH_LEVEL})
+# set(CPACK_PACKAGE_CONTACT OpenDungeons Team)
+# set(CPACK_GENERATOR "DEB")
+# set(CPACK_SOURCE_GENERATOR "DEB")
+# set(CPACK_DEBIAN_PACKAGE_DEPENDS "libcegui (>= 0.8.3), libois-1.2.0, libsfml-audio2.0, libopenal1, libogremain-1.9.0")
+# include(CPack)

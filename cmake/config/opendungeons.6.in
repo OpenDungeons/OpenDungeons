@@ -1,0 +1,43 @@
+.\" Process this file with: groff -man -Tlatin1 foo.1
+.\" Please report any issue with this man page at
+.\" https://github.com/OpenDungeons/OpenDungeons/issues
+.TH OPENDUNGEONS 6 "December 2014" Linux
+.SH NAME
+OpenDungeons \- RTS game in dark, damp and dangerous dungeons
+.SH SYNOPSIS
+.B opendungeons
+.SH DESCRIPTION
+OpenDungeons is an open source, real time strategy game sharing game
+elements with the Dungeon Keeper series and Evil Genius. Players build
+an underground dungeon which is inhabited by creatures. Players fight
+each other for control of the underground by indirectly commanding their
+minions, directly casting spells in combat, and luring enemies
+into sinister traps.
+.SH OPTIONS
+As of version 0.4.9, OpenDungeons is configured at startup via the
+OGRE Settings Manager, therefore there are no command-line options.
+.SH FILES
+~/.config/opendungeons/ogre.cfg
+.RS
+User-specific configuration file.
+.RE
+~/.local/share/opendungeons/
+.RS
+Holds logs (opendungeons.log and CEGUI.log), screenshots and replays.
+.RE
+@OD_DATA_PATH@/
+.RS
+Arch-independant game data files
+.RE
+@OD_SHARE_PATH@/doc/opendungeons/
+.RS
+Additional documentation files
+.RE
+.SH BUGS
+OpenDungeons is ongoing steady development and has both known and unnoticed
+bugs. If you encounter a bug, please visit OpenDungeon's issue tracker at
+\fIhttps://github.com/OpenDungeons/OpenDungeons/issues\fR and report it there.
+.SH AUTHOR
+Man page written by Rémi Verschelde <remi@verschelde.fr> on behalf of the
+OpenDungeons development team. Please report any issue to the whole team
+using the bug tracker linked in the \fBBUGS\fR section.
