@@ -1,18 +1,18 @@
 [Graphics]
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/RTShaderLib
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/RTShaderLib/materials
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/RTShaderLib/GLSL
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/RTShaderLib/Cg
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/scripts
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/textures
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/models
+FileSystem=materials/RTShaderLib
+FileSystem=materials/RTShaderLib/materials
+FileSystem=materials/RTShaderLib/GLSL
+FileSystem=materials/RTShaderLib/GLSL150
+FileSystem=materials/scripts
+FileSystem=materials/textures
+FileSystem=models
 
 [GUI]
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/gui
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/gui/schemas
+FileSystem=gui
+FileSystem=gui/schemas
 
 [Music]
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/music
+FileSystem=music
 
 [Sound]
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/sounds
+FileSystem=sounds
