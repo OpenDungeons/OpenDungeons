@@ -129,10 +129,16 @@ void ResourceManager::setupDataPath()
     // Useful for developers.
     std::string resourceCfg = "./" + RESOURCECFG;
     if (boost::filesystem::exists(resourceCfg.c_str()))
+    {
+        // Don't warn on Windows as it is the default behaviour...
+#if OGRE_PLATFORM != OGRE_PLATFORM_WIN32
+        std::cout << "Note: Found data in the current folder. This data will be used instead of the installed one." << std::endl;
+#endif
         mGameDataPath = "./";
+    }
 #endif
 
-    std::cout << "Game data path is: " << mUserConfigPath << std::endl;
+    std::cout << "Game data path is: " << mGameDataPath << std::endl;
 
 #ifndef OGRE_STATIC_LIB
     mPluginsPath = mGameDataPath + PLUGINSCFG;
