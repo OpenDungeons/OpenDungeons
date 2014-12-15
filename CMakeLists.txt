@@ -615,7 +615,7 @@ if(UNIX)
             DESTINATION ${OD_SHARE_PATH}/applications)
     install(FILES ${CMAKE_BINARY_DIR}/opendungeons.6
             DESTINATION ${OD_SHARE_PATH}/man/man6)
-    install(FILES ${CMAKE_SOURCE_DIR}/{CREDITS,FAQ.txt}
+    install(FILES ${CMAKE_SOURCE_DIR}/{AUTHORS,CREDITS,FAQ.txt}
             DESTINATION ${OD_SHARE_PATH}/doc/${PROJECT_NAME})
     install(DIRECTORY ${CMAKE_SOURCE_DIR}/dist/hicolor
             DESTINATION ${OD_SHARE_PATH}/icons)
