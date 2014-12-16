@@ -1,0 +1,52 @@
+OpenDungeons_Version:0.4.9  # The version of OpenDungeons which created this file (for compatibility reasons).
+
+[Info]
+Name	Template level
+Description	Template level, ready to be edited to change the map size
+Music	yd_Searching_ingame.ogg
+FightMusic	The_Dark_Amulet.ogg
+[/Info]
+
+[Seats]
+# seatId	teamId	player	faction	startingX	startingY	color	startingGold
+1	1	Human	Keeper	5	5	1	1000
+2	2	AI	Keeper	40	40	2	1000
+3	3	AI	Keeper	70	70	3	1000
+[/Seats]
+
+[Goals]
+# goalName	arguments
+KillAllEnemies	NULL
+ProtectDungeonTemple	NULL
+[/Goals]
+
+[Tiles]
+# Map Size
+75 # MapSizeX
+75 # MapSizeY
+# posX	posY	type	fullness
+[/Tiles]
+
+[Rooms]
+# typeRoom	seatId	numTiles		Subsequent Lines: tileX	tileY
+# Use typeRoom 1 for Dungeon Temple and typeRoom 4 for Portal
+[/Rooms]
+
+[Traps]
+# typeTrap	seatId	numTiles		Subsequent Lines: tileX	tileY	isActivated(0/1)		Subsequent Lines: optional specific data
+[/Traps]
+
+[Lights]
+# posX	posY	posZ	diffuseR	diffuseG	diffuseB	specularR	specularG	specularB	attenRange	attenConst	attenLin	attenQuad
+5	5	3.75	0.9	0.8	0.6	0.2	0.2	0.2	50	0.012	0.32	0.0018
+[/Lights]
+
+[CreatureDefinitions]
+[/CreatureDefinitions]
+
+[EquipmentDefinitions]
+[/EquipmentDefinitions]
+
+[Creatures]
+# SeatId	ClassName	Name	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeapon	RightWeapon
+[/Creatures]
