@@ -16,6 +16,7 @@ resources.cfg
 *.sh
 *.zip
 *.a
+*.level.bak
 
 *~*
 .*.swp
