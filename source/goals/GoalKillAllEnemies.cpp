@@ -60,15 +60,15 @@ bool GoalKillAllEnemies::isMet(Seat *s)
 
 std::string GoalKillAllEnemies::getSuccessMessage(Seat *s)
 {
-    return "You have killed all the enemy creatures.";
+    return "You have killed all the enemy creatures,\ntemples and portals.";
 }
 
 std::string GoalKillAllEnemies::getFailedMessage(Seat *s)
 {
-    return "You have failed to kill all the enemy creatures.";
+    return "You have failed to kill all the enemy creatures,\ntemples and portals.";
 }
 
 std::string GoalKillAllEnemies::getDescription(Seat *s)
 {
-    return "Kill all enemy creatures.";
+    return "Kill all enemy creatures,\ntemples and portals.";
 }
