@@ -39,7 +39,7 @@
         <Window type="OD/ImageButton" name="LibraryButton" >
             <Property name="Area" value="{{0,400},{0,21},{0,460},{0,81}}" />
             <Property name="NormalImage" value="OpenDungeonsIcons/LibraryButton" />
-            <Property name="TooltipText" value="Build a Hatchery" />
+            <Property name="TooltipText" value="Build a Library" />
             <Property name="InheritsAlpha" value="False" />
         </Window>
         <Window type="OD/ImageButton" name="CryptButton" >
