@@ -32,19 +32,30 @@ GoalKillAllEnemies::GoalKillAllEnemies(const std::string& nName,
 
 bool GoalKillAllEnemies::isMet(Seat *s)
 {
-    bool enemiesFound = false;
-
     // Loop over all the creatures in the game map and check to see if any of them are of a different color than our seat.
     for (unsigned int i = 0, num = mGameMap->numCreatures(); i < num; ++i)
     {
         if (!mGameMap->getCreature(i)->getSeat()->isAlliedSeat(s))
-        {
-            enemiesFound = true;
-            break;
-        }
+            return false;
     }
 
-    return !enemiesFound;
+    // Considers also creature spawner rooms as enemy to be killed.
+    // Temples
+    std::vector<Room*> temples = mGameMap->getRoomsByType(Room::dungeonTemple);
+    for (Room* temple : temples)
+    {
+        if (!temple->getSeat()->isAlliedSeat(s))
+            return false;
+    }
+    // Portals
+    std::vector<Room*> portals = mGameMap->getRoomsByType(Room::portal);
+    for (Room* portal : portals)
+    {
+        if (!portal->getSeat()->isAlliedSeat(s))
+            return false;
+    }
+
+    return true;
 }
 
 std::string GoalKillAllEnemies::getSuccessMessage(Seat *s)
