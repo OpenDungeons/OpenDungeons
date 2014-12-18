@@ -1465,6 +1465,9 @@ void Tile::computeVisibleTiles()
     if(type != claimed)
         return;
 
+    if(getSeat() == nullptr)
+        return;
+
     // A claimed tile can see it self and its neighboors
     getSeat()->notifyVisionOnTile(this);
     for(Tile* tile : mNeighbors)
