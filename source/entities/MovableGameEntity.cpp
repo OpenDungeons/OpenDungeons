@@ -195,8 +195,7 @@ void MovableGameEntity::setAnimationState(const std::string& state, bool loop, O
 
 double MovableGameEntity::getAnimationSpeedFactor()
 {
-    double tempDouble = mAnimationSpeedFactor;
-    return tempDouble;
+    return mAnimationSpeedFactor;
 }
 
 void MovableGameEntity::setAnimationSpeedFactor(double f)
