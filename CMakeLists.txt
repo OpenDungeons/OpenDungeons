@@ -603,6 +603,10 @@ if(UNIX)
                        ${CMAKE_SOURCE_DIR}/scripts
                        ${CMAKE_SOURCE_DIR}/sounds)
 
+    set(OD_DOC         ${CMAKE_SOURCE_DIR}/AUTHORS
+                       ${CMAKE_SOURCE_DIR}/CREDITS
+                       ${CMAKE_SOURCE_DIR}/FAQ.txt)
+
     # Install required game files: binary, configuration files and resources
     install(TARGETS ${PROJECT_BINARY_NAME}
             DESTINATION ${OD_BIN_PATH}
@@ -617,7 +621,7 @@ if(UNIX)
             DESTINATION ${OD_SHARE_PATH}/applications)
     install(FILES ${CMAKE_BINARY_DIR}/opendungeons.6
             DESTINATION ${OD_SHARE_PATH}/man/man6)
-    install(FILES ${CMAKE_SOURCE_DIR}/{AUTHORS,CREDITS,FAQ.txt}
+    install(FILES ${OD_DOC}
             DESTINATION ${OD_SHARE_PATH}/doc/${PROJECT_NAME})
     install(DIRECTORY ${CMAKE_SOURCE_DIR}/dist/hicolor
             DESTINATION ${OD_SHARE_PATH}/icons)
