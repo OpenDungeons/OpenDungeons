@@ -21,9 +21,7 @@ set(OD_MINOR_VERSION 4)
 set(OD_PATCH_LEVEL   9)
 
 # Set the project version ready to be used in the code.
-if(MSVC)
-    set(OD_VERSION "/DOD_VERSION=\\\"${OD_MAJOR_VERSION}.${OD_MINOR_VERSION}.${OD_PATCH_LEVEL}\\\"")
-else()
+if(NOT MSVC)
     set(OD_VERSION "-DOD_VERSION=\\\"${OD_MAJOR_VERSION}.${OD_MINOR_VERSION}.${OD_PATCH_LEVEL}\\\"")
 endif()
 
@@ -37,9 +35,7 @@ else()
     set(OD_SHARE_PATH ${CMAKE_INSTALL_PREFIX}/share CACHE PATH "Absolute path to the shared data directory (desktop file, icons, etc.)")
 endif()
 
-if(MSVC)
-    set(OD_DATA_PATH_FLAG "/DOD_DATA_PATH=\\\"${OD_DATA_PATH}\\\"")
-else()
+if(NOT MSVC)
     set(OD_DATA_PATH_FLAG "-DOD_DATA_PATH=\\\"${OD_DATA_PATH}\\\"")
 endif()
 
@@ -95,11 +91,8 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    if(MSVC)
-        add_definitions("/DOD_DEBUG")
-    else()
-        add_definitions("-DOD_DEBUG")
-    endif()
+# For MSVC builds, the debug flags is added below.
+    add_definitions("-DOD_DEBUG")
 endif()
 
 ##################################
@@ -139,6 +132,26 @@ else()
             set(OD_CXX11_FLAGS "-std=c++11" CACHE STRING "Compilation flags to enable C++11 support" FORCE)
         endif()
     endif()
+endif()
+
+# Set compiler options in MSVC
+if(WIN32 AND MSVC)
+    #Set some extra compiler flags
+    #TODO - investigate if these are what they should be
+    set(PLATFORM_C_FLAGS "/W3 /MD /Od /DWIN32 /D_WINDOWS /Gm /Gy /fp:fast /ZI /EHsc")
+    set(PLATFORM_C_FLAGS_DEBUG "/W3 /MDd /Od /Gm /Gy /fp:fast /ZI /DOD_DEBUG" )
+
+    # Set the application version
+    set(OD_VERSION "/DOD_VERSION=\\\"${OD_MAJOR_VERSION}.${OD_MINOR_VERSION}.${OD_PATCH_LEVEL}\\\"")
+    set(PLATFORM_C_FLAGS_DEBUG "${PLATFORM_C_FLAGS_DEBUG} ${OD_VERSION}")
+
+    # Set the data path
+    set(OD_DATA_PATH_FLAG "/DOD_DATA_PATH=\\\"${OD_DATA_PATH}\\\"")
+    set(PLATFORM_C_FLAGS_DEBUG "${PLATFORM_C_FLAGS_DEBUG} ${OD_DATA_PATH_FLAG}")
+
+    set(CMAKE_CXX_FLAGS "${PLATFORM_C_FLAGS}")
+    set(CMAKE_CXX_FLAGS_RELEASE "${PLATFORM_C_FLAGS}")
+    set(CMAKE_CXX_FLAGS_DEBUG "${PLATFORM_C_FLAGS_DEBUG}")
 endif()
 
 set(CMAKE_CXX_FLAGS "${OD_CXX11_FLAGS} ${OD_OPT_FLAGS} ${CMAKE_CXX_FLAGS} ${OD_VERSION} ${OD_DATA_PATH_FLAG}")
@@ -346,7 +359,6 @@ else()
     message(STATUS "SFML include directory: ${SFML_INCLUDE_DIR}; SFML audio library: ${SFML_AUDIO_LIBRARY_DEBUG} ${SFML_AUDIO_LIBRARY_RELEASE}")
 endif()
 
-
 #This has to cover the versions not already known by CMake
 set(Boost_ADDITIONAL_VERSIONS 1.47 1.47.0 1.47.1 1.55.0)
 
@@ -459,6 +471,14 @@ target_link_libraries(
     #${CEGUI_LIBRARIES_DEBUG}
 )
 
+# Set linker options in MSVC
+if(WIN32 AND MSVC)
+    # We need to force output because of the boost lib used, defining two times the
+    # same set of functions, once for Ogre, once for OD. It is harmless in our case
+    # to select this option.
+    SET_TARGET_PROPERTIES(${PROJECT_BINARY_NAME} PROPERTIES LINK_FLAGS " /FORCE:MULTIPLE")
+endif()
+
 # The name of the OGRE Overlay library is available as CMAKE variable, also discovering debug versions correctly; please leave it like that!
 target_link_libraries(${PROJECT_BINARY_NAME} ${OGRE_Overlay_LIBRARY})
 
@@ -480,22 +500,6 @@ target_link_libraries(
     debug ${SFML_SYSTEM_LIBRARY_DEBUG}
     debug ${SFML_NETWORK_LIBRARY_DEBUG}
 )
-
-# Set compiler options in MSVC
-if(WIN32 AND MSVC_IDE)
-    #Set some extra compiler flags
-    #TODO - investigate if these are what they should be
-    set( PLATFORM_C_FLAGS "/W3 /MD /Od /D \"WIN32\" /D \"_WINDOWS\" /Gm /Gy /fp:fast /ZI /EHsc" )
-    set( PLATFORM_C_FLAGS_DEBUG "/W3 /MDd /Od /Gm /Gy /fp:fast /ZI /DOD_DEBUG" )
-
-    set( CMAKE_CXX_FLAGS "${PLATFORM_C_FLAGS}" )
-    set( CMAKE_CXX_FLAGS_RELEASE "${PLATFORM_C_FLAGS}" )
-    set( CMAKE_CXX_FLAGS_DEBUG "${PLATFORM_C_FLAGS_DEBUG}" )
-# We need to force output because of the boost lib used, defining two times the
-# same set of functions, once for Ogre, once for OD. It is harmless in our case
-# to select this option.
-    SET_TARGET_PROPERTIES(${PROJECT_BINARY_NAME} PROPERTIES LINK_FLAGS " /FORCE:MULTIPLE")
-endif()
 
 ##################################
 #### Unit testing ################
@@ -520,8 +524,6 @@ if(WIN32)
     set(OD_OGRE_PLUGIN_DIR_REL "plugins")
     set(OD_OGRE_PLUGIN_DIR_DBG "plugins")
 else()
-    #only use d3d renderer plugins if we are on windows
-    set(OD_COMMENT_D3D "#")
     #On linux, we should look in the standard paths for plugins
     if("${OGRE_PLUGIN_DIR_REL}" STREQUAL "")
         #Try pkgconfig if the ogre module doesn't set the plugin paths
