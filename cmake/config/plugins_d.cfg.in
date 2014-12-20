@@ -4,6 +4,7 @@
 PluginFolder=@OD_OGRE_PLUGIN_DIR_DBG@
 
 # Define plugins
+@OD_COMMENT_D3D@Plugin=RenderSystem_Direct3D9
 Plugin=RenderSystem_GL_d
 #Plugin=Plugin_ParticleFX_d
 
