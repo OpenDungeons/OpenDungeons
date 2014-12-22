@@ -524,9 +524,6 @@ if(WIN32)
     set(OD_OGRE_PLUGIN_DIR_REL "plugins")
     set(OD_OGRE_PLUGIN_DIR_DBG "plugins")
 else()
-    # Only use the D3D renderer plugin if we are on windows.
-    set(OD_COMMENT_D3D "#")
-
     #On linux, we should look in the standard paths for plugins
     if("${OGRE_PLUGIN_DIR_REL}" STREQUAL "")
         #Try pkgconfig if the ogre module doesn't set the plugin paths
