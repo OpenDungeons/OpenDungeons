@@ -111,6 +111,7 @@ void RoomPortal::doUpkeep()
     if (mSpawnCreatureCountdown > 0)
     {
         --mSpawnCreatureCountdown;
+        mPortalObject->setAnimationState("Idle");
         return;
     }
 
@@ -128,7 +129,7 @@ void RoomPortal::spawnCreature()
     std::cout << "Portal: " << getName() << "  spawn creature..." << std::endl;
 
     if (mPortalObject != NULL)
-        mPortalObject->setAnimationState("Spawn", false);
+        mPortalObject->setAnimationState("Triggered", false);
 
     // If the room has been destroyed, or has not yet been assigned any tiles, then we
     // cannot determine where to place the new creature and we should just give up.
