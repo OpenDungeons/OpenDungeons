@@ -44,9 +44,7 @@ public:
     virtual bool tryPickup(Seat* seat, bool isEditorMode);
     virtual void pickup();
     virtual bool tryDrop(Seat* seat, Tile* tile, bool isEditorMode);
-    virtual void drop(const Ogre::Vector3& v);
 
-    virtual void setPosition(const Ogre::Vector3& v);
     bool eatChicken(Creature* creature);
 
     bool canSlap(Seat* seat, bool isEditorMode);
@@ -68,7 +66,6 @@ private:
     ChickenState mChickenState;
     int32_t mNbTurnOutsideHatchery;
     int32_t mNbTurnDie;
-    bool mIsDropped;
     bool mIsSlapped;
 
     void addTileToListIfPossible(int x, int y, Room* currentHatchery, std::vector<Tile*>& possibleTileMove);

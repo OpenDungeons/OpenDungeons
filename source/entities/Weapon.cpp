@@ -17,6 +17,8 @@
 
 #include "entities/Weapon.h"
 
+#include "network/ODPacket.h"
+
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
@@ -182,4 +184,30 @@ void Weapon::writeWeaponDiff(const Weapon* def1, const Weapon* def2, std::ofstre
 
     file << "    [/Stats]" << std::endl;
     file << "[/Equipment]" << std::endl;
+}
+
+ODPacket& operator <<(ODPacket& os, const Weapon *weapon)
+{
+    os << weapon->mName;
+    os << weapon->mBaseDefinition;
+    os << weapon->mMeshName;
+    os << weapon->mPhysicalDamage;
+    os << weapon->mMagicalDamage;
+    os << weapon->mRange;
+    os << weapon->mPhysicalDefense;
+    os << weapon->mMagicalDefense;
+    return os;
+}
+
+ODPacket& operator >>(ODPacket& is, Weapon *weapon)
+{
+    OD_ASSERT_TRUE(is >> weapon->mName);
+    OD_ASSERT_TRUE(is >> weapon->mBaseDefinition);
+    OD_ASSERT_TRUE(is >> weapon->mMeshName);
+    OD_ASSERT_TRUE(is >> weapon->mPhysicalDamage);
+    OD_ASSERT_TRUE(is >> weapon->mMagicalDamage);
+    OD_ASSERT_TRUE(is >> weapon->mRange);
+    OD_ASSERT_TRUE(is >> weapon->mPhysicalDefense);
+    OD_ASSERT_TRUE(is >> weapon->mMagicalDefense);
+    return is;
 }

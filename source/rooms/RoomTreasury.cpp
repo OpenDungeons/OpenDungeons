@@ -103,10 +103,11 @@ bool RoomTreasury::removeCoveredTile(Tile* t)
             LogManager::getSingleton().logMessage("Room " + getName()
                 + ", tile=" + Tile::displayAsString(t) + " releases gold amount = "
                 + Ogre::StringConverter::toString(value));
-            TreasuryObject* to = new TreasuryObject(getGameMap(), value);
-            Ogre::Vector3 pos(static_cast<Ogre::Real>(t->x), static_cast<Ogre::Real>(t->y), 0.0f);
-            to->setPosition(pos);
-            getGameMap()->addRenderedMovableEntity(to);
+            TreasuryObject* obj = new TreasuryObject(getGameMap(), value);
+            getGameMap()->addRenderedMovableEntity(obj);
+            Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(t->x), static_cast<Ogre::Real>(t->y), 0.0f);
+            obj->createMesh();
+            obj->setPosition(spawnPosition, false);
         }
         mGoldInTile.erase(t);
     }
@@ -163,18 +164,21 @@ int RoomTreasury::depositGold(int gold, Tile *tile)
     if(getGameMap()->isServerGameMap() == false)
         return wasDeposited;
 
-    // Tells the client to play a deposit gold sound
-    try
+    // Tells the client to play a deposit gold sound. For now, we only send it to the players
+    // with vision on tile
+    for(Seat* seat : getGameMap()->getSeats())
     {
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+        if(!seat->hasVisionOnTile(tile))
+            continue;
+
         ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::playSpatialSound, NULL);
+            ServerNotification::playSpatialSound, nullptr);
         serverNotification->mPacket << SoundEffectsManager::DEPOSITGOLD << tile->getX() << tile->getY();
         ODServer::getSingleton().queueServerNotification(serverNotification);
-    }
-    catch (std::bad_alloc&)
-    {
-        Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in RoomTreasury::depositGold", Ogre::LML_CRITICAL);
-        exit(1);
     }
 
     return wasDeposited;
@@ -276,7 +280,7 @@ void RoomTreasury::updateMeshesForTile(Tile* t)
     mFullnessOfTile[t] = newFullness;
 }
 
-bool RoomTreasury::hasCarryEntitySpot(GameEntity* carriedEntity)
+bool RoomTreasury::hasCarryEntitySpot(MovableGameEntity* carriedEntity)
 {
     // We might accept more gold than empty space (for example, if there are 100 gold left
     // and 2 different workers want to bring a treasury) but we don't care
@@ -293,7 +297,7 @@ bool RoomTreasury::hasCarryEntitySpot(GameEntity* carriedEntity)
     return true;
 }
 
-Tile* RoomTreasury::askSpotForCarriedEntity(GameEntity* carriedEntity)
+Tile* RoomTreasury::askSpotForCarriedEntity(MovableGameEntity* carriedEntity)
 {
     if(!hasCarryEntitySpot(carriedEntity))
         return nullptr;
@@ -301,7 +305,7 @@ Tile* RoomTreasury::askSpotForCarriedEntity(GameEntity* carriedEntity)
     return mCoveredTiles[0];
 }
 
-void RoomTreasury::notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity)
+void RoomTreasury::notifyCarryingStateChanged(Creature* carrier, MovableGameEntity* carriedEntity)
 {
     // If a treasury is deposited on the treasury, no need to handle it here.
     // It will handle himself alone

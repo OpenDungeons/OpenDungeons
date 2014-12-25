@@ -155,6 +155,8 @@ public:
 
     void setPlayer(Player* player);
 
+    void addAlliedSeat(Seat* seat);
+
     void initSpawnPool();
 
     const CreatureDefinition* getNextCreatureClassToSpawn();
@@ -175,12 +177,19 @@ public:
     //! \brief Returns true if this seat can see the given tile and false otherwise
     bool hasVisionOnTile(Tile* tile);
 
+    //! \brief Checks if the visible tiles seen by this seat have changed and notify
+    //! the players if yes
+    void notifyChangedVisibleTiles();
+
     //! \brief Server side to display the tile this seat has vision on
     void displaySeatVisualDebug(bool enable);
 
     //! \brief Client side to display the tile this seat has vision on
     void refreshVisualDebugEntities(const std::vector<Tile*>& tiles);
     void stopVisualDebugEntities();
+
+    const std::vector<Seat*>& getAlliedSeats()
+    { return mAlliedSeats; }
 
     static bool sortForMapSave(Seat* s1, Seat* s2);
 
@@ -249,6 +258,9 @@ private:
 
     //! \brief Team ids this seat can use defined in the level file.
     std::vector<int> mAvailableTeamIds;
+
+    //! \brief Contains all the seats allied with the current one, not including it. Used on server side only.
+    std::vector<Seat*> mAlliedSeats;
 
     //! \brief The creatures the current seat is allowed to spawn (when following the conditions). CreatureDefinition
     //! are managed by the configuration manager and should NOT be deleted. The boolean will be set to false at beginning

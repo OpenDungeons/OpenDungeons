@@ -276,7 +276,7 @@ void RoomForge::doUpkeep()
             {
                 Ogre::Vector3 walkDirection(ro->getPosition().x - creature->getPosition().x, ro->getPosition().y - creature->getPosition().y, 0);
                 walkDirection.normalise();
-                creature->setAnimationState("Attack1", false, &walkDirection);
+                creature->setAnimationState("Attack1", false, walkDirection);
 
                 ro->setAnimationState("Triggered", false);
                 // TODO : use efficiency from creature for this room
@@ -318,23 +318,23 @@ void RoomForge::doUpkeep()
         return;
 
     CraftedTrap* craftedTrap = new CraftedTrap(getGameMap(), getName(), mTrapType);
-    Ogre::Vector3 pos(static_cast<Ogre::Real>(tileCraftedTrap->x), static_cast<Ogre::Real>(tileCraftedTrap->y), 0.0f);
-    craftedTrap->setPosition(pos);
-    tileCraftedTrap->addCraftedTrap(craftedTrap);
     getGameMap()->addRenderedMovableEntity(craftedTrap);
+    Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(tileCraftedTrap->getX()), static_cast<Ogre::Real>(tileCraftedTrap->getY()), static_cast<Ogre::Real>(0.0));
+    craftedTrap->createMesh();
+    craftedTrap->setPosition(spawnPosition, false);
     mPoints -= pointsNeeded;
     mTrapType = Trap::TrapType::nullTrapType;
 }
 
 uint32_t RoomForge::countCraftedItemsOnRoom()
 {
-    std::vector<GameEntity*> carryable;
+    std::vector<MovableGameEntity*> carryable;
     for(Tile* t : mCoveredTiles)
     {
         t->fillWithCarryableEntities(carryable);
     }
     uint32_t nbCraftedTrap = 0;
-    for(GameEntity* entity : carryable)
+    for(MovableGameEntity* entity : carryable)
     {
         if(entity->getObjectType() != GameEntity::ObjectType::renderedMovableEntity)
             continue;
@@ -354,9 +354,9 @@ Tile* RoomForge::checkIfAvailableSpot(const std::vector<Tile*>& activeSpots)
     {
         // If the tile contains no crafted trap, we can add a new one
         bool isFilled = false;
-        std::vector<GameEntity*> entities;
+        std::vector<MovableGameEntity*> entities;
         tile->fillWithCarryableEntities(entities);
-        for(GameEntity* entity : entities)
+        for(MovableGameEntity* entity : entities)
         {
             if(entity->getObjectType() != GameEntity::ObjectType::renderedMovableEntity)
                 continue;

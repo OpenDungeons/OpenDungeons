@@ -99,20 +99,11 @@ void RoomDungeonTemple::produceKobold()
     }
 
     Creature* newCreature = new Creature(getGameMap(), classToSpawn);
-    newCreature->setPosition(Ogre::Vector3((Ogre::Real)mCoveredTiles[0]->x,
-                                            (Ogre::Real)mCoveredTiles[0]->y,
-                                            (Ogre::Real)0));
+    Tile* tileSpawn = mCoveredTiles[0];
     newCreature->setSeat(getSeat());
 
-    newCreature->createMesh();
     getGameMap()->addCreature(newCreature);
-
-    // Inform the clients
-    if (getGameMap()->isServerGameMap())
-    {
-        ServerNotification *serverNotification = new ServerNotification(
-           ServerNotification::addCreature, getGameMap()->getPlayerBySeat(getSeat()));
-        newCreature->exportToPacket(serverNotification->mPacket);
-        ODServer::getSingleton().queueServerNotification(serverNotification);
-    }
+    Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(tileSpawn->getX()), static_cast<Ogre::Real>(tileSpawn->getY()), static_cast<Ogre::Real>(0.0));
+    newCreature->createMesh();
+    newCreature->setPosition(spawnPosition, false);
 }

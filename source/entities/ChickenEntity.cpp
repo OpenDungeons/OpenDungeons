@@ -32,7 +32,6 @@ ChickenEntity::ChickenEntity(GameMap* gameMap, const std::string& hatcheryName) 
     mChickenState(ChickenState::free),
     mNbTurnOutsideHatchery(0),
     mNbTurnDie(0),
-    mIsDropped(false),
     mIsSlapped(false)
 {
 }
@@ -42,7 +41,6 @@ ChickenEntity::ChickenEntity(GameMap* gameMap) :
     mChickenState(ChickenState::free),
     mNbTurnOutsideHatchery(0),
     mNbTurnDie(0),
-    mIsDropped(false),
     mIsSlapped(false)
 {
     setMeshName("Chicken");
@@ -104,7 +102,6 @@ void ChickenEntity::doUpkeep()
     {
         mChickenState = ChickenState::dying;
         clearDestinations();
-        tile->removeChickenEntity(this);
         setAnimationState("Die", false);
         return;
     }
@@ -208,7 +205,7 @@ void ChickenEntity::pickup()
     OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
     if(tile == nullptr)
         return;
-    OD_ASSERT_TRUE(tile->removeChickenEntity(this));
+    OD_ASSERT_TRUE(tile->removeEntity(this));
 }
 
 bool ChickenEntity::tryDrop(Seat* seat, Tile* tile, bool isEditorMode)
@@ -227,36 +224,6 @@ bool ChickenEntity::tryDrop(Seat* seat, Tile* tile, bool isEditorMode)
     return false;
 }
 
-void ChickenEntity::drop(const Ogre::Vector3& v)
-{
-    mIsDropped = true;
-    RenderedMovableEntity::drop(v);
-    mIsDropped = false;
-}
-
-void ChickenEntity::setPosition(const Ogre::Vector3& v)
-{
-    if(!getIsOnMap())
-        return;
-
-    if(mChickenState != ChickenState::free)
-        return;
-
-    Tile* oldTile = getPositionTile();
-    RenderedMovableEntity::setPosition(v);
-    Tile* tile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
-    if(tile == nullptr)
-        return;
-    if(!mIsDropped && (tile == oldTile))
-        return;
-
-    if(oldTile != nullptr)
-        oldTile->removeChickenEntity(this);
-
-    OD_ASSERT_TRUE(tile->addChickenEntity(this));
-}
-
 bool ChickenEntity::eatChicken(Creature* creature)
 {
     Tile* tile = getPositionTile();
@@ -267,8 +234,9 @@ bool ChickenEntity::eatChicken(Creature* creature)
     if(mChickenState != ChickenState::free)
         return false;
 
-    OD_ASSERT_TRUE(tile->removeChickenEntity(this));
+    OD_ASSERT_TRUE(tile->removeEntity(this));
     mChickenState = ChickenState::eaten;
+    clearDestinations();
     return true;
 }
 

@@ -67,10 +67,10 @@ public:
      */
     virtual void exportHeadersToStream(std::ostream& os);
     virtual void exportHeadersToPacket(ODPacket& os);
-    //! \brief Exports the data of the RenderedMovableEntity
-    virtual void exportToStream(std::ostream& os);
+    //! \brief Exports the data of the Room
+    virtual void exportToStream(std::ostream& os) const;
     virtual void importFromStream(std::istream& is);
-    virtual void exportToPacket(ODPacket& os);
+    virtual void exportToPacket(ODPacket& os) const;
     virtual void importFromPacket(ODPacket& is);
 
     virtual RoomType getType() const = 0;

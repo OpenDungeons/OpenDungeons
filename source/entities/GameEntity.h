@@ -57,11 +57,9 @@ class GameEntity
           GameMap*        gameMap,
           std::string     name       = std::string(),
           std::string     meshName   = std::string(),
-          float           opacity     = 1.0f,
           Seat*           seat        = nullptr
           ) :
     mPosition          (Ogre::Vector3(0, 0, 0)),
-    mOpacity           (opacity),
     mName              (name),
     mMeshName          (meshName),
     mMeshExists        (false),
@@ -97,10 +95,6 @@ class GameEntity
     inline bool isMeshExisting() const
     { return mMeshExists; }
 
-    //! \brief Get if the mesh is already existing
-    inline float getOpacity() const
-    { return mOpacity; }
-
     //! \brief Get if the object can be attacked or not
     virtual bool isAttackable() const
     { return false; }
@@ -122,7 +116,7 @@ class GameEntity
     inline Ogre::SceneNode* getEntityNode() const
     { return mEntityNode; }
 
-    virtual Ogre::Vector3 getScale() const
+    virtual const Ogre::Vector3& getScale() const
     { return Ogre::Vector3::UNIT_SCALE; }
 
     // ===== SETTERS =====
@@ -142,18 +136,14 @@ class GameEntity
     inline void setMeshExisting(bool isExisting)
     { mMeshExists = isExisting; }
 
-    //! \brief Set the entity opacity
-    void setMeshOpacity(float opacity);
-
-    //! \brief Set the entity opacity value whithout refreshing it. Useful at construction.
-    void setOpacity(float opacity)
-    { mOpacity = opacity; }
-
     //! \brief Set the type of the object. Should be done in all final derived constructors
     inline void setObjectType (ObjectType type)
     { mObjectType = type; }
 
-    virtual void setPosition(const Ogre::Vector3& v)
+    //! \brief Set the new entity position. If isMove is true, that means that the entity was
+    //! already on map and is moving. If false, it means that the entity was not on map (for example
+    //! if being dropped or created).
+    virtual void setPosition(const Ogre::Vector3& v, bool isMove)
     { mPosition = v; }
 
     inline void setParentSceneNode(Ogre::SceneNode* sceneNode)
@@ -198,10 +188,6 @@ class GameEntity
     //! the entity damaging
     virtual double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile *tileTakingDamage) = 0;
 
-    //! \brief Called when the entity is being carried
-    virtual void notifyEntityCarried(bool isCarried)
-    {}
-
     virtual bool getIsOnMap()
     { return mIsOnMap; }
 
@@ -230,6 +216,11 @@ class GameEntity
     virtual void drop(const Ogre::Vector3& v)
     {}
 
+    //! \brief Called each turn with the list of seats that have vision on the tile where the entity is. It should handle
+    //! messages to notify players that gain/loose vision
+    virtual void notifySeatsWithVision(const std::vector<Seat*>& seats)
+    {}
+
     friend ODPacket& operator<<(ODPacket& os, const GameEntity::ObjectType& ot);
     friend ODPacket& operator>>(ODPacket& is, GameEntity::ObjectType& ot);
 
@@ -242,9 +233,6 @@ class GameEntity
 
     //! \brief The position of this object
     Ogre::Vector3 mPosition;
-
-    //! \brief The model current opacity
-    float mOpacity;
 
     //! \brief Convinience function to get ogreNamePrefix + name
     //! Used for nodes. The name does not include the _node and similar postfixes which are

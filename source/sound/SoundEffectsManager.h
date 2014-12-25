@@ -145,6 +145,9 @@ private:
     //! the GameSound* instance is correclty cleared up when quitting.
     //! \warning Returns NULL if the filename is an invalid/unreadable sound.
     GameSound* getGameSound(const std::string& filename, bool spatialSound = false);
+
+    //! \brief The list of available sound to play per type.
+    std::vector<std::pair<std::vector<GameSound*>,int>> mSoundsPerType;
 };
 
 #endif // SOUNDEFFECTSMANAGER_H_

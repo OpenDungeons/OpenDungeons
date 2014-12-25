@@ -618,6 +618,18 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
             clientNotification->mPacket << mDigSetBool;
             ODClient::getSingleton().queueClientNotification(clientNotification);
             mGameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::none);
+
+            // We mark the selected tiles
+            std::vector<Tile*> tiles = mGameMap->getDiggableTilesForPlayerInArea(inputManager->mXPos,
+                inputManager->mYPos, inputManager->mLStartDragX, inputManager->mLStartDragY,
+                mGameMap->getLocalPlayer());
+            if(!tiles.empty())
+            {
+                mGameMap->markTilesForPlayer(tiles, mDigSetBool, mGameMap->getLocalPlayer());
+                SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::DIGSELECT);
+                for(Tile* tile : tiles)
+                    tile->refreshMesh();
+            }
             break;
         }
         case Player::SelectedAction::buildRoom:

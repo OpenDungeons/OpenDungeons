@@ -314,19 +314,11 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
             if (ODServer::getSingleton().isConnected())
             {
-                try
-                {
-                    // Inform any connected clients about the change
-                    ServerNotification *serverNotification = new ServerNotification(
-                        ServerNotification::setTurnsPerSecond, NULL);
-                    serverNotification->mPacket << ODApplication::turnsPerSecond;
-                    ODServer::getSingleton().queueServerNotification(serverNotification);
-                }
-                catch (std::bad_alloc&)
-                {
-                    Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in terminal command \'turnspersecond\'\n\n", Ogre::LML_CRITICAL);
-                    exit(1);
-                }
+                // Inform any connected clients about the change
+                ServerNotification *serverNotification = new ServerNotification(
+                    ServerNotification::setTurnsPerSecond, nullptr);
+                serverNotification->mPacket << ODApplication::turnsPerSecond;
+                ODServer::getSingleton().queueServerNotification(serverNotification);
             }
 
             frameListener->mCommandOutput += "\nMaximum turns per second set to "

@@ -79,7 +79,7 @@ static const int NB_TURN_FLEE_MAX = 5;
 const std::string Creature::CREATURE_PREFIX = "Creature_";
 
 Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
-    MovableGameEntity        (gameMap),
+    MovableGameEntity        (gameMap, 1.0f),
     mTracingCullingQuad      (NULL),
     mPhysicalAttack          (1.0),
     mMagicalAttack           (0.0),
@@ -113,7 +113,6 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
     mStatsWindow             (NULL),
     mAttackedTile            (NULL),
     mAttackedObject          (NULL),
-    mSound                   (SoundEffectsManager::getSingleton().getCreatureClassSounds(definition->getClassName())),
     mForceAction             (forcedActionNone),
     mCarriedEntity           (nullptr),
     mCarriedEntityDestType   (GameEntity::ObjectType::unknown)
@@ -152,7 +151,7 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
 }
 
 Creature::Creature(GameMap* gameMap) :
-    MovableGameEntity        (gameMap),
+    MovableGameEntity        (gameMap, 1.0f),
     mTracingCullingQuad      (NULL),
     mPhysicalAttack          (1.0),
     mMagicalAttack           (0.0),
@@ -186,7 +185,6 @@ Creature::Creature(GameMap* gameMap) :
     mStatsWindow             (NULL),
     mAttackedTile            (NULL),
     mAttackedObject          (NULL),
-    mSound                   (NULL),
     mForceAction             (forcedActionNone),
     mCarriedEntity           (nullptr),
     mCarriedEntityDestType   (GameEntity::ObjectType::unknown)
@@ -264,7 +262,7 @@ std::string Creature::getFormat()
            "CurrentHunger\tGoldToDeposit\tPosX\tPosY\tPosZ\tLeftWeapon\tRightWeapon";
 }
 
-void Creature::exportToStream(std::ostream& os)
+void Creature::exportToStream(std::ostream& os) const
 {
     int seatId = getSeat()->getId();
     os << seatId;
@@ -290,6 +288,8 @@ void Creature::exportToStream(std::ostream& os)
         os << "\t" << mWeaponR->getName();
     else
         os << "\tnone";
+
+    MovableGameEntity::exportToStream(os);
 }
 
 void Creature::importFromStream(std::istream& is)
@@ -307,7 +307,6 @@ void Creature::importFromStream(std::istream& is)
     OD_ASSERT_TRUE(is >> tempString);
     mDefinition = getGameMap()->getClassDescription(tempString);
     OD_ASSERT_TRUE_MSG(mDefinition != nullptr, "Definition=" + tempString);
-    mSound = SoundEffectsManager::getSingleton().getCreatureClassSounds(tempString);
 
     // name
     OD_ASSERT_TRUE(is >> tempString);
@@ -348,12 +347,13 @@ void Creature::importFromStream(std::istream& is)
         OD_ASSERT_TRUE_MSG(mWeaponR != nullptr, "Unknown weapon name=" + tempString);
     }
     mLevel = std::min(MAX_LEVEL, mLevel);
-    buildStats();
 
     if(strHp.compare("max") == 0)
         mHp = mMaxHP;
     else
         mHp = Helper::toDouble(strHp);
+
+    MovableGameEntity::importFromStream(is);
 }
 
 void Creature::buildStats()
@@ -372,6 +372,10 @@ void Creature::buildStats()
     mMagicalDefense = mDefinition->getMagicalDefense();
     mWeaponlessAtkRange = mDefinition->getAttackRange();
     mAttackWarmupTime = mDefinition->getAttackWarmupTime();
+
+    mScale = getDefinition()->getScale();
+    Ogre::Real scaleFactor = static_cast<Ogre::Real>(1.0 + 0.02 * static_cast<double>(getLevel()));
+    mScale *= scaleFactor;
 
     // Improve the stats to the current level
     double multiplier = mLevel - 1;
@@ -396,6 +400,7 @@ Creature* Creature::getCreatureFromStream(GameMap* gameMap, std::istream& is)
 {
     Creature* creature = new Creature(gameMap);
     creature->importFromStream(is);
+    creature->buildStats();
     return creature;
 }
 
@@ -403,10 +408,11 @@ Creature* Creature::getCreatureFromPacket(GameMap* gameMap, ODPacket& is)
 {
     Creature* creature = new Creature(gameMap);
     creature->importFromPacket(is);
+    creature->buildStats();
     return creature;
 }
 
-void Creature::exportToPacket(ODPacket& os)
+void Creature::exportToPacket(ODPacket& os) const
 {
     std::string className = mDefinition->getClassName();
     os << className;
@@ -448,6 +454,8 @@ void Creature::exportToPacket(ODPacket& os)
         os << mWeaponR->getName();
     else
         os << "none";
+
+    MovableGameEntity::exportToPacket(os);
 }
 
 void Creature::importFromPacket(ODPacket& is)
@@ -460,7 +468,6 @@ void Creature::importFromPacket(ODPacket& is)
 
     mMaxHP = mDefinition->getMinHp();
     setHP(mMaxHP);
-    mSound = SoundEffectsManager::getSingleton().getCreatureClassSounds(tempString);
 
     OD_ASSERT_TRUE(is >> tempString);
     setName(tempString);
@@ -506,45 +513,21 @@ void Creature::importFromPacket(ODPacket& is)
         mWeaponR = getGameMap()->getWeapon(tempString);
         OD_ASSERT_TRUE_MSG(mWeaponR != nullptr, "Unknown weapon name=" + tempString);
     }
+
+    MovableGameEntity::importFromPacket(is);
 }
 
-void Creature::setPosition(const Ogre::Vector3& v)
+void Creature::setPosition(const Ogre::Vector3& v, bool isMove)
 {
-    // If we are on the gameMap we may need to update the tile we are in
-    if (getIsOnMap())
-    {
-        // We are on the map
-        // Move the creature relative to its parent scene node.  We record the
-        // tile the creature is in before and after the move to properly
-        // maintain the results returned by the getPositionTile() function.
-        Tile *oldPositionTile = getPositionTile();
-
-        MovableGameEntity::setPosition(v);
-        Tile *newPositionTile = getPositionTile();
-
-        if (oldPositionTile != newPositionTile)
-        {
-            if (oldPositionTile != 0)
-                oldPositionTile->removeCreature(this);
-
-            if (newPositionTile != 0)
-                newPositionTile->addCreature(this);
-        }
-
-        if(!getGameMap()->isServerGameMap())
-            mTracingCullingQuad->moveEntryDelta(this,get2dPosition());
-    }
-    else
-    {
-        // We are not on the map
-        MovableGameEntity::setPosition(v);
-    }
+    MovableGameEntity::setPosition(v, isMove);
+    if (getIsOnMap() && !getGameMap()->isServerGameMap())
+        mTracingCullingQuad->moveEntryDelta(this,get2dPosition());
 }
 
 void Creature::drop(const Ogre::Vector3& v)
 {
     setIsOnMap(true);
-    setPosition(v);
+    setPosition(v, false);
     mForceAction = forcedActionSearchAction;
     if(getHasVisualDebuggingEntities())
         computeVisualDebugEntities();
@@ -598,9 +581,7 @@ void Creature::computeVisibleTiles()
     // Look at the surrounding area
     updateTilesInSight();
     for(Tile* tile : mVisibleTiles)
-    {
-        getSeat()->notifyVisionOnTile(tile);
-    }
+        tile->notifyVision(getSeat());
 }
 
 void Creature::setLevel(unsigned int level)
@@ -617,13 +598,7 @@ void Creature::setLevel(unsigned int level)
 
     buildStats();
 
-    const std::string& name = getName();
-    ServerNotification *serverNotification = new ServerNotification(
-        ServerNotification::creatureRefresh, getGameMap()->getPlayerBySeat(getSeat()));
-    serverNotification->mPacket << name;
-    serverNotification->mPacket << mLevel;
-    ODServer::getSingleton().queueServerNotification(serverNotification);
-
+    fireCreatureRefresh();
 }
 
 void Creature::doUpkeep()
@@ -645,21 +620,6 @@ void Creature::doUpkeep()
         }
         else if (mDeathCounter >= ConfigManager::getSingleton().getCreatureDeathCounter())
         {
-            try
-            {
-                const std::string& name = getName();
-                Player* player = getGameMap()->getPlayerBySeat(getSeat());
-                ServerNotification *serverNotification = new ServerNotification(
-                    ServerNotification::removeCreature, player);
-                serverNotification->mPacket << name;
-                ODServer::getSingleton().queueServerNotification(serverNotification);
-            }
-            catch (std::bad_alloc&)
-            {
-                OD_ASSERT_TRUE(false);
-                exit(1);
-            }
-
             // If the creature has a homeTile where it sleeps, its bed needs to be destroyed.
             if (getHomeTile() != 0)
             {
@@ -669,7 +629,7 @@ void Creature::doUpkeep()
 
             // Remove the creature from the game map and into the deletion queue, it will be deleted
             // when it is safe, i.e. all other pointers to it have been wiped from the program.
-            LogManager::getSingleton().logMessage("Removing creature " + getName());
+            LogManager::getSingleton().logMessage(getGameMap()->serverStr() + "Removing creature " + getName());
             getGameMap()->removeCreature(this);
             deleteYourself();
         }
@@ -944,7 +904,7 @@ bool Creature::handleIdleAction()
             }
         }
 
-        std::vector<GameEntity*> carryable;
+        std::vector<MovableGameEntity*> carryable;
         position->fillWithCarryableEntities(carryable);
         bool forceCarryObject = false;
         if(!carryable.empty())
@@ -1459,7 +1419,7 @@ bool Creature::handleClaimWallTileAction()
         // Dig out the tile by decreasing the tile's fullness.
         Ogre::Vector3 walkDirection(tempTile->x - getPosition().x, tempTile->y - getPosition().y, 0);
         walkDirection.normalise();
-        setAnimationState("Claim", true, &walkDirection);
+        setAnimationState("Claim", true, walkDirection);
         tempTile->claimForSeat(getSeat(), mClaimRate);
         receiveExp(1.5 * mClaimRate / 20.0);
 
@@ -1579,7 +1539,7 @@ bool Creature::handleDigTileAction()
         // Dig out the tile by decreasing the tile's fullness.
         Ogre::Vector3 walkDirection(tempTile->x - getPosition().x, tempTile->y - getPosition().y, 0);
         walkDirection.normalise();
-        setAnimationState("Dig", true, &walkDirection);
+        setAnimationState("Dig", true, walkDirection);
         double amountDug = tempTile->digOut(mDigRate, true);
         if(amountDug > 0.0)
         {
@@ -1598,19 +1558,7 @@ bool Creature::handleDigTileAction()
                 pushAction(CreatureAction::walkToTile);
             }
             //Set sound position and play dig sound.
-            try
-            {
-                std::string name = getName();
-                ServerNotification *serverNotification = new ServerNotification(
-                    ServerNotification::playCreatureSound, getGameMap()->getPlayerBySeat(getSeat()));
-                serverNotification->mPacket << name << CreatureSound::DIGGING;
-                ODServer::getSingleton().queueServerNotification(serverNotification);
-            }
-            catch (std::bad_alloc&)
-            {
-                OD_ASSERT_TRUE(false);
-                exit(1);
-            }
+            fireCreatureSound(CreatureSound::SoundType::DIGGING);
         }
         else
         {
@@ -1795,8 +1743,9 @@ bool Creature::handleDepositGoldAction()
     TreasuryObject* obj = new TreasuryObject(getGameMap(), mGold);
     mGold = 0;
     Ogre::Vector3 pos(static_cast<Ogre::Real>(tile->x), static_cast<Ogre::Real>(tile->y), 0.0f);
-    obj->setPosition(pos);
     getGameMap()->addRenderedMovableEntity(obj);
+    obj->createMesh();
+    obj->setPosition(pos, false);
 
     return true;
 }
@@ -2109,7 +2058,7 @@ bool Creature::handleEatingAction(bool isForced)
             mHp += ConfigManager::getSingleton().getRoomConfigDouble("HatcheryHpRecoveredPerChicken");
             Ogre::Vector3 walkDirection = Ogre::Vector3(closestChickenTile->getX(), closestChickenTile->getY(), 0) - getPosition();
             walkDirection.normalise();
-            setAnimationState("Attack1", false, &walkDirection);
+            setAnimationState("Attack1", false, walkDirection);
             return false;
         }
 
@@ -2265,24 +2214,9 @@ bool Creature::handleAttackAction()
     // Turn to face the creature we are attacking and set the animation state to Attack.
     Ogre::Vector3 walkDirection(attackedTile->x - getPosition().x, attackedTile->y - getPosition().y, 0);
     walkDirection.normalise();
-    setAnimationState("Attack1", false, &walkDirection);
+    setAnimationState("Attack1", false, walkDirection);
 
-    try
-    {
-        std::string name = getName();
-        ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::playCreatureSound, getGameMap()->getPlayerBySeat(getSeat()));
-        serverNotification->mPacket << name << CreatureSound::ATTACK;
-        ODServer::getSingleton().queueServerNotification(serverNotification);
-
-        getGameMap()->playerIsFighting(getGameMap()->getPlayerBySeat(getSeat()));
-
-    }
-    catch (std::bad_alloc&)
-    {
-        OD_ASSERT_TRUE(false);
-        exit(1);
-    }
+    fireCreatureSound(CreatureSound::SoundType::ATTACK);
 
     // Calculate how much damage we do.
     Tile* myTile = getPositionTile();
@@ -2462,11 +2396,11 @@ bool Creature::handleCarryableEntities()
     if(mCarriedEntity == nullptr)
     {
         std::vector<Building*> buildings = getGameMap()->getReachableBuildingsPerSeat(getSeat(), myTile, this);
-        std::vector<GameEntity*> carryableEntities = getGameMap()->getVisibleCarryableEntities(mVisibleTiles);
-        std::vector<GameEntity*> availableEntities;
+        std::vector<MovableGameEntity*> carryableEntities = getGameMap()->getVisibleCarryableEntities(mVisibleTiles);
+        std::vector<MovableGameEntity*> availableEntities;
         Building* buildingWants = nullptr;
         Tile* tileDest = nullptr;
-        for(GameEntity* entity : carryableEntities)
+        for(MovableGameEntity* entity : carryableEntities)
         {
             // We check if a buildings wants this entity
             buildingWants = nullptr;
@@ -2553,17 +2487,6 @@ double Creature::getMoveSpeed(Tile* tile) const
     OD_ASSERT_TRUE(tile != nullptr);
     if(tile == nullptr)
         return 1.0;
-    if(tile->getFullness() > 0)
-    {
-        // This happens often because of slight wrong synchronization between server
-        // and client. If this problem becomes too visible (creatures walking through walls),
-        // synchronization should be adjusted (by decreasing time passing on server side to
-        // make the clients wait)
-        LogManager::getSingleton().logMessage("Creature walking on unpassable tile " + getGameMap()->serverStr()
-            + " creature=" + getName() + ",tile=" + Tile::displayAsString(tile)
-            + ",tile fullness=" + Ogre::StringConverter::toString(tile->getFullness())
-            + ",position=" + Ogre::StringConverter::toString(getPosition()));
-    }
 
     switch(tile->getType())
     {
@@ -2664,14 +2587,6 @@ bool Creature::checkLevelUp()
         return false;
 
     return true;
-}
-
-Ogre::Vector3 Creature::getScale() const
-{
-    Ogre::Vector3 scale = getDefinition()->getScale();
-    Ogre::Real scaleFactor = static_cast<Ogre::Real>(1.0 + 0.02 * static_cast<double>(getLevel()));
-    scale *= scaleFactor;
-    return scale;
 }
 
 void Creature::refreshCreature()
@@ -3130,10 +3045,10 @@ CreatureAction Creature::peekAction()
 
 bool Creature::tryPickup(Seat* seat, bool isEditorMode)
 {
-    if (getHP() <= 0.0)
+    if(!getIsOnMap())
         return false;
 
-    if(!getIsOnMap())
+    if ((getHP() <= 0.0) && !isEditorMode)
         return false;
 
     if(!getSeat()->canOwnedCreatureBePickedUpBy(seat) && !isEditorMode)
@@ -3151,7 +3066,7 @@ void Creature::pickup()
 
     Tile* tile = getPositionTile();
     if(tile != NULL)
-        tile->removeCreature(this);
+        tile->removeEntity(this);
 
     if(getHasVisualDebuggingEntities())
         computeVisualDebugEntities();
@@ -3216,12 +3131,6 @@ bool Creature::tryDrop(Seat* seat, Tile* tile, bool isEditorMode)
         return true;
 
     return false;
-}
-
-void Creature::playSound(CreatureSound::SoundType soundType)
-{
-    Ogre::Vector3 pos = getPosition();
-    mSound->play(soundType, pos.x, pos.y, pos.z);
 }
 
 bool Creature::setDestination(Tile* tile)
@@ -3440,53 +3349,60 @@ bool Creature::isAttackable() const
     return true;
 }
 
-void Creature::notifyEntityCarried(bool isCarried)
+void Creature::notifyEntityCarryOn()
 {
     Tile* myTile = getPositionTile();
     OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
     if(myTile == nullptr)
         return;
-    if(isCarried)
-    {
-        setIsOnMap(false);
-        myTile->removeCreature(this);
-    }
-    else
-    {
-        setIsOnMap(true);
-        myTile->addCreature(this);
-    }
+
+    setIsOnMap(false);
+    myTile->removeEntity(this);
 }
 
-void Creature::carryEntity(GameEntity* carriedEntity)
+void Creature::notifyEntityCarryOff(const Ogre::Vector3& position)
 {
+    mPosition = position;
+    setIsOnMap(true);
+
+    Tile* myTile = getPositionTile();
+    OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
+    if(myTile == nullptr)
+        return;
+
+    myTile->addEntity(this);
+}
+
+void Creature::carryEntity(MovableGameEntity* carriedEntity)
+{
+    if(!getGameMap()->isServerGameMap())
+        return;
+
     OD_ASSERT_TRUE(carriedEntity != nullptr);
     OD_ASSERT_TRUE(mCarriedEntity == nullptr);
     mCarriedEntity = carriedEntity;
     if(carriedEntity == nullptr)
         return;
 
-    if(getGameMap()->isServerGameMap())
-    {
-        carriedEntity->notifyEntityCarried(true);
-        const std::string& name = getName();
-        ObjectType entityType = carriedEntity->getObjectType();
-        const std::string& carriedName = carriedEntity->getName();
-        Player* player = getGameMap()->getPlayerBySeat(getSeat());
-        ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::carryEntity, player);
-        serverNotification->mPacket << name << entityType << carriedName;
-        ODServer::getSingleton().queueServerNotification(serverNotification);
-    }
-    else
-    {
-        RenderManager::getSingleton().rrCarryEntity(this, carriedEntity);
-    }
+    carriedEntity->notifyEntityCarryOn();
+
+    // We remove the carried entity from the clients gamemaps as well as the carrier
+    // and we send the carrier creation message (that will embed the carried)
+    carriedEntity->fireRemoveEntityToSeatsWithVision();
+    // We only notify seats that already had vision. We copy the seats with vision list
+    // because fireRemoveEntityToSeatsWithVision will empty it.
+    std::vector<Seat*> seatsWithVision = mSeatsWithVisionNotified;
+    fireRemoveEntityToSeatsWithVision();
+    // We remove ourself and send the creation
+    notifySeatsWithVision(seatsWithVision);
 }
 
 void Creature::releaseCarriedEntity()
 {
-    GameEntity* carriedEntity = mCarriedEntity;
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    MovableGameEntity* carriedEntity = mCarriedEntity;
     GameEntity::ObjectType carriedEntityDestType = mCarriedEntityDestType;
     std::string carriedEntityDestName = mCarriedEntityDestName;
 
@@ -3497,21 +3413,21 @@ void Creature::releaseCarriedEntity()
     if(carriedEntity == nullptr)
         return;
 
-    if(!getGameMap()->isServerGameMap())
+    Ogre::Vector3 pos = getPosition();
+    carriedEntity->notifyEntityCarryOff(pos);
+
+    for(Seat* seat : mSeatsWithVisionNotified)
     {
-        RenderManager::getSingleton().rrReleaseCarriedEntity(this, carriedEntity);
-    }
-    else
-    {
-        Ogre::Vector3 pos = getPosition();
-        carriedEntity->setPosition(pos);
-        carriedEntity->notifyEntityCarried(false);
-        const std::string& carrierName = getName();
-        const std::string& carriedName = carriedEntity->getName();
-        Player* player = getGameMap()->getPlayerBySeat(getSeat());
-        ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::releaseCarriedEntity, player);
-        serverNotification->mPacket << carrierName << carriedEntity->getObjectType() << carriedName << pos;
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+
+        ServerNotification* serverNotification = new ServerNotification(
+            ServerNotification::releaseCarriedEntity, seat->getPlayer());
+        serverNotification->mPacket << getName() << carriedEntity->getObjectType();
+        serverNotification->mPacket << carriedEntity->getName();
+        serverNotification->mPacket << mPosition;
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 
@@ -3571,13 +3487,6 @@ void Creature::slap(bool isEditorMode)
     // In editor mode, we remove the creature
     if(isEditorMode)
     {
-        const std::string& name = getName();
-        Player* player = getGameMap()->getPlayerBySeat(getSeat());
-        ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::removeCreature, player);
-        serverNotification->mPacket << name;
-        ODServer::getSingleton().queueServerNotification(serverNotification);
-
         getGameMap()->removeCreature(this);
         deleteYourself();
         return;
@@ -3586,4 +3495,99 @@ void Creature::slap(bool isEditorMode)
     // TODO : on server side, we should boost speed for a time and decrease mood/hp
     mHp -= mMaxHP * ConfigManager::getSingleton().getSlapDamagePercent() / 100.0;
 
+}
+
+void Creature::fireAddEntity(Seat* seat, bool async)
+{
+    if(async)
+    {
+        ServerNotification serverNotification(
+            ServerNotification::addCreature, seat->getPlayer());
+        exportToPacket(serverNotification.mPacket);
+        ODServer::getSingleton().sendAsyncMsg(serverNotification);
+
+        OD_ASSERT_TRUE_MSG(mCarriedEntity == nullptr, "Trying to fire add creature in async mode name="
+            + getName() + " while carrying " + mCarriedEntity->getName());
+    }
+    else
+    {
+        ServerNotification* serverNotification = new ServerNotification(
+            ServerNotification::addCreature, seat->getPlayer());
+        exportToPacket(serverNotification->mPacket);
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+
+        if(mCarriedEntity != nullptr)
+        {
+            mCarriedEntity->addSeatWithVision(seat, false);
+
+            serverNotification = new ServerNotification(
+                ServerNotification::carryEntity, seat->getPlayer());
+            serverNotification->mPacket << getName() << mCarriedEntity->getObjectType();
+            serverNotification->mPacket << mCarriedEntity->getName();
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+
+    }
+}
+
+void Creature::fireRemoveEntity(Seat* seat)
+{
+    // If we are carrying an entity, we release it first, then we can remove it and us
+    if(mCarriedEntity != nullptr)
+    {
+        ServerNotification* serverNotification = new ServerNotification(
+            ServerNotification::releaseCarriedEntity, seat->getPlayer());
+        serverNotification->mPacket << getName() << mCarriedEntity->getObjectType();
+        serverNotification->mPacket << mCarriedEntity->getName();
+        serverNotification->mPacket << mPosition;
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+
+        mCarriedEntity->removeSeatWithVision(seat);
+    }
+
+    const std::string& name = getName();
+    ServerNotification *serverNotification = new ServerNotification(
+        ServerNotification::removeCreature, seat->getPlayer());
+    serverNotification->mPacket << name;
+    ODServer::getSingleton().queueServerNotification(serverNotification);
+}
+
+void Creature::fireCreatureRefresh()
+{
+    for(Seat* seat : mSeatsWithVisionNotified)
+    {
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+
+        const std::string& name = getName();
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotification::creatureRefresh, seat->getPlayer());
+        serverNotification->mPacket << name;
+        serverNotification->mPacket << mLevel;
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
+}
+
+void Creature::fireCreatureSound(CreatureSound::SoundType sound)
+{
+    Tile* posTile = getPositionTile();
+    if(posTile == nullptr)
+        return;
+
+    for(Seat* seat : mSeatsWithVisionNotified)
+    {
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+
+        const std::string& name = getDefinition()->getClassName();
+        Ogre::Vector3 position = getPosition();
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotification::playCreatureSound, seat->getPlayer());
+        serverNotification->mPacket << name << sound << position;
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
 }

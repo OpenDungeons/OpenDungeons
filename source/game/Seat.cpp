@@ -295,6 +295,13 @@ void Seat::setPlayer(Player* player)
     mPlayer->mSeat = this;
 }
 
+
+void Seat::addAlliedSeat(Seat* seat)
+{
+    mAlliedSeats.push_back(seat);
+}
+
+
 void Seat::initSpawnPool()
 {
     const std::vector<std::string>& pool = ConfigManager::getSingleton().getFactionSpawnPool(mFaction);
@@ -382,6 +389,32 @@ bool Seat::hasVisionOnTile(Tile* tile)
         return true;
 
     return false;
+}
+
+void Seat::notifyChangedVisibleTiles()
+{
+    std::vector<Tile*> tilesToNotify;
+    for(Tile* tile : mTilesWithVision)
+    {
+        if(!tile->hasChangedForSeat(this))
+            continue;
+
+        tilesToNotify.push_back(tile);
+        tile->changeNotifiedForSeat(this);
+    }
+
+    if(tilesToNotify.empty())
+        return;
+
+    uint32_t nbTiles = tilesToNotify.size();
+    ServerNotification *serverNotification = new ServerNotification(
+        ServerNotification::refreshTiles, getPlayer());
+    serverNotification->mPacket << nbTiles;
+    for(Tile* tile : tilesToNotify)
+    {
+        serverNotification->mPacket << tile;
+    }
+    ODServer::getSingleton().queueServerNotification(serverNotification);
 }
 
 void Seat::stopVisualDebugEntities()
@@ -479,6 +512,10 @@ ODPacket& operator<<(ODPacket& os, Seat *s)
     os << s->mColorId;
     os << s->mGold << s->mMana << s->mManaDelta << s->mNumClaimedTiles;
     os << s->mHasGoalsChanged;
+    uint32_t nb = s->mAvailableTeamIds.size();
+    os << nb;
+    for(int teamId : s->mAvailableTeamIds)
+        os << teamId;
 
     return os;
 }
@@ -491,6 +528,15 @@ ODPacket& operator>>(ODPacket& is, Seat *s)
     is >> s->mGold >> s->mMana >> s->mManaDelta >> s->mNumClaimedTiles;
     is >> s->mHasGoalsChanged;
     s->mColorValue = ConfigManager::getSingleton().getColorFromId(s->mColorId);
+    uint32_t nb;
+    is >> nb;
+    while(nb > 0)
+    {
+        --nb;
+        int teamId;
+        is >> teamId;
+        s->mAvailableTeamIds.push_back(teamId);
+    }
 
     return is;
 }

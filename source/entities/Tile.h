@@ -39,6 +39,7 @@ class Trap;
 class TreasuryObject;
 class ChickenEntity;
 class CraftedTrap;
+class BuildingObject;
 class ODPacket;
 
 /*! \brief The tile class contains information about tile type and contents and is the basic level bulding block.
@@ -67,25 +68,7 @@ public:
         claimed = 6
     };
 
-    Tile(GameMap* gameMap, int nX = 0, int nY = 0, TileType nType = dirt, double nFullness = 100.0) :
-        GameEntity          (gameMap),
-        x                   (nX),
-        y                   (nY),
-        rotation            (0.0),
-        type                (nType),
-        selected            (false),
-        fullness            (nFullness),
-        fullnessMeshNumber  (-1),
-        mCoveringBuilding   (nullptr),
-        mClaimedPercentage  (0.0)
-    {
-        for(int i = 0; i < Tile::FloodFillTypeMax; i++)
-        {
-            mFloodFillColor[i] = -1;
-        }
-        setSeat(NULL);
-        setObjectType(GameEntity::tile);
-    }
+    Tile(GameMap* gameMap, int nX = 0, int nY = 0, TileType nType = dirt, double nFullness = 100.0);
 
     std::string getOgreNamePrefix() const { return "Tile_"; }
 
@@ -153,16 +136,15 @@ public:
     //! \brief This function puts a message in the renderQueue to change the mesh for this tile.
     void refreshMesh();
 
-    virtual Ogre::Vector3 getScale() const;
+    virtual const Ogre::Vector3& getScale() const
+    { return mScale; }
 
     //! \brief This function marks the tile as being selected through a mouse click or drag.
     void setSelected(bool ss, Player *pp);
 
     //! \brief This accessor function returns whether or not the tile has been selected.
     bool getSelected() const
-    {
-        return selected;
-    }
+    { return selected; }
 
     //! \brief Set the tile digging mark for the given player.
     void setMarkedForDigging(bool s, Player *p);
@@ -184,11 +166,11 @@ public:
     unsigned numPlayersMarkingTile() const;
     Player* getPlayerMarkingTile(int index);
 
-    //! \brief This function adds a creature to the list of creatures in this tile.
-    bool addCreature(Creature *c);
+    //! \brief This function adds an entity to the list of entities in this tile.
+    bool addEntity(GameEntity *entity);
 
-    //! \brief This function removes a creature to the list of creatures in this tile.
-    bool removeCreature(Creature *c);
+    //! \brief This function removes an entity to the list of entities in this tile.
+    bool removeEntity(GameEntity *entity);
 
     //! \brief This function returns the count of the number of creatures in the tile.
     unsigned int numEntitiesInTile() const
@@ -215,7 +197,6 @@ public:
     void setCoveringBuilding(Building *building);
     //! \brief Add a tresaury object in this tile. There can be only one per tile so if there is already one, they are merged
     bool addTreasuryObject(TreasuryObject* object);
-    bool removeTreasuryObject(TreasuryObject* object);
 
     //! \brief Tells whether the tile is diggable by dig-capable creatures.
     //! \brief The player seat.
@@ -302,19 +283,20 @@ public:
     void fillWithAttackableCreatures(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
     void fillWithAttackableRoom(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
     void fillWithAttackableTrap(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
-    void fillWithCarryableEntities(std::vector<GameEntity*>& entities);
+    void fillWithCarryableEntities(std::vector<MovableGameEntity*>& entities);
     void fillWithChickenEntities(std::vector<GameEntity*>& entities);
     void fillWithCraftedTraps(std::vector<GameEntity*>& entities);
 
-    bool addChickenEntity(ChickenEntity* chicken);
-    bool removeChickenEntity(ChickenEntity* chicken);
-
-    bool addCraftedTrap(CraftedTrap* craftedTrap);
-    bool removeCraftedTrap(CraftedTrap* craftedTrap);
-
     //! \brief Computes the visible tiles and tags them to know which are visible
     void computeVisibleTiles();
+    void clearVision();
     void notifyVision(Seat* seat);
+
+    void setSeats(const std::vector<Seat*>& seats);
+    bool hasChangedForSeat(Seat* seat) const;
+    void changeNotifiedForSeat(Seat* seat);
+
+    virtual void notifySeatsWithVision();
 
 protected:
     virtual void createMeshLocal();
@@ -339,6 +321,8 @@ private:
 
     std::vector<Tile*> mNeighbors;
     std::vector<Player*> mPlayersMarkingTile;
+    std::vector<std::pair<Seat*, bool>> mTileChangedForSeats;
+    std::vector<Seat*> mSeatsWithVision;
 
     /*! \brief List of the entities actually on this tile. Most of the creatures actions will rely on this list
      */
@@ -346,6 +330,7 @@ private:
     Building* mCoveringBuilding;
     int mFloodFillColor[FloodFillTypeMax];
     double mClaimedPercentage;
+    Ogre::Vector3 mScale;
 
     /*! \brief Set the fullness value for the tile.
      *  This only sets the fullness variable. This function is here to change the value
@@ -354,6 +339,8 @@ private:
     void setFullnessValue(double f);
 
     int getFloodFill(FloodFillType type);
+
+    void setDirtyForAllSeats();
 };
 
 #endif // TILE_H

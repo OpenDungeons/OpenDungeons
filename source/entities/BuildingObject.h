@@ -15,12 +15,10 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CRAFTEDTRAP_H
-#define CRAFTEDTRAP_H
+#ifndef BUILDINGOBJECT_H
+#define BUILDINGOBJECT_H
 
 #include "entities/RenderedMovableEntity.h"
-
-#include "traps/Trap.h"
 
 #include <string>
 #include <istream>
@@ -32,30 +30,17 @@ class GameMap;
 class Tile;
 class ODPacket;
 
-class CraftedTrap: public RenderedMovableEntity
+class BuildingObject: public RenderedMovableEntity
 {
 public:
-    CraftedTrap(GameMap* gameMap, const std::string& forgeName, Trap::TrapType trapType);
-    CraftedTrap(GameMap* gameMap);
+    BuildingObject(GameMap* gameMap, const std::string& buildingName, const std::string& meshName,
+        const Ogre::Vector3& position, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity = 1.0f);
+    BuildingObject(GameMap* gameMap);
 
     virtual RenderedMovableEntityType getRenderedMovableEntityType()
-    { return RenderedMovableEntityType::craftedTrap; }
+    { return RenderedMovableEntityType::buildingObject; }
 
-    virtual const Ogre::Vector3& getScale() const;
-
-    Trap::TrapType getTrapType() const
-    { return mTrapType; }
-
-    virtual void notifyEntityCarryOn();
-    virtual void notifyEntityCarryOff(const Ogre::Vector3& position);
-
-    static CraftedTrap* getCraftedTrapFromStream(GameMap* gameMap, std::istream& is);
-    static CraftedTrap* getCraftedTrapFromPacket(GameMap* gameMap, ODPacket& is);
-    static const char* getFormat();
-private:
-    Trap::TrapType mTrapType;
-
-    const std::string& getMeshFromTrapType(Trap::TrapType trapType);
+    static BuildingObject* getBuildingObjectFromPacket(GameMap* gameMap, ODPacket& is);
 };
 
-#endif // CRAFTEDTRAP_H
+#endif // BUILDINGOBJECT_H

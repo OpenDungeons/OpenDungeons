@@ -17,45 +17,23 @@
 
 #include "entities/Building.h"
 
+#include "entities/BuildingObject.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 #include "gamemap/GameMap.h"
-#include "network/ServerNotification.h"
 #include "network/ODServer.h"
 
 #include "utils/LogManager.h"
 
 const double Building::DEFAULT_TILE_HP = 10.0;
 
-void Building::createMeshLocal()
-{
-    GameEntity::createMeshLocal();
-
-    if(getGameMap()->isServerGameMap())
-        return;
-
-    std::vector<Tile*> coveredTiles = getCoveredTiles();
-    for (Tile* tile : coveredTiles)
-        RenderManager::getSingleton().rrCreateBuilding(this, tile);
-}
-
-void Building::destroyMeshLocal()
-{
-    GameEntity::destroyMeshLocal();
-
-    if(getGameMap()->isServerGameMap())
-        return;
-
-    std::vector<Tile*> coveredTiles = getCoveredTiles();
-    for (Tile* tile : coveredTiles)
-        RenderManager::getSingleton().rrDestroyBuilding(this, tile);
-}
-
-Ogre::Vector3 Building::getScale() const
-{
-    return Ogre::Vector3(RenderManager::BLENDER_UNITS_PER_OGRE_UNIT,
+const Ogre::Vector3 SCALE(RenderManager::BLENDER_UNITS_PER_OGRE_UNIT,
         RenderManager::BLENDER_UNITS_PER_OGRE_UNIT,
         RenderManager::BLENDER_UNITS_PER_OGRE_UNIT);
+
+const Ogre::Vector3& Building::getScale() const
+{
+    return SCALE;
 }
 
 void Building::addBuildingObject(Tile* targetTile, RenderedMovableEntity* obj)
@@ -66,6 +44,7 @@ void Building::addBuildingObject(Tile* targetTile, RenderedMovableEntity* obj)
     // We assume the object position has been already set (most of the time in loadBuildingObject)
     mBuildingObjects[targetTile] = obj;
     getGameMap()->addRenderedMovableEntity(obj);
+    obj->setPosition(obj->getPosition(), false);
 }
 
 void Building::removeBuildingObject(Tile* tile)
@@ -145,9 +124,9 @@ RenderedMovableEntity* Building::loadBuildingObject(GameMap* gameMap, const std:
     else
         baseName = getName() + "_" + Tile::displayAsString(targetTile);
 
-    RenderedMovableEntity* obj = new RenderedMovableEntity(gameMap, baseName, meshName,
-        static_cast<Ogre::Real>(rotationAngle), hideCoveredTile, opacity);
-    obj->setPosition(Ogre::Vector3((Ogre::Real)x, (Ogre::Real)y, 0.0f));
+    Ogre::Vector3 position(static_cast<Ogre::Real>(x), static_cast<Ogre::Real>(y), 0);
+    BuildingObject* obj = new BuildingObject(gameMap, baseName, meshName,
+        position, static_cast<Ogre::Real>(rotationAngle), hideCoveredTile, opacity);
 
     return obj;
 }
@@ -197,11 +176,6 @@ bool Building::removeCoveredTile(Tile* t)
             mTileHP.erase(t);
             t->setCoveringBuilding(nullptr);
 
-            if(getGameMap()->isServerGameMap())
-                return true;
-
-            // Destroy the mesh for this tile.
-            RenderManager::getSingleton().rrDestroyBuilding(this, t);
             return true;
         }
     }

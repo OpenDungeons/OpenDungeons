@@ -32,7 +32,7 @@ const std::string MapLight::MAPLIGHT_INDICATOR_PREFIX = "MapLightIndicator_";
 
 MapLight::MapLight(GameMap* gameMap, Ogre::Real red, Ogre::Real green, Ogre::Real blue,
         Ogre::Real range, Ogre::Real constant, Ogre::Real linear, Ogre::Real quadratic) :
-    MovableGameEntity                   (gameMap),
+    MovableGameEntity                   (gameMap, 1.0f),
     mThetaX                             (0.0),
     mThetaY                             (0.0),
     mThetaZ                             (0.0),

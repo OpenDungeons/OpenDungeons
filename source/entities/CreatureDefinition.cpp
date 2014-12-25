@@ -57,7 +57,7 @@ std::string CreatureDefinition::creatureJobToString(CreatureJob c)
     }
 }
 
-ODPacket& operator<<(ODPacket& os, CreatureDefinition* c)
+ODPacket& operator<<(ODPacket& os, const CreatureDefinition* c)
 {
     std::string creatureJob = CreatureDefinition::creatureJobToString(c->mCreatureJob);
     os << c->mClassName

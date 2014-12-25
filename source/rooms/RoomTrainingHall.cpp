@@ -272,7 +272,7 @@ void RoomTrainingHall::doUpkeep()
             {
                 Ogre::Vector3 walkDirection(ro->getPosition().x - creature->getPosition().x, ro->getPosition().y - creature->getPosition().y, 0);
                 walkDirection.normalise();
-                creature->setAnimationState("Attack1", false, &walkDirection);
+                creature->setAnimationState("Attack1", false, walkDirection);
 
                 ro->setAnimationState("Triggered", false);
                 creature->receiveExp(ConfigManager::getSingleton().getRoomConfigDouble("TrainHallXpPerAttack"));

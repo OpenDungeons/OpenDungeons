@@ -31,6 +31,7 @@
 #include "rooms/RoomTreasury.h"
 #include "entities/TreasuryObject.h"
 #include "entities/RenderedMovableEntity.h"
+#include "entities/Weapon.h"
 #include "utils/LogManager.h"
 #include "modes/ModeManager.h"
 #include "modes/MenuModeConfigureSeats.h"
@@ -94,20 +95,86 @@ bool ODClient::processOneClientSocketMessage()
     {
         case ServerNotification::loadLevel:
         {
-            std::string levelFilename;
-            OD_ASSERT_TRUE(packetReceived >> levelFilename);
-            // Read in the map. The map loading should happen here and not in the server thread to
-            // make sure it is valid before launching the server.
-            ODFrameListener::getSingleton().getClientGameMap()->processDeletionQueues();
-            if (!gameMap->loadLevel(levelFilename))
-            {
-                // We disconnect as we don't have the map.
-                logManager.logMessage("Disconnection. The level file can't be loaded: " + levelFilename);
-                disconnect();
+            // Map
+            int32_t mapSizeX;
+            int32_t mapSizeY;
+            OD_ASSERT_TRUE(packetReceived >> mapSizeX);
+            OD_ASSERT_TRUE(packetReceived >> mapSizeY);
+            if (!gameMap->createNewMap(mapSizeX, mapSizeY))
                 return false;
+
+            // Map infos
+            std::string str;
+            OD_ASSERT_TRUE(packetReceived >> mLevelFilename);
+            gameMap->setLevelName(mLevelFilename);
+            OD_ASSERT_TRUE(packetReceived >> str);
+            gameMap->setLevelDescription(str);
+            OD_ASSERT_TRUE(packetReceived >> str);
+            gameMap->setLevelMusicFile(str);
+            OD_ASSERT_TRUE(packetReceived >> str);
+            gameMap->setLevelFightMusicFile(str);
+
+            int32_t nb;
+            // Creature definitions
+            OD_ASSERT_TRUE(packetReceived >> nb);
+            while(nb > 0)
+            {
+                --nb;
+                CreatureDefinition* def = new CreatureDefinition();
+                OD_ASSERT_TRUE(packetReceived >> def);
+                gameMap->addClassDescription(def);
             }
 
-            mLevelFilename = levelFilename;
+            // Weapons
+            OD_ASSERT_TRUE(packetReceived >> nb);
+            while(nb > 0)
+            {
+                --nb;
+                Weapon* def = new Weapon();
+                OD_ASSERT_TRUE(packetReceived >> def);
+                gameMap->addWeapon(def);
+            }
+
+            // Seats
+            OD_ASSERT_TRUE(packetReceived >> nb);
+            while(nb > 0)
+            {
+                --nb;
+                Seat* seat = new Seat(gameMap);
+                OD_ASSERT_TRUE(packetReceived >> seat);
+                gameMap->addSeat(seat);
+            }
+
+            // Tiles
+            OD_ASSERT_TRUE(packetReceived >> nb);
+            double fullness;
+            while(nb > 0)
+            {
+                --nb;
+                Tile* tile = gameMap->tileFromPacket(packetReceived);
+                tile->setType(Tile::TileType::gold);
+                OD_ASSERT_TRUE(packetReceived >> fullness);
+                tile->setFullness(fullness);
+            }
+            OD_ASSERT_TRUE(packetReceived >> nb);
+            while(nb > 0)
+            {
+                --nb;
+                Tile* tile = gameMap->tileFromPacket(packetReceived);
+                tile->setType(Tile::TileType::rock);
+                tile->setFullness(100.0);
+            }
+
+            // Lights
+            OD_ASSERT_TRUE(packetReceived >> nb);
+            while(nb > 0)
+            {
+                --nb;
+                MapLight* light = new MapLight(gameMap);
+                OD_ASSERT_TRUE(packetReceived >> light);
+                gameMap->addMapLight(light);
+            }
+            gameMap->setAllFullnessAndNeighbors();
 
             ODPacket packSend;
             packSend << ClientNotification::levelOK;
@@ -121,7 +188,8 @@ bool ODClient::processOneClientSocketMessage()
             OD_ASSERT_TRUE(packetReceived >> serverMode);
 
             ODPacket packSend;
-            packSend << ClientNotification::setNick << gameMap->getLocalPlayerNick();
+            const std::string& nick = gameMap->getLocalPlayerNick();
+            packSend << ClientNotification::setNick << nick;
             send(packSend);
 
             // We can proceed to configure seat level
@@ -363,6 +431,7 @@ bool ODClient::processOneClientSocketMessage()
             Creature *newCreature = Creature::getCreatureFromPacket(gameMap, packetReceived);
             gameMap->addCreature(newCreature);
             newCreature->createMesh();
+            newCreature->restoreEntityState();
             break;
         }
 
@@ -393,6 +462,13 @@ bool ODClient::processOneClientSocketMessage()
             ODPacket packSend;
             packSend << ClientNotification::ackNewTurn << turnNum;
             send(packSend);
+
+            ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+            if((mm != nullptr) &&
+               (mm->getCurrentModeType() == ModeManager::EDITOR))
+            {
+                gameMap->updateVisibleEntities();
+            }
 
             // For the first turn, we stop processing events because we want the gamemap to
             // be initialized
@@ -439,7 +515,7 @@ bool ODClient::processOneClientSocketMessage()
             if(tempPlayer == nullptr)
                 break;
 
-            GameEntity* entity = gameMap->getEntityFromTypeAndName(entityType, entityName);
+            MovableGameEntity* entity = gameMap->getEntityFromTypeAndName(entityType, entityName);
             OD_ASSERT_TRUE_MSG(entity != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
             if(entity == nullptr)
                 break;
@@ -452,38 +528,21 @@ bool ODClient::processOneClientSocketMessage()
         {
             int seatId;
             OD_ASSERT_TRUE(packetReceived >> seatId);
-            Tile* tile = gameMap->tileFromPacket(packetReceived);
-            OD_ASSERT_TRUE(tile != nullptr);
-            Player *tempPlayer = gameMap->getPlayerBySeatId(seatId);
-            OD_ASSERT_TRUE_MSG(tempPlayer != nullptr, "seatId=" + Ogre::StringConverter::toString(seatId));
-            if (tempPlayer == nullptr || tile == nullptr)
+            OD_ASSERT_TRUE_MSG(gameMap->getLocalPlayer()->getSeat()->getId() == seatId, "seatId=" + Ogre::StringConverter::toString(seatId));
+            if (gameMap->getLocalPlayer()->getSeat()->getId() != seatId)
                 break;
 
-            OD_ASSERT_TRUE(tempPlayer->dropHand(tile) != nullptr);
+            Tile* tile = gameMap->tileFromPacket(packetReceived);
+            OD_ASSERT_TRUE(tile != nullptr);
+            if(tile == nullptr)
+                break;
+
+            OD_ASSERT_TRUE(gameMap->getLocalPlayer()->dropHand(tile) != nullptr);
             break;
         }
 
         case ServerNotification::entitySlapped:
         {
-            bool isEditorMode;
-            int seatId;
-            GameEntity::ObjectType entityType;
-            std::string entityName;
-            OD_ASSERT_TRUE(packetReceived >> isEditorMode >> seatId >> entityType >> entityName);
-            Player *tempPlayer = gameMap->getPlayerBySeatId(seatId);
-            OD_ASSERT_TRUE_MSG(tempPlayer != nullptr, "seatId=" + Ogre::StringConverter::toString(seatId));
-            if (tempPlayer == nullptr)
-                break;
-
-            GameEntity* entity = gameMap->getEntityFromTypeAndName(entityType, entityName);
-            OD_ASSERT_TRUE_MSG(entity != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
-            if(entity == nullptr)
-                break;
-
-            entity->slap(isEditorMode);
-
-            if(tempPlayer != gameMap->getLocalPlayer())
-                break;
             RenderManager::getSingleton().entitySlapped();
             break;
         }
@@ -507,6 +566,7 @@ bool ODClient::processOneClientSocketMessage()
                 OD_ASSERT_TRUE(packetReceived >> walkDirection);
                 obj->setWalkDirection(walkDirection);
             }
+
             obj->setAnimationState(animState, loop);
             break;
         }
@@ -532,118 +592,6 @@ bool ODClient::processOneClientSocketMessage()
             OD_ASSERT_TRUE(packetReceived >> &tmpSeat >> goalsString);
             getPlayer()->getSeat()->refreshFromSeat(&tmpSeat);
             frameListener->refreshPlayerDisplay(goalsString);
-            break;
-        }
-
-        case ServerNotification::markTiles:
-        {
-            bool isDigSet;
-            int nbTiles;
-            OD_ASSERT_TRUE(packetReceived >> isDigSet >> nbTiles);
-            std::vector<Tile*> tiles;
-            for(int i = 0; i < nbTiles; i++)
-            {
-                Tile* tile = gameMap->tileFromPacket(packetReceived);
-                OD_ASSERT_TRUE(tile != nullptr);
-                if(tile != NULL)
-                    tiles.push_back(tile);
-            }
-            gameMap->markTilesForPlayer(tiles, isDigSet, gameMap->getLocalPlayer());
-            SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::DIGSELECT);
-            break;
-        }
-
-        case ServerNotification::buildRoom:
-        {
-            Room* room = Room::getRoomFromPacket(gameMap, packetReceived);
-            OD_ASSERT_TRUE(room != nullptr);
-            std::vector<Tile*> tiles = room->getCoveredTiles();
-            for(std::vector<Tile*>::const_iterator it = tiles.begin(); it != tiles.end(); ++it)
-            {
-                Tile* tile = *it;
-                tile->setType(Tile::TileType::claimed);
-                tile->setSeat(room->getSeat());
-                tile->setFullness(0.0);
-            }
-            gameMap->addRoom(room, true);
-            room->createMesh();
-            room->checkForRoomAbsorbtion();
-            room->updateActiveSpots();
-            gameMap->refreshBorderingTilesOf(tiles);
-
-            if(gameMap->getLocalPlayer()->getSeat() == room->getSeat())
-            {
-                SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUILDROOM);
-            }
-            break;
-        }
-
-        case ServerNotification::removeRoomTile:
-        {
-            std::string roomName;
-            OD_ASSERT_TRUE(packetReceived >> roomName);
-            Tile* tile = gameMap->tileFromPacket(packetReceived);
-            OD_ASSERT_TRUE(tile != nullptr);
-            Room* room = gameMap->getRoomByName(roomName);
-            OD_ASSERT_TRUE_MSG(room != nullptr, "roomName=" + roomName);
-            if((room != nullptr) && (tile != nullptr))
-            {
-                room->removeCoveredTile(tile);
-                // If no more tiles, the room is removed
-                if (room->numCoveredTiles() <= 0)
-                {
-                    gameMap->removeRoom(room);
-                    room->deleteYourself();
-                    break;
-                }
-                room->updateActiveSpots();
-            }
-
-            break;
-        }
-
-        case ServerNotification::removeTrapTile:
-        {
-            std::string trapName;
-            OD_ASSERT_TRUE(packetReceived >> trapName);
-            Tile* tile = gameMap->tileFromPacket(packetReceived);
-            OD_ASSERT_TRUE(tile != nullptr);
-            Trap* trap = gameMap->getTrapByName(trapName);
-            OD_ASSERT_TRUE_MSG(trap != nullptr, "trapName=" + trapName);
-            if((trap == nullptr) || (tile == nullptr))
-                break;
-
-            trap->removeCoveredTile(tile);
-            // If no more tiles, the room is removed
-            if (trap->numCoveredTiles() <= 0)
-            {
-                gameMap->removeTrap(trap);
-                trap->deleteYourself();
-            }
-
-            break;
-        }
-
-        case ServerNotification::buildTrap:
-        {
-            Trap* trap = Trap::getTrapFromPacket(gameMap, packetReceived);
-            OD_ASSERT_TRUE(trap != nullptr);
-            std::vector<Tile*> tiles = trap->getCoveredTiles();
-            for(std::vector<Tile*>::const_iterator it = tiles.begin(); it != tiles.end(); ++it)
-            {
-                Tile* tile = *it;
-                tile->setType(Tile::TileType::claimed);
-                tile->setSeat(trap->getSeat());
-                tile->setFullness(0.0);
-            }
-            gameMap->addTrap(trap);
-            trap->createMesh();
-            trap->updateActiveSpots();
-
-            if(gameMap->getLocalPlayer()->getSeat() == trap->getSeat())
-            {
-                SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUILDTRAP);
-            }
             break;
         }
 
@@ -682,6 +630,7 @@ bool ODClient::processOneClientSocketMessage()
             OD_ASSERT_TRUE(tempRenderedMovableEntity != nullptr);
             gameMap->addRenderedMovableEntity(tempRenderedMovableEntity);
             tempRenderedMovableEntity->createMesh();
+            tempRenderedMovableEntity->restoreEntityState();
             break;
         }
 
@@ -698,30 +647,13 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotification::setEntityOpacity:
         {
-            std::string name;
+            std::string entityName;
             float opacity;
             GameEntity::ObjectType entityType;
-            OD_ASSERT_TRUE(packetReceived >> entityType >> name >> opacity);
+            OD_ASSERT_TRUE(packetReceived >> entityType >> entityName >> opacity);
 
-            GameEntity* entity = nullptr;
-            switch(entityType)
-            {
-                case GameEntity::ObjectType::creature:
-                {
-                    entity = gameMap->getCreature(name);
-                    break;
-                }
-                case GameEntity::ObjectType::renderedMovableEntity:
-                {
-                    entity = gameMap->getRenderedMovableEntity(name);
-                    break;
-                }
-                default:
-                    // No need to display an error as it will be displayed in the following assert
-                    break;
-            }
-            OD_ASSERT_TRUE_MSG(entity != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", name=" + name);
-
+            MovableGameEntity* entity = gameMap->getEntityFromTypeAndName(entityType, entityName);
+            OD_ASSERT_TRUE_MSG(entity != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
             if(entity == nullptr)
                 break;
 
@@ -824,11 +756,14 @@ bool ODClient::processOneClientSocketMessage()
         {
             std::string name;
             CreatureSound::SoundType soundType;
-            OD_ASSERT_TRUE(packetReceived >> name >> soundType);
-            Creature* creature = gameMap->getCreature(name);
-            OD_ASSERT_TRUE_MSG(creature != NULL, "name=" + name);
-            if(creature != NULL)
-                creature->playSound(soundType);
+            Ogre::Vector3 position;
+            OD_ASSERT_TRUE(packetReceived >> name >> soundType >> position);
+            CreatureSound* creatureSound = SoundEffectsManager::getSingleton().getCreatureClassSounds(name);
+            OD_ASSERT_TRUE_MSG(creatureSound != nullptr, "name=" + name);
+            if(creatureSound == nullptr)
+                break;
+
+            creatureSound->play(soundType, position.x, position.y, position.z);
             break;
         }
 
@@ -864,12 +799,12 @@ bool ODClient::processOneClientSocketMessage()
             if(carrier == nullptr)
                 break;
 
-            GameEntity* carried = gameMap->getEntityFromTypeAndName(entityType, carriedName);
+            MovableGameEntity* carried = gameMap->getEntityFromTypeAndName(entityType, carriedName);
             OD_ASSERT_TRUE_MSG(carried != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", carriedName=" + carriedName);
             if(carried == nullptr)
                 break;
 
-            carrier->carryEntity(carried);
+            RenderManager::getSingleton().rrCarryEntity(carrier, carried);
             break;
         }
 
@@ -885,12 +820,13 @@ bool ODClient::processOneClientSocketMessage()
             if(carrier == nullptr)
                 break;
 
-            GameEntity* carried = gameMap->getEntityFromTypeAndName(entityType, carriedName);
+            MovableGameEntity* carried = gameMap->getEntityFromTypeAndName(entityType, carriedName);
             OD_ASSERT_TRUE_MSG(carried != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", carriedName=" + carriedName);
             if(carried == nullptr)
                 break;
-            carrier->releaseCarriedEntity();
-            carried->setPosition(pos);
+
+            RenderManager::getSingleton().rrReleaseCarriedEntity(carrier, carried);
+            carried->setPosition(pos, false);
             break;
         }
 

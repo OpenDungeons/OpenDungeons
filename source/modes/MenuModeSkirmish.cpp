@@ -57,7 +57,11 @@ void MenuModeSkirmish::activate()
     // TODO: Make this configurable.
     MusicPlayer::getSingleton().play("Pal_Zoltan_Illes_OpenDungeons_maintheme.ogg");
 
-    ODFrameListener::getSingleton().getClientGameMap()->setGamePaused(true);
+
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
+    gameMap->clearAll();
+    gameMap->processDeletionQueues();
+    gameMap->setGamePaused(true);
 
     CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_LIST_LEVELS);
     CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);

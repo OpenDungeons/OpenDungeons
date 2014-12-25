@@ -41,7 +41,6 @@ namespace MapLoader {
 
 bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 {
-
     std::stringstream levelFile;
     if(!Helper::readFileWithoutComments(fileName, levelFile))
         return false;
@@ -230,8 +229,11 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         if (nextParam == "[/Rooms]")
             break;
 
-        if (nextParam != "[Room]")
+        if (gameMap.isServerGameMap() && (nextParam != "[Room]"))
             return false;
+
+        if(!gameMap.isServerGameMap())
+            continue;
 
         Room* tempRoom = Room::getRoomFromStream(&gameMap, levelFile);
         OD_ASSERT_TRUE(tempRoom != nullptr);
@@ -239,7 +241,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
             return false;
 
         tempRoom->setName(gameMap.nextUniqueNameRoom(tempRoom->getMeshName()));
-        gameMap.addRoom(tempRoom, false);
+        gameMap.addRoom(tempRoom);
 
         levelFile >> nextParam;
         if (nextParam != "[/Room]")
@@ -306,7 +308,9 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         MapLight* tempLight = new MapLight(&gameMap);
         MapLight::loadFromLine(entire_line, tempLight);
         tempLight->setName(gameMap.nextUniqueNameMapLight());
-
+        OD_ASSERT_TRUE(tempLight != nullptr);
+        if(tempLight == nullptr)
+            return false;
         gameMap.addMapLight(tempLight);
     }
 
@@ -407,6 +411,8 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 
         Creature* tempCreature = Creature::getCreatureFromStream(&gameMap, levelFile);
         OD_ASSERT_TRUE(tempCreature != nullptr);
+        if(tempCreature == nullptr)
+            return false;
         gameMap.addCreature(tempCreature);
         ++nbCreatures;
 

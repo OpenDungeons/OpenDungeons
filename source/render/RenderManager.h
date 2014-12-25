@@ -96,11 +96,9 @@ public:
     void rrDetachEntity(GameEntity* curEntity);
     void rrAttachEntity(GameEntity* curEntity);
     void rrTemporalMarkTile(Tile* curTile);
-    void rrCreateBuilding(Building* curBuilding, Tile* curTile);
-    void rrDestroyBuilding(Building* curBuilding, Tile* curTile);
     void rrCreateRenderedMovableEntity(RenderedMovableEntity* curRenderedMovableEntity);
     void rrDestroyRenderedMovableEntity(RenderedMovableEntity* curRenderedMovableEntity);
-    void rrUpdateEntityOpacity(GameEntity* entity);
+    void rrUpdateEntityOpacity(MovableGameEntity* entity);
     void rrCreateCreature(Creature* curCreature);
     void rrDestroyCreature(Creature* curCreature);
     void rrOrientEntityToward(MovableGameEntity* gameEntity, const Ogre::Vector3& direction);
@@ -110,8 +108,8 @@ public:
     void rrCreateMapLight(MapLight* curMapLight, bool displayVisual);
     void rrDestroyMapLight(MapLight* curMapLight);
     void rrDestroyMapLightVisualIndicator(MapLight* curMapLight);
-    void rrPickUpEntity(GameEntity* curEntity, Player* localPlayer);
-    void rrDropHand(GameEntity* curEntity, Player* localPlayer);
+    void rrPickUpEntity(MovableGameEntity* curEntity, Player* localPlayer);
+    void rrDropHand(MovableGameEntity* curEntity, Player* localPlayer);
     void rrRotateHand(Player* localPlayer);
     void rrCreateCreatureVisualDebug(Creature* curCreature, Tile* curTile);
     void rrDestroyCreatureVisualDebug(Creature* curCreature, Tile* curTile);
@@ -120,8 +118,8 @@ public:
     void rrSetObjectAnimationState(MovableGameEntity* curAnimatedObject, const std::string& animation, bool loop);
     void rrMoveEntity(GameEntity* entity, const Ogre::Vector3& position);
     void rrMoveMapLightFlicker(MapLight* mapLight, const Ogre::Vector3& position);
-    void rrCarryEntity(Creature* carrier, GameEntity* carried);
-    void rrReleaseCarriedEntity(Creature* carrier, GameEntity* carried);
+    void rrCarryEntity(Creature* carrier, MovableGameEntity* carried);
+    void rrReleaseCarriedEntity(Creature* carrier, MovableGameEntity* carried);
 
 private:
     bool generateRTSSShadersForMaterial(const std::string& materialName,

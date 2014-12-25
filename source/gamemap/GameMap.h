@@ -162,6 +162,7 @@ public:
     void saveLevelClassDescriptions(std::ofstream& levelFile);
 
     void addWeapon(const Weapon *weapon);
+    const Weapon* getWeapon(int index);
     const Weapon* getWeapon(const std::string& name);
     Weapon* getWeaponForTuning(const std::string& name);
     uint32_t numWeapons();
@@ -170,12 +171,8 @@ public:
     //! \brief Calls the deleteYourself() method on each of the rooms in the game map as well as clearing the vector of stored rooms.
     void clearRooms();
 
-    //! \brief A simple mutator method to add the given Room to the GameMap. If sendAsyncMsg is true, an asynchronous server message
-    //! will be sent to every players. If false, it will be synchronous. Asynchronous messages should be used for human players
-    //! to increase time reaction. This is useful because when AI looses a room, it could try to rebuild it during the same turn. But
-    //! because the remove tile is sent synchronously, if the build message was sent asynchronously, it would be received before the
-    //! remove message. That would result in Ogre crashing because there are 2 identical tiles.
-    void addRoom(Room *r, bool sendAsyncMsg);
+    //! \brief A simple mutator method to add the given Room to the GameMap.
+    void addRoom(Room *r);
 
     void removeRoom(Room *r);
 
@@ -358,7 +355,7 @@ public:
     std::vector<GameEntity*> getVisibleCreatures(std::vector<Tile*> visibleTiles, Seat* seat, bool invert);
 
     //! \brief Loops over the visibleTiles and returns any carryable entity in those tiles
-    std::vector<GameEntity*> getVisibleCarryableEntities(std::vector<Tile*> visibleTiles);
+    std::vector<MovableGameEntity*> getVisibleCarryableEntities(std::vector<Tile*> visibleTiles);
 
     /** \brief Returns the as the crow flies distance between tiles located at the two coordinates given.
      * If tiles do not exist at these locations the function returns -1.0.
@@ -467,7 +464,7 @@ public:
     RenderedMovableEntity* getRenderedMovableEntity(const std::string& name);
     void clearRenderedMovableEntities();
     void clearActiveObjects();
-    GameEntity* getEntityFromTypeAndName(GameEntity::ObjectType entityType,
+    MovableGameEntity* getEntityFromTypeAndName(GameEntity::ObjectType entityType,
         const std::string& entityName);
 
     //! \brief Tells the game map a given player is attacking or under attack.
@@ -480,6 +477,8 @@ public:
 
     void fillBuildableTilesAndPriceForPlayerInArea(int x1, int y1, int x2, int y2,
         Player* player, Room::RoomType type, std::vector<Tile*>& tiles, int& goldRequired);
+
+    void updateVisibleEntities();
 
 private:
     void replaceFloodFill(Tile::FloodFillType floodFillType, int colorOld, int colorNew);
@@ -553,9 +552,6 @@ private:
 
     //! \brief Useless entities that need to be deleted. They will be deleted when processDeletionQueues is called
     std::vector<GameEntity*> mEntitiesToDelete;
-
-    //! \brief Useless MapLights that need to be deleted. They will be deleted when processDeletionQueues is called
-    std::vector<MapLight*> mMapLightsToDelete;
 
     //! \brief Debug member used to know how many call to pathfinding has been made within the same turn.
     unsigned int mNumCallsTo_path;

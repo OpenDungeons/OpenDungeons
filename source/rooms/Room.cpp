@@ -150,37 +150,28 @@ std::string Room::getFormat()
 void Room::doUpkeep()
 {
     // Loop over the tiles in Room r and remove any whose HP has dropped to zero.
-    unsigned int i = 0;
-    bool oneTileRemoved = false;
-    while (i < mCoveredTiles.size())
+    std::vector<Tile*> tilesToRemove;
+    for (Tile* tile : mCoveredTiles)
     {
-        Tile* t = mCoveredTiles[i];
-        if (mTileHP[t] <= 0.0)
+        if (mTileHP[tile] <= 0.0)
         {
-            ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::removeRoomTile, nullptr);
-            std::string name = getName();
-            serverNotification->mPacket << name;
-            getGameMap()->tileToPacket(serverNotification->mPacket, t);
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-
-            removeCoveredTile(t);
-            oneTileRemoved = true;
+            tilesToRemove.push_back(tile);
+            continue;
         }
-        else
-            ++i;
     }
 
-    if (oneTileRemoved)
+    if (!tilesToRemove.empty())
     {
+        for(Tile* tile : tilesToRemove)
+            removeCoveredTile(tile);
+
         updateActiveSpots();
         createMesh();
     }
 
     // If no more tiles, the room is removed
-    if (numCoveredTiles() == 0)
+    if (numCoveredTiles() <= 0)
     {
-        LogManager::getSingleton().logMessage("Removing room " + getName());
         getGameMap()->removeRoom(this);
         deleteYourself();
         return;
@@ -711,16 +702,15 @@ void Room::exportHeadersToPacket(ODPacket& os)
     os << getType();
 }
 
-void Room::exportToPacket(ODPacket& os)
+void Room::exportToPacket(ODPacket& os) const
 {
     const std::string& name = getName();
     int seatId = getSeat()->getId();
     int nbTiles = mCoveredTiles.size();
     os << name << seatId << nbTiles;
-    for (std::vector<Tile*>::iterator it = mCoveredTiles.begin(); it != mCoveredTiles.end(); ++it)
+    for (Tile* tile : mCoveredTiles)
     {
-        Tile* tempTile = *it;
-        os << tempTile->x << tempTile->y;
+        os << tile->x << tile->y;
     }
 }
 
@@ -747,15 +737,14 @@ void Room::importFromPacket(ODPacket& is)
     }
 }
 
-void Room::exportToStream(std::ostream& os)
+void Room::exportToStream(std::ostream& os) const
 {
     int seatId = getSeat()->getId();
     int nbTiles = mCoveredTiles.size();
     os << seatId << "\t" << nbTiles << "\n";
-    for (std::vector<Tile*>::iterator it = mCoveredTiles.begin(); it != mCoveredTiles.end(); ++it)
+    for (Tile* tile : mCoveredTiles)
     {
-        Tile *tempTile = *it;
-        os << tempTile->x << "\t" << tempTile->y << "\n";
+        os << tile->x << "\t" << tile->y << "\n";
     }
 }
 

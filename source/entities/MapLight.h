@@ -94,6 +94,14 @@ public:
      */
     void update(Ogre::Real timeSinceLastFrame);
 
+    //! \brief For now, MapLights are sent by the server during map initialization. There is
+    //! no need to remove/add them. If we want to add MapLights on claimed tiles, we
+    //! should consider letting notifySeatsWithVision default behaviour or, even better, create
+    //! another class
+    void notifySeatsWithVision(const std::vector<Seat*>& seats)
+    {}
+
+    void fireAddEntityToAll();
 
     static std::string getFormat();
     friend ODPacket& operator<<(ODPacket& os, MapLight *m);
@@ -107,6 +115,11 @@ public:
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
+    //! MapLights are sent by the server during map initialization. Nothing more to do
+    virtual void fireAddEntity(Seat* seat, bool async)
+    {}
+    virtual void fireRemoveEntity(Seat* seat)
+    {}
 
 private:
     Ogre::ColourValue mDiffuseColor;

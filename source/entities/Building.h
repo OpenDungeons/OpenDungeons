@@ -51,7 +51,7 @@ public:
 
     virtual ~Building() {}
 
-    Ogre::Vector3 getScale() const;
+    const Ogre::Vector3& getScale() const;
 
     //! \brief Updates the active spot lists. Active spots are places where objects can be added
     virtual void updateActiveSpots() = 0;
@@ -98,7 +98,7 @@ public:
     }
 
     //! \brief Tells whether the building wants the given entity to be brought
-    virtual bool hasCarryEntitySpot(GameEntity* carriedEntity)
+    virtual bool hasCarryEntitySpot(MovableGameEntity* carriedEntity)
     { return false; }
 
     //! \brief Tells where the building wants the given entity to be brought
@@ -106,20 +106,17 @@ public:
     //! the carriedEntity is not wanted anymore (if no free spot for example).
     //! If askSpotForCarriedEntity returns a valid tile, a spot may be booked and in
     //! any case, notifyCarryingStateChanged should be called to release it
-    virtual Tile* askSpotForCarriedEntity(GameEntity* carriedEntity)
+    virtual Tile* askSpotForCarriedEntity(MovableGameEntity* carriedEntity)
     { return nullptr; }
 
     //! \brief Tells whether the carrying state changed. One should check the carrier
     //! tile position to check if it is in the requested Tile. If yes, the carriedEntity
     //! is at the wanted place. If not, it means that the carrier stopped carrying (for
     //! example, if it was killed or picked up during process)
-    virtual void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity)
+    virtual void notifyCarryingStateChanged(Creature* carrier, MovableGameEntity* carriedEntity)
     {}
 
 protected:
-    virtual void createMeshLocal();
-    virtual void destroyMeshLocal();
-
     std::map<Tile*, RenderedMovableEntity*> mBuildingObjects;
     std::vector<Tile*> mCoveredTiles;
     std::map<Tile*, double> mTileHP;

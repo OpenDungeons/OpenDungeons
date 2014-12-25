@@ -29,8 +29,7 @@ class Creature;
 class MovableGameEntity;
 class Player;
 
-//! \brief A data structure used to pass messages to the serverNotificationProcessor thread.
-//TODO:  Make this class a base class and let specific messages be subclasses of this type with each having its own data structure so they don't need the unused fields
+//! \brief A data structure used to send messages to the clients
 class ServerNotification
 {
     friend class ODServer;
@@ -55,13 +54,7 @@ class ServerNotification
 
             chat,
             chatServer,
-            playerWon,
-            playerLost,
 
-            buildRoom,
-            removeRoomTile,
-            buildTrap,
-            removeTrapTile,
             turnStarted,
             setTurnsPerSecond,
 
@@ -89,9 +82,8 @@ class ServerNotification
             refreshSeatVisDebug,
 
             playSpatialSound, // Makes the client play a sound at tile coordinates.
-            playCreatureSound, // Play a sound at the creature position
+            playCreatureSound, // Play a creature sound at the given position
 
-            markTiles,
             refreshTiles,
             carryEntity,
             releaseCarriedEntity,
@@ -99,8 +91,10 @@ class ServerNotification
             exit
         };
 
-        ServerNotification(ServerNotificationType type,
-            Player* concernedPlayer);
+        /*! \brief Creates a message to be sent to concernedPlayer. If concernedPlayer is null, the message will be sent to
+         *         every connected player.
+         */
+        ServerNotification(ServerNotificationType type, Player* concernedPlayer);
         virtual ~ServerNotification()
         {}
 

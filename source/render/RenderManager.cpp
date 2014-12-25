@@ -185,22 +185,31 @@ void RenderManager::rrRefreshTile(Tile* curTile, Player* localPlayer)
     if (!mSceneManager->hasSceneNode(tileName + "_node"))
         return;
 
-    // We keep visibility if the tile is refreshed
-    Ogre::Entity* entity = mSceneManager->getEntity(tileName);
-    bool visible = entity->getVisible();
+    if(mSceneManager->hasEntity(tileName))
+    {
+        // Unlink and delete the old mesh
+        mSceneManager->getSceneNode(tileName + "_node")->detachObject(tileName);
+        mSceneManager->destroyEntity(tileName);
+    }
 
-    // Unlink and delete the old mesh
-    mSceneManager->getSceneNode(tileName + "_node")->detachObject(tileName);
-    mSceneManager->destroyEntity(tileName);
-
-    std::string meshName = Tile::meshNameFromNeighbors(curTile->getType(),
-                                                       curTile->getFullnessMeshNumber(),
-                                                       curTile->getGameMap()->getNeighborsTypes(curTile),
-                                                       curTile->getGameMap()->getNeighborsFullness(curTile),
-                                                       rt);
+    bool colourizeTile = true;
+    std::string meshName = curTile->getMeshName();
+    if(meshName.empty())
+    {
+        // We compute the mesh
+        meshName = Tile::meshNameFromNeighbors(curTile->getType(),
+           curTile->getFullnessMeshNumber(),
+           curTile->getGameMap()->getNeighborsTypes(curTile),
+           curTile->getGameMap()->getNeighborsFullness(curTile),
+           rt);
+    }
+    else
+    {
+        rt = 0;
+        colourizeTile = false;
+    }
 
     Ogre::Entity* ent = mSceneManager->createEntity(tileName, meshName);
-    ent->setVisible(visible);
 
     if(curTile->getType() == Tile::gold && curTile->getFullness() > 0.0)
     {
@@ -227,16 +236,15 @@ void RenderManager::rrRefreshTile(Tile* curTile, Player* localPlayer)
         }
     }
 
-    colourizeEntity(ent, curTile->getSeat(), curTile->getMarkedForDigging(localPlayer));
+    if(colourizeTile)
+        colourizeEntity(ent, curTile->getSeat(), curTile->getMarkedForDigging(localPlayer));
 
     // Link the tile mesh back to the relevant scene node so OGRE will render it
     Ogre::SceneNode* node = mSceneManager->getSceneNode(tileName + "_node");
     node->attachObject(ent);
+    node->setScale(curTile->getScale());
     node->resetOrientation();
     node->roll(Ogre::Degree((Ogre::Real)(-1 * rt * 90)));
-
-    // Refresh visibility
-    ent->setVisible(visible);
 }
 
 
@@ -299,12 +307,6 @@ void RenderManager::rrCreateTile(Tile* curTile, Player* localPlayer)
     node->setScale(curTile->getScale());
     node->resetOrientation();
     node->roll(Ogre::Degree((Ogre::Real)(-1 * rt * 90)));
-
-    // Test whether the tile should be shown
-    if (curTile->getCoveringBuilding() != nullptr)
-        ent->setVisible(curTile->getCoveringBuilding()->shouldDisplayGroundTile());
-    else
-        ent->setVisible(true);
 }
 
 void RenderManager::rrDestroyTile(Tile* curTile)
@@ -366,57 +368,6 @@ void RenderManager::rrAttachEntity(GameEntity* curEntity)
 {
     Ogre::SceneNode* entityNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
     curEntity->getParentSceneNode()->addChild(entityNode);
-}
-
-void RenderManager::rrCreateBuilding(Building* curBuilding, Tile* curTile)
-{
-    if (curBuilding->shouldDisplayBuildingTile())
-    {
-        std::stringstream tempSS;
-        tempSS << curBuilding->getOgreNamePrefix() << curBuilding->getNameTile(curTile);
-        // Create the room ground tile
-
-        Ogre::Entity* ent = mSceneManager->createEntity(tempSS.str(), curBuilding->getMeshName() + ".mesh");
-        Ogre::SceneNode* node = mRoomSceneNode->createChildSceneNode(tempSS.str() + "_node");
-
-        curBuilding->setParentSceneNode(node->getParentSceneNode());
-        curBuilding->setEntityNode(node);
-        node->setPosition(static_cast<Ogre::Real>(curTile->x),
-                        static_cast<Ogre::Real>(curTile->y),
-                        static_cast<Ogre::Real>(0.0f));
-        node->setScale(curBuilding->getScale());
-        node->attachObject(ent);
-
-        if (curBuilding->getOpacity() < 1.0f)
-            setEntityOpacity(ent, curBuilding->getOpacity());
-    }
-
-    Ogre::Entity* tileEnt = mSceneManager->getEntity(curTile->getOgreNamePrefix() + curTile->getName());
-    tileEnt->setVisible(curBuilding->shouldDisplayGroundTile());
-}
-
-void RenderManager::rrDestroyBuilding(Building* curBuilding, Tile* curTile)
-{
-    std::stringstream tempSS;
-    tempSS << curBuilding->getOgreNamePrefix() << curBuilding->getNameTile(curTile);
-
-    std::string tempString = tempSS.str();
-    // Buildings do not necessarily use ground mesh. So, we remove it only if it exists
-    if(!mSceneManager->hasEntity(tempString))
-        return;
-
-    Ogre::Entity* ent = mSceneManager->getEntity(tempString);
-    Ogre::SceneNode* node = mSceneManager->getSceneNode(tempString + "_node");
-    node->detachObject(ent);
-    mRoomSceneNode->removeChild(node);
-    curBuilding->setParentSceneNode(nullptr);
-    curBuilding->setEntityNode(nullptr);
-    mSceneManager->destroyEntity(ent);
-    mSceneManager->destroySceneNode(node->getName());
-
-    // Show the tile being under
-    Ogre::Entity* tileEnt = mSceneManager->getEntity(curTile->getOgreNamePrefix() + curTile->getName());
-    tileEnt->setVisible(true);
 }
 
 void RenderManager::rrCreateRenderedMovableEntity(RenderedMovableEntity* renderedMovableEntity)
@@ -485,7 +436,7 @@ void RenderManager::rrDestroyRenderedMovableEntity(RenderedMovableEntity* curRen
     }
 }
 
-void RenderManager::rrUpdateEntityOpacity(GameEntity* entity)
+void RenderManager::rrUpdateEntityOpacity(MovableGameEntity* entity)
 {
     std::string entStr = entity->getOgreNamePrefix() + entity->getName();
     Ogre::Entity* ogreEnt = mSceneManager->hasEntity(entStr) ? mSceneManager->getEntity(entStr) : nullptr;
@@ -667,7 +618,7 @@ void RenderManager::rrDestroyMapLightVisualIndicator(MapLight* curMapLight)
     }
 }
 
-void RenderManager::rrPickUpEntity(GameEntity* curEntity, Player* localPlayer)
+void RenderManager::rrPickUpEntity(MovableGameEntity* curEntity, Player* localPlayer)
 {
     // Detach the entity from its scene node
     Ogre::SceneNode* curEntityNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
@@ -681,8 +632,8 @@ void RenderManager::rrPickUpEntity(GameEntity* curEntity, Player* localPlayer)
 
     // Move the other creatures in the player's hand to make room for the one just picked up.
     int i = 0;
-    const std::vector<GameEntity*>& objectsInHand = localPlayer->getObjectsInHand();
-    for (GameEntity* tmpEntity : objectsInHand)
+    const std::vector<MovableGameEntity*>& objectsInHand = localPlayer->getObjectsInHand();
+    for (MovableGameEntity* tmpEntity : objectsInHand)
     {
         Ogre::SceneNode* tmpEntityNode = mSceneManager->getSceneNode(tmpEntity->getOgreNamePrefix() + tmpEntity->getName() + "_node");
         tmpEntityNode->setPosition((Ogre::Real)(i % 6 + 1), (Ogre::Real)(i / (int)6), (Ogre::Real)0.0);
@@ -690,7 +641,7 @@ void RenderManager::rrPickUpEntity(GameEntity* curEntity, Player* localPlayer)
     }
 }
 
-void RenderManager::rrDropHand(GameEntity* curEntity, Player* localPlayer)
+void RenderManager::rrDropHand(MovableGameEntity* curEntity, Player* localPlayer)
 {
     // Detach the entity from the "hand" scene node
     Ogre::SceneNode* curEntityNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
@@ -703,8 +654,8 @@ void RenderManager::rrDropHand(GameEntity* curEntity, Player* localPlayer)
 
     // Move the other creatures in the player's hand to replace the dropped one
     int i = 0;
-    const std::vector<GameEntity*>& objectsInHand = localPlayer->getObjectsInHand();
-    for (GameEntity* tmpEntity : objectsInHand)
+    const std::vector<MovableGameEntity*>& objectsInHand = localPlayer->getObjectsInHand();
+    for (MovableGameEntity* tmpEntity : objectsInHand)
     {
         Ogre::SceneNode* tmpEntityNode = mSceneManager->getSceneNode(tmpEntity->getOgreNamePrefix() + tmpEntity->getName() + "_node");
         tmpEntityNode->setPosition((Ogre::Real)(i % 6 + 1), (Ogre::Real)(i / (int)6), (Ogre::Real)0.0);
@@ -716,8 +667,8 @@ void RenderManager::rrRotateHand(Player* localPlayer)
 {
     // Loop over the creatures in our hand and redraw each of them in their new location.
     int i = 0;
-    const std::vector<GameEntity*>& objectsInHand = localPlayer->getObjectsInHand();
-    for (GameEntity* tmpEntity : objectsInHand)
+    const std::vector<MovableGameEntity*>& objectsInHand = localPlayer->getObjectsInHand();
+    for (MovableGameEntity* tmpEntity : objectsInHand)
     {
         Ogre::SceneNode* tmpEntityNode = mSceneManager->getSceneNode(tmpEntity->getOgreNamePrefix() + tmpEntity->getName() + "_node");
         tmpEntityNode->setPosition((Ogre::Real)(i % 6 + 1), (Ogre::Real)(i / (int)6), (Ogre::Real)0.0);
@@ -1066,7 +1017,7 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, Se
     return tempSS.str();
 }
 
-void RenderManager::rrCarryEntity(Creature* carrier, GameEntity* carried)
+void RenderManager::rrCarryEntity(Creature* carrier, MovableGameEntity* carried)
 {
     Ogre::Entity* carrierEnt = mSceneManager->getEntity(carrier->getOgreNamePrefix() + carrier->getName());
     Ogre::Entity* carriedEnt = mSceneManager->getEntity(carried->getOgreNamePrefix() + carried->getName());
@@ -1078,7 +1029,7 @@ void RenderManager::rrCarryEntity(Creature* carrier, GameEntity* carried)
     carrierNode->addChild(carriedNode);
 }
 
-void RenderManager::rrReleaseCarriedEntity(Creature* carrier, GameEntity* carried)
+void RenderManager::rrReleaseCarriedEntity(Creature* carrier, MovableGameEntity* carried)
 {
     Ogre::Entity* carrierEnt = mSceneManager->getEntity(carrier->getOgreNamePrefix() + carrier->getName());
     Ogre::Entity* carriedEnt = mSceneManager->getEntity(carried->getOgreNamePrefix() + carried->getName());

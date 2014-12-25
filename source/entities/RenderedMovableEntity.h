@@ -58,8 +58,7 @@ public:
     virtual void doUpkeep()
     {}
 
-    virtual Ogre::Vector3 getScale() const
-    { return Ogre::Vector3(0.7,0.7,0.7); }
+    virtual const Ogre::Vector3& getScale() const;
 
     void receiveExp(double experience)
     {}
@@ -76,8 +75,7 @@ public:
     Ogre::Real getRotationAngle() const
     { return mRotationAngle; }
 
-    virtual RenderedMovableEntityType getRenderedMovableEntityType()
-    { return RenderedMovableEntityType::buildingObject; }
+    virtual RenderedMovableEntityType getRenderedMovableEntityType() = 0;
 
     virtual void pickup();
     virtual void drop(const Ogre::Vector3& v);
@@ -90,9 +88,9 @@ public:
     virtual void exportHeadersToStream(std::ostream& os);
     virtual void exportHeadersToPacket(ODPacket& os);
     //! \brief Exports the data of the RenderedMovableEntity
-    virtual void exportToStream(std::ostream& os);
+    virtual void exportToStream(std::ostream& os) const;
     virtual void importFromStream(std::istream& is);
-    virtual void exportToPacket(ODPacket& os);
+    virtual void exportToPacket(ODPacket& os) const;
     virtual void importFromPacket(ODPacket& is);
 
     static RenderedMovableEntity* getRenderedMovableEntityFromLine(GameMap* gameMap, const std::string& line);
@@ -107,7 +105,10 @@ public:
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
+    virtual void fireAddEntity(Seat* seat, bool async);
+    virtual void fireRemoveEntity(Seat* seat);
 private:
+    std::vector<Seat*> mSeatsWithVisionNotified;
     Ogre::Real mRotationAngle;
     bool mHideCoveredTile;
 };
