@@ -140,4 +140,18 @@ private:
     uint32_t mLevel;
 };
 
+class ODConsoleCommandAskToggleFOW : public ODConsoleCommand
+{
+public:
+    ODConsoleCommandAskToggleFOW()
+    {
+    }
+
+protected:
+    virtual void execute(GameMap* gameMap)
+    {
+        gameMap->consoleAskToggleFOW();
+    }
+};
+
 #endif // ODCONSOLECOMMAND_H

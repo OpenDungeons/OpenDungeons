@@ -116,6 +116,9 @@ public:
     //! \brief Returns the total number of creatures stored in this game map.
     unsigned int numCreatures() const;
 
+    bool getIsFOWActivated() const
+    { return mIsFOWActivated; }
+
     //! \brief Returns a vector containing all the creatures controlled by the given seat.
     std::vector<Creature*> getCreaturesByAlliedSeat(Seat* seat);
     std::vector<Creature*> getCreaturesBySeat(Seat* seat);
@@ -449,6 +452,7 @@ public:
     void consoleDisplayCreatureVisualDebug(const std::string& creatureName, bool enable);
     void consoleDisplaySeatVisualDebug(int seatId, bool enable);
     void consoleSetLevelCreature(const std::string& creatureName, uint32_t level);
+    void consoleAskToggleFOW();
 
     //! \brief This functions create unique names. They check that there
     //! is no entity with the same name before returning
@@ -541,6 +545,9 @@ private:
 
     //! \brief Tells whether the map color flood filling is enabled.
     bool mFloodFillEnabled;
+
+    //! When true, fog of war will work normally. When false, every connected client will see the whole map
+    bool mIsFOWActivated;
 
     std::vector<GameEntity*> mActiveObjects;
 

@@ -851,6 +851,26 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         }
     }
 
+    // Start the visual debugging indicators for a given creature
+    else if (command.compare("icanseedeadpeople") == 0)
+    {
+        if (ODServer::getSingleton().isConnected())
+        {
+            if(ODClient::getSingleton().isConnected())
+            {
+                ODConsoleCommand* cc = new ODConsoleCommandAskToggleFOW();
+                ODServer::getSingleton().queueConsoleCommand(cc);
+            }
+            frameListener->mCommandOutput
+                    += "\nAsking to toggle fog of war\n";
+        }
+        else
+        {
+            frameListener->mCommandOutput
+                    += "\nERROR:  You can toggle fog of war only when you are hosting a game.\n";
+        }
+    }
+
     // Changes the level of a given creature
     else if (command.compare("setlevel") == 0)
     {

@@ -148,6 +148,7 @@ GameMap::GameMap(bool isServerGameMap) :
         mTurnNumber(-1),
         mIsPaused(false),
         mFloodFillEnabled(false),
+        mIsFOWActivated(true),
         mNumCallsTo_path(0),
         mTileCoordinateMap(new TileCoordinateMap(100)),
         mAiManager(*this)
@@ -254,6 +255,7 @@ void GameMap::clearAll()
     mLocalPlayerNick = DEFAULT_NICK;
     mTurnNumber = -1;
     resetUniqueNumbers();
+    mIsFOWActivated = true;
 }
 
 void GameMap::clearCreatures()
@@ -2904,6 +2906,11 @@ void GameMap::consoleSetLevelCreature(const std::string& creatureName, uint32_t 
         return;
 
     creature->setLevel(level);
+}
+
+void GameMap::consoleAskToggleFOW()
+{
+    mIsFOWActivated = !mIsFOWActivated;
 }
 
 Creature* GameMap::getKoboldForPathFinding(Seat* seat)

@@ -334,6 +334,9 @@ private:
     int mFloodFillColor[FloodFillTypeMax];
     double mClaimedPercentage;
     Ogre::Vector3 mScale;
+
+    //! true if a building is on this tile. False otherwise. It is used on client side because the clients do not know about
+    //! buildings. However, it needs to know the tiles where a building is to display the room/trap costs.
     bool mIsBuilding;
 
     /*! \brief Set the fullness value for the tile.

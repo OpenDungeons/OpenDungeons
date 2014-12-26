@@ -1426,6 +1426,15 @@ Trap* Tile::getCoveringTrap() const
 
 void Tile::computeVisibleTiles()
 {
+    if(!getGameMap()->getIsFOWActivated())
+    {
+        // If the FOW is deactivated, we allow vision for every seat
+        for(Seat* seat : getGameMap()->getSeats())
+            notifyVision(seat);
+
+        return;
+    }
+
     if(type != claimed)
         return;
 
