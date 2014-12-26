@@ -71,7 +71,7 @@ std::string GameEntity::getNodeNameWithoutPostfix()
 
 Tile* GameEntity::getPositionTile() const
 {
-    Ogre::Vector3 tempPosition = getPosition();
+    const Ogre::Vector3& tempPosition = getPosition();
 
     return getGameMap()->getTile(Helper::round(tempPosition.x),
                                  Helper::round(tempPosition.y));

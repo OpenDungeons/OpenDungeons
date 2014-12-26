@@ -158,7 +158,7 @@ bool RoomForge::addCreatureUsingRoom(Creature* creature)
     Tile* tileSpot = mUnusedSpots[index];
     mUnusedSpots.erase(mUnusedSpots.begin() + index);
     mCreaturesSpots[creature] = tileSpot;
-    Ogre::Vector3 creaturePosition = creature->getPosition();
+    const Ogre::Vector3& creaturePosition = creature->getPosition();
     Ogre::Real wantedX = -1;
     Ogre::Real wantedY = -1;
     getCreatureWantedPos(creature, tileSpot, wantedX, wantedY);

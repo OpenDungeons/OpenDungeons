@@ -151,7 +151,7 @@ void RoomTrainingHall::refreshCreaturesDummies()
         mCreaturesDummies[creature] = tileDummy;
 
         // Set destination to the newly affected dummies if there was a change
-        Ogre::Vector3 creaturePosition = creature->getPosition();
+        const Ogre::Vector3& creaturePosition = creature->getPosition();
         Ogre::Real wantedX = -1;
         Ogre::Real wantedY = -1;
         getCreatureWantedPos(creature, tileDummy, wantedX, wantedY);
@@ -192,7 +192,7 @@ bool RoomTrainingHall::addCreatureUsingRoom(Creature* creature)
     Tile* tileDummy = mUnusedDummies[index];
     mUnusedDummies.erase(mUnusedDummies.begin() + index);
     mCreaturesDummies[creature] = tileDummy;
-    Ogre::Vector3 creaturePosition = creature->getPosition();
+    const Ogre::Vector3& creaturePosition = creature->getPosition();
     Ogre::Real wantedX = -1;
     Ogre::Real wantedY = -1;
     getCreatureWantedPos(creature, tileDummy, wantedX, wantedY);

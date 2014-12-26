@@ -107,7 +107,7 @@ class GameEntity
     inline GameMap* getGameMap() const
     { return mGameMap; }
 
-    virtual Ogre::Vector3 getPosition() const
+    virtual const Ogre::Vector3& getPosition() const
     { return mPosition; }
 
     inline Ogre::SceneNode* getParentSceneNode() const

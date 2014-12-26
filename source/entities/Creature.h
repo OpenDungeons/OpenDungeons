@@ -78,7 +78,7 @@ public:
 
     Ogre::Vector2 get2dPosition()
     {
-        Ogre::Vector3 tmp = getPosition();
+        const Ogre::Vector3& tmp = getPosition();
         return Ogre::Vector2(tmp.x,tmp.y);
     }
 

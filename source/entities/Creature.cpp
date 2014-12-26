@@ -414,10 +414,10 @@ Creature* Creature::getCreatureFromPacket(GameMap* gameMap, ODPacket& is)
 
 void Creature::exportToPacket(ODPacket& os) const
 {
-    std::string className = mDefinition->getClassName();
+    const std::string& className = mDefinition->getClassName();
     os << className;
 
-    std::string name = getName();
+    const std::string& name = getName();
     os << name;
 
     int seatId = getSeat()->getId();
@@ -3413,7 +3413,7 @@ void Creature::releaseCarriedEntity()
     if(carriedEntity == nullptr)
         return;
 
-    Ogre::Vector3 pos = getPosition();
+    const Ogre::Vector3& pos = getPosition();
     carriedEntity->notifyEntityCarryOff(pos);
 
     for(Seat* seat : mSeatsWithVisionNotified)
@@ -3584,7 +3584,7 @@ void Creature::fireCreatureSound(CreatureSound::SoundType sound)
             continue;
 
         const std::string& name = getDefinition()->getClassName();
-        Ogre::Vector3 position = getPosition();
+        const Ogre::Vector3& position = getPosition();
         ServerNotification *serverNotification = new ServerNotification(
             ServerNotification::playCreatureSound, seat->getPlayer());
         serverNotification->mPacket << name << sound << position;
