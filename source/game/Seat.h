@@ -147,6 +147,9 @@ public:
     inline bool getIsDebuggingVision()
     { return mIsDebuggingVision; }
 
+    inline int getNbTreasuries() const
+    { return mNbTreasuries; }
+
     const std::string& getPlayerType() const
     { return mPlayerType; }
 
@@ -190,6 +193,8 @@ public:
 
     const std::vector<Seat*>& getAlliedSeats()
     { return mAlliedSeats; }
+
+    void computeSeatBeforeSendingToClient();
 
     static bool sortForMapSave(Seat* s1, Seat* s2);
 
@@ -281,6 +286,9 @@ private:
 
     //! \brief The seat id. Allows to identify this seat. Must be unique per level file.
     int mId;
+
+    //! \brief The number of treasuries the player owns. Useful to display the first free tile on client side.
+    int mNbTreasuries;
 
     bool mIsDebuggingVision;
 };

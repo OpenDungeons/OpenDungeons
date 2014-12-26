@@ -53,6 +53,7 @@ Seat::Seat(GameMap* gameMap) :
     mHasGoalsChanged(true),
     mGold(0),
     mId(-1),
+    mNbTreasuries(0),
     mIsDebuggingVision(false)
 {
 }
@@ -500,6 +501,14 @@ void Seat::displaySeatVisualDebug(bool enable)
     }
 }
 
+void Seat::computeSeatBeforeSendingToClient()
+{
+    if(mPlayer != nullptr)
+    {
+        mNbTreasuries = mGameMap->numRoomsByTypeAndSeat(Room::treasury, this);
+    }
+}
+
 std::string Seat::getFormat()
 {
     return "seatId\tteamId\tplayer\tfaction\tstartingX\tstartingY\tcolor\tstartingGold";
@@ -512,6 +521,7 @@ ODPacket& operator<<(ODPacket& os, Seat *s)
     os << s->mColorId;
     os << s->mGold << s->mMana << s->mManaDelta << s->mNumClaimedTiles;
     os << s->mHasGoalsChanged;
+    os << s->mNbTreasuries;
     uint32_t nb = s->mAvailableTeamIds.size();
     os << nb;
     for(int teamId : s->mAvailableTeamIds)
@@ -527,6 +537,7 @@ ODPacket& operator>>(ODPacket& is, Seat *s)
     is >> s->mColorId;
     is >> s->mGold >> s->mMana >> s->mManaDelta >> s->mNumClaimedTiles;
     is >> s->mHasGoalsChanged;
+    is >> s->mNbTreasuries;
     s->mColorValue = ConfigManager::getSingleton().getColorFromId(s->mColorId);
     uint32_t nb;
     is >> nb;
@@ -580,6 +591,7 @@ void Seat::refreshFromSeat(Seat* s)
     mManaDelta = s->mManaDelta;
     mNumClaimedTiles = s->mNumClaimedTiles;
     mHasGoalsChanged = s->mHasGoalsChanged;
+    mNbTreasuries = s->mNbTreasuries;
 }
 
 bool Seat::sortForMapSave(Seat* s1, Seat* s2)

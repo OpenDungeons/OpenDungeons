@@ -146,6 +146,9 @@ public:
     bool getSelected() const
     { return selected; }
 
+    bool getIsBuilding() const
+    { return mIsBuilding; }
+
     //! \brief Set the tile digging mark for the given player.
     void setMarkedForDigging(bool s, Player *p);
 
@@ -331,6 +334,7 @@ private:
     int mFloodFillColor[FloodFillTypeMax];
     double mClaimedPercentage;
     Ogre::Vector3 mScale;
+    bool mIsBuilding;
 
     /*! \brief Set the fullness value for the tile.
      *  This only sets the fullness variable. This function is here to change the value

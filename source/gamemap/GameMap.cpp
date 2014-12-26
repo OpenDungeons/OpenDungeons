@@ -2645,23 +2645,28 @@ std::vector<Tile*> GameMap::getBuildableTilesForPlayerInArea(int x1, int y1, int
     Player* player)
 {
     std::vector<Tile*> tiles = rectangularRegion(x1, y1, x2, y2);
-    std::vector<Tile*>::iterator it = tiles.begin();
-    while (it != tiles.end())
+    for (std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end();)
     {
         Tile* tile = *it;
         if (!tile->isBuildableUpon())
         {
             it = tiles.erase(it);
+            continue;
         }
-        else if (!(tile->getFullness() == 0.0
-                    && tile->getType() == Tile::claimed
-                    && tile->getClaimedPercentage() >= 1.0
-                    && tile->isClaimedForSeat(player->getSeat())))
+
+        if (tile->getClaimedPercentage() < 1.0)
         {
             it = tiles.erase(it);
+            continue;
         }
-        else
-            ++it;
+
+        if (!tile->isClaimedForSeat(player->getSeat()))
+        {
+            it = tiles.erase(it);
+            continue;
+        }
+
+         ++it;
     }
     return tiles;
 }

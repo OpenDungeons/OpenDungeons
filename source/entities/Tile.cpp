@@ -62,7 +62,9 @@ Tile::Tile(GameMap* gameMap, int nX, int nY, TileType nType, double nFullness) :
     fullness            (nFullness),
     fullnessMeshNumber  (-1),
     mCoveringBuilding   (nullptr),
-    mClaimedPercentage  (0.0)
+    mClaimedPercentage  (0.0),
+    mScale              (Ogre::Vector3::ZERO),
+    mIsBuilding         (false)
 {
     for(int i = 0; i < Tile::FloodFillTypeMax; i++)
     {
@@ -396,7 +398,11 @@ bool Tile::permitsVision() const
 
 bool Tile::isBuildableUpon() const
 {
-    if(type != claimed || getFullness() > 0.0 || mCoveringBuilding != nullptr)
+    if(type != claimed)
+        return false;
+    if(getFullness() > 0.0)
+        return false;
+    if(mIsBuilding)
         return false;
 
     return true;
@@ -409,8 +415,12 @@ void Tile::setCoveringBuilding(Building *building)
     setDirtyForAllSeats();
 
     if (mCoveringBuilding == nullptr)
+    {
+        mIsBuilding = false;
         return;
+    }
 
+    mIsBuilding = true;
     // Set the tile as claimed and of the team color of the building
     setSeat(mCoveringBuilding->getSeat());
     mClaimedPercentage = 1.0;
@@ -589,6 +599,7 @@ ODPacket& operator<<(ODPacket& os, Tile *t)
     int intType = static_cast<Tile::TileType>(t->getType());
     double fullness = t->getFullness();
     os << t->x << t->y;
+    os << t->mIsBuilding;
     os << seatId;
     os << meshName;
     os << t->mScale;
@@ -606,6 +617,7 @@ ODPacket& operator>>(ODPacket& is, Tile *t)
 
     // We set the seat if there is one
     is >> t->x >> t->y;
+    is >> t->mIsBuilding;
 
     is >> seatId;
 
@@ -1189,6 +1201,7 @@ void Tile::refreshFromTile(const Tile& tile)
     mClaimedPercentage = tile.mClaimedPercentage;
     setMeshName(tile.getMeshName());
     mScale = tile.mScale;
+    mIsBuilding = tile.mIsBuilding;
 }
 
 bool Tile::isClaimedForSeat(Seat* seat) const
