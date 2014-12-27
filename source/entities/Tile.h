@@ -235,19 +235,17 @@ public:
 
     friend std::ostream& operator<<(std::ostream& os, Tile *t);
 
-    /*! \brief The << operator is used for saving tiles to a file and sending them over the net.
-     *
-     * This operator is used in conjunction with the >> operator to standardize
-     * tile format in the level files, as well as sending tiles over the network.
+    /*! \brief Exports the tile data to the packet so that the client associated to the seat have the needed information
+     *         to display the tile correctly
      */
-    friend ODPacket& operator<<(ODPacket& os, Tile *t);
+    void exportToPacket(ODPacket& os, Seat* seat);
 
-    /*! \brief The >> operator is used for loading tiles from a file and for receiving them over the net.
-     *
-     * This operator is used in conjunction with the << operator to standardize
-     * tile format in the level files, as well as sending tiles over the network.
+    /*! \brief Updates the tile from the data sent by the server so that it is correctly displayed and used
      */
-    friend ODPacket& operator>>(ODPacket& is, Tile *t);
+     void updateFromPacket(ODPacket& is);
+
+    friend ODPacket& operator<<(ODPacket& os, const Tile::TileType& rot);
+    friend ODPacket& operator>>(ODPacket& is, Tile::TileType& rot);
 
     /*! \brief This is a helper function which just converts the tile type enum into a string.
      *
@@ -283,7 +281,6 @@ public:
     { return 0.0; }
     double getHP(Tile *tile) const {return 0;}
     std::vector<Tile*> getCoveredTiles() { return std::vector<Tile*>() ;}
-    void refreshFromTile(const Tile& tile);
 
     //! \brief Fills entities with all the attackable creatures in the Tile. If invert is true,
     //! the list will be filled with the ennemies with the given seat. If invert is false, it will be filled
@@ -347,6 +344,9 @@ private:
 
     //! Used on client side. true if the local player has vision, false otherwise.
     bool mLocalPlayerHasVision;
+
+    //! Used on client side. Set when a tile is refreshed. It allows to know if the tile can be marked for digging by the local player
+    bool mLocalPlayerCanMarkTile;
 
     /*! \brief Set the fullness value for the tile.
      *  This only sets the fullness variable. This function is here to change the value

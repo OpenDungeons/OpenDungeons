@@ -65,7 +65,8 @@ Tile::Tile(GameMap* gameMap, int nX, int nY, TileType nType, double nFullness) :
     mClaimedPercentage  (0.0),
     mScale              (Ogre::Vector3::ZERO),
     mIsBuilding         (false),
-    mLocalPlayerHasVision   (false)
+    mLocalPlayerHasVision   (false),
+    mLocalPlayerCanMarkTile (true)
 {
     for(int i = 0; i < Tile::FloodFillTypeMax; i++)
     {
@@ -445,9 +446,11 @@ bool Tile::isDiggable(Seat* seat) const
         return false;
 
     // type == claimed
+    if(!getGameMap()->isServerGameMap())
+        return mLocalPlayerCanMarkTile;
 
     // For claimed walls, we check whether the walls is either claimed by the given player,
-    if (isClaimedForSeat(seat) && mClaimedPercentage >= 1.0)
+    if (isClaimedForSeat(seat))
         return true;
 
     // or whether it isn't belonging to a specific team.
@@ -543,7 +546,7 @@ bool Tile::isWallClaimedForSeat(Seat* seat)
     if (type != claimed)
         return false;
 
-    if (mClaimedPercentage <= 0.99)
+    if (mClaimedPercentage < 1.0)
         return false;
 
     Seat* tileSeat = getSeat();
@@ -574,82 +577,106 @@ std::ostream& operator<<(std::ostream& os, Tile *t)
     return os;
 }
 
-ODPacket& operator<<(ODPacket& os, Tile *t)
+void Tile::exportToPacket(ODPacket& os, Seat* seat)
 {
-    Seat* seat = t->getSeat();
+    Seat* tileSeat = getSeat();
     int seatId = 0;
-    // We only pass the seat to the client if the tile is fully claimed
-    if((seat != NULL) && (t->mClaimedPercentage >= 1.0))
-        seatId = seat->getId();
+    // We only pass the tile seat to the client if the tile is fully claimed
+    if((tileSeat != nullptr) && (mClaimedPercentage >= 1.0))
+        seatId = tileSeat->getId();
 
     std::string meshName;
 
-    if((t->getCoveringBuilding() != nullptr) && (t->getCoveringBuilding()->shouldDisplayBuildingTile()))
+    if((getCoveringBuilding() != nullptr) && (getCoveringBuilding()->shouldDisplayBuildingTile()))
     {
-        meshName = t->getCoveringBuilding()->getMeshName() + ".mesh";
-        t->mScale = t->getCoveringBuilding()->getScale();
+        meshName = getCoveringBuilding()->getMeshName() + ".mesh";
+        mScale = getCoveringBuilding()->getScale();
         // Buildings are not colored with seat color
     }
     else
     {
         // We set an empty mesh so that the client can compute the tile itself
         meshName.clear();
-        t->mScale = DEFAULT_TILE_SCALE;
+        mScale = DEFAULT_TILE_SCALE;
     }
 
-    int intType = static_cast<Tile::TileType>(t->getType());
-    double fullness = t->getFullness();
-    os << t->x << t->y;
-    os << t->mIsBuilding;
+    os << mIsBuilding;
+
+    bool localPlayerCanMarkTile = true;
+    if((tileSeat != nullptr) &&
+       (!isClaimedForSeat(seat)))
+    {
+        localPlayerCanMarkTile = false;
+    }
+    os << localPlayerCanMarkTile;
+
     os << seatId;
     os << meshName;
-    os << t->mScale;
-    os << intType << fullness;
-
-    return os;
+    os << mScale;
+    os << getType() << fullness;
 }
 
-ODPacket& operator>>(ODPacket& is, Tile *t)
+void Tile::updateFromPacket(ODPacket& is)
 {
-    int seatId, intTileType;
-    double fullness;
+    int seatId;
     std::string meshName;
     std::stringstream ss;
 
     // We set the seat if there is one
-    is >> t->x >> t->y;
-    is >> t->mIsBuilding;
+    OD_ASSERT_TRUE(is >> mIsBuilding);
+    OD_ASSERT_TRUE(is >> mLocalPlayerCanMarkTile);
+    if(!mLocalPlayerCanMarkTile &&
+       getMarkedForDigging(getGameMap()->getLocalPlayer()))
+    {
+        removePlayerMarkingTile(getGameMap()->getLocalPlayer());
+    }
 
-    is >> seatId;
+    OD_ASSERT_TRUE(is >> seatId);
 
-    is >> meshName;
-    t->setMeshName(meshName);
+    OD_ASSERT_TRUE(is >> meshName);
+    setMeshName(meshName);
 
-    is >> t->mScale;
+    OD_ASSERT_TRUE(is >> mScale);
 
     ss.str(std::string());
     ss << "Level";
     ss << "_";
-    ss << t->x;
+    ss << x;
     ss << "_";
-    ss << t->y;
+    ss << y;
 
-    t->setName(ss.str());
+    setName(ss.str());
 
-    is >> intTileType;
-    Tile::TileType tileType = static_cast<Tile::TileType>(intTileType);
-    t->setType(tileType);
+    Tile::TileType tileType;
+    OD_ASSERT_TRUE(is >> tileType);
+    setType(tileType);
 
-    is >> fullness;
-    t->setFullnessValue(fullness);
+    OD_ASSERT_TRUE(is >> fullness);
+    setFullness(fullness);
 
     if((tileType != Tile::TileType::claimed) || (seatId == 0))
-        return is;
-    Seat* seat = t->getGameMap()->getSeatById(seatId);
-    if(seat == NULL)
-        return is;
-    t->setSeat(seat);
-    t->mClaimedPercentage = 1.0;
+        return;
+
+    Seat* seat = getGameMap()->getSeatById(seatId);
+    if(seat == nullptr)
+        return;
+
+    setSeat(seat);
+    mClaimedPercentage = 1.0;
+}
+
+ODPacket& operator<<(ODPacket& os, const Tile::TileType& type)
+{
+    uint32_t intType = static_cast<Tile::TileType>(type);
+    os << intType;
+    return os;
+}
+
+ODPacket& operator>>(ODPacket& is, Tile::TileType& type)
+{
+    uint32_t intType;
+    is >> intType;
+    type = static_cast<Tile::TileType>(intType);
     return is;
 }
 
@@ -1193,22 +1220,10 @@ bool Tile::isFloodFillFilled()
     return false;
 }
 
-void Tile::refreshFromTile(const Tile& tile)
-{
-    type = tile.type;
-    setFullness(tile.fullness);
-    Seat* seat = tile.getSeat();
-    setSeat(seat);
-    mClaimedPercentage = tile.mClaimedPercentage;
-    setMeshName(tile.getMeshName());
-    mScale = tile.mScale;
-    mIsBuilding = tile.mIsBuilding;
-}
-
 bool Tile::isClaimedForSeat(Seat* seat) const
 {
     Seat* tileSeat = getSeat();
-    if(tileSeat == NULL)
+    if(tileSeat == nullptr)
         return false;
 
     if(mClaimedPercentage < 1.0)

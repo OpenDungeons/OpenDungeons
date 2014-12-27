@@ -379,22 +379,6 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::addTile:
-        {
-            Tile* newTile = new Tile(gameMap);
-            OD_ASSERT_TRUE(packetReceived >> newTile);
-            gameMap->addTile(newTile);
-            newTile->setFullness(newTile->getFullness());
-
-            // Loop over the tile's neighbors to force them to recheck
-            // their mesh to see if they can use an optimized one
-            for (Tile* tile : newTile->getAllNeighbors())
-            {
-                tile->setFullness(tile->getFullness());
-            }
-            break;
-        }
-
         case ServerNotification::addMapLight:
         {
             MapLight *newMapLight = new MapLight(gameMap);
@@ -807,13 +791,12 @@ bool ODClient::processOneClientSocketMessage()
             while(nbTiles > 0)
             {
                 --nbTiles;
-                Tile tmpTile(gameMap);
-                OD_ASSERT_TRUE(packetReceived >> &tmpTile);
-                Tile* gameTile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
+                Tile* gameTile = gameMap->tileFromPacket(packetReceived);
                 OD_ASSERT_TRUE(gameTile != nullptr);
                 if(gameTile == nullptr)
                     continue;
-                gameTile->refreshFromTile(tmpTile);
+
+                gameTile->updateFromPacket(packetReceived);
                 tiles.push_back(gameTile);
             }
             gameMap->refreshBorderingTilesOf(tiles);
