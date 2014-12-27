@@ -1156,6 +1156,10 @@ unsigned long int GameMap::doMiscUpkeep()
         seat->displaySeatVisualDebug(true);
     }
 
+    // We send to each seat the list of tiles he has vision on
+    for (Seat* seat : mSeats)
+        seat->sendVisibleTiles();
+
     // Carry out the upkeep round of all the active objects in the game.
     unsigned int activeObjectCount = 0;
     unsigned int nbActiveObjectCount = mActiveObjects.size();

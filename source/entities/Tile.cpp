@@ -64,7 +64,8 @@ Tile::Tile(GameMap* gameMap, int nX, int nY, TileType nType, double nFullness) :
     mCoveringBuilding   (nullptr),
     mClaimedPercentage  (0.0),
     mScale              (Ogre::Vector3::ZERO),
-    mIsBuilding         (false)
+    mIsBuilding         (false),
+    mLocalPlayerHasVision   (false)
 {
     for(int i = 0; i < Tile::FloodFillTypeMax; i++)
     {

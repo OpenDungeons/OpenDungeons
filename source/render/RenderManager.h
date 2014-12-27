@@ -72,11 +72,6 @@ public:
 
     void rtssTest();
 
-    //! \brief Colorize an entity with the team corresponding color.
-    //! \Note: if the entity is marked for digging (wall tiles only), then a yellow color
-    //! is added to the current colorization.
-    void colourizeEntity(Ogre::Entity* ent, Seat* seat, bool markedForDigging = false);
-
     //! \brief Set the entity's opacity
     void setEntityOpacity(Ogre::Entity* ent, float opacity);
 
@@ -133,7 +128,12 @@ private:
     //! \note If the material (wall tiles only) is marked for digging, a yellow color is added
     //! to the given color.
     //! \returns The new material name according to the current colorization.
-    std::string colourizeMaterial(const std::string& materialName, Seat* seat, bool markedForDigging = false);
+    std::string colourizeMaterial(const std::string& materialName, Seat* seat, bool markedForDigging, bool playerHasVision);
+
+    //! \brief Colorize an entity with the team corresponding color.
+    //! \Note: if the entity is marked for digging (wall tiles only), then a yellow color
+    //! is added to the current colorization.
+    void colourizeEntity(Ogre::Entity* ent, Seat* seat, bool markedForDigging, bool playerHasVision);
 
     //! \brief Makes the material be transparent with the given opacity (0.0f - 1.0f)
     //! \returns The new material name according to the current opacity.

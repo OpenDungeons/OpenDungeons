@@ -752,6 +752,38 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
+        case ServerNotification::refreshVisibleTiles:
+        {
+            uint32_t nbTiles;
+            // Tiles we gained vision
+            OD_ASSERT_TRUE(packetReceived >> nbTiles);
+            while(nbTiles > 0)
+            {
+                --nbTiles;
+                Tile* tile = gameMap->tileFromPacket(packetReceived);
+                OD_ASSERT_TRUE(tile != nullptr);
+                if(tile == nullptr)
+                    continue;
+
+                tile->setLocalPlayerHasVision(true);
+                tile->refreshMesh();
+            }
+            // Tiles we lost vision
+            OD_ASSERT_TRUE(packetReceived >> nbTiles);
+            while(nbTiles > 0)
+            {
+                --nbTiles;
+                Tile* tile = gameMap->tileFromPacket(packetReceived);
+                OD_ASSERT_TRUE(tile != nullptr);
+                if(tile == nullptr)
+                    continue;
+
+                tile->setLocalPlayerHasVision(false);
+                tile->refreshMesh();
+            }
+            break;
+        }
+
         case ServerNotification::playCreatureSound:
         {
             std::string name;

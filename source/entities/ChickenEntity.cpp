@@ -217,6 +217,10 @@ bool ChickenEntity::tryDrop(Seat* seat, Tile* tile, bool isEditorMode)
     if(isEditorMode && (tile->getType() == Tile::dirt || tile->getType() == Tile::gold || tile->getType() == Tile::claimed))
         return true;
 
+    // we cannot drop a chicken on a tile we don't see
+    if(!seat->hasVisionOnTile(tile))
+        return false;
+
     // Otherwise, we allow to drop an object only on allied claimed tiles
     if(tile->getType() == Tile::claimed && tile->getSeat() != NULL && tile->getSeat()->isAlliedSeat(seat))
         return true;

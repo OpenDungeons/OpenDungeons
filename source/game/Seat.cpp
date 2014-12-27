@@ -373,6 +373,7 @@ const CreatureDefinition* Seat::getNextCreatureClassToSpawn()
 
 void Seat::clearTilesWithVision()
 {
+    mTilesWithVisionLast = mTilesWithVision;
     mTilesWithVision.clear();
 }
 
@@ -386,6 +387,14 @@ void Seat::notifyVisionOnTile(Tile* tile)
 
 bool Seat::hasVisionOnTile(Tile* tile)
 {
+    if(!mGameMap->isServerGameMap())
+    {
+        // On client side, we check only for the local player
+        if(this != mGameMap->getLocalPlayer()->getSeat())
+            return false;
+
+        return tile->getLocalPlayerHasVision();
+    }
     if(std::find(mTilesWithVision.begin(), mTilesWithVision.end(), tile) != mTilesWithVision.end())
         return true;
 
@@ -499,6 +508,54 @@ void Seat::displaySeatVisualDebug(bool enable)
         serverNotification->mPacket << false;
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
+}
+
+void Seat::sendVisibleTiles()
+{
+    if(!mGameMap->isServerGameMap())
+        return;
+
+    if(getPlayer() == nullptr)
+        return;
+
+    if(!getPlayer()->getIsHuman())
+        return;
+
+    uint32_t nbTiles;
+    ServerNotification *serverNotification = new ServerNotification(
+        ServerNotification::refreshVisibleTiles, getPlayer());
+    std::vector<Tile*> tiles;
+    // Tiles we gained vision
+    for(Tile* tile : mTilesWithVision)
+    {
+        if(std::find(mTilesWithVisionLast.begin(), mTilesWithVisionLast.end(), tile) != mTilesWithVisionLast.end())
+            continue;
+
+        tiles.push_back(tile);
+    }
+    nbTiles = tiles.size();
+    serverNotification->mPacket << nbTiles;
+    for(Tile* tile : tiles)
+    {
+        mGameMap->tileToPacket(serverNotification->mPacket, tile);
+    }
+
+    // Tiles we lost vision
+    tiles.clear();
+    for(Tile* tile : mTilesWithVisionLast)
+    {
+        if(std::find(mTilesWithVision.begin(), mTilesWithVision.end(), tile) != mTilesWithVision.end())
+            continue;
+
+        tiles.push_back(tile);
+    }
+    nbTiles = tiles.size();
+    serverNotification->mPacket << nbTiles;
+    for(Tile* tile : tiles)
+    {
+        mGameMap->tileToPacket(serverNotification->mPacket, tile);
+    }
+    ODServer::getSingleton().queueServerNotification(serverNotification);
 }
 
 void Seat::computeSeatBeforeSendingToClient()

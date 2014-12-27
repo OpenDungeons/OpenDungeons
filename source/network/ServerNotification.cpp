@@ -106,6 +106,8 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "playCreatureSound";
         case ServerNotificationType::refreshTiles:
             return "refreshTiles";
+        case ServerNotificationType::refreshVisibleTiles:
+            return "refreshVisibleTiles";
         case ServerNotificationType::carryEntity:
             return "carryEntity";
         case ServerNotificationType::releaseCarriedEntity:

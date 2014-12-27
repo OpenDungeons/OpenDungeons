@@ -146,8 +146,14 @@ public:
     bool getSelected() const
     { return selected; }
 
-    bool getIsBuilding() const
+    inline bool getIsBuilding() const
     { return mIsBuilding; }
+
+    inline void setLocalPlayerHasVision(bool localPlayerHasVision)
+    { mLocalPlayerHasVision = localPlayerHasVision; }
+
+    inline bool getLocalPlayerHasVision() const
+    { return mLocalPlayerHasVision; }
 
     //! \brief Set the tile digging mark for the given player.
     void setMarkedForDigging(bool s, Player *p);
@@ -338,6 +344,9 @@ private:
     //! true if a building is on this tile. False otherwise. It is used on client side because the clients do not know about
     //! buildings. However, it needs to know the tiles where a building is to display the room/trap costs.
     bool mIsBuilding;
+
+    //! Used on client side. true if the local player has vision, false otherwise.
+    bool mLocalPlayerHasVision;
 
     /*! \brief Set the fullness value for the tile.
      *  This only sets the fullness variable. This function is here to change the value

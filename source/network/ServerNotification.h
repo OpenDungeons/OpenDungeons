@@ -85,6 +85,7 @@ class ServerNotification
             playCreatureSound, // Play a creature sound at the given position
 
             refreshTiles,
+            refreshVisibleTiles,
             carryEntity,
             releaseCarriedEntity,
 

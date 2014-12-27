@@ -3122,6 +3122,10 @@ bool Creature::tryDrop(Seat* seat, Tile* tile, bool isEditorMode)
     if(isEditorMode && canGoThroughTile(tile))
         return true;
 
+    // we cannot drop a creature on a tile we don't see
+    if(!seat->hasVisionOnTile(tile))
+        return false;
+
     // If it is a worker, he can be dropped on dirt
     if (getDefinition()->isWorker() && (tile->getType() == Tile::dirt || tile->getType() == Tile::gold))
         return true;

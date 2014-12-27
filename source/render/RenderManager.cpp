@@ -192,8 +192,8 @@ void RenderManager::rrRefreshTile(Tile* curTile, Player* localPlayer)
         mSceneManager->destroyEntity(tileName);
     }
 
-    bool colourizeTile = true;
     std::string meshName = curTile->getMeshName();
+    Seat* seatColorize = curTile->getSeat();
     if(meshName.empty())
     {
         // We compute the mesh
@@ -205,8 +205,8 @@ void RenderManager::rrRefreshTile(Tile* curTile, Player* localPlayer)
     }
     else
     {
+        seatColorize = nullptr;
         rt = 0;
-        colourizeTile = false;
     }
 
     Ogre::Entity* ent = mSceneManager->createEntity(tileName, meshName);
@@ -236,8 +236,7 @@ void RenderManager::rrRefreshTile(Tile* curTile, Player* localPlayer)
         }
     }
 
-    if(colourizeTile)
-        colourizeEntity(ent, curTile->getSeat(), curTile->getMarkedForDigging(localPlayer));
+    colourizeEntity(ent, seatColorize, curTile->getMarkedForDigging(localPlayer), curTile->getLocalPlayerHasVision());
 
     // Link the tile mesh back to the relevant scene node so OGRE will render it
     Ogre::SceneNode* node = mSceneManager->getSceneNode(tileName + "_node");
@@ -283,10 +282,7 @@ void RenderManager::rrCreateTile(Tile* curTile, Player* localPlayer)
         }
     }
 
-    if (curTile->getType() == Tile::claimed)
-    {
-        colourizeEntity(ent, curTile->getSeat(), curTile->getMarkedForDigging(localPlayer));
-    }
+    colourizeEntity(ent, curTile->getSeat(), curTile->getMarkedForDigging(localPlayer), curTile->getLocalPlayerHasVision());
 
     Ogre::SceneNode* node = mSceneManager->getRootSceneNode()->createChildSceneNode(curTile->getOgreNamePrefix() + curTile->getName() + "_node");
     curTile->setParentSceneNode(node->getParentSceneNode());
@@ -931,23 +927,23 @@ Ogre::Entity* RenderManager::createEntity(const std::string& entityName, const s
     return ent;
 }
 
-void RenderManager::colourizeEntity(Ogre::Entity *ent, Seat* seat, bool markedForDigging)
+void RenderManager::colourizeEntity(Ogre::Entity *ent, Seat* seat, bool markedForDigging, bool playerHasVision)
 {
     //Disabled for normal mapping. This has to be implemented in some other way.
 
     // Colorize the the textures
     // Loop over the sub entities in the mesh
-    if (seat == NULL && !markedForDigging)
+    if (seat == nullptr && !markedForDigging && playerHasVision)
         return;
 
     for (unsigned int i = 0; i < ent->getNumSubEntities(); ++i)
     {
         Ogre::SubEntity *tempSubEntity = ent->getSubEntity(i);
-        tempSubEntity->setMaterialName(colourizeMaterial(tempSubEntity->getMaterialName(), seat, markedForDigging));
+        tempSubEntity->setMaterialName(colourizeMaterial(tempSubEntity->getMaterialName(), seat, markedForDigging, playerHasVision));
     }
 }
 
-std::string RenderManager::colourizeMaterial(const std::string& materialName, Seat* seat, bool markedForDigging)
+std::string RenderManager::colourizeMaterial(const std::string& materialName, Seat* seat, bool markedForDigging, bool playerHasVision)
 {
     std::stringstream tempSS;
     Ogre::Technique *tempTechnique;
@@ -963,6 +959,8 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, Se
 
     if (markedForDigging)
         tempSS << "dig_";
+    else if(!playerHasVision)
+        tempSS << "novision_";
 
     tempSS << materialName;
     Ogre::MaterialPtr newMaterial = Ogre::MaterialPtr(Ogre::MaterialManager::getSingleton().getByName(tempSS.str()));
@@ -976,7 +974,7 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, Se
     // If not yet, then do so
 
     // Check to see if we find a seat with the requested color, if not then just use the original, uncolored material.
-    if (seat == NULL && markedForDigging == false)
+    if (seat == nullptr && !markedForDigging && playerHasVision)
         return materialName;
 
     //std::cout << "\nMaterial does not exist, creating a new one.";
@@ -996,6 +994,17 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, Se
             // so we're sure to see the taint.
             tempPass = tempTechnique->getPass(tempTechnique->getNumPasses() - 1);
             Ogre::ColourValue color(1.0, 1.0, 0.0, 0.3);
+            tempPass->setEmissive(color);
+            tempPass->setSpecular(color);
+            tempPass->setAmbient(color);
+            tempPass->setDiffuse(color);
+        }
+        else if(!playerHasVision)
+        {
+            // Color the material with dark color on the latest pass
+            // so we're sure to see the taint.
+            tempPass = tempTechnique->getPass(tempTechnique->getNumPasses() - 1);
+            Ogre::ColourValue color(0.3, 0.3, 0.3, 0.3);
             tempPass->setEmissive(color);
             tempPass->setSpecular(color);
             tempPass->setAmbient(color);

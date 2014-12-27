@@ -187,6 +187,9 @@ public:
     //! \brief Server side to display the tile this seat has vision on
     void displaySeatVisualDebug(bool enable);
 
+    //! Sends a message to the player on this seat to refresh the list of tiles he has vision on
+    void sendVisibleTiles();
+
     //! \brief Client side to display the tile this seat has vision on
     void refreshVisualDebugEntities(const std::vector<Tile*>& tiles);
     void stopVisualDebugEntities();
@@ -273,6 +276,7 @@ private:
     std::vector<std::pair<const CreatureDefinition*, bool> > mSpawnPool;
 
     //! \brief List of the tiles this seat has vision on
+    std::vector<Tile*> mTilesWithVisionLast;
     std::vector<Tile*> mTilesWithVision;
     std::vector<Tile*> mVisualDebugEntityTiles;
 
