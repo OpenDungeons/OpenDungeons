@@ -72,11 +72,6 @@ public:
 
     void rtssTest();
 
-    //! \brief Colorize an entity with the team corresponding color.
-    //! \Note: if the entity is marked for digging (wall tiles only), then a yellow color
-    //! is added to the current colorization.
-    void colourizeEntity(Ogre::Entity* ent, Seat* seat, bool markedForDigging = false);
-
     //! \brief Set the entity's opacity
     void setEntityOpacity(Ogre::Entity* ent, float opacity);
 
@@ -96,11 +91,9 @@ public:
     void rrDetachEntity(GameEntity* curEntity);
     void rrAttachEntity(GameEntity* curEntity);
     void rrTemporalMarkTile(Tile* curTile);
-    void rrCreateBuilding(Building* curBuilding, Tile* curTile);
-    void rrDestroyBuilding(Building* curBuilding, Tile* curTile);
     void rrCreateRenderedMovableEntity(RenderedMovableEntity* curRenderedMovableEntity);
     void rrDestroyRenderedMovableEntity(RenderedMovableEntity* curRenderedMovableEntity);
-    void rrUpdateEntityOpacity(GameEntity* entity);
+    void rrUpdateEntityOpacity(MovableGameEntity* entity);
     void rrCreateCreature(Creature* curCreature);
     void rrDestroyCreature(Creature* curCreature);
     void rrOrientEntityToward(MovableGameEntity* gameEntity, const Ogre::Vector3& direction);
@@ -110,8 +103,8 @@ public:
     void rrCreateMapLight(MapLight* curMapLight, bool displayVisual);
     void rrDestroyMapLight(MapLight* curMapLight);
     void rrDestroyMapLightVisualIndicator(MapLight* curMapLight);
-    void rrPickUpEntity(GameEntity* curEntity, Player* localPlayer);
-    void rrDropHand(GameEntity* curEntity, Player* localPlayer);
+    void rrPickUpEntity(MovableGameEntity* curEntity, Player* localPlayer);
+    void rrDropHand(MovableGameEntity* curEntity, Player* localPlayer);
     void rrRotateHand(Player* localPlayer);
     void rrCreateCreatureVisualDebug(Creature* curCreature, Tile* curTile);
     void rrDestroyCreatureVisualDebug(Creature* curCreature, Tile* curTile);
@@ -120,8 +113,8 @@ public:
     void rrSetObjectAnimationState(MovableGameEntity* curAnimatedObject, const std::string& animation, bool loop);
     void rrMoveEntity(GameEntity* entity, const Ogre::Vector3& position);
     void rrMoveMapLightFlicker(MapLight* mapLight, const Ogre::Vector3& position);
-    void rrCarryEntity(Creature* carrier, GameEntity* carried);
-    void rrReleaseCarriedEntity(Creature* carrier, GameEntity* carried);
+    void rrCarryEntity(Creature* carrier, MovableGameEntity* carried);
+    void rrReleaseCarriedEntity(Creature* carrier, MovableGameEntity* carried);
 
 private:
     bool generateRTSSShadersForMaterial(const std::string& materialName,
@@ -135,7 +128,12 @@ private:
     //! \note If the material (wall tiles only) is marked for digging, a yellow color is added
     //! to the given color.
     //! \returns The new material name according to the current colorization.
-    std::string colourizeMaterial(const std::string& materialName, Seat* seat, bool markedForDigging = false);
+    std::string colourizeMaterial(const std::string& materialName, Seat* seat, bool markedForDigging, bool playerHasVision);
+
+    //! \brief Colorize an entity with the team corresponding color.
+    //! \Note: if the entity is marked for digging (wall tiles only), then a yellow color
+    //! is added to the current colorization.
+    void colourizeEntity(Ogre::Entity* ent, Seat* seat, bool markedForDigging, bool playerHasVision);
 
     //! \brief Makes the material be transparent with the given opacity (0.0f - 1.0f)
     //! \returns The new material name according to the current opacity.

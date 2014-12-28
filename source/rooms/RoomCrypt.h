@@ -32,9 +32,9 @@ public:
 
     void doUpkeep();
 
-    bool hasCarryEntitySpot(GameEntity* carriedEntity);
-    Tile* askSpotForCarriedEntity(GameEntity* carriedEntity);
-    void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity);
+    bool hasCarryEntitySpot(MovableGameEntity* carriedEntity);
+    Tile* askSpotForCarriedEntity(MovableGameEntity* carriedEntity);
+    void notifyCarryingStateChanged(Creature* carrier, MovableGameEntity* carriedEntity);
 protected:
     virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
     virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);

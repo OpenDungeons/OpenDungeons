@@ -184,7 +184,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 // Check whether the room type is the first treasury tile.
                 // In that case, the cost of the first tile is 0, to prevent the player from being stuck
                 // with no means to earn money.
-                if (selectedRoomType == Room::treasury && mGameMap->numRoomsByTypeAndSeat(Room::treasury, player->getSeat()) == 0)
+                if (nbTile > 0 && selectedRoomType == Room::treasury && player->getSeat()->getNbTreasuries() == 0)
                     price -= Room::costPerTile(selectedRoomType);
 
                 Ogre::ColourValue& textColor = (gold < price) ? red : white;
@@ -618,6 +618,18 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
             clientNotification->mPacket << mDigSetBool;
             ODClient::getSingleton().queueClientNotification(clientNotification);
             mGameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::none);
+
+            // We mark the selected tiles
+            std::vector<Tile*> tiles = mGameMap->getDiggableTilesForPlayerInArea(inputManager->mXPos,
+                inputManager->mYPos, inputManager->mLStartDragX, inputManager->mLStartDragY,
+                mGameMap->getLocalPlayer());
+            if(!tiles.empty())
+            {
+                mGameMap->markTilesForPlayer(tiles, mDigSetBool, mGameMap->getLocalPlayer());
+                SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::DIGSELECT);
+                for(Tile* tile : tiles)
+                    tile->refreshMesh();
+            }
             break;
         }
         case Player::SelectedAction::buildRoom:

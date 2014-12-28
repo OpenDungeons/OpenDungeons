@@ -227,6 +227,7 @@ set(OD_SOURCEFILES
     ${SRC}/camera/SlopeWalk.cpp
 
     ${SRC}/entities/Building.cpp
+    ${SRC}/entities/BuildingObject.cpp
     ${SRC}/entities/ChickenEntity.cpp
     ${SRC}/entities/CraftedTrap.cpp
     ${SRC}/entities/Creature.cpp

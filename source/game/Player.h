@@ -82,13 +82,13 @@ public:
      * hand is false we just hide the creature (and stop its AI, etc.), rather than
      * making it follow the cursor.
      */
-    void pickUpEntity(GameEntity *entity, bool isEditorMode);
+    void pickUpEntity(MovableGameEntity *entity, bool isEditorMode);
 
     //! \brief Check to see the first object in hand can be dropped on Tile t and do so if possible.
     bool isDropHandPossible(Tile *t, unsigned int index = 0, bool isEditorMode = false);
 
     //! \brief Drops the creature on tile t. Returns the dropped creature
-    GameEntity* dropHand(Tile *t, unsigned int index = 0);
+    MovableGameEntity* dropHand(Tile *t, unsigned int index = 0);
 
     void rotateHand(int n);
 
@@ -104,7 +104,7 @@ public:
     inline void setIsHuman(bool isHuman)
     { mIsHuman = isHuman; }
 
-    inline const std::vector<GameEntity*>& getObjectsInHand()
+    inline const std::vector<MovableGameEntity*>& getObjectsInHand()
     { return mObjectsInHand; }
 
     inline const Room::RoomType getNewRoomType()
@@ -149,7 +149,7 @@ private:
     std::string mNickname;
 
     //! \brief The creature the player has got in hand.
-    std::vector<GameEntity*> mObjectsInHand;
+    std::vector<MovableGameEntity*> mObjectsInHand;
 
     //! True: player is human. False: player is a computer/inactive.
     bool mIsHuman;
@@ -166,7 +166,7 @@ private:
     //! \brief A simple mutator function to put the given entity into the player's hand,
     //! note this should NOT be called directly for creatures on the map,
     //! for that you should use the correct function like pickUpEntity() instead.
-    void addEntityToHand(GameEntity *entity);
+    void addEntityToHand(MovableGameEntity *entity);
 };
 
 #endif // PLAYER_H

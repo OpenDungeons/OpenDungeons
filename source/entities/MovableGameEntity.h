@@ -33,7 +33,7 @@ class Tile;
 class MovableGameEntity : public GameEntity
 {
 public:
-    MovableGameEntity(GameMap* gameMap);
+    MovableGameEntity(GameMap* gameMap, float opacity);
 
     virtual ~MovableGameEntity()
     {}
@@ -66,18 +66,28 @@ public:
 
     virtual void setMoveSpeed(double s);
 
-    virtual void setAnimationState(const std::string& state, bool loop = true, Ogre::Vector3* direction = NULL);
+    virtual void setAnimationState(const std::string& state, bool loop = true, const Ogre::Vector3& direction = Ogre::Vector3::ZERO);
 
     virtual double getAnimationSpeedFactor();
     virtual void setAnimationSpeedFactor(double f);
+
+    virtual void setMeshOpacity(float opacity);
+
+    //! \brief Called when the entity is being carried
+    virtual void notifyEntityCarryOn()
+    {}
+
+    //! \brief Called when the entity is being carried
+    virtual void notifyEntityCarryOff(const Ogre::Vector3& position)
+    {}
 
     //! \brief Updates the entity path, movement, and direction
     //! \param timeSinceLastFrame the elapsed time since last displayed frame in seconds.
     virtual void update(Ogre::Real timeSinceLastFrame);
 
-    void setWalkDirection(Ogre::Vector3& direction);
+    void setWalkDirection(const Ogre::Vector3& direction);
 
-    virtual void setPosition(const Ogre::Vector3& v);
+    virtual void setPosition(const Ogre::Vector3& v, bool isMove);
 
     inline void setAnimationState(Ogre::AnimationState* animationState)
     { mAnimationState = animationState; }
@@ -85,16 +95,59 @@ public:
     inline Ogre::AnimationState* getAnimationState() const
     { return mAnimationState; }
 
+    //! \brief Get if the mesh is already existing
+    inline float getOpacity() const
+    { return mOpacity; }
+
+    void fireRemoveEntityToSeatsWithVision();
+
+    virtual void notifySeatsWithVision(const std::vector<Seat*>& seats);
+    virtual void addSeatWithVision(Seat* seat, bool async);
+    virtual void removeSeatWithVision(Seat* seat);
+
+    void firePickupEntity(Player* playerPicking, bool isEditorMode);
+
+    void fireDropEntity(Player* playerPicking, Tile* tile);
+
+    //! \brief Exports the data of the MovableGameEntity
+    virtual void exportToStream(std::ostream& os) const;
+    virtual void importFromStream(std::istream& is);
+    virtual void exportToPacket(ODPacket& os) const;
+    virtual void importFromPacket(ODPacket& is);
+
+    //! This function should be called on client side just after the entity is added to the gamemap.
+    //! It should restore the entity state (if it was dead before the client got vision, it should
+    //! be dead on the ground for example).
+    //! Note that this function is to be called on client side only
+    virtual void restoreEntityState();
+
 protected:
+    //! \brief Called while moving the entity to add it to the tile it gets on
+    virtual bool addEntityToTile(Tile* tile);
+    //! \brief Called while moving the entity to remove it from the tile it gets off
+    virtual bool removeEntityFromTile(Tile* tile);
+
+    //! \brief Fires a add entity message to the player of the given seat
+    virtual void fireAddEntity(Seat* seat, bool async) = 0;
+    //! \brief Fires a remove creature message to the player of the given seat (if not null). If null, it fires to
+    //! all players with vision
+    virtual void fireRemoveEntity(Seat* seat) = 0;
     std::deque<Ogre::Vector3> mWalkQueue;
+    std::vector<Seat*> mSeatsWithVisionNotified;
 
 private:
+    void fireObjectAnimationState(const std::string& state, bool loop, const Ogre::Vector3& direction);
     Ogre::AnimationState* mAnimationState;
     double mMoveSpeed;
     std::string mPrevAnimationState;
     bool mPrevAnimationStateLoop;
     double mAnimationSpeedFactor;
     std::string mDestinationAnimationState;
+    Ogre::Vector3 mWalkDirection;
+    double mAnimationTime;
+
+    //! \brief The model current opacity
+    float mOpacity;
 };
 
 

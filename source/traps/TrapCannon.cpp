@@ -62,10 +62,10 @@ bool TrapCannon::shoot(Tile* tile)
     direction.normalise();
     MissileOneHit* missile = new MissileOneHit(getGameMap(), getSeat(), getName(), "Cannonball",
         direction, Random::Double(mMinDamage, mMaxDamage), 0.0, false);
-    missile->setPosition(position);
     getGameMap()->addRenderedMovableEntity(missile);
-    missile->setMoveSpeed(ConfigManager::getSingleton().getTrapConfigDouble("CannonSpeed"));
     missile->createMesh();
+    missile->setPosition(position, false);
+    missile->setMoveSpeed(ConfigManager::getSingleton().getTrapConfigDouble("CannonSpeed"));
     // We don't want the missile to stay idle for 1 turn. Because we are in a doUpkeep context,
     // we can safely call the missile doUpkeep as we know the engine will not call it the turn
     // it has been added

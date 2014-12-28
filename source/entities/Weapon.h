@@ -28,6 +28,7 @@ class WeaponDefinition;
 
 class Weapon
 {
+    friend class ODClient;
 public:
     Weapon(const std::string& name) :
        mName(name),
@@ -73,6 +74,9 @@ public:
 
     inline double getMagicalDefense() const
     { return mMagicalDefense; }
+
+    friend ODPacket& operator <<(ODPacket& os, const Weapon *weapon);
+    friend ODPacket& operator >>(ODPacket& is, Weapon *weapon);
 
 private:
     Weapon() :

@@ -72,7 +72,7 @@ void TreasuryObject::doUpkeep()
     // If we are empty, we can remove safely
     if(mGoldValue <= 0)
     {
-        tile->removeTreasuryObject(this);
+        tile->removeEntity(this);
         getGameMap()->removeRenderedMovableEntity(this);
         deleteYourself();
     }
@@ -107,7 +107,7 @@ void TreasuryObject::pickup()
     if(tile == nullptr)
         return;
 
-    tile->removeTreasuryObject(this);
+    tile->removeEntity(this);
 }
 
 bool TreasuryObject::tryDrop(Seat* seat, Tile* tile, bool isEditorMode)
@@ -119,6 +119,10 @@ bool TreasuryObject::tryDrop(Seat* seat, Tile* tile, bool isEditorMode)
     if(isEditorMode && (tile->getType() == Tile::dirt || tile->getType() == Tile::gold || tile->getType() == Tile::claimed))
         return true;
 
+    // we cannot drop an object on a tile we don't see
+    if(!seat->hasVisionOnTile(tile))
+        return false;
+
     // Otherwise, we allow to drop an object only on allied claimed tiles
     if(tile->getType() == Tile::claimed && tile->getSeat() != NULL && tile->getSeat()->isAlliedSeat(seat))
         return true;
@@ -126,34 +130,38 @@ bool TreasuryObject::tryDrop(Seat* seat, Tile* tile, bool isEditorMode)
     return false;
 }
 
-void TreasuryObject::setPosition(const Ogre::Vector3& v)
+bool TreasuryObject::addEntityToTile(Tile* tile)
 {
-    RenderedMovableEntity::setPosition(v);
-    Tile* tile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
-    if(tile == nullptr)
-        return;
-
-    tile->addTreasuryObject(this);
-
+    return tile->addTreasuryObject(this);
 }
 
-void TreasuryObject::notifyEntityCarried(bool isCarried)
+bool TreasuryObject::removeEntityFromTile(Tile* tile)
+{
+    return tile->removeEntity(this);
+}
+
+void TreasuryObject::notifyEntityCarryOn()
 {
     Tile* myTile = getPositionTile();
     OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
     if(myTile == nullptr)
         return;
-    if(isCarried)
-    {
-        setIsOnMap(false);
-        myTile->removeTreasuryObject(this);
-    }
-    else
-    {
-        setIsOnMap(true);
-        myTile->addTreasuryObject(this);
-    }
+
+    setIsOnMap(false);
+    myTile->removeEntity(this);
+}
+
+void TreasuryObject::notifyEntityCarryOff(const Ogre::Vector3& position)
+{
+    mPosition = position;
+    setIsOnMap(true);
+
+    Tile* myTile = getPositionTile();
+    OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
+    if(myTile == nullptr)
+        return;
+
+    myTile->addTreasuryObject(this);
 }
 
 const char* TreasuryObject::getFormat()
@@ -174,7 +182,7 @@ TreasuryObject* TreasuryObject::getTreasuryObjectFromPacket(GameMap* gameMap, OD
     return obj;
 }
 
-void TreasuryObject::exportToPacket(ODPacket& os)
+void TreasuryObject::exportToPacket(ODPacket& os) const
 {
     RenderedMovableEntity::exportToPacket(os);
     os << mGoldValue;
@@ -186,7 +194,7 @@ void TreasuryObject::importFromPacket(ODPacket& is)
     OD_ASSERT_TRUE(is >> mGoldValue);
 }
 
-void TreasuryObject::exportToStream(std::ostream& os)
+void TreasuryObject::exportToStream(std::ostream& os) const
 {
     RenderedMovableEntity::exportToStream(os);
     os << mGoldValue << "\t";

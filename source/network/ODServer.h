@@ -71,14 +71,14 @@ class ODServer: public Ogre::Singleton<ODServer>,
     bool startServer(const std::string& levelFilename, ServerMode mode);
     void stopServer();
 
-    //! \brief Adds a server notification to the server notification queue.
+    //! \brief Adds a server notification to the server notification queue. The message will be sent to the concerned player
     void queueServerNotification(ServerNotification* n);
 
-    //! \brief Sends an asynchronous message to every client. This function should be used really carefully as it can easily
+    //! \brief Sends an asynchronous message to the concerned player. This function should be used really carefully as it can easily
     //! make the game crash by sending messages in an unexpected order (changing the state of an entity that was not created, for example).
     //! In most of the can, we will use it for messages that do not need synchronization with the game (example : chat) or
     //! for messages that need to show reactivity (after a player does something like building a room or tried to pickup a creature).
-    void sendAsyncMsgToAllClients(ServerNotification& notif);
+    void sendAsyncMsg(ServerNotification& notif);
 
     //! \brief Adds a console command to the queue.
     void queueConsoleCommand(ODConsoleCommand* cc);
@@ -98,7 +98,6 @@ private:
     ServerMode mServerMode;
     ServerState mServerState;
     GameMap *mGameMap;
-    std::string mLevelFilename;
     bool mSeatsConfigured;
 
     std::deque<ServerNotification*> mServerNotificationQueue;
@@ -130,6 +129,9 @@ private:
     bool processClientNotifications(ODSocketClient* clientSocket);
 
     void processServerCommandQueue();
+
+    //! \brief Sends the packet to the given player. If player is nullptr, the packet is sent to every connected player
+    void sendMsg(Player* player, ODPacket& packet);
 };
 
 #endif // ODSERVER_H

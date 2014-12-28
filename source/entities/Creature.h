@@ -78,7 +78,7 @@ public:
 
     Ogre::Vector2 get2dPosition()
     {
-        Ogre::Vector3 tmp = getPosition();
+        const Ogre::Vector3& tmp = getPosition();
         return Ogre::Vector2(tmp.x,tmp.y);
     }
 
@@ -116,9 +116,10 @@ public:
     { return mDefinition; }
 
     /*! \brief Changes the creature's position to a new position.
-     *  This is an overloaded function which just calls Creature::setPosition(double x, double y, double z).
+     *  This is an overloaded function which just calls MovableGameEntity::setPosition and
+     *  handles culling.
      */
-    void setPosition(const Ogre::Vector3& v);
+    void setPosition(const Ogre::Vector3& v, bool isMove);
 
     //! \brief Gets the move speed on the current tile.
     virtual double getMoveSpeed() const;
@@ -262,7 +263,8 @@ public:
     //! \brief An accessor to return whether or not the creature has OGRE entities for its visual debugging entities.
     bool getHasVisualDebuggingEntities();
 
-    virtual Ogre::Vector3 getScale() const;
+    virtual const Ogre::Vector3& getScale() const
+    { return mScale; }
 
     //! \FIXME Those functions are lacking parameters to be actually functional
     //! \brief Get the text format of creatures in level files (already spawned at startup).
@@ -271,9 +273,9 @@ public:
 
     static Creature* getCreatureFromStream(GameMap* gameMap, std::istream& is);
     static Creature* getCreatureFromPacket(GameMap* gameMap, ODPacket& is);
-    virtual void exportToPacket(ODPacket& os);
+    virtual void exportToPacket(ODPacket& os) const;
     virtual void importFromPacket(ODPacket& is);
-    virtual void exportToStream(std::ostream& os);
+    virtual void exportToStream(std::ostream& os) const;
     virtual void importFromStream(std::istream& is);
     inline void setQuad(CullingQuad* cq)
     { mTracingCullingQuad = cq; }
@@ -322,20 +324,22 @@ public:
     //! \brief Makes the creature stop eating (releases the hatchery)
     void stopEating();
 
-    //! \brief Play a spatial sound at the creature position of the corresponding type.
-    void playSound(CreatureSound::SoundType soundType);
-
     //! \brief Tells whether the creature can go through the given tile.
     bool canGoThroughTile(const Tile* tile) const;
 
-    virtual void notifyEntityCarried(bool isCarried);
+    virtual void notifyEntityCarryOn();
+    virtual void notifyEntityCarryOff(const Ogre::Vector3& position);
 
     bool canSlap(Seat* seat, bool isEditorMode);
     void slap(bool isEditorMode);
 
+    void fireCreatureSound(CreatureSound::SoundType sound);
+
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
+    virtual void fireAddEntity(Seat* seat, bool async);
+    virtual void fireRemoveEntity(Seat* seat);
 private:
     enum ForceAction
     {
@@ -351,6 +355,8 @@ private:
 
     //! \brief Constructor for sending creatures through network. It should not be used in game.
     Creature(GameMap* gameMap);
+
+    void fireCreatureRefresh();
 
     CullingQuad* mTracingCullingQuad;
 
@@ -432,16 +438,14 @@ private:
     Tile*                           mAttackedTile;
     GameEntity*                     mAttackedObject;
 
-    //! \brief The creature sounds library reference.
-    //! \warning Do not delete it. The pointer in handled in SoundEffectsManager.
-    CreatureSound*                  mSound;
-
     ForceAction                     mForceAction;
 
     bool                            mIsCarryActionTested;
-    GameEntity*                     mCarriedEntity;
+    MovableGameEntity*              mCarriedEntity;
     GameEntity::ObjectType          mCarriedEntityDestType;
     std::string                     mCarriedEntityDestName;
+
+    Ogre::Vector3                   mScale;
 
     void pushAction(CreatureAction action);
     void popAction();
@@ -547,7 +551,7 @@ private:
     //! \brief Restores the creature's stats according to its current level
     void buildStats();
 
-    void carryEntity(GameEntity* carriedEntity);
+    void carryEntity(MovableGameEntity* carriedEntity);
 
     void releaseCarriedEntity();
 };

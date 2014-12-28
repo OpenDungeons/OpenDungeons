@@ -44,19 +44,23 @@ public:
     void mergeGold(TreasuryObject* obj);
     void addGold(int goldValue);
 
-    virtual void exportToStream(std::ostream& os);
+    virtual void exportToStream(std::ostream& os) const;
     virtual void importFromStream(std::istream& is);
-    virtual void exportToPacket(ODPacket& os);
+    virtual void exportToPacket(ODPacket& os) const;
     virtual void importFromPacket(ODPacket& is);
 
     virtual void pickup();
-    virtual void setPosition(const Ogre::Vector3& v);
 
-    virtual void notifyEntityCarried(bool isCarried);
+    virtual void notifyEntityCarryOn();
+    virtual void notifyEntityCarryOff(const Ogre::Vector3& position);
 
     static const char* getFormat();
     static TreasuryObject* getTreasuryObjectFromStream(GameMap* gameMap, std::istream& is);
     static TreasuryObject* getTreasuryObjectFromPacket(GameMap* gameMap, ODPacket& is);
+protected:
+    virtual bool addEntityToTile(Tile* tile);
+    virtual bool removeEntityFromTile(Tile* tile);
+
 private:
     int mGoldValue;
 };

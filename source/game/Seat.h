@@ -147,6 +147,9 @@ public:
     inline bool getIsDebuggingVision()
     { return mIsDebuggingVision; }
 
+    inline int getNbTreasuries() const
+    { return mNbTreasuries; }
+
     const std::string& getPlayerType() const
     { return mPlayerType; }
 
@@ -154,6 +157,8 @@ public:
     { mPlayerType = playerType; }
 
     void setPlayer(Player* player);
+
+    void addAlliedSeat(Seat* seat);
 
     void initSpawnPool();
 
@@ -175,12 +180,24 @@ public:
     //! \brief Returns true if this seat can see the given tile and false otherwise
     bool hasVisionOnTile(Tile* tile);
 
+    //! \brief Checks if the visible tiles seen by this seat have changed and notify
+    //! the players if yes
+    void notifyChangedVisibleTiles();
+
     //! \brief Server side to display the tile this seat has vision on
     void displaySeatVisualDebug(bool enable);
+
+    //! Sends a message to the player on this seat to refresh the list of tiles he has vision on
+    void sendVisibleTiles();
 
     //! \brief Client side to display the tile this seat has vision on
     void refreshVisualDebugEntities(const std::vector<Tile*>& tiles);
     void stopVisualDebugEntities();
+
+    const std::vector<Seat*>& getAlliedSeats()
+    { return mAlliedSeats; }
+
+    void computeSeatBeforeSendingToClient();
 
     static bool sortForMapSave(Seat* s1, Seat* s2);
 
@@ -250,12 +267,16 @@ private:
     //! \brief Team ids this seat can use defined in the level file.
     std::vector<int> mAvailableTeamIds;
 
+    //! \brief Contains all the seats allied with the current one, not including it. Used on server side only.
+    std::vector<Seat*> mAlliedSeats;
+
     //! \brief The creatures the current seat is allowed to spawn (when following the conditions). CreatureDefinition
     //! are managed by the configuration manager and should NOT be deleted. The boolean will be set to false at beginning
     //! if the spawning conditions are not empty and are met, we will set it to true and force spawning of the related creature
     std::vector<std::pair<const CreatureDefinition*, bool> > mSpawnPool;
 
     //! \brief List of the tiles this seat has vision on
+    std::vector<Tile*> mTilesWithVisionLast;
     std::vector<Tile*> mTilesWithVision;
     std::vector<Tile*> mVisualDebugEntityTiles;
 
@@ -269,6 +290,9 @@ private:
 
     //! \brief The seat id. Allows to identify this seat. Must be unique per level file.
     int mId;
+
+    //! \brief The number of treasuries the player owns. Useful to display the first free tile on client side.
+    int mNbTreasuries;
 
     bool mIsDebuggingVision;
 };

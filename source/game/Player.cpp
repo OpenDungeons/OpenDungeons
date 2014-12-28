@@ -48,9 +48,8 @@ Player::Player(GameMap* gameMap, int32_t id) :
 unsigned int Player::numCreaturesInHand(const Seat* seat) const
 {
     unsigned int cpt = 0;
-    for(std::vector<GameEntity*>::const_iterator it = mObjectsInHand.begin(); it != mObjectsInHand.end(); ++it)
+    for(MovableGameEntity* entity : mObjectsInHand)
     {
-        const GameEntity* entity = *it;
         if(entity->getObjectType() != GameEntity::ObjectType::creature)
             continue;
 
@@ -67,7 +66,7 @@ unsigned int Player::numObjectsInHand() const
     return mObjectsInHand.size();
 }
 
-void Player::addEntityToHand(GameEntity *entity)
+void Player::addEntityToHand(MovableGameEntity *entity)
 {
     if (mObjectsInHand.empty())
     {
@@ -86,7 +85,7 @@ void Player::addEntityToHand(GameEntity *entity)
     mObjectsInHand[0] = entity;
 }
 
-void Player::pickUpEntity(GameEntity *entity, bool isEditorMode)
+void Player::pickUpEntity(MovableGameEntity *entity, bool isEditorMode)
 {
     if (!ODServer::getSingleton().isConnected() && !ODClient::getSingleton().isConnected())
         return;
@@ -113,40 +112,15 @@ void Player::pickUpEntity(GameEntity *entity, bool isEditorMode)
 
     if (mGameMap->isServerGameMap())
     {
-        // If the player is a human, we send an asynchronous message to be as reactive as
-        // possible. If it is an AI, we queue the message because it might have been created
-        // during this turn (and, thus, not exist on client side)
-        int seatId = getSeat()->getId();
-        GameEntity::ObjectType entityType = entity->getObjectType();
-        const std::string& entityName = entity->getName();
-        if(getIsHuman())
-        {
-            ServerNotification serverNotification(ServerNotification::entityPickedUp, this);
-            serverNotification.mPacket << isEditorMode << seatId << entityType << entityName;
-            ODServer::getSingleton().sendAsyncMsgToAllClients(serverNotification);
-            return;
-        }
-        else
-        {
-            ServerNotification* serverNotification = new ServerNotification(ServerNotification::entityPickedUp,
-                this);
-            serverNotification->mPacket << isEditorMode << seatId << entityType << entityName;
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-            return;
-        }
+        entity->firePickupEntity(this, isEditorMode);
+        return;
     }
 
-    // If it is actually the user picking up a creature we move the scene node.
-    // Otherwise we just hide the creature from the map.
+    OD_ASSERT_TRUE(this == mGameMap->getLocalPlayer());
     if (this == mGameMap->getLocalPlayer())
     {
         // Send a render request to move the crature into the "hand"
         RenderManager::getSingleton().rrPickUpEntity(entity, this);
-    }
-    else // it is just a message indicating another player has picked up a creature
-    {
-        // Hide the creature
-        RenderManager::getSingleton().rrDetachEntity(entity);
     }
 }
 
@@ -162,13 +136,13 @@ bool Player::isDropHandPossible(Tile *t, unsigned int index, bool isEditorMode)
         return false;
 
     GameEntity* entity = mObjectsInHand[index];
-    if(entity != NULL && entity->getObjectType() == GameEntity::ObjectType::creature)
+    if(entity != nullptr && entity->getObjectType() == GameEntity::ObjectType::creature)
     {
         Creature* creature = static_cast<Creature*>(entity);
         if(creature->tryDrop(getSeat(), t, isEditorMode))
             return true;
     }
-    else if(entity != NULL && entity->getObjectType() == GameEntity::ObjectType::renderedMovableEntity)
+    else if(entity != nullptr && entity->getObjectType() == GameEntity::ObjectType::renderedMovableEntity)
     {
         RenderedMovableEntity* obj = static_cast<RenderedMovableEntity*>(entity);
         if(obj->tryDrop(getSeat(), t, isEditorMode))
@@ -178,14 +152,14 @@ bool Player::isDropHandPossible(Tile *t, unsigned int index, bool isEditorMode)
     return false;
 }
 
-GameEntity* Player::dropHand(Tile *t, unsigned int index)
+MovableGameEntity* Player::dropHand(Tile *t, unsigned int index)
 {
     // Add the creature to the map
     OD_ASSERT_TRUE(index < mObjectsInHand.size());
     if(index >= mObjectsInHand.size())
-        return NULL;
+        return nullptr;
 
-    GameEntity *entity = mObjectsInHand[index];
+    MovableGameEntity *entity = mObjectsInHand[index];
     mObjectsInHand.erase(mObjectsInHand.begin() + index);
     if(entity->getObjectType() == GameEntity::ObjectType::creature)
     {
@@ -195,7 +169,7 @@ GameEntity* Player::dropHand(Tile *t, unsigned int index)
 
         if (!mGameMap->isServerGameMap() && (this == mGameMap->getLocalPlayer()))
         {
-            creature->playSound(CreatureSound::DROP);
+            creature->fireCreatureSound(CreatureSound::DROP);
         }
     }
     else if(entity->getObjectType() == GameEntity::ObjectType::renderedMovableEntity)
@@ -207,37 +181,15 @@ GameEntity* Player::dropHand(Tile *t, unsigned int index)
 
     if(mGameMap->isServerGameMap())
     {
-        // If the player is a human, we send an asynchronous message to be as reactive as
-        // possible. If it is an AI, we queue the message because it might have been created
-        // during this turn (and, thus, not exist on client side)
-        int seatId = getSeat()->getId();
-        if(getIsHuman())
-        {
-            ServerNotification serverNotification(ServerNotification::entityDropped, this);
-            serverNotification.mPacket << seatId;
-            mGameMap->tileToPacket(serverNotification.mPacket, t);
-            ODServer::getSingleton().sendAsyncMsgToAllClients(serverNotification);
-            return entity;
-        }
-        else
-        {
-            ServerNotification* serverNotification = new ServerNotification(ServerNotification::entityDropped,
-                this);
-            serverNotification->mPacket << seatId;
-            mGameMap->tileToPacket(serverNotification->mPacket, t);
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-            return entity;
-        }
+        entity->fireDropEntity(this, t);
+        return entity;
     }
 
     // If this is the result of another player dropping the creature it is currently not visible so we need to create a mesh for it
     //cout << "\nthis:  " << this << "\nme:  " << gameMap->getLocalPlayer() << endl;
     //cout.flush();
-    if (this != mGameMap->getLocalPlayer())
-    {
-        RenderManager::getSingleton().rrAttachEntity(entity);
-    }
-    else // This is the result of the player on the local computer dropping the creature
+    OD_ASSERT_TRUE(this == mGameMap->getLocalPlayer());
+    if(this == mGameMap->getLocalPlayer())
     {
         // Send a render request to rearrange the creatures in the hand to move them all forward 1 place
         RenderManager::getSingleton().rrDropHand(entity, this);
@@ -256,7 +208,7 @@ void Player::rotateHand(int n)
     {
         if (n > 0)
         {
-            GameEntity* entity = mObjectsInHand.back();
+            MovableGameEntity* entity = mObjectsInHand.back();
 
             // Since vectors have no push_front method
             // we need to move all of the elements in the vector back one and then add this one to the beginning.
@@ -268,7 +220,7 @@ void Player::rotateHand(int n)
         }
         else
         {
-            GameEntity* entity = mObjectsInHand.front();
+            MovableGameEntity* entity = mObjectsInHand.front();
             mObjectsInHand.erase(mObjectsInHand.begin());
             mObjectsInHand.push_back(entity);
         }
@@ -284,8 +236,62 @@ void Player::notifyNoMoreDungeonTemple()
         return;
 
     mIsPlayerLostSent = true;
-    ServerNotification *serverNotification = new ServerNotification(
-        ServerNotification::playerLost, this);
-    ODServer::getSingleton().queueServerNotification(serverNotification);
+    // We check if there is still a player in the team with a dungeon temple. If yes, we notify the player he lost his dungeon
+    // if no, we notify the team they lost
+    std::vector<Room*> dungeonTemples = mGameMap->getRoomsByType(Room::RoomType::dungeonTemple);
+    bool hasTeamLost = true;
+    for(Room* dungeonTemple : dungeonTemples)
+    {
+        if(getSeat()->isAlliedSeat(dungeonTemple->getSeat()))
+        {
+            hasTeamLost = false;
+            break;
+        }
+    }
 
+    if(hasTeamLost)
+    {
+        // This message will be sent in 1v1 or multiplayer so it should not talk about team. If we want to be
+        // more precise, we shall handle the case
+        for(Seat* seat : mGameMap->getSeats())
+        {
+            if(seat->getPlayer() == nullptr)
+                continue;
+            if(!seat->getPlayer()->getIsHuman())
+                continue;
+            if(!getSeat()->isAlliedSeat(seat))
+                continue;
+
+            ServerNotification *serverNotification = new ServerNotification(
+            ServerNotification::chatServer, seat->getPlayer());
+            serverNotification->mPacket << "You lost the game";
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+    }
+    else
+    {
+        for(Seat* seat : mGameMap->getSeats())
+        {
+            if(seat->getPlayer() == nullptr)
+                continue;
+            if(!seat->getPlayer()->getIsHuman())
+                continue;
+            if(!getSeat()->isAlliedSeat(seat))
+                continue;
+
+            if(this == seat->getPlayer())
+            {
+                ServerNotification *serverNotification = new ServerNotification(
+                ServerNotification::chatServer, seat->getPlayer());
+                serverNotification->mPacket << "You lost";
+                ODServer::getSingleton().queueServerNotification(serverNotification);
+                continue;
+            }
+
+            ServerNotification *serverNotification = new ServerNotification(
+            ServerNotification::chatServer, seat->getPlayer());
+            serverNotification->mPacket << "An ally has lost";
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+    }
 }

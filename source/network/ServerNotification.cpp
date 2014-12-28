@@ -60,24 +60,10 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "chat";
         case ServerNotificationType::chatServer:
             return "chatServer";
-        case ServerNotificationType::playerWon:
-            return "playerWon";
-        case ServerNotificationType::playerLost:
-            return "playerLost";
-        case ServerNotificationType::markTiles:
-            return "markTiles";
         case ServerNotificationType::turnStarted:
             return "turnStarted";
         case ServerNotificationType::setTurnsPerSecond:
             return "setTurnsPerSecond";
-        case ServerNotificationType::buildRoom:
-            return "buildRoom";
-        case ServerNotificationType::removeRoomTile:
-            return "removeRoomTile";
-        case ServerNotificationType::buildTrap:
-            return "buildTrap";
-        case ServerNotificationType::removeTrapTile:
-            return "removeTrapTile";
         case ServerNotificationType::animatedObjectAddDestination:
             return "animatedObjectAddDestination";
         case ServerNotificationType::animatedObjectClearDestinations:
@@ -120,6 +106,12 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "playCreatureSound";
         case ServerNotificationType::refreshTiles:
             return "refreshTiles";
+        case ServerNotificationType::refreshVisibleTiles:
+            return "refreshVisibleTiles";
+        case ServerNotificationType::carryEntity:
+            return "carryEntity";
+        case ServerNotificationType::releaseCarriedEntity:
+            return "releaseCarriedEntity";
         case ServerNotificationType::exit:
             return "exit";
         default:

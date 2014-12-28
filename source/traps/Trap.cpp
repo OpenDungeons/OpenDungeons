@@ -171,26 +171,15 @@ void Trap::doUpkeep()
     if (!tilesToRemove.empty())
     {
         for(Tile* tile : tilesToRemove)
-        {
-            ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::removeTrapTile, getGameMap()->getPlayerBySeat(getSeat()));
-            std::string name = getName();
-            serverNotification->mPacket << name;
-            getGameMap()->tileToPacket(serverNotification->mPacket, tile);
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-
             removeCoveredTile(tile);
-        }
 
         updateActiveSpots();
-
         createMesh();
     }
 
     // If no more tiles, the trap is removed
     if (numCoveredTiles() <= 0)
     {
-        LogManager::getSingleton().logMessage("Removing trap " + getName());
         getGameMap()->removeTrap(this);
         deleteYourself();
         return;
@@ -282,9 +271,9 @@ void Trap::updateActiveSpots()
     {
         // Less tiles than RenderedMovableEntity. This will happen when a tile from this trap is destroyed
         std::vector<Tile*> tilesToRemove;
-        for(std::map<Tile*, RenderedMovableEntity*>::iterator it = mBuildingObjects.begin(); it != mBuildingObjects.end(); ++it)
+        for(std::pair<Tile* const, RenderedMovableEntity*> p : mBuildingObjects)
         {
-            Tile* tile = it->first;
+            Tile* tile = p.first;
             // We store removed tiles
             if(std::find(mCoveredTiles.begin(), mCoveredTiles.end(), tile) == mCoveredTiles.end())
                 tilesToRemove.push_back(tile);
@@ -379,7 +368,7 @@ int32_t Trap::getNeededForgePointsPerTrap(TrapType trapType)
     return 0;
 }
 
-bool Trap::hasCarryEntitySpot(GameEntity* carriedEntity)
+bool Trap::hasCarryEntitySpot(MovableGameEntity* carriedEntity)
 {
     if(!isNeededCraftedTrap())
         return false;
@@ -398,7 +387,7 @@ bool Trap::hasCarryEntitySpot(GameEntity* carriedEntity)
     return true;
 }
 
-Tile* Trap::askSpotForCarriedEntity(GameEntity* carriedEntity)
+Tile* Trap::askSpotForCarriedEntity(MovableGameEntity* carriedEntity)
 {
     OD_ASSERT_TRUE_MSG(carriedEntity->getObjectType() == GameEntity::ObjectType::renderedMovableEntity,
         "room=" + getName() + ", entity=" + carriedEntity->getName());
@@ -437,7 +426,7 @@ Tile* Trap::askSpotForCarriedEntity(GameEntity* carriedEntity)
     return nullptr;
 }
 
-void Trap::notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity)
+void Trap::notifyCarryingStateChanged(Creature* carrier, MovableGameEntity* carriedEntity)
 {
     if(carriedEntity == nullptr)
         return;
@@ -471,7 +460,7 @@ void Trap::notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEnti
 
         // The carrier has brought carried trap
         CraftedTrap* craftedTrap = trapTileInfo.getCarriedCraftedTrap();
-        OD_ASSERT_TRUE_MSG(tile->removeCraftedTrap(craftedTrap), "trap=" + getName()
+        OD_ASSERT_TRUE_MSG(tile->removeEntity(craftedTrap), "trap=" + getName()
             + ", craftedTrap=" + craftedTrap->getName()
             + ", tile=" + Tile::displayAsString(tile));
         getGameMap()->removeRenderedMovableEntity(craftedTrap);
@@ -499,7 +488,7 @@ void Trap::exportHeadersToPacket(ODPacket& os)
     os << getType();
 }
 
-void Trap::exportToPacket(ODPacket& os)
+void Trap::exportToPacket(ODPacket& os) const
 {
     int nbTiles = mCoveredTiles.size();
     const std::string& name = getName();
@@ -536,7 +525,7 @@ void Trap::importFromPacket(ODPacket& is)
     }
 }
 
-void Trap::exportToStream(std::ostream& os)
+void Trap::exportToStream(std::ostream& os) const
 {
     int32_t nbTiles = mCoveredTiles.size();
     int seatId = getSeat()->getId();

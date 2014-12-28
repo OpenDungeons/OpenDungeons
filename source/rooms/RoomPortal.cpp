@@ -148,33 +148,14 @@ void RoomPortal::spawnCreature()
     LogManager::getSingleton().logMessage("Spawning a creature class=" + classToSpawn->getClassName()
         + ", name=" + newCreature->getName() + ", seatId=" + Ogre::StringConverter::toString(getSeat()->getId()));
 
-    // Set the creature specific parameters.
-    //NOTE:  This needs to be modified manually when the level file creature format changes.
-    newCreature->setPosition(Ogre::Vector3((Ogre::Real)mXCenter, (Ogre::Real)mYCenter, (Ogre::Real)0.0));
     newCreature->setSeat(getSeat());
 
-    // Add the creature to the gameMap and create meshes so it is visible.
     getGameMap()->addCreature(newCreature);
+    Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(mXCenter), static_cast<Ogre::Real>(mYCenter), 0.0f);
     newCreature->createMesh();
+    newCreature->setPosition(spawnPosition, false);
 
     mSpawnCreatureCountdown = Random::Uint(15, 30);
-
-    // Inform the clients
-    if (getGameMap()->isServerGameMap())
-    {
-        try
-        {
-           ServerNotification *serverNotification = new ServerNotification(
-               ServerNotification::addCreature, newCreature->getGameMap()->getPlayerBySeat(newCreature->getSeat()));
-           newCreature->exportToPacket(serverNotification->mPacket);
-           ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
-        catch (std::bad_alloc&)
-        {
-            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in RoomDungeonTemple::produceKobold", Ogre::LML_CRITICAL);
-            exit(1);
-        }
-    }
 }
 
 void RoomPortal::recomputeCenterPosition()

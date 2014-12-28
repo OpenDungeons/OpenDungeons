@@ -32,7 +32,7 @@ const std::string MapLight::MAPLIGHT_INDICATOR_PREFIX = "MapLightIndicator_";
 
 MapLight::MapLight(GameMap* gameMap, Ogre::Real red, Ogre::Real green, Ogre::Real blue,
         Ogre::Real range, Ogre::Real constant, Ogre::Real linear, Ogre::Real quadratic) :
-    MovableGameEntity                   (gameMap),
+    MovableGameEntity                   (gameMap, 1.0f),
     mThetaX                             (0.0),
     mThetaY                             (0.0),
     mThetaZ                             (0.0),
@@ -100,6 +100,8 @@ std::string MapLight::getFormat()
 
 ODPacket& operator<<(ODPacket& os, MapLight* m)
 {
+    const std::string& name = m->getName();
+    os << name;
     os << m->mPosition.x << m->mPosition.y << m->mPosition.z;
     os << m->mDiffuseColor.r << m->mDiffuseColor.g << m->mDiffuseColor.b;
     os << m->mSpecularColor.r << m->mSpecularColor.g << m->mSpecularColor.b;
@@ -111,6 +113,9 @@ ODPacket& operator<<(ODPacket& os, MapLight* m)
 
 ODPacket& operator>>(ODPacket& is, MapLight* m)
 {
+    std::string name;
+    is >> name;
+    m->setName(name);
     is >> m->mPosition.x >> m->mPosition.y >> m->mPosition.z;
     is >> m->mDiffuseColor.r >> m->mDiffuseColor.g >> m->mDiffuseColor.b;
     is >> m->mSpecularColor.r >> m->mSpecularColor.g >> m->mSpecularColor.b;

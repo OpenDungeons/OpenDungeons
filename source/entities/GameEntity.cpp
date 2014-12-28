@@ -64,26 +64,6 @@ void GameEntity::deleteYourself()
     getGameMap()->queueEntityForDeletion(this);
 }
 
-
-void GameEntity::setMeshOpacity(float opacity)
-{
-    if (opacity < 0.0f || opacity > 1.0f)
-        return;
-
-    mOpacity = opacity;
-
-    if(getGameMap()->isServerGameMap())
-    {
-        ServerNotification* serverNotification = new ServerNotification(ServerNotification::setEntityOpacity, nullptr);
-        std::string name = getName();
-        serverNotification->mPacket << getObjectType() << name << opacity;
-        ODServer::getSingleton().queueServerNotification(serverNotification);
-        return;
-    }
-
-    RenderManager::getSingleton().rrUpdateEntityOpacity(this);
-}
-
 std::string GameEntity::getNodeNameWithoutPostfix()
 {
     return getOgreNamePrefix() + getName();
@@ -91,7 +71,7 @@ std::string GameEntity::getNodeNameWithoutPostfix()
 
 Tile* GameEntity::getPositionTile() const
 {
-    Ogre::Vector3 tempPosition = getPosition();
+    const Ogre::Vector3& tempPosition = getPosition();
 
     return getGameMap()->getTile(Helper::round(tempPosition.x),
                                  Helper::round(tempPosition.y));

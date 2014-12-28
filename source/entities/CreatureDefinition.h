@@ -128,7 +128,7 @@ public:
     inline bool isWorker() const
     { return (mCreatureJob == Worker); }
 
-    friend ODPacket& operator <<(ODPacket& os, CreatureDefinition *c);
+    friend ODPacket& operator <<(ODPacket& os, const CreatureDefinition *c);
     friend ODPacket& operator >>(ODPacket& is, CreatureDefinition *c);
 
     //! \brief Loads a definition from the creature definition file sub [Creature][/Creature] part

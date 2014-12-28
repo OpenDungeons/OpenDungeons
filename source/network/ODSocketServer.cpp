@@ -155,18 +155,6 @@ ODSocketClient::ODComStatus ODSocketServer::sendMsgToClient(ODSocketClient* clie
     return client->send(packetReceived);
 }
 
-void ODSocketServer::sendMsgToAllClients(ODPacket& packetReceived)
-{
-    for (std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
-    {
-        ODSocketClient* client = *it;
-        if (!client || !client->isConnected())
-            continue;
-
-        client->send(packetReceived);
-    }
-}
-
 void ODSocketServer::stopServer()
 {
     mIsConnected = false;

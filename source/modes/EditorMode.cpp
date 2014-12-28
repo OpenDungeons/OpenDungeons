@@ -459,7 +459,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         std::string resultName = itr->movable->getName();
 
         GameEntity* entity = getEntityFromOgreName(resultName);
-        if (entity == nullptr || !entity->tryPickup(player->getSeat(), false))
+        if (entity == nullptr || !entity->tryPickup(player->getSeat(), true))
             continue;
 
         if (ODClient::getSingleton().isConnected())

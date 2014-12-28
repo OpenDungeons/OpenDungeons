@@ -52,11 +52,10 @@ Room* BaseAI::getDungeonTemple()
 bool BaseAI::buildRoom(Room* room, const std::vector<Tile*>& tiles)
 {
     room->setupRoom(mGameMap.nextUniqueNameRoom(room->getMeshName()), mPlayer.getSeat(), tiles);
-    mGameMap.addRoom(room, false);
+    mGameMap.addRoom(room);
     room->createMesh();
     room->checkForRoomAbsorbtion();
     room->updateActiveSpots();
-    mGameMap.refreshBorderingTilesOf(tiles);
 
     return true;
 }

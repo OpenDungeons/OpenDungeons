@@ -52,7 +52,10 @@ void MenuModeMultiplayerClient::activate()
     // TODO: Make this configurable.
     MusicPlayer::getSingleton().play("Pal_Zoltan_Illes_OpenDungeons_maintheme.ogg");
 
-    ODFrameListener::getSingleton().getClientGameMap()->setGamePaused(true);
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
+    gameMap->clearAll();
+    gameMap->processDeletionQueues();
+    gameMap->setGamePaused(true);
 
     CEGUI::Window* mainWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerClientMenu);
     mainWin->getChild(Gui::MPM_TEXT_LOADING)->hide();

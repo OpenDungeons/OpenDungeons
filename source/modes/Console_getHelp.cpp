@@ -172,6 +172,11 @@ string Console::getHelpText(std::string arg)
                 + "seatvisdebug 1\n\nThe above command will show every tiles seat 1 can see.  The same command will turn it off.";
     }
 
+    else if (arg.compare("icanseedeadpeople") == 0)
+    {
+        return "Toggles on/off fog of war for every connected player";
+    }
+
     else if (arg.compare("setlevel") == 0)
     {
         return "Sets the level of a given creature.\n\nExample:\n"

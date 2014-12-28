@@ -53,6 +53,7 @@ Seat::Seat(GameMap* gameMap) :
     mHasGoalsChanged(true),
     mGold(0),
     mId(-1),
+    mNbTreasuries(0),
     mIsDebuggingVision(false)
 {
 }
@@ -295,6 +296,13 @@ void Seat::setPlayer(Player* player)
     mPlayer->mSeat = this;
 }
 
+
+void Seat::addAlliedSeat(Seat* seat)
+{
+    mAlliedSeats.push_back(seat);
+}
+
+
 void Seat::initSpawnPool()
 {
     const std::vector<std::string>& pool = ConfigManager::getSingleton().getFactionSpawnPool(mFaction);
@@ -365,6 +373,7 @@ const CreatureDefinition* Seat::getNextCreatureClassToSpawn()
 
 void Seat::clearTilesWithVision()
 {
+    mTilesWithVisionLast = mTilesWithVision;
     mTilesWithVision.clear();
 }
 
@@ -378,10 +387,45 @@ void Seat::notifyVisionOnTile(Tile* tile)
 
 bool Seat::hasVisionOnTile(Tile* tile)
 {
+    if(!mGameMap->isServerGameMap())
+    {
+        // On client side, we check only for the local player
+        if(this != mGameMap->getLocalPlayer()->getSeat())
+            return false;
+
+        return tile->getLocalPlayerHasVision();
+    }
     if(std::find(mTilesWithVision.begin(), mTilesWithVision.end(), tile) != mTilesWithVision.end())
         return true;
 
     return false;
+}
+
+void Seat::notifyChangedVisibleTiles()
+{
+    std::vector<Tile*> tilesToNotify;
+    for(Tile* tile : mTilesWithVision)
+    {
+        if(!tile->hasChangedForSeat(this))
+            continue;
+
+        tilesToNotify.push_back(tile);
+        tile->changeNotifiedForSeat(this);
+    }
+
+    if(tilesToNotify.empty())
+        return;
+
+    uint32_t nbTiles = tilesToNotify.size();
+    ServerNotification *serverNotification = new ServerNotification(
+        ServerNotification::refreshTiles, getPlayer());
+    serverNotification->mPacket << nbTiles;
+    for(Tile* tile : tilesToNotify)
+    {
+        mGameMap->tileToPacket(serverNotification->mPacket, tile);
+        tile->exportToPacket(serverNotification->mPacket, this);
+    }
+    ODServer::getSingleton().queueServerNotification(serverNotification);
 }
 
 void Seat::stopVisualDebugEntities()
@@ -467,6 +511,62 @@ void Seat::displaySeatVisualDebug(bool enable)
     }
 }
 
+void Seat::sendVisibleTiles()
+{
+    if(!mGameMap->isServerGameMap())
+        return;
+
+    if(getPlayer() == nullptr)
+        return;
+
+    if(!getPlayer()->getIsHuman())
+        return;
+
+    uint32_t nbTiles;
+    ServerNotification *serverNotification = new ServerNotification(
+        ServerNotification::refreshVisibleTiles, getPlayer());
+    std::vector<Tile*> tiles;
+    // Tiles we gained vision
+    for(Tile* tile : mTilesWithVision)
+    {
+        if(std::find(mTilesWithVisionLast.begin(), mTilesWithVisionLast.end(), tile) != mTilesWithVisionLast.end())
+            continue;
+
+        tiles.push_back(tile);
+    }
+    nbTiles = tiles.size();
+    serverNotification->mPacket << nbTiles;
+    for(Tile* tile : tiles)
+    {
+        mGameMap->tileToPacket(serverNotification->mPacket, tile);
+    }
+
+    // Tiles we lost vision
+    tiles.clear();
+    for(Tile* tile : mTilesWithVisionLast)
+    {
+        if(std::find(mTilesWithVision.begin(), mTilesWithVision.end(), tile) != mTilesWithVision.end())
+            continue;
+
+        tiles.push_back(tile);
+    }
+    nbTiles = tiles.size();
+    serverNotification->mPacket << nbTiles;
+    for(Tile* tile : tiles)
+    {
+        mGameMap->tileToPacket(serverNotification->mPacket, tile);
+    }
+    ODServer::getSingleton().queueServerNotification(serverNotification);
+}
+
+void Seat::computeSeatBeforeSendingToClient()
+{
+    if(mPlayer != nullptr)
+    {
+        mNbTreasuries = mGameMap->numRoomsByTypeAndSeat(Room::treasury, this);
+    }
+}
+
 std::string Seat::getFormat()
 {
     return "seatId\tteamId\tplayer\tfaction\tstartingX\tstartingY\tcolor\tstartingGold";
@@ -479,6 +579,11 @@ ODPacket& operator<<(ODPacket& os, Seat *s)
     os << s->mColorId;
     os << s->mGold << s->mMana << s->mManaDelta << s->mNumClaimedTiles;
     os << s->mHasGoalsChanged;
+    os << s->mNbTreasuries;
+    uint32_t nb = s->mAvailableTeamIds.size();
+    os << nb;
+    for(int teamId : s->mAvailableTeamIds)
+        os << teamId;
 
     return os;
 }
@@ -490,7 +595,17 @@ ODPacket& operator>>(ODPacket& is, Seat *s)
     is >> s->mColorId;
     is >> s->mGold >> s->mMana >> s->mManaDelta >> s->mNumClaimedTiles;
     is >> s->mHasGoalsChanged;
+    is >> s->mNbTreasuries;
     s->mColorValue = ConfigManager::getSingleton().getColorFromId(s->mColorId);
+    uint32_t nb;
+    is >> nb;
+    while(nb > 0)
+    {
+        --nb;
+        int teamId;
+        is >> teamId;
+        s->mAvailableTeamIds.push_back(teamId);
+    }
 
     return is;
 }
@@ -534,6 +649,7 @@ void Seat::refreshFromSeat(Seat* s)
     mManaDelta = s->mManaDelta;
     mNumClaimedTiles = s->mNumClaimedTiles;
     mHasGoalsChanged = s->mHasGoalsChanged;
+    mNbTreasuries = s->mNbTreasuries;
 }
 
 bool Seat::sortForMapSave(Seat* s1, Seat* s2)

@@ -150,19 +150,19 @@ public:
     static int32_t getNeededForgePointsPerTrap(TrapType trapType);
     virtual bool isNeededCraftedTrap() const;
 
-    bool hasCarryEntitySpot(GameEntity* carriedEntity);
-    Tile* askSpotForCarriedEntity(GameEntity* carriedEntity);
-    void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity);
+    bool hasCarryEntitySpot(MovableGameEntity* carriedEntity);
+    Tile* askSpotForCarriedEntity(MovableGameEntity* carriedEntity);
+    void notifyCarryingStateChanged(Creature* carrier, MovableGameEntity* carriedEntity);
 
     /*! \brief Exports the headers needed to recreate the Trap. It allows to extend Traps as much as wanted.
      * The content of the Trap will be exported by exportToPacket.
      */
     virtual void exportHeadersToStream(std::ostream& os);
     virtual void exportHeadersToPacket(ODPacket& os);
-    //! \brief Exports the data of the RenderedMovableEntity
-    virtual void exportToStream(std::ostream& os);
+    //! \brief Exports the data of the Trap
+    virtual void exportToStream(std::ostream& os) const;
     virtual void importFromStream(std::istream& is);
-    virtual void exportToPacket(ODPacket& os);
+    virtual void exportToPacket(ODPacket& os) const;
     virtual void importFromPacket(ODPacket& is);
 
     static std::string getFormat();

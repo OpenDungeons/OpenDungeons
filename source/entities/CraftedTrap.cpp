@@ -30,9 +30,9 @@
 
 #include <iostream>
 
-const int32_t NB_TURNS_OUTSIDE_HATCHERY_BEFORE_DIE = 30;
-const int32_t NB_TURNS_DIE_BEFORE_REMOVE = 5;
 const std::string EMPTY_STRING;
+
+const Ogre::Vector3 SCALE(0.5,0.5,0.5);
 
 CraftedTrap::CraftedTrap(GameMap* gameMap, const std::string& forgeName, Trap::TrapType trapType) :
     RenderedMovableEntity(gameMap, forgeName, getMeshFromTrapType(trapType), 0.0f, false),
@@ -43,6 +43,11 @@ CraftedTrap::CraftedTrap(GameMap* gameMap, const std::string& forgeName, Trap::T
 CraftedTrap::CraftedTrap(GameMap* gameMap) :
     RenderedMovableEntity(gameMap)
 {
+}
+
+const Ogre::Vector3& CraftedTrap::getScale() const
+{
+    return SCALE;
 }
 
 const std::string& CraftedTrap::getMeshFromTrapType(Trap::TrapType trapType)
@@ -63,39 +68,28 @@ const std::string& CraftedTrap::getMeshFromTrapType(Trap::TrapType trapType)
     return EMPTY_STRING;
 }
 
-void CraftedTrap::setPosition(const Ogre::Vector3& v)
-{
-    Tile* oldTile = getPositionTile();
-    RenderedMovableEntity::setPosition(v);
-    Tile* tile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
-    if(tile == nullptr)
-        return;
-    if(tile == oldTile)
-        return;
-
-    if(oldTile != nullptr)
-        oldTile->removeCraftedTrap(this);
-
-    OD_ASSERT_TRUE(tile->addCraftedTrap(this));
-}
-
-void CraftedTrap::notifyEntityCarried(bool isCarried)
+void CraftedTrap::notifyEntityCarryOn()
 {
     Tile* myTile = getPositionTile();
     OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
     if(myTile == nullptr)
         return;
-    if(isCarried)
-    {
-        setIsOnMap(false);
-        myTile->removeCraftedTrap(this);
-    }
-    else
-    {
-        setIsOnMap(true);
-        myTile->addCraftedTrap(this);
-    }
+
+    setIsOnMap(false);
+    myTile->removeEntity(this);
+}
+
+void CraftedTrap::notifyEntityCarryOff(const Ogre::Vector3& position)
+{
+    mPosition = position;
+    setIsOnMap(true);
+
+    Tile* myTile = getPositionTile();
+    OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
+    if(myTile == nullptr)
+        return;
+
+    myTile->addEntity(this);
 }
 
 CraftedTrap* CraftedTrap::getCraftedTrapFromStream(GameMap* gameMap, std::istream& is)
