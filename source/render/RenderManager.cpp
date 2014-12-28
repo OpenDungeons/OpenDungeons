@@ -209,34 +209,60 @@ void RenderManager::rrRefreshTile(Tile* curTile, Player* localPlayer)
         rt = 0;
     }
 
+    bool vision = true;
     Ogre::Entity* ent = mSceneManager->createEntity(tileName, meshName);
-
-    if(curTile->getType() == Tile::gold && curTile->getFullness() > 0.0)
+    switch(curTile->getType())
     {
-        for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii)
+        case Tile::gold:
         {
-            ent->getSubEntity(ii)->setMaterialName("Gold");
+            if(curTile->getFullness() > 0.0)
+            {
+                for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii)
+                {
+                    ent->getSubEntity(ii)->setMaterialName("Gold");
+                }
+            }
+            else
+            {
+                vision = curTile->getLocalPlayerHasVision();
+            }
+            break;
         }
-    }
-    else if(curTile->getType() == Tile::rock)
-    {
-        for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii)
+        case Tile::rock:
         {
-            ent->getSubEntity(ii)->setMaterialName("Rock");
+            for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii)
+            {
+                ent->getSubEntity(ii)->setMaterialName("Rock");
+            }
+            break;
         }
+        case Tile::lava:
+        {
+            for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii)
+            {
+                Ogre::SubEntity* subEnt = ent->getSubEntity(ii);
+                if (subEnt->getMaterialName() == "Water")
+                    subEnt->setMaterialName("Lava");
+            }
+            break;
+        }
+        case Tile::dirt:
+        {
+            if(curTile->getFullness() == 0.0)
+                vision = curTile->getLocalPlayerHasVision();
 
-    }
-    else if(curTile->getType() == Tile::lava)
-    {
-        for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii)
-        {
-            Ogre::SubEntity* subEnt = ent->getSubEntity(ii);
-            if (subEnt->getMaterialName() == "Water")
-                subEnt->setMaterialName("Lava");
+            break;
         }
+        case Tile::claimed:
+        {
+            vision = curTile->getLocalPlayerHasVision();
+            break;
+        }
+        default:
+            break;
     }
 
-    colourizeEntity(ent, seatColorize, curTile->getMarkedForDigging(localPlayer), curTile->getLocalPlayerHasVision());
+    colourizeEntity(ent, seatColorize, curTile->getMarkedForDigging(localPlayer), vision);
 
     // Link the tile mesh back to the relevant scene node so OGRE will render it
     Ogre::SceneNode* node = mSceneManager->getSceneNode(tileName + "_node");
@@ -282,7 +308,7 @@ void RenderManager::rrCreateTile(Tile* curTile, Player* localPlayer)
         }
     }
 
-    colourizeEntity(ent, curTile->getSeat(), curTile->getMarkedForDigging(localPlayer), curTile->getLocalPlayerHasVision());
+    colourizeEntity(ent, curTile->getSeat(), false, true);
 
     Ogre::SceneNode* node = mSceneManager->getRootSceneNode()->createChildSceneNode(curTile->getOgreNamePrefix() + curTile->getName() + "_node");
     curTile->setParentSceneNode(node->getParentSceneNode());
