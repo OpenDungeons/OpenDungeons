@@ -194,13 +194,17 @@ bool MenuModeReplay::checkReplayValid(const std::string& replayFileName, std::st
     if(is.eof())
         return false;
 
-    std::string level;
-    OD_ASSERT_TRUE(packet >> level);
-    LevelInfo info;
-    if(!MapLoader::getMapInfo(level, info))
-        return false;
+    std::string tmpStr;
+    int32_t tmpInt;
+    // mapSizeX
+    OD_ASSERT_TRUE(packet >> tmpInt);
+    // mapSizeY
+    OD_ASSERT_TRUE(packet >> tmpInt);
+    // LevelFileName
+    OD_ASSERT_TRUE(packet >> tmpStr);
+    // LevelDescription
+    OD_ASSERT_TRUE(packet >> mapDescription);
 
-    mapDescription = info.mLevelDescription;
     return true;
 }
 
