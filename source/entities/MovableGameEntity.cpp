@@ -572,6 +572,8 @@ void MovableGameEntity::restoreEntityState()
         if(mWalkDirection != Ogre::Vector3::ZERO)
             RenderManager::getSingleton().rrOrientEntityToward(this, mWalkDirection);
 
-        getAnimationState()->addTime(mAnimationTime);
+        // If the mesh has no skeleton, getAnimationState() could return null
+        if(getAnimationState() != nullptr)
+            getAnimationState()->addTime(mAnimationTime);
     }
 }
