@@ -1063,7 +1063,9 @@ void RenderManager::rrCarryEntity(Creature* carrier, MovableGameEntity* carried)
     carried->getParentSceneNode()->removeChild(carriedNode);
     carriedNode->setInheritScale(false);
     carrierNode->addChild(carriedNode);
-    carriedNode->setPosition(Ogre::Vector3::ZERO);
+    // We want the carried object to be at half tile (z = 0.5)
+    Ogre::Real z = 0.5 / carrier->getScale().z;
+    carriedNode->setPosition(Ogre::Vector3(0, 0, z));
 }
 
 void RenderManager::rrReleaseCarriedEntity(Creature* carrier, MovableGameEntity* carried)
