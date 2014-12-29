@@ -629,7 +629,6 @@ void Creature::doUpkeep()
 
             // Remove the creature from the game map and into the deletion queue, it will be deleted
             // when it is safe, i.e. all other pointers to it have been wiped from the program.
-            LogManager::getSingleton().logMessage(getGameMap()->serverStr() + "Removing creature " + getName());
             getGameMap()->removeCreature(this);
             deleteYourself();
         }

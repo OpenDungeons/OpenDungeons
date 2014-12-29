@@ -838,7 +838,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             Player* player = clientSocket->getPlayer();
             ODPacket packetSend;
             std::string nick = player->getNick();
-            ServerNotification notif(ServerNotification::chat, player);
+            ServerNotification notif(ServerNotification::chat, nullptr);
             notif.mPacket << nick << chatMsg;
             sendAsyncMsg(notif);
             break;

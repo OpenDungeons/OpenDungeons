@@ -435,6 +435,8 @@ void GameMap::addCreature(Creature *cc)
 
 void GameMap::removeCreature(Creature *c)
 {
+    LogManager::getSingleton().logMessage(serverStr() + "Removing Creature " + c->getName());
+
     std::vector<Creature*>::iterator it = std::find(mCreatures.begin(), mCreatures.end(), c);
     OD_ASSERT_TRUE_MSG(it != mCreatures.end(), "creature name=" + c->getName());
     if(it == mCreatures.end())
@@ -2132,6 +2134,8 @@ void GameMap::addMapLight(MapLight *m)
 
 void GameMap::removeMapLight(MapLight *m)
 {
+    LogManager::getSingleton().logMessage(serverStr() + "Removing MapLight " + m->getName());
+
     std::vector<MapLight*>::iterator it = std::find(mMapLights.begin(), mMapLights.end(), m);
     OD_ASSERT_TRUE_MSG(it != mMapLights.end(), "MapLight name=" + m->getName());
     if(it == mMapLights.end())
