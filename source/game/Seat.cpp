@@ -58,6 +58,24 @@ Seat::Seat(GameMap* gameMap) :
 {
 }
 
+void Seat::setMapSize(int x, int y)
+{
+    if(mPlayer == nullptr)
+        return;
+    if(!mPlayer->getIsHuman())
+        return;
+
+    mTilesVision = std::vector<std::vector<std::pair<bool, bool>>>(x);
+    for(int xxx = 0; xxx < x; ++xxx)
+    {
+        mTilesVision[xxx] = std::vector<std::pair<bool, bool>>(y);
+        for(int yyy = 0; yyy < y; ++yyy)
+        {
+            mTilesVision[xxx][yyy] = std::pair<bool, bool>(false, false);
+        }
+    }
+}
+
 void Seat::setTeamId(int teamId)
 {
     OD_ASSERT_TRUE_MSG(std::find(mAvailableTeamIds.begin(), mAvailableTeamIds.end(),
@@ -373,16 +391,32 @@ const CreatureDefinition* Seat::getNextCreatureClassToSpawn()
 
 void Seat::clearTilesWithVision()
 {
-    mTilesWithVisionLast = mTilesWithVision;
-    mTilesWithVision.clear();
+    if(mPlayer == nullptr)
+        return;
+    if(!mPlayer->getIsHuman())
+        return;
+
+    for(std::vector<std::pair<bool, bool>>& vec : mTilesVision)
+    {
+        for(std::pair<bool, bool>& p : vec)
+        {
+            p.first = p.second;
+            p.second = false;
+        }
+    }
 }
 
 void Seat::notifyVisionOnTile(Tile* tile)
 {
-    if(std::find(mTilesWithVision.begin(), mTilesWithVision.end(), tile) != mTilesWithVision.end())
+    if(mPlayer == nullptr)
+        return;
+    if(!mPlayer->getIsHuman())
         return;
 
-    mTilesWithVision.push_back(tile);
+    OD_ASSERT_TRUE_MSG(tile->getX() < static_cast<int>(mTilesVision.size()), "Tile=" + Tile::displayAsString(tile));
+    OD_ASSERT_TRUE_MSG(tile->getY() < static_cast<int>(mTilesVision[tile->getX()].size()), "Tile=" + Tile::displayAsString(tile));
+    std::pair<bool, bool>& p = mTilesVision[tile->getX()][tile->getY()];
+    p.second = true;
 }
 
 bool Seat::hasVisionOnTile(Tile* tile)
@@ -395,22 +429,44 @@ bool Seat::hasVisionOnTile(Tile* tile)
 
         return tile->getLocalPlayerHasVision();
     }
-    if(std::find(mTilesWithVision.begin(), mTilesWithVision.end(), tile) != mTilesWithVision.end())
+
+    // AI players have vision on every tile
+    if(mPlayer == nullptr)
+        return true;
+    if(!mPlayer->getIsHuman())
         return true;
 
-    return false;
+    OD_ASSERT_TRUE_MSG(tile->getX() < static_cast<int>(mTilesVision.size()), "Tile=" + Tile::displayAsString(tile));
+    OD_ASSERT_TRUE_MSG(tile->getY() < static_cast<int>(mTilesVision[tile->getX()].size()), "Tile=" + Tile::displayAsString(tile));
+    std::pair<bool, bool>& p = mTilesVision[tile->getX()][tile->getY()];
+
+    return p.second;
 }
 
 void Seat::notifyChangedVisibleTiles()
 {
-    std::vector<Tile*> tilesToNotify;
-    for(Tile* tile : mTilesWithVision)
-    {
-        if(!tile->hasChangedForSeat(this))
-            continue;
+    if(mPlayer == nullptr)
+        return;
+    if(!mPlayer->getIsHuman())
+        return;
 
-        tilesToNotify.push_back(tile);
-        tile->changeNotifiedForSeat(this);
+    std::vector<Tile*> tilesToNotify;
+    int xMax = static_cast<int>(mTilesVision.size());
+    for(int xxx = 0; xxx < xMax; ++xxx)
+    {
+        int yMax = static_cast<int>(mTilesVision[xxx].size());
+        for(int yyy = 0; yyy < yMax; ++yyy)
+        {
+            if(!mTilesVision[xxx][yyy].second)
+                continue;
+
+            Tile* tile = mGameMap->getTile(xxx, yyy);
+            if(!tile->hasChangedForSeat(this))
+                continue;
+
+            tilesToNotify.push_back(tile);
+            tile->changeNotifiedForSeat(this);
+        }
     }
 
     if(tilesToNotify.empty())
@@ -485,17 +541,38 @@ void Seat::displaySeatVisualDebug(bool enable)
     if(!mGameMap->isServerGameMap())
         return;
 
+    // Visual debugging do not work for AI players (otherwise, we would have to use
+    // mTilesVision for them which would be memory consuming)
+    if(mPlayer == nullptr)
+        return;
+    if(!mPlayer->getIsHuman())
+        return;
+
     mIsDebuggingVision = enable;
     int seatId = getId();
     if(enable)
     {
-        uint32_t nbTiles = mTilesWithVision.size();
+        std::vector<Tile*> tiles;
+        int xMax = static_cast<int>(mTilesVision.size());
+        for(int xxx = 0; xxx < xMax; ++xxx)
+        {
+            int yMax = static_cast<int>(mTilesVision[xxx].size());
+            for(int yyy = 0; yyy < yMax; ++yyy)
+            {
+                if(!mTilesVision[xxx][yyy].second)
+                    continue;
+
+                Tile* tile = mGameMap->getTile(xxx, yyy);
+                tiles.push_back(tile);
+            }
+        }
+        uint32_t nbTiles = tiles.size();
         ServerNotification *serverNotification = new ServerNotification(
             ServerNotification::refreshSeatVisDebug, nullptr);
         serverNotification->mPacket << seatId;
         serverNotification->mPacket << true;
         serverNotification->mPacket << nbTiles;
-        for(Tile* tile : mTilesWithVision)
+        for(Tile* tile : tiles)
         {
             mGameMap->tileToPacket(serverNotification->mPacket, tile);
         }
@@ -525,34 +602,44 @@ void Seat::sendVisibleTiles()
     uint32_t nbTiles;
     ServerNotification *serverNotification = new ServerNotification(
         ServerNotification::refreshVisibleTiles, getPlayer());
-    std::vector<Tile*> tiles;
+    std::vector<Tile*> tilesVisionGained;
+    std::vector<Tile*> tilesVisionLost;
     // Tiles we gained vision
-    for(Tile* tile : mTilesWithVision)
+    int xMax = static_cast<int>(mTilesVision.size());
+    for(int xxx = 0; xxx < xMax; ++xxx)
     {
-        if(std::find(mTilesWithVisionLast.begin(), mTilesWithVisionLast.end(), tile) != mTilesWithVisionLast.end())
-            continue;
+        int yMax = static_cast<int>(mTilesVision[xxx].size());
+        for(int yyy = 0; yyy < yMax; ++yyy)
+        {
+            if(mTilesVision[xxx][yyy].second == mTilesVision[xxx][yyy].first)
+                continue;
 
-        tiles.push_back(tile);
+            Tile* tile = mGameMap->getTile(xxx, yyy);
+            if(mTilesVision[xxx][yyy].second)
+            {
+                // Vision gained
+                tilesVisionGained.push_back(tile);
+            }
+            else
+            {
+                // Vision lost
+                tilesVisionLost.push_back(tile);
+            }
+        }
     }
-    nbTiles = tiles.size();
+
+    // Notify tiles we gained vision
+    nbTiles = tilesVisionGained.size();
     serverNotification->mPacket << nbTiles;
-    for(Tile* tile : tiles)
+    for(Tile* tile : tilesVisionGained)
     {
         mGameMap->tileToPacket(serverNotification->mPacket, tile);
     }
 
-    // Tiles we lost vision
-    tiles.clear();
-    for(Tile* tile : mTilesWithVisionLast)
-    {
-        if(std::find(mTilesWithVision.begin(), mTilesWithVision.end(), tile) != mTilesWithVision.end())
-            continue;
-
-        tiles.push_back(tile);
-    }
-    nbTiles = tiles.size();
+    // Notify tiles we lost vision
+    nbTiles = tilesVisionLost.size();
     serverNotification->mPacket << nbTiles;
-    for(Tile* tile : tiles)
+    for(Tile* tile : tilesVisionLost)
     {
         mGameMap->tileToPacket(serverNotification->mPacket, tile);
     }

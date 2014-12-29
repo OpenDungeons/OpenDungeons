@@ -421,7 +421,8 @@ void GameMap::saveLevelEquipments(std::ofstream& levelFile)
 
 void GameMap::addCreature(Creature *cc)
 {
-    LogManager::getSingleton().logMessage(serverStr() + "Adding Creature " + cc->getName());
+    LogManager::getSingleton().logMessage(serverStr() + "Adding Creature " + cc->getName()
+        + ", seatId=" + (cc->getSeat() != nullptr ? Ogre::StringConverter::toString(cc->getSeat()->getId()) : std::string("null")));
 
     mCreatures.push_back(cc);
 
@@ -1124,9 +1125,8 @@ unsigned long int GameMap::doMiscUpkeep()
 
     // At each upkeep, we re-compute tiles with vision
     for (Seat* seat : mSeats)
-    {
         seat->clearTilesWithVision();
-    }
+
     for (int jj = 0; jj < getMapSizeY(); ++jj)
     {
         for (int ii = 0; ii < getMapSizeX(); ++ii)
@@ -3050,14 +3050,7 @@ void GameMap::updateVisibleEntities()
 {
     // Notify changes on visible tiles
     for(Seat* seat : mSeats)
-    {
-        if(seat->getPlayer() == nullptr)
-            continue;
-        if(!seat->getPlayer()->getIsHuman())
-            continue;
-
         seat->notifyChangedVisibleTiles();
-    }
 
     // Notify what happened to entities on visible tiles
     for (int jj = 0; jj < getMapSizeY(); ++jj)

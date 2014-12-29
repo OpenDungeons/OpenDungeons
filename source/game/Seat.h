@@ -162,6 +162,8 @@ public:
 
     void initSpawnPool();
 
+    void setMapSize(int x, int y);
+
     const CreatureDefinition* getNextCreatureClassToSpawn();
 
     //! \brief Returns true if the given seat is allied. False otherwise
@@ -276,8 +278,7 @@ private:
     std::vector<std::pair<const CreatureDefinition*, bool> > mSpawnPool;
 
     //! \brief List of the tiles this seat has vision on
-    std::vector<Tile*> mTilesWithVisionLast;
-    std::vector<Tile*> mTilesWithVision;
+    std::vector<std::vector<std::pair<bool, bool>>> mTilesVision;
     std::vector<Tile*> mVisualDebugEntityTiles;
 
     //! \brief How many tiles have been claimed by this seat, updated in GameMap::doTurn().
