@@ -1060,8 +1060,8 @@ void RenderManager::rrCarryEntity(Creature* carrier, MovableGameEntity* carried)
     Ogre::SceneNode* carriedNode = mSceneManager->getSceneNode(carriedEnt->getName() + "_node");
     carried->getParentSceneNode()->removeChild(carriedNode);
     carriedNode->setInheritScale(false);
-    carriedNode->setPosition(carrierNode->getPosition());
     carrierNode->addChild(carriedNode);
+    carriedNode->setPosition(Ogre::Vector3::ZERO);
 }
 
 void RenderManager::rrReleaseCarriedEntity(Creature* carrier, MovableGameEntity* carried)
