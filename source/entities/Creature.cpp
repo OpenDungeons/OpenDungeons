@@ -3021,7 +3021,9 @@ void Creature::clearActionQueue()
     mActionQueue.clear();
     stopJob();
     stopEating();
-    releaseCarriedEntity();
+    if(mCarriedEntity != nullptr)
+        releaseCarriedEntity();
+
     mActionQueue.push_front(CreatureAction::idle);
 }
 
@@ -3383,7 +3385,7 @@ void Creature::carryEntity(MovableGameEntity* carriedEntity)
 
     OD_ASSERT_TRUE(carriedEntity != nullptr);
     OD_ASSERT_TRUE(mCarriedEntity == nullptr);
-    mCarriedEntity = carriedEntity;
+    mCarriedEntity = nullptr;
     if(carriedEntity == nullptr)
         return;
 
@@ -3395,8 +3397,9 @@ void Creature::carryEntity(MovableGameEntity* carriedEntity)
     // We only notify seats that already had vision. We copy the seats with vision list
     // because fireRemoveEntityToSeatsWithVision will empty it.
     std::vector<Seat*> seatsWithVision = mSeatsWithVisionNotified;
-    fireRemoveEntityToSeatsWithVision();
     // We remove ourself and send the creation
+    fireRemoveEntityToSeatsWithVision();
+    mCarriedEntity = carriedEntity;
     notifySeatsWithVision(seatsWithVision);
 }
 
@@ -3413,6 +3416,7 @@ void Creature::releaseCarriedEntity()
     mCarriedEntityDestType = GameEntity::ObjectType::unknown;
     mCarriedEntityDestName.clear();
 
+    OD_ASSERT_TRUE_MSG(carriedEntity != nullptr, "name=" + getName());
     if(carriedEntity == nullptr)
         return;
 
