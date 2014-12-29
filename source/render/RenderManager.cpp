@@ -251,6 +251,8 @@ void RenderManager::rrRefreshTile(Tile* curTile, Player* localPlayer)
             if(curTile->getFullness() == 0.0)
                 vision = curTile->getLocalPlayerHasVision();
 
+            // We don't want dirt tiles to get colored by the seat
+            seatColorize = nullptr;
             break;
         }
         case Tile::claimed:

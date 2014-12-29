@@ -1043,6 +1043,9 @@ void Tile::claimForSeat(Seat* seat, double nDanceRate)
             // The tile is not yet claimed, but it is now an allied seat.
             mClaimedPercentage *= -1.0;
             setSeat(seat);
+            // We set it to dirt. If it is claimed, it will be set correctly by claimTile
+            setType(TileType::dirt);
+            setDirtyForAllSeats();
         }
     }
 
