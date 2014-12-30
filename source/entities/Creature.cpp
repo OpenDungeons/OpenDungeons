@@ -15,11 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*TODO list:
- * - replace hardcoded calculations by scripts and/or read the numbers from XML defintion files
- * - the doUpkeep() functions needs script support
- */
-
 #include "entities/Creature.h"
 
 #include "entities/CreatureAction.h"
@@ -27,8 +22,6 @@
 #include "entities/CreatureSound.h"
 #include "entities/TreasuryObject.h"
 #include "entities/ChickenEntity.h"
-
-#include "camera/CullingQuad.h"
 
 #include "game/Player.h"
 #include "game/Seat.h"
@@ -80,7 +73,6 @@ const std::string Creature::CREATURE_PREFIX = "Creature_";
 
 Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
     MovableGameEntity        (gameMap, 1.0f),
-    mTracingCullingQuad      (NULL),
     mPhysicalAttack          (1.0),
     mMagicalAttack           (0.0),
     mPhysicalDefense         (3.0),
@@ -152,7 +144,6 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
 
 Creature::Creature(GameMap* gameMap) :
     MovableGameEntity        (gameMap, 1.0f),
-    mTracingCullingQuad      (NULL),
     mPhysicalAttack          (1.0),
     mMagicalAttack           (0.0),
     mPhysicalDefense         (3.0),
@@ -196,14 +187,8 @@ Creature::Creature(GameMap* gameMap) :
     pushAction(CreatureAction::idle);
 }
 
-/* Destructor is needed when removing from Quadtree */
 Creature::~Creature()
 {
-    if(mTracingCullingQuad != NULL)
-    {
-        mTracingCullingQuad->entry->creature_list.remove(this);
-        mTracingCullingQuad->mortuaryInsert(this);
-    }
 }
 
 void Creature::createMeshLocal()
@@ -520,8 +505,6 @@ void Creature::importFromPacket(ODPacket& is)
 void Creature::setPosition(const Ogre::Vector3& v, bool isMove)
 {
     MovableGameEntity::setPosition(v, isMove);
-    if (getIsOnMap() && !getGameMap()->isServerGameMap())
-        mTracingCullingQuad->moveEntryDelta(this,get2dPosition());
 }
 
 void Creature::drop(const Ogre::Vector3& v)
@@ -1132,18 +1115,18 @@ bool Creature::handleIdleAction()
                             == CreatureAction::digTile)
                     {
                         // Worker is digging, get near it since it could expose enemies.
-                        int x = (int)(static_cast<double>(tempTile->x) + 3.0
+                        int x = (int)(static_cast<double>(tempTile->getX()) + 3.0
                                 * Random::gaussianRandomDouble());
-                        int y = (int)(static_cast<double>(tempTile->y) + 3.0
+                        int y = (int)(static_cast<double>(tempTile->getY()) + 3.0
                                 * Random::gaussianRandomDouble());
                         tileDest = getGameMap()->getTile(x, y);
                     }
                     else
                     {
                         // Worker is not digging, wander a bit farther around the worker.
-                        int x = (int)(static_cast<double>(tempTile->x) + 8.0
+                        int x = (int)(static_cast<double>(tempTile->getX()) + 8.0
                                 * Random::gaussianRandomDouble());
-                        int y = (int)(static_cast<double>(tempTile->y) + 8.0
+                        int y = (int)(static_cast<double>(tempTile->getY()) + 8.0
                                 * Random::gaussianRandomDouble());
                         tileDest = getGameMap()->getTile(x, y);
                     }
@@ -1277,7 +1260,7 @@ bool Creature::handleClaimTileAction()
                         && tempTile2->getClaimedPercentage() >= 1.0)
                 {
                     clearDestinations();
-                    addDestination((Ogre::Real)tempTile->x, (Ogre::Real)tempTile->y);
+                    addDestination((Ogre::Real)tempTile->getX(), (Ogre::Real)tempTile->getY());
                     setAnimationState("Walk");
                     return false;
                 }
@@ -1416,7 +1399,7 @@ bool Creature::handleClaimWallTileAction()
             continue;
 
         // Dig out the tile by decreasing the tile's fullness.
-        Ogre::Vector3 walkDirection(tempTile->x - getPosition().x, tempTile->y - getPosition().y, 0);
+        Ogre::Vector3 walkDirection(tempTile->getX() - getPosition().x, tempTile->getY() - getPosition().y, 0);
         walkDirection.normalise();
         setAnimationState("Claim", true, walkDirection);
         tempTile->claimForSeat(getSeat(), mClaimRate);
@@ -1536,7 +1519,7 @@ bool Creature::handleDigTileAction()
         }
 
         // Dig out the tile by decreasing the tile's fullness.
-        Ogre::Vector3 walkDirection(tempTile->x - getPosition().x, tempTile->y - getPosition().y, 0);
+        Ogre::Vector3 walkDirection(tempTile->getX() - getPosition().x, tempTile->getY() - getPosition().y, 0);
         walkDirection.normalise();
         setAnimationState("Dig", true, walkDirection);
         double amountDug = tempTile->digOut(mDigRate, true);
@@ -1553,7 +1536,7 @@ bool Creature::handleDigTileAction()
                 // Remove the dig action and replace it with
                 // walking to the newly dug out tile.
                 //popAction();
-                addDestination((Ogre::Real)tempTile->x, (Ogre::Real)tempTile->y);
+                addDestination((Ogre::Real)tempTile->getX(), (Ogre::Real)tempTile->getY());
                 pushAction(CreatureAction::walkToTile);
             }
             //Set sound position and play dig sound.
@@ -1741,7 +1724,7 @@ bool Creature::handleDepositGoldAction()
         return true;
     TreasuryObject* obj = new TreasuryObject(getGameMap(), mGold);
     mGold = 0;
-    Ogre::Vector3 pos(static_cast<Ogre::Real>(tile->x), static_cast<Ogre::Real>(tile->y), 0.0f);
+    Ogre::Vector3 pos(static_cast<Ogre::Real>(tile->getX()), static_cast<Ogre::Real>(tile->getY()), 0.0f);
     getGameMap()->addRenderedMovableEntity(obj);
     obj->createMesh();
     obj->setPosition(pos, false);
@@ -2211,7 +2194,7 @@ bool Creature::handleAttackAction()
     // We check what we are attacking.
 
     // Turn to face the creature we are attacking and set the animation state to Attack.
-    Ogre::Vector3 walkDirection(attackedTile->x - getPosition().x, attackedTile->y - getPosition().y, 0);
+    Ogre::Vector3 walkDirection(attackedTile->getX() - getPosition().x, attackedTile->getY() - getPosition().y, 0);
     walkDirection.normalise();
     setAnimationState("Attack1", false, walkDirection);
 
@@ -3258,8 +3241,8 @@ bool Creature::fightInRangeObjectInList(const std::vector<GameEntity*>& listObje
             if (tempTile == NULL)
                 continue;
 
-            double rSquared = std::pow(tileCreature->x - tempTile->x, 2.0) + std::pow(
-                    tileCreature->y - tempTile->y, 2.0);
+            double rSquared = std::pow(tileCreature->getX() - tempTile->getX(), 2.0)
+                            + std::pow(tileCreature->getY() - tempTile->getY(), 2.0);
 
             if (rSquared <= weaponRangeSquared)
             {

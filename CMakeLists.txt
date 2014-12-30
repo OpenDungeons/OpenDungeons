@@ -218,13 +218,7 @@ set(OD_SOURCEFILES
     ${SRC}/ai/KeeperAI.cpp
 
     ${SRC}/camera/CameraManager.cpp
-    ${SRC}/camera/CullingManager.cpp
-    ${SRC}/camera/CullingQuad.cpp
-    ${SRC}/camera/DummyArrayClass.cpp
     ${SRC}/camera/HermiteCatmullSpline.cpp
-    ${SRC}/camera/MortuaryQuad.cpp
-    ${SRC}/camera/RadialVector2.cpp
-    ${SRC}/camera/SlopeWalk.cpp
 
     ${SRC}/entities/Building.cpp
     ${SRC}/entities/BuildingObject.cpp
@@ -327,10 +321,10 @@ set(OD_SOURCEFILES
     ${SRC}/utils/ConfigManager.cpp
     ${SRC}/utils/Helper.cpp
     ${SRC}/utils/LogManager.cpp
+    ${SRC}/utils/RadialVector2.cpp
     ${SRC}/utils/Random.cpp
     ${SRC}/utils/ResourceManager.cpp
     ${SRC}/utils/StackTracePrint.cpp
-    ${SRC}/utils/Vector3i.cpp
 
     ${SRC}/ODApplication.cpp
     ${SRC}/main.cpp

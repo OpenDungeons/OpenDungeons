@@ -50,13 +50,13 @@ bool TrapCannon::shoot(Tile* tile)
     GameEntity* targetEnemy = enemyObjects[Random::Uint(0, enemyObjects.size()-1)];
 
     // Create the cannonball to move toward the enemy creature.
-    Ogre::Vector3 direction(static_cast<Ogre::Real>(targetEnemy->getCoveredTiles()[0]->x),
-                            static_cast<Ogre::Real>(targetEnemy->getCoveredTiles()[0]->y),
+    Ogre::Vector3 direction(static_cast<Ogre::Real>(targetEnemy->getCoveredTiles()[0]->getX()),
+                            static_cast<Ogre::Real>(targetEnemy->getCoveredTiles()[0]->getY()),
                             CANNON_MISSILE_HEIGHT);
 
     Ogre::Vector3 position;
-    position.x = static_cast<Ogre::Real>(tile->x);
-    position.y = static_cast<Ogre::Real>(tile->y);
+    position.x = static_cast<Ogre::Real>(tile->getX());
+    position.y = static_cast<Ogre::Real>(tile->getY());
     position.z = CANNON_MISSILE_HEIGHT;
     direction = direction - position;
     direction.normalise();

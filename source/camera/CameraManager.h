@@ -27,7 +27,6 @@
 
 #include "gamemap/GameMap.h"
 #include "modes/AbstractApplicationMode.h"
-#include "utils/Vector3i.h"
 
 #include <OgrePrerequisites.h>
 #include <OgreVector3.h>
@@ -50,13 +49,9 @@ const Ogre::Real MAX_CAMERA_Z = 20.0;
 
 using std::vector; using std::pair; using std::map;
 
-// A custom vector used commonly between the CameraManager and the CullingManager classes
-
-
 class CameraManager
 {
     friend class Console;
-    friend class CullingManager;
 
 public:
     enum Direction
@@ -213,7 +208,6 @@ private:
     double mAlpha;
 
     ModeManager* mModeManager;
-    CullingManager* mCullingManager;
 
     Ogre::Camera* mActiveCamera;
     Ogre::SceneNode* mActiveCameraNode;
@@ -235,7 +229,6 @@ private:
     float           mZoomSpeed;
 
     std::string switchPolygonMode();
-    void sort(Vector3i& p1 , Vector3i& p2, bool sortByX);
 };
 
-#endif /* CAMERAMANAGER_H_ */
+#endif // CAMERAMANAGER_H_

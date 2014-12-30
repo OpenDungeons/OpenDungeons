@@ -38,7 +38,7 @@ RoomPortal::RoomPortal(GameMap* gameMap) :
         mSpawnCreatureCountdown(0),
         mXCenter(0),
         mYCenter(0),
-        mPortalObject(NULL)
+        mPortalObject(nullptr)
 {
    setMeshName("Portal");
 }
@@ -57,7 +57,7 @@ void RoomPortal::absorbRoom(Room* room)
     if (!mBuildingObjects.empty())
         mPortalObject = mBuildingObjects.begin()->second;
     else
-        mPortalObject = NULL;
+        mPortalObject = nullptr;
 }
 
 void RoomPortal::createMeshLocal()
@@ -65,7 +65,7 @@ void RoomPortal::createMeshLocal()
     Room::createMeshLocal();
 
     // Don't recreate the portal if it's already done.
-    if (mPortalObject != NULL)
+    if (mPortalObject != nullptr)
         return;
 
     // The client game map should not load building objects. They will be created
@@ -126,9 +126,7 @@ void RoomPortal::doUpkeep()
 
 void RoomPortal::spawnCreature()
 {
-    std::cout << "Portal: " << getName() << "  spawn creature..." << std::endl;
-
-    if (mPortalObject != NULL)
+    if (mPortalObject != nullptr)
         mPortalObject->setAnimationState("Triggered", false);
 
     // If the room has been destroyed, or has not yet been assigned any tiles, then we
@@ -169,8 +167,8 @@ void RoomPortal::recomputeCenterPosition()
     for (unsigned int i = 0; i < mCoveredTiles.size(); ++i)
     {
         Tile *tempTile = mCoveredTiles[i];
-        mXCenter += tempTile->x;
-        mYCenter += tempTile->y;
+        mXCenter += tempTile->getX();
+        mYCenter += tempTile->getY();
     }
 
     mXCenter /= static_cast<double>(mCoveredTiles.size());

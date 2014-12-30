@@ -710,7 +710,7 @@ void Room::exportToPacket(ODPacket& os) const
     os << name << seatId << nbTiles;
     for (Tile* tile : mCoveredTiles)
     {
-        os << tile->x << tile->y;
+        os << tile->getX() << tile->getY();
     }
 }
 
@@ -744,7 +744,7 @@ void Room::exportToStream(std::ostream& os) const
     os << seatId << "\t" << nbTiles << "\n";
     for (Tile* tile : mCoveredTiles)
     {
-        os << tile->x << "\t" << tile->y << "\n";
+        os << tile->getX() << "\t" << tile->getY() << "\n";
     }
 }
 

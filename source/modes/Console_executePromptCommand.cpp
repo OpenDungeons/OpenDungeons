@@ -36,7 +36,7 @@
 #include "network/ODClient.h"
 #include "utils/ResourceManager.h"
 #include "utils/ConfigManager.h"
-#include "camera/CullingManager.h"
+#include "entities/Creature.h"
 #include "entities/Weapon.h"
 #include "modes/ODConsoleCommand.h"
 #include "render/ODFrameListener.h"
@@ -1098,24 +1098,6 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         CameraManager* cm = frameListener->getCameraManager();
         cm->switchPM();
     }
-    else if (command.compare("starttileculling") == 0)
-    {
-            gameMap->getCullingManger()->startTileCulling();
-    }
-    else if (command.compare("stoptileculling") == 0)
-    {
-            gameMap->getCullingManger()->stopTileCulling();
-    }
-
-    else if (command.compare("startcreatureculling") == 0)
-    {
-            gameMap->getCullingManger()->startCreatureCulling();
-    }
-    else if (command.compare("startdb") == 0)
-    {
-            gameMap->getCullingManger()->startDebugging();
-    }
-
     else if (command.compare("triggercompositor") == 0)
     {
         tempSS.str(arguments);

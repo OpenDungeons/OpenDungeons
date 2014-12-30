@@ -52,15 +52,15 @@ const Ogre::Vector3 DEFAULT_TILE_SCALE(static_cast<Ogre::Real>(4.0 / RenderManag
         static_cast<Ogre::Real>(5.0 / RenderManager::BLENDER_UNITS_PER_OGRE_UNIT));
 
 
-Tile::Tile(GameMap* gameMap, int nX, int nY, TileType nType, double nFullness) :
+Tile::Tile(GameMap* gameMap, int x, int y, TileType type, double fullness) :
     GameEntity          (gameMap),
-    x                   (nX),
-    y                   (nY),
-    rotation            (0.0),
-    type                (nType),
-    selected            (false),
-    fullness            (nFullness),
-    fullnessMeshNumber  (-1),
+    mX                  (x),
+    mY                  (y),
+    mRotation           (0.0),
+    mType               (type),
+    mSelected           (false),
+    mFullness           (fullness),
+    mFullnessMeshNumber (-1),
     mCoveringBuilding   (nullptr),
     mClaimedPercentage  (0.0),
     mScale              (Ogre::Vector3::ZERO),
@@ -101,9 +101,9 @@ void Tile::setType(TileType t)
 {
     // If the type has changed from its previous value we need to see if
     // the mesh should be updated
-    if (t != type)
+    if (t != mType)
     {
-        type = t;
+        mType = t;
     }
 }
 
@@ -111,15 +111,15 @@ void Tile::setFullness(double f)
 {
     double oldFullness = getFullness();
 
-    fullness = f;
+    mFullness = f;
 
     // If the tile was marked for digging and has been dug out, unmark it and set its fullness to 0.
-    if (fullness == 0.0 && isMarkedForDiggingByAnySeat())
+    if (mFullness == 0.0 && isMarkedForDiggingByAnySeat())
     {
         setMarkedForDiggingForAllPlayersExcept(false, NULL);
     }
 
-    if ((oldFullness > 0.0) && (fullness == 0.0))
+    if ((oldFullness > 0.0) && (mFullness == 0.0))
     {
         // Do a flood fill to update the contiguous region touching the tile.
         getGameMap()->refreshFloodFill(this);
@@ -130,13 +130,13 @@ void Tile::setFullness(double f)
     // 		7 1 5		     0
     //
     bool fillStatus[9];
-    Tile *tempTile = getGameMap()->getTile(x, y + 1);
+    Tile *tempTile = getGameMap()->getTile(mX, mY + 1);
     fillStatus[0] = (tempTile != NULL) ? tempTile->getFullness() > 0.0 : false;
-    tempTile = getGameMap()->getTile(x, y - 1);
+    tempTile = getGameMap()->getTile(mX, mY - 1);
     fillStatus[1] = (tempTile != NULL) ? tempTile->getFullness() > 0.0 : false;
-    tempTile = getGameMap()->getTile(x - 1, y);
+    tempTile = getGameMap()->getTile(mX - 1, mY);
     fillStatus[2] = (tempTile != NULL) ? tempTile->getFullness() > 0.0 : false;
-    tempTile = getGameMap()->getTile(x + 1, y);
+    tempTile = getGameMap()->getTile(mX + 1, mY);
     fillStatus[3] = (tempTile != NULL) ? tempTile->getFullness() > 0.0 : false;
 
     int fullNeighbors = 0;
@@ -151,72 +151,72 @@ void Tile::setFullness(double f)
 
     //FIXME:  This needs to be updated to reflect the allowable fill states for each tile type
     // This is also where the logic for checking neighboring fullness should go
-    fullnessMeshNumber = 0;
+    mFullnessMeshNumber = 0;
     if (f > 0 && f <= 25)
-        fullnessMeshNumber = 25;
+        mFullnessMeshNumber = 25;
     else if (f > 25 && f <= 50)
     {
-        fullnessMeshNumber = 50;
+        mFullnessMeshNumber = 50;
         switch (fullNeighbors)
         {
             case 1:
-                fullnessMeshNumber = 51;
+                mFullnessMeshNumber = 51;
                 if (fillStatus[0])
                 {
-                    rotation = 270;
+                    mRotation = 270;
                     break;
                 }//correct
                 if (fillStatus[1])
                 {
-                    rotation = 90;
+                    mRotation = 90;
                     break;
                 }//correct
                 if (fillStatus[2])
                 {
-                    rotation = 0;
+                    mRotation = 0;
                     break;
                 }//correct
                 if (fillStatus[3])
                 {
-                    rotation = 180;
+                    mRotation = 180;
                     break;
                 }//correct
                 break;
 
             case 2:
-                fullnessMeshNumber = 52;
+                mFullnessMeshNumber = 52;
                 if (fillStatus[0] && fillStatus[2])
                 {
-                    rotation = 270;
+                    mRotation = 270;
                     break;
                 }//correct
                 if (fillStatus[0] && fillStatus[3])
                 {
-                    rotation = 180;
+                    mRotation = 180;
                     break;
                 }//correct
                 if (fillStatus[1] && fillStatus[2])
                 {
-                    rotation = 0;
+                    mRotation = 0;
                     break;
                 }//correct
                 if (fillStatus[1] && fillStatus[3])
                 {
-                    rotation = 90;
+                    mRotation = 90;
                     break;
                 }//correct
 
                 //TODO:  These next two options are for when the half full tile is in the middle of a wall, the need a separate mesh to be made.
                 if (fillStatus[0] && fillStatus[1])
                 {
-                    fullnessMeshNumber = 51;
-                    rotation = 0;
+                    mFullnessMeshNumber = 51;
+                    mRotation = 0;
                     break;
                 }//correct
                 if (fillStatus[2] && fillStatus[3])
                 {
-                    fullnessMeshNumber = 51;
-                    rotation = 90;
+                    mFullnessMeshNumber = 51;
+                    mRotation = 90;
                     break;
                 }//correct
                 break;
@@ -225,28 +225,28 @@ void Tile::setFullness(double f)
 
     else if (f > 50 && f <= 75)
     {
-        fullnessMeshNumber = 75;
+        mFullnessMeshNumber = 75;
         switch (fullNeighbors)
         {
             case 1:
                 if (fillStatus[0])
                 {
-                    rotation = 270;
+                    mRotation = 270;
                     break;
                 }//correct
                 if (fillStatus[1])
                 {
-                    rotation = 90;
+                    mRotation = 90;
                     break;
                 }//correct
                 if (fillStatus[2])
                 {
-                    rotation = 0;
+                    mRotation = 0;
                     break;
                 }//correct
                 if (fillStatus[3])
                 {
-                    rotation = 180;
+                    mRotation = 180;
                     break;
                 }//correct
                 break;
@@ -259,30 +259,30 @@ void Tile::setFullness(double f)
             //TODO:  Determine the rotation for each of these case statements
             int tempInt;
             case 0:
-                fullnessMeshNumber = 104;
-                rotation = 0;
+                mFullnessMeshNumber = 104;
+                mRotation = 0;
                 break;
 
             case 1:
-                fullnessMeshNumber = 103;
+                mFullnessMeshNumber = 103;
                 if (fillStatus[0])
                 {
-                    rotation = 180;
+                    mRotation = 180;
                     break;
                 }//correct
                 if (fillStatus[1])
                 {
-                    rotation = 0;
+                    mRotation = 0;
                     break;
                 }//correct
                 if (fillStatus[2])
                 {
-                    rotation = 270;
+                    mRotation = 270;
                     break;
                 }//correct
                 if (fillStatus[3])
                 {
-                    rotation = 90;
+                    mRotation = 90;
                     break;
                 }//correct
                 break;
@@ -301,33 +301,33 @@ void Tile::setFullness(double f)
                 switch (tempInt)
                 {
                     case 5:
-                        fullnessMeshNumber = 52;
-                        rotation = 270;
+                        mFullnessMeshNumber = 52;
+                        mRotation = 270;
                         break;
 
                     case 6:
-                        fullnessMeshNumber = 52;
-                        rotation = 0;
+                        mFullnessMeshNumber = 52;
+                        mRotation = 0;
                         break;
 
                     case 9:
-                        fullnessMeshNumber = 52;
-                        rotation = 180;
+                        mFullnessMeshNumber = 52;
+                        mRotation = 180;
                         break;
 
                     case 10:
-                        fullnessMeshNumber = 52;
-                        rotation = 90;
+                        mFullnessMeshNumber = 52;
+                        mRotation = 90;
                         break;
 
                     case 3:
-                        fullnessMeshNumber = 102;
-                        rotation = 0.0;
+                        mFullnessMeshNumber = 102;
+                        mRotation = 0.0;
                         break;
 
                     case 12:
-                        fullnessMeshNumber = 102;
-                        rotation = 90.0;
+                        mFullnessMeshNumber = 102;
+                        mRotation = 90.0;
                         break;
 
                     default:
@@ -340,32 +340,32 @@ void Tile::setFullness(double f)
                 break;
 
             case 3:
-                fullnessMeshNumber = 101; //this is wrong for now it should be 101
+                mFullnessMeshNumber = 101; //this is wrong for now it should be 101
                 if (!fillStatus[0])
                 {
-                    rotation = 90;
+                    mRotation = 90;
                     break;
                 }//correct
                 if (!fillStatus[1])
                 {
-                    rotation = 270;
+                    mRotation = 270;
                     break;
                 }
                 if (!fillStatus[2])
                 {
-                    rotation = 180;
+                    mRotation = 180;
                     break;
                 }
                 if (!fillStatus[3])
                 {
-                    rotation = 0;
+                    mRotation = 0;
                     break;
                 }
                 break;
 
             case 4:
-                fullnessMeshNumber = 100;
-                rotation = 0;
+                mFullnessMeshNumber = 100;
+                mRotation = 0;
                 break;
 
             default:
@@ -380,27 +380,27 @@ void Tile::setFullness(double f)
 
 void Tile::setFullnessValue(double f)
 {
-    fullness = f;
+    mFullness = f;
 }
 
 double Tile::getFullness() const
 {
-    return fullness;
+    return mFullness;
 }
 
 int Tile::getFullnessMeshNumber() const
 {
-    return fullnessMeshNumber;
+    return mFullnessMeshNumber;
 }
 
 bool Tile::permitsVision() const
 {
-    return (fullness == 0.0);
+    return (mFullness == 0.0);
 }
 
 bool Tile::isBuildableUpon() const
 {
-    if(type != claimed)
+    if(mType != claimed)
         return false;
     if(getFullness() > 0.0)
         return false;
@@ -435,14 +435,14 @@ bool Tile::isDiggable(Seat* seat) const
         return false;
 
     // Return true for common types.
-    if (type == dirt || type == gold)
+    if (mType == dirt || mType == gold)
         return true;
 
     // Return false for undiggable types.
-    if (type == lava || type == water || type == rock)
+    if (mType == lava || mType == water || mType == rock)
         return false;
 
-    if (type != claimed)
+    if (mType != claimed)
         return false;
 
     // type == claimed
@@ -462,7 +462,7 @@ bool Tile::isDiggable(Seat* seat) const
 
 bool Tile::isGroundClaimable() const
 {
-    return ((type == dirt || type == gold || type == claimed) && getFullness() == 0.0
+    return ((mType == dirt || mType == gold || mType == claimed) && getFullness() == 0.0
         && getCoveringRoom() == nullptr);
 }
 
@@ -471,7 +471,7 @@ bool Tile::isWallClaimable(Seat* seat)
     if (getFullness() == 0.0)
         return false;
 
-    if (type == lava || type == water || type == rock || type == gold)
+    if (mType == lava || mType == water || mType == rock || mType == gold)
         return false;
 
     // Check whether at least one neighbor is a claimed ground tile of the given seat
@@ -494,10 +494,10 @@ bool Tile::isWallClaimable(Seat* seat)
     if (foundClaimedGroundTile == false)
         return false;
 
-    if (type == dirt)
+    if (mType == dirt)
         return true;
 
-    if (type != claimed)
+    if (mType != claimed)
         return false;
 
     // type == claimed
@@ -543,14 +543,14 @@ bool Tile::isWallClaimedForSeat(Seat* seat)
     if (getFullness() == 0.0)
         return false;
 
-    if (type != claimed)
+    if (mType != claimed)
         return false;
 
     if (mClaimedPercentage < 1.0)
         return false;
 
     Seat* tileSeat = getSeat();
-    if(tileSeat == NULL)
+    if(tileSeat == nullptr)
         return false;
 
     if (tileSeat->canOwnedTileBeClaimedBy(seat))
@@ -566,10 +566,10 @@ const char* Tile::getFormat()
 
 std::ostream& operator<<(std::ostream& os, Tile *t)
 {
-    os << t->x << "\t" << t->y << "\t";
+    os << t->getX() << "\t" << t->getY() << "\t";
     os << t->getType() << "\t" << t->getFullness();
     Seat* seat = t->getSeat();
-    if(t->getType() != Tile::TileType::claimed || seat == NULL)
+    if(t->getType() != Tile::TileType::claimed || seat == nullptr)
         return os;
 
     os << "\t" << seat->getId();
@@ -613,7 +613,7 @@ void Tile::exportToPacket(ODPacket& os, Seat* seat)
     os << seatId;
     os << meshName;
     os << mScale;
-    os << getType() << fullness;
+    os << getType() << mFullness;
 }
 
 void Tile::updateFromPacket(ODPacket& is)
@@ -621,6 +621,7 @@ void Tile::updateFromPacket(ODPacket& is)
     int seatId;
     std::string meshName;
     std::stringstream ss;
+    double fullness;
 
     // We set the seat if there is one
     OD_ASSERT_TRUE(is >> mIsBuilding);
@@ -641,9 +642,9 @@ void Tile::updateFromPacket(ODPacket& is)
     ss.str(std::string());
     ss << "Level";
     ss << "_";
-    ss << x;
+    ss << getX();
     ss << "_";
-    ss << y;
+    ss << getY();
 
     setName(ss.str());
 
@@ -695,8 +696,8 @@ void Tile::loadFromLine(const std::string& line, Tile *t)
     tileName << yLocation;
 
     t->setName(tileName.str());
-    t->x = xLocation;
-    t->y = yLocation;
+    t->mX = xLocation;
+    t->mY = yLocation;
 
     Tile::TileType tileType = static_cast<Tile::TileType>(Helper::toInt(elems[2]));
     t->setType(tileType);
@@ -942,9 +943,9 @@ void Tile::setMarkedForDigging(bool ss, Player *pp)
 
 void Tile::setSelected(bool ss, Player* pp)
 {
-    if (selected != ss)
+    if (mSelected != ss)
     {
-        selected = ss;
+        mSelected = ss;
 
         RenderManager::getSingleton().rrTemporalMarkTile(this);
     }
@@ -1029,7 +1030,6 @@ void Tile::addNeighbor(Tile *n)
 
 void Tile::claimForSeat(Seat* seat, double nDanceRate)
 {
-
     // If the seat is allied, we add to it. If it is an enemy seat, we subtract from it.
     if (getSeat() != NULL && getSeat()->isAlliedSeat(seat))
     {
@@ -1106,12 +1106,12 @@ double Tile::digOut(double digRate, bool doScaleDigRate)
 
     double amountDug = 0.0;
 
-    if (getFullness() == 0.0 || type == lava || type == water || type == rock)
+    if (getFullness() == 0.0 || mType == lava || mType == water || mType == rock)
         return 0.0;
 
-    if (digRate >= fullness)
+    if (digRate >= mFullness)
     {
-        amountDug = fullness;
+        amountDug = mFullness;
         setFullness(0.0);
 
         setDirtyForAllSeats();
@@ -1130,7 +1130,7 @@ double Tile::digOut(double digRate, bool doScaleDigRate)
     else
     {
         amountDug = digRate;
-        setFullness(fullness - digRate);
+        setFullness(mFullness - digRate);
     }
 
     return amountDug;
@@ -1138,7 +1138,7 @@ double Tile::digOut(double digRate, bool doScaleDigRate)
 
 double Tile::scaleDigRate(double digRate)
 {
-    switch (type)
+    switch (mType)
     {
         case claimed:
             return 0.2 * digRate;
@@ -1454,7 +1454,7 @@ void Tile::computeVisibleTiles()
         return;
     }
 
-    if(type != claimed)
+    if(mType != claimed)
         return;
 
     if(getSeat() == nullptr)
@@ -1538,6 +1538,6 @@ void Tile::notifySeatsWithVision()
 
 std::string Tile::displayAsString(Tile* tile)
 {
-    return "[" + Ogre::StringConverter::toString(tile->x) + ","
-         + Ogre::StringConverter::toString(tile->y)+ "]";
+    return "[" + Ogre::StringConverter::toString(tile->getX()) + ","
+         + Ogre::StringConverter::toString(tile->getY())+ "]";
 }

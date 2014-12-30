@@ -45,6 +45,12 @@ public:
     //! \brief Creates a new creature whose class is probabalistic and adds it to the game map at the center of the portal.
     void spawnCreature();
 
+    //! \brief Portals only display claimed tiles on their ground.
+    virtual bool shouldDisplayBuildingTile()
+    {
+        return false;
+    }
+
 protected:
     void createMeshLocal();
     void destroyMeshLocal();

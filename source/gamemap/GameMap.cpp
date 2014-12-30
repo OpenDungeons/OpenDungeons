@@ -30,10 +30,6 @@
 
 #include "gamemap/TileCoordinateMap.h"
 
-#include "camera/CullingManager.h"
-#include "camera/MortuaryQuad.h"
-#include "camera/RadialVector2.h"
-
 #include "entities/Tile.h"
 #include "entities/Creature.h"
 #include "entities/MapLight.h"
@@ -142,7 +138,6 @@ private:
 
 GameMap::GameMap(bool isServerGameMap) :
         mIsServerGameMap(isServerGameMap),
-        mCullingManager(nullptr),
         mLocalPlayer(nullptr),
         mLocalPlayerNick(DEFAULT_NICK),
         mTurnNumber(-1),
@@ -425,9 +420,6 @@ void GameMap::addCreature(Creature *cc)
         + ", seatId=" + (cc->getSeat() != nullptr ? Ogre::StringConverter::toString(cc->getSeat()->getId()) : std::string("null")));
 
     mCreatures.push_back(cc);
-
-    if(!isServerGameMap())
-        mCullingManager->mMyCullingQuad.insert(cc);
 
     addAnimatedObject(cc);
     addActiveObject(cc);
@@ -1725,8 +1717,8 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
     if (!startTile->permitsVision())
         return tempVector;
 
-    int startX = startTile->x;
-    int startY = startTile->y;
+    int startX = startTile->getX();
+    int startY = startTile->getY();
     int sightRadiusSquared = (int)(sightRadius * sightRadius);
     std::list<std::pair<Tile*, double> > tileQueue;
 
@@ -1773,8 +1765,8 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
 
             // Calculate the obstructing tile's angular size and the direction to it.  We want to check if other tiles
             // are within deltaTheta of the calculated direction.
-            double dx = obstructingTile->x - startTile->x;
-            double dy = obstructingTile->y - startTile->y;
+            double dx = obstructingTile->getX() - startTile->getX();
+            double dy = obstructingTile->getY() - startTile->getY();
             double rsq = dx * dx + dy * dy;
             double deltaTheta = 1.5 / sqrt(rsq);
             tempAngle.fromCartesian(dx, dy);
@@ -2277,7 +2269,7 @@ void GameMap::clearGoalsForAllSeats()
 Ogre::Real GameMap::crowDistance(Tile *t1, Tile *t2)
 {
     if (t1 != NULL && t2 != NULL)
-        return crowDistance(t1->x, t2->x, t1->y, t2->y);
+        return crowDistance(t1->getX(), t2->getX(), t1->getY(), t2->getY());
     else
         return -1.0f;
 }
@@ -2579,13 +2571,13 @@ void GameMap::enableFloodFill()
 
 std::list<Tile*> GameMap::path(Creature *c1, Creature *c2, const Creature* creature, Seat* seat, bool throughDiggableTiles)
 {
-    return path(c1->getPositionTile()->x, c1->getPositionTile()->y,
-                c2->getPositionTile()->x, c2->getPositionTile()->y, creature, seat, throughDiggableTiles);
+    return path(c1->getPositionTile()->getX(), c1->getPositionTile()->getY(),
+                c2->getPositionTile()->getX(), c2->getPositionTile()->getY(), creature, seat, throughDiggableTiles);
 }
 
 std::list<Tile*> GameMap::path(Tile *t1, Tile *t2, const Creature* creature, Seat* seat, bool throughDiggableTiles)
 {
-    return path(t1->x, t1->y, t2->x, t2->y, creature, seat, throughDiggableTiles);
+    return path(t1->getX(), t1->getY(), t2->getX(), t2->getY(), creature, seat, throughDiggableTiles);
 }
 
 std::list<Tile*> GameMap::path(const Creature* creature, Tile* destination, bool throughDiggableTiles)
@@ -2607,7 +2599,7 @@ Ogre::Real GameMap::crowDistance(Creature *c1, Creature *c2)
     //TODO:  This is sub-optimal, improve it.
     Tile* tempTile1 = c1->getPositionTile();
     Tile* tempTile2 = c2->getPositionTile();
-    return crowDistance(tempTile1->x, tempTile1->y, tempTile2->x, tempTile2->y);
+    return crowDistance(tempTile1->getX(), tempTile1->getY(), tempTile2->getX(), tempTile2->getY());
 }
 
 void GameMap::processDeletionQueues()

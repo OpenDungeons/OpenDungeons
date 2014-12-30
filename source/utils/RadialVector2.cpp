@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "camera/RadialVector2.h"
+#include "utils/RadialVector2.h"
 
 #include "utils/Helper.h"
 

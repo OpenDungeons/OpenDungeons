@@ -198,7 +198,9 @@ bool ODFrameListener::frameRenderingQueued(const Ogre::FrameEvent& evt)
     CEGUI::System::getSingleton().getDefaultGUIContext().injectTimePulse(evt.timeSinceLastFrame);
 
     // Sleep to limit the framerate to the max value
-    // FIXME: This 2.0 should be a 1.0 but this gives the correct result.  This probably indicates a bug.
+    // Note: This 2.0 should be a 1.0 but this gives the correct result.
+    // As sleep functions can't be too accurate themselves (as they do take time to compute after all)
+    // Thus, giving some free time to them helps getting the correct behaviour...
     double frameDelay = (2.0 / ODApplication::MAX_FRAMES_PER_SECOND) - evt.timeSinceLastFrame;
     if (frameDelay > 0.0)
     {

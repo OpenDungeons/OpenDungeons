@@ -20,10 +20,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//TODO: The event handlers should be call functions to AS instead of hardcoded so that we can
-//      script the GUI actions. Maybe even register CEGUI to AS to make it fully scripted?
-//      Then we could easily adjust the GUI without recompiling.
-
 #include "render/Gui.h"
 
 #include "render/ODFrameListener.h"
@@ -70,8 +66,11 @@ Gui::Gui()
 
     CEGUI::SchemeManager::getSingleton().createFromFile("OpenDungeonsSkin.scheme");
 
-    // CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setImage("OpenDungeons/MouseArrow");
-    // CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setVisible(true);
+    // Needed to get the correct offset when using up to CEGUI 0.8.4
+    // We're thus using an empty mouse cursor.
+    CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setDefaultImage("OpenDungeonsSkin/MouseArrow");
+    CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setVisible(true);
+
     CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultTooltipType("OD/Tooltip");
 
     CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
