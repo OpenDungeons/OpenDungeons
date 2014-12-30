@@ -167,8 +167,8 @@ void RoomPortal::recomputeCenterPosition()
     for (unsigned int i = 0; i < mCoveredTiles.size(); ++i)
     {
         Tile *tempTile = mCoveredTiles[i];
-        mXCenter += tempTile->x;
-        mYCenter += tempTile->y;
+        mXCenter += tempTile->getX();
+        mYCenter += tempTile->getY();
     }
 
     mXCenter /= static_cast<double>(mCoveredTiles.size());

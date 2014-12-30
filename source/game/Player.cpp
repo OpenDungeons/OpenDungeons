@@ -164,8 +164,8 @@ MovableGameEntity* Player::dropHand(Tile *t, unsigned int index)
     if(entity->getObjectType() == GameEntity::ObjectType::creature)
     {
         Creature* creature = static_cast<Creature*>(entity);
-        creature->drop(Ogre::Vector3(static_cast<Ogre::Real>(t->x),
-            static_cast<Ogre::Real>(t->y), 0.0));
+        creature->drop(Ogre::Vector3(static_cast<Ogre::Real>(t->getX()),
+            static_cast<Ogre::Real>(t->getY()), 0.0));
 
         if (!mGameMap->isServerGameMap() && (this == mGameMap->getLocalPlayer()))
         {
@@ -175,8 +175,8 @@ MovableGameEntity* Player::dropHand(Tile *t, unsigned int index)
     else if(entity->getObjectType() == GameEntity::ObjectType::renderedMovableEntity)
     {
         RenderedMovableEntity* obj = static_cast<RenderedMovableEntity*>(entity);
-        obj->drop(Ogre::Vector3(static_cast<Ogre::Real>(t->x),
-            static_cast<Ogre::Real>(t->y), 0.0));
+        obj->drop(Ogre::Vector3(static_cast<Ogre::Real>(t->getX()),
+            static_cast<Ogre::Real>(t->getY()), 0.0));
     }
 
     if(mGameMap->isServerGameMap())

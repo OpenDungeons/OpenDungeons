@@ -113,7 +113,7 @@ void RoomCrypt::doUpkeep()
             continue;
 
         SmallSpiderEntity* spider = new SmallSpiderEntity(getGameMap(), getName(), 10);
-        Ogre::Vector3 pos(static_cast<Ogre::Real>(tile->x), static_cast<Ogre::Real>(tile->y), 0.0f);
+        Ogre::Vector3 pos(static_cast<Ogre::Real>(tile->getX()), static_cast<Ogre::Real>(tile->getY()), 0.0f);
         getGameMap()->addRenderedMovableEntity(spider);
         spider->createMesh();
         spider->setPosition(pos, false);

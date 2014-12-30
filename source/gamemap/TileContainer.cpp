@@ -55,11 +55,14 @@ void TileContainer::clearTiles()
 
 bool TileContainer::addTile(Tile* t)
 {
-    if (t->x < getMapSizeX() && t->y < getMapSizeY() && t->x >= 0 && t->y >= 0)
+    int x = t->getX();
+    int y = t->getY();
+
+    if (x < getMapSizeX() && y < getMapSizeY() && x >= 0 && y >= 0)
     {
-        if(mTiles[t->x][t->y] != NULL)
-            mTiles[t->x][t->y]->deleteYourself();
-        mTiles[t->x][t->y] = t;
+        if(mTiles[x][y] != nullptr)
+            mTiles[x][y]->deleteYourself();
+        mTiles[x][y] = t;
         return true;
     }
 
@@ -70,7 +73,7 @@ void TileContainer::setTileNeighbors(Tile *t)
 {
     for (unsigned int i = 0; i < 2; ++i)
     {
-        int tempX = t->x, tempY = t->y;
+        int tempX = t->getX(), tempY = t->getY();
         switch (i)
         {
         case 0:

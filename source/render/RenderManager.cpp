@@ -322,7 +322,7 @@ void RenderManager::rrCreateTile(Tile* curTile, Player* localPlayer)
         meshPtr->buildTangentVectors(Ogre::VES_TANGENT, src, dest);
     }
 
-    node->setPosition(static_cast<Ogre::Real>(curTile->x), static_cast<Ogre::Real>(curTile->y), 0);
+    node->setPosition(static_cast<Ogre::Real>(curTile->getX()), static_cast<Ogre::Real>(curTile->getY()), 0);
 
     node->attachObject(ent);
     curTile->setParentSceneNode(node->getParentSceneNode());
@@ -706,14 +706,14 @@ void RenderManager::rrCreateCreatureVisualDebug(Creature* curCreature, Tile* cur
     {
         std::stringstream tempSS;
         tempSS << "Vision_indicator_" << curCreature->getName() << "_"
-            << curTile->x << "_" << curTile->y;
+            << curTile->getX() << "_" << curTile->getY();
 
         Ogre::Entity* visIndicatorEntity = mSceneManager->createEntity(tempSS.str(),
                                            "Cre_vision_indicator.mesh");
         Ogre::SceneNode* visIndicatorNode = mCreatureSceneNode->createChildSceneNode(tempSS.str()
                                             + "_node");
         visIndicatorNode->attachObject(visIndicatorEntity);
-        visIndicatorNode->setPosition(Ogre::Vector3((Ogre::Real)curTile->x, (Ogre::Real)curTile->y, (Ogre::Real)0));
+        visIndicatorNode->setPosition(Ogre::Vector3((Ogre::Real)curTile->getX(), (Ogre::Real)curTile->getY(), (Ogre::Real)0));
         visIndicatorNode->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,
                                    BLENDER_UNITS_PER_OGRE_UNIT,
                                    BLENDER_UNITS_PER_OGRE_UNIT));
@@ -724,7 +724,7 @@ void RenderManager::rrDestroyCreatureVisualDebug(Creature* curCreature, Tile* cu
 {
     std::stringstream tempSS;
     tempSS << "Vision_indicator_" << curCreature->getName() << "_"
-        << curTile->x << "_" << curTile->y;
+        << curTile->getX() << "_" << curTile->getY();
     if (mSceneManager->hasEntity(tempSS.str()))
     {
         Ogre::Entity* visIndicatorEntity = mSceneManager->getEntity(tempSS.str());
@@ -742,14 +742,14 @@ void RenderManager::rrCreateSeatVisionVisualDebug(int seatId, Tile* tile)
     {
         std::stringstream tempSS;
         tempSS << "Seat_Vision_indicator" << seatId << "_"
-            << tile->x << "_" << tile->y;
+            << tile->getX() << "_" << tile->getY();
 
         Ogre::Entity* visIndicatorEntity = mSceneManager->createEntity(tempSS.str(),
                                            "Cre_vision_indicator.mesh");
         Ogre::SceneNode* visIndicatorNode = mCreatureSceneNode->createChildSceneNode(tempSS.str()
                                             + "_node");
         visIndicatorNode->attachObject(visIndicatorEntity);
-        visIndicatorNode->setPosition(Ogre::Vector3((Ogre::Real)tile->x, (Ogre::Real)tile->y, (Ogre::Real)0));
+        visIndicatorNode->setPosition(Ogre::Vector3((Ogre::Real)tile->getX(), (Ogre::Real)tile->getY(), (Ogre::Real)0));
         visIndicatorNode->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,
                                    BLENDER_UNITS_PER_OGRE_UNIT,
                                    BLENDER_UNITS_PER_OGRE_UNIT));
@@ -760,7 +760,7 @@ void RenderManager::rrDestroySeatVisionVisualDebug(int seatId, Tile* tile)
 {
     std::stringstream tempSS;
     tempSS << "Seat_Vision_indicator" << seatId << "_"
-        << tile->x << "_" << tile->y;
+        << tile->getX() << "_" << tile->getY();
     if (mSceneManager->hasEntity(tempSS.str()))
     {
         Ogre::Entity* visIndicatorEntity = mSceneManager->getEntity(tempSS.str());

@@ -1115,18 +1115,18 @@ bool Creature::handleIdleAction()
                             == CreatureAction::digTile)
                     {
                         // Worker is digging, get near it since it could expose enemies.
-                        int x = (int)(static_cast<double>(tempTile->x) + 3.0
+                        int x = (int)(static_cast<double>(tempTile->getX()) + 3.0
                                 * Random::gaussianRandomDouble());
-                        int y = (int)(static_cast<double>(tempTile->y) + 3.0
+                        int y = (int)(static_cast<double>(tempTile->getY()) + 3.0
                                 * Random::gaussianRandomDouble());
                         tileDest = getGameMap()->getTile(x, y);
                     }
                     else
                     {
                         // Worker is not digging, wander a bit farther around the worker.
-                        int x = (int)(static_cast<double>(tempTile->x) + 8.0
+                        int x = (int)(static_cast<double>(tempTile->getX()) + 8.0
                                 * Random::gaussianRandomDouble());
-                        int y = (int)(static_cast<double>(tempTile->y) + 8.0
+                        int y = (int)(static_cast<double>(tempTile->getY()) + 8.0
                                 * Random::gaussianRandomDouble());
                         tileDest = getGameMap()->getTile(x, y);
                     }
@@ -1260,7 +1260,7 @@ bool Creature::handleClaimTileAction()
                         && tempTile2->getClaimedPercentage() >= 1.0)
                 {
                     clearDestinations();
-                    addDestination((Ogre::Real)tempTile->x, (Ogre::Real)tempTile->y);
+                    addDestination((Ogre::Real)tempTile->getX(), (Ogre::Real)tempTile->getY());
                     setAnimationState("Walk");
                     return false;
                 }
@@ -1399,7 +1399,7 @@ bool Creature::handleClaimWallTileAction()
             continue;
 
         // Dig out the tile by decreasing the tile's fullness.
-        Ogre::Vector3 walkDirection(tempTile->x - getPosition().x, tempTile->y - getPosition().y, 0);
+        Ogre::Vector3 walkDirection(tempTile->getX() - getPosition().x, tempTile->getY() - getPosition().y, 0);
         walkDirection.normalise();
         setAnimationState("Claim", true, walkDirection);
         tempTile->claimForSeat(getSeat(), mClaimRate);
@@ -1519,7 +1519,7 @@ bool Creature::handleDigTileAction()
         }
 
         // Dig out the tile by decreasing the tile's fullness.
-        Ogre::Vector3 walkDirection(tempTile->x - getPosition().x, tempTile->y - getPosition().y, 0);
+        Ogre::Vector3 walkDirection(tempTile->getX() - getPosition().x, tempTile->getY() - getPosition().y, 0);
         walkDirection.normalise();
         setAnimationState("Dig", true, walkDirection);
         double amountDug = tempTile->digOut(mDigRate, true);
@@ -1536,7 +1536,7 @@ bool Creature::handleDigTileAction()
                 // Remove the dig action and replace it with
                 // walking to the newly dug out tile.
                 //popAction();
-                addDestination((Ogre::Real)tempTile->x, (Ogre::Real)tempTile->y);
+                addDestination((Ogre::Real)tempTile->getX(), (Ogre::Real)tempTile->getY());
                 pushAction(CreatureAction::walkToTile);
             }
             //Set sound position and play dig sound.
@@ -1724,7 +1724,7 @@ bool Creature::handleDepositGoldAction()
         return true;
     TreasuryObject* obj = new TreasuryObject(getGameMap(), mGold);
     mGold = 0;
-    Ogre::Vector3 pos(static_cast<Ogre::Real>(tile->x), static_cast<Ogre::Real>(tile->y), 0.0f);
+    Ogre::Vector3 pos(static_cast<Ogre::Real>(tile->getX()), static_cast<Ogre::Real>(tile->getY()), 0.0f);
     getGameMap()->addRenderedMovableEntity(obj);
     obj->createMesh();
     obj->setPosition(pos, false);
@@ -2194,7 +2194,7 @@ bool Creature::handleAttackAction()
     // We check what we are attacking.
 
     // Turn to face the creature we are attacking and set the animation state to Attack.
-    Ogre::Vector3 walkDirection(attackedTile->x - getPosition().x, attackedTile->y - getPosition().y, 0);
+    Ogre::Vector3 walkDirection(attackedTile->getX() - getPosition().x, attackedTile->getY() - getPosition().y, 0);
     walkDirection.normalise();
     setAnimationState("Attack1", false, walkDirection);
 
@@ -3241,8 +3241,8 @@ bool Creature::fightInRangeObjectInList(const std::vector<GameEntity*>& listObje
             if (tempTile == NULL)
                 continue;
 
-            double rSquared = std::pow(tileCreature->x - tempTile->x, 2.0) + std::pow(
-                    tileCreature->y - tempTile->y, 2.0);
+            double rSquared = std::pow(tileCreature->getX() - tempTile->getX(), 2.0)
+                            + std::pow(tileCreature->getY() - tempTile->getY(), 2.0);
 
             if (rSquared <= weaponRangeSquared)
             {

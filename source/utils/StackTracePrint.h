@@ -38,6 +38,7 @@ namespace StackTracePrint
 {
 
 //! \brief This structure mirrors the one found in /usr/include/asm/ucontext.h
+//! \note: Its members should stay same named.
 typedef struct _sig_ucontext
 {
     unsigned long     uc_flags;
@@ -48,7 +49,7 @@ typedef struct _sig_ucontext
 } sig_ucontext_t;
 
 //! \brief Handles critical error stack trace printing.
-void critErrHandler(int sig_num, siginfo_t * info, void * ucontext);
+void critErrHandler(int sig_num, siginfo_t* info, void* ucontext);
 
 }
 

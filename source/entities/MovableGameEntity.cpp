@@ -111,7 +111,7 @@ bool MovableGameEntity::setWalkPath(std::list<Tile*> path,
         // Loop over the path adding each tile as a destination in the walkQueue.
         while (itr != path.end())
         {
-            addDestination((*itr)->x, (*itr)->y);
+            addDestination((*itr)->getX(), (*itr)->getY());
             ++itr;
         }
 

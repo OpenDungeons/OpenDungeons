@@ -111,8 +111,8 @@ RenderedMovableEntity* Building::loadBuildingObject(GameMap* gameMap, const std:
     if(targetTile == NULL)
         return NULL;
 
-    return loadBuildingObject(gameMap, meshName, targetTile, static_cast<double>(targetTile->x),
-        static_cast<double>(targetTile->y), rotationAngle, hideCoveredTile, opacity);
+    return loadBuildingObject(gameMap, meshName, targetTile, static_cast<double>(targetTile->getX()),
+        static_cast<double>(targetTile->getY()), rotationAngle, hideCoveredTile, opacity);
 }
 
 RenderedMovableEntity* Building::loadBuildingObject(GameMap* gameMap, const std::string& meshName,
@@ -251,8 +251,8 @@ double Building::takeDamage(GameEntity* attacker, double physicalDamage, double 
 
 std::string Building::getNameTile(Tile* tile)
 {
-    return getMeshName() + "_tile_" + Ogre::StringConverter::toString(tile->x)
-        + "_" + Ogre::StringConverter::toString(tile->y);
+    return getMeshName() + "_tile_" + Ogre::StringConverter::toString(tile->getX())
+        + "_" + Ogre::StringConverter::toString(tile->getY());
 }
 
 bool Building::isAttackable() const

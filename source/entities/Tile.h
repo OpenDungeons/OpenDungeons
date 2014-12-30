@@ -68,21 +68,21 @@ public:
         claimed = 6
     };
 
-    Tile(GameMap* gameMap, int nX = 0, int nY = 0, TileType nType = dirt, double nFullness = 100.0);
+    Tile(GameMap* gameMap, int x = 0, int y = 0, TileType type = dirt, double fullness = 100.0);
 
     std::string getOgreNamePrefix() const { return "Tile_"; }
 
-    /*! \brief A mutator to set the type (rock, claimed, etc.) of the tile.
+    /*! \brief Set the type (rock, claimed, etc.) of the tile.
      *
      * In addition to setting the tile type this function also reloads the new mesh
      * for the tile.
      */
     void setType(TileType t);
 
-    //! \brief An accessor which returns the tile type (rock, claimed, etc.).
+    //! \brief Returns the tile type (rock, claimed, etc.).
     TileType getType() const
     {
-        return type;
+        return mType;
     }
 
     /*! \brief A mutator to change how "filled in" the tile is.
@@ -139,12 +139,12 @@ public:
     virtual const Ogre::Vector3& getScale() const
     { return mScale; }
 
-    //! \brief This function marks the tile as being selected through a mouse click or drag.
-    void setSelected(bool ss, Player *pp);
+    //! \brief Marks the tile as being selected through a mouse click or drag.
+    void setSelected(bool ss, Player* pp);
 
-    //! \brief This accessor function returns whether or not the tile has been selected.
+    //! \brief Returns whether or not the tile has been selected.
     bool getSelected() const
-    { return selected; }
+    { return mSelected; }
 
     inline bool getIsBuilding() const
     { return mIsBuilding; }
@@ -156,10 +156,10 @@ public:
     { return mLocalPlayerHasVision; }
 
     //! \brief Set the tile digging mark for the given player.
-    void setMarkedForDigging(bool s, Player *p);
+    void setMarkedForDigging(bool s, Player* p);
 
     //! \brief This accessor function returns whether or not the tile has been marked to be dug out by a given Player p.
-    bool getMarkedForDigging(Player *p);
+    bool getMarkedForDigging(Player* p);
 
     //! \brief This is a simple helper function which just calls setMarkedForDigging() for everyone in the game except
     //! allied to exceptSeat. If exceptSeat is NULL, it is called for every player
@@ -196,14 +196,17 @@ public:
 
     Building* getCoveringBuilding() const
     { return mCoveringBuilding; }
+
     //! \brief Proxy that checks if there is a covering building and if it is a room. If yes, returns
     //! a pointer to the covering room
     Room* getCoveringRoom() const;
+
     //! \brief Proxy that checks if there is a covering building and if it is a trap. If yes, returns
     //! a pointer to the covering trap
     Trap* getCoveringTrap() const;
 
-    void setCoveringBuilding(Building *building);
+    void setCoveringBuilding(Building* building);
+
     //! \brief Add a tresaury object in this tile. There can be only one per tile so if there is already one, they are merged
     bool addTreasuryObject(TreasuryObject* object);
 
@@ -218,6 +221,7 @@ public:
     //! \brief Tells whether the tile is a wall (fullness > 1) and can be claimed for the given seat.
     //! Reinforced walls by another team and hard rocks can't be claimed.
     bool isWallClaimable(Seat* seat);
+
     //! \brief Tells whether the tile is claimed for the given seat.
     bool isClaimedForSeat(Seat* seat) const;
 
@@ -256,11 +260,11 @@ public:
      */
     static std::string tileTypeToString(TileType t);
 
-    int getX() const
-    { return x; }
+    inline int getX() const
+    { return mX; }
 
-    int getY() const
-    { return y; }
+    inline int getY() const
+    { return mY; }
 
     double getClaimedPercentage()
     {
@@ -272,15 +276,21 @@ public:
 
     static std::string displayAsString(Tile* tile);
 
-    int x, y;
-    Ogre::Real rotation;
+    void doUpkeep()
+    {}
 
-    void doUpkeep(){}
-    void receiveExp(double experience){}
-    double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile *tileTakingDamage)
+    void receiveExp(double experience)
+    {}
+
+    double takeDamage(GameEntity* attacker, double physicalDamage,
+                      double magicalDamage, Tile *tileTakingDamage)
     { return 0.0; }
-    double getHP(Tile *tile) const {return 0;}
-    std::vector<Tile*> getCoveredTiles() { return std::vector<Tile*>() ;}
+
+    double getHP(Tile *tile) const
+    { return 0.0; }
+
+    std::vector<Tile*> getCoveredTiles()
+    { return std::vector<Tile*>(); }
 
     //! \brief Fills entities with all the attackable creatures in the Tile. If invert is true,
     //! the list will be filled with the ennemies with the given seat. If invert is false, it will be filled
@@ -319,33 +329,47 @@ private:
         FloodFillTypeMax
     };
 
-    TileType type;
-    bool selected;
+    //! \brief The tile position
+    int mX, mY;
 
-    double fullness;
-    int fullnessMeshNumber;
+    //! \brief The tile rotation value, in degrees.
+    Ogre::Real mRotation;
+
+    //! \brief The tile type: Claimed, Dirt, Gold, ...
+    TileType mType;
+
+    //! \brief Whether the tile is selected.
+    bool mSelected;
+
+    //! \brief The tile fullness (0.0 - 100.0).
+    //! At 0.0, it is a ground tile, at 100.0, it is a wall.
+    double mFullness;
+
+    //! \brief The mesh number corresponding ot the current fullness
+    int mFullnessMeshNumber;
 
     std::vector<Tile*> mNeighbors;
     std::vector<Player*> mPlayersMarkingTile;
     std::vector<std::pair<Seat*, bool>> mTileChangedForSeats;
     std::vector<Seat*> mSeatsWithVision;
 
-    /*! \brief List of the entities actually on this tile. Most of the creatures actions will rely on this list
-     */
+    //! \brief List of the entities actually on this tile. Most of the creatures actions will rely on this list
     std::vector<GameEntity*> mEntitiesInTile;
+
     Building* mCoveringBuilding;
     int mFloodFillColor[FloodFillTypeMax];
     double mClaimedPercentage;
     Ogre::Vector3 mScale;
 
-    //! true if a building is on this tile. False otherwise. It is used on client side because the clients do not know about
+    //! \brief True if a building is on this tile. False otherwise. It is used on client side because the clients do not know about
     //! buildings. However, it needs to know the tiles where a building is to display the room/trap costs.
     bool mIsBuilding;
 
-    //! Used on client side. true if the local player has vision, false otherwise.
+    //! \brief Used on client side. true if the local player has vision, false otherwise.
     bool mLocalPlayerHasVision;
 
-    //! Used on client side. Set when a tile is refreshed. It allows to know if the tile can be marked for digging by the local player
+    //! \brief Used on client side. Set when a tile is refreshed.
+    //! It allows to know if the tile can be marked for digging by the local player.
     bool mLocalPlayerCanMarkTile;
 
     /*! \brief Set the fullness value for the tile.

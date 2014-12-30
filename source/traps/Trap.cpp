@@ -497,7 +497,7 @@ void Trap::exportToPacket(ODPacket& os) const
     os << nbTiles;
     for(Tile* tempTile : mCoveredTiles)
     {
-        os << tempTile->x << tempTile->y;
+        os << tempTile->getX() << tempTile->getY();
     }
 }
 
@@ -532,7 +532,7 @@ void Trap::exportToStream(std::ostream& os) const
     os << seatId << "\t" << nbTiles << "\n";
     for(Tile* tempTile : mCoveredTiles)
     {
-        os << tempTile->x << "\t" << tempTile->y << "\t";
+        os << tempTile->getX() << "\t" << tempTile->getY() << "\t";
         os << (isActivated(tempTile) ? 1 : 0) << "\n";
     }
 }

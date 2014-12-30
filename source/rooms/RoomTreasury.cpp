@@ -105,7 +105,8 @@ bool RoomTreasury::removeCoveredTile(Tile* t)
                 + Ogre::StringConverter::toString(value));
             TreasuryObject* obj = new TreasuryObject(getGameMap(), value);
             getGameMap()->addRenderedMovableEntity(obj);
-            Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(t->x), static_cast<Ogre::Real>(t->y), 0.0f);
+            Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(t->getX()),
+                                        static_cast<Ogre::Real>(t->getY()), 0.0f);
             obj->createMesh();
             obj->setPosition(spawnPosition, false);
         }

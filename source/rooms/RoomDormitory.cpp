@@ -140,7 +140,7 @@ bool RoomDormitory::claimTileForSleeping(Tile* t, Creature* c)
     if (!spaceIsBigEnough)
         return false;
 
-    BedRoomObjectInfo bedInfo(t->x + xDim / 2.0 - 0.5, t->y + yDim / 2.0 - 0.5,
+    BedRoomObjectInfo bedInfo(t->getX() + xDim / 2.0 - 0.5, t->getY() + yDim / 2.0 - 0.5,
         rotationAngle, c, t);
 
     // Mark all of the affected tiles as having this creature sleeping in them.
@@ -148,7 +148,7 @@ bool RoomDormitory::claimTileForSleeping(Tile* t, Creature* c)
     {
         for (int j = 0; j < yDim; ++j)
         {
-            Tile *tempTile = getGameMap()->getTile(t->x + i, t->y + j);
+            Tile *tempTile = getGameMap()->getTile(t->getX() + i, t->getY() + j);
             mCreatureSleepingInTile[tempTile] = c;
             bedInfo.addTileTaken(tempTile);
         }
@@ -260,8 +260,8 @@ bool RoomDormitory::tileCanAcceptBed(Tile *tile, int xDim, int yDim)
     std::vector<Tile*> tempTiles = getOpenTiles();
     for (unsigned int i = 0; i < tempTiles.size(); ++i)
     {
-        int xDist = tempTiles[i]->x - tile->x;
-        int yDist = tempTiles[i]->y - tile->y;
+        int xDist = tempTiles[i]->getX() - tile->getX();
+        int yDist = tempTiles[i]->getY() - tile->getY();
         if (xDist >= 0 && xDist < xDim && yDist >= 0 && yDist < yDim)
             tileOpen[xDist][yDist] = true;
     }
