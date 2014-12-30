@@ -421,7 +421,8 @@ void GameMap::saveLevelEquipments(std::ofstream& levelFile)
 
 void GameMap::addCreature(Creature *cc)
 {
-    LogManager::getSingleton().logMessage(serverStr() + "Adding Creature " + cc->getName());
+    LogManager::getSingleton().logMessage(serverStr() + "Adding Creature " + cc->getName()
+        + ", seatId=" + (cc->getSeat() != nullptr ? Ogre::StringConverter::toString(cc->getSeat()->getId()) : std::string("null")));
 
     mCreatures.push_back(cc);
 
@@ -435,6 +436,8 @@ void GameMap::addCreature(Creature *cc)
 
 void GameMap::removeCreature(Creature *c)
 {
+    LogManager::getSingleton().logMessage(serverStr() + "Removing Creature " + c->getName());
+
     std::vector<Creature*>::iterator it = std::find(mCreatures.begin(), mCreatures.end(), c);
     OD_ASSERT_TRUE_MSG(it != mCreatures.end(), "creature name=" + c->getName());
     if(it == mCreatures.end())
@@ -1122,9 +1125,8 @@ unsigned long int GameMap::doMiscUpkeep()
 
     // At each upkeep, we re-compute tiles with vision
     for (Seat* seat : mSeats)
-    {
         seat->clearTilesWithVision();
-    }
+
     for (int jj = 0; jj < getMapSizeY(); ++jj)
     {
         for (int ii = 0; ii < getMapSizeX(); ++ii)
@@ -2132,6 +2134,8 @@ void GameMap::addMapLight(MapLight *m)
 
 void GameMap::removeMapLight(MapLight *m)
 {
+    LogManager::getSingleton().logMessage(serverStr() + "Removing MapLight " + m->getName());
+
     std::vector<MapLight*>::iterator it = std::find(mMapLights.begin(), mMapLights.end(), m);
     OD_ASSERT_TRUE_MSG(it != mMapLights.end(), "MapLight name=" + m->getName());
     if(it == mMapLights.end())
@@ -3046,14 +3050,7 @@ void GameMap::updateVisibleEntities()
 {
     // Notify changes on visible tiles
     for(Seat* seat : mSeats)
-    {
-        if(seat->getPlayer() == nullptr)
-            continue;
-        if(!seat->getPlayer()->getIsHuman())
-            continue;
-
         seat->notifyChangedVisibleTiles();
-    }
 
     // Notify what happened to entities on visible tiles
     for (int jj = 0; jj < getMapSizeY(); ++jj)

@@ -251,6 +251,8 @@ void RenderManager::rrRefreshTile(Tile* curTile, Player* localPlayer)
             if(curTile->getFullness() == 0.0)
                 vision = curTile->getLocalPlayerHasVision();
 
+            // We don't want dirt tiles to get colored by the seat
+            seatColorize = nullptr;
             break;
         }
         case Tile::claimed:
@@ -1060,8 +1062,10 @@ void RenderManager::rrCarryEntity(Creature* carrier, MovableGameEntity* carried)
     Ogre::SceneNode* carriedNode = mSceneManager->getSceneNode(carriedEnt->getName() + "_node");
     carried->getParentSceneNode()->removeChild(carriedNode);
     carriedNode->setInheritScale(false);
-    carriedNode->setPosition(carrierNode->getPosition());
     carrierNode->addChild(carriedNode);
+    // We want the carried object to be at half tile (z = 0.5)
+    Ogre::Real z = 0.5 / carrier->getScale().z;
+    carriedNode->setPosition(Ogre::Vector3(0, 0, z));
 }
 
 void RenderManager::rrReleaseCarriedEntity(Creature* carrier, MovableGameEntity* carried)

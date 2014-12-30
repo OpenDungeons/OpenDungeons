@@ -770,7 +770,10 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
                 // If a player is assigned to this seat, we create his spawn pool
                 if(seat->getPlayer() != nullptr)
+                {
                     seat->initSpawnPool();
+                    seat->setMapSize(gameMap->getMapSizeX(), gameMap->getMapSizeY());
+                }
                 else
                     LogManager::getSingleton().logMessage("No spawn pool created for seat id="
                         + Ogre::StringConverter::toString(seat->getId()));
@@ -838,7 +841,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             Player* player = clientSocket->getPlayer();
             ODPacket packetSend;
             std::string nick = player->getNick();
-            ServerNotification notif(ServerNotification::chat, player);
+            ServerNotification notif(ServerNotification::chat, nullptr);
             notif.mPacket << nick << chatMsg;
             sendAsyncMsg(notif);
             break;
@@ -1043,7 +1046,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             room->setupRoom(gameMap->nextUniqueNameRoom(room->getMeshName()), player->getSeat(), tiles);
             gameMap->addRoom(room);
             // We notify the clients with vision of the changed tiles. Note that we need
-            // to calculate per seat since the could have vision on different parts of the building
+            // to calculate per seat since they could have vision on different parts of the building
             std::map<Seat*,std::vector<Tile*>> tilesPerSeat;
             const std::vector<Seat*>& seats = gameMap->getSeats();
             for(Seat* seat : seats)
