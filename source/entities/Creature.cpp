@@ -15,11 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*TODO list:
- * - replace hardcoded calculations by scripts and/or read the numbers from XML defintion files
- * - the doUpkeep() functions needs script support
- */
-
 #include "entities/Creature.h"
 
 #include "entities/CreatureAction.h"

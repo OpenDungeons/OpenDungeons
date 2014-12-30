@@ -86,7 +86,6 @@
     <Image height="6" name="MultiLineEditboxBottomLeft" width="6" xPos="41" yPos="100" />
     <Image height="7" name="MultiLineEditboxBottomRight" width="7" xPos="60" yPos="98" />
     <Image height="8" name="MultiLineEditboxBackdrop" width="8" xPos="50" yPos="88" />
-    <Image height="18" name="MouseArrow" width="17" xPos="138" yPos="127" />
     <Image height="1" name="TabHorizontalFiller" width="8" xPos="195" yPos="201" />
     <Image height="8" name="TabContentPaneMiddle" width="8" xPos="50" yPos="88" />
     <Image height="17" name="TabButtonScrollLeftNormal" width="16" xPos="96" yPos="108" />

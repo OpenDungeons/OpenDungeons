@@ -93,6 +93,7 @@
     <Image height="8" name="TooltipLeftEdge" width="4" xPos="67" yPos="96" />
     <Image height="8" name="TooltipRightEdge" width="4" xPos="103" yPos="96" />
     <Image height="8" name="TooltipMiddle" width="32" xPos="71" yPos="96" />
+    <Image height="12" name="MouseArrow" width="12" xPos="0" yPos="0" />
     <Image height="13" name="MouseMoveCursor" width="13" xPos="184" yPos="45" />
     <Image height="13" name="MouseNoSoCursor" width="6" xPos="143" yPos="45" />
     <Image height="5" name="MouseEsWeCursor" width="13" xPos="124" yPos="49" />
