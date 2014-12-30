@@ -41,8 +41,6 @@ setcamerafovy
 setcolor
 setdest
 setlevel
-startcreatureculling
-starttileculling
 switchpolygonmode
 termwidth
 tps

@@ -36,7 +36,6 @@
 class GameMap;
 class Creature;
 class Weapon;
-class CullingQuad;
 
 namespace CEGUI
 {
@@ -55,7 +54,6 @@ class Window;
  */
 class Creature: public MovableGameEntity
 {
-    friend class CullingQuad;
     friend class ODClient;
 public:
     //! \brief Constructor for creatures. It generates an unique name
@@ -116,8 +114,7 @@ public:
     { return mDefinition; }
 
     /*! \brief Changes the creature's position to a new position.
-     *  This is an overloaded function which just calls MovableGameEntity::setPosition and
-     *  handles culling.
+     *  This is an overloaded function which just calls MovableGameEntity::setPosition.
      */
     void setPosition(const Ogre::Vector3& v, bool isMove);
 
@@ -277,11 +274,6 @@ public:
     virtual void importFromPacket(ODPacket& is);
     virtual void exportToStream(std::ostream& os) const;
     virtual void importFromStream(std::istream& is);
-    inline void setQuad(CullingQuad* cq)
-    { mTracingCullingQuad = cq; }
-
-    inline CullingQuad* getQuad()
-    { return mTracingCullingQuad; }
 
     //! \brief Checks if the creature can be picked up. If yes, this function does the needed
     //! to prepare for the pickup (removing creature from GameMap, changing states, ...).
@@ -357,8 +349,6 @@ private:
     Creature(GameMap* gameMap);
 
     void fireCreatureRefresh();
-
-    CullingQuad* mTracingCullingQuad;
 
     //! \brief Natural physical and magical attack and defense (without equipment)
     double mPhysicalAttack;

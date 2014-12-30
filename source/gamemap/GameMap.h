@@ -46,7 +46,6 @@ class CreatureDefinition;
 class Weapon;
 
 class MiniMap;
-class CullingManager;
 
 /*! \brief The class which stores the entire game state on the server and a subset of this on each client.
  *
@@ -271,12 +270,6 @@ public:
     int getTotalGoldForSeat(Seat* seat);
     bool withdrawFromTreasuries(int gold, Seat* seat);
 
-    inline void setCullingManger(CullingManager* cullingManager)
-    { mCullingManager = cullingManager; }
-
-    inline CullingManager* getCullingManger() const
-    { return mCullingManager; }
-
     inline const std::string& getLevelFileName() const
     { return mLevelFileName; }
 
@@ -486,9 +479,11 @@ public:
 
 private:
     void replaceFloodFill(Tile::FloodFillType floodFillType, int colorOld, int colorNew);
+
+    //! \brief Tells whether this game map instance is used as a reference by the server-side,
+    //! or as a standard client game map.
     bool mIsServerGameMap;
 
-    CullingManager* mCullingManager;
     //! \brief the Local player reference. The local player will also be in the player list so this pointer
     //! should not be deleted as it will be handled like every other in the list.
     Player* mLocalPlayer;

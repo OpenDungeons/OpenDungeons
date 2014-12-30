@@ -30,10 +30,6 @@
 
 #include "gamemap/TileCoordinateMap.h"
 
-#include "camera/CullingManager.h"
-#include "camera/MortuaryQuad.h"
-#include "camera/RadialVector2.h"
-
 #include "entities/Tile.h"
 #include "entities/Creature.h"
 #include "entities/MapLight.h"
@@ -142,7 +138,6 @@ private:
 
 GameMap::GameMap(bool isServerGameMap) :
         mIsServerGameMap(isServerGameMap),
-        mCullingManager(nullptr),
         mLocalPlayer(nullptr),
         mLocalPlayerNick(DEFAULT_NICK),
         mTurnNumber(-1),
@@ -425,9 +420,6 @@ void GameMap::addCreature(Creature *cc)
         + ", seatId=" + (cc->getSeat() != nullptr ? Ogre::StringConverter::toString(cc->getSeat()->getId()) : std::string("null")));
 
     mCreatures.push_back(cc);
-
-    if(!isServerGameMap())
-        mCullingManager->mMyCullingQuad.insert(cc);
 
     addAnimatedObject(cc);
     addActiveObject(cc);

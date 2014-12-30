@@ -18,7 +18,7 @@
 #ifndef TILECOORDINATEMAP_H
 #define TILECOORDINATEMAP_H
 
-#include "camera/RadialVector2.h"
+#include "utils/RadialVector2.h"
 
 #include <vector>
 #include <utility>

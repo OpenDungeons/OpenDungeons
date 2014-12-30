@@ -21,10 +21,6 @@
 
 #include "camera/CameraManager.h"
 
-#include "camera/CullingQuad.h"
-#include "camera/HermiteCatmullSpline.h"
-#include "camera/CullingManager.h"
-
 #include "entities/Creature.h"
 #include "gamemap/MiniMap.h"
 #include "modes/ModeManager.h"
@@ -54,10 +50,9 @@ CameraManager::CameraManager(Ogre::SceneManager* tmpSceneManager, GameMap* gm, O
     mCenterX(0),
     mCenterY(0),
     mAlpha(0.0),
-    mModeManager(NULL),
-    mCullingManager(NULL),
-    mActiveCamera(NULL),
-    mActiveCameraNode(NULL),
+    mModeManager(nullptr),
+    mActiveCamera(nullptr),
+    mActiveCameraNode(nullptr),
     mGameMap(gm),
     mCameraIsFlying(false),
     mMoveSpeed(2.0),
@@ -71,14 +66,10 @@ CameraManager::CameraManager(Ogre::SceneManager* tmpSceneManager, GameMap* gm, O
     mCameraFlightDestination(Ogre::Vector3(0.0, 0.0, 0.0)),
     mRotateLocalVector(Ogre::Vector3(0.0, 0.0, 0.0)),
     mSceneManager(tmpSceneManager),
-    mViewport(NULL),
+    mViewport(nullptr),
     mZChange(0.0),
     mZoomSpeed(7.0)
 {
-    mCullingManager = new CullingManager(this);
-
-    gm->setCullingManger(mCullingManager);
-
     createViewport(renderWindow);
     createCamera("RTS", 0.02, 300.0);
     createCameraNode("RTS", Ogre::Vector3((Ogre::Real)10.0,
@@ -98,7 +89,6 @@ CameraManager::CameraManager(Ogre::SceneManager* tmpSceneManager, GameMap* gm, O
 
 CameraManager::~CameraManager()
 {
-    delete mCullingManager;
 }
 
 //! \brief Sets up the main camera
@@ -574,7 +564,6 @@ bool CameraManager::isCamMovingAtAll() const
 bool CameraManager::onFrameStarted()
 {
     updateCameraView();
-    mCullingManager->onFrameStarted();
 
     return true;
 }
@@ -586,6 +575,5 @@ bool CameraManager::onFrameEnded()
         mSwitchedPM = false;
     }
 
-    mCullingManager->onFrameEnded();
     return true;
 }

@@ -23,8 +23,6 @@
 #include "entities/TreasuryObject.h"
 #include "entities/ChickenEntity.h"
 
-#include "camera/CullingQuad.h"
-
 #include "game/Player.h"
 #include "game/Seat.h"
 
@@ -75,7 +73,6 @@ const std::string Creature::CREATURE_PREFIX = "Creature_";
 
 Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
     MovableGameEntity        (gameMap, 1.0f),
-    mTracingCullingQuad      (NULL),
     mPhysicalAttack          (1.0),
     mMagicalAttack           (0.0),
     mPhysicalDefense         (3.0),
@@ -147,7 +144,6 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
 
 Creature::Creature(GameMap* gameMap) :
     MovableGameEntity        (gameMap, 1.0f),
-    mTracingCullingQuad      (NULL),
     mPhysicalAttack          (1.0),
     mMagicalAttack           (0.0),
     mPhysicalDefense         (3.0),
@@ -191,14 +187,8 @@ Creature::Creature(GameMap* gameMap) :
     pushAction(CreatureAction::idle);
 }
 
-/* Destructor is needed when removing from Quadtree */
 Creature::~Creature()
 {
-    if(mTracingCullingQuad != NULL)
-    {
-        mTracingCullingQuad->entry->creature_list.remove(this);
-        mTracingCullingQuad->mortuaryInsert(this);
-    }
 }
 
 void Creature::createMeshLocal()
@@ -515,8 +505,6 @@ void Creature::importFromPacket(ODPacket& is)
 void Creature::setPosition(const Ogre::Vector3& v, bool isMove)
 {
     MovableGameEntity::setPosition(v, isMove);
-    if (getIsOnMap() && !getGameMap()->isServerGameMap())
-        mTracingCullingQuad->moveEntryDelta(this,get2dPosition());
 }
 
 void Creature::drop(const Ogre::Vector3& v)
