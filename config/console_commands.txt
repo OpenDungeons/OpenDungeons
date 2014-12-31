@@ -3,7 +3,6 @@ addcreature
 addgold
 addtiles
 ambientlight
-c
 catmullspline
 chat
 chathelp
@@ -24,7 +23,6 @@ ls
 maxmessages
 maxtime
 mousespeed
-movespeed
 nearclip
 newmap
 next
@@ -33,7 +31,6 @@ quit
 pause
 possescreature
 refreshmesh
-rotatespeed
 save
 seatvisdebug
 setcamerafovx
@@ -41,7 +38,6 @@ setcamerafovy
 setcolor
 setdest
 setlevel
-switchpolygonmode
 termwidth
 tps
 triggercompositor

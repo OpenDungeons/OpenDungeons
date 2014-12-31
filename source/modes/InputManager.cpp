@@ -24,7 +24,6 @@ InputManager::InputManager(Ogre::RenderWindow* renderWindow):
     mExpectCreatureClick(false),
     mLMouseDown(false),
     mRMouseDown(false),
-    mDirectionKeyPressed(false),
     mXPos(0),
     mYPos(0),
     mLStartDragX(0),

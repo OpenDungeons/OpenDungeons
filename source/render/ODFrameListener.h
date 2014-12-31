@@ -146,7 +146,11 @@ public:
         mCommandOutput = output;
     }
 
-    MiniMap* getMiniMap() {return mMiniMap;}
+    MiniMap* getMiniMap()
+    { return mMiniMap; }
+
+    //! \brief Updates the minimap view.
+    void updateMinimap();
 
     void notifyChatInputMode(bool isChatInputMode, bool sendChatMsg = false);
     void notifyChatChar(int text);
@@ -155,9 +159,7 @@ public:
     //! \brief Accessors for camera manager
     void setCameraPosition(const Ogre::Vector3& position);
     void moveCamera(CameraManager::Direction direction);
-    void cameraStopZoom();
-    void setCameraRotateSpeed(Ogre::Real value);
-    Ogre::Real getCameraRotateSpeedInDegrees();
+
     void setActiveCameraNearClipDistance(Ogre::Real value);
     Ogre::Real getActiveCameraNearClipDistance();
     void setActiveCameraFarClipDistance(Ogre::Real value);

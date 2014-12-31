@@ -359,10 +359,6 @@ void GameMode::handleMouseWheel(const OIS::MouseEvent& arg)
             frameListener.moveCamera(CameraManager::moveUp);
         }
     }
-    else
-    {
-        frameListener.cameraStopZoom();
-    }
 }
 
 bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
@@ -698,7 +694,6 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
 bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
 {
     ODFrameListener& frameListener = ODFrameListener::getSingleton();
-    InputManager* inputManager = mModeManager->getInputManager();
 
     switch (arg.key)
     {
@@ -723,25 +718,21 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
 
     case OIS::KC_LEFT:
     case OIS::KC_A:
-        inputManager->mDirectionKeyPressed = true;
         frameListener.moveCamera(CameraManager::Direction::moveLeft);
         break;
 
     case OIS::KC_RIGHT:
     case OIS::KC_D:
-        inputManager->mDirectionKeyPressed = true;
         frameListener.moveCamera(CameraManager::Direction::moveRight);
         break;
 
     case OIS::KC_UP:
     case OIS::KC_W:
-        inputManager->mDirectionKeyPressed = true;
         frameListener.moveCamera(CameraManager::Direction::moveForward);
         break;
 
     case OIS::KC_DOWN:
     case OIS::KC_S:
-        inputManager->mDirectionKeyPressed = true;
         frameListener.moveCamera(CameraManager::Direction::moveBackward);
         break;
 
@@ -848,31 +839,26 @@ bool GameMode::keyReleased(const OIS::KeyEvent &arg)
 bool GameMode::keyReleasedNormal(const OIS::KeyEvent &arg)
 {
     ODFrameListener& frameListener = ODFrameListener::getSingleton();
-    InputManager* inputManager = mModeManager->getInputManager();
 
     switch (arg.key)
     {
     case OIS::KC_LEFT:
     case OIS::KC_A:
-        inputManager->mDirectionKeyPressed = false;
         frameListener.moveCamera(CameraManager::Direction::stopLeft);
         break;
 
     case OIS::KC_RIGHT:
     case OIS::KC_D:
-        inputManager->mDirectionKeyPressed = false;
         frameListener.moveCamera(CameraManager::Direction::stopRight);
         break;
 
     case OIS::KC_UP:
     case OIS::KC_W:
-        inputManager->mDirectionKeyPressed = false;
         frameListener.moveCamera(CameraManager::Direction::stopForward);
         break;
 
     case OIS::KC_DOWN:
     case OIS::KC_S:
-        inputManager->mDirectionKeyPressed = false;
         frameListener.moveCamera(CameraManager::Direction::stopBackward);
         break;
 
@@ -885,11 +871,11 @@ bool GameMode::keyReleasedNormal(const OIS::KeyEvent &arg)
         break;
 
     case OIS::KC_HOME:
-        frameListener.cameraStopZoom();
+        frameListener.moveCamera(CameraManager::Direction::stopDown);
         break;
 
     case OIS::KC_END:
-        frameListener.cameraStopZoom();
+        frameListener.moveCamera(CameraManager::Direction::stopUp);
         break;
 
     case OIS::KC_PGUP:

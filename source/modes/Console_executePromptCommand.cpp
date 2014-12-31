@@ -238,48 +238,6 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                 + Ogre::StringConverter::toString(yMax) + ")\n";
     }
 
-    // A utility to set the camera movement speed
-    // else if (command.compare("movespeed") == 0)
-    // {
-    //     //NOTE: converted to AS
-    //     if (!arguments.empty())
-    //     {
-    //         Ogre::Real tempDouble;
-    //         tempSS.str(arguments);
-    //         tempSS >> tempDouble;
-    //         cm->setMoveSpeedAccel(2.0 * tempDouble);
-    //         frameListener->mCommandOutput += "\nmovespeed set to " + Ogre::StringConverter::toString(
-    //                 tempDouble) + "\n";
-    //     }
-    //     else
-    //     {
-    //         frameListener->mCommandOutput += "\nCurrent movespeed is "
-    //                 + Ogre::StringConverter::toString(
-    //                         cm->getMoveSpeed())
-    //                 + "\n";
-    //     }
-    // }
-
-    // A utility to set the camera rotation speed.
-    else if (command.compare("rotatespeed") == 0)
-    {
-        if (!arguments.empty())
-        {
-            Ogre::Real tempDouble = 0.0;
-            tempSS.str(arguments);
-            tempSS >> tempDouble;
-            frameListener->setCameraRotateSpeed(tempDouble);
-            frameListener->mCommandOutput += "\nrotatespeed set to "
-                    + Ogre::StringConverter::toString(frameListener->getCameraRotateSpeedInDegrees())
-                    + "\n";
-        }
-        else
-        {
-            frameListener->mCommandOutput += "\nCurrent rotatespeed is "
-                    + Ogre::StringConverter::toString(frameListener->getCameraRotateSpeedInDegrees()) + "\n";
-        }
-    }
-
     /*
     // Set max frames per second
     else if (command.compare("fps") == 0)
@@ -945,29 +903,24 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
             tempSS.str(arguments);
             tempSS >> nn;
-            cm->xHCS.resetNodes(nn);
-            cm->yHCS.resetNodes(nn);
+            cm->resetHCSNodes(nn);
 
             for (int ii = 0 ; ii < nn ; ++ii)
             {
-                tempSS>>tempInt1;
-                tempSS>>tempInt2;
+                tempSS >> tempInt1;
+                tempSS >> tempInt2;
 
-                //cerr << "tempInt1 " <<  tempInt1 << endl;
-                //cerr << "tempInt2 " <<  tempInt2 << endl;
-                cm->xHCS.addNode(tempInt1);
-                cm->yHCS.addNode(tempInt2);
+                //std::cout << "tempInt1 " <<  tempInt1 << std::endl;
+                //std::cout << "tempInt2 " <<  tempInt2 << std::endl;
+                cm->addHCSNodes(tempInt1, tempInt2);
             }
 
             // if(){}else{} TODO : Check if any part of the circle can fall out of the map bounderies
 
             cm->setCatmullSplineMode(true);
-
-            //cerr << "catmullspline loaded from cmd line " << endl;
         }
         else
         {
-
             tempSS.str("");
             tempSS  << "ERROR:  You need to specify an circle center ( two coordinates ) and circle radious";
             frameListener->mCommandOutput += "\n" + tempSS.str() + "\n";
@@ -1092,11 +1045,6 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             tempSS  << "ERROR:  You need to specify an circle center ( two coordinates ) and circle radious";
             frameListener->mCommandOutput += "\n" + tempSS.str() + "\n";
         }
-    }
-    else if (command.compare("switchpolygonmode") == 0)
-    {
-        CameraManager* cm = frameListener->getCameraManager();
-        cm->switchPM();
     }
     else if (command.compare("triggercompositor") == 0)
     {

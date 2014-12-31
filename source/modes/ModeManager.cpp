@@ -182,3 +182,18 @@ void ModeManager::checkModeChange()
     mRequestedMode = NONE;
     mDiscardActualMode = false;
 }
+
+void ModeManager::update(const Ogre::FrameEvent& evt)
+{
+    checkModeChange();
+
+    // We update the current mode
+    AbstractApplicationMode* currentMode = getCurrentMode();
+
+    currentMode->getKeyboard()->capture();
+    currentMode->getMouse()->capture();
+
+    currentMode->mouseMoved(OIS::MouseEvent(0, currentMode->getMouse()->getMouseState()));
+
+    currentMode->onFrameStarted(evt);
+}
