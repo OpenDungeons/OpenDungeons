@@ -381,11 +381,6 @@ void ODServer::processServerNotifications()
                 sendMsg(event->mConcernedPlayer, event->mPacket);
                 break;
 
-            case ServerNotification::setTurnsPerSecond:
-                // This one is not used on client side. Shall we remove it?
-                sendMsg(event->mConcernedPlayer, event->mPacket);
-                break;
-
             case ServerNotification::entityPickedUp:
                 // This message should not be sent by human players (they are notified asynchronously)
                 OD_ASSERT_TRUE_MSG(event->mConcernedPlayer->getIsHuman(), "nick=" + event->mConcernedPlayer->getNick());

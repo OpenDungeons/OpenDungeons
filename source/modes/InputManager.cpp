@@ -21,7 +21,6 @@
 #include <OgreRenderWindow.h>
 
 InputManager::InputManager(Ogre::RenderWindow* renderWindow):
-    mExpectCreatureClick(false),
     mLMouseDown(false),
     mRMouseDown(false),
     mXPos(0),
