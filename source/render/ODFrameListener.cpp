@@ -66,18 +66,18 @@ template<> ODFrameListener* Ogre::Singleton<ODFrameListener>::msSingleton = 0;
 ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::OverlaySystem* overLaySystem) :
     mInitialized(false),
     mWindow(renderWindow),
-    mModeManager(NULL),
+    mModeManager(nullptr),
     mShowDebugInfo(false),
     mContinue(true),
     mTerminalActive(false),
     mTerminalWordWrap(78),
     mChatMaxMessages(10),
     mChatMaxTimeDisplay(20.0f),
-    mRaySceneQuery(NULL),
-    mGameMap(NULL),
-    mMiniMap(NULL),
+    mRaySceneQuery(nullptr),
+    mGameMap(nullptr),
+    mMiniMap(nullptr),
     mExitRequested(false),
-    mCameraManager(NULL),
+    mCameraManager(nullptr),
     mIsChatInputMode(false)
 {
     LogManager* logManager = LogManager::getSingletonPtr();
@@ -127,7 +127,7 @@ void ODFrameListener::windowClosed(Ogre::RenderWindow* rw)
     if(rw == mWindow && mModeManager)
     {
         delete mModeManager;
-        mModeManager = NULL;
+        mModeManager = nullptr;
     }
 }
 

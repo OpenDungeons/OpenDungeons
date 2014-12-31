@@ -28,7 +28,7 @@
 RoomDungeonTemple::RoomDungeonTemple(GameMap* gameMap) :
     Room(gameMap),
     mWaitTurns(0),
-    mTempleObject(NULL)
+    mTempleObject(nullptr)
 {
     setMeshName("DungeonTemple");
 }
@@ -47,7 +47,7 @@ void RoomDungeonTemple::absorbRoom(Room* room)
     if (!mBuildingObjects.empty())
         mTempleObject = mBuildingObjects.begin()->second;
     else
-        mTempleObject = NULL;
+        mTempleObject = nullptr;
 }
 
 void RoomDungeonTemple::createMeshLocal()
@@ -55,7 +55,7 @@ void RoomDungeonTemple::createMeshLocal()
     Room::createMeshLocal();
 
     // Don't recreate the portal if it's already done.
-    if (mTempleObject != NULL)
+    if (mTempleObject != nullptr)
         return;
 
     // The client game map should not load building objects. They will be created
@@ -72,7 +72,7 @@ void RoomDungeonTemple::createMeshLocal()
 void RoomDungeonTemple::destroyMeshLocal()
 {
     Room::destroyMeshLocal();
-    mTempleObject = NULL;
+    mTempleObject = nullptr;
 }
 
 void RoomDungeonTemple::produceKobold()
@@ -92,7 +92,7 @@ void RoomDungeonTemple::produceKobold()
 
     // Create a new creature and copy over the class-based creature parameters.
     const CreatureDefinition *classToSpawn = getGameMap()->getClassDescription("Kobold");
-    if (classToSpawn == NULL)
+    if (classToSpawn == nullptr)
     {
         std::cout << "Error: No 'Kobold' creature definition" << std::endl;
         return;

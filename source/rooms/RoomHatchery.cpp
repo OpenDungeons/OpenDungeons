@@ -38,7 +38,7 @@ RenderedMovableEntity* RoomHatchery::notifyActiveSpotCreated(ActiveSpotPlace pla
     if(place == ActiveSpotPlace::activeSpotCenter)
         return loadBuildingObject(getGameMap(), "ChickenCoop", tile, 0.0, false);
 
-    return NULL;
+    return nullptr;
 }
 
 void RoomHatchery::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)

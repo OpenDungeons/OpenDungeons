@@ -99,7 +99,7 @@ RenderedMovableEntity* RoomTrainingHall::notifyActiveSpotCreated(ActiveSpotPlace
             return loadBuildingObject(getGameMap(), "TrainingDummy1", tile, x, y, 180.0, false);
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 void RoomTrainingHall::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
@@ -220,8 +220,8 @@ void RoomTrainingHall::removeCreatureUsingRoom(Creature* c)
     if(mCreaturesDummies.count(c) > 0)
     {
         Tile* tileDummy = mCreaturesDummies[c];
-        OD_ASSERT_TRUE(tileDummy != NULL);
-        if(tileDummy == NULL)
+        OD_ASSERT_TRUE(tileDummy != nullptr);
+        if(tileDummy == nullptr)
             return;
         mUnusedDummies.push_back(tileDummy);
         mCreaturesDummies.erase(c);
@@ -244,7 +244,7 @@ void RoomTrainingHall::doUpkeep()
         Creature* creature = p.first;
         Tile* tileDummy = p.second;
         Tile* tileCreature = creature->getPositionTile();
-        if(tileCreature == NULL)
+        if(tileCreature == nullptr)
             continue;
 
         Ogre::Real wantedX = -1;
@@ -252,8 +252,8 @@ void RoomTrainingHall::doUpkeep()
         getCreatureWantedPos(creature, tileDummy, wantedX, wantedY);
 
         RenderedMovableEntity* ro = getBuildingObjectFromTile(tileDummy);
-        OD_ASSERT_TRUE(ro != NULL);
-        if(ro == NULL)
+        OD_ASSERT_TRUE(ro != nullptr);
+        if(ro == nullptr)
             continue;
         // We consider that the creature is in the good place if it is in the expected tile and not moving
         Tile* expectedDest = getGameMap()->getTile(Helper::round(wantedX), Helper::round(wantedY));
@@ -288,8 +288,8 @@ void RoomTrainingHall::getCreatureWantedPos(Creature* creature, Tile* tileDummy,
     Ogre::Real& wantedX, Ogre::Real& wantedY)
 {
     RenderedMovableEntity* ro = getBuildingObjectFromTile(tileDummy);
-    OD_ASSERT_TRUE(ro != NULL);
-    if(ro == NULL)
+    OD_ASSERT_TRUE(ro != nullptr);
+    if(ro == nullptr)
         return;
 
     wantedX = static_cast<Ogre::Real>(tileDummy->getX());

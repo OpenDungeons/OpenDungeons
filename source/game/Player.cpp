@@ -53,7 +53,7 @@ unsigned int Player::numCreaturesInHand(const Seat* seat) const
         if(entity->getObjectType() != GameEntity::ObjectType::creature)
             continue;
 
-        if(seat != NULL && entity->getSeat() != seat)
+        if(seat != nullptr && entity->getSeat() != seat)
             continue;
 
         ++cpt;
@@ -78,7 +78,7 @@ void Player::addEntityToHand(MovableGameEntity *entity)
     // Since vectors have no push_front method,
     // we need to move all of the elements in the vector back one
     // and then add this one to the beginning.
-    mObjectsInHand.push_back(NULL);
+    mObjectsInHand.push_back(nullptr);
     for (unsigned int j = mObjectsInHand.size() - 1; j > 0; --j)
         mObjectsInHand[j] = mObjectsInHand[j - 1];
 

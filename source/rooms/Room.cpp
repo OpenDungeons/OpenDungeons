@@ -137,7 +137,7 @@ void Room::removeCreatureUsingRoom(Creature *c)
 Creature* Room::getCreatureUsingRoom(unsigned index)
 {
     if (index >= mCreaturesUsingRoom.size())
-        return NULL;
+        return nullptr;
 
     return mCreaturesUsingRoom[index];
 }
@@ -507,28 +507,28 @@ void Room::updateActiveSpots()
     for (unsigned int i = 0, size = centralActiveSpotTiles.size(); i < size; ++i)
     {
         Tile* centerTile = centralActiveSpotTiles[i];
-        if (centerTile == NULL)
+        if (centerTile == nullptr)
             continue;
 
         // Test for walls around
         // Up
         Tile* testTile;
         testTile = getGameMap()->getTile(centerTile->getX(), centerTile->getY() + 2);
-        if (testTile != NULL && testTile->isWallClaimedForSeat(getSeat()))
+        if (testTile != nullptr && testTile->isWallClaimedForSeat(getSeat()))
         {
             Tile* topTile = getGameMap()->getTile(centerTile->getX(), centerTile->getY() + 1);
-            if (topTile != NULL)
+            if (topTile != nullptr)
                 topWallsActiveSpotTiles.push_back(topTile);
         }
         // Up for 4 tiles wide room
         testTile = getGameMap()->getTile(centerTile->getX(), centerTile->getY() + 3);
-        if (testTile != NULL && testTile->isWallClaimedForSeat(getSeat()))
+        if (testTile != nullptr && testTile->isWallClaimedForSeat(getSeat()))
         {
             bool isFound = true;
             for(int k = 0; k < 3; ++k)
             {
                 Tile* testTile2 = getGameMap()->getTile(centerTile->getX() + k - 1, centerTile->getY() + 2);
-                if((testTile2 == NULL) || (testTile2->getCoveringBuilding() != this))
+                if((testTile2 == nullptr) || (testTile2->getCoveringBuilding() != this))
                 {
                     isFound = false;
                     break;
@@ -544,21 +544,21 @@ void Room::updateActiveSpots()
 
         // Down
         testTile = getGameMap()->getTile(centerTile->getX(), centerTile->getY() - 2);
-        if (testTile != NULL && testTile->isWallClaimedForSeat(getSeat()))
+        if (testTile != nullptr && testTile->isWallClaimedForSeat(getSeat()))
         {
             Tile* bottomTile = getGameMap()->getTile(centerTile->getX(), centerTile->getY() - 1);
-            if (bottomTile != NULL)
+            if (bottomTile != nullptr)
                 bottomWallsActiveSpotTiles.push_back(bottomTile);
         }
         // Down for 4 tiles wide room
         testTile = getGameMap()->getTile(centerTile->getX(), centerTile->getY() - 3);
-        if (testTile != NULL && testTile->isWallClaimedForSeat(getSeat()))
+        if (testTile != nullptr && testTile->isWallClaimedForSeat(getSeat()))
         {
             bool isFound = true;
             for(int k = 0; k < 3; ++k)
             {
                 Tile* testTile2 = getGameMap()->getTile(centerTile->getX() + k - 1, centerTile->getY() - 2);
-                if((testTile2 == NULL) || (testTile2->getCoveringBuilding() != this))
+                if((testTile2 == nullptr) || (testTile2->getCoveringBuilding() != this))
                 {
                     isFound = false;
                     break;
@@ -574,21 +574,21 @@ void Room::updateActiveSpots()
 
         // Left
         testTile = getGameMap()->getTile(centerTile->getX() - 2, centerTile->getY());
-        if (testTile != NULL && testTile->isWallClaimedForSeat(getSeat()))
+        if (testTile != nullptr && testTile->isWallClaimedForSeat(getSeat()))
         {
             Tile* leftTile = getGameMap()->getTile(centerTile->getX() - 1, centerTile->getY());
-            if (leftTile != NULL)
+            if (leftTile != nullptr)
                 leftWallsActiveSpotTiles.push_back(leftTile);
         }
         // Left for 4 tiles wide room
         testTile = getGameMap()->getTile(centerTile->getX() - 3, centerTile->getY());
-        if (testTile != NULL && testTile->isWallClaimedForSeat(getSeat()))
+        if (testTile != nullptr && testTile->isWallClaimedForSeat(getSeat()))
         {
             bool isFound = true;
             for(int k = 0; k < 3; ++k)
             {
                 Tile* testTile2 = getGameMap()->getTile(centerTile->getX() - 2, centerTile->getY() + k - 1);
-                if((testTile2 == NULL) || (testTile2->getCoveringBuilding() != this))
+                if((testTile2 == nullptr) || (testTile2->getCoveringBuilding() != this))
                 {
                     isFound = false;
                     break;
@@ -604,21 +604,21 @@ void Room::updateActiveSpots()
 
         // Right
         testTile = getGameMap()->getTile(centerTile->getX() + 2, centerTile->getY());
-        if (testTile != NULL && testTile->isWallClaimedForSeat(getSeat()))
+        if (testTile != nullptr && testTile->isWallClaimedForSeat(getSeat()))
         {
             Tile* rightTile = getGameMap()->getTile(centerTile->getX() + 1, centerTile->getY());
-            if (rightTile != NULL)
+            if (rightTile != nullptr)
                 rightWallsActiveSpotTiles.push_back(rightTile);
         }
         // Right for 4 tiles wide room
         testTile = getGameMap()->getTile(centerTile->getX() + 3, centerTile->getY());
-        if (testTile != NULL && testTile->isWallClaimedForSeat(getSeat()))
+        if (testTile != nullptr && testTile->isWallClaimedForSeat(getSeat()))
         {
             bool isFound = true;
             for(int k = 0; k < 3; ++k)
             {
                 Tile* testTile2 = getGameMap()->getTile(centerTile->getX() + 2, centerTile->getY() + k - 1);
-                if((testTile2 == NULL) || (testTile2->getCoveringBuilding() != this))
+                if((testTile2 == nullptr) || (testTile2->getCoveringBuilding() != this))
                 {
                     isFound = false;
                     break;
@@ -662,7 +662,7 @@ void Room::activeSpotCheckChange(ActiveSpotPlace place, const std::vector<Tile*>
         {
             // The tile do not exist
             RenderedMovableEntity* ro = notifyActiveSpotCreated(place, tile);
-            if(ro != NULL)
+            if(ro != nullptr)
             {
                 // The room wants to build a room onject. We add it to the gamemap
                 addBuildingObject(tile, ro);
@@ -684,7 +684,7 @@ void Room::activeSpotCheckChange(ActiveSpotPlace place, const std::vector<Tile*>
 
 RenderedMovableEntity* Room::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
 {
-    return NULL;
+    return nullptr;
 }
 
 void Room::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
@@ -723,7 +723,7 @@ void Room::importFromPacket(ODPacket& is)
     int tempInt = 0;
     OD_ASSERT_TRUE(is >> tempInt);
     Seat* seat = getGameMap()->getSeatById(tempInt);
-    OD_ASSERT_TRUE_MSG(seat != NULL, "seatId=" + Ogre::StringConverter::toString(tempInt));
+    OD_ASSERT_TRUE_MSG(seat != nullptr, "seatId=" + Ogre::StringConverter::toString(tempInt));
     setSeat(seat);
 
     OD_ASSERT_TRUE(is >> tilesToLoad);
@@ -731,8 +731,8 @@ void Room::importFromPacket(ODPacket& is)
     {
         OD_ASSERT_TRUE(is >> tempX >> tempY);
         Tile* tempTile = getGameMap()->getTile(tempX, tempY);
-        OD_ASSERT_TRUE_MSG(tempTile != NULL, "tile=" + Ogre::StringConverter::toString(tempX) + "," + Ogre::StringConverter::toString(tempY));
-        if (tempTile != NULL)
+        OD_ASSERT_TRUE_MSG(tempTile != nullptr, "tile=" + Ogre::StringConverter::toString(tempX) + "," + Ogre::StringConverter::toString(tempY));
+        if (tempTile != nullptr)
             addCoveredTile(tempTile, Room::DEFAULT_TILE_HP);
     }
 }
@@ -754,7 +754,7 @@ void Room::importFromStream(std::istream& is)
     int tempInt = 0;
     OD_ASSERT_TRUE(is >> tempInt);
     Seat* seat = getGameMap()->getSeatById(tempInt);
-    OD_ASSERT_TRUE_MSG(seat != NULL, "seatId=" + Ogre::StringConverter::toString(tempInt));
+    OD_ASSERT_TRUE_MSG(seat != nullptr, "seatId=" + Ogre::StringConverter::toString(tempInt));
     setSeat(seat);
 
     OD_ASSERT_TRUE(is >> tilesToLoad);
@@ -762,8 +762,8 @@ void Room::importFromStream(std::istream& is)
     {
         OD_ASSERT_TRUE(is >> tempX >> tempY);
         Tile* tempTile = getGameMap()->getTile(tempX, tempY);
-        OD_ASSERT_TRUE_MSG(tempTile != NULL, "tile=" + Ogre::StringConverter::toString(tempX) + "," + Ogre::StringConverter::toString(tempY));
-        if (tempTile != NULL)
+        OD_ASSERT_TRUE_MSG(tempTile != nullptr, "tile=" + Ogre::StringConverter::toString(tempX) + "," + Ogre::StringConverter::toString(tempY));
+        if (tempTile != nullptr)
             addCoveredTile(tempTile, Room::DEFAULT_TILE_HP);
     }
 }

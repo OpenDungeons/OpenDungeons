@@ -54,7 +54,7 @@ void RoomDormitory::addCoveredTile(Tile* t, double nHP)
 {
     Room::addCoveredTile(t, nHP);
 
-    // Only initialize the tile to NULL if it is a tile being added to a new room.  If it is being absorbed
+    // Only initialize the tile to nullptr if it is a tile being added to a new room.  If it is being absorbed
     // from another room the map value will already have been set and we don't want to override it.
     mCreatureSleepingInTile[t] = nullptr;
 }
@@ -172,7 +172,7 @@ bool RoomDormitory::releaseTileForSleeping(Tile* t, Creature* c)
     if (mCreatureSleepingInTile.find(t) == mCreatureSleepingInTile.end())
         return false;
 
-    // Loop over all the tiles in this room and if they are slept on by creature c then set them back to NULL.
+    // Loop over all the tiles in this room and if they are slept on by creature c then set them back to nullptr.
     for (std::pair<Tile* const, Creature*>& p : mCreatureSleepingInTile)
     {
         if (p.second == c)
@@ -226,7 +226,7 @@ Tile* RoomDormitory::getLocationForBed(int xDim, int yDim)
             return tempVector[i];
     }
 
-    // We got to the end of the open tile list without finding an open tile for the bed so return NULL to indicate failure.
+    // We got to the end of the open tile list without finding an open tile for the bed so return nullptr to indicate failure.
     return nullptr;
 }
 

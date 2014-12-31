@@ -82,7 +82,7 @@ void RoomPortal::createMeshLocal()
 void RoomPortal::destroyMeshLocal()
 {
     Room::destroyMeshLocal();
-    mPortalObject = NULL;
+    mPortalObject = nullptr;
 }
 
 void RoomPortal::addCoveredTile(Tile* t, double nHP)

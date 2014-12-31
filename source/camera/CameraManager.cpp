@@ -128,7 +128,7 @@ void CameraManager::createCameraNode(const Ogre::String& ss, Ogre::Vector3 xyz,
 //! \brief setup the viewports
 void CameraManager::createViewport(Ogre::RenderWindow* renderWindow)
 {
-    mViewport = renderWindow->addViewport(NULL);
+    mViewport = renderWindow->addViewport(nullptr);
     mViewport->setBackgroundColour(Ogre::ColourValue(0, 0, 0));
 
 // TODO: Update registered camera if needed.

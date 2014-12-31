@@ -82,5 +82,5 @@ InputManager::~InputManager()
     mInputManager->destroyInputObject(mMouse);
     mInputManager->destroyInputObject(mKeyboard);
     OIS::InputManager::destroyInputSystem(mInputManager);
-    mInputManager = NULL;
+    mInputManager = nullptr;
 }

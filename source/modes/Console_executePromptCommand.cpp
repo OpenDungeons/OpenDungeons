@@ -212,7 +212,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         {
             for (int i = xMin; i < xMax; ++i)
             {
-                if (gameMap->getTile(i, j) == NULL)
+                if (gameMap->getTile(i, j) == nullptr)
                 {
                     std::stringstream ss;
 
@@ -747,7 +747,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             {
                 // Activate visual debugging
                 Creature *tempCreature = gameMap->getCreature(arguments);
-                if (tempCreature != NULL)
+                if (tempCreature != nullptr)
                 {
                     if (!tempCreature->getHasVisualDebuggingEntities())
                     {
@@ -806,7 +806,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                 tempSS >> seatId;
                 // Activate visual debugging
                 Seat* seat = gameMap->getSeatById(seatId);
-                if (seat != NULL)
+                if (seat != nullptr)
                 {
                     if (!seat->getIsDebuggingVision())
                     {

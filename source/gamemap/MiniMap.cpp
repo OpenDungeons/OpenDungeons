@@ -47,27 +47,27 @@ MiniMap::MiniMap(GameMap* gm) :
     mGrainSize(4),
     mTiles(),
     mGameMap(gm),
-    mPixelBox(NULL),
+    mPixelBox(nullptr),
     mSheetUsed(Gui::guiSheet::mainMenu)
 {
 }
 
 MiniMap::~MiniMap()
 {
-    if(mPixelBox != NULL)
+    if(mPixelBox != nullptr)
         delete mPixelBox;
 }
 
 void MiniMap::attachMiniMap(Gui::guiSheet sheet)
 {
     // If is configured with the same sheet, no need to rebuild
-    if((mPixelBox != NULL) && (mSheetUsed == sheet))
+    if((mPixelBox != nullptr) && (mSheetUsed == sheet))
         return;
 
-    if(mPixelBox != NULL)
+    if(mPixelBox != nullptr)
     {
         // The MiniMap has already been initialised. We free it
-        Gui::getSingleton().sheets[mSheetUsed]->getChild(Gui::MINIMAP)->setProperty("Image", "");
+        Gui::getSingleton().getGuiSheet(mSheetUsed)->getChild(Gui::MINIMAP)->setProperty("Image", "");
         Ogre::TextureManager::getSingletonPtr()->remove("miniMapOgreTexture");
         CEGUI::ImageManager::getSingletonPtr()->destroy("MiniMapImageset");
         CEGUI::System::getSingletonPtr()->getRenderer()->destroyTexture("miniMapTextureGui");
@@ -76,7 +76,7 @@ void MiniMap::attachMiniMap(Gui::guiSheet sheet)
     }
 
     mSheetUsed = sheet;
-    CEGUI::Window* window = Gui::getSingleton().sheets[sheet]->getChild(Gui::MINIMAP);
+    CEGUI::Window* window = Gui::getSingleton().getGuiSheet(sheet)->getChild(Gui::MINIMAP);
 
     unsigned int pixelWidth = static_cast<unsigned int>(window->getPixelSize().d_width);
     unsigned int pixelHeight = static_cast<unsigned int>(window->getPixelSize().d_height);
@@ -178,7 +178,7 @@ void MiniMap::draw()
              * this is not how it is intended/expected
              */
             Tile* tile = mGameMap->getTile(oo, pp);
-            if(tile == NULL)
+            if(tile == nullptr)
             {
                 drawPixel(ii, jj, 0x00, 0x00, 0x00);
                 continue;
@@ -223,7 +223,7 @@ void MiniMap::draw()
             case Tile::claimed:
             {
                 Seat* tempSeat = tile->getSeat();
-                if (tempSeat != NULL)
+                if (tempSeat != nullptr)
                 {
                     Ogre::ColourValue color = tempSeat->getColorValue();
                     if (tile->getFullness() <= 0.0)

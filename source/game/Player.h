@@ -69,8 +69,8 @@ public:
 
     //! \brief A simple accessor function to return the number of creatures
     //! this player is holding in his/her hand that belongs to seat seat.
-    //! If seat is NULL, then returns the total number of creatures
-    unsigned int numCreaturesInHand(const Seat* seat = NULL) const;
+    //! If seat is nullptr, then returns the total number of creatures
+    unsigned int numCreaturesInHand(const Seat* seat = nullptr) const;
     unsigned int numObjectsInHand() const;
 
     /*! \brief Check to see if it is the user or another player picking up the creature and act accordingly.

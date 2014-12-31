@@ -66,7 +66,7 @@ public:
     void removeAllBuildingObjects();
     RenderedMovableEntity* getBuildingObjectFromTile(Tile* tile);
     /*! \brief Creates a child RenderedMovableEntity mesh using the given mesh name and placing on the target tile,
-     *  if the tile is NULL the object appears in the building's center, the rotation angle is given in degrees.
+     *  if the tile is nullptr the object appears in the building's center, the rotation angle is given in degrees.
      */
     RenderedMovableEntity* loadBuildingObject(GameMap* gameMap, const std::string& meshName,
         Tile* targetTile, double rotationAngle, bool hideCoveredTile, float opacity = 1.0f);

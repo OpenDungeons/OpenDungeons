@@ -76,17 +76,17 @@ Gui::Gui()
     CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
 
     CEGUI::Window* myHide = wmgr->createWindow("DefaultWindow", "DummyWindow");
-    sheets[hideGui] = myHide;
+    mSheets[hideGui] = myHide;
 
-    sheets[inGameMenu] = wmgr->loadLayoutFromFile("OpenDungeonsGameModeMenu.layout");
-    sheets[mainMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMainMenu.layout");
-    sheets[skirmishMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuSkirmish.layout");
-    sheets[multiplayerClientMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuMultiplayerClient.layout");
-    sheets[multiplayerServerMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuMultiplayerServer.layout");
-    sheets[editorModeGui] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorModeMenu.layout");
-    sheets[editorMenu] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorMenu.layout");
-    sheets[configureSeats] =  wmgr->loadLayoutFromFile("OpenDungeonsMenuConfigureSeats.layout");
-    sheets[replayMenu] =  wmgr->loadLayoutFromFile("OpenDungeonsMenuReplay.layout");
+    mSheets[inGameMenu] = wmgr->loadLayoutFromFile("OpenDungeonsGameModeMenu.layout");
+    mSheets[mainMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMainMenu.layout");
+    mSheets[skirmishMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuSkirmish.layout");
+    mSheets[multiplayerClientMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuMultiplayerClient.layout");
+    mSheets[multiplayerServerMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuMultiplayerServer.layout");
+    mSheets[editorModeGui] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorModeMenu.layout");
+    mSheets[editorMenu] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorMenu.layout");
+    mSheets[configureSeats] =  wmgr->loadLayoutFromFile("OpenDungeonsMenuConfigureSeats.layout");
+    mSheets[replayMenu] =  wmgr->loadLayoutFromFile("OpenDungeonsMenuReplay.layout");
 
     assignEventHandlers();
 }
@@ -114,318 +114,318 @@ CEGUI::MouseButton Gui::convertButton(const OIS::MouseButtonID& buttonID)
 
 void Gui::loadGuiSheet(const guiSheet& newSheet)
 {
-    CEGUI::System::getSingletonPtr()->getDefaultGUIContext().setRootWindow(sheets[newSheet]);
+    CEGUI::System::getSingletonPtr()->getDefaultGUIContext().setRootWindow(mSheets[newSheet]);
     // This shouldn't be needed, but the gui seems to not allways change when using hideGui without it.
     CEGUI::System::getSingletonPtr()->getDefaultGUIContext().markAsDirty();
 }
 
 CEGUI::Window* Gui::getGuiSheet(const guiSheet& sheet)
 {
-    if (sheets.find(sheet) != sheets.end())
+    if (mSheets.find(sheet) != mSheets.end())
     {
-        return sheets[sheet];
+        return mSheets[sheet];
     }
-    return NULL;
+    return nullptr;
 }
 
 void Gui::assignEventHandlers()
 {
     //std::cout << "Gui::assignEventHandlers()" << std::endl;
 
-    CEGUI::Window* rootWindow = sheets[inGameMenu];
+    CEGUI::Window* rootWindow = mSheets[inGameMenu];
 
-    if (rootWindow == NULL)
+    if (rootWindow == nullptr)
     {
         LogManager::getSingleton().logMessage("Gui: No root window!");
         return;
     }
 
     // Main menu controls
-    sheets[mainMenu]->getChild(MM_BUTTON_START_SKIRMISH)->subscribeEvent(
+    mSheets[mainMenu]->getChild(MM_BUTTON_START_SKIRMISH)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mMNewGameButtonPressed));
 
-    sheets[mainMenu]->getChild(MM_BUTTON_START_REPLAY)->subscribeEvent(
+    mSheets[mainMenu]->getChild(MM_BUTTON_START_REPLAY)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mMReplayButtonPressed));
 
-    sheets[mainMenu]->getChild(MM_BUTTON_START_MULTIPLAYER_CLIENT)->subscribeEvent(
+    mSheets[mainMenu]->getChild(MM_BUTTON_START_MULTIPLAYER_CLIENT)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mMNewGameMultiClientButtonPressed));
 
-    sheets[mainMenu]->getChild(MM_BUTTON_START_MULTIPLAYER_SERVER)->subscribeEvent(
+    mSheets[mainMenu]->getChild(MM_BUTTON_START_MULTIPLAYER_SERVER)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mMNewGameMultiServerButtonPressed));
 
-    sheets[mainMenu]->getChild(MM_BUTTON_MAPEDITOR)->subscribeEvent(
+    mSheets[mainMenu]->getChild(MM_BUTTON_MAPEDITOR)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mMMapEditorButtonPressed));
 
-    sheets[mainMenu]->getChild(MM_BUTTON_QUIT)->subscribeEvent(
+    mSheets[mainMenu]->getChild(MM_BUTTON_QUIT)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mMQuitButtonPressed));
 
     // Game Mode controls
-    sheets[inGameMenu]->getChild(BUTTON_DORMITORY)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(BUTTON_DORMITORY)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&dormitoryButtonPressed));
 
-    sheets[inGameMenu]->getChild(BUTTON_TREASURY)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(BUTTON_TREASURY)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&treasuryButtonPressed));
 
-    sheets[inGameMenu]->getChild(BUTTON_FORGE)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(BUTTON_FORGE)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&forgeButtonPressed));
 
-    sheets[inGameMenu]->getChild(BUTTON_TRAININGHALL)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(BUTTON_TRAININGHALL)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&trainingHallButtonPressed));
 
-    sheets[inGameMenu]->getChild(BUTTON_LIBRARY)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(BUTTON_LIBRARY)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&libraryButtonPressed));
 
-    sheets[inGameMenu]->getChild(BUTTON_HATCHERY)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(BUTTON_HATCHERY)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&hatcheryButtonPressed));
 
-    sheets[inGameMenu]->getChild(BUTTON_CRYPT)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(BUTTON_CRYPT)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&cryptButtonPressed));
 
-    sheets[inGameMenu]->getChild(BUTTON_DESTROY_ROOM)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(BUTTON_DESTROY_ROOM)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&destroyRoomButtonPressed));
 
-    sheets[inGameMenu]->getChild(BUTTON_TRAP_CANNON)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(BUTTON_TRAP_CANNON)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&cannonButtonPressed));
 
-    sheets[inGameMenu]->getChild(BUTTON_TRAP_SPIKE)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(BUTTON_TRAP_SPIKE)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&spikeTrapButtonPressed));
 
-    sheets[inGameMenu]->getChild(BUTTON_TRAP_BOULDER)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(BUTTON_TRAP_BOULDER)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&boulderTrapButtonPressed));
 
-    sheets[inGameMenu]->getChild(BUTTON_DESTROY_TRAP)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(BUTTON_DESTROY_TRAP)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&destroyTrapButtonPressed));
 
-    sheets[inGameMenu]->getChild(BUTTON_CREATURE_WORKER)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(BUTTON_CREATURE_WORKER)->subscribeEvent(
             CEGUI::Window::EventMouseClick,
             CEGUI::Event::Subscriber(&workerCreatureButtonPressed));
 
-    sheets[inGameMenu]->getChild(BUTTON_CREATURE_FIGHTER)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(BUTTON_CREATURE_FIGHTER)->subscribeEvent(
             CEGUI::Window::EventMouseClick,
             CEGUI::Event::Subscriber(&fighterCreatureButtonPressed));
 
-    sheets[inGameMenu]->getChild(MINIMAP)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(MINIMAP)->subscribeEvent(
             CEGUI:: Window::EventMouseClick,
             CEGUI::Event::Subscriber(&miniMapclicked));
 
-    sheets[inGameMenu]->getChild(EXIT_CONFIRMATION_POPUP_YES_BUTTON)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(EXIT_CONFIRMATION_POPUP_YES_BUTTON)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&confirmExitYesButtonPressed));
 
-    sheets[inGameMenu]->getChild(EXIT_CONFIRMATION_POPUP_NO_BUTTON)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(EXIT_CONFIRMATION_POPUP_NO_BUTTON)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&confirmExitNoButtonPressed));
 
     // Editor Mode controls
-    sheets[editorModeGui]->getChild(EDITOR_LAVA_BUTTON)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(EDITOR_LAVA_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
         CEGUI::Event::Subscriber(&editorLavaButtonPressed));
 
-    sheets[editorModeGui]->getChild(EDITOR_GOLD_BUTTON)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(EDITOR_GOLD_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
         CEGUI::Event::Subscriber(&editorGoldButtonPressed));
 
-    sheets[editorModeGui]->getChild(EDITOR_ROCK_BUTTON)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(EDITOR_ROCK_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
         CEGUI::Event::Subscriber(&editorRockButtonPressed));
 
-    sheets[editorModeGui]->getChild(EDITOR_WATER_BUTTON)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(EDITOR_WATER_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
         CEGUI::Event::Subscriber(&editorWaterButtonPressed));
 
-    sheets[editorModeGui]->getChild(EDITOR_DIRT_BUTTON)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(EDITOR_DIRT_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
         CEGUI::Event::Subscriber(&editorDirtButtonPressed));
 
-    sheets[editorModeGui]->getChild(EDITOR_CLAIMED_BUTTON)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(EDITOR_CLAIMED_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
         CEGUI::Event::Subscriber(&editorClaimedButtonPressed));
     // Game Mode controls
-    sheets[editorModeGui]->getChild(BUTTON_DORMITORY)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(BUTTON_DORMITORY)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&dormitoryButtonPressed));
 
-    sheets[editorModeGui]->getChild(BUTTON_TREASURY)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(BUTTON_TREASURY)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&treasuryButtonPressed));
 
-    sheets[editorModeGui]->getChild(BUTTON_DESTROY_ROOM)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(BUTTON_DESTROY_ROOM)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&destroyRoomButtonPressed));
 
-    sheets[editorModeGui]->getChild(BUTTON_FORGE)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(BUTTON_FORGE)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&forgeButtonPressed));
 
-    sheets[editorModeGui]->getChild(BUTTON_TRAININGHALL)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(BUTTON_TRAININGHALL)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&trainingHallButtonPressed));
 
-    sheets[editorModeGui]->getChild(BUTTON_LIBRARY)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(BUTTON_LIBRARY)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&libraryButtonPressed));
 
-    sheets[editorModeGui]->getChild(BUTTON_HATCHERY)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(BUTTON_HATCHERY)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&hatcheryButtonPressed));
 
-    sheets[editorModeGui]->getChild(BUTTON_CRYPT)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(BUTTON_CRYPT)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&cryptButtonPressed));
 
-    sheets[editorModeGui]->getChild(BUTTON_TRAP_CANNON)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(BUTTON_TRAP_CANNON)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&cannonButtonPressed));
 
-    sheets[editorModeGui]->getChild(BUTTON_TRAP_SPIKE)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(BUTTON_TRAP_SPIKE)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&spikeTrapButtonPressed));
 
-    sheets[editorModeGui]->getChild(BUTTON_TRAP_BOULDER)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(BUTTON_TRAP_BOULDER)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&boulderTrapButtonPressed));
 
-    sheets[editorModeGui]->getChild(BUTTON_DESTROY_TRAP)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(BUTTON_DESTROY_TRAP)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&destroyTrapButtonPressed));
 
-    sheets[editorModeGui]->getChild(BUTTON_CREATURE_WORKER)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(BUTTON_CREATURE_WORKER)->subscribeEvent(
             CEGUI::Window::EventMouseClick,
             CEGUI::Event::Subscriber(&workerCreatureButtonPressed));
 
-    sheets[editorModeGui]->getChild(BUTTON_CREATURE_FIGHTER)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(BUTTON_CREATURE_FIGHTER)->subscribeEvent(
             CEGUI::Window::EventMouseClick,
             CEGUI::Event::Subscriber(&fighterCreatureButtonPressed));
 
-    sheets[editorModeGui]->getChild(MINIMAP)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(MINIMAP)->subscribeEvent(
             CEGUI:: Window::EventMouseClick,
             CEGUI::Event::Subscriber(&miniMapclicked));
 
     // Skirmish level select menu controls
-    sheets[skirmishMenu]->getChild(SKM_BUTTON_LAUNCH)->subscribeEvent(
+    mSheets[skirmishMenu]->getChild(SKM_BUTTON_LAUNCH)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mSKMLoadButtonPressed));
 
-    sheets[skirmishMenu]->getChild(SKM_BUTTON_BACK)->subscribeEvent(
+    mSheets[skirmishMenu]->getChild(SKM_BUTTON_BACK)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
         CEGUI::Event::Subscriber(&mSKMBackButtonPressed));
 
-    sheets[skirmishMenu]->getChild(SKM_LIST_LEVELS)->subscribeEvent(
+    mSheets[skirmishMenu]->getChild(SKM_LIST_LEVELS)->subscribeEvent(
         CEGUI::Listbox::EventMouseClick,
         CEGUI::Event::Subscriber(&mSKMListClicked));
 
-    sheets[skirmishMenu]->getChild(SKM_LIST_LEVELS)->subscribeEvent(
+    mSheets[skirmishMenu]->getChild(SKM_LIST_LEVELS)->subscribeEvent(
         CEGUI::Listbox::EventMouseDoubleClick,
         CEGUI::Event::Subscriber(&mSKMListDoubleClicked));
 
     // Multiplayer menu controls
     // Server part
-    sheets[multiplayerServerMenu]->getChild(MPM_BUTTON_SERVER)->subscribeEvent(
+    mSheets[multiplayerServerMenu]->getChild(MPM_BUTTON_SERVER)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mMPMServerButtonPressed));
 
-    sheets[multiplayerServerMenu]->getChild(MPM_LIST_LEVELS)->subscribeEvent(
+    mSheets[multiplayerServerMenu]->getChild(MPM_LIST_LEVELS)->subscribeEvent(
         CEGUI::Listbox::EventMouseClick,
         CEGUI::Event::Subscriber(&mMPMListClicked));
 
-    sheets[multiplayerServerMenu]->getChild(MPM_LIST_LEVELS)->subscribeEvent(
+    mSheets[multiplayerServerMenu]->getChild(MPM_LIST_LEVELS)->subscribeEvent(
         CEGUI::Listbox::EventMouseDoubleClick,
         CEGUI::Event::Subscriber(&mMPMListDoubleClicked));
 
-    sheets[multiplayerServerMenu]->getChild(MPM_BUTTON_BACK)->subscribeEvent(
+    mSheets[multiplayerServerMenu]->getChild(MPM_BUTTON_BACK)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
         CEGUI::Event::Subscriber(&mMPMBackButtonPressed));
 
-    sheets[multiplayerServerMenu]->getChild("LevelWindowFrame/__auto_closebutton__")->subscribeEvent(
+    mSheets[multiplayerServerMenu]->getChild("LevelWindowFrame/__auto_closebutton__")->subscribeEvent(
         CEGUI::PushButton::EventClicked,
         CEGUI::Event::Subscriber(&mMPMBackButtonPressed));
 
     // Client part
-    sheets[multiplayerClientMenu]->getChild(MPM_BUTTON_CLIENT)->subscribeEvent(
+    mSheets[multiplayerClientMenu]->getChild(MPM_BUTTON_CLIENT)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mMPMClientButtonPressed));
 
-    sheets[multiplayerClientMenu]->getChild(MPM_BUTTON_BACK)->subscribeEvent(
+    mSheets[multiplayerClientMenu]->getChild(MPM_BUTTON_BACK)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
         CEGUI::Event::Subscriber(&mMPMBackButtonPressed));
 
-    sheets[multiplayerClientMenu]->getChild("LevelWindowFrame/__auto_closebutton__")->subscribeEvent(
+    mSheets[multiplayerClientMenu]->getChild("LevelWindowFrame/__auto_closebutton__")->subscribeEvent(
         CEGUI::PushButton::EventClicked,
         CEGUI::Event::Subscriber(&mMPMBackButtonPressed));
 
     // Editor level select menu controls
-    sheets[editorMenu]->getChild(EDM_BUTTON_LAUNCH)->subscribeEvent(
+    mSheets[editorMenu]->getChild(EDM_BUTTON_LAUNCH)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mEDMLoadButtonPressed));
 
-    sheets[editorMenu]->getChild(EDM_BUTTON_BACK)->subscribeEvent(
+    mSheets[editorMenu]->getChild(EDM_BUTTON_BACK)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
         CEGUI::Event::Subscriber(&mEDMBackButtonPressed));
 
-    sheets[editorMenu]->getChild(EDM_LIST_LEVELS)->subscribeEvent(
+    mSheets[editorMenu]->getChild(EDM_LIST_LEVELS)->subscribeEvent(
         CEGUI::Listbox::EventMouseClick,
         CEGUI::Event::Subscriber(&mEDMListClicked));
 
-    sheets[editorMenu]->getChild(EDM_LIST_LEVELS)->subscribeEvent(
+    mSheets[editorMenu]->getChild(EDM_LIST_LEVELS)->subscribeEvent(
         CEGUI::Listbox::EventMouseDoubleClick,
         CEGUI::Event::Subscriber(&mEDMListDoubleClicked));
 
     // Configure seats windows
-    sheets[configureSeats]->getChild(CSM_BUTTON_BACK)->subscribeEvent(
+    mSheets[configureSeats]->getChild(CSM_BUTTON_BACK)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
         CEGUI::Event::Subscriber(&mCSMBackButtonPressed));
 
-    sheets[configureSeats]->getChild(CSM_BUTTON_LAUNCH)->subscribeEvent(
+    mSheets[configureSeats]->getChild(CSM_BUTTON_LAUNCH)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
         CEGUI::Event::Subscriber(&mCSMLoadButtonPressed));
 
     // Replay menu controls
-    sheets[replayMenu]->getChild(REM_BUTTON_LAUNCH)->subscribeEvent(
+    mSheets[replayMenu]->getChild(REM_BUTTON_LAUNCH)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mREMLoadButtonPressed));
 
     // Replay menu controls
-    sheets[replayMenu]->getChild(REM_BUTTON_DELETE)->subscribeEvent(
+    mSheets[replayMenu]->getChild(REM_BUTTON_DELETE)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mREMDeleteButtonPressed));
 
-    sheets[replayMenu]->getChild(REM_BUTTON_BACK)->subscribeEvent(
+    mSheets[replayMenu]->getChild(REM_BUTTON_BACK)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
         CEGUI::Event::Subscriber(&mREMBackButtonPressed));
 
-    sheets[replayMenu]->getChild(REM_LIST_REPLAYS)->subscribeEvent(
+    mSheets[replayMenu]->getChild(REM_LIST_REPLAYS)->subscribeEvent(
         CEGUI::Listbox::EventMouseClick,
         CEGUI::Event::Subscriber(&mREMListClicked));
 
-    sheets[replayMenu]->getChild(REM_LIST_REPLAYS)->subscribeEvent(
+    mSheets[replayMenu]->getChild(REM_LIST_REPLAYS)->subscribeEvent(
         CEGUI::Listbox::EventMouseDoubleClick,
         CEGUI::Event::Subscriber(&mREMListDoubleClicked));
 
     // Set the game version
-    sheets[mainMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
-    sheets[skirmishMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
-    sheets[multiplayerServerMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
-    sheets[multiplayerClientMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
-    sheets[editorMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
-    sheets[replayMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
+    mSheets[mainMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
+    mSheets[skirmishMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
+    mSheets[multiplayerServerMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
+    mSheets[multiplayerClientMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
+    mSheets[editorMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
+    mSheets[replayMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
 }
 
 bool Gui::miniMapclicked(const CEGUI::EventArgs& e)

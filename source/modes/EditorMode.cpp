@@ -148,7 +148,7 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
     Ogre::RaySceneQueryResult& result = ODFrameListener::getSingleton().doRaySceneQuery(arg);
     for (Ogre::RaySceneQueryResult::iterator itr = result.begin(); itr != result.end(); ++itr)
     {
-        if (itr->movable == NULL)
+        if (itr->movable == nullptr)
             continue;
 
         // Check to see if the current query result is a tile.
@@ -258,7 +258,7 @@ void EditorMode::handleMouseMovedDragType(const OIS::MouseEvent &arg)
         // Since this is a tile selection query we loop over the result set and look for the first object which is actually a tile.
         for (; itr != end; ++itr)
         {
-            if (itr->movable == NULL)
+            if (itr->movable == nullptr)
                 continue;
 
             // Check to see if the current query result is a tile.
@@ -306,7 +306,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     InputManager* inputManager = mModeManager->getInputManager();
 
     // If the mouse press is on a CEGUI window ignore it
-    if (tempWindow != NULL && tempWindow->getName().compare("EDITORGUI") != 0)
+    if (tempWindow != nullptr && tempWindow->getName().compare("EDITORGUI") != 0)
     {
         inputManager->mMouseDownOnCEGUIWindow = true;
         return true;
@@ -335,7 +335,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         // See if the mouse is over any creatures
         for (;itr != result.end(); ++itr)
         {
-            if (itr->movable == NULL)
+            if (itr->movable == nullptr)
                 continue;
 
             std::string resultName = itr->movable->getName();
@@ -369,7 +369,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         // If we right clicked with the mouse over a valid map tile, try to drop a creature onto the map.
         Tile *curTile = mGameMap->getTile(inputManager->mXPos, inputManager->mYPos);
 
-        if (curTile == NULL)
+        if (curTile == nullptr)
             return true;
 
 
@@ -378,7 +378,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
             // If we right clicked with the mouse over a valid map tile, try to drop what we have in hand on the map.
             Tile *curTile = mGameMap->getTile(inputManager->mXPos, inputManager->mYPos);
 
-            if (curTile == NULL)
+            if (curTile == nullptr)
                 return true;
 
             if (mGameMap->getLocalPlayer()->isDropHandPossible(curTile, 0, true))
@@ -400,7 +400,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
             // No creature in hand. We check if we want to slap something
             for (;itr != result.end(); ++itr)
             {
-                if (itr->movable == NULL)
+                if (itr->movable == nullptr)
                     continue;
 
                 std::string resultName = itr->movable->getName();
@@ -453,7 +453,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         if (skipCreaturePickUp)
             break;
 
-        if (itr->movable == NULL)
+        if (itr->movable == nullptr)
             continue;
 
         std::string resultName = itr->movable->getName();

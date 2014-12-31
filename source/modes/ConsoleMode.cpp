@@ -33,8 +33,8 @@ const std::string CONSOLE_COMMANDS = "./config/console_commands.txt";
 ConsoleMode::ConsoleMode(ModeManager* modeManager, Console* console):
     AbstractApplicationMode(modeManager, ModeManager::CONSOLE),
     mConsole(console),
-    mPrefixTree(NULL),
-    mLl(NULL),
+    mPrefixTree(nullptr),
+    mLl(nullptr),
     mNonTagKeyPressed(true)
 {
     mPrefixTree = new PrefixTree();

@@ -21,7 +21,7 @@
 #include <algorithm>
 
 PrefixTree::PrefixTree():
-    mParent(NULL),
+    mParent(nullptr),
     mValidWord(false)
 {}
 
@@ -80,7 +80,7 @@ bool PrefixTree::complete(const char* word, std::list<std::string>* ll)
     //std::cout << wordString << std::endl;
 
     PrefixTree* ff = findPrefix(wordString);
-    if(ff != NULL)
+    if(ff != nullptr)
         return ff->completePlusPrefix(std::string(), ll);
     else
         return false;
@@ -119,7 +119,7 @@ PrefixTree* PrefixTree::findPrefixAux(std::string::const_iterator it, std::strin
                             } );
 
     if(result == mSiblingsList.end())
-        return NULL;
+        return nullptr;
 
     return result->second->findPrefixAux(++it, end_it) ;
 }

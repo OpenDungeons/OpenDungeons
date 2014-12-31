@@ -116,7 +116,7 @@ void Tile::setFullness(double f)
     // If the tile was marked for digging and has been dug out, unmark it and set its fullness to 0.
     if (mFullness == 0.0 && isMarkedForDiggingByAnySeat())
     {
-        setMarkedForDiggingForAllPlayersExcept(false, NULL);
+        setMarkedForDiggingForAllPlayersExcept(false, nullptr);
     }
 
     if ((oldFullness > 0.0) && (mFullness == 0.0))
@@ -131,13 +131,13 @@ void Tile::setFullness(double f)
     //
     bool fillStatus[9];
     Tile *tempTile = getGameMap()->getTile(mX, mY + 1);
-    fillStatus[0] = (tempTile != NULL) ? tempTile->getFullness() > 0.0 : false;
+    fillStatus[0] = (tempTile != nullptr) ? tempTile->getFullness() > 0.0 : false;
     tempTile = getGameMap()->getTile(mX, mY - 1);
-    fillStatus[1] = (tempTile != NULL) ? tempTile->getFullness() > 0.0 : false;
+    fillStatus[1] = (tempTile != nullptr) ? tempTile->getFullness() > 0.0 : false;
     tempTile = getGameMap()->getTile(mX - 1, mY);
-    fillStatus[2] = (tempTile != NULL) ? tempTile->getFullness() > 0.0 : false;
+    fillStatus[2] = (tempTile != nullptr) ? tempTile->getFullness() > 0.0 : false;
     tempTile = getGameMap()->getTile(mX + 1, mY);
-    fillStatus[3] = (tempTile != NULL) ? tempTile->getFullness() > 0.0 : false;
+    fillStatus[3] = (tempTile != nullptr) ? tempTile->getFullness() > 0.0 : false;
 
     int fullNeighbors = 0;
     if (fillStatus[0])
@@ -507,7 +507,7 @@ bool Tile::isWallClaimable(Seat* seat)
         return true;
 
     Seat* tileSeat = getSeat();
-    if (tileSeat == NULL)
+    if (tileSeat == nullptr)
         return true;
 
     // Or whether the wall tile is either claimed by the given player entirely already,
@@ -721,7 +721,7 @@ void Tile::loadFromLine(const std::string& line, Tile *t)
 
     int seatId = Helper::toInt(elems[4]);
     Seat* seat = t->getGameMap()->getSeatById(seatId);
-    if(seat == NULL)
+    if(seat == nullptr)
         return;
     t->setSeat(seat);
     t->mClaimedPercentage = 1.0;
@@ -956,7 +956,7 @@ void Tile::setMarkedForDiggingForAllPlayersExcept(bool s, Seat* exceptSeat)
     for (unsigned int i = 0, num = getGameMap()->numPlayers(); i < num; ++i)
     {
         Player* player = getGameMap()->getPlayer(i);
-        if(exceptSeat == NULL || (player->getSeat() != NULL && !exceptSeat->isAlliedSeat(player->getSeat())))
+        if(exceptSeat == nullptr || (player->getSeat() != nullptr && !exceptSeat->isAlliedSeat(player->getSeat())))
             setMarkedForDigging(s, player);
     }
 }
@@ -1031,7 +1031,7 @@ void Tile::addNeighbor(Tile *n)
 void Tile::claimForSeat(Seat* seat, double nDanceRate)
 {
     // If the seat is allied, we add to it. If it is an enemy seat, we subtract from it.
-    if (getSeat() != NULL && getSeat()->isAlliedSeat(seat))
+    if (getSeat() != nullptr && getSeat()->isAlliedSeat(seat))
     {
         mClaimedPercentage += nDanceRate;
     }
@@ -1049,7 +1049,7 @@ void Tile::claimForSeat(Seat* seat, double nDanceRate)
         }
     }
 
-    if ((getSeat() != NULL) && (mClaimedPercentage >= 1.0) &&
+    if ((getSeat() != nullptr) && (mClaimedPercentage >= 1.0) &&
         (getSeat()->isAlliedSeat(seat)))
     {
         claimTile(seat);
@@ -1058,7 +1058,7 @@ void Tile::claimForSeat(Seat* seat, double nDanceRate)
     /*
     // TODO: This should rather add lights along claimed walls, and not on every walls. Maybe each 5 ones?
     // If this is the first time this tile has been claimed, emit a flash of light indicating that the tile was claimed.
-    if (amountClaimed > 0.0 && claimLight == NULL)
+    if (amountClaimed > 0.0 && claimLight == nullptr)
     {
         //Disabled claim lights for now, as they make things look rather ugly
         //and hamper performance.
@@ -1091,7 +1091,7 @@ void Tile::claimTile(Seat* seat)
     {
         // Update potential active spots.
         Building* building = tile->getCoveringBuilding();
-        if (building != NULL)
+        if (building != nullptr)
         {
             building->updateActiveSpots();
             building->createMesh();
@@ -1248,8 +1248,8 @@ void Tile::fillWithAttackableCreatures(std::vector<GameEntity*>& entities, Seat*
 {
     for(GameEntity* entity : mEntitiesInTile)
     {
-        OD_ASSERT_TRUE(entity != NULL);
-        if((entity == NULL) || entity->getObjectType() != GameEntity::ObjectType::creature)
+        OD_ASSERT_TRUE(entity != nullptr);
+        if((entity == nullptr) || entity->getObjectType() != GameEntity::ObjectType::creature)
             continue;
 
         if(!entity->isAttackable())
@@ -1304,7 +1304,7 @@ void Tile::fillWithCarryableEntities(std::vector<MovableGameEntity*>& entities)
     for(GameEntity* entity : mEntitiesInTile)
     {
         OD_ASSERT_TRUE(entity != nullptr);
-        if(entity == NULL)
+        if(entity == nullptr)
             continue;
 
         MovableGameEntity* entityToCarry = nullptr;
@@ -1353,8 +1353,8 @@ void Tile::fillWithChickenEntities(std::vector<GameEntity*>& entities)
 {
     for(GameEntity* entity : mEntitiesInTile)
     {
-        OD_ASSERT_TRUE(entity != NULL);
-        if(entity == NULL)
+        OD_ASSERT_TRUE(entity != nullptr);
+        if(entity == nullptr)
             continue;
 
         if(entity->getObjectType() != GameEntity::ObjectType::renderedMovableEntity)
@@ -1372,8 +1372,8 @@ void Tile::fillWithCraftedTraps(std::vector<GameEntity*>& entities)
 {
     for(GameEntity* entity : mEntitiesInTile)
     {
-        OD_ASSERT_TRUE(entity != NULL);
-        if(entity == NULL)
+        OD_ASSERT_TRUE(entity != nullptr);
+        if(entity == nullptr)
             continue;
 
         if(entity->getObjectType() != GameEntity::ObjectType::renderedMovableEntity)
@@ -1399,8 +1399,8 @@ bool Tile::addTreasuryObject(TreasuryObject* obj)
     bool isMerged = false;
     for(GameEntity* entity : mEntitiesInTile)
     {
-        OD_ASSERT_TRUE(entity != NULL);
-        if(entity == NULL)
+        OD_ASSERT_TRUE(entity != nullptr);
+        if(entity == nullptr)
             continue;
 
         if(entity->getObjectType() != GameEntity::ObjectType::renderedMovableEntity)
