@@ -66,18 +66,18 @@ template<> ODFrameListener* Ogre::Singleton<ODFrameListener>::msSingleton = 0;
 ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::OverlaySystem* overLaySystem) :
     mInitialized(false),
     mWindow(renderWindow),
-    mModeManager(NULL),
+    mModeManager(nullptr),
     mShowDebugInfo(false),
     mContinue(true),
     mTerminalActive(false),
     mTerminalWordWrap(78),
     mChatMaxMessages(10),
     mChatMaxTimeDisplay(20.0f),
-    mRaySceneQuery(NULL),
-    mGameMap(NULL),
-    mMiniMap(NULL),
+    mRaySceneQuery(nullptr),
+    mGameMap(nullptr),
+    mMiniMap(nullptr),
     mExitRequested(false),
-    mCameraManager(NULL),
+    mCameraManager(nullptr),
     mIsChatInputMode(false)
 {
     LogManager* logManager = LogManager::getSingletonPtr();
@@ -96,7 +96,6 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::Overlay
     mRaySceneQuery = renderManager->getSceneManager()->createRayQuery(Ogre::Ray());
 
     mModeManager = new ModeManager(renderWindow);
-    mCameraManager->setModeManager(mModeManager);
 
     //Set initial mouse clipping size
     windowResized(mWindow);
@@ -127,7 +126,7 @@ void ODFrameListener::windowClosed(Ogre::RenderWindow* rw)
     if(rw == mWindow && mModeManager)
     {
         delete mModeManager;
-        mModeManager = NULL;
+        mModeManager = nullptr;
     }
 }
 
@@ -207,11 +206,7 @@ bool ODFrameListener::frameRenderingQueued(const Ogre::FrameEvent& evt)
         OD_USLEEP(1e6 * frameDelay);
     }
 
-    //Need to capture/update each device
-    mModeManager->checkModeChange();
-
-    // If game is started, we update the game
-    AbstractApplicationMode* currentMode = mModeManager->getCurrentMode();
+    mModeManager->update(evt);
 
     int64_t currentTurn = mGameMap->getTurnNumber();
 
@@ -221,12 +216,7 @@ bool ODFrameListener::frameRenderingQueued(const Ogre::FrameEvent& evt)
         updateAnimations(evt.timeSinceLastFrame);
     }
 
-    currentMode->getKeyboard()->capture();
-    currentMode->getMouse()->capture();
-
     mCameraManager->updateCameraFrameTime(evt.timeSinceLastFrame);
-    currentMode->onFrameStarted(evt);
-
     mCameraManager->onFrameStarted();
 
     if((currentTurn != -1) && (mGameMap->getGamePaused()) && (!mExitRequested))
@@ -247,6 +237,15 @@ bool ODFrameListener::frameRenderingQueued(const Ogre::FrameEvent& evt)
     refreshChat();
 
     return mContinue;
+}
+
+void ODFrameListener::updateMinimap()
+{
+    if (mMiniMap == nullptr)
+        return;
+
+    mMiniMap->updateCameraInfos(getCameraViewTarget(),
+                                mCameraManager->getActiveCameraNode()->getOrientation().getRoll().valueRadians());
 }
 
 void ODFrameListener::refreshChat()
@@ -453,21 +452,6 @@ void ODFrameListener::setCameraPosition(const Ogre::Vector3& position)
 void ODFrameListener::moveCamera(CameraManager::Direction direction)
 {
     mCameraManager->move(direction);
-}
-
-void ODFrameListener::cameraStopZoom()
-{
-    mCameraManager->stopZooming();
-}
-
-void ODFrameListener::setCameraRotateSpeed(Ogre::Real value)
-{
-    mCameraManager->setRotateSpeed(Ogre::Degree(value));
-}
-
-Ogre::Real ODFrameListener::getCameraRotateSpeedInDegrees()
-{
-    return mCameraManager->getRotateSpeed().valueDegrees();
 }
 
 void ODFrameListener::setActiveCameraNearClipDistance(Ogre::Real value)

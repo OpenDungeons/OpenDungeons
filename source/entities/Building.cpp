@@ -38,7 +38,7 @@ const Ogre::Vector3& Building::getScale() const
 
 void Building::addBuildingObject(Tile* targetTile, RenderedMovableEntity* obj)
 {
-    if(obj == NULL)
+    if(obj == nullptr)
         return;
 
     // We assume the object position has been already set (most of the time in loadBuildingObject)
@@ -95,7 +95,7 @@ void Building::removeAllBuildingObjects()
 RenderedMovableEntity* Building::getBuildingObjectFromTile(Tile* tile)
 {
     if(mBuildingObjects.count(tile) == 0)
-        return NULL;
+        return nullptr;
 
     RenderedMovableEntity* obj = mBuildingObjects[tile];
     return obj;
@@ -104,12 +104,12 @@ RenderedMovableEntity* Building::getBuildingObjectFromTile(Tile* tile)
 RenderedMovableEntity* Building::loadBuildingObject(GameMap* gameMap, const std::string& meshName,
     Tile* targetTile, double rotationAngle, bool hideCoveredTile, float opacity)
 {
-    if (targetTile == NULL)
+    if (targetTile == nullptr)
         targetTile = getCentralTile();
 
-    OD_ASSERT_TRUE(targetTile != NULL);
-    if(targetTile == NULL)
-        return NULL;
+    OD_ASSERT_TRUE(targetTile != nullptr);
+    if(targetTile == nullptr)
+        return nullptr;
 
     return loadBuildingObject(gameMap, meshName, targetTile, static_cast<double>(targetTile->getX()),
         static_cast<double>(targetTile->getY()), rotationAngle, hideCoveredTile, opacity);
@@ -134,7 +134,7 @@ RenderedMovableEntity* Building::loadBuildingObject(GameMap* gameMap, const std:
 Tile* Building::getCentralTile()
 {
     if (mCoveredTiles.empty())
-        return NULL;
+        return nullptr;
 
     int minX, maxX, minY, maxY;
     minX = maxX = mCoveredTiles[0]->getX();
@@ -205,7 +205,7 @@ void Building::clearCoveredTiles()
 
 double Building::getHP(Tile *tile) const
 {
-    if (tile != NULL)
+    if (tile != nullptr)
     {
         std::map<Tile*, double>::const_iterator tileSearched = mTileHP.find(tile);
         OD_ASSERT_TRUE(tileSearched != mTileHP.end());
@@ -215,7 +215,7 @@ double Building::getHP(Tile *tile) const
         return tileSearched->second;
     }
 
-    // If the tile given was NULL, we add the total HP of all the tiles in the room and return that.
+    // If the tile given was nullptr, we add the total HP of all the tiles in the room and return that.
     double total = 0.0;
 
     for(const std::pair<Tile* const, double>& p : mTileHP)
@@ -236,11 +236,11 @@ double Building::takeDamage(GameEntity* attacker, double physicalDamage, double 
         return damageDone;
 
     Seat* seat = getSeat();
-    if (seat == NULL)
+    if (seat == nullptr)
         return damageDone;
 
     Player* player = gameMap->getPlayerBySeatId(seat->getId());
-    if (player == NULL)
+    if (player == nullptr)
         return damageDone;
 
     // Tells the server game map the player is under attack.
@@ -257,7 +257,7 @@ std::string Building::getNameTile(Tile* tile)
 
 bool Building::isAttackable() const
 {
-    if(getHP(NULL) <= 0.0)
+    if(getHP(nullptr) <= 0.0)
         return false;
 
     return true;

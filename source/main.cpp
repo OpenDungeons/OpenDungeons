@@ -51,7 +51,7 @@ void setErrorHandler()
     struct sigaction sigact;
     sigact.sa_sigaction = StackTracePrint::critErrHandler;
     sigact.sa_flags = SA_RESTART | SA_SIGINFO;
-    if (sigaction(SIGSEGV, &sigact, (struct sigaction *)NULL) != 0)
+    if (sigaction(SIGSEGV, &sigact, (struct sigaction *)nullptr) != 0)
     {
         std::cerr << "error setting signal handler for: "
             << SIGSEGV << strsignal(SIGSEGV) << std::endl;

@@ -21,8 +21,8 @@
 
 CreatureAction::CreatureAction() :
     mType    (idle),
-    mTile    (NULL),
-    mCreature(NULL)
+    mTile    (nullptr),
+    mCreature(nullptr)
 {
 }
 

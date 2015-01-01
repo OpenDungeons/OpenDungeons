@@ -124,7 +124,7 @@ bool TreasuryObject::tryDrop(Seat* seat, Tile* tile, bool isEditorMode)
         return false;
 
     // Otherwise, we allow to drop an object only on allied claimed tiles
-    if(tile->getType() == Tile::claimed && tile->getSeat() != NULL && tile->getSeat()->isAlliedSeat(seat))
+    if(tile->getType() == Tile::claimed && tile->getSeat() != nullptr && tile->getSeat()->isAlliedSeat(seat))
         return true;
 
     return false;

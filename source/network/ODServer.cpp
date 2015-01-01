@@ -111,7 +111,7 @@ bool ODServer::startServer(const std::string& levelFilename, ServerMode mode)
 
 void ODServer::queueServerNotification(ServerNotification* n)
 {
-    if ((n == NULL) || (!isConnected()))
+    if ((n == nullptr) || (!isConnected()))
         return;
     mServerNotificationQueue.push_back(n);
 }
@@ -142,7 +142,7 @@ void ODServer::sendMsg(Player* player, ODPacket& packet)
 
 void ODServer::queueConsoleCommand(ODConsoleCommand* cc)
 {
-    if ((cc == NULL) || (!isConnected()))
+    if ((cc == nullptr) || (!isConnected()))
         return;
     mConsoleCommandQueue.push_back(cc);
 }
@@ -162,7 +162,7 @@ void ODServer::processServerCommandQueue()
         ODConsoleCommand *command = mConsoleCommandQueue.front();
         mConsoleCommandQueue.pop_front();
 
-        if (command == NULL)
+        if (command == nullptr)
             continue;
 
         command->execute(gameMap);
@@ -381,11 +381,6 @@ void ODServer::processServerNotifications()
                 sendMsg(event->mConcernedPlayer, event->mPacket);
                 break;
 
-            case ServerNotification::setTurnsPerSecond:
-                // This one is not used on client side. Shall we remove it?
-                sendMsg(event->mConcernedPlayer, event->mPacket);
-                break;
-
             case ServerNotification::entityPickedUp:
                 // This message should not be sent by human players (they are notified asynchronously)
                 OD_ASSERT_TRUE_MSG(event->mConcernedPlayer->getIsHuman(), "nick=" + event->mConcernedPlayer->getNick());
@@ -415,7 +410,7 @@ void ODServer::processServerNotifications()
         }
 
         delete event;
-        event = NULL;
+        event = nullptr;
     }
 }
 
@@ -882,7 +877,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 if(player->isDropHandPossible(tile, 0, mServerMode == ServerMode::ModeEditor))
                 {
                     // We notify the players
-                    OD_ASSERT_TRUE(player->dropHand(tile, 0) != NULL);
+                    OD_ASSERT_TRUE(player->dropHand(tile, 0) != nullptr);
                 }
                 else
                 {
@@ -1543,7 +1538,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> type >> seatId);
             Seat* seat = gameMap->getSeatById(seatId);
-            OD_ASSERT_TRUE_MSG(seat != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
+            OD_ASSERT_TRUE_MSG(seat != nullptr, "seatId=" + Ogre::StringConverter::toString(seatId));
             std::vector<Tile*> selectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
             std::vector<Tile*> tiles;
             // We start by changing the tiles so that the room can be built
@@ -1677,7 +1672,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> type >> seatId);
             Seat* seat = gameMap->getSeatById(seatId);
-            OD_ASSERT_TRUE_MSG(seat != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
+            OD_ASSERT_TRUE_MSG(seat != nullptr, "seatId=" + Ogre::StringConverter::toString(seatId));
             std::vector<Tile*> selectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
             std::vector<Tile*> tiles;
             // We start by changing the tiles so that the trap can be built
@@ -1742,7 +1737,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             int seatId;
             OD_ASSERT_TRUE(packetReceived >> seatId);
             Seat* seatCreature = gameMap->getSeatById(seatId);
-            OD_ASSERT_TRUE_MSG(seatCreature != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
+            OD_ASSERT_TRUE_MSG(seatCreature != nullptr, "seatId=" + Ogre::StringConverter::toString(seatId));
             const CreatureDefinition *classToSpawn = gameMap->getClassDescription("Kobold");
             OD_ASSERT_TRUE(classToSpawn != nullptr);
             if(classToSpawn == nullptr)
@@ -1775,7 +1770,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             std::string className;
             OD_ASSERT_TRUE(packetReceived >> seatId >> className);
             Seat* seatCreature = gameMap->getSeatById(seatId);
-            OD_ASSERT_TRUE_MSG(seatCreature != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
+            OD_ASSERT_TRUE_MSG(seatCreature != nullptr, "seatId=" + Ogre::StringConverter::toString(seatId));
             const CreatureDefinition *classToSpawn = gameMap->getClassDescription(className);
             OD_ASSERT_TRUE_MSG(classToSpawn != nullptr, "Couldn't spawn creature class=" + className);
             if(classToSpawn == nullptr)
@@ -1812,7 +1807,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 bool ODServer::notifyNewConnection(ODSocketClient *clientSocket)
 {
     GameMap* gameMap = mGameMap;
-    if (gameMap == NULL)
+    if (gameMap == nullptr)
         return false;
 
     switch(mServerState)
@@ -1889,7 +1884,7 @@ void ODServer::notifyExit()
 
 ODSocketClient* ODServer::getClientFromPlayer(Player* player)
 {
-    ODSocketClient* ret = NULL;
+    ODSocketClient* ret = nullptr;
 
     for (ODSocketClient* client : mSockClients)
     {

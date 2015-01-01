@@ -49,7 +49,7 @@ public:
     };
 
     CreatureAction();
-    CreatureAction(const ActionType nType, Tile* nTile = NULL, Creature* nCreature = NULL);
+    CreatureAction(const ActionType nType, Tile* nTile = nullptr, Creature* nCreature = nullptr);
 
     inline void setType(const ActionType nType)
     { mType = nType; }

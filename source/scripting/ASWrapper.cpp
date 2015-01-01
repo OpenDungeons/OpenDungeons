@@ -372,22 +372,6 @@ void ASWrapper::registerEverything()
     r = mEngine->RegisterGlobalProperty(
             "CameraManager cameraManager",
             ODFrameListener::getSingletonPtr()->getCameraManager()); assert(r >= 0);
-    r = mEngine->RegisterObjectMethod("CameraManager",
-            "void set_MoveSpeedAccel(float &in)",
-            asMETHOD(CameraManager, setMoveSpeedAccel),
-            asCALL_THISCALL); assert(r >= 0);
-    r = mEngine->RegisterObjectMethod("CameraManager",
-            "float& get_MoveSpeed()",
-            asMETHOD(CameraManager, getMoveSpeed),
-            asCALL_THISCALL); assert(r >= 0);
-    r = mEngine->RegisterObjectMethod("CameraManager",
-            "void set_RotateSpeed(float &in)",
-            asMETHOD(CameraManager, setRotateSpeed),
-            asCALL_THISCALL); assert(r >= 0);
-    r = mEngine->RegisterObjectMethod("CameraManager",
-            "float get_RotateSpeed()",
-            asMETHOD(CameraManager, getRotateSpeed),
-            asCALL_THISCALL);
     // Test r and silences a compiler warning at the same time.
     if (r < 0)
     {

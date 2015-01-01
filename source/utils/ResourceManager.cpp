@@ -199,7 +199,7 @@ void ResourceManager::setupUserDataFolders()
 #elif OGRE_PLATFORM == OGRE_PLATFORM_WIN32
     char path[MAX_PATH];
     // %APPDATA% (%USERPROFILE%\Application Data)
-    if(SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_APPDATA, NULL, 0, path)))
+    if(SUCCEEDED(SHGetFolderPathA(nullptr, CSIDL_APPDATA, nullptr, 0, path)))
     {
         mUserDataPath = std::string(path) + "/opendungeons/";
         mUserConfigPath = mUserDataPath + "cfg/";

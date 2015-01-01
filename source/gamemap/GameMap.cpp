@@ -83,7 +83,7 @@ class AstarEntry
 {
 public:
     AstarEntry() :
-        tile    (NULL),
+        tile    (nullptr),
         parent  (0),
         g       (0),
         h       (0)
@@ -371,7 +371,7 @@ const Weapon* GameMap::getWeapon(const std::string& name)
             return def.first;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 Weapon* GameMap::getWeaponForTuning(const std::string& name)
@@ -464,7 +464,7 @@ const CreatureDefinition* GameMap::getClassDescription(const std::string& classN
             return def.first;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 CreatureDefinition* GameMap::getClassDescriptionForTuning(const std::string& name)
@@ -1017,7 +1017,7 @@ void GameMap::doTurn()
         if (creature->getHP() > 0.0)
         {
             Seat *tempSeat = creature->getSeat();
-            if(tempSeat != NULL)
+            if(tempSeat != nullptr)
                 ++(tempSeat->mNumCreaturesControlled);
         }
     }
@@ -1227,13 +1227,16 @@ unsigned long int GameMap::doMiscUpkeep()
             {
                 // Increment the count of the seat who owns the tile.
                 tempSeat = tempTile->getSeat();
-                if (tempSeat != NULL)
+                if (tempSeat != nullptr)
                 {
                     tempSeat->incrementNumClaimedTiles();
                 }
             }
         }
     }
+
+    // Updates the minimap at least once per turn
+    ODFrameListener::getSingleton().updateMinimap();
 
     timeTaken = stopwatch.getMicroseconds();
     return timeTaken;
@@ -1393,7 +1396,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* c
     openList.push_back(currentEntry);
 
     std::vector<AstarEntry*> closedList;
-    AstarEntry* destinationEntry = NULL;
+    AstarEntry* destinationEntry = nullptr;
     while (true)
     {
         // if the openList is empty we failed to find a path
@@ -1424,7 +1427,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* c
         // Note : to disable diagonals, process tiles from 0 to 3. To allow them, process tiles from 0 to 7
         for (unsigned int i = 0; i < 8; ++i)
         {
-            Tile* neighborTile = NULL;
+            Tile* neighborTile = nullptr;
             switch(i)
             {
                 // We process the 4 adjacent tiles
@@ -1459,7 +1462,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* c
                         neighborTile = getTile(currentEntry->getTile()->getX() + 1, currentEntry->getTile()->getY() + 1);
                     break;
             }
-            if(neighborTile == NULL)
+            if(neighborTile == nullptr)
                 continue;
 
             neighbor.setTile(neighborTile);
@@ -1479,7 +1482,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* c
                 continue;
 
             // See if the neighbor is in the closed list
-            AstarEntry* neighborEntry = NULL;
+            AstarEntry* neighborEntry = nullptr;
             for(std::vector<AstarEntry*>::iterator itr = closedList.begin(); itr != closedList.end(); ++itr)
             {
                 if (neighbor.getTile() == (*itr)->getTile())
@@ -1490,7 +1493,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* c
             }
 
             // Ignore the neighbor if it is on the closed list
-            if (neighborEntry != NULL)
+            if (neighborEntry != nullptr)
                 continue;
 
             // See if the neighbor is in the open list
@@ -1504,7 +1507,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* c
             }
 
             // If the neighbor is not in the open list
-            if (neighborEntry == NULL)
+            if (neighborEntry == nullptr)
             {
                 double weightToParent = AstarEntry::computeHeuristic(neighbor.getTile()->getX(), neighbor.getTile()->getY(),
                     currentEntry->getTile()->getX(), currentEntry->getTile()->getY());
@@ -1542,19 +1545,19 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* c
         }
     }
 
-    if (destinationEntry != NULL)
+    if (destinationEntry != nullptr)
     {
         // Follow the parent chain back the the starting tile
         AstarEntry* curEntry = destinationEntry;
         do
         {
-            if (curEntry->getTile() != NULL)
+            if (curEntry->getTile() != nullptr)
             {
                 returnList.push_front(curEntry->getTile());
                 curEntry = curEntry->getParent();
             }
 
-        } while (curEntry != NULL);
+        } while (curEntry != nullptr);
     }
 
     // Clean up the memory we allocated by deleting the astarEntries in the open and closed lists
@@ -1590,14 +1593,14 @@ Player* GameMap::getPlayer(unsigned int index)
 {
     if (index < mPlayers.size())
         return mPlayers[index];
-    return NULL;
+    return nullptr;
 }
 
 const Player* GameMap::getPlayer(unsigned int index) const
 {
     if (index < mPlayers.size())
         return mPlayers[index];
-    return NULL;
+    return nullptr;
 }
 
 Player* GameMap::getPlayer(const std::string& pName)
@@ -1610,7 +1613,7 @@ Player* GameMap::getPlayer(const std::string& pName)
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 const Player* GameMap::getPlayer(const std::string& pName) const
@@ -1623,7 +1626,7 @@ const Player* GameMap::getPlayer(const std::string& pName) const
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 unsigned int GameMap::numPlayers() const
@@ -1638,7 +1641,7 @@ Player* GameMap::getPlayerBySeatId(int seatId)
         if(player->getSeat()->getId() == seatId)
             return player;
     }
-    return NULL;
+    return nullptr;
 }
 
 Player* GameMap::getPlayerBySeat(Seat* seat)
@@ -1648,7 +1651,7 @@ Player* GameMap::getPlayerBySeat(Seat* seat)
         if(player->getSeat() == seat)
             return player;
     }
-    return NULL;
+    return nullptr;
 }
 
 std::list<Tile*> GameMap::tilesBetween(int x1, int y1, int x2, int y2)
@@ -1734,7 +1737,7 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
 
         Tile *tempTile = getTile(startX + coord.first, startY + coord.second);
         double tempTheta = mTileCoordinateMap->getCentralTheta(tileCounter);
-        if (tempTile != NULL)
+        if (tempTile != nullptr)
             tileQueue.push_back(std::pair<Tile*, double> (tempTile, tempTheta));
 
         ++tileCounter;
@@ -1809,8 +1812,8 @@ std::vector<GameEntity*> GameMap::getVisibleForce(std::vector<Tile*> visibleTile
     for (std::vector<Tile*>::iterator itr = visibleTiles.begin(); itr != visibleTiles.end(); ++itr)
     {
         Tile* tile = *itr;
-        OD_ASSERT_TRUE(tile != NULL);
-        if(tile == NULL)
+        OD_ASSERT_TRUE(tile != nullptr);
+        if(tile == nullptr)
             continue;
 
         tile->fillWithAttackableCreatures(returnList, seat, invert);
@@ -1829,8 +1832,8 @@ std::vector<GameEntity*> GameMap::getVisibleCreatures(std::vector<Tile*> visible
     for (std::vector<Tile*>::iterator itr = visibleTiles.begin(); itr != visibleTiles.end(); ++itr)
     {
         Tile* tile = *itr;
-        OD_ASSERT_TRUE(tile != NULL);
-        if(tile == NULL)
+        OD_ASSERT_TRUE(tile != nullptr);
+        if(tile == nullptr)
             continue;
 
         tile->fillWithAttackableCreatures(returnList, seat, invert);
@@ -1846,8 +1849,8 @@ std::vector<MovableGameEntity*> GameMap::getVisibleCarryableEntities(std::vector
     // Loop over the visible tiles
     for (Tile* tile : visibleTiles)
     {
-        OD_ASSERT_TRUE(tile != NULL);
-        if(tile == NULL)
+        OD_ASSERT_TRUE(tile != nullptr);
+        if(tile == nullptr)
             continue;
 
         tile->fillWithCarryableEntities(returnList);
@@ -2171,7 +2174,7 @@ void GameMap::clearSeats()
 void GameMap::addSeat(Seat *s)
 {
     OD_ASSERT_TRUE(s != nullptr);
-    if (s == NULL)
+    if (s == nullptr)
         return;
 
     mSeats.push_back(s);
@@ -2268,7 +2271,7 @@ void GameMap::clearGoalsForAllSeats()
 
 Ogre::Real GameMap::crowDistance(Tile *t1, Tile *t2)
 {
-    if (t1 != NULL && t2 != NULL)
+    if (t1 != nullptr && t2 != nullptr)
         return crowDistance(t1->getX(), t2->getX(), t1->getY(), t2->getY());
     else
         return -1.0f;
@@ -2732,7 +2735,7 @@ std::string GameMap::getGoalsStringForPlayer(Player* player)
 int GameMap::addGoldToSeat(int gold, int seatId)
 {
     Seat* seat = getSeatById(seatId);
-    if(seat == NULL)
+    if(seat == nullptr)
         return gold;
 
     std::vector<Room*> treasuriesOwned = getRoomsByTypeAndSeat(Room::treasury, seat);
@@ -2777,7 +2780,7 @@ std::string GameMap::nextUniqueNameCreature(const std::string& className)
     {
         ++mUniqueNumberCreature;
         ret = className + Ogre::StringConverter::toString(mUniqueNumberCreature);
-    } while(getAnimatedObject(ret) != NULL);
+    } while(getAnimatedObject(ret) != nullptr);
     return ret;
 }
 
@@ -2788,7 +2791,7 @@ std::string GameMap::nextUniqueNameRoom(const std::string& meshName)
     {
         ++mUniqueNumberRoom;
         ret = meshName + Ogre::StringConverter::toString(mUniqueNumberRoom);
-    } while(getAnimatedObject(ret) != NULL);
+    } while(getAnimatedObject(ret) != nullptr);
     return ret;
 }
 
@@ -2799,7 +2802,7 @@ std::string GameMap::nextUniqueNameRenderedMovableEntity(const std::string& base
     {
         ++mUniqueNumberRenderedMovableEntity;
         ret = RenderedMovableEntity::RENDEREDMOVABLEENTITY_PREFIX + baseName + "_" + Ogre::StringConverter::toString(mUniqueNumberRenderedMovableEntity);
-    } while(getAnimatedObject(ret) != NULL);
+    } while(getAnimatedObject(ret) != nullptr);
     return ret;
 }
 
@@ -2810,7 +2813,7 @@ std::string GameMap::nextUniqueNameTrap(const std::string& meshName)
     {
         ++mUniqueNumberTrap;
         ret = meshName + "_" + Ogre::StringConverter::toString(mUniqueNumberTrap);
-    } while(getAnimatedObject(ret) != NULL);
+    } while(getAnimatedObject(ret) != nullptr);
     return ret;
 }
 
@@ -2821,7 +2824,7 @@ std::string GameMap::nextUniqueNameMapLight()
     {
         ++mUniqueNumberMapLight;
         ret = MapLight::MAPLIGHT_NAME_PREFIX + Ogre::StringConverter::toString(mUniqueNumberMapLight);
-    } while(getAnimatedObject(ret) != NULL);
+    } while(getAnimatedObject(ret) != nullptr);
     return ret;
 }
 
@@ -2931,7 +2934,7 @@ bool GameMap::pathToBestFightingPosition(std::list<Tile*>& pathToTarget, Creatur
 {
     // First, we search the tiles from where we can attack as far as possible
     Tile* tileCreature = attackingCreature->getPositionTile();
-    if((tileCreature == NULL) || (attackedTile == NULL))
+    if((tileCreature == nullptr) || (attackedTile == nullptr))
         return false;
 
     double range = attackingCreature->getBestAttackRange();
@@ -2944,14 +2947,14 @@ bool GameMap::pathToBestFightingPosition(std::list<Tile*>& pathToTarget, Creatur
             int diffY = range - std::abs(i);
             Tile* tile;
             tile = getTile(attackedTile->getX() + i, attackedTile->getY() + diffY);
-            if(tile != NULL && pathExists(attackingCreature, tileCreature, tile))
+            if(tile != nullptr && pathExists(attackingCreature, tileCreature, tile))
                 possibleTiles.push_back(tile);
 
             if(diffY == 0)
                 continue;
 
             tile = getTile(attackedTile->getX() + i, attackedTile->getY() - diffY);
-            if(tile != NULL && pathExists(attackingCreature, tileCreature, tile))
+            if(tile != nullptr && pathExists(attackingCreature, tileCreature, tile))
                 possibleTiles.push_back(tile);
         }
 
@@ -2990,9 +2993,9 @@ bool GameMap::pathToBestFightingPosition(std::list<Tile*>& pathToTarget, Creatur
 GameEntity* GameMap::getClosestTileWhereGameEntityFromList(std::vector<GameEntity*> listObjects, Tile* origin, Tile*& attackedTile)
 {
     if(listObjects.empty())
-        return NULL;
+        return nullptr;
 
-    GameEntity* closestGameEntity = NULL;
+    GameEntity* closestGameEntity = nullptr;
     double shortestDist = 0.0;
     for(std::vector<GameEntity*>::iterator itObj = listObjects.begin(); itObj != listObjects.end(); ++itObj)
     {
@@ -3001,10 +3004,10 @@ GameEntity* GameMap::getClosestTileWhereGameEntityFromList(std::vector<GameEntit
         for(std::vector<Tile*>::iterator itTile = tiles.begin(); itTile != tiles.end(); ++itTile)
         {
             Tile* tile = *itTile;
-            OD_ASSERT_TRUE(tile != NULL);
+            OD_ASSERT_TRUE(tile != nullptr);
             double dist = std::pow(static_cast<double>(std::abs(tile->getX() - origin->getX())), 2);
             dist += std::pow(static_cast<double>(std::abs(tile->getY() - origin->getY())), 2);
-            if(closestGameEntity == NULL || dist < shortestDist)
+            if(closestGameEntity == nullptr || dist < shortestDist)
             {
                 shortestDist = dist;
                 closestGameEntity = gameEntity;

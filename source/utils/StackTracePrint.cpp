@@ -60,7 +60,7 @@ void StackTracePrint::critErrHandler(int sig_num, siginfo_t* info, void* ucontex
     char** messages = backtrace_symbols(array, size);
 
     // skip first stack frame (points here)
-    for (int i = 1; i < size && messages != NULL; ++i)
+    for (int i = 1; i < size && messages != nullptr; ++i)
     {
         char* mangled_name = 0, *offset_begin = 0, *offset_end = 0;
 

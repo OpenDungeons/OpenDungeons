@@ -261,7 +261,7 @@ void Trap::updateActiveSpots()
         for(Tile* tile : mCoveredTiles)
         {
             RenderedMovableEntity* obj = notifyActiveSpotCreated(tile);
-            if(obj == NULL)
+            if(obj == nullptr)
                 continue;
 
             addBuildingObject(tile, obj);
@@ -292,7 +292,7 @@ void Trap::updateActiveSpots()
 
 RenderedMovableEntity* Trap::notifyActiveSpotCreated(Tile* tile)
 {
-    return NULL;
+    return nullptr;
 }
 
 void Trap::notifyActiveSpotRemoved(Tile* tile)
@@ -516,8 +516,8 @@ void Trap::importFromPacket(ODPacket& is)
     {
         OD_ASSERT_TRUE(is >> tempX >> tempY);
         Tile *tempTile = getGameMap()->getTile(tempX, tempY);
-        OD_ASSERT_TRUE_MSG(tempTile != NULL, "tile=" + Ogre::StringConverter::toString(tempX) + "," + Ogre::StringConverter::toString(tempY));
-        if (tempTile != NULL)
+        OD_ASSERT_TRUE_MSG(tempTile != nullptr, "tile=" + Ogre::StringConverter::toString(tempX) + "," + Ogre::StringConverter::toString(tempY));
+        if (tempTile != nullptr)
         {
             addCoveredTile(tempTile, Trap::DEFAULT_TILE_HP);
             tempTile->setSeat(getSeat());
@@ -549,8 +549,8 @@ void Trap::importFromStream(std::istream& is)
     {
         OD_ASSERT_TRUE(is >> tempX >> tempY >> tempActiv);
         Tile *tempTile = getGameMap()->getTile(tempX, tempY);
-        OD_ASSERT_TRUE_MSG(tempTile != NULL, "tile=" + Ogre::StringConverter::toString(tempX) + "," + Ogre::StringConverter::toString(tempY));
-        if (tempTile != NULL)
+        OD_ASSERT_TRUE_MSG(tempTile != nullptr, "tile=" + Ogre::StringConverter::toString(tempX) + "," + Ogre::StringConverter::toString(tempY));
+        if (tempTile != nullptr)
         {
             addCoveredTile(tempTile, Trap::DEFAULT_TILE_HP);
             tempTile->setSeat(getSeat());

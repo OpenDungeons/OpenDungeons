@@ -99,7 +99,7 @@ unsigned int Seat::numUncompleteGoals()
 Goal* Seat::getUncompleteGoal(unsigned int index)
 {
     if (index >= mUncompleteGoals.size())
-        return NULL;
+        return nullptr;
 
     return mUncompleteGoals[index];
 }
@@ -122,7 +122,7 @@ unsigned int Seat::numCompletedGoals()
 Goal* Seat::getCompletedGoal(unsigned int index)
 {
     if (index >= mCompletedGoals.size())
-        return NULL;
+        return nullptr;
 
     return mCompletedGoals[index];
 }
@@ -135,7 +135,7 @@ unsigned int Seat::numFailedGoals()
 Goal* Seat::getFailedGoal(unsigned int index)
 {
     if (index >= mFailedGoals.size())
-        return NULL;
+        return nullptr;
 
     return mFailedGoals[index];
 }

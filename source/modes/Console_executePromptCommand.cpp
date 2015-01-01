@@ -20,10 +20,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* TODO: do intense testing that everything works
- * TODO: switch from TextRenderer to Console
- */
-
 #include "modes/Console.h"
 #include "render/RenderManager.h"
 #include "gamemap/MapLoader.h"
@@ -47,10 +43,6 @@
 
 #include <sstream>
 
-using std::min;
-using std::max;
-using Ogre::Radian;
-
 bool Console::executePromptCommand(const std::string& command, std::string arguments)
 {
     std::stringstream tempSS;
@@ -58,78 +50,10 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
     GameMap* gameMap = frameListener->mGameMap;
 
-    /*
     // Exit the program
     if (command.compare("quit") == 0 || command.compare("exit") == 0)
     {
-        //NOTE: converted to AS
         frameListener->requestExit();
-    }
-
-    // Repeat the arguments of the command back to you
-    else if (command.compare("echo") == 0)
-    {
-        //NOTE: dropped in AS (was this any useful?)
-        frameListener->mCommandOutput += "\n" + arguments + "\n";
-    } */
-
-    /*
-    // Write the current level out to file specified as an argument
-    if (command.compare("save") == 0)
-    {
-        //NOTE: convetred to AS
-        if (arguments.empty())
-        {
-            frameListener->mCommandOutput
-                    += "No level name given: saving over the last loaded level: "
-                            + gameMap->getLevelFileName() + "\n\n";
-            arguments = gameMap->getLevelFileName();
-        }
-
-        string tempFileName = "levels/" + arguments + ".level";
-        MapLoader::writeGameMapToFile(tempFileName, *gameMap);
-        frameListener->mCommandOutput += "\nFile saved to   " + tempFileName + "\n";
-
-        gameMap->setLevelFileName(arguments);
-    }*/
-
-    // Clear the current level and load a new one from a file
-    if (command.compare("load") == 0)
-    {
-        if (arguments.empty())
-        {
-            frameListener->mCommandOutput
-                    += "No level name given: loading the last loaded level: "
-                            + gameMap->getLevelFileName() + "\n\n";
-            arguments = gameMap->getLevelFileName();
-        }
-
-        if (!ODClient::getSingleton().isConnected())
-        {
-            /* If the starting point of the string found is equal to the size
-             * of the level name minus the extension (.level)
-             */
-            string tempString = "levels/" + arguments;
-            if(arguments.find(".level") != (arguments.size() - 6))
-            {
-                tempString += ".level";
-            }
-
-            if (ODServer::getSingleton().isConnected())
-            {
-                frameListener->mCommandOutput
-                    += "ERROR:  Cannot load a level if you are a already running a server.";
-            }
-            else
-            {
-                gameMap->loadLevel(tempString);
-            }
-        }
-        else
-        {
-            frameListener->mCommandOutput
-                    += "ERROR:  Cannot load a level if you are a client, only the sever can load new levels.";
-        }
     }
 
     // Set the ambient light color
@@ -167,120 +91,6 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                 : "\n" + ODApplication::HELP_MESSAGE + "\n";
     }
 
-    /*
-    // A utility to set the wordrap on the terminal to a specific value
-    else if (command.compare("termwidth") == 0)
-    {
-        //NOTE: dropped in AS (this done by the console)
-        if (!arguments.empty())
-        {
-            tempSS.str(arguments);
-            tempSS >> terminalWordWrap;
-        }
-
-        // Print the "tens" place line at the top
-        for (int i = 0; i < terminalWordWrap / 10; ++i)
-        {
-            frameListener->mCommandOutput += "         " + Ogre::StringConverter::toString(i + 1);
-        }
-
-        frameListener->mCommandOutput += "\n";
-
-        // Print the "ones" place
-        const std::string tempString = "1234567890";
-        for (int i = 0; i < terminalWordWrap - 1; ++i)
-        {
-            frameListener->mCommandOutput += tempString.substr(i % 10, 1);
-        }
-
-    } */
-
-    // A utility which adds a new section of the map given as the
-    // rectangular region between two pairs of coordinates
-    else if (command.compare("addtiles") == 0)
-    {
-        int x1, y1, x2, y2;
-        tempSS.str(arguments);
-        tempSS >> x1 >> y1 >> x2 >> y2;
-        int xMin, yMin, xMax, yMax;
-        xMin = min(x1, x2);
-        xMax = max(x1, x2);
-        yMin = min(y1, y2);
-        yMax = max(y1, y2);
-
-        for (int j = yMin; j < yMax; ++j)
-        {
-            for (int i = xMin; i < xMax; ++i)
-            {
-                if (gameMap->getTile(i, j) == NULL)
-                {
-                    std::stringstream ss;
-
-                    ss.str(std::string());
-                    ss << "Level";
-                    ss << "_";
-                    ss << i;
-                    ss << "_";
-                    ss << j;
-
-                    Tile* t = new Tile(gameMap, i, j, Tile::dirt, 100);
-                    t->setName(ss.str());
-                    t->createMesh();
-                    gameMap->addTile(t);
-                }
-            }
-        }
-
-        frameListener->mCommandOutput += "\nCreating tiles for region:\n\n\t("
-                + Ogre::StringConverter::toString(xMin) + ", "
-                + Ogre::StringConverter::toString(yMin) + ")\tto\t("
-                + Ogre::StringConverter::toString(xMax) + ", "
-                + Ogre::StringConverter::toString(yMax) + ")\n";
-    }
-
-    // A utility to set the camera movement speed
-    // else if (command.compare("movespeed") == 0)
-    // {
-    //     //NOTE: converted to AS
-    //     if (!arguments.empty())
-    //     {
-    //         Ogre::Real tempDouble;
-    //         tempSS.str(arguments);
-    //         tempSS >> tempDouble;
-    //         cm->setMoveSpeedAccel(2.0 * tempDouble);
-    //         frameListener->mCommandOutput += "\nmovespeed set to " + Ogre::StringConverter::toString(
-    //                 tempDouble) + "\n";
-    //     }
-    //     else
-    //     {
-    //         frameListener->mCommandOutput += "\nCurrent movespeed is "
-    //                 + Ogre::StringConverter::toString(
-    //                         cm->getMoveSpeed())
-    //                 + "\n";
-    //     }
-    // }
-
-    // A utility to set the camera rotation speed.
-    else if (command.compare("rotatespeed") == 0)
-    {
-        if (!arguments.empty())
-        {
-            Ogre::Real tempDouble = 0.0;
-            tempSS.str(arguments);
-            tempSS >> tempDouble;
-            frameListener->setCameraRotateSpeed(tempDouble);
-            frameListener->mCommandOutput += "\nrotatespeed set to "
-                    + Ogre::StringConverter::toString(frameListener->getCameraRotateSpeedInDegrees())
-                    + "\n";
-        }
-        else
-        {
-            frameListener->mCommandOutput += "\nCurrent rotatespeed is "
-                    + Ogre::StringConverter::toString(frameListener->getCameraRotateSpeedInDegrees()) + "\n";
-        }
-    }
-
-    /*
     // Set max frames per second
     else if (command.compare("fps") == 0)
     {
@@ -301,36 +111,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                     + Ogre::StringConverter::toString(static_cast<Ogre::Real>(ODApplication::MAX_FRAMES_PER_SECOND))
                     + "\n";
         }
-    }*/
-
-    // Set the turnsPerSecond variable to control the AI speed
-    else if(command.compare("turnspersecond") == 0
-            || command.compare("tps") == 0)
-    {
-        if (!arguments.empty())
-        {
-            tempSS.str(arguments);
-            tempSS >> ODApplication::turnsPerSecond;
-
-            if (ODServer::getSingleton().isConnected())
-            {
-                // Inform any connected clients about the change
-                ServerNotification *serverNotification = new ServerNotification(
-                    ServerNotification::setTurnsPerSecond, nullptr);
-                serverNotification->mPacket << ODApplication::turnsPerSecond;
-                ODServer::getSingleton().queueServerNotification(serverNotification);
-            }
-
-            frameListener->mCommandOutput += "\nMaximum turns per second set to "
-                    + Ogre::StringConverter::toString(static_cast<Ogre::Real>(ODApplication::turnsPerSecond)) + "\n";
-        }
-        else
-        {
-            frameListener->mCommandOutput += "\nCurrent maximum turns per second is "
-                    + Ogre::StringConverter::toString(static_cast<Ogre::Real>(ODApplication::turnsPerSecond)) + "\n";
-        }
     }
-
     // Set near clip distance
     else if (command.compare("nearclip") == 0)
     {
@@ -374,32 +155,6 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                             frameListener->getActiveCameraFarClipDistance()) + "\n";
         }
     }
-
-    /*
-    //Set/get the mouse movement scaling (sensitivity)
-    else if (command.compare("mousespeed") == 0)
-    {
-        //NOTE: dropped in AS
-        //Doesn't do anything at the moment, after the mouse input to cegui change.
-        //TODO - remove or make usable.
-        frameListener->mCommandOutput += "The command is disabled\n";
-        //		if(!arguments.empty())
-        //		{
-        //			float speed;
-        //			tempSS.str(arguments);
-        //			tempSS >> speed;
-        //			CEGUI::System::getSingleton().setMouseMoveScaling(speed);
-        //			tempSS.str("");
-        //			tempSS << "Mouse speed changed to: " << speed;
-        //			frameListener->mCommandOutput += "\n" + tempSS.str() + "\n";
-        //		}
-        //		else
-        //		{
-        //			frameListener->mCommandOutput += "\nCurrent mouse speed is: "
-        //				+ StringConverter::toString(static_cast<Real>(
-        //				CEGUI::System::getSingleton().getMouseMoveScaling())) + "\n";
-        //		}
-    } */
 
     // Add a new instance of a creature to the current map.  The argument is
     // read as if it were a line in a .level file.
@@ -581,31 +336,6 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     }
 
     /*
-    // clearmap   Erase all of the tiles leaving an empty map
-    else if (command.compare("newmap") == 0)
-    {
-        //NOTE: Converted to AS
-        if (!arguments.empty())
-        {
-            int tempX, tempY;
-
-            tempSS.str(arguments);
-            tempSS >> tempX >> tempY;
-            gameMap->createNewMap(tempX, tempY);
-        }
-    }*/
-
-    /*
-    // refreshmesh   Clear all the Ogre entities and redraw them so they reload their appearence.
-    else if (command.compare("refreshmesh") == 0)
-    {
-        //NOTE: Converted to AS
-        gameMap->destroyAllEntities();
-        gameMap->createAllEntities();
-        frameListener->mCommandOutput += "\nRecreating all meshes.\n";
-    }*/
-
-    /*
     // Set chat message variables
     else if (command.compare("maxtime") == 0)
     {
@@ -692,42 +422,8 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
     }
 
-    // Send help command information to all players
-    else if (command.compare("chathelp") == 0)
-    {
-        if (frameListener->isConnected())
-        {
-            if (!arguments.empty())
-            {
-                // call getHelpText()
-                string tempString;
-                tempString = getHelpText(arguments);
-
-                if (tempString.compare("Help for command:  \"" + arguments
-                        + "\" not found.") == 0)
-                {
-                    tempSS << tempString << "\n";
-                }
-                else
-                {
-                    executePromptCommand("chat", "\n" + tempString);
-                }
-            }
-            else
-            {
-                tempSS << "No command argument specified. See 'help' for a list of arguments.\n";
-            }
-        }
-        else
-        {
-            tempSS << "Please host or connect to a game before running chathelp.\n";
-        }
-
-        frameListener->mCommandOutput += "\n " + tempSS.str() + "\n";
-    }
-
     // Send a chat message
-    else if (command.compare("chat") == 0 || command.compare("c") == 0)
+    else if (command.compare("chat") == 0)
     {
         if (ODClient::getSingleton().isConnected())
         {
@@ -739,7 +435,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     }
 
     // Start the visual debugging indicators for a given creature
-    else if (command.compare("visdebug") == 0)
+    else if (command.compare("creaturevisdebug") == 0)
     {
         if (ODServer::getSingleton().isConnected())
         {
@@ -747,7 +443,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             {
                 // Activate visual debugging
                 Creature *tempCreature = gameMap->getCreature(arguments);
-                if (tempCreature != NULL)
+                if (tempCreature != nullptr)
                 {
                     if (!tempCreature->getHasVisualDebuggingEntities())
                     {
@@ -806,7 +502,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                 tempSS >> seatId;
                 // Activate visual debugging
                 Seat* seat = gameMap->getSeatById(seatId);
-                if (seat != NULL)
+                if (seat != nullptr)
                 {
                     if (!seat->getIsDebuggingVision())
                     {
@@ -872,7 +568,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     }
 
     // Changes the level of a given creature
-    else if (command.compare("setlevel") == 0)
+    else if (command.compare("setcreaturelevel") == 0)
     {
         if (ODServer::getSingleton().isConnected())
         {
@@ -905,36 +601,33 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                     += "\nERROR:  Only the server can change a creature level.\n";
         }
     }
-
-    else if (command.compare("bspline") == 0)
+    else if (command.compare("circlearound") == 0)
     {
+        //FIXME: Shall we keep this?
         if(!arguments.empty())
         {
+            CameraManager* cm = frameListener->getCameraManager();
+            double centerX;
+            double centerY;
+            double radius;
 
-            int NN;
             tempSS.str(arguments);
-            tempSS >> NN;
-            for ( int ii = 0 ; ii < NN ; ++ii)
-            {
-                tempSS>>NN;
-            }
-
+            tempSS >> centerX >> centerY >> radius;
             // if(){}else{} TODO : Check if any part of the circle can fall out of the map bounderies
-            // cm->setCircleCenter(centerX, centerY);
-            // cm->setCircleRadious(radious);
-            // cm->setCircleMode(true);
-
+            cm->setCircleCenter((int)centerX, (int)centerY);
+            cm->setCircleRadius((unsigned int)radius);
+            cm->setCircleMode(true);
         }
-        else {
+        else
+        {
             tempSS.str("");
-            tempSS  << "ERROR:  You need to specify:  N - number of control points  and n pairs of  control points for bsplines ";
+            tempSS  << "ERROR:  You need to specify an circle center ( two coordinates ) and circle radius";
             frameListener->mCommandOutput += "\n" + tempSS.str() + "\n";
         }
     }
-
-
     else if (command.compare("catmullspline") == 0)
     {
+        // FIXME: Shall we keep this?
         if(!arguments.empty())
         {
             CameraManager* cm = frameListener->getCameraManager();
@@ -945,62 +638,39 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
             tempSS.str(arguments);
             tempSS >> nn;
-            cm->xHCS.resetNodes(nn);
-            cm->yHCS.resetNodes(nn);
+            cm->resetHCSNodes(nn);
 
             for (int ii = 0 ; ii < nn ; ++ii)
             {
-                tempSS>>tempInt1;
-                tempSS>>tempInt2;
+                tempSS >> tempInt1;
+                tempSS >> tempInt2;
 
-                //cerr << "tempInt1 " <<  tempInt1 << endl;
-                //cerr << "tempInt2 " <<  tempInt2 << endl;
-                cm->xHCS.addNode(tempInt1);
-                cm->yHCS.addNode(tempInt2);
+                //std::cout << "tempInt1 " <<  tempInt1 << std::endl;
+                //std::cout << "tempInt2 " <<  tempInt2 << std::endl;
+                cm->addHCSNodes(tempInt1, tempInt2);
             }
 
             // if(){}else{} TODO : Check if any part of the circle can fall out of the map bounderies
 
             cm->setCatmullSplineMode(true);
-
-            //cerr << "catmullspline loaded from cmd line " << endl;
         }
         else
         {
-
             tempSS.str("");
             tempSS  << "ERROR:  You need to specify an circle center ( two coordinates ) and circle radious";
             frameListener->mCommandOutput += "\n" + tempSS.str() + "\n";
         }
     }
-    else if (command.compare("setcamerafovx") == 0){
-        if(!arguments.empty())
-        {
-            double tmp;
-            tempSS.str(arguments);
-            tempSS >> tmp;
-            Radian radianAngle((Ogre::Real)tmp);
-
-            // mCm->mCamera->setFOVx(radianAngle);
-            // TODO check the for the maximal and minimal value of setFoVy
-        }
-        else
-        {
-
-            tempSS.str("");
-            tempSS  << "ERROR:  No such commend in Ogre, try setcamerafovy and camera aspect ratio ";
-            frameListener->mCommandOutput += "\n" + tempSS.str() + "\n";
-        }
-    }
     else if (command.compare("setcamerafovy") == 0)
     {
+        // FIXME: Shall we keep this?
         if(!arguments.empty())
         {
             CameraManager* cm = frameListener->getCameraManager();
             double tmp;
             tempSS.str(arguments);
             tempSS >> tmp;
-            Radian radianAngle((Ogre::Real)tmp);
+            Ogre::Radian radianAngle((Ogre::Real)tmp);
 
             cm->mActiveCamera->setFOVy(radianAngle);
             // TODO check the for the maximal and minimal value of setFoVy
@@ -1027,7 +697,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             frameListener->mCommandOutput += "\nERROR : This command is available on the server only\n";
         }
     }
-    else if (command.compare("setdest") == 0)
+    else if (command.compare("setcreaturedest") == 0)
     {
         std::string creatureName;
         int x, y;
@@ -1055,48 +725,13 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             frameListener->mCommandOutput += "\nERROR : This command is available on the server only\n";
         }
     }
-    else if (command.compare("listanims") == 0)
+    else if (command.compare("listmeshanims") == 0)
     {
         std::string meshName;
         tempSS.str(arguments);
         tempSS >> meshName;
         std::string anims = RenderManager::consoleListAnimationsForMesh(meshName);
         frameListener->mCommandOutput += "\nAnimations for " + meshName + anims;
-    }
-    else if (command.compare("possescreature") == 0)
-    {
-        tempSS.str("");
-        tempSS  << "Click creature you want to posses ";
-        frameListener->mCommandOutput += "\n" + tempSS.str() + "\n";
-        frameListener->getModeManager()->getInputManager()->mExpectCreatureClick = true;
-    }
-    else if (command.compare("circlearound") == 0)
-    {
-        if(!arguments.empty())
-        {
-            CameraManager* cm = frameListener->getCameraManager();
-            double centerX;
-            double centerY;
-            double radius;
-
-            tempSS.str(arguments);
-            tempSS >> centerX >> centerY >> radius;
-            // if(){}else{} TODO : Check if any part of the circle can fall out of the map bounderies
-            cm->setCircleCenter((int)centerX, (int)centerY);
-            cm->setCircleRadius((unsigned int)radius);
-            cm->setCircleMode(true);
-        }
-        else
-        {
-            tempSS.str("");
-            tempSS  << "ERROR:  You need to specify an circle center ( two coordinates ) and circle radious";
-            frameListener->mCommandOutput += "\n" + tempSS.str() + "\n";
-        }
-    }
-    else if (command.compare("switchpolygonmode") == 0)
-    {
-        CameraManager* cm = frameListener->getCameraManager();
-        cm->switchPM();
     }
     else if (command.compare("triggercompositor") == 0)
     {
@@ -1110,6 +745,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             : (ODClient::getSingleton().isConnected())
                 ? "\nDisconnecting from server.\n"
                 : "\nYou are not connected to a server and you are not hosting a server.";
+        //TODO: Fix this
     }
     else if (command.compare("pause") == 0)
     {

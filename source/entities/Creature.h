@@ -360,11 +360,11 @@ private:
     //! \brief The time left before being to draw an attack in seconds
     double mAttackWarmupTime;
 
-    //! \brief The weapon the creature is holding in its left hand or NULL if none. It will be set by a pointer
+    //! \brief The weapon the creature is holding in its left hand or nullptr if none. It will be set by a pointer
     //! managed by the game map and thus, should not be deleted by the creature class
     const Weapon* mWeaponL;
 
-    //! \brief The weapon the creature is holding in its right hand or NULL if none. It will be set by a pointer
+    //! \brief The weapon the creature is holding in its right hand or nullptr if none. It will be set by a pointer
     //! managed by the game map and thus, should not be deleted by the creature class
     const Weapon* mWeaponR;
 

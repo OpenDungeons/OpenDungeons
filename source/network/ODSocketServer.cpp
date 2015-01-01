@@ -25,8 +25,8 @@
 #include <OgreStringConverter.h>
 
 ODSocketServer::ODSocketServer():
-    mThread(NULL),
-    mNewClient(NULL),
+    mThread(nullptr),
+    mNewClient(nullptr),
     mIsConnected(false)
 {
 }
@@ -158,9 +158,9 @@ ODSocketClient::ODComStatus ODSocketServer::sendMsgToClient(ODSocketClient* clie
 void ODSocketServer::stopServer()
 {
     mIsConnected = false;
-    if(mThread != NULL)
+    if(mThread != nullptr)
         delete mThread; // Delete waits for the thread to finish
-    mThread = NULL;
+    mThread = nullptr;
     mSockSelector.clear();
     mSockListener.close();
     for (std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
@@ -171,10 +171,10 @@ void ODSocketServer::stopServer()
     }
 
     mSockClients.clear();
-    if(mNewClient != NULL)
+    if(mNewClient != nullptr)
     {
         delete mNewClient;
-        mNewClient = NULL;
+        mNewClient = nullptr;
     }
 }
 

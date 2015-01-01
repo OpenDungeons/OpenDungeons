@@ -40,8 +40,6 @@ class GameMap;
 //! \brief This class holds all GUI related functions
 class Gui : public Ogre::Singleton<Gui>
 {
-    friend class MiniMap;
-
 public:
     enum guiSheet
     {
@@ -150,7 +148,7 @@ private:
     //! \brief Assigns all event handlers to the GUI elements
     void assignEventHandlers();
 
-    std::map<guiSheet, CEGUI::Window*> sheets;
+    std::map<guiSheet, CEGUI::Window*> mSheets;
 
     // Button handlers main menu
     //! \brief What happens after a click on New Game in the main menu

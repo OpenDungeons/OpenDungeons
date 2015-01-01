@@ -226,7 +226,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 else
                 {
                     Tile* tile = mGameMap->getTile(inputManager->mXPos, inputManager->mYPos);
-                    if(tile != NULL)
+                    if(tile != nullptr)
                         tiles.push_back(tile);
                 }
 
@@ -258,7 +258,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 else
                 {
                     Tile* tile = mGameMap->getTile(inputManager->mXPos, inputManager->mYPos);
-                    if(tile != NULL)
+                    if(tile != nullptr)
                         tiles.push_back(tile);
                 }
 
@@ -292,7 +292,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
     Ogre::RaySceneQueryResult& result = ODFrameListener::getSingleton().doRaySceneQuery(arg);
     for (Ogre::RaySceneQueryResult::iterator itr = result.begin(); itr != result.end(); ++itr)
     {
-        if (itr->movable == NULL)
+        if (itr->movable == nullptr)
             continue;
 
         // Check to see if the current query result is a tile.
@@ -359,10 +359,6 @@ void GameMode::handleMouseWheel(const OIS::MouseEvent& arg)
             frameListener.moveCamera(CameraManager::moveUp);
         }
     }
-    else
-    {
-        frameListener.cameraStopZoom();
-    }
 }
 
 bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
@@ -378,7 +374,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     InputManager* inputManager = mModeManager->getInputManager();
 
     // If the mouse press is on a CEGUI window ignore it
-    if (tempWindow != NULL && tempWindow->getName().compare("Root") != 0)
+    if (tempWindow != nullptr && tempWindow->getName().compare("Root") != 0)
     {
         inputManager->mMouseDownOnCEGUIWindow = true;
         return true;
@@ -410,7 +406,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         // See if the mouse is over any creatures
         for (;itr != result.end(); ++itr)
         {
-            if (itr->movable == NULL)
+            if (itr->movable == nullptr)
                 continue;
 
             std::string resultName = itr->movable->getName();
@@ -445,7 +441,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
             // If we right clicked with the mouse over a valid map tile, try to drop what we have in hand on the map.
             Tile *curTile = mGameMap->getTile(inputManager->mXPos, inputManager->mYPos);
 
-            if (curTile == NULL)
+            if (curTile == nullptr)
                 return true;
 
             if (mGameMap->getLocalPlayer()->isDropHandPossible(curTile))
@@ -467,7 +463,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
             // No creature in hand. We check if we want to slap something
             for (;itr != result.end(); ++itr)
             {
-                if (itr->movable == NULL)
+                if (itr->movable == nullptr)
                     continue;
 
                 std::string resultName = itr->movable->getName();
@@ -520,7 +516,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         if (skipPickUp)
             break;
 
-        if (itr->movable == NULL)
+        if (itr->movable == nullptr)
             continue;
 
         std::string resultName = itr->movable->getName();
@@ -547,7 +543,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     {
         for (itr = result.begin(); itr != result.end(); ++itr)
         {
-            if (itr->movable == NULL)
+            if (itr->movable == nullptr)
                 continue;
 
             std::string resultName = itr->movable->getName();
@@ -565,7 +561,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     // by dragging out a selection starting from an unmarcked tile, or unmark them by starting the drag from a marked one.
     Tile *tempTile = mGameMap->getTile(inputManager->mXPos, inputManager->mYPos);
 
-    if (tempTile != NULL)
+    if (tempTile != nullptr)
         mDigSetBool = !(tempTile->getMarkedForDigging(mGameMap->getLocalPlayer()));
 
     return true;
@@ -698,7 +694,6 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
 bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
 {
     ODFrameListener& frameListener = ODFrameListener::getSingleton();
-    InputManager* inputManager = mModeManager->getInputManager();
 
     switch (arg.key)
     {
@@ -723,25 +718,21 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
 
     case OIS::KC_LEFT:
     case OIS::KC_A:
-        inputManager->mDirectionKeyPressed = true;
         frameListener.moveCamera(CameraManager::Direction::moveLeft);
         break;
 
     case OIS::KC_RIGHT:
     case OIS::KC_D:
-        inputManager->mDirectionKeyPressed = true;
         frameListener.moveCamera(CameraManager::Direction::moveRight);
         break;
 
     case OIS::KC_UP:
     case OIS::KC_W:
-        inputManager->mDirectionKeyPressed = true;
         frameListener.moveCamera(CameraManager::Direction::moveForward);
         break;
 
     case OIS::KC_DOWN:
     case OIS::KC_S:
-        inputManager->mDirectionKeyPressed = true;
         frameListener.moveCamera(CameraManager::Direction::moveBackward);
         break;
 
@@ -848,31 +839,26 @@ bool GameMode::keyReleased(const OIS::KeyEvent &arg)
 bool GameMode::keyReleasedNormal(const OIS::KeyEvent &arg)
 {
     ODFrameListener& frameListener = ODFrameListener::getSingleton();
-    InputManager* inputManager = mModeManager->getInputManager();
 
     switch (arg.key)
     {
     case OIS::KC_LEFT:
     case OIS::KC_A:
-        inputManager->mDirectionKeyPressed = false;
         frameListener.moveCamera(CameraManager::Direction::stopLeft);
         break;
 
     case OIS::KC_RIGHT:
     case OIS::KC_D:
-        inputManager->mDirectionKeyPressed = false;
         frameListener.moveCamera(CameraManager::Direction::stopRight);
         break;
 
     case OIS::KC_UP:
     case OIS::KC_W:
-        inputManager->mDirectionKeyPressed = false;
         frameListener.moveCamera(CameraManager::Direction::stopForward);
         break;
 
     case OIS::KC_DOWN:
     case OIS::KC_S:
-        inputManager->mDirectionKeyPressed = false;
         frameListener.moveCamera(CameraManager::Direction::stopBackward);
         break;
 
@@ -885,11 +871,11 @@ bool GameMode::keyReleasedNormal(const OIS::KeyEvent &arg)
         break;
 
     case OIS::KC_HOME:
-        frameListener.cameraStopZoom();
+        frameListener.moveCamera(CameraManager::Direction::stopDown);
         break;
 
     case OIS::KC_END:
-        frameListener.cameraStopZoom();
+        frameListener.moveCamera(CameraManager::Direction::stopUp);
         break;
 
     case OIS::KC_PGUP:

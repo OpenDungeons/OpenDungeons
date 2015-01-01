@@ -52,9 +52,9 @@ Console::Console() :
     mAllowCritical(true),
     mChatMode(false),
     mCursorVisible(true),
-    mPanel(NULL),
-    mTextbox(NULL),
-    mOverlay(NULL),
+    mPanel(nullptr),
+    mTextbox(nullptr),
+    mOverlay(nullptr),
     mStartLine(0),
     mCursorChar("_"),
     mCurHistPos(0)

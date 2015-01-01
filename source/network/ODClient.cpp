@@ -335,7 +335,7 @@ bool ODClient::processOneClientSocketMessage()
             }
 
             Seat *tempSeat = gameMap->getSeatById(seatId);
-            OD_ASSERT_TRUE_MSG(tempSeat != NULL, "seatId=" + Ogre::StringConverter::toString(seatId));
+            OD_ASSERT_TRUE_MSG(tempSeat != nullptr, "seatId=" + Ogre::StringConverter::toString(seatId));
 
             // Move camera to starting position
             Ogre::Real startX = static_cast<Ogre::Real>(tempSeat->mStartingX);
@@ -468,8 +468,8 @@ bool ODClient::processOneClientSocketMessage()
             Ogre::Vector3 vect;
             OD_ASSERT_TRUE(packetReceived >> objName >> vect);
             MovableGameEntity *tempAnimatedObject = gameMap->getAnimatedObject(objName);
-            OD_ASSERT_TRUE_MSG(tempAnimatedObject != NULL, "objName=" + objName);
-            if (tempAnimatedObject != NULL)
+            OD_ASSERT_TRUE_MSG(tempAnimatedObject != nullptr, "objName=" + objName);
+            if (tempAnimatedObject != nullptr)
                 tempAnimatedObject->addDestination(vect.x, vect.y, vect.z);
 
             break;
@@ -480,8 +480,8 @@ bool ODClient::processOneClientSocketMessage()
             std::string objName;
             OD_ASSERT_TRUE(packetReceived >> objName);
             MovableGameEntity *tempAnimatedObject = gameMap->getAnimatedObject(objName);
-            OD_ASSERT_TRUE_MSG(tempAnimatedObject != NULL, "objName=" + objName);
-            if (tempAnimatedObject != NULL)
+            OD_ASSERT_TRUE_MSG(tempAnimatedObject != nullptr, "objName=" + objName);
+            if (tempAnimatedObject != nullptr)
                 tempAnimatedObject->clearDestinations();
 
             break;
@@ -561,7 +561,7 @@ bool ODClient::processOneClientSocketMessage()
             double moveSpeed;
             OD_ASSERT_TRUE(packetReceived >> objName >> moveSpeed);
             MovableGameEntity *obj = gameMap->getAnimatedObject(objName);
-            OD_ASSERT_TRUE_MSG(obj != NULL, "objName=" + objName + ", moveSpeed=" + Ogre::StringConverter::toString(moveSpeed));
+            OD_ASSERT_TRUE_MSG(obj != nullptr, "objName=" + objName + ", moveSpeed=" + Ogre::StringConverter::toString(moveSpeed));
             if (obj == nullptr)
                 break;
 
@@ -623,7 +623,7 @@ bool ODClient::processOneClientSocketMessage()
             std::string name;
             OD_ASSERT_TRUE(packetReceived >> name);
             RenderedMovableEntity* tempRenderedMovableEntity = gameMap->getRenderedMovableEntity(name);
-            OD_ASSERT_TRUE_MSG(tempRenderedMovableEntity != NULL, "name=" + name);
+            OD_ASSERT_TRUE_MSG(tempRenderedMovableEntity != nullptr, "name=" + name);
             gameMap->removeRenderedMovableEntity(tempRenderedMovableEntity);
             tempRenderedMovableEntity->deleteYourself();
             break;

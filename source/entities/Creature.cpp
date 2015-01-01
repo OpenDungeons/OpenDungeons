@@ -81,7 +81,7 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
     mAttackWarmupTime        (1.0),
     mWeaponL                 (nullptr),
     mWeaponR                 (nullptr),
-    mHomeTile                (NULL),
+    mHomeTile                (nullptr),
     mDefinition              (definition),
     mHasVisualDebuggingEntities (false),
     mAwakeness               (100.0),
@@ -100,11 +100,11 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
     mJobCooldown             (0),
     mEatCooldown             (0),
     mNbTurnAction            (0),
-    mJobRoom                 (NULL),
-    mEatRoom                 (NULL),
-    mStatsWindow             (NULL),
-    mAttackedTile            (NULL),
-    mAttackedObject          (NULL),
+    mJobRoom                 (nullptr),
+    mEatRoom                 (nullptr),
+    mStatsWindow             (nullptr),
+    mAttackedTile            (nullptr),
+    mAttackedObject          (nullptr),
     mForceAction             (forcedActionNone),
     mCarriedEntity           (nullptr),
     mCarriedEntityDestType   (GameEntity::ObjectType::unknown)
@@ -152,8 +152,8 @@ Creature::Creature(GameMap* gameMap) :
     mAttackWarmupTime        (1.0),
     mWeaponL                 (nullptr),
     mWeaponR                 (nullptr),
-    mHomeTile                (NULL),
-    mDefinition              (NULL),
+    mHomeTile                (nullptr),
+    mDefinition              (nullptr),
     mHasVisualDebuggingEntities (false),
     mAwakeness               (100.0),
     mHunger                  (0.0),
@@ -171,11 +171,11 @@ Creature::Creature(GameMap* gameMap) :
     mJobCooldown             (0),
     mEatCooldown             (0),
     mNbTurnAction            (0),
-    mJobRoom                 (NULL),
-    mEatRoom                 (NULL),
-    mStatsWindow             (NULL),
-    mAttackedTile            (NULL),
-    mAttackedObject          (NULL),
+    mJobRoom                 (nullptr),
+    mEatRoom                 (nullptr),
+    mStatsWindow             (nullptr),
+    mAttackedTile            (nullptr),
+    mAttackedObject          (nullptr),
     mForceAction             (forcedActionNone),
     mCarriedEntity           (nullptr),
     mCarriedEntityDestType   (GameEntity::ObjectType::unknown)
@@ -621,7 +621,7 @@ void Creature::doUpkeep()
     }
 
     // If we are not standing somewhere on the map, do nothing.
-    if (getPositionTile() == NULL)
+    if (getPositionTile() == nullptr)
         return;
 
     // Check to see if we have earned enough experience to level up.
@@ -836,18 +836,18 @@ bool Creature::handleIdleAction()
         // 5 - If the tile he is in is claimed and one of the neigbboor tiles is a not claimed wall, he will claim
         Tile* position = getPositionTile();
         Seat* seat = getSeat();
-        Tile* tileMarkedDig = NULL;
-        Tile* tileToClaim = NULL;
-        Tile* tileWallNotClaimed = NULL;
+        Tile* tileMarkedDig = nullptr;
+        Tile* tileToClaim = nullptr;
+        Tile* tileWallNotClaimed = nullptr;
         for (Tile* tile : position->getAllNeighbors())
         {
-            if(tileMarkedDig == NULL &&
+            if(tileMarkedDig == nullptr &&
                 tile->getMarkedForDigging(getGameMap()->getPlayerBySeat(seat))
                 )
             {
                 tileMarkedDig = tile;
             }
-            else if(tileToClaim == NULL &&
+            else if(tileToClaim == nullptr &&
                 tile->getType() == Tile::claimed &&
                 tile->isClaimedForSeat(seat) &&
                 position->isGroundClaimable() &&
@@ -856,7 +856,7 @@ bool Creature::handleIdleAction()
             {
                 tileToClaim = position;
             }
-            else if(tileToClaim == NULL &&
+            else if(tileToClaim == nullptr &&
                 position->getType() == Tile::claimed &&
                 position->isClaimedForSeat(seat) &&
                 tile->isGroundClaimable() &&
@@ -865,7 +865,7 @@ bool Creature::handleIdleAction()
             {
                 tileToClaim = tile;
             }
-            else if(tileWallNotClaimed == NULL &&
+            else if(tileWallNotClaimed == nullptr &&
                 position->getType() == Tile::claimed &&
                 position->isClaimedForSeat(seat) &&
                 tile->isWallClaimable(seat)
@@ -901,15 +901,15 @@ bool Creature::handleIdleAction()
             pushAction(CreatureAction::depositGold);
             return true;
         }
-        else if((tileMarkedDig != NULL) && (mDigRate > 0.0))
+        else if((tileMarkedDig != nullptr) && (mDigRate > 0.0))
         {
             mForceAction = forcedActionDigTile;
         }
-        else if((tileToClaim != NULL) && (mClaimRate > 0.0))
+        else if((tileToClaim != nullptr) && (mClaimRate > 0.0))
         {
             mForceAction = forcedActionClaimTile;
         }
-        else if((tileWallNotClaimed != NULL) && (mClaimRate > 0.0))
+        else if((tileWallNotClaimed != nullptr) && (mClaimRate > 0.0))
         {
             mForceAction = forcedActionClaimWallTile;
         }
@@ -982,14 +982,14 @@ bool Creature::handleIdleAction()
     // If a fighter is weak, he should try to sleep
     if (isWeak && !mDefinition->isWorker())
     {
-        if((mHomeTile != NULL) && (getGameMap()->pathExists(this, getPositionTile(), mHomeTile)))
+        if((mHomeTile != nullptr) && (getGameMap()->pathExists(this, getPositionTile(), mHomeTile)))
         {
             pushAction(CreatureAction::sleep);
             return true;
         }
 
         // If we have no home tile, we try to find one
-        if(mHomeTile == NULL)
+        if(mHomeTile == nullptr)
         {
             std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndSeat(Room::dormitory, getSeat());
             tempRooms = getGameMap()->getReachableRooms(tempRooms, getPositionTile(), this);
@@ -1039,7 +1039,7 @@ bool Creature::handleIdleAction()
 
     // Check to see if we have found a "home" tile where we can sleep. Even if we are not sleepy,
     // we want to have a bed
-    if (!mDefinition->isWorker() && Random::Double(0.0, 1.0) < 0.5 && mHomeTile == NULL)
+    if (!mDefinition->isWorker() && Random::Double(0.0, 1.0) < 0.5 && mHomeTile == nullptr)
     {
         // Check to see if there are any dormitory owned by our color that we can reach.
         std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndSeat(Room::dormitory, getSeat());
@@ -1052,7 +1052,7 @@ bool Creature::handleIdleAction()
     }
 
     // If we are sleepy, we go to sleep
-    if (!mDefinition->isWorker() && mHomeTile != NULL && Random::Double(0.0, 1.0) < 0.2 && Random::Double(0.0, 50.0) >= mAwakeness)
+    if (!mDefinition->isWorker() && mHomeTile != nullptr && Random::Double(0.0, 1.0) < 0.2 && Random::Double(0.0, 50.0) >= mAwakeness)
     {
         // Check to see if we can work
         pushAction(CreatureAction::sleep);
@@ -1083,7 +1083,7 @@ bool Creature::handleIdleAction()
         return loopBack;
 
     // Workers should move around randomly at large jumps.  Non-workers either wander short distances or follow workers.
-    Tile* tileDest = NULL;
+    Tile* tileDest = nullptr;
     // Define reachable tiles from the tiles within radius
     std::vector<Tile*> reachableTiles;
     for (Tile* tile: mTilesWithinSightRadius)
@@ -1194,7 +1194,7 @@ bool Creature::handleWalkToTileAction()
 bool Creature::handleClaimTileAction()
 {
     Tile* myTile = getPositionTile();
-    if (myTile == NULL)
+    if (myTile == nullptr)
     {
         popAction();
         return false;
@@ -1248,7 +1248,7 @@ bool Creature::handleClaimTileAction()
         // If the current neighbor is claimable, walk into it and skip to the end of this turn
         int tempInt = Random::Uint(0, neighbors.size() - 1);
         Tile* tempTile = neighbors[tempInt];
-        if (tempTile != NULL && tempTile->getFullness() == 0.0
+        if (tempTile != nullptr && tempTile->getFullness() == 0.0
             && (!tempTile->isClaimedForSeat(getSeat()) || tempTile->getClaimedPercentage() < 1.0)
             && tempTile->isGroundClaimable())
         {
@@ -1276,7 +1276,7 @@ bool Creature::handleClaimTileAction()
     for (Tile* tempTile : mTilesWithinSightRadius)
     {
         // if this tile is not fully claimed yet or the tile is of another player's color
-        if (tempTile != NULL && tempTile->getFullness() == 0.0
+        if (tempTile != nullptr && tempTile->getFullness() == 0.0
             && (tempTile->getClaimedPercentage() < 1.0 || !tempTile->isClaimedForSeat(getSeat()))
             && tempTile->isGroundClaimable())
         {
@@ -1295,7 +1295,7 @@ bool Creature::handleClaimTileAction()
     //cout << "  I see " << claimableTiles.size() << " tiles I can claim.";
     // Randomly pick a claimable tile, plot a path to it and walk to it
     unsigned int tempUnsigned = 0;
-    Tile* tempTile = NULL;
+    Tile* tempTile = nullptr;
     while (!claimableTiles.empty())
     {
         // Randomly find a "good" tile to claim.  A good tile is one that has many neighbors
@@ -1331,7 +1331,7 @@ bool Creature::handleClaimTileAction()
             ++tempUnsigned;
         } while (true);
 
-        if (tempTile != NULL)
+        if (tempTile != nullptr)
         {
             // If we find a valid path to the tile start walking to it and break
             if (setDestination(tempTile))
@@ -1361,7 +1361,7 @@ bool Creature::handleClaimTileAction()
 bool Creature::handleClaimWallTileAction()
 {
     Tile* myTile = getPositionTile();
-    if (myTile == NULL)
+    if (myTile == nullptr)
     {
         popAction();
         return false;
@@ -1392,7 +1392,7 @@ bool Creature::handleClaimWallTileAction()
         if(wasANeighbor)
             break;
 
-        if (tempPlayer == NULL)
+        if (tempPlayer == nullptr)
             break;
 
         if (!tempTile->isWallClaimable(getSeat()))
@@ -1489,7 +1489,7 @@ bool Creature::handleClaimWallTileAction()
 bool Creature::handleDigTileAction()
 {
     Tile* myTile = getPositionTile();
-    if (myTile == NULL)
+    if (myTile == nullptr)
         return false;
 
     // See if any of the tiles is one of our neighbors
@@ -1501,7 +1501,7 @@ bool Creature::handleDigTileAction()
         if(wasANeighbor)
             break;
 
-        if (tempPlayer == NULL)
+        if (tempPlayer == nullptr)
             break;
 
         if (!tempTile->getMarkedForDigging(tempPlayer))
@@ -1668,7 +1668,7 @@ bool Creature::handleDepositGoldAction()
     // We were not standing in a treasury that has enough room for the gold we are carrying, so try to find one to walk to.
     // Check to see if our seat controls any treasuries.
     std::vector<Room*> treasuriesOwned = getGameMap()->getRoomsByTypeAndSeat(Room::treasury, getSeat());
-    Tile* nearestTreasuryTile = NULL;
+    Tile* nearestTreasuryTile = nullptr;
     unsigned int nearestTreasuryDistance = 0;
     bool validPathFound = false;
     std::list<Tile*> tempPath;
@@ -1736,13 +1736,13 @@ bool Creature::handleFindHomeAction(bool isForced)
 {
     // Check to see if we are standing in an open dormitory tile that we can claim as our home.
     Tile* myTile = getPositionTile();
-    if (myTile == NULL)
+    if (myTile == nullptr)
     {
         popAction();
         return false;
     }
 
-    if((mHomeTile != NULL) && !isForced)
+    if((mHomeTile != nullptr) && !isForced)
     {
         popAction();
         return false;
@@ -1778,7 +1778,7 @@ bool Creature::handleFindHomeAction(bool isForced)
         // The tile where we are is not claimable. We search if there is another in this dormitory
         Tile* tempTile = static_cast<RoomDormitory*>(myTile->getCoveringBuilding())->getLocationForBed(
             mDefinition->getBedDim1(), mDefinition->getBedDim2());
-        if(tempTile != NULL)
+        if(tempTile != nullptr)
         {
             std::list<Tile*> tempPath = getGameMap()->path(this, tempTile);
             if (setWalkPath(tempPath, 1, false))
@@ -1792,7 +1792,7 @@ bool Creature::handleFindHomeAction(bool isForced)
 
     // If we found a tile to claim as our home in the above block
     // If we have been forced, we do not search in another dormitory
-    if ((mHomeTile != NULL) || isForced)
+    if ((mHomeTile != nullptr) || isForced)
     {
         popAction();
         return true;
@@ -1812,12 +1812,12 @@ bool Creature::handleFindHomeAction(bool isForced)
                         mDefinition->getBedDim1(), mDefinition->getBedDim2());
 
         // If the previous attempt to place the bed in this dormitory failed, try again with the bed the other way.
-        if (tempTile == NULL)
+        if (tempTile == nullptr)
             tempTile = static_cast<RoomDormitory*>(tempRooms[i])->getLocationForBed(
                                                                      mDefinition->getBedDim2(), mDefinition->getBedDim1());
 
         // Check to see if either of the two possible bed orientations tried above resulted in a successful placement.
-        if (tempTile != NULL)
+        if (tempTile != nullptr)
         {
             std::list<Tile*> tempPath2 = getGameMap()->path(this, tempTile);
 
@@ -1876,10 +1876,10 @@ bool Creature::handleJobAction(bool isForced)
         return true;
     }
     // Make sure we are on the map.
-    else if (myTile != NULL)
+    else if (myTile != nullptr)
     {
         // If we are already working, nothing to do
-        if(mJobRoom != NULL)
+        if(mJobRoom != nullptr)
             return false;
 
         // See if we are in a room where we can work. If so, we try to add the creature. If it is ok, the room
@@ -1896,7 +1896,7 @@ bool Creature::handleJobAction(bool isForced)
             }
         }
     }
-    else if (myTile == NULL)
+    else if (myTile == nullptr)
     {
         // We are not on the map, don't do anything.
         popAction();
@@ -1921,7 +1921,7 @@ bool Creature::handleJobAction(bool isForced)
 
     // Pick a room we want to work in and try to walk to it.
     double maxTrainDistance = 40.0;
-    Room* tempRoom = NULL;
+    Room* tempRoom = nullptr;
     int nbTry = 5;
     do
     {
@@ -2176,7 +2176,7 @@ bool Creature::handleAttackAction()
     // or if we need to hit and run
     popAction();
 
-    if (mAttackedTile == NULL)
+    if (mAttackedTile == nullptr)
         return true;
 
     // The warmup time isn't yet finished.
@@ -2188,8 +2188,8 @@ bool Creature::handleAttackAction()
 
     Tile* attackedTile = mAttackedTile;
     GameEntity* attackedObject = mAttackedObject;
-    mAttackedTile = NULL;
-    mAttackedObject = NULL;
+    mAttackedTile = nullptr;
+    mAttackedObject = nullptr;
 
     // We check what we are attacking.
 
@@ -2289,7 +2289,7 @@ bool Creature::handleFightAction()
 bool Creature::handleSleepAction()
 {
     Tile* myTile = getPositionTile();
-    if (mHomeTile == NULL)
+    if (mHomeTile == nullptr)
     {
         popAction();
         return false;
@@ -2494,9 +2494,9 @@ double Creature::getPhysicalDamage(double range)
     if (mWeaponlessAtkRange >= range)
         hitroll += Random::Uint(1.0, mPhysicalAttack);
 
-    if (mWeaponL != NULL && mWeaponL->getRange() >= range)
+    if (mWeaponL != nullptr && mWeaponL->getRange() >= range)
         hitroll += mWeaponL->getPhysicalDamage();
-    if (mWeaponR != NULL && mWeaponR->getRange() >= range)
+    if (mWeaponR != nullptr && mWeaponR->getRange() >= range)
         hitroll += mWeaponR->getPhysicalDamage();
 
     return hitroll;
@@ -2509,9 +2509,9 @@ double Creature::getMagicalDamage(double range)
     if (mWeaponlessAtkRange >= range)
         hitroll += Random::Uint(0.0, mMagicalAttack);
 
-    if (mWeaponL != NULL && mWeaponL->getRange() >= range)
+    if (mWeaponL != nullptr && mWeaponL->getRange() >= range)
         hitroll += mWeaponL->getMagicalDamage();
-    if (mWeaponR != NULL && mWeaponR->getRange() >= range)
+    if (mWeaponR != nullptr && mWeaponR->getRange() >= range)
         hitroll += mWeaponR->getMagicalDamage();
 
     return hitroll;
@@ -2520,9 +2520,9 @@ double Creature::getMagicalDamage(double range)
 double Creature::getPhysicalDefense() const
 {
     double defense = mPhysicalDefense;
-    if (mWeaponL != NULL)
+    if (mWeaponL != nullptr)
         defense += mWeaponL->getPhysicalDefense();
-    if (mWeaponR != NULL)
+    if (mWeaponR != nullptr)
         defense += mWeaponR->getPhysicalDefense();
 
     return defense;
@@ -2531,9 +2531,9 @@ double Creature::getPhysicalDefense() const
 double Creature::getMagicalDefense() const
 {
     double defense = mMagicalDefense;
-    if (mWeaponL != NULL)
+    if (mWeaponL != nullptr)
         defense += mWeaponL->getMagicalDefense();
-    if (mWeaponR != NULL)
+    if (mWeaponR != nullptr)
         defense += mWeaponR->getMagicalDefense();
 
     return defense;
@@ -2606,7 +2606,7 @@ std::vector<GameEntity*> Creature::getReachableAttackableObjects(const std::vect
         // Try to find a valid path from the tile this creature is in to the nearest tile where the current target object is.
         GameEntity* entity = objectsToCheck[i];
         // We only consider alive objects
-        if(entity->getHP(NULL) <= 0)
+        if(entity->getHP(nullptr) <= 0)
             continue;
 
         Tile* objectTile = entity->getCoveredTiles()[0];
@@ -2819,7 +2819,7 @@ bool Creature::CloseStatsWindow(const CEGUI::EventArgs& /*e*/)
 
 void Creature::createStatsWindow()
 {
-    if (mStatsWindow != NULL)
+    if (mStatsWindow != nullptr)
         return;
 
     ClientNotification *clientNotification = new ClientNotification(
@@ -2859,7 +2859,7 @@ void Creature::createStatsWindow()
 
 void Creature::destroyStatsWindow()
 {
-    if (mStatsWindow != NULL)
+    if (mStatsWindow != nullptr)
     {
         ClientNotification *clientNotification = new ClientNotification(
             ClientNotification::askCreatureInfos);
@@ -2868,13 +2868,13 @@ void Creature::destroyStatsWindow()
         ODClient::getSingleton().queueClientNotification(clientNotification);
 
         mStatsWindow->destroy();
-        mStatsWindow = NULL;
+        mStatsWindow = nullptr;
     }
 }
 
 void Creature::updateStatsWindow(const std::string& txt)
 {
-    if (mStatsWindow == NULL)
+    if (mStatsWindow == nullptr)
         return;
 
     CEGUI::Window* textWindow = mStatsWindow->getChild("TextDisplay");
@@ -2942,7 +2942,7 @@ double Creature::takeDamage(GameEntity* attacker, double physicalDamage, double 
         return damageDone;
 
     Player* player = getGameMap()->getPlayerBySeat(getSeat());
-    if (player == NULL)
+    if (player == nullptr)
         return damageDone;
 
     // Tells the server game map the player is under attack.
@@ -3049,7 +3049,7 @@ void Creature::pickup()
     clearActionQueue();
 
     Tile* tile = getPositionTile();
-    if(tile != NULL)
+    if(tile != nullptr)
         tile->removeEntity(this);
 
     if(getHasVisualDebuggingEntities())
@@ -3115,7 +3115,7 @@ bool Creature::tryDrop(Seat* seat, Tile* tile, bool isEditorMode)
         return true;
 
     // Every creature can be dropped on allied claimed tiles
-    if(tile->getType() == Tile::claimed && tile->getSeat() != NULL && tile->getSeat()->isAlliedSeat(getSeat()))
+    if(tile->getType() == Tile::claimed && tile->getSeat() != nullptr && tile->getSeat()->isAlliedSeat(getSeat()))
         return true;
 
     return false;
@@ -3123,11 +3123,11 @@ bool Creature::tryDrop(Seat* seat, Tile* tile, bool isEditorMode)
 
 bool Creature::setDestination(Tile* tile)
 {
-    if(tile == NULL)
+    if(tile == nullptr)
         return false;
 
     Tile *posTile = getPositionTile();
-    if(posTile == NULL)
+    if(posTile == nullptr)
         return false;
 
     std::list<Tile*> result = getGameMap()->path(this, tile);
@@ -3149,13 +3149,13 @@ bool Creature::fightClosestObjectInList(const std::vector<GameEntity*>& listObje
 
     // We check if we are at the best range of our foe. That will allow ranged units to hit and run
     Tile* tileCreature = getPositionTile();
-    if(tileCreature == NULL)
+    if(tileCreature == nullptr)
         return false;
 
     // We try to find the closest enemy object
-    Tile* attackedTile = NULL;
+    Tile* attackedTile = nullptr;
     GameEntity* attackedObject = getGameMap()->getClosestTileWhereGameEntityFromList(listObjects, tileCreature, attackedTile);
-    if(attackedObject == NULL)
+    if(attackedObject == nullptr)
         return false;
 
     // Now that we found the closest enemy, we move to attack
@@ -3216,7 +3216,7 @@ bool Creature::fightInRangeObjectInList(const std::vector<GameEntity*>& listObje
 
     // We check if we are at the best range of our foe. That will allow ranged units to hit and run
     Tile* tileCreature = getPositionTile();
-    if(tileCreature == NULL)
+    if(tileCreature == nullptr)
         return false;
 
     // We try to find the closest enemy object within attack range
@@ -3238,7 +3238,7 @@ bool Creature::fightInRangeObjectInList(const std::vector<GameEntity*>& listObje
         for(std::vector<Tile*>::iterator itTile = tiles.begin(); itTile != tiles.end(); ++itTile)
         {
             Tile *tempTile = *itTile;
-            if (tempTile == NULL)
+            if (tempTile == nullptr)
                 continue;
 
             double rSquared = std::pow(tileCreature->getX() - tempTile->getX(), 2.0)

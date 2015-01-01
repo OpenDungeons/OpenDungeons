@@ -162,7 +162,7 @@ public:
     bool getMarkedForDigging(Player* p);
 
     //! \brief This is a simple helper function which just calls setMarkedForDigging() for everyone in the game except
-    //! allied to exceptSeat. If exceptSeat is NULL, it is called for every player
+    //! allied to exceptSeat. If exceptSeat is nullptr, it is called for every player
     void setMarkedForDiggingForAllPlayersExcept(bool s, Seat* exceptSeat);
 
     //! \brief Tells whether the tile is selected for digging by any player/AI.

@@ -186,8 +186,8 @@ void RoomForge::removeCreatureUsingRoom(Creature* c)
     if(mCreaturesSpots.count(c) > 0)
     {
         Tile* tileSpot = mCreaturesSpots[c];
-        OD_ASSERT_TRUE(tileSpot != NULL);
-        if(tileSpot == NULL)
+        OD_ASSERT_TRUE(tileSpot != nullptr);
+        if(tileSpot == nullptr)
             return;
         mUnusedSpots.push_back(tileSpot);
         mCreaturesSpots.erase(c);
@@ -248,7 +248,7 @@ void RoomForge::doUpkeep()
         Creature* creature = p.first;
         Tile* tileSpot = p.second;
         Tile* tileCreature = creature->getPositionTile();
-        if(tileCreature == NULL)
+        if(tileCreature == nullptr)
             continue;
 
         Ogre::Real wantedX = -1;
@@ -256,8 +256,8 @@ void RoomForge::doUpkeep()
         getCreatureWantedPos(creature, tileSpot, wantedX, wantedY);
 
         RenderedMovableEntity* ro = getBuildingObjectFromTile(tileSpot);
-        OD_ASSERT_TRUE(ro != NULL);
-        if(ro == NULL)
+        OD_ASSERT_TRUE(ro != nullptr);
+        if(ro == nullptr)
             continue;
         // We consider that the creature is in the good place if it is in the expected tile and not moving
         Tile* expectedDest = getGameMap()->getTile(Helper::round(wantedX), Helper::round(wantedY));

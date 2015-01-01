@@ -56,7 +56,6 @@ class ServerNotification
             chatServer,
 
             turnStarted,
-            setTurnsPerSecond,
 
             animatedObjectAddDestination,
             animatedObjectClearDestinations,

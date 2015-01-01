@@ -46,7 +46,7 @@ Room* BaseAI::getDungeonTemple()
     if(!dt.empty())
         return dt.front();
     else
-        return NULL;
+        return nullptr;
 }
 
 bool BaseAI::buildRoom(Room* room, const std::vector<Tile*>& tiles)

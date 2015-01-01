@@ -18,6 +18,8 @@
 #ifndef MODEMANAGER_H
 #define MODEMANAGER_H
 
+#include <OGRE/OgreFrameListener.h>
+
 #include <vector>
 #include <string>
 
@@ -57,6 +59,9 @@ public:
 
     ModeManager(Ogre::RenderWindow* renderWindow);
     ~ModeManager();
+
+    //! \brief Updates mouse event, checks for made changes, ...
+    void update(const Ogre::FrameEvent& evt);
 
     AbstractApplicationMode* getCurrentMode();
     ModeType getCurrentModeType();
@@ -145,9 +150,6 @@ public:
         mRequestedMode = PREV;
     }
 
-    //! \brief Actually change the mode if needed
-    void checkModeChange();
-
     InputManager* getInputManager()
     {
         return mInputManager;
@@ -180,6 +182,9 @@ private:
 
     //! \brief The Angel Script wrapper, used in every game modes
     ASWrapper* mASWrapper;
+
+    //! \brief Actually change the mode if needed
+    void checkModeChange();
 
     void addMode(ModeType);
     void removeMode();

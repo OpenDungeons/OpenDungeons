@@ -27,7 +27,7 @@ TileContainer::TileContainer():
     mMapSizeX(0),
     mMapSizeY(0),
     mRr(0),
-    mTiles(NULL)
+    mTiles(nullptr)
 {
 }
 
@@ -49,7 +49,7 @@ void TileContainer::clearTiles()
             delete[] mTiles[ii];
         }
         delete[] mTiles;
-        mTiles = NULL;
+        mTiles = nullptr;
     }
 }
 
@@ -208,7 +208,7 @@ bool TileContainer::allocateMapMemory(int xSize, int ySize)
         mTiles[ii] = new Tile *[mMapSizeY];
         for(int jj = 0; jj < mMapSizeY; ++jj)
         {
-            mTiles[ii][jj] = NULL;
+            mTiles[ii][jj] = nullptr;
         }
     }
 
@@ -217,12 +217,12 @@ bool TileContainer::allocateMapMemory(int xSize, int ySize)
 
 Tile::TileType TileContainer::getSafeTileType(Tile* tt)
 {
-    return (tt == NULL) ? Tile::nullTileType : tt->getType();
+    return (tt == nullptr) ? Tile::nullTileType : tt->getType();
 }
 
 bool  TileContainer::getSafeTileFullness(Tile* tt)
 {
-    return (tt == NULL) ? false : (tt->getFullness() > 0 );
+    return (tt == nullptr) ? false : (tt->getFullness() > 0 );
 }
 
 std::vector<Tile*> TileContainer::rectangularRegion(int x1, int y1, int x2, int y2)
@@ -241,7 +241,7 @@ std::vector<Tile*> TileContainer::rectangularRegion(int x1, int y1, int x2, int 
         {
             tempTile = getTile(ii, jj);
 
-            if (tempTile != NULL)
+            if (tempTile != nullptr)
                 returnList.push_back(tempTile);
         }
     }
@@ -270,7 +270,7 @@ std::vector<Tile*> TileContainer::circularRegion(int x, int y, double radius) co
             if (distSquared < radiusSquared)
             {
                 tempTile = getTile(i, j);
-                if (tempTile != NULL)
+                if (tempTile != nullptr)
                     returnList.push_back(tempTile);
             }
         }
@@ -303,7 +303,7 @@ std::vector<Tile*> TileContainer::tilesBorderedByRegion(const std::vector<Tile*>
 const std::vector<Tile*>& TileContainer::neighborTiles(int x, int y) const
 {
     Tile *tempTile = getTile(x, y);
-    if (tempTile == NULL)
+    if (tempTile == nullptr)
         return EMPTY_TILES;
 
     return tempTile->getAllNeighbors();

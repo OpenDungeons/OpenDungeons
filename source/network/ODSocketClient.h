@@ -48,7 +48,7 @@ class ODSocketClient
 
         ODSocketClient():
             mSource(ODSource::none),
-            mPlayer(NULL),
+            mPlayer(nullptr),
             mLastTurnAck(-1),
             mPendingTimestamp(-1)
         {}

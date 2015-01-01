@@ -41,10 +41,8 @@ public:
 
     //! \brief mouse handling related member
     OIS::Mouse*         mMouse;
-    bool                mExpectCreatureClick;
     bool                mLMouseDown, mRMouseDown;
     bool                mMouseDownOnCEGUIWindow;
-    bool                mDirectionKeyPressed;
 
     int                 mXPos, mYPos;
     int                 mLStartDragX, mLStartDragY;
