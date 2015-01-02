@@ -51,7 +51,6 @@ public:
     static const std::string VERSIONSTRING;
     static const std::string POINTER_INFO_STRING;
     static std::string MOTD;
-    static const std::string HELP_MESSAGE;
 
 private:
     ODApplication(const ODApplication&);

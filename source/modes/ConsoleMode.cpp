@@ -29,21 +29,15 @@
 
 #include <string>
 
-const std::string CONSOLE_COMMANDS = "./config/console_commands.txt";
-
 ConsoleMode::ConsoleMode(ModeManager* modeManager, Console* console):
     AbstractApplicationMode(modeManager, ModeManager::CONSOLE),
     mConsole(console),
-    mPrefixTree(nullptr),
     mNonTagKeyPressed(true)
 {
-    mPrefixTree = new PrefixTree();
-    mPrefixTree->readStringsFromFile(CONSOLE_COMMANDS.c_str());
 }
 
 ConsoleMode::~ConsoleMode()
 {
-    delete mPrefixTree;
 }
 
 void ConsoleMode::activate()
@@ -102,7 +96,7 @@ bool ConsoleMode::keyPressed(const OIS::KeyEvent &arg)
         else
         {
             mLl.clear();
-            mPrefixTree->complete(mConsole->mPrompt.c_str(), mLl);
+            mConsoleCommands.autocomplete(mConsole->mPrompt.c_str(), mLl);
             mPrefix = mConsole->mPrompt ;
             mIt = mLl.begin();
         }
@@ -147,7 +141,7 @@ bool ConsoleMode::keyPressed(const OIS::KeyEvent &arg)
                 }
 
                 // FIXME: Should we keep this?
-                if(!mConsole->executePromptCommand(command, arguments))
+                if(!mConsoleCommands.executePromptCommand(command, arguments))
                 {
                     LogManager::getSingleton().logMessage("Console command: " + command
                         + " - arguments: " + arguments + " - angelscript");

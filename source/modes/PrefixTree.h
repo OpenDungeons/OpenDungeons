@@ -29,10 +29,8 @@ public:
     PrefixTree();
 
     void addNewString(const std::string&);
-    bool readStringsFromFile(const std::string&);
     bool printAll();
     PrefixTree* findPrefix(const std::string&);
-    int build(const char *filename);
     bool complete(const char *const word, std::vector<std::string>& ll);
 
 private:

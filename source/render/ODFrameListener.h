@@ -62,7 +62,7 @@ class ODFrameListener :
         public Ogre::WindowEventListener
 {
 
-friend class Console;
+friend class ConsoleCommands;
 friend class ODClient;
 
 public:

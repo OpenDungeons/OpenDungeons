@@ -45,7 +45,7 @@ const Ogre::Real MAX_CAMERA_Z = 20.0;
 
 class CameraManager
 {
-friend class Console;
+friend class ConsoleCommands;
 
 public:
     enum Direction

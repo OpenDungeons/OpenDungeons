@@ -24,6 +24,7 @@
 #define CONSOLE_H_
 
 #include "modes/GameMode.h"
+#include "modes/ConsoleCommands.h"
 #include "gamemap/GameMap.h"
 #include "render/Gui.h"
 
@@ -110,11 +111,6 @@ public:
      */
     void messageLogged (const std::string& message, Ogre::LogMessageLevel lml,
                         bool maskDebug, const std::string& logName, bool& skipThisMessage);
-
-    bool executePromptCommand(const std::string& command, std::string arguments);
-
-    //! \brief A helper function to return a help text string for a given terminal command.
-    std::string getHelpText(std::string arg);
 
 private:
     std::string mPromptCommand;

@@ -270,8 +270,7 @@ set(OD_SOURCEFILES
 
     ${SRC}/modes/AbstractApplicationMode.cpp
     ${SRC}/modes/Console.cpp
-    ${SRC}/modes/Console_executePromptCommand.cpp
-    ${SRC}/modes/Console_getHelp.cpp
+    ${SRC}/modes/ConsoleCommands.cpp
     ${SRC}/modes/ConsoleMode.cpp
     ${SRC}/modes/EditorMode.cpp
     ${SRC}/modes/FppMode.cpp

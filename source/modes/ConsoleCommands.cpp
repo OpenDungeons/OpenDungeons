@@ -1,9 +1,4 @@
 /*!
- * \file   Console_executePromptCommand.cpp
- * \date:  04 July 2011
- * \author StefanP.MUC
- * \brief  Ingame console
- *
  *  Copyright (C) 2011-2014  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -20,44 +15,199 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "modes/ConsoleCommands.h"
+
 #include "modes/Console.h"
-#include "render/RenderManager.h"
-#include "gamemap/MapLoader.h"
-#include "camera/CameraManager.h"
-#include "ODApplication.h"
-#include "game/Player.h"
-#include "goals/AllGoals.h"
-#include "network/ODServer.h"
-#include "network/ServerNotification.h"
+#include "modes/PrefixTree.h"
+
+// For commands
+#include "ODConsoleCommand.h"
+#include "goals/Goal.h"
 #include "network/ODClient.h"
-#include "utils/ResourceManager.h"
-#include "utils/ConfigManager.h"
-#include "entities/Creature.h"
-#include "entities/Weapon.h"
-#include "modes/ODConsoleCommand.h"
+#include "network/ODServer.h"
 #include "render/ODFrameListener.h"
+#include "entities/Creature.h"
+#include "ODApplication.h"
+#include "utils/ResourceManager.h"
 
-#include <OgreLogManager.h>
-#include <OgreSceneNode.h>
-#include <OgreEntity.h>
+static const std::string GENERAL_HELP_MESSAGE = "\
+The console is a way of interacting with the underlying game engine directly.\
+Commands given to the the are made up of two parts: a \'command name\' and one or more \'arguments\'.\
+For information on how to use a particular command, type help followed by the command name.\
+\n\nThe following commands are avalaible:\
+\n\n==General==\
+\n\thelp - Displays this help message.\
+\n\thelp keys - Shows the keyboard controls.\
+\n\tlist/ls - Prints out lists of creatures, classes, etc...\
+\n\tmaxmessages - Sets or displays the max number of chat messages to display.\
+\n\tmaxtime - Sets or displays the max time for chat messages to be displayed.\
+\n\ttermwidth - Sets the terminal width.\
+\n\n==Cheats==\
+\n\taddcreature - Adds a creature.\
+\n\tsetcreaturelevel - Sets the level of a given creature.\
+\n\taddgold - Gives gold to one player.\
+\n\ticanseedeadpeople - Toggles on/off fog of war for every connected player.\
+\n\n==Developer\'s options==\
+\n\tfps - Sets the maximum framerate cap.\
+\n\tambientlight - Sets the ambient light color.\
+\n\tnearclip - Sets the near clipping distance.\
+\n\tfarclip - Sets the far clipping distance.\
+\n\tcreaturevisdebug - Turns on visual debugging for a given creature.\
+\n\tseatvisdebug - Turns on visual debugging for a given seat.\
+\n\tsetcreaturedest - Sets the creature destination/\
+\n\tlistmeshanims - Lists all the animations for the given mesh.\
+\n\ttriggercompositor - Starts the given Ogre Compositor.\
+\n\tcatmullspline - Triggers the catmullspline camera movement type.\
+\n\tcirclearound - Triggers the circle camera movement type.\
+\n\tsetcamerafovy - Sets the camera vertical field of view aspect ratio value.\
+\n\tlogfloodfill - Displays the FloodFillValues of all the Tiles in the GameMap.";
 
-#include <sstream>
+static const std::string COMMAND_NOT_FOUND = "Help for the given command not found.";
 
-bool Console::executePromptCommand(const std::string& command, std::string arguments)
+const std::string& ConsoleCommands::getGeneralHelpMessage() const
+{
+    return GENERAL_HELP_MESSAGE;
+}
+
+const std::string& ConsoleCommands::getHelpForCommand(const std::string& command)
+{
+    // Lower case the command text.
+    std::string lowCasedCmd = command;
+    std::transform(lowCasedCmd.begin(), lowCasedCmd.end(), lowCasedCmd.begin(), ::tolower);
+
+    std::map<std::string, std::string>::const_iterator it = mCommandsHelp.find(lowCasedCmd);
+
+    if (it != mCommandsHelp.end())
+        return it->second;
+
+    // TODO: Handle 'list' specific argument help.
+
+    return COMMAND_NOT_FOUND;
+}
+
+bool ConsoleCommands::autocomplete(const char* word, std::vector<std::string>& autocompletedWords)
+{
+    return mCommandsPrefixTree.complete(word, autocompletedWords);
+}
+
+void ConsoleCommands::loadCommands()
+{
+    std::string description = "Add a new creature to the current map.  The creature class to be used must be loaded first, either from the loaded map file or by using the addclass command.  Once a class has been declared a creature can be loaded using that class.  The argument to the addcreature command is interpreted in the same way as a creature line in a .level file.\n\nExample:\n"
+                              "addcreature Skeleton Bob 10 15 0\n\nThe above command adds a creature of class \"Skeleton\" whose name is \"Bob\" at location X=10, y=15, and Z=0.  The new creature's name must be unique to the creatures in that level.  Alternatively the name can be se to \"autoname\" to have OpenDungeons assign a unique name.";
+    mCommandsHelp.insert(std::make_pair("addcreature", description));
+
+    description = "The 'ambientlight' command sets the minumum light that every object in the scene is illuminated with.  It takes as it's argument and RGB triplet whose values for red, green, and blue range from 0.0 to 1.0.\n\nExample:\n"
+                  "ambientlight 0.4 0.6 0.5\n\nThe above command sets the ambient light color to red=0.4, green=0.6, and blue = 0.5.";
+    mCommandsHelp.insert(std::make_pair("ambientlight", description));
+
+    description = "'fps' (framespersecond) for short is a utility which displays or sets the maximum framerate at which the rendering will attempt to update the screen.\n\nExample:\n"
+                  "fps 35\n\nThe above command will set the current maximum framerate to 35 turns per second.";
+    mCommandsHelp.insert(std::make_pair("fps", description));
+
+    description = "Sets the minimal viewpoint clipping distance. Objects nearer than that won't be rendered.\n\nE.g.: nearclip 3.0";
+    mCommandsHelp.insert(std::make_pair("nearclip", description));
+
+    description = "Sets the maximal viewpoint clipping distance. Objects farther than that won't be rendered.\n\nE.g.: farclip 30.0";
+    mCommandsHelp.insert(std::make_pair("farclip", description));
+
+    description = "'list' (or 'ls' for short) is a utility which lists various types of information about the current game. "
+                  "Running list without an argument will produce a list of the lists available. "
+                  "Running list with an argument displays the contents of that list.\n\nExample:\n"
+                  "list creatures\n\nThe above command will produce a list of all the creatures currently in the game.";
+    mCommandsHelp.insert(std::make_pair("list", description));
+    mCommandsHelp.insert(std::make_pair("ls", description));
+
+    description = "Visual debugging is a way to see a given creature\'s AI state.\n\nExample:\n"
+                  "creaturevisdebug skeletor\n\nThe above command wil turn on visual debugging for the creature named \'skeletor\'.  The same command will turn it back off again.";
+    mCommandsHelp.insert(std::make_pair("creaturevisdebug", description));
+
+    description = "Visual debugging is a way to see all the tiles a given seat can see.\n\nExample:\n"
+                  "seatvisdebug 1\n\nThe above command will show every tiles seat 1 can see.  The same command will turn it off.";
+    mCommandsHelp.insert(std::make_pair("seatvisdebug", description));
+
+    description = "Toggles on/off fog of war for every connected player";
+    mCommandsHelp.insert(std::make_pair("icanseedeadpeople", description));
+
+    description = "Sets the level of a given creature.\n\nExample:\n"
+                  "setlevel BigKnight1 10\n\nThe above command will set the creature \'BigKnight1\' to 10.";
+    mCommandsHelp.insert(std::make_pair("setcreaturelevel", description));
+
+    description = "setcreaturedest Sets the creature destination. The path will be computed if reachable. It takes as arguments the creature name, then the tile coordinales.\n"
+                  "Example : setdest Wizard1 10 10";
+    mCommandsHelp.insert(std::make_pair("setcreaturedest", description));
+
+    description = "'addgold' adds the given amount of gold to one player. It takes as arguments the color of the player to whom the gold should be given and the amount. If the player's treasuries are full, no more gold is given. Note that this command is available in server mode only. Example to give 5000 gold to player color 1 : addgold 1 5000";
+    mCommandsHelp.insert(std::make_pair("addgold", description));
+
+    description = "'logfloodfill' logs the FloodFillValues of all the Tiles in the GameMap.";
+    mCommandsHelp.insert(std::make_pair("logfloodfill", description));
+
+    description = "'listmeshanims' lists all the animations for the given mesh.";
+    mCommandsHelp.insert(std::make_pair("listmeshanims", description));
+
+    description = "Starts the given compositor. The compositor must exist.\n\nExample:\n"
+                  "triggercompositor blacknwhite";
+    mCommandsHelp.insert(std::make_pair("triggercompositor", description));
+
+    description = "Sets the max number of lines displayed at once in the info text area.\n\nExample:\n"
+                  "maxmessages 4";
+    mCommandsHelp.insert(std::make_pair("maxmessages", description));
+
+    description = "Sets the max time (in seconds) a message will be displayed in the info text area.\n\nExample:\n"
+                  "maxtime 5";
+    mCommandsHelp.insert(std::make_pair("maxtime", description));
+
+    description = "Triggers the catmullspline camera movement behaviour.\n\nExample:\n"
+                  "catmullspline 6 4 5 4 6 5 7\n"
+                  "Make the camera follow a lazy curved path along the given coordinates pairs. "
+                  "The first parameter is the number of pairs";
+    mCommandsHelp.insert(std::make_pair("catmullspline", description));
+
+    description = "Triggers the circle camera movement behaviour.\n\nExample:\n"
+                  "circlearound 6 4 8\n"
+                  "Make the camera follow a lazy a circle path around coors 6,4 with a radius of 8.";
+    mCommandsHelp.insert(std::make_pair("circlearound", description));
+
+    description = "Sets the camera vertical field of view aspect ratio on the Y axis.\n\nExample:\n"
+                  "setcamerafovy 45";
+    mCommandsHelp.insert(std::make_pair("setcamerafovy", description));
+
+    description = "|| Action               || US Keyboard layout ||     Mouse      ||\n\
+                   ==================================================================\n\
+                   || Pan Left             || Left   -   A       || -              ||\n\
+                   || Pan Right            || Right  -   D       || -              ||\n\
+                   || Pan Forward          || Up     -   W       || -              ||\n\
+                   || Pan Backward         || Down   -   S       || -              ||\n\
+                   || Rotate Left          || Q                  || -              ||\n\
+                   || Rotate right         || E                  || -              ||\n\
+                   || Zoom In              || End                || Wheel Up       ||\n\
+                   || Zoom Out             || Home               || Wheel Down     ||\n\
+                   || Tilt Up              || Page Up            || -              ||\n\
+                   || Tilt Down            || End                || -              ||\n\
+                   || Select Tile/Creature || -                  || Left Click     ||\n\
+                   || Drop Creature/Gold   || -                  || Right Click    ||\n\
+                   || Toggle Debug Info    || F11                || -              ||\n\
+                   || Toggle Console       || F12                || -              ||\n\
+                   || Quit Game            || ESC                || -              ||\n\
+                   || Take screenshot      || Printscreen        || -              ||";
+    mCommandsHelp.insert(std::make_pair("keys", description));
+
+    // Loads the prefixes
+    for (auto it : mCommandsHelp)
+    {
+        mCommandsPrefixTree.addNewString(it.first);
+    }
+}
+
+bool ConsoleCommands::executePromptCommand(const std::string& command, const::std::string& arguments)
 {
     std::stringstream tempSS;
 
     ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
-    GameMap* gameMap = frameListener->mGameMap;
-
-    // Exit the program
-    if (command.compare("quit") == 0 || command.compare("exit") == 0)
-    {
-        frameListener->requestExit();
-    }
+    GameMap* gameMap = frameListener->getClientGameMap();
 
     // Set the ambient light color
-    else if (command.compare("ambientlight") == 0)
+    if (command.compare("ambientlight") == 0)
     {
         Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
         if (!arguments.empty())
@@ -87,14 +237,13 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     else if (command.compare("help") == 0)
     {
         frameListener->mCommandOutput += (!arguments.empty())
-                ? "\nHelp for command:  " + arguments + "\n\n" + getHelpText(arguments) + "\n"
-                : "\n" + ODApplication::HELP_MESSAGE + "\n";
+                ? "\nHelp for command:  " + arguments + "\n\n" + getHelpForCommand(arguments) + "\n"
+                : "\n" + GENERAL_HELP_MESSAGE + "\n";
     }
 
     // Set max frames per second
     else if (command.compare("fps") == 0)
     {
-        //NOTE: converted to AS
         if (!arguments.empty())
         {
             Ogre::Real tempDouble;
@@ -373,63 +522,6 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
         frameListener->mCommandOutput += "\n" + tempSS.str() + "\n";
     } */
-
-    // Connect to a server
-    else if (command.compare("connect") == 0)
-    {
-        // Make sure we have set a nickname.
-        if (!gameMap->getLocalPlayer()->getNick().empty())
-        {
-            // Make sure we are not already connected to a server or hosting a game.
-            if (!frameListener->isConnected())
-            {
-                // Make sure an IP address to connect to was provided
-                if (!arguments.empty())
-                {
-                    tempSS.str(arguments);
-                    std::string ip;
-                    tempSS >> ip;
-
-                    if (ODClient::getSingleton().connect(ip, ConfigManager::getSingleton().getNetworkPort()))
-                    {
-                        frameListener->mCommandOutput += "\nConnection successful.\n";
-                    }
-                    else
-                    {
-                        frameListener->mCommandOutput += "\nConnection failed!\n";
-                    }
-                }
-                else
-                {
-                    frameListener->mCommandOutput
-                            += "\nYou must specify the IP address of the server you want to connect to and the level map.  Any IP address which is not a properly formed IP address will resolve to 127.0.0.1\n";
-                }
-
-            }
-            else
-            {
-                frameListener->mCommandOutput
-                        += "\nYou are already connected to a server.  You must disconnect before you can connect to a new game.\n";
-            }
-        }
-        else
-        {
-            frameListener->mCommandOutput
-                    += "\nYou must set a nick with the \"nick\" command before you can join a server.\n";
-        }
-
-        frameListener->mCommandOutput += "\n";
-
-    }
-
-    // Send a chat message
-    else if (command.compare("chat") == 0)
-    {
-        if (ODClient::getSingleton().isConnected())
-        {
-            ODClient::getSingleton().queueClientNotification(ClientNotification::chat, arguments);
-        }
-    }
 
     // Start the visual debugging indicators for a given creature
     else if (command.compare("creaturevisdebug") == 0)
@@ -735,33 +827,6 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         tempSS.str(arguments);
         RenderManager::getSingletonPtr()->triggerCompositor(tempSS.str());
     }
-    else if (command.compare("disconnect") == 0)
-    {
-        frameListener->mCommandOutput += (ODServer::getSingleton().isConnected())
-            ? "\nStopping server.\n"
-            : (ODClient::getSingleton().isConnected())
-                ? "\nDisconnecting from server.\n"
-                : "\nYou are not connected to a server and you are not hosting a server.";
-        //TODO: Fix this
-    }
-    else if (command.compare("pause") == 0)
-    {
-        if(!arguments.empty())
-        {
-            int tmp;
-
-            tempSS.str(arguments);
-            tempSS >> tmp;
-
-            gameMap->setGamePaused(tmp != 0);
-        }
-        else
-        {
-            tempSS.str("");
-            tempSS  << "Pause = " << (gameMap->getGamePaused() ? 1 : 0);
-            frameListener->mCommandOutput += "\n" + tempSS.str() + "\n";
-        }
-    }
     else
     {
         //try AngelScript interpreter
@@ -774,3 +839,4 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
     return true;
 }
+

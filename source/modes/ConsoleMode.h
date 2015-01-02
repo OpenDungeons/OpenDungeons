@@ -20,6 +20,8 @@
 
 #include "AbstractApplicationMode.h"
 
+#include "ConsoleCommands.h"
+
 #include <string>
 
 class PrefixTree;
@@ -48,8 +50,12 @@ public:
 
 private:
     Console* mConsole;
-    PrefixTree* mPrefixTree;
+
+    //! \brief The console commands handler
+    ConsoleCommands mConsoleCommands;
+
     std::string mPrefix;
+
     bool mNonTagKeyPressed;
 
     //! \brief The commands found according to the prefix given.

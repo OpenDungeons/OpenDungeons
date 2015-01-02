@@ -63,17 +63,6 @@ void PrefixTree::addNewStringAux(std::string::const_iterator it,
 
 }
 
-bool PrefixTree::readStringsFromFile(const std::string& fileName)
-{
-    std::string str;
-    std::fstream fileStream(fileName);
-    //std::cout << fileStream.good() << std::endl;
-    while (std::getline(fileStream, str))
-        addNewString(str);
-
-    return true;
-}
-
 bool PrefixTree::complete(const char* word, std::vector<std::string>& ll)
 {
     std::string wordString(word);
