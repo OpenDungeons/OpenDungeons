@@ -40,7 +40,7 @@ void PrefixTree::addNewStringAux(std::string::const_iterator it,
         return;
     }
 
-    std::list<std::pair<char, PrefixTree*> >::iterator result;
+    std::vector<std::pair<char, PrefixTree*> >::iterator result;
     result = std::find_if(mSiblingsList.begin(), mSiblingsList.end(),
                             [it](std::pair<char,PrefixTree*> pp)
                             {
@@ -74,7 +74,7 @@ bool PrefixTree::readStringsFromFile(const std::string& fileName)
     return true;
 }
 
-bool PrefixTree::complete(const char* word, std::list<std::string>* ll)
+bool PrefixTree::complete(const char* word, std::vector<std::string>& ll)
 {
     std::string wordString(word);
     //std::cout << wordString << std::endl;
@@ -86,12 +86,12 @@ bool PrefixTree::complete(const char* word, std::list<std::string>* ll)
         return false;
 }
 
-bool PrefixTree::completePlusPrefix(const std::string& ss, std::list<std::string>* ll)
+bool PrefixTree::completePlusPrefix(const std::string& ss, std::vector<std::string>& ll)
 {
     if(mValidWord)
-        ll->push_back(ss);
+        ll.push_back(ss);
 
-    std::list<std::pair<char, PrefixTree*> >::iterator it;
+    std::vector<std::pair<char, PrefixTree*> >::iterator it;
     for(it = mSiblingsList.begin(); it != mSiblingsList.end(); ++it)
     {
         std::string tt = ss;
@@ -111,7 +111,7 @@ PrefixTree* PrefixTree::findPrefixAux(std::string::const_iterator it, std::strin
     if(it == end_it)
         return this;
 
-    std::list<std::pair<char, PrefixTree*> >::iterator result;
+    std::vector<std::pair<char, PrefixTree*> >::iterator result;
     result = std::find_if(mSiblingsList.begin(), mSiblingsList.end(),
                             [it](std::pair<char, PrefixTree*> pp)
                             {
@@ -121,5 +121,5 @@ PrefixTree* PrefixTree::findPrefixAux(std::string::const_iterator it, std::strin
     if(result == mSiblingsList.end())
         return nullptr;
 
-    return result->second->findPrefixAux(++it, end_it) ;
+    return result->second->findPrefixAux(++it, end_it);
 }

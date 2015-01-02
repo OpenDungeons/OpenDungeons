@@ -20,19 +20,13 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* TODO: do intense testing that everything works
- * TODO: switch from TextRenderer to Console
- */
-
 #include "modes/Console.h"
 
-#include "scripting/ASWrapper.h"
-
 #include "modes/GameMode.h"
-#include "utils/LogManager.h"
 #include "render/RenderManager.h"
 
-#include "modes/ModeManager.h"
+#include "utils/LogManager.h"
+#include "utils/Helper.h"
 
 #include <Overlay/OgreOverlayManager.h>
 #include <OgreRoot.h>
@@ -97,11 +91,6 @@ Console::~Console()
     //delete mOverlay;
 }
 
-/*! \brief Defines the action on starting the current frame
- *
- *  The Console listener checks if it needs updating and if it does it will
- *  redraw itself with the new text
- */
 bool Console::frameStarted(const Ogre::FrameEvent& evt)
 {
     if(mVisible)
@@ -118,22 +107,19 @@ bool Console::frameStarted(const Ogre::FrameEvent& evt)
 
     if(mUpdateOverlay)
     {
-        Ogre::String text;
-        std::list<Ogre::String>::iterator it, start, end;
-
         //make sure is in range
         if(mStartLine > mLines.size())
         {
             mStartLine = mLines.size();
         }
 
-        start = mLines.begin();
+        std::vector<std::string>::iterator start = mLines.begin();
         for (unsigned int c = 0; c < mStartLine; ++c)
         {
             ++start;
         }
 
-        end = start;
+        std::vector<std::string>::iterator end = start;
         for (unsigned int c = 0; c < mConsoleLineCount; ++c)
         {
             if (end == mLines.end())
@@ -144,7 +130,8 @@ bool Console::frameStarted(const Ogre::FrameEvent& evt)
         }
 
         unsigned int counter = 0;
-        for (it = start; it != end; ++it)
+        std::string text;
+        for (std::vector<std::string>::iterator it = start; it != end; ++it)
         {
             text += (*it) + "\n";
             ++counter;
@@ -164,24 +151,14 @@ bool Console::frameStarted(const Ogre::FrameEvent& evt)
     return true;
 }
 
-/*! \brief what happens after frame
- *
- */
 bool Console::frameEnded(const Ogre::FrameEvent& evt)
 {
     return true;
 }
 
-/*! \brief print text to the console
- *
- * This function automatically checks if there are linebreaks in the text
- * and separates the text into separate strings
- *
- * \param text The text to be added to the console
- */
-void Console::print(const Ogre::String& text)
+void Console::print(const std::string& text)
 {
-    std::vector<Ogre::String> newLines = split(text, '\n');
+    std::vector<std::string> newLines = Helper::split(text, '\n');
     mLines.insert(mLines.end(), newLines.begin(), newLines.end());
 
     mStartLine = (mLines.size() > mConsoleLineCount)
@@ -191,16 +168,12 @@ void Console::print(const Ogre::String& text)
     mUpdateOverlay = true;
 }
 
-/*! \brief show or hide the console manually
- *
- */
 void Console::setVisible(const bool newState)
 {
     mVisible = newState;
     checkVisibility();
 }
 
-//! \brief Does the actual showing/hiding depending on bool visible
 void Console::checkVisibility()
 {
     if(mVisible)
@@ -213,35 +186,8 @@ void Console::checkVisibility()
     }
 }
 
-/*! \brief Splits a string on every occurance of splitChar
- *
- *  \return A vector of all splitted sub strings
- *
- *  \param str The string to be splitted
- *  \param splitChar The character that defines the split positions
- */
-std::vector<Ogre::String> Console::split(const Ogre::String& str, const char splitChar)
-{
-    std::vector<Ogre::String> splittedStrings;
-    size_t lastPos = 0, pos = 0;
-    do
-    {
-        pos = str.find(splitChar, lastPos);
-        splittedStrings.push_back(str.substr(lastPos, pos - lastPos));
-        lastPos = pos + 1; //next time start AFTER the last space
-    }
-    while(pos != std::string::npos);
-
-    return splittedStrings;
-}
-
-/*! \brief Send logged messages also to the Console
- *
- * We only allow critical messages to the console. Non-critical messages would
- * pollute the console window and make it hardly readable.
- */
-void Console::messageLogged(const Ogre::String& message, Ogre::LogMessageLevel lml,
-                            bool maskDebug, const Ogre::String& logName, bool& skipThisMessage)
+void Console::messageLogged(const std::string& message, Ogre::LogMessageLevel lml,
+                            bool maskDebug, const std::string& logName, bool& skipThisMessage)
 {
     // if skipThisMessage is true then just return, skipping the rest of the implementation
     if(skipThisMessage)
@@ -273,10 +219,6 @@ void Console::messageLogged(const Ogre::String& message, Ogre::LogMessageLevel l
     print(logName + ": " + message);
 }
 
-/*! \brief Scrolls through the history of user entered commands
- *
- *  \param direction true means going up (old), false means going down (new)
- */
 void Console::scrollHistory(const bool direction)
 {
     if(direction)
@@ -300,16 +242,11 @@ void Console::scrollHistory(const bool direction)
             mPrompt = "";
             return;
         }
-
     }
 
     mPrompt = mHistory[mCurHistPos];
 }
 
-/*! \brief Scrolls through the text output in the console
- *
- *  \param direction true means going up (old), false means going down (new)
- */
 void Console::scrollText(const bool direction)
 {
     if(direction)

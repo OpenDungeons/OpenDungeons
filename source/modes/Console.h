@@ -38,11 +38,7 @@
 #include <Overlay/OgreOverlay.h>
 #include <Overlay/OgreOverlayElement.h>
 
-#include <list>
 #include <vector>
-
-using std::string;
-class ModeManager;
 
 class Console :
     public Ogre::Singleton<Console>,
@@ -55,9 +51,10 @@ public:
     Console();
     ~Console();
 
-    inline const bool& isVisible() const
+    inline bool isVisible() const
     { return mVisible; }
 
+    //! \brief show or hide the console manually
     void setVisible(const bool newState);
 
     inline const bool& getAllowTrivial() const
@@ -84,25 +81,46 @@ public:
     inline void setChatMode(const bool newState)
     { mChatMode = newState; }
 
-    void print(const Ogre::String &text);
+    /*! \brief print text to the console
+     *
+     * This function automatically checks if there are linebreaks in the text
+     * and separates the text into separate strings
+     *
+     * \param text The text to be added to the console
+     */
+    void print(const std::string& text);
 
+    /*! \brief Defines the action on starting the current frame
+     *
+     *  The Console listener checks if it needs updating and if it does it will
+     *  redraw itself with the new text
+     */
     virtual bool frameStarted (const Ogre::FrameEvent& evt);
+
+    //! \brief what happens after frame
     virtual bool frameEnded (const Ogre::FrameEvent& evt);
 
     void onMouseMoved (const OIS::MouseEvent& arg, const bool isCtrlDown = false);
     void onKeyPressed (const OIS::KeyEvent& arg);
-    void messageLogged (const Ogre::String& message, Ogre::LogMessageLevel lml,
-                        bool maskDebug, const Ogre::String& logName, bool& skipThisMessage);
+
+    /*! \brief Send logged messages also to the Console
+     *
+     * We only allow critical messages to the console. Non-critical messages would
+     * pollute the console window and make it hardly readable.
+     */
+    void messageLogged (const std::string& message, Ogre::LogMessageLevel lml,
+                        bool maskDebug, const std::string& logName, bool& skipThisMessage);
+
     bool executePromptCommand(const std::string& command, std::string arguments);
+
+    //! \brief A helper function to return a help text string for a given terminal command.
     std::string getHelpText(std::string arg);
-    void printText(const std::string& text);
 
 private:
-    // Console variables
     std::string mPromptCommand;
     std::string mChatString;
 
-    //state variables
+    //! \brief State variables
     unsigned int mConsoleLineLength;
     unsigned int mConsoleLineCount;
     Ogre::Real mBlinkSpeed;
@@ -116,25 +134,35 @@ private:
     bool mChatMode;
     bool mCursorVisible;
 
-    // Basic conatiner objects
+    //! \brief Basic container objects
     Ogre::OverlayContainer* mPanel;
     Ogre::OverlayElement* mTextbox;
     Ogre::Overlay* mOverlay;
 
-    // Input/output storage variakes
+    //! \brief Input/output storage variables
     unsigned int mStartLine;
-    std::list<Ogre::String> mLines;
-    Ogre::String mPrompt;
-    Ogre::String mCursorChar;
+    std::vector<std::string> mLines;
+    std::string mPrompt;
+    std::string mCursorChar;
 
-    // History variables
-    std::vector<Ogre::String> mHistory;
+    //! \brief Text/Commands history variables
+    std::vector<std::string> mHistory;
     unsigned int mCurHistPos;
 
+    //! \brief Does the actual showing/hiding depending on bool visible
     void checkVisibility();
-    std::vector<Ogre::String> split (const Ogre::String& str, const char splitChar);
-    void scrollHistory (const bool direction);
-    void scrollText (const bool direction);
+
+    /*! \brief Scrolls through the history of user entered commands
+     *
+     *  \param direction true means going up (old), false means going down (new)
+     */
+    void scrollHistory(const bool direction);
+
+    /*! \brief Scrolls through the text output in the console
+     *
+     *  \param direction true means going up (old), false means going down (new)
+     */
+    void scrollText(const bool direction);
 };
 
 #endif // CONSOLE_H_

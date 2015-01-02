@@ -20,11 +20,7 @@
 
 #include "AbstractApplicationMode.h"
 
-#include <list>
 #include <string>
-
-
-using std::string; using std::list;
 
 class PrefixTree;
 
@@ -53,10 +49,13 @@ public:
 private:
     Console* mConsole;
     PrefixTree* mPrefixTree;
-    list<std::string>* mLl;
     std::string mPrefix;
     bool mNonTagKeyPressed;
-    std::list<std::string>::iterator mIt;
+
+    //! \brief The commands found according to the prefix given.
+    std::vector<std::string> mLl;
+    //! \brief Iterator to the list of words found.
+    std::vector<std::string>::iterator mIt;
 };
 
 #endif // CONSOLEMODE_H

@@ -25,10 +25,7 @@
 #include "render/ODFrameListener.h"
 #include "utils/ConfigManager.h"
 
-/*! \brief A helper function to return a help text string for a given terminal command.
- *
- */
-string Console::getHelpText(std::string arg)
+std::string Console::getHelpText(std::string arg)
 {
     std::transform(arg.begin(), arg.end(), arg.begin(), ::tolower);
 

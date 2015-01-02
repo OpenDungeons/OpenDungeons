@@ -19,7 +19,7 @@
 #define PREFIX_TREE_H_
 
 #include <iostream>
-#include <list>
+#include <vector>
 #include <string>
 #include <utility>
 
@@ -33,17 +33,17 @@ public:
     bool printAll();
     PrefixTree* findPrefix(const std::string&);
     int build(const char *filename);
-    bool complete(const char *const word, std::list<std::string>* ll);
+    bool complete(const char *const word, std::vector<std::string>& ll);
 
 private:
-    std::list<std::pair<char, PrefixTree*> > mSiblingsList;
+    std::vector<std::pair<char, PrefixTree*> > mSiblingsList;
     char mNodeChar;
     PrefixTree* mParent;
     bool mValidWord;
 
     void addNewStringAux(std::string::const_iterator, std::string::const_iterator, std::string::const_iterator);
     PrefixTree* findPrefixAux(std::string::const_iterator, std::string::const_iterator);
-    bool completePlusPrefix(const std::string&, std::list<std::string>* ll);
+    bool completePlusPrefix(const std::string&, std::vector<std::string>& ll);
 };
 
 #endif // PREFIX_TREE_H_

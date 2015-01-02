@@ -270,18 +270,18 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             // Loop over level directory and display only level files
             else if (arguments.compare("levels") == 0)
             {
-                std::vector<string> tempVector;
+                std::vector<std::string> tempVector;
                 size_t found;
                 size_t found2;
-                string suffix = ".level";
-                string suffix2 = ".level.";
+                std::string suffix = ".level";
+                std::string suffix2 = ".level.";
                 tempVector = ResourceManager::getSingletonPtr()->
                         listAllFiles("./levels/");
                 for (unsigned int j = 0; j < tempVector.size(); ++j)
                 {
                     found = tempVector[j].find(suffix);
                     found2 = tempVector[j].find(suffix2);
-                    if (found != string::npos && (!(found2 != string::npos)))
+                    if (found != std::string::npos && (!(found2 != std::string::npos)))
                     {
                         tempSS << tempVector[j] << std::endl;
                     }
