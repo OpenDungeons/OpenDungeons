@@ -879,6 +879,7 @@ void ODClient::processClientNotifications()
                 sendToServer(event->mPacket);
                 break;
         }
+        delete event;
     }
 }
 

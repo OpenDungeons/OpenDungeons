@@ -99,6 +99,8 @@ endif()
 #### ExplicitCompilerFlags #######
 ##################################
 
+# TODO: Use add_compiler_options instead of setting CMAKE_CXX_FLAGS
+
 # CMAKE_CXX_FLAGS are meant to be defined using these two public strings
 # This makes it possible to have them explicitly displayed in CMake GUI
 # CMAKE_CXX_FLAGS can still be used to override our default defintions
@@ -112,6 +114,13 @@ else()
     if(OD_ENABLE_WARNINGS)
         # Help getting compilation warnings
         set(OD_OPT_FLAGS "${OD_OPT_FLAGS} -Wall")
+        #for later https://stackoverflow.com/questions/5088460/flags-to-enable-thorough-and-verbose-g-warnings/9862800#9862800:
+        #set(OD_OPT_FLAGS "${OD_OPT_FLAGS} -pedantic -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization ")
+        #set(OD_OPT_FLAGS "${OD_OPT_FLAGS} -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wnoexcept")
+        #set(OD_OPT_FLAGS "${OD_OPT_FLAGS} -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-conversion -Wsign-promo")
+        #set(OD_OPT_FLAGS "${OD_OPT_FLAGS} -Wstrict-null-sentinel -Wstrict-overflow=5 -Wswitch-default -Wundef -Wno-unused")
+        #set(OD_OPT_FLAGS "${OD_OPT_FLAGS} -Winline -Winvalid-pch -Wswitch-enum -Wzero-as-null-pointer-constant -Wuseless-cast")
+        #set(OD_OPT_FLAGS "${OD_OPT_FLAGS} -Weffc++")
     endif()
     if(MINGW)
         if(NOT OD_CXX11_FLAGS)
@@ -397,25 +406,22 @@ include_directories(
     #OpenDungeons includes
     ${CMAKE_SOURCE_DIR}/source
 
-    #General external includes
-    ${DEPENDENCIES_DIR}
-
     #Angelscript includes
-    ${ANGELSCRIPT_DIR}/angelscript/include
-    ${ANGELSCRIPT_SRC_DIR}
+    SYSTEM ${ANGELSCRIPT_DIR}/angelscript/include
+    SYSTEM ${ANGELSCRIPT_SRC_DIR}
 
     #AngelScript Addons, in-comment only the ones we actually use
-    ${ANGELSCRIPT_ADDON_DIR}/scriptarray
-    ${ANGELSCRIPT_ADDON_DIR}/scriptbuilder
-    ${ANGELSCRIPT_ADDON_DIR}/scripthelper
-    ${ANGELSCRIPT_ADDON_DIR}/scriptstdstring
+    SYSTEM ${ANGELSCRIPT_ADDON_DIR}/scriptarray
+    SYSTEM ${ANGELSCRIPT_ADDON_DIR}/scriptbuilder
+    SYSTEM ${ANGELSCRIPT_ADDON_DIR}/scripthelper
+    SYSTEM ${ANGELSCRIPT_ADDON_DIR}/scriptstdstring
 
     #external packages includes
-    ${CEGUI_INCLUDE_DIR}
-    ${SFML_INCLUDE_DIR}
-    ${OGRE_INCLUDE_DIRS}
-    ${OPENAL_INCLUDE_DIR}
-    ${OIS_INCLUDE_DIRS}
+    SYSTEM ${CEGUI_INCLUDE_DIR}
+    SYSTEM ${SFML_INCLUDE_DIR}
+    SYSTEM ${OGRE_INCLUDE_DIRS}
+    SYSTEM ${OPENAL_INCLUDE_DIR}
+    SYSTEM ${OIS_INCLUDE_DIRS}
 )
 
 if(WIN32)
@@ -423,11 +429,11 @@ if(WIN32)
         #TODO: Why are we linking boost here? It's linked again later.
         # Boost
         link_libraries(${Boost_LIBRARIES})
-        include_directories(${Boost_INCLUDE_DIRS})
+        include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
     endif()
 
     if(MSVC)
-        include_directories(${OD_BOOST_INCLUDE_DIRS})
+        include_directories(SYSTEM ${OD_BOOST_INCLUDE_DIRS})
         link_directories(${OD_BOOST_LIB_DIRS})
     endif()
 endif()
@@ -438,6 +444,11 @@ endif()
 
 # Create the angelscript library file
 add_library(${AS_LIBRARY_NAME} ${AS_SOURCEFILES})
+
+# Treat warnings as errors for main build, but not angelscript, since it would fail.
+if(NOT MSVC)
+    add_compile_options("-Werror")
+endif()
 
 # Create the binary file (WIN32 makes sure there is no console window on windows.)
 add_executable(${PROJECT_BINARY_NAME} WIN32 ${OD_SOURCEFILES})
@@ -463,7 +474,7 @@ target_link_libraries(
     ${OPENAL_LIBRARY}
     ${OIS_LIBRARIES}
     ${CEGUI_LIBRARIES_RELEASE}
-    #${CEGUI_LIBRARIES_DEBUG}
+    ${CEGUI_LIBRARIES_DEBUG}
 )
 
 # Set linker options in MSVC
