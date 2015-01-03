@@ -53,7 +53,7 @@ public:
 
     //! \brief mouse handling related member
     OIS::Mouse*         mMouse;
-    bool                mLMouseDown, mRMouseDown;
+    bool                mLMouseDown, mRMouseDown, mMMouseDown;
     bool                mMouseDownOnCEGUIWindow;
 
     Ogre::Vector3       mKeeperHandPos;

@@ -57,8 +57,8 @@ public:
         stopLeft, stopRight, stopForward, stopBackward, stopUp, stopDown,
         stopRotLeft, stopRotRight, stopRotUp, stopRotDown,
 
-        randomRotateX,	zeroRandomRotateX,
-        randomRotateY,	zeroRandomRotateY,
+        randomRotateX, zeroRandomRotateX,
+        randomRotateY, zeroRandomRotateY,
         fullStop
     };
 
@@ -115,7 +115,7 @@ public:
     void RotateTo(Ogre::Real pitch, Ogre::Real roll);
 
     //! \brief Directly set the new camera position
-    void setCameraPosition(const Ogre::Vector3& position);
+    void resetCamera(const Ogre::Vector3& position);
 
     /*! \brief tells the camera to move/rotate (or stop) in a specific direction
     *
@@ -125,10 +125,7 @@ public:
     */
     void move(const Direction direction, double aux = 0.0);
 
-    void createCameraNode(const Ogre::String& ss, Ogre::Vector3 = Ogre::Vector3(0,0,0),
-                          Ogre::Degree = Ogre::Degree(0),
-                          Ogre::Degree = Ogre::Degree (0),
-                          Ogre::Degree = Ogre::Degree (0));
+    void createCameraNode(const std::string& name);
 
     Ogre::SceneNode* getActiveCameraNode();
     Ogre::SceneNode* setActiveCameraNode(const Ogre::String& ss);

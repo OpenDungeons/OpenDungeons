@@ -273,14 +273,14 @@ void ODFrameListener::printDebugInfo()
     TextRenderer::getSingleton().setText("DebugMessages", infoSS.str());
 }
 
-void ODFrameListener::setCameraPosition(const Ogre::Vector3& position)
+void ODFrameListener::resetCamera(const Ogre::Vector3& position)
 {
-    mCameraManager.setCameraPosition(position);
+    mCameraManager.resetCamera(position);
 }
 
-void ODFrameListener::moveCamera(CameraManager::Direction direction)
+void ODFrameListener::moveCamera(CameraManager::Direction direction, double aux)
 {
-    mCameraManager.move(direction);
+    mCameraManager.move(direction, aux);
 }
 
 void ODFrameListener::setActiveCameraNearClipDistance(Ogre::Real value)
