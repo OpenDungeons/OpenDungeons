@@ -23,7 +23,7 @@
 #include "entities/MissileObject.h"
 #include "entities/SmallSpiderEntity.h"
 #include "entities/CraftedTrap.h"
-#include "entities/PersistantObject.h"
+#include "entities/PersistentObject.h"
 
 #include "gamemap/GameMap.h"
 
@@ -217,9 +217,9 @@ RenderedMovableEntity* RenderedMovableEntity::getRenderedMovableEntityFromPacket
             obj = CraftedTrap::getCraftedTrapFromPacket(gameMap, is);
             break;
         }
-        case RenderedMovableEntityType::persistantObject:
+        case RenderedMovableEntityType::persistentObject:
         {
-            obj = PersistantObject::getPersistantObjectFromPacket(gameMap, is);
+            obj = PersistentObject::getPersistentObjectFromPacket(gameMap, is);
             break;
         }
         default:

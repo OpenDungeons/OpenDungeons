@@ -23,7 +23,7 @@
 #include "entities/TreasuryObject.h"
 #include "entities/ChickenEntity.h"
 #include "entities/CraftedTrap.h"
-#include "entities/PersistantObject.h"
+#include "entities/PersistentObject.h"
 
 #include "game/Player.h"
 #include "game/Seat.h"
@@ -616,12 +616,12 @@ void Tile::exportToPacket(ODPacket& os, Seat* seat)
     os << mScale;
     os << getType() << mFullness;
 
-    // We export the list of all the persistant objects on this tile. We do that because a persistant object might have
+    // We export the list of all the persistent objects on this tile. We do that because a persistent object might have
     // been removed on server side when the client did not had vision. Thus, it would still be on client side. Thanks to
     // this list, the clients will be able to remove them.
-    uint32_t nbPersistantObject = mPersistantObjectRegistered.size();
-    os << nbPersistantObject;
-    for(PersistantObject* obj : mPersistantObjectRegistered)
+    uint32_t nbPersistentObject = mPersistentObjectRegistered.size();
+    os << nbPersistentObject;
+    for(PersistentObject* obj : mPersistentObjectRegistered)
     {
         // We only set in the list objects that are visible (for example, we don't send traps that have not been triggered)
         if(!obj->isVisibleForSeat(seat))
@@ -670,29 +670,29 @@ void Tile::updateFromPacket(ODPacket& is)
     OD_ASSERT_TRUE(is >> fullness);
     setFullness(fullness);
 
-    uint32_t nbPersistantObject;
-    OD_ASSERT_TRUE(is >> nbPersistantObject);
-    mPersistantObjectNamesOnTile.clear();
-    while(nbPersistantObject > 0)
+    uint32_t nbPersistentObject;
+    OD_ASSERT_TRUE(is >> nbPersistentObject);
+    mPersistentObjectNamesOnTile.clear();
+    while(nbPersistentObject > 0)
     {
-        --nbPersistantObject;
+        --nbPersistentObject;
 
         std::string name;
         OD_ASSERT_TRUE(is >> name);
-        mPersistantObjectNamesOnTile.push_back(name);
+        mPersistentObjectNamesOnTile.push_back(name);
     }
 
-    for(std::vector<PersistantObject*>::iterator it = mPersistantObjectRegistered.begin(); it != mPersistantObjectRegistered.end();)
+    for(std::vector<PersistentObject*>::iterator it = mPersistentObjectRegistered.begin(); it != mPersistentObjectRegistered.end();)
     {
-        PersistantObject* obj = *it;
-        if(std::find(mPersistantObjectNamesOnTile.begin(), mPersistantObjectNamesOnTile.end(), obj->getName()) != mPersistantObjectNamesOnTile.end())
+        PersistentObject* obj = *it;
+        if(std::find(mPersistentObjectNamesOnTile.begin(), mPersistentObjectNamesOnTile.end(), obj->getName()) != mPersistentObjectNamesOnTile.end())
         {
             ++it;
             continue;
         }
 
         // The object is not on this tile anymore, we remove it
-        it = mPersistantObjectRegistered.erase(it);
+        it = mPersistentObjectRegistered.erase(it);
         getGameMap()->removeRenderedMovableEntity(obj);
         obj->deleteYourself();
     }
@@ -1581,23 +1581,23 @@ void Tile::notifySeatsWithVision()
     }
 }
 
-bool Tile::registerPersistantObject(PersistantObject* obj)
+bool Tile::registerPersistentObject(PersistentObject* obj)
 {
-    if(std::find(mPersistantObjectRegistered.begin(), mPersistantObjectRegistered.end(), obj) != mPersistantObjectRegistered.end())
+    if(std::find(mPersistentObjectRegistered.begin(), mPersistentObjectRegistered.end(), obj) != mPersistentObjectRegistered.end())
         return false;
 
-    mPersistantObjectRegistered.push_back(obj);
+    mPersistentObjectRegistered.push_back(obj);
     setDirtyForAllSeats();
     return true;
 }
 
-bool Tile::removePersistantObject(PersistantObject* obj)
+bool Tile::removePersistentObject(PersistentObject* obj)
 {
-    std::vector<PersistantObject*>::iterator it = std::find(mPersistantObjectRegistered.begin(), mPersistantObjectRegistered.end(), obj);
-    if(it == mPersistantObjectRegistered.end())
+    std::vector<PersistentObject*>::iterator it = std::find(mPersistentObjectRegistered.begin(), mPersistentObjectRegistered.end(), obj);
+    if(it == mPersistentObjectRegistered.end())
         return false;
 
-    mPersistantObjectRegistered.erase(it);
+    mPersistentObjectRegistered.erase(it);
     setDirtyForAllSeats();
     return true;
 }

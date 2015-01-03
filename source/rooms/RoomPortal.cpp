@@ -23,7 +23,7 @@
 #include "game/Player.h"
 #include "entities/Creature.h"
 #include "entities/Tile.h"
-#include "entities/PersistantObject.h"
+#include "entities/PersistentObject.h"
 #include "entities/RenderedMovableEntity.h"
 #include "gamemap/GameMap.h"
 #include "entities/Weapon.h"
@@ -74,7 +74,7 @@ void RoomPortal::createMeshLocal()
     if(!getGameMap()->isServerGameMap())
         return;
 
-    mPortalObject = new PersistantObject(getGameMap(), getName(), "PortalObject", getCentralTile(), 0.0, false);
+    mPortalObject = new PersistentObject(getGameMap(), getName(), "PortalObject", getCentralTile(), 0.0, false);
     addBuildingObject(getCentralTile(), mPortalObject);
 
     mPortalObject->setAnimationState("Idle");

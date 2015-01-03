@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "entities/PersistantObject.h"
+#include "entities/PersistentObject.h"
 
 #include "network/ODPacket.h"
 
@@ -25,7 +25,7 @@
 
 #include <iostream>
 
-PersistantObject::PersistantObject(GameMap* gameMap, const std::string& buildingName, const std::string& meshName,
+PersistentObject::PersistentObject(GameMap* gameMap, const std::string& buildingName, const std::string& meshName,
         Tile* tile, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity) :
     RenderedMovableEntity(gameMap, buildingName, meshName, rotationAngle, hideCoveredTile, opacity),
     mTile(tile)
@@ -35,32 +35,32 @@ PersistantObject::PersistantObject(GameMap* gameMap, const std::string& building
     mPosition.z = 0;
 }
 
-PersistantObject::PersistantObject(GameMap* gameMap) :
+PersistentObject::PersistentObject(GameMap* gameMap) :
     RenderedMovableEntity(gameMap)
 {
 }
 
-PersistantObject* PersistantObject::getPersistantObjectFromPacket(GameMap* gameMap, ODPacket& is)
+PersistentObject* PersistentObject::getPersistentObjectFromPacket(GameMap* gameMap, ODPacket& is)
 {
-    PersistantObject* obj = new PersistantObject(gameMap);
+    PersistentObject* obj = new PersistentObject(gameMap);
     return obj;
 }
 
-void PersistantObject::notifyAddedOnGamemap()
+void PersistentObject::notifyAddedOnGamemap()
 {
     // We register on both client and server gamemaps
     RenderedMovableEntity::notifyAddedOnGamemap();
-    mTile->registerPersistantObject(this);
+    mTile->registerPersistentObject(this);
 }
 
-void PersistantObject::notifyRemovedFromGamemap()
+void PersistentObject::notifyRemovedFromGamemap()
 {
-    // On server map, removes the PersistantObject. On client map, does nothing. It is done when the associated tile is refreshed
+    // On server map, removes the PersistentObject. On client map, does nothing. It is done when the associated tile is refreshed
     RenderedMovableEntity::notifyRemovedFromGamemap();
-    mTile->removePersistantObject(this);
+    mTile->removePersistentObject(this);
 }
 
-void PersistantObject::notifySeatsWithVision(const std::vector<Seat*>& seats)
+void PersistentObject::notifySeatsWithVision(const std::vector<Seat*>& seats)
 {
     // We notify seats that lost vision
     for(std::vector<Seat*>::iterator it = mSeatsWithVisionNotified.begin(); it != mSeatsWithVisionNotified.end();)
@@ -102,14 +102,14 @@ void PersistantObject::notifySeatsWithVision(const std::vector<Seat*>& seats)
     }
 }
 
-void PersistantObject::exportToPacket(ODPacket& os) const
+void PersistentObject::exportToPacket(ODPacket& os) const
 {
     RenderedMovableEntity::exportToPacket(os);
 
     getGameMap()->tileToPacket(os, mTile);
 }
 
-void PersistantObject::importFromPacket(ODPacket& is)
+void PersistentObject::importFromPacket(ODPacket& is)
 {
     RenderedMovableEntity::importFromPacket(is);
 

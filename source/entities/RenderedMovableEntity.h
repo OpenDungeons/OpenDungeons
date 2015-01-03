@@ -40,7 +40,7 @@ public:
         smallSpiderEntity,
         craftedTrap,
         missileObject,
-        persistantObject
+        persistentObject
     };
     //! \brief Creates a RenderedMovableEntity. It's name is built from baseName and some unique id from the gamemap.
     //! We use baseName to help understand what's this object for when getting a log
