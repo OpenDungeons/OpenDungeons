@@ -61,6 +61,13 @@ class ODClient: public Ogre::Singleton<ODClient>,
     //! \brief Adds a client notification to the client notification queue.
     void queueClientNotification(ClientNotification* n);
 
+    /*! \brief Adds a client notification to the client notification queue.
+     *  \param type The type of the notification
+     *  \param args The arguments that are to be piped into the notification.
+     */
+    template<typename ...Args>
+    void queueClientNotification(ClientNotification::ClientNotificationType type, const Args&... args);
+
     void disconnect();
 
     //! \brief Adds a client notification to the client notification queue.
@@ -79,5 +86,12 @@ class ODClient: public Ogre::Singleton<ODClient>,
     std::deque<ClientNotification*> mClientNotificationQueue;
 
 };
+
+template<typename ...Args>
+void ODClient::queueClientNotification(ClientNotification::ClientNotificationType type, const Args&... args)
+{
+    mClientNotificationQueue.emplace_back(new ClientNotification(type));
+    ODPacket::putInPacket(mClientNotificationQueue.back()->mPacket, args...);
+}
 
 #endif // ODCLIENT_H

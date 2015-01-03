@@ -25,6 +25,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <ctime>
 
 unsigned long myRandomSeed;
 const unsigned long MAX = 32768;
@@ -68,7 +69,7 @@ namespace Random
 
 void initialize()
 {
-    myRandomSeed = static_cast<unsigned long>(time(0));
+    myRandomSeed = static_cast<unsigned long>(std::time(0));
 }
 
 double Double(double min, double max)

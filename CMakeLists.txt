@@ -349,16 +349,16 @@ find_package(OGRE REQUIRED)
 find_package(CEGUI REQUIRED)
 find_package(SFML 2 REQUIRED COMPONENTS Audio System Network)
 
-if ((OGRE_VERSION_MAJOR LESS 1) AND (OGRE_VERSION_MINOR LESS 9))
-    message(SEND_ERROR "OGRE version >= 1.9.0 required")
+if((OGRE_VERSION_MAJOR LESS 1) AND (OGRE_VERSION_MINOR LESS 9))
+    message(FATAL_ERROR "OGRE version >= 1.9.0 required")
 endif()
 
-if ((CEGUI_VERSION_MINOR LESS 8) OR (CEGUI_VERSION_MAJOR LESS 1))
-    message(SEND_ERROR "CEGUI version >= 0.8.0 required")
+if("${CEGUI_VERSION}" VERSION_LESS "0.8.0")
+    message(FATAL_ERROR "CEGUI version >= 0.8.0 required")
 endif()
 
 if (SFML_VERSION_MAJOR LESS 2)
-    message(SEND_ERROR "SFML version >= 2.0 required")
+    message(FATAL_ERROR "SFML version >= 2.0 required")
 else()
     message(STATUS "SFML include directory: ${SFML_INCLUDE_DIR}; SFML audio library: ${SFML_AUDIO_LIBRARY_DEBUG} ${SFML_AUDIO_LIBRARY_RELEASE}")
 endif()
@@ -473,8 +473,8 @@ target_link_libraries(
     ${OGRE_RTShaderSystem_LIBRARIES}
     ${OPENAL_LIBRARY}
     ${OIS_LIBRARIES}
-    ${CEGUI_LIBRARIES_RELEASE}
-    ${CEGUI_LIBRARIES_DEBUG}
+    ${CEGUI_LIBRARIES}
+    ${CEGUI_OgreRenderer_LIBRARIES}
 )
 
 # Set linker options in MSVC
@@ -496,16 +496,7 @@ endif()
 # Link sfml
 # No need to make a difference when release/debug is found because even
 # if only one is found, the other is set to the same value
-target_link_libraries(
-    ${PROJECT_BINARY_NAME}
-
-    optimized ${SFML_AUDIO_LIBRARY_RELEASE}
-    optimized ${SFML_SYSTEM_LIBRARY_RELEASE}
-    optimized ${SFML_NETWORK_LIBRARY_RELEASE}
-    debug ${SFML_AUDIO_LIBRARY_DEBUG}
-    debug ${SFML_SYSTEM_LIBRARY_DEBUG}
-    debug ${SFML_NETWORK_LIBRARY_DEBUG}
-)
+target_link_libraries(${PROJECT_BINARY_NAME} ${SFML_LIBRARIES})
 
 ##################################
 #### Unit testing ################
