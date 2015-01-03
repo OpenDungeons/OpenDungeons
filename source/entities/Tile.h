@@ -40,6 +40,7 @@ class TreasuryObject;
 class ChickenEntity;
 class CraftedTrap;
 class BuildingObject;
+class PersistantObject;
 class ODPacket;
 
 /*! \brief The tile class contains information about tile type and contents and is the basic level bulding block.
@@ -314,6 +315,13 @@ public:
 
     virtual void notifySeatsWithVision();
 
+    //! On client side, registers the PersistantObject on this tile so it can be removed when the tile is refreshed (and the object has been removed).
+    //! On Server side, registers the PersistantObject on this tile so that the PersistantObject still on this tile
+    //! can be sent to the clients when they got vision
+    bool registerPersistantObject(PersistantObject* obj);
+    //! Removes the PersistantObject from the tile.
+    bool removePersistantObject(PersistantObject* obj);
+
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
@@ -352,6 +360,9 @@ private:
     std::vector<Player*> mPlayersMarkingTile;
     std::vector<std::pair<Seat*, bool>> mTileChangedForSeats;
     std::vector<Seat*> mSeatsWithVision;
+    std::vector<PersistantObject*> mPersistantObjectRegistered;
+    //! Used on client side to check if the PersistantObjects on this tile should be removed when the tile gets refreshed
+    std::vector<std::string> mPersistantObjectNamesOnTile;
 
     //! \brief List of the entities actually on this tile. Most of the creatures actions will rely on this list
     std::vector<GameEntity*> mEntitiesInTile;

@@ -23,6 +23,7 @@
 #include "entities/TreasuryObject.h"
 #include "entities/ChickenEntity.h"
 #include "entities/CraftedTrap.h"
+#include "entities/PersistantObject.h"
 
 #include "game/Player.h"
 #include "game/Seat.h"
@@ -614,6 +615,20 @@ void Tile::exportToPacket(ODPacket& os, Seat* seat)
     os << meshName;
     os << mScale;
     os << getType() << mFullness;
+
+    // We export the list of all the persistant objects on this tile. We do that because a persistant object might have
+    // been removed on server side when the client did not had vision. Thus, it would still be on client side. Thanks to
+    // this list, the clients will be able to remove them.
+    uint32_t nbPersistantObject = mPersistantObjectRegistered.size();
+    os << nbPersistantObject;
+    for(PersistantObject* obj : mPersistantObjectRegistered)
+    {
+        // We only set in the list objects that are visible (for example, we don't send traps that have not been triggered)
+        if(!obj->isVisibleForSeat(seat))
+            continue;
+
+        os << obj->getName();
+    }
 }
 
 void Tile::updateFromPacket(ODPacket& is)
@@ -654,6 +669,33 @@ void Tile::updateFromPacket(ODPacket& is)
 
     OD_ASSERT_TRUE(is >> fullness);
     setFullness(fullness);
+
+    uint32_t nbPersistantObject;
+    OD_ASSERT_TRUE(is >> nbPersistantObject);
+    mPersistantObjectNamesOnTile.clear();
+    while(nbPersistantObject > 0)
+    {
+        --nbPersistantObject;
+
+        std::string name;
+        OD_ASSERT_TRUE(is >> name);
+        mPersistantObjectNamesOnTile.push_back(name);
+    }
+
+    for(std::vector<PersistantObject*>::iterator it = mPersistantObjectRegistered.begin(); it != mPersistantObjectRegistered.end();)
+    {
+        PersistantObject* obj = *it;
+        if(std::find(mPersistantObjectNamesOnTile.begin(), mPersistantObjectNamesOnTile.end(), obj->getName()) != mPersistantObjectNamesOnTile.end())
+        {
+            ++it;
+            continue;
+        }
+
+        // The object is not on this tile anymore, we remove it
+        it = mPersistantObjectRegistered.erase(it);
+        getGameMap()->removeRenderedMovableEntity(obj);
+        obj->deleteYourself();
+    }
 
     if((tileType != Tile::TileType::claimed) || (seatId == 0))
         return;
@@ -1524,6 +1566,9 @@ void Tile::changeNotifiedForSeat(Seat* seat)
 
 void Tile::setDirtyForAllSeats()
 {
+    if(!getGameMap()->isServerGameMap())
+        return;
+
     for(std::pair<Seat*, bool>& seatChanged : mTileChangedForSeats)
         seatChanged.second = true;
 }
@@ -1534,6 +1579,27 @@ void Tile::notifySeatsWithVision()
     {
         entity->notifySeatsWithVision(mSeatsWithVision);
     }
+}
+
+bool Tile::registerPersistantObject(PersistantObject* obj)
+{
+    if(std::find(mPersistantObjectRegistered.begin(), mPersistantObjectRegistered.end(), obj) != mPersistantObjectRegistered.end())
+        return false;
+
+    mPersistantObjectRegistered.push_back(obj);
+    setDirtyForAllSeats();
+    return true;
+}
+
+bool Tile::removePersistantObject(PersistantObject* obj)
+{
+    std::vector<PersistantObject*>::iterator it = std::find(mPersistantObjectRegistered.begin(), mPersistantObjectRegistered.end(), obj);
+    if(it == mPersistantObjectRegistered.end())
+        return false;
+
+    mPersistantObjectRegistered.erase(it);
+    setDirtyForAllSeats();
+    return true;
 }
 
 std::string Tile::displayAsString(Tile* tile)

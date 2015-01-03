@@ -121,6 +121,13 @@ public:
     //! Note that this function is to be called on client side only
     virtual void restoreEntityState();
 
+    //! This function is called by the gamemap when the entity is added.
+    virtual void notifyAddedOnGamemap()
+    {}
+
+    //! This function is called by the gamemap when the entity is removed.
+    virtual void notifyRemovedFromGamemap();
+
 protected:
     //! \brief Called while moving the entity to add it to the tile it gets on
     virtual bool addEntityToTile(Tile* tile);

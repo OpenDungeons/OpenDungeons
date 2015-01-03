@@ -22,6 +22,7 @@
 #include "entities/Weapon.h"
 #include "entities/CreatureAction.h"
 #include "entities/CreatureSound.h"
+#include "entities/PersistantObject.h"
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
 
@@ -64,7 +65,7 @@ void RoomDungeonTemple::createMeshLocal()
     if(!getGameMap()->isServerGameMap())
         return;
 
-    mTempleObject = loadBuildingObject(getGameMap(), "DungeonTempleObject", getCentralTile(), 0.0, false);
+    mTempleObject = new PersistantObject(getGameMap(), getName(), "DungeonTempleObject", getCentralTile(), 0.0, false);
     addBuildingObject(getCentralTile(), mTempleObject);
 
 }

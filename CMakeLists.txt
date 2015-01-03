@@ -234,6 +234,7 @@ set(OD_SOURCEFILES
     ${SRC}/entities/MissileObject.cpp
     ${SRC}/entities/MissileOneHit.cpp
     ${SRC}/entities/MovableGameEntity.cpp
+    ${SRC}/entities/PersistantObject.cpp
     ${SRC}/entities/RenderedMovableEntity.cpp
     ${SRC}/entities/SmallSpiderEntity.cpp
     ${SRC}/entities/Tile.cpp

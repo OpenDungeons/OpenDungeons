@@ -277,7 +277,10 @@ private:
     //! if the spawning conditions are not empty and are met, we will set it to true and force spawning of the related creature
     std::vector<std::pair<const CreatureDefinition*, bool> > mSpawnPool;
 
-    //! \brief List of the tiles this seat has vision on
+    //! \brief List of all the tiles in the gamemap (used for human players seats only). The first vector stores the X position.
+    //! The second vector stores the Y position. The first bool from the pair is set to true if the seat had vision on the concerned
+    //! tile during the last turn. The second bool is the same but for the current turn. That allows to notify only the tiles where
+    //! vision changed
     std::vector<std::vector<std::pair<bool, bool>>> mTilesVision;
     std::vector<Tile*> mVisualDebugEntityTiles;
 

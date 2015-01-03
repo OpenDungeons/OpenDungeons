@@ -333,12 +333,14 @@ void Creature::importFromStream(std::istream& is)
     }
     mLevel = std::min(MAX_LEVEL, mLevel);
 
+    MovableGameEntity::importFromStream(is);
+
+    buildStats();
+
     if(strHp.compare("max") == 0)
         mHp = mMaxHP;
     else
         mHp = Helper::toDouble(strHp);
-
-    MovableGameEntity::importFromStream(is);
 }
 
 void Creature::buildStats()
@@ -385,7 +387,6 @@ Creature* Creature::getCreatureFromStream(GameMap* gameMap, std::istream& is)
 {
     Creature* creature = new Creature(gameMap);
     creature->importFromStream(is);
-    creature->buildStats();
     return creature;
 }
 
@@ -393,7 +394,6 @@ Creature* Creature::getCreatureFromPacket(GameMap* gameMap, ODPacket& is)
 {
     Creature* creature = new Creature(gameMap);
     creature->importFromPacket(is);
-    creature->buildStats();
     return creature;
 }
 
@@ -451,9 +451,6 @@ void Creature::importFromPacket(ODPacket& is)
     mDefinition = getGameMap()->getClassDescription(tempString);
     OD_ASSERT_TRUE_MSG(mDefinition != nullptr, "Definition=" + tempString);
 
-    mMaxHP = mDefinition->getMinHp();
-    setHP(mMaxHP);
-
     OD_ASSERT_TRUE(is >> tempString);
     setName(tempString);
 
@@ -500,6 +497,8 @@ void Creature::importFromPacket(ODPacket& is)
     }
 
     MovableGameEntity::importFromPacket(is);
+
+    buildStats();
 }
 
 void Creature::setPosition(const Ogre::Vector3& v, bool isMove)

@@ -39,7 +39,8 @@ public:
         chickenEntity,
         smallSpiderEntity,
         craftedTrap,
-        missileObject
+        missileObject,
+        persistantObject
     };
     //! \brief Creates a RenderedMovableEntity. It's name is built from baseName and some unique id from the gamemap.
     //! We use baseName to help understand what's this object for when getting a log
@@ -107,8 +108,8 @@ protected:
     virtual void destroyMeshLocal();
     virtual void fireAddEntity(Seat* seat, bool async);
     virtual void fireRemoveEntity(Seat* seat);
-private:
     std::vector<Seat*> mSeatsWithVisionNotified;
+private:
     Ogre::Real mRotationAngle;
     bool mHideCoveredTile;
 };

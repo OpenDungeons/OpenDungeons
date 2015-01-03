@@ -385,7 +385,7 @@ const CreatureDefinition* Seat::getNextCreatureClassToSpawn()
     }
 
     // It is not normal to come here
-    OD_ASSERT_TRUE(false);
+    OD_ASSERT_TRUE_MSG(false, "seatId=" + Ogre::StringConverter::toString(getId()));
     return nullptr;
 }
 

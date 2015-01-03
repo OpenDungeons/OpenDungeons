@@ -155,7 +155,7 @@ bool Player::isDropHandPossible(Tile *t, unsigned int index, bool isEditorMode)
 MovableGameEntity* Player::dropHand(Tile *t, unsigned int index)
 {
     // Add the creature to the map
-    OD_ASSERT_TRUE(index < mObjectsInHand.size());
+    OD_ASSERT_TRUE_MSG(index < mObjectsInHand.size(), "playerNick=" + getNick() + ", index=" + Ogre::StringConverter::toString(index));
     if(index >= mObjectsInHand.size())
         return nullptr;
 

@@ -60,11 +60,7 @@ public:
     void receiveExp(double /*experience*/)
     {}
 
-    void addBuildingObject(Tile* targetTile, RenderedMovableEntity* obj);
-    void removeBuildingObject(Tile* tile);
-    void removeBuildingObject(RenderedMovableEntity* obj);
     void removeAllBuildingObjects();
-    RenderedMovableEntity* getBuildingObjectFromTile(Tile* tile);
     /*! \brief Creates a child RenderedMovableEntity mesh using the given mesh name and placing on the target tile,
      *  if the tile is nullptr the object appears in the building's center, the rotation angle is given in degrees.
      */
@@ -117,6 +113,11 @@ public:
     {}
 
 protected:
+    void addBuildingObject(Tile* targetTile, RenderedMovableEntity* obj);
+    void removeBuildingObject(Tile* tile);
+    void removeBuildingObject(RenderedMovableEntity* obj);
+    RenderedMovableEntity* getBuildingObjectFromTile(Tile* tile);
+
     std::map<Tile*, RenderedMovableEntity*> mBuildingObjects;
     std::vector<Tile*> mCoveredTiles;
     std::map<Tile*, double> mTileHP;

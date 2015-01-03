@@ -23,6 +23,7 @@
 #include "game/Player.h"
 #include "entities/Creature.h"
 #include "entities/Tile.h"
+#include "entities/PersistantObject.h"
 #include "entities/RenderedMovableEntity.h"
 #include "gamemap/GameMap.h"
 #include "entities/Weapon.h"
@@ -45,7 +46,7 @@ RoomPortal::RoomPortal(GameMap* gameMap) :
 
 void RoomPortal::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
 {
-    // This Room keeps its building object until it is destroyed (they will be released when
+    // This Room keeps its building object until it is destroyed (it will be released when
     // the room is destroyed)
 }
 
@@ -73,7 +74,7 @@ void RoomPortal::createMeshLocal()
     if(!getGameMap()->isServerGameMap())
         return;
 
-    mPortalObject = loadBuildingObject(getGameMap(), "PortalObject", getCentralTile(), 0.0, false);
+    mPortalObject = new PersistantObject(getGameMap(), getName(), "PortalObject", getCentralTile(), 0.0, false);
     addBuildingObject(getCentralTile(), mPortalObject);
 
     mPortalObject->setAnimationState("Idle");

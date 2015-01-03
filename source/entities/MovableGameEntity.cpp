@@ -577,3 +577,11 @@ void MovableGameEntity::restoreEntityState()
             getAnimationState()->addTime(mAnimationTime);
     }
 }
+
+void MovableGameEntity::notifyRemovedFromGamemap()
+{
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    fireRemoveEntityToSeatsWithVision();
+}
