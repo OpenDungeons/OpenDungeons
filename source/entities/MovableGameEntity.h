@@ -33,7 +33,7 @@ class Tile;
 class MovableGameEntity : public GameEntity
 {
 public:
-    MovableGameEntity(GameMap* gameMap, float opacity);
+    MovableGameEntity(GameMap* gameMap);
 
     virtual ~MovableGameEntity()
     {}
@@ -71,8 +71,6 @@ public:
     virtual double getAnimationSpeedFactor();
     virtual void setAnimationSpeedFactor(double f);
 
-    virtual void setMeshOpacity(float opacity);
-
     //! \brief Called when the entity is being carried
     virtual void notifyEntityCarryOn()
     {}
@@ -94,10 +92,6 @@ public:
 
     inline Ogre::AnimationState* getAnimationState() const
     { return mAnimationState; }
-
-    //! \brief Get if the mesh is already existing
-    inline float getOpacity() const
-    { return mOpacity; }
 
     void fireRemoveEntityToSeatsWithVision();
 
@@ -152,9 +146,6 @@ private:
     std::string mDestinationAnimationState;
     Ogre::Vector3 mWalkDirection;
     double mAnimationTime;
-
-    //! \brief The model current opacity
-    float mOpacity;
 };
 
 

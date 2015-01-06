@@ -18,6 +18,7 @@
 #include "traps/TrapSpike.h"
 
 #include "entities/Tile.h"
+#include "entities/TrapEntity.h"
 #include "gamemap/GameMap.h"
 #include "entities/RenderedMovableEntity.h"
 #include "utils/ConfigManager.h"
@@ -27,7 +28,7 @@
 const std::string TrapSpike::MESH_SPIKE = "Spiketrap";
 
 TrapSpike::TrapSpike(GameMap* gameMap) :
-    ProximityTrap(gameMap)
+    Trap(gameMap)
 {
     mReloadTime = ConfigManager::getSingleton().getTrapConfigUInt32("SpikeReloadTurns");
     mMinDamage = ConfigManager::getSingleton().getTrapConfigDouble("SpikeDamagePerHitMin");
@@ -60,9 +61,9 @@ bool TrapSpike::shoot(Tile* tile)
     return true;
 }
 
-RenderedMovableEntity* TrapSpike::notifyActiveSpotCreated(Tile* tile)
+TrapEntity* TrapSpike::getTrapEntity(Tile* tile)
 {
-    return loadBuildingObject(getGameMap(), MESH_SPIKE, tile, 0.0, false, isActivated(tile) ? 1.0f : 0.7f);
+    return new TrapEntity(getGameMap(), getName(), MESH_SPIKE, tile, 0.0, true, isActivated(tile) ? 1.0f : 0.7f);
 }
 
 TrapSpike* TrapSpike::getTrapSpikeFromStream(GameMap* gameMap, std::istream &is)

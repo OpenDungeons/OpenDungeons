@@ -66,9 +66,11 @@ public:
 
     static PersistentObject* getPersistentObjectFromPacket(GameMap* gameMap, ODPacket& is);
 
+protected:
+    std::vector<Seat*> mSeatsAlreadyNotifiedOnce;
+
 private:
     Tile* mTile;
-    std::vector<Seat*> mSeatsAlreadyNotifiedOnce;
 };
 
 #endif // PERSISTENTOBJECT_H

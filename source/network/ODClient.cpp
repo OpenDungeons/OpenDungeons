@@ -447,13 +447,6 @@ bool ODClient::processOneClientSocketMessage()
             packSend << ClientNotification::ackNewTurn << turnNum;
             send(packSend);
 
-            ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-            if((mm != nullptr) &&
-               (mm->getCurrentModeType() == ModeManager::EDITOR))
-            {
-                gameMap->updateVisibleEntities();
-            }
-
             // For the first turn, we stop processing events because we want the gamemap to
             // be initialized
             if(turnNum == 0)
@@ -633,11 +626,10 @@ bool ODClient::processOneClientSocketMessage()
         {
             std::string entityName;
             float opacity;
-            GameEntity::ObjectType entityType;
-            OD_ASSERT_TRUE(packetReceived >> entityType >> entityName >> opacity);
+            OD_ASSERT_TRUE(packetReceived >> entityName >> opacity);
 
-            MovableGameEntity* entity = gameMap->getEntityFromTypeAndName(entityType, entityName);
-            OD_ASSERT_TRUE_MSG(entity != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
+            RenderedMovableEntity* entity = gameMap->getRenderedMovableEntity(entityName);
+            OD_ASSERT_TRUE_MSG(entity != nullptr, "entityName=" + entityName);
             if(entity == nullptr)
                 break;
 

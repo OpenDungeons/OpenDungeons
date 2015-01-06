@@ -411,7 +411,8 @@ void RenderManager::rrCreateRenderedMovableEntity(RenderedMovableEntity* rendere
     renderedMovableEntity->setEntityNode(node);
 
     // If it is required, we hide the tile
-    if(renderedMovableEntity->getHideCoveredTile())
+    if((renderedMovableEntity->getHideCoveredTile()) &&
+       (renderedMovableEntity->getOpacity() >= 1.0))
     {
         Tile* posTile = renderedMovableEntity->getPositionTile();
         if(posTile == nullptr)
@@ -460,7 +461,7 @@ void RenderManager::rrDestroyRenderedMovableEntity(RenderedMovableEntity* curRen
     }
 }
 
-void RenderManager::rrUpdateEntityOpacity(MovableGameEntity* entity)
+void RenderManager::rrUpdateEntityOpacity(RenderedMovableEntity* entity)
 {
     std::string entStr = entity->getOgreNamePrefix() + entity->getName();
     Ogre::Entity* ogreEnt = mSceneManager->hasEntity(entStr) ? mSceneManager->getEntity(entStr) : nullptr;
@@ -471,6 +472,19 @@ void RenderManager::rrUpdateEntityOpacity(MovableGameEntity* entity)
     }
 
     setEntityOpacity(ogreEnt, entity->getOpacity());
+
+    // We add the tile if it is required and the opacity is 1. Otherwise, we show it (in case the trap gets deactivated)
+    bool tileVisible = (!entity->getHideCoveredTile() || (entity->getOpacity() < 1.0f));
+    Tile* posTile = entity->getPositionTile();
+    if(posTile != nullptr)
+    {
+        std::string tileName = posTile->getOgreNamePrefix() + posTile->getName();
+        if (mSceneManager->hasEntity(tileName))
+        {
+            Ogre::Entity* ogreEntity = mSceneManager->getEntity(tileName);
+            ogreEntity->setVisible(tileVisible);
+        }
+    }
 }
 
 void RenderManager::rrCreateCreature(Creature* curCreature)

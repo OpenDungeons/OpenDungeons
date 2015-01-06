@@ -18,11 +18,11 @@
 #ifndef TRAPCANNON_H
 #define TRAPCANNON_H
 
-#include "ProximityTrap.h"
+#include "Trap.h"
 
 class ODPacket;
 
-class TrapCannon : public ProximityTrap
+class TrapCannon : public Trap
 {
 public:
     static const std::string MESH_CANON;
@@ -49,7 +49,9 @@ public:
         return true;
     }
 
-    virtual RenderedMovableEntity* notifyActiveSpotCreated(Tile* tile);
+    virtual TrapEntity* getTrapEntity(Tile* tile);
+private:
+    uint32_t mRange;
 };
 
 #endif // TRAPCANNON_H

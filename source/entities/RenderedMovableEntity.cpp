@@ -24,6 +24,7 @@
 #include "entities/SmallSpiderEntity.h"
 #include "entities/CraftedTrap.h"
 #include "entities/PersistentObject.h"
+#include "entities/TrapEntity.h"
 
 #include "gamemap/GameMap.h"
 
@@ -43,9 +44,10 @@ const Ogre::Vector3 SCALE(0.7,0.7,0.7);
 
 RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap, const std::string& baseName, const std::string& nMeshName,
         Ogre::Real rotationAngle, bool hideCoveredTile, float opacity) :
-    MovableGameEntity(gameMap, opacity),
+    MovableGameEntity(gameMap),
     mRotationAngle(rotationAngle),
-    mHideCoveredTile(hideCoveredTile)
+    mHideCoveredTile(hideCoveredTile),
+    mOpacity(opacity)
 {
     setObjectType(GameEntity::renderedMovableEntity);
     setMeshName(nMeshName);
@@ -54,9 +56,10 @@ RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap, const std::string
 }
 
 RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap) :
-    MovableGameEntity(gameMap, 1.0f),
+    MovableGameEntity(gameMap),
     mRotationAngle(0.0),
-    mHideCoveredTile(false)
+    mHideCoveredTile(false),
+    mOpacity(1.0f)
 {
     setObjectType(GameEntity::renderedMovableEntity);
 }
@@ -84,6 +87,34 @@ void RenderedMovableEntity::destroyMeshLocal()
         return;
 
     RenderManager::getSingleton().rrDestroyRenderedMovableEntity(this);
+}
+
+void RenderedMovableEntity::setMeshOpacity(float opacity)
+{
+    if (opacity < 0.0f || opacity > 1.0f)
+        return;
+
+    mOpacity = opacity;
+
+    if(getGameMap()->isServerGameMap())
+    {
+        for(Seat* seat : mSeatsWithVisionNotified)
+        {
+            if(seat->getPlayer() == nullptr)
+                continue;
+            if(!seat->getPlayer()->getIsHuman())
+                continue;
+
+            ServerNotification* serverNotification = new ServerNotification(
+                ServerNotification::setEntityOpacity, seat->getPlayer());
+            const std::string& name = getName();
+            serverNotification->mPacket << name << opacity;
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+        return;
+    }
+
+    RenderManager::getSingleton().rrUpdateEntityOpacity(this);
 }
 
 void RenderedMovableEntity::pickup()
@@ -222,6 +253,11 @@ RenderedMovableEntity* RenderedMovableEntity::getRenderedMovableEntityFromPacket
             obj = PersistentObject::getPersistentObjectFromPacket(gameMap, is);
             break;
         }
+        case RenderedMovableEntityType::trapEntity:
+        {
+            obj = TrapEntity::getTrapEntityFromPacket(gameMap, is);
+            break;
+        }
         default:
         {
             OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(
@@ -252,6 +288,7 @@ void RenderedMovableEntity::exportToPacket(ODPacket& os) const
     std::string name = getName();
     std::string meshName = getMeshName();
     os << name << meshName;
+    os << mOpacity;
     os << mPosition << mRotationAngle << mHideCoveredTile;
 
     MovableGameEntity::exportToPacket(os);
@@ -265,6 +302,7 @@ void RenderedMovableEntity::importFromPacket(ODPacket& is)
     setName(name);
     OD_ASSERT_TRUE(is >> meshName);
     setMeshName(meshName);
+    OD_ASSERT_TRUE(is >> mOpacity);
     OD_ASSERT_TRUE(is >> mPosition);
     OD_ASSERT_TRUE(is >> mRotationAngle);
 
@@ -278,6 +316,7 @@ void RenderedMovableEntity::exportToStream(std::ostream& os) const
     std::string name = getName();
     std::string meshName = getMeshName();
     os << name << "\t" << meshName << "\t";
+    os << mOpacity << "\t";
     os << mPosition.x << "\t" << mPosition.y << "\t" << mPosition.z << "\t";
     os << mRotationAngle;
 
@@ -292,6 +331,7 @@ void RenderedMovableEntity::importFromStream(std::istream& is)
     setName(name);
     OD_ASSERT_TRUE(is >> meshName);
     setMeshName(meshName);
+    OD_ASSERT_TRUE(is >> mOpacity);
     OD_ASSERT_TRUE(is >> mPosition.x >> mPosition.y >> mPosition.z);
     OD_ASSERT_TRUE(is >> mRotationAngle);
 

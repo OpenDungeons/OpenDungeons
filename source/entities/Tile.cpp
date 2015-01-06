@@ -415,12 +415,19 @@ void Tile::setCoveringBuilding(Building *building)
 {
     mCoveringBuilding = building;
 
-    setDirtyForAllSeats();
-
     if (mCoveringBuilding == nullptr)
     {
+        setDirtyForAllSeats();
         mIsBuilding = false;
         return;
+    }
+
+    for(std::pair<Seat*, bool>& seatChanged : mTileChangedForSeats)
+    {
+        if(!building->shouldSetCoveringTileDirty(seatChanged.first, this))
+            continue;
+
+        seatChanged.second = true;
     }
 
     mIsBuilding = true;
@@ -619,8 +626,18 @@ void Tile::exportToPacket(ODPacket& os, Seat* seat)
     // We export the list of all the persistent objects on this tile. We do that because a persistent object might have
     // been removed on server side when the client did not had vision. Thus, it would still be on client side. Thanks to
     // this list, the clients will be able to remove them.
-    uint32_t nbPersistentObject = mPersistentObjectRegistered.size();
+    uint32_t nbPersistentObject = 0;
+    for(PersistentObject* obj : mPersistentObjectRegistered)
+    {
+        // We only set in the list objects that are visible (for example, we don't send traps that have not been triggered)
+        if(!obj->isVisibleForSeat(seat))
+            continue;
+
+        ++nbPersistentObject;
+    }
+
     os << nbPersistentObject;
+    uint32_t nbPersistentObjectTmp = 0;
     for(PersistentObject* obj : mPersistentObjectRegistered)
     {
         // We only set in the list objects that are visible (for example, we don't send traps that have not been triggered)
@@ -628,7 +645,12 @@ void Tile::exportToPacket(ODPacket& os, Seat* seat)
             continue;
 
         os << obj->getName();
+        ++nbPersistentObjectTmp;
     }
+
+    OD_ASSERT_TRUE_MSG(nbPersistentObjectTmp == nbPersistentObject, "nbPersistentObject=" + Ogre::StringConverter::toString(nbPersistentObject)
+        + ", nbPersistentObjectTmp=" + Ogre::StringConverter::toString(nbPersistentObjectTmp)
+        + ", tile=" + displayAsString(this));
 }
 
 void Tile::updateFromPacket(ODPacket& is)
@@ -1294,7 +1316,7 @@ void Tile::fillWithAttackableCreatures(std::vector<GameEntity*>& entities, Seat*
         if((entity == nullptr) || entity->getObjectType() != GameEntity::ObjectType::creature)
             continue;
 
-        if(!entity->isAttackable())
+        if(!entity->isAttackable(this, seat))
             continue;
 
         // The invert flag is used to determine whether we want to return a list of the creatures
@@ -1313,7 +1335,7 @@ void Tile::fillWithAttackableRoom(std::vector<GameEntity*>& entities, Seat* seat
 {
     Room* room = getCoveringRoom();
     if((room != nullptr) &&
-       room->isAttackable())
+       room->isAttackable(this, seat))
     {
         if ((invert && !room->getSeat()->isAlliedSeat(seat)) || (!invert
             && room->getSeat()->isAlliedSeat(seat)))
@@ -1329,7 +1351,7 @@ void Tile::fillWithAttackableTrap(std::vector<GameEntity*>& entities, Seat* seat
 {
     Trap* trap = getCoveringTrap();
     if((trap != nullptr) &&
-       trap->isAttackable())
+       trap->isAttackable(this, seat))
     {
         if ((invert && !trap->getSeat()->isAlliedSeat(seat)) || (!invert
             && trap->getSeat()->isAlliedSeat(seat)))
@@ -1587,7 +1609,18 @@ bool Tile::registerPersistentObject(PersistentObject* obj)
         return false;
 
     mPersistentObjectRegistered.push_back(obj);
-    setDirtyForAllSeats();
+
+    if(getGameMap()->isServerGameMap())
+    {
+        for(std::pair<Seat*, bool>& seatChanged : mTileChangedForSeats)
+        {
+            if(!obj->isVisibleForSeat(seatChanged.first))
+                continue;
+
+            seatChanged.second = true;
+        }
+    }
+
     return true;
 }
 

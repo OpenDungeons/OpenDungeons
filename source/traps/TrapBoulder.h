@@ -34,7 +34,7 @@ public:
     { return TrapType::boulder; }
 
     virtual bool shoot(Tile* tile);
-    virtual bool isAttackable() const
+    virtual bool isAttackable(Tile* tile, Seat* seat) const
     {
         return false;
     }
@@ -51,7 +51,7 @@ public:
         return true;
     }
 
-    virtual RenderedMovableEntity* notifyActiveSpotCreated(Tile* tile);
+    virtual TrapEntity* getTrapEntity(Tile* tile);
 };
 
 #endif // TRAPBOULDER_H

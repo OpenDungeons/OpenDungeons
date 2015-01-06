@@ -191,6 +191,9 @@ void ODServer::startNewTurn(double timeSinceLastFrame)
     serverNotification->mPacket << turn;
     queueServerNotification(serverNotification);
 
+    if(mServerMode == ServerMode::ModeEditor)
+        gameMap->updateVisibleEntities();
+
     gameMap->updateAnimations(timeSinceLastFrame);
 
     // We notify the clients about what they got

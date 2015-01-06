@@ -19,6 +19,7 @@
 #include "network/ODPacket.h"
 #include "gamemap/GameMap.h"
 #include "entities/MissileBoulder.h"
+#include "entities/TrapEntity.h"
 #include "utils/ConfigManager.h"
 #include "utils/Random.h"
 #include "utils/LogManager.h"
@@ -90,8 +91,7 @@ bool TrapBoulder::shoot(Tile* tile)
     return true;
 }
 
-RenderedMovableEntity* TrapBoulder::notifyActiveSpotCreated(Tile* tile)
+TrapEntity* TrapBoulder::getTrapEntity(Tile* tile)
 {
-    return loadBuildingObject(getGameMap(), MESH_BOULDER, tile, 0.0, false,
-                              isActivated(tile) ? 1.0f : 0.5f);
+    return new TrapEntity(getGameMap(), getName(), MESH_BOULDER, tile, 0.0, false, isActivated(tile) ? 1.0f : 0.5f);
 }

@@ -315,6 +315,9 @@ public:
 
     virtual void notifySeatsWithVision();
 
+    const std::vector<Seat*>& getSeatsWithVision()
+    { return mSeatsWithVision; }
+
     //! On client side, registers the PersistentObject on this tile so it can be removed when the tile is refreshed (and the object has been removed).
     //! On Server side, registers the PersistentObject on this tile so that the PersistentObject still on this tile
     //! can be sent to the clients when they got vision

@@ -238,6 +238,7 @@ set(OD_SOURCEFILES
     ${SRC}/entities/RenderedMovableEntity.cpp
     ${SRC}/entities/SmallSpiderEntity.cpp
     ${SRC}/entities/Tile.cpp
+    ${SRC}/entities/TrapEntity.cpp
     ${SRC}/entities/TreasuryObject.cpp
     ${SRC}/entities/Weapon.cpp
 
@@ -313,7 +314,6 @@ set(OD_SOURCEFILES
     ${SRC}/spawnconditions/SpawnConditionGold.cpp
     ${SRC}/spawnconditions/SpawnConditionRoom.cpp
 
-    ${SRC}/traps/ProximityTrap.cpp
     ${SRC}/traps/Trap.cpp
     ${SRC}/traps/TrapBoulder.cpp
     ${SRC}/traps/TrapCannon.cpp

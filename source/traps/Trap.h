@@ -30,6 +30,7 @@ class GameMap;
 class Player;
 class Seat;
 class Tile;
+class TrapEntity;
 class RenderedMovableEntity;
 class ODPacket;
 
@@ -43,15 +44,23 @@ public:
         mIsActivated(false),
         mReloadTime(0),
         mCraftedTrap(nullptr),
-        mNbShootsBeforeDeactivation(0)
+        mNbShootsBeforeDeactivation(0),
+        mTrapEntity(nullptr)
     {}
 
     TrapTileInfo(uint32_t reloadTime, bool activated):
         mIsActivated(activated),
         mReloadTime(reloadTime),
         mCraftedTrap(nullptr),
-        mNbShootsBeforeDeactivation(0)
+        mNbShootsBeforeDeactivation(0),
+        mTrapEntity(nullptr)
     {}
+
+    inline void setTrapEntity(TrapEntity* trapEntity)
+    { mTrapEntity = trapEntity; }
+
+    inline TrapEntity* getTrapEntity() const
+    { return mTrapEntity; }
 
     bool decreaseReloadTime()
     {
@@ -100,6 +109,7 @@ private:
     uint32_t mReloadTime;
     CraftedTrap* mCraftedTrap;
     int32_t mNbShootsBeforeDeactivation;
+    TrapEntity* mTrapEntity;
 };
 
 /*! \class Trap Trap.h
@@ -154,6 +164,11 @@ public:
     Tile* askSpotForCarriedEntity(MovableGameEntity* carriedEntity);
     void notifyCarryingStateChanged(Creature* carrier, MovableGameEntity* carriedEntity);
 
+    virtual bool isAttackable(Tile* tile, Seat* seat) const;
+
+    virtual bool shouldSetCoveringTileDirty(Seat* seat, Tile* tile)
+    { return false; }
+
     /*! \brief Exports the headers needed to recreate the Trap. It allows to extend Traps as much as wanted.
      * The content of the Trap will be exported by exportToPacket.
      */
@@ -173,6 +188,7 @@ public:
 
 protected:
     virtual RenderedMovableEntity* notifyActiveSpotCreated(Tile* tile);
+    virtual TrapEntity* getTrapEntity(Tile* tile) = 0;
     virtual void notifyActiveSpotRemoved(Tile* tile);
 
     //! \brief Triggered when the trap is activated

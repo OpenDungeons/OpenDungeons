@@ -70,7 +70,7 @@ public:
         Tile* targetTile, double x, double y, double rotationAngle, bool hideCoveredTile, float opacity = 1.0f);
     Tile* getCentralTile();
 
-    virtual bool isAttackable() const;
+    virtual bool isAttackable(Tile* tile, Seat* seat) const;
     virtual void addCoveredTile(Tile* t, double nHP);
     virtual bool removeCoveredTile(Tile* t);
     virtual Tile* getCoveredTile(int index);
@@ -111,6 +111,10 @@ public:
     //! example, if it was killed or picked up during process)
     virtual void notifyCarryingStateChanged(Creature* carrier, MovableGameEntity* carriedEntity)
     {}
+
+    //! Tells if the covering tile should be set to dirty when the building is added on the tile
+    virtual bool shouldSetCoveringTileDirty(Seat* seat, Tile* tile)
+    { return true; }
 
 protected:
     void addBuildingObject(Tile* targetTile, RenderedMovableEntity* obj);
