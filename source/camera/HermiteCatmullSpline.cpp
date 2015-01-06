@@ -138,7 +138,7 @@ bool HermiteCatmullSpline::addNode(double node)
     if(mReserved < mNn)
     {
         mPp[mReserved] = node;
-        mTt[mReserved] = (double)mReserved / 2;
+        mTt[mReserved] = static_cast<double>(mReserved) / 2;
         ++mReserved;
 
         if(mReserved == mNn)

@@ -135,6 +135,21 @@ class ODPacket
          */
         int32_t readPacket(std::ifstream& is);
 
+        /*! \brief Template function to put arguments in a packet, used for in-place construction.
+         */
+        template<typename FirstArg, typename ...Args>
+        static void putInPacket(ODPacket& packet, const FirstArg& arg, const Args&... args)
+        {
+            packet << arg;
+            putInPacket(packet, args...);
+        }
+
+        template<typename Arg>
+        static void putInPacket(ODPacket& packet, const Arg& arg)
+        {
+            packet << arg;
+        }
+
     private:
         sf::Packet mPacket;
 

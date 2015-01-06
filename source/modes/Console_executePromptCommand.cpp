@@ -427,10 +427,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     {
         if (ODClient::getSingleton().isConnected())
         {
-            ClientNotification *clientNotification = new ClientNotification(
-                ClientNotification::chat);
-            clientNotification->mPacket << arguments;
-            ODClient::getSingleton().queueClientNotification(clientNotification);
+            ODClient::getSingleton().queueClientNotification(ClientNotification::chat, arguments);
         }
     }
 
