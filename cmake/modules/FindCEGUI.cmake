@@ -400,6 +400,7 @@ endif ()
 # OS specific guesses
 if (WIN32)
     set(CEGUI_PREFIX_GUESSES
+        $ENV{CEGUIDIR}
         ${ENV_PROGRAMFILES}/cegui
         ${ENV_PROGRAMFILES}/CEGUI
         C:/CEGUI-SDK
