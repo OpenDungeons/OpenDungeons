@@ -77,7 +77,6 @@ public:
     Ogre::Real getRotationAngle() const
     { return mRotationAngle; }
 
-    //! \brief Get if the mesh is already existing
     inline float getOpacity() const
     { return mOpacity; }
 
