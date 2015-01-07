@@ -191,6 +191,9 @@ void ODServer::startNewTurn(double timeSinceLastFrame)
     serverNotification->mPacket << turn;
     queueServerNotification(serverNotification);
 
+    if(mServerMode == ServerMode::ModeEditor)
+        gameMap->updateVisibleEntities();
+
     gameMap->updateAnimations(timeSinceLastFrame);
 
     // We notify the clients about what they got
@@ -306,15 +309,17 @@ void ODServer::serverThread()
                 // In editor mode, we give vision on all the gamemap tiles
                 if(mServerMode == ServerMode::ModeEditor)
                 {
-                    for (int jj = 0; jj < gameMap->getMapSizeY(); ++jj)
+                    for (Seat* seat : gameMap->getSeats())
                     {
-                        for (int ii = 0; ii < gameMap->getMapSizeX(); ++ii)
+                        for (int jj = 0; jj < gameMap->getMapSizeY(); ++jj)
                         {
-                            for (Seat* seat : gameMap->getSeats())
+                            for (int ii = 0; ii < gameMap->getMapSizeX(); ++ii)
                             {
                                 gameMap->getTile(ii,jj)->notifyVision(seat);
                             }
                         }
+
+                        seat->sendVisibleTiles();
                     }
                 }
 
@@ -472,40 +477,42 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             setClientState(clientSocket, "loadLevel");
             int32_t mapSizeX = gameMap->getMapSizeX();
             int32_t mapSizeY = gameMap->getMapSizeY();
-            ODPacket packetSend;
-            packetSend << ServerNotification::loadLevel << mapSizeX << mapSizeY;
+
+            ODPacket packet;
+            packet << ServerNotification::loadLevel;
+            packet << mapSizeX << mapSizeY;
             // Map infos
-            packetSend << gameMap->getLevelFileName();
-            packetSend << gameMap->getLevelDescription();
-            packetSend << gameMap->getLevelMusicFile();
-            packetSend << gameMap->getLevelFightMusicFile();
+            packet << gameMap->getLevelFileName();
+            packet << gameMap->getLevelDescription();
+            packet << gameMap->getLevelMusicFile();
+            packet << gameMap->getLevelFightMusicFile();
 
             int32_t nb;
             // Creature definitions
             nb = gameMap->numClassDescriptions();
-            packetSend << nb;
+            packet << nb;
             for(int32_t i = 0; i < nb; ++i)
             {
                 const CreatureDefinition* def = gameMap->getClassDescription(i);
-                packetSend << def;
+                packet << def;
             }
 
             // Weapons
             nb = gameMap->numWeapons();
-            packetSend << nb;
+            packet << nb;
             for(int32_t i = 0; i < nb; ++i)
             {
                 const Weapon* def = gameMap->getWeapon(i);
-                packetSend << def;
+                packet << def;
             }
 
             // Seats
             const std::vector<Seat*>& seats = gameMap->getSeats();
             nb = seats.size();
-            packetSend << nb;
+            packet << nb;
             for(Seat* seat : seats)
             {
-                packetSend << seat;
+                packet << seat;
             }
 
             // Tiles
@@ -529,31 +536,31 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             double fullness;
             nb = goldTiles.size();
-            packetSend << nb;
+            packet << nb;
             for(Tile* tile : goldTiles)
             {
-                gameMap->tileToPacket(packetSend, tile);
+                gameMap->tileToPacket(packet, tile);
                 fullness = tile->getFullness();
-                packetSend << fullness;
+                packet << fullness;
             }
 
             nb = rockTiles.size();
-            packetSend << nb;
+            packet << nb;
             for(Tile* tile : rockTiles)
             {
-                gameMap->tileToPacket(packetSend, tile);
+                gameMap->tileToPacket(packet, tile);
             }
 
             // Lights
             nb = gameMap->numMapLights();
-            packetSend << nb;
+            packet << nb;
             for(int32_t i = 0; i < nb; ++i)
             {
                 MapLight* light = gameMap->getMapLight(i);
-                packetSend << light;
+                packet << light;
             }
 
-            sendMsgToClient(clientSocket, packetSend);
+            sendMsgToClient(clientSocket, packet);
             break;
         }
 
@@ -606,6 +613,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             const std::string& nick = clientSocket->getPlayer()->getNick();
             int32_t id = clientSocket->getPlayer()->getId();
             int seatId = seat->getId();
+            seat->setMapSize(gameMap->getMapSizeX(), gameMap->getMapSizeY());
             packetSend << nick << id << seatId;
             sendMsgToClient(clientSocket, packetSend);
 
@@ -765,10 +773,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
                 // If a player is assigned to this seat, we create his spawn pool
                 if(seat->getPlayer() != nullptr)
-                {
                     seat->initSpawnPool();
-                    seat->setMapSize(gameMap->getMapSizeX(), gameMap->getMapSizeY());
-                }
                 else
                     LogManager::getSingleton().logMessage("No spawn pool created for seat id="
                         + Ogre::StringConverter::toString(seat->getId()));
@@ -807,6 +812,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             for (Player* player : players)
             {
                 packetSend << player->getNick() << player->getId() << player->getSeat()->getId();
+                player->getSeat()->setMapSize(gameMap->getMapSizeX(), gameMap->getMapSizeY());
             }
             sendMsg(nullptr, packetSend);
 
@@ -955,9 +961,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             entity->slap(isEditorMode);
 
-            ODPacket packet;
-            packet << ServerNotification::entitySlapped;
-            sendMsgToClient(clientSocket, packet);
+            ServerNotification notif(ServerNotification::entitySlapped, player);
+            sendAsyncMsg(notif);
             break;
         }
 

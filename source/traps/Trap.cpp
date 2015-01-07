@@ -22,6 +22,7 @@
 #include "entities/CraftedTrap.h"
 #include "entities/Creature.h"
 #include "entities/Tile.h"
+#include "entities/TrapEntity.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "entities/RenderedMovableEntity.h"
@@ -201,6 +202,10 @@ void Trap::doUpkeep()
             if(!tileInfo.decreaseShoot())
                 deactivate(tile);
 
+            const std::vector<Seat*>& seats = tile->getSeatsWithVision();
+            TrapEntity* trapEntity = tileInfo.getTrapEntity();
+            trapEntity->seatsSawTriggering(seats);
+
             // Warn the player the trap has triggered
             GameMap* gameMap = getGameMap();
             if (gameMap->isServerGameMap())
@@ -292,7 +297,15 @@ void Trap::updateActiveSpots()
 
 RenderedMovableEntity* Trap::notifyActiveSpotCreated(Tile* tile)
 {
-    return nullptr;
+    TrapEntity* trapEntity = getTrapEntity(tile);
+    if(trapEntity == nullptr)
+        return nullptr;
+
+    // Allied seats with the creator do see the trap from the start
+    trapEntity->seatSawTriggering(getSeat());
+    trapEntity->seatsSawTriggering(getSeat()->getAlliedSeats());
+    mTrapTiles[tile].setTrapEntity(trapEntity);
+    return trapEntity;
 }
 
 void Trap::notifyActiveSpotRemoved(Tile* tile)
@@ -471,6 +484,24 @@ void Trap::notifyCarryingStateChanged(Creature* carrier, MovableGameEntity* carr
     // We couldn't find the entity in the list. That may happen if the active spot has
     // been erased between the time the carrier tried to come and the time it arrived.
     // In any case, nothing to do
+}
+
+bool Trap::isAttackable(Tile* tile, Seat* seat) const
+{
+    if(!Building::isAttackable(tile, seat))
+        return false;
+
+    // We check if the trap is hidden for this seat
+    OD_ASSERT_TRUE_MSG(mTrapTiles.count(tile) > 0, "name=" + getName() + ", tile=" + Tile::displayAsString(tile));
+    if(mTrapTiles.count(tile) <= 0)
+        return false;
+
+    const TrapTileInfo& trapTileInfo = mTrapTiles.at(tile);
+    const std::vector<Seat*>& seatsNotHidden = trapTileInfo.getTrapEntity()->getSeatsNotHidden();
+    if(std::find(seatsNotHidden.begin(), seatsNotHidden.end(), seat) == seatsNotHidden.end())
+        return false;
+
+    return true;
 }
 
 std::string Trap::getFormat()

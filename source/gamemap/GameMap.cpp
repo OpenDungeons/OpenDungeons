@@ -439,11 +439,6 @@ void GameMap::removeCreature(Creature *c)
     mCreatures.erase(it);
     removeAnimatedObject(c);
     removeActiveObject(c);
-
-    if(!isServerGameMap())
-        return;
-
-    c->fireRemoveEntityToSeatsWithVision();
 }
 
 void GameMap::queueEntityForDeletion(GameEntity *ge)
@@ -758,6 +753,7 @@ void GameMap::clearAnimatedObjects()
 void GameMap::addAnimatedObject(MovableGameEntity *a)
 {
     mAnimatedObjects.push_back(a);
+    a->notifyAddedOnGamemap();
 }
 
 void GameMap::removeAnimatedObject(MovableGameEntity *a)
@@ -767,6 +763,7 @@ void GameMap::removeAnimatedObject(MovableGameEntity *a)
         return;
 
     mAnimatedObjects.erase(it);
+    a->notifyRemovedFromGamemap();
 }
 
 MovableGameEntity* GameMap::getAnimatedObject(int index)
@@ -811,11 +808,6 @@ void GameMap::removeRenderedMovableEntity(RenderedMovableEntity *obj)
     mRenderedMovableEntities.erase(it);
     removeAnimatedObject(obj);
     removeActiveObject(obj);
-
-    if(!isServerGameMap())
-        return;
-
-    obj->fireRemoveEntityToSeatsWithVision();
 }
 
 RenderedMovableEntity* GameMap::getRenderedMovableEntity(const std::string& name)
@@ -3043,10 +3035,6 @@ void GameMap::fillBuildableTilesAndPriceForPlayerInArea(int x1, int y1, int x2, 
 
 void GameMap::updateVisibleEntities()
 {
-    // Notify changes on visible tiles
-    for(Seat* seat : mSeats)
-        seat->notifyChangedVisibleTiles();
-
     // Notify what happened to entities on visible tiles
     for (int jj = 0; jj < getMapSizeY(); ++jj)
     {
@@ -3056,4 +3044,8 @@ void GameMap::updateVisibleEntities()
             tile->notifySeatsWithVision();
         }
     }
+
+    // Notify changes on visible tiles
+    for(Seat* seat : mSeats)
+        seat->notifyChangedVisibleTiles();
 }

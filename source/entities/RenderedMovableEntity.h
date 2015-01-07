@@ -39,7 +39,9 @@ public:
         chickenEntity,
         smallSpiderEntity,
         craftedTrap,
-        missileObject
+        missileObject,
+        persistentObject,
+        trapEntity
     };
     //! \brief Creates a RenderedMovableEntity. It's name is built from baseName and some unique id from the gamemap.
     //! We use baseName to help understand what's this object for when getting a log
@@ -75,6 +77,12 @@ public:
     Ogre::Real getRotationAngle() const
     { return mRotationAngle; }
 
+    //! \brief Get if the mesh is already existing
+    inline float getOpacity() const
+    { return mOpacity; }
+
+    virtual void setMeshOpacity(float opacity);
+
     virtual RenderedMovableEntityType getRenderedMovableEntityType() = 0;
 
     virtual void pickup();
@@ -108,9 +116,11 @@ protected:
     virtual void fireAddEntity(Seat* seat, bool async);
     virtual void fireRemoveEntity(Seat* seat);
 private:
-    std::vector<Seat*> mSeatsWithVisionNotified;
     Ogre::Real mRotationAngle;
     bool mHideCoveredTile;
+
+    //! \brief The model current opacity
+    float mOpacity;
 };
 
 #endif // RENDEREDMOVABLEENTITY_H

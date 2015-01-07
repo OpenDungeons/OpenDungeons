@@ -255,9 +255,9 @@ std::string Building::getNameTile(Tile* tile)
         + "_" + Ogre::StringConverter::toString(tile->getY());
 }
 
-bool Building::isAttackable() const
+bool Building::isAttackable(Tile* tile, Seat* seat) const
 {
-    if(getHP(nullptr) <= 0.0)
+    if(getHP(tile) <= 0.0)
         return false;
 
     return true;

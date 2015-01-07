@@ -23,6 +23,7 @@
 #include "entities/TreasuryObject.h"
 #include "entities/ChickenEntity.h"
 #include "entities/CraftedTrap.h"
+#include "entities/PersistentObject.h"
 
 #include "game/Player.h"
 #include "game/Seat.h"
@@ -414,12 +415,19 @@ void Tile::setCoveringBuilding(Building *building)
 {
     mCoveringBuilding = building;
 
-    setDirtyForAllSeats();
-
     if (mCoveringBuilding == nullptr)
     {
+        setDirtyForAllSeats();
         mIsBuilding = false;
         return;
+    }
+
+    for(std::pair<Seat*, bool>& seatChanged : mTileChangedForSeats)
+    {
+        if(!building->shouldSetCoveringTileDirty(seatChanged.first, this))
+            continue;
+
+        seatChanged.second = true;
     }
 
     mIsBuilding = true;
@@ -614,6 +622,35 @@ void Tile::exportToPacket(ODPacket& os, Seat* seat)
     os << meshName;
     os << mScale;
     os << getType() << mFullness;
+
+    // We export the list of all the persistent objects on this tile. We do that because a persistent object might have
+    // been removed on server side when the client did not had vision. Thus, it would still be on client side. Thanks to
+    // this list, the clients will be able to remove them.
+    uint32_t nbPersistentObject = 0;
+    for(PersistentObject* obj : mPersistentObjectRegistered)
+    {
+        // We only set in the list objects that are visible (for example, we don't send traps that have not been triggered)
+        if(!obj->isVisibleForSeat(seat))
+            continue;
+
+        ++nbPersistentObject;
+    }
+
+    os << nbPersistentObject;
+    uint32_t nbPersistentObjectTmp = 0;
+    for(PersistentObject* obj : mPersistentObjectRegistered)
+    {
+        // We only set in the list objects that are visible (for example, we don't send traps that have not been triggered)
+        if(!obj->isVisibleForSeat(seat))
+            continue;
+
+        os << obj->getName();
+        ++nbPersistentObjectTmp;
+    }
+
+    OD_ASSERT_TRUE_MSG(nbPersistentObjectTmp == nbPersistentObject, "nbPersistentObject=" + Ogre::StringConverter::toString(nbPersistentObject)
+        + ", nbPersistentObjectTmp=" + Ogre::StringConverter::toString(nbPersistentObjectTmp)
+        + ", tile=" + displayAsString(this));
 }
 
 void Tile::updateFromPacket(ODPacket& is)
@@ -654,6 +691,33 @@ void Tile::updateFromPacket(ODPacket& is)
 
     OD_ASSERT_TRUE(is >> fullness);
     setFullness(fullness);
+
+    uint32_t nbPersistentObject;
+    OD_ASSERT_TRUE(is >> nbPersistentObject);
+    mPersistentObjectNamesOnTile.clear();
+    while(nbPersistentObject > 0)
+    {
+        --nbPersistentObject;
+
+        std::string name;
+        OD_ASSERT_TRUE(is >> name);
+        mPersistentObjectNamesOnTile.push_back(name);
+    }
+
+    for(std::vector<PersistentObject*>::iterator it = mPersistentObjectRegistered.begin(); it != mPersistentObjectRegistered.end();)
+    {
+        PersistentObject* obj = *it;
+        if(std::find(mPersistentObjectNamesOnTile.begin(), mPersistentObjectNamesOnTile.end(), obj->getName()) != mPersistentObjectNamesOnTile.end())
+        {
+            ++it;
+            continue;
+        }
+
+        // The object is not on this tile anymore, we remove it
+        it = mPersistentObjectRegistered.erase(it);
+        getGameMap()->removeRenderedMovableEntity(obj);
+        obj->deleteYourself();
+    }
 
     if((tileType != Tile::TileType::claimed) || (seatId == 0))
         return;
@@ -1252,7 +1316,7 @@ void Tile::fillWithAttackableCreatures(std::vector<GameEntity*>& entities, Seat*
         if((entity == nullptr) || entity->getObjectType() != GameEntity::ObjectType::creature)
             continue;
 
-        if(!entity->isAttackable())
+        if(!entity->isAttackable(this, seat))
             continue;
 
         // The invert flag is used to determine whether we want to return a list of the creatures
@@ -1271,7 +1335,7 @@ void Tile::fillWithAttackableRoom(std::vector<GameEntity*>& entities, Seat* seat
 {
     Room* room = getCoveringRoom();
     if((room != nullptr) &&
-       room->isAttackable())
+       room->isAttackable(this, seat))
     {
         if ((invert && !room->getSeat()->isAlliedSeat(seat)) || (!invert
             && room->getSeat()->isAlliedSeat(seat)))
@@ -1287,7 +1351,7 @@ void Tile::fillWithAttackableTrap(std::vector<GameEntity*>& entities, Seat* seat
 {
     Trap* trap = getCoveringTrap();
     if((trap != nullptr) &&
-       trap->isAttackable())
+       trap->isAttackable(this, seat))
     {
         if ((invert && !trap->getSeat()->isAlliedSeat(seat)) || (!invert
             && trap->getSeat()->isAlliedSeat(seat)))
@@ -1524,6 +1588,9 @@ void Tile::changeNotifiedForSeat(Seat* seat)
 
 void Tile::setDirtyForAllSeats()
 {
+    if(!getGameMap()->isServerGameMap())
+        return;
+
     for(std::pair<Seat*, bool>& seatChanged : mTileChangedForSeats)
         seatChanged.second = true;
 }
@@ -1534,6 +1601,38 @@ void Tile::notifySeatsWithVision()
     {
         entity->notifySeatsWithVision(mSeatsWithVision);
     }
+}
+
+bool Tile::registerPersistentObject(PersistentObject* obj)
+{
+    if(std::find(mPersistentObjectRegistered.begin(), mPersistentObjectRegistered.end(), obj) != mPersistentObjectRegistered.end())
+        return false;
+
+    mPersistentObjectRegistered.push_back(obj);
+
+    if(getGameMap()->isServerGameMap())
+    {
+        for(std::pair<Seat*, bool>& seatChanged : mTileChangedForSeats)
+        {
+            if(!obj->isVisibleForSeat(seatChanged.first))
+                continue;
+
+            seatChanged.second = true;
+        }
+    }
+
+    return true;
+}
+
+bool Tile::removePersistentObject(PersistentObject* obj)
+{
+    std::vector<PersistentObject*>::iterator it = std::find(mPersistentObjectRegistered.begin(), mPersistentObjectRegistered.end(), obj);
+    if(it == mPersistentObjectRegistered.end())
+        return false;
+
+    mPersistentObjectRegistered.erase(it);
+    setDirtyForAllSeats();
+    return true;
 }
 
 std::string Tile::displayAsString(Tile* tile)

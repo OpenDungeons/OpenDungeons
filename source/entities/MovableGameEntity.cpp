@@ -29,7 +29,7 @@
 
 #include "ODApplication.h"
 
-MovableGameEntity::MovableGameEntity(GameMap* gameMap, float opacity) :
+MovableGameEntity::MovableGameEntity(GameMap* gameMap) :
     GameEntity(gameMap),
     mAnimationState(nullptr),
     mMoveSpeed(1.0),
@@ -37,8 +37,7 @@ MovableGameEntity::MovableGameEntity(GameMap* gameMap, float opacity) :
     mAnimationSpeedFactor(1.0),
     mDestinationAnimationState("Idle"),
     mWalkDirection(Ogre::Vector3::ZERO),
-    mAnimationTime(0.0),
-    mOpacity(opacity)
+    mAnimationTime(0.0)
 {
 }
 
@@ -393,35 +392,6 @@ void MovableGameEntity::fireObjectAnimationState(const std::string& state, bool 
     }
 }
 
-void MovableGameEntity::setMeshOpacity(float opacity)
-{
-    if (opacity < 0.0f || opacity > 1.0f)
-        return;
-
-    mOpacity = opacity;
-
-    if(getGameMap()->isServerGameMap())
-    {
-        for(Seat* seat : mSeatsWithVisionNotified)
-        {
-            if(seat->getPlayer() == nullptr)
-                continue;
-            if(!seat->getPlayer()->getIsHuman())
-                continue;
-
-            ServerNotification* serverNotification = new ServerNotification(
-                ServerNotification::setEntityOpacity, seat->getPlayer());
-            const std::string& name = getName();
-            ObjectType type = getObjectType();
-            serverNotification->mPacket << type << name << opacity;
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
-        return;
-    }
-
-    RenderManager::getSingleton().rrUpdateEntityOpacity(this);
-}
-
 void MovableGameEntity::firePickupEntity(Player* playerPicking, bool isEditorMode)
 {
     int seatId = playerPicking->getSeat()->getId();
@@ -528,7 +498,6 @@ void MovableGameEntity::importFromStream(std::istream& is)
 
 void MovableGameEntity::exportToPacket(ODPacket& os) const
 {
-    os << mOpacity;
     os << mPrevAnimationState;
     os << mPrevAnimationStateLoop;
     os << mWalkDirection;
@@ -545,7 +514,6 @@ void MovableGameEntity::exportToPacket(ODPacket& os) const
 
 void MovableGameEntity::importFromPacket(ODPacket& is)
 {
-    OD_ASSERT_TRUE(is >> mOpacity);
     OD_ASSERT_TRUE(is >> mPrevAnimationState);
     OD_ASSERT_TRUE(is >> mPrevAnimationStateLoop);
     OD_ASSERT_TRUE(is >> mWalkDirection);
@@ -576,4 +544,12 @@ void MovableGameEntity::restoreEntityState()
         if(getAnimationState() != nullptr)
             getAnimationState()->addTime(mAnimationTime);
     }
+}
+
+void MovableGameEntity::notifyRemovedFromGamemap()
+{
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    fireRemoveEntityToSeatsWithVision();
 }

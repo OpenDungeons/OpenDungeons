@@ -96,7 +96,7 @@ class GameEntity
     { return mMeshExists; }
 
     //! \brief Get if the object can be attacked or not
-    virtual bool isAttackable() const
+    virtual bool isAttackable(Tile* tile, Seat* seat) const
     { return false; }
 
     //! \brief Get the type of this object

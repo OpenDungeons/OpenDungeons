@@ -18,8 +18,9 @@
 #include "traps/TrapCannon.h"
 #include "network/ODPacket.h"
 #include "entities/Tile.h"
-#include "gamemap/GameMap.h"
+#include "entities/TrapEntity.h"
 #include "entities/MissileOneHit.h"
+#include "gamemap/GameMap.h"
 #include "utils/ConfigManager.h"
 #include "utils/Random.h"
 #include "utils/LogManager.h"
@@ -28,7 +29,8 @@ const std::string TrapCannon::MESH_CANON = "Cannon";
 const Ogre::Real CANNON_MISSILE_HEIGHT = 0.3;
 
 TrapCannon::TrapCannon(GameMap* gameMap) :
-    ProximityTrap(gameMap)
+    Trap(gameMap),
+    mRange(0)
 {
     mReloadTime = ConfigManager::getSingleton().getTrapConfigUInt32("CannonReloadTurns");
     mRange = ConfigManager::getSingleton().getTrapConfigUInt32("CannonRange");
@@ -73,9 +75,9 @@ bool TrapCannon::shoot(Tile* tile)
     return true;
 }
 
-RenderedMovableEntity* TrapCannon::notifyActiveSpotCreated(Tile* tile)
+TrapEntity* TrapCannon::getTrapEntity(Tile* tile)
 {
-    return loadBuildingObject(getGameMap(), MESH_CANON, tile, 90.0, false, isActivated(tile) ? 1.0f : 0.5f);
+    return new TrapEntity(getGameMap(), getName(), MESH_CANON, tile, 90.0, false, isActivated(tile) ? 1.0f : 0.5f);
 }
 
 TrapCannon* TrapCannon::getTrapCannonFromStream(GameMap* gameMap, std::istream &is)

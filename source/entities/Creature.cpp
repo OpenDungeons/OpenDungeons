@@ -72,7 +72,7 @@ static const int NB_TURN_FLEE_MAX = 5;
 const std::string Creature::CREATURE_PREFIX = "Creature_";
 
 Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
-    MovableGameEntity        (gameMap, 1.0f),
+    MovableGameEntity        (gameMap),
     mPhysicalAttack          (1.0),
     mMagicalAttack           (0.0),
     mPhysicalDefense         (3.0),
@@ -143,7 +143,7 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
 }
 
 Creature::Creature(GameMap* gameMap) :
-    MovableGameEntity        (gameMap, 1.0f),
+    MovableGameEntity        (gameMap),
     mPhysicalAttack          (1.0),
     mMagicalAttack           (0.0),
     mPhysicalDefense         (3.0),
@@ -333,12 +333,14 @@ void Creature::importFromStream(std::istream& is)
     }
     mLevel = std::min(MAX_LEVEL, mLevel);
 
+    MovableGameEntity::importFromStream(is);
+
+    buildStats();
+
     if(strHp.compare("max") == 0)
         mHp = mMaxHP;
     else
         mHp = Helper::toDouble(strHp);
-
-    MovableGameEntity::importFromStream(is);
 }
 
 void Creature::buildStats()
@@ -385,7 +387,6 @@ Creature* Creature::getCreatureFromStream(GameMap* gameMap, std::istream& is)
 {
     Creature* creature = new Creature(gameMap);
     creature->importFromStream(is);
-    creature->buildStats();
     return creature;
 }
 
@@ -393,7 +394,6 @@ Creature* Creature::getCreatureFromPacket(GameMap* gameMap, ODPacket& is)
 {
     Creature* creature = new Creature(gameMap);
     creature->importFromPacket(is);
-    creature->buildStats();
     return creature;
 }
 
@@ -451,9 +451,6 @@ void Creature::importFromPacket(ODPacket& is)
     mDefinition = getGameMap()->getClassDescription(tempString);
     OD_ASSERT_TRUE_MSG(mDefinition != nullptr, "Definition=" + tempString);
 
-    mMaxHP = mDefinition->getMinHp();
-    setHP(mMaxHP);
-
     OD_ASSERT_TRUE(is >> tempString);
     setName(tempString);
 
@@ -500,6 +497,8 @@ void Creature::importFromPacket(ODPacket& is)
     }
 
     MovableGameEntity::importFromPacket(is);
+
+    buildStats();
 }
 
 void Creature::setPosition(const Ogre::Vector3& v, bool isMove)
@@ -3329,7 +3328,7 @@ bool Creature::isInBadMood()
     return (mAwakeness < 10.0 && mHunger > 90.0);
 }
 
-bool Creature::isAttackable() const
+bool Creature::isAttackable(Tile* tile, Seat* seat) const
 {
     if(mHp <= 0.0)
         return false;

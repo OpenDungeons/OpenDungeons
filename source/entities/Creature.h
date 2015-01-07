@@ -183,7 +183,7 @@ public:
     //! \brief Computes the visible tiles and tags them to know which are visible
     void computeVisibleTiles();
 
-    virtual bool isAttackable() const;
+    virtual bool isAttackable(Tile* tile, Seat* seat) const;
 
     double getPhysicalDamage(double range);
     double getPhysicalDefense() const;

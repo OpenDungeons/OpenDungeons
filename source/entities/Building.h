@@ -60,11 +60,7 @@ public:
     void receiveExp(double /*experience*/)
     {}
 
-    void addBuildingObject(Tile* targetTile, RenderedMovableEntity* obj);
-    void removeBuildingObject(Tile* tile);
-    void removeBuildingObject(RenderedMovableEntity* obj);
     void removeAllBuildingObjects();
-    RenderedMovableEntity* getBuildingObjectFromTile(Tile* tile);
     /*! \brief Creates a child RenderedMovableEntity mesh using the given mesh name and placing on the target tile,
      *  if the tile is nullptr the object appears in the building's center, the rotation angle is given in degrees.
      */
@@ -74,7 +70,7 @@ public:
         Tile* targetTile, double x, double y, double rotationAngle, bool hideCoveredTile, float opacity = 1.0f);
     Tile* getCentralTile();
 
-    virtual bool isAttackable() const;
+    virtual bool isAttackable(Tile* tile, Seat* seat) const;
     virtual void addCoveredTile(Tile* t, double nHP);
     virtual bool removeCoveredTile(Tile* t);
     virtual Tile* getCoveredTile(int index);
@@ -116,7 +112,16 @@ public:
     virtual void notifyCarryingStateChanged(Creature* carrier, MovableGameEntity* carriedEntity)
     {}
 
+    //! Tells if the covering tile should be set to dirty when the building is added on the tile
+    virtual bool shouldSetCoveringTileDirty(Seat* seat, Tile* tile)
+    { return true; }
+
 protected:
+    void addBuildingObject(Tile* targetTile, RenderedMovableEntity* obj);
+    void removeBuildingObject(Tile* tile);
+    void removeBuildingObject(RenderedMovableEntity* obj);
+    RenderedMovableEntity* getBuildingObjectFromTile(Tile* tile);
+
     std::map<Tile*, RenderedMovableEntity*> mBuildingObjects;
     std::vector<Tile*> mCoveredTiles;
     std::map<Tile*, double> mTileHP;

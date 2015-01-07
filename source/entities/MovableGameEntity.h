@@ -33,7 +33,7 @@ class Tile;
 class MovableGameEntity : public GameEntity
 {
 public:
-    MovableGameEntity(GameMap* gameMap, float opacity);
+    MovableGameEntity(GameMap* gameMap);
 
     virtual ~MovableGameEntity()
     {}
@@ -71,8 +71,6 @@ public:
     virtual double getAnimationSpeedFactor();
     virtual void setAnimationSpeedFactor(double f);
 
-    virtual void setMeshOpacity(float opacity);
-
     //! \brief Called when the entity is being carried
     virtual void notifyEntityCarryOn()
     {}
@@ -95,10 +93,6 @@ public:
     inline Ogre::AnimationState* getAnimationState() const
     { return mAnimationState; }
 
-    //! \brief Get if the mesh is already existing
-    inline float getOpacity() const
-    { return mOpacity; }
-
     void fireRemoveEntityToSeatsWithVision();
 
     virtual void notifySeatsWithVision(const std::vector<Seat*>& seats);
@@ -120,6 +114,13 @@ public:
     //! be dead on the ground for example).
     //! Note that this function is to be called on client side only
     virtual void restoreEntityState();
+
+    //! This function is called by the gamemap when the entity is added.
+    virtual void notifyAddedOnGamemap()
+    {}
+
+    //! This function is called by the gamemap when the entity is removed.
+    virtual void notifyRemovedFromGamemap();
 
 protected:
     //! \brief Called while moving the entity to add it to the tile it gets on
@@ -145,9 +146,6 @@ private:
     std::string mDestinationAnimationState;
     Ogre::Vector3 mWalkDirection;
     double mAnimationTime;
-
-    //! \brief The model current opacity
-    float mOpacity;
 };
 
 
