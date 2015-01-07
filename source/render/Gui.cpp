@@ -68,10 +68,12 @@ Gui::Gui()
 
     // Needed to get the correct offset when using up to CEGUI 0.8.4
     // We're thus using an empty mouse cursor.
-    CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setDefaultImage("OpenDungeonsSkin/MouseArrow");
-    CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setVisible(true);
+    CEGUI::GUIContext& context = CEGUI::System::getSingleton().getDefaultGUIContext();
+    context.getMouseCursor().setDefaultImage("OpenDungeonsSkin/MouseArrow");
+    context.getMouseCursor().setVisible(true);
 
-    CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultTooltipType("OD/Tooltip");
+    context.setDefaultTooltipType("OD/Tooltip");
+
 
     CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
 

@@ -123,4 +123,10 @@
     <Image height="4" name="ButtonTopRightPushed" width="4" xPos="103" yPos="38" />
     <Image height="4" name="ButtonBottomRightPushed" width="4" xPos="103" yPos="50" />
     <Image height="8" name="ButtonRightPushed" width="4" xPos="103" yPos="42" />
+    <Image height="14" name="CheckboxNormal" width="14" xPos="26" yPos="21" />
+    <Image height="14" name="CheckboxHover" width="14" xPos="26" yPos="49" />
+    <Image height="14" name="CheckboxMark" width="14" xPos="26" yPos="35" />
+    <Image height="14" name="RadioButtonNormal" width="14" xPos="40" yPos="21" />
+    <Image height="14" name="RadioButtonHover" width="14" xPos="40" yPos="49" />
+    <Image height="14" name="RadioButtonMark" width="14" xPos="40" yPos="35" />
 </Imageset>

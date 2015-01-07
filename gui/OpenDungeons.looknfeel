@@ -463,7 +463,7 @@
             <TextComponent>
                 <Area>
                     <Dim type="LeftEdge">
-                        <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/RadioButtonNormal" />
+                        <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeonsSkin/RadioButtonNormal" />
                     <AbsoluteDim value="3" />
                             </OperatorDim>
                         </Dim>
@@ -499,7 +499,7 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeonsOldSkin/RadioButtonHover" />
+                <Image name="OpenDungeonsSkin/RadioButtonHover" />
                 <VertFormat type="CentreAligned" />
                 <HorzFormat type="LeftAligned" />
             </ImageryComponent>
@@ -512,7 +512,7 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeonsOldSkin/RadioButtonMark" />
+                <Image name="OpenDungeonsSkin/RadioButtonMark" />
                 <VertFormat type="CentreAligned" />
                 <HorzFormat type="LeftAligned" />
             </ImageryComponent>
@@ -586,7 +586,7 @@
             <TextComponent>
                 <Area>
                     <Dim type="LeftEdge">
-                        <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/CheckboxNormal" />
+                        <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeonsSkin/CheckboxNormal" />
                     <AbsoluteDim value="3" />
                             </OperatorDim>
                         </Dim>
@@ -606,7 +606,7 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeonsOldSkin/CheckboxNormal" />
+                <Image name="OpenDungeonsSkin/CheckboxNormal" />
                 <VertFormat type="CentreAligned" />
                 <HorzFormat type="LeftAligned" />
             </ImageryComponent>
@@ -619,7 +619,7 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeonsOldSkin/CheckboxHover" />
+                <Image name="OpenDungeonsSkin/CheckboxHover" />
                 <VertFormat type="CentreAligned" />
                 <HorzFormat type="LeftAligned" />
             </ImageryComponent>
@@ -632,7 +632,7 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeonsOldSkin/CheckboxMark" />
+                <Image name="OpenDungeonsSkin/CheckboxMark" />
                 <VertFormat type="CentreAligned" />
                 <HorzFormat type="LeftAligned" />
             </ImageryComponent>
@@ -3071,7 +3071,7 @@
                             </OperatorDim>
                         </Dim>
                 </Area>
-                <Colours bottomLeft="FF000000" bottomRight="FF000000" topLeft="FF000000" topRight="FF000000" />
+                <Colours bottomLeft="FFFFFFFF" bottomRight="FFFFFFFF" topLeft="FFFFFFFF" topRight="FFFFFFFF" />
                 <VertFormat type="CentreAligned" />
                 <HorzFormat type="CentreAligned" />
             </TextComponent>
