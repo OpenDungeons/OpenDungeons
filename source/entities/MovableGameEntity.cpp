@@ -498,6 +498,7 @@ void MovableGameEntity::importFromStream(std::istream& is)
 
 void MovableGameEntity::exportToPacket(ODPacket& os) const
 {
+    os << mMoveSpeed;
     os << mPrevAnimationState;
     os << mPrevAnimationStateLoop;
     os << mWalkDirection;
@@ -514,6 +515,7 @@ void MovableGameEntity::exportToPacket(ODPacket& os) const
 
 void MovableGameEntity::importFromPacket(ODPacket& is)
 {
+    OD_ASSERT_TRUE(is >> mMoveSpeed);
     OD_ASSERT_TRUE(is >> mPrevAnimationState);
     OD_ASSERT_TRUE(is >> mPrevAnimationStateLoop);
     OD_ASSERT_TRUE(is >> mWalkDirection);
