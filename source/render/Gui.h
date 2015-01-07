@@ -88,6 +88,8 @@ public:
     static const std::string BUTTON_HATCHERY;
     static const std::string BUTTON_TREASURY;
     static const std::string BUTTON_CRYPT;
+    static const std::string BUTTON_TEMPLE;
+    static const std::string BUTTON_PORTAL;
     static const std::string BUTTON_DESTROY_ROOM;
     static const std::string TAB_TRAPS;
     static const std::string BUTTON_TRAP_CANNON;
