@@ -17,8 +17,8 @@ set(AS_LIBRARY_NAME "angelscript")
 
 # Project version
 set(OD_MAJOR_VERSION 0)
-set(OD_MINOR_VERSION 4)
-set(OD_PATCH_LEVEL   9)
+set(OD_MINOR_VERSION 5)
+set(OD_PATCH_LEVEL   0)
 
 # Set the project version ready to be used in the code.
 if(NOT MSVC)
