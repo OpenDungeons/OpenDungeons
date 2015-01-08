@@ -199,16 +199,11 @@ bool MenuModeReplay::checkReplayValid(const std::string& replayFileName, std::st
         return false;
     }
 
+    std::string odVersion;
     std::string tmpStr;
     int32_t tmpInt;
     // OD version
-    OD_ASSERT_TRUE(packet >> tmpStr);
-    if(tmpStr.compare(std::string("OpenDungeons V ") + ODApplication::VERSION) != 0)
-    {
-        errorMsg = "Wrong version: " + tmpStr;
-        return false;
-    }
-
+    OD_ASSERT_TRUE(packet >> odVersion);
     // mapSizeX
     OD_ASSERT_TRUE(packet >> tmpInt);
     // mapSizeY
@@ -217,6 +212,12 @@ bool MenuModeReplay::checkReplayValid(const std::string& replayFileName, std::st
     OD_ASSERT_TRUE(packet >> tmpStr);
     // LevelDescription
     OD_ASSERT_TRUE(packet >> mapDescription);
+
+    if(odVersion.compare(std::string("OpenDungeons V ") + ODApplication::VERSION) != 0)
+    {
+        errorMsg = odVersion + " (Wrong version)\n\n" + mapDescription;
+        return false;
+    }
 
     return true;
 }
