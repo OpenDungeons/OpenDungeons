@@ -107,7 +107,8 @@ void MenuModeReplay::launchSelectedButtonPressed()
     int id = selItem->getID();
 
     std::string mapDescription;
-    if(!checkReplayValid(mFilesList[id], mapDescription))
+    std::string errorMsg;
+    if(!checkReplayValid(mFilesList[id], mapDescription, errorMsg))
     {
         tmpWin->setText("Error: trying to launch invalid replay!");
         tmpWin->show();
@@ -166,17 +167,18 @@ void MenuModeReplay::listReplaysClicked()
 
     CEGUI::Window* descTxt = Gui::getSingleton().getGuiSheet(Gui::replayMenu)->getChild("LevelWindowFrame/MapDescriptionText");
     std::string mapDescription;
-    if(checkReplayValid(mFilesList[id], mapDescription))
+    std::string errorMsg;
+    if(checkReplayValid(mFilesList[id], mapDescription, errorMsg))
     {
         descTxt->setText(mapDescription);
     }
     else
     {
-        descTxt->setText("invalid replay");
+        descTxt->setText(errorMsg);
     }
 }
 
-bool MenuModeReplay::checkReplayValid(const std::string& replayFileName, std::string& mapDescription)
+bool MenuModeReplay::checkReplayValid(const std::string& replayFileName, std::string& mapDescription, std::string& errorMsg)
 {
     std::string replayFile = ResourceManager::getSingleton().getReplayDataPath() + replayFileName;
     // We open the replay to get the level file name
@@ -192,10 +194,21 @@ bool MenuModeReplay::checkReplayValid(const std::string& replayFileName, std::st
     } while(type != ServerNotification::loadLevel);
 
     if(is.eof())
+    {
+        errorMsg = "Invalid replay file";
         return false;
+    }
 
     std::string tmpStr;
     int32_t tmpInt;
+    // OD version
+    OD_ASSERT_TRUE(packet >> tmpStr);
+    if(tmpStr.compare(std::string("OpenDungeons V ") + ODApplication::VERSION) != 0)
+    {
+        errorMsg = "Wrong version: " + tmpStr;
+        return false;
+    }
+
     // mapSizeX
     OD_ASSERT_TRUE(packet >> tmpInt);
     // mapSizeY

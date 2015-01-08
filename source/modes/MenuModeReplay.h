@@ -46,7 +46,7 @@ public:
 
     void listReplaysClicked();
     void listReplaysDoubleClicked();
-    bool checkReplayValid(const std::string& replayFileName, std::string& mapDescription);
+    bool checkReplayValid(const std::string& replayFileName, std::string& mapDescription, std::string& errorMsg);
 
 private:
     std::vector<std::string> mFilesList;

@@ -95,6 +95,9 @@ bool ODClient::processOneClientSocketMessage()
     {
         case ServerNotification::loadLevel:
         {
+            std::string odVersion;
+            OD_ASSERT_TRUE(packetReceived >> odVersion);
+
             // Map
             int32_t mapSizeX;
             int32_t mapSizeY;
