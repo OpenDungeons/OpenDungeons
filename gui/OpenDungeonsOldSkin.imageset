@@ -1,10 +1,4 @@
 <Imageset autoScaled="false" imagefile="OpenDungeonsOldSkin.png" name="OpenDungeonsOldSkin" nativeHorzRes="800" nativeVertRes="600" version="2">
-    <Image height="12" name="CheckboxNormal" width="12" xPos="109" yPos="2" />
-    <Image height="12" name="CheckboxHover" width="12" xPos="109" yPos="30" />
-    <Image height="12" name="CheckboxMark" width="12" xPos="109" yPos="16" />
-    <Image height="12" name="RadioButtonNormal" width="12" xPos="123" yPos="2" />
-    <Image height="12" name="RadioButtonHover" width="12" xPos="123" yPos="30" />
-    <Image height="12" name="RadioButtonMark" width="12" xPos="123" yPos="16" />
     <Image height="20" name="StaticLeft" width="2" xPos="266" yPos="99" />
     <Image height="20" name="StaticRight" width="2" xPos="280" yPos="99" />
     <Image height="2" name="StaticTop" width="2" xPos="273" yPos="93" />

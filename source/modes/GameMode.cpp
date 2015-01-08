@@ -95,9 +95,14 @@ std::string getImageColoursStringFromColourValue(const Ogre::ColourValue& color)
 void GameMode::activate()
 {
     // Loads the corresponding Gui sheet.
-    Gui::getSingleton().loadGuiSheet(Gui::inGameMenu);
+    Gui& gui = Gui::getSingleton();
+    gui.loadGuiSheet(Gui::inGameMenu);
 
-    Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild(Gui::EXIT_CONFIRMATION_POPUP)->hide();
+    // Hides the exit pop-up and certain buttons only used by the editor.
+    CEGUI::Window* guiSheet = gui.getGuiSheet(Gui::inGameMenu);
+    guiSheet->getChild(Gui::EXIT_CONFIRMATION_POPUP)->hide();
+    guiSheet->getChild(Gui::BUTTON_TEMPLE)->hide();
+    guiSheet->getChild(Gui::BUTTON_PORTAL)->hide();
 
     MiniMap* minimap = ODFrameListener::getSingleton().getMiniMap();
     minimap->attachMiniMap(Gui::guiSheet::inGameMenu);
@@ -110,7 +115,7 @@ void GameMode::activate()
     // Show the player seat color on the horizontal pipe - AARRGGBB format
     // ex: "tl:FF0000FF tr:FF0000FF bl:FF0000FF br:FF0000FF"
     std::string colorStr = getImageColoursStringFromColourValue(mGameMap->getLocalPlayer()->getSeat()->getColorValue());
-    Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild("HorizontalPipe")->setProperty("ImageColours", colorStr);
+    guiSheet->getChild("HorizontalPipe")->setProperty("ImageColours", colorStr);
 
     if(mGameMap->getTurnNumber() != -1)
     {

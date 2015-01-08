@@ -68,10 +68,12 @@ Gui::Gui()
 
     // Needed to get the correct offset when using up to CEGUI 0.8.4
     // We're thus using an empty mouse cursor.
-    CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setDefaultImage("OpenDungeonsSkin/MouseArrow");
-    CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setVisible(true);
+    CEGUI::GUIContext& context = CEGUI::System::getSingleton().getDefaultGUIContext();
+    context.getMouseCursor().setDefaultImage("OpenDungeonsSkin/MouseArrow");
+    context.getMouseCursor().setVisible(true);
 
-    CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultTooltipType("OD/Tooltip");
+    context.setDefaultTooltipType("OD/Tooltip");
+
 
     CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
 
@@ -994,6 +996,8 @@ const std::string Gui::BUTTON_LIBRARY = "MainTabControl/Rooms/LibraryButton";
 const std::string Gui::BUTTON_HATCHERY = "MainTabControl/Rooms/HatcheryButton";
 const std::string Gui::BUTTON_TREASURY = "MainTabControl/Rooms/TreasuryButton";
 const std::string Gui::BUTTON_CRYPT = "MainTabControl/Rooms/CryptButton";
+const std::string Gui::BUTTON_TEMPLE = "MainTabControl/Rooms/TempleButton";
+const std::string Gui::BUTTON_PORTAL = "MainTabControl/Rooms/PortalButton";
 const std::string Gui::BUTTON_DESTROY_ROOM = "MainTabControl/Rooms/DestroyRoomButton";
 const std::string Gui::TAB_TRAPS = "MainTabControl/Traps";
 const std::string Gui::BUTTON_TRAP_CANNON = "MainTabControl/Traps/CannonButton";

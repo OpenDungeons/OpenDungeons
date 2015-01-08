@@ -54,5 +54,17 @@
             <Property name="TooltipText" value="Destroy a room (returns half its price)" />
             <Property name="InheritsAlpha" value="False" />
         </Window>
+        <Window type="OD/ImageButton" name="TempleButton" >
+            <Property name="Area" value="{{0,849},{0,21},{0,909},{0,81}}" />
+            <Property name="NormalImage" value="OpenDungeonsIcons/TempleButton" />
+            <Property name="TooltipText" value="Build a Temple (3x3)" />
+            <Property name="InheritsAlpha" value="False" />
+        </Window>
+        <Window type="OD/ImageButton" name="PortalButton" >
+            <Property name="Area" value="{{0,909},{0,21},{0,969},{0,81}}" />
+            <Property name="NormalImage" value="OpenDungeonsIcons/PortalButton" />
+            <Property name="TooltipText" value="Build a Portal (3x3)" />
+            <Property name="InheritsAlpha" value="False" />
+        </Window>
     </Window>
 </GUILayout>
