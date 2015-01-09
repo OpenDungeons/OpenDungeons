@@ -480,6 +480,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             ODPacket packet;
             packet << ServerNotification::loadLevel;
+            packet << version;
             packet << mapSizeX << mapSizeY;
             // Map infos
             packet << gameMap->getLevelFileName();
