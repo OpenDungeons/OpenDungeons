@@ -3,7 +3,7 @@
  *  \date   07 April 2011
  *  \brief  Class ODApplication containing everything to start the game
  *
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -51,7 +51,6 @@ public:
     static const std::string VERSIONSTRING;
     static const std::string POINTER_INFO_STRING;
     static std::string MOTD;
-    static const std::string HELP_MESSAGE;
 
 private:
     ODApplication(const ODApplication&);

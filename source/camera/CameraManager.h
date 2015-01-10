@@ -4,7 +4,7 @@
  * \author StefanP.MUC
  * \brief  Handles the camera movements
  *
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -39,19 +39,13 @@
 #include <vector>
 #include <map>
 
-class ModeManager;
-class Console;
-class Viewport;
-
 // The min/max camera height in tile size
 const Ogre::Real MIN_CAMERA_Z = 3.0;
 const Ogre::Real MAX_CAMERA_Z = 20.0;
 
-using std::vector; using std::pair; using std::map;
-
 class CameraManager
 {
-    friend class Console;
+friend class ConsoleCommands;
 
 public:
     enum Direction
@@ -68,26 +62,21 @@ public:
     };
 
     CameraManager(Ogre::SceneManager* sceneManager, GameMap* gameMap, Ogre::RenderWindow* renderWindow);
-    ~CameraManager();
+    ~CameraManager()
+    {}
 
-    inline void setCircleCenter(int x, int y)
+    inline void circleAround(int x, int y, unsigned int radius)
     {
         mCenterX = x;
         mCenterY = y;
-    }
-
-    inline void setCircleRadius(unsigned int radius)
-    { mRadius = radius; }
-
-    inline void setCircleMode(bool mode)
-    {
-        mCircleMode = mode;
+        mRadius = radius;
+        mCircleMode = true;
         mAlpha = 0;
     }
 
-    inline void setCatmullSplineMode(bool mm)
+    inline void setCatmullSplineMode(bool set_mode)
     {
-        mCatmullSplineMode = mm;
+        mCatmullSplineMode = set_mode;
         mAlpha = 0;
     }
 
@@ -98,8 +87,10 @@ public:
         return mTranslateVectorAccel;
     }
 
-    bool onFrameStarted();
-    bool onFrameEnded();
+    bool onFrameStarted()
+    { return true; }
+    bool onFrameEnded()
+    { return true; }
 
     /*! \brief Sets the camera to a new location while still satisfying the
     * constraints placed on its movement
@@ -149,7 +140,8 @@ public:
 
     Ogre::Camera* getCamera(const Ogre::String& ss);
 
-    Ogre::Viewport* getViewport();
+    Ogre::Viewport* getViewport()
+    { return mViewport; }
 
     void resetHCSNodes(int nodeValue)
     {

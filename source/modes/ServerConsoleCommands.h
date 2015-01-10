@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,23 +15,24 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ODCONSOLECOMMAND_H
-#define ODCONSOLECOMMAND_H
+#ifndef SERVERCONSOLECOMMANDS_H
+#define SERVERCONSOLECOMMANDS_H
 
 #include "gamemap/GameMap.h"
+#include "entities/Creature.h"
 
-class ODConsoleCommand
+class ServerConsoleCommand
 {
 public:
-    ODConsoleCommand() {}
-    virtual ~ODConsoleCommand() {}
+    ServerConsoleCommand() {}
+    virtual ~ServerConsoleCommand() {}
     virtual void execute(GameMap* gameMap) = 0;
 };
 
-class ODConsoleCommandAddGold : public ODConsoleCommand
+class SCCAddGold : public ServerConsoleCommand
 {
 public:
-    ODConsoleCommandAddGold(int gold, int seatId) :
+    SCCAddGold(int gold, int seatId) :
         mGold(gold),
         mSeatId(seatId)
     {
@@ -48,10 +49,10 @@ private:
     int mSeatId;
 };
 
-class ODConsoleCommandLogFloodFill : public ODConsoleCommand
+class SCCLogFloodFill : public ServerConsoleCommand
 {
 public:
-    ODConsoleCommandLogFloodFill()
+    SCCLogFloodFill()
     {
     }
 
@@ -62,10 +63,10 @@ protected:
     }
 };
 
-class ODConsoleCommandSetCreatureDestination : public ODConsoleCommand
+class SCCSetCreatureDestination : public ServerConsoleCommand
 {
 public:
-    ODConsoleCommandSetCreatureDestination(const std::string& creatureName, int x, int y):
+    SCCSetCreatureDestination(const std::string& creatureName, int x, int y):
         mCreatureName(creatureName),
         mX(x),
         mY(y)
@@ -83,10 +84,10 @@ private:
     int mY;
 };
 
-class ODConsoleCommandDisplayCreatureVisualDebug : public ODConsoleCommand
+class SCCDisplayCreatureVisualDebug : public ServerConsoleCommand
 {
 public:
-    ODConsoleCommandDisplayCreatureVisualDebug(const std::string& creatureName, bool enable):
+    SCCDisplayCreatureVisualDebug(const std::string& creatureName, bool enable):
         mCreatureName(creatureName),
         mEnable(enable)
     {
@@ -102,10 +103,10 @@ private:
     bool mEnable;
 };
 
-class ODConsoleCommandDisplaySeatVisualDebug : public ODConsoleCommand
+class SCCDisplaySeatVisualDebug : public ServerConsoleCommand
 {
 public:
-    ODConsoleCommandDisplaySeatVisualDebug(int seatId, bool enable):
+    SCCDisplaySeatVisualDebug(int seatId, bool enable):
         mSeatId(seatId),
         mEnable(enable)
     {
@@ -121,10 +122,10 @@ private:
     bool mEnable;
 };
 
-class ODConsoleCommandSetLevelCreature : public ODConsoleCommand
+class SCCSetLevelCreature : public ServerConsoleCommand
 {
 public:
-    ODConsoleCommandSetLevelCreature(const std::string& creatureName, uint32_t level):
+    SCCSetLevelCreature(const std::string& creatureName, uint32_t level):
         mCreatureName(creatureName),
         mLevel(level)
     {
@@ -140,10 +141,10 @@ private:
     uint32_t mLevel;
 };
 
-class ODConsoleCommandAskToggleFOW : public ODConsoleCommand
+class SCCAskToggleFOW : public ServerConsoleCommand
 {
 public:
-    ODConsoleCommandAskToggleFOW()
+    SCCAskToggleFOW()
     {
     }
 
@@ -154,4 +155,27 @@ protected:
     }
 };
 
-#endif // ODCONSOLECOMMAND_H
+class SCCAddCreature : public ServerConsoleCommand
+{
+public:
+    SCCAddCreature(const std::string& arguments):
+        mArguments(arguments)
+    {
+    }
+
+protected:
+    virtual void execute(GameMap* gameMap)
+    {
+        // Creature the creature and add it to the gameMap
+        std::stringstream stringStr(mArguments);
+        Creature* creature = Creature::getCreatureFromStream(gameMap, stringStr);
+
+        creature->createMesh();
+        gameMap->addCreature(creature);
+    }
+
+private:
+    std::string mArguments;
+};
+
+#endif // SERVERCONSOLECOMMANDS_H

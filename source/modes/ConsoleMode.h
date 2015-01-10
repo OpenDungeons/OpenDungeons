@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,11 +20,9 @@
 
 #include "AbstractApplicationMode.h"
 
-#include <list>
+#include "ConsoleCommandsHandler.h"
+
 #include <string>
-
-
-using std::string; using std::list;
 
 class PrefixTree;
 
@@ -52,11 +50,18 @@ public:
 
 private:
     Console* mConsole;
-    PrefixTree* mPrefixTree;
-    list<std::string>* mLl;
+
+    //! \brief The console commands handler
+    ConsoleCommandsHandler mConsoleCommandsHandler;
+
     std::string mPrefix;
+
     bool mNonTagKeyPressed;
-    std::list<std::string>::iterator mIt;
+
+    //! \brief The commands found according to the prefix given.
+    std::vector<std::string> mLl;
+    //! \brief Iterator to the list of words found.
+    std::vector<std::string>::iterator mIt;
 };
 
 #endif // CONSOLEMODE_H

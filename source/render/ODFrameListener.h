@@ -4,7 +4,7 @@
  * \auth	(require 'ecb)or Ogre team, andrewbuck, oln, StefanP.MUC
  * \brief  Handles the input and rendering request
  *
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -62,7 +62,6 @@ class ODFrameListener :
         public Ogre::WindowEventListener
 {
 
-friend class Console;
 friend class ODClient;
 
 public:
@@ -140,12 +139,6 @@ public:
 
     void addChatMessage(ChatMessage* message);
 
-    //! \brief The console output
-    void setConsoleCommandOutput(const std::string& output)
-    {
-        mCommandOutput = output;
-    }
-
     MiniMap* getMiniMap()
     { return mMiniMap; }
 
@@ -167,6 +160,7 @@ public:
     const Ogre::Vector3 getCameraViewTarget();
     void cameraFlyTo(const Ogre::Vector3& destination);
     void onMiniMapClick(int xPos, int yPos);
+
     CameraManager* getCameraManager()
     {
         return mCameraManager;
@@ -203,9 +197,6 @@ private:
     // Console variables
     std::string mCommand, mArguments, mPrompt;
 
-    //! \brief The console output
-    std::string mCommandOutput;
-
     std::deque<ChatMessage*> mChatMessages;
     std::string mPromptCommand;
 
@@ -218,15 +209,6 @@ private:
 
     //! \brief Actually exit application
     void exitApplication();
-
-    //! \brief Tells whether the client and or server are up and running.
-    bool isConnected();
-
-    //! \brief Tells whether a server is running.
-    bool isServer();
-
-    //! \brief Tells whether a client socket is active.
-    bool isClient();
 
     //! \brief Updates server-turn independant creature animation, audio, and overall rendering.
     void updateAnimations(Ogre::Real timeSinceLastFrame);

@@ -2,7 +2,7 @@
  * \date:  02 July 2011
  * \author StefanP.MUC
  *
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -1005,14 +1005,17 @@ void GameMode::createHelpWindow()
     mHelpWindow = wmgr->createWindow("OD/FrameWindow", std::string("GameHelpWindow"));
     mHelpWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.12, 0)));
     mHelpWindow->setSize(CEGUI::USize(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.7, 0)));
+    mHelpWindow->setProperty("AlwaysOnTop", "True");
+    mHelpWindow->setProperty("SizingEnabled", "False");
 
     CEGUI::Window* textWindow = wmgr->createWindow("OD/StaticText", "TextDisplay");
     textWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.10, 0)));
-    textWindow->setSize(CEGUI::USize(CEGUI::UDim(0.9, 0), CEGUI::UDim(0.9, 0)));
+    textWindow->setSize(CEGUI::USize(CEGUI::UDim(0.9, 0), CEGUI::UDim(0.8, 0)));
     textWindow->setProperty("FrameEnabled", "False");
     textWindow->setProperty("BackgroundEnabled", "False");
     textWindow->setProperty("VertFormatting", "TopAligned");
     textWindow->setProperty("HorzFormatting", "WordWrapLeftAligned");
+    textWindow->setProperty("VertScrollbar", "True");
 
     // Search for the autoclose button and make it work
     CEGUI::Window* childWindow = mHelpWindow->getChild("__auto_closebutton__");

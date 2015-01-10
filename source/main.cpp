@@ -3,7 +3,7 @@
  *  \date   Sun Jun 22 18:16:35 CEST 2014
  *  \brief  file containing the main function
  *
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by

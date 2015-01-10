@@ -3,7 +3,7 @@
  * \date:  02 July 2011
  * \author StefanP.MUC
  * \brief  Handles the camera movements
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,9 +37,6 @@
 #include <OgreRenderWindow.h>
 
 #include <algorithm>
-
-using  std::set; using  std::swap; using  std::max; using  std::min;
-using  std::cerr; using std::endl;
 
 //! The camera base moving speed.
 const Ogre::Real MOVE_SPEED = 2.0;
@@ -90,10 +87,6 @@ CameraManager::CameraManager(Ogre::SceneManager* tmpSceneManager, GameMap* gm, O
 
     LogManager* logManager = LogManager::getSingletonPtr();
     logManager->logMessage("Created camera manager");
-}
-
-CameraManager::~CameraManager()
-{
 }
 
 void CameraManager::createCamera(const Ogre::String& ss, double nearClip, double farClip)
@@ -178,11 +171,6 @@ void CameraManager::setActiveCamera(const Ogre::String& ss)
 
     LogManager* logManager = LogManager::getSingletonPtr();
     logManager->logMessage("Setting Active Camera to " + ss + " ...", Ogre::LML_NORMAL);
-}
-
-Ogre::Viewport* CameraManager::getViewport()
-{
-    return mViewport;
 }
 
 void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)
@@ -491,8 +479,6 @@ void CameraManager::move(const Direction direction, double aux)
     default:
         break;
     }
-
-    // We inform about the Camera position's change  in terems of X Y  coordinates
 }
 
 bool CameraManager::isCameraMovingAtAll() const
@@ -505,14 +491,4 @@ bool CameraManager::isCameraMovingAtAll() const
             mSwivelDegrees.valueDegrees() != 0 ||
             mRotateLocalVector.x != 0 ||
             mCameraIsFlying);
-}
-
-bool CameraManager::onFrameStarted()
-{
-    return true;
-}
-
-bool CameraManager::onFrameEnded()
-{
-    return true;
 }

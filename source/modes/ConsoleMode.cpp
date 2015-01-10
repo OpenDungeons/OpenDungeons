@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,35 +17,27 @@
 
 #include "ConsoleMode.h"
 
-#include "render/Gui.h"
 #include "modes/Console.h"
-#include "utils/LogManager.h"
-#include "scripting/ASWrapper.h"
+#include "modes/PrefixTree.h"
 #include "render/RenderManager.h"
-#include "PrefixTree.h"
 #include "render/ODFrameListener.h"
+#include "render/Gui.h"
+#include "scripting/ASWrapper.h"
 
-#include <list>
+#include "utils/LogManager.h"
+#include "utils/Helper.h"
+
 #include <string>
-
-const std::string CONSOLE_COMMANDS = "./config/console_commands.txt";
 
 ConsoleMode::ConsoleMode(ModeManager* modeManager, Console* console):
     AbstractApplicationMode(modeManager, ModeManager::CONSOLE),
     mConsole(console),
-    mPrefixTree(nullptr),
-    mLl(nullptr),
     mNonTagKeyPressed(true)
 {
-    mPrefixTree = new PrefixTree();
-    mLl = new list<string>();
-    mPrefixTree->readStringsFromFile(CONSOLE_COMMANDS.c_str());
 }
 
 ConsoleMode::~ConsoleMode()
 {
-    delete mPrefixTree;
-    delete mLl;
 }
 
 void ConsoleMode::activate()
@@ -91,10 +83,10 @@ bool ConsoleMode::keyPressed(const OIS::KeyEvent &arg)
         if(!mNonTagKeyPressed)
         {
             // it points to postfix candidate
-            if (mIt == mLl->end())
+            if (mIt == mLl.end())
             {
                 mConsole->mPrompt = mPrefix;
-                mIt = mLl->begin();
+                mIt = mLl.begin();
             }
             else{
                 mConsole->mPrompt = mPrefix + *mIt;
@@ -103,13 +95,13 @@ bool ConsoleMode::keyPressed(const OIS::KeyEvent &arg)
         }
         else
         {
-            mLl->clear();
-            mPrefixTree->complete(mConsole->mPrompt.c_str(), mLl);
+            mLl.clear();
+            mConsoleCommandsHandler.autocomplete(mConsole->mPrompt.c_str(), mLl);
             mPrefix = mConsole->mPrompt ;
-            mIt = mLl->begin();
+            mIt = mLl.begin();
         }
 
-        mNonTagKeyPressed= false;
+        mNonTagKeyPressed = false;
     }
     else
     {
@@ -135,11 +127,10 @@ bool ConsoleMode::keyPressed(const OIS::KeyEvent &arg)
                 ++mConsole->mCurHistPos;
 
                 //split the input into it's space-separated "words"
-                std::vector<Ogre::String> params = mConsole->split(mConsole->mPrompt, ' ');
+                std::vector<std::string> params = Helper::split(mConsole->mPrompt, ' ');
 
-                //TODO: remove this until AS console handler is ready
-                Ogre::String command = params[0];
-                Ogre::String arguments;
+                std::string command = params[0];
+                std::string arguments;
                 for(size_t i = 1; i< params.size(); ++i)
                 {
                     arguments += params[i];
@@ -148,11 +139,8 @@ bool ConsoleMode::keyPressed(const OIS::KeyEvent &arg)
                         arguments += ' ';
                     }
                 }
-                //remove until this point
 
-                //TODO: remove executePromptCommand after it is fully converted
-                //for now try hardcoded commands, and if none is found try AS
-                if(!mConsole->executePromptCommand(command, arguments))
+                if(!mConsoleCommandsHandler.executePromptCommand(command, arguments))
                 {
                     LogManager::getSingleton().logMessage("Console command: " + command
                         + " - arguments: " + arguments + " - angelscript");

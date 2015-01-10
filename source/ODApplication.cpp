@@ -3,7 +3,7 @@
  *  \date   07 April 2011
  *  \brief  Class ODApplication containing everything to start the game
  *
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -205,40 +205,3 @@ const std::string ODApplication::VERSION = "undefined";
 const std::string ODApplication::VERSIONSTRING = "OpenDungeons_Version:" + VERSION;
 std::string ODApplication::MOTD = "Welcome to Open Dungeons\tVersion:  " + VERSION;
 const std::string ODApplication::POINTER_INFO_STRING = "pointerInfo";
-const std::string ODApplication::HELP_MESSAGE = "\
-The console is a way of interacting with the underlying game engine directly.\
-Commands given to the the are made up of two parts: a \'command name\' and one or more \'arguments\'.\
-For information on how to use a particular command, type help followed by the command name.\
-\n\nThe following commands are avalaible:\
-\n\n==General==\
-\n\thelp - Displays this help message.\
-\n\thelp keys - Shows the keyboard controls.\
-\n\tlist/ls - Prints out lists of creatures, classes, etc...\
-\n\texit/quit - Exits the program.\
-\n\tpause - Toggles the game pause.\
-\n\tmaxmessages - Sets or displays the max number of chat messages to display.\
-\n\tmaxtime - Sets or displays the max time for chat messages to be displayed.\
-\n\ttermwidth - Sets the terminal width.\
-\n\n==Cheats==\
-\n\taddcreature - Adds a creature.\
-\n\tsetcreaturelevel - Sets the level of a given creature.\
-\n\taddgold - Gives gold to one player.\
-\n\ticanseedeadpeople - Toggles on/off fog of war for every connected player.\
-\n\n==Network==\
-\n\tChat - Sends a message to other people in the game.\
-\n\tconnect - Connects to a server.\
-\n\tdisconnect - Disconnects from a server.\
-\n\n==Developer\'s options==\
-\n\tfps - Sets the maximum framerate cap.\
-\n\tambientlight - Sets the ambient light color.\
-\n\tnearclip - Sets the near clipping distance.\
-\n\tfarclip - Sets the far clipping distance.\
-\n\tcreaturevisdebug - Turns on visual debugging for a given creature.\
-\n\tseatvisdebug - Turns on visual debugging for a given seat.\
-\n\tsetcreaturedest - Sets the creature destination/\
-\n\tlistmeshanims - Lists all the animations for the given mesh.\
-\n\ttriggercompositor - Starts the given Ogre Compositor.\
-\n\tcatmullspline - Triggers the catmullspline camera movement type.\
-\n\tcirclearound - Triggers the circle camera movement type.\
-\n\tsetcamerafovy - Sets the camera vertical field of view aspect ratio value.\
-\n\tlogfloodfill - Displays the FloodFillValues of all the Tiles in the GameMap.";

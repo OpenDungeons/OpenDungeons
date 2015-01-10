@@ -4,7 +4,7 @@
  * \author Ogre team, andrewbuck, oln, StefanP.MUC
  * \brief  Handles the input and rendering request
  *
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -365,21 +365,6 @@ Ogre::RaySceneQueryResult& ODFrameListener::doRaySceneQuery(const OIS::MouseEven
 
     // Execute query
     return mRaySceneQuery->execute();
-}
-
-bool ODFrameListener::isConnected()
-{
-    return (ODServer::getSingleton().isConnected() || ODClient::getSingleton().isConnected());
-}
-
-bool ODFrameListener::isServer()
-{
-    return (ODServer::getSingleton().isConnected());
-}
-
-bool ODFrameListener::isClient()
-{
-    return (ODClient::getSingleton().isConnected());
 }
 
 void ODFrameListener::printText(const std::string& text)
