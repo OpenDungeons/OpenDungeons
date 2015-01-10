@@ -65,18 +65,12 @@ public:
     ~CameraManager()
     {}
 
-    inline void setCircleCenter(int x, int y)
+    inline void circleAround(int x, int y, unsigned int radius)
     {
         mCenterX = x;
         mCenterY = y;
-    }
-
-    inline void setCircleRadius(unsigned int radius)
-    { mRadius = radius; }
-
-    inline void setCircleMode(bool set_mode)
-    {
-        mCircleMode = set_mode;
+        mRadius = radius;
+        mCircleMode = true;
         mAlpha = 0;
     }
 

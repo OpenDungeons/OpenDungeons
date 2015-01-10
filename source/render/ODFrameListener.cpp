@@ -367,21 +367,6 @@ Ogre::RaySceneQueryResult& ODFrameListener::doRaySceneQuery(const OIS::MouseEven
     return mRaySceneQuery->execute();
 }
 
-bool ODFrameListener::isConnected()
-{
-    return (ODServer::getSingleton().isConnected() || ODClient::getSingleton().isConnected());
-}
-
-bool ODFrameListener::isServer()
-{
-    return (ODServer::getSingleton().isConnected());
-}
-
-bool ODFrameListener::isClient()
-{
-    return (ODClient::getSingleton().isConnected());
-}
-
 void ODFrameListener::printText(const std::string& text)
 {
     std::string tempString;

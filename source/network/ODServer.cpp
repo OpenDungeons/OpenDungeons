@@ -23,7 +23,7 @@
 #include "ODApplication.h"
 #include "entities/MapLight.h"
 #include "network/ChatMessage.h"
-#include "modes/ODConsoleCommand.h"
+#include "modes/ServerConsoleCommands.h"
 #include "gamemap/MapLoader.h"
 #include "utils/LogManager.h"
 #include "entities/Creature.h"
@@ -140,7 +140,7 @@ void ODServer::sendMsg(Player* player, ODPacket& packet)
     sendMsgToClient(client, packet);
 }
 
-void ODServer::queueConsoleCommand(ODConsoleCommand* cc)
+void ODServer::queueConsoleCommand(ServerConsoleCommand* cc)
 {
     if ((cc == nullptr) || (!isConnected()))
         return;
@@ -159,7 +159,7 @@ void ODServer::processServerCommandQueue()
             break;
 
         // Take a message out of the front of the notification queue
-        ODConsoleCommand *command = mConsoleCommandQueue.front();
+        ServerConsoleCommand *command = mConsoleCommandQueue.front();
         mConsoleCommandQueue.pop_front();
 
         if (command == nullptr)

@@ -96,7 +96,7 @@ bool ConsoleMode::keyPressed(const OIS::KeyEvent &arg)
         else
         {
             mLl.clear();
-            mConsoleCommands.autocomplete(mConsole->mPrompt.c_str(), mLl);
+            mConsoleCommandsHandler.autocomplete(mConsole->mPrompt.c_str(), mLl);
             mPrefix = mConsole->mPrompt ;
             mIt = mLl.begin();
         }
@@ -140,8 +140,7 @@ bool ConsoleMode::keyPressed(const OIS::KeyEvent &arg)
                     }
                 }
 
-                // FIXME: Should we keep this?
-                if(!mConsoleCommands.executePromptCommand(command, arguments))
+                if(!mConsoleCommandsHandler.executePromptCommand(command, arguments))
                 {
                     LogManager::getSingleton().logMessage("Console command: " + command
                         + " - arguments: " + arguments + " - angelscript");

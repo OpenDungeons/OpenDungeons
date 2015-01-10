@@ -20,7 +20,7 @@
 
 #include "AbstractApplicationMode.h"
 
-#include "ConsoleCommands.h"
+#include "ConsoleCommandsHandler.h"
 
 #include <string>
 
@@ -52,7 +52,7 @@ private:
     Console* mConsole;
 
     //! \brief The console commands handler
-    ConsoleCommands mConsoleCommands;
+    ConsoleCommandsHandler mConsoleCommandsHandler;
 
     std::string mPrefix;
 

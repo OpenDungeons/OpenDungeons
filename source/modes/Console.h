@@ -24,7 +24,6 @@
 #define CONSOLE_H_
 
 #include "modes/GameMode.h"
-#include "modes/ConsoleCommands.h"
 #include "gamemap/GameMap.h"
 #include "render/Gui.h"
 
