@@ -504,6 +504,8 @@ private:
     //! \brief When paused, the GameMap is not updated.
     bool mIsPaused;
 
+    Ogre::Real mTimePayDay;
+
     //! \brief Level related filenames.
     std::string mLevelFileName;
 

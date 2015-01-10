@@ -142,6 +142,7 @@ GameMap::GameMap(bool isServerGameMap) :
         mLocalPlayerNick(DEFAULT_NICK),
         mTurnNumber(-1),
         mIsPaused(false),
+        mTimePayDay(0),
         mFloodFillEnabled(false),
         mIsFOWActivated(true),
         mNumCallsTo_path(0),
@@ -251,6 +252,7 @@ void GameMap::clearAll()
     mTurnNumber = -1;
     resetUniqueNumbers();
     mIsFOWActivated = true;
+    mTimePayDay = 0;
 }
 
 void GameMap::clearCreatures()
@@ -1265,6 +1267,21 @@ void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
     if(isServerGameMap())
     {
         updatePlayerFightingTime(timeSinceLastFrame);
+
+        // We check if it is pay day
+        mTimePayDay += timeSinceLastFrame;
+        if((mTimePayDay >= ConfigManager::getSingleton().getTimePayDay()))
+        {
+            mTimePayDay = 0;
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotification::chatServer, nullptr);
+            serverNotification->mPacket << "It's pay day !";
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+            for(Creature* creature : mCreatures)
+            {
+                creature->itsPayDay();
+            }
+        }
         return;
     }
 }

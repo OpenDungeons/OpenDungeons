@@ -35,7 +35,8 @@ ConfigManager::ConfigManager() :
     mBaseSpawnPoint(10),
     mCreatureDeathCounter(10),
     mMaxCreaturesPerSeat(15),
-    mSlapDamagePercent(15)
+    mSlapDamagePercent(15),
+    mTimePayDay(300)
 {
     if(!loadGlobalConfig())
     {
@@ -370,6 +371,13 @@ bool ConfigManager::loadGlobalGameConfig(std::stringstream& configFile)
         {
             configFile >> nextParam;
             mSlapDamagePercent = Helper::toDouble(nextParam);
+            // Not mandatory
+        }
+
+        if(nextParam == "TimePayDay")
+        {
+            configFile >> nextParam;
+            mTimePayDay = Helper::toDouble(nextParam);
             // Not mandatory
         }
     }

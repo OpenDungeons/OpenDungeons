@@ -78,7 +78,9 @@ public:
             double                  magicalDefPerLevel  = 0.1,
             double                  attackRange         = 1.0,
             double                  atkRangePerLevel    = 0.0,
-            double                  attackWarmupTime    = 1.0) :
+            double                  attackWarmupTime    = 1.0,
+            int32_t                 feeBase             = 0,
+            int32_t                 feePerLevel         = 0) :
         mCreatureJob (job),
         mClassName   (className),
         mMeshName    (meshName),
@@ -113,6 +115,8 @@ public:
         mAttackRange        (attackRange),
         mAtkRangePerLevel   (atkRangePerLevel),
         mAttackWarmupTime   (attackWarmupTime),
+        mFeeBase            (feeBase),
+        mFeePerLevel        (feePerLevel),
         mWeaponSpawnL       ("none"),
         mWeaponSpawnR       ("none")
     {
@@ -185,6 +189,8 @@ public:
 
     const std::string&          getWeaponSpawnL () const        { return mWeaponSpawnL; }
     const std::string&          getWeaponSpawnR () const        { return mWeaponSpawnR; }
+
+    int32_t                     getFee (unsigned int level) const;
 
     double                      getXPNeededWhenLevel(unsigned int level) const;
 
@@ -269,6 +275,10 @@ private:
 
     //! \brief The time to wait before dealing a blow, in seconds.
     double mAttackWarmupTime;
+
+    //! \brief The base fee for this creature.
+    int32_t mFeeBase;
+    int32_t mFeePerLevel;
 
     //! \brief Weapons a creature should spawn with ("none" if no weapon)
     std::string mWeaponSpawnL;
