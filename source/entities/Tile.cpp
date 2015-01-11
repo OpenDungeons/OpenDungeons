@@ -1376,37 +1376,18 @@ void Tile::fillWithCarryableEntities(std::vector<MovableGameEntity*>& entities)
         switch(entity->getObjectType())
         {
             case GameEntity::ObjectType::creature:
-            {
-                // Dead creatures are carryable
-                Creature* c = static_cast<Creature*>(entity);
-                if(c->getHP() > 0)
-                    continue;
-
-                entityToCarry = c;
-                break;
-            }
             case GameEntity::ObjectType::renderedMovableEntity:
             {
-                // treasuryObject are carryable
-                RenderedMovableEntity* rme = static_cast<RenderedMovableEntity*>(entity);
-                switch(rme->getRenderedMovableEntityType())
-                {
-                    case RenderedMovableEntity::RenderedMovableEntityType::treasuryObject:
-                    case RenderedMovableEntity::RenderedMovableEntityType::craftedTrap:
-                        entityToCarry = rme;
-                        break;
+                entityToCarry = static_cast<MovableGameEntity*>(entity);
+                if(!entityToCarry->tryEntityCarryOn())
+                    continue;
 
-                    default:
-                        continue;
-                }
                 break;
             }
+
             default:
                 continue;
         }
-
-        if(entityToCarry == nullptr)
-            continue;
 
         if (std::find(entities.begin(), entities.end(), entityToCarry) == entities.end())
             entities.push_back(entityToCarry);

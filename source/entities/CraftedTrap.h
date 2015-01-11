@@ -46,6 +46,9 @@ public:
     Trap::TrapType getTrapType() const
     { return mTrapType; }
 
+    virtual bool tryEntityCarryOn()
+    { return true; }
+
     virtual void notifyEntityCarryOn();
     virtual void notifyEntityCarryOff(const Ogre::Vector3& position);
 

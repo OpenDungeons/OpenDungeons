@@ -51,6 +51,7 @@ public:
 
     virtual void pickup();
 
+    virtual bool tryEntityCarryOn();
     virtual void notifyEntityCarryOn();
     virtual void notifyEntityCarryOff(const Ogre::Vector3& position);
 

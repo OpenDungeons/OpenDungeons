@@ -113,7 +113,7 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
 
     setObjectType(GameEntity::creature);
 
-    pushAction(CreatureAction::idle);
+    pushAction(CreatureAction::idle, true);
 
     mMaxHP = mDefinition->getMinHp();
     setHP(mMaxHP);
@@ -180,7 +180,7 @@ Creature::Creature(GameMap* gameMap) :
 
     setObjectType(GameEntity::creature);
 
-    pushAction(CreatureAction::idle);
+    pushAction(CreatureAction::idle, true);
 }
 
 Creature::~Creature()
@@ -665,8 +665,6 @@ void Creature::doUpkeep()
     bool loopBack = false;
     unsigned int loops = 0;
 
-    mIsCarryActionTested = false;
-
     mActionTry.clear();
 
     do
@@ -698,10 +696,6 @@ void Creature::doUpkeep()
 
                 case CreatureAction::digTile:
                     loopBack = handleDigTileAction(topActionItem);
-                    break;
-
-                case CreatureAction::depositGold:
-                    loopBack = handleDepositGoldAction(topActionItem);
                     break;
 
                 case CreatureAction::findHome:
@@ -782,7 +776,7 @@ void Creature::decidePrioritaryAction()
 
         clearDestinations();
         clearActionQueue();
-        pushAction(CreatureAction::flee);
+        pushAction(CreatureAction::flee, true);
         return;
     }
 
@@ -801,14 +795,14 @@ void Creature::decidePrioritaryAction()
         {
             clearDestinations();
             clearActionQueue();
-            pushAction(CreatureAction::flee);
+            pushAction(CreatureAction::flee, true);
             return;
         }
 
         // If we are not already fighting with a creature then start doing so.
         clearDestinations();
         clearActionQueue();
-        pushAction(CreatureAction::fight);
+        pushAction(CreatureAction::fight, true);
         return;
     }
 
@@ -821,7 +815,7 @@ void Creature::decidePrioritaryAction()
 
         clearDestinations();
         clearActionQueue();
-        pushAction(CreatureAction::fight);
+        pushAction(CreatureAction::fight, true);
         return;
     }
 }
@@ -829,7 +823,6 @@ void Creature::decidePrioritaryAction()
 bool Creature::handleIdleAction(const CreatureAction& actionItem)
 {
     double diceRoll = Random::Double(0.0, 1.0);
-    bool loopBack = false;
 
     setAnimationState("Idle");
 
@@ -882,14 +875,16 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
             }
         }
 
-        bool forceGoldDeposit = false;
         if((mGoldCarried > 0) && (mDigRate > 0.0) &&
-           (position->getCoveringRoom() != nullptr))
+           (position->getCoveringRoom() != nullptr) &&
+           (position->getCoveringRoom()->getType() == Room::treasury))
         {
-            Room* room = position->getCoveringRoom();
-            if(room->getType() == Room::treasury)
+            RoomTreasury* treasury = static_cast<RoomTreasury*>(position->getCoveringRoom());
+            int deposited = treasury->depositGold(mGoldCarried, position);
+            if(deposited > 0)
             {
-                forceGoldDeposit = true;
+                mGoldCarried -= deposited;
+                return true;
             }
         }
 
@@ -900,15 +895,7 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
             forceCarryObject = true;
 
         // Now, we can decide
-        if(forceGoldDeposit)
-        {
-            // Deposing gold is one shot, no need to remind that we
-            // were dropped on treasury
-            mForceAction = forcedActionNone;
-            pushAction(CreatureAction::depositGold);
-            return true;
-        }
-        else if((tileMarkedDig != nullptr) && (mDigRate > 0.0))
+        if((tileMarkedDig != nullptr) && (mDigRate > 0.0))
         {
             mForceAction = forcedActionDigTile;
         }
@@ -923,7 +910,7 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
         else if(forceCarryObject)
         {
             mForceAction = forcedActionNone;
-            pushAction(CreatureAction::carryEntity);
+            pushAction(CreatureAction::carryEntity, true);
             return true;
         }
         else
@@ -940,17 +927,17 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
         {
             case forcedActionDigTile:
             {
-                pushAction(CreatureAction::digTile);
+                pushAction(CreatureAction::digTile, true);
                 return true;
             }
             case forcedActionClaimTile:
             {
-                pushAction(CreatureAction::claimTile);
+                pushAction(CreatureAction::claimTile, true);
                 return true;
             }
             case forcedActionClaimWallTile:
             {
-                pushAction(CreatureAction::claimWallTile);
+                pushAction(CreatureAction::claimWallTile, true);
                 return true;
             }
             default:
@@ -961,27 +948,20 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
     // Decide to check for diggable tiles
     if (mDigRate > 0.0 && !mVisibleMarkedTiles.empty())
     {
-        loopBack = true;
-        pushAction(CreatureAction::digTile);
+        if(pushAction(CreatureAction::digTile))
+            return true;
     }
     // Decide to check for dead creature to carry to the crypt
-    else if (mDefinition->isWorker() && diceRoll < 0.3)
+    if (mDefinition->isWorker() && diceRoll < 0.3)
     {
-        loopBack = true;
-        pushAction(CreatureAction::carryEntity);
-        return true;
+        if(pushAction(CreatureAction::carryEntity))
+            return true;
     }
     // Decide to check for claimable tiles
-    else if (mClaimRate > 0.0 && diceRoll < 0.9)
+    if (mClaimRate > 0.0 && diceRoll < 0.9)
     {
-        loopBack = true;
-        pushAction(CreatureAction::claimTile);
-    }
-    // Decide to deposit the gold we are carrying into a treasury.
-    else if (mDigRate > 0.0 && mGoldCarried > 0)
-    {
-        loopBack = true;
-        pushAction(CreatureAction::depositGold);
+        if(pushAction(CreatureAction::claimTile))
+            return true;
     }
 
     // Fighters
@@ -991,8 +971,8 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
     {
         if((mHomeTile != nullptr) && (getGameMap()->pathExists(this, getPositionTile(), mHomeTile)))
         {
-            pushAction(CreatureAction::sleep);
-            return true;
+            if(pushAction(CreatureAction::sleep))
+                return true;
         }
 
         // If we have no home tile, we try to find one
@@ -1004,9 +984,8 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
             {
                 clearDestinations();
                 clearActionQueue();
-                pushAction(CreatureAction::sleep);
-                pushAction(CreatureAction::findHome);
-                return true;
+                if(pushAction(CreatureAction::sleep) && pushAction(CreatureAction::findHome))
+                    return true;
             }
         }
 
@@ -1026,19 +1005,19 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
             // we see if we are in an hatchery
             if((room->getType() == Room::hatchery) && room->hasOpenCreatureSpot(this))
             {
-                pushAction(CreatureAction::eatforced);
+                pushAction(CreatureAction::eatforced, true);
                 return true;
             }
             else if(room->getType() == Room::dormitory)
             {
-                pushAction(CreatureAction::sleep);
-                pushAction(CreatureAction::findHomeForced);
+                pushAction(CreatureAction::sleep, true);
+                pushAction(CreatureAction::findHomeForced, true);
                 return true;
             }
             // If not, can we work in this room ?
             else if((room->getType() != Room::hatchery) && room->hasOpenCreatureSpot(this))
             {
-                pushAction(CreatureAction::jobforced);
+                pushAction(CreatureAction::jobforced, true);
                 return true;
             }
         }
@@ -1047,21 +1026,21 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
     // We check if we are looking for our fee
     if(!mDefinition->isWorker() && Random::Double(0.0, 1.0) < 0.5 && mGoldFee > 0)
     {
-        pushAction(CreatureAction::getFee);
-        return true;
+        if(pushAction(CreatureAction::getFee))
+            return true;
     }
 
     // Check to see if we have found a "home" tile where we can sleep. Even if we are not sleepy,
     // we want to have a bed
-    if (!mDefinition->isWorker() && Random::Double(0.0, 1.0) < 0.5 && mHomeTile == nullptr)
+    if (!mDefinition->isWorker() && mHomeTile == nullptr && Random::Double(0.0, 1.0) < 0.5)
     {
         // Check to see if there are any dormitory owned by our color that we can reach.
         std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndSeat(Room::dormitory, getSeat());
         tempRooms = getGameMap()->getReachableRooms(tempRooms, getPositionTile(), this);
         if (!tempRooms.empty())
         {
-            pushAction(CreatureAction::findHome);
-            return true;
+            if(pushAction(CreatureAction::findHome))
+                return true;
         }
     }
 
@@ -1069,16 +1048,16 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
     if (!mDefinition->isWorker() && mHomeTile != nullptr && Random::Double(0.0, 1.0) < 0.2 && Random::Double(0.0, 50.0) >= mAwakeness)
     {
         // Check to see if we can work
-        pushAction(CreatureAction::sleep);
-        return true;
+        if(pushAction(CreatureAction::sleep))
+            return true;
     }
 
     // If we are hungry, we go to eat
     if (!mDefinition->isWorker() && Random::Double(0.0, 1.0) < 0.2 && Random::Double(50.0, 100.0) <= mHunger)
     {
         // Check to see if we can work
-        pushAction(CreatureAction::eatdecided);
-        return true;
+        if(pushAction(CreatureAction::eatdecided))
+            return true;
     }
 
     // Otherwise, we try to work
@@ -1086,15 +1065,11 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
         && Random::Double(0.0, 50.0) < mAwakeness && Random::Double(50.0, 100.0) > mHunger)
     {
         // Check to see if we can work
-        pushAction(CreatureAction::jobdecided);
-        return true;
+        if(pushAction(CreatureAction::jobdecided))
+            return true;
     }
 
     // Any creature.
-
-    // Decide whether to "wander" a short distance
-    if (diceRoll >= 0.6)
-        return loopBack;
 
     // Workers should move around randomly at large jumps.  Non-workers either wander short distances or follow workers.
     Tile* tileDest = nullptr;
@@ -1181,7 +1156,9 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
         }
     }
 
-    setDestination(tileDest);
+    if(setDestination(tileDest))
+        return false;
+
     return true;
 }
 
@@ -1223,8 +1200,8 @@ bool Creature::handleClaimTileAction(const CreatureAction& actionItem)
             if (!mVisibleMarkedTiles.empty())
             {
                 popAction();
-                pushAction(CreatureAction::digTile);
-                return true;
+                if(pushAction(CreatureAction::digTile))
+                    return true;
             }
         }
     }
@@ -1390,8 +1367,8 @@ bool Creature::handleClaimWallTileAction(const CreatureAction& actionItem)
             if (!mVisibleMarkedTiles.empty())
             {
                 popAction();
-                pushAction(CreatureAction::digTile);
-                return true;
+                if(pushAction(CreatureAction::digTile))
+                    return true;
             }
         }
     }
@@ -1527,7 +1504,7 @@ bool Creature::handleDigTileAction(const CreatureAction& actionItem)
         if (tempTile->getType() == Tile::gold)
         {
             double tempDouble = 5 * std::min(mDigRate, tempTile->getFullness());
-            mGoldCarried += (int)tempDouble;
+            mGoldCarried += static_cast<int>(tempDouble);
             getSeat()->addGoldMined(static_cast<int>(tempDouble));
             receiveExp(5.0 * mDigRate / 20.0);
         }
@@ -1547,10 +1524,8 @@ bool Creature::handleDigTileAction(const CreatureAction& actionItem)
                 receiveExp(2.5);
                 setAnimationState("Walk");
 
-                // Remove the dig action and replace it with
-                // walking to the newly dug out tile.
-                //popAction();
-                addDestination((Ogre::Real)tempTile->getX(), (Ogre::Real)tempTile->getY());
+                // Walk to the newly dug out tile.
+                addDestination(static_cast<Ogre::Real>(tempTile->getX()), static_cast<Ogre::Real>(tempTile->getY()));
                 pushAction(CreatureAction::walkToTile, true);
             }
             //Set sound position and play dig sound.
@@ -1570,8 +1545,14 @@ bool Creature::handleDigTileAction(const CreatureAction& actionItem)
     // Check to see if we are carrying the maximum amount of gold we can carry, and if so, try to take it to a treasury.
     if (mGoldCarried >= MaxGoldCarriedByWorkers)
     {
-        // Remove the dig action and replace it with a depositGold action.
-        pushAction(CreatureAction::depositGold);
+        // We create the treasury object and push action to deposit it
+        TreasuryObject* obj = new TreasuryObject(getGameMap(), mGoldCarried);
+        mGoldCarried = 0;
+        Ogre::Vector3 pos(static_cast<Ogre::Real>(myTile->getX()), static_cast<Ogre::Real>(myTile->getY()), 0.0f);
+        getGameMap()->addRenderedMovableEntity(obj);
+        obj->createMesh();
+        obj->setPosition(pos, false);
+        pushAction(CreatureAction::ActionType::carryEntity, true);
     }
 
     // If we successfully dug a tile then we are done for this turn.
@@ -1650,100 +1631,19 @@ bool Creature::handleDigTileAction(const CreatureAction& actionItem)
     {
         popAction();
         if(mGoldCarried > 0)
-            pushAction(CreatureAction::depositGold);
+        {
+            TreasuryObject* obj = new TreasuryObject(getGameMap(), mGoldCarried);
+            mGoldCarried = 0;
+            Ogre::Vector3 pos(static_cast<Ogre::Real>(myTile->getX()), static_cast<Ogre::Real>(myTile->getY()), 0.0f);
+            getGameMap()->addRenderedMovableEntity(obj);
+            obj->createMesh();
+            obj->setPosition(pos, false);
+            pushAction(CreatureAction::ActionType::carryEntity, true);
+        }
 
         return true;
     }
     return false;
-}
-
-bool Creature::handleDepositGoldAction(const CreatureAction& actionItem)
-{
-    // Check to see if we are standing in a treasury.
-    Tile* myTile = getPositionTile();
-    if (myTile == nullptr)
-        return false;
-
-    if ((myTile->getCoveringRoom() != nullptr) &&
-        (myTile->getCoveringRoom()->getType() == Room::treasury))
-    {
-        // Deposit as much of the gold we are carrying as we can into this treasury.
-        mGoldCarried -= static_cast<RoomTreasury*>(myTile->getCoveringBuilding())->depositGold(mGoldCarried, myTile);
-
-        // Depending on how much gold we have left (what did not fit in this treasury) we may want to continue
-        // looking for another treasury to put the gold into.  Roll a dice to see if we want to quit looking not.
-        if (Random::Double(1.0, MaxGoldCarriedByWorkers) > mGoldCarried)
-        {
-            popAction();
-            return false;
-        }
-    }
-
-    // We were not standing in a treasury that has enough room for the gold we are carrying, so try to find one to walk to.
-    // Check to see if our seat controls any treasuries.
-    std::vector<Room*> treasuriesOwned = getGameMap()->getRoomsByTypeAndSeat(Room::treasury, getSeat());
-    Tile* nearestTreasuryTile = nullptr;
-    unsigned int nearestTreasuryDistance = 0;
-    bool validPathFound = false;
-    std::list<Tile*> tempPath;
-
-    // Loop over the treasuries to find the closest one.
-    for (unsigned int i = 0; i < treasuriesOwned.size(); ++i)
-    {
-        if (!validPathFound)
-        {
-            // We have not yet found a valid path to a treasury, check to see if we can get to this treasury.
-            unsigned int tempUnsigned = Random::Uint(0, treasuriesOwned[i]->numCoveredTiles() - 1);
-            nearestTreasuryTile = treasuriesOwned[i]->getCoveredTile(tempUnsigned);
-            tempPath = getGameMap()->path(this, nearestTreasuryTile);
-            if (tempPath.size() >= 2 && static_cast<RoomTreasury*>(treasuriesOwned[i])->emptyStorageSpace() > 0)
-            {
-                validPathFound = true;
-                nearestTreasuryDistance = tempPath.size();
-            }
-        }
-        else
-        {
-            // We have already found at least one valid path to a treasury, see if this one is closer.
-            unsigned int tempUnsigned = Random::Uint(0, treasuriesOwned[i]->numCoveredTiles() - 1);
-            Tile* tempTile = treasuriesOwned[i]->getCoveredTile(tempUnsigned);
-            std::list<Tile*> tempPath2 = getGameMap()->path(this, tempTile);
-            if (tempPath2.size() >= 2 && tempPath2.size() < nearestTreasuryDistance
-                && static_cast<RoomTreasury*>(treasuriesOwned[i])->emptyStorageSpace() > 0)
-            {
-                tempPath = tempPath2;
-                nearestTreasuryDistance = tempPath.size();
-            }
-        }
-    }
-
-    if (validPathFound)
-    {
-        // Begin walking to this treasury.
-        if (setWalkPath(tempPath, 2, false))
-        {
-            setAnimationState("Walk");
-            pushAction(CreatureAction::walkToTile, true);
-            return false;
-        }
-    }
-
-    // If we get to here, there is either no treasuries controlled by us, or they are all
-    // unreachable, or they are all full, so we let the gold on the ground
-    popAction();
-
-    Tile* tile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
-    if(tile == nullptr)
-        return true;
-    TreasuryObject* obj = new TreasuryObject(getGameMap(), mGoldCarried);
-    mGoldCarried = 0;
-    Ogre::Vector3 pos(static_cast<Ogre::Real>(tile->getX()), static_cast<Ogre::Real>(tile->getY()), 0.0f);
-    getGameMap()->addRenderedMovableEntity(obj);
-    obj->createMesh();
-    obj->setPosition(pos, false);
-
-    return true;
 }
 
 bool Creature::handleFindHomeAction(const CreatureAction& actionItem)
@@ -2276,7 +2176,7 @@ bool Creature::handleFightAction(const CreatureAction& actionItem)
         {
             if(entityAttack != nullptr)
             {
-                pushAction(CreatureAction(CreatureAction::attackObject, entityAttack->getObjectType(), entityAttack->getName(), tileAttack));
+                pushAction(CreatureAction(CreatureAction::attackObject, entityAttack->getObjectType(), entityAttack->getName(), tileAttack), true);
             }
             return (entityAttack != nullptr);
         }
@@ -2299,7 +2199,7 @@ bool Creature::handleFightAction(const CreatureAction& actionItem)
     {
         if(entityAttack != nullptr)
         {
-            pushAction(CreatureAction(CreatureAction::attackObject, entityAttack->getObjectType(), entityAttack->getName(), tileAttack));
+            pushAction(CreatureAction(CreatureAction::attackObject, entityAttack->getObjectType(), entityAttack->getName(), tileAttack), true);
         }
         return (entityAttack != nullptr);
     }
@@ -2309,7 +2209,7 @@ bool Creature::handleFightAction(const CreatureAction& actionItem)
     {
         if(entityAttack != nullptr)
         {
-            pushAction(CreatureAction(CreatureAction::attackObject, entityAttack->getObjectType(), entityAttack->getName(), tileAttack));
+            pushAction(CreatureAction(CreatureAction::attackObject, entityAttack->getObjectType(), entityAttack->getName(), tileAttack), true);
         }
         return (entityAttack != nullptr);
     }
@@ -2392,13 +2292,6 @@ bool Creature::handleFleeAction(const CreatureAction& actionItem)
 
 bool Creature::handleCarryableEntities(const CreatureAction& actionItem)
 {
-    if(mIsCarryActionTested)
-    {
-        popAction();
-        return true;
-    }
-
-    mIsCarryActionTested = true;
     Tile* myTile = getPositionTile();
     OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
     if(myTile == nullptr)
@@ -2482,6 +2375,7 @@ bool Creature::handleCarryableEntities(const CreatureAction& actionItem)
             return false;
 
         // Problem while setting destination
+        releaseCarriedEntity();
         popAction();
         return true;
     }
@@ -3076,7 +2970,7 @@ double Creature::takeDamage(GameEntity* attacker, double physicalDamage, double 
     {
         clearDestinations();
         clearActionQueue();
-        pushAction(CreatureAction::flee);
+        pushAction(CreatureAction::flee, true);
         return damageDone;
     }
     return damageDone;
@@ -3444,6 +3338,15 @@ bool Creature::isInBadMood()
 bool Creature::isAttackable(Tile* tile, Seat* seat) const
 {
     if(mHp <= 0.0)
+        return false;
+
+    return true;
+}
+
+bool Creature::tryEntityCarryOn()
+{
+    // Dead creatures are carryable
+    if(getHP() > 0.0)
         return false;
 
     return true;

@@ -41,6 +41,7 @@ void TreasuryObject::mergeGold(TreasuryObject* obj)
 {
     mGoldValue += obj->mGoldValue;
     obj->mGoldValue = 0;
+    obj->setIsOnMap(false);
 }
 
 void TreasuryObject::addGold(int goldValue)
@@ -138,6 +139,34 @@ bool TreasuryObject::addEntityToTile(Tile* tile)
 bool TreasuryObject::removeEntityFromTile(Tile* tile)
 {
     return tile->removeEntity(this);
+}
+
+bool TreasuryObject::tryEntityCarryOn()
+{
+    if(!getIsOnMap())
+        return false;
+
+    // We do not let it be carried as it will be removed during next upkeep
+    if(mGoldValue <= 0)
+        return false;
+
+    // If we are on a treasury not full, we doesn't allow to be carried
+    Tile* myTile = getPositionTile();
+    OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
+    if(myTile == nullptr)
+        return true;
+
+    if(myTile->getCoveringRoom() == nullptr)
+        return true;
+
+    if(myTile->getCoveringRoom()->getType() != Room::RoomType::treasury)
+        return true;
+
+    RoomTreasury* treasury = static_cast<RoomTreasury*>(myTile->getCoveringRoom());
+    if(treasury->emptyStorageSpace() == 0)
+        return true;
+
+    return false;
 }
 
 void TreasuryObject::notifyEntityCarryOn()

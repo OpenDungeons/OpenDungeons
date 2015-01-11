@@ -319,6 +319,7 @@ public:
     //! \brief Tells whether the creature can go through the given tile.
     bool canGoThroughTile(const Tile* tile) const;
 
+    virtual bool tryEntityCarryOn();
     virtual void notifyEntityCarryOn();
     virtual void notifyEntityCarryOff(const Ogre::Vector3& position);
 
@@ -432,7 +433,6 @@ private:
 
     ForceAction                     mForceAction;
 
-    bool                            mIsCarryActionTested;
     MovableGameEntity*              mCarriedEntity;
     GameEntity::ObjectType          mCarriedEntityDestType;
     std::string                     mCarriedEntityDestName;
@@ -490,11 +490,6 @@ private:
     //! This functions will hanlde the creature dig tile action logic.
     //! \return true when another action should handled after that one.
     bool handleDigTileAction(const CreatureAction& actionItem);
-
-    //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature deposit gold action logic.
-    //! \return true when another action should handled after that one.
-    bool handleDepositGoldAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will hanlde the creature finding home action logic.

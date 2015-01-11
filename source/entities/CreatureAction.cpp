@@ -60,9 +60,6 @@ std::string CreatureAction::toString() const
     case claimTile:
         return "claimTile";
 
-    case depositGold:
-        return "depositGold";
-
     case attackObject:
         return "attackObject";
 
