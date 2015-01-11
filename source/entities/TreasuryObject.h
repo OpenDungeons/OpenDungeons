@@ -55,6 +55,15 @@ public:
     virtual void notifyEntityCarryOn();
     virtual void notifyEntityCarryOff(const Ogre::Vector3& position);
 
+    //! \brief Tells which mesh is used to show how much the tile is full of gold.
+    enum TreasuryTileFullness
+    {
+        noGold = 0, quarter, half, threeQuarters, fullOfGold
+    };
+
+    static TreasuryTileFullness getTreasuryTileFullness(int gold);
+    static const char* getMeshNameForTreasuryTileFullness(TreasuryTileFullness fullness);
+
     static const char* getFormat();
     static TreasuryObject* getTreasuryObjectFromStream(GameMap* gameMap, std::istream& is);
     static TreasuryObject* getTreasuryObjectFromPacket(GameMap* gameMap, ODPacket& is);
@@ -64,6 +73,8 @@ protected:
 
 private:
     int mGoldValue;
+    bool mHasGoldValueChanged;
+    TreasuryTileFullness mTreasuryFullness;
 };
 
 #endif // TREASURYOBJECT_H

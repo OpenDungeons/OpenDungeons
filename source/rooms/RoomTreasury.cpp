@@ -23,7 +23,6 @@
 #include "utils/LogManager.h"
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
-#include "entities/TreasuryObject.h"
 #include "sound/SoundEffectsManager.h"
 
 #include <string>
@@ -66,10 +65,10 @@ void RoomTreasury::absorbRoom(Room *r)
     }
     rt->mGoldInTile.clear();
 
-    for(std::map<Tile*, TreasuryTileFullness>::iterator it = rt->mFullnessOfTile.begin(); it != rt->mFullnessOfTile.end(); ++it)
+    for(std::map<Tile*, TreasuryObject::TreasuryTileFullness>::iterator it = rt->mFullnessOfTile.begin(); it != rt->mFullnessOfTile.end(); ++it)
     {
         Tile* tile = it->first;
-        TreasuryTileFullness fullness = it->second;
+        TreasuryObject::TreasuryTileFullness fullness = it->second;
         mFullnessOfTile[tile] = fullness;
     }
     rt->mFullnessOfTile.clear();
@@ -85,14 +84,14 @@ void RoomTreasury::addCoveredTile(Tile* t, double nHP)
     if (mGoldInTile.find(t) == mGoldInTile.end())
     {
         mGoldInTile[t] = 0;
-        mFullnessOfTile[t] = noGold;
+        mFullnessOfTile[t] = TreasuryObject::TreasuryTileFullness::noGold;
     }
 }
 
 bool RoomTreasury::removeCoveredTile(Tile* t)
 {
     // if the mesh has gold, we erase the mesh
-    if((mFullnessOfTile.count(t) > 0) && (mFullnessOfTile[t] != noGold))
+    if((mFullnessOfTile.count(t) > 0) && (mFullnessOfTile[t] != TreasuryObject::TreasuryTileFullness::noGold))
         removeBuildingObject(t);
 
     if(mGoldInTile.count(t) > 0)
@@ -212,69 +211,27 @@ int RoomTreasury::withdrawGold(int gold)
     return withdrawlAmount;
 }
 
-RoomTreasury::TreasuryTileFullness RoomTreasury::getTreasuryTileFullness(int gold)
-{
-    if (gold <= 0)
-        return noGold;
-    if (gold <= maxGoldinTile / 4)
-        return quarter;
-    if (gold <= maxGoldinTile / 2)
-        return half;
-    if (gold <= maxGoldinTile / 4 * 3)
-        return threeQuarters;
-
-    if (gold > maxGoldinTile)
-    {
-        std::stringstream str("");
-        str << "Warning invalid amount of gold on treasury tile (" << gold
-            << "/" << maxGoldinTile << ")";
-        LogManager::getSingleton().logMessage(str.str());
-    }
-
-    return fullOfGold;
-}
-
-const char* RoomTreasury::getMeshNameForTreasuryTileFullness(TreasuryTileFullness fullness)
-{
-    switch (fullness)
-    {
-        case quarter:
-            return "GoldstackLv1";
-
-        case half:
-            return "GoldstackLv2";
-
-        case threeQuarters:
-            return "GoldstackLv3";
-
-        case fullOfGold:
-            return "GoldstackLv4";
-
-        // The empty case should really never happen since we shouldn't be creating meshes for an empty tile anyway.
-        case noGold:
-        default:
-            return "TreasuryTileFullnessMeshError";
-    }
-}
-
 void RoomTreasury::updateMeshesForTile(Tile* t)
 {
     if(mGoldInTile.count(t) == 0)
         return;
 
-    TreasuryTileFullness newFullness = getTreasuryTileFullness(mGoldInTile[t]);
+    int gold = mGoldInTile[t];
+    OD_ASSERT_TRUE_MSG(gold <= maxGoldinTile, "room=" + getName() + ", gold=" + Ogre::StringConverter::toString(gold));
+
+    TreasuryObject::TreasuryTileFullness newFullness = TreasuryObject::getTreasuryTileFullness(gold);
 
     // If the mesh has not changed we do not need to do anything.
     if (mFullnessOfTile[t] == newFullness)
         return;
 
     // If the fullness level has changed we need to destroy the existing treasury
-    if (mFullnessOfTile[t] != noGold)
+    if (mFullnessOfTile[t] != TreasuryObject::TreasuryTileFullness::noGold)
         removeBuildingObject(t);
 
-    if (newFullness != noGold)
+    if (newFullness != TreasuryObject::TreasuryTileFullness::noGold)
     {
-        RenderedMovableEntity* ro = loadBuildingObject(getGameMap(), getMeshNameForTreasuryTileFullness(newFullness), t, 0.0, false);
+        RenderedMovableEntity* ro = loadBuildingObject(getGameMap(), TreasuryObject::getMeshNameForTreasuryTileFullness(newFullness), t, 0.0, false);
         addBuildingObject(t, ro);
     }
 
