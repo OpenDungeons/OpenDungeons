@@ -57,7 +57,7 @@ private:
     void updateMeshesForTile(Tile *t);
 
     std::map<Tile*, int> mGoldInTile;
-    std::map<Tile*, TreasuryObject::TreasuryTileFullness> mFullnessOfTile;
+    std::map<Tile*, std::string> mMeshOfTile;
     bool mGoldChanged;
 };
 

@@ -45,9 +45,9 @@ void RoomTreasury::doUpkeep()
 
     if(mGoldChanged)
     {
-        for (std::map<Tile*, int>::iterator itr = mGoldInTile.begin(); itr != mGoldInTile.end(); ++itr)
+        for (std::pair<Tile* const, int>& p : mGoldInTile)
         {
-            Tile* tile = itr->first;
+            Tile* tile = p.first;
             updateMeshesForTile(tile);
         }
         mGoldChanged = false;
@@ -57,21 +57,20 @@ void RoomTreasury::doUpkeep()
 void RoomTreasury::absorbRoom(Room *r)
 {
     RoomTreasury* rt = static_cast<RoomTreasury*>(r);
-    for(std::map<Tile*, int>::iterator it = rt->mGoldInTile.begin(); it != rt->mGoldInTile.end(); ++it)
+    for(std::pair<Tile* const, int>& p : mGoldInTile)
     {
-        Tile* tile = it->first;
-        int gold = it->second;
+        Tile* tile = p.first;
+        int gold = p.second;
         mGoldInTile[tile] = gold;
     }
     rt->mGoldInTile.clear();
 
-    for(std::map<Tile*, TreasuryObject::TreasuryTileFullness>::iterator it = rt->mFullnessOfTile.begin(); it != rt->mFullnessOfTile.end(); ++it)
+    for(std::pair<Tile* const, std::string>& p : mMeshOfTile)
     {
-        Tile* tile = it->first;
-        TreasuryObject::TreasuryTileFullness fullness = it->second;
-        mFullnessOfTile[tile] = fullness;
+        Tile* tile = p.first;
+        mMeshOfTile[tile] = p.second;
     }
-    rt->mFullnessOfTile.clear();
+    rt->mMeshOfTile.clear();
 
     Room::absorbRoom(r);
 }
@@ -84,14 +83,14 @@ void RoomTreasury::addCoveredTile(Tile* t, double nHP)
     if (mGoldInTile.find(t) == mGoldInTile.end())
     {
         mGoldInTile[t] = 0;
-        mFullnessOfTile[t] = TreasuryObject::TreasuryTileFullness::noGold;
+        mMeshOfTile[t] = std::string();
     }
 }
 
 bool RoomTreasury::removeCoveredTile(Tile* t)
 {
     // if the mesh has gold, we erase the mesh
-    if((mFullnessOfTile.count(t) > 0) && (mFullnessOfTile[t] != TreasuryObject::TreasuryTileFullness::noGold))
+    if((mMeshOfTile.count(t) > 0) && (!mMeshOfTile[t].empty()))
         removeBuildingObject(t);
 
     if(mGoldInTile.count(t) > 0)
@@ -111,7 +110,7 @@ bool RoomTreasury::removeCoveredTile(Tile* t)
         }
         mGoldInTile.erase(t);
     }
-    mFullnessOfTile.erase(t);
+    mMeshOfTile.erase(t);
 
     return Room::removeCoveredTile(t);
 }
@@ -120,9 +119,8 @@ int RoomTreasury::getTotalGold()
 {
     int tempInt = 0;
 
-    for (std::map<Tile*, int>::iterator itr = mGoldInTile.begin();
-            itr != mGoldInTile.end(); ++itr)
-        tempInt += (*itr).second;
+    for (std::pair<Tile* const, int>& p : mGoldInTile)
+        tempInt += p.second;
 
     return tempInt;
 }
@@ -143,12 +141,15 @@ int RoomTreasury::depositGold(int gold, Tile *tile)
     goldToDeposit -= goldDeposited;
 
     // If there is still gold left to deposit after the first tile, loop over all of the tiles and see if we can put the gold in another tile.
-    for (std::map<Tile*, int>::iterator itr = mGoldInTile.begin(); itr != mGoldInTile.end() && goldToDeposit > 0; ++itr)
+    for (std::pair<Tile* const, int>& p : mGoldInTile)
     {
+        if(goldToDeposit <= 0)
+            break;
+
         // Store as much gold as we can in this tile.
-        emptySpace = maxGoldinTile - itr->second;
+        emptySpace = maxGoldinTile - p.second;
         goldDeposited = std::min(emptySpace, goldToDeposit);
-        itr->second += goldDeposited;
+        p.second += goldDeposited;
         goldToDeposit -= goldDeposited;
     }
 
@@ -189,22 +190,22 @@ int RoomTreasury::withdrawGold(int gold)
     mGoldChanged = true;
 
     int withdrawlAmount = 0;
-    for (std::map<Tile*, int>::iterator itr = mGoldInTile.begin(); itr != mGoldInTile.end(); ++itr)
+    for (std::pair<Tile* const, int>& p : mGoldInTile)
     {
         // Check to see if the current room tile has enough gold in it to fill the amount we still need to pick up.
         int goldStillNeeded = gold - withdrawlAmount;
-        if (itr->second > goldStillNeeded)
+        if (p.second > goldStillNeeded)
         {
             // There is enough to satisfy the request so we do so and exit the loop.
             withdrawlAmount += goldStillNeeded;
-            itr->second -= goldStillNeeded;
+            p.second -= goldStillNeeded;
             break;
         }
         else
         {
             // There is not enough to satisfy the request so take everything there is and move on to the next tile.
-            withdrawlAmount += itr->second;
-            itr->second = 0;
+            withdrawlAmount += p.second;
+            p.second = 0;
         }
     }
 
@@ -219,23 +220,22 @@ void RoomTreasury::updateMeshesForTile(Tile* t)
     int gold = mGoldInTile[t];
     OD_ASSERT_TRUE_MSG(gold <= maxGoldinTile, "room=" + getName() + ", gold=" + Ogre::StringConverter::toString(gold));
 
-    TreasuryObject::TreasuryTileFullness newFullness = TreasuryObject::getTreasuryTileFullness(gold);
-
     // If the mesh has not changed we do not need to do anything.
-    if (mFullnessOfTile[t] == newFullness)
+    std::string newMeshName = TreasuryObject::getMeshNameForGold(gold);
+    if (mMeshOfTile[t].compare(newMeshName) == 0)
         return;
 
-    // If the fullness level has changed we need to destroy the existing treasury
-    if (mFullnessOfTile[t] != TreasuryObject::TreasuryTileFullness::noGold)
+    // If the mesh has changed we need to destroy the existing treasury if there was one
+    if (!mMeshOfTile[t].empty())
         removeBuildingObject(t);
 
-    if (newFullness != TreasuryObject::TreasuryTileFullness::noGold)
+    if (gold > 0)
     {
-        RenderedMovableEntity* ro = loadBuildingObject(getGameMap(), TreasuryObject::getMeshNameForTreasuryTileFullness(newFullness), t, 0.0, false);
+        RenderedMovableEntity* ro = loadBuildingObject(getGameMap(), newMeshName, t, 0.0, false);
         addBuildingObject(t, ro);
     }
 
-    mFullnessOfTile[t] = newFullness;
+    mMeshOfTile[t] = newMeshName;
 }
 
 bool RoomTreasury::hasCarryEntitySpot(MovableGameEntity* carriedEntity)

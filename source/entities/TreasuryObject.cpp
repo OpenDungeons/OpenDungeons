@@ -25,18 +25,16 @@
 #include <iostream>
 
 TreasuryObject::TreasuryObject(GameMap* gameMap, int goldValue) :
-    RenderedMovableEntity(gameMap, "Treasury_", getMeshNameForTreasuryTileFullness(getTreasuryTileFullness(goldValue)), 0.0f, false),
+    RenderedMovableEntity(gameMap, "Treasury_", getMeshNameForGold(goldValue), 0.0f, false),
     mGoldValue(goldValue),
-    mHasGoldValueChanged(false),
-    mTreasuryFullness(getTreasuryTileFullness(goldValue))
+    mHasGoldValueChanged(false)
 {
 }
 
 TreasuryObject::TreasuryObject(GameMap* gameMap) :
     RenderedMovableEntity(gameMap),
     mGoldValue(0),
-    mHasGoldValueChanged(false),
-    mTreasuryFullness(TreasuryTileFullness::noGold)
+    mHasGoldValueChanged(false)
 {
 }
 
@@ -87,7 +85,7 @@ void TreasuryObject::doUpkeep()
             return;
         }
 
-        if(getTreasuryTileFullness(mGoldValue) != mTreasuryFullness)
+        if(getMeshName().compare(getMeshNameForGold(mGoldValue)) != 0)
         {
             // The treasury fullnes changed. We remove the object and create a new one
             tile->removeEntity(this);
@@ -218,41 +216,21 @@ void TreasuryObject::notifyEntityCarryOff(const Ogre::Vector3& position)
     myTile->addTreasuryObject(this);
 }
 
-TreasuryObject::TreasuryTileFullness TreasuryObject::getTreasuryTileFullness(int gold)
+const char* TreasuryObject::getMeshNameForGold(int gold)
 {
     if (gold <= 0)
-        return noGold;
+        return "";
+
     if (gold <= 1250)
-        return quarter;
+        return "GoldstackLv1";
+
     if (gold <= 2500)
-        return half;
+        return "GoldstackLv2";
+
     if (gold <= 3750)
-        return threeQuarters;
+        return "GoldstackLv3";
 
-    return fullOfGold;
-}
-
-const char* TreasuryObject::getMeshNameForTreasuryTileFullness(TreasuryTileFullness fullness)
-{
-    switch (fullness)
-    {
-        case quarter:
-            return "GoldstackLv1";
-
-        case half:
-            return "GoldstackLv2";
-
-        case threeQuarters:
-            return "GoldstackLv3";
-
-        case fullOfGold:
-            return "GoldstackLv4";
-
-        // The empty case should really never happen since we shouldn't be creating meshes for an empty tile anyway.
-        case noGold:
-        default:
-            return "TreasuryTileFullnessMeshError";
-    }
+    return "GoldstackLv4";
 }
 
 const char* TreasuryObject::getFormat()
