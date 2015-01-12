@@ -19,10 +19,9 @@
 
 #include "entities/Creature.h"
 #include "entities/RenderedMovableEntity.h"
-
-#include "network/ODServer.h"
+#include "gamemap/GameMap.h"
 #include "network/ODClient.h"
-
+#include "network/ODServer.h"
 #include "render/ODFrameListener.h"
 
 bool AbstractApplicationMode::isConnected()

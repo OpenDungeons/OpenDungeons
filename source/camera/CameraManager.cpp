@@ -21,9 +21,8 @@
 
 #include "camera/CameraManager.h"
 
-#include "entities/Creature.h"
+#include "gamemap/GameMap.h"
 #include "gamemap/MiniMap.h"
-#include "modes/ModeManager.h"
 #include "render/ODFrameListener.h"
 #include "sound/SoundEffectsManager.h"
 #include "utils/LogManager.h"
@@ -74,8 +73,8 @@ CameraManager::CameraManager(Ogre::SceneManager* tmpSceneManager, GameMap* gm, O
 {
     createViewport(renderWindow);
     createCamera("RTS", 0.02, 300.0);
-    createCameraNode("RTS", Ogre::Vector3((Ogre::Real)10.0,
-                                              (Ogre::Real)10.0,
+    createCameraNode("RTS", Ogre::Vector3(static_cast<Ogre::Real>(10.0),
+                                              static_cast<Ogre::Real>(10.0),
                                               MAX_CAMERA_Z / 2.0),
                                               Ogre::Degree(0.0), Ogre::Degree(30.0));
 
@@ -92,13 +91,13 @@ CameraManager::CameraManager(Ogre::SceneManager* tmpSceneManager, GameMap* gm, O
 void CameraManager::createCamera(const Ogre::String& ss, double nearClip, double farClip)
 {
     Ogre::Camera* tmpCamera = mSceneManager->createCamera(ss);
-    tmpCamera->setNearClipDistance((Ogre::Real)nearClip);
-    tmpCamera->setFarClipDistance((Ogre::Real)farClip);
+    tmpCamera->setNearClipDistance(static_cast<Ogre::Real>(nearClip));
+    tmpCamera->setFarClipDistance(static_cast<Ogre::Real>(farClip));
     tmpCamera->setAutoTracking(false, mSceneManager->getRootSceneNode()
                                 ->createChildSceneNode("CameraTarget_" + ss),
-                                    Ogre::Vector3((Ogre::Real)(mGameMap->getMapSizeX() / 2),
-                                                  (Ogre::Real)(mGameMap->getMapSizeY() / 2),
-                                                  (Ogre::Real)0));
+                                    Ogre::Vector3(static_cast<Ogre::Real>(mGameMap->getMapSizeX() / 2),
+                                                  static_cast<Ogre::Real>(mGameMap->getMapSizeY() / 2),
+                                                  static_cast<Ogre::Real>(0)));
 
     mRegisteredCameraNames.insert(ss);
     LogManager* logManager = LogManager::getSingletonPtr();
@@ -133,7 +132,7 @@ void CameraManager::createViewport(Ogre::RenderWindow* renderWindow)
     LogManager* logManager = LogManager::getSingletonPtr();
     logManager->logMessage("Creating viewport...", Ogre::LML_NORMAL);
 }
-
+/*
 void CameraManager::setFPPCamera(Creature* cc)
 {
     // That should be done in the RenderManager
@@ -143,7 +142,7 @@ void CameraManager::setFPPCamera(Creature* cc)
     tmpNode->setInheritOrientation(true);
     cc->getEntityNode()->addChild(tmpNode);
 #endif // 0
-}
+}*/
 
 Ogre::SceneNode* CameraManager::getActiveCameraNode()
 {
@@ -184,9 +183,9 @@ void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)
 
     // Carry out the acceleration/deceleration calculations on the camera translation.
     Ogre::Real speed = mTranslateVector.normalise();
-    mTranslateVector *= (Ogre::Real)std::max(0.0, speed - (0.75 + (speed / MOVE_SPEED))
-                        * MOVE_SPEED_ACCELERATION * frameTime);
-    mTranslateVector += mTranslateVectorAccel * (Ogre::Real)(frameTime * 2.0);
+    mTranslateVector *= static_cast<Ogre::Real>(std::max(0.0, speed - (0.75 + (speed / MOVE_SPEED))
+                        * MOVE_SPEED_ACCELERATION * frameTime));
+    mTranslateVector += mTranslateVectorAccel * static_cast<Ogre::Real>(frameTime * 2.0);
 
     // If we have sped up to more than the maximum moveSpeed then rescale the
     // vector to that length. We use the squaredLength() in this calculation
@@ -214,7 +213,7 @@ void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)
     // to the movement keys on the keyboard (the arrow keys and/or WASD).
     if (mZChange != 0)
     {
-        newPosition.z += (Ogre::Real)(mZChange * frameTime * ZOOM_SPEED);
+        newPosition.z += static_cast<Ogre::Real>(mZChange * frameTime * ZOOM_SPEED);
         // We also stow and stop the movement here, as the keyboard release events
         // and mouse wheel event are otherwise colliding on handling the zoom.
         if (mZChange > 0)
@@ -298,8 +297,8 @@ void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)
     {
         mAlpha += 0.1 * frameTime;
 
-        newPosition.x = (Ogre::Real)(cos(mAlpha) * mRadius + mCenterX);
-        newPosition.y = (Ogre::Real)(sin(mAlpha) * mRadius + mCenterY);
+        newPosition.x = static_cast<Ogre::Real>(cos(mAlpha) * mRadius + mCenterX);
+        newPosition.y = static_cast<Ogre::Real>(sin(mAlpha) * mRadius + mCenterY);
 
         if(mAlpha > 2.0 * 3.145)
             mCircleMode = false;
@@ -319,8 +318,8 @@ void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)
                 tempX > 10 &&
                 tempY < 0.9 * mGameMap->getMapSizeY() &&
                 tempY > 10 ) {
-            newPosition.x = (Ogre::Real)tempX;
-            newPosition.y = (Ogre::Real)tempY;
+            newPosition.x = static_cast<Ogre::Real>(tempX);
+            newPosition.y = static_cast<Ogre::Real>(tempY);
         }
 
         if(mAlpha > mXHCS.getNN())
@@ -371,7 +370,7 @@ void CameraManager::flyTo(const Ogre::Vector3& destination)
 
 void CameraManager::onMiniMapClick(Ogre::Vector2 cc)
 {
-    flyTo(Ogre::Vector3(cc.x, cc.y, (Ogre::Real)0.0));
+    flyTo(Ogre::Vector3(cc.x, cc.y, static_cast<Ogre::Real>(0.0)));
 }
 
 void CameraManager::move(const Direction direction, double aux)
@@ -461,7 +460,7 @@ void CameraManager::move(const Direction direction, double aux)
         break;
 
     case randomRotateX:
-        mSwivelDegrees = Ogre::Degree((Ogre::Real)(64 * aux));
+        mSwivelDegrees = Ogre::Degree(static_cast<Ogre::Real>(64 * aux));
         break;
 
     case zeroRandomRotateX:
@@ -469,7 +468,7 @@ void CameraManager::move(const Direction direction, double aux)
         break;
 
     case randomRotateY:
-        mRotateLocalVector.x = (Ogre::Real)(64 * aux);
+        mRotateLocalVector.x = static_cast<Ogre::Real>(64 * aux);
         break;
 
     case zeroRandomRotateY:

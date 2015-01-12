@@ -18,22 +18,21 @@
 #include "ConsoleMode.h"
 
 #include "modes/Console.h"
-#include "modes/PrefixTree.h"
+#include "modes/ConsoleCommands.h"
 #include "render/RenderManager.h"
 #include "render/ODFrameListener.h"
 #include "render/Gui.h"
-#include "scripting/ASWrapper.h"
-
 #include "utils/LogManager.h"
 #include "utils/Helper.h"
 
-#include <string>
+#include <functional>
 
 ConsoleMode::ConsoleMode(ModeManager* modeManager, Console* console):
     AbstractApplicationMode(modeManager, ModeManager::CONSOLE),
     mConsole(console),
-    mNonTagKeyPressed(true)
+    mConsoleInterface(std::bind(&ConsoleMode::printToConsole, this, std::placeholders::_1))
 {
+    ConsoleCommands::addConsoleCommands(mConsoleInterface);
 }
 
 ConsoleMode::~ConsoleMode()
@@ -80,32 +79,13 @@ bool ConsoleMode::keyPressed(const OIS::KeyEvent &arg)
 
     if(arg.key == OIS::KC_TAB)
     {
-        if(!mNonTagKeyPressed)
+        if(auto completed = mConsoleInterface.tryCompleteCommand(mConsole->mPrompt))
         {
-            // it points to postfix candidate
-            if (mIt == mLl.end())
-            {
-                mConsole->mPrompt = mPrefix;
-                mIt = mLl.begin();
-            }
-            else{
-                mConsole->mPrompt = mPrefix + *mIt;
-                ++mIt;
-            }
+            mConsole->mPrompt = *completed;
         }
-        else
-        {
-            mLl.clear();
-            mConsoleCommandsHandler.autocomplete(mConsole->mPrompt.c_str(), mLl);
-            mPrefix = mConsole->mPrompt ;
-            mIt = mLl.begin();
-        }
-
-        mNonTagKeyPressed = false;
     }
     else
     {
-        mNonTagKeyPressed = true;
         switch(arg.key)
         {
         case OIS::KC_GRAVE:
@@ -126,26 +106,9 @@ bool ConsoleMode::keyPressed(const OIS::KeyEvent &arg)
                 mConsole->mHistory.push_back(mConsole->mPrompt);
                 ++mConsole->mCurHistPos;
 
-                //split the input into it's space-separated "words"
-                std::vector<std::string> params = Helper::split(mConsole->mPrompt, ' ');
-
-                std::string command = params[0];
-                std::string arguments;
-                for(size_t i = 1; i< params.size(); ++i)
-                {
-                    arguments += params[i];
-                    if(i < params.size() - 1)
-                    {
-                        arguments += ' ';
-                    }
-                }
-
-                if(!mConsoleCommandsHandler.executePromptCommand(command, arguments))
-                {
-                    LogManager::getSingleton().logMessage("Console command: " + command
-                        + " - arguments: " + arguments + " - angelscript");
-                    ASWrapper::getSingleton().executeConsoleCommand(params);
-                }
+                mConsoleInterface.tryExecuteCommand(mConsole->mPrompt,
+                                                    getModeManager().getCurrentModeTypeExceptConsole(),
+                                                    getModeManager());
 
                 mConsole->mPrompt.clear();
             }
@@ -205,4 +168,12 @@ bool ConsoleMode::keyReleased(const OIS::KeyEvent &arg)
 void ConsoleMode::handleHotkeys(OIS::KeyCode keycode)
 {
 
+}
+
+void ConsoleMode::printToConsole(const std::string& text)
+{
+    //print our input and push it to the history
+    mConsole->print(text);
+    mConsole->mHistory.push_back(text);
+    ++mConsole->mCurHistPos;
 }

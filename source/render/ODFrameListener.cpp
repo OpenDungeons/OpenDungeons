@@ -22,6 +22,8 @@
 
 #include "render/ODFrameListener.h"
 
+#include "modes/InputManager.h"
+#include "modes/AbstractApplicationMode.h"
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
 #include "network/ODClient.h"
@@ -112,7 +114,7 @@ void ODFrameListener::windowResized(Ogre::RenderWindow* rw)
     int left, top;
     rw->getMetrics(width, height, depth, left, top);
 
-    const OIS::MouseState &ms = mModeManager->getCurrentMode()->getMouse()->getMouseState();
+    const OIS::MouseState &ms = mModeManager->getInputManager()->mMouse->getMouseState();
     ms.width = width;
     ms.height = height;
 

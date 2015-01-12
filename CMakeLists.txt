@@ -269,8 +269,10 @@ set(OD_SOURCEFILES
     ${SRC}/goals/GoalProtectDungeonTemple.cpp
 
     ${SRC}/modes/AbstractApplicationMode.cpp
+    ${SRC}/modes/Command.cpp
     ${SRC}/modes/Console.cpp
-    ${SRC}/modes/ConsoleCommandsHandler.cpp
+    ${SRC}/modes/ConsoleCommands.cpp
+    ${SRC}/modes/ConsoleInterface.cpp
     ${SRC}/modes/ConsoleMode.cpp
     ${SRC}/modes/EditorMode.cpp
     ${SRC}/modes/FppMode.cpp
@@ -284,8 +286,6 @@ set(OD_SOURCEFILES
     ${SRC}/modes/MenuModeReplay.cpp
     ${SRC}/modes/MenuModeSkirmish.cpp
     ${SRC}/modes/ModeManager.cpp
-    ${SRC}/modes/PrefixTree.cpp
-
 
     ${SRC}/network/ChatMessage.cpp
     ${SRC}/network/ClientNotification.cpp

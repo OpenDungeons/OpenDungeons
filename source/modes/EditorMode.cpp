@@ -407,12 +407,9 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
                 if(ODClient::getSingleton().isConnected())
                 {
-                    const std::string& entityName = entity->getName();
-                    GameEntity::ObjectType entityType = entity->getObjectType();
-                    ClientNotification *clientNotification = new ClientNotification(
-                        ClientNotification::askSlapEntity);
-                    clientNotification->mPacket << entityType << entityName;
-                    ODClient::getSingleton().queueClientNotification(clientNotification);
+                    ODClient::getSingleton().queueClientNotification(ClientNotification::askSlapEntity,
+                                                                     entity->getObjectType(),
+                                                                     entity->getName());
                 }
 
                 return true;

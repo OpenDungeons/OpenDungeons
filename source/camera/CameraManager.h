@@ -25,9 +25,6 @@
 
 #include "camera/HermiteCatmullSpline.h"
 
-#include "gamemap/GameMap.h"
-#include "modes/AbstractApplicationMode.h"
-
 #include <OgrePrerequisites.h>
 #include <OgreVector3.h>
 #include <OgreCamera.h>
@@ -39,14 +36,14 @@
 #include <vector>
 #include <map>
 
+class GameMap;
+
 // The min/max camera height in tile size
 const Ogre::Real MIN_CAMERA_Z = 3.0;
 const Ogre::Real MAX_CAMERA_Z = 20.0;
 
 class CameraManager
 {
-friend class ConsoleCommands;
-
 public:
     enum Direction
     {
@@ -80,7 +77,7 @@ public:
         mAlpha = 0;
     }
 
-    void setFPPCamera(Creature*);
+//    void setFPPCamera(Creature*);
 
     inline const Ogre::Vector3& getTranslateVectorAccel() const
     {
