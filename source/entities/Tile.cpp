@@ -1145,7 +1145,7 @@ void Tile::claimTile(Seat* seat)
     mClaimedPercentage = 1.0;
     setType(Tile::claimed);
 
-    // If an ennemy player had marked this tile to dig, we disable it
+    // If an enemy player had marked this tile to dig, we disable it
     setMarkedForDiggingForAllPlayersExcept(false, seat);
 
     setDirtyForAllSeats();

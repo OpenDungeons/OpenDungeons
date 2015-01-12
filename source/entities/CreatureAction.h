@@ -32,7 +32,7 @@ public:
     enum ActionType
     {
         walkToTile, // Calculate a path to the tile and follow it each turn.
-        fight, // When seeing ennemy objects, the creature might decide to fight
+        fight, // When seeing enemy objects, the creature might decide to fight
         digTile, // (worker only) Dig out a tile, i.e. decrease its fullness.
         claimTile, // (worker only) "Dance" on tile to change its color.
         claimWallTile, // (worker only) "Dance" next to wall tile to change its color and set it as reinforced.

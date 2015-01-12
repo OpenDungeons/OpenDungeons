@@ -764,7 +764,7 @@ void Creature::doUpkeep()
 
 void Creature::decidePrioritaryAction()
 {
-    // Here, we should decide prioritary actions only (like fighting when an ennemy is
+    // Here, we should decide prioritary actions only (like fighting when an enemy is
     // visible). And if we decide to do something, we should clear the action queue.
 
     // If a creature is weak and there are foes, it shall flee
@@ -1171,7 +1171,7 @@ bool Creature::handleWalkToTileAction(const CreatureAction& actionItem)
     }
 
     // If we are moving during a fight, we do not wait to reach destination to force to compute again what to do
-    // Because ennemies may have moved, closest creatures could be near...
+    // Because enemies may have moved, closest creatures could be near...
     if(isActionInList(CreatureAction::fight) && actionItem.getNbTurns() > 1)
     {
         clearDestinations();
@@ -2255,8 +2255,8 @@ bool Creature::handleSleepAction(const CreatureAction& actionItem)
 
 bool Creature::handleFleeAction(const CreatureAction& actionItem)
 {
-    // We try to go as far as possible from the ennemies within visible tiles. We will quit flee mode when there will be no more
-    // ennemy objects nearby or if we have already flee for too much time
+    // We try to go as far as possible from the enemies within visible tiles. We will quit flee mode when there will be no more
+    // enemy objects nearby or if we have already flee for too much time
     if ((mReachableEnemyObjects.empty()) || (actionItem.getNbTurns() > NB_TURN_FLEE_MAX))
     {
         popAction();
@@ -3227,11 +3227,11 @@ bool Creature::fightInRangeObjectInList(const std::vector<GameEntity*>& listObje
         return false;
 
     // We try to find the closest enemy object within attack range
-    GameEntity* closestEnnemyEntity = nullptr;
-    Tile* closestEnnemyTile = nullptr;
-    double closestEnnemyDist = 0.0;
-    Tile* closestNotInRangeEnnemyTile = nullptr;
-    double closestNotInRangeEnnemyDist = 0.0;
+    GameEntity* closestEnemyEntity = nullptr;
+    Tile* closestEnemyTile = nullptr;
+    double closestEnemyDist = 0.0;
+    Tile* closestNotInRangeEnemyTile = nullptr;
+    double closestNotInRangeEnemyDist = 0.0;
 
     // Use the weapon range when equipped, and the natural one when not.
     double weaponRangeSquared = getBestAttackRange();
@@ -3253,36 +3253,36 @@ bool Creature::fightInRangeObjectInList(const std::vector<GameEntity*>& listObje
 
             if (rSquared <= weaponRangeSquared)
             {
-                if((closestEnnemyTile == nullptr) ||
-                   (rSquared < closestEnnemyDist))
+                if((closestEnemyTile == nullptr) ||
+                   (rSquared < closestEnemyDist))
                 {
-                    closestEnnemyDist = rSquared;
-                    closestEnnemyTile = tempTile;
-                    closestEnnemyEntity = gameEntity;
+                    closestEnemyDist = rSquared;
+                    closestEnemyTile = tempTile;
+                    closestEnemyEntity = gameEntity;
                 }
             }
             else
             {
-                if((closestNotInRangeEnnemyTile == nullptr) ||
-                   (rSquared < closestNotInRangeEnnemyDist))
+                if((closestNotInRangeEnemyTile == nullptr) ||
+                   (rSquared < closestNotInRangeEnemyDist))
                 {
-                    closestNotInRangeEnnemyDist = rSquared;
-                    closestNotInRangeEnnemyTile = tempTile;
+                    closestNotInRangeEnemyDist = rSquared;
+                    closestNotInRangeEnemyTile = tempTile;
                 }
             }
         }
     }
 
-    if(closestEnnemyEntity != nullptr)
+    if(closestEnemyEntity != nullptr)
     {
-        attackedEntity = closestEnnemyEntity;
-        attackedTile = closestEnnemyTile;
+        attackedEntity = closestEnemyEntity;
+        attackedTile = closestEnemyTile;
         return true;
     }
 
-    // There is no ennemy in range. We move to the closest non reachable
+    // There is no enemy in range. We move to the closest non reachable
     std::list<Tile*> tempPath;
-    if(!getGameMap()->pathToBestFightingPosition(tempPath, this, closestNotInRangeEnnemyTile))
+    if(!getGameMap()->pathToBestFightingPosition(tempPath, this, closestNotInRangeEnemyTile))
     {
         // We couldn't find a way to the foe. We wander somewhere else
         popAction();
