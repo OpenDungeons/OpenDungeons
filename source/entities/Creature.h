@@ -439,6 +439,10 @@ private:
 
     Ogre::Vector3                   mScale;
 
+    //! \brief The logic in the idle function is basically to roll a dice and, if the value allows, push an action to test if
+    //! it is possible. To avoid testing several times the same action, we check in mActionTry if the action as already been
+    //! tried. If yes and forcePush is false, the action won't be pushed and pushAction will return false. If the action has
+    //! not been tested or if forcePush is true, the action will be pushed and pushAction will return true
     bool pushAction(CreatureAction action, bool forcePush = false);
     void popAction();
     CreatureAction peekAction();
