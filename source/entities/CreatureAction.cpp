@@ -16,26 +16,34 @@
  */
 
 #include "entities/CreatureAction.h"
-
 #include "entities/Creature.h"
 
-CreatureAction::CreatureAction() :
-    mType    (idle),
-    mTile    (nullptr),
-    mCreature(nullptr)
-{
-}
+#include "utils/LogManager.h"
 
-CreatureAction::CreatureAction(const ActionType nType, Tile* nTile, Creature* nCreature) :
-    mType(nType),
-    mTile(nTile),
-    mCreature(nCreature)
+CreatureAction::CreatureAction(const ActionType actionType, GameEntity::ObjectType entityType, const std::string& entityName, Tile* tile) :
+    mActionType(actionType),
+    mEntityType(entityType),
+    mEntityName(entityName),
+    mTile(tile),
+    mNbTurns(0)
 {
+    // We check mandatory items according to action type
+    switch(mActionType)
+    {
+        case ActionType::attackObject:
+            OD_ASSERT_TRUE(!mEntityName.empty());
+            OD_ASSERT_TRUE(mEntityType != GameEntity::ObjectType::unknown);
+            OD_ASSERT_TRUE(mTile != nullptr);
+            break;
+
+        default:
+            break;
+    }
 }
 
 std::string CreatureAction::toString() const
 {
-    switch (mType)
+    switch (mActionType)
     {
     case walkToTile:
         return "walkToTile";
@@ -51,9 +59,6 @@ std::string CreatureAction::toString() const
 
     case claimTile:
         return "claimTile";
-
-    case depositGold:
-        return "depositGold";
 
     case attackObject:
         return "attackObject";
@@ -84,6 +89,9 @@ std::string CreatureAction::toString() const
 
     case carryEntity:
         return "carryEntity";
+
+    case getFee:
+        return "getFee";
 
     case idle:
         return "idle";

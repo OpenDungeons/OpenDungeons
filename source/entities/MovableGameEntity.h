@@ -71,6 +71,10 @@ public:
     virtual double getAnimationSpeedFactor();
     virtual void setAnimationSpeedFactor(double f);
 
+    //! \brief Returns true if the entity can be carried by a kobold. False otherwise.
+    virtual bool tryEntityCarryOn()
+    { return false; }
+
     //! \brief Called when the entity is being carried
     virtual void notifyEntityCarryOn()
     {}

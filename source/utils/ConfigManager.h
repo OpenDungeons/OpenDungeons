@@ -36,34 +36,37 @@ public:
     ~ConfigManager();
 
     Ogre::ColourValue getColorFromId(const std::string& id) const;
-    const std::vector<const CreatureDefinition*>& getCreatureDefinitions() const
+    inline const std::vector<const CreatureDefinition*>& getCreatureDefinitions() const
     { return mCreatureDefs; }
     const CreatureDefinition* getCreatureDefinition(const std::string& name) const;
 
-    const std::vector<const Weapon*>& getWeapons() const
+    inline const std::vector<const Weapon*>& getWeapons() const
     { return mWeapons; }
     const Weapon* getWeapon(const std::string& name) const;
 
-    uint32_t getCreatureDeathCounter() const
+    inline uint32_t getCreatureDeathCounter() const
     { return mCreatureDeathCounter; }
 
-    uint32_t getMaxCreaturesPerSeat() const
+    inline uint32_t getMaxCreaturesPerSeat() const
     { return mMaxCreaturesPerSeat; }
 
-    double getSlapDamagePercent() const
+    inline double getSlapDamagePercent() const
     { return mSlapDamagePercent; }
 
-    uint32_t getNetworkPort() const
+    inline int64_t getTimePayDay() const
+    { return mTimePayDay; }
+
+    inline uint32_t getNetworkPort() const
     { return mNetworkPort; }
 
-    uint32_t getBaseSpawnPoint() const
+    inline uint32_t getBaseSpawnPoint() const
     { return mBaseSpawnPoint; }
 
     const std::vector<const SpawnCondition*>& getCreatureSpawnConditions(const CreatureDefinition* def) const;
 
     const std::vector<std::string>& getFactionSpawnPool(const std::string& faction) const;
 
-    const std::vector<std::string>& getFactions() const
+    inline const std::vector<std::string>& getFactions() const
     { return mFactions; }
 
     //! Rooms configuration
@@ -106,6 +109,7 @@ private:
     uint32_t mCreatureDeathCounter;
     uint32_t mMaxCreaturesPerSeat;
     double mSlapDamagePercent;
+    int64_t mTimePayDay;
     std::map<const CreatureDefinition*, std::vector<const SpawnCondition*> > mCreatureSpawnConditions;
     std::map<const std::string, std::vector<std::string> > mFactionSpawnPool;
     std::vector<std::string> mFactions;

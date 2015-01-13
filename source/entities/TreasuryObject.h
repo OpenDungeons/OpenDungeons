@@ -51,8 +51,11 @@ public:
 
     virtual void pickup();
 
+    virtual bool tryEntityCarryOn();
     virtual void notifyEntityCarryOn();
     virtual void notifyEntityCarryOff(const Ogre::Vector3& position);
+
+    static const char* getMeshNameForGold(int gold);
 
     static const char* getFormat();
     static TreasuryObject* getTreasuryObjectFromStream(GameMap* gameMap, std::istream& is);
@@ -63,6 +66,7 @@ protected:
 
 private:
     int mGoldValue;
+    bool mHasGoldValueChanged;
 };
 
 #endif // TREASURYOBJECT_H

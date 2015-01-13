@@ -1145,7 +1145,7 @@ void Tile::claimTile(Seat* seat)
     mClaimedPercentage = 1.0;
     setType(Tile::claimed);
 
-    // If an ennemy player had marked this tile to dig, we disable it
+    // If an enemy player had marked this tile to dig, we disable it
     setMarkedForDiggingForAllPlayersExcept(false, seat);
 
     setDirtyForAllSeats();
@@ -1376,37 +1376,18 @@ void Tile::fillWithCarryableEntities(std::vector<MovableGameEntity*>& entities)
         switch(entity->getObjectType())
         {
             case GameEntity::ObjectType::creature:
-            {
-                // Dead creatures are carryable
-                Creature* c = static_cast<Creature*>(entity);
-                if(c->getHP() > 0)
-                    continue;
-
-                entityToCarry = c;
-                break;
-            }
             case GameEntity::ObjectType::renderedMovableEntity:
             {
-                // treasuryObject are carryable
-                RenderedMovableEntity* rme = static_cast<RenderedMovableEntity*>(entity);
-                switch(rme->getRenderedMovableEntityType())
-                {
-                    case RenderedMovableEntity::RenderedMovableEntityType::treasuryObject:
-                    case RenderedMovableEntity::RenderedMovableEntityType::craftedTrap:
-                        entityToCarry = rme;
-                        break;
+                entityToCarry = static_cast<MovableGameEntity*>(entity);
+                if(!entityToCarry->tryEntityCarryOn())
+                    continue;
 
-                    default:
-                        continue;
-                }
                 break;
             }
+
             default:
                 continue;
         }
-
-        if(entityToCarry == nullptr)
-            continue;
 
         if (std::find(entities.begin(), entities.end(), entityToCarry) == entities.end())
             entities.push_back(entityToCarry);

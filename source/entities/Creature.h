@@ -319,6 +319,7 @@ public:
     //! \brief Tells whether the creature can go through the given tile.
     bool canGoThroughTile(const Tile* tile) const;
 
+    virtual bool tryEntityCarryOn();
     virtual void notifyEntityCarryOn();
     virtual void notifyEntityCarryOff(const Ogre::Vector3& position);
 
@@ -326,6 +327,8 @@ public:
     void slap(bool isEditorMode);
 
     void fireCreatureSound(CreatureSound::SoundType sound);
+
+    void itsPayDay();
 
 protected:
     virtual void createMeshLocal();
@@ -395,11 +398,13 @@ private:
 
     //! \brief Counter to let the creature stay some turns after its death
     unsigned int    mDeathCounter;
-    int             mGold;
     int             mJobCooldown;
     int             mEatCooldown;
-    //! \brief The number of turns we are doing the same action. If the action is popped or pushed, mNbTurnAction is set to 0
-    int             mNbTurnAction;
+
+    //! \brief At pay day, mGoldFee will be set to the creature fee and decreased when the creature gets gold
+    int32_t         mGoldFee;
+    //! \brief Gold carried by the creature that will be dropped if it gets killed
+    int32_t         mGoldCarried;
 
     Room*           mJobRoom;
     Room*           mEatRoom;
@@ -423,21 +428,22 @@ private:
     std::deque<CreatureAction>      mActionQueue;
     std::vector<Tile*>              mVisualDebugEntityTiles;
 
-
-    //! \brief Allows to keep track of the entity we are currently attacking
-    Tile*                           mAttackedTile;
-    GameEntity*                     mAttackedObject;
+    //! \brief Contains the actions that have already been tested to avoid trying several times same action
+    std::vector<CreatureAction::ActionType> mActionTry;
 
     ForceAction                     mForceAction;
 
-    bool                            mIsCarryActionTested;
     MovableGameEntity*              mCarriedEntity;
     GameEntity::ObjectType          mCarriedEntityDestType;
     std::string                     mCarriedEntityDestName;
 
     Ogre::Vector3                   mScale;
 
-    void pushAction(CreatureAction action);
+    //! \brief The logic in the idle function is basically to roll a dice and, if the value allows, push an action to test if
+    //! it is possible. To avoid testing several times the same action, we check in mActionTry if the action as already been
+    //! tried. If yes and forcePush is false, the action won't be pushed and pushAction will return false. If the action has
+    //! not been tested or if forcePush is true, the action will be pushed and pushAction will return true
+    bool pushAction(CreatureAction action, bool forcePush = false);
     void popAction();
     CreatureAction peekAction();
 
@@ -447,16 +453,17 @@ private:
     bool wanderRandomly(const std::string& animationState);
 
     //! \brief Search within listObjects the closest one and handle attacks (by moving or attacking)
-    //! canAttackObject is set to true is a foe is in the good range to hit (in this case, a fight action can be pushed)
-    //! If a foe can be attacked, mAttackedObject is set to the attackable entity and mAttackedTile to the attacked tile
+    //! If a foe can be attacked (in this case, a fight action can be pushed), attackedEntity is set to the attackable entity
+    //! and attackedTile to the attacked tile
     //! returns true if a fitting object is found and false otherwise
-    bool fightClosestObjectInList(const std::vector<GameEntity*>& listObjects, bool& canAttackObject);
+    bool fightClosestObjectInList(const std::vector<GameEntity*>& listObjects, GameEntity*& attackedEntity, Tile*& attackedTile);
 
     //! \brief Search within listObjects if an object is reachable and handle attacks (by moving or attacking)
-    //! canAttackObject is set to true is a foe is in the good range to hit (in this case, a fight action can be pushed)
-    //! If a foe can be attacked, mAttackedObject is set to the attackable entity and mAttackedTile to the attacked tile
+    //! canAttackObject is set to true is a foe is in the good range to hit
+    //! If a foe can be attacked (in this case, a fight action can be pushed), attackedEntity is set to the attackable entity
+    //! and attackedTile to the attacked tile
     //! returns true if a fitting object is found and false otherwise
-    bool fightInRangeObjectInList(const std::vector<GameEntity*>& listObjects, bool& canAttackObject);
+    bool fightInRangeObjectInList(const std::vector<GameEntity*>& listObjects, GameEntity*& attackedEntity, Tile*& attackedTile);
 
     //! \brief A sub-function called by doTurn()
     //! This one checks if there is something prioritary to do (like fighting). If it is the case,
@@ -466,73 +473,73 @@ private:
     //! \brief A sub-function called by doTurn()
     //! This functions will hanlde the creature idle action logic.
     //! \return true when another action should handled after that one.
-    bool handleIdleAction();
+    bool handleIdleAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will hanlde the creature walking action logic.
     //! \return true when another action should handled after that one.
-    bool handleWalkToTileAction();
+    bool handleWalkToTileAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will hanlde the creature claim tile action logic.
     //! \return true when another action should handled after that one.
-    bool handleClaimTileAction();
+    bool handleClaimTileAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will hanlde the creature claim wall tile action logic.
     //! \return true when another action should handled after that one.
-    bool handleClaimWallTileAction();
+    bool handleClaimWallTileAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will hanlde the creature dig tile action logic.
     //! \return true when another action should handled after that one.
-    bool handleDigTileAction();
-
-    //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature deposit gold action logic.
-    //! \return true when another action should handled after that one.
-    bool handleDepositGoldAction();
+    bool handleDigTileAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will hanlde the creature finding home action logic.
     //! \return true when another action should handled after that one.
-    bool handleFindHomeAction(bool isForced);
+    bool handleFindHomeAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will hanlde the creature job action logic.
     //! \return true when another action should handled after that one.
-    bool handleJobAction(bool isForced);
+    bool handleJobAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will hanlde the creature eating action logic.
     //! \return true when another action should handled after that one.
-    bool handleEatingAction(bool isForced);
+    bool handleEatingAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will hanlde the creature attack action logic.
     //! \return true when another action should handled after that one.
-    bool handleAttackAction();
+    bool handleAttackAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will hanlde the creature fighting action logic.
     //! \return true when another action should handled after that one.
-    bool handleFightAction();
+    bool handleFightAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will hanlde the creature sleeping action logic.
     //! \return true when another action should handled after that one.
-    bool handleSleepAction();
+    bool handleSleepAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will hanlde the creature fleeing action logic.
     //! \return true when another action should handled after that one.
-    bool handleFleeAction();
+    bool handleFleeAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will hanlde the creature action logic about finding a carryable entity.
     //! And trying to carry it to a suitable building
     //! \return true when another action should handled after that one.
-    bool handleCarryableEntities();
+    bool handleCarryableEntities(const CreatureAction& actionItem);
+
+    //! \brief A sub-function called by doTurn()
+    //! This functions will hanlde the creature action logic about getting the creature fee.
+    //! \return true when another action should handled after that one.
+    bool handleGetFee(const CreatureAction& actionItem);
 
     //! \brief Returns true if creature is in bad mood. False otherwise. A creature in bad mood will more likely
     //! flee or attack allied units

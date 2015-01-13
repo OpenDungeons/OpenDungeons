@@ -57,6 +57,11 @@ std::string CreatureDefinition::creatureJobToString(CreatureJob c)
     }
 }
 
+int32_t CreatureDefinition::getFee(unsigned int level) const
+{
+    return mFeeBase + (mFeePerLevel * level);
+}
+
 ODPacket& operator<<(ODPacket& os, const CreatureDefinition* c)
 {
     std::string creatureJob = CreatureDefinition::creatureJobToString(c->mCreatureJob);
@@ -81,6 +86,8 @@ ODPacket& operator<<(ODPacket& os, const CreatureDefinition* c)
     os << c->mMagicalDefense << c->mMagicalDefPerLevel;
     os << c->mAttackRange << c->mAtkRangePerLevel;
     os << c->mAttackWarmupTime;
+    os << c->mFeeBase;
+    os << c->mFeePerLevel;
     os << c->mWeaponSpawnL;
     os << c->mWeaponSpawnR;
 
@@ -111,6 +118,8 @@ ODPacket& operator>>(ODPacket& is, CreatureDefinition* c)
     is >> c->mMagicalDefense >> c->mMagicalDefPerLevel;
     is >> c->mAttackRange >> c->mAtkRangePerLevel;
     is >> c->mAttackWarmupTime;
+    is >> c->mFeeBase;
+    is >> c->mFeePerLevel;
     is >> c->mWeaponSpawnL;
     is >> c->mWeaponSpawnR;
 
@@ -418,6 +427,18 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
                 creatureDef->mAttackWarmupTime = Helper::toDouble(nextParam);
                 continue;
             }
+            else if (nextParam == "FeeBase")
+            {
+                defFile >> nextParam;
+                creatureDef->mFeeBase = Helper::toInt(nextParam);
+                continue;
+            }
+            else if (nextParam == "FeePerLevel")
+            {
+                defFile >> nextParam;
+                creatureDef->mFeePerLevel = Helper::toInt(nextParam);
+                continue;
+            }
             else if (nextParam == "WeaponSpawnL")
             {
                 defFile >> creatureDef->mWeaponSpawnL;
@@ -560,6 +581,12 @@ void CreatureDefinition::writeCreatureDefinitionDiff(const CreatureDefinition* d
 
     if(def1 == nullptr || (def1->mAttackWarmupTime != def2->mAttackWarmupTime))
         file << "    AttackWarmupTime\t" << def2->mAttackWarmupTime << std::endl;
+
+    if(def1 == nullptr || (def1->mFeeBase != def2->mFeeBase))
+        file << "    FeeBase\t" << def2->mFeeBase << std::endl;
+
+    if(def1 == nullptr || (def1->mFeePerLevel != def2->mFeePerLevel))
+        file << "    FeePerLevel\t" << def2->mFeePerLevel << std::endl;
 
     if(def1 == nullptr || (def1->mWeaponSpawnL.compare(def2->mWeaponSpawnL) != 0))
         file << "    WeaponSpawnL\t" << def2->mWeaponSpawnL << std::endl;

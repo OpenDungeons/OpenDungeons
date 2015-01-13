@@ -294,7 +294,7 @@ public:
     { return std::vector<Tile*>(); }
 
     //! \brief Fills entities with all the attackable creatures in the Tile. If invert is true,
-    //! the list will be filled with the ennemies with the given seat. If invert is false, it will be filled
+    //! the list will be filled with the enemies with the given seat. If invert is false, it will be filled
     //! with allies with the given seat. For all theses functions, the list is checked to be sure
     //! no entity is added twice
     void fillWithAttackableCreatures(std::vector<GameEntity*>& entities, Seat* seat, bool invert);

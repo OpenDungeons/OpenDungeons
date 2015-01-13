@@ -25,27 +25,31 @@
 #include <iostream>
 
 TreasuryObject::TreasuryObject(GameMap* gameMap, int goldValue) :
-    RenderedMovableEntity(gameMap, "Treasury_", "GoldstackLv3", 0.0f, false),
-    mGoldValue(goldValue)
+    RenderedMovableEntity(gameMap, "Treasury_", getMeshNameForGold(goldValue), 0.0f, false),
+    mGoldValue(goldValue),
+    mHasGoldValueChanged(false)
 {
 }
 
 TreasuryObject::TreasuryObject(GameMap* gameMap) :
     RenderedMovableEntity(gameMap),
-    mGoldValue(0)
+    mGoldValue(0),
+    mHasGoldValueChanged(false)
 {
-    setMeshName("GoldstackLv3");
 }
 
 void TreasuryObject::mergeGold(TreasuryObject* obj)
 {
     mGoldValue += obj->mGoldValue;
+    mHasGoldValueChanged = true;
     obj->mGoldValue = 0;
+    obj->mHasGoldValueChanged = true;
 }
 
 void TreasuryObject::addGold(int goldValue)
 {
     mGoldValue += goldValue;
+    mHasGoldValueChanged = true;
 }
 
 void TreasuryObject::doUpkeep()
@@ -70,11 +74,31 @@ void TreasuryObject::doUpkeep()
     }
 
     // If we are empty, we can remove safely
-    if(mGoldValue <= 0)
+    if(mHasGoldValueChanged)
     {
-        tile->removeEntity(this);
-        getGameMap()->removeRenderedMovableEntity(this);
-        deleteYourself();
+        mHasGoldValueChanged = false;
+        if(mGoldValue <= 0)
+        {
+            tile->removeEntity(this);
+            getGameMap()->removeRenderedMovableEntity(this);
+            deleteYourself();
+            return;
+        }
+
+        if(getMeshName().compare(getMeshNameForGold(mGoldValue)) != 0)
+        {
+            // The treasury fullnes changed. We remove the object and create a new one
+            tile->removeEntity(this);
+            getGameMap()->removeRenderedMovableEntity(this);
+            deleteYourself();
+
+            TreasuryObject* obj = new TreasuryObject(getGameMap(), mGoldValue);
+            getGameMap()->addRenderedMovableEntity(obj);
+            Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(tile->getX()),
+                                        static_cast<Ogre::Real>(tile->getY()), 0.0f);
+            obj->createMesh();
+            obj->setPosition(spawnPosition, false);
+        }
     }
 }
 
@@ -140,6 +164,34 @@ bool TreasuryObject::removeEntityFromTile(Tile* tile)
     return tile->removeEntity(this);
 }
 
+bool TreasuryObject::tryEntityCarryOn()
+{
+    if(!getIsOnMap())
+        return false;
+
+    // We do not let it be carried as it will be removed during next upkeep
+    if(mGoldValue <= 0)
+        return false;
+
+    // If we are on a treasury not full, we doesn't allow to be carried
+    Tile* myTile = getPositionTile();
+    OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
+    if(myTile == nullptr)
+        return true;
+
+    if(myTile->getCoveringRoom() == nullptr)
+        return true;
+
+    if(myTile->getCoveringRoom()->getType() != Room::RoomType::treasury)
+        return true;
+
+    RoomTreasury* treasury = static_cast<RoomTreasury*>(myTile->getCoveringRoom());
+    if(treasury->emptyStorageSpace() == 0)
+        return true;
+
+    return false;
+}
+
 void TreasuryObject::notifyEntityCarryOn()
 {
     Tile* myTile = getPositionTile();
@@ -162,6 +214,23 @@ void TreasuryObject::notifyEntityCarryOff(const Ogre::Vector3& position)
         return;
 
     myTile->addTreasuryObject(this);
+}
+
+const char* TreasuryObject::getMeshNameForGold(int gold)
+{
+    if (gold <= 0)
+        return "";
+
+    if (gold <= 1250)
+        return "GoldstackLv1";
+
+    if (gold <= 2500)
+        return "GoldstackLv2";
+
+    if (gold <= 3750)
+        return "GoldstackLv3";
+
+    return "GoldstackLv4";
 }
 
 const char* TreasuryObject::getFormat()
