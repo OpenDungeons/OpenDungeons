@@ -31,6 +31,8 @@ public:
     //! \brief Get back a reference to the temple mesh after calling Room::absorbRoom()
     void absorbRoom(Room* room);
 
+    bool removeCoveredTile(Tile *t);
+
     /*! \brief Counts down a timer until it reaches 0,
     *  then it spawns a kobold of the color of this dungeon temple
     *  at the center of the dungeon temple, and resets the timer.
@@ -47,6 +49,9 @@ private:
 
     //! \brief The reference of the temple object
     RenderedMovableEntity* mTempleObject;
+
+    //! \brief Updates the temple mesh position.
+    void updateTemplePosition();
 };
 
 #endif // ROOMDUNGEONTEMPLE_H

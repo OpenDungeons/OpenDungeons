@@ -25,6 +25,7 @@
 #include "entities/PersistentObject.h"
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
+#include "render/ODFrameListener.h"
 
 RoomDungeonTemple::RoomDungeonTemple(GameMap* gameMap) :
     Room(gameMap),
@@ -44,30 +45,43 @@ void RoomDungeonTemple::absorbRoom(Room* room)
 {
     Room::absorbRoom(room);
 
-    // Get back the temple mesh reference
-    if (!mBuildingObjects.empty())
-        mTempleObject = mBuildingObjects.begin()->second;
-    else
-        mTempleObject = nullptr;
+    if (ODFrameListener::getSingleton().getModeManager()->getCurrentModeType() == ModeManager::ModeType::EDITOR)
+        updateTemplePosition();
+}
+
+bool RoomDungeonTemple::removeCoveredTile(Tile *t)
+{
+    bool ret = Room::removeCoveredTile(t);
+
+    if (ODFrameListener::getSingleton().getModeManager()->getCurrentModeType() == ModeManager::ModeType::EDITOR)
+        updateTemplePosition();
+
+    return ret;
+}
+
+void RoomDungeonTemple::updateTemplePosition()
+{
+    // Only the server game map should load objects.
+    if (!getGameMap()->isServerGameMap())
+        return;
+
+    // Delete all previous rooms meshes and recreate a central one.
+    removeAllBuildingObjects();
+    mTempleObject = nullptr;
+
+    Tile* centralTile = getCentralTile();
+    if (centralTile == nullptr)
+        return;
+
+    mTempleObject = new PersistentObject(getGameMap(), getName(), "DungeonTempleObject", centralTile, 0.0, false);
+    addBuildingObject(centralTile, mTempleObject);
 }
 
 void RoomDungeonTemple::createMeshLocal()
 {
     Room::createMeshLocal();
 
-    // Don't recreate the portal if it's already done.
-    if (mTempleObject != nullptr)
-        return;
-
-    // The client game map should not load building objects. They will be created
-    // by the messages sent by the server because some of them are randomly
-    // created
-    if(!getGameMap()->isServerGameMap())
-        return;
-
-    mTempleObject = new PersistentObject(getGameMap(), getName(), "DungeonTempleObject", getCentralTile(), 0.0, false);
-    addBuildingObject(getCentralTile(), mTempleObject);
-
+    updateTemplePosition();
 }
 
 void RoomDungeonTemple::destroyMeshLocal()

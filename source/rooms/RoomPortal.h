@@ -32,8 +32,6 @@ public:
     virtual RoomType getType() const
     { return RoomType::portal; }
 
-    // Functions overriding virtual functions in the Room base class.
-    void addCoveredTile(Tile* t, double nHP);
     bool removeCoveredTile(Tile* t);
 
     //! \brief Get back a reference to the portal mesh after calling Room::absorbRoom()
@@ -58,15 +56,12 @@ protected:
     void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);
 
 private:
-    //! \brief Finds the X,Y coordinates of the center of the tiles that make up the portal.
-    void recomputeCenterPosition();
-
     int mSpawnCreatureCountdown;
 
-    double mXCenter;
-    double mYCenter;
-
     RenderedMovableEntity* mPortalObject;
+
+    //! \brief Updates the portal mesh position.
+    void updatePortalPosition();
 };
 
 #endif // ROOMPORTAL_H

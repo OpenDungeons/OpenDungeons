@@ -31,14 +31,13 @@
 #include "utils/ConfigManager.h"
 #include "utils/Random.h"
 #include "utils/LogManager.h"
+#include "render/ODFrameListener.h"
 
 #include <cmath>
 
 RoomPortal::RoomPortal(GameMap* gameMap) :
         Room(gameMap),
         mSpawnCreatureCountdown(0),
-        mXCenter(0),
-        mYCenter(0),
         mPortalObject(nullptr)
 {
    setMeshName("Portal");
@@ -54,30 +53,35 @@ void RoomPortal::absorbRoom(Room* room)
 {
     Room::absorbRoom(room);
 
-    // Get back the portal mesh reference
-    if (!mBuildingObjects.empty())
-        mPortalObject = mBuildingObjects.begin()->second;
-    else
-        mPortalObject = nullptr;
+    if (ODFrameListener::getSingleton().getModeManager()->getCurrentModeType() == ModeManager::ModeType::EDITOR)
+        updatePortalPosition();
+}
+
+void RoomPortal::updatePortalPosition()
+{
+    // Only the server game map should load objects.
+    if (!getGameMap()->isServerGameMap())
+        return;
+
+    // Delete all previous rooms meshes and recreate a central one.
+    removeAllBuildingObjects();
+    mPortalObject = nullptr;
+
+    Tile* centralTile = getCentralTile();
+    if (centralTile == nullptr)
+        return;
+
+    mPortalObject = new PersistentObject(getGameMap(), getName(), "PortalObject", centralTile, 0.0, false);
+    addBuildingObject(centralTile, mPortalObject);
+
+    mPortalObject->setAnimationState("Idle");
 }
 
 void RoomPortal::createMeshLocal()
 {
     Room::createMeshLocal();
 
-    // Don't recreate the portal if it's already done.
-    if (mPortalObject != nullptr)
-        return;
-
-    // The client game map should not load building objects. They will be created
-    // by the messages sent by the server because some of them are randomly created
-    if(!getGameMap()->isServerGameMap())
-        return;
-
-    mPortalObject = new PersistentObject(getGameMap(), getName(), "PortalObject", getCentralTile(), 0.0, false);
-    addBuildingObject(getCentralTile(), mPortalObject);
-
-    mPortalObject->setAnimationState("Idle");
+    updatePortalPosition();
 }
 
 void RoomPortal::destroyMeshLocal()
@@ -86,19 +90,14 @@ void RoomPortal::destroyMeshLocal()
     mPortalObject = nullptr;
 }
 
-void RoomPortal::addCoveredTile(Tile* t, double nHP)
-{
-    Room::addCoveredTile(t, nHP);
-    recomputeCenterPosition();
-}
-
 bool RoomPortal::removeCoveredTile(Tile* t)
 {
-    return Room::removeCoveredTile(t);
-    // Don't recompute the position.
-    // Removing a portal tile usually means some creatures are attacking it.
-    // The portal shouldn't move in that case.
-    //recomputeCenterPosition();
+    bool ret = Room::removeCoveredTile(t);
+
+    if (ODFrameListener::getSingleton().getModeManager()->getCurrentModeType() == ModeManager::ModeType::EDITOR)
+        updatePortalPosition();
+
+    return ret;
 }
 
 void RoomPortal::doUpkeep()
@@ -141,37 +140,24 @@ void RoomPortal::spawnCreature()
     if (classToSpawn == nullptr)
         return;
 
+    Tile* centralTile = getCentralTile();
+    if (centralTile == nullptr)
+        return;
+
     // Create a new creature and copy over the class-based creature parameters.
-    Creature *newCreature = new Creature(getGameMap(), classToSpawn);
+    Creature* newCreature = new Creature(getGameMap(), classToSpawn);
 
     LogManager::getSingleton().logMessage("Spawning a creature class=" + classToSpawn->getClassName()
         + ", name=" + newCreature->getName() + ", seatId=" + Ogre::StringConverter::toString(getSeat()->getId()));
 
-    newCreature->setSeat(getSeat());
+    Ogre::Real xPos = centralTile->getPosition().x;
+    Ogre::Real yPos = centralTile->getPosition().y;
 
+    newCreature->setSeat(getSeat());
     getGameMap()->addCreature(newCreature);
-    Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(mXCenter), static_cast<Ogre::Real>(mYCenter), 0.0f);
+    Ogre::Vector3 spawnPosition(xPos, yPos, 0.0f);
     newCreature->createMesh();
     newCreature->setPosition(spawnPosition, false);
 
     mSpawnCreatureCountdown = Random::Uint(15, 30);
-}
-
-void RoomPortal::recomputeCenterPosition()
-{
-    mXCenter = mYCenter = 0.0;
-
-    if (mCoveredTiles.empty())
-        return;
-
-    // Loop over the covered tiles and compute the average location (i.e. the center) of the portal.
-    for (unsigned int i = 0; i < mCoveredTiles.size(); ++i)
-    {
-        Tile *tempTile = mCoveredTiles[i];
-        mXCenter += tempTile->getX();
-        mYCenter += tempTile->getY();
-    }
-
-    mXCenter /= static_cast<double>(mCoveredTiles.size());
-    mYCenter /= static_cast<double>(mCoveredTiles.size());
 }
