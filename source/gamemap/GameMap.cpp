@@ -1751,105 +1751,96 @@ std::list<Tile*> GameMap::tilesBetween(int x1, int y1, int x2, int y2)
     return path;
 }
 
-std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
+std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, const std::vector<Tile*>& tilesWithinSightRadius)
 {
     std::vector<Tile*> tempVector;
 
     if (!startTile->permitsVision())
         return tempVector;
 
-    int startX = startTile->getX();
-    int startY = startTile->getY();
-    int sightRadiusSquared = (int)(sightRadius * sightRadius);
-    std::list<std::pair<Tile*, double> > tileQueue;
-
-    int tileCounter = 0;
-
-    while (true)
+    // We copy the vector because we will remove the tiles as we process them
+    std::vector<Tile*> tilesWithinSightRadiusWork = tilesWithinSightRadius;
+    // We process all the tiles within sight radius. We start from the start tile and go to the processed tile.
+    // While we have sight on the processed tiles, we add them to the returned vector. Once we hit a tile
+    // where we don't have vision, we remove the remaining tiles.
+    while(!tilesWithinSightRadiusWork.empty())
     {
-        int rSquared = mTileCoordinateMap->getRadiusSquared(tileCounter);
-        if (rSquared > sightRadiusSquared)
-            break;
+        Tile* tileDest = *tilesWithinSightRadiusWork.begin();
 
-        std::pair<int, int> coord = mTileCoordinateMap->getCoordinate(tileCounter);
+        std::list<Tile*> tiles = tilesBetween(startTile->getX(), startTile->getY(),
+            tileDest->getX(), tileDest->getY());
 
-        Tile *tempTile = getTile(startX + coord.first, startY + coord.second);
-        double tempTheta = mTileCoordinateMap->getCentralTheta(tileCounter);
-        if (tempTile != nullptr)
-            tileQueue.push_back(std::pair<Tile*, double> (tempTile, tempTheta));
-
-        ++tileCounter;
-    }
-
-    //TODO: Loop backwards and remove any non-see through tiles until we get to one which permits vision (this cuts down the cost of walks toward the end when an opaque block is found).
-
-    // Now loop over the queue, determining which tiles are visible and push them onto the tempVector which will be returned as the output of the function.
-    while (!tileQueue.empty())
-    {
-        // If the tile lets light though it it is visible and we can remove it from the queue and put it in the return list.
-        if ((*tileQueue.begin()).first->permitsVision())
+        Tile* lastTile = nullptr;
+        bool hasVision = true;
+        for(Tile* tile : tiles)
         {
-            // The tile is visible.
-            tempVector.push_back((*tileQueue.begin()).first);
-            tileQueue.erase(tileQueue.begin());
-            continue;
-        }
-        else
-        {
-            // The tile is does not allow vision to it.  Remove it from the queue and remove any tiles obscured by this one.
-            // We add it to the return list as well since this tile is as far as we can see in this direction.  Calculate
-            // the radial vectors to the corners of this tile.
-            Tile *obstructingTile = (*tileQueue.begin()).first;
-            tempVector.push_back(obstructingTile);
-            tileQueue.erase(tileQueue.begin());
-            RadialVector2 smallAngle, largeAngle, tempAngle;
+            // We need to differentiate the first tile that stops vision to add it to the list
+            // so that we can see the tile stopping vision
+            bool hasVisionLast = hasVision;
 
-            // Calculate the obstructing tile's angular size and the direction to it.  We want to check if other tiles
-            // are within deltaTheta of the calculated direction.
-            double dx = obstructingTile->getX() - startTile->getX();
-            double dy = obstructingTile->getY() - startTile->getY();
-            double rsq = dx * dx + dy * dy;
-            double deltaTheta = 1.5 / sqrt(rsq);
-            tempAngle.fromCartesian(dx, dy);
-            smallAngle.setTheta(tempAngle.getTheta() - deltaTheta);
-            largeAngle.setTheta(tempAngle.getTheta() + deltaTheta);
-
-            // Now that we have identified the boundary lines of the region obscured by this tile, loop through until the end of
-            // the tileQueue and remove any tiles which fall inside this obscured region since they are not visible either.
-            std::list<std::pair<Tile*, double> >::iterator tileQueueIterator =
-                tileQueue.begin();
-            while (tileQueueIterator != tileQueue.end())
+            // If we change tile diagonally, we check that at least one of the 2 surrounding tiles permits vision
+            if(hasVision &&
+               (lastTile != nullptr) &&
+               (lastTile->getX() != tile->getX()) &&
+               (lastTile->getY() != tile->getY()))
             {
-                tempAngle.setTheta((*tileQueueIterator).second);
-
-                // If the current tile is in the obscured region.
-                if (tempAngle.directionIsBetween(smallAngle, largeAngle))
+                int x = std::min(lastTile->getX(), tile->getX());
+                int y = std::min(lastTile->getY(), tile->getY());
+                Tile* t1;
+                Tile* t2;
+                if((lastTile->getX() == x &&
+                    lastTile->getY() == y) ||
+                   (tile->getX() == x &&
+                    tile->getY() == y))
                 {
-                    // The tile is in the obscured region so remove it from the queue of possibly visible tiles.
-                    tileQueueIterator = tileQueue.erase(tileQueueIterator);
+                    t1 = getTile(x + 1, y);
+                    t2 = getTile(x, y + 1);
                 }
                 else
                 {
-                    // The tile is not obscured by the current obscuring tile so leave it in the queue for now.
-                    ++tileQueueIterator;
+                    t1 = getTile(x, y);
+                    t2 = getTile(x + 1, y + 1);
+                }
+
+                // If we don't have vision on the 2 tiles, we cannot see through
+                if(!t1->permitsVision() && !t2->permitsVision())
+                {
+                    hasVision = false;
+                    // Moreover, we don't want this tile to be added if it was to be
+                    // so we set hasVisionLast to false
+                    hasVisionLast = false;
                 }
             }
+            lastTile = tile;
+
+            if(hasVision && !tile->permitsVision())
+                hasVision = false;
+
+            std::vector<Tile*>::iterator it = std::find(tilesWithinSightRadiusWork.begin(), tilesWithinSightRadiusWork.end(), tile);
+            if(it == tilesWithinSightRadiusWork.end())
+                continue;
+
+            tilesWithinSightRadiusWork.erase(it);
+
+            // If vision has changed on this tile, we add it to the list (If a wall stops vision,
+            // we cannot see behind but we can see the wall)
+            if(!hasVision && !hasVisionLast)
+                continue;
+
+            tempVector.push_back(tile);
         }
     }
-
-    //TODO:  Add the sector shaped region of the visible region
 
     return tempVector;
 }
 
-std::vector<GameEntity*> GameMap::getVisibleForce(std::vector<Tile*> visibleTiles, Seat* seat, bool invert)
+std::vector<GameEntity*> GameMap::getVisibleForce(const std::vector<Tile*>& visibleTiles, Seat* seat, bool invert)
 {
     std::vector<GameEntity*> returnList;
 
     // Loop over the visible tiles
-    for (std::vector<Tile*>::iterator itr = visibleTiles.begin(); itr != visibleTiles.end(); ++itr)
+    for (Tile* tile : visibleTiles)
     {
-        Tile* tile = *itr;
         OD_ASSERT_TRUE(tile != nullptr);
         if(tile == nullptr)
             continue;
@@ -1862,14 +1853,13 @@ std::vector<GameEntity*> GameMap::getVisibleForce(std::vector<Tile*> visibleTile
     return returnList;
 }
 
-std::vector<GameEntity*> GameMap::getVisibleCreatures(std::vector<Tile*> visibleTiles, Seat* seat, bool invert)
+std::vector<GameEntity*> GameMap::getVisibleCreatures(const std::vector<Tile*>& visibleTiles, Seat* seat, bool invert)
 {
     std::vector<GameEntity*> returnList;
 
     // Loop over the visible tiles
-    for (std::vector<Tile*>::iterator itr = visibleTiles.begin(); itr != visibleTiles.end(); ++itr)
+    for (Tile* tile : visibleTiles)
     {
-        Tile* tile = *itr;
         OD_ASSERT_TRUE(tile != nullptr);
         if(tile == nullptr)
             continue;
@@ -1880,7 +1870,7 @@ std::vector<GameEntity*> GameMap::getVisibleCreatures(std::vector<Tile*> visible
     return returnList;
 }
 
-std::vector<MovableGameEntity*> GameMap::getVisibleCarryableEntities(std::vector<Tile*> visibleTiles)
+std::vector<MovableGameEntity*> GameMap::getVisibleCarryableEntities(const std::vector<Tile*>& visibleTiles)
 {
     std::vector<MovableGameEntity*> returnList;
 

@@ -42,7 +42,8 @@ TrapCannon::TrapCannon(GameMap* gameMap) :
 
 bool TrapCannon::shoot(Tile* tile)
 {
-    std::vector<Tile*> visibleTiles = getGameMap()->visibleTiles(tile, mRange);
+    std::vector<Tile*> tilesWithinSightRadius = getGameMap()->circularRegion(tile->getX(), tile->getY(), mRange);
+    std::vector<Tile*> visibleTiles = getGameMap()->visibleTiles(tile, tilesWithinSightRadius);
     std::vector<GameEntity*> enemyObjects = getGameMap()->getVisibleCreatures(visibleTiles, getSeat(), true);
 
     if(enemyObjects.empty())
