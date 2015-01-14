@@ -1552,7 +1552,29 @@ bool Creature::handleDigTileAction(const CreatureAction& actionItem)
         getGameMap()->addRenderedMovableEntity(obj);
         obj->createMesh();
         obj->setPosition(pos, false);
-        pushAction(CreatureAction::ActionType::carryEntity, true);
+
+        std::vector<Room*> treasuries = getGameMap()->getRoomsByTypeAndSeat(Room::RoomType::treasury, getSeat());
+        treasuries = getGameMap()->getReachableRooms(treasuries, myTile, this);
+        bool isTreasuryAvailable = false;
+        for(Room* room : treasuries)
+        {
+            RoomTreasury* treasury = static_cast<RoomTreasury*>(room);
+            if(treasury->emptyStorageSpace() <= 0)
+                continue;
+
+            isTreasuryAvailable = true;
+            break;
+        }
+        if(isTreasuryAvailable)
+        {
+            pushAction(CreatureAction::ActionType::carryEntity, true);
+        }
+        else if((getSeat() != nullptr) &&
+                (getSeat()->getPlayer() != nullptr) &&
+                (getSeat()->getPlayer()->getIsHuman()))
+        {
+            getSeat()->getPlayer()->notifyNoTreasuryAvailable();
+        }
     }
 
     // If we successfully dug a tile then we are done for this turn.
@@ -1638,7 +1660,29 @@ bool Creature::handleDigTileAction(const CreatureAction& actionItem)
             getGameMap()->addRenderedMovableEntity(obj);
             obj->createMesh();
             obj->setPosition(pos, false);
-            pushAction(CreatureAction::ActionType::carryEntity, true);
+
+            std::vector<Room*> treasuries = getGameMap()->getRoomsByTypeAndSeat(Room::RoomType::treasury, getSeat());
+            treasuries = getGameMap()->getReachableRooms(treasuries, myTile, this);
+            bool isTreasuryAvailable = false;
+            for(Room* room : treasuries)
+            {
+                RoomTreasury* treasury = static_cast<RoomTreasury*>(room);
+                if(treasury->emptyStorageSpace() <= 0)
+                    continue;
+
+                isTreasuryAvailable = true;
+                break;
+            }
+            if(isTreasuryAvailable)
+            {
+                pushAction(CreatureAction::ActionType::carryEntity, true);
+            }
+            else if((getSeat() != nullptr) &&
+                    (getSeat()->getPlayer() != nullptr) &&
+                    (getSeat()->getPlayer()->getIsHuman()))
+            {
+                getSeat()->getPlayer()->notifyNoTreasuryAvailable();
+            }
         }
 
         return true;

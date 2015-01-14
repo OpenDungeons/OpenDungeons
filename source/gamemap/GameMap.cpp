@@ -63,9 +63,6 @@
 #include <cmath>
 #include <cstdlib>
 
-//! \brief The number of seconds the local player must stay out of danger to trigger the calm music again.
-const float BATTLE_TIME_COUNT = 10.0f;
-
 const std::string DEFAULT_NICK = "Player";
 
 using namespace std;
@@ -1266,7 +1263,7 @@ void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
 
     if(isServerGameMap())
     {
-        updatePlayerFightingTime(timeSinceLastFrame);
+        updatePlayerTime(timeSinceLastFrame);
 
         // We check if it is pay day
         mTimePayDay += timeSinceLastFrame;
@@ -1286,7 +1283,7 @@ void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
     }
 }
 
-void GameMap::updatePlayerFightingTime(Ogre::Real timeSinceLastFrame)
+void GameMap::updatePlayerTime(Ogre::Real timeSinceLastFrame)
 {
     // Updates fighting time for server players
     for (Player* player : mPlayers)
@@ -1294,21 +1291,10 @@ void GameMap::updatePlayerFightingTime(Ogre::Real timeSinceLastFrame)
         if (player == nullptr)
             continue;
 
-        float fightingTime = player->getFightingTime();
-        if (fightingTime == 0.0f)
+        if (!player->getIsHuman())
             continue;
 
-        fightingTime -= timeSinceLastFrame;
-        // We can trigger the calm music again
-        if (fightingTime <= 0.0f)
-        {
-            fightingTime = 0.0f;
-            // Notify the player he is no longer under attack.
-            ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::playerNoMoreFighting, player);
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
-        player->setFightingTime(fightingTime);
+        player->updateTime(timeSinceLastFrame);
     }
 }
 
@@ -1334,16 +1320,7 @@ void GameMap::playerIsFighting(Player* player)
             continue;
 
         // Warn the ally about the battle
-        if (ally->getFightingTime() == 0.0f)
-        {
-            // Notify the player he is now under attack.
-            ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::playerFighting, ally);
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
-
-        // Reset its fighting time anyway
-        ally->setFightingTime(BATTLE_TIME_COUNT);
+        ally->notifyFighting();
     }
 }
 

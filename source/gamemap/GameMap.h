@@ -574,10 +574,9 @@ private:
     //! \brief Resets the unique numbers
     void resetUniqueNumbers();
 
-    //! \brief Updates every player's fighting time value
-    //! and triggers potentiel calm music server notifications.
+    //! \brief Updates every player's time value so they can handle timed events like fighting music
     //! Used on the server game map only.
-    void updatePlayerFightingTime(Ogre::Real timeSinceLastFrame);
+    void updatePlayerTime(Ogre::Real timeSinceLastFrame);
 };
 
 #endif // _GAMEMAP_H_

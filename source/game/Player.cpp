@@ -32,6 +32,12 @@
 
 #include "utils/LogManager.h"
 
+//! \brief The number of seconds the local player must stay out of danger to trigger the calm music again.
+const float BATTLE_TIME_COUNT = 10.0f;
+
+//! \brief The number of seconds the local player will not be notified again if no treasury is available
+const float NO_TREASURY_TIME_COUNT = 30.0f;
+
 Player::Player(GameMap* gameMap, int32_t id) :
     mId(id),
     mNewRoomType(Room::nullRoomType),
@@ -41,6 +47,7 @@ Player::Player(GameMap* gameMap, int32_t id) :
     mSeat(nullptr),
     mIsHuman(false),
     mFightingTime(0.0f),
+    mNoTreasuryAvailableTime(0.0f),
     mIsPlayerLostSent(false)
 {
 }
@@ -293,5 +300,59 @@ void Player::notifyNoMoreDungeonTemple()
             serverNotification->mPacket << "An ally has lost";
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
+    }
+}
+
+void Player::updateTime(Ogre::Real timeSinceLastUpdate)
+{
+    // Handle fighting time
+    if(mFightingTime > 0.0f)
+    {
+        if(mFightingTime > timeSinceLastUpdate)
+        {
+            mFightingTime -= timeSinceLastUpdate;
+        }
+        else
+        {
+            mFightingTime = 0.0f;
+            // Notify the player he is no longer under attack.
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotification::playerNoMoreFighting, this);
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+    }
+
+    if(mNoTreasuryAvailableTime > 0.0f)
+    {
+        if(mNoTreasuryAvailableTime > timeSinceLastUpdate)
+            mNoTreasuryAvailableTime -= timeSinceLastUpdate;
+        else
+            mNoTreasuryAvailableTime = 0.0f;
+    }
+}
+
+void Player::notifyFighting()
+{
+    if(mFightingTime == 0.0f)
+    {
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotification::playerFighting, this);
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
+
+    mFightingTime = BATTLE_TIME_COUNT;
+}
+
+void Player::notifyNoTreasuryAvailable()
+{
+    if(mNoTreasuryAvailableTime == 0.0f)
+    {
+        mNoTreasuryAvailableTime = NO_TREASURY_TIME_COUNT;
+
+        std::string chatMsg = "No treasury available. You should build a bigger one";
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotification::chatServer, this);
+        serverNotification->mPacket << chatMsg;
+        ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 }
