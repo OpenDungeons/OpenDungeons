@@ -58,7 +58,10 @@ class ODSocketClient
 
         // Client initialization
         bool isConnected();
-        virtual void disconnect();
+
+        //! \brief Disconnect the client and tell whether to keep the replay file.
+        virtual void disconnect(bool keepReplay = false);
+
         Player* getPlayer() { return mPlayer; }
         void setPlayer(Player* player) { mPlayer = player; }
         int64_t getLastTurnAck() { return mLastTurnAck; }
@@ -103,6 +106,10 @@ class ODSocketClient
         std::ofstream mReplayOutputStream;
         ODPacket mPendingPacket;
         int32_t mPendingTimestamp;
+
+        //! \brief the replay filename being written. Used to later optionally delete it
+        //! if asked to.
+        std::string mOutputReplayFilename;
 };
 
 #endif // ODSOCKETCLIENT_H

@@ -68,7 +68,9 @@ class ODClient: public Ogre::Singleton<ODClient>,
     template<typename ...Args>
     void queueClientNotification(ClientNotification::ClientNotificationType type, const Args&... args);
 
-    void disconnect();
+    //! \brief Disconnect the client.
+    //! \param keepReplay Tells whether to keep the new replay file.
+    void disconnect(bool keepReplay = false);
 
     //! \brief Adds a client notification to the client notification queue.
     void notifyExit();

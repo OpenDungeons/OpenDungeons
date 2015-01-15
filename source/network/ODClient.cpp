@@ -926,9 +926,9 @@ void ODClient::queueClientNotification(ClientNotification* n)
     mClientNotificationQueue.push_back(n);
 }
 
-void ODClient::disconnect()
+void ODClient::disconnect(bool keepReplay)
 {
-    ODSocketClient::disconnect();
+    ODSocketClient::disconnect(keepReplay);
     while(!mClientNotificationQueue.empty())
     {
         delete mClientNotificationQueue.front();
