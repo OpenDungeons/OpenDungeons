@@ -1895,7 +1895,7 @@ void GameMap::clearRooms()
 
 void GameMap::addRoom(Room *r)
 {
-    int nbTiles = r->getCoveredTiles().size();
+    int nbTiles = r->numCoveredTiles();
     LogManager::getSingleton().logMessage(serverStr() + "Adding room " + r->getName() + ", nbTiles="
         + Ogre::StringConverter::toString(nbTiles) + ", seatId=" + Ogre::StringConverter::toString(r->getSeat()->getId()));
     for(Tile* tile : r->getCoveredTiles())
@@ -2011,7 +2011,7 @@ std::vector<Building*> GameMap::getReachableBuildingsPerSeat(Seat* seat,
         if (room->getHP(nullptr) <= 0.0)
             continue;
 
-        if(!pathExists(creature, startTile, room->getCoveredTiles()[0]))
+        if(!pathExists(creature, startTile, room->getCoveredTile(0)))
             continue;
 
         returnList.push_back(room);
@@ -2025,7 +2025,7 @@ std::vector<Building*> GameMap::getReachableBuildingsPerSeat(Seat* seat,
         if (trap->getHP(nullptr) <= 0.0)
             continue;
 
-        if(!pathExists(creature, startTile, trap->getCoveredTiles()[0]))
+        if(!pathExists(creature, startTile, trap->getCoveredTile(0)))
             continue;
 
         returnList.push_back(trap);
@@ -2069,7 +2069,7 @@ void GameMap::clearTraps()
 
 void GameMap::addTrap(Trap *trap)
 {
-    int nbTiles = trap->getCoveredTiles().size();
+    int nbTiles = trap->numCoveredTiles();
     LogManager::getSingleton().logMessage(serverStr() + "Adding trap " + trap->getName() + ", nbTiles="
         + Ogre::StringConverter::toString(nbTiles) + ", seatId=" + Ogre::StringConverter::toString(trap->getSeat()->getId()));
 

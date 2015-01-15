@@ -183,17 +183,23 @@ bool Building::removeCoveredTile(Tile* t)
     return false;
 }
 
-Tile* Building::getCoveredTile(int index)
-{
-    return mCoveredTiles[index];
-}
-
 std::vector<Tile*> Building::getCoveredTiles()
 {
     return mCoveredTiles;
 }
 
-unsigned int Building::numCoveredTiles()
+Tile* Building::getCoveredTile(int index)
+{
+    OD_ASSERT_TRUE_MSG(index < static_cast<int>(mCoveredTiles.size()), "name=" + getName()
+        + ", index=" + Ogre::StringConverter::toString(index));
+
+    if(index >= static_cast<int>(mCoveredTiles.size()))
+        return nullptr;
+
+    return mCoveredTiles[index];
+}
+
+uint32_t Building::numCoveredTiles()
 {
     return mCoveredTiles.size();
 }

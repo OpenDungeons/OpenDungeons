@@ -226,8 +226,10 @@ public:
     //! allied with the given seat (or if invert is true, does not allied)
     std::vector<GameEntity*> getVisibleForce(Seat* seat, bool invert);
 
-    //! \brief Conform: AttackableObject - Returns a vector containing the tile the creature is in.
+    //! \brief Conform: GameEntity functions handling covered tiles
     std::vector<Tile*> getCoveredTiles();
+    Tile* getCoveredTile(int index);
+    uint32_t numCoveredTiles();
 
     //! \brief Conform: AttackableObject - Deducts a given amount of HP from this creature.
     double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile* tileTakingDamage);

@@ -273,6 +273,32 @@ RenderedMovableEntity* RenderedMovableEntity::getRenderedMovableEntityFromPacket
     return obj;
 }
 
+std::vector<Tile*> RenderedMovableEntity::getCoveredTiles()
+{
+    std::vector<Tile*> tempVector;
+    tempVector.push_back(getPositionTile());
+    return tempVector;
+}
+
+Tile* RenderedMovableEntity::getCoveredTile(int index)
+{
+    OD_ASSERT_TRUE_MSG(index == 0, "name=" + getName()
+        + ", index=" + Ogre::StringConverter::toString(index));
+
+    if(index > 0)
+        return nullptr;
+
+    return getPositionTile();
+}
+
+uint32_t RenderedMovableEntity::numCoveredTiles()
+{
+    if(getPositionTile() == nullptr)
+        return 0;
+
+    return 1;
+}
+
 void RenderedMovableEntity::exportHeadersToStream(std::ostream& os)
 {
     os << getRenderedMovableEntityType() << "\t";

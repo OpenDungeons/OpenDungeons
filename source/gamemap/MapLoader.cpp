@@ -503,7 +503,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
         // Rooms with 0 tiles are removed during upkeep. In editor mode, we don't use upkeep so there might be some rooms with
         // 0 tiles (if a room has been erased for example). For this reason, we don't save rooms with 0 tiles
         Room* room = *it;
-        if(room->getCoveredTiles().size() <= 0)
+        if(room->numCoveredTiles() <= 0)
             continue;
 
         levelFile << "[Room]" << std::endl;
@@ -521,7 +521,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
         // Traps with 0 tiles are removed during upkeep. In editor mode, we don't use upkeep so there might be some traps with
         // 0 tiles (if a trap has been erased for example). For this reason, we don't save traps with 0 tiles
         Trap* trap = gameMap.getTrap(i);
-        if(trap->getCoveredTiles().size() <= 0)
+        if(trap->numCoveredTiles() <= 0)
             continue;
 
         levelFile << "[Trap]" << std::endl;

@@ -180,6 +180,12 @@ class GameEntity
     //! this will be a single tile, for larger objects like rooms this will be 1 or more tiles.
     virtual std::vector<Tile*> getCoveredTiles() = 0;
 
+    //! \brief Returns the tile at the given index (nullptr if no tile).
+    virtual Tile* getCoveredTile(int index) = 0;
+
+    //! \brief Returns the number of covered tiles.
+    virtual uint32_t numCoveredTiles() = 0;
+
     //! \brief Returns the HP associated with the given tile of the object, it is up to the object how they want to treat the tile/HP relationship.
     virtual double getHP(Tile *tile) const = 0;
 

@@ -73,9 +73,9 @@ public:
     virtual bool isAttackable(Tile* tile, Seat* seat) const;
     virtual void addCoveredTile(Tile* t, double nHP);
     virtual bool removeCoveredTile(Tile* t);
-    virtual Tile* getCoveredTile(int index);
     std::vector<Tile*> getCoveredTiles();
-    virtual unsigned int numCoveredTiles();
+    Tile* getCoveredTile(int index);
+    uint32_t numCoveredTiles();
     virtual void clearCoveredTiles();
     double getHP(Tile *tile) const;
     double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile *tileTakingDamage);

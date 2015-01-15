@@ -51,12 +51,12 @@ bool TrapSpike::shoot(Tile* tile)
     // We damage every creature standing on the trap
     for(GameEntity* target : enemyCreatures)
     {
-        target->takeDamage(this, Random::Double(mMinDamage, mMaxDamage), 0.0, target->getCoveredTiles()[0]);
+        target->takeDamage(this, Random::Double(mMinDamage, mMaxDamage), 0.0, target->getCoveredTile(0));
     }
     std::vector<GameEntity*> alliedCreatures = getGameMap()->getVisibleCreatures(visibleTiles, getSeat(), false);
     for(GameEntity* target : alliedCreatures)
     {
-        target->takeDamage(this, Random::Double(mMinDamage, mMaxDamage), 0.0, target->getCoveredTiles()[0]);
+        target->takeDamage(this, Random::Double(mMinDamage, mMaxDamage), 0.0, target->getCoveredTile(0));
     }
     return true;
 }

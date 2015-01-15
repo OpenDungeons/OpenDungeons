@@ -1099,7 +1099,7 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
                     && static_cast<Creature*>(mReachableAlliedObjects[i])->mDefinition->isWorker())
                 {
                     // We found a worker so find a tile near the worker to walk to.  See if the worker is digging.
-                    Tile* tempTile = mReachableAlliedObjects[i]->getCoveredTiles()[0];
+                    Tile* tempTile = mReachableAlliedObjects[i]->getCoveredTile(0);
                     if (static_cast<Creature*>(mReachableAlliedObjects[i])->peekAction().getType()
                             == CreatureAction::digTile)
                     {
@@ -2696,7 +2696,7 @@ std::vector<GameEntity*> Creature::getReachableAttackableObjects(const std::vect
         if(entity->getHP(nullptr) <= 0)
             continue;
 
-        Tile* objectTile = entity->getCoveredTiles()[0];
+        Tile* objectTile = entity->getCoveredTile(0);
         if (getGameMap()->pathExists(this, myTile, objectTile))
             tempVector.push_back(objectsToCheck[i]);
     }
@@ -2896,6 +2896,25 @@ std::vector<Tile*> Creature::getCoveredTiles()
     std::vector<Tile*> tempVector;
     tempVector.push_back(getPositionTile());
     return tempVector;
+}
+
+Tile* Creature::getCoveredTile(int index)
+{
+    OD_ASSERT_TRUE_MSG(index == 0, "name=" + getName()
+        + ", index=" + Ogre::StringConverter::toString(index));
+
+    if(index > 0)
+        return nullptr;
+
+    return getPositionTile();
+}
+
+uint32_t Creature::numCoveredTiles()
+{
+    if(getPositionTile() == nullptr)
+        return 0;
+
+    return 1;
 }
 
 bool Creature::CloseStatsWindow(const CEGUI::EventArgs& /*e*/)
