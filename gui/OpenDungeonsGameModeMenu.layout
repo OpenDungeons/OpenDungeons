@@ -93,7 +93,7 @@
         </Window>
         <Window type="OD/TabControl" name="MainTabControl" >
             <Property name="Area" value="{{0,0},{1,-133},{1,0},{1,0}}" />
-            <Property name="TabHeight" value="{0,30}" />
+            <Property name="TabHeight" value="{0,25}" />
             <Property name="RiseOnClickEnabled" value="False" />
             <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuRooms.layout" name="RoomsImport" />
             <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuTraps.layout" name="RoomsImport" />

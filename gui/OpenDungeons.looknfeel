@@ -2282,7 +2282,7 @@
                 <Dim type="BottomEdge"><UnifiedDim scale="1" type="BottomEdge" /></Dim>
             </Area>
         </Child>
-        <Child nameSuffix="__auto_button__" type="OD/Button"> 
+        <Child nameSuffix="__auto_button__" type="OD/Button">
             <Area>
                 <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
                 <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
@@ -3273,7 +3273,7 @@
                     <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
                     <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
-                    <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
+                    <Dim type="Height"><UnifiedDim scale="1.4" type="Height" /></Dim>
                 </Area>
                 <VertFormat type="CentreAligned" />
                 <HorzFormat type="CentreAligned" />
@@ -3478,10 +3478,11 @@
                 <Area>
                     <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
                     <Dim type="TopEdge">
-                        <OperatorDim op="Multiply"><ImageDim dimension="Height" name="OpenDungeonsSkin/TabContentPaneUpperLeft" />
-                    <PropertyDim name="EnableTop" />
-                            </OperatorDim>
-                        </Dim>
+                        <OperatorDim op="Multiply">
+                            <ImageDim dimension="Height" name="OpenDungeonsSkin/TabContentPaneUpperLeft" />
+                            <PropertyDim name="EnableTop" />
+                        </OperatorDim>
+                    </Dim>
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="BottomEdge"><UnifiedDim scale="1" type="Height" />
                     </Dim>
@@ -3535,25 +3536,26 @@
 
     <WidgetLook name="OD/TabControl">
         <Property name="TabButtonType" value="OD/TabButton" />
-        <Property name="TabTextPadding" value="{0,15}" />
+        <Property name="TabTextPadding" value="{0,20}" />
         <Child nameSuffix="__auto_TabPane__" type="OD/TabContentPane">
             <Area>
                 <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
                 <Dim type="RightEdge"><UnifiedDim scale="1" type="Width" /></Dim>
                 <Dim type="TopEdge">
-                    <OperatorDim op="Multiply"><PropertyDim name="EnableBottom" widget="__auto_TabPane__" />
-                <PropertyDim name="TabHeight" type="Height" />
-                        </OperatorDim>
-                    </Dim>
+                    <OperatorDim op="Multiply">
+                        <PropertyDim name="EnableBottom" widget="__auto_TabPane__" />
+                        <PropertyDim name="TabHeight" type="Height" />
+                    </OperatorDim>
+                </Dim>
                 <Dim type="Height">
-                    <OperatorDim op="Subtract"><UnifiedDim scale="1" type="Height" />
-                <PropertyDim name="TabHeight" type="Height" />
-                        </OperatorDim>
-                    </Dim>
+                    <OperatorDim op="Subtract">
+                        <UnifiedDim scale="1" type="Height" />
+                        <PropertyDim name="TabHeight" type="Height" />
+                    </OperatorDim>
+                </Dim>
             </Area>
         </Child>
         <Child nameSuffix="__auto_TabPane__Buttons" type="OD/TabButtonPane">
-
             <Area>
                 <Dim type="LeftEdge"><AbsoluteDim value="16" /></Dim>
                 <Dim type="RightEdge"><UnifiedDim scale="1" type="Width" /></Dim>
