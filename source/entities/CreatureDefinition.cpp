@@ -22,6 +22,8 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
+static CreatureRoomAffinity EMPTY_AFFINITY(Room::RoomType::nullRoomType, 0, 0);
+
 double CreatureDefinition::getXPNeededWhenLevel(unsigned int level) const
 {
     // This should never happen
@@ -192,6 +194,12 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
         if (nextParam == "[XP]")
         {
             loadXPTable(defFile, creatureDef);
+            continue;
+        }
+
+        if (nextParam == "[RoomAffinity]")
+        {
+            loadRoomAffinity(defFile, creatureDef);
             continue;
         }
 
@@ -596,7 +604,30 @@ void CreatureDefinition::writeCreatureDefinitionDiff(const CreatureDefinition* d
 
     file << "    [/Stats]" << std::endl;
 
-    bool isSame = true;
+    bool isSame;
+
+    isSame = (def1 != nullptr && def1->mRoomAffinity.size() == def2->mRoomAffinity.size());
+    uint32_t index = 0;
+    while(isSame &&
+          index < def2->mRoomAffinity.size())
+    {
+        isSame = def1->mRoomAffinity[index] == def2->mRoomAffinity[index];
+        ++index;
+    }
+    if(!isSame)
+    {
+        file << "    [RoomAffinity]" << std::endl;
+        for(const CreatureRoomAffinity& roomAffinity : def2->mRoomAffinity)
+        {
+            file << "    " << Room::getRoomNameFromRoomType(roomAffinity.getRoomType());
+            file << "\t" << roomAffinity.getLikeness();
+            file << "\t" << roomAffinity.getEfficiency();
+            file << std::endl;
+        }
+        file << "    [/RoomAffinity]" << std::endl;
+    }
+
+    isSame = true;
     for(uint32_t i = 0; i < (MAX_LEVEL - 1); ++i)
     {
         if(def1 == nullptr || (def1->mXPTable[i] != def2->mXPTable[i]))
@@ -663,4 +694,85 @@ void CreatureDefinition::loadXPTable(std::stringstream& defFile, CreatureDefinit
 
         creatureDef->mXPTable[i++] = Helper::toDouble(nextParam);
     }
+}
+
+void CreatureDefinition::loadRoomAffinity(std::stringstream& defFile, CreatureDefinition* creatureDef)
+{
+    OD_ASSERT_TRUE(creatureDef != nullptr);
+    if (creatureDef == nullptr)
+        return;
+
+    std::string nextParam;
+    bool exit = false;
+
+    creatureDef->mRoomAffinity.clear();
+    while (defFile.good())
+    {
+        if (exit)
+            break;
+
+        if(!(defFile >> nextParam))
+            break;
+
+        if (nextParam == "[/RoomAffinity]" ||
+            nextParam == "[/Creature]" || nextParam == "[/Creatures]")
+        {
+            exit = true;
+            break;
+        }
+
+        std::string roomName = nextParam;
+
+        if(!(defFile >> nextParam))
+            break;
+
+        if (nextParam == "[/RoomAffinity]" ||
+            nextParam == "[/Creature]" || nextParam == "[/Creatures]")
+        {
+            exit = true;
+            break;
+        }
+        int32_t likeness = Helper::toInt(nextParam);
+
+        if(!(defFile >> nextParam))
+            break;
+
+        if (nextParam == "[/RoomAffinity]" ||
+            nextParam == "[/Creature]" || nextParam == "[/Creatures]")
+        {
+            exit = true;
+            break;
+        }
+        double efficiency = Helper::toDouble(nextParam);
+
+        Room::RoomType roomType = Room::getRoomTypeFromRoomName(roomName);
+        OD_ASSERT_TRUE_MSG(roomType != Room::RoomType::nullRoomType, "Unknown room name=" + roomName);
+        if(roomType == Room::RoomType::nullRoomType)
+            continue;
+
+        // We sort the CreatureRoomAffinity from the most liked to the less
+        std::vector<CreatureRoomAffinity>::iterator it = creatureDef->mRoomAffinity.begin();
+        while(it != creatureDef->mRoomAffinity.end())
+        {
+            CreatureRoomAffinity& roomAffinity = *it;
+            if(roomAffinity.getLikeness() <= likeness)
+                break;
+
+            ++it;
+        }
+        creatureDef->mRoomAffinity.insert(it, CreatureRoomAffinity(roomType, likeness, efficiency));
+    }
+}
+
+const CreatureRoomAffinity& CreatureDefinition::getRoomAffinity(Room::RoomType roomType) const
+{
+    for(const CreatureRoomAffinity& roomAffinity : mRoomAffinity)
+    {
+        if(roomAffinity.getRoomType() != roomType)
+            continue;
+
+        return roomAffinity;
+    }
+
+    return EMPTY_AFFINITY;
 }

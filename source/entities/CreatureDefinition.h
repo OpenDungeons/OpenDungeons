@@ -19,6 +19,7 @@
 #define CREATUREDEFINITION_H
 
 #include "entities/Tile.h"
+#include "rooms/Room.h"
 
 #include <OgreVector3.h>
 
@@ -29,6 +30,38 @@ class ODPacket;
 
 //! \brief The maximum level of a creature
 static const uint32_t MAX_LEVEL = 30;
+
+class CreatureRoomAffinity
+{
+public:
+    CreatureRoomAffinity(Room::RoomType roomType, int32_t likeness, double efficiency):
+        mRoomType(roomType),
+        mLikeness(likeness),
+        mEfficiency(efficiency)
+    {
+    }
+
+    inline Room::RoomType getRoomType() const
+    { return mRoomType; }
+
+    inline int32_t getLikeness() const
+    { return mLikeness; }
+
+    inline double getEfficiency() const
+    { return mEfficiency; }
+
+    bool operator==(const CreatureRoomAffinity& creatureRoomAffinity) const
+    {
+        return mRoomType == creatureRoomAffinity.mRoomType &&
+            mLikeness == creatureRoomAffinity.mLikeness &&
+            mEfficiency == creatureRoomAffinity.mEfficiency;
+    }
+
+private:
+    Room::RoomType mRoomType;
+    int32_t mLikeness;
+    double mEfficiency;
+};
 
 class CreatureDefinition
 {
@@ -194,6 +227,13 @@ public:
 
     double                      getXPNeededWhenLevel(unsigned int level) const;
 
+    //! \brief Returns the creature affinity. The returned vector is assumed to be
+    //! sorted so that highest likeness is at first
+    const std::vector<CreatureRoomAffinity>& getRoomAffinity() const
+    { return mRoomAffinity; }
+
+    const CreatureRoomAffinity& getRoomAffinity(Room::RoomType roomType) const;
+
 private:
     //! \brief The job of the creature (e.g. worker, fighter, ...)
     CreatureJob mCreatureJob;
@@ -288,8 +328,14 @@ private:
     //! \note The creature starting at level 1, it can only change its level MAX_LEVEL - 1 times.
     std::vector<double> mXPTable;
 
-    //! \brief Loads the creature XP values for the current definition.
+    //! \brief The rooms the creature should choose according to availability
+    std::vector<CreatureRoomAffinity> mRoomAffinity;
+
+    //! \brief Loads the creature XP values for the given definition.
     static void loadXPTable(std::stringstream& defFile, CreatureDefinition* creatureDef);
+
+    //! \brief Loads the creature room affinity for the given definition.
+    static void loadRoomAffinity(std::stringstream& defFile, CreatureDefinition* creatureDef);
 };
 
 #endif // CREATUREDEFINITION_H

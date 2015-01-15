@@ -1003,7 +1003,7 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
         {
             Room* room = tile->getCoveringRoom();
             // we see if we are in an hatchery
-            if((room->getType() == Room::hatchery) && room->hasOpenCreatureSpot(this))
+            if(room->getType() == Room::hatchery)
             {
                 pushAction(CreatureAction::eatforced, true);
                 return true;
@@ -1015,7 +1015,7 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
                 return true;
             }
             // If not, can we work in this room ?
-            else if((room->getType() != Room::hatchery) && room->hasOpenCreatureSpot(this))
+            else if(room->getType() != Room::hatchery)
             {
                 pushAction(CreatureAction::jobforced, true);
                 return true;
@@ -1061,7 +1061,7 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
     }
 
     // Otherwise, we try to work
-    if (!mDefinition->isWorker() && Random::Double(0.0, 1.0) < 0.2
+    if (!mDefinition->isWorker() && Random::Double(0.0, 1.0) < 0.4
         && Random::Double(0.0, 50.0) < mAwakeness && Random::Double(50.0, 100.0) > mHunger)
     {
         // Check to see if we can work
@@ -1824,97 +1824,138 @@ bool Creature::handleJobAction(const CreatureAction& actionItem)
 {
     // Current creature tile position
     Tile* myTile = getPositionTile();
+    if (myTile == nullptr)
+    {
+        popAction();
+        return false;
+    }
 
     // Randomly decide to stop working, we are more likely to stop when we are tired.
-    if (Random::Double(20.0, 50.0) > mAwakeness)
+    if (Random::Double(10.0, 30.0) > mAwakeness)
     {
         popAction();
 
         stopJob();
         return true;
     }
-    // Make sure we are on the map.
-    else if (myTile != nullptr)
-    {
-        // If we are already working, nothing to do
-        if(mJobRoom != nullptr)
-            return false;
 
-        // See if we are in a room where we can work. If so, we try to add the creature. If it is ok, the room
-        // will handle the creature from here to make it go where it should
+    // If we are already working no need to search for a room
+    if(mJobRoom != nullptr)
+        return false;
+
+    if(actionItem.getType() == CreatureAction::ActionType::jobforced)
+    {
+        // We check if we can work in the given room
+        Room* room = myTile->getCoveringRoom();
+        const std::vector<CreatureRoomAffinity>& roomAffinity = mDefinition->getRoomAffinity();
+        for(const CreatureRoomAffinity& affinity : roomAffinity)
+        {
+            if((room != nullptr) &&
+               (room->getType() == affinity.getRoomType()) &&
+               (affinity.getLikeness() > 0) &&
+               (getSeat()->canOwnedCreatureUseRoomFrom(room->getSeat())))
+           {
+                // If the efficiency is 0 or the room is a hatchery, we only wander in the room
+                if((affinity.getEfficiency() <= 0) ||
+                   (room->getType() == Room::RoomType::hatchery))
+                {
+                    int index = Random::Int(0, room->numCoveredTiles() - 1);
+                    Tile* tileDest = room->getCoveredTile(index);
+                    std::list<Tile*> tempPath = getGameMap()->path(this, tileDest);
+                    if (setWalkPath(tempPath, 0, false))
+                    {
+                        setAnimationState("Walk");
+                        pushAction(CreatureAction::walkToTile, true);
+                        return false;
+                    }
+
+                    popAction();
+                    return true;
+                }
+
+                // It is the room responsability to test if the creature is suited for working in it
+                if(room->hasOpenCreatureSpot(this) && room->addCreatureUsingRoom(this))
+                {
+                    mJobRoom = room;
+                    return false;
+                }
+                break;
+           }
+        }
+
+        // If we couldn't work on the room we were forced to, we stop trying
+        popAction();
+        return true;
+    }
+
+    // We get the room we like the most. If we are on such a room, we start working if we can
+    const std::vector<CreatureRoomAffinity>& roomAffinity = mDefinition->getRoomAffinity();
+    for(const CreatureRoomAffinity& affinity : roomAffinity)
+    {
+        // See if we are in the room we like the most. If yes and we can work (if possible), we stay. If no,
+        // We check if there is such a room somewhere else where we can go
         if((myTile->getCoveringRoom() != nullptr) &&
+           (myTile->getCoveringRoom()->getType() == affinity.getRoomType()) &&
            (getSeat()->canOwnedCreatureUseRoomFrom(myTile->getCoveringRoom()->getSeat())))
         {
-            Room* tempRoom = myTile->getCoveringRoom();
-            // It is the room responsability to test if the creature is suited for working in it
-            if(tempRoom->hasOpenCreatureSpot(this) && (tempRoom->getType() != Room::hatchery) && tempRoom->addCreatureUsingRoom(this))
+            Room* room = myTile->getCoveringRoom();
+
+            // If the efficiency is 0 or the room is a hatchery, we only wander in the room
+            if((affinity.getEfficiency() <= 0) ||
+               (room->getType() == Room::RoomType::hatchery))
             {
-                mJobRoom = tempRoom;
+                int index = Random::Int(0, room->numCoveredTiles() - 1);
+                Tile* tileDest = room->getCoveredTile(index);
+                std::list<Tile*> tempPath = getGameMap()->path(this, tileDest);
+                if (setWalkPath(tempPath, 0, false))
+                {
+                    setAnimationState("Walk");
+                    pushAction(CreatureAction::walkToTile, true);
+                    return false;
+                }
+
+                popAction();
+                return true;
+            }
+
+            // It is the room responsability to test if the creature is suited for working in it
+            if(room->hasOpenCreatureSpot(this) && room->addCreatureUsingRoom(this))
+            {
+                mJobRoom = room;
                 return false;
             }
         }
-    }
-    else if (myTile == nullptr)
-    {
-        // We are not on the map, don't do anything.
-        popAction();
 
-        stopJob();
-        return false;
-    }
+        // We are not in a room of the good type or we couldn't use it. We check if there is a reachable room
+        // of the good type
+        std::vector<Room*> rooms = getGameMap()->getRoomsByTypeAndSeat(affinity.getRoomType(), getSeat());
+        rooms = getGameMap()->getReachableRooms(rooms, myTile, this);
+        std::random_shuffle(rooms.begin(), rooms.end());
+        for(Room* room : rooms)
+        {
+            // If efficiency is 0, we just want to wander so no need to check if the room
+            // is available
+            if((affinity.getEfficiency() <= 0) ||
+               room->hasOpenCreatureSpot(this))
+            {
+                int index = Random::Int(0, room->numCoveredTiles() - 1);
+                Tile* tileDest = room->getCoveredTile(index);
+                std::list<Tile*> tempPath = getGameMap()->path(this, tileDest);
+                if (setWalkPath(tempPath, 0, false))
+                {
+                    setAnimationState("Walk");
+                    pushAction(CreatureAction::walkToTile, true);
+                    return false;
+                }
 
-    // TODO : We should decide which room to use depending on the creatures preferences (library
-    // for wizards, ...).
-
-    // Get the list of trainingHalls controlled by our seat and make sure there is at least one.
-    std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndSeat(Room::trainingHall, getSeat());
-
-    if (tempRooms.empty())
-    {
-        popAction();
-
-        stopJob();
-        return true;
-    }
-
-    // Pick a room we want to work in and try to walk to it.
-    double maxTrainDistance = 40.0;
-    Room* tempRoom = nullptr;
-    int nbTry = 5;
-    do
-    {
-        int tempInt = Random::Uint(0, tempRooms.size() - 1);
-        tempRoom = tempRooms[tempInt];
-        tempRooms.erase(tempRooms.begin() + tempInt);
-        double tempDouble = 1.0 / (maxTrainDistance - getGameMap()->crowDistance(myTile, tempRoom->getCoveredTile(0)));
-        if (Random::Double(0.0, 1.0) < tempDouble)
-            break;
-        --nbTry;
-    } while (nbTry > 0 && !tempRoom->hasOpenCreatureSpot(this) && !tempRooms.empty());
-
-    if (!tempRoom || !tempRoom->hasOpenCreatureSpot(this))
-    {
-        // The room is already being used, stop trying to work.
-        popAction();
-        stopJob();
-        return true;
-    }
-
-    Tile* tempTile = tempRoom->getCoveredTile(Random::Uint(0, tempRoom->numCoveredTiles() - 1));
-    std::list<Tile*> tempPath = getGameMap()->path(this, tempTile);
-    if (tempPath.size() < maxTrainDistance && setWalkPath(tempPath, 2, false))
-    {
-        setAnimationState("Walk");
-        pushAction(CreatureAction::walkToTile, true);
-        return false;
-    }
-    else
-    {
-        // We could not find a room where we can work so stop trying to find one.
-        popAction();
+                popAction();
+                return true;
+            }
+        }
     }
 
     // Default action
+    popAction();
     stopJob();
     return true;
 }
@@ -2314,7 +2355,7 @@ bool Creature::handleFleeAction(const CreatureAction& actionItem)
     {
         // We can go to one dungeon temple
         Room* room = tempRooms[Random::Int(0, tempRooms.size() - 1)];
-        Tile* tile = room->getCoveredTiles()[0];
+        Tile* tile = room->getCoveredTile(0);
         std::list<Tile*> result = getGameMap()->path(this, tile);
         // If we are not too near from the dungeon temple, we go there
         if(result.size() > 5)
@@ -2489,7 +2530,7 @@ bool Creature::handleGetFee(const CreatureAction& actionItem)
         RoomTreasury* treasury = static_cast<RoomTreasury*>(room);
         if(treasury->getTotalGold() > 0)
         {
-            Tile* tile = room->getCoveredTiles()[0];
+            Tile* tile = room->getCoveredTile(0);
             std::list<Tile*> result = getGameMap()->path(this, tile);
             if (setWalkPath(result, 0, false))
             {

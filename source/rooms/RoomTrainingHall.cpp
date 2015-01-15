@@ -273,9 +273,12 @@ void RoomTrainingHall::doUpkeep()
                 Ogre::Vector3 walkDirection(ro->getPosition().x - creature->getPosition().x, ro->getPosition().y - creature->getPosition().y, 0);
                 walkDirection.normalise();
                 creature->setAnimationState("Attack1", false, walkDirection);
-
                 ro->setAnimationState("Triggered", false);
-                creature->receiveExp(ConfigManager::getSingleton().getRoomConfigDouble("TrainHallXpPerAttack"));
+                const CreatureRoomAffinity& creatureRoomAffinity = creature->getDefinition()->getRoomAffinity(getType());
+                OD_ASSERT_TRUE_MSG(creatureRoomAffinity.getRoomType() == getType(), "name=" + getName() + ", creature=" + creature->getName()
+                    + ", creatureRoomAffinityType=" + Ogre::StringConverter::toString(static_cast<int>(creatureRoomAffinity.getRoomType())));
+
+                creature->receiveExp(creatureRoomAffinity.getEfficiency() * ConfigManager::getSingleton().getRoomConfigDouble("TrainHallXpPerAttack"));
                 creature->jobDone(ConfigManager::getSingleton().getRoomConfigDouble("TrainHallAwaknessPerAttack"));
                 creature->setJobCooldown(Random::Uint(ConfigManager::getSingleton().getRoomConfigUInt32("TrainHallCooldownHitMin"),
                     ConfigManager::getSingleton().getRoomConfigUInt32("TrainHallCooldownHitMax")));
