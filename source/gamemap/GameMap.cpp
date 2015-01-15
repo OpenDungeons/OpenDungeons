@@ -1737,14 +1737,21 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, const std::vector<Tile
     if (!startTile->permitsVision())
         return tempVector;
 
-    // We copy the vector because we will remove the tiles as we process them
-    std::vector<Tile*> tilesWithinSightRadiusWork = tilesWithinSightRadius;
+    // To avoid too many iterations, we split tilesWithinSightRadius on vectors depending on X.
+    uint32_t nbTiles = tilesWithinSightRadius.size();
+    std::map<int, std::vector<Tile*>> tilesWithinSightRadiusWork;
+    for(Tile* tile : tilesWithinSightRadius)
+    {
+        tilesWithinSightRadiusWork[tile->getX()].push_back(tile);
+    }
+
     // We process all the tiles within sight radius. We start from the start tile and go to the processed tile.
     // While we have sight on the processed tiles, we add them to the returned vector. Once we hit a tile
     // where we don't have vision, we remove the remaining tiles.
-    while(!tilesWithinSightRadiusWork.empty())
+    while(nbTiles > 0)
     {
-        Tile* tileDest = *tilesWithinSightRadiusWork.begin();
+        std::pair<const int, std::vector<Tile*>>& p = *tilesWithinSightRadiusWork.begin();
+        Tile* tileDest = *p.second.begin();
 
         std::list<Tile*> tiles = tilesBetween(startTile->getX(), startTile->getY(),
             tileDest->getX(), tileDest->getY());
@@ -1795,11 +1802,19 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, const std::vector<Tile
             if(hasVision && !tile->permitsVision())
                 hasVision = false;
 
-            std::vector<Tile*>::iterator it = std::find(tilesWithinSightRadiusWork.begin(), tilesWithinSightRadiusWork.end(), tile);
-            if(it == tilesWithinSightRadiusWork.end())
+            if(tilesWithinSightRadiusWork.count(tile->getX()) <= 0)
                 continue;
 
-            tilesWithinSightRadiusWork.erase(it);
+            std::vector<Tile*>& listTiles = tilesWithinSightRadiusWork.at(tile->getX());
+            std::vector<Tile*>::iterator it = std::find(listTiles.begin(), listTiles.end(), tile);
+            if(it == listTiles.end())
+                continue;
+
+            --nbTiles;
+            listTiles.erase(it);
+            // When a list is empty, we can remove it from the map
+            if(listTiles.empty())
+                tilesWithinSightRadiusWork.erase(tileDest->getX());
 
             // If vision has changed on this tile, we add it to the list (If a wall stops vision,
             // we cannot see behind but we can see the wall)
