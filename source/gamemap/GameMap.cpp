@@ -1644,9 +1644,11 @@ std::list<Tile*> GameMap::tilesBetween(int x1, int y1, int x2, int y2)
 {
     std::list<Tile*> path;
 
-
     double deltax = x2 - x1;
     double deltay = y2 - y1;
+    // We don't have to check for deltay == 0 because if deltax > 0 and deltay == 0,
+    // we will never have std::abs(deltax) < std::abs(deltay) and, thus, we will
+    // never compute std::abs(deltax / deltay);
     if(deltax == 0)
     {
         // Vertical line, no need to compute
@@ -1663,7 +1665,7 @@ std::list<Tile*> GameMap::tilesBetween(int x1, int y1, int x2, int y2)
             path.push_back(tile);
         }
     }
-    else if(std::abs(deltax) > std::abs(deltay))
+    else if(std::abs(deltax) >= std::abs(deltay))
     {
         double error = 0;
         double deltaerr = std::abs(deltay / deltax);
@@ -1691,7 +1693,7 @@ std::list<Tile*> GameMap::tilesBetween(int x1, int y1, int x2, int y2)
             }
         }
     }
-    else
+    else // if(std::abs(deltax) < std::abs(deltay))
     {
         double error = 0;
         double deltaerr = std::abs(deltax / deltay);
