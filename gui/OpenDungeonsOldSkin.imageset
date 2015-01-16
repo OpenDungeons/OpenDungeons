@@ -1,13 +1,4 @@
 <Imageset autoScaled="false" imagefile="OpenDungeonsOldSkin.png" name="OpenDungeonsOldSkin" nativeHorzRes="800" nativeVertRes="600" version="2">
-    <Image height="20" name="StaticLeft" width="2" xPos="266" yPos="99" />
-    <Image height="20" name="StaticRight" width="2" xPos="280" yPos="99" />
-    <Image height="2" name="StaticTop" width="2" xPos="273" yPos="93" />
-    <Image height="2" name="StaticBottom" width="2" xPos="273" yPos="123" />
-    <Image height="2" name="StaticTopLeft" width="2" xPos="266" yPos="93" />
-    <Image height="2" name="StaticTopRight" width="2" xPos="280" yPos="93" />
-    <Image height="2" name="StaticBottomLeft" width="2" xPos="266" yPos="123" />
-    <Image height="2" name="StaticBottomRight" width="2" xPos="280" yPos="123" />
-    <Image height="20" name="StaticBackdrop" width="2" xPos="273" yPos="99" />
     <Image height="12" name="ProgressBarLeft" width="7" xPos="70" yPos="74" />
     <Image height="12" name="ProgressBarMiddle" width="10" xPos="77" yPos="74" />
     <Image height="12" name="ProgressBarRight" width="6" xPos="87" yPos="74" />
@@ -17,30 +8,9 @@
     <Image height="6" name="SpinnerDownNormal" width="10" xPos="67" yPos="118" />
     <Image height="6" name="SpinnerUpHover" width="10" xPos="81" yPos="110" />
     <Image height="6" name="SpinnerDownHover" width="10" xPos="81" yPos="118" />
-    <Image height="8" name="VertScrollTop" width="20" xPos="181" yPos="2" />
-    <Image height="8" name="VertScrollMiddle" width="20" xPos="181" yPos="12" />
-    <Image height="8" name="VertScrollBottom" width="20" xPos="181" yPos="22" />
-    <Image height="24" name="VertScrollThumbNormal" width="8" xPos="213" yPos="2" />
-    <Image height="24" name="VertScrollThumbHover" width="8" xPos="223" yPos="2" />
     <Image height="48" name="VertSliderBody" width="9" xPos="233" yPos="2" />
     <Image height="6" name="VertSliderThumbNormal" width="15" xPos="216" yPos="28" />
     <Image height="6" name="VertSliderThumbHover" width="15" xPos="216" yPos="36" />
-    <Image height="16" name="ComboboxEditLeft" width="8" xPos="137" yPos="2" />
-    <Image height="16" name="ComboboxEditMiddle" width="8" xPos="148" yPos="2" />
-    <Image height="16" name="ComboboxListButtonNormal" width="16" xPos="157" yPos="2" />
-    <Image height="16" name="ComboboxListButtonHover" width="16" xPos="157" yPos="20" />
-    <Image height="8" name="ComboboxListLeft" width="8" xPos="138" yPos="48" />
-    <Image height="8" name="ComboboxListRight" width="8" xPos="158" yPos="48" />
-    <Image height="8" name="ComboboxListTop" width="8" xPos="148" yPos="48" />
-    <Image height="8" name="ComboboxListBottom" width="8" xPos="148" yPos="58" />
-    <Image height="8" name="ComboboxListTopLeft" width="8" xPos="138" yPos="38" />
-    <Image height="8" name="ComboboxListTopRight" width="8" xPos="158" yPos="38" />
-    <Image height="8" name="ComboboxListBottomLeft" width="8" xPos="138" yPos="58" />
-    <Image height="8" name="ComboboxListBottomRight" width="8" xPos="158" yPos="58" />
-    <Image height="8" name="ComboboxListBackdrop" width="8" xPos="148" yPos="48" />
-    <Image height="1" name="ComboboxDividerLeft" width="14" xPos="137" yPos="68" />
-    <Image height="1" name="ComboboxDividerMiddle" width="8" xPos="153" yPos="68" />
-    <Image height="1" name="ComboboxDividerRight" width="16" xPos="163" yPos="68" />
     <Image height="12" name="HeaderBarBackdropNormal" width="12" xPos="228" yPos="163" />
     <Image height="12" name="HeaderBarBackdropHover" width="12" xPos="228" yPos="163" />
     <Image height="16" name="HeaderBarSplitterNormal" width="3" xPos="224" yPos="92" />
@@ -82,22 +52,6 @@
     <Image height="8" name="MultiLineEditboxBackdrop" width="8" xPos="50" yPos="88" />
     <Image height="1" name="TabHorizontalFiller" width="8" xPos="195" yPos="201" />
     <Image height="8" name="TabContentPaneMiddle" width="8" xPos="50" yPos="88" />
-    <Image height="17" name="TabButtonScrollLeftNormal" width="16" xPos="96" yPos="108" />
-    <Image height="17" name="TabButtonScrollRightNormal" width="16" xPos="111" yPos="108" />
-    <Image height="17" name="TabButtonScrollLeftHover" width="16" xPos="126" yPos="108" />
-    <Image height="17" name="TabButtonScrollRightHover" width="16" xPos="141" yPos="108" />
-    <Image height="8" name="TabButtonLeftNormal" width="6" xPos="42" yPos="88" />
-    <Image height="8" name="TabButtonRightNormal" width="7" xPos="60" yPos="88" />
-    <Image height="7" name="TabButtonLowerNormal" width="8" xPos="50" yPos="98" />
-    <Image height="7" name="TabButtonLowerLeftNormal" width="7" xPos="41" yPos="99" />
-    <Image height="7" name="TabButtonLowerRightNormal" width="7" xPos="60" yPos="98" />
-    <Image height="8" name="TabButtonMiddleNormal" width="8" xPos="50" yPos="88" />
-    <Image height="8" name="TabButtonLeftSelected" width="6" xPos="42" yPos="88" />
-    <Image height="8" name="TabButtonRightSelected" width="7" xPos="60" yPos="88" />
-    <Image height="8" name="TabButtonLowerSelected" width="8" xPos="50" yPos="88" />
-    <Image height="7" name="TabButtonLowerLeftSelected" width="7" xPos="41" yPos="98" />
-    <Image height="7" name="TabButtonLowerRightSelected" width="7" xPos="60" yPos="98" />
-    <Image height="8" name="TabButtonMiddleSelected" width="8" xPos="50" yPos="88" />
     <Image height="3" name="MenuTopLeft" width="3" xPos="165" yPos="204" />
     <Image height="3" name="MenuTopRight" width="4" xPos="173" yPos="204" />
     <Image height="4" name="MenuBottomLeft" width="3" xPos="165" yPos="212" />
@@ -118,5 +72,4 @@
     <Image height="3" name="PopupMenuMiddle" width="3" xPos="189" yPos="208" />
     <Image height="5" name="PopupMenuArrowRight" width="5" xPos="178" yPos="204" />
     <Image height="5" name="PopupMenuArrowLeft" width="5" xPos="178" yPos="210" />
-    <Image height="10" name="VertScrollBarSegment" width="4" xPos="205" yPos="2" />
 </Imageset>

@@ -43,9 +43,9 @@ bool ODSocketClient::connect(const std::string& host, const int port)
     std::ostringstream ss;
     ss.imbue(loc);
     ss << "replay_" << boost::posix_time::second_clock::local_time();
-    std::string filename = ResourceManager::getSingleton().getReplayDataPath() + ss.str() + ".odr";
+    mOutputReplayFilename = ResourceManager::getSingleton().getReplayDataPath() + ss.str() + ".odr";
 
-    mReplayOutputStream.open(filename, std::ios::out | std::ios::binary);
+    mReplayOutputStream.open(mOutputReplayFilename, std::ios::out | std::ios::binary);
     mGameClock.restart();
     mSource = ODSource::network;
     return true;
@@ -60,7 +60,7 @@ bool ODSocketClient::replay(const std::string& filename)
     return true;
 }
 
-void ODSocketClient::disconnect()
+void ODSocketClient::disconnect(bool keepReplay)
 {
     mPendingTimestamp = -1;
     ODSource src = mSource;
@@ -76,10 +76,9 @@ void ODSocketClient::disconnect()
         {
             // Remove any remaining client sockets from the socket selector,
             // if there is any left.
-            mReplayOutputStream.close();
             mSockSelector.clear();
             mSockClient.disconnect();
-            return;
+            break;
         }
         case ODSource::file:
         {
@@ -87,6 +86,12 @@ void ODSocketClient::disconnect()
             return;
         }
     }
+
+    mReplayOutputStream.close();
+    // Delete the replay newly created if asked to.
+    if (!keepReplay)
+        boost::filesystem::remove(mOutputReplayFilename);
+    mOutputReplayFilename.clear();
 }
 
 bool ODSocketClient::isDataAvailable()

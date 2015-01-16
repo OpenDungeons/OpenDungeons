@@ -236,6 +236,10 @@ void Gui::assignEventHandlers()
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&confirmExitNoButtonPressed));
 
+    mSheets[inGameMenu]->getChild("ConfirmExit/__auto_closebutton__")->subscribeEvent(
+        CEGUI::PushButton::EventClicked,
+        CEGUI::Event::Subscriber(&confirmExitNoButtonPressed));
+
     // Editor Mode controls
     mSheets[editorModeGui]->getChild(EDITOR_LAVA_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,

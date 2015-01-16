@@ -955,8 +955,10 @@ void GameMode::popupExit(bool pause)
 
 void GameMode::exitMode()
 {
+    CEGUI::Window* checkBox = Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild(Gui::EXIT_CONFIRMATION_POPUP)->getChild("SaveReplayCheckbox");
+    bool keepReplay = (checkBox->getProperty("Selected") == "True") ? true : false;
     if(ODClient::getSingleton().isConnected())
-        ODClient::getSingleton().disconnect();
+        ODClient::getSingleton().disconnect(keepReplay);
     if(ODServer::getSingleton().isConnected())
         ODServer::getSingleton().stopServer();
 
