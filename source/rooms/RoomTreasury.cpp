@@ -57,7 +57,7 @@ void RoomTreasury::doUpkeep()
 void RoomTreasury::absorbRoom(Room *r)
 {
     RoomTreasury* rt = static_cast<RoomTreasury*>(r);
-    for(std::pair<Tile* const, int>& p : mGoldInTile)
+    for(std::pair<Tile* const, int>& p : rt->mGoldInTile)
     {
         Tile* tile = p.first;
         int gold = p.second;
@@ -65,7 +65,7 @@ void RoomTreasury::absorbRoom(Room *r)
     }
     rt->mGoldInTile.clear();
 
-    for(std::pair<Tile* const, std::string>& p : mMeshOfTile)
+    for(std::pair<Tile* const, std::string>& p : rt->mMeshOfTile)
     {
         Tile* tile = p.first;
         mMeshOfTile[tile] = p.second;

@@ -71,8 +71,10 @@ public:
     double getHP(Tile *tile) const
     { return 0; }
 
-    std::vector<Tile*> getCoveredTiles()
-    { return std::vector<Tile*>(); }
+    //! \brief Conform: GameEntity functions handling covered tiles
+    std::vector<Tile*> getCoveredTiles();
+    Tile* getCoveredTile(int index);
+    uint32_t numCoveredTiles();
 
     Ogre::Real getRotationAngle() const
     { return mRotationAngle; }

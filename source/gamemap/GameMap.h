@@ -34,7 +34,6 @@
 #include <cstdint>
 
 class Tile;
-class TileCoordinateMap;
 class Creature;
 class Player;
 class Trap;
@@ -341,17 +340,17 @@ public:
      */
     std::list<Tile*> tilesBetween(int x1, int y1, int x2, int y2);
 
-    //! \brief Returns the tiles visible from the given start tile out to the specified sight radius.
-    std::vector<Tile*> visibleTiles(Tile *startTile, double sightRadius);
+    //! \brief Returns the tiles visible from the given start tile within tilesWithinSightRadius.
+    std::vector<Tile*> visibleTiles(Tile *startTile, const std::vector<Tile*>& tilesWithinSightRadius);
 
     //! \brief Loops over the visibleTiles and returns any creature/room/trap in those tiles allied with the given seat (or if invert is true, is not allied)
-    std::vector<GameEntity*> getVisibleForce(std::vector<Tile*> visibleTiles, Seat* seat, bool invert);
+    std::vector<GameEntity*> getVisibleForce(const std::vector<Tile*>& visibleTiles, Seat* seat, bool invert);
 
     //! \brief Loops over the visibleTiles and returns any creature in those tiles allied with the given seat (or if invert is true, is not allied)
-    std::vector<GameEntity*> getVisibleCreatures(std::vector<Tile*> visibleTiles, Seat* seat, bool invert);
+    std::vector<GameEntity*> getVisibleCreatures(const std::vector<Tile*>& visibleTiles, Seat* seat, bool invert);
 
     //! \brief Loops over the visibleTiles and returns any carryable entity in those tiles
-    std::vector<MovableGameEntity*> getVisibleCarryableEntities(std::vector<Tile*> visibleTiles);
+    std::vector<MovableGameEntity*> getVisibleCarryableEntities(const std::vector<Tile*>& visibleTiles);
 
     /** \brief Returns the as the crow flies distance between tiles located at the two coordinates given.
      * If tiles do not exist at these locations the function returns -1.0.
@@ -560,8 +559,6 @@ private:
     //! \brief Debug member used to know how many call to pathfinding has been made within the same turn.
     unsigned int mNumCallsTo_path;
 
-    TileCoordinateMap* mTileCoordinateMap;
-
     std::vector<RenderedMovableEntity*> mRenderedMovableEntities;
 
     //! AI Handling manager
@@ -574,10 +571,9 @@ private:
     //! \brief Resets the unique numbers
     void resetUniqueNumbers();
 
-    //! \brief Updates every player's fighting time value
-    //! and triggers potentiel calm music server notifications.
+    //! \brief Updates every player's time value so they can handle timed events like fighting music
     //! Used on the server game map only.
-    void updatePlayerFightingTime(Ogre::Real timeSinceLastFrame);
+    void updatePlayerTime(Ogre::Real timeSinceLastFrame);
 };
 
 #endif // _GAMEMAP_H_

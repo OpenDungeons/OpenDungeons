@@ -82,7 +82,7 @@ bool KeeperAI::checkTreasury()
 
     int nbTilesTreasuries = 0;
     for(Room* treasury : treasuriesOwned)
-        nbTilesTreasuries += treasury->getCoveredTiles().size();
+        nbTilesTreasuries += treasury->numCoveredTiles();
 
     // We want at least 3 tiles for a treasury
     if(nbTilesTreasuries >= 3)

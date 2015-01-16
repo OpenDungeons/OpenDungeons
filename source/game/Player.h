@@ -122,14 +122,20 @@ public:
     inline void setNewTrapType(Trap::TrapType newTrapType)
     { mNewTrapType = newTrapType; }
 
-    inline float getFightingTime() const
-    { return mFightingTime; }
-
-    inline void setFightingTime(float fightingTime)
-    { mFightingTime = fightingTime; }
-
     inline void setCurrentAction(SelectedAction action)
     { mCurrentAction = action; }
+
+    //! \brief Notify the player is fighting
+    //! Should be called on the server game map for human players only
+    void notifyFighting();
+
+    //! \brief Notify the player is fighting
+    //! Should be called on the server game map for human players only
+    void notifyNoTreasuryAvailable();
+
+    //! \brief Allows to handle timed events like fighting music
+    //! Should be called on the server game map for human players only
+    void updateTime(Ogre::Real timeSinceLastUpdate);
 
 private:
     //! \brief Player ID is only used during seat configuration phase
@@ -160,6 +166,10 @@ private:
     //! This member is used to trigger the calm or fighting music when incarnating
     //! the local player.
     float mFightingTime;
+
+    //! \brief This counter tells for how much time is left before considering
+    //! the player should be notified again that he has no free space to store gold.
+    float mNoTreasuryAvailableTime;
 
     bool mIsPlayerLostSent;
 

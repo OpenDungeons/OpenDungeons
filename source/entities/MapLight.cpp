@@ -23,6 +23,7 @@
 #include "render/RenderManager.h"
 #include "render/ODFrameListener.h"
 #include "utils/Helper.h"
+#include "utils/LogManager.h"
 #include "utils/Random.h"
 
 #include <sstream>
@@ -71,6 +72,32 @@ void MapLight::destroyMeshLocal()
     RenderManager::getSingleton().rrDestroyMapLightVisualIndicator(this);
 
     RenderManager::getSingleton().rrDestroyMapLight(this);
+}
+
+std::vector<Tile*> MapLight::getCoveredTiles()
+{
+    std::vector<Tile*> tempVector;
+    tempVector.push_back(getPositionTile());
+    return tempVector;
+}
+
+Tile* MapLight::getCoveredTile(int index)
+{
+    OD_ASSERT_TRUE_MSG(index == 0, "name=" + getName()
+        + ", index=" + Ogre::StringConverter::toString(index));
+
+    if(index > 0)
+        return nullptr;
+
+    return getPositionTile();
+}
+
+uint32_t MapLight::numCoveredTiles()
+{
+    if(getPositionTile() == nullptr)
+        return 0;
+
+    return 1;
 }
 
 void MapLight::update(Ogre::Real timeSinceLastFrame)

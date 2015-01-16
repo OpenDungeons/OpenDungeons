@@ -42,7 +42,8 @@ TrapCannon::TrapCannon(GameMap* gameMap) :
 
 bool TrapCannon::shoot(Tile* tile)
 {
-    std::vector<Tile*> visibleTiles = getGameMap()->visibleTiles(tile, mRange);
+    std::vector<Tile*> tilesWithinSightRadius = getGameMap()->circularRegion(tile->getX(), tile->getY(), mRange);
+    std::vector<Tile*> visibleTiles = getGameMap()->visibleTiles(tile, tilesWithinSightRadius);
     std::vector<GameEntity*> enemyObjects = getGameMap()->getVisibleCreatures(visibleTiles, getSeat(), true);
 
     if(enemyObjects.empty())
@@ -52,8 +53,8 @@ bool TrapCannon::shoot(Tile* tile)
     GameEntity* targetEnemy = enemyObjects[Random::Uint(0, enemyObjects.size()-1)];
 
     // Create the cannonball to move toward the enemy creature.
-    Ogre::Vector3 direction(static_cast<Ogre::Real>(targetEnemy->getCoveredTiles()[0]->getX()),
-                            static_cast<Ogre::Real>(targetEnemy->getCoveredTiles()[0]->getY()),
+    Ogre::Vector3 direction(static_cast<Ogre::Real>(targetEnemy->getCoveredTile(0)->getX()),
+                            static_cast<Ogre::Real>(targetEnemy->getCoveredTile(0)->getY()),
                             CANNON_MISSILE_HEIGHT);
 
     Ogre::Vector3 position;

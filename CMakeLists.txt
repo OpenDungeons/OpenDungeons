@@ -258,7 +258,6 @@ set(OD_SOURCEFILES
     ${SRC}/gamemap/GameMap.cpp
     ${SRC}/gamemap/MapLoader.cpp
     ${SRC}/gamemap/MiniMap.cpp
-    ${SRC}/gamemap/TileCoordinateMap.cpp
     ${SRC}/gamemap/TileContainer.cpp
 
     ${SRC}/goals/GoalClaimNTiles.cpp
