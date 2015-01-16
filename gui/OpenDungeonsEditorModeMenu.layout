@@ -85,7 +85,7 @@
         </Window>
         <Window type="OD/TabControl" name="MainTabControl" >
             <Property name="Area" value="{{0,0},{1,-133},{1,0},{1,0}}" />
-            <Property name="TabHeight" value="{0,30}" />
+            <Property name="TabHeight" value="{0,25}" />
             <Property name="RiseOnClickEnabled" value="False" />
             <Window type="DefaultWindow" name="Tiles" >
                 <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
