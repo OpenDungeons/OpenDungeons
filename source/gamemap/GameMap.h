@@ -34,7 +34,6 @@
 #include <cstdint>
 
 class Tile;
-class TileCoordinateMap;
 class Creature;
 class Player;
 class Trap;
@@ -559,8 +558,6 @@ private:
 
     //! \brief Debug member used to know how many call to pathfinding has been made within the same turn.
     unsigned int mNumCallsTo_path;
-
-    TileCoordinateMap* mTileCoordinateMap;
 
     std::vector<RenderedMovableEntity*> mRenderedMovableEntities;
 

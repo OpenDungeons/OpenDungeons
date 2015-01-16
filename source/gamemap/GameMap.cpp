@@ -28,8 +28,6 @@
 
 #include "goals/Goal.h"
 
-#include "gamemap/TileCoordinateMap.h"
-
 #include "entities/Tile.h"
 #include "entities/Creature.h"
 #include "entities/MapLight.h"
@@ -143,7 +141,6 @@ GameMap::GameMap(bool isServerGameMap) :
         mFloodFillEnabled(false),
         mIsFOWActivated(true),
         mNumCallsTo_path(0),
-        mTileCoordinateMap(new TileCoordinateMap(100)),
         mAiManager(*this)
 {
     resetUniqueNumbers();
@@ -153,7 +150,6 @@ GameMap::~GameMap()
 {
     clearAll();
     processDeletionQueues();
-    delete mTileCoordinateMap;
 }
 
 bool GameMap::loadLevel(const std::string& levelFilepath)
