@@ -39,16 +39,16 @@
 #include "scriptstdstring.h"
 #include "scriptbuilder.h"
 
-#include "camera/CameraManager.h"
+//#include "camera/CameraManager.h"
 #include "modes/Console.h"
-#include "entities/Creature.h"
-#include "gamemap/GameMap.h"
-#include "utils/Helper.h"
+//#include "entities/Creature.h"
+//#include "gamemap/GameMap.h"
+//#include "utils/Helper.h"
 #include "utils/LogManager.h"
-#include "gamemap/MapLoader.h"
-#include "ODApplication.h"
-#include "render/ODFrameListener.h"
-#include "utils/ResourceManager.h"
+//#include "gamemap/MapLoader.h"
+//#include "ODApplication.h"
+//#include "render/ODFrameListener.h"
+//#include "utils/ResourceManager.h"
 
 #include "scripting/ASWrapper.h"
 
@@ -70,7 +70,7 @@ ASWrapper::ASWrapper() :
     registerEverything();
 
     //load all .as files from /scripts folder using the ScriptBuilder addond so we can access them
-    mBuilder->StartNewModule(mEngine, "asModule");
+/*    mBuilder->StartNewModule(mEngine, "asModule");
     const std::string& scriptpath = ResourceManager::getSingleton().getScriptPath();
     std::vector<std::string> files = ResourceManager::getSingleton().listAllFiles(scriptpath);
     for(std::vector<std::string>::iterator i = files.begin(), end = files.end(); i < end; ++i)
@@ -84,7 +84,7 @@ ASWrapper::ASWrapper() :
     }
 
     //Compile AS code, syntax errors will be printed to our Console
-    mBuilder->BuildModule();
+    mBuilder->BuildModule();*/
 
     //save the string[] type because it's often used for console interaction
     mStringArray = mEngine->GetObjectTypeById(mEngine->GetTypeIdByDecl("string[]"));
@@ -192,7 +192,7 @@ void ASWrapper::registerEverything()
      * With an underscore! This way AS can internally do some optimisations because it knows that
      * the functions are getters ans setter.
      */
-
+#if 0
     //return value of engine for assert check
     int r = 0;
 
@@ -377,6 +377,7 @@ void ASWrapper::registerEverything()
     {
         assert(false);
     }
+#endif
 }
 
 /*! \brief Passes the console input to the script that holds all the functions

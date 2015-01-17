@@ -20,7 +20,7 @@
 
 #include "AbstractApplicationMode.h"
 
-#include "ConsoleCommandsHandler.h"
+#include "ConsoleInterface.h"
 
 #include <string>
 
@@ -49,14 +49,11 @@ public:
     void activate();
 
 private:
+    void printToConsole(const std::string& text);
+
     Console* mConsole;
 
-    //! \brief The console commands handler
-    ConsoleCommandsHandler mConsoleCommandsHandler;
-
-    std::string mPrefix;
-
-    bool mNonTagKeyPressed;
+    ConsoleInterface mConsoleInterface;
 
     //! \brief The commands found according to the prefix given.
     std::vector<std::string> mLl;

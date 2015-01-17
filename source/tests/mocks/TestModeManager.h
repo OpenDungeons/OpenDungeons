@@ -15,13 +15,30 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "utils/Random.h"
+#ifndef TESTMODEMANAGER_H
+#define TESTMODEMANAGER_H
 
-#define BOOST_TEST_MODULE Random
-#include "BoostTestTargetConfig.h"
+#include "modes/AbstractModeManager.h"
 
-BOOST_AUTO_TEST_CASE(test_Random)
+class TestModeManager: public AbstractModeManager
 {
-    Random::initialize();
-    BOOST_CHECK (Random::Int(1, 2 ) <= 2);
-}
+public:
+    TestModeManager(ModeType mode)
+        : mode(mode)
+    {
+    }
+
+    ModeType getCurrentModeTypeExceptConsole() const
+    {
+        return mode;
+    }
+
+    ModeType getCurrentModeType()
+    {
+        return mode;
+    }
+private:
+    ModeType mode;
+};
+
+#endif // TESTMODEMANAGER_H

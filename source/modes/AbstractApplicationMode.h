@@ -32,10 +32,6 @@ class AbstractApplicationMode :
     public OIS::MouseListener,
     public OIS::KeyListener
 {
-protected:
-    // foreign reference, don't delete it.
-    ModeManager* mModeManager;
-
 public:
     AbstractApplicationMode(ModeManager *modeManager, ModeManager::ModeType modeType):
         mModeManager(modeManager),
@@ -111,11 +107,19 @@ public:
     GameEntity* getEntityFromOgreName(const std::string& entityName);
 
 protected:
+    ModeManager& getModeManager()
+    {
+        return *mModeManager;
+    }
+
     //! \brief Returns true if the key is to be processed by the chat.
     //! False otherwise. If false is returned, the key will be processed
     //! by the normal function even if in chat mode
     virtual bool isChatKey          (const OIS::KeyEvent &arg);
     virtual int getChatChar         (const OIS::KeyEvent &arg);
+
+    // foreign reference, don't delete it.
+    ModeManager* mModeManager;
 
     // The game mode type;
     ModeManager::ModeType mModeType;

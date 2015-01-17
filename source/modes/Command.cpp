@@ -15,13 +15,16 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "utils/Random.h"
+#include "Command.h"
 
-#define BOOST_TEST_MODULE Random
-#include "BoostTestTargetConfig.h"
+#include <algorithm>
 
-BOOST_AUTO_TEST_CASE(test_Random)
+Command::Result Command::execute(const ArgumentList_t& argumentList, ModeType mode,
+                                 ConsoleInterface& consoleInterface, AbstractModeManager& modeManager)
 {
-    Random::initialize();
-    BOOST_CHECK (Random::Int(1, 2 ) <= 2);
+    if(isAllowedInMode(mode))
+    {
+        return mCommand(argumentList, consoleInterface, modeManager);
+    }
+    return Result::WRONG_MODE;
 }

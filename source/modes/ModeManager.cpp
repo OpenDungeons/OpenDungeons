@@ -88,6 +88,11 @@ ModeManager::ModeType ModeManager::getCurrentModeType()
     return getCurrentMode()->getModeType();
 }
 
+ModeManager::ModeType ModeManager::getCurrentModeTypeExceptConsole() const
+{
+    return mApplicationModes.back()->getModeType();
+}
+
 void ModeManager::addMode(ModeType mt)
 {
     // Check the current mode and return if it was already active.

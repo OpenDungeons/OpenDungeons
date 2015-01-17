@@ -24,29 +24,7 @@ void executeConsoleCommand(string &in com, string[] &in args)
 
     const uint argCount = args.length();
 
-    if(com == "maxtime")
-    {
-        if(argCount == 0)
-        {
-            console.print("Max display time for chat messages is: " + frameListener.get_ChatMaxTimeDisplay());
-        }
-        else
-        {
-            if(checkArgCount(argCount, 1))
-            {
-                if(checkIfInt(args[0]))
-                {
-                    frameListener.ChatMaxTimeDisplay = args[0];
-                    console.print("Max display time for chat messages was changed to: " + frameListener.get_ChatMaxTimeDisplay());
-                }
-                else
-                {
-                    console.print("ERROR: Expected an integer greater or equal to 0 in first argument.");
-                }
-            }
-        }
-    }
-    else if(com == "maxmessages")
+    if(com == "maxmessages")
     {
         if(argCount == 0)
         {

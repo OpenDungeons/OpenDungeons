@@ -18,6 +18,8 @@
 #ifndef MODEMANAGER_H
 #define MODEMANAGER_H
 
+#include "modes/AbstractModeManager.h"
+
 #include <OGRE/OgreFrameListener.h>
 
 #include <vector>
@@ -34,28 +36,11 @@ namespace Ogre {
   class RenderWindow;
 }
 
-class ModeManager
+class ModeManager: public AbstractModeManager
 {
     friend class Console;
 
 public:
-
-    enum ModeType
-    {
-        NONE = 0, // No change requested
-        MENU = 1,
-        MENU_SKIRMISH,
-        MENU_MULTIPLAYER_CLIENT,
-        MENU_MULTIPLAYER_SERVER,
-        MENU_EDITOR,
-        MENU_CONFIGURE_SEATS,
-        MENU_REPLAY,
-        GAME,
-        EDITOR,
-        CONSOLE,
-        FPP,
-        PREV // Parent game mode requested
-    };
 
     ModeManager(Ogre::RenderWindow* renderWindow);
     ~ModeManager();
@@ -65,6 +50,9 @@ public:
 
     AbstractApplicationMode* getCurrentMode();
     ModeType getCurrentModeType();
+
+    //! \brief Get current mode, if console, get underlying mode.
+    ModeType getCurrentModeTypeExceptConsole() const;
 
     //! \brief Request loading main menu mode at next update
     void requestMenuMode(bool discardActualMode = false)

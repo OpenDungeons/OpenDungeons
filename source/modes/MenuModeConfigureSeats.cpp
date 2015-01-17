@@ -258,9 +258,7 @@ void MenuModeConfigureSeats::activate()
     tmpWin->setEnabled(enabled);
 
     // We notify the server we are ready to recceive players and configure them
-    ClientNotification *clientNotification = new ClientNotification(
-        ClientNotification::readyForSeatConfiguration);
-    ODClient::getSingleton().queueClientNotification(clientNotification);
+    ODClient::getSingleton().queueClientNotification(ClientNotification::readyForSeatConfiguration);
 }
 
 void MenuModeConfigureSeats::launchSelectedButtonPressed()
