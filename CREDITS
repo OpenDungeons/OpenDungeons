@@ -6,7 +6,7 @@ This file is listing each files present in this repository, its author and its c
 Each corresponding license is fully described in the licenses/ folder.
 Other text files (.txt, .cpp, .h., ...), except licensing, are licensed using the GPL 3.0 license.
 
-Latest update: 2014/12/14
+Latest update: 2015/01/18
 
 =============================
 ==  Configuration: config/ ==
@@ -69,6 +69,7 @@ multiplayer/
 -> TestMultiplayerSmallAlliance.level  hwoarangmy              GPL 3.0
 
 skirmish/
+-> GreedOrMight.level                  Akien                   GPL 3.0
 -> oldTest.level
 -> Scream in the Dark.level            Bertram                 GPL 3.0
 -> Stonekeep siege.level               Danimal                 GPL 3.0
@@ -76,6 +77,7 @@ skirmish/
 -> TestSingleplayerSmall.level         hwoarangmy              GPL 3.0
 -> TestSingleplayerSmallEmpty.level    hwoarangmy              GPL 3.0
 -> TestSingleplayerSmallPassability.level hwoarangmy           GPL 3.0
+-> The Bridge.level                    Bertram                 GPL 3.0
 
 =================================================
 ==  Ogre material files & textures: materials/ ==
@@ -103,6 +105,9 @@ textures/
 -> DragonBed.png                       Dm3d                    GPL 2.0/GPL 3.0/CC-BY-SA 3.0  http://opengameart.org/content/goldpile
 -> Forge.png                           Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
 -> Foundry.png                         Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
+-> goblin-texture.png                  xGhostx7                CC0                     http://www.blendswap.com/blends/view/72394
+-> GoblinBedTexture.png                Chris Chittleborough    CC-BY-SA 3.0            http://en.wikipedia.org/wiki/File:Round_hay_bale,_partially_eaten.jpg
+-> Goblin-Knife-texture.png            Wind astella            CC-BY 3.0               http://opengameart.org/content/wind-weapon-pack-1
 -> Grindstone.png                      Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
 -> Hammock.png                         Luke.RUSTLTD, Nobiax    CC0                     http://forum.freegamedev.net/viewtopic.php?p=59983#p59983
 -> ImpBed.png                          Nobiax CC0 and J. W. Bjerk (magic circle) CC-BY3 or GPL3 - http://opengameart.org/content/painterly-spell-icons-part-3 - http://opengameart.org/users/yughues
@@ -172,7 +177,10 @@ Fire.mesh                              Skorpio                 CC-BY-SA 3.0, GPL
 Forge.mesh                             Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
 Foundry.mesh                           Daniel74                CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
 Gnome.*                                Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
-Goblin.*                               Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
+Goblin.*                               xGhostx7                CC0                     http://www.blendswap.com/blends/view/72394
+ -> Animation                          Danimal
+ -> Knife model                        Wind astella            CC-BY 3.0               http://opengameart.org/content/wind-weapon-pack-1
+GoblinBed.mesh                         Eugeneloza              CC0                     http://forum.freegamedev.net/viewtopic.php?p=62027#p62027
 Gold*[0-9].mesh                        Skorpio                 CC-BY-SA 3.0, GPL 3.0
 GoldstackLv*.mesh                      Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
 Grindstone.mesh                        Daniel74                CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
