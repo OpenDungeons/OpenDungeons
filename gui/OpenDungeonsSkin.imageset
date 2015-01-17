@@ -38,19 +38,19 @@
     <Image height="21" name="MiniHorzScrollRightNormal" width="18" xPos="459" yPos="9" />
     <Image height="21" name="MiniHorzScrollLeftHover" width="18" xPos="480" yPos="33" />
     <Image height="21" name="MiniHorzScrollRightHover" width="18" xPos="459" yPos="33" />
-    <Image height="17" name="TabContentPaneUpperLeft" width="16" xPos="265" yPos="0" />
-    <Image height="17" name="TabContentPaneUpper" width="16" xPos="281" yPos="0" />
-    <Image height="17" name="TabContentPaneUpperRight" width="16" xPos="297" yPos="0" />
-    <Image height="16" name="TabContentPaneLeft" width="16" xPos="265" yPos="17" />
-    <Image height="16" name="TabContentPaneRight" width="16" xPos="297" yPos="17" />
-    <Image height="17" name="TabContentPaneLower" width="16" xPos="281" yPos="33" />
-    <Image height="17" name="TabContentPaneLowerLeft" width="16" xPos="265" yPos="33" />
-    <Image height="17" name="TabContentPaneLowerRight" width="16" xPos="297" yPos="33" />
+    <Image height="16" name="TabContentPaneUpperLeft" width="16" xPos="264" yPos="4" />
+    <Image height="16" name="TabContentPaneUpper" width="18" xPos="280" yPos="4" />
+    <Image height="16" name="TabContentPaneUpperRight" width="15" xPos="298" yPos="4" />
+    <Image height="16" name="TabContentPaneLeft" width="16" xPos="264" yPos="20" />
+    <Image height="16" name="TabContentPaneRight" width="15" xPos="298" yPos="20" />
+    <Image height="16" name="TabContentPaneLower" width="18" xPos="280" yPos="36" />
+    <Image height="16" name="TabContentPaneLowerLeft" width="16" xPos="264" yPos="36" />
+    <Image height="16" name="TabContentPaneLowerRight" width="15" xPos="298" yPos="36" />
     <Image height="17" name="TabButtonUpperNormal" width="16" xPos="281" yPos="62" />
-    <Image height="17" name="TabButtonUpperLeftNormal" width="16" xPos="265" yPos="62" />
+    <Image height="17" name="TabButtonUpperLeftNormal" width="17" xPos="264" yPos="62" />
     <Image height="17" name="TabButtonUpperRightNormal" width="16" xPos="297" yPos="62" />
     <Image height="18" name="TabButtonUpperSelected" width="16" xPos="226" yPos="62" />
-    <Image height="18" name="TabButtonUpperLeftSelected" width="16" xPos="210" yPos="62" />
+    <Image height="18" name="TabButtonUpperLeftSelected" width="17" xPos="209" yPos="62" />
     <Image height="18" name="TabButtonUpperRightSelected" width="16" xPos="242" yPos="62" />
     <Image height="12" name="HorizontalPipe" width="58" xPos="266" yPos="163" />
     <Image height="65" name="VerticalPipe" width="13" xPos="266" yPos="178" />
@@ -155,16 +155,25 @@
     <Image height="17" name="TabButtonScrollRightNormal" width="16" xPos="289" yPos="114" />
     <Image height="17" name="TabButtonScrollLeftHover" width="16" xPos="272" yPos="132" />
     <Image height="17" name="TabButtonScrollRightHover" width="16" xPos="289" yPos="132" />
-    <Image height="17" name="TabButtonLowerLeftNormal" width="16" xPos="265" yPos="93" />
+    <Image height="17" name="TabButtonLowerLeftNormal" width="17" xPos="264" yPos="93" />
     <Image height="17" name="TabButtonLowerRightNormal" width="16" xPos="297" yPos="93" />
     <Image height="17" name="TabButtonLowerNormal" width="16" xPos="281" yPos="93" />
-    <Image height="18" name="TabButtonLowerLeftSelected" width="16" xPos="210" yPos="92" />
+    <Image height="18" name="TabButtonLowerLeftSelected" width="17" xPos="209" yPos="92" />
     <Image height="18" name="TabButtonLowerRightSelected" width="16" xPos="242" yPos="92" />
     <Image height="18" name="TabButtonLowerSelected" width="16" xPos="226" yPos="92" />
     <Image height="12" name="TabButtonMiddleSelected" width="16" xPos="226" yPos="80" />
-    <Image height="12" name="TabButtonLeftSelected" width="16" xPos="210" yPos="80" />
+    <Image height="12" name="TabButtonLeftSelected" width="17" xPos="209" yPos="80" />
     <Image height="12" name="TabButtonRightSelected" width="16" xPos="242" yPos="80" />
     <Image height="14" name="TabButtonMiddleNormal" width="16" xPos="281" yPos="79" />
-    <Image height="14" name="TabButtonLeftNormal" width="16" xPos="265" yPos="79" />
+    <Image height="14" name="TabButtonLeftNormal" width="17" xPos="264" yPos="79" />
     <Image height="14" name="TabButtonRightNormal" width="16" xPos="297" yPos="79" />
+    <Image height="18" name="TabButtonUpperLeftHover" width="17" xPos="209" yPos="4" />
+    <Image height="12" name="TabButtonLeftHover" width="17" xPos="209" yPos="22" />
+    <Image height="18" name="TabButtonLowerLeftHover" width="17" xPos="209" yPos="34" />
+    <Image height="18" name="TabButtonUpperHover" width="16" xPos="226" yPos="4" />
+    <Image height="12" name="TabButtonMiddleHover" width="16" xPos="226" yPos="22" />
+    <Image height="18" name="TabButtonLowerHover" width="16" xPos="226" yPos="34" />
+    <Image height="18" name="TabButtonUpperRightHover" width="16" xPos="242" yPos="4" />
+    <Image height="12" name="TabButtonRightHover" width="16" xPos="242" yPos="22" />
+    <Image height="18" name="TabButtonLowerRightHover" width="16" xPos="242" yPos="34" />
 </Imageset>
