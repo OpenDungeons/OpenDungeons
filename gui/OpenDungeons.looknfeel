@@ -3324,12 +3324,12 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image component="TopLeftCorner" name="OpenDungeonsSkin/TabButtonUpperLeftNormal" />
-                <Image component="TopRightCorner" name="OpenDungeonsSkin/TabButtonUpperRightNormal" />
-                <Image component="TopEdge" name="OpenDungeonsSkin/TabButtonUpperNormal" />
-                <Image component="LeftEdge" name="OpenDungeonsSkin/TabButtonLeftNormal" />
-                <Image component="RightEdge" name="OpenDungeonsSkin/TabButtonRightNormal" />
-                <Image component="Background" name="OpenDungeonsSkin/TabButtonMiddleNormal" />
+                <Image component="TopLeftCorner" name="OpenDungeonsSkin/TabButtonUpperLeftHover" />
+                <Image component="TopRightCorner" name="OpenDungeonsSkin/TabButtonUpperRightHover" />
+                <Image component="TopEdge" name="OpenDungeonsSkin/TabButtonUpperHover" />
+                <Image component="LeftEdge" name="OpenDungeonsSkin/TabButtonLeftHover" />
+                <Image component="RightEdge" name="OpenDungeonsSkin/TabButtonRightHover" />
+                <Image component="Background" name="OpenDungeonsSkin/TabButtonMiddleHover" />
             </FrameComponent>
         </ImagerySection>
         <ImagerySection name="bot_hover">
@@ -3340,15 +3340,15 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image component="TopLeftCorner" name="OpenDungeonsSkin/TabButtonUpperLeftNormal" />
-                <Image component="TopRightCorner" name="OpenDungeonsSkin/TabButtonUpperRightNormal" />
-                <Image component="BottomLeftCorner" name="OpenDungeonsSkin/TabButtonLowerLeftNormal" />
-                <Image component="BottomRightCorner" name="OpenDungeonsSkin/TabButtonLowerRightNormal" />
-                <Image component="LeftEdge" name="OpenDungeonsSkin/TabButtonLeftNormal" />
-                <Image component="RightEdge" name="OpenDungeonsSkin/TabButtonRightNormal" />
-                <Image component="TopEdge" name="OpenDungeonsSkin/TabButtonUpperNormal" />
-                <Image component="BottomEdge" name="OpenDungeonsSkin/TabButtonLowerNormal" />
-                <Image component="Background" name="OpenDungeonsSkin/TabButtonMiddleNormal" />
+                <Image component="TopLeftCorner" name="OpenDungeonsSkin/TabButtonUpperLeftHover" />
+                <Image component="TopRightCorner" name="OpenDungeonsSkin/TabButtonUpperRightHover" />
+                <Image component="BottomLeftCorner" name="OpenDungeonsSkin/TabButtonLowerLeftHover" />
+                <Image component="BottomRightCorner" name="OpenDungeonsSkin/TabButtonLowerRightHover" />
+                <Image component="LeftEdge" name="OpenDungeonsSkin/TabButtonLeftHover" />
+                <Image component="RightEdge" name="OpenDungeonsSkin/TabButtonRightHover" />
+                <Image component="TopEdge" name="OpenDungeonsSkin/TabButtonUpperHover" />
+                <Image component="BottomEdge" name="OpenDungeonsSkin/TabButtonLowerHover" />
+                <Image component="Background" name="OpenDungeonsSkin/TabButtonMiddleHover" />
             </FrameComponent>
         </ImagerySection>
         <ImagerySection name="top_selected">
@@ -3495,7 +3495,7 @@
                 <Image component="RightEdge" name="OpenDungeonsSkin/TabContentPaneRight" />
                 <Image component="TopEdge" name="OpenDungeonsSkin/TabContentPaneUpper" />
                 <Image component="BottomEdge" name="OpenDungeonsSkin/TabContentPaneLower" />
-                <Image component="Background" name="ODBackgrounds/Background1" />
+                <Image component="Background" name="ODBackgrounds/KeeperBackground" />
             </FrameComponent>
         </ImagerySection>
         <StateImagery name="Enabled">
