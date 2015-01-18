@@ -23,6 +23,8 @@
 #ifndef HELPER_H_
 #define HELPER_H_
 
+#include <OgreStringConverter.h>
+
 #include <string>
 #include <iostream>
 #include <sstream>
@@ -68,6 +70,8 @@ namespace Helper
     int toInt(const std::string& text);
     uint32_t toUInt32(const std::string& text);
 
+    float toFloat(const std::string& text);
+
     double toDouble(const std::string& text);
 
     // Needed on MSVC <2012
@@ -89,6 +93,26 @@ namespace Helper
     //! \brief opens the file fileName and adds the uncommented lines to the stream.
     //! Returns true is the file could be open and false if an error occurs
     bool readFileWithoutComments(const std::string& fileName, std::stringstream& stream);
+
+    inline Ogre::Real toReal(const std::string& text)
+    { return Ogre::StringConverter::parseReal(text); }
+
+    inline std::string toString(float f)
+    { return Ogre::StringConverter::toString(f); }
+    inline std::string toString(double d)
+    { return Ogre::StringConverter::toString(d); }
+    inline std::string toString(int8_t d)
+    { return Ogre::StringConverter::toString(d); }
+    inline std::string toString(uint8_t d)
+    { return Ogre::StringConverter::toString(d); }
+    inline std::string toString(int16_t d)
+    { return Ogre::StringConverter::toString(d); }
+    inline std::string toString(uint16_t d)
+    { return Ogre::StringConverter::toString(d); }
+    inline std::string toString(int32_t d)
+    { return Ogre::StringConverter::toString(d); }
+    inline std::string toString(uint32_t d)
+    { return Ogre::StringConverter::toString(d); }
 }
 
 #endif // HELPER_H_

@@ -57,6 +57,14 @@ namespace Helper
         return number;
     }
 
+    float toFloat(const std::string& text)
+    {
+        std::stringstream ss(text);
+        float number = 0.0;
+        ss >> number;
+        return number;
+    }
+
     double toDouble(const std::string& text)
     {
         std::stringstream ss(text);
