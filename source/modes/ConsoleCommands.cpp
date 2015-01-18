@@ -58,13 +58,13 @@ Command::Result cSetFrameListenerVar(std::function<ValType(ODFrameListener&)> ge
 {
     if(args.size() < 2)
     {
-        c.print("Value " + name + " is: " + std::to_string(getter(fl)));
+        c.print("Value " + name + " is: " + Helper::toString(getter(fl)));
     }
     else
     {
         ValType v = Helper::stringToT<ValType>(args[1]);
         setter(fl, v);
-        c.print("Value " + name + " set to " + std::to_string(v));
+        c.print("Value " + name + " set to " + Helper::toString(v));
     }
     return Command::Result::SUCCESS;
 }
@@ -83,7 +83,7 @@ Command::Result cAmbientLight(const Command::ArgumentList_t& args, ConsoleInterf
     else if(args.size() >= 4)
     {
         // Set the new color.
-        Ogre::ColourValue v(std::stof(args[1]), std::stof(args[2]), std::stof(args[3]));
+        Ogre::ColourValue v(Helper::toFloat(args[1]), Helper::toFloat(args[2]), Helper::toFloat(args[3]));
 
         mSceneMgr->setAmbientLight(v);
         c.print("\nAmbient light set to:\n" +
@@ -102,14 +102,14 @@ Command::Result cFPS(const Command::ArgumentList_t& args, ConsoleInterface& c, A
     if(args.size() < 2)
     {
         c.print("\nCurrent maximum framerate is "
-                + std::to_string(ODApplication::MAX_FRAMES_PER_SECOND)
+                + Helper::toString(ODApplication::MAX_FRAMES_PER_SECOND)
                 + "\n");
     }
     else if(args.size() >= 2)
     {
-        float fps = std::stof(args[1]);
+        float fps = Helper::toFloat(args[1]);
         ODApplication::MAX_FRAMES_PER_SECOND = fps;
-        c.print("\nMaximum framerate set to: " + std::to_string(fps));
+        c.print("\nMaximum framerate set to: " + Helper::toString(fps));
     }
     return Command::Result::SUCCESS;
 }
@@ -314,7 +314,7 @@ Command::Result cSeatVisDebug(const Command::ArgumentList_t& args, ConsoleInterf
         return Command::Result::INVALID_ARGUMENT;
     }
 
-    int seatId = std::stoi(args[1]);
+    int seatId = Helper::toInt(args[1]);
 
     ODFrameListener& frameListener = ODFrameListener::getSingleton();
     GameMap* gameMap = frameListener.getClientGameMap();
@@ -377,7 +377,7 @@ Command::Result cSetCreatureLevel(const Command::ArgumentList_t& args, ConsoleIn
 
 
     const Command::String_t& name = args[1];
-    int level = std::stoi(args[2]);
+    int level = Helper::toInt(args[2]);
 
     ServerConsoleCommand* cc = new SCCSetLevelCreature(name, level);
     ODServer::getSingleton().queueConsoleCommand(cc);
@@ -397,9 +397,9 @@ Command::Result cCircleAround(const Command::ArgumentList_t& args, ConsoleInterf
 
     ODFrameListener& frameListener = ODFrameListener::getSingleton();
     CameraManager* cm = frameListener.getCameraManager();
-    int centerX = std::stod(args[1]);
-    int centerY = std::stod(args[2]);
-    unsigned int radius = std::stod(args[3]);
+    int centerX = Helper::toDouble(args[1]);
+    int centerY = Helper::toDouble(args[2]);
+    unsigned int radius = Helper::toDouble(args[3]);
 
 
     cm->circleAround(centerX, centerY, radius);
@@ -422,8 +422,8 @@ Command::Result cHermiteCatmullSpline(const Command::ArgumentList_t& args, Conso
     cm->resetHCSNodes(numPairs);
     for(std::size_t i = 1; i < args.size() - 1; i +=2)
     {
-        int a = std::stoi(args[i]);
-        int b = std::stoi(args[i + 1]);
+        int a = Helper::toInt(args[i]);
+        int b = Helper::toInt(args[i + 1]);
         //TODO: Why are the points specified as integers?
         cm->addHCSNodes(a, b);
         c.print("Adding nodes: " + args[i] + ", " + args[i + 1]);
@@ -442,7 +442,7 @@ Command::Result cSetCameraFOVy(const Command::ArgumentList_t& args, ConsoleInter
     }
     else
     {
-        cam->setFOVy(Ogre::Radian(static_cast<Ogre::Real>(std::stof(args[1]))));
+        cam->setFOVy(Ogre::Radian(static_cast<Ogre::Real>(Helper::toFloat(args[1]))));
     }
     return Command::Result::SUCCESS;
 }
@@ -460,19 +460,19 @@ Command::Result cAddGold(const Command::ArgumentList_t& args, ConsoleInterface& 
         return Command::Result::WRONG_MODE;
     }
 
-    int seatId = std::stoi(args[1]);
-    int gold = std::stoi(args[2]);
+    int seatId = Helper::toInt(args[1]);
+    int gold = Helper::toInt(args[2]);
 
     if(ODFrameListener::getSingleton().getClientGameMap()->getSeatById(seatId) != nullptr)
     {
         ServerConsoleCommand* cc = new SCCAddGold(gold, seatId);
         ODServer::getSingleton().queueConsoleCommand(cc);
-        c.print("Added " + std::to_string(gold) + " to seat " + std::to_string(seatId) + "\n");
+        c.print("Added " + Helper::toString(gold) + " to seat " + Helper::toString(seatId) + "\n");
         return Command::Result::SUCCESS;
     }
     else
     {
-        c.print("Seat: " + std::to_string(seatId) + " not found.\n");
+        c.print("Seat: " + Helper::toString(seatId) + " not found.\n");
         return Command::Result::FAILED;
     }
 }
@@ -492,8 +492,8 @@ Command::Result cSetCreatureDest(const Command::ArgumentList_t& args, ConsoleInt
     }
 
     std::string creatureName;
-    int x = std::stoi(args[2]);
-    int y = std::stoi(args[3]);
+    int x = Helper::toInt(args[2]);
+    int y = Helper::toInt(args[3]);
 
     ServerConsoleCommand* cc = new SCCSetCreatureDestination(creatureName, x, y);
     ODServer::getSingleton().queueConsoleCommand(cc);

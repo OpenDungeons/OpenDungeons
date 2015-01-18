@@ -19,11 +19,6 @@
 
 #include <regex>
 
-namespace
-{
-    const std::regex NO_WHITESPACE("\\S*");
-}
-
 ConsoleInterface::ConsoleInterface(PrintFunction_t printFunction)
     :mPrintFunction(printFunction), mCommandHistoryBuffer(), mHistoryPos(mCommandHistoryBuffer.begin())
 {
@@ -38,28 +33,13 @@ bool ConsoleInterface::addCommand(String_t name, String_t description, CommandFu
                 std::initializer_list<ModeType> allowedModes,
                 std::initializer_list<String_t> aliases)
 {
-    if(std::regex_match(name, NO_WHITESPACE))
+    CommandPtr_t commandPtr = std::make_shared<Command>(command, description, allowedModes);
+    mCommandMap.emplace(name, commandPtr);
+    for(auto& alias : aliases)
     {
-        CommandPtr_t commandPtr = std::make_shared<Command>(command, description, allowedModes);
-        mCommandMap.emplace(name, commandPtr);
-        for(auto& alias : aliases)
-        {
-            if(std::regex_match(alias, NO_WHITESPACE))
-            {
-                mCommandMap.emplace(alias, commandPtr);
-            }
-            else
-            {
-                print("ERROR: Alias: '" + alias + "'' contains non-alphanumeric characters!");
-            }
-        }
-        return true;
+        mCommandMap.emplace(alias, commandPtr);
     }
-    else
-    {
-        print("ERROR: Command: '" + name + "' contains non-alphanumeric characters!");
-        return false;
-    }
+    return true;
 }
 
 Command::Result ConsoleInterface::tryExecuteCommand(String_t commandString,
