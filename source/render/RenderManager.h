@@ -70,8 +70,6 @@ public:
     //! \brief setup the scene
     void createScene(Ogre::Viewport*);
 
-    void rtssTest();
-
     //! \brief Set the entity's opacity
     void setEntityOpacity(Ogre::Entity* ent, float opacity);
 
@@ -117,23 +115,17 @@ public:
     void rrReleaseCarriedEntity(Creature* carrier, MovableGameEntity* carried);
 
 private:
-    bool generateRTSSShadersForMaterial(const std::string& materialName,
-                                        const std::string& normalMapTextureName = "",
-                                        Ogre::RTShader::NormalMapLighting::NormalMapSpace nmSpace = Ogre::RTShader::NormalMapLighting::NMS_TANGENT);
-
-    Ogre::Entity* createEntity(const std::string& entityName, const std::string& meshName,
-                               const std::string& normalMapTextureName = "");
 
     //! \brief Colorize the material with the corresponding team id color.
     //! \note If the material (wall tiles only) is marked for digging, a yellow color is added
     //! to the given color.
     //! \returns The new material name according to the current colorization.
-    std::string colourizeMaterial(const std::string& materialName, Seat* seat, bool markedForDigging, bool playerHasVision);
+    std::string colourizeMaterial(const std::string& materialName, const Seat* seat, bool markedForDigging, bool playerHasVision);
 
     //! \brief Colorize an entity with the team corresponding color.
     //! \Note: if the entity is marked for digging (wall tiles only), then a yellow color
     //! is added to the current colorization.
-    void colourizeEntity(Ogre::Entity* ent, Seat* seat, bool markedForDigging, bool playerHasVision);
+    void colourizeEntity(Ogre::Entity* ent, const Seat* seat, bool markedForDigging, bool playerHasVision);
 
     //! \brief Makes the material be transparent with the given opacity (0.0f - 1.0f)
     //! \returns The new material name according to the current opacity.

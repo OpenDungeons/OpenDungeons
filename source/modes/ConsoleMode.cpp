@@ -132,19 +132,12 @@ bool ConsoleMode::keyPressed(const OIS::KeyEvent &arg)
             break;
 
         case OIS::KC_UP:
-            mConsole->scrollHistory(true);
+            mConsole->mPrompt = mConsoleInterface.scrollCommandHistoryPositionUp(mConsole->mPrompt).get_value_or(mConsole->mPrompt);
             break;
 
         case OIS::KC_DOWN:
-            mConsole->scrollHistory(false);
+            mConsole->mPrompt = mConsoleInterface.scrollCommandHistoryPositionDown().get_value_or(mConsole->mPrompt);
             break;
-
-        case OIS::KC_F10:
-        {
-            LogManager::getSingleton().logMessage("RTSS test----------");
-            RenderManager::getSingleton().rtssTest();
-            break;
-        }
 
         default:
             if (std::string("abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ,.<>/?1234567890-=\\!@#$%^&*()_+|;\':\"[]{}").find(

@@ -22,7 +22,6 @@
 #include "render/RenderManager.h"
 
 #include "gamemap/GameMap.h"
-#include "network/ODServer.h"
 #include "rooms/Room.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/MapLight.h"
@@ -32,9 +31,7 @@
 #include "game/Player.h"
 #include "utils/ResourceManager.h"
 #include "game/Seat.h"
-#include "gamemap/MapLoader.h"
 #include "entities/MovableGameEntity.h"
-
 #include "utils/LogManager.h"
 #include "entities/GameEntity.h"
 
@@ -112,8 +109,6 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     mShaderGenerator->addSceneManager(mSceneManager);
 
     mViewport->setMaterialScheme(Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
-
-    rtssTest();
 
     // Sets the overall world lighting.
     mSceneManager->setAmbientLight(Ogre::ColourValue(0.3, 0.3, 0.3));
@@ -871,108 +866,8 @@ std::string RenderManager::consoleListAnimationsForMesh(const std::string& meshN
     return ret;
 }
 
-bool RenderManager::generateRTSSShadersForMaterial(const std::string& materialName,
-                                                   const std::string& normalMapTextureName,
-                                                   Ogre::RTShader::NormalMapLighting::NormalMapSpace nmSpace)
+void RenderManager::colourizeEntity(Ogre::Entity *ent, const Seat* seat, bool markedForDigging, bool playerHasVision)
 {
-    std::cout << "RenderManager::generateRTSSShadersForMaterial(" << materialName << "," << normalMapTextureName << "," << nmSpace << ")" << std::endl;
-
-    bool success = mShaderGenerator->createShaderBasedTechnique(materialName, Ogre::MaterialManager::DEFAULT_SCHEME_NAME,
-                   Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
-
-    if (!success)
-    {
-        LogManager::getSingletonPtr()->logMessage("Failed to create shader based technique for: " + materialName
-                , Ogre::LML_NORMAL);
-        return false;
-    }
-
-    Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName(materialName);
-    //Ogre::Pass* pass = material->getTechnique(0)->getPass(0);
-    LogManager::getSingleton().logMessage("Technique and scheme - " + material->getTechnique(0)->getName() + " - "
-                                          + material->getTechnique(0)->getSchemeName());
-    LogManager::getSingleton().logMessage("Viewport scheme: - " + mViewport->getMaterialScheme());
-
-    Ogre::RTShader::RenderState* renderState = mShaderGenerator->getRenderState(
-                Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME, materialName, 0);
-
-    renderState->reset();
-
-    if (normalMapTextureName.empty())
-    {
-        //per-pixel lighting
-        Ogre::RTShader::SubRenderState* perPixelSRS =
-            mShaderGenerator->createSubRenderState(Ogre::RTShader::PerPixelLighting::Type);
-
-        renderState->addTemplateSubRenderState(perPixelSRS);
-    }
-    else
-    {
-        Ogre::RTShader::SubRenderState* subRenderState = mShaderGenerator->createSubRenderState(
-                    Ogre::RTShader::NormalMapLighting::Type);
-        Ogre::RTShader::NormalMapLighting* normalMapSRS =
-            static_cast<Ogre::RTShader::NormalMapLighting*>(subRenderState);
-        normalMapSRS->setNormalMapSpace(nmSpace);
-        normalMapSRS->setNormalMapTextureName(normalMapTextureName);
-
-        renderState->addTemplateSubRenderState(normalMapSRS);
-    }
-
-    mShaderGenerator->invalidateMaterial(Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME, materialName);
-    LogManager::getSingletonPtr()->logMessage("Created shader based technique for: " + materialName, Ogre::LML_NORMAL);
-    return true;
-}
-
-void RenderManager::rtssTest()
-{
-    generateRTSSShadersForMaterial("Claimed", "Claimed6Nor.png");
-    generateRTSSShadersForMaterial("Claimedwall", "Claimedwall2_nor3.png");
-    //generateRTSSShadersForMaterial("Dirt", "Dirt_dark_nor3.png");
-    //generateRTSSShadersForMaterial("Dormitory", "Dirt_dark_nor3.png");
-    //TODO - fix this model so it doesn't use the material name 'material'
-    generateRTSSShadersForMaterial("Material", "Forge_normalmap.png");
-    generateRTSSShadersForMaterial("Troll2", "Troll2_nor2.png");
-    generateRTSSShadersForMaterial("Kobold_skin/TEXFACE/kobold_skin6.png");
-    generateRTSSShadersForMaterial("Kobold_skin/TWOSIDE/TEXFACE/kobold_skin6.png");
-    generateRTSSShadersForMaterial("Wizard/TWOSIDE", "Wizard_nor.png");
-    generateRTSSShadersForMaterial("Wizard", "Wizard_nor.png");
-    generateRTSSShadersForMaterial("Kreatur", "Kreatur_nor2.png");
-    generateRTSSShadersForMaterial("Wyvern", "Wyvern_red_normalmap.png");
-    //generateRTSSShadersForMaterial("Gold", "Dirt_dark_nor3.png");
-    generateRTSSShadersForMaterial("Roundshield");
-    generateRTSSShadersForMaterial("Staff");
-
-    mShaderGenerator->invalidateScheme(Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
-}
-
-Ogre::Entity* RenderManager::createEntity(const std::string& entityName, const std::string& meshName,
-                                          const std::string& normalMapTextureName)
-{
-    std::cout << "RenderManager::createEntity(" << entityName << "," << meshName << "," << normalMapTextureName << ")" << std::endl;
-    //TODO - has to be changed a bit, shaders shouldn't be generated here.
-    Ogre::Entity* ent = mSceneManager->createEntity(entityName, meshName);
-
-    Ogre::MeshPtr meshPtr = ent->getMesh();
-    unsigned short src, dest;
-    if (!meshPtr->suggestTangentVectorBuildParams(Ogre::VES_TANGENT, src, dest))
-    {
-        meshPtr->buildTangentVectors(Ogre::VES_TANGENT, src, dest);
-    }
-    //Generate rtss shaders
-    Ogre::Mesh::SubMeshIterator it = meshPtr->getSubMeshIterator();
-    while (it.hasMoreElements())
-    {
-        Ogre::SubMesh* subMesh = it.getNext();
-        LogManager::getSingleton().logMessage("Trying to generate shaders for material: " + subMesh->getMaterialName());
-        generateRTSSShadersForMaterial(subMesh->getMaterialName(), normalMapTextureName);
-    }
-    return ent;
-}
-
-void RenderManager::colourizeEntity(Ogre::Entity *ent, Seat* seat, bool markedForDigging, bool playerHasVision)
-{
-    //Disabled for normal mapping. This has to be implemented in some other way.
-
     // Colorize the the textures
     // Loop over the sub entities in the mesh
     if (seat == nullptr && !markedForDigging && playerHasVision)
@@ -985,7 +880,7 @@ void RenderManager::colourizeEntity(Ogre::Entity *ent, Seat* seat, bool markedFo
     }
 }
 
-std::string RenderManager::colourizeMaterial(const std::string& materialName, Seat* seat, bool markedForDigging, bool playerHasVision)
+std::string RenderManager::colourizeMaterial(const std::string& materialName, const Seat* seat, bool markedForDigging, bool playerHasVision)
 {
     std::stringstream tempSS;
     Ogre::Technique *tempTechnique;
@@ -1005,12 +900,12 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, Se
         tempSS << "novision_";
 
     tempSS << materialName;
-    Ogre::MaterialPtr newMaterial = Ogre::MaterialPtr(Ogre::MaterialManager::getSingleton().getByName(tempSS.str()));
+    Ogre::MaterialPtr requestedMaterial = Ogre::MaterialPtr(Ogre::MaterialManager::getSingleton().getByName(tempSS.str()));
 
     //cout << "\nCloning material:  " << tempSS.str();
 
     // If this texture has been copied and colourized, we can return
-    if (!newMaterial.isNull())
+    if (!requestedMaterial.isNull())
         return tempSS.str();
 
     // If not yet, then do so
@@ -1019,9 +914,16 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, Se
     if (seat == nullptr && !markedForDigging && playerHasVision)
         return materialName;
 
+    Ogre::MaterialPtr oldMaterial = Ogre::MaterialManager::getSingleton().getByName(materialName);
+
     //std::cout << "\nMaterial does not exist, creating a new one.";
-    newMaterial = Ogre::MaterialPtr(
-                        Ogre::MaterialManager::getSingleton().getByName(materialName))->clone(tempSS.str());
+    Ogre::MaterialPtr newMaterial = oldMaterial->clone(tempSS.str());
+    bool cloned = mShaderGenerator->cloneShaderBasedTechniques(oldMaterial->getName(), oldMaterial->getGroup(),
+                                                 newMaterial->getName(), newMaterial->getGroup());
+    if(!cloned)
+    {
+        LogManager::getSingleton().logMessage("Failed to clone rtss for material: " + materialName, Ogre::LML_CRITICAL);
+    }
 
     // Loop over the techniques for the new material
     for (unsigned int j = 0; j < newMaterial->getNumTechniques(); ++j)
@@ -1034,9 +936,8 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, Se
         {
             // Color the material with yellow on the latest pass
             // so we're sure to see the taint.
-            tempPass = tempTechnique->getPass(tempTechnique->getNumPasses() - 1);
+            tempPass = tempTechnique->getPass(0);
             Ogre::ColourValue color(1.0, 1.0, 0.0, 0.3);
-            tempPass->setEmissive(color);
             tempPass->setSpecular(color);
             tempPass->setAmbient(color);
             tempPass->setDiffuse(color);
@@ -1045,26 +946,24 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, Se
         {
             // Color the material with dark color on the latest pass
             // so we're sure to see the taint.
-            tempPass = tempTechnique->getPass(tempTechnique->getNumPasses() - 1);
-            Ogre::ColourValue color(0.3, 0.3, 0.3, 0.3);
-            tempPass->setEmissive(color);
+            tempPass = tempTechnique->getPass(0);
+            Ogre::ColourValue color(0.2, 0.2, 0.2, 0.3);
             tempPass->setSpecular(color);
             tempPass->setAmbient(color);
             tempPass->setDiffuse(color);
         }
-        else if (seat != nullptr)
+        if (seat != nullptr)
         {
             // Color the material with the Seat's color.
-            tempPass = tempTechnique->getPass(0);
+            tempPass = tempTechnique->getPass(tempTechnique->getNumPasses() - 1);
             Ogre::ColourValue color = seat->getColorValue();
             color.a = 0.3;
-            tempPass->setEmissive(color);
             tempPass->setAmbient(color);
-            // Remove the diffuse light to avoid the fluorescent effect.
-            tempPass->setDiffuse(Ogre::ColourValue(0.0, 0.0, 0.0));
+            tempPass->setDiffuse(color);
+            tempPass->setSpecular(color);
         }
     }
-
+    
     return tempSS.str();
 }
 

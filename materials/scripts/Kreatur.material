@@ -1,10 +1,11 @@
-material Kreatur
+import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
+material Kreatur : RTSS/NormalMapping_MultiPass
 {
     receive_shadows on
 
     technique
     {
-        pass
+        pass lighting
         {
             ambient 0.800000011920929 0.800000011920929 0.800000011920929 1.0
             // No diffuse to remove the metallic effect
@@ -29,6 +30,15 @@ material Kreatur
             shading gouraud
             transparent_sorting on
 
+	    // Override the normal map.
+             rtshader_system
+             {	 	 						
+                     lighting_stage normal_map Kreatur_nor2.png tangent_space 0 bilinear 1 -1.0
+             }
+        }
+
+	pass decal
+        {
             texture_unit
             {
                 texture KreaturE.png
