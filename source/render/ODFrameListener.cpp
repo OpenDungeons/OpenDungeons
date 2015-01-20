@@ -51,11 +51,11 @@
 #include <CEGUI/MouseCursor.h>
 
 #include <boost/locale.hpp>
+#include <boost/thread.hpp>
 
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>
-#include <thread>
 
 
 template<> ODFrameListener* Ogre::Singleton<ODFrameListener>::msSingleton = 0;
@@ -209,7 +209,7 @@ bool ODFrameListener::frameRenderingQueued(const Ogre::FrameEvent& evt)
     double frameDelay = (2.0 / ODApplication::MAX_FRAMES_PER_SECOND) - evt.timeSinceLastFrame;
     if (frameDelay > 0.0)
     {
-        std::this_thread::sleep_for(std::chrono::duration<double>(frameDelay));
+        boost::this_thread::sleep_for(boost::chrono::duration<double>(frameDelay));
     }
 
     mModeManager->update(evt);
