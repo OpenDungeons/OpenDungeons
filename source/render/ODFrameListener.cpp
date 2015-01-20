@@ -28,7 +28,6 @@
 #include "network/ServerNotification.h"
 #include "network/ODClient.h"
 #include "network/ChatMessage.h"
-#include "utils/Sleep.h"
 #include "gamemap/GameMap.h"
 #include "gamemap/MiniMap.h"
 #include "game/Player.h"
@@ -41,7 +40,9 @@
 #include "camera/CameraManager.h"
 #include "game/Seat.h"
 
+#include <OgreLogManager.h>
 #include <OgreRenderWindow.h>
+#include <OgreSceneManager.h>
 #include <CEGUI/WindowManager.h>
 #include <CEGUI/EventArgs.h>
 #include <CEGUI/Window.h>
@@ -50,9 +51,12 @@
 #include <CEGUI/MouseCursor.h>
 
 #include <boost/locale.hpp>
-#include <iostream>
+
 #include <algorithm>
 #include <cstdlib>
+#include <iostream>
+#include <thread>
+
 
 template<> ODFrameListener* Ogre::Singleton<ODFrameListener>::msSingleton = 0;
 
@@ -205,7 +209,7 @@ bool ODFrameListener::frameRenderingQueued(const Ogre::FrameEvent& evt)
     double frameDelay = (2.0 / ODApplication::MAX_FRAMES_PER_SECOND) - evt.timeSinceLastFrame;
     if (frameDelay > 0.0)
     {
-        OD_USLEEP(1e6 * frameDelay);
+        std::this_thread::sleep_for(std::chrono::duration<double>(frameDelay));
     }
 
     mModeManager->update(evt);

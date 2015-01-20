@@ -103,7 +103,7 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
     if (playerSelectedAction != Player::SelectedAction::none)
     {
         TextRenderer::getSingleton().moveText(ODApplication::POINTER_INFO_STRING,
-            (Ogre::Real)(arg.state.X.abs + 30), (Ogre::Real)arg.state.Y.abs);
+            static_cast<Ogre::Real>(arg.state.X.abs + 30), static_cast<Ogre::Real>(arg.state.Y.abs));
 
         switch(playerSelectedAction)
         {
@@ -197,7 +197,7 @@ void EditorMode::handleMouseWheel(const OIS::MouseEvent& arg)
     {
         if (getKeyboard()->isModifierDown(OIS::Keyboard::Ctrl))
         {
-            mGameMap->getLocalPlayer()->rotateHand(1);
+            mGameMap->getLocalPlayer()->rotateHand(Player::Direction::left);
         }
         else
         {
@@ -208,7 +208,7 @@ void EditorMode::handleMouseWheel(const OIS::MouseEvent& arg)
     {
         if (getKeyboard()->isModifierDown(OIS::Keyboard::Ctrl))
         {
-            mGameMap->getLocalPlayer()->rotateHand(-1);
+            mGameMap->getLocalPlayer()->rotateHand(Player::Direction::right);
         }
         else
         {
@@ -683,7 +683,7 @@ bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
 
     //Toggle mCurrentFullness
     case OIS::KC_T:
-        mCurrentFullness = Tile::nextTileFullness((int)mCurrentFullness);
+        mCurrentFullness = Tile::nextTileFullness(static_cast<int>(mCurrentFullness));
         updateCursorText();
         break;
 

@@ -45,6 +45,7 @@
 #include <OgreRoot.h>
 #include <Overlay/OgreOverlaySystem.h>
 #include <OgreResourceGroupManager.h>
+#include <RTShaderSystem/OgreShaderGenerator.h>
 
 #include <string>
 #include <sstream>

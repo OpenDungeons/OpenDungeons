@@ -51,10 +51,7 @@
 #include <OgreViewport.h>
 #include <OgreRoot.h>
 #include <Overlay/OgreOverlaySystem.h>
-
-//#include <RTShaderSystem/OgreShaderGenerator.h>
-#include <RTShaderSystem/OgreShaderExPerPixelLighting.h>
-#include <RTShaderSystem/OgreShaderExNormalMapLighting.h>
+#include <RTShaderSystem/OgreShaderGenerator.h>
 #include <sstream>
 
 using std::stringstream;
@@ -122,12 +119,12 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
                               BLENDER_UNITS_PER_OGRE_UNIT, 0.45 * BLENDER_UNITS_PER_OGRE_UNIT));
     node->attachObject(squareSelectorEnt);
     Ogre::SceneNode *node2 = node->createChildSceneNode("Hand_node");
-    node2->setPosition((Ogre::Real)(0.0 / BLENDER_UNITS_PER_OGRE_UNIT),
-                       (Ogre::Real)(0.0 / BLENDER_UNITS_PER_OGRE_UNIT),
-                       (Ogre::Real)(3.0 / BLENDER_UNITS_PER_OGRE_UNIT));
-    node2->scale(Ogre::Vector3((Ogre::Real)(1.0 / BLENDER_UNITS_PER_OGRE_UNIT),
-                               (Ogre::Real)(1.0 / BLENDER_UNITS_PER_OGRE_UNIT),
-                               (Ogre::Real)(1.0 / BLENDER_UNITS_PER_OGRE_UNIT)));
+    node2->setPosition(static_cast<Ogre::Real>(0.0),
+                       static_cast<Ogre::Real>(0.0 / BLENDER_UNITS_PER_OGRE_UNIT),
+                       static_cast<Ogre::Real>(3.0 / BLENDER_UNITS_PER_OGRE_UNIT));
+    node2->scale(Ogre::Vector3(static_cast<Ogre::Real>(1.0 / BLENDER_UNITS_PER_OGRE_UNIT),
+                               static_cast<Ogre::Real>(1.0 / BLENDER_UNITS_PER_OGRE_UNIT),
+                               static_cast<Ogre::Real>(1.0 / BLENDER_UNITS_PER_OGRE_UNIT)));
 
     Ogre::Entity* keeperHandEnt = mSceneManager->createEntity("keeperHandEnt", "Keeperhand.mesh");
     mHandAnimationState = keeperHandEnt->getAnimationState("Walk");
@@ -136,12 +133,12 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     mHandAnimationState->setEnabled(true);
 
     Ogre::SceneNode* node3 = node->createChildSceneNode("KeeperHand_node");
-    node3->setPosition((Ogre::Real)(0.0 / BLENDER_UNITS_PER_OGRE_UNIT),
-                       (Ogre::Real)(-1.0 / BLENDER_UNITS_PER_OGRE_UNIT),
-                       (Ogre::Real)(4.0 / BLENDER_UNITS_PER_OGRE_UNIT));
-    node3->scale(Ogre::Vector3((Ogre::Real)(0.2 / BLENDER_UNITS_PER_OGRE_UNIT),
-                               (Ogre::Real)(0.2 / BLENDER_UNITS_PER_OGRE_UNIT),
-                               (Ogre::Real)(0.2 / BLENDER_UNITS_PER_OGRE_UNIT)));
+    node3->setPosition(static_cast<Ogre::Real>(0.0),
+                       static_cast<Ogre::Real>(-1.0 / BLENDER_UNITS_PER_OGRE_UNIT),
+                       static_cast<Ogre::Real>(4.0 / BLENDER_UNITS_PER_OGRE_UNIT));
+    node3->scale(Ogre::Vector3(static_cast<Ogre::Real>(0.2 / BLENDER_UNITS_PER_OGRE_UNIT),
+                               static_cast<Ogre::Real>(0.2 / BLENDER_UNITS_PER_OGRE_UNIT),
+                               static_cast<Ogre::Real>(0.2 / BLENDER_UNITS_PER_OGRE_UNIT)));
     node3->attachObject(keeperHandEnt);
 
     // Create the light which follows the single tile selection mesh
@@ -172,7 +169,7 @@ void RenderManager::updateRenderAnimations(Ogre::Real timeSinceLastFrame)
 
 }
 
-void RenderManager::rrRefreshTile(Tile* curTile, Player* localPlayer)
+void RenderManager::rrRefreshTile(const Tile* curTile, const Player* localPlayer)
 {
     int rt = 0;
     std::string tileName = curTile->getOgreNamePrefix() + curTile->getName();
@@ -188,7 +185,7 @@ void RenderManager::rrRefreshTile(Tile* curTile, Player* localPlayer)
     }
 
     std::string meshName = curTile->getMeshName();
-    Seat* seatColorize = curTile->getSeat();
+    const Seat* seatColorize = curTile->getSeat();
     if(meshName.empty())
     {
         // We compute the mesh
@@ -266,7 +263,7 @@ void RenderManager::rrRefreshTile(Tile* curTile, Player* localPlayer)
     node->attachObject(ent);
     node->setScale(curTile->getScale());
     node->resetOrientation();
-    node->roll(Ogre::Degree((Ogre::Real)(-1 * rt * 90)));
+    node->roll(Ogre::Degree(static_cast<Ogre::Real>(-1 * rt * 90)));
 }
 
 
@@ -325,7 +322,7 @@ void RenderManager::rrCreateTile(Tile* curTile, Player* localPlayer)
 
     node->setScale(curTile->getScale());
     node->resetOrientation();
-    node->roll(Ogre::Degree((Ogre::Real)(-1 * rt * 90)));
+    node->roll(Ogre::Degree(static_cast<Ogre::Real>(-1 * rt * 90)));
 }
 
 void RenderManager::rrDestroyTile(Tile* curTile)
@@ -669,7 +666,7 @@ void RenderManager::rrPickUpEntity(MovableGameEntity* curEntity, Player* localPl
     for (MovableGameEntity* tmpEntity : objectsInHand)
     {
         Ogre::SceneNode* tmpEntityNode = mSceneManager->getSceneNode(tmpEntity->getOgreNamePrefix() + tmpEntity->getName() + "_node");
-        tmpEntityNode->setPosition((Ogre::Real)(i % 6 + 1), (Ogre::Real)(i / (int)6), (Ogre::Real)0.0);
+        tmpEntityNode->setPosition(static_cast<Ogre::Real>(i % 6 + 1), static_cast<Ogre::Real>(i / 6), static_cast<Ogre::Real>(0.0));
         ++i;
     }
 }
@@ -691,7 +688,7 @@ void RenderManager::rrDropHand(MovableGameEntity* curEntity, Player* localPlayer
     for (MovableGameEntity* tmpEntity : objectsInHand)
     {
         Ogre::SceneNode* tmpEntityNode = mSceneManager->getSceneNode(tmpEntity->getOgreNamePrefix() + tmpEntity->getName() + "_node");
-        tmpEntityNode->setPosition((Ogre::Real)(i % 6 + 1), (Ogre::Real)(i / (int)6), (Ogre::Real)0.0);
+        tmpEntityNode->setPosition(static_cast<Ogre::Real>(i % 6 + 1), static_cast<Ogre::Real>(i / 6), static_cast<Ogre::Real>(0.0));
         ++i;
     }
 }
@@ -704,7 +701,7 @@ void RenderManager::rrRotateHand(Player* localPlayer)
     for (MovableGameEntity* tmpEntity : objectsInHand)
     {
         Ogre::SceneNode* tmpEntityNode = mSceneManager->getSceneNode(tmpEntity->getOgreNamePrefix() + tmpEntity->getName() + "_node");
-        tmpEntityNode->setPosition((Ogre::Real)(i % 6 + 1), (Ogre::Real)(i / (int)6), (Ogre::Real)0.0);
+        tmpEntityNode->setPosition(static_cast<Ogre::Real>(i % 6 + 1), static_cast<Ogre::Real>(i / 6), static_cast<Ogre::Real>(0.0));
         ++i;
     }
 }
@@ -722,7 +719,9 @@ void RenderManager::rrCreateCreatureVisualDebug(Creature* curCreature, Tile* cur
         Ogre::SceneNode* visIndicatorNode = mCreatureSceneNode->createChildSceneNode(tempSS.str()
                                             + "_node");
         visIndicatorNode->attachObject(visIndicatorEntity);
-        visIndicatorNode->setPosition(Ogre::Vector3((Ogre::Real)curTile->getX(), (Ogre::Real)curTile->getY(), (Ogre::Real)0));
+        visIndicatorNode->setPosition(Ogre::Vector3(static_cast<Ogre::Real>(curTile->getX()),
+                                                    static_cast<Ogre::Real>(curTile->getY()),
+                                                    static_cast<Ogre::Real>(0)));
         visIndicatorNode->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,
                                    BLENDER_UNITS_PER_OGRE_UNIT,
                                    BLENDER_UNITS_PER_OGRE_UNIT));
@@ -758,7 +757,9 @@ void RenderManager::rrCreateSeatVisionVisualDebug(int seatId, Tile* tile)
         Ogre::SceneNode* visIndicatorNode = mCreatureSceneNode->createChildSceneNode(tempSS.str()
                                             + "_node");
         visIndicatorNode->attachObject(visIndicatorEntity);
-        visIndicatorNode->setPosition(Ogre::Vector3((Ogre::Real)tile->getX(), (Ogre::Real)tile->getY(), (Ogre::Real)0));
+        visIndicatorNode->setPosition(Ogre::Vector3(static_cast<Ogre::Real>(tile->getX()),
+                                                    static_cast<Ogre::Real>(tile->getY()),
+                                                    static_cast<Ogre::Real>(0)));
         visIndicatorNode->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,
                                    BLENDER_UNITS_PER_OGRE_UNIT,
                                    BLENDER_UNITS_PER_OGRE_UNIT));

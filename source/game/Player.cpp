@@ -32,6 +32,8 @@
 
 #include "utils/LogManager.h"
 
+#include <cmath>
+
 //! \brief The number of seconds the local player must stay out of danger to trigger the calm music again.
 const float BATTLE_TIME_COUNT = 10.0f;
 
@@ -205,36 +207,21 @@ MovableGameEntity* Player::dropHand(Tile *t, unsigned int index)
     return entity;
 }
 
-void Player::rotateHand(int n)
+void Player::rotateHand(Direction d)
 {
-    // If there are no creatures or only one creature in our hand, rotation doesn't change the order.
-    if (mObjectsInHand.size() <= 1)
-        return;
-
-    for (unsigned int i = 0; i < (unsigned int) fabs((double) n); ++i)
+    if(mObjectsInHand.size() > 1)
     {
-        if (n > 0)
+        if(d == Direction::left)
         {
-            MovableGameEntity* entity = mObjectsInHand.back();
-
-            // Since vectors have no push_front method
-            // we need to move all of the elements in the vector back one and then add this one to the beginning.
-            for (unsigned int j = mObjectsInHand.size() - 1; j > 0; --j)
-                mObjectsInHand[j] = mObjectsInHand[j - 1];
-
-            mObjectsInHand[0] = entity;
-
+            std::rotate(mObjectsInHand.begin(), mObjectsInHand.begin() + 1, mObjectsInHand.end());
         }
         else
         {
-            MovableGameEntity* entity = mObjectsInHand.front();
-            mObjectsInHand.erase(mObjectsInHand.begin());
-            mObjectsInHand.push_back(entity);
+            std::rotate(mObjectsInHand.begin(), mObjectsInHand.end() - 1, mObjectsInHand.end());
         }
+        // Send a render request to move the entity into the "hand"
+        RenderManager::getSingleton().rrRotateHand(this);
     }
-
-    // Send a render request to move the entity into the "hand"
-    RenderManager::getSingleton().rrRotateHand(this);
 }
 
 void Player::notifyNoMoreDungeonTemple()

@@ -844,7 +844,8 @@ int Tile::nextTileFullness(int f)
 
 //TODO: Turn this whole hardcoded thing into a static tileset configuration file.
 std::string Tile::meshNameFromNeighbors(TileType myType, int fullnessMeshNumber,
-                                        const TileType* neighbors, const bool* neighborsFullness, int& rt)
+                                        std::array<TileType, 8> neighbors,
+                                        std::bitset<8> neighborsFullness, int& rt)
 {
     // neighbors and neighborFullness arrays are filled this way:
     // x = given tile
@@ -1025,7 +1026,7 @@ void Tile::setMarkedForDiggingForAllPlayersExcept(bool s, Seat* exceptSeat)
     }
 }
 
-bool Tile::getMarkedForDigging(Player *p)
+bool Tile::getMarkedForDigging(const Player *p) const
 {
     if(std::find(mPlayersMarkingTile.begin(), mPlayersMarkingTile.end(), p) != mPlayersMarkingTile.end())
         return true;

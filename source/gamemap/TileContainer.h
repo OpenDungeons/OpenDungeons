@@ -20,6 +20,8 @@
 
 #include "entities/Tile.h"
 
+#include <array>
+#include <bitset>
 #include <sstream>
 
 class ODPacket;
@@ -54,18 +56,18 @@ public:
     void tileToPacket(ODPacket& packet, Tile* tile) const;
     Tile* tileFromPacket(ODPacket& packet) const;
 
-    Tile::TileType getSafeTileType(Tile* tt );
-    bool getSafeTileFullness(Tile* tt );
+    Tile::TileType getSafeTileType(const Tile* tt) const;
+    bool getSafeTileFullness(const Tile* tt) const;
 
     //! \brief Gets the tile type of all neighbors
     //! \param tile The tile to be checked.
     //! \returns a Tile::TileType[8] array pointer where the info is stored.
-    const Tile::TileType* getNeighborsTypes(Tile* tile);
+    std::array<Tile::TileType, 8> getNeighborsTypes(const Tile* tile) const;
 
     //! \brief Gets the tile fullness of all neighbors
     //! \param tile The tile to be checked.
     //! \returns a bool[8] array pointer where the info is stored.
-    const bool* getNeighborsFullness(Tile* tile);
+    std::bitset<8> getNeighborsFullness(const Tile* tile) const;
 
     //! \brief Returns the number of tile pointers currently stored in this TileContainer.
     unsigned int numTiles();

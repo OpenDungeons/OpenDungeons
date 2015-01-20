@@ -166,7 +166,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
     {
         TextRenderer& textRenderer = TextRenderer::getSingleton();
         textRenderer.moveText(ODApplication::POINTER_INFO_STRING,
-            (Ogre::Real)(arg.state.X.abs + 30), (Ogre::Real)arg.state.Y.abs);
+            static_cast<Ogre::Real>(arg.state.X.abs + 30), static_cast<Ogre::Real>(arg.state.Y.abs));
 
         switch(player->getCurrentAction())
         {
@@ -346,7 +346,7 @@ void GameMode::handleMouseWheel(const OIS::MouseEvent& arg)
     {
         if (getKeyboard()->isModifierDown(OIS::Keyboard::Ctrl))
         {
-            mGameMap->getLocalPlayer()->rotateHand(1);
+            mGameMap->getLocalPlayer()->rotateHand(Player::Direction::left);
         }
         else
         {
@@ -357,7 +357,7 @@ void GameMode::handleMouseWheel(const OIS::MouseEvent& arg)
     {
         if (getKeyboard()->isModifierDown(OIS::Keyboard::Ctrl))
         {
-            mGameMap->getLocalPlayer()->rotateHand(-1);
+            mGameMap->getLocalPlayer()->rotateHand(Player::Direction::right);
         }
         else
         {

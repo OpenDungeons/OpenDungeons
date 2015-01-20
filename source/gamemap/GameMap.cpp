@@ -52,6 +52,7 @@
 #include "utils/ResourceManager.h"
 
 #include <OgreTimer.h>
+#include <OgreStringConverter.h>
 
 #include <iostream>
 #include <sstream>

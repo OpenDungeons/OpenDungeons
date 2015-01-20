@@ -25,8 +25,6 @@
 #include <deque>
 #include <string>
 #include <OgreSingleton.h>
-#include <RTShaderSystem/OgreShaderGenerator.h>
-#include <RTShaderSystem/OgreShaderExNormalMapLighting.h>
 
 class GameMap;
 class Building;
@@ -47,9 +45,9 @@ class SceneNode;
 class OverlaySystem;
 class AnimationState;
 
-/*namespace RTShader {
+namespace RTShader {
     class ShaderGenerator;
-}*/
+}
 } //End namespace Ogre
 
 class RenderManager: public Ogre::Singleton<RenderManager>
@@ -83,7 +81,7 @@ public:
     static std::string consoleListAnimationsForMesh(const std::string& meshName);
 
     //Render request functions
-    void rrRefreshTile(Tile* curTile, Player* localPlayer);
+    void rrRefreshTile(const Tile* curTile, const Player* localPlayer);
     void rrCreateTile(Tile* curTile, Player* localPlayer);
     void rrDestroyTile(Tile* curTile);
     void rrDetachEntity(GameEntity* curEntity);

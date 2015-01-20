@@ -1104,18 +1104,18 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
                             == CreatureAction::digTile)
                     {
                         // Worker is digging, get near it since it could expose enemies.
-                        int x = (int)(static_cast<double>(tempTile->getX()) + 3.0
+                        int x = static_cast<int>(static_cast<double>(tempTile->getX()) + 3.0
                                 * Random::gaussianRandomDouble());
-                        int y = (int)(static_cast<double>(tempTile->getY()) + 3.0
+                        int y = static_cast<int>(static_cast<double>(tempTile->getY()) + 3.0
                                 * Random::gaussianRandomDouble());
                         tileDest = getGameMap()->getTile(x, y);
                     }
                     else
                     {
                         // Worker is not digging, wander a bit farther around the worker.
-                        int x = (int)(static_cast<double>(tempTile->getX()) + 8.0
+                        int x = static_cast<int>(static_cast<double>(tempTile->getX()) + 8.0
                                 * Random::gaussianRandomDouble());
-                        int y = (int)(static_cast<double>(tempTile->getY()) + 8.0
+                        int y = static_cast<int>(static_cast<double>(tempTile->getY()) + 8.0
                                 * Random::gaussianRandomDouble());
                         tileDest = getGameMap()->getTile(x, y);
                     }
@@ -1251,7 +1251,7 @@ bool Creature::handleClaimTileAction(const CreatureAction& actionItem)
                         && tempTile2->getClaimedPercentage() >= 1.0)
                 {
                     clearDestinations();
-                    addDestination((Ogre::Real)tempTile->getX(), (Ogre::Real)tempTile->getY());
+                    addDestination(static_cast<Ogre::Real>(tempTile->getX()), static_cast<Ogre::Real>(tempTile->getY()));
                     setAnimationState("Walk");
                     return false;
                 }
@@ -1310,7 +1310,7 @@ bool Creature::handleClaimTileAction(const CreatureAction& actionItem)
             // or before the time we get to the last unclaimed tile.  The bar for success is also lowered
             // according to how many neighbors are already claimed.
             //NOTE: The bar can be negative, when this happens we are guarenteed to use this candidate tile.
-            double bar = 1.0 - (numNeighborsClaimed / 4.0) - (tempUnsigned / (double) (claimableTiles.size() - 1));
+            double bar = 1.0 - (numNeighborsClaimed / 4.0) - (tempUnsigned / static_cast<double>(claimableTiles.size() - 1));
             if (Random::Double(0.0, 1.0) >= bar)
                 break;
 

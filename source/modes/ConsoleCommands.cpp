@@ -9,6 +9,8 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
+#include <OgreSceneManager.h>
+
 #include <boost/algorithm/string/join.hpp>
 
 #include <functional>
