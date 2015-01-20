@@ -11,13 +11,13 @@ material Kreatur : RTSS/NormalMapping_MultiPass
              // Override the normal map.
              rtshader_system
              {
-                lighting_stage normal_map Kreatur_nor2.png tangent_space 0 bilinear 1 -1.0
+                lighting_stage normal_map Kreatur_nor2.png object_space 0 bilinear 1 -1.0
              }
         }
 
     pass decal
         {
-            texture_unit
+            texture_unit decalmap
             {
                 texture KreaturE.png
                 tex_address_mode wrap
