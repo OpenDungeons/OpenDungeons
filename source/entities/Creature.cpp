@@ -2673,7 +2673,7 @@ void Creature::updateTilesInSight()
     mTilesWithinSightRadius = getGameMap()->circularRegion(posTile->getX(), posTile->getY(), mDefinition->getSightRadius());
 
     // Only the tiles the creature can "see".
-    mVisibleTiles = getGameMap()->visibleTiles(getPositionTile(), mTilesWithinSightRadius);
+    mVisibleTiles = getGameMap()->visibleTiles(posTile->getX(), posTile->getY(), mDefinition->getSightRadius());
 }
 
 std::vector<GameEntity*> Creature::getVisibleEnemyObjects()

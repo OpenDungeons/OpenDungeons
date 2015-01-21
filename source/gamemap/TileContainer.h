@@ -28,7 +28,7 @@ class TileDistance;
 class TileContainer
 {
 public:
-    TileContainer();
+    TileContainer(int initTileDistance);
     ~TileContainer();
 
     //! \brief Clears the mesh and deletes the data structure for all the tiles in the TileContainer.
@@ -104,7 +104,7 @@ public:
     std::list<Tile*> tilesBetween(int x1, int y1, int x2, int y2);
 
     //! \brief Returns the tiles visible from the given start tile within tilesWithinSightRadius.
-    std::vector<Tile*> visibleTiles(Tile *startTile, const std::vector<Tile*>& tilesWithinSightRadius);
+    std::vector<Tile*> visibleTiles(int x, int y, int radius);
 
 protected:
     //! \brief The map size

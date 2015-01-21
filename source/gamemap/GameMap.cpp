@@ -132,6 +132,7 @@ private:
 };
 
 GameMap::GameMap(bool isServerGameMap) :
+        TileContainer(isServerGameMap ? 15 : 0),
         mIsServerGameMap(isServerGameMap),
         mLocalPlayer(nullptr),
         mLocalPlayerNick(DEFAULT_NICK),
