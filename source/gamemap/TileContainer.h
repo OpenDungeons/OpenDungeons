@@ -23,11 +23,10 @@
 #include <sstream>
 
 class ODPacket;
+class TileDistance;
 
 class TileContainer
 {
-friend class TileContainersModificator;
-
 public:
     TileContainer();
     ~TileContainer();
@@ -76,7 +75,7 @@ public:
 
     //! \brief Returns all the valid tiles in the curcular region
     //! surrounding the given point and extending outward to the specified radius.
-    std::vector<Tile*> circularRegion(int x, int y, double radius) const;
+    std::vector<Tile*> circularRegion(int x, int y, int radius);
 
     //! \brief Returns a vector of all the valid tiles which are a neighbor
     //! to one or more tiles in the specified region,
@@ -93,6 +92,20 @@ public:
     int getMapSizeY() const
     { return mMapSizeY; }
 
+    static bool sortByDistSquared(const TileDistance& tileDist1, const TileDistance& tileDist2);
+
+    /*! \brief Returns a list of valid tiles along a straight line from (x1, y1) to (x2, y2)
+     * independently from their fullness or type.
+     *
+     * This algorithm is from
+     * http://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
+     * A more detailed description of how it works can be found there.
+     */
+    std::list<Tile*> tilesBetween(int x1, int y1, int x2, int y2);
+
+    //! \brief Returns the tiles visible from the given start tile within tilesWithinSightRadius.
+    std::vector<Tile*> visibleTiles(Tile *startTile, const std::vector<Tile*>& tilesWithinSightRadius);
+
 protected:
     //! \brief The map size
     int mMapSizeX;
@@ -104,6 +117,16 @@ protected:
     bool allocateMapMemory(int xSize, int ySize);
 private:
     Tile*** mTiles;
+
+    //! \brief Fills mTileDistance that will help to compute a vector with sorted Tiles more efficiently
+    void buildTileDistance(int distance);
+
+    //! \brief Helper to compute tile distances more efficiently
+    std::vector<TileDistance> mTileDistance;
+
+    //! \brief Stores the highest distance computed. If a bigger distance is asked, mTileDistance will have to be updated by
+    //! calling buildTileDistance with the higher distance
+    int mTileDistanceComputed;
 };
 
 #endif //TILECONTAINER_H

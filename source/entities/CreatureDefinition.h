@@ -183,7 +183,7 @@ public:
     inline int                  getBedDim1      () const    { return mBedDim1; }
     inline int                  getBedDim2      () const    { return mBedDim2; }
 
-    inline double               getSightRadius  () const    { return mSightRadius; }
+    inline int                  getSightRadius  () const    { return mSightRadius; }
 
     inline double               getClaimRate    () const    { return mClaimRate; }
     inline double               getClaimRatePerLevel() const{ return mClaimRatePerLevel; }

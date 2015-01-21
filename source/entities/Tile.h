@@ -52,8 +52,6 @@ class ODPacket;
  */
 class Tile : public GameEntity
 {
-
-friend class TileContainersModificator;
 friend class GameMap;
 friend class ODServer;
 
