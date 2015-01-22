@@ -209,21 +209,21 @@ public:
         }
     }
 
-    void print(const std::vector<TileDistance>& mTileDistance)
+    void print(const std::vector<TileDistance>& tileDistance)
     {
         std::string log = "TileDistance x=" + Helper::toString(getDiffX())
             + ", y=" + Helper::toString(getDiffY())
             + ", squared=" + Helper::toString(getDistSquared());
         for(const std::pair<uint32_t, double>& p : mHiddenTilesNorth)
         {
-            const TileDistance& tile = mTileDistance[p.first];
+            const TileDistance& tile = tileDistance[p.first];
             log += ", TileDistanceNorth x=" + Helper::toString(tile.getDiffX())
                 + ", y=" + Helper::toString(tile.getDiffY())
                 + ", val=" + Helper::toString(p.second);
         }
         for(const std::pair<uint32_t, double>& p : mHiddenTilesSouth)
         {
-            const TileDistance& tile = mTileDistance[p.first];
+            const TileDistance& tile = tileDistance[p.first];
             log += ", TileDistanceSouth x=" + Helper::toString(tile.getDiffX())
                 + ", y=" + Helper::toString(tile.getDiffY())
                 + ", val=" + Helper::toString(p.second);

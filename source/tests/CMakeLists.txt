@@ -21,5 +21,4 @@ add_boost_test(ConsoleInterface
         "${SRC}/modes/ConsoleInterface.h"
         "${SRC}/modes/ConsoleInterface.cpp"
         "${SRC}/modes/Command.h"
-        "${SRC}/modes/Command.cpp"
-        "${SRC}/utils/Helper.cpp")
+        "${SRC}/modes/Command.cpp")

@@ -16,12 +16,13 @@
  */
 
 #include "modes/ConsoleInterface.h"
-#include "utils/Helper.h"
 #include <string>
 #include "mocks/TestModeManager.h"
 
 #define BOOST_TEST_MODULE ConsoleInterface
 #include "BoostTestTargetConfig.h"
+
+#include <boost/lexical_cast.hpp>
 
 template<typename StringT>
 void appendText(StringT text)
@@ -41,13 +42,9 @@ Command::Result testCommand(const Command::ArgumentList_t& args, MockConsole& co
     int x = 0;
     ++x;
     try {
-        x = Helper::toInt(args[1]);
+        x = boost::lexical_cast<int>(args[1]);
     }
-    catch (const std::invalid_argument& e)
-    {
-        return Command::Result::INVALID_ARGUMENT;
-    }
-    catch (const std::out_of_range)
+    catch (const boost::bad_lexical_cast& e)
     {
         return Command::Result::INVALID_ARGUMENT;
     }
@@ -103,6 +100,8 @@ BOOST_AUTO_TEST_CASE(test_ConsoleInterface)
     interface.tryExecuteCommand("test1 123 abc",mt, modeManager); ++count;
     BOOST_CHECK(interface.tryExecuteCommand("aliasedcommand", TestModeManager::ModeType::EDITOR, modeManager) == Command::Result::WRONG_MODE); ++count;
     BOOST_CHECK(interface.tryExecuteCommand("aliasedcommand 1",mt, modeManager) == Command::Result::SUCCESS); ++count;
+    BOOST_CHECK(interface.tryExecuteCommand("aliasedcmd argument1",mt, modeManager) == Command::Result::INVALID_ARGUMENT); ++count;
+    BOOST_CHECK(interface.tryExecuteCommand("aliasedcmd 184467440737095516100",mt, modeManager) == Command::Result::INVALID_ARGUMENT); ++count;
     interface.tryExecuteCommand("alsdcmd argument1",mt, modeManager); ++count;
     //Test command completion
     BOOST_CHECK(interface.tryCompleteCommand("alia") == false);
