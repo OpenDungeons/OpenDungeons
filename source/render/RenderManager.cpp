@@ -549,12 +549,13 @@ void RenderManager::rrScaleEntity(GameEntity* entity)
 void RenderManager::rrCreateWeapon(Creature* curCreature, const Weapon* curWeapon, const std::string& hand)
 {
     Ogre::Entity* ent = mSceneManager->getEntity(curCreature->getOgreNamePrefix() + curCreature->getName());
-    //colourizeEntity(ent, curCreature->color);
+    try
+    {
+    Ogre::Bone* weaponBone = ent->getSkeleton()->getBone(
+                                 curWeapon->getOgreNamePrefix() + hand);
     Ogre::Entity* weaponEntity = mSceneManager->createEntity(curWeapon->getOgreNamePrefix()
                                  + hand + "_" + curCreature->getName(),
                                  curWeapon->getMeshName());
-    Ogre::Bone* weaponBone = ent->getSkeleton()->getBone(
-                                 curWeapon->getOgreNamePrefix() + hand);
 
     // Rotate by -90 degrees around the x-axis from the bone's rotation.
     Ogre::Quaternion rotationQuaternion;
@@ -563,13 +564,26 @@ void RenderManager::rrCreateWeapon(Creature* curCreature, const Weapon* curWeapo
 
     ent->attachObjectToBone(weaponBone->getName(), weaponEntity,
                             rotationQuaternion);
+    }
+    catch (const Ogre::Exception& e)
+    {
+        LogManager::getSingleton().logMessage("WARNING: Tried to add weapons to entity \"" + ent->getName() + " \" using model \"" +
+                                      ent->getMesh()->getName() + "\" that is missing the required bone \"" +
+                                      curWeapon->getOgreNamePrefix() + hand + "\"");
+    }
 }
 
 void RenderManager::rrDestroyWeapon(Creature* curCreature, const Weapon* curWeapon, const std::string& hand)
 {
-     Ogre::Entity* ent = mSceneManager->getEntity(curWeapon->getOgreNamePrefix()
-         + hand + "_" + curCreature->getName());
-     mSceneManager->destroyEntity(ent);
+     try
+     {
+      Ogre::Entity* ent = mSceneManager->getEntity(curWeapon->getOgreNamePrefix()
+          + hand + "_" + curCreature->getName());
+      mSceneManager->destroyEntity(ent);
+     }
+     catch (const Ogre::Exception& e)
+     {
+     }
 }
 
 void RenderManager::rrCreateMapLight(MapLight* curMapLight, bool displayVisual)
