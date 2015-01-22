@@ -551,19 +551,19 @@ void RenderManager::rrCreateWeapon(Creature* curCreature, const Weapon* curWeapo
     Ogre::Entity* ent = mSceneManager->getEntity(curCreature->getOgreNamePrefix() + curCreature->getName());
     try
     {
-    Ogre::Bone* weaponBone = ent->getSkeleton()->getBone(
-                                 curWeapon->getOgreNamePrefix() + hand);
-    Ogre::Entity* weaponEntity = mSceneManager->createEntity(curWeapon->getOgreNamePrefix()
-                                 + hand + "_" + curCreature->getName(),
-                                 curWeapon->getMeshName());
+        Ogre::Bone* weaponBone = ent->getSkeleton()->getBone(
+                                    curWeapon->getOgreNamePrefix() + hand);
+        Ogre::Entity* weaponEntity = mSceneManager->createEntity(curWeapon->getOgreNamePrefix()
+                                    + hand + "_" + curCreature->getName(),
+                                    curWeapon->getMeshName());
 
-    // Rotate by -90 degrees around the x-axis from the bone's rotation.
-    Ogre::Quaternion rotationQuaternion;
-    rotationQuaternion.FromAngleAxis(Ogre::Degree(-90.0), Ogre::Vector3(1.0,
-                                     0.0, 0.0));
+        // Rotate by -90 degrees around the x-axis from the bone's rotation.
+        Ogre::Quaternion rotationQuaternion;
+        rotationQuaternion.FromAngleAxis(Ogre::Degree(-90.0), Ogre::Vector3(1.0,
+                                        0.0, 0.0));
 
-    ent->attachObjectToBone(weaponBone->getName(), weaponEntity,
-                            rotationQuaternion);
+        ent->attachObjectToBone(weaponBone->getName(), weaponEntity,
+                                rotationQuaternion);
     }
     catch (const Ogre::Exception& e)
     {
@@ -577,9 +577,9 @@ void RenderManager::rrDestroyWeapon(Creature* curCreature, const Weapon* curWeap
 {
      try
      {
-      Ogre::Entity* ent = mSceneManager->getEntity(curWeapon->getOgreNamePrefix()
-          + hand + "_" + curCreature->getName());
-      mSceneManager->destroyEntity(ent);
+        Ogre::Entity* ent = mSceneManager->getEntity(curWeapon->getOgreNamePrefix()
+            + hand + "_" + curCreature->getName());
+        mSceneManager->destroyEntity(ent);
      }
      catch (const Ogre::Exception& e)
      {
