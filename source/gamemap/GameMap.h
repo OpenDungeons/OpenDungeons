@@ -331,18 +331,6 @@ public:
     //! \note Returns a path for the given creature to the given destination.
     std::list<Tile*> path(const Creature* creature, Tile* destination, bool throughDiggableTiles = false);
 
-    /*! \brief Returns a list of valid tiles along a straight line from (x1, y1) to (x2, y2)
-     * independently from their fullness or type.
-     *
-     * This algorithm is from
-     * http://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
-     * A more detailed description of how it works can be found there.
-     */
-    std::list<Tile*> tilesBetween(int x1, int y1, int x2, int y2);
-
-    //! \brief Returns the tiles visible from the given start tile within tilesWithinSightRadius.
-    std::vector<Tile*> visibleTiles(Tile *startTile, const std::vector<Tile*>& tilesWithinSightRadius);
-
     //! \brief Loops over the visibleTiles and returns any creature/room/trap in those tiles allied with the given seat (or if invert is true, is not allied)
     std::vector<GameEntity*> getVisibleForce(const std::vector<Tile*>& visibleTiles, Seat* seat, bool invert);
 

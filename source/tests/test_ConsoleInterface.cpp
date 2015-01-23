@@ -22,6 +22,8 @@
 #define BOOST_TEST_MODULE ConsoleInterface
 #include "BoostTestTargetConfig.h"
 
+#include <boost/lexical_cast.hpp>
+
 template<typename StringT>
 void appendText(StringT text)
 {
@@ -40,13 +42,9 @@ Command::Result testCommand(const Command::ArgumentList_t& args, MockConsole& co
     int x = 0;
     ++x;
     try {
-        x = std::stoi(args[1]);
+        x = boost::lexical_cast<int>(args[1]);
     }
-    catch (const std::invalid_argument& e)
-    {
-        return Command::Result::INVALID_ARGUMENT;
-    }
-    catch (const std::out_of_range)
+    catch (const boost::bad_lexical_cast& e)
     {
         return Command::Result::INVALID_ARGUMENT;
     }
@@ -90,11 +88,6 @@ BOOST_AUTO_TEST_CASE(test_ConsoleInterface)
                          {ModeManager::ModeType::GAME},
                          {"aliasedcmd",
                          "alsdcmd"}));
-
-    BOOST_CHECK(interface.addCommand(" commnand with spaces and \n \t other characters",
-                                     "description",
-                                     testCommand,
-                                     {ModeManager::ModeType::ALL}) == false);
 
     unsigned int count = 0;
     //Check that scrolling up or down without a history does not do anything
