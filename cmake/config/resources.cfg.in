@@ -1,8 +1,6 @@
 [Graphics]
 FileSystem=materials/RTShaderLib
 FileSystem=materials/RTShaderLib/materials
-FileSystem=materials/RTShaderLib/Cg
-FileSystem=materials/RTShaderLib/GLSL
 FileSystem=materials/scripts
 FileSystem=materials/textures
 FileSystem=models

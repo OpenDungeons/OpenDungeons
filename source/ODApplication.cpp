@@ -42,9 +42,10 @@
 #include "network/ODClient.h"
 
 #include <OgreErrorDialog.h>
+#include <OgreGpuProgramManager.h>
+#include <OgreResourceGroupManager.h>
 #include <OgreRoot.h>
 #include <Overlay/OgreOverlaySystem.h>
-#include <OgreResourceGroupManager.h>
 #include <RTShaderSystem/OgreShaderGenerator.h>
 
 #include <string>
@@ -95,6 +96,25 @@ ODApplication::ODApplication() :
 
         new ODServer();
         new ODClient();
+
+        //NOTE: This is currently done here as it has to be done after initialising mRoot,
+        //but before running initialiseAllResourceGroups()
+        Ogre::GpuProgramManager& gpuProgramManager = Ogre::GpuProgramManager::getSingleton();
+        Ogre::ResourceGroupManager& resourceGroupManager = Ogre::ResourceGroupManager::getSingleton();
+        if(gpuProgramManager.isSyntaxSupported("glsl"))
+        {
+            //Add GLSL shader location for
+            if(gpuProgramManager.isSyntaxSupported("glsl150"))
+            {
+                resourceGroupManager.addResourceLocation(
+                            "materials/RTShaderLib/GLSL150", "FileSystem", "Graphics");
+            }
+            else
+            {
+                resourceGroupManager.addResourceLocation(
+                            "materials/RTShaderLib/GLSL", "FileSystem", "Graphics");
+            }
+        }
 
         //Initialise RTshader system
         // IMPORTANT: This needs to be initialized BEFORE the resource groups.
