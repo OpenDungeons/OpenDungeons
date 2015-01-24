@@ -28,21 +28,25 @@ public:
     virtual RoomType getType() const
     { return RoomType::dungeonTemple; }
 
-    //! \brief Get back a reference to the temple mesh after calling Room::absorbRoom()
-    void absorbRoom(Room* room);
-
-    bool removeCoveredTile(Tile *t);
+    //! \brief Updates the temple position when in editor mode.
+    void updateActiveSpots();
 
     /*! \brief Counts down a timer until it reaches 0,
-    *  then it spawns a kobold of the color of this dungeon temple
-    *  at the center of the dungeon temple, and resets the timer.
-    */
+     * then it spawns a kobold of the color of this dungeon temple
+     * at the center of the dungeon temple, and resets the timer.
+     */
     void produceKobold();
 
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
-    void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);
+
+    void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
+    {
+        // This Room keeps its building object until it is destroyed (they will be released when
+        // the room is destroyed)
+    }
+
 private:
     //! \brief The number of turns to wait before producing a worker
     int mWaitTurns;

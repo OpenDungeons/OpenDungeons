@@ -26,6 +26,8 @@
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
 #include "render/ODFrameListener.h"
+#include "modes/ModeManager.h"
+#include "utils/LogManager.h"
 
 RoomDungeonTemple::RoomDungeonTemple(GameMap* gameMap) :
     Room(gameMap),
@@ -35,28 +37,12 @@ RoomDungeonTemple::RoomDungeonTemple(GameMap* gameMap) :
     setMeshName("DungeonTemple");
 }
 
-void RoomDungeonTemple::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
+void RoomDungeonTemple::updateActiveSpots()
 {
-    // This Room keeps its building object until it is destroyed (they will be released when
-    // the room is destroyed)
-}
-
-void RoomDungeonTemple::absorbRoom(Room* room)
-{
-    Room::absorbRoom(room);
-
+    // Room::updateActiveSpots(); <<-- Disabled on purpose.
+    // We don't update the active spots the same way as only the central tile is needed.
     if (ODFrameListener::getSingleton().getModeManager()->getCurrentModeType() == ModeManager::ModeType::EDITOR)
         updateTemplePosition();
-}
-
-bool RoomDungeonTemple::removeCoveredTile(Tile *t)
-{
-    bool ret = Room::removeCoveredTile(t);
-
-    if (ODFrameListener::getSingleton().getModeManager()->getCurrentModeType() == ModeManager::ModeType::EDITOR)
-        updateTemplePosition();
-
-    return ret;
 }
 
 void RoomDungeonTemple::updateTemplePosition()
@@ -80,7 +66,6 @@ void RoomDungeonTemple::updateTemplePosition()
 void RoomDungeonTemple::createMeshLocal()
 {
     Room::createMeshLocal();
-
     updateTemplePosition();
 }
 
@@ -92,6 +77,15 @@ void RoomDungeonTemple::destroyMeshLocal()
 
 void RoomDungeonTemple::produceKobold()
 {
+    // If the room has been destroyed, or has not yet been assigned any tiles, then we
+    // cannot determine where to place the new creature and we should just give up.
+    if (mCoveredTiles.empty())
+        return;
+
+    Tile* centralTile = getCentralTile();
+    if (centralTile == nullptr)
+        return;
+
     if (mWaitTurns > 0)
     {
         --mWaitTurns;
@@ -100,25 +94,26 @@ void RoomDungeonTemple::produceKobold()
 
     mWaitTurns = 30;
 
-    // If the room has been destroyed, or has not yet been assigned any tiles, then we
-    // cannot determine where to place the new creature and we should just give up.
-    if (mCoveredTiles.empty())
-        return;
-
     // Create a new creature and copy over the class-based creature parameters.
     const CreatureDefinition *classToSpawn = getGameMap()->getClassDescription("Kobold");
+    Creature* newCreature = new Creature(getGameMap(), classToSpawn);
     if (classToSpawn == nullptr)
     {
-        std::cout << "Error: No 'Kobold' creature definition" << std::endl;
+        LogManager::getSingleton().logMessage("Error: No worker creature definition, class=" + classToSpawn->getClassName()
+            + ", name=" + newCreature->getName() + ", seatId=" + Ogre::StringConverter::toString(getSeat()->getId()));
+
+        delete newCreature;
         return;
     }
 
-    Creature* newCreature = new Creature(getGameMap(), classToSpawn);
-    Tile* tileSpawn = mCoveredTiles[0];
-    newCreature->setSeat(getSeat());
+    LogManager::getSingleton().logMessage("Spawning a creature class=" + classToSpawn->getClassName()
+        + ", name=" + newCreature->getName() + ", seatId=" + Ogre::StringConverter::toString(getSeat()->getId()));
 
+    newCreature->setSeat(getSeat());
     getGameMap()->addCreature(newCreature);
-    Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(tileSpawn->getX()), static_cast<Ogre::Real>(tileSpawn->getY()), static_cast<Ogre::Real>(0.0));
+    Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(centralTile->getX()),
+                                static_cast<Ogre::Real>(centralTile->getY()),
+                                static_cast<Ogre::Real>(0.0));
     newCreature->createMesh();
     newCreature->setPosition(spawnPosition, false);
 }

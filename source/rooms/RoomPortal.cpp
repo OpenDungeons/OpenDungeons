@@ -32,6 +32,7 @@
 #include "utils/Random.h"
 #include "utils/LogManager.h"
 #include "render/ODFrameListener.h"
+#include "modes/ModeManager.h"
 
 #include <cmath>
 
@@ -43,16 +44,10 @@ RoomPortal::RoomPortal(GameMap* gameMap) :
    setMeshName("Portal");
 }
 
-void RoomPortal::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
+void RoomPortal::updateActiveSpots()
 {
-    // This Room keeps its building object until it is destroyed (it will be released when
-    // the room is destroyed)
-}
-
-void RoomPortal::absorbRoom(Room* room)
-{
-    Room::absorbRoom(room);
-
+    // Room::updateActiveSpots(); <<-- Disabled on purpose.
+    // We don't update the active spots the same way as only the central tile is needed.
     if (ODFrameListener::getSingleton().getModeManager()->getCurrentModeType() == ModeManager::ModeType::EDITOR)
         updatePortalPosition();
 }
@@ -80,7 +75,6 @@ void RoomPortal::updatePortalPosition()
 void RoomPortal::createMeshLocal()
 {
     Room::createMeshLocal();
-
     updatePortalPosition();
 }
 
@@ -88,16 +82,6 @@ void RoomPortal::destroyMeshLocal()
 {
     Room::destroyMeshLocal();
     mPortalObject = nullptr;
-}
-
-bool RoomPortal::removeCoveredTile(Tile* t)
-{
-    bool ret = Room::removeCoveredTile(t);
-
-    if (ODFrameListener::getSingleton().getModeManager()->getCurrentModeType() == ModeManager::ModeType::EDITOR)
-        updatePortalPosition();
-
-    return ret;
 }
 
 void RoomPortal::doUpkeep()
@@ -126,9 +110,6 @@ void RoomPortal::doUpkeep()
 
 void RoomPortal::spawnCreature()
 {
-    if (mPortalObject != nullptr)
-        mPortalObject->setAnimationState("Triggered", false);
-
     // If the room has been destroyed, or has not yet been assigned any tiles, then we
     // cannot determine where to place the new creature and we should just give up.
     if (mCoveredTiles.empty())
@@ -144,14 +125,17 @@ void RoomPortal::spawnCreature()
     if (centralTile == nullptr)
         return;
 
+    if (mPortalObject != nullptr)
+        mPortalObject->setAnimationState("Triggered", false);
+
     // Create a new creature and copy over the class-based creature parameters.
     Creature* newCreature = new Creature(getGameMap(), classToSpawn);
 
     LogManager::getSingleton().logMessage("Spawning a creature class=" + classToSpawn->getClassName()
         + ", name=" + newCreature->getName() + ", seatId=" + Ogre::StringConverter::toString(getSeat()->getId()));
 
-    Ogre::Real xPos = centralTile->getPosition().x;
-    Ogre::Real yPos = centralTile->getPosition().y;
+    Ogre::Real xPos = static_cast<Ogre::Real>(centralTile->getX());
+    Ogre::Real yPos = static_cast<Ogre::Real>(centralTile->getY());
 
     newCreature->setSeat(getSeat());
     getGameMap()->addCreature(newCreature);

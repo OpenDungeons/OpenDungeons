@@ -32,11 +32,6 @@ public:
     virtual RoomType getType() const
     { return RoomType::portal; }
 
-    bool removeCoveredTile(Tile* t);
-
-    //! \brief Get back a reference to the portal mesh after calling Room::absorbRoom()
-    void absorbRoom(Room* room);
-
     //! \brief In addition to the standard upkeep, check to see if a new creature should be spawned.
     void doUpkeep();
 
@@ -49,13 +44,21 @@ public:
         return false;
     }
 
+    //! \brief Updates the portal position when in editor mode.
+    void updateActiveSpots();
+
 protected:
     void createMeshLocal();
     void destroyMeshLocal();
 
-    void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);
+    void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
+    {
+        // This Room keeps its building object until it is destroyed (it will be released when
+        // the room is destroyed)
+    }
 
 private:
+    //! \brief Stores the number of turns before spawning the next creature.
     int mSpawnCreatureCountdown;
 
     RenderedMovableEntity* mPortalObject;
