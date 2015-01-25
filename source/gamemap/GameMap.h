@@ -340,11 +340,13 @@ public:
     //! \note Returns a path for the given creature to the given destination.
     std::list<Tile*> path(const Creature* creature, Tile* destination, bool throughDiggableTiles = false);
 
-    //! \brief Loops over the visibleTiles and returns any creature/room/trap in those tiles allied with the given seat (or if invert is true, is not allied)
-    std::vector<GameEntity*> getVisibleForce(const std::vector<Tile*>& visibleTiles, Seat* seat, bool invert);
+    //! \brief Loops over the visibleTiles and returns any creature/room/trap in those tiles allied with the given seat
+    //! (or if enemyForce is true, is not allied)
+    std::vector<GameEntity*> getVisibleForce(const std::vector<Tile*>& visibleTiles, Seat* seat, bool enemyForce);
 
-    //! \brief Loops over the visibleTiles and returns any creature in those tiles allied with the given seat (or if invert is true, is not allied)
-    std::vector<GameEntity*> getVisibleCreatures(const std::vector<Tile*>& visibleTiles, Seat* seat, bool invert);
+    //! \brief Loops over the visibleTiles and returns any creature in those tiles allied with the given seat.
+    //! (or if enemyCreatures is true, is not allied)
+    std::vector<GameEntity*> getVisibleCreatures(const std::vector<Tile*>& visibleTiles, Seat* seat, bool enemyCreatures);
 
     //! \brief Loops over the visibleTiles and returns any carryable entity in those tiles
     std::vector<MovableGameEntity*> getVisibleCarryableEntities(const std::vector<Tile*>& visibleTiles);

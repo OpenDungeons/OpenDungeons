@@ -1675,7 +1675,7 @@ Player* GameMap::getPlayerBySeat(Seat* seat)
     return nullptr;
 }
 
-std::vector<GameEntity*> GameMap::getVisibleForce(const std::vector<Tile*>& visibleTiles, Seat* seat, bool invert)
+std::vector<GameEntity*> GameMap::getVisibleForce(const std::vector<Tile*>& visibleTiles, Seat* seat, bool enemyForce)
 {
     std::vector<GameEntity*> returnList;
 
@@ -1686,15 +1686,15 @@ std::vector<GameEntity*> GameMap::getVisibleForce(const std::vector<Tile*>& visi
         if(tile == nullptr)
             continue;
 
-        tile->fillWithAttackableCreatures(returnList, seat, invert);
-        tile->fillWithAttackableRoom(returnList, seat, invert);
-        tile->fillWithAttackableTrap(returnList, seat, invert);
+        tile->fillWithAttackableCreatures(returnList, seat, enemyForce);
+        tile->fillWithAttackableRoom(returnList, seat, enemyForce);
+        tile->fillWithAttackableTrap(returnList, seat, enemyForce);
     }
 
     return returnList;
 }
 
-std::vector<GameEntity*> GameMap::getVisibleCreatures(const std::vector<Tile*>& visibleTiles, Seat* seat, bool invert)
+std::vector<GameEntity*> GameMap::getVisibleCreatures(const std::vector<Tile*>& visibleTiles, Seat* seat, bool enemyCreatures)
 {
     std::vector<GameEntity*> returnList;
 
@@ -1705,7 +1705,7 @@ std::vector<GameEntity*> GameMap::getVisibleCreatures(const std::vector<Tile*>& 
         if(tile == nullptr)
             continue;
 
-        tile->fillWithAttackableCreatures(returnList, seat, invert);
+        tile->fillWithAttackableCreatures(returnList, seat, enemyCreatures);
     }
 
     return returnList;
