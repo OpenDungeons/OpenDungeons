@@ -167,7 +167,11 @@ public:
 
     void setMapSize(int x, int y);
 
-    const CreatureDefinition* getNextCreatureClassToSpawn();
+    //! \brief Returns the next fighter creature class to spawn.
+    const CreatureDefinition* getNextFighterClassToSpawn();
+
+    //! \brief Returns the first (default) worker class definition.
+    const CreatureDefinition* getWorkerClassToSpawn();
 
     //! \brief Returns true if the given seat is allied. False otherwise
     bool isAlliedSeat(Seat *seat);

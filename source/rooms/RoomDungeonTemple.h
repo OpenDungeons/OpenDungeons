@@ -32,10 +32,10 @@ public:
     void updateActiveSpots();
 
     /*! \brief Counts down a timer until it reaches 0,
-     * then it spawns a kobold of the color of this dungeon temple
+     * then it spawns a worker of the color of this dungeon temple
      * at the center of the dungeon temple, and resets the timer.
      */
-    void produceKobold();
+    void produceWorker();
 
 protected:
     virtual void createMeshLocal();

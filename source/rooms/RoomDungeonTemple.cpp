@@ -28,6 +28,7 @@
 #include "render/ODFrameListener.h"
 #include "modes/ModeManager.h"
 #include "utils/LogManager.h"
+#include "utils/ConfigManager.h"
 
 RoomDungeonTemple::RoomDungeonTemple(GameMap* gameMap) :
     Room(gameMap),
@@ -41,7 +42,7 @@ void RoomDungeonTemple::updateActiveSpots()
 {
     // Room::updateActiveSpots(); <<-- Disabled on purpose.
     // We don't update the active spots the same way as only the central tile is needed.
-    if (ODFrameListener::getSingleton().getModeManager()->getCurrentModeType() == ModeManager::ModeType::EDITOR)
+    if (ODFrameListener::getSingleton().getModeManager()->getCurrentModeTypeExceptConsole() == ModeManager::ModeType::EDITOR)
         updateTemplePosition();
 }
 
@@ -75,7 +76,7 @@ void RoomDungeonTemple::destroyMeshLocal()
     mTempleObject = nullptr;
 }
 
-void RoomDungeonTemple::produceKobold()
+void RoomDungeonTemple::produceWorker()
 {
     // If the room has been destroyed, or has not yet been assigned any tiles, then we
     // cannot determine where to place the new creature and we should just give up.
@@ -94,18 +95,18 @@ void RoomDungeonTemple::produceKobold()
 
     mWaitTurns = 30;
 
-    // Create a new creature and copy over the class-based creature parameters.
-    const CreatureDefinition *classToSpawn = getGameMap()->getClassDescription("Kobold");
-    Creature* newCreature = new Creature(getGameMap(), classToSpawn);
+    // Creates a creature from the first worker class found for the given faction.
+    const CreatureDefinition* classToSpawn = getSeat()->getWorkerClassToSpawn();
+
     if (classToSpawn == nullptr)
     {
-        LogManager::getSingleton().logMessage("Error: No worker creature definition, class=" + classToSpawn->getClassName()
-            + ", name=" + newCreature->getName() + ", seatId=" + Ogre::StringConverter::toString(getSeat()->getId()));
-
-        delete newCreature;
+        LogManager::getSingleton().logMessage("Error: No worker creature definition, class=nullptr, seatId="
+            + Ogre::StringConverter::toString(getSeat()->getId()));
         return;
     }
 
+    // Create a new creature and copy over the class-based creature parameters.
+    Creature* newCreature = new Creature(getGameMap(), classToSpawn);
     LogManager::getSingleton().logMessage("Spawning a creature class=" + classToSpawn->getClassName()
         + ", name=" + newCreature->getName() + ", seatId=" + Ogre::StringConverter::toString(getSeat()->getId()));
 

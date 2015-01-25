@@ -474,7 +474,7 @@ void GameMap::queueEntityForDeletion(GameEntity *ge)
     mEntitiesToDelete.push_back(ge);
 }
 
-const CreatureDefinition* GameMap::getClassDescription(const std::string& className)
+const CreatureDefinition* GameMap::getClassDescription(const string &className)
 {
     for (std::pair<const CreatureDefinition*,CreatureDefinition*>& def : mClassDescriptions)
     {
@@ -1131,7 +1131,7 @@ unsigned long int GameMap::doMiscUpkeep()
         if (koboldsNeededPerSeat[seat] > 0)
         {
             --koboldsNeededPerSeat[seat];
-            dungeonTemple->produceKobold();
+            dungeonTemple->produceWorker();
         }
     }
 

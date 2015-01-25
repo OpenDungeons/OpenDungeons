@@ -48,7 +48,7 @@ void RoomPortal::updateActiveSpots()
 {
     // Room::updateActiveSpots(); <<-- Disabled on purpose.
     // We don't update the active spots the same way as only the central tile is needed.
-    if (ODFrameListener::getSingleton().getModeManager()->getCurrentModeType() == ModeManager::ModeType::EDITOR)
+    if (ODFrameListener::getSingleton().getModeManager()->getCurrentModeTypeExceptConsole() == ModeManager::ModeType::EDITOR)
         updatePortalPosition();
 }
 
@@ -117,7 +117,7 @@ void RoomPortal::spawnCreature()
 
     // We check if a creature can spawn
     Seat* seat = getSeat();
-    const CreatureDefinition* classToSpawn = seat->getNextCreatureClassToSpawn();
+    const CreatureDefinition* classToSpawn = seat->getNextFighterClassToSpawn();
     if (classToSpawn == nullptr)
         return;
 

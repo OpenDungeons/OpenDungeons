@@ -336,12 +336,16 @@ void Seat::initSpawnPool()
     }
 }
 
-const CreatureDefinition* Seat::getNextCreatureClassToSpawn()
+const CreatureDefinition* Seat::getNextFighterClassToSpawn()
 {
     std::vector<std::pair<const CreatureDefinition*, int32_t> > defSpawnable;
     int32_t nbPointsTotal = 0;
     for(std::pair<const CreatureDefinition*, bool>& def : mSpawnPool)
     {
+        // Only check for fighter creatures.
+        if (!def.first || def.first->isWorker())
+            continue;
+
         const std::vector<const SpawnCondition*>& conditions = ConfigManager::getSingleton().getCreatureSpawnConditions(def.first);
         int32_t nbPointsConditions = 0;
         for(const SpawnCondition* condition : conditions)
@@ -386,6 +390,20 @@ const CreatureDefinition* Seat::getNextCreatureClassToSpawn()
 
     // It is not normal to come here
     OD_ASSERT_TRUE_MSG(false, "seatId=" + Ogre::StringConverter::toString(getId()));
+    return nullptr;
+}
+
+const CreatureDefinition* Seat::getWorkerClassToSpawn()
+{
+    for(std::pair<const CreatureDefinition*, bool>& def : mSpawnPool)
+    {
+        if (def.first == nullptr)
+            continue;
+
+        if (def.first->isWorker())
+            return def.first;
+    }
+
     return nullptr;
 }
 
