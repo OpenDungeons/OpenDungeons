@@ -26,6 +26,8 @@
 #include "entities/CreatureAction.h"
 #include "entities/MovableGameEntity.h"
 
+#include "utils/ConfigManager.h"
+
 #include <OgreVector2.h>
 #include <OgreVector3.h>
 #include <CEGUI/EventArgs.h>
@@ -332,6 +334,18 @@ public:
 
     void itsPayDay();
 
+    inline const std::vector<Tile*>& getVisibleTiles() const
+    { return mVisibleTiles; }
+
+    inline double getAwakeness() const
+    { return mAwakeness; }
+
+    inline double getHunger() const
+    { return mHunger; }
+
+    inline int32_t getGoldFee() const
+    { return mGoldFee; }
+
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
@@ -441,6 +455,21 @@ private:
 
     Ogre::Vector3                   mScale;
 
+    //! \brief The mood do not have to be computed at every turn. This cooldown will
+    //! count how many turns the creature should wait before computing it
+    int32_t                         mMoodCooldownTurns;
+
+    //! \brief Mood value. Depending on this value, the creature will be in bad mood and
+    //! might attack allied creatures or refuse to work or to go to combat
+    ConfigManager::CreatureMoodLevel mMoodValue;
+    //! \brief Mood points. Computed by the creature MoodModifiers. It is promoted to class variable for debug purposes and
+    //! should not be used to check mood. If the mood is to be tested, mMoodValue should be used
+    int32_t                         mMoodPoints;
+
+    //! \brief Reminds the first turn the creature gets furious. If is stays like this for too long,
+    //! it will become rogue
+    int64_t                         mFirstTurnFurious;
+
     //! \brief The logic in the idle function is basically to roll a dice and, if the value allows, push an action to test if
     //! it is possible. To avoid testing several times the same action, we check in mActionTry if the action as already been
     //! tried. If yes and forcePush is false, the action won't be pushed and pushAction will return false. If the action has
@@ -543,9 +572,16 @@ private:
     //! \return true when another action should handled after that one.
     bool handleGetFee(const CreatureAction& actionItem);
 
-    //! \brief Returns true if creature is in bad mood. False otherwise. A creature in bad mood will more likely
-    //! flee or attack allied units
-    bool isInBadMood();
+    //! \brief A sub-function called by doTurn()
+    //! This functions will hanlde the creature action logic about trying to leave the dungeon.
+    //! \return true when another action should handled after that one.
+    bool handleLeaveDungeon(const CreatureAction& actionItem);
+
+    //! \brief A sub-function called by doTurn()
+    //! This functions will hanlde the creature fighting action logic when
+    //! fighting an allied natural enemy (when in bad mood)
+    //! \return true when another action should handled after that one.
+    bool handleFightAlliedNaturalEnemyAction(const CreatureAction& actionItem);
 
     //! \brief Restores the creature's stats according to its current level
     void buildStats();
@@ -553,6 +589,11 @@ private:
     void carryEntity(MovableGameEntity* carriedEntity);
 
     void releaseCarriedEntity();
+
+    void computeMood();
+
+    //! \brief Called when an angry creature wants to attack a natural enemy
+    void engageAlliedNaturalEnemy(Creature* attacker);
 };
 
 #endif // CREATURE_H

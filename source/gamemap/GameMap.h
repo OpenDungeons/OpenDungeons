@@ -43,8 +43,7 @@ class MapLight;
 class MovableGameEntity;
 class CreatureDefinition;
 class Weapon;
-
-class MiniMap;
+class CreatureMood;
 
 /*! \brief The class which stores the entire game state on the server and a subset of this on each client.
  *
@@ -162,12 +161,19 @@ public:
 
     void saveLevelClassDescriptions(std::ofstream& levelFile);
 
-    void addWeapon(const Weapon *weapon);
+    void addWeapon(const Weapon* weapon);
     const Weapon* getWeapon(int index);
     const Weapon* getWeapon(const std::string& name);
     Weapon* getWeaponForTuning(const std::string& name);
     uint32_t numWeapons();
     void saveLevelEquipments(std::ofstream& levelFile);
+
+    void clearCreatureMoodModifiers();
+    void addCreatureMoodModifiers(const std::string& name,
+        const std::vector<CreatureMood*>& moodModifiers);
+    int32_t computeCreatureMoodModifiers(const Creature* creature) const;
+
+    std::vector<GameEntity*> getNaturalEnemiesInList(const Creature* creature, const std::vector<GameEntity*>& reachableAlliedObjects) const;
 
     //! \brief Calls the deleteYourself() method on each of the rooms in the game map as well as clearing the vector of stored rooms.
     void clearRooms();
@@ -551,6 +557,10 @@ private:
 
     //! AI Handling manager
     AIManager mAiManager;
+
+    //! Creature mood modifiers. Used to compute mood. The name of the mood modifier is associated with
+    //! the list of mood modifier
+    std::map<const std::string, std::vector<CreatureMood*>> mCreatureMoodModifiers;
 
     //! \brief Updates different entities states.
     //! Updates active objects (creatures, rooms, ...), goals, count each team Workers, gold, mana and claimed tiles.

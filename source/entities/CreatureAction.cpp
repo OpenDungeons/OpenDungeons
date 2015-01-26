@@ -95,6 +95,12 @@ std::string CreatureAction::toString() const
 
     case idle:
         return "idle";
+
+    case leaveDungeon:
+        return "leaveDungeon";
+
+    case fightNaturalEnemy:
+        return "fightNaturalEnemy";
     }
 
     return "unhandledAct";

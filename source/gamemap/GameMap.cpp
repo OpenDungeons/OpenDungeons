@@ -24,6 +24,9 @@
 
 #include "gamemap/GameMap.h"
 
+#include "creaturemood/CreatureMood.h"
+#include "creaturemood/CreatureMoodCreature.h"
+
 #include "gamemap/MapLoader.h"
 
 #include "goals/Goal.h"
@@ -173,6 +176,19 @@ bool GameMap::loadLevel(const std::string& levelFilepath)
         addWeapon(def);
     }
 
+    // We reset the mood modifiers
+    clearCreatureMoodModifiers();
+    const std::map<const std::string, std::vector<const CreatureMood*>>& moodModifiers = ConfigManager::getSingleton().getCreatureMoodModifiers();
+    for(std::pair<const std::string, std::vector<const CreatureMood*>> p : moodModifiers)
+    {
+        std::vector<CreatureMood*> moodModifiersClone;
+        for(const CreatureMood* mood : p.second)
+        {
+            moodModifiersClone.push_back(mood->clone());
+        }
+        addCreatureMoodModifiers(p.first, moodModifiersClone);
+    }
+
     // Read in the game map filepath
     std::string levelPath = ResourceManager::getSingletonPtr()->getGameDataPath()
                             + levelFilepath;
@@ -182,6 +198,15 @@ bool GameMap::loadLevel(const std::string& levelFilepath)
         setLevelFileName(levelFilepath);
     else
         return false;
+
+    // We initialize the mood modifiers
+    for(std::pair<const std::string, std::vector<CreatureMood*>>& p : mCreatureMoodModifiers)
+    {
+        for(CreatureMood* creatureMood : p.second)
+        {
+            creatureMood->init(this);
+        }
+    }
 
     return true;
 }
@@ -2895,4 +2920,70 @@ void GameMap::updateVisibleEntities()
     // Notify changes on visible tiles
     for(Seat* seat : mSeats)
         seat->notifyChangedVisibleTiles();
+}
+
+void GameMap::clearCreatureMoodModifiers()
+{
+    // We delete map specific mood modifiers
+    for(std::pair<const std::string, std::vector<CreatureMood*>>& p : mCreatureMoodModifiers)
+    {
+        for(const CreatureMood* creatureMood : p.second)
+            delete creatureMood;
+    }
+
+    mCreatureMoodModifiers.clear();
+}
+
+void GameMap::addCreatureMoodModifiers(const std::string& name,
+    const std::vector<CreatureMood*>& moodModifiers)
+{
+    mCreatureMoodModifiers[name] = moodModifiers;
+}
+
+int32_t GameMap::computeCreatureMoodModifiers(const Creature* creature) const
+{
+    const std::string& moodModifierName = creature->getDefinition()->getMoodModifierName();
+    if(mCreatureMoodModifiers.count(moodModifierName) <= 0)
+        return 0;
+
+    int32_t moodValue = 0;
+    const std::vector<CreatureMood*>& moodModifiers = mCreatureMoodModifiers.at(moodModifierName);
+    for(const CreatureMood* mood : moodModifiers)
+    {
+        moodValue += mood->computeMood(creature);
+    }
+
+    return moodValue;
+}
+
+std::vector<GameEntity*> GameMap::getNaturalEnemiesInList(const Creature* creature, const std::vector<GameEntity*>& reachableAlliedObjects) const
+{
+    std::vector<GameEntity*> ret;
+
+    const std::string& moodModifierName = creature->getDefinition()->getMoodModifierName();
+    if(mCreatureMoodModifiers.count(moodModifierName) <= 0)
+        return ret;
+
+    const std::vector<CreatureMood*>& moodModifiers = mCreatureMoodModifiers.at(moodModifierName);
+    for(GameEntity* entity : reachableAlliedObjects)
+    {
+        if(entity->getObjectType() != GameEntity::ObjectType::creature)
+            continue;
+
+        Creature* alliedCreature = static_cast<Creature*>(entity);
+        for(const CreatureMood* mood : moodModifiers)
+        {
+            if(mood->getCreatureMoodType() != CreatureMood::CreatureMoodType::creature)
+                continue;
+
+            const CreatureMoodCreature* moodCreature = static_cast<const CreatureMoodCreature*>(mood);
+            if(alliedCreature->getDefinition() == moodCreature->getCreatureDefinition())
+            {
+                ret.push_back(entity);
+                break;
+            }
+        }
+    }
+
+    return ret;
 }

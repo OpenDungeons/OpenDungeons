@@ -18,6 +18,8 @@
 #include "entities/CreatureDefinition.h"
 #include "entities/Weapon.h"
 
+#include "creaturemood/CreatureMood.h"
+
 #include "spawnconditions/SpawnCondition.h"
 
 #include "utils/ConfigManager.h"
@@ -35,8 +37,14 @@ ConfigManager::ConfigManager() :
     mBaseSpawnPoint(10),
     mCreatureDeathCounter(10),
     mMaxCreaturesPerSeat(15),
+    mCreatureBaseMood(1000),
+    mCreatureMoodHappy(1200),
+    mCreatureMoodUpset(0),
+    mCreatureMoodAngry(-1000),
+    mCreatureMoodFurious(-2000),
     mSlapDamagePercent(15),
-    mTimePayDay(300)
+    mTimePayDay(300),
+    mNbTurnsFuriousMax(120)
 {
     if(!loadGlobalConfig())
     {
@@ -75,6 +83,12 @@ ConfigManager::ConfigManager() :
     }
     fileName = ResourceManager::getSingleton().getConfigPath() + mFilenameTraps;
     if(!loadTraps(fileName))
+    {
+        OD_ASSERT_TRUE(false);
+        exit(1);
+    }
+    fileName = ResourceManager::getSingleton().getConfigPath() + mFilenameCreaturesMood;
+    if(!loadCreaturesMood(fileName))
     {
         OD_ASSERT_TRUE(false);
         exit(1);
@@ -231,9 +245,14 @@ bool ConfigManager::loadGlobalConfigDefinitionFiles(std::stringstream& configFil
             mFilenameTraps = fileName;
             filesOk |= 0x20;
         }
+        else if(type == "CreaturesMood")
+        {
+            mFilenameCreaturesMood = fileName;
+            filesOk |= 0x40;
+        }
     }
 
-    if(filesOk != 0x3F)
+    if(filesOk != 0x7F)
     {
         OD_ASSERT_TRUE_MSG(false, "Missing parameter file filesOk=" + Ogre::StringConverter::toString(filesOk));
         return false;
@@ -377,7 +396,14 @@ bool ConfigManager::loadGlobalGameConfig(std::stringstream& configFile)
         if(nextParam == "TimePayDay")
         {
             configFile >> nextParam;
-            mTimePayDay = Helper::toDouble(nextParam);
+            mTimePayDay = Helper::toInt(nextParam);
+            // Not mandatory
+        }
+
+        if(nextParam == "NbTurnsFuriousMax")
+        {
+            configFile >> nextParam;
+            mNbTurnsFuriousMax = Helper::toInt(nextParam);
             // Not mandatory
         }
     }
@@ -734,6 +760,116 @@ bool ConfigManager::loadTraps(const std::string& fileName)
     return true;
 }
 
+bool ConfigManager::loadCreaturesMood(const std::string& fileName)
+{
+    LogManager::getSingleton().logMessage("Load creature spawn conditions file: " + fileName);
+    std::stringstream defFile;
+    if(!Helper::readFileWithoutComments(fileName, defFile))
+    {
+        OD_ASSERT_TRUE_MSG(false, "Couldn't read " + fileName);
+        return false;
+    }
+
+    std::string nextParam;
+    // Read in the creature class descriptions
+    defFile >> nextParam;
+    if (nextParam != "[CreaturesMood]")
+    {
+        OD_ASSERT_TRUE_MSG(false, "Invalid creature spawn condition start format. Line was " + nextParam);
+        return false;
+    }
+
+    while(defFile.good())
+    {
+        if(!(defFile >> nextParam))
+            break;
+
+        if (nextParam == "[/CreaturesMood]")
+            break;
+
+        if (nextParam == "[/CreatureMood]")
+            continue;
+
+        if (nextParam == "BaseMood")
+        {
+            defFile >> nextParam;
+            mCreatureBaseMood = Helper::toInt(nextParam);
+            continue;
+        }
+
+        if (nextParam == "MoodHappy")
+        {
+            defFile >> nextParam;
+            mCreatureMoodHappy = Helper::toInt(nextParam);
+            continue;
+        }
+
+        if (nextParam == "MoodUpset")
+        {
+            defFile >> nextParam;
+            mCreatureMoodUpset = Helper::toInt(nextParam);
+            continue;
+        }
+
+        if (nextParam == "MoodAngry")
+        {
+            defFile >> nextParam;
+            mCreatureMoodAngry = Helper::toInt(nextParam);
+            continue;
+        }
+
+        if (nextParam == "MoodFurious")
+        {
+            defFile >> nextParam;
+            mCreatureMoodFurious = Helper::toInt(nextParam);
+            continue;
+        }
+
+        if (nextParam != "[CreatureMood]")
+        {
+            OD_ASSERT_TRUE_MSG(false, "Invalid CreatureMood format. Line was " + nextParam);
+            return false;
+        }
+
+        if(!(defFile >> nextParam))
+                break;
+        if (nextParam != "CreatureMoodName")
+        {
+            OD_ASSERT_TRUE_MSG(false, "Invalid CreatureMoodName format. Line was " + nextParam);
+            return false;
+        }
+        std::string moodModifierName;
+        defFile >> moodModifierName;
+        std::vector<const CreatureMood*>& moodModifiers = mCreatureMoodModifiers[moodModifierName];
+
+        while(defFile.good())
+        {
+            if(!(defFile >> nextParam))
+                break;
+
+            if (nextParam == "[/CreatureMood]")
+                break;
+
+            if (nextParam != "[MoodModifier]")
+            {
+                OD_ASSERT_TRUE_MSG(false, "Invalid CreatureMood MoodModifier format. nextParam=" + nextParam);
+                return false;
+            }
+
+            // Load the definition
+            CreatureMood* def = CreatureMood::load(defFile);
+            if (def == nullptr)
+            {
+                OD_ASSERT_TRUE_MSG(false, "Invalid CreatureMood MoodModifier definition");
+                return false;
+            }
+            moodModifiers.push_back(def);
+        }
+    }
+
+    return true;
+}
+
 const std::string& ConfigManager::getRoomConfigString(const std::string& param) const
 {
     if(mRoomsConfig.count(param) <= 0)
@@ -866,4 +1002,42 @@ const std::vector<std::string>& ConfigManager::getFactionSpawnPool(const std::st
         return EMPTY_SPAWNPOOL;
 
     return mFactionSpawnPool.at(faction);
+}
+
+std::string ConfigManager::toString(CreatureMoodLevel moodLevel)
+{
+    switch(moodLevel)
+    {
+        case CreatureMoodLevel::Happy:
+            return "Happy";
+        case CreatureMoodLevel::Neutral:
+            return "Neutral";
+        case CreatureMoodLevel::Upset:
+            return "Upset";
+        case CreatureMoodLevel::Angry:
+            return "Angry";
+        case CreatureMoodLevel::Furious:
+            return "Furious";
+        default:
+            OD_ASSERT_TRUE_MSG(false, "moodLevel=" + Helper::toString(static_cast<int>(moodLevel)));
+            return "";
+    }
+}
+
+ConfigManager::CreatureMoodLevel ConfigManager::getCreatureMoodLevel(int32_t moodModifiersPoints) const
+{
+    int32_t mood = mCreatureBaseMood + moodModifiersPoints;
+    if(mood >= mCreatureMoodHappy)
+        return ConfigManager::CreatureMoodLevel::Happy;
+
+    if(mood >= mCreatureMoodUpset)
+        return ConfigManager::CreatureMoodLevel::Neutral;
+
+    if(mood >= mCreatureMoodAngry)
+        return ConfigManager::CreatureMoodLevel::Upset;
+
+    if(mood >= mCreatureMoodFurious)
+        return ConfigManager::CreatureMoodLevel::Angry;
+
+    return ConfigManager::CreatureMoodLevel::Furious;
 }

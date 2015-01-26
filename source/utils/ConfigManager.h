@@ -26,12 +26,21 @@
 class CreatureDefinition;
 class Weapon;
 class SpawnCondition;
+class CreatureMood;
 
 //! \brief This class is used to manage global configuration such as network configuration, global creature stats, ...
 //! It should NOT be used to load level specific stuff. For that, there if GameMap.
 class ConfigManager : public Ogre::Singleton<ConfigManager>
 {
 public:
+    enum CreatureMoodLevel
+    {
+        Happy,
+        Neutral,
+        Upset,
+        Angry,
+        Furious
+    };
     ConfigManager();
     ~ConfigManager();
 
@@ -61,6 +70,14 @@ public:
 
     inline uint32_t getBaseSpawnPoint() const
     { return mBaseSpawnPoint; }
+
+    static std::string toString(CreatureMoodLevel moodLevel);
+
+    inline const std::map<const std::string, std::vector<const CreatureMood*> >& getCreatureMoodModifiers() const
+    { return mCreatureMoodModifiers; }
+    CreatureMoodLevel getCreatureMoodLevel(int32_t moodModifiersPoints) const;
+    inline int64_t getNbTurnsFuriousMax() const
+    { return mNbTurnsFuriousMax; }
 
     const std::vector<const SpawnCondition*>& getCreatureSpawnConditions(const CreatureDefinition* def) const;
 
@@ -94,6 +111,7 @@ private:
     bool loadFactions(const std::string& fileName);
     bool loadRooms(const std::string& fileName);
     bool loadTraps(const std::string& fileName);
+    bool loadCreaturesMood(const std::string& fileName);
 
     std::map<std::string, Ogre::ColourValue> mSeatColors;
     std::vector<const CreatureDefinition*> mCreatureDefs;
@@ -104,13 +122,21 @@ private:
     std::string mFilenameFactions;
     std::string mFilenameRooms;
     std::string mFilenameTraps;
+    std::string mFilenameCreaturesMood;
     uint32_t mNetworkPort;
     uint32_t mBaseSpawnPoint;
     uint32_t mCreatureDeathCounter;
     uint32_t mMaxCreaturesPerSeat;
+    int32_t mCreatureBaseMood;
+    int32_t mCreatureMoodHappy;
+    int32_t mCreatureMoodUpset;
+    int32_t mCreatureMoodAngry;
+    int32_t mCreatureMoodFurious;
     double mSlapDamagePercent;
     int64_t mTimePayDay;
+    int64_t mNbTurnsFuriousMax;
     std::map<const CreatureDefinition*, std::vector<const SpawnCondition*> > mCreatureSpawnConditions;
+    std::map<const std::string, std::vector<const CreatureMood*> > mCreatureMoodModifiers;
     std::map<const std::string, std::vector<std::string> > mFactionSpawnPool;
     std::vector<std::string> mFactions;
     std::map<const std::string, std::string> mRoomsConfig;
