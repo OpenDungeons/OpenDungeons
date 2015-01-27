@@ -109,7 +109,7 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
     mCarriedEntity           (nullptr),
     mCarriedEntityDestType   (GameEntity::ObjectType::unknown),
     mMoodCooldownTurns       (0),
-    mMoodValue               (ConfigManager::CreatureMoodLevel::Neutral),
+    mMoodValue               (CreatureMoodLevel::Neutral),
     mMoodPoints              (0),
     mFirstTurnFurious        (-1)
 
@@ -183,7 +183,7 @@ Creature::Creature(GameMap* gameMap) :
     mCarriedEntity           (nullptr),
     mCarriedEntityDestType   (GameEntity::ObjectType::unknown),
     mMoodCooldownTurns       (0),
-    mMoodValue               (ConfigManager::CreatureMoodLevel::Neutral),
+    mMoodValue               (CreatureMoodLevel::Neutral),
     mMoodPoints              (0),
     mFirstTurnFurious        (-1)
 {
@@ -824,8 +824,8 @@ void Creature::decidePrioritaryAction()
         // Unhappy creatures might flee instead of engaging enemies
         switch(mMoodValue)
         {
-            case ConfigManager::CreatureMoodLevel::Angry:
-            case ConfigManager::CreatureMoodLevel::Furious:
+            case CreatureMoodLevel::Angry:
+            case CreatureMoodLevel::Furious:
             {
                 if(Random::Int(0,100) > 80)
                 {
@@ -863,9 +863,9 @@ void Creature::decidePrioritaryAction()
     // Unhappy creatures might engage allied natural enemies
     switch(mMoodValue)
     {
-        case ConfigManager::CreatureMoodLevel::Upset:
-        case ConfigManager::CreatureMoodLevel::Angry:
-        case ConfigManager::CreatureMoodLevel::Furious:
+        case CreatureMoodLevel::Upset:
+        case CreatureMoodLevel::Angry:
+        case CreatureMoodLevel::Furious:
         {
             // We are fighting an allied enemy. We don't consider leaving yet
             if(isActionInList(CreatureAction::fightNaturalEnemy))
@@ -883,7 +883,7 @@ void Creature::decidePrioritaryAction()
             }
 
             // If we are furious, we consider leaving the dungeon
-            if((mMoodValue != ConfigManager::CreatureMoodLevel::Furious) ||
+            if((mMoodValue != CreatureMoodLevel::Furious) ||
                (isActionInList(CreatureAction::leaveDungeon)))
             {
                 return;
@@ -1914,7 +1914,7 @@ bool Creature::handleJobAction(const CreatureAction& actionItem)
     // If we are unhappy, we stop working
     switch(mMoodValue)
     {
-        case ConfigManager::CreatureMoodLevel::Upset:
+        case CreatureMoodLevel::Upset:
         {
             // 20% chances of not working
             if(Random::Int(0, 100) < 20)
@@ -1925,8 +1925,8 @@ bool Creature::handleJobAction(const CreatureAction& actionItem)
             }
             break;
         }
-        case ConfigManager::CreatureMoodLevel::Angry:
-        case ConfigManager::CreatureMoodLevel::Furious:
+        case CreatureMoodLevel::Angry:
+        case CreatureMoodLevel::Furious:
         {
             // We don't work
             popAction();
@@ -3239,7 +3239,7 @@ std::string Creature::getStatsText()
     tempSS << "Seat id: " << getSeat()->getId() << std::endl;
     tempSS << "Team id: " << getSeat()->getTeamId() << std::endl;
     tempSS << "Position: " << Ogre::StringConverter::toString(getPosition()) << std::endl;
-    tempSS << "Mood: " << ConfigManager::toString(mMoodValue) << std::endl;
+    tempSS << "Mood: " << CreatureMood::toString(mMoodValue) << std::endl;
     tempSS << "MoodPoints: " << Helper::toString(mMoodPoints) << std::endl;
     return tempSS.str();
 }
@@ -3910,9 +3910,9 @@ void Creature::computeMood()
 {
     mMoodPoints = getGameMap()->computeCreatureMoodModifiers(this);
 
-    ConfigManager::CreatureMoodLevel newMoodValue = ConfigManager::getSingleton().getCreatureMoodLevel(mMoodPoints);
-    if((newMoodValue > ConfigManager::CreatureMoodLevel::Neutral) &&
-       (mMoodValue <= ConfigManager::CreatureMoodLevel::Neutral))
+    CreatureMoodLevel newMoodValue = ConfigManager::getSingleton().getCreatureMoodLevel(mMoodPoints);
+    if((newMoodValue > CreatureMoodLevel::Neutral) &&
+       (mMoodValue <= CreatureMoodLevel::Neutral))
     {
         // We became unhappy
         if((getSeat()->getPlayer() != nullptr) &&
@@ -3925,14 +3925,14 @@ void Creature::computeMood()
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
     }
-    if(newMoodValue != ConfigManager::CreatureMoodLevel::Furious)
+    if(newMoodValue != CreatureMoodLevel::Furious)
     {
         mMoodValue = newMoodValue;
         mFirstTurnFurious = -1;
         return;
     }
 
-    if(mMoodValue != ConfigManager::CreatureMoodLevel::Furious)
+    if(mMoodValue != CreatureMoodLevel::Furious)
     {
         mMoodValue = newMoodValue;
         mFirstTurnFurious = getGameMap()->getTurnNumber();

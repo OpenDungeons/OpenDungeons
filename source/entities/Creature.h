@@ -39,6 +39,8 @@ class GameMap;
 class Creature;
 class Weapon;
 
+enum class CreatureMoodLevel;
+
 namespace CEGUI
 {
 class Window;
@@ -461,7 +463,7 @@ private:
 
     //! \brief Mood value. Depending on this value, the creature will be in bad mood and
     //! might attack allied creatures or refuse to work or to go to combat
-    ConfigManager::CreatureMoodLevel mMoodValue;
+    CreatureMoodLevel               mMoodValue;
     //! \brief Mood points. Computed by the creature MoodModifiers. It is promoted to class variable for debug purposes and
     //! should not be used to check mood. If the mood is to be tested, mMoodValue should be used
     int32_t                         mMoodPoints;

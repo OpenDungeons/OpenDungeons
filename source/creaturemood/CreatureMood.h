@@ -25,19 +25,28 @@
 class Creature;
 class GameMap;
 
+enum class CreatureMoodType
+{
+    unknown,
+    awakness,
+    creature,
+    fee,
+    hploss,
+    hunger
+};
+
+enum class CreatureMoodLevel
+{
+    Happy,
+    Neutral,
+    Upset,
+    Angry,
+    Furious
+};
+
 class CreatureMood
 {
 public:
-    enum CreatureMoodType
-    {
-        unknown,
-        awakness,
-        creature,
-        fee,
-        hploss,
-        hunger
-    };
-
     // Constructors
     CreatureMood()
     {}
@@ -57,6 +66,8 @@ public:
     //! \brief This function will be called after loading the level
     virtual void init(GameMap* gameMap)
     {}
+
+    static std::string toString(CreatureMoodLevel moodLevel);
 
     static CreatureMood* load(std::istream& defFile);
 };

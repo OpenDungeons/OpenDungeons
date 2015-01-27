@@ -2974,7 +2974,7 @@ std::vector<GameEntity*> GameMap::getNaturalEnemiesInList(const Creature* creatu
         Creature* alliedCreature = static_cast<Creature*>(entity);
         for(const CreatureMood* mood : moodModifiers)
         {
-            if(mood->getCreatureMoodType() != CreatureMood::CreatureMoodType::creature)
+            if(mood->getCreatureMoodType() != CreatureMoodType::creature)
                 continue;
 
             const CreatureMoodCreature* moodCreature = static_cast<const CreatureMoodCreature*>(mood);

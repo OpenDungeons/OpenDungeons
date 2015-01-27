@@ -27,6 +27,26 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
+std::string CreatureMood::toString(CreatureMoodLevel moodLevel)
+{
+    switch(moodLevel)
+    {
+        case CreatureMoodLevel::Happy:
+            return "Happy";
+        case CreatureMoodLevel::Neutral:
+            return "Neutral";
+        case CreatureMoodLevel::Upset:
+            return "Upset";
+        case CreatureMoodLevel::Angry:
+            return "Angry";
+        case CreatureMoodLevel::Furious:
+            return "Furious";
+        default:
+            OD_ASSERT_TRUE_MSG(false, "moodLevel=" + Helper::toString(static_cast<int>(moodLevel)));
+            return "";
+    }
+}
+
 CreatureMood* CreatureMood::load(std::istream& defFile)
 {
     std::string nextParam;

@@ -1004,40 +1004,20 @@ const std::vector<std::string>& ConfigManager::getFactionSpawnPool(const std::st
     return mFactionSpawnPool.at(faction);
 }
 
-std::string ConfigManager::toString(CreatureMoodLevel moodLevel)
-{
-    switch(moodLevel)
-    {
-        case CreatureMoodLevel::Happy:
-            return "Happy";
-        case CreatureMoodLevel::Neutral:
-            return "Neutral";
-        case CreatureMoodLevel::Upset:
-            return "Upset";
-        case CreatureMoodLevel::Angry:
-            return "Angry";
-        case CreatureMoodLevel::Furious:
-            return "Furious";
-        default:
-            OD_ASSERT_TRUE_MSG(false, "moodLevel=" + Helper::toString(static_cast<int>(moodLevel)));
-            return "";
-    }
-}
-
-ConfigManager::CreatureMoodLevel ConfigManager::getCreatureMoodLevel(int32_t moodModifiersPoints) const
+CreatureMoodLevel ConfigManager::getCreatureMoodLevel(int32_t moodModifiersPoints) const
 {
     int32_t mood = mCreatureBaseMood + moodModifiersPoints;
     if(mood >= mCreatureMoodHappy)
-        return ConfigManager::CreatureMoodLevel::Happy;
+        return CreatureMoodLevel::Happy;
 
     if(mood >= mCreatureMoodUpset)
-        return ConfigManager::CreatureMoodLevel::Neutral;
+        return CreatureMoodLevel::Neutral;
 
     if(mood >= mCreatureMoodAngry)
-        return ConfigManager::CreatureMoodLevel::Upset;
+        return CreatureMoodLevel::Upset;
 
     if(mood >= mCreatureMoodFurious)
-        return ConfigManager::CreatureMoodLevel::Angry;
+        return CreatureMoodLevel::Angry;
 
-    return ConfigManager::CreatureMoodLevel::Furious;
+    return CreatureMoodLevel::Furious;
 }

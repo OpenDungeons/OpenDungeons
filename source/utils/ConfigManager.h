@@ -28,19 +28,13 @@ class Weapon;
 class SpawnCondition;
 class CreatureMood;
 
+enum class CreatureMoodLevel;
+
 //! \brief This class is used to manage global configuration such as network configuration, global creature stats, ...
 //! It should NOT be used to load level specific stuff. For that, there if GameMap.
 class ConfigManager : public Ogre::Singleton<ConfigManager>
 {
 public:
-    enum CreatureMoodLevel
-    {
-        Happy,
-        Neutral,
-        Upset,
-        Angry,
-        Furious
-    };
     ConfigManager();
     ~ConfigManager();
 
@@ -70,8 +64,6 @@ public:
 
     inline uint32_t getBaseSpawnPoint() const
     { return mBaseSpawnPoint; }
-
-    static std::string toString(CreatureMoodLevel moodLevel);
 
     inline const std::map<const std::string, std::vector<const CreatureMood*> >& getCreatureMoodModifiers() const
     { return mCreatureMoodModifiers; }
