@@ -592,6 +592,10 @@ private:
 
     void releaseCarriedEntity();
 
+    void increaseHunger(double value);
+
+    void decreaseAwakeness(double value);
+
     void computeMood();
 
     //! \brief Called when an angry creature wants to attack a natural enemy

@@ -115,6 +115,10 @@ void MenuModeConfigureSeats::activate()
 
     for(Seat* seat : seats)
     {
+        // We do not add the rogue creatures seat
+        if(seat->isRogueSeat())
+            continue;
+
         mSeats.push_back(seat);
         std::string name;
         CEGUI::Combobox* combo;

@@ -666,6 +666,10 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             packetSend << ServerNotification::seatConfigurationRefresh;
             for(Seat* seat : seats)
             {
+                // Rogue seat do not have to be configured
+                if(seat->isRogueSeat())
+                    continue;
+
                 int seatId;
                 bool isSet;
                 OD_ASSERT_TRUE(packetReceived >> seatId);
@@ -712,6 +716,10 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             const std::vector<std::string>& factions = ConfigManager::getSingleton().getFactions();
             for(Seat* seat : seats)
             {
+                // Rogue seat do not have to be configured
+                if(seat->isRogueSeat())
+                    continue;
+
                 int seatId;
                 bool isSet;
                 uint32_t factionIndex;

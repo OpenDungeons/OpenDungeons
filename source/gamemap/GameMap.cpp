@@ -193,6 +193,10 @@ bool GameMap::loadLevel(const std::string& levelFilepath)
     std::string levelPath = ResourceManager::getSingletonPtr()->getGameDataPath()
                             + levelFilepath;
 
+    // We add the rogue default seat (seatId = 0 and teamId = 0)
+    Seat* rogueSeat = Seat::getRogueSeat(this);
+    addSeat(rogueSeat);
+
     // TODO The map loader class should be merged back to GameMap.
     if (MapLoader::readGameMapFromFile(levelPath, *this))
         setLevelFileName(levelFilepath);
@@ -2051,7 +2055,7 @@ void GameMap::addSeat(Seat *s)
     }
 }
 
-Seat* GameMap::getSeatById(int id)
+Seat* GameMap::getSeatById(int id) const
 {
     for (Seat* seat : mSeats)
     {
@@ -2935,10 +2939,16 @@ void GameMap::clearCreatureMoodModifiers()
     mCreatureMoodModifiers.clear();
 }
 
-void GameMap::addCreatureMoodModifiers(const std::string& name,
+bool GameMap::addCreatureMoodModifiers(const std::string& name,
     const std::vector<CreatureMood*>& moodModifiers)
 {
+    uint32_t nb = mCreatureMoodModifiers.count(name);
+    OD_ASSERT_TRUE_MSG(nb <= 0, "Duplicate mood modifier=" + name);
+    if(nb > 0)
+        return false;
+
     mCreatureMoodModifiers[name] = moodModifiers;
+    return true;
 }
 
 int32_t GameMap::computeCreatureMoodModifiers(const Creature* creature) const

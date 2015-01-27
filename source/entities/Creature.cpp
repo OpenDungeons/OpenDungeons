@@ -652,13 +652,13 @@ void Creature::doUpkeep()
     if (mHp > getMaxHp())
         mHp = getMaxHp();
 
-    mAwakeness -= mDefinition->getAwakenessLostPerTurn();
-    if (mAwakeness < 0.0)
-        mAwakeness = 0.0;
+    //Rogue creatures are not affected by awakness/hunger
+    if(!getSeat()->isRogueSeat())
+    {
+        decreaseAwakeness(mDefinition->getAwakenessLostPerTurn());
 
-    mHunger += mDefinition->getHungerGrowthPerTurn();
-    if (mHunger > 100.0)
-        mHunger = 100.0;
+        increaseHunger(mDefinition->getHungerGrowthPerTurn());
+    }
 
     mVisibleEnemyObjects         = getVisibleEnemyObjects();
     mReachableEnemyObjects       = getReachableAttackableObjects(mVisibleEnemyObjects);
@@ -674,7 +674,8 @@ void Creature::doUpkeep()
     {
         --mMoodCooldownTurns;
     }
-    else
+    // Rogue creatures do not have mood
+    else if(!getSeat()->isRogueSeat())
     {
         computeMood();
         mMoodCooldownTurns = Random::Int(0, 5);
@@ -2331,7 +2332,8 @@ bool Creature::handleAttackAction(const CreatureAction& actionItem)
     double damageDone = attackedObject->takeDamage(this, getPhysicalDamage(range), getMagicalDamage(range), attackedTile);
     double expGained;
     expGained = 1.0 + 0.2 * std::pow(damageDone, 1.3);
-    mAwakeness -= 0.5;
+
+    decreaseAwakeness(0.5);
 
     // Give a small amount of experince to the creature we hit.
     if(attackedObject->getObjectType() == GameEntity::creature)
@@ -3903,7 +3905,27 @@ void Creature::fireCreatureSound(CreatureSound::SoundType sound)
 
 void Creature::itsPayDay()
 {
+    // Rogue creatures do not have to be payed
+    if(getSeat()->isRogueSeat())
+        return;
+
     mGoldFee += mDefinition->getFee(getLevel());
+}
+
+void Creature::increaseHunger(double value)
+{
+    if(getSeat()->isRogueSeat())
+        return;
+
+    mHunger = std::min(100.0, mHunger + value);
+}
+
+void Creature::decreaseAwakeness(double value)
+{
+    if(getSeat()->isRogueSeat())
+        return;
+
+    mAwakeness = std::max(0.0, mAwakeness - value);
 }
 
 void Creature::computeMood()
@@ -3949,6 +3971,27 @@ void Creature::computeMood()
     }
     else if(getGameMap()->getTurnNumber() > (mFirstTurnFurious + ConfigManager::getSingleton().getNbTurnsFuriousMax()))
     {
-        // TODO: become rogue
+        // We couldn't leave the dungeon in time, we become rogue
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotification::chatServer, getSeat()->getPlayer());
+        std::string msg = getName() + " is not under your control anymore !";
+        serverNotification->mPacket << msg;
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+
+        Seat* rogueSeat = getGameMap()->getSeatRogue();
+        setSeat(rogueSeat);
+        mMoodValue = CreatureMoodLevel::Neutral;
+        mMoodPoints = 0;
+        mAwakeness = 100;
+        mHunger = 0;
+        clearDestinations();
+        clearActionQueue();
+        stopJob();
+        stopEating();
+        if (getHomeTile() != nullptr)
+        {
+            RoomDormitory* home = static_cast<RoomDormitory*>(getHomeTile()->getCoveringBuilding());
+            home->releaseTileForSleeping(getHomeTile(), this);
+        }
     }
 }

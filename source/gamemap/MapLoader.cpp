@@ -511,6 +511,10 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     const std::vector<Seat*> seats = gameMap.getSeats();
     for (Seat* seat : seats)
     {
+        // We don't save rogue seat
+        if(seat->isRogueSeat())
+            continue;
+
         levelFile << seat << std::endl;
     }
     levelFile << "[/Seats]" << std::endl;

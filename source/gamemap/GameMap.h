@@ -169,7 +169,7 @@ public:
     void saveLevelEquipments(std::ofstream& levelFile);
 
     void clearCreatureMoodModifiers();
-    void addCreatureMoodModifiers(const std::string& name,
+    bool addCreatureMoodModifiers(const std::string& name,
         const std::vector<CreatureMood*>& moodModifiers);
     int32_t computeCreatureMoodModifiers(const Creature* creature) const;
 
@@ -259,7 +259,10 @@ public:
     void clearFilledSeats();
     void clearAiManager();
 
-    Seat* getSeatById(int id);
+    Seat* getSeatById(int id) const;
+
+    Seat* getSeatRogue() const
+    { return getSeatById(0); }
 
     void addWinningSeat(Seat *s);
     Seat* getWinningSeat(unsigned int index);
