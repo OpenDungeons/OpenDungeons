@@ -259,6 +259,7 @@ void GameMap::clearAll()
     // NOTE : clearRenderedMovableEntities should be called after clearRooms because clearRooms will try to remove the objects from the room
     clearRenderedMovableEntities();
     clearTiles();
+    clearCreatureMoodModifiers();
 
     clearActiveObjects();
 
