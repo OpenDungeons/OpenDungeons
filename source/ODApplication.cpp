@@ -42,9 +42,11 @@
 #include "network/ODClient.h"
 
 #include <OgreErrorDialog.h>
+#include <OgreGpuProgramManager.h>
+#include <OgreResourceGroupManager.h>
 #include <OgreRoot.h>
 #include <Overlay/OgreOverlaySystem.h>
-#include <OgreResourceGroupManager.h>
+#include <RTShaderSystem/OgreShaderGenerator.h>
 
 #include <string>
 #include <sstream>
@@ -94,6 +96,28 @@ ODApplication::ODApplication() :
 
         new ODServer();
         new ODClient();
+
+        //NOTE: This is currently done here as it has to be done after initialising mRoot,
+        //but before running initialiseAllResourceGroups()
+        Ogre::GpuProgramManager& gpuProgramManager = Ogre::GpuProgramManager::getSingleton();
+        Ogre::ResourceGroupManager& resourceGroupManager = Ogre::ResourceGroupManager::getSingleton();
+        if(gpuProgramManager.isSyntaxSupported("glsl"))
+        {
+            //Add GLSL shader location for RTShader system
+            resourceGroupManager.addResourceLocation(
+                        "materials/RTShaderLib/GLSL", "FileSystem", "Graphics");
+            //Use patched version of shader on shader version 130+ systems
+            Ogre::uint16 shaderVersion = mRoot->getRenderSystem()->getNativeShadingLanguageVersion();
+            logManager->logMessage("Shader version is: " + Ogre::StringConverter::toString(shaderVersion));
+            if(shaderVersion >= 130)
+            {
+                resourceGroupManager.addResourceLocation("materials/RTShaderLib/GLSL/130", "FileSystem", "Graphics");
+            }
+            else
+            {
+                resourceGroupManager.addResourceLocation("materials/RTShaderLib/GLSL/120", "FileSystem", "Graphics");
+            }
+        }
 
         //Initialise RTshader system
         // IMPORTANT: This needs to be initialized BEFORE the resource groups.

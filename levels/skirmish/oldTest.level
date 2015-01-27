@@ -6650,10 +6650,10 @@ ProtectDungeonTemple	NULL
 1	ConstructWorker	ConstructWorker1	1	0	max	100	0	0	196	230	0	none	none
 [/Creature]
 [Creature]
-2	Gnome	Gnome2	1	0	max	100	0	0	192	229	0	Roundshield	Longsword
+2	Gnome	Gnome2	1	0	max	100	0	0	192	229	0	none	none
 [/Creature]
 [Creature]
-1	Goblin	Goblin3	1	0	max	100	0	0	183	229	0	Roundshield	Longsword
+1	Goblin	Goblin3	1	0	max	100	0	0	183	229	0	none	none
 [/Creature]
 [Creature]
 5	PitDemon	PitDemon5	1	0	max	100	0	0	210	236	0	none	none

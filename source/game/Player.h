@@ -50,6 +50,13 @@ public:
         destroyRoom,
         destroyTrap
     };
+    
+    enum class Direction
+    {
+        left = -1,
+        right = 1
+    };
+    
     Player(GameMap* gameMap, int32_t id);
 
     inline int32_t getId() const
@@ -90,7 +97,7 @@ public:
     //! \brief Drops the creature on tile t. Returns the dropped creature
     MovableGameEntity* dropHand(Tile *t, unsigned int index = 0);
 
-    void rotateHand(int n);
+    void rotateHand(Direction d);
 
     //! \brief Clears all creatures that a player might have in his hand
     void clearObjectsInHand();

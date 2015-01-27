@@ -1,11 +1,19 @@
 import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
-material Dirt RTSS/NormalMapping_MultiPass
+material Dirt : RTSS/NormalMapping_MultiPass
 {
     technique
     {
-        pass
+        pass lighting
         {
-            specular 0.3 0.3 0.3 1.0 20.0
+            // Override the normal map.
+            rtshader_system
+            {
+                lighting_stage normal_map Dirt_dark_nor3.png tangent_space 0 bilinear 1 -1.0
+            }
+        }
+
+        pass decal
+        {
             texture_unit decalmap
             {
                 texture Dirt_darkE.png

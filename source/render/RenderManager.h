@@ -25,8 +25,6 @@
 #include <deque>
 #include <string>
 #include <OgreSingleton.h>
-#include <RTShaderSystem/OgreShaderGenerator.h>
-#include <RTShaderSystem/OgreShaderExNormalMapLighting.h>
 
 class GameMap;
 class Building;
@@ -47,9 +45,9 @@ class SceneNode;
 class OverlaySystem;
 class AnimationState;
 
-/*namespace RTShader {
+namespace RTShader {
     class ShaderGenerator;
-}*/
+}
 } //End namespace Ogre
 
 class RenderManager: public Ogre::Singleton<RenderManager>
@@ -70,8 +68,6 @@ public:
     //! \brief setup the scene
     void createScene(Ogre::Viewport*);
 
-    void rtssTest();
-
     //! \brief Set the entity's opacity
     void setEntityOpacity(Ogre::Entity* ent, float opacity);
 
@@ -85,7 +81,7 @@ public:
     static std::string consoleListAnimationsForMesh(const std::string& meshName);
 
     //Render request functions
-    void rrRefreshTile(Tile* curTile, Player* localPlayer);
+    void rrRefreshTile(const Tile* curTile, const Player* localPlayer);
     void rrCreateTile(Tile* curTile, Player* localPlayer);
     void rrDestroyTile(Tile* curTile);
     void rrDetachEntity(GameEntity* curEntity);
@@ -117,23 +113,17 @@ public:
     void rrReleaseCarriedEntity(Creature* carrier, MovableGameEntity* carried);
 
 private:
-    bool generateRTSSShadersForMaterial(const std::string& materialName,
-                                        const std::string& normalMapTextureName = "",
-                                        Ogre::RTShader::NormalMapLighting::NormalMapSpace nmSpace = Ogre::RTShader::NormalMapLighting::NMS_TANGENT);
-
-    Ogre::Entity* createEntity(const std::string& entityName, const std::string& meshName,
-                               const std::string& normalMapTextureName = "");
 
     //! \brief Colorize the material with the corresponding team id color.
     //! \note If the material (wall tiles only) is marked for digging, a yellow color is added
     //! to the given color.
     //! \returns The new material name according to the current colorization.
-    std::string colourizeMaterial(const std::string& materialName, Seat* seat, bool markedForDigging, bool playerHasVision);
+    std::string colourizeMaterial(const std::string& materialName, const Seat* seat, bool markedForDigging, bool playerHasVision);
 
     //! \brief Colorize an entity with the team corresponding color.
     //! \Note: if the entity is marked for digging (wall tiles only), then a yellow color
     //! is added to the current colorization.
-    void colourizeEntity(Ogre::Entity* ent, Seat* seat, bool markedForDigging, bool playerHasVision);
+    void colourizeEntity(Ogre::Entity* ent, const Seat* seat, bool markedForDigging, bool playerHasVision);
 
     //! \brief Makes the material be transparent with the given opacity (0.0f - 1.0f)
     //! \returns The new material name according to the current opacity.

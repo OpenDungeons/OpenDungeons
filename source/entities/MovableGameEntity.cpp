@@ -230,7 +230,7 @@ void MovableGameEntity::update(Ogre::Real timeSinceLastFrame)
         Ogre::Real distToNextDest = newPosition.distance(nextDest);
         if(distToNextDest > moveDist)
         {
-            newPosition = newPosition + walkDirection * (Ogre::Real)moveDist;
+            newPosition = newPosition + walkDirection * static_cast<Ogre::Real>(moveDist);
             break;
         }
         else

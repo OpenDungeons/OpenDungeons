@@ -122,8 +122,8 @@ public:
 
     //! \brief This is a helper function that generates a mesh filename from a tile type and a fullness mesh number.
     //! \TODO Define what is a postfix.
-    static std::string meshNameFromNeighbors(TileType myType, int fullnessMeshNumber, const TileType* neighbors,
-                                             const bool* neighborsFullness, int &rt);
+    static std::string meshNameFromNeighbors(TileType myType, int fullnessMeshNumber, std::array<TileType, 8> neighbors,
+                                             std::bitset<8> neighborsFullness, int &rt);
 
     //! \brief Generate the tile mesh name in ss from other parameters.
     //! \param postFixInt an array 0 and 1 set according to neighbor mesh types and fullness.
@@ -158,7 +158,7 @@ public:
     void setMarkedForDigging(bool s, Player* p);
 
     //! \brief This accessor function returns whether or not the tile has been marked to be dug out by a given Player p.
-    bool getMarkedForDigging(Player* p);
+    bool getMarkedForDigging(const Player* p) const;
 
     //! \brief This is a simple helper function which just calls setMarkedForDigging() for everyone in the game except
     //! allied to exceptSeat. If exceptSeat is nullptr, it is called for every player

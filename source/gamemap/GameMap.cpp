@@ -52,6 +52,7 @@
 #include "utils/ResourceManager.h"
 
 #include <OgreTimer.h>
+#include <OgreStringConverter.h>
 
 #include <iostream>
 #include <sstream>
@@ -60,6 +61,7 @@
 
 #include <cmath>
 #include <cstdlib>
+#include <cassert>
 
 const std::string DEFAULT_NICK = "Player";
 
@@ -1233,14 +1235,20 @@ unsigned long int GameMap::doMiscUpkeep()
 void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
 {
     // During the first turn, we setup everything
-    if(!isServerGameMap() && getTurnNumber() == 0)
+    if(getTurnNumber() == 0 && !isServerGameMap())
     {
-        LogManager::getSingleton().logMessage("Starting game map");
+        assert(getTile(0, 0) != nullptr);
+        //NOTE: This test is a workaround to prevent this being called more than once.
+        //This should probably be fixed in a better way.
+        if(!getTile(0, 0)->isMeshExisting())
+        {
+            LogManager::getSingleton().logMessage("Starting game map");
 
-        setGamePaused(false);
+            setGamePaused(false);
 
-        // Create ogre entities for the tiles, rooms, and creatures
-        createAllEntities();
+            // Create ogre entities for the tiles, rooms, and creatures
+            createAllEntities();
+        }
     }
 
     if(mIsPaused)

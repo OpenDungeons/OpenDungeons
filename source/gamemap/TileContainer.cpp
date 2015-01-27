@@ -18,7 +18,6 @@
 #include "gamemap/TileContainer.h"
 
 #include "network/ODPacket.h"
-
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
@@ -429,12 +428,12 @@ Tile* TileContainer::tileFromPacket(ODPacket& packet) const
     return getTile(x, y);
 }
 
-const Tile::TileType* TileContainer::getNeighborsTypes(Tile* curTile)
+std::array<Tile::TileType, 8> TileContainer::getNeighborsTypes(const Tile* curTile) const
 {
-    static Tile::TileType neighborsType[8];
-
     int xx = curTile->getX();
     int yy = curTile->getY();
+  
+    std::array<Tile::TileType, 8> neighborsType;
 
     neighborsType[0] = getSafeTileType(getTile(xx - 1, yy));
     neighborsType[1] = getSafeTileType(getTile(xx - 1, yy + 1));
@@ -445,15 +444,15 @@ const Tile::TileType* TileContainer::getNeighborsTypes(Tile* curTile)
     neighborsType[6] = getSafeTileType(getTile(xx, yy - 1));
     neighborsType[7] = getSafeTileType(getTile(xx - 1, yy-1));
 
-    return const_cast<Tile::TileType*>(neighborsType);
+    return neighborsType;
 }
 
-const bool* TileContainer::getNeighborsFullness(Tile* curTile)
+std::bitset<8> TileContainer::getNeighborsFullness(const Tile* curTile) const
 {
-    static bool neighborsFullness[8];
-
     int xx = curTile->getX();
     int yy = curTile->getY();
+    
+    std::bitset<8> neighborsFullness;
 
     neighborsFullness[0] = getSafeTileFullness(getTile(xx - 1, yy));
     neighborsFullness[1] = getSafeTileFullness(getTile(xx - 1, yy + 1));
@@ -464,7 +463,7 @@ const bool* TileContainer::getNeighborsFullness(Tile* curTile)
     neighborsFullness[6] = getSafeTileFullness(getTile(xx, yy - 1));
     neighborsFullness[7] = getSafeTileFullness(getTile(xx - 1,yy - 1));
 
-    return const_cast<bool*>(neighborsFullness);
+    return neighborsFullness;
 }
 
 unsigned int TileContainer::numTiles()
@@ -516,14 +515,14 @@ bool TileContainer::allocateMapMemory(int xSize, int ySize)
     return true;
 }
 
-Tile::TileType TileContainer::getSafeTileType(Tile* tt)
+Tile::TileType TileContainer::getSafeTileType(const Tile* tt) const
 {
     return (tt == nullptr) ? Tile::nullTileType : tt->getType();
 }
 
-bool  TileContainer::getSafeTileFullness(Tile* tt)
+bool TileContainer::getSafeTileFullness(const Tile* tt) const
 {
-    return (tt == nullptr) ? false : (tt->getFullness() > 0 );
+    return (tt == nullptr) ? false : (tt->getFullness() > 0);
 }
 
 std::vector<Tile*> TileContainer::rectangularRegion(int x1, int y1, int x2, int y2)

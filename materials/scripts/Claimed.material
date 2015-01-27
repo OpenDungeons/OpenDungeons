@@ -1,31 +1,35 @@
-material Claimed
+import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
+material Claimed : RTSS/NormalMapping_MultiPass
 {
     technique
     {
-        pass
+        pass lighting
         {
-            lighting on
-
-            // make it dim
-            ambient 0.8 0.5 0.0
-            diffuse 0.0 0.0 0.0
-            specular 0.8 0.5 0.0 0.0 12.5
-
-            texture_unit
+            // Override the normal map.
+            rtshader_system
             {
-                texture White.png
+                lighting_stage normal_map Claimed6Nor.png tangent_space 0 bilinear 1 -1.0
             }
         }
-        pass
+        pass decal
         {
+	    lighting off
             // We use blending, so that we can see the underlying texture.
-            scene_blend alpha_blend
-            lighting on
-
-            texture_unit
+            texture_unit decalmap
             {
                 texture Claimed6c.png
-                colour_op alpha_blend
+            }
+        }
+        pass last
+        {
+            ambient 0 0 0 1
+            diffuse 1 1 1 0
+            scene_blend add
+            depth_write off
+            depth_bias 1
+            texture_unit
+            {
+              texture Claimed6c_mask.png
             }
         }
     }
