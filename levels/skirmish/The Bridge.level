@@ -11,7 +11,6 @@ FightMusic	The_Dark_Amulet.ogg
 # seatId	teamId	player	faction	startingX	startingY	color	startingGold
 1	1	Choice	Choice	50	79	1	1000
 2	2	Choice	Choice	50	21	2	1000
-3	3	Inactive	Keeper	0	0	3	0
 [/Seats]
 
 [Goals]
@@ -4404,57 +4403,57 @@ ProtectDungeonTemple	NULL
 [Creatures]
 # SeatId	ClassName	Name	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeapon	RightWeapon
 [Creature]
-3	Spider	Spider1	2	0	max	100	0	0	17	67	0	none	none
+0	Spider	Spider1	2	0	max	100	0	0	17	67	0	none	none
 [/Creature]
 [Creature]
-3	Spider	Spider2	2	0	max	100	0	0	16	67	0	none	none
+0	Spider	Spider2	2	0	max	100	0	0	16	67	0	none	none
 [/Creature]
 [Creature]
-3	Spider	Spider3	2	0	max	100	0	0	15	67	0	none	none
+0	Spider	Spider3	2	0	max	100	0	0	15	67	0	none	none
 [/Creature]
 [Creature]
-3	Spider	Spider4	2	0	max	100	0	0	16	68	0	none	none
+0	Spider	Spider4	2	0	max	100	0	0	16	68	0	none	none
 [/Creature]
 [Creature]
-3	Spider	Spider5	2	0	max	100	0	0	16	66	0	none	none
+0	Spider	Spider5	2	0	max	100	0	0	16	66	0	none	none
 [/Creature]
 [Creature]
-3	Spider	Spider6	2	0	max	100	0	0	83	33	0	none	none
+0	Spider	Spider6	2	0	max	100	0	0	83	33	0	none	none
 [/Creature]
 [Creature]
-3	Spider	Spider7	2	0	max	100	0	0	84	33	0	none	none
+0	Spider	Spider7	2	0	max	100	0	0	84	33	0	none	none
 [/Creature]
 [Creature]
-3	Spider	Spider8	2	0	max	100	0	0	82	33	0	none	none
+0	Spider	Spider8	2	0	max	100	0	0	82	33	0	none	none
 [/Creature]
 [Creature]
-3	Spider	Spider9	2	0	max	100	0	0	83	34	0	none	none
+0	Spider	Spider9	2	0	max	100	0	0	83	34	0	none	none
 [/Creature]
 [Creature]
-3	Spider	Spider10	2	0	max	100	0	0	83	32	0	none	none
+0	Spider	Spider10	2	0	max	100	0	0	83	32	0	none	none
 [/Creature]
 [Creature]
-3	Spider	Spider11	3	0	max	100	0	0	50	41	0	none	none
+0	Spider	Spider11	3	0	max	100	0	0	50	41	0	none	none
 [/Creature]
 [Creature]
-3	Spider	Spider12	3	0	max	100	0	0	51	43	0	none	none
+0	Spider	Spider12	3	0	max	100	0	0	51	43	0	none	none
 [/Creature]
 [Creature]
-3	Spider	Spider13	3	0	max	100	0	0	50	45	0	none	none
+0	Spider	Spider13	3	0	max	100	0	0	50	45	0	none	none
 [/Creature]
 [Creature]
-3	Spider	Spider14	3	0	max	100	0	0	51	47	0	none	none
+0	Spider	Spider14	3	0	max	100	0	0	51	47	0	none	none
 [/Creature]
 [Creature]
-3	Spider	Spider15	3	0	max	100	0	0	50	53	0	none	none
+0	Spider	Spider15	3	0	max	100	0	0	50	53	0	none	none
 [/Creature]
 [Creature]
-3	Spider	Spider16	3	0	max	100	0	0	51	55	0	none	none
+0	Spider	Spider16	3	0	max	100	0	0	51	55	0	none	none
 [/Creature]
 [Creature]
-3	Spider	Spider17	3	0	max	100	0	0	50	57	0	none	none
+0	Spider	Spider17	3	0	max	100	0	0	50	57	0	none	none
 [/Creature]
 [Creature]
-3	Spider	Spider18	3	0	max	100	0	0	51	59	0	none	none
+0	Spider	Spider18	3	0	max	100	0	0	51	59	0	none	none
 [/Creature]
 [/Creatures]

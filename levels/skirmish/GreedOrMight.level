@@ -12,7 +12,6 @@ FightMusic	The_Dark_Amulet.ogg
 1	1	Choice	Keeper	37	15	1	1000
 2	2	Choice	Keeper	59	47	2	1000
 3	3	Choice	Keeper	14	45	3	1000
-4	4	Inactive	Keeper	37	37	4	0
 [/Seats]
 
 [Goals]
@@ -2330,15 +2329,15 @@ MineNGold	50
 [Creatures]
 # SeatId	ClassName	Name	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeapon	RightWeapon
 [Creature]
-4	BossDragon	BossDragon1	4	0	max	100	0	0	62	14	0	none	none
+0	BossDragon	BossDragon1	4	0	max	100	0	0	62	14	0	none	none
 [/Creature]
 [Creature]
-4	BossDragon	BossDragon2	3	0	max	100	0	0	40	68	0	none	none
+0	BossDragon	BossDragon2	3	0	max	100	0	0	40	68	0	none	none
 [/Creature]
 [Creature]
-4	BossDragon	BossDragon3	3	0	max	100	0	0	33	65	0	none	none
+0	BossDragon	BossDragon3	3	0	max	100	0	0	33	65	0	none	none
 [/Creature]
 [Creature]
-4	BossDragon	BossDragon4	4	0	max	100	0	0	9	14	0	none	none
+0	BossDragon	BossDragon4	4	0	max	100	0	0	9	14	0	none	none
 [/Creature]
 [/Creatures]
