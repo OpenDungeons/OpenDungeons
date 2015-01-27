@@ -103,27 +103,19 @@ ODApplication::ODApplication() :
         Ogre::ResourceGroupManager& resourceGroupManager = Ogre::ResourceGroupManager::getSingleton();
         if(gpuProgramManager.isSyntaxSupported("glsl"))
         {
-            //Add GLSL shader location for
-            if(gpuProgramManager.isSyntaxSupported("glsl150"))
+            //Add GLSL shader location for RTShader system
+            resourceGroupManager.addResourceLocation(
+                        "materials/RTShaderLib/GLSL", "FileSystem", "Graphics");
+            //Use patched version of shader on shader version 130+ systems
+            Ogre::uint16 shaderVersion = mRoot->getRenderSystem()->getNativeShadingLanguageVersion();
+            logManager->logMessage("Shader version is: " + Ogre::StringConverter::toString(shaderVersion));
+            if(shaderVersion >= 130)
             {
-                resourceGroupManager.addResourceLocation(
-                            "materials/RTShaderLib/GLSL150", "FileSystem", "Graphics");
+                resourceGroupManager.addResourceLocation("materials/RTShaderLib/GLSL/130", "FileSystem", "Graphics");
             }
             else
             {
-                resourceGroupManager.addResourceLocation(
-                            "materials/RTShaderLib/GLSL", "FileSystem", "Graphics");
-                //Use patched version of shader on shader version 130-140 systems
-                Ogre::uint16 shaderVersion = mRoot->getRenderSystem()->getNativeShadingLanguageVersion();
-                logManager->logMessage("Shader version is: " + Ogre::StringConverter::toString(shaderVersion));
-                if(shaderVersion >= 130)
-                {
-                    resourceGroupManager.addResourceLocation("materials/RTShaderLib/GLSL/130", "FileSystem", "Graphics");
-                }
-                else
-                {
-                    resourceGroupManager.addResourceLocation("materials/RTShaderLib/GLSL/120", "FileSystem", "Graphics");
-                }
+                resourceGroupManager.addResourceLocation("materials/RTShaderLib/GLSL/120", "FileSystem", "Graphics");
             }
         }
 
