@@ -502,83 +502,83 @@ private:
     void decidePrioritaryAction();
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature idle action logic.
+    //! This functions will handle the creature idle action logic.
     //! \return true when another action should handled after that one.
     bool handleIdleAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature walking action logic.
+    //! This functions will handle the creature walking action logic.
     //! \return true when another action should handled after that one.
     bool handleWalkToTileAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature claim tile action logic.
+    //! This functions will handle the creature claim tile action logic.
     //! \return true when another action should handled after that one.
     bool handleClaimTileAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature claim wall tile action logic.
+    //! This functions will handle the creature claim wall tile action logic.
     //! \return true when another action should handled after that one.
     bool handleClaimWallTileAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature dig tile action logic.
+    //! This functions will handle the creature dig tile action logic.
     //! \return true when another action should handled after that one.
     bool handleDigTileAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature finding home action logic.
+    //! This functions will handle the creature finding home action logic.
     //! \return true when another action should handled after that one.
     bool handleFindHomeAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature job action logic.
+    //! This functions will handle the creature job action logic.
     //! \return true when another action should handled after that one.
     bool handleJobAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature eating action logic.
+    //! This functions will handle the creature eating action logic.
     //! \return true when another action should handled after that one.
     bool handleEatingAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature attack action logic.
+    //! This functions will handle the creature attack action logic.
     //! \return true when another action should handled after that one.
     bool handleAttackAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature fighting action logic.
+    //! This functions will handle the creature fighting action logic.
     //! \return true when another action should handled after that one.
     bool handleFightAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature sleeping action logic.
+    //! This functions will handle the creature sleeping action logic.
     //! \return true when another action should handled after that one.
     bool handleSleepAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature fleeing action logic.
+    //! This functions will handle the creature fleeing action logic.
     //! \return true when another action should handled after that one.
     bool handleFleeAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature action logic about finding a carryable entity.
+    //! This functions will handle the creature action logic about finding a carryable entity.
     //! And trying to carry it to a suitable building
     //! \return true when another action should handled after that one.
     bool handleCarryableEntities(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature action logic about getting the creature fee.
+    //! This functions will handle the creature action logic about getting the creature fee.
     //! \return true when another action should handled after that one.
     bool handleGetFee(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature action logic about trying to leave the dungeon.
+    //! This functions will handle the creature action logic about trying to leave the dungeon.
     //! \return true when another action should handled after that one.
     bool handleLeaveDungeon(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature fighting action logic when
+    //! This functions will handle the creature fighting action logic when
     //! fighting an allied natural enemy (when in bad mood)
     //! \return true when another action should handled after that one.
     bool handleFightAlliedNaturalEnemyAction(const CreatureAction& actionItem);
