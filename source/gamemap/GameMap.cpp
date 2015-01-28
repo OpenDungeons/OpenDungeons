@@ -52,6 +52,7 @@
 
 #include "utils/LogManager.h"
 #include "utils/ConfigManager.h"
+#include "utils/Helper.h"
 #include "utils/ResourceManager.h"
 
 #include <OgreTimer.h>
@@ -195,7 +196,11 @@ bool GameMap::loadLevel(const std::string& levelFilepath)
 
     // We add the rogue default seat (seatId = 0 and teamId = 0)
     Seat* rogueSeat = Seat::getRogueSeat(this);
-    addSeat(rogueSeat);
+    if(!addSeat(rogueSeat))
+    {
+        OD_ASSERT_TRUE(false);
+        delete rogueSeat;
+    }
 
     // TODO The map loader class should be merged back to GameMap.
     if (MapLoader::readGameMapFromFile(levelPath, *this))
@@ -2040,12 +2045,20 @@ void GameMap::clearSeats()
     mSeats.clear();
 }
 
-void GameMap::addSeat(Seat *s)
+bool GameMap::addSeat(Seat *s)
 {
     OD_ASSERT_TRUE(s != nullptr);
     if (s == nullptr)
-        return;
+        return false;
 
+    for(Seat* seat : mSeats)
+    {
+        if(seat->getId() == s->getId())
+        {
+            OD_ASSERT_TRUE_MSG(false, "Duplicated seat id=" + Helper::toString(seat->getId()));
+            return false;
+        }
+    }
     mSeats.push_back(s);
 
     // Add the goals for all seats to this seat.
@@ -2053,6 +2066,7 @@ void GameMap::addSeat(Seat *s)
     {
         s->addGoal(goal);
     }
+    return true;
 }
 
 Seat* GameMap::getSeatById(int id) const

@@ -145,7 +145,11 @@ bool ODClient::processOneClientSocketMessage()
                 --nb;
                 Seat* seat = new Seat(gameMap);
                 OD_ASSERT_TRUE(packetReceived >> seat);
-                gameMap->addSeat(seat);
+                if(!gameMap->addSeat(seat))
+                {
+                    OD_ASSERT_TRUE(false);
+                    delete seat;
+                }
             }
 
             // Tiles
