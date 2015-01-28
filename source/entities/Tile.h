@@ -273,7 +273,7 @@ public:
     static std::string buildName(int x, int y);
     static bool checkTileName(const std::string& tileName, int& x, int& y);
 
-    static std::string displayAsString(Tile* tile);
+    static std::string displayAsString(const Tile* tile);
 
     void doUpkeep()
     {}
