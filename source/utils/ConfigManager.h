@@ -76,7 +76,7 @@ public:
     //! \brief Get the fighter creature definition spawnable in portals according to the given faction.
     const std::vector<std::string>& getFactionSpawnPool(const std::string& faction) const;
 
-    //! \brief Get the worker creature definition spawnable in portals according to the given faction.
+    //! \brief Get the default worker creature definition spawnable according to the given faction.
     const std::string& getFactionWorkerClass(const std::string& faction) const;
 
     inline const std::vector<std::string>& getFactions() const
