@@ -341,6 +341,7 @@ void Seat::initSpawnPool()
     // Get the default worker class
     std::string defaultWorkerClass = config.getFactionWorkerClass(mFaction);
     mDefaultWorkerClass = mGameMap->getClassDescription(defaultWorkerClass);
+    OD_ASSERT_TRUE_MSG(mDefaultWorkerClass != nullptr, "No valid default worker class for faction: " + mFaction);
 }
 
 const CreatureDefinition* Seat::getNextFighterClassToSpawn()

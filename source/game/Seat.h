@@ -171,7 +171,7 @@ public:
     const CreatureDefinition* getNextFighterClassToSpawn();
 
     //! \brief Returns the first (default) worker class definition.
-    const CreatureDefinition* getWorkerClassToSpawn()
+    inline const CreatureDefinition* getWorkerClassToSpawn()
     {
         return mDefaultWorkerClass;
     }
@@ -289,7 +289,7 @@ private:
     //! if the spawning conditions are not empty and are met, we will set it to true and force spawning of the related creature
     std::vector<std::pair<const CreatureDefinition*, bool> > mSpawnPool;
 
-    //! \broef The default workers spawned in temples.
+    //! \brief The default workers spawned in temples.
     const CreatureDefinition* mDefaultWorkerClass;
 
     //! \brief List of all the tiles in the gamemap (used for human players seats only). The first vector stores the X position.
