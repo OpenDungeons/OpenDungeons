@@ -276,7 +276,6 @@ set(OD_SOURCEFILES
 
     ${SRC}/modes/AbstractApplicationMode.cpp
     ${SRC}/modes/Command.cpp
-    ${SRC}/modes/Console.cpp
     ${SRC}/modes/ConsoleCommands.cpp
     ${SRC}/modes/ConsoleInterface.cpp
     ${SRC}/modes/ConsoleMode.cpp

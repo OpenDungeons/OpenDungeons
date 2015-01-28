@@ -40,7 +40,7 @@ public:
     inline const std::string& getClientNick() const
     { return mClientNick; }
 
-    bool isMessageTooOld(float maxTimeDisplay);
+    bool isMessageTooOld(float maxTimeDisplay) const;
 
 private:
     std::string mMessage;

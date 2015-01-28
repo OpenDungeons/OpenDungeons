@@ -75,7 +75,6 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::Overlay
     mModeManager(nullptr),
     mShowDebugInfo(false),
     mContinue(true),
-    mTerminalActive(false),
     mTerminalWordWrap(78),
     mChatMaxMessages(10),
     mChatMaxTimeDisplay(20.0f),
@@ -206,7 +205,7 @@ bool ODFrameListener::frameRenderingQueued(const Ogre::FrameEvent& evt)
     // Note: This 2.0 should be a 1.0 but this gives the correct result.
     // As sleep functions can't be too accurate themselves (as they do take time to compute after all)
     // Thus, giving some free time to them helps getting the correct behaviour...
-    double frameDelay = (2.0 / ODApplication::MAX_FRAMES_PER_SECOND) - evt.timeSinceLastFrame;
+    double frameDelay = (1.0 / ODApplication::MAX_FRAMES_PER_SECOND) - evt.timeSinceLastFrame;
     if (frameDelay > 0.0)
     {
         boost::this_thread::sleep_for(boost::chrono::duration<double>(frameDelay));

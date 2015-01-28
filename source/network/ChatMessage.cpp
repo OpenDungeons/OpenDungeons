@@ -23,7 +23,7 @@ ChatMessage::ChatMessage(const std::string& nNick, const std::string& nMessage) 
 {
 }
 
-bool ChatMessage::isMessageTooOld(float maxTimeDisplay)
+bool ChatMessage::isMessageTooOld(float maxTimeDisplay) const
 {
     return clockCreation.getElapsedTime().asSeconds() > maxTimeDisplay;
 }

@@ -53,7 +53,8 @@ public:
         optionsMenu,
         inGameMenu,
         replayMenu,
-        configureSeats
+        configureSeats,
+        console
     };
 
     /*! \brief Constructor that initializes the whole CEGUI system
@@ -68,7 +69,7 @@ public:
     void loadGuiSheet(const guiSheet& newSheet);
 
     //! \brief A required function to pass input to the OIS system.
-    CEGUI::MouseButton convertButton (const OIS::MouseButtonID& buttonID);
+    static CEGUI::MouseButton convertButton (OIS::MouseButtonID buttonID);
 
     CEGUI::Window* getGuiSheet(const guiSheet&);
 

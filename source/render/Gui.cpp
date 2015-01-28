@@ -89,6 +89,7 @@ Gui::Gui()
     mSheets[editorMenu] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorMenu.layout");
     mSheets[configureSeats] =  wmgr->loadLayoutFromFile("OpenDungeonsMenuConfigureSeats.layout");
     mSheets[replayMenu] =  wmgr->loadLayoutFromFile("OpenDungeonsMenuReplay.layout");
+    mSheets[console] = wmgr->loadLayoutFromFile("OpenDungeonsConsole.layout");
 
     assignEventHandlers();
 }
@@ -98,7 +99,7 @@ Gui::~Gui()
     //CEGUI::OgreRenderer::destroySystem();
 }
 
-CEGUI::MouseButton Gui::convertButton(const OIS::MouseButtonID& buttonID)
+CEGUI::MouseButton Gui::convertButton(OIS::MouseButtonID buttonID)
 {
     switch (buttonID)
     {

@@ -40,7 +40,6 @@
 #include "scriptbuilder.h"
 
 //#include "camera/CameraManager.h"
-#include "modes/Console.h"
 //#include "entities/Creature.h"
 //#include "gamemap/GameMap.h"
 //#include "utils/Helper.h"
@@ -136,7 +135,7 @@ void ASWrapper::messageCallback(const asSMessageInfo* msg, void* param)
     std::ostringstream output;
     output << "AS: " << msg->section << "(" << msg->row << ", "
             << msg->col << ") : " << type << " : \n  " << msg->message;
-    Console::getSingleton().print(output.str());
+//    Console::getSingleton().print(output.str());
     LogManager::getSingleton().logMessage(output.str());
 }
 

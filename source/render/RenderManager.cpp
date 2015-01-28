@@ -949,7 +949,7 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, co
             // Color the material with yellow on the latest pass
             // so we're sure to see the taint.
             tempPass = tempTechnique->getPass(0);
-            Ogre::ColourValue color(1.0, 1.0, 0.0, 0.3);
+            Ogre::ColourValue color(1.0, 1.0, 0.0, 1.0);
             tempPass->setSpecular(color);
             tempPass->setAmbient(color);
             tempPass->setDiffuse(color);
@@ -959,7 +959,7 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, co
             // Color the material with dark color on the latest pass
             // so we're sure to see the taint.
             tempPass = tempTechnique->getPass(0);
-            Ogre::ColourValue color(0.2, 0.2, 0.2, 0.3);
+            Ogre::ColourValue color(0.2, 0.2, 0.2, 1.0);
             tempPass->setSpecular(color);
             tempPass->setAmbient(color);
             tempPass->setDiffuse(color);
@@ -969,7 +969,7 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, co
             // Color the material with the Seat's color.
             tempPass = tempTechnique->getPass(tempTechnique->getNumPasses() - 1);
             Ogre::ColourValue color = seat->getColorValue();
-            color.a = 0.3;
+            color.a = 1.0;
             tempPass->setAmbient(color);
             tempPass->setDiffuse(color);
             tempPass->setSpecular(color);

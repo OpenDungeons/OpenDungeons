@@ -17,22 +17,40 @@
 
 #include "ConsoleMode.h"
 
-#include "modes/Console.h"
 #include "modes/ConsoleCommands.h"
-#include "render/RenderManager.h"
-#include "render/ODFrameListener.h"
 #include "render/Gui.h"
 #include "utils/LogManager.h"
-#include "utils/Helper.h"
+
+#include <CEGUI/widgets/Listbox.h>
+#include <CEGUI/widgets/ListboxTextItem.h>
+#include <CEGUI/widgets/PushButton.h>
+#include <CEGUI/widgets/Editbox.h>
+#include <CEGUI/widgets/Scrollbar.h>
 
 #include <functional>
+#include <cassert>
 
-ConsoleMode::ConsoleMode(ModeManager* modeManager, Console* console):
+ConsoleMode::ConsoleMode(ModeManager* modeManager):
     AbstractApplicationMode(modeManager, ModeManager::CONSOLE),
-    mConsole(console),
     mConsoleInterface(std::bind(&ConsoleMode::printToConsole, this, std::placeholders::_1))
 {
     ConsoleCommands::addConsoleCommands(mConsoleInterface);
+
+    CEGUI::Window* consoleRootWindow = Gui::getSingleton().getGuiSheet(Gui::guiSheet::console);
+    assert(consoleRootWindow != nullptr);
+    CEGUI::Window* listbox = consoleRootWindow->getChild("ConsoleHistoryWindow");
+    assert(listbox->getType().compare("OD/Listbox") == 0);
+    mConsoleHistoryWindow = static_cast<CEGUI::Listbox*>(listbox);
+    CEGUI::Window* editbox = consoleRootWindow->getChild("Editbox");
+    mEditboxWindow = static_cast<CEGUI::Editbox*>(editbox);
+    CEGUI::Window* sendButton = consoleRootWindow->getChild("SendButton");
+    sendButton->subscribeEvent(CEGUI::PushButton::EventClicked,
+                               CEGUI::Event::Subscriber(&ConsoleMode::executeCurrentPrompt, this));
+    mEditboxWindow->subscribeEvent(CEGUI::Editbox::EventTextAccepted,
+                                   CEGUI::Event::Subscriber(&ConsoleMode::executeCurrentPrompt, this));
+    //TODO: This should be done in the xml file if possible.
+    mConsoleHistoryWindow->getVertScrollbar()->setEndLockEnabled(true);
+    subscribeCloseButton(*consoleRootWindow);
 }
 
 ConsoleMode::~ConsoleMode()
@@ -42,131 +60,71 @@ ConsoleMode::~ConsoleMode()
 void ConsoleMode::activate()
 {
     // Loads the corresponding Gui sheet.
-    Gui::getSingleton().loadGuiSheet(Gui::hideGui);
-
+    Gui::getSingleton().loadGuiSheet(Gui::console);
+    mEditboxWindow->activate();
     giveFocus();
-}
-
-bool ConsoleMode::mouseMoved(const OIS::MouseEvent &arg)
-{
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition((float)arg.state.X.abs, (float)arg.state.Y.abs);
-    if(arg.state.Z.rel == 0 || !mConsole->mVisible)
-        return false;
-
-    if(getKeyboard()->isModifierDown(OIS::Keyboard::Ctrl))
-        mConsole->scrollHistory(arg.state.Z.rel > 0);
-    else
-        mConsole->scrollText(arg.state.Z.rel > 0);
-
-    mConsole->mUpdateOverlay = true;
-    return true;
-}
-
-bool ConsoleMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id){
-    return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(
-        Gui::getSingletonPtr()->convertButton(id));
-}
-
-bool ConsoleMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id){
-    return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(
-        Gui::getSingletonPtr()->convertButton(id));
 }
 
 bool ConsoleMode::keyPressed(const OIS::KeyEvent &arg)
 {
-    if (!mConsole->mVisible)
-        return false;
-
-    if(arg.key == OIS::KC_TAB)
+    switch(arg.key)
     {
-        if(auto completed = mConsoleInterface.tryCompleteCommand(mConsole->mPrompt))
+        case OIS::KC_TAB:
         {
-            mConsole->mPrompt = *completed;
+            if(auto completed = mConsoleInterface.tryCompleteCommand(mEditboxWindow->getText().c_str()))
+            {
+                mEditboxWindow->setText(completed.get());
+            }
+            mEditboxWindow->setCaretIndex(mEditboxWindow->getText().length());
+            break;
         }
-    }
-    else
-    {
-        switch(arg.key)
-        {
         case OIS::KC_GRAVE:
         case OIS::KC_ESCAPE:
         case OIS::KC_F12:
-            regressMode();
-            mConsole->setVisible(false);
-            ODFrameListener::getSingleton().setTerminalActive(false);
-            break;
-
-        case OIS::KC_RETURN:
         {
-            //only do this for non-empty input
-            if(!mConsole->mPrompt.empty())
-            {
-                //print our input and push it to the history
-                mConsole->print(mConsole->mPrompt);
-                mConsole->mHistory.push_back(mConsole->mPrompt);
-                ++mConsole->mCurHistPos;
-
-                mConsoleInterface.tryExecuteCommand(mConsole->mPrompt,
-                                                    getModeManager().getCurrentModeTypeExceptConsole(),
-                                                    getModeManager());
-
-                mConsole->mPrompt.clear();
-            }
-            else
-            {
-                // Set history position back to last entry
-                mConsole->mCurHistPos = mConsole->mHistory.size();
-            }
+            regressMode();
             break;
         }
-        case OIS::KC_BACK:
-            mConsole->mPrompt = mConsole->mPrompt.substr(0, mConsole->mPrompt.length() - 1);
-            break;
-
-        case OIS::KC_PGUP:
-            mConsole->scrollText(true);
-            break;
-
-        case OIS::KC_PGDOWN:
-            mConsole->scrollText(false);
-            break;
-
         case OIS::KC_UP:
-            mConsole->mPrompt = mConsoleInterface.scrollCommandHistoryPositionUp(mConsole->mPrompt).get_value_or(mConsole->mPrompt);
+            if(auto completed = mConsoleInterface.scrollCommandHistoryPositionUp(mEditboxWindow->getText().c_str()))
+            {
+                mEditboxWindow->setText(completed.get());
+            }
+            mEditboxWindow->setCaretIndex(mEditboxWindow->getText().length());
             break;
 
         case OIS::KC_DOWN:
-            mConsole->mPrompt = mConsoleInterface.scrollCommandHistoryPositionDown().get_value_or(mConsole->mPrompt);
-            break;
-
-        default:
-            if (std::string("abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ,.<>/?1234567890-=\\!@#$%^&*()_+|;\':\"[]{}").find(
-                            arg.text) != std::string::npos)
+        {
+            if(auto completed = mConsoleInterface.scrollCommandHistoryPositionDown())
             {
-                mConsole->mPrompt += arg.text;
+                mEditboxWindow->setText(completed.get());
             }
+            mEditboxWindow->setCaretIndex(mEditboxWindow->getText().length());
+            break;
+        }
+        default:
+        {
+            CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyDown(
+                static_cast<CEGUI::Key::Scan>(arg.key));
+            CEGUI::System::getSingleton().getDefaultGUIContext().injectChar(
+                static_cast<CEGUI::String::value_type>(arg.text));
             break;
         }
     }
 
-    mConsole->mUpdateOverlay = true;
     return true;
-}
-
-bool ConsoleMode::keyReleased(const OIS::KeyEvent &arg)
-{
-    return true;
-}
-
-void ConsoleMode::handleHotkeys(OIS::KeyCode keycode)
-{
-
 }
 
 void ConsoleMode::printToConsole(const std::string& text)
 {
-    //print our input and push it to the history
-    mConsole->print(text);
-    mConsole->mHistory.push_back(text);
-    ++mConsole->mCurHistPos;
+    mConsoleHistoryWindow->addItem(new CEGUI::ListboxTextItem(text));
+}
+
+bool ConsoleMode::executeCurrentPrompt(const CEGUI::EventArgs &e)
+{
+    mConsoleInterface.tryExecuteCommand(mEditboxWindow->getText().c_str(),
+                                    getModeManager().getCurrentModeTypeExceptConsole(),
+                                    getModeManager());
+    mEditboxWindow->setText("");
+    return true;
 }

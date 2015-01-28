@@ -17,9 +17,8 @@
 
 #include "modes/ModeManager.h"
 
-#include "scripting/ASWrapper.h"
-#include "InputManager.h"
-#include "MenuMode.h"
+#include "modes/InputManager.h"
+#include "modes/MenuMode.h"
 #include "modes/MenuModeConfigureSeats.h"
 #include "modes/MenuModeSkirmish.h"
 #include "modes/MenuModeMultiplayerClient.h"
@@ -28,37 +27,19 @@
 #include "modes/MenuModeReplay.h"
 #include "modes/GameMode.h"
 #include "modes/EditorMode.h"
-#include "modes/Console.h"
-#include "ConsoleMode.h"
-#include "FppMode.h"
+#include "modes/ConsoleMode.h"
+#include "modes/FppMode.h"
 
 
 ModeManager::ModeManager(Ogre::RenderWindow* renderWindow)
+  : mInputManager(renderWindow), mConsoleMode(new ConsoleMode(this)), mIsInConsole(false),
+    mRequestedMode(ModeType::NONE), mDiscardActualMode(false)
 {
-    mInputManager = new InputManager(renderWindow);
-    mInputManager->mKeyboard->setTextTranslation(OIS::Keyboard::Unicode);
-
+    mInputManager.mKeyboard->setTextTranslation(OIS::Keyboard::Unicode);
 
     // Loads the main menu
     mApplicationModes.push_back(new MenuMode(this));
     mApplicationModes.back()->activate();
-
-    // NOTE: Console needs to exist BEFORE ASWrapper because it needs it for callback
-    // TODO: Merge Console and Console Mode
-    mConsole = new Console();
-
-    // We set a console mode loaded in any case.
-    mConsoleMode = new ConsoleMode(this, mConsole);
-    // The console isn't the active one when starting the game
-    mIsInConsole = false;
-
-    // Don't change the application mode for now.
-    mRequestedMode = NONE;
-
-    // Init the Angel Script wrapper for game modes
-    mASWrapper = new ASWrapper();
-
-    mDiscardActualMode = false;
 }
 
 ModeManager::~ModeManager()
@@ -69,16 +50,12 @@ ModeManager::~ModeManager()
         appMode->exitMode();
         delete appMode;
     }
-    delete mConsoleMode;
-    delete mConsole;
-    delete mInputManager;
-    delete mASWrapper;
 }
 
 AbstractApplicationMode* ModeManager::getCurrentMode()
 {
     if (mIsInConsole)
-        return mConsoleMode;
+        return mConsoleMode.get();
 
     return mApplicationModes.back();
 }
