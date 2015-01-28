@@ -73,7 +73,11 @@ public:
 
     const std::vector<const SpawnCondition*>& getCreatureSpawnConditions(const CreatureDefinition* def) const;
 
+    //! \brief Get the fighter creature definition spawnable in portals according to the given faction.
     const std::vector<std::string>& getFactionSpawnPool(const std::string& faction) const;
+
+    //! \brief Get the worker creature definition spawnable in portals according to the given faction.
+    const std::string& getFactionWorkerClass(const std::string& faction) const;
 
     inline const std::vector<std::string>& getFactions() const
     { return mFactions; }
@@ -130,6 +134,10 @@ private:
     std::map<const CreatureDefinition*, std::vector<const SpawnCondition*> > mCreatureSpawnConditions;
     std::map<const std::string, std::vector<const CreatureMood*> > mCreatureMoodModifiers;
     std::map<const std::string, std::vector<std::string> > mFactionSpawnPool;
+
+    //! \brief Stores the faction default worker creature definition.
+    std::map<const std::string, std::string> mFactionDefaultWorkerClass;
+
     std::vector<std::string> mFactions;
     std::map<const std::string, std::string> mRoomsConfig;
     std::map<const std::string, std::string> mTrapsConfig;

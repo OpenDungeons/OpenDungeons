@@ -636,6 +636,7 @@ bool ConfigManager::loadFactions(const std::string& fileName)
         }
 
         std::string factionName;
+        std::string workerClass;
         while(defFile.good())
         {
             if(!(defFile >> nextParam))
@@ -652,19 +653,30 @@ bool ConfigManager::loadFactions(const std::string& fileName)
                 defFile >> factionName;
                 continue;
             }
-
-            if (nextParam != "[SpawnPool]")
-            {
-                OD_ASSERT_TRUE_MSG(false, "Invalid faction. Line was " + nextParam);
-                return false;
-            }
-
             if(factionName.empty())
             {
                 OD_ASSERT_TRUE_MSG(false, "Empty or missing faction name is not allowed");
                 return false;
             }
             mFactions.push_back(factionName);
+
+            if (nextParam == "WorkerClass")
+            {
+                defFile >> workerClass;
+                continue;
+            }
+            if(workerClass.empty())
+            {
+                OD_ASSERT_TRUE_MSG(false, "Empty or missing WorkerClass name is not allowed");
+                return false;
+            }
+            mFactionDefaultWorkerClass[factionName] = workerClass;
+
+            if (nextParam != "[SpawnPool]")
+            {
+                OD_ASSERT_TRUE_MSG(false, "Invalid faction. Line was " + nextParam);
+                return false;
+            }
 
             while(defFile.good())
             {
@@ -1002,6 +1014,14 @@ const std::vector<std::string>& ConfigManager::getFactionSpawnPool(const std::st
         return EMPTY_SPAWNPOOL;
 
     return mFactionSpawnPool.at(faction);
+}
+
+const std::string& ConfigManager::getFactionWorkerClass(const std::string& faction) const
+{
+    if(mFactionDefaultWorkerClass.count(faction) == 0)
+        return EMPTY_STRING;
+
+    return mFactionDefaultWorkerClass.at(faction);
 }
 
 CreatureMoodLevel ConfigManager::getCreatureMoodLevel(int32_t moodModifiersPoints) const
