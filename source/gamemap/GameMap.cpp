@@ -40,6 +40,8 @@
 #include "game/Player.h"
 #include "game/Seat.h"
 
+#include "modes/ModeManager.h"
+
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
 
@@ -156,6 +158,14 @@ GameMap::~GameMap()
 {
     clearAll();
     processDeletionQueues();
+}
+
+bool GameMap::isInEditorMode() const
+{
+    if (isServerGameMap())
+        return (ODServer::getSingleton().getServerMode() == ODServer::ServerMode::ModeEditor);
+
+    return (ODFrameListener::getSingleton().getModeManager()->getCurrentModeTypeExceptConsole() == ModeManager::EDITOR);
 }
 
 bool GameMap::loadLevel(const std::string& levelFilepath)

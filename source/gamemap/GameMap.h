@@ -67,6 +67,13 @@ public:
     const std::string serverStr()
     { return std::string( mIsServerGameMap ? "SERVER - " : "CLIENT - "); }
 
+    //! \brief Tells whether the game map is currently used for the map editor mode
+    //! or for a standard game session.
+    //! \note This function has got the noticeable role to keep the separation between the client
+    //! and the server game maps clean, by not calling client related code when acting
+    //! as a server game and vice versa.
+    bool isInEditorMode() const;
+
     //! \brief Load a level file (Part of the resource paths)
     //! \returns whether the file loaded correctly
     bool loadLevel(const std::string& levelFilepath);
@@ -401,12 +408,12 @@ public:
         mTurnNumber = turnNumber;
     }
 
-    bool isServerGameMap()
+    bool isServerGameMap() const
     {
         return mIsServerGameMap;
     }
 
-    bool getGamePaused()
+    bool getGamePaused() const
     {
         return mIsPaused;
     }
