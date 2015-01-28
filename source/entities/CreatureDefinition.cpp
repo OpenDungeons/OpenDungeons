@@ -90,6 +90,7 @@ ODPacket& operator<<(ODPacket& os, const CreatureDefinition* c)
     os << c->mAttackWarmupTime;
     os << c->mFeeBase;
     os << c->mFeePerLevel;
+    os << c->mMoodModifierName;
     os << c->mWeaponSpawnL;
     os << c->mWeaponSpawnR;
 
@@ -122,6 +123,7 @@ ODPacket& operator>>(ODPacket& is, CreatureDefinition* c)
     is >> c->mAttackWarmupTime;
     is >> c->mFeeBase;
     is >> c->mFeePerLevel;
+    is >> c->mMoodModifierName;
     is >> c->mWeaponSpawnL;
     is >> c->mWeaponSpawnR;
 
@@ -445,6 +447,12 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
             {
                 defFile >> nextParam;
                 creatureDef->mFeePerLevel = Helper::toInt(nextParam);
+                continue;
+            }
+            else if (nextParam == "CreatureMoodName")
+            {
+                defFile >> nextParam;
+                creatureDef->mMoodModifierName = nextParam;
                 continue;
             }
             else if (nextParam == "WeaponSpawnL")

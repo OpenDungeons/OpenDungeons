@@ -234,6 +234,9 @@ public:
 
     const CreatureRoomAffinity& getRoomAffinity(Room::RoomType roomType) const;
 
+    inline const std::string& getMoodModifierName() const
+    { return mMoodModifierName; }
+
 private:
     //! \brief The job of the creature (e.g. worker, fighter, ...)
     CreatureJob mCreatureJob;
@@ -330,6 +333,10 @@ private:
 
     //! \brief The rooms the creature should choose according to availability
     std::vector<CreatureRoomAffinity> mRoomAffinity;
+
+    //! \brief The rooms the creature mood modifier that should be used to compute
+    //! creature mood
+    std::string mMoodModifierName;
 
     //! \brief Loads the creature XP values for the given definition.
     static void loadXPTable(std::stringstream& defFile, CreatureDefinition* creatureDef);

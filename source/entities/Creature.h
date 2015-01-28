@@ -26,6 +26,8 @@
 #include "entities/CreatureAction.h"
 #include "entities/MovableGameEntity.h"
 
+#include "utils/ConfigManager.h"
+
 #include <OgreVector2.h>
 #include <OgreVector3.h>
 #include <CEGUI/EventArgs.h>
@@ -36,6 +38,8 @@
 class GameMap;
 class Creature;
 class Weapon;
+
+enum class CreatureMoodLevel;
 
 namespace CEGUI
 {
@@ -332,6 +336,18 @@ public:
 
     void itsPayDay();
 
+    inline const std::vector<Tile*>& getVisibleTiles() const
+    { return mVisibleTiles; }
+
+    inline double getAwakeness() const
+    { return mAwakeness; }
+
+    inline double getHunger() const
+    { return mHunger; }
+
+    inline int32_t getGoldFee() const
+    { return mGoldFee; }
+
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
@@ -441,6 +457,21 @@ private:
 
     Ogre::Vector3                   mScale;
 
+    //! \brief The mood do not have to be computed at every turn. This cooldown will
+    //! count how many turns the creature should wait before computing it
+    int32_t                         mMoodCooldownTurns;
+
+    //! \brief Mood value. Depending on this value, the creature will be in bad mood and
+    //! might attack allied creatures or refuse to work or to go to combat
+    CreatureMoodLevel               mMoodValue;
+    //! \brief Mood points. Computed by the creature MoodModifiers. It is promoted to class variable for debug purposes and
+    //! should not be used to check mood. If the mood is to be tested, mMoodValue should be used
+    int32_t                         mMoodPoints;
+
+    //! \brief Reminds the first turn the creature gets furious. If is stays like this for too long,
+    //! it will become rogue
+    int64_t                         mFirstTurnFurious;
+
     //! \brief The logic in the idle function is basically to roll a dice and, if the value allows, push an action to test if
     //! it is possible. To avoid testing several times the same action, we check in mActionTry if the action as already been
     //! tried. If yes and forcePush is false, the action won't be pushed and pushAction will return false. If the action has
@@ -473,79 +504,86 @@ private:
     void decidePrioritaryAction();
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature idle action logic.
+    //! This functions will handle the creature idle action logic.
     //! \return true when another action should handled after that one.
     bool handleIdleAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature walking action logic.
+    //! This functions will handle the creature walking action logic.
     //! \return true when another action should handled after that one.
     bool handleWalkToTileAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature claim tile action logic.
+    //! This functions will handle the creature claim tile action logic.
     //! \return true when another action should handled after that one.
     bool handleClaimTileAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature claim wall tile action logic.
+    //! This functions will handle the creature claim wall tile action logic.
     //! \return true when another action should handled after that one.
     bool handleClaimWallTileAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature dig tile action logic.
+    //! This functions will handle the creature dig tile action logic.
     //! \return true when another action should handled after that one.
     bool handleDigTileAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature finding home action logic.
+    //! This functions will handle the creature finding home action logic.
     //! \return true when another action should handled after that one.
     bool handleFindHomeAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature job action logic.
+    //! This functions will handle the creature job action logic.
     //! \return true when another action should handled after that one.
     bool handleJobAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature eating action logic.
+    //! This functions will handle the creature eating action logic.
     //! \return true when another action should handled after that one.
     bool handleEatingAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature attack action logic.
+    //! This functions will handle the creature attack action logic.
     //! \return true when another action should handled after that one.
     bool handleAttackAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature fighting action logic.
+    //! This functions will handle the creature fighting action logic.
     //! \return true when another action should handled after that one.
     bool handleFightAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature sleeping action logic.
+    //! This functions will handle the creature sleeping action logic.
     //! \return true when another action should handled after that one.
     bool handleSleepAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature fleeing action logic.
+    //! This functions will handle the creature fleeing action logic.
     //! \return true when another action should handled after that one.
     bool handleFleeAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature action logic about finding a carryable entity.
+    //! This functions will handle the creature action logic about finding a carryable entity.
     //! And trying to carry it to a suitable building
     //! \return true when another action should handled after that one.
     bool handleCarryableEntities(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature action logic about getting the creature fee.
+    //! This functions will handle the creature action logic about getting the creature fee.
     //! \return true when another action should handled after that one.
     bool handleGetFee(const CreatureAction& actionItem);
 
-    //! \brief Returns true if creature is in bad mood. False otherwise. A creature in bad mood will more likely
-    //! flee or attack allied units
-    bool isInBadMood();
+    //! \brief A sub-function called by doTurn()
+    //! This functions will handle the creature action logic about trying to leave the dungeon.
+    //! \return true when another action should handled after that one.
+    bool handleLeaveDungeon(const CreatureAction& actionItem);
+
+    //! \brief A sub-function called by doTurn()
+    //! This functions will handle the creature fighting action logic when
+    //! fighting an allied natural enemy (when in bad mood)
+    //! \return true when another action should handled after that one.
+    bool handleFightAlliedNaturalEnemyAction(const CreatureAction& actionItem);
 
     //! \brief Restores the creature's stats according to its current level
     void buildStats();
@@ -553,6 +591,15 @@ private:
     void carryEntity(MovableGameEntity* carriedEntity);
 
     void releaseCarriedEntity();
+
+    void increaseHunger(double value);
+
+    void decreaseAwakeness(double value);
+
+    void computeMood();
+
+    //! \brief Called when an angry creature wants to attack a natural enemy
+    void engageAlliedNaturalEnemy(Creature* attacker);
 };
 
 #endif // CREATURE_H

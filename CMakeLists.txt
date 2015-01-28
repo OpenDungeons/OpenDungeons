@@ -229,6 +229,13 @@ set(OD_SOURCEFILES
     ${SRC}/camera/CameraManager.cpp
     ${SRC}/camera/HermiteCatmullSpline.cpp
 
+    ${SRC}/creaturemood/CreatureMood.cpp
+    ${SRC}/creaturemood/CreatureMoodAwakness.cpp
+    ${SRC}/creaturemood/CreatureMoodCreature.cpp
+    ${SRC}/creaturemood/CreatureMoodFee.cpp
+    ${SRC}/creaturemood/CreatureMoodHunger.cpp
+    ${SRC}/creaturemood/CreatureMoodHpLoss.cpp
+
     ${SRC}/entities/Building.cpp
     ${SRC}/entities/BuildingObject.cpp
     ${SRC}/entities/ChickenEntity.cpp

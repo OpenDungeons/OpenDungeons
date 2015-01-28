@@ -100,27 +100,30 @@ public:
 
     void refreshFromSeat(Seat* s);
 
-    int getTeamId() const
+    inline int getTeamId() const
     { return mTeamId; }
+
+    inline bool isRogueSeat() const
+    { return mId == 0; }
 
     void setTeamId(int teamId);
 
-    const std::vector<int>& getAvailableTeamIds() const
+    inline const std::vector<int>& getAvailableTeamIds() const
     { return mAvailableTeamIds; }
 
-    int getId() const
+    inline int getId() const
     { return mId; }
 
-    const std::string& getFaction() const
+    inline const std::string& getFaction() const
     { return mFaction; }
 
-    void setFaction(const std::string& faction)
+    inline void setFaction(const std::string& faction)
     { mFaction = faction; }
 
-    const std::string& getColorId() const
+    inline const std::string& getColorId() const
     { return mColorId; }
 
-    const Ogre::ColourValue& getColorValue() const
+    inline const Ogre::ColourValue& getColorValue() const
     { return mColorValue; }
 
     inline int getGold() const
@@ -150,10 +153,10 @@ public:
     inline int getNbTreasuries() const
     { return mNbTreasuries; }
 
-    const std::string& getPlayerType() const
+    inline const std::string& getPlayerType() const
     { return mPlayerType; }
 
-    void setPlayerType(const std::string& playerType)
+    inline void setPlayerType(const std::string& playerType)
     { mPlayerType = playerType; }
 
     void setPlayer(Player* player);
@@ -202,6 +205,8 @@ public:
     void computeSeatBeforeSendingToClient();
 
     static bool sortForMapSave(Seat* s1, Seat* s2);
+
+    static Seat* getRogueSeat(GameMap* gameMap);
 
     static std::string getFormat();
     friend ODPacket& operator<<(ODPacket& os, Seat *s);

@@ -17,6 +17,8 @@
 
 #include "gamemap/MapLoader.h"
 
+#include "creaturemood/CreatureMood.h"
+
 #include "gamemap/GameMap.h"
 #include "game/Seat.h"
 #include "goals/Goal.h"
@@ -315,6 +317,66 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
     }
 
     levelFile >> nextParam;
+
+    if (nextParam == "[CreaturesMood]")
+    {
+        while(levelFile.good())
+        {
+            if(!(levelFile >> nextParam))
+                break;
+
+            if (nextParam == "[/CreaturesMood]")
+                break;
+
+            if (nextParam == "[/CreatureMood]")
+                continue;
+
+            if (nextParam != "[CreatureMood]")
+            {
+                OD_ASSERT_TRUE_MSG(false, "Invalid CreatureMood format. Line was " + nextParam);
+                return false;
+            }
+
+            if(!(levelFile >> nextParam))
+                    break;
+            if (nextParam != "CreatureMoodName")
+            {
+                OD_ASSERT_TRUE_MSG(false, "Invalid CreatureMoodName format. Line was " + nextParam);
+                return false;
+            }
+            std::string moodModifierName;
+            levelFile >> moodModifierName;
+            std::vector<CreatureMood*> moodModifiers;
+
+            while(levelFile.good())
+            {
+                if(!(levelFile >> nextParam))
+                    break;
+
+                if (nextParam == "[/CreatureMood]")
+                    break;
+
+                if (nextParam != "[MoodModifier]")
+                {
+                    OD_ASSERT_TRUE_MSG(false, "Invalid CreatureMood MoodModifier format. nextParam=" + nextParam);
+                    return false;
+                }
+
+                // Load the definition
+                CreatureMood* def = CreatureMood::load(levelFile);
+                if (def == nullptr)
+                {
+                    OD_ASSERT_TRUE_MSG(false, "Invalid CreatureMood MoodModifier definition");
+                    return false;
+                }
+                moodModifiers.push_back(def);
+            }
+            gameMap.addCreatureMoodModifiers(moodModifierName, moodModifiers);
+        }
+
+        levelFile >> nextParam;
+    }
+
     if (nextParam == "[CreatureDefinitions]")
     {
         while(levelFile.good())
@@ -449,6 +511,10 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     const std::vector<Seat*> seats = gameMap.getSeats();
     for (Seat* seat : seats)
     {
+        // We don't save rogue seat
+        if(seat->isRogueSeat())
+            continue;
+
         levelFile << seat << std::endl;
     }
     levelFile << "[/Seats]" << std::endl;

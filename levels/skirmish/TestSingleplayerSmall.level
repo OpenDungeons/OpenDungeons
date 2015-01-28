@@ -13,7 +13,6 @@ FightMusic	The_Dark_Amulet.ogg
 2	1/2	AI	Hero	10	40	2	1000
 3	3	Choice	Choice	40	10	3	1000
 4	3	Choice	Choice	40	40	4	1000
-5	4	Inactive	Keeper	0	0	5	0
 [/Seats]
 
 [Goals]
@@ -974,9 +973,13 @@ ProtectDungeonTemple	NULL
     AttackRange	1
     AtkRange/Level	0
     AttackWarmupTime	1.5
+    FeeBase	0
+    FeePerLevel	0
     WeaponSpawnL	none
     WeaponSpawnL	none
     [/Stats]
+    [RoomAffinity]
+    [/RoomAffinity]
     [XP]
     # 2-10
     6	12	20	29	39	50	62	76	90
@@ -1020,13 +1023,13 @@ ProtectDungeonTemple	NULL
 2	Adventurer	Adventurer3	1	0	10	100	0	0	7	40	0	none	none
 [/Creature]
 [Creature]
-5	BigDragon	Dragon1	1	0	max	100	0	0	43	10	0	none	none
+0	BigDragon	Dragon1	1	0	max	100	0	0	43	10	0	none	none
 [/Creature]
 [Creature]
-5	BigDragon	Dragon2	1	0	max	100	0	0	40	10	0	none	none
+0	BigDragon	Dragon2	1	0	max	100	0	0	40	10	0	none	none
 [/Creature]
 [Creature]
-5	BigDragon	Dragon3	1	0	max	100	0	0	40	12	0	none	none
+0	BigDragon	Dragon3	1	0	max	100	0	0	40	12	0	none	none
 [/Creature]
 [Creature]
 3	Tentacle1	Tentacle11	1	0	max	100	0	0	5	15	0	none	none
@@ -1048,5 +1051,8 @@ ProtectDungeonTemple	NULL
 [/Creature]
 [Creature]
 3	Orc	Orc3	1	0	0	100	0	0	3	20	0	none	none
+[/Creature]
+[Creature]
+0	Wyvern	Wyvern1	1	0	max	100	0	0	15	18	0	none	none
 [/Creature]
 [/Creatures]

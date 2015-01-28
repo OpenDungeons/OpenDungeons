@@ -375,7 +375,7 @@ const CreatureDefinition* Seat::getNextCreatureClassToSpawn()
         return nullptr;
 
     // We choose randomly a creature to spawn according to their points
-    int32_t cpt = Random::Int(0, nbPointsTotal);
+    int32_t cpt = Random::Int(0, nbPointsTotal - 1);
     for(std::pair<const CreatureDefinition*, int32_t>& def : defSpawnable)
     {
         if(cpt < def.second)
@@ -708,16 +708,35 @@ const std::string Seat::getFactionFromLine(const std::string& line)
     return std::string();
 }
 
+Seat* Seat::getRogueSeat(GameMap* gameMap)
+{
+    Seat* seat = new Seat(gameMap);
+    seat->mId = 0;
+    seat->mTeamId = 0;
+    seat->mAvailableTeamIds.push_back(0);
+    seat->mPlayerType = PLAYER_TYPE_INACTIVE;
+    seat->mStartingX = 0;
+    seat->mStartingY = 0;
+    seat->mStartingGold = 0;
+    return seat;
+}
+
 void Seat::loadFromLine(const std::string& line, Seat *s)
 {
     std::vector<std::string> elems = Helper::split(line, '\t');
 
     int32_t i = 0;
     s->mId = Helper::toInt(elems[i++]);
+    OD_ASSERT_TRUE_MSG(s->mId != 0, "Forbidden seatId for line=" + line);
     std::vector<std::string> teamIds = Helper::split(elems[i++], '/');
     for(const std::string& strTeamId : teamIds)
     {
-        s->mAvailableTeamIds.push_back(Helper::toInt(strTeamId));
+        int teamId = Helper::toInt(strTeamId);
+        OD_ASSERT_TRUE_MSG(teamId != 0, "Forbidden teamId for line=" + line);
+        if(teamId == 0)
+            continue;
+
+        s->mAvailableTeamIds.push_back(teamId);
     }
     s->mPlayerType = elems[i++];
     s->mFaction = elems[i++];
