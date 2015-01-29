@@ -365,25 +365,25 @@ int Room::costPerTile(RoomType t)
         return 0;
 
     case treasury:
-        return 25;
+        return ConfigManager::getSingleton().getRoomConfigInt32("TreasuryCostPerTile");
 
     case dormitory:
-        return 75;
+        return ConfigManager::getSingleton().getRoomConfigInt32("DormitoryCostPerTile");
 
     case hatchery:
-        return 100;
+        return ConfigManager::getSingleton().getRoomConfigInt32("HatcheryCostPerTile");
 
     case forge:
-        return 150;
+        return ConfigManager::getSingleton().getRoomConfigInt32("ForgeCostPerTile");
 
     case trainingHall:
-        return 175;
+        return ConfigManager::getSingleton().getRoomConfigInt32("TrainHallCostPerTile");
 
     case library:
-        return 200;
+        return ConfigManager::getSingleton().getRoomConfigInt32("LibraryCostPerTile");
 
     case crypt:
-        return 225;
+        return ConfigManager::getSingleton().getRoomConfigInt32("CryptCostPerTile");
 
     default:
         return 0;
