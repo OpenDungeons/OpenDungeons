@@ -799,7 +799,7 @@ void Creature::decidePrioritaryAction()
     // visible). And if we decide to do something, we should clear the action queue.
 
     // If a creature is weak and there are foes, it shall flee
-    bool isWeak = (mHp < mMaxHP / 3);
+    bool isWeak = (mHp < mMaxHP * mDefinition->getWeakCoef());
     if (!mReachableEnemyObjects.empty() && isWeak)
     {
         if(isActionInList(CreatureAction::flee))
@@ -1047,7 +1047,7 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
     }
 
     // Fighters
-    bool isWeak = (mHp < mMaxHP / 3);
+    bool isWeak = (mHp < mMaxHP * mDefinition->getWeakCoef());
     // If a fighter is weak, he should try to sleep
     if (isWeak && !mDefinition->isWorker())
     {

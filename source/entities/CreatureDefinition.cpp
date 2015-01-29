@@ -88,6 +88,7 @@ ODPacket& operator<<(ODPacket& os, const CreatureDefinition* c)
     os << c->mMagicalDefense << c->mMagicalDefPerLevel;
     os << c->mAttackRange << c->mAtkRangePerLevel;
     os << c->mAttackWarmupTime;
+    os << c->mWeakCoef;
     os << c->mFeeBase;
     os << c->mFeePerLevel;
     os << c->mMoodModifierName;
@@ -121,6 +122,7 @@ ODPacket& operator>>(ODPacket& is, CreatureDefinition* c)
     is >> c->mMagicalDefense >> c->mMagicalDefPerLevel;
     is >> c->mAttackRange >> c->mAtkRangePerLevel;
     is >> c->mAttackWarmupTime;
+    is >> c->mWeakCoef;
     is >> c->mFeeBase;
     is >> c->mFeePerLevel;
     is >> c->mMoodModifierName;
@@ -437,6 +439,13 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
                 creatureDef->mAttackWarmupTime = Helper::toDouble(nextParam);
                 continue;
             }
+            else if (nextParam == "WeakCoef")
+            {
+                defFile >> nextParam;
+                creatureDef->mWeakCoef = Helper::toDouble(nextParam);
+                OD_ASSERT_TRUE_MSG(creatureDef->mWeakCoef >= 0.0 && creatureDef->mWeakCoef <= 1.0, "mWeakCoef=" + Helper::toString(creatureDef->mWeakCoef));
+                continue;
+            }
             else if (nextParam == "FeeBase")
             {
                 defFile >> nextParam;
@@ -597,6 +606,9 @@ void CreatureDefinition::writeCreatureDefinitionDiff(const CreatureDefinition* d
 
     if(def1 == nullptr || (def1->mAttackWarmupTime != def2->mAttackWarmupTime))
         file << "    AttackWarmupTime\t" << def2->mAttackWarmupTime << std::endl;
+
+    if(def1 == nullptr || (def1->mWeakCoef != def2->mWeakCoef))
+        file << "    WeakCoef\t" << def2->mWeakCoef << std::endl;
 
     if(def1 == nullptr || (def1->mFeeBase != def2->mFeeBase))
         file << "    FeeBase\t" << def2->mFeeBase << std::endl;
