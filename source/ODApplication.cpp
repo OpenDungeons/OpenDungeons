@@ -45,169 +45,114 @@
 #include <sstream>
 #include <fstream>
 
-ODApplication::ODApplication() :
-    mRoot(nullptr),
-    mWindow(nullptr),
-    mInitialized(false)
+ODApplication::ODApplication()
 {
-    try
+    Random::initialize();
+    //NOTE: The order of initialisation of the different "manager" classes is important,
+    //as many of them depen on each other.
+    ResourceManager resMgr;
+    std::cout << "Creating OGRE::Root instance; Plugins path: " << resMgr.getPluginsPath()
+              << "; config file: " << resMgr.getCfgFile()
+              << "; log file: " << resMgr.getLogFile() << std::endl;
+
+    Ogre::Root ogreRoot(resMgr.getPluginsPath(),
+                            resMgr.getCfgFile(),
+                            resMgr.getLogFile());
+
+    resMgr.setupOgreResources();
+
+    LogManager logManager;
+    logManager.setLogDetail(Ogre::LL_BOREME);
+    ConfigManager configManager;
+
+    /* TODO: Skip this and use root.restoreConfig()
+      * to load configuration settings if we are sure there are valid ones
+      * saved in ogre.cfg
+      * We should use this later (when we have an own setup options screen)
+      * to avoid having the setup dialog started on every run
+      */
+    /* TODO: create our own options menu and define good default values
+      *       (drop smaller than 800x600, AA, shadow quality, mipmaps, etc)
+      */
+    if (!ogreRoot.showConfigDialog())
+        return;
+
+    // Needed for the TextRenderer and the Render Manager
+    Ogre::OverlaySystem overlaySystem;
+
+    Ogre::RenderWindow* renderWindow = ogreRoot.initialise(true, "OpenDungeons " + VERSION);
+
+    ODServer server;
+    ODClient client;
+
+    //NOTE: This is currently done here as it has to be done after initialising mRoot,
+    //but before running initialiseAllResourceGroups()
+    Ogre::GpuProgramManager& gpuProgramManager = Ogre::GpuProgramManager::getSingleton();
+    Ogre::ResourceGroupManager& resourceGroupManager = Ogre::ResourceGroupManager::getSingleton();
+    if(gpuProgramManager.isSyntaxSupported("glsl"))
     {
-        Random::initialize();
-
-        ResourceManager* resMgr = new ResourceManager;
-
-        std::cout << "Creating OGRE::Root instance; Plugins path: " << resMgr->getPluginsPath()
-                  << "; config file: " << resMgr->getCfgFile()
-                  << "; log file: " << resMgr->getLogFile() << std::endl;
-
-        mRoot = new Ogre::Root(resMgr->getPluginsPath(),
-                               resMgr->getCfgFile(),
-                               resMgr->getLogFile());
-
-        resMgr->setupOgreResources();
-
-        LogManager* logManager = new LogManager();
-        logManager->setLogDetail(Ogre::LL_BOREME);
-        new ConfigManager;
-
-        /* TODO: Skip this and use root.restoreConfig()
-         * to load configuration settings if we are sure there are valid ones
-         * saved in ogre.cfg
-         * We should use this later (when we have an own setup options screen)
-         * to avoid having the setup dialog started on every run
-         */
-        /* TODO: create our own options menu and define good default values
-         *       (drop smaller than 800x600, AA, shadow quality, mipmaps, etc)
-         */
-        if (!mRoot->showConfigDialog())
-            return;
-
-        // Needed for the TextRenderer and the Render Manager
-        mOverlaySystem = new Ogre::OverlaySystem();
-
-        mWindow = mRoot->initialise(true, "OpenDungeons " + VERSION);
-
-        new ODServer();
-        new ODClient();
-
-        //NOTE: This is currently done here as it has to be done after initialising mRoot,
-        //but before running initialiseAllResourceGroups()
-        Ogre::GpuProgramManager& gpuProgramManager = Ogre::GpuProgramManager::getSingleton();
-        Ogre::ResourceGroupManager& resourceGroupManager = Ogre::ResourceGroupManager::getSingleton();
-        if(gpuProgramManager.isSyntaxSupported("glsl"))
+        //Add GLSL shader location for RTShader system
+        resourceGroupManager.addResourceLocation(
+                    "materials/RTShaderLib/GLSL", "FileSystem", "Graphics");
+        //Use patched version of shader on shader version 130+ systems
+        Ogre::uint16 shaderVersion = ogreRoot.getRenderSystem()->getNativeShadingLanguageVersion();
+        logManager.logMessage("Shader version is: " + Ogre::StringConverter::toString(shaderVersion));
+        if(shaderVersion >= 130)
         {
-            //Add GLSL shader location for RTShader system
-            resourceGroupManager.addResourceLocation(
-                        "materials/RTShaderLib/GLSL", "FileSystem", "Graphics");
-            //Use patched version of shader on shader version 130+ systems
-            Ogre::uint16 shaderVersion = mRoot->getRenderSystem()->getNativeShadingLanguageVersion();
-            logManager->logMessage("Shader version is: " + Ogre::StringConverter::toString(shaderVersion));
-            if(shaderVersion >= 130)
-            {
-                resourceGroupManager.addResourceLocation("materials/RTShaderLib/GLSL/130", "FileSystem", "Graphics");
-            }
-            else
-            {
-                resourceGroupManager.addResourceLocation("materials/RTShaderLib/GLSL/120", "FileSystem", "Graphics");
-            }
+            resourceGroupManager.addResourceLocation("materials/RTShaderLib/GLSL/130", "FileSystem", "Graphics");
         }
-
-        //Initialise RTshader system
-        // IMPORTANT: This needs to be initialized BEFORE the resource groups.
-        // eg: Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
-        // but after the render window, eg: mRoot->initialise();
-        // This advice was taken from here:
-        // http://www.ogre3d.org/forums/viewtopic.php?p=487445#p487445
-        if (!Ogre::RTShader::ShaderGenerator::initialize())
+        else
         {
-            //TODO - exit properly
-            LogManager::getSingletonPtr()->logMessage("FATAL:"
-                    "Failed to initialize the Real Time Shader System, exiting", Ogre::LML_CRITICAL);
-            exit(1);
+            resourceGroupManager.addResourceLocation("materials/RTShaderLib/GLSL/120", "FileSystem", "Graphics");
         }
-
-        Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
-        new MusicPlayer();
-        new SoundEffectsManager();
-
-        new Gui();
-        TextRenderer* textRenderer = new TextRenderer();
-        textRenderer->addTextBox("DebugMessages", ODApplication::MOTD.c_str(), 140,
-                                    30, 50, 70, Ogre::ColourValue::Green);
-        textRenderer->addTextBox(ODApplication::POINTER_INFO_STRING, "",
-                                    0, 0, 200, 50, Ogre::ColourValue::White);
-
-        mFrameListener = new ODFrameListener(mWindow, mOverlaySystem);
-        mRoot->addFrameListener(mFrameListener);
-
-        mRoot->startRendering();
-
-        mInitialized = true;
     }
-    catch(const Ogre::Exception& e)
+
+    //Initialise RTshader system
+    // IMPORTANT: This needs to be initialized BEFORE the resource groups.
+    // eg: Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
+    // but after the render window, eg: mRoot->initialise();
+    // This advice was taken from here:
+    // http://www.ogre3d.org/forums/viewtopic.php?p=487445#p487445
+    if (!Ogre::RTShader::ShaderGenerator::initialize())
     {
-        std::cerr << "An internal Ogre3D error ocurred: " << e.getFullDescription() << std::endl;
-        displayErrorMessage("Internal Ogre3D exception: " + e.getFullDescription());
+        //TODO - exit properly
+        logManager.logMessage("FATAL:"
+                "Failed to initialize the Real Time Shader System, exiting", Ogre::LML_CRITICAL);
+        return;
     }
+
+    Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
+    MusicPlayer musicPlayer;
+    SoundEffectsManager soundEffectsManager;
+
+    Gui gui;
+    TextRenderer textRenderer;
+    textRenderer.addTextBox("DebugMessages", ODApplication::MOTD.c_str(), 140,
+                                30, 50, 70, Ogre::ColourValue::Green);
+    textRenderer.addTextBox(ODApplication::POINTER_INFO_STRING, "",
+                                0, 0, 200, 50, Ogre::ColourValue::White);
+
+    ODFrameListener frameListener(renderWindow, &overlaySystem);
+
+    ogreRoot.addFrameListener(&frameListener);
+    ogreRoot.startRendering();
+
+    logManager.logMessage("Stopping server...");
+    server.stopServer();
+    logManager.logMessage("Disconnecting client...");
+    client.disconnect();
+    ogreRoot.removeFrameListener(&frameListener);
 }
 
 ODApplication::~ODApplication()
 {
-    cleanUp();
 }
 
-void ODApplication::displayErrorMessage(const std::string& message, bool log)
+void ODApplication::displayErrorMessage(const std::string& message, LogManager& logger)
 {
-    if (log)
-    {
-        LogManager::getSingleton().logMessage(message, Ogre::LML_CRITICAL);
-    }
+    logger.logMessage(message, Ogre::LML_CRITICAL);
     Ogre::ErrorDialog e;
     e.display(message, LogManager::GAMELOG_NAME);
-}
-
-void ODApplication::cleanUp()
-{
-    LogManager* logManager = LogManager::getSingletonPtr();
-    logManager->logMessage("Quitting main application...", Ogre::LML_CRITICAL);
-
-    if (mInitialized)
-    {
-        logManager->logMessage("Stopping server...");
-        ODServer::getSingleton().stopServer();
-
-        logManager->logMessage("Disconnecting client...");
-        ODClient::getSingleton().disconnect();
-
-        logManager->logMessage("Removing ODFrameListener from root...");
-        mRoot->removeFrameListener(mFrameListener);
-        logManager->logMessage("Deleting ODFrameListener...");
-        delete mFrameListener;
-        logManager->logMessage("Deleting Ogre::OverlaySystem...");
-        delete mOverlaySystem;
-        logManager->logMessage("Deleting MusicPlayer...");
-        delete MusicPlayer::getSingletonPtr();
-        logManager->logMessage("Deleting TextRenderer...");
-        delete TextRenderer::getSingletonPtr();
-        logManager->logMessage("Deleting Gui...");
-        delete Gui::getSingletonPtr();
-        logManager->logMessage("Deleting SoundEffectsManager...");
-        delete SoundEffectsManager::getSingletonPtr();
-        logManager->logMessage("Deleting ODServer...");
-        delete ODServer::getSingletonPtr();
-        logManager->logMessage("Deleting ODClient...");
-        delete ODClient::getSingletonPtr();
-    }
-
-    logManager->logMessage("Deleting ConfigManager...");
-    delete ConfigManager::getSingletonPtr();
-    logManager->logMessage("Deleting ResourceManager...");
-    delete ResourceManager::getSingletonPtr();
-    logManager->logMessage("Deleting LogManager and Ogre::Root...");
-    delete LogManager::getSingletonPtr();
-    delete mRoot;
-
-    mInitialized = false;
 }
 
 //TODO: find some better places for some of these
