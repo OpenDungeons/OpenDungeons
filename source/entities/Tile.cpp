@@ -762,6 +762,7 @@ void Tile::loadFromLine(const std::string& line, Tile *t)
     t->setName(tileName.str());
     t->mX = xLocation;
     t->mY = yLocation;
+    t->mPosition = Ogre::Vector3(static_cast<Ogre::Real>(t->mX), static_cast<Ogre::Real>(t->mY), 0.0f);
 
     Tile::TileType tileType = static_cast<Tile::TileType>(Helper::toInt(elems[2]));
     t->setType(tileType);

@@ -49,6 +49,8 @@ Seat::Seat(GameMap* gameMap) :
     mStartingY(0),
     mGoldMined(0),
     mNumCreaturesControlled(0),
+    mStartingGold(0),
+    mDefaultWorkerClass(nullptr),
     mNumClaimedTiles(0),
     mHasGoalsChanged(true),
     mGold(0),
@@ -323,7 +325,8 @@ void Seat::addAlliedSeat(Seat* seat)
 
 void Seat::initSpawnPool()
 {
-    const std::vector<std::string>& pool = ConfigManager::getSingleton().getFactionSpawnPool(mFaction);
+    ConfigManager& config = ConfigManager::getSingleton();
+    const std::vector<std::string>& pool = config.getFactionSpawnPool(mFaction);
     OD_ASSERT_TRUE_MSG(!pool.empty(), "Empty spawn pool for faction=" + mFaction);
     for(const std::string& defName : pool)
     {
@@ -334,14 +337,23 @@ void Seat::initSpawnPool()
 
         mSpawnPool.push_back(std::pair<const CreatureDefinition*, bool>(def, false));
     }
+
+    // Get the default worker class
+    std::string defaultWorkerClass = config.getFactionWorkerClass(mFaction);
+    mDefaultWorkerClass = mGameMap->getClassDescription(defaultWorkerClass);
+    OD_ASSERT_TRUE_MSG(mDefaultWorkerClass != nullptr, "No valid default worker class for faction: " + mFaction);
 }
 
-const CreatureDefinition* Seat::getNextCreatureClassToSpawn()
+const CreatureDefinition* Seat::getNextFighterClassToSpawn()
 {
     std::vector<std::pair<const CreatureDefinition*, int32_t> > defSpawnable;
     int32_t nbPointsTotal = 0;
     for(std::pair<const CreatureDefinition*, bool>& def : mSpawnPool)
     {
+        // Only check for fighter creatures.
+        if (!def.first || def.first->isWorker())
+            continue;
+
         const std::vector<const SpawnCondition*>& conditions = ConfigManager::getSingleton().getCreatureSpawnConditions(def.first);
         int32_t nbPointsConditions = 0;
         for(const SpawnCondition* condition : conditions)

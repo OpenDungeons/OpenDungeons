@@ -297,6 +297,14 @@ void Gui::assignEventHandlers()
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&cryptButtonPressed));
 
+    mSheets[editorModeGui]->getChild(BUTTON_TEMPLE)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&templeButtonPressed));
+
+    mSheets[editorModeGui]->getChild(BUTTON_PORTAL)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&portalButtonPressed));
+
     mSheets[editorModeGui]->getChild(BUTTON_TRAP_CANNON)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&cannonButtonPressed));
@@ -544,6 +552,26 @@ bool Gui::cryptButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::crypt);
+    gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
+    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    return true;
+}
+
+bool Gui::templeButtonPressed(const CEGUI::EventArgs& e)
+{
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
+    gameMap->getLocalPlayer()->setNewRoomType(Room::dungeonTemple);
+    gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
+    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
+    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    return true;
+}
+
+bool Gui::portalButtonPressed(const CEGUI::EventArgs& e)
+{
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
+    gameMap->getLocalPlayer()->setNewRoomType(Room::portal);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
     SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);

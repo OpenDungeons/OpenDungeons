@@ -55,13 +55,13 @@
             <Property name="InheritsAlpha" value="False" />
         </Window>
         <Window type="OD/ImageButton" name="TempleButton" >
-            <Property name="Area" value="{{0,849},{0,25},{0,909},{0,85}}" />
+            <Property name="Area" value="{{0,749},{0,25},{0,809},{0,85}}" />
             <Property name="NormalImage" value="OpenDungeonsIcons/TempleButton" />
             <Property name="TooltipText" value="Build a Temple (3x3)" />
             <Property name="InheritsAlpha" value="False" />
         </Window>
         <Window type="OD/ImageButton" name="PortalButton" >
-            <Property name="Area" value="{{0,909},{0,25},{0,969},{0,85}}" />
+            <Property name="Area" value="{{0,809},{0,25},{0,869},{0,85}}" />
             <Property name="NormalImage" value="OpenDungeonsIcons/PortalButton" />
             <Property name="TooltipText" value="Build a Portal (3x3)" />
             <Property name="InheritsAlpha" value="False" />

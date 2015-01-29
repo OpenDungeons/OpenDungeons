@@ -42,7 +42,7 @@ const Ogre::Real MOVE_SPEED = 2.0;
 const Ogre::Real MOVE_SPEED_ACCELERATION = 2.0 * MOVE_SPEED;
 
 //! The camera moving speed factor on Z axis.
-const Ogre::Real ZOOM_SPEED = 5.0;
+const Ogre::Real ZOOM_SPEED = 4.0;
 
 //! Camera speed when clicking on the minimap or pushing the home key.
 const Ogre::Real FLIGHT_SPEED = 70.0;

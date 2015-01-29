@@ -236,6 +236,7 @@ private:
 
     // Button handlers game UI
     static bool miniMapclicked          (const CEGUI::EventArgs& e);
+
     static bool dormitoryButtonPressed  (const CEGUI::EventArgs& e);
     static bool treasuryButtonPressed   (const CEGUI::EventArgs& e);
     static bool destroyRoomButtonPressed(const CEGUI::EventArgs& e);
@@ -244,12 +245,17 @@ private:
     static bool libraryButtonPressed    (const CEGUI::EventArgs& e);
     static bool hatcheryButtonPressed   (const CEGUI::EventArgs& e);
     static bool cryptButtonPressed      (const CEGUI::EventArgs& e);
+    static bool templeButtonPressed     (const CEGUI::EventArgs& e);
+    static bool portalButtonPressed     (const CEGUI::EventArgs& e);
+
     static bool cannonButtonPressed     (const CEGUI::EventArgs& e);
     static bool spikeTrapButtonPressed  (const CEGUI::EventArgs& e);
     static bool boulderTrapButtonPressed(const CEGUI::EventArgs& e);
     static bool destroyTrapButtonPressed(const CEGUI::EventArgs& e);
+
     static bool workerCreatureButtonPressed     (const CEGUI::EventArgs& e);
     static bool fighterCreatureButtonPressed    (const CEGUI::EventArgs& e);
+
     static bool confirmExitYesButtonPressed     (const CEGUI::EventArgs& e);
     static bool confirmExitNoButtonPressed      (const CEGUI::EventArgs& e);
 

@@ -624,8 +624,11 @@ bool ODClient::processOneClientSocketMessage()
             OD_ASSERT_TRUE(packetReceived >> name);
             RenderedMovableEntity* tempRenderedMovableEntity = gameMap->getRenderedMovableEntity(name);
             OD_ASSERT_TRUE_MSG(tempRenderedMovableEntity != nullptr, "name=" + name);
-            gameMap->removeRenderedMovableEntity(tempRenderedMovableEntity);
-            tempRenderedMovableEntity->deleteYourself();
+            if (tempRenderedMovableEntity != nullptr)
+            {
+                gameMap->removeRenderedMovableEntity(tempRenderedMovableEntity);
+                tempRenderedMovableEntity->deleteYourself();
+            }
             break;
         }
 

@@ -94,7 +94,7 @@ public:
     virtual bool hasOpenCreatureSpot(Creature* c) { return false; }
 
     //! \brief Updates the active spot lists.
-    void updateActiveSpots();
+    virtual void updateActiveSpots();
 
     inline unsigned int getNumActiveSpots() const
     { return mNumActiveSpots; }

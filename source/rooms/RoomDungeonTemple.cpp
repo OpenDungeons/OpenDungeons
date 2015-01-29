@@ -25,6 +25,10 @@
 #include "entities/PersistentObject.h"
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
+#include "render/ODFrameListener.h"
+#include "modes/ModeManager.h"
+#include "utils/LogManager.h"
+#include "utils/ConfigManager.h"
 
 RoomDungeonTemple::RoomDungeonTemple(GameMap* gameMap) :
     Room(gameMap),
@@ -34,40 +38,36 @@ RoomDungeonTemple::RoomDungeonTemple(GameMap* gameMap) :
     setMeshName("DungeonTemple");
 }
 
-void RoomDungeonTemple::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
+void RoomDungeonTemple::updateActiveSpots()
 {
-    // This Room keeps its building object until it is destroyed (they will be released when
-    // the room is destroyed)
+    // Room::updateActiveSpots(); <<-- Disabled on purpose.
+    // We don't update the active spots the same way as only the central tile is needed.
+    if (getGameMap()->isInEditorMode())
+        updateTemplePosition();
 }
 
-void RoomDungeonTemple::absorbRoom(Room* room)
+void RoomDungeonTemple::updateTemplePosition()
 {
-    Room::absorbRoom(room);
+    // Only the server game map should load objects.
+    if (!getGameMap()->isServerGameMap())
+        return;
 
-    // Get back the temple mesh reference
-    if (!mBuildingObjects.empty())
-        mTempleObject = mBuildingObjects.begin()->second;
-    else
-        mTempleObject = nullptr;
+    // Delete all previous rooms meshes and recreate a central one.
+    removeAllBuildingObjects();
+    mTempleObject = nullptr;
+
+    Tile* centralTile = getCentralTile();
+    if (centralTile == nullptr)
+        return;
+
+    mTempleObject = new PersistentObject(getGameMap(), getName(), "DungeonTempleObject", centralTile, 0.0, false);
+    addBuildingObject(centralTile, mTempleObject);
 }
 
 void RoomDungeonTemple::createMeshLocal()
 {
     Room::createMeshLocal();
-
-    // Don't recreate the portal if it's already done.
-    if (mTempleObject != nullptr)
-        return;
-
-    // The client game map should not load building objects. They will be created
-    // by the messages sent by the server because some of them are randomly
-    // created
-    if(!getGameMap()->isServerGameMap())
-        return;
-
-    mTempleObject = new PersistentObject(getGameMap(), getName(), "DungeonTempleObject", getCentralTile(), 0.0, false);
-    addBuildingObject(getCentralTile(), mTempleObject);
-
+    updateTemplePosition();
 }
 
 void RoomDungeonTemple::destroyMeshLocal()
@@ -76,8 +76,17 @@ void RoomDungeonTemple::destroyMeshLocal()
     mTempleObject = nullptr;
 }
 
-void RoomDungeonTemple::produceKobold()
+void RoomDungeonTemple::produceWorker()
 {
+    // If the room has been destroyed, or has not yet been assigned any tiles, then we
+    // cannot determine where to place the new creature and we should just give up.
+    if (mCoveredTiles.empty())
+        return;
+
+    Tile* centralTile = getCentralTile();
+    if (centralTile == nullptr)
+        return;
+
     if (mWaitTurns > 0)
     {
         --mWaitTurns;
@@ -86,25 +95,26 @@ void RoomDungeonTemple::produceKobold()
 
     mWaitTurns = 30;
 
-    // If the room has been destroyed, or has not yet been assigned any tiles, then we
-    // cannot determine where to place the new creature and we should just give up.
-    if (mCoveredTiles.empty())
-        return;
+    // Creates a creature from the first worker class found for the given faction.
+    const CreatureDefinition* classToSpawn = getSeat()->getWorkerClassToSpawn();
 
-    // Create a new creature and copy over the class-based creature parameters.
-    const CreatureDefinition *classToSpawn = getGameMap()->getClassDescription("Kobold");
     if (classToSpawn == nullptr)
     {
-        std::cout << "Error: No 'Kobold' creature definition" << std::endl;
+        LogManager::getSingleton().logMessage("Error: No worker creature definition, class=nullptr, seatId="
+            + Ogre::StringConverter::toString(getSeat()->getId()));
         return;
     }
 
+    // Create a new creature and copy over the class-based creature parameters.
     Creature* newCreature = new Creature(getGameMap(), classToSpawn);
-    Tile* tileSpawn = mCoveredTiles[0];
-    newCreature->setSeat(getSeat());
+    LogManager::getSingleton().logMessage("Spawning a creature class=" + classToSpawn->getClassName()
+        + ", name=" + newCreature->getName() + ", seatId=" + Ogre::StringConverter::toString(getSeat()->getId()));
 
+    newCreature->setSeat(getSeat());
     getGameMap()->addCreature(newCreature);
-    Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(tileSpawn->getX()), static_cast<Ogre::Real>(tileSpawn->getY()), static_cast<Ogre::Real>(0.0));
+    Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(centralTile->getX()),
+                                static_cast<Ogre::Real>(centralTile->getY()),
+                                static_cast<Ogre::Real>(0.0));
     newCreature->createMesh();
     newCreature->setPosition(spawnPosition, false);
 }

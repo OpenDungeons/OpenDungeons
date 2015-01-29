@@ -167,7 +167,14 @@ public:
 
     void setMapSize(int x, int y);
 
-    const CreatureDefinition* getNextCreatureClassToSpawn();
+    //! \brief Returns the next fighter creature class to spawn.
+    const CreatureDefinition* getNextFighterClassToSpawn();
+
+    //! \brief Returns the first (default) worker class definition.
+    inline const CreatureDefinition* getWorkerClassToSpawn()
+    {
+        return mDefaultWorkerClass;
+    }
 
     //! \brief Returns true if the given seat is allied. False otherwise
     bool isAlliedSeat(Seat *seat);
@@ -281,6 +288,9 @@ private:
     //! are managed by the configuration manager and should NOT be deleted. The boolean will be set to false at beginning
     //! if the spawning conditions are not empty and are met, we will set it to true and force spawning of the related creature
     std::vector<std::pair<const CreatureDefinition*, bool> > mSpawnPool;
+
+    //! \brief The default workers spawned in temples.
+    const CreatureDefinition* mDefaultWorkerClass;
 
     //! \brief List of all the tiles in the gamemap (used for human players seats only). The first vector stores the X position.
     //! The second vector stores the Y position. The first bool from the pair is set to true if the seat had vision on the concerned

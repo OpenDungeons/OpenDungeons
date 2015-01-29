@@ -67,6 +67,13 @@ public:
     const std::string serverStr()
     { return std::string( mIsServerGameMap ? "SERVER - " : "CLIENT - "); }
 
+    //! \brief Tells whether the game map is currently used for the map editor mode
+    //! or for a standard game session.
+    //! \note This function has got the noticeable role to keep the separation between the client
+    //! and the server game maps clean, by not calling client related code when acting
+    //! as a server game and vice versa.
+    bool isInEditorMode() const;
+
     //! \brief Load a level file (Part of the resource paths)
     //! \returns whether the file loaded correctly
     bool loadLevel(const std::string& levelFilepath);
@@ -342,11 +349,13 @@ public:
     //! \note Returns a path for the given creature to the given destination.
     std::list<Tile*> path(const Creature* creature, Tile* destination, bool throughDiggableTiles = false);
 
-    //! \brief Loops over the visibleTiles and returns any creature/room/trap in those tiles allied with the given seat (or if invert is true, is not allied)
-    std::vector<GameEntity*> getVisibleForce(const std::vector<Tile*>& visibleTiles, Seat* seat, bool invert);
+    //! \brief Loops over the visibleTiles and returns any creature/room/trap in those tiles allied with the given seat
+    //! (or if enemyForce is true, is not allied)
+    std::vector<GameEntity*> getVisibleForce(const std::vector<Tile*>& visibleTiles, Seat* seat, bool enemyForce);
 
-    //! \brief Loops over the visibleTiles and returns any creature in those tiles allied with the given seat (or if invert is true, is not allied)
-    std::vector<GameEntity*> getVisibleCreatures(const std::vector<Tile*>& visibleTiles, Seat* seat, bool invert);
+    //! \brief Loops over the visibleTiles and returns any creature in those tiles allied with the given seat.
+    //! (or if enemyCreatures is true, is not allied)
+    std::vector<GameEntity*> getVisibleCreatures(const std::vector<Tile*>& visibleTiles, Seat* seat, bool enemyCreatures);
 
     //! \brief Loops over the visibleTiles and returns any carryable entity in those tiles
     std::vector<MovableGameEntity*> getVisibleCarryableEntities(const std::vector<Tile*>& visibleTiles);
@@ -401,12 +410,12 @@ public:
         mTurnNumber = turnNumber;
     }
 
-    bool isServerGameMap()
+    bool isServerGameMap() const
     {
         return mIsServerGameMap;
     }
 
-    bool getGamePaused()
+    bool getGamePaused() const
     {
         return mIsPaused;
     }

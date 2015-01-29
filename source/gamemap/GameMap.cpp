@@ -40,6 +40,8 @@
 #include "game/Player.h"
 #include "game/Seat.h"
 
+#include "modes/ModeManager.h"
+
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
 
@@ -157,6 +159,14 @@ GameMap::~GameMap()
 {
     clearAll();
     processDeletionQueues();
+}
+
+bool GameMap::isInEditorMode() const
+{
+    if (isServerGameMap())
+        return (ODServer::getSingleton().getServerMode() == ODServer::ServerMode::ModeEditor);
+
+    return (ODFrameListener::getSingleton().getModeManager()->getCurrentModeTypeExceptConsole() == ModeManager::EDITOR);
 }
 
 bool GameMap::loadLevel(const std::string& levelFilepath)
@@ -479,7 +489,7 @@ void GameMap::queueEntityForDeletion(GameEntity *ge)
     mEntitiesToDelete.push_back(ge);
 }
 
-const CreatureDefinition* GameMap::getClassDescription(const std::string& className)
+const CreatureDefinition* GameMap::getClassDescription(const string &className)
 {
     for (std::pair<const CreatureDefinition*,CreatureDefinition*>& def : mClassDescriptions)
     {
@@ -1136,7 +1146,7 @@ unsigned long int GameMap::doMiscUpkeep()
         if (koboldsNeededPerSeat[seat] > 0)
         {
             --koboldsNeededPerSeat[seat];
-            dungeonTemple->produceKobold();
+            dungeonTemple->produceWorker();
         }
     }
 
@@ -1680,7 +1690,7 @@ Player* GameMap::getPlayerBySeat(Seat* seat)
     return nullptr;
 }
 
-std::vector<GameEntity*> GameMap::getVisibleForce(const std::vector<Tile*>& visibleTiles, Seat* seat, bool invert)
+std::vector<GameEntity*> GameMap::getVisibleForce(const std::vector<Tile*>& visibleTiles, Seat* seat, bool enemyForce)
 {
     std::vector<GameEntity*> returnList;
 
@@ -1691,15 +1701,15 @@ std::vector<GameEntity*> GameMap::getVisibleForce(const std::vector<Tile*>& visi
         if(tile == nullptr)
             continue;
 
-        tile->fillWithAttackableCreatures(returnList, seat, invert);
-        tile->fillWithAttackableRoom(returnList, seat, invert);
-        tile->fillWithAttackableTrap(returnList, seat, invert);
+        tile->fillWithAttackableCreatures(returnList, seat, enemyForce);
+        tile->fillWithAttackableRoom(returnList, seat, enemyForce);
+        tile->fillWithAttackableTrap(returnList, seat, enemyForce);
     }
 
     return returnList;
 }
 
-std::vector<GameEntity*> GameMap::getVisibleCreatures(const std::vector<Tile*>& visibleTiles, Seat* seat, bool invert)
+std::vector<GameEntity*> GameMap::getVisibleCreatures(const std::vector<Tile*>& visibleTiles, Seat* seat, bool enemyCreatures)
 {
     std::vector<GameEntity*> returnList;
 
@@ -1710,7 +1720,7 @@ std::vector<GameEntity*> GameMap::getVisibleCreatures(const std::vector<Tile*>& 
         if(tile == nullptr)
             continue;
 
-        tile->fillWithAttackableCreatures(returnList, seat, invert);
+        tile->fillWithAttackableCreatures(returnList, seat, enemyCreatures);
     }
 
     return returnList;
