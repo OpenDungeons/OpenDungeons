@@ -3951,7 +3951,7 @@
                 <Image component="RightEdge" name="OpenDungeonsSkin/PopupMenuFrameRight" />
                 <Image component="TopEdge" name="OpenDungeonsSkin/PopupMenuFrameTop" />
                 <Image component="BottomEdge" name="OpenDungeonsSkin/PopupMenuFrameBottom" />
-                <Image component="Background" name="OpenDungeonsSkin/PopupMenuMiddle" />
+                <Image component="Background" name="OpenDungeonsSkin/PopupMenuFrameMiddle" />
             </FrameComponent>
         </ImagerySection>
         <StateImagery name="Enabled">
@@ -4023,7 +4023,7 @@
                 <Image component="RightEdge" name="OpenDungeonsSkin/PopupMenuFrameRight" />
                 <Image component="TopEdge" name="OpenDungeonsSkin/PopupMenuFrameTop" />
                 <Image component="BottomEdge" name="OpenDungeonsSkin/PopupMenuFrameBottom" />
-                <Image component="Background" name="OpenDungeonsSkin/PopupMenuMiddle" />
+                <Image component="Background" name="OpenDungeonsSkin/PopupMenuFrameMiddle" />
             </FrameComponent>
         </ImagerySection>
         <StateImagery name="Enabled">
