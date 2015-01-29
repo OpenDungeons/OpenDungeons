@@ -57,10 +57,20 @@ bool AbstractApplicationMode::mouseReleased(const OIS::MouseEvent& arg, OIS::Mou
 
 bool AbstractApplicationMode::keyPressed(const OIS::KeyEvent& arg)
 {
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectChar(
-        static_cast<CEGUI::String::value_type>(arg.text));
-    return CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyDown(
-        static_cast<CEGUI::Key::Scan>(arg.key));
+    switch (arg.key)
+    {
+
+    case OIS::KC_ESCAPE:
+        regressMode();
+        break;
+    default:
+        CEGUI::System::getSingleton().getDefaultGUIContext().injectChar(
+            static_cast<CEGUI::String::value_type>(arg.text));
+        CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyDown(
+            static_cast<CEGUI::Key::Scan>(arg.key));
+        break;
+    }
+    return true;
 }
 
 bool AbstractApplicationMode::keyReleased(const OIS::KeyEvent& arg)
