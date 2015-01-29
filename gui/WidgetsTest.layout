@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout version="4" >
+    <Window type="OD/FrameWindow" name="FrameWindow" >
+        <Property name="Area" value="{{0,213},{0,126},{0,855},{0,532}}" />
+        <Property name="Text" value="Frame Window" />
+        <Window type="OD/VerticalSlider" name="VerticalSlider" >
+            <Property name="Area" value="{{0,19},{0,74},{0,34.5},{0,256}}" />
+        </Window>
+        <Window type="OD/HorizontalSlider" name="HorizontalSlider" >
+            <Property name="Area" value="{{0,19.5},{0,50.5},{0,155.5},{0,68}}" />
+            <Property name="VerticalSlider" value="False" />
+        </Window>
+        <Window type="OD/ProgressBar" name="ProgressBar" >
+            <Property name="Area" value="{{0,172.5},{0,84.75},{0,307},{0,98.5}}" />
+            <Property name="StepSize" value="0.01" />
+            <Property name="CurrentProgress" value="0.5" />
+        </Window>
+        <Window type="OD/AlternateProgressBar" name="AlternateProgressBar" >
+            <Property name="Area" value="{{0,172.75},{0,50},{0,358.25},{0,80}}" />
+            <Property name="StepSize" value="0.01" />
+            <Property name="CurrentProgress" value="1" />
+        </Window>
+        <Window type="OD/Button" name="Button" >
+            <Property name="Area" value="{{0,46.5},{0,92.5},{0,106.5},{0,113}}" />
+            <Property name="Text" value="Button" />
+        </Window>
+        <Window type="OD/Checkbox" name="Checkbox" >
+            <Property name="Area" value="{{0,47},{0,120},{0,138},{0,144}}" />
+            <Property name="Text" value="TextBox" />
+            <Property name="Selected" value="True" />
+        </Window>
+        <Window type="OD/Combobox" name="Combobox" >
+            <Property name="Area" value="{{0,171.5},{0,122},{0,322},{0,184.5}}" />
+            <Property name="Text" value="ComboBox" />
+            <AutoWindow namePath="__auto_editbox__" >
+                <Property name="Text" value="ComboBox" />
+                <Property name="ActiveSelectionColour" value="FF6060FF" />
+            </AutoWindow>
+            <AutoWindow namePath="__auto_droplist__" >
+                <AutoWindow namePath="__auto_hscrollbar__" >
+                    <AutoWindow namePath="__auto_incbtn__" >
+                        <Property name="RestoreOldCapture" value="True" />
+                    </AutoWindow>
+                    <AutoWindow namePath="__auto_decbtn__" >
+                        <Property name="RestoreOldCapture" value="True" />
+                    </AutoWindow>
+                    <AutoWindow namePath="__auto_thumb__" >
+                        <Property name="RestoreOldCapture" value="True" />
+                    </AutoWindow>
+                </AutoWindow>
+                <AutoWindow namePath="__auto_vscrollbar__" >
+                    <AutoWindow namePath="__auto_incbtn__" >
+                        <Property name="RestoreOldCapture" value="True" />
+                    </AutoWindow>
+                    <AutoWindow namePath="__auto_decbtn__" >
+                        <Property name="RestoreOldCapture" value="True" />
+                    </AutoWindow>
+                    <AutoWindow namePath="__auto_thumb__" >
+                        <Property name="RestoreOldCapture" value="True" />
+                    </AutoWindow>
+                </AutoWindow>
+            </AutoWindow>
+        </Window>
+        <Window type="OD/Editbox" name="Editbox" >
+            <Property name="Area" value="{{0,46},{0,152},{0,161},{0,174.5}}" />
+            <Property name="Text" value="EditBox" />
+        </Window>
+        <Window type="OD/ImageButton" name="ImageButton" >
+            <Property name="Area" value="{{0,45},{0,183},{0,97.5},{0,236}}" />
+            <Property name="NormalImage" value="OpenDungeonsSkin/GoldButton" />
+        </Window>
+        <Window type="OD/InvisibleButton" name="InvisibleButton" >
+            <Property name="Area" value="{{0,432},{0,56},{0,482},{0,106}}" />
+            <Property name="TooltipText" value="InvisibleButton" />
+        </Window>
+        <Window type="OD/Listbox" name="Listbox" >
+            <Property name="Area" value="{{0,345},{0,118},{0,491},{0,231}}" />
+            <Property name="Text" value="ListBox" />
+            <Property name="TooltipText" value="ListBox" />
+            <AutoWindow namePath="__auto_hscrollbar__" >
+                <Property name="TooltipText" value="ListBox" />
+                <AutoWindow namePath="__auto_incbtn__" >
+                    <Property name="TooltipText" value="ListBox" />
+                </AutoWindow>
+                <AutoWindow namePath="__auto_decbtn__" >
+                    <Property name="TooltipText" value="ListBox" />
+                </AutoWindow>
+                <AutoWindow namePath="__auto_thumb__" >
+                    <Property name="TooltipText" value="ListBox" />
+                </AutoWindow>
+            </AutoWindow>
+            <AutoWindow namePath="__auto_vscrollbar__" >
+                <Property name="TooltipText" value="ListBox" />
+                <AutoWindow namePath="__auto_incbtn__" >
+                    <Property name="TooltipText" value="ListBox" />
+                </AutoWindow>
+                <AutoWindow namePath="__auto_decbtn__" >
+                    <Property name="TooltipText" value="ListBox" />
+                </AutoWindow>
+                <AutoWindow namePath="__auto_thumb__" >
+                    <Property name="TooltipText" value="ListBox" />
+                </AutoWindow>
+            </AutoWindow>
+        </Window>
+        <Window type="OD/MainMenuButton" name="MainMenuButton" >
+            <Property name="Area" value="{{0,105},{0,196},{0,257},{0,294}}" />
+            <Property name="Text" value="Menu Button" />
+        </Window>
+        <Window type="OD/MultiColumnList" name="MultiColumnList" >
+            <Property name="Area" value="{{0,277},{0,253},{0,472},{0,355}}" />
+            <Property name="TooltipText" value="MultiColumnList" />
+            <AutoWindow namePath="__auto_listheader__" >
+                <Property name="TooltipText" value="MultiColumnList" />
+            </AutoWindow>
+            <AutoWindow namePath="__auto_hscrollbar__" >
+                <Property name="TooltipText" value="MultiColumnList" />
+                <AutoWindow namePath="__auto_incbtn__" >
+                    <Property name="TooltipText" value="MultiColumnList" />
+                </AutoWindow>
+                <AutoWindow namePath="__auto_decbtn__" >
+                    <Property name="TooltipText" value="MultiColumnList" />
+                </AutoWindow>
+                <AutoWindow namePath="__auto_thumb__" >
+                    <Property name="TooltipText" value="MultiColumnList" />
+                </AutoWindow>
+            </AutoWindow>
+            <AutoWindow namePath="__auto_vscrollbar__" >
+                <Property name="TooltipText" value="MultiColumnList" />
+                <AutoWindow namePath="__auto_incbtn__" >
+                    <Property name="TooltipText" value="MultiColumnList" />
+                </AutoWindow>
+                <AutoWindow namePath="__auto_decbtn__" >
+                    <Property name="TooltipText" value="MultiColumnList" />
+                </AutoWindow>
+                <AutoWindow namePath="__auto_thumb__" >
+                    <Property name="TooltipText" value="MultiColumnList" />
+                </AutoWindow>
+            </AutoWindow>
+        </Window>
+        <Window type="OD/MultiLineEditbox" name="MultiLineEditbox" >
+            <Property name="Area" value="{{0,103},{0,299},{0,251},{0,378}}" />
+            <Property name="Text" >Multiline TextBox
+</Property>
+            <Property name="SelectionLength" value="4" />
+            <Property name="ForceVertScrollbar" value="True" />
+        </Window>
+        <Window type="OD/RadioButton" name="RadioButton" >
+            <Property name="Area" value="{{0,278},{0,362},{0,395},{0,386.5}}" />
+            <Property name="Text" value="RadioButton" />
+            <Property name="Selected" value="True" />
+        </Window>
+        <Window type="OD/Spinner" name="Spinner" >
+            <Property name="Area" value="{{0,18},{0,287},{0,87},{0,309}}" />
+            <Property name="Text" value="150" />
+            <Property name="CurrentValue" value="150" />
+            <AutoWindow namePath="__auto_editbox__" >
+                <Property name="Text" value="150" />
+                <Property name="ValidationString" value="-?\d*" />
+            </AutoWindow>
+            <AutoWindow namePath="__auto_incbtn__" >
+                <Property name="WantsMultiClickEvents" value="False" />
+                <Property name="MouseAutoRepeatEnabled" value="True" />
+            </AutoWindow>
+            <AutoWindow namePath="__auto_decbtn__" >
+                <Property name="WantsMultiClickEvents" value="False" />
+                <Property name="MouseAutoRepeatEnabled" value="True" />
+            </AutoWindow>
+        </Window>
+        <Window type="OD/StaticText" name="StaticText" >
+            <Property name="Area" value="{{0,406},{0,31},{0,493},{0,53}}" />
+            <Property name="Text" value="StaticText" />
+            <Property name="MaxSize" value="{{1,0},{1,0}}" />
+        </Window>
+        <Window type="OD/SystemButton" name="SystemButton" >
+            <Property name="Area" value="{{0,504},{0,30},{0,613},{0,56}}" />
+            <Property name="Text" value="SystemButton" />
+        </Window>
+        <Window type="OD/TabButton" name="TabButton" >
+            <Property name="Area" value="{{0,509},{0,70},{0,601},{0,97}}" />
+            <Property name="Text" value="TabButton" />
+        </Window>
+        <Window type="OD/TabContentPane" name="TabContentPane" >
+            <Property name="Area" value="{{0,493},{0,95},{0,629},{0,186}}" />
+            <Property name="MaxSize" value="{{1,0},{1,0}}" />
+            <Property name="TooltipText" value="TabContentPane" />
+        </Window>
+        <Window type="OD/Tooltip" name="Tooltip" >
+            <Property name="Area" value="{{0,504},{0,203},{0,561},{0,227}}" />
+            <Property name="Text" value="Tooltip" />
+            <Property name="UpdateMode" value="Always" />
+            <Property name="AlwaysOnTop" value="True" />
+            <Property name="ClippedByParent" value="False" />
+            <Property name="DestroyedByParent" value="False" />
+        </Window>
+    </Window>
+</GUILayout>

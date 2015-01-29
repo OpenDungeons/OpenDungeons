@@ -1,5 +1,4 @@
 <GUIScheme name="OpenDungeons" version="5">
-    <Imageset filename="OpenDungeonsOldSkin.imageset" name="OpenDungeonsOldSkin" />
     <Imageset filename="OpenDungeonsSkin.imageset" name="OpenDungeonsSkin" />
     <Imageset filename="OpenDungeonsIcons.imageset" name="OpenDungeonsIcons" />
     <Imageset filename="ODLogo.imageset" name="ODLogo" />
