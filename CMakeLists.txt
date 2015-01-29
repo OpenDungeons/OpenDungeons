@@ -111,6 +111,15 @@ if(MSVC)
     # C++11 compilation flag is activated by default
     # Optimisation flags can be added if deemed useful
 else()
+    include(CheckCXXCompilerFlag)
+    if(NOT OD_CXX11_FLAGS)
+        CHECK_CXX_COMPILER_FLAG("-std=c++11" OD_CXX11_FLAG_SUPPORTED)
+        if(OD_CXX11_FLAG_SUPPORTED)
+            set(OD_CXX11_FLAGS "-std=c++11" CACHE STRING "Compilation flags to enable C++11 support" FORCE)
+        else()
+            set(OD_CXX11_FLAGS "-std=gnu++11" CACHE STRING "Compilation flags to enable C++11 support" FORCE)
+        endif()
+    endif()
     if(OD_ENABLE_WARNINGS)
         # Help getting compilation warnings
         set(OD_OPT_FLAGS "${OD_OPT_FLAGS} -Wall")
@@ -123,10 +132,6 @@ else()
         #set(OD_OPT_FLAGS "${OD_OPT_FLAGS} -Weffc++")
     endif()
     if(MINGW)
-        if(NOT OD_CXX11_FLAGS)
-            set(OD_CXX11_FLAGS "-std=gnu++11" CACHE STRING "Compilation flags to enable C++11 support" FORCE)
-        endif()
-
         # Disable some warnings on MinGW
         if(OD_ENABLE_WARNINGS)
             set(OD_OPT_FLAGS "${OD_OPT_FLAGS} -Wno-unused-local-typedefs -Wno-format")
@@ -136,10 +141,6 @@ else()
         # from Dr. Mingw while keeping binary size down. Almost useless
         # with gdb, though.
         set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -ggdb0 -gstabs2")
-    elseif(UNIX)
-        if(NOT OD_CXX11_FLAGS)
-            set(OD_CXX11_FLAGS "-std=c++11" CACHE STRING "Compilation flags to enable C++11 support" FORCE)
-        endif()
     endif()
 endif()
 
@@ -526,28 +527,8 @@ if(WIN32)
     set(OD_OGRE_PLUGIN_DIR_REL "plugins")
     set(OD_OGRE_PLUGIN_DIR_DBG "plugins")
 else()
-    #On linux, we should look in the standard paths for plugins
-    if("${OGRE_PLUGIN_DIR_REL}" STREQUAL "")
-        #Try pkgconfig if the ogre module doesn't set the plugin paths
-        message(STATUS "Looking for plugin path using pkgconfig...")
-        find_package(PkgConfig)
-        if(PKG_CONFIG_FOUND)
-            execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} OGRE --variable=plugindir
-                OUTPUT_VARIABLE OD_PLUGIN_DIR_TEMP
-                RESULT_VARIABLE OD_PKGCONFIG_FAILED
-                ERROR_VARIABLE  OD_PKGCONFIG_ERROR)
-            if(OD_PKGCONFIG_FAILED)
-                message(STATUS "Failed to run pkgconfig when looking for plugin directory" ${OD_PLUGIN_DIR_TEMP} " Error:" ${OD_PKGCONFIG_ERROR})
-                get_filename_component(OD_OGRE_PLUGIN_DIR_REL ${OGRE_RenderSystem_GL_LIBRARY_REL} PATH)
-            else()
-                set(OD_OGRE_PLUGIN_DIR_REL ${OD_PLUGIN_DIR_TEMP})
-                set(OD_OGRE_PLUGIN_DIR_DBG ${OD_PLUGIN_DIR_TEMP})
-            endif()
-        endif()
-    else()
-        set(OD_OGRE_PLUGIN_DIR_REL ${OGRE_PLUGIN_DIR_REL})
-        set(OD_OGRE_PLUGIN_DIR_DBG ${OGRE_PLUGIN_DIR_DBG})
-    endif()
+    set(OD_OGRE_PLUGIN_DIR_REL ${OGRE_PLUGIN_DIR_REL})
+    set(OD_OGRE_PLUGIN_DIR_DBG ${OGRE_PLUGIN_DIR_DBG})
 
     message(STATUS "Plugin path rel: " ${OD_OGRE_PLUGIN_DIR_REL})
     message(STATUS "Plugin path dbg: " ${OD_OGRE_PLUGIN_DIR_DBG})
