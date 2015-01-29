@@ -141,7 +141,8 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         Seat* tempSeat = new Seat(&gameMap);
         Seat::loadFromLine(entire_line, tempSeat);
 
-        gameMap.addSeat(tempSeat);
+        if(!gameMap.addSeat(tempSeat))
+            delete tempSeat;
     }
 
     // Read in the goals that are shared by all players, the first player to complete all these goals is the winner.

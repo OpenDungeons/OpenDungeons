@@ -251,8 +251,10 @@ public:
     //! \brief A simple mutator method to clear the vector of Seats stored in the GameMap.
     void clearSeats();
 
-    //! \brief A simple mutator method to add another Seat to the GameMap.
-    void addSeat(Seat* s);
+    //! \brief A simple mutator method to add another Seat to the GameMap. Checks if a seat with the same
+    //! id is already in the list before inserting. Returns true if the seat was inserted and false
+    //! otherwise
+    bool addSeat(Seat* s);
 
     int nextSeatId(int SeatId);
 

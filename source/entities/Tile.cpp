@@ -1617,7 +1617,7 @@ bool Tile::removePersistentObject(PersistentObject* obj)
     return true;
 }
 
-std::string Tile::displayAsString(Tile* tile)
+std::string Tile::displayAsString(const Tile* tile)
 {
     return "[" + Ogre::StringConverter::toString(tile->getX()) + ","
          + Ogre::StringConverter::toString(tile->getY())+ "]";
