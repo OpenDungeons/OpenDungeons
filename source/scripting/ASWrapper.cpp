@@ -24,12 +24,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-/* TODO list:
- * - possible improvements to compilation of scripts? (AS has an addon)
- * - bind all needed classes
- * - find out if we really need all the asserts (binary size, start up time).
- */
+#if 0
 
 #include <string>
 
@@ -400,3 +395,4 @@ void ASWrapper::executeConsoleCommand(const std::vector<std::string>& fullComman
     mContext->SetArgObject(1, arguments);
     mContext->Execute();
 }
+#endif //#if 0

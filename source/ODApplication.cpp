@@ -125,7 +125,7 @@ ODApplication::ODApplication()
     MusicPlayer musicPlayer;
     SoundEffectsManager soundEffectsManager;
 
-    Gui gui;
+    Gui gui(&soundEffectsManager, resMgr.getCeguiLogFile());
     TextRenderer textRenderer;
     textRenderer.addTextBox("DebugMessages", ODApplication::MOTD.c_str(), 140,
                                 30, 50, 70, Ogre::ColourValue::Green);

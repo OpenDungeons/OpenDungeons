@@ -30,6 +30,7 @@ const std::vector<const SpawnCondition*> SpawnCondition::EMPTY_SPAWNCONDITIONS;
 
 SpawnCondition* SpawnCondition::load(std::istream& defFile)
 {
+    //FIXME - valgrind reports memory leaks here
     std::string nextParam;
     SpawnCondition* condition = nullptr;
     while (defFile.good())

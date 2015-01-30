@@ -29,7 +29,6 @@
 #include <memory>
 
 class AbstractApplicationMode;
-class ASWrapper;
 class InputManager;
 class ConsoleMode;
 class CameraManager;

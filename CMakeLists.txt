@@ -318,8 +318,6 @@ set(OD_SOURCEFILES
     ${SRC}/rooms/RoomTrainingHall.cpp
     ${SRC}/rooms/RoomTreasury.cpp
 
-    ${SRC}/scripting/ASWrapper.cpp
-
     ${SRC}/sound/MusicPlayer.cpp
     ${SRC}/sound/SoundEffectsManager.cpp
 

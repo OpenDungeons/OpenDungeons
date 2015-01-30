@@ -36,6 +36,7 @@
 
 class ModeManager;
 class GameMap;
+class SoundEffectsManager;
 
 //! \brief This class holds all GUI related functions
 class Gui : public Ogre::Singleton<Gui>
@@ -61,7 +62,7 @@ public:
      *  including renderer, system, resource provider, setting defaults,
      *  loading all sheets, assigning all event handler
      */
-    Gui();
+    Gui(SoundEffectsManager* soundEffectsManager, const std::string& ceguiLogFileName);
 
     ~Gui();
 
@@ -150,6 +151,8 @@ public:
 private:
     //! \brief Assigns all event handlers to the GUI elements
     void assignEventHandlers();
+
+    bool playButtonClickSound(const CEGUI::EventArgs& e);
 
     std::map<guiSheet, CEGUI::Window*> mSheets;
 
@@ -267,6 +270,8 @@ private:
     static bool editorWaterButtonPressed(const CEGUI::EventArgs& e);
     static bool editorDirtButtonPressed(const CEGUI::EventArgs& e);
     static bool editorClaimedButtonPressed(const CEGUI::EventArgs& e);
+
+    SoundEffectsManager* mSoundEffectsManager;
 };
 
 #endif // GUI_H_
