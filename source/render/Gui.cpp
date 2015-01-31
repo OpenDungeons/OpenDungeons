@@ -450,7 +450,7 @@ void Gui::assignEventHandlers()
     mSheets[replayMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
 }
 
-bool Gui::playButtonClickSound(const CEGUI::EventArgs& e)
+bool Gui::playButtonClickSound(const CEGUI::EventArgs&)
 {
     mSoundEffectsManager->playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
@@ -458,7 +458,7 @@ bool Gui::playButtonClickSound(const CEGUI::EventArgs& e)
 
 bool Gui::miniMapclicked(const CEGUI::EventArgs& e)
 {
-    CEGUI::MouseEventArgs& ee = (CEGUI::MouseEventArgs&)e;
+    const CEGUI::MouseEventArgs& ee = static_cast<const CEGUI::MouseEventArgs&>(e);
 
     ODFrameListener& frameListener = ODFrameListener::getSingleton();
 
@@ -475,7 +475,7 @@ bool Gui::mMNewGameMultiClientButtonPressed(const CEGUI::EventArgs& e)
     if (!mm)
         return true;
 
-        mm->requestMenuMultiplayerClientMode();
+    mm->requestMenuMultiplayerClientMode();
     return true;
 }
 
@@ -485,7 +485,7 @@ bool Gui::mMNewGameMultiServerButtonPressed(const CEGUI::EventArgs& e)
     if (!mm)
         return true;
 
-        mm->requestMenuMultiplayerServerMode();
+    mm->requestMenuMultiplayerServerMode();
     return true;
 }
 
