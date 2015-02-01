@@ -31,7 +31,6 @@
 #include "game/Player.h"
 #include "render/RenderManager.h"
 #include "camera/CameraManager.h"
-#include "modes/Console.h"
 #include "sound/MusicPlayer.h"
 #include "network/ODClient.h"
 #include "network/ODServer.h"
@@ -92,11 +91,7 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
     if (!isConnected())
         return true;
 
-    ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
     InputManager* inputManager = mModeManager->getInputManager();
-
-    if (frameListener->isTerminalActive())
-        return true;
 
     Player* player = mGameMap->getLocalPlayer();
     Player::SelectedAction playerSelectedAction = player->getCurrentAction();
@@ -617,11 +612,9 @@ void EditorMode::updateCursorText()
 bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
 {
     ODFrameListener& frameListener = ODFrameListener::getSingleton();
-    if (frameListener.isTerminalActive())
-        return true;
 
     // Inject key to Gui
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyDown((CEGUI::Key::Scan) arg.key);
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyDown(static_cast<CEGUI::Key::Scan>(arg.key));
     CEGUI::System::getSingleton().getDefaultGUIContext().injectChar(arg.text);
 
     switch (arg.key)
@@ -633,8 +626,6 @@ bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
     case OIS::KC_GRAVE:
     case OIS::KC_F12:
         mModeManager->requestConsoleMode();
-        frameListener.setTerminalActive(true);
-        Console::getSingleton().setVisible(true);
         break;
 
     case OIS::KC_LEFT:
@@ -744,11 +735,9 @@ bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
 
 bool EditorMode::keyReleased(const OIS::KeyEvent& arg)
 {
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyUp((CEGUI::Key::Scan) arg.key);
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyUp(static_cast<CEGUI::Key::Scan>(arg.key));
 
     ODFrameListener& frameListener = ODFrameListener::getSingleton();
-    if (frameListener.isTerminalActive())
-        return true;
 
     switch (arg.key)
     {

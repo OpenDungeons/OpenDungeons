@@ -36,6 +36,7 @@
 
 class ModeManager;
 class GameMap;
+class SoundEffectsManager;
 
 //! \brief This class holds all GUI related functions
 class Gui : public Ogre::Singleton<Gui>
@@ -53,14 +54,15 @@ public:
         optionsMenu,
         inGameMenu,
         replayMenu,
-        configureSeats
+        configureSeats,
+        console
     };
 
     /*! \brief Constructor that initializes the whole CEGUI system
      *  including renderer, system, resource provider, setting defaults,
      *  loading all sheets, assigning all event handler
      */
-    Gui();
+    Gui(SoundEffectsManager* soundEffectsManager, const std::string& ceguiLogFileName);
 
     ~Gui();
 
@@ -68,7 +70,7 @@ public:
     void loadGuiSheet(const guiSheet& newSheet);
 
     //! \brief A required function to pass input to the OIS system.
-    CEGUI::MouseButton convertButton (const OIS::MouseButtonID& buttonID);
+    static CEGUI::MouseButton convertButton (OIS::MouseButtonID buttonID);
 
     CEGUI::Window* getGuiSheet(const guiSheet&);
 
@@ -149,6 +151,8 @@ public:
 private:
     //! \brief Assigns all event handlers to the GUI elements
     void assignEventHandlers();
+
+    bool playButtonClickSound(const CEGUI::EventArgs& e);
 
     std::map<guiSheet, CEGUI::Window*> mSheets;
 
@@ -266,6 +270,8 @@ private:
     static bool editorWaterButtonPressed(const CEGUI::EventArgs& e);
     static bool editorDirtButtonPressed(const CEGUI::EventArgs& e);
     static bool editorClaimedButtonPressed(const CEGUI::EventArgs& e);
+
+    SoundEffectsManager* mSoundEffectsManager;
 };
 
 #endif // GUI_H_

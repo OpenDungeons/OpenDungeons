@@ -24,41 +24,37 @@
 
 #include <string>
 
-class PrefixTree;
+namespace CEGUI
+{
+class Window;
+class EventArgs;
+class String;
+class Listbox;
+class Editbox;
+}
 
-class  ConsoleMode: public AbstractApplicationMode
+class ConsoleMode: public AbstractApplicationMode
 {
 public:
 
-    ConsoleMode(ModeManager*, Console*);
+    ConsoleMode(ModeManager*);
 
-    virtual ~ConsoleMode();
+    virtual ~ConsoleMode() override;
 
-    virtual bool mouseMoved(const OIS::MouseEvent &arg);
-    virtual bool mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
-    virtual bool mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
-    virtual bool keyPressed(const OIS::KeyEvent &arg);
-    virtual bool keyReleased(const OIS::KeyEvent &arg);
-    virtual void handleHotkeys(OIS::KeyCode keycode);
-
-    void onFrameStarted(const Ogre::FrameEvent& evt) {};
-    void onFrameEnded(const Ogre::FrameEvent& evt) {};
+    virtual bool keyPressed(const OIS::KeyEvent &arg) final override;
 
     //! \brief Called when the game mode is activated
     //! Used to call the corresponding Gui Sheet.
-    void activate();
+    void activate() final override;
 
 private:
     void printToConsole(const std::string& text);
-
-    Console* mConsole;
+    bool executeCurrentPrompt(const CEGUI::EventArgs &e);
 
     ConsoleInterface mConsoleInterface;
 
-    //! \brief The commands found according to the prefix given.
-    std::vector<std::string> mLl;
-    //! \brief Iterator to the list of words found.
-    std::vector<std::string>::iterator mIt;
+    CEGUI::Listbox* mConsoleHistoryWindow;
+    CEGUI::Editbox* mEditboxWindow;
 };
 
 #endif // CONSOLEMODE_H

@@ -20,15 +20,16 @@
 
 #include "modes/AbstractModeManager.h"
 
+#include "modes/InputManager.h"
+
 #include <OGRE/OgreFrameListener.h>
 
 #include <vector>
 #include <string>
+#include <memory>
 
 class AbstractApplicationMode;
-class ASWrapper;
 class InputManager;
-class Console;
 class ConsoleMode;
 class CameraManager;
 
@@ -38,8 +39,6 @@ namespace Ogre {
 
 class ModeManager: public AbstractModeManager
 {
-    friend class Console;
-
 public:
 
     ModeManager(Ogre::RenderWindow* renderWindow);
@@ -140,21 +139,18 @@ public:
 
     InputManager* getInputManager()
     {
-        return mInputManager;
+        return &mInputManager;
     }
 
 private:
     //! \brief The common input manager reference
-    InputManager* mInputManager;
+    InputManager mInputManager;
 
     //! \brief A unique console mode instance, shared between game modes.
-    ConsoleMode* mConsoleMode;
+    std::unique_ptr<ConsoleMode> mConsoleMode;
 
     //! \brief Tells whether the user is in console mode.
     bool mIsInConsole;
-
-    //! \brief The console instance
-    Console* mConsole;
 
     //! \brief The vector containing the loaded modes.
     //! The active one is either the last one, or the console when
@@ -167,9 +163,6 @@ private:
     //! \brief When the new mode will be set, if true, the actual one will be
     //! discarded. That allows to use temporary menu
     bool mDiscardActualMode;
-
-    //! \brief The Angel Script wrapper, used in every game modes
-    ASWrapper* mASWrapper;
 
     //! \brief Actually change the mode if needed
     void checkModeChange();

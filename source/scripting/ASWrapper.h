@@ -19,7 +19,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
+#if 0
 #ifndef ASWRAPPER_H_
 #define ASWRAPPER_H_
 
@@ -93,3 +93,4 @@ private:
 };
 
 #endif /* ASWRAPPER_H_ */
+#endif //#if 0

@@ -24,6 +24,8 @@
 #include <OIS/OISMouse.h>
 #include <OIS/OISKeyboard.h>
 
+#include <CEGUI/EventArgs.h>
+
 #include <iostream>
 
 class GameEntity;
@@ -38,7 +40,7 @@ public:
         mModeType(modeType)
     {}
 
-    virtual ~AbstractApplicationMode()
+    virtual ~AbstractApplicationMode() override
     {};
 
     //! \brief Input methods
@@ -60,12 +62,12 @@ public:
     virtual void notifyGuiAction(GuiAction guiAction)
     { }
 
-    virtual bool mouseMoved     (const OIS::MouseEvent &arg) = 0;
-    virtual bool mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id) = 0;
-    virtual bool mouseReleased  (const OIS::MouseEvent &arg, OIS::MouseButtonID id) = 0;
-    virtual bool keyPressed     (const OIS::KeyEvent &arg) = 0;
-    virtual bool keyReleased    (const OIS::KeyEvent &arg) = 0;
-    virtual void handleHotkeys  (OIS::KeyCode keycode) = 0;
+    virtual bool mouseMoved     (const OIS::MouseEvent &arg) override;
+    virtual bool mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id) override;
+    virtual bool mouseReleased  (const OIS::MouseEvent &arg, OIS::MouseButtonID id) override;
+    virtual bool keyPressed     (const OIS::KeyEvent &arg) override;
+    virtual bool keyReleased    (const OIS::KeyEvent &arg) override;
+    virtual void handleHotkeys  (OIS::KeyCode keycode) {};
 
     virtual OIS::Mouse* getMouse()
     {
@@ -99,8 +101,8 @@ public:
     virtual bool isConnected();
 
     //! \brief Game mode specific rendering methods.
-    virtual void onFrameStarted(const Ogre::FrameEvent& evt) = 0;
-    virtual void onFrameEnded(const Ogre::FrameEvent& evt) = 0;
+    virtual void onFrameStarted(const Ogre::FrameEvent& evt) {};
+    virtual void onFrameEnded(const Ogre::FrameEvent& evt) {};
 
     virtual void exitMode() {}
 
@@ -110,6 +112,15 @@ protected:
     ModeManager& getModeManager()
     {
         return *mModeManager;
+    }
+    
+    void subscribeCloseButton(CEGUI::Window& rootWindow);
+    
+    //! \brief Utility function that calls regressMode, used for events
+    bool regressModeEvent(const CEGUI::EventArgs&)
+    {
+        regressMode();
+        return true;
     }
 
     //! \brief Returns true if the key is to be processed by the chat.

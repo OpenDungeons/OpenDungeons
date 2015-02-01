@@ -24,25 +24,18 @@
 
 #include <string>
 
-namespace Ogre {
-  class Root;
-  class RenderWindow;
-  class OverlaySystem;
-}
-
-class GameMap;
-class ODFrameListener;
+class LogManager;
 
 //! \brief Base class which manages the startup of OpenDungeons.
 class ODApplication
 {
 public:
-    //! Initializes the Application along with the ResourceManager
+    //! \brief Initializes the Application along with the ResourceManager
     ODApplication();
     ~ODApplication();
 
     //! \brief Display a GUI error message
-    static void displayErrorMessage(const std::string& message, bool log = true);
+    static void displayErrorMessage(const std::string& message, LogManager& logger);
 
     static const double DEFAULT_FRAMES_PER_SECOND;
     static double MAX_FRAMES_PER_SECOND;
@@ -53,21 +46,8 @@ public:
     static std::string MOTD;
 
 private:
-    ODApplication(const ODApplication&);
-
-    Ogre::Root* mRoot;
-    Ogre::RenderWindow* mWindow;
-
-    ODFrameListener* mFrameListener;
-    //! \brief by both the RenderManager and the TextRenderer.
-    Ogre::OverlaySystem* mOverlaySystem;
-
-    //! \brief Keep in mind whether the game has been properly initialized.
-    //! Used when leaving the application in case someone cancelled the Ogre config pop-up.
-    bool mInitialized;
-
-    //! \brief Delete the various singleton objects and clean up other stuff
-    void cleanUp();
+    ODApplication(const ODApplication&) = delete;
+    ODApplication& operator=(const ODApplication&) = delete;
 };
 
 #endif // ODAPPLICATION_H

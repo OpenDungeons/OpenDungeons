@@ -112,7 +112,10 @@ bool ODServer::startServer(const std::string& levelFilename, ServerMode mode)
 void ODServer::queueServerNotification(ServerNotification* n)
 {
     if ((n == nullptr) || (!isConnected()))
+    {
+        delete n;
         return;
+    }
     mServerNotificationQueue.push_back(n);
 }
 

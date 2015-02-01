@@ -24,12 +24,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-/* TODO list:
- * - possible improvements to compilation of scripts? (AS has an addon)
- * - bind all needed classes
- * - find out if we really need all the asserts (binary size, start up time).
- */
+#if 0
 
 #include <string>
 
@@ -40,7 +35,6 @@
 #include "scriptbuilder.h"
 
 //#include "camera/CameraManager.h"
-#include "modes/Console.h"
 //#include "entities/Creature.h"
 //#include "gamemap/GameMap.h"
 //#include "utils/Helper.h"
@@ -136,7 +130,7 @@ void ASWrapper::messageCallback(const asSMessageInfo* msg, void* param)
     std::ostringstream output;
     output << "AS: " << msg->section << "(" << msg->row << ", "
             << msg->col << ") : " << type << " : \n  " << msg->message;
-    Console::getSingleton().print(output.str());
+//    Console::getSingleton().print(output.str());
     LogManager::getSingleton().logMessage(output.str());
 }
 
@@ -401,3 +395,4 @@ void ASWrapper::executeConsoleCommand(const std::vector<std::string>& fullComman
     mContext->SetArgObject(1, arguments);
     mContext->Execute();
 }
+#endif //#if 0

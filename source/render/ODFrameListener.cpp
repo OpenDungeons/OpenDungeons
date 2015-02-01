@@ -75,7 +75,6 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::Overlay
     mModeManager(nullptr),
     mShowDebugInfo(false),
     mContinue(true),
-    mTerminalActive(false),
     mTerminalWordWrap(78),
     mChatMaxMessages(10),
     mChatMaxTimeDisplay(20.0f),
