@@ -56,7 +56,7 @@
 #include <CEGUI/widgets/PushButton.h>
 #include <CEGUI/Event.h>
 
-template<> Gui* Ogre::Singleton<Gui>::msSingleton = 0;
+template<> Gui* Ogre::Singleton<Gui>::msSingleton = nullptr;
 
 Gui::Gui(SoundEffectsManager* soundEffectsManager, const std::string& ceguiLogFileName)
   : mSoundEffectsManager(soundEffectsManager)

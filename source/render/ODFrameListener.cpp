@@ -58,7 +58,7 @@
 #include <iostream>
 
 
-template<> ODFrameListener* Ogre::Singleton<ODFrameListener>::msSingleton = 0;
+template<> ODFrameListener* Ogre::Singleton<ODFrameListener>::msSingleton = nullptr;
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define snprintf_is_banned_in_OD_code _snprintf
@@ -416,7 +416,7 @@ void ODFrameListener::notifyChatChar(int text)
     // Ogre::Overlay do not work with special characters. We have to convert
     // the String to make sure no such characters are used
     std::string str;
-    str.append(1, (char)text);
+    str.append(1, static_cast<char>(text));
     mChatString = mChatString + boost::locale::conv::to_utf<char>(
         str, "Ascii");
 }

@@ -25,8 +25,10 @@
 #define MUSICPLAYER_H
 
 #include <SFML/Audio.hpp>
+#include <OgreStringVector.h>
 #include <OgreSingleton.h>
 
+#include <memory>
 #include <map>
 #include <string>
 
@@ -81,7 +83,7 @@ public:
     /*! \brief Initialize variables and load music files in the resource
      *  locations listed under "Music".
      */
-    MusicPlayer();
+    MusicPlayer(const std::string& musicFilesPath, Ogre::StringVectorPtr musicFilesList);
 
     virtual ~MusicPlayer();
 
@@ -102,7 +104,7 @@ public:
 
 private:
     //! \brief The tracks names and corresponding list
-    std::map<std::string, ODMusic*> mTracks;
+    std::map<std::string, std::unique_ptr<ODMusic>> mTracks;
 
     //! \brief Tells whether the tracks are loaded in memory.
     bool mLoaded;

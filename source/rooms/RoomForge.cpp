@@ -76,6 +76,8 @@ RenderedMovableEntity* RoomForge::notifyActiveSpotCreated(ActiveSpotPlace place,
         {
             return loadBuildingObject(getGameMap(), "Anvil", tile, 0.0, false);
         }
+        default:
+            break;
     }
     return nullptr;
 }

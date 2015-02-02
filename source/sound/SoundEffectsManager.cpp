@@ -100,7 +100,7 @@ void GameSound::play(float x, float y, float z)
 }
 
 // SoundEffectsManager class
-template<> SoundEffectsManager* Ogre::Singleton<SoundEffectsManager>::msSingleton = 0;
+template<> SoundEffectsManager* Ogre::Singleton<SoundEffectsManager>::msSingleton = nullptr;
 
 SoundEffectsManager::SoundEffectsManager()
 {
@@ -246,7 +246,8 @@ void SoundEffectsManager::initializeDefaultCreatureSounds()
     {
         std::vector<GameSound*>& pickupSounds = crSound->mSoundsPerType[CreatureSound::SoundType::PICKUP];
         GameSound* gm = getGameSound(soundFolderPath + "Game/click.ogg", true);
-        pickupSounds.push_back(gm);
+        if (gm != nullptr)
+            pickupSounds.push_back(gm);
     }
 
     // Drop sounds - DROP
@@ -254,7 +255,8 @@ void SoundEffectsManager::initializeDefaultCreatureSounds()
     {
         std::vector<GameSound*>& dropSounds = crSound->mSoundsPerType[CreatureSound::SoundType::DROP];
         GameSound* gm = getGameSound(soundFolderPath + "Rooms/default_build_trap.ogg", true);
-        dropSounds.push_back(gm);
+        if(gm != nullptr)
+            dropSounds.push_back(gm);
     }
 
     // Idle sounds, none atm... - IDLE, WALK, HURT, DYING.

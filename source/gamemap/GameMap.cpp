@@ -90,16 +90,16 @@ class AstarEntry
 public:
     AstarEntry() :
         tile    (nullptr),
-        parent  (0),
-        g       (0),
-        h       (0)
+        parent  (nullptr),
+        g       (0.0),
+        h       (0.0)
     {}
 
     AstarEntry(Tile* tile, int x1, int y1, int x2, int y2) :
         tile    (tile),
-        parent  (0),
-        g       (0),
-        h       (0)
+        parent  (nullptr),
+        g       (0.0),
+        h       (0.0)
     {
         h = computeHeuristic(x1, y1, x2, y2);
     }
@@ -1490,6 +1490,8 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* c
                 case 7:
                     if(areTilesPassable[1] && areTilesPassable[3])
                         neighborTile = getTile(currentEntry->getTile()->getX() + 1, currentEntry->getTile()->getY() + 1);
+                    break;
+                default:
                     break;
             }
             if(neighborTile == nullptr)
@@ -2883,7 +2885,7 @@ void GameMap::updateVisibleEntities()
         for (int ii = 0; ii < getMapSizeX(); ++ii)
         {
             Tile* tile = getTile(ii,jj);
-            tile->notifySeatsWithVision();
+            tile->notifyEntitiesSeatsWithVision();
         }
     }
 

@@ -332,7 +332,7 @@ public:
     bool hasChangedForSeat(Seat* seat) const;
     void changeNotifiedForSeat(Seat* seat);
 
-    virtual void notifySeatsWithVision();
+    void notifyEntitiesSeatsWithVision();
 
     const std::vector<Seat*>& getSeatsWithVision()
     { return mSeatsWithVision; }

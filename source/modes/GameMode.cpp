@@ -143,7 +143,7 @@ void GameMode::handleCursorPositionUpdate()
 
 bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 {
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition((float)arg.state.X.abs, (float)arg.state.Y.abs);
+    AbstractApplicationMode::mouseMoved(arg);
 
     if (!isConnected())
         return true;

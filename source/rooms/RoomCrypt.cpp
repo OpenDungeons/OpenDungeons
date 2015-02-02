@@ -68,6 +68,8 @@ RenderedMovableEntity* RoomCrypt::notifyActiveSpotCreated(ActiveSpotPlace place,
         {
             return loadBuildingObject(getGameMap(), "KnightStatue2", tile, 180.0, false);
         }
+        default:
+            break;
     }
     return nullptr;
 }

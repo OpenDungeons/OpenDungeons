@@ -384,7 +384,7 @@ void MenuModeConfigureSeats::removePlayer(int32_t id)
             for(uint32_t i = 0; i < combo->getItemCount();)
             {
                 CEGUI::ListboxItem* selItem = combo->getListboxItemFromIndex(i);
-                if(selItem->getID() == (uint32_t)id)
+                if(selItem->getID() == static_cast<CEGUI::uint>(id))
                 {
                     if(selItem->isSelected())
                         combo->setText("");

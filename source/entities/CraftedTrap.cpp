@@ -66,9 +66,11 @@ const std::string& CraftedTrap::getMeshFromTrapType(TrapType trapType)
             return TrapSpike::MESH_SPIKE;
         case TrapType::boulder:
             return TrapBoulder::MESH_BOULDER;
+        default:
+            OD_ASSERT_TRUE_MSG(false, "Wrong enum asked for CraftedTrap " + getName() + ", trapType="
+                + Ogre::StringConverter::toString(static_cast<uint32_t>(trapType)));
     }
-    OD_ASSERT_TRUE_MSG(false, "Wrong enum asked for CraftedTrap " + getName() + ", trapType="
-        + Ogre::StringConverter::toString(static_cast<uint32_t>(trapType)));
+
     return EMPTY_STRING;
 }
 

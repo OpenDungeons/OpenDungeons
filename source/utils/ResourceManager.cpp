@@ -48,7 +48,7 @@
 #include <OgreString.h>
 #include <OgreRenderTarget.h>
 
-template<> ResourceManager* Ogre::Singleton<ResourceManager>::msSingleton = 0;
+template<> ResourceManager* Ogre::Singleton<ResourceManager>::msSingleton = nullptr;
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 && defined(OD_DEBUG)
 //On windows, if the application is compiled in debug mode, use the plugins with debug prefix.
 const std::string ResourceManager::PLUGINSCFG = "plugins_d.cfg";

@@ -54,6 +54,8 @@ RenderedMovableEntity* RoomLibrary::notifyActiveSpotCreated(ActiveSpotPlace plac
         {
             return loadBuildingObject(getGameMap(), "Bookshelf", tile, 180.0, false);
         }
+        default:
+            break;
     }
     return nullptr;
 }

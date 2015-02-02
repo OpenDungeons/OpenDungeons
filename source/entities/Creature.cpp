@@ -642,7 +642,7 @@ void Creature::doUpkeep()
         else if (mDeathCounter >= ConfigManager::getSingleton().getCreatureDeathCounter())
         {
             // If the creature has a homeTile where it sleeps, its bed needs to be destroyed.
-            if (getHomeTile() != 0)
+            if (getHomeTile() != nullptr)
             {
                 RoomDormitory* home = static_cast<RoomDormitory*>(getHomeTile()->getCoveringBuilding());
                 home->releaseTileForSleeping(getHomeTile(), this);
