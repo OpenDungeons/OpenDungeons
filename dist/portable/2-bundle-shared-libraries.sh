@@ -10,7 +10,7 @@ ldd ./opendungeons &> libraries.txt
 # Remove the libraries we don't want to bundle
 NOBUNDLE="linux-vdso linux-gate libpthread libstdc++ libc libm libgcc_s \
           libX11 libXt libXaw libXext libXmu libXpm libXau libXdmcp \
-          libuuid libz libxcb libdl librt libpcre ld-linux ld-linux-x86-64"
+          libuuid libz libxcb libdl librt ld-linux ld-linux-x86-64"
 
 for lib in $NOBUNDLE
 do
