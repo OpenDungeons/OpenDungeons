@@ -303,7 +303,8 @@ void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)
             newPosition += flightDirection;
         }
     }
-    else if (mCameraIsRotating && frameTime > 0.0)
+
+    if (mCameraIsRotating && frameTime > 0.0)
     {
         Ogre::Quaternion orientationQuat = getActiveCameraNode()->getOrientation();
 
@@ -426,7 +427,7 @@ void CameraManager::flyTo(const Ogre::Vector3& destination)
 
 void CameraManager::onMiniMapClick(Ogre::Vector2 cc)
 {
-    flyTo(Ogre::Vector3(cc.x, cc.y, getActiveCameraNode()->getPosition().z));
+    flyTo(Ogre::Vector3(cc.x, cc.y, 0.0));
 }
 
 void CameraManager::move(const Direction direction, double aux)
