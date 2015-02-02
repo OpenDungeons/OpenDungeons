@@ -88,6 +88,15 @@ class  GameMode: public AbstractApplicationMode
 
     virtual void notifyGuiAction(GuiAction guiAction);
 
+    //! \brief Show the help window
+    void showHelpWindow();
+
+    //! \brief Shows the objectives window
+    void showObjectivesWindow();
+
+    //! \brief Hides the objectives window.
+    void hideObjectivesWindow();
+
  protected:
     //! \brief Handle the keyboard input in normal mode
     virtual bool keyPressedNormal   (const OIS::KeyEvent &arg);
@@ -123,13 +132,13 @@ private:
     std::vector<OIS::KeyCode> mKeysChatPressed;
 
     //! \brief A simple window displaying the common game controls.
-    //! Useful in the way of a true settings menu.
+    //! Useful in the wait for a true settings menu.
     CEGUI::Window* mHelpWindow;
 
     //! \brief Creates the help window.
     void createHelpWindow();
 
-    //! \brief help Hides the help window.
+    //! \brief Hides the help window.
     bool hideHelpWindow(const CEGUI::EventArgs& /*e*/);
 
     //! \brief Handle updating the selector position on screen

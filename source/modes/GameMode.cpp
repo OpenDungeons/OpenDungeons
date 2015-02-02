@@ -93,6 +93,7 @@ void GameMode::activate()
     guiSheet->getChild(Gui::EXIT_CONFIRMATION_POPUP)->hide();
     guiSheet->getChild(Gui::BUTTON_TEMPLE)->hide();
     guiSheet->getChild(Gui::BUTTON_PORTAL)->hide();
+    guiSheet->getChild("ObjectivesWindow")->hide();
 
     MiniMap* minimap = ODFrameListener::getSingleton().getMiniMap();
     minimap->attachMiniMap(Gui::guiSheet::inGameMenu);
@@ -717,11 +718,11 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
     switch (arg.key)
     {
     case OIS::KC_F1:
-        // We create the window only at first call.
-        // Note: If we create it in the constructor, the window gets created
-        // in the wrong gui context and is never shown...
-        createHelpWindow();
-        mHelpWindow->show();
+        showHelpWindow();
+        break;
+
+    case OIS::KC_F3:
+        showObjectivesWindow();
         break;
 
     case OIS::KC_F11:
@@ -1011,6 +1012,25 @@ void GameMode::notifyGuiAction(GuiAction guiAction)
     }
 }
 
+void GameMode::showObjectivesWindow()
+{
+    Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild("ObjectivesWindow")->show();
+}
+
+void GameMode::hideObjectivesWindow()
+{
+    Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild("ObjectivesWindow")->hide();
+}
+
+void GameMode::showHelpWindow()
+{
+    // We create the window only at first call.
+    // Note: If we create it in the constructor, the window gets created
+    // in the wrong gui context and is never shown...
+    createHelpWindow();
+    mHelpWindow->show();
+}
+
 void GameMode::createHelpWindow()
 {
     if (mHelpWindow != nullptr)
@@ -1026,8 +1046,8 @@ void GameMode::createHelpWindow()
     mHelpWindow->setProperty("SizingEnabled", "False");
 
     CEGUI::Window* textWindow = wmgr->createWindow("OD/StaticText", "TextDisplay");
-    textWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.10, 0)));
-    textWindow->setSize(CEGUI::USize(CEGUI::UDim(0.9, 0), CEGUI::UDim(0.8, 0)));
+    textWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 20), CEGUI::UDim(0, 30)));
+    textWindow->setSize(CEGUI::USize(CEGUI::UDim(1.0, -40), CEGUI::UDim(1.0, -30)));
     textWindow->setProperty("FrameEnabled", "False");
     textWindow->setProperty("BackgroundEnabled", "False");
     textWindow->setProperty("VertFormatting", "TopAligned");

@@ -72,6 +72,22 @@
                 </Window>
             </Window>
         </Window>
+        <Window type="OD/Button" name="HelpButton" >
+            <Property name="Area" value="{{1,-487},{0,2},{1,-407},{0,35}}" />
+            <Property name="Text" value="Help (F1)" />
+            <Property name="AlwaysOnTop" value="True" />
+            <Property name="TooltipText" value="Help" />
+            <Property name="ClippedByParent" value="False" />
+            <Property name="Visible" value="True" />
+        </Window>
+        <Window type="OD/Button" name="ObjectivesButton" >
+            <Property name="Area" value="{{1,-407},{0,2},{1,-287},{0,35}}" />
+            <Property name="Text" value="Objectives (F3)" />
+            <Property name="AlwaysOnTop" value="True" />
+            <Property name="TooltipText" value="Objectives" />
+            <Property name="ClippedByParent" value="False" />
+            <Property name="Visible" value="True" />
+        </Window>
         <Window type="OD/Button" name="OptionsButton" >
             <Property name="Area" value="{{1,-277},{0,2},{1,-205},{0,35}}" />
             <Property name="Text" value="Options" />
@@ -85,12 +101,6 @@
             <Property name="MaxSize" value="{{1,0},{1,0}}" />
             <Property name="AlwaysOnTop" value="True" />
         </Window>
-        <Window type="OD/StaticText" name="MessagesDisplayWindow" >
-            <Property name="Area" value="{{1,-250},{1,-150},{1,0},{1,0}}" />
-            <Property name="MaxSize" value="{{1,0},{1,0}}" />
-            <Property name="AlwaysOnTop" value="True" />
-            <Property name="VertScrollbar" value="True" />
-        </Window>
         <Window type="OD/TabControl" name="MainTabControl" >
             <Property name="Area" value="{{0,0},{1,-133},{1,0},{1,0}}" />
             <Property name="TabHeight" value="{0,25}" />
@@ -101,5 +111,6 @@
             <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuCreatures.layout" name="CreaturesImport" />
         </Window>
         <LayoutImport type="DefaultWindow" filename="QuitMenu.layout" name="QuitMenuImport" />
+        <LayoutImport type="DefaultWindow" filename="ObjectivesWindow.layout" name="ObjectivesWindowImport" />
     </Window>
 </GUILayout>
