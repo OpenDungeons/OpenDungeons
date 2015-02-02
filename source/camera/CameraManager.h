@@ -40,7 +40,7 @@ class GameMap;
 
 // The min/max camera height in tile size
 const Ogre::Real MIN_CAMERA_Z = 3.0;
-const Ogre::Real MAX_CAMERA_Z = 20.0;
+const Ogre::Real MAX_CAMERA_Z = 16.0;
 
 class CameraManager
 {
@@ -106,6 +106,12 @@ public:
      */
     void flyTo(const Ogre::Vector3& destination);
 
+    //! \brief Makes the camera rotate to the given orientation (in degrees).
+    //! Pitch=X axis, Yaw=y axis, Roll=z axis. Right handed Ogre 3D scale.
+    //! X-Axis: Looking up or down from the user point of view.
+    //! Z-Axis: Left or right from a user point of view.
+    void RotateTo(Ogre::Real pitch, Ogre::Real roll);
+
     //! \brief Directly set the new camera position
     void setCameraPosition(const Ogre::Vector3& position);
 
@@ -152,6 +158,10 @@ public:
         mYHCS.addNode(YNode);
     }
 
+    //! \brief Makes the RTS camera use the corresponding default viewpoint.
+    void setDefaultIsometricView();
+    void setDefaultOrthogonalView();
+
 private:
     //! \brief HermiteCatmullSpline members for each axices.
     HermiteCatmullSpline mXHCS;
@@ -174,13 +184,32 @@ private:
 
     GameMap* mGameMap;
 
+    //! \brief Is true when a camera is flying to a given position.
     bool            mCameraIsFlying;
+
+    //! \brief The camera destination when the camera is "flying".
+    Ogre::Vector3   mCameraFlightDestination;
+
+    //! \brief Is true when the camera is rotating to a given point of view.
+    bool            mCameraIsRotating;
+
+    //! \brief The camer pitch, yaw and roll destination rotation.
+    Ogre::Real      mCameraPitchDestination; // X-Axis: Looking up or down from the user point of view.
+    Ogre::Real      mCameraRollDestination; // Z-Axis: Left or right from a user point of view.
+
+    //! \brief The user height change value.
     Ogre::Real      mZChange;
+
+    //! \brief The Z-axis rotation, left or right from the user point of view.
     Ogre::Degree    mSwivelDegrees;
+
+    //! \brief Carry out the acceleration/deceleration calculations on the camera translation.
     Ogre::Vector3   mTranslateVector;
     Ogre::Vector3   mTranslateVectorAccel;
-    Ogre::Vector3   mCameraFlightDestination;
+
+    //! \brief The X-axis rotation vector, tilting the point of view (look down or up).
     Ogre::Vector3   mRotateLocalVector;
+
     Ogre::SceneManager* mSceneManager;
     Ogre::Viewport* mViewport;
 

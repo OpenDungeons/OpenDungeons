@@ -824,6 +824,13 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
         handleHotkeys(arg.key);
         break;
 
+    case OIS::KC_I:
+        ODFrameListener::getSingleton().getCameraManager()->setDefaultIsometricView();
+        break;
+    case OIS::KC_O:
+        ODFrameListener::getSingleton().getCameraManager()->setDefaultOrthogonalView();
+        break;
+
     default:
         break;
     }
