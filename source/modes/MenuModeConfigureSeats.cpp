@@ -32,6 +32,7 @@
 
 #include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
+#include "utils/Helper.h"
 
 #include <CEGUI/CEGUI.h>
 
@@ -128,10 +129,12 @@ void MenuModeConfigureSeats::activate()
         name = TEXT_SEAT_ID_PREFIX + Ogre::StringConverter::toString(seat->getId());
         CEGUI::DefaultWindow* textSeatId = static_cast<CEGUI::DefaultWindow*>(winMgr.createWindow("OD/StaticText", name));
         tmpWin->addChild(textSeatId);
+        Ogre::ColourValue seatColor = seat->getColorValue();
+        seatColor.a = 1.0f; // Restore the color opacity
         textSeatId->setArea(CEGUI::UDim(0,20), CEGUI::UDim(0,65 + offset), CEGUI::UDim(0.3,0), CEGUI::UDim(0,30));
-        textSeatId->setText("Seat id "  + Ogre::StringConverter::toString(seat->getId()));
+        textSeatId->setText("[colour='" + Helper::getCEGUIColorFromOgreColourValue(seatColor) + "']Seat "  + Ogre::StringConverter::toString(seat->getId()));
         textSeatId->setProperty("FrameEnabled", "False");
-        textSeatId->setProperty("BackgroundEnabled", "False");
+        textSeatId->setProperty("BackgroundEnabled", "False");;
 
         name = COMBOBOX_PLAYER_FACTION_PREFIX + Ogre::StringConverter::toString(seat->getId());
         combo = static_cast<CEGUI::Combobox*>(winMgr.createWindow("OD/Combobox", name));

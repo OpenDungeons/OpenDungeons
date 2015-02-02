@@ -1,7 +1,4 @@
 /*!
- * \date:  02 July 2011
- * \author StefanP.MUC
- *
  *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -20,27 +17,28 @@
 
 #include "modes/GameMode.h"
 
-#include "network/ODClient.h"
-#include "render/Gui.h"
-#include "render/ODFrameListener.h"
-#include "utils/LogManager.h"
-#include "render/Gui.h"
-#include "utils/ResourceManager.h"
-#include "render/TextRenderer.h"
+#include "camera/CameraManager.h"
 #include "entities/Creature.h"
 #include "entities/MapLight.h"
-#include "game/Seat.h"
-#include "traps/Trap.h"
-#include "game/Player.h"
-#include "render/RenderManager.h"
-#include "camera/CameraManager.h"
-#include "sound/MusicPlayer.h"
-#include "network/ODServer.h"
-#include "rooms/Room.h"
-#include "ODApplication.h"
 #include "entities/RenderedMovableEntity.h"
 #include "gamemap/MiniMap.h"
+#include "game/Seat.h"
+#include "game/Player.h"
+#include "network/ODClient.h"
+#include "network/ODServer.h"
+#include "render/RenderManager.h"
+#include "render/Gui.h"
+#include "render/ODFrameListener.h"
+#include "render/Gui.h"
+#include "render/TextRenderer.h"
+#include "rooms/Room.h"
+#include "sound/MusicPlayer.h"
 #include "spell/Spell.h"
+#include "traps/Trap.h"
+#include "utils/LogManager.h"
+#include "utils/Helper.h"
+#include "utils/ResourceManager.h"
+#include "ODApplication.h"
 
 #include <CEGUI/WindowManager.h>
 #include <CEGUI/widgets/PushButton.h>
@@ -75,20 +73,11 @@ GameMode::~GameMode()
         mHelpWindow->destroy();
 }
 
-//! \brief Converts an int value into a 2 digits-long Hex string value.
-std::string intTo2Hex(int i)
-{
-  std::stringstream stream;
-  stream << std::setfill('0') << std::setw(2) << std::hex << i;
-  return stream.str();
-}
-
 //! \brief Gets the CEGUI ImageColours string property (AARRGGBB format) corresponding
 //! to the given Ogre ColourValue.
 std::string getImageColoursStringFromColourValue(const Ogre::ColourValue& color)
 {
-    std::string colourStr = intTo2Hex(static_cast<int>(color.a * 255.0f)) + intTo2Hex(static_cast<int>(color.r * 255.0f))
-        + intTo2Hex(static_cast<int>(color.g * 255.0f)) + intTo2Hex(static_cast<int>(color.b * 255.0f));
+    std::string colourStr = Helper::getCEGUIColorFromOgreColourValue(color);
     std::string imageColours = "tl:" + colourStr + " tr:" + colourStr + " bl:" + colourStr + " br:" + colourStr;
     return imageColours;
 }
