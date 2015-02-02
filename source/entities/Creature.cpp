@@ -3053,7 +3053,7 @@ std::vector<GameEntity*> Creature::getReachableAttackableObjects(const std::vect
     return tempVector;
 }
 
-std::vector<GameEntity*> Creature::getCreaturesFromList(const std::vector<GameEntity*> &objectsToCheck, bool koboldsOnly)
+std::vector<GameEntity*> Creature::getCreaturesFromList(const std::vector<GameEntity*> &objectsToCheck, bool workersOnly)
 {
     std::vector<GameEntity*> tempVector;
 
@@ -3066,7 +3066,7 @@ std::vector<GameEntity*> Creature::getCreaturesFromList(const std::vector<GameEn
         if(entity->getObjectType() != GameEntityType::creature)
             continue;
 
-        if(koboldsOnly && !static_cast<Creature*>(entity)->getDefinition()->isWorker())
+        if(workersOnly && !static_cast<Creature*>(entity)->getDefinition()->isWorker())
             continue;
 
         tempVector.push_back(entity);

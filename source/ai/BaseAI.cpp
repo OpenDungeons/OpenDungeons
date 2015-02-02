@@ -430,14 +430,13 @@ bool BaseAI::digWayToTile(Tile* tileStart, Tile* tileEnd)
     // We find a way to tileEnd. We search in reverse order to stop when we reach the first
     // accessible tile
 
-    // Set a diggable path up to the first gold spot for the given team color, by the first available kobold
+    // Set a diggable path up to the first gold spot for the given team color, by the first available worker
     Seat* seat = mPlayer.getSeat();
-    Creature* kobold = mGameMap.getKoboldForPathFinding(seat);
-    if (kobold == nullptr)
+    Creature* worker = mGameMap.getWorkerForPathFinding(seat);
+    if (worker == nullptr)
         return false;
 
-    std::list<Tile*> pathToDig = mGameMap.path(tileEnd, tileStart, kobold,
-        seat, true);
+    std::list<Tile*> pathToDig = mGameMap.path(tileEnd, tileStart, worker, seat, true);
     if (pathToDig.empty())
         return false;
 
@@ -448,7 +447,7 @@ bool BaseAI::digWayToTile(Tile* tileStart, Tile* tileEnd)
         Tile* tile = *it;
         if(!isPathFound &&
            (tile->getFullness() == 0.0) &&
-           (mGameMap.pathExists(kobold, tileStart, tile)))
+           (mGameMap.pathExists(worker, tileStart, tile)))
         {
             isPathFound = true;
         }
@@ -466,7 +465,7 @@ bool BaseAI::digWayToTile(Tile* tileStart, Tile* tileEnd)
         {
             if(!isPathFound &&
                (t->getFullness() == 0.0) &&
-               (mGameMap.pathExists(kobold, tileStart, t)))
+               (mGameMap.pathExists(worker, tileStart, t)))
             {
                 // we let the iterator increment because we want to dig the currently
                 // tested tile

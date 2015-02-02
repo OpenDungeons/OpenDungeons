@@ -209,11 +209,11 @@ void RoomForge::doUpkeep()
     if(mTrapType == TrapType::nullTrapType)
     {
         std::map<TrapType, int> neededTraps;
-        Creature* kobold = getGameMap()->getKoboldForPathFinding(getSeat());
-        if (kobold != nullptr)
+        Creature* worker = getGameMap()->getWorkerForPathFinding(getSeat());
+        if (worker != nullptr)
         {
             std::vector<Building*> reachableBuildings = getGameMap()->getReachableBuildingsPerSeat(getSeat(),
-                mCoveredTiles[0], kobold);
+                mCoveredTiles[0], worker);
             for(Building* building : reachableBuildings)
             {
                 if(building->getObjectType() != GameEntityType::trap)
@@ -235,7 +235,7 @@ void RoomForge::doUpkeep()
         {
             // We check if a reachable forge have a corresponding crafted trap
             std::vector<Room*> rooms = getGameMap()->getRoomsByTypeAndSeat(RoomType::forge, getSeat());
-            rooms = getGameMap()->getReachableRooms(rooms, getCoveredTile(0), kobold);
+            rooms = getGameMap()->getReachableRooms(rooms, getCoveredTile(0), worker);
             for(std::pair<TrapType const, int>& p : neededTraps)
             {
                 for(Room* room : rooms)

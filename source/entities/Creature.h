@@ -220,7 +220,7 @@ public:
     std::vector<GameEntity*> getReachableAttackableObjects(const std::vector<GameEntity*> &objectsToCheck);
 
     //! \brief Loops over objectsToCheck and returns a vector containing all the creatures in the list.
-    std::vector<GameEntity*> getCreaturesFromList(const std::vector<GameEntity*> &objectsToCheck, bool koboldsOnly);
+    std::vector<GameEntity*> getCreaturesFromList(const std::vector<GameEntity*> &objectsToCheck, bool workersOnly);
 
     //! \brief Loops over the visibleTiles and adds all allied creatures in each tile to a list which it returns.
     std::vector<GameEntity*> getVisibleAlliedObjects();

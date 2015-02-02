@@ -1056,7 +1056,7 @@ void GameMode::createHelpWindow()
         << "To rotate the camera, you can use either: A, or E." << std::endl
         << "Use the mouse wheel to go lower or higher, or Home, End." << std::endl
         << "And finally, you can use Page Up, Page Down, to look up or down." << std::endl << std::endl;
-    txt << "You can left-click on the map's dirt walls to mark them. Your kobold workers will then "
+    txt << "You can left-click on the map's dirt walls to mark them. Your workers will then "
         << "dig them for you. They will also claim tiles, turning them into stone with your color at their center." << std::endl
         << "Certain blocks are made of gold. You should look for them and make you workers dig those tiles in priority."
         << "Once you have enough gold, you can build room tiles that will permit to make your fighter creatures do many things "

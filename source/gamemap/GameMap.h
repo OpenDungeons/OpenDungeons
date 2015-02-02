@@ -450,8 +450,8 @@ public:
     //! \brief Returns the number of workers the given seat controls
     int getNbWorkersForSeat(Seat* seat);
 
-    //! \brief Searches for a kobold owned by the seat for path finding
-    Creature* getKoboldForPathFinding(Seat* seat);
+    //! \brief Searches for a worker owned by the seat for path finding
+    Creature* getWorkerForPathFinding(Seat* seat);
 
     //! \brief Finds a path for the creature to the best tile within range from target
     //! Returns true and path will contain the path if a path is found.
