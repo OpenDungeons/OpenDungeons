@@ -266,10 +266,23 @@ void Gui::assignEventHandlers()
         CEGUI::PushButton::EventClicked,
         CEGUI::Event::Subscriber(&objectivesButtonPressed));
 
+    mSheets[inGameMenu]->getChild("OptionsButton")->subscribeEvent(
+        CEGUI::PushButton::EventClicked,
+        CEGUI::Event::Subscriber(&optionsButtonPressed));
+
     // Search for the autoclose button and make it work
     mSheets[inGameMenu]->getChild("ObjectivesWindow/__auto_closebutton__")->subscribeEvent(
         CEGUI::PushButton::EventClicked,
         CEGUI::Event::Subscriber(&hideObjectivesWindow));
+
+    // Search for the autoclose button and make it work
+    mSheets[inGameMenu]->getChild("SettingsWindow/__auto_closebutton__")->subscribeEvent(
+        CEGUI::PushButton::EventClicked,
+        CEGUI::Event::Subscriber(&cancelSettings));
+
+    mSheets[inGameMenu]->getChild("SettingsWindow/CancelButton")->subscribeEvent(
+        CEGUI::PushButton::EventClicked,
+        CEGUI::Event::Subscriber(&cancelSettings));
 
     // Editor Mode controls
     mSheets[editorModeGui]->getChild(EDITOR_LAVA_BUTTON)->subscribeEvent(
@@ -705,6 +718,27 @@ bool Gui::hideObjectivesWindow(const CEGUI::EventArgs& e)
         return true;
 
     static_cast<GameMode*>(mm->getCurrentMode())->hideObjectivesWindow();
+    return true;
+}
+
+bool Gui::optionsButtonPressed(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::GAME)
+        return true;
+
+    static_cast<GameMode*>(mm->getCurrentMode())->showOptionsWindow();
+    return true;
+}
+
+bool Gui::cancelSettings(const CEGUI::EventArgs& e)
+{
+    // TODO: restore previous settings...
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::GAME)
+        return true;
+
+    static_cast<GameMode*>(mm->getCurrentMode())->hideOptionsWindow();
     return true;
 }
 

@@ -271,7 +271,10 @@ private:
 
     static bool helpButtonPressed(const CEGUI::EventArgs& e);
     static bool objectivesButtonPressed(const CEGUI::EventArgs& e);
+    static bool optionsButtonPressed(const CEGUI::EventArgs& e);
     static bool hideObjectivesWindow(const CEGUI::EventArgs& e);
+
+    static bool cancelSettings(const CEGUI::EventArgs& e);
 
     // Editor Buttons
     static bool editorLavaButtonPressed(const CEGUI::EventArgs& e);

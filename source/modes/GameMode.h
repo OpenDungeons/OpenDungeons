@@ -97,6 +97,12 @@ class  GameMode: public AbstractApplicationMode
     //! \brief Hides the objectives window.
     void hideObjectivesWindow();
 
+    //! \brief Shows the options window
+    void showOptionsWindow();
+
+    //! \brief Hides the options window.
+    void hideOptionsWindow();
+
  protected:
     //! \brief Handle the keyboard input in normal mode
     virtual bool keyPressedNormal   (const OIS::KeyEvent &arg);

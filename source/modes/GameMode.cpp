@@ -94,6 +94,7 @@ void GameMode::activate()
     guiSheet->getChild(Gui::BUTTON_TEMPLE)->hide();
     guiSheet->getChild(Gui::BUTTON_PORTAL)->hide();
     guiSheet->getChild("ObjectivesWindow")->hide();
+    guiSheet->getChild("SettingsWindow")->hide();
 
     MiniMap* minimap = ODFrameListener::getSingleton().getMiniMap();
     minimap->attachMiniMap(Gui::guiSheet::inGameMenu);
@@ -725,6 +726,10 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
         showObjectivesWindow();
         break;
 
+    case OIS::KC_F10:
+        showOptionsWindow();
+        break;
+
     case OIS::KC_F11:
         frameListener.toggleDebugInfo();
         break;
@@ -1020,6 +1025,18 @@ void GameMode::showObjectivesWindow()
 void GameMode::hideObjectivesWindow()
 {
     Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild("ObjectivesWindow")->hide();
+}
+
+void GameMode::showOptionsWindow()
+{
+    // FIXME: For now, we show the settings window directly.
+    // Later the option menu with save load and settings button can be added.
+    Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild("SettingsWindow")->show();
+}
+
+void GameMode::hideOptionsWindow()
+{
+    Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild("SettingsWindow")->hide();
 }
 
 void GameMode::showHelpWindow()
