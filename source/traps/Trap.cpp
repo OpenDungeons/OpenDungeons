@@ -138,16 +138,16 @@ int Trap::costPerTile(TrapType t)
             return 0;
 
         case cannon:
-            return 500;
+            return ConfigManager::getSingleton().getTrapConfigInt32("CannonCostPerTile");
 
         case spike:
-            return 400;
+            return ConfigManager::getSingleton().getTrapConfigInt32("SpikeCostPerTile");
 
         case boulder:
-            return 500;
+            return ConfigManager::getSingleton().getTrapConfigInt32("BoulderCostPerTile");
 
         default:
-            return 100;
+            return 0;
     }
 }
 

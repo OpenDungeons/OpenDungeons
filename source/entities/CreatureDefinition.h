@@ -112,6 +112,7 @@ public:
             double                  attackRange         = 1.0,
             double                  atkRangePerLevel    = 0.0,
             double                  attackWarmupTime    = 1.0,
+            double                  weakCoef            = 0.3,
             int32_t                 feeBase             = 0,
             int32_t                 feePerLevel         = 0) :
         mCreatureJob (job),
@@ -148,6 +149,7 @@ public:
         mAttackRange        (attackRange),
         mAtkRangePerLevel   (atkRangePerLevel),
         mAttackWarmupTime   (attackWarmupTime),
+        mWeakCoef            (weakCoef),
         mFeeBase            (feeBase),
         mFeePerLevel        (feePerLevel),
         mWeaponSpawnL       ("none"),
@@ -219,6 +221,8 @@ public:
     inline double               getAtkRangePerLevel () const    { return mAtkRangePerLevel; }
 
     inline double               getAttackWarmupTime () const    { return mAttackWarmupTime; }
+
+    inline double               getWeakCoef () const            { return mWeakCoef; }
 
     const std::string&          getWeaponSpawnL () const        { return mWeaponSpawnL; }
     const std::string&          getWeaponSpawnR () const        { return mWeaponSpawnR; }
@@ -318,6 +322,10 @@ private:
 
     //! \brief The time to wait before dealing a blow, in seconds.
     double mAttackWarmupTime;
+
+    //! \brief The coefficient applied on hp to check if the creature is weak. It will be
+    //! if hp < hpMax * mWeakCoef. A weak creature will flee combat and will try to rest
+    double mWeakCoef;
 
     //! \brief The base fee for this creature.
     int32_t mFeeBase;

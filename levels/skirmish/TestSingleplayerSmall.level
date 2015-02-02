@@ -946,9 +946,9 @@ ProtectDungeonTemple	NULL
     BedMeshName	DragonBed
     BedDimX	2
     BedDimY	2
-    MinHP	150
+    MinHP	50
     HP/Level	10
-    Heal/Turn	5
+    Heal/Turn	0.5
     AwakenessLost/Turn	0.15
     HungerGrowth/Turn	0.15
     TileSightRadius	15
@@ -966,7 +966,7 @@ ProtectDungeonTemple	NULL
     PhysicalAtk/Level	0.2
     MagicalAttack	0
     MagicalAtk/Level	0
-    PhysicalDefense	15
+    PhysicalDefense	1
     PhysicalDef/Level	0.1
     MagicalDefense	0
     MagicalDef/Level	0
@@ -975,6 +975,7 @@ ProtectDungeonTemple	NULL
     AttackWarmupTime	1.5
     FeeBase	0
     FeePerLevel	0
+    WeakCoef	0.0
     WeaponSpawnL	none
     WeaponSpawnL	none
     [/Stats]
@@ -1023,13 +1024,7 @@ ProtectDungeonTemple	NULL
 2	Adventurer	Adventurer3	1	0	10	100	0	0	7	40	0	none	none
 [/Creature]
 [Creature]
-0	BigDragon	Dragon1	1	0	max	100	0	0	43	10	0	none	none
-[/Creature]
-[Creature]
-0	BigDragon	Dragon2	1	0	max	100	0	0	40	10	0	none	none
-[/Creature]
-[Creature]
-0	BigDragon	Dragon3	1	0	max	100	0	0	40	12	0	none	none
+0	BigDragon	Dragon1	1	0	max	100	0	0	9	5	0	none	none
 [/Creature]
 [Creature]
 3	Tentacle1	Tentacle11	1	0	max	100	0	0	5	15	0	none	none
