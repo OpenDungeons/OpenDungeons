@@ -24,6 +24,7 @@
 #include <functional>
 #include <string>
 #include <bitset>
+#include <vector>
 
 class ConsoleInterface;
 

@@ -582,8 +582,8 @@ void addConsoleCommands(ConsoleInterface& cl)
     cl.addCommand("nearclip",
                    "Sets the minimal viewpoint clipping distance. Objects nearer than that won't be rendered.\n\nE.g.: nearclip 3.0",
                    [](const Command::ArgumentList_t& args, ConsoleInterface& c, AbstractModeManager&) {
-                           return cSetFrameListenerVar<float>(&ODFrameListener::getActiveCameraNearClipDistance,
-                                                                 &ODFrameListener::setActiveCameraNearClipDistance,
+                           return cSetFrameListenerVar<float>(std::mem_fn(&ODFrameListener::getActiveCameraNearClipDistance),
+                                                                 std::mem_fn(&ODFrameListener::setActiveCameraNearClipDistance),
                                                                  ODFrameListener::getSingleton(),
                                                                  "near clip distance", args, c);
                     },
@@ -591,8 +591,8 @@ void addConsoleCommands(ConsoleInterface& cl)
     cl.addCommand("farclip",
                   "Sets the maximal viewpoint clipping distance. Objects farther than that won't be rendered.\n\nE.g.: farclip 30.0",
                   [](const Command::ArgumentList_t& args, ConsoleInterface& c, AbstractModeManager&) {
-                          return cSetFrameListenerVar<float>(&ODFrameListener::getActiveCameraFarClipDistance,
-                                                                &ODFrameListener::setActiveCameraFarClipDistance,
+                          return cSetFrameListenerVar<float>(std::mem_fn(&ODFrameListener::getActiveCameraFarClipDistance),
+                                                                std::mem_fn(&ODFrameListener::setActiveCameraFarClipDistance),
                                                                 ODFrameListener::getSingleton(),
                                                                 "far clip distance", args, c);
                   },
@@ -601,8 +601,8 @@ void addConsoleCommands(ConsoleInterface& cl)
                   "Sets the max time (in seconds) a message will be displayed in the info text area.\n\nExample:\n"
                   "maxtime 5",
                   [](const Command::ArgumentList_t& args, ConsoleInterface& c, AbstractModeManager&) {
-                          return cSetFrameListenerVar<float>(&ODFrameListener::getChatMaxTimeDisplay,
-                                                                &ODFrameListener::setChatMaxTimeDisplay,
+                          return cSetFrameListenerVar<float>(std::mem_fn(&ODFrameListener::getChatMaxTimeDisplay),
+                                                                std::mem_fn(&ODFrameListener::setChatMaxTimeDisplay),
                                                                 ODFrameListener::getSingleton(),
                                                                 "chat max time display", args, c);
                   },
@@ -611,8 +611,8 @@ void addConsoleCommands(ConsoleInterface& cl)
                   "Sets the max number of lines displayed at once in the info text area.\n\nExample:\n"
                   "maxmessages 4",
                   [](const Command::ArgumentList_t& args, ConsoleInterface& c, AbstractModeManager&) {
-                          return cSetFrameListenerVar<unsigned int>(&ODFrameListener::getChatMaxMessages,
-                                                                &ODFrameListener::setChatMaxMessages,
+                          return cSetFrameListenerVar<unsigned int>(std::mem_fn(&ODFrameListener::getChatMaxMessages),
+                                                                std::mem_fn(&ODFrameListener::setChatMaxMessages),
                                                                 ODFrameListener::getSingleton(),
                                                                 "max displayed messages", args, c);
                   },
