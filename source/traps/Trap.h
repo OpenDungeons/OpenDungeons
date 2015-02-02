@@ -158,7 +158,7 @@ public:
     virtual void updateActiveSpots();
 
     static int32_t getNeededForgePointsPerTrap(TrapType trapType);
-    virtual bool isNeededCraftedTrap() const;
+    virtual int32_t getNbNeededCraftedTrap() const;
 
     bool hasCarryEntitySpot(MovableGameEntity* carriedEntity);
     Tile* askSpotForCarriedEntity(MovableGameEntity* carriedEntity);

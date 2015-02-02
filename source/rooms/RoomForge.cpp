@@ -201,9 +201,11 @@ void RoomForge::doUpkeep()
     if (mCoveredTiles.empty())
         return;
 
-    // If we are not already working on something, we check if a trap have a need
+    // If we are not already working on something, we check if a trap have a need. If so,
+    // we check that no reachable forge can supply the trap before starting crafting
     if(mTrapType == Trap::TrapType::nullTrapType)
     {
+        std::map<Trap::TrapType, int> neededTraps;
         Creature* kobold = getGameMap()->getKoboldForPathFinding(getSeat());
         if (kobold != nullptr)
         {
@@ -218,11 +220,42 @@ void RoomForge::doUpkeep()
                 if(trap == nullptr)
                     continue;
 
-                if(!trap->isNeededCraftedTrap())
+                int32_t nbNeededCraftedTrap = trap->getNbNeededCraftedTrap();
+                if(nbNeededCraftedTrap <= 0)
                     continue;
 
-                mTrapType = trap->getType();
-                break;
+                neededTraps[trap->getType()] += nbNeededCraftedTrap;
+            }
+        }
+
+        if(!neededTraps.empty())
+        {
+            // We check if a reachable forge have a corresponding crafted trap
+            std::vector<Room*> rooms = getGameMap()->getRoomsByTypeAndSeat(Room::RoomType::forge, getSeat());
+            rooms = getGameMap()->getReachableRooms(rooms, getCoveredTile(0), kobold);
+            for(std::pair<Trap::TrapType const, int>& p : neededTraps)
+            {
+                for(Room* room : rooms)
+                {
+                    RoomForge* forge = static_cast<RoomForge*>(room);
+                    p.second -= forge->getNbCraftedTrapsForType(p.first);
+                }
+            }
+
+            std::vector<Trap::TrapType> trapsToCraft;
+            for(std::pair<Trap::TrapType const, int>& p : neededTraps)
+            {
+                if(p.second <= 0)
+                    continue;
+
+                trapsToCraft.push_back(p.first);
+            }
+
+            // We randomly pickup the trap to craft if any
+            if(!trapsToCraft.empty())
+            {
+                uint32_t index = Random::Uint(0, trapsToCraft.size() - 1);
+                mTrapType = trapsToCraft[index];
             }
         }
     }
@@ -230,6 +263,10 @@ void RoomForge::doUpkeep()
     // If there is nothing to do, we remove the working creatures if any
     if(mTrapType == Trap::TrapType::nullTrapType)
     {
+        if(mCreaturesSpots.empty())
+            return;
+
+        // We remove the creatures working here
         std::vector<Creature*> creatures;
         for(const std::pair<Creature* const,Tile*>& p : mCreaturesSpots)
         {
@@ -388,4 +425,34 @@ void RoomForge::getCreatureWantedPos(Creature* creature, Tile* tileSpot,
     wantedX = static_cast<Ogre::Real>(tileSpot->getX());
     wantedY = static_cast<Ogre::Real>(tileSpot->getY());
     wantedY -= OFFSET_CREATURE;
+}
+
+int32_t RoomForge::getNbCraftedTrapsForType(Trap::TrapType type)
+{
+    std::vector<MovableGameEntity*> carryable;
+    for(Tile* t : mCoveredTiles)
+    {
+        t->fillWithCarryableEntities(carryable);
+    }
+    uint32_t nbCraftedTrap = 0;
+    for(MovableGameEntity* entity : carryable)
+    {
+        if(entity->getObjectType() != GameEntity::ObjectType::renderedMovableEntity)
+            continue;
+        RenderedMovableEntity* renderEntity = static_cast<RenderedMovableEntity*>(entity);
+        if(renderEntity->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::craftedTrap)
+            continue;
+
+        CraftedTrap* craftedTrap = static_cast<CraftedTrap*>(renderEntity);
+        if(craftedTrap->getTrapType() != type)
+            continue;
+
+        ++nbCraftedTrap;
+    }
+
+    // We also count the currently crafted trap if any
+    if(mTrapType == type)
+        ++nbCraftedTrap;
+
+    return nbCraftedTrap;
 }

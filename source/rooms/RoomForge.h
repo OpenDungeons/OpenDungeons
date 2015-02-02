@@ -45,6 +45,7 @@ private:
     //!\brief checks if a tile is available in the forge to place a new crafted trap
     uint32_t countCraftedItemsOnRoom();
     Tile* checkIfAvailableSpot(const std::vector<Tile*>& activeSpots);
+    int32_t getNbCraftedTrapsForType(Trap::TrapType type);
     int32_t mNbTurnsNoChangeSpots;
     int32_t mPoints;
     Trap::TrapType mTrapType;
