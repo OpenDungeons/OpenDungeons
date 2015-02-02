@@ -13,7 +13,6 @@ resources.cfg
 *.exe
 *.log
 *.o
-*.sh
 *.zip
 *.a
 *.level.bak
