@@ -114,6 +114,24 @@ ConfigManager::~ConfigManager()
         delete def;
     }
     mWeapons.clear();
+
+    for(std::pair<const std::string, std::vector<const CreatureMood*>> p : mCreatureMoodModifiers)
+    {
+        for(const CreatureMood* creatureMood : p.second)
+        {
+            delete creatureMood;
+        }
+    }
+    mCreatureMoodModifiers.clear();
+
+    for(std::pair<const CreatureDefinition*, std::vector<const SpawnCondition*>> p : mCreatureSpawnConditions)
+    {
+        for(const SpawnCondition* spawnCondition : p.second)
+        {
+            delete spawnCondition;
+        }
+    }
+    mCreatureSpawnConditions.clear();
 }
 
 bool ConfigManager::loadGlobalConfig()
