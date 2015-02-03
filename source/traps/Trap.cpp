@@ -214,8 +214,9 @@ void Trap::doUpkeep()
     }
 }
 
-bool Trap::isNeededCraftedTrap() const
+int32_t Trap::getNbNeededCraftedTrap() const
 {
+    int32_t nbNeededCraftedTrap = 0;
     for(Tile* tile : mCoveredTiles)
     {
         if(mTrapTiles.count(tile) <= 0)
@@ -228,11 +229,10 @@ bool Trap::isNeededCraftedTrap() const
         if(trapTileInfo.getCarriedCraftedTrap() != nullptr)
             continue;
 
-
-        return true;
+        ++nbNeededCraftedTrap;
     }
 
-    return false;
+    return nbNeededCraftedTrap;
 }
 
 void Trap::addCoveredTile(Tile* t, double nHP)
@@ -383,7 +383,7 @@ int32_t Trap::getNeededForgePointsPerTrap(TrapType trapType)
 
 bool Trap::hasCarryEntitySpot(MovableGameEntity* carriedEntity)
 {
-    if(!isNeededCraftedTrap())
+    if(getNbNeededCraftedTrap() <= 0)
         return false;
 
     if(carriedEntity->getObjectType() != GameEntity::ObjectType::renderedMovableEntity)
