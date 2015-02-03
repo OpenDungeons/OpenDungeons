@@ -39,6 +39,7 @@
 #include "ODApplication.h"
 #include "entities/RenderedMovableEntity.h"
 #include "gamemap/MiniMap.h"
+#include "spell/Spell.h"
 
 #include <CEGUI/WindowManager.h>
 #include <CEGUI/widgets/PushButton.h>
@@ -50,7 +51,7 @@
 #include <vector>
 #include <string>
 
-//! \brief Colors used by the room/trap text overlay
+//! \brief Colors used by the room/trap/spell text overlay
 static Ogre::ColourValue white = Ogre::ColourValue(1.0f, 1.0f, 1.0f, 1.0f);
 static Ogre::ColourValue red = Ogre::ColourValue(1.0f, 0.0f, 0.0, 1.0f);
 
@@ -211,6 +212,32 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 Ogre::ColourValue& textColor = (gold < price) ? red : white;
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
                 textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Trap::getTrapNameFromTrapType(selectedTrapType))
+                    + " [" + Ogre::StringConverter::toString(price)+ "]");
+                break;
+            }
+            case Player::SelectedAction::castSpell:
+            {
+                // If the player is dragging to build, we display the total price the room/trap will cost.
+                // If he is not, we display the price for 1 tile.
+                std::vector<Tile*> tiles;
+                if(inputManager->mLMouseDown)
+                {
+                    tiles = mGameMap->getBuildableTilesForPlayerInArea(inputManager->mXPos,
+                        inputManager->mYPos, inputManager->mLStartDragX, inputManager->mLStartDragY, player);
+                }
+                else
+                {
+                    Tile* tile = mGameMap->getTile(inputManager->mXPos, inputManager->mYPos);
+                    if(tile != nullptr)
+                        tiles.push_back(tile);
+                }
+
+                int mana = player->getSeat()->getMana();
+                SpellType selectedSpellType = player->getNewSpellType();
+                int price = Spell::getSpellCost(mGameMap, selectedSpellType, tiles, player);
+                Ogre::ColourValue& textColor = (mana < price) ? red : white;
+                textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
+                textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Spell::getSpellNameFromSpellType(selectedSpellType))
                     + " [" + Ogre::StringConverter::toString(price)+ "]");
                 break;
             }
@@ -630,12 +657,11 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         }
         case Player::SelectedAction::buildRoom:
         {
-            int intRoomType = static_cast<int>(mGameMap->getLocalPlayer()->getNewRoomType());
             ClientNotification *clientNotification = new ClientNotification(
                 ClientNotification::askBuildRoom);
             clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
             clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
-            clientNotification->mPacket << intRoomType;
+            clientNotification->mPacket << mGameMap->getLocalPlayer()->getNewRoomType();
             ODClient::getSingleton().queueClientNotification(clientNotification);
             break;
         }
@@ -643,10 +669,19 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         {
             ClientNotification *clientNotification = new ClientNotification(
                 ClientNotification::askBuildTrap);
-            int intTrapType = static_cast<int>(mGameMap->getLocalPlayer()->getNewTrapType());
             clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
             clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
-            clientNotification->mPacket << intTrapType;
+            clientNotification->mPacket << mGameMap->getLocalPlayer()->getNewTrapType();
+            ODClient::getSingleton().queueClientNotification(clientNotification);
+            break;
+        }
+        case Player::SelectedAction::castSpell:
+        {
+            ClientNotification *clientNotification = new ClientNotification(
+                ClientNotification::askCastSpell);
+            clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
+            clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
+            clientNotification->mPacket << mGameMap->getLocalPlayer()->getNewSpellType();
             ODClient::getSingleton().queueClientNotification(clientNotification);
             break;
         }

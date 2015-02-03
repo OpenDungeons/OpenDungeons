@@ -691,7 +691,7 @@ void RenderManager::rrDropHand(MovableGameEntity* curEntity, Player* localPlayer
     // Attach the creature from the creature scene node
     curEntity->getParentSceneNode()->addChild(curEntityNode);
     curEntityNode->setPosition(curEntity->getPosition());
-    curEntityNode->setScale(curEntity->getScale());;
+    curEntityNode->setScale(curEntity->getScale());
 
     // Move the other creatures in the player's hand to replace the dropped one
     int i = 0;
@@ -975,7 +975,7 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, co
             tempPass->setSpecular(color);
         }
     }
-    
+
     return tempSS.str();
 }
 

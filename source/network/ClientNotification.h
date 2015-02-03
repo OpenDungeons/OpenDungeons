@@ -57,6 +57,7 @@ public:
         askPickupWorker,
         askPickupFighter,
         askSlapEntity,
+        askCastSpell,
 
         //  Editor
         editorAskSaveMap,

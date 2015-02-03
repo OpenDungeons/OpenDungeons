@@ -436,6 +436,9 @@ public:
 
     int addGoldToSeat(int gold, int seatId);
 
+    //! \brief Returns the number of workers the given seat controls
+    int getNbWorkersForSeat(Seat* seat);
+
     //! \brief Searches for a kobold owned by the seat for path finding
     Creature* getKoboldForPathFinding(Seat* seat);
 

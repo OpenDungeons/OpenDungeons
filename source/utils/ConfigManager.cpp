@@ -44,7 +44,8 @@ ConfigManager::ConfigManager() :
     mCreatureMoodFurious(-2000),
     mSlapDamagePercent(15),
     mTimePayDay(300),
-    mNbTurnsFuriousMax(120)
+    mNbTurnsFuriousMax(120),
+    mMaxManaPerSeat(250000.0)
 {
     if(!loadGlobalConfig())
     {
@@ -83,6 +84,12 @@ ConfigManager::ConfigManager() :
     }
     fileName = ResourceManager::getSingleton().getConfigPath() + mFilenameTraps;
     if(!loadTraps(fileName))
+    {
+        OD_ASSERT_TRUE(false);
+        exit(1);
+    }
+    fileName = ResourceManager::getSingleton().getConfigPath() + mFilenameSpells;
+    if(!loadSpellConfig(fileName))
     {
         OD_ASSERT_TRUE(false);
         exit(1);
@@ -245,14 +252,19 @@ bool ConfigManager::loadGlobalConfigDefinitionFiles(std::stringstream& configFil
             mFilenameTraps = fileName;
             filesOk |= 0x20;
         }
+        else if(type == "Spells")
+        {
+            mFilenameSpells = fileName;
+            filesOk |= 0x40;
+        }
         else if(type == "CreaturesMood")
         {
             mFilenameCreaturesMood = fileName;
-            filesOk |= 0x40;
+            filesOk |= 0x80;
         }
     }
 
-    if(filesOk != 0x7F)
+    if(filesOk != 0xFF)
     {
         OD_ASSERT_TRUE_MSG(false, "Missing parameter file filesOk=" + Ogre::StringConverter::toString(filesOk));
         return false;
@@ -404,6 +416,13 @@ bool ConfigManager::loadGlobalGameConfig(std::stringstream& configFile)
         {
             configFile >> nextParam;
             mNbTurnsFuriousMax = Helper::toInt(nextParam);
+            // Not mandatory
+        }
+
+        if(nextParam == "MaxManaPerSeat")
+        {
+            configFile >> nextParam;
+            mMaxManaPerSeat = Helper::toDouble(nextParam);
             // Not mandatory
         }
     }
@@ -772,6 +791,39 @@ bool ConfigManager::loadTraps(const std::string& fileName)
     return true;
 }
 
+bool ConfigManager::loadSpellConfig(const std::string& fileName)
+{
+    LogManager::getSingleton().logMessage("Load Spell config file: " + fileName);
+    std::stringstream defFile;
+    if(!Helper::readFileWithoutComments(fileName, defFile))
+    {
+        OD_ASSERT_TRUE_MSG(false, "Couldn't read " + fileName);
+        return false;
+    }
+
+    std::string nextParam;
+    // Read in the creature class descriptions
+    defFile >> nextParam;
+    if (nextParam != "[Spells]")
+    {
+        OD_ASSERT_TRUE_MSG(false, "Invalid Spells start format. Line was " + nextParam);
+        return false;
+    }
+
+    while(defFile.good())
+    {
+        if(!(defFile >> nextParam))
+            break;
+
+        if (nextParam == "[/Spells]")
+            break;
+
+        defFile >> mSpellConfig[nextParam];
+    }
+
+    return true;
+}
+
 bool ConfigManager::loadCreaturesMood(const std::string& fileName)
 {
     LogManager::getSingleton().logMessage("Load creature spawn conditions file: " + fileName);
@@ -968,6 +1020,50 @@ double ConfigManager::getTrapConfigDouble(const std::string& param) const
     }
 
     return Helper::toDouble(mTrapsConfig.at(param));
+}
+
+const std::string& ConfigManager::getSpellConfigString(const std::string& param) const
+{
+    if(mSpellConfig.count(param) <= 0)
+    {
+        OD_ASSERT_TRUE_MSG(false, "Unknown parameter param=" + param);
+        return EMPTY_STRING;
+    }
+
+    return mSpellConfig.at(param);
+}
+
+uint32_t ConfigManager::getSpellConfigUInt32(const std::string& param) const
+{
+    if(mSpellConfig.count(param) <= 0)
+    {
+        OD_ASSERT_TRUE_MSG(false, "Unknown parameter param=" + param);
+        return 0;
+    }
+
+    return Helper::toUInt32(mSpellConfig.at(param));
+}
+
+int32_t ConfigManager::getSpellConfigInt32(const std::string& param) const
+{
+    if(mSpellConfig.count(param) <= 0)
+    {
+        OD_ASSERT_TRUE_MSG(false, "Unknown parameter param=" + param);
+        return 0;
+    }
+
+    return Helper::toInt(mSpellConfig.at(param));
+}
+
+double ConfigManager::getSpellConfigDouble(const std::string& param) const
+{
+    if(mSpellConfig.count(param) <= 0)
+    {
+        OD_ASSERT_TRUE_MSG(false, "Unknown parameter param=" + param);
+        return 0.0;
+    }
+
+    return Helper::toDouble(mSpellConfig.at(param));
 }
 
 const CreatureDefinition* ConfigManager::getCreatureDefinition(const std::string& name) const

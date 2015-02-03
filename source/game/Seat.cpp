@@ -770,6 +770,15 @@ void Seat::refreshFromSeat(Seat* s)
     mNbTreasuries = s->mNbTreasuries;
 }
 
+bool Seat::takeMana(double mana)
+{
+    if(mana > mMana)
+        return false;
+
+    mMana -= mana;
+    return true;
+}
+
 bool Seat::sortForMapSave(Seat* s1, Seat* s2)
 {
     return s1->mId < s2->mId;

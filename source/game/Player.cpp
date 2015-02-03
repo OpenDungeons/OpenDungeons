@@ -30,6 +30,8 @@
 
 #include "render/RenderManager.h"
 
+#include "spell/Spell.h"
+
 #include "utils/LogManager.h"
 
 #include <cmath>
@@ -342,4 +344,12 @@ void Player::notifyNoTreasuryAvailable()
         serverNotification->mPacket << chatMsg;
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
+}
+
+void Player::setCurrentAction(SelectedAction action)
+{
+    mCurrentAction = action;
+    mNewTrapType = Trap::nullTrapType;
+    mNewRoomType = Room::nullRoomType;
+    mNewSpellType = SpellType::nullSpellType;
 }

@@ -27,6 +27,7 @@
 #include "rooms/RoomLibrary.h"
 #include "rooms/RoomTrainingHall.h"
 #include "rooms/RoomTreasury.h"
+#include "spell/Spell.h"
 #include "utils/LogManager.h"
 #include "utils/Random.h"
 
@@ -41,7 +42,8 @@ KeeperAI::KeeperAI(GameMap& gameMap, Player& player, const std::string& paramete
     mRoomSize(-1),
     mNoMoreReachableGold(false),
     mCooldownLookingForGold(0),
-    mCooldownDefense(0)
+    mCooldownDefense(0),
+    mCooldownWorkers(0)
 {
 }
 
@@ -54,6 +56,9 @@ bool KeeperAI::doTurn(double frameTime)
     saveWoundedCreatures();
 
     handleDefense();
+
+    if (handleWorkers())
+        return true;
 
     if (checkTreasury())
         return true;
@@ -717,4 +722,35 @@ void KeeperAI::handleDefense()
             }
         }
     }
+}
+
+bool KeeperAI::handleWorkers()
+{
+    if(mCooldownWorkers > 0)
+    {
+        --mCooldownWorkers;
+        return false;
+    }
+
+    mCooldownWorkers = Random::Int(3,10);
+
+    Tile* central = getDungeonTemple()->getCentralTile();
+    std::vector<Tile*> tiles;
+    tiles.push_back(central);
+    int summonCost = Spell::getSpellCost(&mGameMap, SpellType::summonWorker, tiles, &mPlayer);
+    int mana = static_cast<int>(mPlayer.getSeat()->getMana());
+    if(mana < summonCost)
+        return false;
+
+    // If we have less than 4 workers or we have the chance, we summon
+    int nbWorkers = mGameMap.getNbWorkersForSeat(mPlayer.getSeat());
+    if((nbWorkers < 4) ||
+       (Random::Int(0,20) == 5))
+    {
+        mPlayer.getSeat()->takeMana(mana);
+        Spell::castSpell(&mGameMap, SpellType::summonWorker, tiles, &mPlayer);
+        return true;
+    }
+
+    return false;
 }
