@@ -44,6 +44,10 @@ TrapEntity* TrapEntity::getTrapEntityFromPacket(GameMap* gameMap, ODPacket& is)
 
 bool TrapEntity::isVisibleForSeat(Seat* seat)
 {
+    // In editor mode, traps are visible for everybody
+    if(getGameMap()->isInEditorMode())
+        return true;
+
     if(std::find(mSeatsNotHidden.begin(), mSeatsNotHidden.end(), seat) == mSeatsNotHidden.end())
         return false;
 
@@ -83,6 +87,7 @@ void TrapEntity::notifySeatsWithVision(const std::vector<Seat*>& seats)
     }
 
     // We notify seats that gain vision
+    bool isEditorMode = getGameMap()->isInEditorMode();
     for(Seat* seat : seats)
     {
         // If the seat was already in the list, nothing to do
@@ -90,7 +95,8 @@ void TrapEntity::notifySeatsWithVision(const std::vector<Seat*>& seats)
             continue;
 
         // If we are hidden for current seat, we do not notify our state
-        if(std::find(mSeatsNotHidden.begin(), mSeatsNotHidden.end(), seat) == mSeatsNotHidden.end())
+        // In editor mode, everybody can see traps
+        if(!isEditorMode && std::find(mSeatsNotHidden.begin(), mSeatsNotHidden.end(), seat) == mSeatsNotHidden.end())
             continue;
 
         mSeatsWithVisionNotified.push_back(seat);
