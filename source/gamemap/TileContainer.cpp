@@ -432,7 +432,7 @@ std::array<Tile::TileType, 8> TileContainer::getNeighborsTypes(const Tile* curTi
 {
     int xx = curTile->getX();
     int yy = curTile->getY();
-  
+
     std::array<Tile::TileType, 8> neighborsType;
 
     neighborsType[0] = getSafeTileType(getTile(xx - 1, yy));
@@ -451,7 +451,7 @@ std::bitset<8> TileContainer::getNeighborsFullness(const Tile* curTile) const
 {
     int xx = curTile->getX();
     int yy = curTile->getY();
-    
+
     std::bitset<8> neighborsFullness;
 
     neighborsFullness[0] = getSafeTileFullness(getTile(xx - 1, yy));

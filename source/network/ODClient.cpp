@@ -179,7 +179,7 @@ bool ODClient::processOneClientSocketMessage()
                 --nb;
                 MapLight* light = new MapLight(gameMap);
                 OD_ASSERT_TRUE(packetReceived >> light);
-                gameMap->addMapLight(light);
+                light->addToGameMap();
             }
             gameMap->setAllFullnessAndNeighbors();
 
@@ -390,7 +390,7 @@ bool ODClient::processOneClientSocketMessage()
         {
             MapLight *newMapLight = new MapLight(gameMap);
             OD_ASSERT_TRUE(packetReceived >> newMapLight);
-            gameMap->addMapLight(newMapLight);
+            newMapLight->addToGameMap();
             newMapLight->createMesh();
             break;
         }
@@ -404,7 +404,7 @@ bool ODClient::processOneClientSocketMessage()
             if(tempMapLight == nullptr)
                 break;
 
-            gameMap->removeMapLight(tempMapLight);
+            tempMapLight->removeFromGameMap();
             tempMapLight->deleteYourself();
             break;
         }
@@ -420,7 +420,7 @@ bool ODClient::processOneClientSocketMessage()
         case ServerNotification::addCreature:
         {
             Creature *newCreature = Creature::getCreatureFromPacket(gameMap, packetReceived);
-            gameMap->addCreature(newCreature);
+            newCreature->addToGameMap();
             newCreature->createMesh();
             newCreature->restoreEntityState();
             break;
@@ -435,7 +435,7 @@ bool ODClient::processOneClientSocketMessage()
             if(creature == nullptr)
                 break;
 
-            gameMap->removeCreature(creature);
+            creature->removeFromGameMap();
             creature->deleteYourself();
             break;
         }
@@ -612,7 +612,9 @@ bool ODClient::processOneClientSocketMessage()
         {
             RenderedMovableEntity* tempRenderedMovableEntity = RenderedMovableEntity::getRenderedMovableEntityFromPacket(gameMap, packetReceived);
             OD_ASSERT_TRUE(tempRenderedMovableEntity != nullptr);
-            gameMap->addRenderedMovableEntity(tempRenderedMovableEntity);
+            if(tempRenderedMovableEntity == nullptr)
+                break;
+            tempRenderedMovableEntity->addToGameMap();
             tempRenderedMovableEntity->createMesh();
             tempRenderedMovableEntity->restoreEntityState();
             break;
@@ -620,14 +622,16 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotification::removeRenderedMovableEntity:
         {
+            // TODO: merge ServerNotification::removeRenderedMovableEntity, ServerNotification::removeCreature... for movable entities when it is possible
             std::string name;
-            OD_ASSERT_TRUE(packetReceived >> name);
-            RenderedMovableEntity* tempRenderedMovableEntity = gameMap->getRenderedMovableEntity(name);
-            OD_ASSERT_TRUE_MSG(tempRenderedMovableEntity != nullptr, "name=" + name);
-            if (tempRenderedMovableEntity != nullptr)
+            GameEntity::ObjectType entityType;
+            OD_ASSERT_TRUE(packetReceived >> entityType >> name);
+            MovableGameEntity* entity = gameMap->getEntityFromTypeAndName(entityType, name);
+            OD_ASSERT_TRUE_MSG(entity != nullptr, "name=" + name);
+            if (entity != nullptr)
             {
-                gameMap->removeRenderedMovableEntity(tempRenderedMovableEntity);
-                tempRenderedMovableEntity->deleteYourself();
+                entity->removeFromGameMap();
+                entity->deleteYourself();
             }
             break;
         }

@@ -81,7 +81,7 @@ void RoomHatchery::doUpkeep()
     for(Tile* chickenCoopTile : mCentralActiveSpotTiles)
     {
         ChickenEntity* chicken = new ChickenEntity(getGameMap(), getName());
-        getGameMap()->addRenderedMovableEntity(chicken);
+        chicken->addToGameMap();
         chicken->createMesh();
         Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(chickenCoopTile->getX()),
                                     static_cast<Ogre::Real>(chickenCoopTile->getY()), 0.0f);

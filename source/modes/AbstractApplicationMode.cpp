@@ -24,6 +24,7 @@
 #include "network/ODServer.h"
 #include "render/Gui.h"
 #include "render/ODFrameListener.h"
+#include "spell/Spell.h"
 
 #include <CEGUI/System.h>
 #include <CEGUI/GUIContext.h>
@@ -112,6 +113,11 @@ GameEntity* AbstractApplicationMode::getEntityFromOgreName(const std::string& en
     {
         std::string name = entityName.substr(RenderedMovableEntity::RENDEREDMOVABLEENTITY_OGRE_PREFIX.length());
         return gameMap->getRenderedMovableEntity(name);
+    }
+    else if (entityName.find(Spell::SPELL_OGRE_PREFIX) != std::string::npos)
+    {
+        std::string name = entityName.substr(Spell::SPELL_OGRE_PREFIX.length());
+        return gameMap->getSpell(name);
     }
 
     return nullptr;

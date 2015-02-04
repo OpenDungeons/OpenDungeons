@@ -135,6 +135,9 @@ public:
 
     virtual std::string getOgreNamePrefix() const { return "Trap_"; }
 
+    virtual void addToGameMap();
+    virtual void removeFromGameMap();
+
     static Trap* getTrapFromStream(GameMap* gameMap, std::istream &is);
     static Trap* getTrapFromPacket(GameMap* gameMap, ODPacket &is);
 

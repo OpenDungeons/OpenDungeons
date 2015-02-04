@@ -229,6 +229,10 @@ void Gui::assignEventHandlers()
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&spellSummonWorkerPressed));
 
+    mSheets[inGameMenu]->getChild(BUTTON_SPELL_CALLTOWAR)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&spellCallToWarPressed));
+
     mSheets[inGameMenu]->getChild(BUTTON_CREATURE_WORKER)->subscribeEvent(
             CEGUI::Window::EventMouseClick,
             CEGUI::Event::Subscriber(&workerCreatureButtonPressed));
@@ -609,6 +613,14 @@ bool Gui::spellSummonWorkerPressed(const CEGUI::EventArgs& e)
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::castSpell);
     gameMap->getLocalPlayer()->setNewSpellType(SpellType::summonWorker);
+    return true;
+}
+
+bool Gui::spellCallToWarPressed(const CEGUI::EventArgs& e)
+{
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
+    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::castSpell);
+    gameMap->getLocalPlayer()->setNewSpellType(SpellType::callToWar);
     return true;
 }
 
@@ -999,6 +1011,7 @@ const std::string Gui::BUTTON_TRAP_BOULDER = "MainTabControl/Traps/BoulderTrapBu
 const std::string Gui::BUTTON_DESTROY_TRAP = "MainTabControl/Traps/DestroyTrapButton";
 const std::string Gui::TAB_SPELLS = "MainTabControl/Spells";
 const std::string Gui::BUTTON_SPELL_SUMMON_WORKER = "MainTabControl/Spells/SummonWorkerButton";
+const std::string Gui::BUTTON_SPELL_CALLTOWAR = "MainTabControl/Spells/CallToWarButton";
 const std::string Gui::TAB_CREATURES = "MainTabControl/Creatures";
 const std::string Gui::BUTTON_CREATURE_WORKER = "MainTabControl/Creatures/WorkerButton";
 const std::string Gui::BUTTON_CREATURE_FIGHTER = "MainTabControl/Creatures/FighterButton";

@@ -50,6 +50,8 @@
 #include "rooms/RoomDungeonTemple.h"
 #include "rooms/RoomTreasury.h"
 
+#include "spell/Spell.h"
+
 #include "traps/Trap.h"
 
 #include "utils/LogManager.h"
@@ -244,7 +246,7 @@ bool GameMap::createNewMap(int sizeX, int sizeY)
             Tile* tile = new Tile(this, ii, jj);
             tile->setName(Tile::buildName(ii, jj));
             tile->setType(Tile::dirt);
-            addTile(tile);
+            tile->addToGameMap();
         }
     }
 
@@ -277,6 +279,7 @@ void GameMap::clearAll()
     clearRooms();
     // NOTE : clearRenderedMovableEntities should be called after clearRooms because clearRooms will try to remove the objects from the room
     clearRenderedMovableEntities();
+    clearSpells();
     clearTiles();
     clearCreatureMoodModifiers();
 
@@ -342,9 +345,8 @@ void GameMap::clearWeapons()
 
 void GameMap::clearRenderedMovableEntities()
 {
-    for (std::vector<RenderedMovableEntity*>::iterator it = mRenderedMovableEntities.begin(); it != mRenderedMovableEntities.end(); ++it)
+    for (RenderedMovableEntity* obj : mRenderedMovableEntities)
     {
-        RenderedMovableEntity* obj = *it;
         removeActiveObject(obj);
         removeAnimatedObject(obj);
         obj->deleteYourself();
@@ -2694,6 +2696,9 @@ MovableGameEntity* GameMap::getEntityFromTypeAndName(GameEntity::ObjectType enti
         case GameEntity::ObjectType::renderedMovableEntity:
             return getRenderedMovableEntity(entityName);
 
+        case GameEntity::ObjectType::spell:
+            return getSpell(entityName);
+
         default:
             break;
     }
@@ -2980,6 +2985,70 @@ std::vector<GameEntity*> GameMap::getNaturalEnemiesInList(const Creature* creatu
                 break;
             }
         }
+    }
+
+    return ret;
+}
+
+void GameMap::addSpell(Spell *spell)
+{
+    LogManager::getSingleton().logMessage(serverStr() + "Adding spell " + spell->getName()
+        + ",MeshName=" + spell->getMeshName());
+    mSpells.push_back(spell);
+
+    addActiveObject(spell);
+    addAnimatedObject(spell);
+    spell->setIsOnMap(true);
+}
+
+void GameMap::removeSpell(Spell *spell)
+{
+    LogManager::getSingleton().logMessage(serverStr() + "Removing spell " + spell->getName()
+        + ",MeshName=" + spell->getMeshName());
+    std::vector<Spell*>::iterator it = std::find(mSpells.begin(), mSpells.end(), spell);
+    OD_ASSERT_TRUE_MSG(it != mSpells.end(), "spell name=" + spell->getName());
+    if(it == mSpells.end())
+        return;
+
+    mSpells.erase(it);
+    removeAnimatedObject(spell);
+    removeActiveObject(spell);
+}
+
+Spell* GameMap::getSpell(const std::string& name) const
+{
+    for(Spell* spell : mSpells)
+    {
+        if(name.compare(spell->getName()) == 0)
+            return spell;
+    }
+    return nullptr;
+}
+
+void GameMap::clearSpells()
+{
+    for (Spell* spell : mSpells)
+    {
+        removeActiveObject(spell);
+        removeAnimatedObject(spell);
+        spell->deleteYourself();
+    }
+
+    mSpells.clear();
+}
+
+std::vector<Spell*> GameMap::getSpellsBySeatAndType(Seat* seat, SpellType type) const
+{
+    std::vector<Spell*> ret;
+    for (Spell* spell : mSpells)
+    {
+        if(spell->getSeat() != seat)
+            continue;
+
+        if(spell->getSpellType() != type)
+            continue;
+
+        ret.push_back(spell);
     }
 
     return ret;

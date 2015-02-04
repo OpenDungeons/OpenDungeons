@@ -29,11 +29,13 @@
 
 #include "ODApplication.h"
 
-MovableGameEntity::MovableGameEntity(GameMap* gameMap) :
+MovableGameEntity::MovableGameEntity(GameMap* gameMap, const std::string& initialAnimationState,
+        bool initialAnimationLoop) :
     GameEntity(gameMap),
     mAnimationState(nullptr),
     mMoveSpeed(1.0),
-    mPrevAnimationStateLoop(true),
+    mPrevAnimationState(initialAnimationState),
+    mPrevAnimationStateLoop(initialAnimationLoop),
     mAnimationSpeedFactor(1.0),
     mDestinationAnimationState("Idle"),
     mWalkDirection(Ogre::Vector3::ZERO),

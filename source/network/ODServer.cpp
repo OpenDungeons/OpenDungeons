@@ -1057,7 +1057,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 break;
 
             room->setupRoom(gameMap->nextUniqueNameRoom(room->getMeshName()), player->getSeat(), tiles);
-            gameMap->addRoom(room);
+            room->addToGameMap();
             // We notify the clients with vision of the changed tiles. Note that we need
             // to calculate per seat since they could have vision on different parts of the building
             std::map<Seat*,std::vector<Tile*>> tilesPerSeat;
@@ -1287,7 +1287,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 break;
 
             trap->setupTrap(gameMap->nextUniqueNameTrap(trap->getMeshName()), player->getSeat(), tiles);
-            gameMap->addTrap(trap);
+            trap->addToGameMap();
             trap->createMesh();
             trap->updateActiveSpots();
             break;
@@ -1300,6 +1300,14 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> spellType);
             Player* player = clientSocket->getPlayer();
+
+            if(!player->isSpellAvailableForPlayer(spellType))
+            {
+                LogManager::getSingleton().logMessage("WARNING: player " + player->getNick()
+                    + " asked to cast a spell not available: " + Spell::getSpellNameFromSpellType(spellType));
+                break;
+            }
+
             std::vector<Tile*> tiles = gameMap->rectangularRegion(x1, y1, x2, y2);
 
             if(tiles.empty())
@@ -1656,8 +1664,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 break;
 
             room->setupRoom(gameMap->nextUniqueNameRoom(room->getMeshName()), seat, tiles);
-
-            gameMap->addRoom(room);
+            room->addToGameMap();
 
             // We notify the clients with vision of the changed tiles. Note that we need
             // to calculate per seat since the could have vision on different parts of the building
@@ -1761,7 +1768,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 break;
 
             trap->setupTrap(gameMap->nextUniqueNameTrap(trap->getMeshName()), seat, tiles);
-            gameMap->addTrap(trap);
+            trap->addToGameMap();
             trap->createMesh();
             trap->updateActiveSpots();
             break;
@@ -1782,7 +1789,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 break;
             Creature* newCreature = new Creature(gameMap, classToSpawn);
             newCreature->setSeat(seatCreature);
-            gameMap->addCreature(newCreature);
+            newCreature->addToGameMap();
             newCreature->createMesh();
             // In editor mode, every player has vision
             for(Seat* seat : gameMap->getSeats())
@@ -1815,7 +1822,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 break;
             Creature* newCreature = new Creature(gameMap, classToSpawn);
             newCreature->setSeat(seatCreature);
-            gameMap->addCreature(newCreature);
+            newCreature->addToGameMap();
             newCreature->createMesh();
             // In editor mode, every player has vision
             for(Seat* seat : gameMap->getSeats())

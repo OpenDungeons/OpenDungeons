@@ -47,7 +47,7 @@ void SmallSpiderEntity::doUpkeep()
     OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
     if(tile == nullptr)
     {
-        getGameMap()->removeRenderedMovableEntity(this);
+        removeFromGameMap();
         deleteYourself();
         return;
     }
@@ -64,7 +64,7 @@ void SmallSpiderEntity::doUpkeep()
 
     if(mIsSlapped || (mNbTurnLife <= 0) || (currentCrypt == nullptr))
     {
-        getGameMap()->removeRenderedMovableEntity(this);
+        removeFromGameMap();
         deleteYourself();
         return;
     }

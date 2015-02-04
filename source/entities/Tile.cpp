@@ -47,7 +47,6 @@
 #define snprintf_is_banned_in_OD_code _snprintf
 #endif
 
-static Ogre::MeshManager *myOgreMeshManger = Ogre:: MeshManager::getSingletonPtr();
 const Ogre::Vector3 DEFAULT_TILE_SCALE(static_cast<Ogre::Real>(4.0 / RenderManager::BLENDER_UNITS_PER_OGRE_UNIT),
         static_cast<Ogre::Real>(4.0 / RenderManager::BLENDER_UNITS_PER_OGRE_UNIT),
         static_cast<Ogre::Real>(5.0 / RenderManager::BLENDER_UNITS_PER_OGRE_UNIT));
@@ -105,6 +104,11 @@ void Tile::setType(TileType t)
     {
         mType = t;
     }
+}
+
+void Tile::addToGameMap()
+{
+    getGameMap()->addTile(this);
 }
 
 void Tile::setFullness(double f)
@@ -714,7 +718,7 @@ void Tile::updateFromPacket(ODPacket& is)
 
         // The object is not on this tile anymore, we remove it
         it = mPersistentObjectRegistered.erase(it);
-        getGameMap()->removeRenderedMovableEntity(obj);
+        obj->removeFromGameMap();
         obj->deleteYourself();
     }
 

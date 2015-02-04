@@ -34,6 +34,8 @@
 
 #include "render/RenderManager.h"
 
+#include "spell/Spell.h"
+
 #include "utils/LogManager.h"
 
 #include <iostream>
@@ -44,8 +46,9 @@ const std::string RenderedMovableEntity::RENDEREDMOVABLEENTITY_OGRE_PREFIX = "Og
 const Ogre::Vector3 SCALE(0.7,0.7,0.7);
 
 RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap, const std::string& baseName, const std::string& nMeshName,
-        Ogre::Real rotationAngle, bool hideCoveredTile, float opacity) :
-    MovableGameEntity(gameMap),
+        Ogre::Real rotationAngle, bool hideCoveredTile, float opacity, const std::string& initialAnimationState,
+        bool initialAnimationLoop) :
+    MovableGameEntity(gameMap, initialAnimationState, initialAnimationLoop),
     mRotationAngle(rotationAngle),
     mHideCoveredTile(hideCoveredTile),
     mOpacity(opacity)
@@ -86,6 +89,16 @@ void RenderedMovableEntity::destroyMeshLocal()
         return;
 
     RenderManager::getSingleton().rrDestroyRenderedMovableEntity(this);
+}
+
+void RenderedMovableEntity::addToGameMap()
+{
+    getGameMap()->addRenderedMovableEntity(this);
+}
+
+void RenderedMovableEntity::removeFromGameMap()
+{
+    getGameMap()->removeRenderedMovableEntity(this);
 }
 
 void RenderedMovableEntity::setMeshOpacity(float opacity)
@@ -153,6 +166,8 @@ void RenderedMovableEntity::fireRemoveEntity(Seat* seat)
     ServerNotification *serverNotification = new ServerNotification(
         ServerNotification::removeRenderedMovableEntity, seat->getPlayer());
     const std::string& name = getName();
+    GameEntity::ObjectType type = getObjectType();
+    serverNotification->mPacket << type;
     serverNotification->mPacket << name;
     ODServer::getSingleton().queueServerNotification(serverNotification);
 }
@@ -193,6 +208,11 @@ RenderedMovableEntity* RenderedMovableEntity::getRenderedMovableEntityFromLine(G
         case RenderedMovableEntityType::craftedTrap:
         {
             obj = CraftedTrap::getCraftedTrapFromStream(gameMap, is);
+            break;
+        }
+        case RenderedMovableEntityType::spellEntity:
+        {
+            obj = Spell::getSpellFromStream(gameMap, is);
             break;
         }
         default:
@@ -255,6 +275,11 @@ RenderedMovableEntity* RenderedMovableEntity::getRenderedMovableEntityFromPacket
         case RenderedMovableEntityType::trapEntity:
         {
             obj = TrapEntity::getTrapEntityFromPacket(gameMap, is);
+            break;
+        }
+        case RenderedMovableEntityType::spellEntity:
+        {
+            obj = Spell::getSpellFromPacket(gameMap, is);
             break;
         }
         default:

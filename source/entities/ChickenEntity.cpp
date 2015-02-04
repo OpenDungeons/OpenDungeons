@@ -76,7 +76,7 @@ void ChickenEntity::doUpkeep()
     {
         // No need to remove the chicken from its tile as it has already been in eatChicken
         // or when dying
-        getGameMap()->removeRenderedMovableEntity(this);
+        removeFromGameMap();
         deleteYourself();
         return;
     }

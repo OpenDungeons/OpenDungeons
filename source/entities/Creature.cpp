@@ -42,6 +42,8 @@
 
 #include "sound/SoundEffectsManager.h"
 
+#include "spell/Spell.h"
+
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
@@ -242,6 +244,17 @@ void Creature::destroyMeshWeapons()
     if(mWeaponR != nullptr)
         RenderManager::getSingleton().rrDestroyWeapon(this, mWeaponR, "R");
 }
+
+void Creature::addToGameMap()
+{
+    getGameMap()->addCreature(this);
+}
+
+void Creature::removeFromGameMap()
+{
+    getGameMap()->removeCreature(this);
+}
+
 
 std::string Creature::getFormat()
 {
@@ -609,7 +622,7 @@ void Creature::doUpkeep()
             if(myTile != nullptr && mGoldCarried > 0)
             {
                 TreasuryObject* obj = new TreasuryObject(getGameMap(), mGoldCarried);
-                getGameMap()->addRenderedMovableEntity(obj);
+                obj->addToGameMap();
                 Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(myTile->getX()),
                                             static_cast<Ogre::Real>(myTile->getY()), 0.0f);
                 obj->createMesh();
@@ -627,7 +640,7 @@ void Creature::doUpkeep()
 
             // Remove the creature from the game map and into the deletion queue, it will be deleted
             // when it is safe, i.e. all other pointers to it have been wiped from the program.
-            getGameMap()->removeCreature(this);
+            removeFromGameMap();
             deleteYourself();
         }
 
@@ -1106,6 +1119,43 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
     {
         if(pushAction(CreatureAction::getFee))
             return true;
+    }
+
+    // We check if there is a go to war spell reachable
+    std::vector<Spell*> callToWars = getGameMap()->getSpellsBySeatAndType(getSeat(), SpellType::callToWar);
+    if(!callToWars.empty())
+    {
+        std::vector<Spell*> reachableCallToWars;
+        for(Spell* callToWar : callToWars)
+        {
+            if(!callToWar->getIsOnMap())
+                continue;
+
+            Tile* callToWarTile = callToWar->getPositionTile();
+            if(callToWarTile == nullptr)
+                continue;
+
+            if (!getGameMap()->pathExists(this, getPositionTile(), callToWarTile))
+                continue;
+
+            reachableCallToWars.push_back(callToWar);
+        }
+
+        if(!reachableCallToWars.empty())
+        {
+            // We go there
+            uint32_t index = Random::Uint(0,reachableCallToWars.size()-1);
+            Spell* callToWar = reachableCallToWars[index];
+            Tile* callToWarTile = callToWar->getPositionTile();
+            std::list<Tile*> tempPath = getGameMap()->path(this, callToWarTile);
+            // If we are 5 tiles from the call to war, we don't go there
+            if (setWalkPath(tempPath, 5, false))
+            {
+                setAnimationState("Walk");
+                pushAction(CreatureAction::walkToTile, true);
+                return false;
+            }
+        }
     }
 
     // Check to see if we have found a "home" tile where we can sleep. Even if we are not sleepy,
@@ -1627,7 +1677,7 @@ bool Creature::handleDigTileAction(const CreatureAction& actionItem)
         TreasuryObject* obj = new TreasuryObject(getGameMap(), mGoldCarried);
         mGoldCarried = 0;
         Ogre::Vector3 pos(static_cast<Ogre::Real>(myTile->getX()), static_cast<Ogre::Real>(myTile->getY()), 0.0f);
-        getGameMap()->addRenderedMovableEntity(obj);
+        obj->addToGameMap();
         obj->createMesh();
         obj->setPosition(pos, false);
 
@@ -1735,7 +1785,7 @@ bool Creature::handleDigTileAction(const CreatureAction& actionItem)
             TreasuryObject* obj = new TreasuryObject(getGameMap(), mGoldCarried);
             mGoldCarried = 0;
             Ogre::Vector3 pos(static_cast<Ogre::Real>(myTile->getX()), static_cast<Ogre::Real>(myTile->getY()), 0.0f);
-            getGameMap()->addRenderedMovableEntity(obj);
+            obj->addToGameMap();
             obj->createMesh();
             obj->setPosition(pos, false);
 
@@ -2682,7 +2732,7 @@ bool Creature::handleLeaveDungeon(const CreatureAction& actionItem)
 
             // Remove the creature from the game map and into the deletion queue, it will be deleted
             // when it is safe, i.e. all other pointers to it have been wiped from the program.
-            getGameMap()->removeCreature(this);
+            removeFromGameMap();
             deleteYourself();
         }
     }
@@ -3794,7 +3844,7 @@ void Creature::slap(bool isEditorMode)
     // In editor mode, we remove the creature
     if(isEditorMode)
     {
-        getGameMap()->removeCreature(this);
+        removeFromGameMap();
         deleteYourself();
         return;
     }

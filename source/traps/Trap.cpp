@@ -150,6 +150,16 @@ int Trap::costPerTile(TrapType t)
     }
 }
 
+void Trap::addToGameMap()
+{
+    getGameMap()->addTrap(this);
+}
+
+void Trap::removeFromGameMap()
+{
+    getGameMap()->removeTrap(this);
+}
+
 void Trap::doUpkeep()
 {
     std::vector<Tile*> tilesToRemove;
@@ -180,7 +190,7 @@ void Trap::doUpkeep()
     // If no more tiles, the trap is removed
     if (numCoveredTiles() <= 0)
     {
-        getGameMap()->removeTrap(this);
+        removeFromGameMap();
         deleteYourself();
         return;
     }
@@ -475,7 +485,7 @@ void Trap::notifyCarryingStateChanged(Creature* carrier, MovableGameEntity* carr
         OD_ASSERT_TRUE_MSG(tile->removeEntity(craftedTrap), "trap=" + getName()
             + ", craftedTrap=" + craftedTrap->getName()
             + ", tile=" + Tile::displayAsString(tile));
-        getGameMap()->removeRenderedMovableEntity(craftedTrap);
+        craftedTrap->removeFromGameMap();
         craftedTrap->deleteYourself();
         activate(tile);
         trapTileInfo.setCarriedCraftedTrap(nullptr);

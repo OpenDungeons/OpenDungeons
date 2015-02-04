@@ -80,7 +80,7 @@ void TreasuryObject::doUpkeep()
         if(mGoldValue <= 0)
         {
             tile->removeEntity(this);
-            getGameMap()->removeRenderedMovableEntity(this);
+            removeFromGameMap();
             deleteYourself();
             return;
         }
@@ -89,11 +89,11 @@ void TreasuryObject::doUpkeep()
         {
             // The treasury fullnes changed. We remove the object and create a new one
             tile->removeEntity(this);
-            getGameMap()->removeRenderedMovableEntity(this);
+            removeFromGameMap();
             deleteYourself();
 
             TreasuryObject* obj = new TreasuryObject(getGameMap(), mGoldValue);
-            getGameMap()->addRenderedMovableEntity(obj);
+            obj->addToGameMap();
             Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(tile->getX()),
                                         static_cast<Ogre::Real>(tile->getY()), 0.0f);
             obj->createMesh();

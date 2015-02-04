@@ -73,6 +73,9 @@ public:
     std::string getOgreNamePrefix() const
     { return CREATURE_PREFIX; }
 
+    virtual void addToGameMap();
+    virtual void removeFromGameMap();
+
     bool canDisplayStatsWindow(Seat* seat)
     { return true; }
     void createStatsWindow();

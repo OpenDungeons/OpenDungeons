@@ -353,3 +353,10 @@ void Player::setCurrentAction(SelectedAction action)
     mNewRoomType = Room::nullRoomType;
     mNewSpellType = SpellType::nullSpellType;
 }
+
+bool Player::isSpellAvailableForPlayer(SpellType type)
+{
+    // TODO: when the research tree will be implemented, we should check if the given
+    // spell is available. For now, we allow every spell
+    return true;
+}

@@ -100,6 +100,7 @@ public:
     static const std::string BUTTON_DESTROY_TRAP;
     static const std::string TAB_SPELLS;
     static const std::string BUTTON_SPELL_SUMMON_WORKER;
+    static const std::string BUTTON_SPELL_CALLTOWAR;
     static const std::string TAB_CREATURES;
     static const std::string BUTTON_CREATURE_WORKER;
     static const std::string BUTTON_CREATURE_FIGHTER;
@@ -259,6 +260,8 @@ private:
     static bool destroyTrapButtonPressed(const CEGUI::EventArgs& e);
 
     static bool spellSummonWorkerPressed        (const CEGUI::EventArgs& e);
+
+    static bool spellCallToWarPressed           (const CEGUI::EventArgs& e);
 
     static bool workerCreatureButtonPressed     (const CEGUI::EventArgs& e);
     static bool fighterCreatureButtonPressed    (const CEGUI::EventArgs& e);

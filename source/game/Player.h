@@ -151,6 +151,10 @@ public:
     //! Should be called on the server game map for human players only
     void updateTime(Ogre::Real timeSinceLastUpdate);
 
+    //! \brief Checks if the given spell is available for the Player. This check
+    //! should be done on server side to avoid cheating
+    bool isSpellAvailableForPlayer(SpellType type);
+
 private:
     //! \brief Player ID is only used during seat configuration phase
     //! During the game, one should use the seat ID to identify a player because

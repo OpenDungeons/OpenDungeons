@@ -58,6 +58,9 @@ public:
 
     virtual std::string getOgreNamePrefix() const { return "Room_"; }
 
+    virtual void addToGameMap();
+    virtual void removeFromGameMap();
+
     virtual void absorbRoom(Room* r);
 
     static std::string getFormat();

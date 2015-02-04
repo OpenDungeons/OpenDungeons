@@ -208,7 +208,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 
         Tile::loadFromLine(entire_line, tempTile);
 
-        gameMap.addTile(tempTile);
+        tempTile->addToGameMap();
     }
 
     gameMap.setAllFullnessAndNeighbors();
@@ -244,7 +244,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
             return false;
 
         tempRoom->setName(gameMap.nextUniqueNameRoom(tempRoom->getMeshName()));
-        gameMap.addRoom(tempRoom);
+        tempRoom->addToGameMap();
 
         levelFile >> nextParam;
         if (nextParam != "[/Room]")
@@ -278,7 +278,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
             return false;
 
         tempTrap->setName(gameMap.nextUniqueNameTrap(tempTrap->getMeshName()));
-        gameMap.addTrap(tempTrap);
+        tempTrap->addToGameMap();
 
         levelFile >> nextParam;
         if (nextParam != "[/Trap]")
@@ -314,7 +314,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         OD_ASSERT_TRUE(tempLight != nullptr);
         if(tempLight == nullptr)
             return false;
-        gameMap.addMapLight(tempLight);
+        tempLight->addToGameMap();
     }
 
     levelFile >> nextParam;
@@ -476,7 +476,8 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         OD_ASSERT_TRUE(tempCreature != nullptr);
         if(tempCreature == nullptr)
             return false;
-        gameMap.addCreature(tempCreature);
+
+        tempCreature->addToGameMap();
         ++nbCreatures;
 
         levelFile >> nextParam;

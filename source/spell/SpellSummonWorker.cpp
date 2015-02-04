@@ -85,7 +85,7 @@ void SpellSummonWorker::castSpellSummonWorker(GameMap* gameMap, const std::vecto
             + ", name=" + newCreature->getName() + ", seatId=" + Ogre::StringConverter::toString(player->getSeat()->getId()));
 
         newCreature->setSeat(player->getSeat());
-        gameMap->addCreature(newCreature);
+        newCreature->addToGameMap();
         Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(tile->getX()),
                                     static_cast<Ogre::Real>(tile->getY()),
                                     static_cast<Ogre::Real>(0.0));

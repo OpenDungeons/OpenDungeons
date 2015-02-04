@@ -87,6 +87,11 @@ public:
         return mType;
     }
 
+    virtual void addToGameMap();
+    //! Tiles cannot be removed
+    virtual void removeFromGameMap()
+    {}
+
     /*! \brief A mutator to change how "filled in" the tile is.
      *
      * Additionally this function reloads the proper mesh to display to the user

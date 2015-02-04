@@ -188,6 +188,10 @@ class GameEntity
     //! the entity damaging
     virtual double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile *tileTakingDamage) = 0;
 
+    //! \brief Adds the entity to the correct spaces of the gamemap (animated objects, creature, ...)
+    virtual void addToGameMap() = 0;
+    virtual void removeFromGameMap() = 0;
+
     virtual bool getIsOnMap()
     { return mIsOnMap; }
 

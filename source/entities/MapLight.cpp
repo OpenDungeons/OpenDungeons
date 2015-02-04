@@ -74,6 +74,16 @@ void MapLight::destroyMeshLocal()
     RenderManager::getSingleton().rrDestroyMapLight(this);
 }
 
+void MapLight::addToGameMap()
+{
+    getGameMap()->addMapLight(this);
+}
+
+void MapLight::removeFromGameMap()
+{
+    getGameMap()->removeMapLight(this);
+}
+
 std::vector<Tile*> MapLight::getCoveredTiles()
 {
     std::vector<Tile*> tempVector;

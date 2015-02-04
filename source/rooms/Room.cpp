@@ -55,6 +55,16 @@ bool Room::compareTile(Tile* tile1, Tile* tile2)
     return false;
 }
 
+void Room::addToGameMap()
+{
+    getGameMap()->addRoom(this);
+}
+
+void Room::removeFromGameMap()
+{
+    getGameMap()->removeRoom(this);
+}
+
 void Room::absorbRoom(Room *r)
 {
     LogManager::getSingleton().logMessage(getGameMap()->serverStr() + "Room=" + getName() + " is aborbing room=" + r->getName());
@@ -171,7 +181,7 @@ void Room::doUpkeep()
     // If no more tiles, the room is removed
     if (numCoveredTiles() <= 0)
     {
-        getGameMap()->removeRoom(this);
+        removeFromGameMap();
         deleteYourself();
         return;
     }

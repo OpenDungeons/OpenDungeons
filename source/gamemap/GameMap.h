@@ -44,6 +44,7 @@ class MovableGameEntity;
 class CreatureDefinition;
 class Weapon;
 class CreatureMood;
+class Spell;
 
 /*! \brief The class which stores the entire game state on the server and a subset of this on each client.
  *
@@ -185,9 +186,8 @@ public:
     //! \brief Calls the deleteYourself() method on each of the rooms in the game map as well as clearing the vector of stored rooms.
     void clearRooms();
 
-    //! \brief A simple mutator method to add the given Room to the GameMap.
+    //! \brief Simple mutators method to add/remove the given Room to the GameMap.
     void addRoom(Room *r);
-
     void removeRoom(Room *r);
 
     //! \brief A simple accessor method to return the given Room.
@@ -474,6 +474,13 @@ public:
     MovableGameEntity* getEntityFromTypeAndName(GameEntity::ObjectType entityType,
         const std::string& entityName);
 
+    //! brief Functions to add/remove/get Spells
+    void addSpell(Spell *spell);
+    void removeSpell(Spell *spell);
+    Spell* getSpell(const std::string& name) const;
+    void clearSpells();
+    std::vector<Spell*> getSpellsBySeatAndType(Seat* seat, SpellType type) const;
+
     //! \brief Tells the game map a given player is attacking or under attack.
     //! Used on the server game map only.
     void playerIsFighting(Player* player);
@@ -571,6 +578,8 @@ private:
     unsigned int mNumCallsTo_path;
 
     std::vector<RenderedMovableEntity*> mRenderedMovableEntities;
+
+    std::vector<Spell*> mSpells;
 
     //! AI Handling manager
     AIManager mAiManager;

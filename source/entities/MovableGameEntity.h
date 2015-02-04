@@ -33,7 +33,8 @@ class Tile;
 class MovableGameEntity : public GameEntity
 {
 public:
-    MovableGameEntity(GameMap* gameMap);
+    MovableGameEntity(GameMap* gameMap, const std::string& initialAnimationState = "",
+        bool initialAnimationLoop = true);
 
     virtual ~MovableGameEntity()
     {}
