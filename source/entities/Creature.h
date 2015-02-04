@@ -64,6 +64,9 @@ public:
     Creature(GameMap* gameMap, const CreatureDefinition* definition);
     virtual ~Creature();
 
+    virtual ObjectType getObjectType() const
+    { return ObjectType::creature; }
+
     static const std::string CREATURE_PREFIX;
 
     //! \brief Conform: AttackableEntity - Returns the prefix used in the OGRE identifier for this object.

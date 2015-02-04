@@ -130,6 +130,9 @@ public:
     virtual ~Trap()
     {}
 
+    virtual ObjectType getObjectType() const
+    { return ObjectType::trap; }
+
     virtual std::string getOgreNamePrefix() const { return "Trap_"; }
 
     static Trap* getTrapFromStream(GameMap* gameMap, std::istream &is);

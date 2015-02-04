@@ -44,12 +44,15 @@ public:
     virtual ~Spell()
     {}
 
+    virtual ObjectType getObjectType() const
+    { return ObjectType::spell; }
+
     virtual std::string getOgreNamePrefix() const { return "Spell_"; }
 
     static Spell* getSpellFromStream(GameMap* gameMap, std::istream &is);
     static Spell* getSpellFromPacket(GameMap* gameMap, ODPacket &is);
 
-    virtual const SpellType getType() const = 0;
+    virtual SpellType getSpellType() const = 0;
 
     static const char* getSpellNameFromSpellType(SpellType t);
 

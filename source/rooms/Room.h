@@ -53,6 +53,9 @@ public:
     virtual ~Room()
     {}
 
+    virtual ObjectType getObjectType() const
+    { return ObjectType::room; }
+
     virtual std::string getOgreNamePrefix() const { return "Room_"; }
 
     virtual void absorbRoom(Room* r);

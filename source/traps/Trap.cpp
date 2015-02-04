@@ -40,7 +40,6 @@ Trap::Trap(GameMap* gameMap) :
     mMinDamage(0.0),
     mMaxDamage(0.0)
 {
-    setObjectType(GameEntity::trap);
 }
 
 Trap* Trap::getTrapFromStream(GameMap* gameMap, std::istream &is)

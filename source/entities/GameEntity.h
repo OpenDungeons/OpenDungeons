@@ -49,7 +49,7 @@ class GameEntity
   public:
     enum ObjectType
     {
-        unknown, creature, room, trap, weapon, renderedMovableEntity, tile
+        unknown, creature, room, trap, renderedMovableEntity, tile, mapLight, spell
     };
 
     //! \brief Default constructor with default values
@@ -65,7 +65,6 @@ class GameEntity
     mMeshExists        (false),
     mSeat              (seat),
     mIsDeleteRequested (false),
-    mObjectType        (unknown),
     mGameMap           (gameMap),
     mIsOnMap           (true),
     mParentSceneNode   (nullptr),
@@ -100,8 +99,7 @@ class GameEntity
     { return false; }
 
     //! \brief Get the type of this object
-    inline ObjectType getObjectType() const
-    { return mObjectType; }
+    virtual ObjectType getObjectType() const = 0;
 
     //! \brief Pointer to the GameMap
     inline GameMap* getGameMap() const
@@ -135,10 +133,6 @@ class GameEntity
     //! \brief Set if the mesh exists
     inline void setMeshExisting(bool isExisting)
     { mMeshExists = isExisting; }
-
-    //! \brief Set the type of the object. Should be done in all final derived constructors
-    inline void setObjectType (ObjectType type)
-    { mObjectType = type; }
 
     //! \brief Set the new entity position. If isMove is true, that means that the entity was
     //! already on map and is moving. If false, it means that the entity was not on map (for example
@@ -260,9 +254,6 @@ class GameEntity
 
     //! \brief A flag saying whether the object has been requested to delete
     bool mIsDeleteRequested;
-
-    //! \brief What kind of object is it
-    ObjectType mObjectType;
 
     //! \brief Pointer to the GameMap object.
     GameMap* mGameMap;

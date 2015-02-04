@@ -42,7 +42,6 @@ Room::Room(GameMap* gameMap):
     Building(gameMap),
     mNumActiveSpots(0)
 {
-    setObjectType(GameEntity::room);
 }
 
 bool Room::compareTile(Tile* tile1, Tile* tile2)

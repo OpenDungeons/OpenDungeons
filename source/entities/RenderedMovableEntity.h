@@ -49,6 +49,9 @@ public:
         Ogre::Real rotationAngle, bool hideCoveredTile, float opacity = 1.0f);
     RenderedMovableEntity(GameMap* gameMap);
 
+    virtual ObjectType getObjectType() const
+    { return ObjectType::renderedMovableEntity; }
+
     static const std::string RENDEREDMOVABLEENTITY_PREFIX;
     static const std::string RENDEREDMOVABLEENTITY_OGRE_PREFIX;
 
@@ -84,6 +87,7 @@ public:
 
     virtual void setMeshOpacity(float opacity);
 
+    // TODO : this should be const
     virtual RenderedMovableEntityType getRenderedMovableEntityType() = 0;
 
     virtual void pickup();

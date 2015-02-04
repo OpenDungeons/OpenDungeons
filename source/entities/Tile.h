@@ -69,6 +69,9 @@ public:
 
     Tile(GameMap* gameMap, int x = 0, int y = 0, TileType type = dirt, double fullness = 100.0);
 
+    virtual ObjectType getObjectType() const
+    { return ObjectType::tile; }
+
     std::string getOgreNamePrefix() const { return "Tile_"; }
 
     /*! \brief Set the type (rock, claimed, etc.) of the tile.

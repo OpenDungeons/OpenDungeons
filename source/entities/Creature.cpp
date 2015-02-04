@@ -118,8 +118,6 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
 
     setIsOnMap(false);
 
-    setObjectType(GameEntity::creature);
-
     pushAction(CreatureAction::idle, true);
 
     mMaxHP = mDefinition->getMinHp();
@@ -188,8 +186,6 @@ Creature::Creature(GameMap* gameMap) :
     mFirstTurnFurious        (-1)
 {
     setIsOnMap(false);
-
-    setObjectType(GameEntity::creature);
 
     pushAction(CreatureAction::idle, true);
 }

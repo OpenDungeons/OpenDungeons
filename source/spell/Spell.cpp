@@ -150,12 +150,12 @@ std::string Spell::getFormat()
 
 void Spell::exportHeadersToStream(std::ostream& os)
 {
-    os << getType() << "\t";
+    os << getSpellType() << "\t";
 }
 
 void Spell::exportHeadersToPacket(ODPacket& os)
 {
-    os << getType();
+    os << getSpellType();
 }
 
 void Spell::exportToPacket(ODPacket& os) const

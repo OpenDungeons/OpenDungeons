@@ -74,7 +74,6 @@ Tile::Tile(GameMap* gameMap, int x, int y, TileType type, double fullness) :
         mFloodFillColor[i] = -1;
     }
     setSeat(nullptr);
-    setObjectType(GameEntity::tile);
     mScale = DEFAULT_TILE_SCALE;
 }
 

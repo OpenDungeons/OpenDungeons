@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <cmath>
 
+// TODO: remove this file when the healing spell will be implemented
 double Spell::heal(int spellLevel, Creature *targetCreature, double hp, double maxMana)
 {
     const double manaPerHPHealed = 0.1;

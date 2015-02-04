@@ -33,6 +33,7 @@
 #include "network/ServerNotification.h"
 
 #include "render/RenderManager.h"
+
 #include "utils/LogManager.h"
 
 #include <iostream>
@@ -49,7 +50,6 @@ RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap, const std::string
     mHideCoveredTile(hideCoveredTile),
     mOpacity(opacity)
 {
-    setObjectType(GameEntity::renderedMovableEntity);
     setMeshName(nMeshName);
     // Set a unique name for the object
     setName(gameMap->nextUniqueNameRenderedMovableEntity(baseName));
@@ -61,7 +61,6 @@ RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap) :
     mHideCoveredTile(false),
     mOpacity(1.0f)
 {
-    setObjectType(GameEntity::renderedMovableEntity);
 }
 
 const Ogre::Vector3& RenderedMovableEntity::getScale() const
