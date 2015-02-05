@@ -491,7 +491,7 @@ bool ODClient::processOneClientSocketMessage()
         {
             bool isEditorMode;
             int seatId;
-            GameEntity::ObjectType entityType;
+            GameEntityType entityType;
             std::string entityName;
             OD_ASSERT_TRUE(packetReceived >> isEditorMode >> seatId >> entityType >> entityName);
             Player *tempPlayer = gameMap->getPlayerBySeatId(seatId);
@@ -624,7 +624,7 @@ bool ODClient::processOneClientSocketMessage()
         {
             // TODO: merge ServerNotification::removeRenderedMovableEntity, ServerNotification::removeCreature... for movable entities when it is possible
             std::string name;
-            GameEntity::ObjectType entityType;
+            GameEntityType entityType;
             OD_ASSERT_TRUE(packetReceived >> entityType >> name);
             MovableGameEntity* entity = gameMap->getEntityFromTypeAndName(entityType, name);
             OD_ASSERT_TRUE_MSG(entity != nullptr, "name=" + name);
@@ -812,7 +812,7 @@ bool ODClient::processOneClientSocketMessage()
         case ServerNotification::carryEntity:
         {
             std::string carrierName;
-            GameEntity::ObjectType entityType;
+            GameEntityType entityType;
             std::string carriedName;
             OD_ASSERT_TRUE(packetReceived >> carrierName >> entityType >> carriedName);
             Creature* carrier = gameMap->getCreature(carrierName);
@@ -832,7 +832,7 @@ bool ODClient::processOneClientSocketMessage()
         case ServerNotification::releaseCarriedEntity:
         {
             std::string carrierName;
-            GameEntity::ObjectType entityType;
+            GameEntityType entityType;
             std::string carriedName;
             Ogre::Vector3 pos;
             OD_ASSERT_TRUE(packetReceived >> carrierName >> entityType >> carriedName >> pos);

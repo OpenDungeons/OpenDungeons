@@ -397,7 +397,7 @@ void MovableGameEntity::fireObjectAnimationState(const std::string& state, bool 
 void MovableGameEntity::firePickupEntity(Player* playerPicking, bool isEditorMode)
 {
     int seatId = playerPicking->getSeat()->getId();
-    GameEntity::ObjectType entityType = getObjectType();
+    GameEntityType entityType = getObjectType();
     const std::string& entityName = getName();
     for(std::vector<Seat*>::iterator it = mSeatsWithVisionNotified.begin(); it != mSeatsWithVisionNotified.end();)
     {

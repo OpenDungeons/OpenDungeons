@@ -130,8 +130,8 @@ public:
     virtual ~Trap()
     {}
 
-    virtual ObjectType getObjectType() const
-    { return ObjectType::trap; }
+    virtual GameEntityType getObjectType() const
+    { return GameEntityType::trap; }
 
     virtual std::string getOgreNamePrefix() const { return "Trap_"; }
 

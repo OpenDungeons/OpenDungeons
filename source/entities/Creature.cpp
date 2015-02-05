@@ -109,7 +109,7 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
     mStatsWindow             (nullptr),
     mForceAction             (forcedActionNone),
     mCarriedEntity           (nullptr),
-    mCarriedEntityDestType   (GameEntity::ObjectType::unknown),
+    mCarriedEntityDestType   (GameEntityType::unknown),
     mMoodCooldownTurns       (0),
     mMoodValue               (CreatureMoodLevel::Neutral),
     mMoodPoints              (0),
@@ -181,7 +181,7 @@ Creature::Creature(GameMap* gameMap) :
     mStatsWindow             (nullptr),
     mForceAction             (forcedActionNone),
     mCarriedEntity           (nullptr),
-    mCarriedEntityDestType   (GameEntity::ObjectType::unknown),
+    mCarriedEntityDestType   (GameEntityType::unknown),
     mMoodCooldownTurns       (0),
     mMoodValue               (CreatureMoodLevel::Neutral),
     mMoodPoints              (0),
@@ -1223,7 +1223,7 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
             for (unsigned int i = 0; !workerFound && i < mReachableAlliedObjects.size(); ++i)
             {
                 // Check to see if we found a worker.
-                if (mReachableAlliedObjects[i]->getObjectType() == GameEntity::creature
+                if (mReachableAlliedObjects[i]->getObjectType() == GameEntityType::creature
                     && static_cast<Creature*>(mReachableAlliedObjects[i])->mDefinition->isWorker())
                 {
                     // We found a worker so find a tile near the worker to walk to.  See if the worker is digging.
@@ -2344,13 +2344,13 @@ bool Creature::handleAttackAction(const CreatureAction& actionItem)
     GameEntity* attackedObject = nullptr;
     switch(actionItem.getEntityType())
     {
-        case GameEntity::ObjectType::creature:
+        case GameEntityType::creature:
             attackedObject = getGameMap()->getCreature(actionItem.getEntityName());
             break;
-        case GameEntity::ObjectType::room:
+        case GameEntityType::room:
             attackedObject = getGameMap()->getRoomByName(actionItem.getEntityName());
             break;
-        case GameEntity::ObjectType::trap:
+        case GameEntityType::trap:
             attackedObject = getGameMap()->getTrapByName(actionItem.getEntityName());
             break;
         default:
@@ -2382,7 +2382,7 @@ bool Creature::handleAttackAction(const CreatureAction& actionItem)
     decreaseAwakeness(0.5);
 
     // Give a small amount of experince to the creature we hit.
-    if(attackedObject->getObjectType() == GameEntity::creature)
+    if(attackedObject->getObjectType() == GameEntityType::creature)
     {
         Creature* tempCreature = static_cast<Creature*>(attackedObject);
         tempCreature->receiveExp(0.15 * expGained);
@@ -2769,7 +2769,7 @@ bool Creature::handleFightAlliedNaturalEnemyAction(const CreatureAction& actionI
     {
         if(entityAttack != nullptr)
         {
-            OD_ASSERT_TRUE_MSG(entityAttack->getObjectType() == GameEntity::ObjectType::creature, "attacker=" + getName() + ", attacked=" + entityAttack->getName());
+            OD_ASSERT_TRUE_MSG(entityAttack->getObjectType() == GameEntityType::creature, "attacker=" + getName() + ", attacked=" + entityAttack->getName());
             Creature* attackedCreature = static_cast<Creature*>(entityAttack);
             attackedCreature->engageAlliedNaturalEnemy(this);
             pushAction(CreatureAction(CreatureAction::attackObject, entityAttack->getObjectType(), entityAttack->getName(), tileAttack), true);
@@ -2966,7 +2966,7 @@ std::vector<GameEntity*> Creature::getCreaturesFromList(const std::vector<GameEn
         // Try to find a valid path from the tile this creature is in to the nearest tile where the current target object is.
         GameEntity* entity = *it;
         // We only consider alive objects
-        if(entity->getObjectType() != ObjectType::creature)
+        if(entity->getObjectType() != GameEntityType::creature)
             continue;
 
         if(koboldsOnly && !static_cast<Creature*>(entity)->getDefinition()->isWorker())
@@ -3314,7 +3314,7 @@ double Creature::takeDamage(GameEntity* attacker, double physicalDamage, double 
         return damageDone;
 
     bool flee = true;
-    if(attacker->getObjectType() == ObjectType::creature)
+    if(attacker->getObjectType() == GameEntityType::creature)
     {
         Creature* creatureAttacking = static_cast<Creature*>(attacker);
         if(creatureAttacking->getDefinition()->isWorker())
@@ -3547,7 +3547,7 @@ bool Creature::fightClosestObjectInList(const std::vector<GameEntity*>& listObje
     // We have to move to the attacked tile. If we are 1 tile from our foe (tempPath contains 2 values), before
     // moving, we check if he is moving to the same tile as we are. If yes, we don't move
     // to avoid 2 creatures going to each others tiles for ages
-    if((tempPath.size() == 2) && (gameEntity->getObjectType() == ObjectType::creature))
+    if((tempPath.size() == 2) && (gameEntity->getObjectType() == GameEntityType::creature))
     {
         Creature* attackedCreature = static_cast<Creature*>(gameEntity);
         if(!attackedCreature->mWalkQueue.empty())
@@ -3759,11 +3759,11 @@ void Creature::releaseCarriedEntity()
         return;
 
     MovableGameEntity* carriedEntity = mCarriedEntity;
-    GameEntity::ObjectType carriedEntityDestType = mCarriedEntityDestType;
+    GameEntityType carriedEntityDestType = mCarriedEntityDestType;
     std::string carriedEntityDestName = mCarriedEntityDestName;
 
     mCarriedEntity = nullptr;
-    mCarriedEntityDestType = GameEntity::ObjectType::unknown;
+    mCarriedEntityDestType = GameEntityType::unknown;
     mCarriedEntityDestName.clear();
 
     OD_ASSERT_TRUE_MSG(carriedEntity != nullptr, "name=" + getName());
@@ -3791,12 +3791,12 @@ void Creature::releaseCarriedEntity()
     Building* dest = nullptr;
     switch(carriedEntityDestType)
     {
-        case GameEntity::ObjectType::room:
+        case GameEntityType::room:
         {
             dest = getGameMap()->getRoomByName(carriedEntityDestName);
             break;
         }
-        case GameEntity::ObjectType::trap:
+        case GameEntityType::trap:
         {
             dest = getGameMap()->getTrapByName(carriedEntityDestName);
             break;

@@ -452,7 +452,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
         if (ODClient::getSingleton().isConnected())
         {
-            GameEntity::ObjectType entityType = entity->getObjectType();
+            GameEntityType entityType = entity->getObjectType();
             const std::string& entityName = entity->getName();
             ClientNotification *clientNotification = new ClientNotification(
                 ClientNotification::askEntityPickUp);

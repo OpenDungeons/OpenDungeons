@@ -51,8 +51,8 @@ public:
         bool initialAnimationLoop = true);
     RenderedMovableEntity(GameMap* gameMap);
 
-    virtual ObjectType getObjectType() const
-    { return ObjectType::renderedMovableEntity; }
+    virtual GameEntityType getObjectType() const
+    { return GameEntityType::renderedMovableEntity; }
 
     static const std::string RENDEREDMOVABLEENTITY_PREFIX;
     static const std::string RENDEREDMOVABLEENTITY_OGRE_PREFIX;

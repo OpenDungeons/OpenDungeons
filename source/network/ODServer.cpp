@@ -864,7 +864,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         case ClientNotification::askEntityPickUp:
         {
             std::string entityName;
-            GameEntity::ObjectType entityType;
+            GameEntityType entityType;
             OD_ASSERT_TRUE(packetReceived >> entityType >> entityName);
 
             Player *player = clientSocket->getPlayer();
@@ -952,7 +952,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
         case ClientNotification::askSlapEntity:
         {
-            GameEntity::ObjectType entityType;
+            GameEntityType entityType;
             std::string entityName;
             Player* player = clientSocket->getPlayer();
             OD_ASSERT_TRUE(packetReceived >> entityType >> entityName);

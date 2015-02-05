@@ -61,7 +61,7 @@ unsigned int Player::numCreaturesInHand(const Seat* seat) const
     unsigned int cpt = 0;
     for(MovableGameEntity* entity : mObjectsInHand)
     {
-        if(entity->getObjectType() != GameEntity::ObjectType::creature)
+        if(entity->getObjectType() != GameEntityType::creature)
             continue;
 
         if(seat != nullptr && entity->getSeat() != seat)
@@ -101,7 +101,7 @@ void Player::pickUpEntity(MovableGameEntity *entity, bool isEditorMode)
     if (!ODServer::getSingleton().isConnected() && !ODClient::getSingleton().isConnected())
         return;
 
-    if(entity->getObjectType() == GameEntity::ObjectType::creature)
+    if(entity->getObjectType() == GameEntityType::creature)
     {
         Creature* creature = static_cast<Creature*>(entity);
         if(!creature->tryPickup(getSeat(), isEditorMode))
@@ -109,7 +109,7 @@ void Player::pickUpEntity(MovableGameEntity *entity, bool isEditorMode)
 
        creature->pickup();
     }
-    else if(entity->getObjectType() == GameEntity::ObjectType::renderedMovableEntity)
+    else if(entity->getObjectType() == GameEntityType::renderedMovableEntity)
     {
         RenderedMovableEntity* obj = static_cast<RenderedMovableEntity*>(entity);
         if(!obj->tryPickup(getSeat(), isEditorMode))
@@ -147,13 +147,13 @@ bool Player::isDropHandPossible(Tile *t, unsigned int index, bool isEditorMode)
         return false;
 
     GameEntity* entity = mObjectsInHand[index];
-    if(entity != nullptr && entity->getObjectType() == GameEntity::ObjectType::creature)
+    if(entity != nullptr && entity->getObjectType() == GameEntityType::creature)
     {
         Creature* creature = static_cast<Creature*>(entity);
         if(creature->tryDrop(getSeat(), t, isEditorMode))
             return true;
     }
-    else if(entity != nullptr && entity->getObjectType() == GameEntity::ObjectType::renderedMovableEntity)
+    else if(entity != nullptr && entity->getObjectType() == GameEntityType::renderedMovableEntity)
     {
         RenderedMovableEntity* obj = static_cast<RenderedMovableEntity*>(entity);
         if(obj->tryDrop(getSeat(), t, isEditorMode))
@@ -172,7 +172,7 @@ MovableGameEntity* Player::dropHand(Tile *t, unsigned int index)
 
     MovableGameEntity *entity = mObjectsInHand[index];
     mObjectsInHand.erase(mObjectsInHand.begin() + index);
-    if(entity->getObjectType() == GameEntity::ObjectType::creature)
+    if(entity->getObjectType() == GameEntityType::creature)
     {
         Creature* creature = static_cast<Creature*>(entity);
         creature->drop(Ogre::Vector3(static_cast<Ogre::Real>(t->getX()),
@@ -183,7 +183,7 @@ MovableGameEntity* Player::dropHand(Tile *t, unsigned int index)
             creature->fireCreatureSound(CreatureSound::DROP);
         }
     }
-    else if(entity->getObjectType() == GameEntity::ObjectType::renderedMovableEntity)
+    else if(entity->getObjectType() == GameEntityType::renderedMovableEntity)
     {
         RenderedMovableEntity* obj = static_cast<RenderedMovableEntity*>(entity);
         obj->drop(Ogre::Vector3(static_cast<Ogre::Real>(t->getX()),

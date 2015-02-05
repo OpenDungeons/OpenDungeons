@@ -20,7 +20,7 @@
 
 #include "utils/LogManager.h"
 
-CreatureAction::CreatureAction(const ActionType actionType, GameEntity::ObjectType entityType, const std::string& entityName, Tile* tile) :
+CreatureAction::CreatureAction(const ActionType actionType, GameEntityType entityType, const std::string& entityName, Tile* tile) :
     mActionType(actionType),
     mEntityType(entityType),
     mEntityName(entityName),
@@ -32,7 +32,7 @@ CreatureAction::CreatureAction(const ActionType actionType, GameEntity::ObjectTy
     {
         case ActionType::attackObject:
             OD_ASSERT_TRUE(!mEntityName.empty());
-            OD_ASSERT_TRUE(mEntityType != GameEntity::ObjectType::unknown);
+            OD_ASSERT_TRUE(mEntityType != GameEntityType::unknown);
             OD_ASSERT_TRUE(mTile != nullptr);
             break;
 

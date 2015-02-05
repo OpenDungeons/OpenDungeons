@@ -395,7 +395,7 @@ bool Trap::hasCarryEntitySpot(MovableGameEntity* carriedEntity)
     if(getNbNeededCraftedTrap() <= 0)
         return false;
 
-    if(carriedEntity->getObjectType() != GameEntity::ObjectType::renderedMovableEntity)
+    if(carriedEntity->getObjectType() != GameEntityType::renderedMovableEntity)
         return false;
 
     RenderedMovableEntity* rme = static_cast<RenderedMovableEntity*>(carriedEntity);
@@ -411,9 +411,9 @@ bool Trap::hasCarryEntitySpot(MovableGameEntity* carriedEntity)
 
 Tile* Trap::askSpotForCarriedEntity(MovableGameEntity* carriedEntity)
 {
-    OD_ASSERT_TRUE_MSG(carriedEntity->getObjectType() == GameEntity::ObjectType::renderedMovableEntity,
+    OD_ASSERT_TRUE_MSG(carriedEntity->getObjectType() == GameEntityType::renderedMovableEntity,
         "room=" + getName() + ", entity=" + carriedEntity->getName());
-    if(carriedEntity->getObjectType() != GameEntity::ObjectType::renderedMovableEntity)
+    if(carriedEntity->getObjectType() != GameEntityType::renderedMovableEntity)
         return nullptr;
 
     RenderedMovableEntity* rme = static_cast<RenderedMovableEntity*>(carriedEntity);

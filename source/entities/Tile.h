@@ -69,8 +69,8 @@ public:
 
     Tile(GameMap* gameMap, int x = 0, int y = 0, TileType type = dirt, double fullness = 100.0);
 
-    virtual ObjectType getObjectType() const
-    { return ObjectType::tile; }
+    virtual GameEntityType getObjectType() const
+    { return GameEntityType::tile; }
 
     std::string getOgreNamePrefix() const { return "Tile_"; }
 

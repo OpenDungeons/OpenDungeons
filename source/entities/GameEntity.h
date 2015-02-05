@@ -37,6 +37,21 @@ class Quadtree;
 class Seat;
 class ODPacket;
 
+enum class GameEntityType
+{
+    unknown,
+    creature,
+    room,
+    trap,
+    renderedMovableEntity,
+    tile,
+    mapLight,
+    spell
+};
+
+ODPacket& operator<<(ODPacket& os, const GameEntityType& ot);
+ODPacket& operator>>(ODPacket& is, GameEntityType& ot);
+
 /*! \class GameEntity GameEntity.h
  *  \brief This class holds elements that are common to every object placed in the game
  *
@@ -47,11 +62,6 @@ class ODPacket;
 class GameEntity
 {
   public:
-    enum ObjectType
-    {
-        unknown, creature, room, trap, renderedMovableEntity, tile, mapLight, spell
-    };
-
     //! \brief Default constructor with default values
     GameEntity(
           GameMap*        gameMap,
@@ -99,7 +109,7 @@ class GameEntity
     { return false; }
 
     //! \brief Get the type of this object
-    virtual ObjectType getObjectType() const = 0;
+    virtual GameEntityType getObjectType() const = 0;
 
     //! \brief Pointer to the GameMap
     inline GameMap* getGameMap() const
@@ -224,9 +234,6 @@ class GameEntity
     //! messages to notify players that gain/loose vision
     virtual void notifySeatsWithVision(const std::vector<Seat*>& seats)
     {}
-
-    friend ODPacket& operator<<(ODPacket& os, const GameEntity::ObjectType& ot);
-    friend ODPacket& operator>>(ODPacket& is, GameEntity::ObjectType& ot);
 
   protected:
     //! \brief Function that implements the mesh creation

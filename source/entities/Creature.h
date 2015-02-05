@@ -64,8 +64,8 @@ public:
     Creature(GameMap* gameMap, const CreatureDefinition* definition);
     virtual ~Creature();
 
-    virtual ObjectType getObjectType() const
-    { return ObjectType::creature; }
+    virtual GameEntityType getObjectType() const
+    { return GameEntityType::creature; }
 
     static const std::string CREATURE_PREFIX;
 
@@ -458,7 +458,7 @@ private:
     ForceAction                     mForceAction;
 
     MovableGameEntity*              mCarriedEntity;
-    GameEntity::ObjectType          mCarriedEntityDestType;
+    GameEntityType                  mCarriedEntityDestType;
     std::string                     mCarriedEntityDestName;
 
     Ogre::Vector3                   mScale;

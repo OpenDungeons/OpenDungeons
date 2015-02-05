@@ -1318,7 +1318,7 @@ void Tile::fillWithAttackableCreatures(std::vector<GameEntity*>& entities, Seat*
     for(GameEntity* entity : mEntitiesInTile)
     {
         OD_ASSERT_TRUE(entity != nullptr);
-        if((entity == nullptr) || entity->getObjectType() != GameEntity::ObjectType::creature)
+        if((entity == nullptr) || entity->getObjectType() != GameEntityType::creature)
             continue;
 
         if(!entity->isAttackable(this, seat))
@@ -1380,8 +1380,8 @@ void Tile::fillWithCarryableEntities(std::vector<MovableGameEntity*>& entities)
 
         switch(entity->getObjectType())
         {
-            case GameEntity::ObjectType::creature:
-            case GameEntity::ObjectType::renderedMovableEntity:
+            case GameEntityType::creature:
+            case GameEntityType::renderedMovableEntity:
             {
                 entityToCarry = static_cast<MovableGameEntity*>(entity);
                 if(!entityToCarry->tryEntityCarryOn())
@@ -1407,7 +1407,7 @@ void Tile::fillWithChickenEntities(std::vector<GameEntity*>& entities)
         if(entity == nullptr)
             continue;
 
-        if(entity->getObjectType() != GameEntity::ObjectType::renderedMovableEntity)
+        if(entity->getObjectType() != GameEntityType::renderedMovableEntity)
             continue;
         RenderedMovableEntity* rme = static_cast<RenderedMovableEntity*>(entity);
         if(rme->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::chickenEntity)
@@ -1426,7 +1426,7 @@ void Tile::fillWithCraftedTraps(std::vector<GameEntity*>& entities)
         if(entity == nullptr)
             continue;
 
-        if(entity->getObjectType() != GameEntity::ObjectType::renderedMovableEntity)
+        if(entity->getObjectType() != GameEntityType::renderedMovableEntity)
             continue;
         RenderedMovableEntity* rme = static_cast<RenderedMovableEntity*>(entity);
         if(rme->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::craftedTrap)
@@ -1453,7 +1453,7 @@ bool Tile::addTreasuryObject(TreasuryObject* obj)
         if(entity == nullptr)
             continue;
 
-        if(entity->getObjectType() != GameEntity::ObjectType::renderedMovableEntity)
+        if(entity->getObjectType() != GameEntityType::renderedMovableEntity)
             continue;
         RenderedMovableEntity* rme = static_cast<RenderedMovableEntity*>(entity);
         if(rme->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::treasuryObject)
@@ -1476,7 +1476,7 @@ Room* Tile::getCoveringRoom() const
     if(mCoveringBuilding == nullptr)
         return nullptr;
 
-    if(mCoveringBuilding->getObjectType() != ObjectType::room)
+    if(mCoveringBuilding->getObjectType() != GameEntityType::room)
         return nullptr;
 
     return static_cast<Room*>(mCoveringBuilding);
@@ -1487,7 +1487,7 @@ Trap* Tile::getCoveringTrap() const
     if(mCoveringBuilding == nullptr)
         return nullptr;
 
-    if(mCoveringBuilding->getObjectType() != ObjectType::trap)
+    if(mCoveringBuilding->getObjectType() != GameEntityType::trap)
         return nullptr;
 
     return static_cast<Trap*>(mCoveringBuilding);

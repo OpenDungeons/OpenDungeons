@@ -77,16 +77,16 @@ Tile* GameEntity::getPositionTile() const
                                  Helper::round(tempPosition.y));
 }
 
-ODPacket& operator<<(ODPacket& os, const GameEntity::ObjectType& ot)
+ODPacket& operator<<(ODPacket& os, const GameEntityType& ot)
 {
     os << static_cast<int32_t>(ot);
     return os;
 }
 
-ODPacket& operator>>(ODPacket& is, GameEntity::ObjectType& ot)
+ODPacket& operator>>(ODPacket& is, GameEntityType& ot)
 {
     int32_t tmp;
     is >> tmp;
-    ot = static_cast<GameEntity::ObjectType>(tmp);
+    ot = static_cast<GameEntityType>(tmp);
     return is;
 }

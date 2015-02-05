@@ -502,7 +502,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
                 if(ODClient::getSingleton().isConnected())
                 {
                     const std::string& entityName = entity->getName();
-                    GameEntity::ObjectType entityType = entity->getObjectType();
+                    GameEntityType entityType = entity->getObjectType();
                     ClientNotification *clientNotification = new ClientNotification(
                         ClientNotification::askSlapEntity);
                     clientNotification->mPacket << entityType << entityName;
@@ -554,7 +554,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
         if (ODClient::getSingleton().isConnected())
         {
-            GameEntity::ObjectType entityType = entity->getObjectType();
+            GameEntityType entityType = entity->getObjectType();
             const std::string& entityName = entity->getName();
             ClientNotification *clientNotification = new ClientNotification(
                 ClientNotification::askEntityPickUp);

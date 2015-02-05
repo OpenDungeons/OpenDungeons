@@ -166,7 +166,7 @@ void RenderedMovableEntity::fireRemoveEntity(Seat* seat)
     ServerNotification *serverNotification = new ServerNotification(
         ServerNotification::removeRenderedMovableEntity, seat->getPlayer());
     const std::string& name = getName();
-    GameEntity::ObjectType type = getObjectType();
+    GameEntityType type = getObjectType();
     serverNotification->mPacket << type;
     serverNotification->mPacket << name;
     ODServer::getSingleton().queueServerNotification(serverNotification);

@@ -213,7 +213,7 @@ void RoomForge::doUpkeep()
                 mCoveredTiles[0], kobold);
             for(Building* building : reachableBuildings)
             {
-                if(building->getObjectType() != GameEntity::ObjectType::trap)
+                if(building->getObjectType() != GameEntityType::trap)
                     continue;
 
                 Trap* trap = static_cast<Trap*>(building);
@@ -377,7 +377,7 @@ uint32_t RoomForge::countCraftedItemsOnRoom()
     uint32_t nbCraftedTrap = 0;
     for(MovableGameEntity* entity : carryable)
     {
-        if(entity->getObjectType() != GameEntity::ObjectType::renderedMovableEntity)
+        if(entity->getObjectType() != GameEntityType::renderedMovableEntity)
             continue;
         RenderedMovableEntity* renderEntity = static_cast<RenderedMovableEntity*>(entity);
         if(renderEntity->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::craftedTrap)
@@ -399,7 +399,7 @@ Tile* RoomForge::checkIfAvailableSpot(const std::vector<Tile*>& activeSpots)
         tile->fillWithCarryableEntities(entities);
         for(MovableGameEntity* entity : entities)
         {
-            if(entity->getObjectType() != GameEntity::ObjectType::renderedMovableEntity)
+            if(entity->getObjectType() != GameEntityType::renderedMovableEntity)
                 continue;
             RenderedMovableEntity* renderEntity = static_cast<RenderedMovableEntity*>(entity);
             if(renderEntity->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::craftedTrap)
@@ -437,7 +437,7 @@ int32_t RoomForge::getNbCraftedTrapsForType(Trap::TrapType type)
     uint32_t nbCraftedTrap = 0;
     for(MovableGameEntity* entity : carryable)
     {
-        if(entity->getObjectType() != GameEntity::ObjectType::renderedMovableEntity)
+        if(entity->getObjectType() != GameEntityType::renderedMovableEntity)
             continue;
         RenderedMovableEntity* renderEntity = static_cast<RenderedMovableEntity*>(entity);
         if(renderEntity->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::craftedTrap)

@@ -46,8 +46,8 @@ public:
     virtual ~MapLight()
     {}
 
-    virtual ObjectType getObjectType() const
-    { return ObjectType::mapLight; }
+    virtual GameEntityType getObjectType() const
+    { return GameEntityType::mapLight; }
 
     inline Ogre::SceneNode* getFlickerNode() const
     { return mFlickerNode; }

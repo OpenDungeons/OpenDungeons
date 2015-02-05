@@ -167,7 +167,7 @@ void RoomCrypt::doUpkeep()
 
 bool RoomCrypt::hasCarryEntitySpot(MovableGameEntity* carriedEntity)
 {
-    if(carriedEntity->getObjectType() != GameEntity::ObjectType::creature)
+    if(carriedEntity->getObjectType() != GameEntityType::creature)
         return false;
 
     Creature* creature = static_cast<Creature*>(carriedEntity);
@@ -184,9 +184,9 @@ bool RoomCrypt::hasCarryEntitySpot(MovableGameEntity* carriedEntity)
 
 Tile* RoomCrypt::askSpotForCarriedEntity(MovableGameEntity* carriedEntity)
 {
-    OD_ASSERT_TRUE_MSG(carriedEntity->getObjectType() == GameEntity::ObjectType::creature,
+    OD_ASSERT_TRUE_MSG(carriedEntity->getObjectType() == GameEntityType::creature,
         "room=" + getName() + ", entity=" + carriedEntity->getName());
-    if(carriedEntity->getObjectType() != GameEntity::ObjectType::creature)
+    if(carriedEntity->getObjectType() != GameEntityType::creature)
         return nullptr;
 
     Creature* creature = static_cast<Creature*>(carriedEntity);
@@ -234,7 +234,7 @@ void RoomCrypt::notifyCarryingStateChanged(Creature* carrier, MovableGameEntity*
             }
 
             // The carrier has brought the dead creature
-            OD_ASSERT_TRUE_MSG(carriedEntity->getObjectType() == GameEntity::ObjectType::creature,
+            OD_ASSERT_TRUE_MSG(carriedEntity->getObjectType() == GameEntityType::creature,
                 "room=" + getName() + ", entity=" + carriedEntity->getName());
 
             Creature* deadCreature = static_cast<Creature*>(carriedEntity);

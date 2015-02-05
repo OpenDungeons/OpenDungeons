@@ -2685,18 +2685,18 @@ std::string GameMap::nextUniqueNameMapLight()
     return ret;
 }
 
-MovableGameEntity* GameMap::getEntityFromTypeAndName(GameEntity::ObjectType entityType,
+MovableGameEntity* GameMap::getEntityFromTypeAndName(GameEntityType entityType,
     const std::string& entityName)
 {
     switch(entityType)
     {
-        case GameEntity::ObjectType::creature:
+        case GameEntityType::creature:
             return getCreature(entityName);
 
-        case GameEntity::ObjectType::renderedMovableEntity:
+        case GameEntityType::renderedMovableEntity:
             return getRenderedMovableEntity(entityName);
 
-        case GameEntity::ObjectType::spell:
+        case GameEntityType::spell:
             return getSpell(entityName);
 
         default:
@@ -2969,7 +2969,7 @@ std::vector<GameEntity*> GameMap::getNaturalEnemiesInList(const Creature* creatu
     const std::vector<CreatureMood*>& moodModifiers = mCreatureMoodModifiers.at(moodModifierName);
     for(GameEntity* entity : reachableAlliedObjects)
     {
-        if(entity->getObjectType() != GameEntity::ObjectType::creature)
+        if(entity->getObjectType() != GameEntityType::creature)
             continue;
 
         Creature* alliedCreature = static_cast<Creature*>(entity);

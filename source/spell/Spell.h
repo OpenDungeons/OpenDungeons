@@ -46,8 +46,8 @@ public:
     virtual ~Spell()
     {}
 
-    virtual ObjectType getObjectType() const
-    { return ObjectType::spell; }
+    virtual GameEntityType getObjectType() const
+    { return GameEntityType::spell; }
 
     static const std::string SPELL_OGRE_PREFIX;
 

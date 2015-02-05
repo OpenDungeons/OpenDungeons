@@ -52,7 +52,7 @@ public:
         idle // Stand around doing nothing.
     };
 
-    CreatureAction(const ActionType actionType, GameEntity::ObjectType entityType = GameEntity::ObjectType::unknown, const std::string& entityName = "", Tile* tile = nullptr);
+    CreatureAction(const ActionType actionType, GameEntityType entityType = GameEntityType::unknown, const std::string& entityName = "", Tile* tile = nullptr);
 
     inline const ActionType getType() const
     { return mActionType; }
@@ -66,7 +66,7 @@ public:
     inline const std::string& getEntityName() const
     { return mEntityName; }
 
-    inline GameEntity::ObjectType getEntityType() const
+    inline GameEntityType getEntityType() const
     { return mEntityType; }
 
     inline Tile* getTile() const
@@ -79,7 +79,7 @@ private:
     //! We save the creature name, not the pointer because in creature action, most of the time, we want to keep a reference
     //! for some time (for example when walking towards an enemy to attack). But the creature might be dead when we reach it.
     //! The rule of thumb would be to not keep a creature pointer here
-    GameEntity::ObjectType mEntityType;
+    GameEntityType mEntityType;
     std::string mEntityName;
     Tile* mTile;
     int32_t mNbTurns;
