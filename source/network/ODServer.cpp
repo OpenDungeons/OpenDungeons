@@ -41,6 +41,7 @@
 #include "rooms/RoomPortal.h"
 #include "rooms/RoomTrainingHall.h"
 #include "rooms/RoomTreasury.h"
+#include "spell/Spell.h"
 #include "utils/ConfigManager.h"
 
 #include <SFML/Network.hpp>
@@ -1289,6 +1290,26 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             gameMap->addTrap(trap);
             trap->createMesh();
             trap->updateActiveSpots();
+            break;
+        }
+
+        case ClientNotification::askCastSpell:
+        {
+            int x1, y1, x2, y2;
+            SpellType spellType;
+
+            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> spellType);
+            Player* player = clientSocket->getPlayer();
+            std::vector<Tile*> tiles = gameMap->rectangularRegion(x1, y1, x2, y2);
+
+            if(tiles.empty())
+                break;
+
+            int manaRequired = Spell::getSpellCost(gameMap, spellType, tiles, player);
+            if(!player->getSeat()->takeMana(manaRequired))
+                break;
+
+            Spell::castSpell(mGameMap, spellType, tiles, player);
             break;
         }
 

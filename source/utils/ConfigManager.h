@@ -71,6 +71,9 @@ public:
     inline int64_t getNbTurnsFuriousMax() const
     { return mNbTurnsFuriousMax; }
 
+    inline double getMaxManaPerSeat() const
+    { return mMaxManaPerSeat; }
+
     const std::vector<const SpawnCondition*>& getCreatureSpawnConditions(const CreatureDefinition* def) const;
 
     //! \brief Get the fighter creature definition spawnable in portals according to the given faction.
@@ -94,6 +97,12 @@ public:
     int32_t getTrapConfigInt32(const std::string& param) const;
     double getTrapConfigDouble(const std::string& param) const;
 
+    //! Spells configuration
+    const std::string& getSpellConfigString(const std::string& param) const;
+    uint32_t getSpellConfigUInt32(const std::string& param) const;
+    int32_t getSpellConfigInt32(const std::string& param) const;
+    double getSpellConfigDouble(const std::string& param) const;
+
 private:
     //! \brief Function used to load the global configuration. They should return true if the configuration
     //! is ok and false if a mandatory parameter is missing
@@ -107,6 +116,7 @@ private:
     bool loadFactions(const std::string& fileName);
     bool loadRooms(const std::string& fileName);
     bool loadTraps(const std::string& fileName);
+    bool loadSpellConfig(const std::string& fileName);
     bool loadCreaturesMood(const std::string& fileName);
 
     std::map<std::string, Ogre::ColourValue> mSeatColors;
@@ -118,6 +128,7 @@ private:
     std::string mFilenameFactions;
     std::string mFilenameRooms;
     std::string mFilenameTraps;
+    std::string mFilenameSpells;
     std::string mFilenameCreaturesMood;
     uint32_t mNetworkPort;
     uint32_t mBaseSpawnPoint;
@@ -131,6 +142,7 @@ private:
     double mSlapDamagePercent;
     int64_t mTimePayDay;
     int64_t mNbTurnsFuriousMax;
+    double mMaxManaPerSeat;
     std::map<const CreatureDefinition*, std::vector<const SpawnCondition*> > mCreatureSpawnConditions;
     std::map<const std::string, std::vector<const CreatureMood*> > mCreatureMoodModifiers;
     std::map<const std::string, std::vector<std::string> > mFactionSpawnPool;
@@ -141,6 +153,7 @@ private:
     std::vector<std::string> mFactions;
     std::map<const std::string, std::string> mRoomsConfig;
     std::map<const std::string, std::string> mTrapsConfig;
+    std::map<const std::string, std::string> mSpellConfig;
 };
 
 #endif //CONFIGMANAGER_H

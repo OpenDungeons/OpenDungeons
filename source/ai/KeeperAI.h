@@ -49,6 +49,10 @@ protected:
     //! \brief Checks if we are under attack and does the needed if it is the case
     void handleDefense();
 
+    //! \brief Checks if a new worker should be summoned
+    //! Returns true if the action has been done and false if nothing has been done
+    bool handleWorkers();
+
 private:
     bool buildMostNeededRoom();
 
@@ -60,6 +64,7 @@ private:
     bool mNoMoreReachableGold;
     int mCooldownLookingForGold;
     int mCooldownDefense;
+    int mCooldownWorkers;
 };
 
 #endif // KEEPERAI_H

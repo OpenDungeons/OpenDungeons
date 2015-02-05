@@ -138,6 +138,8 @@ public:
     inline double getManaDelta() const
     { return mManaDelta; }
 
+    bool takeMana(double mana);
+
     inline int getStartingGold() const
     { return mStartingGold; }
 

@@ -1094,62 +1094,6 @@ unsigned long int GameMap::doMiscUpkeep()
         seat->mNumCreaturesControlled = 0;
     }
 
-    // Count how many of each kobold there are per seat.
-    std::map<Seat*, int> koboldCounts;
-    for (Creature* creature : mCreatures)
-    {
-        if (creature->getDefinition()->isWorker())
-        {
-            Seat* seat = creature->getSeat();
-            ++koboldCounts[seat];
-        }
-    }
-
-    // Count how many dungeon temples each seat controls.
-    std::vector<Room*> dungeonTemples = getRoomsByType(Room::dungeonTemple);
-    std::map<Seat*, int> dungeonTempleSeatCounts;
-    for (Room* dungeonTemple : dungeonTemples)
-    {
-        // We don't consider spawning for unused dungeon temples
-        if(dungeonTemple->getSeat()->getPlayer() == nullptr)
-            continue;
-
-        ++dungeonTempleSeatCounts[dungeonTemple->getSeat()];
-    }
-
-    // We check if a player has lost all his dungeon temples
-    for(Player* player : mPlayers)
-    {
-        if(dungeonTempleSeatCounts.count(player->getSeat()) > 0)
-            continue;
-
-        player->notifyNoMoreDungeonTemple();
-    }
-
-    // Compute how many kobolds each seat should have as determined by the number of dungeon temples they control.
-    std::map<Seat*, int> koboldsNeededPerSeat;
-    for (std::map<Seat*, int>::iterator itr = dungeonTempleSeatCounts.begin(); itr != dungeonTempleSeatCounts.end(); ++itr)
-    {
-        Seat* seat = itr->first;
-        int numDungeonTemples = itr->second;
-        int numKobolds = koboldCounts[seat];
-        int numKoboldsNeeded = std::max(4 * numDungeonTemples - numKobolds, 0);
-        numKoboldsNeeded = std::min(numKoboldsNeeded, numDungeonTemples);
-        koboldsNeededPerSeat[seat] = numKoboldsNeeded;
-    }
-
-    // Loop back over all the dungeon temples and for each one decide if it should try to produce a kobold.
-    for (unsigned int i = 0; i < dungeonTemples.size(); ++i)
-    {
-        RoomDungeonTemple *dungeonTemple = static_cast<RoomDungeonTemple*>(dungeonTemples[i]);
-        Seat* seat = dungeonTemple->getSeat();
-        if (koboldsNeededPerSeat[seat] > 0)
-        {
-            --koboldsNeededPerSeat[seat];
-            dungeonTemple->produceWorker();
-        }
-    }
-
     // At each upkeep, we re-compute tiles with vision
     for (Seat* seat : mSeats)
         seat->clearTilesWithVision();
@@ -1219,7 +1163,6 @@ unsigned long int GameMap::doMiscUpkeep()
             mActiveObjects.erase(it);
     }
 
-
     // Carry out the upkeep round for each seat.  This means recomputing how much gold is
     // available in their treasuries, how much mana they gain/lose during this turn, etc.
     for (Seat* seat : mSeats)
@@ -1232,13 +1175,15 @@ unsigned long int GameMap::doMiscUpkeep()
         if(dungeonTemples.empty())
         {
             seat->mManaDelta = 0;
+            seat->getPlayer()->notifyNoMoreDungeonTemple();
         }
         else
         {
             seat->mManaDelta = 50 + seat->getNumClaimedTiles();
             seat->mMana += seat->mManaDelta;
-            if (seat->mMana > 250000)
-                seat->mMana = 250000;
+            double maxMana = ConfigManager::getSingleton().getMaxManaPerSeat();
+            if (seat->mMana > maxMana)
+                seat->mMana = maxMana;
         }
 
         // Update the count on how much gold is available in all of the treasuries claimed by the given seat.
@@ -1275,6 +1220,23 @@ unsigned long int GameMap::doMiscUpkeep()
 
     timeTaken = stopwatch.getMicroseconds();
     return timeTaken;
+}
+
+int GameMap::getNbWorkersForSeat(Seat* seat)
+{
+    int nbWorkers = 0;
+    for (Creature* creature : mCreatures)
+    {
+        if (creature->getSeat() != seat)
+            continue;
+
+        if (!creature->getDefinition()->isWorker())
+            continue;
+
+        ++nbWorkers;
+    }
+
+    return nbWorkers;
 }
 
 void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)

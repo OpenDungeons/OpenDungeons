@@ -32,7 +32,6 @@
 
 RoomDungeonTemple::RoomDungeonTemple(GameMap* gameMap) :
     Room(gameMap),
-    mWaitTurns(0),
     mTempleObject(nullptr)
 {
     setMeshName("DungeonTemple");
@@ -74,47 +73,4 @@ void RoomDungeonTemple::destroyMeshLocal()
 {
     Room::destroyMeshLocal();
     mTempleObject = nullptr;
-}
-
-void RoomDungeonTemple::produceWorker()
-{
-    // If the room has been destroyed, or has not yet been assigned any tiles, then we
-    // cannot determine where to place the new creature and we should just give up.
-    if (mCoveredTiles.empty())
-        return;
-
-    Tile* centralTile = getCentralTile();
-    if (centralTile == nullptr)
-        return;
-
-    if (mWaitTurns > 0)
-    {
-        --mWaitTurns;
-        return;
-    }
-
-    mWaitTurns = 30;
-
-    // Creates a creature from the first worker class found for the given faction.
-    const CreatureDefinition* classToSpawn = getSeat()->getWorkerClassToSpawn();
-
-    if (classToSpawn == nullptr)
-    {
-        LogManager::getSingleton().logMessage("Error: No worker creature definition, class=nullptr, seatId="
-            + Ogre::StringConverter::toString(getSeat()->getId()));
-        return;
-    }
-
-    // Create a new creature and copy over the class-based creature parameters.
-    Creature* newCreature = new Creature(getGameMap(), classToSpawn);
-    LogManager::getSingleton().logMessage("Spawning a creature class=" + classToSpawn->getClassName()
-        + ", name=" + newCreature->getName() + ", seatId=" + Ogre::StringConverter::toString(getSeat()->getId()));
-
-    newCreature->setSeat(getSeat());
-    getGameMap()->addCreature(newCreature);
-    Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(centralTile->getX()),
-                                static_cast<Ogre::Real>(centralTile->getY()),
-                                static_cast<Ogre::Real>(0.0));
-    newCreature->createMesh();
-    newCreature->setPosition(spawnPosition, false);
 }

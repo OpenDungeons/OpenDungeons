@@ -31,12 +31,6 @@ public:
     //! \brief Updates the temple position when in editor mode.
     void updateActiveSpots();
 
-    /*! \brief Counts down a timer until it reaches 0,
-     * then it spawns a worker of the color of this dungeon temple
-     * at the center of the dungeon temple, and resets the timer.
-     */
-    void produceWorker();
-
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
@@ -48,9 +42,6 @@ protected:
     }
 
 private:
-    //! \brief The number of turns to wait before producing a worker
-    int mWaitTurns;
-
     //! \brief The reference of the temple object
     RenderedMovableEntity* mTempleObject;
 

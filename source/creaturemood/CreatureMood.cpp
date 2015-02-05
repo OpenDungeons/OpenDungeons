@@ -49,7 +49,6 @@ std::string CreatureMood::toString(CreatureMoodLevel moodLevel)
 
 CreatureMood* CreatureMood::load(std::istream& defFile)
 {
-    //FIXME - valgrind reports memory leaks here
     std::string nextParam;
     CreatureMood* def = nullptr;
     while (defFile.good())

@@ -68,6 +68,8 @@ std::string ClientNotification::typeString(ClientNotificationType type)
             return "askPickupWorker";
         case ClientNotificationType::askPickupFighter:
             return "askPickupFighter";
+        case ClientNotificationType::askCastSpell:
+            return "askCastSpell";
         case ClientNotificationType::editorAskSaveMap:
             return "editorAskSaveMap";
         case ClientNotificationType::editorAskChangeTiles:

@@ -97,6 +97,7 @@
             <Property name="RiseOnClickEnabled" value="False" />
             <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuRooms.layout" name="RoomsImport" />
             <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuTraps.layout" name="TrapsImport" />
+            <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuSpells.layout" name="SpellImport" />
             <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuCreatures.layout" name="CreaturesImport" />
         </Window>
         <LayoutImport type="DefaultWindow" filename="QuitMenu.layout" name="QuitMenuImport" />

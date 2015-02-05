@@ -327,6 +327,9 @@ set(OD_SOURCEFILES
     ${SRC}/spawnconditions/SpawnConditionGold.cpp
     ${SRC}/spawnconditions/SpawnConditionRoom.cpp
 
+    ${SRC}/spell/Spell.cpp
+    ${SRC}/spell/SpellSummonWorker.cpp
+
     ${SRC}/traps/Trap.cpp
     ${SRC}/traps/TrapBoulder.cpp
     ${SRC}/traps/TrapCannon.cpp

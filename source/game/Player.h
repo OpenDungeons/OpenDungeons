@@ -26,6 +26,7 @@
 
 class Seat;
 class Creature;
+enum class SpellType;
 
 /*! \brief The player cleass contains information about a human, or computer, player in the game.
  *
@@ -45,18 +46,19 @@ public:
         none,
         buildRoom,
         buildTrap,
+        castSpell,
         changeTile,
         selectTile,
         destroyRoom,
         destroyTrap
     };
-    
+
     enum class Direction
     {
         left = -1,
         right = 1
     };
-    
+
     Player(GameMap* gameMap, int32_t id);
 
     inline int32_t getId() const
@@ -129,8 +131,13 @@ public:
     inline void setNewTrapType(Trap::TrapType newTrapType)
     { mNewTrapType = newTrapType; }
 
-    inline void setCurrentAction(SelectedAction action)
-    { mCurrentAction = action; }
+    inline const SpellType getNewSpellType() const
+    { return mNewSpellType; }
+
+    inline void setNewSpellType(SpellType newSpellType)
+    { mNewSpellType = newSpellType; }
+
+    void setCurrentAction(SelectedAction action);
 
     //! \brief Notify the player is fighting
     //! Should be called on the server game map for human players only
@@ -150,9 +157,10 @@ private:
     //! every AI player has an id = 0.
     //! ID is unique only for human players
     int32_t mId;
-    //! \brief Room or trap tile type the player is currently willing to place on map.
+    //! \brief Room, trap or Spell tile type the player is currently willing to place on map.
     Room::RoomType mNewRoomType;
     Trap::TrapType mNewTrapType;
+    SpellType mNewSpellType;
     SelectedAction mCurrentAction;
 
     GameMap* mGameMap;
