@@ -32,6 +32,7 @@
 #include "entities/TreasuryObject.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Weapon.h"
+#include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "modes/ModeManager.h"
 #include "modes/MenuModeConfigureSeats.h"
@@ -88,12 +89,12 @@ bool ODClient::processOneClientSocketMessage()
         return false;
     }
 
-    ServerNotification::ServerNotificationType serverCommand;
+    ServerNotificationType serverCommand;
     OD_ASSERT_TRUE(packetReceived >> serverCommand);
 
     switch(serverCommand)
     {
-        case ServerNotification::loadLevel:
+        case ServerNotificationType::loadLevel:
         {
             std::string odVersion;
             OD_ASSERT_TRUE(packetReceived >> odVersion);
@@ -189,7 +190,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::pickNick:
+        case ServerNotificationType::pickNick:
         {
             ODServer::ServerMode serverMode;
             OD_ASSERT_TRUE(packetReceived >> serverMode);
@@ -219,7 +220,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::seatConfigurationRefresh:
+        case ServerNotificationType::seatConfigurationRefresh:
         {
             if(frameListener->getModeManager()->getCurrentModeType() != ModeManager::ModeType::MENU_CONFIGURE_SEATS)
                 break;
@@ -229,7 +230,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::addPlayers:
+        case ServerNotificationType::addPlayers:
         {
             if(frameListener->getModeManager()->getCurrentModeType() != ModeManager::ModeType::MENU_CONFIGURE_SEATS)
             {
@@ -253,7 +254,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::removePlayers:
+        case ServerNotificationType::removePlayers:
         {
             if(frameListener->getModeManager()->getCurrentModeType() != ModeManager::ModeType::MENU_CONFIGURE_SEATS)
             {
@@ -273,7 +274,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::clientAccepted:
+        case ServerNotificationType::clientAccepted:
         {
             int32_t nbPlayers;
             OD_ASSERT_TRUE(packetReceived >> ODApplication::turnsPerSecond);
@@ -296,7 +297,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::clientRejected:
+        case ServerNotificationType::clientRejected:
         {
             // If should be in seat configuration. If we are rejected, we regress mode
             ModeManager::ModeType modeType = frameListener->getModeManager()->getCurrentModeType();
@@ -310,7 +311,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::startGameMode:
+        case ServerNotificationType::startGameMode:
         {
             int seatId;
             OD_ASSERT_TRUE(packetReceived >> seatId);
@@ -360,7 +361,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::chat:
+        case ServerNotificationType::chat:
         {
             std::string chatNick;
             std::string chatMsg;
@@ -370,7 +371,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::chatServer:
+        case ServerNotificationType::chatServer:
         {
             std::string chatMsg;
             OD_ASSERT_TRUE(packetReceived >> chatMsg);
@@ -380,13 +381,13 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::newMap:
+        case ServerNotificationType::newMap:
         {
             gameMap->clearAll();
             break;
         }
 
-        case ServerNotification::addMapLight:
+        case ServerNotificationType::addMapLight:
         {
             MapLight *newMapLight = new MapLight(gameMap);
             OD_ASSERT_TRUE(packetReceived >> newMapLight);
@@ -395,7 +396,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::removeMapLight:
+        case ServerNotificationType::removeMapLight:
         {
             std::string nameMapLight;
             OD_ASSERT_TRUE(packetReceived >> nameMapLight);
@@ -409,7 +410,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::addClass:
+        case ServerNotificationType::addClass:
         {
             CreatureDefinition *tempClass = new CreatureDefinition;
             OD_ASSERT_TRUE(packetReceived >> tempClass);
@@ -417,7 +418,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::addCreature:
+        case ServerNotificationType::addCreature:
         {
             Creature *newCreature = Creature::getCreatureFromPacket(gameMap, packetReceived);
             newCreature->addToGameMap();
@@ -426,7 +427,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::removeCreature:
+        case ServerNotificationType::removeCreature:
         {
             std::string creatureName;
             OD_ASSERT_TRUE(packetReceived >> creatureName);
@@ -440,7 +441,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::turnStarted:
+        case ServerNotificationType::turnStarted:
         {
             int64_t turnNum;
             OD_ASSERT_TRUE(packetReceived >> turnNum);
@@ -462,7 +463,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::animatedObjectAddDestination:
+        case ServerNotificationType::animatedObjectAddDestination:
         {
             std::string objName;
             Ogre::Vector3 vect;
@@ -475,7 +476,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::animatedObjectClearDestinations:
+        case ServerNotificationType::animatedObjectClearDestinations:
         {
             std::string objName;
             OD_ASSERT_TRUE(packetReceived >> objName);
@@ -487,7 +488,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::entityPickedUp:
+        case ServerNotificationType::entityPickedUp:
         {
             bool isEditorMode;
             int seatId;
@@ -508,7 +509,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::entityDropped:
+        case ServerNotificationType::entityDropped:
         {
             int seatId;
             OD_ASSERT_TRUE(packetReceived >> seatId);
@@ -525,13 +526,13 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::entitySlapped:
+        case ServerNotificationType::entitySlapped:
         {
             RenderManager::getSingleton().entitySlapped();
             break;
         }
 
-        case ServerNotification::setObjectAnimationState:
+        case ServerNotificationType::setObjectAnimationState:
         {
             std::string objName;
             std::string animState;
@@ -555,7 +556,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::setMoveSpeed:
+        case ServerNotificationType::setMoveSpeed:
         {
             std::string objName;
             double moveSpeed;
@@ -569,7 +570,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::refreshPlayerSeat:
+        case ServerNotificationType::refreshPlayerSeat:
         {
             Seat tmpSeat(gameMap);
             std::string goalsString;
@@ -579,7 +580,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::creatureRefresh:
+        case ServerNotificationType::creatureRefresh:
         {
             std::string name;
             unsigned int level;
@@ -593,7 +594,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::playerFighting:
+        case ServerNotificationType::playerFighting:
         {
             std::string fightMusic = gameMap->getLevelFightMusicFile();
             if (fightMusic.empty())
@@ -602,13 +603,13 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::playerNoMoreFighting:
+        case ServerNotificationType::playerNoMoreFighting:
         {
             MusicPlayer::getSingleton().play(gameMap->getLevelMusicFile());
             break;
         }
 
-        case ServerNotification::addRenderedMovableEntity:
+        case ServerNotificationType::addRenderedMovableEntity:
         {
             RenderedMovableEntity* tempRenderedMovableEntity = RenderedMovableEntity::getRenderedMovableEntityFromPacket(gameMap, packetReceived);
             OD_ASSERT_TRUE(tempRenderedMovableEntity != nullptr);
@@ -620,9 +621,9 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::removeRenderedMovableEntity:
+        case ServerNotificationType::removeRenderedMovableEntity:
         {
-            // TODO: merge ServerNotification::removeRenderedMovableEntity, ServerNotification::removeCreature... for movable entities when it is possible
+            // TODO: merge ServerNotificationType::removeRenderedMovableEntity, ServerNotificationType::removeCreature... for movable entities when it is possible
             std::string name;
             GameEntityType entityType;
             OD_ASSERT_TRUE(packetReceived >> entityType >> name);
@@ -636,7 +637,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::setEntityOpacity:
+        case ServerNotificationType::setEntityOpacity:
         {
             std::string entityName;
             float opacity;
@@ -651,7 +652,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::playSpatialSound:
+        case ServerNotificationType::playSpatialSound:
         {
             SoundEffectsManager::InterfaceSound soundType;
             int xPos;
@@ -662,7 +663,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::notifyCreatureInfo:
+        case ServerNotificationType::notifyCreatureInfo:
         {
             std::string name;
             std::string infos;
@@ -676,7 +677,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::refreshCreatureVisDebug:
+        case ServerNotificationType::refreshCreatureVisDebug:
         {
             std::string name;
             bool isDebugVisibleTilesActive;
@@ -709,7 +710,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::refreshSeatVisDebug:
+        case ServerNotificationType::refreshSeatVisDebug:
         {
             int seatId;
             bool isDebugVisibleTilesActive;
@@ -742,7 +743,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::refreshVisibleTiles:
+        case ServerNotificationType::refreshVisibleTiles:
         {
             uint32_t nbTiles;
             // Tiles we gained vision
@@ -774,7 +775,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::playCreatureSound:
+        case ServerNotificationType::playCreatureSound:
         {
             std::string name;
             CreatureSound::SoundType soundType;
@@ -789,7 +790,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::refreshTiles:
+        case ServerNotificationType::refreshTiles:
         {
             uint32_t nbTiles;
             OD_ASSERT_TRUE(packetReceived >> nbTiles);
@@ -809,7 +810,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::carryEntity:
+        case ServerNotificationType::carryEntity:
         {
             std::string carrierName;
             GameEntityType entityType;
@@ -829,7 +830,7 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::releaseCarriedEntity:
+        case ServerNotificationType::releaseCarriedEntity:
         {
             std::string carrierName;
             GameEntityType entityType;
@@ -854,7 +855,7 @@ bool ODClient::processOneClientSocketMessage()
         default:
         {
             logManager.logMessage("ERROR:  Unknown server command:"
-                + Ogre::StringConverter::toString(serverCommand));
+                + Helper::toString(static_cast<int>(serverCommand)));
             break;
         }
     }

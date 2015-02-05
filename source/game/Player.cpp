@@ -259,7 +259,7 @@ void Player::notifyNoMoreDungeonTemple()
                 continue;
 
             ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::chatServer, seat->getPlayer());
+            ServerNotificationType::chatServer, seat->getPlayer());
             serverNotification->mPacket << "You lost the game";
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
@@ -278,14 +278,14 @@ void Player::notifyNoMoreDungeonTemple()
             if(this == seat->getPlayer())
             {
                 ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::chatServer, seat->getPlayer());
+                ServerNotificationType::chatServer, seat->getPlayer());
                 serverNotification->mPacket << "You lost";
                 ODServer::getSingleton().queueServerNotification(serverNotification);
                 continue;
             }
 
             ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::chatServer, seat->getPlayer());
+            ServerNotificationType::chatServer, seat->getPlayer());
             serverNotification->mPacket << "An ally has lost";
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
@@ -306,7 +306,7 @@ void Player::updateTime(Ogre::Real timeSinceLastUpdate)
             mFightingTime = 0.0f;
             // Notify the player he is no longer under attack.
             ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::playerNoMoreFighting, this);
+                ServerNotificationType::playerNoMoreFighting, this);
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
     }
@@ -325,7 +325,7 @@ void Player::notifyFighting()
     if(mFightingTime == 0.0f)
     {
         ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::playerFighting, this);
+            ServerNotificationType::playerFighting, this);
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 
@@ -340,7 +340,7 @@ void Player::notifyNoTreasuryAvailable()
 
         std::string chatMsg = "No treasury available. You should build a bigger one";
         ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::chatServer, this);
+            ServerNotificationType::chatServer, this);
         serverNotification->mPacket << chatMsg;
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }

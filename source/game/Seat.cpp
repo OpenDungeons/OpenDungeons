@@ -486,7 +486,7 @@ void Seat::notifyChangedVisibleTiles()
 
     uint32_t nbTiles = tilesToNotify.size();
     ServerNotification *serverNotification = new ServerNotification(
-        ServerNotification::refreshTiles, getPlayer());
+        ServerNotificationType::refreshTiles, getPlayer());
     serverNotification->mPacket << nbTiles;
     for(Tile* tile : tilesToNotify)
     {
@@ -580,7 +580,7 @@ void Seat::displaySeatVisualDebug(bool enable)
         }
         uint32_t nbTiles = tiles.size();
         ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::refreshSeatVisDebug, nullptr);
+            ServerNotificationType::refreshSeatVisDebug, nullptr);
         serverNotification->mPacket << seatId;
         serverNotification->mPacket << true;
         serverNotification->mPacket << nbTiles;
@@ -593,7 +593,7 @@ void Seat::displaySeatVisualDebug(bool enable)
     else
     {
         ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::refreshSeatVisDebug, nullptr);
+            ServerNotificationType::refreshSeatVisDebug, nullptr);
         serverNotification->mPacket << seatId;
         serverNotification->mPacket << false;
         ODServer::getSingleton().queueServerNotification(serverNotification);
@@ -613,7 +613,7 @@ void Seat::sendVisibleTiles()
 
     uint32_t nbTiles;
     ServerNotification *serverNotification = new ServerNotification(
-        ServerNotification::refreshVisibleTiles, getPlayer());
+        ServerNotificationType::refreshVisibleTiles, getPlayer());
     std::vector<Tile*> tilesVisionGained;
     std::vector<Tile*> tilesVisionLost;
     // Tiles we gained vision

@@ -184,14 +184,14 @@ bool MenuModeReplay::checkReplayValid(const std::string& replayFileName, std::st
     // We open the replay to get the level file name
     std::ifstream is(replayFile, std::ios::in | std::ios::binary);
     ODPacket packet;
-    ServerNotification::ServerNotificationType type;
+    ServerNotificationType type;
     do
     {
         packet.readPacket(is);
         OD_ASSERT_TRUE(packet >> type);
         if(is.eof())
             break;
-    } while(type != ServerNotification::loadLevel);
+    } while(type != ServerNotificationType::loadLevel);
 
     if(is.eof())
     {

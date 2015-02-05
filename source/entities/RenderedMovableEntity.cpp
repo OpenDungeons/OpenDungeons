@@ -118,7 +118,7 @@ void RenderedMovableEntity::setMeshOpacity(float opacity)
                 continue;
 
             ServerNotification* serverNotification = new ServerNotification(
-                ServerNotification::setEntityOpacity, seat->getPlayer());
+                ServerNotificationType::setEntityOpacity, seat->getPlayer());
             const std::string& name = getName();
             serverNotification->mPacket << name << opacity;
             ODServer::getSingleton().queueServerNotification(serverNotification);
@@ -146,7 +146,7 @@ void RenderedMovableEntity::fireAddEntity(Seat* seat, bool async)
     if(async)
     {
         ServerNotification serverNotification(
-            ServerNotification::addRenderedMovableEntity, seat->getPlayer());
+            ServerNotificationType::addRenderedMovableEntity, seat->getPlayer());
         exportHeadersToPacket(serverNotification.mPacket);
         exportToPacket(serverNotification.mPacket);
         ODServer::getSingleton().sendAsyncMsg(serverNotification);
@@ -154,7 +154,7 @@ void RenderedMovableEntity::fireAddEntity(Seat* seat, bool async)
     else
     {
         ServerNotification* serverNotification = new ServerNotification(
-            ServerNotification::addRenderedMovableEntity, seat->getPlayer());
+            ServerNotificationType::addRenderedMovableEntity, seat->getPlayer());
         exportHeadersToPacket(serverNotification->mPacket);
         exportToPacket(serverNotification->mPacket);
         ODServer::getSingleton().queueServerNotification(serverNotification);
@@ -164,7 +164,7 @@ void RenderedMovableEntity::fireAddEntity(Seat* seat, bool async)
 void RenderedMovableEntity::fireRemoveEntity(Seat* seat)
 {
     ServerNotification *serverNotification = new ServerNotification(
-        ServerNotification::removeRenderedMovableEntity, seat->getPlayer());
+        ServerNotificationType::removeRenderedMovableEntity, seat->getPlayer());
     const std::string& name = getName();
     GameEntityType type = getObjectType();
     serverNotification->mPacket << type;

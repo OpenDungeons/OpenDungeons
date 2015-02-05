@@ -1285,7 +1285,7 @@ void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
         {
             mTimePayDay = 0;
             ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::chatServer, nullptr);
+                ServerNotificationType::chatServer, nullptr);
             serverNotification->mPacket << "It's pay day !";
             ODServer::getSingleton().queueServerNotification(serverNotification);
             for(Creature* creature : mCreatures)
@@ -2111,7 +2111,7 @@ void GameMap::addWinningSeat(Seat *s)
     if (player && player->getIsHuman())
     {
         ServerNotification* serverNotification = new ServerNotification(
-            ServerNotification::chatServer, player);
+            ServerNotificationType::chatServer, player);
         serverNotification->mPacket << "You Won";
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }

@@ -2720,7 +2720,7 @@ bool Creature::handleGetFee(const CreatureAction& actionItem)
                (getSeat()->getPlayer()->getIsHuman()))
             {
                 ServerNotification *serverNotification = new ServerNotification(
-                    ServerNotification::chatServer, getSeat()->getPlayer());
+                    ServerNotificationType::chatServer, getSeat()->getPlayer());
                 std::string msg;
                 // We don't display the same message if we have taken all our fee or only a part of it
                 if(mGoldFee <= 0)
@@ -3125,7 +3125,7 @@ void Creature::computeVisualDebugEntities()
     updateTilesInSight();
 
     ServerNotification *serverNotification = new ServerNotification(
-        ServerNotification::refreshCreatureVisDebug, nullptr);
+        ServerNotificationType::refreshCreatureVisDebug, nullptr);
 
     const std::string& name = getName();
     serverNotification->mPacket << name;
@@ -3189,7 +3189,7 @@ void Creature::stopComputeVisualDebugEntities()
     mHasVisualDebuggingEntities = false;
 
     ServerNotification *serverNotification = new ServerNotification(
-        ServerNotification::refreshCreatureVisDebug, nullptr);
+        ServerNotificationType::refreshCreatureVisDebug, nullptr);
     const std::string& name = getName();
     serverNotification->mPacket << name;
     serverNotification->mPacket << false;
@@ -3851,7 +3851,7 @@ void Creature::releaseCarriedEntity()
             continue;
 
         ServerNotification* serverNotification = new ServerNotification(
-            ServerNotification::releaseCarriedEntity, seat->getPlayer());
+            ServerNotificationType::releaseCarriedEntity, seat->getPlayer());
         serverNotification->mPacket << getName() << carriedEntity->getObjectType();
         serverNotification->mPacket << carriedEntity->getName();
         serverNotification->mPacket << mPosition;
@@ -3929,7 +3929,7 @@ void Creature::fireAddEntity(Seat* seat, bool async)
     if(async)
     {
         ServerNotification serverNotification(
-            ServerNotification::addCreature, seat->getPlayer());
+            ServerNotificationType::addCreature, seat->getPlayer());
         exportToPacket(serverNotification.mPacket);
         ODServer::getSingleton().sendAsyncMsg(serverNotification);
 
@@ -3939,7 +3939,7 @@ void Creature::fireAddEntity(Seat* seat, bool async)
     else
     {
         ServerNotification* serverNotification = new ServerNotification(
-            ServerNotification::addCreature, seat->getPlayer());
+            ServerNotificationType::addCreature, seat->getPlayer());
         exportToPacket(serverNotification->mPacket);
         ODServer::getSingleton().queueServerNotification(serverNotification);
 
@@ -3948,7 +3948,7 @@ void Creature::fireAddEntity(Seat* seat, bool async)
             mCarriedEntity->addSeatWithVision(seat, false);
 
             serverNotification = new ServerNotification(
-                ServerNotification::carryEntity, seat->getPlayer());
+                ServerNotificationType::carryEntity, seat->getPlayer());
             serverNotification->mPacket << getName() << mCarriedEntity->getObjectType();
             serverNotification->mPacket << mCarriedEntity->getName();
             ODServer::getSingleton().queueServerNotification(serverNotification);
@@ -3963,7 +3963,7 @@ void Creature::fireRemoveEntity(Seat* seat)
     if(mCarriedEntity != nullptr)
     {
         ServerNotification* serverNotification = new ServerNotification(
-            ServerNotification::releaseCarriedEntity, seat->getPlayer());
+            ServerNotificationType::releaseCarriedEntity, seat->getPlayer());
         serverNotification->mPacket << getName() << mCarriedEntity->getObjectType();
         serverNotification->mPacket << mCarriedEntity->getName();
         serverNotification->mPacket << mPosition;
@@ -3974,7 +3974,7 @@ void Creature::fireRemoveEntity(Seat* seat)
 
     const std::string& name = getName();
     ServerNotification *serverNotification = new ServerNotification(
-        ServerNotification::removeCreature, seat->getPlayer());
+        ServerNotificationType::removeCreature, seat->getPlayer());
     serverNotification->mPacket << name;
     ODServer::getSingleton().queueServerNotification(serverNotification);
 }
@@ -3990,7 +3990,7 @@ void Creature::fireCreatureRefresh()
 
         const std::string& name = getName();
         ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::creatureRefresh, seat->getPlayer());
+            ServerNotificationType::creatureRefresh, seat->getPlayer());
         serverNotification->mPacket << name;
         serverNotification->mPacket << mLevel;
         ODServer::getSingleton().queueServerNotification(serverNotification);
@@ -4013,7 +4013,7 @@ void Creature::fireCreatureSound(CreatureSound::SoundType sound)
         const std::string& name = getDefinition()->getClassName();
         const Ogre::Vector3& position = getPosition();
         ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::playCreatureSound, seat->getPlayer());
+            ServerNotificationType::playCreatureSound, seat->getPlayer());
         serverNotification->mPacket << name << sound << position;
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
@@ -4057,7 +4057,7 @@ void Creature::computeMood()
            (getSeat()->getPlayer()->getIsHuman()))
         {
             ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::chatServer, getSeat()->getPlayer());
+                ServerNotificationType::chatServer, getSeat()->getPlayer());
             std::string msg = getName() + " is unhappy";
             serverNotification->mPacket << msg;
             ODServer::getSingleton().queueServerNotification(serverNotification);
@@ -4079,7 +4079,7 @@ void Creature::computeMood()
            (getSeat()->getPlayer()->getIsHuman()))
         {
             ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::chatServer, getSeat()->getPlayer());
+                ServerNotificationType::chatServer, getSeat()->getPlayer());
             std::string msg = getName() + " wants to leave your dungeon";
             serverNotification->mPacket << msg;
             ODServer::getSingleton().queueServerNotification(serverNotification);
@@ -4089,7 +4089,7 @@ void Creature::computeMood()
     {
         // We couldn't leave the dungeon in time, we become rogue
         ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::chatServer, getSeat()->getPlayer());
+            ServerNotificationType::chatServer, getSeat()->getPlayer());
         std::string msg = getName() + " is not under your control anymore !";
         serverNotification->mPacket << msg;
         ODServer::getSingleton().queueServerNotification(serverNotification);

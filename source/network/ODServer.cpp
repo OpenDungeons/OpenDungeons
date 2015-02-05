@@ -192,7 +192,7 @@ void ODServer::startNewTurn(double timeSinceLastFrame)
     gameMap->setTurnNumber(++turn);
 
     ServerNotification* serverNotification = new ServerNotification(
-        ServerNotification::turnStarted, nullptr);
+        ServerNotificationType::turnStarted, nullptr);
     serverNotification->mPacket << turn;
     queueServerNotification(serverNotification);
 
@@ -208,7 +208,7 @@ void ODServer::startNewTurn(double timeSinceLastFrame)
         // For now, only the player whose seat changed is notified. If we need it, we could send the event to every player
         // so that they can see how far from the goals the other players are
         ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::refreshPlayerSeat, player);
+            ServerNotificationType::refreshPlayerSeat, player);
         std::string goals = gameMap->getGoalsStringForPlayer(player);
         Seat* seat = player->getSeat();
         seat->computeSeatBeforeSendingToClient();
@@ -230,7 +230,7 @@ void ODServer::startNewTurn(double timeSinceLastFrame)
                 std::string creatureInfos = creature->getStatsText();
 
                 ServerNotification *serverNotification = new ServerNotification(
-                    ServerNotification::notifyCreatureInfo, player);
+                    ServerNotificationType::notifyCreatureInfo, player);
                 serverNotification->mPacket << name << creatureInfos;
                 ODServer::getSingleton().queueServerNotification(serverNotification);
 
@@ -303,7 +303,7 @@ void ODServer::serverThread()
                 // Every client is connected and ready, we can launch the game
                 // Send turn 0 to init the map
                 ServerNotification* serverNotification = new ServerNotification(
-                    ServerNotification::turnStarted, nullptr);
+                    ServerNotificationType::turnStarted, nullptr);
                 serverNotification->mPacket << static_cast<int64_t>(0);
                 queueServerNotification(serverNotification);
 
@@ -385,31 +385,31 @@ void ODServer::processServerNotifications()
 
         switch (event->mType)
         {
-            case ServerNotification::turnStarted:
+            case ServerNotificationType::turnStarted:
                 LogManager::getSingleton().logMessage("Server sends newturn="
                     + Ogre::StringConverter::toString((int32_t)gameMap->getTurnNumber()));
                 sendMsg(event->mConcernedPlayer, event->mPacket);
                 break;
 
-            case ServerNotification::entityPickedUp:
+            case ServerNotificationType::entityPickedUp:
                 // This message should not be sent by human players (they are notified asynchronously)
                 OD_ASSERT_TRUE_MSG(event->mConcernedPlayer->getIsHuman(), "nick=" + event->mConcernedPlayer->getNick());
                 sendMsg(event->mConcernedPlayer, event->mPacket);
                 break;
 
-            case ServerNotification::entityDropped:
+            case ServerNotificationType::entityDropped:
                 // This message should not be sent by human players (they are notified asynchronously)
                 OD_ASSERT_TRUE_MSG(event->mConcernedPlayer->getIsHuman(), "nick=" + event->mConcernedPlayer->getNick());
                 sendMsg(event->mConcernedPlayer, event->mPacket);
                 break;
 
-            case ServerNotification::entitySlapped:
+            case ServerNotificationType::entitySlapped:
                 // This message should not be sent by human players (they are notified asynchronously)
                 OD_ASSERT_TRUE_MSG(!event->mConcernedPlayer->getIsHuman(), "nick=" + event->mConcernedPlayer->getNick());
                 sendMsg(event->mConcernedPlayer, event->mPacket);
                 break;
 
-            case ServerNotification::exit:
+            case ServerNotificationType::exit:
                 running = false;
                 stopServer();
                 break;
@@ -450,7 +450,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         // We notify
         uint32_t nbPlayers = 1;
         ODPacket packetSend;
-        packetSend << ServerNotification::removePlayers << nbPlayers;
+        packetSend << ServerNotificationType::removePlayers << nbPlayers;
         int32_t id = clientSocket->getPlayer()->getId();
         packetSend << id;
         sendMsg(nullptr, packetSend);
@@ -484,7 +484,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             int32_t mapSizeY = gameMap->getMapSizeY();
 
             ODPacket packet;
-            packet << ServerNotification::loadLevel;
+            packet << ServerNotificationType::loadLevel;
             packet << version;
             packet << mapSizeX << mapSizeY;
             // Map infos
@@ -578,7 +578,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             setClientState(clientSocket, "nick");
             // Tell the client to give us their nickname
             ODPacket packetSend;
-            packetSend << ServerNotification::pickNick << mServerMode;
+            packetSend << ServerNotificationType::pickNick << mServerMode;
             sendMsgToClient(clientSocket, packetSend);
             break;
         }
@@ -613,7 +613,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             Seat* seat = seats[0];
             seat->setPlayer(curPlayer);
             ODPacket packetSend;
-            packetSend << ServerNotification::clientAccepted << ODApplication::turnsPerSecond;
+            packetSend << ServerNotificationType::clientAccepted << ODApplication::turnsPerSecond;
             int32_t nbPlayers = 1;
             packetSend << nbPlayers;
             const std::string& nick = clientSocket->getPlayer()->getNick();
@@ -624,7 +624,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             sendMsgToClient(clientSocket, packetSend);
 
             packetSend.clear();
-            packetSend << ServerNotification::startGameMode << seatId << mServerMode;
+            packetSend << ServerNotificationType::startGameMode << seatId << mServerMode;
             sendMsgToClient(clientSocket, packetSend);
             mSeatsConfigured = true;
             break;
@@ -638,7 +638,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             ODPacket packetSend;
             // We notify to the newly connected player all the currently connected players (including himself
             uint32_t nbPlayers = mSockClients.size();
-            packetSend << ServerNotification::addPlayers << nbPlayers;
+            packetSend << ServerNotificationType::addPlayers << nbPlayers;
             for (ODSocketClient* client : mSockClients)
             {
                 const std::string& nick = client->getPlayer()->getNick();
@@ -652,7 +652,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             int32_t clientPlayerId = clientSocket->getPlayer()->getId();
             packetSend.clear();
             nbPlayers = 1;
-            packetSend << ServerNotification::addPlayers << nbPlayers;
+            packetSend << ServerNotificationType::addPlayers << nbPlayers;
             packetSend << clientNick << clientPlayerId;
             for (ODSocketClient* client : mSockClients)
             {
@@ -668,7 +668,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         {
             std::vector<Seat*> seats = gameMap->getSeats();
             ODPacket packetSend;
-            packetSend << ServerNotification::seatConfigurationRefresh;
+            packetSend << ServerNotificationType::seatConfigurationRefresh;
             for(Seat* seat : seats)
             {
                 // Rogue seat do not have to be configured
@@ -804,7 +804,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             if(!clientsToRemove.empty())
             {
                 ODPacket packetSend;
-                packetSend << ServerNotification::clientRejected;
+                packetSend << ServerNotificationType::clientRejected;
                 for(ODSocketClient* client : clientsToRemove)
                 {
                     Player* player = client->getPlayer();
@@ -819,7 +819,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             }
 
             ODPacket packetSend;
-            packetSend << ServerNotification::clientAccepted << ODApplication::turnsPerSecond;
+            packetSend << ServerNotificationType::clientAccepted << ODApplication::turnsPerSecond;
             const std::vector<Player*>& players = gameMap->getPlayers();
             int32_t nbPlayers = players.size();
             packetSend << nbPlayers;
@@ -837,7 +837,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
                 ODPacket packetSend;
                 int seatId = client->getPlayer()->getSeat()->getId();
-                packetSend << ServerNotification::startGameMode << seatId << mServerMode;
+                packetSend << ServerNotificationType::startGameMode << seatId << mServerMode;
                 sendMsgToClient(client, packetSend);
             }
 
@@ -856,7 +856,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             Player* player = clientSocket->getPlayer();
             ODPacket packetSend;
             std::string nick = player->getNick();
-            ServerNotification notif(ServerNotification::chat, nullptr);
+            ServerNotification notif(ServerNotificationType::chat, nullptr);
             notif.mPacket << nick << chatMsg;
             sendAsyncMsg(notif);
             break;
@@ -975,7 +975,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             entity->slap(isEditorMode);
 
-            ServerNotification notif(ServerNotification::entitySlapped, player);
+            ServerNotification notif(ServerNotificationType::entitySlapped, player);
             sendAsyncMsg(notif);
             break;
         }
@@ -1084,7 +1084,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             {
                 uint32_t nbTiles = p.second.size();
                 ServerNotification serverNotification(
-                    ServerNotification::refreshTiles, p.first->getPlayer());
+                    ServerNotificationType::refreshTiles, p.first->getPlayer());
                 serverNotification.mPacket << nbTiles;
                 for(Tile* tile : p.second)
                 {
@@ -1154,7 +1154,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             {
                 uint32_t nbTiles = p.second.size();
                 ServerNotification serverNotification(
-                    ServerNotification::refreshTiles, p.first->getPlayer());
+                    ServerNotificationType::refreshTiles, p.first->getPlayer());
                 serverNotification.mPacket << nbTiles;
                 for(Tile* tile : p.second)
                 {
@@ -1223,7 +1223,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             {
                 uint32_t nbTiles = p.second.size();
                 ServerNotification serverNotification(
-                    ServerNotification::refreshTiles, p.first->getPlayer());
+                    ServerNotificationType::refreshTiles, p.first->getPlayer());
                 serverNotification.mPacket << nbTiles;
                 for(Tile* tile : p.second)
                 {
@@ -1376,7 +1376,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             {
                 uint32_t nbTiles = p.second.size();
                 ServerNotification serverNotification(
-                    ServerNotification::refreshTiles, p.first->getPlayer());
+                    ServerNotificationType::refreshTiles, p.first->getPlayer());
                 serverNotification.mPacket << nbTiles;
                 for(Tile* tile : p.second)
                 {
@@ -1444,7 +1444,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             {
                 uint32_t nbTiles = p.second.size();
                 ServerNotification serverNotification(
-                    ServerNotification::refreshTiles, p.first->getPlayer());
+                    ServerNotificationType::refreshTiles, p.first->getPlayer());
                 serverNotification.mPacket << nbTiles;
                 for(Tile* tile : p.second)
                 {
@@ -1501,7 +1501,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
                 std::string msg = "Map saved successfully";
                 MapLoader::writeGameMapToFile(gameMap->getLevelFileName(), *gameMap);
-                ServerNotification notif(ServerNotification::chatServer, player);
+                ServerNotification notif(ServerNotificationType::chatServer, player);
                 notif.mPacket << msg;
                 sendAsyncMsg(notif);
             }
@@ -1509,7 +1509,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             {
                 // We cannot save the map
                 std::string msg = "Map could not be saved because player hand is not empty";
-                ServerNotification notif(ServerNotification::chatServer, player);
+                ServerNotification notif(ServerNotificationType::chatServer, player);
                 notif.mPacket << msg;
                 sendAsyncMsg(notif);
             }
@@ -1562,7 +1562,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     if(!seat->getPlayer()->getIsHuman())
                         continue;
 
-                    ServerNotification notif(ServerNotification::refreshTiles, seat->getPlayer());
+                    ServerNotification notif(ServerNotificationType::refreshTiles, seat->getPlayer());
                     notif.mPacket << nbTiles;
                     for(Tile* tile : affectedTiles)
                     {
@@ -1692,7 +1692,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             {
                 uint32_t nbTiles = p.second.size();
                 ServerNotification serverNotification(
-                    ServerNotification::refreshTiles, p.first->getPlayer());
+                    ServerNotificationType::refreshTiles, p.first->getPlayer());
                 serverNotification.mPacket << nbTiles;
                 for(Tile* tile : p.second)
                 {
@@ -1888,7 +1888,7 @@ bool ODServer::notifyClientMessage(ODSocketClient *clientSocket)
         if(std::string("ready").compare(clientSocket->getState()) == 0)
         {
             ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::chatServer, nullptr);
+                ServerNotificationType::chatServer, nullptr);
             std::string msg = clientSocket->getPlayer()->getNick()
                 + " disconnected";
             serverNotification->mPacket << msg;
@@ -1924,7 +1924,7 @@ void ODServer::notifyExit()
     }
 
     ServerNotification* exitServerNotification = new ServerNotification(
-        ServerNotification::exit, nullptr);
+        ServerNotificationType::exit, nullptr);
     queueServerNotification(exitServerNotification);
 }
 

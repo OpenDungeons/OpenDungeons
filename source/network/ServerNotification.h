@@ -29,68 +29,71 @@ class Creature;
 class MovableGameEntity;
 class Player;
 
+enum class ServerNotificationType
+{
+    // Negociation for multiplayer
+    loadLevel, // Tells the client to load the level: + string LevelFilename
+    pickNick,
+    addPlayers,
+    removePlayers,
+    startGameMode,
+    newMap,
+    addTile,
+    addMapLight,
+    removeMapLight,
+    addClass,
+    clientAccepted,
+    clientRejected,
+    seatConfigurationRefresh,
+
+    chat,
+    chatServer,
+
+    turnStarted,
+
+    animatedObjectAddDestination,
+    animatedObjectClearDestinations,
+    setObjectAnimationState,
+    setMoveSpeed,
+    entityPickedUp,
+    entityDropped,
+    entitySlapped,
+
+    playerFighting, // Tells the player he is under attack or attacking
+    playerNoMoreFighting, // Tells the player he is no longer under attack or attacking
+
+    addCreature,
+    removeCreature,
+    creatureRefresh,
+    refreshPlayerSeat,
+    addRenderedMovableEntity,
+    removeRenderedMovableEntity,
+    setEntityOpacity,
+    notifyCreatureInfo,
+    refreshCreatureVisDebug,
+
+    refreshSeatVisDebug,
+
+    playSpatialSound, // Makes the client play a sound at tile coordinates.
+    playCreatureSound, // Play a creature sound at the given position
+
+    refreshTiles,
+    refreshVisibleTiles,
+    carryEntity,
+    releaseCarriedEntity,
+
+    exit
+};
+
+ODPacket& operator<<(ODPacket& os, const ServerNotificationType& nt);
+ODPacket& operator>>(ODPacket& is, ServerNotificationType& nt);
+
 //! \brief A data structure used to send messages to the clients
 class ServerNotification
 {
     friend class ODServer;
 
     public:
-        enum ServerNotificationType
-        {
-            // Negociation for multiplayer
-            loadLevel, // Tells the client to load the level: + string LevelFilename
-            pickNick,
-            addPlayers,
-            removePlayers,
-            startGameMode,
-            newMap,
-            addTile,
-            addMapLight,
-            removeMapLight,
-            addClass,
-            clientAccepted,
-            clientRejected,
-            seatConfigurationRefresh,
-
-            chat,
-            chatServer,
-
-            turnStarted,
-
-            animatedObjectAddDestination,
-            animatedObjectClearDestinations,
-            setObjectAnimationState,
-            setMoveSpeed,
-            entityPickedUp,
-            entityDropped,
-            entitySlapped,
-
-            playerFighting, // Tells the player he is under attack or attacking
-            playerNoMoreFighting, // Tells the player he is no longer under attack or attacking
-
-            addCreature,
-            removeCreature,
-            creatureRefresh,
-            refreshPlayerSeat,
-            addRenderedMovableEntity,
-            removeRenderedMovableEntity,
-            setEntityOpacity,
-            notifyCreatureInfo,
-            refreshCreatureVisDebug,
-
-            refreshSeatVisDebug,
-
-            playSpatialSound, // Makes the client play a sound at tile coordinates.
-            playCreatureSound, // Play a creature sound at the given position
-
-            refreshTiles,
-            refreshVisibleTiles,
-            carryEntity,
-            releaseCarriedEntity,
-
-            exit
-        };
-
         /*! \brief Creates a message to be sent to concernedPlayer. If concernedPlayer is null, the message will be sent to
          *         every connected player.
          */
@@ -101,8 +104,6 @@ class ServerNotification
         ODPacket mPacket;
 
         static std::string typeString(ServerNotificationType type);
-        friend ODPacket& operator<<(ODPacket& os, const ServerNotification::ServerNotificationType& nt);
-        friend ODPacket& operator>>(ODPacket& is, ServerNotification::ServerNotificationType& nt);
 
     private:
         ServerNotificationType mType;

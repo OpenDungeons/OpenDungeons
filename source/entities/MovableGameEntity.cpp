@@ -59,7 +59,7 @@ void MovableGameEntity::setMoveSpeed(double s)
 
         const std::string& name = getName();
         ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::setMoveSpeed, seat->getPlayer());
+            ServerNotificationType::setMoveSpeed, seat->getPlayer());
         serverNotification->mPacket << name << s;
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
@@ -83,7 +83,7 @@ void MovableGameEntity::addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z)
 
         const std::string& name = getName();
         ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::animatedObjectAddDestination, seat->getPlayer());
+            ServerNotificationType::animatedObjectAddDestination, seat->getPlayer());
         serverNotification->mPacket << name << destination;
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
@@ -139,7 +139,7 @@ void MovableGameEntity::clearDestinations()
 
         const std::string& name = getName();
         ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::animatedObjectClearDestinations, seat->getPlayer());
+            ServerNotificationType::animatedObjectClearDestinations, seat->getPlayer());
         serverNotification->mPacket << name;
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
@@ -296,7 +296,7 @@ void MovableGameEntity::fireObjectAnimationState(const std::string& state, bool 
             continue;
 
         ServerNotification* serverNotification = new ServerNotification(
-            ServerNotification::setObjectAnimationState, seat->getPlayer());
+            ServerNotificationType::setObjectAnimationState, seat->getPlayer());
         const std::string& name = getName();
         serverNotification->mPacket << name << state << loop;
         if(direction != Ogre::Vector3::ZERO)
@@ -342,14 +342,14 @@ void MovableGameEntity::firePickupEntity(Player* playerPicking, bool isEditorMod
         if(playerPicking->getIsHuman())
         {
             ServerNotification serverNotification(
-                ServerNotification::entityPickedUp, seat->getPlayer());
+                ServerNotificationType::entityPickedUp, seat->getPlayer());
             serverNotification.mPacket << isEditorMode << seatId << entityType << entityName;
             ODServer::getSingleton().sendAsyncMsg(serverNotification);
         }
         else
         {
             ServerNotification* serverNotification = new ServerNotification(
-                ServerNotification::entityPickedUp, seat->getPlayer());
+                ServerNotificationType::entityPickedUp, seat->getPlayer());
             serverNotification->mPacket << isEditorMode << seatId << entityType << entityName;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
@@ -385,7 +385,7 @@ void MovableGameEntity::fireDropEntity(Player* playerPicking, Tile* tile)
         if(playerPicking->getIsHuman())
         {
             ServerNotification serverNotification(
-                ServerNotification::entityDropped, seat->getPlayer());
+                ServerNotificationType::entityDropped, seat->getPlayer());
             serverNotification.mPacket << seatId;
             getGameMap()->tileToPacket(serverNotification.mPacket, tile);
             ODServer::getSingleton().sendAsyncMsg(serverNotification);
@@ -393,7 +393,7 @@ void MovableGameEntity::fireDropEntity(Player* playerPicking, Tile* tile)
         else
         {
             ServerNotification* serverNotification = new ServerNotification(
-                ServerNotification::entityDropped, seat->getPlayer());
+                ServerNotificationType::entityDropped, seat->getPlayer());
             serverNotification->mPacket << seatId;
             getGameMap()->tileToPacket(serverNotification->mPacket, tile);
             ODServer::getSingleton().queueServerNotification(serverNotification);
