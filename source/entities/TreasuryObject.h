@@ -36,7 +36,7 @@ public:
 
     virtual void doUpkeep();
 
-    virtual RenderedMovableEntityType getRenderedMovableEntityType()
+    virtual RenderedMovableEntityType getRenderedMovableEntityType() const
     { return RenderedMovableEntityType::treasuryObject; }
 
     virtual bool tryPickup(Seat* seat, bool isEditorMode);

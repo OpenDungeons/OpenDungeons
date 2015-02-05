@@ -34,6 +34,7 @@
 #include "entities/Creature.h"
 #include "gamemap/GameMap.h"
 #include "game/Seat.h"
+#include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
 
 #include <sstream>

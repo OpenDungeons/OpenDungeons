@@ -181,7 +181,7 @@ RenderedMovableEntity* RenderedMovableEntity::getRenderedMovableEntityFromLine(G
 {
     RenderedMovableEntity* obj = nullptr;
     std::stringstream is(line);
-    RenderedMovableEntity::RenderedMovableEntityType rot;
+    RenderedMovableEntityType rot;
     OD_ASSERT_TRUE(is >> rot);
     switch(rot)
     {
@@ -388,32 +388,32 @@ void RenderedMovableEntity::importFromStream(std::istream& is)
     MovableGameEntity::importFromStream(is);
 }
 
-ODPacket& operator<<(ODPacket& os, const RenderedMovableEntity::RenderedMovableEntityType& rot)
+ODPacket& operator<<(ODPacket& os, const RenderedMovableEntityType& rot)
 {
-    uint32_t intType = static_cast<RenderedMovableEntity::RenderedMovableEntityType>(rot);
+    uint32_t intType = static_cast<uint32_t>(rot);
     os << intType;
     return os;
 }
 
-ODPacket& operator>>(ODPacket& is, RenderedMovableEntity::RenderedMovableEntityType& rot)
+ODPacket& operator>>(ODPacket& is, RenderedMovableEntityType& rot)
 {
     uint32_t intType;
     is >> intType;
-    rot = static_cast<RenderedMovableEntity::RenderedMovableEntityType>(intType);
+    rot = static_cast<RenderedMovableEntityType>(intType);
     return is;
 }
 
-std::ostream& operator<<(std::ostream& os, const RenderedMovableEntity::RenderedMovableEntityType& rot)
+std::ostream& operator<<(std::ostream& os, const RenderedMovableEntityType& rot)
 {
-    uint32_t intType = static_cast<RenderedMovableEntity::RenderedMovableEntityType>(rot);
+    uint32_t intType = static_cast<uint32_t>(rot);
     os << intType;
     return os;
 }
 
-std::istream& operator>>(std::istream& is, RenderedMovableEntity::RenderedMovableEntityType& rot)
+std::istream& operator>>(std::istream& is, RenderedMovableEntityType& rot)
 {
     uint32_t intType;
     is >> intType;
-    rot = static_cast<RenderedMovableEntity::RenderedMovableEntityType>(intType);
+    rot = static_cast<RenderedMovableEntityType>(intType);
     return is;
 }

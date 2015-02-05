@@ -246,7 +246,7 @@ bool RoomTreasury::hasCarryEntitySpot(MovableGameEntity* carriedEntity)
         return false;
 
     RenderedMovableEntity* renderedEntity = static_cast<RenderedMovableEntity*>(carriedEntity);
-    if(renderedEntity->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::treasuryObject)
+    if(renderedEntity->getRenderedMovableEntityType() != RenderedMovableEntityType::treasuryObject)
         return false;
 
     if(emptyStorageSpace() <= 0)

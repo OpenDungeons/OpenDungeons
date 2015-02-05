@@ -380,7 +380,7 @@ uint32_t RoomForge::countCraftedItemsOnRoom()
         if(entity->getObjectType() != GameEntityType::renderedMovableEntity)
             continue;
         RenderedMovableEntity* renderEntity = static_cast<RenderedMovableEntity*>(entity);
-        if(renderEntity->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::craftedTrap)
+        if(renderEntity->getRenderedMovableEntityType() != RenderedMovableEntityType::craftedTrap)
             continue;
 
         ++nbCraftedTrap;
@@ -402,7 +402,7 @@ Tile* RoomForge::checkIfAvailableSpot(const std::vector<Tile*>& activeSpots)
             if(entity->getObjectType() != GameEntityType::renderedMovableEntity)
                 continue;
             RenderedMovableEntity* renderEntity = static_cast<RenderedMovableEntity*>(entity);
-            if(renderEntity->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::craftedTrap)
+            if(renderEntity->getRenderedMovableEntityType() != RenderedMovableEntityType::craftedTrap)
                 continue;
 
             // There is one
@@ -440,7 +440,7 @@ int32_t RoomForge::getNbCraftedTrapsForType(Trap::TrapType type)
         if(entity->getObjectType() != GameEntityType::renderedMovableEntity)
             continue;
         RenderedMovableEntity* renderEntity = static_cast<RenderedMovableEntity*>(entity);
-        if(renderEntity->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::craftedTrap)
+        if(renderEntity->getRenderedMovableEntityType() != RenderedMovableEntityType::craftedTrap)
             continue;
 
         CraftedTrap* craftedTrap = static_cast<CraftedTrap*>(renderEntity);

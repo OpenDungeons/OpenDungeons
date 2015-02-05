@@ -23,6 +23,7 @@
 
 #include "gamemap/GameMap.h"
 
+#include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
 
 // TODO : use the correct mesh when available

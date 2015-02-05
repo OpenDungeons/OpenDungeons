@@ -26,8 +26,6 @@
 #include "entities/CreatureAction.h"
 #include "entities/MovableGameEntity.h"
 
-#include "utils/ConfigManager.h"
-
 #include <OgreVector2.h>
 #include <OgreVector3.h>
 #include <CEGUI/EventArgs.h>

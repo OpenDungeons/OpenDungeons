@@ -38,7 +38,7 @@ public:
     CraftedTrap(GameMap* gameMap, const std::string& forgeName, Trap::TrapType trapType);
     CraftedTrap(GameMap* gameMap);
 
-    virtual RenderedMovableEntityType getRenderedMovableEntityType()
+    virtual RenderedMovableEntityType getRenderedMovableEntityType() const
     { return RenderedMovableEntityType::craftedTrap; }
 
     virtual const Ogre::Vector3& getScale() const;

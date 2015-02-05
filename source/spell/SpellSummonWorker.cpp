@@ -23,6 +23,7 @@
 
 #include "gamemap/GameMap.h"
 
+#include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
 
 int SpellSummonWorker::getSpellSummonWorkerCost(GameMap* gameMap, const std::vector<Tile*>& tiles, Player* player)

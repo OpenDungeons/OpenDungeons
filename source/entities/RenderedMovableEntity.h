@@ -29,21 +29,27 @@ class GameMap;
 class Seat;
 class ODPacket;
 
+enum class RenderedMovableEntityType
+{
+    buildingObject,
+    treasuryObject,
+    chickenEntity,
+    smallSpiderEntity,
+    craftedTrap,
+    missileObject,
+    persistentObject,
+    trapEntity,
+    spellEntity
+};
+
+ODPacket& operator<<(ODPacket& os, const RenderedMovableEntityType& rot);
+ODPacket& operator>>(ODPacket& is, RenderedMovableEntityType& rot);
+std::ostream& operator<<(std::ostream& os, const RenderedMovableEntityType& rot);
+std::istream& operator>>(std::istream& is, RenderedMovableEntityType& rot);
+
 class RenderedMovableEntity: public MovableGameEntity
 {
 public:
-    enum RenderedMovableEntityType
-    {
-        buildingObject,
-        treasuryObject,
-        chickenEntity,
-        smallSpiderEntity,
-        craftedTrap,
-        missileObject,
-        persistentObject,
-        trapEntity,
-        spellEntity
-    };
     //! \brief Creates a RenderedMovableEntity. It's name is built from baseName and some unique id from the gamemap.
     //! We use baseName to help understand what's this object for when getting a log
     RenderedMovableEntity(GameMap* gameMap, const std::string& baseName, const std::string& nMeshName,
@@ -92,8 +98,7 @@ public:
 
     virtual void setMeshOpacity(float opacity);
 
-    // TODO : this should be const
-    virtual RenderedMovableEntityType getRenderedMovableEntityType() = 0;
+    virtual RenderedMovableEntityType getRenderedMovableEntityType() const = 0;
 
     virtual void pickup();
     virtual void drop(const Ogre::Vector3& v);
@@ -114,11 +119,6 @@ public:
     static RenderedMovableEntity* getRenderedMovableEntityFromLine(GameMap* gameMap, const std::string& line);
     static RenderedMovableEntity* getRenderedMovableEntityFromPacket(GameMap* gameMap, ODPacket& is);
     static const char* getFormat();
-
-    friend ODPacket& operator<<(ODPacket& os, const RenderedMovableEntity::RenderedMovableEntityType& rot);
-    friend ODPacket& operator>>(ODPacket& is, RenderedMovableEntity::RenderedMovableEntityType& rot);
-    friend std::ostream& operator<<(std::ostream& os, const RenderedMovableEntity::RenderedMovableEntityType& rot);
-    friend std::istream& operator>>(std::istream& is, RenderedMovableEntity::RenderedMovableEntityType& rot);
 
 protected:
     virtual void createMeshLocal();

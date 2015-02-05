@@ -31,6 +31,7 @@
 #include "traps/TrapBoulder.h"
 #include "utils/Random.h"
 #include "game/Player.h"
+#include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
 
 Trap::Trap(GameMap* gameMap) :
@@ -399,7 +400,7 @@ bool Trap::hasCarryEntitySpot(MovableGameEntity* carriedEntity)
         return false;
 
     RenderedMovableEntity* rme = static_cast<RenderedMovableEntity*>(carriedEntity);
-    if(rme->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::craftedTrap)
+    if(rme->getRenderedMovableEntityType() != RenderedMovableEntityType::craftedTrap)
         return false;
 
     CraftedTrap* craftedTrap = static_cast<CraftedTrap*>(rme);
@@ -417,9 +418,9 @@ Tile* Trap::askSpotForCarriedEntity(MovableGameEntity* carriedEntity)
         return nullptr;
 
     RenderedMovableEntity* rme = static_cast<RenderedMovableEntity*>(carriedEntity);
-    OD_ASSERT_TRUE_MSG(rme->getRenderedMovableEntityType() == RenderedMovableEntity::RenderedMovableEntityType::craftedTrap,
+    OD_ASSERT_TRUE_MSG(rme->getRenderedMovableEntityType() == RenderedMovableEntityType::craftedTrap,
         "room=" + getName() + ", entity=" + carriedEntity->getName());
-    if(rme->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::craftedTrap)
+    if(rme->getRenderedMovableEntityType() != RenderedMovableEntityType::craftedTrap)
         return nullptr;
 
     CraftedTrap* craftedTrap = static_cast<CraftedTrap*>(rme);

@@ -1410,7 +1410,7 @@ void Tile::fillWithChickenEntities(std::vector<GameEntity*>& entities)
         if(entity->getObjectType() != GameEntityType::renderedMovableEntity)
             continue;
         RenderedMovableEntity* rme = static_cast<RenderedMovableEntity*>(entity);
-        if(rme->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::chickenEntity)
+        if(rme->getRenderedMovableEntityType() != RenderedMovableEntityType::chickenEntity)
             continue;
 
         if (std::find(entities.begin(), entities.end(), entity) == entities.end())
@@ -1429,7 +1429,7 @@ void Tile::fillWithCraftedTraps(std::vector<GameEntity*>& entities)
         if(entity->getObjectType() != GameEntityType::renderedMovableEntity)
             continue;
         RenderedMovableEntity* rme = static_cast<RenderedMovableEntity*>(entity);
-        if(rme->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::craftedTrap)
+        if(rme->getRenderedMovableEntityType() != RenderedMovableEntityType::craftedTrap)
             continue;
 
         if (std::find(entities.begin(), entities.end(), entity) == entities.end())
@@ -1456,7 +1456,7 @@ bool Tile::addTreasuryObject(TreasuryObject* obj)
         if(entity->getObjectType() != GameEntityType::renderedMovableEntity)
             continue;
         RenderedMovableEntity* rme = static_cast<RenderedMovableEntity*>(entity);
-        if(rme->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::treasuryObject)
+        if(rme->getRenderedMovableEntityType() != RenderedMovableEntityType::treasuryObject)
             continue;
 
         TreasuryObject* treasury = static_cast<TreasuryObject*>(entity);
