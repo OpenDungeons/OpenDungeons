@@ -184,7 +184,7 @@ bool ODClient::processOneClientSocketMessage()
             gameMap->setAllFullnessAndNeighbors();
 
             ODPacket packSend;
-            packSend << ClientNotification::levelOK;
+            packSend << ClientNotificationType::levelOK;
             send(packSend);
             break;
         }
@@ -196,7 +196,7 @@ bool ODClient::processOneClientSocketMessage()
 
             ODPacket packSend;
             const std::string& nick = gameMap->getLocalPlayerNick();
-            packSend << ClientNotification::setNick << nick;
+            packSend << ClientNotificationType::setNick << nick;
             send(packSend);
 
             // We can proceed to configure seat level
@@ -451,7 +451,7 @@ bool ODClient::processOneClientSocketMessage()
             // We acknowledge the new turn to the server so that he knows we are
             // ready for next one
             ODPacket packSend;
-            packSend << ClientNotification::ackNewTurn << turnNum;
+            packSend << ClientNotificationType::ackNewTurn << turnNum;
             send(packSend);
 
             // For the first turn, we stop processing events because we want the gamemap to
@@ -909,7 +909,7 @@ bool ODClient::connect(const std::string& host, const int port)
 
     // Send a hello request to start the conversation with the server
     ODPacket packSend;
-    packSend << ClientNotification::hello
+    packSend << ClientNotificationType::hello
         << std::string("OpenDungeons V ") + ODApplication::VERSION;
     sendToServer(packSend);
 

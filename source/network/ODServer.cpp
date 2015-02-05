@@ -43,6 +43,7 @@
 #include "rooms/RoomTreasury.h"
 #include "spell/Spell.h"
 #include "utils/ConfigManager.h"
+#include "utils/Helper.h"
 
 #include <SFML/Network.hpp>
 #include <SFML/System.hpp>
@@ -456,12 +457,12 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         return (status != ODSocketClient::ODComStatus::Error);
     }
 
-    ClientNotification::ClientNotificationType clientCommand;
+    ClientNotificationType clientCommand;
     OD_ASSERT_TRUE(packetReceived >> clientCommand);
 
     switch(clientCommand)
     {
-        case ClientNotification::hello:
+        case ClientNotificationType::hello:
         {
             if(std::string("connected").compare(clientSocket->getState()) != 0)
                 return false;
@@ -569,7 +570,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::levelOK:
+        case ClientNotificationType::levelOK:
         {
             if(std::string("loadLevel").compare(clientSocket->getState()) != 0)
                 return false;
@@ -582,7 +583,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::setNick:
+        case ClientNotificationType::setNick:
         {
             if(std::string("nick").compare(clientSocket->getState()) != 0)
                 return false;
@@ -629,7 +630,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::readyForSeatConfiguration:
+        case ClientNotificationType::readyForSeatConfiguration:
         {
             if(std::string("ready").compare(clientSocket->getState()) != 0)
                 return false;
@@ -663,7 +664,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::seatConfigurationRefresh:
+        case ClientNotificationType::seatConfigurationRefresh:
         {
             std::vector<Seat*> seats = gameMap->getSeats();
             ODPacket packetSend;
@@ -709,7 +710,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::seatConfigurationSet:
+        case ClientNotificationType::seatConfigurationSet:
         {
             // We change server state to make sure no new client will be accepted
             OD_ASSERT_TRUE_MSG(mServerState == ServerState::StateConfiguration, "Wrong server state="
@@ -844,7 +845,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::chat:
+        case ClientNotificationType::chat:
         {
             // TODO : handle chat for everybody/allies/player
             // As chat message do not interfere with GameMap, it is OK to send
@@ -861,7 +862,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::askEntityPickUp:
+        case ClientNotificationType::askEntityPickUp:
         {
             std::string entityName;
             GameEntityType entityType;
@@ -886,7 +887,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::askHandDrop:
+        case ClientNotificationType::askHandDrop:
         {
             Player *player = clientSocket->getPlayer();
             Tile* tile = gameMap->tileFromPacket(packetReceived);
@@ -908,7 +909,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::askPickupWorker:
+        case ClientNotificationType::askPickupWorker:
         {
             Player *player = clientSocket->getPlayer();
             Creature* creature = gameMap->getWorkerToPickupBySeat(player->getSeat());
@@ -919,7 +920,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::askPickupFighter:
+        case ClientNotificationType::askPickupFighter:
         {
             Player *player = clientSocket->getPlayer();
             Creature* creature = gameMap->getFighterToPickupBySeat(player->getSeat());
@@ -930,7 +931,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::askMarkTile:
+        case ClientNotificationType::askMarkTile:
         {
             int x1, y1, x2, y2;
             bool isDigSet;
@@ -950,7 +951,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::askSlapEntity:
+        case ClientNotificationType::askSlapEntity:
         {
             GameEntityType entityType;
             std::string entityName;
@@ -979,7 +980,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::askBuildRoom:
+        case ClientNotificationType::askBuildRoom:
         {
             int x1, y1, x2, y2;
             Room::RoomType type;
@@ -1099,7 +1100,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::askSellRoomTiles:
+        case ClientNotificationType::askSellRoomTiles:
         {
             int x1, y1, x2, y2;
 
@@ -1172,7 +1173,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::editorAskDestroyRoomTiles:
+        case ClientNotificationType::editorAskDestroyRoomTiles:
         {
             OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
                 + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
@@ -1239,7 +1240,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::askBuildTrap:
+        case ClientNotificationType::askBuildTrap:
         {
             int x1, y1, x2, y2;
             Trap::TrapType type;
@@ -1293,7 +1294,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::askCastSpell:
+        case ClientNotificationType::askCastSpell:
         {
             int x1, y1, x2, y2;
             SpellType spellType;
@@ -1321,7 +1322,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::askSellTrapTiles:
+        case ClientNotificationType::askSellTrapTiles:
         {
             int x1, y1, x2, y2;
 
@@ -1393,7 +1394,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::editorAskDestroyTrapTiles:
+        case ClientNotificationType::editorAskDestroyTrapTiles:
         {
             OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
                 + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
@@ -1460,7 +1461,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::ackNewTurn:
+        case ClientNotificationType::ackNewTurn:
         {
             int64_t turn;
             OD_ASSERT_TRUE(packetReceived >> turn);
@@ -1468,7 +1469,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::askCreatureInfos:
+        case ClientNotificationType::askCreatureInfos:
         {
             std::string name;
             bool refreshEachTurn;
@@ -1486,7 +1487,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::editorAskSaveMap:
+        case ClientNotificationType::editorAskSaveMap:
         {
             OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
                 + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
@@ -1515,7 +1516,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::editorAskChangeTiles:
+        case ClientNotificationType::editorAskChangeTiles:
         {
             OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
                 + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
@@ -1574,7 +1575,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::editorAskBuildRoom:
+        case ClientNotificationType::editorAskBuildRoom:
         {
             OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
                 + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
@@ -1707,7 +1708,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::editorAskBuildTrap:
+        case ClientNotificationType::editorAskBuildTrap:
         {
             OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
                 + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
@@ -1774,7 +1775,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::editorCreateWorker:
+        case ClientNotificationType::editorCreateWorker:
         {
             OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
                 + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
@@ -1806,7 +1807,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::editorCreateFighter:
+        case ClientNotificationType::editorCreateFighter:
         {
             OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
                 + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
@@ -1842,7 +1843,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         default:
         {
             LogManager::getSingleton().logMessage("ERROR:  Unhandled command received from client:"
-                + Ogre::StringConverter::toString(clientCommand));
+                + Helper::toString(static_cast<int>(clientCommand)));
         }
     }
 

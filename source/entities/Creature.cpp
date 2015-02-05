@@ -3251,7 +3251,7 @@ void Creature::createStatsWindow()
         return;
 
     ClientNotification *clientNotification = new ClientNotification(
-        ClientNotification::askCreatureInfos);
+        ClientNotificationType::askCreatureInfos);
     std::string name = getName();
     clientNotification->mPacket << name << true;
     ODClient::getSingleton().queueClientNotification(clientNotification);
@@ -3290,7 +3290,7 @@ void Creature::destroyStatsWindow()
     if (mStatsWindow != nullptr)
     {
         ClientNotification *clientNotification = new ClientNotification(
-            ClientNotification::askCreatureInfos);
+            ClientNotificationType::askCreatureInfos);
         std::string name = getName();
         clientNotification->mPacket << name << false;
         ODClient::getSingleton().queueClientNotification(clientNotification);

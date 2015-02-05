@@ -477,7 +477,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
                 {
                     // Send a message to the server telling it we want to drop the creature
                     ClientNotification *clientNotification = new ClientNotification(
-                        ClientNotification::askHandDrop);
+                        ClientNotificationType::askHandDrop);
                     mGameMap->tileToPacket(clientNotification->mPacket, curTile);
                     ODClient::getSingleton().queueClientNotification(clientNotification);
                 }
@@ -504,7 +504,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
                     const std::string& entityName = entity->getName();
                     GameEntityType entityType = entity->getObjectType();
                     ClientNotification *clientNotification = new ClientNotification(
-                        ClientNotification::askSlapEntity);
+                        ClientNotificationType::askSlapEntity);
                     clientNotification->mPacket << entityType << entityName;
                     ODClient::getSingleton().queueClientNotification(clientNotification);
                 }
@@ -557,7 +557,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
             GameEntityType entityType = entity->getObjectType();
             const std::string& entityName = entity->getName();
             ClientNotification *clientNotification = new ClientNotification(
-                ClientNotification::askEntityPickUp);
+                ClientNotificationType::askEntityPickUp);
             clientNotification->mPacket << entityType;
             clientNotification->mPacket << entityName;
             ODClient::getSingleton().queueClientNotification(clientNotification);
@@ -635,7 +635,7 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         case Player::SelectedAction::selectTile:
         {
             ClientNotification *clientNotification = new ClientNotification(
-                ClientNotification::askMarkTile);
+                ClientNotificationType::askMarkTile);
             clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
             clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
             clientNotification->mPacket << mDigSetBool;
@@ -658,7 +658,7 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         case Player::SelectedAction::buildRoom:
         {
             ClientNotification *clientNotification = new ClientNotification(
-                ClientNotification::askBuildRoom);
+                ClientNotificationType::askBuildRoom);
             clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
             clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
             clientNotification->mPacket << mGameMap->getLocalPlayer()->getNewRoomType();
@@ -668,7 +668,7 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         case Player::SelectedAction::buildTrap:
         {
             ClientNotification *clientNotification = new ClientNotification(
-                ClientNotification::askBuildTrap);
+                ClientNotificationType::askBuildTrap);
             clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
             clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
             clientNotification->mPacket << mGameMap->getLocalPlayer()->getNewTrapType();
@@ -678,7 +678,7 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         case Player::SelectedAction::castSpell:
         {
             ClientNotification *clientNotification = new ClientNotification(
-                ClientNotification::askCastSpell);
+                ClientNotificationType::askCastSpell);
             clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
             clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
             clientNotification->mPacket << mGameMap->getLocalPlayer()->getNewSpellType();
@@ -688,7 +688,7 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         case Player::SelectedAction::destroyRoom:
         {
             ClientNotification *clientNotification = new ClientNotification(
-                ClientNotification::askSellRoomTiles);
+                ClientNotificationType::askSellRoomTiles);
             clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
             clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
             ODClient::getSingleton().queueClientNotification(clientNotification);
@@ -697,7 +697,7 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         case Player::SelectedAction::destroyTrap:
         {
             ClientNotification *clientNotification = new ClientNotification(
-                ClientNotification::askSellTrapTiles);
+                ClientNotificationType::askSellTrapTiles);
             clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
             clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
             ODClient::getSingleton().queueClientNotification(clientNotification);
@@ -996,7 +996,7 @@ void GameMode::notifyGuiAction(GuiAction guiAction)
                 if(ODClient::getSingleton().isConnected())
                 {
                     ClientNotification *clientNotification = new ClientNotification(
-                        ClientNotification::askPickupWorker);
+                        ClientNotificationType::askPickupWorker);
                     ODClient::getSingleton().queueClientNotification(clientNotification);
                 }
                 break;
@@ -1006,7 +1006,7 @@ void GameMode::notifyGuiAction(GuiAction guiAction)
                 if(ODClient::getSingleton().isConnected())
                 {
                     ClientNotification *clientNotification = new ClientNotification(
-                        ClientNotification::askPickupFighter);
+                        ClientNotificationType::askPickupFighter);
                     ODClient::getSingleton().queueClientNotification(clientNotification);
                 }
                 break;
