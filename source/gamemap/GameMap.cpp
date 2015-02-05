@@ -601,25 +601,25 @@ Creature* GameMap::getWorkerToPickupBySeat(Seat* seat)
             const CreatureAction& action = *itAction;
             switch(action.getType())
             {
-                case CreatureAction::ActionType::fight:
-                case CreatureAction::ActionType::attackObject:
-                case CreatureAction::ActionType::flee:
+                case CreatureActionType::fight:
+                case CreatureActionType::attackObject:
+                case CreatureActionType::flee:
                     isIdle = false;
                     isFighting = true;
                     break;
 
-                case CreatureAction::ActionType::claimTile:
+                case CreatureActionType::claimTile:
                     isIdle = false;
                     isClaiming = true;
                     break;
 
-                case CreatureAction::ActionType::digTile:
+                case CreatureActionType::digTile:
                     isIdle = false;
                     isDigging = true;
                     break;
 
-                case CreatureAction::ActionType::idle:
-                case CreatureAction::ActionType::walkToTile:
+                case CreatureActionType::idle:
+                case CreatureActionType::walkToTile:
                     // We do nothing
                     break;
 
@@ -720,21 +720,21 @@ Creature* GameMap::getFighterToPickupBySeat(Seat* seat)
             const CreatureAction& action = *itAction;
             switch(action.getType())
             {
-                case CreatureAction::ActionType::flee:
+                case CreatureActionType::flee:
                     isIdle = false;
                     isFleeing = true;
                     break;
 
-                case CreatureAction::ActionType::eatdecided:
-                case CreatureAction::ActionType::eatforced:
-                case CreatureAction::ActionType::jobdecided:
-                case CreatureAction::ActionType::jobforced:
+                case CreatureActionType::eatdecided:
+                case CreatureActionType::eatforced:
+                case CreatureActionType::jobdecided:
+                case CreatureActionType::jobforced:
                     isIdle = false;
                     isBusy = true;
                     break;
 
-                case CreatureAction::ActionType::idle:
-                case CreatureAction::ActionType::walkToTile:
+                case CreatureActionType::idle:
+                case CreatureActionType::walkToTile:
                     // We do nothing
                     break;
 

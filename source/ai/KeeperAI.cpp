@@ -658,7 +658,7 @@ void KeeperAI::saveWoundedCreatures()
     for(Creature* creature : creatures)
     {
         // We take away fleeing creatures not too near our dungeon heart
-        if(!creature->isActionInList(CreatureAction::ActionType::flee))
+        if(!creature->isActionInList(CreatureActionType::flee))
             continue;
         Tile* tile = creature->getPositionTile();
         if(tile == nullptr)
@@ -697,7 +697,7 @@ void KeeperAI::handleDefense()
     for(Creature* creature : creatures)
     {
         // We check if a creature is fighting near a claimed tile. If yes, we drop a creature nearby
-        if(!creature->isActionInList(CreatureAction::ActionType::fight))
+        if(!creature->isActionInList(CreatureActionType::fight))
             continue;
 
         Tile* tile = creature->getPositionTile();

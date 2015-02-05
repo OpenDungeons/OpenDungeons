@@ -20,7 +20,7 @@
 
 #include "utils/LogManager.h"
 
-CreatureAction::CreatureAction(const ActionType actionType, GameEntityType entityType, const std::string& entityName, Tile* tile) :
+CreatureAction::CreatureAction(const CreatureActionType actionType, GameEntityType entityType, const std::string& entityName, Tile* tile) :
     mActionType(actionType),
     mEntityType(entityType),
     mEntityName(entityName),
@@ -30,7 +30,7 @@ CreatureAction::CreatureAction(const ActionType actionType, GameEntityType entit
     // We check mandatory items according to action type
     switch(mActionType)
     {
-        case ActionType::attackObject:
+        case CreatureActionType::attackObject:
             OD_ASSERT_TRUE(!mEntityName.empty());
             OD_ASSERT_TRUE(mEntityType != GameEntityType::unknown);
             OD_ASSERT_TRUE(mTile != nullptr);
@@ -45,64 +45,64 @@ std::string CreatureAction::toString() const
 {
     switch (mActionType)
     {
-    case walkToTile:
+    case CreatureActionType::walkToTile:
         return "walkToTile";
 
-    case fight:
+    case CreatureActionType::fight:
         return "fight";
 
-    case digTile:
+    case CreatureActionType::digTile:
         return "digTile";
 
-    case claimWallTile:
+    case CreatureActionType::claimWallTile:
         return "claimWallTile";
 
-    case claimTile:
+    case CreatureActionType::claimTile:
         return "claimTile";
 
-    case attackObject:
+    case CreatureActionType::attackObject:
         return "attackObject";
 
-    case findHome:
+    case CreatureActionType::findHome:
         return "findHome";
 
-    case findHomeForced:
+    case CreatureActionType::findHomeForced:
         return "findHomeForced";
 
-    case sleep:
+    case CreatureActionType::sleep:
         return "sleep";
 
-    case jobdecided:
+    case CreatureActionType::jobdecided:
         return "jobdecided";
 
-    case jobforced:
+    case CreatureActionType::jobforced:
         return "jobforced";
 
-    case eatdecided:
+    case CreatureActionType::eatdecided:
         return "eatdecided";
 
-    case eatforced:
+    case CreatureActionType::eatforced:
         return "eatforced";
 
-    case flee:
+    case CreatureActionType::flee:
         return "flee";
 
-    case carryEntity:
+    case CreatureActionType::carryEntity:
         return "carryEntity";
 
-    case carryEntityForced:
+    case CreatureActionType::carryEntityForced:
         return "carryEntityForced";
 
-    case getFee:
+    case CreatureActionType::getFee:
         return "getFee";
 
-    case idle:
+    case CreatureActionType::idle:
         return "idle";
 
-    case leaveDungeon:
+    case CreatureActionType::leaveDungeon:
         return "leaveDungeon";
 
-    case fightNaturalEnemy:
+    case CreatureActionType::fightNaturalEnemy:
         return "fightNaturalEnemy";
     }
 

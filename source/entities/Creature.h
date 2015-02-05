@@ -246,7 +246,7 @@ public:
     void receiveExp(double experience);
 
     //! \brief Returns true if the given action is queued in the action list. False otherwise
-    bool isActionInList(CreatureAction::ActionType action);
+    bool isActionInList(CreatureActionType action);
 
     const std::deque<CreatureAction>& getActionQueue()
     { return mActionQueue; }
@@ -451,7 +451,7 @@ private:
     std::vector<Tile*>              mVisualDebugEntityTiles;
 
     //! \brief Contains the actions that have already been tested to avoid trying several times same action
-    std::vector<CreatureAction::ActionType> mActionTry;
+    std::vector<CreatureActionType> mActionTry;
 
     ForceAction                     mForceAction;
 

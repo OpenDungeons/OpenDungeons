@@ -120,7 +120,7 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
 
     setIsOnMap(false);
 
-    pushAction(CreatureAction::idle, true);
+    pushAction(CreatureActionType::idle, true);
 
     mMaxHP = mDefinition->getMinHp();
     setHP(mMaxHP);
@@ -189,7 +189,7 @@ Creature::Creature(GameMap* gameMap) :
 {
     setIsOnMap(false);
 
-    pushAction(CreatureAction::idle, true);
+    pushAction(CreatureActionType::idle, true);
 }
 
 Creature::~Creature()
@@ -710,77 +710,77 @@ void Creature::doUpkeep()
             CreatureAction topActionItem = peekAction();
             switch (topActionItem.getType())
             {
-                case CreatureAction::idle:
+                case CreatureActionType::idle:
                     loopBack = handleIdleAction(topActionItem);
                     break;
 
-                case CreatureAction::walkToTile:
+                case CreatureActionType::walkToTile:
                     loopBack = handleWalkToTileAction(topActionItem);
                     break;
 
-                case CreatureAction::claimTile:
+                case CreatureActionType::claimTile:
                     loopBack = handleClaimTileAction(topActionItem);
                     break;
 
-                case CreatureAction::claimWallTile:
+                case CreatureActionType::claimWallTile:
                     loopBack = handleClaimWallTileAction(topActionItem);
                     break;
 
-                case CreatureAction::digTile:
+                case CreatureActionType::digTile:
                     loopBack = handleDigTileAction(topActionItem);
                     break;
 
-                case CreatureAction::findHome:
-                case CreatureAction::findHomeForced:
+                case CreatureActionType::findHome:
+                case CreatureActionType::findHomeForced:
                     loopBack = handleFindHomeAction(topActionItem);
                     break;
 
-                case CreatureAction::sleep:
+                case CreatureActionType::sleep:
                     loopBack = handleSleepAction(topActionItem);
                     break;
 
-                case CreatureAction::jobdecided:
-                case CreatureAction::jobforced:
+                case CreatureActionType::jobdecided:
+                case CreatureActionType::jobforced:
                     loopBack = handleJobAction(topActionItem);
                     break;
 
-                case CreatureAction::eatdecided:
-                case CreatureAction::eatforced:
+                case CreatureActionType::eatdecided:
+                case CreatureActionType::eatforced:
                     loopBack = handleEatingAction(topActionItem);
                     break;
 
-                case CreatureAction::attackObject:
+                case CreatureActionType::attackObject:
                     loopBack = handleAttackAction(topActionItem);
                     break;
 
-                case CreatureAction::fight:
+                case CreatureActionType::fight:
                     loopBack = handleFightAction(topActionItem);
                     break;
 
-                case CreatureAction::flee:
+                case CreatureActionType::flee:
                     loopBack = handleFleeAction(topActionItem);
                     break;
 
-                case CreatureAction::carryEntity:
-                case CreatureAction::carryEntityForced:
+                case CreatureActionType::carryEntity:
+                case CreatureActionType::carryEntityForced:
                     loopBack = handleCarryableEntities(topActionItem);
                     break;
 
-                case CreatureAction::getFee:
+                case CreatureActionType::getFee:
                     loopBack = handleGetFee(topActionItem);
                     break;
 
-                case CreatureAction::leaveDungeon:
+                case CreatureActionType::leaveDungeon:
                     loopBack = handleLeaveDungeon(topActionItem);
                     break;
 
-                case CreatureAction::fightNaturalEnemy:
+                case CreatureActionType::fightNaturalEnemy:
                     loopBack = handleFightAlliedNaturalEnemyAction(topActionItem);
                     break;
 
                 default:
-                    LogManager::getSingleton().logMessage("ERROR:  Unhandled action type in Creature::doUpkeep():"
-                        + Ogre::StringConverter::toString(topActionItem.getType()));
+                    LogManager::getSingleton().logMessage("ERROR:  Unhandled action type in Creature::doUpkeep():" + topActionItem.toString()
+                        + ", action=" + Helper::toString(static_cast<int>(topActionItem.getType())));
                     popAction();
                     loopBack = false;
                     break;
@@ -812,12 +812,12 @@ void Creature::decidePrioritaryAction()
     bool isWeak = (mHp < mMaxHP * mDefinition->getWeakCoef());
     if (!mReachableEnemyObjects.empty() && isWeak)
     {
-        if(isActionInList(CreatureAction::flee))
+        if(isActionInList(CreatureActionType::flee))
             return;
 
         clearDestinations();
         clearActionQueue();
-        pushAction(CreatureAction::flee, true);
+        pushAction(CreatureActionType::flee, true);
         return;
     }
 
@@ -829,7 +829,7 @@ void Creature::decidePrioritaryAction()
     if (!mReachableEnemyObjects.empty() && !mDefinition->isWorker())
     {
         // Check if we are already fighting
-        if(isActionInList(CreatureAction::fight) || isActionInList(CreatureAction::flee))
+        if(isActionInList(CreatureActionType::fight) || isActionInList(CreatureActionType::flee))
             return;
 
         // Unhappy creatures might flee instead of engaging enemies
@@ -842,7 +842,7 @@ void Creature::decidePrioritaryAction()
                 {
                     clearDestinations();
                     clearActionQueue();
-                    pushAction(CreatureAction::flee, true);
+                    pushAction(CreatureActionType::flee, true);
                     return;
                 }
                 break;
@@ -854,7 +854,7 @@ void Creature::decidePrioritaryAction()
         // If we are not already fighting with a creature then start doing so.
         clearDestinations();
         clearActionQueue();
-        pushAction(CreatureAction::fight, true);
+        pushAction(CreatureActionType::fight, true);
         return;
     }
 
@@ -862,12 +862,12 @@ void Creature::decidePrioritaryAction()
     if (!mReachableEnemyCreatures.empty() && mDefinition->isWorker())
     {
         // If we are not already fighting with a creature then start doing so.
-        if(isActionInList(CreatureAction::fight))
+        if(isActionInList(CreatureActionType::fight))
             return;
 
         clearDestinations();
         clearActionQueue();
-        pushAction(CreatureAction::fight, true);
+        pushAction(CreatureActionType::fight, true);
         return;
     }
 
@@ -879,7 +879,7 @@ void Creature::decidePrioritaryAction()
         case CreatureMoodLevel::Furious:
         {
             // We are fighting an allied enemy. We don't consider leaving yet
-            if(isActionInList(CreatureAction::fightNaturalEnemy))
+            if(isActionInList(CreatureActionType::fightNaturalEnemy))
                 return;
 
             // We check if we can attack a natural enemy
@@ -889,13 +889,13 @@ void Creature::decidePrioritaryAction()
                 clearActionQueue();
                 stopJob();
                 stopEating();
-                pushAction(CreatureAction::fightNaturalEnemy, true);
+                pushAction(CreatureActionType::fightNaturalEnemy, true);
                 return;
             }
 
             // If we are furious, we consider leaving the dungeon
             if((mMoodValue != CreatureMoodLevel::Furious) ||
-               (isActionInList(CreatureAction::leaveDungeon)))
+               (isActionInList(CreatureActionType::leaveDungeon)))
             {
                 return;
             }
@@ -904,7 +904,7 @@ void Creature::decidePrioritaryAction()
             clearActionQueue();
             stopJob();
             stopEating();
-            pushAction(CreatureAction::leaveDungeon, true);
+            pushAction(CreatureActionType::leaveDungeon, true);
             break;
         }
         default:
@@ -1002,7 +1002,7 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
         else if(forceCarryObject)
         {
             mForceAction = forcedActionNone;
-            pushAction(CreatureAction::carryEntity, true);
+            pushAction(CreatureActionType::carryEntity, true);
             return true;
         }
         else
@@ -1019,17 +1019,17 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
         {
             case forcedActionDigTile:
             {
-                pushAction(CreatureAction::digTile, true);
+                pushAction(CreatureActionType::digTile, true);
                 return true;
             }
             case forcedActionClaimTile:
             {
-                pushAction(CreatureAction::claimTile, true);
+                pushAction(CreatureActionType::claimTile, true);
                 return true;
             }
             case forcedActionClaimWallTile:
             {
-                pushAction(CreatureAction::claimWallTile, true);
+                pushAction(CreatureActionType::claimWallTile, true);
                 return true;
             }
             default:
@@ -1040,19 +1040,19 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
     // Decide to check for diggable tiles
     if (mDigRate > 0.0 && !mVisibleMarkedTiles.empty())
     {
-        if(pushAction(CreatureAction::digTile))
+        if(pushAction(CreatureActionType::digTile))
             return true;
     }
     // Decide to check for dead creature to carry to the crypt
     if (mDefinition->isWorker() && diceRoll < 0.3)
     {
-        if(pushAction(CreatureAction::carryEntity))
+        if(pushAction(CreatureActionType::carryEntity))
             return true;
     }
     // Decide to check for claimable tiles
     if (mClaimRate > 0.0 && diceRoll < 0.9)
     {
-        if(pushAction(CreatureAction::claimTile))
+        if(pushAction(CreatureActionType::claimTile))
             return true;
     }
 
@@ -1063,7 +1063,7 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
     {
         if((mHomeTile != nullptr) && (getGameMap()->pathExists(this, getPositionTile(), mHomeTile)))
         {
-            if(pushAction(CreatureAction::sleep))
+            if(pushAction(CreatureActionType::sleep))
                 return true;
         }
 
@@ -1076,7 +1076,7 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
             {
                 clearDestinations();
                 clearActionQueue();
-                if(pushAction(CreatureAction::sleep) && pushAction(CreatureAction::findHome))
+                if(pushAction(CreatureActionType::sleep) && pushAction(CreatureActionType::findHome))
                     return true;
             }
         }
@@ -1097,19 +1097,19 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
             // we see if we are in an hatchery
             if(room->getType() == Room::hatchery)
             {
-                pushAction(CreatureAction::eatforced, true);
+                pushAction(CreatureActionType::eatforced, true);
                 return true;
             }
             else if(room->getType() == Room::dormitory)
             {
-                pushAction(CreatureAction::sleep, true);
-                pushAction(CreatureAction::findHomeForced, true);
+                pushAction(CreatureActionType::sleep, true);
+                pushAction(CreatureActionType::findHomeForced, true);
                 return true;
             }
             // If not, can we work in this room ?
             else if(room->getType() != Room::hatchery)
             {
-                pushAction(CreatureAction::jobforced, true);
+                pushAction(CreatureActionType::jobforced, true);
                 return true;
             }
         }
@@ -1118,7 +1118,7 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
     // We check if we are looking for our fee
     if(!mDefinition->isWorker() && Random::Double(0.0, 1.0) < 0.5 && mGoldFee > 0)
     {
-        if(pushAction(CreatureAction::getFee))
+        if(pushAction(CreatureActionType::getFee))
             return true;
     }
 
@@ -1153,7 +1153,7 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
             if (setWalkPath(tempPath, 5, false))
             {
                 setAnimationState("Walk");
-                pushAction(CreatureAction::walkToTile, true);
+                pushAction(CreatureActionType::walkToTile, true);
                 return false;
             }
         }
@@ -1168,7 +1168,7 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
         tempRooms = getGameMap()->getReachableRooms(tempRooms, getPositionTile(), this);
         if (!tempRooms.empty())
         {
-            if(pushAction(CreatureAction::findHome))
+            if(pushAction(CreatureActionType::findHome))
                 return true;
         }
     }
@@ -1177,7 +1177,7 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
     if (!mDefinition->isWorker() && mHomeTile != nullptr && Random::Double(0.0, 1.0) < 0.2 && Random::Double(0.0, 50.0) >= mAwakeness)
     {
         // Check to see if we can work
-        if(pushAction(CreatureAction::sleep))
+        if(pushAction(CreatureActionType::sleep))
             return true;
     }
 
@@ -1185,7 +1185,7 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
     if (!mDefinition->isWorker() && Random::Double(0.0, 1.0) < 0.2 && Random::Double(50.0, 100.0) <= mHunger)
     {
         // Check to see if we can work
-        if(pushAction(CreatureAction::eatdecided))
+        if(pushAction(CreatureActionType::eatdecided))
             return true;
     }
 
@@ -1194,7 +1194,7 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
         && Random::Double(0.0, 50.0) < mAwakeness && Random::Double(50.0, 100.0) > mHunger)
     {
         // Check to see if we can work
-        if(pushAction(CreatureAction::jobdecided))
+        if(pushAction(CreatureActionType::jobdecided))
             return true;
     }
 
@@ -1230,7 +1230,7 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
                     // We found a worker so find a tile near the worker to walk to.  See if the worker is digging.
                     Tile* tempTile = mReachableAlliedObjects[i]->getCoveredTile(0);
                     if (static_cast<Creature*>(mReachableAlliedObjects[i])->peekAction().getType()
-                            == CreatureAction::digTile)
+                            == CreatureActionType::digTile)
                     {
                         // Worker is digging, get near it since it could expose enemies.
                         int x = static_cast<int>(static_cast<double>(tempTile->getX()) + 3.0
@@ -1301,7 +1301,7 @@ bool Creature::handleWalkToTileAction(const CreatureAction& actionItem)
 
     // If we are moving during a fight, we do not wait to reach destination to force to compute again what to do
     // Because enemies may have moved, closest creatures could be near...
-    if(isActionInList(CreatureAction::fight) && actionItem.getNbTurns() > 1)
+    if(isActionInList(CreatureActionType::fight) && actionItem.getNbTurns() > 1)
     {
         clearDestinations();
         popAction();
@@ -1329,7 +1329,7 @@ bool Creature::handleClaimTileAction(const CreatureAction& actionItem)
             if (!mVisibleMarkedTiles.empty())
             {
                 popAction();
-                if(pushAction(CreatureAction::digTile))
+                if(pushAction(CreatureActionType::digTile))
                     return true;
             }
         }
@@ -1337,7 +1337,7 @@ bool Creature::handleClaimTileAction(const CreatureAction& actionItem)
         if (Random::Int(0, 10) < 5)
         {
             // We don't pop action to continue claiming after carrying entity
-            if(pushAction(CreatureAction::carryEntity))
+            if(pushAction(CreatureActionType::carryEntity))
                 return true;
         }
     }
@@ -1481,7 +1481,7 @@ bool Creature::handleClaimTileAction(const CreatureAction& actionItem)
     // We couldn't find a tile to try to claim so we start searching for claimable walls
     mForceAction = forcedActionNone;
     popAction();
-    pushAction(CreatureAction::claimWallTile);
+    pushAction(CreatureActionType::claimWallTile);
     return true;
 }
 
@@ -1503,7 +1503,7 @@ bool Creature::handleClaimWallTileAction(const CreatureAction& actionItem)
             if (!mVisibleMarkedTiles.empty())
             {
                 popAction();
-                if(pushAction(CreatureAction::digTile))
+                if(pushAction(CreatureActionType::digTile))
                     return true;
             }
         }
@@ -1511,7 +1511,7 @@ bool Creature::handleClaimWallTileAction(const CreatureAction& actionItem)
         if (Random::Int(0, 10) < 5)
         {
             // We don't pop action to continue claiming after carrying entity
-            if(pushAction(CreatureAction::carryEntity))
+            if(pushAction(CreatureActionType::carryEntity))
                 return true;
         }
     }
@@ -1608,7 +1608,7 @@ bool Creature::handleClaimWallTileAction(const CreatureAction& actionItem)
             if (setWalkPath(walkPath, 2, false))
             {
                 setAnimationState("Walk");
-                pushAction(CreatureAction::walkToTile, true);
+                pushAction(CreatureActionType::walkToTile, true);
                 return false;
             }
         }
@@ -1669,7 +1669,7 @@ bool Creature::handleDigTileAction(const CreatureAction& actionItem)
 
                 // Walk to the newly dug out tile.
                 addDestination(static_cast<Ogre::Real>(tempTile->getX()), static_cast<Ogre::Real>(tempTile->getY()));
-                pushAction(CreatureAction::walkToTile, true);
+                pushAction(CreatureActionType::walkToTile, true);
             }
             //Set sound position and play dig sound.
             fireCreatureSound(CreatureSound::SoundType::DIGGING);
@@ -1710,7 +1710,7 @@ bool Creature::handleDigTileAction(const CreatureAction& actionItem)
         }
         if(isTreasuryAvailable)
         {
-            pushAction(CreatureAction::ActionType::carryEntity, true);
+            pushAction(CreatureActionType::carryEntity, true);
         }
         else if((getSeat() != nullptr) &&
                 (getSeat()->getPlayer() != nullptr) &&
@@ -1782,7 +1782,7 @@ bool Creature::handleDigTileAction(const CreatureAction& actionItem)
             if (setWalkPath(walkPath, 2, false))
             {
                 setAnimationState("Walk");
-                pushAction(CreatureAction::walkToTile, true);
+                pushAction(CreatureActionType::walkToTile, true);
                 return false;
             }
         }
@@ -1791,7 +1791,7 @@ bool Creature::handleDigTileAction(const CreatureAction& actionItem)
     // If none of our neighbors are marked for digging we got here too late.
     // Finish digging
     mForceAction = forcedActionNone;
-    bool isDigging = (peekAction().getType() == CreatureAction::digTile);
+    bool isDigging = (peekAction().getType() == CreatureActionType::digTile);
     if (isDigging)
     {
         popAction();
@@ -1818,7 +1818,7 @@ bool Creature::handleDigTileAction(const CreatureAction& actionItem)
             }
             if(isTreasuryAvailable)
             {
-                pushAction(CreatureAction::ActionType::carryEntity, true);
+                pushAction(CreatureActionType::carryEntity, true);
             }
             else if((getSeat() != nullptr) &&
                     (getSeat()->getPlayer() != nullptr) &&
@@ -1843,7 +1843,7 @@ bool Creature::handleFindHomeAction(const CreatureAction& actionItem)
         return false;
     }
 
-    if((mHomeTile != nullptr) && (actionItem.getType() != CreatureAction::ActionType::findHomeForced))
+    if((mHomeTile != nullptr) && (actionItem.getType() != CreatureActionType::findHomeForced))
     {
         popAction();
         return false;
@@ -1885,7 +1885,7 @@ bool Creature::handleFindHomeAction(const CreatureAction& actionItem)
             if (setWalkPath(tempPath, 1, false))
             {
                 setAnimationState("Walk");
-                pushAction(CreatureAction::walkToTile, true);
+                pushAction(CreatureActionType::walkToTile, true);
                 return false;
             }
         }
@@ -1893,7 +1893,7 @@ bool Creature::handleFindHomeAction(const CreatureAction& actionItem)
 
     // If we found a tile to claim as our home in the above block
     // If we have been forced, we do not search in another dormitory
-    if ((mHomeTile != nullptr) || (actionItem.getType() == CreatureAction::ActionType::findHomeForced))
+    if ((mHomeTile != nullptr) || (actionItem.getType() == CreatureActionType::findHomeForced))
     {
         popAction();
         return true;
@@ -1953,7 +1953,7 @@ bool Creature::handleFindHomeAction(const CreatureAction& actionItem)
         if (setWalkPath(tempPath, 2, false))
         {
             setAnimationState("Walk");
-            pushAction(CreatureAction::walkToTile, true);
+            pushAction(CreatureActionType::walkToTile, true);
             return false;
         }
     }
@@ -2013,7 +2013,7 @@ bool Creature::handleJobAction(const CreatureAction& actionItem)
     if(mJobRoom != nullptr)
         return false;
 
-    if(actionItem.getType() == CreatureAction::ActionType::jobforced)
+    if(actionItem.getType() == CreatureActionType::jobforced)
     {
         // We check if we can work in the given room
         Room* room = myTile->getCoveringRoom();
@@ -2035,7 +2035,7 @@ bool Creature::handleJobAction(const CreatureAction& actionItem)
                     if (setWalkPath(tempPath, 0, false))
                     {
                         setAnimationState("Walk");
-                        pushAction(CreatureAction::walkToTile, true);
+                        pushAction(CreatureActionType::walkToTile, true);
                         return false;
                     }
 
@@ -2080,7 +2080,7 @@ bool Creature::handleJobAction(const CreatureAction& actionItem)
                 if (setWalkPath(tempPath, 0, false))
                 {
                     setAnimationState("Walk");
-                    pushAction(CreatureAction::walkToTile, true);
+                    pushAction(CreatureActionType::walkToTile, true);
                     return false;
                 }
 
@@ -2114,7 +2114,7 @@ bool Creature::handleJobAction(const CreatureAction& actionItem)
                 if (setWalkPath(tempPath, 0, false))
                 {
                     setAnimationState("Walk");
-                    pushAction(CreatureAction::walkToTile, true);
+                    pushAction(CreatureActionType::walkToTile, true);
                     return false;
                 }
 
@@ -2151,8 +2151,8 @@ bool Creature::handleEatingAction(const CreatureAction& actionItem)
         return false;
     }
 
-    if (((actionItem.getType() == CreatureAction::ActionType::eatforced) && mHunger < 5.0) ||
-        ((actionItem.getType() != CreatureAction::ActionType::eatforced) && mHunger <= Random::Double(0.0, 15.0)))
+    if (((actionItem.getType() == CreatureActionType::eatforced) && mHunger < 5.0) ||
+        ((actionItem.getType() != CreatureActionType::eatforced) && mHunger <= Random::Double(0.0, 15.0)))
     {
         popAction();
 
@@ -2235,7 +2235,7 @@ bool Creature::handleEatingAction(const CreatureAction& actionItem)
         if(setWalkPath(pathToChicken, 0, false))
         {
             setAnimationState("Walk");
-            pushAction(CreatureAction::walkToTile, true);
+            pushAction(CreatureActionType::walkToTile, true);
             return false;
         }
     }
@@ -2297,7 +2297,7 @@ bool Creature::handleEatingAction(const CreatureAction& actionItem)
     if (tempPath.size() < maxDistance && setWalkPath(tempPath, 2, false))
     {
         setAnimationState("Walk");
-        pushAction(CreatureAction::walkToTile, true);
+        pushAction(CreatureActionType::walkToTile, true);
         return false;
     }
     else
@@ -2432,7 +2432,7 @@ bool Creature::handleFightAction(const CreatureAction& actionItem)
         {
             if(entityAttack != nullptr)
             {
-                pushAction(CreatureAction(CreatureAction::attackObject, entityAttack->getObjectType(), entityAttack->getName(), tileAttack), true);
+                pushAction(CreatureAction(CreatureActionType::attackObject, entityAttack->getObjectType(), entityAttack->getName(), tileAttack), true);
             }
             return (entityAttack != nullptr);
         }
@@ -2455,7 +2455,7 @@ bool Creature::handleFightAction(const CreatureAction& actionItem)
     {
         if(entityAttack != nullptr)
         {
-            pushAction(CreatureAction(CreatureAction::attackObject, entityAttack->getObjectType(), entityAttack->getName(), tileAttack), true);
+            pushAction(CreatureAction(CreatureActionType::attackObject, entityAttack->getObjectType(), entityAttack->getName(), tileAttack), true);
         }
         return (entityAttack != nullptr);
     }
@@ -2465,7 +2465,7 @@ bool Creature::handleFightAction(const CreatureAction& actionItem)
     {
         if(entityAttack != nullptr)
         {
-            pushAction(CreatureAction(CreatureAction::attackObject, entityAttack->getObjectType(), entityAttack->getName(), tileAttack), true);
+            pushAction(CreatureAction(CreatureActionType::attackObject, entityAttack->getObjectType(), entityAttack->getName(), tileAttack), true);
         }
         return (entityAttack != nullptr);
     }
@@ -2535,7 +2535,7 @@ bool Creature::handleFleeAction(const CreatureAction& actionItem)
             if (setWalkPath(result, 2, false))
             {
                 setAnimationState("Flee");
-                pushAction(CreatureAction::walkToTile, true);
+                pushAction(CreatureActionType::walkToTile, true);
                 return true;
             }
         }
@@ -2574,7 +2574,7 @@ bool Creature::handleCarryableEntities(const CreatureAction& actionItem)
                 continue;
 
             // If we are forced to carry something, we consider only entities on our tile
-            if((actionItem.getType() == CreatureAction::ActionType::carryEntityForced) &&
+            if((actionItem.getType() == CreatureActionType::carryEntityForced) &&
                (myTile != carryableEntTile))
             {
                 continue;
@@ -2761,7 +2761,7 @@ bool Creature::handleGetFee(const CreatureAction& actionItem)
             if (setWalkPath(result, 0, false))
             {
                 setAnimationState("Walk");
-                pushAction(CreatureAction::walkToTile, true);
+                pushAction(CreatureActionType::walkToTile, true);
                 return true;
             }
         }
@@ -2820,7 +2820,7 @@ bool Creature::handleLeaveDungeon(const CreatureAction& actionItem)
         if (setWalkPath(result, 0, false))
         {
             setAnimationState("Walk");
-            pushAction(CreatureAction::walkToTile, true);
+            pushAction(CreatureActionType::walkToTile, true);
             return true;
         }
     }
@@ -2842,7 +2842,7 @@ bool Creature::handleFightAlliedNaturalEnemyAction(const CreatureAction& actionI
             OD_ASSERT_TRUE_MSG(entityAttack->getObjectType() == GameEntityType::creature, "attacker=" + getName() + ", attacked=" + entityAttack->getName());
             Creature* attackedCreature = static_cast<Creature*>(entityAttack);
             attackedCreature->engageAlliedNaturalEnemy(this);
-            pushAction(CreatureAction(CreatureAction::attackObject, entityAttack->getObjectType(), entityAttack->getName(), tileAttack), true);
+            pushAction(CreatureAction(CreatureActionType::attackObject, entityAttack->getObjectType(), entityAttack->getName(), tileAttack), true);
         }
         return (entityAttack != nullptr);
     }
@@ -2864,7 +2864,7 @@ void Creature::engageAlliedNaturalEnemy(Creature* attackerCreature)
     attacker.push_back(attackerCreature);
     if (fightClosestObjectInList(attacker, entityAttack, tileAttack))
     {
-        pushAction(CreatureAction(CreatureAction::attackObject, entityAttack->getObjectType(), entityAttack->getName(), tileAttack), true);
+        pushAction(CreatureAction(CreatureActionType::attackObject, entityAttack->getObjectType(), entityAttack->getName(), tileAttack), true);
     }
 }
 
@@ -3398,7 +3398,7 @@ double Creature::takeDamage(GameEntity* attacker, double physicalDamage, double 
     {
         clearDestinations();
         clearActionQueue();
-        pushAction(CreatureAction::flee, true);
+        pushAction(CreatureActionType::flee, true);
         return damageDone;
     }
     return damageDone;
@@ -3417,7 +3417,7 @@ bool Creature::getHasVisualDebuggingEntities()
     return mHasVisualDebuggingEntities;
 }
 
-bool Creature::isActionInList(CreatureAction::ActionType action)
+bool Creature::isActionInList(CreatureActionType action)
 {
     for (std::deque<CreatureAction>::iterator it = mActionQueue.begin(); it != mActionQueue.end(); ++it)
     {
@@ -3436,7 +3436,7 @@ void Creature::clearActionQueue()
     if(mCarriedEntity != nullptr)
         releaseCarriedEntity();
 
-    mActionQueue.push_front(CreatureAction::idle);
+    mActionQueue.push_front(CreatureActionType::idle);
 }
 
 bool Creature::pushAction(CreatureAction action, bool forcePush)
@@ -3573,7 +3573,7 @@ bool Creature::setDestination(Tile* tile)
     if (setWalkPath(result, 2, false))
     {
         setAnimationState("Walk");
-        pushAction(CreatureAction::walkToTile, true);
+        pushAction(CreatureActionType::walkToTile, true);
         return true;
     }
     return false;
@@ -3638,7 +3638,7 @@ bool Creature::fightClosestObjectInList(const std::vector<GameEntity*>& listObje
     if (setWalkPath(tempPath, 1, false))
     {
         setAnimationState("Walk");
-        pushAction(CreatureAction::walkToTile, true);
+        pushAction(CreatureActionType::walkToTile, true);
     }
 
     return true;
@@ -3721,7 +3721,7 @@ bool Creature::fightInRangeObjectInList(const std::vector<GameEntity*>& listObje
     if (setWalkPath(tempPath, 1, false))
     {
         setAnimationState("Walk");
-        pushAction(CreatureAction::walkToTile, true);
+        pushAction(CreatureActionType::walkToTile, true);
     }
 
     return true;
@@ -3750,7 +3750,7 @@ bool Creature::wanderRandomly(const std::string& animationState)
     if (setWalkPath(result, 1, false))
     {
         setAnimationState(animationState);
-        pushAction(CreatureAction::walkToTile, true);
+        pushAction(CreatureActionType::walkToTile, true);
         return true;
     }
 
