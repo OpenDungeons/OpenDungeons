@@ -2659,7 +2659,8 @@ bool Creature::handleCarryableEntities(const CreatureAction& actionItem)
                 return true;
             }
 
-            Tile* tileDest = tileBuilding->getCoveringBuilding()->askSpotForCarriedEntity(carryableEntityInMyTile);
+            Building* buildingWants = tileBuilding->getCoveringBuilding();
+            Tile* tileDest = buildingWants->askSpotForCarriedEntity(carryableEntityInMyTile);
             if(tileDest == nullptr)
             {
                 // The building doesn't want the entity after all
@@ -2673,6 +2674,8 @@ bool Creature::handleCarryableEntities(const CreatureAction& actionItem)
                 return true;
             }
 
+            mCarriedEntityDestType = buildingWants->getObjectType();
+            mCarriedEntityDestName = buildingWants->getName();
             carryEntity(carryableEntityInMyTile);
             return false;
         }
