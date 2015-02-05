@@ -178,6 +178,83 @@ void Spell::castSpell(GameMap* gameMap, SpellType type, const std::vector<Tile*>
     }
 }
 
+void Spell::notifySeatsWithVision(const std::vector<Seat*>& seats)
+{
+    // For spells, we want the caster and his allies to always have vision even if they
+    // don't see the tile the spell is on. Of course, vision on the tile is not given by the spell
+    // We notify seats that lost vision
+    for(std::vector<Seat*>::iterator it = mSeatsWithVisionNotified.begin(); it != mSeatsWithVisionNotified.end();)
+    {
+        Seat* seat = *it;
+        // If the seat is still in the list, nothing to do
+        if(std::find(seats.begin(), seats.end(), seat) != seats.end())
+        {
+            ++it;
+            continue;
+        }
+
+        // If the seat is the spell caster we don't remove vision
+        if(getSeat() == seat)
+        {
+            ++it;
+            continue;
+        }
+
+        // If the seat is a spell caster ally, we don't remove vision
+        if(getSeat()->isAlliedSeat(seat))
+        {
+            ++it;
+            continue;
+        }
+
+        // we remove vision
+        it = mSeatsWithVisionNotified.erase(it);
+
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+
+        fireRemoveEntity(seat);
+    }
+
+    // We notify seats that gain vision
+    for(Seat* seat : seats)
+    {
+        // If the seat was already in the list, nothing to do
+        if(std::find(mSeatsWithVisionNotified.begin(), mSeatsWithVisionNotified.end(), seat) != mSeatsWithVisionNotified.end())
+            continue;
+
+        mSeatsWithVisionNotified.push_back(seat);
+
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+
+        fireAddEntity(seat, false);
+    }
+
+    // We give vision to the spell caster and his allies
+    std::vector<Seat*> alliedSeats = getSeat()->getAlliedSeats();
+    alliedSeats.push_back(getSeat());
+    for(Seat* seat : alliedSeats)
+    {
+        // If the seat was already in the list, nothing to do
+        if(std::find(mSeatsWithVisionNotified.begin(), mSeatsWithVisionNotified.end(), seat) != mSeatsWithVisionNotified.end())
+            continue;
+
+        mSeatsWithVisionNotified.push_back(seat);
+
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+
+        fireAddEntity(seat, false);
+    }
+}
+
 std::string Spell::getFormat()
 {
     return "typeSpell\tseatId\tnumTiles\t\tSubsequent Lines: tileX\ttileY\tisActivated(0/1)\t\tSubsequent Lines: optional specific data";

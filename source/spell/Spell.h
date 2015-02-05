@@ -71,7 +71,11 @@ public:
 
     static void castSpell(GameMap* gameMap, SpellType type, const std::vector<Tile*>& tiles, Player* player);
 
-    // Functions which can be overridden by child classes.
+    //! \brief Some spells can be cast where the caster do not have vision. In this case, we
+    //! want him and his allies to see the spell even if they don't have vision on the tile
+    //! where the spell is
+    virtual void notifySeatsWithVision(const std::vector<Seat*>& seats);
+
     virtual void doUpkeep();
 
     /*! \brief Exports the headers needed to recreate the Spell. It allows to extend Spells as much as wanted.
