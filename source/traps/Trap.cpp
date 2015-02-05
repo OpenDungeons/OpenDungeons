@@ -391,7 +391,7 @@ int32_t Trap::getNeededForgePointsPerTrap(TrapType trapType)
     return 0;
 }
 
-bool Trap::hasCarryEntitySpot(MovableGameEntity* carriedEntity)
+bool Trap::hasCarryEntitySpot(GameEntity* carriedEntity)
 {
     if(getNbNeededCraftedTrap() <= 0)
         return false;
@@ -410,7 +410,7 @@ bool Trap::hasCarryEntitySpot(MovableGameEntity* carriedEntity)
     return true;
 }
 
-Tile* Trap::askSpotForCarriedEntity(MovableGameEntity* carriedEntity)
+Tile* Trap::askSpotForCarriedEntity(GameEntity* carriedEntity)
 {
     OD_ASSERT_TRUE_MSG(carriedEntity->getObjectType() == GameEntityType::renderedMovableEntity,
         "room=" + getName() + ", entity=" + carriedEntity->getName());
@@ -449,7 +449,7 @@ Tile* Trap::askSpotForCarriedEntity(MovableGameEntity* carriedEntity)
     return nullptr;
 }
 
-void Trap::notifyCarryingStateChanged(Creature* carrier, MovableGameEntity* carriedEntity)
+void Trap::notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity)
 {
     if(carriedEntity == nullptr)
         return;

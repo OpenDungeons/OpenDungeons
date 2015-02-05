@@ -166,9 +166,9 @@ public:
     static int32_t getNeededForgePointsPerTrap(TrapType trapType);
     virtual int32_t getNbNeededCraftedTrap() const;
 
-    bool hasCarryEntitySpot(MovableGameEntity* carriedEntity);
-    Tile* askSpotForCarriedEntity(MovableGameEntity* carriedEntity);
-    void notifyCarryingStateChanged(Creature* carrier, MovableGameEntity* carriedEntity);
+    bool hasCarryEntitySpot(GameEntity* carriedEntity);
+    Tile* askSpotForCarriedEntity(GameEntity* carriedEntity);
+    void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity);
 
     virtual bool isAttackable(Tile* tile, Seat* seat) const;
 

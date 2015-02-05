@@ -1368,7 +1368,7 @@ void Tile::fillWithAttackableTrap(std::vector<GameEntity*>& entities, Seat* seat
     }
 }
 
-void Tile::fillWithCarryableEntities(std::vector<MovableGameEntity*>& entities)
+void Tile::fillWithCarryableEntities(std::vector<GameEntity*>& entities)
 {
     for(GameEntity* entity : mEntitiesInTile)
     {
@@ -1376,26 +1376,11 @@ void Tile::fillWithCarryableEntities(std::vector<MovableGameEntity*>& entities)
         if(entity == nullptr)
             continue;
 
-        MovableGameEntity* entityToCarry = nullptr;
+        if(entity->getEntityCarryType() == EntityCarryType::notCarryable)
+            continue;
 
-        switch(entity->getObjectType())
-        {
-            case GameEntityType::creature:
-            case GameEntityType::renderedMovableEntity:
-            {
-                entityToCarry = static_cast<MovableGameEntity*>(entity);
-                if(!entityToCarry->tryEntityCarryOn())
-                    continue;
-
-                break;
-            }
-
-            default:
-                continue;
-        }
-
-        if (std::find(entities.begin(), entities.end(), entityToCarry) == entities.end())
-            entities.push_back(entityToCarry);
+        if (std::find(entities.begin(), entities.end(), entity) == entities.end())
+            entities.push_back(entity);
     }
 }
 

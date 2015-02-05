@@ -46,6 +46,7 @@ public:
         eatforced, // (fighters only) Force eating if the creature is dropped in a hatchery
         flee, // If a fighter is weak (low hp) or a worker is attacked by a fighter, he will flee
         carryEntity, // (worker only) Carry an entity to a suitable building
+        carryEntityForced, // (worker only) Carry an entity to a suitable building
         getFee, // (fighter only) Gets the creature fee
         leaveDungeon, // (fighter only) Try to go to the portal to leave the dungeon
         fightNaturalEnemy, // (fighter only) Attacks an allied natural enemy

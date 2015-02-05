@@ -165,7 +165,7 @@ void RoomCrypt::doUpkeep()
     }
 }
 
-bool RoomCrypt::hasCarryEntitySpot(MovableGameEntity* carriedEntity)
+bool RoomCrypt::hasCarryEntitySpot(GameEntity* carriedEntity)
 {
     if(carriedEntity->getObjectType() != GameEntityType::creature)
         return false;
@@ -182,7 +182,7 @@ bool RoomCrypt::hasCarryEntitySpot(MovableGameEntity* carriedEntity)
     return false;
 }
 
-Tile* RoomCrypt::askSpotForCarriedEntity(MovableGameEntity* carriedEntity)
+Tile* RoomCrypt::askSpotForCarriedEntity(GameEntity* carriedEntity)
 {
     OD_ASSERT_TRUE_MSG(carriedEntity->getObjectType() == GameEntityType::creature,
         "room=" + getName() + ", entity=" + carriedEntity->getName());
@@ -207,7 +207,7 @@ Tile* RoomCrypt::askSpotForCarriedEntity(MovableGameEntity* carriedEntity)
     return nullptr;
 }
 
-void RoomCrypt::notifyCarryingStateChanged(Creature* carrier, MovableGameEntity* carriedEntity)
+void RoomCrypt::notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity)
 {
     for(std::pair<Tile* const, std::pair<Creature*, int32_t> >& p : mRottingCreatures)
     {

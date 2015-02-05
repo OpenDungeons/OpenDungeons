@@ -369,13 +369,13 @@ void RoomForge::doUpkeep()
 
 uint32_t RoomForge::countCraftedItemsOnRoom()
 {
-    std::vector<MovableGameEntity*> carryable;
+    std::vector<GameEntity*> carryable;
     for(Tile* t : mCoveredTiles)
     {
         t->fillWithCarryableEntities(carryable);
     }
     uint32_t nbCraftedTrap = 0;
-    for(MovableGameEntity* entity : carryable)
+    for(GameEntity* entity : carryable)
     {
         if(entity->getObjectType() != GameEntityType::renderedMovableEntity)
             continue;
@@ -395,9 +395,9 @@ Tile* RoomForge::checkIfAvailableSpot(const std::vector<Tile*>& activeSpots)
     {
         // If the tile contains no crafted trap, we can add a new one
         bool isFilled = false;
-        std::vector<MovableGameEntity*> entities;
+        std::vector<GameEntity*> entities;
         tile->fillWithCarryableEntities(entities);
-        for(MovableGameEntity* entity : entities)
+        for(GameEntity* entity : entities)
         {
             if(entity->getObjectType() != GameEntityType::renderedMovableEntity)
                 continue;
@@ -429,13 +429,13 @@ void RoomForge::getCreatureWantedPos(Creature* creature, Tile* tileSpot,
 
 int32_t RoomForge::getNbCraftedTrapsForType(Trap::TrapType type)
 {
-    std::vector<MovableGameEntity*> carryable;
+    std::vector<GameEntity*> carryable;
     for(Tile* t : mCoveredTiles)
     {
         t->fillWithCarryableEntities(carryable);
     }
     uint32_t nbCraftedTrap = 0;
-    for(MovableGameEntity* entity : carryable)
+    for(GameEntity* entity : carryable)
     {
         if(entity->getObjectType() != GameEntityType::renderedMovableEntity)
             continue;

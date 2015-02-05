@@ -94,7 +94,7 @@ public:
     }
 
     //! \brief Tells whether the building wants the given entity to be brought
-    virtual bool hasCarryEntitySpot(MovableGameEntity* carriedEntity)
+    virtual bool hasCarryEntitySpot(GameEntity* carriedEntity)
     { return false; }
 
     //! \brief Tells where the building wants the given entity to be brought
@@ -102,14 +102,14 @@ public:
     //! the carriedEntity is not wanted anymore (if no free spot for example).
     //! If askSpotForCarriedEntity returns a valid tile, a spot may be booked and in
     //! any case, notifyCarryingStateChanged should be called to release it
-    virtual Tile* askSpotForCarriedEntity(MovableGameEntity* carriedEntity)
+    virtual Tile* askSpotForCarriedEntity(GameEntity* carriedEntity)
     { return nullptr; }
 
     //! \brief Tells whether the carrying state changed. One should check the carrier
     //! tile position to check if it is in the requested Tile. If yes, the carriedEntity
     //! is at the wanted place. If not, it means that the carrier stopped carrying (for
     //! example, if it was killed or picked up during process)
-    virtual void notifyCarryingStateChanged(Creature* carrier, MovableGameEntity* carriedEntity)
+    virtual void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity)
     {}
 
     //! Tells if the covering tile should be set to dirty when the building is added on the tile
@@ -121,6 +121,11 @@ protected:
     void removeBuildingObject(Tile* tile);
     void removeBuildingObject(RenderedMovableEntity* obj);
     RenderedMovableEntity* getBuildingObjectFromTile(Tile* tile);
+    //! Buildings are handled by the tile, they don't fire add/remove events
+    void fireAddEntity(Seat* seat, bool async)
+    {}
+    void fireRemoveEntity(Seat* seat)
+    {}
 
     std::map<Tile*, RenderedMovableEntity*> mBuildingObjects;
     std::vector<Tile*> mCoveredTiles;

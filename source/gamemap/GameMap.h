@@ -331,6 +331,14 @@ public:
     //! \brief Tells whether a path exists between two tiles for the given creature.
     bool pathExists(const Creature* creature, Tile* tileStart, Tile* tileEnd);
 
+    /*! \brief Calculates the walkable path between tileStart and one of the possibleDests. This function
+     * will choose the closest tile in possibleDests and return the path between tileStart and it.
+     * If a path is found, it is returned and chosenTile is set to the chosen tile. If no path is found,
+     * an empty list will be returned and chosenTile will be set to nullptr
+     */
+    std::list<Tile*> findBestPath(const Creature* creature, Tile* tileStart, const std::vector<Tile*> possibleDests,
+        Tile*& chosenTile);
+
     /*! \brief Calculates the walkable path between tiles (x1, y1) and (x2, y2).
      *
      * The search is carried out using the A-star search algorithm.
@@ -358,7 +366,7 @@ public:
     std::vector<GameEntity*> getVisibleCreatures(const std::vector<Tile*>& visibleTiles, Seat* seat, bool enemyCreatures);
 
     //! \brief Loops over the visibleTiles and returns any carryable entity in those tiles
-    std::vector<MovableGameEntity*> getVisibleCarryableEntities(const std::vector<Tile*>& visibleTiles);
+    std::vector<GameEntity*> getVisibleCarryableEntities(const std::vector<Tile*>& visibleTiles);
 
     /** \brief Returns the as the crow flies distance between tiles located at the two coordinates given.
      * If tiles do not exist at these locations the function returns -1.0.

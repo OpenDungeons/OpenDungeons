@@ -72,18 +72,6 @@ public:
     virtual double getAnimationSpeedFactor();
     virtual void setAnimationSpeedFactor(double f);
 
-    //! \brief Returns true if the entity can be carried by a kobold. False otherwise.
-    virtual bool tryEntityCarryOn()
-    { return false; }
-
-    //! \brief Called when the entity is being carried
-    virtual void notifyEntityCarryOn()
-    {}
-
-    //! \brief Called when the entity is being carried
-    virtual void notifyEntityCarryOff(const Ogre::Vector3& position)
-    {}
-
     //! \brief Updates the entity path, movement, and direction
     //! \param timeSinceLastFrame the elapsed time since last displayed frame in seconds.
     virtual void update(Ogre::Real timeSinceLastFrame);
@@ -97,12 +85,6 @@ public:
 
     inline Ogre::AnimationState* getAnimationState() const
     { return mAnimationState; }
-
-    void fireRemoveEntityToSeatsWithVision();
-
-    virtual void notifySeatsWithVision(const std::vector<Seat*>& seats);
-    virtual void addSeatWithVision(Seat* seat, bool async);
-    virtual void removeSeatWithVision(Seat* seat);
 
     void firePickupEntity(Player* playerPicking, bool isEditorMode);
 
@@ -128,18 +110,7 @@ public:
     virtual void notifyRemovedFromGamemap();
 
 protected:
-    //! \brief Called while moving the entity to add it to the tile it gets on
-    virtual bool addEntityToTile(Tile* tile);
-    //! \brief Called while moving the entity to remove it from the tile it gets off
-    virtual bool removeEntityFromTile(Tile* tile);
-
-    //! \brief Fires a add entity message to the player of the given seat
-    virtual void fireAddEntity(Seat* seat, bool async) = 0;
-    //! \brief Fires a remove creature message to the player of the given seat (if not null). If null, it fires to
-    //! all players with vision
-    virtual void fireRemoveEntity(Seat* seat) = 0;
     std::deque<Ogre::Vector3> mWalkQueue;
-    std::vector<Seat*> mSeatsWithVisionNotified;
 
 private:
     void fireObjectAnimationState(const std::string& state, bool loop, const Ogre::Vector3& direction);

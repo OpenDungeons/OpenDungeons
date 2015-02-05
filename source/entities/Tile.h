@@ -312,7 +312,7 @@ public:
     void fillWithAttackableCreatures(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
     void fillWithAttackableRoom(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
     void fillWithAttackableTrap(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
-    void fillWithCarryableEntities(std::vector<MovableGameEntity*>& entities);
+    void fillWithCarryableEntities(std::vector<GameEntity*>& entities);
     void fillWithChickenEntities(std::vector<GameEntity*>& entities);
     void fillWithCraftedTraps(std::vector<GameEntity*>& entities);
 
@@ -340,6 +340,11 @@ public:
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
+    // Tiles do not trigger add/remove events
+    void fireAddEntity(Seat* seat, bool async)
+    {}
+    void fireRemoveEntity(Seat* seat)
+    {}
 private:
     bool isFloodFillFilled();
 

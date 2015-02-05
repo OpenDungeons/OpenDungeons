@@ -90,6 +90,9 @@ std::string CreatureAction::toString() const
     case carryEntity:
         return "carryEntity";
 
+    case carryEntityForced:
+        return "carryEntityForced";
+
     case getFee:
         return "getFee";
 

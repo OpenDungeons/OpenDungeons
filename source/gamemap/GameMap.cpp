@@ -1338,6 +1338,53 @@ void GameMap::playerIsFighting(Player* player)
     }
 }
 
+std::list<Tile*> GameMap::findBestPath(const Creature* creature, Tile* tileStart, const std::vector<Tile*> possibleDests,
+    Tile*& chosenTile)
+{
+    chosenTile = nullptr;
+    std::list<Tile*> returnList;
+    if(possibleDests.empty())
+        return returnList;
+
+    // We start by sorting the vector
+    std::vector<Tile*> possibleDestsTmp = possibleDests;
+    std::sort(possibleDestsTmp.begin(), possibleDestsTmp.end(), [this, &tileStart](Tile* tile1, Tile* tile2){
+              Ogre::Real d1 = crowDistance(tile1, tileStart);
+              Ogre::Real d2 = crowDistance(tile2, tileStart);
+              return d1 < d2;
+        });
+
+    double magic = 2.0;
+    for(Tile* tile : possibleDestsTmp)
+    {
+        if(!pathExists(creature, tileStart, tile))
+            continue;
+
+        // The first reachable tile is the best by default
+        Ogre::Real dist = crowDistance(tile, tileStart);
+        if(chosenTile == nullptr)
+        {
+            chosenTile = tile;
+            returnList = path(tileStart, tile, creature, creature->getSeat(), false);
+            continue;
+        }
+
+        // We compute the path only if walkableDist < (dist * magic).
+        double walkableDist = static_cast<double>(returnList.size());
+        if(walkableDist < (dist * magic))
+            continue;
+
+        std::list<Tile*> pathTmp = path(tileStart, tile, creature, creature->getSeat(), false);
+        if(pathTmp.size() < returnList.size())
+        {
+            // The path is shorter
+            chosenTile = tile;
+            returnList = pathTmp;
+        }
+    }
+    return returnList;
+}
+
 bool GameMap::pathExists(const Creature* creature, Tile* tileStart, Tile* tileEnd)
 {
     // If floodfill is not enabled, we cannot check if the path exists so we return true
@@ -1690,9 +1737,9 @@ std::vector<GameEntity*> GameMap::getVisibleCreatures(const std::vector<Tile*>& 
     return returnList;
 }
 
-std::vector<MovableGameEntity*> GameMap::getVisibleCarryableEntities(const std::vector<Tile*>& visibleTiles)
+std::vector<GameEntity*> GameMap::getVisibleCarryableEntities(const std::vector<Tile*>& visibleTiles)
 {
-    std::vector<MovableGameEntity*> returnList;
+    std::vector<GameEntity*> returnList;
 
     // Loop over the visible tiles
     for (Tile* tile : visibleTiles)

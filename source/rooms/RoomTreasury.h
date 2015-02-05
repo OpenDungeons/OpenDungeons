@@ -42,9 +42,9 @@ public:
     int withdrawGold(int gold);
     virtual void doUpkeep();
 
-    bool hasCarryEntitySpot(MovableGameEntity* carriedEntity);
-    Tile* askSpotForCarriedEntity(MovableGameEntity* carriedEntity);
-    void notifyCarryingStateChanged(Creature* carrier, MovableGameEntity* carriedEntity);
+    bool hasCarryEntitySpot(GameEntity* carriedEntity);
+    Tile* askSpotForCarriedEntity(GameEntity* carriedEntity);
+    void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity);
 
 protected:
     // Because treasury do not use active spots, we don't want the default

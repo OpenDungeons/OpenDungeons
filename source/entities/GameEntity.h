@@ -52,6 +52,16 @@ enum class GameEntityType
 ODPacket& operator<<(ODPacket& os, const GameEntityType& ot);
 ODPacket& operator>>(ODPacket& is, GameEntityType& ot);
 
+//! This enum is used to know how carryable entities should be prioritized from lowest
+//! to highest
+enum class EntityCarryType
+{
+    notCarryable,
+    corpse,
+    craftedTrap,
+    gold
+};
+
 /*! \class GameEntity GameEntity.h
  *  \brief This class holds elements that are common to every object placed in the game
  *
@@ -232,7 +242,24 @@ class GameEntity
 
     //! \brief Called each turn with the list of seats that have vision on the tile where the entity is. It should handle
     //! messages to notify players that gain/loose vision
-    virtual void notifySeatsWithVision(const std::vector<Seat*>& seats)
+    virtual void notifySeatsWithVision(const std::vector<Seat*>& seats);
+    //! \brief Functions to add/remove a seat with vision
+    virtual void addSeatWithVision(Seat* seat, bool async);
+    virtual void removeSeatWithVision(Seat* seat);
+
+    //! \brief Fires remove event to every seat with vision
+    void fireRemoveEntityToSeatsWithVision();
+
+    //! \brief Returns true if the entity can be carried by a kobold. False otherwise.
+    virtual EntityCarryType getEntityCarryType()
+    { return EntityCarryType::notCarryable; }
+
+    //! \brief Called when the entity is being carried
+    virtual void notifyEntityCarryOn()
+    {}
+
+    //! \brief Called when the entity is being carried
+    virtual void notifyEntityCarryOff(const Ogre::Vector3& position)
     {}
 
   protected:
@@ -249,6 +276,18 @@ class GameEntity
     //! Used for nodes. The name does not include the _node and similar postfixes which are
     //! added in RenderManager.
     std::string getNodeNameWithoutPostfix();
+
+    //! \brief Called while moving the entity to add it to the tile it gets on
+    virtual bool addEntityToTile(Tile* tile);
+    //! \brief Called while moving the entity to remove it from the tile it gets off
+    virtual bool removeEntityFromTile(Tile* tile);
+
+    //! \brief Fires a add entity message to the player of the given seat
+    virtual void fireAddEntity(Seat* seat, bool async) = 0;
+    //! \brief Fires a remove creature message to the player of the given seat (if not null). If null, it fires to
+    //! all players with vision
+    virtual void fireRemoveEntity(Seat* seat) = 0;
+    std::vector<Seat*> mSeatsWithVisionNotified;
 
   private:
     //! brief The name of the entity

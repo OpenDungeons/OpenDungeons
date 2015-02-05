@@ -164,32 +164,32 @@ bool TreasuryObject::removeEntityFromTile(Tile* tile)
     return tile->removeEntity(this);
 }
 
-bool TreasuryObject::tryEntityCarryOn()
+EntityCarryType TreasuryObject::getEntityCarryType()
 {
     if(!getIsOnMap())
-        return false;
+        return EntityCarryType::notCarryable;
 
     // We do not let it be carried as it will be removed during next upkeep
     if(mGoldValue <= 0)
-        return false;
+        return EntityCarryType::notCarryable;
 
     // If we are on a treasury not full, we doesn't allow to be carried
     Tile* myTile = getPositionTile();
     OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
     if(myTile == nullptr)
-        return true;
+        return EntityCarryType::gold;
 
     if(myTile->getCoveringRoom() == nullptr)
-        return true;
+        return EntityCarryType::gold;
 
     if(myTile->getCoveringRoom()->getType() != Room::RoomType::treasury)
-        return true;
+        return EntityCarryType::gold;
 
     RoomTreasury* treasury = static_cast<RoomTreasury*>(myTile->getCoveringRoom());
     if(treasury->emptyStorageSpace() == 0)
-        return true;
+        return EntityCarryType::gold;
 
-    return false;
+    return EntityCarryType::notCarryable;
 }
 
 void TreasuryObject::notifyEntityCarryOn()

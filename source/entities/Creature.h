@@ -329,7 +329,7 @@ public:
     //! \brief Tells whether the creature can go through the given tile.
     bool canGoThroughTile(const Tile* tile) const;
 
-    virtual bool tryEntityCarryOn();
+    virtual EntityCarryType getEntityCarryType();
     virtual void notifyEntityCarryOn();
     virtual void notifyEntityCarryOff(const Ogre::Vector3& position);
 
@@ -455,7 +455,7 @@ private:
 
     ForceAction                     mForceAction;
 
-    MovableGameEntity*              mCarriedEntity;
+    GameEntity*                     mCarriedEntity;
     GameEntityType                  mCarriedEntityDestType;
     std::string                     mCarriedEntityDestName;
 
@@ -592,7 +592,7 @@ private:
     //! \brief Restores the creature's stats according to its current level
     void buildStats();
 
-    void carryEntity(MovableGameEntity* carriedEntity);
+    void carryEntity(GameEntity* carriedEntity);
 
     void releaseCarriedEntity();
 
