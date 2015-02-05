@@ -1333,6 +1333,13 @@ bool Creature::handleClaimTileAction(const CreatureAction& actionItem)
                     return true;
             }
         }
+        // Randomly try to carry entities if any around
+        if (Random::Int(0, 10) < 5)
+        {
+            // We don't pop action to continue claiming after carrying entity
+            if(pushAction(CreatureAction::carryEntity))
+                return true;
+        }
     }
 
     // See if the tile we are standing on can be claimed
@@ -1499,6 +1506,13 @@ bool Creature::handleClaimWallTileAction(const CreatureAction& actionItem)
                 if(pushAction(CreatureAction::digTile))
                     return true;
             }
+        }
+        // Randomly try to carry entities if any around
+        if (Random::Int(0, 10) < 5)
+        {
+            // We don't pop action to continue claiming after carrying entity
+            if(pushAction(CreatureAction::carryEntity))
+                return true;
         }
     }
 
