@@ -2600,13 +2600,13 @@ bool Creature::handleCarryableEntities(const CreatureAction& actionItem)
                     carryableEntityInMyTile = nullptr;
                     availableEntities.clear();
                     availableEntities.push_back(entity);
+                    highestPriority = entity->getEntityCarryType();
                     if(myTile == carryableEntTile)
                     {
                         carryableEntityInMyTile = entity;
                         carryableEntityInMyTileClients = tilesDest;
                     }
                 }
-                highestPriority = entity->getEntityCarryType();
             }
             else if(entity->getEntityCarryType() == highestPriority)
             {
