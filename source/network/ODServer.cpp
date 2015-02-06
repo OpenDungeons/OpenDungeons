@@ -873,7 +873,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             OD_ASSERT_TRUE_MSG(entity != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
             if(entity == nullptr)
                 break;
-            bool allowPickup = entity->tryPickup(player->getSeat(), mServerMode == ServerMode::ModeEditor);
+            bool allowPickup = entity->tryPickup(player->getSeat());
             if(!allowPickup)
             {
                 LogManager::getSingleton().logMessage("player=" + player->getNick()
@@ -883,7 +883,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 break;
             }
 
-            player->pickUpEntity(entity, mServerMode == ServerMode::ModeEditor);
+            player->pickUpEntity(entity);
             break;
         }
 
@@ -894,7 +894,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             OD_ASSERT_TRUE(tile != nullptr);
             if(tile != nullptr)
             {
-                if(player->isDropHandPossible(tile, 0, mServerMode == ServerMode::ModeEditor))
+                if(player->isDropHandPossible(tile, 0))
                 {
                     // We notify the players
                     OD_ASSERT_TRUE(player->dropHand(tile, 0) != nullptr);
@@ -916,7 +916,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             if(creature == nullptr)
                 break;
 
-            player->pickUpEntity(creature, mServerMode == ServerMode::ModeEditor);
+            player->pickUpEntity(creature);
             break;
         }
 
@@ -927,7 +927,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             if(creature == nullptr)
                 break;
 
-            player->pickUpEntity(creature, mServerMode == ServerMode::ModeEditor);
+            player->pickUpEntity(creature);
             break;
         }
 
@@ -963,8 +963,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 break;
 
 
-            bool isEditorMode = (mServerMode == ServerMode::ModeEditor);
-            if(!entity->canSlap(player->getSeat(), isEditorMode))
+            if(!entity->canSlap(player->getSeat()))
             {
                 LogManager::getSingleton().logMessage("player=" + player->getNick()
                         + " could not slap entity entityType="
@@ -973,7 +972,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 break;
             }
 
-            entity->slap(isEditorMode);
+            entity->slap();
 
             ServerNotification notif(ServerNotificationType::entitySlapped, player);
             sendAsyncMsg(notif);
@@ -1803,7 +1802,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 newCreature->addSeatWithVision(seat, true);
             }
 
-            player->pickUpEntity(newCreature, mServerMode == ServerMode::ModeEditor);
+            player->pickUpEntity(newCreature);
             break;
         }
 
@@ -1836,7 +1835,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 newCreature->addSeatWithVision(seat, true);
             }
 
-            player->pickUpEntity(newCreature, mServerMode == ServerMode::ModeEditor);
+            player->pickUpEntity(newCreature);
             break;
         }
 

@@ -102,7 +102,7 @@ void TreasuryObject::doUpkeep()
     }
 }
 
-bool TreasuryObject::tryPickup(Seat* seat, bool isEditorMode)
+bool TreasuryObject::tryPickup(Seat* seat)
 {
     if(!getIsOnMap())
         return false;
@@ -117,7 +117,7 @@ bool TreasuryObject::tryPickup(Seat* seat, bool isEditorMode)
     if(tile == nullptr)
         return false;
 
-    if(!tile->isClaimedForSeat(seat) && !isEditorMode)
+    if(!tile->isClaimedForSeat(seat) && !getGameMap()->isInEditorMode())
         return false;
 
     return true;
@@ -134,14 +134,17 @@ void TreasuryObject::pickup()
     tile->removeEntity(this);
 }
 
-bool TreasuryObject::tryDrop(Seat* seat, Tile* tile, bool isEditorMode)
+bool TreasuryObject::tryDrop(Seat* seat, Tile* tile)
 {
     if (tile->getFullness() > 0.0)
         return false;
 
     // In editor mode, we allow to drop an object in dirt, claimed or gold tiles
-    if(isEditorMode && (tile->getType() == Tile::dirt || tile->getType() == Tile::gold || tile->getType() == Tile::claimed))
+    if(getGameMap()->isInEditorMode() &&
+       (tile->getType() == Tile::dirt || tile->getType() == Tile::gold || tile->getType() == Tile::claimed))
+    {
         return true;
+    }
 
     // we cannot drop an object on a tile we don't see
     if(!seat->hasVisionOnTile(tile))

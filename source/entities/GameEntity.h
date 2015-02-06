@@ -225,17 +225,17 @@ class GameEntity
     {}
 
     //! \brief Called when the entity is being slapped
-    virtual bool canSlap(Seat* seat, bool isEditorMode)
+    virtual bool canSlap(Seat* seat)
     { return false; }
-    virtual void slap(bool isEditorMode)
+    virtual void slap()
     {}
 
     //! \brief Called when the entity is being picked up /dropped
-    virtual bool tryPickup(Seat* seat, bool isEditorMode)
+    virtual bool tryPickup(Seat* seat)
     { return false; }
     virtual void pickup()
     {}
-    virtual bool tryDrop(Seat* seat, Tile* tile, bool isEditorMode)
+    virtual bool tryDrop(Seat* seat, Tile* tile)
     { return false; }
     virtual void drop(const Ogre::Vector3& v)
     {}

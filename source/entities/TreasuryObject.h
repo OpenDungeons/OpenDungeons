@@ -39,8 +39,8 @@ public:
     virtual RenderedMovableEntityType getRenderedMovableEntityType() const
     { return RenderedMovableEntityType::treasuryObject; }
 
-    virtual bool tryPickup(Seat* seat, bool isEditorMode);
-    virtual bool tryDrop(Seat* seat, Tile* tile, bool isEditorMode);
+    virtual bool tryPickup(Seat* seat);
+    virtual bool tryDrop(Seat* seat, Tile* tile);
     void mergeGold(TreasuryObject* obj);
     void addGold(int goldValue);
 

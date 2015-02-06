@@ -286,8 +286,7 @@ void ODFrameListener::refreshChat()
         chatSS << "\n" + msg->getClientNick() << ": " << msg->getMessage();
     }
 
-    bool isEditor = (mModeManager->getCurrentModeType() == ModeManager::EDITOR);
-    if (!isEditor && mGameMap->getTurnNumber() == -1)
+    if (!mGameMap->isInEditorMode() && mGameMap->getTurnNumber() == -1)
     {
         // Tells the user the game is loading.
         chatSS << "\nWaiting for players...";

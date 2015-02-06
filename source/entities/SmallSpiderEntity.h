@@ -41,9 +41,9 @@ public:
     virtual RenderedMovableEntityType getRenderedMovableEntityType() const
     { return RenderedMovableEntityType::smallSpiderEntity; }
 
-    bool canSlap(Seat* seat, bool isEditorMode);
+    bool canSlap(Seat* seat);
 
-    void slap(bool isEditorMode)
+    void slap()
     { mIsSlapped = true; }
 
     static SmallSpiderEntity* getSmallSpiderEntityFromPacket(GameMap* gameMap, ODPacket& is);

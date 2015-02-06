@@ -587,7 +587,7 @@ Creature* GameMap::getWorkerToPickupBySeat(Seat* seat)
         if(!creature->getDefinition()->isWorker())
             continue;
 
-        if(!creature->tryPickup(seat, false))
+        if(!creature->tryPickup(seat))
             continue;
 
         bool isIdle = true;
@@ -707,7 +707,7 @@ Creature* GameMap::getFighterToPickupBySeat(Seat* seat)
         if(creature->getDefinition()->isWorker())
             continue;
 
-        if(!creature->tryPickup(seat, false))
+        if(!creature->tryPickup(seat))
             continue;
 
         bool isIdle = true;

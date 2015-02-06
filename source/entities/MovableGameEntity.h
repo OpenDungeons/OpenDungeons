@@ -86,7 +86,7 @@ public:
     inline Ogre::AnimationState* getAnimationState() const
     { return mAnimationState; }
 
-    void firePickupEntity(Player* playerPicking, bool isEditorMode);
+    void firePickupEntity(Player* playerPicking);
 
     void fireDropEntity(Player* playerPicking, Tile* tile);
 

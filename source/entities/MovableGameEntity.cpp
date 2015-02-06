@@ -309,7 +309,7 @@ void MovableGameEntity::fireObjectAnimationState(const std::string& state, bool 
     }
 }
 
-void MovableGameEntity::firePickupEntity(Player* playerPicking, bool isEditorMode)
+void MovableGameEntity::firePickupEntity(Player* playerPicking)
 {
     int seatId = playerPicking->getSeat()->getId();
     GameEntityType entityType = getObjectType();
@@ -343,14 +343,14 @@ void MovableGameEntity::firePickupEntity(Player* playerPicking, bool isEditorMod
         {
             ServerNotification serverNotification(
                 ServerNotificationType::entityPickedUp, seat->getPlayer());
-            serverNotification.mPacket << isEditorMode << seatId << entityType << entityName;
+            serverNotification.mPacket << seatId << entityType << entityName;
             ODServer::getSingleton().sendAsyncMsg(serverNotification);
         }
         else
         {
             ServerNotification* serverNotification = new ServerNotification(
                 ServerNotificationType::entityPickedUp, seat->getPlayer());
-            serverNotification->mPacket << isEditorMode << seatId << entityType << entityName;
+            serverNotification->mPacket << seatId << entityType << entityName;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
     }

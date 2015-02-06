@@ -671,10 +671,10 @@ void KeeperAI::saveWoundedCreatures()
             continue;
         }
 
-        if(!creature->tryPickup(seat, false))
+        if(!creature->tryPickup(seat))
             continue;
 
-        mPlayer.pickUpEntity(creature, false);
+        mPlayer.pickUpEntity(creature);
 
         OD_ASSERT_TRUE(mPlayer.dropHand(dungeonTempleTile) == creature);
     }
@@ -708,14 +708,14 @@ void KeeperAI::handleDefense()
         if(creatureToDrop == nullptr)
             continue;
 
-        if(!creatureToDrop->tryPickup(seat, false))
+        if(!creatureToDrop->tryPickup(seat))
             continue;
 
         for(Tile* neigh : tile->getAllNeighbors())
         {
-            if(creatureToDrop->tryDrop(seat, neigh, false))
+            if(creatureToDrop->tryDrop(seat, neigh))
             {
-                mPlayer.pickUpEntity(creatureToDrop, false);
+                mPlayer.pickUpEntity(creatureToDrop);
                 OD_ASSERT_TRUE(mPlayer.dropHand(neigh) == creatureToDrop);
                 mCooldownDefense = Random::Int(0,5);
                 return;

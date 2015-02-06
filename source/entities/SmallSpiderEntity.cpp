@@ -111,7 +111,7 @@ void SmallSpiderEntity::doUpkeep()
     setAnimationState("Walk");
 }
 
-bool SmallSpiderEntity::canSlap(Seat* seat, bool isEditorMode)
+bool SmallSpiderEntity::canSlap(Seat* seat)
 {
     Tile* tile = getPositionTile();
     OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());

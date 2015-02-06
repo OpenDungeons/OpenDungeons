@@ -490,11 +490,10 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotificationType::entityPickedUp:
         {
-            bool isEditorMode;
             int seatId;
             GameEntityType entityType;
             std::string entityName;
-            OD_ASSERT_TRUE(packetReceived >> isEditorMode >> seatId >> entityType >> entityName);
+            OD_ASSERT_TRUE(packetReceived >> seatId >> entityType >> entityName);
             Player *tempPlayer = gameMap->getPlayerBySeatId(seatId);
             OD_ASSERT_TRUE_MSG(tempPlayer != nullptr, "seatId=" + Ogre::StringConverter::toString(seatId));
             if(tempPlayer == nullptr)
@@ -505,7 +504,7 @@ bool ODClient::processOneClientSocketMessage()
             if(entity == nullptr)
                 break;
 
-            tempPlayer->pickUpEntity(entity, isEditorMode);
+            tempPlayer->pickUpEntity(entity);
             break;
         }
 

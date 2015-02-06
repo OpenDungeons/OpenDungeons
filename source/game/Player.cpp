@@ -96,7 +96,7 @@ void Player::addEntityToHand(MovableGameEntity *entity)
     mObjectsInHand[0] = entity;
 }
 
-void Player::pickUpEntity(MovableGameEntity *entity, bool isEditorMode)
+void Player::pickUpEntity(MovableGameEntity *entity)
 {
     if (!ODServer::getSingleton().isConnected() && !ODClient::getSingleton().isConnected())
         return;
@@ -104,7 +104,7 @@ void Player::pickUpEntity(MovableGameEntity *entity, bool isEditorMode)
     if(entity->getObjectType() == GameEntityType::creature)
     {
         Creature* creature = static_cast<Creature*>(entity);
-        if(!creature->tryPickup(getSeat(), isEditorMode))
+        if(!creature->tryPickup(getSeat()))
            return;
 
        creature->pickup();
@@ -112,7 +112,7 @@ void Player::pickUpEntity(MovableGameEntity *entity, bool isEditorMode)
     else if(entity->getObjectType() == GameEntityType::renderedMovableEntity)
     {
         RenderedMovableEntity* obj = static_cast<RenderedMovableEntity*>(entity);
-        if(!obj->tryPickup(getSeat(), isEditorMode))
+        if(!obj->tryPickup(getSeat()))
            return;
 
         obj->pickup();
@@ -123,7 +123,7 @@ void Player::pickUpEntity(MovableGameEntity *entity, bool isEditorMode)
 
     if (mGameMap->isServerGameMap())
     {
-        entity->firePickupEntity(this, isEditorMode);
+        entity->firePickupEntity(this);
         return;
     }
 
@@ -140,7 +140,7 @@ void Player::clearObjectsInHand()
     mObjectsInHand.clear();
 }
 
-bool Player::isDropHandPossible(Tile *t, unsigned int index, bool isEditorMode)
+bool Player::isDropHandPossible(Tile *t, unsigned int index)
 {
     // if we have a creature to drop
     if (mObjectsInHand.empty())
@@ -150,13 +150,13 @@ bool Player::isDropHandPossible(Tile *t, unsigned int index, bool isEditorMode)
     if(entity != nullptr && entity->getObjectType() == GameEntityType::creature)
     {
         Creature* creature = static_cast<Creature*>(entity);
-        if(creature->tryDrop(getSeat(), t, isEditorMode))
+        if(creature->tryDrop(getSeat(), t))
             return true;
     }
     else if(entity != nullptr && entity->getObjectType() == GameEntityType::renderedMovableEntity)
     {
         RenderedMovableEntity* obj = static_cast<RenderedMovableEntity*>(entity);
-        if(obj->tryDrop(getSeat(), t, isEditorMode))
+        if(obj->tryDrop(getSeat(), t))
             return true;
     }
 

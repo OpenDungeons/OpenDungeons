@@ -38,7 +38,7 @@ SpellCallToWar::~SpellCallToWar()
 {
 }
 
-bool SpellCallToWar::canSlap(Seat* seat, bool isEditorMode)
+bool SpellCallToWar::canSlap(Seat* seat)
 {
     // Only the spell caster can slap the spell
     if(getSeat() != seat)
@@ -50,7 +50,7 @@ bool SpellCallToWar::canSlap(Seat* seat, bool isEditorMode)
     return true;
 }
 
-void SpellCallToWar::slap(bool isEditorMode)
+void SpellCallToWar::slap()
 {
     if(!getGameMap()->isServerGameMap())
         return;

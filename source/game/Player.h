@@ -91,10 +91,10 @@ public:
      * hand is false we just hide the creature (and stop its AI, etc.), rather than
      * making it follow the cursor.
      */
-    void pickUpEntity(MovableGameEntity *entity, bool isEditorMode);
+    void pickUpEntity(MovableGameEntity *entity);
 
     //! \brief Check to see the first object in hand can be dropped on Tile t and do so if possible.
-    bool isDropHandPossible(Tile *t, unsigned int index = 0, bool isEditorMode = false);
+    bool isDropHandPossible(Tile *t, unsigned int index = 0);
 
     //! \brief Drops the creature on tile t. Returns the dropped creature
     MovableGameEntity* dropHand(Tile *t, unsigned int index = 0);

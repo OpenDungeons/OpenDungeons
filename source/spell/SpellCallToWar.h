@@ -31,9 +31,9 @@ public:
     SpellType getSpellType() const
     { return SpellType::callToWar; }
 
-    bool canSlap(Seat* seat, bool isEditorMode);
+    bool canSlap(Seat* seat);
 
-    void slap(bool isEditorMode);
+    void slap();
 
     static int getSpellCallToWarCost(GameMap* gameMap, const std::vector<Tile*>& tiles, Player* player);
 

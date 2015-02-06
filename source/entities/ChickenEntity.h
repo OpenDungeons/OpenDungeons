@@ -41,15 +41,15 @@ public:
     virtual RenderedMovableEntityType getRenderedMovableEntityType() const
     { return RenderedMovableEntityType::chickenEntity; }
 
-    virtual bool tryPickup(Seat* seat, bool isEditorMode);
+    virtual bool tryPickup(Seat* seat);
     virtual void pickup();
-    virtual bool tryDrop(Seat* seat, Tile* tile, bool isEditorMode);
+    virtual bool tryDrop(Seat* seat, Tile* tile);
 
     bool eatChicken(Creature* creature);
 
-    bool canSlap(Seat* seat, bool isEditorMode);
+    bool canSlap(Seat* seat);
 
-    void slap(bool isEditorMode)
+    void slap()
     { mIsSlapped = true; }
 
     static ChickenEntity* getChickenEntityFromStream(GameMap* gameMap, std::istream& is);

@@ -87,7 +87,7 @@ void TrapEntity::notifySeatsWithVision(const std::vector<Seat*>& seats)
     }
 
     // We notify seats that gain vision
-    bool isEditorMode = getGameMap()->isInEditorMode();
+    bool isInEditorMode = getGameMap()->isInEditorMode();
     for(Seat* seat : seats)
     {
         // If the seat was already in the list, nothing to do
@@ -96,7 +96,7 @@ void TrapEntity::notifySeatsWithVision(const std::vector<Seat*>& seats)
 
         // If we are hidden for current seat, we do not notify our state
         // In editor mode, everybody can see traps
-        if(!isEditorMode && std::find(mSeatsNotHidden.begin(), mSeatsNotHidden.end(), seat) == mSeatsNotHidden.end())
+        if(!isInEditorMode && std::find(mSeatsNotHidden.begin(), mSeatsNotHidden.end(), seat) == mSeatsNotHidden.end())
             continue;
 
         mSeatsWithVisionNotified.push_back(seat);

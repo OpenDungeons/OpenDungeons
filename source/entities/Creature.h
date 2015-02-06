@@ -288,9 +288,9 @@ public:
     //! \brief Checks if the creature can be picked up. If yes, this function does the needed
     //! to prepare for the pickup (removing creature from GameMap, changing states, ...).
     //! Returns true if the creature can be picked up
-    bool tryPickup(Seat* seat, bool isEditorMode);
+    bool tryPickup(Seat* seat);
     void pickup();
-    bool tryDrop(Seat* seat, Tile* tile, bool isEditorMode);
+    bool tryDrop(Seat* seat, Tile* tile);
 
     inline void jobDone(double val)
     {
@@ -333,8 +333,8 @@ public:
     virtual void notifyEntityCarryOn();
     virtual void notifyEntityCarryOff(const Ogre::Vector3& position);
 
-    bool canSlap(Seat* seat, bool isEditorMode);
-    void slap(bool isEditorMode);
+    bool canSlap(Seat* seat);
+    void slap();
 
     void fireCreatureSound(CreatureSound::SoundType sound);
 

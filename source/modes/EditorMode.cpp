@@ -372,7 +372,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
             if (curTile == nullptr)
                 return true;
 
-            if (mGameMap->getLocalPlayer()->isDropHandPossible(curTile, 0, true))
+            if (mGameMap->getLocalPlayer()->isDropHandPossible(curTile, 0))
             {
                 if(ODClient::getSingleton().isConnected())
                 {
@@ -397,7 +397,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
                 std::string resultName = itr->movable->getName();
 
                 GameEntity* entity = getEntityFromOgreName(resultName);
-                if (entity == nullptr || !entity->canSlap(mGameMap->getLocalPlayer()->getSeat(), true))
+                if (entity == nullptr || !entity->canSlap(mGameMap->getLocalPlayer()->getSeat()))
                     continue;
 
                 if(ODClient::getSingleton().isConnected())
@@ -447,7 +447,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         std::string resultName = itr->movable->getName();
 
         GameEntity* entity = getEntityFromOgreName(resultName);
-        if (entity == nullptr || !entity->tryPickup(player->getSeat(), true))
+        if (entity == nullptr || !entity->tryPickup(player->getSeat()))
             continue;
 
         if (ODClient::getSingleton().isConnected())

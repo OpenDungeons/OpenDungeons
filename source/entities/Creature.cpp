@@ -3468,15 +3468,15 @@ CreatureAction Creature::peekAction()
     return mActionQueue.front();
 }
 
-bool Creature::tryPickup(Seat* seat, bool isEditorMode)
+bool Creature::tryPickup(Seat* seat)
 {
     if(!getIsOnMap())
         return false;
 
-    if ((getHP() <= 0.0) && !isEditorMode)
+    if ((getHP() <= 0.0) && !getGameMap()->isInEditorMode())
         return false;
 
-    if(!getSeat()->canOwnedCreatureBePickedUpBy(seat) && !isEditorMode)
+    if(!getSeat()->canOwnedCreatureBePickedUpBy(seat) && !getGameMap()->isInEditorMode())
         return false;
 
     return true;
@@ -3537,14 +3537,14 @@ bool Creature::canGoThroughTile(const Tile* tile) const
     return false;
 }
 
-bool Creature::tryDrop(Seat* seat, Tile* tile, bool isEditorMode)
+bool Creature::tryDrop(Seat* seat, Tile* tile)
 {
     // check whether the tile is a ground tile ...
     if (tile->getFullness() > 0.0)
         return false;
 
     // In editor mode, we allow creatures to be dropped anywhere they can walk
-    if(isEditorMode && canGoThroughTile(tile))
+    if(getGameMap()->isInEditorMode() && canGoThroughTile(tile))
         return true;
 
     // we cannot drop a creature on a tile we don't see
@@ -3889,7 +3889,7 @@ void Creature::releaseCarriedEntity()
     dest->notifyCarryingStateChanged(this, carriedEntity);
 }
 
-bool Creature::canSlap(Seat* seat, bool isEditorMode)
+bool Creature::canSlap(Seat* seat)
 {
     Tile* tile = getPositionTile();
     OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
@@ -3899,7 +3899,7 @@ bool Creature::canSlap(Seat* seat, bool isEditorMode)
     if(getHP() <= 0.0)
         return false;
 
-    if(isEditorMode)
+    if(getGameMap()->isInEditorMode())
         return true;
 
     // Only the owning player can slap a creature
@@ -3909,13 +3909,13 @@ bool Creature::canSlap(Seat* seat, bool isEditorMode)
     return true;
 }
 
-void Creature::slap(bool isEditorMode)
+void Creature::slap()
 {
     if(!getGameMap()->isServerGameMap())
         return;
 
     // In editor mode, we remove the creature
-    if(isEditorMode)
+    if(getGameMap()->isInEditorMode())
     {
         removeFromGameMap();
         deleteYourself();
