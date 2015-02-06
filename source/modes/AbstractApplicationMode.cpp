@@ -19,6 +19,7 @@
 
 #include "entities/Creature.h"
 #include "entities/RenderedMovableEntity.h"
+#include "entities/MapLight.h"
 #include "gamemap/GameMap.h"
 #include "network/ODClient.h"
 #include "network/ODServer.h"
@@ -102,22 +103,29 @@ int AbstractApplicationMode::getChatChar(const OIS::KeyEvent &arg)
 
 GameEntity* AbstractApplicationMode::getEntityFromOgreName(const std::string& entityName)
 {
+    // We check the prefix to know the kind of object the user clicked. Then, we call the corresponding
+    // GameMap function to retrieve the entity
     GameMap* gameMap = ODFrameListener::getSingletonPtr()->getClientGameMap();
-    if (entityName.find(Creature::CREATURE_PREFIX) != std::string::npos)
+    if (entityName.compare(0, Creature::CREATURE_PREFIX.length(), Creature::CREATURE_PREFIX) == 0)
     {
         // It is a creature
         std::string name = entityName.substr(Creature::CREATURE_PREFIX.length());
         return gameMap->getCreature(name);
     }
-    else if (entityName.find(RenderedMovableEntity::RENDEREDMOVABLEENTITY_OGRE_PREFIX) != std::string::npos)
+    else if (entityName.compare(0, RenderedMovableEntity::RENDEREDMOVABLEENTITY_OGRE_PREFIX.length(), RenderedMovableEntity::RENDEREDMOVABLEENTITY_OGRE_PREFIX) == 0)
     {
         std::string name = entityName.substr(RenderedMovableEntity::RENDEREDMOVABLEENTITY_OGRE_PREFIX.length());
         return gameMap->getRenderedMovableEntity(name);
     }
-    else if (entityName.find(Spell::SPELL_OGRE_PREFIX) != std::string::npos)
+    else if (entityName.compare(0, Spell::SPELL_OGRE_PREFIX.length(), Spell::SPELL_OGRE_PREFIX) == 0)
     {
         std::string name = entityName.substr(Spell::SPELL_OGRE_PREFIX.length());
         return gameMap->getSpell(name);
+    }
+    else if (entityName.compare(0, MapLight::MAPLIGHT_INDICATOR_PREFIX.length(), MapLight::MAPLIGHT_INDICATOR_PREFIX) == 0)
+    {
+        std::string name = entityName.substr(MapLight::MAPLIGHT_INDICATOR_PREFIX.length());
+        return gameMap->getMapLight(name);
     }
 
     return nullptr;

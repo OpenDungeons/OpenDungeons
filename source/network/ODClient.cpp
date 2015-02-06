@@ -172,16 +172,6 @@ bool ODClient::processOneClientSocketMessage()
                 tile->setType(Tile::TileType::rock);
                 tile->setFullness(100.0);
             }
-
-            // Lights
-            OD_ASSERT_TRUE(packetReceived >> nb);
-            while(nb > 0)
-            {
-                --nb;
-                MapLight* light = new MapLight(gameMap);
-                OD_ASSERT_TRUE(packetReceived >> light);
-                light->addToGameMap();
-            }
             gameMap->setAllFullnessAndNeighbors();
 
             ODPacket packSend;
@@ -390,7 +380,7 @@ bool ODClient::processOneClientSocketMessage()
         case ServerNotificationType::addMapLight:
         {
             MapLight *newMapLight = new MapLight(gameMap);
-            OD_ASSERT_TRUE(packetReceived >> newMapLight);
+            newMapLight->importFromPacket(packetReceived);
             newMapLight->addToGameMap();
             newMapLight->createMesh();
             break;

@@ -102,20 +102,24 @@ public:
      */
     void update(Ogre::Real timeSinceLastFrame);
 
-    //! \brief For now, MapLights are sent by the server during map initialization. There is
-    //! no need to remove/add them. If we want to add MapLights on claimed tiles, we
-    //! should consider letting notifySeatsWithVision default behaviour or, even better, create
-    //! another class
-    void notifySeatsWithVision(const std::vector<Seat*>& seats)
-    {}
+    //! NOTE: If we want to add MapLights on claimed tiles, we should do that on client side
+    //! only if possible (and maybe create another class for that that cannot be picked up)
+    void notifySeatsWithVision(const std::vector<Seat*>& seats);
 
     void fireAddEntityToAll();
 
+    virtual bool tryPickup(Seat* seat);
+    virtual void pickup();
+    virtual bool tryDrop(Seat* seat, Tile* tile);
+    virtual void drop(const Ogre::Vector3& v);
+    virtual bool canSlap(Seat* seat);
+    virtual void slap();
+
     static std::string getFormat();
-    friend ODPacket& operator<<(ODPacket& os, MapLight *m);
-    friend ODPacket& operator>>(ODPacket& is, MapLight *m);
-    friend std::ostream& operator<<(std::ostream& os, MapLight *m);
-    friend std::istream& operator>>(std::istream& is, MapLight *m);
+    virtual void exportToStream(std::ostream& os) const;
+    virtual void importFromStream(std::istream& is);
+    virtual void exportToPacket(ODPacket& os) const;
+    virtual void importFromPacket(ODPacket& is);
 
     //! \brief Loads the map light data from a level line.
     static void loadFromLine(const std::string& line, MapLight* m);
@@ -123,11 +127,8 @@ public:
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
-    //! MapLights are sent by the server during map initialization. Nothing more to do
-    virtual void fireAddEntity(Seat* seat, bool async)
-    {}
-    virtual void fireRemoveEntity(Seat* seat)
-    {}
+    virtual void fireAddEntity(Seat* seat, bool async);
+    virtual void fireRemoveEntity(Seat* seat);
 
 private:
     Ogre::ColourValue mDiffuseColor;

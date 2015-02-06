@@ -2746,6 +2746,9 @@ MovableGameEntity* GameMap::getEntityFromTypeAndName(GameEntityType entityType,
         case GameEntityType::spell:
             return getSpell(entityName);
 
+        case GameEntityType::mapLight:
+            return getMapLight(entityName);
+
         default:
             break;
     }

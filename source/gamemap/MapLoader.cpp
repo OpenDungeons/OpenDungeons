@@ -604,7 +604,9 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     levelFile << "# " << MapLight::getFormat() << "\n";
     for (unsigned int i = 0, num = gameMap.numMapLights(); i < num; ++i)
     {
-        levelFile << gameMap.getMapLight(i) << std::endl;
+        MapLight* mapLight = gameMap.getMapLight(i);
+        mapLight->exportToStream(levelFile);
+        levelFile << std::endl;
     }
     levelFile << "[/Lights]" << std::endl;
 

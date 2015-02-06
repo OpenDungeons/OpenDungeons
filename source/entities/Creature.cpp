@@ -529,6 +529,8 @@ void Creature::drop(const Ogre::Vector3& v)
     mForceAction = forcedActionSearchAction;
     if(getHasVisualDebuggingEntities())
         computeVisualDebugEntities();
+
+    fireCreatureSound(CreatureSound::DROP);
 }
 
 void Creature::setHP(double nHP)

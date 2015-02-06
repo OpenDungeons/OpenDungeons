@@ -101,22 +101,10 @@ void Player::pickUpEntity(MovableGameEntity *entity)
     if (!ODServer::getSingleton().isConnected() && !ODClient::getSingleton().isConnected())
         return;
 
-    if(entity->getObjectType() == GameEntityType::creature)
-    {
-        Creature* creature = static_cast<Creature*>(entity);
-        if(!creature->tryPickup(getSeat()))
+    if(!entity->tryPickup(getSeat()))
            return;
 
-       creature->pickup();
-    }
-    else if(entity->getObjectType() == GameEntityType::renderedMovableEntity)
-    {
-        RenderedMovableEntity* obj = static_cast<RenderedMovableEntity*>(entity);
-        if(!obj->tryPickup(getSeat()))
-           return;
-
-        obj->pickup();
-    }
+    entity->pickup();
 
     // Start tracking this creature as being in this player's hand
     addEntityToHand(entity);
@@ -147,20 +135,7 @@ bool Player::isDropHandPossible(Tile *t, unsigned int index)
         return false;
 
     GameEntity* entity = mObjectsInHand[index];
-    if(entity != nullptr && entity->getObjectType() == GameEntityType::creature)
-    {
-        Creature* creature = static_cast<Creature*>(entity);
-        if(creature->tryDrop(getSeat(), t))
-            return true;
-    }
-    else if(entity != nullptr && entity->getObjectType() == GameEntityType::renderedMovableEntity)
-    {
-        RenderedMovableEntity* obj = static_cast<RenderedMovableEntity*>(entity);
-        if(obj->tryDrop(getSeat(), t))
-            return true;
-    }
-
-    return false;
+    return entity->tryDrop(getSeat(), t);
 }
 
 MovableGameEntity* Player::dropHand(Tile *t, unsigned int index)
@@ -172,23 +147,9 @@ MovableGameEntity* Player::dropHand(Tile *t, unsigned int index)
 
     MovableGameEntity *entity = mObjectsInHand[index];
     mObjectsInHand.erase(mObjectsInHand.begin() + index);
-    if(entity->getObjectType() == GameEntityType::creature)
-    {
-        Creature* creature = static_cast<Creature*>(entity);
-        creature->drop(Ogre::Vector3(static_cast<Ogre::Real>(t->getX()),
-            static_cast<Ogre::Real>(t->getY()), 0.0));
 
-        if (!mGameMap->isServerGameMap() && (this == mGameMap->getLocalPlayer()))
-        {
-            creature->fireCreatureSound(CreatureSound::DROP);
-        }
-    }
-    else if(entity->getObjectType() == GameEntityType::renderedMovableEntity)
-    {
-        RenderedMovableEntity* obj = static_cast<RenderedMovableEntity*>(entity);
-        obj->drop(Ogre::Vector3(static_cast<Ogre::Real>(t->getX()),
-            static_cast<Ogre::Real>(t->getY()), 0.0));
-    }
+    entity->drop(Ogre::Vector3(static_cast<Ogre::Real>(t->getX()),
+            static_cast<Ogre::Real>(t->getY()), entity->getPosition().z));
 
     if(mGameMap->isServerGameMap())
     {

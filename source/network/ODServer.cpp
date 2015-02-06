@@ -557,15 +557,6 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 gameMap->tileToPacket(packet, tile);
             }
 
-            // Lights
-            nb = gameMap->numMapLights();
-            packet << nb;
-            for(int32_t i = 0; i < nb; ++i)
-            {
-                MapLight* light = gameMap->getMapLight(i);
-                packet << light;
-            }
-
             sendMsgToClient(clientSocket, packet);
             break;
         }
