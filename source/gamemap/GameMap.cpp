@@ -301,9 +301,11 @@ void GameMap::clearAll()
 
 void GameMap::clearCreatures()
 {
-    for (Creature* creature : mCreatures)
+    // We need to work on a copy of mCreatures because removeFromGameMap will remove them from this vector
+    std::vector<Creature*> creatures = mCreatures;
+    for (Creature* creature : creatures)
     {
-        removeAnimatedObject(creature);
+        creature->removeFromGameMap();
         creature->deleteYourself();
     }
 
@@ -345,10 +347,11 @@ void GameMap::clearWeapons()
 
 void GameMap::clearRenderedMovableEntities()
 {
-    for (RenderedMovableEntity* obj : mRenderedMovableEntities)
+    // We need to work on a copy of mRenderedMovableEntities because removeFromGameMap will remove them from this vector
+    std::vector<RenderedMovableEntity*> renderedMovableEntities = mRenderedMovableEntities;
+    for (RenderedMovableEntity* obj : renderedMovableEntities)
     {
-        removeActiveObject(obj);
-        removeAnimatedObject(obj);
+        obj->removeFromGameMap();
         obj->deleteYourself();
     }
 
@@ -465,10 +468,6 @@ void GameMap::addCreature(Creature *cc)
         + ", seatId=" + (cc->getSeat() != nullptr ? Ogre::StringConverter::toString(cc->getSeat()->getId()) : std::string("null")));
 
     mCreatures.push_back(cc);
-
-    addAnimatedObject(cc);
-    addActiveObject(cc);
-    cc->setIsOnMap(true);
 }
 
 void GameMap::removeCreature(Creature *c)
@@ -480,10 +479,7 @@ void GameMap::removeCreature(Creature *c)
     if(it == mCreatures.end())
         return;
 
-    // Creature found
     mCreatures.erase(it);
-    removeAnimatedObject(c);
-    removeActiveObject(c);
 }
 
 void GameMap::queueEntityForDeletion(GameEntity *ge)
@@ -798,7 +794,6 @@ void GameMap::clearAnimatedObjects()
 void GameMap::addAnimatedObject(MovableGameEntity *a)
 {
     mAnimatedObjects.push_back(a);
-    a->notifyAddedOnGamemap();
 }
 
 void GameMap::removeAnimatedObject(MovableGameEntity *a)
@@ -808,7 +803,6 @@ void GameMap::removeAnimatedObject(MovableGameEntity *a)
         return;
 
     mAnimatedObjects.erase(it);
-    a->notifyRemovedFromGamemap();
 }
 
 MovableGameEntity* GameMap::getAnimatedObject(int index)
@@ -835,10 +829,6 @@ void GameMap::addRenderedMovableEntity(RenderedMovableEntity *obj)
     LogManager::getSingleton().logMessage(serverStr() + "Adding rendered object " + obj->getName()
         + ",MeshName=" + obj->getMeshName());
     mRenderedMovableEntities.push_back(obj);
-
-    addActiveObject(obj);
-    addAnimatedObject(obj);
-    obj->setIsOnMap(true);
 }
 
 void GameMap::removeRenderedMovableEntity(RenderedMovableEntity *obj)
@@ -851,8 +841,6 @@ void GameMap::removeRenderedMovableEntity(RenderedMovableEntity *obj)
         return;
 
     mRenderedMovableEntities.erase(it);
-    removeAnimatedObject(obj);
-    removeActiveObject(obj);
 }
 
 RenderedMovableEntity* GameMap::getRenderedMovableEntity(const std::string& name)
@@ -885,12 +873,6 @@ void GameMap::removeActiveObject(GameEntity *a)
     // Active objects are only used on server side
     if(!isServerGameMap())
         return;
-
-    Tile* posTile = a->getPositionTile();
-    if(posTile != nullptr)
-        posTile->removeEntity(a);
-
-    a->setIsOnMap(false);
 
     if(std::find(mActiveObjects.begin(), mActiveObjects.end(), a) != mActiveObjects.end())
     {
@@ -1756,10 +1738,11 @@ std::vector<GameEntity*> GameMap::getVisibleCarryableEntities(const std::vector<
 
 void GameMap::clearRooms()
 {
-    for (Room *tempRoom : mRooms)
+    // We need to work on a copy of mRooms because removeFromGameMap will remove them from this vector
+    std::vector<Room*> rooms = mRooms;
+    for (Room *tempRoom : rooms)
     {
-        removeActiveObject(tempRoom);
-        tempRoom->removeAllBuildingObjects();
+        tempRoom->removeFromGameMap();
         tempRoom->deleteYourself();
     }
 
@@ -1777,8 +1760,6 @@ void GameMap::addRoom(Room *r)
     }
 
     mRooms.push_back(r);
-    addActiveObject(r);
-    r->setIsOnMap(true);
 }
 
 void GameMap::removeRoom(Room *r)
@@ -1792,8 +1773,6 @@ void GameMap::removeRoom(Room *r)
         return;
 
     mRooms.erase(it);
-    r->removeAllBuildingObjects();
-    removeActiveObject(r);
 }
 
 Room* GameMap::getRoom(int index)
@@ -1931,9 +1910,11 @@ Trap* GameMap::getTrapByName(const std::string& name)
 
 void GameMap::clearTraps()
 {
-    for (Trap* trap : mTraps)
+    // We need to work on a copy of mTraps because removeFromGameMap will remove them from this vector
+    std::vector<Trap*> traps = mTraps;
+    for (Trap* trap : traps)
     {
-        removeActiveObject(trap);
+        trap->removeFromGameMap();
         trap->deleteYourself();
     }
 
@@ -1947,8 +1928,6 @@ void GameMap::addTrap(Trap *trap)
         + Ogre::StringConverter::toString(nbTiles) + ", seatId=" + Ogre::StringConverter::toString(trap->getSeat()->getId()));
 
     mTraps.push_back(trap);
-    addActiveObject(trap);
-    trap->setIsOnMap(true);
 }
 
 void GameMap::removeTrap(Trap *t)
@@ -1960,7 +1939,6 @@ void GameMap::removeTrap(Trap *t)
         return;
 
     mTraps.erase(it);
-    removeActiveObject(t);
 }
 
 Trap* GameMap::getTrap(int index)
@@ -2004,9 +1982,11 @@ bool GameMap::withdrawFromTreasuries(int gold, Seat* seat)
 
 void GameMap::clearMapLights()
 {
-    for (MapLight* mapLight : mMapLights)
+    // We need to work on a copy of mMapLights because removeFromGameMap will remove them from this vector
+    std::vector<MapLight*> mapLights = mMapLights;
+    for (MapLight* mapLight : mapLights)
     {
-        removeAnimatedObject(mapLight);
+        mapLight->removeFromGameMap();
         mapLight->deleteYourself();
     }
 
@@ -2017,9 +1997,6 @@ void GameMap::addMapLight(MapLight *m)
 {
     LogManager::getSingleton().logMessage(serverStr() + "Adding MapLight " + m->getName());
     mMapLights.push_back(m);
-
-    addAnimatedObject(m);
-    m->setIsOnMap(true);
 }
 
 void GameMap::removeMapLight(MapLight *m)
@@ -2032,8 +2009,6 @@ void GameMap::removeMapLight(MapLight *m)
         return;
 
     mMapLights.erase(it);
-
-    removeAnimatedObject(m);
 }
 
 MapLight* GameMap::getMapLight(int index)
@@ -3045,10 +3020,6 @@ void GameMap::addSpell(Spell *spell)
     LogManager::getSingleton().logMessage(serverStr() + "Adding spell " + spell->getName()
         + ",MeshName=" + spell->getMeshName());
     mSpells.push_back(spell);
-
-    addActiveObject(spell);
-    addAnimatedObject(spell);
-    spell->setIsOnMap(true);
 }
 
 void GameMap::removeSpell(Spell *spell)
@@ -3061,8 +3032,6 @@ void GameMap::removeSpell(Spell *spell)
         return;
 
     mSpells.erase(it);
-    removeAnimatedObject(spell);
-    removeActiveObject(spell);
 }
 
 Spell* GameMap::getSpell(const std::string& name) const
@@ -3077,10 +3046,11 @@ Spell* GameMap::getSpell(const std::string& name) const
 
 void GameMap::clearSpells()
 {
-    for (Spell* spell : mSpells)
+    // We need to work on a copy of mSpells because removeFromGameMap will remove them from this vector
+    std::vector<Spell*> spells = mSpells;
+    for (Spell* spell : spells)
     {
-        removeActiveObject(spell);
-        removeAnimatedObject(spell);
+        spell->removeFromGameMap();
         spell->deleteYourself();
     }
 

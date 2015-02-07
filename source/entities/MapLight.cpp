@@ -79,11 +79,23 @@ void MapLight::destroyMeshLocal()
 void MapLight::addToGameMap()
 {
     getGameMap()->addMapLight(this);
+    setIsOnMap(true);
+    getGameMap()->addAnimatedObject(this);
 }
 
 void MapLight::removeFromGameMap()
 {
     getGameMap()->removeMapLight(this);
+    setIsOnMap(false);
+    getGameMap()->removeAnimatedObject(this);
+
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    fireRemoveEntityToSeatsWithVision();
+    Tile* posTile = getPositionTile();
+    if(posTile != nullptr)
+        posTile->removeEntity(this);
 }
 
 std::vector<Tile*> MapLight::getCoveredTiles()
@@ -240,11 +252,6 @@ void MapLight::slap()
     // In editor mode, we allow to slap the MapLight to destroy it
     if(!getGameMap()->isInEditorMode())
         return;
-
-    // FIXME : Remove entities from the tile when removed from the gamemap in an OO way (maybe in GameEntity::removeFromGameMap)
-    Tile* posTile = getPositionTile();
-    if(posTile != nullptr)
-        posTile->removeEntity(this);
 
     removeFromGameMap();
     deleteYourself();

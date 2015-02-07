@@ -46,17 +46,18 @@ PersistentObject* PersistentObject::getPersistentObjectFromPacket(GameMap* gameM
     return obj;
 }
 
-void PersistentObject::notifyAddedOnGamemap()
+void PersistentObject::addToGameMap()
 {
     // We register on both client and server gamemaps
-    RenderedMovableEntity::notifyAddedOnGamemap();
+    RenderedMovableEntity::addToGameMap();
+    // We register on the tile we are on
     mTile->registerPersistentObject(this);
 }
 
-void PersistentObject::notifyRemovedFromGamemap()
+void PersistentObject::removeFromGameMap()
 {
-    // On server map, removes the PersistentObject. On client map, does nothing. It is done when the associated tile is refreshed
-    RenderedMovableEntity::notifyRemovedFromGamemap();
+    RenderedMovableEntity::removeFromGameMap();
+    // Removes the PersistentObject. On client map, the persistent object will be removed when the associated tile is refreshed
     mTile->removePersistentObject(this);
 }
 

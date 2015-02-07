@@ -53,8 +53,8 @@ public:
     virtual bool isVisibleForSeat(Seat* seat)
     { return true; }
 
-    virtual void notifyAddedOnGamemap();
-    virtual void notifyRemovedFromGamemap();
+    virtual void addToGameMap();
+    virtual void removeFromGameMap();
 
     void notifySeatsWithVision(const std::vector<Seat*>& seats);
     //! We don't want to the remove entity event to be fired when the PersistentObject is removed from the server gamemap

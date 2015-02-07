@@ -57,12 +57,30 @@ void Spell::doUpkeep()
 void Spell::addToGameMap()
 {
     getGameMap()->addSpell(this);
+    setIsOnMap(true);
+    getGameMap()->addAnimatedObject(this);
+
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    getGameMap()->addActiveObject(this);
 }
 
 void Spell::removeFromGameMap()
 {
     getGameMap()->removeSpell(this);
+    setIsOnMap(false);
+    getGameMap()->removeAnimatedObject(this);
 
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    fireRemoveEntityToSeatsWithVision();
+    Tile* posTile = getPositionTile();
+    if(posTile != nullptr)
+        posTile->removeEntity(this);
+
+    getGameMap()->removeActiveObject(this);
 }
 
 Spell* Spell::getSpellFromStream(GameMap* gameMap, std::istream &is)

@@ -94,11 +94,30 @@ void RenderedMovableEntity::destroyMeshLocal()
 void RenderedMovableEntity::addToGameMap()
 {
     getGameMap()->addRenderedMovableEntity(this);
+    setIsOnMap(true);
+    getGameMap()->addAnimatedObject(this);
+
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    getGameMap()->addActiveObject(this);
 }
 
 void RenderedMovableEntity::removeFromGameMap()
 {
     getGameMap()->removeRenderedMovableEntity(this);
+    setIsOnMap(false);
+    getGameMap()->removeAnimatedObject(this);
+
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    fireRemoveEntityToSeatsWithVision();
+    Tile* posTile = getPositionTile();
+    if(posTile != nullptr)
+        posTile->removeEntity(this);
+
+    getGameMap()->removeActiveObject(this);
 }
 
 void RenderedMovableEntity::setMeshOpacity(float opacity)

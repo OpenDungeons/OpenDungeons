@@ -248,11 +248,30 @@ void Creature::destroyMeshWeapons()
 void Creature::addToGameMap()
 {
     getGameMap()->addCreature(this);
+    setIsOnMap(true);
+    getGameMap()->addAnimatedObject(this);
+
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    getGameMap()->addActiveObject(this);
 }
 
 void Creature::removeFromGameMap()
 {
     getGameMap()->removeCreature(this);
+    getGameMap()->removeAnimatedObject(this);
+    setIsOnMap(false);
+
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    Tile* posTile = getPositionTile();
+    if(posTile != nullptr)
+        posTile->removeEntity(this);
+
+    fireRemoveEntityToSeatsWithVision();
+    getGameMap()->removeActiveObject(this);
 }
 
 

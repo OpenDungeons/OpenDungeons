@@ -59,11 +59,22 @@ bool Room::compareTile(Tile* tile1, Tile* tile2)
 void Room::addToGameMap()
 {
     getGameMap()->addRoom(this);
+    setIsOnMap(true);
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    getGameMap()->addActiveObject(this);
 }
 
 void Room::removeFromGameMap()
 {
     getGameMap()->removeRoom(this);
+    setIsOnMap(false);
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    removeAllBuildingObjects();
+    getGameMap()->removeActiveObject(this);
 }
 
 void Room::absorbRoom(Room *r)

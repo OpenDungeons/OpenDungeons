@@ -154,11 +154,22 @@ int Trap::costPerTile(TrapType t)
 void Trap::addToGameMap()
 {
     getGameMap()->addTrap(this);
+    setIsOnMap(true);
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    getGameMap()->addActiveObject(this);
 }
 
 void Trap::removeFromGameMap()
 {
     getGameMap()->removeTrap(this);
+    setIsOnMap(false);
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    removeAllBuildingObjects();
+    getGameMap()->removeActiveObject(this);
 }
 
 void Trap::doUpkeep()
