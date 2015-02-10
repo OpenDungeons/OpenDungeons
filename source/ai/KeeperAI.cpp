@@ -364,7 +364,7 @@ bool KeeperAI::lookForGold()
             Tile* t;
             // North-East
             t = mGameMap.getTile(central->getX() + k, central->getY() + distance);
-            if(t != nullptr && t->getType() == Tile::gold && t->getFullness() > 0.0)
+            if(t != nullptr && t->getType() == TileType::gold && t->getFullness() > 0.0)
             {
                 // If we already have a tile at same distance, we randomly change to
                 // try to not be too predictable
@@ -375,7 +375,7 @@ bool KeeperAI::lookForGold()
             if(k > 0)
             {
                 t = mGameMap.getTile(central->getX() - k, central->getY() + distance);
-                if(t != nullptr && t->getType() == Tile::gold && t->getFullness() > 0.0)
+                if(t != nullptr && t->getType() == TileType::gold && t->getFullness() > 0.0)
                 {
                     if((firstGoldTile == nullptr) || (Random::Uint(1,2) == 1))
                         firstGoldTile = t;
@@ -383,7 +383,7 @@ bool KeeperAI::lookForGold()
             }
             // South-East
             t = mGameMap.getTile(central->getX() + k, central->getY() - distance);
-            if(t != nullptr && t->getType() == Tile::gold && t->getFullness() > 0.0)
+            if(t != nullptr && t->getType() == TileType::gold && t->getFullness() > 0.0)
             {
                 if((firstGoldTile == nullptr) || (Random::Uint(1,2) == 1))
                     firstGoldTile = t;
@@ -392,7 +392,7 @@ bool KeeperAI::lookForGold()
             if(k > 0)
             {
                 t = mGameMap.getTile(central->getX() - k, central->getY() - distance);
-                if(t != nullptr && t->getType() == Tile::gold && t->getFullness() > 0.0)
+                if(t != nullptr && t->getType() == TileType::gold && t->getFullness() > 0.0)
                 {
                     if((firstGoldTile == nullptr) || (Random::Uint(1,2) == 1))
                         firstGoldTile = t;
@@ -400,7 +400,7 @@ bool KeeperAI::lookForGold()
             }
             // East-North
             t = mGameMap.getTile(central->getX() + distance, central->getY() + k);
-            if(t != nullptr && t->getType() == Tile::gold && t->getFullness() > 0.0)
+            if(t != nullptr && t->getType() == TileType::gold && t->getFullness() > 0.0)
             {
                 if((firstGoldTile == nullptr) || (Random::Uint(1,2) == 1))
                     firstGoldTile = t;
@@ -409,7 +409,7 @@ bool KeeperAI::lookForGold()
             if(k > 0)
             {
                 t = mGameMap.getTile(central->getX() + distance, central->getY() - k);
-                if(t != nullptr && t->getType() == Tile::gold && t->getFullness() > 0.0)
+                if(t != nullptr && t->getType() == TileType::gold && t->getFullness() > 0.0)
                 {
                     if((firstGoldTile == nullptr) || (Random::Uint(1,2) == 1))
                         firstGoldTile = t;
@@ -417,7 +417,7 @@ bool KeeperAI::lookForGold()
             }
             // West-North
             t = mGameMap.getTile(central->getX() - distance, central->getY() + k);
-            if(t != nullptr && t->getType() == Tile::gold && t->getFullness() > 0.0)
+            if(t != nullptr && t->getType() == TileType::gold && t->getFullness() > 0.0)
             {
                 if((firstGoldTile == nullptr) || (Random::Uint(1,2) == 1))
                     firstGoldTile = t;
@@ -426,7 +426,7 @@ bool KeeperAI::lookForGold()
             if(k > 0)
             {
                 t = mGameMap.getTile(central->getX() - distance, central->getY() - k);
-                if(t != nullptr && t->getType() == Tile::gold && t->getFullness() > 0.0)
+                if(t != nullptr && t->getType() == TileType::gold && t->getFullness() > 0.0)
                 {
                     if((firstGoldTile == nullptr) || (Random::Uint(1,2) == 1))
                         firstGoldTile = t;
@@ -469,7 +469,7 @@ bool KeeperAI::lookForGold()
         {
             for(Tile* neigh : tile->getAllNeighbors())
             {
-                if(neigh->getType() == Tile::gold && neigh->getFullness() > 0.0)
+                if(neigh->getType() == TileType::gold && neigh->getFullness() > 0.0)
                     tilesDig.insert(neigh);
             }
         }

@@ -19,7 +19,6 @@
 #define ROOM_H
 
 #include "entities/Building.h"
-#include "entities/Tile.h"
 
 #include <string>
 #include <deque>

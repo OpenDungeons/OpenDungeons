@@ -22,6 +22,8 @@
 
 #include "ai/AIManager.h"
 
+#include "entities/Tile.h"
+
 #ifdef __MINGW32__
 #ifndef mode_t
 #include <sys/types.h>

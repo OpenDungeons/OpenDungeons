@@ -676,7 +676,7 @@ bool Gui::editorGoldButtonPressed(const CEGUI::EventArgs& e)
 
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
-    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::gold;
+    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = TileType::gold;
     return true;
 }
 
@@ -688,7 +688,7 @@ bool Gui::editorLavaButtonPressed(const CEGUI::EventArgs& e)
 
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
-    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::lava;
+    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = TileType::lava;
     return true;
 }
 
@@ -700,7 +700,7 @@ bool Gui::editorRockButtonPressed(const CEGUI::EventArgs& e)
 
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
-    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::rock;
+    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = TileType::rock;
     return true;
 }
 
@@ -712,7 +712,7 @@ bool Gui::editorWaterButtonPressed(const CEGUI::EventArgs& e)
 
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
-    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::water;
+    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = TileType::water;
     return true;
 }
 
@@ -724,7 +724,7 @@ bool Gui::editorDirtButtonPressed(const CEGUI::EventArgs& e)
 
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
-    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::dirt;
+    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = TileType::dirt;
     return true;
 }
 
@@ -736,7 +736,7 @@ bool Gui::editorClaimedButtonPressed(const CEGUI::EventArgs& e)
 
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
-    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::claimed;
+    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = TileType::claimed;
     return true;
 }
 

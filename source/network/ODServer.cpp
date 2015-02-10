@@ -529,11 +529,11 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 for (int ii = 0; ii < mapSizeY; ++ii)
                 {
                     Tile* tile = gameMap->getTile(ii,jj);
-                    if(tile->getType() == Tile::TileType::gold)
+                    if(tile->getType() == TileType::gold)
                     {
                         goldTiles.push_back(tile);
                     }
-                    else if(tile->getType() == Tile::TileType::rock)
+                    else if(tile->getType() == TileType::rock)
                     {
                         rockTiles.push_back(tile);
                     }
@@ -1516,12 +1516,12 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             int seatId;
 
             OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> intTileType >> tileFullness >> seatId);
-            Tile::TileType tileType = static_cast<Tile::TileType>(intTileType);
+            TileType tileType = static_cast<TileType>(intTileType);
             std::vector<Tile*> selectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
             std::vector<Tile*> affectedTiles;
             Seat* seat = nullptr;
             double claimedPercentage = 0.0;
-            if(tileType == Tile::TileType::claimed)
+            if(tileType == TileType::claimed)
             {
                 seat = gameMap->getSeatById(seatId);
                 claimedPercentage = 1.0;
@@ -1530,7 +1530,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             {
                 // We do not change tiles where there is something
                 if((tile->numEntitiesInTile() > 0) &&
-                   ((tileFullness > 0.0) || (tileType == Tile::TileType::lava) || (tileType == Tile::TileType::water)))
+                   ((tileFullness > 0.0) || (tileType == TileType::lava) || (tileType == TileType::water)))
                     continue;
                 if(tile->getCoveringBuilding() != nullptr)
                     continue;
@@ -1586,7 +1586,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     continue;
                 tiles.push_back(tile);
 
-                tile->setType(Tile::TileType::claimed);
+                tile->setType(TileType::claimed);
                 tile->setSeat(seat);
                 tile->setFullness(0.0);
             }
@@ -1719,7 +1719,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     continue;
                 tiles.push_back(tile);
 
-                tile->setType(Tile::TileType::claimed);
+                tile->setType(TileType::claimed);
                 tile->setSeat(seat);
                 tile->setFullness(0.0);
             }

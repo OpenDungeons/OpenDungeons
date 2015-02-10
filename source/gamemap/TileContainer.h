@@ -18,14 +18,17 @@
 #ifndef TILECONTAINER_H
 #define TILECONTAINER_H
 
-#include "entities/Tile.h"
-
 #include <array>
 #include <bitset>
+#include <list>
 #include <sstream>
+#include <vector>
 
 class ODPacket;
 class TileDistance;
+class Tile;
+
+enum class TileType;
 
 class TileContainer
 {
@@ -56,13 +59,13 @@ public:
     void tileToPacket(ODPacket& packet, Tile* tile) const;
     Tile* tileFromPacket(ODPacket& packet) const;
 
-    Tile::TileType getSafeTileType(const Tile* tt) const;
+    TileType getSafeTileType(const Tile* tt) const;
     bool getSafeTileFullness(const Tile* tt) const;
 
     //! \brief Gets the tile type of all neighbors
     //! \param tile The tile to be checked.
-    //! \returns a Tile::TileType[8] array pointer where the info is stored.
-    std::array<Tile::TileType, 8> getNeighborsTypes(const Tile* tile) const;
+    //! \returns a TileType[8] array pointer where the info is stored.
+    std::array<TileType, 8> getNeighborsTypes(const Tile* tile) const;
 
     //! \brief Gets the tile fullness of all neighbors
     //! \param tile The tile to be checked.

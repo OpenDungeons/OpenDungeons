@@ -548,7 +548,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
         {
             tempTile = gameMap.getTile(ii, jj);
             // Don't save standard tiles as they're auto filled in at load time.
-            if (tempTile->getType() == Tile::dirt && tempTile->getFullness() >= 100.0)
+            if (tempTile->getType() == TileType::dirt && tempTile->getFullness() >= 100.0)
                 continue;
 
             levelFile << tempTile << std::endl;

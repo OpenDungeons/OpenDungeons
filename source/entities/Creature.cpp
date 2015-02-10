@@ -963,7 +963,7 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
                 tileMarkedDig = tile;
             }
             else if(tileToClaim == nullptr &&
-                tile->getType() == Tile::claimed &&
+                tile->getType() == TileType::claimed &&
                 tile->isClaimedForSeat(seat) &&
                 position->isGroundClaimable() &&
                 !position->isClaimedForSeat(seat)
@@ -972,7 +972,7 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
                 tileToClaim = position;
             }
             else if(tileToClaim == nullptr &&
-                position->getType() == Tile::claimed &&
+                position->getType() == TileType::claimed &&
                 position->isClaimedForSeat(seat) &&
                 tile->isGroundClaimable() &&
                 !tile->isClaimedForSeat(seat)
@@ -981,7 +981,7 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
                 tileToClaim = tile;
             }
             else if(tileWallNotClaimed == nullptr &&
-                position->getType() == Tile::claimed &&
+                position->getType() == TileType::claimed &&
                 position->isClaimedForSeat(seat) &&
                 tile->isWallClaimable(seat)
                 )
@@ -1667,7 +1667,7 @@ bool Creature::handleDigTileAction(const CreatureAction& actionItem)
         // We found a tile marked by our controlling seat, dig out the tile.
 
         // If the tile is a gold tile accumulate gold for this creature.
-        if (tempTile->getType() == Tile::gold)
+        if (tempTile->getType() == TileType::gold)
         {
             double tempDouble = 5 * std::min(mDigRate, tempTile->getFullness());
             mGoldCarried += static_cast<int>(tempDouble);
@@ -2907,13 +2907,13 @@ double Creature::getMoveSpeed(Tile* tile) const
 
     switch(tile->getType())
     {
-        case Tile::dirt:
-        case Tile::gold:
-        case Tile::claimed:
+        case TileType::dirt:
+        case TileType::gold:
+        case TileType::claimed:
             return mGroundSpeed;
-        case Tile::water:
+        case TileType::water:
             return mWaterSpeed;
-        case Tile::lava:
+        case TileType::lava:
             return mLavaSpeed;
         default:
             break;
@@ -3527,9 +3527,9 @@ bool Creature::canGoThroughTile(const Tile* tile) const
 
     switch(tile->getType())
     {
-        case Tile::dirt:
-        case Tile::gold:
-        case Tile::claimed:
+        case TileType::dirt:
+        case TileType::gold:
+        case TileType::claimed:
         {
             // Note: We don't care about water or lava fullness.
             if (tile->getFullness() > 0.0)
@@ -3540,14 +3540,14 @@ bool Creature::canGoThroughTile(const Tile* tile) const
 
             break;
         }
-        case Tile::water:
+        case TileType::water:
         {
             if(mWaterSpeed > 0.0)
                 return true;
 
             break;
         }
-        case Tile::lava:
+        case TileType::lava:
         {
             if(mLavaSpeed > 0.0)
                 return true;
@@ -3575,11 +3575,11 @@ bool Creature::tryDrop(Seat* seat, Tile* tile)
         return false;
 
     // If it is a worker, he can be dropped on dirt
-    if (getDefinition()->isWorker() && (tile->getType() == Tile::dirt || tile->getType() == Tile::gold))
+    if (getDefinition()->isWorker() && (tile->getType() == TileType::dirt || tile->getType() == TileType::gold))
         return true;
 
     // Every creature can be dropped on allied claimed tiles
-    if(tile->getType() == Tile::claimed && tile->getSeat() != nullptr && tile->getSeat()->isAlliedSeat(getSeat()))
+    if(tile->getType() == TileType::claimed && tile->getSeat() != nullptr && tile->getSeat()->isAlliedSeat(getSeat()))
         return true;
 
     return false;

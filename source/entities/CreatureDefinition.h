@@ -18,8 +18,6 @@
 #ifndef CREATUREDEFINITION_H
 #define CREATUREDEFINITION_H
 
-#include "entities/Tile.h"
-
 #include <OgreVector3.h>
 
 #include <string>

@@ -160,7 +160,7 @@ bool ODClient::processOneClientSocketMessage()
             {
                 --nb;
                 Tile* tile = gameMap->tileFromPacket(packetReceived);
-                tile->setType(Tile::TileType::gold);
+                tile->setType(TileType::gold);
                 OD_ASSERT_TRUE(packetReceived >> fullness);
                 tile->setFullness(fullness);
             }
@@ -169,7 +169,7 @@ bool ODClient::processOneClientSocketMessage()
             {
                 --nb;
                 Tile* tile = gameMap->tileFromPacket(packetReceived);
-                tile->setType(Tile::TileType::rock);
+                tile->setType(TileType::rock);
                 tile->setFullness(100.0);
             }
             gameMap->setAllFullnessAndNeighbors();

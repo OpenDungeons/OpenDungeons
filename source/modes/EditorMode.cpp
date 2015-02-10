@@ -17,6 +17,7 @@
 
 #include "modes/EditorMode.h"
 
+#include "gamemap/GameMap.h"
 #include "gamemap/MiniMap.h"
 #include "gamemap/MapLoader.h"
 #include "render/ODFrameListener.h"
@@ -49,7 +50,7 @@
 
 EditorMode::EditorMode(ModeManager* modeManager):
     AbstractApplicationMode(modeManager, ModeManager::EDITOR),
-    mCurrentTileType(Tile::TileType::nullTileType),
+    mCurrentTileType(TileType::nullTileType),
     mCurrentFullness(100.0),
     mCurrentSeatId(0),
     mCurrentCreatureIndex(0),
@@ -353,7 +354,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
         // Stop creating rooms, traps, etc.
         mGameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::none);
-        mCurrentTileType = Tile::TileType::nullTileType;
+        mCurrentTileType = TileType::nullTileType;
         TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "");
 
         // If we right clicked with the mouse over a valid map tile, try to drop a creature onto the map.
@@ -504,12 +505,12 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
             double fullness;
             switch(mCurrentTileType)
             {
-                case Tile::TileType::nullTileType:
+                case TileType::nullTileType:
                     return true;
-                case Tile::TileType::dirt:
-                case Tile::TileType::gold:
-                case Tile::TileType::rock:
-                case Tile::TileType::claimed:
+                case TileType::dirt:
+                case TileType::gold:
+                case TileType::rock:
+                case TileType::claimed:
                     fullness = mCurrentFullness;
                     break;
                 default:

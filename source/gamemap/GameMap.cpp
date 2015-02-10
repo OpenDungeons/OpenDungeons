@@ -246,7 +246,7 @@ bool GameMap::createNewMap(int sizeX, int sizeY)
         {
             Tile* tile = new Tile(this, ii, jj);
             tile->setName(Tile::buildName(ii, jj));
-            tile->setType(Tile::dirt);
+            tile->setType(TileType::dirt);
             tile->addToGameMap();
         }
     }
@@ -1188,7 +1188,7 @@ unsigned long int GameMap::doMiscUpkeep()
             tempTile = getTile(ii,jj);
 
             // Check to see if the current tile is claimed by anyone.
-            if (tempTile->getType() == Tile::claimed)
+            if (tempTile->getType() == TileType::claimed)
             {
                 // Increment the count of the seat who owns the tile.
                 tempSeat = tempTile->getSeat();
@@ -2177,9 +2177,9 @@ bool GameMap::doFloodFill(Tile* tile)
     {
         switch(neigh->getType())
         {
-            case Tile::dirt:
-            case Tile::gold:
-            case Tile::claimed:
+            case TileType::dirt:
+            case TileType::gold:
+            case TileType::claimed:
             {
                 if((tile->mFloodFillColor[Tile::FloodFillTypeGround] == -1) &&
                    (neigh->mFloodFillColor[Tile::FloodFillTypeGround] != -1))
@@ -2210,7 +2210,7 @@ bool GameMap::doFloodFill(Tile* tile)
                 }
                 break;
             }
-            case Tile::water:
+            case TileType::water:
             {
                 if((tile->mFloodFillColor[Tile::FloodFillTypeGroundWater] == -1) &&
                    (neigh->mFloodFillColor[Tile::FloodFillTypeGroundWater] != -1))
@@ -2227,7 +2227,7 @@ bool GameMap::doFloodFill(Tile* tile)
                 }
                 break;
             }
-            case Tile::lava:
+            case TileType::lava:
             {
                 if((tile->mFloodFillColor[Tile::FloodFillTypeGroundLava] == -1) &&
                    (neigh->mFloodFillColor[Tile::FloodFillTypeGroundLava] != -1))
@@ -2343,9 +2343,9 @@ void GameMap::enableFloodFill()
                 if(currentType == Tile::FloodFillTypeGround)
                 {
                     if((tile->mFloodFillColor[Tile::FloodFillTypeGround] == -1) &&
-                       ((tile->getType() == Tile::dirt) ||
-                        (tile->getType() == Tile::gold) ||
-                        (tile->getType() == Tile::claimed)))
+                       ((tile->getType() == TileType::dirt) ||
+                        (tile->getType() == TileType::gold) ||
+                        (tile->getType() == TileType::claimed)))
                     {
                         isTileFound = true;
                         for(int i = 0; i < Tile::FloodFillTypeMax; ++i)
@@ -2359,7 +2359,7 @@ void GameMap::enableFloodFill()
                 else if(currentType == Tile::FloodFillTypeGroundWater)
                 {
                     if((tile->mFloodFillColor[Tile::FloodFillTypeGroundWater] == -1) &&
-                       (tile->getType() == Tile::water))
+                       (tile->getType() == TileType::water))
                     {
                         isTileFound = true;
                         if(tile->mFloodFillColor[Tile::FloodFillTypeGroundWater] == -1)
@@ -2372,7 +2372,7 @@ void GameMap::enableFloodFill()
                 else if(currentType == Tile::FloodFillTypeGroundLava)
                 {
                     if((tile->mFloodFillColor[Tile::FloodFillTypeGroundLava] == -1) &&
-                       (tile->getType() == Tile::lava))
+                       (tile->getType() == TileType::lava))
                     {
                         isTileFound = true;
                         if(tile->mFloodFillColor[Tile::FloodFillTypeGroundLava] == -1)

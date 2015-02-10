@@ -194,35 +194,35 @@ void MiniMap::draw()
 
             switch (tile->getType())
             {
-            case Tile::water:
+            case TileType::water:
                 drawPixel(ii, jj, 0x21, 0x36, 0x7A);
                 break;
-            case Tile::lava:
+            case TileType::lava:
                 drawPixel(ii, jj, 0xB2, 0x22, 0x22);
                 break;
 
-            case Tile::dirt:
+            case TileType::dirt:
                 if (tile->getFullness() <= 0.0)
                     drawPixel(ii, jj, 0x3B, 0x1D, 0x08);
                 else
                     drawPixel(ii, jj, 0x5B, 0x2D, 0x0C);
                 break;
 
-            case Tile::rock:
+            case TileType::rock:
                 if (tile->getFullness() <= 0.0)
                     drawPixel(ii, jj, 0x30, 0x30, 0x30);
                 else
                     drawPixel(ii, jj, 0x41, 0x41, 0x41);
                 break;
 
-            case Tile::gold:
+            case TileType::gold:
                 if (tile->getFullness() <= 0.0)
                     drawPixel(ii, jj, 0x3B, 0x1D, 0x08);
                 else
                     drawPixel(ii, jj, 0xB5, 0xB3, 0x2F);
                 break;
 
-            case Tile::claimed:
+            case TileType::claimed:
             {
                 Seat* tempSeat = tile->getSeat();
                 if (tempSeat != nullptr)
@@ -243,7 +243,7 @@ void MiniMap::draw()
                 break;
             }
 
-            case Tile::nullTileType:
+            case TileType::nullTileType:
                 drawPixel(ii, jj, 0x00, 0x00, 0x00);
                 break;
 

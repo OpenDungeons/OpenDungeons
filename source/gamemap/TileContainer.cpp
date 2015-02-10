@@ -17,6 +17,8 @@
 
 #include "gamemap/TileContainer.h"
 
+#include "entities/Tile.h"
+
 #include "network/ODPacket.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
@@ -428,12 +430,12 @@ Tile* TileContainer::tileFromPacket(ODPacket& packet) const
     return getTile(x, y);
 }
 
-std::array<Tile::TileType, 8> TileContainer::getNeighborsTypes(const Tile* curTile) const
+std::array<TileType, 8> TileContainer::getNeighborsTypes(const Tile* curTile) const
 {
     int xx = curTile->getX();
     int yy = curTile->getY();
 
-    std::array<Tile::TileType, 8> neighborsType;
+    std::array<TileType, 8> neighborsType;
 
     neighborsType[0] = getSafeTileType(getTile(xx - 1, yy));
     neighborsType[1] = getSafeTileType(getTile(xx - 1, yy + 1));
@@ -515,9 +517,9 @@ bool TileContainer::allocateMapMemory(int xSize, int ySize)
     return true;
 }
 
-Tile::TileType TileContainer::getSafeTileType(const Tile* tt) const
+TileType TileContainer::getSafeTileType(const Tile* tt) const
 {
-    return (tt == nullptr) ? Tile::nullTileType : tt->getType();
+    return (tt == nullptr) ? TileType::nullTileType : tt->getType();
 }
 
 bool TileContainer::getSafeTileFullness(const Tile* tt) const

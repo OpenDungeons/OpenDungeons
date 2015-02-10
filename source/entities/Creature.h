@@ -22,7 +22,6 @@
 #define CREATURE_H
 
 #include "entities/CreatureSound.h"
-#include "entities/CreatureDefinition.h"
 #include "entities/CreatureAction.h"
 #include "entities/MovableGameEntity.h"
 
@@ -35,6 +34,8 @@
 
 class GameMap;
 class Creature;
+class CreatureDefinition;
+class Room;
 class Weapon;
 
 enum class CreatureMoodLevel;
