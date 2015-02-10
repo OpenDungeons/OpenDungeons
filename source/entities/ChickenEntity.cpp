@@ -19,6 +19,7 @@
 
 #include "network/ODPacket.h"
 #include "gamemap/GameMap.h"
+#include "rooms/Room.h"
 #include "utils/Random.h"
 #include "utils/LogManager.h"
 
@@ -86,7 +87,7 @@ void ChickenEntity::doUpkeep()
     if(tile->getCoveringRoom() != nullptr)
     {
         Room* room = tile->getCoveringRoom();
-        if(room->getType() == Room::RoomType::hatchery)
+        if(room->getType() == RoomType::hatchery)
         {
             currentHatchery = room;
         }

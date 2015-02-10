@@ -25,6 +25,8 @@
 
 #include "network/ODServer.h"
 
+#include "rooms/Room.h"
+
 const int32_t pointsPerWallSpot = 50;
 const int32_t handicapPerTileOffset = 20;
 
@@ -42,7 +44,7 @@ bool BaseAI::initialize(const std::string& parameters)
 
 Room* BaseAI::getDungeonTemple()
 {
-    std::vector<Room*> dt = mGameMap.getRoomsByTypeAndSeat(Room::dungeonTemple, mPlayer.getSeat());
+    std::vector<Room*> dt = mGameMap.getRoomsByTypeAndSeat(RoomType::dungeonTemple, mPlayer.getSeat());
     if(!dt.empty())
         return dt.front();
     else

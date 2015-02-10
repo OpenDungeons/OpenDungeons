@@ -28,6 +28,8 @@
 #include "entities/MapLight.h"
 #include "entities/Weapon.h"
 
+#include "rooms/Room.h"
+
 #include "traps/Trap.h"
 
 #include "utils/Helper.h"

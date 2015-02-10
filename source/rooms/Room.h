@@ -30,23 +30,29 @@ class RenderedMovableEntity;
 class GameMap;
 class ODPacket;
 
+enum class RoomType
+{
+    nullRoomType = 0,
+    dungeonTemple,
+    dormitory,
+    treasury,
+    portal,
+    forge,
+    trainingHall,
+    library,
+    hatchery,
+    crypt
+};
+
+std::istream& operator>>(std::istream& is, RoomType& rt);
+std::ostream& operator<<(std::ostream& os, const RoomType& rt);
+ODPacket& operator>>(ODPacket& is, RoomType& rt);
+ODPacket& operator<<(ODPacket& os, const RoomType& rt);
+
 class Room : public Building
 {
 public:
     // When room types are added to this enum they also need to be added to the switch statements in Room.cpp.
-    enum RoomType
-    {
-        nullRoomType = 0,
-        dungeonTemple,
-        dormitory,
-        treasury,
-        portal,
-        forge,
-        trainingHall,
-        library,
-        hatchery,
-        crypt
-    };
 
     // Constructors and operators
     Room(GameMap* gameMap);
@@ -113,11 +119,6 @@ public:
     void checkForRoomAbsorbtion();
 
     static bool sortForMapSave(Room* r1, Room* r2);
-
-    friend std::istream& operator>>(std::istream& is, Room::RoomType& rt);
-    friend std::ostream& operator<<(std::ostream& os, const Room::RoomType& rt);
-    friend ODPacket& operator>>(ODPacket& is, Room::RoomType& rt);
-    friend ODPacket& operator<<(ODPacket& os, const Room::RoomType& rt);
 
 protected:
     enum ActiveSpotPlace

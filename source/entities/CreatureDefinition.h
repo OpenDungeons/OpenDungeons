@@ -19,7 +19,6 @@
 #define CREATUREDEFINITION_H
 
 #include "entities/Tile.h"
-#include "rooms/Room.h"
 
 #include <OgreVector3.h>
 
@@ -28,20 +27,22 @@
 
 class ODPacket;
 
+enum class RoomType;
+
 //! \brief The maximum level of a creature
 static const uint32_t MAX_LEVEL = 30;
 
 class CreatureRoomAffinity
 {
 public:
-    CreatureRoomAffinity(Room::RoomType roomType, int32_t likeness, double efficiency):
+    CreatureRoomAffinity(RoomType roomType, int32_t likeness, double efficiency):
         mRoomType(roomType),
         mLikeness(likeness),
         mEfficiency(efficiency)
     {
     }
 
-    inline Room::RoomType getRoomType() const
+    inline RoomType getRoomType() const
     { return mRoomType; }
 
     inline int32_t getLikeness() const
@@ -58,7 +59,7 @@ public:
     }
 
 private:
-    Room::RoomType mRoomType;
+    RoomType mRoomType;
     int32_t mLikeness;
     double mEfficiency;
 };
@@ -236,7 +237,7 @@ public:
     const std::vector<CreatureRoomAffinity>& getRoomAffinity() const
     { return mRoomAffinity; }
 
-    const CreatureRoomAffinity& getRoomAffinity(Room::RoomType roomType) const;
+    const CreatureRoomAffinity& getRoomAffinity(RoomType roomType) const;
 
     inline const std::string& getMoodModifierName() const
     { return mMoodModifierName; }

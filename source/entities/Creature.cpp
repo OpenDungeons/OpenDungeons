@@ -990,7 +990,7 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
 
         if((mGoldCarried > 0) && (mDigRate > 0.0) &&
            (position->getCoveringRoom() != nullptr) &&
-           (position->getCoveringRoom()->getType() == Room::treasury))
+           (position->getCoveringRoom()->getType() == RoomType::treasury))
         {
             RoomTreasury* treasury = static_cast<RoomTreasury*>(position->getCoveringRoom());
             int deposited = treasury->depositGold(mGoldCarried, position);
@@ -1091,7 +1091,7 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
         // If we have no home tile, we try to find one
         if(mHomeTile == nullptr)
         {
-            std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndSeat(Room::dormitory, getSeat());
+            std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndSeat(RoomType::dormitory, getSeat());
             tempRooms = getGameMap()->getReachableRooms(tempRooms, getPositionTile(), this);
             if (!tempRooms.empty())
             {
@@ -1116,19 +1116,19 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
         {
             Room* room = tile->getCoveringRoom();
             // we see if we are in an hatchery
-            if(room->getType() == Room::hatchery)
+            if(room->getType() == RoomType::hatchery)
             {
                 pushAction(CreatureActionType::eatforced, true);
                 return true;
             }
-            else if(room->getType() == Room::dormitory)
+            else if(room->getType() == RoomType::dormitory)
             {
                 pushAction(CreatureActionType::sleep, true);
                 pushAction(CreatureActionType::findHomeForced, true);
                 return true;
             }
             // If not, can we work in this room ?
-            else if(room->getType() != Room::hatchery)
+            else if(room->getType() != RoomType::hatchery)
             {
                 pushAction(CreatureActionType::jobforced, true);
                 return true;
@@ -1185,7 +1185,7 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
     if (!mDefinition->isWorker() && mHomeTile == nullptr && Random::Double(0.0, 1.0) < 0.5)
     {
         // Check to see if there are any dormitory owned by our color that we can reach.
-        std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndSeat(Room::dormitory, getSeat());
+        std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndSeat(RoomType::dormitory, getSeat());
         tempRooms = getGameMap()->getReachableRooms(tempRooms, getPositionTile(), this);
         if (!tempRooms.empty())
         {
@@ -1717,7 +1717,7 @@ bool Creature::handleDigTileAction(const CreatureAction& actionItem)
         obj->createMesh();
         obj->setPosition(pos, false);
 
-        std::vector<Room*> treasuries = getGameMap()->getRoomsByTypeAndSeat(Room::RoomType::treasury, getSeat());
+        std::vector<Room*> treasuries = getGameMap()->getRoomsByTypeAndSeat(RoomType::treasury, getSeat());
         treasuries = getGameMap()->getReachableRooms(treasuries, myTile, this);
         bool isTreasuryAvailable = false;
         for(Room* room : treasuries)
@@ -1825,7 +1825,7 @@ bool Creature::handleDigTileAction(const CreatureAction& actionItem)
             obj->createMesh();
             obj->setPosition(pos, false);
 
-            std::vector<Room*> treasuries = getGameMap()->getRoomsByTypeAndSeat(Room::RoomType::treasury, getSeat());
+            std::vector<Room*> treasuries = getGameMap()->getRoomsByTypeAndSeat(RoomType::treasury, getSeat());
             treasuries = getGameMap()->getReachableRooms(treasuries, myTile, this);
             bool isTreasuryAvailable = false;
             for(Room* room : treasuries)
@@ -1872,7 +1872,7 @@ bool Creature::handleFindHomeAction(const CreatureAction& actionItem)
 
     if((myTile->getCoveringRoom() != nullptr) &&
        (getSeat()->canOwnedCreatureUseRoomFrom(myTile->getCoveringRoom()->getSeat())) &&
-       (myTile->getCoveringRoom()->getType() == Room::dormitory))
+       (myTile->getCoveringRoom()->getType() == RoomType::dormitory))
     {
         Room* roomHomeTile = nullptr;
         if(mHomeTile != nullptr)
@@ -1921,7 +1921,7 @@ bool Creature::handleFindHomeAction(const CreatureAction& actionItem)
     }
 
     // Check to see if we can walk to a dormitory that does have an open tile.
-    std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndSeat(Room::dormitory, getSeat());
+    std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndSeat(RoomType::dormitory, getSeat());
     std::random_shuffle(tempRooms.begin(), tempRooms.end());
     unsigned int nearestDormitoryDistance = 0;
     bool validPathFound = false;
@@ -2048,7 +2048,7 @@ bool Creature::handleJobAction(const CreatureAction& actionItem)
            {
                 // If the efficiency is 0 or the room is a hatchery, we only wander in the room
                 if((affinity.getEfficiency() <= 0) ||
-                   (room->getType() == Room::RoomType::hatchery))
+                   (room->getType() == RoomType::hatchery))
                 {
                     int index = Random::Int(0, room->numCoveredTiles() - 1);
                     Tile* tileDest = room->getCoveredTile(index);
@@ -2093,7 +2093,7 @@ bool Creature::handleJobAction(const CreatureAction& actionItem)
 
             // If the efficiency is 0 or the room is a hatchery, we only wander in the room
             if((affinity.getEfficiency() <= 0) ||
-               (room->getType() == Room::RoomType::hatchery))
+               (room->getType() == RoomType::hatchery))
             {
                 int index = Random::Int(0, room->numCoveredTiles() - 1);
                 Tile* tileDest = room->getCoveredTile(index);
@@ -2194,7 +2194,7 @@ bool Creature::handleEatingAction(const CreatureAction& actionItem)
 
         if((mEatRoom == nullptr) &&
            (tile->getCoveringRoom() != nullptr) &&
-           (tile->getCoveringRoom()->getType() == Room::RoomType::hatchery))
+           (tile->getCoveringRoom()->getType() == RoomType::hatchery))
         {
             // We are not in a hatchery and the currently processed tile is a hatchery. We
             // cannot eat any chicken there
@@ -2268,7 +2268,7 @@ bool Creature::handleEatingAction(const CreatureAction& actionItem)
     // will handle the creature from here to make it go where it should
     if((myTile->getCoveringRoom() != nullptr) &&
        (getSeat()->canOwnedCreatureUseRoomFrom(myTile->getCoveringRoom()->getSeat())) &&
-       (myTile->getCoveringRoom()->getType() == Room::hatchery) &&
+       (myTile->getCoveringRoom()->getType() == RoomType::hatchery) &&
        (myTile->getCoveringRoom()->hasOpenCreatureSpot(this)))
     {
         Room* tempRoom = myTile->getCoveringRoom();
@@ -2280,7 +2280,7 @@ bool Creature::handleEatingAction(const CreatureAction& actionItem)
     }
 
     // Get the list of hatchery controlled by our seat and make sure there is at least one.
-    std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndSeat(Room::hatchery, getSeat());
+    std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndSeat(RoomType::hatchery, getSeat());
 
     if (tempRooms.empty())
     {
@@ -2541,7 +2541,7 @@ bool Creature::handleFleeAction(const CreatureAction& actionItem)
     }
 
     // We try to go closer to the dungeon temple. If we are too near or if we cannot go there, we will flee randomly
-    std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndSeat(Room::RoomType::dungeonTemple, getSeat());
+    std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndSeat(RoomType::dungeonTemple, getSeat());
     tempRooms = getGameMap()->getReachableRooms(tempRooms, getPositionTile(), this);
     if(!tempRooms.empty())
     {
@@ -2731,7 +2731,7 @@ bool Creature::handleGetFee(const CreatureAction& actionItem)
     }
     // We check if we are on a treasury. If yes, we try to take our fee
     if((myTile->getCoveringRoom() != nullptr) &&
-       (myTile->getCoveringRoom()->getType() == Room::RoomType::treasury) &&
+       (myTile->getCoveringRoom()->getType() == RoomType::treasury) &&
        (getSeat()->canOwnedCreatureUseRoomFrom(myTile->getCoveringRoom()->getSeat())))
     {
         RoomTreasury* treasury = static_cast<RoomTreasury*>(myTile->getCoveringRoom());
@@ -2769,7 +2769,7 @@ bool Creature::handleGetFee(const CreatureAction& actionItem)
     }
 
     // We try to go to some treasury were there is still some gold
-    std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndSeat(Room::RoomType::treasury, getSeat());
+    std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndSeat(RoomType::treasury, getSeat());
     tempRooms = getGameMap()->getReachableRooms(tempRooms, getPositionTile(), this);
     while(!tempRooms.empty())
     {
@@ -2807,7 +2807,7 @@ bool Creature::handleLeaveDungeon(const CreatureAction& actionItem)
 
     // Check if we are on the central tile of a portal
     if((myTile->getCoveringRoom() != nullptr) &&
-       (myTile->getCoveringRoom()->getType() == Room::RoomType::portal) &&
+       (myTile->getCoveringRoom()->getType() == RoomType::portal) &&
        (getSeat()->canOwnedCreatureUseRoomFrom(myTile->getCoveringRoom()->getSeat())))
     {
         if(myTile == myTile->getCoveringRoom()->getCentralTile())
@@ -2832,7 +2832,7 @@ bool Creature::handleLeaveDungeon(const CreatureAction& actionItem)
     }
 
     // We try to go to the portal
-    std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndSeat(Room::RoomType::portal, getSeat());
+    std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndSeat(RoomType::portal, getSeat());
     tempRooms = getGameMap()->getReachableRooms(tempRooms, myTile, this);
     while(!tempRooms.empty())
     {

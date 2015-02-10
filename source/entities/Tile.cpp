@@ -35,6 +35,8 @@
 
 #include "render/RenderManager.h"
 
+#include "rooms/Room.h"
+
 #include "sound/SoundEffectsManager.h"
 
 #include "utils/Helper.h"

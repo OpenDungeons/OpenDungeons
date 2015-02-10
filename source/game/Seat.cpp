@@ -28,6 +28,8 @@
 #include "network/ServerNotification.h"
 #include "network/ODServer.h"
 
+#include "rooms/Room.h"
+
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
@@ -662,7 +664,7 @@ void Seat::computeSeatBeforeSendingToClient()
 {
     if(mPlayer != nullptr)
     {
-        mNbTreasuries = mGameMap->numRoomsByTypeAndSeat(Room::treasury, this);
+        mNbTreasuries = mGameMap->numRoomsByTypeAndSeat(RoomType::treasury, this);
     }
 }
 

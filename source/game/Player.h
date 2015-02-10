@@ -19,7 +19,6 @@
 #define PLAYER_H
 
 #include "traps/Trap.h"
-#include "rooms/Room.h"
 
 #include <string>
 #include <vector>
@@ -27,6 +26,7 @@
 class Seat;
 class Creature;
 enum class SpellType;
+enum class RoomType;
 
 /*! \brief The player cleass contains information about a human, or computer, player in the game.
  *
@@ -116,13 +116,13 @@ public:
     inline const std::vector<MovableGameEntity*>& getObjectsInHand()
     { return mObjectsInHand; }
 
-    inline const Room::RoomType getNewRoomType()
+    inline const RoomType getNewRoomType()
     { return mNewRoomType; }
 
     inline const SelectedAction getCurrentAction()
     { return mCurrentAction; }
 
-    inline void setNewRoomType(Room::RoomType newRoomType)
+    inline void setNewRoomType(RoomType newRoomType)
     { mNewRoomType = newRoomType; }
 
     inline const Trap::TrapType getNewTrapType() const
@@ -162,7 +162,7 @@ private:
     //! ID is unique only for human players
     int32_t mId;
     //! \brief Room, trap or Spell tile type the player is currently willing to place on map.
-    Room::RoomType mNewRoomType;
+    RoomType mNewRoomType;
     Trap::TrapType mNewTrapType;
     SpellType mNewSpellType;
     SelectedAction mCurrentAction;

@@ -20,6 +20,7 @@
 #include "entities/Creature.h"
 #include "gamemap/GameMap.h"
 #include "entities/Tile.h"
+#include "rooms/Room.h"
 #include "rooms/RoomCrypt.h"
 #include "rooms/RoomDormitory.h"
 #include "rooms/RoomForge.h"
@@ -82,7 +83,7 @@ bool KeeperAI::checkTreasury()
         return false;
     }
 
-    std::vector<Room*> treasuriesOwned = mGameMap.getRoomsByTypeAndSeat(Room::treasury,
+    std::vector<Room*> treasuriesOwned = mGameMap.getRoomsByTypeAndSeat(RoomType::treasury,
         mPlayer.getSeat());
 
     int nbTilesTreasuries = 0;
@@ -103,7 +104,7 @@ bool KeeperAI::checkTreasury()
 
     // A treasury can be built if we have none (in this case, it is free). Otherwise,
     // we check if we have enough gold
-    if(nbTilesTreasuries > 0 && totalGold < Room::costPerTile(Room::RoomType::treasury))
+    if(nbTilesTreasuries > 0 && totalGold < Room::costPerTile(RoomType::treasury))
         return false;
 
     Tile* central = getDungeonTemple()->getCentralTile();
@@ -125,7 +126,7 @@ bool KeeperAI::checkTreasury()
                     std::vector<Tile*> tiles;
                     int goldRequired;
                     mGameMap.fillBuildableTilesAndPriceForPlayerInArea(neigh->getX(), neigh->getY(),
-                        neigh->getX(), neigh->getY(), &mPlayer, Room::RoomType::treasury, tiles, goldRequired);
+                        neigh->getX(), neigh->getY(), &mPlayer, RoomType::treasury, tiles, goldRequired);
                     if (tiles.empty())
                         return false;
 
@@ -242,7 +243,7 @@ bool KeeperAI::checkTreasury()
     std::vector<Tile*> tiles;
     int goldRequired;
     mGameMap.fillBuildableTilesAndPriceForPlayerInArea(firstAvailableTile->getX(), firstAvailableTile->getY(),
-        firstAvailableTile->getX(), firstAvailableTile->getY(), &mPlayer, Room::RoomType::treasury, tiles, goldRequired);
+        firstAvailableTile->getX(), firstAvailableTile->getY(), &mPlayer, RoomType::treasury, tiles, goldRequired);
     if (tiles.empty())
         return false;
 
@@ -338,7 +339,7 @@ bool KeeperAI::lookForGold()
 
     // Do we need gold ?
     int emptyStorage = 0;
-    std::vector<Room*> treasuriesOwned = mGameMap.getRoomsByTypeAndSeat(Room::treasury,
+    std::vector<Room*> treasuriesOwned = mGameMap.getRoomsByTypeAndSeat(RoomType::treasury,
         mPlayer.getSeat());
     for(Room* room : treasuriesOwned)
     {
@@ -485,14 +486,14 @@ bool KeeperAI::buildMostNeededRoom()
     std::vector<Room*> rooms;
 
     // Dormitory
-    rooms = mGameMap.getRoomsByTypeAndSeat(Room::RoomType::dormitory, mPlayer.getSeat());
+    rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::dormitory, mPlayer.getSeat());
     uint32_t nbDormitory = rooms.size();
     if(nbDormitory == 0)
     {
         std::vector<Tile*> tiles;
         int goldRequired;
         mGameMap.fillBuildableTilesAndPriceForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-            mRoomPosY + mRoomSize - 1, &mPlayer, Room::RoomType::dormitory, tiles, goldRequired);
+            mRoomPosY + mRoomSize - 1, &mPlayer, RoomType::dormitory, tiles, goldRequired);
         if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
             return false;
 
@@ -504,7 +505,7 @@ bool KeeperAI::buildMostNeededRoom()
         return true;
     }
 
-    std::vector<Room*> treasuriesOwned = mGameMap.getRoomsByTypeAndSeat(Room::treasury,
+    std::vector<Room*> treasuriesOwned = mGameMap.getRoomsByTypeAndSeat(RoomType::treasury,
         mPlayer.getSeat());
     int emptyStorage = 0;
     int totalGold = 0;
@@ -520,7 +521,7 @@ bool KeeperAI::buildMostNeededRoom()
         std::vector<Tile*> tiles;
         int goldRequired;
         mGameMap.fillBuildableTilesAndPriceForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-            mRoomPosY + mRoomSize - 1, &mPlayer, Room::RoomType::treasury, tiles, goldRequired);
+            mRoomPosY + mRoomSize - 1, &mPlayer, RoomType::treasury, tiles, goldRequired);
         if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
             return false;
 
@@ -533,13 +534,13 @@ bool KeeperAI::buildMostNeededRoom()
     }
 
     // hatchery
-    rooms = mGameMap.getRoomsByTypeAndSeat(Room::RoomType::hatchery, mPlayer.getSeat());
+    rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::hatchery, mPlayer.getSeat());
     if(rooms.empty())
     {
         std::vector<Tile*> tiles;
         int goldRequired;
         mGameMap.fillBuildableTilesAndPriceForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-            mRoomPosY + mRoomSize - 1, &mPlayer, Room::RoomType::hatchery, tiles, goldRequired);
+            mRoomPosY + mRoomSize - 1, &mPlayer, RoomType::hatchery, tiles, goldRequired);
         if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
             return false;
 
@@ -552,13 +553,13 @@ bool KeeperAI::buildMostNeededRoom()
     }
 
     // trainingHall
-    rooms = mGameMap.getRoomsByTypeAndSeat(Room::RoomType::trainingHall, mPlayer.getSeat());
+    rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::trainingHall, mPlayer.getSeat());
     if(rooms.empty())
     {
         std::vector<Tile*> tiles;
         int goldRequired;
         mGameMap.fillBuildableTilesAndPriceForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-            mRoomPosY + mRoomSize - 1, &mPlayer, Room::RoomType::trainingHall, tiles, goldRequired);
+            mRoomPosY + mRoomSize - 1, &mPlayer, RoomType::trainingHall, tiles, goldRequired);
         if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
             return false;
 
@@ -571,13 +572,13 @@ bool KeeperAI::buildMostNeededRoom()
     }
 
     // forge
-    rooms = mGameMap.getRoomsByTypeAndSeat(Room::RoomType::forge, mPlayer.getSeat());
+    rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::forge, mPlayer.getSeat());
     if(rooms.empty())
     {
         std::vector<Tile*> tiles;
         int goldRequired;
         mGameMap.fillBuildableTilesAndPriceForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-            mRoomPosY + mRoomSize - 1, &mPlayer, Room::RoomType::forge, tiles, goldRequired);
+            mRoomPosY + mRoomSize - 1, &mPlayer, RoomType::forge, tiles, goldRequired);
         if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
             return false;
 
@@ -590,13 +591,13 @@ bool KeeperAI::buildMostNeededRoom()
     }
 
     // library
-    rooms = mGameMap.getRoomsByTypeAndSeat(Room::RoomType::library, mPlayer.getSeat());
+    rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::library, mPlayer.getSeat());
     if(rooms.empty())
     {
         std::vector<Tile*> tiles;
         int goldRequired;
         mGameMap.fillBuildableTilesAndPriceForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-            mRoomPosY + mRoomSize - 1, &mPlayer, Room::RoomType::library, tiles, goldRequired);
+            mRoomPosY + mRoomSize - 1, &mPlayer, RoomType::library, tiles, goldRequired);
         if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
             return false;
 
@@ -614,7 +615,7 @@ bool KeeperAI::buildMostNeededRoom()
         std::vector<Tile*> tiles;
         int goldRequired;
         mGameMap.fillBuildableTilesAndPriceForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-            mRoomPosY + mRoomSize - 1, &mPlayer, Room::RoomType::dormitory, tiles, goldRequired);
+            mRoomPosY + mRoomSize - 1, &mPlayer, RoomType::dormitory, tiles, goldRequired);
         if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
             return false;
 
@@ -627,13 +628,13 @@ bool KeeperAI::buildMostNeededRoom()
     }
 
     // Crypt
-    rooms = mGameMap.getRoomsByTypeAndSeat(Room::RoomType::crypt, mPlayer.getSeat());
+    rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::crypt, mPlayer.getSeat());
     if(rooms.empty())
     {
         std::vector<Tile*> tiles;
         int goldRequired;
         mGameMap.fillBuildableTilesAndPriceForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-            mRoomPosY + mRoomSize - 1, &mPlayer, Room::RoomType::crypt, tiles, goldRequired);
+            mRoomPosY + mRoomSize - 1, &mPlayer, RoomType::crypt, tiles, goldRequired);
         if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
             return false;
 

@@ -65,7 +65,7 @@ void TreasuryObject::doUpkeep()
 
     if((mGoldValue > 0) &&
        (tile->getCoveringRoom() != nullptr) &&
-       (tile->getCoveringRoom()->getType() == Room::treasury))
+       (tile->getCoveringRoom()->getType() == RoomType::treasury))
     {
         RoomTreasury* roomTreasury = static_cast<RoomTreasury*>(tile->getCoveringRoom());
         int goldDeposited = roomTreasury->depositGold(mGoldValue, tile);
@@ -185,7 +185,7 @@ EntityCarryType TreasuryObject::getEntityCarryType()
     if(myTile->getCoveringRoom() == nullptr)
         return EntityCarryType::gold;
 
-    if(myTile->getCoveringRoom()->getType() != Room::RoomType::treasury)
+    if(myTile->getCoveringRoom()->getType() != RoomType::treasury)
         return EntityCarryType::gold;
 
     RoomTreasury* treasury = static_cast<RoomTreasury*>(myTile->getCoveringRoom());

@@ -19,6 +19,7 @@
 
 #include "network/ODPacket.h"
 #include "gamemap/GameMap.h"
+#include "rooms/Room.h"
 #include "utils/Random.h"
 #include "utils/LogManager.h"
 
@@ -57,7 +58,7 @@ void SmallSpiderEntity::doUpkeep()
     // If the spider is outside the crypt or too old, it dies
     Room* currentCrypt = nullptr;
     if((tile->getCoveringRoom() != nullptr) &&
-       (tile->getCoveringRoom()->getType() == Room::crypt))
+       (tile->getCoveringRoom()->getType() == RoomType::crypt))
     {
        currentCrypt = tile->getCoveringRoom();
     }
@@ -121,7 +122,7 @@ bool SmallSpiderEntity::canSlap(Seat* seat)
     Room* currentCrypt = tile->getCoveringRoom();
     if(currentCrypt == nullptr)
         return false;
-    if(currentCrypt->getType() != Room::RoomType::crypt)
+    if(currentCrypt->getType() != RoomType::crypt)
         return false;
 
     if(currentCrypt->getSeat() != seat)

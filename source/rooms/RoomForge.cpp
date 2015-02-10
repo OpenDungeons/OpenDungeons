@@ -231,7 +231,7 @@ void RoomForge::doUpkeep()
         if(!neededTraps.empty())
         {
             // We check if a reachable forge have a corresponding crafted trap
-            std::vector<Room*> rooms = getGameMap()->getRoomsByTypeAndSeat(Room::RoomType::forge, getSeat());
+            std::vector<Room*> rooms = getGameMap()->getRoomsByTypeAndSeat(RoomType::forge, getSeat());
             rooms = getGameMap()->getReachableRooms(rooms, getCoveredTile(0), kobold);
             for(std::pair<Trap::TrapType const, int>& p : neededTraps)
             {

@@ -41,6 +41,7 @@
 #include "modes/MenuModeEditor.h"
 #include "modes/MenuModeReplay.h"
 #include "utils/LogManager.h"
+#include "rooms/Room.h"
 #include "sound/SoundEffectsManager.h"
 #include "spell/Spell.h"
 
@@ -502,7 +503,7 @@ bool Gui::dormitoryButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
-    gameMap->getLocalPlayer()->setNewRoomType(Room::dormitory);
+    gameMap->getLocalPlayer()->setNewRoomType(RoomType::dormitory);
     return true;
 }
 
@@ -510,7 +511,7 @@ bool Gui::treasuryButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
-    gameMap->getLocalPlayer()->setNewRoomType(Room::treasury);
+    gameMap->getLocalPlayer()->setNewRoomType(RoomType::treasury);
     return true;
 }
 
@@ -525,7 +526,7 @@ bool Gui::forgeButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
-    gameMap->getLocalPlayer()->setNewRoomType(Room::forge);
+    gameMap->getLocalPlayer()->setNewRoomType(RoomType::forge);
     return true;
 }
 
@@ -533,7 +534,7 @@ bool Gui::trainingHallButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
-    gameMap->getLocalPlayer()->setNewRoomType(Room::trainingHall);
+    gameMap->getLocalPlayer()->setNewRoomType(RoomType::trainingHall);
     return true;
 }
 
@@ -541,7 +542,7 @@ bool Gui::libraryButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
-    gameMap->getLocalPlayer()->setNewRoomType(Room::library);
+    gameMap->getLocalPlayer()->setNewRoomType(RoomType::library);
     return true;
 }
 
@@ -549,7 +550,7 @@ bool Gui::hatcheryButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
-    gameMap->getLocalPlayer()->setNewRoomType(Room::hatchery);
+    gameMap->getLocalPlayer()->setNewRoomType(RoomType::hatchery);
     return true;
 }
 
@@ -557,7 +558,7 @@ bool Gui::cryptButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
-    gameMap->getLocalPlayer()->setNewRoomType(Room::crypt);
+    gameMap->getLocalPlayer()->setNewRoomType(RoomType::crypt);
     return true;
 }
 
@@ -565,7 +566,7 @@ bool Gui::templeButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
-    gameMap->getLocalPlayer()->setNewRoomType(Room::dungeonTemple);
+    gameMap->getLocalPlayer()->setNewRoomType(RoomType::dungeonTemple);
     return true;
 }
 
@@ -573,7 +574,7 @@ bool Gui::portalButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
-    gameMap->getLocalPlayer()->setNewRoomType(Room::portal);
+    gameMap->getLocalPlayer()->setNewRoomType(RoomType::portal);
     return true;
 }
 

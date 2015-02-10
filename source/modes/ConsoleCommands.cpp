@@ -6,6 +6,7 @@
 #include "modes/ServerConsoleCommands.h"
 #include "network/ODServer.h"
 #include "render/ODFrameListener.h"
+#include "rooms/Room.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 

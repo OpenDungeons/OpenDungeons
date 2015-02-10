@@ -21,7 +21,6 @@
 #include "gamemap/TileContainer.h"
 
 #include "ai/AIManager.h"
-#include "rooms/Room.h"
 
 #ifdef __MINGW32__
 #ifndef mode_t
@@ -45,6 +44,8 @@ class CreatureDefinition;
 class Weapon;
 class CreatureMood;
 class Spell;
+
+enum class RoomType;
 
 /*! \brief The class which stores the entire game state on the server and a subset of this on each client.
  *
@@ -196,12 +197,12 @@ public:
     //! \brief A simple accessor method to return the number of Rooms stored in the GameMap.
     unsigned int numRooms();
 
-    std::vector<Room*> getRoomsByType(Room::RoomType type);
-    std::vector<Room*> getRoomsByTypeAndSeat(Room::RoomType type,
+    std::vector<Room*> getRoomsByType(RoomType type);
+    std::vector<Room*> getRoomsByTypeAndSeat(RoomType type,
                         Seat* seat);
-    std::vector<const Room*> getRoomsByTypeAndSeat(Room::RoomType type,
+    std::vector<const Room*> getRoomsByTypeAndSeat(RoomType type,
                           Seat* seat) const;
-    unsigned int numRoomsByTypeAndSeat(Room::RoomType type,
+    unsigned int numRoomsByTypeAndSeat(RoomType type,
                       Seat* seat) const;
     std::vector<Room*> getReachableRooms(const std::vector<Room*> &vec,
                        Tile *startTile, const Creature* creature);
@@ -498,7 +499,7 @@ public:
     void processDeletionQueues();
 
     void fillBuildableTilesAndPriceForPlayerInArea(int x1, int y1, int x2, int y2,
-        Player* player, Room::RoomType type, std::vector<Tile*>& tiles, int& goldRequired);
+        Player* player, RoomType type, std::vector<Tile*>& tiles, int& goldRequired);
 
     void updateVisibleEntities();
 

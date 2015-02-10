@@ -19,7 +19,6 @@
 #define ODSERVER_H
 
 #include "ODSocketServer.h"
-#include "rooms/Room.h"
 
 #include <OgreSingleton.h>
 

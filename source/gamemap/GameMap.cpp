@@ -47,6 +47,7 @@
 
 #include "render/ODFrameListener.h"
 
+#include "rooms/Room.h"
 #include "rooms/RoomDungeonTemple.h"
 #include "rooms/RoomTreasury.h"
 
@@ -1155,7 +1156,7 @@ unsigned long int GameMap::doMiscUpkeep()
             continue;
 
         // Add the amount of mana this seat accrued this turn if the player has a dungeon temple
-        std::vector<Room*> dungeonTemples = getRoomsByTypeAndSeat(Room::RoomType::dungeonTemple, seat);
+        std::vector<Room*> dungeonTemples = getRoomsByTypeAndSeat(RoomType::dungeonTemple, seat);
         if(dungeonTemples.empty())
         {
             seat->mManaDelta = 0;
@@ -1785,7 +1786,7 @@ unsigned int GameMap::numRooms()
     return mRooms.size();
 }
 
-std::vector<Room*> GameMap::getRoomsByType(Room::RoomType type)
+std::vector<Room*> GameMap::getRoomsByType(RoomType type)
 {
     std::vector<Room*> returnList;
     for (Room* room : mRooms)
@@ -1797,7 +1798,7 @@ std::vector<Room*> GameMap::getRoomsByType(Room::RoomType type)
     return returnList;
 }
 
-std::vector<Room*> GameMap::getRoomsByTypeAndSeat(Room::RoomType type, Seat* seat)
+std::vector<Room*> GameMap::getRoomsByTypeAndSeat(RoomType type, Seat* seat)
 {
     std::vector<Room*> returnList;
     for (Room* room : mRooms)
@@ -1809,7 +1810,7 @@ std::vector<Room*> GameMap::getRoomsByTypeAndSeat(Room::RoomType type, Seat* sea
     return returnList;
 }
 
-std::vector<const Room*> GameMap::getRoomsByTypeAndSeat(Room::RoomType type, Seat* seat) const
+std::vector<const Room*> GameMap::getRoomsByTypeAndSeat(RoomType type, Seat* seat) const
 {
     std::vector<const Room*> returnList;
     for (const Room* room : mRooms)
@@ -1821,7 +1822,7 @@ std::vector<const Room*> GameMap::getRoomsByTypeAndSeat(Room::RoomType type, Sea
     return returnList;
 }
 
-unsigned int GameMap::numRoomsByTypeAndSeat(Room::RoomType type, Seat* seat) const
+unsigned int GameMap::numRoomsByTypeAndSeat(RoomType type, Seat* seat) const
 {
     int cptRooms = 0;
     for (Room* room : mRooms)
@@ -1954,7 +1955,7 @@ unsigned int GameMap::numTraps()
 int GameMap::getTotalGoldForSeat(Seat* seat)
 {
     int tempInt = 0;
-    std::vector<Room*> treasuriesOwned = getRoomsByTypeAndSeat(Room::treasury, seat);
+    std::vector<Room*> treasuriesOwned = getRoomsByTypeAndSeat(RoomType::treasury, seat);
     for (unsigned int i = 0; i < treasuriesOwned.size(); ++i)
     {
         tempInt += static_cast<RoomTreasury*>(treasuriesOwned[i])->getTotalGold();
@@ -1971,7 +1972,7 @@ bool GameMap::withdrawFromTreasuries(int gold, Seat* seat)
 
     // Loop over the treasuries withdrawing gold until the full amount has been withdrawn.
     int goldStillNeeded = gold;
-    std::vector<Room*> treasuriesOwned = getRoomsByTypeAndSeat(Room::treasury, seat);
+    std::vector<Room*> treasuriesOwned = getRoomsByTypeAndSeat(RoomType::treasury, seat);
     for (unsigned int i = 0; i < treasuriesOwned.size() && goldStillNeeded > 0; ++i)
     {
         goldStillNeeded -= static_cast<RoomTreasury*>(treasuriesOwned[i])->withdrawGold(goldStillNeeded);
@@ -2617,7 +2618,7 @@ int GameMap::addGoldToSeat(int gold, int seatId)
     if(seat == nullptr)
         return gold;
 
-    std::vector<Room*> treasuriesOwned = getRoomsByTypeAndSeat(Room::treasury, seat);
+    std::vector<Room*> treasuriesOwned = getRoomsByTypeAndSeat(RoomType::treasury, seat);
     for (std::vector<Room*>::iterator it = treasuriesOwned.begin(); it != treasuriesOwned.end(); ++it)
     {
         RoomTreasury* treasury = static_cast<RoomTreasury*>(*it);
@@ -2905,7 +2906,7 @@ GameEntity* GameMap::getClosestTileWhereGameEntityFromList(std::vector<GameEntit
 }
 
 void GameMap::fillBuildableTilesAndPriceForPlayerInArea(int x1, int y1, int x2, int y2,
-    Player* player, Room::RoomType type, std::vector<Tile*>& tiles, int& goldRequired)
+    Player* player, RoomType type, std::vector<Tile*>& tiles, int& goldRequired)
 {
     goldRequired = 0;
     tiles = getBuildableTilesForPlayerInArea(x1, y1, x2, y2, player);
@@ -2919,8 +2920,8 @@ void GameMap::fillBuildableTilesAndPriceForPlayerInArea(int x1, int y1, int x2, 
     // The first treasury tile doesn't cost anything to prevent a player from being stuck
     // without any means to get gold.
     // Thus, we check whether it is the current attempt and we remove the cost of one tile.
-    if (type == Room::treasury
-            && numRoomsByTypeAndSeat(Room::treasury, player->getSeat()) == 0)
+    if (type == RoomType::treasury
+            && numRoomsByTypeAndSeat(RoomType::treasury, player->getSeat()) == 0)
     {
         goldRequired -= costPerTile;
     }

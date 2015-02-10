@@ -30,6 +30,8 @@
 
 #include "render/RenderManager.h"
 
+#include "rooms/Room.h"
+
 #include "spell/Spell.h"
 
 #include "utils/LogManager.h"
@@ -44,7 +46,7 @@ const float NO_TREASURY_TIME_COUNT = 30.0f;
 
 Player::Player(GameMap* gameMap, int32_t id) :
     mId(id),
-    mNewRoomType(Room::nullRoomType),
+    mNewRoomType(RoomType::nullRoomType),
     mNewTrapType(Trap::nullTrapType),
     mCurrentAction(SelectedAction::none),
     mGameMap(gameMap),
@@ -195,7 +197,7 @@ void Player::notifyNoMoreDungeonTemple()
     mIsPlayerLostSent = true;
     // We check if there is still a player in the team with a dungeon temple. If yes, we notify the player he lost his dungeon
     // if no, we notify the team they lost
-    std::vector<Room*> dungeonTemples = mGameMap->getRoomsByType(Room::RoomType::dungeonTemple);
+    std::vector<Room*> dungeonTemples = mGameMap->getRoomsByType(RoomType::dungeonTemple);
     bool hasTeamLost = true;
     for(Room* dungeonTemple : dungeonTemples)
     {
@@ -311,7 +313,7 @@ void Player::setCurrentAction(SelectedAction action)
 {
     mCurrentAction = action;
     mNewTrapType = Trap::nullTrapType;
-    mNewRoomType = Room::nullRoomType;
+    mNewRoomType = RoomType::nullRoomType;
     mNewSpellType = SpellType::nullSpellType;
 }
 

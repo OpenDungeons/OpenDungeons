@@ -207,34 +207,34 @@ Room* Room::getRoomFromStream(GameMap* gameMap, std::istream& is)
 
     switch (nType)
     {
-        case nullRoomType:
+        case RoomType::nullRoomType:
             tempRoom = nullptr;
             break;
-        case dormitory:
+        case RoomType::dormitory:
             tempRoom = new RoomDormitory(gameMap);
             break;
-        case treasury:
+        case RoomType::treasury:
             tempRoom = new RoomTreasury(gameMap);
             break;
-        case portal:
+        case RoomType::portal:
             tempRoom = new RoomPortal(gameMap);
             break;
-        case dungeonTemple:
+        case RoomType::dungeonTemple:
             tempRoom = new RoomDungeonTemple(gameMap);
             break;
-        case forge:
+        case RoomType::forge:
             tempRoom = new RoomForge(gameMap);
             break;
-        case trainingHall:
+        case RoomType::trainingHall:
             tempRoom = new RoomTrainingHall(gameMap);
             break;
-        case library:
+        case RoomType::library:
             tempRoom = new RoomLibrary(gameMap);
             break;
-        case hatchery:
+        case RoomType::hatchery:
             tempRoom = new RoomHatchery(gameMap);
             break;
-        case crypt:
+        case RoomType::crypt:
             tempRoom = new RoomCrypt(gameMap);
             break;
         default:
@@ -258,34 +258,34 @@ Room* Room::getRoomFromPacket(GameMap* gameMap, ODPacket& is)
 
     switch (nType)
     {
-        case nullRoomType:
+        case RoomType::nullRoomType:
             tempRoom = nullptr;
             break;
-        case dormitory:
+        case RoomType::dormitory:
             tempRoom = new RoomDormitory(gameMap);
             break;
-        case treasury:
+        case RoomType::treasury:
             tempRoom = new RoomTreasury(gameMap);
             break;
-        case portal:
+        case RoomType::portal:
             tempRoom = new RoomPortal(gameMap);
             break;
-        case dungeonTemple:
+        case RoomType::dungeonTemple:
             tempRoom = new RoomDungeonTemple(gameMap);
             break;
-        case forge:
+        case RoomType::forge:
             tempRoom = new RoomForge(gameMap);
             break;
-        case trainingHall:
+        case RoomType::trainingHall:
             tempRoom = new RoomTrainingHall(gameMap);
             break;
-        case library:
+        case RoomType::library:
             tempRoom = new RoomLibrary(gameMap);
             break;
-        case hatchery:
+        case RoomType::hatchery:
             tempRoom = new RoomHatchery(gameMap);
             break;
-        case crypt:
+        case RoomType::crypt:
             tempRoom = new RoomCrypt(gameMap);
             break;
         default:
@@ -305,34 +305,34 @@ const std::string Room::getRoomNameFromRoomType(RoomType t)
 {
     switch (t)
     {
-    case nullRoomType:
+    case RoomType::nullRoomType:
         return "NullRoomType";
 
-    case dungeonTemple:
+    case RoomType::dungeonTemple:
         return "DungeonTemple";
 
-    case dormitory:
+    case RoomType::dormitory:
         return "Dormitory";
 
-    case treasury:
+    case RoomType::treasury:
         return "Treasury";
 
-    case portal:
+    case RoomType::portal:
         return "Portal";
 
-    case forge:
+    case RoomType::forge:
         return "Forge";
 
-    case trainingHall:
+    case RoomType::trainingHall:
         return "TrainingHall";
 
-    case library:
+    case RoomType::library:
         return "Library";
 
-    case hatchery:
+    case RoomType::hatchery:
         return "Hatchery";
 
-    case crypt:
+    case RoomType::crypt:
         return "Crypt";
 
     default:
@@ -340,70 +340,70 @@ const std::string Room::getRoomNameFromRoomType(RoomType t)
     }
 }
 
-Room::RoomType Room::getRoomTypeFromRoomName(const std::string& name)
+RoomType Room::getRoomTypeFromRoomName(const std::string& name)
 {
     if(name.compare("DungeonTemple") == 0)
-        return dungeonTemple;
+        return RoomType::dungeonTemple;
 
     if(name.compare("Dormitory") == 0)
-        return dormitory;
+        return RoomType::dormitory;
 
     if(name.compare("Treasury") == 0)
-        return treasury;
+        return RoomType::treasury;
 
     if(name.compare("Portal") == 0)
-        return portal;
+        return RoomType::portal;
 
     if(name.compare("Forge") == 0)
-        return forge;
+        return RoomType::forge;
 
     if(name.compare("TrainingHall") == 0)
-        return trainingHall;
+        return RoomType::trainingHall;
 
     if(name.compare("Library") == 0)
-        return library;
+        return RoomType::library;
 
     if(name.compare("Hatchery") == 0)
-        return hatchery;
+        return RoomType::hatchery;
 
     if(name.compare("Crypt") == 0)
-        return crypt;
+        return RoomType::crypt;
 
-    return nullRoomType;
+    return RoomType::nullRoomType;
 }
 
 int Room::costPerTile(RoomType t)
 {
     switch (t)
     {
-    case nullRoomType:
+    case RoomType::nullRoomType:
         return 0;
 
-    case dungeonTemple:
+    case RoomType::dungeonTemple:
         return 0;
 
-    case portal:
+    case RoomType::portal:
         return 0;
 
-    case treasury:
+    case RoomType::treasury:
         return ConfigManager::getSingleton().getRoomConfigInt32("TreasuryCostPerTile");
 
-    case dormitory:
+    case RoomType::dormitory:
         return ConfigManager::getSingleton().getRoomConfigInt32("DormitoryCostPerTile");
 
-    case hatchery:
+    case RoomType::hatchery:
         return ConfigManager::getSingleton().getRoomConfigInt32("HatcheryCostPerTile");
 
-    case forge:
+    case RoomType::forge:
         return ConfigManager::getSingleton().getRoomConfigInt32("ForgeCostPerTile");
 
-    case trainingHall:
+    case RoomType::trainingHall:
         return ConfigManager::getSingleton().getRoomConfigInt32("TrainHallCostPerTile");
 
-    case library:
+    case RoomType::library:
         return ConfigManager::getSingleton().getRoomConfigInt32("LibraryCostPerTile");
 
-    case crypt:
+    case RoomType::crypt:
         return ConfigManager::getSingleton().getRoomConfigInt32("CryptCostPerTile");
 
     default:
@@ -800,30 +800,30 @@ bool Room::sortForMapSave(Room* r1, Room* r2)
     return seatId1 < seatId2;
 }
 
-std::istream& operator>>(std::istream& is, Room::RoomType& rt)
+std::istream& operator>>(std::istream& is, RoomType& rt)
 {
     uint32_t tmp;
     is >> tmp;
-    rt = static_cast<Room::RoomType>(tmp);
+    rt = static_cast<RoomType>(tmp);
     return is;
 }
 
-std::ostream& operator<<(std::ostream& os, const Room::RoomType& rt)
+std::ostream& operator<<(std::ostream& os, const RoomType& rt)
 {
     uint32_t tmp = static_cast<uint32_t>(rt);
     os << tmp;
     return os;
 }
 
-ODPacket& operator>>(ODPacket& is, Room::RoomType& rt)
+ODPacket& operator>>(ODPacket& is, RoomType& rt)
 {
     uint32_t tmp;
     is >> tmp;
-    rt = static_cast<Room::RoomType>(tmp);
+    rt = static_cast<RoomType>(tmp);
     return is;
 }
 
-ODPacket& operator<<(ODPacket& os, const Room::RoomType& rt)
+ODPacket& operator<<(ODPacket& os, const RoomType& rt)
 {
     uint32_t tmp = static_cast<uint32_t>(rt);
     os << tmp;

@@ -31,6 +31,7 @@
 #include "game/Player.h"
 #include "render/RenderManager.h"
 #include "camera/CameraManager.h"
+#include "rooms/Room.h"
 #include "sound/MusicPlayer.h"
 #include "network/ODClient.h"
 #include "network/ODServer.h"
@@ -104,7 +105,7 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
         {
             case Player::SelectedAction::buildRoom:
             {
-                Room::RoomType selectedRoomType = player->getNewRoomType();
+                RoomType selectedRoomType = player->getNewRoomType();
                 TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(Room::getRoomNameFromRoomType(selectedRoomType)));
                 break;
             }
@@ -352,7 +353,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
         // Stop creating rooms, traps, etc.
         mGameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::none);
-        mGameMap->getLocalPlayer()->setNewRoomType(Room::nullRoomType);
+        mGameMap->getLocalPlayer()->setNewRoomType(RoomType::nullRoomType);
         mGameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
         mCurrentTileType = Tile::TileType::nullTileType;
         TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "");

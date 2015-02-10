@@ -973,7 +973,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         case ClientNotificationType::askBuildRoom:
         {
             int x1, y1, x2, y2;
-            Room::RoomType type;
+            RoomType type;
 
             OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> type);
             Player* player = clientSocket->getPlayer();
@@ -990,52 +990,52 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             Room* room = nullptr;
             switch (type)
             {
-                case Room::RoomType::nullRoomType:
+                case RoomType::nullRoomType:
                 {
                     room = nullptr;
                     break;
                 }
-                case Room::RoomType::dormitory:
+                case RoomType::dormitory:
                 {
                     room = new RoomDormitory(gameMap);
                     break;
                 }
-                case Room::RoomType::dungeonTemple:
+                case RoomType::dungeonTemple:
                 {
                     room = new RoomDungeonTemple(gameMap);
                     break;
                 }
-                case Room::RoomType::forge:
+                case RoomType::forge:
                 {
                     room = new RoomForge(gameMap);
                     break;
                 }
-                case Room::RoomType::hatchery:
+                case RoomType::hatchery:
                 {
                     room = new RoomHatchery(gameMap);
                     break;
                 }
-                case Room::RoomType::library:
+                case RoomType::library:
                 {
                     room = new RoomLibrary(gameMap);
                     break;
                 }
-                case Room::RoomType::portal:
+                case RoomType::portal:
                 {
                     room = new RoomPortal(gameMap);
                     break;
                 }
-                case Room::RoomType::trainingHall:
+                case RoomType::trainingHall:
                 {
                     room = new RoomTrainingHall(gameMap);
                     break;
                 }
-                case Room::RoomType::treasury:
+                case RoomType::treasury:
                 {
                     room = new RoomTreasury(gameMap);
                     break;
                 }
-                case Room::RoomType::crypt:
+                case RoomType::crypt:
                 {
                     room = new RoomCrypt(gameMap);
                     break;
@@ -1571,7 +1571,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
             int x1, y1, x2, y2;
             int seatId;
-            Room::RoomType type;
+            RoomType type;
 
             OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> type >> seatId);
             Seat* seat = gameMap->getSeatById(seatId);
@@ -1597,52 +1597,52 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             Room* room = nullptr;
             switch (type)
             {
-                case Room::RoomType::nullRoomType:
+                case RoomType::nullRoomType:
                 {
                     room = nullptr;
                     break;
                 }
-                case Room::RoomType::dormitory:
+                case RoomType::dormitory:
                 {
                     room = new RoomDormitory(gameMap);
                     break;
                 }
-                case Room::RoomType::dungeonTemple:
+                case RoomType::dungeonTemple:
                 {
                     room = new RoomDungeonTemple(gameMap);
                     break;
                 }
-                case Room::RoomType::forge:
+                case RoomType::forge:
                 {
                     room = new RoomForge(gameMap);
                     break;
                 }
-                case Room::RoomType::hatchery:
+                case RoomType::hatchery:
                 {
                     room = new RoomHatchery(gameMap);
                     break;
                 }
-                case Room::RoomType::library:
+                case RoomType::library:
                 {
                     room = new RoomLibrary(gameMap);
                     break;
                 }
-                case Room::RoomType::portal:
+                case RoomType::portal:
                 {
                     room = new RoomPortal(gameMap);
                     break;
                 }
-                case Room::RoomType::trainingHall:
+                case RoomType::trainingHall:
                 {
                     room = new RoomTrainingHall(gameMap);
                     break;
                 }
-                case Room::RoomType::treasury:
+                case RoomType::treasury:
                 {
                     room = new RoomTreasury(gameMap);
                     break;
                 }
-                case Room::RoomType::crypt:
+                case RoomType::crypt:
                 {
                     room = new RoomCrypt(gameMap);
                     break;

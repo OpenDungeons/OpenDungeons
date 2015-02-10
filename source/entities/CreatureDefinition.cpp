@@ -18,11 +18,12 @@
 #include "entities/CreatureDefinition.h"
 
 #include "network/ODPacket.h"
+#include "rooms/Room.h"
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-static CreatureRoomAffinity EMPTY_AFFINITY(Room::RoomType::nullRoomType, 0, 0);
+static CreatureRoomAffinity EMPTY_AFFINITY(RoomType::nullRoomType, 0, 0);
 
 double CreatureDefinition::getXPNeededWhenLevel(unsigned int level) const
 {
@@ -765,9 +766,9 @@ void CreatureDefinition::loadRoomAffinity(std::stringstream& defFile, CreatureDe
         }
         double efficiency = Helper::toDouble(nextParam);
 
-        Room::RoomType roomType = Room::getRoomTypeFromRoomName(roomName);
-        OD_ASSERT_TRUE_MSG(roomType != Room::RoomType::nullRoomType, "Unknown room name=" + roomName);
-        if(roomType == Room::RoomType::nullRoomType)
+        RoomType roomType = Room::getRoomTypeFromRoomName(roomName);
+        OD_ASSERT_TRUE_MSG(roomType != RoomType::nullRoomType, "Unknown room name=" + roomName);
+        if(roomType == RoomType::nullRoomType)
             continue;
 
         // We sort the CreatureRoomAffinity from the most liked to the less
@@ -784,7 +785,7 @@ void CreatureDefinition::loadRoomAffinity(std::stringstream& defFile, CreatureDe
     }
 }
 
-const CreatureRoomAffinity& CreatureDefinition::getRoomAffinity(Room::RoomType roomType) const
+const CreatureRoomAffinity& CreatureDefinition::getRoomAffinity(RoomType roomType) const
 {
     for(const CreatureRoomAffinity& roomAffinity : mRoomAffinity)
     {

@@ -36,6 +36,7 @@
 #include "camera/CameraManager.h"
 #include "sound/MusicPlayer.h"
 #include "network/ODServer.h"
+#include "rooms/Room.h"
 #include "ODApplication.h"
 #include "entities/RenderedMovableEntity.h"
 #include "gamemap/MiniMap.h"
@@ -179,13 +180,13 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 }
 
                 int gold = player->getSeat()->getGold();
-                Room::RoomType selectedRoomType = player->getNewRoomType();
+                RoomType selectedRoomType = player->getNewRoomType();
                 int price = Room::costPerTile(selectedRoomType) * nbTile;
 
                 // Check whether the room type is the first treasury tile.
                 // In that case, the cost of the first tile is 0, to prevent the player from being stuck
                 // with no means to earn money.
-                if (nbTile > 0 && selectedRoomType == Room::treasury && player->getSeat()->getNbTreasuries() == 0)
+                if (nbTile > 0 && selectedRoomType == RoomType::treasury && player->getSeat()->getNbTreasuries() == 0)
                     price -= Room::costPerTile(selectedRoomType);
 
                 Ogre::ColourValue& textColor = (gold < price) ? red : white;
@@ -459,7 +460,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
         // Stop creating rooms, traps, etc.
         mGameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::none);
-        mGameMap->getLocalPlayer()->setNewRoomType(Room::nullRoomType);
+        mGameMap->getLocalPlayer()->setNewRoomType(RoomType::nullRoomType);
         mGameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
         TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "");
 
