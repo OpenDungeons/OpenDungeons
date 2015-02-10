@@ -18,6 +18,7 @@
 #include "creaturemood/CreatureMoodFee.h"
 
 #include "entities/Creature.h"
+#include "entities/CreatureDefinition.h"
 
 #include "utils/Helper.h"
 

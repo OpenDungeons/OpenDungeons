@@ -18,6 +18,7 @@
 #include "spell/SpellSummonWorker.h"
 
 #include "entities/Creature.h"
+#include "entities/CreatureDefinition.h"
 
 #include "game/Player.h"
 

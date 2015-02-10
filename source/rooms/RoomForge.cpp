@@ -19,6 +19,7 @@
 
 #include "entities/CraftedTrap.h"
 #include "entities/Creature.h"
+#include "entities/CreatureDefinition.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 

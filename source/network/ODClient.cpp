@@ -27,6 +27,7 @@
 #include "game/Player.h"
 #include "entities/MapLight.h"
 #include "entities/Creature.h"
+#include "entities/CreatureDefinition.h"
 #include "ODApplication.h"
 #include "rooms/RoomTreasury.h"
 #include "entities/TreasuryObject.h"

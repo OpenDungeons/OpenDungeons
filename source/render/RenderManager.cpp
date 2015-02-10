@@ -26,6 +26,7 @@
 #include "entities/RenderedMovableEntity.h"
 #include "entities/MapLight.h"
 #include "entities/Creature.h"
+#include "entities/CreatureDefinition.h"
 #include "entities/Weapon.h"
 #include "traps/Trap.h"
 #include "game/Player.h"

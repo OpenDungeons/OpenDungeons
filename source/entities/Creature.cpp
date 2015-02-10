@@ -20,6 +20,7 @@
 #include "creaturemood/CreatureMood.h"
 
 #include "entities/CreatureAction.h"
+#include "entities/CreatureDefinition.h"
 #include "entities/Weapon.h"
 #include "entities/CreatureSound.h"
 #include "entities/TreasuryObject.h"

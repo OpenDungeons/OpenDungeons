@@ -23,6 +23,7 @@
 #include "gamemap/GameMap.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Creature.h"
+#include "entities/CreatureDefinition.h"
 #include "utils/LogManager.h"
 
 RoomDormitory::RoomDormitory(GameMap* gameMap) :
