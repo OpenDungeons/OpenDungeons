@@ -44,6 +44,8 @@
 
 #include "spell/Spell.h"
 
+#include "traps/Trap.h"
+
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"

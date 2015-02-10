@@ -39,6 +39,8 @@
 
 #include "sound/SoundEffectsManager.h"
 
+#include "traps/Trap.h"
+
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 

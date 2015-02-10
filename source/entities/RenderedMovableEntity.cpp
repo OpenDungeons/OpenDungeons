@@ -26,6 +26,8 @@
 #include "entities/PersistentObject.h"
 #include "entities/TrapEntity.h"
 
+#include "game/Seat.h"
+
 #include "gamemap/GameMap.h"
 
 #include "network/ODPacket.h"

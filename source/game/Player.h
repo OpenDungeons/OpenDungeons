@@ -18,24 +18,27 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "traps/Trap.h"
+#include <OgrePrerequisites.h>
 
 #include <string>
 #include <vector>
 
-class Seat;
 class Creature;
+class GameMap;
+class MovableGameEntity;
+class Seat;
+class Tile;
+
 enum class SpellType;
 enum class RoomType;
+enum class TrapType;
 
-/*! \brief The player cleass contains information about a human, or computer, player in the game.
+/*! \brief The player class contains information about a human, or computer, player in the game.
  *
  * When a new player joins a game being hosted on a server the server will
  * allocate a new Player structure and fill it in with the appropriate values.
  * Its relevant information will then be sent to the other players in the game
- * so they are aware of its presence.  In the future if we decide to do a
- * single player game, thiis is where the computer driven strategy AI
- * calculations will take place.
+ * so they are aware of its presence.
  */
 class Player
 {
@@ -125,10 +128,10 @@ public:
     inline void setNewRoomType(RoomType newRoomType)
     { mNewRoomType = newRoomType; }
 
-    inline const Trap::TrapType getNewTrapType() const
+    inline const TrapType getNewTrapType() const
     { return mNewTrapType; }
 
-    inline void setNewTrapType(Trap::TrapType newTrapType)
+    inline void setNewTrapType(TrapType newTrapType)
     { mNewTrapType = newTrapType; }
 
     inline const SpellType getNewSpellType() const
@@ -163,7 +166,7 @@ private:
     int32_t mId;
     //! \brief Room, trap or Spell tile type the player is currently willing to place on map.
     RoomType mNewRoomType;
-    Trap::TrapType mNewTrapType;
+    TrapType mNewTrapType;
     SpellType mNewSpellType;
     SelectedAction mCurrentAction;
 

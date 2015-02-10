@@ -23,6 +23,8 @@
 
 #include "gamemap/MiniMap.h"
 
+#include "game/Seat.h"
+
 #include "gamemap/GameMap.h"
 
 #include <OgrePrerequisites.h>

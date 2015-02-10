@@ -19,6 +19,8 @@
 
 #include "entities/Tile.h"
 
+#include "game/Seat.h"
+
 #include "gamemap/GameMap.h"
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"

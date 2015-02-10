@@ -17,6 +17,8 @@
 
 #include "gamemap/GameMap.h"
 
+#include "game/Seat.h"
+
 #include "modes/MenuModeConfigureSeats.h"
 #include "modes/ModeManager.h"
 

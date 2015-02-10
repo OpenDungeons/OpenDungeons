@@ -1233,7 +1233,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         case ClientNotificationType::askBuildTrap:
         {
             int x1, y1, x2, y2;
-            Trap::TrapType type;
+            TrapType type;
 
             OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> type);
             Player* player = clientSocket->getPlayer();
@@ -1250,22 +1250,22 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             Trap* trap = nullptr;
             switch (type)
             {
-                case Trap::TrapType::nullTrapType:
+                case TrapType::nullTrapType:
                 {
                     trap = nullptr;
                     break;
                 }
-                case Trap::TrapType::cannon:
+                case TrapType::cannon:
                 {
                     trap = new TrapCannon(gameMap);
                     break;
                 }
-                case Trap::TrapType::spike:
+                case TrapType::spike:
                 {
                     trap = new TrapSpike(gameMap);
                     break;
                 }
-                case Trap::TrapType::boulder:
+                case TrapType::boulder:
                 {
                     trap = new TrapBoulder(gameMap);
                     break;
@@ -1704,7 +1704,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
             int x1, y1, x2, y2;
             int seatId;
-            Trap::TrapType type;
+            TrapType type;
 
             OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> type >> seatId);
             Seat* seat = gameMap->getSeatById(seatId);
@@ -1730,22 +1730,22 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             Trap* trap = nullptr;
             switch (type)
             {
-                case Trap::TrapType::nullTrapType:
+                case TrapType::nullTrapType:
                 {
                     trap = nullptr;
                     break;
                 }
-                case Trap::TrapType::cannon:
+                case TrapType::cannon:
                 {
                     trap = new TrapCannon(gameMap);
                     break;
                 }
-                case Trap::TrapType::spike:
+                case TrapType::spike:
                 {
                     trap = new TrapSpike(gameMap);
                     break;
                 }
-                case Trap::TrapType::boulder:
+                case TrapType::boulder:
                 {
                     trap = new TrapBoulder(gameMap);
                     break;

@@ -582,7 +582,7 @@ bool Gui::cannonButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildTrap);
-    gameMap->getLocalPlayer()->setNewTrapType(Trap::cannon);
+    gameMap->getLocalPlayer()->setNewTrapType(TrapType::cannon);
     return true;
 }
 
@@ -590,7 +590,7 @@ bool Gui::spikeTrapButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildTrap);
-    gameMap->getLocalPlayer()->setNewTrapType(Trap::spike);
+    gameMap->getLocalPlayer()->setNewTrapType(TrapType::spike);
     return true;
 }
 
@@ -598,7 +598,7 @@ bool Gui::boulderTrapButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildTrap);
-    gameMap->getLocalPlayer()->setNewTrapType(Trap::boulder);
+    gameMap->getLocalPlayer()->setNewTrapType(TrapType::boulder);
     return true;
 }
 

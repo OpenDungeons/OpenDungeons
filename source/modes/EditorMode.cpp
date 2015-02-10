@@ -111,7 +111,7 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
             }
             case Player::SelectedAction::buildTrap:
             {
-                Trap::TrapType selectedTrapType = player->getNewTrapType();
+                TrapType selectedTrapType = player->getNewTrapType();
                 TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(Trap::getTrapNameFromTrapType(selectedTrapType)));
                 break;
             }
@@ -353,8 +353,6 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
         // Stop creating rooms, traps, etc.
         mGameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::none);
-        mGameMap->getLocalPlayer()->setNewRoomType(RoomType::nullRoomType);
-        mGameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
         mCurrentTileType = Tile::TileType::nullTileType;
         TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "");
 

@@ -51,16 +51,16 @@ Trap* Trap::getTrapFromStream(GameMap* gameMap, std::istream &is)
 
     switch (nType)
     {
-        case nullTrapType:
+        case TrapType::nullTrapType:
             tempTrap = nullptr;
             break;
-        case cannon:
+        case TrapType::cannon:
             tempTrap = TrapCannon::getTrapCannonFromStream(gameMap, is);
             break;
-        case spike:
+        case TrapType::spike:
             tempTrap = TrapSpike::getTrapSpikeFromStream(gameMap, is);
             break;
-        case boulder:
+        case TrapType::boulder:
             tempTrap = TrapBoulder::getTrapBoulderFromStream(gameMap, is);
             break;
         default:
@@ -84,16 +84,16 @@ Trap* Trap::getTrapFromPacket(GameMap* gameMap, ODPacket &is)
 
     switch (nType)
     {
-        case nullTrapType:
+        case TrapType::nullTrapType:
             tempTrap = nullptr;
             break;
-        case cannon:
+        case TrapType::cannon:
             tempTrap = TrapCannon::getTrapCannonFromPacket(gameMap, is);
             break;
-        case spike:
+        case TrapType::spike:
             tempTrap = TrapSpike::getTrapSpikeFromPacket(gameMap, is);
             break;
-        case boulder:
+        case TrapType::boulder:
             tempTrap = TrapBoulder::getTrapBoulderFromPacket(gameMap, is);
             break;
         default:
@@ -113,16 +113,16 @@ const char* Trap::getTrapNameFromTrapType(TrapType t)
 {
     switch (t)
     {
-        case nullTrapType:
+        case TrapType::nullTrapType:
             return "NullTrapType";
 
-        case cannon:
+        case TrapType::cannon:
             return "Cannon";
 
-        case spike:
+        case TrapType::spike:
             return "Spike";
 
-        case boulder:
+        case TrapType::boulder:
             return "Boulder";
 
         default:
@@ -134,16 +134,16 @@ int Trap::costPerTile(TrapType t)
 {
     switch (t)
     {
-        case nullTrapType:
+        case TrapType::nullTrapType:
             return 0;
 
-        case cannon:
+        case TrapType::cannon:
             return ConfigManager::getSingleton().getTrapConfigInt32("CannonCostPerTile");
 
-        case spike:
+        case TrapType::spike:
             return ConfigManager::getSingleton().getTrapConfigInt32("SpikeCostPerTile");
 
-        case boulder:
+        case TrapType::boulder:
             return ConfigManager::getSingleton().getTrapConfigInt32("BoulderCostPerTile");
 
         default:
@@ -612,30 +612,30 @@ void Trap::importFromStream(std::istream& is)
     }
 }
 
-std::istream& operator>>(std::istream& is, Trap::TrapType& tt)
+std::istream& operator>>(std::istream& is, TrapType& tt)
 {
     uint32_t tmp;
     is >> tmp;
-    tt = static_cast<Trap::TrapType>(tmp);
+    tt = static_cast<TrapType>(tmp);
     return is;
 }
 
-std::ostream& operator<<(std::ostream& os, const Trap::TrapType& tt)
+std::ostream& operator<<(std::ostream& os, const TrapType& tt)
 {
     uint32_t tmp = static_cast<uint32_t>(tt);
     os << tmp;
     return os;
 }
 
-ODPacket& operator>>(ODPacket& is, Trap::TrapType& tt)
+ODPacket& operator>>(ODPacket& is, TrapType& tt)
 {
     uint32_t tmp;
     is >> tmp;
-    tt = static_cast<Trap::TrapType>(tmp);
+    tt = static_cast<TrapType>(tmp);
     return is;
 }
 
-ODPacket& operator<<(ODPacket& os, const Trap::TrapType& tt)
+ODPacket& operator<<(ODPacket& os, const TrapType& tt)
 {
     uint32_t tmp = static_cast<uint32_t>(tt);
     os << tmp;

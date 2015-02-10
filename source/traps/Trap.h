@@ -36,6 +36,19 @@ class ODPacket;
 
 #include "entities/Building.h"
 
+enum class TrapType
+{
+    nullTrapType = 0,
+    cannon,
+    spike,
+    boulder
+};
+
+std::istream& operator>>(std::istream& is, TrapType& tt);
+std::ostream& operator<<(std::ostream& os, const TrapType& tt);
+ODPacket& operator>>(ODPacket& is, TrapType& tt);
+ODPacket& operator<<(ODPacket& os, const TrapType& tt);
+
 //! \brief A small class telling whether a trap tile is activated.
 class TrapTileInfo
 {
@@ -118,14 +131,6 @@ private:
 class Trap : public Building
 {
 public:
-    enum TrapType
-    {
-        nullTrapType = 0,
-        cannon,
-        spike,
-        boulder
-    };
-
     Trap(GameMap* gameMap);
     virtual ~Trap()
     {}
@@ -187,10 +192,6 @@ public:
     virtual void importFromPacket(ODPacket& is);
 
     static std::string getFormat();
-    friend std::istream& operator>>(std::istream& is, Trap::TrapType& tt);
-    friend std::ostream& operator<<(std::ostream& os, const Trap::TrapType& tt);
-    friend ODPacket& operator>>(ODPacket& is, Trap::TrapType& tt);
-    friend ODPacket& operator<<(ODPacket& os, const Trap::TrapType& tt);
 
 protected:
     virtual RenderedMovableEntity* notifyActiveSpotCreated(Tile* tile);

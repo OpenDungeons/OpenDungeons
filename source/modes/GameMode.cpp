@@ -208,7 +208,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 }
 
                 int gold = player->getSeat()->getGold();
-                Trap::TrapType selectedTrapType = player->getNewTrapType();
+                TrapType selectedTrapType = player->getNewTrapType();
                 int price = Trap::costPerTile(selectedTrapType) * nbTile;
                 Ogre::ColourValue& textColor = (gold < price) ? red : white;
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
@@ -460,8 +460,6 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
         // Stop creating rooms, traps, etc.
         mGameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::none);
-        mGameMap->getLocalPlayer()->setNewRoomType(RoomType::nullRoomType);
-        mGameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
         TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "");
 
         if(mGameMap->getLocalPlayer()->numObjectsInHand() > 0)

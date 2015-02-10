@@ -19,6 +19,8 @@
 
 #include "network/ODPacket.h"
 
+#include "game/Seat.h"
+
 #include "gamemap/GameMap.h"
 
 #include "utils/LogManager.h"

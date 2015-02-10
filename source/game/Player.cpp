@@ -34,6 +34,8 @@
 
 #include "spell/Spell.h"
 
+#include "traps/Trap.h"
+
 #include "utils/LogManager.h"
 
 #include <cmath>
@@ -47,7 +49,7 @@ const float NO_TREASURY_TIME_COUNT = 30.0f;
 Player::Player(GameMap* gameMap, int32_t id) :
     mId(id),
     mNewRoomType(RoomType::nullRoomType),
-    mNewTrapType(Trap::nullTrapType),
+    mNewTrapType(TrapType::nullTrapType),
     mCurrentAction(SelectedAction::none),
     mGameMap(gameMap),
     mSeat(nullptr),
@@ -312,7 +314,7 @@ void Player::notifyNoTreasuryAvailable()
 void Player::setCurrentAction(SelectedAction action)
 {
     mCurrentAction = action;
-    mNewTrapType = Trap::nullTrapType;
+    mNewTrapType = TrapType::nullTrapType;
     mNewRoomType = RoomType::nullRoomType;
     mNewSpellType = SpellType::nullSpellType;
 }
