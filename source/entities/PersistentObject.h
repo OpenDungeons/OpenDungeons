@@ -45,7 +45,7 @@ public:
         Tile* tile, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity = 1.0f);
     PersistentObject(GameMap* gameMap);
 
-    virtual RenderedMovableEntityType getRenderedMovableEntityType()
+    virtual RenderedMovableEntityType getRenderedMovableEntityType() const
     { return RenderedMovableEntityType::persistentObject; }
 
     //! This has nothing to do with vision. It is just to decide if the tile where the persistent object is should notify it
@@ -53,8 +53,8 @@ public:
     virtual bool isVisibleForSeat(Seat* seat)
     { return true; }
 
-    virtual void notifyAddedOnGamemap();
-    virtual void notifyRemovedFromGamemap();
+    virtual void addToGameMap();
+    virtual void removeFromGameMap();
 
     void notifySeatsWithVision(const std::vector<Seat*>& seats);
     //! We don't want to the remove entity event to be fired when the PersistentObject is removed from the server gamemap

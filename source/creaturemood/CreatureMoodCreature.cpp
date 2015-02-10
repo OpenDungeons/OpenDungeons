@@ -31,7 +31,7 @@ int32_t CreatureMoodCreature::computeMood(const Creature* creature) const
     int nbCreatures = 0;
     for(GameEntity* entity : alliedCreatures)
     {
-        if(entity->getObjectType() != GameEntity::ObjectType::creature)
+        if(entity->getObjectType() != GameEntityType::creature)
             continue;
 
         Creature* alliedCreature = static_cast<Creature*>(entity);

@@ -18,24 +18,27 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "traps/Trap.h"
-#include "rooms/Room.h"
+#include <OgrePrerequisites.h>
 
 #include <string>
 #include <vector>
 
-class Seat;
 class Creature;
-enum class SpellType;
+class GameMap;
+class MovableGameEntity;
+class Seat;
+class Tile;
 
-/*! \brief The player cleass contains information about a human, or computer, player in the game.
+enum class SpellType;
+enum class RoomType;
+enum class TrapType;
+
+/*! \brief The player class contains information about a human, or computer, player in the game.
  *
  * When a new player joins a game being hosted on a server the server will
  * allocate a new Player structure and fill it in with the appropriate values.
  * Its relevant information will then be sent to the other players in the game
- * so they are aware of its presence.  In the future if we decide to do a
- * single player game, thiis is where the computer driven strategy AI
- * calculations will take place.
+ * so they are aware of its presence.
  */
 class Player
 {
@@ -91,10 +94,10 @@ public:
      * hand is false we just hide the creature (and stop its AI, etc.), rather than
      * making it follow the cursor.
      */
-    void pickUpEntity(MovableGameEntity *entity, bool isEditorMode);
+    void pickUpEntity(MovableGameEntity *entity);
 
     //! \brief Check to see the first object in hand can be dropped on Tile t and do so if possible.
-    bool isDropHandPossible(Tile *t, unsigned int index = 0, bool isEditorMode = false);
+    bool isDropHandPossible(Tile *t, unsigned int index = 0);
 
     //! \brief Drops the creature on tile t. Returns the dropped creature
     MovableGameEntity* dropHand(Tile *t, unsigned int index = 0);
@@ -116,19 +119,19 @@ public:
     inline const std::vector<MovableGameEntity*>& getObjectsInHand()
     { return mObjectsInHand; }
 
-    inline const Room::RoomType getNewRoomType()
+    inline const RoomType getNewRoomType()
     { return mNewRoomType; }
 
     inline const SelectedAction getCurrentAction()
     { return mCurrentAction; }
 
-    inline void setNewRoomType(Room::RoomType newRoomType)
+    inline void setNewRoomType(RoomType newRoomType)
     { mNewRoomType = newRoomType; }
 
-    inline const Trap::TrapType getNewTrapType() const
+    inline const TrapType getNewTrapType() const
     { return mNewTrapType; }
 
-    inline void setNewTrapType(Trap::TrapType newTrapType)
+    inline void setNewTrapType(TrapType newTrapType)
     { mNewTrapType = newTrapType; }
 
     inline const SpellType getNewSpellType() const
@@ -151,6 +154,10 @@ public:
     //! Should be called on the server game map for human players only
     void updateTime(Ogre::Real timeSinceLastUpdate);
 
+    //! \brief Checks if the given spell is available for the Player. This check
+    //! should be done on server side to avoid cheating
+    bool isSpellAvailableForPlayer(SpellType type);
+
 private:
     //! \brief Player ID is only used during seat configuration phase
     //! During the game, one should use the seat ID to identify a player because
@@ -158,8 +165,8 @@ private:
     //! ID is unique only for human players
     int32_t mId;
     //! \brief Room, trap or Spell tile type the player is currently willing to place on map.
-    Room::RoomType mNewRoomType;
-    Trap::TrapType mNewTrapType;
+    RoomType mNewRoomType;
+    TrapType mNewTrapType;
     SpellType mNewSpellType;
     SelectedAction mCurrentAction;
 

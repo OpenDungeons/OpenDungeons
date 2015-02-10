@@ -47,8 +47,6 @@ private:
     static const Ogre::Real OFFSET_DUMMY;
     int32_t nbTurnsNoChangeDummies;
     void refreshCreaturesDummies();
-    void getCreatureWantedPos(Creature* creature, Tile* tileDummy,
-        Ogre::Real& wantedX, Ogre::Real& wantedY);
     std::vector<Tile*> mUnusedDummies;
     std::map<Creature*,Tile*> mCreaturesDummies;
 };

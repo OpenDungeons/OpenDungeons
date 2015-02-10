@@ -18,6 +18,7 @@
 #include "rooms/RoomTrainingHall.h"
 
 #include "entities/Creature.h"
+#include "entities/CreatureDefinition.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 #include "gamemap/GameMap.h"
@@ -71,7 +72,6 @@ RenderedMovableEntity* RoomTrainingHall::notifyActiveSpotCreated(ActiveSpotPlace
             Ogre::Real x = static_cast<Ogre::Real>(tile->getX());
             Ogre::Real y = static_cast<Ogre::Real>(tile->getY());
             x -= OFFSET_DUMMY;
-            mUnusedDummies.push_back(tile);
             return loadBuildingObject(getGameMap(), "TrainingDummy1", tile, x, y, 90.0, false);
         }
         case ActiveSpotPlace::activeSpotRight:
@@ -79,7 +79,6 @@ RenderedMovableEntity* RoomTrainingHall::notifyActiveSpotCreated(ActiveSpotPlace
             Ogre::Real x = static_cast<Ogre::Real>(tile->getX());
             Ogre::Real y = static_cast<Ogre::Real>(tile->getY());
             x += OFFSET_DUMMY;
-            mUnusedDummies.push_back(tile);
             return loadBuildingObject(getGameMap(), "TrainingDummy1", tile, x, y, 270.0, false);
         }
         case ActiveSpotPlace::activeSpotTop:
@@ -87,7 +86,6 @@ RenderedMovableEntity* RoomTrainingHall::notifyActiveSpotCreated(ActiveSpotPlace
             Ogre::Real x = static_cast<Ogre::Real>(tile->getX());
             Ogre::Real y = static_cast<Ogre::Real>(tile->getY());
             y += OFFSET_DUMMY;
-            mUnusedDummies.push_back(tile);
             return loadBuildingObject(getGameMap(), "TrainingDummy1", tile, x, y, 0.0, false);
         }
         case ActiveSpotPlace::activeSpotBottom:
@@ -95,7 +93,6 @@ RenderedMovableEntity* RoomTrainingHall::notifyActiveSpotCreated(ActiveSpotPlace
             Ogre::Real x = static_cast<Ogre::Real>(tile->getX());
             Ogre::Real y = static_cast<Ogre::Real>(tile->getY());
             y -= OFFSET_DUMMY;
-            mUnusedDummies.push_back(tile);
             return loadBuildingObject(getGameMap(), "TrainingDummy1", tile, x, y, 180.0, false);
         }
     }
@@ -106,22 +103,22 @@ void RoomTrainingHall::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile
 {
     Room::notifyActiveSpotRemoved(place, tile);
 
-    for(std::map<Creature*,Tile*>::iterator it = mCreaturesDummies.begin(); it != mCreaturesDummies.end(); ++it)
+    for(std::pair<Creature* const,Tile*>& p : mCreaturesDummies)
     {
-        Tile* tmpTile = it->second;
+        Tile* tmpTile = p.second;
         if(tmpTile == tile)
         {
-            Creature* creature = it->first;
+            Creature* creature = p.first;
             creature->stopJob();
             // stopJob should have released mCreaturesDummies[creature]. Now, we just need to release the unused dummy
             break;
         }
     }
 
-    std::vector<Tile*>::iterator itEr = std::find(mUnusedDummies.begin(), mUnusedDummies.end(), tile);
-    OD_ASSERT_TRUE_MSG(itEr != mUnusedDummies.end(), "name=" + getName() + ", tile=" + Tile::displayAsString(tile));
-    if(itEr != mUnusedDummies.end())
-        mUnusedDummies.erase(itEr);
+    std::vector<Tile*>::iterator it = std::find(mUnusedDummies.begin(), mUnusedDummies.end(), tile);
+    OD_ASSERT_TRUE_MSG(it != mUnusedDummies.end(), "name=" + getName() + ", tile=" + Tile::displayAsString(tile));
+    if(it != mUnusedDummies.end())
+        mUnusedDummies.erase(it);
 }
 
 void RoomTrainingHall::refreshCreaturesDummies()
@@ -131,10 +128,6 @@ void RoomTrainingHall::refreshCreaturesDummies()
     nbTurnsNoChangeDummies = 0;
 
     mUnusedDummies.insert(mUnusedDummies.end(), mCentralActiveSpotTiles.begin(), mCentralActiveSpotTiles.end());
-    mUnusedDummies.insert(mUnusedDummies.end(), mLeftWallsActiveSpotTiles.begin(), mLeftWallsActiveSpotTiles.end());
-    mUnusedDummies.insert(mUnusedDummies.end(), mRightWallsActiveSpotTiles.begin(), mRightWallsActiveSpotTiles.end());
-    mUnusedDummies.insert(mUnusedDummies.end(), mTopWallsActiveSpotTiles.begin(), mTopWallsActiveSpotTiles.end());
-    mUnusedDummies.insert(mUnusedDummies.end(), mBottomWallsActiveSpotTiles.begin(), mBottomWallsActiveSpotTiles.end());
 
     if(mUnusedDummies.size() == 0 || mCreaturesUsingRoom.size() == 0)
         return;
@@ -152,9 +145,9 @@ void RoomTrainingHall::refreshCreaturesDummies()
 
         // Set destination to the newly affected dummies if there was a change
         const Ogre::Vector3& creaturePosition = creature->getPosition();
-        Ogre::Real wantedX = -1;
-        Ogre::Real wantedY = -1;
-        getCreatureWantedPos(creature, tileDummy, wantedX, wantedY);
+        Ogre::Real wantedX = static_cast<Ogre::Real>(tileDummy->getX());
+        Ogre::Real wantedY = static_cast<Ogre::Real>(tileDummy->getY()) - OFFSET_CREATURE;
+
         if(creaturePosition.x != wantedX ||
            creaturePosition.y != wantedY)
         {
@@ -193,9 +186,8 @@ bool RoomTrainingHall::addCreatureUsingRoom(Creature* creature)
     mUnusedDummies.erase(mUnusedDummies.begin() + index);
     mCreaturesDummies[creature] = tileDummy;
     const Ogre::Vector3& creaturePosition = creature->getPosition();
-    Ogre::Real wantedX = -1;
-    Ogre::Real wantedY = -1;
-    getCreatureWantedPos(creature, tileDummy, wantedX, wantedY);
+    Ogre::Real wantedX = static_cast<Ogre::Real>(tileDummy->getX());
+    Ogre::Real wantedY = static_cast<Ogre::Real>(tileDummy->getY()) - OFFSET_CREATURE;
     if(creaturePosition.x != wantedX ||
        creaturePosition.y != wantedY)
     {
@@ -247,9 +239,8 @@ void RoomTrainingHall::doUpkeep()
         if(tileCreature == nullptr)
             continue;
 
-        Ogre::Real wantedX = -1;
-        Ogre::Real wantedY = -1;
-        getCreatureWantedPos(creature, tileDummy, wantedX, wantedY);
+        Ogre::Real wantedX = static_cast<Ogre::Real>(tileDummy->getX());
+        Ogre::Real wantedY = static_cast<Ogre::Real>(tileDummy->getY()) - OFFSET_CREATURE;
 
         RenderedMovableEntity* ro = getBuildingObjectFromTile(tileDummy);
         OD_ASSERT_TRUE(ro != nullptr);
@@ -278,40 +269,16 @@ void RoomTrainingHall::doUpkeep()
                 OD_ASSERT_TRUE_MSG(creatureRoomAffinity.getRoomType() == getType(), "name=" + getName() + ", creature=" + creature->getName()
                     + ", creatureRoomAffinityType=" + Ogre::StringConverter::toString(static_cast<int>(creatureRoomAffinity.getRoomType())));
 
-                creature->receiveExp(creatureRoomAffinity.getEfficiency() * ConfigManager::getSingleton().getRoomConfigDouble("TrainHallXpPerAttack"));
+                // We add a bonus per wall active spots
+                double coef = 1.0 + static_cast<double>(mNumActiveSpots - mCentralActiveSpotTiles.size()) * ConfigManager::getSingleton().getRoomConfigDouble("TrainHallBonusWallActiveSpot");
+                double expReceived = creatureRoomAffinity.getEfficiency() * ConfigManager::getSingleton().getRoomConfigDouble("TrainHallXpPerAttack");
+                expReceived *= coef;
+
+                creature->receiveExp(expReceived);
                 creature->jobDone(ConfigManager::getSingleton().getRoomConfigDouble("TrainHallAwaknessPerAttack"));
                 creature->setJobCooldown(Random::Uint(ConfigManager::getSingleton().getRoomConfigUInt32("TrainHallCooldownHitMin"),
                     ConfigManager::getSingleton().getRoomConfigUInt32("TrainHallCooldownHitMax")));
             }
         }
-    }
-}
-
-void RoomTrainingHall::getCreatureWantedPos(Creature* creature, Tile* tileDummy,
-    Ogre::Real& wantedX, Ogre::Real& wantedY)
-{
-    RenderedMovableEntity* ro = getBuildingObjectFromTile(tileDummy);
-    OD_ASSERT_TRUE(ro != nullptr);
-    if(ro == nullptr)
-        return;
-
-    wantedX = static_cast<Ogre::Real>(tileDummy->getX());
-    wantedY = static_cast<Ogre::Real>(tileDummy->getY());
-
-    if(ro->getRotationAngle() == 0.0)
-    {
-        wantedY -= OFFSET_CREATURE;
-    }
-    else if(ro->getRotationAngle() == 90.0)
-    {
-        wantedX += OFFSET_CREATURE;
-    }
-    else if(ro->getRotationAngle() == 180.0)
-    {
-        wantedY += OFFSET_CREATURE;
-    }
-    else if(ro->getRotationAngle() == 270.0)
-    {
-        wantedX -= OFFSET_CREATURE;
     }
 }

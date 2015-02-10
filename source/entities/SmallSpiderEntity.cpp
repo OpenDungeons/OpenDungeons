@@ -19,6 +19,7 @@
 
 #include "network/ODPacket.h"
 #include "gamemap/GameMap.h"
+#include "rooms/Room.h"
 #include "utils/Random.h"
 #include "utils/LogManager.h"
 
@@ -47,7 +48,7 @@ void SmallSpiderEntity::doUpkeep()
     OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
     if(tile == nullptr)
     {
-        getGameMap()->removeRenderedMovableEntity(this);
+        removeFromGameMap();
         deleteYourself();
         return;
     }
@@ -57,14 +58,14 @@ void SmallSpiderEntity::doUpkeep()
     // If the spider is outside the crypt or too old, it dies
     Room* currentCrypt = nullptr;
     if((tile->getCoveringRoom() != nullptr) &&
-       (tile->getCoveringRoom()->getType() == Room::crypt))
+       (tile->getCoveringRoom()->getType() == RoomType::crypt))
     {
        currentCrypt = tile->getCoveringRoom();
     }
 
     if(mIsSlapped || (mNbTurnLife <= 0) || (currentCrypt == nullptr))
     {
-        getGameMap()->removeRenderedMovableEntity(this);
+        removeFromGameMap();
         deleteYourself();
         return;
     }
@@ -111,7 +112,7 @@ void SmallSpiderEntity::doUpkeep()
     setAnimationState("Walk");
 }
 
-bool SmallSpiderEntity::canSlap(Seat* seat, bool isEditorMode)
+bool SmallSpiderEntity::canSlap(Seat* seat)
 {
     Tile* tile = getPositionTile();
     OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
@@ -121,7 +122,7 @@ bool SmallSpiderEntity::canSlap(Seat* seat, bool isEditorMode)
     Room* currentCrypt = tile->getCoveringRoom();
     if(currentCrypt == nullptr)
         return false;
-    if(currentCrypt->getType() != Room::RoomType::crypt)
+    if(currentCrypt->getType() != RoomType::crypt)
         return false;
 
     if(currentCrypt->getSeat() != seat)

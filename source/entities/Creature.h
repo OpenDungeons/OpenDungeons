@@ -22,11 +22,8 @@
 #define CREATURE_H
 
 #include "entities/CreatureSound.h"
-#include "entities/CreatureDefinition.h"
 #include "entities/CreatureAction.h"
 #include "entities/MovableGameEntity.h"
-
-#include "utils/ConfigManager.h"
 
 #include <OgreVector2.h>
 #include <OgreVector3.h>
@@ -37,6 +34,8 @@
 
 class GameMap;
 class Creature;
+class CreatureDefinition;
+class Room;
 class Weapon;
 
 enum class CreatureMoodLevel;
@@ -64,11 +63,17 @@ public:
     Creature(GameMap* gameMap, const CreatureDefinition* definition);
     virtual ~Creature();
 
+    virtual GameEntityType getObjectType() const
+    { return GameEntityType::creature; }
+
     static const std::string CREATURE_PREFIX;
 
     //! \brief Conform: AttackableEntity - Returns the prefix used in the OGRE identifier for this object.
     std::string getOgreNamePrefix() const
     { return CREATURE_PREFIX; }
+
+    virtual void addToGameMap();
+    virtual void removeFromGameMap();
 
     bool canDisplayStatsWindow(Seat* seat)
     { return true; }
@@ -242,7 +247,7 @@ public:
     void receiveExp(double experience);
 
     //! \brief Returns true if the given action is queued in the action list. False otherwise
-    bool isActionInList(CreatureAction::ActionType action);
+    bool isActionInList(CreatureActionType action);
 
     const std::deque<CreatureAction>& getActionQueue()
     { return mActionQueue; }
@@ -284,9 +289,9 @@ public:
     //! \brief Checks if the creature can be picked up. If yes, this function does the needed
     //! to prepare for the pickup (removing creature from GameMap, changing states, ...).
     //! Returns true if the creature can be picked up
-    bool tryPickup(Seat* seat, bool isEditorMode);
+    bool tryPickup(Seat* seat);
     void pickup();
-    bool tryDrop(Seat* seat, Tile* tile, bool isEditorMode);
+    bool tryDrop(Seat* seat, Tile* tile);
 
     inline void jobDone(double val)
     {
@@ -325,12 +330,12 @@ public:
     //! \brief Tells whether the creature can go through the given tile.
     bool canGoThroughTile(const Tile* tile) const;
 
-    virtual bool tryEntityCarryOn();
+    virtual EntityCarryType getEntityCarryType();
     virtual void notifyEntityCarryOn();
     virtual void notifyEntityCarryOff(const Ogre::Vector3& position);
 
-    bool canSlap(Seat* seat, bool isEditorMode);
-    void slap(bool isEditorMode);
+    bool canSlap(Seat* seat);
+    void slap();
 
     void fireCreatureSound(CreatureSound::SoundType sound);
 
@@ -447,12 +452,12 @@ private:
     std::vector<Tile*>              mVisualDebugEntityTiles;
 
     //! \brief Contains the actions that have already been tested to avoid trying several times same action
-    std::vector<CreatureAction::ActionType> mActionTry;
+    std::vector<CreatureActionType> mActionTry;
 
     ForceAction                     mForceAction;
 
-    MovableGameEntity*              mCarriedEntity;
-    GameEntity::ObjectType          mCarriedEntityDestType;
+    GameEntity*                     mCarriedEntity;
+    GameEntityType                  mCarriedEntityDestType;
     std::string                     mCarriedEntityDestName;
 
     Ogre::Vector3                   mScale;
@@ -588,7 +593,7 @@ private:
     //! \brief Restores the creature's stats according to its current level
     void buildStats();
 
-    void carryEntity(MovableGameEntity* carriedEntity);
+    void carryEntity(GameEntity* carriedEntity);
 
     void releaseCarriedEntity();
 

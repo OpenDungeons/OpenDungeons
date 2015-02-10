@@ -53,7 +53,7 @@ void MissileObject::doUpkeep()
     {
         if(!isMoving())
         {
-            getGameMap()->removeRenderedMovableEntity(this);
+            removeFromGameMap();
             deleteYourself();
         }
         return;
@@ -63,7 +63,7 @@ void MissileObject::doUpkeep()
     OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
     if(tile == nullptr)
     {
-        getGameMap()->removeRenderedMovableEntity(this);
+        removeFromGameMap();
         deleteYourself();
         return;
     }

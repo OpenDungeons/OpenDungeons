@@ -171,7 +171,7 @@ protected:
         Creature* creature = Creature::getCreatureFromStream(gameMap, stringStr);
 
         creature->createMesh();
-        gameMap->addCreature(creature);
+        creature->addToGameMap();
     }
 
 private:

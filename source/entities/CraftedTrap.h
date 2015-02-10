@@ -20,8 +20,6 @@
 
 #include "entities/RenderedMovableEntity.h"
 
-#include "traps/Trap.h"
-
 #include <string>
 #include <istream>
 #include <ostream>
@@ -32,22 +30,24 @@ class GameMap;
 class Tile;
 class ODPacket;
 
+enum class TrapType;
+
 class CraftedTrap: public RenderedMovableEntity
 {
 public:
-    CraftedTrap(GameMap* gameMap, const std::string& forgeName, Trap::TrapType trapType);
+    CraftedTrap(GameMap* gameMap, const std::string& forgeName, TrapType trapType);
     CraftedTrap(GameMap* gameMap);
 
-    virtual RenderedMovableEntityType getRenderedMovableEntityType()
+    virtual RenderedMovableEntityType getRenderedMovableEntityType() const
     { return RenderedMovableEntityType::craftedTrap; }
 
     virtual const Ogre::Vector3& getScale() const;
 
-    Trap::TrapType getTrapType() const
+    TrapType getTrapType() const
     { return mTrapType; }
 
-    virtual bool tryEntityCarryOn()
-    { return true; }
+    virtual EntityCarryType getEntityCarryType()
+    { return EntityCarryType::craftedTrap; }
 
     virtual void notifyEntityCarryOn();
     virtual void notifyEntityCarryOff(const Ogre::Vector3& position);
@@ -56,9 +56,9 @@ public:
     static CraftedTrap* getCraftedTrapFromPacket(GameMap* gameMap, ODPacket& is);
     static const char* getFormat();
 private:
-    Trap::TrapType mTrapType;
+    TrapType mTrapType;
 
-    const std::string& getMeshFromTrapType(Trap::TrapType trapType);
+    const std::string& getMeshFromTrapType(TrapType trapType);
 };
 
 #endif // CRAFTEDTRAP_H

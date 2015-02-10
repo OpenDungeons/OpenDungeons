@@ -18,11 +18,15 @@
 #include "spell/SpellSummonWorker.h"
 
 #include "entities/Creature.h"
+#include "entities/CreatureDefinition.h"
 
 #include "game/Player.h"
 
+#include "game/Seat.h"
+
 #include "gamemap/GameMap.h"
 
+#include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
 
 int SpellSummonWorker::getSpellSummonWorkerCost(GameMap* gameMap, const std::vector<Tile*>& tiles, Player* player)
@@ -85,7 +89,7 @@ void SpellSummonWorker::castSpellSummonWorker(GameMap* gameMap, const std::vecto
             + ", name=" + newCreature->getName() + ", seatId=" + Ogre::StringConverter::toString(player->getSeat()->getId()));
 
         newCreature->setSeat(player->getSeat());
-        gameMap->addCreature(newCreature);
+        newCreature->addToGameMap();
         Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(tile->getX()),
                                     static_cast<Ogre::Real>(tile->getY()),
                                     static_cast<Ogre::Real>(0.0));

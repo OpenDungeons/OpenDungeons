@@ -18,75 +18,117 @@
 #include "spell/Spell.h"
 
 #include "game/Player.h"
+#include "game/Seat.h"
+
+#include "gamemap/GameMap.h"
 
 #include "network/ODPacket.h"
 
 #include "spell/SpellSummonWorker.h"
+#include "spell/SpellCallToWar.h"
 
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-Spell::Spell(GameMap* gameMap, const std::string& meshName, Ogre::Real rotationAngle) :
-    RenderedMovableEntity(gameMap, "Spell", meshName,
-        rotationAngle, false, 1.0f)
+const std::string Spell::SPELL_OGRE_PREFIX = "Spell_";
+
+Spell::Spell(GameMap* gameMap, const std::string& baseName, const std::string& meshName, Ogre::Real rotationAngle,
+        int32_t nbTurns, const std::string& initialAnimationState, bool initialAnimationLoop) :
+    RenderedMovableEntity(gameMap, baseName, meshName, rotationAngle, false, 1.0f,
+        initialAnimationState, initialAnimationLoop),
+        mNbTurns(nbTurns)
 {
+}
+
+void Spell::doUpkeep()
+{
+    if(mNbTurns < 0)
+        return;
+
+    if(mNbTurns > 0)
+    {
+        --mNbTurns;
+        return;
+    }
+
+    removeFromGameMap();
+    deleteYourself();
+}
+
+void Spell::addToGameMap()
+{
+    getGameMap()->addSpell(this);
+    setIsOnMap(true);
+    getGameMap()->addAnimatedObject(this);
+
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    getGameMap()->addActiveObject(this);
+}
+
+void Spell::removeFromGameMap()
+{
+    getGameMap()->removeSpell(this);
+    setIsOnMap(false);
+    getGameMap()->removeAnimatedObject(this);
+
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    fireRemoveEntityToSeatsWithVision();
+    Tile* posTile = getPositionTile();
+    if(posTile != nullptr)
+        posTile->removeEntity(this);
+
+    getGameMap()->removeActiveObject(this);
 }
 
 Spell* Spell::getSpellFromStream(GameMap* gameMap, std::istream &is)
 {
-    Spell* tempSpell = nullptr;
     SpellType type;
     is >> type;
 
     switch (type)
     {
         case SpellType::nullSpellType:
-            tempSpell = nullptr;
-            break;
-        case SpellType::summonWorker:
-            OD_ASSERT_TRUE_MSG(false, "summonWorker should not be in stream");
-            break;
-        default:
-            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Helper::toString(
-                static_cast<int>(type)));
-    }
-
-    if(tempSpell == nullptr)
-        return nullptr;
-
-    tempSpell->importFromStream(is);
-
-    return tempSpell;
-}
-
-Spell* Spell::getSpellFromPacket(GameMap* gameMap, ODPacket &is)
-{
-    Spell* tempSpell = nullptr;
-    SpellType type;
-    is >> type;
-
-    switch (type)
-    {
-        case SpellType::nullSpellType:
-            tempSpell = nullptr;
-            break;
+            return nullptr;
         case SpellType::summonWorker:
             OD_ASSERT_TRUE_MSG(false, "summonWorker should not be in packet");
+            return nullptr;
+        case SpellType::callToWar:
+            return new SpellCallToWar(gameMap);
             break;
         default:
             OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(
                 static_cast<int>(type)));
+            return nullptr;
     }
-
-    if(tempSpell == nullptr)
-        return nullptr;
-
-    tempSpell->importFromPacket(is);
-
-    return tempSpell;
 }
 
-const char* Spell::getSpellNameFromSpellType(SpellType type)
+Spell* Spell::getSpellFromPacket(GameMap* gameMap, ODPacket &is)
+{
+    SpellType type;
+    is >> type;
+
+    switch (type)
+    {
+        case SpellType::nullSpellType:
+            return nullptr;
+        case SpellType::summonWorker:
+            OD_ASSERT_TRUE_MSG(false, "summonWorker should not be in packet");
+            return nullptr;
+        case SpellType::callToWar:
+            return new SpellCallToWar(gameMap);
+            break;
+        default:
+            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(
+                static_cast<int>(type)));
+            return nullptr;
+    }
+}
+
+std::string Spell::getSpellNameFromSpellType(SpellType type)
 {
     switch (type)
     {
@@ -96,8 +138,11 @@ const char* Spell::getSpellNameFromSpellType(SpellType type)
         case SpellType::summonWorker:
             return "SummonWorker";
 
+        case SpellType::callToWar:
+            return "callToWar";
+
         default:
-            return "UnknownSpellType";
+            return "UnknownSpellType=" + Helper::toString(static_cast<int32_t>(type));
     }
 }
 
@@ -110,6 +155,9 @@ int Spell::getSpellCost(GameMap* gameMap, SpellType type, const std::vector<Tile
 
         case SpellType::summonWorker:
             return SpellSummonWorker::getSpellSummonWorkerCost(gameMap, tiles, player);
+
+        case SpellType::callToWar:
+            return SpellCallToWar::getSpellCallToWarCost(gameMap, tiles, player);
 
         default:
             OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(
@@ -134,12 +182,95 @@ void Spell::castSpell(GameMap* gameMap, SpellType type, const std::vector<Tile*>
             break;
         }
 
+        case SpellType::callToWar:
+        {
+            SpellCallToWar::castSpellCallToWar(gameMap, tiles, player);
+            break;
+        }
+
         default:
         {
             OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(
                 static_cast<int>(type)) + " for player " + player->getNick());
             break;
         }
+    }
+}
+
+void Spell::notifySeatsWithVision(const std::vector<Seat*>& seats)
+{
+    // For spells, we want the caster and his allies to always have vision even if they
+    // don't see the tile the spell is on. Of course, vision on the tile is not given by the spell
+    // We notify seats that lost vision
+    for(std::vector<Seat*>::iterator it = mSeatsWithVisionNotified.begin(); it != mSeatsWithVisionNotified.end();)
+    {
+        Seat* seat = *it;
+        // If the seat is still in the list, nothing to do
+        if(std::find(seats.begin(), seats.end(), seat) != seats.end())
+        {
+            ++it;
+            continue;
+        }
+
+        // If the seat is the spell caster we don't remove vision
+        if(getSeat() == seat)
+        {
+            ++it;
+            continue;
+        }
+
+        // If the seat is a spell caster ally, we don't remove vision
+        if(getSeat()->isAlliedSeat(seat))
+        {
+            ++it;
+            continue;
+        }
+
+        // we remove vision
+        it = mSeatsWithVisionNotified.erase(it);
+
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+
+        fireRemoveEntity(seat);
+    }
+
+    // We notify seats that gain vision
+    for(Seat* seat : seats)
+    {
+        // If the seat was already in the list, nothing to do
+        if(std::find(mSeatsWithVisionNotified.begin(), mSeatsWithVisionNotified.end(), seat) != mSeatsWithVisionNotified.end())
+            continue;
+
+        mSeatsWithVisionNotified.push_back(seat);
+
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+
+        fireAddEntity(seat, false);
+    }
+
+    // We give vision to the spell caster and his allies
+    std::vector<Seat*> alliedSeats = getSeat()->getAlliedSeats();
+    alliedSeats.push_back(getSeat());
+    for(Seat* seat : alliedSeats)
+    {
+        // If the seat was already in the list, nothing to do
+        if(std::find(mSeatsWithVisionNotified.begin(), mSeatsWithVisionNotified.end(), seat) != mSeatsWithVisionNotified.end())
+            continue;
+
+        mSeatsWithVisionNotified.push_back(seat);
+
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+
+        fireAddEntity(seat, false);
     }
 }
 
@@ -150,28 +281,64 @@ std::string Spell::getFormat()
 
 void Spell::exportHeadersToStream(std::ostream& os)
 {
-    os << getType() << "\t";
+    RenderedMovableEntity::exportHeadersToStream(os);
+    os << getSpellType() << "\t";
 }
 
 void Spell::exportHeadersToPacket(ODPacket& os)
 {
-    os << getType();
+    RenderedMovableEntity::exportHeadersToPacket(os);
+    os << getSpellType();
 }
 
 void Spell::exportToPacket(ODPacket& os) const
 {
+    int seatId = -1;
+    Seat* seat = getSeat();
+    if(seat != nullptr)
+        seatId = seat->getId();
+
+    os << seatId;
+    RenderedMovableEntity::exportToPacket(os);
 }
 
 void Spell::importFromPacket(ODPacket& is)
 {
+    int seatId;
+    OD_ASSERT_TRUE_MSG(is >> seatId, "name=" + getName());
+    if(seatId != -1)
+    {
+        Seat* seat = getGameMap()->getSeatById(seatId);
+        OD_ASSERT_TRUE_MSG(seat != nullptr, "name=" + getName() + ", seatId=" + Helper::toString(seatId));
+        if(seat != nullptr)
+            setSeat(seat);
+    }
+    RenderedMovableEntity::importFromPacket(is);
 }
 
 void Spell::exportToStream(std::ostream& os) const
 {
+    int seatId = -1;
+    Seat* seat = getSeat();
+    if(seat != nullptr)
+        seatId = seat->getId();
+
+    os << seatId;
+    RenderedMovableEntity::exportToStream(os);
 }
 
 void Spell::importFromStream(std::istream& is)
 {
+    int seatId;
+    OD_ASSERT_TRUE_MSG(is >> seatId, "name=" + getName());
+    if(seatId != -1)
+    {
+        Seat* seat = getGameMap()->getSeatById(seatId);
+        OD_ASSERT_TRUE_MSG(seat != nullptr, "name=" + getName() + ", seatId=" + Helper::toString(seatId));
+        if(seat != nullptr)
+            setSeat(seat);
+    }
+    RenderedMovableEntity::importFromStream(is);
 }
 
 std::istream& operator>>(std::istream& is, SpellType& tt)

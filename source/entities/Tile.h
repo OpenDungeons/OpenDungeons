@@ -43,6 +43,22 @@ class BuildingObject;
 class PersistentObject;
 class ODPacket;
 
+enum class TileType
+{
+    nullTileType = 0,
+    dirt = 1,
+    gold = 2,
+    rock = 3,
+    water = 4,
+    lava = 5,
+    claimed = 6
+};
+
+ODPacket& operator<<(ODPacket& os, const TileType& type);
+ODPacket& operator>>(ODPacket& is, TileType& type);
+std::ostream& operator<<(std::ostream& os, const TileType& type);
+std::istream& operator>>(std::istream& is, TileType& type);
+
 /*! \brief The tile class contains information about tile type and contents and is the basic level bulding block.
  *
  * A Tile is the basic building block for the GameMap.  It consists of a tile
@@ -56,18 +72,10 @@ friend class GameMap;
 friend class ODServer;
 
 public:
-    enum TileType
-    {
-        nullTileType = 0,
-        dirt = 1,
-        gold = 2,
-        rock = 3,
-        water = 4,
-        lava = 5,
-        claimed = 6
-    };
+    Tile(GameMap* gameMap, int x = 0, int y = 0, TileType type = TileType::dirt, double fullness = 100.0);
 
-    Tile(GameMap* gameMap, int x = 0, int y = 0, TileType type = dirt, double fullness = 100.0);
+    virtual GameEntityType getObjectType() const
+    { return GameEntityType::tile; }
 
     std::string getOgreNamePrefix() const { return "Tile_"; }
 
@@ -83,6 +91,11 @@ public:
     {
         return mType;
     }
+
+    virtual void addToGameMap();
+    //! Tiles cannot be removed
+    virtual void removeFromGameMap()
+    {}
 
     /*! \brief A mutator to change how "filled in" the tile is.
      *
@@ -236,8 +249,6 @@ public:
     //! \brief Loads the tile data from a level line.
     static void loadFromLine(const std::string& line, Tile *t);
 
-    friend std::ostream& operator<<(std::ostream& os, Tile *t);
-
     /*! \brief Exports the tile data to the packet so that the client associated to the seat have the needed information
      *         to display the tile correctly
      */
@@ -246,9 +257,6 @@ public:
     /*! \brief Updates the tile from the data sent by the server so that it is correctly displayed and used
      */
      void updateFromPacket(ODPacket& is);
-
-    friend ODPacket& operator<<(ODPacket& os, const Tile::TileType& rot);
-    friend ODPacket& operator>>(ODPacket& is, Tile::TileType& rot);
 
     /*! \brief This is a helper function which just converts the tile type enum into a string.
      *
@@ -265,10 +273,8 @@ public:
     inline int getY() const
     { return mY; }
 
-    double getClaimedPercentage()
-    {
-        return mClaimedPercentage;
-    }
+    inline double getClaimedPercentage() const
+    { return mClaimedPercentage; }
 
     static std::string buildName(int x, int y);
     static bool checkTileName(const std::string& tileName, int& x, int& y);
@@ -304,7 +310,7 @@ public:
     void fillWithAttackableCreatures(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
     void fillWithAttackableRoom(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
     void fillWithAttackableTrap(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
-    void fillWithCarryableEntities(std::vector<MovableGameEntity*>& entities);
+    void fillWithCarryableEntities(std::vector<GameEntity*>& entities);
     void fillWithChickenEntities(std::vector<GameEntity*>& entities);
     void fillWithCraftedTraps(std::vector<GameEntity*>& entities);
 
@@ -332,8 +338,13 @@ public:
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
+    // Tiles do not trigger add/remove events
+    void fireAddEntity(Seat* seat, bool async)
+    {}
+    void fireRemoveEntity(Seat* seat)
+    {}
 private:
-    bool isFloodFillFilled();
+    bool isFloodFillFilled() const;
 
     enum FloodFillType
     {

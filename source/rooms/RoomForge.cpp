@@ -19,10 +19,13 @@
 
 #include "entities/CraftedTrap.h"
 #include "entities/Creature.h"
+#include "entities/CreatureDefinition.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 
 #include "gamemap/GameMap.h"
+
+#include "traps/Trap.h"
 
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
@@ -36,7 +39,7 @@ RoomForge::RoomForge(GameMap* gameMap) :
     Room(gameMap),
     mNbTurnsNoChangeSpots(0),
     mPoints(0),
-    mTrapType(Trap::TrapType::nullTrapType)
+    mTrapType(TrapType::nullTrapType)
 {
     setMeshName("Forge");
 }
@@ -137,7 +140,7 @@ void RoomForge::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
 bool RoomForge::hasOpenCreatureSpot(Creature* c)
 {
     // If there is no need, we do not allow creature to work
-    if(mTrapType == Trap::TrapType::nullTrapType)
+    if(mTrapType == TrapType::nullTrapType)
         return false;
 
     // We accept all creatures as soon as there are free active spots
@@ -203,9 +206,9 @@ void RoomForge::doUpkeep()
 
     // If we are not already working on something, we check if a trap have a need. If so,
     // we check that no reachable forge can supply the trap before starting crafting
-    if(mTrapType == Trap::TrapType::nullTrapType)
+    if(mTrapType == TrapType::nullTrapType)
     {
-        std::map<Trap::TrapType, int> neededTraps;
+        std::map<TrapType, int> neededTraps;
         Creature* kobold = getGameMap()->getKoboldForPathFinding(getSeat());
         if (kobold != nullptr)
         {
@@ -213,7 +216,7 @@ void RoomForge::doUpkeep()
                 mCoveredTiles[0], kobold);
             for(Building* building : reachableBuildings)
             {
-                if(building->getObjectType() != GameEntity::ObjectType::trap)
+                if(building->getObjectType() != GameEntityType::trap)
                     continue;
 
                 Trap* trap = static_cast<Trap*>(building);
@@ -231,9 +234,9 @@ void RoomForge::doUpkeep()
         if(!neededTraps.empty())
         {
             // We check if a reachable forge have a corresponding crafted trap
-            std::vector<Room*> rooms = getGameMap()->getRoomsByTypeAndSeat(Room::RoomType::forge, getSeat());
+            std::vector<Room*> rooms = getGameMap()->getRoomsByTypeAndSeat(RoomType::forge, getSeat());
             rooms = getGameMap()->getReachableRooms(rooms, getCoveredTile(0), kobold);
-            for(std::pair<Trap::TrapType const, int>& p : neededTraps)
+            for(std::pair<TrapType const, int>& p : neededTraps)
             {
                 for(Room* room : rooms)
                 {
@@ -242,8 +245,8 @@ void RoomForge::doUpkeep()
                 }
             }
 
-            std::vector<Trap::TrapType> trapsToCraft;
-            for(std::pair<Trap::TrapType const, int>& p : neededTraps)
+            std::vector<TrapType> trapsToCraft;
+            for(std::pair<TrapType const, int>& p : neededTraps)
             {
                 if(p.second <= 0)
                     continue;
@@ -261,7 +264,7 @@ void RoomForge::doUpkeep()
     }
 
     // If there is nothing to do, we remove the working creatures if any
-    if(mTrapType == Trap::TrapType::nullTrapType)
+    if(mTrapType == TrapType::nullTrapType)
     {
         if(mCreaturesSpots.empty())
             return;
@@ -359,28 +362,28 @@ void RoomForge::doUpkeep()
         return;
 
     CraftedTrap* craftedTrap = new CraftedTrap(getGameMap(), getName(), mTrapType);
-    getGameMap()->addRenderedMovableEntity(craftedTrap);
+    craftedTrap->addToGameMap();
     Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(tileCraftedTrap->getX()), static_cast<Ogre::Real>(tileCraftedTrap->getY()), static_cast<Ogre::Real>(0.0));
     craftedTrap->createMesh();
     craftedTrap->setPosition(spawnPosition, false);
     mPoints -= pointsNeeded;
-    mTrapType = Trap::TrapType::nullTrapType;
+    mTrapType = TrapType::nullTrapType;
 }
 
 uint32_t RoomForge::countCraftedItemsOnRoom()
 {
-    std::vector<MovableGameEntity*> carryable;
+    std::vector<GameEntity*> carryable;
     for(Tile* t : mCoveredTiles)
     {
         t->fillWithCarryableEntities(carryable);
     }
     uint32_t nbCraftedTrap = 0;
-    for(MovableGameEntity* entity : carryable)
+    for(GameEntity* entity : carryable)
     {
-        if(entity->getObjectType() != GameEntity::ObjectType::renderedMovableEntity)
+        if(entity->getObjectType() != GameEntityType::renderedMovableEntity)
             continue;
         RenderedMovableEntity* renderEntity = static_cast<RenderedMovableEntity*>(entity);
-        if(renderEntity->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::craftedTrap)
+        if(renderEntity->getRenderedMovableEntityType() != RenderedMovableEntityType::craftedTrap)
             continue;
 
         ++nbCraftedTrap;
@@ -395,14 +398,14 @@ Tile* RoomForge::checkIfAvailableSpot(const std::vector<Tile*>& activeSpots)
     {
         // If the tile contains no crafted trap, we can add a new one
         bool isFilled = false;
-        std::vector<MovableGameEntity*> entities;
+        std::vector<GameEntity*> entities;
         tile->fillWithCarryableEntities(entities);
-        for(MovableGameEntity* entity : entities)
+        for(GameEntity* entity : entities)
         {
-            if(entity->getObjectType() != GameEntity::ObjectType::renderedMovableEntity)
+            if(entity->getObjectType() != GameEntityType::renderedMovableEntity)
                 continue;
             RenderedMovableEntity* renderEntity = static_cast<RenderedMovableEntity*>(entity);
-            if(renderEntity->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::craftedTrap)
+            if(renderEntity->getRenderedMovableEntityType() != RenderedMovableEntityType::craftedTrap)
                 continue;
 
             // There is one
@@ -427,20 +430,20 @@ void RoomForge::getCreatureWantedPos(Creature* creature, Tile* tileSpot,
     wantedY -= OFFSET_CREATURE;
 }
 
-int32_t RoomForge::getNbCraftedTrapsForType(Trap::TrapType type)
+int32_t RoomForge::getNbCraftedTrapsForType(TrapType type)
 {
-    std::vector<MovableGameEntity*> carryable;
+    std::vector<GameEntity*> carryable;
     for(Tile* t : mCoveredTiles)
     {
         t->fillWithCarryableEntities(carryable);
     }
     uint32_t nbCraftedTrap = 0;
-    for(MovableGameEntity* entity : carryable)
+    for(GameEntity* entity : carryable)
     {
-        if(entity->getObjectType() != GameEntity::ObjectType::renderedMovableEntity)
+        if(entity->getObjectType() != GameEntityType::renderedMovableEntity)
             continue;
         RenderedMovableEntity* renderEntity = static_cast<RenderedMovableEntity*>(entity);
-        if(renderEntity->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::craftedTrap)
+        if(renderEntity->getRenderedMovableEntityType() != RenderedMovableEntityType::craftedTrap)
             continue;
 
         CraftedTrap* craftedTrap = static_cast<CraftedTrap*>(renderEntity);

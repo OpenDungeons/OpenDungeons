@@ -25,6 +25,8 @@
 
 #include "network/ODServer.h"
 
+#include "rooms/Room.h"
+
 const int32_t pointsPerWallSpot = 50;
 const int32_t handicapPerTileOffset = 20;
 
@@ -42,7 +44,7 @@ bool BaseAI::initialize(const std::string& parameters)
 
 Room* BaseAI::getDungeonTemple()
 {
-    std::vector<Room*> dt = mGameMap.getRoomsByTypeAndSeat(Room::dungeonTemple, mPlayer.getSeat());
+    std::vector<Room*> dt = mGameMap.getRoomsByTypeAndSeat(RoomType::dungeonTemple, mPlayer.getSeat());
     if(!dt.empty())
         return dt.front();
     else
@@ -52,7 +54,7 @@ Room* BaseAI::getDungeonTemple()
 bool BaseAI::buildRoom(Room* room, const std::vector<Tile*>& tiles)
 {
     room->setupRoom(mGameMap.nextUniqueNameRoom(room->getMeshName()), mPlayer.getSeat(), tiles);
-    mGameMap.addRoom(room);
+    room->addToGameMap();
     room->createMesh();
     room->checkForRoomAbsorbtion();
     room->updateActiveSpots();
@@ -64,13 +66,13 @@ bool BaseAI::shouldGroundTileBeConsideredForBestPlaceForRoom(Tile* tile, Seat* m
 {
     switch(tile->getType())
     {
-        case Tile::TileType::dirt:
-        case Tile::TileType::gold:
+        case TileType::dirt:
+        case TileType::gold:
         {
             // Dirt and gold can always be built (even if digging may be needed depending on fullness)
             return true;
         }
-        case Tile::TileType::claimed:
+        case TileType::claimed:
         {
             // We check if we can build on that tile and if there is no building currently
             if(!tile->isClaimedForSeat(mPlayerSeat))
@@ -102,7 +104,7 @@ bool BaseAI::shouldWallTileBeConsideredForBestPlaceForRoom(Tile* tile, Seat* mPl
     if(tile->getFullness() <= 0.0)
         return false;
 
-    if(tile->getType() == Tile::TileType::dirt)
+    if(tile->getType() == TileType::dirt)
         return true;
 
     if(tile->isWallClaimedForSeat(mPlayerSeat))

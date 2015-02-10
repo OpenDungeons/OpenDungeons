@@ -43,7 +43,7 @@ void Building::addBuildingObject(Tile* targetTile, RenderedMovableEntity* obj)
 
     // We assume the object position has been already set (most of the time in loadBuildingObject)
     mBuildingObjects[targetTile] = obj;
-    getGameMap()->addRenderedMovableEntity(obj);
+    obj->addToGameMap();
     obj->setPosition(obj->getPosition(), false);
 }
 
@@ -53,7 +53,7 @@ void Building::removeBuildingObject(Tile* tile)
         return;
 
     RenderedMovableEntity* obj = mBuildingObjects[tile];
-    getGameMap()->removeRenderedMovableEntity(obj);
+    obj->removeFromGameMap();
     obj->deleteYourself();
     mBuildingObjects.erase(tile);
 }
@@ -70,7 +70,7 @@ void Building::removeBuildingObject(RenderedMovableEntity* obj)
 
     if(it != mBuildingObjects.end())
     {
-        getGameMap()->removeRenderedMovableEntity(obj);
+        obj->removeFromGameMap();
         obj->deleteYourself();
         mBuildingObjects.erase(it);
     }
@@ -85,7 +85,7 @@ void Building::removeAllBuildingObjects()
     while (itr != mBuildingObjects.end())
     {
         RenderedMovableEntity* obj = itr->second;
-        getGameMap()->removeRenderedMovableEntity(obj);
+        obj->removeFromGameMap();
         obj->deleteYourself();
         ++itr;
     }

@@ -21,7 +21,8 @@
 #include "gamemap/TileContainer.h"
 
 #include "ai/AIManager.h"
-#include "rooms/Room.h"
+
+#include "entities/Tile.h"
 
 #ifdef __MINGW32__
 #ifndef mode_t
@@ -44,6 +45,9 @@ class MovableGameEntity;
 class CreatureDefinition;
 class Weapon;
 class CreatureMood;
+class Spell;
+
+enum class RoomType;
 
 /*! \brief The class which stores the entire game state on the server and a subset of this on each client.
  *
@@ -185,9 +189,8 @@ public:
     //! \brief Calls the deleteYourself() method on each of the rooms in the game map as well as clearing the vector of stored rooms.
     void clearRooms();
 
-    //! \brief A simple mutator method to add the given Room to the GameMap.
+    //! \brief Simple mutators method to add/remove the given Room to the GameMap.
     void addRoom(Room *r);
-
     void removeRoom(Room *r);
 
     //! \brief A simple accessor method to return the given Room.
@@ -196,12 +199,12 @@ public:
     //! \brief A simple accessor method to return the number of Rooms stored in the GameMap.
     unsigned int numRooms();
 
-    std::vector<Room*> getRoomsByType(Room::RoomType type);
-    std::vector<Room*> getRoomsByTypeAndSeat(Room::RoomType type,
+    std::vector<Room*> getRoomsByType(RoomType type);
+    std::vector<Room*> getRoomsByTypeAndSeat(RoomType type,
                         Seat* seat);
-    std::vector<const Room*> getRoomsByTypeAndSeat(Room::RoomType type,
+    std::vector<const Room*> getRoomsByTypeAndSeat(RoomType type,
                           Seat* seat) const;
-    unsigned int numRoomsByTypeAndSeat(Room::RoomType type,
+    unsigned int numRoomsByTypeAndSeat(RoomType type,
                       Seat* seat) const;
     std::vector<Room*> getReachableRooms(const std::vector<Room*> &vec,
                        Tile *startTile, const Creature* creature);
@@ -331,6 +334,14 @@ public:
     //! \brief Tells whether a path exists between two tiles for the given creature.
     bool pathExists(const Creature* creature, Tile* tileStart, Tile* tileEnd);
 
+    /*! \brief Calculates the walkable path between tileStart and one of the possibleDests. This function
+     * will choose the closest tile in possibleDests and return the path between tileStart and it.
+     * If a path is found, it is returned and chosenTile is set to the chosen tile. If no path is found,
+     * an empty list will be returned and chosenTile will be set to nullptr
+     */
+    std::list<Tile*> findBestPath(const Creature* creature, Tile* tileStart, const std::vector<Tile*> possibleDests,
+        Tile*& chosenTile);
+
     /*! \brief Calculates the walkable path between tiles (x1, y1) and (x2, y2).
      *
      * The search is carried out using the A-star search algorithm.
@@ -358,7 +369,7 @@ public:
     std::vector<GameEntity*> getVisibleCreatures(const std::vector<Tile*>& visibleTiles, Seat* seat, bool enemyCreatures);
 
     //! \brief Loops over the visibleTiles and returns any carryable entity in those tiles
-    std::vector<MovableGameEntity*> getVisibleCarryableEntities(const std::vector<Tile*>& visibleTiles);
+    std::vector<GameEntity*> getVisibleCarryableEntities(const std::vector<Tile*>& visibleTiles);
 
     /** \brief Returns the as the crow flies distance between tiles located at the two coordinates given.
      * If tiles do not exist at these locations the function returns -1.0.
@@ -471,8 +482,15 @@ public:
     RenderedMovableEntity* getRenderedMovableEntity(const std::string& name);
     void clearRenderedMovableEntities();
     void clearActiveObjects();
-    MovableGameEntity* getEntityFromTypeAndName(GameEntity::ObjectType entityType,
+    MovableGameEntity* getEntityFromTypeAndName(GameEntityType entityType,
         const std::string& entityName);
+
+    //! brief Functions to add/remove/get Spells
+    void addSpell(Spell *spell);
+    void removeSpell(Spell *spell);
+    Spell* getSpell(const std::string& name) const;
+    void clearSpells();
+    std::vector<Spell*> getSpellsBySeatAndType(Seat* seat, SpellType type) const;
 
     //! \brief Tells the game map a given player is attacking or under attack.
     //! Used on the server game map only.
@@ -483,7 +501,7 @@ public:
     void processDeletionQueues();
 
     void fillBuildableTilesAndPriceForPlayerInArea(int x1, int y1, int x2, int y2,
-        Player* player, Room::RoomType type, std::vector<Tile*>& tiles, int& goldRequired);
+        Player* player, RoomType type, std::vector<Tile*>& tiles, int& goldRequired);
 
     void updateVisibleEntities();
 
@@ -571,6 +589,8 @@ private:
     unsigned int mNumCallsTo_path;
 
     std::vector<RenderedMovableEntity*> mRenderedMovableEntities;
+
+    std::vector<Spell*> mSpells;
 
     //! AI Handling manager
     AIManager mAiManager;

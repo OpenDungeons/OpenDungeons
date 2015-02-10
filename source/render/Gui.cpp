@@ -41,6 +41,7 @@
 #include "modes/MenuModeEditor.h"
 #include "modes/MenuModeReplay.h"
 #include "utils/LogManager.h"
+#include "rooms/Room.h"
 #include "sound/SoundEffectsManager.h"
 #include "spell/Spell.h"
 
@@ -228,6 +229,10 @@ void Gui::assignEventHandlers()
     mSheets[inGameMenu]->getChild(BUTTON_SPELL_SUMMON_WORKER)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&spellSummonWorkerPressed));
+
+    mSheets[inGameMenu]->getChild(BUTTON_SPELL_CALLTOWAR)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&spellCallToWarPressed));
 
     mSheets[inGameMenu]->getChild(BUTTON_CREATURE_WORKER)->subscribeEvent(
             CEGUI::Window::EventMouseClick,
@@ -498,7 +503,7 @@ bool Gui::dormitoryButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
-    gameMap->getLocalPlayer()->setNewRoomType(Room::dormitory);
+    gameMap->getLocalPlayer()->setNewRoomType(RoomType::dormitory);
     return true;
 }
 
@@ -506,7 +511,7 @@ bool Gui::treasuryButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
-    gameMap->getLocalPlayer()->setNewRoomType(Room::treasury);
+    gameMap->getLocalPlayer()->setNewRoomType(RoomType::treasury);
     return true;
 }
 
@@ -521,7 +526,7 @@ bool Gui::forgeButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
-    gameMap->getLocalPlayer()->setNewRoomType(Room::forge);
+    gameMap->getLocalPlayer()->setNewRoomType(RoomType::forge);
     return true;
 }
 
@@ -529,7 +534,7 @@ bool Gui::trainingHallButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
-    gameMap->getLocalPlayer()->setNewRoomType(Room::trainingHall);
+    gameMap->getLocalPlayer()->setNewRoomType(RoomType::trainingHall);
     return true;
 }
 
@@ -537,7 +542,7 @@ bool Gui::libraryButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
-    gameMap->getLocalPlayer()->setNewRoomType(Room::library);
+    gameMap->getLocalPlayer()->setNewRoomType(RoomType::library);
     return true;
 }
 
@@ -545,7 +550,7 @@ bool Gui::hatcheryButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
-    gameMap->getLocalPlayer()->setNewRoomType(Room::hatchery);
+    gameMap->getLocalPlayer()->setNewRoomType(RoomType::hatchery);
     return true;
 }
 
@@ -553,7 +558,7 @@ bool Gui::cryptButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
-    gameMap->getLocalPlayer()->setNewRoomType(Room::crypt);
+    gameMap->getLocalPlayer()->setNewRoomType(RoomType::crypt);
     return true;
 }
 
@@ -561,7 +566,7 @@ bool Gui::templeButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
-    gameMap->getLocalPlayer()->setNewRoomType(Room::dungeonTemple);
+    gameMap->getLocalPlayer()->setNewRoomType(RoomType::dungeonTemple);
     return true;
 }
 
@@ -569,7 +574,7 @@ bool Gui::portalButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
-    gameMap->getLocalPlayer()->setNewRoomType(Room::portal);
+    gameMap->getLocalPlayer()->setNewRoomType(RoomType::portal);
     return true;
 }
 
@@ -577,7 +582,7 @@ bool Gui::cannonButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildTrap);
-    gameMap->getLocalPlayer()->setNewTrapType(Trap::cannon);
+    gameMap->getLocalPlayer()->setNewTrapType(TrapType::cannon);
     return true;
 }
 
@@ -585,7 +590,7 @@ bool Gui::spikeTrapButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildTrap);
-    gameMap->getLocalPlayer()->setNewTrapType(Trap::spike);
+    gameMap->getLocalPlayer()->setNewTrapType(TrapType::spike);
     return true;
 }
 
@@ -593,7 +598,7 @@ bool Gui::boulderTrapButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildTrap);
-    gameMap->getLocalPlayer()->setNewTrapType(Trap::boulder);
+    gameMap->getLocalPlayer()->setNewTrapType(TrapType::boulder);
     return true;
 }
 
@@ -609,6 +614,14 @@ bool Gui::spellSummonWorkerPressed(const CEGUI::EventArgs& e)
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::castSpell);
     gameMap->getLocalPlayer()->setNewSpellType(SpellType::summonWorker);
+    return true;
+}
+
+bool Gui::spellCallToWarPressed(const CEGUI::EventArgs& e)
+{
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
+    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::castSpell);
+    gameMap->getLocalPlayer()->setNewSpellType(SpellType::callToWar);
     return true;
 }
 
@@ -663,7 +676,7 @@ bool Gui::editorGoldButtonPressed(const CEGUI::EventArgs& e)
 
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
-    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::gold;
+    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = TileType::gold;
     return true;
 }
 
@@ -675,7 +688,7 @@ bool Gui::editorLavaButtonPressed(const CEGUI::EventArgs& e)
 
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
-    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::lava;
+    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = TileType::lava;
     return true;
 }
 
@@ -687,7 +700,7 @@ bool Gui::editorRockButtonPressed(const CEGUI::EventArgs& e)
 
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
-    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::rock;
+    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = TileType::rock;
     return true;
 }
 
@@ -699,7 +712,7 @@ bool Gui::editorWaterButtonPressed(const CEGUI::EventArgs& e)
 
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
-    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::water;
+    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = TileType::water;
     return true;
 }
 
@@ -711,7 +724,7 @@ bool Gui::editorDirtButtonPressed(const CEGUI::EventArgs& e)
 
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
-    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::dirt;
+    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = TileType::dirt;
     return true;
 }
 
@@ -723,7 +736,7 @@ bool Gui::editorClaimedButtonPressed(const CEGUI::EventArgs& e)
 
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
-    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::claimed;
+    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = TileType::claimed;
     return true;
 }
 
@@ -999,6 +1012,7 @@ const std::string Gui::BUTTON_TRAP_BOULDER = "MainTabControl/Traps/BoulderTrapBu
 const std::string Gui::BUTTON_DESTROY_TRAP = "MainTabControl/Traps/DestroyTrapButton";
 const std::string Gui::TAB_SPELLS = "MainTabControl/Spells";
 const std::string Gui::BUTTON_SPELL_SUMMON_WORKER = "MainTabControl/Spells/SummonWorkerButton";
+const std::string Gui::BUTTON_SPELL_CALLTOWAR = "MainTabControl/Spells/CallToWarButton";
 const std::string Gui::TAB_CREATURES = "MainTabControl/Creatures";
 const std::string Gui::BUTTON_CREATURE_WORKER = "MainTabControl/Creatures/WorkerButton";
 const std::string Gui::BUTTON_CREATURE_FIGHTER = "MainTabControl/Creatures/FighterButton";

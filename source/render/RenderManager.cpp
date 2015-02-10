@@ -26,6 +26,7 @@
 #include "entities/RenderedMovableEntity.h"
 #include "entities/MapLight.h"
 #include "entities/Creature.h"
+#include "entities/CreatureDefinition.h"
 #include "entities/Weapon.h"
 #include "traps/Trap.h"
 #include "game/Player.h"
@@ -205,7 +206,7 @@ void RenderManager::rrRefreshTile(const Tile* curTile, const Player* localPlayer
     Ogre::Entity* ent = mSceneManager->createEntity(tileName, meshName);
     switch(curTile->getType())
     {
-        case Tile::gold:
+        case TileType::gold:
         {
             if(curTile->getFullness() > 0.0)
             {
@@ -220,7 +221,7 @@ void RenderManager::rrRefreshTile(const Tile* curTile, const Player* localPlayer
             }
             break;
         }
-        case Tile::rock:
+        case TileType::rock:
         {
             for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii)
             {
@@ -228,7 +229,7 @@ void RenderManager::rrRefreshTile(const Tile* curTile, const Player* localPlayer
             }
             break;
         }
-        case Tile::lava:
+        case TileType::lava:
         {
             for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii)
             {
@@ -238,7 +239,7 @@ void RenderManager::rrRefreshTile(const Tile* curTile, const Player* localPlayer
             }
             break;
         }
-        case Tile::dirt:
+        case TileType::dirt:
         {
             if(curTile->getFullness() == 0.0)
                 vision = curTile->getLocalPlayerHasVision();
@@ -247,7 +248,7 @@ void RenderManager::rrRefreshTile(const Tile* curTile, const Player* localPlayer
             seatColorize = nullptr;
             break;
         }
-        case Tile::claimed:
+        case TileType::claimed:
         {
             vision = curTile->getLocalPlayerHasVision();
             break;
@@ -278,21 +279,21 @@ void RenderManager::rrCreateTile(Tile* curTile, Player* localPlayer)
 
     Ogre::Entity* ent = mSceneManager->createEntity(curTile->getOgreNamePrefix() + curTile->getName(), meshName);
 
-    if(curTile->getType() == Tile::gold)
+    if(curTile->getType() == TileType::gold)
     {
         for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii)
         {
             ent->getSubEntity(ii)->setMaterialName("Gold");
         }
     }
-    else if(curTile->getType() == Tile::rock)
+    else if(curTile->getType() == TileType::rock)
     {
         for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii)
         {
             ent->getSubEntity(ii)->setMaterialName("Rock");
         }
     }
-    else if(curTile->getType() == Tile::lava)
+    else if(curTile->getType() == TileType::lava)
     {
         for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii)
         {

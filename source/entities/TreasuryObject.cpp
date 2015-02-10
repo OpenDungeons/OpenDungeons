@@ -65,7 +65,7 @@ void TreasuryObject::doUpkeep()
 
     if((mGoldValue > 0) &&
        (tile->getCoveringRoom() != nullptr) &&
-       (tile->getCoveringRoom()->getType() == Room::treasury))
+       (tile->getCoveringRoom()->getType() == RoomType::treasury))
     {
         RoomTreasury* roomTreasury = static_cast<RoomTreasury*>(tile->getCoveringRoom());
         int goldDeposited = roomTreasury->depositGold(mGoldValue, tile);
@@ -80,7 +80,7 @@ void TreasuryObject::doUpkeep()
         if(mGoldValue <= 0)
         {
             tile->removeEntity(this);
-            getGameMap()->removeRenderedMovableEntity(this);
+            removeFromGameMap();
             deleteYourself();
             return;
         }
@@ -89,11 +89,11 @@ void TreasuryObject::doUpkeep()
         {
             // The treasury fullnes changed. We remove the object and create a new one
             tile->removeEntity(this);
-            getGameMap()->removeRenderedMovableEntity(this);
+            removeFromGameMap();
             deleteYourself();
 
             TreasuryObject* obj = new TreasuryObject(getGameMap(), mGoldValue);
-            getGameMap()->addRenderedMovableEntity(obj);
+            obj->addToGameMap();
             Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(tile->getX()),
                                         static_cast<Ogre::Real>(tile->getY()), 0.0f);
             obj->createMesh();
@@ -102,7 +102,7 @@ void TreasuryObject::doUpkeep()
     }
 }
 
-bool TreasuryObject::tryPickup(Seat* seat, bool isEditorMode)
+bool TreasuryObject::tryPickup(Seat* seat)
 {
     if(!getIsOnMap())
         return false;
@@ -117,7 +117,7 @@ bool TreasuryObject::tryPickup(Seat* seat, bool isEditorMode)
     if(tile == nullptr)
         return false;
 
-    if(!tile->isClaimedForSeat(seat) && !isEditorMode)
+    if(!tile->isClaimedForSeat(seat) && !getGameMap()->isInEditorMode())
         return false;
 
     return true;
@@ -134,21 +134,24 @@ void TreasuryObject::pickup()
     tile->removeEntity(this);
 }
 
-bool TreasuryObject::tryDrop(Seat* seat, Tile* tile, bool isEditorMode)
+bool TreasuryObject::tryDrop(Seat* seat, Tile* tile)
 {
     if (tile->getFullness() > 0.0)
         return false;
 
     // In editor mode, we allow to drop an object in dirt, claimed or gold tiles
-    if(isEditorMode && (tile->getType() == Tile::dirt || tile->getType() == Tile::gold || tile->getType() == Tile::claimed))
+    if(getGameMap()->isInEditorMode() &&
+       (tile->getType() == TileType::dirt || tile->getType() == TileType::gold || tile->getType() == TileType::claimed))
+    {
         return true;
+    }
 
     // we cannot drop an object on a tile we don't see
     if(!seat->hasVisionOnTile(tile))
         return false;
 
     // Otherwise, we allow to drop an object only on allied claimed tiles
-    if(tile->getType() == Tile::claimed && tile->getSeat() != nullptr && tile->getSeat()->isAlliedSeat(seat))
+    if(tile->getType() == TileType::claimed && tile->getSeat() != nullptr && tile->getSeat()->isAlliedSeat(seat))
         return true;
 
     return false;
@@ -164,32 +167,32 @@ bool TreasuryObject::removeEntityFromTile(Tile* tile)
     return tile->removeEntity(this);
 }
 
-bool TreasuryObject::tryEntityCarryOn()
+EntityCarryType TreasuryObject::getEntityCarryType()
 {
     if(!getIsOnMap())
-        return false;
+        return EntityCarryType::notCarryable;
 
     // We do not let it be carried as it will be removed during next upkeep
     if(mGoldValue <= 0)
-        return false;
+        return EntityCarryType::notCarryable;
 
     // If we are on a treasury not full, we doesn't allow to be carried
     Tile* myTile = getPositionTile();
     OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
     if(myTile == nullptr)
-        return true;
+        return EntityCarryType::gold;
 
     if(myTile->getCoveringRoom() == nullptr)
-        return true;
+        return EntityCarryType::gold;
 
-    if(myTile->getCoveringRoom()->getType() != Room::RoomType::treasury)
-        return true;
+    if(myTile->getCoveringRoom()->getType() != RoomType::treasury)
+        return EntityCarryType::gold;
 
     RoomTreasury* treasury = static_cast<RoomTreasury*>(myTile->getCoveringRoom());
     if(treasury->emptyStorageSpace() == 0)
-        return true;
+        return EntityCarryType::gold;
 
-    return false;
+    return EntityCarryType::notCarryable;
 }
 
 void TreasuryObject::notifyEntityCarryOn()

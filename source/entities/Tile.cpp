@@ -35,7 +35,11 @@
 
 #include "render/RenderManager.h"
 
+#include "rooms/Room.h"
+
 #include "sound/SoundEffectsManager.h"
+
+#include "traps/Trap.h"
 
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
@@ -47,7 +51,6 @@
 #define snprintf_is_banned_in_OD_code _snprintf
 #endif
 
-static Ogre::MeshManager *myOgreMeshManger = Ogre:: MeshManager::getSingletonPtr();
 const Ogre::Vector3 DEFAULT_TILE_SCALE(static_cast<Ogre::Real>(4.0 / RenderManager::BLENDER_UNITS_PER_OGRE_UNIT),
         static_cast<Ogre::Real>(4.0 / RenderManager::BLENDER_UNITS_PER_OGRE_UNIT),
         static_cast<Ogre::Real>(5.0 / RenderManager::BLENDER_UNITS_PER_OGRE_UNIT));
@@ -74,7 +77,6 @@ Tile::Tile(GameMap* gameMap, int x, int y, TileType type, double fullness) :
         mFloodFillColor[i] = -1;
     }
     setSeat(nullptr);
-    setObjectType(GameEntity::tile);
     mScale = DEFAULT_TILE_SCALE;
 }
 
@@ -106,6 +108,11 @@ void Tile::setType(TileType t)
     {
         mType = t;
     }
+}
+
+void Tile::addToGameMap()
+{
+    getGameMap()->addTile(this);
 }
 
 void Tile::setFullness(double f)
@@ -401,7 +408,7 @@ bool Tile::permitsVision() const
 
 bool Tile::isBuildableUpon() const
 {
-    if(mType != claimed)
+    if(mType != TileType::claimed)
         return false;
     if(getFullness() > 0.0)
         return false;
@@ -434,7 +441,7 @@ void Tile::setCoveringBuilding(Building *building)
     // Set the tile as claimed and of the team color of the building
     setSeat(mCoveringBuilding->getSeat());
     mClaimedPercentage = 1.0;
-    setType(claimed);
+    setType(TileType::claimed);
 }
 
 bool Tile::isDiggable(Seat* seat) const
@@ -443,14 +450,14 @@ bool Tile::isDiggable(Seat* seat) const
         return false;
 
     // Return true for common types.
-    if (mType == dirt || mType == gold)
+    if (mType == TileType::dirt || mType == TileType::gold)
         return true;
 
     // Return false for undiggable types.
-    if (mType == lava || mType == water || mType == rock)
+    if (mType == TileType::lava || mType == TileType::water || mType == TileType::rock)
         return false;
 
-    if (mType != claimed)
+    if (mType != TileType::claimed)
         return false;
 
     // type == claimed
@@ -470,7 +477,7 @@ bool Tile::isDiggable(Seat* seat) const
 
 bool Tile::isGroundClaimable() const
 {
-    return ((mType == dirt || mType == gold || mType == claimed) && getFullness() == 0.0
+    return ((mType == TileType::dirt || mType == TileType::gold || mType == TileType::claimed) && getFullness() == 0.0
         && getCoveringRoom() == nullptr);
 }
 
@@ -479,7 +486,7 @@ bool Tile::isWallClaimable(Seat* seat)
     if (getFullness() == 0.0)
         return false;
 
-    if (mType == lava || mType == water || mType == rock || mType == gold)
+    if (mType == TileType::lava || mType == TileType::water || mType == TileType::rock || mType == TileType::gold)
         return false;
 
     // Check whether at least one neighbor is a claimed ground tile of the given seat
@@ -490,7 +497,7 @@ bool Tile::isWallClaimable(Seat* seat)
         if (tile->getFullness() > 0.0)
             continue;
 
-        if (tile->getType() == claimed
+        if (tile->getType() == TileType::claimed
                 && tile->getClaimedPercentage() >= 1.0
                 && tile->isClaimedForSeat(seat))
         {
@@ -502,10 +509,10 @@ bool Tile::isWallClaimable(Seat* seat)
     if (foundClaimedGroundTile == false)
         return false;
 
-    if (mType == dirt)
+    if (mType == TileType::dirt)
         return true;
 
-    if (mType != claimed)
+    if (mType != TileType::claimed)
         return false;
 
     // type == claimed
@@ -531,7 +538,7 @@ bool Tile::isWallClaimable(Seat* seat)
         if (tile->getFullness() > 0.0)
             continue;
 
-        if (tile->getType() == claimed
+        if (tile->getType() == TileType::claimed
                 && tile->mClaimedPercentage >= 1.0
                 && tile->isClaimedForSeat(tileSeat))
         {
@@ -551,7 +558,7 @@ bool Tile::isWallClaimedForSeat(Seat* seat)
     if (getFullness() == 0.0)
         return false;
 
-    if (mType != claimed)
+    if (mType != TileType::claimed)
         return false;
 
     if (mClaimedPercentage < 1.0)
@@ -577,7 +584,7 @@ std::ostream& operator<<(std::ostream& os, Tile *t)
     os << t->getX() << "\t" << t->getY() << "\t";
     os << t->getType() << "\t" << t->getFullness();
     Seat* seat = t->getSeat();
-    if(t->getType() != Tile::TileType::claimed || seat == nullptr)
+    if(t->getType() != TileType::claimed || seat == nullptr)
         return os;
 
     os << "\t" << seat->getId();
@@ -685,7 +692,7 @@ void Tile::updateFromPacket(ODPacket& is)
 
     setName(ss.str());
 
-    Tile::TileType tileType;
+    TileType tileType;
     OD_ASSERT_TRUE(is >> tileType);
     setType(tileType);
 
@@ -715,11 +722,11 @@ void Tile::updateFromPacket(ODPacket& is)
 
         // The object is not on this tile anymore, we remove it
         it = mPersistentObjectRegistered.erase(it);
-        getGameMap()->removeRenderedMovableEntity(obj);
+        obj->removeFromGameMap();
         obj->deleteYourself();
     }
 
-    if((tileType != Tile::TileType::claimed) || (seatId == 0))
+    if((tileType != TileType::claimed) || (seatId == 0))
         return;
 
     Seat* seat = getGameMap()->getSeatById(seatId);
@@ -730,18 +737,33 @@ void Tile::updateFromPacket(ODPacket& is)
     mClaimedPercentage = 1.0;
 }
 
-ODPacket& operator<<(ODPacket& os, const Tile::TileType& type)
+ODPacket& operator<<(ODPacket& os, const TileType& type)
 {
-    uint32_t intType = static_cast<Tile::TileType>(type);
+    uint32_t intType = static_cast<uint32_t>(type);
     os << intType;
     return os;
 }
 
-ODPacket& operator>>(ODPacket& is, Tile::TileType& type)
+ODPacket& operator>>(ODPacket& is, TileType& type)
 {
     uint32_t intType;
     is >> intType;
-    type = static_cast<Tile::TileType>(intType);
+    type = static_cast<TileType>(intType);
+    return is;
+}
+
+std::ostream& operator<<(std::ostream& os, const TileType& type)
+{
+    uint32_t intType = static_cast<uint32_t>(type);
+    os << intType;
+    return os;
+}
+
+std::istream& operator>>(std::istream& is, TileType& type)
+{
+    uint32_t intType;
+    is >> intType;
+    type = static_cast<TileType>(intType);
     return is;
 }
 
@@ -764,14 +786,14 @@ void Tile::loadFromLine(const std::string& line, Tile *t)
     t->mY = yLocation;
     t->mPosition = Ogre::Vector3(static_cast<Ogre::Real>(t->mX), static_cast<Ogre::Real>(t->mY), 0.0f);
 
-    Tile::TileType tileType = static_cast<Tile::TileType>(Helper::toInt(elems[2]));
+    TileType tileType = static_cast<TileType>(Helper::toInt(elems[2]));
     t->setType(tileType);
 
     // If the tile type is lava or water, we ignore fullness
     switch(tileType)
     {
-        case Tile::water:
-        case Tile::lava:
+        case TileType::water:
+        case TileType::lava:
             t->setFullnessValue(0.0);
             break;
 
@@ -781,7 +803,7 @@ void Tile::loadFromLine(const std::string& line, Tile *t)
     }
 
     // If the tile is claimed, there can be an optional parameter with the seat id
-    if(tileType != Tile::TileType::claimed || elems.size() < 5)
+    if(tileType != TileType::claimed || elems.size() < 5)
         return;
 
     int seatId = Helper::toInt(elems[4]);
@@ -797,22 +819,22 @@ std::string Tile::tileTypeToString(TileType t)
     switch (t)
     {
         default:
-        case dirt:
+        case TileType::dirt:
             return "Dirt";
 
-        case rock:
+        case TileType::rock:
             return "Rock";
 
-        case gold:
+        case TileType::gold:
             return "Gold";
 
-        case water:
+        case TileType::water:
             return "Water";
 
-        case lava:
+        case TileType::lava:
             return "Lava";
 
-        case claimed:
+        case TileType::claimed:
             return "Claimed";
     }
 }
@@ -868,7 +890,7 @@ std::string Tile::meshNameFromNeighbors(TileType myType, int fullnessMeshNumber,
     for(int ii = 8; ii >=1; --ii)
     {
         postfixInt *=2;
-        postfixInt += ((neighbors[(ii)%8] == myType &&  (!(myType!=water && myType!=lava)  || neighborsFullness[(ii)%8]  ))
+        postfixInt += ((neighbors[(ii)%8] == myType &&  (!(myType!=TileType::water && myType!=TileType::lava)  || neighborsFullness[(ii)%8]  ))
                       );
     }
 
@@ -933,7 +955,7 @@ std::string Tile::meshNameFromNeighbors(TileType myType, int fullnessMeshNumber,
         && (neighbors[6] != myType || !neighborsFullness[6])
         && neighborsFullness[0] && neighborsFullness[2] && neighborsFullness[4])
     {
-        if (myType == Tile::dirt || myType == Tile::gold || myType == Tile::rock)
+        if (myType == TileType::dirt || myType == TileType::gold || myType == TileType::rock)
             rt = 2;
     }
 
@@ -944,7 +966,7 @@ std::string Tile::meshNameFromNeighbors(TileType myType, int fullnessMeshNumber,
         && (neighbors[0] != myType || !neighborsFullness[0])
         && neighborsFullness[2] && neighborsFullness[6] && neighborsFullness[4])
     {
-        if (fullnessMeshNumber > 0 && (myType == Tile::dirt || myType == Tile::gold || myType == Tile::rock))
+        if (fullnessMeshNumber > 0 && (myType == TileType::dirt || myType == TileType::gold || myType == TileType::rock))
         {
             ss.str("");
             ss.clear();
@@ -960,7 +982,7 @@ std::string Tile::meshNameFromNeighbors(TileType myType, int fullnessMeshNumber,
         && (neighbors[4] != myType || !neighborsFullness[4])
         && neighborsFullness[2] && neighborsFullness[0] && neighborsFullness[6])
     {
-        if (fullnessMeshNumber > 0 && (myType == Tile::dirt || myType == Tile::gold || myType == Tile::rock))
+        if (fullnessMeshNumber > 0 && (myType == TileType::dirt || myType == TileType::gold || myType == TileType::rock))
         {
             ss.str("");
             ss.clear();
@@ -974,8 +996,8 @@ std::string Tile::meshNameFromNeighbors(TileType myType, int fullnessMeshNumber,
 
 void Tile::meshNameAux(std::stringstream &ss, int &postfixInt, int& fMN, TileType myType)
 {
-    ss << tileTypeToString( (myType == rock || myType == gold ) ? dirt : (myType == lava) ? water : myType  ) << "_"
-       << (fMN > 0 ?  std::bitset<8>( postfixInt ).to_string() : ( (myType == water || myType == lava) ? std::bitset<8>( postfixInt ).to_string() : "0"  ))  << ".mesh";
+    ss << tileTypeToString( (myType == TileType::rock || myType == TileType::gold ) ? TileType::dirt : (myType == TileType::lava) ? TileType::water : myType  ) << "_"
+       << (fMN > 0 ?  std::bitset<8>( postfixInt ).to_string() : ( (myType == TileType::water || myType == TileType::lava) ? std::bitset<8>( postfixInt ).to_string() : "0"  ))  << ".mesh";
 }
 
 void Tile::refreshMesh()
@@ -1145,7 +1167,7 @@ void Tile::claimTile(Seat* seat)
     // We need this because if we are a client, the tile may be from a non allied seat
     setSeat(seat);
     mClaimedPercentage = 1.0;
-    setType(Tile::claimed);
+    setType(TileType::claimed);
 
     // If an enemy player had marked this tile to dig, we disable it
     setMarkedForDiggingForAllPlayersExcept(false, seat);
@@ -1172,7 +1194,7 @@ double Tile::digOut(double digRate, bool doScaleDigRate)
 
     double amountDug = 0.0;
 
-    if (getFullness() == 0.0 || mType == lava || mType == water || mType == rock)
+    if (getFullness() == 0.0 || mType == TileType::lava || mType == TileType::water || mType == TileType::rock)
         return 0.0;
 
     if (digRate >= mFullness)
@@ -1206,7 +1228,7 @@ double Tile::scaleDigRate(double digRate)
 {
     switch (mType)
     {
-        case claimed:
+        case TileType::claimed:
             return 0.2 * digRate;
 
         default:
@@ -1244,16 +1266,16 @@ bool Tile::checkTileName(const std::string& tileName, int& x, int& y)
     return true;
 }
 
-bool Tile::isFloodFillFilled()
+bool Tile::isFloodFillFilled() const
 {
     if(getFullness() > 0.0)
         return true;
 
     switch(getType())
     {
-        case Tile::dirt:
-        case Tile::gold:
-        case Tile::claimed:
+        case TileType::dirt:
+        case TileType::gold:
+        case TileType::claimed:
         {
             if((mFloodFillColor[Tile::FloodFillTypeGround] != -1) &&
                (mFloodFillColor[Tile::FloodFillTypeGroundWater] != -1) &&
@@ -1264,7 +1286,7 @@ bool Tile::isFloodFillFilled()
             }
             break;
         }
-        case Tile::water:
+        case TileType::water:
         {
             if((mFloodFillColor[Tile::FloodFillTypeGroundWater] != -1) &&
                (mFloodFillColor[Tile::FloodFillTypeGroundWaterLava] != -1))
@@ -1273,7 +1295,7 @@ bool Tile::isFloodFillFilled()
             }
             break;
         }
-        case Tile::lava:
+        case TileType::lava:
         {
             if((mFloodFillColor[Tile::FloodFillTypeGroundLava] != -1) &&
                (mFloodFillColor[Tile::FloodFillTypeGroundWaterLava] != -1))
@@ -1315,7 +1337,7 @@ void Tile::fillWithAttackableCreatures(std::vector<GameEntity*>& entities, Seat*
     for(GameEntity* entity : mEntitiesInTile)
     {
         OD_ASSERT_TRUE(entity != nullptr);
-        if((entity == nullptr) || entity->getObjectType() != GameEntity::ObjectType::creature)
+        if((entity == nullptr) || entity->getObjectType() != GameEntityType::creature)
             continue;
 
         if(!entity->isAttackable(this, seat))
@@ -1365,7 +1387,7 @@ void Tile::fillWithAttackableTrap(std::vector<GameEntity*>& entities, Seat* seat
     }
 }
 
-void Tile::fillWithCarryableEntities(std::vector<MovableGameEntity*>& entities)
+void Tile::fillWithCarryableEntities(std::vector<GameEntity*>& entities)
 {
     for(GameEntity* entity : mEntitiesInTile)
     {
@@ -1373,26 +1395,11 @@ void Tile::fillWithCarryableEntities(std::vector<MovableGameEntity*>& entities)
         if(entity == nullptr)
             continue;
 
-        MovableGameEntity* entityToCarry = nullptr;
+        if(entity->getEntityCarryType() == EntityCarryType::notCarryable)
+            continue;
 
-        switch(entity->getObjectType())
-        {
-            case GameEntity::ObjectType::creature:
-            case GameEntity::ObjectType::renderedMovableEntity:
-            {
-                entityToCarry = static_cast<MovableGameEntity*>(entity);
-                if(!entityToCarry->tryEntityCarryOn())
-                    continue;
-
-                break;
-            }
-
-            default:
-                continue;
-        }
-
-        if (std::find(entities.begin(), entities.end(), entityToCarry) == entities.end())
-            entities.push_back(entityToCarry);
+        if (std::find(entities.begin(), entities.end(), entity) == entities.end())
+            entities.push_back(entity);
     }
 }
 
@@ -1404,10 +1411,10 @@ void Tile::fillWithChickenEntities(std::vector<GameEntity*>& entities)
         if(entity == nullptr)
             continue;
 
-        if(entity->getObjectType() != GameEntity::ObjectType::renderedMovableEntity)
+        if(entity->getObjectType() != GameEntityType::renderedMovableEntity)
             continue;
         RenderedMovableEntity* rme = static_cast<RenderedMovableEntity*>(entity);
-        if(rme->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::chickenEntity)
+        if(rme->getRenderedMovableEntityType() != RenderedMovableEntityType::chickenEntity)
             continue;
 
         if (std::find(entities.begin(), entities.end(), entity) == entities.end())
@@ -1423,10 +1430,10 @@ void Tile::fillWithCraftedTraps(std::vector<GameEntity*>& entities)
         if(entity == nullptr)
             continue;
 
-        if(entity->getObjectType() != GameEntity::ObjectType::renderedMovableEntity)
+        if(entity->getObjectType() != GameEntityType::renderedMovableEntity)
             continue;
         RenderedMovableEntity* rme = static_cast<RenderedMovableEntity*>(entity);
-        if(rme->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::craftedTrap)
+        if(rme->getRenderedMovableEntityType() != RenderedMovableEntityType::craftedTrap)
             continue;
 
         if (std::find(entities.begin(), entities.end(), entity) == entities.end())
@@ -1450,10 +1457,10 @@ bool Tile::addTreasuryObject(TreasuryObject* obj)
         if(entity == nullptr)
             continue;
 
-        if(entity->getObjectType() != GameEntity::ObjectType::renderedMovableEntity)
+        if(entity->getObjectType() != GameEntityType::renderedMovableEntity)
             continue;
         RenderedMovableEntity* rme = static_cast<RenderedMovableEntity*>(entity);
-        if(rme->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::treasuryObject)
+        if(rme->getRenderedMovableEntityType() != RenderedMovableEntityType::treasuryObject)
             continue;
 
         TreasuryObject* treasury = static_cast<TreasuryObject*>(entity);
@@ -1473,7 +1480,7 @@ Room* Tile::getCoveringRoom() const
     if(mCoveringBuilding == nullptr)
         return nullptr;
 
-    if(mCoveringBuilding->getObjectType() != ObjectType::room)
+    if(mCoveringBuilding->getObjectType() != GameEntityType::room)
         return nullptr;
 
     return static_cast<Room*>(mCoveringBuilding);
@@ -1484,7 +1491,7 @@ Trap* Tile::getCoveringTrap() const
     if(mCoveringBuilding == nullptr)
         return nullptr;
 
-    if(mCoveringBuilding->getObjectType() != ObjectType::trap)
+    if(mCoveringBuilding->getObjectType() != GameEntityType::trap)
         return nullptr;
 
     return static_cast<Trap*>(mCoveringBuilding);
@@ -1501,7 +1508,7 @@ void Tile::computeVisibleTiles()
         return;
     }
 
-    if(mType != claimed)
+    if(mType != TileType::claimed)
         return;
 
     if(getSeat() == nullptr)

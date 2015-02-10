@@ -138,7 +138,7 @@ void RoomPortal::spawnCreature()
     Ogre::Real yPos = static_cast<Ogre::Real>(centralTile->getY());
 
     newCreature->setSeat(getSeat());
-    getGameMap()->addCreature(newCreature);
+    newCreature->addToGameMap();
     Ogre::Vector3 spawnPosition(xPos, yPos, 0.0f);
     newCreature->createMesh();
     newCreature->setPosition(spawnPosition, false);

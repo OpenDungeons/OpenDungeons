@@ -43,6 +43,7 @@
 #include "rooms/RoomTreasury.h"
 #include "spell/Spell.h"
 #include "utils/ConfigManager.h"
+#include "utils/Helper.h"
 
 #include <SFML/Network.hpp>
 #include <SFML/System.hpp>
@@ -191,7 +192,7 @@ void ODServer::startNewTurn(double timeSinceLastFrame)
     gameMap->setTurnNumber(++turn);
 
     ServerNotification* serverNotification = new ServerNotification(
-        ServerNotification::turnStarted, nullptr);
+        ServerNotificationType::turnStarted, nullptr);
     serverNotification->mPacket << turn;
     queueServerNotification(serverNotification);
 
@@ -207,7 +208,7 @@ void ODServer::startNewTurn(double timeSinceLastFrame)
         // For now, only the player whose seat changed is notified. If we need it, we could send the event to every player
         // so that they can see how far from the goals the other players are
         ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::refreshPlayerSeat, player);
+            ServerNotificationType::refreshPlayerSeat, player);
         std::string goals = gameMap->getGoalsStringForPlayer(player);
         Seat* seat = player->getSeat();
         seat->computeSeatBeforeSendingToClient();
@@ -229,7 +230,7 @@ void ODServer::startNewTurn(double timeSinceLastFrame)
                 std::string creatureInfos = creature->getStatsText();
 
                 ServerNotification *serverNotification = new ServerNotification(
-                    ServerNotification::notifyCreatureInfo, player);
+                    ServerNotificationType::notifyCreatureInfo, player);
                 serverNotification->mPacket << name << creatureInfos;
                 ODServer::getSingleton().queueServerNotification(serverNotification);
 
@@ -302,7 +303,7 @@ void ODServer::serverThread()
                 // Every client is connected and ready, we can launch the game
                 // Send turn 0 to init the map
                 ServerNotification* serverNotification = new ServerNotification(
-                    ServerNotification::turnStarted, nullptr);
+                    ServerNotificationType::turnStarted, nullptr);
                 serverNotification->mPacket << static_cast<int64_t>(0);
                 queueServerNotification(serverNotification);
 
@@ -384,31 +385,31 @@ void ODServer::processServerNotifications()
 
         switch (event->mType)
         {
-            case ServerNotification::turnStarted:
+            case ServerNotificationType::turnStarted:
                 LogManager::getSingleton().logMessage("Server sends newturn="
                     + Ogre::StringConverter::toString((int32_t)gameMap->getTurnNumber()));
                 sendMsg(event->mConcernedPlayer, event->mPacket);
                 break;
 
-            case ServerNotification::entityPickedUp:
+            case ServerNotificationType::entityPickedUp:
                 // This message should not be sent by human players (they are notified asynchronously)
                 OD_ASSERT_TRUE_MSG(event->mConcernedPlayer->getIsHuman(), "nick=" + event->mConcernedPlayer->getNick());
                 sendMsg(event->mConcernedPlayer, event->mPacket);
                 break;
 
-            case ServerNotification::entityDropped:
+            case ServerNotificationType::entityDropped:
                 // This message should not be sent by human players (they are notified asynchronously)
                 OD_ASSERT_TRUE_MSG(event->mConcernedPlayer->getIsHuman(), "nick=" + event->mConcernedPlayer->getNick());
                 sendMsg(event->mConcernedPlayer, event->mPacket);
                 break;
 
-            case ServerNotification::entitySlapped:
+            case ServerNotificationType::entitySlapped:
                 // This message should not be sent by human players (they are notified asynchronously)
                 OD_ASSERT_TRUE_MSG(!event->mConcernedPlayer->getIsHuman(), "nick=" + event->mConcernedPlayer->getNick());
                 sendMsg(event->mConcernedPlayer, event->mPacket);
                 break;
 
-            case ServerNotification::exit:
+            case ServerNotificationType::exit:
                 running = false;
                 stopServer();
                 break;
@@ -449,19 +450,19 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         // We notify
         uint32_t nbPlayers = 1;
         ODPacket packetSend;
-        packetSend << ServerNotification::removePlayers << nbPlayers;
+        packetSend << ServerNotificationType::removePlayers << nbPlayers;
         int32_t id = clientSocket->getPlayer()->getId();
         packetSend << id;
         sendMsg(nullptr, packetSend);
         return (status != ODSocketClient::ODComStatus::Error);
     }
 
-    ClientNotification::ClientNotificationType clientCommand;
+    ClientNotificationType clientCommand;
     OD_ASSERT_TRUE(packetReceived >> clientCommand);
 
     switch(clientCommand)
     {
-        case ClientNotification::hello:
+        case ClientNotificationType::hello:
         {
             if(std::string("connected").compare(clientSocket->getState()) != 0)
                 return false;
@@ -483,7 +484,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             int32_t mapSizeY = gameMap->getMapSizeY();
 
             ODPacket packet;
-            packet << ServerNotification::loadLevel;
+            packet << ServerNotificationType::loadLevel;
             packet << version;
             packet << mapSizeX << mapSizeY;
             // Map infos
@@ -528,11 +529,11 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 for (int ii = 0; ii < mapSizeY; ++ii)
                 {
                     Tile* tile = gameMap->getTile(ii,jj);
-                    if(tile->getType() == Tile::TileType::gold)
+                    if(tile->getType() == TileType::gold)
                     {
                         goldTiles.push_back(tile);
                     }
-                    else if(tile->getType() == Tile::TileType::rock)
+                    else if(tile->getType() == TileType::rock)
                     {
                         rockTiles.push_back(tile);
                     }
@@ -556,20 +557,11 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 gameMap->tileToPacket(packet, tile);
             }
 
-            // Lights
-            nb = gameMap->numMapLights();
-            packet << nb;
-            for(int32_t i = 0; i < nb; ++i)
-            {
-                MapLight* light = gameMap->getMapLight(i);
-                packet << light;
-            }
-
             sendMsgToClient(clientSocket, packet);
             break;
         }
 
-        case ClientNotification::levelOK:
+        case ClientNotificationType::levelOK:
         {
             if(std::string("loadLevel").compare(clientSocket->getState()) != 0)
                 return false;
@@ -577,12 +569,12 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             setClientState(clientSocket, "nick");
             // Tell the client to give us their nickname
             ODPacket packetSend;
-            packetSend << ServerNotification::pickNick << mServerMode;
+            packetSend << ServerNotificationType::pickNick << mServerMode;
             sendMsgToClient(clientSocket, packetSend);
             break;
         }
 
-        case ClientNotification::setNick:
+        case ClientNotificationType::setNick:
         {
             if(std::string("nick").compare(clientSocket->getState()) != 0)
                 return false;
@@ -612,7 +604,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             Seat* seat = seats[0];
             seat->setPlayer(curPlayer);
             ODPacket packetSend;
-            packetSend << ServerNotification::clientAccepted << ODApplication::turnsPerSecond;
+            packetSend << ServerNotificationType::clientAccepted << ODApplication::turnsPerSecond;
             int32_t nbPlayers = 1;
             packetSend << nbPlayers;
             const std::string& nick = clientSocket->getPlayer()->getNick();
@@ -623,13 +615,13 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             sendMsgToClient(clientSocket, packetSend);
 
             packetSend.clear();
-            packetSend << ServerNotification::startGameMode << seatId << mServerMode;
+            packetSend << ServerNotificationType::startGameMode << seatId << mServerMode;
             sendMsgToClient(clientSocket, packetSend);
             mSeatsConfigured = true;
             break;
         }
 
-        case ClientNotification::readyForSeatConfiguration:
+        case ClientNotificationType::readyForSeatConfiguration:
         {
             if(std::string("ready").compare(clientSocket->getState()) != 0)
                 return false;
@@ -637,7 +629,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             ODPacket packetSend;
             // We notify to the newly connected player all the currently connected players (including himself
             uint32_t nbPlayers = mSockClients.size();
-            packetSend << ServerNotification::addPlayers << nbPlayers;
+            packetSend << ServerNotificationType::addPlayers << nbPlayers;
             for (ODSocketClient* client : mSockClients)
             {
                 const std::string& nick = client->getPlayer()->getNick();
@@ -651,7 +643,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             int32_t clientPlayerId = clientSocket->getPlayer()->getId();
             packetSend.clear();
             nbPlayers = 1;
-            packetSend << ServerNotification::addPlayers << nbPlayers;
+            packetSend << ServerNotificationType::addPlayers << nbPlayers;
             packetSend << clientNick << clientPlayerId;
             for (ODSocketClient* client : mSockClients)
             {
@@ -663,11 +655,11 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::seatConfigurationRefresh:
+        case ClientNotificationType::seatConfigurationRefresh:
         {
             std::vector<Seat*> seats = gameMap->getSeats();
             ODPacket packetSend;
-            packetSend << ServerNotification::seatConfigurationRefresh;
+            packetSend << ServerNotificationType::seatConfigurationRefresh;
             for(Seat* seat : seats)
             {
                 // Rogue seat do not have to be configured
@@ -709,7 +701,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::seatConfigurationSet:
+        case ClientNotificationType::seatConfigurationSet:
         {
             // We change server state to make sure no new client will be accepted
             OD_ASSERT_TRUE_MSG(mServerState == ServerState::StateConfiguration, "Wrong server state="
@@ -803,7 +795,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             if(!clientsToRemove.empty())
             {
                 ODPacket packetSend;
-                packetSend << ServerNotification::clientRejected;
+                packetSend << ServerNotificationType::clientRejected;
                 for(ODSocketClient* client : clientsToRemove)
                 {
                     Player* player = client->getPlayer();
@@ -818,7 +810,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             }
 
             ODPacket packetSend;
-            packetSend << ServerNotification::clientAccepted << ODApplication::turnsPerSecond;
+            packetSend << ServerNotificationType::clientAccepted << ODApplication::turnsPerSecond;
             const std::vector<Player*>& players = gameMap->getPlayers();
             int32_t nbPlayers = players.size();
             packetSend << nbPlayers;
@@ -836,7 +828,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
                 ODPacket packetSend;
                 int seatId = client->getPlayer()->getSeat()->getId();
-                packetSend << ServerNotification::startGameMode << seatId << mServerMode;
+                packetSend << ServerNotificationType::startGameMode << seatId << mServerMode;
                 sendMsgToClient(client, packetSend);
             }
 
@@ -844,7 +836,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::chat:
+        case ClientNotificationType::chat:
         {
             // TODO : handle chat for everybody/allies/player
             // As chat message do not interfere with GameMap, it is OK to send
@@ -855,16 +847,16 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             Player* player = clientSocket->getPlayer();
             ODPacket packetSend;
             std::string nick = player->getNick();
-            ServerNotification notif(ServerNotification::chat, nullptr);
+            ServerNotification notif(ServerNotificationType::chat, nullptr);
             notif.mPacket << nick << chatMsg;
             sendAsyncMsg(notif);
             break;
         }
 
-        case ClientNotification::askEntityPickUp:
+        case ClientNotificationType::askEntityPickUp:
         {
             std::string entityName;
-            GameEntity::ObjectType entityType;
+            GameEntityType entityType;
             OD_ASSERT_TRUE(packetReceived >> entityType >> entityName);
 
             Player *player = clientSocket->getPlayer();
@@ -872,7 +864,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             OD_ASSERT_TRUE_MSG(entity != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
             if(entity == nullptr)
                 break;
-            bool allowPickup = entity->tryPickup(player->getSeat(), mServerMode == ServerMode::ModeEditor);
+            bool allowPickup = entity->tryPickup(player->getSeat());
             if(!allowPickup)
             {
                 LogManager::getSingleton().logMessage("player=" + player->getNick()
@@ -882,18 +874,18 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 break;
             }
 
-            player->pickUpEntity(entity, mServerMode == ServerMode::ModeEditor);
+            player->pickUpEntity(entity);
             break;
         }
 
-        case ClientNotification::askHandDrop:
+        case ClientNotificationType::askHandDrop:
         {
             Player *player = clientSocket->getPlayer();
             Tile* tile = gameMap->tileFromPacket(packetReceived);
             OD_ASSERT_TRUE(tile != nullptr);
             if(tile != nullptr)
             {
-                if(player->isDropHandPossible(tile, 0, mServerMode == ServerMode::ModeEditor))
+                if(player->isDropHandPossible(tile, 0))
                 {
                     // We notify the players
                     OD_ASSERT_TRUE(player->dropHand(tile, 0) != nullptr);
@@ -908,29 +900,29 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::askPickupWorker:
+        case ClientNotificationType::askPickupWorker:
         {
             Player *player = clientSocket->getPlayer();
             Creature* creature = gameMap->getWorkerToPickupBySeat(player->getSeat());
             if(creature == nullptr)
                 break;
 
-            player->pickUpEntity(creature, mServerMode == ServerMode::ModeEditor);
+            player->pickUpEntity(creature);
             break;
         }
 
-        case ClientNotification::askPickupFighter:
+        case ClientNotificationType::askPickupFighter:
         {
             Player *player = clientSocket->getPlayer();
             Creature* creature = gameMap->getFighterToPickupBySeat(player->getSeat());
             if(creature == nullptr)
                 break;
 
-            player->pickUpEntity(creature, mServerMode == ServerMode::ModeEditor);
+            player->pickUpEntity(creature);
             break;
         }
 
-        case ClientNotification::askMarkTile:
+        case ClientNotificationType::askMarkTile:
         {
             int x1, y1, x2, y2;
             bool isDigSet;
@@ -950,9 +942,9 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::askSlapEntity:
+        case ClientNotificationType::askSlapEntity:
         {
-            GameEntity::ObjectType entityType;
+            GameEntityType entityType;
             std::string entityName;
             Player* player = clientSocket->getPlayer();
             OD_ASSERT_TRUE(packetReceived >> entityType >> entityName);
@@ -962,8 +954,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 break;
 
 
-            bool isEditorMode = (mServerMode == ServerMode::ModeEditor);
-            if(!entity->canSlap(player->getSeat(), isEditorMode))
+            if(!entity->canSlap(player->getSeat()))
             {
                 LogManager::getSingleton().logMessage("player=" + player->getNick()
                         + " could not slap entity entityType="
@@ -972,17 +963,17 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 break;
             }
 
-            entity->slap(isEditorMode);
+            entity->slap();
 
-            ServerNotification notif(ServerNotification::entitySlapped, player);
+            ServerNotification notif(ServerNotificationType::entitySlapped, player);
             sendAsyncMsg(notif);
             break;
         }
 
-        case ClientNotification::askBuildRoom:
+        case ClientNotificationType::askBuildRoom:
         {
             int x1, y1, x2, y2;
-            Room::RoomType type;
+            RoomType type;
 
             OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> type);
             Player* player = clientSocket->getPlayer();
@@ -999,52 +990,52 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             Room* room = nullptr;
             switch (type)
             {
-                case Room::RoomType::nullRoomType:
+                case RoomType::nullRoomType:
                 {
                     room = nullptr;
                     break;
                 }
-                case Room::RoomType::dormitory:
+                case RoomType::dormitory:
                 {
                     room = new RoomDormitory(gameMap);
                     break;
                 }
-                case Room::RoomType::dungeonTemple:
+                case RoomType::dungeonTemple:
                 {
                     room = new RoomDungeonTemple(gameMap);
                     break;
                 }
-                case Room::RoomType::forge:
+                case RoomType::forge:
                 {
                     room = new RoomForge(gameMap);
                     break;
                 }
-                case Room::RoomType::hatchery:
+                case RoomType::hatchery:
                 {
                     room = new RoomHatchery(gameMap);
                     break;
                 }
-                case Room::RoomType::library:
+                case RoomType::library:
                 {
                     room = new RoomLibrary(gameMap);
                     break;
                 }
-                case Room::RoomType::portal:
+                case RoomType::portal:
                 {
                     room = new RoomPortal(gameMap);
                     break;
                 }
-                case Room::RoomType::trainingHall:
+                case RoomType::trainingHall:
                 {
                     room = new RoomTrainingHall(gameMap);
                     break;
                 }
-                case Room::RoomType::treasury:
+                case RoomType::treasury:
                 {
                     room = new RoomTreasury(gameMap);
                     break;
                 }
-                case Room::RoomType::crypt:
+                case RoomType::crypt:
                 {
                     room = new RoomCrypt(gameMap);
                     break;
@@ -1057,7 +1048,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 break;
 
             room->setupRoom(gameMap->nextUniqueNameRoom(room->getMeshName()), player->getSeat(), tiles);
-            gameMap->addRoom(room);
+            room->addToGameMap();
             // We notify the clients with vision of the changed tiles. Note that we need
             // to calculate per seat since they could have vision on different parts of the building
             std::map<Seat*,std::vector<Tile*>> tilesPerSeat;
@@ -1083,7 +1074,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             {
                 uint32_t nbTiles = p.second.size();
                 ServerNotification serverNotification(
-                    ServerNotification::refreshTiles, p.first->getPlayer());
+                    ServerNotificationType::refreshTiles, p.first->getPlayer());
                 serverNotification.mPacket << nbTiles;
                 for(Tile* tile : p.second)
                 {
@@ -1099,7 +1090,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::askSellRoomTiles:
+        case ClientNotificationType::askSellRoomTiles:
         {
             int x1, y1, x2, y2;
 
@@ -1153,7 +1144,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             {
                 uint32_t nbTiles = p.second.size();
                 ServerNotification serverNotification(
-                    ServerNotification::refreshTiles, p.first->getPlayer());
+                    ServerNotificationType::refreshTiles, p.first->getPlayer());
                 serverNotification.mPacket << nbTiles;
                 for(Tile* tile : p.second)
                 {
@@ -1172,7 +1163,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::editorAskDestroyRoomTiles:
+        case ClientNotificationType::editorAskDestroyRoomTiles:
         {
             OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
                 + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
@@ -1222,7 +1213,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             {
                 uint32_t nbTiles = p.second.size();
                 ServerNotification serverNotification(
-                    ServerNotification::refreshTiles, p.first->getPlayer());
+                    ServerNotificationType::refreshTiles, p.first->getPlayer());
                 serverNotification.mPacket << nbTiles;
                 for(Tile* tile : p.second)
                 {
@@ -1239,10 +1230,10 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::askBuildTrap:
+        case ClientNotificationType::askBuildTrap:
         {
             int x1, y1, x2, y2;
-            Trap::TrapType type;
+            TrapType type;
 
             OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> type);
             Player* player = clientSocket->getPlayer();
@@ -1259,22 +1250,22 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             Trap* trap = nullptr;
             switch (type)
             {
-                case Trap::TrapType::nullTrapType:
+                case TrapType::nullTrapType:
                 {
                     trap = nullptr;
                     break;
                 }
-                case Trap::TrapType::cannon:
+                case TrapType::cannon:
                 {
                     trap = new TrapCannon(gameMap);
                     break;
                 }
-                case Trap::TrapType::spike:
+                case TrapType::spike:
                 {
                     trap = new TrapSpike(gameMap);
                     break;
                 }
-                case Trap::TrapType::boulder:
+                case TrapType::boulder:
                 {
                     trap = new TrapBoulder(gameMap);
                     break;
@@ -1287,19 +1278,27 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 break;
 
             trap->setupTrap(gameMap->nextUniqueNameTrap(trap->getMeshName()), player->getSeat(), tiles);
-            gameMap->addTrap(trap);
+            trap->addToGameMap();
             trap->createMesh();
             trap->updateActiveSpots();
             break;
         }
 
-        case ClientNotification::askCastSpell:
+        case ClientNotificationType::askCastSpell:
         {
             int x1, y1, x2, y2;
             SpellType spellType;
 
             OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> spellType);
             Player* player = clientSocket->getPlayer();
+
+            if(!player->isSpellAvailableForPlayer(spellType))
+            {
+                LogManager::getSingleton().logMessage("WARNING: player " + player->getNick()
+                    + " asked to cast a spell not available: " + Spell::getSpellNameFromSpellType(spellType));
+                break;
+            }
+
             std::vector<Tile*> tiles = gameMap->rectangularRegion(x1, y1, x2, y2);
 
             if(tiles.empty())
@@ -1313,7 +1312,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::askSellTrapTiles:
+        case ClientNotificationType::askSellTrapTiles:
         {
             int x1, y1, x2, y2;
 
@@ -1367,7 +1366,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             {
                 uint32_t nbTiles = p.second.size();
                 ServerNotification serverNotification(
-                    ServerNotification::refreshTiles, p.first->getPlayer());
+                    ServerNotificationType::refreshTiles, p.first->getPlayer());
                 serverNotification.mPacket << nbTiles;
                 for(Tile* tile : p.second)
                 {
@@ -1385,7 +1384,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::editorAskDestroyTrapTiles:
+        case ClientNotificationType::editorAskDestroyTrapTiles:
         {
             OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
                 + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
@@ -1435,7 +1434,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             {
                 uint32_t nbTiles = p.second.size();
                 ServerNotification serverNotification(
-                    ServerNotification::refreshTiles, p.first->getPlayer());
+                    ServerNotificationType::refreshTiles, p.first->getPlayer());
                 serverNotification.mPacket << nbTiles;
                 for(Tile* tile : p.second)
                 {
@@ -1452,7 +1451,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::ackNewTurn:
+        case ClientNotificationType::ackNewTurn:
         {
             int64_t turn;
             OD_ASSERT_TRUE(packetReceived >> turn);
@@ -1460,7 +1459,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::askCreatureInfos:
+        case ClientNotificationType::askCreatureInfos:
         {
             std::string name;
             bool refreshEachTurn;
@@ -1478,7 +1477,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::editorAskSaveMap:
+        case ClientNotificationType::editorAskSaveMap:
         {
             OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
                 + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
@@ -1492,7 +1491,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
                 std::string msg = "Map saved successfully";
                 MapLoader::writeGameMapToFile(gameMap->getLevelFileName(), *gameMap);
-                ServerNotification notif(ServerNotification::chatServer, player);
+                ServerNotification notif(ServerNotificationType::chatServer, player);
                 notif.mPacket << msg;
                 sendAsyncMsg(notif);
             }
@@ -1500,14 +1499,14 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             {
                 // We cannot save the map
                 std::string msg = "Map could not be saved because player hand is not empty";
-                ServerNotification notif(ServerNotification::chatServer, player);
+                ServerNotification notif(ServerNotificationType::chatServer, player);
                 notif.mPacket << msg;
                 sendAsyncMsg(notif);
             }
             break;
         }
 
-        case ClientNotification::editorAskChangeTiles:
+        case ClientNotificationType::editorAskChangeTiles:
         {
             OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
                 + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
@@ -1517,12 +1516,12 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             int seatId;
 
             OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> intTileType >> tileFullness >> seatId);
-            Tile::TileType tileType = static_cast<Tile::TileType>(intTileType);
+            TileType tileType = static_cast<TileType>(intTileType);
             std::vector<Tile*> selectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
             std::vector<Tile*> affectedTiles;
             Seat* seat = nullptr;
             double claimedPercentage = 0.0;
-            if(tileType == Tile::TileType::claimed)
+            if(tileType == TileType::claimed)
             {
                 seat = gameMap->getSeatById(seatId);
                 claimedPercentage = 1.0;
@@ -1531,7 +1530,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             {
                 // We do not change tiles where there is something
                 if((tile->numEntitiesInTile() > 0) &&
-                   ((tileFullness > 0.0) || (tileType == Tile::TileType::lava) || (tileType == Tile::TileType::water)))
+                   ((tileFullness > 0.0) || (tileType == TileType::lava) || (tileType == TileType::water)))
                     continue;
                 if(tile->getCoveringBuilding() != nullptr)
                     continue;
@@ -1553,7 +1552,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     if(!seat->getPlayer()->getIsHuman())
                         continue;
 
-                    ServerNotification notif(ServerNotification::refreshTiles, seat->getPlayer());
+                    ServerNotification notif(ServerNotificationType::refreshTiles, seat->getPlayer());
                     notif.mPacket << nbTiles;
                     for(Tile* tile : affectedTiles)
                     {
@@ -1566,13 +1565,13 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::editorAskBuildRoom:
+        case ClientNotificationType::editorAskBuildRoom:
         {
             OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
                 + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
             int x1, y1, x2, y2;
             int seatId;
-            Room::RoomType type;
+            RoomType type;
 
             OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> type >> seatId);
             Seat* seat = gameMap->getSeatById(seatId);
@@ -1587,7 +1586,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     continue;
                 tiles.push_back(tile);
 
-                tile->setType(Tile::TileType::claimed);
+                tile->setType(TileType::claimed);
                 tile->setSeat(seat);
                 tile->setFullness(0.0);
             }
@@ -1598,52 +1597,52 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             Room* room = nullptr;
             switch (type)
             {
-                case Room::RoomType::nullRoomType:
+                case RoomType::nullRoomType:
                 {
                     room = nullptr;
                     break;
                 }
-                case Room::RoomType::dormitory:
+                case RoomType::dormitory:
                 {
                     room = new RoomDormitory(gameMap);
                     break;
                 }
-                case Room::RoomType::dungeonTemple:
+                case RoomType::dungeonTemple:
                 {
                     room = new RoomDungeonTemple(gameMap);
                     break;
                 }
-                case Room::RoomType::forge:
+                case RoomType::forge:
                 {
                     room = new RoomForge(gameMap);
                     break;
                 }
-                case Room::RoomType::hatchery:
+                case RoomType::hatchery:
                 {
                     room = new RoomHatchery(gameMap);
                     break;
                 }
-                case Room::RoomType::library:
+                case RoomType::library:
                 {
                     room = new RoomLibrary(gameMap);
                     break;
                 }
-                case Room::RoomType::portal:
+                case RoomType::portal:
                 {
                     room = new RoomPortal(gameMap);
                     break;
                 }
-                case Room::RoomType::trainingHall:
+                case RoomType::trainingHall:
                 {
                     room = new RoomTrainingHall(gameMap);
                     break;
                 }
-                case Room::RoomType::treasury:
+                case RoomType::treasury:
                 {
                     room = new RoomTreasury(gameMap);
                     break;
                 }
-                case Room::RoomType::crypt:
+                case RoomType::crypt:
                 {
                     room = new RoomCrypt(gameMap);
                     break;
@@ -1656,8 +1655,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 break;
 
             room->setupRoom(gameMap->nextUniqueNameRoom(room->getMeshName()), seat, tiles);
-
-            gameMap->addRoom(room);
+            room->addToGameMap();
 
             // We notify the clients with vision of the changed tiles. Note that we need
             // to calculate per seat since the could have vision on different parts of the building
@@ -1684,7 +1682,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             {
                 uint32_t nbTiles = p.second.size();
                 ServerNotification serverNotification(
-                    ServerNotification::refreshTiles, p.first->getPlayer());
+                    ServerNotificationType::refreshTiles, p.first->getPlayer());
                 serverNotification.mPacket << nbTiles;
                 for(Tile* tile : p.second)
                 {
@@ -1700,13 +1698,13 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotification::editorAskBuildTrap:
+        case ClientNotificationType::editorAskBuildTrap:
         {
             OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
                 + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
             int x1, y1, x2, y2;
             int seatId;
-            Trap::TrapType type;
+            TrapType type;
 
             OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> type >> seatId);
             Seat* seat = gameMap->getSeatById(seatId);
@@ -1721,7 +1719,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     continue;
                 tiles.push_back(tile);
 
-                tile->setType(Tile::TileType::claimed);
+                tile->setType(TileType::claimed);
                 tile->setSeat(seat);
                 tile->setFullness(0.0);
             }
@@ -1732,22 +1730,22 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             Trap* trap = nullptr;
             switch (type)
             {
-                case Trap::TrapType::nullTrapType:
+                case TrapType::nullTrapType:
                 {
                     trap = nullptr;
                     break;
                 }
-                case Trap::TrapType::cannon:
+                case TrapType::cannon:
                 {
                     trap = new TrapCannon(gameMap);
                     break;
                 }
-                case Trap::TrapType::spike:
+                case TrapType::spike:
                 {
                     trap = new TrapSpike(gameMap);
                     break;
                 }
-                case Trap::TrapType::boulder:
+                case TrapType::boulder:
                 {
                     trap = new TrapBoulder(gameMap);
                     break;
@@ -1761,13 +1759,13 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 break;
 
             trap->setupTrap(gameMap->nextUniqueNameTrap(trap->getMeshName()), seat, tiles);
-            gameMap->addTrap(trap);
+            trap->addToGameMap();
             trap->createMesh();
             trap->updateActiveSpots();
             break;
         }
 
-        case ClientNotification::editorCreateWorker:
+        case ClientNotificationType::editorCreateWorker:
         {
             OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
                 + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
@@ -1782,7 +1780,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 break;
             Creature* newCreature = new Creature(gameMap, classToSpawn);
             newCreature->setSeat(seatCreature);
-            gameMap->addCreature(newCreature);
+            newCreature->addToGameMap();
             newCreature->createMesh();
             // In editor mode, every player has vision
             for(Seat* seat : gameMap->getSeats())
@@ -1795,11 +1793,11 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 newCreature->addSeatWithVision(seat, true);
             }
 
-            player->pickUpEntity(newCreature, mServerMode == ServerMode::ModeEditor);
+            player->pickUpEntity(newCreature);
             break;
         }
 
-        case ClientNotification::editorCreateFighter:
+        case ClientNotificationType::editorCreateFighter:
         {
             OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
                 + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
@@ -1815,7 +1813,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 break;
             Creature* newCreature = new Creature(gameMap, classToSpawn);
             newCreature->setSeat(seatCreature);
-            gameMap->addCreature(newCreature);
+            newCreature->addToGameMap();
             newCreature->createMesh();
             // In editor mode, every player has vision
             for(Seat* seat : gameMap->getSeats())
@@ -1828,14 +1826,14 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 newCreature->addSeatWithVision(seat, true);
             }
 
-            player->pickUpEntity(newCreature, mServerMode == ServerMode::ModeEditor);
+            player->pickUpEntity(newCreature);
             break;
         }
 
         default:
         {
             LogManager::getSingleton().logMessage("ERROR:  Unhandled command received from client:"
-                + Ogre::StringConverter::toString(clientCommand));
+                + Helper::toString(static_cast<int>(clientCommand)));
         }
     }
 
@@ -1880,7 +1878,7 @@ bool ODServer::notifyClientMessage(ODSocketClient *clientSocket)
         if(std::string("ready").compare(clientSocket->getState()) == 0)
         {
             ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::chatServer, nullptr);
+                ServerNotificationType::chatServer, nullptr);
             std::string msg = clientSocket->getPlayer()->getNick()
                 + " disconnected";
             serverNotification->mPacket << msg;
@@ -1916,7 +1914,7 @@ void ODServer::notifyExit()
     }
 
     ServerNotification* exitServerNotification = new ServerNotification(
-        ServerNotification::exit, nullptr);
+        ServerNotificationType::exit, nullptr);
     queueServerNotification(exitServerNotification);
 }
 

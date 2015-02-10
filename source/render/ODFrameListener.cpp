@@ -286,8 +286,7 @@ void ODFrameListener::refreshChat()
         chatSS << "\n" + msg->getClientNick() << ": " << msg->getMessage();
     }
 
-    bool isEditor = (mModeManager->getCurrentModeType() == ModeManager::EDITOR);
-    if (!isEditor && mGameMap->getTurnNumber() == -1)
+    if (!mGameMap->isInEditorMode() && mGameMap->getTurnNumber() == -1)
     {
         // Tells the user the game is loading.
         chatSS << "\nWaiting for players...";
@@ -405,7 +404,7 @@ void ODFrameListener::notifyChatInputMode(bool isChatInputMode, bool sendChatMsg
     if(mIsChatInputMode && sendChatMsg && !mChatString.empty() && ODClient::getSingleton().isConnected())
     {
         ClientNotification *clientNotification = new ClientNotification(
-            ClientNotification::chat);
+            ClientNotificationType::chat);
         clientNotification->mPacket << mChatString;
         ODClient::getSingleton().queueClientNotification(clientNotification);
     }

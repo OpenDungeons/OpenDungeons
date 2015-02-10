@@ -15,19 +15,29 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "creaturemood/CreatureMoodFee.h"
+#ifndef SPELLCALLTOWAR_H
+#define SPELLCALLTOWAR_H
 
-#include "entities/Creature.h"
-#include "entities/CreatureDefinition.h"
+#include "spell/Spell.h"
 
-#include "utils/Helper.h"
+class GameMap;
 
-int32_t CreatureMoodFee::computeMood(const Creature* creature) const
+class SpellCallToWar : public Spell
 {
-    int32_t owedGold = creature->getGoldFee() - creature->getDefinition()->getFee(creature->getLevel());
-    if(owedGold < 100)
-        return 0;
+public:
+    SpellCallToWar(GameMap* gameMap);
+    virtual ~SpellCallToWar();
 
-    owedGold = Helper::round(static_cast<double>(owedGold) * 0.01);
-    return owedGold * mMoodModifier;
-}
+    SpellType getSpellType() const
+    { return SpellType::callToWar; }
+
+    bool canSlap(Seat* seat);
+
+    void slap();
+
+    static int getSpellCallToWarCost(GameMap* gameMap, const std::vector<Tile*>& tiles, Player* player);
+
+    static void castSpellCallToWar(GameMap* gameMap, const std::vector<Tile*>& tiles, Player* player);
+};
+
+#endif // SPELLCALLTOWAR_H

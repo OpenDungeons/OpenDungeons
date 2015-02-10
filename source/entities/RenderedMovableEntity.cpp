@@ -26,6 +26,8 @@
 #include "entities/PersistentObject.h"
 #include "entities/TrapEntity.h"
 
+#include "game/Seat.h"
+
 #include "gamemap/GameMap.h"
 
 #include "network/ODPacket.h"
@@ -33,6 +35,9 @@
 #include "network/ServerNotification.h"
 
 #include "render/RenderManager.h"
+
+#include "spell/Spell.h"
+
 #include "utils/LogManager.h"
 
 #include <iostream>
@@ -43,13 +48,13 @@ const std::string RenderedMovableEntity::RENDEREDMOVABLEENTITY_OGRE_PREFIX = "Og
 const Ogre::Vector3 SCALE(0.7,0.7,0.7);
 
 RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap, const std::string& baseName, const std::string& nMeshName,
-        Ogre::Real rotationAngle, bool hideCoveredTile, float opacity) :
-    MovableGameEntity(gameMap),
+        Ogre::Real rotationAngle, bool hideCoveredTile, float opacity, const std::string& initialAnimationState,
+        bool initialAnimationLoop) :
+    MovableGameEntity(gameMap, initialAnimationState, initialAnimationLoop),
     mRotationAngle(rotationAngle),
     mHideCoveredTile(hideCoveredTile),
     mOpacity(opacity)
 {
-    setObjectType(GameEntity::renderedMovableEntity);
     setMeshName(nMeshName);
     // Set a unique name for the object
     setName(gameMap->nextUniqueNameRenderedMovableEntity(baseName));
@@ -61,7 +66,6 @@ RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap) :
     mHideCoveredTile(false),
     mOpacity(1.0f)
 {
-    setObjectType(GameEntity::renderedMovableEntity);
 }
 
 const Ogre::Vector3& RenderedMovableEntity::getScale() const
@@ -89,6 +93,35 @@ void RenderedMovableEntity::destroyMeshLocal()
     RenderManager::getSingleton().rrDestroyRenderedMovableEntity(this);
 }
 
+void RenderedMovableEntity::addToGameMap()
+{
+    getGameMap()->addRenderedMovableEntity(this);
+    setIsOnMap(true);
+    getGameMap()->addAnimatedObject(this);
+
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    getGameMap()->addActiveObject(this);
+}
+
+void RenderedMovableEntity::removeFromGameMap()
+{
+    getGameMap()->removeRenderedMovableEntity(this);
+    setIsOnMap(false);
+    getGameMap()->removeAnimatedObject(this);
+
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    fireRemoveEntityToSeatsWithVision();
+    Tile* posTile = getPositionTile();
+    if(posTile != nullptr)
+        posTile->removeEntity(this);
+
+    getGameMap()->removeActiveObject(this);
+}
+
 void RenderedMovableEntity::setMeshOpacity(float opacity)
 {
     if (opacity < 0.0f || opacity > 1.0f)
@@ -106,7 +139,7 @@ void RenderedMovableEntity::setMeshOpacity(float opacity)
                 continue;
 
             ServerNotification* serverNotification = new ServerNotification(
-                ServerNotification::setEntityOpacity, seat->getPlayer());
+                ServerNotificationType::setEntityOpacity, seat->getPlayer());
             const std::string& name = getName();
             serverNotification->mPacket << name << opacity;
             ODServer::getSingleton().queueServerNotification(serverNotification);
@@ -134,7 +167,7 @@ void RenderedMovableEntity::fireAddEntity(Seat* seat, bool async)
     if(async)
     {
         ServerNotification serverNotification(
-            ServerNotification::addRenderedMovableEntity, seat->getPlayer());
+            ServerNotificationType::addRenderedMovableEntity, seat->getPlayer());
         exportHeadersToPacket(serverNotification.mPacket);
         exportToPacket(serverNotification.mPacket);
         ODServer::getSingleton().sendAsyncMsg(serverNotification);
@@ -142,7 +175,7 @@ void RenderedMovableEntity::fireAddEntity(Seat* seat, bool async)
     else
     {
         ServerNotification* serverNotification = new ServerNotification(
-            ServerNotification::addRenderedMovableEntity, seat->getPlayer());
+            ServerNotificationType::addRenderedMovableEntity, seat->getPlayer());
         exportHeadersToPacket(serverNotification->mPacket);
         exportToPacket(serverNotification->mPacket);
         ODServer::getSingleton().queueServerNotification(serverNotification);
@@ -152,8 +185,10 @@ void RenderedMovableEntity::fireAddEntity(Seat* seat, bool async)
 void RenderedMovableEntity::fireRemoveEntity(Seat* seat)
 {
     ServerNotification *serverNotification = new ServerNotification(
-        ServerNotification::removeRenderedMovableEntity, seat->getPlayer());
+        ServerNotificationType::removeRenderedMovableEntity, seat->getPlayer());
     const std::string& name = getName();
+    GameEntityType type = getObjectType();
+    serverNotification->mPacket << type;
     serverNotification->mPacket << name;
     ODServer::getSingleton().queueServerNotification(serverNotification);
 }
@@ -167,7 +202,7 @@ RenderedMovableEntity* RenderedMovableEntity::getRenderedMovableEntityFromLine(G
 {
     RenderedMovableEntity* obj = nullptr;
     std::stringstream is(line);
-    RenderedMovableEntity::RenderedMovableEntityType rot;
+    RenderedMovableEntityType rot;
     OD_ASSERT_TRUE(is >> rot);
     switch(rot)
     {
@@ -194,6 +229,11 @@ RenderedMovableEntity* RenderedMovableEntity::getRenderedMovableEntityFromLine(G
         case RenderedMovableEntityType::craftedTrap:
         {
             obj = CraftedTrap::getCraftedTrapFromStream(gameMap, is);
+            break;
+        }
+        case RenderedMovableEntityType::spellEntity:
+        {
+            obj = Spell::getSpellFromStream(gameMap, is);
             break;
         }
         default:
@@ -256,6 +296,11 @@ RenderedMovableEntity* RenderedMovableEntity::getRenderedMovableEntityFromPacket
         case RenderedMovableEntityType::trapEntity:
         {
             obj = TrapEntity::getTrapEntityFromPacket(gameMap, is);
+            break;
+        }
+        case RenderedMovableEntityType::spellEntity:
+        {
+            obj = Spell::getSpellFromPacket(gameMap, is);
             break;
         }
         default:
@@ -364,32 +409,32 @@ void RenderedMovableEntity::importFromStream(std::istream& is)
     MovableGameEntity::importFromStream(is);
 }
 
-ODPacket& operator<<(ODPacket& os, const RenderedMovableEntity::RenderedMovableEntityType& rot)
+ODPacket& operator<<(ODPacket& os, const RenderedMovableEntityType& rot)
 {
-    uint32_t intType = static_cast<RenderedMovableEntity::RenderedMovableEntityType>(rot);
+    uint32_t intType = static_cast<uint32_t>(rot);
     os << intType;
     return os;
 }
 
-ODPacket& operator>>(ODPacket& is, RenderedMovableEntity::RenderedMovableEntityType& rot)
+ODPacket& operator>>(ODPacket& is, RenderedMovableEntityType& rot)
 {
     uint32_t intType;
     is >> intType;
-    rot = static_cast<RenderedMovableEntity::RenderedMovableEntityType>(intType);
+    rot = static_cast<RenderedMovableEntityType>(intType);
     return is;
 }
 
-std::ostream& operator<<(std::ostream& os, const RenderedMovableEntity::RenderedMovableEntityType& rot)
+std::ostream& operator<<(std::ostream& os, const RenderedMovableEntityType& rot)
 {
-    uint32_t intType = static_cast<RenderedMovableEntity::RenderedMovableEntityType>(rot);
+    uint32_t intType = static_cast<uint32_t>(rot);
     os << intType;
     return os;
 }
 
-std::istream& operator>>(std::istream& is, RenderedMovableEntity::RenderedMovableEntityType& rot)
+std::istream& operator>>(std::istream& is, RenderedMovableEntityType& rot)
 {
     uint32_t intType;
     is >> intType;
-    rot = static_cast<RenderedMovableEntity::RenderedMovableEntityType>(intType);
+    rot = static_cast<RenderedMovableEntityType>(intType);
     return is;
 }

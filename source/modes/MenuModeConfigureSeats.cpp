@@ -17,6 +17,8 @@
 
 #include "gamemap/GameMap.h"
 
+#include "game/Seat.h"
+
 #include "modes/MenuModeConfigureSeats.h"
 #include "modes/ModeManager.h"
 
@@ -262,7 +264,7 @@ void MenuModeConfigureSeats::activate()
     tmpWin->setEnabled(enabled);
 
     // We notify the server we are ready to recceive players and configure them
-    ODClient::getSingleton().queueClientNotification(ClientNotification::readyForSeatConfiguration);
+    ODClient::getSingleton().queueClientNotification(ClientNotificationType::readyForSeatConfiguration);
 }
 
 void MenuModeConfigureSeats::launchSelectedButtonPressed()
@@ -445,9 +447,9 @@ void MenuModeConfigureSeats::fireSeatConfigurationToServer(bool isFinal)
 
     ClientNotification* notif;
     if(isFinal)
-        notif = new ClientNotification(ClientNotification::seatConfigurationSet);
+        notif = new ClientNotification(ClientNotificationType::seatConfigurationSet);
     else
-        notif = new ClientNotification(ClientNotification::seatConfigurationRefresh);
+        notif = new ClientNotification(ClientNotificationType::seatConfigurationRefresh);
 
     for(Seat* seat : mSeats)
     {

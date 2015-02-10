@@ -90,7 +90,7 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "addRenderedMovableEntity";
         case ServerNotificationType::removeRenderedMovableEntity:
             return "removeRenderedMovableEntity";
-        case setEntityOpacity:
+        case ServerNotificationType::setEntityOpacity:
             return "setEntityOpacity";
         case ServerNotificationType::playSpatialSound:
             return "playSpatialSound";
@@ -119,16 +119,16 @@ std::string ServerNotification::typeString(ServerNotificationType type)
     return "";
 }
 
-ODPacket& operator<<(ODPacket& os, const ServerNotification::ServerNotificationType& nt)
+ODPacket& operator<<(ODPacket& os, const ServerNotificationType& nt)
 {
     os << static_cast<int32_t>(nt);
     return os;
 }
 
-ODPacket& operator>>(ODPacket& is, ServerNotification::ServerNotificationType& nt)
+ODPacket& operator>>(ODPacket& is, ServerNotificationType& nt)
 {
     int32_t tmp;
     is >> tmp;
-    nt = static_cast<ServerNotification::ServerNotificationType>(tmp);
+    nt = static_cast<ServerNotificationType>(tmp);
     return is;
 }

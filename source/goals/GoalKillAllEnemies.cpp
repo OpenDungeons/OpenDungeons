@@ -20,6 +20,7 @@
 #include "entities/Creature.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
+#include "rooms/Room.h"
 
 #include <iostream>
 
@@ -41,14 +42,14 @@ bool GoalKillAllEnemies::isMet(Seat *s)
 
     // Considers also creature spawner rooms as enemy to be killed.
     // Temples
-    std::vector<Room*> temples = mGameMap->getRoomsByType(Room::dungeonTemple);
+    std::vector<Room*> temples = mGameMap->getRoomsByType(RoomType::dungeonTemple);
     for (Room* temple : temples)
     {
         if (!temple->getSeat()->isAlliedSeat(s))
             return false;
     }
     // Portals
-    std::vector<Room*> portals = mGameMap->getRoomsByType(Room::portal);
+    std::vector<Room*> portals = mGameMap->getRoomsByType(RoomType::portal);
     for (Room* portal : portals)
     {
         if (!portal->getSeat()->isAlliedSeat(s))

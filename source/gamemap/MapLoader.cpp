@@ -28,6 +28,8 @@
 #include "entities/MapLight.h"
 #include "entities/Weapon.h"
 
+#include "rooms/Room.h"
+
 #include "traps/Trap.h"
 
 #include "utils/Helper.h"
@@ -208,7 +210,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 
         Tile::loadFromLine(entire_line, tempTile);
 
-        gameMap.addTile(tempTile);
+        tempTile->addToGameMap();
     }
 
     gameMap.setAllFullnessAndNeighbors();
@@ -244,7 +246,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
             return false;
 
         tempRoom->setName(gameMap.nextUniqueNameRoom(tempRoom->getMeshName()));
-        gameMap.addRoom(tempRoom);
+        tempRoom->addToGameMap();
 
         levelFile >> nextParam;
         if (nextParam != "[/Room]")
@@ -278,7 +280,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
             return false;
 
         tempTrap->setName(gameMap.nextUniqueNameTrap(tempTrap->getMeshName()));
-        gameMap.addTrap(tempTrap);
+        tempTrap->addToGameMap();
 
         levelFile >> nextParam;
         if (nextParam != "[/Trap]")
@@ -314,7 +316,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         OD_ASSERT_TRUE(tempLight != nullptr);
         if(tempLight == nullptr)
             return false;
-        gameMap.addMapLight(tempLight);
+        tempLight->addToGameMap();
     }
 
     levelFile >> nextParam;
@@ -476,7 +478,8 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         OD_ASSERT_TRUE(tempCreature != nullptr);
         if(tempCreature == nullptr)
             return false;
-        gameMap.addCreature(tempCreature);
+
+        tempCreature->addToGameMap();
         ++nbCreatures;
 
         levelFile >> nextParam;
@@ -545,7 +548,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
         {
             tempTile = gameMap.getTile(ii, jj);
             // Don't save standard tiles as they're auto filled in at load time.
-            if (tempTile->getType() == Tile::dirt && tempTile->getFullness() >= 100.0)
+            if (tempTile->getType() == TileType::dirt && tempTile->getFullness() >= 100.0)
                 continue;
 
             levelFile << tempTile << std::endl;
@@ -603,7 +606,9 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     levelFile << "# " << MapLight::getFormat() << "\n";
     for (unsigned int i = 0, num = gameMap.numMapLights(); i < num; ++i)
     {
-        levelFile << gameMap.getMapLight(i) << std::endl;
+        MapLight* mapLight = gameMap.getMapLight(i);
+        mapLight->exportToStream(levelFile);
+        levelFile << std::endl;
     }
     levelFile << "[/Lights]" << std::endl;
 

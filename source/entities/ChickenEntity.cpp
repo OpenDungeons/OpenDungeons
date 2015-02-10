@@ -19,6 +19,7 @@
 
 #include "network/ODPacket.h"
 #include "gamemap/GameMap.h"
+#include "rooms/Room.h"
 #include "utils/Random.h"
 #include "utils/LogManager.h"
 
@@ -76,7 +77,7 @@ void ChickenEntity::doUpkeep()
     {
         // No need to remove the chicken from its tile as it has already been in eatChicken
         // or when dying
-        getGameMap()->removeRenderedMovableEntity(this);
+        removeFromGameMap();
         deleteYourself();
         return;
     }
@@ -86,7 +87,7 @@ void ChickenEntity::doUpkeep()
     if(tile->getCoveringRoom() != nullptr)
     {
         Room* room = tile->getCoveringRoom();
-        if(room->getType() == Room::RoomType::hatchery)
+        if(room->getType() == RoomType::hatchery)
         {
             currentHatchery = room;
         }
@@ -149,12 +150,12 @@ void ChickenEntity::addTileToListIfPossible(int x, int y, Room* currentHatchery,
     if(tile->getFullness() > 0.0)
         return;
 
-    Tile::TileType tileType = tile->getType();
+    TileType tileType = tile->getType();
     switch(tileType)
     {
-        case Tile::TileType::dirt:
-        case Tile::TileType::gold:
-        case Tile::TileType::claimed:
+        case TileType::dirt:
+        case TileType::gold:
+        case TileType::claimed:
         {
             break;
         }
@@ -170,7 +171,7 @@ void ChickenEntity::addTileToListIfPossible(int x, int y, Room* currentHatchery,
     possibleTileMove.push_back(tile);
 }
 
-bool ChickenEntity::tryPickup(Seat* seat, bool isEditorMode)
+bool ChickenEntity::tryPickup(Seat* seat)
 {
     if(!getIsOnMap())
         return false;
@@ -186,7 +187,7 @@ bool ChickenEntity::tryPickup(Seat* seat, bool isEditorMode)
     if(tile == nullptr)
         return false;
 
-    if(isEditorMode)
+    if(getGameMap()->isInEditorMode())
         return true;
 
     if(!tile->isClaimedForSeat(seat))
@@ -208,21 +209,24 @@ void ChickenEntity::pickup()
     OD_ASSERT_TRUE(tile->removeEntity(this));
 }
 
-bool ChickenEntity::tryDrop(Seat* seat, Tile* tile, bool isEditorMode)
+bool ChickenEntity::tryDrop(Seat* seat, Tile* tile)
 {
     if (tile->getFullness() > 0.0)
         return false;
 
     // In editor mode, we allow to drop an object in dirt, claimed or gold tiles
-    if(isEditorMode && (tile->getType() == Tile::dirt || tile->getType() == Tile::gold || tile->getType() == Tile::claimed))
+    if(getGameMap()->isInEditorMode() &&
+       (tile->getType() == TileType::dirt || tile->getType() == TileType::gold || tile->getType() == TileType::claimed))
+    {
         return true;
+    }
 
     // we cannot drop a chicken on a tile we don't see
     if(!seat->hasVisionOnTile(tile))
         return false;
 
     // Otherwise, we allow to drop an object only on allied claimed tiles
-    if(tile->getType() == Tile::claimed && tile->getSeat() != nullptr && tile->getSeat()->isAlliedSeat(seat))
+    if(tile->getType() == TileType::claimed && tile->getSeat() != nullptr && tile->getSeat()->isAlliedSeat(seat))
         return true;
 
     return false;
@@ -244,7 +248,7 @@ bool ChickenEntity::eatChicken(Creature* creature)
     return true;
 }
 
-bool ChickenEntity::canSlap(Seat* seat, bool isEditorMode)
+bool ChickenEntity::canSlap(Seat* seat)
 {
     if(!getIsOnMap())
         return false;
@@ -260,7 +264,7 @@ bool ChickenEntity::canSlap(Seat* seat, bool isEditorMode)
     if(tile == nullptr)
         return false;
 
-    if(isEditorMode)
+    if(getGameMap()->isInEditorMode())
         return !mIsSlapped;
 
     if(!tile->isClaimedForSeat(seat))

@@ -18,8 +18,8 @@
 #ifndef ODCLIENT_H
 #define ODCLIENT_H
 
-#include "ClientNotification.h"
-#include "ODSocketClient.h"
+#include "network/ODSocketClient.h"
+#include "network/ClientNotification.h"
 
 #include <OgreSingleton.h>
 
@@ -66,12 +66,12 @@ class ODClient: public Ogre::Singleton<ODClient>,
      *  \param args The arguments that are to be piped into the notification.
      */
     template<typename ...Args>
-    void queueClientNotification(ClientNotification::ClientNotificationType type, const Args&... args);
+    void queueClientNotification(ClientNotificationType type, const Args&... args);
 
     /*! \brief Adds a client notification to the client notification queue.
      *  \param type The type of the notification
      */
-    void queueClientNotification(ClientNotification::ClientNotificationType type)
+    void queueClientNotification(ClientNotificationType type)
     {
         mClientNotificationQueue.emplace_back(new ClientNotification(type));
     }
@@ -98,7 +98,7 @@ class ODClient: public Ogre::Singleton<ODClient>,
 };
 
 template<typename ...Args>
-void ODClient::queueClientNotification(ClientNotification::ClientNotificationType type, const Args&... args)
+void ODClient::queueClientNotification(ClientNotificationType type, const Args&... args)
 {
     queueClientNotification(type);
     ODPacket::putInPacket(mClientNotificationQueue.back()->mPacket, args...);

@@ -20,9 +20,10 @@
 
 #include "AbstractApplicationMode.h"
 
-#include "gamemap/GameMap.h"
-
 class Gui; // Used to change the Current tile type
+class GameMap;
+
+enum class TileType;
 
 class  EditorMode: public AbstractApplicationMode
 {
@@ -58,7 +59,7 @@ public:
 
 private:
     //! \brief Tile type (Dirt, Lava, ...)
-    Tile::TileType mCurrentTileType;
+    TileType mCurrentTileType;
 
     //! \brief how of the wall type is there (0 - 100.0)
     //! < 1.0 means no walls.

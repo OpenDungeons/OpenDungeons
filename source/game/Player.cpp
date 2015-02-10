@@ -30,7 +30,11 @@
 
 #include "render/RenderManager.h"
 
+#include "rooms/Room.h"
+
 #include "spell/Spell.h"
+
+#include "traps/Trap.h"
 
 #include "utils/LogManager.h"
 
@@ -44,8 +48,8 @@ const float NO_TREASURY_TIME_COUNT = 30.0f;
 
 Player::Player(GameMap* gameMap, int32_t id) :
     mId(id),
-    mNewRoomType(Room::nullRoomType),
-    mNewTrapType(Trap::nullTrapType),
+    mNewRoomType(RoomType::nullRoomType),
+    mNewTrapType(TrapType::nullTrapType),
     mCurrentAction(SelectedAction::none),
     mGameMap(gameMap),
     mSeat(nullptr),
@@ -61,7 +65,7 @@ unsigned int Player::numCreaturesInHand(const Seat* seat) const
     unsigned int cpt = 0;
     for(MovableGameEntity* entity : mObjectsInHand)
     {
-        if(entity->getObjectType() != GameEntity::ObjectType::creature)
+        if(entity->getObjectType() != GameEntityType::creature)
             continue;
 
         if(seat != nullptr && entity->getSeat() != seat)
@@ -96,34 +100,22 @@ void Player::addEntityToHand(MovableGameEntity *entity)
     mObjectsInHand[0] = entity;
 }
 
-void Player::pickUpEntity(MovableGameEntity *entity, bool isEditorMode)
+void Player::pickUpEntity(MovableGameEntity *entity)
 {
     if (!ODServer::getSingleton().isConnected() && !ODClient::getSingleton().isConnected())
         return;
 
-    if(entity->getObjectType() == GameEntity::ObjectType::creature)
-    {
-        Creature* creature = static_cast<Creature*>(entity);
-        if(!creature->tryPickup(getSeat(), isEditorMode))
+    if(!entity->tryPickup(getSeat()))
            return;
 
-       creature->pickup();
-    }
-    else if(entity->getObjectType() == GameEntity::ObjectType::renderedMovableEntity)
-    {
-        RenderedMovableEntity* obj = static_cast<RenderedMovableEntity*>(entity);
-        if(!obj->tryPickup(getSeat(), isEditorMode))
-           return;
-
-        obj->pickup();
-    }
+    entity->pickup();
 
     // Start tracking this creature as being in this player's hand
     addEntityToHand(entity);
 
     if (mGameMap->isServerGameMap())
     {
-        entity->firePickupEntity(this, isEditorMode);
+        entity->firePickupEntity(this);
         return;
     }
 
@@ -140,27 +132,14 @@ void Player::clearObjectsInHand()
     mObjectsInHand.clear();
 }
 
-bool Player::isDropHandPossible(Tile *t, unsigned int index, bool isEditorMode)
+bool Player::isDropHandPossible(Tile *t, unsigned int index)
 {
     // if we have a creature to drop
     if (mObjectsInHand.empty())
         return false;
 
     GameEntity* entity = mObjectsInHand[index];
-    if(entity != nullptr && entity->getObjectType() == GameEntity::ObjectType::creature)
-    {
-        Creature* creature = static_cast<Creature*>(entity);
-        if(creature->tryDrop(getSeat(), t, isEditorMode))
-            return true;
-    }
-    else if(entity != nullptr && entity->getObjectType() == GameEntity::ObjectType::renderedMovableEntity)
-    {
-        RenderedMovableEntity* obj = static_cast<RenderedMovableEntity*>(entity);
-        if(obj->tryDrop(getSeat(), t, isEditorMode))
-            return true;
-    }
-
-    return false;
+    return entity->tryDrop(getSeat(), t);
 }
 
 MovableGameEntity* Player::dropHand(Tile *t, unsigned int index)
@@ -172,23 +151,9 @@ MovableGameEntity* Player::dropHand(Tile *t, unsigned int index)
 
     MovableGameEntity *entity = mObjectsInHand[index];
     mObjectsInHand.erase(mObjectsInHand.begin() + index);
-    if(entity->getObjectType() == GameEntity::ObjectType::creature)
-    {
-        Creature* creature = static_cast<Creature*>(entity);
-        creature->drop(Ogre::Vector3(static_cast<Ogre::Real>(t->getX()),
-            static_cast<Ogre::Real>(t->getY()), 0.0));
 
-        if (!mGameMap->isServerGameMap() && (this == mGameMap->getLocalPlayer()))
-        {
-            creature->fireCreatureSound(CreatureSound::DROP);
-        }
-    }
-    else if(entity->getObjectType() == GameEntity::ObjectType::renderedMovableEntity)
-    {
-        RenderedMovableEntity* obj = static_cast<RenderedMovableEntity*>(entity);
-        obj->drop(Ogre::Vector3(static_cast<Ogre::Real>(t->getX()),
-            static_cast<Ogre::Real>(t->getY()), 0.0));
-    }
+    entity->drop(Ogre::Vector3(static_cast<Ogre::Real>(t->getX()),
+            static_cast<Ogre::Real>(t->getY()), entity->getPosition().z));
 
     if(mGameMap->isServerGameMap())
     {
@@ -234,7 +199,7 @@ void Player::notifyNoMoreDungeonTemple()
     mIsPlayerLostSent = true;
     // We check if there is still a player in the team with a dungeon temple. If yes, we notify the player he lost his dungeon
     // if no, we notify the team they lost
-    std::vector<Room*> dungeonTemples = mGameMap->getRoomsByType(Room::RoomType::dungeonTemple);
+    std::vector<Room*> dungeonTemples = mGameMap->getRoomsByType(RoomType::dungeonTemple);
     bool hasTeamLost = true;
     for(Room* dungeonTemple : dungeonTemples)
     {
@@ -259,7 +224,7 @@ void Player::notifyNoMoreDungeonTemple()
                 continue;
 
             ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::chatServer, seat->getPlayer());
+            ServerNotificationType::chatServer, seat->getPlayer());
             serverNotification->mPacket << "You lost the game";
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
@@ -278,14 +243,14 @@ void Player::notifyNoMoreDungeonTemple()
             if(this == seat->getPlayer())
             {
                 ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::chatServer, seat->getPlayer());
+                ServerNotificationType::chatServer, seat->getPlayer());
                 serverNotification->mPacket << "You lost";
                 ODServer::getSingleton().queueServerNotification(serverNotification);
                 continue;
             }
 
             ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::chatServer, seat->getPlayer());
+            ServerNotificationType::chatServer, seat->getPlayer());
             serverNotification->mPacket << "An ally has lost";
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
@@ -306,7 +271,7 @@ void Player::updateTime(Ogre::Real timeSinceLastUpdate)
             mFightingTime = 0.0f;
             // Notify the player he is no longer under attack.
             ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::playerNoMoreFighting, this);
+                ServerNotificationType::playerNoMoreFighting, this);
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
     }
@@ -325,7 +290,7 @@ void Player::notifyFighting()
     if(mFightingTime == 0.0f)
     {
         ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::playerFighting, this);
+            ServerNotificationType::playerFighting, this);
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 
@@ -340,7 +305,7 @@ void Player::notifyNoTreasuryAvailable()
 
         std::string chatMsg = "No treasury available. You should build a bigger one";
         ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::chatServer, this);
+            ServerNotificationType::chatServer, this);
         serverNotification->mPacket << chatMsg;
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
@@ -349,7 +314,14 @@ void Player::notifyNoTreasuryAvailable()
 void Player::setCurrentAction(SelectedAction action)
 {
     mCurrentAction = action;
-    mNewTrapType = Trap::nullTrapType;
-    mNewRoomType = Room::nullRoomType;
+    mNewTrapType = TrapType::nullTrapType;
+    mNewRoomType = RoomType::nullRoomType;
     mNewSpellType = SpellType::nullSpellType;
+}
+
+bool Player::isSpellAvailableForPlayer(SpellType type)
+{
+    // TODO: when the research tree will be implemented, we should check if the given
+    // spell is available. For now, we allow every spell
+    return true;
 }

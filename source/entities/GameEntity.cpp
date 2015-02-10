@@ -77,16 +77,101 @@ Tile* GameEntity::getPositionTile() const
                                  Helper::round(tempPosition.y));
 }
 
-ODPacket& operator<<(ODPacket& os, const GameEntity::ObjectType& ot)
+bool GameEntity::addEntityToTile(Tile* tile)
+{
+    return tile->addEntity(this);
+}
+
+bool GameEntity::removeEntityFromTile(Tile* tile)
+{
+    return tile->removeEntity(this);
+}
+
+void GameEntity::notifySeatsWithVision(const std::vector<Seat*>& seats)
+{
+    // We notify seats that lost vision
+    for(std::vector<Seat*>::iterator it = mSeatsWithVisionNotified.begin(); it != mSeatsWithVisionNotified.end();)
+    {
+        Seat* seat = *it;
+        // If the seat is still in the list, nothing to do
+        if(std::find(seats.begin(), seats.end(), seat) != seats.end())
+        {
+            ++it;
+            continue;
+        }
+
+        it = mSeatsWithVisionNotified.erase(it);
+
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+
+        fireRemoveEntity(seat);
+    }
+
+    // We notify seats that gain vision
+    for(Seat* seat : seats)
+    {
+        // If the seat was already in the list, nothing to do
+        if(std::find(mSeatsWithVisionNotified.begin(), mSeatsWithVisionNotified.end(), seat) != mSeatsWithVisionNotified.end())
+            continue;
+
+        mSeatsWithVisionNotified.push_back(seat);
+
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+
+        fireAddEntity(seat, false);
+    }
+}
+
+void GameEntity::addSeatWithVision(Seat* seat, bool async)
+{
+    if(std::find(mSeatsWithVisionNotified.begin(), mSeatsWithVisionNotified.end(), seat) != mSeatsWithVisionNotified.end())
+        return;
+
+    mSeatsWithVisionNotified.push_back(seat);
+    fireAddEntity(seat, async);
+}
+
+void GameEntity::removeSeatWithVision(Seat* seat)
+{
+    std::vector<Seat*>::iterator it = std::find(mSeatsWithVisionNotified.begin(), mSeatsWithVisionNotified.end(), seat);
+    if(it == mSeatsWithVisionNotified.end())
+        return;
+
+    mSeatsWithVisionNotified.erase(it);
+    fireRemoveEntity(seat);
+}
+
+void GameEntity::fireRemoveEntityToSeatsWithVision()
+{
+    for(Seat* seat : mSeatsWithVisionNotified)
+    {
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+
+        fireRemoveEntity(seat);
+    }
+
+    mSeatsWithVisionNotified.clear();
+}
+
+ODPacket& operator<<(ODPacket& os, const GameEntityType& ot)
 {
     os << static_cast<int32_t>(ot);
     return os;
 }
 
-ODPacket& operator>>(ODPacket& is, GameEntity::ObjectType& ot)
+ODPacket& operator>>(ODPacket& is, GameEntityType& ot)
 {
     int32_t tmp;
     is >> tmp;
-    ot = static_cast<GameEntity::ObjectType>(tmp);
+    ot = static_cast<GameEntityType>(tmp);
     return is;
 }

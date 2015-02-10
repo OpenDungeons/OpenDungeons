@@ -114,7 +114,7 @@ void RoomCrypt::doUpkeep()
 
         SmallSpiderEntity* spider = new SmallSpiderEntity(getGameMap(), getName(), 10);
         Ogre::Vector3 pos(static_cast<Ogre::Real>(tile->getX()), static_cast<Ogre::Real>(tile->getY()), 0.0f);
-        getGameMap()->addRenderedMovableEntity(spider);
+        spider->addToGameMap();
         spider->createMesh();
         spider->setPosition(pos, false);
     }
@@ -134,7 +134,7 @@ void RoomCrypt::doUpkeep()
         Creature* c = p.second.first;
         mRottenPoints += static_cast<int32_t>(c->getMaxHp() * coef);
 
-        getGameMap()->removeCreature(c);
+        c->removeFromGameMap();
         c->deleteYourself();
         p.second.first = nullptr;
         p.second.second = -1;
@@ -157,7 +157,7 @@ void RoomCrypt::doUpkeep()
             newCreature->setSeat(getSeat());
 
             // Add the creature to the gameMap and create meshes so it is visible.
-            getGameMap()->addCreature(newCreature);
+            newCreature->addToGameMap();
             Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(tileSpawn->getX()), static_cast<Ogre::Real>(tileSpawn->getY()), static_cast<Ogre::Real>(0.0));
             newCreature->createMesh();
             newCreature->setPosition(spawnPosition, false);
@@ -165,9 +165,9 @@ void RoomCrypt::doUpkeep()
     }
 }
 
-bool RoomCrypt::hasCarryEntitySpot(MovableGameEntity* carriedEntity)
+bool RoomCrypt::hasCarryEntitySpot(GameEntity* carriedEntity)
 {
-    if(carriedEntity->getObjectType() != GameEntity::ObjectType::creature)
+    if(carriedEntity->getObjectType() != GameEntityType::creature)
         return false;
 
     Creature* creature = static_cast<Creature*>(carriedEntity);
@@ -182,11 +182,11 @@ bool RoomCrypt::hasCarryEntitySpot(MovableGameEntity* carriedEntity)
     return false;
 }
 
-Tile* RoomCrypt::askSpotForCarriedEntity(MovableGameEntity* carriedEntity)
+Tile* RoomCrypt::askSpotForCarriedEntity(GameEntity* carriedEntity)
 {
-    OD_ASSERT_TRUE_MSG(carriedEntity->getObjectType() == GameEntity::ObjectType::creature,
+    OD_ASSERT_TRUE_MSG(carriedEntity->getObjectType() == GameEntityType::creature,
         "room=" + getName() + ", entity=" + carriedEntity->getName());
-    if(carriedEntity->getObjectType() != GameEntity::ObjectType::creature)
+    if(carriedEntity->getObjectType() != GameEntityType::creature)
         return nullptr;
 
     Creature* creature = static_cast<Creature*>(carriedEntity);
@@ -207,7 +207,7 @@ Tile* RoomCrypt::askSpotForCarriedEntity(MovableGameEntity* carriedEntity)
     return nullptr;
 }
 
-void RoomCrypt::notifyCarryingStateChanged(Creature* carrier, MovableGameEntity* carriedEntity)
+void RoomCrypt::notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity)
 {
     for(std::pair<Tile* const, std::pair<Creature*, int32_t> >& p : mRottingCreatures)
     {
@@ -234,7 +234,7 @@ void RoomCrypt::notifyCarryingStateChanged(Creature* carrier, MovableGameEntity*
             }
 
             // The carrier has brought the dead creature
-            OD_ASSERT_TRUE_MSG(carriedEntity->getObjectType() == GameEntity::ObjectType::creature,
+            OD_ASSERT_TRUE_MSG(carriedEntity->getObjectType() == GameEntityType::creature,
                 "room=" + getName() + ", entity=" + carriedEntity->getName());
 
             Creature* deadCreature = static_cast<Creature*>(carriedEntity);

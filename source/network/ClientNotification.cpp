@@ -89,16 +89,16 @@ std::string ClientNotification::typeString(ClientNotificationType type)
     return "";
 }
 
-ODPacket& operator<<(ODPacket& os, const ClientNotification::ClientNotificationType& nt)
+ODPacket& operator<<(ODPacket& os, const ClientNotificationType& nt)
 {
     os << static_cast<int32_t>(nt);
     return os;
 }
 
-ODPacket& operator>>(ODPacket& is, ClientNotification::ClientNotificationType& nt)
+ODPacket& operator>>(ODPacket& is, ClientNotificationType& nt)
 {
     int32_t tmp;
     is >> tmp;
-    nt = static_cast<ClientNotification::ClientNotificationType>(tmp);
+    nt = static_cast<ClientNotificationType>(tmp);
     return is;
 }

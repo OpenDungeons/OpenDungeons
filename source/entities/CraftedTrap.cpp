@@ -21,6 +21,7 @@
 
 #include "gamemap/GameMap.h"
 
+#include "traps/Trap.h"
 #include "traps/TrapBoulder.h"
 #include "traps/TrapCannon.h"
 #include "traps/TrapSpike.h"
@@ -34,7 +35,7 @@ const std::string EMPTY_STRING;
 
 const Ogre::Vector3 SCALE(0.5,0.5,0.5);
 
-CraftedTrap::CraftedTrap(GameMap* gameMap, const std::string& forgeName, Trap::TrapType trapType) :
+CraftedTrap::CraftedTrap(GameMap* gameMap, const std::string& forgeName, TrapType trapType) :
     RenderedMovableEntity(gameMap, forgeName, getMeshFromTrapType(trapType), 0.0f, false),
     mTrapType(trapType)
 {
@@ -50,17 +51,17 @@ const Ogre::Vector3& CraftedTrap::getScale() const
     return SCALE;
 }
 
-const std::string& CraftedTrap::getMeshFromTrapType(Trap::TrapType trapType)
+const std::string& CraftedTrap::getMeshFromTrapType(TrapType trapType)
 {
     switch(trapType)
     {
-        case Trap::TrapType::nullTrapType:
+        case TrapType::nullTrapType:
             return EMPTY_STRING;
-        case Trap::TrapType::cannon:
+        case TrapType::cannon:
             return TrapCannon::MESH_CANON;
-        case Trap::TrapType::spike:
+        case TrapType::spike:
             return TrapSpike::MESH_SPIKE;
-        case Trap::TrapType::boulder:
+        case TrapType::boulder:
             return TrapBoulder::MESH_BOULDER;
     }
     OD_ASSERT_TRUE_MSG(false, "Wrong enum asked for CraftedTrap " + getName() + ", trapType="
