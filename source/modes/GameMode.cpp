@@ -719,11 +719,11 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
     switch (arg.key)
     {
     case OIS::KC_F1:
-        showHelpWindow();
+        toggleHelpWindow();
         break;
 
     case OIS::KC_F3:
-        showObjectivesWindow();
+        toggleObjectivesWindow();
         break;
 
     case OIS::KC_F10:
@@ -1027,6 +1027,18 @@ void GameMode::hideObjectivesWindow()
     Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild("ObjectivesWindow")->hide();
 }
 
+void GameMode::toggleObjectivesWindow()
+{
+    CEGUI::Window* objectives = Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild("ObjectivesWindow");
+    if (objectives == nullptr)
+        return;
+
+    if (objectives->isVisible())
+        hideObjectivesWindow();
+    else
+        showObjectivesWindow();
+}
+
 void GameMode::showOptionsWindow()
 {
     // FIXME: For now, we show the settings window directly.
@@ -1046,6 +1058,14 @@ void GameMode::showHelpWindow()
     // in the wrong gui context and is never shown...
     createHelpWindow();
     mHelpWindow->show();
+}
+
+void GameMode::toggleHelpWindow()
+{
+    if (mHelpWindow == nullptr || !mHelpWindow->isVisible())
+        showHelpWindow();
+    else
+        hideHelpWindow();
 }
 
 void GameMode::createHelpWindow()
@@ -1108,9 +1128,14 @@ void GameMode::createHelpWindow()
     textWindow->setText(txt.str());
 }
 
-bool GameMode::hideHelpWindow(const CEGUI::EventArgs& /*e*/)
+void GameMode::hideHelpWindow()
 {
     if (mHelpWindow != nullptr)
         mHelpWindow->hide();
+}
+
+bool GameMode::hideHelpWindow(const CEGUI::EventArgs& /*e*/)
+{
+    hideHelpWindow();
     return true;
 }

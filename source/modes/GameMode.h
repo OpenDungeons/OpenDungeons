@@ -88,14 +88,15 @@ class  GameMode: public AbstractApplicationMode
 
     virtual void notifyGuiAction(GuiAction guiAction);
 
-    //! \brief Show the help window
+    //! \brief Shows/hides/toggles the help window
     void showHelpWindow();
+    void hideHelpWindow();
+    void toggleHelpWindow();
 
-    //! \brief Shows the objectives window
+    //! \brief Shows/hides/toggles the objectives window
     void showObjectivesWindow();
-
-    //! \brief Hides the objectives window.
     void hideObjectivesWindow();
+    void toggleObjectivesWindow();
 
     //! \brief Shows the options window
     void showOptionsWindow();
@@ -144,7 +145,7 @@ private:
     //! \brief Creates the help window.
     void createHelpWindow();
 
-    //! \brief Hides the help window.
+    //! \brief System function used to hide the help window through the system cross.
     bool hideHelpWindow(const CEGUI::EventArgs& /*e*/);
 
     //! \brief Handle updating the selector position on screen

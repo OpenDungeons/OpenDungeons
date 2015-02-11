@@ -697,7 +697,7 @@ bool Gui::helpButtonPressed(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::GAME)
         return true;
 
-    static_cast<GameMode*>(mm->getCurrentMode())->showHelpWindow();
+    static_cast<GameMode*>(mm->getCurrentMode())->toggleHelpWindow();
     return true;
 }
 
@@ -707,7 +707,7 @@ bool Gui::objectivesButtonPressed(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::GAME)
         return true;
 
-    static_cast<GameMode*>(mm->getCurrentMode())->showObjectivesWindow();
+    static_cast<GameMode*>(mm->getCurrentMode())->toggleObjectivesWindow();
     return true;
 }
 
