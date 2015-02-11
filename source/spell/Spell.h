@@ -54,9 +54,6 @@ public:
     virtual std::string getOgreNamePrefix() const
     { return SPELL_OGRE_PREFIX; }
 
-    RenderedMovableEntityType getRenderedMovableEntityType() const
-    { return RenderedMovableEntityType::spellEntity; }
-
     static Spell* getSpellFromStream(GameMap* gameMap, std::istream &is);
     static Spell* getSpellFromPacket(GameMap* gameMap, ODPacket &is);
 

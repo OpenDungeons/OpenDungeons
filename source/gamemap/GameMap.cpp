@@ -2716,7 +2716,14 @@ MovableGameEntity* GameMap::getEntityFromTypeAndName(GameEntityType entityType,
         case GameEntityType::creature:
             return getCreature(entityName);
 
-        case GameEntityType::renderedMovableEntity:
+        case GameEntityType::buildingObject:
+        case GameEntityType::chickenEntity:
+        case GameEntityType::craftedTrap:
+        case GameEntityType::missileObject:
+        case GameEntityType::persistentObject:
+        case GameEntityType::smallSpiderEntity:
+        case GameEntityType::trapEntity:
+        case GameEntityType::treasuryObject:
             return getRenderedMovableEntity(entityName);
 
         case GameEntityType::spell:

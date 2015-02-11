@@ -22,8 +22,17 @@
 
 #include "entities/GameEntity.h"
 
+#include "entities/BuildingObject.h"
+#include "entities/ChickenEntity.h"
+#include "entities/CraftedTrap.h"
 #include "entities/Creature.h"
+#include "entities/MissileObject.h"
+#include "entities/PersistentObject.h"
 #include "entities/RenderedMovableEntity.h"
+#include "entities/SmallSpiderEntity.h"
+#include "spell/Spell.h"
+#include "entities/TrapEntity.h"
+#include "entities/TreasuryObject.h"
 
 #include "gamemap/GameMap.h"
 #include "network/ODPacket.h"
@@ -33,6 +42,7 @@
 #include "render/RenderManager.h"
 #include "rooms/Room.h"
 #include "utils/Helper.h"
+#include "utils/LogManager.h"
 
 void GameEntity::createMesh()
 {
@@ -162,16 +172,105 @@ void GameEntity::fireRemoveEntityToSeatsWithVision()
     mSeatsWithVisionNotified.clear();
 }
 
-ODPacket& operator<<(ODPacket& os, const GameEntityType& ot)
+GameEntity* GameEntity::getGameEntityeEntityFromStream(GameMap* gameMap, std::istream& is)
 {
-    os << static_cast<int32_t>(ot);
+    // Not used yet
+    return nullptr;
+}
+
+GameEntity* GameEntity::getGameEntityFromPacket(GameMap* gameMap, ODPacket& is)
+{
+    // For now, only RenderedMovableEntity are used this way. But this should change soon
+    RenderedMovableEntity* entity = nullptr;
+    GameEntityType type;
+    OD_ASSERT_TRUE(is >> type);
+    switch(type)
+    {
+        case GameEntityType::buildingObject:
+        {
+            entity = BuildingObject::getBuildingObjectFromPacket(gameMap, is);
+            break;
+        }
+        case GameEntityType::treasuryObject:
+        {
+            entity = TreasuryObject::getTreasuryObjectFromPacket(gameMap, is);
+            break;
+        }
+        case GameEntityType::chickenEntity:
+        {
+            entity = ChickenEntity::getChickenEntityFromPacket(gameMap, is);
+            break;
+        }
+        case GameEntityType::missileObject:
+        {
+            entity = MissileObject::getMissileObjectFromPacket(gameMap, is);
+            break;
+        }
+        case GameEntityType::smallSpiderEntity:
+        {
+            entity = SmallSpiderEntity::getSmallSpiderEntityFromPacket(gameMap, is);
+            break;
+        }
+        case GameEntityType::craftedTrap:
+        {
+            entity = CraftedTrap::getCraftedTrapFromPacket(gameMap, is);
+            break;
+        }
+        case GameEntityType::persistentObject:
+        {
+            entity = PersistentObject::getPersistentObjectFromPacket(gameMap, is);
+            break;
+        }
+        case GameEntityType::trapEntity:
+        {
+            entity = TrapEntity::getTrapEntityFromPacket(gameMap, is);
+            break;
+        }
+        case GameEntityType::spell:
+        {
+            entity = Spell::getSpellFromPacket(gameMap, is);
+            break;
+        }
+        default:
+        {
+            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Helper::toString(
+                static_cast<int>(type)));
+            break;
+        }
+    }
+
+    OD_ASSERT_TRUE(entity != nullptr);
+    if(entity == nullptr)
+        return nullptr;
+
+    entity->importFromPacket(is);
+    return entity;
+}
+
+ODPacket& operator<<(ODPacket& os, const GameEntityType& type)
+{
+    os << static_cast<int32_t>(type);
     return os;
 }
 
-ODPacket& operator>>(ODPacket& is, GameEntityType& ot)
+ODPacket& operator>>(ODPacket& is, GameEntityType& type)
 {
     int32_t tmp;
-    is >> tmp;
-    ot = static_cast<GameEntityType>(tmp);
+    OD_ASSERT_TRUE(is >> tmp);
+    type = static_cast<GameEntityType>(tmp);
+    return is;
+}
+
+std::ostream& operator<<(std::ostream& os, const GameEntityType& type)
+{
+    os << static_cast<int32_t>(type);
+    return os;
+}
+
+std::istream& operator>>(std::istream& is, GameEntityType& type)
+{
+    int32_t tmp;
+    OD_ASSERT_TRUE(is >> tmp);
+    type = static_cast<GameEntityType>(tmp);
     return is;
 }

@@ -43,14 +43,23 @@ enum class GameEntityType
     creature,
     room,
     trap,
-    renderedMovableEntity,
     tile,
     mapLight,
-    spell
+    spell,
+    buildingObject,
+    treasuryObject,
+    chickenEntity,
+    smallSpiderEntity,
+    craftedTrap,
+    missileObject,
+    persistentObject,
+    trapEntity
 };
 
-ODPacket& operator<<(ODPacket& os, const GameEntityType& ot);
-ODPacket& operator>>(ODPacket& is, GameEntityType& ot);
+ODPacket& operator<<(ODPacket& os, const GameEntityType& type);
+ODPacket& operator>>(ODPacket& is, GameEntityType& type);
+std::ostream& operator<<(std::ostream& os, const GameEntityType& type);
+std::istream& operator>>(std::istream& is, GameEntityType& type);
 
 //! This enum is used to know how carryable entities should be prioritized from lowest
 //! to highest
@@ -261,6 +270,16 @@ class GameEntity
     //! \brief Called when the entity is being carried
     virtual void notifyEntityCarryOff(const Ogre::Vector3& position)
     {}
+
+    //! This function should be called on client side just after the entity is added to the gamemap.
+    //! It should restore the entity state (if it was dead before the client got vision, it should
+    //! be dead on the ground for example).
+    //! Note that this function is to be called on client side only
+    virtual void restoreEntityState()
+    {}
+
+    static GameEntity* getGameEntityeEntityFromStream(GameMap* gameMap, std::istream& is);
+    static GameEntity* getGameEntityFromPacket(GameMap* gameMap, ODPacket& is);
 
   protected:
     //! \brief Function that implements the mesh creation

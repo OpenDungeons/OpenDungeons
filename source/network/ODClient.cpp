@@ -601,13 +601,13 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotificationType::addRenderedMovableEntity:
         {
-            RenderedMovableEntity* tempRenderedMovableEntity = RenderedMovableEntity::getRenderedMovableEntityFromPacket(gameMap, packetReceived);
-            OD_ASSERT_TRUE(tempRenderedMovableEntity != nullptr);
-            if(tempRenderedMovableEntity == nullptr)
+            GameEntity* entity = GameEntity::getGameEntityFromPacket(gameMap, packetReceived);
+            OD_ASSERT_TRUE(entity != nullptr);
+            if(entity == nullptr)
                 break;
-            tempRenderedMovableEntity->addToGameMap();
-            tempRenderedMovableEntity->createMesh();
-            tempRenderedMovableEntity->restoreEntityState();
+            entity->addToGameMap();
+            entity->createMesh();
+            entity->restoreEntityState();
             break;
         }
 

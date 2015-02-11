@@ -198,126 +198,6 @@ const char* RenderedMovableEntity::getFormat()
     return "name\tmeshName";
 }
 
-RenderedMovableEntity* RenderedMovableEntity::getRenderedMovableEntityFromLine(GameMap* gameMap, const std::string& line)
-{
-    RenderedMovableEntity* obj = nullptr;
-    std::stringstream is(line);
-    RenderedMovableEntityType rot;
-    OD_ASSERT_TRUE(is >> rot);
-    switch(rot)
-    {
-        case RenderedMovableEntityType::buildingObject:
-        {
-            OD_ASSERT_TRUE_MSG(false, "Building objects are not to be created from a line");
-            break;
-        }
-        case RenderedMovableEntityType::treasuryObject:
-        {
-            obj = TreasuryObject::getTreasuryObjectFromStream(gameMap, is);
-            break;
-        }
-        case RenderedMovableEntityType::chickenEntity:
-        {
-            obj = ChickenEntity::getChickenEntityFromStream(gameMap, is);
-            break;
-        }
-        case RenderedMovableEntityType::missileObject:
-        {
-            obj = MissileObject::getMissileObjectFromStream(gameMap, is);
-            break;
-        }
-        case RenderedMovableEntityType::craftedTrap:
-        {
-            obj = CraftedTrap::getCraftedTrapFromStream(gameMap, is);
-            break;
-        }
-        case RenderedMovableEntityType::spellEntity:
-        {
-            obj = Spell::getSpellFromStream(gameMap, is);
-            break;
-        }
-        default:
-        {
-            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(
-                static_cast<int>(rot)));
-            break;
-        }
-    }
-
-    if(obj == nullptr)
-        return nullptr;
-
-    obj->importFromStream(is);
-    return obj;
-}
-
-RenderedMovableEntity* RenderedMovableEntity::getRenderedMovableEntityFromPacket(GameMap* gameMap, ODPacket& is)
-{
-    RenderedMovableEntity* obj = nullptr;
-    RenderedMovableEntityType rot;
-    OD_ASSERT_TRUE(is >> rot);
-    switch(rot)
-    {
-        case RenderedMovableEntityType::buildingObject:
-        {
-            obj = BuildingObject::getBuildingObjectFromPacket(gameMap, is);
-            break;
-        }
-        case RenderedMovableEntityType::treasuryObject:
-        {
-            obj = TreasuryObject::getTreasuryObjectFromPacket(gameMap, is);
-            break;
-        }
-        case RenderedMovableEntityType::chickenEntity:
-        {
-            obj = ChickenEntity::getChickenEntityFromPacket(gameMap, is);
-            break;
-        }
-        case RenderedMovableEntityType::missileObject:
-        {
-            obj = MissileObject::getMissileObjectFromPacket(gameMap, is);
-            break;
-        }
-        case RenderedMovableEntityType::smallSpiderEntity:
-        {
-            obj = SmallSpiderEntity::getSmallSpiderEntityFromPacket(gameMap, is);
-            break;
-        }
-        case RenderedMovableEntityType::craftedTrap:
-        {
-            obj = CraftedTrap::getCraftedTrapFromPacket(gameMap, is);
-            break;
-        }
-        case RenderedMovableEntityType::persistentObject:
-        {
-            obj = PersistentObject::getPersistentObjectFromPacket(gameMap, is);
-            break;
-        }
-        case RenderedMovableEntityType::trapEntity:
-        {
-            obj = TrapEntity::getTrapEntityFromPacket(gameMap, is);
-            break;
-        }
-        case RenderedMovableEntityType::spellEntity:
-        {
-            obj = Spell::getSpellFromPacket(gameMap, is);
-            break;
-        }
-        default:
-        {
-            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(
-                static_cast<int>(rot)));
-            break;
-        }
-    }
-
-    if(obj == nullptr)
-        return nullptr;
-
-    obj->importFromPacket(is);
-    return obj;
-}
-
 std::vector<Tile*> RenderedMovableEntity::getCoveredTiles()
 {
     std::vector<Tile*> tempVector;
@@ -346,12 +226,12 @@ uint32_t RenderedMovableEntity::numCoveredTiles()
 
 void RenderedMovableEntity::exportHeadersToStream(std::ostream& os)
 {
-    os << getRenderedMovableEntityType() << "\t";
+    os << getObjectType();
 }
 
 void RenderedMovableEntity::exportHeadersToPacket(ODPacket& os)
 {
-    os << getRenderedMovableEntityType();
+    os << getObjectType();
 }
 
 void RenderedMovableEntity::exportToPacket(ODPacket& os) const
@@ -407,34 +287,4 @@ void RenderedMovableEntity::importFromStream(std::istream& is)
     OD_ASSERT_TRUE(is >> mRotationAngle);
 
     MovableGameEntity::importFromStream(is);
-}
-
-ODPacket& operator<<(ODPacket& os, const RenderedMovableEntityType& rot)
-{
-    uint32_t intType = static_cast<uint32_t>(rot);
-    os << intType;
-    return os;
-}
-
-ODPacket& operator>>(ODPacket& is, RenderedMovableEntityType& rot)
-{
-    uint32_t intType;
-    is >> intType;
-    rot = static_cast<RenderedMovableEntityType>(intType);
-    return is;
-}
-
-std::ostream& operator<<(std::ostream& os, const RenderedMovableEntityType& rot)
-{
-    uint32_t intType = static_cast<uint32_t>(rot);
-    os << intType;
-    return os;
-}
-
-std::istream& operator>>(std::istream& is, RenderedMovableEntityType& rot)
-{
-    uint32_t intType;
-    is >> intType;
-    rot = static_cast<RenderedMovableEntityType>(intType);
-    return is;
 }

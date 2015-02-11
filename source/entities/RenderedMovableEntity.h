@@ -29,24 +29,6 @@ class GameMap;
 class Seat;
 class ODPacket;
 
-enum class RenderedMovableEntityType
-{
-    buildingObject,
-    treasuryObject,
-    chickenEntity,
-    smallSpiderEntity,
-    craftedTrap,
-    missileObject,
-    persistentObject,
-    trapEntity,
-    spellEntity
-};
-
-ODPacket& operator<<(ODPacket& os, const RenderedMovableEntityType& rot);
-ODPacket& operator>>(ODPacket& is, RenderedMovableEntityType& rot);
-std::ostream& operator<<(std::ostream& os, const RenderedMovableEntityType& rot);
-std::istream& operator>>(std::istream& is, RenderedMovableEntityType& rot);
-
 class RenderedMovableEntity: public MovableGameEntity
 {
 public:
@@ -56,9 +38,6 @@ public:
         Ogre::Real rotationAngle, bool hideCoveredTile, float opacity = 1.0f, const std::string& initialAnimationState = "",
         bool initialAnimationLoop = true);
     RenderedMovableEntity(GameMap* gameMap);
-
-    virtual GameEntityType getObjectType() const
-    { return GameEntityType::renderedMovableEntity; }
 
     static const std::string RENDEREDMOVABLEENTITY_PREFIX;
     static const std::string RENDEREDMOVABLEENTITY_OGRE_PREFIX;
@@ -98,10 +77,6 @@ public:
 
     virtual void setMeshOpacity(float opacity);
 
-    // TODO : Now that the entities are added in a OO way, it may be good to
-    //        merge this type with GameEntityType
-    virtual RenderedMovableEntityType getRenderedMovableEntityType() const = 0;
-
     virtual void pickup();
     virtual void drop(const Ogre::Vector3& v);
 
@@ -118,8 +93,6 @@ public:
     virtual void exportToPacket(ODPacket& os) const;
     virtual void importFromPacket(ODPacket& is);
 
-    static RenderedMovableEntity* getRenderedMovableEntityFromLine(GameMap* gameMap, const std::string& line);
-    static RenderedMovableEntity* getRenderedMovableEntityFromPacket(GameMap* gameMap, ODPacket& is);
     static const char* getFormat();
 
 protected:

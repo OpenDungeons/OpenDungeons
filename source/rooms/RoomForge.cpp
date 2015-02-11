@@ -237,7 +237,7 @@ void RoomForge::doUpkeep()
             {
                 for(RenderedMovableEntity* renderable : renderables)
                 {
-                    if(renderable->getRenderedMovableEntityType() != RenderedMovableEntityType::craftedTrap)
+                    if(renderable->getObjectType() != GameEntityType::craftedTrap)
                         continue;
 
                     if(renderable->getSeat() != getSeat())
@@ -392,10 +392,7 @@ uint32_t RoomForge::countCraftedItemsOnRoom()
     uint32_t nbCraftedTrap = 0;
     for(GameEntity* entity : carryable)
     {
-        if(entity->getObjectType() != GameEntityType::renderedMovableEntity)
-            continue;
-        RenderedMovableEntity* renderEntity = static_cast<RenderedMovableEntity*>(entity);
-        if(renderEntity->getRenderedMovableEntityType() != RenderedMovableEntityType::craftedTrap)
+        if(entity->getObjectType() != GameEntityType::craftedTrap)
             continue;
 
         ++nbCraftedTrap;
@@ -414,10 +411,7 @@ Tile* RoomForge::checkIfAvailableSpot(const std::vector<Tile*>& activeSpots)
         tile->fillWithCarryableEntities(entities);
         for(GameEntity* entity : entities)
         {
-            if(entity->getObjectType() != GameEntityType::renderedMovableEntity)
-                continue;
-            RenderedMovableEntity* renderEntity = static_cast<RenderedMovableEntity*>(entity);
-            if(renderEntity->getRenderedMovableEntityType() != RenderedMovableEntityType::craftedTrap)
+            if(entity->getObjectType() != GameEntityType::craftedTrap)
                 continue;
 
             // There is one

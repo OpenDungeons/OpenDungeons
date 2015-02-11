@@ -36,8 +36,8 @@ public:
 
     virtual void doUpkeep();
 
-    virtual RenderedMovableEntityType getRenderedMovableEntityType() const
-    { return RenderedMovableEntityType::treasuryObject; }
+    virtual GameEntityType getObjectType() const override
+    { return GameEntityType::treasuryObject; }
 
     virtual bool tryPickup(Seat* seat);
     virtual bool tryDrop(Seat* seat, Tile* tile);
