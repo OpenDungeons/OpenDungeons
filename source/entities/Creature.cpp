@@ -1540,8 +1540,6 @@ bool Creature::handleClaimWallTileAction(const CreatureAction& actionItem)
         }
     }
 
-    //std::cout << "Claim wall" << std::endl;
-
     // See if any of the tiles is one of our neighbors
     bool wasANeighbor = false;
     Player* tempPlayer = getGameMap()->getPlayerBySeat(getSeat());
@@ -1571,71 +1569,44 @@ bool Creature::handleClaimWallTileAction(const CreatureAction& actionItem)
     // If we successfully found a wall tile to claim then we are done for this turn.
     if (wasANeighbor)
         return false;
-    //std::cout << "Looking for a wall to claim" << std::endl;
 
     // Find paths to all of the neighbor tiles for all of the visible wall tiles.
-    std::vector<std::list<Tile*> > possiblePaths;
     std::vector<Tile*> wallTiles = getVisibleClaimableWallTiles();
+
+    // Take the shortest path.
+    unsigned int shortestPath = 10000;
+    std::list<Tile*> chosenPath;
     for (unsigned int i = 0; i < wallTiles.size(); ++i)
     {
         for (Tile* neighborTile : wallTiles[i]->getAllNeighbors())
         {
-            if (getGameMap()->pathExists(this, getPositionTile(), neighborTile))
-                possiblePaths.push_back(getGameMap()->path(this, neighborTile));
+            // We have the shortest path already, so don't bother testing anything else.
+            if (shortestPath == 2)
+                break;
+
+            if (!getGameMap()->pathExists(this, getPositionTile(), neighborTile))
+                continue;
+
+            std::list<Tile*> currentPath = getGameMap()->path(this, neighborTile);
+            unsigned int pathLength = currentPath.size();
+            if (pathLength < shortestPath)
+            {
+                shortestPath = pathLength;
+                chosenPath = currentPath;
+            }
         }
+
+        // We have the shortest path already, so don't bother testing anything else.
+        if (shortestPath == 2)
+            break;
     }
 
-    // Find the shortest path and start walking toward the tile to be dug out
-    if (!possiblePaths.empty())
+    // If the path is a legitimate path, walk down it to the tile to be dug out
+    if (setWalkPath(chosenPath, 2, false))
     {
-        // Find the N shortest valid paths, see if there are any valid paths shorter than this first guess
-        std::vector<std::list<Tile*> > shortPaths;
-        for (unsigned int i = 0; i < possiblePaths.size(); ++i)
-        {
-            // If the current path is long enough to be valid
-            unsigned int currentLength = possiblePaths[i].size();
-            if (currentLength >= 2)
-            {
-                shortPaths.push_back(possiblePaths[i]);
-
-                // If we already have enough short paths
-                if (shortPaths.size() > 5)
-                {
-                    unsigned int longestLength, longestIndex;
-
-                    // Kick out the longest
-                    longestLength = shortPaths[0].size();
-                    longestIndex = 0;
-                    for (unsigned int j = 1; j < shortPaths.size(); ++j)
-                    {
-                        if (shortPaths[j].size() > longestLength)
-                        {
-                            longestLength = shortPaths.size();
-                            longestIndex = j;
-                        }
-                    }
-
-                    shortPaths.erase(shortPaths.begin() + longestIndex);
-                }
-            }
-        }
-
-        // Randomly pick a short path to take
-        unsigned int numShortPaths = shortPaths.size();
-        if (numShortPaths > 0)
-        {
-            unsigned int shortestIndex;
-            shortestIndex = Random::Uint(0, numShortPaths - 1);
-            std::list<Tile*> walkPath = shortPaths[shortestIndex];
-
-            // If the path is a legitimate path, walk down it to the tile to be dug out
-            if (setWalkPath(walkPath, 2, false))
-            {
-                setAnimationState("Walk");
-                pushAction(CreatureActionType::walkToTile, true);
-                return false;
-            }
-        }
+        setAnimationState("Walk");
+        pushAction(CreatureActionType::walkToTile, true);
+        return false;
     }
 
     // If we found no path, let's stop doing this
@@ -3053,7 +3024,7 @@ std::vector<GameEntity*> Creature::getReachableAttackableObjects(const std::vect
     return tempVector;
 }
 
-std::vector<GameEntity*> Creature::getCreaturesFromList(const std::vector<GameEntity*> &objectsToCheck, bool koboldsOnly)
+std::vector<GameEntity*> Creature::getCreaturesFromList(const std::vector<GameEntity*> &objectsToCheck, bool workersOnly)
 {
     std::vector<GameEntity*> tempVector;
 
@@ -3066,7 +3037,7 @@ std::vector<GameEntity*> Creature::getCreaturesFromList(const std::vector<GameEn
         if(entity->getObjectType() != GameEntityType::creature)
             continue;
 
-        if(koboldsOnly && !static_cast<Creature*>(entity)->getDefinition()->isWorker())
+        if(workersOnly && !static_cast<Creature*>(entity)->getDefinition()->isWorker())
             continue;
 
         tempVector.push_back(entity);

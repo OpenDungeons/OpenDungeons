@@ -1,7 +1,4 @@
 /*!
- * \date:  02 July 2011
- * \author StefanP.MUC
- *
  *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -20,27 +17,28 @@
 
 #include "modes/GameMode.h"
 
-#include "network/ODClient.h"
-#include "render/Gui.h"
-#include "render/ODFrameListener.h"
-#include "utils/LogManager.h"
-#include "render/Gui.h"
-#include "utils/ResourceManager.h"
-#include "render/TextRenderer.h"
+#include "camera/CameraManager.h"
 #include "entities/Creature.h"
 #include "entities/MapLight.h"
-#include "game/Seat.h"
-#include "traps/Trap.h"
-#include "game/Player.h"
-#include "render/RenderManager.h"
-#include "camera/CameraManager.h"
-#include "sound/MusicPlayer.h"
-#include "network/ODServer.h"
-#include "rooms/Room.h"
-#include "ODApplication.h"
 #include "entities/RenderedMovableEntity.h"
 #include "gamemap/MiniMap.h"
+#include "game/Seat.h"
+#include "game/Player.h"
+#include "network/ODClient.h"
+#include "network/ODServer.h"
+#include "render/RenderManager.h"
+#include "render/Gui.h"
+#include "render/ODFrameListener.h"
+#include "render/Gui.h"
+#include "render/TextRenderer.h"
+#include "rooms/Room.h"
+#include "sound/MusicPlayer.h"
 #include "spell/Spell.h"
+#include "traps/Trap.h"
+#include "utils/LogManager.h"
+#include "utils/Helper.h"
+#include "utils/ResourceManager.h"
+#include "ODApplication.h"
 
 #include <CEGUI/WindowManager.h>
 #include <CEGUI/widgets/PushButton.h>
@@ -75,20 +73,11 @@ GameMode::~GameMode()
         mHelpWindow->destroy();
 }
 
-//! \brief Converts an int value into a 2 digits-long Hex string value.
-std::string intTo2Hex(int i)
-{
-  std::stringstream stream;
-  stream << std::setfill('0') << std::setw(2) << std::hex << i;
-  return stream.str();
-}
-
 //! \brief Gets the CEGUI ImageColours string property (AARRGGBB format) corresponding
 //! to the given Ogre ColourValue.
 std::string getImageColoursStringFromColourValue(const Ogre::ColourValue& color)
 {
-    std::string colourStr = intTo2Hex(static_cast<int>(color.a * 255.0f)) + intTo2Hex(static_cast<int>(color.r * 255.0f))
-        + intTo2Hex(static_cast<int>(color.g * 255.0f)) + intTo2Hex(static_cast<int>(color.b * 255.0f));
+    std::string colourStr = Helper::getCEGUIColorFromOgreColourValue(color);
     std::string imageColours = "tl:" + colourStr + " tr:" + colourStr + " bl:" + colourStr + " br:" + colourStr;
     return imageColours;
 }
@@ -104,6 +93,8 @@ void GameMode::activate()
     guiSheet->getChild(Gui::EXIT_CONFIRMATION_POPUP)->hide();
     guiSheet->getChild(Gui::BUTTON_TEMPLE)->hide();
     guiSheet->getChild(Gui::BUTTON_PORTAL)->hide();
+    guiSheet->getChild("ObjectivesWindow")->hide();
+    guiSheet->getChild("SettingsWindow")->hide();
 
     MiniMap* minimap = ODFrameListener::getSingleton().getMiniMap();
     minimap->attachMiniMap(Gui::guiSheet::inGameMenu);
@@ -728,11 +719,15 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
     switch (arg.key)
     {
     case OIS::KC_F1:
-        // We create the window only at first call.
-        // Note: If we create it in the constructor, the window gets created
-        // in the wrong gui context and is never shown...
-        createHelpWindow();
-        mHelpWindow->show();
+        toggleHelpWindow();
+        break;
+
+    case OIS::KC_F3:
+        toggleObjectivesWindow();
+        break;
+
+    case OIS::KC_F10:
+        showOptionsWindow();
         break;
 
     case OIS::KC_F11:
@@ -822,6 +817,13 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
     case OIS::KC_9:
     case OIS::KC_0:
         handleHotkeys(arg.key);
+        break;
+
+    case OIS::KC_I:
+        ODFrameListener::getSingleton().getCameraManager()->setDefaultIsometricView();
+        break;
+    case OIS::KC_O:
+        ODFrameListener::getSingleton().getCameraManager()->setDefaultOrthogonalView();
         break;
 
     default:
@@ -1015,6 +1017,57 @@ void GameMode::notifyGuiAction(GuiAction guiAction)
     }
 }
 
+void GameMode::showObjectivesWindow()
+{
+    Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild("ObjectivesWindow")->show();
+}
+
+void GameMode::hideObjectivesWindow()
+{
+    Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild("ObjectivesWindow")->hide();
+}
+
+void GameMode::toggleObjectivesWindow()
+{
+    CEGUI::Window* objectives = Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild("ObjectivesWindow");
+    if (objectives == nullptr)
+        return;
+
+    if (objectives->isVisible())
+        hideObjectivesWindow();
+    else
+        showObjectivesWindow();
+}
+
+void GameMode::showOptionsWindow()
+{
+    // FIXME: For now, we show the settings window directly.
+    // Later the option menu with save load and settings button can be added.
+    Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild("SettingsWindow")->show();
+}
+
+void GameMode::hideOptionsWindow()
+{
+    Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild("SettingsWindow")->hide();
+}
+
+void GameMode::showHelpWindow()
+{
+    // We create the window only at first call.
+    // Note: If we create it in the constructor, the window gets created
+    // in the wrong gui context and is never shown...
+    createHelpWindow();
+    mHelpWindow->show();
+}
+
+void GameMode::toggleHelpWindow()
+{
+    if (mHelpWindow == nullptr || !mHelpWindow->isVisible())
+        showHelpWindow();
+    else
+        hideHelpWindow();
+}
+
 void GameMode::createHelpWindow()
 {
     if (mHelpWindow != nullptr)
@@ -1030,8 +1083,8 @@ void GameMode::createHelpWindow()
     mHelpWindow->setProperty("SizingEnabled", "False");
 
     CEGUI::Window* textWindow = wmgr->createWindow("OD/StaticText", "TextDisplay");
-    textWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.10, 0)));
-    textWindow->setSize(CEGUI::USize(CEGUI::UDim(0.9, 0), CEGUI::UDim(0.8, 0)));
+    textWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 20), CEGUI::UDim(0, 30)));
+    textWindow->setSize(CEGUI::USize(CEGUI::UDim(1.0, -40), CEGUI::UDim(1.0, -30)));
     textWindow->setProperty("FrameEnabled", "False");
     textWindow->setProperty("BackgroundEnabled", "False");
     textWindow->setProperty("VertFormatting", "TopAligned");
@@ -1056,7 +1109,7 @@ void GameMode::createHelpWindow()
         << "To rotate the camera, you can use either: A, or E." << std::endl
         << "Use the mouse wheel to go lower or higher, or Home, End." << std::endl
         << "And finally, you can use Page Up, Page Down, to look up or down." << std::endl << std::endl;
-    txt << "You can left-click on the map's dirt walls to mark them. Your kobold workers will then "
+    txt << "You can left-click on the map's dirt walls to mark them. Your workers will then "
         << "dig them for you. They will also claim tiles, turning them into stone with your color at their center." << std::endl
         << "Certain blocks are made of gold. You should look for them and make you workers dig those tiles in priority."
         << "Once you have enough gold, you can build room tiles that will permit to make your fighter creatures do many things "
@@ -1075,9 +1128,14 @@ void GameMode::createHelpWindow()
     textWindow->setText(txt.str());
 }
 
-bool GameMode::hideHelpWindow(const CEGUI::EventArgs& /*e*/)
+void GameMode::hideHelpWindow()
 {
     if (mHelpWindow != nullptr)
         mHelpWindow->hide();
+}
+
+bool GameMode::hideHelpWindow(const CEGUI::EventArgs& /*e*/)
+{
+    hideHelpWindow();
     return true;
 }

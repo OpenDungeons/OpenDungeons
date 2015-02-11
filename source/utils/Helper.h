@@ -113,6 +113,14 @@ namespace Helper
     { return Ogre::StringConverter::toString(d); }
     inline std::string toString(uint32_t d)
     { return Ogre::StringConverter::toString(d); }
+
+    //! \brief Converts an int value into a 2 digits-long Hex string value.
+    //! \example 256 -> FF
+    std::string intTo2Hex(int i);
+
+    //! \brief Returns the string representation of a CEGUI color from an Ogre ColourValue.
+    //! \format AARRGGBB hex format.
+    std::string getCEGUIColorFromOgreColourValue(const Ogre::ColourValue& color);
 }
 
 #endif // HELPER_H_

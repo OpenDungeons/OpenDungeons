@@ -147,4 +147,20 @@ namespace Helper
 
         return true;
     }
+
+    std::string intTo2Hex(int i)
+    {
+        std::stringstream stream;
+        stream << std::setfill('0') << std::setw(2) << std::hex << i;
+        return stream.str();
+    }
+
+    std::string getCEGUIColorFromOgreColourValue(const Ogre::ColourValue& color)
+    {
+        std::string colourStr = Helper::intTo2Hex(static_cast<int>(color.a * 255.0f))
+                                + Helper::intTo2Hex(static_cast<int>(color.r * 255.0f))
+                                + Helper::intTo2Hex(static_cast<int>(color.g * 255.0f))
+                                + Helper::intTo2Hex(static_cast<int>(color.b * 255.0f));
+        return colourStr;
+    }
 } // namespace Helper

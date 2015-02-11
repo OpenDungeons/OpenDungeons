@@ -695,7 +695,6 @@ bool ConfigManager::loadFactions(const std::string& fileName)
                 OD_ASSERT_TRUE_MSG(false, "Empty or missing faction name is not allowed");
                 return false;
             }
-            mFactions.push_back(factionName);
 
             if (nextParam == "WorkerClass")
             {
@@ -707,13 +706,15 @@ bool ConfigManager::loadFactions(const std::string& fileName)
                 OD_ASSERT_TRUE_MSG(false, "Empty or missing WorkerClass name is not allowed");
                 return false;
             }
-            mFactionDefaultWorkerClass[factionName] = workerClass;
 
             if (nextParam != "[SpawnPool]")
             {
                 OD_ASSERT_TRUE_MSG(false, "Invalid faction. Line was " + nextParam);
                 return false;
             }
+
+            mFactions.push_back(factionName);
+            mFactionDefaultWorkerClass[factionName] = workerClass;
 
             while(defFile.good())
             {

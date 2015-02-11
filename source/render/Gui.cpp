@@ -258,6 +258,32 @@ void Gui::assignEventHandlers()
         CEGUI::PushButton::EventClicked,
         CEGUI::Event::Subscriber(&confirmExitNoButtonPressed));
 
+    mSheets[inGameMenu]->getChild("HelpButton")->subscribeEvent(
+        CEGUI::PushButton::EventClicked,
+        CEGUI::Event::Subscriber(&helpButtonPressed));
+
+    mSheets[inGameMenu]->getChild("ObjectivesButton")->subscribeEvent(
+        CEGUI::PushButton::EventClicked,
+        CEGUI::Event::Subscriber(&objectivesButtonPressed));
+
+    mSheets[inGameMenu]->getChild("OptionsButton")->subscribeEvent(
+        CEGUI::PushButton::EventClicked,
+        CEGUI::Event::Subscriber(&optionsButtonPressed));
+
+    // Search for the autoclose button and make it work
+    mSheets[inGameMenu]->getChild("ObjectivesWindow/__auto_closebutton__")->subscribeEvent(
+        CEGUI::PushButton::EventClicked,
+        CEGUI::Event::Subscriber(&hideObjectivesWindow));
+
+    // Search for the autoclose button and make it work
+    mSheets[inGameMenu]->getChild("SettingsWindow/__auto_closebutton__")->subscribeEvent(
+        CEGUI::PushButton::EventClicked,
+        CEGUI::Event::Subscriber(&cancelSettings));
+
+    mSheets[inGameMenu]->getChild("SettingsWindow/CancelButton")->subscribeEvent(
+        CEGUI::PushButton::EventClicked,
+        CEGUI::Event::Subscriber(&cancelSettings));
+
     // Editor Mode controls
     mSheets[editorModeGui]->getChild(EDITOR_LAVA_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
@@ -665,6 +691,56 @@ bool Gui::confirmExitNoButtonPressed(const CEGUI::EventArgs& e)
     return true;
 }
 
+bool Gui::helpButtonPressed(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::GAME)
+        return true;
+
+    static_cast<GameMode*>(mm->getCurrentMode())->toggleHelpWindow();
+    return true;
+}
+
+bool Gui::objectivesButtonPressed(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::GAME)
+        return true;
+
+    static_cast<GameMode*>(mm->getCurrentMode())->toggleObjectivesWindow();
+    return true;
+}
+
+bool Gui::hideObjectivesWindow(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::GAME)
+        return true;
+
+    static_cast<GameMode*>(mm->getCurrentMode())->hideObjectivesWindow();
+    return true;
+}
+
+bool Gui::optionsButtonPressed(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::GAME)
+        return true;
+
+    static_cast<GameMode*>(mm->getCurrentMode())->showOptionsWindow();
+    return true;
+}
+
+bool Gui::cancelSettings(const CEGUI::EventArgs& e)
+{
+    // TODO: restore previous settings...
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::GAME)
+        return true;
+
+    static_cast<GameMode*>(mm->getCurrentMode())->hideOptionsWindow();
+    return true;
+}
 
 // EDITOR
 
@@ -992,7 +1068,7 @@ const std::string Gui::DISPLAY_GOLD = "HorizontalPipe/GoldDisplay";
 const std::string Gui::DISPLAY_MANA = "HorizontalPipe/ManaDisplay";
 const std::string Gui::DISPLAY_TERRITORY = "HorizontalPipe/TerritoryDisplay";
 const std::string Gui::MINIMAP = "MiniMap";
-const std::string Gui::MESSAGE_WINDOW = "MessagesDisplayWindow";
+const std::string Gui::OBJECTIVE_TEXT = "ObjectivesWindow/ObjectivesText";
 const std::string Gui::MAIN_TABCONTROL = "MainTabControl";
 const std::string Gui::TAB_ROOMS = "MainTabControl/Rooms";
 const std::string Gui::BUTTON_DORMITORY = "MainTabControl/Rooms/DormitoryButton";

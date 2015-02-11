@@ -80,7 +80,7 @@ public:
     static const std::string DISPLAY_MANA;
     static const std::string DISPLAY_TERRITORY;
     static const std::string MINIMAP;
-    static const std::string MESSAGE_WINDOW;
+    static const std::string OBJECTIVE_TEXT;
     static const std::string MAIN_TABCONTROL;
     static const std::string TAB_ROOMS;
     static const std::string BUTTON_DORMITORY;
@@ -268,6 +268,13 @@ private:
 
     static bool confirmExitYesButtonPressed     (const CEGUI::EventArgs& e);
     static bool confirmExitNoButtonPressed      (const CEGUI::EventArgs& e);
+
+    static bool helpButtonPressed(const CEGUI::EventArgs& e);
+    static bool objectivesButtonPressed(const CEGUI::EventArgs& e);
+    static bool optionsButtonPressed(const CEGUI::EventArgs& e);
+    static bool hideObjectivesWindow(const CEGUI::EventArgs& e);
+
+    static bool cancelSettings(const CEGUI::EventArgs& e);
 
     // Editor Buttons
     static bool editorLavaButtonPressed(const CEGUI::EventArgs& e);

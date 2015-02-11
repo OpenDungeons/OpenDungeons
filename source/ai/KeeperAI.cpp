@@ -109,8 +109,8 @@ bool KeeperAI::checkTreasury()
 
     Tile* central = getDungeonTemple()->getCentralTile();
 
-    Creature* kobold = mGameMap.getKoboldForPathFinding(mPlayer.getSeat());
-    if (kobold == nullptr)
+    Creature* worker = mGameMap.getWorkerForPathFinding(mPlayer.getSeat());
+    if (worker == nullptr)
         return false;
 
     // We try in priority to gold next to an existing treasury
@@ -121,7 +121,7 @@ bool KeeperAI::checkTreasury()
             for(Tile* neigh : tile->getAllNeighbors())
             {
                 if(neigh->isBuildableUpon() && neigh->isClaimedForSeat(mPlayer.getSeat()) &&
-                   mGameMap.pathExists(kobold, central, neigh))
+                   mGameMap.pathExists(worker, central, neigh))
                 {
                     std::vector<Tile*> tiles;
                     int goldRequired;
@@ -156,7 +156,7 @@ bool KeeperAI::checkTreasury()
             // North-East
             t = mGameMap.getTile(central->getX() + k, central->getY() + distance);
             if(t != nullptr && t->isBuildableUpon() && t->isClaimedForSeat(mPlayer.getSeat()) &&
-               mGameMap.pathExists(kobold, central, t))
+               mGameMap.pathExists(worker, central, t))
             {
                 firstAvailableTile = t;
                 break;
@@ -166,7 +166,7 @@ bool KeeperAI::checkTreasury()
             {
                 t = mGameMap.getTile(central->getX() - k, central->getY() + distance);
                 if(t != nullptr && t->isBuildableUpon() && t->isClaimedForSeat(mPlayer.getSeat()) &&
-                   mGameMap.pathExists(kobold, central, t))
+                   mGameMap.pathExists(worker, central, t))
                 {
                     firstAvailableTile = t;
                     break;
@@ -175,7 +175,7 @@ bool KeeperAI::checkTreasury()
             // South-East
             t = mGameMap.getTile(central->getX() + k, central->getY() - distance);
             if(t != nullptr && t->isBuildableUpon() && t->isClaimedForSeat(mPlayer.getSeat()) &&
-               mGameMap.pathExists(kobold, central, t))
+               mGameMap.pathExists(worker, central, t))
             {
                 firstAvailableTile = t;
                 break;
@@ -185,7 +185,7 @@ bool KeeperAI::checkTreasury()
             {
                 t = mGameMap.getTile(central->getX() - k, central->getY() - distance);
                 if(t != nullptr && t->isBuildableUpon() && t->isClaimedForSeat(mPlayer.getSeat()) &&
-                   mGameMap.pathExists(kobold, central, t))
+                   mGameMap.pathExists(worker, central, t))
                 {
                     firstAvailableTile = t;
                     break;
@@ -194,7 +194,7 @@ bool KeeperAI::checkTreasury()
             // East-North
             t = mGameMap.getTile(central->getX() + distance, central->getY() + k);
             if(t != nullptr && t->isBuildableUpon() && t->isClaimedForSeat(mPlayer.getSeat()) &&
-               mGameMap.pathExists(kobold, central, t))
+               mGameMap.pathExists(worker, central, t))
             {
                 firstAvailableTile = t;
                 break;
@@ -204,7 +204,7 @@ bool KeeperAI::checkTreasury()
             {
                 t = mGameMap.getTile(central->getX() + distance, central->getY() - k);
                 if(t != nullptr && t->isBuildableUpon() && t->isClaimedForSeat(mPlayer.getSeat()) &&
-                   mGameMap.pathExists(kobold, central, t))
+                   mGameMap.pathExists(worker, central, t))
                 {
                     firstAvailableTile = t;
                     break;
@@ -213,7 +213,7 @@ bool KeeperAI::checkTreasury()
             // West-North
             t = mGameMap.getTile(central->getX() - distance, central->getY() + k);
             if(t != nullptr && t->isBuildableUpon() && t->isClaimedForSeat(mPlayer.getSeat()) &&
-               mGameMap.pathExists(kobold, central, t))
+               mGameMap.pathExists(worker, central, t))
             {
                 firstAvailableTile = t;
                 break;
@@ -223,7 +223,7 @@ bool KeeperAI::checkTreasury()
             {
                 t = mGameMap.getTile(central->getX() - distance, central->getY() - k);
                 if(t != nullptr && t->isBuildableUpon() && t->isClaimedForSeat(mPlayer.getSeat()) &&
-                   mGameMap.pathExists(kobold, central, t))
+                   mGameMap.pathExists(worker, central, t))
                 {
                     firstAvailableTile = t;
                     break;
@@ -236,7 +236,7 @@ bool KeeperAI::checkTreasury()
     }
 
     // We couldn't find any available tile T_T
-    // We return true to avoid doing something else to let kobolds claim
+    // We return true to avoid doing something else to let workers claim
     if(firstAvailableTile == nullptr)
         return true;
 

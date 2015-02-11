@@ -337,8 +337,7 @@ void ODFrameListener::refreshPlayerDisplay(const std::string& goalsDisplayString
             << mySeat->getManaDelta();
     tempWindow->setText(tempSS.str());
 
-    tempWindow = Gui::getSingletonPtr()->getGuiSheet(Gui::inGameMenu)->getChild(Gui::MESSAGE_WINDOW);
-
+    tempWindow = Gui::getSingletonPtr()->getGuiSheet(Gui::inGameMenu)->getChild(Gui::OBJECTIVE_TEXT);
     tempWindow->setText(goalsDisplayString);
 }
 

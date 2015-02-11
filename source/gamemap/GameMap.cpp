@@ -2802,15 +2802,13 @@ void GameMap::consoleAskToggleFOW()
     mIsFOWActivated = !mIsFOWActivated;
 }
 
-Creature* GameMap::getKoboldForPathFinding(Seat* seat)
+Creature* GameMap::getWorkerForPathFinding(Seat* seat)
 {
     std::vector<Creature*> creatures = getCreaturesBySeat(seat);
     for (Creature* creature : creatures)
     {
-        if (creature->getDefinition()->getClassName() == "Kobold")
-        {
+        if (creature->getDefinition()->isWorker())
             return creature;
-        }
     }
     return nullptr;
 }
