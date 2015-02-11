@@ -1,11 +1,3 @@
-FreeMono
-{
-    type        truetype
-    source      FreeMono.ttf
-    size        16
-    resolution  72
-}
-
 MedievalSharp
 {
     type        truetype
