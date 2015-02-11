@@ -98,6 +98,8 @@ public:
 
     virtual void setMeshOpacity(float opacity);
 
+    // TODO : Now that the entities are added in a OO way, it may be good to
+    //        merge this type with GameEntityType
     virtual RenderedMovableEntityType getRenderedMovableEntityType() const = 0;
 
     virtual void pickup();

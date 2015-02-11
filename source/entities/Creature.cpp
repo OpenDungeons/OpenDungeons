@@ -3772,7 +3772,7 @@ EntityCarryType Creature::getEntityCarryType()
     return EntityCarryType::corpse;
 }
 
-void Creature::notifyEntityCarryOn()
+void Creature::notifyEntityCarryOn(Creature* carrier)
 {
     Tile* myTile = getPositionTile();
     OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
@@ -3807,7 +3807,7 @@ void Creature::carryEntity(GameEntity* carriedEntity)
     if(carriedEntity == nullptr)
         return;
 
-    carriedEntity->notifyEntityCarryOn();
+    carriedEntity->notifyEntityCarryOn(this);
 
     // We remove the carried entity from the clients gamemaps as well as the carrier
     // and we send the carrier creation message (that will embed the carried)

@@ -49,7 +49,7 @@ public:
     virtual EntityCarryType getEntityCarryType()
     { return EntityCarryType::craftedTrap; }
 
-    virtual void notifyEntityCarryOn();
+    virtual void notifyEntityCarryOn(Creature* carrier);
     virtual void notifyEntityCarryOff(const Ogre::Vector3& position);
 
     static CraftedTrap* getCraftedTrapFromStream(GameMap* gameMap, std::istream& is);

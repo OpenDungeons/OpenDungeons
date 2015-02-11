@@ -255,7 +255,7 @@ class GameEntity
     { return EntityCarryType::notCarryable; }
 
     //! \brief Called when the entity is being carried
-    virtual void notifyEntityCarryOn()
+    virtual void notifyEntityCarryOn(Creature* carrier)
     {}
 
     //! \brief Called when the entity is being carried

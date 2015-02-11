@@ -331,7 +331,7 @@ public:
     bool canGoThroughTile(const Tile* tile) const;
 
     virtual EntityCarryType getEntityCarryType();
-    virtual void notifyEntityCarryOn();
+    virtual void notifyEntityCarryOn(Creature* carrier);
     virtual void notifyEntityCarryOff(const Ogre::Vector3& position);
 
     bool canSlap(Seat* seat);

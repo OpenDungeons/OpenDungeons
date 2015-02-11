@@ -52,7 +52,7 @@ public:
     virtual void pickup();
 
     virtual EntityCarryType getEntityCarryType();
-    virtual void notifyEntityCarryOn();
+    virtual void notifyEntityCarryOn(Creature* carrier);
     virtual void notifyEntityCarryOff(const Ogre::Vector3& position);
 
     static const char* getMeshNameForGold(int gold);

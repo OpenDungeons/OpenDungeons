@@ -505,6 +505,9 @@ public:
 
     void updateVisibleEntities();
 
+    const std::vector<RenderedMovableEntity*>& getRenderedMovableEntities() const
+    { return mRenderedMovableEntities; }
+
 private:
     void replaceFloodFill(Tile::FloodFillType floodFillType, int colorOld, int colorNew);
 
