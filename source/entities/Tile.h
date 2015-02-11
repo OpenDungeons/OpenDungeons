@@ -244,6 +244,8 @@ public:
     //! \brief Tells whether a room can be built upon this tile.
     bool isBuildableUpon() const;
 
+    void exportToStream(std::ostream& os) const;
+
     static const char* getFormat();
 
     //! \brief Loads the tile data from a level line.

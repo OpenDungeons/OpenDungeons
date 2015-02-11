@@ -579,17 +579,14 @@ const char* Tile::getFormat()
     return "posX\tposY\ttype\tfullness";
 }
 
-std::ostream& operator<<(std::ostream& os, Tile *t)
+void Tile::exportToStream(std::ostream& os) const
 {
-    os << t->getX() << "\t" << t->getY() << "\t";
-    os << t->getType() << "\t" << t->getFullness();
-    Seat* seat = t->getSeat();
-    if(t->getType() != TileType::claimed || seat == nullptr)
-        return os;
+    os << getX() << "\t" << getY() << "\t";
+    os << getType() << "\t" << getFullness();
+    if(getType() != TileType::claimed || getSeat() == nullptr)
+        return;
 
-    os << "\t" << seat->getId();
-
-    return os;
+    os << "\t" << getSeat()->getId();
 }
 
 void Tile::exportToPacket(ODPacket& os, Seat* seat)

@@ -551,7 +551,8 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
             if (tempTile->getType() == TileType::dirt && tempTile->getFullness() >= 100.0)
                 continue;
 
-            levelFile << tempTile << std::endl;
+            tempTile->exportToStream(levelFile);
+            levelFile << std::endl;
         }
     }
     levelFile << "[/Tiles]" << std::endl;
