@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ RenderedMovableEntity* RoomHatchery::notifyActiveSpotCreated(ActiveSpotPlace pla
     if(place == ActiveSpotPlace::activeSpotCenter)
         return loadBuildingObject(getGameMap(), "ChickenCoop", tile, 0.0, false);
 
-    return NULL;
+    return nullptr;
 }
 
 void RoomHatchery::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
@@ -81,10 +81,11 @@ void RoomHatchery::doUpkeep()
     for(Tile* chickenCoopTile : mCentralActiveSpotTiles)
     {
         ChickenEntity* chicken = new ChickenEntity(getGameMap(), getName());
-        Ogre::Vector3 pos(static_cast<Ogre::Real>(chickenCoopTile->x), static_cast<Ogre::Real>(chickenCoopTile->y), 0.0f);
-        chicken->setPosition(pos);
-        chickenCoopTile->addChickenEntity(chicken);
-        getGameMap()->addRenderedMovableEntity(chicken);
+        chicken->addToGameMap();
+        chicken->createMesh();
+        Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(chickenCoopTile->getX()),
+                                    static_cast<Ogre::Real>(chickenCoopTile->getY()), 0.0f);
+        chicken->setPosition(spawnPosition, false);
         chicken->setMoveSpeed(CHICKEN_SPEED);
         ++nbChickens;
         if(nbChickens >= mNumActiveSpots)

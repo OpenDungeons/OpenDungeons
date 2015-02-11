@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -38,20 +38,18 @@ public:
 
     virtual void doUpkeep();
 
-    virtual RenderedMovableEntityType getRenderedMovableEntityType()
+    virtual RenderedMovableEntityType getRenderedMovableEntityType() const
     { return RenderedMovableEntityType::chickenEntity; }
 
-    virtual bool tryPickup(Seat* seat, bool isEditorMode);
+    virtual bool tryPickup(Seat* seat);
     virtual void pickup();
-    virtual bool tryDrop(Seat* seat, Tile* tile, bool isEditorMode);
-    virtual void drop(const Ogre::Vector3& v);
+    virtual bool tryDrop(Seat* seat, Tile* tile);
 
-    virtual void setPosition(const Ogre::Vector3& v);
     bool eatChicken(Creature* creature);
 
-    bool canSlap(Seat* seat, bool isEditorMode);
+    bool canSlap(Seat* seat);
 
-    void slap(bool isEditorMode)
+    void slap()
     { mIsSlapped = true; }
 
     static ChickenEntity* getChickenEntityFromStream(GameMap* gameMap, std::istream& is);
@@ -68,7 +66,6 @@ private:
     ChickenState mChickenState;
     int32_t mNbTurnOutsideHatchery;
     int32_t mNbTurnDie;
-    bool mIsDropped;
     bool mIsSlapped;
 
     void addTileToListIfPossible(int x, int y, Room* currentHatchery, std::vector<Tile*>& possibleTileMove);

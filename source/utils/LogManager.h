@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 #include <OgreSingleton.h>
 #include <OgreConfig.h>
 #include <OgreLog.h>
+#include <OgreStringConverter.h>
 
 //If ogre is not build with thread support we need to lock the access ourselves.
 #if OGRE_THREAD_PROVIDER == 0

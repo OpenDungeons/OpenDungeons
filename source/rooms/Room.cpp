@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@
 #include "entities/Creature.h"
 #include "gamemap/GameMap.h"
 #include "game/Seat.h"
+#include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
 
 #include <sstream>
@@ -42,7 +43,6 @@ Room::Room(GameMap* gameMap):
     Building(gameMap),
     mNumActiveSpots(0)
 {
-    setObjectType(GameEntity::room);
 }
 
 bool Room::compareTile(Tile* tile1, Tile* tile2)
@@ -54,6 +54,27 @@ bool Room::compareTile(Tile* tile1, Tile* tile2)
         return (tile1->getY() < tile2->getY());
 
     return false;
+}
+
+void Room::addToGameMap()
+{
+    getGameMap()->addRoom(this);
+    setIsOnMap(true);
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    getGameMap()->addActiveObject(this);
+}
+
+void Room::removeFromGameMap()
+{
+    getGameMap()->removeRoom(this);
+    setIsOnMap(false);
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    removeAllBuildingObjects();
+    getGameMap()->removeActiveObject(this);
 }
 
 void Room::absorbRoom(Room *r)
@@ -137,7 +158,7 @@ void Room::removeCreatureUsingRoom(Creature *c)
 Creature* Room::getCreatureUsingRoom(unsigned index)
 {
     if (index >= mCreaturesUsingRoom.size())
-        return NULL;
+        return nullptr;
 
     return mCreaturesUsingRoom[index];
 }
@@ -150,38 +171,29 @@ std::string Room::getFormat()
 void Room::doUpkeep()
 {
     // Loop over the tiles in Room r and remove any whose HP has dropped to zero.
-    unsigned int i = 0;
-    bool oneTileRemoved = false;
-    while (i < mCoveredTiles.size())
+    std::vector<Tile*> tilesToRemove;
+    for (Tile* tile : mCoveredTiles)
     {
-        Tile* t = mCoveredTiles[i];
-        if (mTileHP[t] <= 0.0)
+        if (mTileHP[tile] <= 0.0)
         {
-            ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::removeRoomTile, nullptr);
-            std::string name = getName();
-            serverNotification->mPacket << name;
-            getGameMap()->tileToPacket(serverNotification->mPacket, t);
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-
-            removeCoveredTile(t);
-            oneTileRemoved = true;
+            tilesToRemove.push_back(tile);
+            continue;
         }
-        else
-            ++i;
     }
 
-    if (oneTileRemoved)
+    if (!tilesToRemove.empty())
     {
+        for(Tile* tile : tilesToRemove)
+            removeCoveredTile(tile);
+
         updateActiveSpots();
         createMesh();
     }
 
     // If no more tiles, the room is removed
-    if (numCoveredTiles() == 0)
+    if (numCoveredTiles() <= 0)
     {
-        LogManager::getSingleton().logMessage("Removing room " + getName());
-        getGameMap()->removeRoom(this);
+        removeFromGameMap();
         deleteYourself();
         return;
     }
@@ -195,34 +207,34 @@ Room* Room::getRoomFromStream(GameMap* gameMap, std::istream& is)
 
     switch (nType)
     {
-        case nullRoomType:
+        case RoomType::nullRoomType:
             tempRoom = nullptr;
             break;
-        case dormitory:
+        case RoomType::dormitory:
             tempRoom = new RoomDormitory(gameMap);
             break;
-        case treasury:
+        case RoomType::treasury:
             tempRoom = new RoomTreasury(gameMap);
             break;
-        case portal:
+        case RoomType::portal:
             tempRoom = new RoomPortal(gameMap);
             break;
-        case dungeonTemple:
+        case RoomType::dungeonTemple:
             tempRoom = new RoomDungeonTemple(gameMap);
             break;
-        case forge:
+        case RoomType::forge:
             tempRoom = new RoomForge(gameMap);
             break;
-        case trainingHall:
+        case RoomType::trainingHall:
             tempRoom = new RoomTrainingHall(gameMap);
             break;
-        case library:
+        case RoomType::library:
             tempRoom = new RoomLibrary(gameMap);
             break;
-        case hatchery:
+        case RoomType::hatchery:
             tempRoom = new RoomHatchery(gameMap);
             break;
-        case crypt:
+        case RoomType::crypt:
             tempRoom = new RoomCrypt(gameMap);
             break;
         default:
@@ -246,34 +258,34 @@ Room* Room::getRoomFromPacket(GameMap* gameMap, ODPacket& is)
 
     switch (nType)
     {
-        case nullRoomType:
+        case RoomType::nullRoomType:
             tempRoom = nullptr;
             break;
-        case dormitory:
+        case RoomType::dormitory:
             tempRoom = new RoomDormitory(gameMap);
             break;
-        case treasury:
+        case RoomType::treasury:
             tempRoom = new RoomTreasury(gameMap);
             break;
-        case portal:
+        case RoomType::portal:
             tempRoom = new RoomPortal(gameMap);
             break;
-        case dungeonTemple:
+        case RoomType::dungeonTemple:
             tempRoom = new RoomDungeonTemple(gameMap);
             break;
-        case forge:
+        case RoomType::forge:
             tempRoom = new RoomForge(gameMap);
             break;
-        case trainingHall:
+        case RoomType::trainingHall:
             tempRoom = new RoomTrainingHall(gameMap);
             break;
-        case library:
+        case RoomType::library:
             tempRoom = new RoomLibrary(gameMap);
             break;
-        case hatchery:
+        case RoomType::hatchery:
             tempRoom = new RoomHatchery(gameMap);
             break;
-        case crypt:
+        case RoomType::crypt:
             tempRoom = new RoomCrypt(gameMap);
             break;
         default:
@@ -293,34 +305,34 @@ const std::string Room::getRoomNameFromRoomType(RoomType t)
 {
     switch (t)
     {
-    case nullRoomType:
+    case RoomType::nullRoomType:
         return "NullRoomType";
 
-    case dungeonTemple:
+    case RoomType::dungeonTemple:
         return "DungeonTemple";
 
-    case dormitory:
+    case RoomType::dormitory:
         return "Dormitory";
 
-    case treasury:
+    case RoomType::treasury:
         return "Treasury";
 
-    case portal:
+    case RoomType::portal:
         return "Portal";
 
-    case forge:
+    case RoomType::forge:
         return "Forge";
 
-    case trainingHall:
+    case RoomType::trainingHall:
         return "TrainingHall";
 
-    case library:
+    case RoomType::library:
         return "Library";
 
-    case hatchery:
+    case RoomType::hatchery:
         return "Hatchery";
 
-    case crypt:
+    case RoomType::crypt:
         return "Crypt";
 
     default:
@@ -328,71 +340,71 @@ const std::string Room::getRoomNameFromRoomType(RoomType t)
     }
 }
 
-Room::RoomType Room::getRoomTypeFromRoomName(const std::string& name)
+RoomType Room::getRoomTypeFromRoomName(const std::string& name)
 {
     if(name.compare("DungeonTemple") == 0)
-        return dungeonTemple;
+        return RoomType::dungeonTemple;
 
     if(name.compare("Dormitory") == 0)
-        return dormitory;
+        return RoomType::dormitory;
 
     if(name.compare("Treasury") == 0)
-        return treasury;
+        return RoomType::treasury;
 
     if(name.compare("Portal") == 0)
-        return portal;
+        return RoomType::portal;
 
     if(name.compare("Forge") == 0)
-        return forge;
+        return RoomType::forge;
 
     if(name.compare("TrainingHall") == 0)
-        return trainingHall;
+        return RoomType::trainingHall;
 
     if(name.compare("Library") == 0)
-        return library;
+        return RoomType::library;
 
     if(name.compare("Hatchery") == 0)
-        return hatchery;
+        return RoomType::hatchery;
 
     if(name.compare("Crypt") == 0)
-        return crypt;
+        return RoomType::crypt;
 
-    return nullRoomType;
+    return RoomType::nullRoomType;
 }
 
 int Room::costPerTile(RoomType t)
 {
     switch (t)
     {
-    case nullRoomType:
+    case RoomType::nullRoomType:
         return 0;
 
-    case dungeonTemple:
+    case RoomType::dungeonTemple:
         return 0;
 
-    case portal:
+    case RoomType::portal:
         return 0;
 
-    case treasury:
-        return 25;
+    case RoomType::treasury:
+        return ConfigManager::getSingleton().getRoomConfigInt32("TreasuryCostPerTile");
 
-    case dormitory:
-        return 75;
+    case RoomType::dormitory:
+        return ConfigManager::getSingleton().getRoomConfigInt32("DormitoryCostPerTile");
 
-    case hatchery:
-        return 100;
+    case RoomType::hatchery:
+        return ConfigManager::getSingleton().getRoomConfigInt32("HatcheryCostPerTile");
 
-    case forge:
-        return 150;
+    case RoomType::forge:
+        return ConfigManager::getSingleton().getRoomConfigInt32("ForgeCostPerTile");
 
-    case trainingHall:
-        return 175;
+    case RoomType::trainingHall:
+        return ConfigManager::getSingleton().getRoomConfigInt32("TrainHallCostPerTile");
 
-    case library:
-        return 200;
+    case RoomType::library:
+        return ConfigManager::getSingleton().getRoomConfigInt32("LibraryCostPerTile");
 
-    case crypt:
-        return 225;
+    case RoomType::crypt:
+        return ConfigManager::getSingleton().getRoomConfigInt32("CryptCostPerTile");
 
     default:
         return 0;
@@ -516,28 +528,28 @@ void Room::updateActiveSpots()
     for (unsigned int i = 0, size = centralActiveSpotTiles.size(); i < size; ++i)
     {
         Tile* centerTile = centralActiveSpotTiles[i];
-        if (centerTile == NULL)
+        if (centerTile == nullptr)
             continue;
 
         // Test for walls around
         // Up
         Tile* testTile;
         testTile = getGameMap()->getTile(centerTile->getX(), centerTile->getY() + 2);
-        if (testTile != NULL && testTile->isWallClaimedForSeat(getSeat()))
+        if (testTile != nullptr && testTile->isWallClaimedForSeat(getSeat()))
         {
             Tile* topTile = getGameMap()->getTile(centerTile->getX(), centerTile->getY() + 1);
-            if (topTile != NULL)
+            if (topTile != nullptr)
                 topWallsActiveSpotTiles.push_back(topTile);
         }
         // Up for 4 tiles wide room
         testTile = getGameMap()->getTile(centerTile->getX(), centerTile->getY() + 3);
-        if (testTile != NULL && testTile->isWallClaimedForSeat(getSeat()))
+        if (testTile != nullptr && testTile->isWallClaimedForSeat(getSeat()))
         {
             bool isFound = true;
             for(int k = 0; k < 3; ++k)
             {
                 Tile* testTile2 = getGameMap()->getTile(centerTile->getX() + k - 1, centerTile->getY() + 2);
-                if((testTile2 == NULL) || (testTile2->getCoveringBuilding() != this))
+                if((testTile2 == nullptr) || (testTile2->getCoveringBuilding() != this))
                 {
                     isFound = false;
                     break;
@@ -553,21 +565,21 @@ void Room::updateActiveSpots()
 
         // Down
         testTile = getGameMap()->getTile(centerTile->getX(), centerTile->getY() - 2);
-        if (testTile != NULL && testTile->isWallClaimedForSeat(getSeat()))
+        if (testTile != nullptr && testTile->isWallClaimedForSeat(getSeat()))
         {
             Tile* bottomTile = getGameMap()->getTile(centerTile->getX(), centerTile->getY() - 1);
-            if (bottomTile != NULL)
+            if (bottomTile != nullptr)
                 bottomWallsActiveSpotTiles.push_back(bottomTile);
         }
         // Down for 4 tiles wide room
         testTile = getGameMap()->getTile(centerTile->getX(), centerTile->getY() - 3);
-        if (testTile != NULL && testTile->isWallClaimedForSeat(getSeat()))
+        if (testTile != nullptr && testTile->isWallClaimedForSeat(getSeat()))
         {
             bool isFound = true;
             for(int k = 0; k < 3; ++k)
             {
                 Tile* testTile2 = getGameMap()->getTile(centerTile->getX() + k - 1, centerTile->getY() - 2);
-                if((testTile2 == NULL) || (testTile2->getCoveringBuilding() != this))
+                if((testTile2 == nullptr) || (testTile2->getCoveringBuilding() != this))
                 {
                     isFound = false;
                     break;
@@ -583,21 +595,21 @@ void Room::updateActiveSpots()
 
         // Left
         testTile = getGameMap()->getTile(centerTile->getX() - 2, centerTile->getY());
-        if (testTile != NULL && testTile->isWallClaimedForSeat(getSeat()))
+        if (testTile != nullptr && testTile->isWallClaimedForSeat(getSeat()))
         {
             Tile* leftTile = getGameMap()->getTile(centerTile->getX() - 1, centerTile->getY());
-            if (leftTile != NULL)
+            if (leftTile != nullptr)
                 leftWallsActiveSpotTiles.push_back(leftTile);
         }
         // Left for 4 tiles wide room
         testTile = getGameMap()->getTile(centerTile->getX() - 3, centerTile->getY());
-        if (testTile != NULL && testTile->isWallClaimedForSeat(getSeat()))
+        if (testTile != nullptr && testTile->isWallClaimedForSeat(getSeat()))
         {
             bool isFound = true;
             for(int k = 0; k < 3; ++k)
             {
                 Tile* testTile2 = getGameMap()->getTile(centerTile->getX() - 2, centerTile->getY() + k - 1);
-                if((testTile2 == NULL) || (testTile2->getCoveringBuilding() != this))
+                if((testTile2 == nullptr) || (testTile2->getCoveringBuilding() != this))
                 {
                     isFound = false;
                     break;
@@ -613,21 +625,21 @@ void Room::updateActiveSpots()
 
         // Right
         testTile = getGameMap()->getTile(centerTile->getX() + 2, centerTile->getY());
-        if (testTile != NULL && testTile->isWallClaimedForSeat(getSeat()))
+        if (testTile != nullptr && testTile->isWallClaimedForSeat(getSeat()))
         {
             Tile* rightTile = getGameMap()->getTile(centerTile->getX() + 1, centerTile->getY());
-            if (rightTile != NULL)
+            if (rightTile != nullptr)
                 rightWallsActiveSpotTiles.push_back(rightTile);
         }
         // Right for 4 tiles wide room
         testTile = getGameMap()->getTile(centerTile->getX() + 3, centerTile->getY());
-        if (testTile != NULL && testTile->isWallClaimedForSeat(getSeat()))
+        if (testTile != nullptr && testTile->isWallClaimedForSeat(getSeat()))
         {
             bool isFound = true;
             for(int k = 0; k < 3; ++k)
             {
                 Tile* testTile2 = getGameMap()->getTile(centerTile->getX() + 2, centerTile->getY() + k - 1);
-                if((testTile2 == NULL) || (testTile2->getCoveringBuilding() != this))
+                if((testTile2 == nullptr) || (testTile2->getCoveringBuilding() != this))
                 {
                     isFound = false;
                     break;
@@ -671,7 +683,7 @@ void Room::activeSpotCheckChange(ActiveSpotPlace place, const std::vector<Tile*>
         {
             // The tile do not exist
             RenderedMovableEntity* ro = notifyActiveSpotCreated(place, tile);
-            if(ro != NULL)
+            if(ro != nullptr)
             {
                 // The room wants to build a room onject. We add it to the gamemap
                 addBuildingObject(tile, ro);
@@ -693,7 +705,7 @@ void Room::activeSpotCheckChange(ActiveSpotPlace place, const std::vector<Tile*>
 
 RenderedMovableEntity* Room::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
 {
-    return NULL;
+    return nullptr;
 }
 
 void Room::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
@@ -711,16 +723,15 @@ void Room::exportHeadersToPacket(ODPacket& os)
     os << getType();
 }
 
-void Room::exportToPacket(ODPacket& os)
+void Room::exportToPacket(ODPacket& os) const
 {
     const std::string& name = getName();
     int seatId = getSeat()->getId();
     int nbTiles = mCoveredTiles.size();
     os << name << seatId << nbTiles;
-    for (std::vector<Tile*>::iterator it = mCoveredTiles.begin(); it != mCoveredTiles.end(); ++it)
+    for (Tile* tile : mCoveredTiles)
     {
-        Tile* tempTile = *it;
-        os << tempTile->x << tempTile->y;
+        os << tile->getX() << tile->getY();
     }
 }
 
@@ -733,7 +744,7 @@ void Room::importFromPacket(ODPacket& is)
     int tempInt = 0;
     OD_ASSERT_TRUE(is >> tempInt);
     Seat* seat = getGameMap()->getSeatById(tempInt);
-    OD_ASSERT_TRUE_MSG(seat != NULL, "seatId=" + Ogre::StringConverter::toString(tempInt));
+    OD_ASSERT_TRUE_MSG(seat != nullptr, "seatId=" + Ogre::StringConverter::toString(tempInt));
     setSeat(seat);
 
     OD_ASSERT_TRUE(is >> tilesToLoad);
@@ -741,21 +752,20 @@ void Room::importFromPacket(ODPacket& is)
     {
         OD_ASSERT_TRUE(is >> tempX >> tempY);
         Tile* tempTile = getGameMap()->getTile(tempX, tempY);
-        OD_ASSERT_TRUE_MSG(tempTile != NULL, "tile=" + Ogre::StringConverter::toString(tempX) + "," + Ogre::StringConverter::toString(tempY));
-        if (tempTile != NULL)
+        OD_ASSERT_TRUE_MSG(tempTile != nullptr, "tile=" + Ogre::StringConverter::toString(tempX) + "," + Ogre::StringConverter::toString(tempY));
+        if (tempTile != nullptr)
             addCoveredTile(tempTile, Room::DEFAULT_TILE_HP);
     }
 }
 
-void Room::exportToStream(std::ostream& os)
+void Room::exportToStream(std::ostream& os) const
 {
     int seatId = getSeat()->getId();
     int nbTiles = mCoveredTiles.size();
     os << seatId << "\t" << nbTiles << "\n";
-    for (std::vector<Tile*>::iterator it = mCoveredTiles.begin(); it != mCoveredTiles.end(); ++it)
+    for (Tile* tile : mCoveredTiles)
     {
-        Tile *tempTile = *it;
-        os << tempTile->x << "\t" << tempTile->y << "\n";
+        os << tile->getX() << "\t" << tile->getY() << "\n";
     }
 }
 
@@ -765,7 +775,7 @@ void Room::importFromStream(std::istream& is)
     int tempInt = 0;
     OD_ASSERT_TRUE(is >> tempInt);
     Seat* seat = getGameMap()->getSeatById(tempInt);
-    OD_ASSERT_TRUE_MSG(seat != NULL, "seatId=" + Ogre::StringConverter::toString(tempInt));
+    OD_ASSERT_TRUE_MSG(seat != nullptr, "seatId=" + Ogre::StringConverter::toString(tempInt));
     setSeat(seat);
 
     OD_ASSERT_TRUE(is >> tilesToLoad);
@@ -773,8 +783,8 @@ void Room::importFromStream(std::istream& is)
     {
         OD_ASSERT_TRUE(is >> tempX >> tempY);
         Tile* tempTile = getGameMap()->getTile(tempX, tempY);
-        OD_ASSERT_TRUE_MSG(tempTile != NULL, "tile=" + Ogre::StringConverter::toString(tempX) + "," + Ogre::StringConverter::toString(tempY));
-        if (tempTile != NULL)
+        OD_ASSERT_TRUE_MSG(tempTile != nullptr, "tile=" + Ogre::StringConverter::toString(tempX) + "," + Ogre::StringConverter::toString(tempY));
+        if (tempTile != nullptr)
             addCoveredTile(tempTile, Room::DEFAULT_TILE_HP);
     }
 }
@@ -790,30 +800,30 @@ bool Room::sortForMapSave(Room* r1, Room* r2)
     return seatId1 < seatId2;
 }
 
-std::istream& operator>>(std::istream& is, Room::RoomType& rt)
+std::istream& operator>>(std::istream& is, RoomType& rt)
 {
     uint32_t tmp;
     is >> tmp;
-    rt = static_cast<Room::RoomType>(tmp);
+    rt = static_cast<RoomType>(tmp);
     return is;
 }
 
-std::ostream& operator<<(std::ostream& os, const Room::RoomType& rt)
+std::ostream& operator<<(std::ostream& os, const RoomType& rt)
 {
     uint32_t tmp = static_cast<uint32_t>(rt);
     os << tmp;
     return os;
 }
 
-ODPacket& operator>>(ODPacket& is, Room::RoomType& rt)
+ODPacket& operator>>(ODPacket& is, RoomType& rt)
 {
     uint32_t tmp;
     is >> tmp;
-    rt = static_cast<Room::RoomType>(tmp);
+    rt = static_cast<RoomType>(tmp);
     return is;
 }
 
-ODPacket& operator<<(ODPacket& os, const Room::RoomType& rt)
+ODPacket& operator<<(ODPacket& os, const RoomType& rt)
 {
     uint32_t tmp = static_cast<uint32_t>(rt);
     os << tmp;

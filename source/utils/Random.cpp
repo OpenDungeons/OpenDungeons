@@ -4,7 +4,7 @@
  * \author andrewbuck, StefanP.MUC
  * \brief  Offers some random number generating functions
  *
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,14 +21,8 @@
  */
 
 #include "utils/Random.h"
-
 #include "utils/Helper.h"
 
-#ifdef __MINGW32__
-#ifndef mode_t
-#include <sys/types.h>
-#endif //mode_t
-#endif //mingw32
 #include <algorithm>
 #include <cmath>
 #include <ctime>
@@ -36,58 +30,35 @@
 unsigned long myRandomSeed;
 const unsigned long MAX = 32768;
 
-unsigned long randgen()
+static unsigned long randgen()
 {
     myRandomSeed = myRandomSeed * 1103515245 + 12345;
-    unsigned long returnVal = (unsigned int) (myRandomSeed / 65536) % MAX;
+    //TODO: What is the purpose of the cast?
+    unsigned long returnVal = static_cast<unsigned int>(myRandomSeed / 65536) % MAX;
 
     return returnVal;
 }
 
 //! \brief uniformly distributed number [0;1)
-double uniform()
+static double uniform()
 {
     return randgen() * 1.0 / static_cast<double>(MAX);
 }
 
-//! \brief uniformly distributed number [0;hi)
-double uniform(double hi)
-{
-    return uniform() * hi;
-}
-
 //! \brief uniformly distributed number [lo;hi)
-double uniform(double lo, double hi)
+static double uniform(double lo, double hi)
 {
     return uniform() * (hi - lo) + lo;
 }
 
-//! \brief random bit
-int randint()
-{
-    return uniform() > 0.5 ? 1 : 0;
-}
-
-//! \brief random integer [0;hi]
-int randint(int hi)
-{
-    return static_cast<signed>(uniform() * (hi + 1));
-}
-
 //! \brief random integer [lo;hi]
-int randint(int lo, int hi)
+static int randint(int lo, int hi)
 {
-    return static_cast<signed>(uniform() * (hi - lo + 1) + lo);
-}
-
-//! \brief random unsigned integer [0;hi]
-unsigned int randuint(unsigned int hi)
-{
-    return static_cast<unsigned int>(uniform() * (hi + 1));
+    return static_cast<int>(uniform() * (hi - lo + 1) + lo);
 }
 
 //! \brief random unsigned integer [lo;hi]
-unsigned int randuint(unsigned int lo, unsigned int hi)
+static unsigned int randuint(unsigned int lo, unsigned int hi)
 {
     return static_cast<unsigned int>(uniform() * (hi - lo + 1) + lo);
 }
@@ -98,7 +69,7 @@ namespace Random
 
 void initialize()
 {
-    myRandomSeed = static_cast<unsigned long>(time(0));
+    myRandomSeed = static_cast<unsigned long>(std::time(0));
 }
 
 double Double(double min, double max)
@@ -133,7 +104,7 @@ unsigned int Uint(unsigned int min, unsigned int max)
 
 double gaussianRandomDouble()
 {
-    return sqrt(-2.0 * log(Double(0.0, 1.0))) * cos(2.0 * PI * Double(0.0, 1.0));
+    return std::sqrt(-2.0 * log(Double(0.0, 1.0))) * cos(2.0 * PI * Double(0.0, 1.0));
 }
 
 } // namespace Random

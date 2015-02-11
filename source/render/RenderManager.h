@@ -3,7 +3,7 @@
  *  \date   26 March 2011
  *  \author oln
  *  \brief  handles the render requests
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,8 +25,6 @@
 #include <deque>
 #include <string>
 #include <OgreSingleton.h>
-#include <RTShaderSystem/OgreShaderGenerator.h>
-#include <RTShaderSystem/OgreShaderExNormalMapLighting.h>
 
 class GameMap;
 class Building;
@@ -47,9 +45,9 @@ class SceneNode;
 class OverlaySystem;
 class AnimationState;
 
-/*namespace RTShader {
+namespace RTShader {
     class ShaderGenerator;
-}*/
+}
 } //End namespace Ogre
 
 class RenderManager: public Ogre::Singleton<RenderManager>
@@ -70,13 +68,6 @@ public:
     //! \brief setup the scene
     void createScene(Ogre::Viewport*);
 
-    void rtssTest();
-
-    //! \brief Colorize an entity with the team corresponding color.
-    //! \Note: if the entity is marked for digging (wall tiles only), then a yellow color
-    //! is added to the current colorization.
-    void colourizeEntity(Ogre::Entity* ent, Seat* seat, bool markedForDigging = false);
-
     //! \brief Set the entity's opacity
     void setEntityOpacity(Ogre::Entity* ent, float opacity);
 
@@ -90,50 +81,49 @@ public:
     static std::string consoleListAnimationsForMesh(const std::string& meshName);
 
     //Render request functions
-    void rrRefreshTile(Tile* curTile, Player* localPlayer);
+    void rrRefreshTile(const Tile* curTile, const Player* localPlayer);
     void rrCreateTile(Tile* curTile, Player* localPlayer);
     void rrDestroyTile(Tile* curTile);
     void rrDetachEntity(GameEntity* curEntity);
     void rrAttachEntity(GameEntity* curEntity);
     void rrTemporalMarkTile(Tile* curTile);
-    void rrCreateBuilding(Building* curBuilding, Tile* curTile);
-    void rrDestroyBuilding(Building* curBuilding, Tile* curTile);
     void rrCreateRenderedMovableEntity(RenderedMovableEntity* curRenderedMovableEntity);
     void rrDestroyRenderedMovableEntity(RenderedMovableEntity* curRenderedMovableEntity);
-    void rrUpdateEntityOpacity(GameEntity* entity);
+    void rrUpdateEntityOpacity(RenderedMovableEntity* entity);
     void rrCreateCreature(Creature* curCreature);
     void rrDestroyCreature(Creature* curCreature);
     void rrOrientEntityToward(MovableGameEntity* gameEntity, const Ogre::Vector3& direction);
-    void rrScaleEntity(GameEntity* entity, const Ogre::Vector3& scale);
+    void rrScaleEntity(GameEntity* entity);
     void rrCreateWeapon(Creature* curCreature, const Weapon* curWeapon, const std::string& hand);
     void rrDestroyWeapon(Creature* curCreature, const Weapon* curWeapon, const std::string& hand);
     void rrCreateMapLight(MapLight* curMapLight, bool displayVisual);
     void rrDestroyMapLight(MapLight* curMapLight);
     void rrDestroyMapLightVisualIndicator(MapLight* curMapLight);
-    void rrPickUpEntity(GameEntity* curEntity, Player* localPlayer);
-    void rrDropHand(GameEntity* curEntity, Player* localPlayer);
+    void rrPickUpEntity(MovableGameEntity* curEntity, Player* localPlayer);
+    void rrDropHand(MovableGameEntity* curEntity, Player* localPlayer);
     void rrRotateHand(Player* localPlayer);
     void rrCreateCreatureVisualDebug(Creature* curCreature, Tile* curTile);
     void rrDestroyCreatureVisualDebug(Creature* curCreature, Tile* curTile);
+    void rrCreateSeatVisionVisualDebug(int seatId, Tile* tile);
+    void rrDestroySeatVisionVisualDebug(int seatId, Tile* tile);
     void rrSetObjectAnimationState(MovableGameEntity* curAnimatedObject, const std::string& animation, bool loop);
     void rrMoveEntity(GameEntity* entity, const Ogre::Vector3& position);
     void rrMoveMapLightFlicker(MapLight* mapLight, const Ogre::Vector3& position);
-    void rrCarryEntity(Creature* carrier, GameEntity* carried);
-    void rrReleaseCarriedEntity(Creature* carrier, GameEntity* carried);
+    void rrCarryEntity(Creature* carrier, MovableGameEntity* carried);
+    void rrReleaseCarriedEntity(Creature* carrier, MovableGameEntity* carried);
 
 private:
-    bool generateRTSSShadersForMaterial(const std::string& materialName,
-                                        const std::string& normalMapTextureName = "",
-                                        Ogre::RTShader::NormalMapLighting::NormalMapSpace nmSpace = Ogre::RTShader::NormalMapLighting::NMS_TANGENT);
-
-    Ogre::Entity* createEntity(const std::string& entityName, const std::string& meshName,
-                               const std::string& normalMapTextureName = "");
 
     //! \brief Colorize the material with the corresponding team id color.
     //! \note If the material (wall tiles only) is marked for digging, a yellow color is added
     //! to the given color.
     //! \returns The new material name according to the current colorization.
-    std::string colourizeMaterial(const std::string& materialName, Seat* seat, bool markedForDigging = false);
+    std::string colourizeMaterial(const std::string& materialName, const Seat* seat, bool markedForDigging, bool playerHasVision);
+
+    //! \brief Colorize an entity with the team corresponding color.
+    //! \Note: if the entity is marked for digging (wall tiles only), then a yellow color
+    //! is added to the current colorization.
+    void colourizeEntity(Ogre::Entity* ent, const Seat* seat, bool markedForDigging, bool playerHasVision);
 
     //! \brief Makes the material be transparent with the given opacity (0.0f - 1.0f)
     //! \returns The new material name according to the current opacity.

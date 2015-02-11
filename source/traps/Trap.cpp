@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 #include "entities/CraftedTrap.h"
 #include "entities/Creature.h"
 #include "entities/Tile.h"
+#include "entities/TrapEntity.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "entities/RenderedMovableEntity.h"
@@ -30,6 +31,7 @@
 #include "traps/TrapBoulder.h"
 #include "utils/Random.h"
 #include "game/Player.h"
+#include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
 
 Trap::Trap(GameMap* gameMap) :
@@ -39,7 +41,6 @@ Trap::Trap(GameMap* gameMap) :
     mMinDamage(0.0),
     mMaxDamage(0.0)
 {
-    setObjectType(GameEntity::trap);
 }
 
 Trap* Trap::getTrapFromStream(GameMap* gameMap, std::istream &is)
@@ -50,16 +51,16 @@ Trap* Trap::getTrapFromStream(GameMap* gameMap, std::istream &is)
 
     switch (nType)
     {
-        case nullTrapType:
+        case TrapType::nullTrapType:
             tempTrap = nullptr;
             break;
-        case cannon:
+        case TrapType::cannon:
             tempTrap = TrapCannon::getTrapCannonFromStream(gameMap, is);
             break;
-        case spike:
+        case TrapType::spike:
             tempTrap = TrapSpike::getTrapSpikeFromStream(gameMap, is);
             break;
-        case boulder:
+        case TrapType::boulder:
             tempTrap = TrapBoulder::getTrapBoulderFromStream(gameMap, is);
             break;
         default:
@@ -83,16 +84,16 @@ Trap* Trap::getTrapFromPacket(GameMap* gameMap, ODPacket &is)
 
     switch (nType)
     {
-        case nullTrapType:
+        case TrapType::nullTrapType:
             tempTrap = nullptr;
             break;
-        case cannon:
+        case TrapType::cannon:
             tempTrap = TrapCannon::getTrapCannonFromPacket(gameMap, is);
             break;
-        case spike:
+        case TrapType::spike:
             tempTrap = TrapSpike::getTrapSpikeFromPacket(gameMap, is);
             break;
-        case boulder:
+        case TrapType::boulder:
             tempTrap = TrapBoulder::getTrapBoulderFromPacket(gameMap, is);
             break;
         default:
@@ -112,16 +113,16 @@ const char* Trap::getTrapNameFromTrapType(TrapType t)
 {
     switch (t)
     {
-        case nullTrapType:
+        case TrapType::nullTrapType:
             return "NullTrapType";
 
-        case cannon:
+        case TrapType::cannon:
             return "Cannon";
 
-        case spike:
+        case TrapType::spike:
             return "Spike";
 
-        case boulder:
+        case TrapType::boulder:
             return "Boulder";
 
         default:
@@ -133,21 +134,42 @@ int Trap::costPerTile(TrapType t)
 {
     switch (t)
     {
-        case nullTrapType:
+        case TrapType::nullTrapType:
             return 0;
 
-        case cannon:
-            return 500;
+        case TrapType::cannon:
+            return ConfigManager::getSingleton().getTrapConfigInt32("CannonCostPerTile");
 
-        case spike:
-            return 400;
+        case TrapType::spike:
+            return ConfigManager::getSingleton().getTrapConfigInt32("SpikeCostPerTile");
 
-        case boulder:
-            return 500;
+        case TrapType::boulder:
+            return ConfigManager::getSingleton().getTrapConfigInt32("BoulderCostPerTile");
 
         default:
-            return 100;
+            return 0;
     }
+}
+
+void Trap::addToGameMap()
+{
+    getGameMap()->addTrap(this);
+    setIsOnMap(true);
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    getGameMap()->addActiveObject(this);
+}
+
+void Trap::removeFromGameMap()
+{
+    getGameMap()->removeTrap(this);
+    setIsOnMap(false);
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    removeAllBuildingObjects();
+    getGameMap()->removeActiveObject(this);
 }
 
 void Trap::doUpkeep()
@@ -171,27 +193,16 @@ void Trap::doUpkeep()
     if (!tilesToRemove.empty())
     {
         for(Tile* tile : tilesToRemove)
-        {
-            ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::removeTrapTile, getGameMap()->getPlayerBySeat(getSeat()));
-            std::string name = getName();
-            serverNotification->mPacket << name;
-            getGameMap()->tileToPacket(serverNotification->mPacket, tile);
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-
             removeCoveredTile(tile);
-        }
 
         updateActiveSpots();
-
         createMesh();
     }
 
     // If no more tiles, the trap is removed
     if (numCoveredTiles() <= 0)
     {
-        LogManager::getSingleton().logMessage("Removing trap " + getName());
-        getGameMap()->removeTrap(this);
+        removeFromGameMap();
         deleteYourself();
         return;
     }
@@ -212,6 +223,10 @@ void Trap::doUpkeep()
             if(!tileInfo.decreaseShoot())
                 deactivate(tile);
 
+            const std::vector<Seat*>& seats = tile->getSeatsWithVision();
+            TrapEntity* trapEntity = tileInfo.getTrapEntity();
+            trapEntity->seatsSawTriggering(seats);
+
             // Warn the player the trap has triggered
             GameMap* gameMap = getGameMap();
             if (gameMap->isServerGameMap())
@@ -220,8 +235,9 @@ void Trap::doUpkeep()
     }
 }
 
-bool Trap::isNeededCraftedTrap() const
+int32_t Trap::getNbNeededCraftedTrap() const
 {
+    int32_t nbNeededCraftedTrap = 0;
     for(Tile* tile : mCoveredTiles)
     {
         if(mTrapTiles.count(tile) <= 0)
@@ -234,11 +250,10 @@ bool Trap::isNeededCraftedTrap() const
         if(trapTileInfo.getCarriedCraftedTrap() != nullptr)
             continue;
 
-
-        return true;
+        ++nbNeededCraftedTrap;
     }
 
-    return false;
+    return nbNeededCraftedTrap;
 }
 
 void Trap::addCoveredTile(Tile* t, double nHP)
@@ -272,7 +287,7 @@ void Trap::updateActiveSpots()
         for(Tile* tile : mCoveredTiles)
         {
             RenderedMovableEntity* obj = notifyActiveSpotCreated(tile);
-            if(obj == NULL)
+            if(obj == nullptr)
                 continue;
 
             addBuildingObject(tile, obj);
@@ -282,9 +297,9 @@ void Trap::updateActiveSpots()
     {
         // Less tiles than RenderedMovableEntity. This will happen when a tile from this trap is destroyed
         std::vector<Tile*> tilesToRemove;
-        for(std::map<Tile*, RenderedMovableEntity*>::iterator it = mBuildingObjects.begin(); it != mBuildingObjects.end(); ++it)
+        for(std::pair<Tile* const, RenderedMovableEntity*> p : mBuildingObjects)
         {
-            Tile* tile = it->first;
+            Tile* tile = p.first;
             // We store removed tiles
             if(std::find(mCoveredTiles.begin(), mCoveredTiles.end(), tile) == mCoveredTiles.end())
                 tilesToRemove.push_back(tile);
@@ -303,7 +318,15 @@ void Trap::updateActiveSpots()
 
 RenderedMovableEntity* Trap::notifyActiveSpotCreated(Tile* tile)
 {
-    return NULL;
+    TrapEntity* trapEntity = getTrapEntity(tile);
+    if(trapEntity == nullptr)
+        return nullptr;
+
+    // Allied seats with the creator do see the trap from the start
+    trapEntity->seatSawTriggering(getSeat());
+    trapEntity->seatsSawTriggering(getSeat()->getAlliedSeats());
+    mTrapTiles[tile].setTrapEntity(trapEntity);
+    return trapEntity;
 }
 
 void Trap::notifyActiveSpotRemoved(Tile* tile)
@@ -381,14 +404,14 @@ int32_t Trap::getNeededForgePointsPerTrap(TrapType trapType)
 
 bool Trap::hasCarryEntitySpot(GameEntity* carriedEntity)
 {
-    if(!isNeededCraftedTrap())
+    if(getNbNeededCraftedTrap() <= 0)
         return false;
 
-    if(carriedEntity->getObjectType() != GameEntity::ObjectType::renderedMovableEntity)
+    if(carriedEntity->getObjectType() != GameEntityType::renderedMovableEntity)
         return false;
 
     RenderedMovableEntity* rme = static_cast<RenderedMovableEntity*>(carriedEntity);
-    if(rme->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::craftedTrap)
+    if(rme->getRenderedMovableEntityType() != RenderedMovableEntityType::craftedTrap)
         return false;
 
     CraftedTrap* craftedTrap = static_cast<CraftedTrap*>(rme);
@@ -400,15 +423,15 @@ bool Trap::hasCarryEntitySpot(GameEntity* carriedEntity)
 
 Tile* Trap::askSpotForCarriedEntity(GameEntity* carriedEntity)
 {
-    OD_ASSERT_TRUE_MSG(carriedEntity->getObjectType() == GameEntity::ObjectType::renderedMovableEntity,
+    OD_ASSERT_TRUE_MSG(carriedEntity->getObjectType() == GameEntityType::renderedMovableEntity,
         "room=" + getName() + ", entity=" + carriedEntity->getName());
-    if(carriedEntity->getObjectType() != GameEntity::ObjectType::renderedMovableEntity)
+    if(carriedEntity->getObjectType() != GameEntityType::renderedMovableEntity)
         return nullptr;
 
     RenderedMovableEntity* rme = static_cast<RenderedMovableEntity*>(carriedEntity);
-    OD_ASSERT_TRUE_MSG(rme->getRenderedMovableEntityType() == RenderedMovableEntity::RenderedMovableEntityType::craftedTrap,
+    OD_ASSERT_TRUE_MSG(rme->getRenderedMovableEntityType() == RenderedMovableEntityType::craftedTrap,
         "room=" + getName() + ", entity=" + carriedEntity->getName());
-    if(rme->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::craftedTrap)
+    if(rme->getRenderedMovableEntityType() != RenderedMovableEntityType::craftedTrap)
         return nullptr;
 
     CraftedTrap* craftedTrap = static_cast<CraftedTrap*>(rme);
@@ -471,10 +494,10 @@ void Trap::notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEnti
 
         // The carrier has brought carried trap
         CraftedTrap* craftedTrap = trapTileInfo.getCarriedCraftedTrap();
-        OD_ASSERT_TRUE_MSG(tile->removeCraftedTrap(craftedTrap), "trap=" + getName()
+        OD_ASSERT_TRUE_MSG(tile->removeEntity(craftedTrap), "trap=" + getName()
             + ", craftedTrap=" + craftedTrap->getName()
             + ", tile=" + Tile::displayAsString(tile));
-        getGameMap()->removeRenderedMovableEntity(craftedTrap);
+        craftedTrap->removeFromGameMap();
         craftedTrap->deleteYourself();
         activate(tile);
         trapTileInfo.setCarriedCraftedTrap(nullptr);
@@ -482,6 +505,24 @@ void Trap::notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEnti
     // We couldn't find the entity in the list. That may happen if the active spot has
     // been erased between the time the carrier tried to come and the time it arrived.
     // In any case, nothing to do
+}
+
+bool Trap::isAttackable(Tile* tile, Seat* seat) const
+{
+    if(!Building::isAttackable(tile, seat))
+        return false;
+
+    // We check if the trap is hidden for this seat
+    OD_ASSERT_TRUE_MSG(mTrapTiles.count(tile) > 0, "name=" + getName() + ", tile=" + Tile::displayAsString(tile));
+    if(mTrapTiles.count(tile) <= 0)
+        return false;
+
+    const TrapTileInfo& trapTileInfo = mTrapTiles.at(tile);
+    const std::vector<Seat*>& seatsNotHidden = trapTileInfo.getTrapEntity()->getSeatsNotHidden();
+    if(std::find(seatsNotHidden.begin(), seatsNotHidden.end(), seat) == seatsNotHidden.end())
+        return false;
+
+    return true;
 }
 
 std::string Trap::getFormat()
@@ -499,7 +540,7 @@ void Trap::exportHeadersToPacket(ODPacket& os)
     os << getType();
 }
 
-void Trap::exportToPacket(ODPacket& os)
+void Trap::exportToPacket(ODPacket& os) const
 {
     int nbTiles = mCoveredTiles.size();
     const std::string& name = getName();
@@ -508,7 +549,7 @@ void Trap::exportToPacket(ODPacket& os)
     os << nbTiles;
     for(Tile* tempTile : mCoveredTiles)
     {
-        os << tempTile->x << tempTile->y;
+        os << tempTile->getX() << tempTile->getY();
     }
 }
 
@@ -527,8 +568,8 @@ void Trap::importFromPacket(ODPacket& is)
     {
         OD_ASSERT_TRUE(is >> tempX >> tempY);
         Tile *tempTile = getGameMap()->getTile(tempX, tempY);
-        OD_ASSERT_TRUE_MSG(tempTile != NULL, "tile=" + Ogre::StringConverter::toString(tempX) + "," + Ogre::StringConverter::toString(tempY));
-        if (tempTile != NULL)
+        OD_ASSERT_TRUE_MSG(tempTile != nullptr, "tile=" + Ogre::StringConverter::toString(tempX) + "," + Ogre::StringConverter::toString(tempY));
+        if (tempTile != nullptr)
         {
             addCoveredTile(tempTile, Trap::DEFAULT_TILE_HP);
             tempTile->setSeat(getSeat());
@@ -536,14 +577,14 @@ void Trap::importFromPacket(ODPacket& is)
     }
 }
 
-void Trap::exportToStream(std::ostream& os)
+void Trap::exportToStream(std::ostream& os) const
 {
     int32_t nbTiles = mCoveredTiles.size();
     int seatId = getSeat()->getId();
     os << seatId << "\t" << nbTiles << "\n";
     for(Tile* tempTile : mCoveredTiles)
     {
-        os << tempTile->x << "\t" << tempTile->y << "\t";
+        os << tempTile->getX() << "\t" << tempTile->getY() << "\t";
         os << (isActivated(tempTile) ? 1 : 0) << "\n";
     }
 }
@@ -560,8 +601,8 @@ void Trap::importFromStream(std::istream& is)
     {
         OD_ASSERT_TRUE(is >> tempX >> tempY >> tempActiv);
         Tile *tempTile = getGameMap()->getTile(tempX, tempY);
-        OD_ASSERT_TRUE_MSG(tempTile != NULL, "tile=" + Ogre::StringConverter::toString(tempX) + "," + Ogre::StringConverter::toString(tempY));
-        if (tempTile != NULL)
+        OD_ASSERT_TRUE_MSG(tempTile != nullptr, "tile=" + Ogre::StringConverter::toString(tempX) + "," + Ogre::StringConverter::toString(tempY));
+        if (tempTile != nullptr)
         {
             addCoveredTile(tempTile, Trap::DEFAULT_TILE_HP);
             tempTile->setSeat(getSeat());
@@ -571,30 +612,30 @@ void Trap::importFromStream(std::istream& is)
     }
 }
 
-std::istream& operator>>(std::istream& is, Trap::TrapType& tt)
+std::istream& operator>>(std::istream& is, TrapType& tt)
 {
     uint32_t tmp;
     is >> tmp;
-    tt = static_cast<Trap::TrapType>(tmp);
+    tt = static_cast<TrapType>(tmp);
     return is;
 }
 
-std::ostream& operator<<(std::ostream& os, const Trap::TrapType& tt)
+std::ostream& operator<<(std::ostream& os, const TrapType& tt)
 {
     uint32_t tmp = static_cast<uint32_t>(tt);
     os << tmp;
     return os;
 }
 
-ODPacket& operator>>(ODPacket& is, Trap::TrapType& tt)
+ODPacket& operator>>(ODPacket& is, TrapType& tt)
 {
     uint32_t tmp;
     is >> tmp;
-    tt = static_cast<Trap::TrapType>(tmp);
+    tt = static_cast<TrapType>(tmp);
     return is;
 }
 
-ODPacket& operator<<(ODPacket& os, const Trap::TrapType& tt)
+ODPacket& operator<<(ODPacket& os, const TrapType& tt)
 {
     uint32_t tmp = static_cast<uint32_t>(tt);
     os << tmp;

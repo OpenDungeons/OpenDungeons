@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,13 +18,18 @@
 #ifndef MODEMANAGER_H
 #define MODEMANAGER_H
 
+#include "modes/AbstractModeManager.h"
+
+#include "modes/InputManager.h"
+
+#include <OGRE/OgreFrameListener.h>
+
 #include <vector>
 #include <string>
+#include <memory>
 
 class AbstractApplicationMode;
-class ASWrapper;
 class InputManager;
-class Console;
 class ConsoleMode;
 class CameraManager;
 
@@ -32,34 +37,21 @@ namespace Ogre {
   class RenderWindow;
 }
 
-class ModeManager
+class ModeManager: public AbstractModeManager
 {
-    friend class Console;
-
 public:
-
-    enum ModeType
-    {
-        NONE = 0, // No change requested
-        MENU = 1,
-        MENU_SKIRMISH,
-        MENU_MULTIPLAYER_CLIENT,
-        MENU_MULTIPLAYER_SERVER,
-        MENU_EDITOR,
-        MENU_CONFIGURE_SEATS,
-        MENU_REPLAY,
-        GAME,
-        EDITOR,
-        CONSOLE,
-        FPP,
-        PREV // Parent game mode requested
-    };
 
     ModeManager(Ogre::RenderWindow* renderWindow);
     ~ModeManager();
 
+    //! \brief Updates mouse event, checks for made changes, ...
+    void update(const Ogre::FrameEvent& evt);
+
     AbstractApplicationMode* getCurrentMode();
     ModeType getCurrentModeType();
+
+    //! \brief Get current mode, if console, get underlying mode.
+    ModeType getCurrentModeTypeExceptConsole() const;
 
     //! \brief Request loading main menu mode at next update
     void requestMenuMode(bool discardActualMode = false)
@@ -145,26 +137,20 @@ public:
         mRequestedMode = PREV;
     }
 
-    //! \brief Actually change the mode if needed
-    void checkModeChange();
-
     InputManager* getInputManager()
     {
-        return mInputManager;
+        return &mInputManager;
     }
 
 private:
     //! \brief The common input manager reference
-    InputManager* mInputManager;
+    InputManager mInputManager;
 
     //! \brief A unique console mode instance, shared between game modes.
-    ConsoleMode* mConsoleMode;
+    std::unique_ptr<ConsoleMode> mConsoleMode;
 
     //! \brief Tells whether the user is in console mode.
     bool mIsInConsole;
-
-    //! \brief The console instance
-    Console* mConsole;
 
     //! \brief The vector containing the loaded modes.
     //! The active one is either the last one, or the console when
@@ -178,8 +164,8 @@ private:
     //! discarded. That allows to use temporary menu
     bool mDiscardActualMode;
 
-    //! \brief The Angel Script wrapper, used in every game modes
-    ASWrapper* mASWrapper;
+    //! \brief Actually change the mode if needed
+    void checkModeChange();
 
     void addMode(ModeType);
     void removeMode();

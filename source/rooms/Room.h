@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@
 #define ROOM_H
 
 #include "entities/Building.h"
-#include "entities/Tile.h"
 
 #include <string>
 #include <deque>
@@ -30,30 +29,42 @@ class RenderedMovableEntity;
 class GameMap;
 class ODPacket;
 
+enum class RoomType
+{
+    nullRoomType = 0,
+    dungeonTemple,
+    dormitory,
+    treasury,
+    portal,
+    forge,
+    trainingHall,
+    library,
+    hatchery,
+    crypt
+};
+
+std::istream& operator>>(std::istream& is, RoomType& rt);
+std::ostream& operator<<(std::ostream& os, const RoomType& rt);
+ODPacket& operator>>(ODPacket& is, RoomType& rt);
+ODPacket& operator<<(ODPacket& os, const RoomType& rt);
+
 class Room : public Building
 {
 public:
     // When room types are added to this enum they also need to be added to the switch statements in Room.cpp.
-    enum RoomType
-    {
-        nullRoomType = 0,
-        dungeonTemple,
-        dormitory,
-        treasury,
-        portal,
-        forge,
-        trainingHall,
-        library,
-        hatchery,
-        crypt
-    };
 
     // Constructors and operators
     Room(GameMap* gameMap);
     virtual ~Room()
     {}
 
+    virtual GameEntityType getObjectType() const
+    { return GameEntityType::room; }
+
     virtual std::string getOgreNamePrefix() const { return "Room_"; }
+
+    virtual void addToGameMap();
+    virtual void removeFromGameMap();
 
     virtual void absorbRoom(Room* r);
 
@@ -67,10 +78,10 @@ public:
      */
     virtual void exportHeadersToStream(std::ostream& os);
     virtual void exportHeadersToPacket(ODPacket& os);
-    //! \brief Exports the data of the RenderedMovableEntity
-    virtual void exportToStream(std::ostream& os);
+    //! \brief Exports the data of the Room
+    virtual void exportToStream(std::ostream& os) const;
     virtual void importFromStream(std::istream& is);
-    virtual void exportToPacket(ODPacket& os);
+    virtual void exportToPacket(ODPacket& os) const;
     virtual void importFromPacket(ODPacket& is);
 
     virtual RoomType getType() const = 0;
@@ -94,7 +105,7 @@ public:
     virtual bool hasOpenCreatureSpot(Creature* c) { return false; }
 
     //! \brief Updates the active spot lists.
-    void updateActiveSpots();
+    virtual void updateActiveSpots();
 
     inline unsigned int getNumActiveSpots() const
     { return mNumActiveSpots; }
@@ -107,11 +118,6 @@ public:
     void checkForRoomAbsorbtion();
 
     static bool sortForMapSave(Room* r1, Room* r2);
-
-    friend std::istream& operator>>(std::istream& is, Room::RoomType& rt);
-    friend std::ostream& operator<<(std::ostream& os, const Room::RoomType& rt);
-    friend ODPacket& operator>>(ODPacket& is, Room::RoomType& rt);
-    friend ODPacket& operator<<(ODPacket& os, const Room::RoomType& rt);
 
 protected:
     enum ActiveSpotPlace

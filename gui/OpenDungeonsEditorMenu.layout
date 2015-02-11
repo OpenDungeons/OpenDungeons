@@ -37,6 +37,7 @@
             <Window type="OD/Listbox" name="LevelSelect" >
                 <Property name="Area" value="{{0,15},{0,35},{0.5,-50},{0.7,0}}" />
                 <Property name="ForceVertScrollbar" value="True" />
+                <Property name="Sort" value="True" />
             </Window>
             <Window type="OD/StaticText" name="MapDescriptionText" >
                 <Property name="Area" value="{{0.5,-30},{0,35},{1,-20},{0.7,0}}" />

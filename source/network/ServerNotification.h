@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -29,84 +29,81 @@ class Creature;
 class MovableGameEntity;
 class Player;
 
-//! \brief A data structure used to pass messages to the serverNotificationProcessor thread.
-//TODO:  Make this class a base class and let specific messages be subclasses of this type with each having its own data structure so they don't need the unused fields
+enum class ServerNotificationType
+{
+    // Negociation for multiplayer
+    loadLevel, // Tells the client to load the level: + string LevelFilename
+    pickNick,
+    addPlayers,
+    removePlayers,
+    startGameMode,
+    newMap,
+    addTile,
+    addMapLight,
+    removeMapLight,
+    addClass,
+    clientAccepted,
+    clientRejected,
+    seatConfigurationRefresh,
+
+    chat,
+    chatServer,
+
+    turnStarted,
+
+    animatedObjectAddDestination,
+    animatedObjectClearDestinations,
+    setObjectAnimationState,
+    setMoveSpeed,
+    entityPickedUp,
+    entityDropped,
+    entitySlapped,
+
+    playerFighting, // Tells the player he is under attack or attacking
+    playerNoMoreFighting, // Tells the player he is no longer under attack or attacking
+
+    addCreature,
+    removeCreature,
+    creatureRefresh,
+    refreshPlayerSeat,
+    addRenderedMovableEntity,
+    removeRenderedMovableEntity,
+    setEntityOpacity,
+    notifyCreatureInfo,
+    refreshCreatureVisDebug,
+
+    refreshSeatVisDebug,
+
+    playSpatialSound, // Makes the client play a sound at tile coordinates.
+    playCreatureSound, // Play a creature sound at the given position
+
+    refreshTiles,
+    refreshVisibleTiles,
+    carryEntity,
+    releaseCarriedEntity,
+
+    exit
+};
+
+ODPacket& operator<<(ODPacket& os, const ServerNotificationType& nt);
+ODPacket& operator>>(ODPacket& is, ServerNotificationType& nt);
+
+//! \brief A data structure used to send messages to the clients
 class ServerNotification
 {
     friend class ODServer;
 
     public:
-        enum ServerNotificationType
-        {
-            // Negociation for multiplayer
-            loadLevel, // Tells the client to load the level: + string LevelFilename
-            pickNick,
-            addPlayers,
-            removePlayers,
-            startGameMode,
-            newMap,
-            addTile,
-            addMapLight,
-            removeMapLight,
-            addClass,
-            clientAccepted,
-            clientRejected,
-            seatConfigurationRefresh,
-
-            chat,
-            chatServer,
-            playerWon,
-            playerLost,
-
-            buildRoom,
-            removeRoomTile,
-            buildTrap,
-            removeTrapTile,
-            turnStarted,
-            setTurnsPerSecond,
-
-            animatedObjectAddDestination,
-            animatedObjectClearDestinations,
-            setObjectAnimationState,
-            setMoveSpeed,
-            entityPickedUp,
-            entityDropped,
-            entitySlapped,
-
-            playerFighting, // Tells the player he is under attack or attacking
-            playerNoMoreFighting, // Tells the player he is no longer under attack or attacking
-
-            addCreature,
-            removeCreature,
-            creatureRefresh,
-            refreshPlayerSeat,
-            addRenderedMovableEntity,
-            removeRenderedMovableEntity,
-            setEntityOpacity,
-            notifyCreatureInfo,
-            refreshCreatureVisDebug,
-
-            playSpatialSound, // Makes the client play a sound at tile coordinates.
-            playCreatureSound, // Play a sound at the creature position
-
-            markTiles,
-            refreshTiles,
-            carryEntity,
-            releaseCarriedEntity,
-
-            exit
-        };
-
-        ServerNotification(ServerNotificationType type,
-            Player* concernedPlayer);
+        /*! \brief Creates a message to be sent to concernedPlayer. If concernedPlayer is null, the message will be sent to
+         *         every connected player.
+         */
+        ServerNotification(ServerNotificationType type, Player* concernedPlayer);
         virtual ~ServerNotification()
         {}
 
         ODPacket mPacket;
 
         static std::string typeString(ServerNotificationType type);
-        friend ODPacket& operator<<(ODPacket& os, const ServerNotification::ServerNotificationType& nt);
-        friend ODPacket& operator>>(ODPacket& is, ServerNotification::ServerNotificationType& nt);
 
     private:
         ServerNotificationType mType;

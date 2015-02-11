@@ -17,13 +17,11 @@ set(AS_LIBRARY_NAME "angelscript")
 
 # Project version
 set(OD_MAJOR_VERSION 0)
-set(OD_MINOR_VERSION 4)
-set(OD_PATCH_LEVEL   9)
+set(OD_MINOR_VERSION 5)
+set(OD_PATCH_LEVEL   0)
 
 # Set the project version ready to be used in the code.
-if(MSVC)
-    set(OD_VERSION "/DOD_VERSION=\\\"${OD_MAJOR_VERSION}.${OD_MINOR_VERSION}.${OD_PATCH_LEVEL}\\\"")
-else()
+if(NOT MSVC)
     set(OD_VERSION "-DOD_VERSION=\\\"${OD_MAJOR_VERSION}.${OD_MINOR_VERSION}.${OD_PATCH_LEVEL}\\\"")
 endif()
 
@@ -37,9 +35,7 @@ else()
     set(OD_SHARE_PATH ${CMAKE_INSTALL_PREFIX}/share CACHE PATH "Absolute path to the shared data directory (desktop file, icons, etc.)")
 endif()
 
-if(MSVC)
-    set(OD_DATA_PATH_FLAG "/DOD_DATA_PATH=\\\"${OD_DATA_PATH}\\\"")
-else()
+if(NOT MSVC)
     set(OD_DATA_PATH_FLAG "-DOD_DATA_PATH=\\\"${OD_DATA_PATH}\\\"")
 endif()
 
@@ -95,16 +91,15 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    if(MSVC)
-        add_definitions("/DOD_DEBUG")
-    else()
-        add_definitions("-DOD_DEBUG")
-    endif()
+# For MSVC builds, the debug flags is added below.
+    add_definitions("-DOD_DEBUG")
 endif()
 
 ##################################
 #### ExplicitCompilerFlags #######
 ##################################
+
+# TODO: Use add_compiler_options instead of setting CMAKE_CXX_FLAGS
 
 # CMAKE_CXX_FLAGS are meant to be defined using these two public strings
 # This makes it possible to have them explicitly displayed in CMake GUI
@@ -116,15 +111,28 @@ if(MSVC)
     # C++11 compilation flag is activated by default
     # Optimisation flags can be added if deemed useful
 else()
+    include(CheckCXXCompilerFlag)
+    if(NOT OD_CXX11_FLAGS)
+        CHECK_CXX_COMPILER_FLAG("-std=c++11" OD_CXX11_FLAG_SUPPORTED)
+        # MinGW supports CXX11 flag but do not compile with it. However, it works with gnu++11
+        if(OD_CXX11_FLAG_SUPPORTED AND NOT MINGW)
+            set(OD_CXX11_FLAGS "-std=c++11" CACHE STRING "Compilation flags to enable C++11 support" FORCE)
+        else()
+            set(OD_CXX11_FLAGS "-std=gnu++11" CACHE STRING "Compilation flags to enable C++11 support" FORCE)
+        endif()
+    endif()
     if(OD_ENABLE_WARNINGS)
         # Help getting compilation warnings
         set(OD_OPT_FLAGS "${OD_OPT_FLAGS} -Wall")
+        #for later https://stackoverflow.com/questions/5088460/flags-to-enable-thorough-and-verbose-g-warnings/9862800#9862800:
+        #set(OD_OPT_FLAGS "${OD_OPT_FLAGS} -pedantic -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization ")
+        #set(OD_OPT_FLAGS "${OD_OPT_FLAGS} -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wnoexcept")
+        #set(OD_OPT_FLAGS "${OD_OPT_FLAGS} -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-conversion -Wsign-promo")
+        #set(OD_OPT_FLAGS "${OD_OPT_FLAGS} -Wstrict-null-sentinel -Wstrict-overflow=5 -Wswitch-default -Wundef -Wno-unused")
+        #set(OD_OPT_FLAGS "${OD_OPT_FLAGS} -Winline -Winvalid-pch -Wswitch-enum -Wzero-as-null-pointer-constant -Wuseless-cast")
+        #set(OD_OPT_FLAGS "${OD_OPT_FLAGS} -Weffc++")
     endif()
     if(MINGW)
-        if(NOT OD_CXX11_FLAGS)
-            set(OD_CXX11_FLAGS "-std=gnu++11" CACHE STRING "Compilation flags to enable C++11 support" FORCE)
-        endif()
-
         # Disable some warnings on MinGW
         if(OD_ENABLE_WARNINGS)
             set(OD_OPT_FLAGS "${OD_OPT_FLAGS} -Wno-unused-local-typedefs -Wno-format")
@@ -134,11 +142,27 @@ else()
         # from Dr. Mingw while keeping binary size down. Almost useless
         # with gdb, though.
         set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -ggdb0 -gstabs2")
-    elseif(UNIX)
-        if(NOT OD_CXX11_FLAGS)
-            set(OD_CXX11_FLAGS "-std=c++11" CACHE STRING "Compilation flags to enable C++11 support" FORCE)
-        endif()
     endif()
+endif()
+
+# Set compiler options in MSVC
+if(WIN32 AND MSVC)
+    #Set some extra compiler flags
+    #TODO - investigate if these are what they should be
+    set(PLATFORM_C_FLAGS "/W3 /MD /Od /DWIN32 /D_WINDOWS /Gm /Gy /fp:fast /ZI /EHsc")
+    set(PLATFORM_C_FLAGS_DEBUG "/W3 /MDd /Od /Gm /Gy /fp:fast /ZI /DOD_DEBUG" )
+
+    # Set the application version
+    set(OD_VERSION "/DOD_VERSION=\\\"${OD_MAJOR_VERSION}.${OD_MINOR_VERSION}.${OD_PATCH_LEVEL}\\\"")
+    set(PLATFORM_C_FLAGS_DEBUG "${PLATFORM_C_FLAGS_DEBUG} ${OD_VERSION}")
+
+    # Set the data path
+    set(OD_DATA_PATH_FLAG "/DOD_DATA_PATH=\\\"${OD_DATA_PATH}\\\"")
+    set(PLATFORM_C_FLAGS_DEBUG "${PLATFORM_C_FLAGS_DEBUG} ${OD_DATA_PATH_FLAG}")
+
+    set(CMAKE_CXX_FLAGS "${PLATFORM_C_FLAGS}")
+    set(CMAKE_CXX_FLAGS_RELEASE "${PLATFORM_C_FLAGS}")
+    set(CMAKE_CXX_FLAGS_DEBUG "${PLATFORM_C_FLAGS_DEBUG}")
 endif()
 
 set(CMAKE_CXX_FLAGS "${OD_CXX11_FLAGS} ${OD_OPT_FLAGS} ${CMAKE_CXX_FLAGS} ${OD_VERSION} ${OD_DATA_PATH_FLAG}")
@@ -205,15 +229,17 @@ set(OD_SOURCEFILES
     ${SRC}/ai/KeeperAI.cpp
 
     ${SRC}/camera/CameraManager.cpp
-    ${SRC}/camera/CullingManager.cpp
-    ${SRC}/camera/CullingQuad.cpp
-    ${SRC}/camera/DummyArrayClass.cpp
     ${SRC}/camera/HermiteCatmullSpline.cpp
-    ${SRC}/camera/MortuaryQuad.cpp
-    ${SRC}/camera/RadialVector2.cpp
-    ${SRC}/camera/SlopeWalk.cpp
+
+    ${SRC}/creaturemood/CreatureMood.cpp
+    ${SRC}/creaturemood/CreatureMoodAwakness.cpp
+    ${SRC}/creaturemood/CreatureMoodCreature.cpp
+    ${SRC}/creaturemood/CreatureMoodFee.cpp
+    ${SRC}/creaturemood/CreatureMoodHunger.cpp
+    ${SRC}/creaturemood/CreatureMoodHpLoss.cpp
 
     ${SRC}/entities/Building.cpp
+    ${SRC}/entities/BuildingObject.cpp
     ${SRC}/entities/ChickenEntity.cpp
     ${SRC}/entities/CraftedTrap.cpp
     ${SRC}/entities/Creature.cpp
@@ -226,9 +252,11 @@ set(OD_SOURCEFILES
     ${SRC}/entities/MissileObject.cpp
     ${SRC}/entities/MissileOneHit.cpp
     ${SRC}/entities/MovableGameEntity.cpp
+    ${SRC}/entities/PersistentObject.cpp
     ${SRC}/entities/RenderedMovableEntity.cpp
     ${SRC}/entities/SmallSpiderEntity.cpp
     ${SRC}/entities/Tile.cpp
+    ${SRC}/entities/TrapEntity.cpp
     ${SRC}/entities/TreasuryObject.cpp
     ${SRC}/entities/Weapon.cpp
 
@@ -239,7 +267,6 @@ set(OD_SOURCEFILES
     ${SRC}/gamemap/GameMap.cpp
     ${SRC}/gamemap/MapLoader.cpp
     ${SRC}/gamemap/MiniMap.cpp
-    ${SRC}/gamemap/TileCoordinateMap.cpp
     ${SRC}/gamemap/TileContainer.cpp
 
     ${SRC}/goals/GoalClaimNTiles.cpp
@@ -250,9 +277,9 @@ set(OD_SOURCEFILES
     ${SRC}/goals/GoalProtectDungeonTemple.cpp
 
     ${SRC}/modes/AbstractApplicationMode.cpp
-    ${SRC}/modes/Console.cpp
-    ${SRC}/modes/Console_executePromptCommand.cpp
-    ${SRC}/modes/Console_getHelp.cpp
+    ${SRC}/modes/Command.cpp
+    ${SRC}/modes/ConsoleCommands.cpp
+    ${SRC}/modes/ConsoleInterface.cpp
     ${SRC}/modes/ConsoleMode.cpp
     ${SRC}/modes/EditorMode.cpp
     ${SRC}/modes/FppMode.cpp
@@ -266,8 +293,6 @@ set(OD_SOURCEFILES
     ${SRC}/modes/MenuModeReplay.cpp
     ${SRC}/modes/MenuModeSkirmish.cpp
     ${SRC}/modes/ModeManager.cpp
-    ${SRC}/modes/PrefixTree.cpp
-
 
     ${SRC}/network/ChatMessage.cpp
     ${SRC}/network/ClientNotification.cpp
@@ -294,8 +319,6 @@ set(OD_SOURCEFILES
     ${SRC}/rooms/RoomTrainingHall.cpp
     ${SRC}/rooms/RoomTreasury.cpp
 
-    ${SRC}/scripting/ASWrapper.cpp
-
     ${SRC}/sound/MusicPlayer.cpp
     ${SRC}/sound/SoundEffectsManager.cpp
 
@@ -304,7 +327,10 @@ set(OD_SOURCEFILES
     ${SRC}/spawnconditions/SpawnConditionGold.cpp
     ${SRC}/spawnconditions/SpawnConditionRoom.cpp
 
-    ${SRC}/traps/ProximityTrap.cpp
+    ${SRC}/spell/Spell.cpp
+    ${SRC}/spell/SpellCallToWar.cpp
+    ${SRC}/spell/SpellSummonWorker.cpp
+
     ${SRC}/traps/Trap.cpp
     ${SRC}/traps/TrapBoulder.cpp
     ${SRC}/traps/TrapCannon.cpp
@@ -313,10 +339,10 @@ set(OD_SOURCEFILES
     ${SRC}/utils/ConfigManager.cpp
     ${SRC}/utils/Helper.cpp
     ${SRC}/utils/LogManager.cpp
+    ${SRC}/utils/RadialVector2.cpp
     ${SRC}/utils/Random.cpp
     ${SRC}/utils/ResourceManager.cpp
     ${SRC}/utils/StackTracePrint.cpp
-    ${SRC}/utils/Vector3i.cpp
 
     ${SRC}/ODApplication.cpp
     ${SRC}/main.cpp
@@ -332,20 +358,19 @@ find_package(OGRE REQUIRED)
 find_package(CEGUI REQUIRED)
 find_package(SFML 2 REQUIRED COMPONENTS Audio System Network)
 
-if ((OGRE_VERSION_MAJOR LESS 1) AND (OGRE_VERSION_MINOR LESS 9))
-    message(SEND_ERROR "OGRE version >= 1.9.0 required")
+if((OGRE_VERSION_MAJOR LESS 1) AND (OGRE_VERSION_MINOR LESS 9))
+    message(FATAL_ERROR "OGRE version >= 1.9.0 required")
 endif()
 
-if ((CEGUI_VERSION_MINOR LESS 8) OR (CEGUI_VERSION_MAJOR LESS 1))
-    message(SEND_ERROR "CEGUI version >= 0.8.0 required")
+if("${CEGUI_VERSION}" VERSION_LESS "0.8.0")
+    message(FATAL_ERROR "CEGUI version >= 0.8.0 required")
 endif()
 
 if (SFML_VERSION_MAJOR LESS 2)
-    message(SEND_ERROR "SFML version >= 2.0 required")
+    message(FATAL_ERROR "SFML version >= 2.0 required")
 else()
     message(STATUS "SFML include directory: ${SFML_INCLUDE_DIR}; SFML audio library: ${SFML_AUDIO_LIBRARY_DEBUG} ${SFML_AUDIO_LIBRARY_RELEASE}")
 endif()
-
 
 #This has to cover the versions not already known by CMake
 set(Boost_ADDITIONAL_VERSIONS 1.47 1.47.0 1.47.1 1.55.0)
@@ -390,25 +415,22 @@ include_directories(
     #OpenDungeons includes
     ${CMAKE_SOURCE_DIR}/source
 
-    #General external includes
-    ${DEPENDENCIES_DIR}
-
     #Angelscript includes
-    ${ANGELSCRIPT_DIR}/angelscript/include
-    ${ANGELSCRIPT_SRC_DIR}
+    SYSTEM ${ANGELSCRIPT_DIR}/angelscript/include
+    SYSTEM ${ANGELSCRIPT_SRC_DIR}
 
     #AngelScript Addons, in-comment only the ones we actually use
-    ${ANGELSCRIPT_ADDON_DIR}/scriptarray
-    ${ANGELSCRIPT_ADDON_DIR}/scriptbuilder
-    ${ANGELSCRIPT_ADDON_DIR}/scripthelper
-    ${ANGELSCRIPT_ADDON_DIR}/scriptstdstring
+    SYSTEM ${ANGELSCRIPT_ADDON_DIR}/scriptarray
+    SYSTEM ${ANGELSCRIPT_ADDON_DIR}/scriptbuilder
+    SYSTEM ${ANGELSCRIPT_ADDON_DIR}/scripthelper
+    SYSTEM ${ANGELSCRIPT_ADDON_DIR}/scriptstdstring
 
     #external packages includes
-    ${CEGUI_INCLUDE_DIR}
-    ${SFML_INCLUDE_DIR}
-    ${OGRE_INCLUDE_DIRS}
-    ${OPENAL_INCLUDE_DIR}
-    ${OIS_INCLUDE_DIRS}
+    SYSTEM ${CEGUI_INCLUDE_DIR}
+    SYSTEM ${SFML_INCLUDE_DIR}
+    SYSTEM ${OGRE_INCLUDE_DIRS}
+    SYSTEM ${OPENAL_INCLUDE_DIR}
+    SYSTEM ${OIS_INCLUDE_DIRS}
 )
 
 if(WIN32)
@@ -416,11 +438,11 @@ if(WIN32)
         #TODO: Why are we linking boost here? It's linked again later.
         # Boost
         link_libraries(${Boost_LIBRARIES})
-        include_directories(${Boost_INCLUDE_DIRS})
+        include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
     endif()
 
     if(MSVC)
-        include_directories(${OD_BOOST_INCLUDE_DIRS})
+        include_directories(SYSTEM ${OD_BOOST_INCLUDE_DIRS})
         link_directories(${OD_BOOST_LIB_DIRS})
     endif()
 endif()
@@ -431,6 +453,11 @@ endif()
 
 # Create the angelscript library file
 add_library(${AS_LIBRARY_NAME} ${AS_SOURCEFILES})
+
+# Treat warnings as errors for main build, but not angelscript, since it would fail.
+if(NOT MSVC)
+    add_compile_options("-Werror")
+endif()
 
 # Create the binary file (WIN32 makes sure there is no console window on windows.)
 add_executable(${PROJECT_BINARY_NAME} WIN32 ${OD_SOURCEFILES})
@@ -455,9 +482,17 @@ target_link_libraries(
     ${OGRE_RTShaderSystem_LIBRARIES}
     ${OPENAL_LIBRARY}
     ${OIS_LIBRARIES}
-    ${CEGUI_LIBRARIES_RELEASE}
-    #${CEGUI_LIBRARIES_DEBUG}
+    ${CEGUI_LIBRARIES}
+    ${CEGUI_OgreRenderer_LIBRARIES}
 )
+
+# Set linker options in MSVC
+if(WIN32 AND MSVC)
+    # We need to force output because of the boost lib used, defining two times the
+    # same set of functions, once for Ogre, once for OD. It is harmless in our case
+    # to select this option.
+    SET_TARGET_PROPERTIES(${PROJECT_BINARY_NAME} PROPERTIES LINK_FLAGS " /FORCE:MULTIPLE")
+endif()
 
 # The name of the OGRE Overlay library is available as CMAKE variable, also discovering debug versions correctly; please leave it like that!
 target_link_libraries(${PROJECT_BINARY_NAME} ${OGRE_Overlay_LIBRARY})
@@ -470,32 +505,7 @@ endif()
 # Link sfml
 # No need to make a difference when release/debug is found because even
 # if only one is found, the other is set to the same value
-target_link_libraries(
-    ${PROJECT_BINARY_NAME}
-
-    optimized ${SFML_AUDIO_LIBRARY_RELEASE}
-    optimized ${SFML_SYSTEM_LIBRARY_RELEASE}
-    optimized ${SFML_NETWORK_LIBRARY_RELEASE}
-    debug ${SFML_AUDIO_LIBRARY_DEBUG}
-    debug ${SFML_SYSTEM_LIBRARY_DEBUG}
-    debug ${SFML_NETWORK_LIBRARY_DEBUG}
-)
-
-# Set compiler options in MSVC
-if(WIN32 AND MSVC_IDE)
-    #Set some extra compiler flags
-    #TODO - investigate if these are what they should be
-    set( PLATFORM_C_FLAGS "/W3 /MD /Od /D \"WIN32\" /D \"_WINDOWS\" /Gm /Gy /fp:fast /ZI /EHsc" )
-    set( PLATFORM_C_FLAGS_DEBUG "/W3 /MDd /Od /Gm /Gy /fp:fast /ZI /DOD_DEBUG" )
-
-    set( CMAKE_CXX_FLAGS "${PLATFORM_C_FLAGS}" )
-    set( CMAKE_CXX_FLAGS_RELEASE "${PLATFORM_C_FLAGS}" )
-    set( CMAKE_CXX_FLAGS_DEBUG "${PLATFORM_C_FLAGS_DEBUG}" )
-# We need to force output because of the boost lib used, defining two times the
-# same set of functions, once for Ogre, once for OD. It is harmless in our case
-# to select this option.
-    SET_TARGET_PROPERTIES(${PROJECT_BINARY_NAME} PROPERTIES LINK_FLAGS " /FORCE:MULTIPLE")
-endif()
+target_link_libraries(${PROJECT_BINARY_NAME} ${SFML_LIBRARIES})
 
 ##################################
 #### Unit testing ################
@@ -520,30 +530,8 @@ if(WIN32)
     set(OD_OGRE_PLUGIN_DIR_REL "plugins")
     set(OD_OGRE_PLUGIN_DIR_DBG "plugins")
 else()
-    #only use d3d renderer plugins if we are on windows
-    set(OD_COMMENT_D3D "#")
-    #On linux, we should look in the standard paths for plugins
-    if("${OGRE_PLUGIN_DIR_REL}" STREQUAL "")
-        #Try pkgconfig if the ogre module doesn't set the plugin paths
-        message(STATUS "Looking for plugin path using pkgconfig...")
-        find_package(PkgConfig)
-        if(PKG_CONFIG_FOUND)
-            execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} OGRE --variable=plugindir
-                OUTPUT_VARIABLE OD_PLUGIN_DIR_TEMP
-                RESULT_VARIABLE OD_PKGCONFIG_FAILED
-                ERROR_VARIABLE  OD_PKGCONFIG_ERROR)
-            if(OD_PKGCONFIG_FAILED)
-                message(STATUS "Failed to run pkgconfig when looking for plugin directory" ${OD_PLUGIN_DIR_TEMP} " Error:" ${OD_PKGCONFIG_ERROR})
-                get_filename_component(OD_OGRE_PLUGIN_DIR_REL ${OGRE_RenderSystem_GL_LIBRARY_REL} PATH)
-            else()
-                set(OD_OGRE_PLUGIN_DIR_REL ${OD_PLUGIN_DIR_TEMP})
-                set(OD_OGRE_PLUGIN_DIR_DBG ${OD_PLUGIN_DIR_TEMP})
-            endif()
-        endif()
-    else()
-        set(OD_OGRE_PLUGIN_DIR_REL ${OGRE_PLUGIN_DIR_REL})
-        set(OD_OGRE_PLUGIN_DIR_DBG ${OGRE_PLUGIN_DIR_DBG})
-    endif()
+    set(OD_OGRE_PLUGIN_DIR_REL ${OGRE_PLUGIN_DIR_REL})
+    set(OD_OGRE_PLUGIN_DIR_DBG ${OGRE_PLUGIN_DIR_DBG})
 
     message(STATUS "Plugin path rel: " ${OD_OGRE_PLUGIN_DIR_REL})
     message(STATUS "Plugin path dbg: " ${OD_OGRE_PLUGIN_DIR_DBG})
@@ -560,6 +548,7 @@ else()
     set(OD_ICON_FULLPATH ${OD_SHARE_PATH}/icons/hicolor/scalable/apps/opendungeons.svg)
 endif()
 configure_file(${CMAKE_CONFIG_DIR}/opendungeons.desktop.in ${CMAKE_BINARY_DIR}/opendungeons.desktop)
+configure_file(${CMAKE_CONFIG_DIR}/opendungeons.6.in ${CMAKE_BINARY_DIR}/opendungeons.6)
 
 ##################################
 ### Run-in-place customisation ###
@@ -600,6 +589,10 @@ if(UNIX)
                        ${CMAKE_SOURCE_DIR}/scripts
                        ${CMAKE_SOURCE_DIR}/sounds)
 
+    set(OD_DOC         ${CMAKE_SOURCE_DIR}/AUTHORS
+                       ${CMAKE_SOURCE_DIR}/CREDITS
+                       ${CMAKE_SOURCE_DIR}/FAQ.txt)
+
     # Install required game files: binary, configuration files and resources
     install(TARGETS ${PROJECT_BINARY_NAME}
             DESTINATION ${OD_BIN_PATH}
@@ -609,9 +602,13 @@ if(UNIX)
     install(DIRECTORY ${OD_RESOURCES}
             DESTINATION ${OD_DATA_PATH})
 
-    # Additional distribution content (desktop file, icons, etc.)
+    # Additional distribution content (desktop file, icons, man page, doc)
     install(FILES ${CMAKE_BINARY_DIR}/opendungeons.desktop
             DESTINATION ${OD_SHARE_PATH}/applications)
+    install(FILES ${CMAKE_BINARY_DIR}/opendungeons.6
+            DESTINATION ${OD_SHARE_PATH}/man/man6)
+    install(FILES ${OD_DOC}
+            DESTINATION ${OD_SHARE_PATH}/doc/${PROJECT_NAME})
     install(DIRECTORY ${CMAKE_SOURCE_DIR}/dist/hicolor
             DESTINATION ${OD_SHARE_PATH}/icons)
 endif()
@@ -622,11 +619,11 @@ endif()
 
 #Not used at the moment, more flexible to do the deb packages manually
 #TODO - set up for making tarballs
-set(CPACK_SOURCE_IGNORE_FILES "~$" "${CMAKE_SOURCE_DIR}.*/.svn/" "${CMAKE_SOURCE_DIR}/debian/")
-set(CPACK_PACKAGE_NAME opendungeons)
-set(CPACK_PACKAGE_VERSION ${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION}.${${PROJECT_NAME}_PATCH_LEVEL})
-set(CPACK_PACKAGE_CONTACT OpenDungeons Team)
-set(CPACK_GENERATOR "DEB")
-set(CPACK_SOURCE_GENERATOR "DEB")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libcegui (>= 0.8.3), libois-1.2.0, libsfml-audio2.0, libopenal1, libogremain-1.9.0")
-include(CPack)
+# set(CPACK_SOURCE_IGNORE_FILES "~$" "${CMAKE_SOURCE_DIR}.*/.svn/" "${CMAKE_SOURCE_DIR}/debian/")
+# set(CPACK_PACKAGE_NAME opendungeons)
+# set(CPACK_PACKAGE_VERSION ${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION}.${${PROJECT_NAME}_PATCH_LEVEL})
+# set(CPACK_PACKAGE_CONTACT OpenDungeons Team)
+# set(CPACK_GENERATOR "DEB")
+# set(CPACK_SOURCE_GENERATOR "DEB")
+# set(CPACK_DEBIAN_PACKAGE_DEPENDS "libcegui (>= 0.8.3), libois-1.2.0, libsfml-audio2.0, libopenal1, libogremain-1.9.0")
+# include(CPack)

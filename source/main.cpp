@@ -3,7 +3,7 @@
  *  \date   Sun Jun 22 18:16:35 CEST 2014
  *  \brief  file containing the main function
  *
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ void setErrorHandler()
     struct sigaction sigact;
     sigact.sa_sigaction = StackTracePrint::critErrHandler;
     sigact.sa_flags = SA_RESTART | SA_SIGINFO;
-    if (sigaction(SIGSEGV, &sigact, (struct sigaction *)NULL) != 0)
+    if (sigaction(SIGSEGV, &sigact, (struct sigaction *)nullptr) != 0)
     {
         std::cerr << "error setting signal handler for: "
             << SIGSEGV << strsignal(SIGSEGV) << std::endl;

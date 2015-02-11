@@ -1,4 +1,4 @@
 <Imageset autoScaled="false" imagefile="ODBackgrounds.png" name="ODBackgrounds" nativeHorzRes="800" nativeVertRes="600" version="2">
-	
-	<Image height="120" name="Background1" width="1240" xPos="3" yPos="11" />
+    <Image height="120" name="KeeperBackground" width="1246" xPos="2" yPos="12" />
+    <Image height="120" name="HeroBackground" width="1246" xPos="2" yPos="152" />
 </Imageset>

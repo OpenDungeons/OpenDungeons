@@ -4,7 +4,7 @@
  * \author StefanP.MUC
  * \brief  Handles the camera movements
  *
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,10 +25,6 @@
 
 #include "camera/HermiteCatmullSpline.h"
 
-#include "gamemap/GameMap.h"
-#include "modes/AbstractApplicationMode.h"
-#include "utils/Vector3i.h"
-
 #include <OgrePrerequisites.h>
 #include <OgreVector3.h>
 #include <OgreCamera.h>
@@ -40,24 +36,14 @@
 #include <vector>
 #include <map>
 
-class ModeManager;
-class Console;
-class Viewport;
+class GameMap;
 
 // The min/max camera height in tile size
 const Ogre::Real MIN_CAMERA_Z = 3.0;
-const Ogre::Real MAX_CAMERA_Z = 20.0;
-
-using std::vector; using std::pair; using std::map;
-
-// A custom vector used commonly between the CameraManager and the CullingManager classes
-
+const Ogre::Real MAX_CAMERA_Z = 16.0;
 
 class CameraManager
 {
-    friend class Console;
-    friend class CullingManager;
-
 public:
     enum Direction
     {
@@ -72,94 +58,47 @@ public:
         fullStop
     };
 
-    HermiteCatmullSpline xHCS;
-    HermiteCatmullSpline yHCS;
-
     CameraManager(Ogre::SceneManager* sceneManager, GameMap* gameMap, Ogre::RenderWindow* renderWindow);
-    ~CameraManager();
+    ~CameraManager()
+    {}
 
-    inline void setCircleCenter( int XX, int YY)
+    inline void circleAround(int x, int y, unsigned int radius)
     {
-        mCenterX = XX;
-        mCenterY = YY;
-    }
-
-    inline void setCircleRadius(unsigned int rr)
-    { mRadius = rr; }
-
-    inline void setCircleMode(bool mm)
-    {
-        mCircleMode = mm;
+        mCenterX = x;
+        mCenterY = y;
+        mRadius = radius;
+        mCircleMode = true;
         mAlpha = 0;
     }
 
-    inline void setCatmullSplineMode(bool mm)
+    inline void setCatmullSplineMode(bool set_mode)
     {
-        mCatmullSplineMode = mm;
+        mCatmullSplineMode = set_mode;
         mAlpha = 0;
     }
 
-    inline bool switchPM()
-    {
-        mSwitchedPM = true;
-        return true;
-    }
+//    void setFPPCamera(Creature*);
 
-    void setModeManager(ModeManager* mm)
-    { mModeManager = mm; }
-
-    void setFPPCamera(Creature*);
-
-    //get/set moveSpeed
-    inline const Ogre::Real& getMoveSpeed() const
-    {
-        return mMoveSpeed;
-    }
-
-    inline void setMoveSpeed(const Ogre::Real& newMoveSpeed)
-    {
-        mMoveSpeed = newMoveSpeed;
-    }
-
-    //get/set moveSpeedAccel
-    inline const Ogre::Real& getMoveSpeedAccel() const
-    {
-        return mMoveSpeedAccel;
-    }
-
-    inline void setMoveSpeedAccel(const Ogre::Real& newMoveSpeedAccel)
-    {
-        mMoveSpeed = newMoveSpeedAccel;
-    }
-
-    //get/set rotateSpeed
-    inline const Ogre::Degree& getRotateSpeed() const
-    {
-        return mRotateSpeed;
-    }
-
-    inline void setRotateSpeed(const Ogre::Degree& newRotateSpeed)
-    {
-        mRotateSpeed = newRotateSpeed;
-    }
-
-    //get translateVectorAccel
     inline const Ogre::Vector3& getTranslateVectorAccel() const
     {
         return mTranslateVectorAccel;
     }
 
-    bool getIntersectionPoints();
+    bool onFrameStarted()
+    { return true; }
+    bool onFrameEnded()
+    { return true; }
 
-    bool isCamMovingAtAll() const;
-
-    int updateCameraView();
-
-    bool onFrameStarted();
-    bool onFrameEnded();
-
+    /*! \brief Sets the camera to a new location while still satisfying the
+    * constraints placed on its movement
+    */
     void updateCameraFrameTime(const Ogre::Real frameTime);
+
+    /*! \brief Computes a vector whose z-component is 0 and whose x-y coordinates
+    * are the position on the floor that the camera is pointed at.
+    */
     const Ogre::Vector3 getCameraViewTarget();
+
     void onMiniMapClick(Ogre ::Vector2 cc);
 
     /** \brief Starts the camera moving towards a destination position,
@@ -167,15 +106,22 @@ public:
      */
     void flyTo(const Ogre::Vector3& destination);
 
+    //! \brief Makes the camera rotate to the given orientation (in degrees).
+    //! Pitch=X axis, Yaw=y axis, Roll=z axis. Right handed Ogre 3D scale.
+    //! X-Axis: Looking up or down from the user point of view.
+    //! Z-Axis: Left or right from a user point of view.
+    void RotateTo(Ogre::Real pitch, Ogre::Real roll);
+
     //! \brief Directly set the new camera position
     void setCameraPosition(const Ogre::Vector3& position);
 
+    /*! \brief tells the camera to move/rotate (or stop) in a specific direction
+    *
+    *  The function combines start and stop in one go. Giving equal momentum in
+    *  one direction means either moving there (if resting before) or stoping the
+    *  movement (if moving in oppsite direction before)
+    */
     void move(const Direction direction, double aux = 0.0);
-
-    inline void stopZooming ()
-    {
-        mZChange = 0;
-    }
 
     void createCameraNode(const Ogre::String& ss, Ogre::Vector3 = Ogre::Vector3(0,0,0),
                           Ogre::Degree = Ogre::Degree(0),
@@ -185,21 +131,42 @@ public:
     Ogre::SceneNode* getActiveCameraNode();
     Ogre::SceneNode* setActiveCameraNode(const Ogre::String& ss);
 
+    //! \brief Sets up the main camera
     void createCamera(const Ogre::String& ss, double nearClip, double farClip);
+
     void setActiveCamera(const Ogre::String& ss);
 
     inline Ogre::Camera* getActiveCamera()
     {
-        return  mActiveCamera ;
+        return  mActiveCamera;
     }
 
     Ogre::Camera* getCamera(const Ogre::String& ss);
 
-    Ogre::Viewport* getViewport();
+    Ogre::Viewport* getViewport()
+    { return mViewport; }
+
+    void resetHCSNodes(int nodeValue)
+    {
+        mXHCS.resetNodes(nodeValue);
+        mYHCS.resetNodes(nodeValue);
+    }
+
+    void addHCSNodes(int XNode, int YNode)
+    {
+        mXHCS.addNode(XNode);
+        mYHCS.addNode(YNode);
+    }
+
+    //! \brief Makes the RTS camera use the corresponding default viewpoint.
+    void setDefaultIsometricView();
+    void setDefaultOrthogonalView();
 
 private:
-    void createViewport(Ogre::RenderWindow* renderWindow);
-    bool mSwitchedPM;
+    //! \brief HermiteCatmullSpline members for each axices.
+    HermiteCatmullSpline mXHCS;
+    HermiteCatmullSpline mYHCS;
+
     std::set<Ogre::String> mRegisteredCameraNames;
     std::set<Ogre::String> mRegisteredCameraNodeNames;
 
@@ -212,30 +179,46 @@ private:
     int mCenterY;
     double mAlpha;
 
-    ModeManager* mModeManager;
-    CullingManager* mCullingManager;
-
     Ogre::Camera* mActiveCamera;
     Ogre::SceneNode* mActiveCameraNode;
 
     GameMap* mGameMap;
+
+    //! \brief Is true when a camera is flying to a given position.
     bool            mCameraIsFlying;
-    Ogre::Real      mMoveSpeed;
-    Ogre::Real      mMoveSpeedAccel;
-    Ogre::Real      mCameraFlightSpeed;
-    Ogre::Degree    mRotateSpeed;
+
+    //! \brief The camera destination when the camera is "flying".
+    Ogre::Vector3   mCameraFlightDestination;
+
+    //! \brief Is true when the camera is rotating to a given point of view.
+    bool            mCameraIsRotating;
+
+    //! \brief The camer pitch, yaw and roll destination rotation.
+    Ogre::Real      mCameraPitchDestination; // X-Axis: Looking up or down from the user point of view.
+    Ogre::Real      mCameraRollDestination; // Z-Axis: Left or right from a user point of view.
+
+    //! \brief The user height change value.
+    Ogre::Real      mZChange;
+
+    //! \brief The Z-axis rotation, left or right from the user point of view.
     Ogre::Degree    mSwivelDegrees;
+
+    //! \brief Carry out the acceleration/deceleration calculations on the camera translation.
     Ogre::Vector3   mTranslateVector;
     Ogre::Vector3   mTranslateVectorAccel;
-    Ogre::Vector3   mCameraFlightDestination;
+
+    //! \brief The X-axis rotation vector, tilting the point of view (look down or up).
     Ogre::Vector3   mRotateLocalVector;
+
     Ogre::SceneManager* mSceneManager;
     Ogre::Viewport* mViewport;
-    double          mZChange;
-    float           mZoomSpeed;
 
-    std::string switchPolygonMode();
-    void sort(Vector3i& p1 , Vector3i& p2, bool sortByX);
+    //! \brief setup the viewport
+    void createViewport(Ogre::RenderWindow* renderWindow);
+
+    //! \brief Checks if the camera is moving at all by evaluating all momentums
+    //! This permits to avoid useless computations when the camera doesn't move.
+    bool isCameraMovingAtAll() const;
 };
 
-#endif /* CAMERAMANAGER_H_ */
+#endif // CAMERAMANAGER_H_

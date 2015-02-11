@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #include "network/ODPacket.h"
 #include "gamemap/GameMap.h"
 #include "entities/MissileBoulder.h"
+#include "entities/TrapEntity.h"
 #include "utils/ConfigManager.h"
 #include "utils/Random.h"
 #include "utils/LogManager.h"
@@ -77,10 +78,10 @@ bool TrapBoulder::shoot(Tile* tile)
     direction.normalise();
     MissileBoulder* missile = new MissileBoulder(getGameMap(), getSeat(), getName(), "Boulder",
         direction, Random::Double(mMinDamage, mMaxDamage));
-    missile->setPosition(position);
-    getGameMap()->addRenderedMovableEntity(missile);
-    missile->setMoveSpeed(ConfigManager::getSingleton().getTrapConfigDouble("BoulderSpeed"));
+    missile->addToGameMap();
     missile->createMesh();
+    missile->setPosition(position, false);
+    missile->setMoveSpeed(ConfigManager::getSingleton().getTrapConfigDouble("BoulderSpeed"));
     // We don't want the missile to stay idle for 1 turn. Because we are in a doUpkeep context,
     // we can safely call the missile doUpkeep as we know the engine will not call it the turn
     // it has been added
@@ -90,8 +91,7 @@ bool TrapBoulder::shoot(Tile* tile)
     return true;
 }
 
-RenderedMovableEntity* TrapBoulder::notifyActiveSpotCreated(Tile* tile)
+TrapEntity* TrapBoulder::getTrapEntity(Tile* tile)
 {
-    return loadBuildingObject(getGameMap(), MESH_BOULDER, tile, 0.0, false,
-                              isActivated(tile) ? 1.0f : 0.5f);
+    return new TrapEntity(getGameMap(), getName(), MESH_BOULDER, tile, 0.0, false, isActivated(tile) ? 1.0f : 0.5f);
 }

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -57,7 +57,11 @@ void MenuModeReplay::activate()
     // TODO: Make this configurable.
     MusicPlayer::getSingleton().play("Pal_Zoltan_Illes_OpenDungeons_maintheme.ogg");
 
-    ODFrameListener::getSingleton().getClientGameMap()->setGamePaused(true);
+
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
+    gameMap->clearAll();
+    gameMap->processDeletionQueues();
+    gameMap->setGamePaused(true);
 
     CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::replayMenu)->getChild(Gui::REM_LIST_REPLAYS);
     CEGUI::Listbox* replaySelectList = static_cast<CEGUI::Listbox*>(tmpWin);
@@ -103,7 +107,8 @@ void MenuModeReplay::launchSelectedButtonPressed()
     int id = selItem->getID();
 
     std::string mapDescription;
-    if(!checkReplayValid(mFilesList[id], mapDescription))
+    std::string errorMsg;
+    if(!checkReplayValid(mFilesList[id], mapDescription, errorMsg))
     {
         tmpWin->setText("Error: trying to launch invalid replay!");
         tmpWin->show();
@@ -162,85 +167,62 @@ void MenuModeReplay::listReplaysClicked()
 
     CEGUI::Window* descTxt = Gui::getSingleton().getGuiSheet(Gui::replayMenu)->getChild("LevelWindowFrame/MapDescriptionText");
     std::string mapDescription;
-    if(checkReplayValid(mFilesList[id], mapDescription))
+    std::string errorMsg;
+    if(checkReplayValid(mFilesList[id], mapDescription, errorMsg))
     {
         descTxt->setText(mapDescription);
     }
     else
     {
-        descTxt->setText("invalid replay");
+        descTxt->setText(errorMsg);
     }
 }
 
-bool MenuModeReplay::checkReplayValid(const std::string& replayFileName, std::string& mapDescription)
+bool MenuModeReplay::checkReplayValid(const std::string& replayFileName, std::string& mapDescription, std::string& errorMsg)
 {
     std::string replayFile = ResourceManager::getSingleton().getReplayDataPath() + replayFileName;
     // We open the replay to get the level file name
     std::ifstream is(replayFile, std::ios::in | std::ios::binary);
     ODPacket packet;
-    ServerNotification::ServerNotificationType type;
+    ServerNotificationType type;
     do
     {
         packet.readPacket(is);
         OD_ASSERT_TRUE(packet >> type);
         if(is.eof())
             break;
-    } while(type != ServerNotification::loadLevel);
+    } while(type != ServerNotificationType::loadLevel);
 
     if(is.eof())
+    {
+        errorMsg = "Invalid replay file";
         return false;
+    }
 
-    std::string level;
-    OD_ASSERT_TRUE(packet >> level);
-    LevelInfo info;
-    if(!MapLoader::getMapInfo(level, info))
+    std::string odVersion;
+    std::string tmpStr;
+    int32_t tmpInt;
+    // OD version
+    OD_ASSERT_TRUE(packet >> odVersion);
+    // mapSizeX
+    OD_ASSERT_TRUE(packet >> tmpInt);
+    // mapSizeY
+    OD_ASSERT_TRUE(packet >> tmpInt);
+    // LevelFileName
+    OD_ASSERT_TRUE(packet >> tmpStr);
+    // LevelDescription
+    OD_ASSERT_TRUE(packet >> mapDescription);
+
+    if(odVersion.compare(std::string("OpenDungeons V ") + ODApplication::VERSION) != 0)
+    {
+        errorMsg = odVersion + " (Wrong version)\n\n" + mapDescription;
         return false;
+    }
 
-    mapDescription = info.mLevelDescription;
     return true;
 }
 
 void MenuModeReplay::listReplaysDoubleClicked()
 {
     launchSelectedButtonPressed();
-}
-
-bool MenuModeReplay::mouseMoved(const OIS::MouseEvent &arg)
-{
-    return CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition((float)arg.state.X.abs, (float)arg.state.Y.abs);
-}
-
-bool MenuModeReplay::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
-{
-    return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(
-        Gui::getSingletonPtr()->convertButton(id));
-}
-
-bool MenuModeReplay::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
-{
-    return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(
-        Gui::getSingletonPtr()->convertButton(id));
-}
-
-bool MenuModeReplay::keyPressed(const OIS::KeyEvent &arg)
-{
-    switch (arg.key)
-    {
-
-    case OIS::KC_ESCAPE:
-        regressMode();
-        break;
-    default:
-        break;
-    }
-    return true;
-}
-
-bool MenuModeReplay::keyReleased(const OIS::KeyEvent &arg)
-{
-    return true;
-}
-
-void MenuModeReplay::handleHotkeys(OIS::KeyCode keycode)
-{
 }

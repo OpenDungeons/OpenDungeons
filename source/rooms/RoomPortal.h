@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -32,35 +32,39 @@ public:
     virtual RoomType getType() const
     { return RoomType::portal; }
 
-    // Functions overriding virtual functions in the Room base class.
-    void addCoveredTile(Tile* t, double nHP);
-    bool removeCoveredTile(Tile* t);
-
-    //! \brief Get back a reference to the portal mesh after calling Room::absorbRoom()
-    void absorbRoom(Room* room);
-
     //! \brief In addition to the standard upkeep, check to see if a new creature should be spawned.
     void doUpkeep();
 
     //! \brief Creates a new creature whose class is probabalistic and adds it to the game map at the center of the portal.
     void spawnCreature();
 
+    //! \brief Portals only display claimed tiles on their ground.
+    virtual bool shouldDisplayBuildingTile()
+    {
+        return false;
+    }
+
+    //! \brief Updates the portal position when in editor mode.
+    void updateActiveSpots();
+
 protected:
     void createMeshLocal();
     void destroyMeshLocal();
 
-    void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);
+    void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
+    {
+        // This Room keeps its building object until it is destroyed (it will be released when
+        // the room is destroyed)
+    }
 
 private:
-    //! \brief Finds the X,Y coordinates of the center of the tiles that make up the portal.
-    void recomputeCenterPosition();
-
+    //! \brief Stores the number of turns before spawning the next creature.
     int mSpawnCreatureCountdown;
 
-    double mXCenter;
-    double mYCenter;
-
     RenderedMovableEntity* mPortalObject;
+
+    //! \brief Updates the portal mesh position.
+    void updatePortalPosition();
 };
 
 #endif // ROOMPORTAL_H

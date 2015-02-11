@@ -5,7 +5,7 @@
  * \brief  This class handles all the resources (pathes, files) needed by the
  *         sound and graphics facilities.
  *
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@
 #include <OgreRenderTarget.h>
 
 template<> ResourceManager* Ogre::Singleton<ResourceManager>::msSingleton = 0;
-#if defined(OD_DEBUG)
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 && defined(OD_DEBUG)
 //On windows, if the application is compiled in debug mode, use the plugins with debug prefix.
 const std::string ResourceManager::PLUGINSCFG = "plugins_d.cfg";
 #else
@@ -129,10 +129,16 @@ void ResourceManager::setupDataPath()
     // Useful for developers.
     std::string resourceCfg = "./" + RESOURCECFG;
     if (boost::filesystem::exists(resourceCfg.c_str()))
+    {
+        // Don't warn on Windows as it is the default behaviour...
+#if OGRE_PLATFORM != OGRE_PLATFORM_WIN32
+        std::cout << "Note: Found data in the current folder. This data will be used instead of the installed one." << std::endl;
+#endif
         mGameDataPath = "./";
+    }
 #endif
 
-    std::cout << "Game data path is: " << mUserConfigPath << std::endl;
+    std::cout << "Game data path is: " << mGameDataPath << std::endl;
 
 #ifndef OGRE_STATIC_LIB
     mPluginsPath = mGameDataPath + PLUGINSCFG;
@@ -193,7 +199,7 @@ void ResourceManager::setupUserDataFolders()
 #elif OGRE_PLATFORM == OGRE_PLATFORM_WIN32
     char path[MAX_PATH];
     // %APPDATA% (%USERPROFILE%\Application Data)
-    if(SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_APPDATA, NULL, 0, path)))
+    if(SUCCEEDED(SHGetFolderPathA(nullptr, CSIDL_APPDATA, nullptr, 0, path)))
     {
         mUserDataPath = std::string(path) + "/opendungeons/";
         mUserConfigPath = mUserDataPath + "cfg/";

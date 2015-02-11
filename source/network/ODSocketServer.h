@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -67,7 +67,6 @@ class ODSocketServer
         void doTask(int timeoutMs);
         ODSocketClient::ODComStatus receiveMsgFromClient(ODSocketClient* client, ODPacket& packetReceived);
         ODSocketClient::ODComStatus sendMsgToClient(ODSocketClient* client, ODPacket& packetReceived);
-        void sendMsgToAllClients(ODPacket& packetReceived);
         std::vector<ODSocketClient*> mSockClients;
         void setClientState(ODSocketClient* client, const std::string& state);
         virtual void serverThread() = 0;

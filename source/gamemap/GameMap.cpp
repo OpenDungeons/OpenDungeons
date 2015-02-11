@@ -2,7 +2,7 @@
  * \file   GameMap.cpp
  * \brief  The central object holding everything that is on the map
  *
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,15 +24,12 @@
 
 #include "gamemap/GameMap.h"
 
+#include "creaturemood/CreatureMood.h"
+#include "creaturemood/CreatureMoodCreature.h"
+
 #include "gamemap/MapLoader.h"
 
 #include "goals/Goal.h"
-
-#include "gamemap/TileCoordinateMap.h"
-
-#include "camera/CullingManager.h"
-#include "camera/MortuaryQuad.h"
-#include "camera/RadialVector2.h"
 
 #include "entities/Tile.h"
 #include "entities/Creature.h"
@@ -43,21 +40,28 @@
 #include "game/Player.h"
 #include "game/Seat.h"
 
+#include "modes/ModeManager.h"
+
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
 
 #include "render/ODFrameListener.h"
 
+#include "rooms/Room.h"
 #include "rooms/RoomDungeonTemple.h"
 #include "rooms/RoomTreasury.h"
+
+#include "spell/Spell.h"
 
 #include "traps/Trap.h"
 
 #include "utils/LogManager.h"
 #include "utils/ConfigManager.h"
+#include "utils/Helper.h"
 #include "utils/ResourceManager.h"
 
 #include <OgreTimer.h>
+#include <OgreStringConverter.h>
 
 #include <iostream>
 #include <sstream>
@@ -66,9 +70,7 @@
 
 #include <cmath>
 #include <cstdlib>
-
-//! \brief The number of seconds the local player must stay out of danger to trigger the calm music again.
-const float BATTLE_TIME_COUNT = 10.0f;
+#include <cassert>
 
 const std::string DEFAULT_NICK = "Player";
 
@@ -87,7 +89,7 @@ class AstarEntry
 {
 public:
     AstarEntry() :
-        tile    (NULL),
+        tile    (nullptr),
         parent  (0),
         g       (0),
         h       (0)
@@ -141,15 +143,16 @@ private:
 };
 
 GameMap::GameMap(bool isServerGameMap) :
+        TileContainer(isServerGameMap ? 15 : 0),
         mIsServerGameMap(isServerGameMap),
-        mCullingManager(nullptr),
         mLocalPlayer(nullptr),
         mLocalPlayerNick(DEFAULT_NICK),
         mTurnNumber(-1),
         mIsPaused(false),
+        mTimePayDay(0),
         mFloodFillEnabled(false),
+        mIsFOWActivated(true),
         mNumCallsTo_path(0),
-        mTileCoordinateMap(new TileCoordinateMap(100)),
         mAiManager(*this)
 {
     resetUniqueNumbers();
@@ -159,7 +162,14 @@ GameMap::~GameMap()
 {
     clearAll();
     processDeletionQueues();
-    delete mTileCoordinateMap;
+}
+
+bool GameMap::isInEditorMode() const
+{
+    if (isServerGameMap())
+        return (ODServer::getSingleton().getServerMode() == ODServer::ServerMode::ModeEditor);
+
+    return (ODFrameListener::getSingleton().getModeManager()->getCurrentModeTypeExceptConsole() == ModeManager::EDITOR);
 }
 
 bool GameMap::loadLevel(const std::string& levelFilepath)
@@ -180,15 +190,45 @@ bool GameMap::loadLevel(const std::string& levelFilepath)
         addWeapon(def);
     }
 
+    // We reset the mood modifiers
+    clearCreatureMoodModifiers();
+    const std::map<const std::string, std::vector<const CreatureMood*>>& moodModifiers = ConfigManager::getSingleton().getCreatureMoodModifiers();
+    for(std::pair<const std::string, std::vector<const CreatureMood*>> p : moodModifiers)
+    {
+        std::vector<CreatureMood*> moodModifiersClone;
+        for(const CreatureMood* mood : p.second)
+        {
+            moodModifiersClone.push_back(mood->clone());
+        }
+        addCreatureMoodModifiers(p.first, moodModifiersClone);
+    }
+
     // Read in the game map filepath
     std::string levelPath = ResourceManager::getSingletonPtr()->getGameDataPath()
                             + levelFilepath;
+
+    // We add the rogue default seat (seatId = 0 and teamId = 0)
+    Seat* rogueSeat = Seat::getRogueSeat(this);
+    if(!addSeat(rogueSeat))
+    {
+        OD_ASSERT_TRUE(false);
+        delete rogueSeat;
+    }
 
     // TODO The map loader class should be merged back to GameMap.
     if (MapLoader::readGameMapFromFile(levelPath, *this))
         setLevelFileName(levelFilepath);
     else
         return false;
+
+    // We initialize the mood modifiers
+    for(std::pair<const std::string, std::vector<CreatureMood*>>& p : mCreatureMoodModifiers)
+    {
+        for(CreatureMood* creatureMood : p.second)
+        {
+            creatureMood->init(this);
+        }
+    }
 
     return true;
 }
@@ -206,9 +246,8 @@ bool GameMap::createNewMap(int sizeX, int sizeY)
         {
             Tile* tile = new Tile(this, ii, jj);
             tile->setName(Tile::buildName(ii, jj));
-            tile->setFullness(tile->getFullness());
-            tile->setType(Tile::dirt);
-            addTile(tile);
+            tile->setType(TileType::dirt);
+            tile->addToGameMap();
         }
     }
 
@@ -241,7 +280,9 @@ void GameMap::clearAll()
     clearRooms();
     // NOTE : clearRenderedMovableEntities should be called after clearRooms because clearRooms will try to remove the objects from the room
     clearRenderedMovableEntities();
+    clearSpells();
     clearTiles();
+    clearCreatureMoodModifiers();
 
     clearActiveObjects();
 
@@ -255,13 +296,17 @@ void GameMap::clearAll()
     mLocalPlayerNick = DEFAULT_NICK;
     mTurnNumber = -1;
     resetUniqueNumbers();
+    mIsFOWActivated = true;
+    mTimePayDay = 0;
 }
 
 void GameMap::clearCreatures()
 {
-    for (Creature* creature : mCreatures)
+    // We need to work on a copy of mCreatures because removeFromGameMap will remove them from this vector
+    std::vector<Creature*> creatures = mCreatures;
+    for (Creature* creature : creatures)
     {
-        removeAnimatedObject(creature);
+        creature->removeFromGameMap();
         creature->deleteYourself();
     }
 
@@ -279,6 +324,10 @@ void GameMap::clearClasses()
     {
         if(def.second != nullptr)
             delete def.second;
+
+        // On client side, classes are sent by network so they should be deleted
+        if(!isServerGameMap())
+            delete def.first;
     }
     mClassDescriptions.clear();
 }
@@ -289,17 +338,21 @@ void GameMap::clearWeapons()
     {
         if(def.second != nullptr)
             delete def.second;
+
+        // On client side, weapons are sent by network so they should be deleted
+        if(!isServerGameMap())
+            delete def.first;
     }
     mWeapons.clear();
 }
 
 void GameMap::clearRenderedMovableEntities()
 {
-    for (std::vector<RenderedMovableEntity*>::iterator it = mRenderedMovableEntities.begin(); it != mRenderedMovableEntities.end(); ++it)
+    // We need to work on a copy of mRenderedMovableEntities because removeFromGameMap will remove them from this vector
+    std::vector<RenderedMovableEntity*> renderedMovableEntities = mRenderedMovableEntities;
+    for (RenderedMovableEntity* obj : renderedMovableEntities)
     {
-        RenderedMovableEntity* obj = *it;
-        removeActiveObject(obj);
-        removeAnimatedObject(obj);
+        obj->removeFromGameMap();
         obj->deleteYourself();
     }
 
@@ -341,6 +394,19 @@ void GameMap::addWeapon(const Weapon* weapon)
     mWeapons.push_back(std::pair<const Weapon*,Weapon*>(weapon, nullptr));
 }
 
+const Weapon* GameMap::getWeapon(int index)
+{
+    OD_ASSERT_TRUE_MSG(index < static_cast<int>(mWeapons.size()), "index=" + Ogre::StringConverter::toString(index));
+    if(index >= static_cast<int>(mWeapons.size()))
+        return nullptr;
+
+    std::pair<const Weapon*,Weapon*>& def = mWeapons[index];
+    if(def.second != nullptr)
+        return def.second;
+
+    return def.first;
+}
+
 const Weapon* GameMap::getWeapon(const std::string& name)
 {
     for (std::pair<const Weapon*,Weapon*>& def : mWeapons)
@@ -354,7 +420,7 @@ const Weapon* GameMap::getWeapon(const std::string& name)
             return def.first;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 Weapon* GameMap::getWeaponForTuning(const std::string& name)
@@ -399,34 +465,22 @@ void GameMap::saveLevelEquipments(std::ofstream& levelFile)
 
 void GameMap::addCreature(Creature *cc)
 {
-    LogManager::getSingleton().logMessage(serverStr() + "Adding Creature " + cc->getName());
+    LogManager::getSingleton().logMessage(serverStr() + "Adding Creature " + cc->getName()
+        + ", seatId=" + (cc->getSeat() != nullptr ? Ogre::StringConverter::toString(cc->getSeat()->getId()) : std::string("null")));
 
     mCreatures.push_back(cc);
-
-    cc->getPositionTile()->addCreature(cc);
-    if(!mIsServerGameMap)
-        mCullingManager->mMyCullingQuad.insert(cc);
-
-    addAnimatedObject(cc);
-    addActiveObject(cc);
-    cc->setIsOnMap(true);
 }
 
 void GameMap::removeCreature(Creature *c)
 {
+    LogManager::getSingleton().logMessage(serverStr() + "Removing Creature " + c->getName());
+
     std::vector<Creature*>::iterator it = std::find(mCreatures.begin(), mCreatures.end(), c);
     OD_ASSERT_TRUE_MSG(it != mCreatures.end(), "creature name=" + c->getName());
     if(it == mCreatures.end())
         return;
 
-    // Creature found
     mCreatures.erase(it);
-    // Remove the creature from the tile it's in
-    c->getPositionTile()->removeCreature(c);
-
-    removeAnimatedObject(c);
-    removeActiveObject(c);
-    c->setIsOnMap(false);
 }
 
 void GameMap::queueEntityForDeletion(GameEntity *ge)
@@ -434,12 +488,7 @@ void GameMap::queueEntityForDeletion(GameEntity *ge)
     mEntitiesToDelete.push_back(ge);
 }
 
-void GameMap::queueMapLightForDeletion(MapLight *ml)
-{
-    mMapLightsToDelete.push_back(ml);
-}
-
-const CreatureDefinition* GameMap::getClassDescription(const std::string& className)
+const CreatureDefinition* GameMap::getClassDescription(const string &className)
 {
     for (std::pair<const CreatureDefinition*,CreatureDefinition*>& def : mClassDescriptions)
     {
@@ -452,7 +501,7 @@ const CreatureDefinition* GameMap::getClassDescription(const std::string& classN
             return def.first;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 CreatureDefinition* GameMap::getClassDescriptionForTuning(const std::string& name)
@@ -535,7 +584,7 @@ Creature* GameMap::getWorkerToPickupBySeat(Seat* seat)
         if(!creature->getDefinition()->isWorker())
             continue;
 
-        if(!creature->tryPickup(seat, false))
+        if(!creature->tryPickup(seat))
             continue;
 
         bool isIdle = true;
@@ -549,25 +598,25 @@ Creature* GameMap::getWorkerToPickupBySeat(Seat* seat)
             const CreatureAction& action = *itAction;
             switch(action.getType())
             {
-                case CreatureAction::ActionType::fight:
-                case CreatureAction::ActionType::attackObject:
-                case CreatureAction::ActionType::flee:
+                case CreatureActionType::fight:
+                case CreatureActionType::attackObject:
+                case CreatureActionType::flee:
                     isIdle = false;
                     isFighting = true;
                     break;
 
-                case CreatureAction::ActionType::claimTile:
+                case CreatureActionType::claimTile:
                     isIdle = false;
                     isClaiming = true;
                     break;
 
-                case CreatureAction::ActionType::digTile:
+                case CreatureActionType::digTile:
                     isIdle = false;
                     isDigging = true;
                     break;
 
-                case CreatureAction::ActionType::idle:
-                case CreatureAction::ActionType::walkToTile:
+                case CreatureActionType::idle:
+                case CreatureActionType::walkToTile:
                     // We do nothing
                     break;
 
@@ -655,7 +704,7 @@ Creature* GameMap::getFighterToPickupBySeat(Seat* seat)
         if(creature->getDefinition()->isWorker())
             continue;
 
-        if(!creature->tryPickup(seat, false))
+        if(!creature->tryPickup(seat))
             continue;
 
         bool isIdle = true;
@@ -668,21 +717,21 @@ Creature* GameMap::getFighterToPickupBySeat(Seat* seat)
             const CreatureAction& action = *itAction;
             switch(action.getType())
             {
-                case CreatureAction::ActionType::flee:
+                case CreatureActionType::flee:
                     isIdle = false;
                     isFleeing = true;
                     break;
 
-                case CreatureAction::ActionType::eatdecided:
-                case CreatureAction::ActionType::eatforced:
-                case CreatureAction::ActionType::jobdecided:
-                case CreatureAction::ActionType::jobforced:
+                case CreatureActionType::eatdecided:
+                case CreatureActionType::eatforced:
+                case CreatureActionType::jobdecided:
+                case CreatureActionType::jobforced:
                     isIdle = false;
                     isBusy = true;
                     break;
 
-                case CreatureAction::ActionType::idle:
-                case CreatureAction::ActionType::walkToTile:
+                case CreatureActionType::idle:
+                case CreatureActionType::walkToTile:
                     // We do nothing
                     break;
 
@@ -780,25 +829,7 @@ void GameMap::addRenderedMovableEntity(RenderedMovableEntity *obj)
 {
     LogManager::getSingleton().logMessage(serverStr() + "Adding rendered object " + obj->getName()
         + ",MeshName=" + obj->getMeshName());
-    if(isServerGameMap())
-    {
-        try
-        {
-            ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::addRenderedMovableEntity, nullptr);
-            obj->exportHeadersToPacket(serverNotification->mPacket);
-            obj->exportToPacket(serverNotification->mPacket);
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
-        catch (std::bad_alloc&)
-        {
-            OD_ASSERT_TRUE(false);
-            exit(1);
-        }
-    }
     mRenderedMovableEntities.push_back(obj);
-    addActiveObject(obj);
-    addAnimatedObject(obj);
 }
 
 void GameMap::removeRenderedMovableEntity(RenderedMovableEntity *obj)
@@ -811,25 +842,6 @@ void GameMap::removeRenderedMovableEntity(RenderedMovableEntity *obj)
         return;
 
     mRenderedMovableEntities.erase(it);
-
-    if(isServerGameMap())
-    {
-        try
-        {
-            ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::removeRenderedMovableEntity, NULL);
-            const std::string& name = obj->getName();
-            serverNotification->mPacket << name;
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
-        catch (std::bad_alloc&)
-        {
-            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in Room::removeRenderedMovableEntity", Ogre::LML_CRITICAL);
-            exit(1);
-        }
-    }
-    removeAnimatedObject(obj);
-    removeActiveObject(obj);
 }
 
 RenderedMovableEntity* GameMap::getRenderedMovableEntity(const std::string& name)
@@ -928,12 +940,14 @@ void GameMap::createAllEntities()
     for (Creature* creature : mCreatures)
     {
         creature->createMesh();
+        creature->setPosition(creature->getPosition(), false);
     }
 
     // Create OGRE entities for the map lights.
     for (MapLight* mapLight: mMapLights)
     {
         mapLight->createMesh();
+        mapLight->setPosition(mapLight->getPosition(), false);
     }
 
     // Create OGRE entities for the rooms
@@ -1023,7 +1037,7 @@ void GameMap::doTurn()
         if (creature->getHP() > 0.0)
         {
             Seat *tempSeat = creature->getSeat();
-            if(tempSeat != NULL)
+            if(tempSeat != nullptr)
                 ++(tempSeat->mNumCreaturesControlled);
         }
     }
@@ -1065,61 +1079,44 @@ unsigned long int GameMap::doMiscUpkeep()
         seat->mNumCreaturesControlled = 0;
     }
 
-    // Count how many of each kobold there are per seat.
-    std::map<Seat*, int> koboldCounts;
+    // At each upkeep, we re-compute tiles with vision
+    for (Seat* seat : mSeats)
+        seat->clearTilesWithVision();
+
+    for (int jj = 0; jj < getMapSizeY(); ++jj)
+    {
+        for (int ii = 0; ii < getMapSizeX(); ++ii)
+        {
+            getTile(ii,jj)->clearVision();
+        }
+    }
+
+    // Compute vision. We need to compute every seats including AI because
+    // a human can be allied with an AI and they would share vision
+    for (int jj = 0; jj < getMapSizeY(); ++jj)
+    {
+        for (int ii = 0; ii < getMapSizeX(); ++ii)
+        {
+            getTile(ii,jj)->computeVisibleTiles();
+        }
+    }
+
     for (Creature* creature : mCreatures)
     {
-        if (creature->getDefinition()->isWorker())
-        {
-            Seat* seat = creature->getSeat();
-            ++koboldCounts[seat];
-        }
+        creature->computeVisibleTiles();
     }
 
-    // Count how many dungeon temples each seat controls.
-    std::vector<Room*> dungeonTemples = getRoomsByType(Room::dungeonTemple);
-    std::map<Seat*, int> dungeonTempleSeatCounts;
-    for (Room* dungeonTemple : dungeonTemples)
+    for (Seat* seat : mSeats)
     {
-        // We don't consider spawning for unused dungeon temples
-        if(dungeonTemple->getSeat()->getPlayer() == nullptr)
+        if(!seat->getIsDebuggingVision())
             continue;
 
-        ++dungeonTempleSeatCounts[dungeonTemple->getSeat()];
+        seat->displaySeatVisualDebug(true);
     }
 
-    // We check if a player has lost all his dungeon temples
-    for(Player* player : mPlayers)
-    {
-        if(dungeonTempleSeatCounts.count(player->getSeat()) > 0)
-            continue;
-
-        player->notifyNoMoreDungeonTemple();
-    }
-
-    // Compute how many kobolds each seat should have as determined by the number of dungeon temples they control.
-    std::map<Seat*, int> koboldsNeededPerSeat;
-    for (std::map<Seat*, int>::iterator itr = dungeonTempleSeatCounts.begin(); itr != dungeonTempleSeatCounts.end(); ++itr)
-    {
-        Seat* seat = itr->first;
-        int numDungeonTemples = itr->second;
-        int numKobolds = koboldCounts[seat];
-        int numKoboldsNeeded = std::max(4 * numDungeonTemples - numKobolds, 0);
-        numKoboldsNeeded = std::min(numKoboldsNeeded, numDungeonTemples);
-        koboldsNeededPerSeat[seat] = numKoboldsNeeded;
-    }
-
-    // Loop back over all the dungeon temples and for each one decide if it should try to produce a kobold.
-    for (unsigned int i = 0; i < dungeonTemples.size(); ++i)
-    {
-        RoomDungeonTemple *dungeonTemple = static_cast<RoomDungeonTemple*>(dungeonTemples[i]);
-        Seat* seat = dungeonTemple->getSeat();
-        if (koboldsNeededPerSeat[seat] > 0)
-        {
-            --koboldsNeededPerSeat[seat];
-            dungeonTemple->produceKobold();
-        }
-    }
+    // We send to each seat the list of tiles he has vision on
+    for (Seat* seat : mSeats)
+        seat->sendVisibleTiles();
 
     // Carry out the upkeep round of all the active objects in the game.
     unsigned int activeObjectCount = 0;
@@ -1151,7 +1148,6 @@ unsigned long int GameMap::doMiscUpkeep()
             mActiveObjects.erase(it);
     }
 
-
     // Carry out the upkeep round for each seat.  This means recomputing how much gold is
     // available in their treasuries, how much mana they gain/lose during this turn, etc.
     for (Seat* seat : mSeats)
@@ -1160,17 +1156,19 @@ unsigned long int GameMap::doMiscUpkeep()
             continue;
 
         // Add the amount of mana this seat accrued this turn if the player has a dungeon temple
-        std::vector<Room*> dungeonTemples = getRoomsByTypeAndSeat(Room::RoomType::dungeonTemple, seat);
+        std::vector<Room*> dungeonTemples = getRoomsByTypeAndSeat(RoomType::dungeonTemple, seat);
         if(dungeonTemples.empty())
         {
             seat->mManaDelta = 0;
+            seat->getPlayer()->notifyNoMoreDungeonTemple();
         }
         else
         {
             seat->mManaDelta = 50 + seat->getNumClaimedTiles();
             seat->mMana += seat->mManaDelta;
-            if (seat->mMana > 250000)
-                seat->mMana = 250000;
+            double maxMana = ConfigManager::getSingleton().getMaxManaPerSeat();
+            if (seat->mMana > maxMana)
+                seat->mMana = maxMana;
         }
 
         // Update the count on how much gold is available in all of the treasuries claimed by the given seat.
@@ -1190,11 +1188,11 @@ unsigned long int GameMap::doMiscUpkeep()
             tempTile = getTile(ii,jj);
 
             // Check to see if the current tile is claimed by anyone.
-            if (tempTile->getType() == Tile::claimed)
+            if (tempTile->getType() == TileType::claimed)
             {
                 // Increment the count of the seat who owns the tile.
                 tempSeat = tempTile->getSeat();
-                if (tempSeat != NULL)
+                if (tempSeat != nullptr)
                 {
                     tempSeat->incrementNumClaimedTiles();
                 }
@@ -1202,20 +1200,47 @@ unsigned long int GameMap::doMiscUpkeep()
         }
     }
 
+    // Updates the minimap at least once per turn
+    ODFrameListener::getSingleton().updateMinimap();
+
     timeTaken = stopwatch.getMicroseconds();
     return timeTaken;
+}
+
+int GameMap::getNbWorkersForSeat(Seat* seat)
+{
+    int nbWorkers = 0;
+    for (Creature* creature : mCreatures)
+    {
+        if (creature->getSeat() != seat)
+            continue;
+
+        if (!creature->getDefinition()->isWorker())
+            continue;
+
+        ++nbWorkers;
+    }
+
+    return nbWorkers;
 }
 
 void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
 {
     // During the first turn, we setup everything
-    if(!isServerGameMap() && getTurnNumber() == 0)
+    if(getTurnNumber() == 0 && !isServerGameMap())
     {
-        LogManager::getSingleton().logMessage("Starting game map");
-        setGamePaused(false);
+        assert(getTile(0, 0) != nullptr);
+        //NOTE: This test is a workaround to prevent this being called more than once.
+        //This should probably be fixed in a better way.
+        if(!getTile(0, 0)->isMeshExisting())
+        {
+            LogManager::getSingleton().logMessage("Starting game map");
 
-        // Create ogre entities for the tiles, rooms, and creatures
-        createAllEntities();
+            setGamePaused(false);
+
+            // Create ogre entities for the tiles, rooms, and creatures
+            createAllEntities();
+        }
     }
 
     if(mIsPaused)
@@ -1235,42 +1260,38 @@ void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
 
     if(isServerGameMap())
     {
-        updatePlayerFightingTime(timeSinceLastFrame);
+        updatePlayerTime(timeSinceLastFrame);
+
+        // We check if it is pay day
+        mTimePayDay += timeSinceLastFrame;
+        if((mTimePayDay >= ConfigManager::getSingleton().getTimePayDay()))
+        {
+            mTimePayDay = 0;
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotificationType::chatServer, nullptr);
+            serverNotification->mPacket << "It's pay day !";
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+            for(Creature* creature : mCreatures)
+            {
+                creature->itsPayDay();
+            }
+        }
         return;
     }
 }
 
-void GameMap::updatePlayerFightingTime(Ogre::Real timeSinceLastFrame)
+void GameMap::updatePlayerTime(Ogre::Real timeSinceLastFrame)
 {
     // Updates fighting time for server players
     for (Player* player : mPlayers)
     {
-        if (player == NULL)
+        if (player == nullptr)
             continue;
 
-        float fightingTime = player->getFightingTime();
-        if (fightingTime == 0.0f)
+        if (!player->getIsHuman())
             continue;
 
-        fightingTime -= timeSinceLastFrame;
-        // We can trigger the calm music again
-        if (fightingTime <= 0.0f)
-        {
-            fightingTime = 0.0f;
-            try
-            {
-                // Notify the player he is no longer under attack.
-                ServerNotification *serverNotification = new ServerNotification(
-                    ServerNotification::playerNoMoreFighting, player);
-                ODServer::getSingleton().queueServerNotification(serverNotification);
-            }
-            catch (std::bad_alloc&)
-            {
-                OD_ASSERT_TRUE(false);
-                exit(1);
-            }
-        }
-        player->setFightingTime(fightingTime);
+        player->updateTime(timeSinceLastFrame);
     }
 }
 
@@ -1296,25 +1317,55 @@ void GameMap::playerIsFighting(Player* player)
             continue;
 
         // Warn the ally about the battle
-        if (ally->getFightingTime() == 0.0f)
+        ally->notifyFighting();
+    }
+}
+
+std::list<Tile*> GameMap::findBestPath(const Creature* creature, Tile* tileStart, const std::vector<Tile*> possibleDests,
+    Tile*& chosenTile)
+{
+    chosenTile = nullptr;
+    std::list<Tile*> returnList;
+    if(possibleDests.empty())
+        return returnList;
+
+    // We start by sorting the vector
+    std::vector<Tile*> possibleDestsTmp = possibleDests;
+    std::sort(possibleDestsTmp.begin(), possibleDestsTmp.end(), [this, &tileStart](Tile* tile1, Tile* tile2){
+              Ogre::Real d1 = crowDistance(tile1, tileStart);
+              Ogre::Real d2 = crowDistance(tile2, tileStart);
+              return d1 < d2;
+        });
+
+    double magic = 2.0;
+    for(Tile* tile : possibleDestsTmp)
+    {
+        if(!pathExists(creature, tileStart, tile))
+            continue;
+
+        // The first reachable tile is the best by default
+        Ogre::Real dist = crowDistance(tile, tileStart);
+        if(chosenTile == nullptr)
         {
-            try
-            {
-                // Notify the player he is now under attack.
-                ServerNotification *serverNotification = new ServerNotification(
-                    ServerNotification::playerFighting, ally);
-                ODServer::getSingleton().queueServerNotification(serverNotification);
-            }
-            catch (std::bad_alloc&)
-            {
-                OD_ASSERT_TRUE(false);
-                exit(1);
-            }
+            chosenTile = tile;
+            returnList = path(tileStart, tile, creature, creature->getSeat(), false);
+            continue;
         }
 
-        // Reset its fighting time anyway
-        ally->setFightingTime(BATTLE_TIME_COUNT);
+        // We compute the path only if walkableDist < (dist * magic).
+        double walkableDist = static_cast<double>(returnList.size());
+        if(walkableDist < (dist * magic))
+            continue;
+
+        std::list<Tile*> pathTmp = path(tileStart, tile, creature, creature->getSeat(), false);
+        if(pathTmp.size() < returnList.size())
+        {
+            // The path is shorter
+            chosenTile = tile;
+            returnList = pathTmp;
+        }
     }
+    return returnList;
 }
 
 bool GameMap::pathExists(const Creature* creature, Tile* tileStart, Tile* tileEnd)
@@ -1375,7 +1426,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* c
     openList.push_back(currentEntry);
 
     std::vector<AstarEntry*> closedList;
-    AstarEntry* destinationEntry = NULL;
+    AstarEntry* destinationEntry = nullptr;
     while (true)
     {
         // if the openList is empty we failed to find a path
@@ -1406,7 +1457,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* c
         // Note : to disable diagonals, process tiles from 0 to 3. To allow them, process tiles from 0 to 7
         for (unsigned int i = 0; i < 8; ++i)
         {
-            Tile* neighborTile = NULL;
+            Tile* neighborTile = nullptr;
             switch(i)
             {
                 // We process the 4 adjacent tiles
@@ -1441,7 +1492,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* c
                         neighborTile = getTile(currentEntry->getTile()->getX() + 1, currentEntry->getTile()->getY() + 1);
                     break;
             }
-            if(neighborTile == NULL)
+            if(neighborTile == nullptr)
                 continue;
 
             neighbor.setTile(neighborTile);
@@ -1461,7 +1512,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* c
                 continue;
 
             // See if the neighbor is in the closed list
-            AstarEntry* neighborEntry = NULL;
+            AstarEntry* neighborEntry = nullptr;
             for(std::vector<AstarEntry*>::iterator itr = closedList.begin(); itr != closedList.end(); ++itr)
             {
                 if (neighbor.getTile() == (*itr)->getTile())
@@ -1472,7 +1523,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* c
             }
 
             // Ignore the neighbor if it is on the closed list
-            if (neighborEntry != NULL)
+            if (neighborEntry != nullptr)
                 continue;
 
             // See if the neighbor is in the open list
@@ -1486,7 +1537,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* c
             }
 
             // If the neighbor is not in the open list
-            if (neighborEntry == NULL)
+            if (neighborEntry == nullptr)
             {
                 double weightToParent = AstarEntry::computeHeuristic(neighbor.getTile()->getX(), neighbor.getTile()->getY(),
                     currentEntry->getTile()->getX(), currentEntry->getTile()->getY());
@@ -1524,19 +1575,19 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* c
         }
     }
 
-    if (destinationEntry != NULL)
+    if (destinationEntry != nullptr)
     {
         // Follow the parent chain back the the starting tile
         AstarEntry* curEntry = destinationEntry;
         do
         {
-            if (curEntry->getTile() != NULL)
+            if (curEntry->getTile() != nullptr)
             {
                 returnList.push_front(curEntry->getTile());
                 curEntry = curEntry->getParent();
             }
 
-        } while (curEntry != NULL);
+        } while (curEntry != nullptr);
     }
 
     // Clean up the memory we allocated by deleting the astarEntries in the open and closed lists
@@ -1572,14 +1623,14 @@ Player* GameMap::getPlayer(unsigned int index)
 {
     if (index < mPlayers.size())
         return mPlayers[index];
-    return NULL;
+    return nullptr;
 }
 
 const Player* GameMap::getPlayer(unsigned int index) const
 {
     if (index < mPlayers.size())
         return mPlayers[index];
-    return NULL;
+    return nullptr;
 }
 
 Player* GameMap::getPlayer(const std::string& pName)
@@ -1592,7 +1643,7 @@ Player* GameMap::getPlayer(const std::string& pName)
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 const Player* GameMap::getPlayer(const std::string& pName) const
@@ -1605,7 +1656,7 @@ const Player* GameMap::getPlayer(const std::string& pName) const
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 unsigned int GameMap::numPlayers() const
@@ -1620,7 +1671,7 @@ Player* GameMap::getPlayerBySeatId(int seatId)
         if(player->getSeat()->getId() == seatId)
             return player;
     }
-    return NULL;
+    return nullptr;
 }
 
 Player* GameMap::getPlayerBySeat(Seat* seat)
@@ -1630,206 +1681,54 @@ Player* GameMap::getPlayerBySeat(Seat* seat)
         if(player->getSeat() == seat)
             return player;
     }
-    return NULL;
+    return nullptr;
 }
 
-std::list<Tile*> GameMap::tilesBetween(int x1, int y1, int x2, int y2)
-{
-    std::list<Tile*> path;
-
-    if(x2 == x1)
-    {
-        // Vertical line, no need to compute
-        int diffY = 1;
-        if(y1 > y2)
-            diffY = -1;
-
-        for(int y = y1; y != y2; y += diffY)
-        {
-            Tile* tile = getTile(x1, y);
-            if(tile == nullptr)
-                break;
-
-            path.push_back(tile);
-        }
-    }
-    else
-    {
-        double deltax = x2 - x1;
-        double deltay = y2 - y1;
-        double error = 0;
-        double deltaerr = std::abs(deltay / deltax);
-        int diffX = 1;
-        if(x1 > x2)
-            diffX = -1;
-
-        int diffY = 1;
-        if(y1 > y2)
-            diffY = -1;
-
-        int y = y1;
-        for(int x = x1; x != x2; x += diffX)
-        {
-            Tile* tile = getTile(x, y);
-            if(tile == nullptr)
-                break;
-
-            path.push_back(tile);
-            error += deltaerr;
-            if(error >= 0.5)
-            {
-                y += diffY;
-                error = error - 1.0;
-            }
-        }
-    }
-
-    // We add the last tile
-    Tile* tile = getTile(x2, y2);
-    if(tile != nullptr)
-        path.push_back(tile);
-
-    return path;
-}
-
-std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
-{
-    std::vector<Tile*> tempVector;
-
-    if (!startTile->permitsVision())
-        return tempVector;
-
-    int startX = startTile->x;
-    int startY = startTile->y;
-    int sightRadiusSquared = (int)(sightRadius * sightRadius);
-    std::list<std::pair<Tile*, double> > tileQueue;
-
-    int tileCounter = 0;
-
-    while (true)
-    {
-        int rSquared = mTileCoordinateMap->getRadiusSquared(tileCounter);
-        if (rSquared > sightRadiusSquared)
-            break;
-
-        std::pair<int, int> coord = mTileCoordinateMap->getCoordinate(tileCounter);
-
-        Tile *tempTile = getTile(startX + coord.first, startY + coord.second);
-        double tempTheta = mTileCoordinateMap->getCentralTheta(tileCounter);
-        if (tempTile != NULL)
-            tileQueue.push_back(std::pair<Tile*, double> (tempTile, tempTheta));
-
-        ++tileCounter;
-    }
-
-    //TODO: Loop backwards and remove any non-see through tiles until we get to one which permits vision (this cuts down the cost of walks toward the end when an opaque block is found).
-
-    // Now loop over the queue, determining which tiles are visible and push them onto the tempVector which will be returned as the output of the function.
-    while (!tileQueue.empty())
-    {
-        // If the tile lets light though it it is visible and we can remove it from the queue and put it in the return list.
-        if ((*tileQueue.begin()).first->permitsVision())
-        {
-            // The tile is visible.
-            tempVector.push_back((*tileQueue.begin()).first);
-            tileQueue.erase(tileQueue.begin());
-            continue;
-        }
-        else
-        {
-            // The tile is does not allow vision to it.  Remove it from the queue and remove any tiles obscured by this one.
-            // We add it to the return list as well since this tile is as far as we can see in this direction.  Calculate
-            // the radial vectors to the corners of this tile.
-            Tile *obstructingTile = (*tileQueue.begin()).first;
-            tempVector.push_back(obstructingTile);
-            tileQueue.erase(tileQueue.begin());
-            RadialVector2 smallAngle, largeAngle, tempAngle;
-
-            // Calculate the obstructing tile's angular size and the direction to it.  We want to check if other tiles
-            // are within deltaTheta of the calculated direction.
-            double dx = obstructingTile->x - startTile->x;
-            double dy = obstructingTile->y - startTile->y;
-            double rsq = dx * dx + dy * dy;
-            double deltaTheta = 1.5 / sqrt(rsq);
-            tempAngle.fromCartesian(dx, dy);
-            smallAngle.setTheta(tempAngle.getTheta() - deltaTheta);
-            largeAngle.setTheta(tempAngle.getTheta() + deltaTheta);
-
-            // Now that we have identified the boundary lines of the region obscured by this tile, loop through until the end of
-            // the tileQueue and remove any tiles which fall inside this obscured region since they are not visible either.
-            std::list<std::pair<Tile*, double> >::iterator tileQueueIterator =
-                tileQueue.begin();
-            while (tileQueueIterator != tileQueue.end())
-            {
-                tempAngle.setTheta((*tileQueueIterator).second);
-
-                // If the current tile is in the obscured region.
-                if (tempAngle.directionIsBetween(smallAngle, largeAngle))
-                {
-                    // The tile is in the obscured region so remove it from the queue of possibly visible tiles.
-                    tileQueueIterator = tileQueue.erase(tileQueueIterator);
-                }
-                else
-                {
-                    // The tile is not obscured by the current obscuring tile so leave it in the queue for now.
-                    ++tileQueueIterator;
-                }
-            }
-        }
-    }
-
-    //TODO:  Add the sector shaped region of the visible region
-
-    return tempVector;
-}
-
-std::vector<GameEntity*> GameMap::getVisibleForce(std::vector<Tile*> visibleTiles, Seat* seat, bool invert)
-{
-    std::vector<GameEntity*> returnList;
-
-    // Loop over the visible tiles
-    for (std::vector<Tile*>::iterator itr = visibleTiles.begin(); itr != visibleTiles.end(); ++itr)
-    {
-        Tile* tile = *itr;
-        OD_ASSERT_TRUE(tile != NULL);
-        if(tile == NULL)
-            continue;
-
-        tile->fillWithAttackableCreatures(returnList, seat, invert);
-        tile->fillWithAttackableRoom(returnList, seat, invert);
-        tile->fillWithAttackableTrap(returnList, seat, invert);
-    }
-
-    return returnList;
-}
-
-std::vector<GameEntity*> GameMap::getVisibleCreatures(std::vector<Tile*> visibleTiles, Seat* seat, bool invert)
-{
-    std::vector<GameEntity*> returnList;
-
-    // Loop over the visible tiles
-    for (std::vector<Tile*>::iterator itr = visibleTiles.begin(); itr != visibleTiles.end(); ++itr)
-    {
-        Tile* tile = *itr;
-        OD_ASSERT_TRUE(tile != NULL);
-        if(tile == NULL)
-            continue;
-
-        tile->fillWithAttackableCreatures(returnList, seat, invert);
-    }
-
-    return returnList;
-}
-
-std::vector<GameEntity*> GameMap::getVisibleCarryableEntities(std::vector<Tile*> visibleTiles)
+std::vector<GameEntity*> GameMap::getVisibleForce(const std::vector<Tile*>& visibleTiles, Seat* seat, bool enemyForce)
 {
     std::vector<GameEntity*> returnList;
 
     // Loop over the visible tiles
     for (Tile* tile : visibleTiles)
     {
-        OD_ASSERT_TRUE(tile != NULL);
-        if(tile == NULL)
+        OD_ASSERT_TRUE(tile != nullptr);
+        if(tile == nullptr)
+            continue;
+
+        tile->fillWithAttackableCreatures(returnList, seat, enemyForce);
+        tile->fillWithAttackableRoom(returnList, seat, enemyForce);
+        tile->fillWithAttackableTrap(returnList, seat, enemyForce);
+    }
+
+    return returnList;
+}
+
+std::vector<GameEntity*> GameMap::getVisibleCreatures(const std::vector<Tile*>& visibleTiles, Seat* seat, bool enemyCreatures)
+{
+    std::vector<GameEntity*> returnList;
+
+    // Loop over the visible tiles
+    for (Tile* tile : visibleTiles)
+    {
+        OD_ASSERT_TRUE(tile != nullptr);
+        if(tile == nullptr)
+            continue;
+
+        tile->fillWithAttackableCreatures(returnList, seat, enemyCreatures);
+    }
+
+    return returnList;
+}
+
+std::vector<GameEntity*> GameMap::getVisibleCarryableEntities(const std::vector<Tile*>& visibleTiles)
+{
+    std::vector<GameEntity*> returnList;
+
+    // Loop over the visible tiles
+    for (Tile* tile : visibleTiles)
+    {
+        OD_ASSERT_TRUE(tile != nullptr);
+        if(tile == nullptr)
             continue;
 
         tile->fillWithCarryableEntities(returnList);
@@ -1840,19 +1739,20 @@ std::vector<GameEntity*> GameMap::getVisibleCarryableEntities(std::vector<Tile*>
 
 void GameMap::clearRooms()
 {
-    for (Room *tempRoom : mRooms)
+    // We need to work on a copy of mRooms because removeFromGameMap will remove them from this vector
+    std::vector<Room*> rooms = mRooms;
+    for (Room *tempRoom : rooms)
     {
-        removeActiveObject(tempRoom);
-        tempRoom->removeAllBuildingObjects();
+        tempRoom->removeFromGameMap();
         tempRoom->deleteYourself();
     }
 
     mRooms.clear();
 }
 
-void GameMap::addRoom(Room *r, bool sendAsyncMsg)
+void GameMap::addRoom(Room *r)
 {
-    int nbTiles = r->getCoveredTiles().size();
+    int nbTiles = r->numCoveredTiles();
     LogManager::getSingleton().logMessage(serverStr() + "Adding room " + r->getName() + ", nbTiles="
         + Ogre::StringConverter::toString(nbTiles) + ", seatId=" + Ogre::StringConverter::toString(r->getSeat()->getId()));
     for(Tile* tile : r->getCoveredTiles())
@@ -1860,25 +1760,7 @@ void GameMap::addRoom(Room *r, bool sendAsyncMsg)
         LogManager::getSingleton().logMessage(serverStr() + "Adding room " + r->getName() + ", tile=" + Tile::displayAsString(tile));
     }
 
-    if(isServerGameMap())
-    {
-        if(sendAsyncMsg)
-        {
-            ServerNotification notif(ServerNotification::buildRoom, getPlayerBySeat(r->getSeat()));
-            r->exportHeadersToPacket(notif.mPacket);
-            r->exportToPacket(notif.mPacket);
-            ODServer::getSingleton().sendAsyncMsgToAllClients(notif);
-        }
-        else
-        {
-            ServerNotification* serverNotification = new ServerNotification(ServerNotification::buildRoom, getPlayerBySeat(r->getSeat()));
-            r->exportHeadersToPacket(serverNotification->mPacket);
-            r->exportToPacket(serverNotification->mPacket);
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
-    }
     mRooms.push_back(r);
-    addActiveObject(r);
 }
 
 void GameMap::removeRoom(Room *r)
@@ -1892,8 +1774,6 @@ void GameMap::removeRoom(Room *r)
         return;
 
     mRooms.erase(it);
-    r->removeAllBuildingObjects();
-    removeActiveObject(r);
 }
 
 Room* GameMap::getRoom(int index)
@@ -1906,7 +1786,7 @@ unsigned int GameMap::numRooms()
     return mRooms.size();
 }
 
-std::vector<Room*> GameMap::getRoomsByType(Room::RoomType type)
+std::vector<Room*> GameMap::getRoomsByType(RoomType type)
 {
     std::vector<Room*> returnList;
     for (Room* room : mRooms)
@@ -1918,7 +1798,7 @@ std::vector<Room*> GameMap::getRoomsByType(Room::RoomType type)
     return returnList;
 }
 
-std::vector<Room*> GameMap::getRoomsByTypeAndSeat(Room::RoomType type, Seat* seat)
+std::vector<Room*> GameMap::getRoomsByTypeAndSeat(RoomType type, Seat* seat)
 {
     std::vector<Room*> returnList;
     for (Room* room : mRooms)
@@ -1930,7 +1810,7 @@ std::vector<Room*> GameMap::getRoomsByTypeAndSeat(Room::RoomType type, Seat* sea
     return returnList;
 }
 
-std::vector<const Room*> GameMap::getRoomsByTypeAndSeat(Room::RoomType type, Seat* seat) const
+std::vector<const Room*> GameMap::getRoomsByTypeAndSeat(RoomType type, Seat* seat) const
 {
     std::vector<const Room*> returnList;
     for (const Room* room : mRooms)
@@ -1942,7 +1822,7 @@ std::vector<const Room*> GameMap::getRoomsByTypeAndSeat(Room::RoomType type, Sea
     return returnList;
 }
 
-unsigned int GameMap::numRoomsByTypeAndSeat(Room::RoomType type, Seat* seat) const
+unsigned int GameMap::numRoomsByTypeAndSeat(RoomType type, Seat* seat) const
 {
     int cptRooms = 0;
     for (Room* room : mRooms)
@@ -1984,7 +1864,7 @@ std::vector<Building*> GameMap::getReachableBuildingsPerSeat(Seat* seat,
         if (room->getHP(nullptr) <= 0.0)
             continue;
 
-        if(!pathExists(creature, startTile, room->getCoveredTiles()[0]))
+        if(!pathExists(creature, startTile, room->getCoveredTile(0)))
             continue;
 
         returnList.push_back(room);
@@ -1998,7 +1878,7 @@ std::vector<Building*> GameMap::getReachableBuildingsPerSeat(Seat* seat,
         if (trap->getHP(nullptr) <= 0.0)
             continue;
 
-        if(!pathExists(creature, startTile, trap->getCoveredTiles()[0]))
+        if(!pathExists(creature, startTile, trap->getCoveredTile(0)))
             continue;
 
         returnList.push_back(trap);
@@ -2031,9 +1911,11 @@ Trap* GameMap::getTrapByName(const std::string& name)
 
 void GameMap::clearTraps()
 {
-    for (Trap* trap : mTraps)
+    // We need to work on a copy of mTraps because removeFromGameMap will remove them from this vector
+    std::vector<Trap*> traps = mTraps;
+    for (Trap* trap : traps)
     {
-        removeActiveObject(trap);
+        trap->removeFromGameMap();
         trap->deleteYourself();
     }
 
@@ -2042,19 +1924,11 @@ void GameMap::clearTraps()
 
 void GameMap::addTrap(Trap *trap)
 {
-    int nbTiles = trap->getCoveredTiles().size();
+    int nbTiles = trap->numCoveredTiles();
     LogManager::getSingleton().logMessage(serverStr() + "Adding trap " + trap->getName() + ", nbTiles="
         + Ogre::StringConverter::toString(nbTiles) + ", seatId=" + Ogre::StringConverter::toString(trap->getSeat()->getId()));
 
-    if(isServerGameMap())
-    {
-        ServerNotification notif(ServerNotification::buildTrap, getPlayerBySeat(trap->getSeat()));
-        trap->exportHeadersToPacket(notif.mPacket);
-        trap->exportToPacket(notif.mPacket);
-        ODServer::getSingleton().sendAsyncMsgToAllClients(notif);
-    }
     mTraps.push_back(trap);
-    addActiveObject(trap);
 }
 
 void GameMap::removeTrap(Trap *t)
@@ -2066,7 +1940,6 @@ void GameMap::removeTrap(Trap *t)
         return;
 
     mTraps.erase(it);
-    removeActiveObject(t);
 }
 
 Trap* GameMap::getTrap(int index)
@@ -2082,7 +1955,7 @@ unsigned int GameMap::numTraps()
 int GameMap::getTotalGoldForSeat(Seat* seat)
 {
     int tempInt = 0;
-    std::vector<Room*> treasuriesOwned = getRoomsByTypeAndSeat(Room::treasury, seat);
+    std::vector<Room*> treasuriesOwned = getRoomsByTypeAndSeat(RoomType::treasury, seat);
     for (unsigned int i = 0; i < treasuriesOwned.size(); ++i)
     {
         tempInt += static_cast<RoomTreasury*>(treasuriesOwned[i])->getTotalGold();
@@ -2099,7 +1972,7 @@ bool GameMap::withdrawFromTreasuries(int gold, Seat* seat)
 
     // Loop over the treasuries withdrawing gold until the full amount has been withdrawn.
     int goldStillNeeded = gold;
-    std::vector<Room*> treasuriesOwned = getRoomsByTypeAndSeat(Room::treasury, seat);
+    std::vector<Room*> treasuriesOwned = getRoomsByTypeAndSeat(RoomType::treasury, seat);
     for (unsigned int i = 0; i < treasuriesOwned.size() && goldStillNeeded > 0; ++i)
     {
         goldStillNeeded -= static_cast<RoomTreasury*>(treasuriesOwned[i])->withdrawGold(goldStillNeeded);
@@ -2110,9 +1983,11 @@ bool GameMap::withdrawFromTreasuries(int gold, Seat* seat)
 
 void GameMap::clearMapLights()
 {
-    for (MapLight* mapLight : mMapLights)
+    // We need to work on a copy of mMapLights because removeFromGameMap will remove them from this vector
+    std::vector<MapLight*> mapLights = mMapLights;
+    for (MapLight* mapLight : mapLights)
     {
-        removeAnimatedObject(mapLight);
+        mapLight->removeFromGameMap();
         mapLight->deleteYourself();
     }
 
@@ -2123,20 +1998,18 @@ void GameMap::addMapLight(MapLight *m)
 {
     LogManager::getSingleton().logMessage(serverStr() + "Adding MapLight " + m->getName());
     mMapLights.push_back(m);
-
-    addAnimatedObject(m);
 }
 
 void GameMap::removeMapLight(MapLight *m)
 {
+    LogManager::getSingleton().logMessage(serverStr() + "Removing MapLight " + m->getName());
+
     std::vector<MapLight*>::iterator it = std::find(mMapLights.begin(), mMapLights.end(), m);
     OD_ASSERT_TRUE_MSG(it != mMapLights.end(), "MapLight name=" + m->getName());
     if(it == mMapLights.end())
         return;
 
     mMapLights.erase(it);
-
-    removeAnimatedObject(m);
 }
 
 MapLight* GameMap::getMapLight(int index)
@@ -2169,12 +2042,20 @@ void GameMap::clearSeats()
     mSeats.clear();
 }
 
-void GameMap::addSeat(Seat *s)
+bool GameMap::addSeat(Seat *s)
 {
     OD_ASSERT_TRUE(s != nullptr);
-    if (s == NULL)
-        return;
+    if (s == nullptr)
+        return false;
 
+    for(Seat* seat : mSeats)
+    {
+        if(seat->getId() == s->getId())
+        {
+            OD_ASSERT_TRUE_MSG(false, "Duplicated seat id=" + Helper::toString(seat->getId()));
+            return false;
+        }
+    }
     mSeats.push_back(s);
 
     // Add the goals for all seats to this seat.
@@ -2182,9 +2063,10 @@ void GameMap::addSeat(Seat *s)
     {
         s->addGoal(goal);
     }
+    return true;
 }
 
-Seat* GameMap::getSeatById(int id)
+Seat* GameMap::getSeatById(int id) const
 {
     for (Seat* seat : mSeats)
     {
@@ -2204,7 +2086,9 @@ void GameMap::addWinningSeat(Seat *s)
     Player* player = getPlayerBySeat(s);
     if (player && player->getIsHuman())
     {
-        ServerNotification* serverNotification = new ServerNotification(ServerNotification::playerWon, player);
+        ServerNotification* serverNotification = new ServerNotification(
+            ServerNotificationType::chatServer, player);
+        serverNotification->mPacket << "You Won";
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 
@@ -2267,8 +2151,8 @@ void GameMap::clearGoalsForAllSeats()
 
 Ogre::Real GameMap::crowDistance(Tile *t1, Tile *t2)
 {
-    if (t1 != NULL && t2 != NULL)
-        return crowDistance(t1->x, t2->x, t1->y, t2->y);
+    if (t1 != nullptr && t2 != nullptr)
+        return crowDistance(t1->getX(), t2->getX(), t1->getY(), t2->getY());
     else
         return -1.0f;
 }
@@ -2293,9 +2177,9 @@ bool GameMap::doFloodFill(Tile* tile)
     {
         switch(neigh->getType())
         {
-            case Tile::dirt:
-            case Tile::gold:
-            case Tile::claimed:
+            case TileType::dirt:
+            case TileType::gold:
+            case TileType::claimed:
             {
                 if((tile->mFloodFillColor[Tile::FloodFillTypeGround] == -1) &&
                    (neigh->mFloodFillColor[Tile::FloodFillTypeGround] != -1))
@@ -2326,7 +2210,7 @@ bool GameMap::doFloodFill(Tile* tile)
                 }
                 break;
             }
-            case Tile::water:
+            case TileType::water:
             {
                 if((tile->mFloodFillColor[Tile::FloodFillTypeGroundWater] == -1) &&
                    (neigh->mFloodFillColor[Tile::FloodFillTypeGroundWater] != -1))
@@ -2343,7 +2227,7 @@ bool GameMap::doFloodFill(Tile* tile)
                 }
                 break;
             }
-            case Tile::lava:
+            case TileType::lava:
             {
                 if((tile->mFloodFillColor[Tile::FloodFillTypeGroundLava] == -1) &&
                    (neigh->mFloodFillColor[Tile::FloodFillTypeGroundLava] != -1))
@@ -2459,9 +2343,9 @@ void GameMap::enableFloodFill()
                 if(currentType == Tile::FloodFillTypeGround)
                 {
                     if((tile->mFloodFillColor[Tile::FloodFillTypeGround] == -1) &&
-                       ((tile->getType() == Tile::dirt) ||
-                        (tile->getType() == Tile::gold) ||
-                        (tile->getType() == Tile::claimed)))
+                       ((tile->getType() == TileType::dirt) ||
+                        (tile->getType() == TileType::gold) ||
+                        (tile->getType() == TileType::claimed)))
                     {
                         isTileFound = true;
                         for(int i = 0; i < Tile::FloodFillTypeMax; ++i)
@@ -2475,7 +2359,7 @@ void GameMap::enableFloodFill()
                 else if(currentType == Tile::FloodFillTypeGroundWater)
                 {
                     if((tile->mFloodFillColor[Tile::FloodFillTypeGroundWater] == -1) &&
-                       (tile->getType() == Tile::water))
+                       (tile->getType() == TileType::water))
                     {
                         isTileFound = true;
                         if(tile->mFloodFillColor[Tile::FloodFillTypeGroundWater] == -1)
@@ -2488,7 +2372,7 @@ void GameMap::enableFloodFill()
                 else if(currentType == Tile::FloodFillTypeGroundLava)
                 {
                     if((tile->mFloodFillColor[Tile::FloodFillTypeGroundLava] == -1) &&
-                       (tile->getType() == Tile::lava))
+                       (tile->getType() == TileType::lava))
                     {
                         isTileFound = true;
                         if(tile->mFloodFillColor[Tile::FloodFillTypeGroundLava] == -1)
@@ -2570,13 +2454,13 @@ void GameMap::enableFloodFill()
 
 std::list<Tile*> GameMap::path(Creature *c1, Creature *c2, const Creature* creature, Seat* seat, bool throughDiggableTiles)
 {
-    return path(c1->getPositionTile()->x, c1->getPositionTile()->y,
-                c2->getPositionTile()->x, c2->getPositionTile()->y, creature, seat, throughDiggableTiles);
+    return path(c1->getPositionTile()->getX(), c1->getPositionTile()->getY(),
+                c2->getPositionTile()->getX(), c2->getPositionTile()->getY(), creature, seat, throughDiggableTiles);
 }
 
 std::list<Tile*> GameMap::path(Tile *t1, Tile *t2, const Creature* creature, Seat* seat, bool throughDiggableTiles)
 {
-    return path(t1->x, t1->y, t2->x, t2->y, creature, seat, throughDiggableTiles);
+    return path(t1->getX(), t1->getY(), t2->getX(), t2->getY(), creature, seat, throughDiggableTiles);
 }
 
 std::list<Tile*> GameMap::path(const Creature* creature, Tile* destination, bool throughDiggableTiles)
@@ -2598,7 +2482,7 @@ Ogre::Real GameMap::crowDistance(Creature *c1, Creature *c2)
     //TODO:  This is sub-optimal, improve it.
     Tile* tempTile1 = c1->getPositionTile();
     Tile* tempTile2 = c2->getPositionTile();
-    return crowDistance(tempTile1->x, tempTile1->y, tempTile2->x, tempTile2->y);
+    return crowDistance(tempTile1->getX(), tempTile1->getY(), tempTile2->getX(), tempTile2->getY());
 }
 
 void GameMap::processDeletionQueues()
@@ -2608,13 +2492,6 @@ void GameMap::processDeletionQueues()
         GameEntity* entity = *mEntitiesToDelete.begin();
         mEntitiesToDelete.erase(mEntitiesToDelete.begin());
         delete entity;
-    }
-
-    while (!mMapLightsToDelete.empty())
-    {
-        MapLight* ml = *mMapLightsToDelete.begin();
-        mMapLightsToDelete.erase(mMapLightsToDelete.begin());
-        delete ml;
     }
 }
 
@@ -2627,8 +2504,8 @@ void GameMap::refreshBorderingTilesOf(const std::vector<Tile*>& affectedTiles)
 
     // Loop over all the affected tiles and force them to examine their neighbors.  This allows
     // them to switch to a mesh with fewer polygons if some are hidden by the neighbors, etc.
-    for (std::vector<Tile*>::iterator itr = borderTiles.begin(); itr != borderTiles.end() ; ++itr)
-        (*itr)->refreshMesh();
+    for (Tile* tile : borderTiles)
+        tile->refreshMesh();
 }
 
 std::vector<Tile*> GameMap::getDiggableTilesForPlayerInArea(int x1, int y1, int x2, int y2,
@@ -2653,23 +2530,28 @@ std::vector<Tile*> GameMap::getBuildableTilesForPlayerInArea(int x1, int y1, int
     Player* player)
 {
     std::vector<Tile*> tiles = rectangularRegion(x1, y1, x2, y2);
-    std::vector<Tile*>::iterator it = tiles.begin();
-    while (it != tiles.end())
+    for (std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end();)
     {
         Tile* tile = *it;
         if (!tile->isBuildableUpon())
         {
             it = tiles.erase(it);
+            continue;
         }
-        else if (!(tile->getFullness() == 0.0
-                    && tile->getType() == Tile::claimed
-                    && tile->getClaimedPercentage() >= 1.0
-                    && tile->isClaimedForSeat(player->getSeat())))
+
+        if (tile->getClaimedPercentage() < 1.0)
         {
             it = tiles.erase(it);
+            continue;
         }
-        else
-            ++it;
+
+        if (!tile->isClaimedForSeat(player->getSeat()))
+        {
+            it = tiles.erase(it);
+            continue;
+        }
+
+         ++it;
     }
     return tiles;
 }
@@ -2681,7 +2563,6 @@ void GameMap::markTilesForPlayer(std::vector<Tile*>& tiles, bool isDigSet, Playe
         Tile* tile = *it;
         tile->setMarkedForDigging(isDigSet, player);
     }
-    refreshBorderingTilesOf(tiles);
 }
 
 std::string GameMap::getGoalsStringForPlayer(Player* player)
@@ -2734,10 +2615,10 @@ std::string GameMap::getGoalsStringForPlayer(Player* player)
 int GameMap::addGoldToSeat(int gold, int seatId)
 {
     Seat* seat = getSeatById(seatId);
-    if(seat == NULL)
+    if(seat == nullptr)
         return gold;
 
-    std::vector<Room*> treasuriesOwned = getRoomsByTypeAndSeat(Room::treasury, seat);
+    std::vector<Room*> treasuriesOwned = getRoomsByTypeAndSeat(RoomType::treasury, seat);
     for (std::vector<Room*>::iterator it = treasuriesOwned.begin(); it != treasuriesOwned.end(); ++it)
     {
         RoomTreasury* treasury = static_cast<RoomTreasury*>(*it);
@@ -2779,7 +2660,7 @@ std::string GameMap::nextUniqueNameCreature(const std::string& className)
     {
         ++mUniqueNumberCreature;
         ret = className + Ogre::StringConverter::toString(mUniqueNumberCreature);
-    } while(getAnimatedObject(ret) != NULL);
+    } while(getAnimatedObject(ret) != nullptr);
     return ret;
 }
 
@@ -2790,7 +2671,7 @@ std::string GameMap::nextUniqueNameRoom(const std::string& meshName)
     {
         ++mUniqueNumberRoom;
         ret = meshName + Ogre::StringConverter::toString(mUniqueNumberRoom);
-    } while(getAnimatedObject(ret) != NULL);
+    } while(getAnimatedObject(ret) != nullptr);
     return ret;
 }
 
@@ -2801,7 +2682,7 @@ std::string GameMap::nextUniqueNameRenderedMovableEntity(const std::string& base
     {
         ++mUniqueNumberRenderedMovableEntity;
         ret = RenderedMovableEntity::RENDEREDMOVABLEENTITY_PREFIX + baseName + "_" + Ogre::StringConverter::toString(mUniqueNumberRenderedMovableEntity);
-    } while(getAnimatedObject(ret) != NULL);
+    } while(getAnimatedObject(ret) != nullptr);
     return ret;
 }
 
@@ -2812,7 +2693,7 @@ std::string GameMap::nextUniqueNameTrap(const std::string& meshName)
     {
         ++mUniqueNumberTrap;
         ret = meshName + "_" + Ogre::StringConverter::toString(mUniqueNumberTrap);
-    } while(getAnimatedObject(ret) != NULL);
+    } while(getAnimatedObject(ret) != nullptr);
     return ret;
 }
 
@@ -2823,20 +2704,26 @@ std::string GameMap::nextUniqueNameMapLight()
     {
         ++mUniqueNumberMapLight;
         ret = MapLight::MAPLIGHT_NAME_PREFIX + Ogre::StringConverter::toString(mUniqueNumberMapLight);
-    } while(getAnimatedObject(ret) != NULL);
+    } while(getAnimatedObject(ret) != nullptr);
     return ret;
 }
 
-GameEntity* GameMap::getEntityFromTypeAndName(GameEntity::ObjectType entityType,
+MovableGameEntity* GameMap::getEntityFromTypeAndName(GameEntityType entityType,
     const std::string& entityName)
 {
     switch(entityType)
     {
-        case GameEntity::ObjectType::creature:
+        case GameEntityType::creature:
             return getCreature(entityName);
 
-        case GameEntity::ObjectType::renderedMovableEntity:
+        case GameEntityType::renderedMovableEntity:
             return getRenderedMovableEntity(entityName);
+
+        case GameEntityType::spell:
+            return getSpell(entityName);
+
+        case GameEntityType::mapLight:
+            return getMapLight(entityName);
 
         default:
             break;
@@ -2892,15 +2779,36 @@ void GameMap::consoleDisplayCreatureVisualDebug(const std::string& creatureName,
         creature->stopComputeVisualDebugEntities();
 }
 
-Creature* GameMap::getKoboldForPathFinding(Seat* seat)
+void GameMap::consoleDisplaySeatVisualDebug(int seatId, bool enable)
+{
+    Seat* seat = getSeatById(seatId);
+    if(seat == nullptr)
+        return;
+
+    seat->displaySeatVisualDebug(enable);
+}
+
+void GameMap::consoleSetLevelCreature(const std::string& creatureName, uint32_t level)
+{
+    Creature* creature = getCreature(creatureName);
+    if(creature == nullptr)
+        return;
+
+    creature->setLevel(level);
+}
+
+void GameMap::consoleAskToggleFOW()
+{
+    mIsFOWActivated = !mIsFOWActivated;
+}
+
+Creature* GameMap::getWorkerForPathFinding(Seat* seat)
 {
     std::vector<Creature*> creatures = getCreaturesBySeat(seat);
     for (Creature* creature : creatures)
     {
-        if (creature->getDefinition()->getClassName() == "Kobold")
-        {
+        if (creature->getDefinition()->isWorker())
             return creature;
-        }
     }
     return nullptr;
 }
@@ -2910,7 +2818,7 @@ bool GameMap::pathToBestFightingPosition(std::list<Tile*>& pathToTarget, Creatur
 {
     // First, we search the tiles from where we can attack as far as possible
     Tile* tileCreature = attackingCreature->getPositionTile();
-    if((tileCreature == NULL) || (attackedTile == NULL))
+    if((tileCreature == nullptr) || (attackedTile == nullptr))
         return false;
 
     double range = attackingCreature->getBestAttackRange();
@@ -2923,14 +2831,14 @@ bool GameMap::pathToBestFightingPosition(std::list<Tile*>& pathToTarget, Creatur
             int diffY = range - std::abs(i);
             Tile* tile;
             tile = getTile(attackedTile->getX() + i, attackedTile->getY() + diffY);
-            if(tile != NULL && pathExists(attackingCreature, tileCreature, tile))
+            if(tile != nullptr && pathExists(attackingCreature, tileCreature, tile))
                 possibleTiles.push_back(tile);
 
             if(diffY == 0)
                 continue;
 
             tile = getTile(attackedTile->getX() + i, attackedTile->getY() - diffY);
-            if(tile != NULL && pathExists(attackingCreature, tileCreature, tile))
+            if(tile != nullptr && pathExists(attackingCreature, tileCreature, tile))
                 possibleTiles.push_back(tile);
         }
 
@@ -2969,9 +2877,9 @@ bool GameMap::pathToBestFightingPosition(std::list<Tile*>& pathToTarget, Creatur
 GameEntity* GameMap::getClosestTileWhereGameEntityFromList(std::vector<GameEntity*> listObjects, Tile* origin, Tile*& attackedTile)
 {
     if(listObjects.empty())
-        return NULL;
+        return nullptr;
 
-    GameEntity* closestGameEntity = NULL;
+    GameEntity* closestGameEntity = nullptr;
     double shortestDist = 0.0;
     for(std::vector<GameEntity*>::iterator itObj = listObjects.begin(); itObj != listObjects.end(); ++itObj)
     {
@@ -2980,10 +2888,10 @@ GameEntity* GameMap::getClosestTileWhereGameEntityFromList(std::vector<GameEntit
         for(std::vector<Tile*>::iterator itTile = tiles.begin(); itTile != tiles.end(); ++itTile)
         {
             Tile* tile = *itTile;
-            OD_ASSERT_TRUE(tile != NULL);
+            OD_ASSERT_TRUE(tile != nullptr);
             double dist = std::pow(static_cast<double>(std::abs(tile->getX() - origin->getX())), 2);
             dist += std::pow(static_cast<double>(std::abs(tile->getY() - origin->getY())), 2);
-            if(closestGameEntity == NULL || dist < shortestDist)
+            if(closestGameEntity == nullptr || dist < shortestDist)
             {
                 shortestDist = dist;
                 closestGameEntity = gameEntity;
@@ -2996,7 +2904,7 @@ GameEntity* GameMap::getClosestTileWhereGameEntityFromList(std::vector<GameEntit
 }
 
 void GameMap::fillBuildableTilesAndPriceForPlayerInArea(int x1, int y1, int x2, int y2,
-    Player* player, Room::RoomType type, std::vector<Tile*>& tiles, int& goldRequired)
+    Player* player, RoomType type, std::vector<Tile*>& tiles, int& goldRequired)
 {
     goldRequired = 0;
     tiles = getBuildableTilesForPlayerInArea(x1, y1, x2, y2, player);
@@ -3010,9 +2918,157 @@ void GameMap::fillBuildableTilesAndPriceForPlayerInArea(int x1, int y1, int x2, 
     // The first treasury tile doesn't cost anything to prevent a player from being stuck
     // without any means to get gold.
     // Thus, we check whether it is the current attempt and we remove the cost of one tile.
-    if (type == Room::treasury
-            && numRoomsByTypeAndSeat(Room::treasury, player->getSeat()) == 0)
+    if (type == RoomType::treasury
+            && numRoomsByTypeAndSeat(RoomType::treasury, player->getSeat()) == 0)
     {
         goldRequired -= costPerTile;
     }
+}
+
+void GameMap::updateVisibleEntities()
+{
+    // Notify what happened to entities on visible tiles
+    for (int jj = 0; jj < getMapSizeY(); ++jj)
+    {
+        for (int ii = 0; ii < getMapSizeX(); ++ii)
+        {
+            Tile* tile = getTile(ii,jj);
+            tile->notifySeatsWithVision();
+        }
+    }
+
+    // Notify changes on visible tiles
+    for(Seat* seat : mSeats)
+        seat->notifyChangedVisibleTiles();
+}
+
+void GameMap::clearCreatureMoodModifiers()
+{
+    // We delete map specific mood modifiers
+    for(std::pair<const std::string, std::vector<CreatureMood*>>& p : mCreatureMoodModifiers)
+    {
+        for(const CreatureMood* creatureMood : p.second)
+            delete creatureMood;
+    }
+
+    mCreatureMoodModifiers.clear();
+}
+
+bool GameMap::addCreatureMoodModifiers(const std::string& name,
+    const std::vector<CreatureMood*>& moodModifiers)
+{
+    uint32_t nb = mCreatureMoodModifiers.count(name);
+    OD_ASSERT_TRUE_MSG(nb <= 0, "Duplicate mood modifier=" + name);
+    if(nb > 0)
+        return false;
+
+    mCreatureMoodModifiers[name] = moodModifiers;
+    return true;
+}
+
+int32_t GameMap::computeCreatureMoodModifiers(const Creature* creature) const
+{
+    const std::string& moodModifierName = creature->getDefinition()->getMoodModifierName();
+    if(mCreatureMoodModifiers.count(moodModifierName) <= 0)
+        return 0;
+
+    int32_t moodValue = 0;
+    const std::vector<CreatureMood*>& moodModifiers = mCreatureMoodModifiers.at(moodModifierName);
+    for(const CreatureMood* mood : moodModifiers)
+    {
+        moodValue += mood->computeMood(creature);
+    }
+
+    return moodValue;
+}
+
+std::vector<GameEntity*> GameMap::getNaturalEnemiesInList(const Creature* creature, const std::vector<GameEntity*>& reachableAlliedObjects) const
+{
+    std::vector<GameEntity*> ret;
+
+    const std::string& moodModifierName = creature->getDefinition()->getMoodModifierName();
+    if(mCreatureMoodModifiers.count(moodModifierName) <= 0)
+        return ret;
+
+    const std::vector<CreatureMood*>& moodModifiers = mCreatureMoodModifiers.at(moodModifierName);
+    for(GameEntity* entity : reachableAlliedObjects)
+    {
+        if(entity->getObjectType() != GameEntityType::creature)
+            continue;
+
+        Creature* alliedCreature = static_cast<Creature*>(entity);
+        for(const CreatureMood* mood : moodModifiers)
+        {
+            if(mood->getCreatureMoodType() != CreatureMoodType::creature)
+                continue;
+
+            const CreatureMoodCreature* moodCreature = static_cast<const CreatureMoodCreature*>(mood);
+            if(alliedCreature->getDefinition() == moodCreature->getCreatureDefinition())
+            {
+                ret.push_back(entity);
+                break;
+            }
+        }
+    }
+
+    return ret;
+}
+
+void GameMap::addSpell(Spell *spell)
+{
+    LogManager::getSingleton().logMessage(serverStr() + "Adding spell " + spell->getName()
+        + ",MeshName=" + spell->getMeshName());
+    mSpells.push_back(spell);
+}
+
+void GameMap::removeSpell(Spell *spell)
+{
+    LogManager::getSingleton().logMessage(serverStr() + "Removing spell " + spell->getName()
+        + ",MeshName=" + spell->getMeshName());
+    std::vector<Spell*>::iterator it = std::find(mSpells.begin(), mSpells.end(), spell);
+    OD_ASSERT_TRUE_MSG(it != mSpells.end(), "spell name=" + spell->getName());
+    if(it == mSpells.end())
+        return;
+
+    mSpells.erase(it);
+}
+
+Spell* GameMap::getSpell(const std::string& name) const
+{
+    for(Spell* spell : mSpells)
+    {
+        if(name.compare(spell->getName()) == 0)
+            return spell;
+    }
+    return nullptr;
+}
+
+void GameMap::clearSpells()
+{
+    // We need to work on a copy of mSpells because removeFromGameMap will remove them from this vector
+    std::vector<Spell*> spells = mSpells;
+    for (Spell* spell : spells)
+    {
+        spell->removeFromGameMap();
+        spell->deleteYourself();
+    }
+
+    mSpells.clear();
+}
+
+std::vector<Spell*> GameMap::getSpellsBySeatAndType(Seat* seat, SpellType type) const
+{
+    std::vector<Spell*> ret;
+    for (Spell* spell : mSpells)
+    {
+        if(spell->getSeat() != seat)
+            continue;
+
+        if(spell->getSpellType() != type)
+            continue;
+
+        ret.push_back(spell);
+    }
+
+    return ret;
 }

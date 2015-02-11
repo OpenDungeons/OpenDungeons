@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -39,7 +39,25 @@ class Trap;
 class TreasuryObject;
 class ChickenEntity;
 class CraftedTrap;
+class BuildingObject;
+class PersistentObject;
 class ODPacket;
+
+enum class TileType
+{
+    nullTileType = 0,
+    dirt = 1,
+    gold = 2,
+    rock = 3,
+    water = 4,
+    lava = 5,
+    claimed = 6
+};
+
+ODPacket& operator<<(ODPacket& os, const TileType& type);
+ODPacket& operator>>(ODPacket& is, TileType& type);
+std::ostream& operator<<(std::ostream& os, const TileType& type);
+std::istream& operator>>(std::istream& is, TileType& type);
 
 /*! \brief The tile class contains information about tile type and contents and is the basic level bulding block.
  *
@@ -50,57 +68,34 @@ class ODPacket;
  */
 class Tile : public GameEntity
 {
-
-friend class TileContainersModificator;
 friend class GameMap;
 friend class ODServer;
 
 public:
-    enum TileType
-    {
-        nullTileType = 0,
-        dirt = 1,
-        gold = 2,
-        rock = 3,
-        water = 4,
-        lava = 5,
-        claimed = 6
-    };
+    Tile(GameMap* gameMap, int x = 0, int y = 0, TileType type = TileType::dirt, double fullness = 100.0);
 
-    Tile(GameMap* gameMap, int nX = 0, int nY = 0, TileType nType = dirt, double nFullness = 100.0) :
-        GameEntity          (gameMap),
-        x                   (nX),
-        y                   (nY),
-        rotation            (0.0),
-        type                (nType),
-        selected            (false),
-        fullness            (nFullness),
-        fullnessMeshNumber  (-1),
-        mCoveringBuilding   (nullptr),
-        mClaimedPercentage  (0.0)
-    {
-        for(int i = 0; i < Tile::FloodFillTypeMax; i++)
-        {
-            mFloodFillColor[i] = -1;
-        }
-        setSeat(NULL);
-        setObjectType(GameEntity::tile);
-    }
+    virtual GameEntityType getObjectType() const
+    { return GameEntityType::tile; }
 
     std::string getOgreNamePrefix() const { return "Tile_"; }
 
-    /*! \brief A mutator to set the type (rock, claimed, etc.) of the tile.
+    /*! \brief Set the type (rock, claimed, etc.) of the tile.
      *
      * In addition to setting the tile type this function also reloads the new mesh
      * for the tile.
      */
     void setType(TileType t);
 
-    //! \brief An accessor which returns the tile type (rock, claimed, etc.).
+    //! \brief Returns the tile type (rock, claimed, etc.).
     TileType getType() const
     {
-        return type;
+        return mType;
     }
+
+    virtual void addToGameMap();
+    //! Tiles cannot be removed
+    virtual void removeFromGameMap()
+    {}
 
     /*! \brief A mutator to change how "filled in" the tile is.
      *
@@ -140,8 +135,8 @@ public:
 
     //! \brief This is a helper function that generates a mesh filename from a tile type and a fullness mesh number.
     //! \TODO Define what is a postfix.
-    static std::string meshNameFromNeighbors(TileType myType, int fullnessMeshNumber, const TileType* neighbors,
-                                             const bool* neighborsFullness, int &rt);
+    static std::string meshNameFromNeighbors(TileType myType, int fullnessMeshNumber, std::array<TileType, 8> neighbors,
+                                             std::bitset<8> neighborsFullness, int &rt);
 
     //! \brief Generate the tile mesh name in ss from other parameters.
     //! \param postFixInt an array 0 and 1 set according to neighbor mesh types and fullness.
@@ -153,23 +148,33 @@ public:
     //! \brief This function puts a message in the renderQueue to change the mesh for this tile.
     void refreshMesh();
 
-    //! \brief This function marks the tile as being selected through a mouse click or drag.
-    void setSelected(bool ss, Player *pp);
+    virtual const Ogre::Vector3& getScale() const
+    { return mScale; }
 
-    //! \brief This accessor function returns whether or not the tile has been selected.
+    //! \brief Marks the tile as being selected through a mouse click or drag.
+    void setSelected(bool ss, Player* pp);
+
+    //! \brief Returns whether or not the tile has been selected.
     bool getSelected() const
-    {
-        return selected;
-    }
+    { return mSelected; }
+
+    inline bool getIsBuilding() const
+    { return mIsBuilding; }
+
+    inline void setLocalPlayerHasVision(bool localPlayerHasVision)
+    { mLocalPlayerHasVision = localPlayerHasVision; }
+
+    inline bool getLocalPlayerHasVision() const
+    { return mLocalPlayerHasVision; }
 
     //! \brief Set the tile digging mark for the given player.
-    void setMarkedForDigging(bool s, Player *p);
+    void setMarkedForDigging(bool s, Player* p);
 
     //! \brief This accessor function returns whether or not the tile has been marked to be dug out by a given Player p.
-    bool getMarkedForDigging(Player *p);
+    bool getMarkedForDigging(const Player* p) const;
 
     //! \brief This is a simple helper function which just calls setMarkedForDigging() for everyone in the game except
-    //! allied to exceptSeat. If exceptSeat is NULL, it is called for every player
+    //! allied to exceptSeat. If exceptSeat is nullptr, it is called for every player
     void setMarkedForDiggingForAllPlayersExcept(bool s, Seat* exceptSeat);
 
     //! \brief Tells whether the tile is selected for digging by any player/AI.
@@ -182,11 +187,11 @@ public:
     unsigned numPlayersMarkingTile() const;
     Player* getPlayerMarkingTile(int index);
 
-    //! \brief This function adds a creature to the list of creatures in this tile.
-    bool addCreature(Creature *c);
+    //! \brief This function adds an entity to the list of entities in this tile.
+    bool addEntity(GameEntity *entity);
 
-    //! \brief This function removes a creature to the list of creatures in this tile.
-    bool removeCreature(Creature *c);
+    //! \brief This function removes an entity to the list of entities in this tile.
+    bool removeEntity(GameEntity *entity);
 
     //! \brief This function returns the count of the number of creatures in the tile.
     unsigned int numEntitiesInTile() const
@@ -203,17 +208,19 @@ public:
 
     Building* getCoveringBuilding() const
     { return mCoveringBuilding; }
+
     //! \brief Proxy that checks if there is a covering building and if it is a room. If yes, returns
     //! a pointer to the covering room
     Room* getCoveringRoom() const;
+
     //! \brief Proxy that checks if there is a covering building and if it is a trap. If yes, returns
     //! a pointer to the covering trap
     Trap* getCoveringTrap() const;
 
-    void setCoveringBuilding(Building *building);
+    void setCoveringBuilding(Building* building);
+
     //! \brief Add a tresaury object in this tile. There can be only one per tile so if there is already one, they are merged
     bool addTreasuryObject(TreasuryObject* object);
-    bool removeTreasuryObject(TreasuryObject* object);
 
     //! \brief Tells whether the tile is diggable by dig-capable creatures.
     //! \brief The player seat.
@@ -226,6 +233,7 @@ public:
     //! \brief Tells whether the tile is a wall (fullness > 1) and can be claimed for the given seat.
     //! Reinforced walls by another team and hard rocks can't be claimed.
     bool isWallClaimable(Seat* seat);
+
     //! \brief Tells whether the tile is claimed for the given seat.
     bool isClaimedForSeat(Seat* seat) const;
 
@@ -241,21 +249,14 @@ public:
     //! \brief Loads the tile data from a level line.
     static void loadFromLine(const std::string& line, Tile *t);
 
-    friend std::ostream& operator<<(std::ostream& os, Tile *t);
-
-    /*! \brief The << operator is used for saving tiles to a file and sending them over the net.
-     *
-     * This operator is used in conjunction with the >> operator to standardize
-     * tile format in the level files, as well as sending tiles over the network.
+    /*! \brief Exports the tile data to the packet so that the client associated to the seat have the needed information
+     *         to display the tile correctly
      */
-    friend ODPacket& operator<<(ODPacket& os, Tile *t);
+    void exportToPacket(ODPacket& os, Seat* seat);
 
-    /*! \brief The >> operator is used for loading tiles from a file and for receiving them over the net.
-     *
-     * This operator is used in conjunction with the << operator to standardize
-     * tile format in the level files, as well as sending tiles over the network.
+    /*! \brief Updates the tile from the data sent by the server so that it is correctly displayed and used
      */
-    friend ODPacket& operator>>(ODPacket& is, Tile *t);
+     void updateFromPacket(ODPacket& is);
 
     /*! \brief This is a helper function which just converts the tile type enum into a string.
      *
@@ -266,35 +267,44 @@ public:
      */
     static std::string tileTypeToString(TileType t);
 
-    int getX() const
-    { return x; }
+    inline int getX() const
+    { return mX; }
 
-    int getY() const
-    { return y; }
+    inline int getY() const
+    { return mY; }
 
-    double getClaimedPercentage()
-    {
-        return mClaimedPercentage;
-    }
+    inline double getClaimedPercentage() const
+    { return mClaimedPercentage; }
 
     static std::string buildName(int x, int y);
     static bool checkTileName(const std::string& tileName, int& x, int& y);
 
-    static std::string displayAsString(Tile* tile);
+    static std::string displayAsString(const Tile* tile);
 
-    int x, y;
-    Ogre::Real rotation;
+    void doUpkeep()
+    {}
 
-    void doUpkeep(){}
-    void receiveExp(double experience){}
-    double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile *tileTakingDamage)
+    void receiveExp(double experience)
+    {}
+
+    double takeDamage(GameEntity* attacker, double physicalDamage,
+                      double magicalDamage, Tile *tileTakingDamage)
     { return 0.0; }
-    double getHP(Tile *tile) const {return 0;}
-    std::vector<Tile*> getCoveredTiles() { return std::vector<Tile*>() ;}
-    void refreshFromTile(const Tile& tile);
+
+    double getHP(Tile *tile) const
+    { return 0.0; }
+
+    std::vector<Tile*> getCoveredTiles()
+    { return std::vector<Tile*>(); }
+
+    Tile* getCoveredTile(int index)
+    { return nullptr; }
+
+    uint32_t numCoveredTiles()
+    { return 0; }
 
     //! \brief Fills entities with all the attackable creatures in the Tile. If invert is true,
-    //! the list will be filled with the ennemies with the given seat. If invert is false, it will be filled
+    //! the list will be filled with the enemies with the given seat. If invert is false, it will be filled
     //! with allies with the given seat. For all theses functions, the list is checked to be sure
     //! no entity is added twice
     void fillWithAttackableCreatures(std::vector<GameEntity*>& entities, Seat* seat, bool invert);
@@ -304,17 +314,37 @@ public:
     void fillWithChickenEntities(std::vector<GameEntity*>& entities);
     void fillWithCraftedTraps(std::vector<GameEntity*>& entities);
 
-    bool addChickenEntity(ChickenEntity* chicken);
-    bool removeChickenEntity(ChickenEntity* chicken);
+    //! \brief Computes the visible tiles and tags them to know which are visible
+    void computeVisibleTiles();
+    void clearVision();
+    void notifyVision(Seat* seat);
 
-    bool addCraftedTrap(CraftedTrap* craftedTrap);
-    bool removeCraftedTrap(CraftedTrap* craftedTrap);
+    void setSeats(const std::vector<Seat*>& seats);
+    bool hasChangedForSeat(Seat* seat) const;
+    void changeNotifiedForSeat(Seat* seat);
+
+    virtual void notifySeatsWithVision();
+
+    const std::vector<Seat*>& getSeatsWithVision()
+    { return mSeatsWithVision; }
+
+    //! On client side, registers the PersistentObject on this tile so it can be removed when the tile is refreshed (and the object has been removed).
+    //! On Server side, registers the PersistentObject on this tile so that the PersistentObject still on this tile
+    //! can be sent to the clients when they got vision
+    bool registerPersistentObject(PersistentObject* obj);
+    //! Removes the PersistentObject from the tile.
+    bool removePersistentObject(PersistentObject* obj);
 
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
+    // Tiles do not trigger add/remove events
+    void fireAddEntity(Seat* seat, bool async)
+    {}
+    void fireRemoveEntity(Seat* seat)
+    {}
 private:
-    bool isFloodFillFilled();
+    bool isFloodFillFilled() const;
 
     enum FloodFillType
     {
@@ -325,21 +355,51 @@ private:
         FloodFillTypeMax
     };
 
-    TileType type;
-    bool selected;
+    //! \brief The tile position
+    int mX, mY;
 
-    double fullness;
-    int fullnessMeshNumber;
+    //! \brief The tile rotation value, in degrees.
+    Ogre::Real mRotation;
+
+    //! \brief The tile type: Claimed, Dirt, Gold, ...
+    TileType mType;
+
+    //! \brief Whether the tile is selected.
+    bool mSelected;
+
+    //! \brief The tile fullness (0.0 - 100.0).
+    //! At 0.0, it is a ground tile, at 100.0, it is a wall.
+    double mFullness;
+
+    //! \brief The mesh number corresponding ot the current fullness
+    int mFullnessMeshNumber;
 
     std::vector<Tile*> mNeighbors;
     std::vector<Player*> mPlayersMarkingTile;
+    std::vector<std::pair<Seat*, bool>> mTileChangedForSeats;
+    std::vector<Seat*> mSeatsWithVision;
+    std::vector<PersistentObject*> mPersistentObjectRegistered;
+    //! Used on client side to check if the PersistentObjects on this tile should be removed when the tile gets refreshed
+    std::vector<std::string> mPersistentObjectNamesOnTile;
 
-    /*! \brief List of the entities actually on this tile. Most of the creatures actions will rely on this list
-     */
+    //! \brief List of the entities actually on this tile. Most of the creatures actions will rely on this list
     std::vector<GameEntity*> mEntitiesInTile;
+
     Building* mCoveringBuilding;
     int mFloodFillColor[FloodFillTypeMax];
     double mClaimedPercentage;
+    Ogre::Vector3 mScale;
+
+    //! \brief True if a building is on this tile. False otherwise. It is used on client side because the clients do not know about
+    //! buildings. However, it needs to know the tiles where a building is to display the room/trap costs.
+    bool mIsBuilding;
+
+    //! \brief Used on client side. true if the local player has vision, false otherwise.
+    bool mLocalPlayerHasVision;
+
+    //! \brief Used on client side. Set when a tile is refreshed.
+    //! It allows to know if the tile can be marked for digging by the local player.
+    bool mLocalPlayerCanMarkTile;
 
     /*! \brief Set the fullness value for the tile.
      *  This only sets the fullness variable. This function is here to change the value
@@ -348,6 +408,8 @@ private:
     void setFullnessValue(double f);
 
     int getFloodFill(FloodFillType type);
+
+    void setDirtyForAllSeats();
 };
 
 #endif // TILE_H

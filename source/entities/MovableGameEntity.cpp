@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@
 
 #include "entities/Tile.h"
 
+#include "game/Seat.h"
+
 #include "gamemap/GameMap.h"
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
@@ -29,13 +31,17 @@
 
 #include "ODApplication.h"
 
-MovableGameEntity::MovableGameEntity(GameMap* gameMap) :
+MovableGameEntity::MovableGameEntity(GameMap* gameMap, const std::string& initialAnimationState,
+        bool initialAnimationLoop) :
     GameEntity(gameMap),
     mAnimationState(nullptr),
     mMoveSpeed(1.0),
-    mPrevAnimationStateLoop(true),
+    mPrevAnimationState(initialAnimationState),
+    mPrevAnimationStateLoop(initialAnimationLoop),
     mAnimationSpeedFactor(1.0),
-    mDestinationAnimationState("Idle")
+    mDestinationAnimationState("Idle"),
+    mWalkDirection(Ogre::Vector3::ZERO),
+    mAnimationTime(0.0)
 {
 }
 
@@ -43,21 +49,21 @@ void MovableGameEntity::setMoveSpeed(double s)
 {
     mMoveSpeed = s;
 
-    if (getGameMap()->isServerGameMap())
+    if (!getGameMap()->isServerGameMap())
+        return;
+
+    for(Seat* seat : mSeatsWithVisionNotified)
     {
-        try
-        {
-            ServerNotification* serverNotification = new ServerNotification(
-                ServerNotification::setMoveSpeed, NULL);
-            std::string name = getName();
-            serverNotification->mPacket << name << s;
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
-        catch (std::bad_alloc&)
-        {
-            OD_ASSERT_TRUE(false);
-            exit(1);
-        }
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+
+        const std::string& name = getName();
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::setMoveSpeed, seat->getPlayer());
+        serverNotification->mPacket << name << s;
+        ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 }
 
@@ -70,18 +76,18 @@ void MovableGameEntity::addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z)
     if (!getGameMap()->isServerGameMap())
         return;
 
-    try
+    for(Seat* seat : mSeatsWithVisionNotified)
     {
-        ServerNotification* serverNotification = new ServerNotification(
-            ServerNotification::animatedObjectAddDestination, NULL);
-        std::string name = getName();
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+
+        const std::string& name = getName();
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::animatedObjectAddDestination, seat->getPlayer());
         serverNotification->mPacket << name << destination;
         ODServer::getSingleton().queueServerNotification(serverNotification);
-    }
-    catch (std::bad_alloc&)
-    {
-        Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in MovableGameEntity::addDestination", Ogre::LML_CRITICAL);
-        exit(1);
     }
 }
 
@@ -108,7 +114,7 @@ bool MovableGameEntity::setWalkPath(std::list<Tile*> path,
         // Loop over the path adding each tile as a destination in the walkQueue.
         while (itr != path.end())
         {
-            addDestination((*itr)->x, (*itr)->y);
+            addDestination((*itr)->getX(), (*itr)->getY());
             ++itr;
         }
 
@@ -123,21 +129,21 @@ void MovableGameEntity::clearDestinations()
     mWalkQueue.clear();
     stopWalking();
 
-    if (getGameMap()->isServerGameMap())
+    if (!getGameMap()->isServerGameMap())
+        return;
+
+    for(Seat* seat : mSeatsWithVisionNotified)
     {
-        try
-        {
-            ServerNotification* serverNotification = new ServerNotification(
-                ServerNotification::animatedObjectClearDestinations, NULL);
-            std::string name = getName();
-            serverNotification->mPacket << name;
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
-        catch (std::bad_alloc&)
-        {
-            OD_ASSERT_TRUE(false);
-            exit(1);
-        }
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+
+        const std::string& name = getName();
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::animatedObjectClearDestinations, seat->getPlayer());
+        serverNotification->mPacket << name;
+        ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 }
 
@@ -147,23 +153,33 @@ void MovableGameEntity::stopWalking()
     setAnimationState(mDestinationAnimationState);
 }
 
-void MovableGameEntity::setWalkDirection(Ogre::Vector3& direction)
+void MovableGameEntity::setWalkDirection(const Ogre::Vector3& direction)
 {
+    mWalkDirection = direction;
     if(getGameMap()->isServerGameMap())
         return;
 
     RenderManager::getSingleton().rrOrientEntityToward(this, direction);
 }
 
-void MovableGameEntity::setAnimationState(const std::string& state, bool loop, Ogre::Vector3* direction)
+void MovableGameEntity::setAnimationState(const std::string& state, bool loop, const Ogre::Vector3& direction)
 {
-    // Ignore the command if the command is exactly the same as what we did last time,
-    // this is not only faster it prevents non-looped actions
-    // like 'die' from being inadvertantly repeated.
-    if (state.compare(mPrevAnimationState) == 0 && loop == mPrevAnimationStateLoop)
+    // Ignore the command if the command is exactly the same and looped. Otherwise, we accept
+    // the command because it may be a trap/building object that is triggered several times
+    if (state.compare(mPrevAnimationState) == 0 &&
+        loop &&
+        mPrevAnimationStateLoop &&
+        (direction == Ogre::Vector3::ZERO || direction == mWalkDirection))
+    {
         return;
+    }
 
+    mAnimationTime = 0;
     mPrevAnimationState = state;
+    mPrevAnimationStateLoop = loop;
+
+    if(direction != Ogre::Vector3::ZERO)
+        setWalkDirection(direction);
 
     // NOTE : if we add support to increase speed like a spell or slapping, it
     // would be nice to increase speed factor
@@ -171,22 +187,7 @@ void MovableGameEntity::setAnimationState(const std::string& state, bool loop, O
 
     if (getGameMap()->isServerGameMap())
     {
-        try
-        {
-            ServerNotification* serverNotification = new ServerNotification(
-                ServerNotification::setObjectAnimationState, NULL);
-            std::string name = getName();
-            serverNotification->mPacket << name << state << loop;
-            if(direction != NULL)
-                serverNotification->mPacket << true << *direction;
-            else
-                serverNotification->mPacket << false;
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
-        catch (std::bad_alloc&)
-        {
-            LogManager::getSingleton().logMessage("ERROR: Bad memory allocation in Creature::setAnimationState()");
-        }
+        fireObjectAnimationState(state, loop, direction);
         return;
     }
 
@@ -195,8 +196,7 @@ void MovableGameEntity::setAnimationState(const std::string& state, bool loop, O
 
 double MovableGameEntity::getAnimationSpeedFactor()
 {
-    double tempDouble = mAnimationSpeedFactor;
-    return tempDouble;
+    return mAnimationSpeedFactor;
 }
 
 void MovableGameEntity::setAnimationSpeedFactor(double f)
@@ -207,12 +207,12 @@ void MovableGameEntity::setAnimationSpeedFactor(double f)
 void MovableGameEntity::update(Ogre::Real timeSinceLastFrame)
 {
     // Advance the animation
-    if (!getGameMap()->isServerGameMap() && getAnimationState() != NULL)
-    {
-        getAnimationState()->addTime((Ogre::Real)(ODApplication::turnsPerSecond
-                                 * timeSinceLastFrame
-                                 * getAnimationSpeedFactor()));
-    }
+    double addedTime = static_cast<Ogre::Real>(ODApplication::turnsPerSecond
+         * static_cast<double>(timeSinceLastFrame)
+         * getAnimationSpeedFactor());
+    mAnimationTime += addedTime;
+    if (!getGameMap()->isServerGameMap() && getAnimationState() != nullptr)
+        getAnimationState()->addTime(static_cast<Ogre::Real>(addedTime));
 
     if (mWalkQueue.empty())
         return;
@@ -234,7 +234,7 @@ void MovableGameEntity::update(Ogre::Real timeSinceLastFrame)
         Ogre::Real distToNextDest = newPosition.distance(nextDest);
         if(distToNextDest > moveDist)
         {
-            newPosition = newPosition + walkDirection * (Ogre::Real)moveDist;
+            newPosition = newPosition + walkDirection * static_cast<Ogre::Real>(moveDist);
             break;
         }
         else
@@ -257,15 +257,212 @@ void MovableGameEntity::update(Ogre::Real timeSinceLastFrame)
     }
 
     setWalkDirection(walkDirection);
-    setPosition(newPosition);
+    setPosition(newPosition, true);
 }
 
-void MovableGameEntity::setPosition(const Ogre::Vector3& v)
+void MovableGameEntity::setPosition(const Ogre::Vector3& v, bool isMove)
 {
-    GameEntity::setPosition(v);
-    if(getGameMap()->isServerGameMap())
+    Tile* oldTile = getPositionTile();
+    GameEntity::setPosition(v, isMove);
+    if(!getIsOnMap())
         return;
 
-    RenderManager::getSingleton().rrMoveEntity(this, v);
+    if(!getGameMap()->isServerGameMap())
+    {
+        RenderManager::getSingleton().rrMoveEntity(this, v);
+        return;
+    }
 
+    Tile* tile = getPositionTile();
+    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
+    if(tile == nullptr)
+        return;
+    if(isMove && (tile == oldTile))
+        return;
+
+    if((oldTile != nullptr) && isMove)
+    {
+        OD_ASSERT_TRUE_MSG(removeEntityFromTile(oldTile), "name=" + getName());
+    }
+
+    OD_ASSERT_TRUE_MSG(addEntityToTile(tile), "name=" + getName());
+}
+
+void MovableGameEntity::fireObjectAnimationState(const std::string& state, bool loop, const Ogre::Vector3& direction)
+{
+    for(Seat* seat : mSeatsWithVisionNotified)
+    {
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+
+        ServerNotification* serverNotification = new ServerNotification(
+            ServerNotificationType::setObjectAnimationState, seat->getPlayer());
+        const std::string& name = getName();
+        serverNotification->mPacket << name << state << loop;
+        if(direction != Ogre::Vector3::ZERO)
+            serverNotification->mPacket << true << direction;
+        else if(mWalkDirection != Ogre::Vector3::ZERO)
+            serverNotification->mPacket << true << mWalkDirection;
+        else
+            serverNotification->mPacket << false;
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
+}
+
+void MovableGameEntity::firePickupEntity(Player* playerPicking)
+{
+    int seatId = playerPicking->getSeat()->getId();
+    GameEntityType entityType = getObjectType();
+    const std::string& entityName = getName();
+    for(std::vector<Seat*>::iterator it = mSeatsWithVisionNotified.begin(); it != mSeatsWithVisionNotified.end();)
+    {
+        Seat* seat = *it;
+        if(seat->getPlayer() == nullptr)
+        {
+            ++it;
+            continue;
+        }
+        if(!seat->getPlayer()->getIsHuman())
+        {
+            ++it;
+            continue;
+        }
+
+        // For other players than the one picking up the entity, we send a remove message
+        if(seat->getPlayer() != playerPicking)
+        {
+            fireRemoveEntity(seat);
+            it = mSeatsWithVisionNotified.erase(it);
+            continue;
+        }
+
+        ++it;
+
+        // If the creature was picked up by a human, we send an async message
+        if(playerPicking->getIsHuman())
+        {
+            ServerNotification serverNotification(
+                ServerNotificationType::entityPickedUp, seat->getPlayer());
+            serverNotification.mPacket << seatId << entityType << entityName;
+            ODServer::getSingleton().sendAsyncMsg(serverNotification);
+        }
+        else
+        {
+            ServerNotification* serverNotification = new ServerNotification(
+                ServerNotificationType::entityPickedUp, seat->getPlayer());
+            serverNotification->mPacket << seatId << entityType << entityName;
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+    }
+}
+
+void MovableGameEntity::fireDropEntity(Player* playerPicking, Tile* tile)
+{
+    // If the player is a human, we send an asynchronous message to be as reactive as
+    // possible. If it is an AI, we queue the message because it might have been created
+    // during this turn (and, thus, not exist on client side)
+    int seatId = playerPicking->getSeat()->getId();
+    for(Seat* seat : getGameMap()->getSeats())
+    {
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+        if(!seat->hasVisionOnTile(tile))
+            continue;
+
+        // For players with vision on the tile where the entity is dropped, we send an add message
+        if(seat->getPlayer() != playerPicking)
+        {
+            // Because the entity is dropped, it is not on the map for the other players so no need
+            // to check
+            mSeatsWithVisionNotified.push_back(seat);
+            fireAddEntity(seat, false);
+            continue;
+        }
+
+        // If the creature was dropped by a human, we send an async message
+        if(playerPicking->getIsHuman())
+        {
+            ServerNotification serverNotification(
+                ServerNotificationType::entityDropped, seat->getPlayer());
+            serverNotification.mPacket << seatId;
+            getGameMap()->tileToPacket(serverNotification.mPacket, tile);
+            ODServer::getSingleton().sendAsyncMsg(serverNotification);
+        }
+        else
+        {
+            ServerNotification* serverNotification = new ServerNotification(
+                ServerNotificationType::entityDropped, seat->getPlayer());
+            serverNotification->mPacket << seatId;
+            getGameMap()->tileToPacket(serverNotification->mPacket, tile);
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+    }
+}
+
+void MovableGameEntity::exportToStream(std::ostream& os) const
+{
+    // Note : When we will implement game save, we should consider saving informations
+    // about animation (like exportToPacket does)
+}
+
+void MovableGameEntity::importFromStream(std::istream& is)
+{
+    // Note : When we will implement game save, we should consider saving informations
+    // about animation (like importFromPacket does)
+}
+
+void MovableGameEntity::exportToPacket(ODPacket& os) const
+{
+    os << mMoveSpeed;
+    os << mPrevAnimationState;
+    os << mPrevAnimationStateLoop;
+    os << mWalkDirection;
+    os << mAnimationSpeedFactor;
+    os << mAnimationTime;
+
+    int32_t nbDestinations = mWalkQueue.size();
+    os << nbDestinations;
+    for(const Ogre::Vector3& dest : mWalkQueue)
+    {
+        os << dest;
+    }
+}
+
+void MovableGameEntity::importFromPacket(ODPacket& is)
+{
+    OD_ASSERT_TRUE(is >> mMoveSpeed);
+    OD_ASSERT_TRUE(is >> mPrevAnimationState);
+    OD_ASSERT_TRUE(is >> mPrevAnimationStateLoop);
+    OD_ASSERT_TRUE(is >> mWalkDirection);
+    OD_ASSERT_TRUE(is >> mAnimationSpeedFactor);
+    OD_ASSERT_TRUE(is >> mAnimationTime);
+
+    int32_t nbDestinations;
+    OD_ASSERT_TRUE(is >> nbDestinations);
+    for(int32_t i = 0; i < nbDestinations; ++i)
+    {
+        Ogre::Vector3 dest;
+        OD_ASSERT_TRUE(is >> dest);
+        addDestination(dest.x, dest.y, dest.z);
+    }
+}
+
+void MovableGameEntity::restoreEntityState()
+{
+    if(!mPrevAnimationState.empty())
+    {
+        setAnimationSpeedFactor(mAnimationSpeedFactor);
+        RenderManager::getSingleton().rrSetObjectAnimationState(this, mPrevAnimationState, mPrevAnimationStateLoop);
+
+        if(mWalkDirection != Ogre::Vector3::ZERO)
+            RenderManager::getSingleton().rrOrientEntityToward(this, mWalkDirection);
+
+        // If the mesh has no skeleton, getAnimationState() could return null
+        if(getAnimationState() != nullptr)
+            getAnimationState()->addTime(mAnimationTime);
+    }
 }

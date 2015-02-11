@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,8 +25,8 @@
 #include <OgreStringConverter.h>
 
 ODSocketServer::ODSocketServer():
-    mThread(NULL),
-    mNewClient(NULL),
+    mThread(nullptr),
+    mNewClient(nullptr),
     mIsConnected(false)
 {
 }
@@ -155,24 +155,12 @@ ODSocketClient::ODComStatus ODSocketServer::sendMsgToClient(ODSocketClient* clie
     return client->send(packetReceived);
 }
 
-void ODSocketServer::sendMsgToAllClients(ODPacket& packetReceived)
-{
-    for (std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
-    {
-        ODSocketClient* client = *it;
-        if (!client || !client->isConnected())
-            continue;
-
-        client->send(packetReceived);
-    }
-}
-
 void ODSocketServer::stopServer()
 {
     mIsConnected = false;
-    if(mThread != NULL)
+    if(mThread != nullptr)
         delete mThread; // Delete waits for the thread to finish
-    mThread = NULL;
+    mThread = nullptr;
     mSockSelector.clear();
     mSockListener.close();
     for (std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
@@ -183,10 +171,10 @@ void ODSocketServer::stopServer()
     }
 
     mSockClients.clear();
-    if(mNewClient != NULL)
+    if(mNewClient != nullptr)
     {
         delete mNewClient;
-        mNewClient = NULL;
+        mNewClient = nullptr;
     }
 }
 

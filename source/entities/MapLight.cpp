@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,12 +17,16 @@
 
 #include "entities/MapLight.h"
 
+#include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "modes/ModeManager.h"
 #include "network/ODPacket.h"
+#include "network/ODServer.h"
+#include "network/ServerNotification.h"
 #include "render/RenderManager.h"
 #include "render/ODFrameListener.h"
 #include "utils/Helper.h"
+#include "utils/LogManager.h"
 #include "utils/Random.h"
 
 #include <sstream>
@@ -73,6 +77,54 @@ void MapLight::destroyMeshLocal()
     RenderManager::getSingleton().rrDestroyMapLight(this);
 }
 
+void MapLight::addToGameMap()
+{
+    getGameMap()->addMapLight(this);
+    setIsOnMap(true);
+    getGameMap()->addAnimatedObject(this);
+}
+
+void MapLight::removeFromGameMap()
+{
+    getGameMap()->removeMapLight(this);
+    setIsOnMap(false);
+    getGameMap()->removeAnimatedObject(this);
+
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    fireRemoveEntityToSeatsWithVision();
+    Tile* posTile = getPositionTile();
+    if(posTile != nullptr)
+        posTile->removeEntity(this);
+}
+
+std::vector<Tile*> MapLight::getCoveredTiles()
+{
+    std::vector<Tile*> tempVector;
+    tempVector.push_back(getPositionTile());
+    return tempVector;
+}
+
+Tile* MapLight::getCoveredTile(int index)
+{
+    OD_ASSERT_TRUE_MSG(index == 0, "name=" + getName()
+        + ", index=" + Ogre::StringConverter::toString(index));
+
+    if(index > 0)
+        return nullptr;
+
+    return getPositionTile();
+}
+
+uint32_t MapLight::numCoveredTiles()
+{
+    if(getPositionTile() == nullptr)
+        return 0;
+
+    return 1;
+}
+
 void MapLight::update(Ogre::Real timeSinceLastFrame)
 {
     if(getGameMap()->isServerGameMap())
@@ -93,31 +145,123 @@ void MapLight::update(Ogre::Real timeSinceLastFrame)
     RenderManager::getSingleton().rrMoveMapLightFlicker(this, flickerPosition);
 }
 
+void MapLight::fireAddEntity(Seat* seat, bool async)
+{
+    if(async)
+    {
+        ServerNotification serverNotification(
+            ServerNotificationType::addMapLight, seat->getPlayer());
+        exportToPacket(serverNotification.mPacket);
+        ODServer::getSingleton().sendAsyncMsg(serverNotification);
+    }
+    else
+    {
+        ServerNotification* serverNotification = new ServerNotification(
+            ServerNotificationType::addMapLight, seat->getPlayer());
+        exportToPacket(serverNotification->mPacket);
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
+}
+
+void MapLight::fireRemoveEntity(Seat* seat)
+{
+    const std::string& name = getName();
+    ServerNotification *serverNotification = new ServerNotification(
+        ServerNotificationType::removeMapLight, seat->getPlayer());
+    serverNotification->mPacket << name;
+    ODServer::getSingleton().queueServerNotification(serverNotification);
+}
+
+void MapLight::notifySeatsWithVision(const std::vector<Seat*>& seats)
+{
+    if(!mSeatsWithVisionNotified.empty())
+        return;
+
+    // MapLights are visible for every seat and are not removed when vision is lost
+    const std::vector<Seat*>& allSeats = getGameMap()->getSeats();
+    // We notify seats that gain vision
+    for(Seat* seat : allSeats)
+    {
+        mSeatsWithVisionNotified.push_back(seat);
+
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+
+        fireAddEntity(seat, false);
+    }
+}
+
+bool MapLight::tryPickup(Seat* seat)
+{
+    if(!getIsOnMap())
+        return false;
+
+    // We can pickup MapLights only in editor mode
+    if(getGameMap()->isInEditorMode())
+        return true;
+
+    return false;
+}
+
+void MapLight::pickup()
+{
+    setIsOnMap(false);
+    Tile* tile = getPositionTile();
+    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
+    if(tile == nullptr)
+        return;
+    OD_ASSERT_TRUE(tile->removeEntity(this));
+}
+
+bool MapLight::tryDrop(Seat* seat, Tile* tile)
+{
+    // In editor mode, we allow to drop the MapLight on any tile
+    if(getGameMap()->isInEditorMode())
+        return true;
+
+    return false;
+}
+
+void MapLight::drop(const Ogre::Vector3& v)
+{
+    setIsOnMap(true);
+    setPosition(v, false);
+}
+
+bool MapLight::canSlap(Seat* seat)
+{
+    if(!getIsOnMap())
+        return false;
+
+    // In editor mode, we allow to slap the MapLight to destroy it
+    if(getGameMap()->isInEditorMode())
+        return true;
+
+    return false;
+}
+
+void MapLight::slap()
+{
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    if(!getIsOnMap())
+        return;
+
+    // In editor mode, we allow to slap the MapLight to destroy it
+    if(!getGameMap()->isInEditorMode())
+        return;
+
+    removeFromGameMap();
+    deleteYourself();
+    return;
+}
+
 std::string MapLight::getFormat()
 {
     return "posX\tposY\tposZ\tdiffuseR\tdiffuseG\tdiffuseB\tspecularR\tspecularG\tspecularB\tattenRange\tattenConst\tattenLin\tattenQuad";
-}
-
-ODPacket& operator<<(ODPacket& os, MapLight* m)
-{
-    os << m->mPosition.x << m->mPosition.y << m->mPosition.z;
-    os << m->mDiffuseColor.r << m->mDiffuseColor.g << m->mDiffuseColor.b;
-    os << m->mSpecularColor.r << m->mSpecularColor.g << m->mSpecularColor.b;
-    os << m->mAttenuationRange << m->mAttenuationConstant;
-    os << m->mAttenuationLinear << m->mAttenuationQuadratic;
-
-    return os;
-}
-
-ODPacket& operator>>(ODPacket& is, MapLight* m)
-{
-    is >> m->mPosition.x >> m->mPosition.y >> m->mPosition.z;
-    is >> m->mDiffuseColor.r >> m->mDiffuseColor.g >> m->mDiffuseColor.b;
-    is >> m->mSpecularColor.r >> m->mSpecularColor.g >> m->mSpecularColor.b;
-    is >> m->mAttenuationRange >> m->mAttenuationConstant;
-    is >> m->mAttenuationLinear >> m->mAttenuationQuadratic;
-
-    return is;
 }
 
 void MapLight::loadFromLine(const std::string& line, MapLight* m)
@@ -142,22 +286,43 @@ void MapLight::loadFromLine(const std::string& line, MapLight* m)
     m->mAttenuationQuadratic = Helper::toDouble(elems[12]);
 }
 
-std::ostream& operator<<(std::ostream& os, MapLight *m)
+void MapLight::exportToStream(std::ostream& os) const
 {
-    os << m->mPosition.x << "\t" << m->mPosition.y << "\t" << m->mPosition.z;
-    os << "\t" << m->mDiffuseColor.r << "\t" << m->mDiffuseColor.g << "\t" << m->mDiffuseColor.b;
-    os << "\t" << m->mSpecularColor.r << "\t" << m->mSpecularColor.g << "\t" << m->mSpecularColor.b;
-    os << "\t" << m->mAttenuationRange << "\t" << m->mAttenuationConstant;
-    os << "\t" << m->mAttenuationLinear << "\t" << m->mAttenuationQuadratic;
-    return os;
+    os << mPosition.x << "\t" << mPosition.y << "\t" << mPosition.z;
+    os << "\t" << mDiffuseColor.r << "\t" << mDiffuseColor.g << "\t" << mDiffuseColor.b;
+    os << "\t" << mSpecularColor.r << "\t" << mSpecularColor.g << "\t" << mSpecularColor.b;
+    os << "\t" << mAttenuationRange << "\t" << mAttenuationConstant;
+    os << "\t" << mAttenuationLinear << "\t" << mAttenuationQuadratic;
 }
 
-std::istream& operator>>(std::istream& is, MapLight *m)
+void MapLight::importFromStream(std::istream& is)
 {
-    is >> m->mPosition.x >> m->mPosition.y >> m->mPosition.z;
-    is >> m->mDiffuseColor.r >> m->mDiffuseColor.g >> m->mDiffuseColor.b;
-    is >> m->mSpecularColor.r >> m->mSpecularColor.g >> m->mSpecularColor.b;
-    is >> m->mAttenuationRange >> m->mAttenuationConstant;
-    is >> m->mAttenuationLinear >> m->mAttenuationQuadratic;
-    return is;
+    OD_ASSERT_TRUE(is >> mPosition.x >> mPosition.y >> mPosition.z);
+    OD_ASSERT_TRUE(is >> mDiffuseColor.r >> mDiffuseColor.g >> mDiffuseColor.b);
+    OD_ASSERT_TRUE(is >> mSpecularColor.r >> mSpecularColor.g >> mSpecularColor.b);
+    OD_ASSERT_TRUE(is >> mAttenuationRange >> mAttenuationConstant);
+    OD_ASSERT_TRUE(is >> mAttenuationLinear >> mAttenuationQuadratic);
+}
+
+void MapLight::exportToPacket(ODPacket& os) const
+{
+    const std::string& name = getName();
+    os << name;
+    os << mPosition.x << mPosition.y << mPosition.z;
+    os << mDiffuseColor.r << mDiffuseColor.g << mDiffuseColor.b;
+    os << mSpecularColor.r << mSpecularColor.g << mSpecularColor.b;
+    os << mAttenuationRange << mAttenuationConstant;
+    os << mAttenuationLinear << mAttenuationQuadratic;
+}
+
+void MapLight::importFromPacket(ODPacket& is)
+{
+    std::string name;
+    OD_ASSERT_TRUE(is >> name);
+    setName(name);
+    OD_ASSERT_TRUE(is >> mPosition.x >> mPosition.y >> mPosition.z);
+    OD_ASSERT_TRUE(is >> mDiffuseColor.r >> mDiffuseColor.g >> mDiffuseColor.b);
+    OD_ASSERT_TRUE(is >> mSpecularColor.r >> mSpecularColor.g >> mSpecularColor.b);
+    OD_ASSERT_TRUE(is >> mAttenuationRange >> mAttenuationConstant);
+    OD_ASSERT_TRUE(is >> mAttenuationLinear >> mAttenuationQuadratic);
 }

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -28,15 +28,15 @@
 
 // class GameSound
 GameSound::GameSound(const std::string& filename, bool spatialSound):
-    mSound(NULL),
-    mSoundBuffer(NULL)
+    mSound(nullptr),
+    mSoundBuffer(nullptr)
 {
     // Loads the buffer
     mSoundBuffer = new sf::SoundBuffer();
     if (mSoundBuffer->loadFromFile(filename) == false)
     {
         delete mSoundBuffer;
-        mSoundBuffer = NULL;
+        mSoundBuffer = nullptr;
         return;
     }
 
@@ -69,13 +69,13 @@ GameSound::~GameSound()
     // The sound object must be stopped and destroyed before its corresponding
     // buffer to ensure detaching the sound stream from the sound source.
     // This prevents a lot of warnings at app quit.
-    if (mSound != NULL)
+    if (mSound != nullptr)
     {
         mSound->stop();
         delete mSound;
     }
 
-    if (mSoundBuffer != NULL)
+    if (mSoundBuffer != nullptr)
         delete mSoundBuffer;
 }
 
@@ -115,7 +115,7 @@ SoundEffectsManager::~SoundEffectsManager()
     std::map<std::string, GameSound*>::iterator it_end = mGameSoundCache.end();
     for (; it != it_end; ++it)
     {
-        if (it->second != NULL)
+        if (it->second != nullptr)
             delete it->second;
     }
 
@@ -123,7 +123,7 @@ SoundEffectsManager::~SoundEffectsManager()
     std::map<std::string, CreatureSound*>::iterator it2_end = mCreatureSoundCache.end();
     for (; it2 != it2_end; ++it2)
     {
-        if (it2->second != NULL)
+        if (it2->second != nullptr)
             delete it2->second;
     }
 }
@@ -145,35 +145,35 @@ void SoundEffectsManager::initializeInterfaceSounds()
     // Only one click sounds atm...
     {
         GameSound* gm = getGameSound(soundFolderPath + "Game/click.ogg", false);
-        if (gm != NULL)
+        if (gm != nullptr)
             mInterfaceSounds[BUTTONCLICK].push_back(gm);
     }
 
     // Only one dig select sound atm...
     {
         GameSound* gm = getGameSound(soundFolderPath + "Game/PickSelector.ogg", false);
-        if (gm != NULL)
+        if (gm != nullptr)
             mInterfaceSounds[DIGSELECT].push_back(gm);
     }
 
     // Only one build room sound atm...
     {
         GameSound* gm = getGameSound(soundFolderPath + "Rooms/default_build_room.ogg", false);
-        if (gm != NULL)
+        if (gm != nullptr)
             mInterfaceSounds[BUILDROOM].push_back(gm);
     }
 
     // Only one build trap sound atm...
     {
         GameSound* gm = getGameSound(soundFolderPath + "Rooms/default_build_trap.ogg", false);
-        if (gm != NULL)
+        if (gm != nullptr)
             mInterfaceSounds[BUILDTRAP].push_back(gm);
     }
 
     // Cannon firing sound
     {
         GameSound* gm = getGameSound(soundFolderPath + "Traps/cannon_firing.ogg", false);
-        if (gm != NULL)
+        if (gm != nullptr)
             mInterfaceSounds[CANNONFIRING].push_back(gm);
     }
 
@@ -183,7 +183,7 @@ void SoundEffectsManager::initializeInterfaceSounds()
     for (unsigned int i = 0; i < soundFilenames.size(); ++i)
     {
         GameSound* gm = getGameSound(soundFilenames[i], true);
-        if (gm != NULL)
+        if (gm != nullptr)
             mInterfaceSounds[ROCKFALLING].push_back(gm);
     }
 
@@ -193,7 +193,7 @@ void SoundEffectsManager::initializeInterfaceSounds()
     for (unsigned int i = 0; i < soundFilenames.size(); ++i)
     {
         GameSound* gm = getGameSound(soundFilenames[i], true);
-        if (gm != NULL)
+        if (gm != nullptr)
             mInterfaceSounds[CLAIMED].push_back(gm);
     }
 
@@ -203,7 +203,7 @@ void SoundEffectsManager::initializeInterfaceSounds()
     for (unsigned int i = 0; i < soundFilenames.size(); ++i)
     {
         GameSound* gm = getGameSound(soundFilenames[i], true);
-        if (gm != NULL)
+        if (gm != nullptr)
             mInterfaceSounds[DEPOSITGOLD].push_back(gm);
     }
 }
@@ -222,29 +222,29 @@ void SoundEffectsManager::initializeDefaultCreatureSounds()
     // Battle sounds
     std::vector<std::string> soundFilenames;
     Helper::fillFilesList(soundFolderPath + "Creatures/Default/Battle/", soundFilenames, ".ogg");
-    std::vector<GameSound*>& attackSounds = crSound->mSoundsPerType[CreatureSound::ATTACK];
+    std::vector<GameSound*>& attackSounds = crSound->mSoundsPerType[CreatureSound::SoundType::ATTACK];
     for (unsigned int i = 0; i < soundFilenames.size(); ++i)
     {
         GameSound* gm = getGameSound(soundFilenames[i], true);
-        if (gm != NULL)
+        if (gm != nullptr)
             attackSounds.push_back(gm);
     }
 
     // Digging sounds
     soundFilenames.clear();
     Helper::fillFilesList(soundFolderPath + "Creatures/Default/Digging/", soundFilenames, ".ogg");
-    std::vector<GameSound*>& diggingSounds = crSound->mSoundsPerType[CreatureSound::DIGGING];
+    std::vector<GameSound*>& diggingSounds = crSound->mSoundsPerType[CreatureSound::SoundType::DIGGING];
     for (unsigned int i = 0; i < soundFilenames.size(); ++i)
     {
         GameSound* gm = getGameSound(soundFilenames[i], true);
-        if (gm != NULL)
+        if (gm != nullptr)
             diggingSounds.push_back(gm);
     }
 
     // Pickup sounds - PICKUP
     // 1 sound atm...
     {
-        std::vector<GameSound*>& pickupSounds = crSound->mSoundsPerType[CreatureSound::PICKUP];
+        std::vector<GameSound*>& pickupSounds = crSound->mSoundsPerType[CreatureSound::SoundType::PICKUP];
         GameSound* gm = getGameSound(soundFolderPath + "Game/click.ogg", true);
         pickupSounds.push_back(gm);
     }
@@ -252,7 +252,7 @@ void SoundEffectsManager::initializeDefaultCreatureSounds()
     // Drop sounds - DROP
     // 1 sound atm...
     {
-        std::vector<GameSound*>& dropSounds = crSound->mSoundsPerType[CreatureSound::DROP];
+        std::vector<GameSound*>& dropSounds = crSound->mSoundsPerType[CreatureSound::SoundType::DROP];
         GameSound* gm = getGameSound(soundFolderPath + "Rooms/default_build_trap.ogg", true);
         dropSounds.push_back(gm);
     }
@@ -321,7 +321,7 @@ GameSound* SoundEffectsManager::getGameSound(const std::string& filename, bool s
         {
             // Invalid sound filename
             delete gm;
-            return NULL;
+            return nullptr;
         }
 
         mGameSoundCache.insert(std::make_pair(soundFile, gm));

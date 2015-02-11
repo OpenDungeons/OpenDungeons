@@ -13,9 +13,9 @@ resources.cfg
 *.exe
 *.log
 *.o
-*.sh
 *.zip
 *.a
+*.level.bak
 
 *~*
 .*.swp
@@ -36,3 +36,4 @@ ODscreenshot*
 ogre.cfg
 shaderCache
 CMakeLists.txt.user
+opendungeons.6

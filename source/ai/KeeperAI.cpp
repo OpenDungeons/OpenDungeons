@@ -1,5 +1,5 @@
 /*!
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 #include "entities/Creature.h"
 #include "gamemap/GameMap.h"
 #include "entities/Tile.h"
+#include "rooms/Room.h"
 #include "rooms/RoomCrypt.h"
 #include "rooms/RoomDormitory.h"
 #include "rooms/RoomForge.h"
@@ -27,6 +28,7 @@
 #include "rooms/RoomLibrary.h"
 #include "rooms/RoomTrainingHall.h"
 #include "rooms/RoomTreasury.h"
+#include "spell/Spell.h"
 #include "utils/LogManager.h"
 #include "utils/Random.h"
 
@@ -41,7 +43,8 @@ KeeperAI::KeeperAI(GameMap& gameMap, Player& player, const std::string& paramete
     mRoomSize(-1),
     mNoMoreReachableGold(false),
     mCooldownLookingForGold(0),
-    mCooldownDefense(0)
+    mCooldownDefense(0),
+    mCooldownWorkers(0)
 {
 }
 
@@ -54,6 +57,9 @@ bool KeeperAI::doTurn(double frameTime)
     saveWoundedCreatures();
 
     handleDefense();
+
+    if (handleWorkers())
+        return true;
 
     if (checkTreasury())
         return true;
@@ -77,12 +83,12 @@ bool KeeperAI::checkTreasury()
         return false;
     }
 
-    std::vector<Room*> treasuriesOwned = mGameMap.getRoomsByTypeAndSeat(Room::treasury,
+    std::vector<Room*> treasuriesOwned = mGameMap.getRoomsByTypeAndSeat(RoomType::treasury,
         mPlayer.getSeat());
 
     int nbTilesTreasuries = 0;
     for(Room* treasury : treasuriesOwned)
-        nbTilesTreasuries += treasury->getCoveredTiles().size();
+        nbTilesTreasuries += treasury->numCoveredTiles();
 
     // We want at least 3 tiles for a treasury
     if(nbTilesTreasuries >= 3)
@@ -98,13 +104,13 @@ bool KeeperAI::checkTreasury()
 
     // A treasury can be built if we have none (in this case, it is free). Otherwise,
     // we check if we have enough gold
-    if(nbTilesTreasuries > 0 && totalGold < Room::costPerTile(Room::RoomType::treasury))
+    if(nbTilesTreasuries > 0 && totalGold < Room::costPerTile(RoomType::treasury))
         return false;
 
     Tile* central = getDungeonTemple()->getCentralTile();
 
-    Creature* kobold = mGameMap.getKoboldForPathFinding(mPlayer.getSeat());
-    if (kobold == nullptr)
+    Creature* worker = mGameMap.getWorkerForPathFinding(mPlayer.getSeat());
+    if (worker == nullptr)
         return false;
 
     // We try in priority to gold next to an existing treasury
@@ -115,12 +121,12 @@ bool KeeperAI::checkTreasury()
             for(Tile* neigh : tile->getAllNeighbors())
             {
                 if(neigh->isBuildableUpon() && neigh->isClaimedForSeat(mPlayer.getSeat()) &&
-                   mGameMap.pathExists(kobold, central, neigh))
+                   mGameMap.pathExists(worker, central, neigh))
                 {
                     std::vector<Tile*> tiles;
                     int goldRequired;
                     mGameMap.fillBuildableTilesAndPriceForPlayerInArea(neigh->getX(), neigh->getY(),
-                        neigh->getX(), neigh->getY(), &mPlayer, Room::RoomType::treasury, tiles, goldRequired);
+                        neigh->getX(), neigh->getY(), &mPlayer, RoomType::treasury, tiles, goldRequired);
                     if (tiles.empty())
                         return false;
 
@@ -150,7 +156,7 @@ bool KeeperAI::checkTreasury()
             // North-East
             t = mGameMap.getTile(central->getX() + k, central->getY() + distance);
             if(t != nullptr && t->isBuildableUpon() && t->isClaimedForSeat(mPlayer.getSeat()) &&
-               mGameMap.pathExists(kobold, central, t))
+               mGameMap.pathExists(worker, central, t))
             {
                 firstAvailableTile = t;
                 break;
@@ -160,7 +166,7 @@ bool KeeperAI::checkTreasury()
             {
                 t = mGameMap.getTile(central->getX() - k, central->getY() + distance);
                 if(t != nullptr && t->isBuildableUpon() && t->isClaimedForSeat(mPlayer.getSeat()) &&
-                   mGameMap.pathExists(kobold, central, t))
+                   mGameMap.pathExists(worker, central, t))
                 {
                     firstAvailableTile = t;
                     break;
@@ -169,7 +175,7 @@ bool KeeperAI::checkTreasury()
             // South-East
             t = mGameMap.getTile(central->getX() + k, central->getY() - distance);
             if(t != nullptr && t->isBuildableUpon() && t->isClaimedForSeat(mPlayer.getSeat()) &&
-               mGameMap.pathExists(kobold, central, t))
+               mGameMap.pathExists(worker, central, t))
             {
                 firstAvailableTile = t;
                 break;
@@ -179,7 +185,7 @@ bool KeeperAI::checkTreasury()
             {
                 t = mGameMap.getTile(central->getX() - k, central->getY() - distance);
                 if(t != nullptr && t->isBuildableUpon() && t->isClaimedForSeat(mPlayer.getSeat()) &&
-                   mGameMap.pathExists(kobold, central, t))
+                   mGameMap.pathExists(worker, central, t))
                 {
                     firstAvailableTile = t;
                     break;
@@ -188,7 +194,7 @@ bool KeeperAI::checkTreasury()
             // East-North
             t = mGameMap.getTile(central->getX() + distance, central->getY() + k);
             if(t != nullptr && t->isBuildableUpon() && t->isClaimedForSeat(mPlayer.getSeat()) &&
-               mGameMap.pathExists(kobold, central, t))
+               mGameMap.pathExists(worker, central, t))
             {
                 firstAvailableTile = t;
                 break;
@@ -198,7 +204,7 @@ bool KeeperAI::checkTreasury()
             {
                 t = mGameMap.getTile(central->getX() + distance, central->getY() - k);
                 if(t != nullptr && t->isBuildableUpon() && t->isClaimedForSeat(mPlayer.getSeat()) &&
-                   mGameMap.pathExists(kobold, central, t))
+                   mGameMap.pathExists(worker, central, t))
                 {
                     firstAvailableTile = t;
                     break;
@@ -207,7 +213,7 @@ bool KeeperAI::checkTreasury()
             // West-North
             t = mGameMap.getTile(central->getX() - distance, central->getY() + k);
             if(t != nullptr && t->isBuildableUpon() && t->isClaimedForSeat(mPlayer.getSeat()) &&
-               mGameMap.pathExists(kobold, central, t))
+               mGameMap.pathExists(worker, central, t))
             {
                 firstAvailableTile = t;
                 break;
@@ -217,7 +223,7 @@ bool KeeperAI::checkTreasury()
             {
                 t = mGameMap.getTile(central->getX() - distance, central->getY() - k);
                 if(t != nullptr && t->isBuildableUpon() && t->isClaimedForSeat(mPlayer.getSeat()) &&
-                   mGameMap.pathExists(kobold, central, t))
+                   mGameMap.pathExists(worker, central, t))
                 {
                     firstAvailableTile = t;
                     break;
@@ -230,14 +236,14 @@ bool KeeperAI::checkTreasury()
     }
 
     // We couldn't find any available tile T_T
-    // We return true to avoid doing something else to let kobolds claim
+    // We return true to avoid doing something else to let workers claim
     if(firstAvailableTile == nullptr)
         return true;
 
     std::vector<Tile*> tiles;
     int goldRequired;
     mGameMap.fillBuildableTilesAndPriceForPlayerInArea(firstAvailableTile->getX(), firstAvailableTile->getY(),
-        firstAvailableTile->getX(), firstAvailableTile->getY(), &mPlayer, Room::RoomType::treasury, tiles, goldRequired);
+        firstAvailableTile->getX(), firstAvailableTile->getY(), &mPlayer, RoomType::treasury, tiles, goldRequired);
     if (tiles.empty())
         return false;
 
@@ -333,7 +339,7 @@ bool KeeperAI::lookForGold()
 
     // Do we need gold ?
     int emptyStorage = 0;
-    std::vector<Room*> treasuriesOwned = mGameMap.getRoomsByTypeAndSeat(Room::treasury,
+    std::vector<Room*> treasuriesOwned = mGameMap.getRoomsByTypeAndSeat(RoomType::treasury,
         mPlayer.getSeat());
     for(Room* room : treasuriesOwned)
     {
@@ -358,7 +364,7 @@ bool KeeperAI::lookForGold()
             Tile* t;
             // North-East
             t = mGameMap.getTile(central->getX() + k, central->getY() + distance);
-            if(t != nullptr && t->getType() == Tile::gold && t->getFullness() > 0.0)
+            if(t != nullptr && t->getType() == TileType::gold && t->getFullness() > 0.0)
             {
                 // If we already have a tile at same distance, we randomly change to
                 // try to not be too predictable
@@ -369,7 +375,7 @@ bool KeeperAI::lookForGold()
             if(k > 0)
             {
                 t = mGameMap.getTile(central->getX() - k, central->getY() + distance);
-                if(t != nullptr && t->getType() == Tile::gold && t->getFullness() > 0.0)
+                if(t != nullptr && t->getType() == TileType::gold && t->getFullness() > 0.0)
                 {
                     if((firstGoldTile == nullptr) || (Random::Uint(1,2) == 1))
                         firstGoldTile = t;
@@ -377,7 +383,7 @@ bool KeeperAI::lookForGold()
             }
             // South-East
             t = mGameMap.getTile(central->getX() + k, central->getY() - distance);
-            if(t != nullptr && t->getType() == Tile::gold && t->getFullness() > 0.0)
+            if(t != nullptr && t->getType() == TileType::gold && t->getFullness() > 0.0)
             {
                 if((firstGoldTile == nullptr) || (Random::Uint(1,2) == 1))
                     firstGoldTile = t;
@@ -386,7 +392,7 @@ bool KeeperAI::lookForGold()
             if(k > 0)
             {
                 t = mGameMap.getTile(central->getX() - k, central->getY() - distance);
-                if(t != nullptr && t->getType() == Tile::gold && t->getFullness() > 0.0)
+                if(t != nullptr && t->getType() == TileType::gold && t->getFullness() > 0.0)
                 {
                     if((firstGoldTile == nullptr) || (Random::Uint(1,2) == 1))
                         firstGoldTile = t;
@@ -394,7 +400,7 @@ bool KeeperAI::lookForGold()
             }
             // East-North
             t = mGameMap.getTile(central->getX() + distance, central->getY() + k);
-            if(t != nullptr && t->getType() == Tile::gold && t->getFullness() > 0.0)
+            if(t != nullptr && t->getType() == TileType::gold && t->getFullness() > 0.0)
             {
                 if((firstGoldTile == nullptr) || (Random::Uint(1,2) == 1))
                     firstGoldTile = t;
@@ -403,7 +409,7 @@ bool KeeperAI::lookForGold()
             if(k > 0)
             {
                 t = mGameMap.getTile(central->getX() + distance, central->getY() - k);
-                if(t != nullptr && t->getType() == Tile::gold && t->getFullness() > 0.0)
+                if(t != nullptr && t->getType() == TileType::gold && t->getFullness() > 0.0)
                 {
                     if((firstGoldTile == nullptr) || (Random::Uint(1,2) == 1))
                         firstGoldTile = t;
@@ -411,7 +417,7 @@ bool KeeperAI::lookForGold()
             }
             // West-North
             t = mGameMap.getTile(central->getX() - distance, central->getY() + k);
-            if(t != nullptr && t->getType() == Tile::gold && t->getFullness() > 0.0)
+            if(t != nullptr && t->getType() == TileType::gold && t->getFullness() > 0.0)
             {
                 if((firstGoldTile == nullptr) || (Random::Uint(1,2) == 1))
                     firstGoldTile = t;
@@ -420,7 +426,7 @@ bool KeeperAI::lookForGold()
             if(k > 0)
             {
                 t = mGameMap.getTile(central->getX() - distance, central->getY() - k);
-                if(t != nullptr && t->getType() == Tile::gold && t->getFullness() > 0.0)
+                if(t != nullptr && t->getType() == TileType::gold && t->getFullness() > 0.0)
                 {
                     if((firstGoldTile == nullptr) || (Random::Uint(1,2) == 1))
                         firstGoldTile = t;
@@ -463,7 +469,7 @@ bool KeeperAI::lookForGold()
         {
             for(Tile* neigh : tile->getAllNeighbors())
             {
-                if(neigh->getType() == Tile::gold && neigh->getFullness() > 0.0)
+                if(neigh->getType() == TileType::gold && neigh->getFullness() > 0.0)
                     tilesDig.insert(neigh);
             }
         }
@@ -480,14 +486,14 @@ bool KeeperAI::buildMostNeededRoom()
     std::vector<Room*> rooms;
 
     // Dormitory
-    rooms = mGameMap.getRoomsByTypeAndSeat(Room::RoomType::dormitory, mPlayer.getSeat());
+    rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::dormitory, mPlayer.getSeat());
     uint32_t nbDormitory = rooms.size();
     if(nbDormitory == 0)
     {
         std::vector<Tile*> tiles;
         int goldRequired;
         mGameMap.fillBuildableTilesAndPriceForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-            mRoomPosY + mRoomSize - 1, &mPlayer, Room::RoomType::dormitory, tiles, goldRequired);
+            mRoomPosY + mRoomSize - 1, &mPlayer, RoomType::dormitory, tiles, goldRequired);
         if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
             return false;
 
@@ -499,7 +505,7 @@ bool KeeperAI::buildMostNeededRoom()
         return true;
     }
 
-    std::vector<Room*> treasuriesOwned = mGameMap.getRoomsByTypeAndSeat(Room::treasury,
+    std::vector<Room*> treasuriesOwned = mGameMap.getRoomsByTypeAndSeat(RoomType::treasury,
         mPlayer.getSeat());
     int emptyStorage = 0;
     int totalGold = 0;
@@ -515,7 +521,7 @@ bool KeeperAI::buildMostNeededRoom()
         std::vector<Tile*> tiles;
         int goldRequired;
         mGameMap.fillBuildableTilesAndPriceForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-            mRoomPosY + mRoomSize - 1, &mPlayer, Room::RoomType::treasury, tiles, goldRequired);
+            mRoomPosY + mRoomSize - 1, &mPlayer, RoomType::treasury, tiles, goldRequired);
         if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
             return false;
 
@@ -528,13 +534,13 @@ bool KeeperAI::buildMostNeededRoom()
     }
 
     // hatchery
-    rooms = mGameMap.getRoomsByTypeAndSeat(Room::RoomType::hatchery, mPlayer.getSeat());
+    rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::hatchery, mPlayer.getSeat());
     if(rooms.empty())
     {
         std::vector<Tile*> tiles;
         int goldRequired;
         mGameMap.fillBuildableTilesAndPriceForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-            mRoomPosY + mRoomSize - 1, &mPlayer, Room::RoomType::hatchery, tiles, goldRequired);
+            mRoomPosY + mRoomSize - 1, &mPlayer, RoomType::hatchery, tiles, goldRequired);
         if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
             return false;
 
@@ -547,13 +553,13 @@ bool KeeperAI::buildMostNeededRoom()
     }
 
     // trainingHall
-    rooms = mGameMap.getRoomsByTypeAndSeat(Room::RoomType::trainingHall, mPlayer.getSeat());
+    rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::trainingHall, mPlayer.getSeat());
     if(rooms.empty())
     {
         std::vector<Tile*> tiles;
         int goldRequired;
         mGameMap.fillBuildableTilesAndPriceForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-            mRoomPosY + mRoomSize - 1, &mPlayer, Room::RoomType::trainingHall, tiles, goldRequired);
+            mRoomPosY + mRoomSize - 1, &mPlayer, RoomType::trainingHall, tiles, goldRequired);
         if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
             return false;
 
@@ -566,13 +572,13 @@ bool KeeperAI::buildMostNeededRoom()
     }
 
     // forge
-    rooms = mGameMap.getRoomsByTypeAndSeat(Room::RoomType::forge, mPlayer.getSeat());
+    rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::forge, mPlayer.getSeat());
     if(rooms.empty())
     {
         std::vector<Tile*> tiles;
         int goldRequired;
         mGameMap.fillBuildableTilesAndPriceForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-            mRoomPosY + mRoomSize - 1, &mPlayer, Room::RoomType::forge, tiles, goldRequired);
+            mRoomPosY + mRoomSize - 1, &mPlayer, RoomType::forge, tiles, goldRequired);
         if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
             return false;
 
@@ -585,13 +591,13 @@ bool KeeperAI::buildMostNeededRoom()
     }
 
     // library
-    rooms = mGameMap.getRoomsByTypeAndSeat(Room::RoomType::library, mPlayer.getSeat());
+    rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::library, mPlayer.getSeat());
     if(rooms.empty())
     {
         std::vector<Tile*> tiles;
         int goldRequired;
         mGameMap.fillBuildableTilesAndPriceForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-            mRoomPosY + mRoomSize - 1, &mPlayer, Room::RoomType::library, tiles, goldRequired);
+            mRoomPosY + mRoomSize - 1, &mPlayer, RoomType::library, tiles, goldRequired);
         if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
             return false;
 
@@ -609,7 +615,7 @@ bool KeeperAI::buildMostNeededRoom()
         std::vector<Tile*> tiles;
         int goldRequired;
         mGameMap.fillBuildableTilesAndPriceForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-            mRoomPosY + mRoomSize - 1, &mPlayer, Room::RoomType::dormitory, tiles, goldRequired);
+            mRoomPosY + mRoomSize - 1, &mPlayer, RoomType::dormitory, tiles, goldRequired);
         if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
             return false;
 
@@ -622,13 +628,13 @@ bool KeeperAI::buildMostNeededRoom()
     }
 
     // Crypt
-    rooms = mGameMap.getRoomsByTypeAndSeat(Room::RoomType::crypt, mPlayer.getSeat());
+    rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::crypt, mPlayer.getSeat());
     if(rooms.empty())
     {
         std::vector<Tile*> tiles;
         int goldRequired;
         mGameMap.fillBuildableTilesAndPriceForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-            mRoomPosY + mRoomSize - 1, &mPlayer, Room::RoomType::crypt, tiles, goldRequired);
+            mRoomPosY + mRoomSize - 1, &mPlayer, RoomType::crypt, tiles, goldRequired);
         if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
             return false;
 
@@ -653,7 +659,7 @@ void KeeperAI::saveWoundedCreatures()
     for(Creature* creature : creatures)
     {
         // We take away fleeing creatures not too near our dungeon heart
-        if(!creature->isActionInList(CreatureAction::ActionType::flee))
+        if(!creature->isActionInList(CreatureActionType::flee))
             continue;
         Tile* tile = creature->getPositionTile();
         if(tile == nullptr)
@@ -666,10 +672,10 @@ void KeeperAI::saveWoundedCreatures()
             continue;
         }
 
-        if(!creature->tryPickup(seat, false))
+        if(!creature->tryPickup(seat))
             continue;
 
-        mPlayer.pickUpEntity(creature, false);
+        mPlayer.pickUpEntity(creature);
 
         OD_ASSERT_TRUE(mPlayer.dropHand(dungeonTempleTile) == creature);
     }
@@ -692,7 +698,7 @@ void KeeperAI::handleDefense()
     for(Creature* creature : creatures)
     {
         // We check if a creature is fighting near a claimed tile. If yes, we drop a creature nearby
-        if(!creature->isActionInList(CreatureAction::ActionType::fight))
+        if(!creature->isActionInList(CreatureActionType::fight))
             continue;
 
         Tile* tile = creature->getPositionTile();
@@ -703,18 +709,49 @@ void KeeperAI::handleDefense()
         if(creatureToDrop == nullptr)
             continue;
 
-        if(!creatureToDrop->tryPickup(seat, false))
+        if(!creatureToDrop->tryPickup(seat))
             continue;
 
         for(Tile* neigh : tile->getAllNeighbors())
         {
-            if(creatureToDrop->tryDrop(seat, neigh, false))
+            if(creatureToDrop->tryDrop(seat, neigh))
             {
-                mPlayer.pickUpEntity(creatureToDrop, false);
+                mPlayer.pickUpEntity(creatureToDrop);
                 OD_ASSERT_TRUE(mPlayer.dropHand(neigh) == creatureToDrop);
                 mCooldownDefense = Random::Int(0,5);
                 return;
             }
         }
     }
+}
+
+bool KeeperAI::handleWorkers()
+{
+    if(mCooldownWorkers > 0)
+    {
+        --mCooldownWorkers;
+        return false;
+    }
+
+    mCooldownWorkers = Random::Int(3,10);
+
+    Tile* central = getDungeonTemple()->getCentralTile();
+    std::vector<Tile*> tiles;
+    tiles.push_back(central);
+    int summonCost = Spell::getSpellCost(&mGameMap, SpellType::summonWorker, tiles, &mPlayer);
+    int mana = static_cast<int>(mPlayer.getSeat()->getMana());
+    if(mana < summonCost)
+        return false;
+
+    // If we have less than 4 workers or we have the chance, we summon
+    int nbWorkers = mGameMap.getNbWorkersForSeat(mPlayer.getSeat());
+    if((nbWorkers < 4) ||
+       (Random::Int(0, nbWorkers * 3) == 0))
+    {
+        mPlayer.getSeat()->takeMana(mana);
+        Spell::castSpell(&mGameMap, SpellType::summonWorker, tiles, &mPlayer);
+        return true;
+    }
+
+    return false;
 }

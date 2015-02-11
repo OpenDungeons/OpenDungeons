@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,11 +18,11 @@
 #ifndef TRAPCANNON_H
 #define TRAPCANNON_H
 
-#include "ProximityTrap.h"
+#include "Trap.h"
 
 class ODPacket;
 
-class TrapCannon : public ProximityTrap
+class TrapCannon : public Trap
 {
 public:
     static const std::string MESH_CANON;
@@ -49,7 +49,9 @@ public:
         return true;
     }
 
-    virtual RenderedMovableEntity* notifyActiveSpotCreated(Tile* tile);
+    virtual TrapEntity* getTrapEntity(Tile* tile);
+private:
+    uint32_t mRange;
 };
 
 #endif // TRAPCANNON_H

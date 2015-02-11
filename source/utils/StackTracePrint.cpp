@@ -4,7 +4,7 @@
  *  \brief  Namespace StackTracePrint containing functions for call
  *  stack printing ( by default after program crash).
  *
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 
 #include "utils/StackTracePrint.h"
 
-void StackTracePrint::critErrHandler(int sig_num, siginfo_t * info, void * ucontext)
+void StackTracePrint::critErrHandler(int sig_num, siginfo_t* info, void* ucontext)
 {
 // Prevent running a function that isn't supported on certain platforms.
 #if not defined (__i386__) & not defined (__x86_64__)
@@ -35,18 +35,18 @@ void StackTracePrint::critErrHandler(int sig_num, siginfo_t * info, void * ucont
     return;
 #endif
 
-    void *             array[50];
-    void *             caller_address;
-    sig_ucontext_t * uc = (sig_ucontext_t *)ucontext;
+    void* array[50];
+    void* caller_address;
+    sig_ucontext_t* uc = (sig_ucontext_t *)ucontext;
 
 #if defined(__i386__) // gcc specific
-    caller_address = (void *) uc->uc_mcontext.eip; // EIP: x86 specific
+    caller_address = (void*) uc->uc_mcontext.eip; // EIP: x86 specific
 #elif defined(__x86_64__) // gcc specific
-    caller_address = (void *) uc->uc_mcontext.rip; // RIP: x86_64 specific
+    caller_address = (void*) uc->uc_mcontext.rip; // RIP: x86_64 specific
 #else
 #error Unsupported architecture. // TODO: Add support for other arch.
 #endif
-    // void * caller_address = (void *) uc->uc_mcontext.eip; // x86 specific
+    // void* caller_address = (void*) uc->uc_mcontext.eip; // x86 specific
 
     std::cerr << "signal " << sig_num
               << " (" << strsignal(sig_num) << "), address is "
@@ -57,15 +57,15 @@ void StackTracePrint::critErrHandler(int sig_num, siginfo_t * info, void * ucont
 
     array[1] = caller_address;
 
-    char ** messages = backtrace_symbols(array, size);
+    char** messages = backtrace_symbols(array, size);
 
     // skip first stack frame (points here)
-    for (int i = 1; i < size && messages != NULL; ++i)
+    for (int i = 1; i < size && messages != nullptr; ++i)
     {
-        char *mangled_name = 0, *offset_begin = 0, *offset_end = 0;
+        char* mangled_name = 0, *offset_begin = 0, *offset_end = 0;
 
         // find parantheses and +address offset surrounding mangled name
-        for (char *p = messages[i]; *p; ++p)
+        for (char* p = messages[i]; *p; ++p)
         {
             if (*p == '(')
             {

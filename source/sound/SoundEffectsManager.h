@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -48,7 +48,7 @@ public:
     ~GameSound();
 
     bool isInitialized() const
-    { return !(mSoundBuffer == NULL); }
+    { return !(mSoundBuffer == nullptr); }
 
     //! \brief Play at the given spatial position
     void play(float x, float y, float z);
@@ -143,8 +143,11 @@ private:
     //! If an unexisting file is given, a new cache instance is returned.
     //! \note Use this function only to create new game sounds as it is the only way to make sure
     //! the GameSound* instance is correclty cleared up when quitting.
-    //! \warning Returns NULL if the filename is an invalid/unreadable sound.
+    //! \warning Returns nullptr if the filename is an invalid/unreadable sound.
     GameSound* getGameSound(const std::string& filename, bool spatialSound = false);
+
+    //! \brief The list of available sound to play per type.
+    std::vector<std::pair<std::vector<GameSound*>,int>> mSoundsPerType;
 };
 
 #endif // SOUNDEFFECTSMANAGER_H_

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ class ODPacket;
 class GameMap;
 class CreatureDefinition;
 class Player;
+class Tile;
 
 class Seat
 {
@@ -99,27 +100,30 @@ public:
 
     void refreshFromSeat(Seat* s);
 
-    int getTeamId() const
+    inline int getTeamId() const
     { return mTeamId; }
+
+    inline bool isRogueSeat() const
+    { return mId == 0; }
 
     void setTeamId(int teamId);
 
-    const std::vector<int>& getAvailableTeamIds() const
+    inline const std::vector<int>& getAvailableTeamIds() const
     { return mAvailableTeamIds; }
 
-    int getId() const
+    inline int getId() const
     { return mId; }
 
-    const std::string& getFaction() const
+    inline const std::string& getFaction() const
     { return mFaction; }
 
-    void setFaction(const std::string& faction)
+    inline void setFaction(const std::string& faction)
     { mFaction = faction; }
 
-    const std::string& getColorId() const
+    inline const std::string& getColorId() const
     { return mColorId; }
 
-    const Ogre::ColourValue& getColorValue() const
+    inline const Ogre::ColourValue& getColorValue() const
     { return mColorValue; }
 
     inline int getGold() const
@@ -134,6 +138,8 @@ public:
     inline double getManaDelta() const
     { return mManaDelta; }
 
+    bool takeMana(double mana);
+
     inline int getStartingGold() const
     { return mStartingGold; }
 
@@ -143,17 +149,34 @@ public:
     inline void addGoldMined(int quantity)
     { mGoldMined += quantity; }
 
-    const std::string& getPlayerType() const
+    inline bool getIsDebuggingVision()
+    { return mIsDebuggingVision; }
+
+    inline int getNbTreasuries() const
+    { return mNbTreasuries; }
+
+    inline const std::string& getPlayerType() const
     { return mPlayerType; }
 
-    void setPlayerType(const std::string& playerType)
+    inline void setPlayerType(const std::string& playerType)
     { mPlayerType = playerType; }
 
     void setPlayer(Player* player);
 
+    void addAlliedSeat(Seat* seat);
+
     void initSpawnPool();
 
-    const CreatureDefinition* getNextCreatureClassToSpawn();
+    void setMapSize(int x, int y);
+
+    //! \brief Returns the next fighter creature class to spawn.
+    const CreatureDefinition* getNextFighterClassToSpawn();
+
+    //! \brief Returns the first (default) worker class definition.
+    inline const CreatureDefinition* getWorkerClassToSpawn()
+    {
+        return mDefaultWorkerClass;
+    }
 
     //! \brief Returns true if the given seat is allied. False otherwise
     bool isAlliedSeat(Seat *seat);
@@ -165,7 +188,34 @@ public:
     bool canRoomBeDestroyedBy(Seat* seat);
     bool canTrapBeDestroyedBy(Seat* seat);
 
+    void clearTilesWithVision();
+    void notifyVisionOnTile(Tile* tile);
+
+    //! \brief Returns true if this seat can see the given tile and false otherwise
+    bool hasVisionOnTile(Tile* tile);
+
+    //! \brief Checks if the visible tiles seen by this seat have changed and notify
+    //! the players if yes
+    void notifyChangedVisibleTiles();
+
+    //! \brief Server side to display the tile this seat has vision on
+    void displaySeatVisualDebug(bool enable);
+
+    //! Sends a message to the player on this seat to refresh the list of tiles he has vision on
+    void sendVisibleTiles();
+
+    //! \brief Client side to display the tile this seat has vision on
+    void refreshVisualDebugEntities(const std::vector<Tile*>& tiles);
+    void stopVisualDebugEntities();
+
+    const std::vector<Seat*>& getAlliedSeats()
+    { return mAlliedSeats; }
+
+    void computeSeatBeforeSendingToClient();
+
     static bool sortForMapSave(Seat* s1, Seat* s2);
+
+    static Seat* getRogueSeat(GameMap* gameMap);
 
     static std::string getFormat();
     friend ODPacket& operator<<(ODPacket& os, Seat *s);
@@ -233,10 +283,23 @@ private:
     //! \brief Team ids this seat can use defined in the level file.
     std::vector<int> mAvailableTeamIds;
 
+    //! \brief Contains all the seats allied with the current one, not including it. Used on server side only.
+    std::vector<Seat*> mAlliedSeats;
+
     //! \brief The creatures the current seat is allowed to spawn (when following the conditions). CreatureDefinition
     //! are managed by the configuration manager and should NOT be deleted. The boolean will be set to false at beginning
     //! if the spawning conditions are not empty and are met, we will set it to true and force spawning of the related creature
     std::vector<std::pair<const CreatureDefinition*, bool> > mSpawnPool;
+
+    //! \brief The default workers spawned in temples.
+    const CreatureDefinition* mDefaultWorkerClass;
+
+    //! \brief List of all the tiles in the gamemap (used for human players seats only). The first vector stores the X position.
+    //! The second vector stores the Y position. The first bool from the pair is set to true if the seat had vision on the concerned
+    //! tile during the last turn. The second bool is the same but for the current turn. That allows to notify only the tiles where
+    //! vision changed
+    std::vector<std::vector<std::pair<bool, bool>>> mTilesVision;
+    std::vector<Tile*> mVisualDebugEntityTiles;
 
     //! \brief How many tiles have been claimed by this seat, updated in GameMap::doTurn().
     unsigned int mNumClaimedTiles;
@@ -248,6 +311,11 @@ private:
 
     //! \brief The seat id. Allows to identify this seat. Must be unique per level file.
     int mId;
+
+    //! \brief The number of treasuries the player owns. Useful to display the first free tile on client side.
+    int mNbTreasuries;
+
+    bool mIsDebuggingVision;
 };
 
 #endif // SEAT_H

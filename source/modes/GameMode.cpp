@@ -1,8 +1,5 @@
 /*!
- * \date:  02 July 2011
- * \author StefanP.MUC
- *
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,26 +17,28 @@
 
 #include "modes/GameMode.h"
 
-#include "network/ODClient.h"
-#include "render/Gui.h"
-#include "render/ODFrameListener.h"
-#include "utils/LogManager.h"
-#include "render/Gui.h"
-#include "utils/ResourceManager.h"
-#include "render/TextRenderer.h"
+#include "camera/CameraManager.h"
 #include "entities/Creature.h"
 #include "entities/MapLight.h"
-#include "game/Seat.h"
-#include "traps/Trap.h"
-#include "game/Player.h"
-#include "render/RenderManager.h"
-#include "camera/CameraManager.h"
-#include "modes/Console.h"
-#include "sound/MusicPlayer.h"
-#include "network/ODServer.h"
-#include "ODApplication.h"
 #include "entities/RenderedMovableEntity.h"
 #include "gamemap/MiniMap.h"
+#include "game/Seat.h"
+#include "game/Player.h"
+#include "network/ODClient.h"
+#include "network/ODServer.h"
+#include "render/RenderManager.h"
+#include "render/Gui.h"
+#include "render/ODFrameListener.h"
+#include "render/Gui.h"
+#include "render/TextRenderer.h"
+#include "rooms/Room.h"
+#include "sound/MusicPlayer.h"
+#include "spell/Spell.h"
+#include "traps/Trap.h"
+#include "utils/LogManager.h"
+#include "utils/Helper.h"
+#include "utils/ResourceManager.h"
+#include "ODApplication.h"
 
 #include <CEGUI/WindowManager.h>
 #include <CEGUI/widgets/PushButton.h>
@@ -51,7 +50,7 @@
 #include <vector>
 #include <string>
 
-//! \brief Colors used by the room/trap text overlay
+//! \brief Colors used by the room/trap/spell text overlay
 static Ogre::ColourValue white = Ogre::ColourValue(1.0f, 1.0f, 1.0f, 1.0f);
 static Ogre::ColourValue red = Ogre::ColourValue(1.0f, 0.0f, 0.0, 1.0f);
 
@@ -74,20 +73,11 @@ GameMode::~GameMode()
         mHelpWindow->destroy();
 }
 
-//! \brief Converts an int value into a 2 digits-long Hex string value.
-std::string intTo2Hex(int i)
-{
-  std::stringstream stream;
-  stream << std::setfill('0') << std::setw(2) << std::hex << i;
-  return stream.str();
-}
-
 //! \brief Gets the CEGUI ImageColours string property (AARRGGBB format) corresponding
 //! to the given Ogre ColourValue.
 std::string getImageColoursStringFromColourValue(const Ogre::ColourValue& color)
 {
-    std::string colourStr = intTo2Hex(static_cast<int>(color.a * 255.0f)) + intTo2Hex(static_cast<int>(color.r * 255.0f))
-        + intTo2Hex(static_cast<int>(color.g * 255.0f)) + intTo2Hex(static_cast<int>(color.b * 255.0f));
+    std::string colourStr = Helper::getCEGUIColorFromOgreColourValue(color);
     std::string imageColours = "tl:" + colourStr + " tr:" + colourStr + " bl:" + colourStr + " br:" + colourStr;
     return imageColours;
 }
@@ -95,9 +85,16 @@ std::string getImageColoursStringFromColourValue(const Ogre::ColourValue& color)
 void GameMode::activate()
 {
     // Loads the corresponding Gui sheet.
-    Gui::getSingleton().loadGuiSheet(Gui::inGameMenu);
+    Gui& gui = Gui::getSingleton();
+    gui.loadGuiSheet(Gui::inGameMenu);
 
-    Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild(Gui::EXIT_CONFIRMATION_POPUP)->hide();
+    // Hides the exit pop-up and certain buttons only used by the editor.
+    CEGUI::Window* guiSheet = gui.getGuiSheet(Gui::inGameMenu);
+    guiSheet->getChild(Gui::EXIT_CONFIRMATION_POPUP)->hide();
+    guiSheet->getChild(Gui::BUTTON_TEMPLE)->hide();
+    guiSheet->getChild(Gui::BUTTON_PORTAL)->hide();
+    guiSheet->getChild("ObjectivesWindow")->hide();
+    guiSheet->getChild("SettingsWindow")->hide();
 
     MiniMap* minimap = ODFrameListener::getSingleton().getMiniMap();
     minimap->attachMiniMap(Gui::guiSheet::inGameMenu);
@@ -110,7 +107,7 @@ void GameMode::activate()
     // Show the player seat color on the horizontal pipe - AARRGGBB format
     // ex: "tl:FF0000FF tr:FF0000FF bl:FF0000FF br:FF0000FF"
     std::string colorStr = getImageColoursStringFromColourValue(mGameMap->getLocalPlayer()->getSeat()->getColorValue());
-    Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild("HorizontalPipe")->setProperty("ImageColours", colorStr);
+    guiSheet->getChild("HorizontalPipe")->setProperty("ImageColours", colorStr);
 
     if(mGameMap->getTurnNumber() != -1)
     {
@@ -148,11 +145,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
     if (!isConnected())
         return true;
 
-    ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
     InputManager* inputManager = mModeManager->getInputManager();
-
-    if (frameListener->isTerminalActive())
-        return true;
 
     // If we have a room or trap (or later spell) selected, show what we have selected
     // TODO: This should be changed, or combined with an icon or something later.
@@ -161,7 +154,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
     {
         TextRenderer& textRenderer = TextRenderer::getSingleton();
         textRenderer.moveText(ODApplication::POINTER_INFO_STRING,
-            (Ogre::Real)(arg.state.X.abs + 30), (Ogre::Real)arg.state.Y.abs);
+            static_cast<Ogre::Real>(arg.state.X.abs + 30), static_cast<Ogre::Real>(arg.state.Y.abs));
 
         switch(player->getCurrentAction())
         {
@@ -178,13 +171,13 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 }
 
                 int gold = player->getSeat()->getGold();
-                Room::RoomType selectedRoomType = player->getNewRoomType();
+                RoomType selectedRoomType = player->getNewRoomType();
                 int price = Room::costPerTile(selectedRoomType) * nbTile;
 
                 // Check whether the room type is the first treasury tile.
                 // In that case, the cost of the first tile is 0, to prevent the player from being stuck
                 // with no means to earn money.
-                if (selectedRoomType == Room::treasury && mGameMap->numRoomsByTypeAndSeat(Room::treasury, player->getSeat()) == 0)
+                if (nbTile > 0 && selectedRoomType == RoomType::treasury && player->getSeat()->getNbTreasuries() == 0)
                     price -= Room::costPerTile(selectedRoomType);
 
                 Ogre::ColourValue& textColor = (gold < price) ? red : white;
@@ -206,11 +199,37 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 }
 
                 int gold = player->getSeat()->getGold();
-                Trap::TrapType selectedTrapType = player->getNewTrapType();
+                TrapType selectedTrapType = player->getNewTrapType();
                 int price = Trap::costPerTile(selectedTrapType) * nbTile;
                 Ogre::ColourValue& textColor = (gold < price) ? red : white;
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
                 textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Trap::getTrapNameFromTrapType(selectedTrapType))
+                    + " [" + Ogre::StringConverter::toString(price)+ "]");
+                break;
+            }
+            case Player::SelectedAction::castSpell:
+            {
+                // If the player is dragging to build, we display the total price the room/trap will cost.
+                // If he is not, we display the price for 1 tile.
+                std::vector<Tile*> tiles;
+                if(inputManager->mLMouseDown)
+                {
+                    tiles = mGameMap->getBuildableTilesForPlayerInArea(inputManager->mXPos,
+                        inputManager->mYPos, inputManager->mLStartDragX, inputManager->mLStartDragY, player);
+                }
+                else
+                {
+                    Tile* tile = mGameMap->getTile(inputManager->mXPos, inputManager->mYPos);
+                    if(tile != nullptr)
+                        tiles.push_back(tile);
+                }
+
+                int mana = player->getSeat()->getMana();
+                SpellType selectedSpellType = player->getNewSpellType();
+                int price = Spell::getSpellCost(mGameMap, selectedSpellType, tiles, player);
+                Ogre::ColourValue& textColor = (mana < price) ? red : white;
+                textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
+                textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Spell::getSpellNameFromSpellType(selectedSpellType))
                     + " [" + Ogre::StringConverter::toString(price)+ "]");
                 break;
             }
@@ -226,7 +245,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 else
                 {
                     Tile* tile = mGameMap->getTile(inputManager->mXPos, inputManager->mYPos);
-                    if(tile != NULL)
+                    if(tile != nullptr)
                         tiles.push_back(tile);
                 }
 
@@ -258,7 +277,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 else
                 {
                     Tile* tile = mGameMap->getTile(inputManager->mXPos, inputManager->mYPos);
-                    if(tile != NULL)
+                    if(tile != nullptr)
                         tiles.push_back(tile);
                 }
 
@@ -292,7 +311,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
     Ogre::RaySceneQueryResult& result = ODFrameListener::getSingleton().doRaySceneQuery(arg);
     for (Ogre::RaySceneQueryResult::iterator itr = result.begin(); itr != result.end(); ++itr)
     {
-        if (itr->movable == NULL)
+        if (itr->movable == nullptr)
             continue;
 
         // Check to see if the current query result is a tile.
@@ -341,7 +360,7 @@ void GameMode::handleMouseWheel(const OIS::MouseEvent& arg)
     {
         if (getKeyboard()->isModifierDown(OIS::Keyboard::Ctrl))
         {
-            mGameMap->getLocalPlayer()->rotateHand(1);
+            mGameMap->getLocalPlayer()->rotateHand(Player::Direction::left);
         }
         else
         {
@@ -352,16 +371,12 @@ void GameMode::handleMouseWheel(const OIS::MouseEvent& arg)
     {
         if (getKeyboard()->isModifierDown(OIS::Keyboard::Ctrl))
         {
-            mGameMap->getLocalPlayer()->rotateHand(-1);
+            mGameMap->getLocalPlayer()->rotateHand(Player::Direction::right);
         }
         else
         {
             frameListener.moveCamera(CameraManager::moveUp);
         }
-    }
-    else
-    {
-        frameListener.cameraStopZoom();
     }
 }
 
@@ -378,7 +393,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     InputManager* inputManager = mModeManager->getInputManager();
 
     // If the mouse press is on a CEGUI window ignore it
-    if (tempWindow != NULL && tempWindow->getName().compare("Root") != 0)
+    if (tempWindow != nullptr && tempWindow->getName().compare("Root") != 0)
     {
         inputManager->mMouseDownOnCEGUIWindow = true;
         return true;
@@ -410,7 +425,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         // See if the mouse is over any creatures
         for (;itr != result.end(); ++itr)
         {
-            if (itr->movable == NULL)
+            if (itr->movable == nullptr)
                 continue;
 
             std::string resultName = itr->movable->getName();
@@ -436,8 +451,6 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
         // Stop creating rooms, traps, etc.
         mGameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::none);
-        mGameMap->getLocalPlayer()->setNewRoomType(Room::nullRoomType);
-        mGameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
         TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "");
 
         if(mGameMap->getLocalPlayer()->numObjectsInHand() > 0)
@@ -445,7 +458,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
             // If we right clicked with the mouse over a valid map tile, try to drop what we have in hand on the map.
             Tile *curTile = mGameMap->getTile(inputManager->mXPos, inputManager->mYPos);
 
-            if (curTile == NULL)
+            if (curTile == nullptr)
                 return true;
 
             if (mGameMap->getLocalPlayer()->isDropHandPossible(curTile))
@@ -454,7 +467,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
                 {
                     // Send a message to the server telling it we want to drop the creature
                     ClientNotification *clientNotification = new ClientNotification(
-                        ClientNotification::askHandDrop);
+                        ClientNotificationType::askHandDrop);
                     mGameMap->tileToPacket(clientNotification->mPacket, curTile);
                     ODClient::getSingleton().queueClientNotification(clientNotification);
                 }
@@ -467,21 +480,21 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
             // No creature in hand. We check if we want to slap something
             for (;itr != result.end(); ++itr)
             {
-                if (itr->movable == NULL)
+                if (itr->movable == nullptr)
                     continue;
 
                 std::string resultName = itr->movable->getName();
 
                 GameEntity* entity = getEntityFromOgreName(resultName);
-                if (entity == nullptr || !entity->canSlap(mGameMap->getLocalPlayer()->getSeat(), false))
+                if (entity == nullptr || !entity->canSlap(mGameMap->getLocalPlayer()->getSeat()))
                     continue;
 
                 if(ODClient::getSingleton().isConnected())
                 {
                     const std::string& entityName = entity->getName();
-                    GameEntity::ObjectType entityType = entity->getObjectType();
+                    GameEntityType entityType = entity->getObjectType();
                     ClientNotification *clientNotification = new ClientNotification(
-                        ClientNotification::askSlapEntity);
+                        ClientNotificationType::askSlapEntity);
                     clientNotification->mPacket << entityType << entityName;
                     ODClient::getSingleton().queueClientNotification(clientNotification);
                 }
@@ -520,21 +533,21 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         if (skipPickUp)
             break;
 
-        if (itr->movable == NULL)
+        if (itr->movable == nullptr)
             continue;
 
         std::string resultName = itr->movable->getName();
 
         GameEntity* entity = getEntityFromOgreName(resultName);
-        if (entity == nullptr || !entity->tryPickup(player->getSeat(), false))
+        if (entity == nullptr || !entity->tryPickup(player->getSeat()))
             continue;
 
         if (ODClient::getSingleton().isConnected())
         {
-            GameEntity::ObjectType entityType = entity->getObjectType();
+            GameEntityType entityType = entity->getObjectType();
             const std::string& entityName = entity->getName();
             ClientNotification *clientNotification = new ClientNotification(
-                ClientNotification::askEntityPickUp);
+                ClientNotificationType::askEntityPickUp);
             clientNotification->mPacket << entityType;
             clientNotification->mPacket << entityName;
             ODClient::getSingleton().queueClientNotification(clientNotification);
@@ -547,7 +560,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     {
         for (itr = result.begin(); itr != result.end(); ++itr)
         {
-            if (itr->movable == NULL)
+            if (itr->movable == nullptr)
                 continue;
 
             std::string resultName = itr->movable->getName();
@@ -565,7 +578,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     // by dragging out a selection starting from an unmarcked tile, or unmark them by starting the drag from a marked one.
     Tile *tempTile = mGameMap->getTile(inputManager->mXPos, inputManager->mYPos);
 
-    if (tempTile != NULL)
+    if (tempTile != nullptr)
         mDigSetBool = !(tempTile->getMarkedForDigging(mGameMap->getLocalPlayer()));
 
     return true;
@@ -612,40 +625,60 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         case Player::SelectedAction::selectTile:
         {
             ClientNotification *clientNotification = new ClientNotification(
-                ClientNotification::askMarkTile);
+                ClientNotificationType::askMarkTile);
             clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
             clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
             clientNotification->mPacket << mDigSetBool;
             ODClient::getSingleton().queueClientNotification(clientNotification);
             mGameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::none);
+
+            // We mark the selected tiles
+            std::vector<Tile*> tiles = mGameMap->getDiggableTilesForPlayerInArea(inputManager->mXPos,
+                inputManager->mYPos, inputManager->mLStartDragX, inputManager->mLStartDragY,
+                mGameMap->getLocalPlayer());
+            if(!tiles.empty())
+            {
+                mGameMap->markTilesForPlayer(tiles, mDigSetBool, mGameMap->getLocalPlayer());
+                SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::DIGSELECT);
+                for(Tile* tile : tiles)
+                    tile->refreshMesh();
+            }
             break;
         }
         case Player::SelectedAction::buildRoom:
         {
-            int intRoomType = static_cast<int>(mGameMap->getLocalPlayer()->getNewRoomType());
             ClientNotification *clientNotification = new ClientNotification(
-                ClientNotification::askBuildRoom);
+                ClientNotificationType::askBuildRoom);
             clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
             clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
-            clientNotification->mPacket << intRoomType;
+            clientNotification->mPacket << mGameMap->getLocalPlayer()->getNewRoomType();
             ODClient::getSingleton().queueClientNotification(clientNotification);
             break;
         }
         case Player::SelectedAction::buildTrap:
         {
             ClientNotification *clientNotification = new ClientNotification(
-                ClientNotification::askBuildTrap);
-            int intTrapType = static_cast<int>(mGameMap->getLocalPlayer()->getNewTrapType());
+                ClientNotificationType::askBuildTrap);
             clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
             clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
-            clientNotification->mPacket << intTrapType;
+            clientNotification->mPacket << mGameMap->getLocalPlayer()->getNewTrapType();
+            ODClient::getSingleton().queueClientNotification(clientNotification);
+            break;
+        }
+        case Player::SelectedAction::castSpell:
+        {
+            ClientNotification *clientNotification = new ClientNotification(
+                ClientNotificationType::askCastSpell);
+            clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
+            clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
+            clientNotification->mPacket << mGameMap->getLocalPlayer()->getNewSpellType();
             ODClient::getSingleton().queueClientNotification(clientNotification);
             break;
         }
         case Player::SelectedAction::destroyRoom:
         {
             ClientNotification *clientNotification = new ClientNotification(
-                ClientNotification::askSellRoomTiles);
+                ClientNotificationType::askSellRoomTiles);
             clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
             clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
             ODClient::getSingleton().queueClientNotification(clientNotification);
@@ -654,7 +687,7 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         case Player::SelectedAction::destroyTrap:
         {
             ClientNotification *clientNotification = new ClientNotification(
-                ClientNotification::askSellTrapTiles);
+                ClientNotificationType::askSellTrapTiles);
             clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
             clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
             ODClient::getSingleton().queueClientNotification(clientNotification);
@@ -669,12 +702,8 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
 bool GameMode::keyPressed(const OIS::KeyEvent &arg)
 {
-    ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
-    if (frameListener->isTerminalActive())
-        return true;
-
     // Inject key to Gui
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyDown((CEGUI::Key::Scan) arg.key);
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyDown(static_cast<CEGUI::Key::Scan>(arg.key));
     CEGUI::System::getSingleton().getDefaultGUIContext().injectChar(arg.text);
 
     if((mCurrentInputMode == InputModeChat) && isChatKey(arg))
@@ -686,16 +715,19 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
 bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
 {
     ODFrameListener& frameListener = ODFrameListener::getSingleton();
-    InputManager* inputManager = mModeManager->getInputManager();
 
     switch (arg.key)
     {
     case OIS::KC_F1:
-        // We create the window only at first call.
-        // Note: If we create it in the constructor, the window gets created
-        // in the wrong gui context and is never shown...
-        createHelpWindow();
-        mHelpWindow->show();
+        toggleHelpWindow();
+        break;
+
+    case OIS::KC_F3:
+        toggleObjectivesWindow();
+        break;
+
+    case OIS::KC_F10:
+        showOptionsWindow();
         break;
 
     case OIS::KC_F11:
@@ -705,31 +737,25 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
     case OIS::KC_GRAVE:
     case OIS::KC_F12:
         mModeManager->requestConsoleMode();
-        frameListener.setTerminalActive(true);
-        Console::getSingleton().setVisible(true);
         break;
 
     case OIS::KC_LEFT:
     case OIS::KC_A:
-        inputManager->mDirectionKeyPressed = true;
         frameListener.moveCamera(CameraManager::Direction::moveLeft);
         break;
 
     case OIS::KC_RIGHT:
     case OIS::KC_D:
-        inputManager->mDirectionKeyPressed = true;
         frameListener.moveCamera(CameraManager::Direction::moveRight);
         break;
 
     case OIS::KC_UP:
     case OIS::KC_W:
-        inputManager->mDirectionKeyPressed = true;
         frameListener.moveCamera(CameraManager::Direction::moveForward);
         break;
 
     case OIS::KC_DOWN:
     case OIS::KC_S:
-        inputManager->mDirectionKeyPressed = true;
         frameListener.moveCamera(CameraManager::Direction::moveBackward);
         break;
 
@@ -793,6 +819,13 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
         handleHotkeys(arg.key);
         break;
 
+    case OIS::KC_I:
+        ODFrameListener::getSingleton().getCameraManager()->setDefaultIsometricView();
+        break;
+    case OIS::KC_O:
+        ODFrameListener::getSingleton().getCameraManager()->setDefaultOrthogonalView();
+        break;
+
     default:
         break;
     }
@@ -821,11 +854,7 @@ bool GameMode::keyPressedChat(const OIS::KeyEvent &arg)
 
 bool GameMode::keyReleased(const OIS::KeyEvent &arg)
 {
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyUp((CEGUI::Key::Scan) arg.key);
-
-    ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
-    if (frameListener->isTerminalActive())
-        return true;
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyUp(static_cast<CEGUI::Key::Scan>(arg.key));
 
     if(std::find(mKeysChatPressed.begin(), mKeysChatPressed.end(), arg.key) != mKeysChatPressed.end())
         return keyReleasedChat(arg);
@@ -836,31 +865,26 @@ bool GameMode::keyReleased(const OIS::KeyEvent &arg)
 bool GameMode::keyReleasedNormal(const OIS::KeyEvent &arg)
 {
     ODFrameListener& frameListener = ODFrameListener::getSingleton();
-    InputManager* inputManager = mModeManager->getInputManager();
 
     switch (arg.key)
     {
     case OIS::KC_LEFT:
     case OIS::KC_A:
-        inputManager->mDirectionKeyPressed = false;
         frameListener.moveCamera(CameraManager::Direction::stopLeft);
         break;
 
     case OIS::KC_RIGHT:
     case OIS::KC_D:
-        inputManager->mDirectionKeyPressed = false;
         frameListener.moveCamera(CameraManager::Direction::stopRight);
         break;
 
     case OIS::KC_UP:
     case OIS::KC_W:
-        inputManager->mDirectionKeyPressed = false;
         frameListener.moveCamera(CameraManager::Direction::stopForward);
         break;
 
     case OIS::KC_DOWN:
     case OIS::KC_S:
-        inputManager->mDirectionKeyPressed = false;
         frameListener.moveCamera(CameraManager::Direction::stopBackward);
         break;
 
@@ -873,11 +897,11 @@ bool GameMode::keyReleasedNormal(const OIS::KeyEvent &arg)
         break;
 
     case OIS::KC_HOME:
-        frameListener.cameraStopZoom();
+        frameListener.moveCamera(CameraManager::Direction::stopDown);
         break;
 
     case OIS::KC_END:
-        frameListener.cameraStopZoom();
+        frameListener.moveCamera(CameraManager::Direction::stopUp);
         break;
 
     case OIS::KC_PGUP:
@@ -952,8 +976,10 @@ void GameMode::popupExit(bool pause)
 
 void GameMode::exitMode()
 {
+    CEGUI::Window* checkBox = Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild(Gui::EXIT_CONFIRMATION_POPUP)->getChild("SaveReplayCheckbox");
+    bool keepReplay = (checkBox->getProperty("Selected") == "True") ? true : false;
     if(ODClient::getSingleton().isConnected())
-        ODClient::getSingleton().disconnect();
+        ODClient::getSingleton().disconnect(keepReplay);
     if(ODServer::getSingleton().isConnected())
         ODServer::getSingleton().stopServer();
 
@@ -971,7 +997,7 @@ void GameMode::notifyGuiAction(GuiAction guiAction)
                 if(ODClient::getSingleton().isConnected())
                 {
                     ClientNotification *clientNotification = new ClientNotification(
-                        ClientNotification::askPickupWorker);
+                        ClientNotificationType::askPickupWorker);
                     ODClient::getSingleton().queueClientNotification(clientNotification);
                 }
                 break;
@@ -981,7 +1007,7 @@ void GameMode::notifyGuiAction(GuiAction guiAction)
                 if(ODClient::getSingleton().isConnected())
                 {
                     ClientNotification *clientNotification = new ClientNotification(
-                        ClientNotification::askPickupFighter);
+                        ClientNotificationType::askPickupFighter);
                     ODClient::getSingleton().queueClientNotification(clientNotification);
                 }
                 break;
@@ -989,6 +1015,57 @@ void GameMode::notifyGuiAction(GuiAction guiAction)
             default:
                 break;
     }
+}
+
+void GameMode::showObjectivesWindow()
+{
+    Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild("ObjectivesWindow")->show();
+}
+
+void GameMode::hideObjectivesWindow()
+{
+    Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild("ObjectivesWindow")->hide();
+}
+
+void GameMode::toggleObjectivesWindow()
+{
+    CEGUI::Window* objectives = Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild("ObjectivesWindow");
+    if (objectives == nullptr)
+        return;
+
+    if (objectives->isVisible())
+        hideObjectivesWindow();
+    else
+        showObjectivesWindow();
+}
+
+void GameMode::showOptionsWindow()
+{
+    // FIXME: For now, we show the settings window directly.
+    // Later the option menu with save load and settings button can be added.
+    Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild("SettingsWindow")->show();
+}
+
+void GameMode::hideOptionsWindow()
+{
+    Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild("SettingsWindow")->hide();
+}
+
+void GameMode::showHelpWindow()
+{
+    // We create the window only at first call.
+    // Note: If we create it in the constructor, the window gets created
+    // in the wrong gui context and is never shown...
+    createHelpWindow();
+    mHelpWindow->show();
+}
+
+void GameMode::toggleHelpWindow()
+{
+    if (mHelpWindow == nullptr || !mHelpWindow->isVisible())
+        showHelpWindow();
+    else
+        hideHelpWindow();
 }
 
 void GameMode::createHelpWindow()
@@ -1002,14 +1079,17 @@ void GameMode::createHelpWindow()
     mHelpWindow = wmgr->createWindow("OD/FrameWindow", std::string("GameHelpWindow"));
     mHelpWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.12, 0)));
     mHelpWindow->setSize(CEGUI::USize(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.7, 0)));
+    mHelpWindow->setProperty("AlwaysOnTop", "True");
+    mHelpWindow->setProperty("SizingEnabled", "False");
 
     CEGUI::Window* textWindow = wmgr->createWindow("OD/StaticText", "TextDisplay");
-    textWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.10, 0)));
-    textWindow->setSize(CEGUI::USize(CEGUI::UDim(0.9, 0), CEGUI::UDim(0.9, 0)));
+    textWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 20), CEGUI::UDim(0, 30)));
+    textWindow->setSize(CEGUI::USize(CEGUI::UDim(1.0, -40), CEGUI::UDim(1.0, -30)));
     textWindow->setProperty("FrameEnabled", "False");
     textWindow->setProperty("BackgroundEnabled", "False");
     textWindow->setProperty("VertFormatting", "TopAligned");
     textWindow->setProperty("HorzFormatting", "WordWrapLeftAligned");
+    textWindow->setProperty("VertScrollbar", "True");
 
     // Search for the autoclose button and make it work
     CEGUI::Window* childWindow = mHelpWindow->getChild("__auto_closebutton__");
@@ -1029,7 +1109,7 @@ void GameMode::createHelpWindow()
         << "To rotate the camera, you can use either: A, or E." << std::endl
         << "Use the mouse wheel to go lower or higher, or Home, End." << std::endl
         << "And finally, you can use Page Up, Page Down, to look up or down." << std::endl << std::endl;
-    txt << "You can left-click on the map's dirt walls to mark them. Your kobold workers will then "
+    txt << "You can left-click on the map's dirt walls to mark them. Your workers will then "
         << "dig them for you. They will also claim tiles, turning them into stone with your color at their center." << std::endl
         << "Certain blocks are made of gold. You should look for them and make you workers dig those tiles in priority."
         << "Once you have enough gold, you can build room tiles that will permit to make your fighter creatures do many things "
@@ -1048,9 +1128,14 @@ void GameMode::createHelpWindow()
     textWindow->setText(txt.str());
 }
 
-bool GameMode::hideHelpWindow(const CEGUI::EventArgs& /*e*/)
+void GameMode::hideHelpWindow()
 {
     if (mHelpWindow != nullptr)
         mHelpWindow->hide();
+}
+
+bool GameMode::hideHelpWindow(const CEGUI::EventArgs& /*e*/)
+{
+    hideHelpWindow();
     return true;
 }

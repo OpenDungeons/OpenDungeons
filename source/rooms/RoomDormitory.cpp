@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 #include "gamemap/GameMap.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Creature.h"
+#include "entities/CreatureDefinition.h"
 #include "utils/LogManager.h"
 
 RoomDormitory::RoomDormitory(GameMap* gameMap) :
@@ -54,7 +55,7 @@ void RoomDormitory::addCoveredTile(Tile* t, double nHP)
 {
     Room::addCoveredTile(t, nHP);
 
-    // Only initialize the tile to NULL if it is a tile being added to a new room.  If it is being absorbed
+    // Only initialize the tile to nullptr if it is a tile being added to a new room.  If it is being absorbed
     // from another room the map value will already have been set and we don't want to override it.
     mCreatureSleepingInTile[t] = nullptr;
 }
@@ -140,7 +141,7 @@ bool RoomDormitory::claimTileForSleeping(Tile* t, Creature* c)
     if (!spaceIsBigEnough)
         return false;
 
-    BedRoomObjectInfo bedInfo(t->x + xDim / 2.0 - 0.5, t->y + yDim / 2.0 - 0.5,
+    BedRoomObjectInfo bedInfo(t->getX() + xDim / 2.0 - 0.5, t->getY() + yDim / 2.0 - 0.5,
         rotationAngle, c, t);
 
     // Mark all of the affected tiles as having this creature sleeping in them.
@@ -148,7 +149,7 @@ bool RoomDormitory::claimTileForSleeping(Tile* t, Creature* c)
     {
         for (int j = 0; j < yDim; ++j)
         {
-            Tile *tempTile = getGameMap()->getTile(t->x + i, t->y + j);
+            Tile *tempTile = getGameMap()->getTile(t->getX() + i, t->getY() + j);
             mCreatureSleepingInTile[tempTile] = c;
             bedInfo.addTileTaken(tempTile);
         }
@@ -172,7 +173,7 @@ bool RoomDormitory::releaseTileForSleeping(Tile* t, Creature* c)
     if (mCreatureSleepingInTile.find(t) == mCreatureSleepingInTile.end())
         return false;
 
-    // Loop over all the tiles in this room and if they are slept on by creature c then set them back to NULL.
+    // Loop over all the tiles in this room and if they are slept on by creature c then set them back to nullptr.
     for (std::pair<Tile* const, Creature*>& p : mCreatureSleepingInTile)
     {
         if (p.second == c)
@@ -226,7 +227,7 @@ Tile* RoomDormitory::getLocationForBed(int xDim, int yDim)
             return tempVector[i];
     }
 
-    // We got to the end of the open tile list without finding an open tile for the bed so return NULL to indicate failure.
+    // We got to the end of the open tile list without finding an open tile for the bed so return nullptr to indicate failure.
     return nullptr;
 }
 
@@ -260,8 +261,8 @@ bool RoomDormitory::tileCanAcceptBed(Tile *tile, int xDim, int yDim)
     std::vector<Tile*> tempTiles = getOpenTiles();
     for (unsigned int i = 0; i < tempTiles.size(); ++i)
     {
-        int xDist = tempTiles[i]->x - tile->x;
-        int yDist = tempTiles[i]->y - tile->y;
+        int xDist = tempTiles[i]->getX() - tile->getX();
+        int yDist = tempTiles[i]->getY() - tile->getY();
         if (xDist >= 0 && xDist < xDim && yDist >= 0 && yDist < yDim)
             tileOpen[xDist][yDist] = true;
     }

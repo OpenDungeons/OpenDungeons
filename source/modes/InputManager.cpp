@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,10 +21,8 @@
 #include <OgreRenderWindow.h>
 
 InputManager::InputManager(Ogre::RenderWindow* renderWindow):
-    mExpectCreatureClick(false),
     mLMouseDown(false),
     mRMouseDown(false),
-    mDirectionKeyPressed(false),
     mXPos(0),
     mYPos(0),
     mLStartDragX(0),
@@ -82,5 +80,5 @@ InputManager::~InputManager()
     mInputManager->destroyInputObject(mMouse);
     mInputManager->destroyInputObject(mKeyboard);
     OIS::InputManager::destroyInputSystem(mInputManager);
-    mInputManager = NULL;
+    mInputManager = nullptr;
 }

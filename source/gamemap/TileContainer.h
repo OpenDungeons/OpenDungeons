@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,18 +18,22 @@
 #ifndef TILECONTAINER_H
 #define TILECONTAINER_H
 
-#include "entities/Tile.h"
-
+#include <array>
+#include <bitset>
+#include <list>
 #include <sstream>
+#include <vector>
 
 class ODPacket;
+class TileDistance;
+class Tile;
+
+enum class TileType;
 
 class TileContainer
 {
-friend class TileContainersModificator;
-
 public:
-    TileContainer();
+    TileContainer(int initTileDistance);
     ~TileContainer();
 
     //! \brief Clears the mesh and deletes the data structure for all the tiles in the TileContainer.
@@ -55,18 +59,18 @@ public:
     void tileToPacket(ODPacket& packet, Tile* tile) const;
     Tile* tileFromPacket(ODPacket& packet) const;
 
-    Tile::TileType getSafeTileType(Tile* tt );
-    bool getSafeTileFullness(Tile* tt );
+    TileType getSafeTileType(const Tile* tt) const;
+    bool getSafeTileFullness(const Tile* tt) const;
 
     //! \brief Gets the tile type of all neighbors
     //! \param tile The tile to be checked.
-    //! \returns a Tile::TileType[8] array pointer where the info is stored.
-    const Tile::TileType* getNeighborsTypes(Tile* tile);
+    //! \returns a TileType[8] array pointer where the info is stored.
+    std::array<TileType, 8> getNeighborsTypes(const Tile* tile) const;
 
     //! \brief Gets the tile fullness of all neighbors
     //! \param tile The tile to be checked.
     //! \returns a bool[8] array pointer where the info is stored.
-    const bool* getNeighborsFullness(Tile* tile);
+    std::bitset<8> getNeighborsFullness(const Tile* tile) const;
 
     //! \brief Returns the number of tile pointers currently stored in this TileContainer.
     unsigned int numTiles();
@@ -76,7 +80,7 @@ public:
 
     //! \brief Returns all the valid tiles in the curcular region
     //! surrounding the given point and extending outward to the specified radius.
-    std::vector<Tile*> circularRegion(int x, int y, double radius) const;
+    std::vector<Tile*> circularRegion(int x, int y, int radius);
 
     //! \brief Returns a vector of all the valid tiles which are a neighbor
     //! to one or more tiles in the specified region,
@@ -93,6 +97,20 @@ public:
     int getMapSizeY() const
     { return mMapSizeY; }
 
+    static bool sortByDistSquared(const TileDistance& tileDist1, const TileDistance& tileDist2);
+
+    /*! \brief Returns a list of valid tiles along a straight line from (x1, y1) to (x2, y2)
+     * independently from their fullness or type.
+     *
+     * This algorithm is from
+     * http://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
+     * A more detailed description of how it works can be found there.
+     */
+    std::list<Tile*> tilesBetween(int x1, int y1, int x2, int y2);
+
+    //! \brief Returns the tiles visible from the given start tile within tilesWithinSightRadius.
+    std::vector<Tile*> visibleTiles(int x, int y, int radius);
+
 protected:
     //! \brief The map size
     int mMapSizeX;
@@ -104,6 +122,16 @@ protected:
     bool allocateMapMemory(int xSize, int ySize);
 private:
     Tile*** mTiles;
+
+    //! \brief Fills mTileDistance that will help to compute a vector with sorted Tiles more efficiently
+    void buildTileDistance(int distance);
+
+    //! \brief Helper to compute tile distances more efficiently
+    std::vector<TileDistance> mTileDistance;
+
+    //! \brief Stores the highest distance computed. If a bigger distance is asked, mTileDistance will have to be updated by
+    //! calling buildTileDistance with the higher distance
+    int mTileDistanceComputed;
 };
 
 #endif //TILECONTAINER_H

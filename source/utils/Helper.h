@@ -4,7 +4,7 @@
  * \author StefanP.MUC, hwoarangmy, Bertram
  * \brief  Provides helper functions, constants and defines
  *
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,6 +22,8 @@
 
 #ifndef HELPER_H_
 #define HELPER_H_
+
+#include <OgreStringConverter.h>
 
 #include <string>
 #include <iostream>
@@ -68,6 +70,8 @@ namespace Helper
     int toInt(const std::string& text);
     uint32_t toUInt32(const std::string& text);
 
+    float toFloat(const std::string& text);
+
     double toDouble(const std::string& text);
 
     // Needed on MSVC <2012
@@ -89,6 +93,34 @@ namespace Helper
     //! \brief opens the file fileName and adds the uncommented lines to the stream.
     //! Returns true is the file could be open and false if an error occurs
     bool readFileWithoutComments(const std::string& fileName, std::stringstream& stream);
+
+    inline Ogre::Real toReal(const std::string& text)
+    { return Ogre::StringConverter::parseReal(text); }
+
+    inline std::string toString(float f)
+    { return Ogre::StringConverter::toString(f); }
+    inline std::string toString(double d)
+    { return Ogre::StringConverter::toString(d); }
+    inline std::string toString(int8_t d)
+    { return Ogre::StringConverter::toString(d); }
+    inline std::string toString(uint8_t d)
+    { return Ogre::StringConverter::toString(d); }
+    inline std::string toString(int16_t d)
+    { return Ogre::StringConverter::toString(d); }
+    inline std::string toString(uint16_t d)
+    { return Ogre::StringConverter::toString(d); }
+    inline std::string toString(int32_t d)
+    { return Ogre::StringConverter::toString(d); }
+    inline std::string toString(uint32_t d)
+    { return Ogre::StringConverter::toString(d); }
+
+    //! \brief Converts an int value into a 2 digits-long Hex string value.
+    //! \example 256 -> FF
+    std::string intTo2Hex(int i);
+
+    //! \brief Returns the string representation of a CEGUI color from an Ogre ColourValue.
+    //! \format AARRGGBB hex format.
+    std::string getCEGUIColorFromOgreColourValue(const Ogre::ColourValue& color);
 }
 
 #endif // HELPER_H_

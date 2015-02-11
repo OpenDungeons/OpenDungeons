@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 #ifndef ROOMTREASURY_H
 #define ROOMTREASURY_H
 
+#include "entities/TreasuryObject.h"
 #include "rooms/Room.h"
 
 class RoomTreasury: public Room
@@ -53,19 +54,10 @@ protected:
     {}
 
 private:
-    //! \brief Tells which mesh is used to show how much the tile is full of gold.
-    enum TreasuryTileFullness
-    {
-        noGold = 0, quarter, half, threeQuarters, fullOfGold
-    };
-
-    static TreasuryTileFullness getTreasuryTileFullness(int gold);
-    const char* getMeshNameForTreasuryTileFullness(TreasuryTileFullness fullness);
-
     void updateMeshesForTile(Tile *t);
 
     std::map<Tile*, int> mGoldInTile;
-    std::map<Tile*, TreasuryTileFullness> mFullnessOfTile;
+    std::map<Tile*, std::string> mMeshOfTile;
     bool mGoldChanged;
 };
 

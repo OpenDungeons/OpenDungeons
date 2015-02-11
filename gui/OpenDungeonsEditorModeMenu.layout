@@ -85,7 +85,7 @@
         </Window>
         <Window type="OD/TabControl" name="MainTabControl" >
             <Property name="Area" value="{{0,0},{1,-133},{1,0},{1,0}}" />
-            <Property name="TabHeight" value="{0,30}" />
+            <Property name="TabHeight" value="{0,25}" />
             <Property name="RiseOnClickEnabled" value="False" />
             <Window type="DefaultWindow" name="Tiles" >
                 <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
@@ -93,37 +93,37 @@
                 <Property name="MaxSize" value="{{1,0},{1,0}}" />
                 <Property name="RiseOnClickEnabled" value="False" />
                 <Window type="OD/ImageButton" name="DirtButton" >
-                    <Property name="Area" value="{{0,20},{0,20},{0,80},{0,80}}" />
+                    <Property name="Area" value="{{0,20},{0,25},{0,80},{0,85}}" />
                     <Property name="NormalImage" value="OpenDungeonsSkin/DirtButton" />
                     <Property name="TooltipText" value="Place dirt tiles." />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
                 <Window type="OD/ImageButton" name="RockButton" >
-                    <Property name="Area" value="{{0,80},{0,20},{0,140},{0,80}}" />
+                    <Property name="Area" value="{{0,80},{0,25},{0,140},{0,85}}" />
                     <Property name="NormalImage" value="OpenDungeonsSkin/RockButton" />
                     <Property name="TooltipText" value="Place undiggable rock tiles." />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
                 <Window type="OD/ImageButton" name="GoldButton" >
-                    <Property name="Area" value="{{0,140},{0,20},{0,200},{0,80}}" />
+                    <Property name="Area" value="{{0,140},{0,25},{0,200},{0,85}}" />
                     <Property name="NormalImage" value="OpenDungeonsSkin/GoldButton" />
                     <Property name="TooltipText" value="Place gold tiles." />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
                 <Window type="OD/ImageButton" name="WaterButton" >
-                    <Property name="Area" value="{{0,200},{0,20},{0,260},{0,80}}" />
+                    <Property name="Area" value="{{0,200},{0,25},{0,260},{0,85}}" />
                     <Property name="NormalImage" value="OpenDungeonsSkin/WaterButton" />
                     <Property name="TooltipText" value="Place some water." />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
                 <Window type="OD/ImageButton" name="LavaButton" >
-                    <Property name="Area" value="{{0,260},{0,20},{0,320},{0,80}}" />
+                    <Property name="Area" value="{{0,260},{0,25},{0,320},{0,85}}" />
                     <Property name="NormalImage" value="OpenDungeonsSkin/LavaButton" />
                     <Property name="TooltipText" value="Place some lava." />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
                 <Window type="OD/ImageButton" name="ClaimedButton" >
-                    <Property name="Area" value="{{0,320},{0,20},{0,380},{0,80}}" />
+                    <Property name="Area" value="{{0,320},{0,25},{0,380},{0,85}}" />
                     <Property name="NormalImage" value="OpenDungeonsSkin/ClaimedButton" />
                     <Property name="TooltipText" value="Place some claimed/dungeon tiles." />
                     <Property name="InheritsAlpha" value="False" />
@@ -131,6 +131,7 @@
             </Window>
             <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuRooms.layout" name="RoomsImport" />
             <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuTraps.layout" name="TrapImport" />
+            <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuSpells.layout" name="SpellImport" />
             <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuCreatures.layout" name="CreaturesImport" />
             <Window type="DefaultWindow" name="Lights" >
                 <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />

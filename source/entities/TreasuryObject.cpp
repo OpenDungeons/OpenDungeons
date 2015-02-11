@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,27 +25,31 @@
 #include <iostream>
 
 TreasuryObject::TreasuryObject(GameMap* gameMap, int goldValue) :
-    RenderedMovableEntity(gameMap, "Treasury_", "GoldstackLv3", 0.0f, false),
-    mGoldValue(goldValue)
+    RenderedMovableEntity(gameMap, "Treasury_", getMeshNameForGold(goldValue), 0.0f, false),
+    mGoldValue(goldValue),
+    mHasGoldValueChanged(false)
 {
 }
 
 TreasuryObject::TreasuryObject(GameMap* gameMap) :
     RenderedMovableEntity(gameMap),
-    mGoldValue(0)
+    mGoldValue(0),
+    mHasGoldValueChanged(false)
 {
-    setMeshName("GoldstackLv3");
 }
 
 void TreasuryObject::mergeGold(TreasuryObject* obj)
 {
     mGoldValue += obj->mGoldValue;
+    mHasGoldValueChanged = true;
     obj->mGoldValue = 0;
+    obj->mHasGoldValueChanged = true;
 }
 
 void TreasuryObject::addGold(int goldValue)
 {
     mGoldValue += goldValue;
+    mHasGoldValueChanged = true;
 }
 
 void TreasuryObject::doUpkeep()
@@ -61,7 +65,7 @@ void TreasuryObject::doUpkeep()
 
     if((mGoldValue > 0) &&
        (tile->getCoveringRoom() != nullptr) &&
-       (tile->getCoveringRoom()->getType() == Room::treasury))
+       (tile->getCoveringRoom()->getType() == RoomType::treasury))
     {
         RoomTreasury* roomTreasury = static_cast<RoomTreasury*>(tile->getCoveringRoom());
         int goldDeposited = roomTreasury->depositGold(mGoldValue, tile);
@@ -70,15 +74,35 @@ void TreasuryObject::doUpkeep()
     }
 
     // If we are empty, we can remove safely
-    if(mGoldValue <= 0)
+    if(mHasGoldValueChanged)
     {
-        tile->removeTreasuryObject(this);
-        getGameMap()->removeRenderedMovableEntity(this);
-        deleteYourself();
+        mHasGoldValueChanged = false;
+        if(mGoldValue <= 0)
+        {
+            tile->removeEntity(this);
+            removeFromGameMap();
+            deleteYourself();
+            return;
+        }
+
+        if(getMeshName().compare(getMeshNameForGold(mGoldValue)) != 0)
+        {
+            // The treasury fullnes changed. We remove the object and create a new one
+            tile->removeEntity(this);
+            removeFromGameMap();
+            deleteYourself();
+
+            TreasuryObject* obj = new TreasuryObject(getGameMap(), mGoldValue);
+            obj->addToGameMap();
+            Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(tile->getX()),
+                                        static_cast<Ogre::Real>(tile->getY()), 0.0f);
+            obj->createMesh();
+            obj->setPosition(spawnPosition, false);
+        }
     }
 }
 
-bool TreasuryObject::tryPickup(Seat* seat, bool isEditorMode)
+bool TreasuryObject::tryPickup(Seat* seat)
 {
     if(!getIsOnMap())
         return false;
@@ -93,7 +117,7 @@ bool TreasuryObject::tryPickup(Seat* seat, bool isEditorMode)
     if(tile == nullptr)
         return false;
 
-    if(!tile->isClaimedForSeat(seat) && !isEditorMode)
+    if(!tile->isClaimedForSeat(seat) && !getGameMap()->isInEditorMode())
         return false;
 
     return true;
@@ -107,53 +131,109 @@ void TreasuryObject::pickup()
     if(tile == nullptr)
         return;
 
-    tile->removeTreasuryObject(this);
+    tile->removeEntity(this);
 }
 
-bool TreasuryObject::tryDrop(Seat* seat, Tile* tile, bool isEditorMode)
+bool TreasuryObject::tryDrop(Seat* seat, Tile* tile)
 {
     if (tile->getFullness() > 0.0)
         return false;
 
     // In editor mode, we allow to drop an object in dirt, claimed or gold tiles
-    if(isEditorMode && (tile->getType() == Tile::dirt || tile->getType() == Tile::gold || tile->getType() == Tile::claimed))
+    if(getGameMap()->isInEditorMode() &&
+       (tile->getType() == TileType::dirt || tile->getType() == TileType::gold || tile->getType() == TileType::claimed))
+    {
         return true;
+    }
+
+    // we cannot drop an object on a tile we don't see
+    if(!seat->hasVisionOnTile(tile))
+        return false;
 
     // Otherwise, we allow to drop an object only on allied claimed tiles
-    if(tile->getType() == Tile::claimed && tile->getSeat() != NULL && tile->getSeat()->isAlliedSeat(seat))
+    if(tile->getType() == TileType::claimed && tile->getSeat() != nullptr && tile->getSeat()->isAlliedSeat(seat))
         return true;
 
     return false;
 }
 
-void TreasuryObject::setPosition(const Ogre::Vector3& v)
+bool TreasuryObject::addEntityToTile(Tile* tile)
 {
-    RenderedMovableEntity::setPosition(v);
-    Tile* tile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
-    if(tile == nullptr)
-        return;
-
-    tile->addTreasuryObject(this);
-
+    return tile->addTreasuryObject(this);
 }
 
-void TreasuryObject::notifyEntityCarried(bool isCarried)
+bool TreasuryObject::removeEntityFromTile(Tile* tile)
+{
+    return tile->removeEntity(this);
+}
+
+EntityCarryType TreasuryObject::getEntityCarryType()
+{
+    if(!getIsOnMap())
+        return EntityCarryType::notCarryable;
+
+    // We do not let it be carried as it will be removed during next upkeep
+    if(mGoldValue <= 0)
+        return EntityCarryType::notCarryable;
+
+    // If we are on a treasury not full, we doesn't allow to be carried
+    Tile* myTile = getPositionTile();
+    OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
+    if(myTile == nullptr)
+        return EntityCarryType::gold;
+
+    if(myTile->getCoveringRoom() == nullptr)
+        return EntityCarryType::gold;
+
+    if(myTile->getCoveringRoom()->getType() != RoomType::treasury)
+        return EntityCarryType::gold;
+
+    RoomTreasury* treasury = static_cast<RoomTreasury*>(myTile->getCoveringRoom());
+    if(treasury->emptyStorageSpace() == 0)
+        return EntityCarryType::gold;
+
+    return EntityCarryType::notCarryable;
+}
+
+void TreasuryObject::notifyEntityCarryOn()
 {
     Tile* myTile = getPositionTile();
     OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
     if(myTile == nullptr)
         return;
-    if(isCarried)
-    {
-        setIsOnMap(false);
-        myTile->removeTreasuryObject(this);
-    }
-    else
-    {
-        setIsOnMap(true);
-        myTile->addTreasuryObject(this);
-    }
+
+    setIsOnMap(false);
+    myTile->removeEntity(this);
+}
+
+void TreasuryObject::notifyEntityCarryOff(const Ogre::Vector3& position)
+{
+    mPosition = position;
+    setIsOnMap(true);
+
+    Tile* myTile = getPositionTile();
+    OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
+    if(myTile == nullptr)
+        return;
+
+    myTile->addTreasuryObject(this);
+}
+
+const char* TreasuryObject::getMeshNameForGold(int gold)
+{
+    if (gold <= 0)
+        return "";
+
+    if (gold <= 1250)
+        return "GoldstackLv1";
+
+    if (gold <= 2500)
+        return "GoldstackLv2";
+
+    if (gold <= 3750)
+        return "GoldstackLv3";
+
+    return "GoldstackLv4";
 }
 
 const char* TreasuryObject::getFormat()
@@ -174,7 +254,7 @@ TreasuryObject* TreasuryObject::getTreasuryObjectFromPacket(GameMap* gameMap, OD
     return obj;
 }
 
-void TreasuryObject::exportToPacket(ODPacket& os)
+void TreasuryObject::exportToPacket(ODPacket& os) const
 {
     RenderedMovableEntity::exportToPacket(os);
     os << mGoldValue;
@@ -186,7 +266,7 @@ void TreasuryObject::importFromPacket(ODPacket& is)
     OD_ASSERT_TRUE(is >> mGoldValue);
 }
 
-void TreasuryObject::exportToStream(std::ostream& os)
+void TreasuryObject::exportToStream(std::ostream& os) const
 {
     RenderedMovableEntity::exportToStream(os);
     os << mGoldValue << "\t";

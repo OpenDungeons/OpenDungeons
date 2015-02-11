@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -36,29 +36,37 @@ public:
 
     virtual void doUpkeep();
 
-    virtual RenderedMovableEntityType getRenderedMovableEntityType()
+    virtual RenderedMovableEntityType getRenderedMovableEntityType() const
     { return RenderedMovableEntityType::treasuryObject; }
 
-    virtual bool tryPickup(Seat* seat, bool isEditorMode);
-    virtual bool tryDrop(Seat* seat, Tile* tile, bool isEditorMode);
+    virtual bool tryPickup(Seat* seat);
+    virtual bool tryDrop(Seat* seat, Tile* tile);
     void mergeGold(TreasuryObject* obj);
     void addGold(int goldValue);
 
-    virtual void exportToStream(std::ostream& os);
+    virtual void exportToStream(std::ostream& os) const;
     virtual void importFromStream(std::istream& is);
-    virtual void exportToPacket(ODPacket& os);
+    virtual void exportToPacket(ODPacket& os) const;
     virtual void importFromPacket(ODPacket& is);
 
     virtual void pickup();
-    virtual void setPosition(const Ogre::Vector3& v);
 
-    virtual void notifyEntityCarried(bool isCarried);
+    virtual EntityCarryType getEntityCarryType();
+    virtual void notifyEntityCarryOn();
+    virtual void notifyEntityCarryOff(const Ogre::Vector3& position);
+
+    static const char* getMeshNameForGold(int gold);
 
     static const char* getFormat();
     static TreasuryObject* getTreasuryObjectFromStream(GameMap* gameMap, std::istream& is);
     static TreasuryObject* getTreasuryObjectFromPacket(GameMap* gameMap, ODPacket& is);
+protected:
+    virtual bool addEntityToTile(Tile* tile);
+    virtual bool removeEntityFromTile(Tile* tile);
+
 private:
     int mGoldValue;
+    bool mHasGoldValueChanged;
 };
 
 #endif // TREASURYOBJECT_H

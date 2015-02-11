@@ -4,7 +4,7 @@
  * \author StefanP.MUC
  * \brief  Initializes AngelScript and provides access to its functions
  *
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
+#if 0
 #ifndef ASWRAPPER_H_
 #define ASWRAPPER_H_
 
@@ -93,3 +93,4 @@ private:
 };
 
 #endif /* ASWRAPPER_H_ */
+#endif //#if 0

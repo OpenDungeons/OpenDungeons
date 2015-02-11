@@ -1,5 +1,4 @@
 <GUIScheme name="OpenDungeons" version="5">
-    <Imageset filename="OpenDungeonsOldSkin.imageset" name="OpenDungeonsOldSkin" />
     <Imageset filename="OpenDungeonsSkin.imageset" name="OpenDungeonsSkin" />
     <Imageset filename="OpenDungeonsIcons.imageset" name="OpenDungeonsIcons" />
     <Imageset filename="ODLogo.imageset" name="ODLogo" />
@@ -30,8 +29,6 @@
     <FalagardMapping lookNFeel="OD/HorizontalScrollbar" renderer="Core/Scrollbar" targetType="CEGUI/Scrollbar" windowType="OD/HorizontalScrollbar" />
     <FalagardMapping lookNFeel="OD/VerticalScrollbarThumb" renderer="Core/Button" targetType="CEGUI/Thumb" windowType="OD/VerticalScrollbarThumb" />
     <FalagardMapping lookNFeel="OD/HorizontalScrollbarThumb" renderer="Core/Button" targetType="CEGUI/Thumb" windowType="OD/HorizontalScrollbarThumb" />
-    <FalagardMapping lookNFeel="OD/LargeVerticalScrollbar" renderer="Core/Scrollbar" targetType="CEGUI/Scrollbar" windowType="OD/LargeVerticalScrollbar" />
-    <FalagardMapping lookNFeel="OD/LargeVerticalScrollbarThumb" renderer="Core/Button" targetType="CEGUI/Thumb" windowType="OD/LargeVerticalScrollbarThumb" />
     <FalagardMapping lookNFeel="OD/TabButton" renderer="Core/TabButton" targetType="CEGUI/TabButton" windowType="OD/TabButton" />
     <FalagardMapping lookNFeel="OD/TabControl" renderer="Core/TabControl" targetType="CEGUI/TabControl" windowType="OD/TabControl" />
     <FalagardMapping lookNFeel="OD/TabContentPane" renderer="Core/Default" targetType="DefaultWindow" windowType="OD/TabContentPane" />
@@ -43,8 +40,10 @@
     <FalagardMapping lookNFeel="OD/ListHeader" renderer="Core/ListHeader" targetType="CEGUI/ListHeader" windowType="OD/ListHeader" />
     <FalagardMapping lookNFeel="OD/ListHeaderSegment" renderer="Core/ListHeaderSegment" targetType="CEGUI/ListHeaderSegment" windowType="OD/ListHeaderSegment" />
     <FalagardMapping lookNFeel="OD/MultiColumnList" renderer="Core/MultiColumnList" targetType="CEGUI/MultiColumnList" windowType="OD/MultiColumnList" />
-    <FalagardMapping lookNFeel="OD/Slider" renderer="Core/Slider" targetType="CEGUI/Slider" windowType="OD/Slider" />
-    <FalagardMapping lookNFeel="OD/SliderThumb" renderer="Core/Button" targetType="CEGUI/Thumb" windowType="OD/SliderThumb" />
+    <FalagardMapping lookNFeel="OD/HorizontalSlider" renderer="Core/Slider" targetType="CEGUI/Slider" windowType="OD/HorizontalSlider" />
+    <FalagardMapping lookNFeel="OD/HorizontalSliderThumb" renderer="Core/Button" targetType="CEGUI/Thumb" windowType="OD/HorizontalSliderThumb" />
+    <FalagardMapping lookNFeel="OD/VerticalSlider" renderer="Core/Slider" targetType="CEGUI/Slider" windowType="OD/VerticalSlider" />
+    <FalagardMapping lookNFeel="OD/VerticalSliderThumb" renderer="Core/Button" targetType="CEGUI/Thumb" windowType="OD/VerticalSliderThumb" />
     <FalagardMapping lookNFeel="OD/ScrollablePane" renderer="Core/ScrollablePane" targetType="CEGUI/ScrollablePane" windowType="OD/ScrollablePane" />
     <FalagardMapping lookNFeel="OD/Spinner" renderer="Core/Default" targetType="CEGUI/Spinner" windowType="OD/Spinner" />
     <FalagardMapping lookNFeel="OD/Tooltip" renderer="Core/Tooltip" targetType="CEGUI/Tooltip" windowType="OD/Tooltip" />

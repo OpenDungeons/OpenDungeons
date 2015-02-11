@@ -5,7 +5,7 @@
  * \brief  Contains everything that is related to the minimap
  *
  *
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,6 +22,8 @@
  */
 
 #include "gamemap/MiniMap.h"
+
+#include "game/Seat.h"
 
 #include "gamemap/GameMap.h"
 
@@ -47,27 +49,27 @@ MiniMap::MiniMap(GameMap* gm) :
     mGrainSize(4),
     mTiles(),
     mGameMap(gm),
-    mPixelBox(NULL),
+    mPixelBox(nullptr),
     mSheetUsed(Gui::guiSheet::mainMenu)
 {
 }
 
 MiniMap::~MiniMap()
 {
-    if(mPixelBox != NULL)
+    if(mPixelBox != nullptr)
         delete mPixelBox;
 }
 
 void MiniMap::attachMiniMap(Gui::guiSheet sheet)
 {
     // If is configured with the same sheet, no need to rebuild
-    if((mPixelBox != NULL) && (mSheetUsed == sheet))
+    if((mPixelBox != nullptr) && (mSheetUsed == sheet))
         return;
 
-    if(mPixelBox != NULL)
+    if(mPixelBox != nullptr)
     {
         // The MiniMap has already been initialised. We free it
-        Gui::getSingleton().sheets[mSheetUsed]->getChild(Gui::MINIMAP)->setProperty("Image", "");
+        Gui::getSingleton().getGuiSheet(mSheetUsed)->getChild(Gui::MINIMAP)->setProperty("Image", "");
         Ogre::TextureManager::getSingletonPtr()->remove("miniMapOgreTexture");
         CEGUI::ImageManager::getSingletonPtr()->destroy("MiniMapImageset");
         CEGUI::System::getSingletonPtr()->getRenderer()->destroyTexture("miniMapTextureGui");
@@ -76,7 +78,7 @@ void MiniMap::attachMiniMap(Gui::guiSheet sheet)
     }
 
     mSheetUsed = sheet;
-    CEGUI::Window* window = Gui::getSingleton().sheets[sheet]->getChild(Gui::MINIMAP);
+    CEGUI::Window* window = Gui::getSingleton().getGuiSheet(sheet)->getChild(Gui::MINIMAP);
 
     unsigned int pixelWidth = static_cast<unsigned int>(window->getPixelSize().d_width);
     unsigned int pixelHeight = static_cast<unsigned int>(window->getPixelSize().d_height);
@@ -178,7 +180,7 @@ void MiniMap::draw()
              * this is not how it is intended/expected
              */
             Tile* tile = mGameMap->getTile(oo, pp);
-            if(tile == NULL)
+            if(tile == nullptr)
             {
                 drawPixel(ii, jj, 0x00, 0x00, 0x00);
                 continue;
@@ -192,38 +194,38 @@ void MiniMap::draw()
 
             switch (tile->getType())
             {
-            case Tile::water:
+            case TileType::water:
                 drawPixel(ii, jj, 0x21, 0x36, 0x7A);
                 break;
-            case Tile::lava:
+            case TileType::lava:
                 drawPixel(ii, jj, 0xB2, 0x22, 0x22);
                 break;
 
-            case Tile::dirt:
+            case TileType::dirt:
                 if (tile->getFullness() <= 0.0)
                     drawPixel(ii, jj, 0x3B, 0x1D, 0x08);
                 else
                     drawPixel(ii, jj, 0x5B, 0x2D, 0x0C);
                 break;
 
-            case Tile::rock:
+            case TileType::rock:
                 if (tile->getFullness() <= 0.0)
                     drawPixel(ii, jj, 0x30, 0x30, 0x30);
                 else
                     drawPixel(ii, jj, 0x41, 0x41, 0x41);
                 break;
 
-            case Tile::gold:
+            case TileType::gold:
                 if (tile->getFullness() <= 0.0)
                     drawPixel(ii, jj, 0x3B, 0x1D, 0x08);
                 else
                     drawPixel(ii, jj, 0xB5, 0xB3, 0x2F);
                 break;
 
-            case Tile::claimed:
+            case TileType::claimed:
             {
                 Seat* tempSeat = tile->getSeat();
-                if (tempSeat != NULL)
+                if (tempSeat != nullptr)
                 {
                     Ogre::ColourValue color = tempSeat->getColorValue();
                     if (tile->getFullness() <= 0.0)
@@ -241,7 +243,7 @@ void MiniMap::draw()
                 break;
             }
 
-            case Tile::nullTileType:
+            case TileType::nullTileType:
                 drawPixel(ii, jj, 0x00, 0x00, 0x00);
                 break;
 

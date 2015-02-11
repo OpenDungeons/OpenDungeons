@@ -3,7 +3,7 @@
  * \date:  02 July 2011
  * \author StefanP.MUC
  * \brief  Handles the camera movements
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,13 +21,8 @@
 
 #include "camera/CameraManager.h"
 
-#include "camera/CullingQuad.h"
-#include "camera/HermiteCatmullSpline.h"
-#include "camera/CullingManager.h"
-
-#include "entities/Creature.h"
+#include "gamemap/GameMap.h"
 #include "gamemap/MiniMap.h"
-#include "modes/ModeManager.h"
 #include "render/ODFrameListener.h"
 #include "sound/SoundEffectsManager.h"
 #include "utils/LogManager.h"
@@ -42,11 +37,20 @@
 
 #include <algorithm>
 
-using  std::set; using  std::swap; using  std::max; using  std::min;
-using  std::cerr; using std::endl;
+//! The camera base moving speed.
+const Ogre::Real MOVE_SPEED = 2.0;
+const Ogre::Real MOVE_SPEED_ACCELERATION = 2.0 * MOVE_SPEED;
 
-CameraManager::CameraManager(Ogre::SceneManager* tmpSceneManager, GameMap* gm, Ogre::RenderWindow* renderWindow) :
-    mSwitchedPM(false),
+//! The camera moving speed factor on Z axis.
+const Ogre::Real ZOOM_SPEED = 4.0;
+
+//! Camera speed when clicking on the minimap or pushing the home key.
+const Ogre::Real FLIGHT_SPEED = 70.0;
+
+//! Camera rotation speed in degrees.
+const Ogre::Degree ROTATION_SPEED = Ogre::Degree(90);
+
+CameraManager::CameraManager(Ogre::SceneManager* sceneManager, GameMap* gm, Ogre::RenderWindow* renderWindow) :
     mCircleMode(false),
     mCatmullSplineMode(false),
     mFirstIter(true),
@@ -54,35 +58,26 @@ CameraManager::CameraManager(Ogre::SceneManager* tmpSceneManager, GameMap* gm, O
     mCenterX(0),
     mCenterY(0),
     mAlpha(0.0),
-    mModeManager(NULL),
-    mCullingManager(NULL),
-    mActiveCamera(NULL),
-    mActiveCameraNode(NULL),
+    mActiveCamera(nullptr),
+    mActiveCameraNode(nullptr),
     mGameMap(gm),
     mCameraIsFlying(false),
-    mMoveSpeed(2.0),
-    //NOTE: when changing, also change it in the terminal command 'movespeed'.
-    mMoveSpeedAccel(static_cast<Ogre::Real>(2.0f) * mMoveSpeed),
-    mCameraFlightSpeed(70.0),
-    mRotateSpeed(90),
+    mCameraFlightDestination(Ogre::Vector3(0.0, 0.0, 0.0)),
+    mCameraIsRotating(false),
+    mCameraPitchDestination(0.0),
+    mCameraRollDestination(0.0),
+    mZChange(0.0),
     mSwivelDegrees(0.0),
     mTranslateVector(Ogre::Vector3(0.0, 0.0, 0.0)),
     mTranslateVectorAccel(Ogre::Vector3(0.0, 0.0, 0.0)),
-    mCameraFlightDestination(Ogre::Vector3(0.0, 0.0, 0.0)),
     mRotateLocalVector(Ogre::Vector3(0.0, 0.0, 0.0)),
-    mSceneManager(tmpSceneManager),
-    mViewport(NULL),
-    mZChange(0.0),
-    mZoomSpeed(7.0)
+    mSceneManager(sceneManager),
+    mViewport(nullptr)
 {
-    mCullingManager = new CullingManager(this);
-
-    gm->setCullingManger(mCullingManager);
-
     createViewport(renderWindow);
     createCamera("RTS", 0.02, 300.0);
-    createCameraNode("RTS", Ogre::Vector3((Ogre::Real)10.0,
-                                              (Ogre::Real)10.0,
+    createCameraNode("RTS", Ogre::Vector3(static_cast<Ogre::Real>(10.0),
+                                              static_cast<Ogre::Real>(10.0),
                                               MAX_CAMERA_Z / 2.0),
                                               Ogre::Degree(0.0), Ogre::Degree(30.0));
 
@@ -92,30 +87,22 @@ CameraManager::CameraManager(Ogre::SceneManager* tmpSceneManager, GameMap* gm, O
     setActiveCamera("RTS");
     setActiveCameraNode("RTS");
 
-    LogManager* logManager = LogManager::getSingletonPtr();
-    logManager->logMessage("Created camera manager");
+    LogManager::getSingleton().logMessage("Created camera manager");
 }
 
-CameraManager::~CameraManager()
-{
-    delete mCullingManager;
-}
-
-//! \brief Sets up the main camera
 void CameraManager::createCamera(const Ogre::String& ss, double nearClip, double farClip)
 {
     Ogre::Camera* tmpCamera = mSceneManager->createCamera(ss);
-    tmpCamera->setNearClipDistance((Ogre::Real)nearClip);
-    tmpCamera->setFarClipDistance((Ogre::Real)farClip);
+    tmpCamera->setNearClipDistance(static_cast<Ogre::Real>(nearClip));
+    tmpCamera->setFarClipDistance(static_cast<Ogre::Real>(farClip));
     tmpCamera->setAutoTracking(false, mSceneManager->getRootSceneNode()
                                 ->createChildSceneNode("CameraTarget_" + ss),
-                                    Ogre::Vector3((Ogre::Real)(mGameMap->getMapSizeX() / 2),
-                                                  (Ogre::Real)(mGameMap->getMapSizeY() / 2),
-                                                  (Ogre::Real)0));
+                                    Ogre::Vector3(static_cast<Ogre::Real>(mGameMap->getMapSizeX() / 2),
+                                                  static_cast<Ogre::Real>(mGameMap->getMapSizeY() / 2),
+                                                  static_cast<Ogre::Real>(0)));
 
     mRegisteredCameraNames.insert(ss);
-    LogManager* logManager = LogManager::getSingletonPtr();
-    logManager->logMessage("Creating " + ss + " camera...", Ogre::LML_NORMAL);
+    LogManager::getSingleton().logMessage("Creating " + ss + " camera...", Ogre::LML_NORMAL);
 }
 
 void CameraManager::createCameraNode(const Ogre::String& ss, Ogre::Vector3 xyz,
@@ -130,15 +117,29 @@ void CameraManager::createCameraNode(const Ogre::String& ss, Ogre::Vector3 xyz,
     node->setPosition(Ogre::Vector3(0,0,2) +  node->getPosition());
     mRegisteredCameraNodeNames.insert(ss);
 
-    LogManager* logManager = LogManager::getSingletonPtr();
-    logManager->logMessage("Creating " + ss + "_node camera node...", Ogre::LML_NORMAL);
+    LogManager::getSingleton().logMessage("Creating " + ss + "_node camera node...", Ogre::LML_NORMAL);
 }
 
+void CameraManager::setDefaultIsometricView()
+{
+    RotateTo(40.0, 45.0);
+}
 
-//! \brief setup the viewports
+void CameraManager::setDefaultOrthogonalView()
+{
+    RotateTo(0.0, 0.0);
+}
+
+void CameraManager::RotateTo(Ogre::Real pitch, Ogre::Real roll)
+{
+    mCameraIsRotating = true;
+    mCameraPitchDestination = pitch;
+    mCameraRollDestination = roll;
+}
+
 void CameraManager::createViewport(Ogre::RenderWindow* renderWindow)
 {
-    mViewport = renderWindow->addViewport(NULL);
+    mViewport = renderWindow->addViewport(nullptr);
     mViewport->setBackgroundColour(Ogre::ColourValue(0, 0, 0));
 
 // TODO: Update registered camera if needed.
@@ -148,7 +149,7 @@ void CameraManager::createViewport(Ogre::RenderWindow* renderWindow)
     LogManager* logManager = LogManager::getSingletonPtr();
     logManager->logMessage("Creating viewport...", Ogre::LML_NORMAL);
 }
-
+/*
 void CameraManager::setFPPCamera(Creature* cc)
 {
     // That should be done in the RenderManager
@@ -158,7 +159,7 @@ void CameraManager::setFPPCamera(Creature* cc)
     tmpNode->setInheritOrientation(true);
     cc->getEntityNode()->addChild(tmpNode);
 #endif // 0
-}
+}*/
 
 Ogre::SceneNode* CameraManager::getActiveCameraNode()
 {
@@ -188,55 +189,28 @@ void CameraManager::setActiveCamera(const Ogre::String& ss)
     logManager->logMessage("Setting Active Camera to " + ss + " ...", Ogre::LML_NORMAL);
 }
 
-Ogre::Viewport* CameraManager::getViewport()
-{
-    return mViewport;
-}
-
-Ogre::String CameraManager::switchPolygonMode()
-{
-    Ogre::String newVal;
-    Ogre::PolygonMode pm;
-
-    switch (getActiveCamera()->getPolygonMode())
-    {
-        case Ogre::PM_SOLID:
-            newVal = "Wireframe";
-            pm = Ogre::PM_WIREFRAME;
-            break;
-        case Ogre::PM_WIREFRAME:
-            newVal = "Points";
-            pm = Ogre::PM_POINTS;
-            break;
-        default:
-            newVal = "Solid";
-            pm = Ogre::PM_SOLID;
-    }
-
-    getActiveCamera()->setPolygonMode(pm);
-
-    return newVal;
-}
-
-/*! \brief Sets the camera to a new location while still satisfying the
- * constraints placed on its movement
- */
 void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)
 {
+    if (!isCameraMovingAtAll())
+        return;
+
+    // Update the minimap view
+    MiniMap* minimap = ODFrameListener::getSingleton().getMiniMap();
+    minimap->updateCameraInfos(getCameraViewTarget(), getActiveCameraNode()->getOrientation().getRoll().valueRadians());
+
     // Carry out the acceleration/deceleration calculations on the camera translation.
     Ogre::Real speed = mTranslateVector.normalise();
-    mTranslateVector *= (Ogre::Real)std::max(0.0, speed - (0.75 + (speed / mMoveSpeed))
-                                * mMoveSpeedAccel * frameTime);
-    mTranslateVector += mTranslateVectorAccel * (Ogre::Real)(frameTime * 2.0);
+    mTranslateVector *= static_cast<Ogre::Real>(std::max(0.0, speed - (0.75 + (speed / MOVE_SPEED))
+                        * MOVE_SPEED_ACCELERATION * frameTime));
+    mTranslateVector += mTranslateVectorAccel * static_cast<Ogre::Real>(frameTime * 2.0);
 
     // If we have sped up to more than the maximum moveSpeed then rescale the
     // vector to that length. We use the squaredLength() in this calculation
     // since squaring the RHS is faster than sqrt'ing the LHS.
-
-    if (mTranslateVector.squaredLength() > mMoveSpeed * mMoveSpeed)
+    if (mTranslateVector.squaredLength() > MOVE_SPEED * MOVE_SPEED)
     {
         speed = mTranslateVector.length();
-        mTranslateVector *= mMoveSpeed / speed;
+        mTranslateVector *= MOVE_SPEED / speed;
     }
 
     // Get the camera's current position.
@@ -254,12 +228,19 @@ void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)
 
     // Adjust the newPosition vector to account for the translation due
     // to the movement keys on the keyboard (the arrow keys and/or WASD).
-    newPosition.z += (Ogre::Real)(mZChange * frameTime * mZoomSpeed);
+    if (mZChange != 0)
+    {
+        newPosition.z += static_cast<Ogre::Real>(mZChange * frameTime * ZOOM_SPEED);
+        // We also stow and stop the movement here, as the keyboard release events
+        // and mouse wheel event are otherwise colliding on handling the zoom.
+        if (mZChange > 0)
+            mZChange -= MOVE_SPEED;
+        else if (mZChange < 0)
+            mZChange += MOVE_SPEED;
+    }
 
-    Ogre::Real horizontalSpeedFactor =
-        (newPosition.z >= 16.0) ? (Ogre::Real)1.0 : (Ogre::Real)(newPosition.z / (16.0));
-
-    newPosition += horizontalSpeedFactor * (viewDirectionQuaternion * mTranslateVector);
+    // Update the position for the other axices.
+    newPosition += (viewDirectionQuaternion * mTranslateVector);
 
     // Prevent camera from moving down into the tiles or too high.
     if (newPosition.z <= MIN_CAMERA_Z)
@@ -270,11 +251,9 @@ void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)
     // Prevent the tilting to show a reversed world or looking too high.
     if (mRotateLocalVector.x != 0)
     {
-        // NOTE : The camera loses the desired sense of left, right, top, down
-        // when the camera pitch is more than 90 degrees.
-        Ogre::Real pitch = getActiveCameraNode()->getOrientation().getPitch().valueRadians();
-        if ((pitch >= 0.5 && mRotateLocalVector.x < 0)
-            || (pitch <= 0.8 && mRotateLocalVector.x > 0))
+        Ogre::Real currentPitch = getActiveCameraNode()->getOrientation().getPitch().valueDegrees();
+        if ((currentPitch >= 0.0 && mRotateLocalVector.x < 0)
+            || (currentPitch <= 50.0 && mRotateLocalVector.x > 0))
         {
             // Tilt the camera up or down.
             getActiveCameraNode()->rotate(Ogre::Vector3::UNIT_X,
@@ -283,26 +262,15 @@ void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)
         }
     }
 
-    getActiveCameraNode()->rotate(Ogre::Vector3::UNIT_Y,
-                                  Ogre::Degree(mRotateLocalVector.y * frameTime),
-                                  Ogre::Node::TS_LOCAL);
-
-    getActiveCameraNode()->rotate(Ogre::Vector3::UNIT_Z,
-                                  Ogre::Degree(mRotateLocalVector.z * frameTime),
-                                  Ogre::Node::TS_LOCAL);
-
     // Swivel the camera to the left or right, while maintaining the same
     // view target location on the ground.
     Ogre::Real deltaX = newPosition.x - viewTarget.x;
-
     Ogre::Real deltaY = newPosition.y - viewTarget.y;
 
     Ogre::Real radius = sqrt(deltaX * deltaX + deltaY * deltaY);
-
     Ogre::Real theta = atan2(deltaY, deltaX) + mSwivelDegrees.valueRadians() * frameTime;
 
     newPosition.x = viewTarget.x + radius * cos(theta);
-
     newPosition.y = viewTarget.y + radius * sin(theta);
 
     getActiveCameraNode()->rotate(Ogre::Vector3::UNIT_Z,
@@ -331,45 +299,88 @@ void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)
             // Scale the flight direction to move towards at the given speed
             // (the min function prevents overshooting the target) then add
             // this offset vector to the camera position.
-            flightDirection *= std::min(mCameraFlightSpeed * frameTime, radius);
+            flightDirection *= std::min(FLIGHT_SPEED * frameTime, radius);
             newPosition += flightDirection;
         }
     }
 
+    if (mCameraIsRotating && frameTime > 0.0)
+    {
+        Ogre::Quaternion orientationQuat = getActiveCameraNode()->getOrientation();
+
+        // Tilting - X-Axis - Looking up or down
+        Ogre::Real pitch = orientationQuat.getPitch().valueDegrees();
+        Ogre::Real pitchUpdate = ROTATION_SPEED.valueDegrees();
+        Ogre::Real pitchDiff = std::abs(pitch - mCameraPitchDestination);
+        Ogre::Real pitchChange = ((pitchUpdate * frameTime) > pitchDiff) ? pitchDiff / frameTime : pitchUpdate;
+        bool pitchDone = false;
+        if (pitchDiff < 0.5)
+        {
+            mRotateLocalVector.x = 0.0;
+            pitchDone = true;
+        }
+        else if (pitch > mCameraPitchDestination)
+            mRotateLocalVector.x = -pitchChange;
+        else if (pitch < mCameraPitchDestination)
+            mRotateLocalVector.x = pitchChange;
+
+        // Roll - Z-Axis - Left or right
+        Ogre::Real roll = orientationQuat.getRoll().valueDegrees();
+        Ogre::Real rollUpdate = 1.3 * ROTATION_SPEED.valueDegrees();
+        Ogre::Real rollDiff = std::abs(roll - mCameraRollDestination);
+        Ogre::Real rollChange = ((rollUpdate * frameTime) > rollDiff) ? rollDiff / frameTime : rollUpdate;
+        bool rollDone = false;
+        if (std::abs(roll - mCameraRollDestination) < 0.5)
+        {
+            mSwivelDegrees = 0.0;
+            rollDone = true;
+        }
+        else if (roll < mCameraRollDestination)
+            mSwivelDegrees = rollChange;
+        else if (roll > mCameraRollDestination)
+            mSwivelDegrees = -rollChange;
+
+        if (pitchDone && rollDone)
+            mCameraIsRotating = false;
+
+        /* Useful to debug... or test.
+        std::cout << "Current pitch: " << pitch << ", desired pitch: " << mCameraPitchDestination << std::endl;
+        std::cout << "Pitch update: " << pitchChange * frameTime << std::endl;
+        std::cout << "Current roll: " << roll << ", desired roll: " << mCameraRollDestination << std::endl;
+        std::cout << "Roll update: " << rollChange * frameTime << std::endl;
+        */
+    }
 
     if(mCircleMode)
     {
         mAlpha += 0.1 * frameTime;
 
-        newPosition.x = (Ogre::Real)(cos(mAlpha) * mRadius + mCenterX);
-        newPosition.y = (Ogre::Real)(sin(mAlpha) * mRadius + mCenterY);
+        newPosition.x = static_cast<Ogre::Real>(cos(mAlpha) * mRadius + mCenterX);
+        newPosition.y = static_cast<Ogre::Real>(sin(mAlpha) * mRadius + mCenterY);
 
         if(mAlpha > 2.0 * 3.145)
             mCircleMode = false;
     }
     else if(mCatmullSplineMode)
     {
-        //cerr << "catmullSplineMode " << endl;
         mAlpha += 0.1 * frameTime;
 
-        //cerr << "alpha "<< mAlpha << endl;
+        //std::cout << "alpha "<< mAlpha << std::endl;
 
-        double tempX, tempY;
-
-        tempX = xHCS.evaluate(mAlpha);
-        //cerr<< "newPosition.x"<< newPosition.x << endl;
-        tempY = yHCS.evaluate(mAlpha);
-        //cerr<< "newPosition.y"<< newPosition.y << endl;
+        double tempX = mXHCS.evaluate(mAlpha);
+        //std::cout << "newPosition.x: " << newPosition.x << std::endl;
+        double tempY = mYHCS.evaluate(mAlpha);
+        //std::cout << "newPosition.y: "<< newPosition.y << std::endl;
 
         if (tempX < 0.9 * mGameMap->getMapSizeX() &&
                 tempX > 10 &&
                 tempY < 0.9 * mGameMap->getMapSizeY() &&
                 tempY > 10 ) {
-            newPosition.x = (Ogre::Real)tempX;
-            newPosition.y = (Ogre::Real)tempY;
+            newPosition.x = static_cast<Ogre::Real>(tempX);
+            newPosition.y = static_cast<Ogre::Real>(tempY);
         }
 
-        if(mAlpha > xHCS.getNN())
+        if(mAlpha > mXHCS.getNN())
             mCatmullSplineMode = false;
     }
 
@@ -378,18 +389,8 @@ void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)
 
     SoundEffectsManager::getSingleton().setListenerPosition(
         newPosition,  getActiveCameraNode()->getOrientation());
-
-    MiniMap* minimap = ODFrameListener::getSingleton().getMiniMap();
-    minimap->updateCameraInfos(getCameraViewTarget(), getActiveCameraNode()->getOrientation().getRoll().valueRadians());
-    mModeManager->getCurrentMode()->mouseMoved(
-        OIS::MouseEvent(0 ,mModeManager->getCurrentMode()->getMouse()->getMouseState()));
-
-    //std::cerr << " x:" <<  getActiveCameraNode()->getPosition().x << " y " <<  getActiveCameraNode()->getPosition().y <<" z" <<  getActiveCameraNode()->getPosition().z << std::endl;
 }
 
-/*! \brief Computes a vector whose z-component is 0 and whose x-y coordinates
- * are the position on the floor that the camera is pointed at.
- */
 const Ogre::Vector3 CameraManager::getCameraViewTarget()
 {
     // Get the position of the camera and direction that the camera is facing.
@@ -422,78 +423,82 @@ void CameraManager::flyTo(const Ogre::Vector3& destination)
 {
     mCameraIsFlying = true;
     mCameraFlightDestination = destination;
-    mCameraFlightDestination.z = 0.0;
 }
 
 void CameraManager::onMiniMapClick(Ogre::Vector2 cc)
 {
-    flyTo(Ogre::Vector3(cc.x, cc.y, (Ogre::Real)0.0));
+    flyTo(Ogre::Vector3(cc.x, cc.y, 0.0));
 }
 
-/*! \brief tells the camera to move/rotate (or stop) in a specific direction
- *
- *  The function combines start and stop in one go. Giving equal momentum in
- *  one direction means either moving there (if resting before) or stoping the
- *  movement (if moving in oppsite direction before)
- */
 void CameraManager::move(const Direction direction, double aux)
 {
+    // NOTE : The camera loses the desired sense of left, right, top, down
+    // when the camera pitch is more than 90 degrees.
+    // So we invert the panning in that case.
+    Ogre::Real currentPitch = getActiveCameraNode()->getOrientation().getPitch().valueDegrees();
+
     switch (direction)
     {
+    case moveRight:
+        if (currentPitch > 0.0)
+            mTranslateVectorAccel.x += MOVE_SPEED_ACCELERATION;
+        else
+            mTranslateVectorAccel.x -= MOVE_SPEED_ACCELERATION;
+        break;
+
     case stopRight:
-        if (mTranslateVectorAccel.x > 0)
-            mTranslateVectorAccel.x = 0;
-        break;
-
-    case stopLeft:
-        if (mTranslateVectorAccel.x < 0)
-            mTranslateVectorAccel.x = 0;
-        break;
-
-    case stopBackward:
-        if (mTranslateVectorAccel.y < 0)
-            mTranslateVectorAccel.y = 0;
-        break;
-
-    case stopForward:
-        if (mTranslateVectorAccel.y > 0)
-            mTranslateVectorAccel.y = 0;
+        mTranslateVectorAccel.x = 0;
         break;
 
     case moveLeft:
-        mTranslateVectorAccel.x -= mMoveSpeedAccel;
+        if (currentPitch > 0.0)
+            mTranslateVectorAccel.x -= MOVE_SPEED_ACCELERATION;
+        else
+            mTranslateVectorAccel.x += MOVE_SPEED_ACCELERATION;
         break;
 
-    case moveRight:
-        mTranslateVectorAccel.x += mMoveSpeedAccel;
-        break;
-
-    case moveForward:
-        mTranslateVectorAccel.y += mMoveSpeedAccel;
+    case stopLeft:
+        mTranslateVectorAccel.x = 0;
         break;
 
     case moveBackward:
-        mTranslateVectorAccel.y -= mMoveSpeedAccel;
+        if (currentPitch > 0.0)
+            mTranslateVectorAccel.y -= MOVE_SPEED_ACCELERATION;
+        else
+            mTranslateVectorAccel.y += MOVE_SPEED_ACCELERATION;
+        break;
+
+    case stopBackward:
+            mTranslateVectorAccel.y = 0;
+        break;
+
+    case moveForward:
+        if (currentPitch > 0.0)
+            mTranslateVectorAccel.y += MOVE_SPEED_ACCELERATION;
+        else
+            mTranslateVectorAccel.y -= MOVE_SPEED_ACCELERATION;
+        break;
+
+    case stopForward:
+        mTranslateVectorAccel.y = 0;
         break;
 
     case moveUp:
-        mZChange += mMoveSpeed;
-        break;
-
-    case stopDown:
-        mZChange = 0;
-        break;
-
-    case moveDown:
-        mZChange -= mMoveSpeed;
+        mZChange += MOVE_SPEED_ACCELERATION;
         break;
 
     case stopUp:
-        mZChange = 0;
+        break;
+
+    case moveDown:
+        mZChange -= MOVE_SPEED_ACCELERATION;
+        break;
+
+    case stopDown:
         break;
 
     case rotateLeft:
-        mSwivelDegrees += 1.3 * mRotateSpeed;
+        mSwivelDegrees += 1.3 * ROTATION_SPEED;
         break;
 
     case stopRotRight:
@@ -501,7 +506,7 @@ void CameraManager::move(const Direction direction, double aux)
         break;
 
     case rotateRight:
-        mSwivelDegrees -= 1.3 * mRotateSpeed;
+        mSwivelDegrees -= 1.3 * ROTATION_SPEED;
         break;
 
     case stopRotLeft:
@@ -509,7 +514,7 @@ void CameraManager::move(const Direction direction, double aux)
         break;
 
     case rotateUp:
-        mRotateLocalVector.x += mRotateSpeed.valueDegrees();
+        mRotateLocalVector.x += ROTATION_SPEED.valueDegrees();
         break;
 
     case stopRotDown:
@@ -517,7 +522,7 @@ void CameraManager::move(const Direction direction, double aux)
         break;
 
     case rotateDown:
-        mRotateLocalVector.x -= mRotateSpeed.valueDegrees();
+        mRotateLocalVector.x -= ROTATION_SPEED.valueDegrees();
         break;
 
     case stopRotUp:
@@ -525,7 +530,7 @@ void CameraManager::move(const Direction direction, double aux)
         break;
 
     case randomRotateX:
-        mSwivelDegrees = Ogre::Degree((Ogre::Real)(64 * aux));
+        mSwivelDegrees = Ogre::Degree(static_cast<Ogre::Real>(64 * aux));
         break;
 
     case zeroRandomRotateX:
@@ -533,7 +538,7 @@ void CameraManager::move(const Direction direction, double aux)
         break;
 
     case randomRotateY:
-        mRotateLocalVector.x = (Ogre::Real)(64 * aux);
+        mRotateLocalVector.x = static_cast<Ogre::Real>(64 * aux);
         break;
 
     case zeroRandomRotateY:
@@ -543,49 +548,17 @@ void CameraManager::move(const Direction direction, double aux)
     default:
         break;
     }
-
-    // We inform about the Camera position's change  in terems of X Y  coordinates
 }
 
-/*! \brief By tracking the four camera corners uses the bashAndSplash function to
- *  show or hide the tiles according to camera view
- */
-int CameraManager::updateCameraView()
-{
-    return 0;
-}
-
-//TODO: This check is not used currently, because there's a bug with the cam
-//movement: The cam will "remember" the last state when stopping, this leads
-//to strange behavior -> try to rewrite camera movement from scratch (prevent
-//the lengthy calculations from being executed if there's no movement at all)
-/*! \brief Checks if the camera is moving at all by evaluating all momentums
- */
-bool CameraManager::isCamMovingAtAll() const
+bool CameraManager::isCameraMovingAtAll() const
 {
     return (mTranslateVectorAccel.x != 0 ||
             mTranslateVectorAccel.y != 0 ||
+            mTranslateVector.x != 0 ||
+            mTranslateVector.y != 0 ||
             mZChange != 0 ||
             mSwivelDegrees.valueDegrees() != 0 ||
             mRotateLocalVector.x != 0 ||
-            mCameraIsFlying);
-}
-
-bool CameraManager::onFrameStarted()
-{
-    updateCameraView();
-    mCullingManager->onFrameStarted();
-
-    return true;
-}
-
-bool CameraManager::onFrameEnded()
-{
-    if(mSwitchedPM) {
-        switchPolygonMode();
-        mSwitchedPM = false;
-    }
-
-    mCullingManager->onFrameEnded();
-    return true;
+            mCameraIsFlying ||
+            mCameraIsRotating);
 }

@@ -4,7 +4,7 @@
  * \author StefanP.MUC
  * \brief  Provides common methods and members for buildable objects, like rooms and traps
  *
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -51,6 +51,8 @@ public:
 
     virtual ~Building() {}
 
+    const Ogre::Vector3& getScale() const;
+
     //! \brief Updates the active spot lists. Active spots are places where objects can be added
     virtual void updateActiveSpots() = 0;
 
@@ -58,13 +60,9 @@ public:
     void receiveExp(double /*experience*/)
     {}
 
-    void addBuildingObject(Tile* targetTile, RenderedMovableEntity* obj);
-    void removeBuildingObject(Tile* tile);
-    void removeBuildingObject(RenderedMovableEntity* obj);
     void removeAllBuildingObjects();
-    RenderedMovableEntity* getBuildingObjectFromTile(Tile* tile);
     /*! \brief Creates a child RenderedMovableEntity mesh using the given mesh name and placing on the target tile,
-     *  if the tile is NULL the object appears in the building's center, the rotation angle is given in degrees.
+     *  if the tile is nullptr the object appears in the building's center, the rotation angle is given in degrees.
      */
     RenderedMovableEntity* loadBuildingObject(GameMap* gameMap, const std::string& meshName,
         Tile* targetTile, double rotationAngle, bool hideCoveredTile, float opacity = 1.0f);
@@ -72,12 +70,12 @@ public:
         Tile* targetTile, double x, double y, double rotationAngle, bool hideCoveredTile, float opacity = 1.0f);
     Tile* getCentralTile();
 
-    virtual bool isAttackable() const;
+    virtual bool isAttackable(Tile* tile, Seat* seat) const;
     virtual void addCoveredTile(Tile* t, double nHP);
     virtual bool removeCoveredTile(Tile* t);
-    virtual Tile* getCoveredTile(int index);
     std::vector<Tile*> getCoveredTiles();
-    virtual unsigned int numCoveredTiles();
+    Tile* getCoveredTile(int index);
+    uint32_t numCoveredTiles();
     virtual void clearCoveredTiles();
     double getHP(Tile *tile) const;
     double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile *tileTakingDamage);
@@ -114,9 +112,20 @@ public:
     virtual void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity)
     {}
 
+    //! Tells if the covering tile should be set to dirty when the building is added on the tile
+    virtual bool shouldSetCoveringTileDirty(Seat* seat, Tile* tile)
+    { return true; }
+
 protected:
-    virtual void createMeshLocal();
-    virtual void destroyMeshLocal();
+    void addBuildingObject(Tile* targetTile, RenderedMovableEntity* obj);
+    void removeBuildingObject(Tile* tile);
+    void removeBuildingObject(RenderedMovableEntity* obj);
+    RenderedMovableEntity* getBuildingObjectFromTile(Tile* tile);
+    //! Buildings are handled by the tile, they don't fire add/remove events
+    void fireAddEntity(Seat* seat, bool async)
+    {}
+    void fireRemoveEntity(Seat* seat)
+    {}
 
     std::map<Tile*, RenderedMovableEntity*> mBuildingObjects;
     std::vector<Tile*> mCoveredTiles;

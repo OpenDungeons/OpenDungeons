@@ -4,7 +4,7 @@
  * \author StefanP.MUC
  * \brief  Provides the GameEntity class, the base class for all ingame objects
  *
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,6 +37,31 @@ class Quadtree;
 class Seat;
 class ODPacket;
 
+enum class GameEntityType
+{
+    unknown,
+    creature,
+    room,
+    trap,
+    renderedMovableEntity,
+    tile,
+    mapLight,
+    spell
+};
+
+ODPacket& operator<<(ODPacket& os, const GameEntityType& ot);
+ODPacket& operator>>(ODPacket& is, GameEntityType& ot);
+
+//! This enum is used to know how carryable entities should be prioritized from lowest
+//! to highest
+enum class EntityCarryType
+{
+    notCarryable,
+    corpse,
+    craftedTrap,
+    gold
+};
+
 /*! \class GameEntity GameEntity.h
  *  \brief This class holds elements that are common to every object placed in the game
  *
@@ -47,27 +72,19 @@ class ODPacket;
 class GameEntity
 {
   public:
-    enum ObjectType
-    {
-        unknown, creature, room, trap, weapon, renderedMovableEntity, tile
-    };
-
     //! \brief Default constructor with default values
     GameEntity(
           GameMap*        gameMap,
           std::string     name       = std::string(),
           std::string     meshName   = std::string(),
-          float           opacity     = 1.0f,
           Seat*           seat        = nullptr
           ) :
     mPosition          (Ogre::Vector3(0, 0, 0)),
-    mOpacity           (opacity),
     mName              (name),
     mMeshName          (meshName),
     mMeshExists        (false),
     mSeat              (seat),
     mIsDeleteRequested (false),
-    mObjectType        (unknown),
     mGameMap           (gameMap),
     mIsOnMap           (true),
     mParentSceneNode   (nullptr),
@@ -97,23 +114,18 @@ class GameEntity
     inline bool isMeshExisting() const
     { return mMeshExists; }
 
-    //! \brief Get if the mesh is already existing
-    inline float getOpacity() const
-    { return mOpacity; }
-
     //! \brief Get if the object can be attacked or not
-    virtual bool isAttackable() const
+    virtual bool isAttackable(Tile* tile, Seat* seat) const
     { return false; }
 
     //! \brief Get the type of this object
-    inline ObjectType getObjectType() const
-    { return mObjectType; }
+    virtual GameEntityType getObjectType() const = 0;
 
     //! \brief Pointer to the GameMap
     inline GameMap* getGameMap() const
     { return mGameMap; }
 
-    virtual Ogre::Vector3 getPosition() const
+    virtual const Ogre::Vector3& getPosition() const
     { return mPosition; }
 
     inline Ogre::SceneNode* getParentSceneNode() const
@@ -121,6 +133,9 @@ class GameEntity
 
     inline Ogre::SceneNode* getEntityNode() const
     { return mEntityNode; }
+
+    virtual const Ogre::Vector3& getScale() const
+    { return Ogre::Vector3::UNIT_SCALE; }
 
     // ===== SETTERS =====
     //! \brief Set the name of the entity
@@ -139,18 +154,10 @@ class GameEntity
     inline void setMeshExisting(bool isExisting)
     { mMeshExists = isExisting; }
 
-    //! \brief Set the entity opacity
-    void setMeshOpacity(float opacity);
-
-    //! \brief Set the entity opacity value whithout refreshing it. Useful at construction.
-    void setOpacity(float opacity)
-    { mOpacity = opacity; }
-
-    //! \brief Set the type of the object. Should be done in all final derived constructors
-    inline void setObjectType (ObjectType type)
-    { mObjectType = type; }
-
-    virtual void setPosition(const Ogre::Vector3& v)
+    //! \brief Set the new entity position. If isMove is true, that means that the entity was
+    //! already on map and is moving. If false, it means that the entity was not on map (for example
+    //! if being dropped or created).
+    virtual void setPosition(const Ogre::Vector3& v, bool isMove)
     { mPosition = v; }
 
     inline void setParentSceneNode(Ogre::SceneNode* sceneNode)
@@ -187,6 +194,12 @@ class GameEntity
     //! this will be a single tile, for larger objects like rooms this will be 1 or more tiles.
     virtual std::vector<Tile*> getCoveredTiles() = 0;
 
+    //! \brief Returns the tile at the given index (nullptr if no tile).
+    virtual Tile* getCoveredTile(int index) = 0;
+
+    //! \brief Returns the number of covered tiles.
+    virtual uint32_t numCoveredTiles() = 0;
+
     //! \brief Returns the HP associated with the given tile of the object, it is up to the object how they want to treat the tile/HP relationship.
     virtual double getHP(Tile *tile) const = 0;
 
@@ -195,9 +208,9 @@ class GameEntity
     //! the entity damaging
     virtual double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile *tileTakingDamage) = 0;
 
-    //! \brief Called when the entity is being carried
-    virtual void notifyEntityCarried(bool isCarried)
-    {}
+    //! \brief Adds the entity to the correct spaces of the gamemap (animated objects, creature, ...)
+    virtual void addToGameMap() = 0;
+    virtual void removeFromGameMap() = 0;
 
     virtual bool getIsOnMap()
     { return mIsOnMap; }
@@ -212,23 +225,42 @@ class GameEntity
     {}
 
     //! \brief Called when the entity is being slapped
-    virtual bool canSlap(Seat* seat, bool isEditorMode)
+    virtual bool canSlap(Seat* seat)
     { return false; }
-    virtual void slap(bool isEditorMode)
+    virtual void slap()
     {}
 
     //! \brief Called when the entity is being picked up /dropped
-    virtual bool tryPickup(Seat* seat, bool isEditorMode)
+    virtual bool tryPickup(Seat* seat)
     { return false; }
     virtual void pickup()
     {}
-    virtual bool tryDrop(Seat* seat, Tile* tile, bool isEditorMode)
+    virtual bool tryDrop(Seat* seat, Tile* tile)
     { return false; }
     virtual void drop(const Ogre::Vector3& v)
     {}
 
-    friend ODPacket& operator<<(ODPacket& os, const GameEntity::ObjectType& ot);
-    friend ODPacket& operator>>(ODPacket& is, GameEntity::ObjectType& ot);
+    //! \brief Called each turn with the list of seats that have vision on the tile where the entity is. It should handle
+    //! messages to notify players that gain/loose vision
+    virtual void notifySeatsWithVision(const std::vector<Seat*>& seats);
+    //! \brief Functions to add/remove a seat with vision
+    virtual void addSeatWithVision(Seat* seat, bool async);
+    virtual void removeSeatWithVision(Seat* seat);
+
+    //! \brief Fires remove event to every seat with vision
+    void fireRemoveEntityToSeatsWithVision();
+
+    //! \brief Returns true if the entity can be carried by a kobold. False otherwise.
+    virtual EntityCarryType getEntityCarryType()
+    { return EntityCarryType::notCarryable; }
+
+    //! \brief Called when the entity is being carried
+    virtual void notifyEntityCarryOn()
+    {}
+
+    //! \brief Called when the entity is being carried
+    virtual void notifyEntityCarryOff(const Ogre::Vector3& position)
+    {}
 
   protected:
     //! \brief Function that implements the mesh creation
@@ -240,13 +272,22 @@ class GameEntity
     //! \brief The position of this object
     Ogre::Vector3 mPosition;
 
-    //! \brief The model current opacity
-    float mOpacity;
-
     //! \brief Convinience function to get ogreNamePrefix + name
     //! Used for nodes. The name does not include the _node and similar postfixes which are
     //! added in RenderManager.
     std::string getNodeNameWithoutPostfix();
+
+    //! \brief Called while moving the entity to add it to the tile it gets on
+    virtual bool addEntityToTile(Tile* tile);
+    //! \brief Called while moving the entity to remove it from the tile it gets off
+    virtual bool removeEntityFromTile(Tile* tile);
+
+    //! \brief Fires a add entity message to the player of the given seat
+    virtual void fireAddEntity(Seat* seat, bool async) = 0;
+    //! \brief Fires a remove creature message to the player of the given seat (if not null). If null, it fires to
+    //! all players with vision
+    virtual void fireRemoveEntity(Seat* seat) = 0;
+    std::vector<Seat*> mSeatsWithVisionNotified;
 
   private:
     //! brief The name of the entity
@@ -263,9 +304,6 @@ class GameEntity
 
     //! \brief A flag saying whether the object has been requested to delete
     bool mIsDeleteRequested;
-
-    //! \brief What kind of object is it
-    ObjectType mObjectType;
 
     //! \brief Pointer to the GameMap object.
     GameMap* mGameMap;

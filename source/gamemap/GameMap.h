@@ -1,5 +1,5 @@
 /*!
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,7 +21,8 @@
 #include "gamemap/TileContainer.h"
 
 #include "ai/AIManager.h"
-#include "rooms/Room.h"
+
+#include "entities/Tile.h"
 
 #ifdef __MINGW32__
 #ifndef mode_t
@@ -34,7 +35,6 @@
 #include <cstdint>
 
 class Tile;
-class TileCoordinateMap;
 class Creature;
 class Player;
 class Trap;
@@ -44,9 +44,10 @@ class MapLight;
 class MovableGameEntity;
 class CreatureDefinition;
 class Weapon;
+class CreatureMood;
+class Spell;
 
-class MiniMap;
-class CullingManager;
+enum class RoomType;
 
 /*! \brief The class which stores the entire game state on the server and a subset of this on each client.
  *
@@ -69,6 +70,13 @@ public:
 
     const std::string serverStr()
     { return std::string( mIsServerGameMap ? "SERVER - " : "CLIENT - "); }
+
+    //! \brief Tells whether the game map is currently used for the map editor mode
+    //! or for a standard game session.
+    //! \note This function has got the noticeable role to keep the separation between the client
+    //! and the server game maps clean, by not calling client related code when acting
+    //! as a server game and vice versa.
+    bool isInEditorMode() const;
 
     //! \brief Load a level file (Part of the resource paths)
     //! \returns whether the file loaded correctly
@@ -116,6 +124,9 @@ public:
     //! \brief Returns the total number of creatures stored in this game map.
     unsigned int numCreatures() const;
 
+    bool getIsFOWActivated() const
+    { return mIsFOWActivated; }
+
     //! \brief Returns a vector containing all the creatures controlled by the given seat.
     std::vector<Creature*> getCreaturesByAlliedSeat(Seat* seat);
     std::vector<Creature*> getCreaturesBySeat(Seat* seat);
@@ -161,22 +172,25 @@ public:
 
     void saveLevelClassDescriptions(std::ofstream& levelFile);
 
-    void addWeapon(const Weapon *weapon);
+    void addWeapon(const Weapon* weapon);
+    const Weapon* getWeapon(int index);
     const Weapon* getWeapon(const std::string& name);
     Weapon* getWeaponForTuning(const std::string& name);
     uint32_t numWeapons();
     void saveLevelEquipments(std::ofstream& levelFile);
 
+    void clearCreatureMoodModifiers();
+    bool addCreatureMoodModifiers(const std::string& name,
+        const std::vector<CreatureMood*>& moodModifiers);
+    int32_t computeCreatureMoodModifiers(const Creature* creature) const;
+
+    std::vector<GameEntity*> getNaturalEnemiesInList(const Creature* creature, const std::vector<GameEntity*>& reachableAlliedObjects) const;
+
     //! \brief Calls the deleteYourself() method on each of the rooms in the game map as well as clearing the vector of stored rooms.
     void clearRooms();
 
-    //! \brief A simple mutator method to add the given Room to the GameMap. If sendAsyncMsg is true, an asynchronous server message
-    //! will be sent to every players. If false, it will be synchronous. Asynchronous messages should be used for human players
-    //! to increase time reaction. This is useful because when AI looses a room, it could try to rebuild it during the same turn. But
-    //! because the remove tile is sent synchronously, if the build message was sent asynchronously, it would be received before the
-    //! remove message. That would result in Ogre crashing because there are 2 identical tiles.
-    void addRoom(Room *r, bool sendAsyncMsg);
-
+    //! \brief Simple mutators method to add/remove the given Room to the GameMap.
+    void addRoom(Room *r);
     void removeRoom(Room *r);
 
     //! \brief A simple accessor method to return the given Room.
@@ -185,12 +199,12 @@ public:
     //! \brief A simple accessor method to return the number of Rooms stored in the GameMap.
     unsigned int numRooms();
 
-    std::vector<Room*> getRoomsByType(Room::RoomType type);
-    std::vector<Room*> getRoomsByTypeAndSeat(Room::RoomType type,
+    std::vector<Room*> getRoomsByType(RoomType type);
+    std::vector<Room*> getRoomsByTypeAndSeat(RoomType type,
                         Seat* seat);
-    std::vector<const Room*> getRoomsByTypeAndSeat(Room::RoomType type,
+    std::vector<const Room*> getRoomsByTypeAndSeat(RoomType type,
                           Seat* seat) const;
-    unsigned int numRoomsByTypeAndSeat(Room::RoomType type,
+    unsigned int numRoomsByTypeAndSeat(RoomType type,
                       Seat* seat) const;
     std::vector<Room*> getReachableRooms(const std::vector<Room*> &vec,
                        Tile *startTile, const Creature* creature);
@@ -247,15 +261,20 @@ public:
     //! \brief A simple mutator method to clear the vector of Seats stored in the GameMap.
     void clearSeats();
 
-    //! \brief A simple mutator method to add another Seat to the GameMap.
-    void addSeat(Seat* s);
+    //! \brief A simple mutator method to add another Seat to the GameMap. Checks if a seat with the same
+    //! id is already in the list before inserting. Returns true if the seat was inserted and false
+    //! otherwise
+    bool addSeat(Seat* s);
 
     int nextSeatId(int SeatId);
 
     void clearFilledSeats();
     void clearAiManager();
 
-    Seat* getSeatById(int id);
+    Seat* getSeatById(int id) const;
+
+    Seat* getSeatRogue() const
+    { return getSeatById(0); }
 
     void addWinningSeat(Seat *s);
     Seat* getWinningSeat(unsigned int index);
@@ -270,12 +289,6 @@ public:
 
     int getTotalGoldForSeat(Seat* seat);
     bool withdrawFromTreasuries(int gold, Seat* seat);
-
-    inline void setCullingManger(CullingManager* cullingManager)
-    { mCullingManager = cullingManager; }
-
-    inline CullingManager* getCullingManger() const
-    { return mCullingManager; }
 
     inline const std::string& getLevelFileName() const
     { return mLevelFileName; }
@@ -321,6 +334,14 @@ public:
     //! \brief Tells whether a path exists between two tiles for the given creature.
     bool pathExists(const Creature* creature, Tile* tileStart, Tile* tileEnd);
 
+    /*! \brief Calculates the walkable path between tileStart and one of the possibleDests. This function
+     * will choose the closest tile in possibleDests and return the path between tileStart and it.
+     * If a path is found, it is returned and chosenTile is set to the chosen tile. If no path is found,
+     * an empty list will be returned and chosenTile will be set to nullptr
+     */
+    std::list<Tile*> findBestPath(const Creature* creature, Tile* tileStart, const std::vector<Tile*> possibleDests,
+        Tile*& chosenTile);
+
     /*! \brief Calculates the walkable path between tiles (x1, y1) and (x2, y2).
      *
      * The search is carried out using the A-star search algorithm.
@@ -339,26 +360,16 @@ public:
     //! \note Returns a path for the given creature to the given destination.
     std::list<Tile*> path(const Creature* creature, Tile* destination, bool throughDiggableTiles = false);
 
-    /*! \brief Returns a list of valid tiles along a straight line from (x1, y1) to (x2, y2)
-     * independently from their fullness or type.
-     *
-     * This algorithm is from
-     * http://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
-     * A more detailed description of how it works can be found there.
-     */
-    std::list<Tile*> tilesBetween(int x1, int y1, int x2, int y2);
+    //! \brief Loops over the visibleTiles and returns any creature/room/trap in those tiles allied with the given seat
+    //! (or if enemyForce is true, is not allied)
+    std::vector<GameEntity*> getVisibleForce(const std::vector<Tile*>& visibleTiles, Seat* seat, bool enemyForce);
 
-    //! \brief Returns the tiles visible from the given start tile out to the specified sight radius.
-    std::vector<Tile*> visibleTiles(Tile *startTile, double sightRadius);
-
-    //! \brief Loops over the visibleTiles and returns any creature/room/trap in those tiles allied with the given seat (or if invert is true, is not allied)
-    std::vector<GameEntity*> getVisibleForce(std::vector<Tile*> visibleTiles, Seat* seat, bool invert);
-
-    //! \brief Loops over the visibleTiles and returns any creature in those tiles allied with the given seat (or if invert is true, is not allied)
-    std::vector<GameEntity*> getVisibleCreatures(std::vector<Tile*> visibleTiles, Seat* seat, bool invert);
+    //! \brief Loops over the visibleTiles and returns any creature in those tiles allied with the given seat.
+    //! (or if enemyCreatures is true, is not allied)
+    std::vector<GameEntity*> getVisibleCreatures(const std::vector<Tile*>& visibleTiles, Seat* seat, bool enemyCreatures);
 
     //! \brief Loops over the visibleTiles and returns any carryable entity in those tiles
-    std::vector<GameEntity*> getVisibleCarryableEntities(std::vector<Tile*> visibleTiles);
+    std::vector<GameEntity*> getVisibleCarryableEntities(const std::vector<Tile*>& visibleTiles);
 
     /** \brief Returns the as the crow flies distance between tiles located at the two coordinates given.
      * If tiles do not exist at these locations the function returns -1.0.
@@ -410,12 +421,12 @@ public:
         mTurnNumber = turnNumber;
     }
 
-    bool isServerGameMap()
+    bool isServerGameMap() const
     {
         return mIsServerGameMap;
     }
 
-    bool getGamePaused()
+    bool getGamePaused() const
     {
         return mIsPaused;
     }
@@ -436,8 +447,11 @@ public:
 
     int addGoldToSeat(int gold, int seatId);
 
-    //! \brief Searches for a kobold owned by the seat for path finding
-    Creature* getKoboldForPathFinding(Seat* seat);
+    //! \brief Returns the number of workers the given seat controls
+    int getNbWorkersForSeat(Seat* seat);
+
+    //! \brief Searches for a worker owned by the seat for path finding
+    Creature* getWorkerForPathFinding(Seat* seat);
 
     //! \brief Finds a path for the creature to the best tile within range from target
     //! Returns true and path will contain the path if a path is found.
@@ -450,6 +464,9 @@ public:
     void logFloodFileTiles();
     void consoleSetCreatureDestination(const std::string& creatureName, int x, int y);
     void consoleDisplayCreatureVisualDebug(const std::string& creatureName, bool enable);
+    void consoleDisplaySeatVisualDebug(int seatId, bool enable);
+    void consoleSetLevelCreature(const std::string& creatureName, uint32_t level);
+    void consoleAskToggleFOW();
 
     //! \brief This functions create unique names. They check that there
     //! is no entity with the same name before returning
@@ -465,8 +482,15 @@ public:
     RenderedMovableEntity* getRenderedMovableEntity(const std::string& name);
     void clearRenderedMovableEntities();
     void clearActiveObjects();
-    GameEntity* getEntityFromTypeAndName(GameEntity::ObjectType entityType,
+    MovableGameEntity* getEntityFromTypeAndName(GameEntityType entityType,
         const std::string& entityName);
+
+    //! brief Functions to add/remove/get Spells
+    void addSpell(Spell *spell);
+    void removeSpell(Spell *spell);
+    Spell* getSpell(const std::string& name) const;
+    void clearSpells();
+    std::vector<Spell*> getSpellsBySeatAndType(Seat* seat, SpellType type) const;
 
     //! \brief Tells the game map a given player is attacking or under attack.
     //! Used on the server game map only.
@@ -477,13 +501,17 @@ public:
     void processDeletionQueues();
 
     void fillBuildableTilesAndPriceForPlayerInArea(int x1, int y1, int x2, int y2,
-        Player* player, Room::RoomType type, std::vector<Tile*>& tiles, int& goldRequired);
+        Player* player, RoomType type, std::vector<Tile*>& tiles, int& goldRequired);
+
+    void updateVisibleEntities();
 
 private:
     void replaceFloodFill(Tile::FloodFillType floodFillType, int colorOld, int colorNew);
+
+    //! \brief Tells whether this game map instance is used as a reference by the server-side,
+    //! or as a standard client game map.
     bool mIsServerGameMap;
 
-    CullingManager* mCullingManager;
     //! \brief the Local player reference. The local player will also be in the player list so this pointer
     //! should not be deleted as it will be handled like every other in the list.
     Player* mLocalPlayer;
@@ -503,6 +531,8 @@ private:
 
     //! \brief When paused, the GameMap is not updated.
     bool mIsPaused;
+
+    Ogre::Real mTimePayDay;
 
     //! \brief Level related filenames.
     std::string mLevelFileName;
@@ -541,6 +571,9 @@ private:
     //! \brief Tells whether the map color flood filling is enabled.
     bool mFloodFillEnabled;
 
+    //! When true, fog of war will work normally. When false, every connected client will see the whole map
+    bool mIsFOWActivated;
+
     std::vector<GameEntity*> mActiveObjects;
 
     //! \brief  active objects that are created are stored here. They will be added after the miscupkeep to avoid changing the list while we use it
@@ -552,18 +585,19 @@ private:
     //! \brief Useless entities that need to be deleted. They will be deleted when processDeletionQueues is called
     std::vector<GameEntity*> mEntitiesToDelete;
 
-    //! \brief Useless MapLights that need to be deleted. They will be deleted when processDeletionQueues is called
-    std::vector<MapLight*> mMapLightsToDelete;
-
     //! \brief Debug member used to know how many call to pathfinding has been made within the same turn.
     unsigned int mNumCallsTo_path;
 
-    TileCoordinateMap* mTileCoordinateMap;
-
     std::vector<RenderedMovableEntity*> mRenderedMovableEntities;
+
+    std::vector<Spell*> mSpells;
 
     //! AI Handling manager
     AIManager mAiManager;
+
+    //! Creature mood modifiers. Used to compute mood. The name of the mood modifier is associated with
+    //! the list of mood modifier
+    std::map<const std::string, std::vector<CreatureMood*>> mCreatureMoodModifiers;
 
     //! \brief Updates different entities states.
     //! Updates active objects (creatures, rooms, ...), goals, count each team Workers, gold, mana and claimed tiles.
@@ -572,10 +606,9 @@ private:
     //! \brief Resets the unique numbers
     void resetUniqueNumbers();
 
-    //! \brief Updates every player's fighting time value
-    //! and triggers potentiel calm music server notifications.
+    //! \brief Updates every player's time value so they can handle timed events like fighting music
     //! Used on the server game map only.
-    void updatePlayerFightingTime(Ogre::Real timeSinceLastFrame);
+    void updatePlayerTime(Ogre::Real timeSinceLastFrame);
 };
 
 #endif // _GAMEMAP_H_

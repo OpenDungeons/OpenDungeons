@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 #include "game/Player.h"
 #include "entities/Creature.h"
 #include "entities/Tile.h"
+#include "entities/PersistentObject.h"
 #include "entities/RenderedMovableEntity.h"
 #include "gamemap/GameMap.h"
 #include "entities/Weapon.h"
@@ -30,74 +31,57 @@
 #include "utils/ConfigManager.h"
 #include "utils/Random.h"
 #include "utils/LogManager.h"
+#include "render/ODFrameListener.h"
+#include "modes/ModeManager.h"
 
 #include <cmath>
 
 RoomPortal::RoomPortal(GameMap* gameMap) :
         Room(gameMap),
         mSpawnCreatureCountdown(0),
-        mXCenter(0),
-        mYCenter(0),
-        mPortalObject(NULL)
+        mPortalObject(nullptr)
 {
    setMeshName("Portal");
 }
 
-void RoomPortal::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
+void RoomPortal::updateActiveSpots()
 {
-    // This Room keeps its building object until it is destroyed (they will be released when
-    // the room is destroyed)
+    // Room::updateActiveSpots(); <<-- Disabled on purpose.
+    // We don't update the active spots the same way as only the central tile is needed.
+    if (getGameMap()->isInEditorMode())
+        updatePortalPosition();
 }
 
-void RoomPortal::absorbRoom(Room* room)
+void RoomPortal::updatePortalPosition()
 {
-    Room::absorbRoom(room);
+    // Only the server game map should load objects.
+    if (!getGameMap()->isServerGameMap())
+        return;
 
-    // Get back the portal mesh reference
-    if (!mBuildingObjects.empty())
-        mPortalObject = mBuildingObjects.begin()->second;
-    else
-        mPortalObject = NULL;
+    // Delete all previous rooms meshes and recreate a central one.
+    removeAllBuildingObjects();
+    mPortalObject = nullptr;
+
+    Tile* centralTile = getCentralTile();
+    if (centralTile == nullptr)
+        return;
+
+    mPortalObject = new PersistentObject(getGameMap(), getName(), "PortalObject", centralTile, 0.0, false);
+    addBuildingObject(centralTile, mPortalObject);
+
+    mPortalObject->setAnimationState("Idle");
 }
 
 void RoomPortal::createMeshLocal()
 {
     Room::createMeshLocal();
-
-    // Don't recreate the portal if it's already done.
-    if (mPortalObject != NULL)
-        return;
-
-    // The client game map should not load building objects. They will be created
-    // by the messages sent by the server because some of them are randomly created
-    if(!getGameMap()->isServerGameMap())
-        return;
-
-    mPortalObject = loadBuildingObject(getGameMap(), "PortalObject", getCentralTile(), 0.0, false);
-    addBuildingObject(getCentralTile(), mPortalObject);
-
-    mPortalObject->setAnimationState("Idle");
+    updatePortalPosition();
 }
 
 void RoomPortal::destroyMeshLocal()
 {
     Room::destroyMeshLocal();
-    mPortalObject = NULL;
-}
-
-void RoomPortal::addCoveredTile(Tile* t, double nHP)
-{
-    Room::addCoveredTile(t, nHP);
-    recomputeCenterPosition();
-}
-
-bool RoomPortal::removeCoveredTile(Tile* t)
-{
-    return Room::removeCoveredTile(t);
-    // Don't recompute the position.
-    // Removing a portal tile usually means some creatures are attacking it.
-    // The portal shouldn't move in that case.
-    //recomputeCenterPosition();
+    mPortalObject = nullptr;
 }
 
 void RoomPortal::doUpkeep()
@@ -111,6 +95,7 @@ void RoomPortal::doUpkeep()
     if (mSpawnCreatureCountdown > 0)
     {
         --mSpawnCreatureCountdown;
+        mPortalObject->setAnimationState("Idle");
         return;
     }
 
@@ -125,11 +110,6 @@ void RoomPortal::doUpkeep()
 
 void RoomPortal::spawnCreature()
 {
-    std::cout << "Portal: " << getName() << "  spawn creature..." << std::endl;
-
-    if (mPortalObject != NULL)
-        mPortalObject->setAnimationState("Spawn", false);
-
     // If the room has been destroyed, or has not yet been assigned any tiles, then we
     // cannot determine where to place the new creature and we should just give up.
     if (mCoveredTiles.empty())
@@ -137,60 +117,31 @@ void RoomPortal::spawnCreature()
 
     // We check if a creature can spawn
     Seat* seat = getSeat();
-    const CreatureDefinition* classToSpawn = seat->getNextCreatureClassToSpawn();
+    const CreatureDefinition* classToSpawn = seat->getNextFighterClassToSpawn();
     if (classToSpawn == nullptr)
         return;
 
+    Tile* centralTile = getCentralTile();
+    if (centralTile == nullptr)
+        return;
+
+    if (mPortalObject != nullptr)
+        mPortalObject->setAnimationState("Triggered", false);
+
     // Create a new creature and copy over the class-based creature parameters.
-    Creature *newCreature = new Creature(getGameMap(), classToSpawn);
+    Creature* newCreature = new Creature(getGameMap(), classToSpawn);
 
     LogManager::getSingleton().logMessage("Spawning a creature class=" + classToSpawn->getClassName()
         + ", name=" + newCreature->getName() + ", seatId=" + Ogre::StringConverter::toString(getSeat()->getId()));
 
-    // Set the creature specific parameters.
-    //NOTE:  This needs to be modified manually when the level file creature format changes.
-    newCreature->setPosition(Ogre::Vector3((Ogre::Real)mXCenter, (Ogre::Real)mYCenter, (Ogre::Real)0.0));
-    newCreature->setSeat(getSeat());
+    Ogre::Real xPos = static_cast<Ogre::Real>(centralTile->getX());
+    Ogre::Real yPos = static_cast<Ogre::Real>(centralTile->getY());
 
-    // Add the creature to the gameMap and create meshes so it is visible.
-    getGameMap()->addCreature(newCreature);
+    newCreature->setSeat(getSeat());
+    newCreature->addToGameMap();
+    Ogre::Vector3 spawnPosition(xPos, yPos, 0.0f);
     newCreature->createMesh();
+    newCreature->setPosition(spawnPosition, false);
 
     mSpawnCreatureCountdown = Random::Uint(15, 30);
-
-    // Inform the clients
-    if (getGameMap()->isServerGameMap())
-    {
-        try
-        {
-           ServerNotification *serverNotification = new ServerNotification(
-               ServerNotification::addCreature, newCreature->getGameMap()->getPlayerBySeat(newCreature->getSeat()));
-           newCreature->exportToPacket(serverNotification->mPacket);
-           ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
-        catch (std::bad_alloc&)
-        {
-            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in RoomDungeonTemple::produceKobold", Ogre::LML_CRITICAL);
-            exit(1);
-        }
-    }
-}
-
-void RoomPortal::recomputeCenterPosition()
-{
-    mXCenter = mYCenter = 0.0;
-
-    if (mCoveredTiles.empty())
-        return;
-
-    // Loop over the covered tiles and compute the average location (i.e. the center) of the portal.
-    for (unsigned int i = 0; i < mCoveredTiles.size(); ++i)
-    {
-        Tile *tempTile = mCoveredTiles[i];
-        mXCenter += tempTile->x;
-        mYCenter += tempTile->y;
-    }
-
-    mXCenter /= static_cast<double>(mCoveredTiles.size());
-    mYCenter /= static_cast<double>(mCoveredTiles.size());
 }

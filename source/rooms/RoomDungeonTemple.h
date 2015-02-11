@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -28,25 +28,25 @@ public:
     virtual RoomType getType() const
     { return RoomType::dungeonTemple; }
 
-    //! \brief Get back a reference to the temple mesh after calling Room::absorbRoom()
-    void absorbRoom(Room* room);
-
-    /*! \brief Counts down a timer until it reaches 0,
-    *  then it spawns a kobold of the color of this dungeon temple
-    *  at the center of the dungeon temple, and resets the timer.
-    */
-    void produceKobold();
+    //! \brief Updates the temple position when in editor mode.
+    void updateActiveSpots();
 
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
-    void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);
-private:
-    //! \brief The number of turns to wait before producing a worker
-    int mWaitTurns;
 
+    void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
+    {
+        // This Room keeps its building object until it is destroyed (they will be released when
+        // the room is destroyed)
+    }
+
+private:
     //! \brief The reference of the temple object
     RenderedMovableEntity* mTempleObject;
+
+    //! \brief Updates the temple mesh position.
+    void updateTemplePosition();
 };
 
 #endif // ROOMDUNGEONTEMPLE_H

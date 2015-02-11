@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 #include "gamemap/MapLoader.h"
 
+#include "creaturemood/CreatureMood.h"
+
 #include "gamemap/GameMap.h"
 #include "game/Seat.h"
 #include "goals/Goal.h"
@@ -25,6 +27,8 @@
 #include "entities/CreatureDefinition.h"
 #include "entities/MapLight.h"
 #include "entities/Weapon.h"
+
+#include "rooms/Room.h"
 
 #include "traps/Trap.h"
 
@@ -41,7 +45,6 @@ namespace MapLoader {
 
 bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 {
-
     std::stringstream levelFile;
     if(!Helper::readFileWithoutComments(fileName, levelFile))
         return false;
@@ -140,7 +143,8 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         Seat* tempSeat = new Seat(&gameMap);
         Seat::loadFromLine(entire_line, tempSeat);
 
-        gameMap.addSeat(tempSeat);
+        if(!gameMap.addSeat(tempSeat))
+            delete tempSeat;
     }
 
     // Read in the goals that are shared by all players, the first player to complete all these goals is the winner.
@@ -163,7 +167,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 
         Goal* tempGoal = Goal::instantiateFromStream(nextParam, levelFile, &gameMap);
 
-        if (tempGoal != NULL)
+        if (tempGoal != nullptr)
             gameMap.addGoalForAllSeats(tempGoal);
     }
 
@@ -206,7 +210,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 
         Tile::loadFromLine(entire_line, tempTile);
 
-        gameMap.addTile(tempTile);
+        tempTile->addToGameMap();
     }
 
     gameMap.setAllFullnessAndNeighbors();
@@ -230,8 +234,11 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         if (nextParam == "[/Rooms]")
             break;
 
-        if (nextParam != "[Room]")
+        if (gameMap.isServerGameMap() && (nextParam != "[Room]"))
             return false;
+
+        if(!gameMap.isServerGameMap())
+            continue;
 
         Room* tempRoom = Room::getRoomFromStream(&gameMap, levelFile);
         OD_ASSERT_TRUE(tempRoom != nullptr);
@@ -239,7 +246,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
             return false;
 
         tempRoom->setName(gameMap.nextUniqueNameRoom(tempRoom->getMeshName()));
-        gameMap.addRoom(tempRoom, false);
+        tempRoom->addToGameMap();
 
         levelFile >> nextParam;
         if (nextParam != "[/Room]")
@@ -273,7 +280,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
             return false;
 
         tempTrap->setName(gameMap.nextUniqueNameTrap(tempTrap->getMeshName()));
-        gameMap.addTrap(tempTrap);
+        tempTrap->addToGameMap();
 
         levelFile >> nextParam;
         if (nextParam != "[/Trap]")
@@ -306,11 +313,73 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         MapLight* tempLight = new MapLight(&gameMap);
         MapLight::loadFromLine(entire_line, tempLight);
         tempLight->setName(gameMap.nextUniqueNameMapLight());
-
-        gameMap.addMapLight(tempLight);
+        OD_ASSERT_TRUE(tempLight != nullptr);
+        if(tempLight == nullptr)
+            return false;
+        tempLight->addToGameMap();
     }
 
     levelFile >> nextParam;
+
+    if (nextParam == "[CreaturesMood]")
+    {
+        while(levelFile.good())
+        {
+            if(!(levelFile >> nextParam))
+                break;
+
+            if (nextParam == "[/CreaturesMood]")
+                break;
+
+            if (nextParam == "[/CreatureMood]")
+                continue;
+
+            if (nextParam != "[CreatureMood]")
+            {
+                OD_ASSERT_TRUE_MSG(false, "Invalid CreatureMood format. Line was " + nextParam);
+                return false;
+            }
+
+            if(!(levelFile >> nextParam))
+                    break;
+            if (nextParam != "CreatureMoodName")
+            {
+                OD_ASSERT_TRUE_MSG(false, "Invalid CreatureMoodName format. Line was " + nextParam);
+                return false;
+            }
+            std::string moodModifierName;
+            levelFile >> moodModifierName;
+            std::vector<CreatureMood*> moodModifiers;
+
+            while(levelFile.good())
+            {
+                if(!(levelFile >> nextParam))
+                    break;
+
+                if (nextParam == "[/CreatureMood]")
+                    break;
+
+                if (nextParam != "[MoodModifier]")
+                {
+                    OD_ASSERT_TRUE_MSG(false, "Invalid CreatureMood MoodModifier format. nextParam=" + nextParam);
+                    return false;
+                }
+
+                // Load the definition
+                CreatureMood* def = CreatureMood::load(levelFile);
+                if (def == nullptr)
+                {
+                    OD_ASSERT_TRUE_MSG(false, "Invalid CreatureMood MoodModifier definition");
+                    return false;
+                }
+                moodModifiers.push_back(def);
+            }
+            gameMap.addCreatureMoodModifiers(moodModifierName, moodModifiers);
+        }
+
+        levelFile >> nextParam;
+    }
+
     if (nextParam == "[CreatureDefinitions]")
     {
         while(levelFile.good())
@@ -407,7 +476,10 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 
         Creature* tempCreature = Creature::getCreatureFromStream(&gameMap, levelFile);
         OD_ASSERT_TRUE(tempCreature != nullptr);
-        gameMap.addCreature(tempCreature);
+        if(tempCreature == nullptr)
+            return false;
+
+        tempCreature->addToGameMap();
         ++nbCreatures;
 
         levelFile >> nextParam;
@@ -443,6 +515,10 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     const std::vector<Seat*> seats = gameMap.getSeats();
     for (Seat* seat : seats)
     {
+        // We don't save rogue seat
+        if(seat->isRogueSeat())
+            continue;
+
         levelFile << seat << std::endl;
     }
     levelFile << "[/Seats]" << std::endl;
@@ -472,7 +548,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
         {
             tempTile = gameMap.getTile(ii, jj);
             // Don't save standard tiles as they're auto filled in at load time.
-            if (tempTile->getType() == Tile::dirt && tempTile->getFullness() >= 100.0)
+            if (tempTile->getType() == TileType::dirt && tempTile->getFullness() >= 100.0)
                 continue;
 
             levelFile << tempTile << std::endl;
@@ -497,7 +573,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
         // Rooms with 0 tiles are removed during upkeep. In editor mode, we don't use upkeep so there might be some rooms with
         // 0 tiles (if a room has been erased for example). For this reason, we don't save rooms with 0 tiles
         Room* room = *it;
-        if(room->getCoveredTiles().size() <= 0)
+        if(room->numCoveredTiles() <= 0)
             continue;
 
         levelFile << "[Room]" << std::endl;
@@ -515,7 +591,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
         // Traps with 0 tiles are removed during upkeep. In editor mode, we don't use upkeep so there might be some traps with
         // 0 tiles (if a trap has been erased for example). For this reason, we don't save traps with 0 tiles
         Trap* trap = gameMap.getTrap(i);
-        if(trap->getCoveredTiles().size() <= 0)
+        if(trap->numCoveredTiles() <= 0)
             continue;
 
         levelFile << "[Trap]" << std::endl;
@@ -530,7 +606,9 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     levelFile << "# " << MapLight::getFormat() << "\n";
     for (unsigned int i = 0, num = gameMap.numMapLights(); i < num; ++i)
     {
-        levelFile << gameMap.getMapLight(i) << std::endl;
+        MapLight* mapLight = gameMap.getMapLight(i);
+        mapLight->exportToStream(levelFile);
+        levelFile << std::endl;
     }
     levelFile << "[/Lights]" << std::endl;
 

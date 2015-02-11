@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 #include "gamemap/GameMap.h"
 
+#include "game/Seat.h"
+
 #include "modes/MenuModeConfigureSeats.h"
 #include "modes/ModeManager.h"
 
@@ -25,12 +27,12 @@
 
 #include "network/ODServer.h"
 #include "network/ODClient.h"
-#include "network/ServerNotification.h"
 
 #include "sound/MusicPlayer.h"
 
 #include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
+#include "utils/Helper.h"
 
 #include <CEGUI/CEGUI.h>
 
@@ -116,6 +118,10 @@ void MenuModeConfigureSeats::activate()
 
     for(Seat* seat : seats)
     {
+        // We do not add the rogue creatures seat
+        if(seat->isRogueSeat())
+            continue;
+
         mSeats.push_back(seat);
         std::string name;
         CEGUI::Combobox* combo;
@@ -123,10 +129,12 @@ void MenuModeConfigureSeats::activate()
         name = TEXT_SEAT_ID_PREFIX + Ogre::StringConverter::toString(seat->getId());
         CEGUI::DefaultWindow* textSeatId = static_cast<CEGUI::DefaultWindow*>(winMgr.createWindow("OD/StaticText", name));
         tmpWin->addChild(textSeatId);
+        Ogre::ColourValue seatColor = seat->getColorValue();
+        seatColor.a = 1.0f; // Restore the color opacity
         textSeatId->setArea(CEGUI::UDim(0,20), CEGUI::UDim(0,65 + offset), CEGUI::UDim(0.3,0), CEGUI::UDim(0,30));
-        textSeatId->setText("Seat id "  + Ogre::StringConverter::toString(seat->getId()));
+        textSeatId->setText("[colour='" + Helper::getCEGUIColorFromOgreColourValue(seatColor) + "']Seat "  + Ogre::StringConverter::toString(seat->getId()));
         textSeatId->setProperty("FrameEnabled", "False");
-        textSeatId->setProperty("BackgroundEnabled", "False");
+        textSeatId->setProperty("BackgroundEnabled", "False");;
 
         name = COMBOBOX_PLAYER_FACTION_PREFIX + Ogre::StringConverter::toString(seat->getId());
         combo = static_cast<CEGUI::Combobox*>(winMgr.createWindow("OD/Combobox", name));
@@ -259,9 +267,7 @@ void MenuModeConfigureSeats::activate()
     tmpWin->setEnabled(enabled);
 
     // We notify the server we are ready to recceive players and configure them
-    ClientNotification *clientNotification = new ClientNotification(
-        ClientNotification::readyForSeatConfiguration);
-    ODClient::getSingleton().queueClientNotification(clientNotification);
+    ODClient::getSingleton().queueClientNotification(ClientNotificationType::readyForSeatConfiguration);
 }
 
 void MenuModeConfigureSeats::launchSelectedButtonPressed()
@@ -444,9 +450,9 @@ void MenuModeConfigureSeats::fireSeatConfigurationToServer(bool isFinal)
 
     ClientNotification* notif;
     if(isFinal)
-        notif = new ClientNotification(ClientNotification::seatConfigurationSet);
+        notif = new ClientNotification(ClientNotificationType::seatConfigurationSet);
     else
-        notif = new ClientNotification(ClientNotification::seatConfigurationRefresh);
+        notif = new ClientNotification(ClientNotificationType::seatConfigurationRefresh);
 
     for(Seat* seat : mSeats)
     {
@@ -571,42 +577,3 @@ void MenuModeConfigureSeats::refreshSeatConfiguration(ODPacket& packet)
     }
 }
 
-bool MenuModeConfigureSeats::mouseMoved(const OIS::MouseEvent &arg)
-{
-    return CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition((float)arg.state.X.abs, (float)arg.state.Y.abs);
-}
-
-bool MenuModeConfigureSeats::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
-{
-    return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(
-        Gui::getSingletonPtr()->convertButton(id));
-}
-
-bool MenuModeConfigureSeats::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
-{
-    return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(
-        Gui::getSingletonPtr()->convertButton(id));
-}
-
-bool MenuModeConfigureSeats::keyPressed(const OIS::KeyEvent &arg)
-{
-    switch (arg.key)
-    {
-
-    case OIS::KC_ESCAPE:
-        regressMode();
-        break;
-    default:
-        break;
-    }
-    return true;
-}
-
-bool MenuModeConfigureSeats::keyReleased(const OIS::KeyEvent &arg)
-{
-    return true;
-}
-
-void MenuModeConfigureSeats::handleHotkeys(OIS::KeyCode keycode)
-{
-}

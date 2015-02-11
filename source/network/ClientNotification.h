@@ -1,5 +1,5 @@
 /*!
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,6 +22,49 @@
 
 #include <deque>
 
+enum class ClientNotificationType
+{
+    // Communication with server
+    hello,
+    levelOK, // Tells the server the level loading was ok.
+    setNick,
+    readyForSeatConfiguration,
+    // Messages that should be sent only by the client side of the server
+    // (where the game configuration is done)
+    seatConfigurationSet,
+    seatConfigurationRefresh,
+
+    chat,
+
+    // Notification in game
+    askEntityPickUp,
+    askHandDrop,
+    askMarkTile,
+    askBuildRoom,
+    askSellRoomTiles,
+    askBuildTrap,
+    askSellTrapTiles,
+    ackNewTurn,
+    askCreatureInfos,
+    askPickupWorker,
+    askPickupFighter,
+    askSlapEntity,
+    askCastSpell,
+
+    //  Editor
+    editorAskSaveMap,
+    editorAskChangeTiles,
+    editorAskBuildRoom,
+    editorAskBuildTrap,
+    editorAskDestroyRoomTiles,
+    editorAskDestroyTrapTiles,
+    editorCreateWorker,
+    editorCreateFighter
+};
+
+ODPacket& operator<<(ODPacket& os, const ClientNotificationType& nt);
+ODPacket& operator>>(ODPacket& is, ClientNotificationType& nt);
+
 /*! \brief A data structure used to pass messages to the clientNotificationProcessor thread.
  *
  */
@@ -30,45 +73,6 @@ class ClientNotification
     friend class ODClient;
 
 public:
-    enum ClientNotificationType
-    {
-        // Communication with server
-        hello,
-        levelOK, // Tells the server the level loading was ok.
-        setNick,
-        readyForSeatConfiguration,
-        // Messages that should be sent only by the client side of the server
-        // (where the game configuration is done)
-        seatConfigurationSet,
-        seatConfigurationRefresh,
-
-        chat,
-
-        // Notification in game
-        askEntityPickUp,
-        askHandDrop,
-        askMarkTile,
-        askBuildRoom,
-        askSellRoomTiles,
-        askBuildTrap,
-        askSellTrapTiles,
-        ackNewTurn,
-        askCreatureInfos,
-        askPickupWorker,
-        askPickupFighter,
-        askSlapEntity,
-
-        //  Editor
-        editorAskSaveMap,
-        editorAskChangeTiles,
-        editorAskBuildRoom,
-        editorAskBuildTrap,
-        editorAskDestroyRoomTiles,
-        editorAskDestroyTrapTiles,
-        editorCreateWorker,
-        editorCreateFighter
-    };
-
     ClientNotification(ClientNotificationType type);
     virtual ~ClientNotification()
     {}
@@ -76,9 +80,6 @@ public:
     ODPacket mPacket;
 
     static std::string typeString(ClientNotificationType type);
-
-    friend ODPacket& operator<<(ODPacket& os, const ClientNotification::ClientNotificationType& nt);
-    friend ODPacket& operator>>(ODPacket& is, ClientNotification::ClientNotificationType& nt);
 
 private:
     ClientNotificationType mType;

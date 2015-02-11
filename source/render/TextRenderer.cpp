@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -64,20 +64,20 @@ void TextRenderer::removeTextBox(const std::string& ID)
 void TextRenderer::setText(const std::string& ID, const std::string& Text)
 {
     Ogre::OverlayElement* textBox = mOverlayMgr->getOverlayElement(ID);
-    if (textBox != NULL)
+    if (textBox != nullptr)
         textBox->setCaption(Text);
 }
 
 void TextRenderer::setColor(const std::string& ID, const Ogre::ColourValue& color)
 {
     Ogre::OverlayElement* textBox = mOverlayMgr->getOverlayElement(ID);
-    if (textBox != NULL)
+    if (textBox != nullptr)
         textBox->setColour(color);
 }
 
 void TextRenderer::moveText(const std::string& ID, Ogre::Real left, Ogre::Real top)
 {
     Ogre::OverlayElement* textBox = mPanel->getChild(ID);
-    if (textBox != NULL)
+    if (textBox != nullptr)
         textBox->setPosition(left, top);
 }

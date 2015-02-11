@@ -1,5 +1,5 @@
 /*!
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -68,6 +68,8 @@ std::string ClientNotification::typeString(ClientNotificationType type)
             return "askPickupWorker";
         case ClientNotificationType::askPickupFighter:
             return "askPickupFighter";
+        case ClientNotificationType::askCastSpell:
+            return "askCastSpell";
         case ClientNotificationType::editorAskSaveMap:
             return "editorAskSaveMap";
         case ClientNotificationType::editorAskChangeTiles:
@@ -87,16 +89,16 @@ std::string ClientNotification::typeString(ClientNotificationType type)
     return "";
 }
 
-ODPacket& operator<<(ODPacket& os, const ClientNotification::ClientNotificationType& nt)
+ODPacket& operator<<(ODPacket& os, const ClientNotificationType& nt)
 {
     os << static_cast<int32_t>(nt);
     return os;
 }
 
-ODPacket& operator>>(ODPacket& is, ClientNotification::ClientNotificationType& nt)
+ODPacket& operator>>(ODPacket& is, ClientNotificationType& nt)
 {
     int32_t tmp;
     is >> tmp;
-    nt = static_cast<ClientNotification::ClientNotificationType>(tmp);
+    nt = static_cast<ClientNotificationType>(tmp);
     return is;
 }

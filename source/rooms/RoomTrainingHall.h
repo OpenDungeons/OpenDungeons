@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -47,8 +47,6 @@ private:
     static const Ogre::Real OFFSET_DUMMY;
     int32_t nbTurnsNoChangeDummies;
     void refreshCreaturesDummies();
-    void getCreatureWantedPos(Creature* creature, Tile* tileDummy,
-        Ogre::Real& wantedX, Ogre::Real& wantedY);
     std::vector<Tile*> mUnusedDummies;
     std::map<Creature*,Tile*> mCreaturesDummies;
 };

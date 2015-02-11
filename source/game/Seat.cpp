@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,6 +25,11 @@
 
 #include "spawnconditions/SpawnCondition.h"
 
+#include "network/ServerNotification.h"
+#include "network/ODServer.h"
+
+#include "rooms/Room.h"
+
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
@@ -46,11 +51,33 @@ Seat::Seat(GameMap* gameMap) :
     mStartingY(0),
     mGoldMined(0),
     mNumCreaturesControlled(0),
+    mStartingGold(0),
+    mDefaultWorkerClass(nullptr),
     mNumClaimedTiles(0),
     mHasGoalsChanged(true),
     mGold(0),
-    mId(-1)
+    mId(-1),
+    mNbTreasuries(0),
+    mIsDebuggingVision(false)
 {
+}
+
+void Seat::setMapSize(int x, int y)
+{
+    if(mPlayer == nullptr)
+        return;
+    if(!mPlayer->getIsHuman())
+        return;
+
+    mTilesVision = std::vector<std::vector<std::pair<bool, bool>>>(x);
+    for(int xxx = 0; xxx < x; ++xxx)
+    {
+        mTilesVision[xxx] = std::vector<std::pair<bool, bool>>(y);
+        for(int yyy = 0; yyy < y; ++yyy)
+        {
+            mTilesVision[xxx][yyy] = std::pair<bool, bool>(false, false);
+        }
+    }
 }
 
 void Seat::setTeamId(int teamId)
@@ -76,7 +103,7 @@ unsigned int Seat::numUncompleteGoals()
 Goal* Seat::getUncompleteGoal(unsigned int index)
 {
     if (index >= mUncompleteGoals.size())
-        return NULL;
+        return nullptr;
 
     return mUncompleteGoals[index];
 }
@@ -99,7 +126,7 @@ unsigned int Seat::numCompletedGoals()
 Goal* Seat::getCompletedGoal(unsigned int index)
 {
     if (index >= mCompletedGoals.size())
-        return NULL;
+        return nullptr;
 
     return mCompletedGoals[index];
 }
@@ -112,7 +139,7 @@ unsigned int Seat::numFailedGoals()
 Goal* Seat::getFailedGoal(unsigned int index)
 {
     if (index >= mFailedGoals.size())
-        return NULL;
+        return nullptr;
 
     return mFailedGoals[index];
 }
@@ -291,9 +318,17 @@ void Seat::setPlayer(Player* player)
     mPlayer->mSeat = this;
 }
 
+
+void Seat::addAlliedSeat(Seat* seat)
+{
+    mAlliedSeats.push_back(seat);
+}
+
+
 void Seat::initSpawnPool()
 {
-    const std::vector<std::string>& pool = ConfigManager::getSingleton().getFactionSpawnPool(mFaction);
+    ConfigManager& config = ConfigManager::getSingleton();
+    const std::vector<std::string>& pool = config.getFactionSpawnPool(mFaction);
     OD_ASSERT_TRUE_MSG(!pool.empty(), "Empty spawn pool for faction=" + mFaction);
     for(const std::string& defName : pool)
     {
@@ -304,14 +339,23 @@ void Seat::initSpawnPool()
 
         mSpawnPool.push_back(std::pair<const CreatureDefinition*, bool>(def, false));
     }
+
+    // Get the default worker class
+    std::string defaultWorkerClass = config.getFactionWorkerClass(mFaction);
+    mDefaultWorkerClass = mGameMap->getClassDescription(defaultWorkerClass);
+    OD_ASSERT_TRUE_MSG(mDefaultWorkerClass != nullptr, "No valid default worker class for faction: " + mFaction);
 }
 
-const CreatureDefinition* Seat::getNextCreatureClassToSpawn()
+const CreatureDefinition* Seat::getNextFighterClassToSpawn()
 {
     std::vector<std::pair<const CreatureDefinition*, int32_t> > defSpawnable;
     int32_t nbPointsTotal = 0;
     for(std::pair<const CreatureDefinition*, bool>& def : mSpawnPool)
     {
+        // Only check for fighter creatures.
+        if (!def.first || def.first->isWorker())
+            continue;
+
         const std::vector<const SpawnCondition*>& conditions = ConfigManager::getSingleton().getCreatureSpawnConditions(def.first);
         int32_t nbPointsConditions = 0;
         for(const SpawnCondition* condition : conditions)
@@ -345,7 +389,7 @@ const CreatureDefinition* Seat::getNextCreatureClassToSpawn()
         return nullptr;
 
     // We choose randomly a creature to spawn according to their points
-    int32_t cpt = Random::Int(0, nbPointsTotal);
+    int32_t cpt = Random::Int(0, nbPointsTotal - 1);
     for(std::pair<const CreatureDefinition*, int32_t>& def : defSpawnable)
     {
         if(cpt < def.second)
@@ -355,8 +399,273 @@ const CreatureDefinition* Seat::getNextCreatureClassToSpawn()
     }
 
     // It is not normal to come here
-    OD_ASSERT_TRUE(false);
+    OD_ASSERT_TRUE_MSG(false, "seatId=" + Ogre::StringConverter::toString(getId()));
     return nullptr;
+}
+
+void Seat::clearTilesWithVision()
+{
+    if(mPlayer == nullptr)
+        return;
+    if(!mPlayer->getIsHuman())
+        return;
+
+    for(std::vector<std::pair<bool, bool>>& vec : mTilesVision)
+    {
+        for(std::pair<bool, bool>& p : vec)
+        {
+            p.first = p.second;
+            p.second = false;
+        }
+    }
+}
+
+void Seat::notifyVisionOnTile(Tile* tile)
+{
+    if(mPlayer == nullptr)
+        return;
+    if(!mPlayer->getIsHuman())
+        return;
+
+    OD_ASSERT_TRUE_MSG(tile->getX() < static_cast<int>(mTilesVision.size()), "Tile=" + Tile::displayAsString(tile));
+    OD_ASSERT_TRUE_MSG(tile->getY() < static_cast<int>(mTilesVision[tile->getX()].size()), "Tile=" + Tile::displayAsString(tile));
+    std::pair<bool, bool>& p = mTilesVision[tile->getX()][tile->getY()];
+    p.second = true;
+}
+
+bool Seat::hasVisionOnTile(Tile* tile)
+{
+    if(!mGameMap->isServerGameMap())
+    {
+        // On client side, we check only for the local player
+        if(this != mGameMap->getLocalPlayer()->getSeat())
+            return false;
+
+        return tile->getLocalPlayerHasVision();
+    }
+
+    // AI players have vision on every tile
+    if(mPlayer == nullptr)
+        return true;
+    if(!mPlayer->getIsHuman())
+        return true;
+
+    OD_ASSERT_TRUE_MSG(tile->getX() < static_cast<int>(mTilesVision.size()), "Tile=" + Tile::displayAsString(tile));
+    OD_ASSERT_TRUE_MSG(tile->getY() < static_cast<int>(mTilesVision[tile->getX()].size()), "Tile=" + Tile::displayAsString(tile));
+    std::pair<bool, bool>& p = mTilesVision[tile->getX()][tile->getY()];
+
+    return p.second;
+}
+
+void Seat::notifyChangedVisibleTiles()
+{
+    if(mPlayer == nullptr)
+        return;
+    if(!mPlayer->getIsHuman())
+        return;
+
+    std::vector<Tile*> tilesToNotify;
+    int xMax = static_cast<int>(mTilesVision.size());
+    for(int xxx = 0; xxx < xMax; ++xxx)
+    {
+        int yMax = static_cast<int>(mTilesVision[xxx].size());
+        for(int yyy = 0; yyy < yMax; ++yyy)
+        {
+            if(!mTilesVision[xxx][yyy].second)
+                continue;
+
+            Tile* tile = mGameMap->getTile(xxx, yyy);
+            if(!tile->hasChangedForSeat(this))
+                continue;
+
+            tilesToNotify.push_back(tile);
+            tile->changeNotifiedForSeat(this);
+        }
+    }
+
+    if(tilesToNotify.empty())
+        return;
+
+    uint32_t nbTiles = tilesToNotify.size();
+    ServerNotification *serverNotification = new ServerNotification(
+        ServerNotificationType::refreshTiles, getPlayer());
+    serverNotification->mPacket << nbTiles;
+    for(Tile* tile : tilesToNotify)
+    {
+        mGameMap->tileToPacket(serverNotification->mPacket, tile);
+        tile->exportToPacket(serverNotification->mPacket, this);
+    }
+    ODServer::getSingleton().queueServerNotification(serverNotification);
+}
+
+void Seat::stopVisualDebugEntities()
+{
+    if(mGameMap->isServerGameMap())
+        return;
+
+    mIsDebuggingVision = false;
+
+    for (Tile* tile : mVisualDebugEntityTiles)
+    {
+        if (tile == nullptr)
+            continue;
+
+        RenderManager::getSingleton().rrDestroySeatVisionVisualDebug(getId(), tile);
+    }
+    mVisualDebugEntityTiles.clear();
+
+}
+
+void Seat::refreshVisualDebugEntities(const std::vector<Tile*>& tiles)
+{
+    if(mGameMap->isServerGameMap())
+        return;
+
+    mIsDebuggingVision = true;
+
+    for (Tile* tile : tiles)
+    {
+        // We check if the visual debug is already on this tile
+        if(std::find(mVisualDebugEntityTiles.begin(), mVisualDebugEntityTiles.end(), tile) != mVisualDebugEntityTiles.end())
+            continue;
+
+        RenderManager::getSingleton().rrCreateSeatVisionVisualDebug(getId(), tile);
+
+        mVisualDebugEntityTiles.push_back(tile);
+    }
+
+    // now, we check if visual debug should be removed from a tile
+    for (std::vector<Tile*>::iterator it = mVisualDebugEntityTiles.begin(); it != mVisualDebugEntityTiles.end();)
+    {
+        Tile* tile = *it;
+        if(std::find(tiles.begin(), tiles.end(), tile) != tiles.end())
+        {
+            ++it;
+            continue;
+        }
+
+        it = mVisualDebugEntityTiles.erase(it);
+
+        RenderManager::getSingleton().rrDestroySeatVisionVisualDebug(getId(), tile);
+    }
+}
+
+void Seat::displaySeatVisualDebug(bool enable)
+{
+    if(!mGameMap->isServerGameMap())
+        return;
+
+    // Visual debugging do not work for AI players (otherwise, we would have to use
+    // mTilesVision for them which would be memory consuming)
+    if(mPlayer == nullptr)
+        return;
+    if(!mPlayer->getIsHuman())
+        return;
+
+    mIsDebuggingVision = enable;
+    int seatId = getId();
+    if(enable)
+    {
+        std::vector<Tile*> tiles;
+        int xMax = static_cast<int>(mTilesVision.size());
+        for(int xxx = 0; xxx < xMax; ++xxx)
+        {
+            int yMax = static_cast<int>(mTilesVision[xxx].size());
+            for(int yyy = 0; yyy < yMax; ++yyy)
+            {
+                if(!mTilesVision[xxx][yyy].second)
+                    continue;
+
+                Tile* tile = mGameMap->getTile(xxx, yyy);
+                tiles.push_back(tile);
+            }
+        }
+        uint32_t nbTiles = tiles.size();
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::refreshSeatVisDebug, nullptr);
+        serverNotification->mPacket << seatId;
+        serverNotification->mPacket << true;
+        serverNotification->mPacket << nbTiles;
+        for(Tile* tile : tiles)
+        {
+            mGameMap->tileToPacket(serverNotification->mPacket, tile);
+        }
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
+    else
+    {
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::refreshSeatVisDebug, nullptr);
+        serverNotification->mPacket << seatId;
+        serverNotification->mPacket << false;
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
+}
+
+void Seat::sendVisibleTiles()
+{
+    if(!mGameMap->isServerGameMap())
+        return;
+
+    if(getPlayer() == nullptr)
+        return;
+
+    if(!getPlayer()->getIsHuman())
+        return;
+
+    uint32_t nbTiles;
+    ServerNotification *serverNotification = new ServerNotification(
+        ServerNotificationType::refreshVisibleTiles, getPlayer());
+    std::vector<Tile*> tilesVisionGained;
+    std::vector<Tile*> tilesVisionLost;
+    // Tiles we gained vision
+    int xMax = static_cast<int>(mTilesVision.size());
+    for(int xxx = 0; xxx < xMax; ++xxx)
+    {
+        int yMax = static_cast<int>(mTilesVision[xxx].size());
+        for(int yyy = 0; yyy < yMax; ++yyy)
+        {
+            if(mTilesVision[xxx][yyy].second == mTilesVision[xxx][yyy].first)
+                continue;
+
+            Tile* tile = mGameMap->getTile(xxx, yyy);
+            if(mTilesVision[xxx][yyy].second)
+            {
+                // Vision gained
+                tilesVisionGained.push_back(tile);
+            }
+            else
+            {
+                // Vision lost
+                tilesVisionLost.push_back(tile);
+            }
+        }
+    }
+
+    // Notify tiles we gained vision
+    nbTiles = tilesVisionGained.size();
+    serverNotification->mPacket << nbTiles;
+    for(Tile* tile : tilesVisionGained)
+    {
+        mGameMap->tileToPacket(serverNotification->mPacket, tile);
+    }
+
+    // Notify tiles we lost vision
+    nbTiles = tilesVisionLost.size();
+    serverNotification->mPacket << nbTiles;
+    for(Tile* tile : tilesVisionLost)
+    {
+        mGameMap->tileToPacket(serverNotification->mPacket, tile);
+    }
+    ODServer::getSingleton().queueServerNotification(serverNotification);
+}
+
+void Seat::computeSeatBeforeSendingToClient()
+{
+    if(mPlayer != nullptr)
+    {
+        mNbTreasuries = mGameMap->numRoomsByTypeAndSeat(RoomType::treasury, this);
+    }
 }
 
 std::string Seat::getFormat()
@@ -371,6 +680,11 @@ ODPacket& operator<<(ODPacket& os, Seat *s)
     os << s->mColorId;
     os << s->mGold << s->mMana << s->mManaDelta << s->mNumClaimedTiles;
     os << s->mHasGoalsChanged;
+    os << s->mNbTreasuries;
+    uint32_t nb = s->mAvailableTeamIds.size();
+    os << nb;
+    for(int teamId : s->mAvailableTeamIds)
+        os << teamId;
 
     return os;
 }
@@ -382,7 +696,17 @@ ODPacket& operator>>(ODPacket& is, Seat *s)
     is >> s->mColorId;
     is >> s->mGold >> s->mMana >> s->mManaDelta >> s->mNumClaimedTiles;
     is >> s->mHasGoalsChanged;
+    is >> s->mNbTreasuries;
     s->mColorValue = ConfigManager::getSingleton().getColorFromId(s->mColorId);
+    uint32_t nb;
+    is >> nb;
+    while(nb > 0)
+    {
+        --nb;
+        int teamId;
+        is >> teamId;
+        s->mAvailableTeamIds.push_back(teamId);
+    }
 
     return is;
 }
@@ -398,16 +722,35 @@ const std::string Seat::getFactionFromLine(const std::string& line)
     return std::string();
 }
 
+Seat* Seat::getRogueSeat(GameMap* gameMap)
+{
+    Seat* seat = new Seat(gameMap);
+    seat->mId = 0;
+    seat->mTeamId = 0;
+    seat->mAvailableTeamIds.push_back(0);
+    seat->mPlayerType = PLAYER_TYPE_INACTIVE;
+    seat->mStartingX = 0;
+    seat->mStartingY = 0;
+    seat->mStartingGold = 0;
+    return seat;
+}
+
 void Seat::loadFromLine(const std::string& line, Seat *s)
 {
     std::vector<std::string> elems = Helper::split(line, '\t');
 
     int32_t i = 0;
     s->mId = Helper::toInt(elems[i++]);
+    OD_ASSERT_TRUE_MSG(s->mId != 0, "Forbidden seatId for line=" + line);
     std::vector<std::string> teamIds = Helper::split(elems[i++], '/');
     for(const std::string& strTeamId : teamIds)
     {
-        s->mAvailableTeamIds.push_back(Helper::toInt(strTeamId));
+        int teamId = Helper::toInt(strTeamId);
+        OD_ASSERT_TRUE_MSG(teamId != 0, "Forbidden teamId for line=" + line);
+        if(teamId == 0)
+            continue;
+
+        s->mAvailableTeamIds.push_back(teamId);
     }
     s->mPlayerType = elems[i++];
     s->mFaction = elems[i++];
@@ -426,6 +769,16 @@ void Seat::refreshFromSeat(Seat* s)
     mManaDelta = s->mManaDelta;
     mNumClaimedTiles = s->mNumClaimedTiles;
     mHasGoalsChanged = s->mHasGoalsChanged;
+    mNbTreasuries = s->mNbTreasuries;
+}
+
+bool Seat::takeMana(double mana)
+{
+    if(mana > mMana)
+        return false;
+
+    mMana -= mana;
+    return true;
 }
 
 bool Seat::sortForMapSave(Seat* s1, Seat* s2)

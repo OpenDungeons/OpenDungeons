@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -29,28 +29,44 @@ class GameMap;
 class Seat;
 class ODPacket;
 
+enum class RenderedMovableEntityType
+{
+    buildingObject,
+    treasuryObject,
+    chickenEntity,
+    smallSpiderEntity,
+    craftedTrap,
+    missileObject,
+    persistentObject,
+    trapEntity,
+    spellEntity
+};
+
+ODPacket& operator<<(ODPacket& os, const RenderedMovableEntityType& rot);
+ODPacket& operator>>(ODPacket& is, RenderedMovableEntityType& rot);
+std::ostream& operator<<(std::ostream& os, const RenderedMovableEntityType& rot);
+std::istream& operator>>(std::istream& is, RenderedMovableEntityType& rot);
+
 class RenderedMovableEntity: public MovableGameEntity
 {
 public:
-    enum RenderedMovableEntityType
-    {
-        buildingObject,
-        treasuryObject,
-        chickenEntity,
-        smallSpiderEntity,
-        craftedTrap,
-        missileObject
-    };
     //! \brief Creates a RenderedMovableEntity. It's name is built from baseName and some unique id from the gamemap.
     //! We use baseName to help understand what's this object for when getting a log
     RenderedMovableEntity(GameMap* gameMap, const std::string& baseName, const std::string& nMeshName,
-        Ogre::Real rotationAngle, bool hideCoveredTile, float opacity = 1.0f);
+        Ogre::Real rotationAngle, bool hideCoveredTile, float opacity = 1.0f, const std::string& initialAnimationState = "",
+        bool initialAnimationLoop = true);
     RenderedMovableEntity(GameMap* gameMap);
+
+    virtual GameEntityType getObjectType() const
+    { return GameEntityType::renderedMovableEntity; }
 
     static const std::string RENDEREDMOVABLEENTITY_PREFIX;
     static const std::string RENDEREDMOVABLEENTITY_OGRE_PREFIX;
 
     virtual std::string getOgreNamePrefix() const { return RENDEREDMOVABLEENTITY_OGRE_PREFIX; }
+
+    virtual void addToGameMap();
+    virtual void removeFromGameMap();
 
     bool getHideCoveredTile() const
     { return mHideCoveredTile; }
@@ -58,8 +74,7 @@ public:
     virtual void doUpkeep()
     {}
 
-    virtual Ogre::Vector3 getScale() const
-    { return Ogre::Vector3(0.7,0.7,0.7); }
+    virtual const Ogre::Vector3& getScale() const;
 
     void receiveExp(double experience)
     {}
@@ -70,14 +85,20 @@ public:
     double getHP(Tile *tile) const
     { return 0; }
 
-    std::vector<Tile*> getCoveredTiles()
-    { return std::vector<Tile*>(); }
+    //! \brief Conform: GameEntity functions handling covered tiles
+    std::vector<Tile*> getCoveredTiles();
+    Tile* getCoveredTile(int index);
+    uint32_t numCoveredTiles();
 
     Ogre::Real getRotationAngle() const
     { return mRotationAngle; }
 
-    virtual RenderedMovableEntityType getRenderedMovableEntityType()
-    { return RenderedMovableEntityType::buildingObject; }
+    inline float getOpacity() const
+    { return mOpacity; }
+
+    virtual void setMeshOpacity(float opacity);
+
+    virtual RenderedMovableEntityType getRenderedMovableEntityType() const = 0;
 
     virtual void pickup();
     virtual void drop(const Ogre::Vector3& v);
@@ -90,26 +111,26 @@ public:
     virtual void exportHeadersToStream(std::ostream& os);
     virtual void exportHeadersToPacket(ODPacket& os);
     //! \brief Exports the data of the RenderedMovableEntity
-    virtual void exportToStream(std::ostream& os);
+    virtual void exportToStream(std::ostream& os) const;
     virtual void importFromStream(std::istream& is);
-    virtual void exportToPacket(ODPacket& os);
+    virtual void exportToPacket(ODPacket& os) const;
     virtual void importFromPacket(ODPacket& is);
 
     static RenderedMovableEntity* getRenderedMovableEntityFromLine(GameMap* gameMap, const std::string& line);
     static RenderedMovableEntity* getRenderedMovableEntityFromPacket(GameMap* gameMap, ODPacket& is);
     static const char* getFormat();
 
-    friend ODPacket& operator<<(ODPacket& os, const RenderedMovableEntity::RenderedMovableEntityType& rot);
-    friend ODPacket& operator>>(ODPacket& is, RenderedMovableEntity::RenderedMovableEntityType& rot);
-    friend std::ostream& operator<<(std::ostream& os, const RenderedMovableEntity::RenderedMovableEntityType& rot);
-    friend std::istream& operator>>(std::istream& is, RenderedMovableEntity::RenderedMovableEntityType& rot);
-
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
+    virtual void fireAddEntity(Seat* seat, bool async);
+    virtual void fireRemoveEntity(Seat* seat);
 private:
     Ogre::Real mRotationAngle;
     bool mHideCoveredTile;
+
+    //! \brief The model current opacity
+    float mOpacity;
 };
 
 #endif // RENDEREDMOVABLEENTITY_H

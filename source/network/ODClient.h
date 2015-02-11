@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,8 +18,8 @@
 #ifndef ODCLIENT_H
 #define ODCLIENT_H
 
-#include "ClientNotification.h"
-#include "ODSocketClient.h"
+#include "network/ODSocketClient.h"
+#include "network/ClientNotification.h"
 
 #include <OgreSingleton.h>
 
@@ -61,7 +61,24 @@ class ODClient: public Ogre::Singleton<ODClient>,
     //! \brief Adds a client notification to the client notification queue.
     void queueClientNotification(ClientNotification* n);
 
-    void disconnect();
+    /*! \brief Adds a client notification to the client notification queue.
+     *  \param type The type of the notification
+     *  \param args The arguments that are to be piped into the notification.
+     */
+    template<typename ...Args>
+    void queueClientNotification(ClientNotificationType type, const Args&... args);
+
+    /*! \brief Adds a client notification to the client notification queue.
+     *  \param type The type of the notification
+     */
+    void queueClientNotification(ClientNotificationType type)
+    {
+        mClientNotificationQueue.emplace_back(new ClientNotification(type));
+    }
+
+    //! \brief Disconnect the client.
+    //! \param keepReplay Tells whether to keep the new replay file.
+    void disconnect(bool keepReplay = false);
 
     //! \brief Adds a client notification to the client notification queue.
     void notifyExit();
@@ -79,5 +96,12 @@ class ODClient: public Ogre::Singleton<ODClient>,
     std::deque<ClientNotification*> mClientNotificationQueue;
 
 };
+
+template<typename ...Args>
+void ODClient::queueClientNotification(ClientNotificationType type, const Args&... args)
+{
+    queueClientNotification(type);
+    ODPacket::putInPacket(mClientNotificationQueue.back()->mPacket, args...);
+}
 
 #endif // ODCLIENT_H

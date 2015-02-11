@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -134,6 +134,21 @@ class ODPacket
          *         If EOF has been reached, returns -1
          */
         int32_t readPacket(std::ifstream& is);
+
+        /*! \brief Template function to put arguments in a packet, used for in-place construction.
+         */
+        template<typename FirstArg, typename ...Args>
+        static void putInPacket(ODPacket& packet, const FirstArg& arg, const Args&... args)
+        {
+            packet << arg;
+            putInPacket(packet, args...);
+        }
+
+        template<typename Arg>
+        static void putInPacket(ODPacket& packet, const Arg& arg)
+        {
+            packet << arg;
+        }
 
     private:
         sf::Packet mPacket;

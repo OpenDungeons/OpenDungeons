@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -30,10 +30,24 @@ class GameMap;
 class Player;
 class Seat;
 class Tile;
+class TrapEntity;
 class RenderedMovableEntity;
 class ODPacket;
 
 #include "entities/Building.h"
+
+enum class TrapType
+{
+    nullTrapType = 0,
+    cannon,
+    spike,
+    boulder
+};
+
+std::istream& operator>>(std::istream& is, TrapType& tt);
+std::ostream& operator<<(std::ostream& os, const TrapType& tt);
+ODPacket& operator>>(ODPacket& is, TrapType& tt);
+ODPacket& operator<<(ODPacket& os, const TrapType& tt);
 
 //! \brief A small class telling whether a trap tile is activated.
 class TrapTileInfo
@@ -43,15 +57,23 @@ public:
         mIsActivated(false),
         mReloadTime(0),
         mCraftedTrap(nullptr),
-        mNbShootsBeforeDeactivation(0)
+        mNbShootsBeforeDeactivation(0),
+        mTrapEntity(nullptr)
     {}
 
     TrapTileInfo(uint32_t reloadTime, bool activated):
         mIsActivated(activated),
         mReloadTime(reloadTime),
         mCraftedTrap(nullptr),
-        mNbShootsBeforeDeactivation(0)
+        mNbShootsBeforeDeactivation(0),
+        mTrapEntity(nullptr)
     {}
+
+    inline void setTrapEntity(TrapEntity* trapEntity)
+    { mTrapEntity = trapEntity; }
+
+    inline TrapEntity* getTrapEntity() const
+    { return mTrapEntity; }
 
     bool decreaseReloadTime()
     {
@@ -100,6 +122,7 @@ private:
     uint32_t mReloadTime;
     CraftedTrap* mCraftedTrap;
     int32_t mNbShootsBeforeDeactivation;
+    TrapEntity* mTrapEntity;
 };
 
 /*! \class Trap Trap.h
@@ -108,19 +131,17 @@ private:
 class Trap : public Building
 {
 public:
-    enum TrapType
-    {
-        nullTrapType = 0,
-        cannon,
-        spike,
-        boulder
-    };
-
     Trap(GameMap* gameMap);
     virtual ~Trap()
     {}
 
+    virtual GameEntityType getObjectType() const
+    { return GameEntityType::trap; }
+
     virtual std::string getOgreNamePrefix() const { return "Trap_"; }
+
+    virtual void addToGameMap();
+    virtual void removeFromGameMap();
 
     static Trap* getTrapFromStream(GameMap* gameMap, std::istream &is);
     static Trap* getTrapFromPacket(GameMap* gameMap, ODPacket &is);
@@ -148,31 +169,33 @@ public:
     virtual void updateActiveSpots();
 
     static int32_t getNeededForgePointsPerTrap(TrapType trapType);
-    virtual bool isNeededCraftedTrap() const;
+    virtual int32_t getNbNeededCraftedTrap() const;
 
     bool hasCarryEntitySpot(GameEntity* carriedEntity);
     Tile* askSpotForCarriedEntity(GameEntity* carriedEntity);
     void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity);
+
+    virtual bool isAttackable(Tile* tile, Seat* seat) const;
+
+    virtual bool shouldSetCoveringTileDirty(Seat* seat, Tile* tile)
+    { return false; }
 
     /*! \brief Exports the headers needed to recreate the Trap. It allows to extend Traps as much as wanted.
      * The content of the Trap will be exported by exportToPacket.
      */
     virtual void exportHeadersToStream(std::ostream& os);
     virtual void exportHeadersToPacket(ODPacket& os);
-    //! \brief Exports the data of the RenderedMovableEntity
-    virtual void exportToStream(std::ostream& os);
+    //! \brief Exports the data of the Trap
+    virtual void exportToStream(std::ostream& os) const;
     virtual void importFromStream(std::istream& is);
-    virtual void exportToPacket(ODPacket& os);
+    virtual void exportToPacket(ODPacket& os) const;
     virtual void importFromPacket(ODPacket& is);
 
     static std::string getFormat();
-    friend std::istream& operator>>(std::istream& is, Trap::TrapType& tt);
-    friend std::ostream& operator<<(std::ostream& os, const Trap::TrapType& tt);
-    friend ODPacket& operator>>(ODPacket& is, Trap::TrapType& tt);
-    friend ODPacket& operator<<(ODPacket& os, const Trap::TrapType& tt);
 
 protected:
     virtual RenderedMovableEntity* notifyActiveSpotCreated(Tile* tile);
+    virtual TrapEntity* getTrapEntity(Tile* tile) = 0;
     virtual void notifyActiveSpotRemoved(Tile* tile);
 
     //! \brief Triggered when the trap is activated

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ bool GoalProtectCreature::isMet(Seat *s)
 {
     // Check to see if the creature exists on the game map.
     const Creature *tempCreature = mGameMap->getCreature(mCreatureName);
-    if (tempCreature != NULL)
+    if (tempCreature != nullptr)
         return (tempCreature->getHP() > 0.0);
 
     return false;

@@ -1,5 +1,5 @@
 /*!
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,6 +25,8 @@
 
 #include "network/ODServer.h"
 
+#include "rooms/Room.h"
+
 const int32_t pointsPerWallSpot = 50;
 const int32_t handicapPerTileOffset = 20;
 
@@ -42,21 +44,20 @@ bool BaseAI::initialize(const std::string& parameters)
 
 Room* BaseAI::getDungeonTemple()
 {
-    std::vector<Room*> dt = mGameMap.getRoomsByTypeAndSeat(Room::dungeonTemple, mPlayer.getSeat());
+    std::vector<Room*> dt = mGameMap.getRoomsByTypeAndSeat(RoomType::dungeonTemple, mPlayer.getSeat());
     if(!dt.empty())
         return dt.front();
     else
-        return NULL;
+        return nullptr;
 }
 
 bool BaseAI::buildRoom(Room* room, const std::vector<Tile*>& tiles)
 {
     room->setupRoom(mGameMap.nextUniqueNameRoom(room->getMeshName()), mPlayer.getSeat(), tiles);
-    mGameMap.addRoom(room, false);
+    room->addToGameMap();
     room->createMesh();
     room->checkForRoomAbsorbtion();
     room->updateActiveSpots();
-    mGameMap.refreshBorderingTilesOf(tiles);
 
     return true;
 }
@@ -65,13 +66,13 @@ bool BaseAI::shouldGroundTileBeConsideredForBestPlaceForRoom(Tile* tile, Seat* m
 {
     switch(tile->getType())
     {
-        case Tile::TileType::dirt:
-        case Tile::TileType::gold:
+        case TileType::dirt:
+        case TileType::gold:
         {
             // Dirt and gold can always be built (even if digging may be needed depending on fullness)
             return true;
         }
-        case Tile::TileType::claimed:
+        case TileType::claimed:
         {
             // We check if we can build on that tile and if there is no building currently
             if(!tile->isClaimedForSeat(mPlayerSeat))
@@ -103,7 +104,7 @@ bool BaseAI::shouldWallTileBeConsideredForBestPlaceForRoom(Tile* tile, Seat* mPl
     if(tile->getFullness() <= 0.0)
         return false;
 
-    if(tile->getType() == Tile::TileType::dirt)
+    if(tile->getType() == TileType::dirt)
         return true;
 
     if(tile->isWallClaimedForSeat(mPlayerSeat))
@@ -429,14 +430,13 @@ bool BaseAI::digWayToTile(Tile* tileStart, Tile* tileEnd)
     // We find a way to tileEnd. We search in reverse order to stop when we reach the first
     // accessible tile
 
-    // Set a diggable path up to the first gold spot for the given team color, by the first available kobold
+    // Set a diggable path up to the first gold spot for the given team color, by the first available worker
     Seat* seat = mPlayer.getSeat();
-    Creature* kobold = mGameMap.getKoboldForPathFinding(seat);
-    if (kobold == nullptr)
+    Creature* worker = mGameMap.getWorkerForPathFinding(seat);
+    if (worker == nullptr)
         return false;
 
-    std::list<Tile*> pathToDig = mGameMap.path(tileEnd, tileStart, kobold,
-        seat, true);
+    std::list<Tile*> pathToDig = mGameMap.path(tileEnd, tileStart, worker, seat, true);
     if (pathToDig.empty())
         return false;
 
@@ -447,7 +447,7 @@ bool BaseAI::digWayToTile(Tile* tileStart, Tile* tileEnd)
         Tile* tile = *it;
         if(!isPathFound &&
            (tile->getFullness() == 0.0) &&
-           (mGameMap.pathExists(kobold, tileStart, tile)))
+           (mGameMap.pathExists(worker, tileStart, tile)))
         {
             isPathFound = true;
         }
@@ -465,7 +465,7 @@ bool BaseAI::digWayToTile(Tile* tileStart, Tile* tileEnd)
         {
             if(!isPathFound &&
                (t->getFullness() == 0.0) &&
-               (mGameMap.pathExists(kobold, tileStart, t)))
+               (mGameMap.pathExists(worker, tileStart, t)))
             {
                 // we let the iterator increment because we want to dig the currently
                 // tested tile

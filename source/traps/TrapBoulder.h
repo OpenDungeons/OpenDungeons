@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ public:
     { return TrapType::boulder; }
 
     virtual bool shoot(Tile* tile);
-    virtual bool isAttackable() const
+    virtual bool isAttackable(Tile* tile, Seat* seat) const
     {
         return false;
     }
@@ -51,7 +51,7 @@ public:
         return true;
     }
 
-    virtual RenderedMovableEntity* notifyActiveSpotCreated(Tile* tile);
+    virtual TrapEntity* getTrapEntity(Tile* tile);
 };
 
 #endif // TRAPBOULDER_H

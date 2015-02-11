@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,48 +17,34 @@
 
 #include "entities/Building.h"
 
+#include "entities/BuildingObject.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 #include "gamemap/GameMap.h"
-#include "network/ServerNotification.h"
 #include "network/ODServer.h"
 
 #include "utils/LogManager.h"
 
 const double Building::DEFAULT_TILE_HP = 10.0;
 
-void Building::createMeshLocal()
+const Ogre::Vector3 SCALE(RenderManager::BLENDER_UNITS_PER_OGRE_UNIT,
+        RenderManager::BLENDER_UNITS_PER_OGRE_UNIT,
+        RenderManager::BLENDER_UNITS_PER_OGRE_UNIT);
+
+const Ogre::Vector3& Building::getScale() const
 {
-    GameEntity::createMeshLocal();
-
-    if(getGameMap()->isServerGameMap())
-        return;
-
-    std::vector<Tile*> coveredTiles = getCoveredTiles();
-    for (Tile* tile : coveredTiles)
-        RenderManager::getSingleton().rrCreateBuilding(this, tile);
-}
-
-void Building::destroyMeshLocal()
-{
-    GameEntity::destroyMeshLocal();
-
-    if(getGameMap()->isServerGameMap())
-        return;
-
-    std::vector<Tile*> coveredTiles = getCoveredTiles();
-    for (Tile* tile : coveredTiles)
-        RenderManager::getSingleton().rrDestroyBuilding(this, tile);
+    return SCALE;
 }
 
 void Building::addBuildingObject(Tile* targetTile, RenderedMovableEntity* obj)
 {
-    if(obj == NULL)
+    if(obj == nullptr)
         return;
 
     // We assume the object position has been already set (most of the time in loadBuildingObject)
     mBuildingObjects[targetTile] = obj;
-    getGameMap()->addRenderedMovableEntity(obj);
+    obj->addToGameMap();
+    obj->setPosition(obj->getPosition(), false);
 }
 
 void Building::removeBuildingObject(Tile* tile)
@@ -67,7 +53,7 @@ void Building::removeBuildingObject(Tile* tile)
         return;
 
     RenderedMovableEntity* obj = mBuildingObjects[tile];
-    getGameMap()->removeRenderedMovableEntity(obj);
+    obj->removeFromGameMap();
     obj->deleteYourself();
     mBuildingObjects.erase(tile);
 }
@@ -84,7 +70,7 @@ void Building::removeBuildingObject(RenderedMovableEntity* obj)
 
     if(it != mBuildingObjects.end())
     {
-        getGameMap()->removeRenderedMovableEntity(obj);
+        obj->removeFromGameMap();
         obj->deleteYourself();
         mBuildingObjects.erase(it);
     }
@@ -99,7 +85,7 @@ void Building::removeAllBuildingObjects()
     while (itr != mBuildingObjects.end())
     {
         RenderedMovableEntity* obj = itr->second;
-        getGameMap()->removeRenderedMovableEntity(obj);
+        obj->removeFromGameMap();
         obj->deleteYourself();
         ++itr;
     }
@@ -109,7 +95,7 @@ void Building::removeAllBuildingObjects()
 RenderedMovableEntity* Building::getBuildingObjectFromTile(Tile* tile)
 {
     if(mBuildingObjects.count(tile) == 0)
-        return NULL;
+        return nullptr;
 
     RenderedMovableEntity* obj = mBuildingObjects[tile];
     return obj;
@@ -118,15 +104,15 @@ RenderedMovableEntity* Building::getBuildingObjectFromTile(Tile* tile)
 RenderedMovableEntity* Building::loadBuildingObject(GameMap* gameMap, const std::string& meshName,
     Tile* targetTile, double rotationAngle, bool hideCoveredTile, float opacity)
 {
-    if (targetTile == NULL)
+    if (targetTile == nullptr)
         targetTile = getCentralTile();
 
-    OD_ASSERT_TRUE(targetTile != NULL);
-    if(targetTile == NULL)
-        return NULL;
+    OD_ASSERT_TRUE(targetTile != nullptr);
+    if(targetTile == nullptr)
+        return nullptr;
 
-    return loadBuildingObject(gameMap, meshName, targetTile, static_cast<double>(targetTile->x),
-        static_cast<double>(targetTile->y), rotationAngle, hideCoveredTile, opacity);
+    return loadBuildingObject(gameMap, meshName, targetTile, static_cast<double>(targetTile->getX()),
+        static_cast<double>(targetTile->getY()), rotationAngle, hideCoveredTile, opacity);
 }
 
 RenderedMovableEntity* Building::loadBuildingObject(GameMap* gameMap, const std::string& meshName,
@@ -138,9 +124,9 @@ RenderedMovableEntity* Building::loadBuildingObject(GameMap* gameMap, const std:
     else
         baseName = getName() + "_" + Tile::displayAsString(targetTile);
 
-    RenderedMovableEntity* obj = new RenderedMovableEntity(gameMap, baseName, meshName,
-        static_cast<Ogre::Real>(rotationAngle), hideCoveredTile, opacity);
-    obj->setPosition(Ogre::Vector3((Ogre::Real)x, (Ogre::Real)y, 0.0f));
+    Ogre::Vector3 position(static_cast<Ogre::Real>(x), static_cast<Ogre::Real>(y), 0);
+    BuildingObject* obj = new BuildingObject(gameMap, baseName, meshName,
+        position, static_cast<Ogre::Real>(rotationAngle), hideCoveredTile, opacity);
 
     return obj;
 }
@@ -148,7 +134,7 @@ RenderedMovableEntity* Building::loadBuildingObject(GameMap* gameMap, const std:
 Tile* Building::getCentralTile()
 {
     if (mCoveredTiles.empty())
-        return NULL;
+        return nullptr;
 
     int minX, maxX, minY, maxY;
     minX = maxX = mCoveredTiles[0]->getX();
@@ -190,11 +176,6 @@ bool Building::removeCoveredTile(Tile* t)
             mTileHP.erase(t);
             t->setCoveringBuilding(nullptr);
 
-            if(getGameMap()->isServerGameMap())
-                return true;
-
-            // Destroy the mesh for this tile.
-            RenderManager::getSingleton().rrDestroyBuilding(this, t);
             return true;
         }
     }
@@ -202,17 +183,23 @@ bool Building::removeCoveredTile(Tile* t)
     return false;
 }
 
-Tile* Building::getCoveredTile(int index)
-{
-    return mCoveredTiles[index];
-}
-
 std::vector<Tile*> Building::getCoveredTiles()
 {
     return mCoveredTiles;
 }
 
-unsigned int Building::numCoveredTiles()
+Tile* Building::getCoveredTile(int index)
+{
+    OD_ASSERT_TRUE_MSG(index < static_cast<int>(mCoveredTiles.size()), "name=" + getName()
+        + ", index=" + Ogre::StringConverter::toString(index));
+
+    if(index >= static_cast<int>(mCoveredTiles.size()))
+        return nullptr;
+
+    return mCoveredTiles[index];
+}
+
+uint32_t Building::numCoveredTiles()
 {
     return mCoveredTiles.size();
 }
@@ -224,7 +211,7 @@ void Building::clearCoveredTiles()
 
 double Building::getHP(Tile *tile) const
 {
-    if (tile != NULL)
+    if (tile != nullptr)
     {
         std::map<Tile*, double>::const_iterator tileSearched = mTileHP.find(tile);
         OD_ASSERT_TRUE(tileSearched != mTileHP.end());
@@ -234,7 +221,7 @@ double Building::getHP(Tile *tile) const
         return tileSearched->second;
     }
 
-    // If the tile given was NULL, we add the total HP of all the tiles in the room and return that.
+    // If the tile given was nullptr, we add the total HP of all the tiles in the room and return that.
     double total = 0.0;
 
     for(const std::pair<Tile* const, double>& p : mTileHP)
@@ -255,11 +242,11 @@ double Building::takeDamage(GameEntity* attacker, double physicalDamage, double 
         return damageDone;
 
     Seat* seat = getSeat();
-    if (seat == NULL)
+    if (seat == nullptr)
         return damageDone;
 
     Player* player = gameMap->getPlayerBySeatId(seat->getId());
-    if (player == NULL)
+    if (player == nullptr)
         return damageDone;
 
     // Tells the server game map the player is under attack.
@@ -270,13 +257,13 @@ double Building::takeDamage(GameEntity* attacker, double physicalDamage, double 
 
 std::string Building::getNameTile(Tile* tile)
 {
-    return getMeshName() + "_tile_" + Ogre::StringConverter::toString(tile->x)
-        + "_" + Ogre::StringConverter::toString(tile->y);
+    return getMeshName() + "_tile_" + Ogre::StringConverter::toString(tile->getX())
+        + "_" + Ogre::StringConverter::toString(tile->getY());
 }
 
-bool Building::isAttackable() const
+bool Building::isAttackable(Tile* tile, Seat* seat) const
 {
-    if(getHP(NULL) <= 0.0)
+    if(getHP(tile) <= 0.0)
         return false;
 
     return true;

@@ -5,7 +5,7 @@
  * \brief  Header for class Gui containing all the stuff for the GUI,
  *         including translation.
  *
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -36,12 +36,11 @@
 
 class ModeManager;
 class GameMap;
+class SoundEffectsManager;
 
 //! \brief This class holds all GUI related functions
 class Gui : public Ogre::Singleton<Gui>
 {
-    friend class MiniMap;
-
 public:
     enum guiSheet
     {
@@ -55,14 +54,15 @@ public:
         optionsMenu,
         inGameMenu,
         replayMenu,
-        configureSeats
+        configureSeats,
+        console
     };
 
     /*! \brief Constructor that initializes the whole CEGUI system
      *  including renderer, system, resource provider, setting defaults,
      *  loading all sheets, assigning all event handler
      */
-    Gui();
+    Gui(SoundEffectsManager* soundEffectsManager, const std::string& ceguiLogFileName);
 
     ~Gui();
 
@@ -70,7 +70,7 @@ public:
     void loadGuiSheet(const guiSheet& newSheet);
 
     //! \brief A required function to pass input to the OIS system.
-    CEGUI::MouseButton convertButton (const OIS::MouseButtonID& buttonID);
+    static CEGUI::MouseButton convertButton (OIS::MouseButtonID buttonID);
 
     CEGUI::Window* getGuiSheet(const guiSheet&);
 
@@ -80,7 +80,7 @@ public:
     static const std::string DISPLAY_MANA;
     static const std::string DISPLAY_TERRITORY;
     static const std::string MINIMAP;
-    static const std::string MESSAGE_WINDOW;
+    static const std::string OBJECTIVE_TEXT;
     static const std::string MAIN_TABCONTROL;
     static const std::string TAB_ROOMS;
     static const std::string BUTTON_DORMITORY;
@@ -90,6 +90,8 @@ public:
     static const std::string BUTTON_HATCHERY;
     static const std::string BUTTON_TREASURY;
     static const std::string BUTTON_CRYPT;
+    static const std::string BUTTON_TEMPLE;
+    static const std::string BUTTON_PORTAL;
     static const std::string BUTTON_DESTROY_ROOM;
     static const std::string TAB_TRAPS;
     static const std::string BUTTON_TRAP_CANNON;
@@ -97,6 +99,8 @@ public:
     static const std::string BUTTON_TRAP_BOULDER;
     static const std::string BUTTON_DESTROY_TRAP;
     static const std::string TAB_SPELLS;
+    static const std::string BUTTON_SPELL_SUMMON_WORKER;
+    static const std::string BUTTON_SPELL_CALLTOWAR;
     static const std::string TAB_CREATURES;
     static const std::string BUTTON_CREATURE_WORKER;
     static const std::string BUTTON_CREATURE_FIGHTER;
@@ -150,7 +154,9 @@ private:
     //! \brief Assigns all event handlers to the GUI elements
     void assignEventHandlers();
 
-    std::map<guiSheet, CEGUI::Window*> sheets;
+    bool playButtonClickSound(const CEGUI::EventArgs& e);
+
+    std::map<guiSheet, CEGUI::Window*> mSheets;
 
     // Button handlers main menu
     //! \brief What happens after a click on New Game in the main menu
@@ -236,6 +242,7 @@ private:
 
     // Button handlers game UI
     static bool miniMapclicked          (const CEGUI::EventArgs& e);
+
     static bool dormitoryButtonPressed  (const CEGUI::EventArgs& e);
     static bool treasuryButtonPressed   (const CEGUI::EventArgs& e);
     static bool destroyRoomButtonPressed(const CEGUI::EventArgs& e);
@@ -244,14 +251,30 @@ private:
     static bool libraryButtonPressed    (const CEGUI::EventArgs& e);
     static bool hatcheryButtonPressed   (const CEGUI::EventArgs& e);
     static bool cryptButtonPressed      (const CEGUI::EventArgs& e);
+    static bool templeButtonPressed     (const CEGUI::EventArgs& e);
+    static bool portalButtonPressed     (const CEGUI::EventArgs& e);
+
     static bool cannonButtonPressed     (const CEGUI::EventArgs& e);
     static bool spikeTrapButtonPressed  (const CEGUI::EventArgs& e);
     static bool boulderTrapButtonPressed(const CEGUI::EventArgs& e);
     static bool destroyTrapButtonPressed(const CEGUI::EventArgs& e);
+
+    static bool spellSummonWorkerPressed        (const CEGUI::EventArgs& e);
+
+    static bool spellCallToWarPressed           (const CEGUI::EventArgs& e);
+
     static bool workerCreatureButtonPressed     (const CEGUI::EventArgs& e);
     static bool fighterCreatureButtonPressed    (const CEGUI::EventArgs& e);
+
     static bool confirmExitYesButtonPressed     (const CEGUI::EventArgs& e);
     static bool confirmExitNoButtonPressed      (const CEGUI::EventArgs& e);
+
+    static bool helpButtonPressed(const CEGUI::EventArgs& e);
+    static bool objectivesButtonPressed(const CEGUI::EventArgs& e);
+    static bool optionsButtonPressed(const CEGUI::EventArgs& e);
+    static bool hideObjectivesWindow(const CEGUI::EventArgs& e);
+
+    static bool cancelSettings(const CEGUI::EventArgs& e);
 
     // Editor Buttons
     static bool editorLavaButtonPressed(const CEGUI::EventArgs& e);
@@ -260,6 +283,8 @@ private:
     static bool editorWaterButtonPressed(const CEGUI::EventArgs& e);
     static bool editorDirtButtonPressed(const CEGUI::EventArgs& e);
     static bool editorClaimedButtonPressed(const CEGUI::EventArgs& e);
+
+    SoundEffectsManager* mSoundEffectsManager;
 };
 
 #endif // GUI_H_

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,9 +18,12 @@
 #include "entities/CreatureDefinition.h"
 
 #include "network/ODPacket.h"
+#include "rooms/Room.h"
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
+
+static CreatureRoomAffinity EMPTY_AFFINITY(RoomType::nullRoomType, 0, 0);
 
 double CreatureDefinition::getXPNeededWhenLevel(unsigned int level) const
 {
@@ -57,7 +60,12 @@ std::string CreatureDefinition::creatureJobToString(CreatureJob c)
     }
 }
 
-ODPacket& operator<<(ODPacket& os, CreatureDefinition* c)
+int32_t CreatureDefinition::getFee(unsigned int level) const
+{
+    return mFeeBase + (mFeePerLevel * level);
+}
+
+ODPacket& operator<<(ODPacket& os, const CreatureDefinition* c)
 {
     std::string creatureJob = CreatureDefinition::creatureJobToString(c->mCreatureJob);
     os << c->mClassName
@@ -81,6 +89,10 @@ ODPacket& operator<<(ODPacket& os, CreatureDefinition* c)
     os << c->mMagicalDefense << c->mMagicalDefPerLevel;
     os << c->mAttackRange << c->mAtkRangePerLevel;
     os << c->mAttackWarmupTime;
+    os << c->mWeakCoef;
+    os << c->mFeeBase;
+    os << c->mFeePerLevel;
+    os << c->mMoodModifierName;
     os << c->mWeaponSpawnL;
     os << c->mWeaponSpawnR;
 
@@ -111,6 +123,10 @@ ODPacket& operator>>(ODPacket& is, CreatureDefinition* c)
     is >> c->mMagicalDefense >> c->mMagicalDefPerLevel;
     is >> c->mAttackRange >> c->mAtkRangePerLevel;
     is >> c->mAttackWarmupTime;
+    is >> c->mWeakCoef;
+    is >> c->mFeeBase;
+    is >> c->mFeePerLevel;
+    is >> c->mMoodModifierName;
     is >> c->mWeaponSpawnL;
     is >> c->mWeaponSpawnR;
 
@@ -183,6 +199,12 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
         if (nextParam == "[XP]")
         {
             loadXPTable(defFile, creatureDef);
+            continue;
+        }
+
+        if (nextParam == "[RoomAffinity]")
+        {
+            loadRoomAffinity(defFile, creatureDef);
             continue;
         }
 
@@ -418,6 +440,31 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
                 creatureDef->mAttackWarmupTime = Helper::toDouble(nextParam);
                 continue;
             }
+            else if (nextParam == "WeakCoef")
+            {
+                defFile >> nextParam;
+                creatureDef->mWeakCoef = Helper::toDouble(nextParam);
+                OD_ASSERT_TRUE_MSG(creatureDef->mWeakCoef >= 0.0 && creatureDef->mWeakCoef <= 1.0, "mWeakCoef=" + Helper::toString(creatureDef->mWeakCoef));
+                continue;
+            }
+            else if (nextParam == "FeeBase")
+            {
+                defFile >> nextParam;
+                creatureDef->mFeeBase = Helper::toInt(nextParam);
+                continue;
+            }
+            else if (nextParam == "FeePerLevel")
+            {
+                defFile >> nextParam;
+                creatureDef->mFeePerLevel = Helper::toInt(nextParam);
+                continue;
+            }
+            else if (nextParam == "CreatureMoodName")
+            {
+                defFile >> nextParam;
+                creatureDef->mMoodModifierName = nextParam;
+                continue;
+            }
             else if (nextParam == "WeaponSpawnL")
             {
                 defFile >> creatureDef->mWeaponSpawnL;
@@ -561,6 +608,15 @@ void CreatureDefinition::writeCreatureDefinitionDiff(const CreatureDefinition* d
     if(def1 == nullptr || (def1->mAttackWarmupTime != def2->mAttackWarmupTime))
         file << "    AttackWarmupTime\t" << def2->mAttackWarmupTime << std::endl;
 
+    if(def1 == nullptr || (def1->mWeakCoef != def2->mWeakCoef))
+        file << "    WeakCoef\t" << def2->mWeakCoef << std::endl;
+
+    if(def1 == nullptr || (def1->mFeeBase != def2->mFeeBase))
+        file << "    FeeBase\t" << def2->mFeeBase << std::endl;
+
+    if(def1 == nullptr || (def1->mFeePerLevel != def2->mFeePerLevel))
+        file << "    FeePerLevel\t" << def2->mFeePerLevel << std::endl;
+
     if(def1 == nullptr || (def1->mWeaponSpawnL.compare(def2->mWeaponSpawnL) != 0))
         file << "    WeaponSpawnL\t" << def2->mWeaponSpawnL << std::endl;
 
@@ -569,7 +625,30 @@ void CreatureDefinition::writeCreatureDefinitionDiff(const CreatureDefinition* d
 
     file << "    [/Stats]" << std::endl;
 
-    bool isSame = true;
+    bool isSame;
+
+    isSame = (def1 != nullptr && def1->mRoomAffinity.size() == def2->mRoomAffinity.size());
+    uint32_t index = 0;
+    while(isSame &&
+          index < def2->mRoomAffinity.size())
+    {
+        isSame = def1->mRoomAffinity[index] == def2->mRoomAffinity[index];
+        ++index;
+    }
+    if(!isSame)
+    {
+        file << "    [RoomAffinity]" << std::endl;
+        for(const CreatureRoomAffinity& roomAffinity : def2->mRoomAffinity)
+        {
+            file << "    " << Room::getRoomNameFromRoomType(roomAffinity.getRoomType());
+            file << "\t" << roomAffinity.getLikeness();
+            file << "\t" << roomAffinity.getEfficiency();
+            file << std::endl;
+        }
+        file << "    [/RoomAffinity]" << std::endl;
+    }
+
+    isSame = true;
     for(uint32_t i = 0; i < (MAX_LEVEL - 1); ++i)
     {
         if(def1 == nullptr || (def1->mXPTable[i] != def2->mXPTable[i]))
@@ -636,4 +715,85 @@ void CreatureDefinition::loadXPTable(std::stringstream& defFile, CreatureDefinit
 
         creatureDef->mXPTable[i++] = Helper::toDouble(nextParam);
     }
+}
+
+void CreatureDefinition::loadRoomAffinity(std::stringstream& defFile, CreatureDefinition* creatureDef)
+{
+    OD_ASSERT_TRUE(creatureDef != nullptr);
+    if (creatureDef == nullptr)
+        return;
+
+    std::string nextParam;
+    bool exit = false;
+
+    creatureDef->mRoomAffinity.clear();
+    while (defFile.good())
+    {
+        if (exit)
+            break;
+
+        if(!(defFile >> nextParam))
+            break;
+
+        if (nextParam == "[/RoomAffinity]" ||
+            nextParam == "[/Creature]" || nextParam == "[/Creatures]")
+        {
+            exit = true;
+            break;
+        }
+
+        std::string roomName = nextParam;
+
+        if(!(defFile >> nextParam))
+            break;
+
+        if (nextParam == "[/RoomAffinity]" ||
+            nextParam == "[/Creature]" || nextParam == "[/Creatures]")
+        {
+            exit = true;
+            break;
+        }
+        int32_t likeness = Helper::toInt(nextParam);
+
+        if(!(defFile >> nextParam))
+            break;
+
+        if (nextParam == "[/RoomAffinity]" ||
+            nextParam == "[/Creature]" || nextParam == "[/Creatures]")
+        {
+            exit = true;
+            break;
+        }
+        double efficiency = Helper::toDouble(nextParam);
+
+        RoomType roomType = Room::getRoomTypeFromRoomName(roomName);
+        OD_ASSERT_TRUE_MSG(roomType != RoomType::nullRoomType, "Unknown room name=" + roomName);
+        if(roomType == RoomType::nullRoomType)
+            continue;
+
+        // We sort the CreatureRoomAffinity from the most liked to the less
+        std::vector<CreatureRoomAffinity>::iterator it = creatureDef->mRoomAffinity.begin();
+        while(it != creatureDef->mRoomAffinity.end())
+        {
+            CreatureRoomAffinity& roomAffinity = *it;
+            if(roomAffinity.getLikeness() <= likeness)
+                break;
+
+            ++it;
+        }
+        creatureDef->mRoomAffinity.insert(it, CreatureRoomAffinity(roomType, likeness, efficiency));
+    }
+}
+
+const CreatureRoomAffinity& CreatureDefinition::getRoomAffinity(RoomType roomType) const
+{
+    for(const CreatureRoomAffinity& roomAffinity : mRoomAffinity)
+    {
+        if(roomAffinity.getRoomType() != roomType)
+            continue;
+
+        return roomAffinity;
+    }
+
+    return EMPTY_AFFINITY;
 }

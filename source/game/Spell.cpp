@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <cmath>
 
+// TODO: remove this file when the healing spell will be implemented
 double Spell::heal(int spellLevel, Creature *targetCreature, double hp, double maxMana)
 {
     const double manaPerHPHealed = 0.1;

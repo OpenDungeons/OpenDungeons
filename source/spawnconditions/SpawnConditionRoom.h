@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,14 +18,15 @@
 #ifndef SPAWNCONDITIONROOM_H
 #define SPAWNCONDITIONROOM_H
 
-#include "rooms/Room.h"
 #include "spawnconditions/SpawnCondition.h"
+
+enum class RoomType;
 
 class SpawnConditionRoom : public SpawnCondition
 {
 public:
     // Constructors
-    SpawnConditionRoom(Room::RoomType roomType, int32_t nbActiveSpotsMin, int32_t pointsPerAdditionalActiveSpots) :
+    SpawnConditionRoom(RoomType roomType, int32_t nbActiveSpotsMin, int32_t pointsPerAdditionalActiveSpots) :
         mRoomType(roomType),
         mNbActiveSpotsMin(nbActiveSpotsMin),
         mPointsPerAdditionalActiveSpots(pointsPerAdditionalActiveSpots)
@@ -38,7 +39,7 @@ public:
     virtual bool computePointsForSeat(GameMap* gameMap, Seat* seat, int32_t& computedPoints) const;
 
 private:
-    Room::RoomType mRoomType;
+    RoomType mRoomType;
     int32_t mNbActiveSpotsMin;
     int32_t mPointsPerAdditionalActiveSpots;
 };

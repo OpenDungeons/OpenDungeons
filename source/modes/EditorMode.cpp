@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 #include "modes/EditorMode.h"
 
+#include "gamemap/GameMap.h"
 #include "gamemap/MiniMap.h"
 #include "gamemap/MapLoader.h"
 #include "render/ODFrameListener.h"
@@ -31,7 +32,7 @@
 #include "game/Player.h"
 #include "render/RenderManager.h"
 #include "camera/CameraManager.h"
-#include "modes/Console.h"
+#include "rooms/Room.h"
 #include "sound/MusicPlayer.h"
 #include "network/ODClient.h"
 #include "network/ODServer.h"
@@ -49,7 +50,7 @@
 
 EditorMode::EditorMode(ModeManager* modeManager):
     AbstractApplicationMode(modeManager, ModeManager::EDITOR),
-    mCurrentTileType(Tile::TileType::nullTileType),
+    mCurrentTileType(TileType::nullTileType),
     mCurrentFullness(100.0),
     mCurrentSeatId(0),
     mCurrentCreatureIndex(0),
@@ -92,30 +93,26 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
     if (!isConnected())
         return true;
 
-    ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
     InputManager* inputManager = mModeManager->getInputManager();
-
-    if (frameListener->isTerminalActive())
-        return true;
 
     Player* player = mGameMap->getLocalPlayer();
     Player::SelectedAction playerSelectedAction = player->getCurrentAction();
     if (playerSelectedAction != Player::SelectedAction::none)
     {
         TextRenderer::getSingleton().moveText(ODApplication::POINTER_INFO_STRING,
-            (Ogre::Real)(arg.state.X.abs + 30), (Ogre::Real)arg.state.Y.abs);
+            static_cast<Ogre::Real>(arg.state.X.abs + 30), static_cast<Ogre::Real>(arg.state.Y.abs));
 
         switch(playerSelectedAction)
         {
             case Player::SelectedAction::buildRoom:
             {
-                Room::RoomType selectedRoomType = player->getNewRoomType();
+                RoomType selectedRoomType = player->getNewRoomType();
                 TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(Room::getRoomNameFromRoomType(selectedRoomType)));
                 break;
             }
             case Player::SelectedAction::buildTrap:
             {
-                Trap::TrapType selectedTrapType = player->getNewTrapType();
+                TrapType selectedTrapType = player->getNewTrapType();
                 TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(Trap::getTrapNameFromTrapType(selectedTrapType)));
                 break;
             }
@@ -148,7 +145,7 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
     Ogre::RaySceneQueryResult& result = ODFrameListener::getSingleton().doRaySceneQuery(arg);
     for (Ogre::RaySceneQueryResult::iterator itr = result.begin(); itr != result.end(); ++itr)
     {
-        if (itr->movable == NULL)
+        if (itr->movable == nullptr)
             continue;
 
         // Check to see if the current query result is a tile.
@@ -197,7 +194,7 @@ void EditorMode::handleMouseWheel(const OIS::MouseEvent& arg)
     {
         if (getKeyboard()->isModifierDown(OIS::Keyboard::Ctrl))
         {
-            mGameMap->getLocalPlayer()->rotateHand(1);
+            mGameMap->getLocalPlayer()->rotateHand(Player::Direction::left);
         }
         else
         {
@@ -208,16 +205,12 @@ void EditorMode::handleMouseWheel(const OIS::MouseEvent& arg)
     {
         if (getKeyboard()->isModifierDown(OIS::Keyboard::Ctrl))
         {
-            mGameMap->getLocalPlayer()->rotateHand(-1);
+            mGameMap->getLocalPlayer()->rotateHand(Player::Direction::right);
         }
         else
         {
             frameListener.moveCamera(CameraManager::moveUp);
         }
-    }
-    else
-    {
-        frameListener.cameraStopZoom();
     }
 }
 
@@ -258,7 +251,7 @@ void EditorMode::handleMouseMovedDragType(const OIS::MouseEvent &arg)
         // Since this is a tile selection query we loop over the result set and look for the first object which is actually a tile.
         for (; itr != end; ++itr)
         {
-            if (itr->movable == NULL)
+            if (itr->movable == nullptr)
                 continue;
 
             // Check to see if the current query result is a tile.
@@ -306,7 +299,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     InputManager* inputManager = mModeManager->getInputManager();
 
     // If the mouse press is on a CEGUI window ignore it
-    if (tempWindow != NULL && tempWindow->getName().compare("EDITORGUI") != 0)
+    if (tempWindow != nullptr && tempWindow->getName().compare("EDITORGUI") != 0)
     {
         inputManager->mMouseDownOnCEGUIWindow = true;
         return true;
@@ -335,7 +328,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         // See if the mouse is over any creatures
         for (;itr != result.end(); ++itr)
         {
-            if (itr->movable == NULL)
+            if (itr->movable == nullptr)
                 continue;
 
             std::string resultName = itr->movable->getName();
@@ -361,15 +354,13 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
         // Stop creating rooms, traps, etc.
         mGameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::none);
-        mGameMap->getLocalPlayer()->setNewRoomType(Room::nullRoomType);
-        mGameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
-        mCurrentTileType = Tile::TileType::nullTileType;
+        mCurrentTileType = TileType::nullTileType;
         TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "");
 
         // If we right clicked with the mouse over a valid map tile, try to drop a creature onto the map.
         Tile *curTile = mGameMap->getTile(inputManager->mXPos, inputManager->mYPos);
 
-        if (curTile == NULL)
+        if (curTile == nullptr)
             return true;
 
 
@@ -378,16 +369,16 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
             // If we right clicked with the mouse over a valid map tile, try to drop what we have in hand on the map.
             Tile *curTile = mGameMap->getTile(inputManager->mXPos, inputManager->mYPos);
 
-            if (curTile == NULL)
+            if (curTile == nullptr)
                 return true;
 
-            if (mGameMap->getLocalPlayer()->isDropHandPossible(curTile, 0, true))
+            if (mGameMap->getLocalPlayer()->isDropHandPossible(curTile, 0))
             {
                 if(ODClient::getSingleton().isConnected())
                 {
                     // Send a message to the server telling it we want to drop the creature
                     ClientNotification *clientNotification = new ClientNotification(
-                        ClientNotification::askHandDrop);
+                        ClientNotificationType::askHandDrop);
                     mGameMap->tileToPacket(clientNotification->mPacket, curTile);
                     ODClient::getSingleton().queueClientNotification(clientNotification);
                 }
@@ -400,23 +391,20 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
             // No creature in hand. We check if we want to slap something
             for (;itr != result.end(); ++itr)
             {
-                if (itr->movable == NULL)
+                if (itr->movable == nullptr)
                     continue;
 
                 std::string resultName = itr->movable->getName();
 
                 GameEntity* entity = getEntityFromOgreName(resultName);
-                if (entity == nullptr || !entity->canSlap(mGameMap->getLocalPlayer()->getSeat(), true))
+                if (entity == nullptr || !entity->canSlap(mGameMap->getLocalPlayer()->getSeat()))
                     continue;
 
                 if(ODClient::getSingleton().isConnected())
                 {
-                    const std::string& entityName = entity->getName();
-                    GameEntity::ObjectType entityType = entity->getObjectType();
-                    ClientNotification *clientNotification = new ClientNotification(
-                        ClientNotification::askSlapEntity);
-                    clientNotification->mPacket << entityType << entityName;
-                    ODClient::getSingleton().queueClientNotification(clientNotification);
+                    ODClient::getSingleton().queueClientNotification(ClientNotificationType::askSlapEntity,
+                                                                     entity->getObjectType(),
+                                                                     entity->getName());
                 }
 
                 return true;
@@ -453,21 +441,21 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         if (skipCreaturePickUp)
             break;
 
-        if (itr->movable == NULL)
+        if (itr->movable == nullptr)
             continue;
 
         std::string resultName = itr->movable->getName();
 
         GameEntity* entity = getEntityFromOgreName(resultName);
-        if (entity == nullptr || !entity->tryPickup(player->getSeat(), false))
+        if (entity == nullptr || !entity->tryPickup(player->getSeat()))
             continue;
 
         if (ODClient::getSingleton().isConnected())
         {
-            GameEntity::ObjectType entityType = entity->getObjectType();
+            GameEntityType entityType = entity->getObjectType();
             const std::string& entityName = entity->getName();
             ClientNotification *clientNotification = new ClientNotification(
-                ClientNotification::askEntityPickUp);
+                ClientNotificationType::askEntityPickUp);
             clientNotification->mPacket << entityType;
             clientNotification->mPacket << entityName;
             ODClient::getSingleton().queueClientNotification(clientNotification);
@@ -517,12 +505,12 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
             double fullness;
             switch(mCurrentTileType)
             {
-                case Tile::TileType::nullTileType:
+                case TileType::nullTileType:
                     return true;
-                case Tile::TileType::dirt:
-                case Tile::TileType::gold:
-                case Tile::TileType::rock:
-                case Tile::TileType::claimed:
+                case TileType::dirt:
+                case TileType::gold:
+                case TileType::rock:
+                case TileType::claimed:
                     fullness = mCurrentFullness;
                     break;
                 default:
@@ -531,7 +519,7 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
             }
             int intTileType = static_cast<int>(mCurrentTileType);
             ClientNotification *clientNotification = new ClientNotification(
-                ClientNotification::editorAskChangeTiles);
+                ClientNotificationType::editorAskChangeTiles);
             clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
             clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
             clientNotification->mPacket << intTileType;
@@ -544,7 +532,7 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
         {
             int intRoomType = static_cast<int>(mGameMap->getLocalPlayer()->getNewRoomType());
             ClientNotification *clientNotification = new ClientNotification(
-                ClientNotification::editorAskBuildRoom);
+                ClientNotificationType::editorAskBuildRoom);
             clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
             clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
             clientNotification->mPacket << intRoomType << mCurrentSeatId;
@@ -554,7 +542,7 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
         case Player::SelectedAction::buildTrap:
         {
             ClientNotification *clientNotification = new ClientNotification(
-                ClientNotification::editorAskBuildTrap);
+                ClientNotificationType::editorAskBuildTrap);
             int intTrapType = static_cast<int>(mGameMap->getLocalPlayer()->getNewTrapType());
             clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
             clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
@@ -565,7 +553,7 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
         case Player::SelectedAction::destroyRoom:
         {
             ClientNotification *clientNotification = new ClientNotification(
-                ClientNotification::editorAskDestroyRoomTiles);
+                ClientNotificationType::editorAskDestroyRoomTiles);
             clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
             clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
             ODClient::getSingleton().queueClientNotification(clientNotification);
@@ -574,7 +562,7 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
         case Player::SelectedAction::destroyTrap:
         {
             ClientNotification *clientNotification = new ClientNotification(
-                ClientNotification::editorAskDestroyTrapTiles);
+                ClientNotificationType::editorAskDestroyTrapTiles);
             clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
             clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
             ODClient::getSingleton().queueClientNotification(clientNotification);
@@ -624,14 +612,10 @@ void EditorMode::updateCursorText()
 bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
 {
     ODFrameListener& frameListener = ODFrameListener::getSingleton();
-    if (frameListener.isTerminalActive())
-        return true;
 
     // Inject key to Gui
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyDown((CEGUI::Key::Scan) arg.key);
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyDown(static_cast<CEGUI::Key::Scan>(arg.key));
     CEGUI::System::getSingleton().getDefaultGUIContext().injectChar(arg.text);
-
-    InputManager* inputManager = mModeManager->getInputManager();
 
     switch (arg.key)
     {
@@ -642,31 +626,25 @@ bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
     case OIS::KC_GRAVE:
     case OIS::KC_F12:
         mModeManager->requestConsoleMode();
-        frameListener.setTerminalActive(true);
-        Console::getSingleton().setVisible(true);
         break;
 
     case OIS::KC_LEFT:
     case OIS::KC_A:
-        inputManager->mDirectionKeyPressed = true;
         frameListener.moveCamera(CameraManager::Direction::moveLeft);
         break;
 
     case OIS::KC_RIGHT:
     case OIS::KC_D:
-        inputManager->mDirectionKeyPressed = true;
         frameListener.moveCamera(CameraManager::Direction::moveRight);
         break;
 
     case OIS::KC_UP:
     case OIS::KC_W:
-        inputManager->mDirectionKeyPressed = true;
         frameListener.moveCamera(CameraManager::Direction::moveForward);
         break;
 
     case OIS::KC_DOWN:
     case OIS::KC_S:
-        inputManager->mDirectionKeyPressed = true;
         frameListener.moveCamera(CameraManager::Direction::moveBackward);
         break;
 
@@ -696,7 +674,7 @@ bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
 
     //Toggle mCurrentFullness
     case OIS::KC_T:
-        mCurrentFullness = Tile::nextTileFullness((int)mCurrentFullness);
+        mCurrentFullness = Tile::nextTileFullness(static_cast<int>(mCurrentFullness));
         updateCursorText();
         break;
 
@@ -725,7 +703,7 @@ bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
         {
             // Send a message to the server telling it we want to drop the creature
             ClientNotification *clientNotification = new ClientNotification(
-                ClientNotification::editorAskSaveMap);
+                ClientNotificationType::editorAskSaveMap);
             ODClient::getSingleton().queueClientNotification(clientNotification);
         }
         break;
@@ -757,37 +735,29 @@ bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
 
 bool EditorMode::keyReleased(const OIS::KeyEvent& arg)
 {
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyUp((CEGUI::Key::Scan) arg.key);
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyUp(static_cast<CEGUI::Key::Scan>(arg.key));
 
     ODFrameListener& frameListener = ODFrameListener::getSingleton();
-    if (frameListener.isTerminalActive())
-        return true;
-
-    InputManager* inputManager = mModeManager->getInputManager();
 
     switch (arg.key)
     {
     case OIS::KC_LEFT:
     case OIS::KC_A:
-        inputManager->mDirectionKeyPressed = false;
         frameListener.moveCamera(CameraManager::Direction::stopLeft);
         break;
 
     case OIS::KC_RIGHT:
     case OIS::KC_D:
-        inputManager->mDirectionKeyPressed = false;
         frameListener.moveCamera(CameraManager::Direction::stopRight);
         break;
 
     case OIS::KC_UP:
     case OIS::KC_W:
-        inputManager->mDirectionKeyPressed = false;
         frameListener.moveCamera(CameraManager::Direction::stopForward);
         break;
 
     case OIS::KC_DOWN:
     case OIS::KC_S:
-        inputManager->mDirectionKeyPressed = false;
         frameListener.moveCamera(CameraManager::Direction::stopBackward);
         break;
 
@@ -808,11 +778,11 @@ bool EditorMode::keyReleased(const OIS::KeyEvent& arg)
         break;
 
     case OIS::KC_HOME:
-        frameListener.cameraStopZoom();
+        frameListener.moveCamera(CameraManager::Direction::stopDown);
         break;
 
     case OIS::KC_END:
-        frameListener.cameraStopZoom();
+        frameListener.moveCamera(CameraManager::Direction::stopUp);
         break;
 
     default:
@@ -875,7 +845,7 @@ void EditorMode::notifyGuiAction(GuiAction guiAction)
                 if(ODClient::getSingleton().isConnected())
                 {
                     ClientNotification *clientNotification = new ClientNotification(
-                        ClientNotification::editorCreateWorker);
+                        ClientNotificationType::editorCreateWorker);
                     clientNotification->mPacket << mCurrentSeatId;
                     ODClient::getSingleton().queueClientNotification(clientNotification);
                 }
@@ -890,7 +860,7 @@ void EditorMode::notifyGuiAction(GuiAction guiAction)
                     if(def == nullptr)
                         break;
                     ClientNotification *clientNotification = new ClientNotification(
-                        ClientNotification::editorCreateFighter);
+                        ClientNotificationType::editorCreateFighter);
                     clientNotification->mPacket << mCurrentSeatId;
                     clientNotification->mPacket << def->getClassName();
                     ODClient::getSingleton().queueClientNotification(clientNotification);

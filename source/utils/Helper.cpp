@@ -4,7 +4,7 @@
  * \author StefanP.MUC, hwoarangmy, Bertram
  * \brief  Provides helper functions, constants and defines
  *
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -53,6 +53,14 @@ namespace Helper
     {
         std::stringstream ss(text);
         uint32_t number = 0;
+        ss >> number;
+        return number;
+    }
+
+    float toFloat(const std::string& text)
+    {
+        std::stringstream ss(text);
+        float number = 0.0;
         ss >> number;
         return number;
     }
@@ -138,5 +146,21 @@ namespace Helper
         baseLevelFile.close();
 
         return true;
+    }
+
+    std::string intTo2Hex(int i)
+    {
+        std::stringstream stream;
+        stream << std::setfill('0') << std::setw(2) << std::hex << i;
+        return stream.str();
+    }
+
+    std::string getCEGUIColorFromOgreColourValue(const Ogre::ColourValue& color)
+    {
+        std::string colourStr = Helper::intTo2Hex(static_cast<int>(color.a * 255.0f))
+                                + Helper::intTo2Hex(static_cast<int>(color.r * 255.0f))
+                                + Helper::intTo2Hex(static_cast<int>(color.g * 255.0f))
+                                + Helper::intTo2Hex(static_cast<int>(color.b * 255.0f));
+        return colourStr;
     }
 } // namespace Helper

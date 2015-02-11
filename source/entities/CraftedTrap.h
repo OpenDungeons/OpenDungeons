@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,8 +20,6 @@
 
 #include "entities/RenderedMovableEntity.h"
 
-#include "traps/Trap.h"
-
 #include <string>
 #include <istream>
 #include <ostream>
@@ -32,33 +30,35 @@ class GameMap;
 class Tile;
 class ODPacket;
 
+enum class TrapType;
+
 class CraftedTrap: public RenderedMovableEntity
 {
 public:
-    CraftedTrap(GameMap* gameMap, const std::string& forgeName, Trap::TrapType trapType);
+    CraftedTrap(GameMap* gameMap, const std::string& forgeName, TrapType trapType);
     CraftedTrap(GameMap* gameMap);
 
-    virtual RenderedMovableEntityType getRenderedMovableEntityType()
+    virtual RenderedMovableEntityType getRenderedMovableEntityType() const
     { return RenderedMovableEntityType::craftedTrap; }
 
-    virtual Ogre::Vector3 getScale() const
-    { return Ogre::Vector3(0.5,0.5,0.5); }
+    virtual const Ogre::Vector3& getScale() const;
 
-
-    virtual void setPosition(const Ogre::Vector3& v);
-
-    Trap::TrapType getTrapType() const
+    TrapType getTrapType() const
     { return mTrapType; }
 
-    void notifyEntityCarried(bool isCarried);
+    virtual EntityCarryType getEntityCarryType()
+    { return EntityCarryType::craftedTrap; }
+
+    virtual void notifyEntityCarryOn();
+    virtual void notifyEntityCarryOff(const Ogre::Vector3& position);
 
     static CraftedTrap* getCraftedTrapFromStream(GameMap* gameMap, std::istream& is);
     static CraftedTrap* getCraftedTrapFromPacket(GameMap* gameMap, ODPacket& is);
     static const char* getFormat();
 private:
-    Trap::TrapType mTrapType;
+    TrapType mTrapType;
 
-    const std::string& getMeshFromTrapType(Trap::TrapType trapType);
+    const std::string& getMeshFromTrapType(TrapType trapType);
 };
 
 #endif // CRAFTEDTRAP_H

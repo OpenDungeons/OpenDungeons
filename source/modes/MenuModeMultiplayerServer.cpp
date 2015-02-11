@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -58,7 +58,10 @@ void MenuModeMultiplayerServer::activate()
     // TODO: Make this configurable.
     MusicPlayer::getSingleton().play("Pal_Zoltan_Illes_OpenDungeons_maintheme.ogg");
 
-    ODFrameListener::getSingleton().getClientGameMap()->setGamePaused(true);
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
+    gameMap->clearAll();
+    gameMap->processDeletionQueues();
+    gameMap->setGamePaused(true);
 
     CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerServerMenu)->getChild(Gui::MPM_LIST_LEVELS);
     CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);
@@ -198,48 +201,4 @@ void MenuModeMultiplayerServer::listLevelsClicked()
 void MenuModeMultiplayerServer::listLevelsDoubleClicked()
 {
     serverButtonPressed();
-}
-
-bool MenuModeMultiplayerServer::mouseMoved(const OIS::MouseEvent &arg)
-{
-    return CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition((float)arg.state.X.abs, (float)arg.state.Y.abs);
-}
-
-bool MenuModeMultiplayerServer::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
-{
-    return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(
-        Gui::getSingletonPtr()->convertButton(id));
-}
-
-bool MenuModeMultiplayerServer::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
-{
-    return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(
-        Gui::getSingletonPtr()->convertButton(id));
-}
-
-bool MenuModeMultiplayerServer::keyPressed(const OIS::KeyEvent &arg)
-{
-    switch (arg.key)
-    {
-
-    case OIS::KC_ESCAPE:
-        regressMode();
-        break;
-    default:
-        CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyDown((CEGUI::Key::Scan) arg.key);
-        CEGUI::System::getSingleton().getDefaultGUIContext().injectChar(arg.text);
-        break;
-    }
-    return true;
-}
-
-bool MenuModeMultiplayerServer::keyReleased(const OIS::KeyEvent &arg)
-{
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyUp((CEGUI::Key::Scan) arg.key);
-
-    return true;
-}
-
-void MenuModeMultiplayerServer::handleHotkeys(OIS::KeyCode keycode)
-{
 }

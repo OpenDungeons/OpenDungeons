@@ -2,7 +2,7 @@
  * \file   Creature.h
  * \brief  Creature class
  *
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@
 #define CREATURE_H
 
 #include "entities/CreatureSound.h"
-#include "entities/CreatureDefinition.h"
 #include "entities/CreatureAction.h"
 #include "entities/MovableGameEntity.h"
 
@@ -35,8 +34,11 @@
 
 class GameMap;
 class Creature;
+class CreatureDefinition;
+class Room;
 class Weapon;
-class CullingQuad;
+
+enum class CreatureMoodLevel;
 
 namespace CEGUI
 {
@@ -55,18 +57,23 @@ class Window;
  */
 class Creature: public MovableGameEntity
 {
-    friend class CullingQuad;
     friend class ODClient;
 public:
     //! \brief Constructor for creatures. It generates an unique name
     Creature(GameMap* gameMap, const CreatureDefinition* definition);
     virtual ~Creature();
 
+    virtual GameEntityType getObjectType() const
+    { return GameEntityType::creature; }
+
     static const std::string CREATURE_PREFIX;
 
     //! \brief Conform: AttackableEntity - Returns the prefix used in the OGRE identifier for this object.
     std::string getOgreNamePrefix() const
     { return CREATURE_PREFIX; }
+
+    virtual void addToGameMap();
+    virtual void removeFromGameMap();
 
     bool canDisplayStatsWindow(Seat* seat)
     { return true; }
@@ -78,7 +85,7 @@ public:
 
     Ogre::Vector2 get2dPosition()
     {
-        Ogre::Vector3 tmp = getPosition();
+        const Ogre::Vector3& tmp = getPosition();
         return Ogre::Vector2(tmp.x,tmp.y);
     }
 
@@ -116,9 +123,9 @@ public:
     { return mDefinition; }
 
     /*! \brief Changes the creature's position to a new position.
-     *  This is an overloaded function which just calls Creature::setPosition(double x, double y, double z).
+     *  This is an overloaded function which just calls MovableGameEntity::setPosition.
      */
-    void setPosition(const Ogre::Vector3& v);
+    void setPosition(const Ogre::Vector3& v, bool isMove);
 
     //! \brief Gets the move speed on the current tile.
     virtual double getMoveSpeed() const;
@@ -148,8 +155,7 @@ public:
     { mHomeTile = ht; }
 
     //! \brief Set the level of the creature
-    inline void setLevel(unsigned int nL)
-    { mLevel = nL; }
+    void setLevel(unsigned int level);
 
     /*! \brief The main AI routine which decides what the creature will do and carries out that action.
      *
@@ -183,7 +189,10 @@ public:
      */
     void doUpkeep();
 
-    virtual bool isAttackable() const;
+    //! \brief Computes the visible tiles and tags them to know which are visible
+    void computeVisibleTiles();
+
+    virtual bool isAttackable(Tile* tile, Seat* seat) const;
 
     double getPhysicalDamage(double range);
     double getPhysicalDefense() const;
@@ -196,8 +205,9 @@ public:
 
     //! \brief Check whether a creature has earned one level.
     bool checkLevelUp();
-    //! \brief Refreshes current creature with creatureNewState (hp, scale, level, ...)
-    void refreshFromCreature(Creature *creatureNewState);
+
+    //! \brief Refreshes current creature size to adapt to its current level
+    void refreshCreature();
 
     //! \brief Updates the lists of tiles within sight radius.
     //! And the tiles the creature can "see" (removing the ones behind walls).
@@ -210,7 +220,7 @@ public:
     std::vector<GameEntity*> getReachableAttackableObjects(const std::vector<GameEntity*> &objectsToCheck);
 
     //! \brief Loops over objectsToCheck and returns a vector containing all the creatures in the list.
-    std::vector<GameEntity*> getCreaturesFromList(const std::vector<GameEntity*> &objectsToCheck, bool koboldsOnly);
+    std::vector<GameEntity*> getCreaturesFromList(const std::vector<GameEntity*> &objectsToCheck, bool workersOnly);
 
     //! \brief Loops over the visibleTiles and adds all allied creatures in each tile to a list which it returns.
     std::vector<GameEntity*> getVisibleAlliedObjects();
@@ -225,8 +235,10 @@ public:
     //! allied with the given seat (or if invert is true, does not allied)
     std::vector<GameEntity*> getVisibleForce(Seat* seat, bool invert);
 
-    //! \brief Conform: AttackableObject - Returns a vector containing the tile the creature is in.
+    //! \brief Conform: GameEntity functions handling covered tiles
     std::vector<Tile*> getCoveredTiles();
+    Tile* getCoveredTile(int index);
+    uint32_t numCoveredTiles();
 
     //! \brief Conform: AttackableObject - Deducts a given amount of HP from this creature.
     double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile* tileTakingDamage);
@@ -235,7 +247,7 @@ public:
     void receiveExp(double experience);
 
     //! \brief Returns true if the given action is queued in the action list. False otherwise
-    bool isActionInList(CreatureAction::ActionType action);
+    bool isActionInList(CreatureActionType action);
 
     const std::deque<CreatureAction>& getActionQueue()
     { return mActionQueue; }
@@ -259,6 +271,9 @@ public:
     //! \brief An accessor to return whether or not the creature has OGRE entities for its visual debugging entities.
     bool getHasVisualDebuggingEntities();
 
+    virtual const Ogre::Vector3& getScale() const
+    { return mScale; }
+
     //! \FIXME Those functions are lacking parameters to be actually functional
     //! \brief Get the text format of creatures in level files (already spawned at startup).
     //! \returns A string describing the IO format the creatures need to have in file.
@@ -266,22 +281,17 @@ public:
 
     static Creature* getCreatureFromStream(GameMap* gameMap, std::istream& is);
     static Creature* getCreatureFromPacket(GameMap* gameMap, ODPacket& is);
-    virtual void exportToPacket(ODPacket& os);
+    virtual void exportToPacket(ODPacket& os) const;
     virtual void importFromPacket(ODPacket& is);
-    virtual void exportToStream(std::ostream& os);
+    virtual void exportToStream(std::ostream& os) const;
     virtual void importFromStream(std::istream& is);
-    inline void setQuad(CullingQuad* cq)
-    { mTracingCullingQuad = cq; }
-
-    inline CullingQuad* getQuad()
-    { return mTracingCullingQuad; }
 
     //! \brief Checks if the creature can be picked up. If yes, this function does the needed
     //! to prepare for the pickup (removing creature from GameMap, changing states, ...).
     //! Returns true if the creature can be picked up
-    bool tryPickup(Seat* seat, bool isEditorMode);
+    bool tryPickup(Seat* seat);
     void pickup();
-    bool tryDrop(Seat* seat, Tile* tile, bool isEditorMode);
+    bool tryDrop(Seat* seat, Tile* tile);
 
     inline void jobDone(double val)
     {
@@ -317,20 +327,37 @@ public:
     //! \brief Makes the creature stop eating (releases the hatchery)
     void stopEating();
 
-    //! \brief Play a spatial sound at the creature position of the corresponding type.
-    void playSound(CreatureSound::SoundType soundType);
-
     //! \brief Tells whether the creature can go through the given tile.
     bool canGoThroughTile(const Tile* tile) const;
 
-    virtual void notifyEntityCarried(bool isCarried);
+    virtual EntityCarryType getEntityCarryType();
+    virtual void notifyEntityCarryOn();
+    virtual void notifyEntityCarryOff(const Ogre::Vector3& position);
 
-    bool canSlap(Seat* seat, bool isEditorMode);
-    void slap(bool isEditorMode);
+    bool canSlap(Seat* seat);
+    void slap();
+
+    void fireCreatureSound(CreatureSound::SoundType sound);
+
+    void itsPayDay();
+
+    inline const std::vector<Tile*>& getVisibleTiles() const
+    { return mVisibleTiles; }
+
+    inline double getAwakeness() const
+    { return mAwakeness; }
+
+    inline double getHunger() const
+    { return mHunger; }
+
+    inline int32_t getGoldFee() const
+    { return mGoldFee; }
 
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
+    virtual void fireAddEntity(Seat* seat, bool async);
+    virtual void fireRemoveEntity(Seat* seat);
 private:
     enum ForceAction
     {
@@ -347,7 +374,7 @@ private:
     //! \brief Constructor for sending creatures through network. It should not be used in game.
     Creature(GameMap* gameMap);
 
-    CullingQuad* mTracingCullingQuad;
+    void fireCreatureRefresh();
 
     //! \brief Natural physical and magical attack and defense (without equipment)
     double mPhysicalAttack;
@@ -359,11 +386,11 @@ private:
     //! \brief The time left before being to draw an attack in seconds
     double mAttackWarmupTime;
 
-    //! \brief The weapon the creature is holding in its left hand or NULL if none. It will be set by a pointer
+    //! \brief The weapon the creature is holding in its left hand or nullptr if none. It will be set by a pointer
     //! managed by the game map and thus, should not be deleted by the creature class
     const Weapon* mWeaponL;
 
-    //! \brief The weapon the creature is holding in its right hand or NULL if none. It will be set by a pointer
+    //! \brief The weapon the creature is holding in its right hand or nullptr if none. It will be set by a pointer
     //! managed by the game map and thus, should not be deleted by the creature class
     const Weapon* mWeaponR;
 
@@ -394,11 +421,13 @@ private:
 
     //! \brief Counter to let the creature stay some turns after its death
     unsigned int    mDeathCounter;
-    int             mGold;
     int             mJobCooldown;
     int             mEatCooldown;
-    //! \brief The number of turns we are doing the same action. If the action is popped or pushed, mNbTurnAction is set to 0
-    int             mNbTurnAction;
+
+    //! \brief At pay day, mGoldFee will be set to the creature fee and decreased when the creature gets gold
+    int32_t         mGoldFee;
+    //! \brief Gold carried by the creature that will be dropped if it gets killed
+    int32_t         mGoldCarried;
 
     Room*           mJobRoom;
     Room*           mEatRoom;
@@ -422,23 +451,37 @@ private:
     std::deque<CreatureAction>      mActionQueue;
     std::vector<Tile*>              mVisualDebugEntityTiles;
 
-
-    //! \brief Allows to keep track of the entity we are currently attacking
-    Tile*                           mAttackedTile;
-    GameEntity*                     mAttackedObject;
-
-    //! \brief The creature sounds library reference.
-    //! \warning Do not delete it. The pointer in handled in SoundEffectsManager.
-    CreatureSound*                  mSound;
+    //! \brief Contains the actions that have already been tested to avoid trying several times same action
+    std::vector<CreatureActionType> mActionTry;
 
     ForceAction                     mForceAction;
 
-    bool                            mIsCarryActionTested;
     GameEntity*                     mCarriedEntity;
-    GameEntity::ObjectType          mCarriedEntityDestType;
+    GameEntityType                  mCarriedEntityDestType;
     std::string                     mCarriedEntityDestName;
 
-    void pushAction(CreatureAction action);
+    Ogre::Vector3                   mScale;
+
+    //! \brief The mood do not have to be computed at every turn. This cooldown will
+    //! count how many turns the creature should wait before computing it
+    int32_t                         mMoodCooldownTurns;
+
+    //! \brief Mood value. Depending on this value, the creature will be in bad mood and
+    //! might attack allied creatures or refuse to work or to go to combat
+    CreatureMoodLevel               mMoodValue;
+    //! \brief Mood points. Computed by the creature MoodModifiers. It is promoted to class variable for debug purposes and
+    //! should not be used to check mood. If the mood is to be tested, mMoodValue should be used
+    int32_t                         mMoodPoints;
+
+    //! \brief Reminds the first turn the creature gets furious. If is stays like this for too long,
+    //! it will become rogue
+    int64_t                         mFirstTurnFurious;
+
+    //! \brief The logic in the idle function is basically to roll a dice and, if the value allows, push an action to test if
+    //! it is possible. To avoid testing several times the same action, we check in mActionTry if the action as already been
+    //! tried. If yes and forcePush is false, the action won't be pushed and pushAction will return false. If the action has
+    //! not been tested or if forcePush is true, the action will be pushed and pushAction will return true
+    bool pushAction(CreatureAction action, bool forcePush = false);
     void popAction();
     CreatureAction peekAction();
 
@@ -448,16 +491,17 @@ private:
     bool wanderRandomly(const std::string& animationState);
 
     //! \brief Search within listObjects the closest one and handle attacks (by moving or attacking)
-    //! canAttackObject is set to true is a foe is in the good range to hit (in this case, a fight action can be pushed)
-    //! If a foe can be attacked, mAttackedObject is set to the attackable entity and mAttackedTile to the attacked tile
+    //! If a foe can be attacked (in this case, a fight action can be pushed), attackedEntity is set to the attackable entity
+    //! and attackedTile to the attacked tile
     //! returns true if a fitting object is found and false otherwise
-    bool fightClosestObjectInList(const std::vector<GameEntity*>& listObjects, bool& canAttackObject);
+    bool fightClosestObjectInList(const std::vector<GameEntity*>& listObjects, GameEntity*& attackedEntity, Tile*& attackedTile);
 
     //! \brief Search within listObjects if an object is reachable and handle attacks (by moving or attacking)
-    //! canAttackObject is set to true is a foe is in the good range to hit (in this case, a fight action can be pushed)
-    //! If a foe can be attacked, mAttackedObject is set to the attackable entity and mAttackedTile to the attacked tile
+    //! canAttackObject is set to true is a foe is in the good range to hit
+    //! If a foe can be attacked (in this case, a fight action can be pushed), attackedEntity is set to the attackable entity
+    //! and attackedTile to the attacked tile
     //! returns true if a fitting object is found and false otherwise
-    bool fightInRangeObjectInList(const std::vector<GameEntity*>& listObjects, bool& canAttackObject);
+    bool fightInRangeObjectInList(const std::vector<GameEntity*>& listObjects, GameEntity*& attackedEntity, Tile*& attackedTile);
 
     //! \brief A sub-function called by doTurn()
     //! This one checks if there is something prioritary to do (like fighting). If it is the case,
@@ -465,86 +509,102 @@ private:
     void decidePrioritaryAction();
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature idle action logic.
+    //! This functions will handle the creature idle action logic.
     //! \return true when another action should handled after that one.
-    bool handleIdleAction();
+    bool handleIdleAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature walking action logic.
+    //! This functions will handle the creature walking action logic.
     //! \return true when another action should handled after that one.
-    bool handleWalkToTileAction();
+    bool handleWalkToTileAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature claim tile action logic.
+    //! This functions will handle the creature claim tile action logic.
     //! \return true when another action should handled after that one.
-    bool handleClaimTileAction();
+    bool handleClaimTileAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature claim wall tile action logic.
+    //! This functions will handle the creature claim wall tile action logic.
     //! \return true when another action should handled after that one.
-    bool handleClaimWallTileAction();
+    bool handleClaimWallTileAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature dig tile action logic.
+    //! This functions will handle the creature dig tile action logic.
     //! \return true when another action should handled after that one.
-    bool handleDigTileAction();
+    bool handleDigTileAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature deposit gold action logic.
+    //! This functions will handle the creature finding home action logic.
     //! \return true when another action should handled after that one.
-    bool handleDepositGoldAction();
+    bool handleFindHomeAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature finding home action logic.
+    //! This functions will handle the creature job action logic.
     //! \return true when another action should handled after that one.
-    bool handleFindHomeAction(bool isForced);
+    bool handleJobAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature job action logic.
+    //! This functions will handle the creature eating action logic.
     //! \return true when another action should handled after that one.
-    bool handleJobAction(bool isForced);
+    bool handleEatingAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature eating action logic.
+    //! This functions will handle the creature attack action logic.
     //! \return true when another action should handled after that one.
-    bool handleEatingAction(bool isForced);
+    bool handleAttackAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature attack action logic.
+    //! This functions will handle the creature fighting action logic.
     //! \return true when another action should handled after that one.
-    bool handleAttackAction();
+    bool handleFightAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature fighting action logic.
+    //! This functions will handle the creature sleeping action logic.
     //! \return true when another action should handled after that one.
-    bool handleFightAction();
+    bool handleSleepAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature sleeping action logic.
+    //! This functions will handle the creature fleeing action logic.
     //! \return true when another action should handled after that one.
-    bool handleSleepAction();
+    bool handleFleeAction(const CreatureAction& actionItem);
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature fleeing action logic.
-    //! \return true when another action should handled after that one.
-    bool handleFleeAction();
-
-    //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature action logic about finding a carryable entity.
+    //! This functions will handle the creature action logic about finding a carryable entity.
     //! And trying to carry it to a suitable building
     //! \return true when another action should handled after that one.
-    bool handleCarryableEntities();
+    bool handleCarryableEntities(const CreatureAction& actionItem);
 
-    //! \brief Returns true if creature is in bad mood. False otherwise. A creature in bad mood will more likely
-    //! flee or attack allied units
-    bool isInBadMood();
+    //! \brief A sub-function called by doTurn()
+    //! This functions will handle the creature action logic about getting the creature fee.
+    //! \return true when another action should handled after that one.
+    bool handleGetFee(const CreatureAction& actionItem);
 
-    //! \brief Restores the creature's stats according to the given level
-    void buildStats(unsigned int level);
+    //! \brief A sub-function called by doTurn()
+    //! This functions will handle the creature action logic about trying to leave the dungeon.
+    //! \return true when another action should handled after that one.
+    bool handleLeaveDungeon(const CreatureAction& actionItem);
+
+    //! \brief A sub-function called by doTurn()
+    //! This functions will handle the creature fighting action logic when
+    //! fighting an allied natural enemy (when in bad mood)
+    //! \return true when another action should handled after that one.
+    bool handleFightAlliedNaturalEnemyAction(const CreatureAction& actionItem);
+
+    //! \brief Restores the creature's stats according to its current level
+    void buildStats();
 
     void carryEntity(GameEntity* carriedEntity);
 
     void releaseCarriedEntity();
+
+    void increaseHunger(double value);
+
+    void decreaseAwakeness(double value);
+
+    void computeMood();
+
+    //! \brief Called when an angry creature wants to attack a natural enemy
+    void engageAlliedNaturalEnemy(Creature* attacker);
 };
 
 #endif // CREATURE_H

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,8 +18,6 @@
 #ifndef CREATUREDEFINITION_H
 #define CREATUREDEFINITION_H
 
-#include "entities/Tile.h"
-
 #include <OgreVector3.h>
 
 #include <string>
@@ -27,8 +25,42 @@
 
 class ODPacket;
 
+enum class RoomType;
+
 //! \brief The maximum level of a creature
 static const uint32_t MAX_LEVEL = 30;
+
+class CreatureRoomAffinity
+{
+public:
+    CreatureRoomAffinity(RoomType roomType, int32_t likeness, double efficiency):
+        mRoomType(roomType),
+        mLikeness(likeness),
+        mEfficiency(efficiency)
+    {
+    }
+
+    inline RoomType getRoomType() const
+    { return mRoomType; }
+
+    inline int32_t getLikeness() const
+    { return mLikeness; }
+
+    inline double getEfficiency() const
+    { return mEfficiency; }
+
+    bool operator==(const CreatureRoomAffinity& creatureRoomAffinity) const
+    {
+        return mRoomType == creatureRoomAffinity.mRoomType &&
+            mLikeness == creatureRoomAffinity.mLikeness &&
+            mEfficiency == creatureRoomAffinity.mEfficiency;
+    }
+
+private:
+    RoomType mRoomType;
+    int32_t mLikeness;
+    double mEfficiency;
+};
 
 class CreatureDefinition
 {
@@ -78,7 +110,10 @@ public:
             double                  magicalDefPerLevel  = 0.1,
             double                  attackRange         = 1.0,
             double                  atkRangePerLevel    = 0.0,
-            double                  attackWarmupTime    = 1.0) :
+            double                  attackWarmupTime    = 1.0,
+            double                  weakCoef            = 0.3,
+            int32_t                 feeBase             = 0,
+            int32_t                 feePerLevel         = 0) :
         mCreatureJob (job),
         mClassName   (className),
         mMeshName    (meshName),
@@ -113,6 +148,9 @@ public:
         mAttackRange        (attackRange),
         mAtkRangePerLevel   (atkRangePerLevel),
         mAttackWarmupTime   (attackWarmupTime),
+        mWeakCoef            (weakCoef),
+        mFeeBase            (feeBase),
+        mFeePerLevel        (feePerLevel),
         mWeaponSpawnL       ("none"),
         mWeaponSpawnR       ("none")
     {
@@ -128,7 +166,7 @@ public:
     inline bool isWorker() const
     { return (mCreatureJob == Worker); }
 
-    friend ODPacket& operator <<(ODPacket& os, CreatureDefinition *c);
+    friend ODPacket& operator <<(ODPacket& os, const CreatureDefinition *c);
     friend ODPacket& operator >>(ODPacket& is, CreatureDefinition *c);
 
     //! \brief Loads a definition from the creature definition file sub [Creature][/Creature] part
@@ -146,7 +184,7 @@ public:
     inline int                  getBedDim1      () const    { return mBedDim1; }
     inline int                  getBedDim2      () const    { return mBedDim2; }
 
-    inline double               getSightRadius  () const    { return mSightRadius; }
+    inline int                  getSightRadius  () const    { return mSightRadius; }
 
     inline double               getClaimRate    () const    { return mClaimRate; }
     inline double               getClaimRatePerLevel() const{ return mClaimRatePerLevel; }
@@ -183,10 +221,24 @@ public:
 
     inline double               getAttackWarmupTime () const    { return mAttackWarmupTime; }
 
+    inline double               getWeakCoef () const            { return mWeakCoef; }
+
     const std::string&          getWeaponSpawnL () const        { return mWeaponSpawnL; }
     const std::string&          getWeaponSpawnR () const        { return mWeaponSpawnR; }
 
+    int32_t                     getFee (unsigned int level) const;
+
     double                      getXPNeededWhenLevel(unsigned int level) const;
+
+    //! \brief Returns the creature affinity. The returned vector is assumed to be
+    //! sorted so that highest likeness is at first
+    const std::vector<CreatureRoomAffinity>& getRoomAffinity() const
+    { return mRoomAffinity; }
+
+    const CreatureRoomAffinity& getRoomAffinity(RoomType roomType) const;
+
+    inline const std::string& getMoodModifierName() const
+    { return mMoodModifierName; }
 
 private:
     //! \brief The job of the creature (e.g. worker, fighter, ...)
@@ -270,6 +322,14 @@ private:
     //! \brief The time to wait before dealing a blow, in seconds.
     double mAttackWarmupTime;
 
+    //! \brief The coefficient applied on hp to check if the creature is weak. It will be
+    //! if hp < hpMax * mWeakCoef. A weak creature will flee combat and will try to rest
+    double mWeakCoef;
+
+    //! \brief The base fee for this creature.
+    int32_t mFeeBase;
+    int32_t mFeePerLevel;
+
     //! \brief Weapons a creature should spawn with ("none" if no weapon)
     std::string mWeaponSpawnL;
     std::string mWeaponSpawnR;
@@ -278,8 +338,18 @@ private:
     //! \note The creature starting at level 1, it can only change its level MAX_LEVEL - 1 times.
     std::vector<double> mXPTable;
 
-    //! \brief Loads the creature XP values for the current definition.
+    //! \brief The rooms the creature should choose according to availability
+    std::vector<CreatureRoomAffinity> mRoomAffinity;
+
+    //! \brief The rooms the creature mood modifier that should be used to compute
+    //! creature mood
+    std::string mMoodModifierName;
+
+    //! \brief Loads the creature XP values for the given definition.
     static void loadXPTable(std::stringstream& defFile, CreatureDefinition* creatureDef);
+
+    //! \brief Loads the creature room affinity for the given definition.
+    static void loadRoomAffinity(std::stringstream& defFile, CreatureDefinition* creatureDef);
 };
 
 #endif // CREATUREDEFINITION_H

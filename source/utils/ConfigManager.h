@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,6 +26,9 @@
 class CreatureDefinition;
 class Weapon;
 class SpawnCondition;
+class CreatureMood;
+
+enum class CreatureMoodLevel;
 
 //! \brief This class is used to manage global configuration such as network configuration, global creature stats, ...
 //! It should NOT be used to load level specific stuff. For that, there if GameMap.
@@ -36,34 +39,50 @@ public:
     ~ConfigManager();
 
     Ogre::ColourValue getColorFromId(const std::string& id) const;
-    const std::vector<const CreatureDefinition*>& getCreatureDefinitions() const
+    inline const std::vector<const CreatureDefinition*>& getCreatureDefinitions() const
     { return mCreatureDefs; }
     const CreatureDefinition* getCreatureDefinition(const std::string& name) const;
 
-    const std::vector<const Weapon*>& getWeapons() const
+    inline const std::vector<const Weapon*>& getWeapons() const
     { return mWeapons; }
     const Weapon* getWeapon(const std::string& name) const;
 
-    uint32_t getCreatureDeathCounter() const
+    inline uint32_t getCreatureDeathCounter() const
     { return mCreatureDeathCounter; }
 
-    uint32_t getMaxCreaturesPerSeat() const
+    inline uint32_t getMaxCreaturesPerSeat() const
     { return mMaxCreaturesPerSeat; }
 
-    double getSlapDamagePercent() const
+    inline double getSlapDamagePercent() const
     { return mSlapDamagePercent; }
 
-    uint32_t getNetworkPort() const
+    inline int64_t getTimePayDay() const
+    { return mTimePayDay; }
+
+    inline uint32_t getNetworkPort() const
     { return mNetworkPort; }
 
-    uint32_t getBaseSpawnPoint() const
+    inline uint32_t getBaseSpawnPoint() const
     { return mBaseSpawnPoint; }
+
+    inline const std::map<const std::string, std::vector<const CreatureMood*> >& getCreatureMoodModifiers() const
+    { return mCreatureMoodModifiers; }
+    CreatureMoodLevel getCreatureMoodLevel(int32_t moodModifiersPoints) const;
+    inline int64_t getNbTurnsFuriousMax() const
+    { return mNbTurnsFuriousMax; }
+
+    inline double getMaxManaPerSeat() const
+    { return mMaxManaPerSeat; }
 
     const std::vector<const SpawnCondition*>& getCreatureSpawnConditions(const CreatureDefinition* def) const;
 
+    //! \brief Get the fighter creature definition spawnable in portals according to the given faction.
     const std::vector<std::string>& getFactionSpawnPool(const std::string& faction) const;
 
-    const std::vector<std::string>& getFactions() const
+    //! \brief Get the default worker creature definition spawnable according to the given faction.
+    const std::string& getFactionWorkerClass(const std::string& faction) const;
+
+    inline const std::vector<std::string>& getFactions() const
     { return mFactions; }
 
     //! Rooms configuration
@@ -78,6 +97,12 @@ public:
     int32_t getTrapConfigInt32(const std::string& param) const;
     double getTrapConfigDouble(const std::string& param) const;
 
+    //! Spells configuration
+    const std::string& getSpellConfigString(const std::string& param) const;
+    uint32_t getSpellConfigUInt32(const std::string& param) const;
+    int32_t getSpellConfigInt32(const std::string& param) const;
+    double getSpellConfigDouble(const std::string& param) const;
+
 private:
     //! \brief Function used to load the global configuration. They should return true if the configuration
     //! is ok and false if a mandatory parameter is missing
@@ -91,6 +116,8 @@ private:
     bool loadFactions(const std::string& fileName);
     bool loadRooms(const std::string& fileName);
     bool loadTraps(const std::string& fileName);
+    bool loadSpellConfig(const std::string& fileName);
+    bool loadCreaturesMood(const std::string& fileName);
 
     std::map<std::string, Ogre::ColourValue> mSeatColors;
     std::vector<const CreatureDefinition*> mCreatureDefs;
@@ -101,16 +128,32 @@ private:
     std::string mFilenameFactions;
     std::string mFilenameRooms;
     std::string mFilenameTraps;
+    std::string mFilenameSpells;
+    std::string mFilenameCreaturesMood;
     uint32_t mNetworkPort;
     uint32_t mBaseSpawnPoint;
     uint32_t mCreatureDeathCounter;
     uint32_t mMaxCreaturesPerSeat;
+    int32_t mCreatureBaseMood;
+    int32_t mCreatureMoodHappy;
+    int32_t mCreatureMoodUpset;
+    int32_t mCreatureMoodAngry;
+    int32_t mCreatureMoodFurious;
     double mSlapDamagePercent;
+    int64_t mTimePayDay;
+    int64_t mNbTurnsFuriousMax;
+    double mMaxManaPerSeat;
     std::map<const CreatureDefinition*, std::vector<const SpawnCondition*> > mCreatureSpawnConditions;
+    std::map<const std::string, std::vector<const CreatureMood*> > mCreatureMoodModifiers;
     std::map<const std::string, std::vector<std::string> > mFactionSpawnPool;
+
+    //! \brief Stores the faction default worker creature definition.
+    std::map<const std::string, std::string> mFactionDefaultWorkerClass;
+
     std::vector<std::string> mFactions;
     std::map<const std::string, std::string> mRoomsConfig;
     std::map<const std::string, std::string> mTrapsConfig;
+    std::map<const std::string, std::string> mSpellConfig;
 };
 
 #endif //CONFIGMANAGER_H

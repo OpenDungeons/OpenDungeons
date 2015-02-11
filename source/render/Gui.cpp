@@ -4,7 +4,7 @@
  * \author StefanP.MUC
  * \brief  Class Gui containing all the stuff for the GUI, including translation.
  *
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,10 +19,6 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-//TODO: The event handlers should be call functions to AS instead of hardcoded so that we can
-//      script the GUI actions. Maybe even register CEGUI to AS to make it fully scripted?
-//      Then we could easily adjust the GUI without recompiling.
 
 #include "render/Gui.h"
 
@@ -45,8 +41,9 @@
 #include "modes/MenuModeEditor.h"
 #include "modes/MenuModeReplay.h"
 #include "utils/LogManager.h"
-#include "utils/ResourceManager.h"
+#include "rooms/Room.h"
 #include "sound/SoundEffectsManager.h"
+#include "spell/Spell.h"
 
 #include <CEGUI/CEGUI.h>
 #include <CEGUI/RendererModules/Ogre/Renderer.h>
@@ -60,44 +57,58 @@
 
 template<> Gui* Ogre::Singleton<Gui>::msSingleton = 0;
 
-Gui::Gui()
+Gui::Gui(SoundEffectsManager* soundEffectsManager, const std::string& ceguiLogFileName)
+  : mSoundEffectsManager(soundEffectsManager)
 {
     CEGUI::OgreRenderer& renderer = CEGUI::OgreRenderer::create();
     CEGUI::OgreResourceProvider& rp = CEGUI::OgreRenderer::createOgreResourceProvider();
     CEGUI::OgreImageCodec& ic = CEGUI::OgreRenderer::createOgreImageCodec();
     CEGUI::System::create(renderer, &rp, static_cast<CEGUI::XMLParser*>(nullptr), &ic, nullptr, "",
-                          ResourceManager::getSingleton().getCeguiLogFile());
+                          ceguiLogFileName);
 
     CEGUI::SchemeManager::getSingleton().createFromFile("OpenDungeonsSkin.scheme");
 
-    // CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setImage("OpenDungeons/MouseArrow");
-    // CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setVisible(true);
-    CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultTooltipType("OD/Tooltip");
+    // Needed to get the correct offset when using up to CEGUI 0.8.4
+    // We're thus using an empty mouse cursor.
+    CEGUI::GUIContext& context = CEGUI::System::getSingleton().getDefaultGUIContext();
+    context.getMouseCursor().setDefaultImage("OpenDungeonsSkin/MouseArrow");
+    context.getMouseCursor().setVisible(true);
+
+    context.setDefaultTooltipType("OD/Tooltip");
+
 
     CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
 
     CEGUI::Window* myHide = wmgr->createWindow("DefaultWindow", "DummyWindow");
-    sheets[hideGui] = myHide;
+    mSheets[hideGui] = myHide;
 
-    sheets[inGameMenu] = wmgr->loadLayoutFromFile("OpenDungeonsGameModeMenu.layout");
-    sheets[mainMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMainMenu.layout");
-    sheets[skirmishMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuSkirmish.layout");
-    sheets[multiplayerClientMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuMultiplayerClient.layout");
-    sheets[multiplayerServerMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuMultiplayerServer.layout");
-    sheets[editorModeGui] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorModeMenu.layout");
-    sheets[editorMenu] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorMenu.layout");
-    sheets[configureSeats] =  wmgr->loadLayoutFromFile("OpenDungeonsMenuConfigureSeats.layout");
-    sheets[replayMenu] =  wmgr->loadLayoutFromFile("OpenDungeonsMenuReplay.layout");
+    mSheets[inGameMenu] = wmgr->loadLayoutFromFile("OpenDungeonsGameModeMenu.layout");
+    mSheets[mainMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMainMenu.layout");
+    mSheets[skirmishMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuSkirmish.layout");
+    mSheets[multiplayerClientMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuMultiplayerClient.layout");
+    mSheets[multiplayerServerMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuMultiplayerServer.layout");
+    mSheets[editorModeGui] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorModeMenu.layout");
+    mSheets[editorMenu] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorMenu.layout");
+    mSheets[configureSeats] =  wmgr->loadLayoutFromFile("OpenDungeonsMenuConfigureSeats.layout");
+    mSheets[replayMenu] =  wmgr->loadLayoutFromFile("OpenDungeonsMenuReplay.layout");
+    mSheets[console] = wmgr->loadLayoutFromFile("OpenDungeonsConsole.layout");
 
     assignEventHandlers();
+    CEGUI::GlobalEventSet& ges = CEGUI::GlobalEventSet::getSingleton();
+    ges.subscribeEvent(
+        CEGUI::PushButton::EventNamespace + "/" + CEGUI::PushButton::EventClicked,
+        CEGUI::Event::Subscriber(&Gui::playButtonClickSound, this));
+    ges.subscribeEvent(
+        CEGUI::Listbox::EventNamespace + "/" + CEGUI::Listbox::EventSelectionChanged,
+        CEGUI::Event::Subscriber(&Gui::playButtonClickSound, this));
 }
 
 Gui::~Gui()
 {
-    //CEGUI::OgreRenderer::destroySystem();
+    CEGUI::System::destroy();
 }
 
-CEGUI::MouseButton Gui::convertButton(const OIS::MouseButtonID& buttonID)
+CEGUI::MouseButton Gui::convertButton(OIS::MouseButtonID buttonID)
 {
     switch (buttonID)
     {
@@ -115,329 +126,380 @@ CEGUI::MouseButton Gui::convertButton(const OIS::MouseButtonID& buttonID)
 
 void Gui::loadGuiSheet(const guiSheet& newSheet)
 {
-    CEGUI::System::getSingletonPtr()->getDefaultGUIContext().setRootWindow(sheets[newSheet]);
+    CEGUI::System::getSingletonPtr()->getDefaultGUIContext().setRootWindow(mSheets[newSheet]);
     // This shouldn't be needed, but the gui seems to not allways change when using hideGui without it.
     CEGUI::System::getSingletonPtr()->getDefaultGUIContext().markAsDirty();
 }
 
 CEGUI::Window* Gui::getGuiSheet(const guiSheet& sheet)
 {
-    if (sheets.find(sheet) != sheets.end())
+    if (mSheets.find(sheet) != mSheets.end())
     {
-        return sheets[sheet];
+        return mSheets[sheet];
     }
-    return NULL;
+    return nullptr;
 }
 
 void Gui::assignEventHandlers()
 {
     //std::cout << "Gui::assignEventHandlers()" << std::endl;
 
-    CEGUI::Window* rootWindow = sheets[inGameMenu];
+    CEGUI::Window* rootWindow = mSheets[inGameMenu];
 
-    if (rootWindow == NULL)
+    if (rootWindow == nullptr)
     {
         LogManager::getSingleton().logMessage("Gui: No root window!");
         return;
     }
 
     // Main menu controls
-    sheets[mainMenu]->getChild(MM_BUTTON_START_SKIRMISH)->subscribeEvent(
+    mSheets[mainMenu]->getChild(MM_BUTTON_START_SKIRMISH)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mMNewGameButtonPressed));
 
-    sheets[mainMenu]->getChild(MM_BUTTON_START_REPLAY)->subscribeEvent(
+    mSheets[mainMenu]->getChild(MM_BUTTON_START_REPLAY)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mMReplayButtonPressed));
 
-    sheets[mainMenu]->getChild(MM_BUTTON_START_MULTIPLAYER_CLIENT)->subscribeEvent(
+    mSheets[mainMenu]->getChild(MM_BUTTON_START_MULTIPLAYER_CLIENT)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mMNewGameMultiClientButtonPressed));
 
-    sheets[mainMenu]->getChild(MM_BUTTON_START_MULTIPLAYER_SERVER)->subscribeEvent(
+    mSheets[mainMenu]->getChild(MM_BUTTON_START_MULTIPLAYER_SERVER)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mMNewGameMultiServerButtonPressed));
 
-    sheets[mainMenu]->getChild(MM_BUTTON_MAPEDITOR)->subscribeEvent(
+    mSheets[mainMenu]->getChild(MM_BUTTON_MAPEDITOR)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mMMapEditorButtonPressed));
 
-    sheets[mainMenu]->getChild(MM_BUTTON_QUIT)->subscribeEvent(
+    mSheets[mainMenu]->getChild(MM_BUTTON_QUIT)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mMQuitButtonPressed));
 
     // Game Mode controls
-    sheets[inGameMenu]->getChild(BUTTON_DORMITORY)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(BUTTON_DORMITORY)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&dormitoryButtonPressed));
 
-    sheets[inGameMenu]->getChild(BUTTON_TREASURY)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(BUTTON_TREASURY)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&treasuryButtonPressed));
 
-    sheets[inGameMenu]->getChild(BUTTON_FORGE)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(BUTTON_FORGE)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&forgeButtonPressed));
 
-    sheets[inGameMenu]->getChild(BUTTON_TRAININGHALL)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(BUTTON_TRAININGHALL)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&trainingHallButtonPressed));
 
-    sheets[inGameMenu]->getChild(BUTTON_LIBRARY)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(BUTTON_LIBRARY)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&libraryButtonPressed));
 
-    sheets[inGameMenu]->getChild(BUTTON_HATCHERY)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(BUTTON_HATCHERY)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&hatcheryButtonPressed));
 
-    sheets[inGameMenu]->getChild(BUTTON_CRYPT)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(BUTTON_CRYPT)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&cryptButtonPressed));
 
-    sheets[inGameMenu]->getChild(BUTTON_DESTROY_ROOM)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(BUTTON_DESTROY_ROOM)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&destroyRoomButtonPressed));
 
-    sheets[inGameMenu]->getChild(BUTTON_TRAP_CANNON)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(BUTTON_TRAP_CANNON)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&cannonButtonPressed));
 
-    sheets[inGameMenu]->getChild(BUTTON_TRAP_SPIKE)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(BUTTON_TRAP_SPIKE)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&spikeTrapButtonPressed));
 
-    sheets[inGameMenu]->getChild(BUTTON_TRAP_BOULDER)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(BUTTON_TRAP_BOULDER)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&boulderTrapButtonPressed));
 
-    sheets[inGameMenu]->getChild(BUTTON_DESTROY_TRAP)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(BUTTON_DESTROY_TRAP)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&destroyTrapButtonPressed));
 
-    sheets[inGameMenu]->getChild(BUTTON_CREATURE_WORKER)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(BUTTON_SPELL_SUMMON_WORKER)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&spellSummonWorkerPressed));
+
+    mSheets[inGameMenu]->getChild(BUTTON_SPELL_CALLTOWAR)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&spellCallToWarPressed));
+
+    mSheets[inGameMenu]->getChild(BUTTON_CREATURE_WORKER)->subscribeEvent(
             CEGUI::Window::EventMouseClick,
             CEGUI::Event::Subscriber(&workerCreatureButtonPressed));
 
-    sheets[inGameMenu]->getChild(BUTTON_CREATURE_FIGHTER)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(BUTTON_CREATURE_FIGHTER)->subscribeEvent(
             CEGUI::Window::EventMouseClick,
             CEGUI::Event::Subscriber(&fighterCreatureButtonPressed));
 
-    sheets[inGameMenu]->getChild(MINIMAP)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(MINIMAP)->subscribeEvent(
             CEGUI:: Window::EventMouseClick,
             CEGUI::Event::Subscriber(&miniMapclicked));
 
-    sheets[inGameMenu]->getChild(EXIT_CONFIRMATION_POPUP_YES_BUTTON)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(EXIT_CONFIRMATION_POPUP_YES_BUTTON)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&confirmExitYesButtonPressed));
 
-    sheets[inGameMenu]->getChild(EXIT_CONFIRMATION_POPUP_NO_BUTTON)->subscribeEvent(
+    mSheets[inGameMenu]->getChild(EXIT_CONFIRMATION_POPUP_NO_BUTTON)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&confirmExitNoButtonPressed));
 
+    mSheets[inGameMenu]->getChild("ConfirmExit/__auto_closebutton__")->subscribeEvent(
+        CEGUI::PushButton::EventClicked,
+        CEGUI::Event::Subscriber(&confirmExitNoButtonPressed));
+
+    mSheets[inGameMenu]->getChild("HelpButton")->subscribeEvent(
+        CEGUI::PushButton::EventClicked,
+        CEGUI::Event::Subscriber(&helpButtonPressed));
+
+    mSheets[inGameMenu]->getChild("ObjectivesButton")->subscribeEvent(
+        CEGUI::PushButton::EventClicked,
+        CEGUI::Event::Subscriber(&objectivesButtonPressed));
+
+    mSheets[inGameMenu]->getChild("OptionsButton")->subscribeEvent(
+        CEGUI::PushButton::EventClicked,
+        CEGUI::Event::Subscriber(&optionsButtonPressed));
+
+    // Search for the autoclose button and make it work
+    mSheets[inGameMenu]->getChild("ObjectivesWindow/__auto_closebutton__")->subscribeEvent(
+        CEGUI::PushButton::EventClicked,
+        CEGUI::Event::Subscriber(&hideObjectivesWindow));
+
+    // Search for the autoclose button and make it work
+    mSheets[inGameMenu]->getChild("SettingsWindow/__auto_closebutton__")->subscribeEvent(
+        CEGUI::PushButton::EventClicked,
+        CEGUI::Event::Subscriber(&cancelSettings));
+
+    mSheets[inGameMenu]->getChild("SettingsWindow/CancelButton")->subscribeEvent(
+        CEGUI::PushButton::EventClicked,
+        CEGUI::Event::Subscriber(&cancelSettings));
+
     // Editor Mode controls
-    sheets[editorModeGui]->getChild(EDITOR_LAVA_BUTTON)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(EDITOR_LAVA_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
         CEGUI::Event::Subscriber(&editorLavaButtonPressed));
 
-    sheets[editorModeGui]->getChild(EDITOR_GOLD_BUTTON)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(EDITOR_GOLD_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
         CEGUI::Event::Subscriber(&editorGoldButtonPressed));
 
-    sheets[editorModeGui]->getChild(EDITOR_ROCK_BUTTON)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(EDITOR_ROCK_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
         CEGUI::Event::Subscriber(&editorRockButtonPressed));
 
-    sheets[editorModeGui]->getChild(EDITOR_WATER_BUTTON)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(EDITOR_WATER_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
         CEGUI::Event::Subscriber(&editorWaterButtonPressed));
 
-    sheets[editorModeGui]->getChild(EDITOR_DIRT_BUTTON)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(EDITOR_DIRT_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
         CEGUI::Event::Subscriber(&editorDirtButtonPressed));
 
-    sheets[editorModeGui]->getChild(EDITOR_CLAIMED_BUTTON)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(EDITOR_CLAIMED_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
         CEGUI::Event::Subscriber(&editorClaimedButtonPressed));
     // Game Mode controls
-    sheets[editorModeGui]->getChild(BUTTON_DORMITORY)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(BUTTON_DORMITORY)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&dormitoryButtonPressed));
 
-    sheets[editorModeGui]->getChild(BUTTON_TREASURY)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(BUTTON_TREASURY)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&treasuryButtonPressed));
 
-    sheets[editorModeGui]->getChild(BUTTON_DESTROY_ROOM)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(BUTTON_DESTROY_ROOM)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&destroyRoomButtonPressed));
 
-    sheets[editorModeGui]->getChild(BUTTON_FORGE)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(BUTTON_FORGE)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&forgeButtonPressed));
 
-    sheets[editorModeGui]->getChild(BUTTON_TRAININGHALL)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(BUTTON_TRAININGHALL)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&trainingHallButtonPressed));
 
-    sheets[editorModeGui]->getChild(BUTTON_LIBRARY)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(BUTTON_LIBRARY)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&libraryButtonPressed));
 
-    sheets[editorModeGui]->getChild(BUTTON_HATCHERY)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(BUTTON_HATCHERY)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&hatcheryButtonPressed));
 
-    sheets[editorModeGui]->getChild(BUTTON_CRYPT)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(BUTTON_CRYPT)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&cryptButtonPressed));
 
-    sheets[editorModeGui]->getChild(BUTTON_TRAP_CANNON)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(BUTTON_TEMPLE)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&templeButtonPressed));
+
+    mSheets[editorModeGui]->getChild(BUTTON_PORTAL)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&portalButtonPressed));
+
+    mSheets[editorModeGui]->getChild(BUTTON_TRAP_CANNON)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&cannonButtonPressed));
 
-    sheets[editorModeGui]->getChild(BUTTON_TRAP_SPIKE)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(BUTTON_TRAP_SPIKE)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&spikeTrapButtonPressed));
 
-    sheets[editorModeGui]->getChild(BUTTON_TRAP_BOULDER)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(BUTTON_TRAP_BOULDER)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&boulderTrapButtonPressed));
 
-    sheets[editorModeGui]->getChild(BUTTON_DESTROY_TRAP)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(BUTTON_DESTROY_TRAP)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&destroyTrapButtonPressed));
 
-    sheets[editorModeGui]->getChild(BUTTON_CREATURE_WORKER)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(BUTTON_CREATURE_WORKER)->subscribeEvent(
             CEGUI::Window::EventMouseClick,
             CEGUI::Event::Subscriber(&workerCreatureButtonPressed));
 
-    sheets[editorModeGui]->getChild(BUTTON_CREATURE_FIGHTER)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(BUTTON_CREATURE_FIGHTER)->subscribeEvent(
             CEGUI::Window::EventMouseClick,
             CEGUI::Event::Subscriber(&fighterCreatureButtonPressed));
 
-    sheets[editorModeGui]->getChild(MINIMAP)->subscribeEvent(
+    mSheets[editorModeGui]->getChild(MINIMAP)->subscribeEvent(
             CEGUI:: Window::EventMouseClick,
             CEGUI::Event::Subscriber(&miniMapclicked));
 
     // Skirmish level select menu controls
-    sheets[skirmishMenu]->getChild(SKM_BUTTON_LAUNCH)->subscribeEvent(
+    mSheets[skirmishMenu]->getChild(SKM_BUTTON_LAUNCH)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mSKMLoadButtonPressed));
 
-    sheets[skirmishMenu]->getChild(SKM_BUTTON_BACK)->subscribeEvent(
+    mSheets[skirmishMenu]->getChild(SKM_BUTTON_BACK)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
         CEGUI::Event::Subscriber(&mSKMBackButtonPressed));
 
-    sheets[skirmishMenu]->getChild(SKM_LIST_LEVELS)->subscribeEvent(
+    mSheets[skirmishMenu]->getChild(SKM_LIST_LEVELS)->subscribeEvent(
         CEGUI::Listbox::EventMouseClick,
         CEGUI::Event::Subscriber(&mSKMListClicked));
 
-    sheets[skirmishMenu]->getChild(SKM_LIST_LEVELS)->subscribeEvent(
+    mSheets[skirmishMenu]->getChild(SKM_LIST_LEVELS)->subscribeEvent(
         CEGUI::Listbox::EventMouseDoubleClick,
         CEGUI::Event::Subscriber(&mSKMListDoubleClicked));
 
     // Multiplayer menu controls
     // Server part
-    sheets[multiplayerServerMenu]->getChild(MPM_BUTTON_SERVER)->subscribeEvent(
+    mSheets[multiplayerServerMenu]->getChild(MPM_BUTTON_SERVER)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mMPMServerButtonPressed));
 
-    sheets[multiplayerServerMenu]->getChild(MPM_LIST_LEVELS)->subscribeEvent(
+    mSheets[multiplayerServerMenu]->getChild(MPM_LIST_LEVELS)->subscribeEvent(
         CEGUI::Listbox::EventMouseClick,
         CEGUI::Event::Subscriber(&mMPMListClicked));
 
-    sheets[multiplayerServerMenu]->getChild(MPM_LIST_LEVELS)->subscribeEvent(
+    mSheets[multiplayerServerMenu]->getChild(MPM_LIST_LEVELS)->subscribeEvent(
         CEGUI::Listbox::EventMouseDoubleClick,
         CEGUI::Event::Subscriber(&mMPMListDoubleClicked));
 
-    sheets[multiplayerServerMenu]->getChild(MPM_BUTTON_BACK)->subscribeEvent(
+    mSheets[multiplayerServerMenu]->getChild(MPM_BUTTON_BACK)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
         CEGUI::Event::Subscriber(&mMPMBackButtonPressed));
 
-    sheets[multiplayerServerMenu]->getChild("LevelWindowFrame/__auto_closebutton__")->subscribeEvent(
+    mSheets[multiplayerServerMenu]->getChild("LevelWindowFrame/__auto_closebutton__")->subscribeEvent(
         CEGUI::PushButton::EventClicked,
         CEGUI::Event::Subscriber(&mMPMBackButtonPressed));
 
     // Client part
-    sheets[multiplayerClientMenu]->getChild(MPM_BUTTON_CLIENT)->subscribeEvent(
+    mSheets[multiplayerClientMenu]->getChild(MPM_BUTTON_CLIENT)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mMPMClientButtonPressed));
 
-    sheets[multiplayerClientMenu]->getChild(MPM_BUTTON_BACK)->subscribeEvent(
+    mSheets[multiplayerClientMenu]->getChild(MPM_BUTTON_BACK)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
         CEGUI::Event::Subscriber(&mMPMBackButtonPressed));
 
-    sheets[multiplayerClientMenu]->getChild("LevelWindowFrame/__auto_closebutton__")->subscribeEvent(
+    mSheets[multiplayerClientMenu]->getChild("LevelWindowFrame/__auto_closebutton__")->subscribeEvent(
         CEGUI::PushButton::EventClicked,
         CEGUI::Event::Subscriber(&mMPMBackButtonPressed));
 
     // Editor level select menu controls
-    sheets[editorMenu]->getChild(EDM_BUTTON_LAUNCH)->subscribeEvent(
+    mSheets[editorMenu]->getChild(EDM_BUTTON_LAUNCH)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mEDMLoadButtonPressed));
 
-    sheets[editorMenu]->getChild(EDM_BUTTON_BACK)->subscribeEvent(
+    mSheets[editorMenu]->getChild(EDM_BUTTON_BACK)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
         CEGUI::Event::Subscriber(&mEDMBackButtonPressed));
 
-    sheets[editorMenu]->getChild(EDM_LIST_LEVELS)->subscribeEvent(
+    mSheets[editorMenu]->getChild(EDM_LIST_LEVELS)->subscribeEvent(
         CEGUI::Listbox::EventMouseClick,
         CEGUI::Event::Subscriber(&mEDMListClicked));
 
-    sheets[editorMenu]->getChild(EDM_LIST_LEVELS)->subscribeEvent(
+    mSheets[editorMenu]->getChild(EDM_LIST_LEVELS)->subscribeEvent(
         CEGUI::Listbox::EventMouseDoubleClick,
         CEGUI::Event::Subscriber(&mEDMListDoubleClicked));
 
     // Configure seats windows
-    sheets[configureSeats]->getChild(CSM_BUTTON_BACK)->subscribeEvent(
+    mSheets[configureSeats]->getChild(CSM_BUTTON_BACK)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
         CEGUI::Event::Subscriber(&mCSMBackButtonPressed));
 
-    sheets[configureSeats]->getChild(CSM_BUTTON_LAUNCH)->subscribeEvent(
+    mSheets[configureSeats]->getChild(CSM_BUTTON_LAUNCH)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
         CEGUI::Event::Subscriber(&mCSMLoadButtonPressed));
 
     // Replay menu controls
-    sheets[replayMenu]->getChild(REM_BUTTON_LAUNCH)->subscribeEvent(
+    mSheets[replayMenu]->getChild(REM_BUTTON_LAUNCH)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mREMLoadButtonPressed));
 
     // Replay menu controls
-    sheets[replayMenu]->getChild(REM_BUTTON_DELETE)->subscribeEvent(
+    mSheets[replayMenu]->getChild(REM_BUTTON_DELETE)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mREMDeleteButtonPressed));
 
-    sheets[replayMenu]->getChild(REM_BUTTON_BACK)->subscribeEvent(
+    mSheets[replayMenu]->getChild(REM_BUTTON_BACK)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
         CEGUI::Event::Subscriber(&mREMBackButtonPressed));
 
-    sheets[replayMenu]->getChild(REM_LIST_REPLAYS)->subscribeEvent(
+    mSheets[replayMenu]->getChild(REM_LIST_REPLAYS)->subscribeEvent(
         CEGUI::Listbox::EventMouseClick,
         CEGUI::Event::Subscriber(&mREMListClicked));
 
-    sheets[replayMenu]->getChild(REM_LIST_REPLAYS)->subscribeEvent(
+    mSheets[replayMenu]->getChild(REM_LIST_REPLAYS)->subscribeEvent(
         CEGUI::Listbox::EventMouseDoubleClick,
         CEGUI::Event::Subscriber(&mREMListDoubleClicked));
 
     // Set the game version
-    sheets[mainMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
-    sheets[skirmishMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
-    sheets[multiplayerServerMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
-    sheets[multiplayerClientMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
-    sheets[editorMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
-    sheets[replayMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
+    mSheets[mainMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
+    mSheets[skirmishMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
+    mSheets[multiplayerServerMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
+    mSheets[multiplayerClientMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
+    mSheets[editorMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
+    mSheets[replayMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
+}
+
+bool Gui::playButtonClickSound(const CEGUI::EventArgs&)
+{
+    mSoundEffectsManager->playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    return true;
 }
 
 bool Gui::miniMapclicked(const CEGUI::EventArgs& e)
 {
-    CEGUI::MouseEventArgs& ee = (CEGUI::MouseEventArgs&)e;
+    const CEGUI::MouseEventArgs& ee = static_cast<const CEGUI::MouseEventArgs&>(e);
 
     ODFrameListener& frameListener = ODFrameListener::getSingleton();
 
     frameListener.onMiniMapClick(static_cast<int>(ee.position.d_x),
         static_cast<int>(ee.position.d_y));
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
 
     //std::cerr<< xx <<" "<< yy << " " <<std::endl;
     return true;
@@ -449,7 +511,6 @@ bool Gui::mMNewGameMultiClientButtonPressed(const CEGUI::EventArgs& e)
     if (!mm)
         return true;
 
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     mm->requestMenuMultiplayerClientMode();
     return true;
 }
@@ -460,7 +521,6 @@ bool Gui::mMNewGameMultiServerButtonPressed(const CEGUI::EventArgs& e)
     if (!mm)
         return true;
 
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     mm->requestMenuMultiplayerServerMode();
     return true;
 }
@@ -468,120 +528,126 @@ bool Gui::mMNewGameMultiServerButtonPressed(const CEGUI::EventArgs& e)
 bool Gui::dormitoryButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
-    gameMap->getLocalPlayer()->setNewRoomType(Room::dormitory);
-    gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    gameMap->getLocalPlayer()->setNewRoomType(RoomType::dormitory);
     return true;
 }
 
 bool Gui::treasuryButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
-    gameMap->getLocalPlayer()->setNewRoomType(Room::treasury);
-    gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    gameMap->getLocalPlayer()->setNewRoomType(RoomType::treasury);
     return true;
 }
 
 bool Gui::destroyRoomButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
-    gameMap->getLocalPlayer()->setNewRoomType(Room::nullRoomType);
-    gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::destroyRoom);
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     return true;
 }
 
 bool Gui::forgeButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
-    gameMap->getLocalPlayer()->setNewRoomType(Room::forge);
-    gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    gameMap->getLocalPlayer()->setNewRoomType(RoomType::forge);
     return true;
 }
 
 bool Gui::trainingHallButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
-    gameMap->getLocalPlayer()->setNewRoomType(Room::trainingHall);
-    gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    gameMap->getLocalPlayer()->setNewRoomType(RoomType::trainingHall);
     return true;
 }
 
 bool Gui::libraryButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
-    gameMap->getLocalPlayer()->setNewRoomType(Room::library);
-    gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    gameMap->getLocalPlayer()->setNewRoomType(RoomType::library);
     return true;
 }
 
 bool Gui::hatcheryButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
-    gameMap->getLocalPlayer()->setNewRoomType(Room::hatchery);
-    gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    gameMap->getLocalPlayer()->setNewRoomType(RoomType::hatchery);
     return true;
 }
 
 bool Gui::cryptButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
-    gameMap->getLocalPlayer()->setNewRoomType(Room::crypt);
-    gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    gameMap->getLocalPlayer()->setNewRoomType(RoomType::crypt);
+    return true;
+}
+
+bool Gui::templeButtonPressed(const CEGUI::EventArgs& e)
+{
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
+    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
+    gameMap->getLocalPlayer()->setNewRoomType(RoomType::dungeonTemple);
+    return true;
+}
+
+bool Gui::portalButtonPressed(const CEGUI::EventArgs& e)
+{
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
+    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
+    gameMap->getLocalPlayer()->setNewRoomType(RoomType::portal);
     return true;
 }
 
 bool Gui::cannonButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
-    gameMap->getLocalPlayer()->setNewRoomType(Room::nullRoomType);
-    gameMap->getLocalPlayer()->setNewTrapType(Trap::cannon);
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildTrap);
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    gameMap->getLocalPlayer()->setNewTrapType(TrapType::cannon);
     return true;
 }
 
 bool Gui::spikeTrapButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
-    gameMap->getLocalPlayer()->setNewRoomType(Room::nullRoomType);
-    gameMap->getLocalPlayer()->setNewTrapType(Trap::spike);
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildTrap);
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    gameMap->getLocalPlayer()->setNewTrapType(TrapType::spike);
     return true;
 }
 
 bool Gui::boulderTrapButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
-    gameMap->getLocalPlayer()->setNewRoomType(Room::nullRoomType);
-    gameMap->getLocalPlayer()->setNewTrapType(Trap::boulder);
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildTrap);
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    gameMap->getLocalPlayer()->setNewTrapType(TrapType::boulder);
     return true;
 }
 
 bool Gui::destroyTrapButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
-    gameMap->getLocalPlayer()->setNewRoomType(Room::nullRoomType);
-    gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::destroyTrap);
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    return true;
+}
+
+bool Gui::spellSummonWorkerPressed(const CEGUI::EventArgs& e)
+{
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
+    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::castSpell);
+    gameMap->getLocalPlayer()->setNewSpellType(SpellType::summonWorker);
+    return true;
+}
+
+bool Gui::spellCallToWarPressed(const CEGUI::EventArgs& e)
+{
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
+    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::castSpell);
+    gameMap->getLocalPlayer()->setNewSpellType(SpellType::callToWar);
     return true;
 }
 
@@ -591,7 +657,6 @@ bool Gui::workerCreatureButtonPressed(const CEGUI::EventArgs& e)
     if ((mm == nullptr) || (mm->getCurrentMode() == nullptr))
         return true;
 
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     mm->getCurrentMode()->notifyGuiAction(AbstractApplicationMode::GuiAction::ButtonPressedCreatureWorker);
     return true;
 }
@@ -602,7 +667,6 @@ bool Gui::fighterCreatureButtonPressed(const CEGUI::EventArgs& e)
     if ((mm == nullptr) || (mm->getCurrentMode() == nullptr))
         return true;
 
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     mm->getCurrentMode()->notifyGuiAction(AbstractApplicationMode::GuiAction::ButtonPressedCreatureFighter);
     return true;
 }
@@ -613,7 +677,6 @@ bool Gui::confirmExitYesButtonPressed(const CEGUI::EventArgs& e)
     if (!mm)
         return true;
 
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     mm->requestUnloadToParentMode();
     return true;
 }
@@ -624,11 +687,60 @@ bool Gui::confirmExitNoButtonPressed(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::GAME)
         return true;
 
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     static_cast<GameMode*>(mm->getCurrentMode())->popupExit(false);
     return true;
 }
 
+bool Gui::helpButtonPressed(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::GAME)
+        return true;
+
+    static_cast<GameMode*>(mm->getCurrentMode())->toggleHelpWindow();
+    return true;
+}
+
+bool Gui::objectivesButtonPressed(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::GAME)
+        return true;
+
+    static_cast<GameMode*>(mm->getCurrentMode())->toggleObjectivesWindow();
+    return true;
+}
+
+bool Gui::hideObjectivesWindow(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::GAME)
+        return true;
+
+    static_cast<GameMode*>(mm->getCurrentMode())->hideObjectivesWindow();
+    return true;
+}
+
+bool Gui::optionsButtonPressed(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::GAME)
+        return true;
+
+    static_cast<GameMode*>(mm->getCurrentMode())->showOptionsWindow();
+    return true;
+}
+
+bool Gui::cancelSettings(const CEGUI::EventArgs& e)
+{
+    // TODO: restore previous settings...
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::GAME)
+        return true;
+
+    static_cast<GameMode*>(mm->getCurrentMode())->hideOptionsWindow();
+    return true;
+}
 
 // EDITOR
 
@@ -640,8 +752,7 @@ bool Gui::editorGoldButtonPressed(const CEGUI::EventArgs& e)
 
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
-    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::gold;
+    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = TileType::gold;
     return true;
 }
 
@@ -653,8 +764,7 @@ bool Gui::editorLavaButtonPressed(const CEGUI::EventArgs& e)
 
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
-    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::lava;
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = TileType::lava;
     return true;
 }
 
@@ -666,8 +776,7 @@ bool Gui::editorRockButtonPressed(const CEGUI::EventArgs& e)
 
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
-    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::rock;
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = TileType::rock;
     return true;
 }
 
@@ -679,8 +788,7 @@ bool Gui::editorWaterButtonPressed(const CEGUI::EventArgs& e)
 
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
-    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::water;
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = TileType::water;
     return true;
 }
 
@@ -692,8 +800,7 @@ bool Gui::editorDirtButtonPressed(const CEGUI::EventArgs& e)
 
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
-    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::dirt;
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = TileType::dirt;
     return true;
 }
 
@@ -705,8 +812,7 @@ bool Gui::editorClaimedButtonPressed(const CEGUI::EventArgs& e)
 
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
-    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::claimed;
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
+    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = TileType::claimed;
     return true;
 }
 
@@ -718,7 +824,6 @@ bool Gui::mMNewGameButtonPressed(const CEGUI::EventArgs& e)
     if (!mm)
         return true;
 
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     mm->requestMenuSingleplayerMode();
     return true;
 }
@@ -729,7 +834,6 @@ bool Gui::mMReplayButtonPressed(const CEGUI::EventArgs& e)
     if (!mm)
         return true;
 
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     mm->requestMenuReplayMode();
     return true;
 }
@@ -740,7 +844,6 @@ bool Gui::mMMapEditorButtonPressed(const CEGUI::EventArgs& e)
     if (!mm)
         return true;
 
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     mm->requestMenuEditorMode();
     return true;
 }
@@ -762,7 +865,6 @@ bool Gui::mSKMBackButtonPressed(const CEGUI::EventArgs& e)
     if (!mm)
         return true;
 
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     mm->requestUnloadToParentMode();
     return true;
 }
@@ -773,7 +875,6 @@ bool Gui::mSKMListClicked(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::MENU_SKIRMISH)
         return true;
 
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     static_cast<MenuModeSkirmish*>(mm->getCurrentMode())->listLevelsClicked();
     return true;
 }
@@ -784,7 +885,6 @@ bool Gui::mSKMListDoubleClicked(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::MENU_SKIRMISH)
         return true;
 
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     static_cast<MenuModeSkirmish*>(mm->getCurrentMode())->listLevelsDoubleClicked();
     return true;
 }
@@ -795,7 +895,6 @@ bool Gui::mSKMLoadButtonPressed(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::MENU_SKIRMISH)
         return true;
 
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     static_cast<MenuModeSkirmish*>(mm->getCurrentMode())->launchSelectedButtonPressed();
     return true;
 }
@@ -806,7 +905,6 @@ bool Gui::mEDMBackButtonPressed(const CEGUI::EventArgs& e)
     if (!mm)
         return true;
 
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     mm->requestUnloadToParentMode();
     return true;
 }
@@ -817,7 +915,6 @@ bool Gui::mEDMListClicked(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::MENU_EDITOR)
         return true;
 
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     static_cast<MenuModeEditor*>(mm->getCurrentMode())->listLevelsClicked();
     return true;
 }
@@ -828,7 +925,6 @@ bool Gui::mEDMListDoubleClicked(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::MENU_EDITOR)
         return true;
 
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     static_cast<MenuModeEditor*>(mm->getCurrentMode())->listLevelsDoubleClicked();
     return true;
 }
@@ -839,7 +935,6 @@ bool Gui::mEDMLoadButtonPressed(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::MENU_EDITOR)
         return true;
 
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     static_cast<MenuModeEditor*>(mm->getCurrentMode())->launchSelectedButtonPressed();
     return true;
 }
@@ -850,7 +945,6 @@ bool Gui::mMPMBackButtonPressed(const CEGUI::EventArgs& e)
     if (!mm)
         return true;
 
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     mm->requestUnloadToParentMode();
     return true;
 }
@@ -861,7 +955,6 @@ bool Gui::mMPMListClicked(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::MENU_MULTIPLAYER_SERVER)
         return true;
 
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     static_cast<MenuModeMultiplayerServer*>(mm->getCurrentMode())->listLevelsClicked();
     return true;
 }
@@ -872,7 +965,6 @@ bool Gui::mMPMListDoubleClicked(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::MENU_MULTIPLAYER_SERVER)
         return true;
 
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     static_cast<MenuModeMultiplayerServer*>(mm->getCurrentMode())->listLevelsDoubleClicked();
     return true;
 }
@@ -883,7 +975,6 @@ bool Gui::mMPMServerButtonPressed(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::MENU_MULTIPLAYER_SERVER)
         return true;
 
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     static_cast<MenuModeMultiplayerServer*>(mm->getCurrentMode())->serverButtonPressed();
     return true;
 }
@@ -894,7 +985,6 @@ bool Gui::mMPMClientButtonPressed(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::MENU_MULTIPLAYER_CLIENT)
         return true;
 
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     static_cast<MenuModeMultiplayerClient*>(mm->getCurrentMode())->clientButtonPressed();
     return true;
 }
@@ -905,7 +995,6 @@ bool Gui::mCSMLoadButtonPressed(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::MENU_CONFIGURE_SEATS)
         return true;
 
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     static_cast<MenuModeConfigureSeats*>(mm->getCurrentMode())->launchSelectedButtonPressed();
     return true;
 }
@@ -916,7 +1005,6 @@ bool Gui::mCSMBackButtonPressed(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::MENU_CONFIGURE_SEATS)
         return true;
 
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     static_cast<MenuModeConfigureSeats*>(mm->getCurrentMode())->goBack();
     return true;
 }
@@ -927,7 +1015,6 @@ bool Gui::mREMBackButtonPressed(const CEGUI::EventArgs& e)
     if (!mm)
         return true;
 
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     mm->requestUnloadToParentMode();
     return true;
 }
@@ -938,7 +1025,6 @@ bool Gui::mREMListClicked(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::MENU_REPLAY)
         return true;
 
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     static_cast<MenuModeReplay*>(mm->getCurrentMode())->listReplaysClicked();
     return true;
 }
@@ -949,7 +1035,6 @@ bool Gui::mREMListDoubleClicked(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::MENU_REPLAY)
         return true;
 
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     static_cast<MenuModeReplay*>(mm->getCurrentMode())->listReplaysDoubleClicked();
     return true;
 }
@@ -960,7 +1045,6 @@ bool Gui::mREMLoadButtonPressed(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::MENU_REPLAY)
         return true;
 
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     static_cast<MenuModeReplay*>(mm->getCurrentMode())->launchSelectedButtonPressed();
     return true;
 }
@@ -971,7 +1055,6 @@ bool Gui::mREMDeleteButtonPressed(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::MENU_REPLAY)
         return true;
 
-    SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
     static_cast<MenuModeReplay*>(mm->getCurrentMode())->deleteSelectedButtonPressed();
     return true;
 }
@@ -985,7 +1068,7 @@ const std::string Gui::DISPLAY_GOLD = "HorizontalPipe/GoldDisplay";
 const std::string Gui::DISPLAY_MANA = "HorizontalPipe/ManaDisplay";
 const std::string Gui::DISPLAY_TERRITORY = "HorizontalPipe/TerritoryDisplay";
 const std::string Gui::MINIMAP = "MiniMap";
-const std::string Gui::MESSAGE_WINDOW = "MessagesDisplayWindow";
+const std::string Gui::OBJECTIVE_TEXT = "ObjectivesWindow/ObjectivesText";
 const std::string Gui::MAIN_TABCONTROL = "MainTabControl";
 const std::string Gui::TAB_ROOMS = "MainTabControl/Rooms";
 const std::string Gui::BUTTON_DORMITORY = "MainTabControl/Rooms/DormitoryButton";
@@ -995,6 +1078,8 @@ const std::string Gui::BUTTON_LIBRARY = "MainTabControl/Rooms/LibraryButton";
 const std::string Gui::BUTTON_HATCHERY = "MainTabControl/Rooms/HatcheryButton";
 const std::string Gui::BUTTON_TREASURY = "MainTabControl/Rooms/TreasuryButton";
 const std::string Gui::BUTTON_CRYPT = "MainTabControl/Rooms/CryptButton";
+const std::string Gui::BUTTON_TEMPLE = "MainTabControl/Rooms/TempleButton";
+const std::string Gui::BUTTON_PORTAL = "MainTabControl/Rooms/PortalButton";
 const std::string Gui::BUTTON_DESTROY_ROOM = "MainTabControl/Rooms/DestroyRoomButton";
 const std::string Gui::TAB_TRAPS = "MainTabControl/Traps";
 const std::string Gui::BUTTON_TRAP_CANNON = "MainTabControl/Traps/CannonButton";
@@ -1002,6 +1087,8 @@ const std::string Gui::BUTTON_TRAP_SPIKE = "MainTabControl/Traps/SpikeTrapButton
 const std::string Gui::BUTTON_TRAP_BOULDER = "MainTabControl/Traps/BoulderTrapButton";
 const std::string Gui::BUTTON_DESTROY_TRAP = "MainTabControl/Traps/DestroyTrapButton";
 const std::string Gui::TAB_SPELLS = "MainTabControl/Spells";
+const std::string Gui::BUTTON_SPELL_SUMMON_WORKER = "MainTabControl/Spells/SummonWorkerButton";
+const std::string Gui::BUTTON_SPELL_CALLTOWAR = "MainTabControl/Spells/CallToWarButton";
 const std::string Gui::TAB_CREATURES = "MainTabControl/Creatures";
 const std::string Gui::BUTTON_CREATURE_WORKER = "MainTabControl/Creatures/WorkerButton";
 const std::string Gui::BUTTON_CREATURE_FIGHTER = "MainTabControl/Creatures/FighterButton";

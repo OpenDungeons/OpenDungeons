@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -87,7 +87,7 @@ std::ostream& operator<<(std::ostream& os, Goal *g)
     unsigned int subGoals;
 
     os << g->mName << "\t";
-    os << (g->mArguments.size() > 0 ? g->mArguments : "NULL") << "\n";
+    os << (g->mArguments.size() > 0 ? g->mArguments : "nullptr") << "\n";
 
     subGoals = g->numSuccessSubGoals();
     if (subGoals > 0)
@@ -111,7 +111,7 @@ std::ostream& operator<<(std::ostream& os, Goal *g)
 Goal* Goal::instantiateFromStream(const std::string& goalName, std::istream& is, GameMap* gameMap)
 {
     std::string tempArguments;
-    Goal* tempGoal = NULL;
+    Goal* tempGoal = nullptr;
 
     // Store the name and arguments of the goal so we can instantiate a specific goal subclass below.
     getline(is, tempArguments);
@@ -125,8 +125,8 @@ Goal* Goal::instantiateFromStream(const std::string& goalName, std::istream& is,
     if (count > 0)
         tempArguments = tempArguments.substr(count, tempArguments.length());
 
-    // Since entering an empty string in the file would break the file read we represent it with NULL and then substitute it here.
-    if (tempArguments.compare("NULL") == 0)
+    // Since entering an empty string in the file would break the file read we represent it with nullptr and then substitute it here.
+    if (tempArguments.compare("nullptr") == 0)
         tempArguments = "";
 
     // Parse the goal type name to find out what subclass of goal tempGoal should be instantiated as.

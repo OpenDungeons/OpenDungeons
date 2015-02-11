@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,204 +17,114 @@
 
 #include "ConsoleMode.h"
 
+#include "modes/ConsoleCommands.h"
 #include "render/Gui.h"
-#include "modes/Console.h"
 #include "utils/LogManager.h"
-#include "scripting/ASWrapper.h"
-#include "render/RenderManager.h"
-#include "PrefixTree.h"
-#include "render/ODFrameListener.h"
 
-#include <list>
-#include <string>
+#include <CEGUI/widgets/Listbox.h>
+#include <CEGUI/widgets/ListboxTextItem.h>
+#include <CEGUI/widgets/PushButton.h>
+#include <CEGUI/widgets/Editbox.h>
+#include <CEGUI/widgets/Scrollbar.h>
 
-const std::string CONSOLE_COMMANDS = "./config/console_commands.txt";
+#include <functional>
+#include <cassert>
 
-ConsoleMode::ConsoleMode(ModeManager* modeManager, Console* console):
+ConsoleMode::ConsoleMode(ModeManager* modeManager):
     AbstractApplicationMode(modeManager, ModeManager::CONSOLE),
-    mConsole(console),
-    mPrefixTree(NULL),
-    mLl(NULL),
-    mNonTagKeyPressed(true)
+    mConsoleInterface(std::bind(&ConsoleMode::printToConsole, this, std::placeholders::_1))
 {
-    mPrefixTree = new PrefixTree();
-    mLl = new list<string>();
-    mPrefixTree->readStringsFromFile(CONSOLE_COMMANDS.c_str());
+    ConsoleCommands::addConsoleCommands(mConsoleInterface);
+
+    CEGUI::Window* consoleRootWindow = Gui::getSingleton().getGuiSheet(Gui::guiSheet::console);
+    assert(consoleRootWindow != nullptr);
+    CEGUI::Window* listbox = consoleRootWindow->getChild("ConsoleHistoryWindow");
+    assert(listbox->getType().compare("OD/Listbox") == 0);
+    mConsoleHistoryWindow = static_cast<CEGUI::Listbox*>(listbox);
+    CEGUI::Window* editbox = consoleRootWindow->getChild("Editbox");
+    mEditboxWindow = static_cast<CEGUI::Editbox*>(editbox);
+    CEGUI::Window* sendButton = consoleRootWindow->getChild("SendButton");
+    sendButton->subscribeEvent(CEGUI::PushButton::EventClicked,
+                               CEGUI::Event::Subscriber(&ConsoleMode::executeCurrentPrompt, this));
+    mEditboxWindow->subscribeEvent(CEGUI::Editbox::EventTextAccepted,
+                                   CEGUI::Event::Subscriber(&ConsoleMode::executeCurrentPrompt, this));
+    //TODO: This should be done in the xml file if possible.
+    mConsoleHistoryWindow->getVertScrollbar()->setEndLockEnabled(true);
+    subscribeCloseButton(*consoleRootWindow);
 }
 
 ConsoleMode::~ConsoleMode()
 {
-    delete mPrefixTree;
-    delete mLl;
 }
 
 void ConsoleMode::activate()
 {
     // Loads the corresponding Gui sheet.
-    Gui::getSingleton().loadGuiSheet(Gui::hideGui);
-
+    Gui::getSingleton().loadGuiSheet(Gui::console);
+    mEditboxWindow->activate();
     giveFocus();
-}
-
-bool ConsoleMode::mouseMoved(const OIS::MouseEvent &arg)
-{
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition((float)arg.state.X.abs, (float)arg.state.Y.abs);
-    if(arg.state.Z.rel == 0 || !mConsole->mVisible)
-        return false;
-
-    if(getKeyboard()->isModifierDown(OIS::Keyboard::Ctrl))
-        mConsole->scrollHistory(arg.state.Z.rel > 0);
-    else
-        mConsole->scrollText(arg.state.Z.rel > 0);
-
-    mConsole->mUpdateOverlay = true;
-    return true;
-}
-
-bool ConsoleMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id){
-    return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(
-        Gui::getSingletonPtr()->convertButton(id));
-}
-
-bool ConsoleMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id){
-    return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(
-        Gui::getSingletonPtr()->convertButton(id));
 }
 
 bool ConsoleMode::keyPressed(const OIS::KeyEvent &arg)
 {
-    if (!mConsole->mVisible)
-        return false;
-
-    if(arg.key == OIS::KC_TAB)
+    switch(arg.key)
     {
-        if(!mNonTagKeyPressed)
+        case OIS::KC_TAB:
         {
-            // it points to postfix candidate
-            if (mIt == mLl->end())
+            if(auto completed = mConsoleInterface.tryCompleteCommand(mEditboxWindow->getText().c_str()))
             {
-                mConsole->mPrompt = mPrefix;
-                mIt = mLl->begin();
+                mEditboxWindow->setText(completed.get());
             }
-            else{
-                mConsole->mPrompt = mPrefix + *mIt;
-                ++mIt;
-            }
+            mEditboxWindow->setCaretIndex(mEditboxWindow->getText().length());
+            break;
         }
-        else
-        {
-            mLl->clear();
-            mPrefixTree->complete(mConsole->mPrompt.c_str(), mLl);
-            mPrefix = mConsole->mPrompt ;
-            mIt = mLl->begin();
-        }
-
-        mNonTagKeyPressed= false;
-    }
-    else
-    {
-        mNonTagKeyPressed = true;
-        switch(arg.key)
-        {
         case OIS::KC_GRAVE:
         case OIS::KC_ESCAPE:
         case OIS::KC_F12:
-            regressMode();
-            mConsole->setVisible(false);
-            ODFrameListener::getSingleton().setTerminalActive(false);
-            break;
-
-        case OIS::KC_RETURN:
         {
-            //only do this for non-empty input
-            if(!mConsole->mPrompt.empty())
-            {
-                //print our input and push it to the history
-                mConsole->print(mConsole->mPrompt);
-                mConsole->mHistory.push_back(mConsole->mPrompt);
-                ++mConsole->mCurHistPos;
-
-                //split the input into it's space-separated "words"
-                std::vector<Ogre::String> params = mConsole->split(mConsole->mPrompt, ' ');
-
-                //TODO: remove this until AS console handler is ready
-                Ogre::String command = params[0];
-                Ogre::String arguments;
-                for(size_t i = 1; i< params.size(); ++i)
-                {
-                    arguments += params[i];
-                    if(i < params.size() - 1)
-                    {
-                        arguments += ' ';
-                    }
-                }
-                //remove until this point
-
-                //TODO: remove executePromptCommand after it is fully converted
-                //for now try hardcoded commands, and if none is found try AS
-                if(!mConsole->executePromptCommand(command, arguments))
-                {
-                    LogManager::getSingleton().logMessage("Console command: " + command
-                        + " - arguments: " + arguments + " - angelscript");
-                    ASWrapper::getSingleton().executeConsoleCommand(params);
-                }
-
-                mConsole->mPrompt.clear();
-            }
-            else
-            {
-                // Set history position back to last entry
-                mConsole->mCurHistPos = mConsole->mHistory.size();
-            }
+            regressMode();
             break;
         }
-        case OIS::KC_BACK:
-            mConsole->mPrompt = mConsole->mPrompt.substr(0, mConsole->mPrompt.length() - 1);
-            break;
-
-        case OIS::KC_PGUP:
-            mConsole->scrollText(true);
-            break;
-
-        case OIS::KC_PGDOWN:
-            mConsole->scrollText(false);
-            break;
-
         case OIS::KC_UP:
-            mConsole->scrollHistory(true);
+            if(auto completed = mConsoleInterface.scrollCommandHistoryPositionUp(mEditboxWindow->getText().c_str()))
+            {
+                mEditboxWindow->setText(completed.get());
+            }
+            mEditboxWindow->setCaretIndex(mEditboxWindow->getText().length());
             break;
 
         case OIS::KC_DOWN:
-            mConsole->scrollHistory(false);
-            break;
-
-        case OIS::KC_F10:
         {
-            LogManager::getSingleton().logMessage("RTSS test----------");
-            RenderManager::getSingleton().rtssTest();
+            if(auto completed = mConsoleInterface.scrollCommandHistoryPositionDown())
+            {
+                mEditboxWindow->setText(completed.get());
+            }
+            mEditboxWindow->setCaretIndex(mEditboxWindow->getText().length());
             break;
         }
-
         default:
-            if (std::string("abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ,.<>/?1234567890-=\\!@#$%^&*()_+|;\':\"[]{}").find(
-                            arg.text) != std::string::npos)
-            {
-                mConsole->mPrompt += arg.text;
-            }
+        {
+            CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyDown(
+                static_cast<CEGUI::Key::Scan>(arg.key));
+            CEGUI::System::getSingleton().getDefaultGUIContext().injectChar(
+                static_cast<CEGUI::String::value_type>(arg.text));
             break;
         }
     }
 
-    mConsole->mUpdateOverlay = true;
     return true;
 }
 
-bool ConsoleMode::keyReleased(const OIS::KeyEvent &arg)
+void ConsoleMode::printToConsole(const std::string& text)
 {
-    return true;
+    mConsoleHistoryWindow->addItem(new CEGUI::ListboxTextItem(text));
 }
 
-void ConsoleMode::handleHotkeys(OIS::KeyCode keycode)
+bool ConsoleMode::executeCurrentPrompt(const CEGUI::EventArgs &e)
 {
-
+    mConsoleInterface.tryExecuteCommand(mEditboxWindow->getText().c_str(),
+                                    getModeManager().getCurrentModeTypeExceptConsole(),
+                                    getModeManager());
+    mEditboxWindow->setText("");
+    return true;
 }

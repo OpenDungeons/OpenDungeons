@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -60,24 +60,8 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "chat";
         case ServerNotificationType::chatServer:
             return "chatServer";
-        case ServerNotificationType::playerWon:
-            return "playerWon";
-        case ServerNotificationType::playerLost:
-            return "playerLost";
-        case ServerNotificationType::markTiles:
-            return "markTiles";
         case ServerNotificationType::turnStarted:
             return "turnStarted";
-        case ServerNotificationType::setTurnsPerSecond:
-            return "setTurnsPerSecond";
-        case ServerNotificationType::buildRoom:
-            return "buildRoom";
-        case ServerNotificationType::removeRoomTile:
-            return "removeRoomTile";
-        case ServerNotificationType::buildTrap:
-            return "buildTrap";
-        case ServerNotificationType::removeTrapTile:
-            return "removeTrapTile";
         case ServerNotificationType::animatedObjectAddDestination:
             return "animatedObjectAddDestination";
         case ServerNotificationType::animatedObjectClearDestinations:
@@ -106,7 +90,7 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "addRenderedMovableEntity";
         case ServerNotificationType::removeRenderedMovableEntity:
             return "removeRenderedMovableEntity";
-        case setEntityOpacity:
+        case ServerNotificationType::setEntityOpacity:
             return "setEntityOpacity";
         case ServerNotificationType::playSpatialSound:
             return "playSpatialSound";
@@ -114,10 +98,18 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "notifyCreatureInfo";
         case ServerNotificationType::refreshCreatureVisDebug:
             return "refreshCreatureVisDebug";
+        case ServerNotificationType::refreshSeatVisDebug:
+            return "refreshSeatVisDebug";
         case ServerNotificationType::playCreatureSound:
             return "playCreatureSound";
         case ServerNotificationType::refreshTiles:
             return "refreshTiles";
+        case ServerNotificationType::refreshVisibleTiles:
+            return "refreshVisibleTiles";
+        case ServerNotificationType::carryEntity:
+            return "carryEntity";
+        case ServerNotificationType::releaseCarriedEntity:
+            return "releaseCarriedEntity";
         case ServerNotificationType::exit:
             return "exit";
         default:
@@ -127,16 +119,16 @@ std::string ServerNotification::typeString(ServerNotificationType type)
     return "";
 }
 
-ODPacket& operator<<(ODPacket& os, const ServerNotification::ServerNotificationType& nt)
+ODPacket& operator<<(ODPacket& os, const ServerNotificationType& nt)
 {
     os << static_cast<int32_t>(nt);
     return os;
 }
 
-ODPacket& operator>>(ODPacket& is, ServerNotification::ServerNotificationType& nt)
+ODPacket& operator>>(ODPacket& is, ServerNotificationType& nt)
 {
     int32_t tmp;
     is >> tmp;
-    nt = static_cast<ServerNotification::ServerNotificationType>(tmp);
+    nt = static_cast<ServerNotificationType>(tmp);
     return is;
 }

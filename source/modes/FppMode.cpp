@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -34,63 +34,4 @@ void FppMode::activate()
     Gui::getSingleton().loadGuiSheet(Gui::hideGui);
 
     giveFocus();
-}
-
-bool FppMode::mouseMoved(const OIS::MouseEvent &arg)
-{
-    // CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition(arg.state.X.abs, arg.state.Y.abs);
-    // if (arg.state.X.abs == 0)
-    // 	mMc->frameListener->cm->move(CameraManager::moveLeft);
-    // else
-    // 	mMc->frameListener->cm->move(CameraManager::stopLeft);
-
-    // if (arg.state.X.abs ==  arg.state.width)
-    // 	mMc->frameListener->cm->move(CameraManager::moveRight);
-    // else
-    // 	mMc->frameListener->cm->move(CameraManager::stopRight);
-
-    // if (arg.state.Y.abs == 0)
-    // 	mMc->frameListener->cm->move(CameraManager::moveForward);
-    // else
-    // 	mMc->frameListener->cm->move(CameraManager::stopForward);
-
-    // if (arg.state.Y.abs ==  arg.state.height)
-    // 	mMc->frameListener->cm->move(CameraManager::moveBackward);
-    // else
-    // 	mMc->frameListener->cm->move(CameraManager::stopBackward);
-    return true;
-}
-
-bool FppMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
-{
-    return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(
-                Gui::getSingletonPtr()->convertButton(id));
-}
-
-bool FppMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
-{
-    return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(
-                Gui::getSingletonPtr()->convertButton(id));
-}
-
-bool FppMode::keyPressed(const OIS::KeyEvent &arg)
-{
-    switch (arg.key)
-    {
-    case OIS::KC_ESCAPE:
-        regressMode();
-        break;
-    default:
-        break;
-    }
-    return true;
-}
-
-bool FppMode::keyReleased(const OIS::KeyEvent &arg)
-{
-    return true;
-}
-
-void FppMode::handleHotkeys(OIS::KeyCode keycode)
-{
 }

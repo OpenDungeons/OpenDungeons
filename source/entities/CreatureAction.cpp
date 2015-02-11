@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,77 +16,94 @@
  */
 
 #include "entities/CreatureAction.h"
-
 #include "entities/Creature.h"
 
-CreatureAction::CreatureAction() :
-    mType    (idle),
-    mTile    (NULL),
-    mCreature(NULL)
-{
-}
+#include "utils/LogManager.h"
 
-CreatureAction::CreatureAction(const ActionType nType, Tile* nTile, Creature* nCreature) :
-    mType(nType),
-    mTile(nTile),
-    mCreature(nCreature)
+CreatureAction::CreatureAction(const CreatureActionType actionType, GameEntityType entityType, const std::string& entityName, Tile* tile) :
+    mActionType(actionType),
+    mEntityType(entityType),
+    mEntityName(entityName),
+    mTile(tile),
+    mNbTurns(0)
 {
+    // We check mandatory items according to action type
+    switch(mActionType)
+    {
+        case CreatureActionType::attackObject:
+            OD_ASSERT_TRUE(!mEntityName.empty());
+            OD_ASSERT_TRUE(mEntityType != GameEntityType::unknown);
+            OD_ASSERT_TRUE(mTile != nullptr);
+            break;
+
+        default:
+            break;
+    }
 }
 
 std::string CreatureAction::toString() const
 {
-    switch (mType)
+    switch (mActionType)
     {
-    case walkToTile:
+    case CreatureActionType::walkToTile:
         return "walkToTile";
 
-    case fight:
+    case CreatureActionType::fight:
         return "fight";
 
-    case digTile:
+    case CreatureActionType::digTile:
         return "digTile";
 
-    case claimWallTile:
+    case CreatureActionType::claimWallTile:
         return "claimWallTile";
 
-    case claimTile:
+    case CreatureActionType::claimTile:
         return "claimTile";
 
-    case depositGold:
-        return "depositGold";
-
-    case attackObject:
+    case CreatureActionType::attackObject:
         return "attackObject";
 
-    case findHome:
+    case CreatureActionType::findHome:
         return "findHome";
 
-    case findHomeForced:
+    case CreatureActionType::findHomeForced:
         return "findHomeForced";
 
-    case sleep:
+    case CreatureActionType::sleep:
         return "sleep";
 
-    case jobdecided:
+    case CreatureActionType::jobdecided:
         return "jobdecided";
 
-    case jobforced:
+    case CreatureActionType::jobforced:
         return "jobforced";
 
-    case eatdecided:
+    case CreatureActionType::eatdecided:
         return "eatdecided";
 
-    case eatforced:
+    case CreatureActionType::eatforced:
         return "eatforced";
 
-    case flee:
+    case CreatureActionType::flee:
         return "flee";
 
-    case carryEntity:
+    case CreatureActionType::carryEntity:
         return "carryEntity";
 
-    case idle:
+    case CreatureActionType::carryEntityForced:
+        return "carryEntityForced";
+
+    case CreatureActionType::getFee:
+        return "getFee";
+
+    case CreatureActionType::idle:
         return "idle";
+
+    case CreatureActionType::leaveDungeon:
+        return "leaveDungeon";
+
+    case CreatureActionType::fightNaturalEnemy:
+        return "fightNaturalEnemy";
     }
 
     return "unhandledAct";

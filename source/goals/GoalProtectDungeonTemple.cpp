@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ GoalProtectDungeonTemple::GoalProtectDungeonTemple(const std::string& nName, con
 
 bool GoalProtectDungeonTemple::isMet(Seat *s)
 {
-    return (mGameMap->numRoomsByTypeAndSeat(Room::dungeonTemple, s) > 0);
+    return (mGameMap->numRoomsByTypeAndSeat(RoomType::dungeonTemple, s) > 0);
 }
 
 bool GoalProtectDungeonTemple::isUnmet(Seat *s)

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 #include "entities/Creature.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
+#include "rooms/Room.h"
 
 #include <iostream>
 
@@ -32,32 +33,43 @@ GoalKillAllEnemies::GoalKillAllEnemies(const std::string& nName,
 
 bool GoalKillAllEnemies::isMet(Seat *s)
 {
-    bool enemiesFound = false;
-
     // Loop over all the creatures in the game map and check to see if any of them are of a different color than our seat.
     for (unsigned int i = 0, num = mGameMap->numCreatures(); i < num; ++i)
     {
         if (!mGameMap->getCreature(i)->getSeat()->isAlliedSeat(s))
-        {
-            enemiesFound = true;
-            break;
-        }
+            return false;
     }
 
-    return !enemiesFound;
+    // Considers also creature spawner rooms as enemy to be killed.
+    // Temples
+    std::vector<Room*> temples = mGameMap->getRoomsByType(RoomType::dungeonTemple);
+    for (Room* temple : temples)
+    {
+        if (!temple->getSeat()->isAlliedSeat(s))
+            return false;
+    }
+    // Portals
+    std::vector<Room*> portals = mGameMap->getRoomsByType(RoomType::portal);
+    for (Room* portal : portals)
+    {
+        if (!portal->getSeat()->isAlliedSeat(s))
+            return false;
+    }
+
+    return true;
 }
 
 std::string GoalKillAllEnemies::getSuccessMessage(Seat *s)
 {
-    return "You have killed all the enemy creatures.";
+    return "You have killed all the enemy creatures,\ntemples and portals.";
 }
 
 std::string GoalKillAllEnemies::getFailedMessage(Seat *s)
 {
-    return "You have failed to kill all the enemy creatures.";
+    return "You have failed to kill all the enemy creatures,\ntemples and portals.";
 }
 
 std::string GoalKillAllEnemies::getDescription(Seat *s)
 {
-    return "Kill all enemy creatures.";
+    return "Kill all enemy creatures,\ntemples and portals.";
 }

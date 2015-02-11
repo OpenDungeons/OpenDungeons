@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,10 +19,13 @@
 
 #include "entities/CraftedTrap.h"
 #include "entities/Creature.h"
+#include "entities/CreatureDefinition.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 
 #include "gamemap/GameMap.h"
+
+#include "traps/Trap.h"
 
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
@@ -36,7 +39,7 @@ RoomForge::RoomForge(GameMap* gameMap) :
     Room(gameMap),
     mNbTurnsNoChangeSpots(0),
     mPoints(0),
-    mTrapType(Trap::TrapType::nullTrapType)
+    mTrapType(TrapType::nullTrapType)
 {
     setMeshName("Forge");
 }
@@ -137,7 +140,7 @@ void RoomForge::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
 bool RoomForge::hasOpenCreatureSpot(Creature* c)
 {
     // If there is no need, we do not allow creature to work
-    if(mTrapType == Trap::TrapType::nullTrapType)
+    if(mTrapType == TrapType::nullTrapType)
         return false;
 
     // We accept all creatures as soon as there are free active spots
@@ -158,7 +161,7 @@ bool RoomForge::addCreatureUsingRoom(Creature* creature)
     Tile* tileSpot = mUnusedSpots[index];
     mUnusedSpots.erase(mUnusedSpots.begin() + index);
     mCreaturesSpots[creature] = tileSpot;
-    Ogre::Vector3 creaturePosition = creature->getPosition();
+    const Ogre::Vector3& creaturePosition = creature->getPosition();
     Ogre::Real wantedX = -1;
     Ogre::Real wantedY = -1;
     getCreatureWantedPos(creature, tileSpot, wantedX, wantedY);
@@ -186,8 +189,8 @@ void RoomForge::removeCreatureUsingRoom(Creature* c)
     if(mCreaturesSpots.count(c) > 0)
     {
         Tile* tileSpot = mCreaturesSpots[c];
-        OD_ASSERT_TRUE(tileSpot != NULL);
-        if(tileSpot == NULL)
+        OD_ASSERT_TRUE(tileSpot != nullptr);
+        if(tileSpot == nullptr)
             return;
         mUnusedSpots.push_back(tileSpot);
         mCreaturesSpots.erase(c);
@@ -201,35 +204,72 @@ void RoomForge::doUpkeep()
     if (mCoveredTiles.empty())
         return;
 
-    // If we are not already working on something, we check if a trap have a need
-    if(mTrapType == Trap::TrapType::nullTrapType)
+    // If we are not already working on something, we check if a trap have a need. If so,
+    // we check that no reachable forge can supply the trap before starting crafting
+    if(mTrapType == TrapType::nullTrapType)
     {
-        Creature* kobold = getGameMap()->getKoboldForPathFinding(getSeat());
-        if (kobold != nullptr)
+        std::map<TrapType, int> neededTraps;
+        Creature* worker = getGameMap()->getWorkerForPathFinding(getSeat());
+        if (worker != nullptr)
         {
             std::vector<Building*> reachableBuildings = getGameMap()->getReachableBuildingsPerSeat(getSeat(),
-                mCoveredTiles[0], kobold);
+                mCoveredTiles[0], worker);
             for(Building* building : reachableBuildings)
             {
-                if(building->getObjectType() != GameEntity::ObjectType::trap)
+                if(building->getObjectType() != GameEntityType::trap)
                     continue;
 
                 Trap* trap = static_cast<Trap*>(building);
                 if(trap == nullptr)
                     continue;
 
-                if(!trap->isNeededCraftedTrap())
+                int32_t nbNeededCraftedTrap = trap->getNbNeededCraftedTrap();
+                if(nbNeededCraftedTrap <= 0)
                     continue;
 
-                mTrapType = trap->getType();
-                break;
+                neededTraps[trap->getType()] += nbNeededCraftedTrap;
+            }
+        }
+
+        if(!neededTraps.empty())
+        {
+            // We check if a reachable forge have a corresponding crafted trap
+            std::vector<Room*> rooms = getGameMap()->getRoomsByTypeAndSeat(RoomType::forge, getSeat());
+            rooms = getGameMap()->getReachableRooms(rooms, getCoveredTile(0), worker);
+            for(std::pair<TrapType const, int>& p : neededTraps)
+            {
+                for(Room* room : rooms)
+                {
+                    RoomForge* forge = static_cast<RoomForge*>(room);
+                    p.second -= forge->getNbCraftedTrapsForType(p.first);
+                }
+            }
+
+            std::vector<TrapType> trapsToCraft;
+            for(std::pair<TrapType const, int>& p : neededTraps)
+            {
+                if(p.second <= 0)
+                    continue;
+
+                trapsToCraft.push_back(p.first);
+            }
+
+            // We randomly pickup the trap to craft if any
+            if(!trapsToCraft.empty())
+            {
+                uint32_t index = Random::Uint(0, trapsToCraft.size() - 1);
+                mTrapType = trapsToCraft[index];
             }
         }
     }
 
     // If there is nothing to do, we remove the working creatures if any
-    if(mTrapType == Trap::TrapType::nullTrapType)
+    if(mTrapType == TrapType::nullTrapType)
     {
+        if(mCreaturesSpots.empty())
+            return;
+
+        // We remove the creatures working here
         std::vector<Creature*> creatures;
         for(const std::pair<Creature* const,Tile*>& p : mCreaturesSpots)
         {
@@ -248,7 +288,7 @@ void RoomForge::doUpkeep()
         Creature* creature = p.first;
         Tile* tileSpot = p.second;
         Tile* tileCreature = creature->getPositionTile();
-        if(tileCreature == NULL)
+        if(tileCreature == nullptr)
             continue;
 
         Ogre::Real wantedX = -1;
@@ -256,8 +296,8 @@ void RoomForge::doUpkeep()
         getCreatureWantedPos(creature, tileSpot, wantedX, wantedY);
 
         RenderedMovableEntity* ro = getBuildingObjectFromTile(tileSpot);
-        OD_ASSERT_TRUE(ro != NULL);
-        if(ro == NULL)
+        OD_ASSERT_TRUE(ro != nullptr);
+        if(ro == nullptr)
             continue;
         // We consider that the creature is in the good place if it is in the expected tile and not moving
         Tile* expectedDest = getGameMap()->getTile(Helper::round(wantedX), Helper::round(wantedY));
@@ -276,11 +316,15 @@ void RoomForge::doUpkeep()
             {
                 Ogre::Vector3 walkDirection(ro->getPosition().x - creature->getPosition().x, ro->getPosition().y - creature->getPosition().y, 0);
                 walkDirection.normalise();
-                creature->setAnimationState("Attack1", false, &walkDirection);
+                creature->setAnimationState("Attack1", false, walkDirection);
 
                 ro->setAnimationState("Triggered", false);
-                // TODO : use efficiency from creature for this room
-                mPoints += static_cast<int32_t>(ConfigManager::getSingleton().getRoomConfigDouble("ForgePointsPerWork"));
+
+                const CreatureRoomAffinity& creatureRoomAffinity = creature->getDefinition()->getRoomAffinity(getType());
+                OD_ASSERT_TRUE_MSG(creatureRoomAffinity.getRoomType() == getType(), "name=" + getName() + ", creature=" + creature->getName()
+                    + ", creatureRoomAffinityType=" + Ogre::StringConverter::toString(static_cast<int>(creatureRoomAffinity.getRoomType())));
+
+                mPoints += static_cast<int32_t>(creatureRoomAffinity.getEfficiency() * ConfigManager::getSingleton().getRoomConfigDouble("ForgePointsPerWork"));
                 creature->jobDone(ConfigManager::getSingleton().getRoomConfigDouble("ForgeAwaknessPerWork"));
                 creature->setJobCooldown(Random::Uint(ConfigManager::getSingleton().getRoomConfigUInt32("ForgeCooldownWorkMin"),
                     ConfigManager::getSingleton().getRoomConfigUInt32("ForgeCooldownWorkMax")));
@@ -318,12 +362,12 @@ void RoomForge::doUpkeep()
         return;
 
     CraftedTrap* craftedTrap = new CraftedTrap(getGameMap(), getName(), mTrapType);
-    Ogre::Vector3 pos(static_cast<Ogre::Real>(tileCraftedTrap->x), static_cast<Ogre::Real>(tileCraftedTrap->y), 0.0f);
-    craftedTrap->setPosition(pos);
-    tileCraftedTrap->addCraftedTrap(craftedTrap);
-    getGameMap()->addRenderedMovableEntity(craftedTrap);
+    craftedTrap->addToGameMap();
+    Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(tileCraftedTrap->getX()), static_cast<Ogre::Real>(tileCraftedTrap->getY()), static_cast<Ogre::Real>(0.0));
+    craftedTrap->createMesh();
+    craftedTrap->setPosition(spawnPosition, false);
     mPoints -= pointsNeeded;
-    mTrapType = Trap::TrapType::nullTrapType;
+    mTrapType = TrapType::nullTrapType;
 }
 
 uint32_t RoomForge::countCraftedItemsOnRoom()
@@ -336,10 +380,10 @@ uint32_t RoomForge::countCraftedItemsOnRoom()
     uint32_t nbCraftedTrap = 0;
     for(GameEntity* entity : carryable)
     {
-        if(entity->getObjectType() != GameEntity::ObjectType::renderedMovableEntity)
+        if(entity->getObjectType() != GameEntityType::renderedMovableEntity)
             continue;
         RenderedMovableEntity* renderEntity = static_cast<RenderedMovableEntity*>(entity);
-        if(renderEntity->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::craftedTrap)
+        if(renderEntity->getRenderedMovableEntityType() != RenderedMovableEntityType::craftedTrap)
             continue;
 
         ++nbCraftedTrap;
@@ -358,10 +402,10 @@ Tile* RoomForge::checkIfAvailableSpot(const std::vector<Tile*>& activeSpots)
         tile->fillWithCarryableEntities(entities);
         for(GameEntity* entity : entities)
         {
-            if(entity->getObjectType() != GameEntity::ObjectType::renderedMovableEntity)
+            if(entity->getObjectType() != GameEntityType::renderedMovableEntity)
                 continue;
             RenderedMovableEntity* renderEntity = static_cast<RenderedMovableEntity*>(entity);
-            if(renderEntity->getRenderedMovableEntityType() != RenderedMovableEntity::RenderedMovableEntityType::craftedTrap)
+            if(renderEntity->getRenderedMovableEntityType() != RenderedMovableEntityType::craftedTrap)
                 continue;
 
             // There is one
@@ -384,4 +428,34 @@ void RoomForge::getCreatureWantedPos(Creature* creature, Tile* tileSpot,
     wantedX = static_cast<Ogre::Real>(tileSpot->getX());
     wantedY = static_cast<Ogre::Real>(tileSpot->getY());
     wantedY -= OFFSET_CREATURE;
+}
+
+int32_t RoomForge::getNbCraftedTrapsForType(TrapType type)
+{
+    std::vector<GameEntity*> carryable;
+    for(Tile* t : mCoveredTiles)
+    {
+        t->fillWithCarryableEntities(carryable);
+    }
+    uint32_t nbCraftedTrap = 0;
+    for(GameEntity* entity : carryable)
+    {
+        if(entity->getObjectType() != GameEntityType::renderedMovableEntity)
+            continue;
+        RenderedMovableEntity* renderEntity = static_cast<RenderedMovableEntity*>(entity);
+        if(renderEntity->getRenderedMovableEntityType() != RenderedMovableEntityType::craftedTrap)
+            continue;
+
+        CraftedTrap* craftedTrap = static_cast<CraftedTrap*>(renderEntity);
+        if(craftedTrap->getTrapType() != type)
+            continue;
+
+        ++nbCraftedTrap;
+    }
+
+    // We also count the currently crafted trap if any
+    if(mTrapType == type)
+        ++nbCraftedTrap;
+
+    return nbCraftedTrap;
 }

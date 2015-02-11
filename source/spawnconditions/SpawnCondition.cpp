@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@
 #include "spawnconditions/SpawnConditionCreature.h"
 #include "spawnconditions/SpawnConditionGold.h"
 #include "spawnconditions/SpawnConditionRoom.h"
+
+#include "rooms/Room.h"
 
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
@@ -50,8 +52,8 @@ SpawnCondition* SpawnCondition::load(std::istream& defFile)
         {
             if(!(defFile >> nextParam))
                 break;
-            Room::RoomType roomType = Room::getRoomTypeFromRoomName(nextParam);
-            if(roomType == Room::RoomType::nullRoomType)
+            RoomType roomType = Room::getRoomTypeFromRoomName(nextParam);
+            if(roomType == RoomType::nullRoomType)
             {
                 OD_ASSERT_TRUE_MSG(false, "nextParam=" + nextParam);
                 break;

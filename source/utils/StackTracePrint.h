@@ -4,7 +4,7 @@
  *  \brief  Namespace StackTracePrint containing functions for call
  *  stack printing ( by default after program crash).
  *
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@ namespace StackTracePrint
 {
 
 //! \brief This structure mirrors the one found in /usr/include/asm/ucontext.h
+//! \note: Its members should stay same named.
 typedef struct _sig_ucontext
 {
     unsigned long     uc_flags;
@@ -48,7 +49,7 @@ typedef struct _sig_ucontext
 } sig_ucontext_t;
 
 //! \brief Handles critical error stack trace printing.
-void critErrHandler(int sig_num, siginfo_t * info, void * ucontext);
+void critErrHandler(int sig_num, siginfo_t* info, void* ucontext);
 
 }
 

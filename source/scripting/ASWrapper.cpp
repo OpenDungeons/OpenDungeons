@@ -9,7 +9,7 @@
  * The Ogre-Angelscript binding project is something to keep an eye on:
  *  code.google.com/p/ogre-angelscript/
  *
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,12 +24,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-/* TODO list:
- * - possible improvements to compilation of scripts? (AS has an addon)
- * - bind all needed classes
- * - find out if we really need all the asserts (binary size, start up time).
- */
+#if 0
 
 #include <string>
 
@@ -39,16 +34,15 @@
 #include "scriptstdstring.h"
 #include "scriptbuilder.h"
 
-#include "camera/CameraManager.h"
-#include "modes/Console.h"
-#include "entities/Creature.h"
-#include "gamemap/GameMap.h"
-#include "utils/Helper.h"
+//#include "camera/CameraManager.h"
+//#include "entities/Creature.h"
+//#include "gamemap/GameMap.h"
+//#include "utils/Helper.h"
 #include "utils/LogManager.h"
-#include "gamemap/MapLoader.h"
-#include "ODApplication.h"
-#include "render/ODFrameListener.h"
-#include "utils/ResourceManager.h"
+//#include "gamemap/MapLoader.h"
+//#include "ODApplication.h"
+//#include "render/ODFrameListener.h"
+//#include "utils/ResourceManager.h"
 
 #include "scripting/ASWrapper.h"
 
@@ -70,7 +64,7 @@ ASWrapper::ASWrapper() :
     registerEverything();
 
     //load all .as files from /scripts folder using the ScriptBuilder addond so we can access them
-    mBuilder->StartNewModule(mEngine, "asModule");
+/*    mBuilder->StartNewModule(mEngine, "asModule");
     const std::string& scriptpath = ResourceManager::getSingleton().getScriptPath();
     std::vector<std::string> files = ResourceManager::getSingleton().listAllFiles(scriptpath);
     for(std::vector<std::string>::iterator i = files.begin(), end = files.end(); i < end; ++i)
@@ -84,7 +78,7 @@ ASWrapper::ASWrapper() :
     }
 
     //Compile AS code, syntax errors will be printed to our Console
-    mBuilder->BuildModule();
+    mBuilder->BuildModule();*/
 
     //save the string[] type because it's often used for console interaction
     mStringArray = mEngine->GetObjectTypeById(mEngine->GetTypeIdByDecl("string[]"));
@@ -136,7 +130,7 @@ void ASWrapper::messageCallback(const asSMessageInfo* msg, void* param)
     std::ostringstream output;
     output << "AS: " << msg->section << "(" << msg->row << ", "
             << msg->col << ") : " << type << " : \n  " << msg->message;
-    Console::getSingleton().print(output.str());
+//    Console::getSingleton().print(output.str());
     LogManager::getSingleton().logMessage(output.str());
 }
 
@@ -192,7 +186,7 @@ void ASWrapper::registerEverything()
      * With an underscore! This way AS can internally do some optimisations because it knows that
      * the functions are getters ans setter.
      */
-
+#if 0
     //return value of engine for assert check
     int r = 0;
 
@@ -372,27 +366,12 @@ void ASWrapper::registerEverything()
     r = mEngine->RegisterGlobalProperty(
             "CameraManager cameraManager",
             ODFrameListener::getSingletonPtr()->getCameraManager()); assert(r >= 0);
-    r = mEngine->RegisterObjectMethod("CameraManager",
-            "void set_MoveSpeedAccel(float &in)",
-            asMETHOD(CameraManager, setMoveSpeedAccel),
-            asCALL_THISCALL); assert(r >= 0);
-    r = mEngine->RegisterObjectMethod("CameraManager",
-            "float& get_MoveSpeed()",
-            asMETHOD(CameraManager, getMoveSpeed),
-            asCALL_THISCALL); assert(r >= 0);
-    r = mEngine->RegisterObjectMethod("CameraManager",
-            "void set_RotateSpeed(float &in)",
-            asMETHOD(CameraManager, setRotateSpeed),
-            asCALL_THISCALL); assert(r >= 0);
-    r = mEngine->RegisterObjectMethod("CameraManager",
-            "float get_RotateSpeed()",
-            asMETHOD(CameraManager, getRotateSpeed),
-            asCALL_THISCALL);
     // Test r and silences a compiler warning at the same time.
     if (r < 0)
     {
         assert(false);
     }
+#endif
 }
 
 /*! \brief Passes the console input to the script that holds all the functions
@@ -416,3 +395,4 @@ void ASWrapper::executeConsoleCommand(const std::vector<std::string>& fullComman
     mContext->SetArgObject(1, arguments);
     mContext->Execute();
 }
+#endif //#if 0

@@ -1,4 +1,4 @@
-OpenDungeons_Version:0.4.9  # The version of OpenDungeons which created this file (for compatibility reasons).
+OpenDungeons_Version:0.5.0  # The version of OpenDungeons which created this file (for compatibility reasons).
 
 [Info]
 Name	Big Test Map
@@ -5885,10 +5885,10 @@ ProtectDungeonTemple	NULL
 1	ConstructWorker	ConstructWorker1	1	0	max	100	0	0	193	206	0	none	none
 [/Creature]
 [Creature]
-2	Gnome	Gnome2	1	0	max	100	0	0	194	311	0	Roundshield	Longsword
+2	Gnome	Gnome2	1	0	max	100	0	0	194	311	0	none	none
 [/Creature]
 [Creature]
-3	Goblin	Goblin3	1	0	max	100	0	0	161	201	0	Roundshield	Longsword
+3	Goblin	Goblin3	1	0	max	100	0	0	161	201	0	none	none
 [/Creature]
 [Creature]
 5	PitDemon	PitDemon5	1	0	max	100	0	0	159	202	0	none	none

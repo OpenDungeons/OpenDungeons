@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,43 +20,41 @@
 
 #include "AbstractApplicationMode.h"
 
-#include <list>
+#include "ConsoleInterface.h"
+
 #include <string>
 
+namespace CEGUI
+{
+class Window;
+class EventArgs;
+class String;
+class Listbox;
+class Editbox;
+}
 
-using std::string; using std::list;
-
-class PrefixTree;
-
-class  ConsoleMode: public AbstractApplicationMode
+class ConsoleMode: public AbstractApplicationMode
 {
 public:
 
-    ConsoleMode(ModeManager*, Console*);
+    ConsoleMode(ModeManager*);
 
-    virtual ~ConsoleMode();
+    virtual ~ConsoleMode() override;
 
-    virtual bool mouseMoved(const OIS::MouseEvent &arg);
-    virtual bool mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
-    virtual bool mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
-    virtual bool keyPressed(const OIS::KeyEvent &arg);
-    virtual bool keyReleased(const OIS::KeyEvent &arg);
-    virtual void handleHotkeys(OIS::KeyCode keycode);
-
-    void onFrameStarted(const Ogre::FrameEvent& evt) {};
-    void onFrameEnded(const Ogre::FrameEvent& evt) {};
+    virtual bool keyPressed(const OIS::KeyEvent &arg) final override;
 
     //! \brief Called when the game mode is activated
     //! Used to call the corresponding Gui Sheet.
-    void activate();
+    void activate() final override;
 
 private:
-    Console* mConsole;
-    PrefixTree* mPrefixTree;
-    list<std::string>* mLl;
-    std::string mPrefix;
-    bool mNonTagKeyPressed;
-    std::list<std::string>::iterator mIt;
+    void printToConsole(const std::string& text);
+    bool executeCurrentPrompt(const CEGUI::EventArgs &e);
+
+    ConsoleInterface mConsoleInterface;
+
+    CEGUI::Listbox* mConsoleHistoryWindow;
+    CEGUI::Editbox* mEditboxWindow;
 };
 
 #endif // CONSOLEMODE_H

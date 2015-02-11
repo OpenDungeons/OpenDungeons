@@ -4,7 +4,7 @@
  * \auth	(require 'ecb)or Ogre team, andrewbuck, oln, StefanP.MUC
  * \brief  Handles the input and rendering request
  *
- *  Copyright (C) 2011-2014  OpenDungeons Team
+ *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -62,7 +62,6 @@ class ODFrameListener :
         public Ogre::WindowEventListener
 {
 
-friend class Console;
 friend class ODClient;
 
 public:
@@ -71,12 +70,6 @@ public:
     virtual ~ODFrameListener();
 
     void requestExit();
-
-    inline bool isTerminalActive () const
-    { return mTerminalActive; }
-
-    inline void setTerminalActive(bool active)
-    { mTerminalActive = active; }
 
     inline unsigned int getChatMaxMessages() const
     { return mChatMaxMessages; }
@@ -140,13 +133,11 @@ public:
 
     void addChatMessage(ChatMessage* message);
 
-    //! \brief The console output
-    void setConsoleCommandOutput(const std::string& output)
-    {
-        mCommandOutput = output;
-    }
+    MiniMap* getMiniMap()
+    { return mMiniMap; }
 
-    MiniMap* getMiniMap() {return mMiniMap;}
+    //! \brief Updates the minimap view.
+    void updateMinimap();
 
     void notifyChatInputMode(bool isChatInputMode, bool sendChatMsg = false);
     void notifyChatChar(int text);
@@ -155,9 +146,7 @@ public:
     //! \brief Accessors for camera manager
     void setCameraPosition(const Ogre::Vector3& position);
     void moveCamera(CameraManager::Direction direction);
-    void cameraStopZoom();
-    void setCameraRotateSpeed(Ogre::Real value);
-    Ogre::Real getCameraRotateSpeedInDegrees();
+
     void setActiveCameraNearClipDistance(Ogre::Real value);
     Ogre::Real getActiveCameraNearClipDistance();
     void setActiveCameraFarClipDistance(Ogre::Real value);
@@ -165,6 +154,7 @@ public:
     const Ogre::Vector3 getCameraViewTarget();
     void cameraFlyTo(const Ogre::Vector3& destination);
     void onMiniMapClick(int xPos, int yPos);
+
     CameraManager* getCameraManager()
     {
         return mCameraManager;
@@ -181,7 +171,6 @@ private:
 
     bool                    mShowDebugInfo;
     bool                    mContinue;
-    bool                    mTerminalActive;
     int                     mTerminalWordWrap;
     unsigned int            mChatMaxMessages;
     float                   mChatMaxTimeDisplay;
@@ -198,14 +187,7 @@ private:
     //! \brief To see if the frameListener wants to exit
     bool mExitRequested;
 
-    // Console variables
-    std::string mCommand, mArguments, mPrompt;
-
-    //! \brief The console output
-    std::string mCommandOutput;
-
     std::deque<ChatMessage*> mChatMessages;
-    std::string mPromptCommand;
 
     //! \brief The Camera manager
     CameraManager* mCameraManager;
@@ -216,15 +198,6 @@ private:
 
     //! \brief Actually exit application
     void exitApplication();
-
-    //! \brief Tells whether the client and or server are up and running.
-    bool isConnected();
-
-    //! \brief Tells whether a server is running.
-    bool isServer();
-
-    //! \brief Tells whether a client socket is active.
-    bool isClient();
 
     //! \brief Updates server-turn independant creature animation, audio, and overall rendering.
     void updateAnimations(Ogre::Real timeSinceLastFrame);
