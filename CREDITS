@@ -6,7 +6,7 @@ This file is listing each files present in this repository, its author and its c
 Each corresponding license is fully described in the licenses/ folder.
 Other text files (.txt, .cpp, .h., ...), except licensing, are licensed using the GPL 3.0 license.
 
-Latest update: 2015/01/18
+Latest update: 2015/02/12
 
 =============================
 ==  Configuration: config/ ==
@@ -128,6 +128,7 @@ textures/
 -> TrainingDummy2_texture.png          Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59239#p59239
 -> TrainingDummy3.png                  P0ss                    CC-BY 3.0               http://forum.freegamedev.net/viewtopic.php?p=59351#p59351
 -> TrainingDummy4.png                  Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?p=59621#p59621
+-> TrollBed.png                       Eugeneloza, Anagoria, Chris Chittleborough   CC-BY-SA 3.0 - http://forum.freegamedev.net/viewtopic.php?f=38&t=5866&p=62444#p62444
 -> Boulder.png                         Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?p=59832#p59832
 
 
@@ -229,6 +230,7 @@ TrainingDummy3.*                       Danimal                 CC-BY-SA 3.0     
 TrainingDummy4.*                       Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59621#p59621
 Treasury.mesh                          Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Troll.*                                Dm3d                    CC-BY-SA 3.0            http://opengameart.org/content/rock-golem
+TrollBed.mesh                       Eugeneloza              CC0                     http://forum.freegamedev.net/viewtopic.php?f=38&t=5866&p=62444#p62444
 Troll_Rock.mesh                        Dm3d                    CC-BY-SA 3.0            http://opengameart.org/content/rock-golem
 Water*                                 Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Wizard.*                               Skorpio                 CC-BY-SA 3.0, GPL 3.0
