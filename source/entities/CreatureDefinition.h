@@ -81,6 +81,7 @@ public:
             const Ogre::Vector3&    scale       = Ogre::Vector3(1, 1, 1),
             double                  sightRadius = 15.0,
 
+            int                     maxGoldCarryable = 0,
             double                  digRate     = 10.0,
             double                  digRatePerLevel = 2.1,
             double                  claimRate   = 0.35,
@@ -122,6 +123,7 @@ public:
         mBedDim2     (bedDim2),
         mScale       (scale),
         mSightRadius (sightRadius),
+        mMaxGoldCarryable (maxGoldCarryable),
         mDigRate     (digRate),
         mDigRatePerLevel (digRatePerLevel),
         mClaimRate   (claimRate),
@@ -188,6 +190,7 @@ public:
 
     inline double               getClaimRate    () const    { return mClaimRate; }
     inline double               getClaimRatePerLevel() const{ return mClaimRatePerLevel; }
+    inline int                  getMaxGoldCarryable () const    { return mMaxGoldCarryable; }
     inline double               getDigRate      () const    { return mDigRate; }
     inline double               getDigRatePerLevel() const  { return mDigRatePerLevel; }
 
@@ -267,6 +270,9 @@ private:
 
     //! \brief The inner radius where the creature sees everything
     int mSightRadius;
+
+    //! \brief Maximum gold amount a worker can carry before having to deposit it into a treasury
+    int mMaxGoldCarryable;
 
     //! \brief Fullness removed per turn of digging
     double mDigRate;

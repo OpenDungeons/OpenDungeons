@@ -72,8 +72,6 @@
 #define snprintf_is_banned_in_OD_code _snprintf
 #endif
 
-//TODO: make this read from definition file?
-static const int MaxGoldCarriedByWorkers = 1500;
 static const int NB_TURN_FLEE_MAX = 5;
 
 const std::string Creature::CREATURE_PREFIX = "Creature_";
@@ -1639,7 +1637,7 @@ bool Creature::handleDigTileAction(const CreatureAction& actionItem)
     }
 
     // Check to see if we are carrying the maximum amount of gold we can carry, and if so, try to take it to a treasury.
-    if (mGoldCarried >= MaxGoldCarriedByWorkers)
+    if (mGoldCarried >= mDefinition->getMaxGoldCarryable())
     {
         // We create the treasury object and push action to deposit it
         TreasuryObject* obj = new TreasuryObject(getGameMap(), mGoldCarried);
