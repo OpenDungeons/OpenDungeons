@@ -1,8 +1,8 @@
 // Spider genrated by blender2ogre 0.6.0
 
-material Spider 
+material Spider
 {
-    receive_shadows on 
+    receive_shadows on
 
     technique
     {
@@ -19,7 +19,7 @@ material Spider
             depth_check on
             depth_func less_equal
             depth_write on
-            illumination_stage 
+            illumination_stage
             light_clip_planes off
             light_scissor off
             lighting on
@@ -30,7 +30,7 @@ material Spider
             shading gouraud
             transparent_sorting on
 
-            texture_unit 
+            texture_unit
             {
                 texture SpiderTexture.png
                 tex_address_mode wrap
