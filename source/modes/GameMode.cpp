@@ -334,8 +334,6 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
         }
 
         // Loop over the tiles in the rectangular selection region and set their setSelected flag accordingly.
-        //TODO: This function is horribly inefficient, it should loop over a rectangle selecting tiles by x-y coords
-        // rather than the reverse that it is doing now.
         std::vector<Tile*> affectedTiles = mGameMap->rectangularRegion(inputManager->mXPos,
                                                                         inputManager->mYPos,
                                                                         inputManager->mLStartDragX,

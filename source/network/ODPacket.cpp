@@ -68,7 +68,7 @@ ODPacket& ODPacket::operator >>(uint32_t& data)
 
 ODPacket& ODPacket::operator >>(int64_t& data)
 {
-    // TODO : currently, SFML 2.1 do not handle int64. We do it ourselves
+    // Note: currently, SFML 2.1 do not handle int64. We do it ourselves
     int32_t dataH;
     int32_t dataL;
     mPacket>>dataH;
@@ -79,7 +79,7 @@ ODPacket& ODPacket::operator >>(int64_t& data)
 
 ODPacket& ODPacket::operator >>(uint64_t& data)
 {
-    // TODO : currently, SFML 2.1 do not handle int64. We do it ourselves
+    // Note: currently, SFML 2.1 do not handle int64. We do it ourselves
     uint32_t dataH;
     uint32_t dataL;
     mPacket>>dataH;
@@ -173,7 +173,7 @@ ODPacket& ODPacket::operator <<(uint32_t data)
 
 ODPacket& ODPacket::operator <<(int64_t data)
 {
-    // TODO : currently, SFML 2.1 do not handle int64. We do it ourselves
+    // Note: currently, SFML 2.1 do not handle int64. We do it ourselves
     int32_t dataH = OD_INT64TOINT32H(data);
     int32_t dataL = OD_INT64TOINT32L(data);
     mPacket<<dataH;
@@ -183,7 +183,7 @@ ODPacket& ODPacket::operator <<(int64_t data)
 
 ODPacket& ODPacket::operator <<(uint64_t data)
 {
-    // TODO : currently, SFML 2.1 do not handle int64. We do it ourselves
+    // Note: currently, SFML 2.1 do not handle int64. We do it ourselves
     int32_t dataH = OD_INT64TOINT32H(data);
     int32_t dataL = OD_INT64TOINT32L(data);
     mPacket<<dataH;

@@ -383,17 +383,16 @@ void Trap::setupTrap(const std::string& name, Seat* seat, const std::vector<Tile
 
 int32_t Trap::getNeededForgePointsPerTrap(TrapType trapType)
 {
-    // TODO : use configuration file (same as trap price)
     switch(trapType)
     {
         case TrapType::nullTrapType:
             return 0;
         case TrapType::cannon:
-            return 50;
+            return ConfigManager::getSingleton().getTrapConfigInt32("CannonForgePointsPerTile");
         case TrapType::spike:
-            return 60;
+            return ConfigManager::getSingleton().getTrapConfigInt32("SpikeForgePointsPerTile");
         case TrapType::boulder:
-            return 70;
+            return ConfigManager::getSingleton().getTrapConfigInt32("BoulderForgePointsPerTile");
         default:
             OD_ASSERT_TRUE_MSG(false, "Asked for wrong trap type=" + Ogre::StringConverter::toString(static_cast<int32_t>(trapType)));
             break;
