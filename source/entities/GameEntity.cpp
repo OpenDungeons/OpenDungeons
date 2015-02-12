@@ -26,13 +26,15 @@
 #include "entities/ChickenEntity.h"
 #include "entities/CraftedTrap.h"
 #include "entities/Creature.h"
+#include "entities/MapLight.h"
 #include "entities/MissileObject.h"
 #include "entities/PersistentObject.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/SmallSpiderEntity.h"
-#include "spell/Spell.h"
 #include "entities/TrapEntity.h"
 #include "entities/TreasuryObject.h"
+
+#include "game/Player.h"
 
 #include "gamemap/GameMap.h"
 #include "network/ODPacket.h"
@@ -41,6 +43,7 @@
 
 #include "render/RenderManager.h"
 #include "rooms/Room.h"
+#include "spell/Spell.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
@@ -95,6 +98,98 @@ bool GameEntity::addEntityToTile(Tile* tile)
 bool GameEntity::removeEntityFromTile(Tile* tile)
 {
     return tile->removeEntity(this);
+}
+
+void GameEntity::firePickupEntity(Player* playerPicking)
+{
+    int seatId = playerPicking->getSeat()->getId();
+    GameEntityType entityType = getObjectType();
+    const std::string& entityName = getName();
+    for(std::vector<Seat*>::iterator it = mSeatsWithVisionNotified.begin(); it != mSeatsWithVisionNotified.end();)
+    {
+        Seat* seat = *it;
+        if(seat->getPlayer() == nullptr)
+        {
+            ++it;
+            continue;
+        }
+        if(!seat->getPlayer()->getIsHuman())
+        {
+            ++it;
+            continue;
+        }
+
+        // For other players than the one picking up the entity, we send a remove message
+        if(seat->getPlayer() != playerPicking)
+        {
+            fireRemoveEntity(seat);
+            it = mSeatsWithVisionNotified.erase(it);
+            continue;
+        }
+
+        ++it;
+
+        // If the creature was picked up by a human, we send an async message
+        if(playerPicking->getIsHuman())
+        {
+            ServerNotification serverNotification(
+                ServerNotificationType::entityPickedUp, seat->getPlayer());
+            serverNotification.mPacket << seatId << entityType << entityName;
+            ODServer::getSingleton().sendAsyncMsg(serverNotification);
+        }
+        else
+        {
+            ServerNotification* serverNotification = new ServerNotification(
+                ServerNotificationType::entityPickedUp, seat->getPlayer());
+            serverNotification->mPacket << seatId << entityType << entityName;
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+    }
+}
+
+void GameEntity::fireDropEntity(Player* playerPicking, Tile* tile)
+{
+    // If the player is a human, we send an asynchronous message to be as reactive as
+    // possible. If it is an AI, we queue the message because it might have been created
+    // during this turn (and, thus, not exist on client side)
+    int seatId = playerPicking->getSeat()->getId();
+    for(Seat* seat : getGameMap()->getSeats())
+    {
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+        if(!seat->hasVisionOnTile(tile))
+            continue;
+
+        // For players with vision on the tile where the entity is dropped, we send an add message
+        if(seat->getPlayer() != playerPicking)
+        {
+            // Because the entity is dropped, it is not on the map for the other players so no need
+            // to check
+            mSeatsWithVisionNotified.push_back(seat);
+            fireAddEntity(seat, false);
+            continue;
+        }
+
+        // If the creature was dropped by a human, we send an async message
+        if(playerPicking->getIsHuman())
+        {
+            ServerNotification serverNotification(
+                ServerNotificationType::entityDropped, seat->getPlayer());
+            serverNotification.mPacket << seatId;
+            getGameMap()->tileToPacket(serverNotification.mPacket, tile);
+            ODServer::getSingleton().sendAsyncMsg(serverNotification);
+        }
+        else
+        {
+            ServerNotification* serverNotification = new ServerNotification(
+                ServerNotificationType::entityDropped, seat->getPlayer());
+            serverNotification->mPacket << seatId;
+            getGameMap()->tileToPacket(serverNotification->mPacket, tile);
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+    }
 }
 
 void GameEntity::notifySeatsWithVision(const std::vector<Seat*>& seats)
@@ -172,16 +267,149 @@ void GameEntity::fireRemoveEntityToSeatsWithVision()
     mSeatsWithVisionNotified.clear();
 }
 
+void GameEntity::exportHeadersToStream(std::ostream& os)
+{
+    os << getObjectType() << "\t";
+}
+
+void GameEntity::exportHeadersToPacket(ODPacket& os)
+{
+    os << getObjectType();
+}
+
+void GameEntity::exportToPacket(ODPacket& os) const
+{
+    int seatId = -1;
+    if(mSeat != nullptr)
+        seatId = mSeat->getId();
+
+    os << seatId;
+    os << mName;
+    os << mMeshName;
+    os << mPosition;
+}
+
+void GameEntity::importFromPacket(ODPacket& is)
+{
+    int seatId;
+    OD_ASSERT_TRUE(is >> seatId);
+    if(seatId != -1)
+        mSeat = mGameMap->getSeatById(seatId);
+
+    OD_ASSERT_TRUE(is >> mName);
+    OD_ASSERT_TRUE(is >> mMeshName);
+    OD_ASSERT_TRUE(is >> mPosition);
+}
+
+void GameEntity::exportToStream(std::ostream& os) const
+{
+    int seatId = -1;
+    if(mSeat != nullptr)
+        seatId = mSeat->getId();
+
+    os << seatId << "\t";
+    os << mName << "\t";
+    os << mMeshName << "\t";
+    os << mPosition.x << "\t" << mPosition.y << "\t" << mPosition.z << "\t";
+}
+
+void GameEntity::importFromStream(std::istream& is)
+{
+    int seatId;
+    OD_ASSERT_TRUE(is >> seatId);
+    if(seatId != -1)
+        mSeat = mGameMap->getSeatById(seatId);
+
+    OD_ASSERT_TRUE(is >> mName);
+    OD_ASSERT_TRUE(is >> mMeshName);
+    OD_ASSERT_TRUE(is >> mPosition.x >> mPosition.y >> mPosition.z);
+}
+
 GameEntity* GameEntity::getGameEntityeEntityFromStream(GameMap* gameMap, std::istream& is)
 {
-    // Not used yet
-    return nullptr;
+    GameEntity* entity = nullptr;
+    GameEntityType type;
+    OD_ASSERT_TRUE(is >> type);
+    switch(type)
+    {
+        case GameEntityType::buildingObject:
+        {
+            // Building objects are not stored in level files, we should not be here
+            OD_ASSERT_TRUE(false);
+            break;
+        }
+        case GameEntityType::chickenEntity:
+        {
+            entity = ChickenEntity::getChickenEntityFromStream(gameMap, is);
+            break;
+        }
+        case GameEntityType::craftedTrap:
+        {
+            entity = CraftedTrap::getCraftedTrapFromStream(gameMap, is);
+            break;
+        }
+        case GameEntityType::creature:
+        {
+            entity = Creature::getCreatureFromStream(gameMap, is);
+            break;
+        }
+        case GameEntityType::mapLight:
+        {
+            entity = MapLight::getMapLightFromStream(gameMap, is);
+            break;
+        }
+        case GameEntityType::missileObject:
+        {
+            entity = MissileObject::getMissileObjectFromStream(gameMap, is);
+            break;
+        }
+        case GameEntityType::persistentObject:
+        {
+            // Persistent objects are not stored in level files, we should not be here
+            OD_ASSERT_TRUE(false);
+            break;
+        }
+        case GameEntityType::smallSpiderEntity:
+        {
+            // Small spiders are not stored in level files, we should not be here
+            OD_ASSERT_TRUE(false);
+            break;
+        }
+        case GameEntityType::spell:
+        {
+            entity = Spell::getSpellFromStream(gameMap, is);
+            break;
+        }
+        case GameEntityType::trapEntity:
+        {
+            // Trap entities are handled by the trap
+            OD_ASSERT_TRUE(false);
+            break;
+        }
+        case GameEntityType::treasuryObject:
+        {
+            entity = TreasuryObject::getTreasuryObjectFromStream(gameMap, is);
+            break;
+        }
+        default:
+        {
+            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Helper::toString(
+                static_cast<int>(type)));
+            break;
+        }
+    }
+
+    OD_ASSERT_TRUE(entity != nullptr);
+    if(entity == nullptr)
+        return nullptr;
+
+    entity->importFromStream(is);
+    return entity;
 }
 
 GameEntity* GameEntity::getGameEntityFromPacket(GameMap* gameMap, ODPacket& is)
 {
-    // For now, only RenderedMovableEntity are used this way. But this should change soon
-    RenderedMovableEntity* entity = nullptr;
+    GameEntity* entity = nullptr;
     GameEntityType type;
     OD_ASSERT_TRUE(is >> type);
     switch(type)
@@ -191,24 +419,9 @@ GameEntity* GameEntity::getGameEntityFromPacket(GameMap* gameMap, ODPacket& is)
             entity = BuildingObject::getBuildingObjectFromPacket(gameMap, is);
             break;
         }
-        case GameEntityType::treasuryObject:
-        {
-            entity = TreasuryObject::getTreasuryObjectFromPacket(gameMap, is);
-            break;
-        }
         case GameEntityType::chickenEntity:
         {
             entity = ChickenEntity::getChickenEntityFromPacket(gameMap, is);
-            break;
-        }
-        case GameEntityType::missileObject:
-        {
-            entity = MissileObject::getMissileObjectFromPacket(gameMap, is);
-            break;
-        }
-        case GameEntityType::smallSpiderEntity:
-        {
-            entity = SmallSpiderEntity::getSmallSpiderEntityFromPacket(gameMap, is);
             break;
         }
         case GameEntityType::craftedTrap:
@@ -216,9 +429,34 @@ GameEntity* GameEntity::getGameEntityFromPacket(GameMap* gameMap, ODPacket& is)
             entity = CraftedTrap::getCraftedTrapFromPacket(gameMap, is);
             break;
         }
+        case GameEntityType::creature:
+        {
+            entity = Creature::getCreatureFromPacket(gameMap, is);
+            break;
+        }
+        case GameEntityType::mapLight:
+        {
+            entity = MapLight::getMapLightFromPacket(gameMap, is);
+            break;
+        }
+        case GameEntityType::missileObject:
+        {
+            entity = MissileObject::getMissileObjectFromPacket(gameMap, is);
+            break;
+        }
         case GameEntityType::persistentObject:
         {
             entity = PersistentObject::getPersistentObjectFromPacket(gameMap, is);
+            break;
+        }
+        case GameEntityType::smallSpiderEntity:
+        {
+            entity = SmallSpiderEntity::getSmallSpiderEntityFromPacket(gameMap, is);
+            break;
+        }
+        case GameEntityType::spell:
+        {
+            entity = Spell::getSpellFromPacket(gameMap, is);
             break;
         }
         case GameEntityType::trapEntity:
@@ -226,9 +464,9 @@ GameEntity* GameEntity::getGameEntityFromPacket(GameMap* gameMap, ODPacket& is)
             entity = TrapEntity::getTrapEntityFromPacket(gameMap, is);
             break;
         }
-        case GameEntityType::spell:
+        case GameEntityType::treasuryObject:
         {
-            entity = Spell::getSpellFromPacket(gameMap, is);
+            entity = TreasuryObject::getTreasuryObjectFromPacket(gameMap, is);
             break;
         }
         default:

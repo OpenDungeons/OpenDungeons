@@ -479,6 +479,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         if(tempCreature == nullptr)
             return false;
 
+        tempCreature->importFromStream(levelFile);
         tempCreature->addToGameMap();
         ++nbCreatures;
 

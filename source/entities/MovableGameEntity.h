@@ -86,15 +86,10 @@ public:
     inline Ogre::AnimationState* getAnimationState() const
     { return mAnimationState; }
 
-    void firePickupEntity(Player* playerPicking);
-
-    void fireDropEntity(Player* playerPicking, Tile* tile);
-
-    //! \brief Exports the data of the MovableGameEntity
-    virtual void exportToStream(std::ostream& os) const;
-    virtual void importFromStream(std::istream& is);
-    virtual void exportToPacket(ODPacket& os) const;
-    virtual void importFromPacket(ODPacket& is);
+    virtual void exportToStream(std::ostream& os) const override;
+    virtual void importFromStream(std::istream& is) override;
+    virtual void exportToPacket(ODPacket& os) const override;
+    virtual void importFromPacket(ODPacket& is) override;
 
     virtual void restoreEntityState() override;
 

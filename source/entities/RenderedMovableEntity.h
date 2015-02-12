@@ -80,18 +80,11 @@ public:
     virtual void pickup();
     virtual void drop(const Ogre::Vector3& v);
 
-    /*! \brief Exports the headers needed to recreate the RenderedMovableEntity. For example, for
-     * missile objects type cannon, it exports RenderedMovableEntity::missileObject
-     * and MissileType::oneHit. The content of the RenderedMovableEntity will be exported
-     * by exportToPacket
-     */
-    virtual void exportHeadersToStream(std::ostream& os);
-    virtual void exportHeadersToPacket(ODPacket& os);
     //! \brief Exports the data of the RenderedMovableEntity
-    virtual void exportToStream(std::ostream& os) const;
-    virtual void importFromStream(std::istream& is);
-    virtual void exportToPacket(ODPacket& os) const;
-    virtual void importFromPacket(ODPacket& is);
+    virtual void exportToStream(std::ostream& os) const override;
+    virtual void importFromStream(std::istream& is) override;
+    virtual void exportToPacket(ODPacket& os) const override;
+    virtual void importFromPacket(ODPacket& is) override;
 
     static const char* getFormat();
 

@@ -2708,7 +2708,7 @@ std::string GameMap::nextUniqueNameMapLight()
     return ret;
 }
 
-MovableGameEntity* GameMap::getEntityFromTypeAndName(GameEntityType entityType,
+GameEntity* GameMap::getEntityFromTypeAndName(GameEntityType entityType,
     const std::string& entityName)
 {
     switch(entityType)

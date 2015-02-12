@@ -183,13 +183,13 @@ public:
     /*! \brief Exports the headers needed to recreate the Trap. It allows to extend Traps as much as wanted.
      * The content of the Trap will be exported by exportToPacket.
      */
-    virtual void exportHeadersToStream(std::ostream& os);
-    virtual void exportHeadersToPacket(ODPacket& os);
+    virtual void exportHeadersToStream(std::ostream& os) override;
+    virtual void exportHeadersToPacket(ODPacket& os) override;
     //! \brief Exports the data of the Trap
-    virtual void exportToStream(std::ostream& os) const;
-    virtual void importFromStream(std::istream& is);
-    virtual void exportToPacket(ODPacket& os) const;
-    virtual void importFromPacket(ODPacket& is);
+    virtual void exportToStream(std::ostream& os) const override;
+    virtual void importFromStream(std::istream& is) override;
+    virtual void exportToPacket(ODPacket& os) const override;
+    virtual void importFromPacket(ODPacket& is) override;
 
     static std::string getFormat();
 

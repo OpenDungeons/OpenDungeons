@@ -4313,6 +4313,18 @@ ProtectDungeonTemple	NULL
 [Rooms]
 # typeRoom	seatId	numTiles		Subsequent Lines: tileX	tileY
 [Room]
+1	1	9
+49	78
+49	79
+49	80
+50	78
+50	79
+50	80
+51	78
+51	79
+51	80
+[/Room]
+[Room]
 4	1	9
 55	75
 55	76
@@ -4337,16 +4349,16 @@ ProtectDungeonTemple	NULL
 45	77
 [/Room]
 [Room]
-1	1	9
-49	78
-49	79
-49	80
-50	78
-50	79
-50	80
-51	78
-51	79
-51	80
+1	2	9
+49	20
+49	21
+49	22
+50	20
+50	21
+50	22
+51	20
+51	21
+51	22
 [/Room]
 [Room]
 4	2	9
@@ -4372,18 +4384,6 @@ ProtectDungeonTemple	NULL
 57	25
 57	26
 [/Room]
-[Room]
-1	2	9
-49	20
-49	21
-49	22
-50	20
-50	21
-50	22
-51	20
-51	21
-51	22
-[/Room]
 [/Rooms]
 
 [Traps]
@@ -4401,59 +4401,59 @@ ProtectDungeonTemple	NULL
 [/EquipmentDefinitions]
 
 [Creatures]
-# SeatId	ClassName	Name	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeapon	RightWeapon
+# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon
 [Creature]
-0	Spider	Spider1	2	0	max	100	0	0	17	67	0	none	none
+0	Spider1	Spider	17	67	0	Spider	2	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Spider	Spider2	2	0	max	100	0	0	16	67	0	none	none
+0	Spider2	Spider	16	67	0	Spider	2	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Spider	Spider3	2	0	max	100	0	0	15	67	0	none	none
+0	Spider3	Spider	15	67	0	Spider	2	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Spider	Spider4	2	0	max	100	0	0	16	68	0	none	none
+0	Spider4	Spider	16	68	0	Spider	2	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Spider	Spider5	2	0	max	100	0	0	16	66	0	none	none
+0	Spider5	Spider	16	66	0	Spider	2	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Spider	Spider6	2	0	max	100	0	0	83	33	0	none	none
+0	Spider6	Spider	83	33	0	Spider	2	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Spider	Spider7	2	0	max	100	0	0	84	33	0	none	none
+0	Spider7	Spider	84	33	0	Spider	2	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Spider	Spider8	2	0	max	100	0	0	82	33	0	none	none
+0	Spider8	Spider	82	33	0	Spider	2	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Spider	Spider9	2	0	max	100	0	0	83	34	0	none	none
+0	Spider9	Spider	83	34	0	Spider	2	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Spider	Spider10	2	0	max	100	0	0	83	32	0	none	none
+0	Spider10	Spider	83	32	0	Spider	2	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Spider	Spider11	3	0	max	100	0	0	50	41	0	none	none
+0	Spider11	Spider	50	41	0	Spider	3	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Spider	Spider12	3	0	max	100	0	0	51	43	0	none	none
+0	Spider12	Spider	51	43	0	Spider	3	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Spider	Spider13	3	0	max	100	0	0	50	45	0	none	none
+0	Spider13	Spider	50	45	0	Spider	3	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Spider	Spider14	3	0	max	100	0	0	51	47	0	none	none
+0	Spider14	Spider	51	47	0	Spider	3	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Spider	Spider15	3	0	max	100	0	0	50	53	0	none	none
+0	Spider15	Spider	50	53	0	Spider	3	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Spider	Spider16	3	0	max	100	0	0	51	55	0	none	none
+0	Spider16	Spider	51	55	0	Spider	3	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Spider	Spider17	3	0	max	100	0	0	50	57	0	none	none
+0	Spider17	Spider	50	57	0	Spider	3	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Spider	Spider18	3	0	max	100	0	0	51	59	0	none	none
+0	Spider18	Spider	51	59	0	Spider	3	0	max	100	0	0	none	none
 [/Creature]
 [/Creatures]

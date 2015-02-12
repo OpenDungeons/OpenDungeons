@@ -860,7 +860,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             OD_ASSERT_TRUE(packetReceived >> entityType >> entityName);
 
             Player *player = clientSocket->getPlayer();
-            MovableGameEntity* entity = gameMap->getEntityFromTypeAndName(entityType, entityName);
+            GameEntity* entity = gameMap->getEntityFromTypeAndName(entityType, entityName);
             OD_ASSERT_TRUE_MSG(entity != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
             if(entity == nullptr)
                 break;
@@ -948,7 +948,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             std::string entityName;
             Player* player = clientSocket->getPlayer();
             OD_ASSERT_TRUE(packetReceived >> entityType >> entityName);
-            MovableGameEntity* entity = gameMap->getEntityFromTypeAndName(entityType, entityName);
+            GameEntity* entity = gameMap->getEntityFromTypeAndName(entityType, entityName);
             OD_ASSERT_TRUE_MSG(entity != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
             if(entity == nullptr)
                 break;

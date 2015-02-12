@@ -280,26 +280,20 @@ void Creature::removeFromGameMap()
 
 std::string Creature::getFormat()
 {
-    //NOTE:  When this format changes, other changes to RoomPortal::spawnCreature() may be necessary.
-    return "SeatId\tClassName\tName\tLevel\tCurrentXP\tCurrentHP\tCurrentAwakeness\t"
-           "CurrentHunger\tGoldToDeposit\tPosX\tPosY\tPosZ\tLeftWeapon\tRightWeapon";
+    return "SeatId\tName\tMeshName\tPosX\tPosY\tPosZ\tClassName\tLevel\tCurrentXP\tCurrentHP\tCurrentAwakeness\t"
+           "CurrentHunger\tGoldToDeposit\tLeftWeapon\tRightWeapon";
 }
 
 void Creature::exportToStream(std::ostream& os) const
 {
-    int seatId = getSeat()->getId();
-    os << seatId;
-    os << "\t" << mDefinition->getClassName() << "\t" << getName();
-    os << "\t" << getLevel() << "\t" << mExp << "\t";
+    MovableGameEntity::exportToStream(os);
+    os << mDefinition->getClassName() << "\t";
+    os << getLevel() << "\t" << mExp << "\t";
     if(getHP() < mMaxHP)
         os << getHP();
     else
         os << "max";
     os << "\t" << mAwakeness << "\t" << mHunger << "\t" << mGoldCarried;
-
-    os << "\t" << mPosition.x;
-    os << "\t" << mPosition.y;
-    os << "\t" << mPosition.z;
 
     // Check creature weapons
     if(mWeaponL != nullptr)
@@ -312,19 +306,12 @@ void Creature::exportToStream(std::ostream& os) const
     else
         os << "\tnone";
 
-    MovableGameEntity::exportToStream(os);
 }
 
 void Creature::importFromStream(std::istream& is)
 {
-    Ogre::Real xLocation = 0.0, yLocation = 0.0, zLocation = 0.0;
-    double tempDouble = 0.0;
+    MovableGameEntity::importFromStream(is);
     std::string tempString;
-
-    int seatId = 0;
-    OD_ASSERT_TRUE(is >> seatId);
-    Seat* seat = getGameMap()->getSeatById(seatId);
-    setSeat(seat);
 
     // class name
     OD_ASSERT_TRUE(is >> tempString);
@@ -332,10 +319,11 @@ void Creature::importFromStream(std::istream& is)
     OD_ASSERT_TRUE_MSG(mDefinition != nullptr, "Definition=" + tempString);
 
     // name
-    OD_ASSERT_TRUE(is >> tempString);
-    if (tempString.compare("autoname") == 0)
+    if (getName().compare("autoname") == 0)
+    {
         tempString = getGameMap()->nextUniqueNameCreature(mDefinition->getClassName());
-    setName(tempString);
+        setName(tempString);
+    }
 
     OD_ASSERT_TRUE(is >> mLevel);
 
@@ -344,17 +332,11 @@ void Creature::importFromStream(std::istream& is)
     std::string strHp;
     OD_ASSERT_TRUE(is >> strHp);
 
-    OD_ASSERT_TRUE(is >> tempDouble);
-    mAwakeness = tempDouble;
+    OD_ASSERT_TRUE(is >> mAwakeness);
 
-    OD_ASSERT_TRUE(is >> tempDouble);
-    mHunger = tempDouble;
+    OD_ASSERT_TRUE(is >> mHunger);
 
-    OD_ASSERT_TRUE(is >> tempDouble);
-    mGoldCarried = static_cast<int>(tempDouble);
-
-    OD_ASSERT_TRUE(is >> xLocation >> yLocation >> zLocation);
-    mPosition = Ogre::Vector3(xLocation, yLocation, zLocation);
+    OD_ASSERT_TRUE(is >> mGoldCarried);
 
     OD_ASSERT_TRUE(is >> tempString);
     if(tempString != "none")
@@ -370,8 +352,6 @@ void Creature::importFromStream(std::istream& is)
         OD_ASSERT_TRUE_MSG(mWeaponR != nullptr, "Unknown weapon name=" + tempString);
     }
     mLevel = std::min(MAX_LEVEL, mLevel);
-
-    MovableGameEntity::importFromStream(is);
 
     buildStats();
 
@@ -424,29 +404,20 @@ void Creature::buildStats()
 Creature* Creature::getCreatureFromStream(GameMap* gameMap, std::istream& is)
 {
     Creature* creature = new Creature(gameMap);
-    creature->importFromStream(is);
     return creature;
 }
 
 Creature* Creature::getCreatureFromPacket(GameMap* gameMap, ODPacket& is)
 {
     Creature* creature = new Creature(gameMap);
-    creature->importFromPacket(is);
     return creature;
 }
 
 void Creature::exportToPacket(ODPacket& os) const
 {
+    MovableGameEntity::exportToPacket(os);
     const std::string& className = mDefinition->getClassName();
     os << className;
-
-    const std::string& name = getName();
-    os << name;
-
-    int seatId = getSeat()->getId();
-    os << mPosition;
-    os << seatId;
-
     os << mLevel;
     os << mExp;
 
@@ -477,27 +448,16 @@ void Creature::exportToPacket(ODPacket& os) const
         os << mWeaponR->getName();
     else
         os << "none";
-
-    MovableGameEntity::exportToPacket(os);
 }
 
 void Creature::importFromPacket(ODPacket& is)
 {
+    MovableGameEntity::importFromPacket(is);
     std::string tempString;
 
     OD_ASSERT_TRUE(is >> tempString);
     mDefinition = getGameMap()->getClassDescription(tempString);
     OD_ASSERT_TRUE_MSG(mDefinition != nullptr, "Definition=" + tempString);
-
-    OD_ASSERT_TRUE(is >> tempString);
-    setName(tempString);
-
-    OD_ASSERT_TRUE(is >> mPosition);
-
-    int seatId;
-    OD_ASSERT_TRUE(is >> seatId);
-    Seat* seat = getGameMap()->getSeatById(seatId);
-    setSeat(seat);
 
     OD_ASSERT_TRUE(is >> mLevel);
     OD_ASSERT_TRUE(is >> mExp);
@@ -533,8 +493,6 @@ void Creature::importFromPacket(ODPacket& is)
         mWeaponR = getGameMap()->getWeapon(tempString);
         OD_ASSERT_TRUE_MSG(mWeaponR != nullptr, "Unknown weapon name=" + tempString);
     }
-
-    MovableGameEntity::importFromPacket(is);
 
     buildStats();
 }
@@ -3927,7 +3885,8 @@ void Creature::fireAddEntity(Seat* seat, bool async)
     if(async)
     {
         ServerNotification serverNotification(
-            ServerNotificationType::addCreature, seat->getPlayer());
+            ServerNotificationType::addEntity, seat->getPlayer());
+        exportHeadersToPacket(serverNotification.mPacket);
         exportToPacket(serverNotification.mPacket);
         ODServer::getSingleton().sendAsyncMsg(serverNotification);
 
@@ -3937,7 +3896,8 @@ void Creature::fireAddEntity(Seat* seat, bool async)
     else
     {
         ServerNotification* serverNotification = new ServerNotification(
-            ServerNotificationType::addCreature, seat->getPlayer());
+            ServerNotificationType::addEntity, seat->getPlayer());
+        exportHeadersToPacket(serverNotification->mPacket);
         exportToPacket(serverNotification->mPacket);
         ODServer::getSingleton().queueServerNotification(serverNotification);
 
@@ -3972,7 +3932,9 @@ void Creature::fireRemoveEntity(Seat* seat)
 
     const std::string& name = getName();
     ServerNotification *serverNotification = new ServerNotification(
-        ServerNotificationType::removeCreature, seat->getPlayer());
+        ServerNotificationType::removeEntity, seat->getPlayer());
+    GameEntityType type = getObjectType();
+    serverNotification->mPacket << type;
     serverNotification->mPacket << name;
     ODServer::getSingleton().queueServerNotification(serverNotification);
 }

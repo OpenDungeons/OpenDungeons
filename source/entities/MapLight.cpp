@@ -150,14 +150,16 @@ void MapLight::fireAddEntity(Seat* seat, bool async)
     if(async)
     {
         ServerNotification serverNotification(
-            ServerNotificationType::addMapLight, seat->getPlayer());
+            ServerNotificationType::addEntity, seat->getPlayer());
+        exportHeadersToPacket(serverNotification.mPacket);
         exportToPacket(serverNotification.mPacket);
         ODServer::getSingleton().sendAsyncMsg(serverNotification);
     }
     else
     {
         ServerNotification* serverNotification = new ServerNotification(
-            ServerNotificationType::addMapLight, seat->getPlayer());
+            ServerNotificationType::addEntity, seat->getPlayer());
+        exportHeadersToPacket(serverNotification->mPacket);
         exportToPacket(serverNotification->mPacket);
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
@@ -167,7 +169,9 @@ void MapLight::fireRemoveEntity(Seat* seat)
 {
     const std::string& name = getName();
     ServerNotification *serverNotification = new ServerNotification(
-        ServerNotificationType::removeMapLight, seat->getPlayer());
+        ServerNotificationType::removeEntity, seat->getPlayer());
+    GameEntityType type = getObjectType();
+    serverNotification->mPacket << type;
     serverNotification->mPacket << name;
     ODServer::getSingleton().queueServerNotification(serverNotification);
 }
@@ -262,6 +266,18 @@ void MapLight::slap()
 std::string MapLight::getFormat()
 {
     return "posX\tposY\tposZ\tdiffuseR\tdiffuseG\tdiffuseB\tspecularR\tspecularG\tspecularB\tattenRange\tattenConst\tattenLin\tattenQuad";
+}
+
+MapLight* MapLight::getMapLightFromStream(GameMap* gameMap, std::istream& is)
+{
+    // TODO : replace MapLight::loadFromLine
+    return nullptr;
+}
+
+MapLight* MapLight::getMapLightFromPacket(GameMap* gameMap, ODPacket& is)
+{
+    MapLight* mapLight = new MapLight(gameMap);
+    return mapLight;
 }
 
 void MapLight::loadFromLine(const std::string& line, MapLight* m)

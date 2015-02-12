@@ -281,10 +281,10 @@ public:
 
     static Creature* getCreatureFromStream(GameMap* gameMap, std::istream& is);
     static Creature* getCreatureFromPacket(GameMap* gameMap, ODPacket& is);
-    virtual void exportToPacket(ODPacket& os) const;
-    virtual void importFromPacket(ODPacket& is);
-    virtual void exportToStream(std::ostream& os) const;
-    virtual void importFromStream(std::istream& is);
+    virtual void exportToPacket(ODPacket& os) const override;
+    virtual void importFromPacket(ODPacket& is) override;
+    virtual void exportToStream(std::ostream& os) const override;
+    virtual void importFromStream(std::istream& is) override;
 
     //! \brief Checks if the creature can be picked up. If yes, this function does the needed
     //! to prepare for the pickup (removing creature from GameMap, changing states, ...).

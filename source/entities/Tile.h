@@ -244,7 +244,7 @@ public:
     //! \brief Tells whether a room can be built upon this tile.
     bool isBuildableUpon() const;
 
-    void exportToStream(std::ostream& os) const;
+    void exportToStream(std::ostream& os) const override;
 
     static const char* getFormat();
 

@@ -61,8 +61,8 @@ public:
     void fireRemoveEntityToSeatsWithVision()
     {}
 
-    virtual void exportToPacket(ODPacket& os) const;
-    virtual void importFromPacket(ODPacket& is);
+    virtual void exportToPacket(ODPacket& os) const override;
+    virtual void importFromPacket(ODPacket& is) override;
 
     static PersistentObject* getPersistentObjectFromPacket(GameMap* gameMap, ODPacket& is);
 

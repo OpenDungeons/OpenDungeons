@@ -167,7 +167,7 @@ void RenderedMovableEntity::fireAddEntity(Seat* seat, bool async)
     if(async)
     {
         ServerNotification serverNotification(
-            ServerNotificationType::addRenderedMovableEntity, seat->getPlayer());
+            ServerNotificationType::addEntity, seat->getPlayer());
         exportHeadersToPacket(serverNotification.mPacket);
         exportToPacket(serverNotification.mPacket);
         ODServer::getSingleton().sendAsyncMsg(serverNotification);
@@ -175,7 +175,7 @@ void RenderedMovableEntity::fireAddEntity(Seat* seat, bool async)
     else
     {
         ServerNotification* serverNotification = new ServerNotification(
-            ServerNotificationType::addRenderedMovableEntity, seat->getPlayer());
+            ServerNotificationType::addEntity, seat->getPlayer());
         exportHeadersToPacket(serverNotification->mPacket);
         exportToPacket(serverNotification->mPacket);
         ODServer::getSingleton().queueServerNotification(serverNotification);
@@ -185,7 +185,7 @@ void RenderedMovableEntity::fireAddEntity(Seat* seat, bool async)
 void RenderedMovableEntity::fireRemoveEntity(Seat* seat)
 {
     ServerNotification *serverNotification = new ServerNotification(
-        ServerNotificationType::removeRenderedMovableEntity, seat->getPlayer());
+        ServerNotificationType::removeEntity, seat->getPlayer());
     const std::string& name = getName();
     GameEntityType type = getObjectType();
     serverNotification->mPacket << type;
@@ -224,67 +224,33 @@ uint32_t RenderedMovableEntity::numCoveredTiles()
     return 1;
 }
 
-void RenderedMovableEntity::exportHeadersToStream(std::ostream& os)
-{
-    os << getObjectType();
-}
-
-void RenderedMovableEntity::exportHeadersToPacket(ODPacket& os)
-{
-    os << getObjectType();
-}
-
 void RenderedMovableEntity::exportToPacket(ODPacket& os) const
 {
-    std::string name = getName();
-    std::string meshName = getMeshName();
-    os << name << meshName;
-    os << mOpacity;
-    os << mPosition << mRotationAngle << mHideCoveredTile;
-
     MovableGameEntity::exportToPacket(os);
+    os << mOpacity;
+    os << mRotationAngle;
+    os << mHideCoveredTile;
+
 }
 
 void RenderedMovableEntity::importFromPacket(ODPacket& is)
 {
-    std::string name;
-    std::string meshName;
-    OD_ASSERT_TRUE(is >> name);
-    setName(name);
-    OD_ASSERT_TRUE(is >> meshName);
-    setMeshName(meshName);
-    OD_ASSERT_TRUE(is >> mOpacity);
-    OD_ASSERT_TRUE(is >> mPosition);
-    OD_ASSERT_TRUE(is >> mRotationAngle);
-
-    OD_ASSERT_TRUE(is >> mHideCoveredTile);
-
     MovableGameEntity::importFromPacket(is);
+    OD_ASSERT_TRUE(is >> mOpacity);
+    OD_ASSERT_TRUE(is >> mRotationAngle);
+    OD_ASSERT_TRUE(is >> mHideCoveredTile);
 }
 
 void RenderedMovableEntity::exportToStream(std::ostream& os) const
 {
-    std::string name = getName();
-    std::string meshName = getMeshName();
-    os << name << "\t" << meshName << "\t";
-    os << mOpacity << "\t";
-    os << mPosition.x << "\t" << mPosition.y << "\t" << mPosition.z << "\t";
-    os << mRotationAngle;
-
     MovableGameEntity::exportToStream(os);
+    os << mOpacity << "\t";
+    os << mRotationAngle << "\t";
 }
 
 void RenderedMovableEntity::importFromStream(std::istream& is)
 {
-    std::string name;
-    std::string meshName;
-    OD_ASSERT_TRUE(is >> name);
-    setName(name);
-    OD_ASSERT_TRUE(is >> meshName);
-    setMeshName(meshName);
-    OD_ASSERT_TRUE(is >> mOpacity);
-    OD_ASSERT_TRUE(is >> mPosition.x >> mPosition.y >> mPosition.z);
-    OD_ASSERT_TRUE(is >> mRotationAngle);
-
     MovableGameEntity::importFromStream(is);
+    OD_ASSERT_TRUE(is >> mOpacity);
+    OD_ASSERT_TRUE(is >> mRotationAngle);
 }

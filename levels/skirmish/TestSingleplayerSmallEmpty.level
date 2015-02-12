@@ -2595,11 +2595,11 @@ ProtectDungeonTemple	NULL
 [/EquipmentDefinitions]
 
 [Creatures]
-# SeatId	ClassName	Name	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeapon	RightWeapon
+# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon
 [Creature]
-1	ConstructWorker	ConstructWorker1	1	0	max	100	0	0	7	7	0	none	none
+1	ConstructWorker1	ConstructWorker	7	7	0	ConstructWorker	1	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Scarab	Scarab1	1	0	max	100	0	0	37	42	0	none	none
+0	Scarab1	Scarab	37	42	0	Scarab	1	0	max	100	0	0	none	none
 [/Creature]
 [/Creatures]

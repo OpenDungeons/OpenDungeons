@@ -482,7 +482,7 @@ public:
     RenderedMovableEntity* getRenderedMovableEntity(const std::string& name);
     void clearRenderedMovableEntities();
     void clearActiveObjects();
-    MovableGameEntity* getEntityFromTypeAndName(GameEntityType entityType,
+    GameEntity* getEntityFromTypeAndName(GameEntityType entityType,
         const std::string& entityName);
 
     //! brief Functions to add/remove/get Spells
