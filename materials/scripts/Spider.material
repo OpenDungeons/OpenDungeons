@@ -10,7 +10,7 @@ material Spider
         {
             ambient 1.0 1.0 1.0 1.0
             diffuse 1.0 1.0 1.0 1.0
-            specular 0.10000000149011612 0.10000000149011612 0.10000000149011612 1.0 15.0
+            specular 0.0 0.0 0.0 1.0 15.0
             emissive 0.0 0.0 0.0 1.0
 
             alpha_to_coverage off
@@ -32,9 +32,9 @@ material Spider
 
             texture_unit
             {
-                texture Spider.png
+                texture SpiderTexture.png
                 tex_address_mode wrap
-                scale 0.5 0.5
+                scale 1.0 1.0
                 colour_op modulate
             }
         }
