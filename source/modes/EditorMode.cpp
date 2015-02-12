@@ -426,11 +426,6 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         skipCreaturePickUp = true;
     }
 
-    // Check whether the player selection is over a wall and skip creature in that case
-    // to permit easier wall selection.
-    if (mGameMap->getTile(mMouseX, mMouseY)->getFullness() > 1.0)
-        skipCreaturePickUp = true;
-
     // See if the mouse is over any creatures
     for (;itr != result.end(); ++itr)
     {
