@@ -397,6 +397,9 @@ private:
     //! \brief The creatures home tile (where its bed is located)
     Tile *mHomeTile;
 
+    //! Class name of the creature. The CreatureDefinition will be set from this name
+    //! when the creature will be initialized
+    std::string     mDefinitionString;
     //! \brief Pointer to the struct holding the general type of the creature with its values
     const CreatureDefinition* mDefinition;
 
@@ -408,6 +411,7 @@ private:
     unsigned int    mLevel;
 
     //! \brief The creature stats
+    std::string     mHpString;
     double          mHp;
     double          mMaxHP;
     double          mExp;

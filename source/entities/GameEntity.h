@@ -262,7 +262,7 @@ class GameEntity
     //! \brief Fires remove event to every seat with vision
     void fireRemoveEntityToSeatsWithVision();
 
-    //! \brief Returns true if the entity can be carried by a kobold. False otherwise.
+    //! \brief Returns true if the entity can be carried by a worker. False otherwise.
     virtual EntityCarryType getEntityCarryType()
     { return EntityCarryType::notCarryable; }
 

@@ -117,6 +117,7 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
     mFirstTurnFurious        (-1)
 
 {
+    setMeshName(definition->getMeshName());
     setName(getGameMap()->nextUniqueNameCreature(definition->getClassName()));
 
     setIsOnMap(false);
@@ -200,6 +201,53 @@ Creature::~Creature()
 void Creature::createMeshLocal()
 {
     MovableGameEntity::createMeshLocal();
+
+    bool setHpToStrHp = false;
+    if(mDefinition == nullptr)
+    {
+        // If the classname corresponds to the default worker CreatureDefinition, we use
+        // the dedicated class. The correct one will be set after the seat is initialized
+        if(mDefinitionString.compare(ConfigManager::DefaultWorkerCreatureDefinition) != 0)
+        {
+            mDefinition = getGameMap()->getClassDescription(mDefinitionString);
+        }
+        else
+        {
+            // If we are in editor mode, we take the default worker class. Otherwise, we take
+            // the default worker from the seat faction
+            if(getGameMap()->isInEditorMode())
+                mDefinition = ConfigManager::getSingleton().getCreatureDefinitionDefaultWorker();
+            else
+                mDefinition = getSeat()->getWorkerClassToSpawn();
+        }
+
+        OD_ASSERT_TRUE_MSG(mDefinition != nullptr, "Definition=" + mDefinitionString);
+
+        if(getGameMap()->isServerGameMap())
+        {
+            setHpToStrHp = true;
+
+            // name
+            if (getName().compare("autoname") == 0)
+            {
+                std::string name = getGameMap()->nextUniqueNameCreature(mDefinition->getClassName());
+                setName(name);
+            }
+        }
+    }
+
+    buildStats();
+
+    // Now, the max hp is known. If needed, we set it
+    if(setHpToStrHp)
+    {
+        if(mHpString.compare("max") == 0)
+            mHp = mMaxHP;
+        else
+            mHp = Helper::toDouble(mHpString);
+
+    }
+
     if(!getGameMap()->isServerGameMap())
     {
         RenderManager::getSingleton().rrCreateCreature(this);
@@ -308,27 +356,19 @@ void Creature::exportToStream(std::ostream& os) const
 
 void Creature::importFromStream(std::istream& is)
 {
+    // Beware: A generic class name might be used here so we shouldn't use mDefinition
+    // here as it is not set yet (for example, default worker will be available only after
+    // seat lobby configuration)
     MovableGameEntity::importFromStream(is);
     std::string tempString;
 
-    // class name
-    OD_ASSERT_TRUE(is >> tempString);
-    mDefinition = getGameMap()->getClassDescription(tempString);
-    OD_ASSERT_TRUE_MSG(mDefinition != nullptr, "Definition=" + tempString);
-
-    // name
-    if (getName().compare("autoname") == 0)
-    {
-        tempString = getGameMap()->nextUniqueNameCreature(mDefinition->getClassName());
-        setName(tempString);
-    }
+    OD_ASSERT_TRUE(is >> mDefinitionString);
 
     OD_ASSERT_TRUE(is >> mLevel);
 
     OD_ASSERT_TRUE(is >> mExp);
 
-    std::string strHp;
-    OD_ASSERT_TRUE(is >> strHp);
+    OD_ASSERT_TRUE(is >> mHpString);
 
     OD_ASSERT_TRUE(is >> mAwakeness);
 
@@ -350,13 +390,6 @@ void Creature::importFromStream(std::istream& is)
         OD_ASSERT_TRUE_MSG(mWeaponR != nullptr, "Unknown weapon name=" + tempString);
     }
     mLevel = std::min(MAX_LEVEL, mLevel);
-
-    buildStats();
-
-    if(strHp.compare("max") == 0)
-        mHp = mMaxHP;
-    else
-        mHp = Helper::toDouble(strHp);
 }
 
 void Creature::buildStats()
@@ -453,9 +486,7 @@ void Creature::importFromPacket(ODPacket& is)
     MovableGameEntity::importFromPacket(is);
     std::string tempString;
 
-    OD_ASSERT_TRUE(is >> tempString);
-    mDefinition = getGameMap()->getClassDescription(tempString);
-    OD_ASSERT_TRUE_MSG(mDefinition != nullptr, "Definition=" + tempString);
+    OD_ASSERT_TRUE(is >> mDefinitionString);
 
     OD_ASSERT_TRUE(is >> mLevel);
     OD_ASSERT_TRUE(is >> mExp);
@@ -491,8 +522,6 @@ void Creature::importFromPacket(ODPacket& is)
         mWeaponR = getGameMap()->getWeapon(tempString);
         OD_ASSERT_TRUE_MSG(mWeaponR != nullptr, "Unknown weapon name=" + tempString);
     }
-
-    buildStats();
 }
 
 void Creature::setPosition(const Ogre::Vector3& v, bool isMove)

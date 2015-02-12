@@ -1774,7 +1774,10 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             OD_ASSERT_TRUE(packetReceived >> seatId);
             Seat* seatCreature = gameMap->getSeatById(seatId);
             OD_ASSERT_TRUE_MSG(seatCreature != nullptr, "seatId=" + Ogre::StringConverter::toString(seatId));
-            const CreatureDefinition *classToSpawn = gameMap->getClassDescription("Kobold");
+            if(seatCreature == nullptr)
+                break;
+
+            const CreatureDefinition *classToSpawn = ConfigManager::getSingleton().getCreatureDefinitionDefaultWorker();
             OD_ASSERT_TRUE(classToSpawn != nullptr);
             if(classToSpawn == nullptr)
                 break;
