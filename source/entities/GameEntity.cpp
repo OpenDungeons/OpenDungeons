@@ -31,6 +31,7 @@
 #include "entities/PersistentObject.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/SmallSpiderEntity.h"
+#include "entities/Tile.h"
 #include "entities/TrapEntity.h"
 #include "entities/TreasuryObject.h"
 

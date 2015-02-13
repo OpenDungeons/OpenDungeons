@@ -28,6 +28,7 @@
 #include "entities/MapLight.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
+#include "entities/Tile.h"
 #include "ODApplication.h"
 #include "rooms/RoomTreasury.h"
 #include "entities/TreasuryObject.h"

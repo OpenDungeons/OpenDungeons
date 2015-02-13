@@ -27,6 +27,7 @@
 #include "render/TextRenderer.h"
 #include "entities/Creature.h"
 #include "entities/MapLight.h"
+#include "entities/Tile.h"
 #include "game/Seat.h"
 #include "traps/Trap.h"
 #include "game/Player.h"
@@ -510,12 +511,11 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
                     fullness = 0.0;
                     break;
             }
-            int intTileType = static_cast<int>(mCurrentTileType);
             ClientNotification *clientNotification = new ClientNotification(
                 ClientNotificationType::editorAskChangeTiles);
             clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
             clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
-            clientNotification->mPacket << intTileType;
+            clientNotification->mPacket << mCurrentTileType;
             clientNotification->mPacket << fullness;
             clientNotification->mPacket << mCurrentSeatId;
             ODClient::getSingleton().queueClientNotification(clientNotification);

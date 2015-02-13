@@ -27,6 +27,7 @@
 #include "entities/MapLight.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
+#include "entities/Tile.h"
 #include "entities/Weapon.h"
 #include "traps/Trap.h"
 #include "game/Player.h"

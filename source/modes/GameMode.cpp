@@ -21,6 +21,7 @@
 #include "entities/Creature.h"
 #include "entities/MapLight.h"
 #include "entities/RenderedMovableEntity.h"
+#include "entities/Tile.h"
 #include "gamemap/MiniMap.h"
 #include "game/Seat.h"
 #include "game/Player.h"

@@ -27,6 +27,7 @@
 #include "gamemap/MapLoader.h"
 #include "utils/LogManager.h"
 #include "entities/Creature.h"
+#include "entities/Tile.h"
 #include "entities/Weapon.h"
 #include "traps/Trap.h"
 #include "traps/TrapCannon.h"
@@ -1511,21 +1512,17 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
                 + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
             int x1, y1, x2, y2;
-            int intTileType;
+            TileType tileType;
             double tileFullness;
             int seatId;
 
-            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> intTileType >> tileFullness >> seatId);
-            TileType tileType = static_cast<TileType>(intTileType);
+            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> tileType >> tileFullness >> seatId);
             std::vector<Tile*> selectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
             std::vector<Tile*> affectedTiles;
             Seat* seat = nullptr;
-            double claimedPercentage = 0.0;
             if(tileType == TileType::claimed)
-            {
                 seat = gameMap->getSeatById(seatId);
-                claimedPercentage = 1.0;
-            }
+
             for(Tile* tile : selectedTiles)
             {
                 // We do not change tiles where there is something
@@ -1536,10 +1533,11 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     continue;
 
                 affectedTiles.push_back(tile);
-                tile->setType(tileType);
                 tile->setFullness(tileFullness);
-                tile->setSeat(seat);
-                tile->mClaimedPercentage = claimedPercentage;
+                if(tileType == TileType::claimed)
+                    tile->claimTile(seat);
+                else
+                    tile->unclaimTile(tileType);
             }
             if(!affectedTiles.empty())
             {

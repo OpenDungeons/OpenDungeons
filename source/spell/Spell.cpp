@@ -17,6 +17,8 @@
 
 #include "spell/Spell.h"
 
+#include "entities/Tile.h"
+
 #include "game/Player.h"
 #include "game/Seat.h"
 

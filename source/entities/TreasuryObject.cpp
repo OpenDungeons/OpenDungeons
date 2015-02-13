@@ -17,6 +17,7 @@
 
 #include "entities/TreasuryObject.h"
 
+#include "entities/Tile.h"
 #include "gamemap/GameMap.h"
 #include "network/ODPacket.h"
 #include "rooms/RoomTreasury.h"

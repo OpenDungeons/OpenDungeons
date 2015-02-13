@@ -24,6 +24,7 @@
 #include "entities/SmallSpiderEntity.h"
 #include "entities/CraftedTrap.h"
 #include "entities/PersistentObject.h"
+#include "entities/Tile.h"
 #include "entities/TrapEntity.h"
 
 #include "game/Seat.h"

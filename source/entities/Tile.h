@@ -59,6 +59,15 @@ ODPacket& operator>>(ODPacket& is, TileType& type);
 std::ostream& operator<<(std::ostream& os, const TileType& type);
 std::istream& operator>>(std::istream& is, TileType& type);
 
+enum class FloodFillType
+{
+    FloodFillTypeGround = 0,
+    FloodFillTypeGroundWater,
+    FloodFillTypeGroundLava,
+    FloodFillTypeGroundWaterLava,
+    FloodFillTypeMax
+};
+
 /*! \brief The tile class contains information about tile type and contents and is the basic level bulding block.
  *
  * A Tile is the basic building block for the GameMap.  It consists of a tile
@@ -68,9 +77,6 @@ std::istream& operator>>(std::istream& is, TileType& type);
  */
 class Tile : public GameEntity
 {
-friend class GameMap;
-friend class ODServer;
-
 public:
     Tile(GameMap* gameMap, int x = 0, int y = 0, TileType type = TileType::dirt, double fullness = 100.0);
 
@@ -203,6 +209,7 @@ public:
 
     void claimForSeat(Seat* seat, double nDanceRate);
     void claimTile(Seat* seat);
+    void unclaimTile(TileType type);
     double digOut(double digRate, bool doScaleDigRate = false);
     double scaleDigRate(double digRate);
 
@@ -337,6 +344,28 @@ public:
     //! Removes the PersistentObject from the tile.
     bool removePersistentObject(PersistentObject* obj);
 
+    void resetFloodFill();
+
+    static inline uint32_t toUInt32(FloodFillType type)
+    { return static_cast<uint32_t>(type); }
+
+    static std::string toString(FloodFillType type);
+
+    int floodFillValue(FloodFillType type) const;
+
+    bool isSameFloodFill(FloodFillType type, Tile* tile) const;
+
+    //! Updates the floodfill from the given tile if floodfill is not already set.
+    //! returns true if the floodfill has been updated and false otherwise
+    bool updateFloodFillFromTile(FloodFillType type, Tile* tile);
+
+    //! Sets the floodfill value corresponding at type to newValue
+    void replaceFloodFill(FloodFillType type, int newValue);
+
+    void logFloodFill() const;
+
+    bool isFloodFillFilled() const;
+
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
@@ -346,17 +375,6 @@ protected:
     void fireRemoveEntity(Seat* seat)
     {}
 private:
-    bool isFloodFillFilled() const;
-
-    enum FloodFillType
-    {
-        FloodFillTypeGround = 0,
-        FloodFillTypeGroundWater,
-        FloodFillTypeGroundLava,
-        FloodFillTypeGroundWaterLava,
-        FloodFillTypeMax
-    };
-
     //! \brief The tile position
     int mX, mY;
 
@@ -388,7 +406,7 @@ private:
     std::vector<GameEntity*> mEntitiesInTile;
 
     Building* mCoveringBuilding;
-    int mFloodFillColor[FloodFillTypeMax];
+    std::vector<int> mFloodFillColor;
     double mClaimedPercentage;
     Ogre::Vector3 mScale;
 
@@ -408,8 +426,6 @@ private:
      *  before a map object has been set. setFullness is called once a map is assigned.
      */
     void setFullnessValue(double f);
-
-    int getFloodFill(FloodFillType type);
 
     void setDirtyForAllSeats();
 };

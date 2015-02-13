@@ -23,6 +23,7 @@
 #include "entities/CreatureDefinition.h"
 #include "entities/Weapon.h"
 #include "entities/CreatureSound.h"
+#include "entities/Tile.h"
 #include "entities/TreasuryObject.h"
 #include "entities/ChickenEntity.h"
 

@@ -17,6 +17,7 @@
 
 #include "entities/MapLight.h"
 
+#include "entities/Tile.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "modes/ModeManager.h"

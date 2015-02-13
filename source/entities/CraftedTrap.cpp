@@ -18,6 +18,7 @@
 #include "entities/CraftedTrap.h"
 
 #include "entities/Creature.h"
+#include "entities/Tile.h"
 
 #include "network/ODPacket.h"
 
