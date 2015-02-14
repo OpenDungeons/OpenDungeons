@@ -22,8 +22,6 @@
 
 #include "ai/AIManager.h"
 
-#include "entities/Tile.h"
-
 #ifdef __MINGW32__
 #ifndef mode_t
 #include <sys/types.h>
@@ -34,19 +32,25 @@
 #include <string>
 #include <cstdint>
 
+class Building;
 class Tile;
 class Creature;
 class Player;
 class Trap;
 class Seat;
+class GameEntity;
 class Goal;
 class MapLight;
 class MovableGameEntity;
 class CreatureDefinition;
 class Weapon;
 class CreatureMood;
+class RenderedMovableEntity;
+class Room;
 class Spell;
 
+enum class GameEntityType;
+enum class FloodFillType;
 enum class RoomType;
 
 /*! \brief The class which stores the entire game state on the server and a subset of this on each client.
@@ -482,7 +486,7 @@ public:
     RenderedMovableEntity* getRenderedMovableEntity(const std::string& name);
     void clearRenderedMovableEntities();
     void clearActiveObjects();
-    MovableGameEntity* getEntityFromTypeAndName(GameEntityType entityType,
+    GameEntity* getEntityFromTypeAndName(GameEntityType entityType,
         const std::string& entityName);
 
     //! brief Functions to add/remove/get Spells
@@ -505,8 +509,11 @@ public:
 
     void updateVisibleEntities();
 
+    const std::vector<RenderedMovableEntity*>& getRenderedMovableEntities() const
+    { return mRenderedMovableEntities; }
+
 private:
-    void replaceFloodFill(Tile::FloodFillType floodFillType, int colorOld, int colorNew);
+    void replaceFloodFill(FloodFillType floodFillType, int colorOld, int colorNew);
 
     //! \brief Tells whether this game map instance is used as a reference by the server-side,
     //! or as a standard client game map.

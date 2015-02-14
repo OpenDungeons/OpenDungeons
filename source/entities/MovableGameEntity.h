@@ -86,21 +86,12 @@ public:
     inline Ogre::AnimationState* getAnimationState() const
     { return mAnimationState; }
 
-    void firePickupEntity(Player* playerPicking);
+    virtual void exportToStream(std::ostream& os) const override;
+    virtual void importFromStream(std::istream& is) override;
+    virtual void exportToPacket(ODPacket& os) const override;
+    virtual void importFromPacket(ODPacket& is) override;
 
-    void fireDropEntity(Player* playerPicking, Tile* tile);
-
-    //! \brief Exports the data of the MovableGameEntity
-    virtual void exportToStream(std::ostream& os) const;
-    virtual void importFromStream(std::istream& is);
-    virtual void exportToPacket(ODPacket& os) const;
-    virtual void importFromPacket(ODPacket& is);
-
-    //! This function should be called on client side just after the entity is added to the gamemap.
-    //! It should restore the entity state (if it was dead before the client got vision, it should
-    //! be dead on the ground for example).
-    //! Note that this function is to be called on client side only
-    virtual void restoreEntityState();
+    virtual void restoreEntityState() override;
 
 protected:
     std::deque<Ogre::Vector3> mWalkQueue;

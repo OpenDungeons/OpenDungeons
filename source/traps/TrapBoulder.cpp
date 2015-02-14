@@ -17,6 +17,7 @@
 
 #include "traps/TrapBoulder.h"
 #include "network/ODPacket.h"
+#include "entities/Tile.h"
 #include "gamemap/GameMap.h"
 #include "entities/MissileBoulder.h"
 #include "entities/TrapEntity.h"

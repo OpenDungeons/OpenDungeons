@@ -17,6 +17,7 @@
 
 #include "entities/SmallSpiderEntity.h"
 
+#include "entities/Tile.h"
 #include "network/ODPacket.h"
 #include "gamemap/GameMap.h"
 #include "rooms/Room.h"

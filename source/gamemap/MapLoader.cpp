@@ -26,6 +26,7 @@
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
 #include "entities/MapLight.h"
+#include "entities/Tile.h"
 #include "entities/Weapon.h"
 
 #include "rooms/Room.h"
@@ -479,6 +480,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         if(tempCreature == nullptr)
             return false;
 
+        tempCreature->importFromStream(levelFile);
         tempCreature->addToGameMap();
         ++nbCreatures;
 
@@ -551,7 +553,8 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
             if (tempTile->getType() == TileType::dirt && tempTile->getFullness() >= 100.0)
                 continue;
 
-            levelFile << tempTile << std::endl;
+            tempTile->exportToStream(levelFile);
+            levelFile << std::endl;
         }
     }
     levelFile << "[/Tiles]" << std::endl;

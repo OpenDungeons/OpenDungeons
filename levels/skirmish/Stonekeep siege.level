@@ -780,11 +780,11 @@ ProtectDungeonTemple	NULL
 17	13	5	0
 17	14	6	0
 17	15	6	0
-17	16	6	0	5
+17	16	6	0	0
 17	17	5	0
 17	18	6	0
 17	19	5	0
-17	20	6	0	5
+17	20	6	0	0
 17	21	6	0
 17	22	6	0
 17	23	5	0
@@ -1406,7 +1406,7 @@ ProtectDungeonTemple	NULL
 43	63	5	0
 43	64	5	0
 43	65	5	0
-43	66	6	0	5
+43	66	6	0	0
 43	67	6	100
 43	68	6	0	4
 43	69	6	0	4
@@ -1568,7 +1568,7 @@ ProtectDungeonTemple	NULL
 46	44	6	0
 46	45	6	0
 46	46	3	100
-46	47	6	0	5
+46	47	6	0	0
 46	48	5	0
 46	49	5	0
 46	50	5	0
@@ -1581,7 +1581,7 @@ ProtectDungeonTemple	NULL
 46	63	5	0
 46	64	5	0
 46	65	5	0
-46	66	6	0	5
+46	66	6	0	0
 46	67	6	100
 46	68	6	0	4
 46	69	6	0	4
@@ -1683,7 +1683,7 @@ ProtectDungeonTemple	NULL
 48	29	2	100
 48	35	5	0
 48	36	5	0
-48	37	6	0	5
+48	37	6	0	0
 48	38	3	100
 48	39	6	0
 48	40	6	0
@@ -1693,7 +1693,7 @@ ProtectDungeonTemple	NULL
 48	44	6	0
 48	45	6	0
 48	46	3	100
-48	47	6	0	5
+48	47	6	0	0
 48	48	5	0
 48	49	5	0
 48	50	5	0
@@ -1708,7 +1708,7 @@ ProtectDungeonTemple	NULL
 48	63	5	0
 48	64	5	0
 48	65	5	0
-48	66	6	0	5
+48	66	6	0	0
 48	67	6	100
 48	68	6	100
 48	69	6	100
@@ -1844,7 +1844,7 @@ ProtectDungeonTemple	NULL
 50	29	2	100
 50	35	5	0
 50	36	5	0
-50	37	6	0	5
+50	37	6	0	0
 50	38	3	100
 50	39	6	0
 50	40	6	0
@@ -1854,7 +1854,7 @@ ProtectDungeonTemple	NULL
 50	44	6	0
 50	45	6	0
 50	46	3	100
-50	47	6	0	5
+50	47	6	0	0
 50	48	5	0
 50	49	5	0
 50	50	5	0
@@ -1869,7 +1869,7 @@ ProtectDungeonTemple	NULL
 50	63	5	0
 50	64	5	0
 50	65	5	0
-50	66	6	0	5
+50	66	6	0	0
 50	67	6	100
 50	68	6	100
 50	69	6	100
@@ -2013,7 +2013,7 @@ ProtectDungeonTemple	NULL
 52	44	6	0
 52	45	6	0
 52	46	3	100
-52	47	6	0	5
+52	47	6	0	0
 52	48	5	0
 52	49	5	0
 52	50	5	0
@@ -2026,7 +2026,7 @@ ProtectDungeonTemple	NULL
 52	63	5	0
 52	64	5	0
 52	65	5	0
-52	66	6	0	5
+52	66	6	0	0
 52	67	6	100
 52	68	6	0	4
 52	69	6	0	4
@@ -2196,7 +2196,7 @@ ProtectDungeonTemple	NULL
 55	63	5	0
 55	64	5	0
 55	65	5	0
-55	66	6	0	5
+55	66	6	0	0
 55	67	6	100
 55	68	6	0	4
 55	69	6	0	4
@@ -4018,131 +4018,131 @@ ProtectDungeonTemple	NULL
 [/EquipmentDefinitions]
 
 [Creatures]
-# SeatId	ClassName	Name	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeapon	RightWeapon
+# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon
 [Creature]
-1	Kobold	Kobold90	1	0	max	100	0	0	51	16	0	none	none
+1	Kobold90	Kobold	51	16	0	Kobold	1	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-1	Kobold	Kobold91	1	0	max	100	0	0	51	16	0	none	none
+1	Kobold91	Kobold	51	16	0	Kobold	1	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-2	Kobold	Kobold92	1	0	max	100	0	0	7	55	0	none	none
+2	Kobold92	Kobold	7	55	0	Kobold	1	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-2	Kobold	Kobold93	1	0	max	100	0	0	7	55	0	none	none
+2	Kobold93	Kobold	7	55	0	Kobold	1	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-3	Kobold	Kobold94	1	0	max	100	0	0	91	55	0	none	none
+3	Kobold94	Kobold	91	55	0	Kobold	1	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-3	Kobold	Kobold95	1	0	max	100	0	0	91	55	0	none	none
+3	Kobold95	Kobold	91	55	0	Kobold	1	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-4	Kobold	Kobold96	1	0	max	100	0	0	47	94	0	none	none
+4	Kobold96	Kobold	47	94	0	Kobold	1	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-4	Kobold	Kobold97	1	0	max	100	0	0	47	94	0	none	none
+4	Kobold97	Kobold	47	94	0	Kobold	1	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Dwarf3	Dwarf99	1	0	max	100	0	0	9	15	0	Roundshield	Longsword
+0	Dwarf99	Dwarf3	9	15	0	Dwarf3	1	0	max	100	0	0	Roundshield	Longsword
 [/Creature]
 [Creature]
-0	Dwarf3	Dwarf98	1	0	max	100	0	0	9	16	0	Roundshield	Longsword
+0	Dwarf98	Dwarf3	9	16	0	Dwarf3	1	0	max	100	0	0	Roundshield	Longsword
 [/Creature]
 [Creature]
-0	Dwarf3	Dwarf97	1	0	max	100	0	0	9	17	0	Roundshield	Longsword
+0	Dwarf97	Dwarf3	9	17	0	Dwarf3	1	0	max	100	0	0	Roundshield	Longsword
 [/Creature]
 [Creature]
-0	Dwarf3	Dwarf96	1	0	max	100	0	0	9	18	0	Roundshield	Longsword
+0	Dwarf96	Dwarf3	9	18	0	Dwarf3	1	0	max	100	0	0	Roundshield	Longsword
 [/Creature]
 [Creature]
-0	Dwarf3	Dwarf95	1	0	max	100	0	0	9	19	0	Roundshield	Longsword
+0	Dwarf95	Dwarf3	9	19	0	Dwarf3	1	0	max	100	0	0	Roundshield	Longsword
 [/Creature]
 [Creature]
-0	Dwarf3	Dwarf94	1	0	max	100	0	0	9	20	0	Roundshield	Longsword
+0	Dwarf94	Dwarf3	9	20	0	Dwarf3	1	0	max	100	0	0	Roundshield	Longsword
 [/Creature]
 [Creature]
-0	Dwarf3	Dwarf93	1	0	max	100	0	0	9	21	0	Roundshield	Longsword
+0	Dwarf93	Dwarf3	9	21	0	Dwarf3	1	0	max	100	0	0	Roundshield	Longsword
 [/Creature]
 [Creature]
-0	Knight	Knight90	1	0	max	100	0	0	46	42	0	Roundshield	Longsword
+0	Knight90	Knight	46	42	0	Knight	1	0	max	100	0	0	Roundshield	Longsword
 [/Creature]
 [Creature]
-0	Knight	Knight91	1	0	max	100	0	0	47	42	0	Roundshield	Longsword
+0	Knight91	Knight	47	42	0	Knight	1	0	max	100	0	0	Roundshield	Longsword
 [/Creature]
 [Creature]
-0	Knight	Knight92	1	0	max	100	0	0	48	42	0	Roundshield	Sabre
+0	Knight92	Knight	48	42	0	Knight	1	0	max	100	0	0	Roundshield	Sabre
 [/Creature]
 [Creature]
-0	Knight	Knight93	1	0	max	100	0	0	49	42	0	Roundshield	Sabre
+0	Knight93	Knight	49	42	0	Knight	1	0	max	100	0	0	Roundshield	Sabre
 [/Creature]
 [Creature]
-0	Knight	Knight94	1	0	max	100	0	0	50	42	0	Roundshield	Sabre
+0	Knight94	Knight	50	42	0	Knight	1	0	max	100	0	0	Roundshield	Sabre
 [/Creature]
 [Creature]
-0	Knight	Knight95	1	0	max	100	0	0	51	42	0	Roundshield	Longsword
+0	Knight95	Knight	51	42	0	Knight	1	0	max	100	0	0	Roundshield	Longsword
 [/Creature]
 [Creature]
-0	Knight	Knight96	1	0	max	100	0	0	52	42	0	Longsword	Longsword
+0	Knight96	Knight	52	42	0	Knight	1	0	max	100	0	0	Longsword	Longsword
 [/Creature]
 [Creature]
-0	Knight	Knight97	1	0	max	100	0	0	49	41	0	Longsword	Longsword
+0	Knight97	Knight	49	41	0	Knight	1	0	max	100	0	0	Longsword	Longsword
 [/Creature]
 [Creature]
-0	Dragon	Dragon90	1	0	max	100	0	0	86	20	0	none	none
+0	Dragon90	Dragon	86	20	0	Dragon	1	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Dragon	Dragon91	1	0	max	100	0	0	92	20	0	none	none
+0	Dragon91	Dragon	92	20	0	Dragon	1	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Dragon	Dragon92	1	0	max	100	0	0	89	25	0	none	none
+0	Dragon92	Dragon	89	25	0	Dragon	1	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Dragon	Dragon93	1	0	max	100	0	0	96	18	0	none	none
+0	Dragon93	Dragon	96	18	0	Dragon	1	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Tentacle2	Tentacle90	1	0	max	100	0	0	73	23	0	none	none
+0	Tentacle90	Tentacle2	73	23	0	Tentacle2	1	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Tentacle2	Tentacle91	1	0	max	100	0	0	73	23	0	none	none
+0	Tentacle91	Tentacle2	73	23	0	Tentacle2	1	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Tentacle2	Tentacle92	1	0	max	100	0	0	73	23	0	none	none
+0	Tentacle92	Tentacle2	73	23	0	Tentacle2	1	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Tentacle2	Tentacle93	1	0	max	100	0	0	73	23	0	none	none
+0	Tentacle93	Tentacle2	73	23	0	Tentacle2	1	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Tentacle2	Tentacle94	1	0	max	100	0	0	75	12	0	none	none
+0	Tentacle94	Tentacle2	75	12	0	Tentacle2	1	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Tentacle2	Tentacle95	1	0	max	100	0	0	75	12	0	none	none
+0	Tentacle95	Tentacle2	75	12	0	Tentacle2	1	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Tentacle2	Tentacle96	1	0	max	100	0	0	75	12	0	none	none
+0	Tentacle96	Tentacle2	75	12	0	Tentacle2	1	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Tentacle2	Tentacle97	1	0	max	100	0	0	75	12	0	none	none
+0	Tentacle97	Tentacle2	75	12	0	Tentacle2	1	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Tentacle2	Tentacle98	1	0	max	100	0	0	72	5	0	none	none
+0	Tentacle98	Tentacle2	72	5	0	Tentacle2	1	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Tentacle2	Tentacle99	1	0	max	100	0	0	72	5	0	none	none
+0	Tentacle99	Tentacle2	72	5	0	Tentacle2	1	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Tentacle2	Tentacle100	1	0	max	100	0	0	69	37	0	none	none
+0	Tentacle100	Tentacle2	69	37	0	Tentacle2	1	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Tentacle2	Tentacle101	1	0	max	100	0	0	69	37	0	none	none
+0	Tentacle101	Tentacle2	69	37	0	Tentacle2	1	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-0	Tentacle2	Tentacle102	1	0	max	100	0	0	69	37	0	none	none
+0	Tentacle102	Tentacle2	69	37	0	Tentacle2	1	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-4	PitDemon	PitDemon90	1	0	max	100	0	0	48	57	0	none	none
+4	PitDemon90	PitDemon	48	57	0	PitDemon	1	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-4	PitDemon	PitDemon91	10	0	max	100	0	0	50	57	0	none	none
+4	PitDemon91	PitDemon	50	57	0	PitDemon	10	0	max	100	0	0	none	none
 [/Creature]
 [/Creatures]

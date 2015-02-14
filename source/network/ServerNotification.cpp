@@ -42,12 +42,6 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "startGameMode";
         case ServerNotificationType::newMap:
             return "newMap";
-        case ServerNotificationType::addTile:
-            return "addTile";
-        case ServerNotificationType::addMapLight:
-            return "addMapLight";
-        case ServerNotificationType::removeMapLight:
-            return "removeMapLight";
         case ServerNotificationType::addClass:
             return "addClass";
         case ServerNotificationType::clientAccepted:
@@ -74,10 +68,10 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "entityPickedUp";
         case ServerNotificationType::entityDropped:
             return "entityDropped";
-        case ServerNotificationType::addCreature:
-            return "addCreature";
-        case ServerNotificationType::removeCreature:
-            return "removeCreature";
+        case ServerNotificationType::addEntity:
+            return "addEntity";
+        case ServerNotificationType::removeEntity:
+            return "removeEntity";
         case ServerNotificationType::creatureRefresh:
             return "creatureRefresh";
         case ServerNotificationType::playerFighting:
@@ -86,10 +80,6 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "playerNoMoreFighting";
         case ServerNotificationType::refreshPlayerSeat:
             return "refreshPlayerSeat";
-        case ServerNotificationType::addRenderedMovableEntity:
-            return "addRenderedMovableEntity";
-        case ServerNotificationType::removeRenderedMovableEntity:
-            return "removeRenderedMovableEntity";
         case ServerNotificationType::setEntityOpacity:
             return "setEntityOpacity";
         case ServerNotificationType::playSpatialSound:

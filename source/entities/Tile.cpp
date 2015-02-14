@@ -66,16 +66,13 @@ Tile::Tile(GameMap* gameMap, int x, int y, TileType type, double fullness) :
     mFullness           (fullness),
     mFullnessMeshNumber (-1),
     mCoveringBuilding   (nullptr),
+    mFloodFillColor     (std::vector<int>(static_cast<int>(FloodFillType::FloodFillTypeMax), -1)),
     mClaimedPercentage  (0.0),
     mScale              (Ogre::Vector3::ZERO),
     mIsBuilding         (false),
     mLocalPlayerHasVision   (false),
     mLocalPlayerCanMarkTile (true)
 {
-    for(int i = 0; i < Tile::FloodFillTypeMax; i++)
-    {
-        mFloodFillColor[i] = -1;
-    }
     setSeat(nullptr);
     mScale = DEFAULT_TILE_SCALE;
 }
@@ -579,17 +576,14 @@ const char* Tile::getFormat()
     return "posX\tposY\ttype\tfullness";
 }
 
-std::ostream& operator<<(std::ostream& os, Tile *t)
+void Tile::exportToStream(std::ostream& os) const
 {
-    os << t->getX() << "\t" << t->getY() << "\t";
-    os << t->getType() << "\t" << t->getFullness();
-    Seat* seat = t->getSeat();
-    if(t->getType() != TileType::claimed || seat == nullptr)
-        return os;
+    os << getX() << "\t" << getY() << "\t";
+    os << getType() << "\t" << getFullness();
+    if(getType() != TileType::claimed || getSeat() == nullptr)
+        return;
 
-    os << "\t" << seat->getId();
-
-    return os;
+    os << "\t" << getSeat()->getId();
 }
 
 void Tile::exportToPacket(ODPacket& os, Seat* seat)
@@ -1187,6 +1181,28 @@ void Tile::claimTile(Seat* seat)
     }
 }
 
+void Tile::unclaimTile(TileType type)
+{
+    // Unclaim the tile.
+    setSeat(nullptr);
+    mClaimedPercentage = 0.0;
+    setType(type);
+
+    setDirtyForAllSeats();
+
+    // Force all the neighbors to recheck their meshes as we have updated this tile.
+    for (Tile* tile : mNeighbors)
+    {
+        // Update potential active spots.
+        Building* building = tile->getCoveringBuilding();
+        if (building != nullptr)
+        {
+            building->updateActiveSpots();
+            building->createMesh();
+        }
+    }
+}
+
 double Tile::digOut(double digRate, bool doScaleDigRate)
 {
     if (doScaleDigRate)
@@ -1266,6 +1282,11 @@ bool Tile::checkTileName(const std::string& tileName, int& x, int& y)
     return true;
 }
 
+std::string Tile::toString(FloodFillType type)
+{
+    return Helper::toString(toUInt32(type));
+}
+
 bool Tile::isFloodFillFilled() const
 {
     if(getFullness() > 0.0)
@@ -1277,10 +1298,10 @@ bool Tile::isFloodFillFilled() const
         case TileType::gold:
         case TileType::claimed:
         {
-            if((mFloodFillColor[Tile::FloodFillTypeGround] != -1) &&
-               (mFloodFillColor[Tile::FloodFillTypeGroundWater] != -1) &&
-               (mFloodFillColor[Tile::FloodFillTypeGroundLava] != -1) &&
-               (mFloodFillColor[Tile::FloodFillTypeGroundWaterLava] != -1))
+            if((mFloodFillColor[toUInt32(FloodFillType::FloodFillTypeGround)] != -1) &&
+               (mFloodFillColor[toUInt32(FloodFillType::FloodFillTypeGroundWater)] != -1) &&
+               (mFloodFillColor[toUInt32(FloodFillType::FloodFillTypeGroundLava)] != -1) &&
+               (mFloodFillColor[toUInt32(FloodFillType::FloodFillTypeGroundWaterLava)] != -1))
             {
                 return true;
             }
@@ -1288,8 +1309,8 @@ bool Tile::isFloodFillFilled() const
         }
         case TileType::water:
         {
-            if((mFloodFillColor[Tile::FloodFillTypeGroundWater] != -1) &&
-               (mFloodFillColor[Tile::FloodFillTypeGroundWaterLava] != -1))
+            if((mFloodFillColor[toUInt32(FloodFillType::FloodFillTypeGroundWater)] != -1) &&
+               (mFloodFillColor[toUInt32(FloodFillType::FloodFillTypeGroundWaterLava)] != -1))
             {
                 return true;
             }
@@ -1297,8 +1318,8 @@ bool Tile::isFloodFillFilled() const
         }
         case TileType::lava:
         {
-            if((mFloodFillColor[Tile::FloodFillTypeGroundLava] != -1) &&
-               (mFloodFillColor[Tile::FloodFillTypeGroundWaterLava] != -1))
+            if((mFloodFillColor[toUInt32(FloodFillType::FloodFillTypeGroundLava)] != -1) &&
+               (mFloodFillColor[toUInt32(FloodFillType::FloodFillTypeGroundWaterLava)] != -1))
             {
                 return true;
             }
@@ -1309,6 +1330,61 @@ bool Tile::isFloodFillFilled() const
     }
 
     return false;
+}
+
+bool Tile::isSameFloodFill(FloodFillType type, Tile* tile) const
+{
+    return mFloodFillColor[toUInt32(type)] == tile->mFloodFillColor[toUInt32(type)];
+}
+
+void Tile::resetFloodFill()
+{
+    for(int& floodFillValue : mFloodFillColor)
+    {
+        floodFillValue = -1;
+    }
+}
+
+int Tile::floodFillValue(FloodFillType type) const
+{
+    uint32_t intFloodFill = toUInt32(type);
+    OD_ASSERT_TRUE_MSG(intFloodFill < mFloodFillColor.size(), Helper::toString(intFloodFill));
+    if(intFloodFill >= mFloodFillColor.size())
+        return -1;
+
+    return mFloodFillColor[intFloodFill];
+}
+
+bool Tile::updateFloodFillFromTile(FloodFillType type, Tile* tile)
+{
+    if((floodFillValue(type) != -1) ||
+       (tile->floodFillValue(type) == -1))
+    {
+        return false;
+    }
+
+    mFloodFillColor[toUInt32(type)] = tile->mFloodFillColor[toUInt32(type)];
+    return true;
+}
+
+void Tile::replaceFloodFill(FloodFillType type, int newValue)
+{
+    mFloodFillColor[toUInt32(type)] = newValue;
+}
+
+void Tile::logFloodFill() const
+{
+    std::string str = "Tile floodfill : " + Tile::displayAsString(this)
+        + " - fullness=" + Helper::toString(getFullness())
+        + " - seatId=" + std::string(getSeat() == nullptr ? "-1" : Helper::toString(getSeat()->getId()));
+    int cpt = 0;
+    for(const int& floodFill : mFloodFillColor)
+    {
+        str += ", [" + Helper::toString(cpt) + "]=" +
+            Helper::toString(floodFill);
+        ++cpt;
+    }
+    LogManager::getSingleton().logMessage(str);
 }
 
 bool Tile::isClaimedForSeat(Seat* seat) const
@@ -1324,12 +1400,6 @@ bool Tile::isClaimedForSeat(Seat* seat) const
         return false;
 
     return true;
-}
-
-int Tile::getFloodFill(FloodFillType type)
-{
-    OD_ASSERT_TRUE(type < FloodFillTypeMax);
-    return mFloodFillColor[type];
 }
 
 void Tile::fillWithAttackableCreatures(std::vector<GameEntity*>& entities, Seat* seat, bool invert)
@@ -1411,10 +1481,7 @@ void Tile::fillWithChickenEntities(std::vector<GameEntity*>& entities)
         if(entity == nullptr)
             continue;
 
-        if(entity->getObjectType() != GameEntityType::renderedMovableEntity)
-            continue;
-        RenderedMovableEntity* rme = static_cast<RenderedMovableEntity*>(entity);
-        if(rme->getRenderedMovableEntityType() != RenderedMovableEntityType::chickenEntity)
+        if(entity->getObjectType() != GameEntityType::chickenEntity)
             continue;
 
         if (std::find(entities.begin(), entities.end(), entity) == entities.end())
@@ -1430,10 +1497,7 @@ void Tile::fillWithCraftedTraps(std::vector<GameEntity*>& entities)
         if(entity == nullptr)
             continue;
 
-        if(entity->getObjectType() != GameEntityType::renderedMovableEntity)
-            continue;
-        RenderedMovableEntity* rme = static_cast<RenderedMovableEntity*>(entity);
-        if(rme->getRenderedMovableEntityType() != RenderedMovableEntityType::craftedTrap)
+        if(entity->getObjectType() != GameEntityType::craftedTrap)
             continue;
 
         if (std::find(entities.begin(), entities.end(), entity) == entities.end())
@@ -1457,10 +1521,7 @@ bool Tile::addTreasuryObject(TreasuryObject* obj)
         if(entity == nullptr)
             continue;
 
-        if(entity->getObjectType() != GameEntityType::renderedMovableEntity)
-            continue;
-        RenderedMovableEntity* rme = static_cast<RenderedMovableEntity*>(entity);
-        if(rme->getRenderedMovableEntityType() != RenderedMovableEntityType::treasuryObject)
+        if(entity->getObjectType() != GameEntityType::treasuryObject)
             continue;
 
         TreasuryObject* treasury = static_cast<TreasuryObject*>(entity);

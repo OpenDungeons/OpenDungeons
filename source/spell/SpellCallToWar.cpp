@@ -18,6 +18,7 @@
 #include "spell/SpellCallToWar.h"
 
 #include "entities/Creature.h"
+#include "entities/Tile.h"
 
 #include "game/Player.h"
 

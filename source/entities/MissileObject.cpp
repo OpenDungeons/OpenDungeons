@@ -19,6 +19,7 @@
 
 #include "entities/MissileBoulder.h"
 #include "entities/MissileOneHit.h"
+#include "entities/Tile.h"
 
 #include "gamemap/GameMap.h"
 #include "network/ODPacket.h"

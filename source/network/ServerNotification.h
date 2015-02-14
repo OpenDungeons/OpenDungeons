@@ -38,9 +38,6 @@ enum class ServerNotificationType
     removePlayers,
     startGameMode,
     newMap,
-    addTile,
-    addMapLight,
-    removeMapLight,
     addClass,
     clientAccepted,
     clientRejected,
@@ -62,12 +59,10 @@ enum class ServerNotificationType
     playerFighting, // Tells the player he is under attack or attacking
     playerNoMoreFighting, // Tells the player he is no longer under attack or attacking
 
-    addCreature,
-    removeCreature,
+    addEntity,
+    removeEntity,
     creatureRefresh,
     refreshPlayerSeat,
-    addRenderedMovableEntity,
-    removeRenderedMovableEntity,
     setEntityOpacity,
     notifyCreatureInfo,
     refreshCreatureVisDebug,

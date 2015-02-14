@@ -27,6 +27,7 @@
 #include "render/TextRenderer.h"
 #include "entities/Creature.h"
 #include "entities/MapLight.h"
+#include "entities/Tile.h"
 #include "game/Seat.h"
 #include "traps/Trap.h"
 #include "game/Player.h"
@@ -168,8 +169,6 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
         }
 
         // Loop over the tiles in the rectangular selection region and set their setSelected flag accordingly.
-        //TODO: This function is horribly inefficient, it should loop over a rectangle selecting tiles by x-y coords
-        // rather than the reverse that it is doing now.
         std::vector<Tile*> affectedTiles = mGameMap->rectangularRegion(inputManager->mXPos,
                                                                         inputManager->mYPos,
                                                                         inputManager->mLStartDragX,
@@ -428,11 +427,6 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         skipCreaturePickUp = true;
     }
 
-    // Check whether the player selection is over a wall and skip creature in that case
-    // to permit easier wall selection.
-    if (mGameMap->getTile(mMouseX, mMouseY)->getFullness() > 1.0)
-        skipCreaturePickUp = true;
-
     // See if the mouse is over any creatures
     for (;itr != result.end(); ++itr)
     {
@@ -517,12 +511,11 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
                     fullness = 0.0;
                     break;
             }
-            int intTileType = static_cast<int>(mCurrentTileType);
             ClientNotification *clientNotification = new ClientNotification(
                 ClientNotificationType::editorAskChangeTiles);
             clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
             clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
-            clientNotification->mPacket << intTileType;
+            clientNotification->mPacket << mCurrentTileType;
             clientNotification->mPacket << fullness;
             clientNotification->mPacket << mCurrentSeatId;
             ODClient::getSingleton().queueClientNotification(clientNotification);

@@ -311,112 +311,23 @@ void MovableGameEntity::fireObjectAnimationState(const std::string& state, bool 
     }
 }
 
-void MovableGameEntity::firePickupEntity(Player* playerPicking)
-{
-    int seatId = playerPicking->getSeat()->getId();
-    GameEntityType entityType = getObjectType();
-    const std::string& entityName = getName();
-    for(std::vector<Seat*>::iterator it = mSeatsWithVisionNotified.begin(); it != mSeatsWithVisionNotified.end();)
-    {
-        Seat* seat = *it;
-        if(seat->getPlayer() == nullptr)
-        {
-            ++it;
-            continue;
-        }
-        if(!seat->getPlayer()->getIsHuman())
-        {
-            ++it;
-            continue;
-        }
-
-        // For other players than the one picking up the entity, we send a remove message
-        if(seat->getPlayer() != playerPicking)
-        {
-            fireRemoveEntity(seat);
-            it = mSeatsWithVisionNotified.erase(it);
-            continue;
-        }
-
-        ++it;
-
-        // If the creature was picked up by a human, we send an async message
-        if(playerPicking->getIsHuman())
-        {
-            ServerNotification serverNotification(
-                ServerNotificationType::entityPickedUp, seat->getPlayer());
-            serverNotification.mPacket << seatId << entityType << entityName;
-            ODServer::getSingleton().sendAsyncMsg(serverNotification);
-        }
-        else
-        {
-            ServerNotification* serverNotification = new ServerNotification(
-                ServerNotificationType::entityPickedUp, seat->getPlayer());
-            serverNotification->mPacket << seatId << entityType << entityName;
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
-    }
-}
-
-void MovableGameEntity::fireDropEntity(Player* playerPicking, Tile* tile)
-{
-    // If the player is a human, we send an asynchronous message to be as reactive as
-    // possible. If it is an AI, we queue the message because it might have been created
-    // during this turn (and, thus, not exist on client side)
-    int seatId = playerPicking->getSeat()->getId();
-    for(Seat* seat : getGameMap()->getSeats())
-    {
-        if(seat->getPlayer() == nullptr)
-            continue;
-        if(!seat->getPlayer()->getIsHuman())
-            continue;
-        if(!seat->hasVisionOnTile(tile))
-            continue;
-
-        // For players with vision on the tile where the entity is dropped, we send an add message
-        if(seat->getPlayer() != playerPicking)
-        {
-            // Because the entity is dropped, it is not on the map for the other players so no need
-            // to check
-            mSeatsWithVisionNotified.push_back(seat);
-            fireAddEntity(seat, false);
-            continue;
-        }
-
-        // If the creature was dropped by a human, we send an async message
-        if(playerPicking->getIsHuman())
-        {
-            ServerNotification serverNotification(
-                ServerNotificationType::entityDropped, seat->getPlayer());
-            serverNotification.mPacket << seatId;
-            getGameMap()->tileToPacket(serverNotification.mPacket, tile);
-            ODServer::getSingleton().sendAsyncMsg(serverNotification);
-        }
-        else
-        {
-            ServerNotification* serverNotification = new ServerNotification(
-                ServerNotificationType::entityDropped, seat->getPlayer());
-            serverNotification->mPacket << seatId;
-            getGameMap()->tileToPacket(serverNotification->mPacket, tile);
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
-    }
-}
-
 void MovableGameEntity::exportToStream(std::ostream& os) const
 {
+    GameEntity::exportToStream(os);
     // Note : When we will implement game save, we should consider saving informations
     // about animation (like exportToPacket does)
 }
 
 void MovableGameEntity::importFromStream(std::istream& is)
 {
+    GameEntity::importFromStream(is);
     // Note : When we will implement game save, we should consider saving informations
     // about animation (like importFromPacket does)
 }
 
 void MovableGameEntity::exportToPacket(ODPacket& os) const
 {
+    GameEntity::exportToPacket(os);
     os << mMoveSpeed;
     os << mPrevAnimationState;
     os << mPrevAnimationStateLoop;
@@ -434,6 +345,7 @@ void MovableGameEntity::exportToPacket(ODPacket& os) const
 
 void MovableGameEntity::importFromPacket(ODPacket& is)
 {
+    GameEntity::importFromPacket(is);
     OD_ASSERT_TRUE(is >> mMoveSpeed);
     OD_ASSERT_TRUE(is >> mPrevAnimationState);
     OD_ASSERT_TRUE(is >> mPrevAnimationStateLoop);

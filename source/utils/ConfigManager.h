@@ -38,6 +38,8 @@ public:
     ConfigManager();
     ~ConfigManager();
 
+    static const std::string DefaultWorkerCreatureDefinition;
+
     Ogre::ColourValue getColorFromId(const std::string& id) const;
     inline const std::vector<const CreatureDefinition*>& getCreatureDefinitions() const
     { return mCreatureDefs; }
@@ -103,6 +105,9 @@ public:
     int32_t getSpellConfigInt32(const std::string& param) const;
     double getSpellConfigDouble(const std::string& param) const;
 
+    inline const CreatureDefinition* getCreatureDefinitionDefaultWorker() const
+    { return mCreatureDefinitionDefaultWorker; }
+
 private:
     //! \brief Function used to load the global configuration. They should return true if the configuration
     //! is ok and false if a mandatory parameter is missing
@@ -154,6 +159,10 @@ private:
     std::map<const std::string, std::string> mRoomsConfig;
     std::map<const std::string, std::string> mTrapsConfig;
     std::map<const std::string, std::string> mSpellConfig;
+
+    //! Default definition for the editor. At map loading, it will spawn a creature from
+    //! the default seat worker depending on seat faction
+    CreatureDefinition* mCreatureDefinitionDefaultWorker;
 };
 
 #endif //CONFIGMANAGER_H

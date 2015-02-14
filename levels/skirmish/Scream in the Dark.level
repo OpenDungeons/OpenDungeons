@@ -5029,30 +5029,6 @@ ProtectDungeonTemple	NULL
 [/Room]
 [Room]
 3	4	1
-81	92
-[/Room]
-[Room]
-3	4	1
-81	88
-[/Room]
-[Room]
-3	4	1
-92	87
-[/Room]
-[Room]
-3	4	1
-83	87
-[/Room]
-[Room]
-3	4	1
-90	88
-[/Room]
-[Room]
-3	4	1
-88	87
-[/Room]
-[Room]
-3	4	1
 86	88
 [/Room]
 [Room]
@@ -5065,6 +5041,30 @@ ProtectDungeonTemple	NULL
 89	91
 89	92
 90	92
+[/Room]
+[Room]
+3	4	1
+88	87
+[/Room]
+[Room]
+3	4	1
+90	88
+[/Room]
+[Room]
+3	4	1
+83	87
+[/Room]
+[Room]
+3	4	1
+92	87
+[/Room]
+[Room]
+3	4	1
+81	88
+[/Room]
+[Room]
+3	4	1
+81	92
 [/Room]
 [Room]
 6	5	65
@@ -5280,17 +5280,17 @@ ProtectDungeonTemple	NULL
 [/EquipmentDefinitions]
 
 [Creatures]
-# SeatId	ClassName	Name	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeapon	RightWeapon
+# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon
 [Creature]
-5	Dragon	Dragon1	10	0	max	100	0	0	13	55	0	none	none
+5	Dragon1	Dragon	13	55	0	Dragon	10	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-5	Dragon	Dragon2	10	0	max	100	0	0	13	54	0	none	none
+5	Dragon2	Dragon	13	54	0	Dragon	10	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-5	Dragon	Dragon3	10	0	max	100	0	0	87	58	0	none	none
+5	Dragon3	Dragon	87	58	0	Dragon	10	0	max	100	0	0	none	none
 [/Creature]
 [Creature]
-5	Dragon	Dragon4	10	0	max	100	0	0	87	57	0	none	none
+5	Dragon4	Dragon	87	57	0	Dragon	10	0	max	100	0	0	none	none
 [/Creature]
 [/Creatures]
