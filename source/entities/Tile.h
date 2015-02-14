@@ -61,11 +61,11 @@ std::istream& operator>>(std::istream& is, TileType& type);
 
 enum class FloodFillType
 {
-    FloodFillTypeGround = 0,
-    FloodFillTypeGroundWater,
-    FloodFillTypeGroundLava,
-    FloodFillTypeGroundWaterLava,
-    FloodFillTypeMax
+    ground = 0,
+    groundWater,
+    groundLava,
+    groundWaterLava,
+    nbValues
 };
 
 /*! \brief The tile class contains information about tile type and contents and is the basic level bulding block.
