@@ -66,7 +66,7 @@ Tile::Tile(GameMap* gameMap, int x, int y, TileType type, double fullness) :
     mFullness           (fullness),
     mFullnessMeshNumber (-1),
     mCoveringBuilding   (nullptr),
-    mFloodFillColor     (std::vector<int>(static_cast<int>(FloodFillType::FloodFillTypeMax), -1)),
+    mFloodFillColor     (std::vector<int>(static_cast<int>(FloodFillType::nbValues), -1)),
     mClaimedPercentage  (0.0),
     mScale              (Ogre::Vector3::ZERO),
     mIsBuilding         (false),
@@ -1298,10 +1298,10 @@ bool Tile::isFloodFillFilled() const
         case TileType::gold:
         case TileType::claimed:
         {
-            if((mFloodFillColor[toUInt32(FloodFillType::FloodFillTypeGround)] != -1) &&
-               (mFloodFillColor[toUInt32(FloodFillType::FloodFillTypeGroundWater)] != -1) &&
-               (mFloodFillColor[toUInt32(FloodFillType::FloodFillTypeGroundLava)] != -1) &&
-               (mFloodFillColor[toUInt32(FloodFillType::FloodFillTypeGroundWaterLava)] != -1))
+            if((mFloodFillColor[toUInt32(FloodFillType::ground)] != -1) &&
+               (mFloodFillColor[toUInt32(FloodFillType::groundWater)] != -1) &&
+               (mFloodFillColor[toUInt32(FloodFillType::groundLava)] != -1) &&
+               (mFloodFillColor[toUInt32(FloodFillType::groundWaterLava)] != -1))
             {
                 return true;
             }
@@ -1309,8 +1309,8 @@ bool Tile::isFloodFillFilled() const
         }
         case TileType::water:
         {
-            if((mFloodFillColor[toUInt32(FloodFillType::FloodFillTypeGroundWater)] != -1) &&
-               (mFloodFillColor[toUInt32(FloodFillType::FloodFillTypeGroundWaterLava)] != -1))
+            if((mFloodFillColor[toUInt32(FloodFillType::groundWater)] != -1) &&
+               (mFloodFillColor[toUInt32(FloodFillType::groundWaterLava)] != -1))
             {
                 return true;
             }
@@ -1318,8 +1318,8 @@ bool Tile::isFloodFillFilled() const
         }
         case TileType::lava:
         {
-            if((mFloodFillColor[toUInt32(FloodFillType::FloodFillTypeGroundLava)] != -1) &&
-               (mFloodFillColor[toUInt32(FloodFillType::FloodFillTypeGroundWaterLava)] != -1))
+            if((mFloodFillColor[toUInt32(FloodFillType::groundLava)] != -1) &&
+               (mFloodFillColor[toUInt32(FloodFillType::groundWaterLava)] != -1))
             {
                 return true;
             }

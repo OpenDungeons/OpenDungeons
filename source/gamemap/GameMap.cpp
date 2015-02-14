@@ -1381,20 +1381,20 @@ bool GameMap::pathExists(const Creature* creature, Tile* tileStart, Tile* tileEn
         (creature->getMoveSpeedWater() > 0.0) &&
         (creature->getMoveSpeedLava() > 0.0))
     {
-        return tileStart->isSameFloodFill(FloodFillType::FloodFillTypeGroundWaterLava, tileEnd);
+        return tileStart->isSameFloodFill(FloodFillType::groundWaterLava, tileEnd);
     }
     if((creature->getMoveSpeedGround() > 0.0) &&
         (creature->getMoveSpeedWater() > 0.0))
     {
-        return tileStart->isSameFloodFill(FloodFillType::FloodFillTypeGroundWater, tileEnd);
+        return tileStart->isSameFloodFill(FloodFillType::groundWater, tileEnd);
     }
     if((creature->getMoveSpeedGround() > 0.0) &&
         (creature->getMoveSpeedLava() > 0.0))
     {
-        return tileStart->isSameFloodFill(FloodFillType::FloodFillTypeGroundLava, tileEnd);
+        return tileStart->isSameFloodFill(FloodFillType::groundLava, tileEnd);
     }
 
-    return tileStart->isSameFloodFill(FloodFillType::FloodFillTypeGround, tileEnd);
+    return tileStart->isSameFloodFill(FloodFillType::ground, tileEnd);
 }
 
 std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* creature, Seat* seat, bool throughDiggableTiles)
@@ -2181,22 +2181,22 @@ bool GameMap::doFloodFill(Tile* tile)
             case TileType::gold:
             case TileType::claimed:
             {
-                hasChanged |= tile->updateFloodFillFromTile(FloodFillType::FloodFillTypeGround, neigh);
-                hasChanged |= tile->updateFloodFillFromTile(FloodFillType::FloodFillTypeGroundWater, neigh);
-                hasChanged |= tile->updateFloodFillFromTile(FloodFillType::FloodFillTypeGroundLava, neigh);
-                hasChanged |= tile->updateFloodFillFromTile(FloodFillType::FloodFillTypeGroundWaterLava, neigh);
+                hasChanged |= tile->updateFloodFillFromTile(FloodFillType::ground, neigh);
+                hasChanged |= tile->updateFloodFillFromTile(FloodFillType::groundWater, neigh);
+                hasChanged |= tile->updateFloodFillFromTile(FloodFillType::groundLava, neigh);
+                hasChanged |= tile->updateFloodFillFromTile(FloodFillType::groundWaterLava, neigh);
                 break;
             }
             case TileType::water:
             {
-                hasChanged |= tile->updateFloodFillFromTile(FloodFillType::FloodFillTypeGroundWater, neigh);
-                hasChanged |= tile->updateFloodFillFromTile(FloodFillType::FloodFillTypeGroundWaterLava, neigh);
+                hasChanged |= tile->updateFloodFillFromTile(FloodFillType::groundWater, neigh);
+                hasChanged |= tile->updateFloodFillFromTile(FloodFillType::groundWaterLava, neigh);
                 break;
             }
             case TileType::lava:
             {
-                hasChanged |= tile->updateFloodFillFromTile(FloodFillType::FloodFillTypeGroundLava, neigh);
-                hasChanged |= tile->updateFloodFillFromTile(FloodFillType::FloodFillTypeGroundWaterLava, neigh);
+                hasChanged |= tile->updateFloodFillFromTile(FloodFillType::groundLava, neigh);
+                hasChanged |= tile->updateFloodFillFromTile(FloodFillType::groundWaterLava, neigh);
                 break;
             }
             default:
@@ -2228,7 +2228,7 @@ void GameMap::replaceFloodFill(FloodFillType floodFillType, int colorOld, int co
 
 void GameMap::refreshFloodFill(Tile* tile)
 {
-    std::vector<int> colors(Tile::toUInt32(FloodFillType::FloodFillTypeMax), -1);
+    std::vector<int> colors(Tile::toUInt32(FloodFillType::nbValues), -1);
 
     // If the tile has opened a new place, we use the same floodfillcolor for all the areas
     for(Tile* neigh : tile->getAllNeighbors())
@@ -2273,7 +2273,7 @@ void GameMap::enableFloodFill()
     // because they are walkable for most creatures. When we will have tagged all
     // thoses, we will deal with water/lava remaining (there can be some left if
     // surrounded by not passable tiles).
-    FloodFillType currentType = FloodFillType::FloodFillTypeGround;
+    FloodFillType currentType = FloodFillType::ground;
     int floodFillValue = 0;
     while(true)
     {
@@ -2289,48 +2289,48 @@ void GameMap::enableFloodFill()
                 if(tile->getFullness() > 0.0)
                     continue;
 
-                if(currentType == FloodFillType::FloodFillTypeGround)
+                if(currentType == FloodFillType::ground)
                 {
                     if(((tile->getType() == TileType::dirt) ||
                         (tile->getType() == TileType::gold) ||
                         (tile->getType() == TileType::claimed)) &&
-                       (tile->floodFillValue(FloodFillType::FloodFillTypeGround) == -1))
+                       (tile->floodFillValue(FloodFillType::ground) == -1))
                     {
                         isTileFound = true;
-                        if(tile->floodFillValue(FloodFillType::FloodFillTypeGround) == -1)
-                            tile->replaceFloodFill(FloodFillType::FloodFillTypeGround, ++floodFillValue);
-                        if(tile->floodFillValue(FloodFillType::FloodFillTypeGroundWater) == -1)
-                            tile->replaceFloodFill(FloodFillType::FloodFillTypeGroundWater, ++floodFillValue);
-                        if(tile->floodFillValue(FloodFillType::FloodFillTypeGroundLava) == -1)
-                            tile->replaceFloodFill(FloodFillType::FloodFillTypeGroundLava, ++floodFillValue);
-                        if(tile->floodFillValue(FloodFillType::FloodFillTypeGroundWaterLava) == -1)
-                            tile->replaceFloodFill(FloodFillType::FloodFillTypeGroundWaterLava, ++floodFillValue);
+                        if(tile->floodFillValue(FloodFillType::ground) == -1)
+                            tile->replaceFloodFill(FloodFillType::ground, ++floodFillValue);
+                        if(tile->floodFillValue(FloodFillType::groundWater) == -1)
+                            tile->replaceFloodFill(FloodFillType::groundWater, ++floodFillValue);
+                        if(tile->floodFillValue(FloodFillType::groundLava) == -1)
+                            tile->replaceFloodFill(FloodFillType::groundLava, ++floodFillValue);
+                        if(tile->floodFillValue(FloodFillType::groundWaterLava) == -1)
+                            tile->replaceFloodFill(FloodFillType::groundWaterLava, ++floodFillValue);
                         break;
                     }
                 }
-                else if(currentType == FloodFillType::FloodFillTypeGroundWater)
+                else if(currentType == FloodFillType::groundWater)
                 {
                     if((tile->getType() == TileType::water) &&
-                       (tile->floodFillValue(FloodFillType::FloodFillTypeGroundWater) == -1))
+                       (tile->floodFillValue(FloodFillType::groundWater) == -1))
                     {
                         isTileFound = true;
-                        if(tile->floodFillValue(FloodFillType::FloodFillTypeGroundWater) == -1)
-                            tile->replaceFloodFill(FloodFillType::FloodFillTypeGroundWater, ++floodFillValue);
-                        if(tile->floodFillValue(FloodFillType::FloodFillTypeGroundWaterLava) == -1)
-                            tile->replaceFloodFill(FloodFillType::FloodFillTypeGroundWaterLava, ++floodFillValue);
+                        if(tile->floodFillValue(FloodFillType::groundWater) == -1)
+                            tile->replaceFloodFill(FloodFillType::groundWater, ++floodFillValue);
+                        if(tile->floodFillValue(FloodFillType::groundWaterLava) == -1)
+                            tile->replaceFloodFill(FloodFillType::groundWaterLava, ++floodFillValue);
                         break;
                     }
                 }
-                else if(currentType == FloodFillType::FloodFillTypeGroundLava)
+                else if(currentType == FloodFillType::groundLava)
                 {
                     if((tile->getType() == TileType::lava) &&
-                       (tile->floodFillValue(FloodFillType::FloodFillTypeGroundLava) == -1))
+                       (tile->floodFillValue(FloodFillType::groundLava) == -1))
                     {
                         isTileFound = true;
-                        if(tile->floodFillValue(FloodFillType::FloodFillTypeGroundLava) == -1)
-                            tile->replaceFloodFill(FloodFillType::FloodFillTypeGroundLava, ++floodFillValue);
-                        if(tile->floodFillValue(FloodFillType::FloodFillTypeGroundWaterLava) == -1)
-                            tile->replaceFloodFill(FloodFillType::FloodFillTypeGroundWaterLava, ++floodFillValue);
+                        if(tile->floodFillValue(FloodFillType::groundLava) == -1)
+                            tile->replaceFloodFill(FloodFillType::groundLava, ++floodFillValue);
+                        if(tile->floodFillValue(FloodFillType::groundWaterLava) == -1)
+                            tile->replaceFloodFill(FloodFillType::groundWaterLava, ++floodFillValue);
                         break;
                     }
                 }
@@ -2345,21 +2345,21 @@ void GameMap::enableFloodFill()
         {
             switch(currentType)
             {
-                case FloodFillType::FloodFillTypeGround:
+                case FloodFillType::ground:
                 {
                     // There are no more ground tiles. We go for water tiles
-                    currentType = FloodFillType::FloodFillTypeGroundWater;
+                    currentType = FloodFillType::groundWater;
                     isTileFound = true;
                     break;
                 }
-                case FloodFillType::FloodFillTypeGroundWater:
+                case FloodFillType::groundWater:
                 {
                     // There are no more ground tiles. We go for water tiles
-                    currentType = FloodFillType::FloodFillTypeGroundLava;
+                    currentType = FloodFillType::groundLava;
                     isTileFound = true;
                     break;
                 }
-                case FloodFillType::FloodFillTypeGroundLava:
+                case FloodFillType::groundLava:
                 {
                     // There are no more tiles. We can stop
                     break;
