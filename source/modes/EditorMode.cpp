@@ -61,6 +61,8 @@ EditorMode::EditorMode(ModeManager* modeManager):
 {
     // Set per default the input on the map
     mModeManager->getInputManager()->mMouseDownOnCEGUIWindow = false;
+
+    ODFrameListener::getSingleton().getCameraManager()->setDefaultView();
 }
 
 EditorMode::~EditorMode()

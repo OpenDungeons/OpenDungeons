@@ -50,6 +50,9 @@ const Ogre::Real FLIGHT_SPEED = 70.0;
 //! Camera rotation speed in degrees.
 const Ogre::Degree ROTATION_SPEED = Ogre::Degree(90);
 
+//! Default orientation on the X Axis
+const Ogre::Real DEFAULT_X_AXIS_VIEW = 25.0;
+
 CameraManager::CameraManager(Ogre::SceneManager* sceneManager, GameMap* gm, Ogre::RenderWindow* renderWindow) :
     mCircleMode(false),
     mCatmullSplineMode(false),
@@ -66,6 +69,7 @@ CameraManager::CameraManager(Ogre::SceneManager* sceneManager, GameMap* gm, Ogre
     mCameraIsRotating(false),
     mCameraPitchDestination(0.0),
     mCameraRollDestination(0.0),
+    mCurrentDefaultViewMode(ViewModes::defaultView),
     mZChange(0.0),
     mSwivelDegrees(0.0),
     mTranslateVector(Ogre::Vector3(0.0, 0.0, 0.0)),
@@ -79,7 +83,7 @@ CameraManager::CameraManager(Ogre::SceneManager* sceneManager, GameMap* gm, Ogre
     createCameraNode("RTS", Ogre::Vector3(static_cast<Ogre::Real>(10.0),
                                               static_cast<Ogre::Real>(10.0),
                                               MAX_CAMERA_Z / 2.0),
-                                              Ogre::Degree(0.0), Ogre::Degree(30.0));
+                                              Ogre::Degree(0.0), Ogre::Degree(DEFAULT_X_AXIS_VIEW));
 
     createCamera("FPP", 0.02, 30.0);
     createCameraNode("FPP", Ogre::Vector3(), Ogre::Degree(0), Ogre::Degree(75), Ogre::Degree(0));
@@ -120,14 +124,39 @@ void CameraManager::createCameraNode(const Ogre::String& ss, Ogre::Vector3 xyz,
     LogManager::getSingleton().logMessage("Creating " + ss + "_node camera node...", Ogre::LML_NORMAL);
 }
 
+void CameraManager::setNextDefaultView()
+{
+    switch(mCurrentDefaultViewMode)
+    {
+    case ViewModes::defaultView:
+        setDefaultIsometricView();
+        break;
+    case ViewModes::isometricView:
+        setDefaultOrthogonalView();
+        break;
+    case ViewModes::orthogonalView:
+    default:
+        setDefaultView();
+        break;
+    }
+}
+
+void CameraManager::setDefaultView()
+{
+    RotateTo(DEFAULT_X_AXIS_VIEW, 0.0);
+    mCurrentDefaultViewMode = ViewModes::defaultView;
+}
+
 void CameraManager::setDefaultIsometricView()
 {
     RotateTo(40.0, 45.0);
+    mCurrentDefaultViewMode = ViewModes::isometricView;
 }
 
 void CameraManager::setDefaultOrthogonalView()
 {
     RotateTo(0.0, 0.0);
+    mCurrentDefaultViewMode = ViewModes::orthogonalView;
 }
 
 void CameraManager::RotateTo(Ogre::Real pitch, Ogre::Real roll)

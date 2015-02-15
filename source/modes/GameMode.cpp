@@ -66,6 +66,8 @@ GameMode::GameMode(ModeManager *modeManager):
 {
     // Set per default the input on the map
     mModeManager->getInputManager()->mMouseDownOnCEGUIWindow = false;
+
+    ODFrameListener::getSingleton().getCameraManager()->setDefaultView();
 }
 
 GameMode::~GameMode()
@@ -790,6 +792,10 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
         }
         break;
 
+    case OIS::KC_V:
+        ODFrameListener::getSingleton().getCameraManager()->setNextDefaultView();
+        break;
+
     // Quit the game
     case OIS::KC_ESCAPE:
         popupExit(!mGameMap->getGamePaused());
@@ -816,13 +822,6 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
     case OIS::KC_9:
     case OIS::KC_0:
         handleHotkeys(arg.key);
-        break;
-
-    case OIS::KC_I:
-        ODFrameListener::getSingleton().getCameraManager()->setDefaultIsometricView();
-        break;
-    case OIS::KC_O:
-        ODFrameListener::getSingleton().getCameraManager()->setDefaultOrthogonalView();
         break;
 
     default:
