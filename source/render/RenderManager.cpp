@@ -897,8 +897,6 @@ void RenderManager::colourizeEntity(Ogre::Entity *ent, const Seat* seat, bool ma
 std::string RenderManager::colourizeMaterial(const std::string& materialName, const Seat* seat, bool markedForDigging, bool playerHasVision)
 {
     std::stringstream tempSS;
-    Ogre::Technique *tempTechnique;
-    Ogre::Pass *tempPass;
 
     tempSS.str("");
 
@@ -942,39 +940,42 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, co
     // Loop over the techniques for the new material
     for (unsigned int j = 0; j < newMaterial->getNumTechniques(); ++j)
     {
-        tempTechnique = newMaterial->getTechnique(j);
-        if (tempTechnique->getNumPasses() == 0)
+        Ogre::Technique* technique = newMaterial->getTechnique(j);
+        if (technique->getNumPasses() == 0)
             continue;
 
         if (markedForDigging)
         {
             // Color the material with yellow on the latest pass
             // so we're sure to see the taint.
-            tempPass = tempTechnique->getPass(0);
             Ogre::ColourValue color(1.0, 1.0, 0.0, 1.0);
-            tempPass->setSpecular(color);
-            tempPass->setAmbient(color);
-            tempPass->setDiffuse(color);
+            for (uint16_t i = 0; i < technique->getNumPasses(); ++i)
+            {
+                Ogre::Pass* pass = technique->getPass(i);
+                pass->setSpecular(color);
+                pass->setAmbient(color);
+                pass->setDiffuse(color);
+            }
         }
         else if(!playerHasVision)
         {
             // Color the material with dark color on the latest pass
             // so we're sure to see the taint.
-            tempPass = tempTechnique->getPass(0);
+            Ogre::Pass* pass = technique->getPass(0);
             Ogre::ColourValue color(0.2, 0.2, 0.2, 1.0);
-            tempPass->setSpecular(color);
-            tempPass->setAmbient(color);
-            tempPass->setDiffuse(color);
+            pass->setSpecular(color);
+            pass->setAmbient(color);
+            pass->setDiffuse(color);
         }
         if (seat != nullptr)
         {
             // Color the material with the Seat's color.
-            tempPass = tempTechnique->getPass(tempTechnique->getNumPasses() - 1);
+            Ogre::Pass* pass = technique->getPass(technique->getNumPasses() - 1);
             Ogre::ColourValue color = seat->getColorValue();
             color.a = 1.0;
-            tempPass->setAmbient(color);
-            tempPass->setDiffuse(color);
-            tempPass->setSpecular(color);
+            pass->setAmbient(color);
+            pass->setDiffuse(color);
+            pass->setSpecular(color);
         }
     }
 
