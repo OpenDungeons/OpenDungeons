@@ -4076,11 +4076,15 @@ void Creature::computeMood()
     else if(getGameMap()->getTurnNumber() > (mFirstTurnFurious + ConfigManager::getSingleton().getNbTurnsFuriousMax()))
     {
         // We couldn't leave the dungeon in time, we become rogue
-        ServerNotification *serverNotification = new ServerNotification(
-            ServerNotificationType::chatServer, getSeat()->getPlayer());
-        std::string msg = getName() + " is not under your control anymore !";
-        serverNotification->mPacket << msg;
-        ODServer::getSingleton().queueServerNotification(serverNotification);
+        if((getSeat()->getPlayer() != nullptr) &&
+           (getSeat()->getPlayer()->getIsHuman()))
+        {
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotificationType::chatServer, getSeat()->getPlayer());
+            std::string msg = getName() + " is not under your control anymore !";
+            serverNotification->mPacket << msg;
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
 
         Seat* rogueSeat = getGameMap()->getSeatRogue();
         setSeat(rogueSeat);
