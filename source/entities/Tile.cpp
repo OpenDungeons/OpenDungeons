@@ -224,6 +224,7 @@ void Tile::setFullness(double f)
                 }//correct
                 break;
             default:
+                assert(false);
                 break;
         }
     }
@@ -256,6 +257,7 @@ void Tile::setFullness(double f)
                 }//correct
                 break;
             default:
+                assert(false);
                 break;
         }
     }
@@ -659,7 +661,7 @@ void Tile::exportTileToPacket(ODPacket& os, Seat* seat)
 void Tile::exportToPacket(ODPacket& os) const
 {
     //Check to make sure this function is not called. The function taking a
-    //seat argument shold be used instead
+    //seat argument should be used instead
     throw std::runtime_error("ERROR: Wrong packet export function used for tile");
 }
 

@@ -86,7 +86,8 @@ void ODSocketClient::disconnect(bool keepReplay)
             return;
         }
         default:
-        break;
+            assert(false);
+            break;
     }
 
     mReplayOutputStream.close();
@@ -129,7 +130,8 @@ bool ODSocketClient::isDataAvailable()
             return false;
         }
         default:
-        break;
+            assert(false);
+            break;
     }
 
     return false;

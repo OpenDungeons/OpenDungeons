@@ -239,10 +239,6 @@ private:
 
     //! \brief What happens after a double click on the replay list in the replay menu
     static bool mREMListDoubleClicked   (const CEGUI::EventArgs& e);
-
-    // Button handlers game UI
-    static bool miniMapclicked          (const CEGUI::EventArgs& e);
-
     static bool dormitoryButtonPressed  (const CEGUI::EventArgs& e);
     static bool treasuryButtonPressed   (const CEGUI::EventArgs& e);
     static bool destroyRoomButtonPressed(const CEGUI::EventArgs& e);

@@ -243,10 +243,6 @@ void Gui::assignEventHandlers()
             CEGUI::Window::EventMouseClick,
             CEGUI::Event::Subscriber(&fighterCreatureButtonPressed));
 
-/*    mSheets[inGameMenu]->getChild(MINIMAP)->subscribeEvent(
-            CEGUI:: Window::EventMouseClick,
-            CEGUI::Event::Subscriber(&miniMapclicked)); */
-
     mSheets[inGameMenu]->getChild(EXIT_CONFIRMATION_POPUP_YES_BUTTON)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&confirmExitYesButtonPressed));
@@ -374,10 +370,6 @@ void Gui::assignEventHandlers()
             CEGUI::Window::EventMouseClick,
             CEGUI::Event::Subscriber(&fighterCreatureButtonPressed));
 
-/*    mSheets[editorModeGui]->getChild(MINIMAP)->subscribeEvent(
-            CEGUI:: Window::EventMouseClick,
-            CEGUI::Event::Subscriber(&miniMapclicked));*/
-
     // Skirmish level select menu controls
     mSheets[skirmishMenu]->getChild(SKM_BUTTON_LAUNCH)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
@@ -490,19 +482,6 @@ void Gui::assignEventHandlers()
 bool Gui::playButtonClickSound(const CEGUI::EventArgs&)
 {
     mSoundEffectsManager->playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
-    return true;
-}
-
-bool Gui::miniMapclicked(const CEGUI::EventArgs& )
-{
-//    const CEGUI::MouseEventArgs& ee = static_cast<const CEGUI::MouseEventArgs&>(e);
-
-//    ODFrameListener& frameListener = ODFrameListener::getSingleton();
-
-/*    frameListener.onMiniMapClick(static_cast<int>(ee.position.d_x),
-        static_cast<int>(ee.position.d_y));
-*/
-    //std::cerr<< xx <<" "<< yy << " " <<std::endl;
     return true;
 }
 
