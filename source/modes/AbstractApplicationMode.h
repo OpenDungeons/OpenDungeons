@@ -114,16 +114,16 @@ protected:
     {
         return *mModeManager;
     }
-    
+
     void subscribeCloseButton(CEGUI::Window& rootWindow);
-    
+
     //! \brief Utility function that calls regressMode, used for events
     inline bool regressModeEvent(const CEGUI::EventArgs&)
     {
         regressMode();
         return true;
     }
-    
+
     inline void addEventConnection(CEGUI::Event::Connection conn)
     {
         mEventConnections.emplace_back(conn);
@@ -140,7 +140,7 @@ protected:
 
     // The game mode type;
     ModeManager::ModeType mModeType;
-    
+
     // Vector of cegui event bindings to be cleared on exiting the mode
     std::vector<CEGUI::Event::Connection> mEventConnections;
 };

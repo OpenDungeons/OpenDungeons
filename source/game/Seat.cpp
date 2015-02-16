@@ -495,7 +495,7 @@ void Seat::notifyChangedVisibleTiles()
     for(Tile* tile : tilesToNotify)
     {
         mGameMap->tileToPacket(serverNotification->mPacket, tile);
-        tile->exportToPacket(serverNotification->mPacket, this);
+        tile->exportTileToPacket(serverNotification->mPacket, this);
     }
     ODServer::getSingleton().queueServerNotification(serverNotification);
 }

@@ -74,12 +74,12 @@ void EditorMode::activate()
 {
     // Loads the corresponding Gui sheet.
     Gui::getSingleton().loadGuiSheet(Gui::editorModeGui);
-    
+
     CEGUI::Window* minimapWindow = Gui::getSingleton().getGuiSheet(Gui::editorModeGui)->getChild(Gui::MINIMAP);
     addEventConnection(
         minimapWindow->subscribeEvent(
             CEGUI::Window::EventMouseClick,
-            CEGUI::Event::Subscriber(&EditorMode::onMinimapClick, this)     
+            CEGUI::Event::Subscriber(&EditorMode::onMinimapClick, this)
     ));
 
     giveFocus();
@@ -884,6 +884,6 @@ bool EditorMode::onMinimapClick(const CEGUI::EventArgs& arg)
     Ogre::Vector2 cc = mMiniMap.camera_2dPositionFromClick(static_cast<int>(mouseEvt.position.d_x),
         static_cast<int>(mouseEvt.position.d_y));
     frameListener.getCameraManager()->onMiniMapClick(cc);
-    
+
     return true;
 }

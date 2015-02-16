@@ -23,14 +23,20 @@
 #ifndef MINIMAP_H_
 #define MINIMAP_H_
 
-#include "render/Gui.h"
-
-#include <OgreTexture.h>
-#include <OgrePixelFormat.h>
 #include <OgreHardwarePixelBuffer.h>
+#include <OgrePixelFormat.h>
+#include <OgreTexture.h>
 #include <OgreVector2.h>
+#include <OgreVector3.h>
 
 #include <vector>
+
+namespace CEGUI
+{
+    class Window;
+}
+
+class GameMap;
 
 struct Color
 {
@@ -57,7 +63,7 @@ public:
 class MiniMap
 {
 public:
-    MiniMap();
+    MiniMap(CEGUI::Window* miniMapWindow);
     ~MiniMap();
 
     void draw(const GameMap& gameMap);
@@ -69,19 +75,24 @@ public:
     Ogre::uint getHeight() const
     { return mHeight; }
 
-    void updateCameraInfo(const Ogre::Vector3& vv, const double& rotation);
+    void updateCameraInfo(Ogre::Vector3 vv, double rotation)
+    {
+        mCamera_2dPosition = Ogre::Vector2(vv.x, vv.y);
+        mCosRotation = cos(rotation);
+        mSinRotation = sin(rotation);
+    }
 
     Ogre::Vector2 camera_2dPositionFromClick(int xx, int yy);
 
-    void attachMiniMap(Gui::guiSheet sheet);
-
 private:
-    Ogre::uint mWidth;
-    Ogre::uint mHeight;
+    CEGUI::Window* mMiniMapWindow;
 
     int mTopLeftCornerX;
     int mTopLeftCornerY;
     int mGrainSize;
+
+    Ogre::uint mWidth;
+    Ogre::uint mHeight;
 
     Ogre::Vector2 mCamera_2dPosition;
     double mCosRotation, mSinRotation;
@@ -92,11 +103,9 @@ private:
     //NOTE: The tiles are laid out Y,X in the vector to iterate in the right order when drawing.
     TileColorArray_t mTiles;
 
+    Ogre::PixelBox mPixelBox;
     Ogre::TexturePtr mMiniMapOgreTexture;
     Ogre::HardwarePixelBufferSharedPtr mPixelBuffer;
-    Ogre::PixelBox* mPixelBox;
-
-    Gui::guiSheet mSheetUsed;
 
     inline void drawPixel(int xx, int yy, Ogre::uint8 RR, Ogre::uint8 GG, Ogre::uint8 BB)
     {

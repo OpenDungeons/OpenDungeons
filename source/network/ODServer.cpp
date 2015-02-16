@@ -1083,7 +1083,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 for(Tile* tile : p.second)
                 {
                     gameMap->tileToPacket(serverNotification.mPacket, tile);
-                    tile->exportToPacket(serverNotification.mPacket, p.first);
+                    tile->exportTileToPacket(serverNotification.mPacket, p.first);
                 }
                 sendAsyncMsg(serverNotification);
             }
@@ -1153,7 +1153,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 for(Tile* tile : p.second)
                 {
                     gameMap->tileToPacket(serverNotification.mPacket, tile);
-                    tile->exportToPacket(serverNotification.mPacket, p.first);
+                    tile->exportTileToPacket(serverNotification.mPacket, p.first);
                 }
                 sendAsyncMsg(serverNotification);
             }
@@ -1222,7 +1222,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 for(Tile* tile : p.second)
                 {
                     gameMap->tileToPacket(serverNotification.mPacket, tile);
-                    tile->exportToPacket(serverNotification.mPacket, p.first);
+                    tile->exportTileToPacket(serverNotification.mPacket, p.first);
                 }
                 sendAsyncMsg(serverNotification);
             }
@@ -1375,7 +1375,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 for(Tile* tile : p.second)
                 {
                     gameMap->tileToPacket(serverNotification.mPacket, tile);
-                    tile->exportToPacket(serverNotification.mPacket, p.first);
+                    tile->exportTileToPacket(serverNotification.mPacket, p.first);
                 }
                 sendAsyncMsg(serverNotification);
             }
@@ -1443,7 +1443,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 for(Tile* tile : p.second)
                 {
                     gameMap->tileToPacket(serverNotification.mPacket, tile);
-                    tile->exportToPacket(serverNotification.mPacket, p.first);
+                    tile->exportTileToPacket(serverNotification.mPacket, p.first);
                 }
                 sendAsyncMsg(serverNotification);
             }
@@ -1558,7 +1558,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     for(Tile* tile : affectedTiles)
                     {
                         gameMap->tileToPacket(notif.mPacket, tile);
-                        tile->exportToPacket(notif.mPacket, seat);
+                        tile->exportTileToPacket(notif.mPacket, seat);
                     }
                     sendAsyncMsg(notif);
                 }
@@ -1688,7 +1688,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 for(Tile* tile : p.second)
                 {
                     gameMap->tileToPacket(serverNotification.mPacket, tile);
-                    tile->exportToPacket(serverNotification.mPacket, p.first);
+                    tile->exportTileToPacket(serverNotification.mPacket, p.first);
                 }
                 sendAsyncMsg(serverNotification);
             }

@@ -96,11 +96,11 @@ void GameMode::activate()
     guiSheet->getChild(Gui::BUTTON_PORTAL)->hide();
     guiSheet->getChild("ObjectivesWindow")->hide();
     guiSheet->getChild("SettingsWindow")->hide();
-    
+
     addEventConnection(
         guiSheet->getChild(Gui::MINIMAP)->subscribeEvent(
             CEGUI::Window::EventMouseClick,
-            CEGUI::Event::Subscriber(&GameMode::onMinimapClick, this)     
+            CEGUI::Event::Subscriber(&GameMode::onMinimapClick, this)
     ));
 
     giveFocus();
@@ -1152,6 +1152,6 @@ bool GameMode::onMinimapClick(const CEGUI::EventArgs& arg)
     Ogre::Vector2 cc = mMiniMap.camera_2dPositionFromClick(static_cast<int>(mouseEvt.position.d_x),
         static_cast<int>(mouseEvt.position.d_y));
     frameListener.getCameraManager()->onMiniMapClick(cc);
-    
+
     return true;
 }

@@ -20,6 +20,7 @@
 
 #include <array>
 #include <bitset>
+#include <cassert>
 #include <list>
 #include <sstream>
 #include <vector>
@@ -54,7 +55,7 @@ public:
      */
     inline Tile* getTile(int xx, int yy) const
     {
-        assert(tiles != nullptr);
+        assert(mTiles != nullptr);
 
         if (xx < getMapSizeX() && yy < getMapSizeY() && xx >= 0 && yy >= 0)
             return mTiles[xx][yy];

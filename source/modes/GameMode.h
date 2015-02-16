@@ -130,7 +130,7 @@ private:
     //! \brief A reference to the game map used by the game mode
     //! For now, handled by the frame listener, don't delete it.
     GameMap* mGameMap;
-    
+
     //! \brief The minimap used in this mode
     MiniMap mMiniMap;
 
@@ -157,8 +157,8 @@ private:
     //! \brief A sub-function called by mouseMoved()
     //! It will handle the potential mouse wheel logic
     void handleMouseWheel(const OIS::MouseEvent& arg);
-    
-    //! \brief Minimap click event handler (currentlu duplicated in EditorMode)
+
+    //! \brief Minimap click event handler (currently duplicated in EditorMode)
     bool onMinimapClick(const CEGUI::EventArgs& arg);
 };
 
