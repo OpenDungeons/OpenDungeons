@@ -353,6 +353,8 @@ void TileContainer::clearTiles()
         delete[] mTiles;
         mTiles = nullptr;
     }
+    mMapSizeX = 0;
+    mMapSizeY = 0;
 }
 
 bool TileContainer::addTile(Tile* t)
@@ -398,20 +400,6 @@ void TileContainer::setTileNeighbors(Tile *t)
             tempTile->addNeighbor(t);
             t->addNeighbor(tempTile);
         }
-    }
-}
-
-Tile* TileContainer::getTile(int xx, int yy) const
-{
-    if(mTiles == nullptr)
-        return nullptr;
-
-    if (xx < getMapSizeX() && yy < getMapSizeY() && xx >= 0 && yy >= 0)
-        return mTiles[xx][yy];
-    else
-    {
-        // std :: cerr << " invalid x,y coordinates to getTile" << std :: endl;
-        return nullptr;
     }
 }
 

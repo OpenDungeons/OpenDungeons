@@ -20,6 +20,8 @@
 
 #include "AbstractApplicationMode.h"
 
+#include "gamemap/MiniMap.h"
+
 class Gui; // Used to change the Current tile type
 class GameMap;
 
@@ -80,6 +82,9 @@ private:
     //! \brief Rendering members
     GameMap* mGameMap;
 
+    //! \brief The minimap used in this mode
+    MiniMap mMiniMap;
+    
     //! \brief Stores the lastest mouse cursor and light positions.
     int mMouseX;
     int mMouseY;
@@ -98,6 +103,9 @@ private:
     //! \brief Updates the text seen next to the cursor position.
     //! This text gives the tile position, and the current left-click action
     void updateCursorText();
+    
+    //! \brief Minimap click event handler (currentlu duplicated in GameMode)
+    bool onMinimapClick(const CEGUI::EventArgs& arg);
 };
 
 #endif // EDITORMODE_H

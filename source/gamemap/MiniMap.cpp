@@ -43,14 +43,13 @@
 
 #include <cstdlib>
 
-MiniMap::MiniMap(GameMap* gm) :
+MiniMap::MiniMap() :
     mWidth(0),
     mHeight(0),
     mTopLeftCornerX(0),
     mTopLeftCornerY(0),
     mGrainSize(4),
     mTiles(),
-    mGameMap(gm),
     mPixelBox(nullptr),
     mSheetUsed(Gui::guiSheet::mainMenu)
 {
@@ -58,13 +57,18 @@ MiniMap::MiniMap(GameMap* gm) :
 
 MiniMap::~MiniMap()
 {
+    // The MiniMap has already been initialised. We free it
+    Gui::getSingleton().getGuiSheet(mSheetUsed)->getChild(Gui::MINIMAP)->setProperty("Image", "");
+    Ogre::TextureManager::getSingletonPtr()->remove("miniMapOgreTexture");
+    CEGUI::ImageManager::getSingletonPtr()->destroy("MiniMapImageset");
+    CEGUI::System::getSingletonPtr()->getRenderer()->destroyTexture("miniMapTextureGui");
     if(mPixelBox != nullptr)
         delete mPixelBox;
 }
 
 void MiniMap::attachMiniMap(Gui::guiSheet sheet)
 {
-    // If is configured with the same sheet, no need to rebuild
+/*    // If is configured with the same sheet, no need to rebuild
     if((mPixelBox != nullptr) && (mSheetUsed == sheet))
         return;
 
@@ -78,7 +82,7 @@ void MiniMap::attachMiniMap(Gui::guiSheet sheet)
 
         delete mPixelBox;
     }
-
+*/
     mSheetUsed = sheet;
     CEGUI::Window* window = Gui::getSingleton().getGuiSheet(sheet)->getChild(Gui::MINIMAP);
 
@@ -122,7 +126,7 @@ void MiniMap::attachMiniMap(Gui::guiSheet sheet)
     mTopLeftCornerY = window->getUnclippedOuterRect().get().getPosition().d_y;
 }
 
-void MiniMap::updateCameraInfos(const Ogre::Vector3& vv, const double& rotation)
+void MiniMap::updateCameraInfo(const Ogre::Vector3& vv, const double& rotation)
 {
     mCamera_2dPosition = Ogre::Vector2(vv.x, vv.y);
     mCosRotation = cos(rotation);
@@ -163,7 +167,7 @@ void MiniMap::swap()
     mPixelBuffer->unlock();
 }
 
-void MiniMap::draw()
+void MiniMap::draw(const GameMap& gameMap)
 {
 
     for (int ii = 0, mm = mCamera_2dPosition.x - mWidth / (2 * mGrainSize); ii < static_cast<int>(mWidth); ++mm, ii += mGrainSize)
@@ -181,14 +185,14 @@ void MiniMap::draw()
              * (the empty one is the unused alpha channel)
              * this is not how it is intended/expected
              */
-            Tile* tile = mGameMap->getTile(oo, pp);
+            Tile* tile = gameMap.getTile(oo, pp);
             if(tile == nullptr)
             {
                 drawPixel(ii, jj, 0x00, 0x00, 0x00);
                 continue;
             }
 
-            if (tile->getMarkedForDigging(mGameMap->getLocalPlayer()))
+            if (tile->getMarkedForDigging(gameMap.getLocalPlayer()))
             {
                 drawPixel(ii, jj, 0xFF, 0xA8, 0x00);
                 continue;

@@ -28,7 +28,6 @@
 #include <OgreFrameListener.h>
 #include <OgreWindowEventUtilities.h>
 #include <OgreSingleton.h>
-#include <Overlay/OgreOverlaySystem.h>
 #include <OgreSceneQuery.h>
 #include <OgreTimer.h>
 #include <CEGUI/EventArgs.h>
@@ -46,8 +45,12 @@ class ModeManager;
 class CameraManager;
 class ChatMessage;
 class GameMap;
-class MiniMap;
 class CameraManager;
+
+namespace Ogre
+{
+    class OverlaySystem;
+}
 
 /*! \brief The main OGRE rendering class.
  *
@@ -133,12 +136,6 @@ public:
 
     void addChatMessage(ChatMessage* message);
 
-    MiniMap* getMiniMap()
-    { return mMiniMap; }
-
-    //! \brief Updates the minimap view.
-    void updateMinimap();
-
     void notifyChatInputMode(bool isChatInputMode, bool sendChatMsg = false);
     void notifyChatChar(int text);
     void notifyChatCharDel();
@@ -153,7 +150,6 @@ public:
     Ogre::Real getActiveCameraFarClipDistance();
     const Ogre::Vector3 getCameraViewTarget();
     void cameraFlyTo(const Ogre::Vector3& destination);
-    void onMiniMapClick(int xPos, int yPos);
 
     CameraManager* getCameraManager()
     {
@@ -180,9 +176,6 @@ private:
 
     Ogre::Timer             mStatsDisplayTimer;
     GameMap*                mGameMap;
-
-    //! \brief The minimap corresponding to the GameMap.
-    MiniMap*                mMiniMap;
 
     //! \brief To see if the frameListener wants to exit
     bool mExitRequested;

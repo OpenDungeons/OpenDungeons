@@ -52,7 +52,17 @@ public:
      * have a complexity O(log(N)) where N is the number of tiles in the map.
      * This function does not lock.
      */
-    Tile* getTile(int x, int y) const;
+    inline Tile* getTile(int xx, int yy) const
+    {
+        assert(tiles != nullptr);
+
+        if (xx < getMapSizeX() && yy < getMapSizeY() && xx >= 0 && yy >= 0)
+            return mTiles[xx][yy];
+        else
+        {
+            return nullptr;
+        }
+    }
 
     //! \brief This functions exports the needed to retrieve a tile for networking.
     //! The tile informations are not embedded, only the needed to identify the tile

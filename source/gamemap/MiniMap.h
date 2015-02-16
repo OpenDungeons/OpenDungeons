@@ -57,10 +57,10 @@ public:
 class MiniMap
 {
 public:
-    MiniMap(GameMap*);
+    MiniMap();
     ~MiniMap();
 
-    void draw();
+    void draw(const GameMap& gameMap);
     void swap();
 
     Ogre::uint getWidth() const
@@ -69,7 +69,7 @@ public:
     Ogre::uint getHeight() const
     { return mHeight; }
 
-    void updateCameraInfos(const Ogre::Vector3& vv, const double& rotation);
+    void updateCameraInfo(const Ogre::Vector3& vv, const double& rotation);
 
     Ogre::Vector2 camera_2dPositionFromClick(int xx, int yy);
 
@@ -91,7 +91,6 @@ private:
     //!brief Vector containing colours to be drawn.
     //NOTE: The tiles are laid out Y,X in the vector to iterate in the right order when drawing.
     TileColorArray_t mTiles;
-    GameMap* mGameMap;
 
     Ogre::TexturePtr mMiniMapOgreTexture;
     Ogre::HardwarePixelBufferSharedPtr mPixelBuffer;

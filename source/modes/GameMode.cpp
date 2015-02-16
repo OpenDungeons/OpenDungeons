@@ -17,29 +17,26 @@
 
 #include "modes/GameMode.h"
 
+#include "ODApplication.h"
 #include "camera/CameraManager.h"
-#include "entities/Creature.h"
-#include "entities/MapLight.h"
-#include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
-#include "gamemap/MiniMap.h"
-#include "game/Seat.h"
-#include "game/Player.h"
 #include "network/ODClient.h"
 #include "network/ODServer.h"
-#include "render/RenderManager.h"
+#include "game/Player.h"
+#include "game/Seat.h"
+#include "gamemap/GameMap.h"
 #include "render/Gui.h"
 #include "render/ODFrameListener.h"
-#include "render/Gui.h"
+#include "render/RenderManager.h"
 #include "render/TextRenderer.h"
 #include "rooms/Room.h"
 #include "sound/MusicPlayer.h"
+#include "sound/SoundEffectsManager.h"
 #include "spell/Spell.h"
-#include "traps/Trap.h"
-#include "utils/LogManager.h"
 #include "utils/Helper.h"
+#include "utils/LogManager.h"
 #include "utils/ResourceManager.h"
-#include "ODApplication.h"
+#include "traps/Trap.h"
 
 #include <CEGUI/WindowManager.h>
 #include <CEGUI/widgets/PushButton.h>
@@ -59,6 +56,7 @@ GameMode::GameMode(ModeManager *modeManager):
     AbstractApplicationMode(modeManager, ModeManager::GAME),
     mDigSetBool(false),
     mGameMap(ODFrameListener::getSingletonPtr()->getClientGameMap()),
+    mMiniMap(Gui::getSingleton().getGuiSheet(Gui::guiSheet::inGameMenu)->getChild(Gui::MINIMAP)),
     mMouseX(0),
     mMouseY(0),
     mCurrentInputMode(InputModeNormal),
@@ -98,9 +96,12 @@ void GameMode::activate()
     guiSheet->getChild(Gui::BUTTON_PORTAL)->hide();
     guiSheet->getChild("ObjectivesWindow")->hide();
     guiSheet->getChild("SettingsWindow")->hide();
-
-    MiniMap* minimap = ODFrameListener::getSingleton().getMiniMap();
-    minimap->attachMiniMap(Gui::guiSheet::inGameMenu);
+    
+    addEventConnection(
+        guiSheet->getChild(Gui::MINIMAP)->subscribeEvent(
+            CEGUI::Window::EventMouseClick,
+            CEGUI::Event::Subscriber(&GameMode::onMinimapClick, this)     
+    ));
 
     giveFocus();
 
@@ -808,7 +809,7 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
 
     case OIS::KC_RETURN:
         mCurrentInputMode = InputModeChat;
-        ODFrameListener::getSingleton().notifyChatInputMode(true);
+        frameListener.notifyChatInputMode(true);
         break;
 
     case OIS::KC_1:
@@ -949,9 +950,13 @@ void GameMode::handleHotkeys(OIS::KeyCode keycode)
 
 void GameMode::onFrameStarted(const Ogre::FrameEvent& evt)
 {
-    MiniMap* minimap = ODFrameListener::getSingleton().getMiniMap();
-    minimap->draw();
-    minimap->swap();
+    //Update the minimap
+    //TODO: We should add some check to only update this if the camera has moved, or map changed
+    CameraManager& cameraManager = *ODFrameListener::getSingleton().getCameraManager();
+    mMiniMap.updateCameraInfo(cameraManager.getCameraViewTarget(),
+                              cameraManager.getActiveCameraNode()->getOrientation().getRoll().valueRadians());
+    mMiniMap.draw(*mGameMap);
+    mMiniMap.swap();
 }
 
 void GameMode::onFrameEnded(const Ogre::FrameEvent& evt)
@@ -1135,5 +1140,18 @@ void GameMode::hideHelpWindow()
 bool GameMode::hideHelpWindow(const CEGUI::EventArgs& /*e*/)
 {
     hideHelpWindow();
+    return true;
+}
+
+bool GameMode::onMinimapClick(const CEGUI::EventArgs& arg)
+{
+    const CEGUI::MouseEventArgs& mouseEvt = static_cast<const CEGUI::MouseEventArgs&>(arg);
+
+    ODFrameListener& frameListener = ODFrameListener::getSingleton();
+
+    Ogre::Vector2 cc = mMiniMap.camera_2dPositionFromClick(static_cast<int>(mouseEvt.position.d_x),
+        static_cast<int>(mouseEvt.position.d_y));
+    frameListener.getCameraManager()->onMiniMapClick(cc);
+    
     return true;
 }

@@ -20,7 +20,7 @@
 
 #include "AbstractApplicationMode.h"
 
-#include "gamemap/GameMap.h"
+#include "gamemap/MiniMap.h"
 
 #include <CEGUI/EventArgs.h>
 
@@ -29,7 +29,7 @@ namespace CEGUI
 class Window;
 }
 
-class  GameMode: public AbstractApplicationMode
+class GameMode: public AbstractApplicationMode
 {
  public:
     GameMode(ModeManager*);
@@ -130,6 +130,9 @@ private:
     //! \brief A reference to the game map used by the game mode
     //! For now, handled by the frame listener, don't delete it.
     GameMap* mGameMap;
+    
+    //! \brief The minimap used in this mode
+    MiniMap mMiniMap;
 
     //! \brief Stores the lastest mouse cursor and light positions.
     int mMouseX;
@@ -154,6 +157,9 @@ private:
     //! \brief A sub-function called by mouseMoved()
     //! It will handle the potential mouse wheel logic
     void handleMouseWheel(const OIS::MouseEvent& arg);
+    
+    //! \brief Minimap click event handler (currentlu duplicated in EditorMode)
+    bool onMinimapClick(const CEGUI::EventArgs& arg);
 };
 
 #endif // GAMEMODE_H

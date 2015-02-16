@@ -1200,9 +1200,6 @@ unsigned long int GameMap::doMiscUpkeep()
         }
     }
 
-    // Updates the minimap at least once per turn
-    ODFrameListener::getSingleton().updateMinimap();
-
     timeTaken = stopwatch.getMicroseconds();
     return timeTaken;
 }
