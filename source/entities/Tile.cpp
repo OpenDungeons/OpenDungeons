@@ -224,7 +224,6 @@ void Tile::setFullness(double f)
                 }//correct
                 break;
             default:
-                assert(false);
                 break;
         }
     }
@@ -257,7 +256,6 @@ void Tile::setFullness(double f)
                 }//correct
                 break;
             default:
-                assert(false);
                 break;
         }
     }
