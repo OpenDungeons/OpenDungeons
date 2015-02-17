@@ -2788,6 +2788,7 @@ bool Creature::handleLeaveDungeon(const CreatureAction& actionItem)
             // when it is safe, i.e. all other pointers to it have been wiped from the program.
             removeFromGameMap();
             deleteYourself();
+            return false;
         }
     }
 
