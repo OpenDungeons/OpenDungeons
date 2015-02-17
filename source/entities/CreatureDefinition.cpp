@@ -79,6 +79,7 @@ ODPacket& operator<<(ODPacket& os, const CreatureDefinition* c)
     os << c->mAwakenessLostPerTurn;
     os << c->mHungerGrowthPerTurn;
     os << c->mSightRadius;
+    os << c->mMaxGoldCarryable;
     os << c->mDigRate << c->mDigRatePerLevel;
     os << c->mClaimRate << c->mClaimRatePerLevel;
     os << c->mMoveSpeedGround << c->mMoveSpeedWater << c->mMoveSpeedLava;
@@ -113,6 +114,7 @@ ODPacket& operator>>(ODPacket& is, CreatureDefinition* c)
     is >> c->mMinHP >> c->mHpPerLevel >> c->mHpHealPerTurn;
     is >> c->mAwakenessLostPerTurn >> c->mHungerGrowthPerTurn;
     is >> c->mSightRadius;
+    is >> c->mMaxGoldCarryable;
     is >> c->mDigRate >> c->mDigRatePerLevel;
     is >> c->mClaimRate >> c->mClaimRatePerLevel;
     is >> c->mMoveSpeedGround >> c->mMoveSpeedWater >> c->mMoveSpeedLava;
@@ -311,6 +313,12 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
             {
                 defFile >> nextParam;
                 creatureDef->mSightRadius = Helper::toInt(nextParam);
+                continue;
+            }
+            else if (nextParam == "MaxGoldCarryable")
+            {
+                defFile >> nextParam;
+                creatureDef->mMaxGoldCarryable = Helper::toInt(nextParam);
                 continue;
             }
             else if (nextParam == "DigRate")
@@ -544,6 +552,9 @@ void CreatureDefinition::writeCreatureDefinitionDiff(const CreatureDefinition* d
 
     if(def1 == nullptr || (def1->mSightRadius != def2->mSightRadius))
         file << "    TileSightRadius\t" << def2->mSightRadius << std::endl;
+
+    if(def1 == nullptr || (def1->mMaxGoldCarryable != def2->mMaxGoldCarryable))
+        file << "    MaxGoldCarryable\t" << def2->mMaxGoldCarryable << std::endl;
 
     if(def1 == nullptr || (def1->mDigRate != def2->mDigRate))
         file << "    DigRate\t" << def2->mDigRate << std::endl;

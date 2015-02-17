@@ -57,8 +57,8 @@ public:
     virtual bool hitCreature(GameEntity* entity)
     { return false; }
 
-    virtual RenderedMovableEntityType getRenderedMovableEntityType() const
-    { return RenderedMovableEntityType::missileObject; }
+    virtual GameEntityType getObjectType() const override
+    { return GameEntityType::missileObject; }
 
     virtual MissileType getMissileType() = 0;
 

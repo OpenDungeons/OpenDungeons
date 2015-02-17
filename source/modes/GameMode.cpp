@@ -21,6 +21,7 @@
 #include "entities/Creature.h"
 #include "entities/MapLight.h"
 #include "entities/RenderedMovableEntity.h"
+#include "entities/Tile.h"
 #include "gamemap/MiniMap.h"
 #include "game/Seat.h"
 #include "game/Player.h"
@@ -65,6 +66,8 @@ GameMode::GameMode(ModeManager *modeManager):
 {
     // Set per default the input on the map
     mModeManager->getInputManager()->mMouseDownOnCEGUIWindow = false;
+
+    ODFrameListener::getSingleton().getCameraManager()->setDefaultView();
 }
 
 GameMode::~GameMode()
@@ -334,8 +337,6 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
         }
 
         // Loop over the tiles in the rectangular selection region and set their setSelected flag accordingly.
-        //TODO: This function is horribly inefficient, it should loop over a rectangle selecting tiles by x-y coords
-        // rather than the reverse that it is doing now.
         std::vector<Tile*> affectedTiles = mGameMap->rectangularRegion(inputManager->mXPos,
                                                                         inputManager->mYPos,
                                                                         inputManager->mLStartDragX,
@@ -791,6 +792,10 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
         }
         break;
 
+    case OIS::KC_V:
+        ODFrameListener::getSingleton().getCameraManager()->setNextDefaultView();
+        break;
+
     // Quit the game
     case OIS::KC_ESCAPE:
         popupExit(!mGameMap->getGamePaused());
@@ -817,13 +822,6 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
     case OIS::KC_9:
     case OIS::KC_0:
         handleHotkeys(arg.key);
-        break;
-
-    case OIS::KC_I:
-        ODFrameListener::getSingleton().getCameraManager()->setDefaultIsometricView();
-        break;
-    case OIS::KC_O:
-        ODFrameListener::getSingleton().getCameraManager()->setDefaultOrthogonalView();
         break;
 
     default:

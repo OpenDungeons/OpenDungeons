@@ -242,11 +242,7 @@ bool RoomTreasury::hasCarryEntitySpot(GameEntity* carriedEntity)
 {
     // We might accept more gold than empty space (for example, if there are 100 gold left
     // and 2 different workers want to bring a treasury) but we don't care
-    if(carriedEntity->getObjectType() != GameEntityType::renderedMovableEntity)
-        return false;
-
-    RenderedMovableEntity* renderedEntity = static_cast<RenderedMovableEntity*>(carriedEntity);
-    if(renderedEntity->getRenderedMovableEntityType() != RenderedMovableEntityType::treasuryObject)
+    if(carriedEntity->getObjectType() != GameEntityType::treasuryObject)
         return false;
 
     if(emptyStorageSpace() <= 0)

@@ -34,8 +34,8 @@ public:
         Tile* tile, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity = 1.0f);
     TrapEntity(GameMap* gameMap);
 
-    virtual RenderedMovableEntityType getRenderedMovableEntityType() const
-    { return RenderedMovableEntityType::trapEntity; }
+    virtual GameEntityType getObjectType() const override
+    { return GameEntityType::trapEntity; }
 
     virtual bool isVisibleForSeat(Seat* seat);
 

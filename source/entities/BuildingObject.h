@@ -37,8 +37,8 @@ public:
         const Ogre::Vector3& position, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity = 1.0f);
     BuildingObject(GameMap* gameMap);
 
-    virtual RenderedMovableEntityType getRenderedMovableEntityType() const
-    { return RenderedMovableEntityType::buildingObject; }
+    virtual GameEntityType getObjectType() const override
+    { return GameEntityType::buildingObject; }
 
     static BuildingObject* getBuildingObjectFromPacket(GameMap* gameMap, ODPacket& is);
 };

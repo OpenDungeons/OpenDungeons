@@ -17,6 +17,8 @@
 
 #include "entities/CreatureDefinition.h"
 
+#include "entities/Tile.h"
+
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 

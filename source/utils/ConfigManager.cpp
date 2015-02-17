@@ -30,6 +30,8 @@
 const std::vector<std::string> EMPTY_SPAWNPOOL;
 const std::string EMPTY_STRING;
 
+const std::string ConfigManager::DefaultWorkerCreatureDefinition = "DefaultWorker";
+
 template<> ConfigManager* Ogre::Singleton<ConfigManager>::msSingleton = 0;
 
 ConfigManager::ConfigManager() :
@@ -45,8 +47,13 @@ ConfigManager::ConfigManager() :
     mSlapDamagePercent(15),
     mTimePayDay(300),
     mNbTurnsFuriousMax(120),
-    mMaxManaPerSeat(250000.0)
+    mMaxManaPerSeat(250000.0),
+    mCreatureDefinitionDefaultWorker(nullptr)
 {
+    mCreatureDefinitionDefaultWorker = new CreatureDefinition(DefaultWorkerCreatureDefinition,
+        CreatureDefinition::CreatureJob::Worker,
+        "Kobold.mesh",
+        "Bed", 1, 2, Ogre::Vector3(0.04, 0.04, 0.04));
     if(!loadGlobalConfig())
     {
         OD_ASSERT_TRUE(false);
@@ -109,6 +116,10 @@ ConfigManager::~ConfigManager()
         delete def;
     }
     mCreatureDefs.clear();
+
+    if(mCreatureDefinitionDefaultWorker != nullptr)
+        delete mCreatureDefinitionDefaultWorker;
+
     for(const Weapon* def : mWeapons)
     {
         delete def;

@@ -281,10 +281,10 @@ public:
 
     static Creature* getCreatureFromStream(GameMap* gameMap, std::istream& is);
     static Creature* getCreatureFromPacket(GameMap* gameMap, ODPacket& is);
-    virtual void exportToPacket(ODPacket& os) const;
-    virtual void importFromPacket(ODPacket& is);
-    virtual void exportToStream(std::ostream& os) const;
-    virtual void importFromStream(std::istream& is);
+    virtual void exportToPacket(ODPacket& os) const override;
+    virtual void importFromPacket(ODPacket& is) override;
+    virtual void exportToStream(std::ostream& os) const override;
+    virtual void importFromStream(std::istream& is) override;
 
     //! \brief Checks if the creature can be picked up. If yes, this function does the needed
     //! to prepare for the pickup (removing creature from GameMap, changing states, ...).
@@ -331,7 +331,7 @@ public:
     bool canGoThroughTile(const Tile* tile) const;
 
     virtual EntityCarryType getEntityCarryType();
-    virtual void notifyEntityCarryOn();
+    virtual void notifyEntityCarryOn(Creature* carrier);
     virtual void notifyEntityCarryOff(const Ogre::Vector3& position);
 
     bool canSlap(Seat* seat);
@@ -397,6 +397,9 @@ private:
     //! \brief The creatures home tile (where its bed is located)
     Tile *mHomeTile;
 
+    //! Class name of the creature. The CreatureDefinition will be set from this name
+    //! when the creature will be initialized
+    std::string     mDefinitionString;
     //! \brief Pointer to the struct holding the general type of the creature with its values
     const CreatureDefinition* mDefinition;
 
@@ -408,6 +411,7 @@ private:
     unsigned int    mLevel;
 
     //! \brief The creature stats
+    std::string     mHpString;
     double          mHp;
     double          mMaxHP;
     double          mExp;

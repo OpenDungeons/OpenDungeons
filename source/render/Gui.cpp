@@ -22,6 +22,7 @@
 
 #include "render/Gui.h"
 
+#include "entities/Tile.h"
 #include "render/ODFrameListener.h"
 #include "gamemap/GameMap.h"
 #include "game/Player.h"

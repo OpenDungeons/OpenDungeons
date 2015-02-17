@@ -17,6 +17,7 @@
 
 #include "entities/TreasuryObject.h"
 
+#include "entities/Tile.h"
 #include "gamemap/GameMap.h"
 #include "network/ODPacket.h"
 #include "rooms/RoomTreasury.h"
@@ -195,7 +196,7 @@ EntityCarryType TreasuryObject::getEntityCarryType()
     return EntityCarryType::notCarryable;
 }
 
-void TreasuryObject::notifyEntityCarryOn()
+void TreasuryObject::notifyEntityCarryOn(Creature* carrier)
 {
     Tile* myTile = getPositionTile();
     OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());

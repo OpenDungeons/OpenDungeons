@@ -38,8 +38,8 @@ public:
 
     virtual void doUpkeep();
 
-    virtual RenderedMovableEntityType getRenderedMovableEntityType() const
-    { return RenderedMovableEntityType::smallSpiderEntity; }
+    virtual GameEntityType getObjectType() const override
+    { return GameEntityType::smallSpiderEntity; }
 
     bool canSlap(Seat* seat);
 

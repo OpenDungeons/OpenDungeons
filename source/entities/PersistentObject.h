@@ -45,8 +45,8 @@ public:
         Tile* tile, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity = 1.0f);
     PersistentObject(GameMap* gameMap);
 
-    virtual RenderedMovableEntityType getRenderedMovableEntityType() const
-    { return RenderedMovableEntityType::persistentObject; }
+    virtual GameEntityType getObjectType() const override
+    { return GameEntityType::persistentObject; }
 
     //! This has nothing to do with vision. It is just to decide if the tile where the persistent object is should notify it
     //! or not. That would allow for hidden traps, for example, not to send their presence to the clients until they triggered.
@@ -61,8 +61,8 @@ public:
     void fireRemoveEntityToSeatsWithVision()
     {}
 
-    virtual void exportToPacket(ODPacket& os) const;
-    virtual void importFromPacket(ODPacket& is);
+    virtual void exportToPacket(ODPacket& os) const override;
+    virtual void importFromPacket(ODPacket& is) override;
 
     static PersistentObject* getPersistentObjectFromPacket(GameMap* gameMap, ODPacket& is);
 

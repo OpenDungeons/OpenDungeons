@@ -26,7 +26,3 @@ cmake .. -DCMAKE_SKIP_BUILD_RPATH=FALSE \
 NCPUS_MAX=`/usr/bin/getconf _NPROCESSORS_ONLN`
 make -j$NCPUS_MAX
 popd
-
-cp -f build/opendungeons .
-cp -f build/{resources.cfg,plugins.cfg} .
-strip --strip-debug ./opendungeons

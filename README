@@ -64,6 +64,10 @@ To build the game, you will need to link against the following libraries:
 *  CEGUI SDK (0.8.x)
 *  SFML (2.x)
 
+Note that you need a compiler that supports reasonably well C++11 features.
+* Linux: GCC 4.8+
+* Windows: MSVS 2013 Express or MinGW 4.8+
+
 On windows, make sure you have the MSVC corresponding SDK, or either compile from source.
 
 Then, use CMake-Gui to generate project files for your IDE.

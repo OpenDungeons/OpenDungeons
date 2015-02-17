@@ -38,8 +38,8 @@ public:
     CraftedTrap(GameMap* gameMap, const std::string& forgeName, TrapType trapType);
     CraftedTrap(GameMap* gameMap);
 
-    virtual RenderedMovableEntityType getRenderedMovableEntityType() const
-    { return RenderedMovableEntityType::craftedTrap; }
+    virtual GameEntityType getObjectType() const override
+    { return GameEntityType::craftedTrap; }
 
     virtual const Ogre::Vector3& getScale() const;
 
@@ -49,7 +49,7 @@ public:
     virtual EntityCarryType getEntityCarryType()
     { return EntityCarryType::craftedTrap; }
 
-    virtual void notifyEntityCarryOn();
+    virtual void notifyEntityCarryOn(Creature* carrier);
     virtual void notifyEntityCarryOff(const Ogre::Vector3& position);
 
     static CraftedTrap* getCraftedTrapFromStream(GameMap* gameMap, std::istream& is);

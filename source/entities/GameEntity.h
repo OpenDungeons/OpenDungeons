@@ -43,14 +43,23 @@ enum class GameEntityType
     creature,
     room,
     trap,
-    renderedMovableEntity,
     tile,
     mapLight,
-    spell
+    spell,
+    buildingObject,
+    treasuryObject,
+    chickenEntity,
+    smallSpiderEntity,
+    craftedTrap,
+    missileObject,
+    persistentObject,
+    trapEntity
 };
 
-ODPacket& operator<<(ODPacket& os, const GameEntityType& ot);
-ODPacket& operator>>(ODPacket& is, GameEntityType& ot);
+ODPacket& operator<<(ODPacket& os, const GameEntityType& type);
+ODPacket& operator>>(ODPacket& is, GameEntityType& type);
+std::ostream& operator<<(std::ostream& os, const GameEntityType& type);
+std::istream& operator>>(std::istream& is, GameEntityType& type);
 
 //! This enum is used to know how carryable entities should be prioritized from lowest
 //! to highest
@@ -240,6 +249,9 @@ class GameEntity
     virtual void drop(const Ogre::Vector3& v)
     {}
 
+    void firePickupEntity(Player* playerPicking);
+    void fireDropEntity(Player* playerPicking, Tile* tile);
+
     //! \brief Called each turn with the list of seats that have vision on the tile where the entity is. It should handle
     //! messages to notify players that gain/loose vision
     virtual void notifySeatsWithVision(const std::vector<Seat*>& seats);
@@ -250,17 +262,46 @@ class GameEntity
     //! \brief Fires remove event to every seat with vision
     void fireRemoveEntityToSeatsWithVision();
 
-    //! \brief Returns true if the entity can be carried by a kobold. False otherwise.
+    //! \brief Returns true if the entity can be carried by a worker. False otherwise.
     virtual EntityCarryType getEntityCarryType()
     { return EntityCarryType::notCarryable; }
 
     //! \brief Called when the entity is being carried
-    virtual void notifyEntityCarryOn()
+    virtual void notifyEntityCarryOn(Creature* carrier)
     {}
 
     //! \brief Called when the entity is being carried
     virtual void notifyEntityCarryOff(const Ogre::Vector3& position)
     {}
+
+    //! This function should be called on client side just after the entity is added to the gamemap.
+    //! It should restore the entity state (if it was dead before the client got vision, it should
+    //! be dead on the ground for example).
+    //! Note that this function is to be called on client side only
+    virtual void restoreEntityState()
+    {}
+
+    /*! \brief Exports the headers needed to recreate the GameEntity. For example, for missile objects
+     * type cannon, it exports GameEntityType::missileObject and MissileType::oneHit. The content of the
+     * GameEntityType will be exported by exportToPacket. exportHeadersTo* should export the needed information
+     * to know which class should be used. Then, importFromPacket can be called to import the data. The rule of
+     * thumb is that importFrom* should be the exact opposite to exportTo*
+     * exportToStream and importFromStream are used to write data in level files (editor or, later, save game).
+     * exportToPacket and importFromPacket are used to send data from the server to the clients.
+     * Note that the functions using stream and packet might not export the same data. Functions using packet will
+     * export/import only the needed information for the clients while functions using the stream will export/import
+     * every needed information to save/restore the entity from scratch.
+     */
+    virtual void exportHeadersToStream(std::ostream& os);
+    virtual void exportHeadersToPacket(ODPacket& os);
+    //! \brief Exports the data of the GameEntity
+    virtual void exportToStream(std::ostream& os) const;
+    virtual void importFromStream(std::istream& is);
+    virtual void exportToPacket(ODPacket& os) const;
+    virtual void importFromPacket(ODPacket& is);
+
+    static GameEntity* getGameEntityeEntityFromStream(GameMap* gameMap, std::istream& is);
+    static GameEntity* getGameEntityFromPacket(GameMap* gameMap, ODPacket& is);
 
   protected:
     //! \brief Function that implements the mesh creation

@@ -115,11 +115,14 @@ public:
     virtual bool canSlap(Seat* seat);
     virtual void slap();
 
+    static MapLight* getMapLightFromStream(GameMap* gameMap, std::istream& is);
+    static MapLight* getMapLightFromPacket(GameMap* gameMap, ODPacket& is);
+
     static std::string getFormat();
-    virtual void exportToStream(std::ostream& os) const;
-    virtual void importFromStream(std::istream& is);
-    virtual void exportToPacket(ODPacket& os) const;
-    virtual void importFromPacket(ODPacket& is);
+    virtual void exportToStream(std::ostream& os) const override;
+    virtual void importFromStream(std::istream& is) override;
+    virtual void exportToPacket(ODPacket& os) const override;
+    virtual void importFromPacket(ODPacket& is) override;
 
     //! \brief Loads the map light data from a level line.
     static void loadFromLine(const std::string& line, MapLight* m);

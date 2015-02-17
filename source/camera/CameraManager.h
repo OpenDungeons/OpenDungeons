@@ -42,6 +42,14 @@ class GameMap;
 const Ogre::Real MIN_CAMERA_Z = 3.0;
 const Ogre::Real MAX_CAMERA_Z = 16.0;
 
+//! \brief The default views enum, used to cycle between them.
+enum class ViewModes : uint16_t
+{
+    defaultView = 0,
+    isometricView,
+    orthogonalView
+};
+
 class CameraManager
 {
 public:
@@ -159,8 +167,12 @@ public:
     }
 
     //! \brief Makes the RTS camera use the corresponding default viewpoint.
+    void setDefaultView();
     void setDefaultIsometricView();
     void setDefaultOrthogonalView();
+
+    //! \brief Calls the next default view in the ViewModes enum order.
+    void setNextDefaultView();
 
 private:
     //! \brief HermiteCatmullSpline members for each axices.
@@ -196,6 +208,9 @@ private:
     //! \brief The camer pitch, yaw and roll destination rotation.
     Ogre::Real      mCameraPitchDestination; // X-Axis: Looking up or down from the user point of view.
     Ogre::Real      mCameraRollDestination; // Z-Axis: Left or right from a user point of view.
+
+    //! \brief The current (or last) default view mode requested.
+    ViewModes       mCurrentDefaultViewMode;
 
     //! \brief The user height change value.
     Ogre::Real      mZChange;

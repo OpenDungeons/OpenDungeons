@@ -21,6 +21,7 @@
 
 #include "entities/Creature.h"
 #include "entities/RenderedMovableEntity.h"
+#include "entities/Tile.h"
 
 #include "gamemap/GameMap.h"
 
@@ -63,7 +64,7 @@ Player::Player(GameMap* gameMap, int32_t id) :
 unsigned int Player::numCreaturesInHand(const Seat* seat) const
 {
     unsigned int cpt = 0;
-    for(MovableGameEntity* entity : mObjectsInHand)
+    for(GameEntity* entity : mObjectsInHand)
     {
         if(entity->getObjectType() != GameEntityType::creature)
             continue;
@@ -81,7 +82,7 @@ unsigned int Player::numObjectsInHand() const
     return mObjectsInHand.size();
 }
 
-void Player::addEntityToHand(MovableGameEntity *entity)
+void Player::addEntityToHand(GameEntity *entity)
 {
     if (mObjectsInHand.empty())
     {
@@ -100,7 +101,7 @@ void Player::addEntityToHand(MovableGameEntity *entity)
     mObjectsInHand[0] = entity;
 }
 
-void Player::pickUpEntity(MovableGameEntity *entity)
+void Player::pickUpEntity(GameEntity *entity)
 {
     if (!ODServer::getSingleton().isConnected() && !ODClient::getSingleton().isConnected())
         return;
@@ -142,14 +143,14 @@ bool Player::isDropHandPossible(Tile *t, unsigned int index)
     return entity->tryDrop(getSeat(), t);
 }
 
-MovableGameEntity* Player::dropHand(Tile *t, unsigned int index)
+GameEntity* Player::dropHand(Tile *t, unsigned int index)
 {
     // Add the creature to the map
     OD_ASSERT_TRUE_MSG(index < mObjectsInHand.size(), "playerNick=" + getNick() + ", index=" + Ogre::StringConverter::toString(index));
     if(index >= mObjectsInHand.size())
         return nullptr;
 
-    MovableGameEntity *entity = mObjectsInHand[index];
+    GameEntity *entity = mObjectsInHand[index];
     mObjectsInHand.erase(mObjectsInHand.begin() + index);
 
     entity->drop(Ogre::Vector3(static_cast<Ogre::Real>(t->getX()),

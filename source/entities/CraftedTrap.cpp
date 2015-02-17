@@ -17,6 +17,9 @@
 
 #include "entities/CraftedTrap.h"
 
+#include "entities/Creature.h"
+#include "entities/Tile.h"
+
 #include "network/ODPacket.h"
 
 #include "gamemap/GameMap.h"
@@ -69,7 +72,7 @@ const std::string& CraftedTrap::getMeshFromTrapType(TrapType trapType)
     return EMPTY_STRING;
 }
 
-void CraftedTrap::notifyEntityCarryOn()
+void CraftedTrap::notifyEntityCarryOn(Creature* carrier)
 {
     Tile* myTile = getPositionTile();
     OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
@@ -77,6 +80,7 @@ void CraftedTrap::notifyEntityCarryOn()
         return;
 
     setIsOnMap(false);
+    setSeat(carrier->getSeat());
     myTile->removeEntity(this);
 }
 

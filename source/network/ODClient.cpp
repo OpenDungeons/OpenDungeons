@@ -28,6 +28,7 @@
 #include "entities/MapLight.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
+#include "entities/Tile.h"
 #include "ODApplication.h"
 #include "rooms/RoomTreasury.h"
 #include "entities/TreasuryObject.h"
@@ -378,29 +379,6 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotificationType::addMapLight:
-        {
-            MapLight *newMapLight = new MapLight(gameMap);
-            newMapLight->importFromPacket(packetReceived);
-            newMapLight->addToGameMap();
-            newMapLight->createMesh();
-            break;
-        }
-
-        case ServerNotificationType::removeMapLight:
-        {
-            std::string nameMapLight;
-            OD_ASSERT_TRUE(packetReceived >> nameMapLight);
-            MapLight *tempMapLight = gameMap->getMapLight(nameMapLight);
-            OD_ASSERT_TRUE_MSG(tempMapLight != nullptr, "nameMapLight=" + nameMapLight);
-            if(tempMapLight == nullptr)
-                break;
-
-            tempMapLight->removeFromGameMap();
-            tempMapLight->deleteYourself();
-            break;
-        }
-
         case ServerNotificationType::addClass:
         {
             CreatureDefinition *tempClass = new CreatureDefinition;
@@ -409,26 +387,27 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotificationType::addCreature:
+        case ServerNotificationType::addEntity:
         {
-            Creature *newCreature = Creature::getCreatureFromPacket(gameMap, packetReceived);
-            newCreature->addToGameMap();
-            newCreature->createMesh();
-            newCreature->restoreEntityState();
+            GameEntity* entity = GameEntity::getGameEntityFromPacket(gameMap, packetReceived);
+            entity->addToGameMap();
+            entity->createMesh();
+            entity->restoreEntityState();
             break;
         }
 
-        case ServerNotificationType::removeCreature:
+        case ServerNotificationType::removeEntity:
         {
-            std::string creatureName;
-            OD_ASSERT_TRUE(packetReceived >> creatureName);
-            Creature* creature = gameMap->getCreature(creatureName);
-            OD_ASSERT_TRUE_MSG(creature != nullptr, "creatureName=" + creatureName);
-            if(creature == nullptr)
+            GameEntityType entityType;
+            std::string entityName;
+            OD_ASSERT_TRUE(packetReceived >> entityType >> entityName);
+            GameEntity* entity = gameMap->getEntityFromTypeAndName(entityType, entityName);
+            OD_ASSERT_TRUE_MSG(entity != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
+            if(entity == nullptr)
                 break;
 
-            creature->removeFromGameMap();
-            creature->deleteYourself();
+            entity->removeFromGameMap();
+            entity->deleteYourself();
             break;
         }
 
@@ -490,7 +469,7 @@ bool ODClient::processOneClientSocketMessage()
             if(tempPlayer == nullptr)
                 break;
 
-            MovableGameEntity* entity = gameMap->getEntityFromTypeAndName(entityType, entityName);
+            GameEntity* entity = gameMap->getEntityFromTypeAndName(entityType, entityName);
             OD_ASSERT_TRUE_MSG(entity != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
             if(entity == nullptr)
                 break;
@@ -596,34 +575,6 @@ bool ODClient::processOneClientSocketMessage()
         case ServerNotificationType::playerNoMoreFighting:
         {
             MusicPlayer::getSingleton().play(gameMap->getLevelMusicFile());
-            break;
-        }
-
-        case ServerNotificationType::addRenderedMovableEntity:
-        {
-            RenderedMovableEntity* tempRenderedMovableEntity = RenderedMovableEntity::getRenderedMovableEntityFromPacket(gameMap, packetReceived);
-            OD_ASSERT_TRUE(tempRenderedMovableEntity != nullptr);
-            if(tempRenderedMovableEntity == nullptr)
-                break;
-            tempRenderedMovableEntity->addToGameMap();
-            tempRenderedMovableEntity->createMesh();
-            tempRenderedMovableEntity->restoreEntityState();
-            break;
-        }
-
-        case ServerNotificationType::removeRenderedMovableEntity:
-        {
-            // TODO: merge ServerNotificationType::removeRenderedMovableEntity, ServerNotificationType::removeCreature... for movable entities when it is possible
-            std::string name;
-            GameEntityType entityType;
-            OD_ASSERT_TRUE(packetReceived >> entityType >> name);
-            MovableGameEntity* entity = gameMap->getEntityFromTypeAndName(entityType, name);
-            OD_ASSERT_TRUE_MSG(entity != nullptr, "name=" + name);
-            if (entity != nullptr)
-            {
-                entity->removeFromGameMap();
-                entity->deleteYourself();
-            }
             break;
         }
 
@@ -811,7 +762,7 @@ bool ODClient::processOneClientSocketMessage()
             if(carrier == nullptr)
                 break;
 
-            MovableGameEntity* carried = gameMap->getEntityFromTypeAndName(entityType, carriedName);
+            GameEntity* carried = gameMap->getEntityFromTypeAndName(entityType, carriedName);
             OD_ASSERT_TRUE_MSG(carried != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", carriedName=" + carriedName);
             if(carried == nullptr)
                 break;
@@ -832,7 +783,7 @@ bool ODClient::processOneClientSocketMessage()
             if(carrier == nullptr)
                 break;
 
-            MovableGameEntity* carried = gameMap->getEntityFromTypeAndName(entityType, carriedName);
+            GameEntity* carried = gameMap->getEntityFromTypeAndName(entityType, carriedName);
             OD_ASSERT_TRUE_MSG(carried != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", carriedName=" + carriedName);
             if(carried == nullptr)
                 break;

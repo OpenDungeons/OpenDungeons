@@ -17,6 +17,8 @@
 
 #include "entities/PersistentObject.h"
 
+#include "entities/Tile.h"
+
 #include "network/ODPacket.h"
 
 #include "game/Seat.h"

@@ -2,6 +2,14 @@
 # Bundle the system's shared libraries in the ./lib folder
 # This is meant to be used with the build-portable-binary.sh script
 
+echo "=== Copying the generated binary and config to the main folder ==="
+
+rm -rf lib && mkdir lib
+
+cp -f build/opendungeons .
+cp -f build/{resources.cfg,plugins.cfg} .
+strip --strip-debug ./opendungeons
+
 echo "=== Bundling the needed shared libraries in the ./lib folder ==="
 
 # List the needed libraries
@@ -9,7 +17,7 @@ ldd ./opendungeons &> libraries.txt
 
 # Remove the libraries we don't want to bundle
 NOBUNDLE="linux-vdso linux-gate libpthread libstdc++ libc libm libgcc_s \
-          libX11 libXt libXaw libXext libXmu libXpm libXau libXdmcp \
+          libX11 libXt libXext libXmu libXpm libXau libXdmcp libSM libICE \
           libuuid libz libxcb libdl librt ld-linux ld-linux-x86-64"
 
 for lib in $NOBUNDLE
@@ -17,7 +25,6 @@ do
     sed -i -e '/'"$lib"'.so/d' libraries.txt
 done
 
-rm -rf lib && mkdir lib
 # Parse the remaining libraries and copy them to ./lib
 # If the linked lib is a symlink, copy also the target of the symlink
 while read line

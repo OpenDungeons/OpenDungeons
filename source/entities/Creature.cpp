@@ -23,6 +23,7 @@
 #include "entities/CreatureDefinition.h"
 #include "entities/Weapon.h"
 #include "entities/CreatureSound.h"
+#include "entities/Tile.h"
 #include "entities/TreasuryObject.h"
 #include "entities/ChickenEntity.h"
 
@@ -72,8 +73,6 @@
 #define snprintf_is_banned_in_OD_code _snprintf
 #endif
 
-//TODO: make this read from definition file?
-static const int MaxGoldCarriedByWorkers = 1500;
 static const int NB_TURN_FLEE_MAX = 5;
 
 const std::string Creature::CREATURE_PREFIX = "Creature_";
@@ -119,6 +118,7 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
     mFirstTurnFurious        (-1)
 
 {
+    setMeshName(definition->getMeshName());
     setName(getGameMap()->nextUniqueNameCreature(definition->getClassName()));
 
     setIsOnMap(false);
@@ -202,6 +202,53 @@ Creature::~Creature()
 void Creature::createMeshLocal()
 {
     MovableGameEntity::createMeshLocal();
+
+    bool setHpToStrHp = false;
+    if(mDefinition == nullptr)
+    {
+        // If the classname corresponds to the default worker CreatureDefinition, we use
+        // the dedicated class. The correct one will be set after the seat is initialized
+        if(mDefinitionString.compare(ConfigManager::DefaultWorkerCreatureDefinition) != 0)
+        {
+            mDefinition = getGameMap()->getClassDescription(mDefinitionString);
+        }
+        else
+        {
+            // If we are in editor mode, we take the default worker class. Otherwise, we take
+            // the default worker from the seat faction
+            if(getGameMap()->isInEditorMode())
+                mDefinition = ConfigManager::getSingleton().getCreatureDefinitionDefaultWorker();
+            else
+                mDefinition = getSeat()->getWorkerClassToSpawn();
+        }
+
+        OD_ASSERT_TRUE_MSG(mDefinition != nullptr, "Definition=" + mDefinitionString);
+
+        if(getGameMap()->isServerGameMap())
+        {
+            setHpToStrHp = true;
+
+            // name
+            if (getName().compare("autoname") == 0)
+            {
+                std::string name = getGameMap()->nextUniqueNameCreature(mDefinition->getClassName());
+                setName(name);
+            }
+        }
+    }
+
+    buildStats();
+
+    // Now, the max hp is known. If needed, we set it
+    if(setHpToStrHp)
+    {
+        if(mHpString.compare("max") == 0)
+            mHp = mMaxHP;
+        else
+            mHp = Helper::toDouble(mHpString);
+
+    }
+
     if(!getGameMap()->isServerGameMap())
     {
         RenderManager::getSingleton().rrCreateCreature(this);
@@ -280,26 +327,20 @@ void Creature::removeFromGameMap()
 
 std::string Creature::getFormat()
 {
-    //NOTE:  When this format changes, other changes to RoomPortal::spawnCreature() may be necessary.
-    return "SeatId\tClassName\tName\tLevel\tCurrentXP\tCurrentHP\tCurrentAwakeness\t"
-           "CurrentHunger\tGoldToDeposit\tPosX\tPosY\tPosZ\tLeftWeapon\tRightWeapon";
+    return "SeatId\tName\tMeshName\tPosX\tPosY\tPosZ\tClassName\tLevel\tCurrentXP\tCurrentHP\tCurrentAwakeness\t"
+           "CurrentHunger\tGoldToDeposit\tLeftWeapon\tRightWeapon";
 }
 
 void Creature::exportToStream(std::ostream& os) const
 {
-    int seatId = getSeat()->getId();
-    os << seatId;
-    os << "\t" << mDefinition->getClassName() << "\t" << getName();
-    os << "\t" << getLevel() << "\t" << mExp << "\t";
+    MovableGameEntity::exportToStream(os);
+    os << mDefinition->getClassName() << "\t";
+    os << getLevel() << "\t" << mExp << "\t";
     if(getHP() < mMaxHP)
         os << getHP();
     else
         os << "max";
     os << "\t" << mAwakeness << "\t" << mHunger << "\t" << mGoldCarried;
-
-    os << "\t" << mPosition.x;
-    os << "\t" << mPosition.y;
-    os << "\t" << mPosition.z;
 
     // Check creature weapons
     if(mWeaponL != nullptr)
@@ -312,49 +353,29 @@ void Creature::exportToStream(std::ostream& os) const
     else
         os << "\tnone";
 
-    MovableGameEntity::exportToStream(os);
 }
 
 void Creature::importFromStream(std::istream& is)
 {
-    Ogre::Real xLocation = 0.0, yLocation = 0.0, zLocation = 0.0;
-    double tempDouble = 0.0;
+    // Beware: A generic class name might be used here so we shouldn't use mDefinition
+    // here as it is not set yet (for example, default worker will be available only after
+    // seat lobby configuration)
+    MovableGameEntity::importFromStream(is);
     std::string tempString;
 
-    int seatId = 0;
-    OD_ASSERT_TRUE(is >> seatId);
-    Seat* seat = getGameMap()->getSeatById(seatId);
-    setSeat(seat);
-
-    // class name
-    OD_ASSERT_TRUE(is >> tempString);
-    mDefinition = getGameMap()->getClassDescription(tempString);
-    OD_ASSERT_TRUE_MSG(mDefinition != nullptr, "Definition=" + tempString);
-
-    // name
-    OD_ASSERT_TRUE(is >> tempString);
-    if (tempString.compare("autoname") == 0)
-        tempString = getGameMap()->nextUniqueNameCreature(mDefinition->getClassName());
-    setName(tempString);
+    OD_ASSERT_TRUE(is >> mDefinitionString);
 
     OD_ASSERT_TRUE(is >> mLevel);
 
     OD_ASSERT_TRUE(is >> mExp);
 
-    std::string strHp;
-    OD_ASSERT_TRUE(is >> strHp);
+    OD_ASSERT_TRUE(is >> mHpString);
 
-    OD_ASSERT_TRUE(is >> tempDouble);
-    mAwakeness = tempDouble;
+    OD_ASSERT_TRUE(is >> mAwakeness);
 
-    OD_ASSERT_TRUE(is >> tempDouble);
-    mHunger = tempDouble;
+    OD_ASSERT_TRUE(is >> mHunger);
 
-    OD_ASSERT_TRUE(is >> tempDouble);
-    mGoldCarried = static_cast<int>(tempDouble);
-
-    OD_ASSERT_TRUE(is >> xLocation >> yLocation >> zLocation);
-    mPosition = Ogre::Vector3(xLocation, yLocation, zLocation);
+    OD_ASSERT_TRUE(is >> mGoldCarried);
 
     OD_ASSERT_TRUE(is >> tempString);
     if(tempString != "none")
@@ -370,15 +391,6 @@ void Creature::importFromStream(std::istream& is)
         OD_ASSERT_TRUE_MSG(mWeaponR != nullptr, "Unknown weapon name=" + tempString);
     }
     mLevel = std::min(MAX_LEVEL, mLevel);
-
-    MovableGameEntity::importFromStream(is);
-
-    buildStats();
-
-    if(strHp.compare("max") == 0)
-        mHp = mMaxHP;
-    else
-        mHp = Helper::toDouble(strHp);
 }
 
 void Creature::buildStats()
@@ -424,29 +436,20 @@ void Creature::buildStats()
 Creature* Creature::getCreatureFromStream(GameMap* gameMap, std::istream& is)
 {
     Creature* creature = new Creature(gameMap);
-    creature->importFromStream(is);
     return creature;
 }
 
 Creature* Creature::getCreatureFromPacket(GameMap* gameMap, ODPacket& is)
 {
     Creature* creature = new Creature(gameMap);
-    creature->importFromPacket(is);
     return creature;
 }
 
 void Creature::exportToPacket(ODPacket& os) const
 {
+    MovableGameEntity::exportToPacket(os);
     const std::string& className = mDefinition->getClassName();
     os << className;
-
-    const std::string& name = getName();
-    os << name;
-
-    int seatId = getSeat()->getId();
-    os << mPosition;
-    os << seatId;
-
     os << mLevel;
     os << mExp;
 
@@ -477,27 +480,14 @@ void Creature::exportToPacket(ODPacket& os) const
         os << mWeaponR->getName();
     else
         os << "none";
-
-    MovableGameEntity::exportToPacket(os);
 }
 
 void Creature::importFromPacket(ODPacket& is)
 {
+    MovableGameEntity::importFromPacket(is);
     std::string tempString;
 
-    OD_ASSERT_TRUE(is >> tempString);
-    mDefinition = getGameMap()->getClassDescription(tempString);
-    OD_ASSERT_TRUE_MSG(mDefinition != nullptr, "Definition=" + tempString);
-
-    OD_ASSERT_TRUE(is >> tempString);
-    setName(tempString);
-
-    OD_ASSERT_TRUE(is >> mPosition);
-
-    int seatId;
-    OD_ASSERT_TRUE(is >> seatId);
-    Seat* seat = getGameMap()->getSeatById(seatId);
-    setSeat(seat);
+    OD_ASSERT_TRUE(is >> mDefinitionString);
 
     OD_ASSERT_TRUE(is >> mLevel);
     OD_ASSERT_TRUE(is >> mExp);
@@ -533,10 +523,6 @@ void Creature::importFromPacket(ODPacket& is)
         mWeaponR = getGameMap()->getWeapon(tempString);
         OD_ASSERT_TRUE_MSG(mWeaponR != nullptr, "Unknown weapon name=" + tempString);
     }
-
-    MovableGameEntity::importFromPacket(is);
-
-    buildStats();
 }
 
 void Creature::setPosition(const Ogre::Vector3& v, bool isMove)
@@ -1681,7 +1667,7 @@ bool Creature::handleDigTileAction(const CreatureAction& actionItem)
     }
 
     // Check to see if we are carrying the maximum amount of gold we can carry, and if so, try to take it to a treasury.
-    if (mGoldCarried >= MaxGoldCarriedByWorkers)
+    if (mGoldCarried >= mDefinition->getMaxGoldCarryable())
     {
         // We create the treasury object and push action to deposit it
         TreasuryObject* obj = new TreasuryObject(getGameMap(), mGoldCarried);
@@ -3772,7 +3758,7 @@ EntityCarryType Creature::getEntityCarryType()
     return EntityCarryType::corpse;
 }
 
-void Creature::notifyEntityCarryOn()
+void Creature::notifyEntityCarryOn(Creature* carrier)
 {
     Tile* myTile = getPositionTile();
     OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
@@ -3807,7 +3793,7 @@ void Creature::carryEntity(GameEntity* carriedEntity)
     if(carriedEntity == nullptr)
         return;
 
-    carriedEntity->notifyEntityCarryOn();
+    carriedEntity->notifyEntityCarryOn(this);
 
     // We remove the carried entity from the clients gamemaps as well as the carrier
     // and we send the carrier creation message (that will embed the carried)
@@ -3927,7 +3913,8 @@ void Creature::fireAddEntity(Seat* seat, bool async)
     if(async)
     {
         ServerNotification serverNotification(
-            ServerNotificationType::addCreature, seat->getPlayer());
+            ServerNotificationType::addEntity, seat->getPlayer());
+        exportHeadersToPacket(serverNotification.mPacket);
         exportToPacket(serverNotification.mPacket);
         ODServer::getSingleton().sendAsyncMsg(serverNotification);
 
@@ -3937,7 +3924,8 @@ void Creature::fireAddEntity(Seat* seat, bool async)
     else
     {
         ServerNotification* serverNotification = new ServerNotification(
-            ServerNotificationType::addCreature, seat->getPlayer());
+            ServerNotificationType::addEntity, seat->getPlayer());
+        exportHeadersToPacket(serverNotification->mPacket);
         exportToPacket(serverNotification->mPacket);
         ODServer::getSingleton().queueServerNotification(serverNotification);
 
@@ -3972,7 +3960,9 @@ void Creature::fireRemoveEntity(Seat* seat)
 
     const std::string& name = getName();
     ServerNotification *serverNotification = new ServerNotification(
-        ServerNotificationType::removeCreature, seat->getPlayer());
+        ServerNotificationType::removeEntity, seat->getPlayer());
+    GameEntityType type = getObjectType();
+    serverNotification->mPacket << type;
     serverNotification->mPacket << name;
     ODServer::getSingleton().queueServerNotification(serverNotification);
 }
@@ -4086,11 +4076,15 @@ void Creature::computeMood()
     else if(getGameMap()->getTurnNumber() > (mFirstTurnFurious + ConfigManager::getSingleton().getNbTurnsFuriousMax()))
     {
         // We couldn't leave the dungeon in time, we become rogue
-        ServerNotification *serverNotification = new ServerNotification(
-            ServerNotificationType::chatServer, getSeat()->getPlayer());
-        std::string msg = getName() + " is not under your control anymore !";
-        serverNotification->mPacket << msg;
-        ODServer::getSingleton().queueServerNotification(serverNotification);
+        if((getSeat()->getPlayer() != nullptr) &&
+           (getSeat()->getPlayer()->getIsHuman()))
+        {
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotificationType::chatServer, getSeat()->getPlayer());
+            std::string msg = getName() + " is not under your control anymore !";
+            serverNotification->mPacket << msg;
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
 
         Seat* rogueSeat = getGameMap()->getSeatRogue();
         setSeat(rogueSeat);

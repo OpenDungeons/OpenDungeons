@@ -36,23 +36,23 @@ public:
 
     virtual void doUpkeep();
 
-    virtual RenderedMovableEntityType getRenderedMovableEntityType() const
-    { return RenderedMovableEntityType::treasuryObject; }
+    virtual GameEntityType getObjectType() const override
+    { return GameEntityType::treasuryObject; }
 
     virtual bool tryPickup(Seat* seat);
     virtual bool tryDrop(Seat* seat, Tile* tile);
     void mergeGold(TreasuryObject* obj);
     void addGold(int goldValue);
 
-    virtual void exportToStream(std::ostream& os) const;
-    virtual void importFromStream(std::istream& is);
-    virtual void exportToPacket(ODPacket& os) const;
-    virtual void importFromPacket(ODPacket& is);
+    virtual void exportToStream(std::ostream& os) const override;
+    virtual void importFromStream(std::istream& is) override;
+    virtual void exportToPacket(ODPacket& os) const override;
+    virtual void importFromPacket(ODPacket& is) override;
 
     virtual void pickup();
 
     virtual EntityCarryType getEntityCarryType();
-    virtual void notifyEntityCarryOn();
+    virtual void notifyEntityCarryOn(Creature* carrier);
     virtual void notifyEntityCarryOff(const Ogre::Vector3& position);
 
     static const char* getMeshNameForGold(int gold);

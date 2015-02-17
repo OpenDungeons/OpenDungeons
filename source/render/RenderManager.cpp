@@ -27,6 +27,7 @@
 #include "entities/MapLight.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
+#include "entities/Tile.h"
 #include "entities/Weapon.h"
 #include "traps/Trap.h"
 #include "game/Player.h"
@@ -660,7 +661,7 @@ void RenderManager::rrDestroyMapLightVisualIndicator(MapLight* curMapLight)
     }
 }
 
-void RenderManager::rrPickUpEntity(MovableGameEntity* curEntity, Player* localPlayer)
+void RenderManager::rrPickUpEntity(GameEntity* curEntity, Player* localPlayer)
 {
     // Detach the entity from its scene node
     Ogre::SceneNode* curEntityNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
@@ -674,8 +675,8 @@ void RenderManager::rrPickUpEntity(MovableGameEntity* curEntity, Player* localPl
 
     // Move the other creatures in the player's hand to make room for the one just picked up.
     int i = 0;
-    const std::vector<MovableGameEntity*>& objectsInHand = localPlayer->getObjectsInHand();
-    for (MovableGameEntity* tmpEntity : objectsInHand)
+    const std::vector<GameEntity*>& objectsInHand = localPlayer->getObjectsInHand();
+    for (GameEntity* tmpEntity : objectsInHand)
     {
         Ogre::SceneNode* tmpEntityNode = mSceneManager->getSceneNode(tmpEntity->getOgreNamePrefix() + tmpEntity->getName() + "_node");
         tmpEntityNode->setPosition(static_cast<Ogre::Real>(i % 6 + 1), static_cast<Ogre::Real>(i / 6), static_cast<Ogre::Real>(0.0));
@@ -683,7 +684,7 @@ void RenderManager::rrPickUpEntity(MovableGameEntity* curEntity, Player* localPl
     }
 }
 
-void RenderManager::rrDropHand(MovableGameEntity* curEntity, Player* localPlayer)
+void RenderManager::rrDropHand(GameEntity* curEntity, Player* localPlayer)
 {
     // Detach the entity from the "hand" scene node
     Ogre::SceneNode* curEntityNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
@@ -696,8 +697,8 @@ void RenderManager::rrDropHand(MovableGameEntity* curEntity, Player* localPlayer
 
     // Move the other creatures in the player's hand to replace the dropped one
     int i = 0;
-    const std::vector<MovableGameEntity*>& objectsInHand = localPlayer->getObjectsInHand();
-    for (MovableGameEntity* tmpEntity : objectsInHand)
+    const std::vector<GameEntity*>& objectsInHand = localPlayer->getObjectsInHand();
+    for (GameEntity* tmpEntity : objectsInHand)
     {
         Ogre::SceneNode* tmpEntityNode = mSceneManager->getSceneNode(tmpEntity->getOgreNamePrefix() + tmpEntity->getName() + "_node");
         tmpEntityNode->setPosition(static_cast<Ogre::Real>(i % 6 + 1), static_cast<Ogre::Real>(i / 6), static_cast<Ogre::Real>(0.0));
@@ -709,8 +710,8 @@ void RenderManager::rrRotateHand(Player* localPlayer)
 {
     // Loop over the creatures in our hand and redraw each of them in their new location.
     int i = 0;
-    const std::vector<MovableGameEntity*>& objectsInHand = localPlayer->getObjectsInHand();
-    for (MovableGameEntity* tmpEntity : objectsInHand)
+    const std::vector<GameEntity*>& objectsInHand = localPlayer->getObjectsInHand();
+    for (GameEntity* tmpEntity : objectsInHand)
     {
         Ogre::SceneNode* tmpEntityNode = mSceneManager->getSceneNode(tmpEntity->getOgreNamePrefix() + tmpEntity->getName() + "_node");
         tmpEntityNode->setPosition(static_cast<Ogre::Real>(i % 6 + 1), static_cast<Ogre::Real>(i / 6), static_cast<Ogre::Real>(0.0));
@@ -896,8 +897,6 @@ void RenderManager::colourizeEntity(Ogre::Entity *ent, const Seat* seat, bool ma
 std::string RenderManager::colourizeMaterial(const std::string& materialName, const Seat* seat, bool markedForDigging, bool playerHasVision)
 {
     std::stringstream tempSS;
-    Ogre::Technique *tempTechnique;
-    Ogre::Pass *tempPass;
 
     tempSS.str("");
 
@@ -941,46 +940,49 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, co
     // Loop over the techniques for the new material
     for (unsigned int j = 0; j < newMaterial->getNumTechniques(); ++j)
     {
-        tempTechnique = newMaterial->getTechnique(j);
-        if (tempTechnique->getNumPasses() == 0)
+        Ogre::Technique* technique = newMaterial->getTechnique(j);
+        if (technique->getNumPasses() == 0)
             continue;
 
         if (markedForDigging)
         {
             // Color the material with yellow on the latest pass
             // so we're sure to see the taint.
-            tempPass = tempTechnique->getPass(0);
             Ogre::ColourValue color(1.0, 1.0, 0.0, 1.0);
-            tempPass->setSpecular(color);
-            tempPass->setAmbient(color);
-            tempPass->setDiffuse(color);
+            for (uint16_t i = 0; i < technique->getNumPasses(); ++i)
+            {
+                Ogre::Pass* pass = technique->getPass(i);
+                pass->setSpecular(color);
+                pass->setAmbient(color);
+                pass->setDiffuse(color);
+            }
         }
         else if(!playerHasVision)
         {
             // Color the material with dark color on the latest pass
             // so we're sure to see the taint.
-            tempPass = tempTechnique->getPass(0);
+            Ogre::Pass* pass = technique->getPass(0);
             Ogre::ColourValue color(0.2, 0.2, 0.2, 1.0);
-            tempPass->setSpecular(color);
-            tempPass->setAmbient(color);
-            tempPass->setDiffuse(color);
+            pass->setSpecular(color);
+            pass->setAmbient(color);
+            pass->setDiffuse(color);
         }
         if (seat != nullptr)
         {
             // Color the material with the Seat's color.
-            tempPass = tempTechnique->getPass(tempTechnique->getNumPasses() - 1);
+            Ogre::Pass* pass = technique->getPass(technique->getNumPasses() - 1);
             Ogre::ColourValue color = seat->getColorValue();
             color.a = 1.0;
-            tempPass->setAmbient(color);
-            tempPass->setDiffuse(color);
-            tempPass->setSpecular(color);
+            pass->setAmbient(color);
+            pass->setDiffuse(color);
+            pass->setSpecular(color);
         }
     }
 
     return tempSS.str();
 }
 
-void RenderManager::rrCarryEntity(Creature* carrier, MovableGameEntity* carried)
+void RenderManager::rrCarryEntity(Creature* carrier, GameEntity* carried)
 {
     Ogre::Entity* carrierEnt = mSceneManager->getEntity(carrier->getOgreNamePrefix() + carrier->getName());
     Ogre::Entity* carriedEnt = mSceneManager->getEntity(carried->getOgreNamePrefix() + carried->getName());
@@ -994,7 +996,7 @@ void RenderManager::rrCarryEntity(Creature* carrier, MovableGameEntity* carried)
     carriedNode->setPosition(Ogre::Vector3(0, 0, z));
 }
 
-void RenderManager::rrReleaseCarriedEntity(Creature* carrier, MovableGameEntity* carried)
+void RenderManager::rrReleaseCarriedEntity(Creature* carrier, GameEntity* carried)
 {
     Ogre::Entity* carrierEnt = mSceneManager->getEntity(carrier->getOgreNamePrefix() + carrier->getName());
     Ogre::Entity* carriedEnt = mSceneManager->getEntity(carried->getOgreNamePrefix() + carried->getName());

@@ -38,8 +38,8 @@ public:
 
     virtual void doUpkeep();
 
-    virtual RenderedMovableEntityType getRenderedMovableEntityType() const
-    { return RenderedMovableEntityType::chickenEntity; }
+    virtual GameEntityType getObjectType() const override
+    { return GameEntityType::chickenEntity; }
 
     virtual bool tryPickup(Seat* seat);
     virtual void pickup();
