@@ -91,6 +91,8 @@ void RoomForge::absorbRoom(Room *r)
     roomAbs->mUnusedSpots.clear();
     mAllowedSpotsForCraftedItems.insert(mAllowedSpotsForCraftedItems.end(), roomAbs->mAllowedSpotsForCraftedItems.begin(), roomAbs->mAllowedSpotsForCraftedItems.end());
     roomAbs->mAllowedSpotsForCraftedItems.clear();
+    mCreaturesSpots.insert(roomAbs->mCreaturesSpots.begin(), roomAbs->mCreaturesSpots.end());
+    roomAbs->mCreaturesSpots.clear();
 
     mPoints += roomAbs->mPoints;
     roomAbs->mPoints = 0;
