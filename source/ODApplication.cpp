@@ -47,6 +47,13 @@
 
 ODApplication::ODApplication()
 {
+    {
+        //NOTE: This prevents a segmentation fault from OpenGL on exit.
+        //Creating the object sets up an OpenAL context using a static object
+        //contained in a function. If this is done after initialising Ogre::Root
+        //the application segfaults on exit for some reason.
+        sf::Music m;
+    }
     Random::initialize();
     //NOTE: The order of initialisation of the different "manager" classes is important,
     //as many of them depen on each other.
@@ -81,9 +88,6 @@ ODApplication::ODApplication()
     Ogre::OverlaySystem overlaySystem;
 
     Ogre::RenderWindow* renderWindow = ogreRoot.initialise(true, "OpenDungeons " + VERSION);
-
-    ODServer server;
-    ODClient client;
 
     //NOTE: This is currently done here as it has to be done after initialising mRoot,
     //but before running initialiseAllResourceGroups()
@@ -122,8 +126,12 @@ ODApplication::ODApplication()
     }
 
     Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
-    MusicPlayer musicPlayer;
+
+    MusicPlayer musicPlayer(resMgr.getMusicPath(), resMgr.listAllMusicFiles());
     SoundEffectsManager soundEffectsManager;
+
+    ODServer server;
+    ODClient client;
 
     Gui gui(&soundEffectsManager, resMgr.getCeguiLogFile());
     TextRenderer textRenderer;

@@ -85,6 +85,9 @@ void ODSocketClient::disconnect(bool keepReplay)
             mReplayInputStream.close();
             return;
         }
+        default:
+            assert(false);
+            break;
     }
 
     mReplayOutputStream.close();
@@ -126,6 +129,9 @@ bool ODSocketClient::isDataAvailable()
 
             return false;
         }
+        default:
+            assert(false);
+            break;
     }
 
     return false;
@@ -180,6 +186,8 @@ ODSocketClient::ODComStatus ODSocketClient::recv(ODPacket& s)
             mPendingTimestamp = -1;
             return ODComStatus::OK;
         }
+        default:
+            break;
     }
     return ODComStatus::Error;
 }

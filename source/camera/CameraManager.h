@@ -105,7 +105,7 @@ public:
     /*! \brief Computes a vector whose z-component is 0 and whose x-y coordinates
     * are the position on the floor that the camera is pointed at.
     */
-    const Ogre::Vector3 getCameraViewTarget();
+    Ogre::Vector3 getCameraViewTarget() const;
 
     void onMiniMapClick(Ogre ::Vector2 cc);
 

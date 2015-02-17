@@ -95,6 +95,8 @@ RenderedMovableEntity* RoomTrainingHall::notifyActiveSpotCreated(ActiveSpotPlace
             y -= OFFSET_DUMMY;
             return loadBuildingObject(getGameMap(), "TrainingDummy1", tile, x, y, 180.0, false);
         }
+        default:
+            break;
     }
     return nullptr;
 }

@@ -22,7 +22,6 @@
 #include "camera/CameraManager.h"
 
 #include "gamemap/GameMap.h"
-#include "gamemap/MiniMap.h"
 #include "render/ODFrameListener.h"
 #include "sound/SoundEffectsManager.h"
 #include "utils/LogManager.h"
@@ -223,10 +222,6 @@ void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)
     if (!isCameraMovingAtAll())
         return;
 
-    // Update the minimap view
-    MiniMap* minimap = ODFrameListener::getSingleton().getMiniMap();
-    minimap->updateCameraInfos(getCameraViewTarget(), getActiveCameraNode()->getOrientation().getRoll().valueRadians());
-
     // Carry out the acceleration/deceleration calculations on the camera translation.
     Ogre::Real speed = mTranslateVector.normalise();
     mTranslateVector *= static_cast<Ogre::Real>(std::max(0.0, speed - (0.75 + (speed / MOVE_SPEED))
@@ -420,7 +415,7 @@ void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)
         newPosition,  getActiveCameraNode()->getOrientation());
 }
 
-const Ogre::Vector3 CameraManager::getCameraViewTarget()
+Ogre::Vector3 CameraManager::getCameraViewTarget() const
 {
     // Get the position of the camera and direction that the camera is facing.
     Ogre::Vector3 position = mActiveCamera->getRealPosition();

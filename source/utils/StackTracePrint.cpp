@@ -37,12 +37,12 @@ void StackTracePrint::critErrHandler(int sig_num, siginfo_t* info, void* ucontex
 
     void* array[50];
     void* caller_address;
-    sig_ucontext_t* uc = (sig_ucontext_t *)ucontext;
+    sig_ucontext_t* uc = static_cast<sig_ucontext_t*>(ucontext);
 
 #if defined(__i386__) // gcc specific
-    caller_address = (void*) uc->uc_mcontext.eip; // EIP: x86 specific
+    caller_address = reinterpret_cast<void*>(uc->uc_mcontext.eip); // EIP: x86 specific
 #elif defined(__x86_64__) // gcc specific
-    caller_address = (void*) uc->uc_mcontext.rip; // RIP: x86_64 specific
+    caller_address = reinterpret_cast<void*>(uc->uc_mcontext.rip); // RIP: x86_64 specific
 #else
 #error Unsupported architecture. // TODO: Add support for other arch.
 #endif
@@ -62,7 +62,7 @@ void StackTracePrint::critErrHandler(int sig_num, siginfo_t* info, void* ucontex
     // skip first stack frame (points here)
     for (int i = 1; i < size && messages != nullptr; ++i)
     {
-        char* mangled_name = 0, *offset_begin = 0, *offset_end = 0;
+        char* mangled_name = nullptr, *offset_begin = nullptr, *offset_end = nullptr;
 
         // find parantheses and +address offset surrounding mangled name
         for (char* p = messages[i]; *p; ++p)

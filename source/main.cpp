@@ -34,36 +34,9 @@
 #include <OgrePlatform.h>
 #include <OgreException.h>
 
-#if defined WIN32
-// TODO : StackTracePrint do not work under windows (headers are different). We should try to find if
-// there is something equivalent
-void setErrorHandler()
-{
-    std::cout << "No error handler for windows" << std::endl;
-}
-#elif defined (__i386__) | defined (__x86_64__)  // Only for supported platforms
-
+#if !defined (WIN32) && (defined (__i386__) | defined (__x86_64__))  // Only for supported platforms
 #include "utils/StackTracePrint.h"
-
-//! \brief Init the error hanlder used to get a full stacktrace when crashing
-void setErrorHandler()
-{
-    struct sigaction sigact;
-    sigact.sa_sigaction = StackTracePrint::critErrHandler;
-    sigact.sa_flags = SA_RESTART | SA_SIGINFO;
-    if (sigaction(SIGSEGV, &sigact, (struct sigaction *)nullptr) != 0)
-    {
-        std::cerr << "error setting signal handler for: "
-            << SIGSEGV << strsignal(SIGSEGV) << std::endl;
-        exit(EXIT_FAILURE);
-    }
-}
-#else
-void setErrorHandler()
-{
-    std::cout << "No error handler for this platform" << std::endl;
-}
-#endif
+#endif //WIN32
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -73,10 +46,19 @@ INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT)
 #else
 int main(int argc, char** argv)
 #endif
-
 {
-    setErrorHandler();
-
+#if !defined (WIN32) && (defined (__i386__) | defined (__x86_64__))
+//Init the error hanlder used to get a full stacktrace when crashing
+    struct sigaction sigact;
+    sigact.sa_sigaction = StackTracePrint::critErrHandler;
+    sigact.sa_flags = SA_RESTART | SA_SIGINFO;
+    if (sigaction(SIGSEGV, &sigact, nullptr) != 0)
+    {
+        std::cerr << "error setting signal handler for: "
+            << SIGSEGV << strsignal(SIGSEGV) << std::endl;
+        exit(EXIT_FAILURE);
+    }
+#endif //!WIN32
     try
     {
         ODApplication od;
@@ -88,7 +70,6 @@ int main(int argc, char** argv)
 #else
         fprintf(stderr, "An exception has occurred: %s\n", e.what());
 #endif
-
     }
 
     return 0;

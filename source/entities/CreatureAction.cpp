@@ -104,6 +104,9 @@ std::string CreatureAction::toString() const
 
     case CreatureActionType::fightNaturalEnemy:
         return "fightNaturalEnemy";
+    default:
+        assert(false);
+        break;
     }
 
     return "unhandledAct";

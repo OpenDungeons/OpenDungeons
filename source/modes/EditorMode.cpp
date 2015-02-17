@@ -56,6 +56,7 @@ EditorMode::EditorMode(ModeManager* modeManager):
     mCurrentSeatId(0),
     mCurrentCreatureIndex(0),
     mGameMap(ODFrameListener::getSingletonPtr()->getClientGameMap()),
+    mMiniMap(Gui::getSingleton().getGuiSheet(Gui::guiSheet::editorModeGui)->getChild(Gui::MINIMAP)),
     mMouseX(0),
     mMouseY(0)
 {
@@ -74,8 +75,12 @@ void EditorMode::activate()
     // Loads the corresponding Gui sheet.
     Gui::getSingleton().loadGuiSheet(Gui::editorModeGui);
 
-    MiniMap* minimap = ODFrameListener::getSingleton().getMiniMap();
-    minimap->attachMiniMap(Gui::guiSheet::editorModeGui);
+    CEGUI::Window* minimapWindow = Gui::getSingleton().getGuiSheet(Gui::editorModeGui)->getChild(Gui::MINIMAP);
+    addEventConnection(
+        minimapWindow->subscribeEvent(
+            CEGUI::Window::EventMouseClick,
+            CEGUI::Event::Subscriber(&EditorMode::onMinimapClick, this)
+    ));
 
     giveFocus();
 
@@ -91,7 +96,7 @@ void EditorMode::activate()
 
 bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
 {
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition((float)arg.state.X.abs, (float)arg.state.Y.abs);
+    AbstractApplicationMode::mouseMoved(arg);
 
     if (!isConnected())
         return true;
@@ -810,9 +815,12 @@ void EditorMode::handleHotkeys(OIS::KeyCode keycode)
 //! Rendering methods
 void EditorMode::onFrameStarted(const Ogre::FrameEvent& evt)
 {
-    MiniMap* minimap = ODFrameListener::getSingleton().getMiniMap();
-    minimap->draw();
-    minimap->swap();
+    //Update the minimap
+    CameraManager& cameraManager = *ODFrameListener::getSingleton().getCameraManager();
+    mMiniMap.updateCameraInfo(cameraManager.getCameraViewTarget(),
+                              cameraManager.getActiveCameraNode()->getOrientation().getRoll().valueRadians());
+    mMiniMap.draw(*mGameMap);
+    mMiniMap.swap();
 }
 
 void EditorMode::onFrameEnded(const Ogre::FrameEvent& evt)
@@ -865,4 +873,17 @@ void EditorMode::notifyGuiAction(GuiAction guiAction)
             default:
                 break;
     }
+}
+
+bool EditorMode::onMinimapClick(const CEGUI::EventArgs& arg)
+{
+    const CEGUI::MouseEventArgs& mouseEvt = static_cast<const CEGUI::MouseEventArgs&>(arg);
+
+    ODFrameListener& frameListener = ODFrameListener::getSingleton();
+
+    Ogre::Vector2 cc = mMiniMap.camera_2dPositionFromClick(static_cast<int>(mouseEvt.position.d_x),
+        static_cast<int>(mouseEvt.position.d_y));
+    frameListener.getCameraManager()->onMiniMapClick(cc);
+
+    return true;
 }

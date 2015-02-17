@@ -23,9 +23,6 @@
 #include "sound/MusicPlayer.h"
 
 #include "utils/LogManager.h"
-#include "utils/ResourceManager.h"
-
-#include <OgreResourceGroupManager.h>
 
 //! \brief The max music volume value.
 const float MAX_VOLUME = 25.0f;
@@ -152,9 +149,9 @@ void ODMusic::update(float timeSinceLastUpdate)
 
 
 // MusicPlayer class
-template<> MusicPlayer* Ogre::Singleton<MusicPlayer>::msSingleton = 0;
+template<> MusicPlayer* Ogre::Singleton<MusicPlayer>::msSingleton = nullptr;
 
-MusicPlayer::MusicPlayer() :
+MusicPlayer::MusicPlayer(const std::string& musicFilesPath, Ogre::StringVectorPtr musicFilesList) :
     mLoaded(false),
     mCurrentTrack(std::string()),
     mIsPlaying(false)
@@ -162,28 +159,17 @@ MusicPlayer::MusicPlayer() :
     LogManager& logMgr = LogManager::getSingleton();
     logMgr.logMessage("Loading music...");
 
-    //Get list of files in the resource.
-    Ogre::StringVectorPtr musicFiles = ResourceManager::getSingleton().listAllMusicFiles();
-
-    std::string path = ResourceManager::getSingletonPtr()->getMusicPath();
     /* Create sound objects for all files, Sound objects should be deleted
      * automatically by the sound manager.
      */
-    for(Ogre::StringVector::iterator it = musicFiles->begin(),
-            end = musicFiles->end(); it != end; ++it)
+    for(const std::string& trackName : *musicFilesList)
     {
-        ODMusic* track = new ODMusic();
-        std::string trackName = *it;
+        std::unique_ptr<ODMusic> track(new ODMusic());
         logMgr.logMessage("Loading: " + trackName);
 
-        if(track->loadFromFile(path + trackName))
+        if(track->loadFromFile(musicFilesPath + trackName))
         {
-            mTracks.insert(std::make_pair(trackName, track));
-        }
-        else
-        {
-            // Prevents invalid tracks from leaking memory
-            delete track;
+            mTracks.emplace(trackName, std::move(track));
         }
     }
 
@@ -201,23 +187,14 @@ MusicPlayer::MusicPlayer() :
 
 MusicPlayer::~MusicPlayer()
 {
-    // Delete the OD Music.
-    std::map<std::string, ODMusic*>::iterator it = mTracks.begin();
-    std::map<std::string, ODMusic*>::iterator it_end = mTracks.end();
-    for (; it != it_end; ++it)
-        delete it->second;
 }
 
 void MusicPlayer::update(float timeSinceLastUpdate)
 {
-    if(!mLoaded)
-        return;
-
-    // Handle fade ins/fade outs.
-    std::map<std::string, ODMusic*>::iterator it = mTracks.begin();
-    std::map<std::string, ODMusic*>::iterator it_end = mTracks.end();
-    for (; it != it_end; ++it)
-        it->second->update(timeSinceLastUpdate);
+    for(auto& pair : mTracks)
+    {
+        pair.second->update(timeSinceLastUpdate);
+    }
 }
 
 void MusicPlayer::play(const std::string& trackName)

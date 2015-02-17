@@ -58,7 +58,7 @@
 
 using std::stringstream;
 
-template<> RenderManager* Ogre::Singleton<RenderManager>::msSingleton = 0;
+template<> RenderManager* Ogre::Singleton<RenderManager>::msSingleton = nullptr;
 
 const Ogre::Real RenderManager::BLENDER_UNITS_PER_OGRE_UNIT = 10.0;
 

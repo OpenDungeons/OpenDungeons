@@ -17,7 +17,7 @@
 
 #include "render/TextRenderer.h"
 
-template<> TextRenderer* Ogre::Singleton<TextRenderer>::msSingleton = 0;
+template<> TextRenderer* Ogre::Singleton<TextRenderer>::msSingleton = nullptr;
 
 TextRenderer::TextRenderer() :
         mOverlayMgr(Ogre::OverlayManager::getSingletonPtr()),

@@ -37,8 +37,6 @@
 
 #include "rooms/Room.h"
 
-#include "sound/SoundEffectsManager.h"
-
 #include "traps/Trap.h"
 
 #include "utils/Helper.h"
@@ -225,6 +223,8 @@ void Tile::setFullness(double f)
                     break;
                 }//correct
                 break;
+            default:
+                break;
         }
     }
 
@@ -254,6 +254,8 @@ void Tile::setFullness(double f)
                     mRotation = 180;
                     break;
                 }//correct
+                break;
+            default:
                 break;
         }
     }
@@ -586,7 +588,7 @@ void Tile::exportToStream(std::ostream& os) const
     os << "\t" << getSeat()->getId();
 }
 
-void Tile::exportToPacket(ODPacket& os, Seat* seat)
+void Tile::exportTileToPacket(ODPacket& os, Seat* seat)
 {
     Seat* tileSeat = getSeat();
     int seatId = 0;
@@ -652,6 +654,13 @@ void Tile::exportToPacket(ODPacket& os, Seat* seat)
     OD_ASSERT_TRUE_MSG(nbPersistentObjectTmp == nbPersistentObject, "nbPersistentObject=" + Ogre::StringConverter::toString(nbPersistentObject)
         + ", nbPersistentObjectTmp=" + Ogre::StringConverter::toString(nbPersistentObjectTmp)
         + ", tile=" + displayAsString(this));
+}
+
+void Tile::exportToPacket(ODPacket& os) const
+{
+    //Check to make sure this function is not called. The function taking a
+    //seat argument should be used instead
+    throw std::runtime_error("ERROR: Wrong packet export function used for tile");
 }
 
 void Tile::updateFromPacket(ODPacket& is)
@@ -1646,7 +1655,7 @@ void Tile::setDirtyForAllSeats()
         seatChanged.second = true;
 }
 
-void Tile::notifySeatsWithVision()
+void Tile::notifyEntitiesSeatsWithVision()
 {
     for(GameEntity* entity : mEntitiesInTile)
     {

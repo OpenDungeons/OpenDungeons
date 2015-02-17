@@ -24,84 +24,42 @@
 #include "gamemap/MiniMap.h"
 
 #include "entities/Tile.h"
-
 #include "game/Seat.h"
-
 #include "gamemap/GameMap.h"
 
 #include <OgrePrerequisites.h>
 #include <OgreTextureManager.h>
 
-#include <CEGUI/WindowManager.h>
-#include <CEGUI/Image.h>
-#include <CEGUI/PropertyHelper.h>
-#include <CEGUI/Texture.h>
-#include <CEGUI/ImageManager.h>
-#include <CEGUI/Size.h>
 #include <CEGUI/BasicImage.h>
+#include <CEGUI/Image.h>
+#include <CEGUI/ImageManager.h>
+#include <CEGUI/PropertyHelper.h>
 #include <CEGUI/RendererModules/Ogre/Renderer.h>
+#include <CEGUI/Size.h>
+#include <CEGUI/System.h>
+#include <CEGUI/Texture.h>
+#include <CEGUI/Window.h>
+#include <CEGUI/WindowManager.h>
 
-#include <cstdlib>
-
-MiniMap::MiniMap(GameMap* gm) :
-    mWidth(0),
-    mHeight(0),
+MiniMap::MiniMap(CEGUI::Window* miniMapWindow) :
+    mMiniMapWindow(miniMapWindow),
     mTopLeftCornerX(0),
     mTopLeftCornerY(0),
     mGrainSize(4),
-    mTiles(),
-    mGameMap(gm),
-    mPixelBox(nullptr),
-    mSheetUsed(Gui::guiSheet::mainMenu)
-{
-}
-
-MiniMap::~MiniMap()
-{
-    if(mPixelBox != nullptr)
-        delete mPixelBox;
-}
-
-void MiniMap::attachMiniMap(Gui::guiSheet sheet)
-{
-    // If is configured with the same sheet, no need to rebuild
-    if((mPixelBox != nullptr) && (mSheetUsed == sheet))
-        return;
-
-    if(mPixelBox != nullptr)
-    {
-        // The MiniMap has already been initialised. We free it
-        Gui::getSingleton().getGuiSheet(mSheetUsed)->getChild(Gui::MINIMAP)->setProperty("Image", "");
-        Ogre::TextureManager::getSingletonPtr()->remove("miniMapOgreTexture");
-        CEGUI::ImageManager::getSingletonPtr()->destroy("MiniMapImageset");
-        CEGUI::System::getSingletonPtr()->getRenderer()->destroyTexture("miniMapTextureGui");
-
-        delete mPixelBox;
-    }
-
-    mSheetUsed = sheet;
-    CEGUI::Window* window = Gui::getSingleton().getGuiSheet(sheet)->getChild(Gui::MINIMAP);
-
-    unsigned int pixelWidth = static_cast<unsigned int>(window->getPixelSize().d_width);
-    unsigned int pixelHeight = static_cast<unsigned int>(window->getPixelSize().d_height);
-
-    //Make sure window is large enough so we don't try to draw out of bounds
-    mWidth = pixelWidth + mGrainSize - (pixelWidth % mGrainSize);
-    mHeight = pixelHeight + mGrainSize - (pixelHeight % mGrainSize);
-    mTiles.resize(mHeight, TileColorRow_t(mWidth, Color(0, 0, 0)));
-
-    mPixelBox = new Ogre::PixelBox(mWidth, mHeight, 1, Ogre::PF_R8G8B8);
-
-    // Image blank_image( Geometry(400, 300), Color(MaxRGB, MaxRGB, MaxRGB, 0));
-    mMiniMapOgreTexture = Ogre::TextureManager::getSingletonPtr()->createManual(
+    mWidth(static_cast<unsigned int>(mMiniMapWindow->getPixelSize().d_width)
+           + mGrainSize - (static_cast<unsigned int>(mMiniMapWindow->getPixelSize().d_width) % mGrainSize)),
+    mHeight(static_cast<unsigned int>(mMiniMapWindow->getPixelSize().d_height)
+            + mGrainSize - (static_cast<unsigned int>(mMiniMapWindow->getPixelSize().d_height) & mGrainSize)),
+    mTiles(mHeight, TileColorRow_t(mWidth, Color(0,0,0))),
+    mPixelBox(mWidth, mHeight, 1, Ogre::PF_R8G8B8),
+    mMiniMapOgreTexture(Ogre::TextureManager::getSingletonPtr()->createManual(
             "miniMapOgreTexture",
             Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
             Ogre::TEX_TYPE_2D,
             mWidth, mHeight, 0, Ogre::PF_R8G8B8,
-            Ogre::TU_DYNAMIC_WRITE_ONLY);
-
-    mPixelBuffer = mMiniMapOgreTexture->getBuffer();
-
+            Ogre::TU_DYNAMIC_WRITE_ONLY)),
+    mPixelBuffer(mMiniMapOgreTexture->getBuffer())
+{
     CEGUI::Texture& miniMapTextureGui = static_cast<CEGUI::OgreRenderer*>(CEGUI::System::getSingletonPtr()
                                             ->getRenderer())->createTexture("miniMapTextureGui", mMiniMapOgreTexture);
 
@@ -114,19 +72,20 @@ void MiniMap::attachMiniMap(Gui::guiSheet sheet)
 
     // Link the image to the minimap
     imageset.setTexture(&miniMapTextureGui);
-    window->setProperty("Image", CEGUI::PropertyHelper<CEGUI::Image*>::toString(&imageset));
+    mMiniMapWindow->setProperty("Image", CEGUI::PropertyHelper<CEGUI::Image*>::toString(&imageset));
 
     mMiniMapOgreTexture->load();
 
-    mTopLeftCornerX = window->getUnclippedOuterRect().get().getPosition().d_x;
-    mTopLeftCornerY = window->getUnclippedOuterRect().get().getPosition().d_y;
+    mTopLeftCornerX = mMiniMapWindow->getUnclippedOuterRect().get().getPosition().d_x;
+    mTopLeftCornerY = mMiniMapWindow->getUnclippedOuterRect().get().getPosition().d_y;
 }
 
-void MiniMap::updateCameraInfos(const Ogre::Vector3& vv, const double& rotation)
+MiniMap::~MiniMap()
 {
-    mCamera_2dPosition = Ogre::Vector2(vv.x, vv.y);
-    mCosRotation = cos(rotation);
-    mSinRotation = sin(rotation);
+    mMiniMapWindow->setProperty("Image", "");
+    Ogre::TextureManager::getSingletonPtr()->remove("miniMapOgreTexture");
+    CEGUI::ImageManager::getSingletonPtr()->destroy("MiniMapImageset");
+    CEGUI::System::getSingletonPtr()->getRenderer()->destroyTexture("miniMapTextureGui");
 }
 
 Ogre::Vector2 MiniMap::camera_2dPositionFromClick(int xx, int yy)
@@ -147,7 +106,7 @@ Ogre::Vector2 MiniMap::camera_2dPositionFromClick(int xx, int yy)
 
 void MiniMap::swap()
 {
-    mPixelBuffer->lock(*mPixelBox, Ogre::HardwareBuffer::HBL_NORMAL);
+    mPixelBuffer->lock(mPixelBox, Ogre::HardwareBuffer::HBL_NORMAL);
 
     Ogre::uint8* pDest;
     pDest = static_cast<Ogre::uint8*>(mPixelBuffer->getCurrentLock().data) - 1;
@@ -163,7 +122,7 @@ void MiniMap::swap()
     mPixelBuffer->unlock();
 }
 
-void MiniMap::draw()
+void MiniMap::draw(const GameMap& gameMap)
 {
 
     for (int ii = 0, mm = mCamera_2dPosition.x - mWidth / (2 * mGrainSize); ii < static_cast<int>(mWidth); ++mm, ii += mGrainSize)
@@ -181,14 +140,14 @@ void MiniMap::draw()
              * (the empty one is the unused alpha channel)
              * this is not how it is intended/expected
              */
-            Tile* tile = mGameMap->getTile(oo, pp);
+            Tile* tile = gameMap.getTile(oo, pp);
             if(tile == nullptr)
             {
                 drawPixel(ii, jj, 0x00, 0x00, 0x00);
                 continue;
             }
 
-            if (tile->getMarkedForDigging(mGameMap->getLocalPlayer()))
+            if (tile->getMarkedForDigging(gameMap.getLocalPlayer()))
             {
                 drawPixel(ii, jj, 0xFF, 0xA8, 0x00);
                 continue;

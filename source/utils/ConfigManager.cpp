@@ -32,7 +32,7 @@ const std::string EMPTY_STRING;
 
 const std::string ConfigManager::DefaultWorkerCreatureDefinition = "DefaultWorker";
 
-template<> ConfigManager* Ogre::Singleton<ConfigManager>::msSingleton = 0;
+template<> ConfigManager* Ogre::Singleton<ConfigManager>::msSingleton = nullptr;
 
 ConfigManager::ConfigManager() :
     mNetworkPort(0),

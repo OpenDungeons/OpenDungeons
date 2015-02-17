@@ -41,9 +41,11 @@
 #include "sound/MusicPlayer.h"
 #include "camera/CameraManager.h"
 
+#include <boost/lexical_cast.hpp>
+
 #include <string>
 
-template<> ODClient* Ogre::Singleton<ODClient>::msSingleton = 0;
+template<> ODClient* Ogre::Singleton<ODClient>::msSingleton = nullptr;
 
 ODClient::ODClient() :
     ODSocketClient()
@@ -416,7 +418,7 @@ bool ODClient::processOneClientSocketMessage()
             int64_t turnNum;
             OD_ASSERT_TRUE(packetReceived >> turnNum);
             logManager.logMessage("Client received turnStarted="
-                + Ogre::StringConverter::toString((int32_t)turnNum));
+                + boost::lexical_cast<std::string>(turnNum));
             gameMap->setTurnNumber(turnNum);
 
             // We acknowledge the new turn to the server so that he knows we are

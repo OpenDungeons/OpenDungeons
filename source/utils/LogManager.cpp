@@ -23,7 +23,7 @@
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-template<> LogManager* Ogre::Singleton<LogManager>::msSingleton = 0;
+template<> LogManager* Ogre::Singleton<LogManager>::msSingleton = nullptr;
 
 //! \brief Log filename used when OD Application throws errors without using Ogre default logger.
 const std::string LogManager::GAMELOG_NAME = "gameLog";

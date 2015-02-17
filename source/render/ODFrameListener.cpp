@@ -29,9 +29,9 @@
 #include "network/ODClient.h"
 #include "network/ChatMessage.h"
 #include "gamemap/GameMap.h"
-#include "gamemap/MiniMap.h"
 #include "game/Player.h"
 #include "render/TextRenderer.h"
+#include "render/Gui.h"
 #include "sound/MusicPlayer.h"
 #include "render/RenderManager.h"
 #include "ODApplication.h"
@@ -43,6 +43,7 @@
 #include <OgreLogManager.h>
 #include <OgreRenderWindow.h>
 #include <OgreSceneManager.h>
+#include <Overlay/OgreOverlaySystem.h>
 #include <CEGUI/WindowManager.h>
 #include <CEGUI/EventArgs.h>
 #include <CEGUI/Window.h>
@@ -58,7 +59,7 @@
 #include <iostream>
 
 
-template<> ODFrameListener* Ogre::Singleton<ODFrameListener>::msSingleton = 0;
+template<> ODFrameListener* Ogre::Singleton<ODFrameListener>::msSingleton = nullptr;
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define snprintf_is_banned_in_OD_code _snprintf
@@ -80,7 +81,6 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::Overlay
     mChatMaxTimeDisplay(20.0f),
     mRaySceneQuery(nullptr),
     mGameMap(nullptr),
-    mMiniMap(nullptr),
     mExitRequested(false),
     mCameraManager(nullptr),
     mIsChatInputMode(false)
@@ -91,8 +91,6 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::Overlay
     RenderManager* renderManager = new RenderManager(overLaySystem);
 
     mGameMap = new GameMap(false);
-
-    mMiniMap = new MiniMap(mGameMap);
 
     mCameraManager = new CameraManager(renderManager->getSceneManager(), mGameMap, renderWindow);
 
@@ -146,7 +144,6 @@ ODFrameListener::~ODFrameListener()
     mGameMap->clearAll();
     mGameMap->processDeletionQueues();
     delete mGameMap;
-    delete mMiniMap;
     // We deinit it here since it was also created in this class.
     delete RenderManager::getSingletonPtr();
 
@@ -242,15 +239,6 @@ bool ODFrameListener::frameRenderingQueued(const Ogre::FrameEvent& evt)
     refreshChat();
 
     return mContinue;
-}
-
-void ODFrameListener::updateMinimap()
-{
-    if (mMiniMap == nullptr)
-        return;
-
-    mMiniMap->updateCameraInfos(getCameraViewTarget(),
-                                mCameraManager->getActiveCameraNode()->getOrientation().getRoll().valueRadians());
 }
 
 void ODFrameListener::refreshChat()
@@ -416,7 +404,7 @@ void ODFrameListener::notifyChatChar(int text)
     // Ogre::Overlay do not work with special characters. We have to convert
     // the String to make sure no such characters are used
     std::string str;
-    str.append(1, (char)text);
+    str.append(1, static_cast<char>(text));
     mChatString = mChatString + boost::locale::conv::to_utf<char>(
         str, "Ascii");
 }
@@ -470,10 +458,4 @@ const Ogre::Vector3 ODFrameListener::getCameraViewTarget()
 void ODFrameListener::cameraFlyTo(const Ogre::Vector3& destination)
 {
     mCameraManager->flyTo(destination);
-}
-
-void ODFrameListener::onMiniMapClick(int xPos, int yPos)
-{
-    Ogre::Vector2 cc = mMiniMap->camera_2dPositionFromClick(xPos, yPos);
-    mCameraManager->onMiniMapClick(cc);
 }

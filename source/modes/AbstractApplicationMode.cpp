@@ -31,6 +31,15 @@
 #include <CEGUI/GUIContext.h>
 #include <CEGUI/widgets/PushButton.h>
 
+AbstractApplicationMode::~AbstractApplicationMode()
+{
+    //Disconnect all event connections.
+    for(CEGUI::Event::Connection& c : mEventConnections)
+    {
+        c->disconnect();
+    }
+}
+
 bool AbstractApplicationMode::isConnected()
 {
     //TODO: isConnected is used in some places to know if the game is started. We should use something better
@@ -39,8 +48,11 @@ bool AbstractApplicationMode::isConnected()
 
 bool AbstractApplicationMode::mouseMoved(const OIS::MouseEvent& arg)
 {
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseWheelChange(
-              static_cast<float>(arg.state.Z.rel) / 100.0f);
+    if(arg.state.Z.rel != 0)
+    {
+        CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseWheelChange(
+                  static_cast<float>(arg.state.Z.rel) / 100.0f);
+    }
     return CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition(
               static_cast<float>(arg.state.X.abs), static_cast<float>(arg.state.Y.abs));
 }
@@ -134,7 +146,9 @@ GameEntity* AbstractApplicationMode::getEntityFromOgreName(const std::string& en
 void AbstractApplicationMode::subscribeCloseButton(CEGUI::Window& rootWindow)
 {
     CEGUI::Window* closeButton = rootWindow.getChild("__auto_closebutton__");
-    closeButton->subscribeEvent(CEGUI::PushButton::EventClicked,
-                                CEGUI::Event::Subscriber(&AbstractApplicationMode::regressModeEvent,
-                                                         this));
+    addEventConnection(
+        closeButton->subscribeEvent(
+          CEGUI::PushButton::EventClicked,
+          CEGUI::Event::Subscriber(&AbstractApplicationMode::regressModeEvent,
+              this)));
 }

@@ -261,11 +261,14 @@ public:
     /*! \brief Exports the tile data to the packet so that the client associated to the seat have the needed information
      *         to display the tile correctly
      */
-    void exportToPacket(ODPacket& os, Seat* seat);
+    void exportTileToPacket(ODPacket& os, Seat* seat);
+
+    //! \brief Override of packet export function from gameEntity. Should not be used
+    void exportToPacket(ODPacket& os) const override;
 
     /*! \brief Updates the tile from the data sent by the server so that it is correctly displayed and used
      */
-     void updateFromPacket(ODPacket& is);
+    void updateFromPacket(ODPacket& is);
 
     /*! \brief This is a helper function which just converts the tile type enum into a string.
      *
@@ -332,7 +335,7 @@ public:
     bool hasChangedForSeat(Seat* seat) const;
     void changeNotifiedForSeat(Seat* seat);
 
-    virtual void notifySeatsWithVision();
+    void notifyEntitiesSeatsWithVision();
 
     const std::vector<Seat*>& getSeatsWithVision()
     { return mSeatsWithVision; }
