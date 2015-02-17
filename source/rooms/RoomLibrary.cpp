@@ -17,9 +17,20 @@
 
 #include "rooms/RoomLibrary.h"
 
+#include "entities/Creature.h"
+#include "entities/CreatureDefinition.h"
+#include "entities/RenderedMovableEntity.h"
+#include "entities/ResearchEntity.h"
 #include "entities/Tile.h"
+#include "game/Research.h"
 #include "gamemap/GameMap.h"
+#include "utils/ConfigManager.h"
+#include "utils/Helper.h"
+#include "utils/LogManager.h"
 #include "utils/Random.h"
+
+const Ogre::Real OFFSET_CREATURE = 0.3;
+const Ogre::Real OFFSET_SPOT = 0.3;
 
 RoomLibrary::RoomLibrary(GameMap* gameMap) :
     Room(gameMap)
@@ -33,10 +44,18 @@ RenderedMovableEntity* RoomLibrary::notifyActiveSpotCreated(ActiveSpotPlace plac
     {
         case ActiveSpotPlace::activeSpotCenter:
         {
-        if (Random::Int(0, 100) > 50)
-            return loadBuildingObject(getGameMap(), "Podium", tile, 0.0, false);
-        else
-            return loadBuildingObject(getGameMap(), "Bookcase", tile, 0.0, false);
+            Ogre::Real x = static_cast<Ogre::Real>(tile->getX());
+            Ogre::Real y = static_cast<Ogre::Real>(tile->getY());
+            y += OFFSET_SPOT;
+            std::vector<Tile*>::iterator it = std::find(mAllowedSpotsForResearchItems.begin(), mAllowedSpotsForResearchItems.end(), tile);
+            if(it != mAllowedSpotsForResearchItems.end())
+                mAllowedSpotsForResearchItems.erase(it);
+
+            mUnusedSpots.push_back(tile);
+            if (Random::Int(0, 100) > 50)
+                return loadBuildingObject(getGameMap(), "Podium", tile, x, y, 45.0, false);
+            else
+                return loadBuildingObject(getGameMap(), "Bookcase", tile, x, y, 45.0, false);
         }
         case ActiveSpotPlace::activeSpotLeft:
         {
@@ -60,3 +79,290 @@ RenderedMovableEntity* RoomLibrary::notifyActiveSpotCreated(ActiveSpotPlace plac
     return nullptr;
 }
 
+void RoomLibrary::absorbRoom(Room *r)
+{
+    OD_ASSERT_TRUE_MSG(r->getType() == getType(), "Trying to merge incompatible rooms: " + getName()
+        + ", with " + r->getName());
+    RoomLibrary* roomAbs = static_cast<RoomLibrary*>(r);
+    mUnusedSpots.insert(mUnusedSpots.end(), roomAbs->mUnusedSpots.begin(), roomAbs->mUnusedSpots.end());
+    roomAbs->mUnusedSpots.clear();
+    mAllowedSpotsForResearchItems.insert(mAllowedSpotsForResearchItems.end(), roomAbs->mAllowedSpotsForResearchItems.begin(), roomAbs->mAllowedSpotsForResearchItems.end());
+    roomAbs->mAllowedSpotsForResearchItems.clear();
+    mCreaturesSpots.insert(roomAbs->mCreaturesSpots.begin(), roomAbs->mCreaturesSpots.end());
+    roomAbs->mCreaturesSpots.clear();
+
+    Room::absorbRoom(r);
+}
+
+void RoomLibrary::addCoveredTile(Tile* t, double nHP)
+{
+    mAllowedSpotsForResearchItems.push_back(t);
+
+    Room::addCoveredTile(t, nHP);
+}
+
+bool RoomLibrary::removeCoveredTile(Tile* t)
+{
+    std::vector<Tile*>::iterator it = std::find(mAllowedSpotsForResearchItems.begin(), mAllowedSpotsForResearchItems.end(), t);
+    if(it != mAllowedSpotsForResearchItems.end())
+        mAllowedSpotsForResearchItems.erase(it);
+
+    return Room::removeCoveredTile(t);
+}
+
+void RoomLibrary::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
+{
+    Room::notifyActiveSpotRemoved(place, tile);
+
+    if(place != ActiveSpotPlace::activeSpotCenter)
+        return;
+
+    for(const std::pair<Creature* const,Tile*>& p : mCreaturesSpots)
+    {
+        Tile* tmpTile = p.second;
+        if(tmpTile == tile)
+        {
+            Creature* creature = p.first;
+            creature->stopJob();
+            // stopJob should have released mCreaturesSpots[creature]. Now, we just need to release the unused spot
+            break;
+        }
+    }
+
+    std::vector<Tile*>::iterator itEr = std::find(mUnusedSpots.begin(), mUnusedSpots.end(), tile);
+    OD_ASSERT_TRUE_MSG(itEr != mUnusedSpots.end(), "name=" + getName() + ", tile=" + Tile::displayAsString(tile));
+    if(itEr != mUnusedSpots.end())
+        mUnusedSpots.erase(itEr);
+}
+
+bool RoomLibrary::hasOpenCreatureSpot(Creature* c)
+{
+    // If there is no need, we do not allow creature to work
+    if(getSeat()->getPlayer() == nullptr)
+        return false;
+
+    if(!getSeat()->getPlayer()->isResearching())
+        return false;
+
+    // We accept all creatures as soon as there are free active spots
+    uint32_t nbItems = countResearchItemsOnRoom();
+    if(nbItems >= (getNumActiveSpots() - mCreaturesSpots.size()))
+        return false;
+
+    return !mUnusedSpots.empty();
+}
+
+bool RoomLibrary::addCreatureUsingRoom(Creature* creature)
+{
+    if(!Room::addCreatureUsingRoom(creature))
+        return false;
+
+    int index = Random::Int(0, mUnusedSpots.size() - 1);
+    Tile* tileSpot = mUnusedSpots[index];
+    mUnusedSpots.erase(mUnusedSpots.begin() + index);
+    mCreaturesSpots[creature] = tileSpot;
+    const Ogre::Vector3& creaturePosition = creature->getPosition();
+    Ogre::Real wantedX = -1;
+    Ogre::Real wantedY = -1;
+    getCreatureWantedPos(creature, tileSpot, wantedX, wantedY);
+    if(creaturePosition.x != wantedX ||
+       creaturePosition.y != wantedY)
+    {
+        // We move to the good tile
+        std::list<Tile*> pathToSpot = getGameMap()->path(creature, tileSpot);
+        OD_ASSERT_TRUE(!pathToSpot.empty());
+        if(pathToSpot.empty())
+            return true;
+
+        creature->setWalkPath(pathToSpot, 0, false);
+        // We add the last step to take account of the offset
+        creature->addDestination(wantedX, wantedY);
+        creature->setAnimationState("Walk");
+    }
+
+    return true;
+}
+
+void RoomLibrary::removeCreatureUsingRoom(Creature* c)
+{
+    Room::removeCreatureUsingRoom(c);
+    if(mCreaturesSpots.count(c) > 0)
+    {
+        Tile* tileSpot = mCreaturesSpots[c];
+        OD_ASSERT_TRUE(tileSpot != nullptr);
+        if(tileSpot == nullptr)
+            return;
+        mUnusedSpots.push_back(tileSpot);
+        mCreaturesSpots.erase(c);
+    }
+}
+
+void RoomLibrary::doUpkeep()
+{
+    Room::doUpkeep();
+
+    if (mCoveredTiles.empty())
+        return;
+
+    if(getSeat()->getPlayer() == nullptr)
+        return;
+
+    // If there is nothing to do, we remove the working creatures if any
+    if(!getSeat()->getPlayer()->isResearching())
+    {
+        if(mCreaturesSpots.empty())
+            return;
+
+        // We remove the creatures working here
+        std::vector<Creature*> creatures;
+        for(const std::pair<Creature* const,Tile*>& p : mCreaturesSpots)
+        {
+            creatures.push_back(p.first);
+        }
+
+        for(Creature* creature : creatures)
+        {
+            creature->stopJob();
+        }
+        return;
+    }
+
+    for(const std::pair<Creature* const,Tile*>& p : mCreaturesSpots)
+    {
+        Creature* creature = p.first;
+        Tile* tileSpot = p.second;
+        Tile* tileCreature = creature->getPositionTile();
+        if(tileCreature == nullptr)
+            continue;
+
+        Ogre::Real wantedX = -1;
+        Ogre::Real wantedY = -1;
+        getCreatureWantedPos(creature, tileSpot, wantedX, wantedY);
+
+        RenderedMovableEntity* ro = getBuildingObjectFromTile(tileSpot);
+        OD_ASSERT_TRUE(ro != nullptr);
+        if(ro == nullptr)
+            continue;
+        // We consider that the creature is in the good place if it is in the expected tile and not moving
+        Tile* expectedDest = getGameMap()->getTile(Helper::round(wantedX), Helper::round(wantedY));
+        OD_ASSERT_TRUE_MSG(expectedDest != nullptr, "room=" + getName() + ", creature=" + creature->getName());
+        if(expectedDest == nullptr)
+            continue;
+        if((tileCreature == expectedDest) &&
+           !creature->isMoving())
+        {
+            if (creature->getJobCooldown() > 0)
+            {
+                creature->setAnimationState("Idle");
+                creature->setJobCooldown(creature->getJobCooldown() - 1);
+            }
+            else
+            {
+                Ogre::Vector3 walkDirection(ro->getPosition().x - creature->getPosition().x, ro->getPosition().y - creature->getPosition().y, 0);
+                walkDirection.normalise();
+                creature->setAnimationState("Attack1", false, walkDirection);
+
+                ro->setAnimationState("Triggered", false);
+
+                const CreatureRoomAffinity& creatureRoomAffinity = creature->getDefinition()->getRoomAffinity(getType());
+                OD_ASSERT_TRUE_MSG(creatureRoomAffinity.getRoomType() == getType(), "name=" + getName() + ", creature=" + creature->getName()
+                    + ", creatureRoomAffinityType=" + Ogre::StringConverter::toString(static_cast<int>(creatureRoomAffinity.getRoomType())));
+
+                int32_t pointsEarned = static_cast<int32_t>(creatureRoomAffinity.getEfficiency() * ConfigManager::getSingleton().getRoomConfigDouble("LibraryPointsPerWork"));
+                creature->jobDone(ConfigManager::getSingleton().getRoomConfigDouble("LibraryAwaknessPerWork"));
+                creature->setJobCooldown(Random::Uint(ConfigManager::getSingleton().getRoomConfigUInt32("LibraryCooldownWorkMin"),
+                    ConfigManager::getSingleton().getRoomConfigUInt32("LibraryCooldownWorkMax")));
+
+                // We check if we have enough points for the current research
+                const Research* researchDone = getSeat()->getPlayer()->addResearchPoints(pointsEarned);
+                if(researchDone == nullptr)
+                    continue;
+
+                // We check if there is an empty tile to release the researchEntity
+                Tile* spanwTile = checkIfAvailableSpot(mAllowedSpotsForResearchItems);
+                OD_ASSERT_TRUE_MSG(spanwTile != nullptr, "room=" + getName());
+                if(spanwTile == nullptr)
+                    return;
+
+                ResearchEntity* researchEntity = new ResearchEntity(getGameMap(), getName(), researchDone->getType());
+                researchEntity->setSeat(getSeat());
+                researchEntity->addToGameMap();
+                Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(spanwTile->getX()), static_cast<Ogre::Real>(spanwTile->getY()), static_cast<Ogre::Real>(0.0));
+                researchEntity->createMesh();
+                researchEntity->setPosition(spawnPosition, false);
+            }
+        }
+    }
+
+    uint32_t nbItems = countResearchItemsOnRoom();
+    if(nbItems > (getNumActiveSpots() - mCreaturesSpots.size()))
+    {
+        // There is no available space. We remove a creature working here if there is one.
+        // If there is none, it means the library is full
+        if(mCreaturesSpots.size() > 0)
+        {
+            for(const std::pair<Creature* const,Tile*>& p : mCreaturesSpots)
+            {
+                Creature* creature = p.first;
+                creature->stopJob();
+                break;
+            }
+        }
+        else
+            return;
+    }
+}
+
+uint32_t RoomLibrary::countResearchItemsOnRoom()
+{
+    std::vector<GameEntity*> carryable;
+    for(Tile* t : mCoveredTiles)
+    {
+        t->fillWithCarryableEntities(carryable);
+    }
+    uint32_t nbItems = 0;
+    for(GameEntity* entity : carryable)
+    {
+        if(entity->getObjectType() != GameEntityType::researchEntity)
+            continue;
+
+        ++nbItems;
+    }
+
+    return nbItems;
+}
+
+Tile* RoomLibrary::checkIfAvailableSpot(const std::vector<Tile*>& activeSpots)
+{
+    for(Tile* tile : activeSpots)
+    {
+        // If the tile contains no item, we can add a new one
+        bool isFilled = false;
+        std::vector<GameEntity*> entities;
+        tile->fillWithCarryableEntities(entities);
+        for(GameEntity* entity : entities)
+        {
+            if(entity->getObjectType() != GameEntityType::researchEntity)
+                continue;
+
+            // There is one
+            isFilled = true;
+            break;
+        }
+
+        if(isFilled)
+            continue;
+
+        return tile;
+    }
+
+    return nullptr;
+}
+
+void RoomLibrary::getCreatureWantedPos(Creature* creature, Tile* tileSpot,
+    Ogre::Real& wantedX, Ogre::Real& wantedY)
+{
+    wantedX = static_cast<Ogre::Real>(tileSpot->getX());
+    wantedY = static_cast<Ogre::Real>(tileSpot->getY());
+    wantedY -= OFFSET_CREATURE;
+}

@@ -53,7 +53,8 @@ enum class GameEntityType
     craftedTrap,
     missileObject,
     persistentObject,
-    trapEntity
+    trapEntity,
+    researchEntity
 };
 
 ODPacket& operator<<(ODPacket& os, const GameEntityType& type);
@@ -67,6 +68,7 @@ enum class EntityCarryType
 {
     notCarryable,
     corpse,
+    researchEntity,
     craftedTrap,
     gold
 };

@@ -20,6 +20,8 @@
 
 #include "creaturemood/CreatureMood.h"
 
+#include "game/Research.h"
+
 #include "spawnconditions/SpawnCondition.h"
 
 #include "utils/ConfigManager.h"
@@ -107,6 +109,12 @@ ConfigManager::ConfigManager() :
         OD_ASSERT_TRUE(false);
         exit(1);
     }
+    fileName = ResourceManager::getSingleton().getConfigPath() + mFilenameResearches;
+    if(!loadResearches(fileName))
+    {
+        OD_ASSERT_TRUE(false);
+        exit(1);
+    }
 }
 
 ConfigManager::~ConfigManager()
@@ -143,6 +151,12 @@ ConfigManager::~ConfigManager()
         }
     }
     mCreatureSpawnConditions.clear();
+
+    for(const Research* research : mResearches)
+    {
+        delete research;
+    }
+    mResearches.clear();
 }
 
 bool ConfigManager::loadGlobalConfig()
@@ -291,9 +305,14 @@ bool ConfigManager::loadGlobalConfigDefinitionFiles(std::stringstream& configFil
             mFilenameCreaturesMood = fileName;
             filesOk |= 0x80;
         }
+        else if(type == "Researches")
+        {
+            mFilenameResearches = fileName;
+            filesOk |= 0x100;
+        }
     }
 
-    if(filesOk != 0xFF)
+    if(filesOk != 0x1FF)
     {
         OD_ASSERT_TRUE_MSG(false, "Missing parameter file filesOk=" + Ogre::StringConverter::toString(filesOk));
         return false;
@@ -961,6 +980,112 @@ bool ConfigManager::loadCreaturesMood(const std::string& fileName)
         }
     }
 
+    return true;
+}
+
+bool ConfigManager::loadResearches(const std::string& fileName)
+{
+    int32_t pointsRoomCrypt = 0;
+    int32_t pointsRoomForge = 0;
+    int32_t pointsRoomTrainingHall = 0;
+    int32_t pointsTrapBoulder = 0;
+    int32_t pointsTrapSpike = 0;
+    int32_t pointsSpellCallToWar = 0;
+
+    LogManager::getSingleton().logMessage("Load Researches file: " + fileName);
+    std::stringstream defFile;
+    if(!Helper::readFileWithoutComments(fileName, defFile))
+    {
+        OD_ASSERT_TRUE_MSG(false, "Couldn't read " + fileName);
+        return false;
+    }
+
+    std::string nextParam;
+    // Read in the creature class descriptions
+    defFile >> nextParam;
+    if (nextParam != "[Researches]")
+    {
+        OD_ASSERT_TRUE_MSG(false, "Invalid Researches start format. Line was " + nextParam);
+        return false;
+    }
+
+    while(defFile.good())
+    {
+        if(!(defFile >> nextParam))
+            break;
+
+        if (nextParam == "[/Researches]")
+            break;
+
+        if(nextParam == "RoomCryptPoints")
+        {
+            defFile >> pointsRoomCrypt;
+            continue;
+        }
+
+        if(nextParam == "RoomForgePoints")
+        {
+            defFile >> pointsRoomForge;
+            continue;
+        }
+
+        if(nextParam == "RoomTrainingHallPoints")
+        {
+            defFile >> pointsRoomTrainingHall;
+            continue;
+        }
+
+        if(nextParam == "TrapBoulderPoints")
+        {
+            defFile >> pointsTrapBoulder;
+            continue;
+        }
+
+        if(nextParam == "TrapSpikePoints")
+        {
+            defFile >> pointsTrapSpike;
+            continue;
+        }
+
+        if(nextParam == "SpellCallToWarPoints")
+        {
+            defFile >> pointsSpellCallToWar;
+            continue;
+        }
+    }
+
+    // We build the research tree
+    std::vector<const Research*> depends;
+    Research* research;
+    depends.clear();
+    research = new Research(ResearchType::roomTrainingHall, pointsRoomTrainingHall, depends);
+    mResearches.push_back(research);
+
+    depends.clear();
+    // Forge depends on training hall
+    depends.push_back(research);
+    research = new Research(ResearchType::roomForge, pointsRoomForge, depends);
+    mResearches.push_back(research);
+
+    depends.clear();
+    // Crypt depends on forge
+    depends.push_back(research);
+    research = new Research(ResearchType::roomCrypt, pointsRoomCrypt, depends);
+    mResearches.push_back(research);
+
+    depends.clear();
+    research = new Research(ResearchType::trapSpike, pointsTrapSpike, depends);
+    mResearches.push_back(research);
+
+    depends.clear();
+    // Boulder depends on spike
+    depends.push_back(research);
+    research = new Research(ResearchType::trapBoulder, pointsTrapBoulder, depends);
+    mResearches.push_back(research);
+
+    depends.clear();
+    research = new Research(ResearchType::spellCallToWar, pointsSpellCallToWar, depends);
+    mResearches.push_back(research);
     return true;
 }
 

@@ -30,6 +30,7 @@
 #include "entities/MissileObject.h"
 #include "entities/PersistentObject.h"
 #include "entities/RenderedMovableEntity.h"
+#include "entities/ResearchEntity.h"
 #include "entities/SmallSpiderEntity.h"
 #include "entities/Tile.h"
 #include "entities/TrapEntity.h"
@@ -392,6 +393,11 @@ GameEntity* GameEntity::getGameEntityeEntityFromStream(GameMap* gameMap, std::is
             entity = TreasuryObject::getTreasuryObjectFromStream(gameMap, is);
             break;
         }
+        case GameEntityType::researchEntity:
+        {
+            entity = ResearchEntity::getResearchEntityFromStream(gameMap, is);
+            break;
+        }
         default:
         {
             OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Helper::toString(
@@ -468,6 +474,11 @@ GameEntity* GameEntity::getGameEntityFromPacket(GameMap* gameMap, ODPacket& is)
         case GameEntityType::treasuryObject:
         {
             entity = TreasuryObject::getTreasuryObjectFromPacket(gameMap, is);
+            break;
+        }
+        case GameEntityType::researchEntity:
+        {
+            entity = ResearchEntity::getResearchEntityFromPacket(gameMap, is);
             break;
         }
         default:

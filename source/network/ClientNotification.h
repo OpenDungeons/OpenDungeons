@@ -50,6 +50,7 @@ enum class ClientNotificationType
     askPickupFighter,
     askSlapEntity,
     askCastSpell,
+    askSetResearchTree,
 
     //  Editor
     editorAskSaveMap,

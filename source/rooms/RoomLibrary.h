@@ -20,6 +20,10 @@
 
 #include "rooms/Room.h"
 
+class Tile;
+
+enum class ResearchType;
+
 class RoomLibrary: public Room
 {
 public:
@@ -28,8 +32,27 @@ public:
     virtual RoomType getType() const
     { return RoomType::library; }
 
+    virtual void doUpkeep();
+    virtual bool hasOpenCreatureSpot(Creature* c);
+    virtual bool addCreatureUsingRoom(Creature* c);
+    virtual void removeCreatureUsingRoom(Creature* c);
+    virtual void absorbRoom(Room *r);
+    virtual void addCoveredTile(Tile* t, double nHP);
+    virtual bool removeCoveredTile(Tile* t);
+
 protected:
     virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
+    virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);
+private:
+    //!\brief checks how many items are on the library
+    uint32_t countResearchItemsOnRoom();
+    Tile* checkIfAvailableSpot(const std::vector<Tile*>& activeSpots);
+    int32_t mNbTurnsNoChangeSpots;
+    void getCreatureWantedPos(Creature* creature, Tile* tileSpot,
+        Ogre::Real& wantedX, Ogre::Real& wantedY);
+    std::vector<Tile*> mUnusedSpots;
+    std::vector<Tile*> mAllowedSpotsForResearchItems;
+    std::map<Creature*,Tile*> mCreaturesSpots;
 };
 
 #endif // ROOMLIBRARY_H

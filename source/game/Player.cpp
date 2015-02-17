@@ -21,15 +21,21 @@
 
 #include "entities/Creature.h"
 #include "entities/RenderedMovableEntity.h"
+#include "entities/ResearchEntity.h"
 #include "entities/Tile.h"
 
+#include "game/Research.h"
+
 #include "gamemap/GameMap.h"
+
+#include "modes/ModeManager.h"
 
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
 #include "network/ODClient.h"
 
 #include "render/RenderManager.h"
+#include "render/ODFrameListener.h"
 
 #include "rooms/Room.h"
 
@@ -37,6 +43,8 @@
 
 #include "traps/Trap.h"
 
+#include "utils/ConfigManager.h"
+#include "utils/Helper.h"
 #include "utils/LogManager.h"
 
 #include <cmath>
@@ -57,7 +65,11 @@ Player::Player(GameMap* gameMap, int32_t id) :
     mIsHuman(false),
     mFightingTime(0.0f),
     mNoTreasuryAvailableTime(0.0f),
-    mIsPlayerLostSent(false)
+    mIsPlayerLostSent(false),
+    mResearchPoints(0),
+    mCurrentResearch(nullptr),
+    mNeedRefreshGuiResearchDone(false),
+    mNeedRefreshGuiResearchPending(false)
 {
 }
 
@@ -320,9 +332,288 @@ void Player::setCurrentAction(SelectedAction action)
     mNewSpellType = SpellType::nullSpellType;
 }
 
-bool Player::isSpellAvailableForPlayer(SpellType type)
+void Player::initPlayer()
 {
-    // TODO: when the research tree will be implemented, we should check if the given
-    // spell is available. For now, we allow every spell
+    // TODO: If we want to change the available rooms/traps/spells at game start, we can do that here
+    // We add the rooms available from start
+    std::vector<ResearchType> researchesDone;
+    researchesDone.push_back(ResearchType::roomTreasury);
+    researchesDone.push_back(ResearchType::roomHatchery);
+    researchesDone.push_back(ResearchType::roomDormitory);
+    researchesDone.push_back(ResearchType::roomLibrary);
+    researchesDone.push_back(ResearchType::trapCannon);
+    researchesDone.push_back(ResearchType::spellSummonWorker);
+    setResearchesDone(researchesDone);
+
+    // TODO: fill researches from the server depending on the player input
+    std::vector<ResearchType> researches;
+
+    researches.push_back(ResearchType::spellCallToWar);
+    researches.push_back(ResearchType::roomTrainingHall);
+    researches.push_back(ResearchType::roomForge);
+    researches.push_back(ResearchType::trapSpike);
+    researches.push_back(ResearchType::roomCrypt);
+    researches.push_back(ResearchType::trapBoulder);
+    setResearchTree(researches);
+}
+
+bool Player::isSpellAvailableForPlayer(SpellType type) const
+{
+    switch(type)
+    {
+        case SpellType::summonWorker:
+            return isResearchDone(ResearchType::spellSummonWorker);
+        case SpellType::callToWar:
+            return isResearchDone(ResearchType::spellCallToWar);
+        default:
+            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Helper::toString(
+                static_cast<int>(type)) + " for player " + getNick());
+            return false;
+    }
+    return false;
+}
+
+bool Player::isRoomAvailableForPlayer(RoomType type) const
+{
+    switch(type)
+    {
+        case RoomType::treasury:
+            return isResearchDone(ResearchType::roomTreasury);
+        case RoomType::dormitory:
+            return isResearchDone(ResearchType::roomDormitory);
+        case RoomType::hatchery:
+            return isResearchDone(ResearchType::roomHatchery);
+        case RoomType::trainingHall:
+            return isResearchDone(ResearchType::roomTrainingHall);
+        case RoomType::library:
+            return isResearchDone(ResearchType::roomLibrary);
+        case RoomType::forge:
+            return isResearchDone(ResearchType::roomForge);
+        case RoomType::crypt:
+            return isResearchDone(ResearchType::roomCrypt);
+        default:
+            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Helper::toString(
+                static_cast<int>(type)) + " for player " + getNick());
+            return false;
+    }
+    return false;
+}
+
+bool Player::isTrapAvailableForPlayer(TrapType type) const
+{
+    switch(type)
+    {
+        case TrapType::boulder:
+            return isResearchDone(ResearchType::trapBoulder);
+        case TrapType::cannon:
+            return isResearchDone(ResearchType::trapCannon);
+        case TrapType::spike:
+            return isResearchDone(ResearchType::trapSpike);
+        default:
+            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Helper::toString(
+                static_cast<int>(type)) + " for player " + getNick());
+            return false;
+    }
+    return false;
+}
+
+bool Player::addResearch(ResearchType type)
+{
+    if(std::find(mResearchDone.begin(), mResearchDone.end(), type) != mResearchDone.end())
+        return false;
+
+    std::vector<ResearchType> researchDone = mResearchDone;
+    researchDone.push_back(type);
+    setResearchesDone(researchDone);
+
     return true;
+}
+
+bool Player::isResearchDone(ResearchType type) const
+{
+    for(ResearchType researchDone : mResearchDone)
+    {
+        if(researchDone != type)
+            continue;
+
+        return true;
+    }
+
+    return false;
+}
+
+const Research* Player::addResearchPoints(int32_t points)
+{
+    if(mCurrentResearch == nullptr)
+        return nullptr;
+
+    mResearchPoints += points;
+    if(mResearchPoints < mCurrentResearch->getNeededResearchPoints())
+        return nullptr;
+
+    const Research* ret = mCurrentResearch;
+    mResearchPoints -= mCurrentResearch->getNeededResearchPoints();
+
+    // The current research is complete. The library that completed it will release
+    // a ResearchEntity. Once it will reach its destination, the research will be
+    // added to the done list
+
+    setNextResearch(mCurrentResearch->getType());
+    return ret;
+}
+
+void Player::setNextResearch(ResearchType researchedType)
+{
+    mCurrentResearch = nullptr;
+    if(!mResearchPending.empty())
+    {
+        // We search for the first pending research we don't own a corresponding ResearchEntity
+        const std::vector<RenderedMovableEntity*>& renderables = mGameMap->getRenderedMovableEntities();
+        ResearchType researchType = ResearchType::nullResearchType;
+        for(ResearchType pending : mResearchPending)
+        {
+            if(pending == researchedType)
+                continue;
+
+            researchType = pending;
+            for(RenderedMovableEntity* renderable : renderables)
+            {
+                if(renderable->getObjectType() != GameEntityType::researchEntity)
+                    continue;
+
+                if(renderable->getSeat() != getSeat())
+                    continue;
+
+                ResearchEntity* researchEntity = static_cast<ResearchEntity*>(renderable);
+                if(researchEntity->getResearchType() != pending)
+                    continue;
+
+                // We found a ResearchEntity of the same Research. We should work on
+                // something else
+                researchType = ResearchType::nullResearchType;
+                break;
+            }
+
+            if(researchType != ResearchType::nullResearchType)
+                break;
+        }
+
+        if(researchType == ResearchType::nullResearchType)
+            return;
+
+        // We have found a fitting research. We retrieve the corresponding Research
+        // object and start working on that
+        const std::vector<const Research*>& researches = ConfigManager::getSingleton().getResearches();
+        for(const Research* research : researches)
+        {
+            if(research->getType() != researchType)
+                continue;
+
+            mCurrentResearch = research;
+            break;
+        }
+    }
+}
+
+void Player::setResearchesDone(const std::vector<ResearchType>& researches)
+{
+    mResearchDone = researches;
+    // We remove the researches done from the pending researches (if it was there,
+    // which may not be true if the research list changed after creating the
+    // researchEntity for example)
+    for(ResearchType type : researches)
+    {
+        auto research = std::find(mResearchPending.begin(), mResearchPending.end(), type);
+        if(research == mResearchPending.end())
+            continue;
+
+        mResearchPending.erase(research);
+    }
+
+    if(mGameMap->isServerGameMap())
+    {
+        if(getIsHuman())
+        {
+            // We notify the client
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotificationType::researchesDone, this);
+
+            uint32_t nbItems = mResearchDone.size();
+            serverNotification->mPacket << nbItems;
+            for(ResearchType research : mResearchDone)
+                serverNotification->mPacket << research;
+
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+    }
+    else
+    {
+        // We notify the mode that the available researches changed. This way, it will
+        // be able to update the UI as needed
+        mNeedRefreshGuiResearchDone = true;
+    }
+}
+
+void Player::setResearchTree(const std::vector<ResearchType>& researches)
+{
+    if(mGameMap->isServerGameMap())
+    {
+        // We check if all the researches in the vector are allowed. If not, we don't update the list
+        const std::vector<const Research*>& researchList = ConfigManager::getSingleton().getResearches();
+        std::vector<ResearchType> researchesDoneInTree = mResearchDone;
+        for(ResearchType researchType : researches)
+        {
+            const Research* research = nullptr;
+            for(const Research* researchTmp : researchList)
+            {
+                if(researchTmp->getType() != researchType)
+                    continue;
+
+                research = researchTmp;
+                break;
+            }
+
+            if(research == nullptr)
+            {
+                // We found an unknow research
+                OD_ASSERT_TRUE_MSG(false, "Unknow research: " + Research::researchTypeToString(researchType));
+                return;
+            }
+
+            if(!research->canBeResearched(researches))
+            {
+                // Invalid research. This might be allowed in the gui to enter invalid
+                // values. In this case, we should remove the assert
+                OD_ASSERT_TRUE_MSG(false, "Unallowed research: " + Research::researchTypeToString(researchType));
+                return;
+            }
+
+            // This research is valid. We add it in the list and we check if the next one also is
+            researchesDoneInTree.push_back(researchType);
+        }
+
+        mResearchPending = researches;
+        if(getIsHuman())
+        {
+            // We notify the client
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotificationType::researchTree, this);
+
+            uint32_t nbItems = mResearchPending.size();
+            serverNotification->mPacket << nbItems;
+            for(ResearchType research : mResearchPending)
+                serverNotification->mPacket << research;
+
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+
+        // We start working on the research tree
+        setNextResearch(ResearchType::nullResearchType);
+    }
+    else
+    {
+        // On client side, no need to check if the research tree is allowed
+        mResearchPending = researches;
+        mNeedRefreshGuiResearchPending = true;
+    }
 }

@@ -165,7 +165,7 @@ public:
 
     void addAlliedSeat(Seat* seat);
 
-    void initSpawnPool();
+    void initSeat();
 
     void setMapSize(int x, int y);
 

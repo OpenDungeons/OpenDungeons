@@ -327,8 +327,12 @@ void Seat::addAlliedSeat(Seat* seat)
 }
 
 
-void Seat::initSpawnPool()
+void Seat::initSeat()
 {
+    if(getPlayer() == nullptr)
+        return;
+
+    // Spawn pool initialisation
     ConfigManager& config = ConfigManager::getSingleton();
     const std::vector<std::string>& pool = config.getFactionSpawnPool(mFaction);
     OD_ASSERT_TRUE_MSG(!pool.empty(), "Empty spawn pool for faction=" + mFaction);
@@ -346,6 +350,8 @@ void Seat::initSpawnPool()
     std::string defaultWorkerClass = config.getFactionWorkerClass(mFaction);
     mDefaultWorkerClass = mGameMap->getClassDescription(defaultWorkerClass);
     OD_ASSERT_TRUE_MSG(mDefaultWorkerClass != nullptr, "No valid default worker class for faction: " + mFaction);
+
+    getPlayer()->initPlayer();
 }
 
 const CreatureDefinition* Seat::getNextFighterClassToSpawn()

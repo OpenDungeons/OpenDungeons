@@ -77,6 +77,9 @@ enum class ServerNotificationType
     carryEntity,
     releaseCarriedEntity,
 
+    researchTree,
+    researchesDone,
+
     exit
 };
 
