@@ -32,6 +32,7 @@
 #include "utils/Random.h"
 #include "game/Player.h"
 #include "utils/ConfigManager.h"
+#include "utils/Helper.h"
 #include "utils/LogManager.h"
 
 Trap::Trap(GameMap* gameMap) :
@@ -109,7 +110,7 @@ Trap* Trap::getTrapFromPacket(GameMap* gameMap, ODPacket &is)
     return tempTrap;
 }
 
-const char* Trap::getTrapNameFromTrapType(TrapType t)
+std::string Trap::getTrapNameFromTrapType(TrapType t)
 {
     switch (t)
     {
@@ -126,7 +127,7 @@ const char* Trap::getTrapNameFromTrapType(TrapType t)
             return "Boulder";
 
         default:
-            return "UnknownTrapType";
+            return "UnknownTrapType enum=" + Helper::toString(static_cast<int>(t));
     }
 }
 
