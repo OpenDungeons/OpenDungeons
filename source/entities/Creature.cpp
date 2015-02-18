@@ -2467,8 +2467,8 @@ bool Creature::handleSleepAction(const CreatureAction& actionItem)
         mAwakeness += 1.5;
         if (mAwakeness > 100.0)
             mAwakeness = 100.0;
-        // Improve HP but a bit slower.
-        mHp += 1.0;
+
+        mHp += mDefinition->getSleepHeal();
         if (mHp > mMaxHP)
             mHp = mMaxHP;
 
