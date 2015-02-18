@@ -2001,37 +2001,22 @@ bool Creature::handleJobAction(const CreatureAction& actionItem)
         const std::vector<CreatureRoomAffinity>& roomAffinity = mDefinition->getRoomAffinity();
         for(const CreatureRoomAffinity& affinity : roomAffinity)
         {
-            if((room != nullptr) &&
-               (room->getType() == affinity.getRoomType()) &&
-               (affinity.getLikeness() > 0) &&
-               (getSeat()->canOwnedCreatureUseRoomFrom(room->getSeat())))
-           {
-                // If the efficiency is 0 or the room is a hatchery, we only wander in the room
-                if((affinity.getEfficiency() <= 0) ||
-                   (room->getType() == RoomType::hatchery))
-                {
-                    int index = Random::Int(0, room->numCoveredTiles() - 1);
-                    Tile* tileDest = room->getCoveredTile(index);
-                    std::list<Tile*> tempPath = getGameMap()->path(this, tileDest);
-                    if (setWalkPath(tempPath, 0, false))
-                    {
-                        setAnimationState("Walk");
-                        pushAction(CreatureActionType::walkToTile, true);
-                        return false;
-                    }
+            if(room == nullptr)
+                continue;
+            if(room->getType() != affinity.getRoomType())
+                continue;
+            if(affinity.getEfficiency() <= 0)
+                continue;
+            if(!getSeat()->canOwnedCreatureUseRoomFrom(room->getSeat()))
+                continue;
 
-                    popAction();
-                    return true;
-                }
-
-                // It is the room responsability to test if the creature is suited for working in it
-                if(room->hasOpenCreatureSpot(this) && room->addCreatureUsingRoom(this))
-                {
-                    mJobRoom = room;
-                    return false;
-                }
-                break;
-           }
+            // It is the room responsability to test if the creature is suited for working in it
+            if(room->hasOpenCreatureSpot(this) && room->addCreatureUsingRoom(this))
+            {
+                mJobRoom = room;
+                return false;
+            }
+            break;
         }
 
         // If we couldn't work on the room we were forced to, we stop trying
@@ -2043,14 +2028,17 @@ bool Creature::handleJobAction(const CreatureAction& actionItem)
     const std::vector<CreatureRoomAffinity>& roomAffinity = mDefinition->getRoomAffinity();
     for(const CreatureRoomAffinity& affinity : roomAffinity)
     {
-        // See if we are in the room we like the most. If yes and we can work (if possible), we stay. If no,
+        // If likeness = 0, we don't consider working here
+        if(affinity.getLikeness() <= 0)
+            continue;
+
+        // See if we are in the room we like the most. If yes and we can work, we stay. If no,
         // We check if there is such a room somewhere else where we can go
         if((myTile->getCoveringRoom() != nullptr) &&
            (myTile->getCoveringRoom()->getType() == affinity.getRoomType()) &&
            (getSeat()->canOwnedCreatureUseRoomFrom(myTile->getCoveringRoom()->getSeat())))
         {
             Room* room = myTile->getCoveringRoom();
-
             // If the efficiency is 0 or the room is a hatchery, we only wander in the room
             if((affinity.getEfficiency() <= 0) ||
                (room->getType() == RoomType::hatchery))
