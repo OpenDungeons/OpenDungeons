@@ -299,17 +299,15 @@ void RoomLibrary::doUpkeep()
     {
         // There is no available space. We remove a creature working here if there is one.
         // If there is none, it means the library is full
-        if(mCreaturesSpots.size() > 0)
-        {
-            for(const std::pair<Creature* const,Tile*>& p : mCreaturesSpots)
-            {
-                Creature* creature = p.first;
-                creature->stopJob();
-                break;
-            }
-        }
-        else
+        if(mCreaturesSpots.empty())
             return;
+
+        for(const std::pair<Creature* const,Tile*>& p : mCreaturesSpots)
+        {
+            Creature* creature = p.first;
+            creature->stopJob();
+            break;
+        }
     }
 }
 
