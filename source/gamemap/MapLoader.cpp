@@ -314,9 +314,6 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         MapLight* tempLight = new MapLight(&gameMap);
         MapLight::loadFromLine(entire_line, tempLight);
         tempLight->setName(gameMap.nextUniqueNameMapLight());
-        OD_ASSERT_TRUE(tempLight != nullptr);
-        if(tempLight == nullptr)
-            return false;
         tempLight->addToGameMap();
     }
 

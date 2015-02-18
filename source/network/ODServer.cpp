@@ -1877,6 +1877,28 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
+        case ClientNotificationType::editorAskCreateMapLight:
+        {
+            Player* player = clientSocket->getPlayer();
+            MapLight* mapLight = new MapLight(gameMap);
+            mapLight->setName(gameMap->nextUniqueNameMapLight());
+            mapLight->setPosition(Ogre::Vector3(0.0, 0.0, 3.75), false);
+            mapLight->addToGameMap();
+            mapLight->createMesh();
+            // In editor mode, every player has vision
+            for(Seat* seat : gameMap->getSeats())
+            {
+                if(seat->getPlayer() == nullptr)
+                    continue;
+                if(!seat->getPlayer()->getIsHuman())
+                    continue;
+
+                mapLight->addSeatWithVision(seat, true);
+            }
+            player->pickUpEntity(mapLight);
+            break;
+        }
+
         default:
         {
             LogManager::getSingleton().logMessage("ERROR:  Unhandled command received from client:"

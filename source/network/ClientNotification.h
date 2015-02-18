@@ -60,7 +60,8 @@ enum class ClientNotificationType
     editorAskDestroyRoomTiles,
     editorAskDestroyTrapTiles,
     editorCreateWorker,
-    editorCreateFighter
+    editorCreateFighter,
+    editorAskCreateMapLight
 };
 
 ODPacket& operator<<(ODPacket& os, const ClientNotificationType& nt);

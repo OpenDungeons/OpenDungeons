@@ -305,6 +305,11 @@ void Gui::assignEventHandlers()
     mSheets[editorModeGui]->getChild(EDITOR_CLAIMED_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
         CEGUI::Event::Subscriber(&editorClaimedButtonPressed));
+
+    mSheets[editorModeGui]->getChild(EDITOR_MAPLIGHT_BUTTON)->subscribeEvent(
+        CEGUI:: Window::EventMouseClick,
+        CEGUI::Event::Subscriber(&editorMapLightButtonPressed));
+
     // Game Mode controls
     mSheets[editorModeGui]->getChild(BUTTON_DORMITORY)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
@@ -796,6 +801,16 @@ bool Gui::editorClaimedButtonPressed(const CEGUI::EventArgs& e)
     return true;
 }
 
+bool Gui::editorMapLightButtonPressed(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
+        return true;
+
+    mm->getCurrentMode()->notifyGuiAction(AbstractApplicationMode::GuiAction::ButtonPressedMapLight);
+    return true;
+}
+
 // MAIN MENU
 
 bool Gui::mMNewGameButtonPressed(const CEGUI::EventArgs& e)
@@ -1118,6 +1133,7 @@ const std::string Gui::EDITOR_FULLNESS = "HorizontalPipe/FullnessDisplay";
 const std::string Gui::EDITOR_CURSOR_POS = "HorizontalPipe/PositionDisplay";
 const std::string Gui::EDITOR_SEAT_ID = "HorizontalPipe/SeatIdDisplay";
 const std::string Gui::EDITOR_CREATURE_SPAWN = "HorizontalPipe/CreatureSpawnDisplay";
+const std::string Gui::EDITOR_MAPLIGHT_BUTTON = "MainTabControl/Lights/MapLightButton";
 
 const std::string Gui::REM_TEXT_LOADING = "LoadingText";
 const std::string Gui::REM_BUTTON_LAUNCH = "LevelWindowFrame/LaunchReplayButton";

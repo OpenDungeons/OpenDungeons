@@ -57,7 +57,8 @@ public:
     enum GuiAction
     {
         ButtonPressedCreatureWorker,
-        ButtonPressedCreatureFighter
+        ButtonPressedCreatureFighter,
+        ButtonPressedMapLight
     };
 
     virtual void notifyGuiAction(GuiAction guiAction)

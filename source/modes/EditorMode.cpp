@@ -872,6 +872,16 @@ void EditorMode::notifyGuiAction(GuiAction guiAction)
                 }
                 break;
             }
+            case GuiAction::ButtonPressedMapLight:
+            {
+                if(ODClient::getSingleton().isConnected())
+                {
+                    ClientNotification *clientNotification = new ClientNotification(
+                        ClientNotificationType::editorAskCreateMapLight);
+                    ODClient::getSingleton().queueClientNotification(clientNotification);
+                }
+                break;
+            }
             default:
                 break;
     }

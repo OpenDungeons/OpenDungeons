@@ -139,6 +139,12 @@
                 <Property name="MaxSize" value="{{1,0},{1,0}}" />
                 <Property name="Visible" value="False" />
                 <Property name="RiseOnClickEnabled" value="False" />
+                <Window type="OD/ImageButton" name="MapLightButton" >
+                    <Property name="Area" value="{{0,20},{0,25},{0,80},{0,85}}" />
+                    <Property name="NormalImage" value="OpenDungeonsSkin/MapLightButton" />
+                    <Property name="TooltipText" value="Adds a Map light" />
+                    <Property name="InheritsAlpha" value="False" />
+                </Window>
             </Window>
         </Window>
     </Window>
