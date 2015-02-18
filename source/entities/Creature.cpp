@@ -316,6 +316,13 @@ void Creature::removeFromGameMap()
     if(!getGameMap()->isServerGameMap())
         return;
 
+    // If the creature has a homeTile where it sleeps, its bed needs to be destroyed.
+    if (getHomeTile() != nullptr)
+    {
+        RoomDormitory* home = static_cast<RoomDormitory*>(getHomeTile()->getCoveringBuilding());
+        home->releaseTileForSleeping(getHomeTile(), this);
+    }
+
     Tile* posTile = getPositionTile();
     if(posTile != nullptr)
         posTile->removeEntity(this);
@@ -641,13 +648,6 @@ void Creature::doUpkeep()
         }
         else if (mDeathCounter >= ConfigManager::getSingleton().getCreatureDeathCounter())
         {
-            // If the creature has a homeTile where it sleeps, its bed needs to be destroyed.
-            if (getHomeTile() != nullptr)
-            {
-                RoomDormitory* home = static_cast<RoomDormitory*>(getHomeTile()->getCoveringBuilding());
-                home->releaseTileForSleeping(getHomeTile(), this);
-            }
-
             // Remove the creature from the game map and into the deletion queue, it will be deleted
             // when it is safe, i.e. all other pointers to it have been wiped from the program.
             removeFromGameMap();
@@ -2766,11 +2766,6 @@ bool Creature::handleLeaveDungeon(const CreatureAction& actionItem)
             stopEating();
             clearDestinations();
             setIsOnMap(false);
-            if (getHomeTile() != nullptr)
-            {
-                RoomDormitory* home = static_cast<RoomDormitory*>(getHomeTile()->getCoveringBuilding());
-                home->releaseTileForSleeping(getHomeTile(), this);
-            }
 
             // Remove the creature from the game map and into the deletion queue, it will be deleted
             // when it is safe, i.e. all other pointers to it have been wiped from the program.
