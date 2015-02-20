@@ -8,9 +8,9 @@ material Chicken
     {
         pass Chicken
         {
-            ambient 0.0 0.0 0.0 1.0
-            diffuse 0.6400000190734865 0.6400000190734865 0.6400000190734865 1.0
-            specular 0.10729166865348816 0.10729166865348816 0.10729166865348816 1.0 7.0
+            ambient 0.8 0.8 0.8 1.0
+            diffuse 0.6 0.6 0.6 1.0
+            specular 0.0 0.0 0.0 1.0
             emissive 0.0 0.0 0.0 1.0
 
             alpha_to_coverage off
