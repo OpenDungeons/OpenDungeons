@@ -22,8 +22,8 @@ material Cript : RTSS/NormalMapping_MultiPass
             {
                 ambient 0.8 0.8 0.8 1.0
                 diffuse 0.65 0.65 0.65 1.0
-                specular 0.2 0.2 0.2 0.2 0.2
-                emissive 0.0 0.0 0.0 1.0
+                specular 0.1 0.1 0.1 0.1 0.1
+                emissive 0.0 0.0 0.0 0.0
                 texture Crypt.png
                 tex_address_mode wrap
                 scale 1.0 1.0
