@@ -21,7 +21,7 @@ material Trollbed : RTSS/NormalMapping_MultiPass
             texture_unit decalmap
             {
 		ambient 0.0 0.0 0.0 0.0 0.0
-                diffuse 0.6 0.6 0.6 0.6 0.6
+                diffuse 0.4 0.4 0.4 0.4 0.4
                 specular 0.0 0.0 0.0 0.0 0.0
                 emissive 0.0 0.0 0.0 0.0
                 texture TrollBedTexture.png
