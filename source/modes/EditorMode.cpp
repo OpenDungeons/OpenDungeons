@@ -56,7 +56,7 @@ EditorMode::EditorMode(ModeManager* modeManager):
     mCurrentSeatId(0),
     mCurrentCreatureIndex(0),
     mGameMap(ODFrameListener::getSingletonPtr()->getClientGameMap()),
-    mMiniMap(Gui::getSingleton().getGuiSheet(Gui::guiSheet::editorModeGui)->getChild(Gui::MINIMAP)),
+    mMiniMap(modeManager->getGui().getGuiSheet(Gui::guiSheet::editorModeGui)->getChild(Gui::MINIMAP)),
     mMouseX(0),
     mMouseY(0)
 {
@@ -68,14 +68,22 @@ EditorMode::EditorMode(ModeManager* modeManager):
 
 EditorMode::~EditorMode()
 {
+    if(ODClient::getSingleton().isConnected())
+        ODClient::getSingleton().disconnect();
+    if(ODServer::getSingleton().isConnected())
+        ODServer::getSingleton().stopServer();
+
+    // Now that the server is stopped, we can clear the client game map
+    ODFrameListener::getSingleton().getClientGameMap()->clearAll();
+    ODFrameListener::getSingleton().getClientGameMap()->processDeletionQueues();
 }
 
 void EditorMode::activate()
 {
     // Loads the corresponding Gui sheet.
-    Gui::getSingleton().loadGuiSheet(Gui::editorModeGui);
+    getModeManager().getGui().loadGuiSheet(Gui::editorModeGui);
 
-    CEGUI::Window* minimapWindow = Gui::getSingleton().getGuiSheet(Gui::editorModeGui)->getChild(Gui::MINIMAP);
+    CEGUI::Window* minimapWindow = getModeManager().getGui().getGuiSheet(Gui::editorModeGui)->getChild(Gui::MINIMAP);
     addEventConnection(
         minimapWindow->subscribeEvent(
             CEGUI::Window::EventMouseClick,
@@ -297,7 +305,7 @@ void EditorMode::handleMouseMovedDragType(const OIS::MouseEvent &arg)
 bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 {
     CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(
-        Gui::getSingletonPtr()->convertButton(id));
+        Gui::convertButton(id));
 
     if (!isConnected())
         return true;
@@ -471,7 +479,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
 bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 {
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(Gui::getSingletonPtr()->convertButton(id));
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(Gui::convertButton(id));
 
     InputManager* inputManager = mModeManager->getInputManager();
     // If the mouse press was on a CEGUI window ignore it
@@ -582,25 +590,25 @@ void EditorMode::updateCursorText()
     std::stringstream textSS;
 
     // Update the fullness info
-    CEGUI::Window *posWin = Gui::getSingletonPtr()->getGuiSheet(Gui::editorModeGui)->getChild(Gui::EDITOR_FULLNESS);
+    CEGUI::Window *posWin = getModeManager().getGui().getGuiSheet(Gui::editorModeGui)->getChild(Gui::EDITOR_FULLNESS);
     textSS.str("");
     textSS << "Tile Fullness (T): " << mCurrentFullness << "%";
     posWin->setText(textSS.str());
 
     // Update the cursor position
-    posWin = Gui::getSingletonPtr()->getGuiSheet(Gui::editorModeGui)->getChild(Gui::EDITOR_CURSOR_POS);
+    posWin = getModeManager().getGui().getGuiSheet(Gui::editorModeGui)->getChild(Gui::EDITOR_CURSOR_POS);
     textSS.str("");
     textSS << "Cursor: x: " << mMouseX << ", y: " << mMouseY;
     posWin->setText(textSS.str());
 
     // Update the seat id
-    posWin = Gui::getSingletonPtr()->getGuiSheet(Gui::editorModeGui)->getChild(Gui::EDITOR_SEAT_ID);
+    posWin = getModeManager().getGui().getGuiSheet(Gui::editorModeGui)->getChild(Gui::EDITOR_SEAT_ID);
     textSS.str("");
     textSS << "Seat id (Y): " << mCurrentSeatId;
     posWin->setText(textSS.str());
 
     // Update the seat id
-    posWin = Gui::getSingletonPtr()->getGuiSheet(Gui::editorModeGui)->getChild(Gui::EDITOR_CREATURE_SPAWN);
+    posWin = getModeManager().getGui().getGuiSheet(Gui::editorModeGui)->getChild(Gui::EDITOR_CREATURE_SPAWN);
     textSS.str("");
     const CreatureDefinition* def = mGameMap->getClassDescription(mCurrentCreatureIndex);
     if(def == nullptr)
@@ -829,18 +837,6 @@ void EditorMode::onFrameEnded(const Ogre::FrameEvent& evt)
 {
 }
 
-void EditorMode::exitMode()
-{
-    if(ODClient::getSingleton().isConnected())
-        ODClient::getSingleton().disconnect();
-    if(ODServer::getSingleton().isConnected())
-        ODServer::getSingleton().stopServer();
-
-    // Now that the server is stopped, we can clear the client game map
-    ODFrameListener::getSingleton().getClientGameMap()->clearAll();
-    ODFrameListener::getSingleton().getClientGameMap()->processDeletionQueues();
-}
-
 void EditorMode::notifyGuiAction(GuiAction guiAction)
 {
     switch(guiAction)
@@ -902,7 +898,7 @@ bool EditorMode::onMinimapClick(const CEGUI::EventArgs& arg)
 void EditorMode::refreshGuiResearch()
 {
     // We show/hide the icons depending on available researches
-    CEGUI::Window* guiSheet = Gui::getSingleton().getGuiSheet(Gui::editorModeGui);
+    CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::editorModeGui);
     guiSheet->getChild(Gui::BUTTON_DORMITORY)->show();
     guiSheet->getChild(Gui::BUTTON_TREASURY)->show();
     guiSheet->getChild(Gui::BUTTON_HATCHERY)->show();

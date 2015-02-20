@@ -60,20 +60,19 @@ bool AbstractApplicationMode::mouseMoved(const OIS::MouseEvent& arg)
 bool AbstractApplicationMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
 {
     return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(
-        Gui::getSingletonPtr()->convertButton(id));
+        Gui::convertButton(id));
 }
 
 bool AbstractApplicationMode::mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
 {
     return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(
-        Gui::getSingletonPtr()->convertButton(id));
+        Gui::convertButton(id));
 }
 
 bool AbstractApplicationMode::keyPressed(const OIS::KeyEvent& arg)
 {
     switch (arg.key)
     {
-
     case OIS::KC_ESCAPE:
         regressMode();
         break;
@@ -149,6 +148,6 @@ void AbstractApplicationMode::subscribeCloseButton(CEGUI::Window& rootWindow)
     addEventConnection(
         closeButton->subscribeEvent(
           CEGUI::PushButton::EventClicked,
-          CEGUI::Event::Subscriber(&AbstractApplicationMode::regressModeEvent,
+          CEGUI::Event::Subscriber(&AbstractApplicationMode::regressMode,
               this)));
 }

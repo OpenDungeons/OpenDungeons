@@ -25,11 +25,13 @@ class MenuMode: public AbstractApplicationMode
 public:
     MenuMode(ModeManager*);
 
-    virtual ~MenuMode();
-
     //! \brief Called when the game mode is activated
     //! Used to call the corresponding Gui Sheet.
-    void activate();
+    void activate() final override;
+private:
+    //! \brief Helper function to connect a button to a mode change
+    void connectModeChangeEvent(const std::string& buttonName, AbstractModeManager::ModeType mode);
+    bool quitButtonPressed(const CEGUI::EventArgs&);
 };
 
 #endif // MENUMODE_H

@@ -29,7 +29,6 @@
 #include <CEGUI/InputEvent.h>
 
 #include <OISMouse.h>
-#include <OgreSingleton.h>
 
 #include <string>
 #include <map>
@@ -39,7 +38,7 @@ class GameMap;
 class SoundEffectsManager;
 
 //! \brief This class holds all GUI related functions
-class Gui : public Ogre::Singleton<Gui>
+class Gui
 {
 public:
     enum guiSheet
@@ -160,86 +159,7 @@ private:
     std::map<guiSheet, CEGUI::Window*> mSheets;
 
     // Button handlers main menu
-    //! \brief What happens after a click on New Game in the main menu
-    static bool mMNewGameButtonPressed  (const CEGUI::EventArgs& e);
 
-    //! \brief What happens after a click on New Game in the main menu
-    static bool mMReplayButtonPressed  (const CEGUI::EventArgs& e);
-
-    //! \brief What happens after a click on 'Join Game' button in the main menu
-    static bool mMNewGameMultiClientButtonPressed(const CEGUI::EventArgs& e);
-
-    //! \brief What happens after a click on 'Host Game' button in the main menu
-    static bool mMNewGameMultiServerButtonPressed(const CEGUI::EventArgs& e);
-
-    //! \brief What happens after a click on Editor button in the main menu
-    static bool mMMapEditorButtonPressed(const CEGUI::EventArgs& e);
-
-    //! \brief What happens after a click on Options in the main menu
-    static bool mMOptionsButtonPressed  (const CEGUI::EventArgs& e);
-
-    //! \brief What happens after a click on Quit in the main menu
-    static bool mMQuitButtonPressed     (const CEGUI::EventArgs& e);
-
-    //! \brief What happens after a click on Back in the level selection menu
-    static bool mSKMBackButtonPressed   (const CEGUI::EventArgs& e);
-
-    //! \brief What happens after a click on Load in the level selection menu
-    static bool mSKMLoadButtonPressed   (const CEGUI::EventArgs& e);
-
-    //! \brief What happens after a single click on the level list in the level selection menu
-    static bool mSKMListClicked         (const CEGUI::EventArgs& e);
-
-    //! \brief What happens after a double click on the level list in the level selection menu
-    static bool mSKMListDoubleClicked   (const CEGUI::EventArgs& e);
-
-    //! \brief What happens after a click on Back in the editor level selection menu
-    static bool mEDMBackButtonPressed   (const CEGUI::EventArgs& e);
-
-    //! \brief What happens after a click on Load in the editor level selection menu
-    static bool mEDMLoadButtonPressed   (const CEGUI::EventArgs& e);
-
-    //! \brief What happens after a click on the editor level list in the level selection menu
-    static bool mEDMListClicked         (const CEGUI::EventArgs& e);
-
-    //! \brief What happens after a double click on the editor level list in the level selection menu
-    static bool mEDMListDoubleClicked   (const CEGUI::EventArgs& e);
-
-    //! \brief What happens after a click on Back in the multiplayer menu
-    static bool mMPMBackButtonPressed   (const CEGUI::EventArgs& e);
-
-    //! \brief What happens after a click on Server button in the multiplayer menu
-    static bool mMPMServerButtonPressed (const CEGUI::EventArgs& e);
-
-    //! \brief What happens after a click on Client button in the multiplayer menu
-    static bool mMPMClientButtonPressed (const CEGUI::EventArgs& e);
-
-    //! \brief What happens after a click on the level list in the multiplayer menu
-    static bool mMPMListClicked         (const CEGUI::EventArgs& e);
-
-    //! \brief What happens after a double click on the level list in the multiplayer menu
-    static bool mMPMListDoubleClicked   (const CEGUI::EventArgs& e);
-
-    //! \brief What happens after a click on Back in the level seat configuration menu
-    static bool mCSMBackButtonPressed   (const CEGUI::EventArgs& e);
-
-    //! \brief What happens after a click on Load in the level seat configuration menu
-    static bool mCSMLoadButtonPressed   (const CEGUI::EventArgs& e);
-
-    //! \brief What happens after a click on Back in the replay menu
-    static bool mREMBackButtonPressed   (const CEGUI::EventArgs& e);
-
-    //! \brief What happens after a click on Load in the replay menu
-    static bool mREMLoadButtonPressed   (const CEGUI::EventArgs& e);
-
-    //! \brief What happens after a click on delete button in the replay menu
-    static bool mREMDeleteButtonPressed   (const CEGUI::EventArgs& e);
-
-    //! \brief What happens after a single click on the replay list in the replay menu
-    static bool mREMListClicked         (const CEGUI::EventArgs& e);
-
-    //! \brief What happens after a double click on the replay list in the replay menu
-    static bool mREMListDoubleClicked   (const CEGUI::EventArgs& e);
     static bool dormitoryButtonPressed  (const CEGUI::EventArgs& e);
     static bool treasuryButtonPressed   (const CEGUI::EventArgs& e);
     static bool destroyRoomButtonPressed(const CEGUI::EventArgs& e);

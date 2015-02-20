@@ -85,9 +85,10 @@ public:
     //! Used for example, to load the corresponding Gui Sheet
     virtual void activate() = 0;
 
-    void regressMode()
+    bool regressMode(const CEGUI::EventArgs& = {})
     {
         mModeManager->requestUnloadToParentMode();
+        return true;
     }
 
     ModeManager::ModeType getModeType() const
@@ -106,9 +107,13 @@ public:
     virtual void onFrameStarted(const Ogre::FrameEvent& evt) {};
     virtual void onFrameEnded(const Ogre::FrameEvent& evt) {};
 
-    virtual void exitMode() {}
-
     GameEntity* getEntityFromOgreName(const std::string& entityName);
+
+    bool changeModeEvent(ModeManager::ModeType mode, const CEGUI::EventArgs&)
+    {
+        getModeManager().requestMode(mode);
+        return true;
+    }
 
 protected:
     ModeManager& getModeManager()
@@ -117,13 +122,6 @@ protected:
     }
 
     void subscribeCloseButton(CEGUI::Window& rootWindow);
-
-    //! \brief Utility function that calls regressMode, used for events
-    inline bool regressModeEvent(const CEGUI::EventArgs&)
-    {
-        regressMode();
-        return true;
-    }
 
     inline void addEventConnection(CEGUI::Event::Connection conn)
     {
@@ -142,6 +140,7 @@ protected:
     // The game mode type;
     ModeManager::ModeType mModeType;
 
+private:
     // Vector of cegui event bindings to be cleared on exiting the mode
     std::vector<CEGUI::Event::Connection> mEventConnections;
 };

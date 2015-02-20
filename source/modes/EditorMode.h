@@ -55,8 +55,6 @@ public:
         return mGameMap;
     }
 
-    virtual void exitMode();
-
     virtual void notifyGuiAction(GuiAction guiAction);
 
 private:

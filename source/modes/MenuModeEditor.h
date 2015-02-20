@@ -25,18 +25,12 @@ class MenuModeEditor: public AbstractApplicationMode
 public:
     MenuModeEditor(ModeManager*);
 
-    virtual ~MenuModeEditor();
-
     //! \brief Called when the game mode is activated
     //! Used to call the corresponding Gui Sheet.
-    void activate();
+    void activate() final override;
 
-    void launchSelectedButtonPressed();
-    void updateDescription();
-
-    void listLevelsClicked();
-    void listLevelsDoubleClicked();
-
+    bool launchSelectedButtonPressed(const CEGUI::EventArgs&);
+    bool updateDescription(const CEGUI::EventArgs&);
 private:
     std::vector<std::string> mFilesList;
     std::vector<std::string> mDescriptionList;

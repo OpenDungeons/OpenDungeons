@@ -46,11 +46,31 @@ const std::string COMBOBOX_PLAYER_PREFIX = "ComboPlayerSeat";
 MenuModeConfigureSeats::MenuModeConfigureSeats(ModeManager *modeManager):
     AbstractApplicationMode(modeManager, ModeManager::MENU_CONFIGURE_SEATS)
 {
+    CEGUI::Window* window = modeManager->getGui().getGuiSheet(Gui::guiSheet::configureSeats);
+    addEventConnection(
+        window->getChild(Gui::CSM_BUTTON_LAUNCH)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&MenuModeConfigureSeats::launchSelectedButtonPressed, this)
+        )
+    );
+    addEventConnection(
+        window->getChild(Gui::CSM_BUTTON_BACK)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&MenuModeConfigureSeats::goBack, this)
+        )
+    );
+    subscribeCloseButton(*window->getChild("ListPlayers"));
+    addEventConnection(
+        window->getChild("ListPlayers/__auto_closebutton__")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&MenuModeConfigureSeats::goBack, this)
+        )
+    );
 }
 
 MenuModeConfigureSeats::~MenuModeConfigureSeats()
 {
-    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers");
+    CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers");
     for(Seat* seat : mSeats)
     {
         std::string name;
@@ -68,7 +88,7 @@ MenuModeConfigureSeats::~MenuModeConfigureSeats()
 void MenuModeConfigureSeats::activate()
 {
     // Loads the corresponding Gui sheet.
-    Gui::getSingleton().loadGuiSheet(Gui::guiSheet::configureSeats);
+    getModeManager().getGui().loadGuiSheet(Gui::guiSheet::configureSeats);
 
     giveFocus();
 
@@ -81,8 +101,8 @@ void MenuModeConfigureSeats::activate()
     gameMap->setGamePaused(true);
 
     CEGUI::WindowManager& winMgr = CEGUI::WindowManager::getSingleton();
-    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers");
-    CEGUI::Window* msgWin = Gui::getSingleton().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("LoadingText");
+    CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers");
+    CEGUI::Window* msgWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("LoadingText");
     msgWin->setText("Loading...");
     msgWin->setVisible(false);
 
@@ -263,24 +283,25 @@ void MenuModeConfigureSeats::activate()
         offset += 30;
     }
 
-    tmpWin = Gui::getSingleton().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers/LaunchGameButton");
+    tmpWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers/LaunchGameButton");
     tmpWin->setEnabled(enabled);
 
     // We notify the server we are ready to recceive players and configure them
     ODClient::getSingleton().queueClientNotification(ClientNotificationType::readyForSeatConfiguration);
 }
 
-void MenuModeConfigureSeats::launchSelectedButtonPressed()
+bool MenuModeConfigureSeats::launchSelectedButtonPressed(const CEGUI::EventArgs&)
 {
     // We send to the server the associations faction/seat/player
     // It will be responsible to disconnect the unselected players
     if(!ODServer::getSingleton().isConnected())
-        return;
+        return true;
 
     fireSeatConfigurationToServer(true);
+    return true;
 }
 
-void MenuModeConfigureSeats::goBack()
+bool MenuModeConfigureSeats::goBack(const CEGUI::EventArgs&)
 {
     // We disconnect client and, if we are server, the server
     ODClient::getSingleton().disconnect();
@@ -289,6 +310,7 @@ void MenuModeConfigureSeats::goBack()
         ODServer::getSingleton().stopServer();
     }
     regressMode();
+    return true;
 }
 
 bool MenuModeConfigureSeats::comboChanged(const CEGUI::EventArgs& ea)
@@ -304,7 +326,7 @@ bool MenuModeConfigureSeats::comboChanged(const CEGUI::EventArgs& ea)
        (selItem->getID() != 0) && // Can be several inactive players
        (selItem->getID() != 1)) // Can be several AI players
     {
-        CEGUI::Window* playersWin = Gui::getSingleton().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers");
+        CEGUI::Window* playersWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers");
         for(Seat* seat : mSeats)
         {
             // We only add players to combos where a human player can play
@@ -338,7 +360,7 @@ bool MenuModeConfigureSeats::comboChanged(const CEGUI::EventArgs& ea)
 void MenuModeConfigureSeats::addPlayer(const std::string& nick, int32_t id)
 {
     const CEGUI::Image* selImg = &CEGUI::ImageManager::getSingleton().get("OpenDungeonsSkin/SelectionBrush");
-    CEGUI::Window* playersWin = Gui::getSingleton().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers");
+    CEGUI::Window* playersWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers");
     bool isPlayerSet = false;
 
     mPlayers.push_back(std::pair<std::string, int32_t>(nick, id));
@@ -366,7 +388,7 @@ void MenuModeConfigureSeats::addPlayer(const std::string& nick, int32_t id)
 
 void MenuModeConfigureSeats::removePlayer(int32_t id)
 {
-    CEGUI::Window* playersWin = Gui::getSingleton().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers");
+    CEGUI::Window* playersWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers");
     for(std::vector<std::pair<std::string, int32_t> >::iterator it = mPlayers.begin(); it != mPlayers.end();)
     {
         std::pair<std::string, int32_t>& player = *it;
@@ -406,7 +428,7 @@ void MenuModeConfigureSeats::removePlayer(int32_t id)
 
 void MenuModeConfigureSeats::fireSeatConfigurationToServer(bool isFinal)
 {
-    CEGUI::Window* playersWin = Gui::getSingleton().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers");
+    CEGUI::Window* playersWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers");
     CEGUI::Combobox* combo;
     CEGUI::ListboxItem*	selItem;
     if(isFinal)
@@ -420,7 +442,7 @@ void MenuModeConfigureSeats::fireSeatConfigurationToServer(bool isFinal)
             selItem = combo->getSelectedItem();
             if(selItem == nullptr)
             {
-                CEGUI::Window* msgWin = Gui::getSingleton().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("LoadingText");
+                CEGUI::Window* msgWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("LoadingText");
                 msgWin->setText("Faction is not well configured for seat " + Ogre::StringConverter::toString(seat->getId()));
                 msgWin->setVisible(true);
                 return;
@@ -430,7 +452,7 @@ void MenuModeConfigureSeats::fireSeatConfigurationToServer(bool isFinal)
             selItem = combo->getSelectedItem();
             if(selItem == nullptr)
             {
-                CEGUI::Window* msgWin = Gui::getSingleton().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("LoadingText");
+                CEGUI::Window* msgWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("LoadingText");
                 msgWin->setText("Player is not well configured for seat " + Ogre::StringConverter::toString(seat->getId()));
                 msgWin->setVisible(true);
                 return;
@@ -440,7 +462,7 @@ void MenuModeConfigureSeats::fireSeatConfigurationToServer(bool isFinal)
             selItem = combo->getSelectedItem();
             if(selItem == nullptr)
             {
-                CEGUI::Window* msgWin = Gui::getSingleton().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("LoadingText");
+                CEGUI::Window* msgWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("LoadingText");
                 msgWin->setText("Player is not well configured for seat " + Ogre::StringConverter::toString(seat->getId()));
                 msgWin->setVisible(true);
                 return;
@@ -506,7 +528,7 @@ void MenuModeConfigureSeats::refreshSeatConfiguration(ODPacket& packet)
     if(ODServer::getSingleton().isConnected())
         return;
 
-    CEGUI::Window* playersWin = Gui::getSingleton().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers");
+    CEGUI::Window* playersWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers");
     CEGUI::Combobox* combo;
     bool isSelected;
     for(Seat* seat : mSeats)

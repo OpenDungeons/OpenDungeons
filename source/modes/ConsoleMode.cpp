@@ -36,7 +36,7 @@ ConsoleMode::ConsoleMode(ModeManager* modeManager):
 {
     ConsoleCommands::addConsoleCommands(mConsoleInterface);
 
-    CEGUI::Window* consoleRootWindow = Gui::getSingleton().getGuiSheet(Gui::guiSheet::console);
+    CEGUI::Window* consoleRootWindow = modeManager->getGui().getGuiSheet(Gui::guiSheet::console);
     assert(consoleRootWindow != nullptr);
     CEGUI::Window* listbox = consoleRootWindow->getChild("ConsoleHistoryWindow");
     assert(listbox->getType().compare("OD/Listbox") == 0);
@@ -53,14 +53,10 @@ ConsoleMode::ConsoleMode(ModeManager* modeManager):
     subscribeCloseButton(*consoleRootWindow);
 }
 
-ConsoleMode::~ConsoleMode()
-{
-}
-
 void ConsoleMode::activate()
 {
     // Loads the corresponding Gui sheet.
-    Gui::getSingleton().loadGuiSheet(Gui::console);
+    getModeManager().getGui().loadGuiSheet(Gui::console);
     mEditboxWindow->activate();
     giveFocus();
 }

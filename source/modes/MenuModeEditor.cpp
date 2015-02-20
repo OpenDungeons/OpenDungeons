@@ -42,16 +42,39 @@ const std::string LEVEL_EXTENSION = ".level";
 MenuModeEditor::MenuModeEditor(ModeManager *modeManager):
     AbstractApplicationMode(modeManager, ModeManager::MENU_EDITOR)
 {
-}
-
-MenuModeEditor::~MenuModeEditor()
-{
+    CEGUI::Window* window = modeManager->getGui().getGuiSheet(Gui::guiSheet::editorMenu);
+    addEventConnection(
+        window->getChild(Gui::EDM_BUTTON_BACK)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&MenuModeEditor::regressMode,
+                                     static_cast<AbstractApplicationMode*>(this))
+        )
+    );
+    addEventConnection(
+        window->getChild(Gui::EDM_BUTTON_LAUNCH)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&MenuModeEditor::launchSelectedButtonPressed, this)
+        )
+    );
+    addEventConnection(
+        window->getChild(Gui::EDM_LIST_LEVELS)->subscribeEvent(
+            CEGUI::Listbox::EventMouseDoubleClick,
+            CEGUI::Event::Subscriber(&MenuModeEditor::launchSelectedButtonPressed, this)
+        )
+    );
+    addEventConnection(
+        window->getChild(Gui::EDM_LIST_LEVELS)->subscribeEvent(
+            CEGUI::Listbox::EventMouseClick,
+            CEGUI::Event::Subscriber(&MenuModeEditor::updateDescription, this)
+        )
+    );
+    subscribeCloseButton(*window->getChild("LevelWindowFrame"));
 }
 
 void MenuModeEditor::activate()
 {
     // Loads the corresponding Gui sheet.
-    Gui::getSingleton().loadGuiSheet(Gui::editorMenu);
+    getModeManager().getGui().loadGuiSheet(Gui::editorMenu);
 
     giveFocus();
 
@@ -64,10 +87,10 @@ void MenuModeEditor::activate()
     gameMap->processDeletionQueues();
     gameMap->setGamePaused(true);
 
-    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::editorMenu)->getChild(Gui::EDM_LIST_LEVELS);
+    CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::editorMenu)->getChild(Gui::EDM_LIST_LEVELS);
     CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);
 
-    tmpWin = Gui::getSingleton().getGuiSheet(Gui::editorMenu)->getChild(Gui::EDM_TEXT_LOADING);
+    tmpWin = getModeManager().getGui().getGuiSheet(Gui::editorMenu)->getChild(Gui::EDM_TEXT_LOADING);
     tmpWin->hide();
     mFilesList.clear();
     mDescriptionList.clear();
@@ -144,20 +167,20 @@ void MenuModeEditor::activate()
     }
 }
 
-void MenuModeEditor::launchSelectedButtonPressed()
+bool MenuModeEditor::launchSelectedButtonPressed(const CEGUI::EventArgs&)
 {
-    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::editorMenu)->getChild(Gui::EDM_LIST_LEVELS);
+    CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::editorMenu)->getChild(Gui::EDM_LIST_LEVELS);
     CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);
 
     if(levelSelectList->getSelectedCount() == 0)
     {
-        tmpWin = Gui::getSingleton().getGuiSheet(Gui::editorMenu)->getChild(Gui::EDM_TEXT_LOADING);
+        tmpWin = getModeManager().getGui().getGuiSheet(Gui::editorMenu)->getChild(Gui::EDM_TEXT_LOADING);
         tmpWin->setText("Please select a level first.");
         tmpWin->show();
-        return;
+        return true;
     }
 
-    tmpWin = Gui::getSingleton().getGuiSheet(Gui::editorMenu)->getChild(Gui::EDM_TEXT_LOADING);
+    tmpWin = getModeManager().getGui().getGuiSheet(Gui::editorMenu)->getChild(Gui::EDM_TEXT_LOADING);
     tmpWin->setText("Loading...");
     tmpWin->show();
 
@@ -170,7 +193,7 @@ void MenuModeEditor::launchSelectedButtonPressed()
     if(!ODServer::getSingleton().startServer(level, ODServer::ServerMode::ModeEditor))
     {
         LogManager::getSingleton().logMessage("ERROR: Could not start server for editor !!!");
-        tmpWin = Gui::getSingleton().getGuiSheet(Gui::editorMenu)->getChild(Gui::EDM_TEXT_LOADING);
+        tmpWin = getModeManager().getGui().getGuiSheet(Gui::editorMenu)->getChild(Gui::EDM_TEXT_LOADING);
         tmpWin->setText("ERROR: Could not start server for editor !!!");
         tmpWin->show();
     }
@@ -178,25 +201,26 @@ void MenuModeEditor::launchSelectedButtonPressed()
     if(!ODClient::getSingleton().connect("localhost", ConfigManager::getSingleton().getNetworkPort()))
     {
         LogManager::getSingleton().logMessage("ERROR: Could not connect to server for editor !!!");
-        tmpWin = Gui::getSingleton().getGuiSheet(Gui::editorMenu)->getChild(Gui::EDM_TEXT_LOADING);
+        tmpWin = getModeManager().getGui().getGuiSheet(Gui::editorMenu)->getChild(Gui::EDM_TEXT_LOADING);
         tmpWin->setText("Error: Couldn't connect to local server!");
         tmpWin->show();
-        return;
+        return true;
     }
+    return true;
 }
 
-void MenuModeEditor::updateDescription()
+bool MenuModeEditor::updateDescription(const CEGUI::EventArgs&)
 {
     // Get the level corresponding id
-    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::editorMenu)->getChild(Gui::SKM_LIST_LEVELS);
+    CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::editorMenu)->getChild(Gui::SKM_LIST_LEVELS);
     CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);
 
-    CEGUI::Window* descTxt = Gui::getSingleton().getGuiSheet(Gui::editorMenu)->getChild("LevelWindowFrame/MapDescriptionText");
+    CEGUI::Window* descTxt = getModeManager().getGui().getGuiSheet(Gui::editorMenu)->getChild("LevelWindowFrame/MapDescriptionText");
 
     if(levelSelectList->getSelectedCount() == 0)
     {
         descTxt->setText("");
-        return;
+        return true;
     }
 
     CEGUI::ListboxItem* selItem = levelSelectList->getFirstSelectedItem();
@@ -204,15 +228,5 @@ void MenuModeEditor::updateDescription()
 
     std::string description = mDescriptionList[id];
     descTxt->setText(description);
+    return true;
 }
-
-void MenuModeEditor::listLevelsClicked()
-{
-    updateDescription();
-}
-
-void MenuModeEditor::listLevelsDoubleClicked()
-{
-    launchSelectedButtonPressed();
-}
-

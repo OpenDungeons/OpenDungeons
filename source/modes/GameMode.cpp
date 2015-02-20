@@ -41,6 +41,7 @@
 
 #include <CEGUI/WindowManager.h>
 #include <CEGUI/widgets/PushButton.h>
+#include <CEGUI/widgets/ToggleButton.h>
 
 #include <OgreRoot.h>
 #include <OgreRenderWindow.h>
@@ -57,7 +58,7 @@ GameMode::GameMode(ModeManager *modeManager):
     AbstractApplicationMode(modeManager, ModeManager::GAME),
     mDigSetBool(false),
     mGameMap(ODFrameListener::getSingletonPtr()->getClientGameMap()),
-    mMiniMap(Gui::getSingleton().getGuiSheet(Gui::guiSheet::inGameMenu)->getChild(Gui::MINIMAP)),
+    mMiniMap(modeManager->getGui().getGuiSheet(Gui::guiSheet::inGameMenu)->getChild(Gui::MINIMAP)),
     mMouseX(0),
     mMouseY(0),
     mCurrentInputMode(InputModeNormal),
@@ -72,8 +73,21 @@ GameMode::GameMode(ModeManager *modeManager):
 
 GameMode::~GameMode()
 {
+    CEGUI::ToggleButton* checkBox =
+        dynamic_cast<CEGUI::ToggleButton*>(
+            getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild(
+                Gui::EXIT_CONFIRMATION_POPUP)->getChild("SaveReplayCheckbox"));
+    if(ODClient::getSingleton().isConnected())
+        ODClient::getSingleton().disconnect(checkBox->isSelected());
+    if(ODServer::getSingleton().isConnected())
+        ODServer::getSingleton().stopServer();
+
+    // Now that the server is stopped, we can clear the client game map
+    ODFrameListener::getSingleton().getClientGameMap()->clearAll();
+    ODFrameListener::getSingleton().getClientGameMap()->processDeletionQueues();
+
     if (mHelpWindow != nullptr)
-        mHelpWindow->destroy();
+        CEGUI::WindowManager::getSingleton().destroyWindow(mHelpWindow);
 }
 
 //! \brief Gets the CEGUI ImageColours string property (AARRGGBB format) corresponding
@@ -88,7 +102,7 @@ std::string getImageColoursStringFromColourValue(const Ogre::ColourValue& color)
 void GameMode::activate()
 {
     // Loads the corresponding Gui sheet.
-    Gui& gui = Gui::getSingleton();
+    Gui& gui = getModeManager().getGui();
     gui.loadGuiSheet(Gui::inGameMenu);
 
     // Hides the exit pop-up and certain buttons only used by the editor.
@@ -385,7 +399,7 @@ void GameMode::handleMouseWheel(const OIS::MouseEvent& arg)
 bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 {
     CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(
-        Gui::getSingletonPtr()->convertButton(id));
+        Gui::convertButton(id));
 
     if (!isConnected())
         return true;
@@ -588,7 +602,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
 bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 {
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(Gui::getSingletonPtr()->convertButton(id));
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(Gui::convertButton(id));
 
     InputManager* inputManager = mModeManager->getInputManager();
 
@@ -990,28 +1004,13 @@ void GameMode::popupExit(bool pause)
 {
     if(pause)
     {
-        Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild(Gui::EXIT_CONFIRMATION_POPUP)->show();
+        getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild(Gui::EXIT_CONFIRMATION_POPUP)->show();
     }
     else
     {
-        Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild(Gui::EXIT_CONFIRMATION_POPUP)->hide();
+        getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild(Gui::EXIT_CONFIRMATION_POPUP)->hide();
     }
     mGameMap->setGamePaused(pause);
-}
-
-
-void GameMode::exitMode()
-{
-    CEGUI::Window* checkBox = Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild(Gui::EXIT_CONFIRMATION_POPUP)->getChild("SaveReplayCheckbox");
-    bool keepReplay = (checkBox->getProperty("Selected") == "True") ? true : false;
-    if(ODClient::getSingleton().isConnected())
-        ODClient::getSingleton().disconnect(keepReplay);
-    if(ODServer::getSingleton().isConnected())
-        ODServer::getSingleton().stopServer();
-
-    // Now that the server is stopped, we can clear the client game map
-    ODFrameListener::getSingleton().getClientGameMap()->clearAll();
-    ODFrameListener::getSingleton().getClientGameMap()->processDeletionQueues();
 }
 
 void GameMode::notifyGuiAction(GuiAction guiAction)
@@ -1045,17 +1044,17 @@ void GameMode::notifyGuiAction(GuiAction guiAction)
 
 void GameMode::showObjectivesWindow()
 {
-    Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild("ObjectivesWindow")->show();
+    getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("ObjectivesWindow")->show();
 }
 
 void GameMode::hideObjectivesWindow()
 {
-    Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild("ObjectivesWindow")->hide();
+    getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("ObjectivesWindow")->hide();
 }
 
 void GameMode::toggleObjectivesWindow()
 {
-    CEGUI::Window* objectives = Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild("ObjectivesWindow");
+    CEGUI::Window* objectives = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("ObjectivesWindow");
     if (objectives == nullptr)
         return;
 
@@ -1069,12 +1068,12 @@ void GameMode::showOptionsWindow()
 {
     // FIXME: For now, we show the settings window directly.
     // Later the option menu with save load and settings button can be added.
-    Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild("SettingsWindow")->show();
+    getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("SettingsWindow")->show();
 }
 
 void GameMode::hideOptionsWindow()
 {
-    Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild("SettingsWindow")->hide();
+    getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("SettingsWindow")->hide();
 }
 
 void GameMode::showHelpWindow()
@@ -1187,7 +1186,7 @@ void GameMode::refreshGuiResearch()
     localPlayer->guiResearchRefreshedDone();
 
     // We show/hide the icons depending on available researches
-    CEGUI::Window* guiSheet = Gui::getSingleton().getGuiSheet(Gui::inGameMenu);
+    CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::inGameMenu);
     if(localPlayer->isResearchDone(ResearchType::roomDormitory))
         guiSheet->getChild(Gui::BUTTON_DORMITORY)->show();
     else

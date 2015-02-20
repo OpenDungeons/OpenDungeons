@@ -25,20 +25,16 @@ class MenuModeReplay: public AbstractApplicationMode
 public:
     MenuModeReplay(ModeManager*);
 
-    virtual ~MenuModeReplay();
-
     //! \brief Called when the game mode is activated
     //! Used to call the corresponding Gui Sheet.
-    void activate();
+    void activate() final override;
 
-    void launchSelectedButtonPressed();
-    void deleteSelectedButtonPressed();
-
-    void listReplaysClicked();
-    void listReplaysDoubleClicked();
+    bool launchSelectedButtonPressed(const CEGUI::EventArgs&);
+    bool deleteSelectedButtonPressed(const CEGUI::EventArgs&);
+    bool listReplaysClicked(const CEGUI::EventArgs&);
+private:
     bool checkReplayValid(const std::string& replayFileName, std::string& mapDescription, std::string& errorMsg);
 
-private:
     std::vector<std::string> mFilesList;
 };
 

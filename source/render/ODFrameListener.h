@@ -36,16 +36,15 @@
 //(so that dll import/export macros are in effect)
 #define OIS_DYNAMIC_LIB
 #include <OISMouse.h>
+#include "modes/ModeManager.h"
 
 #include <deque>
+#include <memory>
 
-class RenderManager;
-class AbstractApplicationMode;
-class ModeManager;
-class CameraManager;
 class ChatMessage;
 class GameMap;
-class CameraManager;
+class Gui;
+class RenderManager;
 
 namespace Ogre
 {
@@ -69,7 +68,7 @@ friend class ODClient;
 
 public:
     // Constructor takes a RenderWindow because it uses that to determine input context
-    ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::OverlaySystem* overLaySystem);
+    ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::OverlaySystem* overLaySystem, Gui* gui);
     virtual ~ODFrameListener();
 
     void requestExit();
@@ -96,9 +95,6 @@ public:
     //! \brief Adjust mouse clipping area
     virtual void windowResized(Ogre::RenderWindow* rw);
 
-    //! \brief Unattach OIS before window shutdown (very important under Linux)
-    virtual void windowClosed(Ogre::RenderWindow* rw);
-
     /*! \brief The main function for the OGRE 3d environment.
      *
      * This function is triggered by Ogre 3D once all the rendering has been bound to GPU,
@@ -123,13 +119,13 @@ public:
     void printText(const std::string& text);
 
     inline GameMap* getClientGameMap()
-    { return mGameMap; }
+    { return mGameMap.get(); }
 
     inline const GameMap* getClientGameMap() const
-    { return mGameMap; }
+    { return mGameMap.get(); }
 
-    inline ModeManager* getModeManager() const
-    { return mModeManager; }
+    inline ModeManager* getModeManager()
+    { return &mModeManager; }
 
     inline Ogre::RenderWindow* getRenderWindow()
     { return mWindow; }
@@ -153,7 +149,7 @@ public:
 
     CameraManager* getCameraManager()
     {
-        return mCameraManager;
+        return &mCameraManager;
     }
 
 private:
@@ -163,19 +159,22 @@ private:
     //! \brief The Ogre render window reference. Don't delete it.
     Ogre::RenderWindow* mWindow;
 
-    ModeManager*            mModeManager;
+    //! \brief Foreign reference to gui.
+    Gui*                 mGui;
+    std::unique_ptr<RenderManager> mRenderManager;
+    std::unique_ptr<GameMap>       mGameMap;
+    ModeManager          mModeManager;
 
-    bool                    mShowDebugInfo;
-    bool                    mContinue;
-    int                     mTerminalWordWrap;
-    unsigned int            mChatMaxMessages;
-    float                   mChatMaxTimeDisplay;
+    bool                 mShowDebugInfo;
+    bool                 mContinue;
+    int                  mTerminalWordWrap;
+    unsigned int         mChatMaxMessages;
+    float                mChatMaxTimeDisplay;
 
     //! \brief Reference to the Ogre ray scene query handler. Don't delete it.
-    Ogre::RaySceneQuery*    mRaySceneQuery;
+    Ogre::RaySceneQuery* mRaySceneQuery;
 
-    Ogre::Timer             mStatsDisplayTimer;
-    GameMap*                mGameMap;
+    Ogre::Timer          mStatsDisplayTimer;
 
     //! \brief To see if the frameListener wants to exit
     bool mExitRequested;
@@ -183,7 +182,7 @@ private:
     std::deque<ChatMessage*> mChatMessages;
 
     //! \brief The Camera manager
-    CameraManager* mCameraManager;
+    CameraManager mCameraManager;
 
     //! \brief The chat string for the local player
     std::string mChatString;

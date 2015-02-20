@@ -22,29 +22,21 @@
 
 #include "render/Gui.h"
 
-#include "entities/Tile.h"
-#include "render/ODFrameListener.h"
-#include "gamemap/GameMap.h"
-#include "game/Player.h"
-#include "traps/Trap.h"
-#include "render/TextRenderer.h"
 #include "ODApplication.h"
-#include "network/ODServer.h"
-#include "network/ODClient.h"
-#include "camera/CameraManager.h"
-#include "modes/ModeManager.h"
-#include "modes/GameMode.h"
+#include "entities/Tile.h"
+#include "game/Player.h"
+#include "gamemap/GameMap.h"
 #include "modes/EditorMode.h"
-#include "modes/MenuModeConfigureSeats.h"
-#include "modes/MenuModeSkirmish.h"
-#include "modes/MenuModeMultiplayerClient.h"
-#include "modes/MenuModeMultiplayerServer.h"
-#include "modes/MenuModeEditor.h"
-#include "modes/MenuModeReplay.h"
-#include "utils/LogManager.h"
+#include "modes/GameMode.h"
+#include "modes/ModeManager.h"
+#include "network/ODClient.h"
+#include "network/ODServer.h"
+#include "render/ODFrameListener.h"
 #include "rooms/Room.h"
 #include "sound/SoundEffectsManager.h"
 #include "spell/Spell.h"
+#include "traps/Trap.h"
+#include "utils/LogManager.h"
 
 #include <CEGUI/CEGUI.h>
 #include <CEGUI/RendererModules/Ogre/Renderer.h>
@@ -55,8 +47,6 @@
 #include <CEGUI/WindowManager.h>
 #include <CEGUI/widgets/PushButton.h>
 #include <CEGUI/Event.h>
-
-template<> Gui* Ogre::Singleton<Gui>::msSingleton = nullptr;
 
 Gui::Gui(SoundEffectsManager* soundEffectsManager, const std::string& ceguiLogFileName)
   : mSoundEffectsManager(soundEffectsManager)
@@ -95,6 +85,8 @@ Gui::Gui(SoundEffectsManager* soundEffectsManager, const std::string& ceguiLogFi
     mSheets[console] = wmgr->loadLayoutFromFile("OpenDungeonsConsole.layout");
 
     assignEventHandlers();
+
+    //Add sound to button clicks and selection
     CEGUI::GlobalEventSet& ges = CEGUI::GlobalEventSet::getSingleton();
     ges.subscribeEvent(
         CEGUI::PushButton::EventNamespace + "/" + CEGUI::PushButton::EventClicked,
@@ -143,8 +135,6 @@ CEGUI::Window* Gui::getGuiSheet(const guiSheet& sheet)
 
 void Gui::assignEventHandlers()
 {
-    //std::cout << "Gui::assignEventHandlers()" << std::endl;
-
     CEGUI::Window* rootWindow = mSheets[inGameMenu];
 
     if (rootWindow == nullptr)
@@ -152,31 +142,6 @@ void Gui::assignEventHandlers()
         LogManager::getSingleton().logMessage("Gui: No root window!");
         return;
     }
-
-    // Main menu controls
-    mSheets[mainMenu]->getChild(MM_BUTTON_START_SKIRMISH)->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&mMNewGameButtonPressed));
-
-    mSheets[mainMenu]->getChild(MM_BUTTON_START_REPLAY)->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&mMReplayButtonPressed));
-
-    mSheets[mainMenu]->getChild(MM_BUTTON_START_MULTIPLAYER_CLIENT)->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&mMNewGameMultiClientButtonPressed));
-
-    mSheets[mainMenu]->getChild(MM_BUTTON_START_MULTIPLAYER_SERVER)->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&mMNewGameMultiServerButtonPressed));
-
-    mSheets[mainMenu]->getChild(MM_BUTTON_MAPEDITOR)->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&mMMapEditorButtonPressed));
-
-    mSheets[mainMenu]->getChild(MM_BUTTON_QUIT)->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&mMQuitButtonPressed));
 
     // Game Mode controls
     mSheets[inGameMenu]->getChild(BUTTON_DORMITORY)->subscribeEvent(
@@ -375,106 +340,6 @@ void Gui::assignEventHandlers()
             CEGUI::Window::EventMouseClick,
             CEGUI::Event::Subscriber(&fighterCreatureButtonPressed));
 
-    // Skirmish level select menu controls
-    mSheets[skirmishMenu]->getChild(SKM_BUTTON_LAUNCH)->subscribeEvent(
-        CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&mSKMLoadButtonPressed));
-
-    mSheets[skirmishMenu]->getChild(SKM_BUTTON_BACK)->subscribeEvent(
-        CEGUI::PushButton::EventClicked,
-        CEGUI::Event::Subscriber(&mSKMBackButtonPressed));
-
-    mSheets[skirmishMenu]->getChild(SKM_LIST_LEVELS)->subscribeEvent(
-        CEGUI::Listbox::EventMouseClick,
-        CEGUI::Event::Subscriber(&mSKMListClicked));
-
-    mSheets[skirmishMenu]->getChild(SKM_LIST_LEVELS)->subscribeEvent(
-        CEGUI::Listbox::EventMouseDoubleClick,
-        CEGUI::Event::Subscriber(&mSKMListDoubleClicked));
-
-    // Multiplayer menu controls
-    // Server part
-    mSheets[multiplayerServerMenu]->getChild(MPM_BUTTON_SERVER)->subscribeEvent(
-        CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&mMPMServerButtonPressed));
-
-    mSheets[multiplayerServerMenu]->getChild(MPM_LIST_LEVELS)->subscribeEvent(
-        CEGUI::Listbox::EventMouseClick,
-        CEGUI::Event::Subscriber(&mMPMListClicked));
-
-    mSheets[multiplayerServerMenu]->getChild(MPM_LIST_LEVELS)->subscribeEvent(
-        CEGUI::Listbox::EventMouseDoubleClick,
-        CEGUI::Event::Subscriber(&mMPMListDoubleClicked));
-
-    mSheets[multiplayerServerMenu]->getChild(MPM_BUTTON_BACK)->subscribeEvent(
-        CEGUI::PushButton::EventClicked,
-        CEGUI::Event::Subscriber(&mMPMBackButtonPressed));
-
-    mSheets[multiplayerServerMenu]->getChild("LevelWindowFrame/__auto_closebutton__")->subscribeEvent(
-        CEGUI::PushButton::EventClicked,
-        CEGUI::Event::Subscriber(&mMPMBackButtonPressed));
-
-    // Client part
-    mSheets[multiplayerClientMenu]->getChild(MPM_BUTTON_CLIENT)->subscribeEvent(
-        CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&mMPMClientButtonPressed));
-
-    mSheets[multiplayerClientMenu]->getChild(MPM_BUTTON_BACK)->subscribeEvent(
-        CEGUI::PushButton::EventClicked,
-        CEGUI::Event::Subscriber(&mMPMBackButtonPressed));
-
-    mSheets[multiplayerClientMenu]->getChild("LevelWindowFrame/__auto_closebutton__")->subscribeEvent(
-        CEGUI::PushButton::EventClicked,
-        CEGUI::Event::Subscriber(&mMPMBackButtonPressed));
-
-    // Editor level select menu controls
-    mSheets[editorMenu]->getChild(EDM_BUTTON_LAUNCH)->subscribeEvent(
-        CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&mEDMLoadButtonPressed));
-
-    mSheets[editorMenu]->getChild(EDM_BUTTON_BACK)->subscribeEvent(
-        CEGUI::PushButton::EventClicked,
-        CEGUI::Event::Subscriber(&mEDMBackButtonPressed));
-
-    mSheets[editorMenu]->getChild(EDM_LIST_LEVELS)->subscribeEvent(
-        CEGUI::Listbox::EventMouseClick,
-        CEGUI::Event::Subscriber(&mEDMListClicked));
-
-    mSheets[editorMenu]->getChild(EDM_LIST_LEVELS)->subscribeEvent(
-        CEGUI::Listbox::EventMouseDoubleClick,
-        CEGUI::Event::Subscriber(&mEDMListDoubleClicked));
-
-    // Configure seats windows
-    mSheets[configureSeats]->getChild(CSM_BUTTON_BACK)->subscribeEvent(
-        CEGUI::PushButton::EventClicked,
-        CEGUI::Event::Subscriber(&mCSMBackButtonPressed));
-
-    mSheets[configureSeats]->getChild(CSM_BUTTON_LAUNCH)->subscribeEvent(
-        CEGUI::PushButton::EventClicked,
-        CEGUI::Event::Subscriber(&mCSMLoadButtonPressed));
-
-    // Replay menu controls
-    mSheets[replayMenu]->getChild(REM_BUTTON_LAUNCH)->subscribeEvent(
-        CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&mREMLoadButtonPressed));
-
-    // Replay menu controls
-    mSheets[replayMenu]->getChild(REM_BUTTON_DELETE)->subscribeEvent(
-        CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&mREMDeleteButtonPressed));
-
-    mSheets[replayMenu]->getChild(REM_BUTTON_BACK)->subscribeEvent(
-        CEGUI::PushButton::EventClicked,
-        CEGUI::Event::Subscriber(&mREMBackButtonPressed));
-
-    mSheets[replayMenu]->getChild(REM_LIST_REPLAYS)->subscribeEvent(
-        CEGUI::Listbox::EventMouseClick,
-        CEGUI::Event::Subscriber(&mREMListClicked));
-
-    mSheets[replayMenu]->getChild(REM_LIST_REPLAYS)->subscribeEvent(
-        CEGUI::Listbox::EventMouseDoubleClick,
-        CEGUI::Event::Subscriber(&mREMListDoubleClicked));
-
     // Set the game version
     mSheets[mainMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
     mSheets[skirmishMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
@@ -487,26 +352,6 @@ void Gui::assignEventHandlers()
 bool Gui::playButtonClickSound(const CEGUI::EventArgs&)
 {
     mSoundEffectsManager->playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
-    return true;
-}
-
-bool Gui::mMNewGameMultiClientButtonPressed(const CEGUI::EventArgs& e)
-{
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm)
-        return true;
-
-    mm->requestMenuMultiplayerClientMode();
-    return true;
-}
-
-bool Gui::mMNewGameMultiServerButtonPressed(const CEGUI::EventArgs& e)
-{
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm)
-        return true;
-
-    mm->requestMenuMultiplayerServerMode();
     return true;
 }
 
@@ -808,249 +653,6 @@ bool Gui::editorMapLightButtonPressed(const CEGUI::EventArgs& e)
         return true;
 
     mm->getCurrentMode()->notifyGuiAction(AbstractApplicationMode::GuiAction::ButtonPressedMapLight);
-    return true;
-}
-
-// MAIN MENU
-
-bool Gui::mMNewGameButtonPressed(const CEGUI::EventArgs& e)
-{
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm)
-        return true;
-
-    mm->requestMenuSingleplayerMode();
-    return true;
-}
-
-bool Gui::mMReplayButtonPressed(const CEGUI::EventArgs& e)
-{
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm)
-        return true;
-
-    mm->requestMenuReplayMode();
-    return true;
-}
-
-bool Gui::mMMapEditorButtonPressed(const CEGUI::EventArgs& e)
-{
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm)
-        return true;
-
-    mm->requestMenuEditorMode();
-    return true;
-}
-
-bool Gui::mMOptionsButtonPressed(const CEGUI::EventArgs& e)
-{
-    return true;
-}
-
-bool Gui::mMQuitButtonPressed(const CEGUI::EventArgs& e)
-{
-    ODFrameListener::getSingletonPtr()->requestExit();
-    return true;
-}
-
-bool Gui::mSKMBackButtonPressed(const CEGUI::EventArgs& e)
-{
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm)
-        return true;
-
-    mm->requestUnloadToParentMode();
-    return true;
-}
-
-bool Gui::mSKMListClicked(const CEGUI::EventArgs& e)
-{
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_SKIRMISH)
-        return true;
-
-    static_cast<MenuModeSkirmish*>(mm->getCurrentMode())->listLevelsClicked();
-    return true;
-}
-
-bool Gui::mSKMListDoubleClicked(const CEGUI::EventArgs& e)
-{
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_SKIRMISH)
-        return true;
-
-    static_cast<MenuModeSkirmish*>(mm->getCurrentMode())->listLevelsDoubleClicked();
-    return true;
-}
-
-bool Gui::mSKMLoadButtonPressed(const CEGUI::EventArgs& e)
-{
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_SKIRMISH)
-        return true;
-
-    static_cast<MenuModeSkirmish*>(mm->getCurrentMode())->launchSelectedButtonPressed();
-    return true;
-}
-
-bool Gui::mEDMBackButtonPressed(const CEGUI::EventArgs& e)
-{
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm)
-        return true;
-
-    mm->requestUnloadToParentMode();
-    return true;
-}
-
-bool Gui::mEDMListClicked(const CEGUI::EventArgs& e)
-{
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_EDITOR)
-        return true;
-
-    static_cast<MenuModeEditor*>(mm->getCurrentMode())->listLevelsClicked();
-    return true;
-}
-
-bool Gui::mEDMListDoubleClicked(const CEGUI::EventArgs& e)
-{
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_EDITOR)
-        return true;
-
-    static_cast<MenuModeEditor*>(mm->getCurrentMode())->listLevelsDoubleClicked();
-    return true;
-}
-
-bool Gui::mEDMLoadButtonPressed(const CEGUI::EventArgs& e)
-{
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_EDITOR)
-        return true;
-
-    static_cast<MenuModeEditor*>(mm->getCurrentMode())->launchSelectedButtonPressed();
-    return true;
-}
-
-bool Gui::mMPMBackButtonPressed(const CEGUI::EventArgs& e)
-{
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm)
-        return true;
-
-    mm->requestUnloadToParentMode();
-    return true;
-}
-
-bool Gui::mMPMListClicked(const CEGUI::EventArgs& e)
-{
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_MULTIPLAYER_SERVER)
-        return true;
-
-    static_cast<MenuModeMultiplayerServer*>(mm->getCurrentMode())->listLevelsClicked();
-    return true;
-}
-
-bool Gui::mMPMListDoubleClicked(const CEGUI::EventArgs& e)
-{
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_MULTIPLAYER_SERVER)
-        return true;
-
-    static_cast<MenuModeMultiplayerServer*>(mm->getCurrentMode())->listLevelsDoubleClicked();
-    return true;
-}
-
-bool Gui::mMPMServerButtonPressed(const CEGUI::EventArgs& e)
-{
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_MULTIPLAYER_SERVER)
-        return true;
-
-    static_cast<MenuModeMultiplayerServer*>(mm->getCurrentMode())->serverButtonPressed();
-    return true;
-}
-
-bool Gui::mMPMClientButtonPressed(const CEGUI::EventArgs& e)
-{
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_MULTIPLAYER_CLIENT)
-        return true;
-
-    static_cast<MenuModeMultiplayerClient*>(mm->getCurrentMode())->clientButtonPressed();
-    return true;
-}
-
-bool Gui::mCSMLoadButtonPressed(const CEGUI::EventArgs& e)
-{
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_CONFIGURE_SEATS)
-        return true;
-
-    static_cast<MenuModeConfigureSeats*>(mm->getCurrentMode())->launchSelectedButtonPressed();
-    return true;
-}
-
-bool Gui::mCSMBackButtonPressed(const CEGUI::EventArgs& e)
-{
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_CONFIGURE_SEATS)
-        return true;
-
-    static_cast<MenuModeConfigureSeats*>(mm->getCurrentMode())->goBack();
-    return true;
-}
-
-bool Gui::mREMBackButtonPressed(const CEGUI::EventArgs& e)
-{
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm)
-        return true;
-
-    mm->requestUnloadToParentMode();
-    return true;
-}
-
-bool Gui::mREMListClicked(const CEGUI::EventArgs& e)
-{
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_REPLAY)
-        return true;
-
-    static_cast<MenuModeReplay*>(mm->getCurrentMode())->listReplaysClicked();
-    return true;
-}
-
-bool Gui::mREMListDoubleClicked(const CEGUI::EventArgs& e)
-{
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_REPLAY)
-        return true;
-
-    static_cast<MenuModeReplay*>(mm->getCurrentMode())->listReplaysDoubleClicked();
-    return true;
-}
-
-bool Gui::mREMLoadButtonPressed(const CEGUI::EventArgs& e)
-{
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_REPLAY)
-        return true;
-
-    static_cast<MenuModeReplay*>(mm->getCurrentMode())->launchSelectedButtonPressed();
-    return true;
-}
-
-bool Gui::mREMDeleteButtonPressed(const CEGUI::EventArgs& e)
-{
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_REPLAY)
-        return true;
-
-    static_cast<MenuModeReplay*>(mm->getCurrentMode())->deleteSelectedButtonPressed();
     return true;
 }
 

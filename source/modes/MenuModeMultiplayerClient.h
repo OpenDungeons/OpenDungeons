@@ -25,13 +25,11 @@ class MenuModeMultiplayerClient: public AbstractApplicationMode
 public:
     MenuModeMultiplayerClient(ModeManager*);
 
-    virtual ~MenuModeMultiplayerClient();
-
     //! \brief Called when the game mode is activated
     //! Used to call the corresponding Gui Sheet.
-    void activate();
+    void activate() final override;
 
-    void clientButtonPressed();
+    bool clientButtonPressed(const CEGUI::EventArgs&);
 };
 
 #endif // MENUMODEMULTIPLAYERCLIENT_H

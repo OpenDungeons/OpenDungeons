@@ -84,8 +84,6 @@ class GameMode: public AbstractApplicationMode
     //! \brief Called when exit button is pressed
     void popupExit(bool pause);
 
-    virtual void exitMode();
-
     virtual void notifyGuiAction(GuiAction guiAction);
 
     //! \brief Shows/hides/toggles the help window

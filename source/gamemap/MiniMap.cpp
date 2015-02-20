@@ -124,7 +124,6 @@ void MiniMap::swap()
 
 void MiniMap::draw(const GameMap& gameMap)
 {
-
     for (int ii = 0, mm = mCamera_2dPosition.x - mWidth / (2 * mGrainSize); ii < static_cast<int>(mWidth); ++mm, ii += mGrainSize)
     {
         //NOTE: (0,0) is in the bottom left in the game map, top left in textures, so we are reversing y order here.

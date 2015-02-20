@@ -23,15 +23,42 @@
 #include "modes/ModeManager.h"
 #include "sound/MusicPlayer.h"
 
+#include <CEGUI/widgets/PushButton.h>
+
+//! \brief Helper functor to change modes
+class ModeChanger
+{
+public:
+    bool operator()(const CEGUI::EventArgs& e)
+    {
+        mMode->changeModeEvent(mNewMode, e);
+        return true;
+    }
+
+    MenuMode* mMode;
+    AbstractModeManager::ModeType mNewMode;
+};
+
 MenuMode::MenuMode(ModeManager *modeManager):
     AbstractApplicationMode(modeManager, ModeManager::MENU)
 {
+    connectModeChangeEvent(Gui::MM_BUTTON_MAPEDITOR, AbstractModeManager::ModeType::MENU_EDITOR);
+    connectModeChangeEvent(Gui::MM_BUTTON_START_SKIRMISH, AbstractModeManager::ModeType::MENU_SKIRMISH);
+    connectModeChangeEvent(Gui::MM_BUTTON_START_REPLAY, AbstractModeManager::ModeType::MENU_REPLAY);
+    connectModeChangeEvent(Gui::MM_BUTTON_START_MULTIPLAYER_CLIENT, AbstractModeManager::ModeType::MENU_MULTIPLAYER_CLIENT);
+    connectModeChangeEvent(Gui::MM_BUTTON_START_MULTIPLAYER_SERVER, AbstractModeManager::ModeType::MENU_MULTIPLAYER_SERVER);
+    addEventConnection(
+        getModeManager().getGui().getGuiSheet(Gui::mainMenu)->getChild(Gui::MM_BUTTON_QUIT)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&MenuMode::quitButtonPressed, this)
+        )
+    );
 }
 
 void MenuMode::activate()
 {
     // Loads the corresponding Gui sheet.
-    Gui::getSingleton().loadGuiSheet(Gui::mainMenu);
+    getModeManager().getGui().loadGuiSheet(Gui::mainMenu);
 
     giveFocus();
 
@@ -44,6 +71,20 @@ void MenuMode::activate()
     gameMap->setGamePaused(true);
 }
 
-MenuMode::~MenuMode()
+void MenuMode::connectModeChangeEvent(const std::string& buttonName, AbstractModeManager::ModeType mode)
 {
+    CEGUI::Window* window = getModeManager().getGui().getGuiSheet(Gui::mainMenu);
+
+    addEventConnection(
+        window->getChild(buttonName)->subscribeEvent(
+          CEGUI::PushButton::EventClicked,
+          CEGUI::Event::Subscriber(ModeChanger{this, mode})
+        )
+    );
+}
+
+bool MenuMode::quitButtonPressed(const CEGUI::EventArgs&)
+{
+    ODFrameListener::getSingletonPtr()->requestExit();
+    return true;
 }
