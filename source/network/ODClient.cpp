@@ -340,6 +340,8 @@ bool ODClient::processOneClientSocketMessage()
             Seat *tempSeat = gameMap->getSeatById(seatId);
             OD_ASSERT_TRUE_MSG(tempSeat != nullptr, "seatId=" + Ogre::StringConverter::toString(seatId));
 
+            // We reset the renderer
+            RenderManager::getSingleton().clearRenderer();
             // Move camera to starting position
             Ogre::Real startX = static_cast<Ogre::Real>(tempSeat->mStartingX);
             Ogre::Real startY = static_cast<Ogre::Real>(tempSeat->mStartingY);
@@ -347,7 +349,8 @@ bool ODClient::processOneClientSocketMessage()
             startY = startY - 7.0f;
             // Bound check
             if (startY <= 0.0)
-            startY = 0.0;
+                startY = 0.0;
+
             frameListener->setCameraPosition(Ogre::Vector3(startX, startY, MAX_CAMERA_Z));
             // If we are watching a replay, we force stopping the processing loop to
             // allow changing mode (because there is no synchronization as there is no server)

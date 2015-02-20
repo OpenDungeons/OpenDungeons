@@ -135,6 +135,9 @@ public:
     std::vector<Creature*> getCreaturesByAlliedSeat(Seat* seat);
     std::vector<Creature*> getCreaturesBySeat(Seat* seat);
 
+    inline const std::vector<Creature*>& getCreatures() const
+    { return mCreatures; }
+
     Creature* getWorkerToPickupBySeat(Seat* seat);
     Creature* getFighterToPickupBySeat(Seat* seat);
 

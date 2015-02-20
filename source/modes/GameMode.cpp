@@ -796,6 +796,12 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
         ODFrameListener::getSingleton().getCameraManager()->setNextDefaultView();
         break;
 
+    case OIS::KC_N:
+    {
+        RenderManager::getSingleton().rrToggleCreatureTextOverlay();
+        break;
+    }
+
     // Quit the game
     case OIS::KC_ESCAPE:
         popupExit(!mGameMap->getGamePaused());

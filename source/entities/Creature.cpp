@@ -36,6 +36,7 @@
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
 
+#include "render/MovableTextOverlay.h"
 #include "render/RenderManager.h"
 
 #include "rooms/RoomCrypt.h"
@@ -115,7 +116,8 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
     mMoodCooldownTurns       (0),
     mMoodValue               (CreatureMoodLevel::Neutral),
     mMoodPoints              (0),
-    mFirstTurnFurious        (-1)
+    mFirstTurnFurious        (-1),
+    mTextOverlay             (nullptr)
 
 {
     setMeshName(definition->getMeshName());
@@ -188,7 +190,8 @@ Creature::Creature(GameMap* gameMap) :
     mMoodCooldownTurns       (0),
     mMoodValue               (CreatureMoodLevel::Neutral),
     mMoodPoints              (0),
-    mFirstTurnFurious        (-1)
+    mFirstTurnFurious        (-1),
+    mTextOverlay             (nullptr)
 {
     setIsOnMap(false);
 
@@ -582,6 +585,11 @@ void Creature::update(Ogre::Real timeSinceLastFrame)
         // When they are attacking
         if (mAttackWarmupTime > 0.0)
             mAttackWarmupTime -= timeSinceLastFrame;
+    }
+
+    if(getTextOverlay() != nullptr)
+    {
+        getTextOverlay()->update(timeSinceLastFrame);
     }
 }
 

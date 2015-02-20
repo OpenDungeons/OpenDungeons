@@ -29,7 +29,11 @@
 #include <string>
 #include <vector>
 #include <OgreVector3.h>
-#include <OgreSceneNode.h>
+
+namespace Ogre
+{
+class SceneNode;
+} //End namespace Ogre
 
 class GameMap;
 class Tile;
@@ -90,7 +94,7 @@ class GameEntity
           std::string     meshName   = std::string(),
           Seat*           seat        = nullptr
           ) :
-    mPosition          (Ogre::Vector3(0, 0, 0)),
+    mPosition          (Ogre::Vector3::ZERO),
     mName              (name),
     mMeshName          (meshName),
     mMeshExists        (false),
