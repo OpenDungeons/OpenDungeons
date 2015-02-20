@@ -3352,7 +3352,7 @@ double Creature::takeDamage(GameEntity* attacker, double physicalDamage, double 
         return damageDone;
 
     // Tells the server game map the player is under attack.
-    getGameMap()->playerIsFighting(player);
+    getGameMap()->playerIsFighting(player, tileTakingDamage);
 
     // If we are a worker attacked by a worker, we fight. Otherwise, we flee (if it is a fighter, a trap,
     // or whatever)

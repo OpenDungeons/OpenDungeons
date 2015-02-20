@@ -51,9 +51,24 @@
 
 //! \brief The number of seconds the local player must stay out of danger to trigger the calm music again.
 const float BATTLE_TIME_COUNT = 10.0f;
+//! \brief Minimum distance to consider that a new event of the same type is in another place
+//! Note that the distance is squared (100 would mean 10 tiles)
+const float MIN_DIST_EVENT_SQUARED = 100.0f;
 
 //! \brief The number of seconds the local player will not be notified again if no treasury is available
 const float NO_TREASURY_TIME_COUNT = 30.0f;
+
+void PlayerEvent::exportToPacket(GameMap* gameMap, ODPacket& os)
+{
+    os << mType;
+    gameMap->tileToPacket(os, mTile);
+}
+
+void PlayerEvent::importFromPacket(GameMap* gameMap, ODPacket& is)
+{
+    OD_ASSERT_TRUE(is >> mType);
+    mTile = gameMap->tileFromPacket(is);
+}
 
 Player::Player(GameMap* gameMap, int32_t id) :
     mId(id),
@@ -63,7 +78,6 @@ Player::Player(GameMap* gameMap, int32_t id) :
     mGameMap(gameMap),
     mSeat(nullptr),
     mIsHuman(false),
-    mFightingTime(0.0f),
     mNoTreasuryAvailableTime(0.0f),
     mIsPlayerLostSent(false),
     mResearchPoints(0),
@@ -273,20 +287,42 @@ void Player::notifyNoMoreDungeonTemple()
 void Player::updateTime(Ogre::Real timeSinceLastUpdate)
 {
     // Handle fighting time
-    if(mFightingTime > 0.0f)
+    bool wasFightHappening = false;
+    bool isFightHappening = false;
+    bool isEventListUpdated = false;
+    for(auto it = mEvents.begin(); it != mEvents.end();)
     {
-        if(mFightingTime > timeSinceLastUpdate)
+        PlayerEvent* event = *it;
+        if(event->getType() != PlayerEventType::fight)
         {
-            mFightingTime -= timeSinceLastUpdate;
+            ++it;
+            continue;
         }
-        else
+
+        wasFightHappening = true;
+
+        float timeRemain = event->getTimeRemain();
+        if(timeRemain > timeSinceLastUpdate)
         {
-            mFightingTime = 0.0f;
-            // Notify the player he is no longer under attack.
-            ServerNotification *serverNotification = new ServerNotification(
-                ServerNotificationType::playerNoMoreFighting, this);
-            ODServer::getSingleton().queueServerNotification(serverNotification);
+            isFightHappening = true;
+            timeRemain -= timeSinceLastUpdate;
+            event->setTimeRemain(timeRemain);
+            ++it;
+            continue;
         }
+
+        // This event is outdated, we remove it
+        isEventListUpdated = true;
+        delete event;
+        it = mEvents.erase(it);
+    }
+
+    if(wasFightHappening && !isFightHappening)
+    {
+        // Notify the player he is no longer under attack.
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::playerNoMoreFighting, this);
+        ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 
     if(mNoTreasuryAvailableTime > 0.0f)
@@ -296,18 +332,41 @@ void Player::updateTime(Ogre::Real timeSinceLastUpdate)
         else
             mNoTreasuryAvailableTime = 0.0f;
     }
+
+    if(isEventListUpdated)
+        fireEvents();
 }
 
-void Player::notifyFighting()
+void Player::notifyFighting(Tile* tile)
 {
-    if(mFightingTime == 0.0f)
+    // We check if there is a fight event currently near this tile. If yes, we update
+    // the time event. If not, we create a new fight event
+    bool isFirstFight = true;
+    for(PlayerEvent* event : mEvents)
+    {
+        if(event->getType() != PlayerEventType::fight)
+            continue;
+
+        // There is already another fight event. We check the distance
+        isFirstFight = false;
+        if(mGameMap->squaredCrowDistance(tile, event->getTile()) < MIN_DIST_EVENT_SQUARED)
+        {
+            // A similar event is already on nearly. We only update it
+            event->setTimeRemain(BATTLE_TIME_COUNT);
+            return;
+        }
+    }
+
+    if(isFirstFight)
     {
         ServerNotification *serverNotification = new ServerNotification(
             ServerNotificationType::playerFighting, this);
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 
-    mFightingTime = BATTLE_TIME_COUNT;
+    // We add the fight event
+    mEvents.push_back(new PlayerEvent(PlayerEventType::fight, tile, BATTLE_TIME_COUNT));
+    fireEvents();
 }
 
 void Player::notifyNoTreasuryAvailable()
@@ -616,4 +675,52 @@ void Player::setResearchTree(const std::vector<ResearchType>& researches)
         mResearchPending = researches;
         mNeedRefreshGuiResearchPending = true;
     }
+}
+
+ODPacket& operator<<(ODPacket& os, const PlayerEventType& type)
+{
+    os << static_cast<int32_t>(type);
+    return os;
+}
+
+ODPacket& operator>>(ODPacket& is, PlayerEventType& type)
+{
+    int32_t tmp;
+    OD_ASSERT_TRUE(is >> tmp);
+    type = static_cast<PlayerEventType>(tmp);
+    return is;
+}
+
+void Player::fireEvents()
+{
+    // On server side, we update the client
+    if(!mGameMap->isServerGameMap())
+        return;
+
+    ServerNotification *serverNotification = new ServerNotification(
+                ServerNotificationType::playerEvents, this);
+    uint32_t nbItems = mEvents.size();
+    serverNotification->mPacket << nbItems;
+    for(PlayerEvent* event : mEvents)
+        event->exportToPacket(mGameMap, serverNotification->mPacket);
+
+    ODServer::getSingleton().queueServerNotification(serverNotification);
+}
+
+void Player::updateEvents(const std::vector<PlayerEvent*>& events)
+{
+    for(PlayerEvent* event : mEvents)
+        delete event;
+
+    mEvents = events;
+}
+
+const PlayerEvent* Player::getNextEvent(uint32_t& index) const
+{
+    if(mEvents.empty())
+        return nullptr;
+
+    index = (index + 1) % mEvents.size();
+
+    return mEvents[index];
 }

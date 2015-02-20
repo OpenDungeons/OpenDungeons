@@ -835,6 +835,23 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
+        case ServerNotificationType::playerEvents:
+        {
+            uint32_t nbItems;
+            OD_ASSERT_TRUE(packetReceived >> nbItems);
+            std::vector<PlayerEvent*> events;
+            while(nbItems > 0)
+            {
+                nbItems--;
+                PlayerEvent* event = new PlayerEvent;
+                event->importFromPacket(gameMap, packetReceived);
+                events.push_back(event);
+            }
+
+            getPlayer()->updateEvents(events);
+            break;
+        }
+
         default:
         {
             logManager.logMessage("ERROR:  Unknown server command:"

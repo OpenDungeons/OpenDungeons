@@ -231,7 +231,7 @@ void Trap::doUpkeep()
             // Warn the player the trap has triggered
             GameMap* gameMap = getGameMap();
             if (gameMap->isServerGameMap())
-                gameMap->playerIsFighting(gameMap->getPlayerBySeat(getSeat()));
+                gameMap->playerIsFighting(gameMap->getPlayerBySeat(getSeat()), tile);
         }
     }
 }

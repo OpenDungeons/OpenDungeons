@@ -385,6 +385,9 @@ public:
     Ogre::Real crowDistance(Tile *t1, Tile *t2);
     Ogre::Real crowDistance(Creature *c1, Creature *c2);
 
+    //! \brief Returns the squared distance between 2 tiles
+    Ogre::Real squaredCrowDistance(Tile *t1, Tile *t2) const;
+
     //! \brief Checks the neighboor tiles to see if the floodfill can be used. Floodfill consists on tagging all contiguous tiles
     //! to be able to know before computing it if a path exists between 2 tiles. We do that to avoid computing paths when we
     //! already know that no path exists.
@@ -500,8 +503,9 @@ public:
     std::vector<Spell*> getSpellsBySeatAndType(Seat* seat, SpellType type) const;
 
     //! \brief Tells the game map a given player is attacking or under attack.
-    //! Used on the server game map only.
-    void playerIsFighting(Player* player);
+    //! Used on the server game map only. tile represents the tile where the fight is
+    //! happening
+    void playerIsFighting(Player* player, Tile* tile);
 
     //! \brief Deletes the entities that have been marked to delete. This function should only be called once the
     //! RenderManager has finished to render every object inside.
