@@ -37,13 +37,6 @@ material Bookshelf
                 scale 1.0 1.0
                 colour_op modulate
             }
-            texture_unit 
-            {
-                texture Bookshelf_normal.png
-                tex_address_mode wrap
-                scale 1.0 1.0
-                colour_op modulate
-            }
         }
     }
 }
