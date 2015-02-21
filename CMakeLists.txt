@@ -256,6 +256,7 @@ set(OD_SOURCEFILES
     ${SRC}/entities/MovableGameEntity.cpp
     ${SRC}/entities/PersistentObject.cpp
     ${SRC}/entities/RenderedMovableEntity.cpp
+    ${SRC}/entities/ResearchEntity.cpp
     ${SRC}/entities/SmallSpiderEntity.cpp
     ${SRC}/entities/Tile.cpp
     ${SRC}/entities/TrapEntity.cpp
@@ -263,6 +264,7 @@ set(OD_SOURCEFILES
     ${SRC}/entities/Weapon.cpp
 
     ${SRC}/game/Player.cpp
+    ${SRC}/game/Research.cpp
     ${SRC}/game/Seat.cpp
     ${SRC}/game/Spell.cpp
 

@@ -2674,6 +2674,7 @@ GameEntity* GameMap::getEntityFromTypeAndName(GameEntityType entityType,
         case GameEntityType::smallSpiderEntity:
         case GameEntityType::trapEntity:
         case GameEntityType::treasuryObject:
+        case GameEntityType::researchEntity:
             return getRenderedMovableEntity(entityName);
 
         case GameEntityType::spell:

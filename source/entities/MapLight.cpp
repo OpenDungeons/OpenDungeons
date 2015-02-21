@@ -35,8 +35,9 @@
 const std::string MapLight::MAPLIGHT_NAME_PREFIX = "Map_light_";
 const std::string MapLight::MAPLIGHT_INDICATOR_PREFIX = "MapLightIndicator_";
 
-MapLight::MapLight(GameMap* gameMap, Ogre::Real red, Ogre::Real green, Ogre::Real blue,
-        Ogre::Real range, Ogre::Real constant, Ogre::Real linear, Ogre::Real quadratic) :
+MapLight::MapLight(GameMap* gameMap, Ogre::Real diffRed, Ogre::Real diffGreen, Ogre::Real diffBlue,
+        Ogre::Real specRed, Ogre::Real specGreen, Ogre::Real specBlue,
+        Ogre::Real attenRange, Ogre::Real attenConst, Ogre::Real attenLin, Ogre::Real attenQuad) :
     MovableGameEntity                   (gameMap),
     mThetaX                             (0.0),
     mThetaY                             (0.0),
@@ -46,12 +47,12 @@ MapLight::MapLight(GameMap* gameMap, Ogre::Real red, Ogre::Real green, Ogre::Rea
     mFactorZ                            (0.0),
     mFlickerNode                        (nullptr)
 {
-    mDiffuseColor = Ogre::ColourValue(red, green, blue);
-    mSpecularColor = Ogre::ColourValue(red, green, blue);
-    mAttenuationRange = range;
-    mAttenuationConstant = constant;
-    mAttenuationLinear = linear;
-    mAttenuationQuadratic = quadratic;
+    mDiffuseColor = Ogre::ColourValue(diffRed, diffGreen, diffBlue);
+    mSpecularColor = Ogre::ColourValue(specRed, specGreen, specBlue);
+    mAttenuationRange = attenRange;
+    mAttenuationConstant = attenConst;
+    mAttenuationLinear = attenLin;
+    mAttenuationQuadratic = attenQuad;
 }
 
 void MapLight::createMeshLocal()

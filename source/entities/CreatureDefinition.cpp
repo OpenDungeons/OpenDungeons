@@ -93,6 +93,7 @@ ODPacket& operator<<(ODPacket& os, const CreatureDefinition* c)
     os << c->mWeakCoef;
     os << c->mFeeBase;
     os << c->mFeePerLevel;
+    os << c->mSleepHeal;
     os << c->mMoodModifierName;
     os << c->mWeaponSpawnL;
     os << c->mWeaponSpawnR;
@@ -128,6 +129,7 @@ ODPacket& operator>>(ODPacket& is, CreatureDefinition* c)
     is >> c->mWeakCoef;
     is >> c->mFeeBase;
     is >> c->mFeePerLevel;
+    is >> c->mSleepHeal;
     is >> c->mMoodModifierName;
     is >> c->mWeaponSpawnL;
     is >> c->mWeaponSpawnR;
@@ -467,6 +469,12 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
                 creatureDef->mFeePerLevel = Helper::toInt(nextParam);
                 continue;
             }
+            else if (nextParam == "SleepHeal")
+            {
+                defFile >> nextParam;
+                creatureDef->mSleepHeal = Helper::toDouble(nextParam);
+                continue;
+            }
             else if (nextParam == "CreatureMoodName")
             {
                 defFile >> nextParam;
@@ -627,6 +635,9 @@ void CreatureDefinition::writeCreatureDefinitionDiff(const CreatureDefinition* d
 
     if(def1 == nullptr || (def1->mFeePerLevel != def2->mFeePerLevel))
         file << "    FeePerLevel\t" << def2->mFeePerLevel << std::endl;
+
+    if(def1 == nullptr || (def1->mSleepHeal != def2->mSleepHeal))
+        file << "    SleepHeal\t" << def2->mSleepHeal << std::endl;
 
     if(def1 == nullptr || (def1->mWeaponSpawnL.compare(def2->mWeaponSpawnL) != 0))
         file << "    WeaponSpawnL\t" << def2->mWeaponSpawnL << std::endl;

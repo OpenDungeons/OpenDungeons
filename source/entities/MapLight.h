@@ -33,15 +33,18 @@ class ODPacket;
 class MapLight: public MovableGameEntity
 {
 public:
-    //! \brief Constructor for making Map lights. If useUniqueName is false, setName() should be called
+    //! \brief Constructor for making Map lights
     MapLight(GameMap*              gameMap,
-             Ogre::Real            red         = 0.0,
-             Ogre::Real            green       = 0.0,
-             Ogre::Real            blue        = 0.0,
-             Ogre::Real            range       = 0.0,
-             Ogre::Real            constant    = 0.0,
-             Ogre::Real            linear      = 0.0,
-             Ogre::Real            quadratic   = 0.0);
+             Ogre::Real            diffRed     = 0.9,
+             Ogre::Real            diffGreen   = 0.8,
+             Ogre::Real            diffBlue    = 0.6,
+             Ogre::Real            specRed     = 0.2,
+             Ogre::Real            specGreen   = 0.2,
+             Ogre::Real            specBlue    = 0.2,
+             Ogre::Real            attenRange  = 50.0,
+             Ogre::Real            attenConst  = 0.012,
+             Ogre::Real            attenLin    = 0.32,
+             Ogre::Real            attenQuad   = 0.0018);
 
     virtual ~MapLight()
     {}

@@ -31,6 +31,10 @@ public:
     //! \brief Updates the temple position when in editor mode.
     void updateActiveSpots();
 
+    bool hasCarryEntitySpot(GameEntity* carriedEntity);
+    Tile* askSpotForCarriedEntity(GameEntity* carriedEntity);
+    void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity);
+
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();

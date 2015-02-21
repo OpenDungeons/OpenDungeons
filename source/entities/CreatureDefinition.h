@@ -114,7 +114,8 @@ public:
             double                  attackWarmupTime    = 1.0,
             double                  weakCoef            = 0.3,
             int32_t                 feeBase             = 0,
-            int32_t                 feePerLevel         = 0) :
+            int32_t                 feePerLevel         = 0,
+            int32_t                 sleepHeal           = 1.0) :
         mCreatureJob (job),
         mClassName   (className),
         mMeshName    (meshName),
@@ -153,6 +154,7 @@ public:
         mWeakCoef            (weakCoef),
         mFeeBase            (feeBase),
         mFeePerLevel        (feePerLevel),
+        mSleepHeal          (sleepHeal),
         mWeaponSpawnL       ("none"),
         mWeaponSpawnR       ("none")
     {
@@ -230,6 +232,8 @@ public:
     const std::string&          getWeaponSpawnR () const        { return mWeaponSpawnR; }
 
     int32_t                     getFee (unsigned int level) const;
+
+    inline double               getSleepHeal () const           { return mSleepHeal; }
 
     double                      getXPNeededWhenLevel(unsigned int level) const;
 
@@ -335,6 +339,9 @@ private:
     //! \brief The base fee for this creature.
     int32_t mFeeBase;
     int32_t mFeePerLevel;
+
+    //! \brief How many HP the creature will get per turn while sleeping
+    double mSleepHeal;
 
     //! \brief Weapons a creature should spawn with ("none" if no weapon)
     std::string mWeaponSpawnL;

@@ -95,7 +95,7 @@ void MenuModeEditor::activate()
             }
 
             mDescriptionList.push_back(mapDescription);
-            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem("SKIRMISH - " + mapName);
+            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem("SK-" + mapName);
             item->setID(n);
             item->setSelectionBrushImage("OpenDungeonsSkin/SelectionBrush");
             levelSelectList->addItem(item);
@@ -131,7 +131,7 @@ void MenuModeEditor::activate()
             }
 
             mDescriptionList.push_back(mapDescription);
-            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem("MULTIPLAYER - " + mapName);
+            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem("MP-" + mapName);
             item->setID(n);
             item->setSelectionBrushImage("OpenDungeonsSkin/SelectionBrush");
             levelSelectList->addItem(item);

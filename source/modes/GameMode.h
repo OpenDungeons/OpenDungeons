@@ -160,6 +160,10 @@ private:
 
     //! \brief Minimap click event handler (currently duplicated in EditorMode)
     bool onMinimapClick(const CEGUI::EventArgs& arg);
+
+    //! \brief Called at each frame. It checks if the Gui should be refreshed (for example,
+    //! if a research is done) and, if yes, refreshes accordingly.
+    void refreshGuiResearch();
 };
 
 #endif // GAMEMODE_H

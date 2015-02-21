@@ -50,6 +50,7 @@ enum class ClientNotificationType
     askPickupFighter,
     askSlapEntity,
     askCastSpell,
+    askSetResearchTree,
 
     //  Editor
     editorAskSaveMap,
@@ -59,7 +60,8 @@ enum class ClientNotificationType
     editorAskDestroyRoomTiles,
     editorAskDestroyTrapTiles,
     editorCreateWorker,
-    editorCreateFighter
+    editorCreateFighter,
+    editorAskCreateMapLight
 };
 
 ODPacket& operator<<(ODPacket& os, const ClientNotificationType& nt);

@@ -91,6 +91,8 @@ void EditorMode::activate()
     Player* player = mGameMap->getLocalPlayer();
     mCurrentSeatId = player->getSeat()->getId();
 
+    refreshGuiResearch();
+
     mGameMap->setGamePaused(false);
 }
 
@@ -870,6 +872,16 @@ void EditorMode::notifyGuiAction(GuiAction guiAction)
                 }
                 break;
             }
+            case GuiAction::ButtonPressedMapLight:
+            {
+                if(ODClient::getSingleton().isConnected())
+                {
+                    ClientNotification *clientNotification = new ClientNotification(
+                        ClientNotificationType::editorAskCreateMapLight);
+                    ODClient::getSingleton().queueClientNotification(clientNotification);
+                }
+                break;
+            }
             default:
                 break;
     }
@@ -886,4 +898,25 @@ bool EditorMode::onMinimapClick(const CEGUI::EventArgs& arg)
     frameListener.getCameraManager()->onMiniMapClick(cc);
 
     return true;
+}
+void EditorMode::refreshGuiResearch()
+{
+    // We show/hide the icons depending on available researches
+    CEGUI::Window* guiSheet = Gui::getSingleton().getGuiSheet(Gui::editorModeGui);
+    guiSheet->getChild(Gui::BUTTON_DORMITORY)->show();
+    guiSheet->getChild(Gui::BUTTON_TREASURY)->show();
+    guiSheet->getChild(Gui::BUTTON_HATCHERY)->show();
+    guiSheet->getChild(Gui::BUTTON_LIBRARY)->show();
+    guiSheet->getChild(Gui::BUTTON_CRYPT)->show();
+    guiSheet->getChild(Gui::BUTTON_TRAININGHALL)->show();
+    guiSheet->getChild(Gui::BUTTON_FORGE)->show();
+    guiSheet->getChild(Gui::BUTTON_TRAP_CANNON)->show();
+    guiSheet->getChild(Gui::BUTTON_TRAP_SPIKE)->show();
+    guiSheet->getChild(Gui::BUTTON_TRAP_BOULDER)->show();
+    guiSheet->getChild(Gui::BUTTON_SPELL_SUMMON_WORKER)->show();
+    guiSheet->getChild(Gui::BUTTON_SPELL_CALLTOWAR)->show();
+
+    // We also display the editor only buttons
+    guiSheet->getChild(Gui::BUTTON_TEMPLE)->show();
+    guiSheet->getChild(Gui::BUTTON_PORTAL)->show();
 }

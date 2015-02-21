@@ -25,6 +25,7 @@
 #include "gamemap/GameMap.h"
 #include "game/Seat.h"
 #include "game/Player.h"
+#include "game/Research.h"
 #include "entities/MapLight.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
@@ -392,6 +393,8 @@ bool ODClient::processOneClientSocketMessage()
         case ServerNotificationType::addEntity:
         {
             GameEntity* entity = GameEntity::getGameEntityFromPacket(gameMap, packetReceived);
+            if(entity == nullptr)
+                break;
             entity->addToGameMap();
             entity->createMesh();
             entity->restoreEntityState();
@@ -792,6 +795,40 @@ bool ODClient::processOneClientSocketMessage()
 
             RenderManager::getSingleton().rrReleaseCarriedEntity(carrier, carried);
             carried->setPosition(pos, false);
+            break;
+        }
+
+        case ServerNotificationType::researchTree:
+        {
+            uint32_t nbItems;
+            OD_ASSERT_TRUE(packetReceived >> nbItems);
+            std::vector<ResearchType> researches;
+            while(nbItems > 0)
+            {
+                nbItems--;
+                ResearchType research;
+                OD_ASSERT_TRUE(packetReceived >> research);
+                researches.push_back(research);
+            }
+
+            getPlayer()->setResearchTree(researches);
+            break;
+        }
+
+        case ServerNotificationType::researchesDone:
+        {
+            uint32_t nbItems;
+            OD_ASSERT_TRUE(packetReceived >> nbItems);
+            std::vector<ResearchType> researches;
+            while(nbItems > 0)
+            {
+                nbItems--;
+                ResearchType research;
+                OD_ASSERT_TRUE(packetReceived >> research);
+                researches.push_back(research);
+            }
+
+            getPlayer()->setResearchesDone(researches);
             break;
         }
 

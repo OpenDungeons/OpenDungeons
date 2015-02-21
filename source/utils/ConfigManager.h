@@ -27,6 +27,7 @@ class CreatureDefinition;
 class Weapon;
 class SpawnCondition;
 class CreatureMood;
+class Research;
 
 enum class CreatureMoodLevel;
 
@@ -108,6 +109,9 @@ public:
     inline const CreatureDefinition* getCreatureDefinitionDefaultWorker() const
     { return mCreatureDefinitionDefaultWorker; }
 
+    inline const std::vector<const Research*>& getResearches() const
+    { return mResearches; }
+
 private:
     //! \brief Function used to load the global configuration. They should return true if the configuration
     //! is ok and false if a mandatory parameter is missing
@@ -123,6 +127,7 @@ private:
     bool loadTraps(const std::string& fileName);
     bool loadSpellConfig(const std::string& fileName);
     bool loadCreaturesMood(const std::string& fileName);
+    bool loadResearches(const std::string& fileName);
 
     std::map<std::string, Ogre::ColourValue> mSeatColors;
     std::vector<const CreatureDefinition*> mCreatureDefs;
@@ -135,6 +140,7 @@ private:
     std::string mFilenameTraps;
     std::string mFilenameSpells;
     std::string mFilenameCreaturesMood;
+    std::string mFilenameResearches;
     uint32_t mNetworkPort;
     uint32_t mBaseSpawnPoint;
     uint32_t mCreatureDeathCounter;
@@ -163,6 +169,9 @@ private:
     //! Default definition for the editor. At map loading, it will spawn a creature from
     //! the default seat worker depending on seat faction
     CreatureDefinition* mCreatureDefinitionDefaultWorker;
+
+    //! Allowed researches
+    std::vector<const Research*> mResearches;
 };
 
 #endif //CONFIGMANAGER_H

@@ -106,6 +106,10 @@ private:
 
     //! \brief Minimap click event handler (currently duplicated in GameMode)
     bool onMinimapClick(const CEGUI::EventArgs& arg);
+
+    //! \brief Refreshes the gui buttons. It will be called at level loading only since
+    //! it shouldn't change in the editor
+    void refreshGuiResearch();
 };
 
 #endif // EDITORMODE_H

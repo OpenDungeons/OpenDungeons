@@ -100,6 +100,10 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "carryEntity";
         case ServerNotificationType::releaseCarriedEntity:
             return "releaseCarriedEntity";
+        case ServerNotificationType::researchTree:
+            return "researchTree";
+        case ServerNotificationType::researchesDone:
+            return "researchesDone";
         case ServerNotificationType::exit:
             return "exit";
         default:

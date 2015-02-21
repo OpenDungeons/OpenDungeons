@@ -35,6 +35,7 @@
 #include "gamemap/GameMap.h"
 #include "game/Seat.h"
 #include "utils/ConfigManager.h"
+#include "utils/Helper.h"
 #include "utils/LogManager.h"
 
 #include <sstream>
@@ -336,7 +337,7 @@ const std::string Room::getRoomNameFromRoomType(RoomType t)
         return "Crypt";
 
     default:
-        return "UnknownRoomType";
+        return "UnknownRoomType enum=" + Helper::toString(static_cast<int>(t));
     }
 }
 

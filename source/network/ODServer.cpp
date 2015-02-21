@@ -24,6 +24,7 @@
 #include "entities/MapLight.h"
 #include "network/ChatMessage.h"
 #include "modes/ServerConsoleCommands.h"
+#include "game/Research.h"
 #include "gamemap/MapLoader.h"
 #include "utils/LogManager.h"
 #include "entities/Creature.h"
@@ -140,9 +141,14 @@ void ODServer::sendMsg(Player* player, ODPacket& packet)
     }
 
     ODSocketClient* client = getClientFromPlayer(player);
-    OD_ASSERT_TRUE_MSG(client != nullptr, "player=" + player->getNick());
     if(client == nullptr)
+    {
+        ServerNotificationType type;
+        OD_ASSERT_TRUE(packet >> type);
+        OD_ASSERT_TRUE_MSG(client != nullptr, "player=" + player->getNick()
+            + ", ServerNotificationType=" + ServerNotification::typeString(type));
         return;
+    }
 
     sendMsgToClient(client, packet);
 }
@@ -780,12 +786,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 OD_ASSERT_TRUE(packetReceived >> teamId);
                 seat->setTeamId(teamId);
 
-                // If a player is assigned to this seat, we create his spawn pool
-                if(seat->getPlayer() != nullptr)
-                    seat->initSpawnPool();
-                else
-                    LogManager::getSingleton().logMessage("No spawn pool created for seat id="
-                        + Ogre::StringConverter::toString(seat->getId()));
+                // We initialize the seat
+                seat->initSeat();
             }
 
             // Now, we can disconnect the players that were not configured
@@ -981,6 +983,16 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> type);
             Player* player = clientSocket->getPlayer();
+
+            // We check if the room is available. It is not normal to receive a message
+            // asking to build an unbuildable room since the client should only display
+            // available rooms
+            if(!player->isRoomAvailableForPlayer(type))
+            {
+                LogManager::getSingleton().logMessage("WARNING: player " + player->getNick()
+                    + " asked to cast a spell not available: " + Room::getRoomNameFromRoomType(type));
+                break;
+            }
 
             std::vector<Tile*> tiles;
             int goldRequired;
@@ -1244,6 +1256,16 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             std::vector<Tile*> tiles = gameMap->getBuildableTilesForPlayerInArea(x1,
                 y1, x2, y2, player);
 
+            // We check if the trap is available. It is not normal to receive a message
+            // asking to build an unbuildable trap since the client should only display
+            // available traps
+            if(!player->isTrapAvailableForPlayer(type))
+            {
+                LogManager::getSingleton().logMessage("WARNING: player " + player->getNick()
+                    + " asked to cast a spell not available: " + Trap::getTrapNameFromTrapType(type));
+                break;
+            }
+
             if(tiles.empty())
                 break;
 
@@ -1296,6 +1318,9 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> spellType);
             Player* player = clientSocket->getPlayer();
 
+            // We check if the spell is available. It is not normal to receive a message
+            // asking to cast an uncastable spell since the client should only display
+            // available spells
             if(!player->isSpellAvailableForPlayer(spellType))
             {
                 LogManager::getSingleton().logMessage("WARNING: player " + player->getNick()
@@ -1831,6 +1856,46 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             }
 
             player->pickUpEntity(newCreature);
+            break;
+        }
+
+        case ClientNotificationType::askSetResearchTree:
+        {
+            Player* player = clientSocket->getPlayer();
+            uint32_t nbItems;
+            OD_ASSERT_TRUE(packetReceived >> nbItems);
+            std::vector<ResearchType> researches;
+            while(nbItems > 0)
+            {
+                nbItems--;
+                ResearchType research;
+                OD_ASSERT_TRUE(packetReceived >> research);
+                researches.push_back(research);
+            }
+
+            player->setResearchTree(researches);
+            break;
+        }
+
+        case ClientNotificationType::editorAskCreateMapLight:
+        {
+            Player* player = clientSocket->getPlayer();
+            MapLight* mapLight = new MapLight(gameMap);
+            mapLight->setName(gameMap->nextUniqueNameMapLight());
+            mapLight->setPosition(Ogre::Vector3(0.0, 0.0, 3.75), false);
+            mapLight->addToGameMap();
+            mapLight->createMesh();
+            // In editor mode, every player has vision
+            for(Seat* seat : gameMap->getSeats())
+            {
+                if(seat->getPlayer() == nullptr)
+                    continue;
+                if(!seat->getPlayer()->getIsHuman())
+                    continue;
+
+                mapLight->addSeatWithVision(seat, true);
+            }
+            player->pickUpEntity(mapLight);
             break;
         }
 

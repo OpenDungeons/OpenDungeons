@@ -148,7 +148,7 @@ public:
 
     virtual const TrapType getType() const = 0;
 
-    static const char* getTrapNameFromTrapType(TrapType t);
+    static std::string getTrapNameFromTrapType(TrapType t);
 
     static int costPerTile(TrapType t);
 

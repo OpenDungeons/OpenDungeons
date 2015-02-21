@@ -23,6 +23,8 @@
 #include "entities/CreatureAction.h"
 #include "entities/CreatureSound.h"
 #include "entities/PersistentObject.h"
+#include "entities/ResearchEntity.h"
+#include "game/Player.h"
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
 #include "render/ODFrameListener.h"
@@ -73,4 +75,47 @@ void RoomDungeonTemple::destroyMeshLocal()
 {
     Room::destroyMeshLocal();
     mTempleObject = nullptr;
+}
+
+bool RoomDungeonTemple::hasCarryEntitySpot(GameEntity* carriedEntity)
+{
+    if(carriedEntity->getObjectType() != GameEntityType::researchEntity)
+        return false;
+
+    // We accept any researchEntity
+    return true;
+}
+
+Tile* RoomDungeonTemple::askSpotForCarriedEntity(GameEntity* carriedEntity)
+{
+    OD_ASSERT_TRUE_MSG(carriedEntity->getObjectType() == GameEntityType::researchEntity,
+        "room=" + getName() + ", entity=" + carriedEntity->getName());
+    if(carriedEntity->getObjectType() != GameEntityType::researchEntity)
+        return nullptr;
+
+    // We accept any researchEntity
+    return getCoveredTile(0);
+}
+
+void RoomDungeonTemple::notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity)
+{
+    OD_ASSERT_TRUE_MSG(carriedEntity->getObjectType() == GameEntityType::researchEntity,
+        "room=" + getName() + ", entity=" + carriedEntity->getName());
+    if(carriedEntity->getObjectType() != GameEntityType::researchEntity)
+        return;
+
+    // We check if the carrier is at the expected destination. If not on the first tile,
+    // we don't accept the researchEntity
+    // Note that if the room is being destroyed, during the transport, the researchEntity
+    // will be dropped at its original place and will become available again so there
+    // should be no problem
+    Tile* carrierTile = carrier->getPositionTile();
+    if(carrierTile != getCoveredTile(0))
+        return;
+
+    // We notify the player that the research is now available and we delete the researchEntity
+    ResearchEntity* researchEntity = static_cast<ResearchEntity*>(carriedEntity);
+    getSeat()->getPlayer()->addResearch(researchEntity->getResearchType());
+    researchEntity->removeFromGameMap();
+    researchEntity->deleteYourself();
 }
