@@ -1,37 +1,29 @@
 // TrainingDummy3 genrated by blender2ogre 0.6.0
-
-material TrainingDummy3 
+import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
+material TrainingDummy3 : RTSS/NormalMapping_MultiPass
 {
-    receive_shadows on 
+    receive_shadows on
 
     technique
     {
-        pass TrainingDummy3
+        pass lighting
         {
-            ambient 0.800000011920929 0.800000011920929 0.800000011920929 1.0
-            diffuse 0.800000011920929 0.800000011920929 0.800000011920929 1.0
-            specular 0.2567567527294159 0.2567567527294159 0.2567567527294159 1.0 12.5
-            emissive 0.0 0.0 0.0 1.0
 
-            alpha_to_coverage off
-            colour_write on
-            cull_hardware clockwise
-            depth_check on
-            depth_func less_equal
-            depth_write on
-            illumination_stage 
-            light_clip_planes off
-            light_scissor off
-            lighting on
-            normalise_normals off
-            polygon_mode solid
-            scene_blend one zero
-            scene_blend_op add
-            shading gouraud
-            transparent_sorting on
+             // Override the normal map.
+             rtshader_system
+             {
+                lighting_stage normal_map TrainingDummy3Normal.png object_space 0 bilinear 1 -1.0
+             }
+        }
 
-            texture_unit 
+    pass decal
+        {
+            texture_unit decalmap
             {
+		ambient 0.0 0.0 0.0 0.0 0.0
+                diffuse 0.6 0.6 0.6 0.6 0.6
+                specular 0.0 0.0 0.0 0.0 0.0
+                emissive 0.0 0.0 0.0 0.0
                 texture TrainingDummy3.png
                 tex_address_mode wrap
                 scale 1.0 1.0
