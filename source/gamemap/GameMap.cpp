@@ -1312,7 +1312,7 @@ void GameMap::playerIsFighting(Player* player, Tile* tile)
             continue;
 
         // Warn the ally about the battle
-        ally->notifyFighting(tile);
+        ally->notifyTeamFighting(player, tile);
     }
 }
 

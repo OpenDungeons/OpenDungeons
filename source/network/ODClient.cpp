@@ -573,6 +573,19 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotificationType::playerFighting:
         {
+            int32_t playerFightingId;
+            OD_ASSERT_TRUE(packetReceived >> playerFightingId);
+            if(getPlayer()->getId() == playerFightingId)
+            {
+                frameListener->addChatMessage(new ChatMessage(ODServer::SERVER_INFORMATION,
+                    "You are under attack!"));
+            }
+            else
+            {
+                frameListener->addChatMessage(new ChatMessage(ODServer::SERVER_INFORMATION,
+                    "An ally is under attack!"));
+            }
+
             std::string fightMusic = gameMap->getLevelFightMusicFile();
             if (fightMusic.empty())
                 break;

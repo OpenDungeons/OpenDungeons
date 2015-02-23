@@ -337,7 +337,7 @@ void Player::updateTime(Ogre::Real timeSinceLastUpdate)
         fireEvents();
 }
 
-void Player::notifyFighting(Tile* tile)
+void Player::notifyTeamFighting(Player* player, Tile* tile)
 {
     // We check if there is a fight event currently near this tile. If yes, we update
     // the time event. If not, we create a new fight event
@@ -361,6 +361,7 @@ void Player::notifyFighting(Tile* tile)
     {
         ServerNotification *serverNotification = new ServerNotification(
             ServerNotificationType::playerFighting, this);
+        serverNotification->mPacket << player->getId();
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 

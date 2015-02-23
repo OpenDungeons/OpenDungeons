@@ -197,8 +197,8 @@ public:
 
     //! \brief Notify the player is fighting
     //! Should be called on the server game map for human players only. tile represents
-    //! the place where the fight is happening
-    void notifyFighting(Tile* tile);
+    //! the place where the fight is happening and player is the Player actually fighting
+    void notifyTeamFighting(Player* player, Tile* tile);
 
     //! \brief Notify the player is fighting
     //! Should be called on the server game map for human players only
