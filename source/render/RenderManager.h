@@ -114,11 +114,15 @@ public:
     void rrMoveMapLightFlicker(MapLight* mapLight, const Ogre::Vector3& position);
     void rrCarryEntity(Creature* carrier, GameEntity* carried);
     void rrReleaseCarriedEntity(Creature* carrier, GameEntity* carried);
-    //! If display is true, display the creature's text. If false, hides the creature's text
-    void rrCreatureDisplayMovableText(Creature* creature, bool display);
 
     //! \brief Toggles the creatures text overlay
-    void rrToggleCreatureTextOverlay();
+    void rrSetCreaturesTextOverlay(bool value);
+
+    //! \brief Toggles the creatures text overlay
+    void rrTemporaryDisplayCreaturesTextOverlay(Creature* creature, Ogre::Real timeToDisplay);
+
+    std::string rrBuildSkullFlagMaterial(const std::string& materialNameBase,
+        const Ogre::ColourValue& color);
 
 private:
 

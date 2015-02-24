@@ -19,6 +19,7 @@
 
 #include "ODApplication.h"
 #include "camera/CameraManager.h"
+#include "entities/Creature.h"
 #include "entities/Tile.h"
 #include "network/ODClient.h"
 #include "network/ODServer.h"
@@ -320,6 +321,20 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 
         // Check to see if the current query result is a tile.
         std::string resultName = itr->movable->getName();
+
+        if((player->getCurrentAction() == Player::SelectedAction::none))
+        {
+            // If we are hovering a creature with no current action, we want to display its overlay
+            // for a short time
+            GameEntity* entity = getEntityFromOgreName(resultName);
+            if ((entity != nullptr) &&
+                (entity->getObjectType() == GameEntityType::creature))
+            {
+                Creature* creature = static_cast<Creature*>(entity);
+                RenderManager::getSingleton().rrTemporaryDisplayCreaturesTextOverlay(creature, 0.5f);
+                continue;
+            }
+        }
 
         // Checks which tile we are on (if any)
         if (!Tile::checkTileName(resultName, inputManager->mXPos, inputManager->mYPos))
@@ -797,11 +812,9 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
         ODFrameListener::getSingleton().getCameraManager()->setNextDefaultView();
         break;
 
-    case OIS::KC_N:
-    {
-        RenderManager::getSingleton().rrToggleCreatureTextOverlay();
+    case OIS::KC_LMENU:
+        RenderManager::getSingleton().rrSetCreaturesTextOverlay(true);
         break;
-    }
 
     // Zooms to the next event
     case OIS::KC_SPACE:
@@ -930,6 +943,10 @@ bool GameMode::keyReleasedNormal(const OIS::KeyEvent &arg)
 
     case OIS::KC_PGDOWN:
         frameListener.moveCamera(CameraManager::Direction::stopRotDown);
+        break;
+
+    case OIS::KC_LMENU:
+        RenderManager::getSingleton().rrSetCreaturesTextOverlay(false);
         break;
 
     default:

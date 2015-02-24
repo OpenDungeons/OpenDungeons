@@ -36,7 +36,7 @@
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
 
-#include "render/MovableTextOverlay.h"
+#include "render/CreatureOverlayStatus.h"
 #include "render/RenderManager.h"
 
 #include "rooms/RoomCrypt.h"
@@ -117,7 +117,9 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
     mMoodValue               (CreatureMoodLevel::Neutral),
     mMoodPoints              (0),
     mFirstTurnFurious        (-1),
-    mTextOverlay             (nullptr)
+    mOverlayHealthValue      (CreatureOverlayHealthValue::full),
+    mOverlayStatus           (nullptr),
+    mNeedFireRefresh         (false)
 
 {
     setMeshName(definition->getMeshName());
@@ -191,7 +193,9 @@ Creature::Creature(GameMap* gameMap) :
     mMoodValue               (CreatureMoodLevel::Neutral),
     mMoodPoints              (0),
     mFirstTurnFurious        (-1),
-    mTextOverlay             (nullptr)
+    mOverlayHealthValue      (CreatureOverlayHealthValue::full),
+    mOverlayStatus           (nullptr),
+    mNeedFireRefresh         (false)
 {
     setIsOnMap(false);
 
@@ -250,6 +254,7 @@ void Creature::createMeshLocal()
         else
             mHp = Helper::toDouble(mHpString);
 
+        computeCreatureOverlayHealthValue();
     }
 
     if(!getGameMap()->isServerGameMap())
@@ -480,6 +485,7 @@ void Creature::exportToPacket(ODPacket& os) const
     os << mPhysicalDefense;
     os << mMagicalDefense;
     os << mWeaponlessAtkRange;
+    os << mOverlayHealthValue;
 
     if(mWeaponL != nullptr)
         os << mWeaponL->getName();
@@ -519,6 +525,7 @@ void Creature::importFromPacket(ODPacket& is)
     OD_ASSERT_TRUE(is >> mPhysicalDefense);
     OD_ASSERT_TRUE(is >> mMagicalDefense);
     OD_ASSERT_TRUE(is >> mWeaponlessAtkRange);
+    OD_ASSERT_TRUE(is >> mOverlayHealthValue);
 
     OD_ASSERT_TRUE(is >> tempString);
     if(tempString != "none")
@@ -557,6 +564,8 @@ void Creature::setHP(double nHP)
         mHp = mMaxHP;
     else
         mHp = nHP;
+
+    computeCreatureOverlayHealthValue();
 }
 
 double Creature::getHP() const
@@ -587,9 +596,9 @@ void Creature::update(Ogre::Real timeSinceLastFrame)
             mAttackWarmupTime -= timeSinceLastFrame;
     }
 
-    if(getTextOverlay() != nullptr)
+    if(getOverlayStatus() != nullptr)
     {
-        getTextOverlay()->update(timeSinceLastFrame);
+        getOverlayStatus()->update(timeSinceLastFrame);
     }
 }
 
@@ -613,15 +622,9 @@ void Creature::setLevel(unsigned int level)
     mLevel = std::min(MAX_LEVEL, level);
     mExp = 0.0;
 
-    if(!getGameMap()->isServerGameMap())
-    {
-        refreshCreature();
-        return;
-    }
-
     buildStats();
 
-    fireCreatureRefresh();
+    mNeedFireRefresh = true;
 }
 
 void Creature::doUpkeep()
@@ -678,6 +681,8 @@ void Creature::doUpkeep()
     mHp += mDefinition->getHpHealPerTurn();
     if (mHp > getMaxHp())
         mHp = getMaxHp();
+
+    computeCreatureOverlayHealthValue();
 
     //Rogue creatures are not affected by awakness/hunger
     if(!getSeat()->isRogueSeat())
@@ -2184,6 +2189,7 @@ bool Creature::handleEatingAction(const CreatureAction& actionItem)
             mEatCooldown = Random::Int(ConfigManager::getSingleton().getRoomConfigUInt32("HatcheryCooldownChickenMin"),
                 ConfigManager::getSingleton().getRoomConfigUInt32("HatcheryCooldownChickenMax"));
             mHp += ConfigManager::getSingleton().getRoomConfigDouble("HatcheryHpRecoveredPerChicken");
+            computeCreatureOverlayHealthValue();
             Ogre::Vector3 walkDirection = Ogre::Vector3(closestChickenTile->getX(), closestChickenTile->getY(), 0) - getPosition();
             walkDirection.normalise();
             setAnimationState("Attack1", false, walkDirection);
@@ -2479,6 +2485,8 @@ bool Creature::handleSleepAction(const CreatureAction& actionItem)
         mHp += mDefinition->getSleepHeal();
         if (mHp > mMaxHP)
             mHp = mMaxHP;
+
+        computeCreatureOverlayHealthValue();
 
         if (mAwakeness >= 100.0 && mHp >= mMaxHP)
             popAction();
@@ -2956,8 +2964,11 @@ bool Creature::checkLevelUp()
     return true;
 }
 
-void Creature::refreshCreature()
+void Creature::refreshCreature(ODPacket& packet)
 {
+    OD_ASSERT_TRUE(packet >> mLevel);
+    OD_ASSERT_TRUE(packet >> mOverlayHealthValue);
+    // DAN_TEST modifier overlay
     RenderManager::getSingleton().rrScaleEntity(this);
 }
 
@@ -3344,6 +3355,8 @@ double Creature::takeDamage(GameEntity* attacker, double physicalDamage, double 
     magicalDamage = std::max(magicalDamage - getMagicalDefense(), 0.0);
     double damageDone = std::min(mHp, physicalDamage + magicalDamage);
     mHp -= damageDone;
+    computeCreatureOverlayHealthValue();
+
     if(!getGameMap()->isServerGameMap())
         return damageDone;
 
@@ -3897,7 +3910,7 @@ void Creature::slap()
 
     // TODO : on server side, we should boost speed for a time and decrease mood/hp
     mHp -= mMaxHP * ConfigManager::getSingleton().getSlapDamagePercent() / 100.0;
-
+    computeCreatureOverlayHealthValue();
 }
 
 void Creature::fireAddEntity(Seat* seat, bool async)
@@ -3959,8 +3972,12 @@ void Creature::fireRemoveEntity(Seat* seat)
     ODServer::getSingleton().queueServerNotification(serverNotification);
 }
 
-void Creature::fireCreatureRefresh()
+void Creature::fireCreatureRefreshIfNeeded()
 {
+    if(!mNeedFireRefresh)
+        return;
+
+    mNeedFireRefresh = false;
     for(Seat* seat : mSeatsWithVisionNotified)
     {
         if(seat->getPlayer() == nullptr)
@@ -3973,6 +3990,7 @@ void Creature::fireCreatureRefresh()
             ServerNotificationType::creatureRefresh, seat->getPlayer());
         serverNotification->mPacket << name;
         serverNotification->mPacket << mLevel;
+        serverNotification->mPacket << mOverlayHealthValue;
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 }
@@ -4094,4 +4112,40 @@ void Creature::computeMood()
             home->releaseTileForSleeping(getHomeTile(), this);
         }
     }
+}
+
+void Creature::computeCreatureOverlayHealthValue()
+{
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    CreatureOverlayHealthValue value = CreatureOverlayHealthValue::nearDeath;
+    if(getHP() == getMaxHp())
+        value = CreatureOverlayHealthValue::full;
+    else if(getHP() >= (getMaxHp() * 0.75))
+        value = CreatureOverlayHealthValue::threeQuarters;
+    else if(getHP() >= (getMaxHp() * 0.5))
+        value = CreatureOverlayHealthValue::half;
+    else if(getHP() >= (getMaxHp() * 0.25))
+        value = CreatureOverlayHealthValue::oneQuarter;
+
+    if(mOverlayHealthValue != value)
+    {
+        mOverlayHealthValue = value;
+        mNeedFireRefresh = true;
+    }
+}
+
+ODPacket& operator<<(ODPacket& os, const CreatureOverlayHealthValue& value)
+{
+    os << static_cast<int32_t>(value);
+    return os;
+}
+
+ODPacket& operator>>(ODPacket& is, CreatureOverlayHealthValue& value)
+{
+    int32_t tmp;
+    OD_ASSERT_TRUE(is >> tmp);
+    value = static_cast<CreatureOverlayHealthValue>(tmp);
+    return is;
 }

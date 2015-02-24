@@ -2894,6 +2894,11 @@ void GameMap::updateVisibleEntities()
     // Notify changes on visible tiles
     for(Seat* seat : mSeats)
         seat->notifyChangedVisibleTiles();
+
+    for(Creature* creature : mCreatures)
+    {
+        creature->fireCreatureRefreshIfNeeded();
+    }
 }
 
 void GameMap::clearCreatureMoodModifiers()

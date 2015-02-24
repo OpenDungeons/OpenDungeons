@@ -35,7 +35,8 @@
 class GameMap;
 class Creature;
 class CreatureDefinition;
-class MovableTextOverlay;
+class CreatureOverlayStatus;
+class ODPacket;
 class Room;
 class Weapon;
 
@@ -45,6 +46,18 @@ namespace CEGUI
 {
 class Window;
 }
+
+enum class CreatureOverlayHealthValue
+{
+    full = 0,
+    threeQuarters = 1,
+    half = 2,
+    oneQuarter = 3,
+    nearDeath = 4
+};
+
+ODPacket& operator<<(ODPacket& os, const CreatureOverlayHealthValue& value);
+ODPacket& operator>>(ODPacket& is, CreatureOverlayHealthValue& value);
 
 /*! \class Creature Creature.h
  *  \brief Position, status, and AI state for a single game creature.
@@ -70,13 +83,13 @@ public:
     static const std::string CREATURE_PREFIX;
 
     //! \brief Conform: AttackableEntity - Returns the prefix used in the OGRE identifier for this object.
-    std::string getOgreNamePrefix() const
+    std::string getOgreNamePrefix() const override
     { return CREATURE_PREFIX; }
 
     virtual void addToGameMap();
     virtual void removeFromGameMap();
 
-    bool canDisplayStatsWindow(Seat* seat)
+    bool canDisplayStatsWindow(Seat* seat) override
     { return true; }
     void createStatsWindow();
     void destroyStatsWindow();
@@ -84,43 +97,37 @@ public:
     void updateStatsWindow(const std::string& txt);
     std::string getStatsText();
 
-    Ogre::Vector2 get2dPosition()
-    {
-        const Ogre::Vector3& tmp = getPosition();
-        return Ogre::Vector2(tmp.x,tmp.y);
-    }
-
     //! \brief Get the level of the object
     inline unsigned int getLevel() const
     { return mLevel; }
 
-    double getHP(Tile *tile) const
+    inline double getHP(Tile *tile) const
     { return getHP(); }
 
     double getHP() const;
 
     //! \brief Gets the maximum HP the creature can have currently
-    double getMaxHp()const
+    inline double getMaxHp()const
     { return mMaxHP; }
 
     //! \brief Gets the current dig rate
-    double getDigRate() const
+    inline double getDigRate() const
     { return mDigRate; }
 
     //! \brief Gets pointer to the Weapon in left hand
-    const Weapon* getWeaponL() const
+    inline const Weapon* getWeaponL() const
     { return mWeaponL; }
 
     //! \brief Gets pointer to the Weapon in right hand
-    const Weapon* getWeaponR() const
+    inline const Weapon* getWeaponR() const
     { return mWeaponR; }
 
     //! \brief Pointer to the creatures home tile, where its bed is located
-    Tile* getHomeTile() const
+    inline Tile* getHomeTile() const
     { return mHomeTile; }
 
     //! \brief Pointer to the creature type specification
-    const CreatureDefinition* getDefinition() const
+    inline const CreatureDefinition* getDefinition() const
     { return mDefinition; }
 
     /*! \brief Changes the creature's position to a new position.
@@ -135,11 +142,11 @@ public:
     double getMoveSpeed(Tile* tile) const;
 
     //! \brief Gets the creature depending the terrain type.
-    double getMoveSpeedGround() const
+    inline double getMoveSpeedGround() const
     { return mGroundSpeed; }
-    double getMoveSpeedWater() const
+    inline double getMoveSpeedWater() const
     { return mWaterSpeed; }
-    double getMoveSpeedLava() const
+    inline double getMoveSpeedLava() const
     { return mLavaSpeed; }
 
     //! \brief Updates the entity path, movement, and direction, and creature attack time
@@ -207,8 +214,10 @@ public:
     //! \brief Check whether a creature has earned one level.
     bool checkLevelUp();
 
-    //! \brief Refreshes current creature size to adapt to its current level
-    void refreshCreature();
+    //! \brief Refreshes current creature with the giver ODPacket. This function works
+    //! with fireCreatureRefreshIfNeeded. The data carried in the ODPacket is the needed data
+    //! on client side
+    void refreshCreature(ODPacket& packet);
 
     //! \brief Updates the lists of tiles within sight radius.
     //! And the tiles the creature can "see" (removing the ones behind walls).
@@ -250,7 +259,7 @@ public:
     //! \brief Returns true if the given action is queued in the action list. False otherwise
     bool isActionInList(CreatureActionType action);
 
-    const std::deque<CreatureAction>& getActionQueue()
+    inline const std::deque<CreatureAction>& getActionQueue()
     { return mActionQueue; }
 
     //! \brief Clears the action queue, except for the Idle action at the end.
@@ -275,11 +284,11 @@ public:
     virtual const Ogre::Vector3& getScale() const
     { return mScale; }
 
-    inline MovableTextOverlay* getTextOverlay() const
-    { return mTextOverlay; }
+    inline CreatureOverlayStatus* getOverlayStatus() const
+    { return mOverlayStatus; }
 
-    inline void setTextOverlay(MovableTextOverlay* textOverlay)
-    { mTextOverlay = textOverlay; }
+    inline void setOverlayStatus(CreatureOverlayStatus* overlayStatus)
+    { mOverlayStatus = overlayStatus; }
 
     //! \FIXME Those functions are lacking parameters to be actually functional
     //! \brief Get the text format of creatures in level files (already spawned at startup).
@@ -320,12 +329,12 @@ public:
 
     //! \brief Allows to change the room the creature is using (when room absorbtion for example). Beware, the room
     //! change logic has to be handled elsewhere
-    void changeJobRoom(Room* newRoom)
+    inline void changeJobRoom(Room* newRoom)
     { mJobRoom = newRoom; }
 
     //! \brief Allows to change the room the creature is using (when room absorbtion for example). Beware, the room
     //! change logic has to be handled elsewhere
-    void changeEatRoom(Room* newRoom)
+    inline void changeEatRoom(Room* newRoom)
     { mEatRoom = newRoom; }
 
     //! \brief Makes the creature stop its job (releases the job room)
@@ -360,6 +369,11 @@ public:
     inline int32_t getGoldFee() const
     { return mGoldFee; }
 
+    inline CreatureOverlayHealthValue getOverlayHealthValue() const
+    { return mOverlayHealthValue; }
+
+    void fireCreatureRefreshIfNeeded();
+
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
@@ -380,8 +394,6 @@ private:
 
     //! \brief Constructor for sending creatures through network. It should not be used in game.
     Creature(GameMap* gameMap);
-
-    void fireCreatureRefresh();
 
     //! \brief Natural physical and magical attack and defense (without equipment)
     double mPhysicalAttack;
@@ -488,9 +500,17 @@ private:
     //! it will become rogue
     int64_t                         mFirstTurnFurious;
 
-    //! Used by the renderer to save this entity's text overlay. It is its rensponsability
+    //! \brief Represents the life value displayed on client side. We do not notify each HP change
+    //! to avoid too many communication. But when mOverlayHealthValue changes, we will
+    CreatureOverlayHealthValue      mOverlayHealthValue;
+
+    //! Used by the renderer to save this entity's overlay. It is its rensponsability
     //! to allocate/delete this pointer
-    MovableTextOverlay* mTextOverlay;
+    CreatureOverlayStatus*          mOverlayStatus;
+
+    //! Used on server side to indicate if a change that needs to be notified to the clients happened (like changing
+    //! level or HP)
+    bool                            mNeedFireRefresh;
 
     //! \brief The logic in the idle function is basically to roll a dice and, if the value allows, push an action to test if
     //! it is possible. To avoid testing several times the same action, we check in mActionTry if the action as already been
@@ -620,6 +640,8 @@ private:
 
     //! \brief Called when an angry creature wants to attack a natural enemy
     void engageAlliedNaturalEnemy(Creature* attacker);
+
+    void computeCreatureOverlayHealthValue();
 };
 
 #endif // CREATURE_H

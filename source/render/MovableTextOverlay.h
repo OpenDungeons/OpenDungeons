@@ -39,6 +39,9 @@ public:
     //! Forces the text area size
     void forceTextArea(Ogre::Real textWidth, Ogre::Real textHeight);
 
+    //! Changes the material displayed on the overlay
+    void setMaterialName(const Ogre::String& materialName);
+
     inline const Ogre::String& getName() const
     { return mName; }
 
@@ -50,6 +53,9 @@ public:
 
     inline const bool isDisplayed() const
     { return mDisplayed; }
+
+    inline const std::string& getMaterialName() const
+    { return mMaterialName; }
 
     void setDisplay(bool display);
     void update(Ogre::Real timeSincelastFrame);
@@ -72,6 +78,9 @@ private:
     //! true if the text should be displayed
     bool mDisplayed;
 
+    //! the Material used in the overlay
+    Ogre::String mMaterialName;
+
     //! the Text to display
     Ogre::String mCaption;
 
@@ -80,6 +89,12 @@ private:
 
     //! Text height in pixels
     Ogre::Real mTextHeight;
+
+    //! Forced width in pixels
+    Ogre::Real mForcedWidth;
+
+    //! Forced height in pixels
+    Ogre::Real mForcedHeight;
 
     //! true if the upper vertices projections of the MovableObject are on screen
     bool mOnScreen;

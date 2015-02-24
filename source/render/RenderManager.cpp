@@ -31,11 +31,12 @@
 #include "entities/Weapon.h"
 #include "traps/Trap.h"
 #include "game/Player.h"
-#include "render/MovableTextOverlay.h"
+#include "render/CreatureOverlayStatus.h"
 #include "render/ODFrameListener.h"
 #include "utils/ResourceManager.h"
 #include "game/Seat.h"
 #include "entities/MovableGameEntity.h"
+#include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "entities/GameEntity.h"
 
@@ -512,16 +513,19 @@ void RenderManager::rrCreateCreature(Creature* curCreature)
     node->attachObject(ent);
     curCreature->setParentSceneNode(node->getParentSceneNode());
 
-    rrCreatureDisplayMovableText(curCreature, mCreatureTextOverlayDisplayed);
+    Ogre::Camera* cam = mViewport->getCamera();
+    CreatureOverlayStatus* creatureOverlay = new CreatureOverlayStatus(curCreature, ent, cam);
+    curCreature->setOverlayStatus(creatureOverlay);
+
+    creatureOverlay->setDisplay(mCreatureTextOverlayDisplayed);
 }
 
 void RenderManager::rrDestroyCreature(Creature* curCreature)
 {
-    if(curCreature->getTextOverlay() != nullptr)
+    if(curCreature->getOverlayStatus() != nullptr)
     {
-        curCreature->getTextOverlay()->setDisplay(false);
-        delete curCreature->getTextOverlay();
-        curCreature->setTextOverlay(nullptr);
+        delete curCreature->getOverlayStatus();
+        curCreature->setOverlayStatus(nullptr);
     }
 
     std::string creatureName = curCreature->getOgreNamePrefix() + curCreature->getName();
@@ -1022,42 +1026,17 @@ void RenderManager::rrReleaseCarriedEntity(Creature* carrier, GameEntity* carrie
     carriedNode->setInheritScale(true);
 }
 
-void RenderManager::rrCreatureDisplayMovableText(Creature* creature, bool display)
+void RenderManager::rrSetCreaturesTextOverlay(bool value)
 {
-    if(creature->getTextOverlay() == nullptr)
-    {
-        if(!display)
-            return;
-
-        std::string creatureName = creature->getOgreNamePrefix() + creature->getName();
-        if(!mSceneManager->hasEntity(creatureName))
-        {
-            OD_ASSERT_TRUE_MSG(false, "creatureName=" + creatureName);
-            return;
-        }
-
-        Ogre::Entity* ent = mSceneManager->getEntity(creatureName);
-        Ogre::Camera* cam = mViewport->getCamera();
-        MovableTextOverlay* textOverlay = new MovableTextOverlay(creature->getName(),
-            ent, cam, "MedievalSharp", 16, Ogre::ColourValue::White, "CreatureOverlay");
-        textOverlay->setCaption(creature->getName());
-        textOverlay->setDisplay(true);
-        creature->setTextOverlay(textOverlay);
-    }
-    else
-    {
-        creature->getTextOverlay()->setDisplay(display);
-    }
-}
-
-void RenderManager::rrToggleCreatureTextOverlay()
-{
-    mCreatureTextOverlayDisplayed = !mCreatureTextOverlayDisplayed;
+    mCreatureTextOverlayDisplayed = value;
     const GameMap* clientGameMap = ODFrameListener::getSingleton().getClientGameMap();
     for(Creature* creature : clientGameMap->getCreatures())
-    {
-        rrCreatureDisplayMovableText(creature, mCreatureTextOverlayDisplayed);
-    }
+        creature->getOverlayStatus()->setDisplay(mCreatureTextOverlayDisplayed);
+}
+
+void RenderManager::rrTemporaryDisplayCreaturesTextOverlay(Creature* creature, Ogre::Real timeToDisplay)
+{
+    creature->getOverlayStatus()->setTemporaryDisplayTime(timeToDisplay);
 }
 
 void RenderManager::setEntityOpacity(Ogre::Entity* ent, float opacity)
@@ -1154,4 +1133,42 @@ void RenderManager::entitySlapped()
     mHandAnimationState->setTimePosition(0);
     mHandAnimationState->setLoop(false);
     mHandAnimationState->setEnabled(true);
+}
+
+std::string RenderManager::rrBuildSkullFlagMaterial(const std::string& materialNameBase,
+        const Ogre::ColourValue& color)
+{
+    std::string materialNameToUse = materialNameBase + "_" + Ogre::StringConverter::toString(color);
+
+    Ogre::MaterialPtr requestedMaterial = Ogre::MaterialPtr(Ogre::MaterialManager::getSingleton().getByName(materialNameToUse));
+
+    // If this texture has been copied and colourized, we can return
+    if (!requestedMaterial.isNull())
+        return materialNameToUse;
+
+    Ogre::MaterialPtr oldMaterial = Ogre::MaterialManager::getSingleton().getByName(materialNameBase);
+
+    Ogre::MaterialPtr newMaterial = oldMaterial->clone(materialNameToUse);
+    if(!mShaderGenerator->cloneShaderBasedTechniques(oldMaterial->getName(), oldMaterial->getGroup(),
+            newMaterial->getName(), newMaterial->getGroup()))
+    {
+        OD_ASSERT_TRUE_MSG(false, "Failed to clone rtss for material: " + materialNameBase);
+    }
+
+    for (unsigned int j = 0; j < newMaterial->getNumTechniques(); ++j)
+    {
+        Ogre::Technique* technique = newMaterial->getTechnique(j);
+        if (technique->getNumPasses() == 0)
+            continue;
+
+        for (uint16_t i = 0; i < technique->getNumPasses(); ++i)
+        {
+            Ogre::Pass* pass = technique->getPass(i);
+            pass->getTextureUnitState(0)->setColourOperationEx(Ogre::LayerBlendOperationEx::LBX_MODULATE,
+                Ogre::LayerBlendSource::LBS_TEXTURE, Ogre::LayerBlendSource::LBS_MANUAL, Ogre::ColourValue(),
+                color);
+        }
+    }
+
+    return materialNameToUse;
 }
