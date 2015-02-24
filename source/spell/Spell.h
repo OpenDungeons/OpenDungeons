@@ -49,11 +49,6 @@ public:
     virtual GameEntityType getObjectType() const
     { return GameEntityType::spell; }
 
-    static const std::string SPELL_OGRE_PREFIX;
-
-    virtual std::string getOgreNamePrefix() const
-    { return SPELL_OGRE_PREFIX; }
-
     static Spell* getSpellFromStream(GameMap* gameMap, std::istream &is);
     static Spell* getSpellFromPacket(GameMap* gameMap, ODPacket &is);
 

@@ -2650,6 +2650,15 @@ GameEntity* GameMap::getEntityFromTypeAndName(GameEntityType entityType,
         case GameEntityType::mapLight:
             return getMapLight(entityName);
 
+        case GameEntityType::tile:
+        {
+            int x, y;
+            if(!Tile::checkTileName(entityName, x, y))
+                return nullptr;
+
+            return getTile(x, y);
+        }
+
         default:
             break;
     }

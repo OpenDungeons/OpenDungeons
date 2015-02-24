@@ -80,12 +80,6 @@ public:
     virtual GameEntityType getObjectType() const
     { return GameEntityType::creature; }
 
-    static const std::string CREATURE_PREFIX;
-
-    //! \brief Conform: AttackableEntity - Returns the prefix used in the OGRE identifier for this object.
-    std::string getOgreNamePrefix() const override
-    { return CREATURE_PREFIX; }
-
     virtual void addToGameMap();
     virtual void removeFromGameMap();
 

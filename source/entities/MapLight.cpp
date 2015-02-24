@@ -33,7 +33,6 @@
 #include <sstream>
 
 const std::string MapLight::MAPLIGHT_NAME_PREFIX = "Map_light_";
-const std::string MapLight::MAPLIGHT_INDICATOR_PREFIX = "MapLightIndicator_";
 
 MapLight::MapLight(GameMap* gameMap, Ogre::Real diffRed, Ogre::Real diffGreen, Ogre::Real diffBlue,
         Ogre::Real specRed, Ogre::Real specGreen, Ogre::Real specBlue,

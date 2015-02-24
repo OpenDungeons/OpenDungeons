@@ -76,8 +76,6 @@
 
 static const int NB_TURN_FLEE_MAX = 5;
 
-const std::string Creature::CREATURE_PREFIX = "Creature_";
-
 Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
     MovableGameEntity        (gameMap),
     mPhysicalAttack          (1.0),

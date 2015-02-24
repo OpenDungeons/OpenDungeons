@@ -44,7 +44,6 @@
 #include <iostream>
 
 const std::string RenderedMovableEntity::RENDEREDMOVABLEENTITY_PREFIX = "RenderedMovableEntity_";
-const std::string RenderedMovableEntity::RENDEREDMOVABLEENTITY_OGRE_PREFIX = "OgreRenderedMovableEntity_";
 
 const Ogre::Vector3 SCALE(0.7,0.7,0.7);
 

@@ -59,10 +59,6 @@ public:
     { mFlickerNode = node; }
 
     static const std::string MAPLIGHT_NAME_PREFIX;
-    static const std::string MAPLIGHT_INDICATOR_PREFIX;
-
-    virtual std::string getOgreNamePrefix() const
-    { return MAPLIGHT_NAME_PREFIX; }
 
     virtual void addToGameMap();
     virtual void removeFromGameMap();

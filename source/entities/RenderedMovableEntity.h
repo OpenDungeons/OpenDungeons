@@ -40,9 +40,6 @@ public:
     RenderedMovableEntity(GameMap* gameMap);
 
     static const std::string RENDEREDMOVABLEENTITY_PREFIX;
-    static const std::string RENDEREDMOVABLEENTITY_OGRE_PREFIX;
-
-    virtual std::string getOgreNamePrefix() const { return RENDEREDMOVABLEENTITY_OGRE_PREFIX; }
 
     virtual void addToGameMap();
     virtual void removeFromGameMap();

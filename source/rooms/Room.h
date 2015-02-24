@@ -61,8 +61,6 @@ public:
     virtual GameEntityType getObjectType() const
     { return GameEntityType::room; }
 
-    virtual std::string getOgreNamePrefix() const { return "Room_"; }
-
     virtual void addToGameMap();
     virtual void removeFromGameMap();
 

@@ -162,8 +162,15 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
         std::string resultName = itr->movable->getName();
 
         // Checks which tile we are on (if any)
-        if (!Tile::checkTileName(resultName, inputManager->mXPos, inputManager->mYPos))
+        GameEntity* entity = getEntityFromOgreName(resultName);
+        if((entity == nullptr) ||
+           (entity->getObjectType() != GameEntityType::tile))
+        {
             continue;
+        }
+        Tile* tile = static_cast<Tile*>(entity);
+        inputManager->mXPos = tile->getX();
+        inputManager->mYPos = tile->getY();
 
         // If we don't drag anything, there is no affected tiles to compute.
         if (!inputManager->mLMouseDown || player->getCurrentAction() == Player::SelectedAction::none)
@@ -266,8 +273,15 @@ void EditorMode::handleMouseMovedDragType(const OIS::MouseEvent &arg)
             std::string resultName = itr->movable->getName();
 
             // Checks which tile we are on (if any)
-            if (!Tile::checkTileName(resultName, inputManager->mXPos, inputManager->mYPos))
+            GameEntity* entity = getEntityFromOgreName(resultName);
+            if((entity == nullptr) ||
+               (entity->getObjectType() != GameEntityType::tile))
+            {
                 continue;
+            }
+            Tile* tile = static_cast<Tile*>(entity);
+            inputManager->mXPos = tile->getX();
+            inputManager->mYPos = tile->getY();
 
             handleCursorPositionUpdate();
 
