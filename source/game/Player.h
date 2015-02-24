@@ -26,6 +26,7 @@
 class Creature;
 class GameMap;
 class GameEntity;
+class ODPacket;
 class Research;
 class Seat;
 class Tile;
@@ -34,6 +35,54 @@ enum class SpellType;
 enum class RoomType;
 enum class TrapType;
 enum class ResearchType;
+
+enum class PlayerEventType
+{
+    nullType,
+    fight
+};
+
+ODPacket& operator<<(ODPacket& os, const PlayerEventType& type);
+ODPacket& operator>>(ODPacket& is, PlayerEventType& type);
+
+//! Class that represents the events where the player can zoom
+class PlayerEvent
+{
+public:
+    PlayerEvent() :
+        mType(PlayerEventType::nullType),
+        mTile(nullptr),
+        mTimeRemain(0.0)
+    {
+    }
+
+    PlayerEvent(PlayerEventType type, Tile* tile, Ogre::Real timeRemain) :
+        mType(type),
+        mTile(tile),
+        mTimeRemain(timeRemain)
+    {
+    }
+
+    inline PlayerEventType getType() const
+    { return mType; }
+
+    inline Tile* getTile() const
+    { return mTile; }
+
+    inline float getTimeRemain() const
+    { return mTimeRemain; }
+
+    inline void setTimeRemain(float timeRemain)
+    { mTimeRemain = timeRemain; }
+
+    void exportToPacket(GameMap* gameMap, ODPacket& os);
+    void importFromPacket(GameMap* gameMap, ODPacket& is);
+
+private:
+    PlayerEventType mType;
+    Tile* mTile;
+    float mTimeRemain;
+};
 
 /*! \brief The player class contains information about a human, or computer, player in the game.
  *
@@ -147,8 +196,9 @@ public:
     void initPlayer();
 
     //! \brief Notify the player is fighting
-    //! Should be called on the server game map for human players only
-    void notifyFighting();
+    //! Should be called on the server game map for human players only. tile represents
+    //! the place where the fight is happening and player is the Player actually fighting
+    void notifyTeamFighting(Player* player, Tile* tile);
 
     //! \brief Notify the player is fighting
     //! Should be called on the server game map for human players only
@@ -209,6 +259,18 @@ public:
     inline void guiResearchRefreshedPending()
     { mNeedRefreshGuiResearchPending = false; }
 
+    void fireEvents();
+
+    //! Called on client side to update the current list of events. Note that
+    //! the time remaining of PlayerEvent class is not relevant on client side
+    void updateEvents(const std::vector<PlayerEvent*>& events);
+
+    //! get the next event. After index. If index > events size, the first one is
+    //! sent. When the function returns, index is set to the index of the returned event
+    //! and it returns the PlayerEvent if any (nullptr is none).
+    //! Note that on client side, PlayerEvent::mTimeRemain is not relevant
+    const PlayerEvent* getNextEvent(uint32_t& index) const;
+
 private:
     //! \brief Player ID is only used during seat configuration phase
     //! During the game, one should use the seat ID to identify a player because
@@ -232,13 +294,6 @@ private:
 
     //! True: player is human. False: player is a computer/inactive.
     bool mIsHuman;
-
-    //! \brief This counter tells for how much time is left before considering
-    //! the player to be out of struggle.
-    //! When > 0, the player is considered attacking or being attacked.
-    //! This member is used to trigger the calm or fighting music when incarnating
-    //! the local player.
-    float mFightingTime;
 
     //! \brief This counter tells for how much time is left before considering
     //! the player should be notified again that he has no free space to store gold.
@@ -265,6 +320,9 @@ private:
 
     //! \brief Researches pending. Used on server side only
     std::vector<ResearchType> mResearchPending;
+
+    //! \brief List of tiles there is an event on. Used on client and server
+    std::vector<PlayerEvent*> mEvents;
 
     //! \brief A simple mutator function to put the given entity into the player's hand,
     //! note this should NOT be called directly for creatures on the map,

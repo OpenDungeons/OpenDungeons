@@ -1292,7 +1292,7 @@ void GameMap::updatePlayerTime(Ogre::Real timeSinceLastFrame)
     }
 }
 
-void GameMap::playerIsFighting(Player* player)
+void GameMap::playerIsFighting(Player* player, Tile* tile)
 {
     if (player == nullptr)
         return;
@@ -1301,8 +1301,6 @@ void GameMap::playerIsFighting(Player* player)
     if (player->getSeat() == nullptr)
         return;
 
-    int teamId = player->getSeat()->getTeamId();
-
     // Get every player's allies
     for (Player* ally : mPlayers)
     {
@@ -1310,11 +1308,11 @@ void GameMap::playerIsFighting(Player* player)
         if (!ally || !ally->getIsHuman())
             continue;
 
-        if (ally->getSeat() == nullptr || ally->getSeat()->getTeamId() != teamId)
+        if (ally->getSeat() == nullptr || !ally->getSeat()->isAlliedSeat(player->getSeat()))
             continue;
 
         // Warn the ally about the battle
-        ally->notifyFighting();
+        ally->notifyTeamFighting(player, tile);
     }
 }
 
@@ -2433,6 +2431,12 @@ Ogre::Real GameMap::crowDistance(Creature *c1, Creature *c2)
     Tile* tempTile1 = c1->getPositionTile();
     Tile* tempTile2 = c2->getPositionTile();
     return crowDistance(tempTile1->getX(), tempTile1->getY(), tempTile2->getX(), tempTile2->getY());
+}
+
+Ogre::Real GameMap::squaredCrowDistance(Tile *t1, Tile *t2) const
+{
+    return std::pow(static_cast<Ogre::Real>(t2->getX() - t1->getX()), 2.0f)
+        + std::pow(static_cast<Ogre::Real>(t2->getY() - t1->getY()), 2.0f);
 }
 
 void GameMap::processDeletionQueues()

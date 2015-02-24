@@ -31,6 +31,8 @@
 #include "entities/Weapon.h"
 #include "traps/Trap.h"
 #include "game/Player.h"
+#include "render/MovableTextOverlay.h"
+#include "render/ODFrameListener.h"
 #include "utils/ResourceManager.h"
 #include "game/Seat.h"
 #include "entities/MovableGameEntity.h"
@@ -66,7 +68,7 @@ RenderManager::RenderManager(Ogre::OverlaySystem* overlaySystem) :
     mHandAnimationState(nullptr),
     mViewport(nullptr),
     mShaderGenerator(nullptr),
-    mInitialized(false)
+    mCreatureTextOverlayDisplayed(false)
 {
     // Use Ogre::SceneType enum instead of string to identify the scene manager type; this is more robust!
     mSceneManager = Ogre::Root::getSingleton().createSceneManager(Ogre::ST_INTERIOR, "SceneManager");
@@ -79,6 +81,11 @@ RenderManager::RenderManager(Ogre::OverlaySystem* overlaySystem) :
 
 RenderManager::~RenderManager()
 {
+}
+
+void RenderManager::clearRenderer()
+{
+    mCreatureTextOverlayDisplayed = false;
 }
 
 void RenderManager::triggerCompositor(const std::string& compositorName)
@@ -490,7 +497,6 @@ void RenderManager::rrCreateCreature(Creature* curCreature)
     std::string creatureName = curCreature->getOgreNamePrefix() + curCreature->getName();
     Ogre::Entity* ent = mSceneManager->createEntity(creatureName, meshName);
     Ogre::MeshPtr meshPtr = ent->getMesh();
-
     unsigned short src, dest;
     if (!meshPtr->suggestTangentVectorBuildParams(Ogre::VES_TANGENT, src, dest))
     {
@@ -505,10 +511,19 @@ void RenderManager::rrCreateCreature(Creature* curCreature)
     node->setScale(scale);
     node->attachObject(ent);
     curCreature->setParentSceneNode(node->getParentSceneNode());
+
+    rrCreatureDisplayMovableText(curCreature, mCreatureTextOverlayDisplayed);
 }
 
 void RenderManager::rrDestroyCreature(Creature* curCreature)
 {
+    if(curCreature->getTextOverlay() != nullptr)
+    {
+        curCreature->getTextOverlay()->setDisplay(false);
+        delete curCreature->getTextOverlay();
+        curCreature->setTextOverlay(nullptr);
+    }
+
     std::string creatureName = curCreature->getOgreNamePrefix() + curCreature->getName();
     if (mSceneManager->hasEntity(creatureName))
     {
@@ -904,7 +919,7 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, co
     if(seat != nullptr)
         tempSS << "Color_" << seat->getColorId() << "_" ;
     else
-        tempSS << "Color_0_" ;
+        tempSS << "Color_null_" ;
 
     if (markedForDigging)
         tempSS << "dig_";
@@ -1005,6 +1020,44 @@ void RenderManager::rrReleaseCarriedEntity(Creature* carrier, GameEntity* carrie
     carrierNode->removeChild(carriedNode);
     carried->getParentSceneNode()->addChild(carriedNode);
     carriedNode->setInheritScale(true);
+}
+
+void RenderManager::rrCreatureDisplayMovableText(Creature* creature, bool display)
+{
+    if(creature->getTextOverlay() == nullptr)
+    {
+        if(!display)
+            return;
+
+        std::string creatureName = creature->getOgreNamePrefix() + creature->getName();
+        if(!mSceneManager->hasEntity(creatureName))
+        {
+            OD_ASSERT_TRUE_MSG(false, "creatureName=" + creatureName);
+            return;
+        }
+
+        Ogre::Entity* ent = mSceneManager->getEntity(creatureName);
+        Ogre::Camera* cam = mViewport->getCamera();
+        MovableTextOverlay* textOverlay = new MovableTextOverlay(creature->getName(),
+            ent, cam, "MedievalSharp", 16, Ogre::ColourValue::White, "CreatureOverlay");
+        textOverlay->setCaption(creature->getName());
+        textOverlay->setDisplay(true);
+        creature->setTextOverlay(textOverlay);
+    }
+    else
+    {
+        creature->getTextOverlay()->setDisplay(display);
+    }
+}
+
+void RenderManager::rrToggleCreatureTextOverlay()
+{
+    mCreatureTextOverlayDisplayed = !mCreatureTextOverlayDisplayed;
+    const GameMap* clientGameMap = ODFrameListener::getSingleton().getClientGameMap();
+    for(Creature* creature : clientGameMap->getCreatures())
+    {
+        rrCreatureDisplayMovableText(creature, mCreatureTextOverlayDisplayed);
+    }
 }
 
 void RenderManager::setEntityOpacity(Ogre::Entity* ent, float opacity)

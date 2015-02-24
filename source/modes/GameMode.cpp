@@ -61,7 +61,8 @@ GameMode::GameMode(ModeManager *modeManager):
     mMouseX(0),
     mMouseY(0),
     mCurrentInputMode(InputModeNormal),
-    mHelpWindow(nullptr)
+    mHelpWindow(nullptr),
+    mIndexEvent(0)
 {
     // Set per default the input on the map
     mModeManager->getInputManager()->mMouseDownOnCEGUIWindow = false;
@@ -795,6 +796,27 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
     case OIS::KC_V:
         ODFrameListener::getSingleton().getCameraManager()->setNextDefaultView();
         break;
+
+    case OIS::KC_N:
+    {
+        RenderManager::getSingleton().rrToggleCreatureTextOverlay();
+        break;
+    }
+
+    // Zooms to the next event
+    case OIS::KC_SPACE:
+    {
+        Player* player = mGameMap->getLocalPlayer();
+        const PlayerEvent* event = player->getNextEvent(mIndexEvent);
+        if(event == nullptr)
+            break;
+
+        Ogre::Vector3 pos = player->getSeat()->getStartingPosition();
+        pos.x = static_cast<Ogre::Real>(event->getTile()->getX());
+        pos.y = static_cast<Ogre::Real>(event->getTile()->getY());
+        frameListener.cameraFlyTo(pos);
+        break;
+    }
 
     // Quit the game
     case OIS::KC_ESCAPE:

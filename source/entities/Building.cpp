@@ -250,7 +250,7 @@ double Building::takeDamage(GameEntity* attacker, double physicalDamage, double 
         return damageDone;
 
     // Tells the server game map the player is under attack.
-    gameMap->playerIsFighting(player);
+    gameMap->playerIsFighting(player, tileTakingDamage);
 
     return damageDone;
 }

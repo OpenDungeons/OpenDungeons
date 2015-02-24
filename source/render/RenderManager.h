@@ -62,6 +62,9 @@ public:
     //! \brief Loop through the render requests in the queue and process them
     void updateRenderAnimations(Ogre::Real timeSinceLastFrame);
 
+    //! \brief Resets the renderer
+    void clearRenderer();
+
     //! \brief starts the compositor compositorName.
     void triggerCompositor(const std::string& compositorName);
 
@@ -111,6 +114,11 @@ public:
     void rrMoveMapLightFlicker(MapLight* mapLight, const Ogre::Vector3& position);
     void rrCarryEntity(Creature* carrier, GameEntity* carried);
     void rrReleaseCarriedEntity(Creature* carrier, GameEntity* carried);
+    //! If display is true, display the creature's text. If false, hides the creature's text
+    void rrCreatureDisplayMovableText(Creature* creature, bool display);
+
+    //! \brief Toggles the creatures text overlay
+    void rrToggleCreatureTextOverlay();
 
 private:
 
@@ -141,7 +149,9 @@ private:
 
     Ogre::Viewport* mViewport;
     Ogre::RTShader::ShaderGenerator* mShaderGenerator;
-    bool mInitialized;
+
+    //! \brief True if the creatures are currently displaying their text overlay
+    bool mCreatureTextOverlayDisplayed;
 };
 
 #endif // RENDERMANAGER_H_

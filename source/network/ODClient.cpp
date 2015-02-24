@@ -340,6 +340,8 @@ bool ODClient::processOneClientSocketMessage()
             Seat *tempSeat = gameMap->getSeatById(seatId);
             OD_ASSERT_TRUE_MSG(tempSeat != nullptr, "seatId=" + Ogre::StringConverter::toString(seatId));
 
+            // We reset the renderer
+            RenderManager::getSingleton().clearRenderer();
             // Move camera to starting position
             Ogre::Real startX = static_cast<Ogre::Real>(tempSeat->mStartingX);
             Ogre::Real startY = static_cast<Ogre::Real>(tempSeat->mStartingY);
@@ -347,7 +349,8 @@ bool ODClient::processOneClientSocketMessage()
             startY = startY - 7.0f;
             // Bound check
             if (startY <= 0.0)
-            startY = 0.0;
+                startY = 0.0;
+
             frameListener->setCameraPosition(Ogre::Vector3(startX, startY, MAX_CAMERA_Z));
             // If we are watching a replay, we force stopping the processing loop to
             // allow changing mode (because there is no synchronization as there is no server)
@@ -570,6 +573,19 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotificationType::playerFighting:
         {
+            int32_t playerFightingId;
+            OD_ASSERT_TRUE(packetReceived >> playerFightingId);
+            if(getPlayer()->getId() == playerFightingId)
+            {
+                frameListener->addChatMessage(new ChatMessage(ODServer::SERVER_INFORMATION,
+                    "You are under attack!"));
+            }
+            else
+            {
+                frameListener->addChatMessage(new ChatMessage(ODServer::SERVER_INFORMATION,
+                    "An ally is under attack!"));
+            }
+
             std::string fightMusic = gameMap->getLevelFightMusicFile();
             if (fightMusic.empty())
                 break;
@@ -829,6 +845,23 @@ bool ODClient::processOneClientSocketMessage()
             }
 
             getPlayer()->setResearchesDone(researches);
+            break;
+        }
+
+        case ServerNotificationType::playerEvents:
+        {
+            uint32_t nbItems;
+            OD_ASSERT_TRUE(packetReceived >> nbItems);
+            std::vector<PlayerEvent*> events;
+            while(nbItems > 0)
+            {
+                nbItems--;
+                PlayerEvent* event = new PlayerEvent;
+                event->importFromPacket(gameMap, packetReceived);
+                events.push_back(event);
+            }
+
+            getPlayer()->updateEvents(events);
             break;
         }
 

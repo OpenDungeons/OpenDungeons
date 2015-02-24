@@ -145,6 +145,9 @@ private:
     //! Useful in the wait for a true settings menu.
     CEGUI::Window* mHelpWindow;
 
+    //! Index of the event in the event queue (for zooming automatically)
+    uint32_t mIndexEvent;
+
     //! \brief Creates the help window.
     void createHelpWindow();
 

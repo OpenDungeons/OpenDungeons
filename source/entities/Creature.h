@@ -35,6 +35,7 @@
 class GameMap;
 class Creature;
 class CreatureDefinition;
+class MovableTextOverlay;
 class Room;
 class Weapon;
 
@@ -274,6 +275,12 @@ public:
     virtual const Ogre::Vector3& getScale() const
     { return mScale; }
 
+    inline MovableTextOverlay* getTextOverlay() const
+    { return mTextOverlay; }
+
+    inline void setTextOverlay(MovableTextOverlay* textOverlay)
+    { mTextOverlay = textOverlay; }
+
     //! \FIXME Those functions are lacking parameters to be actually functional
     //! \brief Get the text format of creatures in level files (already spawned at startup).
     //! \returns A string describing the IO format the creatures need to have in file.
@@ -480,6 +487,10 @@ private:
     //! \brief Reminds the first turn the creature gets furious. If is stays like this for too long,
     //! it will become rogue
     int64_t                         mFirstTurnFurious;
+
+    //! Used by the renderer to save this entity's text overlay. It is its rensponsability
+    //! to allocate/delete this pointer
+    MovableTextOverlay* mTextOverlay;
 
     //! \brief The logic in the idle function is basically to roll a dice and, if the value allows, push an action to test if
     //! it is possible. To avoid testing several times the same action, we check in mActionTry if the action as already been
