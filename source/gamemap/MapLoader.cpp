@@ -311,8 +311,12 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         entire_line += nextParam;
         //std::cout << "Entire line: " << entire_line << std::endl;
 
-        MapLight* tempLight = new MapLight(&gameMap);
-        MapLight::loadFromLine(entire_line, tempLight);
+        std::stringstream ss(entire_line);
+        MapLight* tempLight = MapLight::getMapLightFromStream(&gameMap, ss);
+        OD_ASSERT_TRUE(tempLight != nullptr);
+        if(tempLight == nullptr)
+            return false;
+        tempLight->importFromStream(ss);
         tempLight->setName(gameMap.nextUniqueNameMapLight());
         tempLight->addToGameMap();
     }
@@ -604,9 +608,8 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     // Write out the lights to the file.
     levelFile << "\n[Lights]\n";
     levelFile << "# " << MapLight::getFormat() << "\n";
-    for (unsigned int i = 0, num = gameMap.numMapLights(); i < num; ++i)
+    for (MapLight* mapLight : gameMap.getMapLights())
     {
-        MapLight* mapLight = gameMap.getMapLight(i);
         mapLight->exportToStream(levelFile);
         levelFile << std::endl;
     }
@@ -623,12 +626,11 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     // Write out the individual creatures to the file
     levelFile << "\n[Creatures]\n";
     levelFile << "# " << Creature::getFormat() << "\n";
-    for (unsigned int i = 0, num = gameMap.numCreatures(); i < num; ++i)
+    for (Creature* creature : gameMap.getCreatures())
     {
         //NOTE: This code is duplicated in the client side method
         //"addclass" defined in src/Client.cpp and readGameMapFromFile.
         //Changes to this code should be reflected in that code as well
-        Creature* creature = gameMap.getCreature(i);
         levelFile << "[Creature]" << std::endl;
         creature->exportToStream(levelFile);
         levelFile << std::endl << "[/Creature]" << std::endl;

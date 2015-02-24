@@ -272,36 +272,14 @@ std::string MapLight::getFormat()
 
 MapLight* MapLight::getMapLightFromStream(GameMap* gameMap, std::istream& is)
 {
-    // TODO : replace MapLight::loadFromLine
-    return nullptr;
+    MapLight* mapLight = new MapLight(gameMap);
+    return mapLight;
 }
 
 MapLight* MapLight::getMapLightFromPacket(GameMap* gameMap, ODPacket& is)
 {
     MapLight* mapLight = new MapLight(gameMap);
     return mapLight;
-}
-
-void MapLight::loadFromLine(const std::string& line, MapLight* m)
-{
-    std::vector<std::string> elems = Helper::split(line, '\t');
-
-    m->mPosition.x = Helper::toDouble(elems[0]);
-    m->mPosition.y = Helper::toDouble(elems[1]);
-    m->mPosition.z = Helper::toDouble(elems[2]);
-
-    m->mDiffuseColor.r = Helper::toDouble(elems[3]);
-    m->mDiffuseColor.g = Helper::toDouble(elems[4]);
-    m->mDiffuseColor.b = Helper::toDouble(elems[5]);
-
-    m->mSpecularColor.r = Helper::toDouble(elems[6]);
-    m->mSpecularColor.g = Helper::toDouble(elems[7]);
-    m->mSpecularColor.b = Helper::toDouble(elems[8]);
-
-    m->mAttenuationRange = Helper::toDouble(elems[9]);
-    m->mAttenuationConstant = Helper::toDouble(elems[10]);
-    m->mAttenuationLinear = Helper::toDouble(elems[11]);
-    m->mAttenuationQuadratic = Helper::toDouble(elems[12]);
 }
 
 void MapLight::exportToStream(std::ostream& os) const

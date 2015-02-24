@@ -34,9 +34,9 @@ GoalKillAllEnemies::GoalKillAllEnemies(const std::string& nName,
 bool GoalKillAllEnemies::isMet(Seat *s)
 {
     // Loop over all the creatures in the game map and check to see if any of them are of a different color than our seat.
-    for (unsigned int i = 0, num = mGameMap->numCreatures(); i < num; ++i)
+    for (Creature* creature : mGameMap->getCreatures())
     {
-        if (!mGameMap->getCreature(i)->getSeat()->isAlliedSeat(s))
+        if (!creature->getSeat()->isAlliedSeat(s))
             return false;
     }
 

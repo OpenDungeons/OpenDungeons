@@ -127,9 +127,6 @@ public:
     virtual void exportToPacket(ODPacket& os) const override;
     virtual void importFromPacket(ODPacket& is) override;
 
-    //! \brief Loads the map light data from a level line.
-    static void loadFromLine(const std::string& line, MapLight* m);
-
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
