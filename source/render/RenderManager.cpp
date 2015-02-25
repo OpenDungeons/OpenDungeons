@@ -29,7 +29,6 @@
 #include "entities/CreatureDefinition.h"
 #include "entities/Tile.h"
 #include "entities/Weapon.h"
-#include "traps/Trap.h"
 #include "game/Player.h"
 #include "render/MovableTextOverlay.h"
 #include "render/ODFrameListener.h"
@@ -149,6 +148,13 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
                                static_cast<Ogre::Real>(0.2 / BLENDER_UNITS_PER_OGRE_UNIT),
                                static_cast<Ogre::Real>(0.2 / BLENDER_UNITS_PER_OGRE_UNIT)));
     node3->attachObject(keeperHandEnt);
+    //Add a too small to be visible dummy dirt tile to the hand node
+    //so that there will allways be a dirt tile "visible"
+    //This is an ugly workaround for issue where destroying some entities messes
+    //up the lighing for some of the rtshader materials.
+    Ogre::SceneNode* dummyNode = node3->createChildSceneNode("Dummy_node");
+    dummyNode->setScale(Ogre::Vector3(0.00000001f, 0.00000001f, 0.00000001f));
+    dummyNode->attachObject(mSceneManager->createEntity("Dirt_11111111.mesh"));
 
     // Create the light which follows the single tile selection mesh
     Ogre::Light* light = mSceneManager->createLight("MouseLight");
@@ -157,9 +163,6 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     light->setSpecularColour(Ogre::ColourValue(0.65, 0.65, 0.45));
     light->setPosition(0, 0, 6);
     light->setAttenuation(50, 1.0, 0.09, 0.032);
-
-    LogManager::getSingleton().logMessage("Creating compositor...", Ogre::LML_NORMAL);
-    Ogre::CompositorManager::getSingleton().addCompositor(mViewport, "B&W");
 }
 
 void RenderManager::updateRenderAnimations(Ogre::Real timeSinceLastFrame)
@@ -186,13 +189,6 @@ void RenderManager::rrRefreshTile(const Tile* curTile, const Player* localPlayer
     if (!mSceneManager->hasSceneNode(tileName + "_node"))
         return;
 
-    if(mSceneManager->hasEntity(tileName))
-    {
-        // Unlink and delete the old mesh
-        mSceneManager->getSceneNode(tileName + "_node")->detachObject(tileName);
-        mSceneManager->destroyEntity(tileName);
-    }
-
     std::string meshName = curTile->getMeshName();
     const Seat* seatColorize = curTile->getSeat();
     if(meshName.empty())
@@ -206,22 +202,56 @@ void RenderManager::rrRefreshTile(const Tile* curTile, const Player* localPlayer
     }
     else
     {
+        //Tile has a covering building.
         seatColorize = nullptr;
         rt = 0;
     }
 
+    bool newMesh = false;
+    if(mSceneManager->hasEntity(tileName))
+    {
+        Ogre::Entity* oldEnt = mSceneManager->getEntity(tileName);
+        if(oldEnt->getMesh()->getName().compare(meshName) != 0)
+        {
+            // Unlink and delete the old mesh
+            mSceneManager->getSceneNode(tileName + "_node")->detachObject(tileName);
+            mSceneManager->destroyEntity(tileName);
+            newMesh = true;
+        }
+    }
+    else
+    {
+        newMesh = true;
+    }
+    Ogre::Entity* ent = nullptr;
+    if(newMesh)
+    {
+        ent = mSceneManager->createEntity(tileName, meshName);
+        // Link the tile mesh back to the relevant scene node so OGRE will render it
+        Ogre::SceneNode* node = mSceneManager->getSceneNode(tileName + "_node");
+        node->attachObject(ent);
+        node->setScale(curTile->getScale());
+        node->resetOrientation();
+        node->roll(Ogre::Degree(static_cast<Ogre::Real>(-1 * rt * 90)));
+        Ogre::MeshPtr meshPtr = ent->getMesh();
+        unsigned short src, dest;
+        if (!meshPtr->suggestTangentVectorBuildParams(Ogre::VES_TANGENT, src, dest))
+        {
+            meshPtr->buildTangentVectors(Ogre::VES_TANGENT, src, dest);
+        }
+    }
+    else
+    {
+        ent = mSceneManager->getEntity(tileName);
+    }
     bool vision = true;
-    Ogre::Entity* ent = mSceneManager->createEntity(tileName, meshName);
     switch(curTile->getType())
     {
         case TileType::gold:
         {
             if(curTile->getFullness() > 0.0)
             {
-                for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii)
-                {
-                    ent->getSubEntity(ii)->setMaterialName("Gold");
-                }
+                ent->setMaterialName("Gold");
             }
             else
             {
@@ -231,10 +261,7 @@ void RenderManager::rrRefreshTile(const Tile* curTile, const Player* localPlayer
         }
         case TileType::rock:
         {
-            for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii)
-            {
-                ent->getSubEntity(ii)->setMaterialName("Rock");
-            }
+            ent->setMaterialName("Rock");
             break;
         }
         case TileType::lava:
@@ -251,7 +278,6 @@ void RenderManager::rrRefreshTile(const Tile* curTile, const Player* localPlayer
         {
             if(curTile->getFullness() == 0.0)
                 vision = curTile->getLocalPlayerHasVision();
-
             // We don't want dirt tiles to get colored by the seat
             seatColorize = nullptr;
             break;
@@ -266,13 +292,6 @@ void RenderManager::rrRefreshTile(const Tile* curTile, const Player* localPlayer
     }
 
     colourizeEntity(ent, seatColorize, curTile->getMarkedForDigging(localPlayer), vision);
-
-    // Link the tile mesh back to the relevant scene node so OGRE will render it
-    Ogre::SceneNode* node = mSceneManager->getSceneNode(tileName + "_node");
-    node->attachObject(ent);
-    node->setScale(curTile->getScale());
-    node->resetOrientation();
-    node->roll(Ogre::Degree(static_cast<Ogre::Real>(-1 * rt * 90)));
 }
 
 

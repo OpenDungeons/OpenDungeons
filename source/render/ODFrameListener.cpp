@@ -256,7 +256,7 @@ void ODFrameListener::refreshChat()
         chatSS << "\nFPS: " << mWindow->getStatistics().lastFPS;
         chatSS << "\ntriangleCount: " << mWindow->getStatistics().triangleCount;
         chatSS << "\nBatches: " << mWindow->getStatistics().batchCount;
-        chatSS << "\nTurn number:  " <<  static_cast<int32_t>(mGameMap->getTurnNumber());
+        chatSS << "\nTurn number:  " << mGameMap->getTurnNumber();
         if(ODClient::getSingleton().isConnected())
         {
             int32_t gameTime = ODClient::getSingleton().getGameTimeMillis() / 1000;

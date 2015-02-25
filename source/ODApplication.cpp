@@ -150,6 +150,7 @@ ODApplication::ODApplication()
     logManager.logMessage("Disconnecting client...");
     client.disconnect();
     ogreRoot.removeFrameListener(&frameListener);
+    Ogre::RTShader::ShaderGenerator::destroy();
 }
 
 ODApplication::~ODApplication()
