@@ -22,13 +22,10 @@
 #include "camera/CameraManager.h"
 
 #include "gamemap/GameMap.h"
-#include "render/ODFrameListener.h"
 #include "sound/SoundEffectsManager.h"
 #include "utils/LogManager.h"
 
-#include "ODApplication.h"
-
-#include <OgrePrerequisites.h>
+#include <OgreCamera.h>
 #include <OgreSceneNode.h>
 #include <OgreSceneManager.h>
 #include <OgreViewport.h>

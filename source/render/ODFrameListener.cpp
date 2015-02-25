@@ -27,6 +27,7 @@
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "modes/AbstractApplicationMode.h"
+#include "modes/ModeManager.h"
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
 #include "network/ODClient.h"
@@ -73,7 +74,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::Overlay
     mGui(gui),
     mRenderManager(new RenderManager(overLaySystem)),
     mGameMap(new GameMap(false)),
-    mModeManager(renderWindow, gui),
+    mModeManager(new ModeManager(renderWindow, gui)),
     mShowDebugInfo(false),
     mContinue(true),
     mTerminalWordWrap(78),
@@ -106,7 +107,7 @@ void ODFrameListener::windowResized(Ogre::RenderWindow* rw)
     int left, top;
     rw->getMetrics(width, height, depth, left, top);
 
-    const OIS::MouseState &ms = mModeManager.getInputManager()->mMouse->getMouseState();
+    const OIS::MouseState &ms = mModeManager->getInputManager()->mMouse->getMouseState();
     ms.width = width;
     ms.height = height;
 
@@ -179,7 +180,7 @@ bool ODFrameListener::frameRenderingQueued(const Ogre::FrameEvent& evt)
         boost::this_thread::sleep_for(boost::chrono::duration<double>(frameDelay));
     }
 
-    mModeManager.update(evt);
+    mModeManager->update(evt);
 
     int64_t currentTurn = mGameMap->getTurnNumber();
 
@@ -302,7 +303,7 @@ void ODFrameListener::refreshPlayerDisplay(const std::string& goalsDisplayString
 
 bool ODFrameListener::frameEnded(const Ogre::FrameEvent& evt)
 {
-    AbstractApplicationMode* currentMode = mModeManager.getCurrentMode();
+    AbstractApplicationMode* currentMode = mModeManager->getCurrentMode();
     currentMode->onFrameEnded(evt);
 
     mCameraManager.onFrameEnded();
@@ -418,7 +419,7 @@ Ogre::Real ODFrameListener::getActiveCameraFarClipDistance()
     return mCameraManager.getActiveCamera()->getFarClipDistance();
 }
 
-const Ogre::Vector3 ODFrameListener::getCameraViewTarget()
+Ogre::Vector3 ODFrameListener::getCameraViewTarget()
 {
     return mCameraManager.getCameraViewTarget();
 }

@@ -36,7 +36,6 @@
 //(so that dll import/export macros are in effect)
 #define OIS_DYNAMIC_LIB
 #include <OISMouse.h>
-#include "modes/ModeManager.h"
 
 #include <deque>
 #include <memory>
@@ -44,6 +43,7 @@
 class ChatMessage;
 class GameMap;
 class Gui;
+class ModeManager;
 class RenderManager;
 
 namespace Ogre
@@ -125,7 +125,7 @@ public:
     { return mGameMap.get(); }
 
     inline ModeManager* getModeManager()
-    { return &mModeManager; }
+    { return mModeManager.get(); }
 
     inline Ogre::RenderWindow* getRenderWindow()
     { return mWindow; }
@@ -144,7 +144,7 @@ public:
     Ogre::Real getActiveCameraNearClipDistance();
     void setActiveCameraFarClipDistance(Ogre::Real value);
     Ogre::Real getActiveCameraFarClipDistance();
-    const Ogre::Vector3 getCameraViewTarget();
+    Ogre::Vector3 getCameraViewTarget();
     void cameraFlyTo(const Ogre::Vector3& destination);
 
     CameraManager* getCameraManager()
@@ -163,7 +163,7 @@ private:
     Gui*                 mGui;
     std::unique_ptr<RenderManager> mRenderManager;
     std::unique_ptr<GameMap>       mGameMap;
-    ModeManager          mModeManager;
+    std::unique_ptr<ModeManager>   mModeManager;
 
     bool                 mShowDebugInfo;
     bool                 mContinue;

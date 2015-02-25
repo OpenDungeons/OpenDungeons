@@ -245,17 +245,19 @@ void RenderManager::rrRefreshTile(const Tile* curTile, const Player* localPlayer
         ent = mSceneManager->getEntity(tileName);
     }
     bool vision = true;
+    bool isMarked = curTile->getMarkedForDigging(localPlayer);
     switch(curTile->getType())
     {
         case TileType::gold:
         {
-            if(curTile->getFullness() > 0.0)
-            {
-                ent->setMaterialName("Gold");
-            }
-            else
+            if(curTile->getFullness() == 0.0)
             {
                 vision = curTile->getLocalPlayerHasVision();
+            }
+            else if(!isMarked)
+            {
+                ent->setMaterialName("Gold");
+                return;
             }
             break;
         }
@@ -277,7 +279,14 @@ void RenderManager::rrRefreshTile(const Tile* curTile, const Player* localPlayer
         case TileType::dirt:
         {
             if(curTile->getFullness() == 0.0)
+            {
                 vision = curTile->getLocalPlayerHasVision();
+            }
+            else if(!isMarked)
+            {
+                ent->setMaterialName("Dirt");
+                return;
+            }
             // We don't want dirt tiles to get colored by the seat
             seatColorize = nullptr;
             break;
@@ -285,13 +294,17 @@ void RenderManager::rrRefreshTile(const Tile* curTile, const Player* localPlayer
         case TileType::claimed:
         {
             vision = curTile->getLocalPlayerHasVision();
+            if(curTile->getFullness() > 0 && !isMarked)
+            {
+                ent->setMaterialName("Claimedwall");
+            }
             break;
         }
         default:
             break;
     }
 
-    colourizeEntity(ent, seatColorize, curTile->getMarkedForDigging(localPlayer), vision);
+    colourizeEntity(ent, seatColorize, isMarked, vision);
 }
 
 
@@ -308,17 +321,11 @@ void RenderManager::rrCreateTile(Tile* curTile, Player* localPlayer)
 
     if(curTile->getType() == TileType::gold)
     {
-        for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii)
-        {
-            ent->getSubEntity(ii)->setMaterialName("Gold");
-        }
+        ent->setMaterialName("Gold");
     }
     else if(curTile->getType() == TileType::rock)
     {
-        for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii)
-        {
-            ent->getSubEntity(ii)->setMaterialName("Rock");
-        }
+        ent->setMaterialName("Rock");
     }
     else if(curTile->getType() == TileType::lava)
     {
@@ -946,7 +953,7 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, co
         tempSS << "novision_";
 
     tempSS << materialName;
-    Ogre::MaterialPtr requestedMaterial = Ogre::MaterialPtr(Ogre::MaterialManager::getSingleton().getByName(tempSS.str()));
+    Ogre::MaterialPtr requestedMaterial = Ogre::MaterialManager::getSingleton().getByName(tempSS.str());
 
     //cout << "\nCloning material:  " << tempSS.str();
 
