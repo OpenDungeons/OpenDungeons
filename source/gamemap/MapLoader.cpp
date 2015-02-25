@@ -473,23 +473,21 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         if (nextParam == "[/Creatures]")
             break;
 
-        if (nextParam != "[Creature]")
-            return false;
+        std::string entire_line = nextParam;
+        std::getline(levelFile, nextParam);
+        entire_line += nextParam;
 
-        Creature* tempCreature = Creature::getCreatureFromStream(&gameMap, levelFile);
+        std::stringstream ss(entire_line);
+        Creature* tempCreature = Creature::getCreatureFromStream(&gameMap, ss);
         OD_ASSERT_TRUE(tempCreature != nullptr);
         if(tempCreature == nullptr)
             return false;
 
-        tempCreature->importFromStream(levelFile);
+        tempCreature->importFromStream(ss);
         tempCreature->addToGameMap();
         ++nbCreatures;
-
-        levelFile >> nextParam;
-        if (nextParam != "[/Creature]")
-            return false;
     }
-    std::cout << "Loaded " << nbCreatures << " creatures in level" << std::endl;
+    LogManager::getSingleton().logMessage("Loaded " + Helper::toString(nbCreatures) + " creatures in level");
 
     return true;
 }

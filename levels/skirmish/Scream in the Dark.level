@@ -5281,16 +5281,8 @@ ProtectDungeonTemple	NULL
 
 [Creatures]
 # SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon
-[Creature]
 5	Dragon1	Dragon	13	55	0	Dragon	10	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 5	Dragon2	Dragon	13	54	0	Dragon	10	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 5	Dragon3	Dragon	87	58	0	Dragon	10	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 5	Dragon4	Dragon	87	57	0	Dragon	10	0	max	100	0	0	none	none
-[/Creature]
 [/Creatures]

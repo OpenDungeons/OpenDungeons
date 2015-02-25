@@ -6643,166 +6643,58 @@ ProtectDungeonTemple	NULL
 
 [Creatures]
 # SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon
-[Creature]
 1	Adventurer_001	Adventurer	196	200	0	Adventurer	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 1	ConstructWorker1	ConstructWorker	196	230	0	ConstructWorker	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 2	Gnome2	Gnome	192	229	0	Gnome	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 1	Goblin3	Goblin	183	229	0	Goblin	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 5	PitDemon5	PitDemon	210	236	0	PitDemon	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 1	Spider6	Spider	198	231	0	Spider	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 1	CaveHornet1	CaveHornet	198	231	0	CaveHornet	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 2	Wizard7	Wizard	190	229	0	Wizard	1	0	max	100	0	0	Staff	none
-[/Creature]
-[Creature]
 3	Tentacle18	Tentacle1	186	229	0	Tentacle1	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 4	Tentacle29	Tentacle2	203	230	0	Tentacle2	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 5	Troll10	Troll	209	231	0	Troll	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 1	Troll11	Troll	193	214	0	Troll	1	0	max	100	0	0	Roundshield	Longsword
-[/Creature]
-[Creature]
 1	Knight_c1	Knight	198	233	0	Knight	1	0	max	100	0	0	Roundshield	Longsword
-[/Creature]
-[Creature]
 2	Knight_c2	Knight	192	233	0	Knight	1	0	max	100	0	0	Roundshield	Longsword
-[/Creature]
-[Creature]
 3	Knight_c3	Knight	184	233	0	Knight	1	0	max	100	0	0	Roundshield	Longsword
-[/Creature]
-[Creature]
 4	Knight_c4	Knight	204	233	0	Knight	1	0	max	100	0	0	Roundshield	Longsword
-[/Creature]
-[Creature]
 5	Knight_c5	Knight	210	233	0	Knight	1	0	max	100	0	0	Roundshield	Longsword
-[/Creature]
-[Creature]
 5	LizardMan_001	LizardMan	210	233	0	LizardMan	1	0	max	100	0	0	Roundshield	Longsword
-[/Creature]
-[Creature]
 1	Kobold	Kobold	195	202	0	Kobold	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 1	Kobold_012	Kobold	188	200	0	Kobold	1	0	max	100	0	0	Roundshield	Longsword
-[/Creature]
-[Creature]
 1	Kobold_007	Kobold	193	218	0	Kobold	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 1	Mage	Wizard	193	213	0	Wizard	1	0	max	100	0	0	Staff	none
-[/Creature]
-[Creature]
 1	Wiz	Wizard	193	213	0	Wizard	1	0	max	100	0	0	Staff	none
-[/Creature]
-[Creature]
 1	King	BigKnight	191	216	0	BigKnight	1	0	max	100	0	0	Roundshield	Staff
-[/Creature]
-[Creature]
 1	Knight_005	Knight	229	138	0	Knight	1	0	max	100	0	0	Roundshield	Longsword
-[/Creature]
-[Creature]
 1	Knight_004	Knight	196	200	0	Knight	1	0	max	100	0	0	Longsword	none
-[/Creature]
-[Creature]
 1	Knight_006	Knight	199	204	0	Knight	1	0	max	100	0	0	Longsword	Sabre
-[/Creature]
-[Creature]
 1	Knight	Knight	188	198	0	Knight	1	0	max	100	0	0	none	Sabre
-[/Creature]
-[Creature]
 1	Knight_007	Knight	191	207	0	Knight	1	0	max	100	0	0	none	Sabre
-[/Creature]
-[Creature]
 1	Knight_003	Knight	184	201	0	Knight	1	0	max	100	0	0	none	Longsword
-[/Creature]
-[Creature]
 1	Dragon_001	Dragon	159	108	0	Dragon	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 1	Dragon_002	Dragon	191	193	0	Dragon	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 1	Dragon_003	Dragon	193	204	0	Dragon	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 1	Dragon_004	Dragon	196	214	0	Dragon	5	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 1	Wyvern_001	Wyvern	177	90	0	Wyvern	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 1	Wyvern_002	Wyvern	186	85	0	Wyvern	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 1	Wyvern_003	Wyvern	183	105	0	Wyvern	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 2	Dwarf1_001	Dwarf1	201	192	0	Dwarf1	1	0	max	100	0	0	Roundshield	Sabre
-[/Creature]
-[Creature]
 2	Dwarf2_001	Dwarf2	206	168	0	Dwarf2	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 2	Dwarf3_001	Dwarf3	213	157	0	Dwarf3	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 2	Dwarf2_002	Dwarf2	214	141	0	Dwarf2	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 2	Dwarf3_002	Dwarf3	212	143	0	Dwarf3	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 2	Dwarf3_003	Dwarf3	213	213	0	Dwarf3	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 2	Dwarf2_003	Dwarf2	202	191	0	Dwarf2	1	0	max	100	0	0	none	Longsword
-[/Creature]
-[Creature]
 2	Dwarf1_002	Dwarf1	201	192	0	Dwarf1	1	0	max	100	0	0	Roundshield	Longsword
-[/Creature]
-[Creature]
 3	LizardMan_002	LizardMan	206	172	0	LizardMan	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 3	Kre	Kreatur	215	216	0	Kreatur	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 2	Orc_001	Orc	203	199	0	Orc	1	0	max	100	0	0	none	Longsword
-[/Creature]
-[Creature]
 2	Orc_002	Orc	207	212	0	Orc	1	0	max	100	0	0	none	Longsword
-[/Creature]
-[Creature]
 3	Kreatur_001	Kreatur	155	110	0	Kreatur	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 3	Kreatur_002	Kreatur	159	112	0	Kreatur	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 3	Kreatur_003	Kreatur	158	103	0	Kreatur	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 3	Kreatur_004	Kreatur	156	106	0	Kreatur	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 3	Kreatur_005	Kreatur	163	112	0	Kreatur	1	0	max	100	0	0	none	none
-[/Creature]
 [/Creatures]

@@ -4019,130 +4019,46 @@ ProtectDungeonTemple	NULL
 
 [Creatures]
 # SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon
-[Creature]
 1	Kobold90	Kobold	51	16	0	Kobold	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 1	Kobold91	Kobold	51	16	0	Kobold	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 2	Kobold92	Kobold	7	55	0	Kobold	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 2	Kobold93	Kobold	7	55	0	Kobold	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 3	Kobold94	Kobold	91	55	0	Kobold	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 3	Kobold95	Kobold	91	55	0	Kobold	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 4	Kobold96	Kobold	47	94	0	Kobold	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 4	Kobold97	Kobold	47	94	0	Kobold	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 0	Dwarf99	Dwarf3	9	15	0	Dwarf3	1	0	max	100	0	0	Roundshield	Longsword
-[/Creature]
-[Creature]
 0	Dwarf98	Dwarf3	9	16	0	Dwarf3	1	0	max	100	0	0	Roundshield	Longsword
-[/Creature]
-[Creature]
 0	Dwarf97	Dwarf3	9	17	0	Dwarf3	1	0	max	100	0	0	Roundshield	Longsword
-[/Creature]
-[Creature]
 0	Dwarf96	Dwarf3	9	18	0	Dwarf3	1	0	max	100	0	0	Roundshield	Longsword
-[/Creature]
-[Creature]
 0	Dwarf95	Dwarf3	9	19	0	Dwarf3	1	0	max	100	0	0	Roundshield	Longsword
-[/Creature]
-[Creature]
 0	Dwarf94	Dwarf3	9	20	0	Dwarf3	1	0	max	100	0	0	Roundshield	Longsword
-[/Creature]
-[Creature]
 0	Dwarf93	Dwarf3	9	21	0	Dwarf3	1	0	max	100	0	0	Roundshield	Longsword
-[/Creature]
-[Creature]
 0	Knight90	Knight	46	42	0	Knight	1	0	max	100	0	0	Roundshield	Longsword
-[/Creature]
-[Creature]
 0	Knight91	Knight	47	42	0	Knight	1	0	max	100	0	0	Roundshield	Longsword
-[/Creature]
-[Creature]
 0	Knight92	Knight	48	42	0	Knight	1	0	max	100	0	0	Roundshield	Sabre
-[/Creature]
-[Creature]
 0	Knight93	Knight	49	42	0	Knight	1	0	max	100	0	0	Roundshield	Sabre
-[/Creature]
-[Creature]
 0	Knight94	Knight	50	42	0	Knight	1	0	max	100	0	0	Roundshield	Sabre
-[/Creature]
-[Creature]
 0	Knight95	Knight	51	42	0	Knight	1	0	max	100	0	0	Roundshield	Longsword
-[/Creature]
-[Creature]
 0	Knight96	Knight	52	42	0	Knight	1	0	max	100	0	0	Longsword	Longsword
-[/Creature]
-[Creature]
 0	Knight97	Knight	49	41	0	Knight	1	0	max	100	0	0	Longsword	Longsword
-[/Creature]
-[Creature]
 0	Dragon90	Dragon	86	20	0	Dragon	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 0	Dragon91	Dragon	92	20	0	Dragon	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 0	Dragon92	Dragon	89	25	0	Dragon	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 0	Dragon93	Dragon	96	18	0	Dragon	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 0	Tentacle90	Tentacle2	73	23	0	Tentacle2	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 0	Tentacle91	Tentacle2	73	23	0	Tentacle2	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 0	Tentacle92	Tentacle2	73	23	0	Tentacle2	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 0	Tentacle93	Tentacle2	73	23	0	Tentacle2	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 0	Tentacle94	Tentacle2	75	12	0	Tentacle2	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 0	Tentacle95	Tentacle2	75	12	0	Tentacle2	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 0	Tentacle96	Tentacle2	75	12	0	Tentacle2	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 0	Tentacle97	Tentacle2	75	12	0	Tentacle2	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 0	Tentacle98	Tentacle2	72	5	0	Tentacle2	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 0	Tentacle99	Tentacle2	72	5	0	Tentacle2	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 0	Tentacle100	Tentacle2	69	37	0	Tentacle2	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 0	Tentacle101	Tentacle2	69	37	0	Tentacle2	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 0	Tentacle102	Tentacle2	69	37	0	Tentacle2	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 4	PitDemon90	PitDemon	48	57	0	PitDemon	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 4	PitDemon91	PitDemon	50	57	0	PitDemon	10	0	max	100	0	0	none	none
-[/Creature]
 [/Creatures]

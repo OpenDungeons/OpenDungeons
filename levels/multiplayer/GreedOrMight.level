@@ -2273,16 +2273,8 @@ MineNGold	50
 
 [Creatures]
 # SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon
-[Creature]
 4	BossDragon1	BossDragon	62	14	0	BossDragon	4	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 4	BossDragon2	BossDragon	40	68	0	BossDragon	3	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 4	BossDragon3	BossDragon	33	65	0	BossDragon	3	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 4	BossDragon4	BossDragon	9	14	0	BossDragon	4	0	max	100	0	0	none	none
-[/Creature]
 [/Creatures]
