@@ -244,21 +244,13 @@ void RenderManager::rrRefreshTile(const Tile* curTile, const Player* localPlayer
     {
         ent = mSceneManager->getEntity(tileName);
     }
-    bool vision = true;
+    bool vision = static_cast<int>(curTile->getFullness()) == 0 ? curTile->getLocalPlayerHasVision() : true;
     bool isMarked = curTile->getMarkedForDigging(localPlayer);
     switch(curTile->getType())
     {
         case TileType::gold:
         {
-            if(curTile->getFullness() == 0.0)
-            {
-                vision = curTile->getLocalPlayerHasVision();
-            }
-            else if(!isMarked)
-            {
-                ent->setMaterialName("Gold");
-                return;
-            }
+            ent->setMaterialName("Gold");
             break;
         }
         case TileType::rock:
@@ -278,26 +270,15 @@ void RenderManager::rrRefreshTile(const Tile* curTile, const Player* localPlayer
         }
         case TileType::dirt:
         {
-            if(curTile->getFullness() == 0.0)
-            {
-                vision = curTile->getLocalPlayerHasVision();
-            }
-            else if(!isMarked)
-            {
-                ent->setMaterialName("Dirt");
-                return;
-            }
+            ent->setMaterialName("Dirt");
             // We don't want dirt tiles to get colored by the seat
             seatColorize = nullptr;
             break;
         }
         case TileType::claimed:
         {
-            vision = curTile->getLocalPlayerHasVision();
-            if(curTile->getFullness() > 0 && !isMarked)
-            {
+            if(curTile->getFullness() > 0.0)
                 ent->setMaterialName("Claimedwall");
-            }
             break;
         }
         default:
