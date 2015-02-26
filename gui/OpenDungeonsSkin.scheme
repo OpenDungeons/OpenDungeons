@@ -9,14 +9,16 @@
     <LookNFeel filename="OpenDungeons.looknfeel" />
     <WindowRendererSet filename="CEGUICoreWindowRendererSet" />
     <FalagardMapping lookNFeel="OD/Button" renderer="Core/Button" targetType="CEGUI/PushButton" windowType="OD/Button" />
+    <FalagardMapping lookNFeel="OD/Button" renderer="Core/Button" targetType="CEGUI/PushButton" windowType="OD/SystemButton" />
+    <FalagardMapping lookNFeel="OD/ImageButton" renderer="Core/Button" targetType="CEGUI/PushButton" windowType="OD/ImageButton" />
+    <FalagardMapping lookNFeel="OD/IconButton" renderer="Core/Button" targetType="CEGUI/PushButton" windowType="OD/IconButton" />
+    <FalagardMapping lookNFeel="OD/GameTabButton" renderer="Core/Button" targetType="CEGUI/PushButton" windowType="OD/GameTabButton" />
     <FalagardMapping lookNFeel="OD/InvisibleButton" renderer="Core/Button" targetType="CEGUI/PushButton" windowType="OD/InvisibleButton" />
     <FalagardMapping lookNFeel="OD/MainMenuButton" renderer="Core/Button" targetType="CEGUI/PushButton" windowType="OD/MainMenuButton" />
     <FalagardMapping lookNFeel="OD/Checkbox" renderer="Core/ToggleButton" targetType="CEGUI/ToggleButton" windowType="OD/Checkbox" />
-    <FalagardMapping lookNFeel="OD/ImageButton" renderer="Core/Button" targetType="CEGUI/PushButton" windowType="OD/ImageButton" />
     <FalagardMapping lookNFeel="OD/RadioButton" renderer="Core/ToggleButton" targetType="CEGUI/RadioButton" windowType="OD/RadioButton" />
     <FalagardMapping lookNFeel="OD/FrameWindow" renderer="Core/FrameWindow" targetType="CEGUI/FrameWindow" windowType="OD/FrameWindow" />
     <FalagardMapping lookNFeel="OD/Titlebar" renderer="Core/Titlebar" targetType="CEGUI/Titlebar" windowType="OD/Titlebar" />
-    <FalagardMapping lookNFeel="OD/Button" renderer="Core/Button" targetType="CEGUI/PushButton" windowType="OD/SystemButton" />
     <FalagardMapping lookNFeel="OD/Editbox" renderer="Core/Editbox" targetType="CEGUI/Editbox" windowType="OD/Editbox" />
     <FalagardMapping lookNFeel="OD/MultiLineEditbox" renderer="Core/MultiLineEditbox" targetType="CEGUI/MultiLineEditbox" windowType="OD/MultiLineEditbox" />
     <FalagardMapping lookNFeel="OD/Menubar" renderer="Core/Menubar" targetType="CEGUI/Menubar" windowType="OD/Menubar" />
