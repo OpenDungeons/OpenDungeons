@@ -1,11 +1,4 @@
 <Imageset autoScaled="false" imagefile="OpenDungeonsSkin.png" name="OpenDungeonsSkin" nativeHorzRes="800" nativeVertRes="600" version="2">
-    <Image height="64" name="GoldButton" width="63" xPos="0" yPos="433" />
-    <Image height="64" name="LavaButton" width="64" xPos="63" yPos="433" />
-    <Image height="64" name="RockButton" width="64" xPos="127" yPos="433" />
-    <Image height="64" name="WaterButton" width="64" xPos="191" yPos="433" />
-    <Image height="64" name="DirtButton" width="64" xPos="255" yPos="433" />
-    <Image height="64" name="ClaimedButton" width="64" xPos="319" yPos="433" />
-    <Image height="64" name="MapLightButton" width="60" xPos="0" yPos="370" />
     <Image height="4" name="ButtonTopLeftNormal" width="4" xPos="67" yPos="20" />
     <Image height="8" name="ButtonMiddleNormal" width="32" xPos="71" yPos="24" />
     <Image height="4" name="ButtonTopRightNormal" width="4" xPos="103" yPos="20" />
@@ -289,4 +282,9 @@
     <Image height="3" name="MultiLineEditBoxTop" width="2" xPos="134" yPos="139" />
     <Image height="3" name="MultiLineEditBoxBottom" width="2" xPos="134" yPos="150" />
     <Image height="8" name="MultiLineEditBoxMiddle" width="2" xPos="134" yPos="142" />
+    <Image height="60" name="ButtonBackground" width="60" xPos="3" yPos="283" />
+    <Image height="60" name="ButtonHoverEffect" width="60" xPos="65" yPos="283" />
+    <Image height="60" name="ButtonDisabledEffect" width="60" xPos="127" yPos="283" />
+    <Image height="60" name="ButtonPushedEffect" width="60" xPos="189" yPos="283" />
+    <Image height="60" name="ButtonFrame" width="60" xPos="261" yPos="283" />
 </Imageset>

@@ -4044,9 +4044,9 @@
 
     <WidgetLook name="OD/ImageButton">
         <PropertyDefinition initialValue="" name="NormalImage" redrawOnWrite="true" />
-        <PropertyDefinition initialValue="OpenDungeonsIcons/ButtonHoverEffect" name="HoverImage" redrawOnWrite="true" />
-        <PropertyDefinition initialValue="OpenDungeonsIcons/ButtonPushedEffect" name="PushedImage" redrawOnWrite="true" />
-        <PropertyDefinition initialValue="OpenDungeonsIcons/ButtonDisabledEffect" name="DisabledImage" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="OpenDungeonsSkin/ButtonHoverEffect" name="HoverImage" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="OpenDungeonsSkin/ButtonPushedEffect" name="PushedImage" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="OpenDungeonsSkin/ButtonDisabledEffect" name="DisabledImage" redrawOnWrite="true" />
         <PropertyDefinition initialValue="Stretched" name="VertImageFormatting" redrawOnWrite="true" />
         <PropertyDefinition initialValue="Stretched" name="HorzImageFormatting" redrawOnWrite="true" />
         <ImagerySection name="background">
@@ -4057,7 +4057,7 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeonsIcons/ButtonBackground" />
+                <Image name="OpenDungeonsSkin/ButtonBackground" />
                 <VertFormatProperty name="VertImageFormatting" />
                 <HorzFormatProperty name="HorzImageFormatting" />
             </ImageryComponent>
@@ -4083,7 +4083,7 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeonsIcons/ButtonFrame" />
+                <Image name="OpenDungeonsSkin/ButtonFrame" />
                 <VertFormatProperty name="VertImageFormatting" />
                 <HorzFormatProperty name="HorzImageFormatting" />
             </ImageryComponent>
