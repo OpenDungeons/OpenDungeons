@@ -2195,7 +2195,7 @@
         <PropertyDefinition initialValue="FF000000" name="SelectedTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FF607FFF" name="ActiveSelectionColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FF808080" name="InactiveSelectionColour" redrawOnWrite="true" />
-        <Property name="MouseCursorImage" value="OpenDungeonsSkin/MouseTextBar" />
+        <Property name="MouseCursorImage" value="OpenDungeonsSkin/MouseArrow" />
         <NamedArea name="TextArea">
             <Area>
                 <Dim type="LeftEdge"><AbsoluteDim value="5" /></Dim>
