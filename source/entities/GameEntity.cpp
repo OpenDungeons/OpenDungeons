@@ -79,11 +79,6 @@ void GameEntity::deleteYourself()
     getGameMap()->queueEntityForDeletion(this);
 }
 
-std::string GameEntity::getNodeNameWithoutPostfix()
-{
-    return getOgreNamePrefix() + getName();
-}
-
 Tile* GameEntity::getPositionTile() const
 {
     const Ogre::Vector3& tempPosition = getPosition();
@@ -495,6 +490,11 @@ GameEntity* GameEntity::getGameEntityFromPacket(GameMap* gameMap, ODPacket& is)
 
     entity->importFromPacket(is);
     return entity;
+}
+
+std::string GameEntity::getOgreNamePrefix() const
+{
+    return Helper::toString(static_cast<int32_t>(getObjectType())) + "-";
 }
 
 ODPacket& operator<<(ODPacket& os, const GameEntityType& type)

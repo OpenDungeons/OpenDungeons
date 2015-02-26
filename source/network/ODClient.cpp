@@ -560,14 +560,13 @@ bool ODClient::processOneClientSocketMessage()
         case ServerNotificationType::creatureRefresh:
         {
             std::string name;
-            unsigned int level;
-            OD_ASSERT_TRUE(packetReceived >> name >> level);
+            OD_ASSERT_TRUE(packetReceived >> name);
             Creature* creature = gameMap->getCreature(name);
             OD_ASSERT_TRUE_MSG(creature != nullptr, "name=" + name);
             if(creature == nullptr)
                 break;
 
-            creature->setLevel(level);
+            creature->refreshCreature(packetReceived);
             break;
         }
 

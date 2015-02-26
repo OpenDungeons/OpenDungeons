@@ -119,14 +119,8 @@ public:
     /** \brief Adds the given map light to the queue to be deleted at the end of the turn. */
     void queueMapLightForDeletion(MapLight *ml);
 
-    //! \brief Returns a pointer to the creature whose name matches name or number.
-    Creature* getCreature(int index);
-    const Creature* getCreature(int index) const;
-    Creature* getCreature(const std::string& cName);
-    const Creature* getCreature(const std::string& cName) const;
-
-    //! \brief Returns the total number of creatures stored in this game map.
-    unsigned int numCreatures() const;
+    //! \brief Returns a pointer to the creature whose name matches name
+    Creature* getCreature(const std::string& cName) const;
 
     bool getIsFOWActivated() const
     { return mIsFOWActivated; }
@@ -231,9 +225,9 @@ public:
     void clearMapLights();
     void addMapLight(MapLight *m);
     void removeMapLight(MapLight *m);
-    MapLight* getMapLight(int index);
-    MapLight* getMapLight(const std::string& name);
-    unsigned int numMapLights();
+    MapLight* getMapLight(const std::string& name) const;
+    inline const std::vector<MapLight*>& getMapLights() const
+    { return mMapLights; }
 
     //! \brief Deletes the data structure for all the players in the GameMap.
     void clearPlayers();

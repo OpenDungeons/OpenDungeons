@@ -16,6 +16,7 @@
  */
 
 #include "render/MovableTextOverlay.h"
+
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
@@ -33,6 +34,9 @@ MovableTextOverlay::MovableTextOverlay(const Ogre::String & name, const Ogre::Mo
     mDisplayed(false),
     mCaption(""),
     mTextWidth(0),
+    mTextHeight(0),
+    mForcedWidth(-1),
+    mForcedHeight(-1),
     mOnScreen(false),
     mCamera(camera),
     mCharHeight(charHeight),
@@ -40,14 +44,6 @@ MovableTextOverlay::MovableTextOverlay(const Ogre::String & name, const Ogre::Mo
 {
     OD_ASSERT_TRUE_MSG(mFont != nullptr, "fontName=" + fontName);
     mFont->load();
-
-    // We create the material
-    if(!materialName.empty())
-    {
-        Ogre::Material *material = dynamic_cast<Ogre::Material*>(Ogre::MaterialManager::getSingletonPtr()->getByName(materialName).getPointer());
-        OD_ASSERT_TRUE_MSG(material != nullptr, "materialName=" + materialName);
-        material->load();
-    }
 
     // create an overlay that we can use for later
     Ogre::OverlayManager& overlayManager = Ogre::OverlayManager::getSingleton();
@@ -67,13 +63,13 @@ MovableTextOverlay::MovableTextOverlay(const Ogre::String & name, const Ogre::Mo
     mOverlayText->setMetricsMode(Ogre::GMM_PIXELS);
     mOverlayText->setPosition(0, 0);
 
-    mOverlayContainer->setMaterialName(materialName);
+    setMaterialName(materialName);
 
     mOverlayText->setColour(color);
 
     mOverlayText->setParameter("font_name", fontName);
     mOverlayText->setParameter("char_height", Ogre::StringConverter::toString(charHeight));
-    mOverlayText->setParameter("horz_align", "left");
+    mOverlayText->setParameter("horz_align", "center");
     mOverlayText->setParameter("vert_align", "top");
 }
 
@@ -116,8 +112,17 @@ void MovableTextOverlay::computeTextArea()
 
 void MovableTextOverlay::forceTextArea(Ogre::Real textWidth, Ogre::Real textHeight)
 {
-    mTextWidth = textWidth;
-    mTextHeight = textHeight;
+    mForcedWidth = textWidth;
+    mForcedHeight = textHeight;
+}
+
+void MovableTextOverlay::setMaterialName(const Ogre::String& materialName)
+{
+    if(mMaterialName == materialName)
+        return;
+
+    mMaterialName = materialName;
+    mOverlayContainer->setMaterialName(mMaterialName);
 }
 
 bool MovableTextOverlay::computeOverlayPositionHead(Ogre::Vector2& position)
@@ -169,8 +174,15 @@ void MovableTextOverlay::update(Ogre::Real timeSincelastFrame)
     if(!mOnScreen)
         return;
 
-    Ogre::Real relTextWidth = mTextWidth / Ogre::OverlayManager::getSingleton().getViewportWidth();
-    Ogre::Real relTextHeight = mTextHeight / Ogre::OverlayManager::getSingleton().getViewportHeight();
+    Ogre::Real relTextWidth = mTextWidth;
+    if(mForcedWidth != -1)
+        relTextWidth = mForcedWidth;
+    relTextWidth /= Ogre::OverlayManager::getSingleton().getViewportWidth();
+
+    Ogre::Real relTextHeight = mTextHeight;
+    if(mForcedHeight != -1)
+        relTextHeight = mForcedHeight;
+    relTextHeight /= Ogre::OverlayManager::getSingleton().getViewportHeight();
 
     screenPosition.x -= relTextWidth * 0.5;
     screenPosition.y -= relTextHeight;

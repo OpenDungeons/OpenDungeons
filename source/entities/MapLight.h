@@ -59,10 +59,6 @@ public:
     { mFlickerNode = node; }
 
     static const std::string MAPLIGHT_NAME_PREFIX;
-    static const std::string MAPLIGHT_INDICATOR_PREFIX;
-
-    virtual std::string getOgreNamePrefix() const
-    { return MAPLIGHT_NAME_PREFIX; }
 
     virtual void addToGameMap();
     virtual void removeFromGameMap();
@@ -126,9 +122,6 @@ public:
     virtual void importFromStream(std::istream& is) override;
     virtual void exportToPacket(ODPacket& os) const override;
     virtual void importFromPacket(ODPacket& is) override;
-
-    //! \brief Loads the map light data from a level line.
-    static void loadFromLine(const std::string& line, MapLight* m);
 
 protected:
     virtual void createMeshLocal();

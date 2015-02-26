@@ -526,11 +526,6 @@ CreatureDefinition* GameMap::getClassDescriptionForTuning(const std::string& nam
     return def;
 }
 
-unsigned int GameMap::numCreatures() const
-{
-    return mCreatures.size();
-}
-
 std::vector<Creature*> GameMap::getCreaturesByAlliedSeat(Seat* seat)
 {
     std::vector<Creature*> tempVector;
@@ -904,18 +899,6 @@ void GameMap::saveLevelClassDescriptions(std::ofstream& levelFile)
     }
 }
 
-Creature* GameMap::getCreature(int index)
-{
-    Creature *tempCreature = mCreatures[index];
-    return tempCreature;
-}
-
-const Creature* GameMap::getCreature(int index) const
-{
-    const Creature *tempCreature = mCreatures[index];
-    return tempCreature;
-}
-
 const CreatureDefinition* GameMap::getClassDescription(int index)
 {
     std::pair<const CreatureDefinition*,CreatureDefinition*>& def = mClassDescriptions[index];
@@ -1003,17 +986,7 @@ void GameMap::destroyAllEntities()
     }
 }
 
-Creature* GameMap::getCreature(const std::string& cName)
-{
-    for (Creature* creature : mCreatures)
-    {
-        if (creature->getName().compare(cName) == 0)
-            return creature;
-    }
-    return nullptr;
-}
-
-const Creature* GameMap::getCreature(const std::string& cName) const
+Creature* GameMap::getCreature(const std::string& cName) const
 {
     for (Creature* creature : mCreatures)
     {
@@ -2009,12 +1982,7 @@ void GameMap::removeMapLight(MapLight *m)
     mMapLights.erase(it);
 }
 
-MapLight* GameMap::getMapLight(int index)
-{
-    return mMapLights[index];
-}
-
-MapLight* GameMap::getMapLight(const std::string& name)
+MapLight* GameMap::getMapLight(const std::string& name) const
 {
     for (MapLight* mapLight : mMapLights)
     {
@@ -2023,11 +1991,6 @@ MapLight* GameMap::getMapLight(const std::string& name)
     }
 
     return nullptr;
-}
-
-unsigned int GameMap::numMapLights()
-{
-    return mMapLights.size();
 }
 
 void GameMap::clearSeats()
@@ -2687,6 +2650,15 @@ GameEntity* GameMap::getEntityFromTypeAndName(GameEntityType entityType,
         case GameEntityType::mapLight:
             return getMapLight(entityName);
 
+        case GameEntityType::tile:
+        {
+            int x, y;
+            if(!Tile::checkTileName(entityName, x, y))
+                return nullptr;
+
+            return getTile(x, y);
+        }
+
         default:
             break;
     }
@@ -2894,6 +2866,11 @@ void GameMap::updateVisibleEntities()
     // Notify changes on visible tiles
     for(Seat* seat : mSeats)
         seat->notifyChangedVisibleTiles();
+
+    for(Creature* creature : mCreatures)
+    {
+        creature->fireCreatureRefreshIfNeeded();
+    }
 }
 
 void GameMap::clearCreatureMoodModifiers()

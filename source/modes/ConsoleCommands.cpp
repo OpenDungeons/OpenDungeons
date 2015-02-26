@@ -155,9 +155,9 @@ Command::Result cList(const Command::ArgumentList_t& args, ConsoleInterface& c, 
     if (args[1].compare("creatures") == 0)
     {
         stringStr << "Class:\tCreature name:\tLocation:\tColor:\tLHand:\tRHand\n\n";
-        for (unsigned int i = 0; i < gameMap->numCreatures(); ++i)
+        for (Creature* creature : gameMap->getCreatures())
         {
-            gameMap->getCreature(i)->exportToStream(stringStr);
+            creature->exportToStream(stringStr);
             stringStr << std::endl;
         }
     }

@@ -83,8 +83,6 @@ public:
     virtual GameEntityType getObjectType() const
     { return GameEntityType::tile; }
 
-    std::string getOgreNamePrefix() const { return "Tile_"; }
-
     /*! \brief Set the type (rock, claimed, etc.) of the tile.
      *
      * In addition to setting the tile type this function also reloads the new mesh

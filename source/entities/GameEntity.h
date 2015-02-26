@@ -111,7 +111,7 @@ class GameEntity
     virtual ~GameEntity() {}
 
     // ===== GETTERS =====
-    virtual std::string getOgreNamePrefix() const = 0;
+    std::string getOgreNamePrefix() const;
 
     //! \brief Get the name of the object
     inline const std::string& getName() const
@@ -318,11 +318,6 @@ class GameEntity
 
     //! \brief The position of this object
     Ogre::Vector3 mPosition;
-
-    //! \brief Convinience function to get ogreNamePrefix + name
-    //! Used for nodes. The name does not include the _node and similar postfixes which are
-    //! added in RenderManager.
-    std::string getNodeNameWithoutPostfix();
 
     //! \brief Called while moving the entity to add it to the tile it gets on
     virtual bool addEntityToTile(Tile* tile);

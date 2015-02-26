@@ -53,6 +53,8 @@ const Ogre::Vector3 DEFAULT_TILE_SCALE(static_cast<Ogre::Real>(4.0 / RenderManag
         static_cast<Ogre::Real>(4.0 / RenderManager::BLENDER_UNITS_PER_OGRE_UNIT),
         static_cast<Ogre::Real>(5.0 / RenderManager::BLENDER_UNITS_PER_OGRE_UNIT));
 
+const std::string TILE_PREFIX = "Tile_";
+const std::string TILE_SCANF = TILE_PREFIX + "%i_%i";
 
 Tile::Tile(GameMap* gameMap, int x, int y, TileType type, double fullness) :
     GameEntity          (gameMap),
@@ -687,8 +689,7 @@ void Tile::updateFromPacket(ODPacket& is)
     OD_ASSERT_TRUE(is >> mScale);
 
     ss.str(std::string());
-    ss << "Level";
-    ss << "_";
+    ss << TILE_PREFIX;
     ss << getX();
     ss << "_";
     ss << getY();
@@ -778,8 +779,7 @@ void Tile::loadFromLine(const std::string& line, Tile *t)
     int yLocation = Helper::toInt(elems[1]);
 
     std::stringstream tileName("");
-    tileName << "Level";
-    tileName << "_";
+    tileName << TILE_PREFIX;
     tileName << xLocation;
     tileName << "_";
     tileName << yLocation;
@@ -1273,7 +1273,7 @@ Tile* Tile::getNeighbor(unsigned int index)
 std::string Tile::buildName(int x, int y)
 {
     std::stringstream ss;
-    ss << "Level_";
+    ss << TILE_PREFIX;
     ss << x;
     ss << "_";
     ss << y;
@@ -1282,10 +1282,10 @@ std::string Tile::buildName(int x, int y)
 
 bool Tile::checkTileName(const std::string& tileName, int& x, int& y)
 {
-    if (tileName.find("Tile_Level_") == std::string::npos)
+    if (tileName.compare(0, TILE_PREFIX.length(), TILE_PREFIX) != 0)
         return false;
 
-    if(sscanf(tileName.c_str(), "Tile_Level_%i_%i", &x, &y) != 2)
+    if(sscanf(tileName.c_str(), TILE_SCANF.c_str(), &x, &y) != 2)
         return false;
 
     return true;

@@ -307,6 +307,7 @@ set(OD_SOURCEFILES
     ${SRC}/network/ODSocketServer.cpp
     ${SRC}/network/ServerNotification.cpp
 
+    ${SRC}/render/CreatureOverlayStatus.cpp
     ${SRC}/render/Gui.cpp
     ${SRC}/render/MovableTextOverlay.cpp
     ${SRC}/render/ODFrameListener.cpp

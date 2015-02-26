@@ -26,6 +26,7 @@
 #include "render/Gui.h"
 #include "render/ODFrameListener.h"
 #include "spell/Spell.h"
+#include "utils/Helper.h"
 
 #include <CEGUI/System.h>
 #include <CEGUI/GUIContext.h>
@@ -116,30 +117,14 @@ GameEntity* AbstractApplicationMode::getEntityFromOgreName(const std::string& en
 {
     // We check the prefix to know the kind of object the user clicked. Then, we call the corresponding
     // GameMap function to retrieve the entity
-    GameMap* gameMap = ODFrameListener::getSingletonPtr()->getClientGameMap();
-    if (entityName.compare(0, Creature::CREATURE_PREFIX.length(), Creature::CREATURE_PREFIX) == 0)
-    {
-        // It is a creature
-        std::string name = entityName.substr(Creature::CREATURE_PREFIX.length());
-        return gameMap->getCreature(name);
-    }
-    else if (entityName.compare(0, RenderedMovableEntity::RENDEREDMOVABLEENTITY_OGRE_PREFIX.length(), RenderedMovableEntity::RENDEREDMOVABLEENTITY_OGRE_PREFIX) == 0)
-    {
-        std::string name = entityName.substr(RenderedMovableEntity::RENDEREDMOVABLEENTITY_OGRE_PREFIX.length());
-        return gameMap->getRenderedMovableEntity(name);
-    }
-    else if (entityName.compare(0, Spell::SPELL_OGRE_PREFIX.length(), Spell::SPELL_OGRE_PREFIX) == 0)
-    {
-        std::string name = entityName.substr(Spell::SPELL_OGRE_PREFIX.length());
-        return gameMap->getSpell(name);
-    }
-    else if (entityName.compare(0, MapLight::MAPLIGHT_INDICATOR_PREFIX.length(), MapLight::MAPLIGHT_INDICATOR_PREFIX) == 0)
-    {
-        std::string name = entityName.substr(MapLight::MAPLIGHT_INDICATOR_PREFIX.length());
-        return gameMap->getMapLight(name);
-    }
+    std::string::size_type index = entityName.find("-");
+    if(index == std::string::npos)
+        return nullptr;
 
-    return nullptr;
+    int32_t intGameEntityType = Helper::toInt(entityName.substr(0, index));
+    GameEntityType type = static_cast<GameEntityType>(intGameEntityType);
+    GameMap* gameMap = ODFrameListener::getSingletonPtr()->getClientGameMap();
+    return gameMap->getEntityFromTypeAndName(type, entityName.substr(index + 1));
 }
 
 void AbstractApplicationMode::subscribeCloseButton(CEGUI::Window& rootWindow)

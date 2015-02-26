@@ -138,8 +138,6 @@ public:
     virtual GameEntityType getObjectType() const
     { return GameEntityType::trap; }
 
-    virtual std::string getOgreNamePrefix() const { return "Trap_"; }
-
     virtual void addToGameMap();
     virtual void removeFromGameMap();
 

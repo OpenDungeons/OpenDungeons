@@ -19,6 +19,7 @@
 
 #include "ODApplication.h"
 #include "camera/CameraManager.h"
+#include "entities/Creature.h"
 #include "entities/Tile.h"
 #include "network/ODClient.h"
 #include "network/ODServer.h"
@@ -326,6 +327,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 
     // Since this is a tile selection query we loop over the result set
     // and look for the first object which is actually a tile.
+    Tile* tileClicked = nullptr;
     Ogre::RaySceneQueryResult& result = ODFrameListener::getSingleton().doRaySceneQuery(arg);
     for (Ogre::RaySceneQueryResult::iterator itr = result.begin(); itr != result.end(); ++itr)
     {
@@ -335,34 +337,59 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
         // Check to see if the current query result is a tile.
         std::string resultName = itr->movable->getName();
 
-        // Checks which tile we are on (if any)
-        if (!Tile::checkTileName(resultName, inputManager->mXPos, inputManager->mYPos))
+        GameEntity* entity = getEntityFromOgreName(resultName);
+        if((player->getCurrentAction() == Player::SelectedAction::none) &&
+           (entity != nullptr) &&
+           (entity->getObjectType() == GameEntityType::creature))
+        {
+            // If we are hovering a creature with no current action, we want to display its overlay
+            // for a short time
+            Creature* creature = static_cast<Creature*>(entity);
+            RenderManager::getSingleton().rrTemporaryDisplayCreaturesTextOverlay(creature, 0.5f);
+            continue;
+        }
+
+        // If we have already set a tile, we don't search for another one (in case perspective makes us hit
+        // several tiles)
+        if(tileClicked != nullptr)
             continue;
 
-        // If we don't drag anything, there is no affected tiles to compute.
-        if (!inputManager->mLMouseDown || player->getCurrentAction() == Player::SelectedAction::none)
-            break;
-
-        for (int jj = 0; jj < mGameMap->getMapSizeY(); ++jj)
+        // Checks which tile we are on (if any)
+        if((entity != nullptr) &&
+           (entity->getObjectType() == GameEntityType::tile))
         {
-            for (int ii = 0; ii < mGameMap->getMapSizeX(); ++ii)
-            {
-                mGameMap->getTile(ii, jj)->setSelected(false, player);
-            }
+            tileClicked = static_cast<Tile*>(entity);
         }
+    }
 
-        // Loop over the tiles in the rectangular selection region and set their setSelected flag accordingly.
-        std::vector<Tile*> affectedTiles = mGameMap->rectangularRegion(inputManager->mXPos,
-                                                                        inputManager->mYPos,
-                                                                        inputManager->mLStartDragX,
-                                                                        inputManager->mLStartDragY);
+    if(tileClicked == nullptr)
+        return true;
 
-        for( std::vector<Tile*>::iterator itr = affectedTiles.begin(); itr != affectedTiles.end(); ++itr)
+    inputManager->mXPos = tileClicked->getX();
+    inputManager->mYPos = tileClicked->getY();
+
+    // If we don't drag anything, there is no affected tiles to compute.
+    if (!inputManager->mLMouseDown || player->getCurrentAction() == Player::SelectedAction::none)
+        return true;
+
+    // COmpute selected tiles
+    for (int jj = 0; jj < mGameMap->getMapSizeY(); ++jj)
+    {
+        for (int ii = 0; ii < mGameMap->getMapSizeX(); ++ii)
         {
-            (*itr)->setSelected(true, player);
+            mGameMap->getTile(ii, jj)->setSelected(false, player);
         }
+    }
 
-        break;
+    // Loop over the tiles in the rectangular selection region and set their setSelected flag accordingly.
+    std::vector<Tile*> affectedTiles = mGameMap->rectangularRegion(inputManager->mXPos,
+                                                                    inputManager->mYPos,
+                                                                    inputManager->mLStartDragX,
+                                                                    inputManager->mLStartDragY);
+
+    for(Tile* tile : affectedTiles)
+    {
+        tile->setSelected(true, player);
     }
 
     return true;
@@ -581,9 +608,13 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
             std::string resultName = itr->movable->getName();
 
-            int x, y;
-            if (!Tile::checkTileName(resultName, x, y))
+            GameEntity* entity = getEntityFromOgreName(resultName);
+            // Checks which tile we are on (if any)
+            if((entity == nullptr) ||
+               (entity->getObjectType() != GameEntityType::tile))
+            {
                 continue;
+            }
 
             player->setCurrentAction(Player::SelectedAction::selectTile);
             break;
@@ -811,11 +842,9 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
         ODFrameListener::getSingleton().getCameraManager()->setNextDefaultView();
         break;
 
-    case OIS::KC_N:
-    {
-        RenderManager::getSingleton().rrToggleCreatureTextOverlay();
+    case OIS::KC_LMENU:
+        RenderManager::getSingleton().rrSetCreaturesTextOverlay(true);
         break;
-    }
 
     // Zooms to the next event
     case OIS::KC_SPACE:
@@ -944,6 +973,10 @@ bool GameMode::keyReleasedNormal(const OIS::KeyEvent &arg)
 
     case OIS::KC_PGDOWN:
         frameListener.moveCamera(CameraManager::Direction::stopRotDown);
+        break;
+
+    case OIS::KC_LMENU:
+        RenderManager::getSingleton().rrSetCreaturesTextOverlay(false);
         break;
 
     default:
