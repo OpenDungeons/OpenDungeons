@@ -40,16 +40,45 @@ const std::string REPLAY_EXTENSION = ".odr";
 MenuModeReplay::MenuModeReplay(ModeManager *modeManager):
     AbstractApplicationMode(modeManager, ModeManager::MENU_REPLAY)
 {
-}
-
-MenuModeReplay::~MenuModeReplay()
-{
+    CEGUI::Window* window = modeManager->getGui().getGuiSheet(Gui::guiSheet::replayMenu);
+    addEventConnection(
+        window->getChild(Gui::REM_BUTTON_BACK)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&MenuModeReplay::regressMode,
+                                     static_cast<AbstractApplicationMode*>(this))
+        )
+    );
+    addEventConnection(
+        window->getChild(Gui::REM_BUTTON_LAUNCH)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&MenuModeReplay::launchSelectedButtonPressed, this)
+        )
+    );
+    addEventConnection(
+        window->getChild(Gui::REM_BUTTON_DELETE)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&MenuModeReplay::deleteSelectedButtonPressed, this)
+        )
+    );
+    addEventConnection(
+        window->getChild(Gui::REM_LIST_REPLAYS)->subscribeEvent(
+            CEGUI::Listbox::EventMouseClick,
+            CEGUI::Event::Subscriber(&MenuModeReplay::listReplaysClicked, this)
+        )
+    );
+    addEventConnection(
+        window->getChild(Gui::REM_LIST_REPLAYS)->subscribeEvent(
+            CEGUI::Listbox::EventMouseDoubleClick,
+            CEGUI::Event::Subscriber(&MenuModeReplay::launchSelectedButtonPressed, this)
+        )
+    );
+    subscribeCloseButton(*window->getChild("LevelWindowFrame"));
 }
 
 void MenuModeReplay::activate()
 {
     // Loads the corresponding Gui sheet.
-    Gui::getSingleton().loadGuiSheet(Gui::replayMenu);
+    getModeManager().getGui().loadGuiSheet(Gui::replayMenu);
 
     giveFocus();
 
@@ -63,10 +92,10 @@ void MenuModeReplay::activate()
     gameMap->processDeletionQueues();
     gameMap->setGamePaused(true);
 
-    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::replayMenu)->getChild(Gui::REM_LIST_REPLAYS);
+    CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::replayMenu)->getChild(Gui::REM_LIST_REPLAYS);
     CEGUI::Listbox* replaySelectList = static_cast<CEGUI::Listbox*>(tmpWin);
 
-    tmpWin = Gui::getSingleton().getGuiSheet(Gui::replayMenu)->getChild(Gui::REM_TEXT_LOADING);
+    tmpWin = getModeManager().getGui().getGuiSheet(Gui::replayMenu)->getChild(Gui::REM_TEXT_LOADING);
     tmpWin->hide();
     mFilesList.clear();
     replaySelectList->resetList();
@@ -86,20 +115,20 @@ void MenuModeReplay::activate()
     }
 }
 
-void MenuModeReplay::launchSelectedButtonPressed()
+bool MenuModeReplay::launchSelectedButtonPressed(const CEGUI::EventArgs&)
 {
-    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::replayMenu)->getChild(Gui::REM_LIST_REPLAYS);
+    CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::replayMenu)->getChild(Gui::REM_LIST_REPLAYS);
     CEGUI::Listbox* replaySelectList = static_cast<CEGUI::Listbox*>(tmpWin);
 
     if(replaySelectList->getSelectedCount() == 0)
     {
-        tmpWin = Gui::getSingleton().getGuiSheet(Gui::replayMenu)->getChild(Gui::REM_TEXT_LOADING);
+        tmpWin = getModeManager().getGui().getGuiSheet(Gui::replayMenu)->getChild(Gui::REM_TEXT_LOADING);
         tmpWin->setText("Please select a replay first.");
         tmpWin->show();
-        return;
+        return true;
     }
 
-    tmpWin = Gui::getSingleton().getGuiSheet(Gui::replayMenu)->getChild(Gui::REM_TEXT_LOADING);
+    tmpWin = getModeManager().getGui().getGuiSheet(Gui::replayMenu)->getChild(Gui::REM_TEXT_LOADING);
     tmpWin->setText("Loading...");
     tmpWin->show();
 
@@ -112,31 +141,32 @@ void MenuModeReplay::launchSelectedButtonPressed()
     {
         tmpWin->setText("Error: trying to launch invalid replay!");
         tmpWin->show();
-        return;
+        return true;
     }
 
     std::string replayFile = ResourceManager::getSingleton().getReplayDataPath() + mFilesList[id];
     if(!ODClient::getSingleton().replay(replayFile))
     {
         LogManager::getSingleton().logMessage("ERROR: Could not launch replay !!!");
-        tmpWin = Gui::getSingleton().getGuiSheet(Gui::replayMenu)->getChild(Gui::REM_TEXT_LOADING);
+        tmpWin = getModeManager().getGui().getGuiSheet(Gui::replayMenu)->getChild(Gui::REM_TEXT_LOADING);
         tmpWin->setText("Error: Couldn't launch replay!");
         tmpWin->show();
-        return;
+        return true;
     }
+    return true;
 }
 
-void MenuModeReplay::deleteSelectedButtonPressed()
+bool MenuModeReplay::deleteSelectedButtonPressed(const CEGUI::EventArgs&)
 {
-    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::replayMenu)->getChild(Gui::REM_LIST_REPLAYS);
+    CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::replayMenu)->getChild(Gui::REM_LIST_REPLAYS);
     CEGUI::Listbox* replaySelectList = static_cast<CEGUI::Listbox*>(tmpWin);
 
     if(replaySelectList->getSelectedCount() == 0)
     {
-        tmpWin = Gui::getSingleton().getGuiSheet(Gui::replayMenu)->getChild(Gui::REM_TEXT_LOADING);
+        tmpWin = getModeManager().getGui().getGuiSheet(Gui::replayMenu)->getChild(Gui::REM_TEXT_LOADING);
         tmpWin->setText("Please select a replay first.");
         tmpWin->show();
-        return;
+        return true;
     }
 
     CEGUI::ListboxItem* selItem = replaySelectList->getFirstSelectedItem();
@@ -146,26 +176,27 @@ void MenuModeReplay::deleteSelectedButtonPressed()
     if(!boost::filesystem::remove(replayFile))
     {
         LogManager::getSingleton().logMessage("ERROR: Could not delete replay !!!");
-        tmpWin = Gui::getSingleton().getGuiSheet(Gui::replayMenu)->getChild(Gui::REM_TEXT_LOADING);
+        tmpWin = getModeManager().getGui().getGuiSheet(Gui::replayMenu)->getChild(Gui::REM_TEXT_LOADING);
         tmpWin->setText("Error: Couldn't delete replay!");
         tmpWin->show();
-        return;
+        return true;
     }
 
     activate();
+    return true;
 }
 
-void MenuModeReplay::listReplaysClicked()
+bool MenuModeReplay::listReplaysClicked(const CEGUI::EventArgs&)
 {
-    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::replayMenu)->getChild(Gui::REM_LIST_REPLAYS);
+    CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::replayMenu)->getChild(Gui::REM_LIST_REPLAYS);
     CEGUI::Listbox* replaySelectList = static_cast<CEGUI::Listbox*>(tmpWin);
     if(replaySelectList->getSelectedCount() == 0)
-        return;
+        return true;
 
     CEGUI::ListboxItem* selItem = replaySelectList->getFirstSelectedItem();
     int id = selItem->getID();
 
-    CEGUI::Window* descTxt = Gui::getSingleton().getGuiSheet(Gui::replayMenu)->getChild("LevelWindowFrame/MapDescriptionText");
+    CEGUI::Window* descTxt = getModeManager().getGui().getGuiSheet(Gui::replayMenu)->getChild("LevelWindowFrame/MapDescriptionText");
     std::string mapDescription;
     std::string errorMsg;
     if(checkReplayValid(mFilesList[id], mapDescription, errorMsg))
@@ -176,6 +207,7 @@ void MenuModeReplay::listReplaysClicked()
     {
         descTxt->setText(errorMsg);
     }
+    return true;
 }
 
 bool MenuModeReplay::checkReplayValid(const std::string& replayFileName, std::string& mapDescription, std::string& errorMsg)
@@ -220,9 +252,4 @@ bool MenuModeReplay::checkReplayValid(const std::string& replayFileName, std::st
     }
 
     return true;
-}
-
-void MenuModeReplay::listReplaysDoubleClicked()
-{
-    launchSelectedButtonPressed();
 }

@@ -39,8 +39,6 @@ public:
 
     ConsoleMode(ModeManager*);
 
-    virtual ~ConsoleMode() override;
-
     virtual bool keyPressed(const OIS::KeyEvent &arg) final override;
 
     //! \brief Called when the game mode is activated

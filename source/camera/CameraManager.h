@@ -27,14 +27,9 @@
 
 #include <OgrePrerequisites.h>
 #include <OgreVector3.h>
-#include <OgreCamera.h>
-#include <OgreSceneNode.h>
-
 #include <OgreString.h>
 
 #include <set>
-#include <vector>
-#include <map>
 
 class GameMap;
 

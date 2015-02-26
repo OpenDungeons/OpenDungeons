@@ -31,25 +31,19 @@
 #include "modes/FppMode.h"
 
 
-ModeManager::ModeManager(Ogre::RenderWindow* renderWindow)
-  : mInputManager(renderWindow), mConsoleMode(new ConsoleMode(this)), mIsInConsole(false),
+ModeManager::ModeManager(Ogre::RenderWindow* renderWindow, Gui* gui)
+  : mInputManager(renderWindow), mGui(gui), mConsoleMode(new ConsoleMode(this)), mIsInConsole(false),
     mRequestedMode(ModeType::NONE), mDiscardActualMode(false)
 {
     mInputManager.mKeyboard->setTextTranslation(OIS::Keyboard::Unicode);
 
     // Loads the main menu
-    mApplicationModes.push_back(new MenuMode(this));
+    mApplicationModes.emplace_back(new MenuMode(this));
     mApplicationModes.back()->activate();
 }
 
 ModeManager::~ModeManager()
 {
-    for (std::vector<AbstractApplicationMode*>::iterator it = mApplicationModes.begin(); it != mApplicationModes.end(); ++it)
-    {
-        AbstractApplicationMode* appMode = *it;
-        appMode->exitMode();
-        delete appMode;
-    }
 }
 
 AbstractApplicationMode* ModeManager::getCurrentMode()
@@ -57,7 +51,7 @@ AbstractApplicationMode* ModeManager::getCurrentMode()
     if (mIsInConsole)
         return mConsoleMode.get();
 
-    return mApplicationModes.back();
+    return mApplicationModes.back().get();
 }
 
 ModeManager::ModeType ModeManager::getCurrentModeType()
@@ -85,34 +79,34 @@ void ModeManager::addMode(ModeType mt)
         return;
         break;
     case MENU:
-        mApplicationModes.push_back(new MenuMode(this));
+        mApplicationModes.emplace_back(new MenuMode(this));
         break;
     case MENU_SKIRMISH:
-        mApplicationModes.push_back(new MenuModeSkirmish(this));
+        mApplicationModes.emplace_back(new MenuModeSkirmish(this));
         break;
     case MENU_REPLAY:
-        mApplicationModes.push_back(new MenuModeReplay(this));
+        mApplicationModes.emplace_back(new MenuModeReplay(this));
         break;
     case MENU_MULTIPLAYER_CLIENT:
-        mApplicationModes.push_back(new MenuModeMultiplayerClient(this));
+        mApplicationModes.emplace_back(new MenuModeMultiplayerClient(this));
         break;
     case MENU_MULTIPLAYER_SERVER:
-        mApplicationModes.push_back(new MenuModeMultiplayerServer(this));
+        mApplicationModes.emplace_back(new MenuModeMultiplayerServer(this));
         break;
     case MENU_EDITOR:
-        mApplicationModes.push_back(new MenuModeEditor(this));
+        mApplicationModes.emplace_back(new MenuModeEditor(this));
         break;
     case MENU_CONFIGURE_SEATS:
-        mApplicationModes.push_back(new MenuModeConfigureSeats(this));
+        mApplicationModes.emplace_back(new MenuModeConfigureSeats(this));
         break;
     case GAME:
-        mApplicationModes.push_back(new GameMode(this));
+        mApplicationModes.emplace_back(new GameMode(this));
         break;
     case EDITOR:
-        mApplicationModes.push_back(new EditorMode(this));
+        mApplicationModes.emplace_back(new EditorMode(this));
         break;
     case FPP:
-        mApplicationModes.push_back(new FppMode(this));
+        mApplicationModes.emplace_back(new FppMode(this));
         break;
     default:
         break;
@@ -133,9 +127,6 @@ void ModeManager::removeMode()
     }
     else if (mApplicationModes.size() > 1)
     {
-        AbstractApplicationMode* appMode = mApplicationModes.back();
-        appMode->exitMode();
-        delete appMode;
         mApplicationModes.pop_back();
     }
 
@@ -153,9 +144,6 @@ void ModeManager::checkModeChange()
     {
         if(mDiscardActualMode)
         {
-            AbstractApplicationMode* appMode = mApplicationModes.back();
-            appMode->exitMode();
-            delete appMode;
             mApplicationModes.pop_back();
         }
         addMode(mRequestedMode);

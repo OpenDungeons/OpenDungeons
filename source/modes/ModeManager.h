@@ -29,9 +29,9 @@
 #include <memory>
 
 class AbstractApplicationMode;
-class InputManager;
 class ConsoleMode;
 class CameraManager;
+class Gui;
 
 namespace Ogre {
   class RenderWindow;
@@ -41,8 +41,8 @@ class ModeManager: public AbstractModeManager
 {
 public:
 
-    ModeManager(Ogre::RenderWindow* renderWindow);
-    ~ModeManager();
+    ModeManager(Ogre::RenderWindow* renderWindow, Gui* gui);
+    virtual ~ModeManager();
 
     //! \brief Updates mouse event, checks for made changes, ...
     void update(const Ogre::FrameEvent& evt);
@@ -128,7 +128,12 @@ public:
     {
         mRequestedMode = ModeType::MENU_CONFIGURE_SEATS;
         mDiscardActualMode = discardActualMode;
-     }
+    }
+
+    void requestMode(ModeType mode)
+    {
+        mRequestedMode = mode;
+    }
 
     //! \brief Request unloading the current mode and activate the parent one
     //! at next update
@@ -142,9 +147,17 @@ public:
         return &mInputManager;
     }
 
+    Gui& getGui()
+    {
+        return *mGui;
+    }
+
 private:
-    //! \brief The common input manager reference
+    //! \brief The common input manager instance
     InputManager mInputManager;
+
+    //! \brief Pointer to the GUI instance
+    Gui* mGui;
 
     //! \brief A unique console mode instance, shared between game modes.
     std::unique_ptr<ConsoleMode> mConsoleMode;
@@ -155,7 +168,7 @@ private:
     //! \brief The vector containing the loaded modes.
     //! The active one is either the last one, or the console when
     //! mIsInConsole is equal to true.
-    std::vector<AbstractApplicationMode*> mApplicationModes;
+    std::vector<std::unique_ptr<AbstractApplicationMode>> mApplicationModes;
 
     //! \brief Tells which new mode is requested.
     ModeManager::ModeType mRequestedMode;

@@ -22,7 +22,6 @@
 #include "gamemap/GameMap.h"
 #include "ODApplication.h"
 #include "entities/MapLight.h"
-#include "network/ChatMessage.h"
 #include "modes/ServerConsoleCommands.h"
 #include "game/Research.h"
 #include "gamemap/MapLoader.h"

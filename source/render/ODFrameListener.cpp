@@ -22,23 +22,21 @@
 
 #include "render/ODFrameListener.h"
 
-#include "modes/InputManager.h"
+#include "ODApplication.h"
+#include "game/Player.h"
+#include "game/Seat.h"
+#include "gamemap/GameMap.h"
 #include "modes/AbstractApplicationMode.h"
+#include "modes/ModeManager.h"
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
 #include "network/ODClient.h"
 #include "network/ChatMessage.h"
-#include "gamemap/GameMap.h"
-#include "game/Player.h"
-#include "render/TextRenderer.h"
 #include "render/Gui.h"
-#include "sound/MusicPlayer.h"
 #include "render/RenderManager.h"
-#include "ODApplication.h"
+#include "render/TextRenderer.h"
+#include "sound/MusicPlayer.h"
 #include "utils/LogManager.h"
-#include "modes/ModeManager.h"
-#include "camera/CameraManager.h"
-#include "game/Seat.h"
 
 #include <OgreLogManager.h>
 #include <OgreRenderWindow.h>
@@ -70,35 +68,29 @@ template<> ODFrameListener* Ogre::Singleton<ODFrameListener>::msSingleton = null
  * The primary function of this routine is to initialize variables, and start
  * up the OGRE system.
  */
-ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::OverlaySystem* overLaySystem) :
+ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::OverlaySystem* overLaySystem, Gui* gui) :
     mInitialized(false),
     mWindow(renderWindow),
-    mModeManager(nullptr),
+    mGui(gui),
+    mRenderManager(new RenderManager(overLaySystem)),
+    mGameMap(new GameMap(false)),
+    mModeManager(new ModeManager(renderWindow, gui)),
     mShowDebugInfo(false),
     mContinue(true),
     mTerminalWordWrap(78),
     mChatMaxMessages(10),
     mChatMaxTimeDisplay(20.0f),
     mRaySceneQuery(nullptr),
-    mGameMap(nullptr),
     mExitRequested(false),
-    mCameraManager(nullptr),
+    mCameraManager(mRenderManager->getSceneManager(), mGameMap.get(), renderWindow),
     mIsChatInputMode(false)
 {
     LogManager* logManager = LogManager::getSingletonPtr();
     logManager->logMessage("Creating frame listener...", Ogre::LML_NORMAL);
 
-    RenderManager* renderManager = new RenderManager(overLaySystem);
+    mRenderManager->createScene(mCameraManager.getViewport());
 
-    mGameMap = new GameMap(false);
-
-    mCameraManager = new CameraManager(renderManager->getSceneManager(), mGameMap, renderWindow);
-
-    renderManager->createScene(mCameraManager->getViewport());
-
-    mRaySceneQuery = renderManager->getSceneManager()->createRayQuery(Ogre::Ray());
-
-    mModeManager = new ModeManager(renderWindow);
+    mRaySceneQuery = mRenderManager->getSceneManager()->createRayQuery(Ogre::Ray());
 
     //Set initial mouse clipping size
     windowResized(mWindow);
@@ -124,35 +116,17 @@ void ODFrameListener::windowResized(Ogre::RenderWindow* rw)
             static_cast<float> (width), static_cast<float> (height)));
 }
 
-void ODFrameListener::windowClosed(Ogre::RenderWindow* rw)
-{
-    if(rw == mWindow && mModeManager)
-    {
-        delete mModeManager;
-        mModeManager = nullptr;
-    }
-}
-
 ODFrameListener::~ODFrameListener()
 {
     if (mInitialized)
         exitApplication();
 
-    if (mModeManager)
-        delete mModeManager;
-    delete mCameraManager;
     mGameMap->clearAll();
     mGameMap->processDeletionQueues();
-    delete mGameMap;
-    // We deinit it here since it was also created in this class.
-    delete RenderManager::getSingletonPtr();
 
-    std::deque<ChatMessage*>::iterator it = mChatMessages.end();
-    while(mChatMessages.size() > 0)
+    for(ChatMessage* c : mChatMessages)
     {
-        ChatMessage* msg = *mChatMessages.begin();
-        mChatMessages.erase(mChatMessages.begin());
-        delete msg;
+        delete c;
     }
 }
 
@@ -169,13 +143,11 @@ void ODFrameListener::exitApplication()
     ODServer::getSingleton().notifyExit();
     mGameMap->clearAll();
     mGameMap->processDeletionQueues();
-    RenderManager::getSingletonPtr()->getSceneManager()->destroyQuery(mRaySceneQuery);
+    mRenderManager->getSceneManager()->destroyQuery(mRaySceneQuery);
 
     Ogre::LogManager::getSingleton().logMessage("Remove listener registration", Ogre::LML_NORMAL);
     //Remove ourself as a Window listener
     Ogre::WindowEventUtilities::removeWindowEventListener(mWindow, this);
-    Ogre::LogManager::getSingleton().logMessage("Window closed", Ogre::LML_NORMAL);
-    windowClosed(mWindow);
 
     Ogre::LogManager::getSingleton().logMessage("Frame listener uninitialization done.", Ogre::LML_NORMAL);
     mInitialized = false;
@@ -184,7 +156,7 @@ void ODFrameListener::exitApplication()
 void ODFrameListener::updateAnimations(Ogre::Real timeSinceLastFrame)
 {
     MusicPlayer::getSingleton().update(static_cast<float>(timeSinceLastFrame));
-    RenderManager::getSingleton().updateRenderAnimations(timeSinceLastFrame);
+    mRenderManager->updateRenderAnimations(timeSinceLastFrame);
     mGameMap->processDeletionQueues();
 
     mGameMap->updateAnimations(timeSinceLastFrame);
@@ -218,8 +190,8 @@ bool ODFrameListener::frameRenderingQueued(const Ogre::FrameEvent& evt)
         updateAnimations(evt.timeSinceLastFrame);
     }
 
-    mCameraManager->updateCameraFrameTime(evt.timeSinceLastFrame);
-    mCameraManager->onFrameStarted();
+    mCameraManager.updateCameraFrameTime(evt.timeSinceLastFrame);
+    mCameraManager.onFrameStarted();
 
     if((currentTurn != -1) && (mGameMap->getGamePaused()) && (!mExitRequested))
         return true;
@@ -233,7 +205,7 @@ bool ODFrameListener::frameRenderingQueued(const Ogre::FrameEvent& evt)
     }
 
 
-    ODClient::getSingleton().processClientSocketMessages(*mGameMap);
+    ODClient::getSingleton().processClientSocketMessages(*mGameMap.get());
     ODClient::getSingleton().processClientNotifications();
 
     refreshChat();
@@ -285,7 +257,7 @@ void ODFrameListener::refreshChat()
         chatSS << "\nFPS: " << mWindow->getStatistics().lastFPS;
         chatSS << "\ntriangleCount: " << mWindow->getStatistics().triangleCount;
         chatSS << "\nBatches: " << mWindow->getStatistics().batchCount;
-        chatSS << "\nTurn number:  " <<  static_cast<int32_t>(mGameMap->getTurnNumber());
+        chatSS << "\nTurn number:  " << mGameMap->getTurnNumber();
         if(ODClient::getSingleton().isConnected())
         {
             int32_t gameTime = ODClient::getSingleton().getGameTimeMillis() / 1000;
@@ -309,23 +281,23 @@ void ODFrameListener::refreshPlayerDisplay(const std::string& goalsDisplayString
     Seat* mySeat = mGameMap->getLocalPlayer()->getSeat();
 
     //! \brief Updates common info on screen.
-    CEGUI::Window *tempWindow = Gui::getSingletonPtr()->getGuiSheet(Gui::inGameMenu)->getChild(Gui::DISPLAY_TERRITORY);
+    CEGUI::Window *tempWindow = mGui->getGuiSheet(Gui::inGameMenu)->getChild(Gui::DISPLAY_TERRITORY);
     std::stringstream tempSS("");
     tempSS << mySeat->getNumClaimedTiles();
     tempWindow->setText(tempSS.str());
 
-    tempWindow = Gui::getSingletonPtr()->getGuiSheet(Gui::inGameMenu)->getChild(Gui::DISPLAY_GOLD);
+    tempWindow = mGui->getGuiSheet(Gui::inGameMenu)->getChild(Gui::DISPLAY_GOLD);
     tempSS.str("");
     tempSS << mySeat->getGold();
     tempWindow->setText(tempSS.str());
 
-    tempWindow = Gui::getSingletonPtr()->getGuiSheet(Gui::inGameMenu)->getChild(Gui::DISPLAY_MANA);
+    tempWindow = mGui->getGuiSheet(Gui::inGameMenu)->getChild(Gui::DISPLAY_MANA);
     tempSS.str("");
     tempSS << mySeat->getMana() << " " << (mySeat->getManaDelta() >= 0 ? "+" : "-")
             << mySeat->getManaDelta();
     tempWindow->setText(tempSS.str());
 
-    tempWindow = Gui::getSingletonPtr()->getGuiSheet(Gui::inGameMenu)->getChild(Gui::OBJECTIVE_TEXT);
+    tempWindow = mGui->getGuiSheet(Gui::inGameMenu)->getChild(Gui::OBJECTIVE_TEXT);
     tempWindow->setText(goalsDisplayString);
 }
 
@@ -334,7 +306,7 @@ bool ODFrameListener::frameEnded(const Ogre::FrameEvent& evt)
     AbstractApplicationMode* currentMode = mModeManager->getCurrentMode();
     currentMode->onFrameEnded(evt);
 
-    mCameraManager->onFrameEnded();
+    mCameraManager.onFrameEnded();
 
     return true;
 }
@@ -349,7 +321,7 @@ Ogre::RaySceneQueryResult& ODFrameListener::doRaySceneQuery(const OIS::MouseEven
 {
     // Setup the ray scene query, use CEGUI's mouse position
     CEGUI::Vector2<float> mousePos = CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().getPosition();// * mMouseScale;
-    Ogre::Ray mouseRay = mCameraManager->getActiveCamera()->getCameraToViewportRay(mousePos.d_x / float(
+    Ogre::Ray mouseRay = mCameraManager.getActiveCamera()->getCameraToViewportRay(mousePos.d_x / float(
             arg.state.width), mousePos.d_y / float(arg.state.height));
     mRaySceneQuery->setRay(mouseRay);
     mRaySceneQuery->setSortByDistance(true);
@@ -390,10 +362,7 @@ void ODFrameListener::notifyChatInputMode(bool isChatInputMode, bool sendChatMsg
 {
     if(mIsChatInputMode && sendChatMsg && !mChatString.empty() && ODClient::getSingleton().isConnected())
     {
-        ClientNotification *clientNotification = new ClientNotification(
-            ClientNotificationType::chat);
-        clientNotification->mPacket << mChatString;
-        ODClient::getSingleton().queueClientNotification(clientNotification);
+        ODClient::getSingleton().queueClientNotification(ClientNotificationType::chat, mChatString);
     }
     mIsChatInputMode = isChatInputMode;
     mChatString.clear();
@@ -422,40 +391,40 @@ void ODFrameListener::addChatMessage(ChatMessage *message)
 
 void ODFrameListener::setCameraPosition(const Ogre::Vector3& position)
 {
-    mCameraManager->setCameraPosition(position);
+    mCameraManager.setCameraPosition(position);
 }
 
 void ODFrameListener::moveCamera(CameraManager::Direction direction)
 {
-    mCameraManager->move(direction);
+    mCameraManager.move(direction);
 }
 
 void ODFrameListener::setActiveCameraNearClipDistance(Ogre::Real value)
 {
-    mCameraManager->getActiveCamera()->setNearClipDistance(value);
+    mCameraManager.getActiveCamera()->setNearClipDistance(value);
 }
 
 Ogre::Real ODFrameListener::getActiveCameraNearClipDistance()
 {
-    return mCameraManager->getActiveCamera()->getNearClipDistance();
+    return mCameraManager.getActiveCamera()->getNearClipDistance();
 }
 
 void ODFrameListener::setActiveCameraFarClipDistance(Ogre::Real value)
 {
-    mCameraManager->getActiveCamera()->setFarClipDistance(value);
+    mCameraManager.getActiveCamera()->setFarClipDistance(value);
 }
 
 Ogre::Real ODFrameListener::getActiveCameraFarClipDistance()
 {
-    return mCameraManager->getActiveCamera()->getFarClipDistance();
+    return mCameraManager.getActiveCamera()->getFarClipDistance();
 }
 
-const Ogre::Vector3 ODFrameListener::getCameraViewTarget()
+Ogre::Vector3 ODFrameListener::getCameraViewTarget()
 {
-    return mCameraManager->getCameraViewTarget();
+    return mCameraManager.getCameraViewTarget();
 }
 
 void ODFrameListener::cameraFlyTo(const Ogre::Vector3& destination)
 {
-    mCameraManager->flyTo(destination);
+    mCameraManager.flyTo(destination);
 }

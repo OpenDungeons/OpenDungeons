@@ -31,7 +31,7 @@ FppMode::~FppMode()
 void FppMode::activate()
 {
     // Loads the corresponding Gui sheet.
-    Gui::getSingleton().loadGuiSheet(Gui::hideGui);
+    getModeManager().getGui().loadGuiSheet(Gui::hideGui);
 
     giveFocus();
 }

@@ -25,18 +25,12 @@ class MenuModeMultiplayerServer: public AbstractApplicationMode
 public:
     MenuModeMultiplayerServer(ModeManager*);
 
-    virtual ~MenuModeMultiplayerServer();
-
     //! \brief Called when the game mode is activated
     //! Used to call the corresponding Gui Sheet.
-    void activate();
+    void activate() final override;
 
-    void serverButtonPressed();
-    void updateDescription();
-
-    void listLevelsClicked();
-    void listLevelsDoubleClicked();
-
+    bool serverButtonPressed(const CEGUI::EventArgs&);
+    bool updateDescription(const CEGUI::EventArgs&);
 private:
     std::vector<std::string> mFilesList;
     std::vector<std::string> mDescriptionList;

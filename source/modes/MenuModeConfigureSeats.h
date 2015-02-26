@@ -42,8 +42,8 @@ public:
     //! Used to call the corresponding Gui Sheet.
     void activate();
 
-    void launchSelectedButtonPressed();
-    void goBack();
+    bool launchSelectedButtonPressed(const CEGUI::EventArgs&);
+    bool goBack(const CEGUI::EventArgs& e = {});
 
     bool comboChanged(const CEGUI::EventArgs& ea);
     void addPlayer(const std::string& nick, int32_t id);

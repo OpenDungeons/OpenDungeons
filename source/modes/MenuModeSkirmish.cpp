@@ -40,16 +40,39 @@ const std::string LEVEL_EXTENSION = ".level";
 MenuModeSkirmish::MenuModeSkirmish(ModeManager *modeManager):
     AbstractApplicationMode(modeManager, ModeManager::MENU_SKIRMISH)
 {
-}
-
-MenuModeSkirmish::~MenuModeSkirmish()
-{
+    CEGUI::Window* window = modeManager->getGui().getGuiSheet(Gui::guiSheet::skirmishMenu);
+    addEventConnection(
+        window->getChild(Gui::SKM_BUTTON_LAUNCH)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&MenuModeSkirmish::launchSelectedButtonPressed, this)
+        )
+    );
+    addEventConnection(
+        window->getChild(Gui::SKM_LIST_LEVELS)->subscribeEvent(
+            CEGUI::Listbox::EventMouseDoubleClick,
+            CEGUI::Event::Subscriber(&MenuModeSkirmish::launchSelectedButtonPressed, this)
+        )
+    );
+    addEventConnection(
+        window->getChild(Gui::SKM_LIST_LEVELS)->subscribeEvent(
+            CEGUI::Listbox::EventMouseClick,
+            CEGUI::Event::Subscriber(&MenuModeSkirmish::updateDescription, this)
+        )
+    );
+    addEventConnection(
+        window->getChild(Gui::SKM_BUTTON_BACK)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&MenuModeSkirmish::regressMode,
+                                     static_cast<AbstractApplicationMode*>(this))
+        )
+    );
+    subscribeCloseButton(*window->getChild("LevelWindowFrame"));
 }
 
 void MenuModeSkirmish::activate()
 {
     // Loads the corresponding Gui sheet.
-    Gui::getSingleton().loadGuiSheet(Gui::skirmishMenu);
+    getModeManager().getGui().loadGuiSheet(Gui::guiSheet::skirmishMenu);
 
     giveFocus();
 
@@ -63,10 +86,10 @@ void MenuModeSkirmish::activate()
     gameMap->processDeletionQueues();
     gameMap->setGamePaused(true);
 
-    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_LIST_LEVELS);
+    CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_LIST_LEVELS);
     CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);
 
-    tmpWin = Gui::getSingleton().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);
+    tmpWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);
     tmpWin->hide();
     mFilesList.clear();
     mDescriptionList.clear();
@@ -107,20 +130,20 @@ void MenuModeSkirmish::activate()
     }
 }
 
-void MenuModeSkirmish::launchSelectedButtonPressed()
+bool MenuModeSkirmish::launchSelectedButtonPressed(const CEGUI::EventArgs&)
 {
-    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_LIST_LEVELS);
+    CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_LIST_LEVELS);
     CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);
 
     if(levelSelectList->getSelectedCount() == 0)
     {
-        tmpWin = Gui::getSingleton().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);
+        tmpWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);
         tmpWin->setText("Please select a level first.");
         tmpWin->show();
-        return;
+        return true;
     }
 
-    tmpWin = Gui::getSingleton().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);
+    tmpWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);
     tmpWin->setText("Loading...");
     tmpWin->show();
 
@@ -132,34 +155,35 @@ void MenuModeSkirmish::launchSelectedButtonPressed()
     if(!ODServer::getSingleton().startServer(level, ODServer::ServerMode::ModeGameSinglePlayer))
     {
         LogManager::getSingleton().logMessage("ERROR: Could not start server for single player game !!!");
-        tmpWin = Gui::getSingleton().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);
+        tmpWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);
         tmpWin->setText("ERROR: Could not start server for single player game !!!");
         tmpWin->show();
-        return;
+        return true;
     }
 
     if(!ODClient::getSingleton().connect("localhost", ConfigManager::getSingleton().getNetworkPort()))
     {
         LogManager::getSingleton().logMessage("ERROR: Could not connect to server for single player game !!!");
-        tmpWin = Gui::getSingleton().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);
+        tmpWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);
         tmpWin->setText("Error: Couldn't connect to local server!");
         tmpWin->show();
-        return;
+        return true;
     }
+    return true;
 }
 
-void MenuModeSkirmish::updateDescription()
+bool MenuModeSkirmish::updateDescription(const CEGUI::EventArgs&)
 {
     // Get the level corresponding id
-    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_LIST_LEVELS);
+    CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_LIST_LEVELS);
     CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);
 
-    CEGUI::Window* descTxt = Gui::getSingleton().getGuiSheet(Gui::skirmishMenu)->getChild("LevelWindowFrame/MapDescriptionText");
+    CEGUI::Window* descTxt = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu)->getChild("LevelWindowFrame/MapDescriptionText");
 
     if(levelSelectList->getSelectedCount() == 0)
     {
         descTxt->setText("");
-        return;
+        return true;
     }
 
     CEGUI::ListboxItem* selItem = levelSelectList->getFirstSelectedItem();
@@ -167,14 +191,6 @@ void MenuModeSkirmish::updateDescription()
 
     std::string description = mDescriptionList[id];
     descTxt->setText(description);
-}
 
-void MenuModeSkirmish::listLevelsClicked()
-{
-    updateDescription();
-}
-
-void MenuModeSkirmish::listLevelsDoubleClicked()
-{
-    launchSelectedButtonPressed();
+    return true;
 }

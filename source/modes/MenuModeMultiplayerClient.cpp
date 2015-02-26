@@ -35,16 +35,30 @@
 MenuModeMultiplayerClient::MenuModeMultiplayerClient(ModeManager *modeManager):
     AbstractApplicationMode(modeManager, ModeManager::MENU_MULTIPLAYER_CLIENT)
 {
-}
+    CEGUI::Window* window = getModeManager().getGui().getGuiSheet(Gui::guiSheet::multiplayerServerMenu);
 
-MenuModeMultiplayerClient::~MenuModeMultiplayerClient()
-{
+    addEventConnection(
+        window->getChild(Gui::MPM_BUTTON_CLIENT)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&MenuModeMultiplayerClient::clientButtonPressed,
+                                     this)
+        )
+    );
+    addEventConnection(
+        window->getChild(Gui::MPM_BUTTON_BACK)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&MenuModeMultiplayerClient::regressMode,
+                                     static_cast<AbstractApplicationMode*>(this))
+        )
+    );
+
+    subscribeCloseButton(*window->getChild("LevelWindowFrame"));
 }
 
 void MenuModeMultiplayerClient::activate()
 {
     // Loads the corresponding Gui sheet.
-    Gui::getSingleton().loadGuiSheet(Gui::multiplayerClientMenu);
+    getModeManager().getGui().loadGuiSheet(Gui::guiSheet::multiplayerClientMenu);
 
     giveFocus();
 
@@ -57,45 +71,45 @@ void MenuModeMultiplayerClient::activate()
     gameMap->processDeletionQueues();
     gameMap->setGamePaused(true);
 
-    CEGUI::Window* mainWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerClientMenu);
+    CEGUI::Window* mainWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::multiplayerClientMenu);
     mainWin->getChild(Gui::MPM_TEXT_LOADING)->hide();
 }
 
-void MenuModeMultiplayerClient::clientButtonPressed()
+bool MenuModeMultiplayerClient::clientButtonPressed(const CEGUI::EventArgs&)
 {
-    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerClientMenu)->getChild(Gui::MPM_EDIT_IP);
+    CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::multiplayerClientMenu)->getChild(Gui::MPM_EDIT_IP);
     CEGUI::Editbox* editIp = static_cast<CEGUI::Editbox*>(tmpWin);
     const std::string ip = editIp->getText().c_str();
 
     if (ip.empty())
     {
-        tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerClientMenu)->getChild(Gui::MPM_TEXT_LOADING);
+        tmpWin = getModeManager().getGui().getGuiSheet(Gui::multiplayerClientMenu)->getChild(Gui::MPM_TEXT_LOADING);
         tmpWin->setText("Please enter a server IP.");
         tmpWin->show();
-        return;
+        return true;
     }
 
-    tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerClientMenu)->getChild(Gui::MPM_EDIT_NICK);
+    tmpWin = getModeManager().getGui().getGuiSheet(Gui::multiplayerClientMenu)->getChild(Gui::MPM_EDIT_NICK);
     CEGUI::Editbox* editNick = static_cast<CEGUI::Editbox*>(tmpWin);
     std::string str = editNick->getText().c_str();
     // Remove potential characters leading to crash.
     std::string nick = boost::locale::conv::to_utf<char>(str, "Ascii");
     if (nick.empty())
     {
-        tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerClientMenu)->getChild(Gui::MPM_TEXT_LOADING);
+        tmpWin = getModeManager().getGui().getGuiSheet(Gui::multiplayerClientMenu)->getChild(Gui::MPM_TEXT_LOADING);
         tmpWin->setText("Please enter a nickname.");
         tmpWin->show();
-        return;
+        return true;
     }
     else if (nick.length() > 20)
     {
-        tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerClientMenu)->getChild(Gui::MPM_TEXT_LOADING);
+        tmpWin = getModeManager().getGui().getGuiSheet(Gui::multiplayerClientMenu)->getChild(Gui::MPM_TEXT_LOADING);
         tmpWin->setText("Please enter a shorter nickname. (20 letters max.)");
         tmpWin->show();
-        return;
+        return true;
     }
 
-    tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerClientMenu)->getChild(Gui::MPM_TEXT_LOADING);
+    tmpWin = getModeManager().getGui().getGuiSheet(Gui::multiplayerClientMenu)->getChild(Gui::MPM_TEXT_LOADING);
     tmpWin->setText("Loading...");
     tmpWin->show();
 
@@ -104,8 +118,9 @@ void MenuModeMultiplayerClient::clientButtonPressed()
     if(!ODClient::getSingleton().connect(ip, ConfigManager::getSingleton().getNetworkPort()))
     {
         // Error while connecting
-        tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerClientMenu)->getChild(Gui::MPM_TEXT_LOADING);
+        tmpWin = getModeManager().getGui().getGuiSheet(Gui::multiplayerClientMenu)->getChild(Gui::MPM_TEXT_LOADING);
         tmpWin->setText("Could not connect to: " + ip);
-        return;
+        return true;
     }
+    return true;
 }
