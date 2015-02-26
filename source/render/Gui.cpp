@@ -557,7 +557,7 @@ bool Gui::optionsButtonPressed(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::GAME)
         return true;
 
-    static_cast<GameMode*>(mm->getCurrentMode())->showOptionsWindow();
+    static_cast<GameMode*>(mm->getCurrentMode())->toggleOptionsWindow();
     return true;
 }
 
@@ -568,7 +568,7 @@ bool Gui::cancelSettings(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::GAME)
         return true;
 
-    static_cast<GameMode*>(mm->getCurrentMode())->hideOptionsWindow();
+    static_cast<GameMode*>(mm->getCurrentMode())->hideSettingsWindow();
     return true;
 }
 

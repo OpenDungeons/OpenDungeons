@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <GUILayout version="4" >
-    <Window type="OD/FrameWindow" name="OptionsWindow" >
-        <Property name="Area" value="{{0,204},{0,101},{0,424},{0,435}}" />
+    <Window type="OD/FrameWindow" name="GameOptionsWindow" >
+        <Property name="Area" value="{{0.5,-110},{0.5,-167},{0.5,110},{0.5,167}}" />
         <Property name="Text" value="Options" />
         <Property name="SizingEnabled" value="False" />
         <Window type="OD/IconButton" name="ObjectivesButton" >
@@ -33,13 +33,13 @@
         <Window type="OD/IconButton" name="SettingsButton" >
             <Property name="Area" value="{{0.5,-80},{0,235},{0.5,80},{0,268}}" />
             <Property name="IconImage" value="OpenDungeonsIcons/OptionsIcon" />
-            <Property name="Text" value="Settings (F10)" />
+            <Property name="Text" value="Settings" />
             <Property name="TooltipText" value="Open the game settings window." />
         </Window>
-        <Window type="OD/IconButton" name="AbortGameButton" >
+        <Window type="OD/IconButton" name="QuitGameButton" >
             <Property name="Area" value="{{0.5,-80},{0,278},{0.5,80},{0,311}}" />
             <Property name="IconImage" value="OpenDungeonsIcons/AbortIcon" />
-            <Property name="Text" value="Abort Game" />
+            <Property name="Text" value="Quit Game" />
             <Property name="TooltipText" value="Quit the current game..." />
         </Window>
     </Window>
