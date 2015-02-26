@@ -82,12 +82,51 @@ void EditorMode::activate()
 {
     // Loads the corresponding Gui sheet.
     getModeManager().getGui().loadGuiSheet(Gui::editorModeGui);
+    CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::editorModeGui);
+    guiSheet->getChild("EditorOptionsWindow")->hide();
+    guiSheet->getChild("ConfirmExit")->hide();
+    // Hide also the Replay check-box as it doesn't make sense for the editor
+    guiSheet->getChild("ConfirmExit/SaveReplayCheckbox")->hide();
 
-    CEGUI::Window* minimapWindow = getModeManager().getGui().getGuiSheet(Gui::editorModeGui)->getChild(Gui::MINIMAP);
+    CEGUI::Window* minimapWindow = guiSheet->getChild(Gui::MINIMAP);
     addEventConnection(
         minimapWindow->subscribeEvent(
             CEGUI::Window::EventMouseClick,
             CEGUI::Event::Subscriber(&EditorMode::onMinimapClick, this)
+    ));
+
+    // The Quit menu handlers
+    addEventConnection(
+        guiSheet->getChild("ConfirmExit/__auto_closebutton__")->subscribeEvent(
+            CEGUI::Window::EventMouseClick,
+            CEGUI::Event::Subscriber(&EditorMode::hideQuitMenu, this)
+    ));
+    addEventConnection(
+        guiSheet->getChild("ConfirmExit/NoOption")->subscribeEvent(
+            CEGUI::Window::EventMouseClick,
+            CEGUI::Event::Subscriber(&EditorMode::hideQuitMenu, this)
+    ));
+    addEventConnection(
+        guiSheet->getChild("ConfirmExit/YesOption")->subscribeEvent(
+            CEGUI::Window::EventMouseClick,
+            CEGUI::Event::Subscriber(&EditorMode::onClickYesQuitMenu, this)
+    ));
+
+    // The options menu handlers
+    addEventConnection(
+        guiSheet->getChild("EditorOptionsWindow/__auto_closebutton__")->subscribeEvent(
+            CEGUI::Window::EventMouseClick,
+            CEGUI::Event::Subscriber(&EditorMode::toggleOptionsWindow, this)
+    ));
+    addEventConnection(
+        guiSheet->getChild("EditorOptionsWindow/SaveLevelButton")->subscribeEvent(
+            CEGUI::Window::EventMouseClick,
+            CEGUI::Event::Subscriber(&EditorMode::onSaveButtonClickFromOptions, this)
+    ));
+    addEventConnection(
+        guiSheet->getChild("EditorOptionsWindow/QuitEditorButton")->subscribeEvent(
+            CEGUI::Window::EventMouseClick,
+            CEGUI::Event::Subscriber(&EditorMode::showQuitMenuFromOptions, this)
     ));
 
     giveFocus();
@@ -643,6 +682,14 @@ bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
 
     switch (arg.key)
     {
+    case OIS::KC_F8:
+        onSaveButtonClickFromOptions();
+        break;
+
+    case OIS::KC_F10:
+        toggleOptionsWindow();
+        break;
+
     case OIS::KC_F11:
         frameListener.toggleDebugInfo();
         break;
@@ -719,17 +766,7 @@ bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
 
     // Quit the Editor Mode
     case OIS::KC_ESCAPE:
-        regressMode();
-        break;
-
-    case OIS::KC_F8:
-        if(ODClient::getSingleton().isConnected())
-        {
-            // Send a message to the server telling it we want to drop the creature
-            ClientNotification *clientNotification = new ClientNotification(
-                ClientNotificationType::editorAskSaveMap);
-            ODClient::getSingleton().queueClientNotification(clientNotification);
-        }
+        showQuitMenu();
         break;
 
     // Print a screenshot
@@ -909,6 +946,59 @@ bool EditorMode::onMinimapClick(const CEGUI::EventArgs& arg)
 
     return true;
 }
+
+bool EditorMode::toggleOptionsWindow(const CEGUI::EventArgs& /*arg*/)
+{
+    CEGUI::Window* options = getModeManager().getGui().getGuiSheet(Gui::editorModeGui)->getChild("EditorOptionsWindow");
+    if (options == nullptr)
+        return true;
+
+    if (options->isVisible())
+        options->hide();
+    else
+        options->show();
+    return true;
+}
+
+bool EditorMode::showQuitMenuFromOptions(const CEGUI::EventArgs& /*arg*/)
+{
+    CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::editorModeGui);
+    guiSheet->getChild("ConfirmExit")->show();
+    guiSheet->getChild("EditorOptionsWindow")->hide();
+    return true;
+}
+
+bool EditorMode::onSaveButtonClickFromOptions(const CEGUI::EventArgs& /*arg*/)
+{
+    if(ODClient::getSingleton().isConnected())
+    {
+        // Send a message to the server telling it we want to drop the creature
+        ClientNotification *clientNotification = new ClientNotification(
+            ClientNotificationType::editorAskSaveMap);
+        ODClient::getSingleton().queueClientNotification(clientNotification);
+    }
+    return true;
+}
+
+bool EditorMode::showQuitMenu(const CEGUI::EventArgs& /*arg*/)
+{
+    getModeManager().getGui().getGuiSheet(Gui::editorModeGui)->getChild("ConfirmExit")->show();
+    return true;
+}
+
+bool EditorMode::hideQuitMenu(const CEGUI::EventArgs& /*arg*/)
+{
+    getModeManager().getGui().getGuiSheet(Gui::editorModeGui)->getChild("ConfirmExit")->hide();
+    return true;
+}
+
+bool EditorMode::onClickYesQuitMenu(const CEGUI::EventArgs& /*arg*/)
+{
+    //TODO: Test whether the level was modified and ask accordingly.
+    regressMode();
+    return true;
+}
+
 void EditorMode::refreshGuiResearch()
 {
     // We show/hide the icons depending on available researches

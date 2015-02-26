@@ -169,5 +169,7 @@
                 </Window>
             </Window>
         </Window>
+        <LayoutImport type="DefaultWindow" filename="EditorOptionsMenu.layout" name="EditorOptionsMenuImport" />
+        <LayoutImport type="DefaultWindow" filename="QuitMenu.layout" name="EditorQuitMenuImport" />
     </Window>
 </GUILayout>

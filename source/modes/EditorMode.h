@@ -57,6 +57,16 @@ public:
 
     virtual void notifyGuiAction(GuiAction guiAction);
 
+    //! \brief Options window functions
+    bool toggleOptionsWindow(const CEGUI::EventArgs& arg = {});
+    bool showQuitMenuFromOptions(const CEGUI::EventArgs& arg = {});
+    bool onSaveButtonClickFromOptions(const CEGUI::EventArgs& arg = {});
+
+    //! \brief Quit menu functions
+    bool showQuitMenu(const CEGUI::EventArgs& arg = {});
+    bool hideQuitMenu(const CEGUI::EventArgs& arg = {});
+    bool onClickYesQuitMenu(const CEGUI::EventArgs& arg = {});
+
 private:
     //! \brief Tile type (Dirt, Lava, ...)
     TileType mCurrentTileType;

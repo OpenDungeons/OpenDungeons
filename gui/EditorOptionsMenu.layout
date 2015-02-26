@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <GUILayout version="4" >
-    <Window type="OD/FrameWindow" name="OptionsWindow" >
-        <Property name="Area" value="{{0,204},{0,101},{0,424},{0,435}}" />
+    <Window type="OD/FrameWindow" name="EditorOptionsWindow" >
+        <Property name="Area" value="{{0.5,-110},{0.5,-167},{0.5,110},{0.5,167}}" />
         <Property name="Text" value="Editor Options" />
         <Property name="SizingEnabled" value="False" />
         <Window type="OD/IconButton" name="NewLevelButton" >
@@ -34,6 +34,7 @@
         <Window type="OD/IconButton" name="SettingsButton" >
             <Property name="Area" value="{{0.5,-80},{0,235},{0.5,80},{0,268}}" />
             <Property name="Text" value="Settings (F10)" />
+            <Property name="Disabled" value="True" />
             <Property name="IconImage" value="OpenDungeonsIcons/OptionsIcon" />
             <Property name="TooltipText" value="Open the game settings window." />
         </Window>

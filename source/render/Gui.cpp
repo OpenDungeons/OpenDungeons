@@ -247,6 +247,10 @@ void Gui::assignEventHandlers()
         CEGUI::Event::Subscriber(&cancelSettings));
 
     // Editor Mode controls
+    mSheets[editorModeGui]->getChild("OptionsButton")->subscribeEvent(
+        CEGUI::PushButton::EventClicked,
+        CEGUI::Event::Subscriber(&editorOptionsButtonPressed));
+
     mSheets[editorModeGui]->getChild(EDITOR_LAVA_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
         CEGUI::Event::Subscriber(&editorLavaButtonPressed));
@@ -573,6 +577,16 @@ bool Gui::cancelSettings(const CEGUI::EventArgs& e)
 }
 
 // EDITOR
+
+bool Gui::editorOptionsButtonPressed(const CEGUI::EventArgs &e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
+        return true;
+
+    static_cast<EditorMode*>(mm->getCurrentMode())->toggleOptionsWindow();
+    return true;
+}
 
 bool Gui::editorGoldButtonPressed(const CEGUI::EventArgs& e)
 {
