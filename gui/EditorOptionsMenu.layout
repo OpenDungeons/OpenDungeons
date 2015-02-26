@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout version="4" >
+    <Window type="OD/FrameWindow" name="OptionsWindow" >
+        <Property name="Area" value="{{0,204},{0,101},{0,424},{0,435}}" />
+        <Property name="Text" value="Editor Options" />
+        <Property name="SizingEnabled" value="False" />
+        <Window type="OD/IconButton" name="NewLevelButton" >
+            <Property name="Area" value="{{0.5,-80},{0,40},{0.5,80},{0,73}}" />
+            <Property name="Text" value="New Level" />
+            <Property name="Disabled" value="True" />
+            <Property name="IconImage" value="OpenDungeonsIcons/SeatIcon" />
+            <Property name="TooltipText" value="Not implemented yet" />
+        </Window>
+        <Window type="OD/IconButton" name="SaveLevelButton" >
+            <Property name="Area" value="{{0.5,-80},{0,83},{0.5,80},{0,116}}" />
+            <Property name="Text" value="Save Level" />
+            <Property name="IconImage" value="OpenDungeonsIcons/SaveIcon" />
+        </Window>
+        <Window type="OD/IconButton" name="LoadLevelButton" >
+            <Property name="Area" value="{{0.5,-80},{0,126},{0.5,80},{0,159}}" />
+            <Property name="Text" value="Load Level" />
+            <Property name="Disabled" value="True" />
+            <Property name="IconImage" value="OpenDungeonsIcons/LoadIcon" />
+            <Property name="TooltipText" value="Not implemented yet" />
+        </Window>
+        <Window type="OD/IconButton" name="LevelPropertiesButton" >
+            <Property name="Area" value="{{0.5,-80},{0,180},{0.5,80},{0,213}}" />
+            <Property name="Text" value="Level properties" />
+            <Property name="Disabled" value="True" />
+            <Property name="IconImage" value="OpenDungeonsIcons/SeatIcon" />
+            <Property name="TooltipText" value="Not implemented yet" />
+        </Window>
+        <Window type="OD/IconButton" name="SettingsButton" >
+            <Property name="Area" value="{{0.5,-80},{0,235},{0.5,80},{0,268}}" />
+            <Property name="Text" value="Settings (F10)" />
+            <Property name="IconImage" value="OpenDungeonsIcons/OptionsIcon" />
+            <Property name="TooltipText" value="Open the game settings window." />
+        </Window>
+        <Window type="OD/IconButton" name="QuitEditorButton" >
+            <Property name="Area" value="{{0.5,-80},{0,278},{0.5,80},{0,311}}" />
+            <Property name="Text" value="Quit Editor" />
+            <Property name="IconImage" value="OpenDungeonsIcons/AbortIcon" />
+            <Property name="TooltipText" value="Go back to main screen." />
+        </Window>
+    </Window>
+</GUILayout>
