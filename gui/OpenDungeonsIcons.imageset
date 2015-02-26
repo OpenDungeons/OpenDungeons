@@ -1,12 +1,7 @@
 <Imageset autoScaled="false" imagefile="OpenDungeonsIcons.png" name="OpenDungeonsIcons" nativeHorzRes="800" nativeVertRes="600" version="2">
-    <Image height="20" name="GoldCoin" width="30" xPos="0" yPos="5" />
-    <Image height="20" name="TerritoryIcon" width="30" xPos="32" yPos="5" />
-    <Image height="20" name="ManaIcon" width="30" xPos="64" yPos="5" />
-    <Image height="60" name="ButtonBackground" width="60" xPos="1" yPos="35" />
-    <Image height="60" name="ButtonHoverEffect" width="60" xPos="63" yPos="35" />
-    <Image height="60" name="ButtonDisabledEffect" width="60" xPos="125" yPos="35" />
-    <Image height="60" name="ButtonPushedEffect" width="60" xPos="187" yPos="35" />
-    <Image height="60" name="ButtonFrame" width="60" xPos="249" yPos="35" />
+    <Image height="28" name="GoldCoin" width="24" xPos="3" yPos="2" />
+    <Image height="28" name="TerritoryIcon" width="28" xPos="33" yPos="2" />
+    <Image height="30" name="ManaIcon" width="30" xPos="63" yPos="2" />
     <Image height="60" name="DormitoryButton" width="60" xPos="1" yPos="97" />
     <Image height="60" name="TrainingHallButton" width="60" xPos="63" yPos="97" />
     <Image height="60" name="ForgeButton" width="60" xPos="125" yPos="97" />
@@ -27,4 +22,16 @@
     <Image height="60" name="PortalButton" width="60" xPos="382" yPos="157" />
     <Image height="60" name="SummonWorkerButton" width="60" xPos="1" yPos="325" />
     <Image height="60" name="CallToWarButton" width="60" xPos="61" yPos="325" />
+    <Image height="60" name="MapLightButton" width="60" xPos="450" yPos="35" />
+    <Image height="60" name="GoldButton" width="60" xPos="2" yPos="34" />
+    <Image height="60" name="LavaButton" width="60" xPos="65" yPos="34" />
+    <Image height="60" name="RockButton" width="60" xPos="129" yPos="34" />
+    <Image height="60" name="WaterButton" width="60" xPos="193" yPos="34" />
+    <Image height="60" name="DirtButton" width="60" xPos="257" yPos="34" />
+    <Image height="60" name="ClaimedButton" width="60" xPos="322" yPos="34" />
+    <Image height="30" name="OptionsIcon" width="30" xPos="94" yPos="1" />
+    <Image height="30" name="CreaturesIcon" width="30" xPos="127" yPos="2" />
+    <Image height="30" name="HelpIcon" width="30" xPos="161" yPos="1" />
+    <Image height="30" name="LoadIcon" width="30" xPos="193" yPos="1" />
+    <Image height="30" name="SaveIcon" width="30" xPos="223" yPos="1" />
 </Imageset>

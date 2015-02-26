@@ -20,7 +20,7 @@
                 <Property name="ClippedByParent" value="False" />
                 <Property name="VerticalAlignment" value="Centre" />
                 <Window type="OD/StaticImage" name="Icon" >
-                    <Property name="Area" value="{{0,0},{0,0},{0,30},{0,20}}" />
+                    <Property name="Area" value="{{0,0},{0,0},{0,30},{0,30}}" />
                     <Property name="Image" value="OpenDungeonsIcons/GoldCoin" />
                     <Property name="MaxSize" value="{{1,0},{1,0}}" />
                     <Property name="AlwaysOnTop" value="True" />
@@ -40,7 +40,7 @@
                 <Property name="ClippedByParent" value="False" />
                 <Property name="VerticalAlignment" value="Centre" />
                 <Window type="OD/StaticImage" name="Icon" >
-                    <Property name="Area" value="{{0,0},{0,0},{0,30},{0,20}}" />
+                    <Property name="Area" value="{{0,0},{0,0},{0,30},{0,30}}" />
                     <Property name="Image" value="OpenDungeonsIcons/ManaIcon" />
                     <Property name="MaxSize" value="{{1,0},{1,0}}" />
                     <Property name="AlwaysOnTop" value="True" />
@@ -60,7 +60,7 @@
                 <Property name="ClippedByParent" value="False" />
                 <Property name="VerticalAlignment" value="Centre" />
                 <Window type="OD/StaticImage" name="Icon" >
-                    <Property name="Area" value="{{0,0},{0,0},{0,30},{0,20}}" />
+                    <Property name="Area" value="{{0,0},{0,0},{0,30},{0,30}}" />
                     <Property name="Image" value="OpenDungeonsIcons/TerritoryIcon" />
                     <Property name="MaxSize" value="{{1,0},{1,0}}" />
                     <Property name="AlwaysOnTop" value="True" />
