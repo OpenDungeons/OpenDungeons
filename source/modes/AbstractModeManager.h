@@ -34,6 +34,7 @@ public:
         MENU_EDITOR,
         MENU_CONFIGURE_SEATS,
         MENU_REPLAY,
+        MENU_LOAD_SAVEDGAME,
         GAME,
         EDITOR,
         CONSOLE,

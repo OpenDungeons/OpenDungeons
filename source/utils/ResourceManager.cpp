@@ -255,6 +255,16 @@ void ResourceManager::setupUserDataFolders()
         exit(1);
     }
 
+    mSaveGamePath = mUserDataPath + "saves/";
+    try {
+      boost::filesystem::create_directories(mSaveGamePath);
+    }
+    catch (const boost::filesystem::filesystem_error& e) {
+        //TODO - Exit gracefully
+        std::cerr << "Fatal error creating replay folder: " << e.what() <<  std::endl;
+        exit(1);
+    }
+
     mOgreCfgFile = mUserConfigPath + CONFIGFILENAME;
     mOgreLogFile = mUserDataPath + LOGFILENAME;
     mCeguiLogFile = mUserDataPath + CEGUILOGFILENAME;

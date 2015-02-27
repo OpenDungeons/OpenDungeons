@@ -45,12 +45,14 @@
 #include "spell/Spell.h"
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
+#include "utils/ResourceManager.h"
 
 #include <SFML/Network.hpp>
 #include <SFML/System.hpp>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 const std::string ODServer::SERVER_INFORMATION = "SERVER_INFORMATION";
 
@@ -1505,32 +1507,50 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             break;
         }
 
-        case ClientNotificationType::editorAskSaveMap:
+        case ClientNotificationType::askSaveMap:
         {
-            OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
-                + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
             Player* player = clientSocket->getPlayer();
-            if(player->numObjectsInHand() == 0)
-            {
-                // If the file exists, we make a backup
-                const boost::filesystem::path levelPath(gameMap->getLevelFileName());
-                if (boost::filesystem::exists(levelPath))
-                    boost::filesystem::rename(gameMap->getLevelFileName(), gameMap->getLevelFileName() + ".bak");
-
-                std::string msg = "Map saved successfully";
-                MapLoader::writeGameMapToFile(gameMap->getLevelFileName(), *gameMap);
-                ServerNotification notif(ServerNotificationType::chatServer, player);
-                notif.mPacket << msg;
-                sendAsyncMsg(notif);
-            }
-            else
+            const boost::filesystem::path levelPath(gameMap->getLevelFileName());
+            std::string fileLevel = levelPath.filename().string();
+            // In editor mode, we don't allow a player to have creatures in hand while saving map
+            if((mServerMode == ServerMode::ModeEditor) &&
+                (player->numObjectsInHand() > 0))
             {
                 // We cannot save the map
                 std::string msg = "Map could not be saved because player hand is not empty";
                 ServerNotification notif(ServerNotificationType::chatServer, player);
                 notif.mPacket << msg;
                 sendAsyncMsg(notif);
+                break;
             }
+
+            boost::filesystem::path levelSave;
+            if(mServerMode == ServerMode::ModeEditor)
+            {
+                // In editor mode, we save in the original folder
+                levelSave = levelPath;
+            }
+            else
+            {
+                // We save in the saved game folder
+                static std::locale loc(std::wcout.getloc(), new boost::posix_time::time_facet("%Y-%m-%d_%H%M%S"));
+
+                std::ostringstream ss;
+                ss.imbue(loc);
+                ss << boost::posix_time::second_clock::local_time() << "-" << fileLevel;
+                std::string savePath = ResourceManager::getSingleton().getSaveGamePath() + ss.str();
+                levelSave = boost::filesystem::path(savePath);
+            }
+
+            // If the file exists, we make a backup
+            if (boost::filesystem::exists(levelSave))
+                boost::filesystem::rename(levelSave, levelSave.string() + ".bak");
+
+            std::string msg = "Map saved successfully";
+            MapLoader::writeGameMapToFile(levelSave.string(), *gameMap);
+            ServerNotification notif(ServerNotificationType::chatServer, player);
+            notif.mPacket << msg;
+            sendAsyncMsg(notif);
             break;
         }
 

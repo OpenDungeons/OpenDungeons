@@ -79,8 +79,8 @@ namespace Helper
     int round(double d);
     int round(float d);
 
-    //! \brief Returns the filenames of the given directory.
-    //! \note The folder parameter given is part of the returned filenames.
+    //! \brief Fills listFiles with the absolute path of files in the given directory
+    //! matching fileExtension. Returns true on success, false otherwise
     bool fillFilesList(const std::string& path,
                        std::vector<std::string>& listFiles,
                        const std::string& fileExtension);

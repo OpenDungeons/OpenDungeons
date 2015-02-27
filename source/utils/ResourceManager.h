@@ -73,6 +73,9 @@ public:
     inline const std::string& getReplayDataPath() const
     { return mReplayPath; }
 
+    inline const std::string& getSaveGamePath() const
+    { return mSaveGamePath; }
+
     inline const std::string& getUserConfigPath() const
     { return mUserConfigPath; }
 
@@ -141,6 +144,7 @@ private:
     std::string mScriptPath;
     std::string mLanguagePath;
     std::string mReplayPath;
+    std::string mSaveGamePath;
 
     static const std::string PLUGINSCFG;
     static const std::string RESOURCECFG;

@@ -52,8 +52,9 @@ enum class ClientNotificationType
     askCastSpell,
     askSetResearchTree,
 
+    askSaveMap,
+
     //  Editor
-    editorAskSaveMap,
     editorAskChangeTiles,
     editorAskBuildRoom,
     editorAskBuildTrap,

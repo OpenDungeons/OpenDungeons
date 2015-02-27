@@ -25,6 +25,7 @@
 #include "modes/MenuModeMultiplayerServer.h"
 #include "modes/MenuModeEditor.h"
 #include "modes/MenuModeReplay.h"
+#include "modes/MenuModeLoad.h"
 #include "modes/GameMode.h"
 #include "modes/EditorMode.h"
 #include "modes/ConsoleMode.h"
@@ -107,6 +108,9 @@ void ModeManager::addMode(ModeType mt)
         break;
     case FPP:
         mApplicationModes.emplace_back(new FppMode(this));
+        break;
+    case MENU_LOAD_SAVEDGAME:
+        mApplicationModes.emplace_back(new MenuModeLoad(this));
         break;
     default:
         break;

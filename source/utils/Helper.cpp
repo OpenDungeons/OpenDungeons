@@ -96,7 +96,10 @@ namespace Helper
             if(!boost::filesystem::is_directory(itr->status()))
             {
                 if(itr->path().filename().extension().string() == fileExtension)
-                    listFiles.push_back(itr->path().string());
+                {
+                    boost::filesystem::path p = boost::filesystem::canonical(itr->path());
+                    listFiles.push_back(p.string());
+                }
             }
         }
         return true;

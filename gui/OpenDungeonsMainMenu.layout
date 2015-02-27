@@ -27,9 +27,9 @@
             <Property name="Text" value="Skirmish" />
             <Property name="AlwaysOnTop" value="True" />
         </Window>
-        <Window type="OD/MainMenuButton" name="StartReplayButton" >
+        <Window type="OD/MainMenuButton" name="LoadGameButton" >
             <Property name="Area" value="{{0.5,-310},{0.5,100},{0.5,-170},{0.5,180}}" />
-            <Property name="Text" value="Replay" />
+            <Property name="Text" value="Load" />
             <Property name="AlwaysOnTop" value="True" />
         </Window>
         <Window type="OD/MainMenuButton" name="StartMultiplayerClientButton" >
@@ -43,8 +43,13 @@
             <Property name="AlwaysOnTop" value="True" />
         </Window>
         <Window type="OD/MainMenuButton" name="MapEditorButton" >
-            <Property name="Area" value="{{0.5,10},{0.5,40},{0.5,150},{0.5,120}}" />
+            <Property name="Area" value="{{0.5,10},{0.5,-10},{0.5,150},{0.5,70}}" />
             <Property name="Text" value="Map Editor" />
+            <Property name="AlwaysOnTop" value="True" />
+        </Window>
+        <Window type="OD/MainMenuButton" name="StartReplayButton" >
+            <Property name="Area" value="{{0.5,10},{0.5,100},{0.5,150},{0.5,180}}" />
+            <Property name="Text" value="Replay" />
             <Property name="AlwaysOnTop" value="True" />
         </Window>
         <Window type="OD/MainMenuButton" name="QuitButton" >

@@ -898,7 +898,7 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
         {
             // Send a message to the server telling it we want to drop the creature
             ClientNotification *clientNotification = new ClientNotification(
-                ClientNotificationType::editorAskSaveMap);
+                ClientNotificationType::askSaveMap);
             ODClient::getSingleton().queueClientNotification(clientNotification);
         }
         break;

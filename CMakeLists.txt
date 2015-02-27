@@ -292,6 +292,7 @@ set(OD_SOURCEFILES
     ${SRC}/modes/MenuMode.cpp
     ${SRC}/modes/MenuModeConfigureSeats.cpp
     ${SRC}/modes/MenuModeEditor.cpp
+    ${SRC}/modes/MenuModeLoad.cpp
     ${SRC}/modes/MenuModeMultiplayerClient.cpp
     ${SRC}/modes/MenuModeMultiplayerServer.cpp
     ${SRC}/modes/MenuModeReplay.cpp

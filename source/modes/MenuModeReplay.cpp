@@ -106,7 +106,6 @@ void MenuModeReplay::activate()
         for (uint32_t n = 0; n < mFilesList.size(); ++n)
         {
             std::string filename = boost::filesystem::path(mFilesList[n]).filename().string();
-            mFilesList[n] = filename;
             CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(filename);
             item->setID(n);
             item->setSelectionBrushImage("OpenDungeonsSkin/SelectionBrush");
@@ -144,7 +143,7 @@ bool MenuModeReplay::launchSelectedButtonPressed(const CEGUI::EventArgs&)
         return true;
     }
 
-    std::string replayFile = ResourceManager::getSingleton().getReplayDataPath() + mFilesList[id];
+    const std::string& replayFile = mFilesList[id];
     if(!ODClient::getSingleton().replay(replayFile))
     {
         LogManager::getSingleton().logMessage("ERROR: Could not launch replay !!!");
@@ -172,7 +171,7 @@ bool MenuModeReplay::deleteSelectedButtonPressed(const CEGUI::EventArgs&)
     CEGUI::ListboxItem* selItem = replaySelectList->getFirstSelectedItem();
     int id = selItem->getID();
 
-    std::string replayFile = ResourceManager::getSingleton().getReplayDataPath() + mFilesList[id];
+    const std::string& replayFile = mFilesList[id];
     if(!boost::filesystem::remove(replayFile))
     {
         LogManager::getSingleton().logMessage("ERROR: Could not delete replay !!!");
@@ -212,9 +211,8 @@ bool MenuModeReplay::listReplaysClicked(const CEGUI::EventArgs&)
 
 bool MenuModeReplay::checkReplayValid(const std::string& replayFileName, std::string& mapDescription, std::string& errorMsg)
 {
-    std::string replayFile = ResourceManager::getSingleton().getReplayDataPath() + replayFileName;
     // We open the replay to get the level file name
-    std::ifstream is(replayFile, std::ios::in | std::ios::binary);
+    std::ifstream is(replayFileName, std::ios::in | std::ios::binary);
     ODPacket packet;
     ServerNotificationType type;
     do

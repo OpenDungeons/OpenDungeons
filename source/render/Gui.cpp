@@ -82,6 +82,7 @@ Gui::Gui(SoundEffectsManager* soundEffectsManager, const std::string& ceguiLogFi
     mSheets[editorMenu] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorMenu.layout");
     mSheets[configureSeats] =  wmgr->loadLayoutFromFile("OpenDungeonsMenuConfigureSeats.layout");
     mSheets[replayMenu] =  wmgr->loadLayoutFromFile("OpenDungeonsMenuReplay.layout");
+    mSheets[loadSavedGameMenu] =  wmgr->loadLayoutFromFile("OpenDungeonsMenuLoad.layout");
     mSheets[console] = wmgr->loadLayoutFromFile("OpenDungeonsConsole.layout");
 
     assignEventHandlers();
@@ -351,6 +352,7 @@ void Gui::assignEventHandlers()
     mSheets[multiplayerClientMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
     mSheets[editorMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
     mSheets[replayMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
+    mSheets[loadSavedGameMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
 }
 
 bool Gui::playButtonClickSound(const CEGUI::EventArgs&)
@@ -711,6 +713,7 @@ const std::string Gui::MM_BUTTON_START_SKIRMISH = "StartSkirmishButton";
 const std::string Gui::MM_BUTTON_START_REPLAY = "StartReplayButton";
 const std::string Gui::MM_BUTTON_START_MULTIPLAYER_CLIENT = "StartMultiplayerClientButton";
 const std::string Gui::MM_BUTTON_START_MULTIPLAYER_SERVER = "StartMultiplayerServerButton";
+const std::string Gui::MM_BUTTON_LOAD_GAME = "LoadGameButton";
 const std::string Gui::MM_BUTTON_MAPEDITOR = "MapEditorButton";
 const std::string Gui::MM_BUTTON_QUIT = "QuitButton";
 const std::string Gui::EXIT_CONFIRMATION_POPUP = "ConfirmExit";

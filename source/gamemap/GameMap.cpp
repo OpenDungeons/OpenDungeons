@@ -203,10 +203,6 @@ bool GameMap::loadLevel(const std::string& levelFilepath)
         addCreatureMoodModifiers(p.first, moodModifiersClone);
     }
 
-    // Read in the game map filepath
-    std::string levelPath = ResourceManager::getSingletonPtr()->getGameDataPath()
-                            + levelFilepath;
-
     // We add the rogue default seat (seatId = 0 and teamId = 0)
     Seat* rogueSeat = Seat::getRogueSeat(this);
     if(!addSeat(rogueSeat))
@@ -216,7 +212,7 @@ bool GameMap::loadLevel(const std::string& levelFilepath)
     }
 
     // TODO The map loader class should be merged back to GameMap.
-    if (MapLoader::readGameMapFromFile(levelPath, *this))
+    if (MapLoader::readGameMapFromFile(levelFilepath, *this))
         setLevelFileName(levelFilepath);
     else
         return false;

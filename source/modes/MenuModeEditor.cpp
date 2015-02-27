@@ -122,11 +122,6 @@ void MenuModeEditor::activate()
             item->setID(n);
             item->setSelectionBrushImage("OpenDungeonsSkin/SelectionBrush");
             levelSelectList->addItem(item);
-
-            // We reconstruct the filename to be relative to the levels/ folder
-            // because we'll need a relative reference for the even local client.
-            std::string levelFile = LEVEL_PATH_SKIRMISH + boost::filesystem::path(mFilesList[n]).filename().string();
-            mFilesList[n] = levelFile;
         }
     }
 
@@ -159,10 +154,10 @@ void MenuModeEditor::activate()
             item->setSelectionBrushImage("OpenDungeonsSkin/SelectionBrush");
             levelSelectList->addItem(item);
 
-            // We reconstruct the filename to be relative to the levels/ folder
-            // because we'll need a relative reference for the even local client.
-            std::string levelFile = LEVEL_PATH_MULTIPLAYER + boost::filesystem::path(mFilesList[n]).filename().string();
-            mFilesList[n] = levelFile;
+            // We save the absolute path
+            boost::filesystem::path p(mFilesList[n]);
+            p = boost::filesystem::canonical(p);
+            mFilesList[n] = p.string();
         }
     }
 }
@@ -187,7 +182,7 @@ bool MenuModeEditor::launchSelectedButtonPressed(const CEGUI::EventArgs&)
     CEGUI::ListboxItem* selItem = levelSelectList->getFirstSelectedItem();
     int id = selItem->getID();
 
-    std::string level = mFilesList[id];
+    const std::string& level = mFilesList[id];
 
     // In single player mode, we act as a server
     if(!ODServer::getSingleton().startServer(level, ODServer::ServerMode::ModeEditor))

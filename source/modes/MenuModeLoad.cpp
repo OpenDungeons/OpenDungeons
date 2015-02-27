@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "modes/MenuModeSkirmish.h"
+#include "modes/MenuModeLoad.h"
 
 #include "utils/Helper.h"
 #include "render/Gui.h"
@@ -25,6 +25,7 @@
 #include "render/ODFrameListener.h"
 #include "network/ODServer.h"
 #include "network/ODClient.h"
+#include "network/ServerNotification.h"
 #include "ODApplication.h"
 #include "utils/LogManager.h"
 #include "gamemap/MapLoader.h"
@@ -34,45 +35,50 @@
 #include <CEGUI/CEGUI.h>
 #include "boost/filesystem.hpp"
 
-const std::string LEVEL_PATH = "levels/skirmish/";
-const std::string LEVEL_EXTENSION = ".level";
+const std::string SAVEGAME_EXTENSION = ".level";
 
-MenuModeSkirmish::MenuModeSkirmish(ModeManager *modeManager):
-    AbstractApplicationMode(modeManager, ModeManager::MENU_SKIRMISH)
+MenuModeLoad::MenuModeLoad(ModeManager *modeManager):
+    AbstractApplicationMode(modeManager, ModeManager::MENU_LOAD_SAVEDGAME)
 {
-    CEGUI::Window* window = modeManager->getGui().getGuiSheet(Gui::guiSheet::skirmishMenu);
+    CEGUI::Window* window = modeManager->getGui().getGuiSheet(Gui::guiSheet::loadSavedGameMenu);
     addEventConnection(
-        window->getChild(Gui::SKM_BUTTON_LAUNCH)->subscribeEvent(
+        window->getChild("LevelWindowFrame/BackButton")->subscribeEvent(
             CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&MenuModeSkirmish::launchSelectedButtonPressed, this)
-        )
-    );
-    addEventConnection(
-        window->getChild(Gui::SKM_LIST_LEVELS)->subscribeEvent(
-            CEGUI::Listbox::EventMouseDoubleClick,
-            CEGUI::Event::Subscriber(&MenuModeSkirmish::launchSelectedButtonPressed, this)
-        )
-    );
-    addEventConnection(
-        window->getChild(Gui::SKM_LIST_LEVELS)->subscribeEvent(
-            CEGUI::Listbox::EventMouseClick,
-            CEGUI::Event::Subscriber(&MenuModeSkirmish::updateDescription, this)
-        )
-    );
-    addEventConnection(
-        window->getChild(Gui::SKM_BUTTON_BACK)->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&MenuModeSkirmish::regressMode,
+            CEGUI::Event::Subscriber(&MenuModeLoad::regressMode,
                                      static_cast<AbstractApplicationMode*>(this))
+        )
+    );
+    addEventConnection(
+        window->getChild("LevelWindowFrame/LaunchButton")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&MenuModeLoad::launchSelectedButtonPressed, this)
+        )
+    );
+    addEventConnection(
+        window->getChild("LevelWindowFrame/DeleteButton")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&MenuModeLoad::deleteSelectedButtonPressed, this)
+        )
+    );
+    addEventConnection(
+        window->getChild("LevelWindowFrame/SaveGameSelect")->subscribeEvent(
+            CEGUI::Listbox::EventMouseClick,
+            CEGUI::Event::Subscriber(&MenuModeLoad::updateDescription, this)
+        )
+    );
+    addEventConnection(
+        window->getChild("LevelWindowFrame/SaveGameSelect")->subscribeEvent(
+            CEGUI::Listbox::EventMouseDoubleClick,
+            CEGUI::Event::Subscriber(&MenuModeLoad::launchSelectedButtonPressed, this)
         )
     );
     subscribeCloseButton(*window->getChild("LevelWindowFrame"));
 }
 
-void MenuModeSkirmish::activate()
+void MenuModeLoad::activate()
 {
     // Loads the corresponding Gui sheet.
-    getModeManager().getGui().loadGuiSheet(Gui::guiSheet::skirmishMenu);
+    getModeManager().getGui().loadGuiSheet(Gui::guiSheet::loadSavedGameMenu);
 
     giveFocus();
 
@@ -86,17 +92,17 @@ void MenuModeSkirmish::activate()
     gameMap->processDeletionQueues();
     gameMap->setGamePaused(true);
 
-    CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_LIST_LEVELS);
+    CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::loadSavedGameMenu)->getChild("LevelWindowFrame/SaveGameSelect");
     CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);
 
-    tmpWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);
+    tmpWin = getModeManager().getGui().getGuiSheet(Gui::loadSavedGameMenu)->getChild("LoadingText");
     tmpWin->hide();
     mFilesList.clear();
     mDescriptionList.clear();
     levelSelectList->resetList();
 
-    std::string levelPath = ResourceManager::getSingleton().getGameDataPath() + LEVEL_PATH;
-    if(Helper::fillFilesList(levelPath, mFilesList, LEVEL_EXTENSION))
+    std::string levelPath = ResourceManager::getSingleton().getSaveGamePath();
+    if(Helper::fillFilesList(levelPath, mFilesList, SAVEGAME_EXTENSION))
     {
         for (uint32_t n = 0; n < mFilesList.size(); ++n)
         {
@@ -125,20 +131,20 @@ void MenuModeSkirmish::activate()
     }
 }
 
-bool MenuModeSkirmish::launchSelectedButtonPressed(const CEGUI::EventArgs&)
+bool MenuModeLoad::launchSelectedButtonPressed(const CEGUI::EventArgs&)
 {
-    CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_LIST_LEVELS);
+    CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::loadSavedGameMenu)->getChild("LevelWindowFrame/SaveGameSelect");
     CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);
 
     if(levelSelectList->getSelectedCount() == 0)
     {
-        tmpWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);
-        tmpWin->setText("Please select a level first.");
+        tmpWin = getModeManager().getGui().getGuiSheet(Gui::loadSavedGameMenu)->getChild("LoadingText");
+        tmpWin->setText("Please select a saved game first.");
         tmpWin->show();
         return true;
     }
 
-    tmpWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);
+    tmpWin = getModeManager().getGui().getGuiSheet(Gui::loadSavedGameMenu)->getChild("LoadingText");
     tmpWin->setText("Loading...");
     tmpWin->show();
 
@@ -147,10 +153,10 @@ bool MenuModeSkirmish::launchSelectedButtonPressed(const CEGUI::EventArgs&)
 
     const std::string& level = mFilesList[id];
     // In single player mode, we act as a server
-    if(!ODServer::getSingleton().startServer(level, ODServer::ServerMode::ModeGameSinglePlayer))
+    if(!ODServer::getSingleton().startServer(level, ODServer::ServerMode::ModeGameMultiPlayer))
     {
         LogManager::getSingleton().logMessage("ERROR: Could not start server for single player game !!!");
-        tmpWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);
+        tmpWin = getModeManager().getGui().getGuiSheet(Gui::loadSavedGameMenu)->getChild("LoadingText");
         tmpWin->setText("ERROR: Could not start server for single player game !!!");
         tmpWin->show();
         return true;
@@ -159,7 +165,7 @@ bool MenuModeSkirmish::launchSelectedButtonPressed(const CEGUI::EventArgs&)
     if(!ODClient::getSingleton().connect("localhost", ConfigManager::getSingleton().getNetworkPort()))
     {
         LogManager::getSingleton().logMessage("ERROR: Could not connect to server for single player game !!!");
-        tmpWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);
+        tmpWin = getModeManager().getGui().getGuiSheet(Gui::loadSavedGameMenu)->getChild("LoadingText");
         tmpWin->setText("Error: Couldn't connect to local server!");
         tmpWin->show();
         return true;
@@ -167,13 +173,43 @@ bool MenuModeSkirmish::launchSelectedButtonPressed(const CEGUI::EventArgs&)
     return true;
 }
 
-bool MenuModeSkirmish::updateDescription(const CEGUI::EventArgs&)
+bool MenuModeLoad::deleteSelectedButtonPressed(const CEGUI::EventArgs&)
+{
+    CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::loadSavedGameMenu)->getChild("LevelWindowFrame/SaveGameSelect");
+    CEGUI::Listbox* selectList = static_cast<CEGUI::Listbox*>(tmpWin);
+
+    if(selectList->getSelectedCount() == 0)
+    {
+        tmpWin = getModeManager().getGui().getGuiSheet(Gui::loadSavedGameMenu)->getChild("LoadingText");
+        tmpWin->setText("Please select a saved game first.");
+        tmpWin->show();
+        return true;
+    }
+
+    CEGUI::ListboxItem* selItem = selectList->getFirstSelectedItem();
+    int id = selItem->getID();
+
+    const std::string& levelFile = mFilesList[id];
+    if(!boost::filesystem::remove(levelFile))
+    {
+        LogManager::getSingleton().logMessage("ERROR: Could not delete saved game !!!");
+        tmpWin = getModeManager().getGui().getGuiSheet(Gui::loadSavedGameMenu)->getChild("LoadingText");
+        tmpWin->setText("Error: Couldn't delete saved game!");
+        tmpWin->show();
+        return true;
+    }
+
+    activate();
+    return true;
+}
+
+bool MenuModeLoad::updateDescription(const CEGUI::EventArgs&)
 {
     // Get the level corresponding id
-    CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_LIST_LEVELS);
+    CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::loadSavedGameMenu)->getChild("LevelWindowFrame/SaveGameSelect");
     CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);
 
-    CEGUI::Window* descTxt = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu)->getChild("LevelWindowFrame/MapDescriptionText");
+    CEGUI::Window* descTxt = getModeManager().getGui().getGuiSheet(Gui::loadSavedGameMenu)->getChild("LevelWindowFrame/MapDescriptionText");
 
     if(levelSelectList->getSelectedCount() == 0)
     {
