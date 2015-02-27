@@ -4043,6 +4043,402 @@
     </WidgetLook>
 
     <WidgetLook name="OD/ImageButton">
+        <PropertyDefinition initialValue="FFFFFFFF" name="NormalTextColour" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="FFFFFFFF" name="HoverTextColour" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="FFFFFFFF" name="PushedTextColour" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="FF7F7F7F" name="DisabledTextColour" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="CentreAligned" name="VertLabelFormatting" />
+        <PropertyDefinition initialValue="CentreAligned" name="HorzLabelFormatting" />
+        <PropertyDefinition initialValue="" name="ButtonImage" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="OpenDungeonsSkin/ButtonHoverEffect" name="HoverImage" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="OpenDungeonsSkin/ButtonPushedEffect" name="PushedImage" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="OpenDungeonsSkin/ButtonDisabledEffect" name="DisabledImage" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="" name="StateImage" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="Stretched" name="VertImageFormatting" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="Stretched" name="HorzImageFormatting" redrawOnWrite="true" />
+        <ImagerySection name="label">
+            <TextComponent>
+                <Area>
+                    <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="Width"><UnifiedDim scale="0.9" type="Width" /></Dim>
+                    <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
+                </Area>
+                <VertFormat type="BottomAligned" />
+                <HorzFormat type="RightAligned" />
+            </TextComponent>
+        </ImagerySection>
+        <ImagerySection name="normal">
+            <FrameComponent>
+                <Area>
+                    <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
+                    <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
+                </Area>
+                <Image component="TopLeftCorner" name="OpenDungeonsSkin/ButtonTopLeftNormal" />
+                <Image component="TopRightCorner" name="OpenDungeonsSkin/ButtonTopRightNormal" />
+                <Image component="BottomLeftCorner" name="OpenDungeonsSkin/ButtonBottomLeftNormal" />
+                <Image component="BottomRightCorner" name="OpenDungeonsSkin/ButtonBottomRightNormal" />
+                <Image component="LeftEdge" name="OpenDungeonsSkin/ButtonLeftNormal" />
+                <Image component="RightEdge" name="OpenDungeonsSkin/ButtonRightNormal" />
+                <Image component="BottomEdge" name="OpenDungeonsSkin/ButtonBottomNormal" />
+                <Image component="TopEdge" name="OpenDungeonsSkin/ButtonTopNormal" />
+                <Image component="Background" name="OpenDungeonsSkin/ButtonMiddleNormal" />
+            </FrameComponent>
+            <ImageryComponent>
+                <Area>
+                    <Dim type="LeftEdge"><UnifiedDim scale="0.1" type="Width" /></Dim>
+                    <Dim type="TopEdge"><UnifiedDim scale="0.1" type="Height" /></Dim>
+                    <Dim type="Width"><UnifiedDim scale="0.8" type="Width" /></Dim>
+                    <Dim type="Height"><UnifiedDim scale="0.8" type="Height" /></Dim>
+                </Area>
+                <ImageProperty name="ButtonImage" />
+                <VertFormatProperty name="VertImageFormatting" />
+                <HorzFormatProperty name="HorzImageFormatting" />
+            </ImageryComponent>
+            <ImageryComponent>
+                <Area>
+                    <Dim type="LeftEdge"><AbsoluteDim value="5" /></Dim>
+                    <Dim type="TopEdge"><AbsoluteDim value="5" /></Dim>
+                    <Dim type="Width"><AbsoluteDim value="20" type="Width" /></Dim>
+                    <Dim type="Height"><AbsoluteDim value="20" type="Height" /></Dim>
+                </Area>
+                <ImageProperty name="StateImage" />
+                <VertFormatProperty name="VertImageFormatting" />
+                <HorzFormatProperty name="HorzImageFormatting" />
+            </ImageryComponent>
+        </ImagerySection>
+        <ImagerySection name="hover">
+            <FrameComponent>
+                <Area>
+                    <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
+                    <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
+                </Area>
+                <Image component="TopLeftCorner" name="OpenDungeonsSkin/ButtonTopLeftHighlight" />
+                <Image component="TopRightCorner" name="OpenDungeonsSkin/ButtonTopRightHighlight" />
+                <Image component="BottomLeftCorner" name="OpenDungeonsSkin/ButtonBottomLeftHighlight" />
+                <Image component="BottomRightCorner" name="OpenDungeonsSkin/ButtonBottomRightHighlight" />
+                <Image component="LeftEdge" name="OpenDungeonsSkin/ButtonLeftHighlight" />
+                <Image component="RightEdge" name="OpenDungeonsSkin/ButtonRightHighlight" />
+                <Image component="BottomEdge" name="OpenDungeonsSkin/ButtonBottomHighlight" />
+                <Image component="TopEdge" name="OpenDungeonsSkin/ButtonTopHighlight" />
+                <Image component="Background" name="OpenDungeonsSkin/ButtonMiddleHighlight" />
+            </FrameComponent>
+            <ImageryComponent>
+                <Area>
+                    <Dim type="LeftEdge"><UnifiedDim scale="0.1" type="Width" /></Dim>
+                    <Dim type="TopEdge"><UnifiedDim scale="0.1" type="Height" /></Dim>
+                    <Dim type="Width"><UnifiedDim scale="0.8" type="Width" /></Dim>
+                    <Dim type="Height"><UnifiedDim scale="0.8" type="Height" /></Dim>
+                </Area>
+                <ImageProperty name="ButtonImage" />
+                <VertFormatProperty name="VertImageFormatting" />
+                <HorzFormatProperty name="HorzImageFormatting" />
+            </ImageryComponent>
+            <ImageryComponent>
+                <Area>
+                    <Dim type="LeftEdge"><AbsoluteDim value="5" /></Dim>
+                    <Dim type="TopEdge"><AbsoluteDim value="5" /></Dim>
+                    <Dim type="Width"><AbsoluteDim value="20" type="Width" /></Dim>
+                    <Dim type="Height"><AbsoluteDim value="20" type="Height" /></Dim>
+                </Area>
+                <ImageProperty name="StateImage" />
+                <VertFormatProperty name="VertImageFormatting" />
+                <HorzFormatProperty name="HorzImageFormatting" />
+            </ImageryComponent>
+            <ImageryComponent>
+                <Area>
+                    <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
+                    <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
+                </Area>
+                <ImageProperty name="HoverImage" />
+                <VertFormatProperty name="VertImageFormatting" />
+                <HorzFormatProperty name="HorzImageFormatting" />
+            </ImageryComponent>
+        </ImagerySection>
+        <ImagerySection name="pushed">
+            <FrameComponent>
+                <Area>
+                    <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
+                    <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
+                </Area>
+                <Image component="TopLeftCorner" name="OpenDungeonsSkin/ButtonTopLeftPushed" />
+                <Image component="TopRightCorner" name="OpenDungeonsSkin/ButtonTopRightPushed" />
+                <Image component="BottomLeftCorner" name="OpenDungeonsSkin/ButtonBottomLeftPushed" />
+                <Image component="BottomRightCorner" name="OpenDungeonsSkin/ButtonBottomRightPushed" />
+                <Image component="LeftEdge" name="OpenDungeonsSkin/ButtonLeftPushed" />
+                <Image component="RightEdge" name="OpenDungeonsSkin/ButtonRightPushed" />
+                <Image component="BottomEdge" name="OpenDungeonsSkin/ButtonBottomPushed" />
+                <Image component="TopEdge" name="OpenDungeonsSkin/ButtonTopPushed" />
+                <Image component="Background" name="OpenDungeonsSkin/ButtonMiddlePushed" />
+            </FrameComponent>
+            <ImageryComponent>
+                <Area>
+                    <Dim type="LeftEdge"><UnifiedDim scale="0.1" type="Width" /></Dim>
+                    <Dim type="TopEdge"><UnifiedDim scale="0.1" type="Height" /></Dim>
+                    <Dim type="Width"><UnifiedDim scale="0.8" type="Width" /></Dim>
+                    <Dim type="Height"><UnifiedDim scale="0.8" type="Height" /></Dim>
+                </Area>
+                <ImageProperty name="ButtonImage" />
+                <VertFormatProperty name="VertImageFormatting" />
+                <HorzFormatProperty name="HorzImageFormatting" />
+            </ImageryComponent>
+            <ImageryComponent>
+                <Area>
+                    <Dim type="LeftEdge"><AbsoluteDim value="5" /></Dim>
+                    <Dim type="TopEdge"><AbsoluteDim value="5" /></Dim>
+                    <Dim type="Width"><AbsoluteDim value="20" type="Width" /></Dim>
+                    <Dim type="Height"><AbsoluteDim value="20" type="Height" /></Dim>
+                </Area>
+                <ImageProperty name="StateImage" />
+                <VertFormatProperty name="VertImageFormatting" />
+                <HorzFormatProperty name="HorzImageFormatting" />
+            </ImageryComponent>
+            <ImageryComponent>
+                <Area>
+                    <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
+                    <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
+                </Area>
+                <ImageProperty name="PushedImage" />
+                <VertFormatProperty name="VertImageFormatting" />
+                <HorzFormatProperty name="HorzImageFormatting" />
+            </ImageryComponent>
+        </ImagerySection>
+        <StateImagery name="Normal">
+            <Layer>
+                <Section section="normal" />
+                <Section section="label">
+                    <ColourProperty name="NormalTextColour" />
+                </Section>
+            </Layer>
+        </StateImagery>
+        <StateImagery name="Hover">
+            <Layer>
+                <Section section="hover" />
+                <Section section="label">
+                    <ColourProperty name="HoverTextColour" />
+                </Section>
+            </Layer>
+        </StateImagery>
+        <StateImagery name="Pushed">
+            <Layer>
+                <Section section="pushed" />
+                <Section section="label">
+                    <ColourProperty name="PushedTextColour" />
+                </Section>
+            </Layer>
+        </StateImagery>
+        <StateImagery name="PushedOff">
+            <Layer>
+                <Section section="hover" />
+                <Section section="label">
+                    <ColourProperty name="HoverTextColour" />
+                </Section>
+            </Layer>
+        </StateImagery>
+        <StateImagery name="Disabled">
+            <Layer>
+                <Section section="normal">
+                    <Colours bottomLeft="FF7F7F7F" bottomRight="FF7F7F7F" topLeft="FF7F7F7F" topRight="FF7F7F7F" />
+                </Section>
+                <Section section="label">
+                    <ColourProperty name="DisabledTextColour" />
+                </Section>
+            </Layer>
+        </StateImagery>
+    </WidgetLook>
+
+    <WidgetLook name="OD/IconButton">
+        <PropertyDefinition initialValue="FFFFFFFF" name="NormalTextColour" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="FFFFFFFF" name="HoverTextColour" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="FFFFFFFF" name="PushedTextColour" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="FF7F7F7F" name="DisabledTextColour" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="CentreAligned" name="VertLabelFormatting" />
+        <PropertyDefinition initialValue="CentreAligned" name="HorzLabelFormatting" />
+        <PropertyDefinition initialValue="" name="IconImage" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="OpenDungeonsSkin/ButtonHoverEffect" name="HoverImage" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="OpenDungeonsSkin/ButtonPushedEffect" name="PushedImage" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="OpenDungeonsSkin/ButtonDisabledEffect" name="DisabledImage" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="Stretched" name="VertImageFormatting" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="Stretched" name="HorzImageFormatting" redrawOnWrite="true" />
+        <ImagerySection name="label">
+            <TextComponent>
+                <Area>
+                    <Dim type="LeftEdge"><UnifiedDim scale="1.1" type="Height" /></Dim>
+                    <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
+                    <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
+                </Area>
+                <VertFormat type="CentreAligned" />
+                <HorzFormat type="LeftAligned" />
+            </TextComponent>
+        </ImagerySection>
+        <ImagerySection name="normal">
+            <FrameComponent>
+                <Area>
+                    <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
+                    <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
+                </Area>
+                <Image component="TopLeftCorner" name="OpenDungeonsSkin/ButtonTopLeftNormal" />
+                <Image component="TopRightCorner" name="OpenDungeonsSkin/ButtonTopRightNormal" />
+                <Image component="BottomLeftCorner" name="OpenDungeonsSkin/ButtonBottomLeftNormal" />
+                <Image component="BottomRightCorner" name="OpenDungeonsSkin/ButtonBottomRightNormal" />
+                <Image component="LeftEdge" name="OpenDungeonsSkin/ButtonLeftNormal" />
+                <Image component="RightEdge" name="OpenDungeonsSkin/ButtonRightNormal" />
+                <Image component="BottomEdge" name="OpenDungeonsSkin/ButtonBottomNormal" />
+                <Image component="TopEdge" name="OpenDungeonsSkin/ButtonTopNormal" />
+                <Image component="Background" name="OpenDungeonsSkin/ButtonMiddleNormal" />
+            </FrameComponent>
+            <ImageryComponent>
+                <Area>
+                    <Dim type="LeftEdge"><AbsoluteDim value="5" /></Dim>
+                    <Dim type="TopEdge"><AbsoluteDim value="3" /></Dim>
+                    <Dim type="Width"><UnifiedDim scale="0.8" type="Height" /></Dim>
+                    <Dim type="Height"><UnifiedDim scale="0.8" type="Height" /></Dim>
+                </Area>
+                <ImageProperty name="IconImage" />
+                <VertFormatProperty name="VertImageFormatting" />
+                <HorzFormatProperty name="HorzImageFormatting" />
+            </ImageryComponent>
+        </ImagerySection>
+        <ImagerySection name="hover">
+            <FrameComponent>
+                <Area>
+                    <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
+                    <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
+                </Area>
+                <Image component="TopLeftCorner" name="OpenDungeonsSkin/ButtonTopLeftHighlight" />
+                <Image component="TopRightCorner" name="OpenDungeonsSkin/ButtonTopRightHighlight" />
+                <Image component="BottomLeftCorner" name="OpenDungeonsSkin/ButtonBottomLeftHighlight" />
+                <Image component="BottomRightCorner" name="OpenDungeonsSkin/ButtonBottomRightHighlight" />
+                <Image component="LeftEdge" name="OpenDungeonsSkin/ButtonLeftHighlight" />
+                <Image component="RightEdge" name="OpenDungeonsSkin/ButtonRightHighlight" />
+                <Image component="BottomEdge" name="OpenDungeonsSkin/ButtonBottomHighlight" />
+                <Image component="TopEdge" name="OpenDungeonsSkin/ButtonTopHighlight" />
+                <Image component="Background" name="OpenDungeonsSkin/ButtonMiddleHighlight" />
+            </FrameComponent>
+            <ImageryComponent>
+                <Area>
+                    <Dim type="LeftEdge"><AbsoluteDim value="5" /></Dim>
+                    <Dim type="TopEdge"><AbsoluteDim value="3" /></Dim>
+                    <Dim type="Width"><UnifiedDim scale="0.8" type="Height" /></Dim>
+                    <Dim type="Height"><UnifiedDim scale="0.8" type="Height" /></Dim>
+                </Area>
+                <ImageProperty name="IconImage" />
+                <VertFormatProperty name="VertImageFormatting" />
+                <HorzFormatProperty name="HorzImageFormatting" />
+            </ImageryComponent>
+            <ImageryComponent>
+                <Area>
+                    <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
+                    <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
+                </Area>
+                <ImageProperty name="HoverImage" />
+                <VertFormatProperty name="VertImageFormatting" />
+                <HorzFormatProperty name="HorzImageFormatting" />
+            </ImageryComponent>
+        </ImagerySection>
+        <ImagerySection name="pushed">
+            <FrameComponent>
+                <Area>
+                    <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
+                    <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
+                </Area>
+                <Image component="TopLeftCorner" name="OpenDungeonsSkin/ButtonTopLeftPushed" />
+                <Image component="TopRightCorner" name="OpenDungeonsSkin/ButtonTopRightPushed" />
+                <Image component="BottomLeftCorner" name="OpenDungeonsSkin/ButtonBottomLeftPushed" />
+                <Image component="BottomRightCorner" name="OpenDungeonsSkin/ButtonBottomRightPushed" />
+                <Image component="LeftEdge" name="OpenDungeonsSkin/ButtonLeftPushed" />
+                <Image component="RightEdge" name="OpenDungeonsSkin/ButtonRightPushed" />
+                <Image component="BottomEdge" name="OpenDungeonsSkin/ButtonBottomPushed" />
+                <Image component="TopEdge" name="OpenDungeonsSkin/ButtonTopPushed" />
+                <Image component="Background" name="OpenDungeonsSkin/ButtonMiddlePushed" />
+            </FrameComponent>
+            <ImageryComponent>
+                <Area>
+                    <Dim type="LeftEdge"><AbsoluteDim value="5" /></Dim>
+                    <Dim type="TopEdge"><AbsoluteDim value="3" /></Dim>
+                    <Dim type="Width"><UnifiedDim scale="0.8" type="Height" /></Dim>
+                    <Dim type="Height"><UnifiedDim scale="0.8" type="Height" /></Dim>
+                </Area>
+                <ImageProperty name="IconImage" />
+                <VertFormatProperty name="VertImageFormatting" />
+                <HorzFormatProperty name="HorzImageFormatting" />
+            </ImageryComponent>
+            <ImageryComponent>
+                <Area>
+                    <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
+                    <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
+                </Area>
+                <ImageProperty name="PushedImage" />
+                <VertFormatProperty name="VertImageFormatting" />
+                <HorzFormatProperty name="HorzImageFormatting" />
+            </ImageryComponent>
+        </ImagerySection>
+        <StateImagery name="Normal">
+            <Layer>
+                <Section section="normal" />
+                <Section section="label">
+                    <ColourProperty name="NormalTextColour" />
+                </Section>
+            </Layer>
+        </StateImagery>
+        <StateImagery name="Hover">
+            <Layer>
+                <Section section="hover" />
+                <Section section="label">
+                    <ColourProperty name="HoverTextColour" />
+                </Section>
+            </Layer>
+        </StateImagery>
+        <StateImagery name="Pushed">
+            <Layer>
+                <Section section="pushed" />
+                <Section section="label">
+                    <ColourProperty name="PushedTextColour" />
+                </Section>
+            </Layer>
+        </StateImagery>
+        <StateImagery name="PushedOff">
+            <Layer>
+                <Section section="hover" />
+                <Section section="label">
+                    <ColourProperty name="HoverTextColour" />
+                </Section>
+            </Layer>
+        </StateImagery>
+        <StateImagery name="Disabled">
+            <Layer>
+                <Section section="normal">
+                    <Colours bottomLeft="FF7F7F7F" bottomRight="FF7F7F7F" topLeft="FF7F7F7F" topRight="FF7F7F7F" />
+                </Section>
+                <Section section="label">
+                    <ColourProperty name="DisabledTextColour" />
+                </Section>
+            </Layer>
+        </StateImagery>
+    </WidgetLook>
+
+    <WidgetLook name="OD/GameTabButton">
         <PropertyDefinition initialValue="" name="NormalImage" redrawOnWrite="true" />
         <PropertyDefinition initialValue="OpenDungeonsSkin/ButtonHoverEffect" name="HoverImage" redrawOnWrite="true" />
         <PropertyDefinition initialValue="OpenDungeonsSkin/ButtonPushedEffect" name="PushedImage" redrawOnWrite="true" />

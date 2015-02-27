@@ -5,7 +5,7 @@
         <Property name="Area" value="{{0,-1},{0,-1},{1,-1},{1,-1}}" />
         <Property name="MaxSize" value="{{1,0},{1,0}}" />
         <Window type="OD/StaticImage" name="HorizontalPipe" >
-            <Property name="Area" value="{{0,4},{0,11},{1,-190},{0,23}}" />
+            <Property name="Area" value="{{0,0},{0,11},{1,0},{0,23}}" />
             <Property name="Image" value="OpenDungeonsSkin/HorizontalPipe" />
             <Property name="MaxSize" value="{{1,0},{1,0}}" />
             <Property name="FrameEnabled" value="False" />
@@ -72,37 +72,45 @@
                 </Window>
             </Window>
         </Window>
-        <Window type="OD/Button" name="HelpButton" >
-            <Property name="Area" value="{{1,-507},{0,2},{1,-427},{0,35}}" />
-            <Property name="Text" value="Help (F1)" />
+        <Window type="OD/ImageButton" name="HelpButton" >
+            <Property name="Area" value="{{1,-53},{0,5},{1,-28},{0,30}}" />
+            <Property name="ButtonImage" value="OpenDungeonsIcons/HelpIcon" />
             <Property name="AlwaysOnTop" value="True" />
-            <Property name="TooltipText" value="Help" />
+            <Property name="TooltipText" value="Help (F1)" />
             <Property name="ClippedByParent" value="False" />
             <Property name="Visible" value="True" />
         </Window>
-        <Window type="OD/Button" name="ObjectivesButton" >
-            <Property name="Area" value="{{1,-427},{0,2},{1,-307},{0,35}}" />
-            <Property name="Text" value="Objectives (F3)" />
+        <Window type="OD/ImageButton" name="OptionsButton" >
+            <Property name="Area" value="{{1,-27},{0,5},{1,-2},{0,30}}" />
+            <Property name="ButtonImage" value="OpenDungeonsIcons/OptionsIcon" />
             <Property name="AlwaysOnTop" value="True" />
-            <Property name="TooltipText" value="Objectives" />
+            <Property name="TooltipText" value="Options (F10)" />
             <Property name="ClippedByParent" value="False" />
             <Property name="Visible" value="True" />
         </Window>
-        <Window type="OD/Button" name="OptionsButton" >
-            <Property name="Area" value="{{1,-307},{0,2},{1,-205},{0,35}}" />
-            <Property name="Text" value="Options (F10)" />
+        <Window type="OD/ImageButton" name="ResearchButton" >
+            <Property name="Area" value="{{1,-232},{1,-202},{1,-202},{1,-172}}" />
+            <Property name="ButtonImage" value="OpenDungeonsIcons/ResearchIcon" />
             <Property name="AlwaysOnTop" value="True" />
-            <Property name="TooltipText" value="Options" />
+            <Property name="TooltipText" value="Research (F4)" />
             <Property name="ClippedByParent" value="False" />
-            <Property name="Visible" value="False" />
+            <Property name="Visible" value="True" />
+        </Window>
+        <Window type="OD/ImageButton" name="ObjectivesButton" >
+            <Property name="Area" value="{{1,-232},{1,-171},{1,-202},{1,-141}}" />
+            <Property name="ButtonImage" value="OpenDungeonsIcons/ObjectivesIcon" />
+            <Property name="AlwaysOnTop" value="True" />
+            <Property name="TooltipText" value="Objectives (F3)" />
+            <Property name="ClippedByParent" value="False" />
+            <Property name="Visible" value="True" />
         </Window>
         <Window type="OD/StaticImage" name="MiniMap" >
-            <Property name="Area" value="{{1,-201},{0,2},{1,-1},{0,202}}" />
+            <Property name="Area" value="{{1,-201},{1,-202},{1,-1},{1,-2}}" />
             <Property name="MaxSize" value="{{1,0},{1,0}}" />
             <Property name="AlwaysOnTop" value="True" />
         </Window>
         <Window type="OD/TabControl" name="MainTabControl" >
-            <Property name="Area" value="{{0,0},{1,-133},{1,0},{1,0}}" />
+            <Property name="Area" value="{{0,0},{1,-133},{1,-200},{1,0}}" />
             <Property name="TabHeight" value="{0,25}" />
             <Property name="RiseOnClickEnabled" value="False" />
             <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuRooms.layout" name="RoomsImport" />
@@ -112,6 +120,7 @@
         </Window>
         <LayoutImport type="DefaultWindow" filename="QuitMenu.layout" name="QuitMenuImport" />
         <LayoutImport type="DefaultWindow" filename="ObjectivesWindow.layout" name="ObjectivesWindowImport" />
+        <LayoutImport type="DefaultWindow" filename="GameOptionsMenu.layout" name="GameOptionsMenuImport" />
         <LayoutImport type="DefaultWindow" filename="SettingsMenu.layout" name="SettingsMenuImport" />
     </Window>
 </GUILayout>

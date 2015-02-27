@@ -5,7 +5,7 @@
         <Property name="Area" value="{{0,-1},{0,-1},{1,-1},{1,-1}}" />
         <Property name="MaxSize" value="{{1,0},{1,0}}" />
         <Window type="OD/StaticImage" name="HorizontalPipe" >
-            <Property name="Area" value="{{0,4},{0,11},{1,-190},{0,23}}" />
+            <Property name="Area" value="{{0,0},{0,11},{1,0},{0,23}}" />
             <Property name="Image" value="OpenDungeonsSkin/HorizontalPipe" />
             <Property name="MaxSize" value="{{1,0},{1,0}}" />
             <Property name="FrameEnabled" value="False" />
@@ -41,7 +41,7 @@
                 <Property name="VerticalAlignment" value="Centre" />
                 <Window type="OD/StaticImage" name="Icon" >
                     <Property name="Area" value="{{0,0},{0,0},{0,30},{0,30}}" />
-                    <Property name="Image" value="OpenDungeonsSkin/MouseArrow" />
+                    <Property name="Image" value="OpenDungeonsSkin/MouseMoveCursor" />
                     <Property name="MaxSize" value="{{1,0},{1,0}}" />
                     <Property name="AlwaysOnTop" value="True" />
                     <Property name="TooltipText" value="" />
@@ -59,6 +59,17 @@
                 <Property name="HorzFormatting" value="RightAligned" />
                 <Property name="ClippedByParent" value="False" />
                 <Property name="VerticalAlignment" value="Centre" />
+                <Window type="OD/StaticImage" name="Icon" >
+                    <Property name="Area" value="{{0,0},{0,0},{0,30},{0,30}}" />
+                    <Property name="Image" value="OpenDungeonsIcons/SeatIcon" />
+                    <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                    <Property name="AlwaysOnTop" value="True" />
+                    <Property name="TooltipText" value="" />
+                    <Property name="FrameEnabled" value="False" />
+                    <Property name="ClippedByParent" value="False" />
+                    <Property name="BackgroundEnabled" value="False" />
+                    <Property name="VerticalAlignment" value="Centre" />
+                </Window>
             </Window>
             <Window type="OD/StaticText" name="CreatureSpawnDisplay" >
                 <Property name="Area" value="{{0,570},{0,0},{0,780},{0,25}}" />
@@ -81,21 +92,21 @@
                 </Window>
             </Window>
         </Window>
-        <Window type="OD/Button" name="OptionsButton" >
-            <Property name="Area" value="{{1,-277},{0,2},{1,-205},{0,35}}" />
-            <Property name="Text" value="Options" />
+        <Window type="OD/ImageButton" name="OptionsButton" >
+            <Property name="Area" value="{{1,-27},{0,5},{1,-2},{0,30}}" />
+            <Property name="ButtonImage" value="OpenDungeonsIcons/OptionsIcon" />
             <Property name="AlwaysOnTop" value="True" />
-            <Property name="TooltipText" value="Options" />
+            <Property name="TooltipText" value="Options (F10)" />
             <Property name="ClippedByParent" value="False" />
-            <Property name="Visible" value="False" />
+            <Property name="Visible" value="True" />
         </Window>
         <Window type="OD/StaticImage" name="MiniMap" >
-            <Property name="Area" value="{{1,-201},{0,2},{1,-1},{0,202}}" />
+            <Property name="Area" value="{{1,-201},{1,-202},{1,-1},{1,-2}}" />
             <Property name="MaxSize" value="{{1,0},{1,0}}" />
             <Property name="AlwaysOnTop" value="True" />
         </Window>
         <Window type="OD/TabControl" name="MainTabControl" >
-            <Property name="Area" value="{{0,0},{1,-133},{1,0},{1,0}}" />
+            <Property name="Area" value="{{0,0},{1,-133},{1,-200},{1,0}}" />
             <Property name="TabHeight" value="{0,25}" />
             <Property name="RiseOnClickEnabled" value="False" />
             <Window type="DefaultWindow" name="Tiles" >
@@ -103,37 +114,37 @@
                 <Property name="Text" value="Tiles" />
                 <Property name="MaxSize" value="{{1,0},{1,0}}" />
                 <Property name="RiseOnClickEnabled" value="False" />
-                <Window type="OD/ImageButton" name="DirtButton" >
+                <Window type="OD/GameTabButton" name="DirtButton" >
                     <Property name="Area" value="{{0,20},{0,25},{0,80},{0,85}}" />
                     <Property name="NormalImage" value="OpenDungeonsIcons/DirtButton" />
                     <Property name="TooltipText" value="Place dirt tiles." />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
-                <Window type="OD/ImageButton" name="RockButton" >
+                <Window type="OD/GameTabButton" name="RockButton" >
                     <Property name="Area" value="{{0,80},{0,25},{0,140},{0,85}}" />
                     <Property name="NormalImage" value="OpenDungeonsIcons/RockButton" />
                     <Property name="TooltipText" value="Place undiggable rock tiles." />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
-                <Window type="OD/ImageButton" name="GoldButton" >
+                <Window type="OD/GameTabButton" name="GoldButton" >
                     <Property name="Area" value="{{0,140},{0,25},{0,200},{0,85}}" />
                     <Property name="NormalImage" value="OpenDungeonsIcons/GoldButton" />
                     <Property name="TooltipText" value="Place gold tiles." />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
-                <Window type="OD/ImageButton" name="WaterButton" >
+                <Window type="OD/GameTabButton" name="WaterButton" >
                     <Property name="Area" value="{{0,200},{0,25},{0,260},{0,85}}" />
                     <Property name="NormalImage" value="OpenDungeonsIcons/WaterButton" />
                     <Property name="TooltipText" value="Place some water." />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
-                <Window type="OD/ImageButton" name="LavaButton" >
+                <Window type="OD/GameTabButton" name="LavaButton" >
                     <Property name="Area" value="{{0,260},{0,25},{0,320},{0,85}}" />
                     <Property name="NormalImage" value="OpenDungeonsIcons/LavaButton" />
                     <Property name="TooltipText" value="Place some lava." />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
-                <Window type="OD/ImageButton" name="ClaimedButton" >
+                <Window type="OD/GameTabButton" name="ClaimedButton" >
                     <Property name="Area" value="{{0,320},{0,25},{0,380},{0,85}}" />
                     <Property name="NormalImage" value="OpenDungeonsIcons/ClaimedButton" />
                     <Property name="TooltipText" value="Place some claimed/dungeon tiles." />
@@ -150,7 +161,7 @@
                 <Property name="MaxSize" value="{{1,0},{1,0}}" />
                 <Property name="Visible" value="False" />
                 <Property name="RiseOnClickEnabled" value="False" />
-                <Window type="OD/ImageButton" name="MapLightButton" >
+                <Window type="OD/GameTabButton" name="MapLightButton" >
                     <Property name="Area" value="{{0,20},{0,25},{0,80},{0,85}}" />
                     <Property name="NormalImage" value="OpenDungeonsIcons/MapLightButton" />
                     <Property name="TooltipText" value="Adds a Map light" />
@@ -158,5 +169,7 @@
                 </Window>
             </Window>
         </Window>
+        <LayoutImport type="DefaultWindow" filename="EditorOptionsMenu.layout" name="EditorOptionsMenuImport" />
+        <LayoutImport type="DefaultWindow" filename="QuitMenu.layout" name="EditorQuitMenuImport" />
     </Window>
 </GUILayout>

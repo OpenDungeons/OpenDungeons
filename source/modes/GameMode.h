@@ -96,13 +96,19 @@ class GameMode: public AbstractApplicationMode
     void hideObjectivesWindow();
     void toggleObjectivesWindow();
 
-    //! \brief Shows the options window
+    //! \brief Shows/hides/toggles the options window
     void showOptionsWindow();
+    bool hideOptionsWindow(const CEGUI::EventArgs& e = {});
+    void toggleOptionsWindow();
 
-    //! \brief Hides the options window.
-    void hideOptionsWindow();
+    //! \brief Hides the settings window.
+    void hideSettingsWindow();
+protected:
+    //! \brief The different Game Options Menu handlers
+    bool showQuitMenuFromOptions(const CEGUI::EventArgs& e = {});
+    bool showObjectivesFromOptions(const CEGUI::EventArgs& e = {});
+    bool showSettingsFromOptions(const CEGUI::EventArgs& e = {});
 
- protected:
     //! \brief Handle the keyboard input in normal mode
     virtual bool keyPressedNormal   (const OIS::KeyEvent &arg);
 

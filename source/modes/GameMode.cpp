@@ -111,12 +111,39 @@ void GameMode::activate()
     guiSheet->getChild(Gui::EXIT_CONFIRMATION_POPUP)->hide();
     guiSheet->getChild("ObjectivesWindow")->hide();
     guiSheet->getChild("SettingsWindow")->hide();
+    guiSheet->getChild("GameOptionsWindow")->hide();
 
     addEventConnection(
         guiSheet->getChild(Gui::MINIMAP)->subscribeEvent(
             CEGUI::Window::EventMouseClick,
             CEGUI::Event::Subscriber(&GameMode::onMinimapClick, this)
     ));
+
+    // The Game Option menu events
+    addEventConnection(
+        guiSheet->getChild("GameOptionsWindow/__auto_closebutton__")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&GameMode::hideOptionsWindow, this)
+        )
+    );
+    addEventConnection(
+        guiSheet->getChild("GameOptionsWindow/ObjectivesButton")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&GameMode::showObjectivesFromOptions, this)
+        )
+    );
+    addEventConnection(
+        guiSheet->getChild("GameOptionsWindow/SettingsButton")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&GameMode::showSettingsFromOptions, this)
+        )
+    );
+    addEventConnection(
+        guiSheet->getChild("GameOptionsWindow/QuitGameButton")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&GameMode::showQuitMenuFromOptions, this)
+        )
+    );
 
     giveFocus();
 
@@ -774,7 +801,7 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
         break;
 
     case OIS::KC_F10:
-        showOptionsWindow();
+        toggleOptionsWindow();
         break;
 
     case OIS::KC_F11:
@@ -1099,14 +1126,54 @@ void GameMode::toggleObjectivesWindow()
 
 void GameMode::showOptionsWindow()
 {
-    // FIXME: For now, we show the settings window directly.
-    // Later the option menu with save load and settings button can be added.
-    getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("SettingsWindow")->show();
+    getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameOptionsWindow")->show();
 }
 
-void GameMode::hideOptionsWindow()
+bool GameMode::hideOptionsWindow(const CEGUI::EventArgs& /*e*/)
+{
+    getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameOptionsWindow")->hide();
+    return true;
+}
+
+void GameMode::toggleOptionsWindow()
+{
+    CEGUI::Window* options = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameOptionsWindow");
+    if (options == nullptr)
+        return;
+
+    if (options->isVisible())
+        hideOptionsWindow();
+    else
+        showOptionsWindow();
+}
+
+void GameMode::hideSettingsWindow()
 {
     getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("SettingsWindow")->hide();
+}
+
+bool GameMode::showQuitMenuFromOptions(const CEGUI::EventArgs& /*e*/)
+{
+    CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::inGameMenu);
+    guiSheet->getChild("GameOptionsWindow")->hide();
+    popupExit(!mGameMap->getGamePaused());
+    return true;
+}
+
+bool GameMode::showObjectivesFromOptions(const CEGUI::EventArgs& /*e*/)
+{
+    CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::inGameMenu);
+    guiSheet->getChild("GameOptionsWindow")->hide();
+    guiSheet->getChild("ObjectivesWindow")->show();
+    return true;
+}
+
+bool GameMode::showSettingsFromOptions(const CEGUI::EventArgs& /*e*/)
+{
+    CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::inGameMenu);
+    guiSheet->getChild("GameOptionsWindow")->hide();
+    guiSheet->getChild("SettingsWindow")->show();
+    return true;
 }
 
 void GameMode::showHelpWindow()

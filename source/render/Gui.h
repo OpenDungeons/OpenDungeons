@@ -194,6 +194,7 @@ private:
     static bool cancelSettings(const CEGUI::EventArgs& e);
 
     // Editor Buttons
+    static bool editorOptionsButtonPressed(const CEGUI::EventArgs& e);
     static bool editorLavaButtonPressed(const CEGUI::EventArgs& e);
     static bool editorGoldButtonPressed(const CEGUI::EventArgs& e);
     static bool editorRockButtonPressed(const CEGUI::EventArgs& e);

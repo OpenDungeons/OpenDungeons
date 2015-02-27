@@ -34,4 +34,11 @@
     <Image height="30" name="HelpIcon" width="30" xPos="161" yPos="1" />
     <Image height="30" name="LoadIcon" width="30" xPos="193" yPos="1" />
     <Image height="30" name="SaveIcon" width="30" xPos="223" yPos="1" />
+    <Image height="30" name="AbortIcon" width="30" xPos="254" yPos="1" />
+    <Image height="30" name="CheckIcon" width="30" xPos="286" yPos="1" />
+    <Image height="30" name="ObjectivesIcon" width="30" xPos="318" yPos="1" />
+    <Image height="30" name="ResearchIcon" width="30" xPos="349" yPos="1" />
+    <Image height="30" name="SeatIcon" width="30" xPos="380" yPos="1" />
+    <Image height="30" name="CogIcon" width="30" xPos="411" yPos="1" />
+    <Image height="30" name="HourglassIcon" width="30" xPos="442" yPos="0" />
 </Imageset>
