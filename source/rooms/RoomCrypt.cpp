@@ -256,3 +256,17 @@ void RoomCrypt::notifyCarryingStateChanged(Creature* carrier, GameEntity* carrie
     // been erased between the time the carrier tried to come and the time it arrived.
     // In any case, nothing to do
 }
+
+void RoomCrypt::exportToStream(std::ostream& os) const
+{
+    Room::exportToStream(os);
+    os << mRottenPoints << "\n";
+    // We do not save rotten creatures. They will automatically be carried again by workers
+}
+
+void RoomCrypt::importFromStream(std::istream& is)
+{
+    Room::importFromStream(is);
+    OD_ASSERT_TRUE(is >> mRottenPoints);
+    // We do not save rotten creatures. They will automatically be carried again by workers
+}

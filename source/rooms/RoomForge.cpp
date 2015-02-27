@@ -37,7 +37,6 @@ const Ogre::Real OFFSET_SPOT = 0.3;
 
 RoomForge::RoomForge(GameMap* gameMap) :
     Room(gameMap),
-    mNbTurnsNoChangeSpots(0),
     mPoints(0),
     mTrapType(TrapType::nullTrapType)
 {
@@ -438,4 +437,18 @@ void RoomForge::getCreatureWantedPos(Creature* creature, Tile* tileSpot,
     wantedX = static_cast<Ogre::Real>(tileSpot->getX());
     wantedY = static_cast<Ogre::Real>(tileSpot->getY());
     wantedY -= OFFSET_CREATURE;
+}
+
+void RoomForge::exportToStream(std::ostream& os) const
+{
+    Room::exportToStream(os);
+    os << mPoints << "\t";
+    os << mTrapType << "\n";
+}
+
+void RoomForge::importFromStream(std::istream& is)
+{
+    Room::importFromStream(is);
+    OD_ASSERT_TRUE(is >> mPoints);
+    OD_ASSERT_TRUE(is >> mTrapType);
 }

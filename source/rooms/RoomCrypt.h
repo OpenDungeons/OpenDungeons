@@ -25,19 +25,22 @@ class RoomCrypt: public Room
 public:
     RoomCrypt(GameMap* gameMap);
 
-    virtual RoomType getType() const
+    virtual RoomType getType() const override
     { return RoomType::crypt; }
 
-    void absorbRoom(Room *r);
+    void absorbRoom(Room *r) override;
 
-    void doUpkeep();
+    void doUpkeep() override;
 
-    bool hasCarryEntitySpot(GameEntity* carriedEntity);
-    Tile* askSpotForCarriedEntity(GameEntity* carriedEntity);
-    void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity);
+    bool hasCarryEntitySpot(GameEntity* carriedEntity) override;
+    Tile* askSpotForCarriedEntity(GameEntity* carriedEntity) override;
+    void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity) override;
+
+    virtual void exportToStream(std::ostream& os) const override;
+    virtual void importFromStream(std::istream& is) override;
 protected:
-    virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
-    virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);
+    virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile) override;
+    virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile) override;
 private:
     std::map<Tile*,std::pair<Creature*, int32_t> > mRottingCreatures;
     int32_t mRottenPoints;
