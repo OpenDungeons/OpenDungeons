@@ -276,9 +276,13 @@ class GameEntity
     virtual void notifyEntityCarryOn(Creature* carrier)
     {}
 
-    //! \brief Called when the entity is being carried
+    //! \brief Called when the entity is being carried and is dropped
     virtual void notifyEntityCarryOff(const Ogre::Vector3& position)
     {}
+
+    //! \brief Called when the entity is being carriedand moves
+    virtual void notifyCarryMove(const Ogre::Vector3& position)
+    { mPosition = position; }
 
     //! This function should be called on client side just after the entity is added to the gamemap.
     //! It should restore the entity state (if it was dead before the client got vision, it should

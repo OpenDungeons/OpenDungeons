@@ -543,6 +543,8 @@ void Creature::importFromPacket(ODPacket& is)
 void Creature::setPosition(const Ogre::Vector3& v, bool isMove)
 {
     MovableGameEntity::setPosition(v, isMove);
+    if(mCarriedEntity != nullptr)
+        mCarriedEntity->notifyCarryMove(v);
 }
 
 void Creature::drop(const Ogre::Vector3& v)
