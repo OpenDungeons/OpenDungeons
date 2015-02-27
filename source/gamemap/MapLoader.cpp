@@ -144,16 +144,32 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         if (nextParam == "[/Seats]")
             break;
 
-        std::string entire_line = nextParam;
-        std::getline(levelFile, nextParam);
-        entire_line += nextParam;
-        //std::cout << entire_line << std::endl;
+        if (nextParam != "[Seat]")
+        {
+            LogManager::getSingleton().logMessage("Expected a Seat tag but got " + nextParam);
+            return false;
+        }
 
         Seat* tempSeat = new Seat(&gameMap);
-        Seat::loadFromLine(entire_line, tempSeat);
+        if(!tempSeat->importSeatFromStream(levelFile))
+        {
+            delete tempSeat;
+            return false;
+        }
 
         if(!gameMap.addSeat(tempSeat))
+        {
+            LogManager::getSingleton().logMessage("Couldn't add seat id="
+                + Helper::toString(tempSeat->getId()));
             delete tempSeat;
+        }
+
+        levelFile >> nextParam;
+        if (nextParam != "[/Seat]")
+        {
+            LogManager::getSingleton().logMessage("Expected a Seat end tag but got " + nextParam);
+            return false;
+        }
     }
 
     // Read in the goals that are shared by all players, the first player to complete all these goals is the winner.
@@ -591,7 +607,6 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
 
     // Write out the seats to the file
     levelFile << "\n[Seats]\n";
-    levelFile << "# " << Seat::getFormat() << "\n";
     const std::vector<Seat*> seats = gameMap.getSeats();
     for (Seat* seat : seats)
     {
@@ -599,7 +614,9 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
         if(seat->isRogueSeat())
             continue;
 
-        levelFile << seat << std::endl;
+        levelFile << "[Seat]" << std::endl;
+        seat->exportSeatToStream(levelFile);
+        levelFile << "[/Seat]" << std::endl;
     }
     levelFile << "[/Seats]" << std::endl;
 
@@ -855,18 +872,30 @@ bool getMapInfo(const std::string& fileName, LevelInfo& levelInfo)
         if (nextParam == "[/Seats]")
             break;
 
-        std::string entire_line = nextParam;
-        std::getline(levelFile, nextParam);
-        entire_line += nextParam;
-        //std::cout << entire_line << std::endl;
+        if (nextParam != "[Seat]")
+            return false;
 
-        const std::string faction = Seat::getFactionFromLine(entire_line);
-        if (faction == Seat::PLAYER_TYPE_HUMAN)
-            ++playerSeatNumber;
-        else if (faction == Seat::PLAYER_TYPE_CHOICE)
-            ++seatConfigurable;
-        else if (faction == Seat::PLAYER_TYPE_AI)
-            ++AISeatNumber;
+        while(true)
+        {
+            std::string line;
+            std::getline(levelFile, line);
+            std::stringstream ss(line);
+            ss >> nextParam;
+            if(nextParam == "[/Seat]")
+                break;
+
+            if(nextParam != "player")
+                continue;
+
+            // We get the player type
+            ss >> nextParam;
+            if (nextParam == Seat::PLAYER_TYPE_HUMAN)
+                ++playerSeatNumber;
+            else if (nextParam == Seat::PLAYER_TYPE_CHOICE)
+                ++seatConfigurable;
+            else if (nextParam == Seat::PLAYER_TYPE_AI)
+                ++AISeatNumber;
+        }
     }
 
     if (playerSeatNumber > 0 || AISeatNumber > 0)

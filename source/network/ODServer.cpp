@@ -986,7 +986,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             // We check if the room is available. It is not normal to receive a message
             // asking to build an unbuildable room since the client should only display
             // available rooms
-            if(!player->isRoomAvailableForPlayer(type))
+            if(!player->getSeat()->isRoomAvailable(type))
             {
                 LogManager::getSingleton().logMessage("WARNING: player " + player->getNick()
                     + " asked to cast a spell not available: " + Room::getRoomNameFromRoomType(type));
@@ -1258,7 +1258,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             // We check if the trap is available. It is not normal to receive a message
             // asking to build an unbuildable trap since the client should only display
             // available traps
-            if(!player->isTrapAvailableForPlayer(type))
+            if(!player->getSeat()->isTrapAvailable(type))
             {
                 LogManager::getSingleton().logMessage("WARNING: player " + player->getNick()
                     + " asked to cast a spell not available: " + Trap::getTrapNameFromTrapType(type));
@@ -1320,7 +1320,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             // We check if the spell is available. It is not normal to receive a message
             // asking to cast an uncastable spell since the client should only display
             // available spells
-            if(!player->isSpellAvailableForPlayer(spellType))
+            if(!player->getSeat()->isSpellAvailable(spellType))
             {
                 LogManager::getSingleton().logMessage("WARNING: player " + player->getNick()
                     + " asked to cast a spell not available: " + Spell::getSpellNameFromSpellType(spellType));
@@ -1872,7 +1872,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 researches.push_back(research);
             }
 
-            player->setResearchTree(researches);
+            player->getSeat()->setResearchTree(researches);
             break;
         }
 

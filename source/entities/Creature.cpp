@@ -2966,7 +2966,6 @@ void Creature::refreshCreature(ODPacket& packet)
 {
     OD_ASSERT_TRUE(packet >> mLevel);
     OD_ASSERT_TRUE(packet >> mOverlayHealthValue);
-    // DAN_TEST modifier overlay
     RenderManager::getSingleton().rrScaleEntity(this);
 }
 

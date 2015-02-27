@@ -8,9 +8,66 @@ FightMusic	The_Dark_Amulet.ogg
 [/Info]
 
 [Seats]
-# seatId	teamId	player	faction	startingX	startingY	color	startingGold
-1	1	Choice	Choice	50	79	1	1000
-2	2	Choice	Choice	50	21	2	1000
+[Seat]
+seatId	1
+teamId	1
+player	Choice
+faction	Choice
+startingX	50
+startingY	79
+colorId	1
+gold	1000
+goldMined	0
+mana	500
+[ResearchDone]
+roomTreasury
+roomDormitory
+roomHatchery
+roomLibrary
+trapCannon
+spellSummonWorker
+[/ResearchDone]
+[ResearchNotAllowed]
+[/ResearchNotAllowed]
+[ResearchPending]
+roomTrainingHall
+spellCallToWar
+trapSpike
+roomForge
+roomCrypt
+trapBoulder
+[/ResearchPending]
+[/Seat]
+[Seat]
+seatId	2
+teamId	2
+player	Choice
+faction	Choice
+startingX	50
+startingY	21
+colorId	2
+gold	1000
+goldMined	0
+mana	500
+[ResearchDone]
+roomTreasury
+roomDormitory
+roomHatchery
+roomLibrary
+trapCannon
+spellSummonWorker
+[/ResearchDone]
+[ResearchNotAllowed]
+[/ResearchNotAllowed]
+[ResearchPending]
+roomTrainingHall
+spellCallToWar
+trapSpike
+roomForge
+roomCrypt
+trapBoulder
+[/ResearchPending]
+[/Seat]
 [/Seats]
 
 [Goals]
@@ -23,7 +80,7 @@ ProtectDungeonTemple	NULL
 # Map Size
 100 # MapSizeX
 100 # MapSizeY
-# posX	posY	type	fullness
+# posX	posY	type	fullness	seatId(optional)
 0	0	3	100
 0	1	3	100
 0	2	3	100
@@ -4421,3 +4478,27 @@ ProtectDungeonTemple	NULL
 0	Spider17	Spider	50	57	0	Spider	3	0	max	100	0	0	none	none
 0	Spider18	Spider	51	59	0	Spider	3	0	max	100	0	0	none	none
 [/Creatures]
+
+[Spells]
+# typeSpell	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	optionalData	
+[/Spells]
+
+[CraftedTraps]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	trapType	PosX	PosY	PosZ	
+[/CraftedTraps]
+
+[ResearchEntity]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	researchType	PosX	PosY	PosZ	
+[/ResearchEntity]
+
+[Missiles]
+# missileType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	directionX	directionY	directionZ	missileAlive	damageAllies	optionalData	
+[/Missiles]
+
+[TreasuryObject]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	value	
+[/TreasuryObject]
+
+[Chickens]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	PosX	PosY	PosZ	
+[/Chickens]

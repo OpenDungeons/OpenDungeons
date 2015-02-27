@@ -8,12 +8,156 @@ FightMusic	The_Dark_Amulet.ogg
 [/Info]
 
 [Seats]
-# seatId	teamId	player	faction	startingX	startingY	color	startingGold
-1	1	Human	Keeper	200	200	1	1000
-2	2	AI	Choice	200	200	2	1000
-3	3	AI	Choice	200	200	3	1000
-4	4	Inactive	Keeper	200	200	4	1000
-5	5	Inactive	Keeper	200	200	5	1000
+[Seat]
+seatId	1
+teamId	1
+player	Human
+faction	Keeper
+startingX	200
+startingY	200
+colorId	1
+gold	1000
+goldMined	100
+mana	500
+[ResearchDone]
+roomTreasury
+roomDormitory
+roomHatchery
+roomLibrary
+trapCannon
+spellSummonWorker
+[/ResearchDone]
+[ResearchNotAllowed]
+[/ResearchNotAllowed]
+[ResearchPending]
+roomTrainingHall
+spellCallToWar
+trapSpike
+roomForge
+roomCrypt
+trapBoulder
+[/ResearchPending]
+[/Seat]
+[Seat]
+seatId	2
+teamId	2
+player	AI
+faction	Keeper
+startingX	10
+startingY	10
+colorId	2
+gold	1000
+goldMined	100
+mana	500
+[ResearchDone]
+roomTreasury
+roomDormitory
+roomHatchery
+roomLibrary
+trapCannon
+spellSummonWorker
+[/ResearchDone]
+[ResearchNotAllowed]
+[/ResearchNotAllowed]
+[ResearchPending]
+roomTrainingHall
+spellCallToWar
+trapSpike
+roomForge
+roomCrypt
+trapBoulder
+[/ResearchPending]
+[/Seat]
+[Seat]
+seatId	3
+teamId	3
+player	AI
+faction	Keeper
+startingX	10
+startingY	10
+colorId	3
+gold	1000
+goldMined	100
+mana	500
+[ResearchDone]
+roomTreasury
+roomDormitory
+roomHatchery
+roomLibrary
+trapCannon
+spellSummonWorker
+[/ResearchDone]
+[ResearchNotAllowed]
+[/ResearchNotAllowed]
+[ResearchPending]
+roomTrainingHall
+spellCallToWar
+trapSpike
+roomForge
+roomCrypt
+trapBoulder
+[/ResearchPending]
+[/Seat]
+[Seat]
+seatId	4
+teamId	4
+player	Inactive
+faction	Keeper
+startingX	10
+startingY	10
+colorId	4
+gold	1000
+goldMined	100
+mana	500
+[ResearchDone]
+roomTreasury
+roomDormitory
+roomHatchery
+roomLibrary
+trapCannon
+spellSummonWorker
+[/ResearchDone]
+[ResearchNotAllowed]
+[/ResearchNotAllowed]
+[ResearchPending]
+roomTrainingHall
+spellCallToWar
+trapSpike
+roomForge
+roomCrypt
+trapBoulder
+[/ResearchPending]
+[/Seat]
+[Seat]
+seatId	5
+teamId	5
+player	Inactive
+faction	Keeper
+startingX	10
+startingY	10
+colorId	5
+gold	1000
+goldMined	100
+mana	500
+[ResearchDone]
+roomTreasury
+roomDormitory
+roomHatchery
+roomLibrary
+trapCannon
+spellSummonWorker
+[/ResearchDone]
+[ResearchNotAllowed]
+[/ResearchNotAllowed]
+[ResearchPending]
+roomTrainingHall
+spellCallToWar
+trapSpike
+roomForge
+roomCrypt
+trapBoulder
+[/ResearchPending]
+[/Seat]
 [/Seats]
 
 [Goals]
@@ -35,7 +179,7 @@ ProtectDungeonTemple	NULL
 # Map Size
 400 # MapSizeX
 400 # MapSizeY
-# posX	posY	type	fullness
+# posX	posY	type	fullness	seatId(optional)
 146	102	3	100
 146	103	3	100
 146	104	3	100
@@ -6698,3 +6842,27 @@ ProtectDungeonTemple	NULL
 3	Kreatur_004	Kreatur	156	106	0	Kreatur	1	0	max	100	0	0	none	none
 3	Kreatur_005	Kreatur	163	112	0	Kreatur	1	0	max	100	0	0	none	none
 [/Creatures]
+
+[Spells]
+# typeSpell	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	optionalData	
+[/Spells]
+
+[CraftedTraps]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	trapType	PosX	PosY	PosZ	
+[/CraftedTraps]
+
+[ResearchEntity]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	researchType	PosX	PosY	PosZ	
+[/ResearchEntity]
+
+[Missiles]
+# missileType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	directionX	directionY	directionZ	missileAlive	damageAllies	optionalData	
+[/Missiles]
+
+[TreasuryObject]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	value	
+[/TreasuryObject]
+
+[Chickens]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	PosX	PosY	PosZ	
+[/Chickens]

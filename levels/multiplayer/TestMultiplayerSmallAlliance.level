@@ -8,11 +8,126 @@ FightMusic	The_Dark_Amulet.ogg
 [/Info]
 
 [Seats]
-# seatId	teamId	player	faction	startingX	startingY	color	startingGold
-1	1	Human	Keeper	10	10	1	1000
-2	1	Choice	Choice	10	40	2	1000
-3	2	Choice	Keeper	40	10	3	1000
-4	2	Choice	Choice	40	40	4	1000
+[Seat]
+seatId	1
+teamId	1
+player	Human
+faction	Choice
+startingX	10
+startingY	10
+colorId	1
+gold	1000
+goldMined	100
+mana	500
+[ResearchDone]
+roomTreasury
+roomDormitory
+roomHatchery
+roomLibrary
+trapCannon
+spellSummonWorker
+[/ResearchDone]
+[ResearchNotAllowed]
+[/ResearchNotAllowed]
+[ResearchPending]
+roomTrainingHall
+spellCallToWar
+trapSpike
+roomForge
+roomCrypt
+trapBoulder
+[/ResearchPending]
+[/Seat]
+[Seat]
+seatId	2
+teamId	2
+player	Choice
+faction	Choice
+startingX	10
+startingY	40
+colorId	2
+gold	1000
+goldMined	100
+mana	500
+[ResearchDone]
+roomTreasury
+roomDormitory
+roomHatchery
+roomLibrary
+trapCannon
+spellSummonWorker
+[/ResearchDone]
+[ResearchNotAllowed]
+[/ResearchNotAllowed]
+[ResearchPending]
+roomTrainingHall
+spellCallToWar
+trapSpike
+roomForge
+roomCrypt
+trapBoulder
+[/ResearchPending]
+[/Seat]
+[Seat]
+seatId	3
+teamId	3
+player	Choice
+faction	Choice
+startingX	40
+startingY	10
+colorId	3
+gold	1000
+goldMined	100
+mana	500
+[ResearchDone]
+roomTreasury
+roomDormitory
+roomHatchery
+roomLibrary
+trapCannon
+spellSummonWorker
+[/ResearchDone]
+[ResearchNotAllowed]
+[/ResearchNotAllowed]
+[ResearchPending]
+roomTrainingHall
+spellCallToWar
+trapSpike
+roomForge
+roomCrypt
+trapBoulder
+[/ResearchPending]
+[/Seat]
+[Seat]
+seatId	4
+teamId	4
+player	Choice
+faction	Choice
+startingX	40
+startingY	40
+colorId	4
+gold	1000
+goldMined	100
+mana	500
+[ResearchDone]
+roomTreasury
+roomDormitory
+roomHatchery
+roomLibrary
+trapCannon
+spellSummonWorker
+[/ResearchDone]
+[ResearchNotAllowed]
+[/ResearchNotAllowed]
+[ResearchPending]
+roomTrainingHall
+spellCallToWar
+trapSpike
+roomForge
+roomCrypt
+trapBoulder
+[/ResearchPending]
+[/Seat]
 [/Seats]
 
 [Goals]
@@ -33,7 +148,7 @@ ProtectDungeonTemple	NULL
 # Map Size
 50 # MapSizeX
 50 # MapSizeY
-# posX	posY	type	fullness
+# posX	posY	type	fullness	seatId(optional)
 1	24	2	100
 1	25	2	100
 2	24	2	100
@@ -758,3 +873,27 @@ ProtectDungeonTemple	NULL
 [Creatures]
 # SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon
 [/Creatures]
+
+[Spells]
+# typeSpell	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	optionalData	
+[/Spells]
+
+[CraftedTraps]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	trapType	PosX	PosY	PosZ	
+[/CraftedTraps]
+
+[ResearchEntity]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	researchType	PosX	PosY	PosZ	
+[/ResearchEntity]
+
+[Missiles]
+# missileType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	directionX	directionY	directionZ	missileAlive	damageAllies	optionalData	
+[/Missiles]
+
+[TreasuryObject]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	value	
+[/TreasuryObject]
+
+[Chickens]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	PosX	PosY	PosZ	
+[/Chickens]

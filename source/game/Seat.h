@@ -31,7 +31,14 @@ class ODPacket;
 class GameMap;
 class CreatureDefinition;
 class Player;
+class Research;
 class Tile;
+
+enum class ResearchType;
+enum class SpellType;
+enum class RoomType;
+enum class TrapType;
+enum class ResearchType;
 
 class Seat
 {
@@ -208,15 +215,66 @@ public:
 
     void computeSeatBeforeSendingToClient();
 
+    //! \brief Gets the current research to do
+    bool isResearching() const
+    { return mCurrentResearch != nullptr; }
+
+    //! \brief Checks if the given spell is available for the Player. This check
+    //! should be done on server side to avoid cheating
+    bool isSpellAvailable(SpellType type) const;
+
+    //! \brief Checks if the given room is available for the Player. This check
+    //! should be done on server side to avoid cheating
+    bool isRoomAvailable(RoomType type) const;
+
+    //! \brief Checks if the given trap is available for the Player. This check
+    //! should be done on server side to avoid cheating
+    bool isTrapAvailable(TrapType type) const;
+
+    //! Returns true if the given ResearchType is already done for this player. False
+    //! otherwise
+    bool isResearchDone(ResearchType type) const;
+
+    //! Called when the research entity reaches its destination. From there, the researched
+    //! thing is available
+    //! Returns true if the type was inserted and false otherwise
+    bool addResearch(ResearchType type);
+
+    //! Called from the library as creatures are researching. When enough points are gathered,
+    //! the corresponding research will become available.
+    //! Returns the research done if enough points have been gathered and nullptr otherwise
+    const Research* addResearchPoints(int32_t points);
+
+    //! Used on both client and server side. On server side, the research tree's validity will be
+    //! checked. If ok, it will be sent to the client. If not, the research tree will not be
+    //! changed. Note that the order of the research matters as the first researches in the given
+    //! vector can needed for the next ones
+    void setResearchTree(const std::vector<ResearchType>& researches);
+
+    //! Used on both client and server side
+    void setResearchesDone(const std::vector<ResearchType>& researches);
+
+    inline bool getNeedRefreshGuiResearchDone() const
+    { return mNeedRefreshGuiResearchDone; }
+
+    inline void guiResearchRefreshedDone()
+    { mNeedRefreshGuiResearchDone = false; }
+
+    inline bool getNeedRefreshGuiResearchPending() const
+    { return mNeedRefreshGuiResearchPending; }
+
+    inline void guiResearchRefreshedPending()
+    { mNeedRefreshGuiResearchPending = false; }
+
     static bool sortForMapSave(Seat* s1, Seat* s2);
 
     static Seat* getRogueSeat(GameMap* gameMap);
 
-    static std::string getFormat();
     friend ODPacket& operator<<(ODPacket& os, Seat *s);
     friend ODPacket& operator>>(ODPacket& is, Seat *s);
-    friend std::ostream& operator<<(std::ostream& os, Seat *s);
 
+    bool importSeatFromStream(std::istream& is);
+    bool exportSeatToStream(std::ostream& os) const;
     static void loadFromLine(const std::string& line, Seat *s);
     static const std::string getFactionFromLine(const std::string& line);
 
@@ -309,6 +367,34 @@ private:
     int mNbTreasuries;
 
     bool mIsDebuggingVision;
+
+    //! \brief Counter for research points
+    int32_t mResearchPoints;
+
+    //! \brief Currently researched Research. This pointer is external and should not be deleted
+    const Research* mCurrentResearch;
+
+    //! \brief true if the available list of research changed. False otherwise. This will be pulled
+    //! by the GameMode to know if it should refresh GUI or not.
+    bool mNeedRefreshGuiResearchDone;
+
+    //! true if the pending researches have changed. False otherwise. This will be pulled
+    //! by the GameMode to know if it should refresh GUI or not.
+    bool mNeedRefreshGuiResearchPending;
+
+    //! \brief Researches already done. This is used on both client and server side and should be updated
+    std::vector<ResearchType> mResearchDone;
+
+    //! \brief Researches pending. Used on server side only
+    std::vector<ResearchType> mResearchPending;
+
+    //! \brief Researches not allowed. Used on server side only
+    std::vector<ResearchType> mResearchNotAllowed;
+
+    //! \brief Sets mCurrentResearch to the first entry in mResearchPending. If the pending
+    //! list in empty, mCurrentResearch will be set to null
+    //! researchedType is the currently researched type if any (nullResearchType if none)
+    void setNextResearch(ResearchType researchedType);
 };
 
 #endif // SEAT_H

@@ -45,7 +45,10 @@ enum class ResearchType
 
     // Spells
     spellSummonWorker,
-    spellCallToWar
+    spellCallToWar,
+
+    // This should be the last
+    countResearch
 };
 
 ODPacket& operator<<(ODPacket& os, const ResearchType& type);

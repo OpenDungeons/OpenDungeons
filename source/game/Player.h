@@ -193,8 +193,6 @@ public:
 
     void setCurrentAction(SelectedAction action);
 
-    void initPlayer();
-
     //! \brief Notify the player is fighting
     //! Should be called on the server game map for human players only. tile represents
     //! the place where the fight is happening and player is the Player actually fighting
@@ -207,57 +205,6 @@ public:
     //! \brief Allows to handle timed events like fighting music
     //! Should be called on the server game map for human players only
     void updateTime(Ogre::Real timeSinceLastUpdate);
-
-    //! \brief Checks if the given spell is available for the Player. This check
-    //! should be done on server side to avoid cheating
-    bool isSpellAvailableForPlayer(SpellType type) const;
-
-    //! \brief Gets the current research to do
-    bool isResearching() const
-    { return mCurrentResearch != nullptr; }
-
-    //! \brief Checks if the given room is available for the Player. This check
-    //! should be done on server side to avoid cheating
-    bool isRoomAvailableForPlayer(RoomType type) const;
-
-    //! \brief Checks if the given trap is available for the Player. This check
-    //! should be done on server side to avoid cheating
-    bool isTrapAvailableForPlayer(TrapType type) const;
-
-    //! Returns true if the given ResearchType is already done for this player. False
-    //! otherwise
-    bool isResearchDone(ResearchType type) const;
-
-    //! Called when the research entity reaches its destination. From there, the researched
-    //! thing is available
-    //! Returns true if the type was inserted and false otherwise
-    bool addResearch(ResearchType type);
-
-    //! Called from the library as creatures are researching. When enough points are gathered,
-    //! the corresponding research will become available.
-    //! Returns the research done if enough points have been gathered and nullptr otherwise
-    const Research* addResearchPoints(int32_t points);
-
-    //! Used on both client and server side. On server side, the research tree's validity will be
-    //! checked. If ok, it will be sent to the client. If not, the research tree will not be
-    //! changed. Note that the order of the research matters as the first researches in the given
-    //! vector can needed for the next ones
-    void setResearchTree(const std::vector<ResearchType>& researches);
-
-    //! Used on both client and server side
-    void setResearchesDone(const std::vector<ResearchType>& researches);
-
-    inline bool getNeedRefreshGuiResearchDone() const
-    { return mNeedRefreshGuiResearchDone; }
-
-    inline void guiResearchRefreshedDone()
-    { mNeedRefreshGuiResearchDone = false; }
-
-    inline bool getNeedRefreshGuiResearchPending() const
-    { return mNeedRefreshGuiResearchPending; }
-
-    inline void guiResearchRefreshedPending()
-    { mNeedRefreshGuiResearchPending = false; }
 
     void fireEvents();
 
@@ -301,26 +248,6 @@ private:
 
     bool mIsPlayerLostSent;
 
-    //! \brief Counter for research points
-    int32_t mResearchPoints;
-
-    //! \brief Currently researched Research. This pointer is external and should not be deleted
-    const Research* mCurrentResearch;
-
-    //! \brief true if the available list of research changed. False otherwise. This will be pulled
-    //! by the GameMode to know if it should refresh GUI or not.
-    bool mNeedRefreshGuiResearchDone;
-
-    //! true if the pending researches have changed. False otherwise. This will be pulled
-    //! by the GameMode to know if it should refresh GUI or not.
-    bool mNeedRefreshGuiResearchPending;
-
-    //! \brief Researches already done. This is used on both client and server side and should be updated
-    std::vector<ResearchType> mResearchDone;
-
-    //! \brief Researches pending. Used on server side only
-    std::vector<ResearchType> mResearchPending;
-
     //! \brief List of tiles there is an event on. Used on client and server
     std::vector<PlayerEvent*> mEvents;
 
@@ -328,11 +255,6 @@ private:
     //! note this should NOT be called directly for creatures on the map,
     //! for that you should use the correct function like pickUpEntity() instead.
     void addEntityToHand(GameEntity *entity);
-
-    //! \brief Sets mCurrentResearch to the first entry in mResearchPending. If the pending
-    //! list in empty, mCurrentResearch will be set to null
-    //! researchedType is the currently researched type if any (nullResearchType if none)
-    void setNextResearch(ResearchType researchedType);
 };
 
 #endif // PLAYER_H

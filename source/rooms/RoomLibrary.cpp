@@ -141,7 +141,7 @@ bool RoomLibrary::hasOpenCreatureSpot(Creature* c)
     if(getSeat()->getPlayer() == nullptr)
         return false;
 
-    if(!getSeat()->getPlayer()->isResearching())
+    if(!getSeat()->isResearching())
         return false;
 
     // We accept all creatures as soon as there are free active spots
@@ -208,7 +208,7 @@ void RoomLibrary::doUpkeep()
         return;
 
     // If there is nothing to do, we remove the working creatures if any
-    if(!getSeat()->getPlayer()->isResearching())
+    if(!getSeat()->isResearching())
     {
         if(mCreaturesSpots.empty())
             return;
@@ -274,7 +274,7 @@ void RoomLibrary::doUpkeep()
                     ConfigManager::getSingleton().getRoomConfigUInt32("LibraryCooldownWorkMax")));
 
                 // We check if we have enough points for the current research
-                const Research* researchDone = getSeat()->getPlayer()->addResearchPoints(pointsEarned);
+                const Research* researchDone = getSeat()->addResearchPoints(pointsEarned);
                 if(researchDone == nullptr)
                     continue;
 

@@ -905,6 +905,15 @@ void GameMap::createAllEntities()
         }
     }
 
+    // Create OGRE entities for rendered entities
+    // Note that RenderedMovableEntity should be created before rooms and traps
+    // because they might create new ones (building objects).
+    for (RenderedMovableEntity* rendered : mRenderedMovableEntities)
+    {
+        rendered->createMesh();
+        rendered->setPosition(rendered->getPosition(), false);
+    }
+
     // Create OGRE entities for the creatures
     for (Creature* creature : mCreatures)
     {
@@ -940,12 +949,6 @@ void GameMap::createAllEntities()
         spell->setPosition(spell->getPosition(), false);
     }
 
-    // Create OGRE entities for rendered entities
-    for (RenderedMovableEntity* rendered : mRenderedMovableEntities)
-    {
-        rendered->createMesh();
-        rendered->setPosition(rendered->getPosition(), false);
-    }
     LogManager::getSingleton().logMessage("entities created");
 }
 
