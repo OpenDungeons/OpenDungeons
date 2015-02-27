@@ -325,6 +325,11 @@ void MovableGameEntity::importFromStream(std::istream& is)
     // about animation (like importFromPacket does)
 }
 
+std::string MovableGameEntity::getMovableGameEntityStreamFormat()
+{
+    return GameEntity::getGameEntityStreamFormat();
+}
+
 void MovableGameEntity::exportToPacket(ODPacket& os) const
 {
     GameEntity::exportToPacket(os);

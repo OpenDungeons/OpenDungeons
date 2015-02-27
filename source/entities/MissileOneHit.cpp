@@ -61,3 +61,17 @@ MissileOneHit* MissileOneHit::getMissileOneHitFromPacket(GameMap* gameMap, ODPac
     MissileOneHit* obj = new MissileOneHit(gameMap);
     return obj;
 }
+
+void MissileOneHit::exportToStream(std::ostream& os) const
+{
+    MissileObject::exportToStream(os);
+    os << mPhysicalDamage << "\t";
+    os << mMagicalDamage << "\t";
+}
+
+void MissileOneHit::importFromStream(std::istream& is)
+{
+    MissileObject::importFromStream(is);
+    OD_ASSERT_TRUE(is >> mPhysicalDamage);
+    OD_ASSERT_TRUE(is >> mMagicalDamage);
+}

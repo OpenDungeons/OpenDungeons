@@ -345,8 +345,8 @@ void ODServer::serverThread()
                     if(seat->getPlayer() == nullptr)
                         continue;
 
-                    if(seat->getStartingGold() > 0)
-                        gameMap->addGoldToSeat(seat->getStartingGold(), seat->getId());
+                    if(seat->getGold() > 0)
+                        gameMap->addGoldToSeat(seat->getGold(), seat->getId());
                 }
             }
             else

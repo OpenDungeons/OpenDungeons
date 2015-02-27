@@ -111,8 +111,20 @@ CraftedTrap* CraftedTrap::getCraftedTrapFromPacket(GameMap* gameMap, ODPacket& i
     return obj;
 }
 
-const char* CraftedTrap::getFormat()
+void CraftedTrap::exportToStream(std::ostream& os) const
 {
-    // TODO : implement saving/loading in the level file
-    return "position";
+    RenderedMovableEntity::exportToStream(os);
+    os << mTrapType << mPosition.x << "\t" << mPosition.y << "\t" << mPosition.z << "\t";
+}
+
+void CraftedTrap::importFromStream(std::istream& is)
+{
+    RenderedMovableEntity::importFromStream(is);
+    OD_ASSERT_TRUE(is >> mTrapType >> mPosition.x >> mPosition.y >> mPosition.z);
+}
+
+std::string CraftedTrap::getCraftedTrapStreamFormat()
+{
+    return RenderedMovableEntity::getRenderedMovableEntityStreamFormat()
+        + "trapType\tPosX\tPosY\tPosZ\t";
 }

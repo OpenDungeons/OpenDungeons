@@ -193,9 +193,10 @@ void RenderedMovableEntity::fireRemoveEntity(Seat* seat)
     ODServer::getSingleton().queueServerNotification(serverNotification);
 }
 
-const char* RenderedMovableEntity::getFormat()
+std::string RenderedMovableEntity::getRenderedMovableEntityStreamFormat()
 {
-    return "name\tmeshName";
+    return MovableGameEntity::getMovableGameEntityStreamFormat()
+        + "opacity\trotationAngle\t";
 }
 
 std::vector<Tile*> RenderedMovableEntity::getCoveredTiles()

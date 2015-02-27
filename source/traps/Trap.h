@@ -189,7 +189,7 @@ public:
     virtual void exportToPacket(ODPacket& os) const override;
     virtual void importFromPacket(ODPacket& is) override;
 
-    static std::string getFormat();
+    static std::string getTrapStreamFormat();
 
 protected:
     virtual RenderedMovableEntity* notifyActiveSpotCreated(Tile* tile);

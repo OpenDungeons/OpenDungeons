@@ -289,8 +289,20 @@ ChickenEntity* ChickenEntity::getChickenEntityFromPacket(GameMap* gameMap, ODPac
     return obj;
 }
 
-const char* ChickenEntity::getFormat()
+void ChickenEntity::exportToStream(std::ostream& os) const
 {
-    // TODO : implement saving/loading in the level file
-    return "position";
+    RenderedMovableEntity::exportToStream(os);
+    os << mPosition.x << "\t" << mPosition.y << "\t" << mPosition.z << "\t";
+}
+
+void ChickenEntity::importFromStream(std::istream& is)
+{
+    RenderedMovableEntity::importFromStream(is);
+    OD_ASSERT_TRUE(is >> mPosition.x >> mPosition.y >> mPosition.z);
+}
+
+std::string ChickenEntity::getChickenEntityStreamFormat()
+{
+    return RenderedMovableEntity::getRenderedMovableEntityStreamFormat()
+        + "PosX\tPosY\tPosZ\t";
 }

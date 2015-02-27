@@ -72,7 +72,7 @@ public:
     GameMap(bool isServerGameMap);
     ~GameMap();
 
-    const std::string serverStr()
+    inline const std::string serverStr()
     { return std::string( mIsServerGameMap ? "SERVER - " : "CLIENT - "); }
 
     //! \brief Tells whether the game map is currently used for the map editor mode
@@ -119,10 +119,11 @@ public:
     /** \brief Adds the given map light to the queue to be deleted at the end of the turn. */
     void queueMapLightForDeletion(MapLight *ml);
 
-    //! \brief Returns a pointer to the creature whose name matches name
+    //! \brief Returns a pointer to the creature whose name matches name or
+    //! nullptr if it is not found
     Creature* getCreature(const std::string& cName) const;
 
-    bool getIsFOWActivated() const
+    inline bool getIsFOWActivated() const
     { return mIsFOWActivated; }
 
     //! \brief Returns a vector containing all the creatures controlled by the given seat.
@@ -139,9 +140,7 @@ public:
     void clearAnimatedObjects();
     void addAnimatedObject(MovableGameEntity *a);
     void removeAnimatedObject(MovableGameEntity *a);
-    MovableGameEntity* getAnimatedObject(int index);
-    MovableGameEntity* getAnimatedObject(const std::string& name);
-    unsigned int numAnimatedObjects();
+    MovableGameEntity* getAnimatedObject(const std::string& name) const;
 
     void addActiveObject(GameEntity* a);
     void removeActiveObject(GameEntity* a);
@@ -198,7 +197,8 @@ public:
     Room* getRoom(int index);
 
     //! \brief A simple accessor method to return the number of Rooms stored in the GameMap.
-    unsigned int numRooms();
+    inline const std::vector<Room*>& getRooms() const
+    { return mRooms; }
 
     std::vector<Room*> getRoomsByType(RoomType type);
     std::vector<Room*> getRoomsByTypeAndSeat(RoomType type,
@@ -218,8 +218,8 @@ public:
     void clearTraps();
     void addTrap(Trap *t);
     void removeTrap(Trap *t);
-    Trap* getTrap(int index);
-    unsigned int numTraps();
+    inline const std::vector<Trap*>& getTraps() const
+    { return mTraps; }
 
     //! \brief Map Lights related functions.
     void clearMapLights();
@@ -238,26 +238,18 @@ public:
     //! \brief Assigns an ai to the chosen player
     bool assignAI(Player& player, const std::string& aiType, const std::string& parameters = std::string());
 
-    //! \brief Returns a pointer to the i'th player structure stored by this GameMap.
-    Player* getPlayer(unsigned int index);
-    const Player* getPlayer(unsigned int index) const;
-
     //! \brief Returns a pointer to the player structure stored by this GameMap whose name matches pName.
-    Player* getPlayer(const std::string& cName);
-    const Player* getPlayer(const std::string& cName) const;
+    Player* getPlayer(const std::string& cName) const;
 
-    const std::vector<Player*>& getPlayers() const
+    inline const std::vector<Player*>& getPlayers() const
     { return mPlayers; }
 
-    const std::vector<Seat*>& getSeats() const
+    inline const std::vector<Seat*>& getSeats() const
     { return mSeats; }
 
     //! \brief Returns a pointer to the player structure stored by this GameMap whose seat id matches seatId.
-    Player* getPlayerBySeatId(int seatId);
-    Player* getPlayerBySeat(Seat* seat);
-
-    //! \brief Returns the number of player structures stored in this GameMap.
-    unsigned int numPlayers() const;
+    Player* getPlayerBySeatId(int seatId) const;
+    Player* getPlayerBySeat(Seat* seat) const;
 
     //! \brief A simple mutator method to clear the vector of Seats stored in the GameMap.
     void clearSeats();
@@ -274,18 +266,15 @@ public:
 
     Seat* getSeatById(int id) const;
 
-    Seat* getSeatRogue() const
+    inline Seat* getSeatRogue() const
     { return getSeatById(0); }
 
     void addWinningSeat(Seat *s);
-    Seat* getWinningSeat(unsigned int index);
-    unsigned int getNumWinningSeats();
-    bool seatIsAWinner(Seat *s);
+    bool seatIsAWinner(Seat *s) const;
 
     void addGoalForAllSeats(Goal *g);
-    Goal* getGoalForAllSeats(unsigned int i);
-    const Goal* getGoalForAllSeats(unsigned int i) const;
-    unsigned int numGoalsForAllSeats() const;
+    inline const std::vector<Goal*>& getGoalsForAllSeats() const
+    { return mGoalsForAllSeats; }
     void clearGoalsForAllSeats();
 
     int getTotalGoldForSeat(Seat* seat);
@@ -415,30 +404,20 @@ public:
     //! \brief Updates the different entities animations.
     void updateAnimations(Ogre::Real timeSinceLastFrame);
 
-    int64_t getTurnNumber() const
-    {
-        return mTurnNumber;
-    }
+    inline int64_t getTurnNumber() const
+    { return mTurnNumber; }
 
-    void setTurnNumber(int64_t turnNumber)
-    {
-        mTurnNumber = turnNumber;
-    }
+    inline void setTurnNumber(int64_t turnNumber)
+    { mTurnNumber = turnNumber; }
 
-    bool isServerGameMap() const
-    {
-        return mIsServerGameMap;
-    }
+    inline bool isServerGameMap() const
+    { return mIsServerGameMap; }
 
-    bool getGamePaused() const
-    {
-        return mIsPaused;
-    }
+    inline bool getGamePaused() const
+    { return mIsPaused; }
 
-    void setGamePaused(bool paused)
-    {
-        mIsPaused = paused;
-    }
+    inline void setGamePaused(bool paused)
+    { mIsPaused = paused; }
 
     //! \brief Refresh the tiles borders based a recent change on the map
     void refreshBorderingTilesOf(const std::vector<Tile*>& affectedTiles);
@@ -490,6 +469,8 @@ public:
         const std::string& entityName);
 
     //! brief Functions to add/remove/get Spells
+    inline const std::vector<Spell*>& getSpells() const
+    { return mSpells; }
     void addSpell(Spell *spell);
     void removeSpell(Spell *spell);
     Spell* getSpell(const std::string& name) const;
@@ -510,7 +491,7 @@ public:
 
     void updateVisibleEntities();
 
-    const std::vector<RenderedMovableEntity*>& getRenderedMovableEntities() const
+    inline const std::vector<RenderedMovableEntity*>& getRenderedMovableEntities() const
     { return mRenderedMovableEntities; }
 
 private:

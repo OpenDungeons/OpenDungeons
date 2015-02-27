@@ -181,10 +181,9 @@ Command::Result cList(const Command::ArgumentList_t& args, ConsoleInterface& c, 
         {
             stringStr << "Player:\tNick:\tSeatId\tTeamId:\n\n";
 
-            for (unsigned int i = 0; i < gameMap->numPlayers(); ++i)
+            for (Player* player : gameMap->getPlayers())
             {
-                Player* player = gameMap->getPlayer(i);
-                stringStr << i << "\t\t" << player->getNick() << "\t"
+                stringStr << player->getId() << "\t\t" << player->getNick() << "\t"
                         << player->getSeat()->getId() << "\t"
                         << player->getSeat()->getTeamId() << "\n\n";
             }
@@ -208,9 +207,8 @@ Command::Result cList(const Command::ArgumentList_t& args, ConsoleInterface& c, 
     else if (args[1].compare("rooms") == 0)
     {
         stringStr << "Name:\tSeat Id:\tNum tiles:\n\n";
-        for (unsigned int i = 0 ; i < gameMap->numRooms(); ++i)
+        for (Room* room : gameMap->getRooms())
         {
-            Room* room = gameMap->getRoom(i);
             stringStr << room->getName() << "\t" << room->getSeat()->getId()
                     << "\t" << room->numCoveredTiles() << "\n";
         }

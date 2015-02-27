@@ -53,7 +53,6 @@ Seat::Seat(GameMap* gameMap) :
     mStartingY(0),
     mGoldMined(0),
     mNumCreaturesControlled(0),
-    mStartingGold(0),
     mDefaultWorkerClass(nullptr),
     mNumClaimedTiles(0),
     mHasGoalsChanged(true),
@@ -678,7 +677,7 @@ void Seat::computeSeatBeforeSendingToClient()
 
 std::string Seat::getFormat()
 {
-    return "seatId\tteamId\tplayer\tfaction\tstartingX\tstartingY\tcolor\tstartingGold";
+    return "seatId\tteamId\tplayer\tfaction\tstartingX\tstartingY\tcolor\tgold\tgoldMined\tmana";
 }
 
 ODPacket& operator<<(ODPacket& os, Seat *s)
@@ -739,7 +738,9 @@ Seat* Seat::getRogueSeat(GameMap* gameMap)
     seat->mPlayerType = PLAYER_TYPE_INACTIVE;
     seat->mStartingX = 0;
     seat->mStartingY = 0;
-    seat->mStartingGold = 0;
+    seat->mGold = 0;
+    seat->mGoldMined = 0;
+    seat->mMana = 0;
     return seat;
 }
 
@@ -765,7 +766,9 @@ void Seat::loadFromLine(const std::string& line, Seat *s)
     s->mStartingX = Helper::toInt(elems[i++]);
     s->mStartingY = Helper::toInt(elems[i++]);
     s->mColorId = elems[i++];
-    s->mStartingGold = Helper::toInt(elems[i++]);
+    s->mGold = Helper::toInt(elems[i++]);
+    s->mGoldMined = Helper::toInt(elems[i++]);
+    s->mMana = Helper::toInt(elems[i++]);
     s->mColorValue = ConfigManager::getSingleton().getColorFromId(s->mColorId);
 }
 
@@ -820,6 +823,8 @@ std::ostream& operator<<(std::ostream& os, Seat *s)
     os << "\t" << s->mPlayerType << "\t" << s->mFaction << "\t" << s->mStartingX
        << "\t"<< s->mStartingY;
     os << "\t" << s->mColorId;
-    os << "\t" << s->mStartingGold;
+    os << "\t" << s->mGold;
+    os << "\t" << s->mGoldMined;
+    os << "\t" << s->mMana;
     return os;
 }

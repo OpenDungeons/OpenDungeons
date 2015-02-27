@@ -191,19 +191,41 @@ void MissileObject::exportHeadersToPacket(ODPacket& os)
     os << getMissileType();
 }
 
+void MissileObject::exportToStream(std::ostream& os) const
+{
+    RenderedMovableEntity::exportToStream(os);
+    os << mDirection.x << "\t" << mDirection.y << "\t" << mDirection.z << "\t";
+    os << mIsMissileAlive << "\t";
+    os << mDamageAllies << "\t";
+}
+
+void MissileObject::importFromStream(std::istream& is)
+{
+    RenderedMovableEntity::importFromStream(is);
+    OD_ASSERT_TRUE(is >> mDirection.x >> mDirection.y >> mDirection.z);
+    OD_ASSERT_TRUE(is >> mIsMissileAlive);
+    OD_ASSERT_TRUE(is >> mDamageAllies);
+}
+
+std::string MissileObject::getMissileObjectStreamFormat()
+{
+    return "missileType\t" + RenderedMovableEntity::getRenderedMovableEntityStreamFormat()
+    + "directionX\tdirectionY\tdirectionZ\tmissileAlive\tdamageAllies\toptionalData\t";
+}
+
 MissileObject* MissileObject::getMissileObjectFromStream(GameMap* gameMap, std::istream& is)
 {
     MissileObject* obj = nullptr;
-    MissileType type;
+    MissileObjectType type;
     OD_ASSERT_TRUE(is >> type);
     switch(type)
     {
-        case MissileType::oneHit:
+        case MissileObjectType::oneHit:
         {
             obj = MissileOneHit::getMissileOneHitFromStream(gameMap, is);
             break;
         }
-        case MissileType::boulder:
+        case MissileObjectType::boulder:
         {
             obj = MissileBoulder::getMissileBoulderFromStream(gameMap, is);
             break;
@@ -219,16 +241,16 @@ MissileObject* MissileObject::getMissileObjectFromStream(GameMap* gameMap, std::
 MissileObject* MissileObject::getMissileObjectFromPacket(GameMap* gameMap, ODPacket& is)
 {
     MissileObject* obj = nullptr;
-    MissileType type;
+    MissileObjectType type;
     OD_ASSERT_TRUE(is >> type);
     switch(type)
     {
-        case MissileType::oneHit:
+        case MissileObjectType::oneHit:
         {
             obj = MissileOneHit::getMissileOneHitFromPacket(gameMap, is);
             break;
         }
-        case MissileType::boulder:
+        case MissileObjectType::boulder:
         {
             obj = MissileBoulder::getMissileBoulderFromPacket(gameMap, is);
             break;
@@ -241,32 +263,32 @@ MissileObject* MissileObject::getMissileObjectFromPacket(GameMap* gameMap, ODPac
     return obj;
 }
 
-ODPacket& operator<<(ODPacket& os, const MissileObject::MissileType& type)
+ODPacket& operator<<(ODPacket& os, const MissileObjectType& type)
 {
-    uint32_t intType = static_cast<MissileObject::MissileType>(type);
+    uint32_t intType = static_cast<uint32_t>(type);
     os << intType;
     return os;
 }
 
-ODPacket& operator>>(ODPacket& is, MissileObject::MissileType& type)
+ODPacket& operator>>(ODPacket& is, MissileObjectType& type)
 {
     uint32_t intType;
     is >> intType;
-    type = static_cast<MissileObject::MissileType>(intType);
+    type = static_cast<MissileObjectType>(intType);
     return is;
 }
 
-std::ostream& operator<<(std::ostream& os, const MissileObject::MissileType& type)
+std::ostream& operator<<(std::ostream& os, const MissileObjectType& type)
 {
-    uint32_t intType = static_cast<MissileObject::MissileType>(type);
+    uint32_t intType = static_cast<uint32_t>(type);
     os << intType;
     return os;
 }
 
-std::istream& operator>>(std::istream& is, MissileObject::MissileType& type)
+std::istream& operator>>(std::istream& is, MissileObjectType& type)
 {
     uint32_t intType;
     is >> intType;
-    type = static_cast<MissileObject::MissileType>(intType);
+    type = static_cast<MissileObjectType>(intType);
     return is;
 }

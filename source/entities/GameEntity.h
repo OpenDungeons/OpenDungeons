@@ -306,8 +306,10 @@ class GameEntity
     virtual void exportToPacket(ODPacket& os) const;
     virtual void importFromPacket(ODPacket& is);
 
-    static GameEntity* getGameEntityeEntityFromStream(GameMap* gameMap, std::istream& is);
+    static GameEntity* getGameEntityeEntityFromStream(GameMap* gameMap, GameEntityType type, std::istream& is);
     static GameEntity* getGameEntityFromPacket(GameMap* gameMap, ODPacket& is);
+
+    static std::string getGameEntityStreamFormat();
 
   protected:
     //! \brief Function that implements the mesh creation

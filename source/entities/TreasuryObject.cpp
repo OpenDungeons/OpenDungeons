@@ -237,12 +237,6 @@ const char* TreasuryObject::getMeshNameForGold(int gold)
     return "GoldstackLv4";
 }
 
-const char* TreasuryObject::getFormat()
-{
-    // TODO : implement saving/loading in the level file
-    return "position\tvalue";
-}
-
 TreasuryObject* TreasuryObject::getTreasuryObjectFromStream(GameMap* gameMap, std::istream& is)
 {
     TreasuryObject* obj = new TreasuryObject(gameMap);
@@ -277,4 +271,10 @@ void TreasuryObject::importFromStream(std::istream& is)
 {
     RenderedMovableEntity::importFromStream(is);
     OD_ASSERT_TRUE(is >> mGoldValue);
+}
+
+std::string TreasuryObject::getTreasuryObjectStreamFormat()
+{
+    return RenderedMovableEntity::getRenderedMovableEntityStreamFormat()
+        + "value\t";
 }

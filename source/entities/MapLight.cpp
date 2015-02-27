@@ -264,7 +264,7 @@ void MapLight::slap()
     return;
 }
 
-std::string MapLight::getFormat()
+std::string MapLight::getMapLightStreamFormat()
 {
     return "posX\tposY\tposZ\tdiffuseR\tdiffuseG\tdiffuseB\tspecularR\tspecularG\tspecularB\tattenRange\tattenConst\tattenLin\tattenQuad";
 }

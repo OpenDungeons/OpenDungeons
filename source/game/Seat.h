@@ -140,9 +140,6 @@ public:
 
     bool takeMana(double mana);
 
-    inline int getStartingGold() const
-    { return mStartingGold; }
-
     inline Ogre::Vector3 getStartingPosition() const
     { return Ogre::Vector3(static_cast<Ogre::Real>(mStartingX), static_cast<Ogre::Real>(mStartingY), 0); }
 
@@ -174,9 +171,7 @@ public:
 
     //! \brief Returns the first (default) worker class definition.
     inline const CreatureDefinition* getWorkerClassToSpawn()
-    {
-        return mDefaultWorkerClass;
-    }
+    { return mDefaultWorkerClass; }
 
     //! \brief Returns true if the given seat is allied. False otherwise
     bool isAlliedSeat(Seat *seat);
@@ -208,7 +203,7 @@ public:
     void refreshVisualDebugEntities(const std::vector<Tile*>& tiles);
     void stopVisualDebugEntities();
 
-    const std::vector<Seat*>& getAlliedSeats()
+    inline const std::vector<Seat*>& getAlliedSeats()
     { return mAlliedSeats; }
 
     void computeSeatBeforeSendingToClient();
@@ -264,8 +259,6 @@ private:
     int mGoldMined;
 
     int mNumCreaturesControlled;
-
-    int mStartingGold;
 
     //! \brief The actual color that this color index translates into.
     std::string mColorId;

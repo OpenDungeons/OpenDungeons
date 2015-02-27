@@ -893,6 +893,16 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
         popupExit(!mGameMap->getGamePaused());
         break;
 
+    case OIS::KC_F8:
+        if(ODClient::getSingleton().isConnected())
+        {
+            // Send a message to the server telling it we want to drop the creature
+            ClientNotification *clientNotification = new ClientNotification(
+                ClientNotificationType::editorAskSaveMap);
+            ODClient::getSingleton().queueClientNotification(clientNotification);
+        }
+        break;
+
     // Print a screenshot
     case OIS::KC_SYSRQ:
         ResourceManager::getSingleton().takeScreenshot(frameListener.getRenderWindow());

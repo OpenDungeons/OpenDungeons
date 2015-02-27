@@ -50,6 +50,8 @@ enum class ResearchType
 
 ODPacket& operator<<(ODPacket& os, const ResearchType& type);
 ODPacket& operator>>(ODPacket& is, ResearchType& type);
+std::ostream& operator<<(std::ostream& os, const ResearchType& type);
+std::istream& operator>>(std::istream& is, ResearchType& type);
 
 class Research
 {

@@ -86,3 +86,17 @@ MissileBoulder* MissileBoulder::getMissileBoulderFromPacket(GameMap* gameMap, OD
     MissileBoulder* obj = new MissileBoulder(gameMap);
     return obj;
 }
+
+void MissileBoulder::exportToStream(std::ostream& os) const
+{
+    MissileObject::exportToStream(os);
+    os << mDamage << "\t";
+    os << mNbHits << "\t";
+}
+
+void MissileBoulder::importFromStream(std::istream& is)
+{
+    MissileObject::importFromStream(is);
+    OD_ASSERT_TRUE(is >> mDamage);
+    OD_ASSERT_TRUE(is >> mNbHits);
+}

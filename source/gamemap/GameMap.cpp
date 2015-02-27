@@ -801,15 +801,7 @@ void GameMap::removeAnimatedObject(MovableGameEntity *a)
     mAnimatedObjects.erase(it);
 }
 
-MovableGameEntity* GameMap::getAnimatedObject(int index)
-{
-    OD_ASSERT_TRUE_MSG(index < static_cast<int>(mAnimatedObjects.size()), "index=" + Ogre::StringConverter::toString(index));
-    MovableGameEntity* tempAnimatedObject = mAnimatedObjects[index];
-
-    return tempAnimatedObject;
-}
-
-MovableGameEntity* GameMap::getAnimatedObject(const std::string& name)
+MovableGameEntity* GameMap::getAnimatedObject(const std::string& name) const
 {
     for (MovableGameEntity* mge : mAnimatedObjects)
     {
@@ -847,12 +839,6 @@ RenderedMovableEntity* GameMap::getRenderedMovableEntity(const std::string& name
             return renderedMovableEntity;
     }
     return nullptr;
-}
-
-
-unsigned int GameMap::numAnimatedObjects()
-{
-    return mAnimatedObjects.size();
 }
 
 void GameMap::addActiveObject(GameEntity *a)
@@ -945,6 +931,20 @@ void GameMap::createAllEntities()
     {
         trap->createMesh();
         trap->updateActiveSpots();
+    }
+
+    // Create OGRE entities for spells
+    for (Spell* spell : mSpells)
+    {
+        spell->createMesh();
+        spell->setPosition(spell->getPosition(), false);
+    }
+
+    // Create OGRE entities for rendered entities
+    for (RenderedMovableEntity* rendered : mRenderedMovableEntities)
+    {
+        rendered->createMesh();
+        rendered->setPosition(rendered->getPosition(), false);
     }
     LogManager::getSingleton().logMessage("entities created");
 }
@@ -1589,21 +1589,7 @@ bool GameMap::assignAI(Player& player, const std::string& aiType, const std::str
     return false;
 }
 
-Player* GameMap::getPlayer(unsigned int index)
-{
-    if (index < mPlayers.size())
-        return mPlayers[index];
-    return nullptr;
-}
-
-const Player* GameMap::getPlayer(unsigned int index) const
-{
-    if (index < mPlayers.size())
-        return mPlayers[index];
-    return nullptr;
-}
-
-Player* GameMap::getPlayer(const std::string& pName)
+Player* GameMap::getPlayer(const std::string& pName) const
 {
     for (Player* player : mPlayers)
     {
@@ -1616,25 +1602,7 @@ Player* GameMap::getPlayer(const std::string& pName)
     return nullptr;
 }
 
-const Player* GameMap::getPlayer(const std::string& pName) const
-{
-    for (Player* player : mPlayers)
-    {
-        if (player->getNick().compare(pName) == 0)
-        {
-            return player;
-        }
-    }
-
-    return nullptr;
-}
-
-unsigned int GameMap::numPlayers() const
-{
-    return mPlayers.size();
-}
-
-Player* GameMap::getPlayerBySeatId(int seatId)
+Player* GameMap::getPlayerBySeatId(int seatId) const
 {
     for (Player* player : mPlayers)
     {
@@ -1644,7 +1612,7 @@ Player* GameMap::getPlayerBySeatId(int seatId)
     return nullptr;
 }
 
-Player* GameMap::getPlayerBySeat(Seat* seat)
+Player* GameMap::getPlayerBySeat(Seat* seat) const
 {
     for (Player* player : mPlayers)
     {
@@ -1744,16 +1712,6 @@ void GameMap::removeRoom(Room *r)
         return;
 
     mRooms.erase(it);
-}
-
-Room* GameMap::getRoom(int index)
-{
-    return mRooms[index];
-}
-
-unsigned int GameMap::numRooms()
-{
-    return mRooms.size();
 }
 
 std::vector<Room*> GameMap::getRoomsByType(RoomType type)
@@ -1912,16 +1870,6 @@ void GameMap::removeTrap(Trap *t)
     mTraps.erase(it);
 }
 
-Trap* GameMap::getTrap(int index)
-{
-    return mTraps[index];
-}
-
-unsigned int GameMap::numTraps()
-{
-    return mTraps.size();
-}
-
 int GameMap::getTotalGoldForSeat(Seat* seat)
 {
     int tempInt = 0;
@@ -2055,17 +2003,7 @@ void GameMap::addWinningSeat(Seat *s)
     mWinningSeats.push_back(s);
 }
 
-Seat* GameMap::getWinningSeat(unsigned int index)
-{
-    return mWinningSeats[index];
-}
-
-unsigned int GameMap::getNumWinningSeats()
-{
-    return mWinningSeats.size();
-}
-
-bool GameMap::seatIsAWinner(Seat *s)
+bool GameMap::seatIsAWinner(Seat *s) const
 {
     if(std::find(mWinningSeats.begin(), mWinningSeats.end(), s) != mWinningSeats.end())
         return true;
@@ -2080,21 +2018,6 @@ void GameMap::addGoalForAllSeats(Goal *g)
     // Add the goal to each of the empty seats currently in the game.
     for (Seat* seat : mSeats)
         seat->addGoal(g);
-}
-
-Goal* GameMap::getGoalForAllSeats(unsigned int i)
-{
-    return mGoalsForAllSeats[i];
-}
-
-const Goal* GameMap::getGoalForAllSeats(unsigned int i) const
-{
-    return mGoalsForAllSeats[i];
-}
-
-unsigned int GameMap::numGoalsForAllSeats() const
-{
-    return mGoalsForAllSeats.size();
 }
 
 void GameMap::clearGoalsForAllSeats()

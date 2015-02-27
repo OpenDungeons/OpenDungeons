@@ -93,6 +93,8 @@ public:
 
     virtual void restoreEntityState() override;
 
+    static std::string getMovableGameEntityStreamFormat();
+
 protected:
     std::deque<Ogre::Vector3> mWalkQueue;
 

@@ -36,25 +36,28 @@ public:
     ChickenEntity(GameMap* gameMap, const std::string& hatcheryName);
     ChickenEntity(GameMap* gameMap);
 
-    virtual void doUpkeep();
+    virtual void doUpkeep() override;
 
     virtual GameEntityType getObjectType() const override
     { return GameEntityType::chickenEntity; }
 
-    virtual bool tryPickup(Seat* seat);
-    virtual void pickup();
-    virtual bool tryDrop(Seat* seat, Tile* tile);
+    virtual bool tryPickup(Seat* seat) override;
+    virtual void pickup() override;
+    virtual bool tryDrop(Seat* seat, Tile* tile) override;
 
     bool eatChicken(Creature* creature);
 
-    bool canSlap(Seat* seat);
+    bool canSlap(Seat* seat) override;
 
-    void slap()
+    void slap() override
     { mIsSlapped = true; }
+
+    void exportToStream(std::ostream& os) const override;
+    void importFromStream(std::istream& is) override;
 
     static ChickenEntity* getChickenEntityFromStream(GameMap* gameMap, std::istream& is);
     static ChickenEntity* getChickenEntityFromPacket(GameMap* gameMap, ODPacket& is);
-    static const char* getFormat();
+    static std::string getChickenEntityStreamFormat();
 private:
     enum ChickenState
     {

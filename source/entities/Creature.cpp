@@ -337,10 +337,10 @@ void Creature::removeFromGameMap()
     getGameMap()->removeActiveObject(this);
 }
 
-
-std::string Creature::getFormat()
+std::string Creature::getCreatureStreamFormat()
 {
-    return "SeatId\tName\tMeshName\tPosX\tPosY\tPosZ\tClassName\tLevel\tCurrentXP\tCurrentHP\tCurrentAwakeness\t"
+    return MovableGameEntity::getMovableGameEntityStreamFormat()
+        + "ClassName\tLevel\tCurrentXP\tCurrentHP\tCurrentAwakeness\t"
            "CurrentHunger\tGoldToDeposit\tLeftWeapon\tRightWeapon";
 }
 

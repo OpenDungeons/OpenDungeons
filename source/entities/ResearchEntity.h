@@ -41,20 +41,23 @@ public:
     virtual GameEntityType getObjectType() const override
     { return GameEntityType::researchEntity; }
 
-    virtual const Ogre::Vector3& getScale() const;
+    virtual const Ogre::Vector3& getScale() const override;
 
     ResearchType getResearchType() const
     { return mResearchType; }
 
-    virtual EntityCarryType getEntityCarryType()
+    virtual EntityCarryType getEntityCarryType() override
     { return EntityCarryType::researchEntity; }
 
-    virtual void notifyEntityCarryOn(Creature* carrier);
-    virtual void notifyEntityCarryOff(const Ogre::Vector3& position);
+    virtual void notifyEntityCarryOn(Creature* carrier) override;
+    virtual void notifyEntityCarryOff(const Ogre::Vector3& position) override;
+
+    void exportToStream(std::ostream& os) const override;
+    void importFromStream(std::istream& is) override;
 
     static ResearchEntity* getResearchEntityFromStream(GameMap* gameMap, std::istream& is);
     static ResearchEntity* getResearchEntityFromPacket(GameMap* gameMap, ODPacket& is);
-    static const char* getFormat();
+    static std::string getResearchEntityStreamFormat();
 private:
     ResearchType mResearchType;
 };

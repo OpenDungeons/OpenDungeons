@@ -28,12 +28,12 @@ public:
     SpellCallToWar(GameMap* gameMap);
     virtual ~SpellCallToWar();
 
-    SpellType getSpellType() const
+    SpellType getSpellType() const override
     { return SpellType::callToWar; }
 
-    bool canSlap(Seat* seat);
+    bool canSlap(Seat* seat) override;
 
-    void slap();
+    void slap() override;
 
     static int getSpellCallToWarCost(GameMap* gameMap, const std::vector<Tile*>& tiles, Player* player);
 

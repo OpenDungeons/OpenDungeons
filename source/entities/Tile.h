@@ -184,12 +184,9 @@ public:
     //! \brief Tells whether the tile is selected for digging by any player/AI.
     bool isMarkedForDiggingByAnySeat();
 
-    //! \brief Add a player to the vector of players who have marked this tile for digging.
+    //! \brief Add/Remove a player to the vector of players who have marked this tile for digging.
     void addPlayerMarkingTile(Player *p);
-
     void removePlayerMarkingTile(Player *p);
-    unsigned numPlayersMarkingTile() const;
-    Player* getPlayerMarkingTile(int index);
 
     //! \brief This function adds an entity to the list of entities in this tile.
     bool addEntity(GameEntity *entity);
@@ -251,7 +248,7 @@ public:
 
     void exportToStream(std::ostream& os) const override;
 
-    static const char* getFormat();
+    static std::string getFormat();
 
     //! \brief Loads the tile data from a level line.
     static void loadFromLine(const std::string& line, Tile *t);

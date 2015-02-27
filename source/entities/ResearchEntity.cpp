@@ -22,6 +22,8 @@
 
 #include "network/ODPacket.h"
 
+#include "game/Research.h"
+
 #include "gamemap/GameMap.h"
 
 #include "traps/Trap.h"
@@ -91,8 +93,22 @@ ResearchEntity* ResearchEntity::getResearchEntityFromPacket(GameMap* gameMap, OD
     return obj;
 }
 
-const char* ResearchEntity::getFormat()
+void ResearchEntity::exportToStream(std::ostream& os) const
 {
-    // TODO : implement saving/loading in the level file
-    return "position";
+    RenderedMovableEntity::exportToStream(os);
+    os << mResearchType << "\t";
+    os << mPosition.x << "\t" << mPosition.y << "\t" << mPosition.z << "\t";
+}
+
+void ResearchEntity::importFromStream(std::istream& is)
+{
+    RenderedMovableEntity::importFromStream(is);
+    OD_ASSERT_TRUE(is >> mResearchType);
+    OD_ASSERT_TRUE(is >> mPosition.x >> mPosition.y >> mPosition.z);
+}
+
+std::string ResearchEntity::getResearchEntityStreamFormat()
+{
+    return RenderedMovableEntity::getRenderedMovableEntityStreamFormat()
+        + "researchType\tPosX\tPosY\tPosZ\t";
 }

@@ -515,7 +515,7 @@ bool Trap::isAttackable(Tile* tile, Seat* seat) const
     return true;
 }
 
-std::string Trap::getFormat()
+std::string Trap::getTrapStreamFormat()
 {
     return "typeTrap\tseatId\tnumTiles\t\tSubsequent Lines: tileX\ttileY\tisActivated(0/1)\t\tSubsequent Lines: optional specific data";
 }

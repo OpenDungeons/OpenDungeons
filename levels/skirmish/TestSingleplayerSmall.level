@@ -8,11 +8,11 @@ FightMusic	The_Dark_Amulet.ogg
 [/Info]
 
 [Seats]
-# seatId	teamId	player	faction	startingX	startingY	color	startingGold
-1	1/2	Human	Keeper	10	10	1	1000
-2	1/2	AI	Hero	10	40	2	1000
-3	3	Choice	Choice	40	10	3	1000
-4	3	Choice	Choice	40	40	4	1000
+# seatId	teamId	player	faction	startingX	startingY	color	gold	minedGold	mana
+1	1/2	Human	Keeper	10	10	1	1000	100	500
+2	1/2	AI	Hero	10	40	2	1000	100	500
+3	3	Choice	Choice	40	10	3	1000	100	500
+4	3	Choice	Choice	40	40	4	1000	100	500
 [/Seats]
 
 [Goals]
@@ -1031,3 +1031,27 @@ ProtectDungeonTemple	NULL
 0	Wyvern1	Wyvern	15	18	0	Wyvern	1	0	max	100	0	0	none	none
 2	DefaultWorker3	Kobold.mesh	12	9	0	DefaultWorker	1	0	max	100	0	0	none	none
 [/Creatures]
+
+[Spells]
+# typeSpell	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	optionalData	
+[/Spells]
+
+[CraftedTraps]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	trapType	PosX	PosY	PosZ	
+[/CraftedTraps]
+
+[ResearchEntity]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	researchType	PosX	PosY	PosZ	
+[/ResearchEntity]
+
+[Missiles]
+# missileType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	directionX	directionY	directionZ	missileAlive	damageAllies	optionalData	
+[/Missiles]
+
+[TreasuryObject]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	PosX	PosY	PosZ	value	
+[/TreasuryObject]
+
+[Chickens]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	PosX	PosY	PosZ	
+[/Chickens]
