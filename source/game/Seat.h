@@ -48,7 +48,7 @@ public:
     // Constructors
     Seat(GameMap* gameMap);
 
-    inline Player* getPlayer()
+    inline Player* getPlayer() const
     { return mPlayer; }
 
     //! \brief Adds a goal to the vector of goals which must be completed by this seat before it can be declared a winner.

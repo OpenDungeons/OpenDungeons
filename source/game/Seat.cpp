@@ -1003,9 +1003,24 @@ bool Seat::exportSeatToStream(std::ostream& os) const
     }
     os << std::endl;
 
-    os << "player\t";
-    os << mPlayerType;
-    os << std::endl;
+    // On editor, we write the original player type. If we are saving a game, we keep the assigned type
+    if((mGameMap->isInEditorMode()) ||
+       (getPlayer() == nullptr))
+    {
+        os << "player\t";
+        os << mPlayerType;
+        os << std::endl;
+    }
+    else
+    {
+        os << "player\t";
+        if(getPlayer()->getIsHuman())
+            os << PLAYER_TYPE_HUMAN;
+        else
+            os << PLAYER_TYPE_AI;
+
+        os << std::endl;
+    }
 
     os << "faction\t";
     os << mFaction;
