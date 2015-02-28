@@ -251,7 +251,11 @@ void RenderManager::rrRefreshTile(const Tile* curTile, const Player* localPlayer
     {
         case TileType::gold:
         {
-            ent->setMaterialName("Gold");
+            // Use the dirt ground tile for gold until a better ground gold tile is done.
+            if (curTile->getFullness() > 0.0)
+                ent->setMaterialName("Gold");
+            else
+                ent->setMaterialName("Dirt");
             break;
         }
         case TileType::rock:
@@ -286,7 +290,9 @@ void RenderManager::rrRefreshTile(const Tile* curTile, const Player* localPlayer
             break;
     }
 
-    colourizeEntity(ent, seatColorize, isMarked, vision);
+    // Water and Lava tiles (and other animated tiles) are always "visible" to avoid animation desync problems.
+    if (curTile->getType() != TileType::lava && curTile->getType() != TileType::water)
+        colourizeEntity(ent, seatColorize, isMarked, vision);
 }
 
 
@@ -303,7 +309,11 @@ void RenderManager::rrCreateTile(Tile* curTile, Player* localPlayer)
 
     if(curTile->getType() == TileType::gold)
     {
-        ent->setMaterialName("Gold");
+        // Use the dirt ground tile for gold until a better ground gold tile is done.
+        if (curTile->getFullness() > 0.0)
+            ent->setMaterialName("Gold");
+        else
+            ent->setMaterialName("Dirt");
     }
     else if(curTile->getType() == TileType::rock)
     {
@@ -319,7 +329,9 @@ void RenderManager::rrCreateTile(Tile* curTile, Player* localPlayer)
         }
     }
 
-    colourizeEntity(ent, curTile->getSeat(), false, true);
+    // Water and Lava tiles (and other animated tiles) are always "visible" to avoid animation desync problems.
+    if (curTile->getType() != TileType::lava && curTile->getType() != TileType::water)
+        colourizeEntity(ent, curTile->getSeat(), false, true);
 
     Ogre::SceneNode* node = mSceneManager->getRootSceneNode()->createChildSceneNode(curTile->getOgreNamePrefix() + curTile->getName() + "_node");
     curTile->setParentSceneNode(node->getParentSceneNode());
