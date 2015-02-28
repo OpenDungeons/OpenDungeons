@@ -908,10 +908,6 @@ void Creature::decidePrioritaryAction()
             // We check if we can attack a natural enemy
             if(Random::Int(0, 100) > 80)
             {
-                clearDestinations();
-                clearActionQueue();
-                stopJob();
-                stopEating();
                 pushAction(CreatureActionType::fightNaturalEnemy, true);
                 return;
             }
@@ -2823,6 +2819,13 @@ bool Creature::handleFightAlliedNaturalEnemyAction(const CreatureAction& actionI
     {
         if(entityAttack != nullptr)
         {
+            // We found a natural enemy. We stop what we were doing
+            clearDestinations();
+            clearActionQueue();
+            stopJob();
+            stopEating();
+
+            // And we attack
             OD_ASSERT_TRUE_MSG(entityAttack->getObjectType() == GameEntityType::creature, "attacker=" + getName() + ", attacked=" + entityAttack->getName());
             Creature* attackedCreature = static_cast<Creature*>(entityAttack);
             attackedCreature->engageAlliedNaturalEnemy(this);
