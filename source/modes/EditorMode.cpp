@@ -682,7 +682,7 @@ bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
 
     switch (arg.key)
     {
-    case OIS::KC_F8:
+    case OIS::KC_F5:
         onSaveButtonClickFromOptions();
         break;
 

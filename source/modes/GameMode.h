@@ -107,6 +107,7 @@ protected:
     //! \brief The different Game Options Menu handlers
     bool showQuitMenuFromOptions(const CEGUI::EventArgs& e = {});
     bool showObjectivesFromOptions(const CEGUI::EventArgs& e = {});
+    bool saveGame(const CEGUI::EventArgs& e = {});
     bool showSettingsFromOptions(const CEGUI::EventArgs& e = {});
 
     //! \brief Handle the keyboard input in normal mode

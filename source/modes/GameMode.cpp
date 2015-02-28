@@ -133,6 +133,12 @@ void GameMode::activate()
         )
     );
     addEventConnection(
+        guiSheet->getChild("GameOptionsWindow/SaveGameButton")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&GameMode::saveGame, this)
+        )
+    );
+    addEventConnection(
         guiSheet->getChild("GameOptionsWindow/SettingsButton")->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&GameMode::showSettingsFromOptions, this)
@@ -893,14 +899,8 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
         popupExit(!mGameMap->getGamePaused());
         break;
 
-    case OIS::KC_F8:
-        if(ODClient::getSingleton().isConnected())
-        {
-            // Send a message to the server telling it we want to drop the creature
-            ClientNotification *clientNotification = new ClientNotification(
-                ClientNotificationType::askSaveMap);
-            ODClient::getSingleton().queueClientNotification(clientNotification);
-        }
+    case OIS::KC_F5:
+        saveGame();
         break;
 
     // Print a screenshot
@@ -1175,6 +1175,18 @@ bool GameMode::showObjectivesFromOptions(const CEGUI::EventArgs& /*e*/)
     CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::inGameMenu);
     guiSheet->getChild("GameOptionsWindow")->hide();
     guiSheet->getChild("ObjectivesWindow")->show();
+    return true;
+}
+
+bool GameMode::saveGame(const CEGUI::EventArgs& /*e*/)
+{
+    if(ODClient::getSingleton().isConnected())
+    {
+        // Send a message to the server telling it we want to drop the creature
+        ClientNotification *clientNotification = new ClientNotification(
+            ClientNotificationType::askSaveMap);
+        ODClient::getSingleton().queueClientNotification(clientNotification);
+    }
     return true;
 }
 
