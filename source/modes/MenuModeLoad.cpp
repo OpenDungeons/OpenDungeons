@@ -98,7 +98,6 @@ void MenuModeLoad::activate()
     tmpWin = getModeManager().getGui().getGuiSheet(Gui::loadSavedGameMenu)->getChild("LoadingText");
     tmpWin->hide();
     mFilesList.clear();
-    mDescriptionList.clear();
     levelSelectList->resetList();
 
     std::string levelPath = ResourceManager::getSingleton().getSaveGamePath();
@@ -106,24 +105,8 @@ void MenuModeLoad::activate()
     {
         for (uint32_t n = 0; n < mFilesList.size(); ++n)
         {
-            std::string filename = mFilesList[n];
-
-            LevelInfo levelInfo;
-            std::string mapName;
-            std::string mapDescription;
-            if(MapLoader::getMapInfo(filename, levelInfo))
-            {
-                mapName = levelInfo.mLevelName;
-                mapDescription = levelInfo.mLevelDescription;
-            }
-            else
-            {
-                mapName = "invalid map";
-                mapDescription = "invalid map";
-            }
-
-            mDescriptionList.push_back(mapDescription);
-            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(mapName);
+            std::string filename = boost::filesystem::path(mFilesList[n]).filename().string();
+            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(filename);
             item->setID(n);
             item->setSelectionBrushImage("OpenDungeonsSkin/SelectionBrush");
             levelSelectList->addItem(item);
@@ -220,8 +203,16 @@ bool MenuModeLoad::updateDescription(const CEGUI::EventArgs&)
     CEGUI::ListboxItem* selItem = levelSelectList->getFirstSelectedItem();
     int id = selItem->getID();
 
-    std::string description = mDescriptionList[id];
-    descTxt->setText(description);
+    std::string filename = mFilesList[id];
+
+    LevelInfo levelInfo;
+    std::string mapDescription;
+    if(MapLoader::getMapInfo(filename, levelInfo))
+        mapDescription = levelInfo.mLevelDescription;
+    else
+        mapDescription = "invalid map";
+
+    descTxt->setText(mapDescription);
 
     return true;
 }

@@ -1537,7 +1537,9 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
                 std::ostringstream ss;
                 ss.imbue(loc);
-                ss << boost::posix_time::second_clock::local_time() << "-" << fileLevel;
+                ss << boost::posix_time::second_clock::local_time() << "-";
+                ss << (mServerMode == ServerMode::ModeGameSinglePlayer ? "SK-" : "MP-");
+                ss << fileLevel;
                 std::string savePath = ResourceManager::getSingleton().getSaveGamePath() + ss.str();
                 levelSave = boost::filesystem::path(savePath);
             }

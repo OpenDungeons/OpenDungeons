@@ -34,7 +34,6 @@ public:
     bool updateDescription(const CEGUI::EventArgs&);
 private:
     std::vector<std::string> mFilesList;
-    std::vector<std::string> mDescriptionList;
 };
 
 #endif // MENUMODELOAD_H
