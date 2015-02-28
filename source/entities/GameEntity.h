@@ -291,6 +291,14 @@ class GameEntity
     virtual void restoreEntityState()
     {}
 
+    /*! This function should be called on server side on entities loaded from level files and only them. It will
+     * be called after all entities are created and added to the gamemap on all of them to allow to restore
+     * links between entities (like beds and creatures). It will be called on Creature, Room, Trap, RenderedMovableEntity
+     * and Spell
+     */
+    virtual void restoreInitialEntityState()
+    {}
+
     /*! \brief Exports the headers needed to recreate the GameEntity. For example, for missile objects
      * type cannon, it exports GameEntityType::missileObject and MissileType::oneHit. The content of the
      * GameEntityType will be exported by exportToPacket. exportHeadersTo* should export the needed information

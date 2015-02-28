@@ -6551,6 +6551,7 @@ ProtectDungeonTemple	NULL
 2	1	2
 195	213
 194	213
+0
 [/Room]
 [Room]
 1	1	25
@@ -6634,6 +6635,7 @@ ProtectDungeonTemple	NULL
 206	209
 206	210
 206	211
+0
 [/Room]
 [Room]
 1	2	25
@@ -6718,6 +6720,7 @@ ProtectDungeonTemple	NULL
 174	100
 174	101
 174	102
+0
 [/Room]
 [Room]
 2	3	16
@@ -6737,6 +6740,7 @@ ProtectDungeonTemple	NULL
 170	98
 170	99
 170	100
+0
 [/Room]
 [Room]
 1	3	25

@@ -892,6 +892,7 @@ const CreatureDefinition* GameMap::getClassDescription(int index)
 
 void GameMap::createAllEntities()
 {
+    std::vector<GameEntity*> entities;
     // Create OGRE entities for map tiles
     for (int jj = 0; jj < getMapSizeY(); ++jj)
     {
@@ -908,6 +909,7 @@ void GameMap::createAllEntities()
     {
         rendered->createMesh();
         rendered->setPosition(rendered->getPosition(), false);
+        entities.push_back(rendered);
     }
 
     // Create OGRE entities for the creatures
@@ -915,6 +917,7 @@ void GameMap::createAllEntities()
     {
         creature->createMesh();
         creature->setPosition(creature->getPosition(), false);
+        entities.push_back(creature);
     }
 
     // Create OGRE entities for the map lights.
@@ -929,6 +932,7 @@ void GameMap::createAllEntities()
     {
         room->createMesh();
         room->updateActiveSpots();
+        entities.push_back(room);
     }
 
     // Create OGRE entities for the rooms
@@ -936,6 +940,7 @@ void GameMap::createAllEntities()
     {
         trap->createMesh();
         trap->updateActiveSpots();
+        entities.push_back(trap);
     }
 
     // Create OGRE entities for spells
@@ -943,6 +948,13 @@ void GameMap::createAllEntities()
     {
         spell->createMesh();
         spell->setPosition(spell->getPosition(), false);
+        entities.push_back(spell);
+    }
+
+    for(GameEntity* entity : entities)
+    {
+        // We restore the initial states
+        entity->restoreInitialEntityState();
     }
 
     LogManager::getSingleton().logMessage("entities created");
