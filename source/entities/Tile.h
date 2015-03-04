@@ -117,17 +117,12 @@ public:
     void setFullness(double f);
 
     //! \brief An accessor which returns the tile's fullness which should range from 0 to 100.
-    double getFullness() const;
-
-    /*! \brief An accessor which returns the tile's fullness mesh number.
-     *
-     * The fullness mesh number is concatenated to the tile's type to determine the
-     * mesh to load to display a given tile type.
-     */
-    int getFullnessMeshNumber() const;
+    inline double getFullness() const
+    { return mFullness; }
 
     //! \brief Tells whether a creature can see through a tile
-    bool permitsVision() const;
+    inline bool permitsVision() const
+    { return (mFullness == 0.0); }
 
     /*! \brief This is a helper function to scroll through the list of available fullness levels.
      *
@@ -368,9 +363,6 @@ private:
     //! \brief The tile position
     int mX, mY;
 
-    //! \brief The tile rotation value, in degrees.
-    Ogre::Real mRotation;
-
     //! \brief The tile type: Claimed, Dirt, Gold, ...
     TileType mType;
 
@@ -380,9 +372,6 @@ private:
     //! \brief The tile fullness (0.0 - 100.0).
     //! At 0.0, it is a ground tile, at 100.0, it is a wall.
     double mFullness;
-
-    //! \brief The mesh number corresponding ot the current fullness
-    int mFullnessMeshNumber;
 
     std::vector<Tile*> mNeighbors;
     std::vector<Player*> mPlayersMarkingTile;
@@ -415,7 +404,8 @@ private:
      *  This only sets the fullness variable. This function is here to change the value
      *  before a map object has been set. setFullness is called once a map is assigned.
      */
-    void setFullnessValue(double f);
+    inline void setFullnessValue(double f)
+    { mFullness = f; }
 
     void setDirtyForAllSeats();
 };
