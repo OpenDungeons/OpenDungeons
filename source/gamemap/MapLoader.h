@@ -25,6 +25,8 @@
 
 class GameMap;
 
+enum class GameEntityType;
+
 //! \brief A small structure storing level info for the player
 struct LevelInfo
 {
@@ -43,6 +45,8 @@ namespace MapLoader
     bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap);
 
     void writeGameMapToFile(const std::string& fileName, GameMap& gameMap);
+
+    bool readGameEntity(GameMap& gameMap, const std::string& item, GameEntityType type, std::stringstream& levelFile);
 
     bool loadEquipments(const std::string& fileName, GameMap& gameMap);
 

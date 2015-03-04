@@ -266,7 +266,8 @@ void GameEntity::fireRemoveEntityToSeatsWithVision()
 
 void GameEntity::exportHeadersToStream(std::ostream& os)
 {
-    os << getObjectType() << "\t";
+    // GameEntity are saved in the level file per type. For this reason, there is no
+    // need to save the type
 }
 
 void GameEntity::exportHeadersToPacket(ODPacket& os)
@@ -322,11 +323,14 @@ void GameEntity::importFromStream(std::istream& is)
     OD_ASSERT_TRUE(is >> mPosition.x >> mPosition.y >> mPosition.z);
 }
 
-GameEntity* GameEntity::getGameEntityeEntityFromStream(GameMap* gameMap, std::istream& is)
+std::string GameEntity::getGameEntityStreamFormat()
+{
+    return "SeatId\tName\tMeshName\tPosX\tPosY\tPosZ\t";
+}
+
+GameEntity* GameEntity::getGameEntityeEntityFromStream(GameMap* gameMap, GameEntityType type, std::istream& is)
 {
     GameEntity* entity = nullptr;
-    GameEntityType type;
-    OD_ASSERT_TRUE(is >> type);
     switch(type)
     {
         case GameEntityType::buildingObject:

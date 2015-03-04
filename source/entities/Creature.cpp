@@ -337,10 +337,10 @@ void Creature::removeFromGameMap()
     getGameMap()->removeActiveObject(this);
 }
 
-
-std::string Creature::getFormat()
+std::string Creature::getCreatureStreamFormat()
 {
-    return "SeatId\tName\tMeshName\tPosX\tPosY\tPosZ\tClassName\tLevel\tCurrentXP\tCurrentHP\tCurrentAwakeness\t"
+    return MovableGameEntity::getMovableGameEntityStreamFormat()
+        + "ClassName\tLevel\tCurrentXP\tCurrentHP\tCurrentAwakeness\t"
            "CurrentHunger\tGoldToDeposit\tLeftWeapon\tRightWeapon";
 }
 
@@ -543,6 +543,8 @@ void Creature::importFromPacket(ODPacket& is)
 void Creature::setPosition(const Ogre::Vector3& v, bool isMove)
 {
     MovableGameEntity::setPosition(v, isMove);
+    if(mCarriedEntity != nullptr)
+        mCarriedEntity->notifyCarryMove(v);
 }
 
 void Creature::drop(const Ogre::Vector3& v)
@@ -906,10 +908,6 @@ void Creature::decidePrioritaryAction()
             // We check if we can attack a natural enemy
             if(Random::Int(0, 100) > 80)
             {
-                clearDestinations();
-                clearActionQueue();
-                stopJob();
-                stopEating();
                 pushAction(CreatureActionType::fightNaturalEnemy, true);
                 return;
             }
@@ -2821,6 +2819,13 @@ bool Creature::handleFightAlliedNaturalEnemyAction(const CreatureAction& actionI
     {
         if(entityAttack != nullptr)
         {
+            // We found a natural enemy. We stop what we were doing
+            clearDestinations();
+            clearActionQueue();
+            stopJob();
+            stopEating();
+
+            // And we attack
             OD_ASSERT_TRUE_MSG(entityAttack->getObjectType() == GameEntityType::creature, "attacker=" + getName() + ", attacked=" + entityAttack->getName());
             Creature* attackedCreature = static_cast<Creature*>(entityAttack);
             attackedCreature->engageAlliedNaturalEnemy(this);
@@ -2966,7 +2971,6 @@ void Creature::refreshCreature(ODPacket& packet)
 {
     OD_ASSERT_TRUE(packet >> mLevel);
     OD_ASSERT_TRUE(packet >> mOverlayHealthValue);
-    // DAN_TEST modifier overlay
     RenderManager::getSingleton().rrScaleEntity(this);
 }
 

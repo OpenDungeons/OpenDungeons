@@ -17,21 +17,19 @@
 
 #include "entities/CreatureDefinition.h"
 
+#include "entities/ResearchEntity.h"
 #include "entities/Tile.h"
-
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
-
+#include "game/Research.h"
 #include "goals/Goal.h"
 #include "network/ODPacket.h"
-
 #include "spawnconditions/SpawnCondition.h"
-
 #include "network/ServerNotification.h"
 #include "network/ODServer.h"
-
 #include "rooms/Room.h"
-
+#include "spell/Spell.h"
+#include "traps/Trap.h"
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
@@ -53,14 +51,17 @@ Seat::Seat(GameMap* gameMap) :
     mStartingY(0),
     mGoldMined(0),
     mNumCreaturesControlled(0),
-    mStartingGold(0),
     mDefaultWorkerClass(nullptr),
     mNumClaimedTiles(0),
     mHasGoalsChanged(true),
     mGold(0),
     mId(-1),
     mNbTreasuries(0),
-    mIsDebuggingVision(false)
+    mIsDebuggingVision(false),
+    mResearchPoints(0),
+    mCurrentResearch(nullptr),
+    mNeedRefreshGuiResearchDone(false),
+    mNeedRefreshGuiResearchPending(false)
 {
 }
 
@@ -351,7 +352,14 @@ void Seat::initSeat()
     mDefaultWorkerClass = mGameMap->getClassDescription(defaultWorkerClass);
     OD_ASSERT_TRUE_MSG(mDefaultWorkerClass != nullptr, "No valid default worker class for faction: " + mFaction);
 
-    getPlayer()->initPlayer();
+    // We use a temporary vector to allow the corresponding functions to check the vector validity
+    // and reject its content if it is not valid
+    std::vector<ResearchType> researches = mResearchDone;
+    mResearchDone.clear();
+    setResearchesDone(researches);
+    researches = mResearchPending;
+    mResearchPending.clear();
+    setResearchTree(researches);
 }
 
 const CreatureDefinition* Seat::getNextFighterClassToSpawn()
@@ -676,11 +684,6 @@ void Seat::computeSeatBeforeSendingToClient()
     }
 }
 
-std::string Seat::getFormat()
-{
-    return "seatId\tteamId\tplayer\tfaction\tstartingX\tstartingY\tcolor\tstartingGold";
-}
-
 ODPacket& operator<<(ODPacket& os, Seat *s)
 {
     os << s->mId << s->mTeamId << s->mPlayerType << s->mFaction << s->mStartingX
@@ -739,34 +742,10 @@ Seat* Seat::getRogueSeat(GameMap* gameMap)
     seat->mPlayerType = PLAYER_TYPE_INACTIVE;
     seat->mStartingX = 0;
     seat->mStartingY = 0;
-    seat->mStartingGold = 0;
+    seat->mGold = 0;
+    seat->mGoldMined = 0;
+    seat->mMana = 0;
     return seat;
-}
-
-void Seat::loadFromLine(const std::string& line, Seat *s)
-{
-    std::vector<std::string> elems = Helper::split(line, '\t');
-
-    int32_t i = 0;
-    s->mId = Helper::toInt(elems[i++]);
-    OD_ASSERT_TRUE_MSG(s->mId != 0, "Forbidden seatId for line=" + line);
-    std::vector<std::string> teamIds = Helper::split(elems[i++], '/');
-    for(const std::string& strTeamId : teamIds)
-    {
-        int teamId = Helper::toInt(strTeamId);
-        OD_ASSERT_TRUE_MSG(teamId != 0, "Forbidden teamId for line=" + line);
-        if(teamId == 0)
-            continue;
-
-        s->mAvailableTeamIds.push_back(teamId);
-    }
-    s->mPlayerType = elems[i++];
-    s->mFaction = elems[i++];
-    s->mStartingX = Helper::toInt(elems[i++]);
-    s->mStartingY = Helper::toInt(elems[i++]);
-    s->mColorId = elems[i++];
-    s->mStartingGold = Helper::toInt(elems[i++]);
-    s->mColorValue = ConfigManager::getSingleton().getColorFromId(s->mColorId);
 }
 
 void Seat::refreshFromSeat(Seat* s)
@@ -794,32 +773,572 @@ bool Seat::sortForMapSave(Seat* s1, Seat* s2)
     return s1->mId < s2->mId;
 }
 
-std::ostream& operator<<(std::ostream& os, Seat *s)
+bool Seat::importSeatFromStream(std::istream& is)
 {
-    os << s->mId;
+    std::string str;
+    OD_ASSERT_TRUE(is >> str);
+    if(str != "seatId")
+    {
+        LogManager::getSingleton().logMessage("WARNING: expected seatId and read " + str);
+        return false;
+    }
+    OD_ASSERT_TRUE(is >> mId);
+    if(mId == 0)
+    {
+        LogManager::getSingleton().logMessage("WARNING: Forbidden seatId used");
+        return false;
+    }
+
+    OD_ASSERT_TRUE(is >> str);
+    if(str != "teamId")
+    {
+        LogManager::getSingleton().logMessage("WARNING: expected teamId and read " + str);
+        return false;
+    }
+    OD_ASSERT_TRUE(is >> str);
+
+    std::vector<std::string> teamIds = Helper::split(str, '/');
+    for(const std::string& strTeamId : teamIds)
+    {
+        int teamId = Helper::toInt(strTeamId);
+        if(teamId == 0)
+        {
+            LogManager::getSingleton().logMessage("WARNING: forbidden teamId in seat id=" + Helper::toString(mId));
+            continue;
+        }
+
+        mAvailableTeamIds.push_back(teamId);
+    }
+
+    OD_ASSERT_TRUE(is >> str);
+    if(str != "player")
+    {
+        LogManager::getSingleton().logMessage("WARNING: expected player and read " + str);
+        return false;
+    }
+    OD_ASSERT_TRUE(is >> mPlayerType);
+
+    OD_ASSERT_TRUE(is >> str);
+    if(str != "faction")
+    {
+        LogManager::getSingleton().logMessage("WARNING: expected faction and read " + str);
+        return false;
+    }
+    OD_ASSERT_TRUE(is >> mFaction);
+
+    OD_ASSERT_TRUE(is >> str);
+    if(str != "startingX")
+    {
+        LogManager::getSingleton().logMessage("WARNING: expected startingX and read " + str);
+        return false;
+    }
+    OD_ASSERT_TRUE(is >> mStartingX);
+
+    OD_ASSERT_TRUE(is >> str);
+    if(str != "startingY")
+    {
+        LogManager::getSingleton().logMessage("WARNING: expected startingY and read " + str);
+        return false;
+    }
+    OD_ASSERT_TRUE(is >> mStartingY);
+
+    OD_ASSERT_TRUE(is >> str);
+    if(str != "colorId")
+    {
+        LogManager::getSingleton().logMessage("WARNING: expected colorId and read " + str);
+        return false;
+    }
+    OD_ASSERT_TRUE(is >> mColorId);
+
+    OD_ASSERT_TRUE(is >> str);
+    if(str != "gold")
+    {
+        LogManager::getSingleton().logMessage("WARNING: expected gold and read " + str);
+        return false;
+    }
+    OD_ASSERT_TRUE(is >> mGold);
+
+    OD_ASSERT_TRUE(is >> str);
+    if(str != "goldMined")
+    {
+        LogManager::getSingleton().logMessage("WARNING: expected goldMined and read " + str);
+        return false;
+    }
+    OD_ASSERT_TRUE(is >> mGoldMined);
+
+    OD_ASSERT_TRUE(is >> str);
+    if(str != "mana")
+    {
+        LogManager::getSingleton().logMessage("WARNING: expected mana and read " + str);
+        return false;
+    }
+    OD_ASSERT_TRUE(is >> mMana);
+
+    mColorValue = ConfigManager::getSingleton().getColorFromId(mColorId);
+
+    uint32_t nbResearch = static_cast<uint32_t>(ResearchType::countResearch);
+    OD_ASSERT_TRUE(is >> str);
+    if(str != "[ResearchDone]")
+    {
+        LogManager::getSingleton().logMessage("WARNING: expected [ResearchDone] and read " + str);
+        return false;
+    }
+    while(true)
+    {
+        OD_ASSERT_TRUE(is >> str);
+        if(str == "[/ResearchDone]")
+            break;
+
+        for(uint32_t i = 0; i < nbResearch; ++i)
+        {
+            ResearchType type = static_cast<ResearchType>(i);
+            if(type == ResearchType::nullResearchType)
+                continue;
+            if(str.compare(Research::researchTypeToString(type)) != 0)
+                continue;
+
+            if(std::find(mResearchDone.begin(), mResearchDone.end(), type) != mResearchDone.end())
+                break;
+
+            // We found a valid research
+            mResearchDone.push_back(type);
+
+            break;
+        }
+    }
+
+    OD_ASSERT_TRUE(is >> str);
+    if(str != "[ResearchNotAllowed]")
+    {
+        LogManager::getSingleton().logMessage("WARNING: expected [ResearchNotAllowed] and read " + str);
+        return false;
+    }
+
+    while(true)
+    {
+        OD_ASSERT_TRUE(is >> str);
+        if(str == "[/ResearchNotAllowed]")
+            break;
+
+        for(uint32_t i = 0; i < nbResearch; ++i)
+        {
+            ResearchType type = static_cast<ResearchType>(i);
+            if(type == ResearchType::nullResearchType)
+                continue;
+            if(str.compare(Research::researchTypeToString(type)) != 0)
+                continue;
+
+            // We do not allow a research to be done and not allowed
+            if(std::find(mResearchDone.begin(), mResearchDone.end(), type) != mResearchDone.end())
+                break;
+            if(std::find(mResearchNotAllowed.begin(), mResearchNotAllowed.end(), type) != mResearchNotAllowed.end())
+                break;
+
+            // We found a valid research
+            mResearchNotAllowed.push_back(type);
+
+            break;
+        }
+    }
+
+    OD_ASSERT_TRUE(is >> str);
+    if(str != "[ResearchPending]")
+    {
+        LogManager::getSingleton().logMessage("WARNING: expected [ResearchPending] and read " + str);
+        return false;
+    }
+
+    while(true)
+    {
+        OD_ASSERT_TRUE(is >> str);
+        if(str == "[/ResearchPending]")
+            break;
+
+        for(uint32_t i = 0; i < nbResearch; ++i)
+        {
+            ResearchType type = static_cast<ResearchType>(i);
+            if(type == ResearchType::nullResearchType)
+                continue;
+            if(str.compare(Research::researchTypeToString(type)) != 0)
+                continue;
+
+            // We do not allow researches already done or not allowed
+            if(std::find(mResearchDone.begin(), mResearchDone.end(), type) != mResearchDone.end())
+                break;
+            if(std::find(mResearchNotAllowed.begin(), mResearchNotAllowed.end(), type) != mResearchNotAllowed.end())
+                break;
+            if(std::find(mResearchPending.begin(), mResearchPending.end(), type) != mResearchPending.end())
+                break;
+
+            // We found a valid research
+            mResearchPending.push_back(type);
+        }
+    }
+    return true;
+}
+
+bool Seat::exportSeatToStream(std::ostream& os) const
+{
+    os << "seatId\t";
+    os << mId;
+    os << std::endl;
     // If the team id is set, we save it. Otherwise, we save all the available team ids
     // That way, save map will work in both editor and in game.
-    if(s->mTeamId != -1)
+    os << "teamId\t";
+    if(mTeamId != -1)
     {
-        os << "\t" << s->mTeamId;
+        os << mTeamId;
     }
     else
     {
         int cpt = 0;
-        for(int teamId : s->mAvailableTeamIds)
+        for(int teamId : mAvailableTeamIds)
         {
-            if(cpt == 0)
-                os << "\t";
-            else
+            if(cpt > 0)
                 os << "/";
 
             os << teamId;
             ++cpt;
         }
     }
-    os << "\t" << s->mPlayerType << "\t" << s->mFaction << "\t" << s->mStartingX
-       << "\t"<< s->mStartingY;
-    os << "\t" << s->mColorId;
-    os << "\t" << s->mStartingGold;
-    return os;
+    os << std::endl;
+
+    // On editor, we write the original player type. If we are saving a game, we keep the assigned type
+    if((mGameMap->isInEditorMode()) ||
+       (getPlayer() == nullptr))
+    {
+        os << "player\t";
+        os << mPlayerType;
+        os << std::endl;
+    }
+    else
+    {
+        os << "player\t";
+        if(getPlayer()->getIsHuman())
+            os << PLAYER_TYPE_HUMAN;
+        else
+            os << PLAYER_TYPE_AI;
+
+        os << std::endl;
+    }
+
+    os << "faction\t";
+    os << mFaction;
+    os << std::endl;
+
+    os << "startingX\t";
+    os << mStartingX;
+    os << std::endl;
+
+    os << "startingY\t";
+    os << mStartingY;
+    os << std::endl;
+
+    os << "colorId\t";
+    os << mColorId;
+    os << std::endl;
+
+    os << "gold\t";
+    os << mGold;
+    os << std::endl;
+
+    os << "goldMined\t";
+    os << mGoldMined;
+    os << std::endl;
+
+    os << "mana\t";
+    os << mMana;
+    os << std::endl;
+
+    os << "[ResearchDone]" << std::endl;
+    for(ResearchType type : mResearchDone)
+    {
+        os << Research::researchTypeToString(type) << std::endl;
+    }
+    os << "[/ResearchDone]" << std::endl;
+
+    os << "[ResearchNotAllowed]" << std::endl;
+    for(ResearchType type : mResearchNotAllowed)
+    {
+        os << Research::researchTypeToString(type) << std::endl;
+    }
+    os << "[/ResearchNotAllowed]" << std::endl;
+
+    os << "[ResearchPending]" << std::endl;
+    for(ResearchType type : mResearchPending)
+    {
+        os << Research::researchTypeToString(type) << std::endl;
+    }
+    os << "[/ResearchPending]" << std::endl;
+
+    return true;
+}
+
+bool Seat::isSpellAvailable(SpellType type) const
+{
+    switch(type)
+    {
+        case SpellType::summonWorker:
+            return isResearchDone(ResearchType::spellSummonWorker);
+        case SpellType::callToWar:
+            return isResearchDone(ResearchType::spellCallToWar);
+        default:
+            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Helper::toString(
+                static_cast<int>(type)) + " for seatId " + Helper::toString(getId()));
+            return false;
+    }
+    return false;
+}
+
+bool Seat::isRoomAvailable(RoomType type) const
+{
+    switch(type)
+    {
+        case RoomType::treasury:
+            return isResearchDone(ResearchType::roomTreasury);
+        case RoomType::dormitory:
+            return isResearchDone(ResearchType::roomDormitory);
+        case RoomType::hatchery:
+            return isResearchDone(ResearchType::roomHatchery);
+        case RoomType::trainingHall:
+            return isResearchDone(ResearchType::roomTrainingHall);
+        case RoomType::library:
+            return isResearchDone(ResearchType::roomLibrary);
+        case RoomType::forge:
+            return isResearchDone(ResearchType::roomForge);
+        case RoomType::crypt:
+            return isResearchDone(ResearchType::roomCrypt);
+        default:
+            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Helper::toString(
+                static_cast<int>(type)) + " for seatId " + Helper::toString(getId()));
+            return false;
+    }
+    return false;
+}
+
+bool Seat::isTrapAvailable(TrapType type) const
+{
+    switch(type)
+    {
+        case TrapType::boulder:
+            return isResearchDone(ResearchType::trapBoulder);
+        case TrapType::cannon:
+            return isResearchDone(ResearchType::trapCannon);
+        case TrapType::spike:
+            return isResearchDone(ResearchType::trapSpike);
+        default:
+            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Helper::toString(
+                static_cast<int>(type)) + " for seatId " + Helper::toString(getId()));
+            return false;
+    }
+    return false;
+}
+
+bool Seat::addResearch(ResearchType type)
+{
+    if(std::find(mResearchDone.begin(), mResearchDone.end(), type) != mResearchDone.end())
+        return false;
+
+    std::vector<ResearchType> researchDone = mResearchDone;
+    researchDone.push_back(type);
+    setResearchesDone(researchDone);
+
+    return true;
+}
+
+bool Seat::isResearchDone(ResearchType type) const
+{
+    for(ResearchType researchDone : mResearchDone)
+    {
+        if(researchDone != type)
+            continue;
+
+        return true;
+    }
+
+    return false;
+}
+
+const Research* Seat::addResearchPoints(int32_t points)
+{
+    if(mCurrentResearch == nullptr)
+        return nullptr;
+
+    mResearchPoints += points;
+    if(mResearchPoints < mCurrentResearch->getNeededResearchPoints())
+        return nullptr;
+
+    const Research* ret = mCurrentResearch;
+    mResearchPoints -= mCurrentResearch->getNeededResearchPoints();
+
+    // The current research is complete. The library that completed it will release
+    // a ResearchEntity. Once it will reach its destination, the research will be
+    // added to the done list
+
+    setNextResearch(mCurrentResearch->getType());
+    return ret;
+}
+
+void Seat::setNextResearch(ResearchType researchedType)
+{
+    mCurrentResearch = nullptr;
+    if(!mResearchPending.empty())
+    {
+        // We search for the first pending research we don't own a corresponding ResearchEntity
+        const std::vector<RenderedMovableEntity*>& renderables = mGameMap->getRenderedMovableEntities();
+        ResearchType researchType = ResearchType::nullResearchType;
+        for(ResearchType pending : mResearchPending)
+        {
+            if(pending == researchedType)
+                continue;
+
+            researchType = pending;
+            for(RenderedMovableEntity* renderable : renderables)
+            {
+                if(renderable->getObjectType() != GameEntityType::researchEntity)
+                    continue;
+
+                if(renderable->getSeat() != this)
+                    continue;
+
+                ResearchEntity* researchEntity = static_cast<ResearchEntity*>(renderable);
+                if(researchEntity->getResearchType() != pending)
+                    continue;
+
+                // We found a ResearchEntity of the same Research. We should work on
+                // something else
+                researchType = ResearchType::nullResearchType;
+                break;
+            }
+
+            if(researchType != ResearchType::nullResearchType)
+                break;
+        }
+
+        if(researchType == ResearchType::nullResearchType)
+            return;
+
+        // We have found a fitting research. We retrieve the corresponding Research
+        // object and start working on that
+        const std::vector<const Research*>& researches = ConfigManager::getSingleton().getResearches();
+        for(const Research* research : researches)
+        {
+            if(research->getType() != researchType)
+                continue;
+
+            mCurrentResearch = research;
+            break;
+        }
+    }
+}
+
+void Seat::setResearchesDone(const std::vector<ResearchType>& researches)
+{
+    mResearchDone = researches;
+    // We remove the researches done from the pending researches (if it was there,
+    // which may not be true if the research list changed after creating the
+    // researchEntity for example)
+    for(ResearchType type : researches)
+    {
+        auto research = std::find(mResearchPending.begin(), mResearchPending.end(), type);
+        if(research == mResearchPending.end())
+            continue;
+
+        mResearchPending.erase(research);
+    }
+
+    if(mGameMap->isServerGameMap())
+    {
+        if((getPlayer() != nullptr) && getPlayer()->getIsHuman())
+        {
+            // We notify the client
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotificationType::researchesDone, getPlayer());
+
+            uint32_t nbItems = mResearchDone.size();
+            serverNotification->mPacket << nbItems;
+            for(ResearchType research : mResearchDone)
+                serverNotification->mPacket << research;
+
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+    }
+    else
+    {
+        // We notify the mode that the available researches changed. This way, it will
+        // be able to update the UI as needed
+        mNeedRefreshGuiResearchDone = true;
+    }
+}
+
+void Seat::setResearchTree(const std::vector<ResearchType>& researches)
+{
+    if(mGameMap->isServerGameMap())
+    {
+        // We check if all the researches in the vector are allowed. If not, we don't update the list
+        const std::vector<const Research*>& researchList = ConfigManager::getSingleton().getResearches();
+        std::vector<ResearchType> researchesDoneInTree = mResearchDone;
+        for(ResearchType researchType : researches)
+        {
+            // We check if the research is allowed
+            if(std::find(mResearchNotAllowed.begin(), mResearchNotAllowed.end(), researchType) != mResearchNotAllowed.end())
+            {
+                // Invalid research. This might be allowed in the gui to enter invalid
+                // values. In this case, we should remove the assert
+                OD_ASSERT_TRUE_MSG(false, "Unallowed research: " + Research::researchTypeToString(researchType));
+                return;
+            }
+            const Research* research = nullptr;
+            for(const Research* researchTmp : researchList)
+            {
+                if(researchTmp->getType() != researchType)
+                    continue;
+
+                research = researchTmp;
+                break;
+            }
+
+            if(research == nullptr)
+            {
+                // We found an unknow research
+                OD_ASSERT_TRUE_MSG(false, "Unknow research: " + Research::researchTypeToString(researchType));
+                return;
+            }
+
+            if(!research->canBeResearched(researchesDoneInTree))
+            {
+                // Invalid research. This might be allowed in the gui to enter invalid
+                // values. In this case, we should remove the assert
+                OD_ASSERT_TRUE_MSG(false, "Unallowed research: " + Research::researchTypeToString(researchType));
+                return;
+            }
+
+            // This research is valid. We add it in the list and we check if the next one also is
+            researchesDoneInTree.push_back(researchType);
+        }
+
+        mResearchPending = researches;
+        if((getPlayer() != nullptr) && getPlayer()->getIsHuman())
+        {
+            // We notify the client
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotificationType::researchTree, getPlayer());
+
+            uint32_t nbItems = mResearchPending.size();
+            serverNotification->mPacket << nbItems;
+            for(ResearchType research : mResearchPending)
+                serverNotification->mPacket << research;
+
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+
+        // We start working on the research tree
+        setNextResearch(ResearchType::nullResearchType);
+    }
+    else
+    {
+        // On client side, no need to check if the research tree is allowed
+        mResearchPending = researches;
+        mNeedRefreshGuiResearchPending = true;
+    }
 }

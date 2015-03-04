@@ -34,13 +34,13 @@ public:
     TreasuryObject(GameMap* gameMap, int goldValue);
     TreasuryObject(GameMap* gameMap);
 
-    virtual void doUpkeep();
+    virtual void doUpkeep() override;
 
     virtual GameEntityType getObjectType() const override
     { return GameEntityType::treasuryObject; }
 
-    virtual bool tryPickup(Seat* seat);
-    virtual bool tryDrop(Seat* seat, Tile* tile);
+    virtual bool tryPickup(Seat* seat) override;
+    virtual bool tryDrop(Seat* seat, Tile* tile) override;
     void mergeGold(TreasuryObject* obj);
     void addGold(int goldValue);
 
@@ -49,20 +49,20 @@ public:
     virtual void exportToPacket(ODPacket& os) const override;
     virtual void importFromPacket(ODPacket& is) override;
 
-    virtual void pickup();
+    virtual void pickup() override;
 
-    virtual EntityCarryType getEntityCarryType();
-    virtual void notifyEntityCarryOn(Creature* carrier);
-    virtual void notifyEntityCarryOff(const Ogre::Vector3& position);
+    virtual EntityCarryType getEntityCarryType() override;
+    virtual void notifyEntityCarryOn(Creature* carrier) override;
+    virtual void notifyEntityCarryOff(const Ogre::Vector3& position) override;
 
     static const char* getMeshNameForGold(int gold);
 
-    static const char* getFormat();
+    static std::string getTreasuryObjectStreamFormat();
     static TreasuryObject* getTreasuryObjectFromStream(GameMap* gameMap, std::istream& is);
     static TreasuryObject* getTreasuryObjectFromPacket(GameMap* gameMap, ODPacket& is);
 protected:
-    virtual bool addEntityToTile(Tile* tile);
-    virtual bool removeEntityFromTile(Tile* tile);
+    virtual bool addEntityToTile(Tile* tile) override;
+    virtual bool removeEntityFromTile(Tile* tile) override;
 
 private:
     int mGoldValue;

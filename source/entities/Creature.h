@@ -284,10 +284,9 @@ public:
     inline void setOverlayStatus(CreatureOverlayStatus* overlayStatus)
     { mOverlayStatus = overlayStatus; }
 
-    //! \FIXME Those functions are lacking parameters to be actually functional
     //! \brief Get the text format of creatures in level files (already spawned at startup).
     //! \returns A string describing the IO format the creatures need to have in file.
-    static std::string getFormat();
+    static std::string getCreatureStreamFormat();
 
     static Creature* getCreatureFromStream(GameMap* gameMap, std::istream& is);
     static Creature* getCreatureFromPacket(GameMap* gameMap, ODPacket& is);

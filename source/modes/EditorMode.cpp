@@ -682,7 +682,7 @@ bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
 
     switch (arg.key)
     {
-    case OIS::KC_F8:
+    case OIS::KC_F5:
         onSaveButtonClickFromOptions();
         break;
 
@@ -974,7 +974,7 @@ bool EditorMode::onSaveButtonClickFromOptions(const CEGUI::EventArgs& /*arg*/)
     {
         // Send a message to the server telling it we want to drop the creature
         ClientNotification *clientNotification = new ClientNotification(
-            ClientNotificationType::editorAskSaveMap);
+            ClientNotificationType::askSaveMap);
         ODClient::getSingleton().queueClientNotification(clientNotification);
     }
     return true;

@@ -92,3 +92,17 @@ ODPacket& operator>>(ODPacket& is, ResearchType& type)
     type = static_cast<ResearchType>(tmp);
     return is;
 }
+
+std::ostream& operator<<(std::ostream& os, const ResearchType& type)
+{
+    os << static_cast<int32_t>(type);
+    return os;
+}
+
+std::istream& operator>>(std::istream& is, ResearchType& type)
+{
+    int32_t tmp;
+    is >> tmp;
+    type = static_cast<ResearchType>(tmp);
+    return is;
+}

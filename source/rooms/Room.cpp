@@ -164,7 +164,7 @@ Creature* Room::getCreatureUsingRoom(unsigned index)
     return mCreaturesUsingRoom[index];
 }
 
-std::string Room::getFormat()
+std::string Room::getRoomStreamFormat()
 {
     return "typeRoom\tseatId\tnumTiles\t\tSubsequent Lines: tileX\ttileY";
 }

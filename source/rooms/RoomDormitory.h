@@ -32,40 +32,26 @@ public:
         mOwningTile(tile)
     {}
 
-    double getX() const
-    {
-        return mX;
-    }
+    inline double getX() const
+    { return mX; }
 
-    double getY() const
-    {
-        return mY;
-    }
+    inline double getY() const
+    { return mY; }
 
-    double getRotation() const
-    {
-        return mRotation;
-    }
+    inline double getRotation() const
+    { return mRotation; }
 
-    Creature* getCreature()
-    {
-        return mCreature;
-    }
+    inline Creature* getCreature() const
+    { return mCreature; }
 
-    Tile* getOwningTile()
-    {
-        return mOwningTile;
-    }
+    inline Tile* getOwningTile() const
+    { return mOwningTile; }
 
-    const std::vector<Tile*>& getTilesTaken()
-    {
-        return mTilesTaken;
-    }
+    inline const std::vector<Tile*>& getTilesTaken() const
+    { return mTilesTaken; }
 
-    void addTileTaken(Tile* tile)
-    {
-        mTilesTaken.push_back(tile);
-    }
+    inline void addTileTaken(Tile* tile)
+    { mTilesTaken.push_back(tile); }
 
 private:
     //! \brief Building object position.
@@ -85,19 +71,56 @@ private:
     std::vector<Tile*> mTilesTaken;
 };
 
+/*! Class used at room loading to save the data needed to recreate the beds after map loading when
+ * restoreInitialEntityState is called
+ */
+class BedCreatureLoad
+{
+public:
+    BedCreatureLoad(const std::string& creatureName, int tileX, int tileY, double rotationAngle) :
+        mCreatureName(creatureName),
+        mTileX(tileX),
+        mTileY(tileY),
+        mRotationAngle(rotationAngle)
+    {}
+
+    inline int getTileX() const
+    { return mTileX; }
+
+    inline int getTileY() const
+    { return mTileY; }
+
+    inline const std::string& getCreatureName() const
+    { return mCreatureName; }
+
+    inline double getRotationAngle() const
+    { return mRotationAngle; }
+
+private:
+    std::string mCreatureName;
+    int mTileX;
+    int mTileY;
+    double mRotationAngle;
+};
+
 class RoomDormitory: public Room
 {
 public:
     RoomDormitory(GameMap* gameMap);
 
-    virtual RoomType getType() const
+    virtual RoomType getType() const override
     { return RoomType::dormitory; }
 
     // Functions overriding virtual functions in the Room base class.
-    void absorbRoom(Room *r);
-    void addCoveredTile(Tile* t, double nHP);
-    bool removeCoveredTile(Tile* t);
-    void clearCoveredTiles();
+    void absorbRoom(Room *r) override;
+    void addCoveredTile(Tile* t, double nHP) override;
+    bool removeCoveredTile(Tile* t) override;
+    void clearCoveredTiles() override;
+
+    virtual void exportToStream(std::ostream& os) const override;
+    virtual void importFromStream(std::istream& is) override;
+
+    virtual void restoreInitialEntityState() override;
 
     // Functions specific to this class.
     std::vector<Tile*> getOpenTiles();
@@ -109,11 +132,12 @@ protected:
     // Because dormitory do not use active spots, we don't want the default
     // behaviour (removing the active spot tile) as it could result in removing an
     // unwanted bed
-    void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
+    void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile) override
     {}
 
 private:
     bool tileCanAcceptBed(Tile *tile, int xDim, int yDim);
+    void createBed(Tile* t, double rotationAngle, Creature* c);
 
     //! \brief Keeps track of the tiles taken by a creature bed
     std::map<Tile*, Creature*> mCreatureSleepingInTile;
@@ -121,6 +145,9 @@ private:
     //! \brief Keeps track of info about the beds in order to be able
     //! to recreate them.
     std::vector<BedRoomObjectInfo> mBedRoomObjectsInfo;
+
+    //! Used at map load to store information about beds already in this room
+    std::vector<BedCreatureLoad> mBedCreatureLoad;
 };
 
 #endif // ROOMDORMITORY_H

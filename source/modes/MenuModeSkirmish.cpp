@@ -121,11 +121,6 @@ void MenuModeSkirmish::activate()
             item->setID(n);
             item->setSelectionBrushImage("OpenDungeonsSkin/SelectionBrush");
             levelSelectList->addItem(item);
-
-            // We reconstruct the filename to be relative to the levels/ folder
-            // because we'll need a relative reference for the even local client.
-            std::string levelFile = LEVEL_PATH + boost::filesystem::path(mFilesList[n]).filename().string();
-            mFilesList[n] = levelFile;
         }
     }
 }
@@ -150,7 +145,7 @@ bool MenuModeSkirmish::launchSelectedButtonPressed(const CEGUI::EventArgs&)
     CEGUI::ListboxItem* selItem = levelSelectList->getFirstSelectedItem();
     int id = selItem->getID();
 
-    std::string level = mFilesList[id];
+    const std::string& level = mFilesList[id];
     // In single player mode, we act as a server
     if(!ODServer::getSingleton().startServer(level, ODServer::ServerMode::ModeGameSinglePlayer))
     {

@@ -276,15 +276,27 @@ class GameEntity
     virtual void notifyEntityCarryOn(Creature* carrier)
     {}
 
-    //! \brief Called when the entity is being carried
+    //! \brief Called when the entity is being carried and is dropped
     virtual void notifyEntityCarryOff(const Ogre::Vector3& position)
     {}
+
+    //! \brief Called when the entity is being carriedand moves
+    virtual void notifyCarryMove(const Ogre::Vector3& position)
+    { mPosition = position; }
 
     //! This function should be called on client side just after the entity is added to the gamemap.
     //! It should restore the entity state (if it was dead before the client got vision, it should
     //! be dead on the ground for example).
     //! Note that this function is to be called on client side only
     virtual void restoreEntityState()
+    {}
+
+    /*! This function should be called on server side on entities loaded from level files and only them. It will
+     * be called after all entities are created and added to the gamemap on all of them to allow to restore
+     * links between entities (like beds and creatures). It will be called on Creature, Room, Trap, RenderedMovableEntity
+     * and Spell
+     */
+    virtual void restoreInitialEntityState()
     {}
 
     /*! \brief Exports the headers needed to recreate the GameEntity. For example, for missile objects
@@ -306,8 +318,10 @@ class GameEntity
     virtual void exportToPacket(ODPacket& os) const;
     virtual void importFromPacket(ODPacket& is);
 
-    static GameEntity* getGameEntityeEntityFromStream(GameMap* gameMap, std::istream& is);
+    static GameEntity* getGameEntityeEntityFromStream(GameMap* gameMap, GameEntityType type, std::istream& is);
     static GameEntity* getGameEntityFromPacket(GameMap* gameMap, ODPacket& is);
+
+    static std::string getGameEntityStreamFormat();
 
   protected:
     //! \brief Function that implements the mesh creation

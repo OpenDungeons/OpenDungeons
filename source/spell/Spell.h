@@ -75,13 +75,8 @@ public:
      */
     virtual void exportHeadersToStream(std::ostream& os) override;
     virtual void exportHeadersToPacket(ODPacket& os) override;
-    //! \brief Exports the data of the Spell
-    virtual void exportToStream(std::ostream& os) const override;
-    virtual void importFromStream(std::istream& is) override;
-    virtual void exportToPacket(ODPacket& os) const override;
-    virtual void importFromPacket(ODPacket& is) override;
 
-    static std::string getFormat();
+    static std::string getSpellStreamFormat();
 
 private:
     //! \brief Number of turns the spell should be displayed before automatic deletion.

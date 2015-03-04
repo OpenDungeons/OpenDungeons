@@ -29,25 +29,24 @@ class RoomLibrary: public Room
 public:
     RoomLibrary(GameMap* gameMap);
 
-    virtual RoomType getType() const
+    virtual RoomType getType() const override
     { return RoomType::library; }
 
-    virtual void doUpkeep();
-    virtual bool hasOpenCreatureSpot(Creature* c);
-    virtual bool addCreatureUsingRoom(Creature* c);
-    virtual void removeCreatureUsingRoom(Creature* c);
-    virtual void absorbRoom(Room *r);
-    virtual void addCoveredTile(Tile* t, double nHP);
-    virtual bool removeCoveredTile(Tile* t);
+    virtual void doUpkeep() override;
+    virtual bool hasOpenCreatureSpot(Creature* c) override;
+    virtual bool addCreatureUsingRoom(Creature* c) override;
+    virtual void removeCreatureUsingRoom(Creature* c) override;
+    virtual void absorbRoom(Room *r) override;
+    virtual void addCoveredTile(Tile* t, double nHP) override;
+    virtual bool removeCoveredTile(Tile* t) override;
 
 protected:
-    virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
-    virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);
+    virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile) override;
+    virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile) override;
 private:
     //!\brief checks how many items are on the library
     uint32_t countResearchItemsOnRoom();
     Tile* checkIfAvailableSpot(const std::vector<Tile*>& activeSpots);
-    int32_t mNbTurnsNoChangeSpots;
     void getCreatureWantedPos(Creature* creature, Tile* tileSpot,
         Ogre::Real& wantedX, Ogre::Real& wantedY);
     std::vector<Tile*> mUnusedSpots;

@@ -274,9 +274,10 @@ void Spell::notifySeatsWithVision(const std::vector<Seat*>& seats)
     }
 }
 
-std::string Spell::getFormat()
+std::string Spell::getSpellStreamFormat()
 {
-    return "typeSpell\tseatId\tnumTiles\t\tSubsequent Lines: tileX\ttileY\tisActivated(0/1)\t\tSubsequent Lines: optional specific data";
+    return "typeSpell\t" + RenderedMovableEntity::getRenderedMovableEntityStreamFormat()
+        + "optionalData\t";
 }
 
 void Spell::exportHeadersToStream(std::ostream& os)
@@ -289,56 +290,6 @@ void Spell::exportHeadersToPacket(ODPacket& os)
 {
     RenderedMovableEntity::exportHeadersToPacket(os);
     os << getSpellType();
-}
-
-void Spell::exportToPacket(ODPacket& os) const
-{
-    int seatId = -1;
-    Seat* seat = getSeat();
-    if(seat != nullptr)
-        seatId = seat->getId();
-
-    os << seatId;
-    RenderedMovableEntity::exportToPacket(os);
-}
-
-void Spell::importFromPacket(ODPacket& is)
-{
-    int seatId;
-    OD_ASSERT_TRUE_MSG(is >> seatId, "name=" + getName());
-    if(seatId != -1)
-    {
-        Seat* seat = getGameMap()->getSeatById(seatId);
-        OD_ASSERT_TRUE_MSG(seat != nullptr, "name=" + getName() + ", seatId=" + Helper::toString(seatId));
-        if(seat != nullptr)
-            setSeat(seat);
-    }
-    RenderedMovableEntity::importFromPacket(is);
-}
-
-void Spell::exportToStream(std::ostream& os) const
-{
-    int seatId = -1;
-    Seat* seat = getSeat();
-    if(seat != nullptr)
-        seatId = seat->getId();
-
-    os << seatId;
-    RenderedMovableEntity::exportToStream(os);
-}
-
-void Spell::importFromStream(std::istream& is)
-{
-    int seatId;
-    OD_ASSERT_TRUE_MSG(is >> seatId, "name=" + getName());
-    if(seatId != -1)
-    {
-        Seat* seat = getGameMap()->getSeatById(seatId);
-        OD_ASSERT_TRUE_MSG(seat != nullptr, "name=" + getName() + ", seatId=" + Helper::toString(seatId));
-        if(seat != nullptr)
-            setSeat(seat);
-    }
-    RenderedMovableEntity::importFromStream(is);
 }
 
 std::istream& operator>>(std::istream& is, SpellType& tt)

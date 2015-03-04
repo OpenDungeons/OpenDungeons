@@ -575,9 +575,9 @@ bool Tile::isWallClaimedForSeat(Seat* seat)
     return true;
 }
 
-const char* Tile::getFormat()
+std::string Tile::getFormat()
 {
-    return "posX\tposY\ttype\tfullness";
+    return "posX\tposY\ttype\tfullness\tseatId(optional)";
 }
 
 void Tile::exportToStream(std::ostream& os) const
@@ -1044,9 +1044,8 @@ void Tile::setSelected(bool ss, Player* pp)
 
 void Tile::setMarkedForDiggingForAllPlayersExcept(bool s, Seat* exceptSeat)
 {
-    for (unsigned int i = 0, num = getGameMap()->numPlayers(); i < num; ++i)
+    for (Player* player : getGameMap()->getPlayers())
     {
-        Player* player = getGameMap()->getPlayer(i);
         if(exceptSeat == nullptr || (player->getSeat() != nullptr && !exceptSeat->isAlliedSeat(player->getSeat())))
             setMarkedForDigging(s, player);
     }
@@ -1102,16 +1101,6 @@ void Tile::removePlayerMarkingTile(Player *p)
         return;
 
     mPlayersMarkingTile.erase(it);
-}
-
-unsigned int Tile::numPlayersMarkingTile() const
-{
-    return mPlayersMarkingTile.size();
-}
-
-Player* Tile::getPlayerMarkingTile(int index)
-{
-    return mPlayersMarkingTile[index];
 }
 
 void Tile::addNeighbor(Tile *n)

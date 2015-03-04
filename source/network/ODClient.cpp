@@ -826,7 +826,7 @@ bool ODClient::processOneClientSocketMessage()
                 researches.push_back(research);
             }
 
-            getPlayer()->setResearchTree(researches);
+            getPlayer()->getSeat()->setResearchTree(researches);
             break;
         }
 
@@ -843,7 +843,7 @@ bool ODClient::processOneClientSocketMessage()
                 researches.push_back(research);
             }
 
-            getPlayer()->setResearchesDone(researches);
+            getPlayer()->getSeat()->setResearchesDone(researches);
             break;
         }
 

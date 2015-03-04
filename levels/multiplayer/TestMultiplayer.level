@@ -8,12 +8,156 @@ FightMusic	The_Dark_Amulet.ogg
 [/Info]
 
 [Seats]
-# seatId	teamId	player	faction	startingX	startingY	color	startingGold
-1	1	Human	Keeper	195	207	1	1000
-2	2	Choice	Choice	252	211	2	1000
-3	3	Choice	Choice	167	104	3	1000
-4	4	Choice	Choice	266	92	4	1000
-5	5	Inactive	Keeper	200	200	5	1000
+[Seat]
+seatId	1
+teamId	1
+player	Human
+faction	Keeper
+startingX	195
+startingY	207
+colorId	1
+gold	1000
+goldMined	100
+mana	500
+[ResearchDone]
+roomTreasury
+roomDormitory
+roomHatchery
+roomLibrary
+trapCannon
+spellSummonWorker
+[/ResearchDone]
+[ResearchNotAllowed]
+[/ResearchNotAllowed]
+[ResearchPending]
+roomTrainingHall
+spellCallToWar
+trapSpike
+roomForge
+roomCrypt
+trapBoulder
+[/ResearchPending]
+[/Seat]
+[Seat]
+seatId	2
+teamId	2
+player	Choice
+faction	Choice
+startingX	252
+startingY	211
+colorId	2
+gold	1000
+goldMined	100
+mana	500
+[ResearchDone]
+roomTreasury
+roomDormitory
+roomHatchery
+roomLibrary
+trapCannon
+spellSummonWorker
+[/ResearchDone]
+[ResearchNotAllowed]
+[/ResearchNotAllowed]
+[ResearchPending]
+roomTrainingHall
+spellCallToWar
+trapSpike
+roomForge
+roomCrypt
+trapBoulder
+[/ResearchPending]
+[/Seat]
+[Seat]
+seatId	3
+teamId	3
+player	Choice
+faction	Choice
+startingX	167
+startingY	104
+colorId	3
+gold	1000
+goldMined	100
+mana	500
+[ResearchDone]
+roomTreasury
+roomDormitory
+roomHatchery
+roomLibrary
+trapCannon
+spellSummonWorker
+[/ResearchDone]
+[ResearchNotAllowed]
+[/ResearchNotAllowed]
+[ResearchPending]
+roomTrainingHall
+spellCallToWar
+trapSpike
+roomForge
+roomCrypt
+trapBoulder
+[/ResearchPending]
+[/Seat]
+[Seat]
+seatId	4
+teamId	4
+player	Choice
+faction	Choice
+startingX	266
+startingY	92
+colorId	4
+gold	1000
+goldMined	100
+mana	500
+[ResearchDone]
+roomTreasury
+roomDormitory
+roomHatchery
+roomLibrary
+trapCannon
+spellSummonWorker
+[/ResearchDone]
+[ResearchNotAllowed]
+[/ResearchNotAllowed]
+[ResearchPending]
+roomTrainingHall
+spellCallToWar
+trapSpike
+roomForge
+roomCrypt
+trapBoulder
+[/ResearchPending]
+[/Seat]
+[Seat]
+seatId	5
+teamId	5
+player	Inactive
+faction	Keeper
+startingX	10
+startingY	10
+colorId	5
+gold	1000
+goldMined	100
+mana	500
+[ResearchDone]
+roomTreasury
+roomDormitory
+roomHatchery
+roomLibrary
+trapCannon
+spellSummonWorker
+[/ResearchDone]
+[ResearchNotAllowed]
+[/ResearchNotAllowed]
+[ResearchPending]
+roomTrainingHall
+spellCallToWar
+trapSpike
+roomForge
+roomCrypt
+trapBoulder
+[/ResearchPending]
+[/Seat]
 [/Seats]
 
 [Goals]
@@ -34,7 +178,7 @@ ProtectDungeonTemple	NULL
 # Map Size
 400 # MapSizeX
 400 # MapSizeY
-# posX	posY	type	fullness
+# posX	posY	type	fullness	seatId(optional)
 146	102	3	100
 146	103	3	100
 146	104	3	100
@@ -5746,6 +5890,7 @@ ProtectDungeonTemple	NULL
 262	210
 262	211
 262	212
+0	0
 [/Room]
 [Room]
 4	2	9
@@ -5881,103 +6026,61 @@ ProtectDungeonTemple	NULL
 
 [Creatures]
 # SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon
-[Creature]
 1	ConstructWorker1	ConstructWorker	193	206	0	ConstructWorker	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 2	Gnome2	Gnome	194	311	0	Gnome	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 3	Goblin3	Goblin	161	201	0	Goblin	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 5	PitDemon5	PitDemon	159	202	0	PitDemon	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 2	Wizard7	Wizard	199	311	0	Wizard	1	0	max	100	0	0	Staff	none
-[/Creature]
-[Creature]
 3	Tentacle18	Tentacle1	162	198	0	Tentacle1	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 4	Tentacle29	Tentacle2	158	201	0	Tentacle2	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 5	Troll10	Troll	186	235	0	Troll	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 2	Knight_c2	Knight	192	311	0	Knight	1	0	max	100	0	0	Roundshield	Longsword
-[/Creature]
-[Creature]
 3	Knight_c3	Knight	192	314	0	Knight	1	0	max	100	0	0	Roundshield	Longsword
-[/Creature]
-[Creature]
 4	Knight_c4	Knight	196	315	0	Knight	1	0	max	100	0	0	Roundshield	Longsword
-[/Creature]
-[Creature]
 5	Knight_c5	Knight	194	315	0	Knight	1	0	max	100	0	0	Roundshield	Longsword
-[/Creature]
-[Creature]
 5	LizardMan_001	LizardMan	185	233	0	LizardMan	1	0	max	100	0	0	Roundshield	Longsword
-[/Creature]
-[Creature]
 1	Kobold	Kobold	197	205	0	Kobold	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 1	Kobold_012	Kobold	193	205	0	Kobold	1	0	max	100	0	0	Roundshield	Longsword
-[/Creature]
-[Creature]
 1	Kobold_007	Kobold	195	205	0	Kobold	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 2	Dwarf1_001	Dwarf1	221	189	0	Dwarf1	1	0	max	100	0	0	Roundshield	Sabre
-[/Creature]
-[Creature]
 2	Dwarf1_002	Dwarf2	226	165	0	Dwarf2	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 2	Dwarf1_004	Dwarf3	213	157	0	Dwarf3	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 2	Dwarf1_006	Dwarf2	214	141	0	Dwarf2	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 2	Dwarf1_007	Dwarf3	212	143	0	Dwarf3	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 2	Dwarf2_001	Dwarf3	264	221	0	Dwarf3	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 2	Dwarf2_002	Dwarf2	216	185	0	Dwarf2	1	0	max	100	0	0	none	Longsword
-[/Creature]
-[Creature]
 2	Dwarf3_001	Dwarf1	217	187	0	Dwarf1	1	0	max	100	0	0	Roundshield	Longsword
-[/Creature]
-[Creature]
 3	LizardMan_002	LizardMan	229	168	0	LizardMan	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 2	Kre	Kreatur	262	220	0	Kreatur	10	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 2	Orc_0001	Orc	228	166	0	Orc	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 2	Orc_0002	Orc	262	222	0	Orc	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 3	Kreatur_001	Kreatur	161	113	0	Kreatur	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 3	Kreatur_002	Kreatur	159	101	0	Kreatur	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 3	Kreatur_003	Kreatur	176	98	0	Kreatur	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 3	Kreatur_004	Kreatur	168	99	0	Kreatur	1	0	max	100	0	0	none	none
-[/Creature]
-[Creature]
 3	Kreatur_006	Kreatur	162	100	0	Kreatur	1	0	max	100	0	0	none	none
-[/Creature]
 [/Creatures]
+
+[Spells]
+# typeSpell	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	optionalData	
+[/Spells]
+
+[CraftedTraps]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	trapType	PosX	PosY	PosZ	
+[/CraftedTraps]
+
+[ResearchEntity]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	researchType	PosX	PosY	PosZ	
+[/ResearchEntity]
+
+[Missiles]
+# missileType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	directionX	directionY	directionZ	missileAlive	damageAllies	optionalData	
+[/Missiles]
+
+[TreasuryObject]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	value	
+[/TreasuryObject]
+
+[Chickens]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	PosX	PosY	PosZ	
+[/Chickens]

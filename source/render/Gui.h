@@ -53,6 +53,7 @@ public:
         optionsMenu,
         inGameMenu,
         replayMenu,
+        loadSavedGameMenu,
         configureSeats,
         console
     };
@@ -110,6 +111,7 @@ public:
     static const std::string MM_BUTTON_START_REPLAY;
     static const std::string MM_BUTTON_START_MULTIPLAYER_CLIENT;
     static const std::string MM_BUTTON_START_MULTIPLAYER_SERVER;
+    static const std::string MM_BUTTON_LOAD_GAME;
     static const std::string MM_BUTTON_MAPEDITOR;
     static const std::string MM_BUTTON_QUIT;
     static const std::string EDITOR;

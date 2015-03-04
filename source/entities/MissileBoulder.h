@@ -37,11 +37,14 @@ public:
         const Ogre::Vector3& direction, double damage);
     MissileBoulder(GameMap* gameMap);
 
-    virtual MissileType getMissileType()
-    { return MissileType::boulder; }
+    virtual MissileObjectType getMissileType() const override
+    { return MissileObjectType::boulder; }
 
-    virtual bool hitCreature(GameEntity* entity);
-    virtual bool wallHitNextDirection(const Ogre::Vector3& actDirection, Tile* tile, Ogre::Vector3& nextDirection);
+    virtual bool hitCreature(GameEntity* entity) override;
+    virtual bool wallHitNextDirection(const Ogre::Vector3& actDirection, Tile* tile, Ogre::Vector3& nextDirection) override;
+
+    void exportToStream(std::ostream& os) const override;
+    void importFromStream(std::istream& is) override;
 
     static MissileBoulder* getMissileBoulderFromStream(GameMap* gameMap, std::istream& is);
     static MissileBoulder* getMissileBoulderFromPacket(GameMap* gameMap, ODPacket& packet);

@@ -66,7 +66,7 @@ public:
 
     virtual void absorbRoom(Room* r);
 
-    static std::string getFormat();
+    static std::string getRoomStreamFormat();
 
     static Room* getRoomFromStream(GameMap* gameMap, std::istream& is);
     static Room* getRoomFromPacket(GameMap* gameMap, ODPacket& is);

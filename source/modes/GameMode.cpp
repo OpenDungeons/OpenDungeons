@@ -133,6 +133,12 @@ void GameMode::activate()
         )
     );
     addEventConnection(
+        guiSheet->getChild("GameOptionsWindow/SaveGameButton")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&GameMode::saveGame, this)
+        )
+    );
+    addEventConnection(
         guiSheet->getChild("GameOptionsWindow/SettingsButton")->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&GameMode::showSettingsFromOptions, this)
@@ -893,6 +899,10 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
         popupExit(!mGameMap->getGamePaused());
         break;
 
+    case OIS::KC_F5:
+        saveGame();
+        break;
+
     // Print a screenshot
     case OIS::KC_SYSRQ:
         ResourceManager::getSingleton().takeScreenshot(frameListener.getRenderWindow());
@@ -1168,6 +1178,18 @@ bool GameMode::showObjectivesFromOptions(const CEGUI::EventArgs& /*e*/)
     return true;
 }
 
+bool GameMode::saveGame(const CEGUI::EventArgs& /*e*/)
+{
+    if(ODClient::getSingleton().isConnected())
+    {
+        // Send a message to the server telling it we want to drop the creature
+        ClientNotification *clientNotification = new ClientNotification(
+            ClientNotificationType::askSaveMap);
+        ODClient::getSingleton().queueClientNotification(clientNotification);
+    }
+    return true;
+}
+
 bool GameMode::showSettingsFromOptions(const CEGUI::EventArgs& /*e*/)
 {
     CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::inGameMenu);
@@ -1279,70 +1301,70 @@ bool GameMode::onMinimapClick(const CEGUI::EventArgs& arg)
 }
 void GameMode::refreshGuiResearch()
 {
-    Player* localPlayer = mGameMap->getLocalPlayer();
-    if(!localPlayer->getNeedRefreshGuiResearchDone())
+    Seat* localPlayerSeat = mGameMap->getLocalPlayer()->getSeat();
+    if(!localPlayerSeat->getNeedRefreshGuiResearchDone())
         return;
 
-    localPlayer->guiResearchRefreshedDone();
+    localPlayerSeat->guiResearchRefreshedDone();
 
     // We show/hide the icons depending on available researches
     CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::inGameMenu);
-    if(localPlayer->isResearchDone(ResearchType::roomDormitory))
+    if(localPlayerSeat->isResearchDone(ResearchType::roomDormitory))
         guiSheet->getChild(Gui::BUTTON_DORMITORY)->show();
     else
         guiSheet->getChild(Gui::BUTTON_DORMITORY)->hide();
 
-    if(localPlayer->isResearchDone(ResearchType::roomTreasury))
+    if(localPlayerSeat->isResearchDone(ResearchType::roomTreasury))
         guiSheet->getChild(Gui::BUTTON_TREASURY)->show();
     else
         guiSheet->getChild(Gui::BUTTON_TREASURY)->hide();
 
-    if(localPlayer->isResearchDone(ResearchType::roomHatchery))
+    if(localPlayerSeat->isResearchDone(ResearchType::roomHatchery))
         guiSheet->getChild(Gui::BUTTON_HATCHERY)->show();
     else
         guiSheet->getChild(Gui::BUTTON_HATCHERY)->hide();
 
-    if(localPlayer->isResearchDone(ResearchType::roomLibrary))
+    if(localPlayerSeat->isResearchDone(ResearchType::roomLibrary))
         guiSheet->getChild(Gui::BUTTON_LIBRARY)->show();
     else
         guiSheet->getChild(Gui::BUTTON_LIBRARY)->hide();
 
-    if(localPlayer->isResearchDone(ResearchType::roomCrypt))
+    if(localPlayerSeat->isResearchDone(ResearchType::roomCrypt))
         guiSheet->getChild(Gui::BUTTON_CRYPT)->show();
     else
         guiSheet->getChild(Gui::BUTTON_CRYPT)->hide();
 
-    if(localPlayer->isResearchDone(ResearchType::roomTrainingHall))
+    if(localPlayerSeat->isResearchDone(ResearchType::roomTrainingHall))
         guiSheet->getChild(Gui::BUTTON_TRAININGHALL)->show();
     else
         guiSheet->getChild(Gui::BUTTON_TRAININGHALL)->hide();
 
-    if(localPlayer->isResearchDone(ResearchType::roomForge))
+    if(localPlayerSeat->isResearchDone(ResearchType::roomForge))
         guiSheet->getChild(Gui::BUTTON_FORGE)->show();
     else
         guiSheet->getChild(Gui::BUTTON_FORGE)->hide();
 
-    if(localPlayer->isResearchDone(ResearchType::trapCannon))
+    if(localPlayerSeat->isResearchDone(ResearchType::trapCannon))
         guiSheet->getChild(Gui::BUTTON_TRAP_CANNON)->show();
     else
         guiSheet->getChild(Gui::BUTTON_TRAP_CANNON)->hide();
 
-    if(localPlayer->isResearchDone(ResearchType::trapSpike))
+    if(localPlayerSeat->isResearchDone(ResearchType::trapSpike))
         guiSheet->getChild(Gui::BUTTON_TRAP_SPIKE)->show();
     else
         guiSheet->getChild(Gui::BUTTON_TRAP_SPIKE)->hide();
 
-    if(localPlayer->isResearchDone(ResearchType::trapBoulder))
+    if(localPlayerSeat->isResearchDone(ResearchType::trapBoulder))
         guiSheet->getChild(Gui::BUTTON_TRAP_BOULDER)->show();
     else
         guiSheet->getChild(Gui::BUTTON_TRAP_BOULDER)->hide();
 
-    if(localPlayer->isResearchDone(ResearchType::spellSummonWorker))
+    if(localPlayerSeat->isResearchDone(ResearchType::spellSummonWorker))
         guiSheet->getChild(Gui::BUTTON_SPELL_SUMMON_WORKER)->show();
     else
         guiSheet->getChild(Gui::BUTTON_SPELL_SUMMON_WORKER)->hide();
 
-    if(localPlayer->isResearchDone(ResearchType::spellCallToWar))
+    if(localPlayerSeat->isResearchDone(ResearchType::spellCallToWar))
         guiSheet->getChild(Gui::BUTTON_SPELL_CALLTOWAR)->show();
     else
         guiSheet->getChild(Gui::BUTTON_SPELL_CALLTOWAR)->hide();

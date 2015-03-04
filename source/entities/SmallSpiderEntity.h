@@ -47,7 +47,6 @@ public:
     { mIsSlapped = true; }
 
     static SmallSpiderEntity* getSmallSpiderEntityFromPacket(GameMap* gameMap, ODPacket& is);
-    static const char* getFormat();
 
 private:
     void addTileToListIfPossible(int x, int y, Room* currentCrypt, std::vector<Tile*>& possibleTileMove);

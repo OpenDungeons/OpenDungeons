@@ -15,29 +15,25 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SPELLCALLTOWAR_H
-#define SPELLCALLTOWAR_H
+#ifndef MENUMODELOAD_H
+#define MENUMODELOAD_H
 
-#include "spell/Spell.h"
+#include "AbstractApplicationMode.h"
 
-class GameMap;
-
-class SpellCallToWar : public Spell
+class MenuModeLoad: public AbstractApplicationMode
 {
 public:
-    SpellCallToWar(GameMap* gameMap);
-    virtual ~SpellCallToWar();
+    MenuModeLoad(ModeManager*);
 
-    SpellType getSpellType() const override
-    { return SpellType::callToWar; }
+    //! \brief Called when the game mode is activated
+    //! Used to call the corresponding Gui Sheet.
+    void activate() final override;
 
-    bool canSlap(Seat* seat) override;
-
-    void slap() override;
-
-    static int getSpellCallToWarCost(GameMap* gameMap, const std::vector<Tile*>& tiles, Player* player);
-
-    static void castSpellCallToWar(GameMap* gameMap, const std::vector<Tile*>& tiles, Player* player);
+    bool launchSelectedButtonPressed(const CEGUI::EventArgs&);
+    bool deleteSelectedButtonPressed(const CEGUI::EventArgs&);
+    bool updateDescription(const CEGUI::EventArgs&);
+private:
+    std::vector<std::string> mFilesList;
 };
 
-#endif // SPELLCALLTOWAR_H
+#endif // MENUMODELOAD_H

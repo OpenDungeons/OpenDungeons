@@ -30,14 +30,20 @@ class GameMap;
 class Tile;
 class ODPacket;
 
+enum class MissileObjectType
+{
+    oneHit,
+    boulder
+};
+
+ODPacket& operator<<(ODPacket& os, const MissileObjectType& rot);
+ODPacket& operator>>(ODPacket& is, MissileObjectType& rot);
+std::ostream& operator<<(std::ostream& os, const MissileObjectType& rot);
+std::istream& operator>>(std::istream& is, MissileObjectType& rot);
+
 class MissileObject: public RenderedMovableEntity
 {
 public:
-    enum MissileType
-    {
-        oneHit,
-        boulder
-    };
     MissileObject(GameMap* gameMap, Seat* seat, const std::string& senderName,
         const std::string& meshName, const Ogre::Vector3& direction, bool damageAllies);
     MissileObject(GameMap* gameMap);
@@ -60,18 +66,17 @@ public:
     virtual GameEntityType getObjectType() const override
     { return GameEntityType::missileObject; }
 
-    virtual MissileType getMissileType() = 0;
+    virtual MissileObjectType getMissileType() const = 0;
 
-    virtual void exportHeadersToStream(std::ostream& os);
-    virtual void exportHeadersToPacket(ODPacket& os);
+    virtual void exportHeadersToStream(std::ostream& os) override;
+    virtual void exportHeadersToPacket(ODPacket& os) override;
+    void exportToStream(std::ostream& os) const override;
+    void importFromStream(std::istream& is) override;
+
+    static std::string getMissileObjectStreamFormat();
 
     static MissileObject* getMissileObjectFromStream(GameMap* gameMap, std::istream& is);
     static MissileObject* getMissileObjectFromPacket(GameMap* gameMap, ODPacket& is);
-
-    friend ODPacket& operator<<(ODPacket& os, const MissileObject::MissileType& rot);
-    friend ODPacket& operator>>(ODPacket& is, MissileObject::MissileType& rot);
-    friend std::ostream& operator<<(std::ostream& os, const MissileObject::MissileType& rot);
-    friend std::istream& operator>>(std::istream& is, MissileObject::MissileType& rot);
 private:
     bool computeDestination(const Ogre::Vector3& position, double moveDist, const Ogre::Vector3& direction,
         Ogre::Vector3& destination, std::list<Tile*>& tiles);

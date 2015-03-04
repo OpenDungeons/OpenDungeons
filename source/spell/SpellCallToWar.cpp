@@ -63,7 +63,6 @@ void SpellCallToWar::slap()
 int SpellCallToWar::getSpellCallToWarCost(GameMap* gameMap, const std::vector<Tile*>& tiles, Player* player)
 {
     // Call to war can be cast on every tile where fullness = 0 (no matter type or vision)
-
     int32_t priceTotal = 0;
     int32_t pricePerTile = ConfigManager::getSingleton().getSpellConfigInt32("CallToWarPrice");
     for(Tile* tile : tiles)

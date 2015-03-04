@@ -150,9 +150,3 @@ SmallSpiderEntity* SmallSpiderEntity::getSmallSpiderEntityFromPacket(GameMap* ga
     SmallSpiderEntity* obj = new SmallSpiderEntity(gameMap);
     return obj;
 }
-
-const char* SmallSpiderEntity::getFormat()
-{
-    // Small spider are not to be saved in file
-    return "Unused";
-}

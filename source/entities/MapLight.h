@@ -117,7 +117,7 @@ public:
     static MapLight* getMapLightFromStream(GameMap* gameMap, std::istream& is);
     static MapLight* getMapLightFromPacket(GameMap* gameMap, ODPacket& is);
 
-    static std::string getFormat();
+    static std::string getMapLightStreamFormat();
     virtual void exportToStream(std::ostream& os) const override;
     virtual void importFromStream(std::istream& is) override;
     virtual void exportToPacket(ODPacket& os) const override;

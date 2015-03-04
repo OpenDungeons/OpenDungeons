@@ -46,15 +46,18 @@ public:
     TrapType getTrapType() const
     { return mTrapType; }
 
-    virtual EntityCarryType getEntityCarryType()
+    virtual EntityCarryType getEntityCarryType() override
     { return EntityCarryType::craftedTrap; }
 
-    virtual void notifyEntityCarryOn(Creature* carrier);
-    virtual void notifyEntityCarryOff(const Ogre::Vector3& position);
+    virtual void notifyEntityCarryOn(Creature* carrier) override;
+    virtual void notifyEntityCarryOff(const Ogre::Vector3& position) override;
+
+    void exportToStream(std::ostream& os) const override;
+    void importFromStream(std::istream& is) override;
 
     static CraftedTrap* getCraftedTrapFromStream(GameMap* gameMap, std::istream& is);
     static CraftedTrap* getCraftedTrapFromPacket(GameMap* gameMap, ODPacket& is);
-    static const char* getFormat();
+    static std::string getCraftedTrapStreamFormat();
 private:
     TrapType mTrapType;
 

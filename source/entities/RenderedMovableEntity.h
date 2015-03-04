@@ -83,7 +83,7 @@ public:
     virtual void exportToPacket(ODPacket& os) const override;
     virtual void importFromPacket(ODPacket& is) override;
 
-    static const char* getFormat();
+    static std::string getRenderedMovableEntityStreamFormat();
 
 protected:
     virtual void createMeshLocal();

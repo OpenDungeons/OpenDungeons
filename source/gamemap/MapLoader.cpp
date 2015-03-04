@@ -23,13 +23,21 @@
 #include "game/Seat.h"
 #include "goals/Goal.h"
 
+#include "entities/ChickenEntity.h"
+#include "entities/CraftedTrap.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
+#include "entities/GameEntity.h"
 #include "entities/MapLight.h"
+#include "entities/MissileObject.h"
+#include "entities/ResearchEntity.h"
 #include "entities/Tile.h"
+#include "entities/TreasuryObject.h"
 #include "entities/Weapon.h"
 
 #include "rooms/Room.h"
+
+#include "spell/Spell.h"
 
 #include "traps/Trap.h"
 
@@ -136,16 +144,32 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         if (nextParam == "[/Seats]")
             break;
 
-        std::string entire_line = nextParam;
-        std::getline(levelFile, nextParam);
-        entire_line += nextParam;
-        //std::cout << entire_line << std::endl;
+        if (nextParam != "[Seat]")
+        {
+            LogManager::getSingleton().logMessage("Expected a Seat tag but got " + nextParam);
+            return false;
+        }
 
         Seat* tempSeat = new Seat(&gameMap);
-        Seat::loadFromLine(entire_line, tempSeat);
+        if(!tempSeat->importSeatFromStream(levelFile))
+        {
+            delete tempSeat;
+            return false;
+        }
 
         if(!gameMap.addSeat(tempSeat))
+        {
+            LogManager::getSingleton().logMessage("Couldn't add seat id="
+                + Helper::toString(tempSeat->getId()));
             delete tempSeat;
+        }
+
+        levelFile >> nextParam;
+        if (nextParam != "[/Seat]")
+        {
+            LogManager::getSingleton().logMessage("Expected a Seat end tag but got " + nextParam);
+            return false;
+        }
     }
 
     // Read in the goals that are shared by all players, the first player to complete all these goals is the winner.
@@ -473,23 +497,92 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         if (nextParam == "[/Creatures]")
             break;
 
-        if (nextParam != "[Creature]")
-            return false;
+        std::string entire_line = nextParam;
+        std::getline(levelFile, nextParam);
+        entire_line += nextParam;
 
-        Creature* tempCreature = Creature::getCreatureFromStream(&gameMap, levelFile);
+        std::stringstream ss(entire_line);
+        Creature* tempCreature = Creature::getCreatureFromStream(&gameMap, ss);
         OD_ASSERT_TRUE(tempCreature != nullptr);
         if(tempCreature == nullptr)
             return false;
 
-        tempCreature->importFromStream(levelFile);
+        tempCreature->importFromStream(ss);
         tempCreature->addToGameMap();
         ++nbCreatures;
+    }
+    LogManager::getSingleton().logMessage("Loaded " + Helper::toString(nbCreatures) + " creatures in level");
+
+    if(!readGameEntity(gameMap, "Spells", GameEntityType::spell, levelFile))
+    {
+        LogManager::getSingleton().logMessage("Invalid Spells section");
+        return false;
+    }
+
+    if(!readGameEntity(gameMap, "CraftedTraps", GameEntityType::craftedTrap, levelFile))
+    {
+        LogManager::getSingleton().logMessage("Invalid CraftedTraps section");
+        return false;
+    }
+
+    if(!readGameEntity(gameMap, "ResearchEntity", GameEntityType::researchEntity, levelFile))
+    {
+        LogManager::getSingleton().logMessage("Invalid ResearchEntity section");
+        return false;
+    }
+
+    if(!readGameEntity(gameMap, "Missiles", GameEntityType::missileObject, levelFile))
+    {
+        LogManager::getSingleton().logMessage("Invalid Missiles section");
+        return false;
+    }
+
+    if(!readGameEntity(gameMap, "TreasuryObject", GameEntityType::treasuryObject, levelFile))
+    {
+        LogManager::getSingleton().logMessage("Invalid TreasuryObject section");
+        return false;
+    }
+
+    if(!readGameEntity(gameMap, "Chickens", GameEntityType::chickenEntity, levelFile))
+    {
+        LogManager::getSingleton().logMessage("Invalid Chickens section");
+        return false;
+    }
+
+    return true;
+}
+
+bool readGameEntity(GameMap& gameMap, const std::string& item, GameEntityType type, std::stringstream& levelFile)
+{
+    std::string nextParam;
+    levelFile >> nextParam;
+    if (nextParam != "[" + item + "]")
+        return false;
+
+    uint32_t nbEntity = 0;
+    while(true)
+    {
+        if(!levelFile.good())
+            return false;
 
         levelFile >> nextParam;
-        if (nextParam != "[/Creature]")
+        if (nextParam == "[/" + item + "]")
+            break;
+
+        std::string entire_line = nextParam;
+        std::getline(levelFile, nextParam);
+        entire_line += nextParam;
+
+        std::stringstream ss(entire_line);
+        GameEntity* entity = GameEntity::getGameEntityeEntityFromStream(&gameMap, type, ss);
+        OD_ASSERT_TRUE(entity != nullptr);
+        if(entity == nullptr)
             return false;
+
+        entity->addToGameMap();
+        ++nbEntity;
     }
-    std::cout << "Loaded " << nbCreatures << " creatures in level" << std::endl;
+    LogManager::getSingleton().logMessage("Loaded " + Helper::toString(nbEntity) + " " + item + " in level");
 
     return true;
 }
@@ -514,7 +607,6 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
 
     // Write out the seats to the file
     levelFile << "\n[Seats]\n";
-    levelFile << "# " << Seat::getFormat() << "\n";
     const std::vector<Seat*> seats = gameMap.getSeats();
     for (Seat* seat : seats)
     {
@@ -522,16 +614,18 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
         if(seat->isRogueSeat())
             continue;
 
-        levelFile << seat << std::endl;
+        levelFile << "[Seat]" << std::endl;
+        seat->exportSeatToStream(levelFile);
+        levelFile << "[/Seat]" << std::endl;
     }
     levelFile << "[/Seats]" << std::endl;
 
     // Write out the goals shared by all players to the file.
     levelFile << "\n[Goals]\n";
     levelFile << "# " << Goal::getFormat() << "\n";
-    for (unsigned int i = 0, num = gameMap.numGoalsForAllSeats(); i < num; ++i)
+    for (Goal* goal : gameMap.getGoalsForAllSeats())
     {
-        levelFile << gameMap.getGoalForAllSeats(i);
+        levelFile << goal;
     }
     levelFile << "[/Goals]" << std::endl;
 
@@ -554,6 +648,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
             if (tempTile->getType() == TileType::dirt && tempTile->getFullness() >= 100.0)
                 continue;
 
+            tempTile->exportHeadersToStream(levelFile);
             tempTile->exportToStream(levelFile);
             levelFile << std::endl;
         }
@@ -561,22 +656,16 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     levelFile << "[/Tiles]" << std::endl;
 
 
-    std::vector<Room*> rooms;
-    for (unsigned int i = 0, num = gameMap.numRooms(); i < num; ++i)
-    {
-        rooms.push_back(gameMap.getRoom(i));
-    }
-
+    std::vector<Room*> rooms = gameMap.getRooms();
     std::sort(rooms.begin(), rooms.end(), Room::sortForMapSave);
 
     // Write out the rooms to the file
     levelFile << "\n[Rooms]\n";
-    levelFile << "# " << Room::getFormat() << "\n";
-    for (std::vector<Room*>::iterator it = rooms.begin(); it != rooms.end(); ++it)
+    levelFile << "# " << Room::getRoomStreamFormat() << "\n";
+    for (Room* room : rooms)
     {
         // Rooms with 0 tiles are removed during upkeep. In editor mode, we don't use upkeep so there might be some rooms with
         // 0 tiles (if a room has been erased for example). For this reason, we don't save rooms with 0 tiles
-        Room* room = *it;
         if(room->numCoveredTiles() <= 0)
             continue;
 
@@ -589,12 +678,11 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
 
     // Write out the traps to the file
     levelFile << "\n[Traps]\n";
-    levelFile << "# " << Trap::getFormat() << "\n";
-    for (unsigned int i = 0; i < gameMap.numTraps(); ++i)
+    levelFile << "# " << Trap::getTrapStreamFormat() << "\n";
+    for (Trap* trap : gameMap.getTraps())
     {
         // Traps with 0 tiles are removed during upkeep. In editor mode, we don't use upkeep so there might be some traps with
         // 0 tiles (if a trap has been erased for example). For this reason, we don't save traps with 0 tiles
-        Trap* trap = gameMap.getTrap(i);
         if(trap->numCoveredTiles() <= 0)
             continue;
 
@@ -607,9 +695,10 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
 
     // Write out the lights to the file.
     levelFile << "\n[Lights]\n";
-    levelFile << "# " << MapLight::getFormat() << "\n";
+    levelFile << "# " << MapLight::getMapLightStreamFormat() << "\n";
     for (MapLight* mapLight : gameMap.getMapLights())
     {
+        mapLight->exportHeadersToStream(levelFile);
         mapLight->exportToStream(levelFile);
         levelFile << std::endl;
     }
@@ -625,17 +714,91 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
 
     // Write out the individual creatures to the file
     levelFile << "\n[Creatures]\n";
-    levelFile << "# " << Creature::getFormat() << "\n";
+    levelFile << "# " << Creature::getCreatureStreamFormat() << "\n";
     for (Creature* creature : gameMap.getCreatures())
     {
-        //NOTE: This code is duplicated in the client side method
-        //"addclass" defined in src/Client.cpp and readGameMapFromFile.
-        //Changes to this code should be reflected in that code as well
-        levelFile << "[Creature]" << std::endl;
+        creature->exportHeadersToStream(levelFile);
         creature->exportToStream(levelFile);
-        levelFile << std::endl << "[/Creature]" << std::endl;
+        levelFile << std::endl;
     }
     levelFile << "[/Creatures]" << std::endl;
+
+    // Write out the RenderedMovableEntities that need to
+    const std::vector<RenderedMovableEntity*>& rendereds = gameMap.getRenderedMovableEntities();
+    levelFile << "\n[Spells]\n";
+    levelFile << "# " << Spell::getSpellStreamFormat() << "\n";
+    for (Spell* spell : gameMap.getSpells())
+    {
+        spell->exportHeadersToStream(levelFile);
+        spell->exportToStream(levelFile);
+        levelFile << std::endl;
+    }
+    levelFile << "[/Spells]" << std::endl;
+
+    levelFile << "\n[CraftedTraps]\n";
+    levelFile << "# " << CraftedTrap::getCraftedTrapStreamFormat() << "\n";
+    for (RenderedMovableEntity* rendered : rendereds)
+    {
+        if(rendered->getObjectType() != GameEntityType::craftedTrap)
+            continue;
+
+        rendered->exportHeadersToStream(levelFile);
+        rendered->exportToStream(levelFile);
+        levelFile << std::endl;
+    }
+    levelFile << "[/CraftedTraps]" << std::endl;
+
+    levelFile << "\n[ResearchEntity]\n";
+    levelFile << "# " << ResearchEntity::getResearchEntityStreamFormat() << "\n";
+    for (RenderedMovableEntity* rendered : rendereds)
+    {
+        if(rendered->getObjectType() != GameEntityType::researchEntity)
+            continue;
+
+        rendered->exportHeadersToStream(levelFile);
+        rendered->exportToStream(levelFile);
+        levelFile << std::endl;
+    }
+    levelFile << "[/ResearchEntity]" << std::endl;
+
+    levelFile << "\n[Missiles]\n";
+    levelFile << "# " << MissileObject::getMissileObjectStreamFormat() << "\n";
+    for (RenderedMovableEntity* rendered : rendereds)
+    {
+        if(rendered->getObjectType() != GameEntityType::missileObject)
+            continue;
+
+        rendered->exportHeadersToStream(levelFile);
+        rendered->exportToStream(levelFile);
+        levelFile << std::endl;
+    }
+    levelFile << "[/Missiles]" << std::endl;
+
+    levelFile << "\n[TreasuryObject]\n";
+    levelFile << "# " << TreasuryObject::getTreasuryObjectStreamFormat() << "\n";
+    for (RenderedMovableEntity* rendered : rendereds)
+    {
+        if(rendered->getObjectType() != GameEntityType::treasuryObject)
+            continue;
+
+        rendered->exportHeadersToStream(levelFile);
+        rendered->exportToStream(levelFile);
+        levelFile << std::endl;
+    }
+    levelFile << "[/TreasuryObject]" << std::endl;
+
+    levelFile << "\n[Chickens]\n";
+    levelFile << "# " << ChickenEntity::getChickenEntityStreamFormat() << "\n";
+    for (RenderedMovableEntity* rendered : rendereds)
+    {
+        if(rendered->getObjectType() != GameEntityType::chickenEntity)
+            continue;
+
+        rendered->exportHeadersToStream(levelFile);
+        rendered->exportToStream(levelFile);
+        levelFile << std::endl;
+    }
+    levelFile << "[/Chickens]" << std::endl;
 
     levelFile.close();
 }
@@ -709,18 +872,30 @@ bool getMapInfo(const std::string& fileName, LevelInfo& levelInfo)
         if (nextParam == "[/Seats]")
             break;
 
-        std::string entire_line = nextParam;
-        std::getline(levelFile, nextParam);
-        entire_line += nextParam;
-        //std::cout << entire_line << std::endl;
+        if (nextParam != "[Seat]")
+            return false;
 
-        const std::string faction = Seat::getFactionFromLine(entire_line);
-        if (faction == Seat::PLAYER_TYPE_HUMAN)
-            ++playerSeatNumber;
-        else if (faction == Seat::PLAYER_TYPE_CHOICE)
-            ++seatConfigurable;
-        else if (faction == Seat::PLAYER_TYPE_AI)
-            ++AISeatNumber;
+        while(true)
+        {
+            std::string line;
+            std::getline(levelFile, line);
+            std::stringstream ss(line);
+            ss >> nextParam;
+            if(nextParam == "[/Seat]")
+                break;
+
+            if(nextParam != "player")
+                continue;
+
+            // We get the player type
+            ss >> nextParam;
+            if (nextParam == Seat::PLAYER_TYPE_HUMAN)
+                ++playerSeatNumber;
+            else if (nextParam == Seat::PLAYER_TYPE_CHOICE)
+                ++seatConfigurable;
+            else if (nextParam == Seat::PLAYER_TYPE_AI)
+                ++AISeatNumber;
+        }
     }
 
     if (playerSeatNumber > 0 || AISeatNumber > 0)

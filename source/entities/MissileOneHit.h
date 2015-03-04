@@ -37,10 +37,13 @@ public:
         const Ogre::Vector3& direction, double physicalDamage, double magicalDamage, bool damageAllies);
     MissileOneHit(GameMap* gameMap);
 
-    virtual MissileType getMissileType()
-    { return MissileType::oneHit; }
+    virtual MissileObjectType getMissileType() const override
+    { return MissileObjectType::oneHit; }
 
-    virtual bool hitCreature(GameEntity* entity);
+    virtual bool hitCreature(GameEntity* entity) override;
+
+    void exportToStream(std::ostream& os) const override;
+    void importFromStream(std::istream& is) override;
 
     static MissileOneHit* getMissileOneHitFromStream(GameMap* gameMap, std::istream& is);
     static MissileOneHit* getMissileOneHitFromPacket(GameMap* gameMap, ODPacket& packet);

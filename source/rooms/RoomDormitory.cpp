@@ -24,6 +24,7 @@
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
+#include "utils/Helper.h"
 #include "utils/LogManager.h"
 
 RoomDormitory::RoomDormitory(GameMap* gameMap) :
@@ -114,35 +115,27 @@ bool RoomDormitory::claimTileForSleeping(Tile* t, Creature* c)
     if (mCreatureSleepingInTile[t] != nullptr)
         return false;
 
-    const CreatureDefinition* def = c->getDefinition();
-    if (!def)
-        return false;
-
-    double xDim, yDim, rotationAngle = 0.0;
-    bool spaceIsBigEnough = false;
+    double rotationAngle = 0.0;
 
     // Check to see whether the bed should be situated x-by-y or y-by-x tiles.
-    if (tileCanAcceptBed(t, def->getBedDim1(), def->getBedDim2()))
-    {
-        spaceIsBigEnough = true;
-        xDim = def->getBedDim1();
-        yDim = def->getBedDim2();
+    if (tileCanAcceptBed(t, c->getDefinition()->getBedDim1(), c->getDefinition()->getBedDim2()))
         rotationAngle = 0.0;
-    }
-
-    if (!spaceIsBigEnough && tileCanAcceptBed(t, def->getBedDim2(), def->getBedDim1()))
-    {
-        spaceIsBigEnough = true;
-        xDim = def->getBedDim2();
-        yDim = def->getBedDim1();
+    else if (tileCanAcceptBed(t, c->getDefinition()->getBedDim2(), c->getDefinition()->getBedDim1()))
         rotationAngle = 90.0;
-    }
-
-    if (!spaceIsBigEnough)
+    else
         return false;
 
-    BedRoomObjectInfo bedInfo(t->getX() + xDim / 2.0 - 0.5, t->getY() + yDim / 2.0 - 0.5,
-        rotationAngle, c, t);
+    createBed(t, rotationAngle, c);
+    return true;
+}
+
+void RoomDormitory::createBed(Tile* t, double rotationAngle, Creature* c)
+{
+    double xDim = (rotationAngle == 0.0 ? c->getDefinition()->getBedDim1() : c->getDefinition()->getBedDim2());
+    double yDim = (rotationAngle == 0.0 ? c->getDefinition()->getBedDim2() : c->getDefinition()->getBedDim1());
+
+    BedRoomObjectInfo bedInfo(static_cast<double>(t->getX()) + xDim / 2.0 - 0.5,
+        static_cast<double>(t->getY()) + yDim / 2.0 - 0.5, rotationAngle, c, t);
 
     // Mark all of the affected tiles as having this creature sleeping in them.
     for (int i = 0; i < xDim; ++i)
@@ -156,12 +149,11 @@ bool RoomDormitory::claimTileForSleeping(Tile* t, Creature* c)
     }
 
     // Add the model
-    RenderedMovableEntity* ro = loadBuildingObject(getGameMap(), def->getBedMeshName(), t, bedInfo.getX(), bedInfo.getY(), rotationAngle, false);
+    RenderedMovableEntity* ro = loadBuildingObject(getGameMap(), c->getDefinition()->getBedMeshName(), t, bedInfo.getX(), bedInfo.getY(), rotationAngle, false);
     addBuildingObject(t, ro);
     ro->createMesh();
     // Save the info for later...
     mBedRoomObjectsInfo.push_back(bedInfo);
-    return true;
 }
 
 bool RoomDormitory::releaseTileForSleeping(Tile* t, Creature* c)
@@ -279,4 +271,59 @@ bool RoomDormitory::tileCanAcceptBed(Tile *tile, int xDim, int yDim)
     }
 
     return returnValue;
+}
+
+void RoomDormitory::exportToStream(std::ostream& os) const
+{
+    Room::exportToStream(os);
+    uint32_t nbBeds = mBedRoomObjectsInfo.size();
+    os << nbBeds << "\n";
+    for(const BedRoomObjectInfo& bed : mBedRoomObjectsInfo)
+    {
+        os << bed.getCreature()->getName() << "\t";
+        os << bed.getOwningTile()->getX() << "\t";
+        os << bed.getOwningTile()->getY() << "\t";
+        os << bed.getRotation() << "\n";
+    }
+}
+
+void RoomDormitory::importFromStream(std::istream& is)
+{
+    Room::importFromStream(is);
+    uint32_t nbBeds;
+    OD_ASSERT_TRUE(is >> nbBeds);
+    while(nbBeds > 0)
+    {
+        std::string creatureName;
+        int x, y;
+        double rotation;
+        OD_ASSERT_TRUE(is >> creatureName);
+        OD_ASSERT_TRUE(is >> x);
+        OD_ASSERT_TRUE(is >> y);
+        OD_ASSERT_TRUE(is >> rotation);
+        mBedCreatureLoad.push_back(BedCreatureLoad(creatureName, x,y, rotation));
+        nbBeds--;
+    }
+}
+
+void RoomDormitory::restoreInitialEntityState()
+{
+    for(BedCreatureLoad& bedLoad : mBedCreatureLoad)
+    {
+        Creature* creature = getGameMap()->getCreature(bedLoad.getCreatureName());
+        if(creature == nullptr)
+        {
+            OD_ASSERT_TRUE_MSG(false, "creatureName=" + bedLoad.getCreatureName());
+            continue;
+        }
+        Tile* tile = getGameMap()->getTile(bedLoad.getTileX(), bedLoad.getTileY());
+        if(creature == nullptr)
+        {
+            OD_ASSERT_TRUE_MSG(false, "tile x=" + Helper::toString(bedLoad.getTileX())
+                + ", y=" + Helper::toString(bedLoad.getTileY()));
+            continue;
+        }
+        createBed(tile, bedLoad.getRotationAngle(), creature);
+        creature->setHomeTile(tile);
+    }
 }
