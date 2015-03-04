@@ -35,6 +35,7 @@
 #include "entities/TreasuryObject.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Weapon.h"
+#include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "modes/ModeManager.h"
@@ -124,6 +125,9 @@ bool ODClient::processOneClientSocketMessage()
             gameMap->setLevelFightMusicFile(str);
 
             OD_ASSERT_TRUE(packetReceived >> str);
+            if(str.empty())
+                str = ConfigManager::DEFAULT_TILESET_NAME;
+
             gameMap->setTileSetName(str);
 
             int32_t nb;

@@ -82,7 +82,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
     }
 
     // By default, we use the default tileSet
-    gameMap.setTileSetName(ConfigManager::DEFAULT_TILESET_NAME);
+    gameMap.setTileSetName("");
 
     // Read in the seats from the level file
     while (true)
@@ -616,6 +616,9 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     levelFile << "Description\t" << gameMap.getLevelDescription() << std::endl;
     levelFile << "Music\t" << gameMap.getLevelMusicFile() << std::endl;
     levelFile << "FightMusic\t" << gameMap.getLevelFightMusicFile() << std::endl;
+    if(!gameMap.getTileSetName().empty())
+        levelFile << "TileSet\t" << gameMap.getTileSetName() << std::endl;
+
     levelFile << "[/Info]" << std::endl;
 
 
