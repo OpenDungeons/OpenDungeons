@@ -1563,32 +1563,48 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
                 + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
             int x1, y1, x2, y2;
-            TileType tileType;
+            TileVisual tileVisual;
             double tileFullness;
             int seatId;
 
-            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> tileType >> tileFullness >> seatId);
+            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> tileVisual >> tileFullness >> seatId);
             std::vector<Tile*> selectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
             std::vector<Tile*> affectedTiles;
             Seat* seat = nullptr;
-            if(tileType == TileType::claimed)
+            if(tileVisual == TileVisual::claimed)
                 seat = gameMap->getSeatById(seatId);
 
             for(Tile* tile : selectedTiles)
             {
                 // We do not change tiles where there is something
                 if((tile->numEntitiesInTile() > 0) &&
-                   ((tileFullness > 0.0) || (tileType == TileType::lava) || (tileType == TileType::water)))
+                   ((tileFullness > 0.0) || (tileVisual == TileVisual::lava) || (tileVisual == TileVisual::water)))
                     continue;
                 if(tile->getCoveringBuilding() != nullptr)
                     continue;
 
                 affectedTiles.push_back(tile);
                 tile->setFullness(tileFullness);
-                if(tileType == TileType::claimed)
+                if(tileVisual == TileVisual::claimed)
+                {
+                    // If the tile was not a claimable type, we change it to dirt
+                    if(tileFullness > 0.0)
+                    {
+                        tile->setType(TileType::dirt);
+                    }
+                    else if((tile->getType() != TileType::gold) &&
+                            (tile->getType() != TileType::dirt))
+                    {
+                        // Ground tile can be gold or dirt
+                        tile->setType(TileType::dirt);
+
+                    }
                     tile->claimTile(seat);
+                }
                 else
-                    tile->unclaimTile(tileType);
+                    tile->unclaimTile(Tile::tileTypeFromTileVisual(tileVisual));
+
+                tile->computeTileVisual();
             }
             if(!affectedTiles.empty())
             {
@@ -1635,9 +1651,14 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     continue;
                 tiles.push_back(tile);
 
-                tile->setType(TileType::claimed);
+                if((tile->getType() != TileType::gold) &&
+                   (tile->getType() != TileType::dirt))
+                {
+                    tile->setType(TileType::dirt);
+                }
                 tile->setSeat(seat);
                 tile->setFullness(0.0);
+                tile->computeTileVisual();
             }
 
             if(tiles.empty())
@@ -1768,9 +1789,14 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     continue;
                 tiles.push_back(tile);
 
-                tile->setType(TileType::claimed);
+                if((tile->getType() != TileType::gold) &&
+                   (tile->getType() != TileType::dirt))
+                {
+                    tile->setType(TileType::dirt);
+                }
                 tile->setSeat(seat);
                 tile->setFullness(0.0);
+                tile->computeTileVisual();
             }
 
             if(tiles.empty())

@@ -57,6 +57,7 @@ Tile::Tile(GameMap* gameMap, int x, int y, TileType type, double fullness) :
     mX                  (x),
     mY                  (y),
     mType               (type),
+    mTileVisual         (tileVisualFromTileType(type)),
     mSelected           (false),
     mFullness           (fullness),
     mCoveringBuilding   (nullptr),
@@ -90,16 +91,6 @@ void Tile::destroyMeshLocal()
     RenderManager::getSingleton().rrDestroyTile(this);
 }
 
-void Tile::setType(TileType t)
-{
-    // If the type has changed from its previous value we need to see if
-    // the mesh should be updated
-    if (t != mType)
-    {
-        mType = t;
-    }
-}
-
 void Tile::addToGameMap()
 {
     getGameMap()->addTile(this);
@@ -124,10 +115,9 @@ void Tile::setFullness(double f)
     }
 }
 
+// DAN_TEST ca a pas de sens de tester claimed
 bool Tile::isBuildableUpon() const
 {
-    if(mType != TileType::claimed)
-        return false;
     if(getFullness() > 0.0)
         return false;
     if(mIsBuilding)
@@ -159,11 +149,13 @@ void Tile::setCoveringBuilding(Building *building)
     // Set the tile as claimed and of the team color of the building
     setSeat(mCoveringBuilding->getSeat());
     mClaimedPercentage = 1.0;
-    setType(TileType::claimed);
 }
 
 bool Tile::isDiggable(Seat* seat) const
 {
+    if(!getGameMap()->isServerGameMap())
+        return mLocalPlayerCanMarkTile;
+
     if (getFullness() == 0.0)
         return false;
 
@@ -175,28 +167,29 @@ bool Tile::isDiggable(Seat* seat) const
     if (mType == TileType::lava || mType == TileType::water || mType == TileType::rock)
         return false;
 
-    if (mType != TileType::claimed)
-        return false;
-
-    // type == claimed
-    if(!getGameMap()->isServerGameMap())
-        return mLocalPlayerCanMarkTile;
-
     // For claimed walls, we check whether the walls is either claimed by the given player,
     if (isClaimedForSeat(seat))
         return true;
 
-    // or whether it isn't belonging to a specific team.
-    if (mClaimedPercentage <= 0.0)
+    // or whether it is belonging to another team.
+    if (isClaimed())
         return true;
 
     return false;
 }
 
-bool Tile::isGroundClaimable() const
+bool Tile::isGroundClaimable(Seat* seat) const
 {
-    return ((mType == TileType::dirt || mType == TileType::gold || mType == TileType::claimed) && getFullness() == 0.0
-        && getCoveringRoom() == nullptr);
+    if(getFullness() > 0.0)
+        return false;
+
+    if(mType != TileType::dirt && mType != TileType::gold)
+        return false;
+
+    if(isClaimedForSeat(seat))
+        return false;
+
+    return true;
 }
 
 bool Tile::isWallClaimable(Seat* seat)
@@ -215,68 +208,52 @@ bool Tile::isWallClaimable(Seat* seat)
         if (tile->getFullness() > 0.0)
             continue;
 
-        if (tile->getType() == TileType::claimed
-                && tile->getClaimedPercentage() >= 1.0
-                && tile->isClaimedForSeat(seat))
-        {
-            foundClaimedGroundTile = true;
-            break;
-        }
+        if (!tile->isClaimedForSeat(seat))
+            continue;
+
+        foundClaimedGroundTile = true;
+        break;
     }
 
     if (foundClaimedGroundTile == false)
         return false;
 
-    if (mType == TileType::dirt)
+    // If the tile is not claimed, it is claimable
+    if (!isClaimed())
         return true;
 
-    if (mType != TileType::claimed)
+    // We check if the tile is already claimed for our seat
+    if (isClaimedForSeat(seat))
         return false;
 
-    // type == claimed
-
-    // For claimed walls, we check whether it isn't belonging completely to a specific team.
-    if (mClaimedPercentage < 1.0)
-        return true;
-
+    // The tile is claimed by another team. We check if there is a claimed ground tile
+    // claimed by the same team. If not, we can claim. If yes, we cannot
     Seat* tileSeat = getSeat();
     if (tileSeat == nullptr)
         return true;
 
-    // Or whether the wall tile is either claimed by the given player entirely already,
-    // NOTE: mClaimedPercentage >= 1.0 from here
-    if (isClaimedForSeat(seat))
-        return false; // Already claimed.
-
-    // The wall is claimed by another team.
-    // Or whether the enemy player that claimed the wall tile has got any ground tiles permitting to keep claiming that wall tile.
     foundClaimedGroundTile = false;
     for (Tile* tile : mNeighbors)
     {
         if (tile->getFullness() > 0.0)
             continue;
 
-        if (tile->getType() == TileType::claimed
-                && tile->mClaimedPercentage >= 1.0
-                && tile->isClaimedForSeat(tileSeat))
-        {
-            foundClaimedGroundTile = true;
-            break;
-        }
+        if (!tile->isClaimedForSeat(tileSeat))
+            continue;
+
+        foundClaimedGroundTile = true;
+        break;
     }
 
-    if (!foundClaimedGroundTile)
-        return true;
+    if (foundClaimedGroundTile)
+        return false;
 
-    return false;
+    return true;
 }
 
 bool Tile::isWallClaimedForSeat(Seat* seat)
 {
     if (getFullness() == 0.0)
-        return false;
-
-    if (mType != TileType::claimed)
         return false;
 
     if (mClaimedPercentage < 1.0)
@@ -301,7 +278,7 @@ void Tile::exportToStream(std::ostream& os) const
 {
     os << getX() << "\t" << getY() << "\t";
     os << getType() << "\t" << getFullness();
-    if(getType() != TileType::claimed || getSeat() == nullptr)
+    if(getSeat() == nullptr)
         return;
 
     os << "\t" << getSeat()->getId();
@@ -310,7 +287,7 @@ void Tile::exportToStream(std::ostream& os) const
 void Tile::exportTileToPacket(ODPacket& os, Seat* seat)
 {
     Seat* tileSeat = getSeat();
-    int seatId = 0;
+    int seatId = -1;
     // We only pass the tile seat to the client if the tile is fully claimed
     if((tileSeat != nullptr) && (mClaimedPercentage >= 1.0))
         seatId = tileSeat->getId();
@@ -333,8 +310,7 @@ void Tile::exportTileToPacket(ODPacket& os, Seat* seat)
     os << mIsBuilding;
 
     bool localPlayerCanMarkTile = true;
-    if((tileSeat != nullptr) &&
-       (!isClaimedForSeat(seat)))
+    if(!isClaimedForSeat(seat))
     {
         localPlayerCanMarkTile = false;
     }
@@ -343,7 +319,8 @@ void Tile::exportTileToPacket(ODPacket& os, Seat* seat)
     os << seatId;
     os << meshName;
     os << mScale;
-    os << getType() << mFullness;
+    os << mTileVisual;
+    os << getFullness();
 
     // We export the list of all the persistent objects on this tile. We do that because a persistent object might have
     // been removed on server side when the client did not had vision. Thus, it would still be on client side. Thanks to
@@ -413,10 +390,7 @@ void Tile::updateFromPacket(ODPacket& is)
 
     setName(ss.str());
 
-    TileType tileType;
-    OD_ASSERT_TRUE(is >> tileType);
-    setType(tileType);
-
+    OD_ASSERT_TRUE(is >> mTileVisual);
     OD_ASSERT_TRUE(is >> fullness);
     setFullness(fullness);
 
@@ -447,7 +421,7 @@ void Tile::updateFromPacket(ODPacket& is)
         obj->deleteYourself();
     }
 
-    if((tileType != TileType::claimed) || (seatId == 0))
+    if(seatId == -1)
     {
         setSeat(nullptr);
         return;
@@ -458,21 +432,20 @@ void Tile::updateFromPacket(ODPacket& is)
         return;
 
     setSeat(seat);
-    mClaimedPercentage = 1.0;
 }
 
-ODPacket& operator<<(ODPacket& os, const TileType& type)
+ODPacket& operator<<(ODPacket& os, const TileVisual& type)
 {
     uint32_t intType = static_cast<uint32_t>(type);
     os << intType;
     return os;
 }
 
-ODPacket& operator>>(ODPacket& is, TileType& type)
+ODPacket& operator>>(ODPacket& is, TileVisual& type)
 {
     uint32_t intType;
     is >> intType;
-    type = static_cast<TileType>(intType);
+    type = static_cast<TileVisual>(intType);
     return is;
 }
 
@@ -513,21 +486,40 @@ void Tile::loadFromLine(const std::string& line, Tile *t)
     t->setType(tileType);
 
     // If the tile type is lava or water, we ignore fullness
+    double fullness;
     switch(tileType)
     {
         case TileType::water:
         case TileType::lava:
-            t->setFullnessValue(0.0);
+            fullness = 0.0;
             break;
 
         default:
-            t->setFullnessValue(Helper::toDouble(elems[3]));
+            fullness = Helper::toDouble(elems[3]);
             break;
     }
+    t->setFullnessValue(fullness);
 
-    // If the tile is claimed, there can be an optional parameter with the seat id
-    if(tileType != TileType::claimed || elems.size() < 5)
+    bool shouldSetSeat = false;
+    // We allow to set seat if the tile is dirt (full or not) or if it is gold (ground only)
+    if(elems.size() >= 5)
+    {
+        if(tileType == TileType::dirt)
+        {
+            shouldSetSeat = true;
+        }
+        else if((tileType == TileType::gold) &&
+                (fullness == 0.0))
+        {
+            shouldSetSeat = true;
+        }
+    }
+
+    if(!shouldSetSeat)
+    {
+        t->setSeat(nullptr);
         return;
+    }
 
     int seatId = Helper::toInt(elems[4]);
     Seat* seat = t->getGameMap()->getSeatById(seatId);
@@ -541,7 +533,6 @@ std::string Tile::tileTypeToString(TileType t)
 {
     switch (t)
     {
-        default:
         case TileType::dirt:
             return "Dirt";
 
@@ -557,8 +548,88 @@ std::string Tile::tileTypeToString(TileType t)
         case TileType::lava:
             return "Lava";
 
-        case TileType::claimed:
+        default:
+            return "Unknown tile type=" + Helper::toString(static_cast<uint32_t>(t));
+    }
+}
+
+std::string Tile::tileVisualToString(TileVisual tileVisual)
+{
+    switch (tileVisual)
+    {
+        case TileVisual::dirt:
+            return "Dirt";
+
+        case TileVisual::rock:
+            return "Rock";
+
+        case TileVisual::gold:
+            return "Gold";
+
+        case TileVisual::water:
+            return "Water";
+
+        case TileVisual::lava:
+            return "Lava";
+
+        case TileVisual::claimed:
             return "Claimed";
+
+        default:
+            return "Unknown tile type=" + Helper::toString(static_cast<uint32_t>(tileVisual));
+    }
+}
+
+TileType Tile::tileTypeFromTileVisual(TileVisual tileVisual)
+{
+    switch (tileVisual)
+    {
+        case TileVisual::dirt:
+            return TileType::dirt;
+
+        case TileVisual::rock:
+            return TileType::rock;
+
+        case TileVisual::gold:
+            return TileType::gold;
+
+        case TileVisual::water:
+            return TileType::water;
+
+        case TileVisual::lava:
+            return TileType::lava;
+
+        case TileVisual::claimed:
+            // If the tile is claimed, by default, we consider it is dirt (it is used
+            // in the editor because we don't know tile type)
+            return TileType::dirt;
+
+        default:
+            return TileType::nullTileType;
+    }
+}
+
+TileVisual Tile::tileVisualFromTileType(TileType tileType)
+{
+    switch (tileType)
+    {
+        case TileType::dirt:
+            return TileVisual::dirt;
+
+        case TileType::rock:
+            return TileVisual::rock;
+
+        case TileType::gold:
+            return TileVisual::gold;
+
+        case TileType::water:
+            return TileVisual::water;
+
+        case TileType::lava:
+            return TileVisual::lava;
+
+        default:
+            return TileVisual::nullTileVisual;
     }
 }
 
@@ -708,8 +779,7 @@ void Tile::claimForSeat(Seat* seat, double nDanceRate)
             // The tile is not yet claimed, but it is now an allied seat.
             mClaimedPercentage *= -1.0;
             setSeat(seat);
-            // We set it to dirt. If it is claimed, it will be set correctly by claimTile
-            setType(TileType::dirt);
+            computeTileVisual();
             setDirtyForAllSeats();
         }
     }
@@ -744,11 +814,11 @@ void Tile::claimTile(Seat* seat)
     // We need this because if we are a client, the tile may be from a non allied seat
     setSeat(seat);
     mClaimedPercentage = 1.0;
-    setType(TileType::claimed);
 
     // If an enemy player had marked this tile to dig, we disable it
     setMarkedForDiggingForAllPlayersExcept(false, seat);
 
+    computeTileVisual();
     setDirtyForAllSeats();
 
     // Force all the neighbors to recheck their meshes as we have updated this tile.
@@ -771,6 +841,7 @@ void Tile::unclaimTile(TileType type)
     mClaimedPercentage = 0.0;
     setType(type);
 
+    computeTileVisual();
     setDirtyForAllSeats();
 
     // Force all the neighbors to recheck their meshes as we have updated this tile.
@@ -801,6 +872,7 @@ double Tile::digOut(double digRate, bool doScaleDigRate)
         amountDug = mFullness;
         setFullness(0.0);
 
+        computeTileVisual();
         setDirtyForAllSeats();
 
         for (Tile* tile : mNeighbors)
@@ -825,14 +897,10 @@ double Tile::digOut(double digRate, bool doScaleDigRate)
 
 double Tile::scaleDigRate(double digRate)
 {
-    switch (mType)
-    {
-        case TileType::claimed:
-            return 0.2 * digRate;
+    if(!isClaimed())
+        return digRate;
 
-        default:
-            return digRate;
-    }
+    return 0.2 * digRate;
 }
 
 Tile* Tile::getNeighbor(unsigned int index)
@@ -879,7 +947,6 @@ bool Tile::isFloodFillFilled() const
     {
         case TileType::dirt:
         case TileType::gold:
-        case TileType::claimed:
         {
             if((mFloodFillColor[toUInt32(FloodFillType::ground)] != -1) &&
                (mFloodFillColor[toUInt32(FloodFillType::groundWater)] != -1) &&
@@ -980,6 +1047,20 @@ bool Tile::isClaimedForSeat(Seat* seat) const
         return false;
 
     if(tileSeat->canOwnedTileBeClaimedBy(seat))
+        return false;
+
+    return true;
+}
+
+bool Tile::isClaimed() const
+{
+    if(!getGameMap()->isServerGameMap())
+        return (mTileVisual == TileVisual::claimed);
+
+    if(getSeat() == nullptr)
+        return false;
+
+    if(mClaimedPercentage < 1.0)
         return false;
 
     return true;
@@ -1152,10 +1233,7 @@ void Tile::computeVisibleTiles()
         return;
     }
 
-    if(mType != TileType::claimed)
-        return;
-
-    if(getSeat() == nullptr)
+    if(!isClaimed())
         return;
 
     // A claimed tile can see it self and its neighboors
@@ -1277,11 +1355,47 @@ bool Tile::isLinked(Tile* tile) const
     if((getFullness() > 0.0) && (tile->getFullness() <= 0.0))
         return false;
 
-    // If tile type is different, we are not linked
-    if(getType() != tile->getType())
+    // If tile visual (gold, dirt, claimed, ...) is different, the tiles are not linked
+    if(getTileVisual() != tile->getTileVisual())
         return false;
 
     return true;
+}
+
+void Tile::computeTileVisual()
+{
+    if(isClaimed())
+    {
+        mTileVisual = TileVisual::claimed;
+        return;
+    }
+
+    switch(getType())
+    {
+        case TileType::dirt:
+            mTileVisual = TileVisual::dirt;
+            return;
+
+        case TileType::rock:
+            mTileVisual = TileVisual::rock;
+            return;
+
+        case TileType::gold:
+            mTileVisual = TileVisual::gold;
+            return;
+
+        case TileType::water:
+            mTileVisual = TileVisual::water;
+            return;
+
+        case TileType::lava:
+            mTileVisual = TileVisual::lava;
+            return;
+
+        default:
+            mTileVisual = TileVisual::nullTileVisual;
+            return;
+    }
 }
 
 std::string Tile::displayAsString(const Tile* tile)

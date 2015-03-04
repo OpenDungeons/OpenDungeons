@@ -143,29 +143,29 @@ private:
 };
 
 TileSet::TileSet(const Ogre::Vector3& scale) :
-    mTileValues(static_cast<uint32_t>(TileType::countTileType), vector<TileSetValue>(32)),
+    mTileValues(static_cast<uint32_t>(TileVisual::countTileVisual), vector<TileSetValue>(32)),
     mScale(scale)
 {
 }
 
-std::vector<TileSetValue>& TileSet::configureTileValues(TileType type)
+std::vector<TileSetValue>& TileSet::configureTileValues(TileVisual tileVisual)
 {
-    uint32_t tileTypeNumber = static_cast<uint32_t>(type);
+    uint32_t tileTypeNumber = static_cast<uint32_t>(tileVisual);
     if(tileTypeNumber >= mTileValues.size())
     {
-        OD_ASSERT_TRUE_MSG(false, "Trying to get unknow tileType=" + Tile::tileTypeToString(type));
+        OD_ASSERT_TRUE_MSG(false, "Trying to get unknow tileType=" + Tile::tileVisualToString(tileVisual));
         return mTileValues.at(0);
     }
 
     return mTileValues[tileTypeNumber];
 }
 
-const std::vector<TileSetValue>& TileSet::getTileValues(TileType type) const
+const std::vector<TileSetValue>& TileSet::getTileValues(TileVisual tileVisual) const
 {
-    uint32_t tileTypeNumber = static_cast<uint32_t>(type);
+    uint32_t tileTypeNumber = static_cast<uint32_t>(tileVisual);
     if(tileTypeNumber >= mTileValues.size())
     {
-        OD_ASSERT_TRUE_MSG(false, "Trying to get unknow tileType=" + Tile::tileTypeToString(type));
+        OD_ASSERT_TRUE_MSG(false, "Trying to get unknow tileType=" + Tile::tileVisualToString(tileVisual));
         return mTileValues.at(0);
     }
 
@@ -1073,7 +1073,6 @@ void GameMap::doPlayerAITurn(double frameTime)
 unsigned long int GameMap::doMiscUpkeep()
 {
     Tile *tempTile;
-    Seat *tempSeat;
     Ogre::Timer stopwatch;
     unsigned long int timeTaken;
 
@@ -1206,14 +1205,10 @@ unsigned long int GameMap::doMiscUpkeep()
             tempTile = getTile(ii,jj);
 
             // Check to see if the current tile is claimed by anyone.
-            if (tempTile->getType() == TileType::claimed)
+            if (tempTile->isClaimed())
             {
                 // Increment the count of the seat who owns the tile.
-                tempSeat = tempTile->getSeat();
-                if (tempSeat != nullptr)
-                {
-                    tempSeat->incrementNumClaimedTiles();
-                }
+                tempTile->getSeat()->incrementNumClaimedTiles();
             }
         }
     }
@@ -2107,7 +2102,6 @@ bool GameMap::doFloodFill(Tile* tile)
         {
             case TileType::dirt:
             case TileType::gold:
-            case TileType::claimed:
             {
                 hasChanged |= tile->updateFloodFillFromTile(FloodFillType::ground, neigh);
                 hasChanged |= tile->updateFloodFillFromTile(FloodFillType::groundWater, neigh);
@@ -2220,8 +2214,7 @@ void GameMap::enableFloodFill()
                 if(currentType == FloodFillType::ground)
                 {
                     if(((tile->getType() == TileType::dirt) ||
-                        (tile->getType() == TileType::gold) ||
-                        (tile->getType() == TileType::claimed)) &&
+                        (tile->getType() == TileType::gold)) &&
                        (tile->floodFillValue(FloodFillType::ground) == -1))
                     {
                         isTileFound = true;
@@ -3011,5 +3004,5 @@ const TileSetValue& GameMap::getMeshForTile(const Tile* tile) const
             index |= (1 << i);
     }
 
-    return mTileSet->getTileValues(tile->getType()).at(index);
+    return mTileSet->getTileValues(tile->getTileVisual()).at(index);
 }

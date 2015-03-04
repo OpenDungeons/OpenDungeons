@@ -247,6 +247,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         Tile* tempTile = new Tile(&gameMap);
 
         Tile::loadFromLine(entire_line, tempTile);
+        tempTile->computeTileVisual();
 
         tempTile->addToGameMap();
     }
@@ -658,7 +659,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
         {
             tempTile = gameMap.getTile(ii, jj);
             // Don't save standard tiles as they're auto filled in at load time.
-            if (tempTile->getType() == TileType::dirt && tempTile->getFullness() >= 100.0)
+            if (!tempTile->isClaimed() && tempTile->getType() == TileType::dirt && tempTile->getFullness() >= 100.0)
                 continue;
 
             tempTile->exportHeadersToStream(levelFile);

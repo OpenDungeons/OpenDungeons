@@ -1176,7 +1176,7 @@ bool ConfigManager::loadTilesets(const std::string& fileName)
             OD_ASSERT_TRUE_MSG(false, "Expecting Gold tag but got=" + nextParam);
             return false;
         }
-        loadTilesetValues(defFile, "[/Gold]", tileSet->configureTileValues(TileType::gold));
+        loadTilesetValues(defFile, "[/Gold]", tileSet->configureTileValues(TileVisual::gold));
 
         defFile >> nextParam;
         if (nextParam != "[Dirt]")
@@ -1184,7 +1184,7 @@ bool ConfigManager::loadTilesets(const std::string& fileName)
             OD_ASSERT_TRUE_MSG(false, "Expecting Dirt tag but got=" + nextParam);
             return false;
         }
-        loadTilesetValues(defFile, "[/Dirt]", tileSet->configureTileValues(TileType::dirt));
+        loadTilesetValues(defFile, "[/Dirt]", tileSet->configureTileValues(TileVisual::dirt));
 
         defFile >> nextParam;
         if (nextParam != "[Rock]")
@@ -1192,7 +1192,7 @@ bool ConfigManager::loadTilesets(const std::string& fileName)
             OD_ASSERT_TRUE_MSG(false, "Expecting Rock tag but got=" + nextParam);
             return false;
         }
-        loadTilesetValues(defFile, "[/Rock]", tileSet->configureTileValues(TileType::rock));
+        loadTilesetValues(defFile, "[/Rock]", tileSet->configureTileValues(TileVisual::rock));
 
         defFile >> nextParam;
         if (nextParam != "[Water]")
@@ -1200,7 +1200,7 @@ bool ConfigManager::loadTilesets(const std::string& fileName)
             OD_ASSERT_TRUE_MSG(false, "Expecting Water tag but got=" + nextParam);
             return false;
         }
-        loadTilesetValues(defFile, "[/Water]", tileSet->configureTileValues(TileType::water));
+        loadTilesetValues(defFile, "[/Water]", tileSet->configureTileValues(TileVisual::water));
 
         defFile >> nextParam;
         if (nextParam != "[Lava]")
@@ -1208,7 +1208,7 @@ bool ConfigManager::loadTilesets(const std::string& fileName)
             OD_ASSERT_TRUE_MSG(false, "Expecting Lava tag but got=" + nextParam);
             return false;
         }
-        loadTilesetValues(defFile, "[/Lava]", tileSet->configureTileValues(TileType::lava));
+        loadTilesetValues(defFile, "[/Lava]", tileSet->configureTileValues(TileVisual::lava));
 
         defFile >> nextParam;
         if (nextParam != "[Claimed]")
@@ -1216,7 +1216,7 @@ bool ConfigManager::loadTilesets(const std::string& fileName)
             OD_ASSERT_TRUE_MSG(false, "Expecting Claimed tag but got=" + nextParam);
             return false;
         }
-        loadTilesetValues(defFile, "[/Claimed]", tileSet->configureTileValues(TileType::claimed));
+        loadTilesetValues(defFile, "[/Claimed]", tileSet->configureTileValues(TileVisual::claimed));
 
         defFile >> nextParam;
     }

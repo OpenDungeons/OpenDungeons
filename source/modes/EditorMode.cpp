@@ -51,7 +51,7 @@
 
 EditorMode::EditorMode(ModeManager* modeManager):
     AbstractApplicationMode(modeManager, ModeManager::EDITOR),
-    mCurrentTileType(TileType::nullTileType),
+    mCurrentTileVisual(TileVisual::nullTileVisual),
     mCurrentFullness(100.0),
     mCurrentSeatId(0),
     mCurrentCreatureIndex(0),
@@ -175,7 +175,7 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
             }
             case Player::SelectedAction::changeTile:
             {
-                TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(Tile::tileTypeToString(mCurrentTileType)));
+                TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(Tile::tileVisualToString(mCurrentTileVisual)));
                 break;
             }
             case Player::SelectedAction::destroyRoom:
@@ -423,7 +423,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
         // Stop creating rooms, traps, etc.
         mGameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::none);
-        mCurrentTileType = TileType::nullTileType;
+        mCurrentTileVisual = TileVisual::nullTileVisual;
         TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "");
 
         // If we right clicked with the mouse over a valid map tile, try to drop a creature onto the map.
@@ -567,14 +567,13 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
         case Player::SelectedAction::changeTile:
         {
             double fullness;
-            switch(mCurrentTileType)
+            switch(mCurrentTileVisual)
             {
-                case TileType::nullTileType:
+                case TileVisual::nullTileVisual:
                     return true;
-                case TileType::dirt:
-                case TileType::gold:
-                case TileType::rock:
-                case TileType::claimed:
+                case TileVisual::dirt:
+                case TileVisual::gold:
+                case TileVisual::rock:
                     fullness = mCurrentFullness;
                     break;
                 default:
@@ -585,7 +584,7 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
                 ClientNotificationType::editorAskChangeTiles);
             clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
             clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
-            clientNotification->mPacket << mCurrentTileType;
+            clientNotification->mPacket << mCurrentTileVisual;
             clientNotification->mPacket << fullness;
             clientNotification->mPacket << mCurrentSeatId;
             ODClient::getSingleton().queueClientNotification(clientNotification);

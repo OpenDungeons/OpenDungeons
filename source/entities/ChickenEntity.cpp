@@ -156,7 +156,7 @@ void ChickenEntity::addTileToListIfPossible(int x, int y, Room* currentHatchery,
     {
         case TileType::dirt:
         case TileType::gold:
-        case TileType::claimed:
+        case TileType::rock:
         {
             break;
         }
@@ -217,7 +217,7 @@ bool ChickenEntity::tryDrop(Seat* seat, Tile* tile)
 
     // In editor mode, we allow to drop an object in dirt, claimed or gold tiles
     if(getGameMap()->isInEditorMode() &&
-       (tile->getType() == TileType::dirt || tile->getType() == TileType::gold || tile->getType() == TileType::claimed))
+       (tile->getType() == TileType::dirt || tile->getType() == TileType::gold))
     {
         return true;
     }
@@ -227,7 +227,7 @@ bool ChickenEntity::tryDrop(Seat* seat, Tile* tile)
         return false;
 
     // Otherwise, we allow to drop an object only on allied claimed tiles
-    if(tile->getType() == TileType::claimed && tile->getSeat() != nullptr && tile->getSeat()->isAlliedSeat(seat))
+    if(tile->isClaimedForSeat(seat))
         return true;
 
     return false;

@@ -54,7 +54,7 @@ class TileSet;
 enum class GameEntityType;
 enum class FloodFillType;
 enum class RoomType;
-enum class TileType;
+enum class TileVisual;
 
 class TileSetValue
 {
@@ -102,9 +102,9 @@ class TileSet
 public:
     TileSet(const Ogre::Vector3& scale);
 
-    std::vector<TileSetValue>& configureTileValues(TileType type);
+    std::vector<TileSetValue>& configureTileValues(TileVisual tileVisual);
 
-    const std::vector<TileSetValue>& getTileValues(TileType type) const;
+    const std::vector<TileSetValue>& getTileValues(TileVisual tileVisual) const;
 
     inline const Ogre::Vector3& getScale() const
     { return mScale; }
