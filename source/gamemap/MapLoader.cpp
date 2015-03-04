@@ -41,6 +41,7 @@
 
 #include "traps/Trap.h"
 
+#include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/ResourceManager.h"
@@ -79,6 +80,9 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         std::cout << "Line was " << nextParam << std::endl;
         return false;
     }
+
+    // By default, we use the default tileSet
+    gameMap.setTileSetName(ConfigManager::DEFAULT_TILESET_NAME);
 
     // Read in the seats from the level file
     while (true)
@@ -122,6 +126,15 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
             std::string musicFile = nextParam.substr(param.size());
             gameMap.setLevelFightMusicFile(nextParam.substr(param.size()));
             LogManager::getSingleton().logMessage("Level Fight Music: " + musicFile);
+            continue;
+        }
+
+        param = "TileSet\t";
+        if (nextParam.compare(0, param.size(), param) == 0)
+        {
+            std::string tileSet = nextParam.substr(param.size());
+            gameMap.setTileSetName(tileSet);
+            LogManager::getSingleton().logMessage("TileSet: " + tileSet);
             continue;
         }
     }

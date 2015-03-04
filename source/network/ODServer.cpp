@@ -504,6 +504,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             packet << gameMap->getLevelMusicFile();
             packet << gameMap->getLevelFightMusicFile();
 
+            packet << gameMap->getTileSetName();
+
             int32_t nb;
             // Creature definitions
             nb = gameMap->numClassDescriptions();

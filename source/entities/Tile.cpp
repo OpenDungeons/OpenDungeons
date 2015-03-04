@@ -49,10 +49,6 @@
 #define snprintf_is_banned_in_OD_code _snprintf
 #endif
 
-const Ogre::Vector3 DEFAULT_TILE_SCALE(static_cast<Ogre::Real>(4.0 / RenderManager::BLENDER_UNITS_PER_OGRE_UNIT),
-        static_cast<Ogre::Real>(4.0 / RenderManager::BLENDER_UNITS_PER_OGRE_UNIT),
-        static_cast<Ogre::Real>(5.0 / RenderManager::BLENDER_UNITS_PER_OGRE_UNIT));
-
 const std::string TILE_PREFIX = "Tile_";
 const std::string TILE_SCANF = TILE_PREFIX + "%i_%i";
 
@@ -74,7 +70,6 @@ Tile::Tile(GameMap* gameMap, int x, int y, TileType type, double fullness) :
     mLocalPlayerCanMarkTile (true)
 {
     setSeat(nullptr);
-    mScale = DEFAULT_TILE_SCALE;
 }
 
 void Tile::createMeshLocal()
@@ -610,7 +605,7 @@ void Tile::exportTileToPacket(ODPacket& os, Seat* seat)
     {
         // We set an empty mesh so that the client can compute the tile itself
         meshName.clear();
-        mScale = DEFAULT_TILE_SCALE;
+        mScale = Ogre::Vector3::ZERO;
     }
 
     os << mIsBuilding;
@@ -731,7 +726,10 @@ void Tile::updateFromPacket(ODPacket& is)
     }
 
     if((tileType != TileType::claimed) || (seatId == 0))
+    {
+        setSeat(nullptr);
         return;
+    }
 
     Seat* seat = getGameMap()->getSeatById(seatId);
     if(seat == nullptr)
@@ -866,141 +864,6 @@ int Tile::nextTileFullness(int f)
         default:
             return 0;
     }
-}
-
-//TODO: Turn this whole hardcoded thing into a static tileset configuration file.
-std::string Tile::meshNameFromNeighbors(TileType myType, int fullnessMeshNumber,
-                                        std::array<TileType, 8> neighbors,
-                                        std::bitset<8> neighborsFullness, int& rt)
-{
-    // neighbors and neighborFullness arrays are filled this way:
-    // x = given tile
-    // Number = array index
-    // -------------
-    // | 1 | 2 | 3 |
-    // -------------
-    // | 0 | x | 4 |
-    // -------------
-    // | 7 | 6 | 5 |
-    // -------------
-
-    std::stringstream ss;
-    //FIXME - define postfix somewhere
-    int postfixInt = 0;
-    unsigned char shiftedAroundBits;
-
-    // get the integer from neighbors[], using it as a number coded in binary base
-    for(int ii = 8; ii >=1; --ii)
-    {
-        postfixInt *=2;
-        postfixInt += ((neighbors[(ii)%8] == myType &&  (!(myType!=TileType::water && myType!=TileType::lava)  || neighborsFullness[(ii)%8]  ))
-                      );
-    }
-
-    int storedInt = postfixInt;
-    // current implementation does not allow on separate corner tiles
-    // leave only those corner tiles  ( the one in  the even position in PostfixInt binary base ) who have at least one ver or hor neighbor
-
-    // shift the 8ht position bit to the 1st position, shifting the rest 1 position to the left .
-    shiftedAroundBits = postfixInt &  0x80;
-    postfixInt <<= 1;
-    shiftedAroundBits >>= 7;
-    shiftedAroundBits &= 0x01;
-    postfixInt &= 0xFF;
-    postfixInt += shiftedAroundBits;
-
-    // check for the clockwise rotation hor or ver neighbor for diagonal tile
-    int foobar = postfixInt;
-
-    shiftedAroundBits = postfixInt &  0x03;
-    postfixInt >>= 2;
-    postfixInt &= 0x3F;
-    shiftedAroundBits <<= 6;
-
-    postfixInt += shiftedAroundBits;
-
-    // check for the anti - clockwise rotation hor or ver neighbor of a diagonal tile
-    int foobar2 = postfixInt;
-
-    // 85  == 01010101b
-    // 170 == 10101010b
-    postfixInt = (foobar & foobar2 & 85) | (storedInt & 170);
-
-    // Naros	rather than simply using getByName() and testing if MeshPtr.isNull() is true
-    // 	Naros	if its null, then load it.
-    // Naros	you want to use Ogre::ResourceGroupManager::getSingletonPtr()->resourceExists("MyResourceGroupName", "MyMeshFileName");
-    meshNameAux(ss, postfixInt, fullnessMeshNumber, myType);
-
-    // rotate the postfix number, as long , as we won't find Exisitng mesh
-
-    // cerr <<  ss.str() << endl ;
-    for(rt = 0; !Ogre::ResourceGroupManager::getSingletonPtr()->resourceExists("Graphics", ss.str()) && rt < 4; ++rt)
-    {
-        shiftedAroundBits = postfixInt &  0xC0;
-        postfixInt <<= 2;
-        postfixInt &= 0xFF;
-        shiftedAroundBits >>= 6;
-        shiftedAroundBits &= 0x03;
-        postfixInt += shiftedAroundBits;
-
-        ss.str("");
-        ss.clear();
-
-        meshNameAux(ss, postfixInt, fullnessMeshNumber, myType);
-
-        // cerr <<  ss.str()<< endl ;
-    }
-
-    // Bad hack to workaround a bug with the file Dirt_10001111.mesh
-    // Since the corresponding file used must be turned by 180°, this ugly hack handles the rotation
-    // manually.
-    if (neighbors[0] == myType && neighbors[2] == myType && neighbors[4] == myType
-        && (neighbors[6] != myType || !neighborsFullness[6])
-        && neighborsFullness[0] && neighborsFullness[2] && neighborsFullness[4])
-    {
-        if (myType == TileType::dirt || myType == TileType::gold || myType == TileType::rock)
-            rt = 2;
-    }
-
-    // Second bad hack to workaround a bug with the Dirt tiles next to other tiles on the right
-    // Since the corresponding file used must be turned by 180°, this ugly hack handles the rotation
-    // manually.
-    if (neighbors[2] == myType && neighbors[6] == myType && neighbors[4] == myType
-        && (neighbors[0] != myType || !neighborsFullness[0])
-        && neighborsFullness[2] && neighborsFullness[6] && neighborsFullness[4])
-    {
-        if (fullnessMeshNumber > 0 && (myType == TileType::dirt || myType == TileType::gold || myType == TileType::rock))
-        {
-            ss.str("");
-            ss.clear();
-            ss << "Dirt_10001111.mesh";
-            rt = 3;
-        }
-    }
-
-    // Third bad hack to workaround a bug with the Dirt tiles next to other tiles on the left
-    // Since the corresponding file used must be turned by 180°, this ugly hack handles the rotation
-    // manually.
-    if (neighbors[2] == myType && neighbors[0] == myType && neighbors[6] == myType
-        && (neighbors[4] != myType || !neighborsFullness[4])
-        && neighborsFullness[2] && neighborsFullness[0] && neighborsFullness[6])
-    {
-        if (fullnessMeshNumber > 0 && (myType == TileType::dirt || myType == TileType::gold || myType == TileType::rock))
-        {
-            ss.str("");
-            ss.clear();
-            ss << "Dirt_10001111.mesh";
-            rt = 1;
-        }
-    }
-
-    return ss.str();
-}
-
-void Tile::meshNameAux(std::stringstream &ss, int &postfixInt, int& fMN, TileType myType)
-{
-    ss << tileTypeToString( (myType == TileType::rock || myType == TileType::gold ) ? TileType::dirt : (myType == TileType::lava) ? TileType::water : myType  ) << "_"
-       << (fMN > 0 ?  std::bitset<8>( postfixInt ).to_string() : ( (myType == TileType::water || myType == TileType::lava) ? std::bitset<8>( postfixInt ).to_string() : "0"  ))  << ".mesh";
 }
 
 void Tile::refreshMesh()
@@ -1681,6 +1544,21 @@ bool Tile::removePersistentObject(PersistentObject* obj)
 
     mPersistentObjectRegistered.erase(it);
     setDirtyForAllSeats();
+    return true;
+}
+
+bool Tile::isLinked(Tile* tile) const
+{
+    // If the tile fullness is different, there is no link
+    if((getFullness() <= 0.0) && (tile->getFullness() > 0.0))
+        return false;
+    if((getFullness() > 0.0) && (tile->getFullness() <= 0.0))
+        return false;
+
+    // If tile type is different, we are not linked
+    if(getType() != tile->getType())
+        return false;
+
     return true;
 }
 

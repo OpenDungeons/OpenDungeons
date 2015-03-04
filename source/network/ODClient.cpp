@@ -123,6 +123,9 @@ bool ODClient::processOneClientSocketMessage()
             OD_ASSERT_TRUE(packetReceived >> str);
             gameMap->setLevelFightMusicFile(str);
 
+            OD_ASSERT_TRUE(packetReceived >> str);
+            gameMap->setTileSetName(str);
+
             int32_t nb;
             // Creature definitions
             OD_ASSERT_TRUE(packetReceived >> nb);

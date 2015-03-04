@@ -51,7 +51,8 @@ enum class TileType
     rock = 3,
     water = 4,
     lava = 5,
-    claimed = 6
+    claimed = 6,
+    countTileType
 };
 
 ODPacket& operator<<(ODPacket& os, const TileType& type);
@@ -136,18 +137,6 @@ public:
      * mouse button.
      */
     static int nextTileFullness(int f);
-
-    //! \brief This is a helper function that generates a mesh filename from a tile type and a fullness mesh number.
-    //! \TODO Define what is a postfix.
-    static std::string meshNameFromNeighbors(TileType myType, int fullnessMeshNumber, std::array<TileType, 8> neighbors,
-                                             std::bitset<8> neighborsFullness, int &rt);
-
-    //! \brief Generate the tile mesh name in ss from other parameters.
-    //! \param postFixInt an array 0 and 1 set according to neighbor mesh types and fullness.
-    //! \param fMN The fullness of the tile (Atm, only tested whether > 0)
-    //! \param myType The tile type (dirt, gold, ...)
-    //! TODO This will have to be replaced by a proper tileset config file.
-    static void meshNameAux(std::stringstream &ss, int &postfixInt, int& fMN, TileType myType);
 
     //! \brief This function puts a message in the renderQueue to change the mesh for this tile.
     void refreshMesh();
@@ -363,6 +352,9 @@ public:
     void logFloodFill() const;
 
     bool isFloodFillFilled() const;
+
+    //! Returns true if this tile is linked to the given tile and false otherwise
+    bool isLinked(Tile* tile) const;
 
 protected:
     virtual void createMeshLocal();

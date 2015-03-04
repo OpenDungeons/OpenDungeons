@@ -54,6 +54,7 @@
 #include <OgreCompositorManager.h>
 #include <OgreViewport.h>
 #include <OgreRoot.h>
+#include <OgreQuaternion.h>
 #include <Overlay/OgreOverlaySystem.h>
 #include <RTShaderSystem/OgreShaderGenerator.h>
 #include <sstream>
@@ -155,7 +156,7 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     //up the lighing for some of the rtshader materials.
     Ogre::SceneNode* dummyNode = node3->createChildSceneNode("Dummy_node");
     dummyNode->setScale(Ogre::Vector3(0.00000001f, 0.00000001f, 0.00000001f));
-    dummyNode->attachObject(mSceneManager->createEntity("Dirt_11111111.mesh"));
+    dummyNode->attachObject(mSceneManager->createEntity("Dirt_00000000.mesh"));
 
     // Create the light which follows the single tile selection mesh
     Ogre::Light* light = mSceneManager->createLight("MouseLight");
@@ -184,28 +185,27 @@ void RenderManager::updateRenderAnimations(Ogre::Real timeSinceLastFrame)
 
 void RenderManager::rrRefreshTile(const Tile* curTile, const Player* localPlayer)
 {
-    int rt = 0;
     std::string tileName = curTile->getOgreNamePrefix() + curTile->getName();
 
     if (!mSceneManager->hasSceneNode(tileName + "_node"))
         return;
 
+    Ogre::Vector3 scale;
     std::string meshName = curTile->getMeshName();
-    const Seat* seatColorize = curTile->getSeat();
+    const Seat* seatColorize = nullptr;
+    const TileSetValue& tileSetValue = curTile->getGameMap()->getMeshForTile(curTile);
+    bool isCustomMesh = false;
     if(meshName.empty())
     {
         // We compute the mesh
-        meshName = Tile::meshNameFromNeighbors(curTile->getType(),
-           curTile->getFullnessMeshNumber(),
-           curTile->getGameMap()->getNeighborsTypes(curTile),
-           curTile->getGameMap()->getNeighborsFullness(curTile),
-           rt);
+        meshName = tileSetValue.getMeshName();
+        scale = curTile->getGameMap()->getTileSetScale();
     }
     else
     {
         //Tile has a covering building.
-        seatColorize = nullptr;
-        rt = 0;
+        isCustomMesh = true;
+        scale = curTile->getScale();
     }
 
     bool newMesh = false;
@@ -231,9 +231,27 @@ void RenderManager::rrRefreshTile(const Tile* curTile, const Player* localPlayer
         // Link the tile mesh back to the relevant scene node so OGRE will render it
         Ogre::SceneNode* node = mSceneManager->getSceneNode(tileName + "_node");
         node->attachObject(ent);
-        node->setScale(curTile->getScale());
+        node->setScale(scale);
         node->resetOrientation();
-        node->roll(Ogre::Degree(static_cast<Ogre::Real>(-1 * rt * 90)));
+
+        // If it is a custom mesh, we assume there is no need to rotate. If not, we
+        // rotate depending on the tileset
+        if(!isCustomMesh)
+        {
+            Ogre::Quaternion q;
+            if(tileSetValue.getRotationX() != 0.0)
+                q = q * Ogre::Quaternion(Ogre::Degree(tileSetValue.getRotationX()), Ogre::Vector3::UNIT_X);
+
+            if(tileSetValue.getRotationY() != 0.0)
+                q = q * Ogre::Quaternion(Ogre::Degree(tileSetValue.getRotationY()), Ogre::Vector3::UNIT_Y);
+
+            if(tileSetValue.getRotationZ() != 0.0)
+                q = q * Ogre::Quaternion(Ogre::Degree(tileSetValue.getRotationZ()), Ogre::Vector3::UNIT_Z);
+
+            if(q != Ogre::Quaternion::IDENTITY)
+                node->rotate(q);
+        }
+
         Ogre::MeshPtr meshPtr = ent->getMesh();
         unsigned short src, dest;
         if (!meshPtr->suggestTangentVectorBuildParams(Ogre::VES_TANGENT, src, dest))
@@ -245,94 +263,33 @@ void RenderManager::rrRefreshTile(const Tile* curTile, const Player* localPlayer
     {
         ent = mSceneManager->getEntity(tileName);
     }
+
+    if(!isCustomMesh)
+    {
+        // We replace the material if required to by the tileset
+        if(!tileSetValue.getMaterialName().empty())
+            ent->setMaterialName(tileSetValue.getMaterialName());
+
+        // On client side, the seat is set only when the tile is claimed. So, if the
+        // seat is not nullptr, we are sure it is fully claimed and we can colorize
+        // the tile
+        seatColorize = curTile->getSeat();
+    }
     bool vision = static_cast<int>(curTile->getFullness()) == 0 ? curTile->getLocalPlayerHasVision() : true;
     bool isMarked = curTile->getMarkedForDigging(localPlayer);
-    switch(curTile->getType())
-    {
-        case TileType::gold:
-        {
-            // Use the dirt ground tile for gold until a better ground gold tile is done.
-            if (curTile->getFullness() > 0.0)
-                ent->setMaterialName("Gold");
-            else
-                ent->setMaterialName("Dirt");
-            break;
-        }
-        case TileType::rock:
-        {
-            ent->setMaterialName("Rock");
-            break;
-        }
-        case TileType::lava:
-        {
-            for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii)
-            {
-                Ogre::SubEntity* subEnt = ent->getSubEntity(ii);
-                if (subEnt->getMaterialName() == "Water")
-                    subEnt->setMaterialName("Lava");
-            }
-            break;
-        }
-        case TileType::dirt:
-        {
-            ent->setMaterialName("Dirt");
-            // We don't want dirt tiles to get colored by the seat
-            seatColorize = nullptr;
-            break;
-        }
-        case TileType::claimed:
-        {
-            if(curTile->getFullness() > 0.0)
-                ent->setMaterialName("Claimedwall");
-            break;
-        }
-        default:
-            break;
-    }
-
-    // Water and Lava tiles (and other animated tiles) are always "visible" to avoid animation desync problems.
-    if (curTile->getType() != TileType::lava && curTile->getType() != TileType::water)
-        colourizeEntity(ent, seatColorize, isMarked, vision);
+    colourizeEntity(ent, seatColorize, isMarked, vision);
 }
 
 
 void RenderManager::rrCreateTile(Tile* curTile, Player* localPlayer)
 {
-    int rt = 0;
-    std::string meshName = Tile::meshNameFromNeighbors(curTile->getType(),
-                                                       curTile->getFullnessMeshNumber(),
-                                                       curTile->getGameMap()->getNeighborsTypes(curTile),
-                                                       curTile->getGameMap()->getNeighborsFullness(curTile),
-                                                       rt);
+    const TileSetValue& tileSetValue = curTile->getGameMap()->getMeshForTile(curTile);
+    Ogre::Entity* ent = mSceneManager->createEntity(curTile->getOgreNamePrefix() + curTile->getName(), tileSetValue.getMeshName());
 
-    Ogre::Entity* ent = mSceneManager->createEntity(curTile->getOgreNamePrefix() + curTile->getName(), meshName);
+    if(!tileSetValue.getMaterialName().empty())
+        ent->setMaterialName(tileSetValue.getMaterialName());
 
-    if(curTile->getType() == TileType::gold)
-    {
-        // Use the dirt ground tile for gold until a better ground gold tile is done.
-        if (curTile->getFullness() > 0.0)
-            ent->setMaterialName("Gold");
-        else
-            ent->setMaterialName("Dirt");
-    }
-    else if(curTile->getType() == TileType::rock)
-    {
-        ent->setMaterialName("Rock");
-    }
-    else if(curTile->getType() == TileType::lava)
-    {
-        for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii)
-        {
-            Ogre::SubEntity* subEnt = ent->getSubEntity(ii);
-            if (subEnt->getMaterialName() == "Water")
-                subEnt->setMaterialName("Lava");
-        }
-    }
-
-    // Water and Lava tiles (and other animated tiles) are always "visible" to avoid animation desync problems.
-    if (curTile->getType() != TileType::lava && curTile->getType() != TileType::water)
-        colourizeEntity(ent, curTile->getSeat(), false, true);
-
+    colourizeEntity(ent, nullptr, false, true);
     Ogre::SceneNode* node = mSceneManager->getRootSceneNode()->createChildSceneNode(curTile->getOgreNamePrefix() + curTile->getName() + "_node");
     curTile->setParentSceneNode(node->getParentSceneNode());
 
@@ -349,9 +306,20 @@ void RenderManager::rrCreateTile(Tile* curTile, Player* localPlayer)
     curTile->setParentSceneNode(node->getParentSceneNode());
     curTile->setEntityNode(node);
 
-    node->setScale(curTile->getScale());
+    node->setScale(curTile->getGameMap()->getTileSetScale());
     node->resetOrientation();
-    node->roll(Ogre::Degree(static_cast<Ogre::Real>(-1 * rt * 90)));
+    Ogre::Quaternion q;
+    if(tileSetValue.getRotationX() != 0.0)
+        q = q * Ogre::Quaternion(Ogre::Degree(tileSetValue.getRotationX()), Ogre::Vector3::UNIT_X);
+
+    if(tileSetValue.getRotationY() != 0.0)
+        q = q * Ogre::Quaternion(Ogre::Degree(tileSetValue.getRotationY()), Ogre::Vector3::UNIT_Y);
+
+    if(tileSetValue.getRotationZ() != 0.0)
+        q = q * Ogre::Quaternion(Ogre::Degree(tileSetValue.getRotationZ()), Ogre::Vector3::UNIT_Z);
+
+    if(q != Ogre::Quaternion::IDENTITY)
+        node->rotate(q);
 }
 
 void RenderManager::rrDestroyTile(Tile* curTile)

@@ -142,6 +142,37 @@ private:
     double      h;
 };
 
+TileSet::TileSet(const Ogre::Vector3& scale) :
+    mTileValues(static_cast<uint32_t>(TileType::countTileType), vector<TileSetValue>(32)),
+    mScale(scale)
+{
+}
+
+std::vector<TileSetValue>& TileSet::configureTileValues(TileType type)
+{
+    uint32_t tileTypeNumber = static_cast<uint32_t>(type);
+    if(tileTypeNumber >= mTileValues.size())
+    {
+        OD_ASSERT_TRUE_MSG(false, "Trying to get unknow tileType=" + Tile::tileTypeToString(type));
+        return mTileValues.at(0);
+    }
+
+    return mTileValues[tileTypeNumber];
+}
+
+const std::vector<TileSetValue>& TileSet::getTileValues(TileType type) const
+{
+    uint32_t tileTypeNumber = static_cast<uint32_t>(type);
+    if(tileTypeNumber >= mTileValues.size())
+    {
+        OD_ASSERT_TRUE_MSG(false, "Trying to get unknow tileType=" + Tile::tileTypeToString(type));
+        return mTileValues.at(0);
+    }
+
+    return mTileValues[tileTypeNumber];
+}
+
+
 GameMap::GameMap(bool isServerGameMap) :
         TileContainer(isServerGameMap ? 15 : 0),
         mIsServerGameMap(isServerGameMap),
@@ -153,7 +184,8 @@ GameMap::GameMap(bool isServerGameMap) :
         mFloodFillEnabled(false),
         mIsFOWActivated(true),
         mNumCallsTo_path(0),
-        mAiManager(*this)
+        mAiManager(*this),
+        mTileSet(nullptr)
 {
     resetUniqueNumbers();
 }
@@ -892,6 +924,8 @@ const CreatureDefinition* GameMap::getClassDescription(int index)
 
 void GameMap::createAllEntities()
 {
+    mTileSet = ConfigManager::getSingleton().getTileSet(mTileSetName);
+
     std::vector<GameEntity*> entities;
     // Create OGRE entities for map tiles
     for (int jj = 0; jj < getMapSizeY(); ++jj)
@@ -2936,4 +2970,46 @@ std::vector<Spell*> GameMap::getSpellsBySeatAndType(Seat* seat, SpellType type) 
     }
 
     return ret;
+}
+
+const TileSetValue& GameMap::getMeshForTile(const Tile* tile) const
+{
+    OD_ASSERT_TRUE(!isServerGameMap());
+
+    int index = 0;
+    if(tile->getFullness() > 0.0)
+        index |= (1 << 4);
+    for(int i = 0; i < 4; ++i)
+    {
+        int diffX;
+        int diffY;
+        switch(i)
+        {
+            case 0:
+                diffX = 0;
+                diffY = -1;
+                break;
+            case 1:
+                diffX = 1;
+                diffY = 0;
+                break;
+            case 2:
+                diffX = 0;
+                diffY = 1;
+                break;
+            case 3:
+            default:
+                diffX = -1;
+                diffY = 0;
+                break;
+        }
+        Tile* t = getTile(tile->getX() + diffX, tile->getY() + diffY);
+        if(t == nullptr)
+            continue;
+
+        if(tile->isLinked(t))
+            index |= (1 << i);
+    }
+
+    return mTileSet->getTileValues(tile->getType()).at(index);
 }
