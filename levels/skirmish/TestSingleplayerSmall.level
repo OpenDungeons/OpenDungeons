@@ -5,6 +5,7 @@ Name	Test Map Small (2 vs 2)
 Description	A small test map for the skirmish mode, left against right side...
 Music	yd_Searching_ingame.ogg
 FightMusic	The_Dark_Amulet.ogg
+TileSet	OldTileSet
 [/Info]
 
 [Seats]
