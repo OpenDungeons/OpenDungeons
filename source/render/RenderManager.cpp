@@ -888,9 +888,6 @@ void RenderManager::colourizeEntity(Ogre::Entity *ent, const Seat* seat, bool ma
 {
     // Colorize the the textures
     // Loop over the sub entities in the mesh
-    if (seat == nullptr && !markedForDigging && playerHasVision)
-        return;
-
     for (unsigned int i = 0; i < ent->getNumSubEntities(); ++i)
     {
         Ogre::SubEntity *tempSubEntity = ent->getSubEntity(i);
@@ -900,6 +897,9 @@ void RenderManager::colourizeEntity(Ogre::Entity *ent, const Seat* seat, bool ma
 
 std::string RenderManager::colourizeMaterial(const std::string& materialName, const Seat* seat, bool markedForDigging, bool playerHasVision)
 {
+    if (seat == nullptr && !markedForDigging && playerHasVision)
+        return materialName;
+
     std::stringstream tempSS;
 
     tempSS.str("");

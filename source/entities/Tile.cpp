@@ -153,26 +153,26 @@ void Tile::setCoveringBuilding(Building *building)
 
 bool Tile::isDiggable(Seat* seat) const
 {
-    if(!getGameMap()->isServerGameMap())
-        return mLocalPlayerCanMarkTile;
-
     if (getFullness() == 0.0)
         return false;
 
     // Return true for common types.
-    if (mType == TileType::dirt || mType == TileType::gold)
+    if (mType == TileType::gold)
         return true;
 
     // Return false for undiggable types.
     if (mType == TileType::lava || mType == TileType::water || mType == TileType::rock)
         return false;
 
-    // For claimed walls, we check whether the walls is either claimed by the given player,
-    if (isClaimedForSeat(seat))
+    if(!getGameMap()->isServerGameMap())
+        return mLocalPlayerCanMarkTile;
+
+    // If the wall is not claimed, it can be dug
+    if(!isClaimed())
         return true;
 
-    // or whether it is belonging to another team.
-    if (isClaimed())
+    // It is claimed. If it is by the given seat, it can be dug
+    if(isClaimedForSeat(seat))
         return true;
 
     return false;
@@ -310,7 +310,7 @@ void Tile::exportTileToPacket(ODPacket& os, Seat* seat)
     os << mIsBuilding;
 
     bool localPlayerCanMarkTile = true;
-    if(!isClaimedForSeat(seat))
+    if(isClaimed() && !isClaimedForSeat(seat))
     {
         localPlayerCanMarkTile = false;
     }
