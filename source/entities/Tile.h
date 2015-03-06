@@ -113,6 +113,10 @@ public:
     inline TileVisual getTileVisual() const
     { return mTileVisual; }
 
+    //! \brief Sets the tile type (rock, claimed, etc.).
+    inline void setTileVisual(TileVisual tileVisual)
+    { mTileVisual = tileVisual; }
+
     virtual void addToGameMap();
     //! Tiles cannot be removed
     virtual void removeFromGameMap()

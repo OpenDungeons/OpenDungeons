@@ -553,14 +553,11 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 }
             }
 
-            double fullness;
             nb = goldTiles.size();
             packet << nb;
             for(Tile* tile : goldTiles)
             {
                 gameMap->tileToPacket(packet, tile);
-                fullness = tile->getFullness();
-                packet << fullness;
             }
 
             nb = rockTiles.size();
