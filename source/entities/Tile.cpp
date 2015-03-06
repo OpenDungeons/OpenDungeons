@@ -1056,14 +1056,10 @@ void Tile::logFloodFill() const
 
 bool Tile::isClaimedForSeat(Seat* seat) const
 {
-    Seat* tileSeat = getSeat();
-    if(tileSeat == nullptr)
+    if(!isClaimed())
         return false;
 
-    if(mClaimedPercentage < 1.0)
-        return false;
-
-    if(tileSeat->canOwnedTileBeClaimedBy(seat))
+    if(getSeat()->canOwnedTileBeClaimedBy(seat))
         return false;
 
     return true;
