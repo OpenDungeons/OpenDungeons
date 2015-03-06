@@ -18,6 +18,7 @@
 #ifndef TILECONTAINER_H
 #define TILECONTAINER_H
 
+#include <OgreVector3.h>
 #include <array>
 #include <bitset>
 #include <cassert>
@@ -30,6 +31,65 @@ class TileDistance;
 class Tile;
 
 enum class TileType;
+enum class TileVisual;
+
+class TileSetValue
+{
+public:
+    TileSetValue() :
+        mRotationX(0.0),
+        mRotationY(0.0),
+        mRotationZ(0.0)
+    {}
+
+    TileSetValue(const std::string& meshName, const std::string& materialName,
+            Ogre::Real rotationX, Ogre::Real rotationY,Ogre::Real rotationZ) :
+        mMeshName(meshName),
+        mMaterialName(materialName),
+        mRotationX(rotationX),
+        mRotationY(rotationY),
+        mRotationZ(rotationZ)
+    {}
+
+    inline const std::string& getMeshName() const
+    { return mMeshName; }
+
+    inline const std::string& getMaterialName() const
+    { return mMaterialName; }
+
+    inline Ogre::Real getRotationX() const
+    { return mRotationX; }
+
+    inline Ogre::Real getRotationY() const
+    { return mRotationY; }
+
+    inline Ogre::Real getRotationZ() const
+    { return mRotationZ; }
+
+private:
+    std::string mMeshName;
+    std::string mMaterialName;
+    Ogre::Real mRotationX;
+    Ogre::Real mRotationY;
+    Ogre::Real mRotationZ;
+};
+
+class TileSet
+{
+public:
+    TileSet(const Ogre::Vector3& scale);
+
+    std::vector<TileSetValue>& configureTileValues(TileVisual tileVisual);
+
+    const std::vector<TileSetValue>& getTileValues(TileVisual tileVisual) const;
+
+    inline const Ogre::Vector3& getScale() const
+    { return mScale; }
+
+private:
+    std::vector<std::vector<TileSetValue>> mTileValues;
+    Ogre::Vector3 mScale;
+};
 
 class TileContainer
 {

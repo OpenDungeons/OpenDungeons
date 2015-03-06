@@ -333,6 +333,37 @@ TileContainer::TileContainer(int initTileDistance):
     buildTileDistance(initTileDistance);
 }
 
+TileSet::TileSet(const Ogre::Vector3& scale) :
+    mTileValues(static_cast<uint32_t>(TileVisual::countTileVisual), std::vector<TileSetValue>(32)),
+    mScale(scale)
+{
+}
+
+std::vector<TileSetValue>& TileSet::configureTileValues(TileVisual tileVisual)
+{
+    uint32_t tileTypeNumber = static_cast<uint32_t>(tileVisual);
+    if(tileTypeNumber >= mTileValues.size())
+    {
+        OD_ASSERT_TRUE_MSG(false, "Trying to get unknow tileType=" + Tile::tileVisualToString(tileVisual));
+        return mTileValues.at(0);
+    }
+
+    return mTileValues[tileTypeNumber];
+}
+
+const std::vector<TileSetValue>& TileSet::getTileValues(TileVisual tileVisual) const
+{
+    uint32_t tileTypeNumber = static_cast<uint32_t>(tileVisual);
+    if(tileTypeNumber >= mTileValues.size())
+    {
+        OD_ASSERT_TRUE_MSG(false, "Trying to get unknow tileType=" + Tile::tileVisualToString(tileVisual));
+        return mTileValues.at(0);
+    }
+
+    return mTileValues[tileTypeNumber];
+}
+
+
 TileContainer::~TileContainer()
 {
     clearTiles();
