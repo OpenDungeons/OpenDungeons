@@ -170,7 +170,7 @@ ConfigManager::~ConfigManager()
     }
     mResearches.clear();
 
-    for(std::pair<const std::string, TileSet*> p : mTileSets)
+    for(std::pair<const std::string, const TileSet*> p : mTileSets)
     {
         delete p.second;
     }
@@ -1137,7 +1137,7 @@ bool ConfigManager::loadTilesets(const std::string& fileName)
             break;
 
         if (nextParam == "[/Tileset]")
-            break;
+            continue;
 
         if (nextParam != "[Tileset]")
         {
@@ -1171,54 +1171,79 @@ bool ConfigManager::loadTilesets(const std::string& fileName)
         mTileSets[tileSetName] = tileSet;
 
         defFile >> nextParam;
-        if (nextParam != "[Gold]")
+        if(nextParam != "[GroundLink]")
         {
-            OD_ASSERT_TRUE_MSG(false, "Expecting Gold tag but got=" + nextParam);
+            OD_ASSERT_TRUE_MSG(false, "Expecting GroundLink tag but got=" + nextParam);
             return false;
         }
-        loadTilesetValues(defFile, "[/Gold]", tileSet->configureTileValues(TileVisual::gold));
+
+        while(true)
+        {
+            defFile >> nextParam;
+            if(nextParam == "[/GroundLink]")
+                break;
+
+            TileVisual tileVisual1 = Tile::tileVisualFromString(nextParam);
+            if(tileVisual1 == TileVisual::nullTileVisual)
+            {
+                OD_ASSERT_TRUE_MSG(false, "Wrong TileVisual1 in tileset=" + nextParam);
+                return false;
+            }
+
+            defFile >> nextParam;
+            TileVisual tileVisual2 = Tile::tileVisualFromString(nextParam);
+            if(tileVisual2 == TileVisual::nullTileVisual)
+            {
+                OD_ASSERT_TRUE_MSG(false, "Wrong TileVisual2 in tileset=" + nextParam);
+                return false;
+            }
+
+            tileSet->addTileGroundLink(tileVisual1, tileVisual2);
+        }
 
         defFile >> nextParam;
-        if (nextParam != "[Dirt]")
+        if(nextParam != "[FullLink]")
         {
-            OD_ASSERT_TRUE_MSG(false, "Expecting Dirt tag but got=" + nextParam);
+            OD_ASSERT_TRUE_MSG(false, "Expecting FullLink tag but got=" + nextParam);
             return false;
         }
-        loadTilesetValues(defFile, "[/Dirt]", tileSet->configureTileValues(TileVisual::dirt));
 
-        defFile >> nextParam;
-        if (nextParam != "[Rock]")
+        while(true)
         {
-            OD_ASSERT_TRUE_MSG(false, "Expecting Rock tag but got=" + nextParam);
-            return false;
-        }
-        loadTilesetValues(defFile, "[/Rock]", tileSet->configureTileValues(TileVisual::rock));
+            defFile >> nextParam;
+            if(nextParam == "[/FullLink]")
+                break;
 
-        defFile >> nextParam;
-        if (nextParam != "[Water]")
-        {
-            OD_ASSERT_TRUE_MSG(false, "Expecting Water tag but got=" + nextParam);
-            return false;
-        }
-        loadTilesetValues(defFile, "[/Water]", tileSet->configureTileValues(TileVisual::water));
+            TileVisual tileVisual1 = Tile::tileVisualFromString(nextParam);
+            if(tileVisual1 == TileVisual::nullTileVisual)
+            {
+                OD_ASSERT_TRUE_MSG(false, "Wrong TileVisual1 in tileset=" + nextParam);
+                return false;
+            }
 
-        defFile >> nextParam;
-        if (nextParam != "[Lava]")
-        {
-            OD_ASSERT_TRUE_MSG(false, "Expecting Lava tag but got=" + nextParam);
-            return false;
-        }
-        loadTilesetValues(defFile, "[/Lava]", tileSet->configureTileValues(TileVisual::lava));
+            defFile >> nextParam;
+            TileVisual tileVisual2 = Tile::tileVisualFromString(nextParam);
+            if(tileVisual2 == TileVisual::nullTileVisual)
+            {
+                OD_ASSERT_TRUE_MSG(false, "Wrong TileVisual2 in tileset=" + nextParam);
+                return false;
+            }
 
-        defFile >> nextParam;
-        if (nextParam != "[Claimed]")
-        {
-            OD_ASSERT_TRUE_MSG(false, "Expecting Claimed tag but got=" + nextParam);
-            return false;
+            tileSet->addTileFullLink(tileVisual1, tileVisual2);
         }
-        loadTilesetValues(defFile, "[/Claimed]", tileSet->configureTileValues(TileVisual::claimed));
 
-        defFile >> nextParam;
+        if(!loadTilesetValues(defFile, TileVisual::gold, tileSet->configureTileValues(TileVisual::gold)))
+            return false;
+        if(!loadTilesetValues(defFile, TileVisual::dirt, tileSet->configureTileValues(TileVisual::dirt)))
+            return false;
+        if(!loadTilesetValues(defFile, TileVisual::rock, tileSet->configureTileValues(TileVisual::rock)))
+            return false;
+        if(!loadTilesetValues(defFile, TileVisual::water, tileSet->configureTileValues(TileVisual::water)))
+            return false;
+        if(!loadTilesetValues(defFile, TileVisual::lava, tileSet->configureTileValues(TileVisual::lava)))
+            return false;
+        if(!loadTilesetValues(defFile, TileVisual::claimed, tileSet->configureTileValues(TileVisual::claimed)))
+            return false;
     }
 
     // At least the default tileset should be defined
@@ -1230,8 +1255,17 @@ bool ConfigManager::loadTilesets(const std::string& fileName)
     return true;
 }
 
-bool ConfigManager::loadTilesetValues(std::istream& defFile, const std::string& endTag, std::vector<TileSetValue>& tileValues)
+bool ConfigManager::loadTilesetValues(std::istream& defFile, TileVisual tileVisual, std::vector<TileSetValue>& tileValues)
 {
+    std::string nextParam;
+    std::string beginTag = "[" + Tile::tileVisualToString(tileVisual) + "]";
+    std::string endTag = "[/" + Tile::tileVisualToString(tileVisual) + "]";
+    defFile >> nextParam;
+    if (nextParam != beginTag)
+    {
+        OD_ASSERT_TRUE_MSG(false, "Expecting " + beginTag + " tag but got=" + nextParam);
+        return false;
+    }
     while(true)
     {
         std::string indexStr;

@@ -574,6 +574,7 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
                 case TileVisual::dirt:
                 case TileVisual::gold:
                 case TileVisual::rock:
+                case TileVisual::claimed:
                     fullness = mCurrentFullness;
                     break;
                 default:

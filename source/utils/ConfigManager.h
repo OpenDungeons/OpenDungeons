@@ -32,6 +32,7 @@ class TileSet;
 class TileSetValue;
 
 enum class CreatureMoodLevel;
+enum class TileVisual;
 
 //! \brief This class is used to manage global configuration such as network configuration, global creature stats, ...
 //! It should NOT be used to load level specific stuff. For that, there is GameMap.
@@ -135,7 +136,7 @@ private:
     bool loadCreaturesMood(const std::string& fileName);
     bool loadResearches(const std::string& fileName);
     bool loadTilesets(const std::string& fileName);
-    bool loadTilesetValues(std::istream& defFile, const std::string& endTag, std::vector<TileSetValue>& tileValues);
+    bool loadTilesetValues(std::istream& defFile, TileVisual tileVisual, std::vector<TileSetValue>& tileValues);
 
     std::map<std::string, Ogre::ColourValue> mSeatColors;
     std::vector<const CreatureDefinition*> mCreatureDefs;
@@ -183,7 +184,7 @@ private:
     std::vector<const Research*> mResearches;
 
     //! Allowed tilesets
-    std::map<std::string, TileSet*> mTileSets;
+    std::map<std::string, const TileSet*> mTileSets;
 };
 
 #endif //CONFIGMANAGER_H

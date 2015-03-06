@@ -278,6 +278,7 @@ public:
     static std::string tileTypeToString(TileType t);
 
     static std::string tileVisualToString(TileVisual tileVisual);
+    static TileVisual tileVisualFromString(const std::string& strTileVisual);
 
     static TileType tileTypeFromTileVisual(TileVisual tileVisual);
     static TileVisual tileVisualFromTileType(TileType tileType);
@@ -371,10 +372,6 @@ public:
     void logFloodFill() const;
 
     bool isFloodFillFilled() const;
-
-    //! Returns true if this tile is linked to the given tile and false otherwise.
-    //! Used on client side only
-    bool isLinked(Tile* tile) const;
 
     //! Refresh the tile visual according to the tile parameters (type, claimed, ...).
     //! Used only on server side

@@ -2966,11 +2966,11 @@ const TileSetValue& GameMap::getMeshForTile(const Tile* tile) const
                 diffY = 0;
                 break;
         }
-        Tile* t = getTile(tile->getX() + diffX, tile->getY() + diffY);
+        const Tile* t = getTile(tile->getX() + diffX, tile->getY() + diffY);
         if(t == nullptr)
             continue;
 
-        if(tile->isLinked(t))
+        if(mTileSet->areLinked(tile, t))
             index |= (1 << i);
     }
 

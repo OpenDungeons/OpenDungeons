@@ -557,6 +557,9 @@ std::string Tile::tileVisualToString(TileVisual tileVisual)
 {
     switch (tileVisual)
     {
+        case TileVisual::nullTileVisual:
+            return "nullTileVisual";
+
         case TileVisual::dirt:
             return "Dirt";
 
@@ -578,6 +581,19 @@ std::string Tile::tileVisualToString(TileVisual tileVisual)
         default:
             return "Unknown tile type=" + Helper::toString(static_cast<uint32_t>(tileVisual));
     }
+}
+
+TileVisual Tile::tileVisualFromString(const std::string& strTileVisual)
+{
+    uint32_t nb = static_cast<uint32_t>(TileVisual::countTileVisual);
+    for(uint32_t k = 0; k < nb; ++k)
+    {
+        TileVisual tileVisual = static_cast<TileVisual>(k);
+        if(strTileVisual.compare(tileVisualToString(tileVisual)) == 0)
+            return tileVisual;
+    }
+
+    return TileVisual::nullTileVisual;
 }
 
 TileType Tile::tileTypeFromTileVisual(TileVisual tileVisual)
@@ -1344,21 +1360,6 @@ bool Tile::removePersistentObject(PersistentObject* obj)
 
     mPersistentObjectRegistered.erase(it);
     setDirtyForAllSeats();
-    return true;
-}
-
-bool Tile::isLinked(Tile* tile) const
-{
-    // If the tile fullness is different, there is no link
-    if((getFullness() <= 0.0) && (tile->getFullness() > 0.0))
-        return false;
-    if((getFullness() > 0.0) && (tile->getFullness() <= 0.0))
-        return false;
-
-    // If tile visual (gold, dirt, claimed, ...) is different, the tiles are not linked
-    if(getTileVisual() != tile->getTileVisual())
-        return false;
-
     return true;
 }
 

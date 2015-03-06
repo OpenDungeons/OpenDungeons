@@ -86,9 +86,20 @@ public:
     inline const Ogre::Vector3& getScale() const
     { return mScale; }
 
+    //! Returns true if the 2 tiles are linked and false otherwise.
+    //! Used on client side only
+    bool areLinked(const Tile* tile1, const Tile* tile2) const;
+
+    void addTileGroundLink(TileVisual tileVisual1, TileVisual tileVisual2);
+    void addTileFullLink(TileVisual tileVisual1, TileVisual tileVisual2);
+
 private:
     std::vector<std::vector<TileSetValue>> mTileValues;
     Ogre::Vector3 mScale;
+    //! Represents the links between tiles. The uint is used as a bit array.
+    //! The index in the vector corresponds to the TileVisual
+    std::vector<uint32_t> mTileGroundLinks;
+    std::vector<uint32_t> mTileFullLinks;
 };
 
 class TileContainer
