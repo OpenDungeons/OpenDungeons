@@ -115,12 +115,13 @@ void Tile::setFullness(double f)
     }
 }
 
-// DAN_TEST ca a pas de sens de tester claimed
-bool Tile::isBuildableUpon() const
+bool Tile::isBuildableUpon(Seat* seat) const
 {
     if(getFullness() > 0.0)
         return false;
     if(mIsBuilding)
+        return false;
+    if(!isClaimedForSeat(seat))
         return false;
 
     return true;

@@ -2381,25 +2381,13 @@ std::vector<Tile*> GameMap::getBuildableTilesForPlayerInArea(int x1, int y1, int
     for (std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end();)
     {
         Tile* tile = *it;
-        if (!tile->isBuildableUpon())
+        if (!tile->isBuildableUpon(player->getSeat()))
         {
             it = tiles.erase(it);
             continue;
         }
 
-        if (tile->getClaimedPercentage() < 1.0)
-        {
-            it = tiles.erase(it);
-            continue;
-        }
-
-        if (!tile->isClaimedForSeat(player->getSeat()))
-        {
-            it = tiles.erase(it);
-            continue;
-        }
-
-         ++it;
+        ++it;
     }
     return tiles;
 }

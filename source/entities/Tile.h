@@ -247,7 +247,7 @@ public:
     bool isWallClaimedForSeat(Seat* seat);
 
     //! \brief Tells whether a room can be built upon this tile.
-    bool isBuildableUpon() const;
+    bool isBuildableUpon(Seat* seat) const;
 
     void exportToStream(std::ostream& os) const override;
 
