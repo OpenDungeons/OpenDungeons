@@ -43,6 +43,7 @@ class BuildingObject;
 class PersistentObject;
 class ODPacket;
 
+//! Tile types a tile can be
 enum class TileType
 {
     nullTileType = 0,
@@ -51,11 +52,24 @@ enum class TileType
     rock = 3,
     water = 4,
     lava = 5,
-    claimed = 6
+    countTileType
 };
 
-ODPacket& operator<<(ODPacket& os, const TileType& type);
-ODPacket& operator>>(ODPacket& is, TileType& type);
+//! Different representations a tile can have (ground or full)
+enum class TileVisual
+{
+    nullTileVisual = 0,
+    dirt,
+    gold,
+    rock,
+    water,
+    lava,
+    claimed,
+    countTileVisual
+};
+
+ODPacket& operator<<(ODPacket& os, const TileVisual& type);
+ODPacket& operator>>(ODPacket& is, TileVisual& type);
 std::ostream& operator<<(std::ostream& os, const TileType& type);
 std::istream& operator>>(std::istream& is, TileType& type);
 
@@ -88,13 +102,20 @@ public:
      * In addition to setting the tile type this function also reloads the new mesh
      * for the tile.
      */
-    void setType(TileType t);
+    inline void setType(TileType t)
+    { mType = t; }
 
     //! \brief Returns the tile type (rock, claimed, etc.).
-    TileType getType() const
-    {
-        return mType;
-    }
+    inline TileType getType() const
+    { return mType; }
+
+    //! \brief Returns the tile type (rock, claimed, etc.).
+    inline TileVisual getTileVisual() const
+    { return mTileVisual; }
+
+    //! \brief Sets the tile type (rock, claimed, etc.).
+    inline void setTileVisual(TileVisual tileVisual)
+    { mTileVisual = tileVisual; }
 
     virtual void addToGameMap();
     //! Tiles cannot be removed
@@ -116,17 +137,12 @@ public:
     void setFullness(double f);
 
     //! \brief An accessor which returns the tile's fullness which should range from 0 to 100.
-    double getFullness() const;
-
-    /*! \brief An accessor which returns the tile's fullness mesh number.
-     *
-     * The fullness mesh number is concatenated to the tile's type to determine the
-     * mesh to load to display a given tile type.
-     */
-    int getFullnessMeshNumber() const;
+    inline double getFullness() const
+    { return mFullness; }
 
     //! \brief Tells whether a creature can see through a tile
-    bool permitsVision() const;
+    inline bool permitsVision() const
+    { return (mFullness == 0.0); }
 
     /*! \brief This is a helper function to scroll through the list of available fullness levels.
      *
@@ -136,18 +152,6 @@ public:
      * mouse button.
      */
     static int nextTileFullness(int f);
-
-    //! \brief This is a helper function that generates a mesh filename from a tile type and a fullness mesh number.
-    //! \TODO Define what is a postfix.
-    static std::string meshNameFromNeighbors(TileType myType, int fullnessMeshNumber, std::array<TileType, 8> neighbors,
-                                             std::bitset<8> neighborsFullness, int &rt);
-
-    //! \brief Generate the tile mesh name in ss from other parameters.
-    //! \param postFixInt an array 0 and 1 set according to neighbor mesh types and fullness.
-    //! \param fMN The fullness of the tile (Atm, only tested whether > 0)
-    //! \param myType The tile type (dirt, gold, ...)
-    //! TODO This will have to be replaced by a proper tileset config file.
-    static void meshNameAux(std::stringstream &ss, int &postfixInt, int& fMN, TileType myType);
 
     //! \brief This function puts a message in the renderQueue to change the mesh for this tile.
     void refreshMesh();
@@ -229,8 +233,8 @@ public:
     //! The function will check whether a tile is not already a reinforced wall owned by another team.
     bool isDiggable(Seat* seat) const;
 
-    //! \brief Tells whether the tile fullness is empty (ground tile) and can be claimed.
-    bool isGroundClaimable() const;
+    //! \brief Tells whether the tile fullness is empty (ground tile) and can be claimed by the given seat.
+    bool isGroundClaimable(Seat* seat) const;
 
     //! \brief Tells whether the tile is a wall (fullness > 1) and can be claimed for the given seat.
     //! Reinforced walls by another team and hard rocks can't be claimed.
@@ -239,12 +243,15 @@ public:
     //! \brief Tells whether the tile is claimed for the given seat.
     bool isClaimedForSeat(Seat* seat) const;
 
+    //! \brief Tells whether the tile is claimed for the given seat.
+    bool isClaimed() const;
+
     //! \brief Tells whether the given tile is a claimed wall for the given seat team.
     //! Used to discover active spots for rooms.
     bool isWallClaimedForSeat(Seat* seat);
 
     //! \brief Tells whether a room can be built upon this tile.
-    bool isBuildableUpon() const;
+    bool isBuildableUpon(Seat* seat) const;
 
     void exportToStream(std::ostream& os) const override;
 
@@ -273,6 +280,12 @@ public:
      * Dirt104.mesh is a 4 sided dirt mesh with 100% fullness.
      */
     static std::string tileTypeToString(TileType t);
+
+    static std::string tileVisualToString(TileVisual tileVisual);
+    static TileVisual tileVisualFromString(const std::string& strTileVisual);
+
+    static TileType tileTypeFromTileVisual(TileVisual tileVisual);
+    static TileVisual tileVisualFromTileType(TileType tileType);
 
     inline int getX() const
     { return mX; }
@@ -364,6 +377,10 @@ public:
 
     bool isFloodFillFilled() const;
 
+    //! Refresh the tile visual according to the tile parameters (type, claimed, ...).
+    //! Used only on server side
+    void computeTileVisual();
+
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
@@ -376,21 +393,21 @@ private:
     //! \brief The tile position
     int mX, mY;
 
-    //! \brief The tile rotation value, in degrees.
-    Ogre::Real mRotation;
-
-    //! \brief The tile type: Claimed, Dirt, Gold, ...
+    //! \brief The tile type: Dirt, Gold, ...
     TileType mType;
+
+    //! \brief The tile visual: Claimed, Dirt, Gold, ...
+    //! On client side, we should rely on mTileVisual to know the tile type as claimed percentage
+    //! could not be up to date
+    TileVisual mTileVisual;
 
     //! \brief Whether the tile is selected.
     bool mSelected;
 
     //! \brief The tile fullness (0.0 - 100.0).
-    //! At 0.0, it is a ground tile, at 100.0, it is a wall.
+    //! At 0.0, it is a ground tile. Over it is a wall.
+    //! Used on server and client side
     double mFullness;
-
-    //! \brief The mesh number corresponding ot the current fullness
-    int mFullnessMeshNumber;
 
     std::vector<Tile*> mNeighbors;
     std::vector<Player*> mPlayersMarkingTile;
@@ -405,7 +422,10 @@ private:
 
     Building* mCoveringBuilding;
     std::vector<int> mFloodFillColor;
+
+    //! \brief The tile claiming. Used on server side only
     double mClaimedPercentage;
+
     Ogre::Vector3 mScale;
 
     //! \brief True if a building is on this tile. False otherwise. It is used on client side because the clients do not know about
@@ -423,7 +443,8 @@ private:
      *  This only sets the fullness variable. This function is here to change the value
      *  before a map object has been set. setFullness is called once a map is assigned.
      */
-    void setFullnessValue(double f);
+    inline void setFullnessValue(double f)
+    { mFullness = f; }
 
     void setDirtyForAllSeats();
 };

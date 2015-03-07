@@ -28,11 +28,14 @@ class Weapon;
 class SpawnCondition;
 class CreatureMood;
 class Research;
+class TileSet;
+class TileSetValue;
 
 enum class CreatureMoodLevel;
+enum class TileVisual;
 
 //! \brief This class is used to manage global configuration such as network configuration, global creature stats, ...
-//! It should NOT be used to load level specific stuff. For that, there if GameMap.
+//! It should NOT be used to load level specific stuff. For that, there is GameMap.
 class ConfigManager : public Ogre::Singleton<ConfigManager>
 {
 public:
@@ -40,6 +43,7 @@ public:
     ~ConfigManager();
 
     static const std::string DefaultWorkerCreatureDefinition;
+    static const std::string DEFAULT_TILESET_NAME;
 
     Ogre::ColourValue getColorFromId(const std::string& id) const;
     inline const std::vector<const CreatureDefinition*>& getCreatureDefinitions() const
@@ -112,6 +116,9 @@ public:
     inline const std::vector<const Research*>& getResearches() const
     { return mResearches; }
 
+    //! Returns the tileset for the given name. If the tileset is not found, returns the default tileset
+    const TileSet* getTileSet(const std::string& tileSetName) const;
+
 private:
     //! \brief Function used to load the global configuration. They should return true if the configuration
     //! is ok and false if a mandatory parameter is missing
@@ -128,6 +135,8 @@ private:
     bool loadSpellConfig(const std::string& fileName);
     bool loadCreaturesMood(const std::string& fileName);
     bool loadResearches(const std::string& fileName);
+    bool loadTilesets(const std::string& fileName);
+    bool loadTilesetValues(std::istream& defFile, TileVisual tileVisual, std::vector<TileSetValue>& tileValues);
 
     std::map<std::string, Ogre::ColourValue> mSeatColors;
     std::vector<const CreatureDefinition*> mCreatureDefs;
@@ -141,6 +150,7 @@ private:
     std::string mFilenameSpells;
     std::string mFilenameCreaturesMood;
     std::string mFilenameResearches;
+    std::string mFilenameTilesets;
     uint32_t mNetworkPort;
     uint32_t mBaseSpawnPoint;
     uint32_t mCreatureDeathCounter;
@@ -172,6 +182,9 @@ private:
 
     //! Allowed researches
     std::vector<const Research*> mResearches;
+
+    //! Allowed tilesets
+    std::map<std::string, const TileSet*> mTileSets;
 };
 
 #endif //CONFIGMANAGER_H

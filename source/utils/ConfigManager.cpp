@@ -16,11 +16,14 @@
  */
 
 #include "entities/CreatureDefinition.h"
+#include "entities/Tile.h"
 #include "entities/Weapon.h"
 
 #include "creaturemood/CreatureMood.h"
 
 #include "game/Research.h"
+
+#include "gamemap/GameMap.h"
 
 #include "spawnconditions/SpawnCondition.h"
 
@@ -29,8 +32,11 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
+#include <boost/dynamic_bitset.hpp>
+
 const std::vector<std::string> EMPTY_SPAWNPOOL;
 const std::string EMPTY_STRING;
+const std::string ConfigManager::DEFAULT_TILESET_NAME = "Default";
 
 const std::string ConfigManager::DefaultWorkerCreatureDefinition = "DefaultWorker";
 
@@ -115,6 +121,12 @@ ConfigManager::ConfigManager() :
         OD_ASSERT_TRUE(false);
         exit(1);
     }
+    fileName = ResourceManager::getSingleton().getConfigPath() + mFilenameTilesets;
+    if(!loadTilesets(fileName))
+    {
+        OD_ASSERT_TRUE(false);
+        exit(1);
+    }
 }
 
 ConfigManager::~ConfigManager()
@@ -157,6 +169,12 @@ ConfigManager::~ConfigManager()
         delete research;
     }
     mResearches.clear();
+
+    for(std::pair<const std::string, const TileSet*> p : mTileSets)
+    {
+        delete p.second;
+    }
+    mTileSets.clear();
 }
 
 bool ConfigManager::loadGlobalConfig()
@@ -310,9 +328,14 @@ bool ConfigManager::loadGlobalConfigDefinitionFiles(std::stringstream& configFil
             mFilenameResearches = fileName;
             filesOk |= 0x100;
         }
+        else if(type == "Tilesets")
+        {
+            mFilenameTilesets = fileName;
+            filesOk |= 0x200;
+        }
     }
 
-    if(filesOk != 0x1FF)
+    if(filesOk != 0x3FF)
     {
         OD_ASSERT_TRUE_MSG(false, "Missing parameter file filesOk=" + Ogre::StringConverter::toString(filesOk));
         return false;
@@ -1089,6 +1112,197 @@ bool ConfigManager::loadResearches(const std::string& fileName)
     return true;
 }
 
+bool ConfigManager::loadTilesets(const std::string& fileName)
+{
+    LogManager::getSingleton().logMessage("Load Tilesets file: " + fileName);
+    std::stringstream defFile;
+    if(!Helper::readFileWithoutComments(fileName, defFile))
+    {
+        OD_ASSERT_TRUE_MSG(false, "Couldn't read " + fileName);
+        return false;
+    }
+
+    std::string nextParam;
+    defFile >> nextParam;
+    if (nextParam != "[Tilesets]")
+    {
+        OD_ASSERT_TRUE_MSG(false, "Invalid Tilesets start format. Line was " + nextParam);
+        return false;
+    }
+
+    while(true)
+    {
+        defFile >> nextParam;
+        if (nextParam == "[/Tilesets]")
+            break;
+
+        if (nextParam == "[/Tileset]")
+            continue;
+
+        if (nextParam != "[Tileset]")
+        {
+            OD_ASSERT_TRUE_MSG(false, "Expecting TileSet tag but got=" + nextParam);
+            return false;
+        }
+
+        defFile >> nextParam;
+        if (nextParam != "Name")
+        {
+            OD_ASSERT_TRUE_MSG(false, "Expecting Name tag but got=" + nextParam);
+            return false;
+        }
+
+        std::string tileSetName;
+        defFile >> tileSetName;
+
+        defFile >> nextParam;
+        if (nextParam != "Scale")
+        {
+            OD_ASSERT_TRUE_MSG(false, "Expecting Scale tag but got=" + nextParam);
+            return false;
+        }
+
+        Ogre::Vector3 scale;
+        defFile >> scale.x;
+        defFile >> scale.y;
+        defFile >> scale.z;
+
+        TileSet* tileSet = new TileSet(scale);
+        mTileSets[tileSetName] = tileSet;
+
+        defFile >> nextParam;
+        if(nextParam != "[GroundLink]")
+        {
+            OD_ASSERT_TRUE_MSG(false, "Expecting GroundLink tag but got=" + nextParam);
+            return false;
+        }
+
+        while(true)
+        {
+            defFile >> nextParam;
+            if(nextParam == "[/GroundLink]")
+                break;
+
+            TileVisual tileVisual1 = Tile::tileVisualFromString(nextParam);
+            if(tileVisual1 == TileVisual::nullTileVisual)
+            {
+                OD_ASSERT_TRUE_MSG(false, "Wrong TileVisual1 in tileset=" + nextParam);
+                return false;
+            }
+
+            defFile >> nextParam;
+            TileVisual tileVisual2 = Tile::tileVisualFromString(nextParam);
+            if(tileVisual2 == TileVisual::nullTileVisual)
+            {
+                OD_ASSERT_TRUE_MSG(false, "Wrong TileVisual2 in tileset=" + nextParam);
+                return false;
+            }
+
+            tileSet->addTileGroundLink(tileVisual1, tileVisual2);
+        }
+
+        defFile >> nextParam;
+        if(nextParam != "[FullLink]")
+        {
+            OD_ASSERT_TRUE_MSG(false, "Expecting FullLink tag but got=" + nextParam);
+            return false;
+        }
+
+        while(true)
+        {
+            defFile >> nextParam;
+            if(nextParam == "[/FullLink]")
+                break;
+
+            TileVisual tileVisual1 = Tile::tileVisualFromString(nextParam);
+            if(tileVisual1 == TileVisual::nullTileVisual)
+            {
+                OD_ASSERT_TRUE_MSG(false, "Wrong TileVisual1 in tileset=" + nextParam);
+                return false;
+            }
+
+            defFile >> nextParam;
+            TileVisual tileVisual2 = Tile::tileVisualFromString(nextParam);
+            if(tileVisual2 == TileVisual::nullTileVisual)
+            {
+                OD_ASSERT_TRUE_MSG(false, "Wrong TileVisual2 in tileset=" + nextParam);
+                return false;
+            }
+
+            tileSet->addTileFullLink(tileVisual1, tileVisual2);
+        }
+
+        if(!loadTilesetValues(defFile, TileVisual::gold, tileSet->configureTileValues(TileVisual::gold)))
+            return false;
+        if(!loadTilesetValues(defFile, TileVisual::dirt, tileSet->configureTileValues(TileVisual::dirt)))
+            return false;
+        if(!loadTilesetValues(defFile, TileVisual::rock, tileSet->configureTileValues(TileVisual::rock)))
+            return false;
+        if(!loadTilesetValues(defFile, TileVisual::water, tileSet->configureTileValues(TileVisual::water)))
+            return false;
+        if(!loadTilesetValues(defFile, TileVisual::lava, tileSet->configureTileValues(TileVisual::lava)))
+            return false;
+        if(!loadTilesetValues(defFile, TileVisual::claimed, tileSet->configureTileValues(TileVisual::claimed)))
+            return false;
+    }
+
+    // At least the default tileset should be defined
+    if(mTileSets.count(DEFAULT_TILESET_NAME) <= 0)
+    {
+        OD_ASSERT_TRUE_MSG(false, "No tileset defined with name=" + DEFAULT_TILESET_NAME);
+        return false;
+    }
+    return true;
+}
+
+bool ConfigManager::loadTilesetValues(std::istream& defFile, TileVisual tileVisual, std::vector<TileSetValue>& tileValues)
+{
+    std::string nextParam;
+    std::string beginTag = "[" + Tile::tileVisualToString(tileVisual) + "]";
+    std::string endTag = "[/" + Tile::tileVisualToString(tileVisual) + "]";
+    defFile >> nextParam;
+    if (nextParam != beginTag)
+    {
+        OD_ASSERT_TRUE_MSG(false, "Expecting " + beginTag + " tag but got=" + nextParam);
+        return false;
+    }
+    while(true)
+    {
+        std::string indexStr;
+        defFile >> indexStr;
+        if(indexStr == endTag)
+            return true;
+
+        boost::dynamic_bitset<> x(indexStr);
+        uint32_t index = static_cast<int>(x.to_ulong());
+
+        std::string meshName;
+        defFile >> meshName;
+
+        std::string materialName;
+        defFile >> materialName;
+        if(materialName.compare("''") == 0)
+            materialName.clear();
+
+        double rotX;
+        defFile >> rotX;
+
+        double rotY;
+        defFile >> rotY;
+
+        double rotZ;
+        defFile >> rotZ;
+
+        if(index >= tileValues.size())
+        {
+            OD_ASSERT_TRUE_MSG(false, "Tileset index too high in tileset=" + endTag + ", index=" + indexStr);
+            return false;
+        }
+
+        tileValues[index] = TileSetValue(meshName, materialName, rotX, rotY, rotZ);
+    }
+}
+
 const std::string& ConfigManager::getRoomConfigString(const std::string& param) const
 {
     if(mRoomsConfig.count(param) <= 0)
@@ -1291,4 +1505,14 @@ CreatureMoodLevel ConfigManager::getCreatureMoodLevel(int32_t moodModifiersPoint
         return CreatureMoodLevel::Angry;
 
     return CreatureMoodLevel::Furious;
+}
+
+const TileSet* ConfigManager::getTileSet(const std::string& tileSetName) const
+{
+    if(mTileSets.count(tileSetName) > 0)
+        return mTileSets.at(tileSetName);
+
+    OD_ASSERT_TRUE_MSG(false, "Cannot find requested tileset name=" + tileSetName);
+    // We return the default tileset
+    return mTileSets.at(DEFAULT_TILESET_NAME);
 }

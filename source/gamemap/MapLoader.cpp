@@ -41,6 +41,7 @@
 
 #include "traps/Trap.h"
 
+#include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/ResourceManager.h"
@@ -79,6 +80,9 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         std::cout << "Line was " << nextParam << std::endl;
         return false;
     }
+
+    // By default, we use the default tileSet
+    gameMap.setTileSetName("");
 
     // Read in the seats from the level file
     while (true)
@@ -122,6 +126,15 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
             std::string musicFile = nextParam.substr(param.size());
             gameMap.setLevelFightMusicFile(nextParam.substr(param.size()));
             LogManager::getSingleton().logMessage("Level Fight Music: " + musicFile);
+            continue;
+        }
+
+        param = "TileSet\t";
+        if (nextParam.compare(0, param.size(), param) == 0)
+        {
+            std::string tileSet = nextParam.substr(param.size());
+            gameMap.setTileSetName(tileSet);
+            LogManager::getSingleton().logMessage("TileSet: " + tileSet);
             continue;
         }
     }
@@ -234,6 +247,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         Tile* tempTile = new Tile(&gameMap);
 
         Tile::loadFromLine(entire_line, tempTile);
+        tempTile->computeTileVisual();
 
         tempTile->addToGameMap();
     }
@@ -602,6 +616,9 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     levelFile << "Description\t" << gameMap.getLevelDescription() << std::endl;
     levelFile << "Music\t" << gameMap.getLevelMusicFile() << std::endl;
     levelFile << "FightMusic\t" << gameMap.getLevelFightMusicFile() << std::endl;
+    if(!gameMap.getTileSetName().empty())
+        levelFile << "TileSet\t" << gameMap.getTileSetName() << std::endl;
+
     levelFile << "[/Info]" << std::endl;
 
 
@@ -645,7 +662,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
         {
             tempTile = gameMap.getTile(ii, jj);
             // Don't save standard tiles as they're auto filled in at load time.
-            if (tempTile->getType() == TileType::dirt && tempTile->getFullness() >= 100.0)
+            if (!tempTile->isClaimed() && tempTile->getType() == TileType::dirt && tempTile->getFullness() >= 100.0)
                 continue;
 
             tempTile->exportHeadersToStream(levelFile);

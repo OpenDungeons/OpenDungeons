@@ -494,6 +494,16 @@ public:
     inline const std::vector<RenderedMovableEntity*>& getRenderedMovableEntities() const
     { return mRenderedMovableEntities; }
 
+    inline void setTileSetName(const std::string& tileSetName)
+    { mTileSetName = tileSetName; }
+
+    inline const std::string& getTileSetName() const
+    { return mTileSetName; }
+
+    const TileSetValue& getMeshForTile(const Tile* tile) const;
+    inline const Ogre::Vector3& getTileSetScale() const
+    { return mTileSet->getScale(); }
+
 private:
     void replaceFloodFill(FloodFillType floodFillType, int colorOld, int colorNew);
 
@@ -583,6 +593,10 @@ private:
 
     //! AI Handling manager
     AIManager mAiManager;
+
+    //! Map tileset
+    const TileSet* mTileSet;
+    std::string mTileSetName;
 
     //! Creature mood modifiers. Used to compute mood. The name of the mood modifier is associated with
     //! the list of mood modifier

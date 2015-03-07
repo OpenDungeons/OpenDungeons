@@ -35,6 +35,7 @@
 #include "entities/TreasuryObject.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Weapon.h"
+#include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "modes/ModeManager.h"
@@ -123,6 +124,12 @@ bool ODClient::processOneClientSocketMessage()
             OD_ASSERT_TRUE(packetReceived >> str);
             gameMap->setLevelFightMusicFile(str);
 
+            OD_ASSERT_TRUE(packetReceived >> str);
+            if(str.empty())
+                str = ConfigManager::DEFAULT_TILESET_NAME;
+
+            gameMap->setTileSetName(str);
+
             int32_t nb;
             // Creature definitions
             OD_ASSERT_TRUE(packetReceived >> nb);
@@ -160,14 +167,13 @@ bool ODClient::processOneClientSocketMessage()
 
             // Tiles
             OD_ASSERT_TRUE(packetReceived >> nb);
-            double fullness;
             while(nb > 0)
             {
                 --nb;
                 Tile* tile = gameMap->tileFromPacket(packetReceived);
                 tile->setType(TileType::gold);
-                OD_ASSERT_TRUE(packetReceived >> fullness);
-                tile->setFullness(fullness);
+                tile->setFullness(100.0);
+                tile->setTileVisual(TileVisual::gold);
             }
             OD_ASSERT_TRUE(packetReceived >> nb);
             while(nb > 0)
@@ -176,6 +182,7 @@ bool ODClient::processOneClientSocketMessage()
                 Tile* tile = gameMap->tileFromPacket(packetReceived);
                 tile->setType(TileType::rock);
                 tile->setFullness(100.0);
+                tile->setTileVisual(TileVisual::rock);
             }
             gameMap->setAllFullnessAndNeighbors();
 

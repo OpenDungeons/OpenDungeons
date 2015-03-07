@@ -333,6 +333,110 @@ TileContainer::TileContainer(int initTileDistance):
     buildTileDistance(initTileDistance);
 }
 
+TileSet::TileSet(const Ogre::Vector3& scale) :
+    mTileValues(static_cast<uint32_t>(TileVisual::countTileVisual), std::vector<TileSetValue>(32)),
+    mScale(scale),
+    mTileGroundLinks(std::vector<uint32_t>(static_cast<uint32_t>(TileVisual::countTileVisual), 0)),
+    mTileFullLinks(std::vector<uint32_t>(static_cast<uint32_t>(TileVisual::countTileVisual), 0))
+{
+}
+
+std::vector<TileSetValue>& TileSet::configureTileValues(TileVisual tileVisual)
+{
+    uint32_t tileTypeNumber = static_cast<uint32_t>(tileVisual);
+    if(tileTypeNumber >= mTileValues.size())
+    {
+        OD_ASSERT_TRUE_MSG(false, "Trying to get unknow tileType=" + Tile::tileVisualToString(tileVisual));
+        return mTileValues.at(0);
+    }
+
+    return mTileValues[tileTypeNumber];
+}
+
+const std::vector<TileSetValue>& TileSet::getTileValues(TileVisual tileVisual) const
+{
+    uint32_t tileTypeNumber = static_cast<uint32_t>(tileVisual);
+    if(tileTypeNumber >= mTileValues.size())
+    {
+        OD_ASSERT_TRUE_MSG(false, "Trying to get unknow tileType=" + Tile::tileVisualToString(tileVisual));
+        return mTileValues.at(0);
+    }
+
+    return mTileValues[tileTypeNumber];
+}
+
+void TileSet::addTileGroundLink(TileVisual tileVisual1, TileVisual tileVisual2)
+{
+    uint32_t intTile1Visual = static_cast<uint32_t>(tileVisual1);
+    uint32_t intTile2Visual = static_cast<uint32_t>(tileVisual2);
+    if(intTile1Visual >= mTileGroundLinks.size())
+    {
+        OD_ASSERT_TRUE_MSG(false, "TileVisual=" + Tile::tileVisualToString(tileVisual1));
+        return;
+    }
+    if(intTile2Visual >= mTileGroundLinks.size())
+    {
+        OD_ASSERT_TRUE_MSG(false, "TileVisual=" + Tile::tileVisualToString(tileVisual2));
+        return;
+    }
+
+    uint32_t tileLink;
+    tileLink = 1 << intTile2Visual;
+    mTileGroundLinks[intTile1Visual] |= tileLink;
+
+    // We want a commutative relationship
+    tileLink = 1 << intTile1Visual;
+    mTileGroundLinks[intTile2Visual] |= tileLink;
+}
+
+void TileSet::addTileFullLink(TileVisual tileVisual1, TileVisual tileVisual2)
+{
+    uint32_t intTile1Visual = static_cast<uint32_t>(tileVisual1);
+    uint32_t intTile2Visual = static_cast<uint32_t>(tileVisual2);
+    if(intTile1Visual >= mTileFullLinks.size())
+    {
+        OD_ASSERT_TRUE_MSG(false, "TileVisual=" + Tile::tileVisualToString(tileVisual1));
+        return;
+    }
+    if(intTile2Visual >= mTileFullLinks.size())
+    {
+        OD_ASSERT_TRUE_MSG(false, "TileVisual=" + Tile::tileVisualToString(tileVisual2));
+        return;
+    }
+
+    uint32_t tileLink;
+    tileLink = 1 << intTile2Visual;
+    mTileFullLinks[intTile1Visual] |= tileLink;
+
+    // We want a commutative relationship
+    tileLink = 1 << intTile1Visual;
+    mTileFullLinks[intTile2Visual] |= tileLink;
+}
+
+bool TileSet::areLinked(const Tile* tile1, const Tile* tile2) const
+{
+    // If the tile fullness is different, there is no link
+    if((tile1->getFullness() <= 0.0) && (tile2->getFullness() > 0.0))
+        return false;
+    if((tile1->getFullness() > 0.0) && (tile2->getFullness() <= 0.0))
+        return false;
+
+    // Check if the tile visual is linkable
+    uint32_t intTile1Visual = static_cast<uint32_t>(tile1->getTileVisual());
+    uint32_t intTile2Visual = static_cast<uint32_t>(tile2->getTileVisual());
+    uint32_t linkValue = 1 << intTile2Visual;
+    if(tile1->getFullness() <= 0.0)
+        linkValue &= mTileGroundLinks[intTile1Visual];
+    else
+        linkValue &= mTileFullLinks[intTile1Visual];
+
+    if(linkValue == 0)
+        return false;
+
+    return true;
+}
+
+
 TileContainer::~TileContainer()
 {
     clearTiles();

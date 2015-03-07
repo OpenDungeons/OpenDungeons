@@ -71,10 +71,9 @@ bool BaseAI::shouldGroundTileBeConsideredForBestPlaceForRoom(Tile* tile, Seat* m
         case TileType::gold:
         {
             // Dirt and gold can always be built (even if digging may be needed depending on fullness)
-            return true;
-        }
-        case TileType::claimed:
-        {
+            if(!tile->isClaimed())
+                return true;
+
             // We check if we can build on that tile and if there is no building currently
             if(!tile->isClaimedForSeat(mPlayerSeat))
                 return false;

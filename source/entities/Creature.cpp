@@ -959,25 +959,20 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
                 tileMarkedDig = tile;
             }
             else if(tileToClaim == nullptr &&
-                tile->getType() == TileType::claimed &&
                 tile->isClaimedForSeat(seat) &&
-                position->isGroundClaimable() &&
-                !position->isClaimedForSeat(seat)
+                position->isGroundClaimable(seat)
                 )
             {
                 tileToClaim = position;
             }
             else if(tileToClaim == nullptr &&
-                position->getType() == TileType::claimed &&
                 position->isClaimedForSeat(seat) &&
-                tile->isGroundClaimable() &&
-                !tile->isClaimedForSeat(seat)
+                tile->isGroundClaimable(seat)
                 )
             {
                 tileToClaim = tile;
             }
             else if(tileWallNotClaimed == nullptr &&
-                position->getType() == TileType::claimed &&
                 position->isClaimedForSeat(seat) &&
                 tile->isWallClaimable(seat)
                 )
@@ -1362,7 +1357,7 @@ bool Creature::handleClaimTileAction(const CreatureAction& actionItem)
     }
 
     // See if the tile we are standing on can be claimed
-    if ((!myTile->isClaimedForSeat(getSeat()) || myTile->getClaimedPercentage() < 1.0) && myTile->isGroundClaimable())
+    if (myTile->isGroundClaimable(getSeat()))
     {
         //cout << "\nTrying to claim the tile I am standing on.";
         // Check to see if one of the tile's neighbors is claimed for our color
@@ -1395,8 +1390,7 @@ bool Creature::handleClaimTileAction(const CreatureAction& actionItem)
         int tempInt = Random::Uint(0, neighbors.size() - 1);
         Tile* tempTile = neighbors[tempInt];
         if (tempTile != nullptr && tempTile->getFullness() == 0.0
-            && (!tempTile->isClaimedForSeat(getSeat()) || tempTile->getClaimedPercentage() < 1.0)
-            && tempTile->isGroundClaimable())
+            && tempTile->isGroundClaimable(getSeat()))
         {
             // The neighbor tile is a potential candidate for claiming, to be an actual candidate
             // though it must have a neighbor of its own that is already claimed for our side.
@@ -1423,8 +1417,7 @@ bool Creature::handleClaimTileAction(const CreatureAction& actionItem)
     {
         // if this tile is not fully claimed yet or the tile is of another player's color
         if (tempTile != nullptr && tempTile->getFullness() == 0.0
-            && (tempTile->getClaimedPercentage() < 1.0 || !tempTile->isClaimedForSeat(getSeat()))
-            && tempTile->isGroundClaimable())
+            && tempTile->isGroundClaimable(getSeat()))
         {
             // Check to see if one of the tile's neighbors is claimed for our color
             for (Tile* t : tempTile->getAllNeighbors())
@@ -2870,7 +2863,7 @@ double Creature::getMoveSpeed(Tile* tile) const
     {
         case TileType::dirt:
         case TileType::gold:
-        case TileType::claimed:
+        case TileType::rock:
             return mGroundSpeed;
         case TileType::water:
             return mWaterSpeed;
@@ -3494,7 +3487,7 @@ bool Creature::canGoThroughTile(const Tile* tile) const
     {
         case TileType::dirt:
         case TileType::gold:
-        case TileType::claimed:
+        case TileType::rock:
         {
             // Note: We don't care about water or lava fullness.
             if (tile->getFullness() > 0.0)
@@ -3544,7 +3537,7 @@ bool Creature::tryDrop(Seat* seat, Tile* tile)
         return true;
 
     // Every creature can be dropped on allied claimed tiles
-    if(tile->getType() == TileType::claimed && tile->getSeat() != nullptr && tile->getSeat()->isAlliedSeat(getSeat()))
+    if(tile->isClaimedForSeat(getSeat()))
         return true;
 
     return false;

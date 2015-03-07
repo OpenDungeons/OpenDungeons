@@ -120,7 +120,7 @@ bool KeeperAI::checkTreasury()
         {
             for(Tile* neigh : tile->getAllNeighbors())
             {
-                if(neigh->isBuildableUpon() && neigh->isClaimedForSeat(mPlayer.getSeat()) &&
+                if(neigh->isBuildableUpon(mPlayer.getSeat()) &&
                    mGameMap.pathExists(worker, central, neigh))
                 {
                     std::vector<Tile*> tiles;
@@ -155,7 +155,7 @@ bool KeeperAI::checkTreasury()
             Tile* t;
             // North-East
             t = mGameMap.getTile(central->getX() + k, central->getY() + distance);
-            if(t != nullptr && t->isBuildableUpon() && t->isClaimedForSeat(mPlayer.getSeat()) &&
+            if(t != nullptr && t->isBuildableUpon(mPlayer.getSeat()) &&
                mGameMap.pathExists(worker, central, t))
             {
                 firstAvailableTile = t;
@@ -165,7 +165,7 @@ bool KeeperAI::checkTreasury()
             if(k > 0)
             {
                 t = mGameMap.getTile(central->getX() - k, central->getY() + distance);
-                if(t != nullptr && t->isBuildableUpon() && t->isClaimedForSeat(mPlayer.getSeat()) &&
+                if(t != nullptr && t->isBuildableUpon(mPlayer.getSeat()) &&
                    mGameMap.pathExists(worker, central, t))
                 {
                     firstAvailableTile = t;
@@ -174,7 +174,7 @@ bool KeeperAI::checkTreasury()
             }
             // South-East
             t = mGameMap.getTile(central->getX() + k, central->getY() - distance);
-            if(t != nullptr && t->isBuildableUpon() && t->isClaimedForSeat(mPlayer.getSeat()) &&
+            if(t != nullptr && t->isBuildableUpon(mPlayer.getSeat()) &&
                mGameMap.pathExists(worker, central, t))
             {
                 firstAvailableTile = t;
@@ -184,7 +184,7 @@ bool KeeperAI::checkTreasury()
             if(k > 0)
             {
                 t = mGameMap.getTile(central->getX() - k, central->getY() - distance);
-                if(t != nullptr && t->isBuildableUpon() && t->isClaimedForSeat(mPlayer.getSeat()) &&
+                if(t != nullptr && t->isBuildableUpon(mPlayer.getSeat()) &&
                    mGameMap.pathExists(worker, central, t))
                 {
                     firstAvailableTile = t;
@@ -193,7 +193,7 @@ bool KeeperAI::checkTreasury()
             }
             // East-North
             t = mGameMap.getTile(central->getX() + distance, central->getY() + k);
-            if(t != nullptr && t->isBuildableUpon() && t->isClaimedForSeat(mPlayer.getSeat()) &&
+            if(t != nullptr && t->isBuildableUpon(mPlayer.getSeat()) &&
                mGameMap.pathExists(worker, central, t))
             {
                 firstAvailableTile = t;
@@ -203,7 +203,7 @@ bool KeeperAI::checkTreasury()
             if(k > 0)
             {
                 t = mGameMap.getTile(central->getX() + distance, central->getY() - k);
-                if(t != nullptr && t->isBuildableUpon() && t->isClaimedForSeat(mPlayer.getSeat()) &&
+                if(t != nullptr && t->isBuildableUpon(mPlayer.getSeat()) &&
                    mGameMap.pathExists(worker, central, t))
                 {
                     firstAvailableTile = t;
@@ -212,7 +212,7 @@ bool KeeperAI::checkTreasury()
             }
             // West-North
             t = mGameMap.getTile(central->getX() - distance, central->getY() + k);
-            if(t != nullptr && t->isBuildableUpon() && t->isClaimedForSeat(mPlayer.getSeat()) &&
+            if(t != nullptr && t->isBuildableUpon(mPlayer.getSeat()) &&
                mGameMap.pathExists(worker, central, t))
             {
                 firstAvailableTile = t;
@@ -222,7 +222,7 @@ bool KeeperAI::checkTreasury()
             if(k > 0)
             {
                 t = mGameMap.getTile(central->getX() - distance, central->getY() - k);
-                if(t != nullptr && t->isBuildableUpon() && t->isClaimedForSeat(mPlayer.getSeat()) &&
+                if(t != nullptr && t->isBuildableUpon(mPlayer.getSeat()) &&
                    mGameMap.pathExists(worker, central, t))
                 {
                     firstAvailableTile = t;

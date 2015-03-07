@@ -152,6 +152,27 @@ void MiniMap::draw(const GameMap& gameMap)
                 continue;
             }
 
+            if(tile->isClaimed())
+            {
+                Seat* tempSeat = tile->getSeat();
+                if (tempSeat != nullptr)
+                {
+                    Ogre::ColourValue color = tempSeat->getColorValue();
+                    if (tile->getFullness() <= 0.0)
+                        drawPixel(ii, jj, color.r*200.0, color.g*200.0, color.b*200.0);
+                    else
+                        drawPixel(ii, jj, color.r*255.0, color.g*255.0, color.b*255.0);
+                }
+                else
+                {
+                    if (tile->getFullness() <= 0.0)
+                        drawPixel(ii, jj, 0x5C, 0x37, 0x1B);
+                    else
+                        drawPixel(ii, jj, 0x86, 0x50, 0x28);
+                }
+                continue;
+            }
+
             switch (tile->getType())
             {
             case TileType::water:
@@ -181,27 +202,6 @@ void MiniMap::draw(const GameMap& gameMap)
                 else
                     drawPixel(ii, jj, 0xB5, 0xB3, 0x2F);
                 break;
-
-            case TileType::claimed:
-            {
-                Seat* tempSeat = tile->getSeat();
-                if (tempSeat != nullptr)
-                {
-                    Ogre::ColourValue color = tempSeat->getColorValue();
-                    if (tile->getFullness() <= 0.0)
-                        drawPixel(ii, jj, color.r*200.0, color.g*200.0, color.b*200.0);
-                    else
-                        drawPixel(ii, jj, color.r*255.0, color.g*255.0, color.b*255.0);
-                }
-                else
-                {
-                    if (tile->getFullness() <= 0.0)
-                        drawPixel(ii, jj, 0x5C, 0x37, 0x1B);
-                    else
-                        drawPixel(ii, jj, 0x86, 0x50, 0x28);
-                }
-                break;
-            }
 
             case TileType::nullTileType:
                 drawPixel(ii, jj, 0x00, 0x00, 0x00);

@@ -142,6 +142,7 @@ private:
     double      h;
 };
 
+
 GameMap::GameMap(bool isServerGameMap) :
         TileContainer(isServerGameMap ? 15 : 0),
         mIsServerGameMap(isServerGameMap),
@@ -153,7 +154,8 @@ GameMap::GameMap(bool isServerGameMap) :
         mFloodFillEnabled(false),
         mIsFOWActivated(true),
         mNumCallsTo_path(0),
-        mAiManager(*this)
+        mAiManager(*this),
+        mTileSet(nullptr)
 {
     resetUniqueNumbers();
 }
@@ -892,6 +894,8 @@ const CreatureDefinition* GameMap::getClassDescription(int index)
 
 void GameMap::createAllEntities()
 {
+    mTileSet = ConfigManager::getSingleton().getTileSet(mTileSetName);
+
     std::vector<GameEntity*> entities;
     // Create OGRE entities for map tiles
     for (int jj = 0; jj < getMapSizeY(); ++jj)
@@ -1039,7 +1043,6 @@ void GameMap::doPlayerAITurn(double frameTime)
 unsigned long int GameMap::doMiscUpkeep()
 {
     Tile *tempTile;
-    Seat *tempSeat;
     Ogre::Timer stopwatch;
     unsigned long int timeTaken;
 
@@ -1172,14 +1175,10 @@ unsigned long int GameMap::doMiscUpkeep()
             tempTile = getTile(ii,jj);
 
             // Check to see if the current tile is claimed by anyone.
-            if (tempTile->getType() == TileType::claimed)
+            if (tempTile->isClaimed())
             {
                 // Increment the count of the seat who owns the tile.
-                tempSeat = tempTile->getSeat();
-                if (tempSeat != nullptr)
-                {
-                    tempSeat->incrementNumClaimedTiles();
-                }
+                tempTile->getSeat()->incrementNumClaimedTiles();
             }
         }
     }
@@ -2073,7 +2072,6 @@ bool GameMap::doFloodFill(Tile* tile)
         {
             case TileType::dirt:
             case TileType::gold:
-            case TileType::claimed:
             {
                 hasChanged |= tile->updateFloodFillFromTile(FloodFillType::ground, neigh);
                 hasChanged |= tile->updateFloodFillFromTile(FloodFillType::groundWater, neigh);
@@ -2186,8 +2184,7 @@ void GameMap::enableFloodFill()
                 if(currentType == FloodFillType::ground)
                 {
                     if(((tile->getType() == TileType::dirt) ||
-                        (tile->getType() == TileType::gold) ||
-                        (tile->getType() == TileType::claimed)) &&
+                        (tile->getType() == TileType::gold)) &&
                        (tile->floodFillValue(FloodFillType::ground) == -1))
                     {
                         isTileFound = true;
@@ -2384,25 +2381,13 @@ std::vector<Tile*> GameMap::getBuildableTilesForPlayerInArea(int x1, int y1, int
     for (std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end();)
     {
         Tile* tile = *it;
-        if (!tile->isBuildableUpon())
+        if (!tile->isBuildableUpon(player->getSeat()))
         {
             it = tiles.erase(it);
             continue;
         }
 
-        if (tile->getClaimedPercentage() < 1.0)
-        {
-            it = tiles.erase(it);
-            continue;
-        }
-
-        if (!tile->isClaimedForSeat(player->getSeat()))
-        {
-            it = tiles.erase(it);
-            continue;
-        }
-
-         ++it;
+        ++it;
     }
     return tiles;
 }
@@ -2936,4 +2921,46 @@ std::vector<Spell*> GameMap::getSpellsBySeatAndType(Seat* seat, SpellType type) 
     }
 
     return ret;
+}
+
+const TileSetValue& GameMap::getMeshForTile(const Tile* tile) const
+{
+    OD_ASSERT_TRUE(!isServerGameMap());
+
+    int index = 0;
+    if(tile->getFullness() > 0.0)
+        index |= (1 << 4);
+    for(int i = 0; i < 4; ++i)
+    {
+        int diffX;
+        int diffY;
+        switch(i)
+        {
+            case 0:
+                diffX = 0;
+                diffY = -1;
+                break;
+            case 1:
+                diffX = 1;
+                diffY = 0;
+                break;
+            case 2:
+                diffX = 0;
+                diffY = 1;
+                break;
+            case 3:
+            default:
+                diffX = -1;
+                diffY = 0;
+                break;
+        }
+        const Tile* t = getTile(tile->getX() + diffX, tile->getY() + diffY);
+        if(t == nullptr)
+            continue;
+
+        if(mTileSet->areLinked(tile, t))
+            index |= (1 << i);
+    }
+
+    return mTileSet->getTileValues(tile->getTileVisual()).at(index);
 }

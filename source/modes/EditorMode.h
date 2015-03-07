@@ -25,7 +25,7 @@
 class Gui; // Used to change the Current tile type
 class GameMap;
 
-enum class TileType;
+enum class TileVisual;
 
 class  EditorMode: public AbstractApplicationMode
 {
@@ -68,8 +68,8 @@ public:
     bool onClickYesQuitMenu(const CEGUI::EventArgs& arg = {});
 
 private:
-    //! \brief Tile type (Dirt, Lava, ...)
-    TileType mCurrentTileType;
+    //! \brief Tile type (Dirt, Lava, Claimed, ...)
+    TileVisual mCurrentTileVisual;
 
     //! \brief how of the wall type is there (0 - 100.0)
     //! < 1.0 means no walls.
