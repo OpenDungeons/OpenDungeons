@@ -99,7 +99,8 @@ Gui::Gui(SoundEffectsManager* soundEffectsManager, const std::string& ceguiLogFi
 
 Gui::~Gui()
 {
-    CEGUI::System::destroy();
+    //This also calls CEGUI::System::destroy();
+    CEGUI::OgreRenderer::destroySystem();
 }
 
 CEGUI::MouseButton Gui::convertButton(OIS::MouseButtonID buttonID)

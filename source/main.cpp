@@ -20,7 +20,7 @@
  */
 
 #include <iostream>
-#include <string.h>
+#include <cstring>
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -36,6 +36,7 @@
 
 #if !defined (WIN32) && (defined (__i386__) | defined (__x86_64__))  // Only for supported platforms
 #include "utils/StackTracePrint.h"
+#include <iostream>
 #endif //WIN32
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
@@ -50,6 +51,7 @@ int main(int argc, char** argv)
 #if !defined (WIN32) && (defined (__i386__) | defined (__x86_64__))
 //Init the error hanlder used to get a full stacktrace when crashing
     struct sigaction sigact;
+    std::memset(&sigact, 0, sizeof(sigact));
     sigact.sa_sigaction = StackTracePrint::critErrHandler;
     sigact.sa_flags = SA_RESTART | SA_SIGINFO;
     if (sigaction(SIGSEGV, &sigact, nullptr) != 0)
@@ -68,7 +70,7 @@ int main(int argc, char** argv)
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
         MessageBox(0, e.what(), "An exception has occurred!", MB_OK | MB_ICONERROR | MB_TASKMODAL);
 #else
-        fprintf(stderr, "An exception has occurred: %s\n", e.what());
+        std::cerr << "An exception has occurred: " << e.what();
 #endif
     }
 

@@ -1977,9 +1977,9 @@ bool GameMap::addSeat(Seat *s)
     mSeats.push_back(s);
 
     // Add the goals for all seats to this seat.
-    for (Goal* goal : mGoalsForAllSeats)
+    for (auto& goal : mGoalsForAllSeats)
     {
-        s->addGoal(goal);
+        s->addGoal(goal.get());
     }
     return true;
 }
@@ -2021,25 +2021,24 @@ bool GameMap::seatIsAWinner(Seat *s) const
     return false;
 }
 
-void GameMap::addGoalForAllSeats(Goal *g)
+void GameMap::addGoalForAllSeats(std::unique_ptr<Goal>&& g)
 {
-    mGoalsForAllSeats.push_back(g);
-
     // Add the goal to each of the empty seats currently in the game.
     for (Seat* seat : mSeats)
-        seat->addGoal(g);
+        seat->addGoal(g.get());
+
+    mGoalsForAllSeats.emplace_back(std::move(g));
 }
 
 void GameMap::clearGoalsForAllSeats()
 {
-    mGoalsForAllSeats.clear();
-
-    // Add the goal to each of the empty seats currently in the game.
     for (Seat* seat : mSeats)
     {
         seat->clearUncompleteGoals();
         seat->clearCompletedGoals();
     }
+
+    mGoalsForAllSeats.clear();
 }
 
 Ogre::Real GameMap::crowDistance(Tile *t1, Tile *t2)

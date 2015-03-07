@@ -28,9 +28,10 @@
 #endif //mode_t
 #endif //mingw32
 
-#include <map>
-#include <string>
 #include <cstdint>
+#include <map>
+#include <memory>
+#include <string>
 
 class Building;
 class Tile;
@@ -272,8 +273,8 @@ public:
     void addWinningSeat(Seat *s);
     bool seatIsAWinner(Seat *s) const;
 
-    void addGoalForAllSeats(Goal *g);
-    inline const std::vector<Goal*>& getGoalsForAllSeats() const
+    void addGoalForAllSeats(std::unique_ptr<Goal>&& g);
+    inline const std::vector<std::unique_ptr<Goal>>& getGoalsForAllSeats() const
     { return mGoalsForAllSeats; }
     void clearGoalsForAllSeats();
 
@@ -565,7 +566,7 @@ private:
     std::vector<Seat*> mWinningSeats;
 
     //! \brief Common player goals
-    std::vector<Goal*> mGoalsForAllSeats;
+    std::vector<std::unique_ptr<Goal>> mGoalsForAllSeats;
 
     //! \brief Tells whether the map color flood filling is enabled.
     bool mFloodFillEnabled;

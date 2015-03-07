@@ -27,6 +27,17 @@
 
 #include "utils/StackTracePrint.h"
 
+#include <cxxabi.h>
+#include <execinfo.h>
+#include <unistd.h>
+
+#include <iostream>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 void StackTracePrint::critErrHandler(int sig_num, siginfo_t* info, void* ucontext)
 {
 // Prevent running a function that isn't supported on certain platforms.

@@ -30,16 +30,17 @@
 #include "modes/EditorMode.h"
 #include "modes/ConsoleMode.h"
 #include "modes/FppMode.h"
+#include "utils/MakeUnique.h"
 
 
 ModeManager::ModeManager(Ogre::RenderWindow* renderWindow, Gui* gui)
-  : mInputManager(renderWindow), mGui(gui), mConsoleMode(new ConsoleMode(this)), mIsInConsole(false),
+  : mInputManager(renderWindow), mGui(gui), mConsoleMode(Utils::make_unique<ConsoleMode>(this)), mIsInConsole(false),
     mRequestedMode(ModeType::NONE), mDiscardActualMode(false)
 {
     mInputManager.mKeyboard->setTextTranslation(OIS::Keyboard::Unicode);
 
     // Loads the main menu
-    mApplicationModes.emplace_back(new MenuMode(this));
+    mApplicationModes.emplace_back(Utils::make_unique<MenuMode>(this));
     mApplicationModes.back()->activate();
 }
 
@@ -80,37 +81,37 @@ void ModeManager::addMode(ModeType mt)
         return;
         break;
     case MENU:
-        mApplicationModes.emplace_back(new MenuMode(this));
+        mApplicationModes.emplace_back(Utils::make_unique<MenuMode>(this));
         break;
     case MENU_SKIRMISH:
-        mApplicationModes.emplace_back(new MenuModeSkirmish(this));
+        mApplicationModes.emplace_back(Utils::make_unique<MenuModeSkirmish>(this));
         break;
     case MENU_REPLAY:
-        mApplicationModes.emplace_back(new MenuModeReplay(this));
+        mApplicationModes.emplace_back(Utils::make_unique<MenuModeReplay>(this));
         break;
     case MENU_MULTIPLAYER_CLIENT:
-        mApplicationModes.emplace_back(new MenuModeMultiplayerClient(this));
+        mApplicationModes.emplace_back(Utils::make_unique<MenuModeMultiplayerClient>(this));
         break;
     case MENU_MULTIPLAYER_SERVER:
-        mApplicationModes.emplace_back(new MenuModeMultiplayerServer(this));
+        mApplicationModes.emplace_back(Utils::make_unique<MenuModeMultiplayerServer>(this));
         break;
     case MENU_EDITOR:
-        mApplicationModes.emplace_back(new MenuModeEditor(this));
+        mApplicationModes.emplace_back(Utils::make_unique<MenuModeEditor>(this));
         break;
     case MENU_CONFIGURE_SEATS:
-        mApplicationModes.emplace_back(new MenuModeConfigureSeats(this));
+        mApplicationModes.emplace_back(Utils::make_unique<MenuModeConfigureSeats>(this));
         break;
     case GAME:
-        mApplicationModes.emplace_back(new GameMode(this));
+        mApplicationModes.emplace_back(Utils::make_unique<GameMode>(this));
         break;
     case EDITOR:
-        mApplicationModes.emplace_back(new EditorMode(this));
+        mApplicationModes.emplace_back(Utils::make_unique<EditorMode>(this));
         break;
     case FPP:
-        mApplicationModes.emplace_back(new FppMode(this));
+        mApplicationModes.emplace_back(Utils::make_unique<FppMode>(this));
         break;
     case MENU_LOAD_SAVEDGAME:
-        mApplicationModes.emplace_back(new MenuModeLoad(this));
+        mApplicationModes.emplace_back(Utils::make_unique<MenuModeLoad>(this));
         break;
     default:
         break;
