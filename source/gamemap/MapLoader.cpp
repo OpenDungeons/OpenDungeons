@@ -203,10 +203,10 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         if (nextParam == "[/Goals]")
             break;
 
-        Goal* tempGoal = Goal::instantiateFromStream(nextParam, levelFile, &gameMap);
+        std::unique_ptr<Goal> tempGoal = Goal::instantiateFromStream(nextParam, levelFile, &gameMap);
 
-        if (tempGoal != nullptr)
-            gameMap.addGoalForAllSeats(tempGoal);
+        if (tempGoal.get() != nullptr)
+            gameMap.addGoalForAllSeats(std::move(tempGoal));
     }
 
     levelFile >> nextParam;
@@ -640,9 +640,9 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     // Write out the goals shared by all players to the file.
     levelFile << "\n[Goals]\n";
     levelFile << "# " << Goal::getFormat() << "\n";
-    for (Goal* goal : gameMap.getGoalsForAllSeats())
+    for (auto& goal : gameMap.getGoalsForAllSeats())
     {
-        levelFile << goal;
+        levelFile << goal.get();
     }
     levelFile << "[/Goals]" << std::endl;
 

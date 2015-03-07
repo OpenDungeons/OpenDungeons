@@ -613,6 +613,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             Seat* seat = seats[0];
             seat->setPlayer(curPlayer);
+            //This makes sure the player is deleted on exit.
+            gameMap->addPlayer(curPlayer);
             ODPacket packetSend;
             packetSend << ServerNotificationType::clientAccepted << ODApplication::turnsPerSecond;
             int32_t nbPlayers = 1;

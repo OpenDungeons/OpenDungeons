@@ -36,6 +36,7 @@
 
 #include <OgreErrorDialog.h>
 #include <OgreGpuProgramManager.h>
+#include <OgreRenderWindow.h>
 #include <OgreResourceGroupManager.h>
 #include <OgreRoot.h>
 #include <Overlay/OgreOverlaySystem.h>
@@ -151,6 +152,7 @@ ODApplication::ODApplication()
     client.disconnect();
     ogreRoot.removeFrameListener(&frameListener);
     Ogre::RTShader::ShaderGenerator::destroy();
+    ogreRoot.destroyRenderTarget(renderWindow);
 }
 
 ODApplication::~ODApplication()

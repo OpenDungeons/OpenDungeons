@@ -23,16 +23,8 @@
 #ifndef __STACKTRACE_H__
 #define __STACKTRACE_H__
 
-#include <execinfo.h>
 #include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <ucontext.h>
-#include <unistd.h>
-
-#include <cxxabi.h>
-#include <iostream>
 
 namespace StackTracePrint
 {

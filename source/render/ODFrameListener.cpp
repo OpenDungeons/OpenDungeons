@@ -37,6 +37,7 @@
 #include "render/TextRenderer.h"
 #include "sound/MusicPlayer.h"
 #include "utils/LogManager.h"
+#include "utils/MakeUnique.h"
 
 #include <OgreLogManager.h>
 #include <OgreRenderWindow.h>
@@ -72,8 +73,8 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::Overlay
     mInitialized(false),
     mWindow(renderWindow),
     mGui(gui),
-    mRenderManager(new RenderManager(overLaySystem)),
-    mGameMap(new GameMap(false)),
+    mRenderManager(Utils::make_unique<RenderManager>(overLaySystem)),
+    mGameMap(Utils::make_unique<GameMap>(false)),
     mModeManager(new ModeManager(renderWindow, gui)),
     mShowDebugInfo(false),
     mContinue(true),

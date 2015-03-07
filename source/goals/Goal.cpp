@@ -20,6 +20,7 @@
 #include "goals/AllGoals.h"
 
 #include "utils/Helper.h"
+#include "utils/MakeUnique.h"
 
 Goal::Goal(const std::string& nName, const std::string& nArguments, GameMap* gameMap) :
     mName(nName),
@@ -47,9 +48,9 @@ bool Goal::isFailed(Seat *s)
     return false;
 }
 
-void Goal::addSuccessSubGoal(Goal *g)
+void Goal::addSuccessSubGoal(std::unique_ptr<Goal>&& g)
 {
-    mSuccessSubGoals.push_back(g);
+    mSuccessSubGoals.emplace_back(std::move(g));
 }
 
 unsigned int Goal::numSuccessSubGoals() const
@@ -59,12 +60,12 @@ unsigned int Goal::numSuccessSubGoals() const
 
 Goal* Goal::getSuccessSubGoal(int index)
 {
-    return mSuccessSubGoals[index];
+    return mSuccessSubGoals[index].get();
 }
 
-void Goal::addFailureSubGoal(Goal *g)
+void Goal::addFailureSubGoal(std::unique_ptr<Goal>&& g)
 {
-    mFailureSubGoals.push_back(g);
+    mFailureSubGoals.emplace_back(std::move(g));
 }
 
 unsigned int Goal::numFailureSubGoals() const
@@ -74,7 +75,7 @@ unsigned int Goal::numFailureSubGoals() const
 
 Goal* Goal::getFailureSubGoal(int index)
 {
-    return mFailureSubGoals[index];
+    return mFailureSubGoals[index].get();
 }
 
 std::string Goal::getFormat()
@@ -108,10 +109,10 @@ std::ostream& operator<<(std::ostream& os, Goal *g)
     return os;
 }
 
-Goal* Goal::instantiateFromStream(const std::string& goalName, std::istream& is, GameMap* gameMap)
+std::unique_ptr<Goal> Goal::instantiateFromStream(const std::string& goalName, std::istream& is, GameMap* gameMap)
 {
     std::string tempArguments;
-    Goal* tempGoal = nullptr;
+    std::unique_ptr<Goal> tempGoal;
 
     // Store the name and arguments of the goal so we can instantiate a specific goal subclass below.
     getline(is, tempArguments);
@@ -132,28 +133,29 @@ Goal* Goal::instantiateFromStream(const std::string& goalName, std::istream& is,
     // Parse the goal type name to find out what subclass of goal tempGoal should be instantiated as.
     if (goalName.compare("KillAllEnemies") == 0)
     {
-        tempGoal = new GoalKillAllEnemies(goalName, tempArguments, gameMap);
+        tempGoal = Utils::make_unique<GoalKillAllEnemies>(goalName, tempArguments, gameMap);
     }
 
     else if (goalName.compare("ProtectCreature") == 0)
     {
-        tempGoal = new GoalProtectCreature(goalName, tempArguments, gameMap);
+        tempGoal = Utils::make_unique<GoalProtectCreature>(goalName, tempArguments, gameMap);
     }
 
     else if (goalName.compare("ClaimNTiles") == 0)
     {
-        tempGoal = new GoalClaimNTiles(goalName, tempArguments, gameMap);
+        tempGoal = Utils::make_unique<GoalClaimNTiles>(goalName, tempArguments, gameMap);
     }
 
     else if (goalName.compare("MineNGold") == 0)
     {
-        tempGoal = new GoalMineNGold(goalName, tempArguments, gameMap);
+        tempGoal = Utils::make_unique<GoalMineNGold>(goalName, tempArguments, gameMap);
     }
 
     else if (goalName.compare("ProtectDungeonTemple") == 0)
     {
-        tempGoal = new GoalProtectDungeonTemple(goalName, tempArguments, gameMap);
+        tempGoal = Utils::make_unique<GoalProtectDungeonTemple>(goalName, tempArguments, gameMap);
     }
+    //FIXME: This is going to break if the level file is malformed.
 
     // Now that the goal has been properly instantiated we check to see if there are subgoals to read in.
     char c;

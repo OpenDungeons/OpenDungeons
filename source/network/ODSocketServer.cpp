@@ -40,7 +40,6 @@ ODSocketServer::~ODSocketServer()
 bool ODSocketServer::createServer(int listeningPort)
 {
     mIsConnected = false;
-    mNewClient = new ODSocketClient;
 
     // As we use selector, there is no need to set the socket as not-blocking
     sf::Socket::Status status = mSockListener.listen(listeningPort);
@@ -52,7 +51,7 @@ bool ODSocketServer::createServer(int listeningPort)
     }
 
     mSockSelector.add(mSockListener);
-
+    mNewClient = new ODSocketClient;
     mIsConnected = true;
     LogManager::getSingleton().logMessage("Server connected and listening");
     mThread = new sf::Thread(&ODSocketServer::serverThread, this);

@@ -18,10 +18,11 @@
 #ifndef GOAL_H
 #define GOAL_H
 
+#include <istream>
+#include <ostream>
+#include <memory>
 #include <string>
 #include <vector>
-#include <ostream>
-#include <istream>
 
 class Seat;
 class GameMap;
@@ -49,23 +50,23 @@ public:
     const std::string& getName() const
     { return mName; }
 
-    void addSuccessSubGoal(Goal *g);
+    void addSuccessSubGoal(std::unique_ptr<Goal>&& g);
     unsigned numSuccessSubGoals() const;
     Goal* getSuccessSubGoal(int index);
 
-    void addFailureSubGoal(Goal *g);
+    void addFailureSubGoal(std::unique_ptr<Goal>&& g);
     unsigned numFailureSubGoals() const;
     Goal* getFailureSubGoal(int index);
 
     static std::string getFormat();
     friend std::ostream& operator<<(std::ostream& os, Goal *g);
-    static Goal* instantiateFromStream(const std::string& goalName, std::istream& is, GameMap* gameMap);
+    static std::unique_ptr<Goal> instantiateFromStream(const std::string& goalName, std::istream& is, GameMap* gameMap);
 
 protected:
     std::string mName;
     std::string mArguments;
-    std::vector<Goal*> mSuccessSubGoals;
-    std::vector<Goal*> mFailureSubGoals;
+    std::vector<std::unique_ptr<Goal>> mSuccessSubGoals;
+    std::vector<std::unique_ptr<Goal>> mFailureSubGoals;
     GameMap* mGameMap;
 };
 
