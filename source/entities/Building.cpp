@@ -268,3 +268,9 @@ bool Building::isAttackable(Tile* tile, Seat* seat) const
 
     return true;
 }
+
+void Building::notifySeatsVisionOnTile(const std::vector<Seat*>& seats, Tile* tile)
+{
+    // TODO: save which players have vision on the building. If the building is destroyed, it should only  be removed when
+    // every player will have seen that all the tiles are gone.
+}

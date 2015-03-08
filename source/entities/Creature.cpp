@@ -3521,8 +3521,16 @@ bool Creature::canGoThroughTile(const Tile* tile) const
 bool Creature::tryDrop(Seat* seat, Tile* tile)
 {
     // check whether the tile is a ground tile ...
-    if (tile->getFullness() > 0.0)
-        return false;
+    switch(tile->getTileVisual())
+    {
+        case TileVisual::claimedFull:
+        case TileVisual::goldFull:
+        case TileVisual::dirtFull:
+        case TileVisual::rockFull:
+            return false;
+        default:
+            break;
+    }
 
     // In editor mode, we allow creatures to be dropped anywhere they can walk
     if(getGameMap()->isInEditorMode() && canGoThroughTile(tile))

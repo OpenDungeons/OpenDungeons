@@ -566,28 +566,45 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
     {
         case Player::SelectedAction::changeTile:
         {
-            double fullness;
+            TileType tileType = TileType::nullTileType;
+            int seatId = -1;
+            double fullness = mCurrentFullness;
             switch(mCurrentTileVisual)
             {
                 case TileVisual::nullTileVisual:
                     return true;
-                case TileVisual::dirt:
-                case TileVisual::gold:
-                case TileVisual::rock:
-                case TileVisual::claimed:
-                    fullness = mCurrentFullness;
+                case TileVisual::dirtGround:
+                    tileType = TileType::dirt;
                     break;
-                default:
+                case TileVisual::goldGround:
+                    tileType = TileType::gold;
+                    break;
+                case TileVisual::rockGround:
+                    tileType = TileType::rock;
+                    break;
+                case TileVisual::claimedGround:
+                case TileVisual::claimedFull:
+                    tileType = TileType::dirt;
+                    seatId = mCurrentSeatId;
+                    break;
+                case TileVisual::waterGround:
+                    tileType = TileType::water;
                     fullness = 0.0;
                     break;
+                case TileVisual::lavaGround:
+                    tileType = TileType::lava;
+                    fullness = 0.0;
+                    break;
+                default:
+                    return true;
             }
             ClientNotification *clientNotification = new ClientNotification(
                 ClientNotificationType::editorAskChangeTiles);
             clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
             clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
-            clientNotification->mPacket << mCurrentTileVisual;
+            clientNotification->mPacket << tileType;
             clientNotification->mPacket << fullness;
-            clientNotification->mPacket << mCurrentSeatId;
+            clientNotification->mPacket << seatId;
             ODClient::getSingleton().queueClientNotification(clientNotification);
             break;
         }

@@ -1974,6 +1974,7 @@ bool GameMap::addSeat(Seat *s)
             return false;
         }
     }
+    s->setIndex(mSeats.size());
     mSeats.push_back(s);
 
     // Add the goals for all seats to this seat.
@@ -2927,8 +2928,6 @@ const TileSetValue& GameMap::getMeshForTile(const Tile* tile) const
     OD_ASSERT_TRUE(!isServerGameMap());
 
     int index = 0;
-    if(tile->getFullness() > 0.0)
-        index |= (1 << 4);
     for(int i = 0; i < 4; ++i)
     {
         int diffX;

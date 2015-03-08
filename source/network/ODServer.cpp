@@ -1562,46 +1562,33 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
                 + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
             int x1, y1, x2, y2;
-            TileVisual tileVisual;
+            TileType tileType;
             double tileFullness;
             int seatId;
 
-            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> tileVisual >> tileFullness >> seatId);
+            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> tileType >> tileFullness >> seatId);
             std::vector<Tile*> selectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
             std::vector<Tile*> affectedTiles;
             Seat* seat = nullptr;
-            if(tileVisual == TileVisual::claimed)
+            if(seatId != -1)
                 seat = gameMap->getSeatById(seatId);
 
             for(Tile* tile : selectedTiles)
             {
                 // We do not change tiles where there is something
                 if((tile->numEntitiesInTile() > 0) &&
-                   ((tileFullness > 0.0) || (tileVisual == TileVisual::lava) || (tileVisual == TileVisual::water)))
+                   ((tileFullness > 0.0) || (tileType == TileType::lava) || (tileType == TileType::water)))
                     continue;
                 if(tile->getCoveringBuilding() != nullptr)
                     continue;
 
                 affectedTiles.push_back(tile);
+                tile->setType(tileType);
                 tile->setFullness(tileFullness);
-                if(tileVisual == TileVisual::claimed)
-                {
-                    // If the tile was not a claimable type, we change it to dirt
-                    if(tileFullness > 0.0)
-                    {
-                        tile->setType(TileType::dirt);
-                    }
-                    else if((tile->getType() != TileType::gold) &&
-                            (tile->getType() != TileType::dirt))
-                    {
-                        // Ground tile can be gold or dirt
-                        tile->setType(TileType::dirt);
-
-                    }
+                if(seat != nullptr)
                     tile->claimTile(seat);
-                }
                 else
-                    tile->unclaimTile(Tile::tileTypeFromTileVisual(tileVisual));
+                    tile->unclaimTile();
 
                 tile->computeTileVisual();
             }

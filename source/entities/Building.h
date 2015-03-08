@@ -116,6 +116,9 @@ public:
     virtual bool shouldSetCoveringTileDirty(Seat* seat, Tile* tile)
     { return true; }
 
+    //! Notify the seats that have vision on the given tile
+    virtual void notifySeatsVisionOnTile(const std::vector<Seat*>& seats, Tile* tile);
+
 protected:
     void addBuildingObject(Tile* targetTile, RenderedMovableEntity* obj);
     void removeBuildingObject(Tile* tile);

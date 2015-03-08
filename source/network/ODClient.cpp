@@ -172,8 +172,7 @@ bool ODClient::processOneClientSocketMessage()
                 --nb;
                 Tile* tile = gameMap->tileFromPacket(packetReceived);
                 tile->setType(TileType::gold);
-                tile->setFullness(100.0);
-                tile->setTileVisual(TileVisual::gold);
+                tile->setTileVisual(TileVisual::goldFull);
             }
             OD_ASSERT_TRUE(packetReceived >> nb);
             while(nb > 0)
@@ -181,8 +180,7 @@ bool ODClient::processOneClientSocketMessage()
                 --nb;
                 Tile* tile = gameMap->tileFromPacket(packetReceived);
                 tile->setType(TileType::rock);
-                tile->setFullness(100.0);
-                tile->setTileVisual(TileVisual::rock);
+                tile->setTileVisual(TileVisual::rockFull);
             }
             gameMap->setAllFullnessAndNeighbors();
 

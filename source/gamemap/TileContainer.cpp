@@ -334,10 +334,9 @@ TileContainer::TileContainer(int initTileDistance):
 }
 
 TileSet::TileSet(const Ogre::Vector3& scale) :
-    mTileValues(static_cast<uint32_t>(TileVisual::countTileVisual), std::vector<TileSetValue>(32)),
+    mTileValues(static_cast<uint32_t>(TileVisual::countTileVisual), std::vector<TileSetValue>(16)),
     mScale(scale),
-    mTileGroundLinks(std::vector<uint32_t>(static_cast<uint32_t>(TileVisual::countTileVisual), 0)),
-    mTileFullLinks(std::vector<uint32_t>(static_cast<uint32_t>(TileVisual::countTileVisual), 0))
+    mTileLinks(std::vector<uint32_t>(static_cast<uint32_t>(TileVisual::countTileVisual), 0))
 {
 }
 
@@ -365,16 +364,16 @@ const std::vector<TileSetValue>& TileSet::getTileValues(TileVisual tileVisual) c
     return mTileValues[tileTypeNumber];
 }
 
-void TileSet::addTileGroundLink(TileVisual tileVisual1, TileVisual tileVisual2)
+void TileSet::addTileLink(TileVisual tileVisual1, TileVisual tileVisual2)
 {
     uint32_t intTile1Visual = static_cast<uint32_t>(tileVisual1);
     uint32_t intTile2Visual = static_cast<uint32_t>(tileVisual2);
-    if(intTile1Visual >= mTileGroundLinks.size())
+    if(intTile1Visual >= mTileLinks.size())
     {
         OD_ASSERT_TRUE_MSG(false, "TileVisual=" + Tile::tileVisualToString(tileVisual1));
         return;
     }
-    if(intTile2Visual >= mTileGroundLinks.size())
+    if(intTile2Visual >= mTileLinks.size())
     {
         OD_ASSERT_TRUE_MSG(false, "TileVisual=" + Tile::tileVisualToString(tileVisual2));
         return;
@@ -382,53 +381,20 @@ void TileSet::addTileGroundLink(TileVisual tileVisual1, TileVisual tileVisual2)
 
     uint32_t tileLink;
     tileLink = 1 << intTile2Visual;
-    mTileGroundLinks[intTile1Visual] |= tileLink;
+    mTileLinks[intTile1Visual] |= tileLink;
 
     // We want a commutative relationship
     tileLink = 1 << intTile1Visual;
-    mTileGroundLinks[intTile2Visual] |= tileLink;
-}
-
-void TileSet::addTileFullLink(TileVisual tileVisual1, TileVisual tileVisual2)
-{
-    uint32_t intTile1Visual = static_cast<uint32_t>(tileVisual1);
-    uint32_t intTile2Visual = static_cast<uint32_t>(tileVisual2);
-    if(intTile1Visual >= mTileFullLinks.size())
-    {
-        OD_ASSERT_TRUE_MSG(false, "TileVisual=" + Tile::tileVisualToString(tileVisual1));
-        return;
-    }
-    if(intTile2Visual >= mTileFullLinks.size())
-    {
-        OD_ASSERT_TRUE_MSG(false, "TileVisual=" + Tile::tileVisualToString(tileVisual2));
-        return;
-    }
-
-    uint32_t tileLink;
-    tileLink = 1 << intTile2Visual;
-    mTileFullLinks[intTile1Visual] |= tileLink;
-
-    // We want a commutative relationship
-    tileLink = 1 << intTile1Visual;
-    mTileFullLinks[intTile2Visual] |= tileLink;
+    mTileLinks[intTile2Visual] |= tileLink;
 }
 
 bool TileSet::areLinked(const Tile* tile1, const Tile* tile2) const
 {
-    // If the tile fullness is different, there is no link
-    if((tile1->getFullness() <= 0.0) && (tile2->getFullness() > 0.0))
-        return false;
-    if((tile1->getFullness() > 0.0) && (tile2->getFullness() <= 0.0))
-        return false;
-
     // Check if the tile visual is linkable
     uint32_t intTile1Visual = static_cast<uint32_t>(tile1->getTileVisual());
     uint32_t intTile2Visual = static_cast<uint32_t>(tile2->getTileVisual());
     uint32_t linkValue = 1 << intTile2Visual;
-    if(tile1->getFullness() <= 0.0)
-        linkValue &= mTileGroundLinks[intTile1Visual];
-    else
-        linkValue &= mTileFullLinks[intTile1Visual];
+    linkValue &= mTileLinks[intTile1Visual];
 
     if(linkValue == 0)
         return false;
@@ -520,44 +486,6 @@ Tile* TileContainer::tileFromPacket(ODPacket& packet) const
     int32_t y;
     OD_ASSERT_TRUE(packet >> x >> y);
     return getTile(x, y);
-}
-
-std::array<TileType, 8> TileContainer::getNeighborsTypes(const Tile* curTile) const
-{
-    int xx = curTile->getX();
-    int yy = curTile->getY();
-
-    std::array<TileType, 8> neighborsType;
-
-    neighborsType[0] = getSafeTileType(getTile(xx - 1, yy));
-    neighborsType[1] = getSafeTileType(getTile(xx - 1, yy + 1));
-    neighborsType[2] = getSafeTileType(getTile(xx, yy + 1));
-    neighborsType[3] = getSafeTileType(getTile(xx + 1, yy + 1));
-    neighborsType[4] = getSafeTileType(getTile(xx + 1, yy));
-    neighborsType[5] = getSafeTileType(getTile(xx + 1, yy - 1));
-    neighborsType[6] = getSafeTileType(getTile(xx, yy - 1));
-    neighborsType[7] = getSafeTileType(getTile(xx - 1, yy-1));
-
-    return neighborsType;
-}
-
-std::bitset<8> TileContainer::getNeighborsFullness(const Tile* curTile) const
-{
-    int xx = curTile->getX();
-    int yy = curTile->getY();
-
-    std::bitset<8> neighborsFullness;
-
-    neighborsFullness[0] = getSafeTileFullness(getTile(xx - 1, yy));
-    neighborsFullness[1] = getSafeTileFullness(getTile(xx - 1, yy + 1));
-    neighborsFullness[2] = getSafeTileFullness(getTile(xx, yy + 1));
-    neighborsFullness[3] = getSafeTileFullness(getTile(xx + 1,yy + 1));
-    neighborsFullness[4] = getSafeTileFullness(getTile(xx + 1, yy));
-    neighborsFullness[5] = getSafeTileFullness(getTile(xx + 1,yy - 1));
-    neighborsFullness[6] = getSafeTileFullness(getTile(xx, yy - 1));
-    neighborsFullness[7] = getSafeTileFullness(getTile(xx - 1,yy - 1));
-
-    return neighborsFullness;
 }
 
 unsigned int TileContainer::numTiles()

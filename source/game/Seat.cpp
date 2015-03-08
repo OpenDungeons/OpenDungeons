@@ -56,6 +56,7 @@ Seat::Seat(GameMap* gameMap) :
     mHasGoalsChanged(true),
     mGold(0),
     mId(-1),
+    mIndex(-1),
     mNbTreasuries(0),
     mIsDebuggingVision(false),
     mResearchPoints(0),

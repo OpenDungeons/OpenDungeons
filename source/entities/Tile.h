@@ -55,16 +55,24 @@ enum class TileType
     countTileType
 };
 
+ODPacket& operator<<(ODPacket& os, const TileType& type);
+ODPacket& operator>>(ODPacket& is, TileType& type);
+
+
 //! Different representations a tile can have (ground or full)
 enum class TileVisual
 {
     nullTileVisual = 0,
-    dirt,
-    gold,
-    rock,
-    water,
-    lava,
-    claimed,
+    dirtGround,
+    dirtFull,
+    goldGround,
+    goldFull,
+    rockGround,
+    rockFull,
+    waterGround,
+    lavaGround,
+    claimedGround,
+    claimedFull,
     countTileVisual
 };
 
@@ -208,11 +216,11 @@ public:
 
     void claimForSeat(Seat* seat, double nDanceRate);
     void claimTile(Seat* seat);
-    void unclaimTile(TileType type);
+    void unclaimTile();
     double digOut(double digRate, bool doScaleDigRate = false);
     double scaleDigRate(double digRate);
 
-    Building* getCoveringBuilding() const
+    inline Building* getCoveringBuilding() const
     { return mCoveringBuilding; }
 
     //! \brief Proxy that checks if there is a covering building and if it is a room. If yes, returns
@@ -283,9 +291,6 @@ public:
 
     static std::string tileVisualToString(TileVisual tileVisual);
     static TileVisual tileVisualFromString(const std::string& strTileVisual);
-
-    static TileType tileTypeFromTileVisual(TileVisual tileVisual);
-    static TileVisual tileVisualFromTileType(TileType tileType);
 
     inline int getX() const
     { return mX; }
@@ -406,7 +411,7 @@ private:
 
     //! \brief The tile fullness (0.0 - 100.0).
     //! At 0.0, it is a ground tile. Over it is a wall.
-    //! Used on server and client side
+    //! Used on server side only
     double mFullness;
 
     std::vector<Tile*> mNeighbors;
