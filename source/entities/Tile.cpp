@@ -19,7 +19,6 @@
 
 #include "entities/BuildingObject.h"
 #include "entities/Creature.h"
-#include "entities/MapLight.h"
 #include "entities/TreasuryObject.h"
 #include "entities/ChickenEntity.h"
 #include "entities/CraftedTrap.h"

@@ -17,15 +17,11 @@
 
 #include "modes/AbstractApplicationMode.h"
 
-#include "entities/Creature.h"
-#include "entities/RenderedMovableEntity.h"
-#include "entities/MapLight.h"
 #include "gamemap/GameMap.h"
 #include "network/ODClient.h"
 #include "network/ODServer.h"
 #include "render/Gui.h"
 #include "render/ODFrameListener.h"
-#include "spell/Spell.h"
 #include "utils/Helper.h"
 
 #include <CEGUI/System.h>
