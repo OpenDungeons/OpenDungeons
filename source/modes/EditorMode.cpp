@@ -50,13 +50,11 @@
 #include <cstdio>
 
 EditorMode::EditorMode(ModeManager* modeManager):
-    AbstractApplicationMode(modeManager, ModeManager::EDITOR),
+    GameEditorModeBase(modeManager, ModeManager::EDITOR, modeManager->getGui().getGuiSheet(Gui::guiSheet::editorModeGui)),
     mCurrentTileVisual(TileVisual::nullTileVisual),
     mCurrentFullness(100.0),
     mCurrentSeatId(0),
     mCurrentCreatureIndex(0),
-    mGameMap(ODFrameListener::getSingletonPtr()->getClientGameMap()),
-    mMiniMap(modeManager->getGui().getGuiSheet(Gui::guiSheet::editorModeGui)->getChild(Gui::MINIMAP)),
     mMouseX(0),
     mMouseY(0)
 {
@@ -64,6 +62,51 @@ EditorMode::EditorMode(ModeManager* modeManager):
     mModeManager->getInputManager()->mMouseDownOnCEGUIWindow = false;
 
     ODFrameListener::getSingleton().getCameraManager()->setDefaultView();
+
+    CEGUI::Window* rootWindow = modeManager->getGui().getGuiSheet(Gui::guiSheet::editorModeGui);
+
+    // The Quit menu handlers
+    addEventConnection(
+        rootWindow->getChild("ConfirmExit/__auto_closebutton__")->subscribeEvent(
+            CEGUI::Window::EventMouseClick,
+            CEGUI::Event::Subscriber(&EditorMode::hideQuitMenu, this)
+    ));
+    addEventConnection(
+        rootWindow->getChild("ConfirmExit/NoOption")->subscribeEvent(
+            CEGUI::Window::EventMouseClick,
+            CEGUI::Event::Subscriber(&EditorMode::hideQuitMenu, this)
+    ));
+    addEventConnection(
+        rootWindow->getChild("ConfirmExit/YesOption")->subscribeEvent(
+            CEGUI::Window::EventMouseClick,
+            CEGUI::Event::Subscriber(&EditorMode::onClickYesQuitMenu, this)
+    ));
+
+    // The options menu handlers
+    addEventConnection(
+        rootWindow->getChild("OptionsButton")->subscribeEvent(
+            CEGUI::Window::EventMouseClick,
+            CEGUI::Event::Subscriber(&EditorMode::toggleOptionsWindow, this)
+    ));
+    addEventConnection(
+        rootWindow->getChild("EditorOptionsWindow/__auto_closebutton__")->subscribeEvent(
+            CEGUI::Window::EventMouseClick,
+            CEGUI::Event::Subscriber(&EditorMode::toggleOptionsWindow, this)
+    ));
+    addEventConnection(
+        rootWindow->getChild("EditorOptionsWindow/SaveLevelButton")->subscribeEvent(
+            CEGUI::Window::EventMouseClick,
+            CEGUI::Event::Subscriber(&EditorMode::onSaveButtonClickFromOptions, this)
+    ));
+    addEventConnection(
+        rootWindow->getChild("EditorOptionsWindow/QuitEditorButton")->subscribeEvent(
+            CEGUI::Window::EventMouseClick,
+            CEGUI::Event::Subscriber(&EditorMode::showQuitMenuFromOptions, this)
+    ));
+
+    //Map light
+    connectGuiAction(Gui::EDITOR_MAPLIGHT_BUTTON,
+                     AbstractApplicationMode::GuiAction::ButtonPressedMapLight);
 }
 
 EditorMode::~EditorMode()
@@ -87,47 +130,6 @@ void EditorMode::activate()
     guiSheet->getChild("ConfirmExit")->hide();
     // Hide also the Replay check-box as it doesn't make sense for the editor
     guiSheet->getChild("ConfirmExit/SaveReplayCheckbox")->hide();
-
-    CEGUI::Window* minimapWindow = guiSheet->getChild(Gui::MINIMAP);
-    addEventConnection(
-        minimapWindow->subscribeEvent(
-            CEGUI::Window::EventMouseClick,
-            CEGUI::Event::Subscriber(&EditorMode::onMinimapClick, this)
-    ));
-
-    // The Quit menu handlers
-    addEventConnection(
-        guiSheet->getChild("ConfirmExit/__auto_closebutton__")->subscribeEvent(
-            CEGUI::Window::EventMouseClick,
-            CEGUI::Event::Subscriber(&EditorMode::hideQuitMenu, this)
-    ));
-    addEventConnection(
-        guiSheet->getChild("ConfirmExit/NoOption")->subscribeEvent(
-            CEGUI::Window::EventMouseClick,
-            CEGUI::Event::Subscriber(&EditorMode::hideQuitMenu, this)
-    ));
-    addEventConnection(
-        guiSheet->getChild("ConfirmExit/YesOption")->subscribeEvent(
-            CEGUI::Window::EventMouseClick,
-            CEGUI::Event::Subscriber(&EditorMode::onClickYesQuitMenu, this)
-    ));
-
-    // The options menu handlers
-    addEventConnection(
-        guiSheet->getChild("EditorOptionsWindow/__auto_closebutton__")->subscribeEvent(
-            CEGUI::Window::EventMouseClick,
-            CEGUI::Event::Subscriber(&EditorMode::toggleOptionsWindow, this)
-    ));
-    addEventConnection(
-        guiSheet->getChild("EditorOptionsWindow/SaveLevelButton")->subscribeEvent(
-            CEGUI::Window::EventMouseClick,
-            CEGUI::Event::Subscriber(&EditorMode::onSaveButtonClickFromOptions, this)
-    ));
-    addEventConnection(
-        guiSheet->getChild("EditorOptionsWindow/QuitEditorButton")->subscribeEvent(
-            CEGUI::Window::EventMouseClick,
-            CEGUI::Event::Subscriber(&EditorMode::showQuitMenuFromOptions, this)
-    ));
 
     giveFocus();
 
@@ -932,19 +934,6 @@ void EditorMode::notifyGuiAction(GuiAction guiAction)
             default:
                 break;
     }
-}
-
-bool EditorMode::onMinimapClick(const CEGUI::EventArgs& arg)
-{
-    const CEGUI::MouseEventArgs& mouseEvt = static_cast<const CEGUI::MouseEventArgs&>(arg);
-
-    ODFrameListener& frameListener = ODFrameListener::getSingleton();
-
-    Ogre::Vector2 cc = mMiniMap.camera_2dPositionFromClick(static_cast<int>(mouseEvt.position.d_x),
-        static_cast<int>(mouseEvt.position.d_y));
-    frameListener.getCameraManager()->onMiniMapClick(cc);
-
-    return true;
 }
 
 bool EditorMode::toggleOptionsWindow(const CEGUI::EventArgs& /*arg*/)

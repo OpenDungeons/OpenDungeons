@@ -37,7 +37,7 @@ namespace Ogre {
   class RenderWindow;
 }
 
-class ModeManager: public AbstractModeManager
+class ModeManager final : public AbstractModeManager
 {
 public:
 

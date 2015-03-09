@@ -18,7 +18,7 @@
 #ifndef EDITORMODE_H
 #define EDITORMODE_H
 
-#include "AbstractApplicationMode.h"
+#include "GameEditorModeBase.h"
 
 #include "gamemap/MiniMap.h"
 
@@ -27,7 +27,7 @@ class GameMap;
 
 enum class TileVisual;
 
-class  EditorMode: public AbstractApplicationMode
+class EditorMode final: public GameEditorModeBase
 {
     friend class Gui;
 public:
@@ -87,12 +87,6 @@ private:
     //! \brief The map light node name being dragged by the mouse
     std::string mDraggedMapLight;
 
-    //! \brief Rendering members
-    GameMap* mGameMap;
-
-    //! \brief The minimap used in this mode
-    MiniMap mMiniMap;
-
     //! \brief Stores the lastest mouse cursor and light positions.
     int mMouseX;
     int mMouseY;
@@ -111,9 +105,6 @@ private:
     //! \brief Updates the text seen next to the cursor position.
     //! This text gives the tile position, and the current left-click action
     void updateCursorText();
-
-    //! \brief Minimap click event handler (currently duplicated in GameMode)
-    bool onMinimapClick(const CEGUI::EventArgs& arg);
 
     //! \brief Refreshes the gui buttons. It will be called at level loading only since
     //! it shouldn't change in the editor

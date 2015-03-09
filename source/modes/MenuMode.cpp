@@ -25,6 +25,8 @@
 
 #include <CEGUI/widgets/PushButton.h>
 
+namespace
+{
 //! \brief Helper functor to change modes
 class ModeChanger
 {
@@ -38,6 +40,7 @@ public:
     MenuMode* mMode;
     AbstractModeManager::ModeType mNewMode;
 };
+}
 
 MenuMode::MenuMode(ModeManager *modeManager):
     AbstractApplicationMode(modeManager, ModeManager::MENU)
