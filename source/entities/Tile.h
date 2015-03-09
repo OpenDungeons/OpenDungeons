@@ -386,6 +386,10 @@ public:
     //! Used only on server side
     void computeTileVisual();
 
+    //! Function that allows to know if the tile is full or not. Works for both
+    //! server and client
+    bool isFullTile() const;
+
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
@@ -439,10 +443,6 @@ private:
 
     //! \brief Used on client side. true if the local player has vision, false otherwise.
     bool mLocalPlayerHasVision;
-
-    //! \brief Used on client side. Set when a tile is refreshed.
-    //! It allows to know if the tile can be marked for digging by the local player.
-    bool mLocalPlayerCanMarkTile;
 
     /*! \brief Set the fullness value for the tile.
      *  This only sets the fullness variable. This function is here to change the value

@@ -67,7 +67,7 @@ int SpellCallToWar::getSpellCallToWarCost(GameMap* gameMap, const std::vector<Ti
     int32_t pricePerTile = ConfigManager::getSingleton().getSpellConfigInt32("CallToWarPrice");
     for(Tile* tile : tiles)
     {
-        if(tile->getFullness() > 0)
+        if(tile->isFullTile())
             continue;
 
         priceTotal += pricePerTile;

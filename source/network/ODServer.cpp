@@ -824,7 +824,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             packetSend << nbPlayers;
             for (Player* player : players)
             {
-                packetSend << player->getNick() << player->getId() << player->getSeat()->getId();
+                packetSend << player->getNick() << player->getId()
+                    << player->getSeat()->getId() << player->getSeat()->getTeamId();
                 player->getSeat()->setMapSize(gameMap->getMapSizeX(), gameMap->getMapSizeY());
             }
             sendMsg(nullptr, packetSend);

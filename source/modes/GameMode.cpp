@@ -266,8 +266,8 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 std::vector<Tile*> tiles;
                 if(inputManager->mLMouseDown)
                 {
-                    tiles = mGameMap->getBuildableTilesForPlayerInArea(inputManager->mXPos,
-                        inputManager->mYPos, inputManager->mLStartDragX, inputManager->mLStartDragY, player);
+                    tiles = mGameMap->rectangularRegion(inputManager->mXPos,
+                        inputManager->mYPos, inputManager->mLStartDragX, inputManager->mLStartDragY);
                 }
                 else
                 {

@@ -65,8 +65,7 @@ Tile::Tile(GameMap* gameMap, int x, int y, TileType type, double fullness) :
     mClaimedPercentage  (0.0),
     mScale              (Ogre::Vector3::ZERO),
     mIsBuilding         (false),
-    mLocalPlayerHasVision   (false),
-    mLocalPlayerCanMarkTile (true)
+    mLocalPlayerHasVision   (false)
 {
     setSeat(nullptr);
     computeTileVisual();
@@ -118,7 +117,7 @@ void Tile::setFullness(double f)
 
 bool Tile::isBuildableUpon(Seat* seat) const
 {
-    if(getFullness() > 0.0)
+    if(isFullTile())
         return false;
     if(mIsBuilding)
         return false;
@@ -174,8 +173,6 @@ bool Tile::isDiggable(Seat* seat) const
 
     // Should be claimed tile
     OD_ASSERT_TRUE_MSG(mTileVisual == TileVisual::claimedFull, "mTileVisual=" + tileVisualToString(mTileVisual));
-    if(!getGameMap()->isServerGameMap())
-        return mLocalPlayerCanMarkTile;
 
     // If the wall is not claimed, it can be dug
     if(!isClaimed())
@@ -319,13 +316,6 @@ void Tile::exportTileToPacket(ODPacket& os, Seat* seat)
 
     os << mIsBuilding;
 
-    bool localPlayerCanMarkTile = true;
-    if(isClaimed() && !isClaimedForSeat(seat))
-    {
-        localPlayerCanMarkTile = false;
-    }
-    os << localPlayerCanMarkTile;
-
     os << seatId;
     os << meshName;
     os << mScale;
@@ -376,12 +366,6 @@ void Tile::updateFromPacket(ODPacket& is)
 
     // We set the seat if there is one
     OD_ASSERT_TRUE(is >> mIsBuilding);
-    OD_ASSERT_TRUE(is >> mLocalPlayerCanMarkTile);
-    if(!mLocalPlayerCanMarkTile &&
-       getMarkedForDigging(getGameMap()->getLocalPlayer()))
-    {
-        removePlayerMarkingTile(getGameMap()->getLocalPlayer());
-    }
 
     OD_ASSERT_TRUE(is >> seatId);
 
@@ -430,14 +414,21 @@ void Tile::updateFromPacket(ODPacket& is)
     if(seatId == -1)
     {
         setSeat(nullptr);
-        return;
+    }
+    else
+    {
+        Seat* seat = getGameMap()->getSeatById(seatId);
+        if(seat != nullptr)
+            setSeat(seat);
+
     }
 
-    Seat* seat = getGameMap()->getSeatById(seatId);
-    if(seat == nullptr)
-        return;
-
-    setSeat(seat);
+    // We need to check if the tile is unmarked after reading the needed information.
+    if(getMarkedForDigging(getGameMap()->getLocalPlayer()) &&
+       !isDiggable(getGameMap()->getLocalPlayer()->getSeat()))
+    {
+        removePlayerMarkingTile(getGameMap()->getLocalPlayer());
+    }
 }
 
 ODPacket& operator<<(ODPacket& os, const TileType& type)
@@ -1386,6 +1377,27 @@ void Tile::computeTileVisual()
         default:
             mTileVisual = TileVisual::nullTileVisual;
             return;
+    }
+}
+
+bool Tile::isFullTile() const
+{
+    if(getGameMap()->isServerGameMap())
+    {
+        return getFullness() > 0.0;
+    }
+    else
+    {
+        switch(mTileVisual)
+        {
+            case TileVisual::claimedFull:
+            case TileVisual::dirtFull:
+            case TileVisual::goldFull:
+            case TileVisual::rockFull:
+                return true;
+            default:
+                return false;
+        }
     }
 }
 
