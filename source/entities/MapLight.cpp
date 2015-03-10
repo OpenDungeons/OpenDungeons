@@ -128,7 +128,8 @@ uint32_t MapLight::numCoveredTiles()
 
 void MapLight::update(Ogre::Real timeSinceLastFrame)
 {
-    if(getGameMap()->isServerGameMap())
+  //Disabled for now.
+/*    if(getGameMap()->isServerGameMap())
         return;
 
     mThetaX += static_cast<Ogre::Real>(mFactorX * 3.0 * timeSinceLastFrame);
@@ -143,7 +144,7 @@ void MapLight::update(Ogre::Real timeSinceLastFrame)
         mFactorZ *= -1.0;
 
     Ogre::Vector3 flickerPosition = Ogre::Vector3(sin(mThetaX), sin(mThetaY), sin(mThetaZ));
-    RenderManager::getSingleton().rrMoveMapLightFlicker(this, flickerPosition);
+    RenderManager::getSingleton().rrMoveMapLightFlicker(this, flickerPosition);*/
 }
 
 void MapLight::fireAddEntity(Seat* seat, bool async)

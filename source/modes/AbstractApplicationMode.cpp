@@ -17,16 +17,10 @@
 
 #include "modes/AbstractApplicationMode.h"
 
-#include "entities/Creature.h"
-#include "entities/RenderedMovableEntity.h"
-#include "entities/MapLight.h"
-#include "gamemap/GameMap.h"
 #include "network/ODClient.h"
 #include "network/ODServer.h"
 #include "render/Gui.h"
 #include "render/ODFrameListener.h"
-#include "spell/Spell.h"
-#include "utils/Helper.h"
 
 #include <CEGUI/System.h>
 #include <CEGUI/GUIContext.h>
@@ -111,20 +105,6 @@ bool AbstractApplicationMode::isChatKey(const OIS::KeyEvent &arg)
 int AbstractApplicationMode::getChatChar(const OIS::KeyEvent &arg)
 {
     return arg.text;
-}
-
-GameEntity* AbstractApplicationMode::getEntityFromOgreName(const std::string& entityName)
-{
-    // We check the prefix to know the kind of object the user clicked. Then, we call the corresponding
-    // GameMap function to retrieve the entity
-    std::string::size_type index = entityName.find("-");
-    if(index == std::string::npos)
-        return nullptr;
-
-    int32_t intGameEntityType = Helper::toInt(entityName.substr(0, index));
-    GameEntityType type = static_cast<GameEntityType>(intGameEntityType);
-    GameMap* gameMap = ODFrameListener::getSingletonPtr()->getClientGameMap();
-    return gameMap->getEntityFromTypeAndName(type, entityName.substr(index + 1));
 }
 
 void AbstractApplicationMode::subscribeCloseButton(CEGUI::Window& rootWindow)

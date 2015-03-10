@@ -106,7 +106,7 @@ class TileContainer
 {
 public:
     TileContainer(int initTileDistance);
-    ~TileContainer();
+    virtual ~TileContainer();
 
     //! \brief Clears the mesh and deletes the data structure for all the tiles in the TileContainer.
     void clearTiles();

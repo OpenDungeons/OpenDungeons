@@ -81,8 +81,8 @@ CameraManager::CameraManager(Ogre::SceneManager* sceneManager, GameMap* gm, Ogre
                                               MAX_CAMERA_Z / 2.0),
                                               Ogre::Degree(0.0), Ogre::Degree(DEFAULT_X_AXIS_VIEW));
 
-    createCamera("FPP", 0.02, 30.0);
-    createCameraNode("FPP", Ogre::Vector3(), Ogre::Degree(0), Ogre::Degree(75), Ogre::Degree(0));
+//    createCamera("FPP", 0.02, 30.0);
+//    createCameraNode("FPP", Ogre::Vector3(), Ogre::Degree(0), Ogre::Degree(75), Ogre::Degree(0));
 
     setActiveCamera("RTS");
     setActiveCameraNode("RTS");

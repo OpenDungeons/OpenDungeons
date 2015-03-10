@@ -18,9 +18,7 @@
 #ifndef GAMEMODE_H
 #define GAMEMODE_H
 
-#include "AbstractApplicationMode.h"
-
-#include "gamemap/MiniMap.h"
+#include "GameEditorModeBase.h"
 
 #include <CEGUI/EventArgs.h>
 
@@ -29,7 +27,9 @@ namespace CEGUI
 class Window;
 }
 
-class GameMode: public AbstractApplicationMode
+enum class SpellType;
+
+class GameMode final : public GameEditorModeBase
 {
  public:
     GameMode(ModeManager*);
@@ -87,22 +87,22 @@ class GameMode: public AbstractApplicationMode
     virtual void notifyGuiAction(GuiAction guiAction);
 
     //! \brief Shows/hides/toggles the help window
-    void showHelpWindow();
-    void hideHelpWindow();
-    void toggleHelpWindow();
+    bool showHelpWindow(const CEGUI::EventArgs& = {});
+    bool hideHelpWindow(const CEGUI::EventArgs& = {});
+    bool toggleHelpWindow(const CEGUI::EventArgs& = {});
 
     //! \brief Shows/hides/toggles the objectives window
-    void showObjectivesWindow();
-    void hideObjectivesWindow();
-    void toggleObjectivesWindow();
+    bool showObjectivesWindow(const CEGUI::EventArgs& = {});
+    bool hideObjectivesWindow(const CEGUI::EventArgs& = {});
+    bool toggleObjectivesWindow(const CEGUI::EventArgs& = {});
 
     //! \brief Shows/hides/toggles the options window
-    void showOptionsWindow();
-    bool hideOptionsWindow(const CEGUI::EventArgs& e = {});
-    void toggleOptionsWindow();
+    bool showOptionsWindow(const CEGUI::EventArgs& = {});
+    bool hideOptionsWindow(const CEGUI::EventArgs& = {});
+    bool toggleOptionsWindow(const CEGUI::EventArgs& = {});
 
     //! \brief Hides the settings window.
-    void hideSettingsWindow();
+    bool hideSettingsWindow(const CEGUI::EventArgs& = {});
 protected:
     //! \brief The different Game Options Menu handlers
     bool showQuitMenuFromOptions(const CEGUI::EventArgs& e = {});
@@ -132,13 +132,6 @@ private:
     //! this value is based on the first marked flag tile selected.
     bool mDigSetBool;
 
-    //! \brief A reference to the game map used by the game mode
-    //! For now, handled by the frame listener, don't delete it.
-    GameMap* mGameMap;
-
-    //! \brief The minimap used in this mode
-    MiniMap mMiniMap;
-
     //! \brief Stores the lastest mouse cursor and light positions.
     int mMouseX;
     int mMouseY;
@@ -156,9 +149,6 @@ private:
     //! \brief Creates the help window.
     void createHelpWindow();
 
-    //! \brief System function used to hide the help window through the system cross.
-    bool hideHelpWindow(const CEGUI::EventArgs& /*e*/);
-
     //! \brief Handle updating the selector position on screen
     void handleCursorPositionUpdate();
 
@@ -166,12 +156,11 @@ private:
     //! It will handle the potential mouse wheel logic
     void handleMouseWheel(const OIS::MouseEvent& arg);
 
-    //! \brief Minimap click event handler (currently duplicated in EditorMode)
-    bool onMinimapClick(const CEGUI::EventArgs& arg);
-
     //! \brief Called at each frame. It checks if the Gui should be refreshed (for example,
     //! if a research is done) and, if yes, refreshes accordingly.
     void refreshGuiResearch();
+
+    void connectSpellSelect(const std::string& buttonName, SpellType spellType);
 };
 
 #endif // GAMEMODE_H

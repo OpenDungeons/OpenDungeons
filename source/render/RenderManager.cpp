@@ -123,6 +123,8 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     // Create the scene nodes that will follow the mouse pointer.
     // Create the single tile selection mesh
     Ogre::Entity* squareSelectorEnt = mSceneManager->createEntity("SquareSelector", "SquareSelector.mesh");
+    squareSelectorEnt->setLightMask(0);
+    squareSelectorEnt->setCastShadows(false);
     Ogre::SceneNode* node = mSceneManager->getRootSceneNode()->createChildSceneNode("SquareSelectorNode");
     node->translate(Ogre::Vector3(0, 0, 0));
     node->scale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,
@@ -137,18 +139,20 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
                                static_cast<Ogre::Real>(1.0 / BLENDER_UNITS_PER_OGRE_UNIT)));
 
     Ogre::Entity* keeperHandEnt = mSceneManager->createEntity("keeperHandEnt", "Keeperhand.mesh");
+    keeperHandEnt->setLightMask(0);
+    keeperHandEnt->setCastShadows(false);
     mHandAnimationState = keeperHandEnt->getAnimationState("Walk");
     mHandAnimationState->setTimePosition(0);
     mHandAnimationState->setLoop(true);
     mHandAnimationState->setEnabled(true);
 
     Ogre::SceneNode* node3 = node->createChildSceneNode("KeeperHand_node");
-    node3->setPosition(static_cast<Ogre::Real>(0.0),
-                       static_cast<Ogre::Real>(-1.0 / BLENDER_UNITS_PER_OGRE_UNIT),
-                       static_cast<Ogre::Real>(4.0 / BLENDER_UNITS_PER_OGRE_UNIT));
-    node3->scale(Ogre::Vector3(static_cast<Ogre::Real>(0.2 / BLENDER_UNITS_PER_OGRE_UNIT),
-                               static_cast<Ogre::Real>(0.2 / BLENDER_UNITS_PER_OGRE_UNIT),
-                               static_cast<Ogre::Real>(0.2 / BLENDER_UNITS_PER_OGRE_UNIT)));
+    node3->setPosition(0.0f,
+                       -1.0f / BLENDER_UNITS_PER_OGRE_UNIT,
+                       4.0f / BLENDER_UNITS_PER_OGRE_UNIT);
+    node3->scale(Ogre::Vector3(0.2f / BLENDER_UNITS_PER_OGRE_UNIT,
+                               0.2f / BLENDER_UNITS_PER_OGRE_UNIT,
+                               0.2f / BLENDER_UNITS_PER_OGRE_UNIT));
     node3->attachObject(keeperHandEnt);
     //Add a too small to be visible dummy dirt tile to the hand node
     //so that there will allways be a dirt tile "visible"
@@ -156,15 +160,18 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     //up the lighing for some of the rtshader materials.
     Ogre::SceneNode* dummyNode = node3->createChildSceneNode("Dummy_node");
     dummyNode->setScale(Ogre::Vector3(0.00000001f, 0.00000001f, 0.00000001f));
-    dummyNode->attachObject(mSceneManager->createEntity("Dirt_00000000.mesh"));
+    Ogre::Entity* dummyEnt = mSceneManager->createEntity("Dirt_00000000.mesh");
+    dummyEnt->setLightMask(0);
+    dummyEnt->setCastShadows(false);
+    dummyNode->attachObject(dummyEnt);
 
     // Create the light which follows the single tile selection mesh
     Ogre::Light* light = mSceneManager->createLight("MouseLight");
     light->setType(Ogre::Light::LT_POINT);
     light->setDiffuseColour(Ogre::ColourValue(0.65, 0.65, 0.45));
     light->setSpecularColour(Ogre::ColourValue(0.65, 0.65, 0.45));
-    light->setPosition(0, 0, 6);
-    light->setAttenuation(50, 1.0, 0.09, 0.032);
+    light->setPosition(0.0f, 0.0f, 6.0f);
+    light->setAttenuation(7, 1.0, 0.00, 0.3);
 }
 
 void RenderManager::updateRenderAnimations(Ogre::Real timeSinceLastFrame)
@@ -361,6 +368,8 @@ void RenderManager::rrTemporalMarkTile(Tile* curTile)
         ss2 << curTile->getName();
         ss2 << "_node";
         ent = mSceneMgr->createEntity(ss.str(), "SquareSelector.mesh");
+        ent->setLightMask(0);
+        ent->setCastShadows(false);
         Ogre::SceneNode* node = mSceneManager->getSceneNode(ss2.str())->createChildSceneNode(ss.str()+"Node");
         node->setInheritScale(false);
         node->scale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,

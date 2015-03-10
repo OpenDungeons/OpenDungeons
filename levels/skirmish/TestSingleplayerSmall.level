@@ -1030,7 +1030,7 @@ ProtectDungeonTemple	NULL
 
 [Lights]
 # posX	posY	posZ	diffuseR	diffuseG	diffuseB	specularR	specularG	specularB	attenRange	attenConst	attenLin	attenQuad
-12	7	3.75	0.9	0.8	0.6	0.2	0.2	0.2	50	0.012	0.32	0.0018
+12	7	3.75	0.9	0.8	0.7	0.2	0.2	0.2	8	1.0	0.0	0.2
 [/Lights]
 
 [CreatureDefinitions]
@@ -1151,25 +1151,25 @@ ProtectDungeonTemple	NULL
 [/Creatures]
 
 [Spells]
-# typeSpell	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	optionalData	
+# typeSpell	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	optionalData
 [/Spells]
 
 [CraftedTraps]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	trapType	PosX	PosY	PosZ	
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	trapType	PosX	PosY	PosZ
 [/CraftedTraps]
 
 [ResearchEntity]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	researchType	PosX	PosY	PosZ	
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	researchType	PosX	PosY	PosZ
 [/ResearchEntity]
 
 [Missiles]
-# missileType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	directionX	directionY	directionZ	missileAlive	damageAllies	optionalData	
+# missileType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	directionX	directionY	directionZ	missileAlive	damageAllies	optionalData
 [/Missiles]
 
 [TreasuryObject]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	value	
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	value
 [/TreasuryObject]
 
 [Chickens]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	PosX	PosY	PosZ	
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	PosX	PosY	PosZ
 [/Chickens]

@@ -33,8 +33,6 @@
 #include <string>
 #include <map>
 
-class ModeManager;
-class GameMap;
 class SoundEffectsManager;
 
 //! \brief This class holds all GUI related functions
@@ -160,50 +158,13 @@ private:
 
     std::map<guiSheet, CEGUI::Window*> mSheets;
 
-    // Button handlers main menu
-
-    static bool dormitoryButtonPressed  (const CEGUI::EventArgs& e);
-    static bool treasuryButtonPressed   (const CEGUI::EventArgs& e);
-    static bool destroyRoomButtonPressed(const CEGUI::EventArgs& e);
-    static bool forgeButtonPressed      (const CEGUI::EventArgs& e);
-    static bool trainingHallButtonPressed (const CEGUI::EventArgs& e);
-    static bool libraryButtonPressed    (const CEGUI::EventArgs& e);
-    static bool hatcheryButtonPressed   (const CEGUI::EventArgs& e);
-    static bool cryptButtonPressed      (const CEGUI::EventArgs& e);
-    static bool templeButtonPressed     (const CEGUI::EventArgs& e);
-    static bool portalButtonPressed     (const CEGUI::EventArgs& e);
-
-    static bool cannonButtonPressed     (const CEGUI::EventArgs& e);
-    static bool spikeTrapButtonPressed  (const CEGUI::EventArgs& e);
-    static bool boulderTrapButtonPressed(const CEGUI::EventArgs& e);
-    static bool destroyTrapButtonPressed(const CEGUI::EventArgs& e);
-
-    static bool spellSummonWorkerPressed        (const CEGUI::EventArgs& e);
-
-    static bool spellCallToWarPressed           (const CEGUI::EventArgs& e);
-
-    static bool workerCreatureButtonPressed     (const CEGUI::EventArgs& e);
-    static bool fighterCreatureButtonPressed    (const CEGUI::EventArgs& e);
-
-    static bool confirmExitYesButtonPressed     (const CEGUI::EventArgs& e);
-    static bool confirmExitNoButtonPressed      (const CEGUI::EventArgs& e);
-
-    static bool helpButtonPressed(const CEGUI::EventArgs& e);
-    static bool objectivesButtonPressed(const CEGUI::EventArgs& e);
-    static bool optionsButtonPressed(const CEGUI::EventArgs& e);
-    static bool hideObjectivesWindow(const CEGUI::EventArgs& e);
-
-    static bool cancelSettings(const CEGUI::EventArgs& e);
-
     // Editor Buttons
-    static bool editorOptionsButtonPressed(const CEGUI::EventArgs& e);
     static bool editorLavaButtonPressed(const CEGUI::EventArgs& e);
     static bool editorGoldButtonPressed(const CEGUI::EventArgs& e);
     static bool editorRockButtonPressed(const CEGUI::EventArgs& e);
     static bool editorWaterButtonPressed(const CEGUI::EventArgs& e);
     static bool editorDirtButtonPressed(const CEGUI::EventArgs& e);
     static bool editorClaimedButtonPressed(const CEGUI::EventArgs& e);
-    static bool editorMapLightButtonPressed(const CEGUI::EventArgs& e);
 
     SoundEffectsManager* mSoundEffectsManager;
 };

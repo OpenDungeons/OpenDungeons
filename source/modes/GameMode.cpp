@@ -51,15 +51,29 @@
 #include <vector>
 #include <string>
 
+namespace
+{
+    //! \brief Functor to select spell from gui
+    class SpellSelector
+    {
+    public:
+        bool operator()(const CEGUI::EventArgs& e)
+        {
+            gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::castSpell);
+            gameMap->getLocalPlayer()->setNewSpellType(spellType);
+            return true;
+        }
+        SpellType spellType;
+        GameMap* gameMap;
+    };
+}
 //! \brief Colors used by the room/trap/spell text overlay
 static Ogre::ColourValue white = Ogre::ColourValue(1.0f, 1.0f, 1.0f, 1.0f);
 static Ogre::ColourValue red = Ogre::ColourValue(1.0f, 0.0f, 0.0, 1.0f);
 
 GameMode::GameMode(ModeManager *modeManager):
-    AbstractApplicationMode(modeManager, ModeManager::GAME),
+    GameEditorModeBase(modeManager, ModeManager::GAME, modeManager->getGui().getGuiSheet(Gui::guiSheet::inGameMenu)),
     mDigSetBool(false),
-    mGameMap(ODFrameListener::getSingletonPtr()->getClientGameMap()),
-    mMiniMap(modeManager->getGui().getGuiSheet(Gui::guiSheet::inGameMenu)->getChild(Gui::MINIMAP)),
     mMouseX(0),
     mMouseY(0),
     mCurrentInputMode(InputModeNormal),
@@ -70,6 +84,114 @@ GameMode::GameMode(ModeManager *modeManager):
     mModeManager->getInputManager()->mMouseDownOnCEGUIWindow = false;
 
     ODFrameListener::getSingleton().getCameraManager()->setDefaultView();
+
+    CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::inGameMenu);
+
+    //Help window
+    addEventConnection(
+        guiSheet->getChild("HelpButton")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&GameMode::toggleHelpWindow, this)
+        )
+    );
+
+    //Objectives window
+    addEventConnection(
+        guiSheet->getChild("ObjectivesButton")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&GameMode::toggleObjectivesWindow, this)
+        )
+    );
+    addEventConnection(
+        guiSheet->getChild("ObjectivesWindow/__auto_closebutton__")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&GameMode::hideObjectivesWindow, this)
+        )
+    );
+
+    // The Game Option menu events
+    addEventConnection(
+        guiSheet->getChild("OptionsButton")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&GameMode::toggleOptionsWindow, this)
+        )
+    );
+    addEventConnection(
+        guiSheet->getChild("GameOptionsWindow/__auto_closebutton__")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&GameMode::hideOptionsWindow, this)
+        )
+    );
+    addEventConnection(
+        guiSheet->getChild("GameOptionsWindow/ObjectivesButton")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&GameMode::showObjectivesFromOptions, this)
+        )
+    );
+    addEventConnection(
+        guiSheet->getChild("GameOptionsWindow/SaveGameButton")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&GameMode::saveGame, this)
+        )
+    );
+    addEventConnection(
+        guiSheet->getChild("GameOptionsWindow/SettingsButton")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&GameMode::showSettingsFromOptions, this)
+        )
+    );
+    addEventConnection(
+        guiSheet->getChild("GameOptionsWindow/QuitGameButton")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&GameMode::showQuitMenuFromOptions, this)
+        )
+    );
+    //Settings window
+    addEventConnection(
+        guiSheet->getChild("SettingsWindow/CancelButton")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&GameMode::hideSettingsWindow, this)
+        )
+    );
+    addEventConnection(
+        guiSheet->getChild("SettingsWindow/__auto_closebutton__")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&GameMode::hideSettingsWindow, this)
+        )
+    );
+
+    //Exit confirmation box
+    addEventConnection(
+        guiSheet->getChild(Gui::EXIT_CONFIRMATION_POPUP_YES_BUTTON)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&GameMode::regressMode,
+                                     static_cast<AbstractApplicationMode*>(this))
+        )
+    );
+
+    //Exit confirmation box
+    auto cancelExitWindow =
+          [this](const CEGUI::EventArgs&)
+          {
+                  popupExit(false);
+                  return true;
+          };
+    addEventConnection(
+        guiSheet->getChild(Gui::EXIT_CONFIRMATION_POPUP_NO_BUTTON)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(cancelExitWindow)
+        )
+    );
+    addEventConnection(
+        guiSheet->getChild("ConfirmExit/__auto_closebutton__")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(cancelExitWindow)
+        )
+    );
+
+    //Spells
+    connectSpellSelect(Gui::BUTTON_SPELL_CALLTOWAR, SpellType::callToWar);
+    connectSpellSelect(Gui::BUTTON_SPELL_SUMMON_WORKER, SpellType::summonWorker);
 }
 
 GameMode::~GameMode()
@@ -112,44 +234,6 @@ void GameMode::activate()
     guiSheet->getChild("ObjectivesWindow")->hide();
     guiSheet->getChild("SettingsWindow")->hide();
     guiSheet->getChild("GameOptionsWindow")->hide();
-
-    addEventConnection(
-        guiSheet->getChild(Gui::MINIMAP)->subscribeEvent(
-            CEGUI::Window::EventMouseClick,
-            CEGUI::Event::Subscriber(&GameMode::onMinimapClick, this)
-    ));
-
-    // The Game Option menu events
-    addEventConnection(
-        guiSheet->getChild("GameOptionsWindow/__auto_closebutton__")->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&GameMode::hideOptionsWindow, this)
-        )
-    );
-    addEventConnection(
-        guiSheet->getChild("GameOptionsWindow/ObjectivesButton")->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&GameMode::showObjectivesFromOptions, this)
-        )
-    );
-    addEventConnection(
-        guiSheet->getChild("GameOptionsWindow/SaveGameButton")->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&GameMode::saveGame, this)
-        )
-    );
-    addEventConnection(
-        guiSheet->getChild("GameOptionsWindow/SettingsButton")->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&GameMode::showSettingsFromOptions, this)
-        )
-    );
-    addEventConnection(
-        guiSheet->getChild("GameOptionsWindow/QuitGameButton")->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&GameMode::showQuitMenuFromOptions, this)
-        )
-    );
 
     giveFocus();
 
@@ -232,7 +316,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 if (nbTile > 0 && selectedRoomType == RoomType::treasury && player->getSeat()->getNbTreasuries() == 0)
                     price -= Room::costPerTile(selectedRoomType);
 
-                Ogre::ColourValue& textColor = (gold < price) ? red : white;
+                const Ogre::ColourValue& textColor = (gold < price) ? red : white;
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
                 textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Room::getRoomNameFromRoomType(selectedRoomType))
                     + " [" + Ogre::StringConverter::toString(price)+ "]");
@@ -253,7 +337,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 int gold = player->getSeat()->getGold();
                 TrapType selectedTrapType = player->getNewTrapType();
                 int price = Trap::costPerTile(selectedTrapType) * nbTile;
-                Ogre::ColourValue& textColor = (gold < price) ? red : white;
+                const Ogre::ColourValue& textColor = (gold < price) ? red : white;
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
                 textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Trap::getTrapNameFromTrapType(selectedTrapType))
                     + " [" + Ogre::StringConverter::toString(price)+ "]");
@@ -279,7 +363,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 int mana = player->getSeat()->getMana();
                 SpellType selectedSpellType = player->getNewSpellType();
                 int price = Spell::getSpellCost(mGameMap, selectedSpellType, tiles, player);
-                Ogre::ColourValue& textColor = (mana < price) ? red : white;
+                const Ogre::ColourValue& textColor = (mana < price) ? red : white;
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
                 textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Spell::getSpellNameFromSpellType(selectedSpellType))
                     + " [" + Ogre::StringConverter::toString(price)+ "]");
@@ -1112,31 +1196,33 @@ void GameMode::notifyGuiAction(GuiAction guiAction)
     }
 }
 
-void GameMode::showObjectivesWindow()
+bool GameMode::showObjectivesWindow(const CEGUI::EventArgs&)
 {
     getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("ObjectivesWindow")->show();
+    return true;
 }
 
-void GameMode::hideObjectivesWindow()
+bool GameMode::hideObjectivesWindow(const CEGUI::EventArgs&)
 {
     getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("ObjectivesWindow")->hide();
+    return true;
 }
 
-void GameMode::toggleObjectivesWindow()
+bool GameMode::toggleObjectivesWindow(const CEGUI::EventArgs& e)
 {
     CEGUI::Window* objectives = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("ObjectivesWindow");
-    if (objectives == nullptr)
-        return;
 
     if (objectives->isVisible())
-        hideObjectivesWindow();
+        hideObjectivesWindow(e);
     else
-        showObjectivesWindow();
+        showObjectivesWindow(e);
+    return true;
 }
 
-void GameMode::showOptionsWindow()
+bool GameMode::showOptionsWindow(const CEGUI::EventArgs&)
 {
     getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameOptionsWindow")->show();
+    return true;
 }
 
 bool GameMode::hideOptionsWindow(const CEGUI::EventArgs& /*e*/)
@@ -1145,21 +1231,21 @@ bool GameMode::hideOptionsWindow(const CEGUI::EventArgs& /*e*/)
     return true;
 }
 
-void GameMode::toggleOptionsWindow()
+bool GameMode::toggleOptionsWindow(const CEGUI::EventArgs& e)
 {
     CEGUI::Window* options = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameOptionsWindow");
-    if (options == nullptr)
-        return;
 
     if (options->isVisible())
-        hideOptionsWindow();
+        hideOptionsWindow(e);
     else
-        showOptionsWindow();
+        showOptionsWindow(e);
+    return true;
 }
 
-void GameMode::hideSettingsWindow()
+bool GameMode::hideSettingsWindow(const CEGUI::EventArgs&)
 {
     getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("SettingsWindow")->hide();
+    return true;
 }
 
 bool GameMode::showQuitMenuFromOptions(const CEGUI::EventArgs& /*e*/)
@@ -1198,21 +1284,30 @@ bool GameMode::showSettingsFromOptions(const CEGUI::EventArgs& /*e*/)
     return true;
 }
 
-void GameMode::showHelpWindow()
+bool GameMode::showHelpWindow(const CEGUI::EventArgs&)
 {
     // We create the window only at first call.
     // Note: If we create it in the constructor, the window gets created
     // in the wrong gui context and is never shown...
     createHelpWindow();
     mHelpWindow->show();
+    return true;
 }
 
-void GameMode::toggleHelpWindow()
+bool GameMode::hideHelpWindow(const CEGUI::EventArgs& /*e*/)
+{
+    if (mHelpWindow != nullptr)
+        mHelpWindow->hide();
+    return true;
+}
+
+bool GameMode::toggleHelpWindow(const CEGUI::EventArgs& e)
 {
     if (mHelpWindow == nullptr || !mHelpWindow->isVisible())
-        showHelpWindow();
+        showHelpWindow(e);
     else
-        hideHelpWindow();
+        hideHelpWindow(e);
+    return true;
 }
 
 void GameMode::createHelpWindow()
@@ -1275,30 +1370,6 @@ void GameMode::createHelpWindow()
     textWindow->setText(txt.str());
 }
 
-void GameMode::hideHelpWindow()
-{
-    if (mHelpWindow != nullptr)
-        mHelpWindow->hide();
-}
-
-bool GameMode::hideHelpWindow(const CEGUI::EventArgs& /*e*/)
-{
-    hideHelpWindow();
-    return true;
-}
-
-bool GameMode::onMinimapClick(const CEGUI::EventArgs& arg)
-{
-    const CEGUI::MouseEventArgs& mouseEvt = static_cast<const CEGUI::MouseEventArgs&>(arg);
-
-    ODFrameListener& frameListener = ODFrameListener::getSingleton();
-
-    Ogre::Vector2 cc = mMiniMap.camera_2dPositionFromClick(static_cast<int>(mouseEvt.position.d_x),
-        static_cast<int>(mouseEvt.position.d_y));
-    frameListener.getCameraManager()->onMiniMapClick(cc);
-
-    return true;
-}
 void GameMode::refreshGuiResearch()
 {
     Seat* localPlayerSeat = mGameMap->getLocalPlayer()->getSeat();
@@ -1368,4 +1439,14 @@ void GameMode::refreshGuiResearch()
         guiSheet->getChild(Gui::BUTTON_SPELL_CALLTOWAR)->show();
     else
         guiSheet->getChild(Gui::BUTTON_SPELL_CALLTOWAR)->hide();
+}
+
+void GameMode::connectSpellSelect(const std::string& buttonName, SpellType spellType)
+{
+    addEventConnection(
+        mRootWindow->getChild(buttonName)->subscribeEvent(
+          CEGUI::PushButton::EventClicked,
+          CEGUI::Event::Subscriber(SpellSelector{spellType, mGameMap})
+        )
+    );
 }
