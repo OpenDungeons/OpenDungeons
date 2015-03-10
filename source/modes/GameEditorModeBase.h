@@ -39,6 +39,9 @@ public:
 protected:
     void connectGuiAction(const std::string& buttonName, AbstractApplicationMode::GuiAction action);
 
+    //! \brief gets a game entity from the corresponding ogre name
+    GameEntity* getEntityFromOgreName(const std::string& entityName);
+
     CEGUI::Window* mRootWindow;
 
     //! \brief A reference to the game map used by the game mode

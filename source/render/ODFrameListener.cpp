@@ -92,6 +92,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::Overlay
     mRenderManager->createScene(mCameraManager.getViewport());
 
     mRaySceneQuery = mRenderManager->getSceneManager()->createRayQuery(Ogre::Ray());
+    mRaySceneQuery->setQueryTypeMask(Ogre::SceneManager::ENTITY_TYPE_MASK);
 
     //Set initial mouse clipping size
     windowResized(mWindow);

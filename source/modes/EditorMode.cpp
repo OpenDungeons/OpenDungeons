@@ -492,21 +492,17 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     inputManager->mLStartDragY = inputManager->mYPos;
 
     // Check whether the player is already placing rooms or traps.
-    bool skipCreaturePickUp = false;
     Player* player = mGameMap->getLocalPlayer();
     if (player && (player->getCurrentAction() != Player::SelectedAction::none))
     {
-        skipCreaturePickUp = true;
+        // Skip picking up creatures when placing rooms or traps
+        // as creatures often get in the way.
+        return true;
     }
 
     // See if the mouse is over any creatures
     for (;itr != result.end(); ++itr)
     {
-        // Skip picking up creatures when placing rooms or traps
-        // as creatures often get in the way.
-        if (skipCreaturePickUp)
-            break;
-
         if (itr->movable == nullptr)
             continue;
 

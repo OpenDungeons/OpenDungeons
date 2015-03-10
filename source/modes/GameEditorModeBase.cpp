@@ -23,6 +23,7 @@
 #include "render/ODFrameListener.h"
 #include "rooms/Room.h"
 #include "traps/Trap.h"
+#include "utils/Helper.h"
 
 #include <CEGUI/widgets/PushButton.h>
 
@@ -131,6 +132,19 @@ void GameEditorModeBase::connectGuiAction(const std::string& buttonName, Abstrac
           CEGUI::Event::Subscriber(GuiNotifier{action, this})
         )
     );
+}
+
+GameEntity* GameEditorModeBase::getEntityFromOgreName(const std::string& entityName)
+{
+    // We check the prefix to know the kind of object the user clicked. Then, we call the corresponding
+    // GameMap function to retrieve the entity
+    std::string::size_type index = entityName.find("-");
+    if(index == std::string::npos)
+        return nullptr;
+
+    int32_t intGameEntityType = Helper::toInt(entityName.substr(0, index));
+    GameEntityType type = static_cast<GameEntityType>(intGameEntityType);
+    return mGameMap->getEntityFromTypeAndName(type, entityName.substr(index + 1));
 }
 
 

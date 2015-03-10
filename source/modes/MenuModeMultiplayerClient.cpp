@@ -35,7 +35,7 @@
 MenuModeMultiplayerClient::MenuModeMultiplayerClient(ModeManager *modeManager):
     AbstractApplicationMode(modeManager, ModeManager::MENU_MULTIPLAYER_CLIENT)
 {
-    CEGUI::Window* window = getModeManager().getGui().getGuiSheet(Gui::guiSheet::multiplayerServerMenu);
+    CEGUI::Window* window = getModeManager().getGui().getGuiSheet(Gui::guiSheet::multiplayerClientMenu);
 
     addEventConnection(
         window->getChild(Gui::MPM_BUTTON_CLIENT)->subscribeEvent(

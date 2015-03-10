@@ -107,8 +107,6 @@ public:
     virtual void onFrameStarted(const Ogre::FrameEvent& evt) {};
     virtual void onFrameEnded(const Ogre::FrameEvent& evt) {};
 
-    GameEntity* getEntityFromOgreName(const std::string& entityName);
-
     bool changeModeEvent(ModeManager::ModeType mode, const CEGUI::EventArgs&)
     {
         getModeManager().requestMode(mode);
