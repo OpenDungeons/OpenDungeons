@@ -389,38 +389,6 @@ void Seat::initSeat()
     mResearchPending.clear();
     setResearchTree(researches);
 
-    std::vector<Tile*> tilesToNotify;
-    for(uint32_t xxx = 0; xxx < mTilesStates.size(); ++xxx)
-    {
-        for(uint32_t yyy = 0; yyy < mTilesStates.size(); ++yyy)
-        {
-            Tile* tile = mGameMap->getTile(xxx, yyy);
-            if(tile == nullptr)
-                continue;
-
-            TileStateNotified& tileState = mTilesStates[xxx][yyy];
-            if(tileState.mTileVisual == TileVisual::nullTileVisual)
-                continue;
-
-            tilesToNotify.push_back(tile);
-        }
-    }
-
-    if(!tilesToNotify.empty())
-    {
-        uint32_t nbTiles = tilesToNotify.size();
-        ServerNotification *serverNotification = new ServerNotification(
-            ServerNotificationType::refreshTiles, getPlayer());
-        serverNotification->mPacket << nbTiles;
-        for(Tile* tile : tilesToNotify)
-        {
-            mGameMap->tileToPacket(serverNotification->mPacket, tile);
-            tile->exportTileToPacket(serverNotification->mPacket, this);
-            tileNotifiedToPlayer(tile);
-        }
-        ODServer::getSingleton().queueServerNotification(serverNotification);
-    }
-
     // We restore the tiles if any
     if(!mTilesStateLoaded.empty())
     {
