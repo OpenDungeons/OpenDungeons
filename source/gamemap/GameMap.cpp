@@ -213,7 +213,6 @@ bool GameMap::loadLevel(const std::string& levelFilepath)
         delete rogueSeat;
     }
 
-    // TODO The map loader class should be merged back to GameMap.
     if (MapLoader::readGameMapFromFile(levelFilepath, *this))
         setLevelFileName(levelFilepath);
     else

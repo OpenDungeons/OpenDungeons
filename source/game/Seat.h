@@ -32,13 +32,26 @@ class GameMap;
 class CreatureDefinition;
 class Player;
 class Research;
+class Seat;
 class Tile;
 
 enum class ResearchType;
 enum class SpellType;
 enum class RoomType;
+enum class TileVisual;
 enum class TrapType;
-enum class ResearchType;
+
+//! Class used to save the last tile state notified to each seat
+class TileStateNotified
+{
+public:
+    TileStateNotified();
+
+    TileVisual mTileVisual;
+    Seat* mSeatOwner;
+    bool mVisionTurnLast;
+    bool mVisionTurnCurrent;
+};
 
 class Seat
 {
@@ -272,6 +285,10 @@ public:
     inline void guiResearchRefreshedPending()
     { mNeedRefreshGuiResearchPending = false; }
 
+    //! Called when a tile is notified to the seat player. That allows to save the state
+    //! Used on server side only
+    void tileNotifiedToPlayer(Tile* tile);
+
     static bool sortForMapSave(Seat* s1, Seat* s2);
 
     static Seat* getRogueSeat(GameMap* gameMap);
@@ -352,10 +369,12 @@ private:
     const CreatureDefinition* mDefaultWorkerClass;
 
     //! \brief List of all the tiles in the gamemap (used for human players seats only). The first vector stores the X position.
-    //! The second vector stores the Y position. The first bool from the pair is set to true if the seat had vision on the concerned
-    //! tile during the last turn. The second bool is the same but for the current turn. That allows to notify only the tiles where
-    //! vision changed
-    std::vector<std::vector<std::pair<bool, bool>>> mTilesVision;
+    //! The second vector stores the Y position. TileStateNotified contains information about the tile
+    //! state (last tile state notified, vision last turn for this seat, vision for current turn, ...
+    std::vector<std::vector<TileStateNotified>> mTilesStates;
+
+    std::map<std::pair<int, int>, TileStateNotified> mTilesStateLoaded;
+
     std::vector<Tile*> mVisualDebugEntityTiles;
 
     //! \brief How many tiles have been claimed by this seat, updated in GameMap::doTurn().
@@ -404,6 +423,13 @@ private:
     //! list in empty, mCurrentResearch will be set to null
     //! researchedType is the currently researched type if any (nullResearchType if none)
     void setNextResearch(ResearchType researchedType);
+
+    //! Fills mTilesStateLoaded with the tiles of the given tileVisual is the given istream.
+    //! Returns 0 if the seat end tile has been reached, 1 if the read success and -1 if there is an error
+    int readTilesVisualInitialStates(TileVisual tileVisual, std::istream& is);
+
+    //! exports the tiles of the corresponding TileVisual this seat have seen
+    void exportTilesVisualInitialStates(TileVisual tileVisual, std::ostream& os) const;
 };
 
 #endif // SEAT_H

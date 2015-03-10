@@ -41,6 +41,15 @@ const std::string Seat::PLAYER_TYPE_INACTIVE = "Inactive";
 const std::string Seat::PLAYER_TYPE_CHOICE = "Choice";
 const std::string Seat::PLAYER_FACTION_CHOICE = "Choice";
 
+TileStateNotified::TileStateNotified():
+    mTileVisual(TileVisual::nullTileVisual),
+    mSeatOwner(nullptr),
+    mVisionTurnLast(false),
+    mVisionTurnCurrent(false)
+{
+}
+
+
 Seat::Seat(GameMap* gameMap) :
     mGameMap(gameMap),
     mPlayer(nullptr),
@@ -73,13 +82,31 @@ void Seat::setMapSize(int x, int y)
     if(!mPlayer->getIsHuman())
         return;
 
-    mTilesVision = std::vector<std::vector<std::pair<bool, bool>>>(x);
+    mTilesStates = std::vector<std::vector<TileStateNotified>>(x, std::vector<TileStateNotified>(y));
+    // By default, we know that rock (ground & full) will be set as rock full tiles,
+    // gold (ground & full) will be set as gold full tiles,
+    // other tiles will be set as dirt full tiles
     for(int xxx = 0; xxx < x; ++xxx)
     {
-        mTilesVision[xxx] = std::vector<std::pair<bool, bool>>(y);
         for(int yyy = 0; yyy < y; ++yyy)
         {
-            mTilesVision[xxx][yyy] = std::pair<bool, bool>(false, false);
+            Tile* tile = mGameMap->getTile(xxx, yyy);
+            if(tile == nullptr)
+                continue;
+
+            if(tile->getType() == TileType::gold)
+            {
+                mTilesStates[xxx][yyy].mTileVisual = TileVisual::goldFull;
+                continue;
+            }
+
+            if(tile->getType() == TileType::rock)
+            {
+                mTilesStates[xxx][yyy].mTileVisual = TileVisual::rockFull;
+                continue;
+            }
+
+            mTilesStates[xxx][yyy].mTileVisual = TileVisual::dirtFull;
         }
     }
 }
@@ -361,6 +388,75 @@ void Seat::initSeat()
     researches = mResearchPending;
     mResearchPending.clear();
     setResearchTree(researches);
+
+    std::vector<Tile*> tilesToNotify;
+    for(uint32_t xxx = 0; xxx < mTilesStates.size(); ++xxx)
+    {
+        for(uint32_t yyy = 0; yyy < mTilesStates.size(); ++yyy)
+        {
+            Tile* tile = mGameMap->getTile(xxx, yyy);
+            if(tile == nullptr)
+                continue;
+
+            TileStateNotified& tileState = mTilesStates[xxx][yyy];
+            if(tileState.mTileVisual == TileVisual::nullTileVisual)
+                continue;
+
+            tilesToNotify.push_back(tile);
+        }
+    }
+
+    if(!tilesToNotify.empty())
+    {
+        uint32_t nbTiles = tilesToNotify.size();
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::refreshTiles, getPlayer());
+        serverNotification->mPacket << nbTiles;
+        for(Tile* tile : tilesToNotify)
+        {
+            mGameMap->tileToPacket(serverNotification->mPacket, tile);
+            tile->exportTileToPacket(serverNotification->mPacket, this);
+            tileNotifiedToPlayer(tile);
+        }
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
+
+    // We restore the tiles if any
+    if(!mTilesStateLoaded.empty())
+    {
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::refreshTiles, getPlayer());
+        uint32_t nbTiles = mTilesStateLoaded.size();
+        serverNotification->mPacket << nbTiles;
+        for(std::pair<std::pair<int, int> const, TileStateNotified> p : mTilesStateLoaded)
+        {
+            Tile* tile = mGameMap->getTile(p.first.first, p.first.second);
+            OD_ASSERT_TRUE_MSG(tile != nullptr, "tile=" + Tile::displayAsString(tile));
+
+            mGameMap->tileToPacket(serverNotification->mPacket, tile);
+            // FIXME: For now, we set the tile as if there was no building on it as it
+            // will be done in another PR/commit.
+            // When this is done, it would be better to have a function in the tile equivalent
+            // to exportTileToPacket that exports the last tile state the player have seen
+            int seatId = -1;
+            if(p.second.mSeatOwner != nullptr)
+                seatId = p.second.mSeatOwner->getId();
+            // isBuilding
+            serverNotification->mPacket << false;
+            // seatId
+            serverNotification->mPacket << seatId;
+            // meshname
+            serverNotification->mPacket << "";
+            // scale
+            serverNotification->mPacket << Ogre::Vector3::ZERO;
+            // tileVisual
+            serverNotification->mPacket << p.second.mTileVisual;
+            // persistent objects
+            uint32_t nbPersistentObject = 0;
+            serverNotification->mPacket << nbPersistentObject;
+        }
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
 }
 
 const CreatureDefinition* Seat::getNextFighterClassToSpawn()
@@ -427,12 +523,12 @@ void Seat::clearTilesWithVision()
     if(!mPlayer->getIsHuman())
         return;
 
-    for(std::vector<std::pair<bool, bool>>& vec : mTilesVision)
+    for(std::vector<TileStateNotified>& vec : mTilesStates)
     {
-        for(std::pair<bool, bool>& p : vec)
+        for(TileStateNotified& p : vec)
         {
-            p.first = p.second;
-            p.second = false;
+            p.mVisionTurnLast = p.mVisionTurnCurrent;
+            p.mVisionTurnCurrent = false;
         }
     }
 }
@@ -444,10 +540,10 @@ void Seat::notifyVisionOnTile(Tile* tile)
     if(!mPlayer->getIsHuman())
         return;
 
-    OD_ASSERT_TRUE_MSG(tile->getX() < static_cast<int>(mTilesVision.size()), "Tile=" + Tile::displayAsString(tile));
-    OD_ASSERT_TRUE_MSG(tile->getY() < static_cast<int>(mTilesVision[tile->getX()].size()), "Tile=" + Tile::displayAsString(tile));
-    std::pair<bool, bool>& p = mTilesVision[tile->getX()][tile->getY()];
-    p.second = true;
+    OD_ASSERT_TRUE_MSG(tile->getX() < static_cast<int>(mTilesStates.size()), "Tile=" + Tile::displayAsString(tile));
+    OD_ASSERT_TRUE_MSG(tile->getY() < static_cast<int>(mTilesStates[tile->getX()].size()), "Tile=" + Tile::displayAsString(tile));
+    TileStateNotified& tileState = mTilesStates[tile->getX()][tile->getY()];
+    tileState.mVisionTurnCurrent = true;
 }
 
 bool Seat::hasVisionOnTile(Tile* tile)
@@ -467,11 +563,11 @@ bool Seat::hasVisionOnTile(Tile* tile)
     if(!mPlayer->getIsHuman())
         return true;
 
-    OD_ASSERT_TRUE_MSG(tile->getX() < static_cast<int>(mTilesVision.size()), "Tile=" + Tile::displayAsString(tile));
-    OD_ASSERT_TRUE_MSG(tile->getY() < static_cast<int>(mTilesVision[tile->getX()].size()), "Tile=" + Tile::displayAsString(tile));
-    std::pair<bool, bool>& p = mTilesVision[tile->getX()][tile->getY()];
+    OD_ASSERT_TRUE_MSG(tile->getX() < static_cast<int>(mTilesStates.size()), "Tile=" + Tile::displayAsString(tile));
+    OD_ASSERT_TRUE_MSG(tile->getY() < static_cast<int>(mTilesStates[tile->getX()].size()), "Tile=" + Tile::displayAsString(tile));
+    TileStateNotified& stateTile = mTilesStates[tile->getX()][tile->getY()];
 
-    return p.second;
+    return stateTile.mVisionTurnCurrent;
 }
 
 void Seat::notifyChangedVisibleTiles()
@@ -482,13 +578,13 @@ void Seat::notifyChangedVisibleTiles()
         return;
 
     std::vector<Tile*> tilesToNotify;
-    int xMax = static_cast<int>(mTilesVision.size());
+    int xMax = static_cast<int>(mTilesStates.size());
     for(int xxx = 0; xxx < xMax; ++xxx)
     {
-        int yMax = static_cast<int>(mTilesVision[xxx].size());
+        int yMax = static_cast<int>(mTilesStates[xxx].size());
         for(int yyy = 0; yyy < yMax; ++yyy)
         {
-            if(!mTilesVision[xxx][yyy].second)
+            if(!mTilesStates[xxx][yyy].mVisionTurnCurrent)
                 continue;
 
             Tile* tile = mGameMap->getTile(xxx, yyy);
@@ -511,6 +607,7 @@ void Seat::notifyChangedVisibleTiles()
     {
         mGameMap->tileToPacket(serverNotification->mPacket, tile);
         tile->exportTileToPacket(serverNotification->mPacket, this);
+        tileNotifiedToPlayer(tile);
     }
     ODServer::getSingleton().queueServerNotification(serverNotification);
 }
@@ -573,7 +670,7 @@ void Seat::displaySeatVisualDebug(bool enable)
         return;
 
     // Visual debugging do not work for AI players (otherwise, we would have to use
-    // mTilesVision for them which would be memory consuming)
+    // mTilesStates for them which would be memory consuming)
     if(mPlayer == nullptr)
         return;
     if(!mPlayer->getIsHuman())
@@ -584,13 +681,13 @@ void Seat::displaySeatVisualDebug(bool enable)
     if(enable)
     {
         std::vector<Tile*> tiles;
-        int xMax = static_cast<int>(mTilesVision.size());
+        int xMax = static_cast<int>(mTilesStates.size());
         for(int xxx = 0; xxx < xMax; ++xxx)
         {
-            int yMax = static_cast<int>(mTilesVision[xxx].size());
+            int yMax = static_cast<int>(mTilesStates[xxx].size());
             for(int yyy = 0; yyy < yMax; ++yyy)
             {
-                if(!mTilesVision[xxx][yyy].second)
+                if(!mTilesStates[xxx][yyy].mVisionTurnCurrent)
                     continue;
 
                 Tile* tile = mGameMap->getTile(xxx, yyy);
@@ -636,17 +733,17 @@ void Seat::sendVisibleTiles()
     std::vector<Tile*> tilesVisionGained;
     std::vector<Tile*> tilesVisionLost;
     // Tiles we gained vision
-    int xMax = static_cast<int>(mTilesVision.size());
+    int xMax = static_cast<int>(mTilesStates.size());
     for(int xxx = 0; xxx < xMax; ++xxx)
     {
-        int yMax = static_cast<int>(mTilesVision[xxx].size());
+        int yMax = static_cast<int>(mTilesStates[xxx].size());
         for(int yyy = 0; yyy < yMax; ++yyy)
         {
-            if(mTilesVision[xxx][yyy].second == mTilesVision[xxx][yyy].first)
+            if(mTilesStates[xxx][yyy].mVisionTurnCurrent == mTilesStates[xxx][yyy].mVisionTurnLast)
                 continue;
 
             Tile* tile = mGameMap->getTile(xxx, yyy);
-            if(mTilesVision[xxx][yyy].second)
+            if(mTilesStates[xxx][yyy].mVisionTurnCurrent)
             {
                 // Vision gained
                 tilesVisionGained.push_back(tile);
@@ -975,7 +1072,82 @@ bool Seat::importSeatFromStream(std::istream& is)
             mResearchPending.push_back(type);
         }
     }
+
+    // Note: At this point, we are reading seats but the tiles may change during map load.
+    // That's why we cannot keep pointers to tiles. However, map size is already set
+    // so we can use it
+    uint32_t nb = static_cast<uint32_t>(TileVisual::countTileVisual);
+    for(uint32_t k = 0; k < nb; ++k)
+    {
+        TileVisual tileVisual = static_cast<TileVisual>(k);
+        // Full dirt tiles, full gold tiles and full rock tiles are automatically
+        // set so we don't have to bother about them
+        switch(tileVisual)
+        {
+            case TileVisual::nullTileVisual:
+            case TileVisual::goldFull:
+            case TileVisual::dirtFull:
+            case TileVisual::rockFull:
+                continue;
+
+            default:
+                break;
+        }
+        int ret = readTilesVisualInitialStates(tileVisual, is);
+        if(ret == 0)
+            return true;
+        else if(ret == -1)
+            return false;
+    }
+
+    // If all the tileVisual are present, the next line should be a seat end tag
+    OD_ASSERT_TRUE(is >> str);
+    if(str != "[/Seat]")
+    {
+        LogManager::getSingleton().logMessage("WARNING: expected [/Seat] and read " + str);
+        return false;
+    }
+
     return true;
+}
+
+int Seat::readTilesVisualInitialStates(TileVisual tileVisual, std::istream& is)
+{
+    // We check if it is the Seat end tag
+    std::string str;
+    OD_ASSERT_TRUE(is >> str);
+    if (str == "[/Seat]")
+        return 0;
+
+    if(str != "[" + Tile::tileVisualToString(tileVisual) + "]")
+    {
+        LogManager::getSingleton().logMessage("WARNING: expected [" + Tile::tileVisualToString(tileVisual) + "] and read " + str);
+        return -1;
+    }
+
+
+    while(true)
+    {
+        OD_ASSERT_TRUE(is >> str);
+        if(str == "[/" + Tile::tileVisualToString(tileVisual) + "]")
+            break;
+
+        std::pair<int, int> tilecoords;
+        tilecoords.first = Helper::toInt(str);
+
+        OD_ASSERT_TRUE(is >> str);
+        tilecoords.second = Helper::toInt(str);
+
+        int seatId;
+        OD_ASSERT_TRUE(is >> seatId);
+        Seat* seatOwner = mGameMap->getSeatById(seatId);
+
+        TileStateNotified& tileState = mTilesStateLoaded[tilecoords];
+        tileState.mTileVisual = tileVisual;
+        tileState.mSeatOwner = seatOwner;
+    }
+
+    return 1;
 }
 
 bool Seat::exportSeatToStream(std::ostream& os) const
@@ -1072,7 +1244,61 @@ bool Seat::exportSeatToStream(std::ostream& os) const
     }
     os << "[/ResearchPending]" << std::endl;
 
+    // In editor mode, we don't save tile states
+    if(mGameMap->isInEditorMode())
+        return true;
+
+    // Tile states are only saved for human players
+    if((getPlayer() == nullptr) ||
+       (!getPlayer()->getIsHuman()))
+    {
+        return true;
+    }
+
+    // We save the visible tiles last state
+    uint32_t nb = static_cast<uint32_t>(TileVisual::countTileVisual);
+    for(uint32_t k = 0; k < nb; ++k)
+    {
+        TileVisual tileVisual = static_cast<TileVisual>(k);
+        // Full dirt tiles, full gold tiles and full rock tiles are automatically
+        // set so we don't have to bother about them
+        switch(tileVisual)
+        {
+            case TileVisual::nullTileVisual:
+            case TileVisual::goldFull:
+            case TileVisual::dirtFull:
+            case TileVisual::rockFull:
+                continue;
+
+            default:
+                break;
+        }
+        exportTilesVisualInitialStates(tileVisual, os);
+    }
     return true;
+}
+
+void Seat::exportTilesVisualInitialStates(TileVisual tileVisual, std::ostream& os) const
+{
+    os << "[" + Tile::tileVisualToString(tileVisual) + "]" << std::endl;
+
+    for(uint32_t xxx = 0; xxx < mTilesStates.size(); ++xxx)
+    {
+        for(uint32_t yyy = 0; yyy < mTilesStates[xxx].size(); ++yyy)
+        {
+            const TileStateNotified& tileState = mTilesStates[xxx][yyy];
+            if(tileState.mTileVisual != tileVisual)
+                continue;
+
+            int seatId = -1;
+            if(tileState.mSeatOwner != nullptr)
+                seatId = tileState.mSeatOwner->getId();
+
+            os << xxx << "\t" << yyy << "\t" << seatId << std::endl;
+        }
+    }
+
+    os << "[/" + Tile::tileVisualToString(tileVisual) + "]" << std::endl;
 }
 
 bool Seat::isSpellAvailable(SpellType type) const
@@ -1342,4 +1568,14 @@ void Seat::setResearchTree(const std::vector<ResearchType>& researches)
         mResearchPending = researches;
         mNeedRefreshGuiResearchPending = true;
     }
+}
+
+void Seat::tileNotifiedToPlayer(Tile* tile)
+{
+    OD_ASSERT_TRUE_MSG(tile->getX() < static_cast<int>(mTilesStates.size()), "Tile=" + Tile::displayAsString(tile));
+    OD_ASSERT_TRUE_MSG(tile->getY() < static_cast<int>(mTilesStates[tile->getX()].size()), "Tile=" + Tile::displayAsString(tile));
+
+    TileStateNotified& tileState = mTilesStates[tile->getX()][tile->getY()];
+    tileState.mSeatOwner = tile->getSeat();
+    tileState.mTileVisual = tile->getTileVisual();
 }

@@ -57,6 +57,8 @@ enum class TileType
 
 ODPacket& operator<<(ODPacket& os, const TileType& type);
 ODPacket& operator>>(ODPacket& is, TileType& type);
+std::ostream& operator<<(std::ostream& os, const TileType& type);
+std::istream& operator>>(std::istream& is, TileType& type);
 
 
 //! Different representations a tile can have (ground or full)
@@ -78,8 +80,8 @@ enum class TileVisual
 
 ODPacket& operator<<(ODPacket& os, const TileVisual& type);
 ODPacket& operator>>(ODPacket& is, TileVisual& type);
-std::ostream& operator<<(std::ostream& os, const TileType& type);
-std::istream& operator>>(std::istream& is, TileType& type);
+std::ostream& operator<<(std::ostream& os, const TileVisual& type);
+std::istream& operator>>(std::istream& is, TileVisual& type);
 
 enum class FloodFillType
 {

@@ -138,6 +138,7 @@ void Tile::setCoveringBuilding(Building *building)
         return;
     }
 
+    // Some buildings (like traps) might not want to refresh the tile for enemy seats
     for(std::pair<Seat*, bool>& seatChanged : mTileChangedForSeats)
     {
         if(!building->shouldSetCoveringTileDirty(seatChanged.first, this))
@@ -449,6 +450,21 @@ ODPacket& operator>>(ODPacket& is, TileType& type)
     return is;
 }
 
+std::ostream& operator<<(std::ostream& os, const TileType& type)
+{
+    uint32_t intType = static_cast<uint32_t>(type);
+    os << intType;
+    return os;
+}
+
+std::istream& operator>>(std::istream& is, TileType& type)
+{
+    uint32_t intType;
+    is >> intType;
+    type = static_cast<TileType>(intType);
+    return is;
+}
+
 ODPacket& operator<<(ODPacket& os, const TileVisual& type)
 {
     uint32_t intType = static_cast<uint32_t>(type);
@@ -464,18 +480,18 @@ ODPacket& operator>>(ODPacket& is, TileVisual& type)
     return is;
 }
 
-std::ostream& operator<<(std::ostream& os, const TileType& type)
+std::ostream& operator<<(std::ostream& os, const TileVisual& type)
 {
     uint32_t intType = static_cast<uint32_t>(type);
     os << intType;
     return os;
 }
 
-std::istream& operator>>(std::istream& is, TileType& type)
+std::istream& operator>>(std::istream& is, TileVisual& type)
 {
     uint32_t intType;
     is >> intType;
-    type = static_cast<TileType>(intType);
+    type = static_cast<TileVisual>(intType);
     return is;
 }
 

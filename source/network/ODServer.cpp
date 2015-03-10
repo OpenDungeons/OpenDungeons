@@ -787,9 +787,6 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 OD_ASSERT_TRUE(isSet);
                 OD_ASSERT_TRUE(packetReceived >> teamId);
                 seat->setTeamId(teamId);
-
-                // We initialize the seat
-                seat->initSeat();
             }
 
             // Now, we can disconnect the players that were not configured
@@ -839,6 +836,12 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 int seatId = client->getPlayer()->getSeat()->getId();
                 packetSend << ServerNotificationType::startGameMode << seatId << mServerMode;
                 sendMsgToClient(client, packetSend);
+            }
+
+            for(Seat* seat : seats)
+            {
+                // We initialize the seat
+                seat->initSeat();
             }
 
             mSeatsConfigured = true;
@@ -1099,6 +1102,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 {
                     gameMap->tileToPacket(serverNotification.mPacket, tile);
                     tile->exportTileToPacket(serverNotification.mPacket, p.first);
+                    p.first->tileNotifiedToPlayer(tile);
                 }
                 sendAsyncMsg(serverNotification);
             }
@@ -1169,6 +1173,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 {
                     gameMap->tileToPacket(serverNotification.mPacket, tile);
                     tile->exportTileToPacket(serverNotification.mPacket, p.first);
+                    p.first->tileNotifiedToPlayer(tile);
                 }
                 sendAsyncMsg(serverNotification);
             }
@@ -1238,6 +1243,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 {
                     gameMap->tileToPacket(serverNotification.mPacket, tile);
                     tile->exportTileToPacket(serverNotification.mPacket, p.first);
+                    p.first->tileNotifiedToPlayer(tile);
                 }
                 sendAsyncMsg(serverNotification);
             }
@@ -1404,6 +1410,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 {
                     gameMap->tileToPacket(serverNotification.mPacket, tile);
                     tile->exportTileToPacket(serverNotification.mPacket, p.first);
+                    p.first->tileNotifiedToPlayer(tile);
                 }
                 sendAsyncMsg(serverNotification);
             }
@@ -1472,6 +1479,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 {
                     gameMap->tileToPacket(serverNotification.mPacket, tile);
                     tile->exportTileToPacket(serverNotification.mPacket, p.first);
+                    p.first->tileNotifiedToPlayer(tile);
                 }
                 sendAsyncMsg(serverNotification);
             }
@@ -1610,6 +1618,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     {
                         gameMap->tileToPacket(notif.mPacket, tile);
                         tile->exportTileToPacket(notif.mPacket, seat);
+                        seat->tileNotifiedToPlayer(tile);
                     }
                     sendAsyncMsg(notif);
                 }
@@ -1745,6 +1754,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 {
                     gameMap->tileToPacket(serverNotification.mPacket, tile);
                     tile->exportTileToPacket(serverNotification.mPacket, p.first);
+                    p.first->tileNotifiedToPlayer(tile);
                 }
                 sendAsyncMsg(serverNotification);
             }
