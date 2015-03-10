@@ -193,6 +193,9 @@ bool Tile::isGroundClaimable(Seat* seat) const
     if(mType != TileType::dirt && mType != TileType::gold)
         return false;
 
+    if(getCoveringBuilding() != nullptr)
+        return false;
+
     if(isClaimedForSeat(seat))
         return false;
 
