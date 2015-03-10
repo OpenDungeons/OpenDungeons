@@ -152,64 +152,77 @@ void MiniMap::draw(const GameMap& gameMap)
                 continue;
             }
 
-            if(tile->isClaimed())
+            switch (tile->getTileVisual())
             {
-                Seat* tempSeat = tile->getSeat();
-                if (tempSeat != nullptr)
+                case TileVisual::claimedGround:
                 {
-                    Ogre::ColourValue color = tempSeat->getColorValue();
-                    if (tile->getFullness() <= 0.0)
+                    Seat* tempSeat = tile->getSeat();
+                    if (tempSeat != nullptr)
+                    {
+                        Ogre::ColourValue color = tempSeat->getColorValue();
                         drawPixel(ii, jj, color.r*200.0, color.g*200.0, color.b*200.0);
+                    }
                     else
-                        drawPixel(ii, jj, color.r*255.0, color.g*255.0, color.b*255.0);
-                }
-                else
-                {
-                    if (tile->getFullness() <= 0.0)
+                    {
                         drawPixel(ii, jj, 0x5C, 0x37, 0x1B);
-                    else
-                        drawPixel(ii, jj, 0x86, 0x50, 0x28);
+                    }
+                    break;
                 }
-                continue;
-            }
 
-            switch (tile->getType())
-            {
-            case TileType::water:
-                drawPixel(ii, jj, 0x21, 0x36, 0x7A);
-                break;
-            case TileType::lava:
-                drawPixel(ii, jj, 0xB2, 0x22, 0x22);
-                break;
+                case TileVisual::claimedFull:
+                {
+                    Seat* tempSeat = tile->getSeat();
+                    if (tempSeat != nullptr)
+                    {
+                        Ogre::ColourValue color = tempSeat->getColorValue();
+                        drawPixel(ii, jj, color.r*255.0, color.g*255.0, color.b*255.0);
+                    }
+                    else
+                    {
+                        drawPixel(ii, jj, 0x86, 0x50, 0x28);
+                    }
+                    break;
+                }
 
-            case TileType::dirt:
-                if (tile->getFullness() <= 0.0)
+                case TileVisual::waterGround:
+                    drawPixel(ii, jj, 0x21, 0x36, 0x7A);
+                    break;
+
+                case TileVisual::lavaGround:
+                    drawPixel(ii, jj, 0xB2, 0x22, 0x22);
+                    break;
+
+                case TileVisual::dirtGround:
                     drawPixel(ii, jj, 0x3B, 0x1D, 0x08);
-                else
+                    break;
+
+                case TileVisual::dirtFull:
                     drawPixel(ii, jj, 0x5B, 0x2D, 0x0C);
-                break;
+                    break;
 
-            case TileType::rock:
-                if (tile->getFullness() <= 0.0)
+                case TileVisual::rockGround:
                     drawPixel(ii, jj, 0x30, 0x30, 0x30);
-                else
+                    break;
+
+                case TileVisual::rockFull:
                     drawPixel(ii, jj, 0x41, 0x41, 0x41);
-                break;
+                    break;
 
-            case TileType::gold:
-                if (tile->getFullness() <= 0.0)
+                case TileVisual::goldGround:
                     drawPixel(ii, jj, 0x3B, 0x1D, 0x08);
-                else
+                    break;
+
+                case TileVisual::goldFull:
                     drawPixel(ii, jj, 0xB5, 0xB3, 0x2F);
-                break;
+                    break;
 
-            case TileType::nullTileType:
-                drawPixel(ii, jj, 0x00, 0x00, 0x00);
-                break;
+                case TileVisual::nullTileVisual:
+                    drawPixel(ii, jj, 0x00, 0x00, 0x00);
+                    break;
 
-            default:
-                drawPixel(ii,jj,0x00,0xFF,0x7F);
-                break;
+                default:
+                    drawPixel(ii,jj,0x00,0xFF,0x7F);
+                    break;
             }
         }
     }
