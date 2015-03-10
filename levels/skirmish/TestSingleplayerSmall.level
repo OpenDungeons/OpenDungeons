@@ -1030,7 +1030,7 @@ ProtectDungeonTemple	NULL
 
 [Lights]
 # posX	posY	posZ	diffuseR	diffuseG	diffuseB	specularR	specularG	specularB	attenRange	attenConst	attenLin	attenQuad
-12	7	3.75	0.9    0.8 0.7 0.2 0.2 0.2 8  1.0   0.0    0.2
+12	7	3.75	0.9	0.8	0.7	0.2	0.2	0.2	8	1.0	0.0	0.2
 [/Lights]
 
 [CreatureDefinitions]
