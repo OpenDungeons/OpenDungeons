@@ -226,7 +226,7 @@ public:
     void clearMapLights();
     void addMapLight(MapLight *m);
     void removeMapLight(MapLight *m);
-    MapLight* getMapLight(std::string name) const;
+    MapLight* getMapLight(const std::string& name) const;
     inline const std::vector<MapLight*>& getMapLights() const
     { return mMapLights; }
 

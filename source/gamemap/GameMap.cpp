@@ -1939,14 +1939,8 @@ void GameMap::removeMapLight(MapLight *m)
     mMapLights.erase(it);
 }
 
-MapLight* GameMap::getMapLight(std::string name) const
+MapLight* GameMap::getMapLight(const std::string& name) const
 {
-    //Translate from indicator to maplight name, this could probably be done in
-    //a better way.
-    if(name.substr(name.length() - 10, name.length()) == "_indicator")
-    {
-        name = name.substr(0, name.length() - 10);
-    }
     for (MapLight* mapLight : mMapLights)
     {
         if (mapLight->getName() == name)

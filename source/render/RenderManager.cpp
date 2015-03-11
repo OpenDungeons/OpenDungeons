@@ -604,7 +604,7 @@ void RenderManager::rrCreateMapLight(MapLight* curMapLight, bool displayVisual)
 {
     // Create the light and attach it to the lightSceneNode.
     std::string mapLightName = curMapLight->getOgreNamePrefix() + curMapLight->getName();
-    Ogre::Light* light = mSceneManager->createLight(mapLightName);
+    Ogre::Light* light = mSceneManager->createLight(mapLightName + "_light");
     light->setDiffuseColour(curMapLight->getDiffuseColor());
     light->setSpecularColour(curMapLight->getSpecularColor());
     light->setAttenuation(curMapLight->getAttenuationRange(),
@@ -621,7 +621,7 @@ void RenderManager::rrCreateMapLight(MapLight* curMapLight, bool displayVisual)
     if (displayVisual)
     {
         // Create the MapLightIndicator mesh so the light can be drug around in the map editor.
-        Ogre::Entity* lightEntity = mSceneManager->createEntity(mapLightName + "_indicator", "Lamp.mesh");
+        Ogre::Entity* lightEntity = mSceneManager->createEntity(mapLightName, "Lamp.mesh");
         mapLightNode->attachObject(lightEntity);
     }
 
@@ -635,9 +635,9 @@ void RenderManager::rrCreateMapLight(MapLight* curMapLight, bool displayVisual)
 void RenderManager::rrDestroyMapLight(MapLight* curMapLight)
 {
     std::string mapLightName = curMapLight->getOgreNamePrefix() + curMapLight->getName();
-    if (mSceneManager->hasLight(mapLightName))
+    if (mSceneManager->hasLight(mapLightName + "_light"))
     {
-        Ogre::Light* light = mSceneManager->getLight(mapLightName);
+        Ogre::Light* light = mSceneManager->getLight(mapLightName + "_light");
         Ogre::SceneNode* lightNode = mSceneManager->getSceneNode(mapLightName + "_node");
         Ogre::SceneNode* lightFlickerNode = mSceneManager->getSceneNode(mapLightName
                                             + "_flicker_node");
