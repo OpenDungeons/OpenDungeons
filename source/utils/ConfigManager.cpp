@@ -1486,6 +1486,9 @@ CreatureMoodLevel ConfigManager::getCreatureMoodLevel(int32_t moodModifiersPoint
 
 const TileSet* ConfigManager::getTileSet(const std::string& tileSetName) const
 {
+    if(tileSetName.empty())
+        return mTileSets.at(DEFAULT_TILESET_NAME);
+
     if(mTileSets.count(tileSetName) > 0)
         return mTileSets.at(tileSetName);
 
