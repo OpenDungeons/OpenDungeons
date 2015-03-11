@@ -90,16 +90,14 @@ public:
     //! Used on client side only
     bool areLinked(const Tile* tile1, const Tile* tile2) const;
 
-    void addTileGroundLink(TileVisual tileVisual1, TileVisual tileVisual2);
-    void addTileFullLink(TileVisual tileVisual1, TileVisual tileVisual2);
+    void addTileLink(TileVisual tileVisual1, TileVisual tileVisual2);
 
 private:
     std::vector<std::vector<TileSetValue>> mTileValues;
     Ogre::Vector3 mScale;
     //! Represents the links between tiles. The uint is used as a bit array.
     //! The index in the vector corresponds to the TileVisual
-    std::vector<uint32_t> mTileGroundLinks;
-    std::vector<uint32_t> mTileFullLinks;
+    std::vector<uint32_t> mTileLinks;
 };
 
 class TileContainer
@@ -143,16 +141,6 @@ public:
 
     TileType getSafeTileType(const Tile* tt) const;
     bool getSafeTileFullness(const Tile* tt) const;
-
-    //! \brief Gets the tile type of all neighbors
-    //! \param tile The tile to be checked.
-    //! \returns a TileType[8] array pointer where the info is stored.
-    std::array<TileType, 8> getNeighborsTypes(const Tile* tile) const;
-
-    //! \brief Gets the tile fullness of all neighbors
-    //! \param tile The tile to be checked.
-    //! \returns a bool[8] array pointer where the info is stored.
-    std::bitset<8> getNeighborsFullness(const Tile* tile) const;
 
     //! \brief Returns the number of tile pointers currently stored in this TileContainer.
     unsigned int numTiles();

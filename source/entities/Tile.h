@@ -55,23 +55,33 @@ enum class TileType
     countTileType
 };
 
+ODPacket& operator<<(ODPacket& os, const TileType& type);
+ODPacket& operator>>(ODPacket& is, TileType& type);
+std::ostream& operator<<(std::ostream& os, const TileType& type);
+std::istream& operator>>(std::istream& is, TileType& type);
+
+
 //! Different representations a tile can have (ground or full)
 enum class TileVisual
 {
     nullTileVisual = 0,
-    dirt,
-    gold,
-    rock,
-    water,
-    lava,
-    claimed,
+    dirtGround,
+    dirtFull,
+    goldGround,
+    goldFull,
+    rockGround,
+    rockFull,
+    waterGround,
+    lavaGround,
+    claimedGround,
+    claimedFull,
     countTileVisual
 };
 
 ODPacket& operator<<(ODPacket& os, const TileVisual& type);
 ODPacket& operator>>(ODPacket& is, TileVisual& type);
-std::ostream& operator<<(std::ostream& os, const TileType& type);
-std::istream& operator>>(std::istream& is, TileType& type);
+std::ostream& operator<<(std::ostream& os, const TileVisual& type);
+std::istream& operator>>(std::istream& is, TileVisual& type);
 
 enum class FloodFillType
 {
@@ -208,11 +218,11 @@ public:
 
     void claimForSeat(Seat* seat, double nDanceRate);
     void claimTile(Seat* seat);
-    void unclaimTile(TileType type);
+    void unclaimTile();
     double digOut(double digRate, bool doScaleDigRate = false);
     double scaleDigRate(double digRate);
 
-    Building* getCoveringBuilding() const
+    inline Building* getCoveringBuilding() const
     { return mCoveringBuilding; }
 
     //! \brief Proxy that checks if there is a covering building and if it is a room. If yes, returns
@@ -283,9 +293,6 @@ public:
 
     static std::string tileVisualToString(TileVisual tileVisual);
     static TileVisual tileVisualFromString(const std::string& strTileVisual);
-
-    static TileType tileTypeFromTileVisual(TileVisual tileVisual);
-    static TileVisual tileVisualFromTileType(TileType tileType);
 
     inline int getX() const
     { return mX; }
@@ -381,6 +388,10 @@ public:
     //! Used only on server side
     void computeTileVisual();
 
+    //! Function that allows to know if the tile is full or not. Works for both
+    //! server and client
+    bool isFullTile() const;
+
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
@@ -406,7 +417,7 @@ private:
 
     //! \brief The tile fullness (0.0 - 100.0).
     //! At 0.0, it is a ground tile. Over it is a wall.
-    //! Used on server and client side
+    //! Used on server side only
     double mFullness;
 
     std::vector<Tile*> mNeighbors;
@@ -434,10 +445,6 @@ private:
 
     //! \brief Used on client side. true if the local player has vision, false otherwise.
     bool mLocalPlayerHasVision;
-
-    //! \brief Used on client side. Set when a tile is refreshed.
-    //! It allows to know if the tile can be marked for digging by the local player.
-    bool mLocalPlayerCanMarkTile;
 
     /*! \brief Set the fullness value for the tile.
      *  This only sets the fullness variable. This function is here to change the value

@@ -176,13 +176,6 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
                 + Helper::toString(tempSeat->getId()));
             delete tempSeat;
         }
-
-        levelFile >> nextParam;
-        if (nextParam != "[/Seat]")
-        {
-            LogManager::getSingleton().logMessage("Expected a Seat end tag but got " + nextParam);
-            return false;
-        }
     }
 
     // Read in the goals that are shared by all players, the first player to complete all these goals is the winner.

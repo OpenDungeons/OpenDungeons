@@ -350,8 +350,8 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 std::vector<Tile*> tiles;
                 if(inputManager->mLMouseDown)
                 {
-                    tiles = mGameMap->getBuildableTilesForPlayerInArea(inputManager->mXPos,
-                        inputManager->mYPos, inputManager->mLStartDragX, inputManager->mLStartDragY, player);
+                    tiles = mGameMap->rectangularRegion(inputManager->mXPos,
+                        inputManager->mYPos, inputManager->mLStartDragX, inputManager->mLStartDragY);
                 }
                 else
                 {
@@ -679,11 +679,6 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     {
         skipPickUp = true;
     }
-
-    // Check whether the player selection is over a wall and skip creature in that case
-    // to permit easier wall selection.
-    if (mGameMap->getTile(mMouseX, mMouseY)->getFullness() > 1.0)
-        skipPickUp = true;
 
     // See if the mouse is over any creatures
     for (;itr != result.end(); ++itr)

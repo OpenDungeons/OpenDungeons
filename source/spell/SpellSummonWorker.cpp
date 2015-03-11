@@ -43,7 +43,7 @@ int SpellSummonWorker::getSpellSummonWorkerCost(GameMap* gameMap, const std::vec
     }
     for(Tile* tile : tiles)
     {
-        if(tile->getFullness() > 0)
+        if(tile->isFullTile())
             continue;
 
         if(!tile->isClaimedForSeat(player->getSeat()))

@@ -56,7 +56,7 @@ Tile::Tile(GameMap* gameMap, int x, int y, TileType type, double fullness) :
     mX                  (x),
     mY                  (y),
     mType               (type),
-    mTileVisual         (tileVisualFromTileType(type)),
+    mTileVisual         (TileVisual::nullTileVisual),
     mSelected           (false),
     mFullness           (fullness),
     mCoveringBuilding   (nullptr),
@@ -64,10 +64,10 @@ Tile::Tile(GameMap* gameMap, int x, int y, TileType type, double fullness) :
     mClaimedPercentage  (0.0),
     mScale              (Ogre::Vector3::ZERO),
     mIsBuilding         (false),
-    mLocalPlayerHasVision   (false),
-    mLocalPlayerCanMarkTile (true)
+    mLocalPlayerHasVision   (false)
 {
     setSeat(nullptr);
+    computeTileVisual();
 }
 
 void Tile::createMeshLocal()
@@ -116,7 +116,7 @@ void Tile::setFullness(double f)
 
 bool Tile::isBuildableUpon(Seat* seat) const
 {
-    if(getFullness() > 0.0)
+    if(isFullTile())
         return false;
     if(mIsBuilding)
         return false;
@@ -137,6 +137,7 @@ void Tile::setCoveringBuilding(Building *building)
         return;
     }
 
+    // Some buildings (like traps) might not want to refresh the tile for enemy seats
     for(std::pair<Seat*, bool>& seatChanged : mTileChangedForSeats)
     {
         if(!building->shouldSetCoveringTileDirty(seatChanged.first, this))
@@ -153,19 +154,25 @@ void Tile::setCoveringBuilding(Building *building)
 
 bool Tile::isDiggable(Seat* seat) const
 {
-    if (getFullness() == 0.0)
-        return false;
+    // Handle non claimed
+    switch(mTileVisual)
+    {
+        case TileVisual::claimedGround:
+        case TileVisual::dirtGround:
+        case TileVisual::goldGround:
+        case TileVisual::lavaGround:
+        case TileVisual::waterGround:
+        case TileVisual::rockGround:
+        case TileVisual::rockFull:
+            return false;
+        case TileVisual::goldFull:
+            return true;
+        default:
+            break;
+    }
 
-    // Return true for common types.
-    if (mType == TileType::gold)
-        return true;
-
-    // Return false for undiggable types.
-    if (mType == TileType::lava || mType == TileType::water || mType == TileType::rock)
-        return false;
-
-    if(!getGameMap()->isServerGameMap())
-        return mLocalPlayerCanMarkTile;
+    // Should be claimed tile
+    OD_ASSERT_TRUE_MSG(mTileVisual == TileVisual::claimedFull, "mTileVisual=" + tileVisualToString(mTileVisual));
 
     // If the wall is not claimed, it can be dug
     if(!isClaimed())
@@ -184,6 +191,9 @@ bool Tile::isGroundClaimable(Seat* seat) const
         return false;
 
     if(mType != TileType::dirt && mType != TileType::gold)
+        return false;
+
+    if(getCoveringRoom() != nullptr)
         return false;
 
     if(isClaimedForSeat(seat))
@@ -309,18 +319,10 @@ void Tile::exportTileToPacket(ODPacket& os, Seat* seat)
 
     os << mIsBuilding;
 
-    bool localPlayerCanMarkTile = true;
-    if(isClaimed() && !isClaimedForSeat(seat))
-    {
-        localPlayerCanMarkTile = false;
-    }
-    os << localPlayerCanMarkTile;
-
     os << seatId;
     os << meshName;
     os << mScale;
     os << mTileVisual;
-    os << getFullness();
 
     // We export the list of all the persistent objects on this tile. We do that because a persistent object might have
     // been removed on server side when the client did not had vision. Thus, it would still be on client side. Thanks to
@@ -364,16 +366,9 @@ void Tile::updateFromPacket(ODPacket& is)
     int seatId;
     std::string meshName;
     std::stringstream ss;
-    double fullness;
 
     // We set the seat if there is one
     OD_ASSERT_TRUE(is >> mIsBuilding);
-    OD_ASSERT_TRUE(is >> mLocalPlayerCanMarkTile);
-    if(!mLocalPlayerCanMarkTile &&
-       getMarkedForDigging(getGameMap()->getLocalPlayer()))
-    {
-        removePlayerMarkingTile(getGameMap()->getLocalPlayer());
-    }
 
     OD_ASSERT_TRUE(is >> seatId);
 
@@ -391,8 +386,6 @@ void Tile::updateFromPacket(ODPacket& is)
     setName(ss.str());
 
     OD_ASSERT_TRUE(is >> mTileVisual);
-    OD_ASSERT_TRUE(is >> fullness);
-    setFullness(fullness);
 
     uint32_t nbPersistentObject;
     OD_ASSERT_TRUE(is >> nbPersistentObject);
@@ -424,14 +417,51 @@ void Tile::updateFromPacket(ODPacket& is)
     if(seatId == -1)
     {
         setSeat(nullptr);
-        return;
+    }
+    else
+    {
+        Seat* seat = getGameMap()->getSeatById(seatId);
+        if(seat != nullptr)
+            setSeat(seat);
+
     }
 
-    Seat* seat = getGameMap()->getSeatById(seatId);
-    if(seat == nullptr)
-        return;
+    // We need to check if the tile is unmarked after reading the needed information.
+    if(getMarkedForDigging(getGameMap()->getLocalPlayer()) &&
+       !isDiggable(getGameMap()->getLocalPlayer()->getSeat()))
+    {
+        removePlayerMarkingTile(getGameMap()->getLocalPlayer());
+    }
+}
 
-    setSeat(seat);
+ODPacket& operator<<(ODPacket& os, const TileType& type)
+{
+    uint32_t intType = static_cast<uint32_t>(type);
+    os << intType;
+    return os;
+}
+
+ODPacket& operator>>(ODPacket& is, TileType& type)
+{
+    uint32_t intType;
+    is >> intType;
+    type = static_cast<TileType>(intType);
+    return is;
+}
+
+std::ostream& operator<<(std::ostream& os, const TileType& type)
+{
+    uint32_t intType = static_cast<uint32_t>(type);
+    os << intType;
+    return os;
+}
+
+std::istream& operator>>(std::istream& is, TileType& type)
+{
+    uint32_t intType;
+    is >> intType;
+    type = static_cast<TileType>(intType);
+    return is;
 }
 
 ODPacket& operator<<(ODPacket& os, const TileVisual& type)
@@ -449,18 +479,18 @@ ODPacket& operator>>(ODPacket& is, TileVisual& type)
     return is;
 }
 
-std::ostream& operator<<(std::ostream& os, const TileType& type)
+std::ostream& operator<<(std::ostream& os, const TileVisual& type)
 {
     uint32_t intType = static_cast<uint32_t>(type);
     os << intType;
     return os;
 }
 
-std::istream& operator>>(std::istream& is, TileType& type)
+std::istream& operator>>(std::istream& is, TileVisual& type)
 {
     uint32_t intType;
     is >> intType;
-    type = static_cast<TileType>(intType);
+    type = static_cast<TileVisual>(intType);
     return is;
 }
 
@@ -560,23 +590,35 @@ std::string Tile::tileVisualToString(TileVisual tileVisual)
         case TileVisual::nullTileVisual:
             return "nullTileVisual";
 
-        case TileVisual::dirt:
-            return "Dirt";
+        case TileVisual::dirtGround:
+            return "dirtGround";
 
-        case TileVisual::rock:
-            return "Rock";
+        case TileVisual::dirtFull:
+            return "dirtFull";
 
-        case TileVisual::gold:
-            return "Gold";
+        case TileVisual::rockGround:
+            return "rockGround";
 
-        case TileVisual::water:
-            return "Water";
+        case TileVisual::rockFull:
+            return "rockFull";
 
-        case TileVisual::lava:
-            return "Lava";
+        case TileVisual::goldGround:
+            return "goldGround";
 
-        case TileVisual::claimed:
-            return "Claimed";
+        case TileVisual::goldFull:
+            return "goldFull";
+
+        case TileVisual::waterGround:
+            return "waterGround";
+
+        case TileVisual::lavaGround:
+            return "lavaGround";
+
+        case TileVisual::claimedGround:
+            return "claimedGround";
+
+        case TileVisual::claimedFull:
+            return "claimedFull";
 
         default:
             return "Unknown tile type=" + Helper::toString(static_cast<uint32_t>(tileVisual));
@@ -594,59 +636,6 @@ TileVisual Tile::tileVisualFromString(const std::string& strTileVisual)
     }
 
     return TileVisual::nullTileVisual;
-}
-
-TileType Tile::tileTypeFromTileVisual(TileVisual tileVisual)
-{
-    switch (tileVisual)
-    {
-        case TileVisual::dirt:
-            return TileType::dirt;
-
-        case TileVisual::rock:
-            return TileType::rock;
-
-        case TileVisual::gold:
-            return TileType::gold;
-
-        case TileVisual::water:
-            return TileType::water;
-
-        case TileVisual::lava:
-            return TileType::lava;
-
-        case TileVisual::claimed:
-            // If the tile is claimed, by default, we consider it is dirt (it is used
-            // in the editor because we don't know tile type)
-            return TileType::dirt;
-
-        default:
-            return TileType::nullTileType;
-    }
-}
-
-TileVisual Tile::tileVisualFromTileType(TileType tileType)
-{
-    switch (tileType)
-    {
-        case TileType::dirt:
-            return TileVisual::dirt;
-
-        case TileType::rock:
-            return TileVisual::rock;
-
-        case TileType::gold:
-            return TileVisual::gold;
-
-        case TileType::water:
-            return TileVisual::water;
-
-        case TileType::lava:
-            return TileVisual::lava;
-
-        default:
-            return TileVisual::nullTileVisual;
-    }
 }
 
 int Tile::nextTileFullness(int f)
@@ -850,12 +839,11 @@ void Tile::claimTile(Seat* seat)
     }
 }
 
-void Tile::unclaimTile(TileType type)
+void Tile::unclaimTile()
 {
     // Unclaim the tile.
     setSeat(nullptr);
     mClaimedPercentage = 0.0;
-    setType(type);
 
     computeTileVisual();
     setDirtyForAllSeats();
@@ -1067,7 +1055,7 @@ bool Tile::isClaimedForSeat(Seat* seat) const
 bool Tile::isClaimed() const
 {
     if(!getGameMap()->isServerGameMap())
-        return (mTileVisual == TileVisual::claimed);
+        return ((mTileVisual == TileVisual::claimedGround) || (mTileVisual == TileVisual::claimedFull));
 
     if(getSeat() == nullptr)
         return false;
@@ -1325,6 +1313,9 @@ void Tile::notifyEntitiesSeatsWithVision()
     {
         entity->notifySeatsWithVision(mSeatsWithVision);
     }
+
+    if(getCoveringBuilding() != nullptr)
+        getCoveringBuilding()->notifySeatsVisionOnTile(mSeatsWithVision, this);
 }
 
 bool Tile::registerPersistentObject(PersistentObject* obj)
@@ -1363,35 +1354,68 @@ void Tile::computeTileVisual()
 {
     if(isClaimed())
     {
-        mTileVisual = TileVisual::claimed;
+        if(mFullness > 0.0)
+            mTileVisual = TileVisual::claimedFull;
+        else
+            mTileVisual = TileVisual::claimedGround;
         return;
     }
 
     switch(getType())
     {
         case TileType::dirt:
-            mTileVisual = TileVisual::dirt;
+            if(mFullness > 0.0)
+                mTileVisual = TileVisual::dirtFull;
+            else
+                mTileVisual = TileVisual::dirtGround;
             return;
 
         case TileType::rock:
-            mTileVisual = TileVisual::rock;
+            if(mFullness > 0.0)
+                mTileVisual = TileVisual::rockFull;
+            else
+                mTileVisual = TileVisual::rockGround;
             return;
 
         case TileType::gold:
-            mTileVisual = TileVisual::gold;
+            if(mFullness > 0.0)
+                mTileVisual = TileVisual::goldFull;
+            else
+                mTileVisual = TileVisual::goldGround;
             return;
 
         case TileType::water:
-            mTileVisual = TileVisual::water;
+            mTileVisual = TileVisual::waterGround;
             return;
 
         case TileType::lava:
-            mTileVisual = TileVisual::lava;
+            mTileVisual = TileVisual::lavaGround;
             return;
 
         default:
             mTileVisual = TileVisual::nullTileVisual;
             return;
+    }
+}
+
+bool Tile::isFullTile() const
+{
+    if(getGameMap()->isServerGameMap())
+    {
+        return getFullness() > 0.0;
+    }
+    else
+    {
+        switch(mTileVisual)
+        {
+            case TileVisual::claimedFull:
+            case TileVisual::dirtFull:
+            case TileVisual::goldFull:
+            case TileVisual::rockFull:
+                return true;
+            default:
+                return false;
+        }
     }
 }
 

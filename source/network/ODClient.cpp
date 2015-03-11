@@ -172,8 +172,7 @@ bool ODClient::processOneClientSocketMessage()
                 --nb;
                 Tile* tile = gameMap->tileFromPacket(packetReceived);
                 tile->setType(TileType::gold);
-                tile->setFullness(100.0);
-                tile->setTileVisual(TileVisual::gold);
+                tile->setTileVisual(TileVisual::goldFull);
             }
             OD_ASSERT_TRUE(packetReceived >> nb);
             while(nb > 0)
@@ -181,8 +180,7 @@ bool ODClient::processOneClientSocketMessage()
                 --nb;
                 Tile* tile = gameMap->tileFromPacket(packetReceived);
                 tile->setType(TileType::rock);
-                tile->setFullness(100.0);
-                tile->setTileVisual(TileVisual::rock);
+                tile->setTileVisual(TileVisual::rockFull);
             }
             gameMap->setAllFullnessAndNeighbors();
 
@@ -287,7 +285,8 @@ bool ODClient::processOneClientSocketMessage()
                 std::string nick;
                 int32_t playerId;
                 int32_t seatId;
-                OD_ASSERT_TRUE(packetReceived >> nick >> playerId >> seatId);
+                int32_t teamId;
+                OD_ASSERT_TRUE(packetReceived >> nick >> playerId >> seatId >> teamId);
                 Player *tempPlayer = new Player(gameMap, playerId);
                 tempPlayer->setNick(nick);
                 gameMap->addPlayer(tempPlayer);
@@ -295,6 +294,7 @@ bool ODClient::processOneClientSocketMessage()
                 Seat* seat = gameMap->getSeatById(seatId);
                 OD_ASSERT_TRUE(seat != nullptr);
                 seat->setPlayer(tempPlayer);
+                seat->setTeamId(teamId);
             }
             break;
         }

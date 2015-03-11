@@ -213,7 +213,6 @@ bool GameMap::loadLevel(const std::string& levelFilepath)
         delete rogueSeat;
     }
 
-    // TODO The map loader class should be merged back to GameMap.
     if (MapLoader::readGameMapFromFile(levelFilepath, *this))
         setLevelFileName(levelFilepath);
     else
@@ -1980,6 +1979,7 @@ bool GameMap::addSeat(Seat *s)
             return false;
         }
     }
+    s->setIndex(mSeats.size());
     mSeats.push_back(s);
 
     // Add the goals for all seats to this seat.
@@ -2933,8 +2933,6 @@ const TileSetValue& GameMap::getMeshForTile(const Tile* tile) const
     OD_ASSERT_TRUE(!isServerGameMap());
 
     int index = 0;
-    if(tile->getFullness() > 0.0)
-        index |= (1 << 4);
     for(int i = 0; i < 4; ++i)
     {
         int diffX;

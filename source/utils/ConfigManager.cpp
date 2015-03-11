@@ -1171,16 +1171,16 @@ bool ConfigManager::loadTilesets(const std::string& fileName)
         mTileSets[tileSetName] = tileSet;
 
         defFile >> nextParam;
-        if(nextParam != "[GroundLink]")
+        if(nextParam != "[TileLink]")
         {
-            OD_ASSERT_TRUE_MSG(false, "Expecting GroundLink tag but got=" + nextParam);
+            OD_ASSERT_TRUE_MSG(false, "Expecting TileLink tag but got=" + nextParam);
             return false;
         }
 
         while(true)
         {
             defFile >> nextParam;
-            if(nextParam == "[/GroundLink]")
+            if(nextParam == "[/TileLink]")
                 break;
 
             TileVisual tileVisual1 = Tile::tileVisualFromString(nextParam);
@@ -1198,51 +1198,28 @@ bool ConfigManager::loadTilesets(const std::string& fileName)
                 return false;
             }
 
-            tileSet->addTileGroundLink(tileVisual1, tileVisual2);
+            tileSet->addTileLink(tileVisual1, tileVisual2);
         }
 
-        defFile >> nextParam;
-        if(nextParam != "[FullLink]")
-        {
-            OD_ASSERT_TRUE_MSG(false, "Expecting FullLink tag but got=" + nextParam);
+        if(!loadTilesetValues(defFile, TileVisual::goldGround, tileSet->configureTileValues(TileVisual::goldGround)))
             return false;
-        }
-
-        while(true)
-        {
-            defFile >> nextParam;
-            if(nextParam == "[/FullLink]")
-                break;
-
-            TileVisual tileVisual1 = Tile::tileVisualFromString(nextParam);
-            if(tileVisual1 == TileVisual::nullTileVisual)
-            {
-                OD_ASSERT_TRUE_MSG(false, "Wrong TileVisual1 in tileset=" + nextParam);
-                return false;
-            }
-
-            defFile >> nextParam;
-            TileVisual tileVisual2 = Tile::tileVisualFromString(nextParam);
-            if(tileVisual2 == TileVisual::nullTileVisual)
-            {
-                OD_ASSERT_TRUE_MSG(false, "Wrong TileVisual2 in tileset=" + nextParam);
-                return false;
-            }
-
-            tileSet->addTileFullLink(tileVisual1, tileVisual2);
-        }
-
-        if(!loadTilesetValues(defFile, TileVisual::gold, tileSet->configureTileValues(TileVisual::gold)))
+        if(!loadTilesetValues(defFile, TileVisual::goldFull, tileSet->configureTileValues(TileVisual::goldFull)))
             return false;
-        if(!loadTilesetValues(defFile, TileVisual::dirt, tileSet->configureTileValues(TileVisual::dirt)))
+        if(!loadTilesetValues(defFile, TileVisual::dirtGround, tileSet->configureTileValues(TileVisual::dirtGround)))
             return false;
-        if(!loadTilesetValues(defFile, TileVisual::rock, tileSet->configureTileValues(TileVisual::rock)))
+        if(!loadTilesetValues(defFile, TileVisual::dirtFull, tileSet->configureTileValues(TileVisual::dirtFull)))
             return false;
-        if(!loadTilesetValues(defFile, TileVisual::water, tileSet->configureTileValues(TileVisual::water)))
+        if(!loadTilesetValues(defFile, TileVisual::rockGround, tileSet->configureTileValues(TileVisual::rockGround)))
             return false;
-        if(!loadTilesetValues(defFile, TileVisual::lava, tileSet->configureTileValues(TileVisual::lava)))
+        if(!loadTilesetValues(defFile, TileVisual::rockFull, tileSet->configureTileValues(TileVisual::rockFull)))
             return false;
-        if(!loadTilesetValues(defFile, TileVisual::claimed, tileSet->configureTileValues(TileVisual::claimed)))
+        if(!loadTilesetValues(defFile, TileVisual::waterGround, tileSet->configureTileValues(TileVisual::waterGround)))
+            return false;
+        if(!loadTilesetValues(defFile, TileVisual::lavaGround, tileSet->configureTileValues(TileVisual::lavaGround)))
+            return false;
+        if(!loadTilesetValues(defFile, TileVisual::claimedGround, tileSet->configureTileValues(TileVisual::claimedGround)))
+            return false;
+        if(!loadTilesetValues(defFile, TileVisual::claimedFull, tileSet->configureTileValues(TileVisual::claimedFull)))
             return false;
     }
 
