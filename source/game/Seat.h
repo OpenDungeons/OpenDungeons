@@ -48,7 +48,7 @@ public:
     TileStateNotified();
 
     TileVisual mTileVisual;
-    Seat* mSeatOwner;
+    int mSeatIdOwner;
     bool mMarkedForDigging;
     bool mVisionTurnLast;
     bool mVisionTurnCurrent;

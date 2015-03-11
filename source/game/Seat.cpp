@@ -43,7 +43,7 @@ const std::string Seat::PLAYER_FACTION_CHOICE = "Choice";
 
 TileStateNotified::TileStateNotified():
     mTileVisual(TileVisual::nullTileVisual),
-    mSeatOwner(nullptr),
+    mSeatIdOwner(-1),
     mMarkedForDigging(false),
     mVisionTurnLast(false),
     mVisionTurnCurrent(false)
@@ -436,13 +436,10 @@ void Seat::initSeat()
                 // to exportTileToPacket that exports the last tile state the player have seen
                 std::pair<int, int> tileCoords(tile->getX(), tile->getY());
                 TileStateNotified& tileState = mTilesStateLoaded[tileCoords];
-                int seatId = -1;
-                if(tileState.mSeatOwner != nullptr)
-                    seatId = tileState.mSeatOwner->getId();
                 // isBuilding
                 serverNotification->mPacket << false;
                 // seatId
-                serverNotification->mPacket << seatId;
+                serverNotification->mPacket << tileState.mSeatIdOwner;
                 // meshname
                 serverNotification->mPacket << "";
                 // scale
@@ -1179,11 +1176,10 @@ int Seat::readTilesVisualInitialStates(TileVisual tileVisual, std::istream& is)
 
         int seatId;
         OD_ASSERT_TRUE(is >> seatId);
-        Seat* seatOwner = mGameMap->getSeatById(seatId);
 
         TileStateNotified& tileState = mTilesStateLoaded[tilecoords];
         tileState.mTileVisual = tileVisual;
-        tileState.mSeatOwner = seatOwner;
+        tileState.mSeatIdOwner = seatId;
     }
 
     return 1;
@@ -1344,11 +1340,7 @@ void Seat::exportTilesVisualInitialStates(TileVisual tileVisual, std::ostream& o
             if(tileState.mTileVisual != tileVisual)
                 continue;
 
-            int seatId = -1;
-            if(tileState.mSeatOwner != nullptr)
-                seatId = tileState.mSeatOwner->getId();
-
-            os << xxx << "\t" << yyy << "\t" << seatId << std::endl;
+            os << xxx << "\t" << yyy << "\t" << tileState.mSeatIdOwner << std::endl;
         }
     }
 
@@ -1630,7 +1622,11 @@ void Seat::tileNotifiedToPlayer(Tile* tile)
     OD_ASSERT_TRUE_MSG(tile->getY() < static_cast<int>(mTilesStates[tile->getX()].size()), "Tile=" + Tile::displayAsString(tile));
 
     TileStateNotified& tileState = mTilesStates[tile->getX()][tile->getY()];
-    tileState.mSeatOwner = tile->getSeat();
+    if(tile->getSeat() != nullptr)
+        tileState.mSeatIdOwner = tile->getSeat()->getId();
+    else
+        tileState.mSeatIdOwner = -1;
+
     tileState.mTileVisual = tile->getTileVisual();
 }
 
@@ -1671,7 +1667,8 @@ bool Seat::isTileDiggableForClient(Tile* tile) const
     OD_ASSERT_TRUE_MSG(tileState.mTileVisual == TileVisual::claimedFull, "mTileVisual=" + Tile::tileVisualToString(tileState.mTileVisual));
 
     // It is claimed. If it is by the given seat team, it can be dug
-    if(!canOwnedTileBeClaimedBy(tileState.mSeatOwner))
+    Seat* seat = mGameMap->getSeatById(tileState.mSeatIdOwner);
+    if(!canOwnedTileBeClaimedBy(seat))
         return true;
 
     return false;
