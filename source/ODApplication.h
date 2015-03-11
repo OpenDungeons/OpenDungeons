@@ -37,8 +37,6 @@ public:
     //! \brief Display a GUI error message
     static void displayErrorMessage(const std::string& message, LogManager& logger);
 
-    static const double DEFAULT_FRAMES_PER_SECOND;
-    static double MAX_FRAMES_PER_SECOND;
     static double turnsPerSecond;
     static const std::string VERSION;
     static const std::string VERSIONSTRING;

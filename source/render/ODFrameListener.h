@@ -29,7 +29,6 @@
 #include <OgreWindowEventUtilities.h>
 #include <OgreSingleton.h>
 #include <OgreSceneQuery.h>
-#include <OgreTimer.h>
 #include <CEGUI/EventArgs.h>
 
 //Use this define to signify OIS will be used as a DLL
@@ -39,6 +38,7 @@
 
 #include <deque>
 #include <memory>
+#include <SFML/System/Clock.hpp>
 
 class ChatMessage;
 class GameMap;
@@ -152,6 +152,18 @@ public:
         return &mCameraManager;
     }
 
+    //! \brief Set max framerate
+    inline void setMaxFPS(sf::Int32 fps)
+    {
+        mFrameDelay = 1000 / fps;
+    }
+
+    inline sf::Int32 getMaxFPS()
+    {
+
+        return mFrameDelay / 1000;
+    }
+
 private:
     //! \brief Tells whether the frame listener is initialized.
     bool mInitialized;
@@ -174,8 +186,6 @@ private:
     //! \brief Reference to the Ogre ray scene query handler. Don't delete it.
     Ogre::RaySceneQuery* mRaySceneQuery;
 
-    Ogre::Timer          mStatsDisplayTimer;
-
     //! \brief To see if the frameListener wants to exit
     bool mExitRequested;
 
@@ -187,6 +197,12 @@ private:
     //! \brief The chat string for the local player
     std::string mChatString;
     bool mIsChatInputMode;
+
+    //! \brief Clock to keep track of frame time
+    sf::Clock mFpsClock;
+    //! \brief The current minimum frame time.
+    //! If less time elapes between frames, sleep.
+    sf::Int32 mFrameDelay;
 
     //! \brief Actually exit application
     void exitApplication();

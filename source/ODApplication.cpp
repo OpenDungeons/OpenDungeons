@@ -167,8 +167,6 @@ void ODApplication::displayErrorMessage(const std::string& message, LogManager& 
 }
 
 //TODO: find some better places for some of these
-const double ODApplication::DEFAULT_FRAMES_PER_SECOND = 60.0;
-double ODApplication::MAX_FRAMES_PER_SECOND = DEFAULT_FRAMES_PER_SECOND;
 double ODApplication::turnsPerSecond = 1.4;
 #ifdef OD_VERSION
 const std::string ODApplication::VERSION = OD_VERSION;

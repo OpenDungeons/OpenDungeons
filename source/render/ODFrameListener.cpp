@@ -64,6 +64,13 @@ template<> ODFrameListener* Ogre::Singleton<ODFrameListener>::msSingleton = null
 #define snprintf_is_banned_in_OD_code _snprintf
 #endif
 
+namespace
+{
+    const sf::Int32 DEFAULT_FRAME_RATE = 60;
+    //! \brief Default frame delay in milliseconds, computed from default frame rate;
+    const sf::Int32 DEFAULT_FRAME_DELAY = 1000 / DEFAULT_FRAME_RATE;
+}
+
 /*! \brief This constructor is where the OGRE rendering system is initialized and started.
  *
  * The primary function of this routine is to initialize variables, and start
@@ -84,7 +91,8 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::Overlay
     mRaySceneQuery(nullptr),
     mExitRequested(false),
     mCameraManager(mRenderManager->getSceneManager(), mGameMap.get(), renderWindow),
-    mIsChatInputMode(false)
+    mIsChatInputMode(false),
+    mFrameDelay(DEFAULT_FRAME_DELAY)
 {
     LogManager* logManager = LogManager::getSingletonPtr();
     logManager->logMessage("Creating frame listener...", Ogre::LML_NORMAL);
@@ -169,18 +177,16 @@ bool ODFrameListener::frameRenderingQueued(const Ogre::FrameEvent& evt)
     if (mWindow->isClosed())
         return false;
 
+    // Sleep to limit the framerate to the max value
+    sf::Int32 delay = mFpsClock.getElapsedTime().asMilliseconds();
+    if (delay < mFrameDelay)
+    {
+        boost::this_thread::sleep_for(boost::chrono::duration<sf::Int32, boost::milli>(mFrameDelay - delay));
+    }
+    mFpsClock.restart();
+
     CEGUI::System::getSingleton().injectTimePulse(evt.timeSinceLastFrame);
     CEGUI::System::getSingleton().getDefaultGUIContext().injectTimePulse(evt.timeSinceLastFrame);
-
-    // Sleep to limit the framerate to the max value
-    // Note: This 2.0 should be a 1.0 but this gives the correct result.
-    // As sleep functions can't be too accurate themselves (as they do take time to compute after all)
-    // Thus, giving some free time to them helps getting the correct behaviour...
-    double frameDelay = (2.0 / ODApplication::MAX_FRAMES_PER_SECOND) - evt.timeSinceLastFrame;
-    if (frameDelay > 0.0)
-    {
-        boost::this_thread::sleep_for(boost::chrono::duration<double>(frameDelay));
-    }
 
     mModeManager->update(evt);
 
