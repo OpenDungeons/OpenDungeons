@@ -166,7 +166,7 @@ Creature* Room::getCreatureUsingRoom(unsigned index)
 
 std::string Room::getRoomStreamFormat()
 {
-    return "typeRoom\tseatId\tnumTiles\t\tSubsequent Lines: tileX\ttileY";
+    return "typeRoom\tname\tseatId\tnumTiles\t\tSubsequent Lines: tileX\ttileY";
 }
 
 void Room::doUpkeep()
@@ -761,9 +761,10 @@ void Room::importFromPacket(ODPacket& is)
 
 void Room::exportToStream(std::ostream& os) const
 {
+    const std::string& name = getName();
     int seatId = getSeat()->getId();
     int nbTiles = mCoveredTiles.size();
-    os << seatId << "\t" << nbTiles << "\n";
+    os << name << "\t" << seatId << "\t" << nbTiles << "\n";
     for (Tile* tile : mCoveredTiles)
     {
         os << tile->getX() << "\t" << tile->getY() << "\n";
@@ -772,6 +773,10 @@ void Room::exportToStream(std::ostream& os) const
 
 void Room::importFromStream(std::istream& is)
 {
+    std::string name;
+    OD_ASSERT_TRUE(is >> name);
+    setName(name);
+
     int tilesToLoad, tempX, tempY;
     int tempInt = 0;
     OD_ASSERT_TRUE(is >> tempInt);

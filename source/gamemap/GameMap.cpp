@@ -906,8 +906,6 @@ void GameMap::createAllEntities()
     }
 
     // Create OGRE entities for rendered entities
-    // Note that RenderedMovableEntity should be created before rooms and traps
-    // because they might create new ones (building objects).
     for (RenderedMovableEntity* rendered : mRenderedMovableEntities)
     {
         rendered->createMesh();
@@ -934,7 +932,6 @@ void GameMap::createAllEntities()
     for (Room* room : mRooms)
     {
         room->createMesh();
-        room->updateActiveSpots();
         entities.push_back(room);
     }
 
@@ -942,7 +939,6 @@ void GameMap::createAllEntities()
     for (Trap* trap : mTraps)
     {
         trap->createMesh();
-        trap->updateActiveSpots();
         entities.push_back(trap);
     }
 
@@ -960,6 +956,17 @@ void GameMap::createAllEntities()
         entity->restoreInitialEntityState();
     }
 
+    // Then, we can create active spots
+    // Note that this have to be done after restoring entities states because some
+    // restored might be active spots
+    for (Room* room : mRooms)
+    {
+        room->updateActiveSpots();
+    }
+    for (Trap* trap : mTraps)
+    {
+        trap->updateActiveSpots();
+    }
     LogManager::getSingleton().logMessage("entities created");
 }
 

@@ -277,7 +277,6 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         if(tempRoom == nullptr)
             return false;
 
-        tempRoom->setName(gameMap.nextUniqueNameRoom(tempRoom->getMeshName()));
         tempRoom->addToGameMap();
 
         levelFile >> nextParam;
@@ -311,7 +310,6 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         if(tempTrap == nullptr)
             return false;
 
-        tempTrap->setName(gameMap.nextUniqueNameTrap(tempTrap->getMeshName()));
         tempTrap->addToGameMap();
 
         levelFile >> nextParam;

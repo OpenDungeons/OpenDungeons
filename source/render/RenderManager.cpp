@@ -659,10 +659,10 @@ void RenderManager::rrDestroyMapLight(MapLight* curMapLight)
 void RenderManager::rrDestroyMapLightVisualIndicator(MapLight* curMapLight)
 {
     std::string mapLightName = curMapLight->getOgreNamePrefix() + curMapLight->getName();
-    if (mSceneManager->hasLight(mapLightName))
+    if (mSceneManager->hasLight(mapLightName + "_light"))
     {
         Ogre::SceneNode* mapLightNode = mSceneManager->getSceneNode(mapLightName + "_node");
-        std::string mapLightIndicatorName = mapLightName + "_indicator";
+        std::string mapLightIndicatorName = mapLightName;
         if (mSceneManager->hasEntity(mapLightIndicatorName))
         {
             Ogre::Entity* mapLightIndicatorEntity = mSceneManager->getEntity(mapLightIndicatorName);
