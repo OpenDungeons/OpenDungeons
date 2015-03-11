@@ -39,7 +39,7 @@ enum class ClientNotificationType
     // Notification in game
     askEntityPickUp,
     askHandDrop,
-    askMarkTile,
+    askMarkTiles,
     askBuildRoom,
     askSellRoomTiles,
     askBuildTrap,

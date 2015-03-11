@@ -2362,24 +2362,6 @@ void GameMap::refreshBorderingTilesOf(const std::vector<Tile*>& affectedTiles)
         tile->refreshMesh();
 }
 
-std::vector<Tile*> GameMap::getDiggableTilesForPlayerInArea(int x1, int y1, int x2, int y2,
-    Player* player)
-{
-    std::vector<Tile*> tiles = rectangularRegion(x1, y1, x2, y2);
-    std::vector<Tile*>::iterator it = tiles.begin();
-    while (it != tiles.end())
-    {
-        Tile* tile = *it;
-        if (!tile->isDiggable(player->getSeat()))
-        {
-            it = tiles.erase(it);
-        }
-        else
-            ++it;
-    }
-    return tiles;
-}
-
 std::vector<Tile*> GameMap::getBuildableTilesForPlayerInArea(int x1, int y1, int x2, int y2,
     Player* player)
 {
@@ -2396,15 +2378,6 @@ std::vector<Tile*> GameMap::getBuildableTilesForPlayerInArea(int x1, int y1, int
         ++it;
     }
     return tiles;
-}
-
-void GameMap::markTilesForPlayer(std::vector<Tile*>& tiles, bool isDigSet, Player* player)
-{
-    for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
-    {
-        Tile* tile = *it;
-        tile->setMarkedForDigging(isDigSet, player);
-    }
 }
 
 std::string GameMap::getGoalsStringForPlayer(Player* player)

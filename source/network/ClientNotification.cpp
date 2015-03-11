@@ -46,8 +46,8 @@ std::string ClientNotification::typeString(ClientNotificationType type)
             return "askEntityPickUp";
         case ClientNotificationType::askHandDrop:
             return "askHandDrop";
-        case ClientNotificationType::askMarkTile:
-            return "askMarkTile";
+        case ClientNotificationType::askMarkTiles:
+            return "askMarkTiles";
         case ClientNotificationType::askBuildRoom:
             return "askBuildRoom";
         case ClientNotificationType::askSellRoomTiles:

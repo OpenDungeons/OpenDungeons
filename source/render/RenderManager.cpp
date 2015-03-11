@@ -193,8 +193,7 @@ void RenderManager::updateRenderAnimations(Ogre::Real timeSinceLastFrame)
 void RenderManager::rrRefreshTile(const Tile* curTile, const Player* localPlayer)
 {
     std::string tileName = curTile->getOgreNamePrefix() + curTile->getName();
-
-    if (!mSceneManager->hasSceneNode(tileName + "_node"))
+    if (curTile->getEntityNode() == nullptr)
         return;
 
     Ogre::Vector3 scale;
@@ -282,51 +281,34 @@ void RenderManager::rrRefreshTile(const Tile* curTile, const Player* localPlayer
         // the tile
         seatColorize = curTile->getSeat();
     }
-    bool vision = static_cast<int>(curTile->getFullness()) == 0 ? curTile->getLocalPlayerHasVision() : true;
+
+    // We only mark vision on ground tiles (except lava and water)
+    bool vision = true;
+    switch(curTile->getTileVisual())
+    {
+        case TileVisual::claimedGround:
+        case TileVisual::dirtGround:
+        case TileVisual::goldGround:
+        case TileVisual::rockGround:
+            vision = curTile->getLocalPlayerHasVision();
+            break;
+        default:
+            break;
+    }
+
     bool isMarked = curTile->getMarkedForDigging(localPlayer);
     colourizeEntity(ent, seatColorize, isMarked, vision);
 }
 
-
 void RenderManager::rrCreateTile(Tile* curTile, Player* localPlayer)
 {
-    const TileSetValue& tileSetValue = curTile->getGameMap()->getMeshForTile(curTile);
-    Ogre::Entity* ent = mSceneManager->createEntity(curTile->getOgreNamePrefix() + curTile->getName(), tileSetValue.getMeshName());
-
-    if(!tileSetValue.getMaterialName().empty())
-        ent->setMaterialName(tileSetValue.getMaterialName());
-
-    colourizeEntity(ent, nullptr, false, true);
-    Ogre::SceneNode* node = mSceneManager->getRootSceneNode()->createChildSceneNode(curTile->getOgreNamePrefix() + curTile->getName() + "_node");
-    curTile->setParentSceneNode(node->getParentSceneNode());
-
-    Ogre::MeshPtr meshPtr = ent->getMesh();
-    unsigned short src, dest;
-    if (!meshPtr->suggestTangentVectorBuildParams(Ogre::VES_TANGENT, src, dest))
-    {
-        meshPtr->buildTangentVectors(Ogre::VES_TANGENT, src, dest);
-    }
-
-    node->setPosition(static_cast<Ogre::Real>(curTile->getX()), static_cast<Ogre::Real>(curTile->getY()), 0);
-
-    node->attachObject(ent);
+    std::string tileName = curTile->getOgreNamePrefix() + curTile->getName();
+    Ogre::SceneNode* node = mSceneManager->getRootSceneNode()->createChildSceneNode(tileName + "_node");
     curTile->setParentSceneNode(node->getParentSceneNode());
     curTile->setEntityNode(node);
+    node->setPosition(static_cast<Ogre::Real>(curTile->getX()), static_cast<Ogre::Real>(curTile->getY()), 0);
 
-    node->setScale(curTile->getGameMap()->getTileSetScale());
-    node->resetOrientation();
-    Ogre::Quaternion q;
-    if(tileSetValue.getRotationX() != 0.0)
-        q = q * Ogre::Quaternion(Ogre::Degree(tileSetValue.getRotationX()), Ogre::Vector3::UNIT_X);
-
-    if(tileSetValue.getRotationY() != 0.0)
-        q = q * Ogre::Quaternion(Ogre::Degree(tileSetValue.getRotationY()), Ogre::Vector3::UNIT_Y);
-
-    if(tileSetValue.getRotationZ() != 0.0)
-        q = q * Ogre::Quaternion(Ogre::Degree(tileSetValue.getRotationZ()), Ogre::Vector3::UNIT_Z);
-
-    if(q != Ogre::Quaternion::IDENTITY)
-        node->rotate(q);
+    rrRefreshTile(curTile, localPlayer);
 }
 
 void RenderManager::rrDestroyTile(Tile* curTile)

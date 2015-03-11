@@ -49,6 +49,7 @@ public:
 
     TileVisual mTileVisual;
     Seat* mSeatOwner;
+    bool mMarkedForDigging;
     bool mVisionTurnLast;
     bool mVisionTurnCurrent;
 };
@@ -203,11 +204,11 @@ public:
     bool isAlliedSeat(Seat *seat);
 
     //! \brief Checks if the seat is allowed to do corresponding action
-    bool canOwnedCreatureBePickedUpBy(Seat* seat);
-    bool canOwnedTileBeClaimedBy(Seat* seat);
-    bool canOwnedCreatureUseRoomFrom(Seat* seat);
-    bool canRoomBeDestroyedBy(Seat* seat);
-    bool canTrapBeDestroyedBy(Seat* seat);
+    bool canOwnedCreatureBePickedUpBy(const Seat* seat) const;
+    bool canOwnedTileBeClaimedBy(const Seat* seat) const;
+    bool canOwnedCreatureUseRoomFrom(const Seat* seat) const;
+    bool canRoomBeDestroyedBy(const Seat* seat) const;
+    bool canTrapBeDestroyedBy(const Seat* seat) const;
 
     void clearTilesWithVision();
     void notifyVisionOnTile(Tile* tile);
@@ -288,6 +289,17 @@ public:
     //! Called when a tile is notified to the seat player. That allows to save the state
     //! Used on server side only
     void tileNotifiedToPlayer(Tile* tile);
+
+    //! Called when a tile is marked and notified to a player. That allows to save the state
+    //! Note that the tile is marked depending on what the player knows about it, not
+    //! on its real state.
+    //! Used on server side only
+    void tileMarkedDiggingNotifiedToPlayer(Tile* tile, bool isDigSet);
+
+    //! \brief Tells whether the tile is diggable by dig-capable creatures. It relies
+    //! on the tile state the client knows, not on the real tile state
+    //! Called on server side only
+    bool isTileDiggableForClient(Tile* tile) const;
 
     static bool sortForMapSave(Seat* s1, Seat* s2);
 

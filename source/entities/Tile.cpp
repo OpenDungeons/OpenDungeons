@@ -166,6 +166,7 @@ bool Tile::isDiggable(Seat* seat) const
         case TileVisual::rockFull:
             return false;
         case TileVisual::goldFull:
+        case TileVisual::dirtFull:
             return true;
         default:
             break;

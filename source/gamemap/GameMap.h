@@ -423,11 +423,8 @@ public:
     //! \brief Refresh the tiles borders based a recent change on the map
     void refreshBorderingTilesOf(const std::vector<Tile*>& affectedTiles);
 
-    std::vector<Tile*> getDiggableTilesForPlayerInArea(int x1, int y1, int x2, int y2,
-        Player* player);
     std::vector<Tile*> getBuildableTilesForPlayerInArea(int x1, int y1, int x2, int y2,
         Player* player);
-    void markTilesForPlayer(std::vector<Tile*>& tiles, bool isDigSet, Player* player);
 
     int addGoldToSeat(int gold, int seatId);
 

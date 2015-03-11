@@ -784,24 +784,12 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         case Player::SelectedAction::selectTile:
         {
             ClientNotification *clientNotification = new ClientNotification(
-                ClientNotificationType::askMarkTile);
+                ClientNotificationType::askMarkTiles);
             clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
             clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
             clientNotification->mPacket << mDigSetBool;
             ODClient::getSingleton().queueClientNotification(clientNotification);
             mGameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::none);
-
-            // We mark the selected tiles
-            std::vector<Tile*> tiles = mGameMap->getDiggableTilesForPlayerInArea(inputManager->mXPos,
-                inputManager->mYPos, inputManager->mLStartDragX, inputManager->mLStartDragY,
-                mGameMap->getLocalPlayer());
-            if(!tiles.empty())
-            {
-                mGameMap->markTilesForPlayer(tiles, mDigSetBool, mGameMap->getLocalPlayer());
-                SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::DIGSELECT);
-                for(Tile* tile : tiles)
-                    tile->refreshMesh();
-            }
             break;
         }
         case Player::SelectedAction::buildRoom:
