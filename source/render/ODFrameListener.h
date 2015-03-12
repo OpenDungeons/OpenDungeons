@@ -24,6 +24,7 @@
 #define __ODFRAMELISTENER_H__
 
 #include "camera/CameraManager.h"
+#include "utils/FrameRateLimiter.h"
 
 #include <OgreFrameListener.h>
 #include <OgreWindowEventUtilities.h>
@@ -38,7 +39,6 @@
 
 #include <deque>
 #include <memory>
-#include <SFML/System/Clock.hpp>
 
 class ChatMessage;
 class GameMap;
@@ -153,15 +153,14 @@ public:
     }
 
     //! \brief Set max framerate
-    inline void setMaxFPS(sf::Int32 fps)
+    inline void setMaxFPS(unsigned int fps)
     {
-        mFrameDelay = 1000 / fps;
+        mFpsLimiter.setFrameRate(fps);
     }
 
-    inline sf::Int32 getMaxFPS()
+    inline unsigned int getMaxFPS()
     {
-
-        return mFrameDelay / 1000;
+        return mFpsLimiter.getFrameRate();
     }
 
 private:
@@ -198,11 +197,7 @@ private:
     std::string mChatString;
     bool mIsChatInputMode;
 
-    //! \brief Clock to keep track of frame time
-    sf::Clock mFpsClock;
-    //! \brief The current minimum frame time.
-    //! If less time elapes between frames, sleep.
-    sf::Int32 mFrameDelay;
+    FrameRateLimiter mFpsLimiter;
 
     //! \brief Actually exit application
     void exitApplication();

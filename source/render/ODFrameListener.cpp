@@ -22,14 +22,12 @@
 
 #include "render/ODFrameListener.h"
 
-#include "ODApplication.h"
 #include "game/Player.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "modes/AbstractApplicationMode.h"
 #include "modes/ModeManager.h"
 #include "network/ODServer.h"
-#include "network/ServerNotification.h"
 #include "network/ODClient.h"
 #include "network/ChatMessage.h"
 #include "render/Gui.h"
@@ -39,19 +37,15 @@
 #include "utils/LogManager.h"
 #include "utils/MakeUnique.h"
 
-#include <OgreLogManager.h>
 #include <OgreRenderWindow.h>
 #include <OgreSceneManager.h>
 #include <Overlay/OgreOverlaySystem.h>
-#include <CEGUI/WindowManager.h>
 #include <CEGUI/EventArgs.h>
 #include <CEGUI/Window.h>
 #include <CEGUI/Size.h>
 #include <CEGUI/System.h>
-#include <CEGUI/MouseCursor.h>
 
 #include <boost/locale.hpp>
-#include <boost/thread.hpp>
 
 #include <algorithm>
 #include <cstdlib>
@@ -66,9 +60,7 @@ template<> ODFrameListener* Ogre::Singleton<ODFrameListener>::msSingleton = null
 
 namespace
 {
-    const sf::Int32 DEFAULT_FRAME_RATE = 60;
-    //! \brief Default frame delay in milliseconds, computed from default frame rate;
-    const sf::Int32 DEFAULT_FRAME_DELAY = 1000 / DEFAULT_FRAME_RATE;
+    constexpr const sf::Int64 DEFAULT_FRAME_RATE = 60;
 }
 
 /*! \brief This constructor is where the OGRE rendering system is initialized and started.
@@ -92,7 +84,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::Overlay
     mExitRequested(false),
     mCameraManager(mRenderManager->getSceneManager(), mGameMap.get(), renderWindow),
     mIsChatInputMode(false),
-    mFrameDelay(DEFAULT_FRAME_DELAY)
+    mFpsLimiter(DEFAULT_FRAME_RATE)
 {
     LogManager* logManager = LogManager::getSingletonPtr();
     logManager->logMessage("Creating frame listener...", Ogre::LML_NORMAL);
@@ -178,12 +170,7 @@ bool ODFrameListener::frameRenderingQueued(const Ogre::FrameEvent& evt)
         return false;
 
     // Sleep to limit the framerate to the max value
-    sf::Int32 delay = mFpsClock.getElapsedTime().asMilliseconds();
-    if (delay < mFrameDelay)
-    {
-        boost::this_thread::sleep_for(boost::chrono::duration<sf::Int32, boost::milli>(mFrameDelay - delay));
-    }
-    mFpsClock.restart();
+    mFpsLimiter.sleepIfEarly();
 
     CEGUI::System::getSingleton().injectTimePulse(evt.timeSinceLastFrame);
     CEGUI::System::getSingleton().getDefaultGUIContext().injectTimePulse(evt.timeSinceLastFrame);
