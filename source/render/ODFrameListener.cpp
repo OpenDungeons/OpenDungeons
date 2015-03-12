@@ -60,7 +60,7 @@ template<> ODFrameListener* Ogre::Singleton<ODFrameListener>::msSingleton = null
 
 namespace
 {
-    constexpr const sf::Int64 DEFAULT_FRAME_RATE = 60;
+    constexpr const unsigned int DEFAULT_FRAME_RATE = 60;
 }
 
 /*! \brief This constructor is where the OGRE rendering system is initialized and started.

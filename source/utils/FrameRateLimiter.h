@@ -27,8 +27,8 @@ public:
     FrameRateLimiter(sf::Int64 frameRate);
     //! \brief Sleep if there is time left since last time the function was called.
     void sleepIfEarly();
-    sf::Int64 getFrameRate();
-    void setFrameRate(sf::Int64 frameRate);
+    unsigned int getFrameRate();
+    void setFrameRate(unsigned int frameRate);
 private:
     sf::Int64 mMinFrameTime;
     sf::Clock mClock;

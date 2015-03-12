@@ -52,12 +52,12 @@ void FrameRateLimiter::sleepIfEarly()
     mClock.restart();
 }
 
-sf::Int64 FrameRateLimiter::getFrameRate()
+unsigned int FrameRateLimiter::getFrameRate()
 {
     return toFrameRate(mMinFrameTime);
 }
 
-void FrameRateLimiter::setFrameRate(sf::Int64 frameRate)
+void FrameRateLimiter::setFrameRate(unsigned int frameRate)
 {
     mMinFrameTime = fromFrameRate(frameRate);
 }
