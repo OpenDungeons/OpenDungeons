@@ -52,9 +52,9 @@ const std::string HELPMESSAGE =
         "\n\tlogfloodfill - Displays the FloodFillValues of all the Tiles in the GameMap.";
 
 //! \brief Template function to get/set a variable from the ODFrameListener object
-template<typename ValType>
-Command::Result cSetFrameListenerVar(std::function<ValType(ODFrameListener&)> getter,
-                        std::function<void(ODFrameListener&, ValType)> setter,
+template<typename ValType, typename Getter, typename Setter>
+Command::Result cSetFrameListenerVar(Getter getter,
+                        Setter setter,
                         ODFrameListener& fl,
                         const std::string& name,
                         const Command::ArgumentList_t& args, ConsoleInterface& c)
@@ -105,13 +105,13 @@ Command::Result cFPS(const Command::ArgumentList_t& args, ConsoleInterface& c, A
     if(args.size() < 2)
     {
         c.print("\nCurrent maximum framerate is "
-                + Helper::toString(ODApplication::MAX_FRAMES_PER_SECOND)
+                + Helper::toString(ODFrameListener::getSingleton().getMaxFPS())
                 + "\n");
     }
     else if(args.size() >= 2)
     {
-        float fps = Helper::toFloat(args[1]);
-        ODApplication::MAX_FRAMES_PER_SECOND = fps;
+        int fps = Helper::toInt(args[1]);
+        ODFrameListener::getSingleton().setMaxFPS(fps);
         c.print("\nMaximum framerate set to: " + Helper::toString(fps));
     }
     return Command::Result::SUCCESS;

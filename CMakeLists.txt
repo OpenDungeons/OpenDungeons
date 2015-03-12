@@ -345,9 +345,9 @@ set(OD_SOURCEFILES
     ${SRC}/traps/TrapSpike.cpp
 
     ${SRC}/utils/ConfigManager.cpp
+    ${SRC}/utils/FrameRateLimiter.cpp
     ${SRC}/utils/Helper.cpp
     ${SRC}/utils/LogManager.cpp
-    ${SRC}/utils/RadialVector2.cpp
     ${SRC}/utils/Random.cpp
     ${SRC}/utils/ResourceManager.cpp
     ${SRC}/utils/StackTracePrint.cpp

@@ -943,7 +943,7 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
         break;
 
     case OIS::KC_LMENU:
-        RenderManager::getSingleton().rrSetCreaturesTextOverlay(true);
+        RenderManager::getSingleton().rrSetCreaturesTextOverlay(*mGameMap, true);
         break;
 
     // Zooms to the next event
@@ -1080,7 +1080,7 @@ bool GameMode::keyReleasedNormal(const OIS::KeyEvent &arg)
         break;
 
     case OIS::KC_LMENU:
-        RenderManager::getSingleton().rrSetCreaturesTextOverlay(false);
+        RenderManager::getSingleton().rrSetCreaturesTextOverlay(*mGameMap, false);
         break;
 
     default:

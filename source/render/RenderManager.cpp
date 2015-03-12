@@ -31,7 +31,6 @@
 #include "entities/Weapon.h"
 #include "game/Player.h"
 #include "render/CreatureOverlayStatus.h"
-#include "render/ODFrameListener.h"
 #include "utils/ResourceManager.h"
 #include "game/Seat.h"
 #include "entities/MovableGameEntity.h"
@@ -482,8 +481,6 @@ void RenderManager::rrCreateCreature(Creature* curCreature)
         meshPtr->buildTangentVectors(Ogre::VES_TANGENT, src, dest);
     }
 
-    //Disabled temporarily for normal-mapping
-    //colourizeEntity(ent, curCreature->color);
     Ogre::SceneNode* node = mCreatureSceneNode->createChildSceneNode(creatureName + "_node");
     curCreature->setEntityNode(node);
     node->setPosition(curCreature->getPosition());
@@ -1002,11 +999,10 @@ void RenderManager::rrReleaseCarriedEntity(Creature* carrier, GameEntity* carrie
     carriedNode->setInheritScale(true);
 }
 
-void RenderManager::rrSetCreaturesTextOverlay(bool value)
+void RenderManager::rrSetCreaturesTextOverlay(GameMap& gameMap, bool value)
 {
     mCreatureTextOverlayDisplayed = value;
-    const GameMap* clientGameMap = ODFrameListener::getSingleton().getClientGameMap();
-    for(Creature* creature : clientGameMap->getCreatures())
+    for(Creature* creature : gameMap.getCreatures())
         creature->getOverlayStatus()->setDisplay(mCreatureTextOverlayDisplayed);
 }
 

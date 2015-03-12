@@ -24,12 +24,12 @@
 #define __ODFRAMELISTENER_H__
 
 #include "camera/CameraManager.h"
+#include "utils/FrameRateLimiter.h"
 
 #include <OgreFrameListener.h>
 #include <OgreWindowEventUtilities.h>
 #include <OgreSingleton.h>
 #include <OgreSceneQuery.h>
-#include <OgreTimer.h>
 #include <CEGUI/EventArgs.h>
 
 //Use this define to signify OIS will be used as a DLL
@@ -152,6 +152,17 @@ public:
         return &mCameraManager;
     }
 
+    //! \brief Set max framerate
+    inline void setMaxFPS(unsigned int fps)
+    {
+        mFpsLimiter.setFrameRate(fps);
+    }
+
+    inline unsigned int getMaxFPS()
+    {
+        return mFpsLimiter.getFrameRate();
+    }
+
 private:
     //! \brief Tells whether the frame listener is initialized.
     bool mInitialized;
@@ -174,8 +185,6 @@ private:
     //! \brief Reference to the Ogre ray scene query handler. Don't delete it.
     Ogre::RaySceneQuery* mRaySceneQuery;
 
-    Ogre::Timer          mStatsDisplayTimer;
-
     //! \brief To see if the frameListener wants to exit
     bool mExitRequested;
 
@@ -187,6 +196,8 @@ private:
     //! \brief The chat string for the local player
     std::string mChatString;
     bool mIsChatInputMode;
+
+    FrameRateLimiter mFpsLimiter;
 
     //! \brief Actually exit application
     void exitApplication();

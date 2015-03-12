@@ -116,7 +116,7 @@ public:
     void rrReleaseCarriedEntity(Creature* carrier, GameEntity* carried);
 
     //! \brief Toggles the creatures text overlay
-    void rrSetCreaturesTextOverlay(bool value);
+    void rrSetCreaturesTextOverlay(GameMap& gameMap, bool value);
 
     //! \brief Toggles the creatures text overlay
     void rrTemporaryDisplayCreaturesTextOverlay(Creature* creature, Ogre::Real timeToDisplay);

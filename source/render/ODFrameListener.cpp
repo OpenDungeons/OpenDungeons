@@ -22,14 +22,12 @@
 
 #include "render/ODFrameListener.h"
 
-#include "ODApplication.h"
 #include "game/Player.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "modes/AbstractApplicationMode.h"
 #include "modes/ModeManager.h"
 #include "network/ODServer.h"
-#include "network/ServerNotification.h"
 #include "network/ODClient.h"
 #include "network/ChatMessage.h"
 #include "render/Gui.h"
@@ -39,19 +37,15 @@
 #include "utils/LogManager.h"
 #include "utils/MakeUnique.h"
 
-#include <OgreLogManager.h>
 #include <OgreRenderWindow.h>
 #include <OgreSceneManager.h>
 #include <Overlay/OgreOverlaySystem.h>
-#include <CEGUI/WindowManager.h>
 #include <CEGUI/EventArgs.h>
 #include <CEGUI/Window.h>
 #include <CEGUI/Size.h>
 #include <CEGUI/System.h>
-#include <CEGUI/MouseCursor.h>
 
 #include <boost/locale.hpp>
-#include <boost/thread.hpp>
 
 #include <algorithm>
 #include <cstdlib>
@@ -63,6 +57,11 @@ template<> ODFrameListener* Ogre::Singleton<ODFrameListener>::msSingleton = null
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define snprintf_is_banned_in_OD_code _snprintf
 #endif
+
+namespace
+{
+    constexpr const unsigned int DEFAULT_FRAME_RATE = 60;
+}
 
 /*! \brief This constructor is where the OGRE rendering system is initialized and started.
  *
@@ -84,7 +83,8 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::Overlay
     mRaySceneQuery(nullptr),
     mExitRequested(false),
     mCameraManager(mRenderManager->getSceneManager(), mGameMap.get(), renderWindow),
-    mIsChatInputMode(false)
+    mIsChatInputMode(false),
+    mFpsLimiter(DEFAULT_FRAME_RATE)
 {
     LogManager* logManager = LogManager::getSingletonPtr();
     logManager->logMessage("Creating frame listener...", Ogre::LML_NORMAL);
@@ -169,18 +169,11 @@ bool ODFrameListener::frameRenderingQueued(const Ogre::FrameEvent& evt)
     if (mWindow->isClosed())
         return false;
 
+    // Sleep to limit the framerate to the max value
+    mFpsLimiter.sleepIfEarly();
+
     CEGUI::System::getSingleton().injectTimePulse(evt.timeSinceLastFrame);
     CEGUI::System::getSingleton().getDefaultGUIContext().injectTimePulse(evt.timeSinceLastFrame);
-
-    // Sleep to limit the framerate to the max value
-    // Note: This 2.0 should be a 1.0 but this gives the correct result.
-    // As sleep functions can't be too accurate themselves (as they do take time to compute after all)
-    // Thus, giving some free time to them helps getting the correct behaviour...
-    double frameDelay = (2.0 / ODApplication::MAX_FRAMES_PER_SECOND) - evt.timeSinceLastFrame;
-    if (frameDelay > 0.0)
-    {
-        boost::this_thread::sleep_for(boost::chrono::duration<double>(frameDelay));
-    }
 
     mModeManager->update(evt);
 

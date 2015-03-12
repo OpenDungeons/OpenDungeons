@@ -20,15 +20,12 @@
 #include "entities/Tile.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
-#include "modes/ModeManager.h"
 #include "network/ODPacket.h"
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
 #include "render/RenderManager.h"
-#include "render/ODFrameListener.h"
-#include "utils/Helper.h"
 #include "utils/LogManager.h"
-#include "utils/Random.h"
+//#include "utils/Random.h"
 
 #include <sstream>
 
@@ -61,9 +58,8 @@ void MapLight::createMeshLocal()
     if(getGameMap()->isServerGameMap())
         return;
 
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
     // Only show the visual light entity if we are in editor mode
-    RenderManager::getSingleton().rrCreateMapLight(this, mm && mm->getCurrentModeType() == ModeManager::EDITOR);
+    RenderManager::getSingleton().rrCreateMapLight(this, getGameMap()->isInEditorMode());
 }
 
 void MapLight::destroyMeshLocal()
