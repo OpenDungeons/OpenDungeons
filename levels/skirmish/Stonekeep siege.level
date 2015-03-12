@@ -3617,9 +3617,9 @@ ProtectDungeonTemple	NULL
 [/Tiles]
 
 [Rooms]
-# typeRoom	seatId	numTiles		Subsequent Lines: tileX	tileY
+# typeRoom	name	seatId	numTiles		Subsequent Lines: tileX	tileY
 [Room]
-1	1	25
+1	DungeonTemple1	1	25
 49	14
 49	15
 49	16
@@ -3647,7 +3647,7 @@ ProtectDungeonTemple	NULL
 53	18
 [/Room]
 [Room]
-4	1	9
+4	Portal2	1	9
 50	1
 50	2
 50	3
@@ -3659,7 +3659,7 @@ ProtectDungeonTemple	NULL
 52	3
 [/Room]
 [Room]
-3	1	9
+3	Treasury3	1	9
 50	20
 50	21
 50	22
@@ -3671,7 +3671,7 @@ ProtectDungeonTemple	NULL
 52	22
 [/Room]
 [Room]
-1	2	25
+1	DungeonTemple4	2	25
 7	55
 7	56
 7	57
@@ -3699,7 +3699,7 @@ ProtectDungeonTemple	NULL
 11	59
 [/Room]
 [Room]
-4	2	9
+4	Portal5	2	9
 8	68
 8	69
 8	70
@@ -3711,7 +3711,7 @@ ProtectDungeonTemple	NULL
 10	70
 [/Room]
 [Room]
-3	2	9
+3	Treasury6	2	9
 13	56
 13	57
 13	58
@@ -3723,7 +3723,7 @@ ProtectDungeonTemple	NULL
 15	58
 [/Room]
 [Room]
-1	3	25
+1	DungeonTemple7	3	25
 91	55
 91	56
 91	57
@@ -3751,7 +3751,7 @@ ProtectDungeonTemple	NULL
 95	59
 [/Room]
 [Room]
-4	3	9
+4	Portal8	3	9
 92	68
 92	69
 92	70
@@ -3763,7 +3763,7 @@ ProtectDungeonTemple	NULL
 94	70
 [/Room]
 [Room]
-3	3	10
+3	Treasury9	3	10
 97	55
 97	56
 97	57
@@ -3776,7 +3776,7 @@ ProtectDungeonTemple	NULL
 98	59
 [/Room]
 [Room]
-6	4	42
+6	Dojo10	4	42
 51	74
 51	75
 51	76
@@ -3821,7 +3821,7 @@ ProtectDungeonTemple	NULL
 57	79
 [/Room]
 [Room]
-2	4	42
+2	Dormitory11	4	42
 41	74
 41	75
 41	76
@@ -3867,7 +3867,7 @@ ProtectDungeonTemple	NULL
 0
 [/Room]
 [Room]
-1	4	25
+1	DungeonTemple12	4	25
 47	94
 47	95
 47	96
@@ -3895,7 +3895,7 @@ ProtectDungeonTemple	NULL
 51	98
 [/Room]
 [Room]
-8	4	25
+8	Farm13	4	25
 43	68
 43	69
 43	70
@@ -3923,7 +3923,7 @@ ProtectDungeonTemple	NULL
 47	72
 [/Room]
 [Room]
-8	4	25
+8	Farm14	4	25
 51	68
 51	69
 51	70
@@ -3951,7 +3951,7 @@ ProtectDungeonTemple	NULL
 55	72
 [/Room]
 [Room]
-5	4	25
+5	Forge15	4	25
 51	81
 51	82
 51	83
@@ -3980,7 +3980,7 @@ ProtectDungeonTemple	NULL
 0	0
 [/Room]
 [Room]
-7	4	25
+7	Library16	4	25
 43	81
 43	82
 43	83
@@ -4008,7 +4008,7 @@ ProtectDungeonTemple	NULL
 47	85
 [/Room]
 [Room]
-4	4	9
+4	Portal17	4	9
 53	96
 53	97
 53	98
@@ -4020,7 +4020,7 @@ ProtectDungeonTemple	NULL
 55	98
 [/Room]
 [Room]
-4	4	9
+4	Portal18	4	9
 43	96
 43	97
 43	98
@@ -4032,7 +4032,7 @@ ProtectDungeonTemple	NULL
 45	98
 [/Room]
 [Room]
-3	4	26
+3	Treasury19	4	26
 43	92
 43	93
 44	92
@@ -4063,61 +4063,61 @@ ProtectDungeonTemple	NULL
 [/Rooms]
 
 [Traps]
-# typeTrap	seatId	numTiles		Subsequent Lines: tileX	tileY	isActivated(0/1)		Subsequent Lines: optional specific data
+# typeTrap	name	seatId	numTiles		Subsequent Lines: tileX	tileY	isActivated(0/1)		Subsequent Lines: optional specific data
 [Trap]
-1	0	1
+1	Cannon_1	0	1
 48	37	1
 [/Trap]
 [Trap]
-1	0	1
+1	Cannon_2	0	1
 50	37	1
 [/Trap]
 [Trap]
-1	0	1
+1	Cannon_3	0	1
 17	16	1
 [/Trap]
 [Trap]
-1	0	1
+1	Cannon_4	0	1
 17	20	1
 [/Trap]
 [Trap]
-1	0	1
+1	Cannon_5	0	1
 46	47	1
 [/Trap]
 [Trap]
-1	0	1
+1	Cannon_6	0	1
 48	47	1
 [/Trap]
 [Trap]
-1	0	1
+1	Cannon_7	0	1
 50	47	1
 [/Trap]
 [Trap]
-1	0	1
+1	Cannon_8	0	1
 52	47	1
 [/Trap]
 [Trap]
-1	0	1
+1	Cannon_9	0	1
 43	66	1
 [/Trap]
 [Trap]
-1	0	1
+1	Cannon_10	0	1
 46	66	1
 [/Trap]
 [Trap]
-1	0	1
+1	Cannon_11	0	1
 48	66	1
 [/Trap]
 [Trap]
-1	0	1
+1	Cannon_12	0	1
 50	66	1
 [/Trap]
 [Trap]
-1	0	1
+1	Cannon_13	0	1
 52	66	1
 [/Trap]
 [Trap]
-1	0	1
+1	Cannon_14	0	1
 55	66	1
 [/Trap]
 [/Traps]

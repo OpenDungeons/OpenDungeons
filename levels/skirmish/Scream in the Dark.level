@@ -4688,9 +4688,9 @@ ProtectDungeonTemple	NULL
 [/Tiles]
 
 [Rooms]
-# typeRoom	seatId	numTiles		Subsequent Lines: tileX	tileY
+# typeRoom	name	seatId	numTiles		Subsequent Lines: tileX	tileY
 [Room]
-1	1	9
+1	DungeonTemple1	1	9
 4	3
 4	4
 4	5
@@ -4702,7 +4702,7 @@ ProtectDungeonTemple	NULL
 6	5
 [/Room]
 [Room]
-4	1	9
+4	Portal2	1	9
 4	18
 5	18
 6	18
@@ -4714,7 +4714,7 @@ ProtectDungeonTemple	NULL
 6	20
 [/Room]
 [Room]
-6	2	20
+6	Dojo3	2	20
 82	18
 82	19
 82	20
@@ -4737,7 +4737,7 @@ ProtectDungeonTemple	NULL
 86	21
 [/Room]
 [Room]
-2	2	18
+2	Dormitory4	2	18
 81	14
 81	15
 81	16
@@ -4759,7 +4759,7 @@ ProtectDungeonTemple	NULL
 0
 [/Room]
 [Room]
-1	2	9
+1	DungeonTemple5	2	9
 92	6
 92	7
 92	8
@@ -4771,7 +4771,7 @@ ProtectDungeonTemple	NULL
 94	8
 [/Room]
 [Room]
-8	2	20
+8	Farm6	2	20
 88	18
 88	19
 88	20
@@ -4794,7 +4794,7 @@ ProtectDungeonTemple	NULL
 91	22
 [/Room]
 [Room]
-4	2	9
+4	Portal7	2	9
 89	13
 90	13
 91	13
@@ -4806,7 +4806,7 @@ ProtectDungeonTemple	NULL
 91	15
 [/Room]
 [Room]
-3	2	16
+3	Treasury8	2	16
 91	5
 91	6
 91	7
@@ -4825,7 +4825,7 @@ ProtectDungeonTemple	NULL
 95	9
 [/Room]
 [Room]
-6	3	40
+6	Dojo9	3	40
 20	88
 20	89
 20	90
@@ -4868,7 +4868,7 @@ ProtectDungeonTemple	NULL
 24	95
 [/Room]
 [Room]
-2	3	20
+2	Dormitory10	3	20
 10	88
 10	89
 10	90
@@ -4892,7 +4892,7 @@ ProtectDungeonTemple	NULL
 0
 [/Room]
 [Room]
-1	3	9
+1	DungeonTemple11	3	9
 5	92
 5	93
 5	94
@@ -4904,7 +4904,7 @@ ProtectDungeonTemple	NULL
 7	94
 [/Room]
 [Room]
-8	3	9
+8	Farm12	3	9
 16	88
 16	89
 16	90
@@ -4916,7 +4916,7 @@ ProtectDungeonTemple	NULL
 18	90
 [/Room]
 [Room]
-8	3	12
+8	Farm13	3	12
 16	92
 16	93
 16	94
@@ -4931,7 +4931,7 @@ ProtectDungeonTemple	NULL
 18	95
 [/Room]
 [Room]
-5	3	25
+5	Forge14	3	25
 10	82
 10	83
 10	84
@@ -4960,7 +4960,7 @@ ProtectDungeonTemple	NULL
 0	0
 [/Room]
 [Room]
-7	3	25
+7	Library15	3	25
 16	82
 16	83
 16	84
@@ -4988,7 +4988,7 @@ ProtectDungeonTemple	NULL
 20	86
 [/Room]
 [Room]
-4	3	9
+4	Portal16	3	9
 11	93
 12	93
 13	93
@@ -5000,7 +5000,7 @@ ProtectDungeonTemple	NULL
 13	95
 [/Room]
 [Room]
-3	3	16
+3	Treasury17	3	16
 4	91
 4	92
 4	93
@@ -5019,7 +5019,7 @@ ProtectDungeonTemple	NULL
 8	95
 [/Room]
 [Room]
-6	4	30
+6	Dojo18	4	30
 76	88
 76	89
 76	90
@@ -5052,7 +5052,7 @@ ProtectDungeonTemple	NULL
 80	93
 [/Room]
 [Room]
-2	4	24
+2	Dormitory19	4	24
 82	88
 82	89
 82	90
@@ -5080,7 +5080,7 @@ ProtectDungeonTemple	NULL
 0
 [/Room]
 [Room]
-1	4	9
+1	DungeonTemple20	4	9
 87	88
 87	89
 87	90
@@ -5092,7 +5092,7 @@ ProtectDungeonTemple	NULL
 89	90
 [/Room]
 [Room]
-8	4	39
+8	Farm21	4	39
 82	84
 82	85
 82	86
@@ -5134,7 +5134,7 @@ ProtectDungeonTemple	NULL
 94	86
 [/Room]
 [Room]
-5	4	30
+5	Forge22	4	30
 91	88
 91	89
 91	90
@@ -5168,7 +5168,7 @@ ProtectDungeonTemple	NULL
 0	0
 [/Room]
 [Room]
-4	4	6
+4	Portal23	4	6
 87	92
 88	92
 89	92
@@ -5177,7 +5177,35 @@ ProtectDungeonTemple	NULL
 89	93
 [/Room]
 [Room]
-3	4	8
+3	Treasury30	4	1
+81	92
+[/Room]
+[Room]
+3	Treasury31	4	1
+81	88
+[/Room]
+[Room]
+3	Treasury29	4	1
+92	87
+[/Room]
+[Room]
+3	Treasury28	4	1
+83	87
+[/Room]
+[Room]
+3	Treasury27	4	1
+90	88
+[/Room]
+[Room]
+3	Treasury26	4	1
+88	87
+[/Room]
+[Room]
+3	Treasury25	4	1
+86	88
+[/Room]
+[Room]
+3	Treasury24	4	8
 86	92
 87	91
 87	92
@@ -5188,35 +5216,7 @@ ProtectDungeonTemple	NULL
 90	92
 [/Room]
 [Room]
-3	4	1
-86	88
-[/Room]
-[Room]
-3	4	1
-88	87
-[/Room]
-[Room]
-3	4	1
-90	88
-[/Room]
-[Room]
-3	4	1
-83	87
-[/Room]
-[Room]
-3	4	1
-92	87
-[/Room]
-[Room]
-3	4	1
-81	92
-[/Room]
-[Room]
-3	4	1
-81	88
-[/Room]
-[Room]
-6	5	65
+6	Dojo32	5	65
 38	48
 38	49
 38	50
@@ -5284,7 +5284,7 @@ ProtectDungeonTemple	NULL
 50	52
 [/Room]
 [Room]
-2	5	20
+2	Dormitory33	5	20
 47	54
 47	55
 47	56
@@ -5308,7 +5308,7 @@ ProtectDungeonTemple	NULL
 0
 [/Room]
 [Room]
-1	5	9
+1	DungeonTemple34	5	9
 42	56
 42	57
 42	58
@@ -5320,7 +5320,7 @@ ProtectDungeonTemple	NULL
 44	58
 [/Room]
 [Room]
-8	5	28
+8	Farm35	5	28
 40	60
 40	61
 40	62
@@ -5351,7 +5351,7 @@ ProtectDungeonTemple	NULL
 46	63
 [/Room]
 [Room]
-5	5	20
+5	Forge36	5	20
 48	60
 48	61
 48	62
@@ -5375,7 +5375,7 @@ ProtectDungeonTemple	NULL
 0	0
 [/Room]
 [Room]
-7	5	12
+7	Library37	5	12
 36	60
 36	61
 36	62
@@ -5390,7 +5390,7 @@ ProtectDungeonTemple	NULL
 38	63
 [/Room]
 [Room]
-4	5	9
+4	Portal38	5	9
 42	53
 43	53
 44	53
@@ -5402,7 +5402,7 @@ ProtectDungeonTemple	NULL
 44	55
 [/Room]
 [Room]
-3	5	10
+3	Treasury39	5	10
 38	54
 38	55
 38	56
@@ -5417,7 +5417,7 @@ ProtectDungeonTemple	NULL
 [/Rooms]
 
 [Traps]
-# typeTrap	seatId	numTiles		Subsequent Lines: tileX	tileY	isActivated(0/1)		Subsequent Lines: optional specific data
+# typeTrap	name	seatId	numTiles		Subsequent Lines: tileX	tileY	isActivated(0/1)		Subsequent Lines: optional specific data
 [/Traps]
 
 [Lights]

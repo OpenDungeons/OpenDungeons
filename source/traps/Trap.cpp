@@ -517,7 +517,7 @@ bool Trap::isAttackable(Tile* tile, Seat* seat) const
 
 std::string Trap::getTrapStreamFormat()
 {
-    return "typeTrap\tseatId\tnumTiles\t\tSubsequent Lines: tileX\ttileY\tisActivated(0/1)\t\tSubsequent Lines: optional specific data";
+    return "typeTrap\tname\tseatId\tnumTiles\t\tSubsequent Lines: tileX\ttileY\tisActivated(0/1)\t\tSubsequent Lines: optional specific data";
 }
 
 void Trap::exportHeadersToStream(std::ostream& os)
@@ -569,9 +569,10 @@ void Trap::importFromPacket(ODPacket& is)
 
 void Trap::exportToStream(std::ostream& os) const
 {
+    const std::string& name = getName();
     int32_t nbTiles = mCoveredTiles.size();
     int seatId = getSeat()->getId();
-    os << seatId << "\t" << nbTiles << "\n";
+    os << name << "\t" << seatId << "\t" << nbTiles << "\n";
     for(Tile* tempTile : mCoveredTiles)
     {
         os << tempTile->getX() << "\t" << tempTile->getY() << "\t";
@@ -581,6 +582,10 @@ void Trap::exportToStream(std::ostream& os) const
 
 void Trap::importFromStream(std::istream& is)
 {
+    std::string name;
+    OD_ASSERT_TRUE(is >> name);
+    setName(name);
+
     int tilesToLoad, tempX, tempY, tempInt, tempActiv;
 
     OD_ASSERT_TRUE(is >> tempInt);

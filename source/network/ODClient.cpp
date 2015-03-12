@@ -778,6 +778,29 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
+        case ServerNotificationType::markTiles:
+        {
+            bool digSet;
+            uint32_t nbTiles;
+            OD_ASSERT_TRUE(packetReceived >> digSet >> nbTiles);
+
+            SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::DIGSELECT);
+
+            Player* player = getPlayer();
+            while(nbTiles > 0)
+            {
+                --nbTiles;
+                Tile* tile = gameMap->tileFromPacket(packetReceived);
+                OD_ASSERT_TRUE(tile != nullptr);
+                if(tile == nullptr)
+                    continue;
+
+                tile->setMarkedForDigging(digSet, player);
+                tile->refreshMesh();
+            }
+            break;
+        }
+
         case ServerNotificationType::carryEntity:
         {
             std::string carrierName;

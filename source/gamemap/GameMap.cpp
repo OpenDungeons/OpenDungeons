@@ -906,8 +906,6 @@ void GameMap::createAllEntities()
     }
 
     // Create OGRE entities for rendered entities
-    // Note that RenderedMovableEntity should be created before rooms and traps
-    // because they might create new ones (building objects).
     for (RenderedMovableEntity* rendered : mRenderedMovableEntities)
     {
         rendered->createMesh();
@@ -934,7 +932,6 @@ void GameMap::createAllEntities()
     for (Room* room : mRooms)
     {
         room->createMesh();
-        room->updateActiveSpots();
         entities.push_back(room);
     }
 
@@ -942,7 +939,6 @@ void GameMap::createAllEntities()
     for (Trap* trap : mTraps)
     {
         trap->createMesh();
-        trap->updateActiveSpots();
         entities.push_back(trap);
     }
 
@@ -960,6 +956,17 @@ void GameMap::createAllEntities()
         entity->restoreInitialEntityState();
     }
 
+    // Then, we can create active spots
+    // Note that this have to be done after restoring entities states because some
+    // restored might be active spots
+    for (Room* room : mRooms)
+    {
+        room->updateActiveSpots();
+    }
+    for (Trap* trap : mTraps)
+    {
+        trap->updateActiveSpots();
+    }
     LogManager::getSingleton().logMessage("entities created");
 }
 
@@ -1939,14 +1946,8 @@ void GameMap::removeMapLight(MapLight *m)
     mMapLights.erase(it);
 }
 
-MapLight* GameMap::getMapLight(std::string name) const
+MapLight* GameMap::getMapLight(const std::string& name) const
 {
-    //Translate from indicator to maplight name, this could probably be done in
-    //a better way.
-    if(name.substr(name.length() - 10, name.length()) == "_indicator")
-    {
-        name = name.substr(0, name.length() - 10);
-    }
     for (MapLight* mapLight : mMapLights)
     {
         if (mapLight->getName() == name)
@@ -2361,24 +2362,6 @@ void GameMap::refreshBorderingTilesOf(const std::vector<Tile*>& affectedTiles)
         tile->refreshMesh();
 }
 
-std::vector<Tile*> GameMap::getDiggableTilesForPlayerInArea(int x1, int y1, int x2, int y2,
-    Player* player)
-{
-    std::vector<Tile*> tiles = rectangularRegion(x1, y1, x2, y2);
-    std::vector<Tile*>::iterator it = tiles.begin();
-    while (it != tiles.end())
-    {
-        Tile* tile = *it;
-        if (!tile->isDiggable(player->getSeat()))
-        {
-            it = tiles.erase(it);
-        }
-        else
-            ++it;
-    }
-    return tiles;
-}
-
 std::vector<Tile*> GameMap::getBuildableTilesForPlayerInArea(int x1, int y1, int x2, int y2,
     Player* player)
 {
@@ -2395,15 +2378,6 @@ std::vector<Tile*> GameMap::getBuildableTilesForPlayerInArea(int x1, int y1, int
         ++it;
     }
     return tiles;
-}
-
-void GameMap::markTilesForPlayer(std::vector<Tile*>& tiles, bool isDigSet, Player* player)
-{
-    for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
-    {
-        Tile* tile = *it;
-        tile->setMarkedForDigging(isDigSet, player);
-    }
 }
 
 std::string GameMap::getGoalsStringForPlayer(Player* player)

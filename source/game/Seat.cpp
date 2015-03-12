@@ -43,7 +43,8 @@ const std::string Seat::PLAYER_FACTION_CHOICE = "Choice";
 
 TileStateNotified::TileStateNotified():
     mTileVisual(TileVisual::nullTileVisual),
-    mSeatOwner(nullptr),
+    mSeatIdOwner(-1),
+    mMarkedForDigging(false),
     mVisionTurnLast(false),
     mVisionTurnCurrent(false)
 {
@@ -299,7 +300,7 @@ bool Seat::isAlliedSeat(Seat *seat)
     return getTeamId() == seat->getTeamId();
 }
 
-bool Seat::canOwnedCreatureBePickedUpBy(Seat* seat)
+bool Seat::canOwnedCreatureBePickedUpBy(const Seat* seat) const
 {
     // Note : if we want to allow players to pickup allied creatures, we can do that here.
     if(this == seat)
@@ -308,7 +309,7 @@ bool Seat::canOwnedCreatureBePickedUpBy(Seat* seat)
     return false;
 }
 
-bool Seat::canOwnedTileBeClaimedBy(Seat* seat)
+bool Seat::canOwnedTileBeClaimedBy(const Seat* seat) const
 {
     if(getTeamId() != seat->getTeamId())
         return true;
@@ -316,7 +317,7 @@ bool Seat::canOwnedTileBeClaimedBy(Seat* seat)
     return false;
 }
 
-bool Seat::canOwnedCreatureUseRoomFrom(Seat* seat)
+bool Seat::canOwnedCreatureUseRoomFrom(const Seat* seat) const
 {
     if(this == seat)
         return true;
@@ -324,7 +325,7 @@ bool Seat::canOwnedCreatureUseRoomFrom(Seat* seat)
     return false;
 }
 
-bool Seat::canRoomBeDestroyedBy(Seat* seat)
+bool Seat::canRoomBeDestroyedBy(const Seat* seat) const
 {
     if(this == seat)
         return true;
@@ -332,7 +333,7 @@ bool Seat::canRoomBeDestroyedBy(Seat* seat)
     return false;
 }
 
-bool Seat::canTrapBeDestroyedBy(Seat* seat)
+bool Seat::canTrapBeDestroyedBy(const Seat* seat) const
 {
     if(this == seat)
         return true;
@@ -392,38 +393,83 @@ void Seat::initSeat()
     // We restore the tiles if any
     if(!mTilesStateLoaded.empty())
     {
-        ServerNotification *serverNotification = new ServerNotification(
-            ServerNotificationType::refreshTiles, getPlayer());
-        uint32_t nbTiles = mTilesStateLoaded.size();
-        serverNotification->mPacket << nbTiles;
-        for(std::pair<std::pair<int, int> const, TileStateNotified> p : mTilesStateLoaded)
+        std::vector<Tile*> tilesRefresh;
+        std::vector<Tile*> tilesMark;
+
+        for(std::pair<std::pair<int, int> const, TileStateNotified>& p : mTilesStateLoaded)
         {
             Tile* tile = mGameMap->getTile(p.first.first, p.first.second);
             OD_ASSERT_TRUE_MSG(tile != nullptr, "tile=" + Tile::displayAsString(tile));
+            if(tile == nullptr)
+                continue;
 
-            mGameMap->tileToPacket(serverNotification->mPacket, tile);
-            // FIXME: For now, we set the tile as if there was no building on it as it
-            // will be done in another PR/commit.
-            // When this is done, it would be better to have a function in the tile equivalent
-            // to exportTileToPacket that exports the last tile state the player have seen
-            int seatId = -1;
-            if(p.second.mSeatOwner != nullptr)
-                seatId = p.second.mSeatOwner->getId();
-            // isBuilding
-            serverNotification->mPacket << false;
-            // seatId
-            serverNotification->mPacket << seatId;
-            // meshname
-            serverNotification->mPacket << "";
-            // scale
-            serverNotification->mPacket << Ogre::Vector3::ZERO;
-            // tileVisual
-            serverNotification->mPacket << p.second.mTileVisual;
-            // persistent objects
-            uint32_t nbPersistentObject = 0;
-            serverNotification->mPacket << nbPersistentObject;
+            // We check if the tile is marked
+            if(p.second.mMarkedForDigging)
+                tilesMark.push_back(tile);
+
+            // Other tiles than goldFull, dirtFull and rockFull need to be notified to refresh
+            switch(p.second.mTileVisual)
+            {
+                case TileVisual::nullTileVisual:
+                case TileVisual::goldFull:
+                case TileVisual::dirtFull:
+                case TileVisual::rockFull:
+                    break;
+                default:
+                    tilesRefresh.push_back(tile);
+                    break;
+            }
         }
-        ODServer::getSingleton().queueServerNotification(serverNotification);
+
+        if(!tilesRefresh.empty())
+        {
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotificationType::refreshTiles, getPlayer());
+            uint32_t nbTiles = tilesRefresh.size();
+            serverNotification->mPacket << nbTiles;
+            for(Tile* tile : tilesRefresh)
+            {
+                mGameMap->tileToPacket(serverNotification->mPacket, tile);
+                // FIXME: For now, we set the tile as if there was no building on it as it
+                // will be done in another PR/commit.
+                // When this is done, it would be better to have a function in the tile equivalent
+                // to exportTileToPacket that exports the last tile state the player have seen
+                std::pair<int, int> tileCoords(tile->getX(), tile->getY());
+                TileStateNotified& tileState = mTilesStateLoaded[tileCoords];
+                // isBuilding
+                serverNotification->mPacket << false;
+                // seatId
+                serverNotification->mPacket << tileState.mSeatIdOwner;
+                // meshname
+                serverNotification->mPacket << "";
+                // scale
+                serverNotification->mPacket << Ogre::Vector3::ZERO;
+                // tileVisual
+                serverNotification->mPacket << tileState.mTileVisual;
+                // persistent objects
+                uint32_t nbPersistentObject = 0;
+                serverNotification->mPacket << nbPersistentObject;
+            }
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+
+        if(!tilesMark.empty())
+        {
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotificationType::markTiles, getPlayer());
+            uint32_t nbTiles = tilesMark.size();
+            serverNotification->mPacket << true << nbTiles;
+            for(Tile* tile : tilesMark)
+            {
+                // If the tile is diggable on the server gamemap, we mark it
+                if(tile->isDiggable(this))
+                    tile->setMarkedForDigging(true, getPlayer());
+
+                // On client side, we ask to mark the tile
+                mGameMap->tileToPacket(serverNotification->mPacket, tile);
+            }
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
     }
 }
 
@@ -1068,7 +1114,29 @@ bool Seat::importSeatFromStream(std::istream& is)
             return false;
     }
 
-    // If all the tileVisual are present, the next line should be a seat end tag
+    OD_ASSERT_TRUE(is >> str);
+    if(str != "[markedTiles]")
+    {
+        LogManager::getSingleton().logMessage("WARNING: expected [markedTiles] and read " + str);
+        return false;
+    }
+
+    while(true)
+    {
+        OD_ASSERT_TRUE(is >> str);
+        if(str == "[/markedTiles]")
+            break;
+
+        std::pair<int, int> tilecoords;
+        tilecoords.first = Helper::toInt(str);
+        OD_ASSERT_TRUE(is >> str);
+        tilecoords.second = Helper::toInt(str);
+
+        TileStateNotified& tileState = mTilesStateLoaded[tilecoords];
+        tileState.mMarkedForDigging = true;
+    }
+
+    // The next line should be a seat end tag
     OD_ASSERT_TRUE(is >> str);
     if(str != "[/Seat]")
     {
@@ -1108,11 +1176,10 @@ int Seat::readTilesVisualInitialStates(TileVisual tileVisual, std::istream& is)
 
         int seatId;
         OD_ASSERT_TRUE(is >> seatId);
-        Seat* seatOwner = mGameMap->getSeatById(seatId);
 
         TileStateNotified& tileState = mTilesStateLoaded[tilecoords];
         tileState.mTileVisual = tileVisual;
-        tileState.mSeatOwner = seatOwner;
+        tileState.mSeatIdOwner = seatId;
     }
 
     return 1;
@@ -1243,6 +1310,21 @@ bool Seat::exportSeatToStream(std::ostream& os) const
         }
         exportTilesVisualInitialStates(tileVisual, os);
     }
+
+    os << "[markedTiles]" << std::endl;
+    for(uint32_t xxx = 0; xxx < mTilesStates.size(); ++xxx)
+    {
+        for(uint32_t yyy = 0; yyy < mTilesStates[xxx].size(); ++yyy)
+        {
+            const TileStateNotified& tileState = mTilesStates[xxx][yyy];
+            if(!tileState.mMarkedForDigging)
+                continue;
+
+            os << xxx << "\t" << yyy << std::endl;
+        }
+    }
+    os << "[/markedTiles]" << std::endl;
+
     return true;
 }
 
@@ -1258,11 +1340,7 @@ void Seat::exportTilesVisualInitialStates(TileVisual tileVisual, std::ostream& o
             if(tileState.mTileVisual != tileVisual)
                 continue;
 
-            int seatId = -1;
-            if(tileState.mSeatOwner != nullptr)
-                seatId = tileState.mSeatOwner->getId();
-
-            os << xxx << "\t" << yyy << "\t" << seatId << std::endl;
+            os << xxx << "\t" << yyy << "\t" << tileState.mSeatIdOwner << std::endl;
         }
     }
 
@@ -1544,6 +1622,54 @@ void Seat::tileNotifiedToPlayer(Tile* tile)
     OD_ASSERT_TRUE_MSG(tile->getY() < static_cast<int>(mTilesStates[tile->getX()].size()), "Tile=" + Tile::displayAsString(tile));
 
     TileStateNotified& tileState = mTilesStates[tile->getX()][tile->getY()];
-    tileState.mSeatOwner = tile->getSeat();
+    if(tile->getSeat() != nullptr)
+        tileState.mSeatIdOwner = tile->getSeat()->getId();
+    else
+        tileState.mSeatIdOwner = -1;
+
     tileState.mTileVisual = tile->getTileVisual();
+}
+
+void Seat::tileMarkedDiggingNotifiedToPlayer(Tile* tile, bool isDigSet)
+{
+    OD_ASSERT_TRUE_MSG(tile->getX() < static_cast<int>(mTilesStates.size()), "Tile=" + Tile::displayAsString(tile));
+    OD_ASSERT_TRUE_MSG(tile->getY() < static_cast<int>(mTilesStates[tile->getX()].size()), "Tile=" + Tile::displayAsString(tile));
+
+    TileStateNotified& tileState = mTilesStates[tile->getX()][tile->getY()];
+    tileState.mMarkedForDigging = isDigSet;
+}
+
+bool Seat::isTileDiggableForClient(Tile* tile) const
+{
+    OD_ASSERT_TRUE_MSG(tile->getX() < static_cast<int>(mTilesStates.size()), "Tile=" + Tile::displayAsString(tile));
+    OD_ASSERT_TRUE_MSG(tile->getY() < static_cast<int>(mTilesStates[tile->getX()].size()), "Tile=" + Tile::displayAsString(tile));
+
+    const TileStateNotified& tileState = mTilesStates[tile->getX()][tile->getY()];
+    // Handle non claimed
+    switch(tileState.mTileVisual)
+    {
+        case TileVisual::claimedGround:
+        case TileVisual::dirtGround:
+        case TileVisual::goldGround:
+        case TileVisual::lavaGround:
+        case TileVisual::waterGround:
+        case TileVisual::rockGround:
+        case TileVisual::rockFull:
+            return false;
+        case TileVisual::goldFull:
+        case TileVisual::dirtFull:
+            return true;
+        default:
+            break;
+    }
+
+    // Should be claimed tile
+    OD_ASSERT_TRUE_MSG(tileState.mTileVisual == TileVisual::claimedFull, "mTileVisual=" + Tile::tileVisualToString(tileState.mTileVisual));
+
+    // It is claimed. If it is by the given seat team, it can be dug
+    Seat* seat = mGameMap->getSeatById(tileState.mSeatIdOwner);
+    if(!canOwnedTileBeClaimedBy(seat))
+        return true;
+
+    return false;
 }

@@ -4368,9 +4368,9 @@ ProtectDungeonTemple	NULL
 [/Tiles]
 
 [Rooms]
-# typeRoom	seatId	numTiles		Subsequent Lines: tileX	tileY
+# typeRoom	name	seatId	numTiles		Subsequent Lines: tileX	tileY
 [Room]
-1	1	9
+1	DungeonTemple1	1	9
 49	78
 49	79
 49	80
@@ -4382,7 +4382,7 @@ ProtectDungeonTemple	NULL
 51	80
 [/Room]
 [Room]
-4	1	9
+4	Portal2	1	9
 55	75
 55	76
 55	77
@@ -4394,7 +4394,7 @@ ProtectDungeonTemple	NULL
 57	77
 [/Room]
 [Room]
-4	1	9
+4	Portal3	1	9
 43	75
 43	76
 43	77
@@ -4406,7 +4406,7 @@ ProtectDungeonTemple	NULL
 45	77
 [/Room]
 [Room]
-1	2	9
+1	DungeonTemple4	2	9
 49	20
 49	21
 49	22
@@ -4418,7 +4418,7 @@ ProtectDungeonTemple	NULL
 51	22
 [/Room]
 [Room]
-4	2	9
+4	Portal5	2	9
 43	24
 43	25
 43	26
@@ -4430,7 +4430,7 @@ ProtectDungeonTemple	NULL
 45	26
 [/Room]
 [Room]
-4	2	9
+4	Portal6	2	9
 55	24
 55	25
 55	26
@@ -4444,7 +4444,7 @@ ProtectDungeonTemple	NULL
 [/Rooms]
 
 [Traps]
-# typeTrap	seatId	numTiles		Subsequent Lines: tileX	tileY	isActivated(0/1)		Subsequent Lines: optional specific data
+# typeTrap	name	seatId	numTiles		Subsequent Lines: tileX	tileY	isActivated(0/1)		Subsequent Lines: optional specific data
 [/Traps]
 
 [Lights]

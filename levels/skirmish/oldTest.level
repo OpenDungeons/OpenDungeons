@@ -6527,9 +6527,9 @@ ProtectDungeonTemple	NULL
 [/Tiles]
 
 [Rooms]
-# typeRoom	seatId	numTiles		Subsequent Lines: tileX	tileY
+# typeRoom	name	seatId	numTiles		Subsequent Lines: tileX	tileY
 [Room]
-6	1	16
+6	Dojo1	1	16
 190	195
 190	196
 190	197
@@ -6548,13 +6548,13 @@ ProtectDungeonTemple	NULL
 193	198
 [/Room]
 [Room]
-2	1	2
+2	Dormitory2	1	2
 195	213
 194	213
 0
 [/Room]
 [Room]
-1	1	25
+1	DungeonTemple3	1	25
 193	206
 193	207
 193	208
@@ -6582,7 +6582,7 @@ ProtectDungeonTemple	NULL
 197	210
 [/Room]
 [Room]
-5	1	16
+5	Forge4	1	16
 191	201
 191	202
 191	203
@@ -6602,7 +6602,7 @@ ProtectDungeonTemple	NULL
 0	0
 [/Room]
 [Room]
-4	1	9
+4	Portal5	1	9
 189	213
 189	214
 189	215
@@ -6614,18 +6614,18 @@ ProtectDungeonTemple	NULL
 187	215
 [/Room]
 [Room]
-3	1	1
+3	Treasury6	1	1
 196	215
 [/Room]
 [Room]
-3	1	4
+3	Treasury7	1	4
 193	213
 192	213
 193	214
 192	214
 [/Room]
 [Room]
-2	2	9
+2	Dormitory8	2	9
 204	209
 204	210
 204	211
@@ -6638,7 +6638,7 @@ ProtectDungeonTemple	NULL
 0
 [/Room]
 [Room]
-1	2	25
+1	DungeonTemple9	2	25
 215	210
 215	211
 215	212
@@ -6666,7 +6666,7 @@ ProtectDungeonTemple	NULL
 219	214
 [/Room]
 [Room]
-5	2	16
+5	Forge10	2	16
 209	209
 209	210
 209	211
@@ -6686,7 +6686,7 @@ ProtectDungeonTemple	NULL
 0	0
 [/Room]
 [Room]
-4	2	9
+4	Portal11	2	9
 204	213
 204	214
 204	215
@@ -6698,7 +6698,7 @@ ProtectDungeonTemple	NULL
 206	215
 [/Room]
 [Room]
-3	2	9
+3	Treasury12	2	9
 213	214
 213	215
 213	216
@@ -6710,7 +6710,7 @@ ProtectDungeonTemple	NULL
 212	215
 [/Room]
 [Room]
-2	3	9
+2	Dormitory13	3	9
 172	100
 172	101
 172	102
@@ -6723,7 +6723,7 @@ ProtectDungeonTemple	NULL
 0
 [/Room]
 [Room]
-2	3	16
+2	Dormitory14	3	16
 167	97
 167	98
 167	99
@@ -6743,7 +6743,7 @@ ProtectDungeonTemple	NULL
 0
 [/Room]
 [Room]
-1	3	25
+1	DungeonTemple15	3	25
 165	103
 165	104
 165	105
@@ -6773,9 +6773,9 @@ ProtectDungeonTemple	NULL
 [/Rooms]
 
 [Traps]
-# typeTrap	seatId	numTiles		Subsequent Lines: tileX	tileY	isActivated(0/1)		Subsequent Lines: optional specific data
+# typeTrap	name	seatId	numTiles		Subsequent Lines: tileX	tileY	isActivated(0/1)		Subsequent Lines: optional specific data
 [Trap]
-1	1	1
+1	Cannon_1	1	1
 186	199	1
 [/Trap]
 [/Traps]
