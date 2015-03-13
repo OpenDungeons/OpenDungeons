@@ -423,15 +423,10 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 
     handleMouseWheel(arg);
 
-    // Don't update if we didn't actually change the tile coordinate.
     if (mMouseX != inputManager->mXPos || mMouseY != inputManager->mYPos)
     {
-        // Updates mouse position for other functions.
         mMouseX = inputManager->mXPos;
         mMouseY = inputManager->mYPos;
-
-//        Ogre::Real x = static_cast<Ogre::Real>(mMouseX);
-//        Ogre::Real y = static_cast<Ogre::Real>(mMouseY);
     }
 
 
