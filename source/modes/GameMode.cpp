@@ -257,23 +257,6 @@ void GameMode::activate()
     }
 }
 
-void GameMode::handleCursorPositionUpdate()
-{
-    InputManager* inputManager = mModeManager->getInputManager();
-
-    // Don't update if we didn't actually change the tile coordinate.
-    if (mMouseX == inputManager->mXPos && mMouseY == inputManager->mYPos)
-        return;
-
-    // Updates mouse position for other functions.
-    mMouseX = inputManager->mXPos;
-    mMouseY = inputManager->mYPos;
-
-    Ogre::Real x = static_cast<Ogre::Real>(mMouseX);
-    Ogre::Real y = static_cast<Ogre::Real>(mMouseY);
-    RenderManager::getSingleton().moveCursor(x, y);
-}
-
 bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 {
     AbstractApplicationMode::mouseMoved(arg);
@@ -440,12 +423,24 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 
     handleMouseWheel(arg);
 
-    handleCursorPositionUpdate();
+    // Don't update if we didn't actually change the tile coordinate.
+    if (mMouseX != inputManager->mXPos || mMouseY != inputManager->mYPos)
+    {
+        // Updates mouse position for other functions.
+        mMouseX = inputManager->mXPos;
+        mMouseY = inputManager->mYPos;
+
+//        Ogre::Real x = static_cast<Ogre::Real>(mMouseX);
+//        Ogre::Real y = static_cast<Ogre::Real>(mMouseY);
+    }
+
 
     // Since this is a tile selection query we loop over the result set
     // and look for the first object which is actually a tile.
+    Ogre::Vector3 keeperPos;
     Tile* tileClicked = nullptr;
-    Ogre::RaySceneQueryResult& result = ODFrameListener::getSingleton().doRaySceneQuery(arg);
+    Ogre::RaySceneQueryResult& result = ODFrameListener::getSingleton().doRaySceneQuery(arg, keeperPos);
+    RenderManager::getSingleton().moveCursor(keeperPos.x, keeperPos.y);
     for (Ogre::RaySceneQueryResult::iterator itr = result.begin(); itr != result.end(); ++itr)
     {
         if (itr->movable == nullptr)

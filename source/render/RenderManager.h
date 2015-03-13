@@ -154,6 +154,11 @@ private:
     Ogre::Viewport* mViewport;
     Ogre::RTShader::ShaderGenerator* mShaderGenerator;
 
+    //! For the keeper hand
+    Ogre::Light* mHandLight;
+    Ogre::SceneNode* mHandSquareSelectorNode;
+    Ogre::SceneNode* mHandKeeperMesh;
+
     //! \brief True if the creatures are currently displaying their text overlay
     bool mCreatureTextOverlayDisplayed;
 };

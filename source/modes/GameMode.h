@@ -149,9 +149,6 @@ private:
     //! \brief Creates the help window.
     void createHelpWindow();
 
-    //! \brief Handle updating the selector position on screen
-    void handleCursorPositionUpdate();
-
     //! \brief A sub-function called by mouseMoved()
     //! It will handle the potential mouse wheel logic
     void handleMouseWheel(const OIS::MouseEvent& arg);

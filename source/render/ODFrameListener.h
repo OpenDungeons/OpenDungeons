@@ -89,9 +89,6 @@ public:
     void toggleDebugInfo()
     { mShowDebugInfo = !mShowDebugInfo; }
 
-    inline Ogre::RaySceneQuery* getRaySceneQuery()
-    { return mRaySceneQuery; }
-
     //! \brief Adjust mouse clipping area
     virtual void windowResized(Ogre::RenderWindow* rw);
 
@@ -112,6 +109,11 @@ public:
     //! \brief Setup the ray scene query, use CEGUI's mouse position
     //! This permits to get the mouse world coordinates and other entities present below it.
     Ogre::RaySceneQueryResult& doRaySceneQuery(const OIS::MouseEvent &arg);
+
+    //! \brief Setup the ray scene query, use CEGUI's mouse position
+    //! This permits to get the mouse world coordinates and other entities present below it.
+    //! Also sets keeperHand3DPos to the 3D world position the cursor is on
+    Ogre::RaySceneQueryResult& doRaySceneQuery(const OIS::MouseEvent &arg, Ogre::Vector3& keeperHand3DPos);
 
     /*! \brief Print a string in the upper left corner of the screen.
      * Displays the given text on the screen starting in the upper-left corner.
