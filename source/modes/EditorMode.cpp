@@ -221,10 +221,13 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
         Tile* tile = static_cast<Tile*>(entity);
         inputManager->mXPos = tile->getX();
         inputManager->mYPos = tile->getY();
-        mMouseX = inputManager->mXPos;
-        mMouseY = inputManager->mYPos;
-        RenderManager::getSingleton().setHoveredTile(mMouseX, mMouseY);
-        updateCursorText();
+        if (mMouseX != inputManager->mXPos || mMouseY != inputManager->mYPos)
+        {
+            mMouseX = inputManager->mXPos;
+            mMouseY = inputManager->mYPos;
+            RenderManager::getSingleton().setHoveredTile(mMouseX, mMouseY);
+            updateCursorText();
+        }
 
         // If we don't drag anything, there is no affected tiles to compute.
         if (!inputManager->mLMouseDown || player->getCurrentAction() == Player::SelectedAction::none)
