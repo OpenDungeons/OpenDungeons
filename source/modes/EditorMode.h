@@ -35,27 +35,25 @@ public:
 
     virtual ~EditorMode();
 
-    virtual bool mouseMoved     (const OIS::MouseEvent &arg);
-    virtual bool mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id);
-    virtual bool mouseReleased  (const OIS::MouseEvent &arg, OIS::MouseButtonID id);
-    virtual bool keyPressed     (const OIS::KeyEvent &arg);
-    virtual bool keyReleased    (const OIS::KeyEvent &arg);
-    virtual void handleHotkeys  (OIS::KeyCode keycode);
+    virtual bool mouseMoved     (const OIS::MouseEvent &arg) override;
+    virtual bool mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id) override;
+    virtual bool mouseReleased  (const OIS::MouseEvent &arg, OIS::MouseButtonID id) override;
+    virtual bool keyPressed     (const OIS::KeyEvent &arg) override;
+    virtual bool keyReleased    (const OIS::KeyEvent &arg) override;
+    virtual void handleHotkeys  (OIS::KeyCode keycode) override;
 
-    void onFrameStarted(const Ogre::FrameEvent& evt);
-    void onFrameEnded(const Ogre::FrameEvent& evt);
+    void onFrameStarted(const Ogre::FrameEvent& evt) override;
+    void onFrameEnded(const Ogre::FrameEvent& evt) override;
 
     //! \brief Called when the game mode is activated
     //! Used to call the corresponding Gui Sheet.
-    void activate();
+    void activate() override;
 
     // ! Specific functions
-    GameMap* getGameMap()
-    {
-        return mGameMap;
-    }
+    inline GameMap* getGameMap() const
+    { return mGameMap; }
 
-    virtual void notifyGuiAction(GuiAction guiAction);
+    virtual void notifyGuiAction(GuiAction guiAction) override;
 
     //! \brief Options window functions
     bool toggleOptionsWindow(const CEGUI::EventArgs& arg = {});
@@ -92,15 +90,8 @@ private:
     int mMouseY;
 
     //! \brief A sub-function called by mouseMoved()
-    //! It will handle each drag type and permit easy early inner return
-    void handleMouseMovedDragType(const OIS::MouseEvent& arg);
-
-    //! \brief A sub-function called by mouseMoved()
     //! It will handle the potential mouse wheel logic
     void handleMouseWheel(const OIS::MouseEvent& arg);
-
-    //! \brief Handle updating the selector position on screen
-    void handleCursorPositionUpdate();
 
     //! \brief Updates the text seen next to the cursor position.
     //! This text gives the tile position, and the current left-click action

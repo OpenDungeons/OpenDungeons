@@ -423,13 +423,6 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 
     handleMouseWheel(arg);
 
-    if (mMouseX != inputManager->mXPos || mMouseY != inputManager->mYPos)
-    {
-        mMouseX = inputManager->mXPos;
-        mMouseY = inputManager->mYPos;
-    }
-
-
     // Since this is a tile selection query we loop over the result set
     // and look for the first object which is actually a tile.
     Ogre::Vector3 keeperPos;
@@ -474,6 +467,12 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 
     inputManager->mXPos = tileClicked->getX();
     inputManager->mYPos = tileClicked->getY();
+    if (mMouseX != inputManager->mXPos || mMouseY != inputManager->mYPos)
+    {
+        mMouseX = inputManager->mXPos;
+        mMouseY = inputManager->mYPos;
+        RenderManager::getSingleton().setHoveredTile(mMouseX, mMouseY);
+    }
 
     // If we don't drag anything, there is no affected tiles to compute.
     if (!inputManager->mLMouseDown || player->getCurrentAction() == Player::SelectedAction::none)

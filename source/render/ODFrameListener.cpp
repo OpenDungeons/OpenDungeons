@@ -333,7 +333,7 @@ Ogre::RaySceneQueryResult& ODFrameListener::doRaySceneQuery(const OIS::MouseEven
     Ogre::Ray mouseRay = mCameraManager.getActiveCamera()->getCameraToViewportRay(mousePos.d_x / float(
             arg.state.width), mousePos.d_y / float(arg.state.height));
 
-    Ogre::Plane groundPlane(Ogre::Vector3::UNIT_Z, 0.0f);
+    Ogre::Plane groundPlane(Ogre::Vector3::UNIT_Z, RenderManager::KEEPER_HAND_Z);
     std::pair<bool, Ogre::Real> p = mouseRay.intersects(groundPlane);
     if(p.first)
         keeperHand3DPos = mouseRay.getPoint(p.second);

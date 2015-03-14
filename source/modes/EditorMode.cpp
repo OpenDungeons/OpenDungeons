@@ -197,11 +197,12 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
 
     handleMouseWheel(arg);
 
-    handleCursorPositionUpdate();
-
     // Since this is a tile selection query we loop over the result set
     // and look for the first object which is actually a tile.
-    Ogre::RaySceneQueryResult& result = ODFrameListener::getSingleton().doRaySceneQuery(arg);
+    Ogre::Vector3 keeperPos;
+    Ogre::RaySceneQueryResult& result = ODFrameListener::getSingleton().doRaySceneQuery(arg, keeperPos);
+    RenderManager::getSingleton().moveCursor(keeperPos.x, keeperPos.y);
+
     for (Ogre::RaySceneQueryResult::iterator itr = result.begin(); itr != result.end(); ++itr)
     {
         if (itr->movable == nullptr)
@@ -220,6 +221,10 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
         Tile* tile = static_cast<Tile*>(entity);
         inputManager->mXPos = tile->getX();
         inputManager->mYPos = tile->getY();
+        mMouseX = inputManager->mXPos;
+        mMouseY = inputManager->mYPos;
+        RenderManager::getSingleton().setHoveredTile(mMouseX, mMouseY);
+        updateCursorText();
 
         // If we don't drag anything, there is no affected tiles to compute.
         if (!inputManager->mLMouseDown || player->getCurrentAction() == Player::SelectedAction::none)
@@ -276,85 +281,6 @@ void EditorMode::handleMouseWheel(const OIS::MouseEvent& arg)
             frameListener.moveCamera(CameraManager::moveUp);
         }
     }
-}
-
-void EditorMode::handleCursorPositionUpdate()
-{
-    InputManager* inputManager = mModeManager->getInputManager();
-
-    // Don't update if we didn't actually change the tile coordinate.
-    if (mMouseX == inputManager->mXPos && mMouseY == inputManager->mYPos)
-        return;
-
-    // Updates mouse position for other functions.
-    mMouseX = inputManager->mXPos;
-    mMouseY = inputManager->mYPos;
-
-    // Make the mouse light follow the mouse
-    Ogre::Real x = static_cast<Ogre::Real>(mMouseX);
-    Ogre::Real y = static_cast<Ogre::Real>(mMouseY);
-    RenderManager::getSingleton().moveCursor(x, y);
-
-    updateCursorText();
-}
-
-void EditorMode::handleMouseMovedDragType(const OIS::MouseEvent &arg)
-{
-    ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
-    Ogre::RaySceneQueryResult& result = frameListener->doRaySceneQuery(arg);
-
-    Ogre::RaySceneQueryResult::iterator itr = result.begin();
-    Ogre::RaySceneQueryResult::iterator end = result.end();
-
-    Player* player = mGameMap->getLocalPlayer();
-    InputManager* inputManager = mModeManager->getInputManager();
-
-    switch(player->getCurrentAction())
-    {
-    default:
-        // Since this is a tile selection query we loop over the result set and look for the first object which is actually a tile.
-        for (; itr != end; ++itr)
-        {
-            if (itr->movable == nullptr)
-                continue;
-
-            // Check to see if the current query result is a tile.
-            std::string resultName = itr->movable->getName();
-
-            // Checks which tile we are on (if any)
-            GameEntity* entity = getEntityFromOgreName(resultName);
-            if((entity == nullptr) ||
-               (entity->getObjectType() != GameEntityType::tile))
-            {
-                continue;
-            }
-            Tile* tile = static_cast<Tile*>(entity);
-            inputManager->mXPos = tile->getX();
-            inputManager->mYPos = tile->getY();
-
-            handleCursorPositionUpdate();
-
-            // If we don't drag anything, there is no affected tiles to compute.
-            if (!inputManager->mLMouseDown || player->getCurrentAction() == Player::SelectedAction::none)
-                return;
-
-            // Handle when dragging using the left mouse button
-
-            // Loop over the tiles in the rectangular selection region and set their type
-            std::vector<Tile*> affectedTiles = mGameMap->rectangularRegion(inputManager->mXPos,
-                                                                           inputManager->mYPos,
-                                                                           inputManager->mLStartDragX,
-                                                                           inputManager->mLStartDragY);
-
-            for(std::vector<Tile*>::iterator itr = affectedTiles.begin(); itr != affectedTiles.end(); ++itr)
-            {
-                (*itr)->setSelected(true, mGameMap->getLocalPlayer());
-            }
-            break;
-        }
-        return;
-
-    } // switch drag type
 }
 
 bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)

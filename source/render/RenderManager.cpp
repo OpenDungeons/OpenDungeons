@@ -62,12 +62,17 @@ using std::stringstream;
 
 template<> RenderManager* Ogre::Singleton<RenderManager>::msSingleton = nullptr;
 
-const Ogre::Real RenderManager::BLENDER_UNITS_PER_OGRE_UNIT = 10.0;
+const Ogre::Real RenderManager::BLENDER_UNITS_PER_OGRE_UNIT = 10.0f;
+
+const Ogre::Real RenderManager::KEEPER_HAND_Z = 20.0f / RenderManager::BLENDER_UNITS_PER_OGRE_UNIT;
 
 RenderManager::RenderManager(Ogre::OverlaySystem* overlaySystem) :
     mHandAnimationState(nullptr),
     mViewport(nullptr),
     mShaderGenerator(nullptr),
+    mHandLight(nullptr),
+    mHandSquareSelectorNode(nullptr),
+    mHandKeeperMesh(nullptr),
     mCreatureTextOverlayDisplayed(false)
 {
     // Use Ogre::SceneType enum instead of string to identify the scene manager type; this is more robust!
@@ -148,7 +153,7 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     mHandKeeperMesh = mSceneManager->getRootSceneNode()->createChildSceneNode("KeeperHand_node");
     mHandKeeperMesh->setPosition(0.0f,
                        -1.0f / BLENDER_UNITS_PER_OGRE_UNIT,
-                       4.0f / BLENDER_UNITS_PER_OGRE_UNIT);
+                       KEEPER_HAND_Z);
     mHandKeeperMesh->scale(Ogre::Vector3(2.0f / BLENDER_UNITS_PER_OGRE_UNIT,
                                2.0f / BLENDER_UNITS_PER_OGRE_UNIT,
                                2.0f / BLENDER_UNITS_PER_OGRE_UNIT));
@@ -169,7 +174,7 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     mHandLight->setType(Ogre::Light::LT_POINT);
     mHandLight->setDiffuseColour(Ogre::ColourValue(0.65, 0.65, 0.45));
     mHandLight->setSpecularColour(Ogre::ColourValue(0.65, 0.65, 0.45));
-    mHandLight->setPosition(0.0f, 0.0f, 6.0f);
+    mHandLight->setPosition(0.0f, 0.0f, KEEPER_HAND_Z);
     mHandLight->setAttenuation(7, 1.0, 0.00, 0.3);
 }
 
@@ -1093,9 +1098,13 @@ std::string RenderManager::setMaterialOpacity(const std::string& materialName, f
 
 void RenderManager::moveCursor(Ogre::Real x, Ogre::Real y)
 {
-    mHandKeeperMesh->setPosition(x, y, 0.0);
-    mHandSquareSelectorNode->setPosition(Helper::round(x), Helper::round(y), 0.0);
-    mHandLight->setPosition(x, y, 2.0);
+    mHandKeeperMesh->setPosition(x, y, KEEPER_HAND_Z);
+    mHandLight->setPosition(x, y, KEEPER_HAND_Z);
+}
+
+void RenderManager::setHoveredTile(int tileX, int tileY)
+{
+    mHandSquareSelectorNode->setPosition(static_cast<Ogre::Real>(tileX), static_cast<Ogre::Real>(tileY), 0.0f);
 }
 
 void RenderManager::entitySlapped()
