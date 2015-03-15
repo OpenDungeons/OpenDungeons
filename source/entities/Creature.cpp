@@ -3490,7 +3490,7 @@ bool Creature::canGoThroughTile(const Tile* tile) const
         case TileType::rock:
         {
             // Note: We don't care about water or lava fullness.
-            if (tile->getFullness() > 0.0)
+            if (tile->isFullTile())
                 return false;
 
             if(mGroundSpeed > 0.0)

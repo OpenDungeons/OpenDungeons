@@ -53,6 +53,10 @@ protected:
     //! Returns true if the action has been done and false if nothing has been done
     bool handleWorkers();
 
+    //! \brief Checks if a room needs to be repaired and repairs if so
+    //! Returns true if the action has been done and false if nothing has been done
+    bool repairRooms();
+
 private:
     bool buildMostNeededRoom();
 
@@ -65,6 +69,7 @@ private:
     int mCooldownLookingForGold;
     int mCooldownDefense;
     int mCooldownWorkers;
+    int mCooldownRepairRooms;
 };
 
 #endif // KEEPERAI_H

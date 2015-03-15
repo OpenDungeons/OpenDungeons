@@ -42,29 +42,29 @@ class GameMode final : public GameEditorModeBase
      * to handle things like dragging out selections of tiles and selecting
      * creatures.
      */
-    virtual bool mouseMoved     (const OIS::MouseEvent &arg);
+    virtual bool mouseMoved     (const OIS::MouseEvent &arg) override;
 
     /*! \brief Handle mouse clicks.
      *
      * This function does a ray scene query to determine what is under the mouse
      * and determines whether a creature or a selection of tiles, is being dragged.
      */
-    virtual bool mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id);
+    virtual bool mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id) override;
 
     /*! \brief Handle mouse button releases.
      *
      * Finalize the selection of tiles or drop a creature when the user releases the mouse button.
      */
-    virtual bool mouseReleased  (const OIS::MouseEvent &arg, OIS::MouseButtonID id);
+    virtual bool mouseReleased  (const OIS::MouseEvent &arg, OIS::MouseButtonID id) override;
 
     //! \brief Handle the keyboard input.
-    virtual bool keyPressed     (const OIS::KeyEvent &arg);
+    virtual bool keyPressed     (const OIS::KeyEvent &arg) override;
 
     /*! \brief Process the key up event.
      *
      * When a key is released during normal gamplay the camera movement may need to be stopped.
      */
-    virtual bool keyReleased    (const OIS::KeyEvent &arg);
+    virtual bool keyReleased    (const OIS::KeyEvent &arg) override;
 
     /*! \brief defines what the hotkeys do
      *
@@ -72,19 +72,19 @@ class GameMode final : public GameEditorModeBase
      * If the shift key is pressed we store this hotkey location
      * otherwise we fly the camera to a stored position.
      */
-    virtual void handleHotkeys  (OIS::KeyCode keycode);
+    virtual void handleHotkeys  (OIS::KeyCode keycode) override;
 
-    void onFrameStarted(const Ogre::FrameEvent& evt);
-    void onFrameEnded(const Ogre::FrameEvent& evt);
+    void onFrameStarted(const Ogre::FrameEvent& evt) override;
+    void onFrameEnded(const Ogre::FrameEvent& evt) override;
 
     //! \brief Called when the game mode is activated
     //! Used to call the corresponding Gui Sheet.
-    void activate();
+    void activate() override;
 
     //! \brief Called when exit button is pressed
     void popupExit(bool pause);
 
-    virtual void notifyGuiAction(GuiAction guiAction);
+    virtual void notifyGuiAction(GuiAction guiAction) override;
 
     //! \brief Shows/hides/toggles the help window
     bool showHelpWindow(const CEGUI::EventArgs& = {});
@@ -148,9 +148,6 @@ private:
 
     //! \brief Creates the help window.
     void createHelpWindow();
-
-    //! \brief Handle updating the selector position on screen
-    void handleCursorPositionUpdate();
 
     //! \brief A sub-function called by mouseMoved()
     //! It will handle the potential mouse wheel logic

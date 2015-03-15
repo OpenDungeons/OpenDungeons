@@ -76,9 +76,11 @@ public:
 
     //! Beware this should be called on client side only (not from the server thread)
     void moveCursor(Ogre::Real x, Ogre::Real y);
+    void setHoveredTile(int tileX, int tileY);
     void entitySlapped();
 
     static const Ogre::Real BLENDER_UNITS_PER_OGRE_UNIT;
+    static const Ogre::Real KEEPER_HAND_Z;
 
     //! Debug function to be used for dev only. Beware, it should not be called from the server thread
     static std::string consoleListAnimationsForMesh(const std::string& meshName);
@@ -153,6 +155,11 @@ private:
 
     Ogre::Viewport* mViewport;
     Ogre::RTShader::ShaderGenerator* mShaderGenerator;
+
+    //! For the keeper hand
+    Ogre::Light* mHandLight;
+    Ogre::SceneNode* mHandSquareSelectorNode;
+    Ogre::SceneNode* mHandKeeperMesh;
 
     //! \brief True if the creatures are currently displaying their text overlay
     bool mCreatureTextOverlayDisplayed;
