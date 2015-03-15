@@ -8,7 +8,6 @@ material Forge : RTSS/NormalMapping_MultiPass
     {
         pass lighting
         {
-
              // Override the normal map.
              rtshader_system
              {
@@ -20,14 +19,7 @@ material Forge : RTSS/NormalMapping_MultiPass
         {
             texture_unit decalmap
             {
-                ambient 0.8 0.8 0.8 1.0
-                diffuse 0.65 0.65 0.65 1.0
-                specular 0.2 0.2 0.2 0.2 0.2
-                emissive 0.0 0.0 0.0 1.0
                 texture Forge.png
-                tex_address_mode wrap
-                scale 1.0 1.0
-                colour_op modulate
             }
         }
     }

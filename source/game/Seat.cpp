@@ -27,6 +27,7 @@
 #include "spawnconditions/SpawnCondition.h"
 #include "network/ServerNotification.h"
 #include "network/ODServer.h"
+#include "render/RenderManager.h"
 #include "rooms/Room.h"
 #include "spell/Spell.h"
 #include "traps/Trap.h"
