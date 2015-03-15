@@ -120,6 +120,7 @@
         </Window>
         <LayoutImport type="DefaultWindow" filename="QuitMenu.layout" name="QuitMenuImport" />
         <LayoutImport type="DefaultWindow" filename="ObjectivesWindow.layout" name="ObjectivesWindowImport" />
+        <LayoutImport type="DefaultWindow" filename="ResearchTree.layout" name="ResearchTreeWindowImport" />
         <LayoutImport type="DefaultWindow" filename="GameOptionsMenu.layout" name="GameOptionsMenuImport" />
         <LayoutImport type="DefaultWindow" filename="SettingsMenu.layout" name="SettingsMenuImport" />
     </Window>

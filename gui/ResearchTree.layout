@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout version="4" >
+    <Window type="OD/FrameWindow" name="ResearchTreeWindow" >
+        <Property name="Area" value="{{0.5,-295},{0.5,-156},{0.5,295},{0.5,156}}" />
+        <Property name="Text" value="Research Tree" />
+        <Property name="SizingEnabled" value="False" />
+        <Window type="OD/StaticImage" name="AttackSkills" >
+            <Property name="Area" value="{{0,20},{0,35},{0,200},{1,-20}}" />
+            <Property name="MaxSize" value="{{1,0},{1,0}}" />
+            <Property name="FrameColours" value="tl:FFFF0000 tr:FFFF0000 bl:FFFFFFFF br:FFFFFFFF" />
+            <Window type="OD/ImageButton" name="TrainingHallButton" >
+                <Property name="Area" value="{{0.5,-25},{0,15},{0.5,25},{0,65}}" />
+                <Property name="ButtonImage" value="OpenDungeonsIcons/TrainingHallButton" />
+            </Window>
+            <Window type="OD/ImageButton" name="CallToWarButton" >
+                <Property name="Area" value="{{0.5,-25},{0,75},{0.5,25},{0,125}}" />
+                <Property name="ButtonImage" value="OpenDungeonsIcons/CallToWarButton" />
+            </Window>
+        </Window>
+        <Window type="OD/StaticImage" name="TacticSkills" >
+            <Property name="Area" value="{{0,205},{0,35},{0,385},{1,-20}}" />
+            <Property name="MaxSize" value="{{1,0},{1,0}}" />
+            <Window type="OD/ImageButton" name="TreasuryButton" >
+                <Property name="Area" value="{{0.2,-25},{0,15},{0.2,25},{0,65}}" />
+                <Property name="ButtonImage" value="OpenDungeonsIcons/TreasuryButton" />
+            </Window>
+            <Window type="OD/ImageButton" name="HatcheryButton" >
+                <Property name="Area" value="{{0.5,-25},{0,15},{0.5,25},{0,65}}" />
+                <Property name="ButtonImage" value="OpenDungeonsIcons/HatcheryButton" />
+            </Window>
+            <Window type="OD/ImageButton" name="DormitoryButton" >
+                <Property name="Area" value="{{0.8,-25},{0,15},{0.8,25},{0,65}}" />
+                <Property name="ButtonImage" value="OpenDungeonsIcons/DormitoryButton" />
+            </Window>
+            <Window type="OD/ImageButton" name="ForgeButton" >
+                <Property name="Area" value="{{0.5,-25},{0,75},{0.5,25},{0,125}}" />
+                <Property name="ButtonImage" value="OpenDungeonsIcons/ForgeButton" />
+            </Window>
+            <Window type="OD/ImageButton" name="CannonButton" >
+                <Property name="Area" value="{{0.3,-25},{0,135},{0.3,25},{0,185}}" />
+                <Property name="ButtonImage" value="OpenDungeonsIcons/CannonButton" />
+            </Window>
+            <Window type="OD/ImageButton" name="SpikeTrapButton" >
+                <Property name="Area" value="{{0.7,-25},{0,135},{0.7,25},{0,185}}" />
+                <Property name="ButtonImage" value="OpenDungeonsIcons/SpikeTrapButton" />
+            </Window>
+            <Window type="OD/ImageButton" name="BoulderTrapButton" >
+                <Property name="Area" value="{{0.5,-25},{0,195},{0.5,25},{0,245}}" />
+                <Property name="ButtonImage" value="OpenDungeonsIcons/BoulderTrapButton" />
+            </Window>
+        </Window>
+        <Window type="OD/StaticImage" name="MagicSkills" >
+            <Property name="Area" value="{{0,390},{0,35},{0,570},{1,-20}}" />
+            <Property name="MaxSize" value="{{1,0},{1,0}}" />
+            <Property name="FrameColours" value="tl:FF0000FF tr:FF0000FF bl:FFFFFFFF br:FFFFFFFF" />
+            <Window type="OD/ImageButton" name="LibraryButton" >
+                <Property name="Area" value="{{0.7,-25},{0,15},{0.7,25},{0,65}}" />
+                <Property name="ButtonImage" value="OpenDungeonsIcons/LibraryButton" />
+            </Window>
+            <Window type="OD/ImageButton" name="CryptButton" >
+                <Property name="Area" value="{{0.5,-25},{0,75},{0.5,25},{0,125}}" />
+                <Property name="ButtonImage" value="OpenDungeonsIcons/CryptButton" />
+            </Window>
+            <Window type="OD/ImageButton" name="SummonWorkerButton" >
+                <Property name="Area" value="{{0.3,-25},{0,15},{0.3,25},{0,65}}" />
+                <Property name="ButtonImage" value="OpenDungeonsIcons/SummonWorkerButton" />
+            </Window>
+        </Window>
+    </Window>
+</GUILayout>

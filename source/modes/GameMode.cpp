@@ -109,6 +109,20 @@ GameMode::GameMode(ModeManager *modeManager):
         )
     );
 
+    // The research tree window
+    addEventConnection(
+        guiSheet->getChild("ResearchButton")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&GameMode::toggleResearchWindow, this)
+        )
+    );
+    addEventConnection(
+        guiSheet->getChild("ResearchTreeWindow/__auto_closebutton__")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&GameMode::hideResearchWindow, this)
+        )
+    );
+
     // The Game Option menu events
     addEventConnection(
         guiSheet->getChild("OptionsButton")->subscribeEvent(
@@ -126,6 +140,12 @@ GameMode::GameMode(ModeManager *modeManager):
         guiSheet->getChild("GameOptionsWindow/ObjectivesButton")->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&GameMode::showObjectivesFromOptions, this)
+        )
+    );
+    addEventConnection(
+        guiSheet->getChild("GameOptionsWindow/ResearchButton")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&GameMode::showResearchFromOptions, this)
         )
     );
     addEventConnection(
@@ -232,6 +252,7 @@ void GameMode::activate()
     CEGUI::Window* guiSheet = gui.getGuiSheet(Gui::inGameMenu);
     guiSheet->getChild(Gui::EXIT_CONFIRMATION_POPUP)->hide();
     guiSheet->getChild("ObjectivesWindow")->hide();
+    guiSheet->getChild("ResearchTreeWindow")->hide();
     guiSheet->getChild("SettingsWindow")->hide();
     guiSheet->getChild("GameOptionsWindow")->hide();
 
@@ -862,6 +883,14 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
         toggleObjectivesWindow();
         break;
 
+    case OIS::KC_F4:
+        toggleResearchWindow();
+        break;
+
+    case OIS::KC_F5:
+        saveGame();
+        break;
+
     case OIS::KC_F10:
         toggleOptionsWindow();
         break;
@@ -953,10 +982,6 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
     // Quit the game
     case OIS::KC_ESCAPE:
         popupExit(!mGameMap->getGamePaused());
-        break;
-
-    case OIS::KC_F5:
-        saveGame();
         break;
 
     // Print a screenshot
@@ -1191,6 +1216,29 @@ bool GameMode::toggleObjectivesWindow(const CEGUI::EventArgs& e)
     return true;
 }
 
+bool GameMode::showResearchWindow(const CEGUI::EventArgs&)
+{
+    getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("ResearchTreeWindow")->show();
+    return true;
+}
+
+bool GameMode::hideResearchWindow(const CEGUI::EventArgs&)
+{
+    getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("ResearchTreeWindow")->hide();
+    return true;
+}
+
+bool GameMode::toggleResearchWindow(const CEGUI::EventArgs& e)
+{
+    CEGUI::Window* research = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("ResearchTreeWindow");
+
+    if (research->isVisible())
+        hideResearchWindow(e);
+    else
+        showResearchWindow(e);
+    return true;
+}
+
 bool GameMode::showOptionsWindow(const CEGUI::EventArgs&)
 {
     getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameOptionsWindow")->show();
@@ -1233,6 +1281,14 @@ bool GameMode::showObjectivesFromOptions(const CEGUI::EventArgs& /*e*/)
     CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::inGameMenu);
     guiSheet->getChild("GameOptionsWindow")->hide();
     guiSheet->getChild("ObjectivesWindow")->show();
+    return true;
+}
+
+bool GameMode::showResearchFromOptions(const CEGUI::EventArgs& /*e*/)
+{
+    CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::inGameMenu);
+    guiSheet->getChild("GameOptionsWindow")->hide();
+    guiSheet->getChild("ResearchTreeWindow")->show();
     return true;
 }
 
