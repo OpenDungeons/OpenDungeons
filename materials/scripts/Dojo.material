@@ -7,7 +7,6 @@ material Dojo : RTSS/NormalMapping_MultiPass
     {
         pass lighting
         {
-
              // Override the normal map.
              rtshader_system
              {
@@ -19,14 +18,7 @@ material Dojo : RTSS/NormalMapping_MultiPass
         {
             texture_unit decalmap
             {
-		ambient 0.0 0.0 0.0 0.0
-                diffuse 0.4 0.4 0.4 0.4 0.4
-                specular 0.0 0.0 0.0 0.0
-                emissive 0.0 0.0 0.0 0.0
                 texture Dojo_texture.png
-                tex_address_mode wrap
-                scale 1.0 1.0
-                colour_op modulate
             }
         }
     }

@@ -23,8 +23,6 @@
 #ifndef GAMEENTITY_H_
 #define GAMEENTITY_H_
 
-#include "render/RenderManager.h"
-
 #include <cassert>
 #include <string>
 #include <vector>
@@ -35,11 +33,12 @@ namespace Ogre
 class SceneNode;
 } //End namespace Ogre
 
+class Creature;
 class GameMap;
-class Tile;
-class Quadtree;
-class Seat;
 class ODPacket;
+class Player;
+class Seat;
+class Tile;
 
 enum class GameEntityType
 {
@@ -188,16 +187,6 @@ class GameEntity
     void destroyMesh();
     //! \brief Function that schedules the object destruction. This function should not be called twice
     void deleteYourself();
-
-    inline void show()
-    {
-        RenderManager::getSingleton().rrAttachEntity(this);
-    }
-
-    inline void hide()
-    {
-        RenderManager::getSingleton().rrDetachEntity(this);
-    }
 
     //! \brief Retrieves the position tile from the game map
     Tile* getPositionTile() const;

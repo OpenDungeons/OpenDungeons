@@ -8,7 +8,6 @@ material Goblin-body : RTSS/NormalMapping_MultiPass
     {
         pass lighting
         {
-
              // Override the normal map.
              rtshader_system
              {
@@ -16,14 +15,10 @@ material Goblin-body : RTSS/NormalMapping_MultiPass
              }
         }
 
-    pass decal
+        pass decal
         {
             texture_unit decalmap
             {
-		ambient 0.0 0.0 0.0 0.0 0.0
-                diffuse 0.6 0.6 0.6 0.6 0.6
-                specular 0.0 0.0 0.0 0.0 0.0
-                emissive 0.0 0.0 0.0 0.0
                 texture goblin-texture.png
                 tex_address_mode wrap
                 scale 1.0 1.0
@@ -32,3 +27,4 @@ material Goblin-body : RTSS/NormalMapping_MultiPass
         }
     }
 }
+

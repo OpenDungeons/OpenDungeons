@@ -22,7 +22,7 @@
 #include "entities/Tile.h"
 #include "gamemap/GameMap.h"
 #include "network/ODServer.h"
-
+#include "render/RenderManager.h"
 #include "utils/LogManager.h"
 
 const double Building::DEFAULT_TILE_HP = 10.0;

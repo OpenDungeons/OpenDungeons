@@ -8,7 +8,6 @@ material Chimney : RTSS/NormalMapping_MultiPass
     {
         pass lighting
         {
-
              // Override the normal map.
              rtshader_system
              {
@@ -16,14 +15,10 @@ material Chimney : RTSS/NormalMapping_MultiPass
              }
         }
 
-    pass decal
+        pass decal
         {
             texture_unit decalmap
             {
-                ambient 0.0 0.0 0.0 0.0
-                diffuse 0.4 0.4 0.4 0.4
-                specular 0.1 0.1 0.1 0.1 0.1
-                emissive 0.0 0.0 0.0 0.0
                 texture Chimney.png
                 tex_address_mode wrap
                 scale 1.0 1.0

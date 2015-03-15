@@ -20,6 +20,7 @@
 #include "entities/Creature.h"
 #include "game/Seat.h"
 #include "render/MovableTextOverlay.h"
+#include "render/RenderManager.h"
 #include "utils/Helper.h"
 
 CreatureOverlayStatus::CreatureOverlayStatus(Creature* creature, Ogre::Entity* ent,

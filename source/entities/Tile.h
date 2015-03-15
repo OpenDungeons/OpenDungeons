@@ -29,6 +29,7 @@
 #include <ostream>
 #include <istream>
 
+class Building;
 class Creature;
 class Player;
 class Room;

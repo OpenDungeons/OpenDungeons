@@ -87,8 +87,6 @@ public:
     void rrRefreshTile(const Tile* curTile, const Player* localPlayer);
     void rrCreateTile(Tile* curTile, Player* localPlayer);
     void rrDestroyTile(Tile* curTile);
-    void rrDetachEntity(GameEntity* curEntity);
-    void rrAttachEntity(GameEntity* curEntity);
     void rrTemporalMarkTile(Tile* curTile);
     void rrCreateRenderedMovableEntity(RenderedMovableEntity* curRenderedMovableEntity);
     void rrDestroyRenderedMovableEntity(RenderedMovableEntity* curRenderedMovableEntity);
