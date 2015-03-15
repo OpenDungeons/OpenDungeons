@@ -4059,13 +4059,13 @@
         <ImagerySection name="label">
             <TextComponent>
                 <Area>
-                    <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="LeftEdge"><AbsoluteDim value="5" /></Dim>
                     <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
                     <Dim type="Width"><UnifiedDim scale="0.9" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <VertFormat type="BottomAligned" />
-                <HorzFormat type="RightAligned" />
+                <VertFormat type="TopAligned" />
+                <HorzFormat type="LeftAligned" />
             </TextComponent>
         </ImagerySection>
         <ImagerySection name="normal">
@@ -4099,8 +4099,8 @@
             </ImageryComponent>
             <ImageryComponent>
                 <Area>
-                    <Dim type="LeftEdge"><AbsoluteDim value="5" /></Dim>
-                    <Dim type="TopEdge"><AbsoluteDim value="5" /></Dim>
+                    <Dim type="LeftEdge"><UnifiedDim scale="0.97" offset="-20" type="LeftEdge" /></Dim>
+                    <Dim type="TopEdge"><UnifiedDim scale="0.97" offset="-20" type="TopEdge" /></Dim>
                     <Dim type="Width"><AbsoluteDim value="20" type="Width" /></Dim>
                     <Dim type="Height"><AbsoluteDim value="20" type="Height" /></Dim>
                 </Area>
@@ -4140,8 +4140,8 @@
             </ImageryComponent>
             <ImageryComponent>
                 <Area>
-                    <Dim type="LeftEdge"><AbsoluteDim value="5" /></Dim>
-                    <Dim type="TopEdge"><AbsoluteDim value="5" /></Dim>
+                    <Dim type="LeftEdge"><UnifiedDim scale="0.97" offset="-20" type="LeftEdge" /></Dim>
+                    <Dim type="TopEdge"><UnifiedDim scale="0.97" offset="-20" type="TopEdge" /></Dim>
                     <Dim type="Width"><AbsoluteDim value="20" type="Width" /></Dim>
                     <Dim type="Height"><AbsoluteDim value="20" type="Height" /></Dim>
                 </Area>
@@ -4192,8 +4192,8 @@
             </ImageryComponent>
             <ImageryComponent>
                 <Area>
-                    <Dim type="LeftEdge"><AbsoluteDim value="5" /></Dim>
-                    <Dim type="TopEdge"><AbsoluteDim value="5" /></Dim>
+                    <Dim type="LeftEdge"><UnifiedDim scale="0.97" offset="-20" type="LeftEdge" /></Dim>
+                    <Dim type="TopEdge"><UnifiedDim scale="0.97" offset="-20" type="TopEdge" /></Dim>
                     <Dim type="Width"><AbsoluteDim value="20" type="Width" /></Dim>
                     <Dim type="Height"><AbsoluteDim value="20" type="Height" /></Dim>
                 </Area>

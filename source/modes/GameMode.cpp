@@ -1406,67 +1406,180 @@ void GameMode::refreshGuiResearch()
 
     localPlayerSeat->guiResearchRefreshedDone();
 
+    const std::string okIcon = "OpenDungeonsIcons/CheckIcon";
+    const std::string inProgressIcon = "OpenDungeonsIcons/CogIcon";
+
     // We show/hide the icons depending on available researches
     CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::inGameMenu);
+    CEGUI::Window* researchGui = guiSheet->getChild("ResearchTreeWindow");
+
+    CEGUI::Window* researchButton = researchGui->getChild("TacticSkills/DormitoryButton");
     if(localPlayerSeat->isResearchDone(ResearchType::roomDormitory))
+    {
         guiSheet->getChild(Gui::BUTTON_DORMITORY)->show();
+        researchButton->setProperty("StateImage", okIcon);
+        researchButton->setEnabled(false);
+    }
     else
+    {
         guiSheet->getChild(Gui::BUTTON_DORMITORY)->hide();
+        researchButton->setProperty("StateImage", "");
+        researchButton->setEnabled(true);
+    }
 
+    researchButton = researchGui->getChild("TacticSkills/TreasuryButton");
     if(localPlayerSeat->isResearchDone(ResearchType::roomTreasury))
+    {
         guiSheet->getChild(Gui::BUTTON_TREASURY)->show();
+        researchButton->setProperty("StateImage", okIcon);
+        researchButton->setEnabled(false);
+    }
     else
+    {
         guiSheet->getChild(Gui::BUTTON_TREASURY)->hide();
+        researchButton->setProperty("StateImage", "");
+        researchButton->setEnabled(true);
+    }
 
+    researchButton = researchGui->getChild("TacticSkills/HatcheryButton");
     if(localPlayerSeat->isResearchDone(ResearchType::roomHatchery))
+    {
         guiSheet->getChild(Gui::BUTTON_HATCHERY)->show();
+        researchButton->setProperty("StateImage", okIcon);
+        researchButton->setEnabled(false);
+    }
     else
+    {
         guiSheet->getChild(Gui::BUTTON_HATCHERY)->hide();
+        researchButton->setProperty("StateImage", "");
+        researchButton->setEnabled(true);
+    }
 
+    researchButton = researchGui->getChild("MagicSkills/LibraryButton");
     if(localPlayerSeat->isResearchDone(ResearchType::roomLibrary))
+    {
         guiSheet->getChild(Gui::BUTTON_LIBRARY)->show();
+        researchButton->setProperty("StateImage", okIcon);
+        researchButton->setEnabled(false);
+    }
     else
+    {
         guiSheet->getChild(Gui::BUTTON_LIBRARY)->hide();
+        researchButton->setProperty("StateImage", "");
+        researchButton->setEnabled(true);
+    }
 
+    researchButton = researchGui->getChild("MagicSkills/CryptButton");
     if(localPlayerSeat->isResearchDone(ResearchType::roomCrypt))
+    {
         guiSheet->getChild(Gui::BUTTON_CRYPT)->show();
+        researchButton->setProperty("StateImage", okIcon);
+        researchButton->setEnabled(false);
+    }
     else
+    {
         guiSheet->getChild(Gui::BUTTON_CRYPT)->hide();
+        researchButton->setProperty("StateImage", "");
+        researchButton->setEnabled(true);
+    }
 
+    researchButton = researchGui->getChild("AttackSkills/TrainingHallButton");
     if(localPlayerSeat->isResearchDone(ResearchType::roomTrainingHall))
+    {
         guiSheet->getChild(Gui::BUTTON_TRAININGHALL)->show();
+        researchButton->setProperty("StateImage", okIcon);
+        researchButton->setEnabled(false);
+    }
     else
+    {
         guiSheet->getChild(Gui::BUTTON_TRAININGHALL)->hide();
+        researchButton->setProperty("StateImage", "");
+        researchButton->setEnabled(true);
+    }
 
+    researchButton = researchGui->getChild("TacticSkills/ForgeButton");
     if(localPlayerSeat->isResearchDone(ResearchType::roomForge))
+    {
         guiSheet->getChild(Gui::BUTTON_FORGE)->show();
+        researchButton->setProperty("StateImage", okIcon);
+        researchButton->setEnabled(false);
+    }
     else
+    {
         guiSheet->getChild(Gui::BUTTON_FORGE)->hide();
+        researchButton->setProperty("StateImage", "");
+        researchButton->setEnabled(true);
+    }
 
+    researchButton = researchGui->getChild("TacticSkills/CannonButton");
     if(localPlayerSeat->isResearchDone(ResearchType::trapCannon))
+    {
         guiSheet->getChild(Gui::BUTTON_TRAP_CANNON)->show();
+        researchButton->setProperty("StateImage", okIcon);
+        researchButton->setEnabled(false);
+    }
     else
+    {
         guiSheet->getChild(Gui::BUTTON_TRAP_CANNON)->hide();
+        researchButton->setProperty("StateImage", "");
+        researchButton->setEnabled(true);
+    }
 
+    researchButton = researchGui->getChild("TacticSkills/SpikeTrapButton");
     if(localPlayerSeat->isResearchDone(ResearchType::trapSpike))
+    {
         guiSheet->getChild(Gui::BUTTON_TRAP_SPIKE)->show();
+        researchButton->setProperty("StateImage", okIcon);
+        researchButton->setEnabled(false);
+    }
     else
+    {
         guiSheet->getChild(Gui::BUTTON_TRAP_SPIKE)->hide();
+        researchButton->setProperty("StateImage", "");
+        researchButton->setEnabled(true);
+    }
 
+    researchButton = researchGui->getChild("TacticSkills/BoulderTrapButton");
     if(localPlayerSeat->isResearchDone(ResearchType::trapBoulder))
+    {
         guiSheet->getChild(Gui::BUTTON_TRAP_BOULDER)->show();
+        researchButton->setProperty("StateImage", okIcon);
+        researchButton->setEnabled(false);
+    }
     else
+    {
         guiSheet->getChild(Gui::BUTTON_TRAP_BOULDER)->hide();
+        researchButton->setProperty("StateImage", "");
+        researchButton->setEnabled(true);
+    }
 
+    researchButton = researchGui->getChild("MagicSkills/SummonWorkerButton");
     if(localPlayerSeat->isResearchDone(ResearchType::spellSummonWorker))
+    {
         guiSheet->getChild(Gui::BUTTON_SPELL_SUMMON_WORKER)->show();
+        researchButton->setProperty("StateImage", okIcon);
+        researchButton->setEnabled(false);
+    }
     else
+    {
         guiSheet->getChild(Gui::BUTTON_SPELL_SUMMON_WORKER)->hide();
+        researchButton->setProperty("StateImage", "");
+        researchButton->setEnabled(true);
+    }
 
+    researchButton = researchGui->getChild("AttackSkills/CallToWarButton");
     if(localPlayerSeat->isResearchDone(ResearchType::spellCallToWar))
+    {
         guiSheet->getChild(Gui::BUTTON_SPELL_CALLTOWAR)->show();
+        researchButton->setProperty("StateImage", okIcon);
+        researchButton->setEnabled(false);
+    }
     else
+    {
         guiSheet->getChild(Gui::BUTTON_SPELL_CALLTOWAR)->hide();
+        researchButton->setProperty("StateImage", "");
+        researchButton->setEnabled(true);
+    }
 }
 
 void GameMode::connectSpellSelect(const std::string& buttonName, SpellType spellType)
