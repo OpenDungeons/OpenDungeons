@@ -119,6 +119,9 @@ public:
     //! Notify the seats that have vision on the given tile
     virtual void notifySeatsVisionOnTile(const std::vector<Seat*>& seats, Tile* tile);
 
+    inline const std::vector<Tile*>& getCoveredTilesDestroyed() const
+    { return mCoveredTilesDestroyed; }
+
 protected:
     void addBuildingObject(Tile* targetTile, RenderedMovableEntity* obj);
     void removeBuildingObject(Tile* tile);
@@ -132,6 +135,7 @@ protected:
 
     std::map<Tile*, RenderedMovableEntity*> mBuildingObjects;
     std::vector<Tile*> mCoveredTiles;
+    std::vector<Tile*> mCoveredTilesDestroyed;
     std::map<Tile*, double> mTileHP;
 };
 

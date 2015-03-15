@@ -126,6 +126,16 @@ void Room::absorbRoom(Room *r)
     // We don't need to insert r->mTileHP and r->mCoveredTiles because it has already been done in Building::addCoveredTile
     r->mCoveredTiles.clear();
     r->mTileHP.clear();
+
+    // If a destroyed tile is in the new room, it is not a destroyed tile anymore
+    for(Tile* tile : r->mCoveredTilesDestroyed)
+    {
+        if(std::find(mCoveredTiles.begin(), mCoveredTiles.end(), tile) != mCoveredTiles.end())
+            continue;
+
+        mCoveredTilesDestroyed.push_back(tile);
+    }
+    r->mCoveredTilesDestroyed.clear();
 }
 
 void Room::reorderRoomAfterAbsorbtion()
@@ -185,7 +195,10 @@ void Room::doUpkeep()
     if (!tilesToRemove.empty())
     {
         for(Tile* tile : tilesToRemove)
+        {
+            mCoveredTilesDestroyed.push_back(tile);
             removeCoveredTile(tile);
+        }
 
         updateActiveSpots();
         createMesh();

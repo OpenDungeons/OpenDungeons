@@ -44,7 +44,8 @@ KeeperAI::KeeperAI(GameMap& gameMap, Player& player, const std::string& paramete
     mNoMoreReachableGold(false),
     mCooldownLookingForGold(0),
     mCooldownDefense(0),
-    mCooldownWorkers(0)
+    mCooldownWorkers(0),
+    mCooldownRepairRooms(0)
 {
 }
 
@@ -68,6 +69,9 @@ bool KeeperAI::doTurn(double frameTime)
         return true;
 
     if (lookForGold())
+        return true;
+
+    if (repairRooms())
         return true;
 
     return true;
@@ -765,6 +769,87 @@ bool KeeperAI::handleWorkers()
         mPlayer.getSeat()->takeMana(mana);
         Spell::castSpell(&mGameMap, SpellType::summonWorker, tiles, &mPlayer);
         return true;
+    }
+
+    return false;
+}
+
+bool KeeperAI::repairRooms()
+{
+    if(mCooldownRepairRooms > 0)
+    {
+        --mCooldownRepairRooms;
+        return false;
+    }
+
+    mCooldownRepairRooms = Random::Int(3,10);
+
+    Seat* seat = mPlayer.getSeat();
+    std::vector<Tile*> tilesToRepair;
+    for(Room* room : mGameMap.getRooms())
+    {
+        if(room->getSeat() != seat)
+            continue;
+
+        const std::vector<Tile*>& tiles = room->getCoveredTilesDestroyed();
+        if(tiles.empty())
+            continue;
+
+        for(Tile* tile : tiles)
+        {
+            if(!tile->isBuildableUpon(seat))
+                continue;
+
+            tilesToRepair.push_back(tile);
+        }
+
+        if(!tilesToRepair.empty())
+        {
+            RoomType type = room->getType();
+            int goldRequired = Room::costPerTile(type) * tilesToRepair.size();
+
+            if(!mGameMap.withdrawFromTreasuries(goldRequired, mPlayer.getSeat()))
+                return false;
+
+            Room* room = nullptr;
+            switch(type)
+            {
+                case RoomType::crypt:
+                    room = new RoomCrypt(&mGameMap);
+                    break;
+                case RoomType::dormitory:
+                    room = new RoomDormitory(&mGameMap);
+                    break;
+                case RoomType::forge:
+                    room = new RoomForge(&mGameMap);
+                    break;
+                case RoomType::hatchery:
+                    room = new RoomHatchery(&mGameMap);
+                    break;
+                case RoomType::library:
+                    room = new RoomLibrary(&mGameMap);
+                    break;
+                case RoomType::trainingHall:
+                    room = new RoomTrainingHall(&mGameMap);
+                    break;
+                case RoomType::treasury:
+                    room = new RoomTreasury(&mGameMap);
+                    break;
+                default:
+                    OD_ASSERT_TRUE_MSG(false, "roomType=" + Room::getRoomNameFromRoomType(type));
+                    break;
+            }
+            if(room != nullptr)
+            {
+                buildRoom(room, tilesToRepair);
+                return true;
+            }
+            else
+            {
+                // We couldn't find the room type. We try another one
+                tilesToRepair.clear();
+            }
+        }
     }
 
     return false;
