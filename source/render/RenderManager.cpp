@@ -145,7 +145,7 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     Ogre::Entity* keeperHandEnt = mSceneManager->createEntity("keeperHandEnt", "Keeperhand.mesh");
     keeperHandEnt->setLightMask(0);
     keeperHandEnt->setCastShadows(false);
-    mHandAnimationState = keeperHandEnt->getAnimationState("Walk");
+    mHandAnimationState = keeperHandEnt->getAnimationState("Idle");
     mHandAnimationState->setTimePosition(0);
     mHandAnimationState->setLoop(true);
     mHandAnimationState->setEnabled(true);
@@ -158,6 +158,7 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
                                2.0f / BLENDER_UNITS_PER_OGRE_UNIT,
                                2.0f / BLENDER_UNITS_PER_OGRE_UNIT));
     mHandKeeperMesh->attachObject(keeperHandEnt);
+
     //Add a too small to be visible dummy dirt tile to the hand node
     //so that there will allways be a dirt tile "visible"
     //This is an ugly workaround for issue where destroying some entities messes
@@ -187,7 +188,7 @@ void RenderManager::updateRenderAnimations(Ogre::Real timeSinceLastFrame)
     if(mHandAnimationState->hasEnded())
     {
         Ogre::Entity* ent = mSceneManager->getEntity("keeperHandEnt");
-        mHandAnimationState = ent->getAnimationState("Walk");
+        mHandAnimationState = ent->getAnimationState("Idle");
         mHandAnimationState->setTimePosition(0);
         mHandAnimationState->setLoop(true);
     }
@@ -660,6 +661,12 @@ void RenderManager::rrDestroyMapLightVisualIndicator(MapLight* curMapLight)
 
 void RenderManager::rrPickUpEntity(GameEntity* curEntity, Player* localPlayer)
 {
+    Ogre::Entity* ent = mSceneManager->getEntity("keeperHandEnt");
+    mHandAnimationState = ent->getAnimationState("Pickup");
+    mHandAnimationState->setTimePosition(0);
+    mHandAnimationState->setLoop(false);
+    mHandAnimationState->setEnabled(true);
+
     // Detach the entity from its scene node
     Ogre::SceneNode* curEntityNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
     curEntity->getParentSceneNode()->removeChild(curEntityNode);
@@ -683,6 +690,12 @@ void RenderManager::rrPickUpEntity(GameEntity* curEntity, Player* localPlayer)
 
 void RenderManager::rrDropHand(GameEntity* curEntity, Player* localPlayer)
 {
+    Ogre::Entity* ent = mSceneManager->getEntity("keeperHandEnt");
+    mHandAnimationState = ent->getAnimationState("Drop");
+    mHandAnimationState->setTimePosition(0);
+    mHandAnimationState->setLoop(false);
+    mHandAnimationState->setEnabled(true);
+
     // Detach the entity from the "hand" scene node
     Ogre::SceneNode* curEntityNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
     mSceneManager->getSceneNode("Hand_node")->removeChild(curEntityNode);
@@ -1110,7 +1123,7 @@ void RenderManager::setHoveredTile(int tileX, int tileY)
 void RenderManager::entitySlapped()
 {
     Ogre::Entity* ent = mSceneManager->getEntity("keeperHandEnt");
-    mHandAnimationState = ent->getAnimationState("Idle");
+    mHandAnimationState = ent->getAnimationState("Slap");
     mHandAnimationState->setTimePosition(0);
     mHandAnimationState->setLoop(false);
     mHandAnimationState->setEnabled(true);
