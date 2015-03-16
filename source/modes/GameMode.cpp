@@ -1401,10 +1401,10 @@ void GameMode::createHelpWindow()
 void GameMode::refreshGuiResearch()
 {
     Seat* localPlayerSeat = mGameMap->getLocalPlayer()->getSeat();
-    if(!localPlayerSeat->getNeedRefreshGuiResearchDone())
+    if(!localPlayerSeat->getGuiResearchNeedsRefresh())
         return;
 
-    localPlayerSeat->guiResearchRefreshedDone();
+    localPlayerSeat->guiResearchRefreshed();
 
     const std::string okIcon = "OpenDungeonsIcons/CheckIcon";
     const std::string inProgressIcon = "OpenDungeonsIcons/CogIcon";
@@ -1418,6 +1418,11 @@ void GameMode::refreshGuiResearch()
     {
         guiSheet->getChild(Gui::BUTTON_DORMITORY)->show();
         researchButton->setProperty("StateImage", okIcon);
+        researchButton->setEnabled(false);
+    }
+    else if (localPlayerSeat->getCurrentResearch() == ResearchType::roomDormitory)
+    {
+        researchButton->setProperty("StateImage", inProgressIcon);
         researchButton->setEnabled(false);
     }
     else
@@ -1434,6 +1439,11 @@ void GameMode::refreshGuiResearch()
         researchButton->setProperty("StateImage", okIcon);
         researchButton->setEnabled(false);
     }
+    else if (localPlayerSeat->getCurrentResearch() == ResearchType::roomTreasury)
+    {
+        researchButton->setProperty("StateImage", inProgressIcon);
+        researchButton->setEnabled(false);
+    }
     else
     {
         guiSheet->getChild(Gui::BUTTON_TREASURY)->hide();
@@ -1446,6 +1456,11 @@ void GameMode::refreshGuiResearch()
     {
         guiSheet->getChild(Gui::BUTTON_HATCHERY)->show();
         researchButton->setProperty("StateImage", okIcon);
+        researchButton->setEnabled(false);
+    }
+    else if (localPlayerSeat->getCurrentResearch() == ResearchType::roomHatchery)
+    {
+        researchButton->setProperty("StateImage", inProgressIcon);
         researchButton->setEnabled(false);
     }
     else
@@ -1462,6 +1477,11 @@ void GameMode::refreshGuiResearch()
         researchButton->setProperty("StateImage", okIcon);
         researchButton->setEnabled(false);
     }
+    else if (localPlayerSeat->getCurrentResearch() == ResearchType::roomLibrary)
+    {
+        researchButton->setProperty("StateImage", inProgressIcon);
+        researchButton->setEnabled(false);
+    }
     else
     {
         guiSheet->getChild(Gui::BUTTON_LIBRARY)->hide();
@@ -1474,6 +1494,11 @@ void GameMode::refreshGuiResearch()
     {
         guiSheet->getChild(Gui::BUTTON_CRYPT)->show();
         researchButton->setProperty("StateImage", okIcon);
+        researchButton->setEnabled(false);
+    }
+    else if (localPlayerSeat->getCurrentResearch() == ResearchType::roomCrypt)
+    {
+        researchButton->setProperty("StateImage", inProgressIcon);
         researchButton->setEnabled(false);
     }
     else
@@ -1490,6 +1515,11 @@ void GameMode::refreshGuiResearch()
         researchButton->setProperty("StateImage", okIcon);
         researchButton->setEnabled(false);
     }
+    else if (localPlayerSeat->getCurrentResearch() == ResearchType::roomTrainingHall)
+    {
+        researchButton->setProperty("StateImage", inProgressIcon);
+        researchButton->setEnabled(false);
+    }
     else
     {
         guiSheet->getChild(Gui::BUTTON_TRAININGHALL)->hide();
@@ -1502,6 +1532,11 @@ void GameMode::refreshGuiResearch()
     {
         guiSheet->getChild(Gui::BUTTON_FORGE)->show();
         researchButton->setProperty("StateImage", okIcon);
+        researchButton->setEnabled(false);
+    }
+    else if (localPlayerSeat->getCurrentResearch() == ResearchType::roomForge)
+    {
+        researchButton->setProperty("StateImage", inProgressIcon);
         researchButton->setEnabled(false);
     }
     else
@@ -1518,6 +1553,11 @@ void GameMode::refreshGuiResearch()
         researchButton->setProperty("StateImage", okIcon);
         researchButton->setEnabled(false);
     }
+    else if (localPlayerSeat->getCurrentResearch() == ResearchType::trapCannon)
+    {
+        researchButton->setProperty("StateImage", inProgressIcon);
+        researchButton->setEnabled(false);
+    }
     else
     {
         guiSheet->getChild(Gui::BUTTON_TRAP_CANNON)->hide();
@@ -1530,6 +1570,11 @@ void GameMode::refreshGuiResearch()
     {
         guiSheet->getChild(Gui::BUTTON_TRAP_SPIKE)->show();
         researchButton->setProperty("StateImage", okIcon);
+        researchButton->setEnabled(false);
+    }
+    else if (localPlayerSeat->getCurrentResearch() == ResearchType::trapSpike)
+    {
+        researchButton->setProperty("StateImage", inProgressIcon);
         researchButton->setEnabled(false);
     }
     else
@@ -1546,6 +1591,11 @@ void GameMode::refreshGuiResearch()
         researchButton->setProperty("StateImage", okIcon);
         researchButton->setEnabled(false);
     }
+    else if (localPlayerSeat->getCurrentResearch() == ResearchType::trapBoulder)
+    {
+        researchButton->setProperty("StateImage", inProgressIcon);
+        researchButton->setEnabled(false);
+    }
     else
     {
         guiSheet->getChild(Gui::BUTTON_TRAP_BOULDER)->hide();
@@ -1560,6 +1610,11 @@ void GameMode::refreshGuiResearch()
         researchButton->setProperty("StateImage", okIcon);
         researchButton->setEnabled(false);
     }
+    else if (localPlayerSeat->getCurrentResearch() == ResearchType::spellSummonWorker)
+    {
+        researchButton->setProperty("StateImage", inProgressIcon);
+        researchButton->setEnabled(false);
+    }
     else
     {
         guiSheet->getChild(Gui::BUTTON_SPELL_SUMMON_WORKER)->hide();
@@ -1572,6 +1627,11 @@ void GameMode::refreshGuiResearch()
     {
         guiSheet->getChild(Gui::BUTTON_SPELL_CALLTOWAR)->show();
         researchButton->setProperty("StateImage", okIcon);
+        researchButton->setEnabled(false);
+    }
+    else if (localPlayerSeat->getCurrentResearch() == ResearchType::spellCallToWar)
+    {
+        researchButton->setProperty("StateImage", inProgressIcon);
         researchButton->setEnabled(false);
     }
     else
