@@ -68,8 +68,8 @@ public:
 
     virtual MissileObjectType getMissileType() const = 0;
 
-    virtual void exportHeadersToStream(std::ostream& os) override;
-    virtual void exportHeadersToPacket(ODPacket& os) override;
+    virtual void exportHeadersToStream(std::ostream& os) const override;
+    virtual void exportHeadersToPacket(ODPacket& os) const override;
     void exportToStream(std::ostream& os) const override;
     void importFromStream(std::istream& is) override;
 

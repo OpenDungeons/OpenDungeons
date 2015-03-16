@@ -264,13 +264,13 @@ void GameEntity::fireRemoveEntityToSeatsWithVision()
     mSeatsWithVisionNotified.clear();
 }
 
-void GameEntity::exportHeadersToStream(std::ostream& os)
+void GameEntity::exportHeadersToStream(std::ostream& os) const
 {
     // GameEntity are saved in the level file per type. For this reason, there is no
     // need to save the type
 }
 
-void GameEntity::exportHeadersToPacket(ODPacket& os)
+void GameEntity::exportHeadersToPacket(ODPacket& os) const
 {
     os << getObjectType();
 }

@@ -62,7 +62,7 @@ public:
     { return GameEntityType::room; }
 
     virtual void addToGameMap();
-    virtual void removeFromGameMap();
+    virtual void removeFromGameMap() override;
 
     virtual void absorbRoom(Room* r);
 
@@ -74,8 +74,8 @@ public:
     /*! \brief Exports the headers needed to recreate the Room. It allows to extend Room as much as wanted.
      * The content of the Room will be exported by exportToPacket.
      */
-    virtual void exportHeadersToStream(std::ostream& os) override;
-    virtual void exportHeadersToPacket(ODPacket& os) override;
+    virtual void exportHeadersToStream(std::ostream& os) const override;
+    virtual void exportHeadersToPacket(ODPacket& os) const override;
     //! \brief Exports the data of the Room
     virtual void exportToStream(std::ostream& os) const override;
     virtual void importFromStream(std::istream& is) override;

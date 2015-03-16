@@ -727,12 +727,12 @@ void Room::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
     removeBuildingObject(tile);
 }
 
-void Room::exportHeadersToStream(std::ostream& os)
+void Room::exportHeadersToStream(std::ostream& os) const
 {
     os << getType() << "\t";
 }
 
-void Room::exportHeadersToPacket(ODPacket& os)
+void Room::exportHeadersToPacket(ODPacket& os) const
 {
     os << getType();
 }

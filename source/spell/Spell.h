@@ -54,8 +54,8 @@ public:
 
     virtual SpellType getSpellType() const = 0;
 
-    virtual void addToGameMap();
-    virtual void removeFromGameMap();
+    virtual void addToGameMap() override;
+    virtual void removeFromGameMap() override;
 
     static std::string getSpellNameFromSpellType(SpellType t);
 
@@ -73,8 +73,8 @@ public:
     /*! \brief Exports the headers needed to recreate the Spell. It allows to extend Spells as much as wanted.
      * The content of the Spell will be exported by exportToPacket.
      */
-    virtual void exportHeadersToStream(std::ostream& os) override;
-    virtual void exportHeadersToPacket(ODPacket& os) override;
+    virtual void exportHeadersToStream(std::ostream& os) const override;
+    virtual void exportHeadersToPacket(ODPacket& os) const override;
 
     static std::string getSpellStreamFormat();
 

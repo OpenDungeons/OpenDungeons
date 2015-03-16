@@ -61,7 +61,7 @@ public:
     static const std::string MAPLIGHT_NAME_PREFIX;
 
     virtual void addToGameMap();
-    virtual void removeFromGameMap();
+    virtual void removeFromGameMap() override;
 
     virtual void doUpkeep()
     {}

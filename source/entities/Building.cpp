@@ -81,13 +81,11 @@ void Building::removeAllBuildingObjects()
     if(mBuildingObjects.empty())
         return;
 
-    std::map<Tile*, RenderedMovableEntity*>::iterator itr = mBuildingObjects.begin();
-    while (itr != mBuildingObjects.end())
+    for (std::pair<Tile* const, RenderedMovableEntity*>& p : mBuildingObjects)
     {
-        RenderedMovableEntity* obj = itr->second;
+        RenderedMovableEntity* obj = p.second;
         obj->removeFromGameMap();
         obj->deleteYourself();
-        ++itr;
     }
     mBuildingObjects.clear();
 }
@@ -197,11 +195,6 @@ Tile* Building::getCoveredTile(int index)
         return nullptr;
 
     return mCoveredTiles[index];
-}
-
-uint32_t Building::numCoveredTiles()
-{
-    return mCoveredTiles.size();
 }
 
 void Building::clearCoveredTiles()

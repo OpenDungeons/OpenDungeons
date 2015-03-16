@@ -520,12 +520,12 @@ std::string Trap::getTrapStreamFormat()
     return "typeTrap\tname\tseatId\tnumTiles\t\tSubsequent Lines: tileX\ttileY\tisActivated(0/1)\t\tSubsequent Lines: optional specific data";
 }
 
-void Trap::exportHeadersToStream(std::ostream& os)
+void Trap::exportHeadersToStream(std::ostream& os) const
 {
     os << getType() << "\t";
 }
 
-void Trap::exportHeadersToPacket(ODPacket& os)
+void Trap::exportHeadersToPacket(ODPacket& os) const
 {
     os << getType();
 }

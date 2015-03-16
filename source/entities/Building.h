@@ -75,7 +75,9 @@ public:
     virtual bool removeCoveredTile(Tile* t);
     std::vector<Tile*> getCoveredTiles();
     Tile* getCoveredTile(int index);
-    uint32_t numCoveredTiles();
+    uint32_t numCoveredTiles()
+    { return mCoveredTiles.size(); }
+
     virtual void clearCoveredTiles();
     double getHP(Tile *tile) const;
     double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile *tileTakingDamage);

@@ -138,8 +138,8 @@ public:
     virtual GameEntityType getObjectType() const
     { return GameEntityType::trap; }
 
-    virtual void addToGameMap();
-    virtual void removeFromGameMap();
+    virtual void addToGameMap() override;
+    virtual void removeFromGameMap() override;
 
     static Trap* getTrapFromStream(GameMap* gameMap, std::istream &is);
     static Trap* getTrapFromPacket(GameMap* gameMap, ODPacket &is);
@@ -181,8 +181,8 @@ public:
     /*! \brief Exports the headers needed to recreate the Trap. It allows to extend Traps as much as wanted.
      * The content of the Trap will be exported by exportToPacket.
      */
-    virtual void exportHeadersToStream(std::ostream& os) override;
-    virtual void exportHeadersToPacket(ODPacket& os) override;
+    virtual void exportHeadersToStream(std::ostream& os) const override;
+    virtual void exportHeadersToPacket(ODPacket& os) const override;
     //! \brief Exports the data of the Trap
     virtual void exportToStream(std::ostream& os) const override;
     virtual void importFromStream(std::istream& is) override;

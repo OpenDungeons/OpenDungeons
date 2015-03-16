@@ -42,7 +42,7 @@ public:
     static const std::string RENDEREDMOVABLEENTITY_PREFIX;
 
     virtual void addToGameMap();
-    virtual void removeFromGameMap();
+    virtual void removeFromGameMap() override;
 
     bool getHideCoveredTile() const
     { return mHideCoveredTile; }
