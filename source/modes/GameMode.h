@@ -96,6 +96,11 @@ class GameMode final : public GameEditorModeBase
     bool hideObjectivesWindow(const CEGUI::EventArgs& = {});
     bool toggleObjectivesWindow(const CEGUI::EventArgs& = {});
 
+    //! \brief Shows/hides/toggles the Research window
+    bool showResearchWindow(const CEGUI::EventArgs& = {});
+    bool hideResearchWindow(const CEGUI::EventArgs& = {});
+    bool toggleResearchWindow(const CEGUI::EventArgs& = {});
+
     //! \brief Shows/hides/toggles the options window
     bool showOptionsWindow(const CEGUI::EventArgs& = {});
     bool hideOptionsWindow(const CEGUI::EventArgs& = {});
@@ -107,6 +112,7 @@ protected:
     //! \brief The different Game Options Menu handlers
     bool showQuitMenuFromOptions(const CEGUI::EventArgs& e = {});
     bool showObjectivesFromOptions(const CEGUI::EventArgs& e = {});
+    bool showResearchFromOptions(const CEGUI::EventArgs& e = {});
     bool saveGame(const CEGUI::EventArgs& e = {});
     bool showSettingsFromOptions(const CEGUI::EventArgs& e = {});
 

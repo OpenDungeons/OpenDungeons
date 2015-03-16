@@ -239,6 +239,9 @@ public:
     bool isResearching() const
     { return mCurrentResearch != nullptr; }
 
+    //! \brief Gets the current research to do
+    ResearchType getCurrentResearch() const;
+
     //! \brief Checks if the given spell is available for the Player. This check
     //! should be done on server side to avoid cheating
     bool isSpellAvailable(SpellType type) const;
@@ -274,17 +277,11 @@ public:
     //! Used on both client and server side
     void setResearchesDone(const std::vector<ResearchType>& researches);
 
-    inline bool getNeedRefreshGuiResearchDone() const
-    { return mNeedRefreshGuiResearchDone; }
+    inline bool getGuiResearchNeedsRefresh() const
+    { return mGuiResearchNeedsRefresh; }
 
-    inline void guiResearchRefreshedDone()
-    { mNeedRefreshGuiResearchDone = false; }
-
-    inline bool getNeedRefreshGuiResearchPending() const
-    { return mNeedRefreshGuiResearchPending; }
-
-    inline void guiResearchRefreshedPending()
-    { mNeedRefreshGuiResearchPending = false; }
+    inline void guiResearchRefreshed()
+    { mGuiResearchNeedsRefresh = false; }
 
     //! Called when a tile is notified to the seat player. That allows to save the state
     //! Used on server side only
@@ -414,13 +411,9 @@ private:
     //! \brief Currently researched Research. This pointer is external and should not be deleted
     const Research* mCurrentResearch;
 
-    //! \brief true if the available list of research changed. False otherwise. This will be pulled
-    //! by the GameMode to know if it should refresh GUI or not.
-    bool mNeedRefreshGuiResearchDone;
-
-    //! true if the pending researches have changed. False otherwise. This will be pulled
-    //! by the GameMode to know if it should refresh GUI or not.
-    bool mNeedRefreshGuiResearchPending;
+    //! \brief true when the Research tree Gui needs to be refreshed. Used by the game mode
+    //! to know when to update its corresponding window.
+    bool mGuiResearchNeedsRefresh;
 
     //! \brief Researches already done. This is used on both client and server side and should be updated
     std::vector<ResearchType> mResearchDone;
