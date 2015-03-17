@@ -622,9 +622,10 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             packetSend << nbPlayers;
             const std::string& nick = clientSocket->getPlayer()->getNick();
             int32_t id = clientSocket->getPlayer()->getId();
-            int seatId = seat->getId();
+            int32_t seatId = seat->getId();
+            int32_t teamId = 0;
             seat->setMapSize(gameMap->getMapSizeX(), gameMap->getMapSizeY());
-            packetSend << nick << id << seatId;
+            packetSend << nick << id << seatId << teamId;
             sendMsgToClient(clientSocket, packetSend);
 
             packetSend.clear();
