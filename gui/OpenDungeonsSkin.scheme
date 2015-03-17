@@ -37,6 +37,7 @@
     <FalagardMapping lookNFeel="OD/TabButtonPane" renderer="Core/Default" targetType="DefaultWindow" windowType="OD/TabButtonPane" />
     <FalagardMapping lookNFeel="OD/ComboDropList" renderer="Core/Listbox" targetType="CEGUI/ComboDropList" windowType="OD/ComboDropList" />
     <FalagardMapping lookNFeel="OD/ComboEditbox" renderer="Core/Editbox" targetType="CEGUI/Editbox" windowType="OD/ComboEditbox" />
+    <FalagardMapping lookNFeel="OD/ComboBoxButton" renderer="Core/Button" targetType="CEGUI/PushButton" windowType="OD/ComboBoxButton" />
     <FalagardMapping lookNFeel="OD/Combobox" renderer="Core/Default" targetType="CEGUI/Combobox" windowType="OD/Combobox" />
     <FalagardMapping lookNFeel="OD/Listbox" renderer="Core/Listbox" targetType="CEGUI/Listbox" windowType="OD/Listbox" />
     <FalagardMapping lookNFeel="OD/ListHeader" renderer="Core/ListHeader" targetType="CEGUI/ListHeader" windowType="OD/ListHeader" />

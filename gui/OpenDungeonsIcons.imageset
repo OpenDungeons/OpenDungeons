@@ -18,6 +18,7 @@
     <Image height="60" name="FighterButton" width="60" xPos="61" yPos="385" />
     <Image height="60" name="WoodenBridgeButton" width="60" xPos="1" yPos="157" />
     <Image height="60" name="StoneBridgeButton" width="60" xPos="63" yPos="157" />
+    <Image height="60" name="WorkshopButton" width="60" xPos="126" yPos="157" />
     <Image height="60" name="TempleButton" width="60" xPos="322" yPos="157" />
     <Image height="60" name="PortalButton" width="60" xPos="382" yPos="157" />
     <Image height="60" name="SummonWorkerButton" width="60" xPos="1" yPos="325" />

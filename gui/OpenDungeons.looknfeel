@@ -2213,7 +2213,13 @@
                     <Dim type="Height"><UnifiedDim scale="1.0" type="Height" /></Dim>
                 </Area>
                 <Image component="LeftEdge" name="OpenDungeonsSkin/ComboboxEditLeft" />
-                <Image component="Background" name="OpenDungeonsSkin/ComboboxEditMiddle" />
+                <Image component="Background" name="OpenDungeonsSkin/ComboboxEditBackground" />
+                <Image component="TopLeftCorner" name="OpenDungeonsSkin/ComboboxEditTopLeft" />
+                <Image component="BottomLeftCorner" name="OpenDungeonsSkin/ComboboxEditBottomLeft" />
+                <Image component="LeftEdge" name="OpenDungeonsSkin/ComboboxEditLeft" />
+                <Image component="TopEdge" name="OpenDungeonsSkin/ComboboxEditTop" />
+                <Image component="BottomEdge" name="OpenDungeonsSkin/ComboboxEditBottom" />
+                <Image component="Background" name="OpenDungeonsSkin/ComboboxEditBackground" />
             </FrameComponent>
         </ImagerySection>
         <ImagerySection name="selection">
@@ -2275,6 +2281,166 @@
         </StateImagery>
     </WidgetLook>
 
+    <WidgetLook name="OD/ComboBoxButton">
+        <PropertyDefinition initialValue="FFFFFFFF" name="NormalTextColour" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="FFFFFFFF" name="HoverTextColour" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="FFFFFFFF" name="PushedTextColour" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="FF7F7F7F" name="DisabledTextColour" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="CentreAligned" name="VertLabelFormatting" />
+        <PropertyDefinition initialValue="CentreAligned" name="HorzLabelFormatting" />
+        <PropertyDefinition initialValue="" name="NormalImage" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="" name="HoverImage" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="" name="PushedImage" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="" name="DisabledImage" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="Stretched" name="VertImageFormatting" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="Stretched" name="HorzImageFormatting" redrawOnWrite="true" />
+        <ImagerySection name="label">
+            <TextComponent>
+                <Area>
+                    <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
+                    <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
+                </Area>
+                <VertFormatProperty name="VertLabelFormatting" />
+                <HorzFormatProperty name="HorzLabelFormatting" />
+            </TextComponent>
+        </ImagerySection>
+        <ImagerySection name="normal">
+            <FrameComponent>
+                <Area>
+                    <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
+                    <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
+                </Area>
+                <Image component="TopLeftCorner" name="OpenDungeonsSkin/ComboboxListButtonNormalTopLeft" />
+                <Image component="TopRightCorner" name="OpenDungeonsSkin/ComboboxListButtonNormalTopRight" />
+                <Image component="BottomLeftCorner" name="OpenDungeonsSkin/ComboboxListButtonNormalBottomLeft" />
+                <Image component="BottomRightCorner" name="OpenDungeonsSkin/ComboboxListButtonNormalBottomRight" />
+                <Image component="LeftEdge" name="OpenDungeonsSkin/ComboboxListButtonNormalLeft" />
+                <Image component="RightEdge" name="OpenDungeonsSkin/ComboboxListButtonNormalRight" />
+                <Image component="TopEdge" name="OpenDungeonsSkin/ComboboxListButtonNormalTop" />
+                <Image component="BottomEdge" name="OpenDungeonsSkin/ComboboxListButtonNormalBottom" />
+                <Image component="Background" name="OpenDungeonsSkin/ComboboxListButtonNormalBackground" />
+            </FrameComponent>
+            <ImageryComponent>
+                <Area>
+                    <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
+                    <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
+                </Area>
+                <ImageProperty name="NormalImage" />
+                <VertFormatProperty name="VertImageFormatting" />
+                <HorzFormatProperty name="HorzImageFormatting" />
+            </ImageryComponent>
+        </ImagerySection>
+        <ImagerySection name="hover">
+            <FrameComponent>
+                <Area>
+                    <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
+                    <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
+                </Area>
+                <Image component="TopLeftCorner" name="OpenDungeonsSkin/ComboboxListButtonHoverTopLeft" />
+                <Image component="TopRightCorner" name="OpenDungeonsSkin/ComboboxListButtonHoverTopRight" />
+                <Image component="BottomLeftCorner" name="OpenDungeonsSkin/ComboboxListButtonHoverBottomLeft" />
+                <Image component="BottomRightCorner" name="OpenDungeonsSkin/ComboboxListButtonHoverBottomRight" />
+                <Image component="LeftEdge" name="OpenDungeonsSkin/ComboboxListButtonHoverLeft" />
+                <Image component="RightEdge" name="OpenDungeonsSkin/ComboboxListButtonHoverRight" />
+                <Image component="TopEdge" name="OpenDungeonsSkin/ComboboxListButtonHoverTop" />
+                <Image component="BottomEdge" name="OpenDungeonsSkin/ComboboxListButtonHoverBottom" />
+                <Image component="Background" name="OpenDungeonsSkin/ComboboxListButtonHoverBackground" />
+            </FrameComponent>
+            <ImageryComponent>
+                <Area>
+                    <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
+                    <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
+                </Area>
+                <ImageProperty name="HoverImage" />
+                <VertFormatProperty name="VertImageFormatting" />
+                <HorzFormatProperty name="HorzImageFormatting" />
+            </ImageryComponent>
+        </ImagerySection>
+        <ImagerySection name="pushed">
+            <FrameComponent>
+                <Area>
+                    <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
+                    <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
+                </Area>
+                <Image component="TopLeftCorner" name="OpenDungeonsSkin/ComboboxListButtonNormalTopLeft" />
+                <Image component="TopRightCorner" name="OpenDungeonsSkin/ComboboxListButtonNormalTopRight" />
+                <Image component="BottomLeftCorner" name="OpenDungeonsSkin/ComboboxListButtonNormalBottomLeft" />
+                <Image component="BottomRightCorner" name="OpenDungeonsSkin/ComboboxListButtonNormalBottomRight" />
+                <Image component="LeftEdge" name="OpenDungeonsSkin/ComboboxListButtonNormalLeft" />
+                <Image component="RightEdge" name="OpenDungeonsSkin/ComboboxListButtonNormalRight" />
+                <Image component="TopEdge" name="OpenDungeonsSkin/ComboboxListButtonNormalTop" />
+                <Image component="BottomEdge" name="OpenDungeonsSkin/ComboboxListButtonNormalBottom" />
+                <Image component="Background" name="OpenDungeonsSkin/ComboboxListButtonNormalBackground" />
+            </FrameComponent>
+            <ImageryComponent>
+                <Area>
+                    <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
+                    <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
+                </Area>
+                <ImageProperty name="PushedImage" />
+                <VertFormatProperty name="VertImageFormatting" />
+                <HorzFormatProperty name="HorzImageFormatting" />
+            </ImageryComponent>
+        </ImagerySection>
+        <StateImagery name="Normal">
+            <Layer>
+                <Section section="normal" />
+                <Section section="label">
+                    <ColourProperty name="NormalTextColour" />
+                </Section>
+            </Layer>
+        </StateImagery>
+        <StateImagery name="Hover">
+            <Layer>
+                <Section section="hover" />
+                <Section section="label">
+                    <ColourProperty name="HoverTextColour" />
+                </Section>
+            </Layer>
+        </StateImagery>
+        <StateImagery name="Pushed">
+            <Layer>
+                <Section section="pushed" />
+                <Section section="label">
+                    <ColourProperty name="PushedTextColour" />
+                </Section>
+            </Layer>
+        </StateImagery>
+        <StateImagery name="PushedOff">
+            <Layer>
+                <Section section="hover" />
+                <Section section="label">
+                    <ColourProperty name="HoverTextColour" />
+                </Section>
+            </Layer>
+        </StateImagery>
+        <StateImagery name="Disabled">
+            <Layer>
+                <Section section="normal">
+                    <Colours bottomLeft="FF7F7F7F" bottomRight="FF7F7F7F" topLeft="FF7F7F7F" topRight="FF7F7F7F" />
+                </Section>
+                <Section section="label">
+                    <ColourProperty name="DisabledTextColour" />
+                </Section>
+            </Layer>
+        </StateImagery>
+    </WidgetLook>
+
+
     <WidgetLook name="OD/Combobox">
         <PropertyLinkDefinition initialValue="FFFFFFFF" name="NormalEditTextColour" targetProperty="NormalTextColour" widget="__auto_editbox__" />
         <PropertyLinkDefinition initialValue="FF000000" name="SelectedEditTextColour" targetProperty="SelectedTextColour" widget="__auto_editbox__" />
@@ -2309,7 +2475,7 @@
                 <Dim type="BottomEdge"><UnifiedDim scale="1" type="BottomEdge" /></Dim>
             </Area>
         </Child>
-        <Child nameSuffix="__auto_button__" type="OD/Button">
+        <Child nameSuffix="__auto_button__" type="OD/ComboBoxButton">
             <Area>
                 <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
                 <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
@@ -2317,9 +2483,6 @@
                 <Dim type="Height"><WidgetDim dimension="Height" widget="__auto_editbox__" /></Dim>
             </Area>
             <HorzAlignment type="RightAligned" />
-            <Property name="NormalImage" value="OpenDungeonsSkin/ComboboxListButtonNormal" />
-            <Property name="HoverImage" value="OpenDungeonsSkin/ComboboxListButtonHover" />
-            <Property name="PushedImage" value="OpenDungeonsSkin/ComboboxListButtonNormal" />
         </Child>
         <StateImagery name="Enabled" />
         <StateImagery name="Disabled" />

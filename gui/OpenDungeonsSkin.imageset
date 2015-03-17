@@ -123,19 +123,18 @@
     <Image height="14" name="RadioButtonNormal" width="14" xPos="40" yPos="21" />
     <Image height="14" name="RadioButtonHover" width="14" xPos="40" yPos="49" />
     <Image height="14" name="RadioButtonMark" width="14" xPos="40" yPos="35" />
-    <Image height="18" name="ComboboxEditLeft" width="10" xPos="5" yPos="73" />
-    <Image height="18" name="ComboboxEditMiddle" width="11" xPos="15" yPos="73" />
-    <Image height="18" name="ComboboxListButtonNormal" width="17" xPos="26" yPos="73" />
-    <Image height="18" name="ComboboxListButtonHover" width="17" xPos="26" yPos="92" />
-    <Image height="10" name="ComboboxListTopLeft" width="10" xPos="5" yPos="111" />
-    <Image height="10" name="ComboboxListTopRight" width="10" xPos="25" yPos="111" />
-    <Image height="10" name="ComboboxListLeft" width="10" xPos="5" yPos="121" />
-    <Image height="10" name="ComboboxListRight" width="10" xPos="25" yPos="121" />
-    <Image height="9" name="ComboboxListBottomLeft" width="10" xPos="5" yPos="131" />
-    <Image height="9" name="ComboboxListBottomRight" width="10" xPos="25" yPos="131" />
-    <Image height="9" name="ComboboxListBottom" width="10" xPos="15" yPos="131" />
-    <Image height="10" name="ComboboxListBackdrop" width="10" xPos="15" yPos="121" />
-    <Image height="10" name="ComboboxListTop" width="10" xPos="15" yPos="111" />
+    <Image height="4" name="ComboboxEditTopLeft" width="4" xPos="5" yPos="73" />
+    <Image height="4" name="ComboboxEditTop" width="17" xPos="9" yPos="73" />
+    <Image height="4" name="ComboboxListButtonNormalTopLeft" width="3" xPos="26" yPos="73" />
+    <Image height="3" name="ComboboxListTopLeft" width="4" xPos="5" yPos="111" />
+    <Image height="3" name="ComboboxListTopRight" width="4" xPos="31" yPos="111" />
+    <Image height="22" name="ComboboxListLeft" width="4" xPos="5" yPos="114" />
+    <Image height="22" name="ComboboxListRight" width="4" xPos="31" yPos="114" />
+    <Image height="4" name="ComboboxListBottomLeft" width="4" xPos="5" yPos="136" />
+    <Image height="4" name="ComboboxListBottomRight" width="4" xPos="31" yPos="136" />
+    <Image height="4" name="ComboboxListBottom" width="22" xPos="9" yPos="136" />
+    <Image height="22" name="ComboboxListBackdrop" width="22" xPos="9" yPos="114" />
+    <Image height="3" name="ComboboxListTop" width="22" xPos="9" yPos="111" />
     <Image height="10" name="StaticLeft" width="2" xPos="10" yPos="38" />
     <Image height="10" name="StaticRight" width="2" xPos="16" yPos="38" />
     <Image height="2" name="StaticBottom" width="4" xPos="12" yPos="48" />
@@ -287,4 +286,25 @@
     <Image height="60" name="ButtonDisabledEffect" width="60" xPos="127" yPos="283" />
     <Image height="60" name="ButtonPushedEffect" width="60" xPos="189" yPos="283" />
     <Image height="60" name="ButtonFrame" width="60" xPos="261" yPos="283" />
+    <Image height="4" name="ComboboxEditBottomLeft" width="4" xPos="5" yPos="87" />
+    <Image height="10" name="ComboboxEditLeft" width="4" xPos="5" yPos="77" />
+    <Image height="4" name="ComboboxEditBottom" width="17" xPos="9" yPos="87" />
+    <Image height="10" name="ComboboxEditBackground" width="17" xPos="9" yPos="77" />
+    <Image height="4" name="ComboboxListButtonNormalTopRight" width="4" xPos="39" yPos="73" />
+    <Image height="4" name="ComboboxListButtonNormalBottomRight" width="4" xPos="39" yPos="87" />
+    <Image height="4" name="ComboboxListButtonNormalBottomLeft" width="3" xPos="26" yPos="87" />
+    <Image height="10" name="ComboboxListButtonNormalLeft" width="3" xPos="26" yPos="77" />
+    <Image height="4" name="ComboboxListButtonNormalTop" width="10" xPos="29" yPos="73" />
+    <Image height="4" name="ComboboxListButtonNormalBottom" width="10" xPos="29" yPos="87" />
+    <Image height="10" name="ComboboxListButtonNormalRight" width="4" xPos="39" yPos="77" />
+    <Image height="10" name="ComboboxListButtonNormalBackground" width="10" xPos="29" yPos="77" />
+    <Image height="4" name="ComboboxListButtonHoverBottom" width="10" xPos="29" yPos="106" />
+    <Image height="4" name="ComboboxListButtonHoverTop" width="10" xPos="29" yPos="92" />
+    <Image height="4" name="ComboboxListButtonHoverTopLeft" width="3" xPos="26" yPos="92" />
+    <Image height="10" name="ComboboxListButtonHoverLeft" width="3" xPos="26" yPos="96" />
+    <Image height="4" name="ComboboxListButtonHoverBottomLeft" width="3" xPos="26" yPos="106" />
+    <Image height="10" name="ComboboxListButtonHoverBackground" width="10" xPos="29" yPos="96" />
+    <Image height="4" name="ComboboxListButtonHoverTopRight" width="4" xPos="39" yPos="92" />
+    <Image height="10" name="ComboboxListButtonHoverRight" width="4" xPos="39" yPos="96" />
+    <Image height="4" name="ComboboxListButtonHoverBottomRight" width="4" xPos="39" yPos="106" />
 </Imageset>
