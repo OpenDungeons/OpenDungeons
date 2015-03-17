@@ -61,6 +61,9 @@ public:
     virtual void importFromPacket(ODPacket& is) override;
     virtual bool notifyRemoveAsked() override;
 
+    const std::vector<Seat*>& getSeatsAlreadyNotifiedOnce() const
+    { return mSeatsAlreadyNotifiedOnce; }
+
     static PersistentObject* getPersistentObjectFromPacket(GameMap* gameMap, ODPacket& is);
 
 protected:

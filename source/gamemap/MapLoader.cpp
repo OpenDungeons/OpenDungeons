@@ -689,9 +689,9 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     levelFile << "# " << Trap::getTrapStreamFormat() << "\n";
     for (Trap* trap : gameMap.getTraps())
     {
-        // Traps with 0 tiles are removed during upkeep. In editor mode, we don't use upkeep so there might be some traps with
+        // In editor mode, we don't use upkeep so there might be some traps with
         // 0 tiles (if a trap has been erased for example). For this reason, we don't save traps with 0 tiles
-        if(trap->numCoveredTiles() <= 0)
+        if(gameMap.isInEditorMode() && trap->numCoveredTiles() <= 0)
             continue;
 
         levelFile << "[Trap]" << std::endl;

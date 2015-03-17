@@ -58,7 +58,8 @@ public:
         mReloadTime(0),
         mCraftedTrap(nullptr),
         mNbShootsBeforeDeactivation(0),
-        mTrapEntity(nullptr)
+        mTrapEntity(nullptr),
+        mIsWorking(false)
     {}
 
     TrapTileInfo(uint32_t reloadTime, bool activated):
@@ -66,7 +67,8 @@ public:
         mReloadTime(reloadTime),
         mCraftedTrap(nullptr),
         mNbShootsBeforeDeactivation(0),
-        mTrapEntity(nullptr)
+        mTrapEntity(nullptr),
+        mIsWorking(false)
     {}
 
     inline void setTrapEntity(TrapEntity* trapEntity)
@@ -87,7 +89,7 @@ public:
         return false;
     }
 
-    void setActivated(bool activated)
+    inline void setActivated(bool activated)
     { mIsActivated = activated; }
 
     bool decreaseShoot()
@@ -102,20 +104,35 @@ public:
         return false;
     }
 
-    bool isActivated() const
+    inline bool isActivated() const
     { return mIsActivated; }
 
-    void setReloadTime(uint32_t reloadTime)
+    inline uint32_t getReloadTime() const
+    { return mReloadTime; }
+
+    inline void setReloadTime(uint32_t reloadTime)
     { mReloadTime = reloadTime; }
 
-    void setNbShootsBeforeDeactivation(int32_t nbShoot)
+    inline void setNbShootsBeforeDeactivation(int32_t nbShoot)
     { mNbShootsBeforeDeactivation = nbShoot; }
 
-    void setCarriedCraftedTrap(CraftedTrap* craftedTrap)
+    inline int32_t getNbShootsBeforeDeactivation() const
+    { return mNbShootsBeforeDeactivation; }
+
+    inline void setCarriedCraftedTrap(CraftedTrap* craftedTrap)
     { mCraftedTrap = craftedTrap; }
 
-    CraftedTrap* getCarriedCraftedTrap() const
+    inline CraftedTrap* getCarriedCraftedTrap() const
     { return mCraftedTrap; }
+
+    inline std::vector<int>& getSeatsVision()
+    { return mSeatsVision; }
+
+    inline bool getIsWorking() const
+    { return mIsWorking; }
+
+    inline void setIsWorking(bool isWorking)
+    { mIsWorking = isWorking; }
 
 private:
     bool mIsActivated;
@@ -123,6 +140,10 @@ private:
     CraftedTrap* mCraftedTrap;
     int32_t mNbShootsBeforeDeactivation;
     TrapEntity* mTrapEntity;
+    //! Seats with vision at map loading (when loading saved game). Note that only
+    //! enemy seats are required since allied since will already have vision
+    std::vector<int> mSeatsVision;
+    bool mIsWorking;
 };
 
 /*! \class Trap Trap.h
