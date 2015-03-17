@@ -35,7 +35,7 @@ enum class ResearchType
     roomHatchery,
     roomTrainingHall,
     roomLibrary,
-    roomForge,
+    roomWorkshop,
     roomCrypt,
 
     // Traps

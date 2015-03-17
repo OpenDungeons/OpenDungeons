@@ -36,7 +36,7 @@ enum class RoomType
     dormitory,
     treasury,
     portal,
-    forge,
+    workshop,
     trainingHall,
     library,
     hatchery,

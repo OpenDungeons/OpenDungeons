@@ -35,7 +35,7 @@ enum class TrapType;
 class CraftedTrap: public RenderedMovableEntity
 {
 public:
-    CraftedTrap(GameMap* gameMap, const std::string& forgeName, TrapType trapType);
+    CraftedTrap(GameMap* gameMap, const std::string& workshopName, TrapType trapType);
     CraftedTrap(GameMap* gameMap);
 
     virtual GameEntityType getObjectType() const override

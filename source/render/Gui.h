@@ -82,7 +82,7 @@ public:
     static const std::string MAIN_TABCONTROL;
     static const std::string TAB_ROOMS;
     static const std::string BUTTON_DORMITORY;
-    static const std::string BUTTON_FORGE;
+    static const std::string BUTTON_WORKSHOP;
     static const std::string BUTTON_TRAININGHALL;
     static const std::string BUTTON_LIBRARY;
     static const std::string BUTTON_HATCHERY;

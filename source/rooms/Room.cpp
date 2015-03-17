@@ -19,7 +19,7 @@
 
 #include "rooms/RoomTrainingHall.h"
 #include "rooms/RoomDungeonTemple.h"
-#include "rooms/RoomForge.h"
+#include "rooms/RoomWorkshop.h"
 #include "rooms/RoomLibrary.h"
 #include "rooms/RoomPortal.h"
 #include "rooms/RoomDormitory.h"
@@ -236,8 +236,8 @@ Room* Room::getRoomFromStream(GameMap* gameMap, std::istream& is)
         case RoomType::dungeonTemple:
             tempRoom = new RoomDungeonTemple(gameMap);
             break;
-        case RoomType::forge:
-            tempRoom = new RoomForge(gameMap);
+        case RoomType::workshop:
+            tempRoom = new RoomWorkshop(gameMap);
             break;
         case RoomType::trainingHall:
             tempRoom = new RoomTrainingHall(gameMap);
@@ -287,8 +287,8 @@ Room* Room::getRoomFromPacket(GameMap* gameMap, ODPacket& is)
         case RoomType::dungeonTemple:
             tempRoom = new RoomDungeonTemple(gameMap);
             break;
-        case RoomType::forge:
-            tempRoom = new RoomForge(gameMap);
+        case RoomType::workshop:
+            tempRoom = new RoomWorkshop(gameMap);
             break;
         case RoomType::trainingHall:
             tempRoom = new RoomTrainingHall(gameMap);
@@ -334,8 +334,8 @@ const std::string Room::getRoomNameFromRoomType(RoomType t)
     case RoomType::portal:
         return "Portal";
 
-    case RoomType::forge:
-        return "Forge";
+    case RoomType::workshop:
+        return "Workshop";
 
     case RoomType::trainingHall:
         return "TrainingHall";
@@ -368,8 +368,8 @@ RoomType Room::getRoomTypeFromRoomName(const std::string& name)
     if(name.compare("Portal") == 0)
         return RoomType::portal;
 
-    if(name.compare("Forge") == 0)
-        return RoomType::forge;
+    if(name.compare("Workshop") == 0)
+        return RoomType::workshop;
 
     if(name.compare("TrainingHall") == 0)
         return RoomType::trainingHall;
@@ -408,8 +408,8 @@ int Room::costPerTile(RoomType t)
     case RoomType::hatchery:
         return ConfigManager::getSingleton().getRoomConfigInt32("HatcheryCostPerTile");
 
-    case RoomType::forge:
-        return ConfigManager::getSingleton().getRoomConfigInt32("ForgeCostPerTile");
+    case RoomType::workshop:
+        return ConfigManager::getSingleton().getRoomConfigInt32("WorkshopCostPerTile");
 
     case RoomType::trainingHall:
         return ConfigManager::getSingleton().getRoomConfigInt32("TrainHallCostPerTile");

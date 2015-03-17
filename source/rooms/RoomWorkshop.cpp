@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "rooms/RoomForge.h"
+#include "rooms/RoomWorkshop.h"
 
 #include "entities/CraftedTrap.h"
 #include "entities/Creature.h"
@@ -35,15 +35,15 @@
 const Ogre::Real OFFSET_CREATURE = 0.3;
 const Ogre::Real OFFSET_SPOT = 0.3;
 
-RoomForge::RoomForge(GameMap* gameMap) :
+RoomWorkshop::RoomWorkshop(GameMap* gameMap) :
     Room(gameMap),
     mPoints(0),
     mTrapType(TrapType::nullTrapType)
 {
-    setMeshName("Forge");
+    setMeshName("Workshop");
 }
 
-RenderedMovableEntity* RoomForge::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
+RenderedMovableEntity* RoomWorkshop::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
 {
     switch(place)
     {
@@ -57,7 +57,7 @@ RenderedMovableEntity* RoomForge::notifyActiveSpotCreated(ActiveSpotPlace place,
                 mAllowedSpotsForCraftedItems.erase(it);
 
             mUnusedSpots.push_back(tile);
-            return loadBuildingObject(getGameMap(), "Foundry", tile, x, y, 45.0, false);
+            return loadBuildingObject(getGameMap(), "WorkshopMachine1", tile, x, y, 45.0, false);
         }
         case ActiveSpotPlace::activeSpotLeft:
         {
@@ -81,11 +81,11 @@ RenderedMovableEntity* RoomForge::notifyActiveSpotCreated(ActiveSpotPlace place,
     return nullptr;
 }
 
-void RoomForge::absorbRoom(Room *r)
+void RoomWorkshop::absorbRoom(Room *r)
 {
     OD_ASSERT_TRUE_MSG(r->getType() == getType(), "Trying to merge incompatible rooms: " + getName()
         + ", with " + r->getName());
-    RoomForge* roomAbs = static_cast<RoomForge*>(r);
+    RoomWorkshop* roomAbs = static_cast<RoomWorkshop*>(r);
     mUnusedSpots.insert(mUnusedSpots.end(), roomAbs->mUnusedSpots.begin(), roomAbs->mUnusedSpots.end());
     roomAbs->mUnusedSpots.clear();
     mAllowedSpotsForCraftedItems.insert(mAllowedSpotsForCraftedItems.end(), roomAbs->mAllowedSpotsForCraftedItems.begin(), roomAbs->mAllowedSpotsForCraftedItems.end());
@@ -99,14 +99,14 @@ void RoomForge::absorbRoom(Room *r)
     Room::absorbRoom(r);
 }
 
-void RoomForge::addCoveredTile(Tile* t, double nHP)
+void RoomWorkshop::addCoveredTile(Tile* t, double nHP)
 {
     mAllowedSpotsForCraftedItems.push_back(t);
 
     Room::addCoveredTile(t, nHP);
 }
 
-bool RoomForge::removeCoveredTile(Tile* t)
+bool RoomWorkshop::removeCoveredTile(Tile* t)
 {
     std::vector<Tile*>::iterator it = std::find(mAllowedSpotsForCraftedItems.begin(), mAllowedSpotsForCraftedItems.end(), t);
     if(it != mAllowedSpotsForCraftedItems.end())
@@ -115,7 +115,7 @@ bool RoomForge::removeCoveredTile(Tile* t)
     return Room::removeCoveredTile(t);
 }
 
-void RoomForge::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
+void RoomWorkshop::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
 {
     Room::notifyActiveSpotRemoved(place, tile);
 
@@ -140,7 +140,7 @@ void RoomForge::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
         mUnusedSpots.erase(itEr);
 }
 
-bool RoomForge::hasOpenCreatureSpot(Creature* c)
+bool RoomWorkshop::hasOpenCreatureSpot(Creature* c)
 {
     // If there is no need, we do not allow creature to work
     if(mTrapType == TrapType::nullTrapType)
@@ -155,7 +155,7 @@ bool RoomForge::hasOpenCreatureSpot(Creature* c)
     return !mUnusedSpots.empty();
 }
 
-bool RoomForge::addCreatureUsingRoom(Creature* creature)
+bool RoomWorkshop::addCreatureUsingRoom(Creature* creature)
 {
     if(!Room::addCreatureUsingRoom(creature))
         return false;
@@ -186,7 +186,7 @@ bool RoomForge::addCreatureUsingRoom(Creature* creature)
     return true;
 }
 
-void RoomForge::removeCreatureUsingRoom(Creature* c)
+void RoomWorkshop::removeCreatureUsingRoom(Creature* c)
 {
     Room::removeCreatureUsingRoom(c);
     if(mCreaturesSpots.count(c) > 0)
@@ -200,7 +200,7 @@ void RoomForge::removeCreatureUsingRoom(Creature* c)
     }
 }
 
-void RoomForge::doUpkeep()
+void RoomWorkshop::doUpkeep()
 {
     Room::doUpkeep();
 
@@ -208,7 +208,7 @@ void RoomForge::doUpkeep()
         return;
 
     // If we are not already working on something, we check if a trap have a need. If so,
-    // we check that no reachable forge can supply the trap before starting crafting
+    // we check that no reachable Workshop can supply the trap before starting crafting
     if(mTrapType == TrapType::nullTrapType)
     {
         std::map<TrapType, int> neededTraps;
@@ -338,10 +338,10 @@ void RoomForge::doUpkeep()
                 OD_ASSERT_TRUE_MSG(creatureRoomAffinity.getRoomType() == getType(), "name=" + getName() + ", creature=" + creature->getName()
                     + ", creatureRoomAffinityType=" + Ogre::StringConverter::toString(static_cast<int>(creatureRoomAffinity.getRoomType())));
 
-                mPoints += static_cast<int32_t>(creatureRoomAffinity.getEfficiency() * ConfigManager::getSingleton().getRoomConfigDouble("ForgePointsPerWork"));
-                creature->jobDone(ConfigManager::getSingleton().getRoomConfigDouble("ForgeAwaknessPerWork"));
-                creature->setJobCooldown(Random::Uint(ConfigManager::getSingleton().getRoomConfigUInt32("ForgeCooldownWorkMin"),
-                    ConfigManager::getSingleton().getRoomConfigUInt32("ForgeCooldownWorkMax")));
+                mPoints += static_cast<int32_t>(creatureRoomAffinity.getEfficiency() * ConfigManager::getSingleton().getRoomConfigDouble("WorkshopPointsPerWork"));
+                creature->jobDone(ConfigManager::getSingleton().getRoomConfigDouble("WorkshopAwaknessPerWork"));
+                creature->setJobCooldown(Random::Uint(ConfigManager::getSingleton().getRoomConfigUInt32("WorkshopCooldownWorkMin"),
+                    ConfigManager::getSingleton().getRoomConfigUInt32("WorkshopCooldownWorkMax")));
             }
         }
     }
@@ -350,7 +350,7 @@ void RoomForge::doUpkeep()
     if(nbCraftedItems > (getNumActiveSpots() - mCreaturesSpots.size()))
     {
         // There is no available space. We remove a creature working here if there is one.
-        // If there is none, it means the forge is full
+        // If there is none, it means the Workshop is full
         if(mCreaturesSpots.size() > 0)
         {
             for(const std::pair<Creature* const,Tile*>& p : mCreaturesSpots)
@@ -364,8 +364,8 @@ void RoomForge::doUpkeep()
             return;
     }
 
-    // We check if we have enough forge points for the currently crafted trap
-    int32_t pointsNeeded = Trap::getNeededForgePointsPerTrap(mTrapType);
+    // We check if we have enough Workshop points for the currently crafted trap
+    int32_t pointsNeeded = Trap::getNeededWorkshopPointsPerTrap(mTrapType);
     if(mPoints < pointsNeeded)
         return;
 
@@ -385,7 +385,7 @@ void RoomForge::doUpkeep()
     mTrapType = TrapType::nullTrapType;
 }
 
-uint32_t RoomForge::countCraftedItemsOnRoom()
+uint32_t RoomWorkshop::countCraftedItemsOnRoom()
 {
     std::vector<GameEntity*> carryable;
     for(Tile* t : mCoveredTiles)
@@ -404,7 +404,7 @@ uint32_t RoomForge::countCraftedItemsOnRoom()
     return nbCraftedTrap;
 }
 
-Tile* RoomForge::checkIfAvailableSpot(const std::vector<Tile*>& activeSpots)
+Tile* RoomWorkshop::checkIfAvailableSpot(const std::vector<Tile*>& activeSpots)
 {
     for(Tile* tile : activeSpots)
     {
@@ -431,7 +431,7 @@ Tile* RoomForge::checkIfAvailableSpot(const std::vector<Tile*>& activeSpots)
     return nullptr;
 }
 
-void RoomForge::getCreatureWantedPos(Creature* creature, Tile* tileSpot,
+void RoomWorkshop::getCreatureWantedPos(Creature* creature, Tile* tileSpot,
     Ogre::Real& wantedX, Ogre::Real& wantedY)
 {
     wantedX = static_cast<Ogre::Real>(tileSpot->getX());
@@ -439,14 +439,14 @@ void RoomForge::getCreatureWantedPos(Creature* creature, Tile* tileSpot,
     wantedY -= OFFSET_CREATURE;
 }
 
-void RoomForge::exportToStream(std::ostream& os) const
+void RoomWorkshop::exportToStream(std::ostream& os) const
 {
     Room::exportToStream(os);
     os << mPoints << "\t";
     os << mTrapType << "\n";
 }
 
-void RoomForge::importFromStream(std::istream& is)
+void RoomWorkshop::importFromStream(std::istream& is)
 {
     Room::importFromStream(is);
     OD_ASSERT_TRUE(is >> mPoints);

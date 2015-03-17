@@ -23,7 +23,7 @@
 #include "rooms/Room.h"
 #include "rooms/RoomCrypt.h"
 #include "rooms/RoomDormitory.h"
-#include "rooms/RoomForge.h"
+#include "rooms/RoomWorkshop.h"
 #include "rooms/RoomHatchery.h"
 #include "rooms/RoomLibrary.h"
 #include "rooms/RoomTrainingHall.h"
@@ -583,22 +583,22 @@ bool KeeperAI::buildMostNeededRoom()
         }
     }
 
-    if(mPlayer.getSeat()->isRoomAvailable(RoomType::forge))
+    if(mPlayer.getSeat()->isRoomAvailable(RoomType::workshop))
     {
-        std::vector<Room*> rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::forge, mPlayer.getSeat());
+        std::vector<Room*> rooms = mGameMap.getRoomsByTypeAndSeat(RoomType::workshop, mPlayer.getSeat());
         if(rooms.empty())
         {
             std::vector<Tile*> tiles;
             int goldRequired;
             mGameMap.fillBuildableTilesAndPriceForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-                mRoomPosY + mRoomSize - 1, &mPlayer, RoomType::forge, tiles, goldRequired);
+                mRoomPosY + mRoomSize - 1, &mPlayer, RoomType::workshop, tiles, goldRequired);
             if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
                 return false;
 
             if(!mGameMap.withdrawFromTreasuries(goldRequired, mPlayer.getSeat()))
                 return false;
 
-            Room* room = new RoomForge(&mGameMap);
+            Room* room = new RoomWorkshop(&mGameMap);
             buildRoom(room, tiles);
             return true;
         }
@@ -820,8 +820,8 @@ bool KeeperAI::repairRooms()
                 case RoomType::dormitory:
                     room = new RoomDormitory(&mGameMap);
                     break;
-                case RoomType::forge:
-                    room = new RoomForge(&mGameMap);
+                case RoomType::workshop:
+                    room = new RoomWorkshop(&mGameMap);
                     break;
                 case RoomType::hatchery:
                     room = new RoomHatchery(&mGameMap);

@@ -1527,21 +1527,21 @@ void GameMode::refreshGuiResearch()
         researchButton->setEnabled(true);
     }
 
-    researchButton = researchGui->getChild("TacticSkills/ForgeButton");
-    if(localPlayerSeat->isResearchDone(ResearchType::roomForge))
+    researchButton = researchGui->getChild("TacticSkills/WorkshopButton");
+    if(localPlayerSeat->isResearchDone(ResearchType::roomWorkshop))
     {
-        guiSheet->getChild(Gui::BUTTON_FORGE)->show();
+        guiSheet->getChild(Gui::BUTTON_WORKSHOP)->show();
         researchButton->setProperty("StateImage", okIcon);
         researchButton->setEnabled(false);
     }
-    else if (localPlayerSeat->getCurrentResearch() == ResearchType::roomForge)
+    else if (localPlayerSeat->getCurrentResearch() == ResearchType::roomWorkshop)
     {
         researchButton->setProperty("StateImage", inProgressIcon);
         researchButton->setEnabled(false);
     }
     else
     {
-        guiSheet->getChild(Gui::BUTTON_FORGE)->hide();
+        guiSheet->getChild(Gui::BUTTON_WORKSHOP)->hide();
         researchButton->setProperty("StateImage", "");
         researchButton->setEnabled(true);
     }

@@ -36,7 +36,7 @@
 #include "rooms/RoomCrypt.h"
 #include "rooms/RoomDormitory.h"
 #include "rooms/RoomDungeonTemple.h"
-#include "rooms/RoomForge.h"
+#include "rooms/RoomWorkshop.h"
 #include "rooms/RoomHatchery.h"
 #include "rooms/RoomLibrary.h"
 #include "rooms/RoomPortal.h"
@@ -1051,9 +1051,9 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     room = new RoomDungeonTemple(gameMap);
                     break;
                 }
-                case RoomType::forge:
+                case RoomType::workshop:
                 {
-                    room = new RoomForge(gameMap);
+                    room = new RoomWorkshop(gameMap);
                     break;
                 }
                 case RoomType::hatchery:
@@ -1702,9 +1702,9 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     room = new RoomDungeonTemple(gameMap);
                     break;
                 }
-                case RoomType::forge:
+                case RoomType::workshop:
                 {
-                    room = new RoomForge(gameMap);
+                    room = new RoomWorkshop(gameMap);
                     break;
                 }
                 case RoomType::hatchery:

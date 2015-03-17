@@ -33,7 +33,7 @@ spellSummonWorker
 roomTrainingHall
 spellCallToWar
 trapSpike
-roomForge
+roomWorkshop
 roomCrypt
 trapBoulder
 [/ResearchPending]
@@ -63,7 +63,7 @@ spellSummonWorker
 roomTrainingHall
 spellCallToWar
 trapSpike
-roomForge
+roomWorkshop
 roomCrypt
 trapBoulder
 [/ResearchPending]
@@ -93,7 +93,7 @@ spellSummonWorker
 roomTrainingHall
 spellCallToWar
 trapSpike
-roomForge
+roomWorkshop
 roomCrypt
 trapBoulder
 [/ResearchPending]

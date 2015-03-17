@@ -1376,8 +1376,8 @@ bool Seat::isRoomAvailable(RoomType type) const
             return isResearchDone(ResearchType::roomTrainingHall);
         case RoomType::library:
             return isResearchDone(ResearchType::roomLibrary);
-        case RoomType::forge:
-            return isResearchDone(ResearchType::roomForge);
+        case RoomType::workshop:
+            return isResearchDone(ResearchType::roomWorkshop);
         case RoomType::crypt:
             return isResearchDone(ResearchType::roomCrypt);
         default:
