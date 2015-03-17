@@ -502,7 +502,6 @@ bool ODClient::processOneClientSocketMessage()
                 break;
 
             Tile* tile = gameMap->tileFromPacket(packetReceived);
-            OD_ASSERT_TRUE(tile != nullptr);
             if(tile == nullptr)
                 break;
 
@@ -668,7 +667,6 @@ bool ODClient::processOneClientSocketMessage()
             {
                 --nbTiles;
                 Tile* tile = gameMap->tileFromPacket(packetReceived);
-                OD_ASSERT_TRUE(tile != nullptr);
                 if(tile == nullptr)
                     continue;
 
@@ -701,7 +699,6 @@ bool ODClient::processOneClientSocketMessage()
             {
                 --nbTiles;
                 Tile* tile = gameMap->tileFromPacket(packetReceived);
-                OD_ASSERT_TRUE(tile != nullptr);
                 if(tile == nullptr)
                     continue;
 
@@ -720,7 +717,6 @@ bool ODClient::processOneClientSocketMessage()
             {
                 --nbTiles;
                 Tile* tile = gameMap->tileFromPacket(packetReceived);
-                OD_ASSERT_TRUE(tile != nullptr);
                 if(tile == nullptr)
                     continue;
 
@@ -733,7 +729,6 @@ bool ODClient::processOneClientSocketMessage()
             {
                 --nbTiles;
                 Tile* tile = gameMap->tileFromPacket(packetReceived);
-                OD_ASSERT_TRUE(tile != nullptr);
                 if(tile == nullptr)
                     continue;
 
@@ -767,7 +762,6 @@ bool ODClient::processOneClientSocketMessage()
             {
                 --nbTiles;
                 Tile* gameTile = gameMap->tileFromPacket(packetReceived);
-                OD_ASSERT_TRUE(gameTile != nullptr);
                 if(gameTile == nullptr)
                     continue;
 
@@ -791,7 +785,6 @@ bool ODClient::processOneClientSocketMessage()
             {
                 --nbTiles;
                 Tile* tile = gameMap->tileFromPacket(packetReceived);
-                OD_ASSERT_TRUE(tile != nullptr);
                 if(tile == nullptr)
                     continue;
 
