@@ -1122,26 +1122,7 @@ unsigned long int GameMap::doMiscUpkeep()
         ++activeObjectCount;
     }
 
-    // We add the queued active objects
-    while (!mActiveObjectsToAdd.empty())
-    {
-        GameEntity* ge = mActiveObjectsToAdd.front();
-        mActiveObjectsToAdd.pop_front();
-        mActiveObjects.push_back(ge);
-    }
-
-    // We remove the queued active objects
-    while (!mActiveObjectsToRemove.empty())
-    {
-        GameEntity* ge = mActiveObjectsToRemove.front();
-        mActiveObjectsToRemove.pop_front();
-        std::vector<GameEntity*>::iterator it = std::find(mActiveObjects.begin(), mActiveObjects.end(), ge);
-        OD_ASSERT_TRUE_MSG(it != mActiveObjects.end(), "name=" + ge->getName());
-        if(it != mActiveObjects.end())
-            mActiveObjects.erase(it);
-    }
-
-    // Carry out the upkeep round for each seat.  This means recomputing how much gold is
+    // Carry out the upkeep round for each seat. This means recomputing how much gold is
     // available in their treasuries, how much mana they gain/lose during this turn, etc.
     for (Seat* seat : mSeats)
     {
@@ -2346,6 +2327,28 @@ void GameMap::processDeletionQueues()
         GameEntity* entity = *mEntitiesToDelete.begin();
         mEntitiesToDelete.erase(mEntitiesToDelete.begin());
         delete entity;
+    }
+}
+
+void GameMap::processActiveObjectsChanges()
+{
+    // We add the queued active objects
+    while (!mActiveObjectsToAdd.empty())
+    {
+        GameEntity* ge = mActiveObjectsToAdd.front();
+        mActiveObjectsToAdd.pop_front();
+        mActiveObjects.push_back(ge);
+    }
+
+    // We remove the queued active objects
+    while (!mActiveObjectsToRemove.empty())
+    {
+        GameEntity* ge = mActiveObjectsToRemove.front();
+        mActiveObjectsToRemove.pop_front();
+        std::vector<GameEntity*>::iterator it = std::find(mActiveObjects.begin(), mActiveObjects.end(), ge);
+        OD_ASSERT_TRUE_MSG(it != mActiveObjects.end(), "name=" + ge->getName());
+        if(it != mActiveObjects.end())
+            mActiveObjects.erase(it);
     }
 }
 
