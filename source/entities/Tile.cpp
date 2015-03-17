@@ -324,35 +324,6 @@ void Tile::exportTileToPacket(ODPacket& os, Seat* seat)
     os << meshName;
     os << mScale;
     os << mTileVisual;
-
-    // We export the list of all the persistent objects on this tile. We do that because a persistent object might have
-    // been removed on server side when the client did not had vision. Thus, it would still be on client side. Thanks to
-    // this list, the clients will be able to remove them.
-    uint32_t nbPersistentObject = 0;
-    for(PersistentObject* obj : mPersistentObjectRegistered)
-    {
-        // We only set in the list objects that are visible (for example, we don't send traps that have not been triggered)
-        if(!obj->isVisibleForSeat(seat))
-            continue;
-
-        ++nbPersistentObject;
-    }
-
-    os << nbPersistentObject;
-    uint32_t nbPersistentObjectTmp = 0;
-    for(PersistentObject* obj : mPersistentObjectRegistered)
-    {
-        // We only set in the list objects that are visible (for example, we don't send traps that have not been triggered)
-        if(!obj->isVisibleForSeat(seat))
-            continue;
-
-        os << obj->getName();
-        ++nbPersistentObjectTmp;
-    }
-
-    OD_ASSERT_TRUE_MSG(nbPersistentObjectTmp == nbPersistentObject, "nbPersistentObject=" + Ogre::StringConverter::toString(nbPersistentObject)
-        + ", nbPersistentObjectTmp=" + Ogre::StringConverter::toString(nbPersistentObjectTmp)
-        + ", tile=" + displayAsString(this));
 }
 
 void Tile::exportToPacket(ODPacket& os) const
@@ -387,33 +358,6 @@ void Tile::updateFromPacket(ODPacket& is)
     setName(ss.str());
 
     OD_ASSERT_TRUE(is >> mTileVisual);
-
-    uint32_t nbPersistentObject;
-    OD_ASSERT_TRUE(is >> nbPersistentObject);
-    mPersistentObjectNamesOnTile.clear();
-    while(nbPersistentObject > 0)
-    {
-        --nbPersistentObject;
-
-        std::string name;
-        OD_ASSERT_TRUE(is >> name);
-        mPersistentObjectNamesOnTile.push_back(name);
-    }
-
-    for(std::vector<PersistentObject*>::iterator it = mPersistentObjectRegistered.begin(); it != mPersistentObjectRegistered.end();)
-    {
-        PersistentObject* obj = *it;
-        if(std::find(mPersistentObjectNamesOnTile.begin(), mPersistentObjectNamesOnTile.end(), obj->getName()) != mPersistentObjectNamesOnTile.end())
-        {
-            ++it;
-            continue;
-        }
-
-        // The object is not on this tile anymore, we remove it
-        it = mPersistentObjectRegistered.erase(it);
-        obj->removeFromGameMap();
-        obj->deleteYourself();
-    }
 
     if(seatId == -1)
     {
@@ -1317,38 +1261,6 @@ void Tile::notifyEntitiesSeatsWithVision()
 
     if(getCoveringBuilding() != nullptr)
         getCoveringBuilding()->notifySeatsVisionOnTile(mSeatsWithVision, this);
-}
-
-bool Tile::registerPersistentObject(PersistentObject* obj)
-{
-    if(std::find(mPersistentObjectRegistered.begin(), mPersistentObjectRegistered.end(), obj) != mPersistentObjectRegistered.end())
-        return false;
-
-    mPersistentObjectRegistered.push_back(obj);
-
-    if(getGameMap()->isServerGameMap())
-    {
-        for(std::pair<Seat*, bool>& seatChanged : mTileChangedForSeats)
-        {
-            if(!obj->isVisibleForSeat(seatChanged.first))
-                continue;
-
-            seatChanged.second = true;
-        }
-    }
-
-    return true;
-}
-
-bool Tile::removePersistentObject(PersistentObject* obj)
-{
-    std::vector<PersistentObject*>::iterator it = std::find(mPersistentObjectRegistered.begin(), mPersistentObjectRegistered.end(), obj);
-    if(it == mPersistentObjectRegistered.end())
-        return false;
-
-    mPersistentObjectRegistered.erase(it);
-    setDirtyForAllSeats();
-    return true;
 }
 
 void Tile::computeTileVisual()

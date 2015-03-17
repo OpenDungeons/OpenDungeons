@@ -36,7 +36,6 @@ public:
     void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity);
 
 protected:
-    virtual void createMeshLocal();
     virtual void destroyMeshLocal();
 
     void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)

@@ -209,6 +209,9 @@ protected:
 
     //! \brief Tells the current reloading time left for each tiles and whether it is activated.
     std::map<Tile*, TrapTileInfo> mTrapTiles;
+    //! List of traps destroyed but with at least 1 player having vision. They will
+    //! get removed when vision is gained by every player having seen it before destruction
+    std::vector<RenderedMovableEntity*> mTrapEntitiesWaitingRemove;
 };
 
 #endif // TRAP_H

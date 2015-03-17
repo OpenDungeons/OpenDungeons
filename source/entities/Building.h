@@ -60,6 +60,9 @@ public:
     void receiveExp(double /*experience*/)
     {}
 
+    //! \brief Checks if the building objects allow the room to be deleted
+    bool canBuildingBeRemoved();
+
     void removeAllBuildingObjects();
     /*! \brief Creates a child RenderedMovableEntity mesh using the given mesh name and placing on the target tile,
      *  if the tile is nullptr the object appears in the building's center, the rotation angle is given in degrees.

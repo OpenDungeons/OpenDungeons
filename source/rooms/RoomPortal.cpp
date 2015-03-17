@@ -49,6 +49,30 @@ void RoomPortal::updateActiveSpots()
     // We don't update the active spots the same way as only the central tile is needed.
     if (getGameMap()->isInEditorMode())
         updatePortalPosition();
+    else
+    {
+        if(mPortalObject == nullptr)
+        {
+            // We check if the portal already exists (that can happen if it has
+            // been restored after restoring a saved game)
+            if(mBuildingObjects.empty())
+                updatePortalPosition();
+            else
+            {
+                for(std::pair<Tile* const, RenderedMovableEntity*>& p : mBuildingObjects)
+                {
+                    if(p.second == nullptr)
+                        continue;
+
+                    // We take the first RenderedMovableEntity. Note that we cannot use
+                    // the central tile because after saving a game, the central tile may
+                    // not be the same if some tiles have been destroyed
+                    mPortalObject = p.second;
+                    break;
+                }
+            }
+        }
+    }
 }
 
 void RoomPortal::updatePortalPosition()
@@ -69,12 +93,6 @@ void RoomPortal::updatePortalPosition()
     addBuildingObject(centralTile, mPortalObject);
 
     mPortalObject->setAnimationState("Idle");
-}
-
-void RoomPortal::createMeshLocal()
-{
-    Room::createMeshLocal();
-    updatePortalPosition();
 }
 
 void RoomPortal::destroyMeshLocal()

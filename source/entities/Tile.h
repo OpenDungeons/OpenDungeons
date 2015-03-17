@@ -356,13 +356,6 @@ public:
     const std::vector<Seat*>& getSeatsWithVision()
     { return mSeatsWithVision; }
 
-    //! On client side, registers the PersistentObject on this tile so it can be removed when the tile is refreshed (and the object has been removed).
-    //! On Server side, registers the PersistentObject on this tile so that the PersistentObject still on this tile
-    //! can be sent to the clients when they got vision
-    bool registerPersistentObject(PersistentObject* obj);
-    //! Removes the PersistentObject from the tile.
-    bool removePersistentObject(PersistentObject* obj);
-
     void resetFloodFill();
 
     static inline uint32_t toUInt32(FloodFillType type)
@@ -425,9 +418,6 @@ private:
     std::vector<Player*> mPlayersMarkingTile;
     std::vector<std::pair<Seat*, bool>> mTileChangedForSeats;
     std::vector<Seat*> mSeatsWithVision;
-    std::vector<PersistentObject*> mPersistentObjectRegistered;
-    //! Used on client side to check if the PersistentObjects on this tile should be removed when the tile gets refreshed
-    std::vector<std::string> mPersistentObjectNamesOnTile;
 
     //! \brief List of the entities actually on this tile. Most of the creatures actions will rely on this list
     std::vector<GameEntity*> mEntitiesInTile;

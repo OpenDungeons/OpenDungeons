@@ -446,9 +446,6 @@ void Seat::initSeat()
                 serverNotification->mPacket << Ogre::Vector3::ZERO;
                 // tileVisual
                 serverNotification->mPacket << tileState.mTileVisual;
-                // persistent objects
-                uint32_t nbPersistentObject = 0;
-                serverNotification->mPacket << nbPersistentObject;
             }
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }

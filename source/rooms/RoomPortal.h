@@ -48,7 +48,6 @@ public:
     void updateActiveSpots();
 
 protected:
-    void createMeshLocal();
     void destroyMeshLocal();
 
     void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)

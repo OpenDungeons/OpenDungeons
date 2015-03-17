@@ -115,6 +115,8 @@ public:
     //! if so, it aborbs them
     void checkForRoomAbsorbtion();
 
+    bool canBeRepaired() const;
+
     static bool sortForMapSave(Room* r1, Room* r2);
 
 protected:

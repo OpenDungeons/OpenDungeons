@@ -44,6 +44,30 @@ void RoomDungeonTemple::updateActiveSpots()
     // We don't update the active spots the same way as only the central tile is needed.
     if (getGameMap()->isInEditorMode())
         updateTemplePosition();
+    else
+    {
+        if(mTempleObject == nullptr)
+        {
+            // We check if the temple already exists (that can happen if it has
+            // been restored after restoring a saved game)
+            if(mBuildingObjects.empty())
+                updateTemplePosition();
+            else
+            {
+                for(std::pair<Tile* const, RenderedMovableEntity*>& p : mBuildingObjects)
+                {
+                    if(p.second == nullptr)
+                        continue;
+
+                    // We take the first RenderedMovableEntity. Note that we cannot use
+                    // the central tile because after saving a game, the central tile may
+                    // not be the same if some tiles have been destroyed
+                    mTempleObject = p.second;
+                    break;
+                }
+            }
+        }
+    }
 }
 
 void RoomDungeonTemple::updateTemplePosition()
@@ -62,12 +86,6 @@ void RoomDungeonTemple::updateTemplePosition()
 
     mTempleObject = new PersistentObject(getGameMap(), getName(), "DungeonTempleObject", centralTile, 0.0, false);
     addBuildingObject(centralTile, mTempleObject);
-}
-
-void RoomDungeonTemple::createMeshLocal()
-{
-    Room::createMeshLocal();
-    updateTemplePosition();
 }
 
 void RoomDungeonTemple::destroyMeshLocal()

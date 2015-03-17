@@ -80,7 +80,7 @@ void Room::removeFromGameMap()
 
 void Room::absorbRoom(Room *r)
 {
-    LogManager::getSingleton().logMessage(getGameMap()->serverStr() + "Room=" + getName() + " is aborbing room=" + r->getName());
+    LogManager::getSingleton().logMessage(getGameMap()->serverStr() + "Room=" + getName() + " is absorbing room=" + r->getName());
 
     mCentralActiveSpotTiles.insert(mCentralActiveSpotTiles.end(), r->mCentralActiveSpotTiles.begin(), r->mCentralActiveSpotTiles.end());
     r->mCentralActiveSpotTiles.clear();
@@ -181,7 +181,18 @@ std::string Room::getRoomStreamFormat()
 
 void Room::doUpkeep()
 {
-    // Loop over the tiles in Room r and remove any whose HP has dropped to zero.
+    // We check if we can remove the room
+    if (numCoveredTiles() <= 0)
+    {
+        if(canBuildingBeRemoved())
+        {
+            removeFromGameMap();
+            deleteYourself();
+        }
+        return;
+    }
+
+    // Loop over the tiles and remove any whose HP has dropped to zero.
     std::vector<Tile*> tilesToRemove;
     for (Tile* tile : mCoveredTiles)
     {
@@ -202,14 +213,6 @@ void Room::doUpkeep()
 
         updateActiveSpots();
         createMesh();
-    }
-
-    // If no more tiles, the room is removed
-    if (numCoveredTiles() <= 0)
-    {
-        removeFromGameMap();
-        deleteYourself();
-        return;
     }
 }
 
@@ -714,6 +717,18 @@ void Room::activeSpotCheckChange(ActiveSpotPlace place, const std::vector<Tile*>
             // The tile has been removed
             notifyActiveSpotRemoved(place, tile);
         }
+    }
+}
+
+bool Room::canBeRepaired() const
+{
+    switch(getType())
+    {
+        case RoomType::dungeonTemple:
+        case RoomType::portal:
+            return false;
+        default:
+            return true;
     }
 }
 

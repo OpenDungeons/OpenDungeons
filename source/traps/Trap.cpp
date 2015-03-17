@@ -175,10 +175,34 @@ void Trap::removeFromGameMap()
 
 void Trap::doUpkeep()
 {
+    // We remove trap entities if we can
+    for(auto it = mTrapEntitiesWaitingRemove.begin(); it != mTrapEntitiesWaitingRemove.end();)
+    {
+        RenderedMovableEntity* trapEntity = *it;
+        if(!trapEntity->notifyRemoveAsked())
+        {
+            ++it;
+            continue;
+        }
+
+        removeBuildingObject(trapEntity);
+        it = mTrapEntitiesWaitingRemove.erase(it);
+    }
+    // If no more tiles, the trap is removed
+    if (numCoveredTiles() <= 0)
+    {
+        if(canBuildingBeRemoved())
+        {
+            removeFromGameMap();
+            deleteYourself();
+            return;
+        }
+    }
+
     std::vector<Tile*> tilesToRemove;
     for (Tile* tile : mCoveredTiles)
     {
-        if(tile->getClaimedPercentage() >= 1.0 && !getSeat()->isAlliedSeat(tile->getSeat()))
+        if(!getSeat()->isAlliedSeat(tile->getSeat()))
         {
             tilesToRemove.push_back(tile);
             continue;
@@ -194,18 +218,13 @@ void Trap::doUpkeep()
     if (!tilesToRemove.empty())
     {
         for(Tile* tile : tilesToRemove)
+        {
+            mCoveredTilesDestroyed.push_back(tile);
             removeCoveredTile(tile);
+        }
 
         updateActiveSpots();
         createMesh();
-    }
-
-    // If no more tiles, the trap is removed
-    if (numCoveredTiles() <= 0)
-    {
-        removeFromGameMap();
-        deleteYourself();
-        return;
     }
 
     for(Tile* tile : mCoveredTiles)
@@ -287,6 +306,10 @@ void Trap::updateActiveSpots()
         // More tiles than RenderedMovableEntity. This will happen when the trap is created
         for(Tile* tile : mCoveredTiles)
         {
+            // If the active spot already exists, we do not create it
+            if(mBuildingObjects.count(tile) > 0)
+                continue;
+
             RenderedMovableEntity* obj = notifyActiveSpotCreated(tile);
             if(obj == nullptr)
                 continue;
@@ -306,13 +329,17 @@ void Trap::updateActiveSpots()
                 tilesToRemove.push_back(tile);
         }
 
-        // Then, we process removing (that will remove tiles from mBuildingObjects)
         OD_ASSERT_TRUE(!tilesToRemove.empty());
-        for(std::vector<Tile*>::iterator it = tilesToRemove.begin(); it != tilesToRemove.end(); ++it)
+        for(Tile* tile : tilesToRemove)
         {
-            Tile* tile = *it;
-            if(mBuildingObjects.count(tile) > 0)
-                notifyActiveSpotRemoved(tile);
+            if(mBuildingObjects.count(tile) <= 0)
+                continue;
+
+            RenderedMovableEntity* trapEntity = mBuildingObjects.at(tile);
+            if(trapEntity->notifyRemoveAsked())
+                removeBuildingObject(tile);
+            else
+                mTrapEntitiesWaitingRemove.push_back(trapEntity);
         }
     }
 }

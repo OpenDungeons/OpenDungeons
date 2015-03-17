@@ -255,7 +255,7 @@ class GameEntity
     virtual void removeSeatWithVision(Seat* seat);
 
     //! \brief Fires remove event to every seat with vision
-    void fireRemoveEntityToSeatsWithVision();
+    virtual void fireRemoveEntityToSeatsWithVision();
 
     //! \brief Returns true if the entity can be carried by a worker. False otherwise.
     virtual EntityCarryType getEntityCarryType()

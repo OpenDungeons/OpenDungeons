@@ -782,13 +782,16 @@ bool KeeperAI::repairRooms()
         return false;
     }
 
-    mCooldownRepairRooms = Random::Int(3,10);
+    mCooldownRepairRooms = Random::Int(60,150);
 
     Seat* seat = mPlayer.getSeat();
     std::vector<Tile*> tilesToRepair;
     for(Room* room : mGameMap.getRooms())
     {
         if(room->getSeat() != seat)
+            continue;
+
+        if(!room->canBeRepaired())
             continue;
 
         const std::vector<Tile*>& tiles = room->getCoveredTilesDestroyed();
