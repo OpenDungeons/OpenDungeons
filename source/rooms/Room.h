@@ -75,12 +75,8 @@ public:
      * The content of the Room will be exported by exportToPacket.
      */
     virtual void exportHeadersToStream(std::ostream& os) const override;
-    virtual void exportHeadersToPacket(ODPacket& os) const override;
-    //! \brief Exports the data of the Room
-    virtual void exportToStream(std::ostream& os) const override;
-    virtual void importFromStream(std::istream& is) override;
-    virtual void exportToPacket(ODPacket& os) const override;
-    virtual void importFromPacket(ODPacket& is) override;
+    void exportTileToStream(std::ostream& os, Tile* tile) const;
+    void importTileFromStream(std::istream& is, Tile* tile);
 
     virtual RoomType getType() const = 0;
 
@@ -90,11 +86,6 @@ public:
     static int costPerTile(RoomType t);
 
     static bool compareTile(Tile* tile1, Tile* tile2);
-
-    //! \brief Carry out per turn upkeep on the room.
-    //! Do any generic upkeep here (i.e. any upkeep that all room types should do).
-    //! All derived classes of room should call this function first during their doUpkeep() routine.
-    virtual void doUpkeep();
 
     //! \brief Adds a creature using the room. If the creature is allowed, true is returned
     virtual bool addCreatureUsingRoom(Creature* c);

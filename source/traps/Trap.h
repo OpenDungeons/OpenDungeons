@@ -50,25 +50,18 @@ ODPacket& operator>>(ODPacket& is, TrapType& tt);
 ODPacket& operator<<(ODPacket& os, const TrapType& tt);
 
 //! \brief A small class telling whether a trap tile is activated.
-class TrapTileInfo
+class TrapTileData : public TileData
 {
 public:
-    TrapTileInfo():
+    TrapTileData(double hp) :
+        TileData(hp),
         mIsActivated(false),
         mReloadTime(0),
         mCraftedTrap(nullptr),
         mNbShootsBeforeDeactivation(0),
         mTrapEntity(nullptr),
-        mIsWorking(false)
-    {}
-
-    TrapTileInfo(uint32_t reloadTime, bool activated):
-        mIsActivated(activated),
-        mReloadTime(reloadTime),
-        mCraftedTrap(nullptr),
-        mNbShootsBeforeDeactivation(0),
-        mTrapEntity(nullptr),
-        mIsWorking(false)
+        mIsWorking(false),
+        mRemoveTrap(false)
     {}
 
     inline void setTrapEntity(TrapEntity* trapEntity)
@@ -125,14 +118,17 @@ public:
     inline CraftedTrap* getCarriedCraftedTrap() const
     { return mCraftedTrap; }
 
-    inline std::vector<int>& getSeatsVision()
-    { return mSeatsVision; }
-
     inline bool getIsWorking() const
     { return mIsWorking; }
 
     inline void setIsWorking(bool isWorking)
     { mIsWorking = isWorking; }
+
+    inline bool getRemoveTrap() const
+    { return mRemoveTrap; }
+
+    inline void setRemoveTrap(bool removeTrap)
+    { mRemoveTrap = removeTrap; }
 
 private:
     bool mIsActivated;
@@ -140,10 +136,8 @@ private:
     CraftedTrap* mCraftedTrap;
     int32_t mNbShootsBeforeDeactivation;
     TrapEntity* mTrapEntity;
-    //! Seats with vision at map loading (when loading saved game). Note that only
-    //! enemy seats are required since allied since will already have vision
-    std::vector<int> mSeatsVision;
     bool mIsWorking;
+    bool mRemoveTrap;
 };
 
 /*! \class Trap Trap.h
@@ -171,8 +165,7 @@ public:
 
     static int costPerTile(TrapType t);
 
-    // Functions which can be overridden by child classes.
-    virtual void doUpkeep();
+    virtual void doUpkeep() override;
 
     virtual bool shoot(Tile* tile)
     { return true; }
@@ -199,20 +192,15 @@ public:
     virtual bool shouldSetCoveringTileDirty(Seat* seat, Tile* tile)
     { return false; }
 
-    /*! \brief Exports the headers needed to recreate the Trap. It allows to extend Traps as much as wanted.
-     * The content of the Trap will be exported by exportToPacket.
-     */
     virtual void exportHeadersToStream(std::ostream& os) const override;
-    virtual void exportHeadersToPacket(ODPacket& os) const override;
-    //! \brief Exports the data of the Trap
-    virtual void exportToStream(std::ostream& os) const override;
-    virtual void importFromStream(std::istream& is) override;
-    virtual void exportToPacket(ODPacket& os) const override;
-    virtual void importFromPacket(ODPacket& is) override;
+    virtual void exportTileToStream(std::ostream& os, Tile* tile) const override;
+    virtual void importTileFromStream(std::istream& is, Tile* tile) override;
 
     static std::string getTrapStreamFormat();
 
 protected:
+    virtual TileData* createTileData(Tile* tile) override;
+
     virtual RenderedMovableEntity* notifyActiveSpotCreated(Tile* tile);
     virtual TrapEntity* getTrapEntity(Tile* tile) = 0;
     virtual void notifyActiveSpotRemoved(Tile* tile);
@@ -228,8 +216,6 @@ protected:
     double mMinDamage;
     double mMaxDamage;
 
-    //! \brief Tells the current reloading time left for each tiles and whether it is activated.
-    std::map<Tile*, TrapTileInfo> mTrapTiles;
     //! List of traps destroyed but with at least 1 player having vision. They will
     //! get removed when vision is gained by every player having seen it before destruction
     std::vector<RenderedMovableEntity*> mTrapEntitiesWaitingRemove;

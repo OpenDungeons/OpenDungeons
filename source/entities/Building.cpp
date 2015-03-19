@@ -23,6 +23,7 @@
 #include "gamemap/GameMap.h"
 #include "network/ODServer.h"
 #include "render/RenderManager.h"
+#include "utils/Helper.h"
 #include "utils/LogManager.h"
 
 const double Building::DEFAULT_TILE_HP = 10.0;
@@ -30,6 +31,48 @@ const double Building::DEFAULT_TILE_HP = 10.0;
 const Ogre::Vector3 SCALE(RenderManager::BLENDER_UNITS_PER_OGRE_UNIT,
         RenderManager::BLENDER_UNITS_PER_OGRE_UNIT,
         RenderManager::BLENDER_UNITS_PER_OGRE_UNIT);
+
+void Building::doUpkeep()
+{
+    // If no more tiles, the trap is removed
+    if (numCoveredTiles() <= 0)
+    {
+        if(canBuildingBeRemoved())
+        {
+            removeFromGameMap();
+            deleteYourself();
+            return;
+        }
+    }
+
+    std::vector<Tile*> tilesToRemove;
+    for (Tile* tile : mCoveredTiles)
+    {
+        if(!getSeat()->isAlliedSeat(tile->getSeat()))
+        {
+            tilesToRemove.push_back(tile);
+            continue;
+        }
+
+        if (mTileData[tile]->mHP <= 0.0)
+        {
+            tilesToRemove.push_back(tile);
+            continue;
+        }
+    }
+
+    if (!tilesToRemove.empty())
+    {
+        for(Tile* tile : tilesToRemove)
+        {
+            mCoveredTilesDestroyed.push_back(tile);
+            removeCoveredTile(tile);
+        }
+
+        updateActiveSpots();
+        createMesh();
+    }
+}
 
 const Ogre::Vector3& Building::getScale() const
 {
@@ -174,7 +217,7 @@ Tile* Building::getCentralTile()
 void Building::addCoveredTile(Tile* t, double nHP)
 {
     mCoveredTiles.push_back(t);
-    mTileHP[t] = nHP;
+    mTileData[t] = createTileData(t);
     t->setCoveringBuilding(this);
 }
 
@@ -186,7 +229,7 @@ bool Building::removeCoveredTile(Tile* t)
         if (t == *it)
         {
             mCoveredTiles.erase(it);
-            mTileHP.erase(t);
+            mTileData[t]->mHP = 0.0;
             t->setCoveringBuilding(nullptr);
 
             return true;
@@ -221,20 +264,20 @@ double Building::getHP(Tile *tile) const
 {
     if (tile != nullptr)
     {
-        std::map<Tile*, double>::const_iterator tileSearched = mTileHP.find(tile);
-        OD_ASSERT_TRUE(tileSearched != mTileHP.end());
-        if(tileSearched == mTileHP.end())
+        std::map<Tile*, TileData*>::const_iterator tileSearched = mTileData.find(tile);
+        OD_ASSERT_TRUE(tileSearched != mTileData.end());
+        if(tileSearched == mTileData.end())
             return 0.0;
 
-        return tileSearched->second;
+        return tileSearched->second->mHP;
     }
 
     // If the tile given was nullptr, we add the total HP of all the tiles in the room and return that.
     double total = 0.0;
 
-    for(const std::pair<Tile* const, double>& p : mTileHP)
+    for(const std::pair<Tile* const, TileData*>& p : mTileData)
     {
-        total += p.second;
+        total += p.second->mHP;
     }
 
     return total;
@@ -242,8 +285,8 @@ double Building::getHP(Tile *tile) const
 
 double Building::takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile *tileTakingDamage)
 {
-    double damageDone = std::min(mTileHP[tileTakingDamage], physicalDamage + magicalDamage);
-    mTileHP[tileTakingDamage] -= damageDone;
+    double damageDone = std::min(mTileData[tileTakingDamage]->mHP, physicalDamage + magicalDamage);
+    mTileData[tileTakingDamage]->mHP -= damageDone;
 
     GameMap* gameMap = getGameMap();
     if(!gameMap->isServerGameMap())
@@ -279,6 +322,81 @@ bool Building::isAttackable(Tile* tile, Seat* seat) const
 
 void Building::notifySeatsVisionOnTile(const std::vector<Seat*>& seats, Tile* tile)
 {
-    // TODO: save which players have vision on the building. If the building is destroyed, it should only  be removed when
-    // every player will have seen that all the tiles are gone.
+    // TODO: Allow tiles to have a list of old buildings so that they can be notified
+    // about vision
+    if(mTileData.count(tile) <= 0)
+    {
+        OD_ASSERT_TRUE_MSG(false, "building=" + getName() + ", tile=" + Tile::displayAsString(tile));
+        return;
+    }
+
+    // TODO: here, we should check if the tile is covered by this building. If yes, we update
+    // tileData->mSeatsVision. If not, we remove the seats from tileData->mSeatsVision
+    TileData* tileData = mTileData.at(tile);
+    tileData->mSeatsVision = seats;
+}
+
+void Building::exportToStream(std::ostream& os) const
+{
+    const std::string& name = getName();
+    int seatId = getSeat()->getId();
+    uint32_t nbTiles = mCoveredTiles.size() + mCoveredTilesDestroyed.size();
+    os << name << "\t" << seatId << "\t" << nbTiles << "\n";
+    for (Tile* tile : mCoveredTiles)
+    {
+        os << tile->getX() << "\t" << tile->getY();
+        exportTileToStream(os, tile);
+        os << "\n";
+    }
+    for (Tile* tile : mCoveredTilesDestroyed)
+    {
+        os << tile->getX() << "\t" << tile->getY();
+        exportTileToStream(os, tile);
+        os << "\n";
+    }
+}
+
+void Building::importFromStream(std::istream& is)
+{
+    std::string line;
+    std::getline(is, line);
+    std::stringstream ss(line);
+
+    std::string name;
+    OD_ASSERT_TRUE(ss >> name);
+    setName(name);
+
+    int seatId;
+    uint32_t tilesToLoad;
+
+    OD_ASSERT_TRUE(ss >> seatId);
+    Seat* seat = getGameMap()->getSeatById(seatId);
+    OD_ASSERT_TRUE_MSG(seat != nullptr, "seatId=" + Helper::toString(seatId));
+    setSeat(seat);
+
+    OD_ASSERT_TRUE(ss >> tilesToLoad);
+    while(tilesToLoad > 0)
+    {
+        --tilesToLoad;
+        std::getline(is, line);
+        std::stringstream ss(line);
+        int xxx, yyy;
+        OD_ASSERT_TRUE(ss >> xxx >> yyy);
+        Tile* tile = getGameMap()->getTile(xxx, yyy);
+        OD_ASSERT_TRUE_MSG(tile != nullptr, "tile=" + Helper::toString(xxx) + "," + Helper::toString(yyy));
+        if (tile == nullptr)
+            continue;
+
+        tile->setSeat(getSeat());
+        // TODO : addCoveredTile should not have the tile hp and be final. Buildings
+        // that want to have data associated with their tiles should override
+        // createTileData() and use the class wanted
+        addCoveredTile(tile, DEFAULT_TILE_HP);
+        importTileFromStream(ss, tile);
+    }
+}
+
+TileData* Building::createTileData(Tile* tile)
+{
+    return new TileData(DEFAULT_TILE_HP);
 }

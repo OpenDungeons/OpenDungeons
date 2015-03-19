@@ -32,6 +32,18 @@ class Tile;
 class Room;
 class Trap;
 
+class TileData
+{
+public:
+    TileData(double hp) :
+        mHP(hp)
+    {}
+    double mHP;
+    //! Seats with vision at map loading (when loading saved game). Note that only
+    //! enemy seats are required since allied since will already have vision
+    std::vector<Seat*> mSeatsVision;
+};
+
 /*! \class Building
  *  \brief This class holds elements that are common to Building like Rooms or Traps
  *
@@ -50,6 +62,8 @@ public:
     const static double DEFAULT_TILE_HP;
 
     virtual ~Building() {}
+
+    virtual void doUpkeep() override;
 
     const Ogre::Vector3& getScale() const;
 
@@ -127,7 +141,22 @@ public:
     inline const std::vector<Tile*>& getCoveredTilesDestroyed() const
     { return mCoveredTilesDestroyed; }
 
+    virtual void exportToStream(std::ostream& os) const override;
+    virtual void importFromStream(std::istream& is) override;
+    //! Allows to export/import specific data for child classes. Note that every tile
+    //! should be exported on 1 line (thus, no line ending should be added here). Moreover
+    //! the building will only export the tile coords. Exporting other relevant data is
+    //! up to the subclass
+    virtual void exportTileToStream(std::ostream& os, Tile* tile) const
+    {}
+    virtual void importTileFromStream(std::istream& is, Tile* tile)
+    {}
+
 protected:
+    //! This will be called when tiles will be added to the building. By overriding it,
+    //! child classes can expand TileData and add the data they need
+    virtual TileData* createTileData(Tile* tile);
+
     void addBuildingObject(Tile* targetTile, RenderedMovableEntity* obj);
     void removeBuildingObject(Tile* tile);
     void removeBuildingObject(RenderedMovableEntity* obj);
@@ -141,7 +170,7 @@ protected:
     std::map<Tile*, RenderedMovableEntity*> mBuildingObjects;
     std::vector<Tile*> mCoveredTiles;
     std::vector<Tile*> mCoveredTilesDestroyed;
-    std::map<Tile*, double> mTileHP;
+    std::map<Tile*, TileData*> mTileData;
 };
 
 #endif // BUILDING_H_

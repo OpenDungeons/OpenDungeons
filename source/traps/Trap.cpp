@@ -175,6 +175,8 @@ void Trap::removeFromGameMap()
 
 void Trap::doUpkeep()
 {
+    Building::doUpkeep();
+
     // We remove trap entities if we can
     for(auto it = mTrapEntitiesWaitingRemove.begin(); it != mTrapEntitiesWaitingRemove.end();)
     {
@@ -188,63 +190,28 @@ void Trap::doUpkeep()
         removeBuildingObject(trapEntity);
         it = mTrapEntitiesWaitingRemove.erase(it);
     }
-    // If no more tiles, the trap is removed
+
     if (numCoveredTiles() <= 0)
-    {
-        if(canBuildingBeRemoved())
-        {
-            removeFromGameMap();
-            deleteYourself();
-            return;
-        }
-    }
-
-    std::vector<Tile*> tilesToRemove;
-    for (Tile* tile : mCoveredTiles)
-    {
-        if(!getSeat()->isAlliedSeat(tile->getSeat()))
-        {
-            tilesToRemove.push_back(tile);
-            continue;
-        }
-
-        if (mTileHP[tile] <= 0.0)
-        {
-            tilesToRemove.push_back(tile);
-            continue;
-        }
-    }
-
-    if (!tilesToRemove.empty())
-    {
-        for(Tile* tile : tilesToRemove)
-        {
-            mCoveredTilesDestroyed.push_back(tile);
-            removeCoveredTile(tile);
-        }
-
-        updateActiveSpots();
-        createMesh();
-    }
+        return;
 
     for(Tile* tile : mCoveredTiles)
     {
         // If the trap is deactivated, it cannot shoot
-        TrapTileInfo& tileInfo = mTrapTiles[tile];
-        if (!tileInfo.isActivated())
+        TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData[tile]);
+        if (!trapTileData->isActivated())
             continue;
 
-        if(tileInfo.decreaseReloadTime())
+        if(trapTileData->decreaseReloadTime())
             continue;
 
         if(shoot(tile))
         {
-            tileInfo.setReloadTime(mReloadTime);
-            if(!tileInfo.decreaseShoot())
+            trapTileData->setReloadTime(mReloadTime);
+            if(!trapTileData->decreaseShoot())
                 deactivate(tile);
 
             const std::vector<Seat*>& seats = tile->getSeatsWithVision();
-            TrapEntity* trapEntity = tileInfo.getTrapEntity();
+            TrapEntity* trapEntity = trapTileData->getTrapEntity();
             trapEntity->seatsSawTriggering(seats);
 
             // Warn the player the trap has triggered
@@ -260,14 +227,14 @@ int32_t Trap::getNbNeededCraftedTrap() const
     int32_t nbNeededCraftedTrap = 0;
     for(Tile* tile : mCoveredTiles)
     {
-        if(mTrapTiles.count(tile) <= 0)
+        if(mTileData.count(tile) <= 0)
             continue;
 
-        const TrapTileInfo& trapTileInfo = mTrapTiles.at(tile);
-        if (trapTileInfo.isActivated())
+        TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData.at(tile));
+        if (trapTileData->isActivated())
             continue;
 
-        if(trapTileInfo.getCarriedCraftedTrap() != nullptr)
+        if(trapTileData->getCarriedCraftedTrap() != nullptr)
             continue;
 
         ++nbNeededCraftedTrap;
@@ -281,7 +248,8 @@ void Trap::addCoveredTile(Tile* t, double nHP)
     Building::addCoveredTile(t, nHP);
 
     // The trap starts deactivated.
-    mTrapTiles[t] = TrapTileInfo(mReloadTime, false);
+    TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData.at(t));
+    trapTileData->setReloadTime(mReloadTime);
 }
 
 bool Trap::removeCoveredTile(Tile* t)
@@ -289,8 +257,8 @@ bool Trap::removeCoveredTile(Tile* t)
     if(!Building::removeCoveredTile(t))
         return false;
 
-    // We do not remove the TrapTileInfo in mTrapTiles because we might need it when
-    // saving the game
+    TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData.at(t));
+    trapTileData->setRemoveTrap(true);
 
     return true;
 }
@@ -302,83 +270,55 @@ void Trap::updateActiveSpots()
         return;
 
     // For a trap, by default, every tile is an active spot
-    if(mCoveredTiles.size() > mBuildingObjects.size())
+    for(std::pair<Tile* const, TileData*>& p : mTileData)
     {
-        // More tiles than RenderedMovableEntity. This will happen when the trap is created
-        for(Tile* tile : mCoveredTiles)
+        TrapTileData* trapTileData = static_cast<TrapTileData*>(p.second);
+        if(trapTileData->getTrapEntity() == nullptr)
         {
-            // If the active spot already exists, we do not create it
-            if(mBuildingObjects.count(tile) > 0)
-                continue;
-
-            RenderedMovableEntity* obj = notifyActiveSpotCreated(tile);
+            RenderedMovableEntity* obj = notifyActiveSpotCreated(p.first);
             if(obj == nullptr)
                 continue;
 
-            addBuildingObject(tile, obj);
-        }
-    }
-    else if(mCoveredTiles.size() < mBuildingObjects.size())
-    {
-        // Less tiles than RenderedMovableEntity. This will happen when a tile from this trap is destroyed
-        std::vector<Tile*> tilesToRemove;
-        for(std::pair<Tile* const, RenderedMovableEntity*> p : mBuildingObjects)
-        {
-            Tile* tile = p.first;
-            // We store removed tiles
-            if(std::find(mCoveredTiles.begin(), mCoveredTiles.end(), tile) == mCoveredTiles.end())
-                tilesToRemove.push_back(tile);
+            addBuildingObject(p.first, obj);
+            continue;
         }
 
-        OD_ASSERT_TRUE(!tilesToRemove.empty());
-        for(Tile* tile : tilesToRemove)
+        if(trapTileData->getRemoveTrap())
         {
-            if(mBuildingObjects.count(tile) <= 0)
+            trapTileData->setRemoveTrap(false);
+            if(mBuildingObjects.count(p.first) <= 0)
                 continue;
 
-            RenderedMovableEntity* trapEntity = mBuildingObjects.at(tile);
+            RenderedMovableEntity* trapEntity = mBuildingObjects.at(p.first);
             if(trapEntity->notifyRemoveAsked())
-                removeBuildingObject(tile);
+                removeBuildingObject(p.first);
             else
                 mTrapEntitiesWaitingRemove.push_back(trapEntity);
+
+            continue;
         }
     }
 
-    GameMap* gameMap = getGameMap();
-    for(std::pair<Tile* const, TrapTileInfo>& p : mTrapTiles)
+    for(std::pair<Tile* const, TileData*>& p : mTileData)
     {
-        if(p.second.getSeatsVision().empty())
+        TrapTileData* trapTileData = static_cast<TrapTileData*>(p.second);
+        if(trapTileData->mSeatsVision.empty())
             continue;
 
-        std::vector<Seat*> seats;
-        for(int seatId : p.second.getSeatsVision())
-        {
-            Seat* seat = gameMap->getSeatById(seatId);
-            if(seat == nullptr)
-            {
-                OD_ASSERT_TRUE_MSG(false, "Unknown seatId for trap=" + getName()
-                    + ", seatId=" + Helper::toString(seatId));
-                continue;
-            }
-            seats.push_back(seat);
-        }
-
-        // We empty the list of seats with vision to make sure we don't do it again
-        // if there is an active spots update
-        p.second.getSeatsVision().clear();
-
-        if(seats.empty())
-            continue;
-
-        TrapEntity* trapEntity = p.second.getTrapEntity();
+        TrapEntity* trapEntity = trapTileData->getTrapEntity();
         if(trapEntity == nullptr)
         {
             OD_ASSERT_TRUE_MSG(false, "tile=" + Tile::displayAsString(p.first));
             continue;
         }
 
-        trapEntity->seatsSawTriggering(seats);
-        trapEntity->notifySeatsWithVision(seats);
+        trapEntity->seatsSawTriggering(trapTileData->mSeatsVision);
+        trapEntity->notifySeatsWithVision(trapTileData->mSeatsVision);
+
+        // We empty the list of seats with vision to make sure we don't do it again
+        // if there is an active spots update
+        trapTileData->mSeatsVision.clear();
+
     }
 }
 
@@ -391,7 +331,9 @@ RenderedMovableEntity* Trap::notifyActiveSpotCreated(Tile* tile)
     // Allied seats with the creator do see the trap from the start
     trapEntity->seatSawTriggering(getSeat());
     trapEntity->seatsSawTriggering(getSeat()->getAlliedSeats());
-    mTrapTiles[tile].setTrapEntity(trapEntity);
+
+    TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData[tile]);
+    trapTileData->setTrapEntity(trapEntity);
     return trapEntity;
 }
 
@@ -405,9 +347,10 @@ void Trap::activate(Tile* tile)
     if (tile == nullptr)
         return;
 
-    mTrapTiles[tile].setActivated(true);
-    mTrapTiles[tile].setNbShootsBeforeDeactivation(mNbShootsBeforeDeactivation);
-    mTrapTiles[tile].setReloadTime(0);
+    TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData[tile]);
+    trapTileData->setActivated(true);
+    trapTileData->setNbShootsBeforeDeactivation(mNbShootsBeforeDeactivation);
+    trapTileData->setReloadTime(0);
 
     RenderedMovableEntity* entity = getBuildingObjectFromTile(tile);
     if (entity == nullptr)
@@ -421,7 +364,8 @@ void Trap::deactivate(Tile* tile)
     if (tile == nullptr)
         return;
 
-    mTrapTiles[tile].setActivated(false);
+    TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData[tile]);
+    trapTileData->setActivated(false);
 
     RenderedMovableEntity* entity = getBuildingObjectFromTile(tile);
     if (entity == nullptr)
@@ -432,11 +376,12 @@ void Trap::deactivate(Tile* tile)
 
 bool Trap::isActivated(Tile* tile) const
 {
-    std::map<Tile*, TrapTileInfo>::const_iterator it = mTrapTiles.find(tile);
-    if (it == mTrapTiles.end())
+    std::map<Tile*, TileData*>::const_iterator it = mTileData.find(tile);
+    if (it == mTileData.end())
         return false;
 
-    return it->second.isActivated();
+    TrapTileData* trapTileData = static_cast<TrapTileData*>(it->second);
+    return trapTileData->isActivated();
 }
 
 void Trap::setupTrap(const std::string& name, Seat* seat, const std::vector<Tile*>& tiles)
@@ -497,18 +442,18 @@ Tile* Trap::askSpotForCarriedEntity(GameEntity* carriedEntity)
 
     for(Tile* tile : mCoveredTiles)
     {
-        if(mTrapTiles.count(tile) <= 0)
+        if(mTileData.count(tile) <= 0)
             continue;
 
-        TrapTileInfo& trapTileInfo = mTrapTiles.at(tile);
-        if (trapTileInfo.isActivated())
+        TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData.at(tile));
+        if (trapTileData->isActivated())
             continue;
 
-        if(trapTileInfo.getCarriedCraftedTrap() != nullptr)
+        if(trapTileData->getCarriedCraftedTrap() != nullptr)
             continue;
 
         // We can accept the craftedTrap on this tile
-        trapTileInfo.setCarriedCraftedTrap(craftedTrap);
+        trapTileData->setCarriedCraftedTrap(craftedTrap);
         return tile;
     }
 
@@ -522,13 +467,13 @@ void Trap::notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEnti
 
     for(Tile* tile : mCoveredTiles)
     {
-        if(mTrapTiles.count(tile) <= 0)
+        if(mTileData.count(tile) <= 0)
             continue;
 
-        TrapTileInfo& trapTileInfo = mTrapTiles.at(tile);
-        if(trapTileInfo.isActivated())
+        TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData.at(tile));
+        if(trapTileData->isActivated())
             continue;
-        if(trapTileInfo.getCarriedCraftedTrap() != carriedEntity)
+        if(trapTileData->getCarriedCraftedTrap() != carriedEntity)
             continue;
 
         // We check if the carrier is at the expected destination
@@ -536,26 +481,26 @@ void Trap::notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEnti
         OD_ASSERT_TRUE_MSG(carrierTile != nullptr, "carrier=" + carrier->getName());
         if(carrierTile == nullptr)
         {
-            trapTileInfo.setCarriedCraftedTrap(nullptr);
+            trapTileData->setCarriedCraftedTrap(nullptr);
             return;
         }
 
         Tile* tileExpected = getGameMap()->getTile(tile->getX(), tile->getY());
         if(tileExpected != carrierTile)
         {
-            trapTileInfo.setCarriedCraftedTrap(nullptr);
+            trapTileData->setCarriedCraftedTrap(nullptr);
             return;
         }
 
         // The carrier has brought carried trap
-        CraftedTrap* craftedTrap = trapTileInfo.getCarriedCraftedTrap();
+        CraftedTrap* craftedTrap = trapTileData->getCarriedCraftedTrap();
         OD_ASSERT_TRUE_MSG(tile->removeEntity(craftedTrap), "trap=" + getName()
             + ", craftedTrap=" + craftedTrap->getName()
             + ", tile=" + Tile::displayAsString(tile));
         craftedTrap->removeFromGameMap();
         craftedTrap->deleteYourself();
         activate(tile);
-        trapTileInfo.setCarriedCraftedTrap(nullptr);
+        trapTileData->setCarriedCraftedTrap(nullptr);
     }
     // We couldn't find the entity in the list. That may happen if the active spot has
     // been erased between the time the carrier tried to come and the time it arrived.
@@ -568,12 +513,14 @@ bool Trap::isAttackable(Tile* tile, Seat* seat) const
         return false;
 
     // We check if the trap is hidden for this seat
-    OD_ASSERT_TRUE_MSG(mTrapTiles.count(tile) > 0, "name=" + getName() + ", tile=" + Tile::displayAsString(tile));
-    if(mTrapTiles.count(tile) <= 0)
+    if(mTileData.count(tile) <= 0)
+    {
+        OD_ASSERT_TRUE_MSG(false, "name=" + getName() + ", tile=" + Tile::displayAsString(tile));
         return false;
+    }
 
-    const TrapTileInfo& trapTileInfo = mTrapTiles.at(tile);
-    const std::vector<Seat*>& seatsNotHidden = trapTileInfo.getTrapEntity()->getSeatsNotHidden();
+    TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData.at(tile));
+    const std::vector<Seat*>& seatsNotHidden = trapTileData->getTrapEntity()->getSeatsNotHidden();
     if(std::find(seatsNotHidden.begin(), seatsNotHidden.end(), seat) == seatsNotHidden.end())
         return false;
 
@@ -590,182 +537,91 @@ void Trap::exportHeadersToStream(std::ostream& os) const
     os << getType() << "\t";
 }
 
-void Trap::exportHeadersToPacket(ODPacket& os) const
+void Trap::exportTileToStream(std::ostream& os, Tile* tile) const
 {
-    os << getType();
-}
-
-void Trap::exportToPacket(ODPacket& os) const
-{
-    int nbTiles = mCoveredTiles.size();
-    const std::string& name = getName();
-    int seatId = getSeat()->getId();
-    os << name << seatId;
-    os << nbTiles;
-    for(Tile* tempTile : mCoveredTiles)
+    if(mTileData.count(tile) <= 0)
     {
-        os << tempTile->getX() << tempTile->getY();
-    }
-}
-
-void Trap::importFromPacket(ODPacket& is)
-{
-    int tilesToLoad, tempX, tempY, tempInt;
-    std::string name;
-    OD_ASSERT_TRUE(is >> name);
-    setName(name);
-
-    OD_ASSERT_TRUE(is >> tempInt);
-    setSeat(getGameMap()->getSeatById(tempInt));
-
-    OD_ASSERT_TRUE(is >> tilesToLoad);
-    for (int i = 0; i < tilesToLoad; ++i)
-    {
-        OD_ASSERT_TRUE(is >> tempX >> tempY);
-        Tile *tempTile = getGameMap()->getTile(tempX, tempY);
-        OD_ASSERT_TRUE_MSG(tempTile != nullptr, "tile=" + Ogre::StringConverter::toString(tempX) + "," + Ogre::StringConverter::toString(tempY));
-        if (tempTile != nullptr)
-        {
-            addCoveredTile(tempTile, Trap::DEFAULT_TILE_HP);
-            tempTile->setSeat(getSeat());
-        }
-    }
-}
-
-void Trap::exportToStream(std::ostream& os) const
-{
-    const std::string& name = getName();
-    int seatId = getSeat()->getId();
-    os << name << "\t" << seatId << "\t";
-
-    // if we are in editor, default trap settings will be good in game
-    if(getGameMap()->isInEditorMode())
-    {
-        uint32_t nbTiles = mCoveredTiles.size();
-        os << nbTiles << "\n";
-        for(Tile* tempTile : mCoveredTiles)
-        {
-            os << tempTile->getX() << "\t" << tempTile->getY() << "\t";
-            os << (isActivated(tempTile) ? 1 : 0) << "\n";
-        }
+        OD_ASSERT_TRUE_MSG(false, "trap=" + getName() + ", tile=" + Tile::displayAsString(tile));
         return;
     }
 
-    std::vector<Tile*> allTiles;
-    allTiles.insert(allTiles.end(), mCoveredTiles.begin(), mCoveredTiles.end());
-    allTiles.insert(allTiles.end(), mCoveredTilesDestroyed.begin(), mCoveredTilesDestroyed.end());
+    TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData.at(tile));
+    os << "\t" << (trapTileData->isActivated() ? 1 : 0);
+    if(getGameMap()->isInEditorMode())
+        return;
 
-    uint32_t nbTiles = allTiles.size();
-    os << nbTiles << "\n";
-    // We save trap specific settings
-    for(Tile* tile : allTiles)
+    os << "\t" << trapTileData->mHP;
+    os << "\t" << trapTileData->getReloadTime();
+    os << "\t" << trapTileData->getNbShootsBeforeDeactivation();
+
+    // We only save enemy seats that have vision on the trap entity
+    TrapEntity* trapEntity = trapTileData->getTrapEntity();
+    std::vector<Seat*> seatsToSave;
+    for(Seat* seat : trapEntity->getSeatsNotHidden())
     {
-        if(mTrapTiles.count(tile) <= 0)
-        {
-            OD_ASSERT_TRUE_MSG(false, "trap=" + getName() + ", tile=" + Tile::displayAsString(tile));
+        if(getSeat()->isAlliedSeat(seat))
             continue;
-        }
-        double tileHp = 0.0;
-        if(mTileHP.count(tile) > 0)
-            tileHp = mTileHP.at(tile);
 
-        const TrapTileInfo& trapTileInfo = mTrapTiles.at(tile);
-        TrapEntity* trapEntity = trapTileInfo.getTrapEntity();
-        const std::vector<Seat*>& seatsNotHidden = trapEntity->getSeatsNotHidden();
-        os << tile->getX() << "\t" << tile->getY() << "\t";
-        os << (trapTileInfo.isActivated() ? 1 : 0) << "\t";
-        os << tileHp << "\t" << trapTileInfo.getReloadTime();
-        os << "\t" << trapTileInfo.getNbShootsBeforeDeactivation();
-        // We count seats not hidden not including the trap seat and its allies
-        std::vector<Seat*> seatsToSave;
-        for(Seat* seat : seatsNotHidden)
-        {
-            if(getSeat()->isAlliedSeat(seat))
-                continue;
+        seatsToSave.push_back(seat);
+    }
+    uint32_t nbSeats = seatsToSave.size();
+    os << "\t" << nbSeats;
+    for(Seat* seat : seatsToSave)
+        os << "\t" << seat->getId();
+}
 
-            seatsToSave.push_back(seat);
-        }
-        uint32_t nbSeats = seatsToSave.size();
-        os << "\t" << nbSeats;
-        for(Seat* seat : seatsToSave)
-        {
-            os << "\t" << seat->getId();
-        }
-        os << "\n";
+void Trap::importTileFromStream(std::istream& is, Tile* tile)
+{
+    int isTrapActiv;
+    if(mTileData.count(tile) <= 0)
+    {
+        OD_ASSERT_TRUE_MSG(false, "trap=" + getName() + ", tile=" + Tile::displayAsString(tile));
+    }
+
+    TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData.at(tile));
+    OD_ASSERT_TRUE(is >> isTrapActiv);
+    if(is.eof())
+    {
+        // Default initialization
+        trapTileData->mHP = DEFAULT_TILE_HP;
+        if(isTrapActiv != 0)
+            activate(tile);
+
+        return;
+    }
+
+    // We read saved trap state
+    double tileHealth;
+    uint32_t reloadTime;
+    int32_t nbShootsBeforeDeactivation;
+    int32_t nbSeatsVision;
+    OD_ASSERT_TRUE(is >> tileHealth);
+    OD_ASSERT_TRUE(is >> reloadTime);
+    OD_ASSERT_TRUE(is >> nbShootsBeforeDeactivation);
+    OD_ASSERT_TRUE(is >> nbSeatsVision);
+
+    if(isTrapActiv != 0)
+        activate(tile);
+
+    trapTileData->mHP = tileHealth;
+    trapTileData->setNbShootsBeforeDeactivation(nbShootsBeforeDeactivation);
+    trapTileData->setReloadTime(reloadTime);
+    trapTileData->setIsWorking(tileHealth > 0.0);
+
+    GameMap* gameMap = getGameMap();
+    while(nbSeatsVision > 0)
+    {
+        --nbSeatsVision;
+        int seatId;
+        OD_ASSERT_TRUE(is >> seatId);
+        Seat* seat = gameMap->getSeatById(seatId);
+        trapTileData->mSeatsVision.push_back(seat);
     }
 }
 
-void Trap::importFromStream(std::istream& is)
+TileData* Trap::createTileData(Tile* tile)
 {
-    std::string line;
-    std::getline(is, line);
-    std::stringstream ss(line);
-
-    std::string name;
-    OD_ASSERT_TRUE(ss >> name);
-    setName(name);
-
-    int tempX, tempY, seatId, tempActiv;
-    uint32_t tilesToLoad;
-
-    OD_ASSERT_TRUE(ss >> seatId);
-    setSeat(getGameMap()->getSeatById(seatId));
-
-    OD_ASSERT_TRUE(ss >> tilesToLoad);
-    while(tilesToLoad > 0)
-    {
-        --tilesToLoad;
-        std::getline(is, line);
-        std::stringstream ss(line);
-        OD_ASSERT_TRUE(ss >> tempX >> tempY >> tempActiv);
-        Tile *tempTile = getGameMap()->getTile(tempX, tempY);
-        if (tempTile == nullptr)
-        {
-            OD_ASSERT_TRUE_MSG(false, "tile=" + Tile::displayAsString(tempTile));
-            continue;
-        }
-
-        if(ss.eof())
-        {
-            // Default initialization
-            addCoveredTile(tempTile, Trap::DEFAULT_TILE_HP);
-            tempTile->setSeat(getSeat());
-            if(tempActiv != 0)
-                activate(tempTile);
-
-            continue;
-        }
-
-        // We read saved trap state
-        double tileHealth;
-        uint32_t reloadTime;
-        int32_t nbShootsBeforeDeactivation;
-        int32_t nbSeatsVision;
-        OD_ASSERT_TRUE(ss >> tileHealth >> reloadTime);
-        OD_ASSERT_TRUE(ss >> nbShootsBeforeDeactivation >> nbSeatsVision);
-        if(tileHealth > 0.0)
-            addCoveredTile(tempTile, tileHealth);
-        else
-            mCoveredTilesDestroyed.push_back(tempTile);
-
-        tempTile->setSeat(getSeat());
-        if(tempActiv != 0)
-            activate(tempTile);
-
-        TrapTileInfo& trapTileInfo = mTrapTiles[tempTile];
-        trapTileInfo.setNbShootsBeforeDeactivation(nbShootsBeforeDeactivation);
-        trapTileInfo.setReloadTime(reloadTime);
-        trapTileInfo.setIsWorking(tileHealth > 0.0);
-
-        std::vector<int>& seatsVision = trapTileInfo.getSeatsVision();
-        while(nbSeatsVision > 0)
-        {
-            --nbSeatsVision;
-            int seatId;
-            OD_ASSERT_TRUE(ss >> seatId);
-            seatsVision.push_back(seatId);
-        }
-    }
+    return new TrapTileData(DEFAULT_TILE_HP);
 }
 
 std::istream& operator>>(std::istream& is, TrapType& tt)
