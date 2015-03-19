@@ -41,8 +41,8 @@ public:
         mHP(0)
     {}
     double mHP;
-    //! Seats with vision at map loading (when loading saved game). Note that only
-    //! enemy seats are required since allied since will already have vision
+
+    //! Seats with vision at map loading (when loading saved game)
     std::vector<Seat*> mSeatsVision;
 };
 
@@ -103,15 +103,11 @@ public:
 
     //! \brief Tells whether the building tile should be displayed.
     virtual bool shouldDisplayBuildingTile()
-    {
-        return true;
-    }
+    { return true; }
 
     //! \brief Tells whether the ground tile below the building tile should be displayed.
     virtual bool shouldDisplayGroundTile()
-    {
-        return false;
-    }
+    { return false; }
 
     //! \brief Tells whether the building wants the given entity to be brought
     virtual bool hasCarryEntitySpot(GameEntity* carriedEntity)
@@ -136,9 +132,6 @@ public:
     virtual bool shouldSetCoveringTileDirty(Seat* seat, Tile* tile)
     { return true; }
 
-    //! Notify the seats that have vision on the given tile
-    virtual void notifySeatsVisionOnTile(const std::vector<Seat*>& seats, Tile* tile);
-
     inline const std::vector<Tile*>& getCoveredTilesDestroyed() const
     { return mCoveredTilesDestroyed; }
 
@@ -154,6 +147,9 @@ public:
     //! if added to covered tile vectors, set covering room
     virtual void importTileDataFromStream(std::istream& is, Tile* tile, TileData* tileData)
     {}
+
+    virtual bool isTileVisibleForSeat(Tile* tile, Seat* seat) const
+    { return true; }
 
 protected:
     //! This will be called when tiles will be added to the building. By overriding it,

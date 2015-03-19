@@ -169,6 +169,14 @@ void Trap::removeFromGameMap()
     if(!getGameMap()->isServerGameMap())
         return;
 
+    for(Seat* seat : getGameMap()->getSeats())
+    {
+        for(Tile* tile : mCoveredTiles)
+            seat->notifyBuildingRemovedFromGameMap(this, tile);
+        for(Tile* tile : mCoveredTilesDestroyed)
+            seat->notifyBuildingRemovedFromGameMap(this, tile);
+    }
+
     removeAllBuildingObjects();
     getGameMap()->removeActiveObject(this);
 }
@@ -213,6 +221,9 @@ void Trap::doUpkeep()
             const std::vector<Seat*>& seats = tile->getSeatsWithVision();
             TrapEntity* trapEntity = trapTileData->getTrapEntity();
             trapEntity->seatsSawTriggering(seats);
+
+            for(Seat* seat : trapEntity->getSeatsNotHidden())
+                seat->setVisibleBuildingOnTile(this, tile);
 
             // Warn the player the trap has triggered
             GameMap* gameMap = getGameMap();
@@ -290,6 +301,7 @@ void Trap::updateActiveSpots()
         }
     }
 
+    // We restore the vision if we need to
     for(std::pair<Tile* const, TileData*>& p : mTileData)
     {
         TrapTileData* trapTileData = static_cast<TrapTileData*>(p.second);
@@ -305,6 +317,8 @@ void Trap::updateActiveSpots()
 
         trapEntity->seatsSawTriggering(trapTileData->mSeatsVision);
         trapEntity->notifySeatsWithVision(trapTileData->mSeatsVision);
+        for(Seat* seat : trapEntity->getSeatsNotHidden())
+            seat->setVisibleBuildingOnTile(this, p.first);
 
         // We empty the list of seats with vision to make sure we don't do it again
         // if there is an active spots update
@@ -322,6 +336,9 @@ RenderedMovableEntity* Trap::notifyActiveSpotCreated(Tile* tile)
     // Allied seats with the creator do see the trap from the start
     trapEntity->seatSawTriggering(getSeat());
     trapEntity->seatsSawTriggering(getSeat()->getAlliedSeats());
+
+    for(Seat* seat : trapEntity->getSeatsNotHidden())
+        seat->setVisibleBuildingOnTile(this, tile);
 
     TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData[tile]);
     trapTileData->setTrapEntity(trapEntity);
@@ -547,18 +564,20 @@ void Trap::exportTileDataToStream(std::ostream& os, Tile* tile, TileData* tileDa
     os << "\t" << trapTileData->getReloadTime();
     os << "\t" << trapTileData->getNbShootsBeforeDeactivation();
 
-    // We only save enemy seats that have vision on the trap entity
-    TrapEntity* trapEntity = trapTileData->getTrapEntity();
+    // We only save enemy seats that have vision on the building
     std::vector<Seat*> seatsToSave;
-    for(Seat* seat : trapEntity->getSeatsNotHidden())
+    for(Seat* seat : getGameMap()->getSeats())
     {
         if(getSeat()->isAlliedSeat(seat))
             continue;
 
+        if(!seat->haveVisionOnBuilding(this, tile))
+            continue;
+
         seatsToSave.push_back(seat);
     }
-    uint32_t nbSeats = seatsToSave.size();
-    os << "\t" << nbSeats;
+    uint32_t nbSeatsVision = seatsToSave.size();
+    os << "\t" << nbSeatsVision;
     for(Seat* seat : seatsToSave)
         os << "\t" << seat->getId();
 }
@@ -614,6 +633,11 @@ void Trap::importTileDataFromStream(std::istream& is, Tile* tile, TileData* tile
         int seatId;
         OD_ASSERT_TRUE(is >> seatId);
         Seat* seat = gameMap->getSeatById(seatId);
+        if(seat == nullptr)
+        {
+            OD_ASSERT_TRUE_MSG(false, "trap=" + getName() + ", seatId=" + Helper::toString(seatId));
+            continue;
+        }
         trapTileData->mSeatsVision.push_back(seat);
     }
 }
@@ -621,6 +645,25 @@ void Trap::importTileDataFromStream(std::istream& is, Tile* tile, TileData* tile
 TrapTileData* Trap::createTileData(Tile* tile)
 {
     return new TrapTileData();
+}
+
+bool Trap::isTileVisibleForSeat(Tile* tile, Seat* seat) const
+{
+    if(mTileData.count(tile) <= 0)
+    {
+        OD_ASSERT_TRUE_MSG(false, "trap=" + getName() + ", tile=" + Tile::displayAsString(tile));
+        return false;
+    }
+
+    const TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData.at(tile));
+    if(trapTileData->getTrapEntity() == nullptr)
+        return false;
+
+    const std::vector<Seat*>& seatsNotHidden = trapTileData->getTrapEntity()->getSeatsNotHidden();
+    if(std::find(seatsNotHidden.begin(), seatsNotHidden.end(), seat) == seatsNotHidden.end())
+        return false;
+
+    return true;
 }
 
 std::istream& operator>>(std::istream& is, TrapType& tt)

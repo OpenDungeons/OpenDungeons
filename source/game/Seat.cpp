@@ -429,13 +429,30 @@ void Seat::initSeat()
             serverNotification->mPacket << nbTiles;
             for(Tile* tile : tilesRefresh)
             {
+                std::pair<int, int> tileCoords(tile->getX(), tile->getY());
+                TileStateNotified& tileState = mTilesStateLoaded[tileCoords];
+
+                // We set the tile visual to make sure the tile state is exported if
+                // game is saved again
+                if(tile->getX() >= static_cast<int>(mTilesStates.size()))
+                {
+                    OD_ASSERT_TRUE_MSG(false, "Tile=" + Tile::displayAsString(tile));
+                    continue;
+                }
+                if(tile->getY() >= static_cast<int>(mTilesStates[tile->getX()].size()))
+                {
+                    OD_ASSERT_TRUE_MSG(false, "Tile=" + Tile::displayAsString(tile));
+                    continue;
+                }
+                mTilesStates[tile->getX()][tile->getY()].mTileVisual = tileState.mTileVisual;
+
+                // Then, we export tile state to the client
                 mGameMap->tileToPacket(serverNotification->mPacket, tile);
                 // FIXME: For now, we set the tile as if there was no building on it as it
                 // will be done in another PR/commit.
                 // When this is done, it would be better to have a function in the tile equivalent
                 // to exportTileToPacket that exports the last tile state the player have seen
-                std::pair<int, int> tileCoords(tile->getX(), tile->getY());
-                TileStateNotified& tileState = mTilesStateLoaded[tileCoords];
+
                 // isBuilding
                 serverNotification->mPacket << false;
                 // seatId
@@ -1716,6 +1733,60 @@ void Seat::tileNotifiedToPlayer(Tile* tile)
         tileState.mSeatIdOwner = -1;
 
     tileState.mTileVisual = tile->getTileVisual();
+
+    if((tile->getCoveringBuilding() != nullptr) &&
+       (tile->getCoveringBuilding()->isTileVisibleForSeat(tile, this)))
+    {
+        tileState.mBuilding = tile->getCoveringBuilding();
+    }
+    else
+    {
+        tileState.mBuilding = nullptr;
+    }
+}
+
+bool Seat::haveVisionOnBuilding(const Building* building, const Tile* tile) const
+{
+    if(getPlayer() == nullptr)
+        return false;
+    if(!getPlayer()->getIsHuman())
+        return false;
+
+    OD_ASSERT_TRUE_MSG(tile->getX() < static_cast<int>(mTilesStates.size()), "Tile=" + Tile::displayAsString(tile));
+    OD_ASSERT_TRUE_MSG(tile->getY() < static_cast<int>(mTilesStates[tile->getX()].size()), "Tile=" + Tile::displayAsString(tile));
+
+    const TileStateNotified& tileState = mTilesStates[tile->getX()][tile->getY()];
+    return (tileState.mBuilding == building);
+}
+
+void Seat::setVisibleBuildingOnTile(const Building* building, const Tile* tile)
+{
+    if(getPlayer() == nullptr)
+        return;
+    if(!getPlayer()->getIsHuman())
+        return;
+
+    OD_ASSERT_TRUE_MSG(tile->getX() < static_cast<int>(mTilesStates.size()), "Tile=" + Tile::displayAsString(tile));
+    OD_ASSERT_TRUE_MSG(tile->getY() < static_cast<int>(mTilesStates[tile->getX()].size()), "Tile=" + Tile::displayAsString(tile));
+
+    TileStateNotified& tileState = mTilesStates[tile->getX()][tile->getY()];
+    tileState.mBuilding = building;
+
+}
+
+void Seat::notifyBuildingRemovedFromGameMap(const Building* building, const Tile* tile)
+{
+    if(getPlayer() == nullptr)
+        return;
+    if(!getPlayer()->getIsHuman())
+        return;
+
+    OD_ASSERT_TRUE_MSG(tile->getX() < static_cast<int>(mTilesStates.size()), "Tile=" + Tile::displayAsString(tile));
+    OD_ASSERT_TRUE_MSG(tile->getY() < static_cast<int>(mTilesStates[tile->getX()].size()), "Tile=" + Tile::displayAsString(tile));
+
+    TileStateNotified& tileState = mTilesStates[tile->getX()][tile->getY()];
+    if(tileState.mBuilding == building)
+        tileState.mBuilding = nullptr;
 }
 
 void Seat::tileMarkedDiggingNotifiedToPlayer(Tile* tile, bool isDigSet)

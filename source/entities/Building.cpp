@@ -322,22 +322,6 @@ bool Building::isAttackable(Tile* tile, Seat* seat) const
     return true;
 }
 
-void Building::notifySeatsVisionOnTile(const std::vector<Seat*>& seats, Tile* tile)
-{
-    // TODO: Allow tiles to have a list of old buildings so that they can be notified
-    // about vision
-    if(mTileData.count(tile) <= 0)
-    {
-        OD_ASSERT_TRUE_MSG(false, "building=" + getName() + ", tile=" + Tile::displayAsString(tile));
-        return;
-    }
-
-    // TODO: here, we should check if the tile is covered by this building. If yes, we update
-    // tileData->mSeatsVision. If not, we remove the seats from tileData->mSeatsVision
-    TileData* tileData = mTileData.at(tile);
-    tileData->mSeatsVision = seats;
-}
-
 void Building::exportToStream(std::ostream& os) const
 {
     const std::string& name = getName();

@@ -74,6 +74,14 @@ void Room::removeFromGameMap()
     if(!getGameMap()->isServerGameMap())
         return;
 
+    for(Seat* seat : getGameMap()->getSeats())
+    {
+        for(Tile* tile : mCoveredTiles)
+            seat->notifyBuildingRemovedFromGameMap(this, tile);
+        for(Tile* tile : mCoveredTilesDestroyed)
+            seat->notifyBuildingRemovedFromGameMap(this, tile);
+    }
+
     removeAllBuildingObjects();
     getGameMap()->removeActiveObject(this);
 }
@@ -654,6 +662,21 @@ void Room::updateActiveSpots()
     mNumActiveSpots = mCentralActiveSpotTiles.size()
                       + mLeftWallsActiveSpotTiles.size() + mRightWallsActiveSpotTiles.size()
                       + mTopWallsActiveSpotTiles.size() + mBottomWallsActiveSpotTiles.size();
+
+    // We restore the vision if we need to
+    for(std::pair<Tile* const, TileData*>& p : mTileData)
+    {
+        if(p.second->mSeatsVision.empty())
+            continue;
+        for(Seat* seat : p.second->mSeatsVision)
+            seat->setVisibleBuildingOnTile(this, p.first);
+
+        // We empty the list of seats with vision to make sure we don't do it again
+        // if there is an active spots update
+        p.second->mSeatsVision.clear();
+
+    }
+
 }
 
 void Room::activeSpotCheckChange(ActiveSpotPlace place, const std::vector<Tile*>& originalSpotTiles,
@@ -721,17 +744,20 @@ void Room::exportTileDataToStream(std::ostream& os, Tile* tile, TileData* tileDa
 
     os << "\t" << tileData->mHP;
 
-    // We only save enemy seats that have vision
+    // We only save enemy seats that have vision on the building
     std::vector<Seat*> seatsToSave;
-    for(Seat* seat : tileData->mSeatsVision)
+    for(Seat* seat : getGameMap()->getSeats())
     {
         if(getSeat()->isAlliedSeat(seat))
             continue;
 
+        if(!seat->haveVisionOnBuilding(this, tile))
+            continue;
+
         seatsToSave.push_back(seat);
     }
-    uint32_t nbSeats = seatsToSave.size();
-    os << "\t" << nbSeats;
+    uint32_t nbSeatsVision = seatsToSave.size();
+    os << "\t" << nbSeatsVision;
     for(Seat* seat : seatsToSave)
         os << "\t" << seat->getId();
 }
@@ -759,16 +785,21 @@ void Room::importTileDataFromStream(std::istream& is, Tile* tile, TileData* tile
     {
         mCoveredTilesDestroyed.push_back(tile);
     }
-    int32_t nbSeatsVision;
-    OD_ASSERT_TRUE(is >> nbSeatsVision);
 
     GameMap* gameMap = getGameMap();
+    uint32_t nbSeatsVision;
+    OD_ASSERT_TRUE(is >> nbSeatsVision);
     while(nbSeatsVision > 0)
     {
         --nbSeatsVision;
         int seatId;
         OD_ASSERT_TRUE(is >> seatId);
         Seat* seat = gameMap->getSeatById(seatId);
+        if(seat == nullptr)
+        {
+            OD_ASSERT_TRUE_MSG(false, "room=" + getName() + ", seatId=" + Helper::toString(seatId));
+            continue;
+        }
         tileData->mSeatsVision.push_back(seat);
     }
 }

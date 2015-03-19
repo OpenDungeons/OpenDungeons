@@ -26,6 +26,7 @@
 #include <ostream>
 #include <istream>
 
+class Building;
 class Goal;
 class ODPacket;
 class GameMap;
@@ -52,6 +53,7 @@ public:
     bool mMarkedForDigging;
     bool mVisionTurnLast;
     bool mVisionTurnCurrent;
+    const Building* mBuilding;
 };
 
 class Seat
@@ -308,6 +310,13 @@ public:
     //! on the tile state the client knows, not on the real tile state
     //! Called on server side only
     bool isTileDiggableForClient(Tile* tile) const;
+
+    //! \brief Called for each seat when a building is removed from the gamemap. That allows
+    //! the seats to clear the pointers to the building that they may have
+    void notifyBuildingRemovedFromGameMap(const Building* building, const Tile* tile);
+
+    bool haveVisionOnBuilding(const Building* building, const Tile* tile) const;
+    void setVisibleBuildingOnTile(const Building* building, const Tile* tile);
 
     static bool sortForMapSave(Seat* s1, Seat* s2);
 

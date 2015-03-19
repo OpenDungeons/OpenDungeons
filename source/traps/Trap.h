@@ -191,6 +191,8 @@ public:
     virtual bool shouldSetCoveringTileDirty(Seat* seat, Tile* tile)
     { return false; }
 
+    virtual bool isTileVisibleForSeat(Tile* tile, Seat* seat) const override;
+
     virtual void exportHeadersToStream(std::ostream& os) const override;
     virtual void exportTileDataToStream(std::ostream& os, Tile* tile, TileData* tileData) const override;
     virtual void importTileDataFromStream(std::istream& is, Tile* tile, TileData* tileData) override;

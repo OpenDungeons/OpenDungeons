@@ -128,28 +128,39 @@ bool Tile::isBuildableUpon(Seat* seat) const
 
 void Tile::setCoveringBuilding(Building *building)
 {
+    if(mCoveringBuilding == building)
+        return;
+
+    std::vector<Seat*> seatsNotif;
+    if(mCoveringBuilding != nullptr)
+    {
+        for(std::pair<Seat*, bool>& seatChanged : mTileChangedForSeats)
+        {
+            if(!mCoveringBuilding->shouldSetCoveringTileDirty(seatChanged.first, this))
+                continue;
+
+            seatChanged.second = true;
+        }
+    }
     mCoveringBuilding = building;
 
-    if (mCoveringBuilding == nullptr)
+    // TODO : on server side, use Seat::mTilesStates to know if there is a building
+    // on the tile. That would avoid to send a refresh on tile.
+    mIsBuilding = (mCoveringBuilding != nullptr);
+    if(mCoveringBuilding != nullptr)
     {
-        setDirtyForAllSeats();
-        mIsBuilding = false;
-        return;
+        for(std::pair<Seat*, bool>& seatChanged : mTileChangedForSeats)
+        {
+            if(!mCoveringBuilding->shouldSetCoveringTileDirty(seatChanged.first, this))
+                continue;
+
+            seatChanged.second = true;
+        }
+
+        // Set the tile as claimed and of the team color of the building
+        setSeat(mCoveringBuilding->getSeat());
+        mClaimedPercentage = 1.0;
     }
-
-    // Some buildings (like traps) might not want to refresh the tile for enemy seats
-    for(std::pair<Seat*, bool>& seatChanged : mTileChangedForSeats)
-    {
-        if(!building->shouldSetCoveringTileDirty(seatChanged.first, this))
-            continue;
-
-        seatChanged.second = true;
-    }
-
-    mIsBuilding = true;
-    // Set the tile as claimed and of the team color of the building
-    setSeat(mCoveringBuilding->getSeat());
-    mClaimedPercentage = 1.0;
 }
 
 bool Tile::isDiggable(Seat* seat) const
@@ -1258,9 +1269,6 @@ void Tile::notifyEntitiesSeatsWithVision()
     {
         entity->notifySeatsWithVision(mSeatsWithVision);
     }
-
-    if(getCoveringBuilding() != nullptr)
-        getCoveringBuilding()->notifySeatsVisionOnTile(mSeatsWithVision, this);
 }
 
 void Tile::computeTileVisual()
