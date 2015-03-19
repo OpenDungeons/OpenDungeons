@@ -743,7 +743,11 @@ void Trap::importFromStream(std::istream& is)
         int32_t nbSeatsVision;
         OD_ASSERT_TRUE(ss >> tileHealth >> reloadTime);
         OD_ASSERT_TRUE(ss >> nbShootsBeforeDeactivation >> nbSeatsVision);
-        addCoveredTile(tempTile, tileHealth);
+        if(tileHealth > 0.0)
+            addCoveredTile(tempTile, tileHealth);
+        else
+            mCoveredTilesDestroyed.push_back(tempTile);
+
         tempTile->setSeat(getSeat());
         if(tempActiv != 0)
             activate(tempTile);
