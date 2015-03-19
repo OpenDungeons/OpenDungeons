@@ -279,17 +279,20 @@ void RoomLibrary::doUpkeep()
                     continue;
 
                 // We check if there is an empty tile to release the researchEntity
-                Tile* spanwTile = checkIfAvailableSpot(mAllowedSpotsForResearchItems);
-                OD_ASSERT_TRUE_MSG(spanwTile != nullptr, "room=" + getName());
-                if(spanwTile == nullptr)
+                Tile* spawnTile = checkIfAvailableSpot(mAllowedSpotsForResearchItems);
+                OD_ASSERT_TRUE_MSG(spawnTile != nullptr, "room=" + getName());
+                if(spawnTile == nullptr)
                     return;
 
                 ResearchEntity* researchEntity = new ResearchEntity(getGameMap(), getName(), researchDone->getType());
                 researchEntity->setSeat(getSeat());
                 researchEntity->addToGameMap();
-                Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(spanwTile->getX()), static_cast<Ogre::Real>(spanwTile->getY()), static_cast<Ogre::Real>(0.0));
+                Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(spawnTile->getX()), static_cast<Ogre::Real>(spawnTile->getY()), static_cast<Ogre::Real>(0.0));
                 researchEntity->createMesh();
                 researchEntity->setPosition(spawnPosition, false);
+
+                // Tell the seat a research entity is waiting to be brought to the temple.
+                getSeat()->addResearchWaiting(researchDone->getType());
             }
         }
     }

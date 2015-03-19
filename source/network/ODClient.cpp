@@ -860,6 +860,24 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
+        case ServerNotificationType::researchStarted:
+        {
+            ResearchType resType = ResearchType::nullResearchType;
+            OD_ASSERT_TRUE(packetReceived >> resType);
+
+            getPlayer()->getSeat()->setNextResearch(resType);
+            break;
+        }
+
+        case ServerNotificationType::researchWaiting:
+        {
+            ResearchType resType = ResearchType::nullResearchType;
+            OD_ASSERT_TRUE(packetReceived >> resType);
+
+            getPlayer()->getSeat()->addResearchWaiting(resType);
+            break;
+        }
+
         case ServerNotificationType::researchesDone:
         {
             uint32_t nbItems;

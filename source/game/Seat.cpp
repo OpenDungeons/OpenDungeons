@@ -1411,6 +1411,11 @@ bool Seat::addResearch(ResearchType type)
     if(std::find(mResearchDone.begin(), mResearchDone.end(), type) != mResearchDone.end())
         return false;
 
+    // Erase the research waiting entity from the list as we don't need it anymore.
+    std::vector<ResearchType>::iterator it = std::find(mResearchWaiting.begin(), mResearchWaiting.end(), type);
+    if (it != mResearchWaiting.end())
+        mResearchWaiting.erase(it);
+
     std::vector<ResearchType> researchDone = mResearchDone;
     researchDone.push_back(type);
     setResearchesDone(researchDone);
@@ -1422,18 +1427,59 @@ bool Seat::isResearchDone(ResearchType type) const
 {
     for(ResearchType researchDone : mResearchDone)
     {
-        if(researchDone != type)
-            continue;
-
-        return true;
+        if(researchDone == type)
+            return true;
     }
 
     return false;
 }
 
-ResearchType Seat::getCurrentResearch() const
+ResearchType Seat::getCurrentResearchType() const
 {
     return mCurrentResearch != nullptr ? mCurrentResearch->getType() : ResearchType::nullResearchType;
+}
+
+uint32_t Seat::isResearchPending(ResearchType resType) const
+{
+    uint32_t queueNumber = 0;
+    for (ResearchType pendingRes : mResearchPending)
+    {
+        if (pendingRes == resType)
+            return queueNumber;
+        ++queueNumber;
+    }
+    return 0;
+}
+
+bool Seat::hasResearchWaitingForType(ResearchType resType)
+{
+    for(ResearchType resWaiting : mResearchWaiting)
+    {
+        if (resWaiting == resType)
+            return true;
+    }
+    return false;
+}
+
+void Seat::addResearchWaiting(ResearchType type)
+{
+    if(std::find(mResearchWaiting.begin(), mResearchWaiting.end(), type) != mResearchWaiting.end())
+        return;
+
+    mResearchWaiting.emplace_back(type);
+
+    if(mGameMap->isServerGameMap())
+    {
+        if((getPlayer() != nullptr) && getPlayer()->getIsHuman())
+        {
+            // We notify the client
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotificationType::researchWaiting, getPlayer());
+
+            serverNotification->mPacket << type;
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+    }
 }
 
 const Research* Seat::addResearchPoints(int32_t points)
@@ -1458,58 +1504,94 @@ const Research* Seat::addResearchPoints(int32_t points)
 
 void Seat::setNextResearch(ResearchType researchedType)
 {
-    mCurrentResearch = nullptr;
-    if(mResearchPending.empty())
-        return;
-
-    // We search for the first pending research we don't own a corresponding ResearchEntity
-    const std::vector<RenderedMovableEntity*>& renderables = mGameMap->getRenderedMovableEntities();
-    ResearchType researchType = ResearchType::nullResearchType;
-    for(ResearchType pending : mResearchPending)
+    if(mGameMap->isServerGameMap())
     {
-        if(pending == researchedType)
-            continue;
+        mCurrentResearch = nullptr;
+        if(mResearchPending.empty())
+            return;
 
-        researchType = pending;
-        for(RenderedMovableEntity* renderable : renderables)
+        // We search for the first pending research we don't own a corresponding ResearchEntity
+        const std::vector<RenderedMovableEntity*>& renderables = mGameMap->getRenderedMovableEntities();
+        ResearchType researchType = ResearchType::nullResearchType;
+        for(ResearchType pending : mResearchPending)
         {
-            if(renderable->getObjectType() != GameEntityType::researchEntity)
+            if(pending == researchedType)
                 continue;
 
-            if(renderable->getSeat() != this)
+            researchType = pending;
+            for(RenderedMovableEntity* renderable : renderables)
+            {
+                if(renderable->getObjectType() != GameEntityType::researchEntity)
+                    continue;
+
+                if(renderable->getSeat() != this)
+                    continue;
+
+                ResearchEntity* researchEntity = static_cast<ResearchEntity*>(renderable);
+                if(researchEntity->getResearchType() != pending)
+                    continue;
+
+                // We found a ResearchEntity of the same Research. We should work on
+                // something else
+                researchType = ResearchType::nullResearchType;
+                break;
+            }
+
+            if(researchType != ResearchType::nullResearchType)
+                break;
+        }
+
+        if(researchType == ResearchType::nullResearchType)
+            return;
+
+        // We have found a fitting research. We retrieve the corresponding Research
+        // object and start working on that
+        const std::vector<const Research*>& researches = ConfigManager::getSingleton().getResearches();
+        for(const Research* research : researches)
+        {
+            if(research->getType() != researchType)
                 continue;
 
-            ResearchEntity* researchEntity = static_cast<ResearchEntity*>(renderable);
-            if(researchEntity->getResearchType() != pending)
-                continue;
-
-            // We found a ResearchEntity of the same Research. We should work on
-            // something else
-            researchType = ResearchType::nullResearchType;
+            mCurrentResearch = research;
             break;
         }
 
-        if(researchType != ResearchType::nullResearchType)
-            break;
+
+        if((getPlayer() != nullptr) && getPlayer()->getIsHuman())
+        {
+            // We notify the client
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotificationType::researchStarted, getPlayer());
+
+            serverNotification->mPacket << mCurrentResearch->getType();
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
     }
-
-    if(researchType == ResearchType::nullResearchType)
-        return;
-
-    // We have found a fitting research. We retrieve the corresponding Research
-    // object and start working on that
-    const std::vector<const Research*>& researches = ConfigManager::getSingleton().getResearches();
-    for(const Research* research : researches)
+    else
     {
-        if(research->getType() != researchType)
-            continue;
+        // The client only receives the next research pending.
+        if (researchedType != ResearchType::nullResearchType)
+        {
+            // We retrieve the corresponding Research object and set the current research on this one.
+            const std::vector<const Research*>& researches = ConfigManager::getSingleton().getResearches();
+            for(const Research* research : researches)
+            {
+                if(research->getType() != researchedType)
+                    continue;
 
-        mCurrentResearch = research;
-        break;
+                mCurrentResearch = research;
+                break;
+            }
+        }
+        else
+        {
+            // If nothing is pending, this will make the gui aware of it.
+            mCurrentResearch = nullptr;
+        }
+
+        // Tell the Research GUI it needs refreshing
+        mGuiResearchNeedsRefresh = true;
     }
-
-    // Tell the Research GUI it needs refreshing
-    mGuiResearchNeedsRefresh = true;
 }
 
 void Seat::setResearchesDone(const std::vector<ResearchType>& researches)
@@ -1619,6 +1701,9 @@ void Seat::setResearchTree(const std::vector<ResearchType>& researches)
     {
         // On client side, no need to check if the research tree is allowed
         mResearchPending = researches;
+
+        // Makes the client gui update.
+        mGuiResearchNeedsRefresh = true;
     }
 }
 

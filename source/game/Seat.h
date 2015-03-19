@@ -235,12 +235,19 @@ public:
 
     void computeSeatBeforeSendingToClient();
 
-    //! \brief Gets the current research to do
+    //! \brief Gets whether a research is being done
     bool isResearching() const
     { return mCurrentResearch != nullptr; }
 
-    //! \brief Gets the current research to do
-    ResearchType getCurrentResearch() const;
+    //! \brief Gets the current research being done
+    ResearchType getCurrentResearchType() const;
+
+    //! \brief Tells whether the given research type is in the pending queue.
+    //! \return The number of the pending research in the research queue or 0 if not there.
+    uint32_t isResearchPending(ResearchType resType) const;
+
+    //! \brief Tells whether a research entity is existing for the given ResearchType.
+    bool hasResearchWaitingForType(ResearchType resType);
 
     //! \brief Checks if the given spell is available for the Player. This check
     //! should be done on server side to avoid cheating
@@ -257,6 +264,10 @@ public:
     //! Returns true if the given ResearchType is already done for this player. False
     //! otherwise
     bool isResearchDone(ResearchType type) const;
+
+    //! \brief Tells the server and client a new research entity is waiting to be brought
+    //! to the temple.
+    void addResearchWaiting(ResearchType type);
 
     //! Called when the research entity reaches its destination. From there, the researched
     //! thing is available
@@ -418,15 +429,19 @@ private:
     //! \brief Researches already done. This is used on both client and server side and should be updated
     std::vector<ResearchType> mResearchDone;
 
-    //! \brief Researches pending. Used on server side only
+    //! \brief Research done but awaiting to be brought to the temple.
+    std::vector<ResearchType> mResearchWaiting;
+
+    //! \brief Researches pending. Used on both client and server side and should be updated.
     std::vector<ResearchType> mResearchPending;
 
     //! \brief Researches not allowed. Used on server side only
     std::vector<ResearchType> mResearchNotAllowed;
 
-    //! \brief Sets mCurrentResearch to the first entry in mResearchPending. If the pending
+    //! \brief On server side: Sets mCurrentResearch to the first entry in mResearchPending. If the pending
     //! list in empty, mCurrentResearch will be set to null
     //! researchedType is the currently researched type if any (nullResearchType if none)
+    //! On the player side: Set the next research pending to update the Gui.
     void setNextResearch(ResearchType researchedType);
 
     //! Fills mTilesStateLoaded with the tiles of the given tileVisual is the given istream.
