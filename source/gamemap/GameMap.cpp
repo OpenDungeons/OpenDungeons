@@ -1019,7 +1019,7 @@ Creature* GameMap::getCreature(const std::string& cName) const
 
 void GameMap::doTurn()
 {
-    std::cout << "\nComputing turn " << mTurnNumber;
+    std::cout << "\nComputing turn " << mTurnNumber << "\n";
     unsigned int numCallsTo_path_atStart = mNumCallsTo_path;
 
     uint32_t miscUpkeepTime = doMiscUpkeep();
@@ -1036,7 +1036,7 @@ void GameMap::doTurn()
         }
     }
 
-    std::cout << "\nDuring this turn there were " << mNumCallsTo_path
+    std::cout << "During this turn there were " << mNumCallsTo_path
               - numCallsTo_path_atStart << " calls to GameMap::path()."
               << "miscUpkeepTime=" << miscUpkeepTime << std::endl;
 }
