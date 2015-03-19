@@ -32,6 +32,15 @@ const Ogre::Vector3 SCALE(RenderManager::BLENDER_UNITS_PER_OGRE_UNIT,
         RenderManager::BLENDER_UNITS_PER_OGRE_UNIT,
         RenderManager::BLENDER_UNITS_PER_OGRE_UNIT);
 
+Building::~Building()
+{
+    for(std::pair<Tile* const, TileData*>& p : mTileData)
+    {
+        delete p.second;
+    }
+    mTileData.clear();
+}
+
 void Building::doUpkeep()
 {
     // If no more tiles, the trap is removed
@@ -214,13 +223,6 @@ Tile* Building::getCentralTile()
     return getGameMap()->getTile((minX + maxX) / 2, (minY + maxY) / 2);
 }
 
-void Building::addCoveredTile(Tile* t, double nHP)
-{
-    mCoveredTiles.push_back(t);
-    mTileData[t] = createTileData(t);
-    t->setCoveringBuilding(this);
-}
-
 bool Building::removeCoveredTile(Tile* t)
 {
     LogManager::getSingleton().logMessage(getGameMap()->serverStr() + "building=" + getName() + ", removing covered tile=" + Tile::displayAsString(t));
@@ -342,16 +344,10 @@ void Building::exportToStream(std::ostream& os) const
     int seatId = getSeat()->getId();
     uint32_t nbTiles = mCoveredTiles.size() + mCoveredTilesDestroyed.size();
     os << name << "\t" << seatId << "\t" << nbTiles << "\n";
-    for (Tile* tile : mCoveredTiles)
+    for(const std::pair<Tile* const, TileData*>& p : mTileData)
     {
-        os << tile->getX() << "\t" << tile->getY();
-        exportTileToStream(os, tile);
-        os << "\n";
-    }
-    for (Tile* tile : mCoveredTilesDestroyed)
-    {
-        os << tile->getX() << "\t" << tile->getY();
-        exportTileToStream(os, tile);
+        os << p.first->getX() << "\t" << p.first->getY();
+        exportTileDataToStream(os, p.first, p.second);
         os << "\n";
     }
 }
@@ -388,15 +384,14 @@ void Building::importFromStream(std::istream& is)
             continue;
 
         tile->setSeat(getSeat());
-        // TODO : addCoveredTile should not have the tile hp and be final. Buildings
-        // that want to have data associated with their tiles should override
-        // createTileData() and use the class wanted
-        addCoveredTile(tile, DEFAULT_TILE_HP);
-        importTileFromStream(ss, tile);
+
+        TileData* tileData = createTileData(tile);
+        mTileData[tile] = tileData;
+        importTileDataFromStream(ss, tile, tileData);
     }
 }
 
 TileData* Building::createTileData(Tile* tile)
 {
-    return new TileData(DEFAULT_TILE_HP);
+    return new TileData;
 }

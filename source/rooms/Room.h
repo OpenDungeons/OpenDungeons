@@ -75,8 +75,8 @@ public:
      * The content of the Room will be exported by exportToPacket.
      */
     virtual void exportHeadersToStream(std::ostream& os) const override;
-    void exportTileToStream(std::ostream& os, Tile* tile) const;
-    void importTileFromStream(std::istream& is, Tile* tile);
+    void exportTileDataToStream(std::ostream& os, Tile* tile, TileData* tileData) const;
+    void importTileDataFromStream(std::istream& is, Tile* tile, TileData* tileData);
 
     virtual RoomType getType() const = 0;
 

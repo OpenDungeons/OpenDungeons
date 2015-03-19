@@ -24,6 +24,17 @@ class Tile;
 
 enum class ResearchType;
 
+class RoomLibraryTileData : public TileData
+{
+public:
+    RoomLibraryTileData() :
+        TileData(),
+        mCanHaveResearchEntity(true)
+    {}
+
+    bool mCanHaveResearchEntity;
+};
+
 class RoomLibrary: public Room
 {
 public:
@@ -37,20 +48,18 @@ public:
     virtual bool addCreatureUsingRoom(Creature* c) override;
     virtual void removeCreatureUsingRoom(Creature* c) override;
     virtual void absorbRoom(Room *r) override;
-    virtual void addCoveredTile(Tile* t, double nHP) override;
-    virtual bool removeCoveredTile(Tile* t) override;
 
 protected:
+    RoomLibraryTileData* createTileData(Tile* tile) override;
     virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile) override;
     virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile) override;
 private:
     //!\brief checks how many items are on the library
     uint32_t countResearchItemsOnRoom();
-    Tile* checkIfAvailableSpot(const std::vector<Tile*>& activeSpots);
+    Tile* checkIfAvailableSpot();
     void getCreatureWantedPos(Creature* creature, Tile* tileSpot,
         Ogre::Real& wantedX, Ogre::Real& wantedY);
     std::vector<Tile*> mUnusedSpots;
-    std::vector<Tile*> mAllowedSpotsForResearchItems;
     std::map<Creature*,Tile*> mCreaturesSpots;
 };
 

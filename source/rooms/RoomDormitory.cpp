@@ -40,9 +40,6 @@ void RoomDormitory::absorbRoom(Room *r)
         return;
 
     // We transfert the building objects
-    mCreatureSleepingInTile.insert(oldRoom->mCreatureSleepingInTile.begin(), oldRoom->mCreatureSleepingInTile.end());
-    oldRoom->mCreatureSleepingInTile.clear();
-
     mBedRoomObjectsInfo.insert(mBedRoomObjectsInfo.end(),
         oldRoom->mBedRoomObjectsInfo.begin(), oldRoom->mBedRoomObjectsInfo.end());
     oldRoom->mBedRoomObjectsInfo.clear();
@@ -52,54 +49,41 @@ void RoomDormitory::absorbRoom(Room *r)
     Room::absorbRoom(r);
 }
 
-void RoomDormitory::addCoveredTile(Tile* t, double nHP)
-{
-    Room::addCoveredTile(t, nHP);
-
-    // Only initialize the tile to nullptr if it is a tile being added to a new room.  If it is being absorbed
-    // from another room the map value will already have been set and we don't want to override it.
-    mCreatureSleepingInTile[t] = nullptr;
-}
-
 bool RoomDormitory::removeCoveredTile(Tile* t)
 {
     OD_ASSERT_TRUE(t != nullptr);
     if (t == nullptr)
         return false;
 
-    if(mCreatureSleepingInTile.count(t) > 0)
+    if(mTileData.count(t) <= 0)
     {
-        Creature* c = mCreatureSleepingInTile[t];
-        if (c != nullptr)
-        {
-            // Inform the creature that it no longer has a place to sleep
-            // and remove the bed tile.
-            releaseTileForSleeping(t, c);
-        }
+        OD_ASSERT_TRUE_MSG(false, "room=" + getName() + ", tile=" + Tile::displayAsString(t));
+        return false;
+    }
+
+    RoomDormitoryTileData* roomDormitoryTileData = static_cast<RoomDormitoryTileData*>(mTileData[t]);
+    if(roomDormitoryTileData->mCreature != nullptr)
+    {
+        // Inform the creature that it no longer has a place to sleep
+        // and remove the bed tile.
+        releaseTileForSleeping(t, roomDormitoryTileData->mCreature);
+        roomDormitoryTileData->mCreature = nullptr;
     }
 
     if(Room::removeCoveredTile(t))
-    {
-        mCreatureSleepingInTile.erase(t);
         return true;
-    }
 
     return false;
-}
-
-void RoomDormitory::clearCoveredTiles()
-{
-    Room::clearCoveredTiles();
-    mCreatureSleepingInTile.clear();
 }
 
 std::vector<Tile*> RoomDormitory::getOpenTiles()
 {
     std::vector<Tile*> returnVector;
 
-    for (std::pair<Tile* const, Creature*>& p : mCreatureSleepingInTile)
+    for (std::pair<Tile* const, TileData*>& p : mTileData)
     {
-        if (p.second == nullptr)
+        RoomDormitoryTileData* roomDormitoryTileData = static_cast<RoomDormitoryTileData*>(p.second);
+        if (roomDormitoryTileData->mCreature == nullptr)
             returnVector.push_back(p.first);
     }
 
@@ -112,7 +96,8 @@ bool RoomDormitory::claimTileForSleeping(Tile* t, Creature* c)
         return false;
 
     // Check to see if there is already a creature which has claimed this tile for sleeping.
-    if (mCreatureSleepingInTile[t] != nullptr)
+    RoomDormitoryTileData* roomDormitoryTileData = static_cast<RoomDormitoryTileData*>(mTileData[t]);
+    if (roomDormitoryTileData->mCreature != nullptr)
         return false;
 
     double rotationAngle = 0.0;
@@ -143,7 +128,8 @@ void RoomDormitory::createBed(Tile* t, double rotationAngle, Creature* c)
         for (int j = 0; j < yDim; ++j)
         {
             Tile *tempTile = getGameMap()->getTile(t->getX() + i, t->getY() + j);
-            mCreatureSleepingInTile[tempTile] = c;
+            RoomDormitoryTileData* roomDormitoryTileData = static_cast<RoomDormitoryTileData*>(mTileData[tempTile]);
+            roomDormitoryTileData->mCreature = c;
             bedInfo.addTileTaken(tempTile);
         }
     }
@@ -162,16 +148,12 @@ bool RoomDormitory::releaseTileForSleeping(Tile* t, Creature* c)
     if (c == nullptr)
         return false;
 
-    if (mCreatureSleepingInTile.find(t) == mCreatureSleepingInTile.end())
-        return false;
-
     // Loop over all the tiles in this room and if they are slept on by creature c then set them back to nullptr.
-    for (std::pair<Tile* const, Creature*>& p : mCreatureSleepingInTile)
+    for (std::pair<Tile* const, TileData*>& p : mTileData)
     {
-        if (p.second == c)
-        {
-            p.second = nullptr;
-        }
+        RoomDormitoryTileData* roomDormitoryTileData = static_cast<RoomDormitoryTileData*>(p.second);
+        if (roomDormitoryTileData->mCreature == c)
+            roomDormitoryTileData->mCreature = nullptr;
     }
 
     Tile* homeTile = c->getHomeTile();
@@ -326,4 +308,9 @@ void RoomDormitory::restoreInitialEntityState()
         createBed(tile, bedLoad.getRotationAngle(), creature);
         creature->setHomeTile(tile);
     }
+}
+
+RoomDormitoryTileData* RoomDormitory::createTileData(Tile* tile)
+{
+    return new RoomDormitoryTileData;
 }

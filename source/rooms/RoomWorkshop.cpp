@@ -50,13 +50,11 @@ RenderedMovableEntity* RoomWorkshop::notifyActiveSpotCreated(ActiveSpotPlace pla
     {
         case ActiveSpotPlace::activeSpotCenter:
         {
+            RoomWorkshopTileData* roomWorkshopTileData = static_cast<RoomWorkshopTileData*>(mTileData[tile]);
+            roomWorkshopTileData->mCanHaveCraftedTrap = false;
             Ogre::Real x = static_cast<Ogre::Real>(tile->getX());
             Ogre::Real y = static_cast<Ogre::Real>(tile->getY());
             y += OFFSET_SPOT;
-            std::vector<Tile*>::iterator it = std::find(mAllowedSpotsForCraftedItems.begin(), mAllowedSpotsForCraftedItems.end(), tile);
-            if(it != mAllowedSpotsForCraftedItems.end())
-                mAllowedSpotsForCraftedItems.erase(it);
-
             mUnusedSpots.push_back(tile);
             return loadBuildingObject(getGameMap(), "WorkshopMachine1", tile, x, y, 45.0, false);
         }
@@ -89,8 +87,6 @@ void RoomWorkshop::absorbRoom(Room *r)
     RoomWorkshop* roomAbs = static_cast<RoomWorkshop*>(r);
     mUnusedSpots.insert(mUnusedSpots.end(), roomAbs->mUnusedSpots.begin(), roomAbs->mUnusedSpots.end());
     roomAbs->mUnusedSpots.clear();
-    mAllowedSpotsForCraftedItems.insert(mAllowedSpotsForCraftedItems.end(), roomAbs->mAllowedSpotsForCraftedItems.begin(), roomAbs->mAllowedSpotsForCraftedItems.end());
-    roomAbs->mAllowedSpotsForCraftedItems.clear();
     mCreaturesSpots.insert(roomAbs->mCreaturesSpots.begin(), roomAbs->mCreaturesSpots.end());
     roomAbs->mCreaturesSpots.clear();
 
@@ -100,28 +96,15 @@ void RoomWorkshop::absorbRoom(Room *r)
     Room::absorbRoom(r);
 }
 
-void RoomWorkshop::addCoveredTile(Tile* t, double nHP)
-{
-    mAllowedSpotsForCraftedItems.push_back(t);
-
-    Room::addCoveredTile(t, nHP);
-}
-
-bool RoomWorkshop::removeCoveredTile(Tile* t)
-{
-    std::vector<Tile*>::iterator it = std::find(mAllowedSpotsForCraftedItems.begin(), mAllowedSpotsForCraftedItems.end(), t);
-    if(it != mAllowedSpotsForCraftedItems.end())
-        mAllowedSpotsForCraftedItems.erase(it);
-
-    return Room::removeCoveredTile(t);
-}
-
 void RoomWorkshop::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
 {
     Room::notifyActiveSpotRemoved(place, tile);
 
     if(place != ActiveSpotPlace::activeSpotCenter)
         return;
+
+    RoomWorkshopTileData* roomWorkshopTileData = static_cast<RoomWorkshopTileData*>(mTileData[tile]);
+    roomWorkshopTileData->mCanHaveCraftedTrap = true;
 
     for(const std::pair<Creature* const,Tile*>& p : mCreaturesSpots)
     {
@@ -371,7 +354,7 @@ void RoomWorkshop::doUpkeep()
         return;
 
     // We check if there is an empty tile to release the craftedTrap
-    Tile* tileCraftedTrap = checkIfAvailableSpot(mAllowedSpotsForCraftedItems);
+    Tile* tileCraftedTrap = checkIfAvailableSpot();
     OD_ASSERT_TRUE_MSG(tileCraftedTrap != nullptr, "room=" + getName());
     if(tileCraftedTrap == nullptr)
         return;
@@ -405,14 +388,18 @@ uint32_t RoomWorkshop::countCraftedItemsOnRoom()
     return nbCraftedTrap;
 }
 
-Tile* RoomWorkshop::checkIfAvailableSpot(const std::vector<Tile*>& activeSpots)
+Tile* RoomWorkshop::checkIfAvailableSpot()
 {
-    for(Tile* tile : activeSpots)
+    for(std::pair<Tile* const, TileData*>& p : mTileData)
     {
         // If the tile contains no crafted trap, we can add a new one
+        RoomWorkshopTileData* roomWorkshopTileData = static_cast<RoomWorkshopTileData*>(p.second);
+        if(!roomWorkshopTileData->mCanHaveCraftedTrap)
+            continue;
+
         bool isFilled = false;
         std::vector<GameEntity*> entities;
-        tile->fillWithCarryableEntities(entities);
+        p.first->fillWithCarryableEntities(entities);
         for(GameEntity* entity : entities)
         {
             if(entity->getObjectType() != GameEntityType::craftedTrap)
@@ -426,7 +413,7 @@ Tile* RoomWorkshop::checkIfAvailableSpot(const std::vector<Tile*>& activeSpots)
         if(isFilled)
             continue;
 
-        return tile;
+        return p.first;
     }
 
     return nullptr;
@@ -453,4 +440,9 @@ void RoomWorkshop::importFromStream(std::istream& is)
     Room::importFromStream(is);
     OD_ASSERT_TRUE(is >> mPoints);
     OD_ASSERT_TRUE(is >> mTrapType);
+}
+
+RoomWorkshopTileData* RoomWorkshop::createTileData(Tile* tile)
+{
+    return new RoomWorkshopTileData;
 }

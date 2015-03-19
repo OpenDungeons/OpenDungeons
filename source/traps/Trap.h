@@ -53,8 +53,8 @@ ODPacket& operator<<(ODPacket& os, const TrapType& tt);
 class TrapTileData : public TileData
 {
 public:
-    TrapTileData(double hp) :
-        TileData(hp),
+    TrapTileData() :
+        TileData(),
         mIsActivated(false),
         mReloadTime(0),
         mCraftedTrap(nullptr),
@@ -176,7 +176,6 @@ public:
     //! \brief Sets the name, seat and associates the given tiles with the trap
     void setupTrap(const std::string& name, Seat* seat, const std::vector<Tile*>& tiles);
 
-    virtual void addCoveredTile(Tile* t, double nHP);
     virtual bool removeCoveredTile(Tile* t);
     virtual void updateActiveSpots();
 
@@ -193,13 +192,13 @@ public:
     { return false; }
 
     virtual void exportHeadersToStream(std::ostream& os) const override;
-    virtual void exportTileToStream(std::ostream& os, Tile* tile) const override;
-    virtual void importTileFromStream(std::istream& is, Tile* tile) override;
+    virtual void exportTileDataToStream(std::ostream& os, Tile* tile, TileData* tileData) const override;
+    virtual void importTileDataFromStream(std::istream& is, Tile* tile, TileData* tileData) override;
 
     static std::string getTrapStreamFormat();
 
 protected:
-    virtual TileData* createTileData(Tile* tile) override;
+    virtual TrapTileData* createTileData(Tile* tile) override;
 
     virtual RenderedMovableEntity* notifyActiveSpotCreated(Tile* tile);
     virtual TrapEntity* getTrapEntity(Tile* tile) = 0;

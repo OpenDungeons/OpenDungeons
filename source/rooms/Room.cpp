@@ -117,15 +117,15 @@ void Room::absorbRoom(Room *r)
 
     for(Tile* tile : r->mCoveredTiles)
     {
-        double hp = r->getHP(tile);
-        // We don't want to notify the room for the addition of the tile because it is not a new tile. That's why
-        // we call Building::addCoveredTile and not Room::addCoveredTile. If a room wants to handle its ground mesh
-        // differently, it can override reorderRoomAfterAbsorbtion.
-        Building::addCoveredTile(tile, hp);
+        mCoveredTiles.push_back(tile);
+        mTileData[tile] = r->mTileData[tile];
+        r->mTileData.erase(tile);
+        tile->setCoveringBuilding(this);
     }
-    // We don't need to insert r->mTileData and r->mCoveredTiles because it has already been done in Building::addCoveredTile
+
     r->mCoveredTiles.clear();
-    r->mTileData.clear();
+
+    // We do not clear r->mTileData to make sure it is freed during room destruction
 
     // If a destroyed tile is in the new room, it is not a destroyed tile anymore
     for(Tile* tile : r->mCoveredTilesDestroyed)
@@ -395,10 +395,14 @@ void Room::setupRoom(const std::string& name, Seat* seat, const std::vector<Tile
 {
     setName(name);
     setSeat(seat);
-    for(std::vector<Tile*>::const_iterator it = tiles.begin(); it != tiles.end(); ++it)
+    for(Tile* tile : tiles)
     {
-        Tile* tile = *it;
-        addCoveredTile(tile, Room::DEFAULT_TILE_HP);
+        mCoveredTiles.push_back(tile);
+        TileData* tileData = createTileData(tile);
+        mTileData[tile] = tileData;
+        tileData->mHP = DEFAULT_TILE_HP;
+
+        tile->setCoveringBuilding(this);
     }
 }
 
@@ -710,18 +714,11 @@ void Room::exportHeadersToStream(std::ostream& os) const
     os << getType() << "\t";
 }
 
-void Room::exportTileToStream(std::ostream& os, Tile* tile) const
+void Room::exportTileDataToStream(std::ostream& os, Tile* tile, TileData* tileData) const
 {
-    if(mTileData.count(tile) <= 0)
-    {
-        OD_ASSERT_TRUE_MSG(false, "trap=" + getName() + ", tile=" + Tile::displayAsString(tile));
-        return;
-    }
-
     if(getGameMap()->isInEditorMode())
         return;
 
-    TileData* tileData = mTileData.at(tile);
     os << "\t" << tileData->mHP;
 
     // We only save enemy seats that have vision
@@ -739,23 +736,29 @@ void Room::exportTileToStream(std::ostream& os, Tile* tile) const
         os << "\t" << seat->getId();
 }
 
-void Room::importTileFromStream(std::istream& is, Tile* tile)
+void Room::importTileDataFromStream(std::istream& is, Tile* tile, TileData* tileData)
 {
-    if(mTileData.count(tile) <= 0)
-    {
-        OD_ASSERT_TRUE_MSG(false, "trap=" + getName() + ", tile=" + Tile::displayAsString(tile));
-    }
-
-    TileData* tileData = mTileData.at(tile);
     if(is.eof())
     {
         // Default initialization
         tileData->mHP = DEFAULT_TILE_HP;
+        mCoveredTiles.push_back(tile);
+        tile->setCoveringBuilding(this);
         return;
     }
 
     // We read saved state
     OD_ASSERT_TRUE(is >> tileData->mHP);
+
+    if(tileData->mHP > 0.0)
+    {
+        mCoveredTiles.push_back(tile);
+        tile->setCoveringBuilding(this);
+    }
+    else
+    {
+        mCoveredTilesDestroyed.push_back(tile);
+    }
     int32_t nbSeatsVision;
     OD_ASSERT_TRUE(is >> nbSeatsVision);
 

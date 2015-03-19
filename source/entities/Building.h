@@ -26,6 +26,8 @@
 #include "entities/GameEntity.h"
 #include "game/Seat.h"
 
+#include <memory>
+
 class GameMap;
 class RenderedMovableEntity;
 class Tile;
@@ -35,8 +37,8 @@ class Trap;
 class TileData
 {
 public:
-    TileData(double hp) :
-        mHP(hp)
+    TileData() :
+        mHP(0)
     {}
     double mHP;
     //! Seats with vision at map loading (when loading saved game). Note that only
@@ -59,9 +61,9 @@ public:
         GameEntity(gameMap)
     {}
 
-    const static double DEFAULT_TILE_HP;
+    virtual ~Building();
 
-    virtual ~Building() {}
+    const static double DEFAULT_TILE_HP;
 
     virtual void doUpkeep() override;
 
@@ -88,7 +90,6 @@ public:
     Tile* getCentralTile();
 
     virtual bool isAttackable(Tile* tile, Seat* seat) const;
-    virtual void addCoveredTile(Tile* t, double nHP);
     virtual bool removeCoveredTile(Tile* t);
     std::vector<Tile*> getCoveredTiles();
     Tile* getCoveredTile(int index);
@@ -147,9 +148,11 @@ public:
     //! should be exported on 1 line (thus, no line ending should be added here). Moreover
     //! the building will only export the tile coords. Exporting other relevant data is
     //! up to the subclass
-    virtual void exportTileToStream(std::ostream& os, Tile* tile) const
+    virtual void exportTileDataToStream(std::ostream& os, Tile* tile, TileData* tileData) const
     {}
-    virtual void importTileFromStream(std::istream& is, Tile* tile)
+    //! importTileDataFromStream should add the tile to covered or destroyed tiles vector and,
+    //! if added to covered tile vectors, set covering room
+    virtual void importTileDataFromStream(std::istream& is, Tile* tile, TileData* tileData)
     {}
 
 protected:

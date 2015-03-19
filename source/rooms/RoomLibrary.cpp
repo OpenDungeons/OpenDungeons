@@ -44,13 +44,12 @@ RenderedMovableEntity* RoomLibrary::notifyActiveSpotCreated(ActiveSpotPlace plac
     {
         case ActiveSpotPlace::activeSpotCenter:
         {
+            RoomLibraryTileData* roomLibraryTileData = static_cast<RoomLibraryTileData*>(mTileData[tile]);
+            roomLibraryTileData->mCanHaveResearchEntity = false;
+
             Ogre::Real x = static_cast<Ogre::Real>(tile->getX());
             Ogre::Real y = static_cast<Ogre::Real>(tile->getY());
             y += OFFSET_SPOT;
-            std::vector<Tile*>::iterator it = std::find(mAllowedSpotsForResearchItems.begin(), mAllowedSpotsForResearchItems.end(), tile);
-            if(it != mAllowedSpotsForResearchItems.end())
-                mAllowedSpotsForResearchItems.erase(it);
-
             mUnusedSpots.push_back(tile);
             if (Random::Int(0, 100) > 50)
                 return loadBuildingObject(getGameMap(), "Podium", tile, x, y, 45.0, false);
@@ -86,28 +85,10 @@ void RoomLibrary::absorbRoom(Room *r)
     RoomLibrary* roomAbs = static_cast<RoomLibrary*>(r);
     mUnusedSpots.insert(mUnusedSpots.end(), roomAbs->mUnusedSpots.begin(), roomAbs->mUnusedSpots.end());
     roomAbs->mUnusedSpots.clear();
-    mAllowedSpotsForResearchItems.insert(mAllowedSpotsForResearchItems.end(), roomAbs->mAllowedSpotsForResearchItems.begin(), roomAbs->mAllowedSpotsForResearchItems.end());
-    roomAbs->mAllowedSpotsForResearchItems.clear();
     mCreaturesSpots.insert(roomAbs->mCreaturesSpots.begin(), roomAbs->mCreaturesSpots.end());
     roomAbs->mCreaturesSpots.clear();
 
     Room::absorbRoom(r);
-}
-
-void RoomLibrary::addCoveredTile(Tile* t, double nHP)
-{
-    mAllowedSpotsForResearchItems.push_back(t);
-
-    Room::addCoveredTile(t, nHP);
-}
-
-bool RoomLibrary::removeCoveredTile(Tile* t)
-{
-    std::vector<Tile*>::iterator it = std::find(mAllowedSpotsForResearchItems.begin(), mAllowedSpotsForResearchItems.end(), t);
-    if(it != mAllowedSpotsForResearchItems.end())
-        mAllowedSpotsForResearchItems.erase(it);
-
-    return Room::removeCoveredTile(t);
 }
 
 void RoomLibrary::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
@@ -279,9 +260,8 @@ void RoomLibrary::doUpkeep()
                     continue;
 
                 // We check if there is an empty tile to release the researchEntity
-                Tile* spawnTile = checkIfAvailableSpot(mAllowedSpotsForResearchItems);
-                OD_ASSERT_TRUE_MSG(spawnTile != nullptr, "room=" + getName());
-                if(spawnTile == nullptr)
+                Tile* spanwTile = checkIfAvailableSpot();
+                OD_ASSERT_TRUE_MSG(spanwTile != nullptr, "room=" + getName());
                     return;
 
                 ResearchEntity* researchEntity = new ResearchEntity(getGameMap(), getName(), researchDone->getType());
@@ -333,14 +313,18 @@ uint32_t RoomLibrary::countResearchItemsOnRoom()
     return nbItems;
 }
 
-Tile* RoomLibrary::checkIfAvailableSpot(const std::vector<Tile*>& activeSpots)
+Tile* RoomLibrary::checkIfAvailableSpot()
 {
-    for(Tile* tile : activeSpots)
+    for(std::pair<Tile* const, TileData*>& p : mTileData)
     {
+        RoomLibraryTileData* roomLibraryTileData = static_cast<RoomLibraryTileData*>(p.second);
+        if(!roomLibraryTileData->mCanHaveResearchEntity)
+            continue;
+
         // If the tile contains no item, we can add a new one
         bool isFilled = false;
         std::vector<GameEntity*> entities;
-        tile->fillWithCarryableEntities(entities);
+        p.first->fillWithCarryableEntities(entities);
         for(GameEntity* entity : entities)
         {
             if(entity->getObjectType() != GameEntityType::researchEntity)
@@ -354,7 +338,7 @@ Tile* RoomLibrary::checkIfAvailableSpot(const std::vector<Tile*>& activeSpots)
         if(isFilled)
             continue;
 
-        return tile;
+        return p.first;
     }
 
     return nullptr;
@@ -366,4 +350,9 @@ void RoomLibrary::getCreatureWantedPos(Creature* creature, Tile* tileSpot,
     wantedX = static_cast<Ogre::Real>(tileSpot->getX());
     wantedY = static_cast<Ogre::Real>(tileSpot->getY());
     wantedY -= OFFSET_CREATURE;
+}
+
+RoomLibraryTileData* RoomLibrary::createTileData(Tile* tile)
+{
+    return new RoomLibraryTileData;
 }

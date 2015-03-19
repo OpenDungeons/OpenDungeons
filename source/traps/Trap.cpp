@@ -243,15 +243,6 @@ int32_t Trap::getNbNeededCraftedTrap() const
     return nbNeededCraftedTrap;
 }
 
-void Trap::addCoveredTile(Tile* t, double nHP)
-{
-    Building::addCoveredTile(t, nHP);
-
-    // The trap starts deactivated.
-    TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData.at(t));
-    trapTileData->setReloadTime(mReloadTime);
-}
-
 bool Trap::removeCoveredTile(Tile* t)
 {
     if(!Building::removeCoveredTile(t))
@@ -389,7 +380,15 @@ void Trap::setupTrap(const std::string& name, Seat* seat, const std::vector<Tile
     setName(name);
     setSeat(seat);
     for(Tile* tile : tiles)
-        addCoveredTile(tile, Trap::DEFAULT_TILE_HP);
+    {
+        mCoveredTiles.push_back(tile);
+        TrapTileData* trapTileData = createTileData(tile);
+        mTileData[tile] = trapTileData;
+        trapTileData->mHP = DEFAULT_TILE_HP;
+        trapTileData->setReloadTime(mReloadTime);
+
+        tile->setCoveringBuilding(this);
+    }
 }
 
 int32_t Trap::getNeededWorkshopPointsPerTrap(TrapType trapType)
@@ -537,15 +536,9 @@ void Trap::exportHeadersToStream(std::ostream& os) const
     os << getType() << "\t";
 }
 
-void Trap::exportTileToStream(std::ostream& os, Tile* tile) const
+void Trap::exportTileDataToStream(std::ostream& os, Tile* tile, TileData* tileData) const
 {
-    if(mTileData.count(tile) <= 0)
-    {
-        OD_ASSERT_TRUE_MSG(false, "trap=" + getName() + ", tile=" + Tile::displayAsString(tile));
-        return;
-    }
-
-    TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData.at(tile));
+    TrapTileData* trapTileData = static_cast<TrapTileData*>(tileData);
     os << "\t" << (trapTileData->isActivated() ? 1 : 0);
     if(getGameMap()->isInEditorMode())
         return;
@@ -570,20 +563,17 @@ void Trap::exportTileToStream(std::ostream& os, Tile* tile) const
         os << "\t" << seat->getId();
 }
 
-void Trap::importTileFromStream(std::istream& is, Tile* tile)
+void Trap::importTileDataFromStream(std::istream& is, Tile* tile, TileData* tileData)
 {
+    TrapTileData* trapTileData = static_cast<TrapTileData*>(tileData);
     int isTrapActiv;
-    if(mTileData.count(tile) <= 0)
-    {
-        OD_ASSERT_TRUE_MSG(false, "trap=" + getName() + ", tile=" + Tile::displayAsString(tile));
-    }
-
-    TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData.at(tile));
     OD_ASSERT_TRUE(is >> isTrapActiv);
     if(is.eof())
     {
         // Default initialization
         trapTileData->mHP = DEFAULT_TILE_HP;
+        mCoveredTiles.push_back(tile);
+        tile->setCoveringBuilding(this);
         if(isTrapActiv != 0)
             activate(tile);
 
@@ -604,6 +594,15 @@ void Trap::importTileFromStream(std::istream& is, Tile* tile)
         activate(tile);
 
     trapTileData->mHP = tileHealth;
+    if(trapTileData->mHP > 0.0)
+    {
+        mCoveredTiles.push_back(tile);
+        tile->setCoveringBuilding(this);
+    }
+    else
+    {
+        mCoveredTilesDestroyed.push_back(tile);
+    }
     trapTileData->setNbShootsBeforeDeactivation(nbShootsBeforeDeactivation);
     trapTileData->setReloadTime(reloadTime);
     trapTileData->setIsWorking(tileHealth > 0.0);
@@ -619,9 +618,9 @@ void Trap::importTileFromStream(std::istream& is, Tile* tile)
     }
 }
 
-TileData* Trap::createTileData(Tile* tile)
+TrapTileData* Trap::createTileData(Tile* tile)
 {
-    return new TrapTileData(DEFAULT_TILE_HP);
+    return new TrapTileData();
 }
 
 std::istream& operator>>(std::istream& is, TrapType& tt)
