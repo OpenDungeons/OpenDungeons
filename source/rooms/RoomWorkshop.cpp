@@ -32,7 +32,8 @@
 #include "utils/LogManager.h"
 #include "utils/Random.h"
 
-const Ogre::Real OFFSET_CREATURE = 0.3;
+const Ogre::Real X_OFFSET_CREATURE = 0.5;
+const Ogre::Real Y_OFFSET_CREATURE = 0.3;
 const Ogre::Real OFFSET_SPOT = 0.3;
 
 RoomWorkshop::RoomWorkshop(GameMap* gameMap) :
@@ -328,7 +329,7 @@ void RoomWorkshop::doUpkeep()
             }
             else
             {
-                Ogre::Vector3 walkDirection(ro->getPosition().x - creature->getPosition().x, ro->getPosition().y - creature->getPosition().y, 0);
+                Ogre::Vector3 walkDirection(ro->getPosition().x - creature->getPosition().x - 1.0, ro->getPosition().y - creature->getPosition().y + 1.0, 0);
                 walkDirection.normalise();
                 creature->setAnimationState("Attack1", false, walkDirection);
 
@@ -435,8 +436,9 @@ void RoomWorkshop::getCreatureWantedPos(Creature* creature, Tile* tileSpot,
     Ogre::Real& wantedX, Ogre::Real& wantedY)
 {
     wantedX = static_cast<Ogre::Real>(tileSpot->getX());
+    wantedX += X_OFFSET_CREATURE;
     wantedY = static_cast<Ogre::Real>(tileSpot->getY());
-    wantedY -= OFFSET_CREATURE;
+    wantedY += Y_OFFSET_CREATURE;
 }
 
 void RoomWorkshop::exportToStream(std::ostream& os) const
