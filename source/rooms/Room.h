@@ -108,6 +108,8 @@ public:
 
     bool canBeRepaired() const;
 
+    virtual void restoreInitialEntityState() override;
+
     static bool sortForMapSave(Room* r1, Room* r2);
 
 protected:

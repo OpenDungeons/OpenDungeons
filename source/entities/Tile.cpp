@@ -306,41 +306,10 @@ void Tile::exportToStream(std::ostream& os) const
     os << "\t" << getSeat()->getId();
 }
 
-void Tile::exportTileToPacket(ODPacket& os, Seat* seat)
-{
-    Seat* tileSeat = getSeat();
-    int seatId = -1;
-    // We only pass the tile seat to the client if the tile is fully claimed
-    if((tileSeat != nullptr) && (mClaimedPercentage >= 1.0))
-        seatId = tileSeat->getId();
-
-    std::string meshName;
-
-    if((getCoveringBuilding() != nullptr) && (getCoveringBuilding()->shouldDisplayBuildingTile()))
-    {
-        meshName = getCoveringBuilding()->getMeshName() + ".mesh";
-        mScale = getCoveringBuilding()->getScale();
-        // Buildings are not colored with seat color
-    }
-    else
-    {
-        // We set an empty mesh so that the client can compute the tile itself
-        meshName.clear();
-        mScale = Ogre::Vector3::ZERO;
-    }
-
-    os << mIsBuilding;
-
-    os << seatId;
-    os << meshName;
-    os << mScale;
-    os << mTileVisual;
-}
-
 void Tile::exportToPacket(ODPacket& os) const
 {
-    //Check to make sure this function is not called. The function taking a
-    //seat argument should be used instead
+    //Check to make sure this function is not called. Seat argument should be used instead
+    OD_ASSERT_TRUE_MSG(false, "tile=" + displayAsString(this));
     throw std::runtime_error("ERROR: Wrong packet export function used for tile");
 }
 

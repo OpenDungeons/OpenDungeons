@@ -39,13 +39,13 @@ public:
     void spawnCreature();
 
     //! \brief Portals only display claimed tiles on their ground.
-    virtual bool shouldDisplayBuildingTile()
-    {
-        return false;
-    }
+    virtual bool shouldDisplayBuildingTile() const
+    { return false; }
 
     //! \brief Updates the portal position when in editor mode.
     void updateActiveSpots();
+
+    virtual void restoreInitialEntityState() override;
 
 protected:
     void destroyMeshLocal();

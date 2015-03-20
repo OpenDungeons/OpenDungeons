@@ -300,31 +300,6 @@ void Trap::updateActiveSpots()
             continue;
         }
     }
-
-    // We restore the vision if we need to
-    for(std::pair<Tile* const, TileData*>& p : mTileData)
-    {
-        TrapTileData* trapTileData = static_cast<TrapTileData*>(p.second);
-        if(trapTileData->mSeatsVision.empty())
-            continue;
-
-        TrapEntity* trapEntity = trapTileData->getTrapEntity();
-        if(trapEntity == nullptr)
-        {
-            OD_ASSERT_TRUE_MSG(false, "tile=" + Tile::displayAsString(p.first));
-            continue;
-        }
-
-        trapEntity->seatsSawTriggering(trapTileData->mSeatsVision);
-        trapEntity->notifySeatsWithVision(trapTileData->mSeatsVision);
-        for(Seat* seat : trapEntity->getSeatsNotHidden())
-            seat->setVisibleBuildingOnTile(this, p.first);
-
-        // We empty the list of seats with vision to make sure we don't do it again
-        // if there is an active spots update
-        trapTileData->mSeatsVision.clear();
-
-    }
 }
 
 RenderedMovableEntity* Trap::notifyActiveSpotCreated(Tile* tile)
@@ -541,6 +516,33 @@ bool Trap::isAttackable(Tile* tile, Seat* seat) const
         return false;
 
     return true;
+}
+
+void Trap::restoreInitialEntityState()
+{
+    // We restore the vision if we need to
+    for(std::pair<Tile* const, TileData*>& p : mTileData)
+    {
+        TrapTileData* trapTileData = static_cast<TrapTileData*>(p.second);
+        if(trapTileData->mSeatsVision.empty())
+            continue;
+
+        TrapEntity* trapEntity = trapTileData->getTrapEntity();
+        if(trapEntity == nullptr)
+        {
+            OD_ASSERT_TRUE_MSG(false, "tile=" + Tile::displayAsString(p.first));
+            continue;
+        }
+
+        trapEntity->seatsSawTriggering(trapTileData->mSeatsVision);
+        trapEntity->notifySeatsWithVision(trapTileData->mSeatsVision);
+        for(Seat* seat : trapEntity->getSeatsNotHidden())
+            seat->setVisibleBuildingOnTile(this, p.first);
+
+        // We empty the list of seats with vision to make sure we don't do it again
+        // if there is an active spots update
+        trapTileData->mSeatsVision.clear();
+    }
 }
 
 std::string Trap::getTrapStreamFormat()

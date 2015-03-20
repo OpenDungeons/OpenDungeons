@@ -271,11 +271,6 @@ public:
     //! \brief Loads the tile data from a level line.
     static void loadFromLine(const std::string& line, Tile *t);
 
-    /*! \brief Exports the tile data to the packet so that the client associated to the seat have the needed information
-     *         to display the tile correctly
-     */
-    void exportTileToPacket(ODPacket& os, Seat* seat);
-
     //! \brief Override of packet export function from gameEntity. Should not be used
     void exportToPacket(ODPacket& os) const override;
 

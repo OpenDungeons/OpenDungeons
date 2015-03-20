@@ -162,3 +162,32 @@ void RoomPortal::spawnCreature()
 
     mSpawnCreatureCountdown = Random::Uint(15, 30);
 }
+
+void RoomPortal::restoreInitialEntityState()
+{
+    // We need to use seats with vision before calling Room::restoreInitialEntityState
+    // because it will empty the list
+    if(mPortalObject == nullptr)
+    {
+        OD_ASSERT_TRUE_MSG(false, "roomPortal=" + getName());
+        return;
+    }
+
+    Tile* tilePortalObject = mPortalObject->getPositionTile();
+    if(tilePortalObject == nullptr)
+    {
+        OD_ASSERT_TRUE_MSG(false, "roomPortal=" + getName() + ", mPortalObject=" + mPortalObject->getName());
+        return;
+    }
+    TileData* tileData = mTileData[tilePortalObject];
+    if(tileData == nullptr)
+    {
+        OD_ASSERT_TRUE_MSG(false, "roomPortal=" + getName() + ", tile=" + Tile::displayAsString(tilePortalObject));
+        return;
+    }
+
+    if(!tileData->mSeatsVision.empty())
+        mPortalObject->notifySeatsWithVision(tileData->mSeatsVision);
+
+    Room::restoreInitialEntityState();
+}

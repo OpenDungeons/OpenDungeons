@@ -47,7 +47,8 @@ TileStateNotified::TileStateNotified():
     mSeatIdOwner(-1),
     mMarkedForDigging(false),
     mVisionTurnLast(false),
-    mVisionTurnCurrent(false)
+    mVisionTurnCurrent(false),
+    mBuilding(nullptr)
 {
 }
 
@@ -448,21 +449,8 @@ void Seat::initSeat()
 
                 // Then, we export tile state to the client
                 mGameMap->tileToPacket(serverNotification->mPacket, tile);
-                // FIXME: For now, we set the tile as if there was no building on it as it
-                // will be done in another PR/commit.
-                // When this is done, it would be better to have a function in the tile equivalent
-                // to exportTileToPacket that exports the last tile state the player have seen
 
-                // isBuilding
-                serverNotification->mPacket << false;
-                // seatId
-                serverNotification->mPacket << tileState.mSeatIdOwner;
-                // meshname
-                serverNotification->mPacket << "";
-                // scale
-                serverNotification->mPacket << Ogre::Vector3::ZERO;
-                // tileVisual
-                serverNotification->mPacket << tileState.mTileVisual;
+                exportTileToPacket(serverNotification->mPacket, tile);
             }
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
@@ -634,8 +622,8 @@ void Seat::notifyChangedVisibleTiles()
     for(Tile* tile : tilesToNotify)
     {
         mGameMap->tileToPacket(serverNotification->mPacket, tile);
-        tile->exportTileToPacket(serverNotification->mPacket, this);
         tileNotifiedToPlayer(tile);
+        exportTileToPacket(serverNotification->mPacket, tile);
     }
     ODServer::getSingleton().queueServerNotification(serverNotification);
 }
@@ -1771,7 +1759,63 @@ void Seat::setVisibleBuildingOnTile(const Building* building, const Tile* tile)
 
     TileStateNotified& tileState = mTilesStates[tile->getX()][tile->getY()];
     tileState.mBuilding = building;
+}
 
+void Seat::exportTileToPacket(ODPacket& os, Tile* tile) const
+{
+    if(getPlayer() == nullptr)
+    {
+        OD_ASSERT_TRUE_MSG(false, "SeatId=" + Helper::toString(getId()));
+        return;
+    }
+    if(!getPlayer()->getIsHuman())
+    {
+        OD_ASSERT_TRUE_MSG(false, "SeatId=" + Helper::toString(getId()));
+        return;
+    }
+
+    OD_ASSERT_TRUE_MSG(tile->getX() < static_cast<int>(mTilesStates.size()), "Tile=" + Tile::displayAsString(tile));
+    OD_ASSERT_TRUE_MSG(tile->getY() < static_cast<int>(mTilesStates[tile->getX()].size()), "Tile=" + Tile::displayAsString(tile));
+
+    const TileStateNotified& tileState = mTilesStates[tile->getX()][tile->getY()];
+
+    Seat* tileSeat = tile->getSeat();
+    int tileSeatId = -1;
+    // We only pass the tile seat to the client if the tile is fully claimed
+    if(tileSeat != nullptr)
+    {
+        switch(tileState.mTileVisual)
+        {
+            case TileVisual::claimedGround:
+            case TileVisual::claimedFull:
+                tileSeatId = tileSeat->getId();
+                break;
+            default:
+                break;
+        }
+    }
+
+    std::string meshName;
+    Ogre::Vector3 scale;
+
+    if((tileState.mBuilding != nullptr) && (tileState.mBuilding->shouldDisplayBuildingTile()))
+    {
+        meshName = tileState.mBuilding->getMeshName() + ".mesh";
+        scale = tileState.mBuilding->getScale();
+    }
+    else
+    {
+        // We set an empty mesh so that the client can compute the tile itself
+        meshName.clear();
+        scale = Ogre::Vector3::ZERO;
+    }
+    bool isBuilding = (tileState.mBuilding != nullptr);
+
+    os << isBuilding;
+    os << tileSeatId;
+    os << meshName;
+    os << scale;
+    os << tileState.mTileVisual;
 }
 
 void Seat::notifyBuildingRemovedFromGameMap(const Building* building, const Tile* tile)

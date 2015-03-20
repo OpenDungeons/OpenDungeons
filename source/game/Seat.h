@@ -318,6 +318,11 @@ public:
     bool haveVisionOnBuilding(const Building* building, const Tile* tile) const;
     void setVisibleBuildingOnTile(const Building* building, const Tile* tile);
 
+    /*! \brief Exports the tile data to the packet so that the client associated to the seat have the needed information
+     *         to display the tile correctly
+     */
+    void exportTileToPacket(ODPacket& os, Tile* tile) const;
+
     static bool sortForMapSave(Seat* s1, Seat* s2);
 
     static Seat* getRogueSeat(GameMap* gameMap);

@@ -24,6 +24,7 @@
 #include "entities/CreatureSound.h"
 #include "entities/PersistentObject.h"
 #include "entities/ResearchEntity.h"
+#include "entities/Tile.h"
 #include "game/Player.h"
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
@@ -135,4 +136,33 @@ void RoomDungeonTemple::notifyCarryingStateChanged(Creature* carrier, GameEntity
     getSeat()->addResearch(researchEntity->getResearchType());
     researchEntity->removeFromGameMap();
     researchEntity->deleteYourself();
+}
+
+void RoomDungeonTemple::restoreInitialEntityState()
+{
+    // We need to use seats with vision before calling Room::restoreInitialEntityState
+    // because it will empty the list
+    if(mTempleObject == nullptr)
+    {
+        OD_ASSERT_TRUE_MSG(false, "roomDungeonTemple=" + getName());
+        return;
+    }
+
+    Tile* tileTempleObject = mTempleObject->getPositionTile();
+    if(tileTempleObject == nullptr)
+    {
+        OD_ASSERT_TRUE_MSG(false, "roomDungeonTemple=" + getName() + ", mTempleObject=" + mTempleObject->getName());
+        return;
+    }
+    TileData* tileData = mTileData[tileTempleObject];
+    if(tileData == nullptr)
+    {
+        OD_ASSERT_TRUE_MSG(false, "roomDungeonTemple=" + getName() + ", tile=" + Tile::displayAsString(tileTempleObject));
+        return;
+    }
+
+    if(!tileData->mSeatsVision.empty())
+        mTempleObject->notifySeatsWithVision(tileData->mSeatsVision);
+
+    Room::restoreInitialEntityState();
 }

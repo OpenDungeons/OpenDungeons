@@ -38,16 +38,12 @@ public:
     virtual bool shoot(Tile* tile);
 
     //! \brief There is no building tile for this trap.
-    virtual bool shouldDisplayBuildingTile()
-    {
-        return false;
-    }
+    virtual bool shouldDisplayBuildingTile() const
+    { return false; }
 
     //! \brief The cannon should show the ground tile under.
-    virtual bool shouldDisplayGroundTile()
-    {
-        return true;
-    }
+    virtual bool shouldDisplayGroundTile() const
+    { return true; }
 
     virtual TrapEntity* getTrapEntity(Tile* tile);
 private:

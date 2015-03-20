@@ -662,21 +662,6 @@ void Room::updateActiveSpots()
     mNumActiveSpots = mCentralActiveSpotTiles.size()
                       + mLeftWallsActiveSpotTiles.size() + mRightWallsActiveSpotTiles.size()
                       + mTopWallsActiveSpotTiles.size() + mBottomWallsActiveSpotTiles.size();
-
-    // We restore the vision if we need to
-    for(std::pair<Tile* const, TileData*>& p : mTileData)
-    {
-        if(p.second->mSeatsVision.empty())
-            continue;
-        for(Seat* seat : p.second->mSeatsVision)
-            seat->setVisibleBuildingOnTile(this, p.first);
-
-        // We empty the list of seats with vision to make sure we don't do it again
-        // if there is an active spots update
-        p.second->mSeatsVision.clear();
-
-    }
-
 }
 
 void Room::activeSpotCheckChange(ActiveSpotPlace place, const std::vector<Tile*>& originalSpotTiles,
@@ -801,6 +786,47 @@ void Room::importTileDataFromStream(std::istream& is, Tile* tile, TileData* tile
             continue;
         }
         tileData->mSeatsVision.push_back(seat);
+    }
+}
+
+void Room::restoreInitialEntityState()
+{
+    // We restore the vision if we need to
+    std::map<Seat*, std::vector<Tile*>> tiles;
+    for(std::pair<Tile* const, TileData*>& p : mTileData)
+    {
+        if(p.second->mSeatsVision.empty())
+            continue;
+        for(Seat* seat : p.second->mSeatsVision)
+        {
+            seat->setVisibleBuildingOnTile(this, p.first);
+            tiles[seat].push_back(p.first);
+        }
+
+        // We empty the list of seats with vision to make sure we don't do it again
+        // if there is an active spots update
+        p.second->mSeatsVision.clear();
+    }
+
+    // We notify the clients
+    for(std::pair<Seat* const, std::vector<Tile*>>& p : tiles)
+    {
+        if(p.first->getPlayer() == nullptr)
+            continue;
+        if(!p.first->getPlayer()->getIsHuman())
+            continue;
+
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::refreshTiles, p.first->getPlayer());
+        std::vector<Tile*>& tilesRefresh = p.second;
+        uint32_t nbTiles = tilesRefresh.size();
+        serverNotification->mPacket << nbTiles;
+        for(Tile* tile : tilesRefresh)
+        {
+            getGameMap()->tileToPacket(serverNotification->mPacket, tile);
+            p.first->exportTileToPacket(serverNotification->mPacket, tile);
+        }
+        ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 }
 

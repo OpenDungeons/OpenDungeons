@@ -35,6 +35,8 @@ public:
     Tile* askSpotForCarriedEntity(GameEntity* carriedEntity);
     void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity);
 
+    virtual void restoreInitialEntityState() override;
+
 protected:
     virtual void destroyMeshLocal();
 

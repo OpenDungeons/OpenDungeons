@@ -102,11 +102,11 @@ public:
     std::string getNameTile(Tile* tile);
 
     //! \brief Tells whether the building tile should be displayed.
-    virtual bool shouldDisplayBuildingTile()
+    virtual bool shouldDisplayBuildingTile() const
     { return true; }
 
     //! \brief Tells whether the ground tile below the building tile should be displayed.
-    virtual bool shouldDisplayGroundTile()
+    virtual bool shouldDisplayGroundTile() const
     { return false; }
 
     //! \brief Tells whether the building wants the given entity to be brought

@@ -191,6 +191,8 @@ public:
     virtual bool shouldSetCoveringTileDirty(Seat* seat, Tile* tile)
     { return false; }
 
+    virtual void restoreInitialEntityState() override;
+
     virtual bool isTileVisibleForSeat(Tile* tile, Seat* seat) const override;
 
     virtual void exportHeadersToStream(std::ostream& os) const override;
