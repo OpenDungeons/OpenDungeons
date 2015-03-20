@@ -287,8 +287,15 @@ double Building::getHP(Tile *tile) const
 
 double Building::takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile *tileTakingDamage)
 {
-    double damageDone = std::min(mTileData[tileTakingDamage]->mHP, physicalDamage + magicalDamage);
-    mTileData[tileTakingDamage]->mHP -= damageDone;
+    if(mTileData.count(tileTakingDamage) <= 0)
+    {
+        OD_ASSERT_TRUE_MSG(false, "building=" + getName() + ", tile=" + Tile::displayAsString(tileTakingDamage));
+        return 0.0;
+    }
+
+    TileData* tileData = mTileData.at(tileTakingDamage);
+    double damageDone = std::min(tileData->mHP, physicalDamage + magicalDamage);
+    tileData->mHP -= damageDone;
 
     GameMap* gameMap = getGameMap();
     if(!gameMap->isServerGameMap())
