@@ -800,7 +800,7 @@ ODPacket& operator<<(ODPacket& os, Seat *s)
     os << s->mId << s->mTeamId << s->mPlayerType << s->mFaction << s->mStartingX
        << s->mStartingY;
     os << s->mColorId;
-    os << s->mGold << s->mMana << s->mManaDelta << s->mNumClaimedTiles;
+    os << s->mGold << s->mMana << s->mManaDelta << s->mNumClaimedTiles << s->mNumCreaturesControlled;
     os << s->mHasGoalsChanged;
     os << s->mNbTreasuries;
     uint32_t nb = s->mAvailableTeamIds.size();
@@ -816,7 +816,7 @@ ODPacket& operator>>(ODPacket& is, Seat *s)
     is >> s->mId >> s->mTeamId >> s->mPlayerType;
     is >> s->mFaction >> s->mStartingX >> s->mStartingY;
     is >> s->mColorId;
-    is >> s->mGold >> s->mMana >> s->mManaDelta >> s->mNumClaimedTiles;
+    is >> s->mGold >> s->mMana >> s->mManaDelta >> s->mNumClaimedTiles >> s->mNumCreaturesControlled;
     is >> s->mHasGoalsChanged;
     is >> s->mNbTreasuries;
     s->mColorValue = ConfigManager::getSingleton().getColorFromId(s->mColorId);
@@ -866,6 +866,7 @@ void Seat::refreshFromSeat(Seat* s)
     mMana = s->mMana;
     mManaDelta = s->mManaDelta;
     mNumClaimedTiles = s->mNumClaimedTiles;
+    mNumCreaturesControlled = s->mNumCreaturesControlled;
     mHasGoalsChanged = s->mHasGoalsChanged;
     mNbTreasuries = s->mNbTreasuries;
 }

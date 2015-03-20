@@ -34,6 +34,7 @@
 #include "render/RenderManager.h"
 #include "render/TextRenderer.h"
 #include "sound/MusicPlayer.h"
+#include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
 #include "utils/MakeUnique.h"
 
@@ -279,6 +280,11 @@ void ODFrameListener::refreshPlayerDisplay(const std::string& goalsDisplayString
     CEGUI::Window *tempWindow = mGui->getGuiSheet(Gui::inGameMenu)->getChild(Gui::DISPLAY_TERRITORY);
     std::stringstream tempSS("");
     tempSS << mySeat->getNumClaimedTiles();
+    tempWindow->setText(tempSS.str());
+
+    tempWindow = mGui->getGuiSheet(Gui::inGameMenu)->getChild(Gui::DISPLAY_CREATURES);
+    tempSS.str("");
+    tempSS << mySeat->getNumCreaturesControlled() << "/" << ConfigManager::getSingleton().getMaxCreaturesPerSeat();
     tempWindow->setText(tempSS.str());
 
     tempWindow = mGui->getGuiSheet(Gui::inGameMenu)->getChild(Gui::DISPLAY_GOLD);
