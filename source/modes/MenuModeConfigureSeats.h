@@ -52,7 +52,7 @@ public:
     void refreshSeatConfiguration(ODPacket& packet);
 
 private:
-    std::vector<Seat*> mSeats;
+    std::vector<int> mSeatIds;
     std::vector<std::pair<std::string, int32_t> > mPlayers;
 
     void fireSeatConfigurationToServer(bool isFinal);
