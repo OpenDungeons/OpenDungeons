@@ -260,9 +260,12 @@ void RoomLibrary::doUpkeep()
                     continue;
 
                 // We check if there is an empty tile to release the researchEntity
-                Tile* spanwTile = checkIfAvailableSpot();
-                OD_ASSERT_TRUE_MSG(spanwTile != nullptr, "room=" + getName());
+                Tile* spawnTile = checkIfAvailableSpot();
+                if(spawnTile == nullptr)
+                {
+                    OD_ASSERT_TRUE_MSG(false, "room=" + getName());
                     return;
+                }
 
                 ResearchEntity* researchEntity = new ResearchEntity(getGameMap(), getName(), researchDone->getType());
                 researchEntity->setSeat(getSeat());
