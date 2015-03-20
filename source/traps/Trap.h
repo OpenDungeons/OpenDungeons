@@ -166,7 +166,7 @@ public:
     virtual bool removeCoveredTile(Tile* t);
     virtual void updateActiveSpots();
 
-    static int32_t getNeededForgePointsPerTrap(TrapType trapType);
+    static int32_t getNeededWorkshopPointsPerTrap(TrapType trapType);
     virtual int32_t getNbNeededCraftedTrap() const;
 
     bool hasCarryEntitySpot(GameEntity* carriedEntity);

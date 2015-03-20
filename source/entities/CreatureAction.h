@@ -36,7 +36,7 @@ enum class CreatureActionType
     findHome, // (fighters only) Try to find a "home" tile in a dormitory somewhere where the creature can sleep.
     findHomeForced, // Try to find a "home" tile in the dormitory where the creature is
     sleep, // (fighters only) Try to go to its home tile to and sleep when it gets there.
-    jobdecided, // (fighters only) Check to see if our seat controls a room where we can work (train, forge, search, ...)
+    jobdecided, // (fighters only) Check to see if our seat controls a room where we can work (train, workshop, forge, search, ...)
     jobforced, // (fighters only)Check to see if we have been dropped on a room where we can work
     eatdecided, // (fighters only) Try to find a hatchery to eat
     eatforced, // (fighters only) Force eating if the creature is dropped in a hatchery

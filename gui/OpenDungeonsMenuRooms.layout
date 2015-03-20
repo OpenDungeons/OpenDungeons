@@ -47,11 +47,11 @@
             <Property name="TooltipText" value="Build a Training Hall" />
             <Property name="InheritsAlpha" value="False" />
         </Window>
-        <Window type="OD/GameTabButton" name="ForgeButton" >
+        <Window type="OD/GameTabButton" name="WorkshopButton" >
             <Property name="Area" value="{{0,400},{0,25},{0,460},{0,85}}" />
             <Property name="Visible" value="False" />
-            <Property name="NormalImage" value="OpenDungeonsIcons/ForgeButton" />
-            <Property name="TooltipText" value="Build a Forge" />
+            <Property name="NormalImage" value="OpenDungeonsIcons/WorkshopButton" />
+            <Property name="TooltipText" value="Build a Workshop (for traps)" />
             <Property name="InheritsAlpha" value="False" />
         </Window>
         <Window type="OD/GameTabButton" name="CryptButton" >

@@ -15,20 +15,20 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ROOMFORGE_H
-#define ROOMFORGE_H
+#ifndef ROOMWORKSHOP_H
+#define ROOMWORKSHOP_H
 
 #include "rooms/Room.h"
 
 enum class TrapType;
 
-class RoomForge: public Room
+class RoomWorkshop: public Room
 {
 public:
-    RoomForge(GameMap* gameMap);
+    RoomWorkshop(GameMap* gameMap);
 
     virtual RoomType getType() const override
-    { return RoomType::forge; }
+    { return RoomType::workshop; }
 
     virtual void doUpkeep() override;
     virtual bool hasOpenCreatureSpot(Creature* c) override;
@@ -45,7 +45,7 @@ protected:
     virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile) override;
     virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile) override;
 private:
-    //!\brief checks if a tile is available in the forge to place a new crafted trap
+    //!\brief checks if a tile is available in the workshop to place a new crafted trap
     uint32_t countCraftedItemsOnRoom();
     Tile* checkIfAvailableSpot(const std::vector<Tile*>& activeSpots);
     int32_t mPoints;
@@ -57,4 +57,4 @@ private:
     std::map<Creature*,Tile*> mCreaturesSpots;
 };
 
-#endif // ROOMFORGE_H
+#endif // ROOMWORKSHOP_H

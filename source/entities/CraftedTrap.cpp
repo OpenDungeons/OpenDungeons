@@ -38,8 +38,8 @@ const std::string EMPTY_STRING;
 
 const Ogre::Vector3 SCALE(0.5,0.5,0.5);
 
-CraftedTrap::CraftedTrap(GameMap* gameMap, const std::string& forgeName, TrapType trapType) :
-    RenderedMovableEntity(gameMap, forgeName, getMeshFromTrapType(trapType), 0.0f, false),
+CraftedTrap::CraftedTrap(GameMap* gameMap, const std::string& workshopName, TrapType trapType) :
+    RenderedMovableEntity(gameMap, workshopName, getMeshFromTrapType(trapType), 0.0f, false),
     mTrapType(trapType)
 {
 }

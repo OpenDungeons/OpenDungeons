@@ -101,7 +101,7 @@ GameEditorModeBase::GameEditorModeBase(ModeManager *modeManager, ModeManager::Mo
     connectRoomSelect(Gui::BUTTON_CRYPT, RoomType::crypt);
     connectRoomSelect(Gui::BUTTON_DORMITORY, RoomType::dormitory);
     connectRoomSelect(Gui::BUTTON_TEMPLE, RoomType::dungeonTemple);
-    connectRoomSelect(Gui::BUTTON_FORGE, RoomType::forge);
+    connectRoomSelect(Gui::BUTTON_WORKSHOP, RoomType::workshop);
     connectRoomSelect(Gui::BUTTON_HATCHERY, RoomType::hatchery);
     connectRoomSelect(Gui::BUTTON_LIBRARY, RoomType::library);
     connectRoomSelect(Gui::BUTTON_PORTAL, RoomType::portal);

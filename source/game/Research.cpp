@@ -54,8 +54,8 @@ std::string Research::researchTypeToString(ResearchType type)
             return "roomCrypt";
         case ResearchType::roomDormitory:
             return "roomDormitory";
-        case ResearchType::roomForge:
-            return "roomForge";
+        case ResearchType::roomWorkshop:
+            return "roomWorkshop";
         case ResearchType::roomHatchery:
             return "roomHatchery";
         case ResearchType::roomLibrary:

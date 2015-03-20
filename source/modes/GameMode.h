@@ -28,6 +28,7 @@ class Window;
 }
 
 enum class SpellType;
+enum class ResearchType;
 
 class GameMode final : public GameEditorModeBase
 {
@@ -162,6 +163,11 @@ private:
     //! \brief Called at each frame. It checks if the Gui should be refreshed (for example,
     //! if a research is done) and, if yes, refreshes accordingly.
     void refreshGuiResearch();
+
+    //! \brief Set the state of the given research button accordingly
+    //! to the research type given.
+    //! \note: Called by refreshGuiResearch() for each researchType.
+    void refreshResearchButtonState(ResearchType resType);
 
     void connectSpellSelect(const std::string& buttonName, SpellType spellType);
 };

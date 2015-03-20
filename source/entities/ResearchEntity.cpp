@@ -41,7 +41,7 @@ const std::string EMPTY_STRING;
 const Ogre::Vector3 SCALE(0.5,0.5,0.5);
 
 ResearchEntity::ResearchEntity(GameMap* gameMap, const std::string& libraryName, ResearchType researchType) :
-    RenderedMovableEntity(gameMap, libraryName, "Podium", 0.0f, false),
+    RenderedMovableEntity(gameMap, libraryName, "Grimoire", 0.0f, false),
     mResearchType(researchType)
 {
 }

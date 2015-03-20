@@ -24,7 +24,6 @@ roomTreasury
 roomDormitory
 roomHatchery
 roomLibrary
-trapCannon
 spellSummonWorker
 [/ResearchDone]
 [ResearchNotAllowed]
@@ -32,8 +31,9 @@ spellSummonWorker
 [ResearchPending]
 roomTrainingHall
 spellCallToWar
+roomWorkshop
+trapCannon
 trapSpike
-roomForge
 roomCrypt
 trapBoulder
 [/ResearchPending]
@@ -54,7 +54,6 @@ roomTreasury
 roomDormitory
 roomHatchery
 roomLibrary
-trapCannon
 spellSummonWorker
 [/ResearchDone]
 [ResearchNotAllowed]
@@ -62,8 +61,9 @@ spellSummonWorker
 [ResearchPending]
 roomTrainingHall
 spellCallToWar
+roomWorkshop
+trapCannon
 trapSpike
-roomForge
 roomCrypt
 trapBoulder
 [/ResearchPending]
@@ -84,7 +84,6 @@ roomTreasury
 roomDormitory
 roomHatchery
 roomLibrary
-trapCannon
 spellSummonWorker
 [/ResearchDone]
 [ResearchNotAllowed]
@@ -92,8 +91,9 @@ spellSummonWorker
 [ResearchPending]
 roomTrainingHall
 spellCallToWar
+roomWorkshop
+trapCannon
 trapSpike
-roomForge
 roomCrypt
 trapBoulder
 [/ResearchPending]

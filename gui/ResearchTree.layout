@@ -33,9 +33,9 @@
                 <Property name="Area" value="{{0.8,-25},{0,15},{0.8,25},{0,65}}" />
                 <Property name="ButtonImage" value="OpenDungeonsIcons/DormitoryButton" />
             </Window>
-            <Window type="OD/ImageButton" name="ForgeButton" >
+            <Window type="OD/ImageButton" name="WorkshopButton" >
                 <Property name="Area" value="{{0.5,-25},{0,75},{0.5,25},{0,125}}" />
-                <Property name="ButtonImage" value="OpenDungeonsIcons/ForgeButton" />
+                <Property name="ButtonImage" value="OpenDungeonsIcons/WorkshopButton" />
             </Window>
             <Window type="OD/ImageButton" name="CannonButton" >
                 <Property name="Area" value="{{0.3,-25},{0,135},{0.3,25},{0,185}}" />

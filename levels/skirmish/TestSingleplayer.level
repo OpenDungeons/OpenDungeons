@@ -33,7 +33,7 @@ spellSummonWorker
 roomTrainingHall
 spellCallToWar
 trapSpike
-roomForge
+roomWorkshop
 roomCrypt
 trapBoulder
 [/ResearchPending]
@@ -63,7 +63,7 @@ spellSummonWorker
 roomTrainingHall
 spellCallToWar
 trapSpike
-roomForge
+roomWorkshop
 roomCrypt
 trapBoulder
 [/ResearchPending]
@@ -93,7 +93,7 @@ spellSummonWorker
 roomTrainingHall
 spellCallToWar
 trapSpike
-roomForge
+roomWorkshop
 roomCrypt
 trapBoulder
 [/ResearchPending]
@@ -123,7 +123,7 @@ spellSummonWorker
 roomTrainingHall
 spellCallToWar
 trapSpike
-roomForge
+roomWorkshop
 roomCrypt
 trapBoulder
 [/ResearchPending]
@@ -153,7 +153,7 @@ spellSummonWorker
 roomTrainingHall
 spellCallToWar
 trapSpike
-roomForge
+roomWorkshop
 roomCrypt
 trapBoulder
 [/ResearchPending]
@@ -5873,7 +5873,7 @@ ProtectDungeonTemple	NULL
 254	214
 [/Room]
 [Room]
-5	Forge5	2	16
+5	Workshop5	2	16
 259	209
 259	210
 259	211
