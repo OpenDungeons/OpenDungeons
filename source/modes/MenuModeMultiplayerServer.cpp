@@ -176,7 +176,7 @@ bool MenuModeMultiplayerServer::serverButtonPressed(const CEGUI::EventArgs&)
     const std::string& level = mFilesList[id];
 
     // We are a server
-    if(!ODServer::getSingleton().startServer(level, ODServer::ServerMode::ModeGameMultiPlayer))
+    if(!ODServer::getSingleton().startServer(level, ServerMode::ModeGameMultiPlayer))
     {
         LogManager::getSingleton().logMessage("ERROR: Could not start server for multi player game !!!");
         tmpWin = getModeManager().getGui().getGuiSheet(Gui::multiplayerServerMenu)->getChild(Gui::MPM_TEXT_LOADING);

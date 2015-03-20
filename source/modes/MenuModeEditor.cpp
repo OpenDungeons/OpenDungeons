@@ -185,7 +185,7 @@ bool MenuModeEditor::launchSelectedButtonPressed(const CEGUI::EventArgs&)
     const std::string& level = mFilesList[id];
 
     // In single player mode, we act as a server
-    if(!ODServer::getSingleton().startServer(level, ODServer::ServerMode::ModeEditor))
+    if(!ODServer::getSingleton().startServer(level, ServerMode::ModeEditor))
     {
         LogManager::getSingleton().logMessage("ERROR: Could not start server for editor !!!");
         tmpWin = getModeManager().getGui().getGuiSheet(Gui::editorMenu)->getChild(Gui::EDM_TEXT_LOADING);

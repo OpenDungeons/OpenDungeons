@@ -169,7 +169,7 @@ GameMap::~GameMap()
 bool GameMap::isInEditorMode() const
 {
     if (isServerGameMap())
-        return (ODServer::getSingleton().getServerMode() == ODServer::ServerMode::ModeEditor);
+        return (ODServer::getSingleton().getServerMode() == ServerMode::ModeEditor);
 
     return (ODFrameListener::getSingleton().getModeManager()->getCurrentModeTypeExceptConsole() == ModeManager::EDITOR);
 }

@@ -115,7 +115,7 @@ void MenuModeConfigureSeats::activate()
     const CEGUI::Image* selImg = &CEGUI::ImageManager::getSingleton().get("OpenDungeonsSkin/SelectionBrush");
     const std::vector<Seat*>& seats = gameMap->getSeats();
 
-    ODServer::ServerMode serverMode = ODServer::getSingleton().getServerMode();
+    ServerMode serverMode = ODServer::getSingleton().getServerMode();
     int offset = 0;
     int bestSeatHumanSeatId = -1;
     // We start by searching for the most suitable seat for local player. If we find a seat
@@ -233,11 +233,19 @@ void MenuModeConfigureSeats::activate()
 
             // If we are not in multiplayer mode, we set all the players to AI except the best we could find
             // The unset players will be set when a player connects
-            if((serverMode != ODServer::ServerMode::ModeGameMultiPlayer) &&
-               (seat->getId() != bestSeatHumanSeatId))
+            // Note that when loading a game, this is useless because no seat with choice should be possible
+            switch(serverMode)
             {
-                combo->setItemSelectState(item, true);
-                combo->setText(item->getText());
+                case ServerMode::ModeGameMultiPlayer:
+                case ServerMode::ModeGameLoaded:
+                    break;
+                default:
+                    if(seat->getId() != bestSeatHumanSeatId)
+                    {
+                        combo->setItemSelectState(item, true);
+                        combo->setText(item->getText());
+                    }
+                    break;
             }
         }
         combo->subscribeEvent(CEGUI::Combobox::EventListSelectionAccepted, CEGUI::SubscriberSlot(&MenuModeConfigureSeats::comboChanged, this));

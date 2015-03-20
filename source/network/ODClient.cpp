@@ -192,7 +192,7 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotificationType::pickNick:
         {
-            ODServer::ServerMode serverMode;
+            ServerMode serverMode;
             OD_ASSERT_TRUE(packetReceived >> serverMode);
 
             ODPacket packSend;
@@ -203,11 +203,12 @@ bool ODClient::processOneClientSocketMessage()
             // We can proceed to configure seat level
             switch(serverMode)
             {
-                case ODServer::ServerMode::ModeGameSinglePlayer:
-                case ODServer::ServerMode::ModeGameMultiPlayer:
+                case ServerMode::ModeGameSinglePlayer:
+                case ServerMode::ModeGameMultiPlayer:
+                case ServerMode::ModeGameLoaded:
                     frameListener->getModeManager()->requestConfigureSeatsMode(true);
                     break;
-                case ODServer::ServerMode::ModeEditor:
+                case ServerMode::ModeEditor:
                     break;
                 default:
                     OD_ASSERT_TRUE_MSG(false,"Unknown server mode=" + Ogre::StringConverter::toString(static_cast<int32_t>(serverMode)));
@@ -327,17 +328,18 @@ bool ODClient::processOneClientSocketMessage()
                 }
             }
 
-            ODServer::ServerMode serverMode;
+            ServerMode serverMode;
             OD_ASSERT_TRUE(packetReceived >> serverMode);
 
             // Now that the we have received all needed information, we can launch the requested mode
             switch(serverMode)
             {
-                case ODServer::ServerMode::ModeGameSinglePlayer:
-                case ODServer::ServerMode::ModeGameMultiPlayer:
+                case ServerMode::ModeGameSinglePlayer:
+                case ServerMode::ModeGameMultiPlayer:
+                case ServerMode::ModeGameLoaded:
                     frameListener->getModeManager()->requestGameMode(true);
                     break;
-                case ODServer::ServerMode::ModeEditor:
+                case ServerMode::ModeEditor:
                     frameListener->getModeManager()->requestEditorMode(true);
                     break;
                 default:

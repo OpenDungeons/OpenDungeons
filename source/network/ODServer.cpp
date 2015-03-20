@@ -55,6 +55,8 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 const std::string ODServer::SERVER_INFORMATION = "SERVER_INFORMATION";
+const std::string SAVEGAME_SKIRMISH_PREFIX = "SK-";
+const std::string SAVEGAME_MULTIPLAYER_PREFIX = "MP-";
 
 template<> ODServer* Ogre::Singleton<ODServer>::msSingleton = nullptr;
 
@@ -252,6 +254,7 @@ void ODServer::startNewTurn(double timeSinceLastFrame)
     {
         case ServerMode::ModeGameSinglePlayer:
         case ServerMode::ModeGameMultiPlayer:
+        case ServerMode::ModeGameLoaded:
         {
             gameMap->doTurn();
             gameMap->doPlayerAITurn(timeSinceLastFrame);
@@ -1574,8 +1577,62 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 std::ostringstream ss;
                 ss.imbue(loc);
                 ss << boost::posix_time::second_clock::local_time() << "-";
-                ss << (mServerMode == ServerMode::ModeGameSinglePlayer ? "SK-" : "MP-");
-                ss << fileLevel;
+                switch(mServerMode)
+                {
+                    case ServerMode::ModeGameSinglePlayer:
+                        ss << SAVEGAME_SKIRMISH_PREFIX;
+                        ss << fileLevel;
+                        break;
+                    case ServerMode::ModeGameMultiPlayer:
+                        ss << SAVEGAME_MULTIPLAYER_PREFIX;
+                        ss << fileLevel;
+                        break;
+                    case ServerMode::ModeGameLoaded:
+                        {
+                            // We look for the Skirmish or multiplayer prefix and keep it.
+                            uint32_t indexSk = fileLevel.find(SAVEGAME_SKIRMISH_PREFIX);
+                            uint32_t indexMp = fileLevel.find(SAVEGAME_MULTIPLAYER_PREFIX);
+                            if((indexSk != std::string::npos) && (indexMp == std::string::npos))
+                            {
+                                // Skirmish savegame
+                                ss << SAVEGAME_SKIRMISH_PREFIX;
+                                ss << fileLevel.substr(indexSk + SAVEGAME_SKIRMISH_PREFIX.length());
+
+                            }
+                            else if((indexSk == std::string::npos) && (indexMp != std::string::npos))
+                            {
+                                // Multiplayer savegame
+                                ss << SAVEGAME_MULTIPLAYER_PREFIX;
+                                ss << fileLevel.substr(indexMp + SAVEGAME_MULTIPLAYER_PREFIX.length());
+                            }
+                            else if((indexSk != std::string::npos) && (indexMp != std::string::npos))
+                            {
+                                // We found both prefixes. That can happen if the name contains the other
+                                // prefix. Because of filename construction, we know that the lowest is the good
+                                if(indexSk < indexMp)
+                                {
+                                    ss << SAVEGAME_SKIRMISH_PREFIX;
+                                    ss << fileLevel.substr(indexSk + SAVEGAME_SKIRMISH_PREFIX.length());
+                                }
+                                else
+                                {
+                                    ss << SAVEGAME_MULTIPLAYER_PREFIX;
+                                    ss << fileLevel.substr(indexMp + SAVEGAME_MULTIPLAYER_PREFIX.length());
+                                }
+                            }
+                            else
+                            {
+                                // We couldn't find any prefix. That's not normal
+                                OD_ASSERT_TRUE_MSG(false, "fileLevel=" + fileLevel);
+                                ss << fileLevel;
+                            }
+                        }
+                        break;
+                    default:
+                        OD_ASSERT_TRUE_MSG(false, "mode=" + Helper::toString(static_cast<int>(mServerMode)));
+                        ss << fileLevel;
+                        break;
+                }
                 std::string savePath = ResourceManager::getSingleton().getSaveGamePath() + ss.str();
                 levelSave = boost::filesystem::path(savePath);
             }
@@ -2077,16 +2134,16 @@ ODSocketClient* ODServer::getClientFromPlayer(Player* player)
     return ret;
 }
 
-ODPacket& operator<<(ODPacket& os, const ODServer::ServerMode& sm)
+ODPacket& operator<<(ODPacket& os, const ServerMode& sm)
 {
     os << static_cast<int32_t>(sm);
     return os;
 }
 
-ODPacket& operator>>(ODPacket& is, ODServer::ServerMode& sm)
+ODPacket& operator>>(ODPacket& is, ServerMode& sm)
 {
     int32_t tmp;
     is >> tmp;
-    sm = static_cast<ODServer::ServerMode>(tmp);
+    sm = static_cast<ServerMode>(tmp);
     return is;
 }
