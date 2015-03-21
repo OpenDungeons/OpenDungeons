@@ -269,6 +269,9 @@ void ResourceManager::setupUserDataFolders()
     mOgreLogFile = mUserDataPath + LOGFILENAME;
     mCeguiLogFile = mUserDataPath + CEGUILOGFILENAME;
     mShaderCachePath = mUserDataPath + SHADERCACHESUBPATH;
+
+    // Backup the previous Ogre log file
+    boost::filesystem::rename(mOgreLogFile, mOgreLogFile + ".old");
 }
 
 void ResourceManager::setupOgreResources()
