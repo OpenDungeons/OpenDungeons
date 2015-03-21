@@ -54,7 +54,7 @@ int SpellSummonWorker::getSpellSummonWorkerCost(GameMap* gameMap, const std::vec
 
         // Check that the creatures pool is not full
         if (nbCreaturesControlled + nbWorkersToAdd >= maxCreatures)
-            continue;
+            return priceTotal;
 
         ++nbWorkers;
         ++nbWorkersToAdd;
@@ -97,7 +97,7 @@ void SpellSummonWorker::castSpellSummonWorker(GameMap* gameMap, const std::vecto
 
         // Check that the creatures pool is not full
         if (nbCreaturesControlled + nbWorkersToAdd >= maxCreatures)
-            continue;
+            break;
 
         ++nbWorkersToAdd;
         // Create a new creature and copy over the class-based creature parameters.
