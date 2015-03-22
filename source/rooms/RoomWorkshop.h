@@ -30,6 +30,17 @@ public:
         mCanHaveCraftedTrap(true)
     {}
 
+    RoomWorkshopTileData(const RoomWorkshopTileData* roomWorkshopTileData) :
+        TileData(roomWorkshopTileData),
+        mCanHaveCraftedTrap(roomWorkshopTileData->mCanHaveCraftedTrap)
+    {}
+
+    virtual ~RoomWorkshopTileData()
+    {}
+
+    virtual RoomWorkshopTileData* cloneTileData() const override
+    { return new RoomWorkshopTileData(this); }
+
     bool mCanHaveCraftedTrap;
 };
 

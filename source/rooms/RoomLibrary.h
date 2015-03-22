@@ -32,6 +32,17 @@ public:
         mCanHaveResearchEntity(true)
     {}
 
+    RoomLibraryTileData(const RoomLibraryTileData* roomLibraryTileData) :
+        TileData(roomLibraryTileData),
+        mCanHaveResearchEntity(roomLibraryTileData->mCanHaveResearchEntity)
+    {}
+
+    virtual ~RoomLibraryTileData()
+    {}
+
+    virtual RoomLibraryTileData* cloneTileData() const override
+    { return new RoomLibraryTileData(this); }
+
     bool mCanHaveResearchEntity;
 };
 

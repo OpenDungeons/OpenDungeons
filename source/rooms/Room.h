@@ -136,8 +136,8 @@ protected:
     virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
     virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);
 
-    //! \brief This function will be called when a new room is created if another room has been absorbed.
-    virtual void reorderRoomAfterAbsorbtion();
+    //! \brief This function will be called when reordering room is needed (for example if another room has been absorbed)
+    static void reorderRoomTiles(std::vector<Tile*>& tiles);
 private :
     void activeSpotCheckChange(ActiveSpotPlace place, const std::vector<Tile*>& originalSpotTiles,
         const std::vector<Tile*>& newSpotTiles);

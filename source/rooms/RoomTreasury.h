@@ -29,6 +29,18 @@ public:
         mGoldInTile(0)
     {}
 
+    RoomTreasuryTileData(const RoomTreasuryTileData* roomTreasuryTileData) :
+        TileData(roomTreasuryTileData),
+        mGoldInTile(roomTreasuryTileData->mGoldInTile),
+        mMeshOfTile(roomTreasuryTileData->mMeshOfTile)
+    {}
+
+    virtual ~RoomTreasuryTileData()
+    {}
+
+    virtual RoomTreasuryTileData* cloneTileData() const override
+    { return new RoomTreasuryTileData(this); }
+
     int mGoldInTile;
     std::string mMeshOfTile;
 };

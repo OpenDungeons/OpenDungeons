@@ -123,34 +123,26 @@ void Room::absorbRoom(Room *r)
     mBuildingObjects.insert(r->mBuildingObjects.begin(), r->mBuildingObjects.end());
     r->mBuildingObjects.clear();
 
+    // We consider that the new room will be composed with the covered tiles it uses + the covered tiles absorbed. In the
+    // absorbed room, we consider all tiles as destroyed. It will get removed from gamemap when enemy vision will be cleared
     for(Tile* tile : r->mCoveredTiles)
     {
         mCoveredTiles.push_back(tile);
-        mTileData[tile] = r->mTileData[tile];
-        r->mTileData.erase(tile);
+        TileData* tileData = r->mTileData[tile];
+        mTileData[tile] = tileData->cloneTileData();
+        tileData->mHP = 0.0;
         tile->setCoveringBuilding(this);
     }
 
+    r->mCoveredTilesDestroyed.insert(r->mCoveredTilesDestroyed.end(), r->mCoveredTiles.begin(), r->mCoveredTiles.end());
     r->mCoveredTiles.clear();
-
-    // We do not clear r->mTileData to make sure it is freed during room destruction
-
-    // If a destroyed tile is in the new room, it is not a destroyed tile anymore
-    for(Tile* tile : r->mCoveredTilesDestroyed)
-    {
-        if(std::find(mCoveredTiles.begin(), mCoveredTiles.end(), tile) != mCoveredTiles.end())
-            continue;
-
-        mCoveredTilesDestroyed.push_back(tile);
-    }
-    r->mCoveredTilesDestroyed.clear();
 }
 
-void Room::reorderRoomAfterAbsorbtion()
+void Room::reorderRoomTiles(std::vector<Tile*>& tiles)
 {
     // We try to keep the same tile disposition as if the room was created like this in the first
     // place to make sure building objects are disposed the same way
-    std::sort(mCoveredTiles.begin(), mCoveredTiles.end(), Room::compareTile);
+    std::sort(tiles.begin(), tiles.end(), Room::compareTile);
 }
 
 bool Room::addCreatureUsingRoom(Creature* c)
@@ -436,7 +428,7 @@ void Room::checkForRoomAbsorbtion()
     }
 
     if(isRoomAbsorbed)
-        reorderRoomAfterAbsorbtion();
+        reorderRoomTiles(mCoveredTiles);
 }
 
 void Room::updateActiveSpots()

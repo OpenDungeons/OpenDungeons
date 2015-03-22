@@ -38,9 +38,20 @@ public:
     TileData() :
         mHP(0)
     {}
+
+    TileData(const TileData* tileData) :
+        mHP(tileData->mHP)
+    {}
+
+    virtual ~TileData()
+    {}
+
+    virtual TileData* cloneTileData() const
+    { return new TileData(this); }
+
     double mHP;
 
-    //! Seats with vision on the corresponding tile
+    //! Seats with vision on the corresponding tile. Note that seats with vision are not copied when cloning a TileData
     std::vector<Seat*> mSeatsVision;
 };
 

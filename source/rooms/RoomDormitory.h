@@ -28,6 +28,17 @@ public:
         mCreature(nullptr)
     {}
 
+    RoomDormitoryTileData(const RoomDormitoryTileData* roomDormitoryTileData) :
+        TileData(roomDormitoryTileData),
+        mCreature(roomDormitoryTileData->mCreature)
+    {}
+
+    virtual ~RoomDormitoryTileData()
+    {}
+
+    virtual RoomDormitoryTileData* cloneTileData() const override
+    { return new RoomDormitoryTileData(this); }
+
     Creature* mCreature;
 };
 

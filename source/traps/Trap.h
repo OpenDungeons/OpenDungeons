@@ -64,6 +64,23 @@ public:
         mRemoveTrap(false)
     {}
 
+    TrapTileData(const TrapTileData* trapTileData) :
+        TileData(trapTileData),
+        mIsActivated(trapTileData->mIsActivated),
+        mReloadTime(trapTileData->mReloadTime),
+        mCraftedTrap(trapTileData->mCraftedTrap),
+        mNbShootsBeforeDeactivation(trapTileData->mNbShootsBeforeDeactivation),
+        mTrapEntity(trapTileData->mTrapEntity),
+        mIsWorking(trapTileData->mIsWorking),
+        mRemoveTrap(trapTileData->mRemoveTrap)
+    {}
+
+    virtual ~TrapTileData()
+    {}
+
+    virtual TrapTileData* cloneTileData() const override
+    { return new TrapTileData(this); }
+
     inline void setTrapEntity(TrapEntity* trapEntity)
     { mTrapEntity = trapEntity; }
 
