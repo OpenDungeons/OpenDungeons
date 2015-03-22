@@ -2469,7 +2469,7 @@ std::string GameMap::nextUniqueNameCreature(const std::string& className)
     {
         ++mUniqueNumberCreature;
         ret = className + Ogre::StringConverter::toString(mUniqueNumberCreature);
-    } while(getAnimatedObject(ret) != nullptr);
+    } while(getCreature(ret) != nullptr);
     return ret;
 }
 
@@ -2480,7 +2480,7 @@ std::string GameMap::nextUniqueNameRoom(const std::string& meshName)
     {
         ++mUniqueNumberRoom;
         ret = meshName + Ogre::StringConverter::toString(mUniqueNumberRoom);
-    } while(getAnimatedObject(ret) != nullptr);
+    } while(getRoomByName(ret) != nullptr);
     return ret;
 }
 
@@ -2491,7 +2491,7 @@ std::string GameMap::nextUniqueNameRenderedMovableEntity(const std::string& base
     {
         ++mUniqueNumberRenderedMovableEntity;
         ret = RenderedMovableEntity::RENDEREDMOVABLEENTITY_PREFIX + baseName + "_" + Ogre::StringConverter::toString(mUniqueNumberRenderedMovableEntity);
-    } while(getAnimatedObject(ret) != nullptr);
+    } while(getRenderedMovableEntity(ret) != nullptr);
     return ret;
 }
 
@@ -2502,7 +2502,7 @@ std::string GameMap::nextUniqueNameTrap(const std::string& meshName)
     {
         ++mUniqueNumberTrap;
         ret = meshName + "_" + Ogre::StringConverter::toString(mUniqueNumberTrap);
-    } while(getAnimatedObject(ret) != nullptr);
+    } while(getTrapByName(ret) != nullptr);
     return ret;
 }
 
@@ -2513,7 +2513,7 @@ std::string GameMap::nextUniqueNameMapLight()
     {
         ++mUniqueNumberMapLight;
         ret = MapLight::MAPLIGHT_NAME_PREFIX + Ogre::StringConverter::toString(mUniqueNumberMapLight);
-    } while(getAnimatedObject(ret) != nullptr);
+    } while(getMapLight(ret) != nullptr);
     return ret;
 }
 
