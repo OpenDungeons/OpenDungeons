@@ -57,15 +57,15 @@ ODApplication::ODApplication()
     }
     Random::initialize();
     //NOTE: The order of initialisation of the different "manager" classes is important,
-    //as many of them depen on each other.
+    //as many of them depend on each other.
     ResourceManager resMgr;
     std::cout << "Creating OGRE::Root instance; Plugins path: " << resMgr.getPluginsPath()
               << "; config file: " << resMgr.getCfgFile()
               << "; log file: " << resMgr.getLogFile() << std::endl;
 
     Ogre::Root ogreRoot(resMgr.getPluginsPath(),
-                            resMgr.getCfgFile(),
-                            resMgr.getLogFile());
+                        resMgr.getCfgFile(),
+                        resMgr.getLogFile());
 
     resMgr.setupOgreResources();
 

@@ -246,6 +246,7 @@ bool Gui::editorClaimedButtonPressed(const CEGUI::EventArgs& e)
 const std::string Gui::DISPLAY_GOLD = "HorizontalPipe/GoldDisplay";
 const std::string Gui::DISPLAY_MANA = "HorizontalPipe/ManaDisplay";
 const std::string Gui::DISPLAY_TERRITORY = "HorizontalPipe/TerritoryDisplay";
+const std::string Gui::DISPLAY_CREATURES = "HorizontalPipe/CreaturesDisplay";
 const std::string Gui::MINIMAP = "MiniMap";
 const std::string Gui::OBJECTIVE_TEXT = "ObjectivesWindow/ObjectivesText";
 const std::string Gui::MAIN_TABCONTROL = "MainTabControl";

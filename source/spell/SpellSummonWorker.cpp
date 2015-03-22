@@ -34,6 +34,9 @@ int SpellSummonWorker::getSpellSummonWorkerCost(GameMap* gameMap, const std::vec
 {
     int32_t nbFreeWorkers = ConfigManager::getSingleton().getSpellConfigInt32("SummonWorkerNbFree");
     int32_t nbWorkers = gameMap->getNbWorkersForSeat(player->getSeat());
+    int32_t nbWorkersToAdd = 0;
+    int32_t nbCreaturesControlled = player->getSeat()->getNumCreaturesControlled();
+    int32_t maxCreatures = ConfigManager::getSingleton().getMaxCreaturesPerSeat();
     int32_t priceTotal = 0;
     int32_t pricePerWorker = ConfigManager::getSingleton().getSpellConfigInt32("SummonWorkerBasePrice");
     int32_t maxMana = static_cast<int32_t>(ConfigManager::getSingleton().getMaxManaPerSeat());
@@ -49,7 +52,12 @@ int SpellSummonWorker::getSpellSummonWorkerCost(GameMap* gameMap, const std::vec
         if(!tile->isClaimedForSeat(player->getSeat()))
             continue;
 
+        // Check that the creatures pool is not full
+        if (nbCreaturesControlled + nbWorkersToAdd >= maxCreatures)
+            return priceTotal;
+
         ++nbWorkers;
+        ++nbWorkersToAdd;
         if(nbWorkers <= nbFreeWorkers)
             continue;
 
@@ -68,6 +76,9 @@ void SpellSummonWorker::castSpellSummonWorker(GameMap* gameMap, const std::vecto
 {
     // Creates a creature from the first worker class found for the given faction.
     const CreatureDefinition* classToSpawn = player->getSeat()->getWorkerClassToSpawn();
+    int32_t nbWorkersToAdd = 0;
+    int32_t nbCreaturesControlled = player->getSeat()->getNumCreaturesControlled();
+    int32_t maxCreatures = ConfigManager::getSingleton().getMaxCreaturesPerSeat();
 
     if (classToSpawn == nullptr)
     {
@@ -84,6 +95,11 @@ void SpellSummonWorker::castSpellSummonWorker(GameMap* gameMap, const std::vecto
         if(!tile->isClaimedForSeat(player->getSeat()))
             continue;
 
+        // Check that the creatures pool is not full
+        if (nbCreaturesControlled + nbWorkersToAdd >= maxCreatures)
+            break;
+
+        ++nbWorkersToAdd;
         // Create a new creature and copy over the class-based creature parameters.
         Creature* newCreature = new Creature(gameMap, classToSpawn);
         LogManager::getSingleton().logMessage("Spawning a creature class=" + classToSpawn->getClassName()

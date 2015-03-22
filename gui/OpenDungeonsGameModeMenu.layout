@@ -71,6 +71,26 @@
                     <Property name="VerticalAlignment" value="Centre" />
                 </Window>
             </Window>
+	    <Window type="OD/StaticText" name="CreaturesDisplay" >
+                <Property name="Area" value="{{0,410},{0,0},{0,540},{0,24}}" />
+                <Property name="Text" value="0" />
+                <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                <Property name="TooltipText" value="Your creatures pool" />
+                <Property name="HorzFormatting" value="RightAligned" />
+                <Property name="ClippedByParent" value="False" />
+                <Property name="VerticalAlignment" value="Centre" />
+                <Window type="OD/StaticImage" name="Icon" >
+                    <Property name="Area" value="{{0,0},{0,0},{0,30},{0,30}}" />
+                    <Property name="Image" value="OpenDungeonsIcons/CreaturesIcon" />
+                    <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                    <Property name="AlwaysOnTop" value="True" />
+                    <Property name="TooltipText" value="Your creatures pool" />
+                    <Property name="FrameEnabled" value="False" />
+                    <Property name="ClippedByParent" value="False" />
+                    <Property name="BackgroundEnabled" value="False" />
+                    <Property name="VerticalAlignment" value="Centre" />
+                </Window>
+            </Window>
         </Window>
         <Window type="OD/ImageButton" name="HelpButton" >
             <Property name="Area" value="{{1,-53},{0,5},{1,-28},{0,30}}" />

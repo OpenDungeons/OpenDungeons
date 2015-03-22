@@ -165,6 +165,9 @@ public:
     inline double getManaDelta() const
     { return mManaDelta; }
 
+    inline int getNumCreaturesControlled() const
+    { return mNumCreaturesControlled; }
+
     bool takeMana(double mana);
 
     inline Ogre::Vector3 getStartingPosition() const
@@ -359,6 +362,7 @@ private:
     //! \brief The total amount of gold coins mined by workers under this seat's control.
     int mGoldMined;
 
+    //! \brief The number of living creatures under this seat's control
     int mNumCreaturesControlled;
 
     //! \brief The actual color that this color index translates into.
