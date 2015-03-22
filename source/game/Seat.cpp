@@ -622,7 +622,7 @@ void Seat::notifyChangedVisibleTiles()
     for(Tile* tile : tilesToNotify)
     {
         mGameMap->tileToPacket(serverNotification->mPacket, tile);
-        tileNotifiedToPlayer(tile);
+        updateTileStateForSeat(tile);
         exportTileToPacket(serverNotification->mPacket, tile);
     }
     ODServer::getSingleton().queueServerNotification(serverNotification);
@@ -1709,23 +1709,42 @@ void Seat::setResearchTree(const std::vector<ResearchType>& researches)
     }
 }
 
-void Seat::tileNotifiedToPlayer(Tile* tile)
+void Seat::updateTileStateForSeat(Tile* tile)
 {
     OD_ASSERT_TRUE_MSG(tile->getX() < static_cast<int>(mTilesStates.size()), "Tile=" + Tile::displayAsString(tile));
     OD_ASSERT_TRUE_MSG(tile->getY() < static_cast<int>(mTilesStates[tile->getX()].size()), "Tile=" + Tile::displayAsString(tile));
 
     TileStateNotified& tileState = mTilesStates[tile->getX()][tile->getY()];
-    if(tile->getSeat() != nullptr)
-        tileState.mSeatIdOwner = tile->getSeat()->getId();
-    else
-        tileState.mSeatIdOwner = -1;
-
     tileState.mTileVisual = tile->getTileVisual();
+    switch(tileState.mTileVisual)
+    {
+        case TileVisual::claimedFull:
+        case TileVisual::claimedGround:
+            if(tile->getSeat() == nullptr)
+            {
+                OD_ASSERT_TRUE_MSG(false, "Tile=" + Tile::displayAsString(tile));
+            }
+            else
+            {
+                tileState.mSeatIdOwner = tile->getSeat()->getId();
+            }
+            break;
+        default:
+            tileState.mSeatIdOwner = -1;
+            break;
+    }
+
+    if(tile->getCoveringBuilding() == tileState.mBuilding)
+        return;
+
+    if(tileState.mBuilding != nullptr)
+        tileState.mBuilding->notifySeatVision(tile, this);
 
     if((tile->getCoveringBuilding() != nullptr) &&
        (tile->getCoveringBuilding()->isTileVisibleForSeat(tile, this)))
     {
         tileState.mBuilding = tile->getCoveringBuilding();
+        tileState.mBuilding->notifySeatVision(tile, this);
     }
     else
     {
@@ -1733,21 +1752,7 @@ void Seat::tileNotifiedToPlayer(Tile* tile)
     }
 }
 
-bool Seat::haveVisionOnBuilding(const Building* building, const Tile* tile) const
-{
-    if(getPlayer() == nullptr)
-        return false;
-    if(!getPlayer()->getIsHuman())
-        return false;
-
-    OD_ASSERT_TRUE_MSG(tile->getX() < static_cast<int>(mTilesStates.size()), "Tile=" + Tile::displayAsString(tile));
-    OD_ASSERT_TRUE_MSG(tile->getY() < static_cast<int>(mTilesStates[tile->getX()].size()), "Tile=" + Tile::displayAsString(tile));
-
-    const TileStateNotified& tileState = mTilesStates[tile->getX()][tile->getY()];
-    return (tileState.mBuilding == building);
-}
-
-void Seat::setVisibleBuildingOnTile(const Building* building, const Tile* tile)
+void Seat::setVisibleBuildingOnTile(Building* building, Tile* tile)
 {
     if(getPlayer() == nullptr)
         return;
@@ -1758,7 +1763,12 @@ void Seat::setVisibleBuildingOnTile(const Building* building, const Tile* tile)
     OD_ASSERT_TRUE_MSG(tile->getY() < static_cast<int>(mTilesStates[tile->getX()].size()), "Tile=" + Tile::displayAsString(tile));
 
     TileStateNotified& tileState = mTilesStates[tile->getX()][tile->getY()];
+
+    if(building == tileState.mBuilding)
+        return;
+
     tileState.mBuilding = building;
+    tileState.mSeatIdOwner = building->getSeat()->getId();
 }
 
 void Seat::exportTileToPacket(ODPacket& os, Tile* tile) const
@@ -1779,20 +1789,16 @@ void Seat::exportTileToPacket(ODPacket& os, Tile* tile) const
 
     const TileStateNotified& tileState = mTilesStates[tile->getX()][tile->getY()];
 
-    Seat* tileSeat = tile->getSeat();
     int tileSeatId = -1;
     // We only pass the tile seat to the client if the tile is fully claimed
-    if(tileSeat != nullptr)
+    switch(tileState.mTileVisual)
     {
-        switch(tileState.mTileVisual)
-        {
-            case TileVisual::claimedGround:
-            case TileVisual::claimedFull:
-                tileSeatId = tileSeat->getId();
-                break;
-            default:
-                break;
-        }
+        case TileVisual::claimedGround:
+        case TileVisual::claimedFull:
+            tileSeatId = tileState.mSeatIdOwner;
+            break;
+        default:
+            break;
     }
 
     std::string meshName;
@@ -1818,7 +1824,7 @@ void Seat::exportTileToPacket(ODPacket& os, Tile* tile) const
     os << tileState.mTileVisual;
 }
 
-void Seat::notifyBuildingRemovedFromGameMap(const Building* building, const Tile* tile)
+void Seat::notifyBuildingRemovedFromGameMap(Building* building, Tile* tile)
 {
     if(getPlayer() == nullptr)
         return;

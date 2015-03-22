@@ -527,6 +527,9 @@ void Trap::restoreInitialEntityState()
         if(trapTileData->mSeatsVision.empty())
             continue;
 
+        for(Seat* seat : p.second->mSeatsVision)
+            seat->setVisibleBuildingOnTile(this, p.first);
+
         TrapEntity* trapEntity = trapTileData->getTrapEntity();
         if(trapEntity == nullptr)
         {
@@ -538,10 +541,6 @@ void Trap::restoreInitialEntityState()
         trapEntity->notifySeatsWithVision(trapTileData->mSeatsVision);
         for(Seat* seat : trapEntity->getSeatsNotHidden())
             seat->setVisibleBuildingOnTile(this, p.first);
-
-        // We empty the list of seats with vision to make sure we don't do it again
-        // if there is an active spots update
-        trapTileData->mSeatsVision.clear();
     }
 }
 
@@ -568,12 +567,9 @@ void Trap::exportTileDataToStream(std::ostream& os, Tile* tile, TileData* tileDa
 
     // We only save enemy seats that have vision on the building
     std::vector<Seat*> seatsToSave;
-    for(Seat* seat : getGameMap()->getSeats())
+    for(Seat* seat : trapTileData->mSeatsVision)
     {
         if(getSeat()->isAlliedSeat(seat))
-            continue;
-
-        if(!seat->haveVisionOnBuilding(this, tile))
             continue;
 
         seatsToSave.push_back(seat);

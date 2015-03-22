@@ -53,7 +53,7 @@ public:
     bool mMarkedForDigging;
     bool mVisionTurnLast;
     bool mVisionTurnCurrent;
-    const Building* mBuilding;
+    Building* mBuilding;
 };
 
 class Seat
@@ -298,7 +298,7 @@ public:
 
     //! Called when a tile is notified to the seat player. That allows to save the state
     //! Used on server side only
-    void tileNotifiedToPlayer(Tile* tile);
+    void updateTileStateForSeat(Tile* tile);
 
     //! Called when a tile is marked and notified to a player. That allows to save the state
     //! Note that the tile is marked depending on what the player knows about it, not
@@ -313,10 +313,9 @@ public:
 
     //! \brief Called for each seat when a building is removed from the gamemap. That allows
     //! the seats to clear the pointers to the building that they may have
-    void notifyBuildingRemovedFromGameMap(const Building* building, const Tile* tile);
+    void notifyBuildingRemovedFromGameMap(Building* building, Tile* tile);
 
-    bool haveVisionOnBuilding(const Building* building, const Tile* tile) const;
-    void setVisibleBuildingOnTile(const Building* building, const Tile* tile);
+    void setVisibleBuildingOnTile(Building* building, Tile* tile);
 
     /*! \brief Exports the tile data to the packet so that the client associated to the seat have the needed information
      *         to display the tile correctly

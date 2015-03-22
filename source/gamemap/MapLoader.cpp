@@ -674,7 +674,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     {
         // Rooms with 0 tiles are removed during upkeep. In editor mode, we don't use upkeep so there might be some rooms with
         // 0 tiles (if a room has been erased for example). For this reason, we don't save rooms with 0 tiles
-        if(room->numCoveredTiles() <= 0)
+        if((gameMap.isInEditorMode()) && (room->numCoveredTiles() <= 0))
             continue;
 
         levelFile << "[Room]" << std::endl;

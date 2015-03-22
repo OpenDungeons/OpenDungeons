@@ -164,5 +164,9 @@ void RoomDungeonTemple::restoreInitialEntityState()
     if(!tileData->mSeatsVision.empty())
         mTempleObject->notifySeatsWithVision(tileData->mSeatsVision);
 
+    // If there are no covered tile, the temple object is not working
+    if(numCoveredTiles() == 0)
+        mTempleObject->notifyRemoveAsked();
+
     Room::restoreInitialEntityState();
 }

@@ -54,7 +54,7 @@ PersistentObject* PersistentObject::getPersistentObjectFromPacket(GameMap* gameM
 
 void PersistentObject::notifySeatsWithVision(const std::vector<Seat*>& seats)
 {
-    // We notify seats that lost vision
+    // We process seats that lost vision
     for(std::vector<Seat*>::iterator it = mSeatsWithVisionNotified.begin(); it != mSeatsWithVisionNotified.end();)
     {
         Seat* seat = *it;
@@ -70,15 +70,26 @@ void PersistentObject::notifySeatsWithVision(const std::vector<Seat*>& seats)
         // We don't notify clients so that the objects stays visible
     }
 
-    // We notify seats that gain vision. If the PersistentObject is working, we notify
+    // We process seats that gain vision. If the PersistentObject is working, we notify
     // that it is there. If it is not working, we notify that it has been removed
     for(Seat* seat : seats)
     {
-        // If the seat was already in the list, nothing to do
-        if(std::find(mSeatsWithVisionNotified.begin(), mSeatsWithVisionNotified.end(), seat) != mSeatsWithVisionNotified.end())
-            continue;
+        auto it = std::find(mSeatsWithVisionNotified.begin(), mSeatsWithVisionNotified.end(), seat);
+        if(mIsWorking)
+        {
+            // If the seat was already in the list, nothing to do
+            if(it != mSeatsWithVisionNotified.end())
+                continue;
 
-        mSeatsWithVisionNotified.push_back(seat);
+            mSeatsWithVisionNotified.push_back(seat);
+        }
+        else
+        {
+            // If the seat is not already in the list, nothing to do
+            if(it != mSeatsWithVisionNotified.end())
+                mSeatsWithVisionNotified.erase(it);
+        }
+
 
         if(seat->getPlayer() == nullptr)
             continue;

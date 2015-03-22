@@ -189,5 +189,9 @@ void RoomPortal::restoreInitialEntityState()
     if(!tileData->mSeatsVision.empty())
         mPortalObject->notifySeatsWithVision(tileData->mSeatsVision);
 
+    // If there are no covered tile, the temple object is not working
+    if(numCoveredTiles() == 0)
+        mPortalObject->notifyRemoveAsked();
+
     Room::restoreInitialEntityState();
 }

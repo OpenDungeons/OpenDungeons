@@ -731,12 +731,9 @@ void Room::exportTileDataToStream(std::ostream& os, Tile* tile, TileData* tileDa
 
     // We only save enemy seats that have vision on the building
     std::vector<Seat*> seatsToSave;
-    for(Seat* seat : getGameMap()->getSeats())
+    for(Seat* seat : tileData->mSeatsVision)
     {
         if(getSeat()->isAlliedSeat(seat))
-            continue;
-
-        if(!seat->haveVisionOnBuilding(this, tile))
             continue;
 
         seatsToSave.push_back(seat);
@@ -802,10 +799,6 @@ void Room::restoreInitialEntityState()
             seat->setVisibleBuildingOnTile(this, p.first);
             tiles[seat].push_back(p.first);
         }
-
-        // We empty the list of seats with vision to make sure we don't do it again
-        // if there is an active spots update
-        p.second->mSeatsVision.clear();
     }
 
     // We notify the clients

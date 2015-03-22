@@ -73,10 +73,7 @@ void Building::doUpkeep()
     if (!tilesToRemove.empty())
     {
         for(Tile* tile : tilesToRemove)
-        {
-            mCoveredTilesDestroyed.push_back(tile);
             removeCoveredTile(tile);
-        }
 
         updateActiveSpots();
         createMesh();
@@ -130,17 +127,28 @@ void Building::removeBuildingObject(RenderedMovableEntity* obj)
 
 bool Building::canBuildingBeRemoved()
 {
+    // We check if an human player still have vision on one of the building tiles
+    bool ret = true;
+    for(std::pair<Tile* const, TileData*>& p : mTileData)
+    {
+        if(!p.second->mSeatsVision.empty())
+        {
+            ret = false;
+            break;
+        }
+    }
+
     if(mBuildingObjects.empty())
-        return true;
+        return ret;
 
     for (const std::pair<Tile* const, RenderedMovableEntity*>& p : mBuildingObjects)
     {
         RenderedMovableEntity* obj = p.second;
         if(!obj->notifyRemoveAsked())
-            return false;
+            ret = false;
     }
 
-    return true;
+    return ret;
 }
 
 void Building::removeAllBuildingObjects()
@@ -198,17 +206,21 @@ RenderedMovableEntity* Building::loadBuildingObject(GameMap* gameMap, const std:
 
 Tile* Building::getCentralTile()
 {
-    if (mCoveredTiles.empty())
+    if (mCoveredTiles.empty() && mCoveredTilesDestroyed.empty())
         return nullptr;
 
-    int minX, maxX, minY, maxY;
-    minX = maxX = mCoveredTiles[0]->getX();
-    minY = maxY = mCoveredTiles[0]->getY();
+    std::vector<Tile*> allTiles;
+    allTiles.insert(allTiles.end(), mCoveredTiles.begin(), mCoveredTiles.end());
+    allTiles.insert(allTiles.end(), mCoveredTilesDestroyed.begin(), mCoveredTilesDestroyed.end());
 
-    for(unsigned int i = 0, size = mCoveredTiles.size(); i < size; ++i)
+    int minX, maxX, minY, maxY;
+    minX = maxX = allTiles[0]->getX();
+    minY = maxY = allTiles[0]->getY();
+
+    for(unsigned int i = 0, size = allTiles.size(); i < size; ++i)
     {
-        int tempX = mCoveredTiles[i]->getX();
-        int tempY = mCoveredTiles[i]->getY();
+        int tempX = allTiles[i]->getX();
+        int tempY = allTiles[i]->getY();
 
         if (tempX < minX)
             minX = tempX;
@@ -226,19 +238,19 @@ Tile* Building::getCentralTile()
 bool Building::removeCoveredTile(Tile* t)
 {
     LogManager::getSingleton().logMessage(getGameMap()->serverStr() + "building=" + getName() + ", removing covered tile=" + Tile::displayAsString(t));
-    for (std::vector<Tile*>::iterator it = mCoveredTiles.begin(); it != mCoveredTiles.end(); ++it)
+    auto it = std::find(mCoveredTiles.begin(), mCoveredTiles.end(), t);
+    if(it == mCoveredTiles.end())
     {
-        if (t == *it)
-        {
-            mCoveredTiles.erase(it);
-            mTileData[t]->mHP = 0.0;
-            t->setCoveringBuilding(nullptr);
-
-            return true;
-        }
+        OD_ASSERT_TRUE_MSG(false, "building=" + getName() + ", removing unknown covered tile=" + Tile::displayAsString(t));
+        return false;
     }
-    OD_ASSERT_TRUE_MSG(false, getGameMap()->serverStr() + "building=" + getName() + ", removing unknown covered tile=" + Tile::displayAsString(t));
-    return false;
+
+    mCoveredTiles.erase(it);
+    mCoveredTilesDestroyed.push_back(t);
+    mTileData[t]->mHP = 0.0;
+    t->setCoveringBuilding(nullptr);
+
+    return true;
 }
 
 std::vector<Tile*> Building::getCoveredTiles()
@@ -333,12 +345,41 @@ void Building::exportToStream(std::ostream& os) const
 {
     const std::string& name = getName();
     int seatId = getSeat()->getId();
-    uint32_t nbTiles = mCoveredTiles.size() + mCoveredTilesDestroyed.size();
+    bool isEditorMode = getGameMap()->isInEditorMode();
+    uint32_t nbTiles;
+    if(isEditorMode)
+        nbTiles = mCoveredTiles.size();
+    else
+        nbTiles = mCoveredTiles.size() + mCoveredTilesDestroyed.size();
+
     os << name << "\t" << seatId << "\t" << nbTiles << "\n";
-    for(const std::pair<Tile* const, TileData*>& p : mTileData)
+    for(Tile* tile : mCoveredTiles)
     {
-        os << p.first->getX() << "\t" << p.first->getY();
-        exportTileDataToStream(os, p.first, p.second);
+        if(mTileData.count(tile) <= 0)
+        {
+            OD_ASSERT_TRUE_MSG(false, "building=" + getName() + ", tile=" + Tile::displayAsString(tile));
+            continue;
+        }
+        TileData* tileData = mTileData.at(tile);
+        os << tile->getX() << "\t" << tile->getY();
+        exportTileDataToStream(os, tile, tileData);
+        os << "\n";
+    }
+
+    // In editor mode, we don't export destroyed tiles (there might be some if buildings have been deleted)
+    if(isEditorMode)
+        return;
+
+    for(Tile* tile : mCoveredTilesDestroyed)
+    {
+        if(mTileData.count(tile) <= 0)
+        {
+            OD_ASSERT_TRUE_MSG(false, "building=" + getName() + ", tile=" + Tile::displayAsString(tile));
+            continue;
+        }
+        TileData* tileData = mTileData.at(tile);
+        os << tile->getX() << "\t" << tile->getY();
+        exportTileDataToStream(os, tile, tileData);
         os << "\n";
     }
 }
@@ -380,6 +421,28 @@ void Building::importFromStream(std::istream& is)
         mTileData[tile] = tileData;
         importTileDataFromStream(ss, tile, tileData);
     }
+}
+
+void Building::notifySeatVision(Tile* tile, Seat* seat)
+{
+    TileData* tileData = mTileData[tile];
+    auto it = std::find(tileData->mSeatsVision.begin(), tileData->mSeatsVision.end(), seat);
+    if(tileData->mHP <= 0)
+    {
+        // We remove the seat
+        if(it == tileData->mSeatsVision.end())
+        {
+            OD_ASSERT_TRUE_MSG(false, "building=" + getName() + ", tile=" + Tile::displayAsString(tile));
+            return;
+        }
+
+        tileData->mSeatsVision.erase(it);
+        return;
+    }
+
+    // We add vision
+    if(it == tileData->mSeatsVision.end())
+        tileData->mSeatsVision.push_back(seat);
 }
 
 TileData* Building::createTileData(Tile* tile)

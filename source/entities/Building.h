@@ -26,8 +26,6 @@
 #include "entities/GameEntity.h"
 #include "game/Seat.h"
 
-#include <memory>
-
 class GameMap;
 class RenderedMovableEntity;
 class Tile;
@@ -42,7 +40,7 @@ public:
     {}
     double mHP;
 
-    //! Seats with vision at map loading (when loading saved game)
+    //! Seats with vision on the corresponding tile
     std::vector<Seat*> mSeatsVision;
 };
 
@@ -150,6 +148,8 @@ public:
 
     virtual bool isTileVisibleForSeat(Tile* tile, Seat* seat) const
     { return true; }
+
+    virtual void notifySeatVision(Tile* tile, Seat* seat);
 
 protected:
     //! This will be called when tiles will be added to the building. By overriding it,
