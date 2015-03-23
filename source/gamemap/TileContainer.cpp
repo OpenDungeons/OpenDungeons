@@ -485,7 +485,12 @@ Tile* TileContainer::tileFromPacket(ODPacket& packet) const
     int32_t x;
     int32_t y;
     OD_ASSERT_TRUE(packet >> x >> y);
-    return getTile(x, y);
+    Tile* tile = getTile(x, y);
+    if(tile == nullptr)
+    {
+        OD_ASSERT_TRUE_MSG(false, "tile=" + Helper::toString(x) + "," + Helper::toString(y));
+    }
+    return tile;
 }
 
 unsigned int TileContainer::numTiles()

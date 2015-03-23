@@ -49,6 +49,30 @@ void RoomPortal::updateActiveSpots()
     // We don't update the active spots the same way as only the central tile is needed.
     if (getGameMap()->isInEditorMode())
         updatePortalPosition();
+    else
+    {
+        if(mPortalObject == nullptr)
+        {
+            // We check if the portal already exists (that can happen if it has
+            // been restored after restoring a saved game)
+            if(mBuildingObjects.empty())
+                updatePortalPosition();
+            else
+            {
+                for(std::pair<Tile* const, RenderedMovableEntity*>& p : mBuildingObjects)
+                {
+                    if(p.second == nullptr)
+                        continue;
+
+                    // We take the first RenderedMovableEntity. Note that we cannot use
+                    // the central tile because after saving a game, the central tile may
+                    // not be the same if some tiles have been destroyed
+                    mPortalObject = p.second;
+                    break;
+                }
+            }
+        }
+    }
 }
 
 void RoomPortal::updatePortalPosition()
@@ -69,12 +93,6 @@ void RoomPortal::updatePortalPosition()
     addBuildingObject(centralTile, mPortalObject);
 
     mPortalObject->setAnimationState("Idle");
-}
-
-void RoomPortal::createMeshLocal()
-{
-    Room::createMeshLocal();
-    updatePortalPosition();
 }
 
 void RoomPortal::destroyMeshLocal()
@@ -143,4 +161,37 @@ void RoomPortal::spawnCreature()
     newCreature->setPosition(spawnPosition, false);
 
     mSpawnCreatureCountdown = Random::Uint(15, 30);
+}
+
+void RoomPortal::restoreInitialEntityState()
+{
+    // We need to use seats with vision before calling Room::restoreInitialEntityState
+    // because it will empty the list
+    if(mPortalObject == nullptr)
+    {
+        OD_ASSERT_TRUE_MSG(false, "roomPortal=" + getName());
+        return;
+    }
+
+    Tile* tilePortalObject = mPortalObject->getPositionTile();
+    if(tilePortalObject == nullptr)
+    {
+        OD_ASSERT_TRUE_MSG(false, "roomPortal=" + getName() + ", mPortalObject=" + mPortalObject->getName());
+        return;
+    }
+    TileData* tileData = mTileData[tilePortalObject];
+    if(tileData == nullptr)
+    {
+        OD_ASSERT_TRUE_MSG(false, "roomPortal=" + getName() + ", tile=" + Tile::displayAsString(tilePortalObject));
+        return;
+    }
+
+    if(!tileData->mSeatsVision.empty())
+        mPortalObject->notifySeatsWithVision(tileData->mSeatsVision);
+
+    // If there are no covered tile, the temple object is not working
+    if(numCoveredTiles() == 0)
+        mPortalObject->notifyRemoveAsked();
+
+    Room::restoreInitialEntityState();
 }

@@ -45,57 +45,26 @@ void RoomTreasury::doUpkeep()
 
     if(mGoldChanged)
     {
-        for (std::pair<Tile* const, int>& p : mGoldInTile)
+        for (std::pair<Tile* const, TileData*>& p : mTileData)
         {
-            Tile* tile = p.first;
-            updateMeshesForTile(tile);
+            RoomTreasuryTileData* roomTreasuryTileData = static_cast<RoomTreasuryTileData*>(p.second);
+            updateMeshesForTile(p.first, roomTreasuryTileData);
         }
         mGoldChanged = false;
-    }
-}
-
-void RoomTreasury::absorbRoom(Room *r)
-{
-    RoomTreasury* rt = static_cast<RoomTreasury*>(r);
-    for(std::pair<Tile* const, int>& p : rt->mGoldInTile)
-    {
-        Tile* tile = p.first;
-        int gold = p.second;
-        mGoldInTile[tile] = gold;
-    }
-    rt->mGoldInTile.clear();
-
-    for(std::pair<Tile* const, std::string>& p : rt->mMeshOfTile)
-    {
-        Tile* tile = p.first;
-        mMeshOfTile[tile] = p.second;
-    }
-    rt->mMeshOfTile.clear();
-
-    Room::absorbRoom(r);
-}
-
-void RoomTreasury::addCoveredTile(Tile* t, double nHP)
-{
-    Room::addCoveredTile(t, nHP);
-
-    // Only initialize the tile to empty if it has not already been set by the absorbRoom() function.
-    if (mGoldInTile.find(t) == mGoldInTile.end())
-    {
-        mGoldInTile[t] = 0;
-        mMeshOfTile[t] = std::string();
     }
 }
 
 bool RoomTreasury::removeCoveredTile(Tile* t)
 {
     // if the mesh has gold, we erase the mesh
-    if((mMeshOfTile.count(t) > 0) && (!mMeshOfTile[t].empty()))
+    RoomTreasuryTileData* roomTreasuryTileData = static_cast<RoomTreasuryTileData*>(mTileData[t]);
+
+    if(!roomTreasuryTileData->mMeshOfTile.empty())
         removeBuildingObject(t);
 
-    if(mGoldInTile.count(t) > 0)
+    if(roomTreasuryTileData->mGoldInTile > 0)
     {
-        int value = mGoldInTile[t];
+        int value = roomTreasuryTileData->mGoldInTile;
         if(getGameMap()->isServerGameMap() && (value > 0))
         {
             LogManager::getSingleton().logMessage("Room " + getName()
@@ -108,21 +77,24 @@ bool RoomTreasury::removeCoveredTile(Tile* t)
             obj->createMesh();
             obj->setPosition(spawnPosition, false);
         }
-        mGoldInTile.erase(t);
     }
-    mMeshOfTile.erase(t);
 
+    roomTreasuryTileData->mMeshOfTile.clear();
+    roomTreasuryTileData->mGoldInTile = 0;
     return Room::removeCoveredTile(t);
 }
 
 int RoomTreasury::getTotalGold()
 {
-    int tempInt = 0;
+    int totalGold = 0;
 
-    for (std::pair<Tile* const, int>& p : mGoldInTile)
-        tempInt += p.second;
+    for (std::pair<Tile* const, TileData*>& p : mTileData)
+    {
+        RoomTreasuryTileData* roomTreasuryTileData = static_cast<RoomTreasuryTileData*>(p.second);
+        totalGold += roomTreasuryTileData->mGoldInTile;
+    }
 
-    return tempInt;
+    return totalGold;
 }
 
 int RoomTreasury::emptyStorageSpace()
@@ -135,21 +107,23 @@ int RoomTreasury::depositGold(int gold, Tile *tile)
     int goldDeposited, goldToDeposit = gold, emptySpace;
 
     // Start by trying to deposit the gold in the requested tile.
-    emptySpace = maxGoldinTile - mGoldInTile[tile];
+    RoomTreasuryTileData* roomTreasuryTileData = static_cast<RoomTreasuryTileData*>(mTileData[tile]);
+    emptySpace = maxGoldinTile - roomTreasuryTileData->mGoldInTile;
     goldDeposited = std::min(emptySpace, goldToDeposit);
-    mGoldInTile[tile] += goldDeposited;
+    roomTreasuryTileData->mGoldInTile += goldDeposited;
     goldToDeposit -= goldDeposited;
 
     // If there is still gold left to deposit after the first tile, loop over all of the tiles and see if we can put the gold in another tile.
-    for (std::pair<Tile* const, int>& p : mGoldInTile)
+    for (std::pair<Tile* const, TileData*>& p : mTileData)
     {
         if(goldToDeposit <= 0)
             break;
 
         // Store as much gold as we can in this tile.
-        emptySpace = maxGoldinTile - p.second;
+        RoomTreasuryTileData* roomTreasuryTileData = static_cast<RoomTreasuryTileData*>(p.second);
+        emptySpace = maxGoldinTile - roomTreasuryTileData->mGoldInTile;
         goldDeposited = std::min(emptySpace, goldToDeposit);
-        p.second += goldDeposited;
+        roomTreasuryTileData->mGoldInTile += goldDeposited;
         goldToDeposit -= goldDeposited;
     }
 
@@ -190,52 +164,50 @@ int RoomTreasury::withdrawGold(int gold)
     mGoldChanged = true;
 
     int withdrawlAmount = 0;
-    for (std::pair<Tile* const, int>& p : mGoldInTile)
+    for (std::pair<Tile* const, TileData*>& p : mTileData)
     {
+        RoomTreasuryTileData* roomTreasuryTileData = static_cast<RoomTreasuryTileData*>(p.second);
         // Check to see if the current room tile has enough gold in it to fill the amount we still need to pick up.
         int goldStillNeeded = gold - withdrawlAmount;
-        if (p.second > goldStillNeeded)
+        if (roomTreasuryTileData->mGoldInTile >= goldStillNeeded)
         {
             // There is enough to satisfy the request so we do so and exit the loop.
             withdrawlAmount += goldStillNeeded;
-            p.second -= goldStillNeeded;
+            roomTreasuryTileData->mGoldInTile -= goldStillNeeded;
             break;
         }
         else
         {
             // There is not enough to satisfy the request so take everything there is and move on to the next tile.
-            withdrawlAmount += p.second;
-            p.second = 0;
+            withdrawlAmount += roomTreasuryTileData->mGoldInTile;
+            roomTreasuryTileData->mGoldInTile = 0;
         }
     }
 
     return withdrawlAmount;
 }
 
-void RoomTreasury::updateMeshesForTile(Tile* t)
+void RoomTreasury::updateMeshesForTile(Tile* tile, RoomTreasuryTileData* roomTreasuryTileData)
 {
-    if(mGoldInTile.count(t) == 0)
-        return;
-
-    int gold = mGoldInTile[t];
+    int gold = roomTreasuryTileData->mGoldInTile;
     OD_ASSERT_TRUE_MSG(gold <= maxGoldinTile, "room=" + getName() + ", gold=" + Ogre::StringConverter::toString(gold));
 
     // If the mesh has not changed we do not need to do anything.
     std::string newMeshName = TreasuryObject::getMeshNameForGold(gold);
-    if (mMeshOfTile[t].compare(newMeshName) == 0)
+    if (roomTreasuryTileData->mMeshOfTile.compare(newMeshName) == 0)
         return;
 
     // If the mesh has changed we need to destroy the existing treasury if there was one
-    if (!mMeshOfTile[t].empty())
-        removeBuildingObject(t);
+    if (!roomTreasuryTileData->mMeshOfTile.empty())
+        removeBuildingObject(tile);
 
     if (gold > 0)
     {
-        RenderedMovableEntity* ro = loadBuildingObject(getGameMap(), newMeshName, t, 0.0, false);
-        addBuildingObject(t, ro);
+        RenderedMovableEntity* ro = loadBuildingObject(getGameMap(), newMeshName, tile, 0.0, false);
+        addBuildingObject(tile, ro);
     }
 
-    mMeshOfTile[t] = newMeshName;
+    roomTreasuryTileData->mMeshOfTile = newMeshName;
 }
 
 bool RoomTreasury::hasCarryEntitySpot(GameEntity* carriedEntity)
@@ -263,4 +235,9 @@ void RoomTreasury::notifyCarryingStateChanged(Creature* carrier, GameEntity* car
 {
     // If a treasury is deposited on the treasury, no need to handle it here.
     // It will handle himself alone
+}
+
+RoomTreasuryTileData* RoomTreasury::createTileData(Tile* tile)
+{
+    return new RoomTreasuryTileData;
 }

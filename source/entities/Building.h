@@ -32,6 +32,29 @@ class Tile;
 class Room;
 class Trap;
 
+class TileData
+{
+public:
+    TileData() :
+        mHP(0)
+    {}
+
+    TileData(const TileData* tileData) :
+        mHP(tileData->mHP)
+    {}
+
+    virtual ~TileData()
+    {}
+
+    virtual TileData* cloneTileData() const
+    { return new TileData(this); }
+
+    double mHP;
+
+    //! Seats with vision on the corresponding tile. Note that seats with vision are not copied when cloning a TileData
+    std::vector<Seat*> mSeatsVision;
+};
+
 /*! \class Building
  *  \brief This class holds elements that are common to Building like Rooms or Traps
  *
@@ -47,9 +70,11 @@ public:
         GameEntity(gameMap)
     {}
 
+    virtual ~Building();
+
     const static double DEFAULT_TILE_HP;
 
-    virtual ~Building() {}
+    virtual void doUpkeep() override;
 
     const Ogre::Vector3& getScale() const;
 
@@ -59,6 +84,9 @@ public:
     //! \brief  Do nothing since Buildings do not have exp.
     void receiveExp(double /*experience*/)
     {}
+
+    //! \brief Checks if the building objects allow the room to be deleted
+    bool canBuildingBeRemoved();
 
     void removeAllBuildingObjects();
     /*! \brief Creates a child RenderedMovableEntity mesh using the given mesh name and placing on the target tile,
@@ -71,27 +99,24 @@ public:
     Tile* getCentralTile();
 
     virtual bool isAttackable(Tile* tile, Seat* seat) const;
-    virtual void addCoveredTile(Tile* t, double nHP);
     virtual bool removeCoveredTile(Tile* t);
     std::vector<Tile*> getCoveredTiles();
     Tile* getCoveredTile(int index);
-    uint32_t numCoveredTiles();
+    uint32_t numCoveredTiles()
+    { return mCoveredTiles.size(); }
+
     virtual void clearCoveredTiles();
     double getHP(Tile *tile) const;
     double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile *tileTakingDamage);
     std::string getNameTile(Tile* tile);
 
     //! \brief Tells whether the building tile should be displayed.
-    virtual bool shouldDisplayBuildingTile()
-    {
-        return true;
-    }
+    virtual bool shouldDisplayBuildingTile() const
+    { return true; }
 
     //! \brief Tells whether the ground tile below the building tile should be displayed.
-    virtual bool shouldDisplayGroundTile()
-    {
-        return false;
-    }
+    virtual bool shouldDisplayGroundTile() const
+    { return false; }
 
     //! \brief Tells whether the building wants the given entity to be brought
     virtual bool hasCarryEntitySpot(GameEntity* carriedEntity)
@@ -116,13 +141,32 @@ public:
     virtual bool shouldSetCoveringTileDirty(Seat* seat, Tile* tile)
     { return true; }
 
-    //! Notify the seats that have vision on the given tile
-    virtual void notifySeatsVisionOnTile(const std::vector<Seat*>& seats, Tile* tile);
-
     inline const std::vector<Tile*>& getCoveredTilesDestroyed() const
     { return mCoveredTilesDestroyed; }
 
+    virtual void exportToStream(std::ostream& os) const override;
+    virtual void importFromStream(std::istream& is) override;
+    //! Allows to export/import specific data for child classes. Note that every tile
+    //! should be exported on 1 line (thus, no line ending should be added here). Moreover
+    //! the building will only export the tile coords. Exporting other relevant data is
+    //! up to the subclass
+    virtual void exportTileDataToStream(std::ostream& os, Tile* tile, TileData* tileData) const
+    {}
+    //! importTileDataFromStream should add the tile to covered or destroyed tiles vector and,
+    //! if added to covered tile vectors, set covering room
+    virtual void importTileDataFromStream(std::istream& is, Tile* tile, TileData* tileData)
+    {}
+
+    virtual bool isTileVisibleForSeat(Tile* tile, Seat* seat) const
+    { return true; }
+
+    virtual void notifySeatVision(Tile* tile, Seat* seat);
+
 protected:
+    //! This will be called when tiles will be added to the building. By overriding it,
+    //! child classes can expand TileData and add the data they need
+    virtual TileData* createTileData(Tile* tile);
+
     void addBuildingObject(Tile* targetTile, RenderedMovableEntity* obj);
     void removeBuildingObject(Tile* tile);
     void removeBuildingObject(RenderedMovableEntity* obj);
@@ -136,7 +180,7 @@ protected:
     std::map<Tile*, RenderedMovableEntity*> mBuildingObjects;
     std::vector<Tile*> mCoveredTiles;
     std::vector<Tile*> mCoveredTilesDestroyed;
-    std::map<Tile*, double> mTileHP;
+    std::map<Tile*, TileData*> mTileData;
 };
 
 #endif // BUILDING_H_

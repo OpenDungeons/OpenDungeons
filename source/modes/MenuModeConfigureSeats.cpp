@@ -71,16 +71,16 @@ MenuModeConfigureSeats::MenuModeConfigureSeats(ModeManager *modeManager):
 MenuModeConfigureSeats::~MenuModeConfigureSeats()
 {
     CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers");
-    for(Seat* seat : mSeats)
+    for(int seatId : mSeatIds)
     {
         std::string name;
-        name = TEXT_SEAT_ID_PREFIX + Ogre::StringConverter::toString(seat->getId());
+        name = TEXT_SEAT_ID_PREFIX + Helper::toString(seatId);
         tmpWin->destroyChild(name);
-        name = COMBOBOX_PLAYER_FACTION_PREFIX + Ogre::StringConverter::toString(seat->getId());
+        name = COMBOBOX_PLAYER_FACTION_PREFIX + Helper::toString(seatId);
         tmpWin->destroyChild(name);
-        name = COMBOBOX_PLAYER_PREFIX + Ogre::StringConverter::toString(seat->getId());
+        name = COMBOBOX_PLAYER_PREFIX + Helper::toString(seatId);
         tmpWin->destroyChild(name);
-        name = COMBOBOX_TEAM_ID_PREFIX + Ogre::StringConverter::toString(seat->getId());
+        name = COMBOBOX_TEAM_ID_PREFIX + Helper::toString(seatId);
         tmpWin->destroyChild(name);
     }
 }
@@ -115,7 +115,7 @@ void MenuModeConfigureSeats::activate()
     const CEGUI::Image* selImg = &CEGUI::ImageManager::getSingleton().get("OpenDungeonsSkin/SelectionBrush");
     const std::vector<Seat*>& seats = gameMap->getSeats();
 
-    ODServer::ServerMode serverMode = ODServer::getSingleton().getServerMode();
+    ServerMode serverMode = ODServer::getSingleton().getServerMode();
     int offset = 0;
     int bestSeatHumanSeatId = -1;
     // We start by searching for the most suitable seat for local player. If we find a seat
@@ -142,7 +142,7 @@ void MenuModeConfigureSeats::activate()
         if(seat->isRogueSeat())
             continue;
 
-        mSeats.push_back(seat);
+        mSeatIds.push_back(seat->getId());
         std::string name;
         CEGUI::Combobox* combo;
 
@@ -233,11 +233,19 @@ void MenuModeConfigureSeats::activate()
 
             // If we are not in multiplayer mode, we set all the players to AI except the best we could find
             // The unset players will be set when a player connects
-            if((serverMode != ODServer::ServerMode::ModeGameMultiPlayer) &&
-               (seat->getId() != bestSeatHumanSeatId))
+            // Note that when loading a game, this is useless because no seat with choice should be possible
+            switch(serverMode)
             {
-                combo->setItemSelectState(item, true);
-                combo->setText(item->getText());
+                case ServerMode::ModeGameMultiPlayer:
+                case ServerMode::ModeGameLoaded:
+                    break;
+                default:
+                    if(seat->getId() != bestSeatHumanSeatId)
+                    {
+                        combo->setItemSelectState(item, true);
+                        combo->setText(item->getText());
+                    }
+                    break;
             }
         }
         combo->subscribeEvent(CEGUI::Combobox::EventListSelectionAccepted, CEGUI::SubscriberSlot(&MenuModeConfigureSeats::comboChanged, this));
@@ -326,9 +334,11 @@ bool MenuModeConfigureSeats::comboChanged(const CEGUI::EventArgs& ea)
        (selItem->getID() != 0) && // Can be several inactive players
        (selItem->getID() != 1)) // Can be several AI players
     {
+        GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
         CEGUI::Window* playersWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers");
-        for(Seat* seat : mSeats)
+        for(int seatId : mSeatIds)
         {
+            Seat* seat = gameMap->getSeatById(seatId);
             // We only add players to combos where a human player can play
             if((seat->getPlayerType().compare(Seat::PLAYER_TYPE_INACTIVE) == 0) ||
                (seat->getPlayerType().compare(Seat::PLAYER_TYPE_AI) == 0))
@@ -336,7 +346,7 @@ bool MenuModeConfigureSeats::comboChanged(const CEGUI::EventArgs& ea)
                 continue;
             }
 
-            std::string name = COMBOBOX_PLAYER_PREFIX + Ogre::StringConverter::toString(seat->getId());
+            std::string name = COMBOBOX_PLAYER_PREFIX + Helper::toString(seatId);
             CEGUI::Combobox* combo = static_cast<CEGUI::Combobox*>(playersWin->getChild(name));
             if(combo == comboSel)
                 continue;
@@ -364,9 +374,9 @@ void MenuModeConfigureSeats::addPlayer(const std::string& nick, int32_t id)
     bool isPlayerSet = false;
 
     mPlayers.push_back(std::pair<std::string, int32_t>(nick, id));
-    for(Seat* seat : mSeats)
+    for(int seatId : mSeatIds)
     {
-        std::string name = COMBOBOX_PLAYER_PREFIX + Ogre::StringConverter::toString(seat->getId());
+        std::string name = COMBOBOX_PLAYER_PREFIX + Helper::toString(seatId);
         CEGUI::Combobox* combo = static_cast<CEGUI::Combobox*>(playersWin->getChild(name));
         CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(nick, id);
         item->setSelectionBrushImage(selImg);
@@ -399,9 +409,9 @@ void MenuModeConfigureSeats::removePlayer(int32_t id)
         }
 
         mPlayers.erase(it);
-        for(Seat* seat : mSeats)
+        for(int seatId : mSeatIds)
         {
-            std::string name = COMBOBOX_PLAYER_PREFIX + Ogre::StringConverter::toString(seat->getId());
+            std::string name = COMBOBOX_PLAYER_PREFIX + Helper::toString(seatId);
             CEGUI::Combobox* combo = static_cast<CEGUI::Combobox*>(playersWin->getChild(name));
             for(uint32_t i = 0; i < combo->getItemCount();)
             {
@@ -434,36 +444,36 @@ void MenuModeConfigureSeats::fireSeatConfigurationToServer(bool isFinal)
     if(isFinal)
     {
         // We start by checking that every seat is well configured.
-        for(Seat* seat : mSeats)
+        for(int seatId : mSeatIds)
         {
             std::string name;
-            name = COMBOBOX_PLAYER_FACTION_PREFIX + Ogre::StringConverter::toString(seat->getId());
+            name = COMBOBOX_PLAYER_FACTION_PREFIX + Helper::toString(seatId);
             combo = static_cast<CEGUI::Combobox*>(playersWin->getChild(name));
             selItem = combo->getSelectedItem();
             if(selItem == nullptr)
             {
                 CEGUI::Window* msgWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("LoadingText");
-                msgWin->setText("Faction is not well configured for seat " + Ogre::StringConverter::toString(seat->getId()));
+                msgWin->setText("Faction is not well configured for seat " + Helper::toString(seatId));
                 msgWin->setVisible(true);
                 return;
             }
-            name = COMBOBOX_PLAYER_PREFIX + Ogre::StringConverter::toString(seat->getId());
+            name = COMBOBOX_PLAYER_PREFIX + Helper::toString(seatId);
             combo = static_cast<CEGUI::Combobox*>(playersWin->getChild(name));
             selItem = combo->getSelectedItem();
             if(selItem == nullptr)
             {
                 CEGUI::Window* msgWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("LoadingText");
-                msgWin->setText("Player is not well configured for seat " + Ogre::StringConverter::toString(seat->getId()));
+                msgWin->setText("Player is not well configured for seat " + Helper::toString(seatId));
                 msgWin->setVisible(true);
                 return;
             }
-            name = COMBOBOX_TEAM_ID_PREFIX + Ogre::StringConverter::toString(seat->getId());
+            name = COMBOBOX_TEAM_ID_PREFIX + Helper::toString(seatId);
             combo = static_cast<CEGUI::Combobox*>(playersWin->getChild(name));
             selItem = combo->getSelectedItem();
             if(selItem == nullptr)
             {
                 CEGUI::Window* msgWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("LoadingText");
-                msgWin->setText("Player is not well configured for seat " + Ogre::StringConverter::toString(seat->getId()));
+                msgWin->setText("Player is not well configured for seat " + Helper::toString(seatId));
                 msgWin->setVisible(true);
                 return;
             }
@@ -476,11 +486,11 @@ void MenuModeConfigureSeats::fireSeatConfigurationToServer(bool isFinal)
     else
         notif = new ClientNotification(ClientNotificationType::seatConfigurationRefresh);
 
-    for(Seat* seat : mSeats)
+    for(int seatId : mSeatIds)
     {
         std::string name;
-        notif->mPacket << seat->getId();
-        name = COMBOBOX_PLAYER_FACTION_PREFIX + Ogre::StringConverter::toString(seat->getId());
+        notif->mPacket << seatId;
+        name = COMBOBOX_PLAYER_FACTION_PREFIX + Helper::toString(seatId);
         combo = static_cast<CEGUI::Combobox*>(playersWin->getChild(name));
         selItem = combo->getSelectedItem();
         if(selItem != nullptr)
@@ -493,7 +503,7 @@ void MenuModeConfigureSeats::fireSeatConfigurationToServer(bool isFinal)
             notif->mPacket << false;
         }
 
-        name = COMBOBOX_PLAYER_PREFIX + Ogre::StringConverter::toString(seat->getId());
+        name = COMBOBOX_PLAYER_PREFIX + Helper::toString(seatId);
         combo = static_cast<CEGUI::Combobox*>(playersWin->getChild(name));
         selItem = combo->getSelectedItem();
         if(selItem != nullptr)
@@ -506,7 +516,7 @@ void MenuModeConfigureSeats::fireSeatConfigurationToServer(bool isFinal)
             notif->mPacket << false;
         }
 
-        name = COMBOBOX_TEAM_ID_PREFIX + Ogre::StringConverter::toString(seat->getId());
+        name = COMBOBOX_TEAM_ID_PREFIX + Helper::toString(seatId);
         combo = static_cast<CEGUI::Combobox*>(playersWin->getChild(name));
         selItem = combo->getSelectedItem();
         if(selItem != nullptr)
@@ -531,13 +541,13 @@ void MenuModeConfigureSeats::refreshSeatConfiguration(ODPacket& packet)
     CEGUI::Window* playersWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers");
     CEGUI::Combobox* combo;
     bool isSelected;
-    for(Seat* seat : mSeats)
+    for(int seatId : mSeatIds)
     {
-        int seatId;
-        OD_ASSERT_TRUE(packet >> seatId);
-        OD_ASSERT_TRUE(seat->getId() == seatId);
+        int seatIdPacket;
+        OD_ASSERT_TRUE(packet >> seatIdPacket);
+        OD_ASSERT_TRUE(seatId == seatIdPacket);
         std::string name;
-        name = COMBOBOX_PLAYER_FACTION_PREFIX + Ogre::StringConverter::toString(seat->getId());
+        name = COMBOBOX_PLAYER_FACTION_PREFIX + Helper::toString(seatId);
         combo = static_cast<CEGUI::Combobox*>(playersWin->getChild(name));
         OD_ASSERT_TRUE(packet >> isSelected);
         uint32_t factionIndex = 0;
@@ -557,7 +567,7 @@ void MenuModeConfigureSeats::refreshSeatConfiguration(ODPacket& packet)
                 combo->setItemSelectState(selItem, false);
         }
 
-        name = COMBOBOX_PLAYER_PREFIX + Ogre::StringConverter::toString(seat->getId());
+        name = COMBOBOX_PLAYER_PREFIX + Helper::toString(seatId);
         combo = static_cast<CEGUI::Combobox*>(playersWin->getChild(name));
         OD_ASSERT_TRUE(packet >> isSelected);
         int32_t playerId = 0;
@@ -577,7 +587,7 @@ void MenuModeConfigureSeats::refreshSeatConfiguration(ODPacket& packet)
                 combo->setItemSelectState(selItem, false);
         }
 
-        name = COMBOBOX_TEAM_ID_PREFIX + Ogre::StringConverter::toString(seat->getId());
+        name = COMBOBOX_TEAM_ID_PREFIX + Helper::toString(seatId);
         combo = static_cast<CEGUI::Combobox*>(playersWin->getChild(name));
         OD_ASSERT_TRUE(packet >> isSelected);
         int32_t teamId = 0;

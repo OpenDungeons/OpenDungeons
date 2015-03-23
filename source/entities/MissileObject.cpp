@@ -179,13 +179,13 @@ bool MissileObject::computeDestination(const Ogre::Vector3& position, double mov
     return true;
 }
 
-void MissileObject::exportHeadersToStream(std::ostream& os)
+void MissileObject::exportHeadersToStream(std::ostream& os) const
 {
     RenderedMovableEntity::exportHeadersToStream(os);
     os << getMissileType() << "\t";
 }
 
-void MissileObject::exportHeadersToPacket(ODPacket& os)
+void MissileObject::exportHeadersToPacket(ODPacket& os) const
 {
     RenderedMovableEntity::exportHeadersToPacket(os);
     os << getMissileType();

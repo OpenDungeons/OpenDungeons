@@ -22,8 +22,29 @@
 
 enum class TrapType;
 
-class RoomWorkshop: public Room
+class RoomWorkshopTileData : public TileData
 {
+public:
+    RoomWorkshopTileData() :
+        TileData(),
+        mCanHaveCraftedTrap(true)
+    {}
+
+    RoomWorkshopTileData(const RoomWorkshopTileData* roomWorkshopTileData) :
+        TileData(roomWorkshopTileData),
+        mCanHaveCraftedTrap(roomWorkshopTileData->mCanHaveCraftedTrap)
+    {}
+
+    virtual ~RoomWorkshopTileData()
+    {}
+
+    virtual RoomWorkshopTileData* cloneTileData() const override
+    { return new RoomWorkshopTileData(this); }
+
+    bool mCanHaveCraftedTrap;
+};
+
+class RoomWorkshop: public Room{
 public:
     RoomWorkshop(GameMap* gameMap);
 
@@ -35,25 +56,23 @@ public:
     virtual bool addCreatureUsingRoom(Creature* c) override;
     virtual void removeCreatureUsingRoom(Creature* c) override;
     virtual void absorbRoom(Room *r) override;
-    virtual void addCoveredTile(Tile* t, double nHP) override;
-    virtual bool removeCoveredTile(Tile* t) override;
 
     virtual void exportToStream(std::ostream& os) const override;
     virtual void importFromStream(std::istream& is) override;
 
 protected:
+    RoomWorkshopTileData* createTileData(Tile* tile) override;
     virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile) override;
     virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile) override;
 private:
     //!\brief checks if a tile is available in the workshop to place a new crafted trap
     uint32_t countCraftedItemsOnRoom();
-    Tile* checkIfAvailableSpot(const std::vector<Tile*>& activeSpots);
+    Tile* checkIfAvailableSpot();
     int32_t mPoints;
     TrapType mTrapType;
     void getCreatureWantedPos(Creature* creature, Tile* tileSpot,
         Ogre::Real& wantedX, Ogre::Real& wantedY);
     std::vector<Tile*> mUnusedSpots;
-    std::vector<Tile*> mAllowedSpotsForCraftedItems;
     std::map<Creature*,Tile*> mCreaturesSpots;
 };
 

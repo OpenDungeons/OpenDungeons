@@ -1202,6 +1202,7 @@ ProtectDungeonTemple	NULL
 0	Wyvern1	Wyvern	15	18	0	Wyvern	1	0	max	100	0	0	none	none
 2	DefaultWorker3	Kobold.mesh	12	9	0	DefaultWorker	1	0	max	100	0	0	none	none
 0	Wyvern2	Wyvern.mesh	18	32	0	Wyvern	1	0	max	100	0	0	none	none
+1	Tentacle16	Tentacle.mesh	11	5	0	Tentacle1	1	0	max	100	0	0	none	none
 [/Creatures]
 
 [Spells]

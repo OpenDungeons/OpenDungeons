@@ -118,9 +118,14 @@ void RoomTrainingHall::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile
     }
 
     std::vector<Tile*>::iterator it = std::find(mUnusedDummies.begin(), mUnusedDummies.end(), tile);
-    OD_ASSERT_TRUE_MSG(it != mUnusedDummies.end(), "name=" + getName() + ", tile=" + Tile::displayAsString(tile));
-    if(it != mUnusedDummies.end())
-        mUnusedDummies.erase(it);
+    if(it == mUnusedDummies.end())
+    {
+        // Dummies are on center tiles only
+        OD_ASSERT_TRUE_MSG(place != ActiveSpotPlace::activeSpotCenter, "name=" + getName() + ", tile=" + Tile::displayAsString(tile));
+        return;
+    }
+
+    mUnusedDummies.erase(it);
 }
 
 void RoomTrainingHall::refreshCreaturesDummies()

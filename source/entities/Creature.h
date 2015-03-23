@@ -81,7 +81,7 @@ public:
     { return GameEntityType::creature; }
 
     virtual void addToGameMap();
-    virtual void removeFromGameMap();
+    virtual void removeFromGameMap() override;
 
     bool canDisplayStatsWindow(Seat* seat) override
     { return true; }

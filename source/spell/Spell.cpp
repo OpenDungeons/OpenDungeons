@@ -280,13 +280,13 @@ std::string Spell::getSpellStreamFormat()
         + "optionalData\t";
 }
 
-void Spell::exportHeadersToStream(std::ostream& os)
+void Spell::exportHeadersToStream(std::ostream& os) const
 {
     RenderedMovableEntity::exportHeadersToStream(os);
     os << getSpellType() << "\t";
 }
 
-void Spell::exportHeadersToPacket(ODPacket& os)
+void Spell::exportHeadersToPacket(ODPacket& os) const
 {
     RenderedMovableEntity::exportHeadersToPacket(os);
     os << getSpellType();

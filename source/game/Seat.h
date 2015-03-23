@@ -26,6 +26,7 @@
 #include <ostream>
 #include <istream>
 
+class Building;
 class Goal;
 class ODPacket;
 class GameMap;
@@ -52,6 +53,7 @@ public:
     bool mMarkedForDigging;
     bool mVisionTurnLast;
     bool mVisionTurnCurrent;
+    Building* mBuilding;
 };
 
 class Seat
@@ -299,7 +301,7 @@ public:
 
     //! Called when a tile is notified to the seat player. That allows to save the state
     //! Used on server side only
-    void tileNotifiedToPlayer(Tile* tile);
+    void updateTileStateForSeat(Tile* tile);
 
     //! Called when a tile is marked and notified to a player. That allows to save the state
     //! Note that the tile is marked depending on what the player knows about it, not
@@ -311,6 +313,17 @@ public:
     //! on the tile state the client knows, not on the real tile state
     //! Called on server side only
     bool isTileDiggableForClient(Tile* tile) const;
+
+    //! \brief Called for each seat when a building is removed from the gamemap. That allows
+    //! the seats to clear the pointers to the building that they may have
+    void notifyBuildingRemovedFromGameMap(Building* building, Tile* tile);
+
+    void setVisibleBuildingOnTile(Building* building, Tile* tile);
+
+    /*! \brief Exports the tile data to the packet so that the client associated to the seat have the needed information
+     *         to display the tile correctly
+     */
+    void exportTileToPacket(ODPacket& os, Tile* tile) const;
 
     static bool sortForMapSave(Seat* s1, Seat* s2);
 

@@ -147,7 +147,7 @@ bool MenuModeSkirmish::launchSelectedButtonPressed(const CEGUI::EventArgs&)
 
     const std::string& level = mFilesList[id];
     // In single player mode, we act as a server
-    if(!ODServer::getSingleton().startServer(level, ODServer::ServerMode::ModeGameSinglePlayer))
+    if(!ODServer::getSingleton().startServer(level, ServerMode::ModeGameSinglePlayer))
     {
         LogManager::getSingleton().logMessage("ERROR: Could not start server for single player game !!!");
         tmpWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);

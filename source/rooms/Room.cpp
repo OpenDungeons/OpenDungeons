@@ -74,13 +74,21 @@ void Room::removeFromGameMap()
     if(!getGameMap()->isServerGameMap())
         return;
 
+    for(Seat* seat : getGameMap()->getSeats())
+    {
+        for(Tile* tile : mCoveredTiles)
+            seat->notifyBuildingRemovedFromGameMap(this, tile);
+        for(Tile* tile : mCoveredTilesDestroyed)
+            seat->notifyBuildingRemovedFromGameMap(this, tile);
+    }
+
     removeAllBuildingObjects();
     getGameMap()->removeActiveObject(this);
 }
 
 void Room::absorbRoom(Room *r)
 {
-    LogManager::getSingleton().logMessage(getGameMap()->serverStr() + "Room=" + getName() + " is aborbing room=" + r->getName());
+    LogManager::getSingleton().logMessage(getGameMap()->serverStr() + "Room=" + getName() + " is absorbing room=" + r->getName());
 
     mCentralActiveSpotTiles.insert(mCentralActiveSpotTiles.end(), r->mCentralActiveSpotTiles.begin(), r->mCentralActiveSpotTiles.end());
     r->mCentralActiveSpotTiles.clear();
@@ -115,34 +123,26 @@ void Room::absorbRoom(Room *r)
     mBuildingObjects.insert(r->mBuildingObjects.begin(), r->mBuildingObjects.end());
     r->mBuildingObjects.clear();
 
+    // We consider that the new room will be composed with the covered tiles it uses + the covered tiles absorbed. In the
+    // absorbed room, we consider all tiles as destroyed. It will get removed from gamemap when enemy vision will be cleared
     for(Tile* tile : r->mCoveredTiles)
     {
-        double hp = r->getHP(tile);
-        // We don't want to notify the room for the addition of the tile because it is not a new tile. That's why
-        // we call Building::addCoveredTile and not Room::addCoveredTile. If a room wants to handle its ground mesh
-        // differently, it can override reorderRoomAfterAbsorbtion.
-        Building::addCoveredTile(tile, hp);
+        mCoveredTiles.push_back(tile);
+        TileData* tileData = r->mTileData[tile];
+        mTileData[tile] = tileData->cloneTileData();
+        tileData->mHP = 0.0;
+        tile->setCoveringBuilding(this);
     }
-    // We don't need to insert r->mTileHP and r->mCoveredTiles because it has already been done in Building::addCoveredTile
+
+    r->mCoveredTilesDestroyed.insert(r->mCoveredTilesDestroyed.end(), r->mCoveredTiles.begin(), r->mCoveredTiles.end());
     r->mCoveredTiles.clear();
-    r->mTileHP.clear();
-
-    // If a destroyed tile is in the new room, it is not a destroyed tile anymore
-    for(Tile* tile : r->mCoveredTilesDestroyed)
-    {
-        if(std::find(mCoveredTiles.begin(), mCoveredTiles.end(), tile) != mCoveredTiles.end())
-            continue;
-
-        mCoveredTilesDestroyed.push_back(tile);
-    }
-    r->mCoveredTilesDestroyed.clear();
 }
 
-void Room::reorderRoomAfterAbsorbtion()
+void Room::reorderRoomTiles(std::vector<Tile*>& tiles)
 {
     // We try to keep the same tile disposition as if the room was created like this in the first
     // place to make sure building objects are disposed the same way
-    std::sort(mCoveredTiles.begin(), mCoveredTiles.end(), Room::compareTile);
+    std::sort(tiles.begin(), tiles.end(), Room::compareTile);
 }
 
 bool Room::addCreatureUsingRoom(Creature* c)
@@ -177,40 +177,6 @@ Creature* Room::getCreatureUsingRoom(unsigned index)
 std::string Room::getRoomStreamFormat()
 {
     return "typeRoom\tname\tseatId\tnumTiles\t\tSubsequent Lines: tileX\ttileY";
-}
-
-void Room::doUpkeep()
-{
-    // Loop over the tiles in Room r and remove any whose HP has dropped to zero.
-    std::vector<Tile*> tilesToRemove;
-    for (Tile* tile : mCoveredTiles)
-    {
-        if (mTileHP[tile] <= 0.0)
-        {
-            tilesToRemove.push_back(tile);
-            continue;
-        }
-    }
-
-    if (!tilesToRemove.empty())
-    {
-        for(Tile* tile : tilesToRemove)
-        {
-            mCoveredTilesDestroyed.push_back(tile);
-            removeCoveredTile(tile);
-        }
-
-        updateActiveSpots();
-        createMesh();
-    }
-
-    // If no more tiles, the room is removed
-    if (numCoveredTiles() <= 0)
-    {
-        removeFromGameMap();
-        deleteYourself();
-        return;
-    }
 }
 
 Room* Room::getRoomFromStream(GameMap* gameMap, std::istream& is)
@@ -429,10 +395,14 @@ void Room::setupRoom(const std::string& name, Seat* seat, const std::vector<Tile
 {
     setName(name);
     setSeat(seat);
-    for(std::vector<Tile*>::const_iterator it = tiles.begin(); it != tiles.end(); ++it)
+    for(Tile* tile : tiles)
     {
-        Tile* tile = *it;
-        addCoveredTile(tile, Room::DEFAULT_TILE_HP);
+        mCoveredTiles.push_back(tile);
+        TileData* tileData = createTileData(tile);
+        mTileData[tile] = tileData;
+        tileData->mHP = DEFAULT_TILE_HP;
+
+        tile->setCoveringBuilding(this);
     }
 }
 
@@ -458,7 +428,7 @@ void Room::checkForRoomAbsorbtion()
     }
 
     if(isRoomAbsorbed)
-        reorderRoomAfterAbsorbtion();
+        reorderRoomTiles(mCoveredTiles);
 }
 
 void Room::updateActiveSpots()
@@ -717,6 +687,18 @@ void Room::activeSpotCheckChange(ActiveSpotPlace place, const std::vector<Tile*>
     }
 }
 
+bool Room::canBeRepaired() const
+{
+    switch(getType())
+    {
+        case RoomType::dungeonTemple:
+        case RoomType::portal:
+            return false;
+        default:
+            return true;
+    }
+}
+
 RenderedMovableEntity* Room::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
 {
     return nullptr;
@@ -727,84 +709,109 @@ void Room::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
     removeBuildingObject(tile);
 }
 
-void Room::exportHeadersToStream(std::ostream& os)
+void Room::exportHeadersToStream(std::ostream& os) const
 {
     os << getType() << "\t";
 }
 
-void Room::exportHeadersToPacket(ODPacket& os)
+void Room::exportTileDataToStream(std::ostream& os, Tile* tile, TileData* tileData) const
 {
-    os << getType();
+    if(getGameMap()->isInEditorMode())
+        return;
+
+    os << "\t" << tileData->mHP;
+
+    // We only save enemy seats that have vision on the building
+    std::vector<Seat*> seatsToSave;
+    for(Seat* seat : tileData->mSeatsVision)
+    {
+        if(getSeat()->isAlliedSeat(seat))
+            continue;
+
+        seatsToSave.push_back(seat);
+    }
+    uint32_t nbSeatsVision = seatsToSave.size();
+    os << "\t" << nbSeatsVision;
+    for(Seat* seat : seatsToSave)
+        os << "\t" << seat->getId();
 }
 
-void Room::exportToPacket(ODPacket& os) const
+void Room::importTileDataFromStream(std::istream& is, Tile* tile, TileData* tileData)
 {
-    const std::string& name = getName();
-    int seatId = getSeat()->getId();
-    int nbTiles = mCoveredTiles.size();
-    os << name << seatId << nbTiles;
-    for (Tile* tile : mCoveredTiles)
+    if(is.eof())
     {
-        os << tile->getX() << tile->getY();
+        // Default initialization
+        tileData->mHP = DEFAULT_TILE_HP;
+        mCoveredTiles.push_back(tile);
+        tile->setCoveringBuilding(this);
+        return;
+    }
+
+    // We read saved state
+    OD_ASSERT_TRUE(is >> tileData->mHP);
+
+    if(tileData->mHP > 0.0)
+    {
+        mCoveredTiles.push_back(tile);
+        tile->setCoveringBuilding(this);
+    }
+    else
+    {
+        mCoveredTilesDestroyed.push_back(tile);
+    }
+
+    GameMap* gameMap = getGameMap();
+    uint32_t nbSeatsVision;
+    OD_ASSERT_TRUE(is >> nbSeatsVision);
+    while(nbSeatsVision > 0)
+    {
+        --nbSeatsVision;
+        int seatId;
+        OD_ASSERT_TRUE(is >> seatId);
+        Seat* seat = gameMap->getSeatById(seatId);
+        if(seat == nullptr)
+        {
+            OD_ASSERT_TRUE_MSG(false, "room=" + getName() + ", seatId=" + Helper::toString(seatId));
+            continue;
+        }
+        tileData->mSeatsVision.push_back(seat);
     }
 }
 
-void Room::importFromPacket(ODPacket& is)
+void Room::restoreInitialEntityState()
 {
-    std::string name;
-    int tilesToLoad, tempX, tempY;
-    OD_ASSERT_TRUE(is >> name);
-    setName(name);
-    int tempInt = 0;
-    OD_ASSERT_TRUE(is >> tempInt);
-    Seat* seat = getGameMap()->getSeatById(tempInt);
-    OD_ASSERT_TRUE_MSG(seat != nullptr, "seatId=" + Ogre::StringConverter::toString(tempInt));
-    setSeat(seat);
-
-    OD_ASSERT_TRUE(is >> tilesToLoad);
-    for (int i = 0; i < tilesToLoad; ++i)
+    // We restore the vision if we need to
+    std::map<Seat*, std::vector<Tile*>> tiles;
+    for(std::pair<Tile* const, TileData*>& p : mTileData)
     {
-        OD_ASSERT_TRUE(is >> tempX >> tempY);
-        Tile* tempTile = getGameMap()->getTile(tempX, tempY);
-        OD_ASSERT_TRUE_MSG(tempTile != nullptr, "tile=" + Ogre::StringConverter::toString(tempX) + "," + Ogre::StringConverter::toString(tempY));
-        if (tempTile != nullptr)
-            addCoveredTile(tempTile, Room::DEFAULT_TILE_HP);
+        if(p.second->mSeatsVision.empty())
+            continue;
+        for(Seat* seat : p.second->mSeatsVision)
+        {
+            seat->setVisibleBuildingOnTile(this, p.first);
+            tiles[seat].push_back(p.first);
+        }
     }
-}
 
-void Room::exportToStream(std::ostream& os) const
-{
-    const std::string& name = getName();
-    int seatId = getSeat()->getId();
-    int nbTiles = mCoveredTiles.size();
-    os << name << "\t" << seatId << "\t" << nbTiles << "\n";
-    for (Tile* tile : mCoveredTiles)
+    // We notify the clients
+    for(std::pair<Seat* const, std::vector<Tile*>>& p : tiles)
     {
-        os << tile->getX() << "\t" << tile->getY() << "\n";
-    }
-}
+        if(p.first->getPlayer() == nullptr)
+            continue;
+        if(!p.first->getPlayer()->getIsHuman())
+            continue;
 
-void Room::importFromStream(std::istream& is)
-{
-    std::string name;
-    OD_ASSERT_TRUE(is >> name);
-    setName(name);
-
-    int tilesToLoad, tempX, tempY;
-    int tempInt = 0;
-    OD_ASSERT_TRUE(is >> tempInt);
-    Seat* seat = getGameMap()->getSeatById(tempInt);
-    OD_ASSERT_TRUE_MSG(seat != nullptr, "seatId=" + Ogre::StringConverter::toString(tempInt));
-    setSeat(seat);
-
-    OD_ASSERT_TRUE(is >> tilesToLoad);
-    for (int i = 0; i < tilesToLoad; ++i)
-    {
-        OD_ASSERT_TRUE(is >> tempX >> tempY);
-        Tile* tempTile = getGameMap()->getTile(tempX, tempY);
-        OD_ASSERT_TRUE_MSG(tempTile != nullptr, "tile=" + Ogre::StringConverter::toString(tempX) + "," + Ogre::StringConverter::toString(tempY));
-        if (tempTile != nullptr)
-            addCoveredTile(tempTile, Room::DEFAULT_TILE_HP);
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::refreshTiles, p.first->getPlayer());
+        std::vector<Tile*>& tilesRefresh = p.second;
+        uint32_t nbTiles = tilesRefresh.size();
+        serverNotification->mPacket << nbTiles;
+        for(Tile* tile : tilesRefresh)
+        {
+            getGameMap()->tileToPacket(serverNotification->mPacket, tile);
+            p.first->exportTileToPacket(serverNotification->mPacket, tile);
+        }
+        ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 }
 

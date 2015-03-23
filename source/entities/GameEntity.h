@@ -255,7 +255,7 @@ class GameEntity
     virtual void removeSeatWithVision(Seat* seat);
 
     //! \brief Fires remove event to every seat with vision
-    void fireRemoveEntityToSeatsWithVision();
+    virtual void fireRemoveEntityToSeatsWithVision();
 
     //! \brief Returns true if the entity can be carried by a worker. False otherwise.
     virtual EntityCarryType getEntityCarryType()
@@ -299,8 +299,8 @@ class GameEntity
      * export/import only the needed information for the clients while functions using the stream will export/import
      * every needed information to save/restore the entity from scratch.
      */
-    virtual void exportHeadersToStream(std::ostream& os);
-    virtual void exportHeadersToPacket(ODPacket& os);
+    virtual void exportHeadersToStream(std::ostream& os) const;
+    virtual void exportHeadersToPacket(ODPacket& os) const;
     //! \brief Exports the data of the GameEntity
     virtual void exportToStream(std::ostream& os) const;
     virtual void importFromStream(std::istream& is);

@@ -17,6 +17,7 @@
 
 #include "entities/PersistentObject.h"
 
+#include "entities/Building.h"
 #include "entities/Tile.h"
 
 #include "network/ODPacket.h"
@@ -32,7 +33,8 @@
 PersistentObject::PersistentObject(GameMap* gameMap, const std::string& buildingName, const std::string& meshName,
         Tile* tile, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity) :
     RenderedMovableEntity(gameMap, buildingName, meshName, rotationAngle, hideCoveredTile, opacity),
-    mTile(tile)
+    mTile(tile),
+    mIsWorking(true)
 {
     mPosition.x = static_cast<Ogre::Real>(mTile->getX());
     mPosition.y = static_cast<Ogre::Real>(mTile->getY());
@@ -50,24 +52,9 @@ PersistentObject* PersistentObject::getPersistentObjectFromPacket(GameMap* gameM
     return obj;
 }
 
-void PersistentObject::addToGameMap()
-{
-    // We register on both client and server gamemaps
-    RenderedMovableEntity::addToGameMap();
-    // We register on the tile we are on
-    mTile->registerPersistentObject(this);
-}
-
-void PersistentObject::removeFromGameMap()
-{
-    RenderedMovableEntity::removeFromGameMap();
-    // Removes the PersistentObject. On client map, the persistent object will be removed when the associated tile is refreshed
-    mTile->removePersistentObject(this);
-}
-
 void PersistentObject::notifySeatsWithVision(const std::vector<Seat*>& seats)
 {
-    // We notify seats that lost vision
+    // We process seats that lost vision
     for(std::vector<Seat*>::iterator it = mSeatsWithVisionNotified.begin(); it != mSeatsWithVisionNotified.end();)
     {
         Seat* seat = *it;
@@ -83,27 +70,65 @@ void PersistentObject::notifySeatsWithVision(const std::vector<Seat*>& seats)
         // We don't notify clients so that the objects stays visible
     }
 
-    // We notify seats that gain vision
+    // We process seats that gain vision. If the PersistentObject is working, we notify
+    // that it is there. If it is not working, we notify that it has been removed
     for(Seat* seat : seats)
     {
-        // If the seat was already in the list, nothing to do
-        if(std::find(mSeatsWithVisionNotified.begin(), mSeatsWithVisionNotified.end(), seat) != mSeatsWithVisionNotified.end())
-            continue;
+        auto it = std::find(mSeatsWithVisionNotified.begin(), mSeatsWithVisionNotified.end(), seat);
+        if(mIsWorking)
+        {
+            // If the seat was already in the list, nothing to do
+            if(it != mSeatsWithVisionNotified.end())
+                continue;
 
-        mSeatsWithVisionNotified.push_back(seat);
+            mSeatsWithVisionNotified.push_back(seat);
+        }
+        else
+        {
+            // If the seat is not already in the list, nothing to do
+            if(it != mSeatsWithVisionNotified.end())
+                mSeatsWithVisionNotified.erase(it);
+        }
+
 
         if(seat->getPlayer() == nullptr)
             continue;
         if(!seat->getPlayer()->getIsHuman())
             continue;
 
-        // If the object has already been notified once, we remove it and re-create it
-        if(std::find(mSeatsAlreadyNotifiedOnce.begin(), mSeatsAlreadyNotifiedOnce.end(), seat) == mSeatsAlreadyNotifiedOnce.end())
-            mSeatsAlreadyNotifiedOnce.push_back(seat);
-        else
-            fireRemoveEntity(seat);
+        // If the PersistentObject is working, we notify vision. If not, we notify it has been removed
+        if(mIsWorking)
+        {
+            // If the object has already been notified once, we remove it and re-create it
+            if(std::find(mSeatsAlreadyNotifiedOnce.begin(), mSeatsAlreadyNotifiedOnce.end(), seat) == mSeatsAlreadyNotifiedOnce.end())
+                mSeatsAlreadyNotifiedOnce.push_back(seat);
+            else
+                fireRemoveEntity(seat);
 
-        fireAddEntity(seat, false);
+            fireAddEntity(seat, false);
+        }
+        else
+        {
+            auto it = std::find(mSeatsAlreadyNotifiedOnce.begin(), mSeatsAlreadyNotifiedOnce.end(), seat);
+            if(it != mSeatsAlreadyNotifiedOnce.end())
+            {
+                mSeatsAlreadyNotifiedOnce.erase(it);
+                fireRemoveEntity(seat);
+            }
+        }
+    }
+}
+
+void PersistentObject::fireRemoveEntityToSeatsWithVision()
+{
+    for(Seat* seat : mSeatsAlreadyNotifiedOnce)
+    {
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+
+        fireRemoveEntity(seat);
     }
 }
 
@@ -120,4 +145,25 @@ void PersistentObject::importFromPacket(ODPacket& is)
 
     mTile = getGameMap()->tileFromPacket(is);
     OD_ASSERT_TRUE_MSG(mTile != nullptr, "name=" + getName());
+}
+
+bool PersistentObject::notifyRemoveAsked()
+{
+    mIsWorking = false;
+    // If at least 1 player has vision on this PersistentObject, we cannot remove it
+    // from gamemap.
+    // We check if there is at least 1 seat that have been notified previously and
+    // lost vision
+    for(Seat* seat : mSeatsAlreadyNotifiedOnce)
+    {
+        auto it = std::find(mSeatsWithVisionNotified.begin(), mSeatsWithVisionNotified.end(), seat);
+        if(it != mSeatsWithVisionNotified.end())
+            continue;
+
+        // There is at least 1 seat that have seen the PersistentObject but not currently
+        // have vision on it. We cannot remove it
+        return false;
+    }
+
+    return true;
 }

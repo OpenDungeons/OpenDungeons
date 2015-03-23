@@ -72,48 +72,22 @@ void TrapEntity::seatSawTriggering(Seat* seat)
 
 void TrapEntity::notifySeatsWithVision(const std::vector<Seat*>& seats)
 {
-    // We notify seats that lost vision
-    for(std::vector<Seat*>::iterator it = mSeatsWithVisionNotified.begin(); it != mSeatsWithVisionNotified.end();)
+    // If we are in the editor, everyseat has vision
+    if(getGameMap()->isInEditorMode())
     {
-        Seat* seat = *it;
-        // If the seat is still in the list, nothing to do
-        if(std::find(seats.begin(), seats.end(), seat) != seats.end())
-        {
-            ++it;
-            continue;
-        }
-
-        it = mSeatsWithVisionNotified.erase(it);
-
-        // We don't notify clients so that the objects stays visible
+        PersistentObject::notifySeatsWithVision(seats);
     }
-
-    // We notify seats that gain vision
-    bool isInEditorMode = getGameMap()->isInEditorMode();
-    for(Seat* seat : seats)
+    else
     {
-        // If the seat was already in the list, nothing to do
-        if(std::find(mSeatsWithVisionNotified.begin(), mSeatsWithVisionNotified.end(), seat) != mSeatsWithVisionNotified.end())
-            continue;
+        // We only notify seats that have seen the trap trigger
+        std::vector<Seat*> seatsToNotify;
+        for(Seat* seat : seats)
+        {
+            if(std::find(mSeatsNotHidden.begin(), mSeatsNotHidden.end(), seat) == mSeatsNotHidden.end())
+                continue;
 
-        // If we are hidden for current seat, we do not notify our state
-        // In editor mode, everybody can see traps
-        if(!isInEditorMode && std::find(mSeatsNotHidden.begin(), mSeatsNotHidden.end(), seat) == mSeatsNotHidden.end())
-            continue;
-
-        mSeatsWithVisionNotified.push_back(seat);
-
-        if(seat->getPlayer() == nullptr)
-            continue;
-        if(!seat->getPlayer()->getIsHuman())
-            continue;
-
-        // If the object has already been notified once, we remove it and re-create it
-        if(std::find(mSeatsAlreadyNotifiedOnce.begin(), mSeatsAlreadyNotifiedOnce.end(), seat) == mSeatsAlreadyNotifiedOnce.end())
-            mSeatsAlreadyNotifiedOnce.push_back(seat);
-        else
-            fireRemoveEntity(seat);
-
-        fireAddEntity(seat, false);
+            seatsToNotify.push_back(seat);
+        }
+        PersistentObject::notifySeatsWithVision(seatsToNotify);
     }
 }

@@ -27,16 +27,17 @@
 class Seat;
 class ODPacket;
 
-/*! PersistentObject is a RenderedMovableEntity that stays displayed when vision is lost (however, the object is not refreshed for clients
- *  without vision ie animation changes or remove from gamemap). When a PersistentObject is removed from the server gamemap, it will stay
- *  displayed on clients until they get vision on the associated tile.
- *  There are 2 problems with PersistentObject:
- *  - Their lifetime on client side can be higher than on client because he should be notified only when he gets vision on the associated
- *    tile. To make it work, on server side, we will send the list of PersistentObject on tiles when they get refreshed. This way, it will
- *    be easy to remove PersistentObject that got removed from server map.
- *  - Because they are displayed but not refreshed when a player looses vision, they might be in a different state on client side
- *    than on server side when a client gets vision again. To make it work, we will remove the PersistentObject from the client and
- *    recreate it when vision is gained again.
+/*! PersistentObject is a RenderedMovableEntity that stays displayed when vision is
+ *  lost (however, the object is not refreshed for clients without vision ie animation
+ *  changes). Note that Persistent objects will be removed from the clients if they are
+ *  removed from the server gamemap. That means that buildings that use them and want them
+ *  to be displayed until a client gains vision again should take this into account and
+ *  not add them to building objects as they would be removed if the room is destroyed.
+ *  Because PersistentObjects are displayed but not refreshed when a player looses vision,
+ *  they might be in a different state on client side than on server side when a client gets
+ *  vision again. To make sure they are synchronized, when a player re-gains vision on a
+ *  PersistentObject he had already seen, we will remove it from the player gamemap and
+ *  recreate it.
 */
 class PersistentObject: public RenderedMovableEntity
 {
@@ -53,16 +54,15 @@ public:
     virtual bool isVisibleForSeat(Seat* seat)
     { return true; }
 
-    virtual void addToGameMap();
-    virtual void removeFromGameMap();
-
-    void notifySeatsWithVision(const std::vector<Seat*>& seats);
-    //! We don't want to the remove entity event to be fired when the PersistentObject is removed from the server gamemap
-    void fireRemoveEntityToSeatsWithVision()
-    {}
+    virtual void notifySeatsWithVision(const std::vector<Seat*>& seats) override;
+    virtual void fireRemoveEntityToSeatsWithVision() override;
 
     virtual void exportToPacket(ODPacket& os) const override;
     virtual void importFromPacket(ODPacket& is) override;
+    virtual bool notifyRemoveAsked() override;
+
+    const std::vector<Seat*>& getSeatsAlreadyNotifiedOnce() const
+    { return mSeatsAlreadyNotifiedOnce; }
 
     static PersistentObject* getPersistentObjectFromPacket(GameMap* gameMap, ODPacket& is);
 
@@ -71,6 +71,13 @@ protected:
 
 private:
     Tile* mTile;
+
+    //! If true, the PersistentObject will notify the clients about vision
+    //! If false, the PersistentObject will only register clients that lost vision
+    //! and, once every client will have seen the PersistentObject been removed
+    //! it will be removed from gamemap and will allow its containing building to
+    //! get removed
+    bool mIsWorking;
 };
 
 #endif // PERSISTENTOBJECT_H

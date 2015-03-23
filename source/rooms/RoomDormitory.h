@@ -20,6 +20,28 @@
 
 #include "rooms/Room.h"
 
+class RoomDormitoryTileData : public TileData
+{
+public:
+    RoomDormitoryTileData() :
+        TileData(),
+        mCreature(nullptr)
+    {}
+
+    RoomDormitoryTileData(const RoomDormitoryTileData* roomDormitoryTileData) :
+        TileData(roomDormitoryTileData),
+        mCreature(roomDormitoryTileData->mCreature)
+    {}
+
+    virtual ~RoomDormitoryTileData()
+    {}
+
+    virtual RoomDormitoryTileData* cloneTileData() const override
+    { return new RoomDormitoryTileData(this); }
+
+    Creature* mCreature;
+};
+
 //! \brief A class containing info on the bed room objects.
 class BedRoomObjectInfo
 {
@@ -113,9 +135,7 @@ public:
 
     // Functions overriding virtual functions in the Room base class.
     void absorbRoom(Room *r) override;
-    void addCoveredTile(Tile* t, double nHP) override;
     bool removeCoveredTile(Tile* t) override;
-    void clearCoveredTiles() override;
 
     virtual void exportToStream(std::ostream& os) const override;
     virtual void importFromStream(std::istream& is) override;
@@ -129,6 +149,7 @@ public:
     Tile* getLocationForBed(int xDim, int yDim);
 
 protected:
+    RoomDormitoryTileData* createTileData(Tile* tile);
     // Because dormitory do not use active spots, we don't want the default
     // behaviour (removing the active spot tile) as it could result in removing an
     // unwanted bed
@@ -138,9 +159,6 @@ protected:
 private:
     bool tileCanAcceptBed(Tile *tile, int xDim, int yDim);
     void createBed(Tile* t, double rotationAngle, Creature* c);
-
-    //! \brief Keeps track of the tiles taken by a creature bed
-    std::map<Tile*, Creature*> mCreatureSleepingInTile;
 
     //! \brief Keeps track of info about the beds in order to be able
     //! to recreate them.

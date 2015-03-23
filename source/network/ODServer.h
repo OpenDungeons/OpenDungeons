@@ -26,6 +26,18 @@ class ServerNotification;
 class GameMap;
 class ServerConsoleCommand;
 
+enum class ServerMode
+{
+    ModeNone,
+    ModeGameSinglePlayer,
+    ModeGameMultiPlayer,
+    ModeGameLoaded,
+    ModeEditor
+};
+
+ODPacket& operator<<(ODPacket& os, const ServerMode& sm);
+ODPacket& operator>>(ODPacket& is, ServerMode& sm);
+
 /**
  * When playing single player or multiplayer, there is always one reference gamemap. It is
  * the one on ODServer. There is also a client gamemap in ODFrameListener which is supposed to be
@@ -43,18 +55,10 @@ class ServerConsoleCommand;
  * Note that this rule is not followed when dealing with client connexions or chat because there
  * is no need to synchronize such messages with the gamemap.
  */
-
 class ODServer: public Ogre::Singleton<ODServer>,
     public ODSocketServer
 {
  public:
-     enum ServerMode
-     {
-         ModeNone,
-         ModeGameSinglePlayer,
-         ModeGameMultiPlayer,
-         ModeEditor
-     };
      enum ServerState
      {
          StateNone,
@@ -85,8 +89,6 @@ class ODServer: public Ogre::Singleton<ODServer>,
     void notifyExit();
 
     static const std::string SERVER_INFORMATION;
-    friend ODPacket& operator<<(ODPacket& os, const ODServer::ServerMode& sm);
-    friend ODPacket& operator>>(ODPacket& is, ODServer::ServerMode& sm);
 
 protected:
     bool notifyNewConnection(ODSocketClient *sock);

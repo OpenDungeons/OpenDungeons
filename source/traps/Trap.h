@@ -50,24 +50,36 @@ ODPacket& operator>>(ODPacket& is, TrapType& tt);
 ODPacket& operator<<(ODPacket& os, const TrapType& tt);
 
 //! \brief A small class telling whether a trap tile is activated.
-class TrapTileInfo
+class TrapTileData : public TileData
 {
 public:
-    TrapTileInfo():
+    TrapTileData() :
+        TileData(),
         mIsActivated(false),
         mReloadTime(0),
         mCraftedTrap(nullptr),
         mNbShootsBeforeDeactivation(0),
-        mTrapEntity(nullptr)
+        mTrapEntity(nullptr),
+        mIsWorking(false),
+        mRemoveTrap(false)
     {}
 
-    TrapTileInfo(uint32_t reloadTime, bool activated):
-        mIsActivated(activated),
-        mReloadTime(reloadTime),
-        mCraftedTrap(nullptr),
-        mNbShootsBeforeDeactivation(0),
-        mTrapEntity(nullptr)
+    TrapTileData(const TrapTileData* trapTileData) :
+        TileData(trapTileData),
+        mIsActivated(trapTileData->mIsActivated),
+        mReloadTime(trapTileData->mReloadTime),
+        mCraftedTrap(trapTileData->mCraftedTrap),
+        mNbShootsBeforeDeactivation(trapTileData->mNbShootsBeforeDeactivation),
+        mTrapEntity(trapTileData->mTrapEntity),
+        mIsWorking(trapTileData->mIsWorking),
+        mRemoveTrap(trapTileData->mRemoveTrap)
     {}
+
+    virtual ~TrapTileData()
+    {}
+
+    virtual TrapTileData* cloneTileData() const override
+    { return new TrapTileData(this); }
 
     inline void setTrapEntity(TrapEntity* trapEntity)
     { mTrapEntity = trapEntity; }
@@ -87,7 +99,7 @@ public:
         return false;
     }
 
-    void setActivated(bool activated)
+    inline void setActivated(bool activated)
     { mIsActivated = activated; }
 
     bool decreaseShoot()
@@ -102,20 +114,38 @@ public:
         return false;
     }
 
-    bool isActivated() const
+    inline bool isActivated() const
     { return mIsActivated; }
 
-    void setReloadTime(uint32_t reloadTime)
+    inline uint32_t getReloadTime() const
+    { return mReloadTime; }
+
+    inline void setReloadTime(uint32_t reloadTime)
     { mReloadTime = reloadTime; }
 
-    void setNbShootsBeforeDeactivation(int32_t nbShoot)
+    inline void setNbShootsBeforeDeactivation(int32_t nbShoot)
     { mNbShootsBeforeDeactivation = nbShoot; }
 
-    void setCarriedCraftedTrap(CraftedTrap* craftedTrap)
+    inline int32_t getNbShootsBeforeDeactivation() const
+    { return mNbShootsBeforeDeactivation; }
+
+    inline void setCarriedCraftedTrap(CraftedTrap* craftedTrap)
     { mCraftedTrap = craftedTrap; }
 
-    CraftedTrap* getCarriedCraftedTrap() const
+    inline CraftedTrap* getCarriedCraftedTrap() const
     { return mCraftedTrap; }
+
+    inline bool getIsWorking() const
+    { return mIsWorking; }
+
+    inline void setIsWorking(bool isWorking)
+    { mIsWorking = isWorking; }
+
+    inline bool getRemoveTrap() const
+    { return mRemoveTrap; }
+
+    inline void setRemoveTrap(bool removeTrap)
+    { mRemoveTrap = removeTrap; }
 
 private:
     bool mIsActivated;
@@ -123,6 +153,8 @@ private:
     CraftedTrap* mCraftedTrap;
     int32_t mNbShootsBeforeDeactivation;
     TrapEntity* mTrapEntity;
+    bool mIsWorking;
+    bool mRemoveTrap;
 };
 
 /*! \class Trap Trap.h
@@ -138,8 +170,8 @@ public:
     virtual GameEntityType getObjectType() const
     { return GameEntityType::trap; }
 
-    virtual void addToGameMap();
-    virtual void removeFromGameMap();
+    virtual void addToGameMap() override;
+    virtual void removeFromGameMap() override;
 
     static Trap* getTrapFromStream(GameMap* gameMap, std::istream &is);
     static Trap* getTrapFromPacket(GameMap* gameMap, ODPacket &is);
@@ -150,8 +182,7 @@ public:
 
     static int costPerTile(TrapType t);
 
-    // Functions which can be overridden by child classes.
-    virtual void doUpkeep();
+    virtual void doUpkeep() override;
 
     virtual bool shoot(Tile* tile)
     { return true; }
@@ -162,7 +193,6 @@ public:
     //! \brief Sets the name, seat and associates the given tiles with the trap
     void setupTrap(const std::string& name, Seat* seat, const std::vector<Tile*>& tiles);
 
-    virtual void addCoveredTile(Tile* t, double nHP);
     virtual bool removeCoveredTile(Tile* t);
     virtual void updateActiveSpots();
 
@@ -178,20 +208,19 @@ public:
     virtual bool shouldSetCoveringTileDirty(Seat* seat, Tile* tile)
     { return false; }
 
-    /*! \brief Exports the headers needed to recreate the Trap. It allows to extend Traps as much as wanted.
-     * The content of the Trap will be exported by exportToPacket.
-     */
-    virtual void exportHeadersToStream(std::ostream& os) override;
-    virtual void exportHeadersToPacket(ODPacket& os) override;
-    //! \brief Exports the data of the Trap
-    virtual void exportToStream(std::ostream& os) const override;
-    virtual void importFromStream(std::istream& is) override;
-    virtual void exportToPacket(ODPacket& os) const override;
-    virtual void importFromPacket(ODPacket& is) override;
+    virtual void restoreInitialEntityState() override;
+
+    virtual bool isTileVisibleForSeat(Tile* tile, Seat* seat) const override;
+
+    virtual void exportHeadersToStream(std::ostream& os) const override;
+    virtual void exportTileDataToStream(std::ostream& os, Tile* tile, TileData* tileData) const override;
+    virtual void importTileDataFromStream(std::istream& is, Tile* tile, TileData* tileData) override;
 
     static std::string getTrapStreamFormat();
 
 protected:
+    virtual TrapTileData* createTileData(Tile* tile) override;
+
     virtual RenderedMovableEntity* notifyActiveSpotCreated(Tile* tile);
     virtual TrapEntity* getTrapEntity(Tile* tile) = 0;
     virtual void notifyActiveSpotRemoved(Tile* tile);
@@ -207,8 +236,9 @@ protected:
     double mMinDamage;
     double mMaxDamage;
 
-    //! \brief Tells the current reloading time left for each tiles and whether it is activated.
-    std::map<Tile*, TrapTileInfo> mTrapTiles;
+    //! List of traps destroyed but with at least 1 player having vision. They will
+    //! get removed when vision is gained by every player having seen it before destruction
+    std::vector<RenderedMovableEntity*> mTrapEntitiesWaitingRemove;
 };
 
 #endif // TRAP_H

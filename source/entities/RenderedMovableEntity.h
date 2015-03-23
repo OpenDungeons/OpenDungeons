@@ -41,8 +41,8 @@ public:
 
     static const std::string RENDEREDMOVABLEENTITY_PREFIX;
 
-    virtual void addToGameMap();
-    virtual void removeFromGameMap();
+    virtual void addToGameMap() override;
+    virtual void removeFromGameMap() override;
 
     bool getHideCoveredTile() const
     { return mHideCoveredTile; }
@@ -76,6 +76,12 @@ public:
 
     virtual void pickup();
     virtual void drop(const Ogre::Vector3& v);
+
+    //! Notify the RenderedMovableEntity that it is asked to be removed. If it returns
+    //! true, it can be removed. Otherwise, that means that it should not. That allows
+    //! to use PersistentObjects that are visible even when vision is lost.
+    virtual bool notifyRemoveAsked()
+    { return true; }
 
     //! \brief Exports the data of the RenderedMovableEntity
     virtual void exportToStream(std::ostream& os) const override;

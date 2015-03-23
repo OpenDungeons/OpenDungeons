@@ -21,6 +21,30 @@
 #include "entities/TreasuryObject.h"
 #include "rooms/Room.h"
 
+class RoomTreasuryTileData : public TileData
+{
+public:
+    RoomTreasuryTileData() :
+        TileData(),
+        mGoldInTile(0)
+    {}
+
+    RoomTreasuryTileData(const RoomTreasuryTileData* roomTreasuryTileData) :
+        TileData(roomTreasuryTileData),
+        mGoldInTile(roomTreasuryTileData->mGoldInTile),
+        mMeshOfTile(roomTreasuryTileData->mMeshOfTile)
+    {}
+
+    virtual ~RoomTreasuryTileData()
+    {}
+
+    virtual RoomTreasuryTileData* cloneTileData() const override
+    { return new RoomTreasuryTileData(this); }
+
+    int mGoldInTile;
+    std::string mMeshOfTile;
+};
+
 class RoomTreasury: public Room
 {
     friend class ODClient;
@@ -31,8 +55,6 @@ public:
     { return RoomType::treasury; }
 
     // Functions overriding virtual functions in the Room base class.
-    void absorbRoom(Room *r);
-    void addCoveredTile(Tile* t, double nHP);
     bool removeCoveredTile(Tile* t);
 
     // Functions specific to this class.
@@ -47,6 +69,7 @@ public:
     void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity);
 
 protected:
+    RoomTreasuryTileData* createTileData(Tile* tile) override;
     // Because treasury do not use active spots, we don't want the default
     // behaviour (removing the active spot tile) as it could result in removing an
     // unwanted treasury
@@ -54,10 +77,7 @@ protected:
     {}
 
 private:
-    void updateMeshesForTile(Tile *t);
-
-    std::map<Tile*, int> mGoldInTile;
-    std::map<Tile*, std::string> mMeshOfTile;
+    void updateMeshesForTile(Tile* tile, RoomTreasuryTileData* roomTreasuryTileData);
     bool mGoldChanged;
 };
 

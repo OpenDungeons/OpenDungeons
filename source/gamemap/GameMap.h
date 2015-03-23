@@ -484,6 +484,9 @@ public:
     //! RenderManager has finished to render every object inside.
     void processDeletionQueues();
 
+    //! \brief Adds and removes the active objects queued
+    void processActiveObjectsChanges();
+
     void fillBuildableTilesAndPriceForPlayerInArea(int x1, int y1, int x2, int y2,
         Player* player, RoomType type, std::vector<Tile*>& tiles, int& goldRequired);
 

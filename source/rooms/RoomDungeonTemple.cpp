@@ -24,6 +24,7 @@
 #include "entities/CreatureSound.h"
 #include "entities/PersistentObject.h"
 #include "entities/ResearchEntity.h"
+#include "entities/Tile.h"
 #include "game/Player.h"
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
@@ -44,6 +45,30 @@ void RoomDungeonTemple::updateActiveSpots()
     // We don't update the active spots the same way as only the central tile is needed.
     if (getGameMap()->isInEditorMode())
         updateTemplePosition();
+    else
+    {
+        if(mTempleObject == nullptr)
+        {
+            // We check if the temple already exists (that can happen if it has
+            // been restored after restoring a saved game)
+            if(mBuildingObjects.empty())
+                updateTemplePosition();
+            else
+            {
+                for(std::pair<Tile* const, RenderedMovableEntity*>& p : mBuildingObjects)
+                {
+                    if(p.second == nullptr)
+                        continue;
+
+                    // We take the first RenderedMovableEntity. Note that we cannot use
+                    // the central tile because after saving a game, the central tile may
+                    // not be the same if some tiles have been destroyed
+                    mTempleObject = p.second;
+                    break;
+                }
+            }
+        }
+    }
 }
 
 void RoomDungeonTemple::updateTemplePosition()
@@ -62,12 +87,6 @@ void RoomDungeonTemple::updateTemplePosition()
 
     mTempleObject = new PersistentObject(getGameMap(), getName(), "DungeonTempleObject", centralTile, 0.0, false);
     addBuildingObject(centralTile, mTempleObject);
-}
-
-void RoomDungeonTemple::createMeshLocal()
-{
-    Room::createMeshLocal();
-    updateTemplePosition();
 }
 
 void RoomDungeonTemple::destroyMeshLocal()
@@ -117,4 +136,37 @@ void RoomDungeonTemple::notifyCarryingStateChanged(Creature* carrier, GameEntity
     getSeat()->addResearch(researchEntity->getResearchType());
     researchEntity->removeFromGameMap();
     researchEntity->deleteYourself();
+}
+
+void RoomDungeonTemple::restoreInitialEntityState()
+{
+    // We need to use seats with vision before calling Room::restoreInitialEntityState
+    // because it will empty the list
+    if(mTempleObject == nullptr)
+    {
+        OD_ASSERT_TRUE_MSG(false, "roomDungeonTemple=" + getName());
+        return;
+    }
+
+    Tile* tileTempleObject = mTempleObject->getPositionTile();
+    if(tileTempleObject == nullptr)
+    {
+        OD_ASSERT_TRUE_MSG(false, "roomDungeonTemple=" + getName() + ", mTempleObject=" + mTempleObject->getName());
+        return;
+    }
+    TileData* tileData = mTileData[tileTempleObject];
+    if(tileData == nullptr)
+    {
+        OD_ASSERT_TRUE_MSG(false, "roomDungeonTemple=" + getName() + ", tile=" + Tile::displayAsString(tileTempleObject));
+        return;
+    }
+
+    if(!tileData->mSeatsVision.empty())
+        mTempleObject->notifySeatsWithVision(tileData->mSeatsVision);
+
+    // If there are no covered tile, the temple object is not working
+    if(numCoveredTiles() == 0)
+        mTempleObject->notifyRemoveAsked();
+
+    Room::restoreInitialEntityState();
 }

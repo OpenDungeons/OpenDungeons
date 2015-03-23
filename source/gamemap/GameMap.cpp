@@ -169,7 +169,7 @@ GameMap::~GameMap()
 bool GameMap::isInEditorMode() const
 {
     if (isServerGameMap())
-        return (ODServer::getSingleton().getServerMode() == ODServer::ServerMode::ModeEditor);
+        return (ODServer::getSingleton().getServerMode() == ServerMode::ModeEditor);
 
     return (ODFrameListener::getSingleton().getModeManager()->getCurrentModeTypeExceptConsole() == ModeManager::EDITOR);
 }
@@ -932,6 +932,7 @@ void GameMap::createAllEntities()
     for (Room* room : mRooms)
     {
         room->createMesh();
+        room->updateActiveSpots();
         entities.push_back(room);
     }
 
@@ -939,6 +940,7 @@ void GameMap::createAllEntities()
     for (Trap* trap : mTraps)
     {
         trap->createMesh();
+        trap->updateActiveSpots();
         entities.push_back(trap);
     }
 
@@ -956,17 +958,6 @@ void GameMap::createAllEntities()
         entity->restoreInitialEntityState();
     }
 
-    // Then, we can create active spots
-    // Note that this have to be done after restoring entities states because some
-    // restored might be active spots
-    for (Room* room : mRooms)
-    {
-        room->updateActiveSpots();
-    }
-    for (Trap* trap : mTraps)
-    {
-        trap->updateActiveSpots();
-    }
     LogManager::getSingleton().logMessage("entities created");
 }
 
@@ -1122,26 +1113,7 @@ unsigned long int GameMap::doMiscUpkeep()
         ++activeObjectCount;
     }
 
-    // We add the queued active objects
-    while (!mActiveObjectsToAdd.empty())
-    {
-        GameEntity* ge = mActiveObjectsToAdd.front();
-        mActiveObjectsToAdd.pop_front();
-        mActiveObjects.push_back(ge);
-    }
-
-    // We remove the queued active objects
-    while (!mActiveObjectsToRemove.empty())
-    {
-        GameEntity* ge = mActiveObjectsToRemove.front();
-        mActiveObjectsToRemove.pop_front();
-        std::vector<GameEntity*>::iterator it = std::find(mActiveObjects.begin(), mActiveObjects.end(), ge);
-        OD_ASSERT_TRUE_MSG(it != mActiveObjects.end(), "name=" + ge->getName());
-        if(it != mActiveObjects.end())
-            mActiveObjects.erase(it);
-    }
-
-    // Carry out the upkeep round for each seat.  This means recomputing how much gold is
+    // Carry out the upkeep round for each seat. This means recomputing how much gold is
     // available in their treasuries, how much mana they gain/lose during this turn, etc.
     for (Seat* seat : mSeats)
     {
@@ -2349,6 +2321,28 @@ void GameMap::processDeletionQueues()
     }
 }
 
+void GameMap::processActiveObjectsChanges()
+{
+    // We add the queued active objects
+    while (!mActiveObjectsToAdd.empty())
+    {
+        GameEntity* ge = mActiveObjectsToAdd.front();
+        mActiveObjectsToAdd.pop_front();
+        mActiveObjects.push_back(ge);
+    }
+
+    // We remove the queued active objects
+    while (!mActiveObjectsToRemove.empty())
+    {
+        GameEntity* ge = mActiveObjectsToRemove.front();
+        mActiveObjectsToRemove.pop_front();
+        std::vector<GameEntity*>::iterator it = std::find(mActiveObjects.begin(), mActiveObjects.end(), ge);
+        OD_ASSERT_TRUE_MSG(it != mActiveObjects.end(), "name=" + ge->getName());
+        if(it != mActiveObjects.end())
+            mActiveObjects.erase(it);
+    }
+}
+
 void GameMap::refreshBorderingTilesOf(const std::vector<Tile*>& affectedTiles)
 {
     // Add the tiles which border the affected region to the affectedTiles vector since they may need to have their meshes changed.
@@ -2475,7 +2469,7 @@ std::string GameMap::nextUniqueNameCreature(const std::string& className)
     {
         ++mUniqueNumberCreature;
         ret = className + Ogre::StringConverter::toString(mUniqueNumberCreature);
-    } while(getAnimatedObject(ret) != nullptr);
+    } while(getCreature(ret) != nullptr);
     return ret;
 }
 
@@ -2486,7 +2480,7 @@ std::string GameMap::nextUniqueNameRoom(const std::string& meshName)
     {
         ++mUniqueNumberRoom;
         ret = meshName + Ogre::StringConverter::toString(mUniqueNumberRoom);
-    } while(getAnimatedObject(ret) != nullptr);
+    } while(getRoomByName(ret) != nullptr);
     return ret;
 }
 
@@ -2497,7 +2491,7 @@ std::string GameMap::nextUniqueNameRenderedMovableEntity(const std::string& base
     {
         ++mUniqueNumberRenderedMovableEntity;
         ret = RenderedMovableEntity::RENDEREDMOVABLEENTITY_PREFIX + baseName + "_" + Ogre::StringConverter::toString(mUniqueNumberRenderedMovableEntity);
-    } while(getAnimatedObject(ret) != nullptr);
+    } while(getRenderedMovableEntity(ret) != nullptr);
     return ret;
 }
 
@@ -2508,7 +2502,7 @@ std::string GameMap::nextUniqueNameTrap(const std::string& meshName)
     {
         ++mUniqueNumberTrap;
         ret = meshName + "_" + Ogre::StringConverter::toString(mUniqueNumberTrap);
-    } while(getAnimatedObject(ret) != nullptr);
+    } while(getTrapByName(ret) != nullptr);
     return ret;
 }
 
@@ -2519,7 +2513,7 @@ std::string GameMap::nextUniqueNameMapLight()
     {
         ++mUniqueNumberMapLight;
         ret = MapLight::MAPLIGHT_NAME_PREFIX + Ogre::StringConverter::toString(mUniqueNumberMapLight);
-    } while(getAnimatedObject(ret) != nullptr);
+    } while(getMapLight(ret) != nullptr);
     return ret;
 }
 

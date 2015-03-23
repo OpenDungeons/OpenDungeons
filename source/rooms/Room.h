@@ -62,7 +62,7 @@ public:
     { return GameEntityType::room; }
 
     virtual void addToGameMap();
-    virtual void removeFromGameMap();
+    virtual void removeFromGameMap() override;
 
     virtual void absorbRoom(Room* r);
 
@@ -74,13 +74,9 @@ public:
     /*! \brief Exports the headers needed to recreate the Room. It allows to extend Room as much as wanted.
      * The content of the Room will be exported by exportToPacket.
      */
-    virtual void exportHeadersToStream(std::ostream& os) override;
-    virtual void exportHeadersToPacket(ODPacket& os) override;
-    //! \brief Exports the data of the Room
-    virtual void exportToStream(std::ostream& os) const override;
-    virtual void importFromStream(std::istream& is) override;
-    virtual void exportToPacket(ODPacket& os) const override;
-    virtual void importFromPacket(ODPacket& is) override;
+    virtual void exportHeadersToStream(std::ostream& os) const override;
+    void exportTileDataToStream(std::ostream& os, Tile* tile, TileData* tileData) const;
+    void importTileDataFromStream(std::istream& is, Tile* tile, TileData* tileData);
 
     virtual RoomType getType() const = 0;
 
@@ -90,11 +86,6 @@ public:
     static int costPerTile(RoomType t);
 
     static bool compareTile(Tile* tile1, Tile* tile2);
-
-    //! \brief Carry out per turn upkeep on the room.
-    //! Do any generic upkeep here (i.e. any upkeep that all room types should do).
-    //! All derived classes of room should call this function first during their doUpkeep() routine.
-    virtual void doUpkeep();
 
     //! \brief Adds a creature using the room. If the creature is allowed, true is returned
     virtual bool addCreatureUsingRoom(Creature* c);
@@ -114,6 +105,10 @@ public:
     //! \brief Checks on the neighboor tiles of the room if there are other rooms of the same type/same seat.
     //! if so, it aborbs them
     void checkForRoomAbsorbtion();
+
+    bool canBeRepaired() const;
+
+    virtual void restoreInitialEntityState() override;
 
     static bool sortForMapSave(Room* r1, Room* r2);
 
@@ -141,8 +136,8 @@ protected:
     virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
     virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);
 
-    //! \brief This function will be called when a new room is created if another room has been absorbed.
-    virtual void reorderRoomAfterAbsorbtion();
+    //! \brief This function will be called when reordering room is needed (for example if another room has been absorbed)
+    static void reorderRoomTiles(std::vector<Tile*>& tiles);
 private :
     void activeSpotCheckChange(ActiveSpotPlace place, const std::vector<Tile*>& originalSpotTiles,
         const std::vector<Tile*>& newSpotTiles);

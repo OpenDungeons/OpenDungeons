@@ -137,7 +137,7 @@ void TreasuryObject::pickup()
 
 bool TreasuryObject::tryDrop(Seat* seat, Tile* tile)
 {
-    if (tile->getFullness() > 0.0)
+    if (tile->isFullTile())
         return false;
 
     // In editor mode, we allow to drop an object in dirt, claimed or gold tiles
