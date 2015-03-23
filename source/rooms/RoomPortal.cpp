@@ -119,7 +119,7 @@ void RoomPortal::doUpkeep()
     // Randomly choose to spawn a creature.
     const double maxCreatures = ConfigManager::getSingleton().getMaxCreaturesPerSeat();
     // Count how many creatures are controlled by this seat
-    double numCreatures = getGameMap()->getCreaturesBySeat(getSeat()).size();
+    double numCreatures = getGameMap()->getNbFightersForSeat(getSeat());
     double targetProbability = powl((maxCreatures - numCreatures) / maxCreatures, 1.5);
     if (Random::Double(0.0, 1.0) <= targetProbability)
         spawnCreature();
