@@ -16,14 +16,15 @@ material Grimoire : RTSS/NormalMapping_MultiPass
              }
         }
 
-    pass decal
+        pass decal
         {
+            ambient 0.8 0.8 0.8 0.8 0.8
+            diffuse 0.65 0.65 0.65 0.65 0.65
+            specular 0.01 0.01 0.01 0.01 0.01
+            emissive 0.05 0.05 0.05 0.05 0.05
+
             texture_unit decalmap
             {
-		ambient 0.8 0.8 0.8 0.8 0.8
-                diffuse 0.65 0.65 0.65 0.65 0.65
-                specular 0.01 0.01 0.01 0.01 0.01
-                emissive 0.05 0.05 0.05 0.05 0.05
                 texture Grimoire.png
                 tex_address_mode wrap
                 scale 1.0 1.0
