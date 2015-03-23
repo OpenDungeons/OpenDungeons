@@ -429,7 +429,8 @@ public:
     int addGoldToSeat(int gold, int seatId);
 
     //! \brief Returns the number of workers the given seat controls
-    int getNbWorkersForSeat(Seat* seat);
+    int getNbWorkersForSeat(Seat* seat) const;
+    int getNbFightersForSeat(Seat* seat) const;
 
     //! \brief Searches for a worker owned by the seat for path finding
     Creature* getWorkerForPathFinding(Seat* seat);

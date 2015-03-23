@@ -284,7 +284,7 @@ void ODFrameListener::refreshPlayerDisplay(const std::string& goalsDisplayString
 
     tempWindow = mGui->getGuiSheet(Gui::inGameMenu)->getChild(Gui::DISPLAY_CREATURES);
     tempSS.str("");
-    tempSS << mySeat->getNumCreaturesControlled() << "/" << ConfigManager::getSingleton().getMaxCreaturesPerSeat();
+    tempSS << mySeat->getNumCreaturesFighters() << "/" << ConfigManager::getSingleton().getMaxCreaturesPerSeat();
     tempWindow->setText(tempSS.str());
 
     tempWindow = mGui->getGuiSheet(Gui::inGameMenu)->getChild(Gui::DISPLAY_GOLD);

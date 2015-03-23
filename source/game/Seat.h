@@ -167,8 +167,8 @@ public:
     inline double getManaDelta() const
     { return mManaDelta; }
 
-    inline int getNumCreaturesControlled() const
-    { return mNumCreaturesControlled; }
+    inline int getNumCreaturesFighters() const
+    { return mNumCreaturesFighters; }
 
     bool takeMana(double mana);
 
@@ -375,8 +375,8 @@ private:
     //! \brief The total amount of gold coins mined by workers under this seat's control.
     int mGoldMined;
 
-    //! \brief The number of living creatures under this seat's control
-    int mNumCreaturesControlled;
+    //! \brief The number of living creatures fighters under this seat's control
+    int mNumCreaturesFighters;
 
     //! \brief The actual color that this color index translates into.
     std::string mColorId;

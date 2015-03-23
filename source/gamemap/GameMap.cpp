@@ -1019,12 +1019,18 @@ void GameMap::doTurn()
     for(Creature* creature : mCreatures)
     {
         // Check to see if the creature has died.
-        if (creature->getHP() > 0.0)
-        {
-            Seat *tempSeat = creature->getSeat();
-            if(tempSeat != nullptr)
-                ++(tempSeat->mNumCreaturesControlled);
-        }
+        if (creature->getHP() <= 0.0)
+            continue;
+
+        // We only count fighters
+        if (creature->getDefinition()->isWorker())
+            continue;
+
+        Seat *tempSeat = creature->getSeat();
+        if(tempSeat == nullptr)
+            continue;
+
+        ++(tempSeat->mNumCreaturesFighters);
     }
 
     std::cout << "During this turn there were " << mNumCallsTo_path
@@ -1060,7 +1066,7 @@ unsigned long int GameMap::doMiscUpkeep()
             addWinningSeat(seat);
 
         // Set the creatures count to 0. It will be reset by the next count in doTurn()
-        seat->mNumCreaturesControlled = 0;
+        seat->mNumCreaturesFighters = 0;
     }
 
     // At each upkeep, we re-compute tiles with vision
@@ -1165,21 +1171,44 @@ unsigned long int GameMap::doMiscUpkeep()
     return timeTaken;
 }
 
-int GameMap::getNbWorkersForSeat(Seat* seat)
+int GameMap::getNbWorkersForSeat(Seat* seat) const
 {
-    int nbWorkers = 0;
+    int ret = 0;
+    for (Creature* creature : mCreatures)
+    {
+        if(creature->getSeat() != seat)
+            continue;
+
+        if(creature->getHP() <= 0)
+            continue;
+
+        if(!creature->getDefinition()->isWorker())
+            continue;
+
+        ++ret;
+    }
+
+    return ret;
+}
+
+int GameMap::getNbFightersForSeat(Seat* seat) const
+{
+    int ret = 0;
     for (Creature* creature : mCreatures)
     {
         if (creature->getSeat() != seat)
             continue;
 
-        if (!creature->getDefinition()->isWorker())
+        if(creature->getHP() <= 0)
             continue;
 
-        ++nbWorkers;
+        if (creature->getDefinition()->isWorker())
+            continue;
+
+        ++ret;
     }
 
-    return nbWorkers;
+    return ret;
 }
 
 void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
