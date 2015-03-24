@@ -1346,18 +1346,17 @@ void GameMode::createHelpWindow()
     if (mHelpWindow != nullptr)
         return;
 
-    CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
     CEGUI::Window* rootWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow();
 
-    mHelpWindow = wmgr->createWindow("OD/FrameWindow", std::string("GameHelpWindow"));
+    mHelpWindow = rootWindow->createChild("OD/FrameWindow", std::string("GameHelpWindow"));
     mHelpWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.12, 0)));
     mHelpWindow->setSize(CEGUI::USize(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.7, 0)));
     mHelpWindow->setProperty("AlwaysOnTop", "True");
     mHelpWindow->setProperty("SizingEnabled", "False");
 
-    CEGUI::Window* textWindow = wmgr->createWindow("OD/StaticText", "TextDisplay");
+    CEGUI::Window* textWindow = mHelpWindow->createChild("OD/StaticText", "TextDisplay");
     textWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 20), CEGUI::UDim(0, 30)));
-    textWindow->setSize(CEGUI::USize(CEGUI::UDim(1.0, -40), CEGUI::UDim(1.0, -30)));
+    textWindow->setSize(CEGUI::USize(CEGUI::UDim(1.0, -40), CEGUI::UDim(0.95, -40)));
     textWindow->setProperty("FrameEnabled", "False");
     textWindow->setProperty("BackgroundEnabled", "False");
     textWindow->setProperty("VertFormatting", "TopAligned");
@@ -1373,31 +1372,40 @@ void GameMode::createHelpWindow()
     childWindow = mHelpWindow->getChild("__auto_titlebar__");
     childWindow->setText("OpenDungeons Quick Help");
 
-    mHelpWindow->addChild(textWindow);
-    rootWindow->addChild(mHelpWindow);
-
+    const std::string formatTitleOn = "[font='MedievalSharp-12'][colour='CCBBBBFF']";
+    const std::string formatTitleOff = "[font='MedievalSharp-10'][colour='FFFFFFFF']";
     std::stringstream txt("");
     txt << "Welcome to the OpenDungeons quick help!" << std::endl << std::endl
-        << "To move the camera: Use the arrow keys or W,A,S,D." << std::endl
-        << "To rotate the camera, you can use either: A, or E." << std::endl
-        << "Use the mouse wheel to go lower or higher, or Home, End." << std::endl
-        << "And finally, you can use Page Up, Page Down, to look up or down." << std::endl << std::endl;
-    txt << "You can left-click on the map's dirt walls to mark them. Your workers will then "
-        << "dig them for you. They will also claim tiles, turning them into stone with your color at their center." << std::endl
-        << "Certain blocks are made of gold. You should look for them and make you workers dig those tiles in priority."
-        << "Once you have enough gold, you can build room tiles that will permit to make your fighter creatures do many things "
-        << "such as sleeping, eating, training, ... Certain rooms also attract new creatures types." << std::endl;
-    txt << "Gold taken by your workers is put in your treasury rooms. If you haven't any, the first treasury room square tile is free of charge..."
-        << std::endl << std::endl
-        << "You can also left-click on one of your creatures to pick it up and right click somewhere else to put it back. "
+        << formatTitleOn << "Camera Controls" << formatTitleOff << std::endl
+        << "Camera translation: Arrow keys or WASD." << std::endl
+        << "Camera rotation: A (left) or E (right)." << std::endl
+        << "Camera zooming: Mouse wheel, Home (zoom out) or End (zoom in)." << std::endl
+        << "Camera tilting: Page Up (look up), Page Down (look down)." << std::endl << std::endl;
+    txt << formatTitleOn << "Keeper Hand Controls" << formatTitleOff << std::endl
+        << "Mouse left click: Select an action, Confirm an action." << std::endl
+        << "Mouse right click: Unselect an action, Slap a creature (grin)." << std::endl
+        << "Mouse middle click (on a creature): Show debugging information." << std::endl
+        << "You can select multiple tiles for some actions by left clicking and dragging the mouse." << std::endl << std::endl;
+    txt << formatTitleOn << "Basic gameplay" << formatTitleOff << std::endl
+        << "As an overlord of the underworld, your evil plan is to build a strong dungeon and to crush your neighbours." << std::endl
+        << "To do so, you need to deploy your shadow arts to their full extent:" << std::endl
+        << "  - Summon workers to do the dirty job: dirt digging and gold mining. Workers will also claim ground "
+        << "and wall tiles for your glory when they have nothing better to do. You can order workers around by marking "
+        << "dirt and gold tiles for digging and mining." << std::endl
+        << "  - Build rooms on claimed tiles. Building rooms costs gold, so make sure to have at least one treasury tile "
+        << "in place (thanks to your evil tricks, the first tile is free!) so that your workers can store the gold they mine." << std::endl
+        << "Be sure to build a dormitory and a hatchery to fulfill your creatures' lowest needs, and a library to research "
+        << "new buildings, spells and traps. Varied buildings, wealth and great dungeons will attract more powerful creatures." << std::endl
+        << "  - Once you have a workshop, set traps to protect your dungeon - your creatures will then craft them at the workshop." << std::endl
+        << "  - Use spells to macro-manage your creatures more efficiently." << std::endl << std::endl;
+    txt << formatTitleOn << "Tips and tricks" << formatTitleOff << std::endl
+        << "You can left-click on one of your creatures to pick it up and right click somewhere else to put it back. "
         << "Very useful to help a creature in battle or force a worker to do a specific task..." << std::endl
         << "Note that you can place workers on any of your claimed tiles and unclaimed dirt tiles, "
-        << "but you can place fighters only on claimed tiles and nothing at all on enemy claimed tiles." << std::endl;
-    txt << "Your workers will also fortify walls, turning them into your color. Those cannot be broken by enemies until no more "
-        << "claimed tiles around are of your color." << std::endl
-        << "Last but not least, you can also grab gold left on the floor once your workers have claimed the corresponding tile, "
-        << "and you can build rooms/drop creatures on allied claimed tiles (when in the same team). Don't forget you can also build traps!";
-    txt << std::endl << std::endl << "Be evil, be cunning, your opponents will do the same, and have fun! ;)";
+        << "but you can only place fighters on allied claimed tiles and nothing at all on enemy claimed tiles." << std::endl
+        << "Your workers will fortify walls, turning them into your color. Those cannot be broken by enemies until no more "
+        << "claimed tiles around are of your color." << std::endl;
+    txt << std::endl << std::endl << "Be evil, be cunning, your opponents will do the same... and have fun! ;)" << std::endl;
     textWindow->setText(txt.str());
 }
 
