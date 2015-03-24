@@ -1369,8 +1369,8 @@ void GameMode::createHelpWindow()
     childWindow = mHelpWindow->getChild("__auto_titlebar__");
     childWindow->setText("OpenDungeons Quick Help");
 
-    std::string formatTitleOn = "[font='MedievalSharp-12'][colour='CCBBBBFF']";
-    std::string formatTitleOff = "[font='MedievalSharp-10'][colour='FFFFFFFF']";
+    const std::string formatTitleOn = "[font='MedievalSharp-12'][colour='CCBBBBFF']";
+    const std::string formatTitleOff = "[font='MedievalSharp-10'][colour='FFFFFFFF']";
     std::stringstream txt("");
     txt << "Welcome to the OpenDungeons quick help!" << std::endl << std::endl
         << formatTitleOn << "Camera Controls" << formatTitleOff << std::endl
@@ -1399,7 +1399,7 @@ void GameMode::createHelpWindow()
         << "You can left-click on one of your creatures to pick it up and right click somewhere else to put it back. "
         << "Very useful to help a creature in battle or force a worker to do a specific task..." << std::endl
         << "Note that you can place workers on any of your claimed tiles and unclaimed dirt tiles, "
-        << "but you can only place fighters only on allied claimed tiles and nothing at all on enemy claimed tiles." << std::endl
+        << "but you can only place fighters on allied claimed tiles and nothing at all on enemy claimed tiles." << std::endl
         << "Your workers will fortify walls, turning them into your color. Those cannot be broken by enemies until no more "
         << "claimed tiles around are of your color." << std::endl;
     txt << std::endl << std::endl << "Be evil, be cunning, your opponents will do the same... and have fun! ;)" << std::endl;
