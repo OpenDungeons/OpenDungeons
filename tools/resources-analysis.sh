@@ -2,6 +2,41 @@
 
 scan_meshes=false
 scan_textures=false
+while [[ $# -ge 1 ]]; do
+    key="$1"
+    case $key in
+        --help|-h)
+        echo "Usage: <script> [options]"
+        echo -e "\nAvailable options:"
+        echo -e "\t--help, -h\t\tThis usage explanation."
+        echo -e "\t--all, -a\t\tRun all tests."
+        echo -e "\t--scan-meshes, -m\tScan meshes to link them with materials."
+        echo -e "\t--scan-textures, -t\tScan textures to link them with materials."
+        echo ""
+        shift
+        ;;
+        --all|-a)
+        echo "=== Scanning both mesh and textures files ==="
+        scan_meshes=true
+        scan_textures=true
+        shift
+        ;;
+        --scan-meshes|-m)
+        echo "=== Scanning mesh files ==="
+        scan_meshes=true
+        shift
+        ;;
+        --scan-textures|-t)
+        echo "=== Scanning texture files ==="
+        scan_textures=true
+        shift
+        ;;
+        *)
+        echo "Unknown option, use --help for usage instructions."
+        ;;
+esac
+shift
+done
 
 if [ ! -d source ]; then
     echo "Please run this script for the root of the repository."
