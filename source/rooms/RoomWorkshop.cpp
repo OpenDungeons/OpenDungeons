@@ -32,9 +32,10 @@
 #include "utils/LogManager.h"
 #include "utils/Random.h"
 
-const Ogre::Real X_OFFSET_CREATURE = 0.5;
-const Ogre::Real Y_OFFSET_CREATURE = 0.3;
-const Ogre::Real OFFSET_SPOT = 0.3;
+const Ogre::Real X_OFFSET_CREATURE = 0.7;
+const Ogre::Real Y_OFFSET_CREATURE = 0.0;
+const Ogre::Real X_OFFSET_SPOT = 0.0;
+const Ogre::Real Y_OFFSET_SPOT = 0.2;
 
 RoomWorkshop::RoomWorkshop(GameMap* gameMap) :
     Room(gameMap),
@@ -52,11 +53,10 @@ RenderedMovableEntity* RoomWorkshop::notifyActiveSpotCreated(ActiveSpotPlace pla
         {
             RoomWorkshopTileData* roomWorkshopTileData = static_cast<RoomWorkshopTileData*>(mTileData[tile]);
             roomWorkshopTileData->mCanHaveCraftedTrap = false;
-            Ogre::Real x = static_cast<Ogre::Real>(tile->getX());
-            Ogre::Real y = static_cast<Ogre::Real>(tile->getY());
-            y += OFFSET_SPOT;
+            Ogre::Real x = static_cast<Ogre::Real>(tile->getX()) + X_OFFSET_SPOT;
+            Ogre::Real y = static_cast<Ogre::Real>(tile->getY()) + Y_OFFSET_SPOT;
             mUnusedSpots.push_back(tile);
-            return loadBuildingObject(getGameMap(), "WorkshopMachine1", tile, x, y, 45.0, false);
+            return loadBuildingObject(getGameMap(), "WorkshopMachine1", tile, x, y, 30.0, false);
         }
         case ActiveSpotPlace::activeSpotLeft:
         {

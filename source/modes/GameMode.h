@@ -162,7 +162,8 @@ private:
 
     //! \brief Called at each frame. It checks if the Gui should be refreshed (for example,
     //! if a research is done) and, if yes, refreshes accordingly.
-    void refreshGuiResearch();
+    //! \param forceRefresh Refresh the gui even if no changes was declared by the local player Seat.
+    void refreshGuiResearch(bool forceRefresh = false);
 
     //! \brief Set the state of the given research button accordingly
     //! to the research type given.
