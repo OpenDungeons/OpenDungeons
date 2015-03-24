@@ -276,6 +276,9 @@ void GameMode::activate()
     {
         mGameMap->setGamePaused(false);
     }
+
+    // Update available options
+    refreshGuiResearch(true);
 }
 
 bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
@@ -1507,10 +1510,10 @@ void GameMode::refreshResearchButtonState(ResearchType resType)
     }
 }
 
-void GameMode::refreshGuiResearch()
+void GameMode::refreshGuiResearch(bool forceRefresh)
 {
     Seat* localPlayerSeat = mGameMap->getLocalPlayer()->getSeat();
-    if(!localPlayerSeat->getGuiResearchNeedsRefresh())
+    if(!forceRefresh && !localPlayerSeat->getGuiResearchNeedsRefresh())
         return;
 
     localPlayerSeat->guiResearchRefreshed();
