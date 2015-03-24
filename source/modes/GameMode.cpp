@@ -1343,18 +1343,17 @@ void GameMode::createHelpWindow()
     if (mHelpWindow != nullptr)
         return;
 
-    CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
     CEGUI::Window* rootWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow();
 
-    mHelpWindow = wmgr->createWindow("OD/FrameWindow", std::string("GameHelpWindow"));
+    mHelpWindow = rootWindow->createChild("OD/FrameWindow", std::string("GameHelpWindow"));
     mHelpWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.12, 0)));
     mHelpWindow->setSize(CEGUI::USize(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.7, 0)));
     mHelpWindow->setProperty("AlwaysOnTop", "True");
     mHelpWindow->setProperty("SizingEnabled", "False");
 
-    CEGUI::Window* textWindow = wmgr->createWindow("OD/StaticText", "TextDisplay");
+    CEGUI::Window* textWindow = mHelpWindow->createChild("OD/StaticText", "TextDisplay");
     textWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 20), CEGUI::UDim(0, 30)));
-    textWindow->setSize(CEGUI::USize(CEGUI::UDim(1.0, -40), CEGUI::UDim(1.0, -30)));
+    textWindow->setSize(CEGUI::USize(CEGUI::UDim(1.0, -40), CEGUI::UDim(0.95, -40)));
     textWindow->setProperty("FrameEnabled", "False");
     textWindow->setProperty("BackgroundEnabled", "False");
     textWindow->setProperty("VertFormatting", "TopAligned");
@@ -1369,9 +1368,6 @@ void GameMode::createHelpWindow()
     // Set the window title
     childWindow = mHelpWindow->getChild("__auto_titlebar__");
     childWindow->setText("OpenDungeons Quick Help");
-
-    mHelpWindow->addChild(textWindow);
-    rootWindow->addChild(mHelpWindow);
 
     std::string formatTitleOn = "[font='MedievalSharp-12'][colour='CCBBBBFF']";
     std::string formatTitleOff = "[font='MedievalSharp-10'][colour='FFFFFFFF']";
