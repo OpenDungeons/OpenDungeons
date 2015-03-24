@@ -953,6 +953,7 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, co
                 pass->setSpecular(color);
                 pass->setAmbient(color);
                 pass->setDiffuse(color);
+                pass->setEmissive(color);
             }
         }
         else if(!playerHasVision)
