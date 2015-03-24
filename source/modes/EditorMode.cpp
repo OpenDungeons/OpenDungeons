@@ -201,7 +201,7 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
     // and look for the first object which is actually a tile.
     Ogre::Vector3 keeperPos;
     Ogre::RaySceneQueryResult& result = ODFrameListener::getSingleton().doRaySceneQuery(arg, keeperPos);
-    RenderManager::getSingleton().moveCursor(keeperPos.x, keeperPos.y);
+    RenderManager::getSingleton().moveWorldCoords(keeperPos.x, keeperPos.y);
 
     for (Ogre::RaySceneQueryResult::iterator itr = result.begin(); itr != result.end(); ++itr)
     {

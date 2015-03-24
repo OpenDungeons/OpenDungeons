@@ -64,7 +64,9 @@ template<> RenderManager* Ogre::Singleton<RenderManager>::msSingleton = nullptr;
 
 const Ogre::Real RenderManager::BLENDER_UNITS_PER_OGRE_UNIT = 10.0f;
 
-const Ogre::Real RenderManager::KEEPER_HAND_Z = 20.0f / RenderManager::BLENDER_UNITS_PER_OGRE_UNIT;
+const Ogre::Real RenderManager::KEEPER_HAND_WORLD_Z = 20.0f / RenderManager::BLENDER_UNITS_PER_OGRE_UNIT;
+
+const Ogre::Real KEEPER_HAND_POS_Z = 10;
 
 RenderManager::RenderManager(Ogre::OverlaySystem* overlaySystem) :
     mHandAnimationState(nullptr),
@@ -73,6 +75,9 @@ RenderManager::RenderManager(Ogre::OverlaySystem* overlaySystem) :
     mHandLight(nullptr),
     mHandSquareSelectorNode(nullptr),
     mHandKeeperMesh(nullptr),
+    mCurrentFOVy(0.0f),
+    mFactorWidth(0.0f),
+    mFactorHeight(0.0f),
     mCreatureTextOverlayDisplayed(false)
 {
     // Use Ogre::SceneType enum instead of string to identify the scene manager type; this is more robust!
@@ -150,14 +155,15 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     mHandAnimationState->setLoop(true);
     mHandAnimationState->setEnabled(true);
 
-    mHandKeeperMesh = mSceneManager->getRootSceneNode()->createChildSceneNode("KeeperHand_node");
-    mHandKeeperMesh->setPosition(0.0f,
-                       -1.0f / BLENDER_UNITS_PER_OGRE_UNIT,
-                       KEEPER_HAND_Z);
-    mHandKeeperMesh->scale(Ogre::Vector3(2.0f / BLENDER_UNITS_PER_OGRE_UNIT,
-                               2.0f / BLENDER_UNITS_PER_OGRE_UNIT,
-                               2.0f / BLENDER_UNITS_PER_OGRE_UNIT));
+    Ogre::OverlayManager& overlayManager = Ogre::OverlayManager::getSingleton();
+    Ogre::Overlay* handKeeperOverlay = overlayManager.create(keeperHandEnt->getName() + "_Ov");
+    mHandKeeperMesh = mSceneManager->createSceneNode(keeperHandEnt->getName() + "_node");
     mHandKeeperMesh->attachObject(keeperHandEnt);
+    mHandKeeperMesh->setScale(0.12f, 0.12f, 0.12f);
+    mHandKeeperMesh->setPosition(0.0f, 0.0f, -KEEPER_HAND_POS_Z);
+    handKeeperOverlay->add3D(mHandKeeperMesh);
+    mHandKeeperMesh->setVisible(true);
+    handKeeperOverlay->show();
 
     //Add a too small to be visible dummy dirt tile to the hand node
     //so that there will allways be a dirt tile "visible"
@@ -175,7 +181,7 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     mHandLight->setType(Ogre::Light::LT_POINT);
     mHandLight->setDiffuseColour(Ogre::ColourValue(0.65, 0.65, 0.45));
     mHandLight->setSpecularColour(Ogre::ColourValue(0.65, 0.65, 0.45));
-    mHandLight->setPosition(0.0f, 0.0f, KEEPER_HAND_Z);
+    mHandLight->setPosition(0.0f, 0.0f, KEEPER_HAND_WORLD_Z);
     mHandLight->setAttenuation(7, 1.0, 0.00, 0.3);
 }
 
@@ -1097,10 +1103,35 @@ std::string RenderManager::setMaterialOpacity(const std::string& materialName, f
     return newMaterialName.str();
 }
 
-void RenderManager::moveCursor(Ogre::Real x, Ogre::Real y)
+void RenderManager::moveCursor(float relX, float relY)
 {
-    mHandKeeperMesh->setPosition(x, y, KEEPER_HAND_Z);
-    mHandLight->setPosition(x, y, KEEPER_HAND_Z);
+    Ogre::Camera* cam = mViewport->getCamera();
+    if(cam->getFOVy() != mCurrentFOVy)
+    {
+        mCurrentFOVy = cam->getFOVy();
+        Ogre::Radian angle = cam->getFOVy() * 0.5f;
+        Ogre::Real tan = Ogre::Math::Tan(angle);
+        Ogre::Real shortestSize = KEEPER_HAND_POS_Z * tan * 2.0f;
+        Ogre::Real width = mViewport->getActualWidth();
+        Ogre::Real height = mViewport->getActualHeight();
+        if(width > height)
+        {
+            mFactorHeight = shortestSize;
+            mFactorWidth = shortestSize * width / height;
+        }
+        else
+        {
+            mFactorWidth = shortestSize;
+            mFactorHeight = shortestSize * height / width;
+        }
+    }
+
+    mHandKeeperMesh->setPosition(mFactorWidth * (relX - 0.5f), mFactorHeight * (0.5f - relY), -KEEPER_HAND_POS_Z);
+}
+
+void RenderManager::moveWorldCoords(Ogre::Real x, Ogre::Real y)
+{
+    mHandLight->setPosition(x, y, KEEPER_HAND_WORLD_Z);
 }
 
 void RenderManager::setHoveredTile(int tileX, int tileY)

@@ -11,6 +11,7 @@ material Keeperhand
             specular 0.0 0.0 0.0 0.5
             emissive 0.0 0.0 0.0 0.5
             scene_blend alpha_blend
+            depth_check off
             depth_write off
             cull_hardware none
             cull_software none

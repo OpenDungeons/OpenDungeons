@@ -53,6 +53,8 @@ Gui::Gui(SoundEffectsManager* soundEffectsManager, const std::string& ceguiLogFi
 
     CEGUI::SchemeManager::getSingleton().createFromFile("OpenDungeonsSkin.scheme");
 
+    renderer.setFrameControlExecutionEnabled(false);
+
     // Needed to get the correct offset when using up to CEGUI 0.8.4
     // We're thus using an empty mouse cursor.
     CEGUI::GUIContext& context = CEGUI::System::getSingleton().getDefaultGUIContext();

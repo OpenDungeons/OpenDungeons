@@ -452,7 +452,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
     Ogre::Vector3 keeperPos;
     Tile* tileClicked = nullptr;
     Ogre::RaySceneQueryResult& result = ODFrameListener::getSingleton().doRaySceneQuery(arg, keeperPos);
-    RenderManager::getSingleton().moveCursor(keeperPos.x, keeperPos.y);
+    RenderManager::getSingleton().moveWorldCoords(keeperPos.x, keeperPos.y);
     for (Ogre::RaySceneQueryResult::iterator itr = result.begin(); itr != result.end(); ++itr)
     {
         if (itr->movable == nullptr)

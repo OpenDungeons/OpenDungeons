@@ -25,6 +25,7 @@
 #include <deque>
 #include <string>
 #include <OgreSingleton.h>
+#include <OgreMath.h>
 
 class GameMap;
 class Building;
@@ -75,12 +76,15 @@ public:
     void setEntityOpacity(Ogre::Entity* ent, float opacity);
 
     //! Beware this should be called on client side only (not from the server thread)
-    void moveCursor(Ogre::Real x, Ogre::Real y);
+    //! moveCursor allows to move the cursor on GUI
+    //!  moveWorldCoords sends the world coords where the map light is
+    void moveCursor(float relX, float relY);
+    void moveWorldCoords(Ogre::Real x, Ogre::Real y);
     void setHoveredTile(int tileX, int tileY);
     void entitySlapped();
 
     static const Ogre::Real BLENDER_UNITS_PER_OGRE_UNIT;
-    static const Ogre::Real KEEPER_HAND_Z;
+    static const Ogre::Real KEEPER_HAND_WORLD_Z;
 
     //! Debug function to be used for dev only. Beware, it should not be called from the server thread
     static std::string consoleListAnimationsForMesh(const std::string& meshName);
@@ -158,6 +162,9 @@ private:
     Ogre::Light* mHandLight;
     Ogre::SceneNode* mHandSquareSelectorNode;
     Ogre::SceneNode* mHandKeeperMesh;
+    Ogre::Radian mCurrentFOVy;
+    Ogre::Real mFactorWidth;
+    Ogre::Real mFactorHeight;
 
     //! \brief True if the creatures are currently displaying their text overlay
     bool mCreatureTextOverlayDisplayed;

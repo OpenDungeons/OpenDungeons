@@ -30,6 +30,7 @@
 #include <OgreWindowEventUtilities.h>
 #include <OgreSingleton.h>
 #include <OgreSceneQuery.h>
+#include <OgreRenderQueueListener.h>
 #include <CEGUI/EventArgs.h>
 
 //Use this define to signify OIS will be used as a DLL
@@ -61,7 +62,8 @@ namespace Ogre
 class ODFrameListener :
         public Ogre::Singleton<ODFrameListener>,
         public Ogre::FrameListener,
-        public Ogre::WindowEventListener
+        public Ogre::WindowEventListener,
+        public Ogre::RenderQueueListener
 {
 
 friend class ODClient;
@@ -90,7 +92,7 @@ public:
     { mShowDebugInfo = !mShowDebugInfo; }
 
     //! \brief Adjust mouse clipping area
-    virtual void windowResized(Ogre::RenderWindow* rw);
+    virtual void windowResized(Ogre::RenderWindow* rw) override;
 
     /*! \brief The main function for the OGRE 3d environment.
      *
@@ -98,10 +100,14 @@ public:
      * giving time to the CPU to handle updates. Hence, we're placing our update logic here
      * to use the CPU while it's less busy and earn performance.
      */
-    bool frameRenderingQueued(const Ogre::FrameEvent& evt);
+    bool frameRenderingQueued(const Ogre::FrameEvent& evt) override;
 
     //! \brief Triggered once a frame rendering has ended.
-    bool frameEnded(const Ogre::FrameEvent& evt);
+    bool frameEnded(const Ogre::FrameEvent& evt) override;
+
+    //! \brief From Ogre::RenderQueueListener
+    void renderQueueStarted(Ogre::uint8 queueGroupId, const Ogre::String& invocation,
+        bool& skipThisInvocation) override;
 
     //! \brief Exit the game.
     bool quit(const CEGUI::EventArgs &e);
