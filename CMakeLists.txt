@@ -28,15 +28,20 @@ endif()
 # Set the data path depending on the platform
 if(WIN32)
     set(OD_DATA_PATH ".")
+    set(OD_PLUGINS_CFG_PATH ".")
 else()
     # Set binary and data install locations if we want to use the installer
     set(OD_BIN_PATH ${CMAKE_INSTALL_PREFIX}/games CACHE PATH "Absolute path to the game binary directory")
     set(OD_DATA_PATH ${CMAKE_INSTALL_PREFIX}/share/games/${PROJECT_NAME} CACHE PATH "Absolute path to the game data directory")
     set(OD_SHARE_PATH ${CMAKE_INSTALL_PREFIX}/share CACHE PATH "Absolute path to the shared data directory (desktop file, icons, etc.)")
+    # Set the plugins.cfg file path to a common but architecture-dependent location.
+    # Because the plugins.cfg Ogre plugins path path may vary depending on the architecture used.
+    set(OD_PLUGINS_CFG_PATH /etc/${PROJECT_NAME} CACHE PATH "Absolute path to the Ogre plugins.cfg file")
 endif()
 
 if(NOT MSVC)
     set(OD_DATA_PATH_FLAG "-DOD_DATA_PATH=\\\"${OD_DATA_PATH}\\\"")
+    set(OD_PLUGINS_CFG_PATH_FLAG "-DOD_PLUGINS_CFG_PATH=\\\"${OD_PLUGINS_CFG_PATH}\\\"")
 endif()
 
 # Where we want the binary
@@ -162,12 +167,15 @@ if(WIN32 AND MSVC)
     set(OD_DATA_PATH_FLAG "/DOD_DATA_PATH=\\\"${OD_DATA_PATH}\\\"")
     set(PLATFORM_C_FLAGS_DEBUG "${PLATFORM_C_FLAGS_DEBUG} ${OD_DATA_PATH_FLAG}")
 
+    set(OD_PLUGINS_CFG_PATH_FLAG "/DOD_PLUGINS_CFG_PATH=\\\"${OD_PLUGINS_CFG_PATH}\\\"")
+    set(PLATFORM_C_FLAGS_DEBUG "${PLATFORM_C_FLAGS_DEBUG} ${OD_PLUGINS_CFG_PATH_FLAG}")
+
     set(CMAKE_CXX_FLAGS "${PLATFORM_C_FLAGS}")
     set(CMAKE_CXX_FLAGS_RELEASE "${PLATFORM_C_FLAGS}")
     set(CMAKE_CXX_FLAGS_DEBUG "${PLATFORM_C_FLAGS_DEBUG}")
 endif()
 
-set(CMAKE_CXX_FLAGS "${OD_CXX11_FLAGS} ${OD_OPT_FLAGS} ${CMAKE_CXX_FLAGS} ${OD_VERSION} ${OD_DATA_PATH_FLAG}")
+set(CMAKE_CXX_FLAGS "${OD_CXX11_FLAGS} ${OD_OPT_FLAGS} ${CMAKE_CXX_FLAGS} ${OD_VERSION} ${OD_DATA_PATH_FLAG} ${OD_PLUGINS_CFG_PATH_FLAG}")
 message(STATUS "CMake CXX Flags: " ${CMAKE_CXX_FLAGS})
 
 ##################################
@@ -585,8 +593,9 @@ endif()
 ##################################
 
 if(UNIX)
-    set(OD_CONFIGFILES ${CMAKE_BINARY_DIR}/plugins.cfg
-                       ${CMAKE_BINARY_DIR}/resources.cfg)
+    set(OD_PLUGINSCFGFILE ${CMAKE_BINARY_DIR}/plugins.cfg)
+
+    set(OD_RESOURCESFILE ${CMAKE_BINARY_DIR}/resources.cfg)
 
     set(OD_RESOURCES   ${CMAKE_SOURCE_DIR}/config
                        ${CMAKE_SOURCE_DIR}/gui
@@ -605,7 +614,9 @@ if(UNIX)
     install(TARGETS ${PROJECT_BINARY_NAME}
             DESTINATION ${OD_BIN_PATH}
             PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-    install(FILES ${OD_CONFIGFILES}
+    install(FILES ${OD_PLUGINSCFGFILE}
+            DESTINATION ${OD_PLUGINS_CFG_PATH})
+    install(FILES ${OD_RESOURCESFILE}
             DESTINATION ${OD_DATA_PATH})
     install(DIRECTORY ${OD_RESOURCES}
             DESTINATION ${OD_DATA_PATH})

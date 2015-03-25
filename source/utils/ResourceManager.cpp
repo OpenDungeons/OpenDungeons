@@ -136,13 +136,35 @@ void ResourceManager::setupDataPath()
 #endif
         mGameDataPath = "./";
     }
-#endif
 
     std::cout << "Game data path is: " << mGameDataPath << std::endl;
 
 #ifndef OGRE_STATIC_LIB
-    mPluginsPath = mGameDataPath + PLUGINSCFG;
+    #ifdef OD_PLUGINS_CFG_PATH
+        path = std::string(OD_PLUGINS_CFG_PATH);
+    #else
+        path = "./";
+    #endif
+    mPluginsPath = path + "/" + PLUGINSCFG;
 #endif
+
+    // Test whether there is a plugins.cfg file in "./" and remove the system plugins.cfg path in that case.
+    // Useful for developers.
+    std::string pluginsCfg = "./" + PLUGINSCFG;
+    if (boost::filesystem::exists(pluginsCfg.c_str()))
+    {
+        // Don't warn on Windows as it is the default behaviour...
+#if OGRE_PLATFORM != OGRE_PLATFORM_WIN32
+        std::cout << "Note: Found a " << PLUGINSCFG << " file in the current folder. "
+                  << "This file will be used instead of the installed one." << std::endl;
+#endif
+        mPluginsPath = pluginsCfg;
+    }
+
+#endif // Windows and Linux
+
+    std::cout << PLUGINSCFG << " path is: " << mPluginsPath << std::endl;
+
     mScriptPath = mGameDataPath + SCRIPTSUBPATH;
     mConfigPath = mGameDataPath + CONFIGSUBPATH;
     mSoundPath = mGameDataPath + SOUNDSUBPATH;
