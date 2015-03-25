@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# Command-line arguments handling
+
 scan_meshes=false
 scan_textures=false
 while [[ $# -ge 1 ]]; do
@@ -38,41 +40,53 @@ esac
 shift
 done
 
+# Preliminary tests
+
 if [ ! -d source ]; then
     echo "Please run this script for the root of the repository."
     exit 1
 fi
 
+if $scan_meshes && [ -z "$(command -v OgreXMLConverter)" ]; then
+    echo "It appears that 'OgreXMLConverter' is not in your path."
+    echo "Your distribution might provide it in its 'ogre' or 'ogre-tools' package."
+    echo "We won't search for materials matches in the mesh files."
+    scan_meshes=false
+fi
+
+if $scan_textures && [ -z "$(command -v ack)" ]; then
+    echo "It appears that 'ack' is not in your path."
+    echo "Your distribution might provide it in its 'ack' package."
+    echo "We won't search for textures matches in the materials files."
+    scan_textures=false
+fi
+
+tmpdir="$(pwd)/tmp"
+rm -rf $tmpdir && mkdir $tmpdir
+
 if $scan_meshes; then
-    if [ -z "$(command -v OgreXMLConverter)" ]; then
-        echo "It appears that OgreXMLConverter is not in your path."
-        echo "We won't search for materials matches in the mesh files."
-        search_meshes=false
-    else
-        pushd models > /dev/null
-        rm -rf xml && mkdir xml
-        for mesh in *.mesh; do
-            OgreXMLConverter $mesh xml/$mesh.xml &> /dev/null
-            materials=$(cat xml/$mesh.xml | grep "material=" | cut -d \" -f2)
-            for material in $materials; do
-                echo -e "$mesh:\t$material"
-            done
+    pushd models > /dev/null
+    for mesh in *.mesh; do
+        OgreXMLConverter $mesh $tmpdir/$mesh.xml &> /dev/null
+        materials=$(cat $tmpdir/$mesh.xml | grep "material=" | cut -d \" -f2)
+        for material in $materials; do
+            echo -e "$mesh:\t$material"
         done
-        popd > /dev/null
-    fi
+    done
+    popd > /dev/null
 fi
 
 if $scan_textures; then
     pushd materials/textures > /dev/null
-    ls * > ../../../textures-list.txt
+    ls * > $tmpdir/textures-list.txt
     popd > /dev/null
 
-    for texture in $(cat ../textures-list.txt)
+    for texture in $(cat $tmpdir/textures-list.txt)
     do
         echo "== Texture: $texture =="
         echo ". Files matching the filename:"
-        ack -il $texture
-        for script in $(ack -il $texture | grep materials/scripts)
+        ack -il --ignore-dir=tmp $texture
+        for script in $(ack -il --ignore-dir=tmp $texture | grep materials/scripts)
         do
             line=$(cat $script | grep "^ *material " | sed -e 's/^ *material //')
             echo -e ". Matched material definition:\t$line"
@@ -83,14 +97,6 @@ if $scan_textures; then
                     continue
                 fi
                 echo -e ". Extracted material name:\t$word"
-                if $search_source
-                then
-                    echo ". References to $word in the source code:"
-                    pushd source > /dev/null
-                    ack -il $word
-                    popd > /dev/null
-                    echo ""
-                fi
             done
         done
         echo ""
