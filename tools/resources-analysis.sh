@@ -4,6 +4,7 @@
 
 scan_meshes=false
 scan_textures=false
+generate_tree=false
 while [[ $# -ge 1 ]]; do
     key="$1"
     case $key in
@@ -11,20 +12,25 @@ while [[ $# -ge 1 ]]; do
         echo "Usage: <script> [options]"
         echo -e "\nAvailable options:"
         echo -e "\t--help, -h\t\tThis usage explanation."
-        echo -e "\t--all, -a\tPerform all supported actions (equivalent to -m -t)."
+        echo -e "\t--all, -a\tPerform all supported actions (equivalent to -m -t -g)."
         echo -e "\t--scan-meshes, -m\tScan meshes to link them with materials."
         echo -e "\t--scan-textures, -t\tScan textures to link them with materials."
+        echo -e "\t--generate-tree, -g\t."
         echo ""
         ;;
         --all|-a)
         scan_meshes=true
         scan_textures=true
+        generate_tree=true
         ;;
         --scan-meshes|-m)
         scan_meshes=true
         ;;
         --scan-textures|-t)
         scan_textures=true
+        ;;
+        --generate-tree|-g)
+        generate_tree=true
         ;;
         *)
         echo "Unknown option, use --help for usage instructions."
@@ -57,18 +63,18 @@ fi
 # Actual analysis scripts
 
 basedir="$(pwd)/tools"
-# Using tools/tmp instead of tmp in case $basedir would be undefined,
-# so that we don't clean the system's /tmp
 tmpdir="$basedir/tmp"
-rm -rf $tmpdir && mkdir $tmpdir
+
+log_meshes="$basedir/meshes2materials.log"
+log_textures="$basedir/textures2materials.log"
+log_unused="$basedir/textures_unused.log"
 
 if $scan_meshes; then
     echo "Scanning mesh files..."
-    log_meshes="$basedir/meshes2materials.log"
     echo -e "[mesh filename]:\t[material name]\n" > $log_meshes
 
     for mesh in $(ls models/*.mesh | sed -e 's@models/@@'); do
-        OgreXMLConverter models/$mesh $tmpdir/$mesh.xml &> /dev/null
+        OgreXMLConverter -log /dev/null models/$mesh $tmpdir/$mesh.xml &> /dev/null
         materials=$(cat $tmpdir/$mesh.xml | grep "material=" | cut -d \" -f2)
         for material in $materials; do
             echo -e "$mesh:\t$material" >> $log_meshes
@@ -80,8 +86,6 @@ fi
 
 if $scan_textures; then
     echo "Scanning texture files (takes a while)..."
-    log_textures="$basedir/textures2materials.log"
-    log_unused="$basedir/textures_unused.log"
     echo -e "[texture filename]:\t[material name]\t[script filename]\n" > $log_textures
     echo -e "[texture filename]:\t[files referencing it]\n" > $log_unused
 
@@ -105,4 +109,43 @@ if $scan_textures; then
     done
 
     echo -e "Output written to $log_textures\nand $log_unused\n"
+fi
+
+if $generate_tree; then
+    abort=false
+    if [ ! -r $log_meshes ]; then
+        abort=true
+        echo -e "The meshes log could not be read in $log_meshes.\n" \
+                "Please run the script first with the -m or -a argument."
+    fi
+    if [ ! -r $log_textures ]; then
+        abort=true
+        echo -e "The textures log could not be read in $log_textures.\n" \
+                "Please run the script first with the -t or -a argument."
+    fi
+    if $abort; then
+        exit 1
+    fi
+
+    echo "Establishing the relationship between meshes and textures via the materials..."
+    log_tree="$basedir/meshes_tree.log"
+    echo -e "[mesh filename]:\n - [material name] ([script filename])\n" \
+            "    * [texture filename]\n" > $log_tree
+
+    prevmesh=""
+    log_meshes_t="$log_meshes.tailed"
+    tail -n+3 $log_meshes > $log_meshes_t
+    while read mline; do
+        mesh=$(echo $mline | cut -d ":" -f1)
+        if [ "$mesh" != "$prevmesh" ]; then
+            echo $mesh >> $log_tree
+            prevmesh=$mesh
+        fi
+        material=$(echo $mline | cut -d ":" -f2 | tr -d " ")
+        script=$(grep -m1 $'\t'$material$'\t' $log_textures | cut -d $'\t' -f3)
+        echo " - $material ($script)" >> $log_tree
+        for texture in $(grep $'\t'$material$'\t' $log_textures | cut -d $'\t' -f1 | tr -d ":"); do
+            echo "    * $texture" >> $log_tree
+        done
+    done < $log_meshes_t
 fi
