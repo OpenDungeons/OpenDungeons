@@ -303,6 +303,11 @@ void ChickenEntity::importFromStream(std::istream& is)
 
 std::string ChickenEntity::getChickenEntityStreamFormat()
 {
-    return RenderedMovableEntity::getRenderedMovableEntityStreamFormat()
-        + "PosX\tPosY\tPosZ\t";
+    std::string format = RenderedMovableEntity::getRenderedMovableEntityStreamFormat();
+    if(!format.empty())
+        format += "\t";
+
+    format += "PosX\tPosY\tPosZ";
+
+    return format;
 }

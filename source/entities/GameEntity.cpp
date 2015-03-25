@@ -325,7 +325,7 @@ void GameEntity::importFromStream(std::istream& is)
 
 std::string GameEntity::getGameEntityStreamFormat()
 {
-    return "SeatId\tName\tMeshName\tPosX\tPosY\tPosZ\t";
+    return "SeatId\tName\tMeshName\tPosX\tPosY\tPosZ";
 }
 
 GameEntity* GameEntity::getGameEntityeEntityFromStream(GameMap* gameMap, GameEntityType type, std::istream& is)

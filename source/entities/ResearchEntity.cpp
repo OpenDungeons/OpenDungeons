@@ -109,6 +109,11 @@ void ResearchEntity::importFromStream(std::istream& is)
 
 std::string ResearchEntity::getResearchEntityStreamFormat()
 {
-    return RenderedMovableEntity::getRenderedMovableEntityStreamFormat()
-        + "researchType\tPosX\tPosY\tPosZ\t";
+    std::string format = RenderedMovableEntity::getRenderedMovableEntityStreamFormat();
+    if(!format.empty())
+        format += "\t";
+
+    format += "researchType\tPosX\tPosY\tPosZ";
+
+    return format;
 }

@@ -276,8 +276,13 @@ void Spell::notifySeatsWithVision(const std::vector<Seat*>& seats)
 
 std::string Spell::getSpellStreamFormat()
 {
-    return "typeSpell\t" + RenderedMovableEntity::getRenderedMovableEntityStreamFormat()
-        + "optionalData\t";
+    std::string format = RenderedMovableEntity::getRenderedMovableEntityStreamFormat();
+    if(!format.empty())
+        format += "\t";
+
+    format += "optionalData";
+
+    return "typeSpell\t" + format;
 }
 
 void Spell::exportHeadersToStream(std::ostream& os) const

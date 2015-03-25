@@ -275,6 +275,11 @@ void TreasuryObject::importFromStream(std::istream& is)
 
 std::string TreasuryObject::getTreasuryObjectStreamFormat()
 {
-    return RenderedMovableEntity::getRenderedMovableEntityStreamFormat()
-        + "value\t";
+    std::string format = RenderedMovableEntity::getRenderedMovableEntityStreamFormat();
+    if(!format.empty())
+        format += "\t";
+
+    format += "value";
+
+    return format;
 }

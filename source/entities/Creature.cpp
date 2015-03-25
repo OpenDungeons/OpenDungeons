@@ -19,13 +19,13 @@
 
 #include "creaturemood/CreatureMood.h"
 
+#include "entities/ChickenEntity.h"
 #include "entities/CreatureAction.h"
 #include "entities/CreatureDefinition.h"
-#include "entities/Weapon.h"
 #include "entities/CreatureSound.h"
 #include "entities/Tile.h"
 #include "entities/TreasuryObject.h"
-#include "entities/ChickenEntity.h"
+#include "entities/Weapon.h"
 
 #include "game/Player.h"
 #include "game/Seat.h"
@@ -339,9 +339,14 @@ void Creature::removeFromGameMap()
 
 std::string Creature::getCreatureStreamFormat()
 {
-    return MovableGameEntity::getMovableGameEntityStreamFormat()
-        + "ClassName\tLevel\tCurrentXP\tCurrentHP\tCurrentAwakeness\t"
-           "CurrentHunger\tGoldToDeposit\tLeftWeapon\tRightWeapon";
+    std::string format = MovableGameEntity::getMovableGameEntityStreamFormat();
+    if(!format.empty())
+        format += "\t";
+
+    format += "ClassName\tLevel\tCurrentXP\tCurrentHP\tCurrentAwakeness\t"
+           "CurrentHunger\tGoldToDeposit\tLeftWeapon\tRightWeapon\tCarriedResearch\tCarriedWeapon";
+
+    return format;
 }
 
 void Creature::exportToStream(std::ostream& os) const
@@ -365,7 +370,6 @@ void Creature::exportToStream(std::ostream& os) const
         os << "\t" << mWeaponR->getName();
     else
         os << "\tnone";
-
 }
 
 void Creature::importFromStream(std::istream& is)

@@ -248,9 +248,6 @@ bool ODClient::processOneClientSocketMessage()
                 int32_t id;
                 OD_ASSERT_TRUE(packetReceived >> nick >> id);
                 mode->addPlayer(nick, id);
-
-                frameListener->addChatMessage(new ChatMessage(ODServer::SERVER_INFORMATION,
-                    "New player connected:" + nick));
             }
             break;
         }
