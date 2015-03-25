@@ -64,16 +64,27 @@ fi
 
 basedir="$(pwd)/tools"
 tmpdir="$basedir/tmp"
+if [ ! -d $tmpdir ]; then
+    mkdir -p $tmpdir
+fi
 
 log_meshes="$basedir/meshes2materials.log"
+log_meshes_unused="$basedir/meshes_unused.log"
 log_textures="$basedir/textures2materials.log"
-log_unused="$basedir/textures_unused.log"
+log_textures_unused="$basedir/textures_unused.log"
 
 if $scan_meshes; then
     echo "Scanning mesh files..."
     echo -e "[mesh filename]:\t[material name]\n" > $log_meshes
+    echo -e "[mesh filename]:\t[files referencing it]\n" > $log_meshes_unused
 
     for mesh in $(ls models/*.mesh | sed -e 's@models/@@'); do
+        matches=$(ack -il --ignore-dir=tools --ignore-dir=materials \
+                          --ignore-file=is:CREDITS ${mesh%.mesh} | tr '\n' ' ')
+        if [ -z "$matches" ]; then
+            echo -e "$mesh:\t$matches" >> $log_meshes_unused
+        fi
+
         OgreXMLConverter -log /dev/null models/$mesh $tmpdir/$mesh.xml &> /dev/null
         materials=$(cat $tmpdir/$mesh.xml | grep "material=" | cut -d \" -f2)
         for material in $materials; do
@@ -81,20 +92,20 @@ if $scan_meshes; then
         done
     done
 
-    echo -e "Output written to $log_meshes\n"
+    echo -e "Output written to $log_meshes\nand $log_meshes_unused\n"
 fi
 
 if $scan_textures; then
     echo "Scanning texture files (takes a while)..."
     echo -e "[texture filename]:\t[material name]\t[script filename]\n" > $log_textures
-    echo -e "[texture filename]:\t[files referencing it]\n" > $log_unused
+    echo -e "[texture filename]:\t[files referencing it]\n" > $log_textures_unused
 
     for texture in $(ls materials/textures/* | sed -e 's@materials/textures/@@'); do
-        matches=$(ack -il --ignore-dir=$basedir $texture)
+        matches=$(ack -il --ignore-dir=tools --ignore-file=is:CREDITS $texture)
         # echo transforms lists of words to a space-separated string
         scripts=$(echo $matches | tr ' ' '\n' | grep "materials/scripts")
         if [ -z "$(echo $scripts)" ]; then
-            echo -e "$texture:\t$matches" >> $log_unused
+            echo -e "$texture:\t$matches" >> $log_textures_unused
         else
             for script in $scripts; do
                 for word in $(cat $script | grep "^ *material " | sed -e 's/^ *material //'); do
@@ -108,7 +119,7 @@ if $scan_textures; then
         fi
     done
 
-    echo -e "Output written to $log_textures\nand $log_unused\n"
+    echo -e "Output written to $log_textures\nand $log_textures_unused\n"
 fi
 
 if $generate_tree; then
