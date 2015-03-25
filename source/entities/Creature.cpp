@@ -23,11 +23,13 @@
 #include "entities/CreatureAction.h"
 #include "entities/CreatureDefinition.h"
 #include "entities/CreatureSound.h"
+#include "entities/ResearchEntity.h"
 #include "entities/Tile.h"
 #include "entities/TreasuryObject.h"
 #include "entities/Weapon.h"
 
 #include "game/Player.h"
+#include "game/Research.h"
 #include "game/Seat.h"
 
 #include "gamemap/GameMap.h"
@@ -105,6 +107,8 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
     mEatCooldown             (0),
     mGoldFee                 (0),
     mGoldCarried             (0),
+    mResearchTypeDropDeath   (ResearchType::nullResearchType),
+    mWeaponDropDeath         ("none"),
     mJobRoom                 (nullptr),
     mEatRoom                 (nullptr),
     mStatsWindow             (nullptr),
@@ -181,6 +185,8 @@ Creature::Creature(GameMap* gameMap) :
     mEatCooldown             (0),
     mGoldFee                 (0),
     mGoldCarried             (0),
+    mResearchTypeDropDeath   (ResearchType::nullResearchType),
+    mWeaponDropDeath         ("none"),
     mJobRoom                 (nullptr),
     mEatRoom                 (nullptr),
     mStatsWindow             (nullptr),
@@ -370,6 +376,10 @@ void Creature::exportToStream(std::ostream& os) const
         os << "\t" << mWeaponR->getName();
     else
         os << "\tnone";
+
+    os << "\t" << mResearchTypeDropDeath;
+
+    os << "\t" << mWeaponDropDeath;
 }
 
 void Creature::importFromStream(std::istream& is)
@@ -407,6 +417,11 @@ void Creature::importFromStream(std::istream& is)
         mWeaponR = getGameMap()->getWeapon(tempString);
         OD_ASSERT_TRUE_MSG(mWeaponR != nullptr, "Unknown weapon name=" + tempString);
     }
+
+    OD_ASSERT_TRUE(is >> mResearchTypeDropDeath);
+
+    OD_ASSERT_TRUE(is >> mWeaponDropDeath);
+
     mLevel = std::min(MAX_LEVEL, mLevel);
 }
 
@@ -648,17 +663,33 @@ void Creature::doUpkeep()
             clearDestinations();
             setAnimationState("Die", false);
 
-            // If we are carrying gold, we drop it
+            // We drop what we are carrying
             Tile* myTile = getPositionTile();
             OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
-            if(myTile != nullptr && mGoldCarried > 0)
+            if(myTile != nullptr)
             {
-                TreasuryObject* obj = new TreasuryObject(getGameMap(), mGoldCarried);
-                obj->addToGameMap();
-                Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(myTile->getX()),
-                                            static_cast<Ogre::Real>(myTile->getY()), 0.0f);
-                obj->createMesh();
-                obj->setPosition(spawnPosition, false);
+                if(mGoldCarried > 0)
+                {
+                    TreasuryObject* obj = new TreasuryObject(getGameMap(), mGoldCarried);
+                    obj->addToGameMap();
+                    Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(myTile->getX()),
+                                                static_cast<Ogre::Real>(myTile->getY()), 0.0f);
+                    obj->createMesh();
+                    obj->setPosition(spawnPosition, false);
+                }
+
+                if(mResearchTypeDropDeath != ResearchType::nullResearchType)
+                {
+                    ResearchEntity* researchEntity = new ResearchEntity(getGameMap(),
+                        "DroppedBy" + getName(), mResearchTypeDropDeath);
+                    researchEntity->addToGameMap();
+                    Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(myTile->getX()),
+                                                static_cast<Ogre::Real>(myTile->getY()), 0.0f);
+                    researchEntity->createMesh();
+                    researchEntity->setPosition(spawnPosition, false);
+                }
+
+                // TODO: drop weapon when available
             }
         }
         else if (mDeathCounter >= ConfigManager::getSingleton().getCreatureDeathCounter())

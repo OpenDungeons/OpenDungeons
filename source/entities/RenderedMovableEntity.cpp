@@ -195,7 +195,7 @@ void RenderedMovableEntity::fireRemoveEntity(Seat* seat)
 
 std::string RenderedMovableEntity::getRenderedMovableEntityStreamFormat()
 {
-    std::string format = MovableGameEntity::getRenderedMovableEntityStreamFormat();
+    std::string format = MovableGameEntity::getMovableGameEntityStreamFormat();
     if(!format.empty())
         format += "\t";
 

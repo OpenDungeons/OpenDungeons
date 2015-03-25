@@ -41,6 +41,7 @@ class Room;
 class Weapon;
 
 enum class CreatureMoodLevel;
+enum class ResearchType;
 
 namespace CEGUI
 {
@@ -444,6 +445,12 @@ private:
     int32_t         mGoldFee;
     //! \brief Gold carried by the creature that will be dropped if it gets killed
     int32_t         mGoldCarried;
+
+    //! Research type that will be dropped when the creature dies
+    ResearchType    mResearchTypeDropDeath;
+
+    //! Weapon that will be dropped when the creature dies
+    std::string     mWeaponDropDeath;
 
     Room*           mJobRoom;
     Room*           mEatRoom;

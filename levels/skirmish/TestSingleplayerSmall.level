@@ -1185,46 +1185,46 @@ ProtectDungeonTemple	NULL
 [/EquipmentDefinitions]
 
 [Creatures]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon
-1	DefaultWorker1	Kobold.mesh	11	11	0	DefaultWorker	1	0	max	100	0	0	none	none
-2	DefaultWorker2	Kobold.mesh	12	39	0	DefaultWorker	1	0	max	100	0	0	none	none
-1	BigKnight1	BigKnight	7	7	0	BigKnight	1	0	10	100	0	0	Longsword	none
-1	Adventurer2	Adventurer	7	8	0	Adventurer	1	0	10	100	0	0	none	SpecialStaff
-2	Adventurer3	Adventurer	7	40	0	Adventurer	1	0	10	100	0	0	none	none
-0	Dragon1	BigDragon	9	5	0	BigDragon	1	0	max	100	0	0	none	none
-3	Tentacle11	Tentacle1	5	15	0	Tentacle1	1	0	max	100	0	0	none	none
-3	Tentacle12	Tentacle1	5	11	0	Tentacle1	10	0	10	100	0	0	none	none
-3	Tentacle13	Tentacle1	5	13	0	Tentacle1	25	0	10	100	0	0	none	none
-3	Tentacle14	Tentacle1	5	9	0	Tentacle1	1	0	max	100	0	0	none	none
-3	Tentacle15	Tentacle1	5	7	0	Tentacle1	1	0	max	100	0	0	none	none
-3	Kobold2	Kobold	1	19	0	Kobold	1	0	max	100	0	0	none	none
-3	Orc3	Orc	3	20	0	Orc	1	0	0	100	0	0	none	none
-0	Wyvern1	Wyvern	15	18	0	Wyvern	1	0	max	100	0	0	none	none
-2	DefaultWorker3	Kobold.mesh	12	9	0	DefaultWorker	1	0	max	100	0	0	none	none
-0	Wyvern2	Wyvern.mesh	18	32	0	Wyvern	1	0	max	100	0	0	none	none
-1	Tentacle16	Tentacle.mesh	11	5	0	Tentacle1	1	0	max	100	0	0	none	none
+# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon
+1	DefaultWorker1	Kobold.mesh	11	11	0	DefaultWorker	1	0	max	100	0	0	none	none	0	none
+2	DefaultWorker2	Kobold.mesh	12	39	0	DefaultWorker	1	0	max	100	0	0	none	none	0	none
+1	BigKnight1	BigKnight	7	7	0	BigKnight	1	0	10	100	0	0	Longsword	none	0	none
+1	Adventurer2	Adventurer	7	8	0	Adventurer	1	0	10	100	0	0	none	SpecialStaff	0	none
+2	Adventurer3	Adventurer	7	40	0	Adventurer	1	0	10	100	0	0	none	none	0	none
+0	Dragon1	BigDragon	9	5	0	BigDragon	1	0	max	100	0	0	none	none	0	none
+3	Tentacle11	Tentacle1	5	15	0	Tentacle1	1	0	max	100	0	0	none	none	0	none
+3	Tentacle12	Tentacle1	5	11	0	Tentacle1	10	0	10	100	0	0	none	none	0	none
+3	Tentacle13	Tentacle1	5	13	0	Tentacle1	25	0	10	100	0	0	none	none	0	none
+3	Tentacle14	Tentacle1	5	9	0	Tentacle1	1	0	max	100	0	0	none	none	0	none
+3	Tentacle15	Tentacle1	5	7	0	Tentacle1	1	0	max	100	0	0	none	none	0	none
+3	Kobold2	Kobold	1	19	0	Kobold	1	0	max	100	0	0	none	none	0	none
+3	Orc3	Orc	3	20	0	Orc	1	0	0	100	0	0	none	none	0	none
+0	Wyvern1	Wyvern	15	18	0	Wyvern	1	0	max	100	0	0	none	none	4	none
+2	DefaultWorker3	Kobold.mesh	12	9	0	DefaultWorker	1	0	max	100	0	0	none	none	0	none
+0	Wyvern2	Wyvern.mesh	18	32	0	Wyvern	1	0	max	100	0	0	none	none	0	none
+1	Tentacle16	Tentacle.mesh	11	5	0	Tentacle1	1	0	max	100	0	0	none	none	0	none
 [/Creatures]
 
 [Spells]
-# typeSpell	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	optionalData	
+# typeSpell	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	optionalData
 [/Spells]
 
 [CraftedTraps]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	trapType	PosX	PosY	PosZ	
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	trapType	PosX	PosY	PosZ
 [/CraftedTraps]
 
 [ResearchEntity]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	researchType	PosX	PosY	PosZ	
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	researchType	PosX	PosY	PosZ
 [/ResearchEntity]
 
 [Missiles]
-# missileType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	directionX	directionY	directionZ	missileAlive	damageAllies	optionalData	
+# missileType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	directionX	directionY	directionZ	missileAlive	damageAllies	optionalData
 [/Missiles]
 
 [TreasuryObject]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	value	
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	value
 [/TreasuryObject]
 
 [Chickens]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	PosX	PosY	PosZ	
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	PosX	PosY	PosZ
 [/Chickens]

@@ -5873,26 +5873,6 @@ ProtectDungeonTemple	NULL
 254	214
 [/Room]
 [Room]
-5	Workshop5	2	16
-259	209
-259	210
-259	211
-259	212
-260	209
-260	210
-260	211
-260	212
-261	209
-261	210
-261	211
-261	212
-262	209
-262	210
-262	211
-262	212
-0	0
-[/Room]
-[Room]
 4	Portal6	2	9
 254	221
 254	222
@@ -5915,6 +5895,26 @@ ProtectDungeonTemple	NULL
 256	218
 256	219
 256	220
+[/Room]
+[Room]
+5	Workshop5	2	16
+259	209
+259	210
+259	211
+259	212
+260	209
+260	210
+260	211
+260	212
+261	209
+261	210
+261	211
+261	212
+262	209
+262	210
+262	211
+262	212
+0	0
 [/Room]
 [Room]
 1	DungeonTemple8	3	25
@@ -6025,62 +6025,62 @@ ProtectDungeonTemple	NULL
 [/EquipmentDefinitions]
 
 [Creatures]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon
-1	ConstructWorker1	ConstructWorker	193	206	0	ConstructWorker	1	0	max	100	0	0	none	none
-2	Gnome2	Gnome	194	311	0	Gnome	1	0	max	100	0	0	none	none
-3	Goblin3	Goblin	161	201	0	Goblin	1	0	max	100	0	0	none	none
-5	PitDemon5	PitDemon	159	202	0	PitDemon	1	0	max	100	0	0	none	none
-2	Wizard7	Wizard	199	311	0	Wizard	1	0	max	100	0	0	Staff	none
-3	Tentacle18	Tentacle1	162	198	0	Tentacle1	1	0	max	100	0	0	none	none
-4	Tentacle29	Tentacle2	158	201	0	Tentacle2	1	0	max	100	0	0	none	none
-5	Troll10	Troll	186	235	0	Troll	1	0	max	100	0	0	none	none
-2	Knight_c2	Knight	192	311	0	Knight	1	0	max	100	0	0	Roundshield	Longsword
-3	Knight_c3	Knight	192	314	0	Knight	1	0	max	100	0	0	Roundshield	Longsword
-4	Knight_c4	Knight	196	315	0	Knight	1	0	max	100	0	0	Roundshield	Longsword
-5	Knight_c5	Knight	194	315	0	Knight	1	0	max	100	0	0	Roundshield	Longsword
-5	LizardMan_001	LizardMan	185	233	0	LizardMan	1	0	max	100	0	0	Roundshield	Longsword
-1	Kobold	Kobold	197	205	0	Kobold	1	0	max	100	0	0	none	none
-1	Kobold_012	Kobold	193	205	0	Kobold	1	0	max	100	0	0	Roundshield	Longsword
-1	Kobold_007	Kobold	195	205	0	Kobold	1	0	max	100	0	0	none	none
-2	Dwarf1_001	Dwarf1	221	189	0	Dwarf1	1	0	max	100	0	0	Roundshield	Sabre
-2	Dwarf1_002	Dwarf2	226	165	0	Dwarf2	1	0	max	100	0	0	none	none
-2	Dwarf1_004	Dwarf3	213	157	0	Dwarf3	1	0	max	100	0	0	none	none
-2	Dwarf1_006	Dwarf2	214	141	0	Dwarf2	1	0	max	100	0	0	none	none
-2	Dwarf1_007	Dwarf3	212	143	0	Dwarf3	1	0	max	100	0	0	none	none
-2	Dwarf2_001	Dwarf3	264	221	0	Dwarf3	1	0	max	100	0	0	none	none
-2	Dwarf2_002	Dwarf2	216	185	0	Dwarf2	1	0	max	100	0	0	none	Longsword
-2	Dwarf3_001	Dwarf1	217	187	0	Dwarf1	1	0	max	100	0	0	Roundshield	Longsword
-3	LizardMan_002	LizardMan	229	168	0	LizardMan	1	0	max	100	0	0	none	none
-2	Kre	Kreatur	262	220	0	Kreatur	10	0	max	100	0	0	none	none
-2	Orc_0001	Orc	228	166	0	Orc	1	0	max	100	0	0	none	none
-2	Orc_0002	Orc	262	222	0	Orc	1	0	max	100	0	0	none	none
-3	Kreatur_001	Kreatur	161	113	0	Kreatur	1	0	max	100	0	0	none	none
-3	Kreatur_002	Kreatur	159	101	0	Kreatur	1	0	max	100	0	0	none	none
-3	Kreatur_003	Kreatur	176	98	0	Kreatur	1	0	max	100	0	0	none	none
-3	Kreatur_004	Kreatur	168	99	0	Kreatur	1	0	max	100	0	0	none	none
-3	Kreatur_006	Kreatur	162	100	0	Kreatur	1	0	max	100	0	0	none	none
+# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon
+1	ConstructWorker1	ConstructWorker	193	206	0	ConstructWorker	1	0	max	100	0	0	none	none	0	none
+2	Gnome2	Gnome	194	311	0	Gnome	1	0	max	100	0	0	none	none	0	none
+3	Goblin3	Goblin	161	201	0	Goblin	1	0	max	100	0	0	none	none	0	none
+5	PitDemon5	PitDemon	159	202	0	PitDemon	1	0	max	100	0	0	none	none	0	none
+2	Wizard7	Wizard	199	311	0	Wizard	1	0	max	100	0	0	Staff	none	0	none
+3	Tentacle18	Tentacle1	162	198	0	Tentacle1	1	0	max	100	0	0	none	none	0	none
+4	Tentacle29	Tentacle2	158	201	0	Tentacle2	1	0	max	100	0	0	none	none	0	none
+5	Troll10	Troll	186	235	0	Troll	1	0	max	100	0	0	none	none	0	none
+2	Knight_c2	Knight	192	311	0	Knight	1	0	max	100	0	0	Roundshield	Longsword	0	none
+3	Knight_c3	Knight	192	314	0	Knight	1	0	max	100	0	0	Roundshield	Longsword	0	none
+4	Knight_c4	Knight	196	315	0	Knight	1	0	max	100	0	0	Roundshield	Longsword	0	none
+5	Knight_c5	Knight	194	315	0	Knight	1	0	max	100	0	0	Roundshield	Longsword	0	none
+5	LizardMan_001	LizardMan	185	233	0	LizardMan	1	0	max	100	0	0	Roundshield	Longsword	0	none
+1	Kobold	Kobold	197	205	0	Kobold	1	0	max	100	0	0	none	none	0	none
+1	Kobold_012	Kobold	193	205	0	Kobold	1	0	max	100	0	0	Roundshield	Longsword	0	none
+1	Kobold_007	Kobold	195	205	0	Kobold	1	0	max	100	0	0	none	none	0	none
+2	Dwarf1_001	Dwarf1	221	189	0	Dwarf1	1	0	max	100	0	0	Roundshield	Sabre	0	none
+2	Dwarf1_002	Dwarf2	226	165	0	Dwarf2	1	0	max	100	0	0	none	none	0	none
+2	Dwarf1_004	Dwarf3	213	157	0	Dwarf3	1	0	max	100	0	0	none	none	0	none
+2	Dwarf1_006	Dwarf2	214	141	0	Dwarf2	1	0	max	100	0	0	none	none	0	none
+2	Dwarf1_007	Dwarf3	212	143	0	Dwarf3	1	0	max	100	0	0	none	none	0	none
+2	Dwarf2_001	Dwarf3	264	221	0	Dwarf3	1	0	max	100	0	0	none	none	0	none
+2	Dwarf2_002	Dwarf2	216	185	0	Dwarf2	1	0	max	100	0	0	none	Longsword	0	none
+2	Dwarf3_001	Dwarf1	217	187	0	Dwarf1	1	0	max	100	0	0	Roundshield	Longsword	0	none
+3	LizardMan_002	LizardMan	229	168	0	LizardMan	1	0	max	100	0	0	none	none	0	none
+2	Kre	Kreatur	262	220	0	Kreatur	10	0	max	100	0	0	none	none	0	none
+2	Orc_0001	Orc	228	166	0	Orc	1	0	max	100	0	0	none	none	0	none
+2	Orc_0002	Orc	262	222	0	Orc	1	0	max	100	0	0	none	none	0	none
+3	Kreatur_001	Kreatur	161	113	0	Kreatur	1	0	max	100	0	0	none	none	0	none
+3	Kreatur_002	Kreatur	159	101	0	Kreatur	1	0	max	100	0	0	none	none	0	none
+3	Kreatur_003	Kreatur	176	98	0	Kreatur	1	0	max	100	0	0	none	none	0	none
+3	Kreatur_004	Kreatur	168	99	0	Kreatur	1	0	max	100	0	0	none	none	0	none
+3	Kreatur_006	Kreatur	162	100	0	Kreatur	1	0	max	100	0	0	none	none	0	none
 [/Creatures]
 
 [Spells]
-# typeSpell	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	optionalData	
+# typeSpell	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	optionalData
 [/Spells]
 
 [CraftedTraps]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	trapType	PosX	PosY	PosZ	
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	trapType	PosX	PosY	PosZ
 [/CraftedTraps]
 
 [ResearchEntity]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	researchType	PosX	PosY	PosZ	
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	researchType	PosX	PosY	PosZ
 [/ResearchEntity]
 
 [Missiles]
-# missileType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	directionX	directionY	directionZ	missileAlive	damageAllies	optionalData	
+# missileType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	directionX	directionY	directionZ	missileAlive	damageAllies	optionalData
 [/Missiles]
 
 [TreasuryObject]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	value	
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	value
 [/TreasuryObject]
 
 [Chickens]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	PosX	PosY	PosZ	
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	PosX	PosY	PosZ
 [/Chickens]

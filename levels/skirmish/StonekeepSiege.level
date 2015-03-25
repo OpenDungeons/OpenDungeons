@@ -3951,35 +3951,6 @@ ProtectDungeonTemple	NULL
 55	72
 [/Room]
 [Room]
-5	Workshop15	4	25
-51	81
-51	82
-51	83
-51	84
-51	85
-52	81
-52	82
-52	83
-52	84
-52	85
-53	81
-53	82
-53	83
-53	84
-53	85
-54	81
-54	82
-54	83
-54	84
-54	85
-55	81
-55	82
-55	83
-55	84
-55	85
-0	0
-[/Room]
-[Room]
 7	Library16	4	25
 43	81
 43	82
@@ -4060,6 +4031,35 @@ ProtectDungeonTemple	NULL
 55	92
 55	93
 [/Room]
+[Room]
+5	Workshop15	4	25
+51	81
+51	82
+51	83
+51	84
+51	85
+52	81
+52	82
+52	83
+52	84
+52	85
+53	81
+53	82
+53	83
+53	84
+53	85
+54	81
+54	82
+54	83
+54	84
+54	85
+55	81
+55	82
+55	83
+55	84
+55	85
+0	0
+[/Room]
 [/Rooms]
 
 [Traps]
@@ -4135,71 +4135,71 @@ ProtectDungeonTemple	NULL
 [/EquipmentDefinitions]
 
 [Creatures]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon
-1	Kobold90	Kobold	51	16	0	Kobold	1	0	max	100	0	0	none	none
-1	Kobold91	Kobold	51	16	0	Kobold	1	0	max	100	0	0	none	none
-2	Kobold92	Kobold	7	55	0	Kobold	1	0	max	100	0	0	none	none
-2	Kobold93	Kobold	7	55	0	Kobold	1	0	max	100	0	0	none	none
-3	Kobold94	Kobold	91	55	0	Kobold	1	0	max	100	0	0	none	none
-3	Kobold95	Kobold	91	55	0	Kobold	1	0	max	100	0	0	none	none
-4	Kobold96	Kobold	47	94	0	Kobold	1	0	max	100	0	0	none	none
-4	Kobold97	Kobold	47	94	0	Kobold	1	0	max	100	0	0	none	none
-0	Dwarf99	Dwarf3	9	15	0	Dwarf3	1	0	max	100	0	0	Roundshield	Longsword
-0	Dwarf98	Dwarf3	9	16	0	Dwarf3	1	0	max	100	0	0	Roundshield	Longsword
-0	Dwarf97	Dwarf3	9	17	0	Dwarf3	1	0	max	100	0	0	Roundshield	Longsword
-0	Dwarf96	Dwarf3	9	18	0	Dwarf3	1	0	max	100	0	0	Roundshield	Longsword
-0	Dwarf95	Dwarf3	9	19	0	Dwarf3	1	0	max	100	0	0	Roundshield	Longsword
-0	Dwarf94	Dwarf3	9	20	0	Dwarf3	1	0	max	100	0	0	Roundshield	Longsword
-0	Dwarf93	Dwarf3	9	21	0	Dwarf3	1	0	max	100	0	0	Roundshield	Longsword
-0	Knight90	Knight	46	42	0	Knight	1	0	max	100	0	0	Roundshield	Longsword
-0	Knight91	Knight	47	42	0	Knight	1	0	max	100	0	0	Roundshield	Longsword
-0	Knight92	Knight	48	42	0	Knight	1	0	max	100	0	0	Roundshield	Sabre
-0	Knight93	Knight	49	42	0	Knight	1	0	max	100	0	0	Roundshield	Sabre
-0	Knight94	Knight	50	42	0	Knight	1	0	max	100	0	0	Roundshield	Sabre
-0	Knight95	Knight	51	42	0	Knight	1	0	max	100	0	0	Roundshield	Longsword
-0	Knight96	Knight	52	42	0	Knight	1	0	max	100	0	0	Longsword	Longsword
-0	Knight97	Knight	49	41	0	Knight	1	0	max	100	0	0	Longsword	Longsword
-0	Dragon90	Dragon	86	20	0	Dragon	1	0	max	100	0	0	none	none
-0	Dragon91	Dragon	92	20	0	Dragon	1	0	max	100	0	0	none	none
-0	Dragon92	Dragon	89	25	0	Dragon	1	0	max	100	0	0	none	none
-0	Dragon93	Dragon	96	18	0	Dragon	1	0	max	100	0	0	none	none
-0	Tentacle90	Tentacle2	73	23	0	Tentacle2	1	0	max	100	0	0	none	none
-0	Tentacle91	Tentacle2	73	23	0	Tentacle2	1	0	max	100	0	0	none	none
-0	Tentacle92	Tentacle2	73	23	0	Tentacle2	1	0	max	100	0	0	none	none
-0	Tentacle93	Tentacle2	73	23	0	Tentacle2	1	0	max	100	0	0	none	none
-0	Tentacle94	Tentacle2	75	12	0	Tentacle2	1	0	max	100	0	0	none	none
-0	Tentacle95	Tentacle2	75	12	0	Tentacle2	1	0	max	100	0	0	none	none
-0	Tentacle96	Tentacle2	75	12	0	Tentacle2	1	0	max	100	0	0	none	none
-0	Tentacle97	Tentacle2	75	12	0	Tentacle2	1	0	max	100	0	0	none	none
-0	Tentacle98	Tentacle2	72	5	0	Tentacle2	1	0	max	100	0	0	none	none
-0	Tentacle99	Tentacle2	72	5	0	Tentacle2	1	0	max	100	0	0	none	none
-0	Tentacle100	Tentacle2	69	37	0	Tentacle2	1	0	max	100	0	0	none	none
-0	Tentacle101	Tentacle2	69	37	0	Tentacle2	1	0	max	100	0	0	none	none
-0	Tentacle102	Tentacle2	69	37	0	Tentacle2	1	0	max	100	0	0	none	none
-4	PitDemon90	PitDemon	48	57	0	PitDemon	1	0	max	100	0	0	none	none
-4	PitDemon91	PitDemon	50	57	0	PitDemon	10	0	max	100	0	0	none	none
+# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon
+1	Kobold90	Kobold	51	16	0	Kobold	1	0	max	100	0	0	none	none	0	none
+1	Kobold91	Kobold	51	16	0	Kobold	1	0	max	100	0	0	none	none	0	none
+2	Kobold92	Kobold	7	55	0	Kobold	1	0	max	100	0	0	none	none	0	none
+2	Kobold93	Kobold	7	55	0	Kobold	1	0	max	100	0	0	none	none	0	none
+3	Kobold94	Kobold	91	55	0	Kobold	1	0	max	100	0	0	none	none	0	none
+3	Kobold95	Kobold	91	55	0	Kobold	1	0	max	100	0	0	none	none	0	none
+4	Kobold96	Kobold	47	94	0	Kobold	1	0	max	100	0	0	none	none	0	none
+4	Kobold97	Kobold	47	94	0	Kobold	1	0	max	100	0	0	none	none	0	none
+0	Dwarf99	Dwarf3	9	15	0	Dwarf3	1	0	max	100	0	0	Roundshield	Longsword	0	none
+0	Dwarf98	Dwarf3	9	16	0	Dwarf3	1	0	max	100	0	0	Roundshield	Longsword	0	none
+0	Dwarf97	Dwarf3	9	17	0	Dwarf3	1	0	max	100	0	0	Roundshield	Longsword	0	none
+0	Dwarf96	Dwarf3	9	18	0	Dwarf3	1	0	max	100	0	0	Roundshield	Longsword	0	none
+0	Dwarf95	Dwarf3	9	19	0	Dwarf3	1	0	max	100	0	0	Roundshield	Longsword	0	none
+0	Dwarf94	Dwarf3	9	20	0	Dwarf3	1	0	max	100	0	0	Roundshield	Longsword	0	none
+0	Dwarf93	Dwarf3	9	21	0	Dwarf3	1	0	max	100	0	0	Roundshield	Longsword	0	none
+0	Knight90	Knight	46	42	0	Knight	1	0	max	100	0	0	Roundshield	Longsword	0	none
+0	Knight91	Knight	47	42	0	Knight	1	0	max	100	0	0	Roundshield	Longsword	0	none
+0	Knight92	Knight	48	42	0	Knight	1	0	max	100	0	0	Roundshield	Sabre	0	none
+0	Knight93	Knight	49	42	0	Knight	1	0	max	100	0	0	Roundshield	Sabre	0	none
+0	Knight94	Knight	50	42	0	Knight	1	0	max	100	0	0	Roundshield	Sabre	0	none
+0	Knight95	Knight	51	42	0	Knight	1	0	max	100	0	0	Roundshield	Longsword	0	none
+0	Knight96	Knight	52	42	0	Knight	1	0	max	100	0	0	Longsword	Longsword	0	none
+0	Knight97	Knight	49	41	0	Knight	1	0	max	100	0	0	Longsword	Longsword	0	none
+0	Dragon90	Dragon	86	20	0	Dragon	1	0	max	100	0	0	none	none	0	none
+0	Dragon91	Dragon	92	20	0	Dragon	1	0	max	100	0	0	none	none	0	none
+0	Dragon92	Dragon	89	25	0	Dragon	1	0	max	100	0	0	none	none	0	none
+0	Dragon93	Dragon	96	18	0	Dragon	1	0	max	100	0	0	none	none	0	none
+0	Tentacle90	Tentacle2	73	23	0	Tentacle2	1	0	max	100	0	0	none	none	0	none
+0	Tentacle91	Tentacle2	73	23	0	Tentacle2	1	0	max	100	0	0	none	none	0	none
+0	Tentacle92	Tentacle2	73	23	0	Tentacle2	1	0	max	100	0	0	none	none	0	none
+0	Tentacle93	Tentacle2	73	23	0	Tentacle2	1	0	max	100	0	0	none	none	0	none
+0	Tentacle94	Tentacle2	75	12	0	Tentacle2	1	0	max	100	0	0	none	none	0	none
+0	Tentacle95	Tentacle2	75	12	0	Tentacle2	1	0	max	100	0	0	none	none	0	none
+0	Tentacle96	Tentacle2	75	12	0	Tentacle2	1	0	max	100	0	0	none	none	0	none
+0	Tentacle97	Tentacle2	75	12	0	Tentacle2	1	0	max	100	0	0	none	none	0	none
+0	Tentacle98	Tentacle2	72	5	0	Tentacle2	1	0	max	100	0	0	none	none	0	none
+0	Tentacle99	Tentacle2	72	5	0	Tentacle2	1	0	max	100	0	0	none	none	0	none
+0	Tentacle100	Tentacle2	69	37	0	Tentacle2	1	0	max	100	0	0	none	none	0	none
+0	Tentacle101	Tentacle2	69	37	0	Tentacle2	1	0	max	100	0	0	none	none	0	none
+0	Tentacle102	Tentacle2	69	37	0	Tentacle2	1	0	max	100	0	0	none	none	0	none
+4	PitDemon90	PitDemon	48	57	0	PitDemon	1	0	max	100	0	0	none	none	0	none
+4	PitDemon91	PitDemon	50	57	0	PitDemon	10	0	max	100	0	0	none	none	0	none
 [/Creatures]
 
 [Spells]
-# typeSpell	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	optionalData	
+# typeSpell	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	optionalData
 [/Spells]
 
 [CraftedTraps]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	trapType	PosX	PosY	PosZ	
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	trapType	PosX	PosY	PosZ
 [/CraftedTraps]
 
 [ResearchEntity]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	researchType	PosX	PosY	PosZ	
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	researchType	PosX	PosY	PosZ
 [/ResearchEntity]
 
 [Missiles]
-# missileType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	directionX	directionY	directionZ	missileAlive	damageAllies	optionalData	
+# missileType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	directionX	directionY	directionZ	missileAlive	damageAllies	optionalData
 [/Missiles]
 
 [TreasuryObject]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	value	
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	value
 [/TreasuryObject]
 
 [Chickens]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	PosX	PosY	PosZ	
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	PosX	PosY	PosZ
 [/Chickens]

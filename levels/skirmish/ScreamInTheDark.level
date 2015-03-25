@@ -4931,35 +4931,6 @@ ProtectDungeonTemple	NULL
 18	95
 [/Room]
 [Room]
-5	Workshop14	3	25
-10	82
-10	83
-10	84
-10	85
-10	86
-11	82
-11	83
-11	84
-11	85
-11	86
-12	82
-12	83
-12	84
-12	85
-12	86
-13	82
-13	83
-13	84
-13	85
-13	86
-14	82
-14	83
-14	84
-14	85
-14	86
-0	0
-[/Room]
-[Room]
 7	Library15	3	25
 16	82
 16	83
@@ -5017,6 +4988,35 @@ ProtectDungeonTemple	NULL
 8	93
 8	94
 8	95
+[/Room]
+[Room]
+5	Workshop14	3	25
+10	82
+10	83
+10	84
+10	85
+10	86
+11	82
+11	83
+11	84
+11	85
+11	86
+12	82
+12	83
+12	84
+12	85
+12	86
+13	82
+13	83
+13	84
+13	85
+13	86
+14	82
+14	83
+14	84
+14	85
+14	86
+0	0
 [/Room]
 [Room]
 6	Dojo18	4	30
@@ -5134,6 +5134,54 @@ ProtectDungeonTemple	NULL
 94	86
 [/Room]
 [Room]
+4	Portal23	4	6
+87	92
+88	92
+89	92
+87	93
+88	93
+89	93
+[/Room]
+[Room]
+3	Treasury25	4	1
+86	88
+[/Room]
+[Room]
+3	Treasury24	4	8
+86	92
+87	91
+87	92
+88	91
+88	92
+89	91
+89	92
+90	92
+[/Room]
+[Room]
+3	Treasury26	4	1
+88	87
+[/Room]
+[Room]
+3	Treasury27	4	1
+90	88
+[/Room]
+[Room]
+3	Treasury28	4	1
+83	87
+[/Room]
+[Room]
+3	Treasury29	4	1
+92	87
+[/Room]
+[Room]
+3	Treasury31	4	1
+81	88
+[/Room]
+[Room]
+3	Treasury30	4	1
+81	92
+[/Room]
+[Room]
 5	Workshop22	4	30
 91	88
 91	89
@@ -5166,54 +5214,6 @@ ProtectDungeonTemple	NULL
 95	92
 95	93
 0	0
-[/Room]
-[Room]
-4	Portal23	4	6
-87	92
-88	92
-89	92
-87	93
-88	93
-89	93
-[/Room]
-[Room]
-3	Treasury30	4	1
-81	92
-[/Room]
-[Room]
-3	Treasury31	4	1
-81	88
-[/Room]
-[Room]
-3	Treasury29	4	1
-92	87
-[/Room]
-[Room]
-3	Treasury28	4	1
-83	87
-[/Room]
-[Room]
-3	Treasury27	4	1
-90	88
-[/Room]
-[Room]
-3	Treasury26	4	1
-88	87
-[/Room]
-[Room]
-3	Treasury25	4	1
-86	88
-[/Room]
-[Room]
-3	Treasury24	4	8
-86	92
-87	91
-87	92
-88	91
-88	92
-89	91
-89	92
-90	92
 [/Room]
 [Room]
 6	Dojo32	5	65
@@ -5351,30 +5351,6 @@ ProtectDungeonTemple	NULL
 46	63
 [/Room]
 [Room]
-5	Workshop36	5	20
-48	60
-48	61
-48	62
-48	63
-48	64
-49	60
-49	61
-49	62
-49	63
-49	64
-50	60
-50	61
-50	62
-50	63
-50	64
-51	60
-51	61
-51	62
-51	63
-51	64
-0	0
-[/Room]
-[Room]
 7	Library37	5	12
 36	60
 36	61
@@ -5414,6 +5390,30 @@ ProtectDungeonTemple	NULL
 39	57
 39	58
 [/Room]
+[Room]
+5	Workshop36	5	20
+48	60
+48	61
+48	62
+48	63
+48	64
+49	60
+49	61
+49	62
+49	63
+49	64
+50	60
+50	61
+50	62
+50	63
+50	64
+51	60
+51	61
+51	62
+51	63
+51	64
+0	0
+[/Room]
 [/Rooms]
 
 [Traps]
@@ -5431,33 +5431,33 @@ ProtectDungeonTemple	NULL
 [/EquipmentDefinitions]
 
 [Creatures]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon
-5	Dragon1	Dragon	13	55	0	Dragon	10	0	max	100	0	0	none	none
-5	Dragon2	Dragon	13	54	0	Dragon	10	0	max	100	0	0	none	none
-5	Dragon3	Dragon	87	58	0	Dragon	10	0	max	100	0	0	none	none
-5	Dragon4	Dragon	87	57	0	Dragon	10	0	max	100	0	0	none	none
+# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon
+5	Dragon1	Dragon	13	55	0	Dragon	10	0	max	100	0	0	none	none	0	none
+5	Dragon2	Dragon	13	54	0	Dragon	10	0	max	100	0	0	none	none	0	none
+5	Dragon3	Dragon	87	58	0	Dragon	10	0	max	100	0	0	none	none	0	none
+5	Dragon4	Dragon	87	57	0	Dragon	10	0	max	100	0	0	none	none	0	none
 [/Creatures]
 
 [Spells]
-# typeSpell	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	optionalData	
+# typeSpell	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	optionalData
 [/Spells]
 
 [CraftedTraps]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	trapType	PosX	PosY	PosZ	
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	trapType	PosX	PosY	PosZ
 [/CraftedTraps]
 
 [ResearchEntity]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	researchType	PosX	PosY	PosZ	
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	researchType	PosX	PosY	PosZ
 [/ResearchEntity]
 
 [Missiles]
-# missileType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	directionX	directionY	directionZ	missileAlive	damageAllies	optionalData	
+# missileType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	directionX	directionY	directionZ	missileAlive	damageAllies	optionalData
 [/Missiles]
 
 [TreasuryObject]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	value	
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	value
 [/TreasuryObject]
 
 [Chickens]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	PosX	PosY	PosZ	
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	PosX	PosY	PosZ
 [/Chickens]
