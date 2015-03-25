@@ -29,6 +29,7 @@
 #include "entities/MapLight.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
+#include "entities/CreatureSound.h"
 #include "entities/Tile.h"
 #include "ODApplication.h"
 #include "rooms/RoomTreasury.h"
@@ -41,6 +42,7 @@
 #include "modes/ModeManager.h"
 #include "modes/MenuModeConfigureSeats.h"
 #include "sound/MusicPlayer.h"
+#include "sound/SoundEffectsManager.h"
 #include "camera/CameraManager.h"
 
 #include <boost/lexical_cast.hpp>
@@ -740,7 +742,7 @@ bool ODClient::processOneClientSocketMessage()
         case ServerNotificationType::playCreatureSound:
         {
             std::string name;
-            CreatureSound::SoundType soundType;
+            CreatureSoundType soundType;
             Ogre::Vector3 position;
             OD_ASSERT_TRUE(packetReceived >> name >> soundType >> position);
             CreatureSound* creatureSound = SoundEffectsManager::getSingleton().getCreatureClassSounds(name);

@@ -21,7 +21,6 @@
 #ifndef CREATURE_H
 #define CREATURE_H
 
-#include "entities/CreatureSound.h"
 #include "entities/CreatureAction.h"
 #include "entities/MovableGameEntity.h"
 
@@ -42,6 +41,7 @@ class Weapon;
 
 enum class CreatureMoodLevel;
 enum class ResearchType;
+enum class CreatureSoundType;
 
 namespace CEGUI
 {
@@ -347,7 +347,7 @@ public:
     bool canSlap(Seat* seat);
     void slap();
 
-    void fireCreatureSound(CreatureSound::SoundType sound);
+    void fireCreatureSound(CreatureSoundType sound);
 
     void itsPayDay();
 

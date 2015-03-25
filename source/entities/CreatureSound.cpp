@@ -23,12 +23,15 @@
 #include "entities/CreatureSound.h"
 
 #include "network/ODPacket.h"
+#include "utils/Helper.h"
+#include "utils/LogManager.h"
 #include "utils/Random.h"
 
 CreatureSound::CreatureSound()
 {
     // Reserve space for sound objects
-    for (unsigned int i = 0; i < NUM_CREATURE_SOUNDS; ++i)
+    uint32_t nb = static_cast<uint32_t>(CreatureSoundType::NUM_CREATURE_SOUNDS);
+    for (uint32_t i = 0; i < nb; ++i)
     {
         mSoundsPerType.push_back(std::vector<GameSound*>());
         // Init the last played sound with invalid values.
@@ -36,9 +39,16 @@ CreatureSound::CreatureSound()
     }
 }
 
-void CreatureSound::play(SoundType type, float x, float y, float z)
+void CreatureSound::play(CreatureSoundType type, float x, float y, float z)
 {
-    std::vector<GameSound*>& soundList = mSoundsPerType[type];
+    uint32_t indexType = static_cast<uint32_t>(type);
+    if(indexType >= static_cast<uint32_t>(CreatureSoundType::NUM_CREATURE_SOUNDS))
+    {
+        OD_ASSERT_TRUE_MSG(false, "Wrong sound type=" + Helper::toString(indexType));
+        return;
+    }
+
+    std::vector<GameSound*>& soundList = mSoundsPerType[indexType];
     if (soundList.empty())
         return;
 
@@ -47,26 +57,26 @@ void CreatureSound::play(SoundType type, float x, float y, float z)
     // We set a new sound index value at random if possible.
     if (soundList.size() > 1)
     {
-        while(newSoundIdPlayed == mLastSoundPlayedPerTypeId[type])
+        while(newSoundIdPlayed == mLastSoundPlayedPerTypeId[indexType])
             newSoundIdPlayed = Random::Int(0, soundList.size() - 1);
     }
 
     // Then play the new sound
     soundList[newSoundIdPlayed]->play(x, y, z);
-    mLastSoundPlayedPerTypeId[type] = newSoundIdPlayed;
+    mLastSoundPlayedPerTypeId[indexType] = newSoundIdPlayed;
 }
 
 
-ODPacket& operator<<(ODPacket& os, const CreatureSound::SoundType& nt)
+ODPacket& operator<<(ODPacket& os, const CreatureSoundType& nt)
 {
     os << static_cast<int32_t>(nt);
     return os;
 }
 
-ODPacket& operator>>(ODPacket& is, CreatureSound::SoundType& nt)
+ODPacket& operator>>(ODPacket& is, CreatureSoundType& nt)
 {
     int32_t tmp;
     is >> tmp;
-    nt = static_cast<CreatureSound::SoundType>(tmp);
+    nt = static_cast<CreatureSoundType>(tmp);
     return is;
 }

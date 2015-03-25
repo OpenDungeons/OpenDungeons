@@ -25,6 +25,23 @@
 
 class ODPacket;
 
+enum class CreatureSoundType
+{
+    ATTACK = 0,
+    DIGGING,
+    PICKUP,
+    DROP,
+    IDLE,
+    WALK,
+    HURT,
+    DYING,
+    NUM_CREATURE_SOUNDS
+};
+
+ODPacket& operator<<(ODPacket& os, const CreatureSoundType& nt);
+ODPacket& operator>>(ODPacket& is, CreatureSoundType& nt);
+
+
 //! \brief Class to store the sound sources for an individual creature and handle sound playback.
 class CreatureSound
 {
@@ -32,25 +49,9 @@ class CreatureSound
 public:
 
     // The various sound types used.
-    enum SoundType
-    {
-        ATTACK = 0,
-        DIGGING,
-        PICKUP,
-        DROP,
-        IDLE,
-        WALK,
-        HURT,
-        DYING,
-        NUM_CREATURE_SOUNDS
-    };
-
     //! \brief Play the wanted sound
     //! taken within the list of available sounds at random at the given position.
-    void play(SoundType type, float x, float y, float z);
-
-    friend ODPacket& operator<<(ODPacket& os, const SoundType& nt);
-    friend ODPacket& operator>>(ODPacket& is, SoundType& nt);
+    void play(CreatureSoundType type, float x, float y, float z);
 
 private:
     //! \brief prevents unwanted creation or copy of the object.
