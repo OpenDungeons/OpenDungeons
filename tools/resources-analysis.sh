@@ -11,33 +11,26 @@ while [[ $# -ge 1 ]]; do
         echo "Usage: <script> [options]"
         echo -e "\nAvailable options:"
         echo -e "\t--help, -h\t\tThis usage explanation."
-        echo -e "\t--all, -a\t\tRun all tests."
+        echo -e "\t--all, -a\tPerform all supported actions (equivalent to -m -t)."
         echo -e "\t--scan-meshes, -m\tScan meshes to link them with materials."
         echo -e "\t--scan-textures, -t\tScan textures to link them with materials."
         echo ""
-        shift
         ;;
         --all|-a)
-        echo "Scanning both mesh and textures files (takes a while)..."
         scan_meshes=true
         scan_textures=true
-        shift
         ;;
         --scan-meshes|-m)
-        echo "Scanning mesh files..."
         scan_meshes=true
-        shift
         ;;
         --scan-textures|-t)
-        echo "Scanning texture files (takes a while)..."
         scan_textures=true
-        shift
         ;;
         *)
         echo "Unknown option, use --help for usage instructions."
         ;;
-esac
-shift
+    esac
+    shift
 done
 
 # Preliminary tests
@@ -70,6 +63,7 @@ tmpdir="$basedir/tmp"
 rm -rf $tmpdir && mkdir $tmpdir
 
 if $scan_meshes; then
+    echo "Scanning mesh files..."
     log_meshes="$basedir/meshes2materials.log"
     echo -e "[mesh filename]:\t[material name]\n" > $log_meshes
 
@@ -85,6 +79,7 @@ if $scan_meshes; then
 fi
 
 if $scan_textures; then
+    echo "Scanning texture files (takes a while)..."
     log_textures="$basedir/textures2materials.log"
     log_unused="$basedir/textures_unused.log"
     echo -e "[texture filename]:\t[material name]\t[script filename]\n" > $log_textures
