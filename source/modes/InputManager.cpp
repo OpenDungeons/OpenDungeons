@@ -49,6 +49,8 @@ InputManager::InputManager(Ogre::RenderWindow* renderWindow):
     OIS::ParamList paramList;
     paramList.insert(std::make_pair(std::string("WINDOW"), windowHndStr.str()));
 #if defined OIS_WIN32_PLATFORM
+    paramList.insert(std::make_pair(std::string("w32_mouse"), std::string("DISCL_FOREGROUND" )));
+    paramList.insert(std::make_pair(std::string("w32_mouse"), std::string("DISCL_NONEXCLUSIVE")));
     paramList.insert(std::make_pair(std::string("w32_keyboard"), std::string("DISCL_FOREGROUND")));
     paramList.insert(std::make_pair(std::string("w32_keyboard"), std::string("DISCL_NONEXCLUSIVE")));
 #elif defined OIS_LINUX_PLATFORM
