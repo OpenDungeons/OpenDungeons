@@ -97,18 +97,18 @@ ODApplication::ODApplication()
     if(gpuProgramManager.isSyntaxSupported("glsl"))
     {
         //Add GLSL shader location for RTShader system
-        resourceGroupManager.addResourceLocation(
+        resourceGroupManager.addResourceLocation(resMgr.getGameDataPath() +
                     "materials/RTShaderLib/GLSL", "FileSystem", "Graphics");
         //Use patched version of shader on shader version 130+ systems
         Ogre::uint16 shaderVersion = ogreRoot.getRenderSystem()->getNativeShadingLanguageVersion();
         logManager.logMessage("Shader version is: " + Ogre::StringConverter::toString(shaderVersion));
         if(shaderVersion >= 130)
         {
-            resourceGroupManager.addResourceLocation("materials/RTShaderLib/GLSL/130", "FileSystem", "Graphics");
+            resourceGroupManager.addResourceLocation(resMgr.getGameDataPath() + "materials/RTShaderLib/GLSL/130", "FileSystem", "Graphics");
         }
         else
         {
-            resourceGroupManager.addResourceLocation("materials/RTShaderLib/GLSL/120", "FileSystem", "Graphics");
+            resourceGroupManager.addResourceLocation(resMgr.getGameDataPath() + "materials/RTShaderLib/GLSL/120", "FileSystem", "Graphics");
         }
     }
 
