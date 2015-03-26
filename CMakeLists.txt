@@ -361,6 +361,11 @@ set(OD_SOURCEFILES
     ${SRC}/main.cpp
 )
 
+# Adds the Windows icon resource file when building on windows.
+IF (WIN32)
+    SET(OD_SOURCEFILES ${OD_SOURCEFILES} dist/icon.rc)
+ENDIF ()
+
 ##################################
 #### Find packages ###############
 ##################################

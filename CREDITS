@@ -25,7 +25,6 @@ Name                                   Author                  License          
 ------------------------------------------------------------------------------------------------------------------------
 MedievalSharp-Bold.ttf                 wmk69 (wmk69@o2.pl)     OFL (Open Font License) http://openfontlibrary.org/en/font/medievalsharp
 MedievalSharp-*.font                   OD Team                 GPL 3.0
-OD-Logo.ico                            Svenskmand              CC-BY-SA 3.0
 OD.project                             Bertram                 GPL 3.0                 CEED Project file.
 ODBackgrounds.imageset                 OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
 ODBackgrounds.png                      OD Team                 CC-BY-SA 3.0
@@ -298,9 +297,10 @@ Rooms/
 Traps/
 -> cannon_firing.ogg                   Iwan Gabovith           CC0                     http://opengameart.org/content/synthesized-explosion
 
-===========================
-==  icons: dist/hicolor  ==
-===========================
+====================
+==  icons: dist/  ==
+====================
 
-*.png                                  Svenskmand              CC-BY-SA 3.0
--> except 16x16/opendungeons.png       OD Team                 CC-BY-SA 3.0
+OD-Logo.ico                            Svenskmand              CC-BY-SA 3.0
+hicolor/*/*.png                        Svenskmand              CC-BY-SA 3.0
+except hicolor/16x16/opendungeons.png  OD Team                 CC-BY-SA 3.0
