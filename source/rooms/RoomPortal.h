@@ -29,6 +29,9 @@ class RoomPortal: public Room
 public:
     RoomPortal(GameMap* gameMap);
 
+    inline uint32_t getNbCreatureMaxIncrease() const
+    { return mNbCreatureMaxIncrease; }
+
     virtual RoomType getType() const override
     { return RoomType::portal; }
 
@@ -79,6 +82,8 @@ private:
     RenderedMovableEntity* mPortalObject;
 
     double mClaimedValue;
+
+    uint32_t mNbCreatureMaxIncrease;
 
     //! \brief Updates the portal mesh position.
     void updatePortalPosition();

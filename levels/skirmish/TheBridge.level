@@ -4392,6 +4392,7 @@ ProtectDungeonTemple	NULL
 57	75
 57	76
 57	77
+9	5
 [/Room]
 [Room]
 4	Portal3	1	9
@@ -4404,6 +4405,7 @@ ProtectDungeonTemple	NULL
 45	75
 45	76
 45	77
+9	5
 [/Room]
 [Room]
 1	DungeonTemple4	2	9
@@ -4428,6 +4430,7 @@ ProtectDungeonTemple	NULL
 45	24
 45	25
 45	26
+9	5
 [/Room]
 [Room]
 4	Portal6	2	9
@@ -4440,6 +4443,7 @@ ProtectDungeonTemple	NULL
 57	24
 57	25
 57	26
+9	5
 [/Room]
 [/Rooms]
 

@@ -141,7 +141,7 @@ void RoomCrypt::doUpkeep()
         p.second.first = nullptr;
         p.second.second = -1;
 
-        int32_t maxCreatures = ConfigManager::getSingleton().getMaxCreaturesPerSeat();
+        int32_t maxCreatures = ConfigManager::getSingleton().getMaxCreaturesPerSeatAbsolute();
         int32_t numCreatures = getGameMap()->getCreaturesBySeat(getSeat()).size();
         int32_t cryptPointsForSpawn = ConfigManager::getSingleton().getRoomConfigInt32("CryptPointsForSpawn");
         if((numCreatures < maxCreatures) &&

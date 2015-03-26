@@ -46,7 +46,8 @@ ConfigManager::ConfigManager() :
     mNetworkPort(0),
     mBaseSpawnPoint(10),
     mCreatureDeathCounter(10),
-    mMaxCreaturesPerSeat(15),
+    mMaxCreaturesPerSeatAbsolute(30),
+    mMaxCreaturesPerSeatDefault(10),
     mCreatureBaseMood(1000),
     mCreatureMoodHappy(1200),
     mCreatureMoodUpset(0),
@@ -462,10 +463,17 @@ bool ConfigManager::loadGlobalGameConfig(std::stringstream& configFile)
             // Not mandatory
         }
 
-        if(nextParam == "MaxCreaturesPerSeat")
+        if(nextParam == "MaxCreaturesPerSeatAbsolute")
         {
             configFile >> nextParam;
-            mMaxCreaturesPerSeat = Helper::toUInt32(nextParam);
+            mMaxCreaturesPerSeatAbsolute = Helper::toUInt32(nextParam);
+            // Not mandatory
+        }
+
+        if(nextParam == "MaxCreaturesPerSeatDefault")
+        {
+            configFile >> nextParam;
+            mMaxCreaturesPerSeatDefault = Helper::toUInt32(nextParam);
             // Not mandatory
         }
 

@@ -170,6 +170,9 @@ public:
     inline int getNumCreaturesFighters() const
     { return mNumCreaturesFighters; }
 
+    inline int getNumCreaturesFightersMax() const
+    { return mNumCreaturesFightersMax; }
+
     bool takeMana(double mana);
 
     inline Ogre::Vector3 getStartingPosition() const
@@ -376,6 +379,7 @@ private:
 
     //! \brief The number of living creatures fighters under this seat's control
     int mNumCreaturesFighters;
+    int mNumCreaturesFightersMax;
 
     //! \brief The actual color that this color index translates into.
     std::string mColorId;

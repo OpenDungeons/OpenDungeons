@@ -49,6 +49,7 @@
 
 #include "rooms/Room.h"
 #include "rooms/RoomDungeonTemple.h"
+#include "rooms/RoomPortal.h"
 #include "rooms/RoomTreasury.h"
 
 #include "spell/Spell.h"
@@ -1064,6 +1065,8 @@ unsigned long int GameMap::doMiscUpkeep()
         if (seat->checkAllGoals() == 0
                 && seat->numFailedGoals() == 0)
             addWinningSeat(seat);
+
+        seat->mNumCreaturesFightersMax = getMaxNumberCreatures(seat);
 
         // Set the creatures count to 0. It will be reset by the next count in doTurn()
         seat->mNumCreaturesFighters = 0;
@@ -2963,4 +2966,18 @@ const TileSetValue& GameMap::getMeshForTile(const Tile* tile) const
     }
 
     return mTileSet->getTileValues(tile->getTileVisual()).at(index);
+}
+
+uint32_t GameMap::getMaxNumberCreatures(Seat* seat) const
+{
+    uint32_t nbCreatures = ConfigManager::getSingleton().getMaxCreaturesPerSeatDefault();
+
+    std::vector<const Room*> portals = getRoomsByTypeAndSeat(RoomType::portal, seat);
+    for(const Room* room : portals)
+    {
+        const RoomPortal* roomPortal = static_cast<const RoomPortal*>(room);
+        nbCreatures += roomPortal->getNbCreatureMaxIncrease();
+    }
+
+    return std::min(nbCreatures, ConfigManager::getSingleton().getMaxCreaturesPerSeatAbsolute());
 }
