@@ -44,10 +44,30 @@
 #include <OgreRoot.h>
 #include <OgreRenderWindow.h>
 
+#include <CEGUI/widgets/PushButton.h>
+
 #include <algorithm>
 #include <vector>
 #include <string>
 #include <cstdio>
+
+namespace
+{
+    //! \brief Functor to select tile type from gui
+    class TileSelector
+    {
+    public:
+        bool operator()(const CEGUI::EventArgs& e)
+        {
+            gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
+            editorMode->setTileVisual(tileVisual);
+            return true;
+        }
+        TileVisual tileVisual;
+        GameMap* gameMap;
+        EditorMode* editorMode;
+    };
+}
 
 EditorMode::EditorMode(ModeManager* modeManager):
     GameEditorModeBase(modeManager, ModeManager::EDITOR, modeManager->getGui().getGuiSheet(Gui::guiSheet::editorModeGui)),
@@ -107,6 +127,14 @@ EditorMode::EditorMode(ModeManager* modeManager):
     //Map light
     connectGuiAction(Gui::EDITOR_MAPLIGHT_BUTTON,
                      AbstractApplicationMode::GuiAction::ButtonPressedMapLight);
+
+    //Tile selection
+    connectTileSelect(Gui::EDITOR_CLAIMED_BUTTON,TileVisual::claimedGround);
+    connectTileSelect(Gui::EDITOR_DIRT_BUTTON,TileVisual::dirtGround);
+    connectTileSelect(Gui::EDITOR_GOLD_BUTTON,TileVisual::goldGround);
+    connectTileSelect(Gui::EDITOR_LAVA_BUTTON,TileVisual::lavaGround);
+    connectTileSelect(Gui::EDITOR_ROCK_BUTTON,TileVisual::rockGround);
+    connectTileSelect(Gui::EDITOR_WATER_BUTTON,TileVisual::waterGround);
 }
 
 EditorMode::~EditorMode()
@@ -950,4 +978,14 @@ void EditorMode::refreshGuiResearch()
     // We also display the editor only buttons
     guiSheet->getChild(Gui::BUTTON_TEMPLE)->show();
     guiSheet->getChild(Gui::BUTTON_PORTAL)->show();
+}
+
+void EditorMode::connectTileSelect(const std::string& buttonName, TileVisual tileVisual)
+{
+    addEventConnection(
+        mRootWindow->getChild(buttonName)->subscribeEvent(
+          CEGUI::PushButton::EventClicked,
+          CEGUI::Event::Subscriber(TileSelector{tileVisual, mGameMap, this})
+        )
+    );
 }

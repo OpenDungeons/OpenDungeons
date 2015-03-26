@@ -49,8 +49,8 @@ MiniMap::MiniMap(CEGUI::Window* miniMapWindow) :
     mWidth(static_cast<unsigned int>(mMiniMapWindow->getPixelSize().d_width)
            + mGrainSize - (static_cast<unsigned int>(mMiniMapWindow->getPixelSize().d_width) % mGrainSize)),
     mHeight(static_cast<unsigned int>(mMiniMapWindow->getPixelSize().d_height)
-            + mGrainSize - (static_cast<unsigned int>(mMiniMapWindow->getPixelSize().d_height) & mGrainSize)),
-    mTiles(mHeight, TileColorRow_t(mWidth, Color(0,0,0))),
+            + mGrainSize - (static_cast<unsigned int>(mMiniMapWindow->getPixelSize().d_height) % mGrainSize)),
+    mTiles(mWidth * mHeight, Color(0,0,0)),
     mPixelBox(mWidth, mHeight, 1, Ogre::PF_R8G8B8),
     mMiniMapOgreTexture(Ogre::TextureManager::getSingletonPtr()->createManual(
             "miniMapOgreTexture",
@@ -111,12 +111,9 @@ void MiniMap::swap()
     Ogre::uint8* pDest;
     pDest = static_cast<Ogre::uint8*>(mPixelBuffer->getCurrentLock().data) - 1;
 
-    for (const TileColorRow_t& row : mTiles)
+    for(const Color& color : mTiles)
     {
-        for(const Color& color : row)
-        {
-            drawPixelToMemory(pDest, color.RR, color.GG, color.BB);
-        }
+        drawPixelToMemory(pDest, color.RR, color.GG, color.BB);
     }
 
     mPixelBuffer->unlock();
