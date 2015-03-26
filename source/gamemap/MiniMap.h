@@ -97,11 +97,9 @@ private:
     Ogre::Vector2 mCamera_2dPosition;
     double mCosRotation, mSinRotation;
 
-    typedef std::vector<Color> TileColorRow_t;
-    typedef std::vector<TileColorRow_t> TileColorArray_t;
     //!brief Vector containing colours to be drawn.
     //NOTE: The tiles are laid out Y,X in the vector to iterate in the right order when drawing.
-    TileColorArray_t mTiles;
+    std::vector<Color> mTiles;
 
     Ogre::PixelBox mPixelBox;
     Ogre::TexturePtr mMiniMapOgreTexture;
@@ -113,7 +111,7 @@ private:
         {
             for(int hh = 0; hh < mGrainSize; ++hh)
             {
-                mTiles[yy + hh][xx + gg] = Color(RR, GG, BB);
+                mTiles[xx + gg + ((yy + hh) * mWidth)] = Color(RR, GG, BB);
             }
         }
 
