@@ -222,7 +222,7 @@ void SoundEffectsManager::initializeDefaultCreatureSounds()
     // Battle sounds
     std::vector<std::string> soundFilenames;
     Helper::fillFilesList(soundFolderPath + "Creatures/Default/Battle/", soundFilenames, ".ogg");
-    std::vector<GameSound*>& attackSounds = crSound->mSoundsPerType[CreatureSound::SoundType::ATTACK];
+    std::vector<GameSound*>& attackSounds = crSound->mSoundsPerType[static_cast<uint32_t>(CreatureSoundType::ATTACK)];
     for (unsigned int i = 0; i < soundFilenames.size(); ++i)
     {
         GameSound* gm = getGameSound(soundFilenames[i], true);
@@ -233,7 +233,7 @@ void SoundEffectsManager::initializeDefaultCreatureSounds()
     // Digging sounds
     soundFilenames.clear();
     Helper::fillFilesList(soundFolderPath + "Creatures/Default/Digging/", soundFilenames, ".ogg");
-    std::vector<GameSound*>& diggingSounds = crSound->mSoundsPerType[CreatureSound::SoundType::DIGGING];
+    std::vector<GameSound*>& diggingSounds = crSound->mSoundsPerType[static_cast<uint32_t>(CreatureSoundType::DIGGING)];
     for (unsigned int i = 0; i < soundFilenames.size(); ++i)
     {
         GameSound* gm = getGameSound(soundFilenames[i], true);
@@ -244,7 +244,7 @@ void SoundEffectsManager::initializeDefaultCreatureSounds()
     // Pickup sounds - PICKUP
     // 1 sound atm...
     {
-        std::vector<GameSound*>& pickupSounds = crSound->mSoundsPerType[CreatureSound::SoundType::PICKUP];
+        std::vector<GameSound*>& pickupSounds = crSound->mSoundsPerType[static_cast<uint32_t>(CreatureSoundType::PICKUP)];
         GameSound* gm = getGameSound(soundFolderPath + "Game/click.ogg", true);
         if (gm != nullptr)
             pickupSounds.push_back(gm);
@@ -253,7 +253,7 @@ void SoundEffectsManager::initializeDefaultCreatureSounds()
     // Drop sounds - DROP
     // 1 sound atm...
     {
-        std::vector<GameSound*>& dropSounds = crSound->mSoundsPerType[CreatureSound::SoundType::DROP];
+        std::vector<GameSound*>& dropSounds = crSound->mSoundsPerType[static_cast<uint32_t>(CreatureSoundType::DROP)];
         GameSound* gm = getGameSound(soundFolderPath + "Rooms/default_build_trap.ogg", true);
         if(gm != nullptr)
             dropSounds.push_back(gm);

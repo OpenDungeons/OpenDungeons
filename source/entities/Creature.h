@@ -21,7 +21,6 @@
 #ifndef CREATURE_H
 #define CREATURE_H
 
-#include "entities/CreatureSound.h"
 #include "entities/CreatureAction.h"
 #include "entities/MovableGameEntity.h"
 
@@ -41,6 +40,8 @@ class Room;
 class Weapon;
 
 enum class CreatureMoodLevel;
+enum class ResearchType;
+enum class CreatureSoundType;
 
 namespace CEGUI
 {
@@ -346,7 +347,7 @@ public:
     bool canSlap(Seat* seat);
     void slap();
 
-    void fireCreatureSound(CreatureSound::SoundType sound);
+    void fireCreatureSound(CreatureSoundType sound);
 
     void itsPayDay();
 
@@ -444,6 +445,12 @@ private:
     int32_t         mGoldFee;
     //! \brief Gold carried by the creature that will be dropped if it gets killed
     int32_t         mGoldCarried;
+
+    //! Research type that will be dropped when the creature dies
+    ResearchType    mResearchTypeDropDeath;
+
+    //! Weapon that will be dropped when the creature dies
+    std::string     mWeaponDropDeath;
 
     Room*           mJobRoom;
     Room*           mEatRoom;

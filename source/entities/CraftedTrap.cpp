@@ -125,6 +125,11 @@ void CraftedTrap::importFromStream(std::istream& is)
 
 std::string CraftedTrap::getCraftedTrapStreamFormat()
 {
-    return RenderedMovableEntity::getRenderedMovableEntityStreamFormat()
-        + "trapType\tPosX\tPosY\tPosZ\t";
+    std::string format = RenderedMovableEntity::getRenderedMovableEntityStreamFormat();
+    if(!format.empty())
+        format += "\t";
+
+    format += "trapType\tPosX\tPosY\tPosZ";
+
+    return format;
 }

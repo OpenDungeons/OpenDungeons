@@ -95,6 +95,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::Overlay
     mRaySceneQuery = mRenderManager->getSceneManager()->createRayQuery(Ogre::Ray());
     mRaySceneQuery->setQueryTypeMask(Ogre::SceneManager::ENTITY_TYPE_MASK);
 
+    mRenderManager->getSceneManager()->addRenderQueueListener(this);
     //Set initial mouse clipping size
     windowResized(mWindow);
 
@@ -167,6 +168,10 @@ void ODFrameListener::updateAnimations(Ogre::Real timeSinceLastFrame)
 
 bool ODFrameListener::frameRenderingQueued(const Ogre::FrameEvent& evt)
 {
+    CEGUI::MouseCursor& mouseCursor = CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor();
+    CEGUI::Vector2<float> mousePos = mouseCursor.getDisplayIndependantPosition();
+    RenderManager::getSingleton().moveCursor(mousePos.d_x, mousePos.d_y);
+
     if (mWindow->isClosed())
         return false;
 
@@ -242,12 +247,6 @@ void ODFrameListener::refreshChat()
         chatSS << "\n" + msg->getClientNick() << ": " << msg->getMessage();
     }
 
-    if (!mGameMap->isInEditorMode() && mGameMap->getTurnNumber() == -1)
-    {
-        // Tells the user the game is loading.
-        chatSS << "\nWaiting for players...";
-    }
-
     if (mShowDebugInfo)
     {
         chatSS << "\nFPS: " << mWindow->getStatistics().lastFPS;
@@ -312,6 +311,15 @@ bool ODFrameListener::frameEnded(const Ogre::FrameEvent& evt)
     return true;
 }
 
+void ODFrameListener::renderQueueStarted(Ogre::uint8 queueGroupId, const Ogre::String& invocation,
+    bool& skipThisInvocation)
+{
+    if(queueGroupId == Ogre::RENDER_QUEUE_OVERLAY && invocation == "")
+    {
+        CEGUI::System::getSingleton().renderAllGUIContexts();
+    }
+}
+
 bool ODFrameListener::quit(const CEGUI::EventArgs &e)
 {
     requestExit();
@@ -339,7 +347,7 @@ Ogre::RaySceneQueryResult& ODFrameListener::doRaySceneQuery(const OIS::MouseEven
     Ogre::Ray mouseRay = mCameraManager.getActiveCamera()->getCameraToViewportRay(mousePos.d_x / float(
             arg.state.width), mousePos.d_y / float(arg.state.height));
 
-    Ogre::Plane groundPlane(Ogre::Vector3::UNIT_Z, RenderManager::KEEPER_HAND_Z);
+    Ogre::Plane groundPlane(Ogre::Vector3::UNIT_Z, RenderManager::KEEPER_HAND_WORLD_Z);
     std::pair<bool, Ogre::Real> p = mouseRay.intersects(groundPlane);
     if(p.first)
         keeperHand3DPos = mouseRay.getPoint(p.second);

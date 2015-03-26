@@ -53,6 +53,13 @@ Gui::Gui(SoundEffectsManager* soundEffectsManager, const std::string& ceguiLogFi
 
     CEGUI::SchemeManager::getSingleton().createFromFile("OpenDungeonsSkin.scheme");
 
+    // We want Ogre overlays to be displayed in front of CEGUI. According to
+    // http://cegui.org.uk/forum/viewtopic.php?f=10&t=5694
+    // the best way is to disable CEGUI auto rendering by calling setFrameControlExecutionEnabled
+    // and render CEGUI in an Ogre::RenderQueueListener (done in ODFrameListener) by calling
+    // CEGUI::System::getSingleton().renderAllGUIContexts();
+    renderer.setFrameControlExecutionEnabled(false);
+
     // Needed to get the correct offset when using up to CEGUI 0.8.4
     // We're thus using an empty mouse cursor.
     CEGUI::GUIContext& context = CEGUI::System::getSingleton().getDefaultGUIContext();

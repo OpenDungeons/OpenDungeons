@@ -195,8 +195,13 @@ void RenderedMovableEntity::fireRemoveEntity(Seat* seat)
 
 std::string RenderedMovableEntity::getRenderedMovableEntityStreamFormat()
 {
-    return MovableGameEntity::getMovableGameEntityStreamFormat()
-        + "opacity\trotationAngle\t";
+    std::string format = MovableGameEntity::getMovableGameEntityStreamFormat();
+    if(!format.empty())
+        format += "\t";
+
+    format += "opacity\trotationAngle";
+
+    return format;
 }
 
 std::vector<Tile*> RenderedMovableEntity::getCoveredTiles()

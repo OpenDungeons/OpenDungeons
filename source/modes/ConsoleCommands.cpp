@@ -444,7 +444,7 @@ Command::Result cSetCameraFOVy(const Command::ArgumentList_t& args, ConsoleInter
     }
     else
     {
-        cam->setFOVy(Ogre::Radian(static_cast<Ogre::Real>(Helper::toFloat(args[1]))));
+        cam->setFOVy(Ogre::Degree(static_cast<Ogre::Real>(Helper::toFloat(args[1]))));
     }
     return Command::Result::SUCCESS;
 }

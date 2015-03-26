@@ -209,8 +209,13 @@ void MissileObject::importFromStream(std::istream& is)
 
 std::string MissileObject::getMissileObjectStreamFormat()
 {
-    return "missileType\t" + RenderedMovableEntity::getRenderedMovableEntityStreamFormat()
-    + "directionX\tdirectionY\tdirectionZ\tmissileAlive\tdamageAllies\toptionalData\t";
+    std::string format = RenderedMovableEntity::getRenderedMovableEntityStreamFormat();
+    if(!format.empty())
+        format += "\t";
+
+    format += "directionX\tdirectionY\tdirectionZ\tmissileAlive\tdamageAllies\toptionalData";
+
+    return "missileType\t" + format;
 }
 
 MissileObject* MissileObject::getMissileObjectFromStream(GameMap* gameMap, std::istream& is)

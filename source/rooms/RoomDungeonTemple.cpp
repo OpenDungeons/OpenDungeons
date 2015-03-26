@@ -112,7 +112,7 @@ Tile* RoomDungeonTemple::askSpotForCarriedEntity(GameEntity* carriedEntity)
         return nullptr;
 
     // We accept any researchEntity
-    return getCoveredTile(0);
+    return getCentralTile();
 }
 
 void RoomDungeonTemple::notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity)
@@ -122,13 +122,13 @@ void RoomDungeonTemple::notifyCarryingStateChanged(Creature* carrier, GameEntity
     if(carriedEntity->getObjectType() != GameEntityType::researchEntity)
         return;
 
-    // We check if the carrier is at the expected destination. If not on the first tile,
+    // We check if the carrier is at the expected destination. If not on the wanted tile,
     // we don't accept the researchEntity
-    // Note that if the room is being destroyed, during the transport, the researchEntity
-    // will be dropped at its original place and will become available again so there
+    // Note that if the wanted tile were to move during the transport, the researchEntity
+    // will be dropped at its original destination and will become available again so there
     // should be no problem
     Tile* carrierTile = carrier->getPositionTile();
-    if(carrierTile != getCoveredTile(0))
+    if(carrierTile != getCentralTile())
         return;
 
     // We notify the player that the research is now available and we delete the researchEntity
