@@ -29,7 +29,6 @@ enum class TileVisual;
 
 class EditorMode final: public GameEditorModeBase
 {
-    friend class Gui;
 public:
     EditorMode(ModeManager* modeManager);
 
@@ -64,8 +63,12 @@ public:
     bool showQuitMenu(const CEGUI::EventArgs& arg = {});
     bool hideQuitMenu(const CEGUI::EventArgs& arg = {});
     bool onClickYesQuitMenu(const CEGUI::EventArgs& arg = {});
+    void setTileVisual(TileVisual tileVisual)
+    { mCurrentTileVisual = tileVisual; }
 
 private:
+    void connectTileSelect(const std::string& buttonName, TileVisual tileVisual);
+
     //! \brief Tile type (Dirt, Lava, Claimed, ...)
     TileVisual mCurrentTileVisual;
 

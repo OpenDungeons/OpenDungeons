@@ -23,12 +23,6 @@
 #include "render/Gui.h"
 
 #include "ODApplication.h"
-#include "entities/Tile.h"
-#include "game/Player.h"
-#include "gamemap/GameMap.h"
-#include "modes/EditorMode.h"
-#include "modes/ModeManager.h"
-#include "render/ODFrameListener.h"
 #include "sound/SoundEffectsManager.h"
 #include "utils/LogManager.h"
 
@@ -79,7 +73,14 @@ Gui::Gui(SoundEffectsManager* soundEffectsManager, const std::string& ceguiLogFi
     mSheets[loadSavedGameMenu] =  wmgr->loadLayoutFromFile("OpenDungeonsMenuLoad.layout");
     mSheets[console] = wmgr->loadLayoutFromFile("OpenDungeonsConsole.layout");
 
-    assignEventHandlers();
+    // Set the game version
+    mSheets[mainMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
+    mSheets[skirmishMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
+    mSheets[multiplayerServerMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
+    mSheets[multiplayerClientMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
+    mSheets[editorMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
+    mSheets[replayMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
+    mSheets[loadSavedGameMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
 
     //Add sound to button clicks and selection
     CEGUI::GlobalEventSet& ges = CEGUI::GlobalEventSet::getSingleton();
@@ -105,14 +106,14 @@ CEGUI::MouseButton Gui::convertButton(OIS::MouseButtonID buttonID)
     return CEGUI::MouseButton::NoButton;
 }
 
-void Gui::loadGuiSheet(const guiSheet& newSheet)
+void Gui::loadGuiSheet(guiSheet newSheet)
 {
     CEGUI::System::getSingletonPtr()->getDefaultGUIContext().setRootWindow(mSheets[newSheet]);
     // This shouldn't be needed, but the gui seems to not allways change when using hideGui without it.
     CEGUI::System::getSingletonPtr()->getDefaultGUIContext().markAsDirty();
 }
 
-CEGUI::Window* Gui::getGuiSheet(const guiSheet& sheet)
+CEGUI::Window* Gui::getGuiSheet(guiSheet sheet)
 {
     auto it = mSheets.find(sheet);
     if(it != mSheets.end())
@@ -122,119 +123,9 @@ CEGUI::Window* Gui::getGuiSheet(const guiSheet& sheet)
     return nullptr;
 }
 
-void Gui::assignEventHandlers()
-{
-    mSheets[editorModeGui]->getChild(EDITOR_LAVA_BUTTON)->subscribeEvent(
-        CEGUI:: Window::EventMouseClick,
-        CEGUI::Event::Subscriber(&editorLavaButtonPressed));
-
-    mSheets[editorModeGui]->getChild(EDITOR_GOLD_BUTTON)->subscribeEvent(
-        CEGUI:: Window::EventMouseClick,
-        CEGUI::Event::Subscriber(&editorGoldButtonPressed));
-
-    mSheets[editorModeGui]->getChild(EDITOR_ROCK_BUTTON)->subscribeEvent(
-        CEGUI:: Window::EventMouseClick,
-        CEGUI::Event::Subscriber(&editorRockButtonPressed));
-
-    mSheets[editorModeGui]->getChild(EDITOR_WATER_BUTTON)->subscribeEvent(
-        CEGUI:: Window::EventMouseClick,
-        CEGUI::Event::Subscriber(&editorWaterButtonPressed));
-
-    mSheets[editorModeGui]->getChild(EDITOR_DIRT_BUTTON)->subscribeEvent(
-        CEGUI:: Window::EventMouseClick,
-        CEGUI::Event::Subscriber(&editorDirtButtonPressed));
-
-    mSheets[editorModeGui]->getChild(EDITOR_CLAIMED_BUTTON)->subscribeEvent(
-        CEGUI:: Window::EventMouseClick,
-        CEGUI::Event::Subscriber(&editorClaimedButtonPressed));
-
-    // Set the game version
-    mSheets[mainMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
-    mSheets[skirmishMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
-    mSheets[multiplayerServerMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
-    mSheets[multiplayerClientMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
-    mSheets[editorMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
-    mSheets[replayMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
-    mSheets[loadSavedGameMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
-}
-
 bool Gui::playButtonClickSound(const CEGUI::EventArgs&)
 {
     mSoundEffectsManager->playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
-    return true;
-}
-
-// EDITOR
-
-bool Gui::editorGoldButtonPressed(const CEGUI::EventArgs& e)
-{
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
-        return true;
-
-    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
-    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
-    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileVisual = TileVisual::goldGround;
-    return true;
-}
-
-bool Gui::editorLavaButtonPressed(const CEGUI::EventArgs& e)
-{
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
-        return true;
-
-    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
-    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
-    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileVisual = TileVisual::lavaGround;
-    return true;
-}
-
-bool Gui::editorRockButtonPressed(const CEGUI::EventArgs& e)
-{
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
-        return true;
-
-    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
-    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
-    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileVisual = TileVisual::rockGround;
-    return true;
-}
-
-bool Gui::editorWaterButtonPressed(const CEGUI::EventArgs& e)
-{
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
-        return true;
-
-    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
-    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
-    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileVisual = TileVisual::waterGround;
-    return true;
-}
-
-bool Gui::editorDirtButtonPressed(const CEGUI::EventArgs& e)
-{
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
-        return true;
-
-    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
-    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
-    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileVisual = TileVisual::dirtGround;
-    return true;
-}
-
-bool Gui::editorClaimedButtonPressed(const CEGUI::EventArgs& e)
-{
-    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
-        return true;
-
-    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
-    gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
-    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileVisual = TileVisual::claimedGround;
     return true;
 }
 

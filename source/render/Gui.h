@@ -35,7 +35,7 @@
 
 class SoundEffectsManager;
 
-//! \brief This class holds all GUI related functions
+//! \brief This class handles the CEGUI system
 class Gui
 {
 public:
@@ -65,12 +65,12 @@ public:
     ~Gui();
 
     //! \brief loads the specified gui sheet
-    void loadGuiSheet(const guiSheet& newSheet);
+    void loadGuiSheet(guiSheet newSheet);
 
     //! \brief A required function to pass input to the OIS system.
     static CEGUI::MouseButton convertButton (OIS::MouseButtonID buttonID);
 
-    CEGUI::Window* getGuiSheet(const guiSheet&);
+    CEGUI::Window* getGuiSheet(guiSheet sheet);
 
     //Access names of the GUI elements
     static const std::string ROOT;
@@ -152,20 +152,10 @@ public:
     static const std::string REM_LIST_REPLAYS;
 
 private:
-    //! \brief Assigns all event handlers to the GUI elements
-    void assignEventHandlers();
-
+    //! \brief Callback function that plays a button click sound.
     bool playButtonClickSound(const CEGUI::EventArgs& e);
 
     std::map<guiSheet, CEGUI::Window*> mSheets;
-
-    // Editor Buttons
-    static bool editorLavaButtonPressed(const CEGUI::EventArgs& e);
-    static bool editorGoldButtonPressed(const CEGUI::EventArgs& e);
-    static bool editorRockButtonPressed(const CEGUI::EventArgs& e);
-    static bool editorWaterButtonPressed(const CEGUI::EventArgs& e);
-    static bool editorDirtButtonPressed(const CEGUI::EventArgs& e);
-    static bool editorClaimedButtonPressed(const CEGUI::EventArgs& e);
 
     SoundEffectsManager* mSoundEffectsManager;
 };
