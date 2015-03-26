@@ -47,6 +47,7 @@
 
 #include <OgreString.h>
 #include <OgreRenderTarget.h>
+#include <OgreGpuProgramManager.h>
 
 template<> ResourceManager* Ogre::Singleton<ResourceManager>::msSingleton = nullptr;
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 && defined(OD_DEBUG)
@@ -301,7 +302,7 @@ void ResourceManager::setupUserDataFolders()
         boost::filesystem::rename(mOgreLogFile, mOgreLogFile + ".1");
 }
 
-void ResourceManager::setupOgreResources()
+void ResourceManager::setupOgreResources(uint16_t shaderLanguageVersion)
 {
     Ogre::ConfigFile cf;
     cf.load(mGameDataPath + RESOURCECFG);
@@ -334,6 +335,26 @@ void ResourceManager::setupOgreResources()
             Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
                     archName, typeName, secName, true);
 #endif
+        }
+    }
+
+    // Adds the correct GLSL shader path depending on the GPU capacity
+    Ogre::GpuProgramManager& gpuProgramManager = Ogre::GpuProgramManager::getSingleton();
+    Ogre::ResourceGroupManager& resourceGroupManager = Ogre::ResourceGroupManager::getSingleton();
+    if(gpuProgramManager.isSyntaxSupported("glsl"))
+    {
+        //Add GLSL shader location for RTShader system
+        resourceGroupManager.addResourceLocation(mGameDataPath +
+                    "materials/RTShaderLib/GLSL", "FileSystem", "Graphics");
+        //Use patched version of shader on shader version 130+ systems
+        std::cout << "Shader version is: " << shaderLanguageVersion << std::endl;
+        if(shaderLanguageVersion >= 130)
+        {
+            resourceGroupManager.addResourceLocation(mGameDataPath + "materials/RTShaderLib/GLSL/130", "FileSystem", "Graphics");
+        }
+        else
+        {
+            resourceGroupManager.addResourceLocation(mGameDataPath + "materials/RTShaderLib/GLSL/120", "FileSystem", "Graphics");
         }
     }
 }

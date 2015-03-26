@@ -35,7 +35,6 @@
 #include "network/ODClient.h"
 
 #include <OgreErrorDialog.h>
-#include <OgreGpuProgramManager.h>
 #include <OgreRenderWindow.h>
 #include <OgreResourceGroupManager.h>
 #include <OgreRoot.h>
@@ -67,8 +66,6 @@ ODApplication::ODApplication()
                         resMgr.getCfgFile(),
                         resMgr.getLogFile());
 
-    resMgr.setupOgreResources();
-
     LogManager logManager;
     logManager.setLogDetail(Ogre::LL_BOREME);
     ConfigManager configManager;
@@ -91,26 +88,8 @@ ODApplication::ODApplication()
     Ogre::RenderWindow* renderWindow = ogreRoot.initialise(true, "OpenDungeons " + VERSION);
 
     //NOTE: This is currently done here as it has to be done after initialising mRoot,
-    //but before running initialiseAllResourceGroups()
-    Ogre::GpuProgramManager& gpuProgramManager = Ogre::GpuProgramManager::getSingleton();
-    Ogre::ResourceGroupManager& resourceGroupManager = Ogre::ResourceGroupManager::getSingleton();
-    if(gpuProgramManager.isSyntaxSupported("glsl"))
-    {
-        //Add GLSL shader location for RTShader system
-        resourceGroupManager.addResourceLocation(resMgr.getGameDataPath() +
-                    "materials/RTShaderLib/GLSL", "FileSystem", "Graphics");
-        //Use patched version of shader on shader version 130+ systems
-        Ogre::uint16 shaderVersion = ogreRoot.getRenderSystem()->getNativeShadingLanguageVersion();
-        logManager.logMessage("Shader version is: " + Ogre::StringConverter::toString(shaderVersion));
-        if(shaderVersion >= 130)
-        {
-            resourceGroupManager.addResourceLocation(resMgr.getGameDataPath() + "materials/RTShaderLib/GLSL/130", "FileSystem", "Graphics");
-        }
-        else
-        {
-            resourceGroupManager.addResourceLocation(resMgr.getGameDataPath() + "materials/RTShaderLib/GLSL/120", "FileSystem", "Graphics");
-        }
-    }
+    // but before running initialiseAllResourceGroups()
+    resMgr.setupOgreResources(ogreRoot.getRenderSystem()->getNativeShadingLanguageVersion());
 
     //Initialise RTshader system
     // IMPORTANT: This needs to be initialized BEFORE the resource groups.
