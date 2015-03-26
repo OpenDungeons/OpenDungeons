@@ -6,7 +6,7 @@ This file is listing each files present in this repository, its author and its c
 Each corresponding license is fully described in the licenses/ folder.
 Other text files (.txt, .cpp, .h., ...), except licensing, are licensed using the GPL 3.0 license.
 
-Latest update: 2015/02/12
+Latest update: 2015/03/26
 
 =============================
 ==  Configuration: config/ ==
@@ -39,8 +39,6 @@ ogrefonts.fontdef                      OD Team                 GPL 3.0
 OpenDungeons.looknfeel                 OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
 OpenDungeonsIcons.imageset             OD Team                 GPL 3.0
 OpenDungeonsIcons.png                  OD Team                 CC-BY-SA 3.0
-OpenDungeonsOldSkin.imageset           OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
-OpenDungeonsOldSkin.png                OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
 OpenDungeonsSkin.imageset              OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
 OpenDungeonsSkin.png                   Bertram, StumpyStrust   CC-BY-SA 3.0            Own made GUI based on: http://opengameart.org/content/fantasy-ui-box
 OpenDungeonsSkin.scheme                OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
@@ -299,3 +297,10 @@ Rooms/
 
 Traps/
 -> cannon_firing.ogg                   Iwan Gabovith           CC0                     http://opengameart.org/content/synthesized-explosion
+
+===========================
+==  icons: dist/hicolor  ==
+===========================
+
+*.png                                  Svenskmand              CC-BY-SA 3.0
+-> except 16x16/opendungeons.png       OD Team                 CC-BY-SA 3.0
