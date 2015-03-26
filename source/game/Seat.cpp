@@ -326,15 +326,7 @@ bool Seat::canOwnedCreatureUseRoomFrom(const Seat* seat) const
     return false;
 }
 
-bool Seat::canRoomBeDestroyedBy(const Seat* seat) const
-{
-    if(this == seat)
-        return true;
-
-    return false;
-}
-
-bool Seat::canTrapBeDestroyedBy(const Seat* seat) const
+bool Seat::canBuildingBeDestroyedBy(const Seat* seat) const
 {
     if(this == seat)
         return true;

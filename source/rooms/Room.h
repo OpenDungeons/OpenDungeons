@@ -100,7 +100,7 @@ public:
     { return mNumActiveSpots; }
 
     //! \brief Sets the name, seat and associates the given tiles with the room
-    void setupRoom(const std::string& name, Seat* seat, const std::vector<Tile*>& tiles);
+    virtual void setupRoom(const std::string& name, Seat* seat, const std::vector<Tile*>& tiles);
 
     //! \brief Checks on the neighboor tiles of the room if there are other rooms of the same type/same seat.
     //! if so, it aborbs them

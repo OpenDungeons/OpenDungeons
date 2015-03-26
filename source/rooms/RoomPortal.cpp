@@ -38,9 +38,33 @@
 RoomPortal::RoomPortal(GameMap* gameMap) :
         Room(gameMap),
         mSpawnCreatureCountdown(0),
-        mPortalObject(nullptr)
+        mPortalObject(nullptr),
+        mClaimedValue(0)
 {
    setMeshName("Portal");
+}
+
+bool RoomPortal::isClaimable(Seat* seat) const
+{
+    if(getSeat()->canBuildingBeDestroyedBy(seat))
+        return false;
+
+    return true;
+}
+
+void RoomPortal::claimForSeat(Seat* seat, Tile* tile, double danceRate)
+{
+    if(mClaimedValue > danceRate)
+    {
+        mClaimedValue-= danceRate;
+        return;
+    }
+
+    mClaimedValue = static_cast<double>(numCoveredTiles());
+    setSeat(seat);
+
+    for(Tile* tile : mCoveredTiles)
+        tile->claimTile(seat);
 }
 
 void RoomPortal::updateActiveSpots()
@@ -161,6 +185,26 @@ void RoomPortal::spawnCreature()
     newCreature->setPosition(spawnPosition, false);
 
     mSpawnCreatureCountdown = Random::Uint(15, 30);
+}
+
+void RoomPortal::setupRoom(const std::string& name, Seat* seat, const std::vector<Tile*>& tiles)
+{
+    Room::setupRoom(name, seat, tiles);
+    mClaimedValue = static_cast<double>(numCoveredTiles());
+}
+
+void RoomPortal::exportToStream(std::ostream& os) const
+{
+    Room::exportToStream(os);
+
+    os << mClaimedValue << "\n";
+}
+
+void RoomPortal::importFromStream(std::istream& is)
+{
+    Room::importFromStream(is);
+
+    OD_ASSERT_TRUE_MSG(is >> mClaimedValue, "roomPortal=" + getName());
 }
 
 void RoomPortal::restoreInitialEntityState()

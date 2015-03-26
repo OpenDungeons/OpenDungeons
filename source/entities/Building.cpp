@@ -57,12 +57,6 @@ void Building::doUpkeep()
     std::vector<Tile*> tilesToRemove;
     for (Tile* tile : mCoveredTiles)
     {
-        if(!getSeat()->isAlliedSeat(tile->getSeat()))
-        {
-            tilesToRemove.push_back(tile);
-            continue;
-        }
-
         if (mTileData[tile]->mHP <= 0.0)
         {
             tilesToRemove.push_back(tile);
@@ -336,6 +330,14 @@ std::string Building::getNameTile(Tile* tile)
 bool Building::isAttackable(Tile* tile, Seat* seat) const
 {
     if(getHP(tile) <= 0.0)
+        return false;
+
+    return true;
+}
+
+bool Building::canSeatSellBuilding(Seat* seat) const
+{
+    if(!getSeat()->canBuildingBeDestroyedBy(seat))
         return false;
 
     return true;
