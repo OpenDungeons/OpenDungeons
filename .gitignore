@@ -19,6 +19,7 @@ resources.cfg
 
 *~*
 .*.swp
+.cppcheck
 .cproject
 .goutputstream-W829MV
 .project
@@ -33,7 +34,6 @@ opendungeons
 opendungeons.kdev4
 opendungeons.desktop
 ODscreenshot*
-ogre.cfg
 shaderCache
 CMakeLists.txt.user
 opendungeons.6
