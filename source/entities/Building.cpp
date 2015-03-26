@@ -205,7 +205,13 @@ Tile* Building::getCentralTile()
 
     std::vector<Tile*> allTiles;
     allTiles.insert(allTiles.end(), mCoveredTiles.begin(), mCoveredTiles.end());
-    allTiles.insert(allTiles.end(), mCoveredTilesDestroyed.begin(), mCoveredTilesDestroyed.end());
+
+    // In editor mode, we do not consider destroyed tiles while computing the central tile
+    if(!getGameMap()->isInEditorMode())
+        allTiles.insert(allTiles.end(), mCoveredTilesDestroyed.begin(), mCoveredTilesDestroyed.end());
+
+    if(allTiles.empty())
+        return nullptr;
 
     int minX, maxX, minY, maxY;
     minX = maxX = allTiles[0]->getX();
