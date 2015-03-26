@@ -363,7 +363,7 @@ set(OD_SOURCEFILES
 
 # Adds the Windows icon resource file when building on windows.
 IF (WIN32)
-    SET(OD_SOURCEFILES ${OD_SOURCEFILES} dist/icon.rc)
+    SET(OD_SOURCEFILES ${OD_SOURCEFILES} ${CMAKE_SOURCE_DIR}/dist/icon.rc)
 ENDIF ()
 
 ##################################

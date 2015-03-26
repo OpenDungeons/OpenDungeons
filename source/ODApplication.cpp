@@ -95,9 +95,9 @@ ODApplication::ODApplication()
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define IDI_ICON1 1 // See dist/icon.rc to know the resource number.
     HWND hwnd;
-    renderWindow->getCustomAttribute("WINDOW", (void*)&hwnd);
-    HINSTANCE hInst = (HINSTANCE)GetModuleHandle(nullptr);
-    SetClassLong (hwnd, GCL_HICON, (LONG)LoadIcon (hInst, MAKEINTRESOURCE (IDI_ICON1)));
+    renderWindow->getCustomAttribute("WINDOW", static_cast<void*>(&hwnd));
+    HINSTANCE hInst = static_cast<HINSTANCE>(GetModuleHandle(nullptr));
+    SetClassLong(hwnd, GCL_HICON, reinterpret_cast<LONG>(LoadIcon(hInst, MAKEINTRESOURCE(IDI_ICON1))));
 #endif
 
     //Initialise RTshader system
