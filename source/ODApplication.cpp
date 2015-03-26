@@ -36,7 +36,6 @@
 
 #include <OgreErrorDialog.h>
 #include <OgreRenderWindow.h>
-#include <OgreResourceGroupManager.h>
 #include <OgreRoot.h>
 #include <Overlay/OgreOverlaySystem.h>
 #include <RTShaderSystem/OgreShaderGenerator.h>

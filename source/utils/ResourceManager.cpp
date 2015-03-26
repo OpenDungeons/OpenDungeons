@@ -49,6 +49,9 @@
 #include <OgreRenderTarget.h>
 #include <OgreGpuProgramManager.h>
 
+#include "utils/LogManager.h"
+#include "utils/Helper.h"
+
 template<> ResourceManager* Ogre::Singleton<ResourceManager>::msSingleton = nullptr;
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 && defined(OD_DEBUG)
 //On windows, if the application is compiled in debug mode, use the plugins with debug prefix.
@@ -343,11 +346,12 @@ void ResourceManager::setupOgreResources(uint16_t shaderLanguageVersion)
     Ogre::ResourceGroupManager& resourceGroupManager = Ogre::ResourceGroupManager::getSingleton();
     if(gpuProgramManager.isSyntaxSupported("glsl"))
     {
-        //Add GLSL shader location for RTShader system
-        resourceGroupManager.addResourceLocation(mGameDataPath +
-                    "materials/RTShaderLib/GLSL", "FileSystem", "Graphics");
-        //Use patched version of shader on shader version 130+ systems
-        std::cout << "Shader version is: " << shaderLanguageVersion << std::endl;
+        LogManager::getSingleton().logMessage("Supported shader version is: " + Helper::toString(shaderLanguageVersion));
+
+        // Add GLSL shader location for RTShader system
+        resourceGroupManager.addResourceLocation(mGameDataPath + "materials/RTShaderLib/GLSL", "FileSystem", "Graphics");
+
+        // Use patched version of shader on shader version 130+ systems
         if(shaderLanguageVersion >= 130)
         {
             resourceGroupManager.addResourceLocation(mGameDataPath + "materials/RTShaderLib/GLSL/130", "FileSystem", "Graphics");
