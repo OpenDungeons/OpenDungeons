@@ -47,6 +47,10 @@
 
 #include <OgreString.h>
 #include <OgreRenderTarget.h>
+#include <OgreGpuProgramManager.h>
+
+#include "utils/LogManager.h"
+#include "utils/Helper.h"
 
 template<> ResourceManager* Ogre::Singleton<ResourceManager>::msSingleton = nullptr;
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 && defined(OD_DEBUG)
@@ -136,13 +140,35 @@ void ResourceManager::setupDataPath()
 #endif
         mGameDataPath = "./";
     }
-#endif
 
     std::cout << "Game data path is: " << mGameDataPath << std::endl;
 
 #ifndef OGRE_STATIC_LIB
-    mPluginsPath = mGameDataPath + PLUGINSCFG;
+    #ifdef OD_PLUGINS_CFG_PATH
+        path = std::string(OD_PLUGINS_CFG_PATH);
+    #else
+        path = "./";
+    #endif
+    mPluginsPath = path + "/" + PLUGINSCFG;
 #endif
+
+    // Test whether there is a plugins.cfg file in "./" and remove the system plugins.cfg path in that case.
+    // Useful for developers.
+    std::string pluginsCfg = "./" + PLUGINSCFG;
+    if (boost::filesystem::exists(pluginsCfg.c_str()))
+    {
+        // Don't warn on Windows as it is the default behaviour...
+#if OGRE_PLATFORM != OGRE_PLATFORM_WIN32
+        std::cout << "Note: Found a " << PLUGINSCFG << " file in the current folder. "
+                  << "This file will be used instead of the installed one." << std::endl;
+#endif
+        mPluginsPath = pluginsCfg;
+    }
+
+#endif // Windows and Linux
+
+    std::cout << PLUGINSCFG << " path is: " << mPluginsPath << std::endl;
+
     mScriptPath = mGameDataPath + SCRIPTSUBPATH;
     mConfigPath = mGameDataPath + CONFIGSUBPATH;
     mSoundPath = mGameDataPath + SOUNDSUBPATH;
@@ -279,7 +305,7 @@ void ResourceManager::setupUserDataFolders()
         boost::filesystem::rename(mOgreLogFile, mOgreLogFile + ".1");
 }
 
-void ResourceManager::setupOgreResources()
+void ResourceManager::setupOgreResources(uint16_t shaderLanguageVersion)
 {
     Ogre::ConfigFile cf;
     cf.load(mGameDataPath + RESOURCECFG);
@@ -312,6 +338,27 @@ void ResourceManager::setupOgreResources()
             Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
                     archName, typeName, secName, true);
 #endif
+        }
+    }
+
+    // Adds the correct GLSL shader path depending on the GPU capacity
+    Ogre::GpuProgramManager& gpuProgramManager = Ogre::GpuProgramManager::getSingleton();
+    Ogre::ResourceGroupManager& resourceGroupManager = Ogre::ResourceGroupManager::getSingleton();
+    if(gpuProgramManager.isSyntaxSupported("glsl"))
+    {
+        LogManager::getSingleton().logMessage("Supported shader version is: " + Helper::toString(shaderLanguageVersion));
+
+        // Add GLSL shader location for RTShader system
+        resourceGroupManager.addResourceLocation(mGameDataPath + "materials/RTShaderLib/GLSL", "FileSystem", "Graphics");
+
+        // Use patched version of shader on shader version 130+ systems
+        if(shaderLanguageVersion >= 130)
+        {
+            resourceGroupManager.addResourceLocation(mGameDataPath + "materials/RTShaderLib/GLSL/130", "FileSystem", "Graphics");
+        }
+        else
+        {
+            resourceGroupManager.addResourceLocation(mGameDataPath + "materials/RTShaderLib/GLSL/120", "FileSystem", "Graphics");
         }
     }
 }

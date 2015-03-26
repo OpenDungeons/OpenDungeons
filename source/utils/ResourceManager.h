@@ -41,7 +41,8 @@ public:
 
     //! \brief Initializes the Ogre resources path
     //! \note Used after the Ogre Root initialization
-    void setupOgreResources();
+    //! \param shaderLanguageVersion The shader language version to use.
+    void setupOgreResources(uint16_t shaderLanguageVersion);
 
     /*! \brief check if a filename has a specific extension
      *  \param filename The filename, like "filename.ext"
