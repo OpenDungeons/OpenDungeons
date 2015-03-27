@@ -760,6 +760,10 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     case 0:
                     {
                         // It is an inactive player
+                        Player* inactivePlayer = new Player(gameMap, 0);
+                        inactivePlayer->setNick("Inactive AI " + Ogre::StringConverter::toString(seatId));
+                        gameMap->addPlayer(inactivePlayer);
+                        seat->setPlayer(inactivePlayer);
                         break;
                     }
                     case 1:

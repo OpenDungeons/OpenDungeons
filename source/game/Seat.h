@@ -328,7 +328,7 @@ public:
 
     static bool sortForMapSave(Seat* s1, Seat* s2);
 
-    static Seat* getRogueSeat(GameMap* gameMap);
+    static Seat* createRogueSeat(GameMap* gameMap);
 
     friend ODPacket& operator<<(ODPacket& os, Seat *s);
     friend ODPacket& operator>>(ODPacket& is, Seat *s);

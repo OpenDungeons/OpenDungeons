@@ -845,7 +845,7 @@ const std::string Seat::getFactionFromLine(const std::string& line)
     return std::string();
 }
 
-Seat* Seat::getRogueSeat(GameMap* gameMap)
+Seat* Seat::createRogueSeat(GameMap* gameMap)
 {
     Seat* seat = new Seat(gameMap);
     seat->mId = 0;
@@ -857,6 +857,11 @@ Seat* Seat::getRogueSeat(GameMap* gameMap)
     seat->mGold = 0;
     seat->mGoldMined = 0;
     seat->mMana = 0;
+
+    Player* inactivePlayer = new Player(gameMap, 0);
+    inactivePlayer->setNick("Inactive rogue AI");
+    gameMap->addPlayer(inactivePlayer);
+    seat->setPlayer(inactivePlayer);
     return seat;
 }
 
