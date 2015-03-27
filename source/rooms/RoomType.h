@@ -33,7 +33,8 @@ enum class RoomType
     trainingHall,
     library,
     hatchery,
-    crypt
+    crypt,
+    portalWave
 };
 
 namespace Rooms

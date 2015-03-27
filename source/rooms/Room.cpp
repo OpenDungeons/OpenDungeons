@@ -26,8 +26,8 @@
 #include "rooms/RoomTreasury.h"
 #include "rooms/RoomHatchery.h"
 #include "rooms/RoomCrypt.h"
-#include "rooms/RoomType.h"
-#include "entities/RenderedMovableEntity.h"
+#include "rooms/RoomPortalWave.h"
+#include "rooms/RoomType.h"#include "entities/RenderedMovableEntity.h"
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
 #include "game/Player.h"
@@ -219,6 +219,9 @@ Room* Room::getRoomFromStream(GameMap* gameMap, std::istream& is)
         case RoomType::crypt:
             tempRoom = new RoomCrypt(gameMap);
             break;
+        case RoomType::portalWave:
+            tempRoom = new RoomPortalWave(gameMap);
+            break;
         default:
             OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(
                 static_cast<int>(nType)));
@@ -228,57 +231,6 @@ Room* Room::getRoomFromStream(GameMap* gameMap, std::istream& is)
         return nullptr;
 
     tempRoom->importFromStream(is);
-
-    return tempRoom;
-}
-
-Room* Room::getRoomFromPacket(GameMap* gameMap, ODPacket& is)
-{
-    Room* tempRoom = nullptr;
-    RoomType nType;
-    is >> nType;
-
-    switch (nType)
-    {
-        case RoomType::nullRoomType:
-            tempRoom = nullptr;
-            break;
-        case RoomType::dormitory:
-            tempRoom = new RoomDormitory(gameMap);
-            break;
-        case RoomType::treasury:
-            tempRoom = new RoomTreasury(gameMap);
-            break;
-        case RoomType::portal:
-            tempRoom = new RoomPortal(gameMap);
-            break;
-        case RoomType::dungeonTemple:
-            tempRoom = new RoomDungeonTemple(gameMap);
-            break;
-        case RoomType::workshop:
-            tempRoom = new RoomWorkshop(gameMap);
-            break;
-        case RoomType::trainingHall:
-            tempRoom = new RoomTrainingHall(gameMap);
-            break;
-        case RoomType::library:
-            tempRoom = new RoomLibrary(gameMap);
-            break;
-        case RoomType::hatchery:
-            tempRoom = new RoomHatchery(gameMap);
-            break;
-        case RoomType::crypt:
-            tempRoom = new RoomCrypt(gameMap);
-            break;
-        default:
-            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(
-                static_cast<int>(nType)));
-    }
-
-    if(tempRoom == nullptr)
-        return nullptr;
-
-    tempRoom->importFromPacket(is);
 
     return tempRoom;
 }

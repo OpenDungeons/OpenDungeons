@@ -80,39 +80,6 @@ Trap* Trap::getTrapFromStream(GameMap* gameMap, std::istream &is)
     return tempTrap;
 }
 
-Trap* Trap::getTrapFromPacket(GameMap* gameMap, ODPacket &is)
-{
-    Trap* tempTrap = nullptr;
-    TrapType nType;
-    is >> nType;
-
-    switch (nType)
-    {
-        case TrapType::nullTrapType:
-            tempTrap = nullptr;
-            break;
-        case TrapType::cannon:
-            tempTrap = TrapCannon::getTrapCannonFromPacket(gameMap, is);
-            break;
-        case TrapType::spike:
-            tempTrap = TrapSpike::getTrapSpikeFromPacket(gameMap, is);
-            break;
-        case TrapType::boulder:
-            tempTrap = TrapBoulder::getTrapBoulderFromPacket(gameMap, is);
-            break;
-        default:
-            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(
-                static_cast<int>(nType)));
-    }
-
-    if(tempTrap == nullptr)
-        return nullptr;
-
-    tempTrap->importFromPacket(is);
-
-    return tempTrap;
-}
-
 std::string Trap::getTrapNameFromTrapType(TrapType t)
 {
     switch (t)

@@ -17,17 +17,14 @@
 
 #include "rooms/RoomPortal.h"
 
-#include "game/Seat.h"
-#include "game/Player.h"
-#include "entities/Creature.h"
-#include "entities/CreatureDefinition.h"
+#include "game/Player.h"#include "entities/Creature.h"
 #include "entities/Tile.h"
-#include "entities/PersistentObject.h"
-#include "entities/RenderedMovableEntity.h"
+#include "game/Player.h"
+#include "game/Seat.h"
 #include "gamemap/GameMap.h"
-#include "utils/Random.h"
-#include "utils/LogManager.h"
-
+#include "utils/Helper.h"
+#include "utils/LogManager.h"#include "utils/Random.h"
+#include "modes/ModeManager.h"
 #include <OgreStringConverter.h>
 
 #include <cmath>
@@ -152,11 +149,6 @@ void RoomPortal::doUpkeep()
 
 void RoomPortal::spawnCreature()
 {
-    // If the room has been destroyed, or has not yet been assigned any tiles, then we
-    // cannot determine where to place the new creature and we should just give up.
-    if (mCoveredTiles.empty())
-        return;
-
     // We check if a creature can spawn
     Seat* seat = getSeat();
     const CreatureDefinition* classToSpawn = seat->getNextFighterClassToSpawn();
@@ -173,8 +165,9 @@ void RoomPortal::spawnCreature()
     // Create a new creature and copy over the class-based creature parameters.
     Creature* newCreature = new Creature(getGameMap(), classToSpawn);
 
-    LogManager::getSingleton().logMessage("Spawning a creature class=" + classToSpawn->getClassName()
-        + ", name=" + newCreature->getName() + ", seatId=" + Ogre::StringConverter::toString(getSeat()->getId()));
+    LogManager::getSingleton().logMessage("RoomPortal name=" + getName()
+        + "spawns a creature class=" + classToSpawn->getClassName()
+        + ", name=" + newCreature->getName() + ", seatId=" + Helper::toString(getSeat()->getId()));
 
     Ogre::Real xPos = static_cast<Ogre::Real>(centralTile->getX());
     Ogre::Real yPos = static_cast<Ogre::Real>(centralTile->getY());

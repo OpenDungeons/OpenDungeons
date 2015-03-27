@@ -42,6 +42,9 @@ std::string getRoomNameFromRoomType(RoomType t)
     case RoomType::crypt:
         return "Crypt";
 
+    case RoomType::portalWave:
+        return "PortalWave";
+
     default:
         return "UnknownRoomType enum=" + Helper::toString(static_cast<int>(t));
     }
@@ -75,6 +78,9 @@ RoomType getRoomTypeFromRoomName(const std::string& name)
 
     if(name.compare("Crypt") == 0)
         return RoomType::crypt;
+
+    if(name.compare("PortalWave") == 0)
+        return RoomType::portalWave;
 
     return RoomType::nullRoomType;
 }
