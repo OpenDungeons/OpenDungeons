@@ -557,7 +557,9 @@ endif()
 
 #Do the configuration
 configure_file(${CMAKE_CONFIG_DIR}/plugins.cfg.in ${CMAKE_BINARY_DIR}/plugins.cfg)
-configure_file(${CMAKE_CONFIG_DIR}/plugins_d.cfg.in ${CMAKE_BINARY_DIR}/plugins_d.cfg)
+if(WIN32)
+    configure_file(${CMAKE_CONFIG_DIR}/plugins_d.cfg.in ${CMAKE_BINARY_DIR}/plugins_d.cfg)
+endif()
 configure_file(${CMAKE_CONFIG_DIR}/resources.cfg.in ${CMAKE_BINARY_DIR}/resources.cfg)
 # Link icon with its full path when not installed in the /usr prefix since it might not be caught by the hicolor theme
 if(CMAKE_INSTALL_PREFIX STREQUAL "/usr")
