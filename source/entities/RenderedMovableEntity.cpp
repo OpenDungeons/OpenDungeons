@@ -40,6 +40,7 @@
 #include "spell/Spell.h"
 
 #include "utils/LogManager.h"
+#include "utils/Helper.h"
 
 #include <iostream>
 

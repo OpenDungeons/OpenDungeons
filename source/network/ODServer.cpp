@@ -1025,7 +1025,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             if(!player->getSeat()->isRoomAvailable(type))
             {
                 LogManager::getSingleton().logMessage("WARNING: player " + player->getNick()
-                    + " asked to cast a spell not available: " + Room::getRoomNameFromRoomType(type));
+                    + " asked to cast a spell not available: " + Rooms::getRoomNameFromRoomType(type));
                 break;
             }
 

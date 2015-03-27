@@ -88,7 +88,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::Overlay
     mFpsLimiter(DEFAULT_FRAME_RATE)
 {
     LogManager* logManager = LogManager::getSingletonPtr();
-    logManager->logMessage("Creating frame listener...", Ogre::LML_NORMAL);
+    logManager->logMessage("Creating frame listener...");
 
     mRenderManager->createScene(mCameraManager.getViewport());
 
@@ -149,11 +149,11 @@ void ODFrameListener::exitApplication()
     mGameMap->processDeletionQueues();
     mRenderManager->getSceneManager()->destroyQuery(mRaySceneQuery);
 
-    Ogre::LogManager::getSingleton().logMessage("Remove listener registration", Ogre::LML_NORMAL);
+    Ogre::LogManager::getSingleton().logMessage("Remove listener registration");
     //Remove ourself as a Window listener
     Ogre::WindowEventUtilities::removeWindowEventListener(mWindow, this);
 
-    Ogre::LogManager::getSingleton().logMessage("Frame listener uninitialization done.", Ogre::LML_NORMAL);
+    Ogre::LogManager::getSingleton().logMessage("Frame listener uninitialization done.");
     mInitialized = false;
 }
 

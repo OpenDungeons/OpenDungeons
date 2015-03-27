@@ -22,7 +22,7 @@
 #include "spawnconditions/SpawnConditionGold.h"
 #include "spawnconditions/SpawnConditionRoom.h"
 
-#include "rooms/Room.h"
+#include "rooms/RoomType.h"
 
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
@@ -52,7 +52,7 @@ SpawnCondition* SpawnCondition::load(std::istream& defFile)
         {
             if(!(defFile >> nextParam))
                 break;
-            RoomType roomType = Room::getRoomTypeFromRoomName(nextParam);
+            RoomType roomType = Rooms::getRoomTypeFromRoomName(nextParam);
             if(roomType == RoomType::nullRoomType)
             {
                 OD_ASSERT_TRUE_MSG(false, "nextParam=" + nextParam);

@@ -325,7 +325,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 
                 const Ogre::ColourValue& textColor = (gold < price) ? red : white;
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
-                textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Room::getRoomNameFromRoomType(selectedRoomType))
+                textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Rooms::getRoomNameFromRoomType(selectedRoomType))
                     + " [" + Ogre::StringConverter::toString(price)+ "]");
                 break;
             }

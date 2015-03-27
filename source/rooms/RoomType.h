@@ -15,9 +15,24 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "utils/LogManager.h"
+#include <string>
 
-template<> LogManager* Ogre::Singleton<LogManager>::msSingleton = nullptr;
+enum class RoomType
+{
+    nullRoomType = 0,
+    dungeonTemple,
+    dormitory,
+    treasury,
+    portal,
+    workshop,
+    trainingHall,
+    library,
+    hatchery,
+    crypt
+};
 
-//! \brief Log filename used when OD Application throws errors without using Ogre default logger.
-const std::string LogManager::GAMELOG_NAME = "gameLog";
+namespace Rooms
+{
+    std::string getRoomNameFromRoomType(RoomType t);
+    RoomType getRoomTypeFromRoomName(const std::string& name);
+}

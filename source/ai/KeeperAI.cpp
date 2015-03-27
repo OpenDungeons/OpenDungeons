@@ -839,7 +839,7 @@ bool KeeperAI::repairRooms()
                     room = new RoomTreasury(&mGameMap);
                     break;
                 default:
-                    OD_ASSERT_TRUE_MSG(false, "roomType=" + Room::getRoomNameFromRoomType(type));
+                    OD_ASSERT_TRUE_MSG(false, "roomType=" + Rooms::getRoomNameFromRoomType(type));
                     break;
             }
             if(room != nullptr)

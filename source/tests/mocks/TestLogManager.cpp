@@ -15,9 +15,4 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "utils/LogManager.h"
-
-template<> LogManager* Ogre::Singleton<LogManager>::msSingleton = nullptr;
-
-//! \brief Log filename used when OD Application throws errors without using Ogre default logger.
-const std::string LogManager::GAMELOG_NAME = "gameLog";
+#include "utils/TestLogManager.h"

@@ -23,12 +23,11 @@
 
 #include "game/Research.h"
 
-#include "gamemap/GameMap.h"
+#include "gamemap/TileContainer.h"
 
 #include "spawnconditions/SpawnCondition.h"
 
 #include "utils/ConfigManager.h"
-#include "utils/ResourceManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
@@ -42,7 +41,7 @@ const std::string ConfigManager::DefaultWorkerCreatureDefinition = "DefaultWorke
 
 template<> ConfigManager* Ogre::Singleton<ConfigManager>::msSingleton = nullptr;
 
-ConfigManager::ConfigManager() :
+ConfigManager::ConfigManager(const std::string& configPath) :
     mNetworkPort(0),
     mBaseSpawnPoint(10),
     mCreatureDeathCounter(10),
@@ -63,66 +62,66 @@ ConfigManager::ConfigManager() :
         CreatureDefinition::CreatureJob::Worker,
         "Kobold.mesh",
         "Bed", 1, 2, Ogre::Vector3(0.04, 0.04, 0.04));
-    if(!loadGlobalConfig())
+    if(!loadGlobalConfig(configPath))
     {
         OD_ASSERT_TRUE(false);
         exit(1);
     }
-    std::string fileName = ResourceManager::getSingleton().getConfigPath() + mFilenameCreatureDefinition;
+    std::string fileName = configPath + mFilenameCreatureDefinition;
     if(!loadCreatureDefinitions(fileName))
     {
         OD_ASSERT_TRUE(false);
         exit(1);
     }
-    fileName = ResourceManager::getSingleton().getConfigPath() + mFilenameEquipmentDefinition;
+    fileName = configPath + mFilenameEquipmentDefinition;
     if(!loadEquipements(fileName))
     {
         OD_ASSERT_TRUE(false);
         exit(1);
     }
-    fileName = ResourceManager::getSingleton().getConfigPath() + mFilenameSpawnConditions;
+    fileName = configPath + mFilenameSpawnConditions;
     if(!loadSpawnConditions(fileName))
     {
         OD_ASSERT_TRUE(false);
         exit(1);
     }
-    fileName = ResourceManager::getSingleton().getConfigPath() + mFilenameFactions;
+    fileName = configPath + mFilenameFactions;
     if(!loadFactions(fileName))
     {
         OD_ASSERT_TRUE(false);
         exit(1);
     }
-    fileName = ResourceManager::getSingleton().getConfigPath() + mFilenameRooms;
+    fileName = configPath + mFilenameRooms;
     if(!loadRooms(fileName))
     {
         OD_ASSERT_TRUE(false);
         exit(1);
     }
-    fileName = ResourceManager::getSingleton().getConfigPath() + mFilenameTraps;
+    fileName = configPath + mFilenameTraps;
     if(!loadTraps(fileName))
     {
         OD_ASSERT_TRUE(false);
         exit(1);
     }
-    fileName = ResourceManager::getSingleton().getConfigPath() + mFilenameSpells;
+    fileName = configPath + mFilenameSpells;
     if(!loadSpellConfig(fileName))
     {
         OD_ASSERT_TRUE(false);
         exit(1);
     }
-    fileName = ResourceManager::getSingleton().getConfigPath() + mFilenameCreaturesMood;
+    fileName = configPath + mFilenameCreaturesMood;
     if(!loadCreaturesMood(fileName))
     {
         OD_ASSERT_TRUE(false);
         exit(1);
     }
-    fileName = ResourceManager::getSingleton().getConfigPath() + mFilenameResearches;
+    fileName = configPath + mFilenameResearches;
     if(!loadResearches(fileName))
     {
         OD_ASSERT_TRUE(false);
         exit(1);
     }
-    fileName = ResourceManager::getSingleton().getConfigPath() + mFilenameTilesets;
+    fileName = configPath + mFilenameTilesets;
     if(!loadTilesets(fileName))
     {
         OD_ASSERT_TRUE(false);
@@ -132,11 +131,10 @@ ConfigManager::ConfigManager() :
 
 ConfigManager::~ConfigManager()
 {
-    for(const CreatureDefinition* def : mCreatureDefs)
+    for(auto pair : mCreatureDefs)
     {
-        delete def;
+        delete pair.second;
     }
-    mCreatureDefs.clear();
 
     if(mCreatureDefinitionDefaultWorker != nullptr)
         delete mCreatureDefinitionDefaultWorker;
@@ -178,10 +176,10 @@ ConfigManager::~ConfigManager()
     mTileSets.clear();
 }
 
-bool ConfigManager::loadGlobalConfig()
+bool ConfigManager::loadGlobalConfig(const std::string& configPath)
 {
     std::stringstream configFile;
-    std::string fileName = ResourceManager::getSingleton().getConfigPath() + "global.cfg";
+    std::string fileName = configPath + "global.cfg";
     if(!Helper::readFileWithoutComments(fileName, configFile))
     {
         OD_ASSERT_TRUE_MSG(false, "Couldn't read " + fileName);
@@ -553,13 +551,13 @@ bool ConfigManager::loadCreatureDefinitions(const std::string& fileName)
         }
 
         // Load the creature definition until a [/Creature] tag is found
-        CreatureDefinition* creatureDef = CreatureDefinition::load(defFile);
+        CreatureDefinition* creatureDef = CreatureDefinition::load(defFile, mCreatureDefs);
         if (creatureDef == nullptr)
         {
             OD_ASSERT_TRUE_MSG(false, "Invalid Creature classes start format");
             return false;
         }
-        mCreatureDefs.push_back(creatureDef);
+        mCreatureDefs.emplace(creatureDef->getClassName(), creatureDef);
     }
 
     return true;
@@ -1435,12 +1433,11 @@ double ConfigManager::getSpellConfigDouble(const std::string& param) const
 
 const CreatureDefinition* ConfigManager::getCreatureDefinition(const std::string& name) const
 {
-    for(const CreatureDefinition* def : mCreatureDefs)
+    auto it = mCreatureDefs.find(name);
+    if(it != mCreatureDefs.end())
     {
-        if(name.compare(def->getClassName()) == 0)
-            return def;
+        return it->second;
     }
-
     return nullptr;
 }
 

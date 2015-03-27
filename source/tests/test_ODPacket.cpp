@@ -15,11 +15,10 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "network/ODPacket.h"
-#include <boost/mpl/map.hpp>
-
 #define BOOST_TEST_MODULE ODPacket
 #include "BoostTestTargetConfig.h"
+
+#include "network/ODPacket.h"
 
 BOOST_AUTO_TEST_CASE(test_ODPacket)
 {

@@ -29,6 +29,7 @@
 #include "entities/Weapon.h"
 #include "entities/CreatureAction.h"
 #include "utils/ConfigManager.h"
+#include "utils/Helper.h"
 #include "utils/Random.h"
 #include "utils/LogManager.h"
 #include "modes/ModeManager.h"

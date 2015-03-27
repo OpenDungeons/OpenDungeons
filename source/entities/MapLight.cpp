@@ -24,6 +24,7 @@
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
 #include "render/RenderManager.h"
+#include "utils/Helper.h"
 #include "utils/LogManager.h"
 //#include "utils/Random.h"
 
@@ -106,7 +107,7 @@ std::vector<Tile*> MapLight::getCoveredTiles()
 Tile* MapLight::getCoveredTile(int index)
 {
     OD_ASSERT_TRUE_MSG(index == 0, "name=" + getName()
-        + ", index=" + Ogre::StringConverter::toString(index));
+        + ", index=" + Helper::toString(index));
 
     if(index > 0)
         return nullptr;

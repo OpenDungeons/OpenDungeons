@@ -179,10 +179,9 @@ bool GameMap::loadLevel(const std::string& levelFilepath)
 {
     // We reset the creature definitions
     clearClasses();
-    const std::vector<const CreatureDefinition*>& classes = ConfigManager::getSingleton().getCreatureDefinitions();
-    for(const CreatureDefinition* def : classes)
+    for(auto it : ConfigManager::getSingleton().getCreatureDefinitions())
     {
-        addClassDescription(def);
+        addClassDescription(it.second);
     }
 
     // We reset the weapons definitions
@@ -879,7 +878,7 @@ void GameMap::saveLevelClassDescriptions(std::ofstream& levelFile)
         if(def.second == nullptr)
             continue;
 
-        CreatureDefinition::writeCreatureDefinitionDiff(def.first, def.second, levelFile);
+        CreatureDefinition::writeCreatureDefinitionDiff(def.first, def.second, levelFile, ConfigManager::getSingleton().getCreatureDefinitions());
     }
 }
 

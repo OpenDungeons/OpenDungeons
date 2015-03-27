@@ -20,6 +20,7 @@
 #include "gamemap/GameMap.h"
 #include "entities/Tile.h"
 #include "entities/RenderedMovableEntity.h"
+#include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"

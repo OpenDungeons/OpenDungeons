@@ -15,9 +15,18 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef TESTLOGMANAGER_H
+#define TESTLOGMANAGER_H
+
 #include "utils/LogManager.h"
 
-template<> LogManager* Ogre::Singleton<LogManager>::msSingleton = nullptr;
+class TestLogManager final : public LogManager
+{
+    void logMessage(const std::string& message, LogMessageLevel lml = LogMessageLevel::NORMAL,
+                    bool maskDebug = false, bool addTimeStamp = false)
+    {};
+    //! \brief Set the log detail level.
+    void setLogDetail(LogLevel ll) {};
+};
 
-//! \brief Log filename used when OD Application throws errors without using Ogre default logger.
-const std::string LogManager::GAMELOG_NAME = "gameLog";
+#endif // TESTLOGMANAGER_H

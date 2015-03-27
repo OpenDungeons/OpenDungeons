@@ -28,7 +28,7 @@
 #include "sound/SoundEffectsManager.h"
 #include "render/Gui.h"
 #include "utils/ResourceManager.h"
-#include "utils/LogManager.h"
+#include "utils/LogManagerOgre.h"
 #include "utils/Random.h"
 #include "utils/ConfigManager.h"
 #include "network/ODServer.h"
@@ -65,9 +65,9 @@ ODApplication::ODApplication()
                         resMgr.getCfgFile(),
                         resMgr.getLogFile());
 
-    LogManager logManager;
-    logManager.setLogDetail(Ogre::LL_BOREME);
-    ConfigManager configManager;
+    LogManagerOgre logManager(resMgr.getUserDataPath());
+    logManager.setLogDetail(LogLevel::ALL);
+    ConfigManager configManager(resMgr.getConfigPath());
 
     /* TODO: Skip this and use root.restoreConfig()
       * to load configuration settings if we are sure there are valid ones
@@ -108,9 +108,8 @@ ODApplication::ODApplication()
     // http://www.ogre3d.org/forums/viewtopic.php?p=487445#p487445
     if (!Ogre::RTShader::ShaderGenerator::initialize())
     {
-        //TODO - exit properly
         logManager.logMessage("FATAL:"
-                "Failed to initialize the Real Time Shader System, exiting", Ogre::LML_CRITICAL);
+                "Failed to initialize the Real Time Shader System, exiting");
         return;
     }
 
@@ -149,7 +148,7 @@ ODApplication::~ODApplication()
 
 void ODApplication::displayErrorMessage(const std::string& message, LogManager& logger)
 {
-    logger.logMessage(message, Ogre::LML_CRITICAL);
+    logger.logMessage(message, LogMessageLevel::CRITICAL);
     Ogre::ErrorDialog e;
     e.display(message, LogManager::GAMELOG_NAME);
 }

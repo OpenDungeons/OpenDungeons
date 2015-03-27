@@ -18,8 +18,7 @@
 #include "entities/CreatureDefinition.h"
 
 #include "network/ODPacket.h"
-#include "rooms/Room.h"
-#include "utils/ConfigManager.h"
+#include "rooms/RoomType.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
@@ -144,13 +143,13 @@ ODPacket& operator>>(ODPacket& is, CreatureDefinition* c)
     return is;
 }
 
-CreatureDefinition* CreatureDefinition::load(std::stringstream& defFile)
+CreatureDefinition* CreatureDefinition::load(std::stringstream& defFile, const std::map<std::string, CreatureDefinition*>& defMap)
 {
     if (!defFile.good())
         return nullptr;
 
     CreatureDefinition* creatureDef = new CreatureDefinition();
-    if(!update(creatureDef, defFile))
+    if(!update(creatureDef, defFile, defMap))
     {
         delete creatureDef;
         creatureDef = nullptr;
@@ -160,7 +159,7 @@ CreatureDefinition* CreatureDefinition::load(std::stringstream& defFile)
 
 }
 
-bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstream& defFile)
+bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstream& defFile, const std::map<std::string, CreatureDefinition*>& defMap)
 {
     std::string nextParam;
     bool exit = false;
@@ -191,12 +190,13 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
         if (nextParam == "BaseDefinition")
         {
             defFile >> baseDefinition;
-            const CreatureDefinition* def = ConfigManager::getSingleton().getCreatureDefinition(baseDefinition);
-            OD_ASSERT_TRUE_MSG(def != nullptr, "Couldn't find base class " + baseDefinition);
-            if(def == nullptr)
+            auto it = defMap.find(baseDefinition);
+            if(it == defMap.end())
+            {
+                OD_ASSERT_TRUE_MSG(false, "Couldn't find base class " + baseDefinition);
                 return false;
-
-            *creatureDef = *def;
+            }
+            *creatureDef = *(it->second);
             continue;
         }
 
@@ -505,7 +505,9 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
     return true;
 }
 
-void CreatureDefinition::writeCreatureDefinitionDiff(const CreatureDefinition* def1, const CreatureDefinition* def2, std::ofstream& file)
+void CreatureDefinition::writeCreatureDefinitionDiff(
+    const CreatureDefinition* def1, const CreatureDefinition* def2,
+    std::ostream& file, const std::map<std::string, CreatureDefinition*>& defMap)
 {
     file << "[Creature]" << std::endl;
     file << "    Name\t" << def2->mClassName << std::endl;
@@ -513,7 +515,11 @@ void CreatureDefinition::writeCreatureDefinitionDiff(const CreatureDefinition* d
     {
         // If there is a base definition, we take it as the reference no matter what def1 is because
         // we want to write only the differences between the reference and def2
-        def1 = ConfigManager::getSingleton().getCreatureDefinition(def2->mBaseDefinition);
+        auto it = defMap.find(def2->mBaseDefinition);
+        if(it != defMap.end())
+        {
+            def1 = it->second;
+        }
         OD_ASSERT_TRUE_MSG(def1 != nullptr, "BaseDefinition=" + def2->mBaseDefinition);
         file << "    BaseDefinition\t" << def2->mBaseDefinition << std::endl;
     }
@@ -662,7 +668,7 @@ void CreatureDefinition::writeCreatureDefinitionDiff(const CreatureDefinition* d
         file << "    [RoomAffinity]" << std::endl;
         for(const CreatureRoomAffinity& roomAffinity : def2->mRoomAffinity)
         {
-            file << "    " << Room::getRoomNameFromRoomType(roomAffinity.getRoomType());
+            file << "    " << Rooms::getRoomNameFromRoomType(roomAffinity.getRoomType());
             file << "\t" << roomAffinity.getLikeness();
             file << "\t" << roomAffinity.getEfficiency();
             file << std::endl;
@@ -788,7 +794,7 @@ void CreatureDefinition::loadRoomAffinity(std::stringstream& defFile, CreatureDe
         }
         double efficiency = Helper::toDouble(nextParam);
 
-        RoomType roomType = Room::getRoomTypeFromRoomName(roomName);
+        RoomType roomType = Rooms::getRoomTypeFromRoomName(roomName);
         OD_ASSERT_TRUE_MSG(roomType != RoomType::nullRoomType, "Unknown room name=" + roomName);
         if(roomType == RoomType::nullRoomType)
             continue;
