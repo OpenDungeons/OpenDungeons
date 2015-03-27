@@ -159,4 +159,5 @@ if $generate_tree; then
             echo "    * $texture" >> $log_tree
         done
     done < $log_meshes_t
+    rm -f $log_meshes_t
 fi

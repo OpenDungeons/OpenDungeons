@@ -2,6 +2,7 @@
 .directory
 build
 CMakeFiles
+tools/tmp
 
 ogre.cfg
 plugins.cfg
@@ -24,6 +25,7 @@ resources.cfg
 .goutputstream-W829MV
 .project
 CMakeCache.txt
+CMakeLists.txt.user
 cmake_install.cmake
 core*
 CPackConfig.cmake
@@ -31,9 +33,8 @@ CPackSourceConfig.cmake
 install_manifest.txt
 Makefile
 opendungeons
+opendungeons.6
 opendungeons.kdev4
 opendungeons.desktop
 ODscreenshot*
 shaderCache
-CMakeLists.txt.user
-opendungeons.6
