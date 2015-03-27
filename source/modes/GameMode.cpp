@@ -394,19 +394,8 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 }
 
                 for(Tile* tile : tiles)
-                {
-                    // FIXME: the client is not notified about rooms/traps. Thus,
-                    // the funding cannot be computed. To do that, the easiest will
-                    // be to create a variable in the tile mGoldIfSold for each client
-                    if(tile->getCoveringRoom() == nullptr)
-                        continue;
+                    goldRetrieved += tile->getRefundPriceRoom();
 
-                    Room* room = tile->getCoveringRoom();
-                    if(!room->getSeat()->canBuildingBeDestroyedBy(player->getSeat()))
-                        continue;
-
-                    goldRetrieved += Room::costPerTile(room->getType()) / 2;
-                }
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, white);
                 textRenderer.setText(ODApplication::POINTER_INFO_STRING, "Destroy room ["
                     + Ogre::StringConverter::toString(goldRetrieved)+ "]");
@@ -429,18 +418,8 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 }
 
                 for(Tile* tile : tiles)
-                {
-                    // FIXME: the client is not notified about rooms/traps. Thus,
-                    // the funding cannot be computed
-                    if(tile->getCoveringTrap() == nullptr)
-                        continue;
+                    goldRetrieved += tile->getRefundPriceTrap();
 
-                    Trap* trap = tile->getCoveringTrap();
-                    if(!trap->getSeat()->canBuildingBeDestroyedBy(player->getSeat()))
-                        continue;
-
-                    goldRetrieved += Trap::costPerTile(trap->getType()) / 2;
-                }
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, white);
                 textRenderer.setText(ODApplication::POINTER_INFO_STRING, "Destroy trap ["
                     + Ogre::StringConverter::toString(goldRetrieved)+ "]");
