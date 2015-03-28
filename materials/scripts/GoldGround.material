@@ -12,17 +12,12 @@ material GoldGround : RTSS/NormalMapping_MultiPass
              // Override the normal map.
              rtshader_system
              {
-                lighting_stage normal_map GoldGroundNormal.png object_space 0 bilinear 1 -1.0
+                lighting_stage normal_map Dirt_dark_nor3.png object_space 0 bilinear 1 -1.0
              }
         }
 
         pass decal
         {
-            ambient 0.8 0.8 0.8 0.8 0.8
-            diffuse 0.65 0.65 0.65 0.65 0.65
-            specular 0.1 0.1 0.1 0.1 0.1
-            emissive 0.1 0.1 0.1 0.1 0.1
-
             texture_unit decalmap
             {
                 texture GoldGround.png

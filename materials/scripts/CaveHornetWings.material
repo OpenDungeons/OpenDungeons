@@ -17,7 +17,7 @@ material CavehornetWings
             cull_software none
             texture_unit
             {
-                texture Cavehornet_col.png
+                texture Cavehornet.png
                 tex_address_mode wrap
                 filtering trilinear
                 colour_op alpha_blend
