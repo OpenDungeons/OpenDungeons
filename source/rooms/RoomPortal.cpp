@@ -38,9 +38,34 @@
 RoomPortal::RoomPortal(GameMap* gameMap) :
         Room(gameMap),
         mSpawnCreatureCountdown(0),
-        mPortalObject(nullptr)
+        mPortalObject(nullptr),
+        mClaimedValue(0),
+        mNbCreatureMaxIncrease(0)
 {
    setMeshName("Portal");
+}
+
+bool RoomPortal::isClaimable(Seat* seat) const
+{
+    if(getSeat()->canBuildingBeDestroyedBy(seat))
+        return false;
+
+    return true;
+}
+
+void RoomPortal::claimForSeat(Seat* seat, Tile* tile, double danceRate)
+{
+    if(mClaimedValue > danceRate)
+    {
+        mClaimedValue-= danceRate;
+        return;
+    }
+
+    mClaimedValue = static_cast<double>(numCoveredTiles());
+    setSeat(seat);
+
+    for(Tile* tile : mCoveredTiles)
+        tile->claimTile(seat);
 }
 
 void RoomPortal::updateActiveSpots()
@@ -117,9 +142,12 @@ void RoomPortal::doUpkeep()
     }
 
     // Randomly choose to spawn a creature.
-    const double maxCreatures = ConfigManager::getSingleton().getMaxCreaturesPerSeat();
+    const double maxCreatures = getSeat()->getNumCreaturesFightersMax();
     // Count how many creatures are controlled by this seat
     double numCreatures = getGameMap()->getNbFightersForSeat(getSeat());
+    if(numCreatures >= maxCreatures)
+        return;
+
     double targetProbability = powl((maxCreatures - numCreatures) / maxCreatures, 1.5);
     if (Random::Double(0.0, 1.0) <= targetProbability)
         spawnCreature();
@@ -161,6 +189,29 @@ void RoomPortal::spawnCreature()
     newCreature->setPosition(spawnPosition, false);
 
     mSpawnCreatureCountdown = Random::Uint(15, 30);
+}
+
+void RoomPortal::setupRoom(const std::string& name, Seat* seat, const std::vector<Tile*>& tiles)
+{
+    Room::setupRoom(name, seat, tiles);
+    mClaimedValue = static_cast<double>(numCoveredTiles());
+    // By default, we allow some more creatures per portal
+    mNbCreatureMaxIncrease = 5;
+}
+
+void RoomPortal::exportToStream(std::ostream& os) const
+{
+    Room::exportToStream(os);
+
+    os << mClaimedValue << "\t" << mNbCreatureMaxIncrease << "\n";
+}
+
+void RoomPortal::importFromStream(std::istream& is)
+{
+    Room::importFromStream(is);
+
+    OD_ASSERT_TRUE(is >> mClaimedValue);
+    OD_ASSERT_TRUE(is >> mNbCreatureMaxIncrease);
 }
 
 void RoomPortal::restoreInitialEntityState()

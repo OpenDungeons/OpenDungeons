@@ -57,8 +57,11 @@ public:
     inline uint32_t getCreatureDeathCounter() const
     { return mCreatureDeathCounter; }
 
-    inline uint32_t getMaxCreaturesPerSeat() const
-    { return mMaxCreaturesPerSeat; }
+    inline uint32_t getMaxCreaturesPerSeatAbsolute() const
+    { return mMaxCreaturesPerSeatAbsolute; }
+
+    inline uint32_t getMaxCreaturesPerSeatDefault() const
+    { return mMaxCreaturesPerSeatDefault; }
 
     inline double getSlapDamagePercent() const
     { return mSlapDamagePercent; }
@@ -154,7 +157,8 @@ private:
     uint32_t mNetworkPort;
     uint32_t mBaseSpawnPoint;
     uint32_t mCreatureDeathCounter;
-    uint32_t mMaxCreaturesPerSeat;
+    uint32_t mMaxCreaturesPerSeatAbsolute;
+    uint32_t mMaxCreaturesPerSeatDefault;
     int32_t mCreatureBaseMood;
     int32_t mCreatureMoodHappy;
     int32_t mCreatureMoodUpset;

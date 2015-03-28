@@ -170,6 +170,9 @@ public:
     inline int getNumCreaturesFighters() const
     { return mNumCreaturesFighters; }
 
+    inline int getNumCreaturesFightersMax() const
+    { return mNumCreaturesFightersMax; }
+
     bool takeMana(double mana);
 
     inline Ogre::Vector3 getStartingPosition() const
@@ -212,8 +215,7 @@ public:
     bool canOwnedCreatureBePickedUpBy(const Seat* seat) const;
     bool canOwnedTileBeClaimedBy(const Seat* seat) const;
     bool canOwnedCreatureUseRoomFrom(const Seat* seat) const;
-    bool canRoomBeDestroyedBy(const Seat* seat) const;
-    bool canTrapBeDestroyedBy(const Seat* seat) const;
+    bool canBuildingBeDestroyedBy(const Seat* seat) const;
 
     void clearTilesWithVision();
     void notifyVisionOnTile(Tile* tile);
@@ -377,6 +379,7 @@ private:
 
     //! \brief The number of living creatures fighters under this seat's control
     int mNumCreaturesFighters;
+    int mNumCreaturesFightersMax;
 
     //! \brief The actual color that this color index translates into.
     std::string mColorId;

@@ -205,8 +205,11 @@ bool Tile::isGroundClaimable(Seat* seat) const
     if(mType != TileType::dirt && mType != TileType::gold)
         return false;
 
-    if(getCoveringRoom() != nullptr)
+    if((getCoveringBuilding() != nullptr) &&
+       (!getCoveringBuilding()->isClaimable(seat)))
+    {
         return false;
+    }
 
     if(isClaimedForSeat(seat))
         return false;
@@ -696,6 +699,14 @@ void Tile::addNeighbor(Tile *n)
 
 void Tile::claimForSeat(Seat* seat, double nDanceRate)
 {
+    // If there is a claimable building, we claim it
+    if((getCoveringBuilding() != nullptr) &&
+       (getCoveringBuilding()->isClaimable(seat)))
+    {
+        getCoveringBuilding()->claimForSeat(seat, this, nDanceRate);
+        return;
+    }
+
     // If the seat is allied, we add to it. If it is an enemy seat, we subtract from it.
     if (getSeat() != nullptr && getSeat()->isAlliedSeat(seat))
     {

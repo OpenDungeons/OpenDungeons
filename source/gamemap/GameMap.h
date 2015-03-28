@@ -443,6 +443,8 @@ public:
     //! \brief Returns the closest tile from origin where a GameEntity in listObjects is
     GameEntity* getClosestTileWhereGameEntityFromList(std::vector<GameEntity*> listObjects, Tile* origin, Tile*& attackedTile);
 
+    uint32_t getMaxNumberCreatures(Seat* seat) const;
+
     void logFloodFileTiles();
     void consoleSetCreatureDestination(const std::string& creatureName, int x, int y);
     void consoleDisplayCreatureVisualDebug(const std::string& creatureName, bool enable);

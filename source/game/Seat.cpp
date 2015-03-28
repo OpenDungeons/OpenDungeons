@@ -63,6 +63,7 @@ Seat::Seat(GameMap* gameMap) :
     mStartingY(0),
     mGoldMined(0),
     mNumCreaturesFighters(0),
+    mNumCreaturesFightersMax(0),
     mDefaultWorkerClass(nullptr),
     mNumClaimedTiles(0),
     mHasGoalsChanged(true),
@@ -326,15 +327,7 @@ bool Seat::canOwnedCreatureUseRoomFrom(const Seat* seat) const
     return false;
 }
 
-bool Seat::canRoomBeDestroyedBy(const Seat* seat) const
-{
-    if(this == seat)
-        return true;
-
-    return false;
-}
-
-bool Seat::canTrapBeDestroyedBy(const Seat* seat) const
+bool Seat::canBuildingBeDestroyedBy(const Seat* seat) const
 {
     if(this == seat)
         return true;
@@ -802,7 +795,8 @@ ODPacket& operator<<(ODPacket& os, Seat *s)
     os << s->mId << s->mTeamId << s->mPlayerType << s->mFaction << s->mStartingX
        << s->mStartingY;
     os << s->mColorId;
-    os << s->mGold << s->mMana << s->mManaDelta << s->mNumClaimedTiles << s->mNumCreaturesFighters;
+    os << s->mGold << s->mMana << s->mManaDelta << s->mNumClaimedTiles;
+    os << s->mNumCreaturesFighters << s->mNumCreaturesFightersMax;
     os << s->mHasGoalsChanged;
     os << s->mNbTreasuries;
     uint32_t nb = s->mAvailableTeamIds.size();
@@ -818,7 +812,8 @@ ODPacket& operator>>(ODPacket& is, Seat *s)
     is >> s->mId >> s->mTeamId >> s->mPlayerType;
     is >> s->mFaction >> s->mStartingX >> s->mStartingY;
     is >> s->mColorId;
-    is >> s->mGold >> s->mMana >> s->mManaDelta >> s->mNumClaimedTiles >> s->mNumCreaturesFighters;
+    is >> s->mGold >> s->mMana >> s->mManaDelta >> s->mNumClaimedTiles;
+    is >> s->mNumCreaturesFighters >> s->mNumCreaturesFightersMax;
     is >> s->mHasGoalsChanged;
     is >> s->mNbTreasuries;
     s->mColorValue = ConfigManager::getSingleton().getColorFromId(s->mColorId);
@@ -869,6 +864,7 @@ void Seat::refreshFromSeat(Seat* s)
     mManaDelta = s->mManaDelta;
     mNumClaimedTiles = s->mNumClaimedTiles;
     mNumCreaturesFighters = s->mNumCreaturesFighters;
+    mNumCreaturesFightersMax = s->mNumCreaturesFightersMax;
     mHasGoalsChanged = s->mHasGoalsChanged;
     mNbTreasuries = s->mNbTreasuries;
 }

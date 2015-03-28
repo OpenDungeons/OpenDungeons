@@ -29,28 +29,48 @@ class RoomPortal: public Room
 public:
     RoomPortal(GameMap* gameMap);
 
-    virtual RoomType getType() const
+    inline uint32_t getNbCreatureMaxIncrease() const
+    { return mNbCreatureMaxIncrease; }
+
+    virtual RoomType getType() const override
     { return RoomType::portal; }
 
+    //! Room portal is claimable by enemy seats
+    virtual bool isClaimable(Seat* seat) const override;
+    virtual void claimForSeat(Seat* seat, Tile* tile, double danceRate) override;
+
+    //! Room portal cannot be destroyed
+    virtual bool isAttackable(Tile* tile, Seat* seat) const override
+    { return false; }
+
+    //! No seat can sell Room portals
+    virtual bool canSeatSellBuilding(Seat* seat) const override
+    { return false; }
+
     //! \brief In addition to the standard upkeep, check to see if a new creature should be spawned.
-    void doUpkeep();
+    void doUpkeep() override;
 
     //! \brief Creates a new creature whose class is probabalistic and adds it to the game map at the center of the portal.
     void spawnCreature();
 
     //! \brief Portals only display claimed tiles on their ground.
-    virtual bool shouldDisplayBuildingTile() const
+    virtual bool shouldDisplayBuildingTile() const override
     { return false; }
 
     //! \brief Updates the portal position when in editor mode.
-    void updateActiveSpots();
+    void updateActiveSpots() override;
+
+    virtual void setupRoom(const std::string& name, Seat* seat, const std::vector<Tile*>& tiles) override;
+
+    virtual void exportToStream(std::ostream& os) const override;
+    virtual void importFromStream(std::istream& is) override;
 
     virtual void restoreInitialEntityState() override;
 
 protected:
-    void destroyMeshLocal();
+    void destroyMeshLocal() override;
 
-    void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
+    void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile) override
     {
         // This Room keeps its building object until it is destroyed (it will be released when
         // the room is destroyed)
@@ -59,8 +79,11 @@ protected:
 private:
     //! \brief Stores the number of turns before spawning the next creature.
     int mSpawnCreatureCountdown;
-
     RenderedMovableEntity* mPortalObject;
+
+    double mClaimedValue;
+
+    uint32_t mNbCreatureMaxIncrease;
 
     //! \brief Updates the portal mesh position.
     void updatePortalPosition();

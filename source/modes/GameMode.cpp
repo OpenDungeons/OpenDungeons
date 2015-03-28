@@ -394,11 +394,14 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 
                 for(Tile* tile : tiles)
                 {
+                    // FIXME: the client is not notified about rooms/traps. Thus,
+                    // the funding cannot be computed. To do that, the easiest will
+                    // be to create a variable in the tile mGoldIfSold for each client
                     if(tile->getCoveringRoom() == nullptr)
                         continue;
 
                     Room* room = tile->getCoveringRoom();
-                    if(!room->getSeat()->canRoomBeDestroyedBy(player->getSeat()))
+                    if(!room->getSeat()->canBuildingBeDestroyedBy(player->getSeat()))
                         continue;
 
                     goldRetrieved += Room::costPerTile(room->getType()) / 2;
@@ -426,11 +429,13 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 
                 for(Tile* tile : tiles)
                 {
+                    // FIXME: the client is not notified about rooms/traps. Thus,
+                    // the funding cannot be computed
                     if(tile->getCoveringTrap() == nullptr)
                         continue;
 
                     Trap* trap = tile->getCoveringTrap();
-                    if(!trap->getSeat()->canTrapBeDestroyedBy(player->getSeat()))
+                    if(!trap->getSeat()->canBuildingBeDestroyedBy(player->getSeat()))
                         continue;
 
                     goldRetrieved += Trap::costPerTile(trap->getType()) / 2;

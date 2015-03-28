@@ -55,6 +55,7 @@ class TrapTileData : public TileData
 public:
     TrapTileData() :
         TileData(),
+        mClaimedValue(1.0),
         mIsActivated(false),
         mReloadTime(0),
         mCraftedTrap(nullptr),
@@ -147,6 +148,8 @@ public:
     inline void setRemoveTrap(bool removeTrap)
     { mRemoveTrap = removeTrap; }
 
+    double mClaimedValue;
+
 private:
     bool mIsActivated;
     uint32_t mReloadTime;
@@ -182,6 +185,10 @@ public:
 
     static int costPerTile(TrapType t);
 
+    //! Traps can be claimed by enemy seats
+    virtual bool isClaimable(Seat* seat) const override;
+    virtual void claimForSeat(Seat* seat, Tile* tile, double danceRate) override;
+
     virtual void doUpkeep() override;
 
     virtual bool shoot(Tile* tile)
@@ -191,7 +198,7 @@ public:
     bool isActivated(Tile* tile) const;
 
     //! \brief Sets the name, seat and associates the given tiles with the trap
-    void setupTrap(const std::string& name, Seat* seat, const std::vector<Tile*>& tiles);
+    virtual void setupTrap(const std::string& name, Seat* seat, const std::vector<Tile*>& tiles);
 
     virtual bool removeCoveredTile(Tile* t);
     virtual void updateActiveSpots();

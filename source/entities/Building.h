@@ -98,6 +98,14 @@ public:
         Tile* targetTile, double x, double y, double rotationAngle, bool hideCoveredTile, float opacity = 1.0f);
     Tile* getCentralTile();
 
+    virtual bool isClaimable(Seat* seat) const
+    { return false; }
+
+    virtual void claimForSeat(Seat* seat, Tile* tile, double danceRate)
+    {}
+
+    virtual bool canSeatSellBuilding(Seat* seat) const;
+
     virtual bool isAttackable(Tile* tile, Seat* seat) const;
     virtual bool removeCoveredTile(Tile* t);
     std::vector<Tile*> getCoveredTiles();

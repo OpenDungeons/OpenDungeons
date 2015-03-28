@@ -686,48 +686,25 @@ std::vector<Tile*> TileContainer::tilesBorderedByRegion(const std::vector<Tile*>
 {
     std::vector<Tile*> returnList;
 
-    // If there are too many tiles, we use an algorithm that do not use std::find (too slow) but
-    // that is more memory consuming.
-    if(region.size() > 40)
+    std::vector<std::vector<bool>> tilesToRefresh(getMapSizeX(), std::vector<bool>(getMapSizeY(), false));
+    for (Tile* t1 : region)
     {
-        std::vector<std::vector<bool>> tilesToRefresh(getMapSizeX(), std::vector<bool>(getMapSizeY(), false));
-        for (Tile* t1 : region)
+        if(!tilesToRefresh[t1->getX()][t1->getY()])
         {
-            if(!tilesToRefresh[t1->getX()][t1->getY()])
-            {
-                tilesToRefresh[t1->getX()][t1->getY()] = true;
-                returnList.push_back(t1);
-            }
+            tilesToRefresh[t1->getX()][t1->getY()] = true;
+            returnList.push_back(t1);
+        }
 
-            // Get the tiles bordering the current tile and loop over them.
-            for (Tile* t2 : t1->getAllNeighbors())
-            {
-                if(tilesToRefresh[t2->getX()][t2->getY()])
-                    continue;
+        // Get the tiles bordering the current tile and loop over them.
+        for (Tile* t2 : t1->getAllNeighbors())
+        {
+            if(tilesToRefresh[t2->getX()][t2->getY()])
+                continue;
 
-                tilesToRefresh[t2->getX()][t2->getY()] = true;
-                returnList.push_back(t2);
-            }
+            tilesToRefresh[t2->getX()][t2->getY()] = true;
+            returnList.push_back(t2);
         }
     }
-    else
-    {
-        // Loop over all the tiles in the specified region.
-        for (Tile* t1 : region)
-        {
-            // Get the tiles bordering the current tile and loop over them.
-            for (Tile* t2 : t1->getAllNeighbors())
-            {
-                // We add the tile in the return list if it is not already there or in the region
-                if((std::find(region.begin(), region.end(), t2) == region.end()) &&
-                   (std::find(returnList.begin(), returnList.end(), t2) == returnList.end()))
-                {
-                    returnList.push_back(t2);
-                }
-            }
-        }
-    }
-
 
     return returnList;
 }

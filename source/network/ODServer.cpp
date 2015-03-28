@@ -1162,7 +1162,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     continue;
 
                 Room* room = tile->getCoveringRoom();
-                if(!room->getSeat()->canRoomBeDestroyedBy(player->getSeat()))
+                if(!room->canSeatSellBuilding(player->getSeat()))
                     continue;
 
                 roomsImpacted.insert(room);
@@ -1399,7 +1399,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     continue;
 
                 Trap* trap = tile->getCoveringTrap();
-                if(!trap->getSeat()->canTrapBeDestroyedBy(player->getSeat()))
+                if(!trap->canSeatSellBuilding(player->getSeat()))
                     continue;
 
                 trapsImpacted.insert(trap);

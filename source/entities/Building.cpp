@@ -57,12 +57,6 @@ void Building::doUpkeep()
     std::vector<Tile*> tilesToRemove;
     for (Tile* tile : mCoveredTiles)
     {
-        if(!getSeat()->isAlliedSeat(tile->getSeat()))
-        {
-            tilesToRemove.push_back(tile);
-            continue;
-        }
-
         if (mTileData[tile]->mHP <= 0.0)
         {
             tilesToRemove.push_back(tile);
@@ -211,7 +205,13 @@ Tile* Building::getCentralTile()
 
     std::vector<Tile*> allTiles;
     allTiles.insert(allTiles.end(), mCoveredTiles.begin(), mCoveredTiles.end());
-    allTiles.insert(allTiles.end(), mCoveredTilesDestroyed.begin(), mCoveredTilesDestroyed.end());
+
+    // In editor mode, we do not consider destroyed tiles while computing the central tile
+    if(!getGameMap()->isInEditorMode())
+        allTiles.insert(allTiles.end(), mCoveredTilesDestroyed.begin(), mCoveredTilesDestroyed.end());
+
+    if(allTiles.empty())
+        return nullptr;
 
     int minX, maxX, minY, maxY;
     minX = maxX = allTiles[0]->getX();
@@ -336,6 +336,14 @@ std::string Building::getNameTile(Tile* tile)
 bool Building::isAttackable(Tile* tile, Seat* seat) const
 {
     if(getHP(tile) <= 0.0)
+        return false;
+
+    return true;
+}
+
+bool Building::canSeatSellBuilding(Seat* seat) const
+{
+    if(!getSeat()->canBuildingBeDestroyedBy(seat))
         return false;
 
     return true;

@@ -4712,6 +4712,7 @@ ProtectDungeonTemple	NULL
 4	20
 5	20
 6	20
+9	5
 [/Room]
 [Room]
 6	Dojo3	2	20
@@ -4804,6 +4805,7 @@ ProtectDungeonTemple	NULL
 89	15
 90	15
 91	15
+9	5
 [/Room]
 [Room]
 3	Treasury8	2	16
@@ -4969,6 +4971,7 @@ ProtectDungeonTemple	NULL
 11	95
 12	95
 13	95
+9	5
 [/Room]
 [Room]
 3	Treasury17	3	16
@@ -5141,6 +5144,7 @@ ProtectDungeonTemple	NULL
 87	93
 88	93
 89	93
+9	5
 [/Room]
 [Room]
 3	Treasury25	4	1
@@ -5376,6 +5380,7 @@ ProtectDungeonTemple	NULL
 42	55
 43	55
 44	55
+9	5
 [/Room]
 [Room]
 3	Treasury39	5	10

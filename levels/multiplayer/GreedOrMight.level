@@ -2224,6 +2224,7 @@ MineNGold	50
 38	14
 38	15
 38	16
+9	5
 [/Room]
 [Room]
 1	DungeonTemple3	2	9
@@ -2248,6 +2249,7 @@ MineNGold	50
 60	46
 60	47
 60	48
+9	5
 [/Room]
 [Room]
 1	DungeonTemple5	3	9
@@ -2272,6 +2274,7 @@ MineNGold	50
 15	44
 15	45
 15	46
+9	5
 [/Room]
 [/Rooms]
 

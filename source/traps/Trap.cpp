@@ -564,6 +564,7 @@ void Trap::exportTileDataToStream(std::ostream& os, Tile* tile, TileData* tileDa
     os << "\t" << trapTileData->mHP;
     os << "\t" << trapTileData->getReloadTime();
     os << "\t" << trapTileData->getNbShootsBeforeDeactivation();
+    os << "\t" << trapTileData->mClaimedValue;
 
     // We only save enemy seats that have vision on the building
     std::vector<Seat*> seatsToSave;
@@ -605,6 +606,7 @@ void Trap::importTileDataFromStream(std::istream& is, Tile* tile, TileData* tile
     OD_ASSERT_TRUE(is >> tileHealth);
     OD_ASSERT_TRUE(is >> reloadTime);
     OD_ASSERT_TRUE(is >> nbShootsBeforeDeactivation);
+    OD_ASSERT_TRUE(is >> trapTileData->mClaimedValue);
     OD_ASSERT_TRUE(is >> nbSeatsVision);
 
     if(isTrapActiv != 0)
@@ -662,6 +664,33 @@ bool Trap::isTileVisibleForSeat(Tile* tile, Seat* seat) const
         return false;
 
     return true;
+}
+
+bool Trap::isClaimable(Seat* seat) const
+{
+    if(getSeat()->canBuildingBeDestroyedBy(seat))
+        return false;
+
+    return true;
+}
+
+void Trap::claimForSeat(Seat* seat, Tile* tile, double danceRate)
+{
+    if(mTileData.count(tile) <= 0)
+    {
+        OD_ASSERT_TRUE_MSG(false, "trap=" + getName() + ", tile=" + Tile::displayAsString(tile));
+        return;
+    }
+
+    TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData.at(tile));
+    if(danceRate < trapTileData->mClaimedValue)
+    {
+        trapTileData->mClaimedValue -= danceRate;
+        return;
+    }
+
+    trapTileData->mHP = 0.0;
+    tile->claimTile(seat);
 }
 
 std::istream& operator>>(std::istream& is, TrapType& tt)
