@@ -342,7 +342,7 @@ bool Seat::canBuildingBeDestroyedBy(const Seat* seat) const
 void Seat::setPlayer(Player* player)
 {
     OD_ASSERT_TRUE_MSG(mPlayer == nullptr, "A player=" + mPlayer->getNick() + " already on seat id="
-        + Ogre::StringConverter::toString(getId()));
+        + Helper::toString(getId()) + ", newNick=" + player->getNick());
 
     mPlayer = player;
     mPlayer->mSeat = this;
@@ -358,6 +358,9 @@ void Seat::addAlliedSeat(Seat* seat)
 void Seat::initSeat()
 {
     if(getPlayer() == nullptr)
+        return;
+
+    if(isRogueSeat())
         return;
 
     // Spawn pool initialisation
@@ -452,23 +455,7 @@ void Seat::initSeat()
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
 
-        if(!tilesMark.empty())
-        {
-            ServerNotification *serverNotification = new ServerNotification(
-                ServerNotificationType::markTiles, getPlayer());
-            uint32_t nbTiles = tilesMark.size();
-            serverNotification->mPacket << true << nbTiles;
-            for(Tile* tile : tilesMark)
-            {
-                // If the tile is diggable on the server gamemap, we mark it
-                if(tile->isDiggable(this))
-                    tile->setMarkedForDigging(true, getPlayer());
-
-                // On client side, we ask to mark the tile
-                mGameMap->tileToPacket(serverNotification->mPacket, tile);
-            }
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
+        getPlayer()->markTilesForDigging(true, tilesMark, false);
     }
 }
 
@@ -858,10 +845,16 @@ Seat* Seat::createRogueSeat(GameMap* gameMap)
     seat->mGoldMined = 0;
     seat->mMana = 0;
 
-    Player* inactivePlayer = new Player(gameMap, 0);
-    inactivePlayer->setNick("Inactive rogue AI");
-    gameMap->addPlayer(inactivePlayer);
-    seat->setPlayer(inactivePlayer);
+    // In editor, we do not add the player on rogue seat because that's where the human player will be since that's the
+    // only seat we are sure to exist
+    if(!gameMap->isInEditorMode())
+    {
+        Player* inactivePlayer = new Player(gameMap, 0);
+        inactivePlayer->setNick("Inactive rogue AI");
+        gameMap->addPlayer(inactivePlayer);
+        seat->setPlayer(inactivePlayer);
+    }
+
     return seat;
 }
 
@@ -1865,6 +1858,11 @@ void Seat::notifyBuildingRemovedFromGameMap(Building* building, Tile* tile)
 
 void Seat::tileMarkedDiggingNotifiedToPlayer(Tile* tile, bool isDigSet)
 {
+    if(getPlayer() == nullptr)
+        return;
+    if(!getPlayer()->getIsHuman())
+        return;
+
     OD_ASSERT_TRUE_MSG(tile->getX() < static_cast<int>(mTilesStates.size()), "Tile=" + Tile::displayAsString(tile));
     OD_ASSERT_TRUE_MSG(tile->getY() < static_cast<int>(mTilesStates[tile->getX()].size()), "Tile=" + Tile::displayAsString(tile));
 

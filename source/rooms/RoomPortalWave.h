@@ -93,6 +93,7 @@ protected:
 private:
     //! \brief Stores the number of turns before spawning the next creature.
     uint32_t mSpawnCountdown;
+    uint32_t mSearchFoeCountdown;
     uint32_t mTurnsBetween2Waves;
     RenderedMovableEntity* mPortalObject;
 
@@ -113,6 +114,14 @@ private:
 
     //! Spawns a wave
     void spawnWave(RoomPortalWaveData* roomPortalWaveData, uint32_t maxCreaturesToSpawn);
+
+    //! Marks needed tiles to try to get to some player's dungeon. Returns true if an enemy dungeon
+    //! is reachable by digging and marks corresponding tiles.
+    bool handleDigging();
+
+    //! Searches for the best foe we can fight. Returns true if an enemy dungeon is reachable
+    //! without digging and false otherwise
+    bool handleSearchFoe();
 };
 
 #endif // ROOMPORTALWAVE_H

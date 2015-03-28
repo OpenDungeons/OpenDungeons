@@ -799,7 +799,7 @@ bool TileContainer::sortByDistSquared(const TileDistance& tileDist1, const TileD
     return tileDist1.getDistSquared() < tileDist2.getDistSquared();
 }
 
-std::list<Tile*> TileContainer::tilesBetween(int x1, int y1, int x2, int y2)
+std::list<Tile*> TileContainer::tilesBetween(int x1, int y1, int x2, int y2) const
 {
     std::list<Tile*> path;
 
@@ -875,6 +875,106 @@ std::list<Tile*> TileContainer::tilesBetween(int x1, int y1, int x2, int y2)
             error += deltaerr;
             if(error >= 0.5)
             {
+                x += diffX;
+                error = error - 1.0;
+            }
+        }
+    }
+
+    // We add the last tile
+    Tile* tile = getTile(x2, y2);
+    if(tile != nullptr)
+        path.push_back(tile);
+
+    return path;
+}
+
+std::list<Tile*> TileContainer::tilesBetweenWithoutDiagonals(int x1, int y1, int x2, int y2) const
+{
+    std::list<Tile*> path;
+
+    double deltax = x2 - x1;
+    double deltay = y2 - y1;
+    // We don't have to check for deltay == 0 because if deltax > 0 and deltay == 0,
+    // we will never have std::abs(deltax) < std::abs(deltay) and, thus, we will
+    // never compute std::abs(deltax / deltay);
+    if(deltax == 0)
+    {
+        // Vertical line, no need to compute
+        int diffY = 1;
+        if(y1 > y2)
+            diffY = -1;
+
+        for(int y = y1; y != y2; y += diffY)
+        {
+            Tile* tile = getTile(x1, y);
+            if(tile == nullptr)
+                break;
+
+            path.push_back(tile);
+        }
+    }
+    else if(std::abs(deltax) >= std::abs(deltay))
+    {
+        double error = 0;
+        double deltaerr = std::abs(deltay / deltax);
+        int diffX = 1;
+        if(x1 > x2)
+            diffX = -1;
+
+        int diffY = 1;
+        if(y1 > y2)
+            diffY = -1;
+
+        int y = y1;
+        for(int x = x1; x != x2; x += diffX)
+        {
+            Tile* tile = getTile(x, y);
+            if(tile == nullptr)
+                break;
+
+            path.push_back(tile);
+            error += deltaerr;
+            if(error >= 0.5)
+            {
+                tile = getTile(x + diffX, y);
+                if(tile == nullptr)
+                    break;
+
+                path.push_back(tile);
+                y += diffY;
+                error = error - 1.0;
+            }
+        }
+    }
+    else // if(std::abs(deltax) < std::abs(deltay))
+    {
+        double error = 0;
+        double deltaerr = std::abs(deltax / deltay);
+        int diffX = 1;
+        if(x1 > x2)
+            diffX = -1;
+
+        int diffY = 1;
+        if(y1 > y2)
+            diffY = -1;
+
+        int x = x1;
+        for(int y = y1; y != y2; y += diffY)
+        {
+            Tile* tile = getTile(x, y);
+            if(tile == nullptr)
+                break;
+
+            path.push_back(tile);
+            error += deltaerr;
+            if(error >= 0.5)
+            {
+                tile = getTile(x, y + diffY);
+                if(tile == nullptr)
+                    break;
+
+                path.push_back(tile);
                 x += diffX;
                 error = error - 1.0;
             }

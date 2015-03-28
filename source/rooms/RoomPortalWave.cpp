@@ -21,15 +21,20 @@
 #include "entities/CreatureDefinition.h"
 #include "entities/PersistentObject.h"
 #include "entities/Tile.h"
+#include "spell/SpellCallToWar.h"
 #include "gamemap/GameMap.h"
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/Random.h"
 
+#include <vector>
+
 RoomPortalWave::RoomPortalWave(GameMap* gameMap) :
         Room(gameMap),
         mSpawnCountdown(0),
+        mSearchFoeCountdown(0),
+        mTurnsBetween2Waves(0),
         mPortalObject(nullptr),
         mClaimedValue(0)
 {
@@ -135,6 +140,15 @@ void RoomPortalWave::doUpkeep()
     if (mCoveredTiles.empty())
         return;
 
+    if(mSearchFoeCountdown > 0)
+        --mSearchFoeCountdown;
+    else
+    {
+        mSearchFoeCountdown = Random::Uint(10, 20);
+        if(!handleSearchFoe())
+            handleDigging();
+    }
+
     if (mSpawnCountdown < mTurnsBetween2Waves)
     {
         ++mSpawnCountdown;
@@ -234,6 +248,7 @@ void RoomPortalWave::spawnWave(RoomPortalWaveData* roomPortalWaveData, uint32_t 
 
         Creature* newCreature = new Creature(getGameMap(), classToSpawn);
         newCreature->setLevel(p.second);
+        newCreature->setHP(newCreature->getMaxHp());
 
         LogManager::getSingleton().logMessage("RoomPortalWave name=" + getName()
             + "spawns a creature class=" + classToSpawn->getClassName()
@@ -411,4 +426,208 @@ void RoomPortalWave::addRoomPortalWaveData(RoomPortalWaveData* roomPortalWaveDat
     {
         mRoomPortalWaveDataNotSpawnable.push_back(roomPortalWaveData);
     }
+}
+
+bool RoomPortalWave::handleSearchFoe()
+{
+    if(mPortalObject == nullptr)
+    {
+        OD_ASSERT_TRUE_MSG(false, "room=" + getName());
+        return false;
+    }
+
+    Tile* tileStart = mPortalObject->getPositionTile();
+    if(tileStart == nullptr)
+    {
+        OD_ASSERT_TRUE_MSG(false, "room=" + getName());
+        return false;
+    }
+
+    std::vector<Creature*> creatures = getGameMap()->getCreaturesBySeat(getSeat());
+    if(creatures.empty())
+        return false;
+
+    // We randomly pick a creature to test for path
+    uint32_t index = Random::Uint(0, creatures.size() - 1);
+    Creature* creature = creatures[index];
+
+    std::vector<Room*> dungeonTemples = getGameMap()->getRoomsByType(RoomType::dungeonTemple);
+
+    // First, we check if a dungeon temple is reachable by ground. If yes, we cast a call to war
+    // if not, we search the closest and try to go there
+    std::vector<std::pair<Tile*,Ogre::Real>> tileDungeons;
+    for(Room* room : dungeonTemples)
+    {
+        if(room->getSeat()->isAlliedSeat(getSeat()))
+            continue;
+
+        Tile* tile = room->getCentralTile();
+        if(tile == nullptr)
+            continue;
+
+        if(!getGameMap()->pathExists(creature, tileStart, tile))
+            continue;
+
+        auto it = tileDungeons.begin();
+        Ogre::Real templeDist = getGameMap()->squaredCrowDistance(tileStart, tile);
+        while(it != tileDungeons.end())
+        {
+            if(templeDist < it->second)
+                break;
+
+            ++it;
+        }
+        tileDungeons.insert(it, std::pair<Tile*,Ogre::Real>(tile, templeDist));
+    }
+
+    // If we cannot reach a dungeon temple. We need to dig.
+    if(tileDungeons.empty())
+        return false;
+
+    // We found an accessible tile. Let's go there
+    // If there is already a call to war, we don't cast another one
+    for(Spell* spell : getGameMap()->getSpells())
+    {
+        if(spell->getSpellType() != SpellType::callToWar)
+            continue;
+
+        // There is a call to war. We do not cast another one but there is no need to dig
+        return true;
+    }
+
+    // No call to war. We cast it at the closest dungeon (they are sorted in tileDungeons)
+    Tile* tile = tileDungeons[0].first;
+    SpellCallToWar* spell = new SpellCallToWar(getGameMap());
+    spell->setSeat(getSeat());
+    spell->addToGameMap();
+    Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(tile->getX()),
+                                static_cast<Ogre::Real>(tile->getY()),
+                                static_cast<Ogre::Real>(0.0));
+    spell->createMesh();
+    spell->setPosition(spawnPosition, false);
+    return true;
+}
+
+bool RoomPortalWave::handleDigging()
+{
+    // No need to try digging if no worker
+    Creature* creature = getGameMap()->getWorkerForPathFinding(getSeat());
+    if(creature == nullptr)
+        return false;
+
+    if(mPortalObject == nullptr)
+    {
+        OD_ASSERT_TRUE_MSG(false, "room=" + getName());
+        return false;
+    }
+
+    Tile* tileStart = mPortalObject->getPositionTile();
+    if(tileStart == nullptr)
+    {
+        OD_ASSERT_TRUE_MSG(false, "room=" + getName());
+        return false;
+    }
+
+    // We check if our current path is valid
+    bool isPathValid = true;
+    Tile* tileDest = nullptr;
+    std::vector<Tile*> tilesToMark;
+    for(auto it = mWayToEnemy.begin(); it != mWayToEnemy.end();)
+    {
+        tileDest = *it;
+        if(creature->canGoThroughTile(tileDest))
+        {
+            ++it;
+            continue;
+        }
+
+        if(tileDest->isDiggable(getSeat()))
+        {
+            if(!tileDest->getMarkedForDigging(getSeat()->getPlayer()))
+                tilesToMark.push_back(tileDest);
+
+            ++it;
+            continue;
+        }
+
+        // We hit a non diggable tile. we try to mark another way
+        mWayToEnemy.erase(it, mWayToEnemy.end());
+        isPathValid = false;
+        break;
+    }
+
+    if(tileDest == nullptr)
+    {
+        // We search from the first tile
+        tileDest = tileStart;
+    }
+    else if(isPathValid)
+    {
+        // tileDest != nullptr && isPathValid
+        // The currently marked tile path is valid. No need to change
+        // we check if we already killed the given dungeon. If no, nothing to do. If yes, we go somewhere else
+        if((tileDest->getCoveringBuilding() != nullptr) &&
+           (!tileDest->getCoveringBuilding()->getSeat()->isAlliedSeat(getSeat())))
+        {
+            getSeat()->getPlayer()->markTilesForDigging(true, tilesToMark, false);
+            return true;
+        }
+        else
+        {
+            // The foe is down. We can choose another one
+            tileDest = tileStart;
+            mWayToEnemy.clear();
+        }
+    }
+
+    // We sort the dungeon temples by distance. We will try to reach the closest accessible one
+    std::vector<std::pair<Tile*,Ogre::Real>> tileDungeons;
+    std::vector<Room*> dungeonTemples = getGameMap()->getRoomsByType(RoomType::dungeonTemple);
+    for(Room* room : dungeonTemples)
+    {
+        if(room->getSeat()->isAlliedSeat(getSeat()))
+            continue;
+
+        Tile* tile = room->getCentralTile();
+        if(tile == nullptr)
+            continue;
+
+        auto it = tileDungeons.begin();
+        Ogre::Real templeDist = getGameMap()->squaredCrowDistance(tileDest, tile);
+        while(it != tileDungeons.end())
+        {
+            if(templeDist < it->second)
+                break;
+
+            ++it;
+        }
+        tileDungeons.insert(it, std::pair<Tile*,Ogre::Real>(tile, templeDist));
+    }
+
+    if(tileDungeons.empty())
+    {
+        // No reachable enemy dungeon
+        return false;
+    }
+
+    bool isWayFound = false;
+    for(std::pair<Tile*,Ogre::Real>& p : tileDungeons)
+    {
+        std::list<Tile*> pathToDungeon = getGameMap()->path(tileDest, p.first, creature, getSeat(), true);
+        if(pathToDungeon.empty())
+            continue;
+
+        isWayFound = true;
+        for(Tile* tile : pathToDungeon)
+            tilesToMark.push_back(tile);
+
+        break;
+    }
+
+    if(!isWayFound)
+        return false;
+
+    getSeat()->getPlayer()->markTilesForDigging(true, tilesToMark, false);
+
+    return true;
 }

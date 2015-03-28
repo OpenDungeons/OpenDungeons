@@ -218,6 +218,9 @@ public:
     //! Note that on client side, PlayerEvent::mTimeRemain is not relevant
     const PlayerEvent* getNextEvent(uint32_t& index) const;
 
+    //! Marks the tiles for digging and send the refresh event to concerned player if human
+    void markTilesForDigging(bool marked, const std::vector<Tile*>& tiles, bool asyncMsg);
+
 private:
     //! \brief Player ID is only used during seat configuration phase
     //! During the game, one should use the seat ID to identify a player because

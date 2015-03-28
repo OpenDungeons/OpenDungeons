@@ -697,7 +697,8 @@ void KeeperAI::saveWoundedCreatures()
 
         mPlayer.pickUpEntity(creature);
 
-        OD_ASSERT_TRUE(mPlayer.dropHand(dungeonTempleTile) == creature);
+        OD_ASSERT_TRUE_MSG(mPlayer.dropHand(dungeonTempleTile) == creature, "dungeonTempleTile=" + dungeonTempleTile->getName()
+            + ", creature=" + creature->getName());
     }
 }
 

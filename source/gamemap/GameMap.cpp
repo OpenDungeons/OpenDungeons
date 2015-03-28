@@ -2655,9 +2655,11 @@ void GameMap::consoleAskToggleFOW()
 
 Creature* GameMap::getWorkerForPathFinding(Seat* seat)
 {
-    std::vector<Creature*> creatures = getCreaturesBySeat(seat);
-    for (Creature* creature : creatures)
+    for (Creature* creature : mCreatures)
     {
+        if(creature->getSeat() != seat)
+            continue;
+
         if (creature->getDefinition()->isWorker())
             return creature;
     }
