@@ -2625,7 +2625,6 @@ ProtectDungeonTemple	NULL
 
 [Creatures]
 # SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon
-1	ConstructWorker1	ConstructWorker	7	7	0	ConstructWorker	1	0	max	100	0	0	none	none	0	none
 0	Scarab1	Scarab	37	42	0	Scarab	1	0	max	100	0	0	none	none	0	none
 [/Creatures]
 

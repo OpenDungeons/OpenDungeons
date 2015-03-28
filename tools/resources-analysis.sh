@@ -4,6 +4,7 @@
 
 scan_meshes=false
 scan_textures=false
+scan_scripts=false
 generate_tree=false
 while [[ $# -ge 1 ]]; do
     key="$1"
@@ -15,12 +16,14 @@ while [[ $# -ge 1 ]]; do
         echo -e "\t--all, -a\tPerform all supported actions (equivalent to -m -t -g)."
         echo -e "\t--scan-meshes, -m\tScan meshes to link them with materials."
         echo -e "\t--scan-textures, -t\tScan textures to link them with materials."
+        echo -e "\t--scan-scripts, -t\tScan material scripts to link them with material names."
         echo -e "\t--generate-tree, -g\t."
         echo ""
         ;;
         --all|-a)
         scan_meshes=true
         scan_textures=true
+        scan_scripts=true
         generate_tree=true
         ;;
         --scan-meshes|-m)
@@ -28,6 +31,9 @@ while [[ $# -ge 1 ]]; do
         ;;
         --scan-textures|-t)
         scan_textures=true
+        ;;
+        --scan-scripts|-s)
+        scan_scripts=true
         ;;
         --generate-tree|-g)
         generate_tree=true
@@ -72,6 +78,8 @@ log_meshes="$basedir/meshes2materials.log"
 log_meshes_unused="$basedir/meshes_unused.log"
 log_textures="$basedir/textures2materials.log"
 log_textures_unused="$basedir/textures_unused.log"
+log_scripts="$basedir/scripts2materials.log"
+log_materials_unused="$basedir/materials_unused.log"
 
 if $scan_meshes; then
     echo "Scanning mesh files..."
@@ -122,6 +130,29 @@ if $scan_textures; then
     echo -e "Output written to $log_textures\nand $log_textures_unused\n"
 fi
 
+if $scan_scripts; then
+    echo "Scanning material scripts... The unused materials log will only be relevant if meshes have been analysed first."
+    echo -e "[script filename]:\t[material name]" > $log_scripts
+    echo -e "[material name]\t[script filename]\t[matched in source]" > $log_materials_unused
+
+    for script in $(ls materials/scripts/* | sed -e 's@materials/scripts/@@'); do
+        for word in $(cat materials/scripts/$script | grep "^ *material " | sed -e 's/^ *material //'); do
+            # Skip the words which are not material names
+            if [ -n "$(echo $word | grep RTSS)" -o -n "$(echo $word | grep :)" ]; then
+                continue
+            fi
+            if [ -z "$(cat $log_meshes | grep $word)" ]; then
+                matches=$(ack -il --ignore-dir=tools --ignore-dir=materials/scripts --ignore-file=is:CREDITS $word | wc -l)
+                echo -e "$word\t$script\t$matches" >> $log_materials_unused
+            else
+                echo -e "$script:\t$word" >> $log_scripts
+            fi
+        done
+    done
+
+    echo -e "Output written to $log_scripts and $log_materials_unused\n"
+fi
+
 if $generate_tree; then
     abort=false
     if [ ! -r $log_meshes ]; then
@@ -159,4 +190,5 @@ if $generate_tree; then
             echo "    * $texture" >> $log_tree
         done
     done < $log_meshes_t
+    rm -f $log_meshes_t
 fi

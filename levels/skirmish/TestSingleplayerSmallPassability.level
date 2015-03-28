@@ -209,7 +209,6 @@ ProtectDungeonTemple	NULL
 
 [Creatures]
 # SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon
-1	ConstructWorker1	ConstructWorker	1	1	0	ConstructWorker	1	0	max	100	0	0	none	none	0	none
 1	Lava	PitDemon	2	2	0	PitDemon	1	0	max	100	0	0	none	none	0	none
 1	Water	Slime	2	2	0	Slime	1	0	max	100	0	0	none	none	0	none
 [/Creatures]

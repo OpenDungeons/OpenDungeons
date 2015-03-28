@@ -90,7 +90,6 @@ textures/
 -> *.png                               Titus Tscharntke        CC0                     http://www.burningwell.org/ - photo sources for textures
 -> AdventurerBed.png                   PantherOne              CC0                     http://opengameart.org/content/tent-pack
 -> Anvil.png                           Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
--> Axe.png                             Skorpio                 CC-BY-SA 3.0, GPL 3.0
 -> Cavehornet*.png                     Skorpio                 CC-BY-SA 3.0, GPL 3.0
 -> CelticCross.png                     Yughues                 CC0                     http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
 -> ChickenCoop_tex.png                 Dm3d                    CC-BY-SA 3.0            http://opengameart.org/content/chicken-coop
@@ -143,10 +142,8 @@ Name                                   Author                  License          
 Anvil.mesh                             Daniel74                CC0                     http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
 Adventurer.*                           Danimal                 CC-BY-SA 3.0
 AdventurerBed.mesh                     PantherOne              CC0                     http://opengameart.org/content/tent-pack
-Axe1.mesh                              Skorpio                 CC-BY-SA 3.0, GPL 3.0
 barrel_destroyed.mesh                  Nobiax/yughues          CC0
 Bed.mesh                               Clint Bellanger         CC0                     http://opengameart.org/content/bed-low-poly
-BeetleGolem.mesh                       killyoverdrive (OGA)    CC-BY-SA 3.0            http://opengameart.org/content/beetle-golem-animated
 big_wood_barrel.mesh                   Nobiax/yughues          CC0
 Bookcase.mesh                          Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
 Bookshelf.mesh                         Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
@@ -158,7 +155,6 @@ Chicken.*                              Skorpio                 CC-BY-SA 3.0     
 ChickenCoop.mesh                       Dm3d, Danimal           CC-BY-SA 3.0            http://opengameart.org/content/chicken-coop
 Chimney.mesh                           Daniel74                CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
 Claimed*                               Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Con_worker.*                           Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Cre_vision_indicator.mesh              Andrew Buck             CC-BY-SA 3.0
 Crypt.mesh                             Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
 Defender.*                             Konstantin Maystrenko - Concept  CC-BY 3.0      http://forum.freegamedev.net/viewtopic.php?p=61450#p61450
@@ -166,7 +162,6 @@ Defender.*                             Konstantin Maystrenko - Concept  CC-BY 3.
                                        Danimal - Retopo/Rigging/Animation
 Dirt*                                  Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Dojo.mesh                              p0ss                    CC-BY-SA 3.0
-DojoRockObject.mesh                    p0ss                    CC-BY-SA 3.0
 Dormitory.mesh                         Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Dragon.*                               Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
 DragonBed.mesh                         Dm3d                    GPL 2.0/GPL 3.0/CC-BY-SA 3.0  http://opengameart.org/content/goldpile
@@ -176,7 +171,6 @@ Dwarf2.*                               Skorpio                 CC-BY-SA 3.0, GPL
 Dwarf3.*                               thecubber (OGA), MrBeast (OGA), Skorpio
  ->                                                            CC-BY-SA 3.0, GPL 3.0   http://opengameart.org/content/dwarf-fixed
 Farm.mesh                              Danimal                 CC-BY-SA 3.0            (Texture by nobiax - CC0) - http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
-Fire.mesh                              Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Forge.mesh                             Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
 Foundry.mesh                           Daniel74                CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
 Gnome.*                                Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
@@ -212,7 +206,6 @@ Portal.*                               Skorpio                 CC-BY-SA 3.0
 RangerBed.mesh                         PantherOne              CC0                     http://opengameart.org/content/tent-pack
 Rock*                                  Skorpio                 CC-BY-SA 3.0, GPL 3.0
 RoundShield.mesh                       Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
-RuinEntrance.mesh                      zerberros (OGA)         CC0                     http://opengameart.org/content/cementery-gate
 Sabre.mesh                             Andrew Buck             CC-BY-SA 3.0
 Scarab.*                               killyoverdrive (OGA)    CC-BY-SA 3.0            http://opengameart.org/content/beetle-golem-animated
 Slime.*                                Grefuntor, D3dm         CC-BY 3.0, CC-BY-SA 3.0, GPL 2.0+ - http://opengameart.org/content/slime-mold
@@ -225,7 +218,6 @@ Staff.*                                Skorpio                 CC-BY-SA 3.0, GPL
 StoneCoffin.mesh                       Yughues                 CC0                     http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
 TentacleBed.mesh                       Eugeneloza              CC0                     http://forum.freegamedev.net/viewtopic.php?p=60091#p60091
 Tentacle*                              Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Torch.mesh                             Skorpio                 CC-BY-SA 3.0, GPL 3.0
 TrainingDummy1.*                       Aaron Eads              CC-BY 3.0               http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
 TrainingDummy2.*                       Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?f=38&t=5528&p=59348#p59239
 TrainingDummy3.*                       Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59351#p59351
