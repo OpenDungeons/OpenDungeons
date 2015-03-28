@@ -8,7 +8,7 @@ material Claimed : RTSS/NormalMapping_MultiPass
             // Override the normal map.
             rtshader_system
             {
-                lighting_stage normal_map Claimed6Nor.png tangent_space 0 bilinear 1 -1.0
+                lighting_stage normal_map ClaimedNormal.png tangent_space 0 bilinear 1 -1.0
             }
         }
         pass decal
@@ -17,7 +17,7 @@ material Claimed : RTSS/NormalMapping_MultiPass
             // We use blending, so that we can see the underlying texture.
             texture_unit decalmap
             {
-                texture Claimed6c.png
+                texture Claimed.png
             }
         }
         pass last
@@ -29,7 +29,7 @@ material Claimed : RTSS/NormalMapping_MultiPass
             depth_bias 1
             texture_unit
             {
-              texture Claimed6c_mask.png
+              texture ClaimedMask.png
             }
         }
     }

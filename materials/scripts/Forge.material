@@ -1,4 +1,4 @@
-// Treasury genrated by blender2ogre 0.6.0
+// Forge genrated by blender2ogre 0.6.0
 import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
 material Forge : RTSS/NormalMapping_MultiPass
 {
@@ -8,6 +8,7 @@ material Forge : RTSS/NormalMapping_MultiPass
     {
         pass lighting
         {
+
              // Override the normal map.
              rtshader_system
              {
@@ -15,11 +16,19 @@ material Forge : RTSS/NormalMapping_MultiPass
              }
         }
 
-    pass decal
+        pass decal
         {
+            ambient 0.8 0.8 0.8 0.8 0.8
+            diffuse 0.65 0.65 0.65 0.65 0.65
+            specular 0.1 0.1 0.1 0.1 0.1
+            emissive 0.0 0.0 0.0 0.0 0.0
+
             texture_unit decalmap
             {
                 texture Forge.png
+                tex_address_mode wrap
+                scale 1.0 1.0
+                colour_op modulate
             }
         }
     }
