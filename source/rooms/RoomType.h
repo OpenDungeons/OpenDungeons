@@ -14,34 +14,37 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#ifndef ROOMTYPE_H
+#define ROOMTYPE_H
 
-#ifndef SPAWNCONDITION_H
-#define SPAWNCONDITION_H
-
-#include <cstdint>
+#include <string>
 #include <iosfwd>
-#include <vector>
 
-class GameMap;
-class Seat;
+class ODPacket;
 
-class SpawnCondition
+enum class RoomType
 {
-public:
-    // Constructors
-    SpawnCondition()
-    {}
-
-    virtual ~SpawnCondition()
-    {}
-
-    static SpawnCondition* load(std::istream& defFile);
-
-    //! \brief Checks if this spawning condition is met for the given gameMap/Seat. Returns true if the conditions are met and
-    //! false otherwise. If true, computedPoints will be set to the additional points (can be < 0).
-    virtual bool computePointsForSeat(GameMap* gameMap, Seat* seat, int32_t& computedPoints) const = 0;
-
-    static const std::vector<const SpawnCondition*> EMPTY_SPAWNCONDITIONS;
+    nullRoomType = 0,
+    dungeonTemple,
+    dormitory,
+    treasury,
+    portal,
+    workshop,
+    trainingHall,
+    library,
+    hatchery,
+    crypt
 };
 
-#endif // SPAWNCONDITION_H
+namespace Rooms
+{
+    std::string getRoomNameFromRoomType(RoomType t);
+    RoomType getRoomTypeFromRoomName(const std::string& name);
+}
+
+std::istream& operator>>(std::istream& is, RoomType& rt);
+std::ostream& operator<<(std::ostream& os, const RoomType& rt);
+ODPacket& operator>>(ODPacket& is, RoomType& rt);
+ODPacket& operator<<(ODPacket& os, const RoomType& rt);
+
+#endif

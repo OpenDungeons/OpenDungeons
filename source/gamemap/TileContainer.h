@@ -19,11 +19,9 @@
 #define TILECONTAINER_H
 
 #include <OgreVector3.h>
-#include <array>
 #include <bitset>
 #include <cassert>
 #include <list>
-#include <sstream>
 #include <vector>
 
 class ODPacket;

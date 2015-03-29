@@ -18,12 +18,14 @@
 #include "entities/TreasuryObject.h"
 
 #include "entities/Tile.h"
+#include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "network/ODPacket.h"
 #include "rooms/RoomTreasury.h"
 #include "utils/LogManager.h"
 
-#include <iostream>
+#include <istream>
+#include <ostream>
 
 TreasuryObject::TreasuryObject(GameMap* gameMap, int goldValue) :
     RenderedMovableEntity(gameMap, "Treasury_", getMeshNameForGold(goldValue), 0.0f, false),

@@ -53,6 +53,7 @@ class Spell;
 enum class GameEntityType;
 enum class FloodFillType;
 enum class RoomType;
+enum class SpellType;
 
 /*! \brief The class which stores the entire game state on the server and a subset of this on each client.
  *

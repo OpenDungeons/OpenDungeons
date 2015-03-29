@@ -39,14 +39,14 @@ enum class TileVisual;
 class ConfigManager : public Ogre::Singleton<ConfigManager>
 {
 public:
-    ConfigManager();
+    ConfigManager(const std::string& configPath);
     ~ConfigManager();
 
     static const std::string DefaultWorkerCreatureDefinition;
     static const std::string DEFAULT_TILESET_NAME;
 
     Ogre::ColourValue getColorFromId(const std::string& id) const;
-    inline const std::vector<const CreatureDefinition*>& getCreatureDefinitions() const
+    inline const std::map<std::string, CreatureDefinition*>& getCreatureDefinitions() const
     { return mCreatureDefs; }
     const CreatureDefinition* getCreatureDefinition(const std::string& name) const;
 
@@ -125,7 +125,7 @@ public:
 private:
     //! \brief Function used to load the global configuration. They should return true if the configuration
     //! is ok and false if a mandatory parameter is missing
-    bool loadGlobalConfig();
+    bool loadGlobalConfig(const std::string& configPath);
     bool loadGlobalConfigSeatColors(std::stringstream& configFile);
     bool loadGlobalConfigDefinitionFiles(std::stringstream& configFile);
     bool loadGlobalGameConfig(std::stringstream& configFile);
@@ -142,7 +142,7 @@ private:
     bool loadTilesetValues(std::istream& defFile, TileVisual tileVisual, std::vector<TileSetValue>& tileValues);
 
     std::map<std::string, Ogre::ColourValue> mSeatColors;
-    std::vector<const CreatureDefinition*> mCreatureDefs;
+    std::map<std::string, CreatureDefinition*> mCreatureDefs;
     std::vector<const Weapon*> mWeapons;
     std::string mFilenameCreatureDefinition;
     std::string mFilenameEquipmentDefinition;

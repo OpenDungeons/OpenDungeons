@@ -17,20 +17,13 @@
 
 #include "rooms/RoomDungeonTemple.h"
 
+#include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "entities/Creature.h"
-#include "entities/Weapon.h"
-#include "entities/CreatureAction.h"
-#include "entities/CreatureSound.h"
 #include "entities/PersistentObject.h"
 #include "entities/ResearchEntity.h"
 #include "entities/Tile.h"
-#include "game/Player.h"
-#include "network/ODServer.h"
-#include "network/ServerNotification.h"
-#include "modes/ModeManager.h"
 #include "utils/LogManager.h"
-#include "utils/ConfigManager.h"
 
 RoomDungeonTemple::RoomDungeonTemple(GameMap* gameMap) :
     Room(gameMap),

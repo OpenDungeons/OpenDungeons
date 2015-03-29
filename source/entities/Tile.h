@@ -20,14 +20,11 @@
 
 #include "entities/GameEntity.h"
 
-#include <OgrePrerequisites.h>
-#include <OgreSceneNode.h>
-#include <OgreMeshManager.h>
+#include <OgreVector3.h>
 
 #include <string>
 #include <vector>
-#include <ostream>
-#include <istream>
+#include <iosfwd>
 
 class Building;
 class Creature;

@@ -20,6 +20,7 @@
 #include "entities/BuildingObject.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
+#include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "network/ODServer.h"
 #include "render/RenderManager.h"

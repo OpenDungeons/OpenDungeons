@@ -30,6 +30,8 @@
 #include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
 
+#include <OgreStringConverter.h>
+
 int SpellSummonWorker::getSpellSummonWorkerCost(GameMap* gameMap, const std::vector<Tile*>& tiles, Player* player)
 {
     int32_t nbFreeWorkers = ConfigManager::getSingleton().getSpellConfigInt32("SummonWorkerNbFree");

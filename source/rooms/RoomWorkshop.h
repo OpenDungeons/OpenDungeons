@@ -19,6 +19,7 @@
 #define ROOMWORKSHOP_H
 
 #include "rooms/Room.h"
+#include "rooms/RoomType.h"
 
 enum class TrapType;
 

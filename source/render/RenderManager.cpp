@@ -105,7 +105,7 @@ void RenderManager::triggerCompositor(const std::string& compositorName)
 
 void RenderManager::createScene(Ogre::Viewport* nViewport)
 {
-    LogManager::getSingleton().logMessage("Creating scene...", Ogre::LML_NORMAL);
+    LogManager::getSingleton().logMessage("Creating scene...");
 
     mViewport = nViewport;
 
@@ -938,7 +938,7 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, co
                                                  newMaterial->getName(), newMaterial->getGroup());
     if(!cloned)
     {
-        LogManager::getSingleton().logMessage("Failed to clone rtss for material: " + materialName, Ogre::LML_CRITICAL);
+        LogManager::getSingleton().logMessage("Failed to clone rtss for material: " + materialName, LogMessageLevel::CRITICAL);
     }
 
     // Loop over the techniques for the new material

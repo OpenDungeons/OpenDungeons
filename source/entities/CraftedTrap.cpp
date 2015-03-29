@@ -29,8 +29,9 @@
 #include "traps/TrapCannon.h"
 #include "traps/TrapSpike.h"
 
-#include "utils/Random.h"
+#include "utils/Helper.h"
 #include "utils/LogManager.h"
+#include "utils/Random.h"
 
 #include <iostream>
 
@@ -68,7 +69,7 @@ const std::string& CraftedTrap::getMeshFromTrapType(TrapType trapType)
             return TrapBoulder::MESH_BOULDER;
         default:
             OD_ASSERT_TRUE_MSG(false, "Wrong enum asked for CraftedTrap " + getName() + ", trapType="
-                + Ogre::StringConverter::toString(static_cast<uint32_t>(trapType)));
+                + Helper::toString(static_cast<uint32_t>(trapType)));
     }
 
     return EMPTY_STRING;

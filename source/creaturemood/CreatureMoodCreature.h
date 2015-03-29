@@ -20,6 +20,8 @@
 
 #include "creaturemood/CreatureMood.h"
 
+#include <string>
+
 class CreatureDefinition;
 
 class CreatureMoodCreature : public CreatureMood

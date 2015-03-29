@@ -17,70 +17,7 @@
 
 #include "utils/LogManager.h"
 
-#include "utils/ResourceManager.h"
-
-#include <OgreLogManager.h>
-
-#include <boost/date_time/posix_time/posix_time.hpp>
-
 template<> LogManager* Ogre::Singleton<LogManager>::msSingleton = nullptr;
 
 //! \brief Log filename used when OD Application throws errors without using Ogre default logger.
 const std::string LogManager::GAMELOG_NAME = "gameLog";
-
-LogManager::LogManager()
-{
-#ifdef LOGMANAGER_USE_LOCKS
-    /* Using a separate log if ogre doesn't have thread support as
-     * as log writes from ogre itself won't be thread-safe in this case.
-     */
-    mGameLog = Ogre::LogManager::getSingleton().createLog(
-        ResourceManager::getSingleton().getUserDataPath() + GAMELOG_NAME);
-#else
-    mGameLog = Ogre::LogManager::getSingleton().getDefaultLog();
-#endif
-}
-
-void LogManager::logMessage(const std::string& message, Ogre::LogMessageLevel lml,
-                            bool maskDebug, bool addTimeStamp)
-{
-#ifdef LOGMANAGER_USE_LOCKS
-    std::lock_guard<std::mutex> lock(mLogLockMutex);
-#endif
-    if(addTimeStamp)
-    {
-        static std::locale loc(std::wcout.getloc(),
-            new boost::posix_time::time_facet("%Y%m%d_%H%M%S"));
-
-        std::stringstream ss;
-        ss.imbue(loc);
-        ss << "[" << boost::posix_time::second_clock::local_time() << "] " << message;
-        mGameLog->logMessage(ss.str(), lml, maskDebug);
-    }
-    else
-    {
-        mGameLog->logMessage(message, lml, maskDebug);
-    }
-}
-
-void LogManager::setLogDetail(Ogre::LoggingLevel ll)
-{
-#ifdef LOGMANAGER_USE_LOCKS
-    std::lock_guard<std::mutex> lock(mLogLockMutex);
-#endif
-    mGameLog->setLogDetail(ll);
-}
-
-Ogre::LoggingLevel LogManager::getLogDetail()
-{
-    Ogre::LoggingLevel ret;
-#ifdef LOGMANAGER_USE_LOCKS
-    {
-        std::lock_guard<std::mutex> lock(mLogLockMutex);
-#endif
-        ret = mGameLog->getLogDetail();
-#ifdef LOGMANAGER_USE_LOCKS
-    }
-#endif
-    return ret;
-}

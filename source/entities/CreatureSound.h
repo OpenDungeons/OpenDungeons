@@ -21,8 +21,9 @@
 #ifndef CREATURESOUND_H_
 #define CREATURESOUND_H_
 
-#include "sound/SoundEffectsManager.h"
+#include <vector>
 
+class GameSound;
 class ODPacket;
 
 enum class CreatureSoundType

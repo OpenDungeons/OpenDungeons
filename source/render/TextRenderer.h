@@ -18,10 +18,15 @@
 #ifndef TEXTRENDERER_H
 #define TEXTRENDERER_H
 
-#include <Overlay/OgreOverlayManager.h>
-#include <Overlay/OgreOverlay.h>
-#include <Overlay/OgreOverlayContainer.h>
+#include <OgreColourValue.h>
 #include <OgreSingleton.h>
+
+namespace Ogre
+{
+    class OverlayManager;
+    class Overlay;
+    class OverlayContainer;
+}
 
 //! \brief See: http://www.ogre3d.org/tikiwiki/Simple+Text+Output&structure=Cookbook
 class TextRenderer: public Ogre::Singleton<TextRenderer>

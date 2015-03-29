@@ -22,6 +22,9 @@
 #include "utils/Helper.h"
 #include "utils/MakeUnique.h"
 
+#include <istream>
+#include <ostream>
+
 Goal::Goal(const std::string& nName, const std::string& nArguments, GameMap* gameMap) :
     mName(nName),
     mArguments(nArguments),

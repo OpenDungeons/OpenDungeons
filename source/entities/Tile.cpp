@@ -29,7 +29,6 @@
 
 #include "gamemap/GameMap.h"
 
-#include "network/ODServer.h"
 #include "network/ODPacket.h"
 
 #include "render/RenderManager.h"
@@ -43,6 +42,8 @@
 
 #include <cstddef>
 #include <bitset>
+#include <istream>
+#include <ostream>
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define snprintf_is_banned_in_OD_code _snprintf

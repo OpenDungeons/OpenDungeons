@@ -15,34 +15,4 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ROOMHATCHERY_H
-#define ROOMHATCHERY_H
-
-#include "rooms/Room.h"
-#include "rooms/RoomType.h"
-
-class Creature;
-
-class RoomHatchery: public Room
-{
-public:
-    RoomHatchery(GameMap* gameMap);
-
-    ~RoomHatchery()
-    {}
-
-    virtual RoomType getType() const
-    { return RoomType::hatchery; }
-
-    virtual void doUpkeep();
-    virtual bool hasOpenCreatureSpot(Creature* c);
-
-protected:
-    virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
-    virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);
-private:
-    uint32_t getNbChickens();
-    uint32_t mSpawnChickenCooldown;
-};
-
-#endif // ROOMHATCHERY_H
+#include "utils/TestLogManager.h"

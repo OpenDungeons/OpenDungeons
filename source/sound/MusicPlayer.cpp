@@ -175,8 +175,7 @@ MusicPlayer::MusicPlayer(const std::string& musicFilesPath, Ogre::StringVectorPt
 
     if(mTracks.empty())
     {
-        logMgr.logMessage("No music files loaded... no music will be played",
-                Ogre::LML_NORMAL);
+        logMgr.logMessage("No music files loaded... no music will be played");
     }
     else
     {

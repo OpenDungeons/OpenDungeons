@@ -19,8 +19,7 @@
 #define WEAPON_H
 
 #include <string>
-#include <istream>
-#include <ostream>
+#include <iosfwd>
 
 class Creature;
 class ODPacket;

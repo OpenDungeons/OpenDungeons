@@ -18,6 +18,9 @@
 #include "InputManager.h"
 
 #include "utils/LogManager.h"
+#include <OIS/OISMouse.h>
+#include <OIS/OISKeyboard.h>
+#include <OIS/OISInputManager.h>
 #include <OgreRenderWindow.h>
 
 InputManager::InputManager(Ogre::RenderWindow* renderWindow):

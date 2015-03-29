@@ -21,8 +21,7 @@
 #include "entities/MissileObject.h"
 
 #include <string>
-#include <istream>
-#include <ostream>
+#include <iosfwd>
 
 class Creature;
 class Room;

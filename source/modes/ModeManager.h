@@ -22,8 +22,6 @@
 
 #include "modes/InputManager.h"
 
-#include <OGRE/OgreFrameListener.h>
-
 #include <vector>
 #include <string>
 #include <memory>

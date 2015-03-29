@@ -21,32 +21,13 @@
 #include "entities/Building.h"
 
 #include <string>
-#include <deque>
-#include <iostream>
+#include <iosfwd>
 
 class Seat;
 class RenderedMovableEntity;
 class GameMap;
 class ODPacket;
-
-enum class RoomType
-{
-    nullRoomType = 0,
-    dungeonTemple,
-    dormitory,
-    treasury,
-    portal,
-    workshop,
-    trainingHall,
-    library,
-    hatchery,
-    crypt
-};
-
-std::istream& operator>>(std::istream& is, RoomType& rt);
-std::ostream& operator<<(std::ostream& os, const RoomType& rt);
-ODPacket& operator>>(ODPacket& is, RoomType& rt);
-ODPacket& operator<<(ODPacket& os, const RoomType& rt);
+enum class RoomType;
 
 class Room : public Building
 {
@@ -79,9 +60,6 @@ public:
     void importTileDataFromStream(std::istream& is, Tile* tile, TileData* tileData);
 
     virtual RoomType getType() const = 0;
-
-    static const std::string getRoomNameFromRoomType(RoomType t);
-    static RoomType getRoomTypeFromRoomName(const std::string& name);
 
     static int costPerTile(RoomType t);
 

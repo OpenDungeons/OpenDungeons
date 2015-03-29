@@ -17,8 +17,6 @@
 
 #include "rooms/RoomDormitory.h"
 
-#include "network/ODServer.h"
-#include "network/ServerNotification.h"
 #include "entities/Tile.h"
 #include "gamemap/GameMap.h"
 #include "entities/RenderedMovableEntity.h"

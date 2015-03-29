@@ -26,7 +26,6 @@
 #include <OgreStringConverter.h>
 
 #include <string>
-#include <iostream>
 #include <sstream>
 #include <vector>
 #include <cstdint>

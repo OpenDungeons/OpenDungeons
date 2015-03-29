@@ -23,6 +23,7 @@
 #include "entities/ResearchEntity.h"
 #include "entities/Tile.h"
 #include "game/Research.h"
+#include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"

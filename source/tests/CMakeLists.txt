@@ -1,8 +1,8 @@
 include(BoostTestTargets)
 
 add_boost_test(Random
-	SOURCES
-	test_Random.cpp
+        SOURCES
+        test_Random.cpp
         "${SRC}/utils/Random.h"
         "${SRC}/utils/Random.cpp")
 
@@ -22,3 +22,16 @@ add_boost_test(ConsoleInterface
         "${SRC}/modes/ConsoleInterface.cpp"
         "${SRC}/modes/Command.h"
         "${SRC}/modes/Command.cpp")
+
+add_boost_test(CreatureDefinition
+        SOURCES
+        test_CreatureDefinition.cpp
+        "${SRC}/entities/CreatureDefinition.cpp"
+        "${SRC}/network/ODPacket.cpp"
+        "${SRC}/rooms/RoomType.cpp"
+        "${SRC}/utils/LogManager.cpp"
+        "${SRC}/utils/Helper.cpp"
+        LIBRARIES
+        ${SFML_LIBRARIES}
+        ${Boost_LIBRARIES}
+        ${OGRE_LIBRARIES})

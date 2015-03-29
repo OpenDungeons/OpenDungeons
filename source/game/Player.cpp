@@ -30,11 +30,13 @@
 #include "render/RenderManager.h"
 
 #include "rooms/Room.h"
+#include "rooms/RoomType.h"
 
 #include "spell/Spell.h"
 
 #include "traps/Trap.h"
 
+#include "utils/Helper.h"
 #include "utils/LogManager.h"
 
 #include <cmath>

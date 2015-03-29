@@ -18,16 +18,19 @@
 #include "entities/MapLight.h"
 
 #include "entities/Tile.h"
+#include "game/Player.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "network/ODPacket.h"
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
 #include "render/RenderManager.h"
+#include "utils/Helper.h"
 #include "utils/LogManager.h"
 //#include "utils/Random.h"
 
-#include <sstream>
+#include <istream>
+#include <ostream>
 
 const std::string MapLight::MAPLIGHT_NAME_PREFIX = "Map_light_";
 
@@ -106,7 +109,7 @@ std::vector<Tile*> MapLight::getCoveredTiles()
 Tile* MapLight::getCoveredTile(int index)
 {
     OD_ASSERT_TRUE_MSG(index == 0, "name=" + getName()
-        + ", index=" + Ogre::StringConverter::toString(index));
+        + ", index=" + Helper::toString(index));
 
     if(index > 0)
         return nullptr;

@@ -33,6 +33,7 @@
 
 #include "entities/Tile.h"
 #include "entities/Creature.h"
+#include "entities/CreatureDefinition.h"
 #include "entities/MapLight.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Weapon.h"
@@ -51,6 +52,7 @@
 #include "rooms/RoomDungeonTemple.h"
 #include "rooms/RoomPortal.h"
 #include "rooms/RoomTreasury.h"
+#include "rooms/RoomType.h"
 
 #include "spell/Spell.h"
 
@@ -179,10 +181,9 @@ bool GameMap::loadLevel(const std::string& levelFilepath)
 {
     // We reset the creature definitions
     clearClasses();
-    const std::vector<const CreatureDefinition*>& classes = ConfigManager::getSingleton().getCreatureDefinitions();
-    for(const CreatureDefinition* def : classes)
+    for(auto it : ConfigManager::getSingleton().getCreatureDefinitions())
     {
-        addClassDescription(def);
+        addClassDescription(it.second);
     }
 
     // We reset the weapons definitions
@@ -879,7 +880,7 @@ void GameMap::saveLevelClassDescriptions(std::ofstream& levelFile)
         if(def.second == nullptr)
             continue;
 
-        CreatureDefinition::writeCreatureDefinitionDiff(def.first, def.second, levelFile);
+        CreatureDefinition::writeCreatureDefinitionDiff(def.first, def.second, levelFile, ConfigManager::getSingleton().getCreatureDefinitions());
     }
 }
 

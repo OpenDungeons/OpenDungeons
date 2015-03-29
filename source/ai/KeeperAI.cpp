@@ -18,8 +18,10 @@
 #include "ai/KeeperAI.h"
 
 #include "entities/Creature.h"
-#include "gamemap/GameMap.h"
 #include "entities/Tile.h"
+#include "game/Player.h"
+#include "game/Seat.h"
+#include "gamemap/GameMap.h"
 #include "rooms/Room.h"
 #include "rooms/RoomCrypt.h"
 #include "rooms/RoomDormitory.h"
@@ -839,7 +841,7 @@ bool KeeperAI::repairRooms()
                     room = new RoomTreasury(&mGameMap);
                     break;
                 default:
-                    OD_ASSERT_TRUE_MSG(false, "roomType=" + Room::getRoomNameFromRoomType(type));
+                    OD_ASSERT_TRUE_MSG(false, "roomType=" + Rooms::getRoomNameFromRoomType(type));
                     break;
             }
             if(room != nullptr)

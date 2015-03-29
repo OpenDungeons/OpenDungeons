@@ -172,6 +172,12 @@ if(WIN32 AND MSVC)
     set(CMAKE_CXX_FLAGS_DEBUG "${PLATFORM_C_FLAGS_DEBUG}")
 endif()
 
+if(WIN32)
+    #Tell OIS we are linking dynamically for dllexport/dllimport attributes.
+    #TODO: Find out if this is needed.
+    add_definitions(-DOIS_DYNAMIC_LIB)
+endif()
+
 set(CMAKE_CXX_FLAGS "${OD_CXX11_FLAGS} ${OD_OPT_FLAGS} ${CMAKE_CXX_FLAGS}")
 message(STATUS "CMake CXX Flags: " ${CMAKE_CXX_FLAGS})
 
@@ -328,6 +334,7 @@ set(OD_SOURCEFILES
     ${SRC}/rooms/RoomHatchery.cpp
     ${SRC}/rooms/RoomLibrary.cpp
     ${SRC}/rooms/RoomPortal.cpp
+    ${SRC}/rooms/RoomType.cpp
     ${SRC}/rooms/RoomTrainingHall.cpp
     ${SRC}/rooms/RoomTreasury.cpp
     ${SRC}/rooms/RoomWorkshop.cpp
@@ -353,6 +360,7 @@ set(OD_SOURCEFILES
     ${SRC}/utils/FrameRateLimiter.cpp
     ${SRC}/utils/Helper.cpp
     ${SRC}/utils/LogManager.cpp
+    ${SRC}/utils/LogManagerOgre.cpp
     ${SRC}/utils/Random.cpp
     ${SRC}/utils/ResourceManager.cpp
     ${SRC}/utils/StackTracePrint.cpp
@@ -393,6 +401,8 @@ endif()
 #This has to cover the versions not already known by CMake
 set(Boost_ADDITIONAL_VERSIONS 1.47 1.47.0 1.47.1 1.55.0)
 
+set(OD_BOOST_COMPONENTS system filesystem locale)
+
 if(WIN32 AND ${OGRE_FOUND})
     # On windows we can try to use boost from the Ogre SDK instead
     set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} ${ENV_OGRE_HOME}/boost_1_44/lib)
@@ -412,7 +422,7 @@ endif()
 
 if(MINGW OR UNIX)
     # We need to specify the compiler here that Ogre used to compile boost
-    find_package(Boost COMPONENTS system filesystem locale REQUIRED)
+    find_package(Boost REQUIRED COMPONENTS ${OD_BOOST_COMPONENTS} OPTIONAL_COMPONENTS unit_test_framework)
 endif()
 
 #OpenAL
@@ -530,7 +540,6 @@ target_link_libraries(${PROJECT_BINARY_NAME} ${SFML_LIBRARIES})
 ##################################
 
 if(BUILD_TESTING AND OD_BUILD_TESTING)
-    find_package(Boost OPTIONAL_COMPONENTS unit_test_framework)
     if(Boost_UNIT_TEST_FRAMEWORK_FOUND)
         message(STATUS "boost testing framework found, enabling tests")
         add_subdirectory("${SRC}/tests")

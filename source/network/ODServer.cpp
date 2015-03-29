@@ -21,12 +21,15 @@
 #include "network/ServerNotification.h"
 #include "gamemap/GameMap.h"
 #include "ODApplication.h"
-#include "entities/MapLight.h"
 #include "modes/ServerConsoleCommands.h"
+#include "game/Player.h"
+#include "game/Seat.h"
 #include "game/Research.h"
 #include "gamemap/MapLoader.h"
 #include "utils/LogManager.h"
 #include "entities/Creature.h"
+#include "entities/CreatureDefinition.h"
+#include "entities/MapLight.h"
 #include "entities/Tile.h"
 #include "entities/Weapon.h"
 #include "traps/Trap.h"
@@ -42,6 +45,7 @@
 #include "rooms/RoomPortal.h"
 #include "rooms/RoomTrainingHall.h"
 #include "rooms/RoomTreasury.h"
+#include "rooms/RoomType.h"
 #include "spell/Spell.h"
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
@@ -1025,7 +1029,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             if(!player->getSeat()->isRoomAvailable(type))
             {
                 LogManager::getSingleton().logMessage("WARNING: player " + player->getNick()
-                    + " asked to cast a spell not available: " + Room::getRoomNameFromRoomType(type));
+                    + " asked to cast a spell not available: " + Rooms::getRoomNameFromRoomType(type));
                 break;
             }
 

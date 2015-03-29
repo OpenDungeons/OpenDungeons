@@ -18,8 +18,7 @@
 #ifndef GOAL_H
 #define GOAL_H
 
-#include <istream>
-#include <ostream>
+#include <iosfwd>
 #include <memory>
 #include <string>
 #include <vector>

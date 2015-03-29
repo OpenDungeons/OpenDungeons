@@ -32,6 +32,7 @@
 #include "render/RenderManager.h"
 #include "render/TextRenderer.h"
 #include "rooms/Room.h"
+#include "rooms/RoomType.h"
 #include "sound/MusicPlayer.h"
 #include "sound/SoundEffectsManager.h"
 #include "spell/Spell.h"
@@ -325,7 +326,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 
                 const Ogre::ColourValue& textColor = (gold < price) ? red : white;
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
-                textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Room::getRoomNameFromRoomType(selectedRoomType))
+                textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Rooms::getRoomNameFromRoomType(selectedRoomType))
                     + " [" + Ogre::StringConverter::toString(price)+ "]");
                 break;
             }

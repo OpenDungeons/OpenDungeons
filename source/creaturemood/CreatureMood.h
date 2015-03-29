@@ -19,8 +19,7 @@
 #define CREATUREMOOD_H
 
 #include <cstdint>
-#include <istream>
-#include <vector>
+#include <iosfwd>
 
 class Creature;
 class GameMap;

@@ -440,7 +440,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
                     std::cout << "Invalid Creature definition format." << std::endl;
                     return false;
                 }
-                if(!CreatureDefinition::update(def, levelFile))
+                if(!CreatureDefinition::update(def, levelFile, ConfigManager::getSingleton().getCreatureDefinitions()))
                     return false;
             }
         }

@@ -21,18 +21,6 @@
 #include <string>
 
 #include <OgreSingleton.h>
-#include <OgreConfig.h>
-#include <OgreLog.h>
-#include <OgreStringConverter.h>
-
-//If ogre is not build with thread support we need to lock the access ourselves.
-#if OGRE_THREAD_PROVIDER == 0
-#define LOGMANAGER_USE_LOCKS
-#endif
-
-#ifdef LOGMANAGER_USE_LOCKS
-#include <mutex>
-#endif
 
 #define OD_STRING_S(x) #x
 #define OD_STRING_S_(x) OD_STRING_S(x)
@@ -41,34 +29,30 @@
 #define OD_ASSERT_TRUE_MSG(a,b)  if(!(a)) LogManager::getSingleton().logMessage("ERROR: Assert failed file " + std::string(__FILE__) + " line " + std::string(S__LINE__) + std::string(" info : ") + b)
 
 
+enum class LogMessageLevel
+{
+    TRIVIAL = 1,
+    NORMAL,
+    CRITICAL
+};
+
 //! \brief Helper/wrapper class to provide thread-safe logging when ogre is compiled without threads.
 class LogManager : public Ogre::Singleton<LogManager>
 {
 public:
-    LogManager();
-
-    ~LogManager()
-    {}
-
+    LogManager() {};
     //! \brief Log a message to the game log.
-    void logMessage(const std::string& message, Ogre::LogMessageLevel lml = Ogre::LML_NORMAL,
-                    bool maskDebug = false, bool addTimeStamp = false);
+    virtual void logMessage(const std::string& message, LogMessageLevel lml = LogMessageLevel::NORMAL,
+                    bool maskDebug = false, bool addTimeStamp = false) = 0;
 
     //! \brief Set the log detail level.
-    void setLogDetail(Ogre::LoggingLevel ll);
-
-    Ogre::Log& getLog()
-    { return *mGameLog; }
-
-    Ogre::LoggingLevel getLogDetail();
+    //Messages lower than this level will be filtered.
+    virtual void setLogDetail(LogMessageLevel ll) = 0;
 
     static const std::string GAMELOG_NAME;
-
 private:
-    Ogre::Log* mGameLog;
-#ifdef LOGMANAGER_USE_LOCKS
-    std::mutex mLogLockMutex;
-#endif
+    LogManager(const LogManager&) = delete;
+    LogManager& operator=(const LogManager&) = delete;
 };
 
 #endif // LOGMANAGER_H

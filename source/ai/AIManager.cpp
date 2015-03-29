@@ -18,6 +18,8 @@
 #include "ai/AIManager.h"
 #include "ai/KeeperAI.h"
 
+#include "game/Player.h"
+
 #include "utils/LogManager.h"
 
 AIManager::AIManager(GameMap& gameMap)

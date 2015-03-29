@@ -21,7 +21,7 @@
 #include "gamemap/GameMap.h"
 #include "render/Gui.h"
 #include "render/ODFrameListener.h"
-#include "rooms/Room.h"
+#include "rooms/RoomType.h"
 #include "traps/Trap.h"
 #include "utils/Helper.h"
 

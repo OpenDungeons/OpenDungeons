@@ -21,8 +21,7 @@
 #include "entities/PersistentObject.h"
 
 #include <string>
-#include <istream>
-#include <ostream>
+#include <iosfwd>
 
 class Seat;
 class ODPacket;

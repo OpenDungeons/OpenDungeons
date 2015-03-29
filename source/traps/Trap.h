@@ -20,9 +20,7 @@
 
 #include <string>
 #include <vector>
-#include <istream>
-#include <ostream>
-#include <map>
+#include <iosfwd>
 
 class CraftedTrap;
 class Creature;

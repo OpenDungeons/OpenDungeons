@@ -35,6 +35,9 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
+#include <istream>
+#include <ostream>
+
 Trap::Trap(GameMap* gameMap) :
     Building(gameMap),
     mNbShootsBeforeDeactivation(0),

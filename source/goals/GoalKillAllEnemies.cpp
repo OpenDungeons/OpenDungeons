@@ -21,6 +21,7 @@
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "rooms/Room.h"
+#include "rooms/RoomType.h"
 
 #include <iostream>
 

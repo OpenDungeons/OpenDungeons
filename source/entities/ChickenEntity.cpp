@@ -19,8 +19,10 @@
 
 #include "entities/Tile.h"
 #include "network/ODPacket.h"
+#include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "rooms/Room.h"
+#include "rooms/RoomType.h"
 #include "utils/Random.h"
 #include "utils/LogManager.h"
 

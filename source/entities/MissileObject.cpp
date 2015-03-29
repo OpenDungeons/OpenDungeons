@@ -23,6 +23,7 @@
 
 #include "gamemap/GameMap.h"
 #include "network/ODPacket.h"
+#include "utils/Helper.h"
 #include "utils/LogManager.h"
 
 #include <iostream>

@@ -37,6 +37,7 @@
 #include "entities/TreasuryObject.h"
 
 #include "game/Player.h"
+#include "game/Seat.h"
 
 #include "gamemap/GameMap.h"
 #include "network/ODPacket.h"

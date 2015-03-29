@@ -26,6 +26,7 @@
 #include "utils/ResourceManager.h"
 #include "render/TextRenderer.h"
 #include "entities/Creature.h"
+#include "entities/CreatureDefinition.h"
 #include "entities/MapLight.h"
 #include "entities/Tile.h"
 #include "game/Seat.h"
@@ -33,7 +34,7 @@
 #include "game/Player.h"
 #include "render/RenderManager.h"
 #include "camera/CameraManager.h"
-#include "rooms/Room.h"
+#include "rooms/RoomType.h"
 #include "sound/MusicPlayer.h"
 #include "network/ODClient.h"
 #include "network/ODServer.h"
@@ -194,7 +195,7 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
             case Player::SelectedAction::buildRoom:
             {
                 RoomType selectedRoomType = player->getNewRoomType();
-                TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(Room::getRoomNameFromRoomType(selectedRoomType)));
+                TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(Rooms::getRoomNameFromRoomType(selectedRoomType)));
                 break;
             }
             case Player::SelectedAction::buildTrap:

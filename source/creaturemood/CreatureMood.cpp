@@ -27,6 +27,8 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
+#include <istream>
+
 std::string CreatureMood::toString(CreatureMoodLevel moodLevel)
 {
     switch(moodLevel)

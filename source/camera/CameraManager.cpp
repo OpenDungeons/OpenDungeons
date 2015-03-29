@@ -102,7 +102,7 @@ void CameraManager::createCamera(const Ogre::String& ss, double nearClip, double
                                                   static_cast<Ogre::Real>(0)));
 
     mRegisteredCameraNames.insert(ss);
-    LogManager::getSingleton().logMessage("Creating " + ss + " camera...", Ogre::LML_NORMAL);
+    LogManager::getSingleton().logMessage("Creating " + ss + " camera...");
 }
 
 void CameraManager::createCameraNode(const Ogre::String& ss, Ogre::Vector3 xyz,
@@ -117,7 +117,7 @@ void CameraManager::createCameraNode(const Ogre::String& ss, Ogre::Vector3 xyz,
     node->setPosition(Ogre::Vector3(0,0,2) +  node->getPosition());
     mRegisteredCameraNodeNames.insert(ss);
 
-    LogManager::getSingleton().logMessage("Creating " + ss + "_node camera node...", Ogre::LML_NORMAL);
+    LogManager::getSingleton().logMessage("Creating " + ss + "_node camera node...");
 }
 
 void CameraManager::setNextDefaultView()
@@ -172,7 +172,7 @@ void CameraManager::createViewport(Ogre::RenderWindow* renderWindow)
 //        Ogre::Camera* tmpCamera = getCamera(*m_itr);
 //    }
     LogManager* logManager = LogManager::getSingletonPtr();
-    logManager->logMessage("Creating viewport...", Ogre::LML_NORMAL);
+    logManager->logMessage("Creating viewport...");
 }
 /*
 void CameraManager::setFPPCamera(Creature* cc)
@@ -194,7 +194,7 @@ Ogre::SceneNode* CameraManager::getActiveCameraNode()
 Ogre::SceneNode* CameraManager::setActiveCameraNode(const Ogre::String& ss)
 {
     LogManager* logManager = LogManager::getSingletonPtr();
-    logManager->logMessage("Setting active camera node to " + ss + "_node ...", Ogre::LML_NORMAL);
+    logManager->logMessage("Setting active camera node to " + ss + "_node ...");
 
     return mActiveCameraNode = mSceneManager->getSceneNode(ss + "_node");
 }
@@ -211,7 +211,7 @@ void CameraManager::setActiveCamera(const Ogre::String& ss)
     mActiveCamera->setAspectRatio(Ogre::Real(mViewport->getActualWidth()) / Ogre::Real(mViewport->getActualHeight()));
 
     LogManager* logManager = LogManager::getSingletonPtr();
-    logManager->logMessage("Setting Active Camera to " + ss + " ...", Ogre::LML_NORMAL);
+    logManager->logMessage("Setting Active Camera to " + ss + " ...");
 }
 
 void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)
