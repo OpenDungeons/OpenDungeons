@@ -29,9 +29,6 @@ class GameMap;
 class ODPacket;
 enum class RoomType;
 
-ODPacket& operator>>(ODPacket& is, RoomType& rt);
-ODPacket& operator<<(ODPacket& os, const RoomType& rt);
-
 class Room : public Building
 {
 public:

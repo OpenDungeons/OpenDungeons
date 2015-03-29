@@ -757,17 +757,3 @@ bool Room::sortForMapSave(Room* r1, Room* r2)
     return seatId1 < seatId2;
 }
 
-ODPacket& operator>>(ODPacket& is, RoomType& rt)
-{
-    uint32_t tmp;
-    is >> tmp;
-    rt = static_cast<RoomType>(tmp);
-    return is;
-}
-
-ODPacket& operator<<(ODPacket& os, const RoomType& rt)
-{
-    uint32_t tmp = static_cast<uint32_t>(rt);
-    os << tmp;
-    return os;
-}

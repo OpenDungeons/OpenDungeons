@@ -20,6 +20,8 @@
 #include <string>
 #include <iosfwd>
 
+class ODPacket;
+
 enum class RoomType
 {
     nullRoomType = 0,
@@ -42,5 +44,7 @@ namespace Rooms
 
 std::istream& operator>>(std::istream& is, RoomType& rt);
 std::ostream& operator<<(std::ostream& os, const RoomType& rt);
+ODPacket& operator>>(ODPacket& is, RoomType& rt);
+ODPacket& operator<<(ODPacket& os, const RoomType& rt);
 
 #endif
