@@ -72,9 +72,11 @@ ProtectDungeonTemple	NULL
 0	18	4	0
 0	19	4	0
 0	20	4	0
+0	21	1	0	1
 0	26	5	0
 0	27	5	0
 0	28	5	0
+0	29	1	0	1
 1	0	1	100	1
 1	1	1	0	1
 1	2	1	0	1
@@ -96,6 +98,7 @@ ProtectDungeonTemple	NULL
 1	18	4	0
 1	19	4	0
 1	20	4	0
+1	21	1	25
 1	26	5	0
 1	27	5	0
 1	28	5	0
@@ -127,6 +130,7 @@ ProtectDungeonTemple	NULL
 2	26	5	0
 2	27	5	0
 2	28	5	0
+2	29	5	0
 3	0	1	100	1
 3	1	1	0	1
 3	2	1	0	1
@@ -262,7 +266,7 @@ ProtectDungeonTemple	NULL
 7	19	1	100	1
 7	20	4	0
 7	21	4	0
-7	22	3	0
+7	22	1	0	1
 7	23	3	0
 7	27	2	100
 7	28	2	100
@@ -418,6 +422,7 @@ ProtectDungeonTemple	NULL
 13	22	2	25
 13	23	4	0
 13	24	4	0
+13	29	1	0	1
 14	0	1	100	1
 14	1	1	0	1
 14	2	1	0	1
@@ -441,7 +446,7 @@ ProtectDungeonTemple	NULL
 14	20	2	25
 14	21	1	0
 14	22	1	0
-14	23	1	0
+14	23	1	0	1
 14	24	4	0
 14	25	4	0
 14	26	4	0
@@ -539,13 +544,19 @@ ProtectDungeonTemple	NULL
 18	17	1	100	1
 18	18	1	100	1
 18	19	1	100	1
-18	23	1	0	1
+18	21	1	0	1
+18	22	1	0	1
+18	24	1	0	1
 18	25	1	0	1
-18	26	1	0	1
+18	27	1	0	1
 18	28	1	0	1
 19	7	1	25
+19	21	1	0	1
+19	22	1	0	1
+19	24	1	0	1
 19	25	1	0	1
-19	26	1	0	1
+19	27	1	0	1
+19	28	1	0	1
 20	1	1	0	1
 20	2	1	0	1
 20	3	1	0	1
@@ -554,8 +565,6 @@ ProtectDungeonTemple	NULL
 20	6	1	0	1
 20	7	1	0	1
 20	8	1	0	1
-20	23	1	0	1
-20	28	1	0	1
 21	1	1	0	1
 21	2	1	0	1
 21	3	1	0	1
@@ -564,10 +573,18 @@ ProtectDungeonTemple	NULL
 21	6	1	0	1
 21	7	1	0	1
 21	8	1	0	1
-21	20	1	0	1
+21	12	1	0	1
+21	13	1	0	1
+21	15	1	0	1
+21	16	1	0	1
+21	18	1	0	1
+21	19	1	0	1
 21	21	1	0	1
+21	22	1	0	1
+21	24	1	0	1
 21	25	1	0	1
-21	26	1	0	1
+21	27	1	0	1
+21	28	1	0	1
 22	1	1	0	1
 22	2	1	0	1
 22	3	1	0	1
@@ -576,11 +593,17 @@ ProtectDungeonTemple	NULL
 22	6	1	0	1
 22	7	1	0	1
 22	8	1	0	1
-22	20	1	0	1
+22	12	1	0	1
+22	13	1	0	1
+22	15	1	0	1
+22	16	1	0	1
+22	18	1	0	1
+22	19	1	0	1
 22	21	1	0	1
-22	23	1	0	1
+22	22	1	0	1
+22	24	1	0	1
 22	25	1	0	1
-22	26	1	0	1
+22	27	1	0	1
 22	28	1	0	1
 23	0	1	25
 23	1	1	0	1
@@ -596,41 +619,79 @@ ProtectDungeonTemple	NULL
 24	5	1	25
 24	6	1	25
 24	7	1	25
-24	17	1	0	1
+24	12	1	0	1
+24	13	1	0	1
+24	15	1	0	1
+24	16	1	0	1
+24	18	1	0	1
 24	19	1	0	1
 24	21	1	0	1
-24	23	1	0	1
+24	22	1	0	1
+24	24	1	0	1
 24	25	1	0	1
-24	26	1	0	1
+24	27	1	0	1
 24	28	1	0	1
 25	0	1	25
 25	1	1	25
 25	5	1	25
 25	6	1	25
 25	7	1	25
+25	12	1	0	1
+25	13	1	0	1
+25	15	1	0	1
+25	16	1	0	1
+25	18	1	0	1
+25	19	1	0	1
+25	21	1	0	1
+25	22	1	0	1
+25	24	1	0	1
 25	25	1	0	1
-25	26	1	0	1
+25	27	1	0	1
+25	28	1	0	1
 26	0	1	25
 26	1	1	25
 26	5	1	25
 26	6	1	25
 26	7	1	25
-26	17	1	0	1
-26	19	1	0	1
-26	21	1	0	1
-26	23	1	0	1
-26	28	1	0	1
-27	0	1	25
-27	1	1	25
+27	0	1	0	1
+27	1	1	0	1
+27	3	1	0	1
+27	4	1	0	1
+27	6	1	0	1
+27	7	1	0	1
+27	9	1	0	1
+27	10	1	0	1
+27	12	1	0	1
+27	13	1	0	1
+27	15	1	0	1
+27	16	1	0	1
+27	18	1	0	1
+27	19	1	0	1
+27	21	1	0	1
+27	22	1	0	1
+27	24	1	0	1
 27	25	1	0	1
-27	26	1	0	1
-28	0	1	25
-28	1	1	25
+27	27	1	0	1
+27	28	1	0	1
+28	0	1	0	1
+28	1	1	0	1
+28	3	1	0	1
+28	4	1	0	1
+28	6	1	0	1
+28	7	1	0	1
+28	9	1	0	1
+28	10	1	0	1
+28	12	1	0	1
+28	13	1	0	1
+28	15	1	0	1
+28	16	1	0	1
+28	18	1	0	1
 28	19	1	0	1
 28	21	1	0	1
-28	23	1	0	1
+28	22	1	0	1
+28	24	1	0	1
 28	25	1	0	1
-28	26	1	0	1
+28	27	1	0	1
 28	28	1	0	1
 29	0	1	25
 [/Tiles]
@@ -731,16 +792,14 @@ ProtectDungeonTemple	NULL
 11	3
 11	4
 11	5
-9
-LizardMan13	9	3	0
-CaveHornet14	7	4	0
-Slime16	11	4	0
-Gnome17	8	2	0
-Adventurer18	10	1	0
-Dwarf119	7	1	0
-Dwarf220	11	2	0
-Wizard22	10	4	0
-Defender25	8	4	0
+7
+LizardMan16	9	4	0
+CaveHornet17	8	4	0
+Slime19	11	3	0
+Gnome20	8	2	0
+Adventurer21	11	1	0
+Knight24	9	2	0
+Wizard26	11	4	0
 [/Room]
 [Room]
 2	Dormitory3	1	30
@@ -774,15 +833,26 @@ Defender25	8	4	0
 17	16
 17	17
 17	18
-8
-Dragon26	14	17	0
-Troll12	14	14	0
-Wyvern3	16	17	0
-Orc5	17	15	0
-Goblin7	16	14	0
-Spider9	13	14	0
-Tentacle110	13	16	0
-Dwarf323	13	17	0
+7
+Dragon7	14	17	0
+Wyvern6	17	18	0
+Orc8	13	15	0
+Goblin10	17	16	0
+Troll15	15	14	0
+Tentacle214	14	14	0
+Spider12	16	13	0
+[/Room]
+[Room]
+1	DungeonTemple2	1	9
+8	16
+8	17
+8	18
+9	16
+9	17
+9	18
+10	16
+10	17
+10	18
 [/Room]
 [Room]
 8	Farm1	1	25
@@ -841,23 +911,26 @@ Dwarf323	13	17	0
 17	11
 [/Room]
 [Room]
-3	Treasury1	1	20
+4	Portal1	1	9
+3	16
+3	17
+3	18
+4	16
+4	17
+4	18
+5	16
+5	17
+5	18
+[/Room]
+[Room]
+3	Treasury1	1	11
 7	15
 7	16
 7	17
 7	18
 8	15
-8	16
-8	17
-8	18
 9	15
-9	16
-9	17
-9	18
 10	15
-10	16
-10	17
-10	18
 11	15
 11	16
 11	17
@@ -952,31 +1025,31 @@ Dwarf323	13	17	0
 
 [Creatures]
 # SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon
-1	DefaultWorker1	Kobold.mesh	18	28	0	DefaultWorker	1	0	max	100	0	0	none	none	0	none
-1	DwarfWorker2	Dwarf1.mesh	20	28	0	DwarfWorker	1	0	max	100	0	0	none	none	0	none
-1	Wyvern3	Wyvern.mesh	22	28	0	Wyvern	1	0	max	100	0	0	none	none	0	none
-1	Orc5	Orc.mesh	24	28	0	Orc	1	0	max	100	0	0	none	none	0	none
-1	Kreatur6	Kreatur.mesh	21	25	0	Kreatur	1	0	max	100	0	0	none	none	0	none
-1	Goblin7	Goblin.mesh	26	28	0	Goblin	1	0	max	100	0	0	none	none	0	none
-1	PitDemon8	Pit_demon.mesh	24	25	0	PitDemon	1	0	max	100	0	0	none	none	0	none
-1	Spider9	Spider.mesh	28	28	0	Spider	1	0	max	100	0	0	none	none	0	none
-1	Tentacle110	Tentacle.mesh	18	23	0	Tentacle1	1	0	max	100	0	0	none	none	0	none
-1	Tentacle211	Tentacle.mesh	20	23	0	Tentacle2	1	0	max	100	0	0	none	none	0	none
-1	Troll12	Troll.mesh	27	25	0	Troll	1	0	max	100	0	0	none	none	0	none
-1	LizardMan13	Lizardman.mesh	22	23	0	LizardMan	1	0	max	100	0	0	none	Sabre	0	none
-1	CaveHornet14	CaveHornet.mesh	24	23	0	CaveHornet	1	0	max	100	0	0	none	none	0	none
-1	Scarab15	Scarab.mesh	21	20	0	Scarab	1	0	max	100	0	0	none	none	0	none
-1	Slime16	Slime.mesh	26	23	0	Slime	1	0	max	100	0	0	none	none	0	none
-1	Gnome17	Gnome.mesh	28	23	0	Gnome	1	0	max	100	0	0	none	none	0	none
-1	Adventurer18	Adventurer.mesh	24	21	0	Adventurer	1	0	max	100	0	0	none	none	0	none
-1	Dwarf119	Dwarf1.mesh	26	21	0	Dwarf1	1	0	max	100	0	0	none	none	0	none
-1	Dwarf220	Dwarf2.mesh	28	21	0	Dwarf2	1	0	max	100	0	0	none	none	0	none
-1	Knight21	Knight.mesh	24	19	0	Knight	1	0	max	100	0	0	RustyShield	RustySword	0	none
-1	Wizard22	Wizard.mesh	26	19	0	Wizard	1	0	max	100	0	0	none	Staff	0	none
-1	Dwarf323	Dwarf3.mesh	28	19	0	Dwarf3	1	0	max	100	0	0	none	none	0	none
-1	Defender25	Defender.mesh	26	17	0	Defender	1	0	max	100	0	0	none	none	0	none
-1	Dragon26	Dragon.mesh	18	25	0	Dragon	1	0	max	100	0	0	none	none	0	none
-1	BigKnight27	Knight.mesh	24	17	0	BigKnight	1	0	max	100	0	0	Roundshield	Longsword	0	none
+1	DefaultWorker2	Kobold.mesh	18	28	0	DefaultWorker	1	0	max	100	0	0	none	none	0	none
+1	DwarfWorker5	Dwarf1.mesh	21	28	0	DwarfWorker	1	0	max	100	0	0	none	none	0	none
+1	Wyvern6	Wyvern.mesh	24	28	0	Wyvern	1	0	max	100	0	0	none	none	0	none
+1	Dragon7	Dragon.mesh	27	28	0	Dragon	1	0	max	100	0	0	none	none	0	none
+1	Orc8	Orc.mesh	18	25	0	Orc	1	0	max	100	0	0	none	none	0	none
+1	Kreatur9	Kreatur.mesh	21	25	0	Kreatur	1	0	max	100	0	0	none	none	0	none
+1	Goblin10	Goblin.mesh	24	25	0	Goblin	1	0	max	100	0	0	none	none	0	none
+1	PitDemon11	Pit_demon.mesh	27	25	0	PitDemon	1	0	max	100	0	0	none	none	0	none
+1	Spider12	Spider.mesh	18	22	0	Spider	1	0	max	100	0	0	none	none	0	none
+1	Tentacle113	Tentacle.mesh	21	22	0	Tentacle1	1	0	max	100	0	0	none	none	0	none
+1	Tentacle214	Tentacle.mesh	24	22	0	Tentacle2	1	0	max	100	0	0	none	none	0	none
+1	Troll15	Troll.mesh	27	22	0	Troll	1	0	max	100	0	0	none	none	0	none
+1	LizardMan16	Lizardman.mesh	21	19	0	LizardMan	1	0	max	100	0	0	none	none	0	none
+1	CaveHornet17	CaveHornet.mesh	24	19	0	CaveHornet	1	0	max	100	0	0	none	none	0	none
+1	Scarab18	Scarab.mesh	27	19	0	Scarab	1	0	max	100	0	0	none	none	0	none
+1	Slime19	Slime.mesh	21	16	0	Slime	1	0	max	100	0	0	none	none	0	none
+1	Gnome20	Gnome.mesh	24	16	0	Gnome	1	0	max	100	0	0	none	none	0	none
+1	Adventurer21	Adventurer.mesh	27	16	0	Adventurer	1	0	max	100	0	0	Longsword	none	0	none
+1	Dwarf122	Dwarf1.mesh	21	13	0	Dwarf1	1	0	max	100	0	0	none	none	0	none
+1	Dwarf223	Dwarf2.mesh	24	13	0	Dwarf2	1	0	max	100	0	0	none	Sabre	0	none
+1	Knight24	Knight.mesh	27	13	0	Knight	1	0	max	100	0	0	RustyShield	RustySword	0	none
+1	Wizard26	Wizard.mesh	27	10	0	Wizard	1	0	max	100	0	0	none	Staff	0	none
+1	Dwarf327	Dwarf3.mesh	27	7	0	Dwarf3	1	0	max	100	0	0	none	Roundshield	0	none
+1	BigKnight28	Knight.mesh	27	4	0	BigKnight	1	0	max	100	0	0	RustyShield	RustySword	0	none
+1	Defender29	Defender.mesh	27	1	0	Defender	1	0	max	100	0	0	none	none	0	none
 [/Creatures]
 
 [Spells]
