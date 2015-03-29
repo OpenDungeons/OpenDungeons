@@ -27,6 +27,7 @@
 #include "entities/Tile.h"
 #include "entities/TrapEntity.h"
 
+#include "game/Player.h"
 #include "game/Seat.h"
 
 #include "gamemap/GameMap.h"
@@ -42,7 +43,8 @@
 #include "utils/LogManager.h"
 #include "utils/Helper.h"
 
-#include <iostream>
+#include <istream>
+#include <ostream>
 
 const std::string RenderedMovableEntity::RENDEREDMOVABLEENTITY_PREFIX = "RenderedMovableEntity_";
 

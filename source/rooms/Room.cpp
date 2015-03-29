@@ -26,6 +26,7 @@
 #include "rooms/RoomTreasury.h"
 #include "rooms/RoomHatchery.h"
 #include "rooms/RoomCrypt.h"
+#include "rooms/RoomType.h"
 #include "entities/RenderedMovableEntity.h"
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
@@ -38,7 +39,8 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-#include <sstream>
+#include <istream>
+#include <ostream>
 
 Room::Room(GameMap* gameMap):
     Building(gameMap),
@@ -753,21 +755,6 @@ bool Room::sortForMapSave(Room* r1, Room* r2)
         return r1->getMeshName().compare(r2->getMeshName()) < 0;
 
     return seatId1 < seatId2;
-}
-
-std::istream& operator>>(std::istream& is, RoomType& rt)
-{
-    uint32_t tmp;
-    is >> tmp;
-    rt = static_cast<RoomType>(tmp);
-    return is;
-}
-
-std::ostream& operator<<(std::ostream& os, const RoomType& rt)
-{
-    uint32_t tmp = static_cast<uint32_t>(rt);
-    os << tmp;
-    return os;
 }
 
 ODPacket& operator>>(ODPacket& is, RoomType& rt)

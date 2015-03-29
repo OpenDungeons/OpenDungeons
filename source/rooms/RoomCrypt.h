@@ -19,6 +19,7 @@
 #define ROOMCRYPT_H
 
 #include "rooms/Room.h"
+#include "rooms/RoomType.h"
 
 class RoomCrypt: public Room
 {

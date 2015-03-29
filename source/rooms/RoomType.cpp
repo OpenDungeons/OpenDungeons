@@ -2,6 +2,9 @@
 
 #include "utils/Helper.h"
 
+#include <istream>
+#include <ostream>
+
 namespace Rooms
 {
 std::string getRoomNameFromRoomType(RoomType t)
@@ -75,3 +78,18 @@ RoomType getRoomTypeFromRoomName(const std::string& name)
     return RoomType::nullRoomType;
 }
 } //namespace Rooms
+
+std::istream& operator>>(std::istream& is, RoomType& rt)
+{
+  uint32_t tmp;
+  is >> tmp;
+  rt = static_cast<RoomType>(tmp);
+  return is;
+}
+
+std::ostream& operator<<(std::ostream& os, const RoomType& rt)
+{
+  uint32_t tmp = static_cast<uint32_t>(rt);
+  os << tmp;
+  return os;
+}

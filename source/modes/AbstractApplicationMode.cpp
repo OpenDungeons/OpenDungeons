@@ -21,6 +21,7 @@
 #include "network/ODServer.h"
 #include "render/Gui.h"
 #include "render/ODFrameListener.h"
+#include "sound/SoundEffectsManager.h"
 
 #include <CEGUI/System.h>
 #include <CEGUI/GUIContext.h>

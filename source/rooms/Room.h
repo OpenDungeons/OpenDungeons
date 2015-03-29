@@ -19,19 +19,16 @@
 #define ROOM_H
 
 #include "entities/Building.h"
-#include "rooms/RoomType.h"
 
 #include <string>
-#include <deque>
-#include <iostream>
+#include <iosfwd>
 
 class Seat;
 class RenderedMovableEntity;
 class GameMap;
 class ODPacket;
+enum class RoomType;
 
-std::istream& operator>>(std::istream& is, RoomType& rt);
-std::ostream& operator<<(std::ostream& os, const RoomType& rt);
 ODPacket& operator>>(ODPacket& is, RoomType& rt);
 ODPacket& operator<<(ODPacket& os, const RoomType& rt);
 

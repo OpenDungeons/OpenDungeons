@@ -19,11 +19,16 @@
 #define INPUTMANAGER_H
 
 #include <OgreVector3.h>
-#include <OIS/OISMouse.h>
-#include <OIS/OISKeyboard.h>
-#include <OIS/OISInputManager.h>
 
-namespace Ogre {
+namespace OIS
+{
+    class InputManager;
+    class Keyboard;
+    class Mouse;
+}
+
+namespace Ogre
+{
   class RenderWindow;
 }
 

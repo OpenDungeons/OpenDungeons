@@ -17,9 +17,12 @@
 
 #include "rooms/RoomTreasury.h"
 
+#include "game/Player.h"
+#include "game/Seat.h"
 #include "gamemap/GameMap.h"
-#include "entities/Tile.h"
 #include "entities/RenderedMovableEntity.h"
+#include "entities/Tile.h"
+#include "entities/TreasuryObject.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "network/ODServer.h"

@@ -19,6 +19,7 @@
 #define ROOMTRAININGHALL_H
 
 #include "rooms/Room.h"
+#include "rooms/RoomType.h"
 
 class Creature;
 

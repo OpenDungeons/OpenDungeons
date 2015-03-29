@@ -19,8 +19,6 @@
 #ifndef MAPLOADER_H
 #define MAPLOADER_H
 
-#include "entities/CreatureDefinition.h"
-
 #include <string>
 
 class GameMap;

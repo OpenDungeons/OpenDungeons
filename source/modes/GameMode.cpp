@@ -32,6 +32,7 @@
 #include "render/RenderManager.h"
 #include "render/TextRenderer.h"
 #include "rooms/Room.h"
+#include "rooms/RoomType.h"
 #include "sound/MusicPlayer.h"
 #include "sound/SoundEffectsManager.h"
 #include "spell/Spell.h"

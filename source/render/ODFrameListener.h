@@ -27,16 +27,10 @@
 #include "utils/FrameRateLimiter.h"
 
 #include <OgreFrameListener.h>
-#include <OgreWindowEventUtilities.h>
-#include <OgreSingleton.h>
 #include <OgreSceneQuery.h>
 #include <OgreRenderQueueListener.h>
-#include <CEGUI/EventArgs.h>
-
-//Use this define to signify OIS will be used as a DLL
-//(so that dll import/export macros are in effect)
-#define OIS_DYNAMIC_LIB
-#include <OISMouse.h>
+#include <OgreSingleton.h>
+#include <OgreWindowEventUtilities.h>
 
 #include <deque>
 #include <memory>
@@ -46,6 +40,16 @@ class GameMap;
 class Gui;
 class ModeManager;
 class RenderManager;
+
+namespace CEGUI
+{
+    class EventArgs;
+}
+
+namespace OIS
+{
+    class MouseEvent;
+}
 
 namespace Ogre
 {

@@ -28,6 +28,8 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
+#include <istream>
+
 const std::vector<const SpawnCondition*> SpawnCondition::EMPTY_SPAWNCONDITIONS;
 
 SpawnCondition* SpawnCondition::load(std::istream& defFile)

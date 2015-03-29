@@ -20,8 +20,6 @@
 
 #include "GameEditorModeBase.h"
 
-#include "gamemap/MiniMap.h"
-
 class Gui; // Used to change the Current tile type
 class GameMap;
 

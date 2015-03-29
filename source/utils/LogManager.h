@@ -29,13 +29,6 @@
 #define OD_ASSERT_TRUE_MSG(a,b)  if(!(a)) LogManager::getSingleton().logMessage("ERROR: Assert failed file " + std::string(__FILE__) + " line " + std::string(S__LINE__) + std::string(" info : ") + b)
 
 
-enum class LogLevel
-{
-    LOW = 1,
-    NORMAL,
-    ALL
-};
-
 enum class LogMessageLevel
 {
     TRIVIAL = 1,
@@ -53,7 +46,8 @@ public:
                     bool maskDebug = false, bool addTimeStamp = false) = 0;
 
     //! \brief Set the log detail level.
-    virtual void setLogDetail(LogLevel ll) = 0;
+    //Messages lower than this level will be filtered.
+    virtual void setLogDetail(LogMessageLevel ll) = 0;
 
     static const std::string GAMELOG_NAME;
 private:

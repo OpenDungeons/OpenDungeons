@@ -66,7 +66,7 @@ ODApplication::ODApplication()
                         resMgr.getLogFile());
 
     LogManagerOgre logManager(resMgr.getUserDataPath());
-    logManager.setLogDetail(LogLevel::ALL);
+    logManager.setLogDetail(LogMessageLevel::TRIVIAL);
     ConfigManager configManager(resMgr.getConfigPath());
 
     /* TODO: Skip this and use root.restoreConfig()

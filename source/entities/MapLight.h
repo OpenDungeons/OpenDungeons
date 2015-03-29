@@ -24,7 +24,7 @@
 #include <OgreVector3.h>
 #include <OgreColourValue.h>
 
-#include <iostream>
+#include <iosfwd>
 #include <string>
 
 class GameMap;

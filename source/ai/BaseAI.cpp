@@ -27,6 +27,7 @@
 #include "network/ODServer.h"
 
 #include "rooms/Room.h"
+#include "rooms/RoomType.h"
 
 const int32_t pointsPerWallSpot = 50;
 const int32_t handicapPerTileOffset = 20;

@@ -30,6 +30,7 @@
 #include "render/RenderManager.h"
 
 #include "rooms/Room.h"
+#include "rooms/RoomType.h"
 
 #include "spell/Spell.h"
 

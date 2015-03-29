@@ -21,10 +21,12 @@
 #include "network/ODPacket.h"
 #include "gamemap/GameMap.h"
 #include "rooms/Room.h"
+#include "rooms/RoomType.h"
 #include "utils/Random.h"
 #include "utils/LogManager.h"
 
-#include <iostream>
+#include <istream>
+#include <ostream>
 
 const int32_t NB_TURNS_DIE_BEFORE_REMOVE = 0;
 

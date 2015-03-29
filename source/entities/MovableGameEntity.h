@@ -21,12 +21,9 @@
 #include "entities/GameEntity.h"
 
 #include <OgreVector3.h>
-#include <OgreAnimationState.h>
-#include <OgreSceneNode.h>
 
 #include <deque>
 #include <list>
-#include <vector>
 
 class Tile;
 

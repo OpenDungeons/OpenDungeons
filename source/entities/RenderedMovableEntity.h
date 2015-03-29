@@ -21,8 +21,7 @@
 #include "entities/MovableGameEntity.h"
 
 #include <string>
-#include <istream>
-#include <ostream>
+#include <iosfwd>
 
 class Room;
 class GameMap;

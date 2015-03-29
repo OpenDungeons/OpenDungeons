@@ -19,6 +19,7 @@
 
 #include "entities/Tile.h"
 
+#include "game/Player.h"
 #include "game/Seat.h"
 
 #include "gamemap/GameMap.h"
@@ -30,6 +31,8 @@
 #include "utils/LogManager.h"
 
 #include "ODApplication.h"
+
+#include "OgreAnimationState.h"
 
 MovableGameEntity::MovableGameEntity(GameMap* gameMap, const std::string& initialAnimationState,
         bool initialAnimationLoop) :

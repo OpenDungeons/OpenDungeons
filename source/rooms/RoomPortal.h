@@ -19,10 +19,7 @@
 #define ROOMPORTAL_H
 
 #include "rooms/Room.h"
-#include "entities/CreatureDefinition.h"
-
-#include <vector>
-#include <map> //For pair
+#include "rooms/RoomType.h"
 
 class RoomPortal: public Room
 {

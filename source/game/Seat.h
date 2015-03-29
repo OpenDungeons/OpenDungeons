@@ -23,8 +23,7 @@
 #include <OgreColourValue.h>
 #include <string>
 #include <vector>
-#include <ostream>
-#include <istream>
+#include <iosfwd>
 
 class Building;
 class Goal;

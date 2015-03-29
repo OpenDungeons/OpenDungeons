@@ -34,7 +34,6 @@
 #include "render/RenderManager.h"
 #include "render/TextRenderer.h"
 #include "sound/MusicPlayer.h"
-#include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
 #include "utils/MakeUnique.h"
 

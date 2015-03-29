@@ -15,11 +15,12 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "entities/CreatureDefinition.h"
+#include "game/Seat.h"
 
+#include "entities/CreatureDefinition.h"
 #include "entities/ResearchEntity.h"
 #include "entities/Tile.h"
-#include "game/Seat.h"
+#include "game/Player.h"
 #include "gamemap/GameMap.h"
 #include "game/Research.h"
 #include "goals/Goal.h"
@@ -28,13 +29,16 @@
 #include "network/ServerNotification.h"
 #include "network/ODServer.h"
 #include "render/RenderManager.h"
-#include "rooms/Room.h"
+#include "rooms/RoomType.h"
 #include "spell/Spell.h"
 #include "traps/Trap.h"
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/Random.h"
+
+#include <istream>
+#include <ostream>
 
 const std::string Seat::PLAYER_TYPE_HUMAN = "Human";
 const std::string Seat::PLAYER_TYPE_AI = "AI";

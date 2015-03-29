@@ -22,9 +22,11 @@
 #include <OgreLogManager.h>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-Ogre::LoggingLevel toOgreLl(LogLevel ll)
+Ogre::LoggingLevel toOgreLl(LogMessageLevel ll)
 {
-    return static_cast<Ogre::LoggingLevel>(ll);
+    //Since ogre also use 1-2-3 as log levels, we can simply cast the level.
+    //NOTE: we subtract from 4 as LogMessageLevel is the inverse the corresponding logLevel.
+    return static_cast<Ogre::LoggingLevel>(4 - static_cast<int>(ll));
 }
 
 Ogre::LogMessageLevel toOgreLml(LogMessageLevel lml)
@@ -66,7 +68,7 @@ void LogManagerOgre::logMessage(const std::string& message, LogMessageLevel lml,
     }
 }
 
-void LogManagerOgre::setLogDetail(LogLevel ll)
+void LogManagerOgre::setLogDetail(LogMessageLevel ll)
 {
 #ifdef LOGMANAGER_USE_LOCKS
     std::lock_guard<std::mutex> lock(mLogLockMutex);

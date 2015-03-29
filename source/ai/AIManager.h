@@ -18,13 +18,12 @@
 #ifndef AIMANAGER_H
 #define AIMANAGER_H
 
-#include "game/Player.h"
-
-#include <map>
 #include <list>
+#include <string>
 
 class BaseAI;
 class GameMap;
+class Player;
 
 class AIManager
 {

@@ -21,13 +21,12 @@
 #include "modes/ModeManager.h"
 #include "modes/InputManager.h"
 
-#include <OIS/OISMouse.h>
 #include <OIS/OISKeyboard.h>
+#include <OIS/OISMouse.h>
 
 #include <CEGUI/EventArgs.h>
 #include <CEGUI/Event.h>
 
-#include <iostream>
 #include <vector>
 
 class GameEntity;

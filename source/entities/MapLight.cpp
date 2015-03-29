@@ -18,6 +18,7 @@
 #include "entities/MapLight.h"
 
 #include "entities/Tile.h"
+#include "game/Player.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "network/ODPacket.h"
@@ -28,7 +29,8 @@
 #include "utils/LogManager.h"
 //#include "utils/Random.h"
 
-#include <sstream>
+#include <istream>
+#include <ostream>
 
 const std::string MapLight::MAPLIGHT_NAME_PREFIX = "Map_light_";
 

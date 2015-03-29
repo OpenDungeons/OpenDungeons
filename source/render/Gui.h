@@ -24,8 +24,6 @@
 #ifndef GUI_H_
 #define GUI_H_
 
-#include <CEGUI/Window.h>
-#include <CEGUI/EventArgs.h>
 #include <CEGUI/InputEvent.h>
 
 #include <OISMouse.h>
@@ -34,6 +32,12 @@
 #include <map>
 
 class SoundEffectsManager;
+
+namespace CEGUI
+{
+    class Window;
+    class EventArgs;
+}
 
 //! \brief This class handles the CEGUI system
 class Gui

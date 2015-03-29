@@ -14,8 +14,11 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#ifndef ROOMTYPE_H
+#define ROOMTYPE_H
 
 #include <string>
+#include <iosfwd>
 
 enum class RoomType
 {
@@ -36,3 +39,8 @@ namespace Rooms
     std::string getRoomNameFromRoomType(RoomType t);
     RoomType getRoomTypeFromRoomName(const std::string& name);
 }
+
+std::istream& operator>>(std::istream& is, RoomType& rt);
+std::ostream& operator<<(std::ostream& os, const RoomType& rt);
+
+#endif

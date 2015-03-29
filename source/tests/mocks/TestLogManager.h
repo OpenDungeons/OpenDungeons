@@ -26,7 +26,7 @@ class TestLogManager final : public LogManager
                     bool maskDebug = false, bool addTimeStamp = false)
     {};
     //! \brief Set the log detail level.
-    void setLogDetail(LogLevel ll) {};
+    void setLogDetail(LogMessageLevel ll) {};
 };
 
 #endif // TESTLOGMANAGER_H

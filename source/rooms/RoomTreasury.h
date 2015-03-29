@@ -18,8 +18,8 @@
 #ifndef ROOMTREASURY_H
 #define ROOMTREASURY_H
 
-#include "entities/TreasuryObject.h"
 #include "rooms/Room.h"
+#include "rooms/RoomType.h"
 
 class RoomTreasuryTileData : public TileData
 {

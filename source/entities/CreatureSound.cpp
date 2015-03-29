@@ -23,6 +23,7 @@
 #include "entities/CreatureSound.h"
 
 #include "network/ODPacket.h"
+#include "sound/SoundEffectsManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/Random.h"

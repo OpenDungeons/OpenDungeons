@@ -18,14 +18,13 @@
 #ifndef ODSOCKETCLIENT_H
 #define ODSOCKETCLIENT_H
 
-#include <network/ODPacket.h>
+#include "network/ODPacket.h"
 
 #include <SFML/Network.hpp>
 
 #include <string>
 #include <cstdint>
 #include <fstream>
-#include <istream>
 
 class Player;
 

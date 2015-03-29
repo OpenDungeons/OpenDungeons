@@ -24,7 +24,7 @@
 #include "utils/LogManager.h"
 #include "network/ODPacket.h"
 
-#include <map>
+#include <OgreQuaternion.h>
 
 // class GameSound
 GameSound::GameSound(const std::string& filename, bool spatialSound):

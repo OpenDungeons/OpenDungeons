@@ -23,6 +23,9 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
+#include <sstream>
+#include <fstream>
+
 Weapon* Weapon::load(std::stringstream& defFile)
 {
     if (!defFile.good())

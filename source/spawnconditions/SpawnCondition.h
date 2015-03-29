@@ -19,7 +19,7 @@
 #define SPAWNCONDITION_H
 
 #include <cstdint>
-#include <istream>
+#include <iosfwd>
 #include <vector>
 
 class GameMap;

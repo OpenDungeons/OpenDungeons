@@ -26,6 +26,7 @@
 #include "utils/ResourceManager.h"
 #include "render/TextRenderer.h"
 #include "entities/Creature.h"
+#include "entities/CreatureDefinition.h"
 #include "entities/MapLight.h"
 #include "entities/Tile.h"
 #include "game/Seat.h"

@@ -19,15 +19,19 @@
 #define SOUNDEFFECTSMANAGER_H_
 
 #include <OgreSingleton.h>
-#include <OgreQuaternion.h>
 #include <OgreVector3.h>
 #include <SFML/Audio.hpp>
 #include <vector>
+#include <map>
 
 // Forward declarations
 class CreatureDefinition;
 class CreatureSound;
 class ODPacket;
+namespace Ogre
+{
+    class Quaternion;
+}
 
 // The Z value to use for tile positioned sounds.
 // Tiles are from -0.25 to 3.0 in z value, the floor is at 0,

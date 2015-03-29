@@ -172,6 +172,12 @@ if(WIN32 AND MSVC)
     set(CMAKE_CXX_FLAGS_DEBUG "${PLATFORM_C_FLAGS_DEBUG}")
 endif()
 
+if(WIN32)
+    #Tell OIS we are linking dynamically for dllexport/dllimport attributes.
+    #TODO: Find out if this is needed.
+    add_definitions(-DOIS_DYNAMIC_LIB)
+endif()
+
 set(CMAKE_CXX_FLAGS "${OD_CXX11_FLAGS} ${OD_OPT_FLAGS} ${CMAKE_CXX_FLAGS}")
 message(STATUS "CMake CXX Flags: " ${CMAKE_CXX_FLAGS})
 

@@ -17,6 +17,10 @@
 
 #include "render/TextRenderer.h"
 
+#include <Overlay/OgreOverlayManager.h>
+#include <Overlay/OgreOverlay.h>
+#include <Overlay/OgreOverlayContainer.h>
+
 template<> TextRenderer* Ogre::Singleton<TextRenderer>::msSingleton = nullptr;
 
 TextRenderer::TextRenderer() :

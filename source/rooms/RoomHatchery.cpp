@@ -17,11 +17,9 @@
 
 #include "rooms/RoomHatchery.h"
 #include "entities/Tile.h"
-#include "gamemap/GameMap.h"
 #include "entities/ChickenEntity.h"
 #include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
-#include "utils/Random.h"
 
 const double CHICKEN_SPEED = 0.4;
 

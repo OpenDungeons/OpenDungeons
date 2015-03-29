@@ -33,6 +33,7 @@
 
 #include "entities/Tile.h"
 #include "entities/Creature.h"
+#include "entities/CreatureDefinition.h"
 #include "entities/MapLight.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Weapon.h"
@@ -51,6 +52,7 @@
 #include "rooms/RoomDungeonTemple.h"
 #include "rooms/RoomPortal.h"
 #include "rooms/RoomTreasury.h"
+#include "rooms/RoomType.h"
 
 #include "spell/Spell.h"
 

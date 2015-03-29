@@ -18,8 +18,10 @@
 #include "ai/KeeperAI.h"
 
 #include "entities/Creature.h"
-#include "gamemap/GameMap.h"
 #include "entities/Tile.h"
+#include "game/Player.h"
+#include "game/Seat.h"
+#include "gamemap/GameMap.h"
 #include "rooms/Room.h"
 #include "rooms/RoomCrypt.h"
 #include "rooms/RoomDormitory.h"

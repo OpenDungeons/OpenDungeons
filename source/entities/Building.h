@@ -24,12 +24,12 @@
 #define BUILDING_H_
 
 #include "entities/GameEntity.h"
-#include "game/Seat.h"
 
 class GameMap;
 class RenderedMovableEntity;
 class Tile;
 class Room;
+class Seat;
 class Trap;
 
 class TileData
