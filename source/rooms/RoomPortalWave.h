@@ -19,6 +19,7 @@
 #define ROOMPORTALWAVE_H
 
 #include "rooms/Room.h"
+#include "rooms/RoomType.h"
 
 #include <vector>
 

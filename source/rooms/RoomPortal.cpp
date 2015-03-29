@@ -17,14 +17,18 @@
 
 #include "rooms/RoomPortal.h"
 
-#include "game/Player.h"#include "entities/Creature.h"
+#include "entities/Creature.h"
+#include "entities/CreatureDefinition.h"
+#include "entities/PersistentObject.h"
+#include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 #include "game/Player.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "utils/Helper.h"
-#include "utils/LogManager.h"#include "utils/Random.h"
-#include "modes/ModeManager.h"
+#include "utils/LogManager.h"
+#include "utils/Random.h"
+
 #include <OgreStringConverter.h>
 
 #include <cmath>
