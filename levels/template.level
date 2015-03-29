@@ -2,16 +2,72 @@ OpenDungeons_Version:0.5.0  # The version of OpenDungeons which created this fil
 
 [Info]
 Name	Template level
-Description	Template level, ready to be edited to change the map size
+Description	Template level, ready to be edited to change the map size and seats and load it in the editor
 Music	yd_Searching_ingame.ogg
 FightMusic	The_Dark_Amulet.ogg
 [/Info]
 
 [Seats]
-# seatId	teamId	player	faction	startingX	startingY	color	startingGold
-1	1	Human	Keeper	5	5	1	1000
-2	2	AI	Keeper	40	40	2	1000
-3	3	AI	Keeper	70	70	3	1000
+[Seat]
+seatId	1
+teamId	1
+player	Human
+faction	Keeper
+startingX	10
+startingY	10
+colorId	1
+gold	1000
+goldMined	100
+mana	500
+[ResearchDone]
+roomTreasury
+roomDormitory
+roomHatchery
+roomLibrary
+trapCannon
+spellSummonWorker
+[/ResearchDone]
+[ResearchNotAllowed]
+[/ResearchNotAllowed]
+[ResearchPending]
+roomTrainingHall
+spellCallToWar
+trapSpike
+roomWorkshop
+roomCrypt
+trapBoulder
+[/ResearchPending]
+[/Seat]
+[Seat]
+seatId	2
+teamId	2
+player	AI
+faction	Hero
+startingX	10
+startingY	10
+colorId	2
+gold	1000
+goldMined	100
+mana	500
+[ResearchDone]
+roomTreasury
+roomDormitory
+roomHatchery
+roomLibrary
+trapCannon
+spellSummonWorker
+[/ResearchDone]
+[ResearchNotAllowed]
+[/ResearchNotAllowed]
+[ResearchPending]
+roomTrainingHall
+spellCallToWar
+trapSpike
+roomWorkshop
+roomCrypt
+trapBoulder
+[/ResearchPending]
+[/Seat]
 [/Seats]
 
 [Goals]
@@ -24,21 +80,20 @@ ProtectDungeonTemple	NULL
 # Map Size
 75 # MapSizeX
 75 # MapSizeY
-# posX	posY	type	fullness
+# posX	posY	type	fullness	seatId(optional)
 [/Tiles]
 
 [Rooms]
-# typeRoom	seatId	numTiles		Subsequent Lines: tileX	tileY
+# typeRoom	name	seatId	numTiles		Subsequent Lines: tileX	tileY
 # Use typeRoom 1 for Dungeon Temple and typeRoom 4 for Portal
 [/Rooms]
 
 [Traps]
-# typeTrap	seatId	numTiles		Subsequent Lines: tileX	tileY	isActivated(0/1)		Subsequent Lines: optional specific data
+# typeTrap	name	seatId	numTiles		Subsequent Lines: tileX	tileY	isActivated(0/1)		Subsequent Lines: optional specific data
 [/Traps]
 
 [Lights]
 # posX	posY	posZ	diffuseR	diffuseG	diffuseB	specularR	specularG	specularB	attenRange	attenConst	attenLin	attenQuad
-5	5	3.75	0.9	0.8	0.6	0.2	0.2	0.2	50	0.012	0.32	0.0018
 [/Lights]
 
 [CreatureDefinitions]
@@ -48,5 +103,30 @@ ProtectDungeonTemple	NULL
 [/EquipmentDefinitions]
 
 [Creatures]
-# SeatId	ClassName	Name	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	PosX	PosY	PosZ	LeftWeapon	RightWeapon
+# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon
 [/Creatures]
+
+[Spells]
+# typeSpell	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	optionalData
+[/Spells]
+
+[CraftedTraps]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	trapType	PosX	PosY	PosZ
+[/CraftedTraps]
+
+[ResearchEntity]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	researchType	PosX	PosY	PosZ
+[/ResearchEntity]
+
+[Missiles]
+# missileType	SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	directionX	directionY	directionZ	missileAlive	damageAllies	optionalData
+[/Missiles]
+
+[TreasuryObject]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	value
+[/TreasuryObject]
+
+[Chickens]
+# SeatId	Name	MeshName	PosX	PosY	PosZ	opacity	rotationAngle	PosX	PosY	PosZ
+[/Chickens]
+
