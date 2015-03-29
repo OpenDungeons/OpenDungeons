@@ -18,7 +18,7 @@ material SpiderBedWeb
             cull_software none
             texture_unit
             {
-                texture Spiderbed.png
+                texture SpiderBed.png
                 tex_address_mode wrap
                 filtering trilinear
                 colour_op alpha_blend
