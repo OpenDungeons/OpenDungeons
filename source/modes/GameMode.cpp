@@ -1116,7 +1116,7 @@ void GameMode::updateMessages(Ogre::Real update_time)
         }
         else
         {
-            chatTextBox->appendText(message->getMessageAsString());
+            chatTextBox->appendText(reinterpret_cast<const CEGUI::utf8*>(message->getMessageAsString().c_str()));
             ++it;
         }
     }
@@ -1140,7 +1140,7 @@ void GameMode::updateMessages(Ogre::Real update_time)
         }
         else
         {
-            mEventShortNoticeWindow->appendText(event->getMessageAsString());
+            mEventShortNoticeWindow->appendText(reinterpret_cast<const CEGUI::utf8*>(event->getMessageAsString().c_str()));
             ++it2;
         }
     }
