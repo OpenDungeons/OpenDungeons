@@ -295,7 +295,7 @@ Ogre::RaySceneQueryResult& ODFrameListener::doRaySceneQuery(const OIS::MouseEven
 void ODFrameListener::printDebugInfo()
 {
     std::stringstream infoSS;
-    if (!mGameMap->isInEditorMode() && mGameMap->getTurnNumber() == -1)
+    if (getModeManager()->getCurrentModeTypeExceptConsole() == ModeManager::GAME && mGameMap->getTurnNumber() == -1)
     {
         infoSS << "Waiting for players...\n";
     }
