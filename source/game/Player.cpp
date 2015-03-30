@@ -444,12 +444,18 @@ void Player::markTilesForDigging(bool marked, const std::vector<Tile*>& tiles, b
             continue;
         }
 
+        // If the tile is diggable for the client, we mark it for him
+        if(getSeat()->isTileDiggableForClient(tile))
+        {
+            getSeat()->tileMarkedDiggingNotifiedToPlayer(tile, marked);
+            tilesMark.push_back(tile);
+        }
+
+        // If the tile can be marked on server side, we mark it
         if(!tile->isDiggable(getSeat()))
             continue;
 
-        getSeat()->tileMarkedDiggingNotifiedToPlayer(tile, marked);
         tile->setMarkedForDigging(marked, this);
-        tilesMark.push_back(tile);
     }
 
     // If human player, we notify marked tiles
@@ -457,7 +463,7 @@ void Player::markTilesForDigging(bool marked, const std::vector<Tile*>& tiles, b
         return;
 
     // On client side, we ask to mark the tile
-    if(asyncMsg)
+    if(!asyncMsg)
     {
         ServerNotification* serverNotification = new ServerNotification(
             ServerNotificationType::markTiles, this);
