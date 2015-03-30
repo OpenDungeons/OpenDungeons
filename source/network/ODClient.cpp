@@ -972,7 +972,7 @@ void ODClient::refreshMainUI(const std::string& goalsString)
         gm->refreshPlayerGoals(goalsString);
         gm->refreshMainUI();
     }
-    // Note: Later, we can handle other modes here.
+    // Note: Later, we can handle other modes here if necessary.
 }
 
 void ODClient::sendToServer(ODPacket& packetToSend)

@@ -160,7 +160,6 @@ private:
     //! If in chat mode, then the game keyboard keys are interpreted as regular keys.
     InputMode mCurrentInputMode;
 
-    //! \TODO: Specialize those to add colors, icons, ...
     //! \brief The Chat messages in queue.
     std::vector<ChatMessage*> mChatMessages;
     //! \brief The game event messages in queue.
