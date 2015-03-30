@@ -7,17 +7,17 @@ material CavehornetWings
     {
         pass
         {
-            ambient 0.800000011920929 0.800000011920929 0.800000011920929 1.0
-            diffuse 0.6400000190734865 0.6400000190734865 0.6400000190734865 1.0
-            specular 0.1551724523305893 0.1551724523305893 0.1551724523305893 1.0 37.5
-            emissive 0.0 0.0 0.0 1.0
+            ambient 0.8 0.8 0.8 0.8 0.8
+            diffuse 0.65 0.65 0.65 0.65 0.65
+            specular 0.15 0.15 0.15 0.15 0.15
+            emissive 0.0 0.0 0.0 0.0 0.0
             scene_blend alpha_blend
             depth_write off
             cull_hardware none
             cull_software none
             texture_unit
             {
-                texture Cavehornet_col.png
+                texture Cavehornet.png
                 tex_address_mode wrap
                 filtering trilinear
                 colour_op alpha_blend

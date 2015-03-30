@@ -8,10 +8,10 @@ material knightStatue2
     {
         pass knightStatue2
         {
-            ambient 0.41092970967292786 0.41092970967292786 0.41092970967292786 1.0
-            diffuse 0.41092970967292786 0.41092970967292786 0.41092970967292786 1.0
-            specular 0.4000000059604645 0.4000000059604645 0.4000000059604645 1.0 12.5
-            emissive 0.0 0.0 0.0 1.0
+            ambient 0.8 0.8 0.8 0.8 0.8
+            diffuse 0.65 0.65 0.65 0.65 0.65
+            specular 0.1 0.1 0.1 0.1 0.1
+            emissive 0.0 0.0 0.0 0.0 0.0
 
             alpha_to_coverage off
             colour_write on
