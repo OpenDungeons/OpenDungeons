@@ -33,6 +33,8 @@
 
 #include <cmath>
 
+const double CLAIMED_VALUE_PER_TILE = 1.0;
+
 RoomPortal::RoomPortal(GameMap* gameMap) :
         Room(gameMap),
         mSpawnCreatureCountdown(0),
@@ -41,6 +43,24 @@ RoomPortal::RoomPortal(GameMap* gameMap) :
         mNbCreatureMaxIncrease(0)
 {
    setMeshName("Portal");
+}
+
+void RoomPortal::absorbRoom(Room *r)
+{
+    RoomPortal* oldRoom = static_cast<RoomPortal*>(r);
+    mClaimedValue += oldRoom->mClaimedValue;
+    // We keep the number of creatures increased by this portal
+    mNbCreatureMaxIncrease = oldRoom->mNbCreatureMaxIncrease;
+
+    Room::absorbRoom(r);
+}
+
+bool RoomPortal::removeCoveredTile(Tile* t)
+{
+    if(mClaimedValue > CLAIMED_VALUE_PER_TILE)
+        mClaimedValue -= CLAIMED_VALUE_PER_TILE;
+
+    return Room::removeCoveredTile(t);
 }
 
 bool RoomPortal::isClaimable(Seat* seat) const
@@ -188,7 +208,7 @@ void RoomPortal::spawnCreature()
 void RoomPortal::setupRoom(const std::string& name, Seat* seat, const std::vector<Tile*>& tiles)
 {
     Room::setupRoom(name, seat, tiles);
-    mClaimedValue = static_cast<double>(numCoveredTiles());
+    mClaimedValue = static_cast<double>(numCoveredTiles()) * CLAIMED_VALUE_PER_TILE;
     // By default, we allow some more creatures per portal
     mNbCreatureMaxIncrease = 5;
 }

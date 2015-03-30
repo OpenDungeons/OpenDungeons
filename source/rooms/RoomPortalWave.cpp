@@ -32,6 +32,8 @@
 
 #include <vector>
 
+const double CLAIMED_VALUE_PER_TILE = 1.0;
+
 RoomPortalWave::RoomPortalWave(GameMap* gameMap) :
         Room(gameMap),
         mSpawnCountdown(0),
@@ -53,6 +55,28 @@ RoomPortalWave::~RoomPortalWave()
         delete roomPortalWaveData;
 
     mRoomPortalWaveDataNotSpawnable.clear();
+}
+
+void RoomPortalWave::absorbRoom(Room *r)
+{
+    RoomPortalWave* oldRoom = static_cast<RoomPortalWave*>(r);
+    mClaimedValue += oldRoom->mClaimedValue;
+    // We keep the number of creatures increased by this portal
+    mTurnsBetween2Waves = oldRoom->mTurnsBetween2Waves;
+    mRoomPortalWaveDataSpawnable = oldRoom->mRoomPortalWaveDataSpawnable;
+    oldRoom->mRoomPortalWaveDataSpawnable.clear();
+    mRoomPortalWaveDataNotSpawnable = oldRoom->mRoomPortalWaveDataNotSpawnable;
+    oldRoom->mRoomPortalWaveDataNotSpawnable.clear();
+
+    Room::absorbRoom(r);
+}
+
+bool RoomPortalWave::removeCoveredTile(Tile* t)
+{
+    if(mClaimedValue > CLAIMED_VALUE_PER_TILE)
+        mClaimedValue -= CLAIMED_VALUE_PER_TILE;
+
+    return Room::removeCoveredTile(t);
 }
 
 bool RoomPortalWave::isClaimable(Seat* seat) const
@@ -275,7 +299,7 @@ void RoomPortalWave::exportToStream(std::ostream& os) const
 {
     Room::exportToStream(os);
 
-    os << mClaimedValue << "\n" << mTurnsBetween2Waves << "\n";
+    os << mClaimedValue << "\t" << mTurnsBetween2Waves << "\n";
     os << "[Waves]" << "\n";
     for(RoomPortalWaveData* roomPortalWaveData : mRoomPortalWaveDataNotSpawnable)
     {
