@@ -98,6 +98,9 @@ class ODClient: public Ogre::Singleton<ODClient>,
     //! \brief Convenience function to send a game event.
     void addEventMessage(EventMessage* event);
 
+    //! \brief Refreshes the player's goals + main data
+    void refreshMainUI(const std::string& goalsString);
+
     std::string mTmpReceivedString;
     std::string mLevelFilename;
 

@@ -1150,6 +1150,41 @@ void GameMode::updateMessages(Ogre::Real update_time)
     scrollBar->setScrollPosition(scrollBar->getDocumentSize());
 }
 
+void GameMode::refreshMainUI()
+{
+    Seat* mySeat = mGameMap->getLocalPlayer()->getSeat();
+    CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::inGameMenu);
+
+    //! \brief Updates common info on screen.
+    CEGUI::Window* widget = guiSheet->getChild(Gui::DISPLAY_TERRITORY);
+    std::stringstream tempSS("");
+    tempSS << mySeat->getNumClaimedTiles();
+    widget->setText(tempSS.str());
+
+    widget = guiSheet->getChild(Gui::DISPLAY_CREATURES);
+    tempSS.str("");
+    tempSS << mySeat->getNumCreaturesFighters() << "/" << mySeat->getNumCreaturesFightersMax();
+    widget->setText(tempSS.str());
+
+    widget = guiSheet->getChild(Gui::DISPLAY_GOLD);
+    tempSS.str("");
+    tempSS << mySeat->getGold();
+    widget->setText(tempSS.str());
+
+    widget = guiSheet->getChild(Gui::DISPLAY_MANA);
+    tempSS.str("");
+    tempSS << mySeat->getMana() << " " << (mySeat->getManaDelta() >= 0 ? "+" : "-")
+            << mySeat->getManaDelta();
+    widget->setText(tempSS.str());
+}
+
+void GameMode::refreshPlayerGoals(const std::string& goalsDisplayString)
+{
+    CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::inGameMenu);
+    CEGUI::Window* widget = guiSheet->getChild(Gui::OBJECTIVE_TEXT);
+    widget->setText(reinterpret_cast<const CEGUI::utf8*>(goalsDisplayString.c_str()));
+}
+
 bool GameMode::keyReleased(const OIS::KeyEvent &arg)
 {
     CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyUp(static_cast<CEGUI::Key::Scan>(arg.key));

@@ -118,6 +118,13 @@ class GameMode final : public GameEditorModeBase
 
     //! \brief Receive and display some event text
     void receiveEventShortNotice(EventMessage* event);
+
+    //! \brief Refreshes the player current goals.
+    void refreshPlayerGoals(const std::string& goalsDisplayString);
+
+    //! \brief Refreshed the main ui data, such as mana, gold, ...
+    void refreshMainUI();
+
 protected:
     //! \brief The different Game Options Menu handlers
     bool showQuitMenuFromOptions(const CEGUI::EventArgs& e = {});

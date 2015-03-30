@@ -559,7 +559,7 @@ bool ODClient::processOneClientSocketMessage()
             std::string goalsString;
             OD_ASSERT_TRUE(packetReceived >> &tmpSeat >> goalsString);
             getPlayer()->getSeat()->refreshFromSeat(&tmpSeat);
-            frameListener->refreshPlayerDisplay(goalsString);
+            refreshMainUI(goalsString);
             break;
         }
 
@@ -959,6 +959,18 @@ void ODClient::addEventMessage(EventMessage* event)
     {
         GameMode* gm = static_cast<GameMode*>(frameListener->getModeManager()->getCurrentMode());
         gm->receiveEventShortNotice(event);
+    }
+    // Note: Later, we can handle other modes here.
+}
+
+void ODClient::refreshMainUI(const std::string& goalsString)
+{
+    ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
+    if (frameListener->getModeManager()->getCurrentModeType() == AbstractModeManager::GAME)
+    {
+        GameMode* gm = static_cast<GameMode*>(frameListener->getModeManager()->getCurrentMode());
+        gm->refreshPlayerGoals(goalsString);
+        gm->refreshMainUI();
     }
     // Note: Later, we can handle other modes here.
 }

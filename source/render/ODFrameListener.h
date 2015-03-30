@@ -196,8 +196,6 @@ private:
 
     //! \brief Updates server-turn independant creature animation, audio, and overall rendering.
     void updateAnimations(Ogre::Real timeSinceLastFrame);
-
-    void refreshPlayerDisplay(const std::string& goalsDisplayString);
 };
 
 #endif // __ODFRAMELISTENER_H__

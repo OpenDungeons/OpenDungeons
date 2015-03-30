@@ -203,36 +203,6 @@ bool ODFrameListener::frameRenderingQueued(const Ogre::FrameEvent& evt)
     return mContinue;
 }
 
-void ODFrameListener::refreshPlayerDisplay(const std::string& goalsDisplayString)
-{
-    Seat* mySeat = mGameMap->getLocalPlayer()->getSeat();
-
-    //! \brief Updates common info on screen.
-    CEGUI::Window *tempWindow = mGui->getGuiSheet(Gui::inGameMenu)->getChild(Gui::DISPLAY_TERRITORY);
-    std::stringstream tempSS("");
-    tempSS << mySeat->getNumClaimedTiles();
-    tempWindow->setText(tempSS.str());
-
-    tempWindow = mGui->getGuiSheet(Gui::inGameMenu)->getChild(Gui::DISPLAY_CREATURES);
-    tempSS.str("");
-    tempSS << mySeat->getNumCreaturesFighters() << "/" << mySeat->getNumCreaturesFightersMax();
-    tempWindow->setText(tempSS.str());
-
-    tempWindow = mGui->getGuiSheet(Gui::inGameMenu)->getChild(Gui::DISPLAY_GOLD);
-    tempSS.str("");
-    tempSS << mySeat->getGold();
-    tempWindow->setText(tempSS.str());
-
-    tempWindow = mGui->getGuiSheet(Gui::inGameMenu)->getChild(Gui::DISPLAY_MANA);
-    tempSS.str("");
-    tempSS << mySeat->getMana() << " " << (mySeat->getManaDelta() >= 0 ? "+" : "-")
-            << mySeat->getManaDelta();
-    tempWindow->setText(tempSS.str());
-
-    tempWindow = mGui->getGuiSheet(Gui::inGameMenu)->getChild(Gui::OBJECTIVE_TEXT);
-    tempWindow->setText(goalsDisplayString);
-}
-
 bool ODFrameListener::frameEnded(const Ogre::FrameEvent& evt)
 {
     AbstractApplicationMode* currentMode = mModeManager->getCurrentMode();

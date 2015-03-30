@@ -2414,14 +2414,18 @@ std::string GameMap::getGoalsStringForPlayer(Player* player)
     Seat* seat = player->getSeat();
     seat->resetGoalsChanged();
 
+    const std::string formatTitleOn = "[font='MedievalSharp-12'][colour='CCBBBBFF']";
+    const std::string formatTitleOff = "[font='MedievalSharp-10'][colour='FFFFFFFF']";
+
     if (playerIsAWinner)
     {
-        tempSS << "\nCongratulations, you have completed this level.";
+        tempSS << "Congratulations, you have completed this level.";
     }
     else if (seat->numFailedGoals() > 0)
     {
         // Loop over the list of completed goals for the seat we are sitting in an print them.
-        tempSS << "\nFailed Goals: (You cannot complete this level!)\n---------------------\n";
+        tempSS << formatTitleOn << "Failed Goals:\n" << formatTitleOff
+               << "(You cannot complete this level!)\n\n";
         for (unsigned int i = 0; i < seat->numFailedGoals(); ++i)
         {
             Goal *tempGoal = seat->getFailedGoal(i);
@@ -2432,7 +2436,7 @@ std::string GameMap::getGoalsStringForPlayer(Player* player)
     if (seat->numUncompleteGoals() > 0)
     {
         // Loop over the list of unmet goals for the seat we are sitting in an print them.
-        tempSS << "Unfinished Goals:\n---------------------\n";
+        tempSS << formatTitleOn << "Unfinished Goals:" << formatTitleOff << "\n\n";
         for (unsigned int i = 0; i < seat->numUncompleteGoals(); ++i)
         {
             Goal *tempGoal = seat->getUncompleteGoal(i);
@@ -2443,7 +2447,7 @@ std::string GameMap::getGoalsStringForPlayer(Player* player)
     if (seat->numCompletedGoals() > 0)
     {
         // Loop over the list of completed goals for the seat we are sitting in an print them.
-        tempSS << "\nCompleted Goals:\n---------------------\n";
+        tempSS << "\n" << formatTitleOn << "Completed Goals:" << formatTitleOff << "\n\n";
         for (unsigned int i = 0; i < seat->numCompletedGoals(); ++i)
         {
             Goal *tempGoal = seat->getCompletedGoal(i);
