@@ -25,6 +25,8 @@
 
 class GameMap;
 class ODPacket;
+class ChatMessage;
+class EventMessage;
 
 class ODClient: public Ogre::Singleton<ODClient>,
     public ODSocketClient
@@ -89,6 +91,12 @@ class ODClient: public Ogre::Singleton<ODClient>,
     bool processOneClientSocketMessage();
 
     void sendToServer(ODPacket& packetToSend);
+
+    //! \brief Convenience function to send a chat message.
+    void addChatMessage(ChatMessage* chat);
+
+    //! \brief Convenience function to send a game event.
+    void addEventMessage(EventMessage* event);
 
     std::string mTmpReceivedString;
     std::string mLevelFilename;

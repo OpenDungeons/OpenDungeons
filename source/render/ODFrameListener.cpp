@@ -27,6 +27,7 @@
 #include "gamemap/GameMap.h"
 #include "modes/AbstractApplicationMode.h"
 #include "modes/ModeManager.h"
+#include "modes/GameMode.h"
 #include "network/ODServer.h"
 #include "network/ODClient.h"
 #include "network/ChatMessage.h"
@@ -44,8 +45,6 @@
 #include <CEGUI/Window.h>
 #include <CEGUI/Size.h>
 #include <CEGUI/System.h>
-
-#include <boost/locale.hpp>
 
 #include <algorithm>
 #include <cstdlib>
@@ -77,13 +76,10 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::Overlay
     mModeManager(new ModeManager(renderWindow, gui)),
     mShowDebugInfo(false),
     mContinue(true),
-    mTerminalWordWrap(78),
-    mChatMaxMessages(10),
     mChatMaxTimeDisplay(20.0f),
     mRaySceneQuery(nullptr),
     mExitRequested(false),
     mCameraManager(mRenderManager->getSceneManager(), mGameMap.get(), renderWindow),
-    mIsChatInputMode(false),
     mFpsLimiter(DEFAULT_FRAME_RATE)
 {
     LogManager* logManager = LogManager::getSingletonPtr();
@@ -126,11 +122,6 @@ ODFrameListener::~ODFrameListener()
 
     mGameMap->clearAll();
     mGameMap->processDeletionQueues();
-
-    for(ChatMessage* c : mChatMessages)
-    {
-        delete c;
-    }
 }
 
 void ODFrameListener::requestExit()
@@ -204,70 +195,12 @@ bool ODFrameListener::frameRenderingQueued(const Ogre::FrameEvent& evt)
         return mContinue;
     }
 
+    printDebugInfo();
 
     ODClient::getSingleton().processClientSocketMessages(*mGameMap.get());
     ODClient::getSingleton().processClientNotifications();
 
-    refreshChat();
-
     return mContinue;
-}
-
-void ODFrameListener::refreshChat()
-{
-    std::stringstream chatSS;
-
-    if(mIsChatInputMode)
-    {
-        chatSS << "\nTo all : " + mChatString;
-    }
-
-    uint32_t nbMsg = 0;
-    std::deque<ChatMessage*>::iterator it = mChatMessages.end();
-    while (it != mChatMessages.begin())
-    {
-        --it;
-        ChatMessage* msg = *it;
-        if ((msg->isMessageTooOld(mChatMaxTimeDisplay)) ||
-            (nbMsg > mChatMaxMessages))
-        {
-            it = mChatMessages.erase(it);
-            delete msg;
-        }
-        else
-        {
-            ++nbMsg;
-        }
-    }
-
-    for (it = mChatMessages.begin(); it != mChatMessages.end(); ++it)
-    {
-        ChatMessage* msg = *it;
-        chatSS << "\n" + msg->getClientNick() << ": " << msg->getMessage();
-    }
-
-    if (mShowDebugInfo)
-    {
-        chatSS << "\nFPS: " << mWindow->getStatistics().lastFPS;
-        chatSS << "\ntriangleCount: " << mWindow->getStatistics().triangleCount;
-        chatSS << "\nBatches: " << mWindow->getStatistics().batchCount;
-        chatSS << "\nTurn number:  " << mGameMap->getTurnNumber();
-        if(ODClient::getSingleton().isConnected())
-        {
-            int32_t gameTime = ODClient::getSingleton().getGameTimeMillis() / 1000;
-            int32_t seconds = gameTime % 60;
-            gameTime /= 60;
-            int32_t minutes = gameTime % 60;
-            gameTime /= 60;
-            chatSS << "\nElapsed time:  " << gameTime << ":" << minutes << ":" << seconds;
-        }
-    }
-
-    std::string strDisplay = chatSS.str();
-    if(strDisplay.size() > 0)
-        printText("---------- Chat ----------" + strDisplay);
-    else
-        printText("");
 }
 
 void ODFrameListener::refreshPlayerDisplay(const std::string& goalsDisplayString)
@@ -359,63 +292,31 @@ Ogre::RaySceneQueryResult& ODFrameListener::doRaySceneQuery(const OIS::MouseEven
 
 }
 
-void ODFrameListener::printText(const std::string& text)
+void ODFrameListener::printDebugInfo()
 {
-    std::string tempString;
-    tempString.reserve(text.size());
-    int lineLength = 0;
-    for (unsigned int i = 0; i < text.size(); ++i)
+    std::stringstream infoSS;
+    if (!mGameMap->isInEditorMode() && mGameMap->getTurnNumber() == -1)
     {
-        if (text[i] == '\n')
+        infoSS << "Waiting for players...\n";
+    }
+    if (mShowDebugInfo)
+    {
+        infoSS << "FPS: " << mWindow->getStatistics().lastFPS;
+        infoSS << "\ntriangleCount: " << mWindow->getStatistics().triangleCount;
+        infoSS << "\nBatches: " << mWindow->getStatistics().batchCount;
+        infoSS << "\nTurn number:  " << mGameMap->getTurnNumber();
+        if(ODClient::getSingleton().isConnected())
         {
-            lineLength = 0;
+            int32_t gameTime = ODClient::getSingleton().getGameTimeMillis() / 1000;
+            int32_t seconds = gameTime % 60;
+            gameTime /= 60;
+            int32_t minutes = gameTime % 60;
+            gameTime /= 60;
+            infoSS << "\nElapsed time:  " << gameTime << ":" << minutes << ":" << seconds;
         }
-
-        if (lineLength < mTerminalWordWrap)
-        {
-            ++lineLength;
-        }
-        else
-        {
-            lineLength = 0;
-            tempString += "\n";
-        }
-
-        tempString += text[i];
     }
 
-    TextRenderer::getSingleton().setText("DebugMessages", tempString);
-}
-
-void ODFrameListener::notifyChatInputMode(bool isChatInputMode, bool sendChatMsg)
-{
-    if(mIsChatInputMode && sendChatMsg && !mChatString.empty() && ODClient::getSingleton().isConnected())
-    {
-        ODClient::getSingleton().queueClientNotification(ClientNotificationType::chat, mChatString);
-    }
-    mIsChatInputMode = isChatInputMode;
-    mChatString.clear();
-}
-
-void ODFrameListener::notifyChatChar(int text)
-{
-    // Ogre::Overlay do not work with special characters. We have to convert
-    // the String to make sure no such characters are used
-    std::string str;
-    str.append(1, static_cast<char>(text));
-    mChatString = mChatString + boost::locale::conv::to_utf<char>(
-        str, "Ascii");
-}
-
-void ODFrameListener::notifyChatCharDel()
-{
-    if(mChatString.size() > 0)
-        mChatString.resize(mChatString.size() - 1);
-}
-
-void ODFrameListener::addChatMessage(ChatMessage *message)
-{
-    mChatMessages.push_back(message);
+    TextRenderer::getSingleton().setText("DebugMessages", infoSS.str());
 }
 
 void ODFrameListener::setCameraPosition(const Ogre::Vector3& position)

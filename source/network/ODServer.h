@@ -35,6 +35,14 @@ enum class ServerMode
     ModeEditor
 };
 
+//! \brief An enum used to know what kind of game event it is.
+enum class eventShortNoticeType
+{
+    genericGameInfo,
+    aboutCreatures,
+    beingAttacked
+};
+
 ODPacket& operator<<(ODPacket& os, const ServerMode& sm);
 ODPacket& operator>>(ODPacket& is, ServerMode& sm);
 
@@ -87,8 +95,6 @@ class ODServer: public Ogre::Singleton<ODServer>,
     void queueConsoleCommand(ServerConsoleCommand* cc);
 
     void notifyExit();
-
-    static const std::string SERVER_INFORMATION;
 
 protected:
     bool notifyNewConnection(ODSocketClient *sock);

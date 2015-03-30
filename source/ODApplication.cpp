@@ -123,7 +123,7 @@ ODApplication::ODApplication()
 
     Gui gui(&soundEffectsManager, resMgr.getCeguiLogFile());
     TextRenderer textRenderer;
-    textRenderer.addTextBox("DebugMessages", ODApplication::MOTD.c_str(), 140,
+    textRenderer.addTextBox("DebugMessages", ODApplication::MOTD.c_str(), 840,
                                 30, 50, 70, Ogre::ColourValue::Green);
     textRenderer.addTextBox(ODApplication::POINTER_INFO_STRING, "",
                                 0, 0, 200, 50, Ogre::ColourValue::White);

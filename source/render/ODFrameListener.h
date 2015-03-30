@@ -79,12 +79,6 @@ public:
 
     void requestExit();
 
-    inline unsigned int getChatMaxMessages() const
-    { return mChatMaxMessages; }
-
-    inline void setChatMaxMessages(unsigned int nM)
-    { mChatMaxMessages = nM; }
-
     inline float getChatMaxTimeDisplay() const
     { return mChatMaxTimeDisplay; }
 
@@ -125,10 +119,10 @@ public:
     //! Also sets keeperHand3DPos to the 3D world position the cursor is on
     Ogre::RaySceneQueryResult& doRaySceneQuery(const OIS::MouseEvent &arg, Ogre::Vector3& keeperHand3DPos);
 
-    /*! \brief Print a string in the upper left corner of the screen.
-     * Displays the given text on the screen starting in the upper-left corner.
+    /*! \brief Print a string in the upper right corner of the screen.
+     *  Usually used for system or debug info
      */
-    void printText(const std::string& text);
+    void printDebugInfo();
 
     inline GameMap* getClientGameMap()
     { return mGameMap.get(); }
@@ -141,12 +135,6 @@ public:
 
     inline Ogre::RenderWindow* getRenderWindow()
     { return mWindow; }
-
-    void addChatMessage(ChatMessage* message);
-
-    void notifyChatInputMode(bool isChatInputMode, bool sendChatMsg = false);
-    void notifyChatChar(int text);
-    void notifyChatCharDel();
 
     //! \brief Accessors for camera manager
     void setCameraPosition(const Ogre::Vector3& position);
@@ -190,8 +178,6 @@ private:
 
     bool                 mShowDebugInfo;
     bool                 mContinue;
-    int                  mTerminalWordWrap;
-    unsigned int         mChatMaxMessages;
     float                mChatMaxTimeDisplay;
 
     //! \brief Reference to the Ogre ray scene query handler. Don't delete it.
@@ -200,14 +186,8 @@ private:
     //! \brief To see if the frameListener wants to exit
     bool mExitRequested;
 
-    std::deque<ChatMessage*> mChatMessages;
-
     //! \brief The Camera manager
     CameraManager mCameraManager;
-
-    //! \brief The chat string for the local player
-    std::string mChatString;
-    bool mIsChatInputMode;
 
     FrameRateLimiter mFpsLimiter;
 
@@ -216,8 +196,6 @@ private:
 
     //! \brief Updates server-turn independant creature animation, audio, and overall rendering.
     void updateAnimations(Ogre::Real timeSinceLastFrame);
-
-    void refreshChat();
 
     void refreshPlayerDisplay(const std::string& goalsDisplayString);
 };

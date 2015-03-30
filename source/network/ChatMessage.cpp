@@ -17,13 +17,61 @@
 
 #include "network/ChatMessage.h"
 
-ChatMessage::ChatMessage(const std::string& nNick, const std::string& nMessage) :
-    mMessage     (nMessage),
-    mClientNick  (nNick)
+#include "game/Player.h"
+#include "game/Seat.h"
+
+#include "utils/ConfigManager.h"
+#include "utils/Helper.h"
+
+ChatMessage::ChatMessage(Player* player, const std::string& message) :
+    mMessage(message),
+    mPlayer(player)
 {
 }
 
 bool ChatMessage::isMessageTooOld(float maxTimeDisplay) const
 {
-    return clockCreation.getElapsedTime().asSeconds() > maxTimeDisplay;
+    return mClockCreation.getElapsedTime().asSeconds() > maxTimeDisplay;
+}
+
+std::string ChatMessage::getMessageAsString()
+{
+    std::string colorId = mPlayer ? (mPlayer->getSeat() ? mPlayer->getSeat()->getColorId() : "") : "";
+    Ogre::ColourValue colorValue = ConfigManager::getSingleton().getColorFromId(colorId);
+    const std::string formatSeatColor = "[colour='" + Helper::getCEGUIColorFromOgreColourValue(colorValue) + "']";
+    const std::string formatWhiteColor = "[colour='FFFFFFFF']";
+    std::string playerNickname = mPlayer ? mPlayer->getNick() : "";
+    std::string messageStr = formatSeatColor + playerNickname + formatWhiteColor + ": " + getMessage()  + "\n";
+    return messageStr;
+}
+
+EventMessage::EventMessage(const std::string& message, eventShortNoticeType type):
+    mMessage(message),
+    mType(type)
+{
+}
+
+bool EventMessage::isMessageTooOld(float maxTimeDisplay) const
+{
+    return mClockCreation.getElapsedTime().asSeconds() > maxTimeDisplay;
+}
+
+std::string EventMessage::getMessageAsString()
+{
+    std::string colorType;
+    const std::string formatWhiteColor = "[colour='FFFFFFFF']";
+    switch(mType)
+    {
+        case eventShortNoticeType::aboutCreatures:
+            colorType = "[colour='FF0000EE']";
+            break;
+        default:
+        case eventShortNoticeType::genericGameInfo:
+            colorType = "[colour='FF00EE00']";
+            break;
+        case eventShortNoticeType::beingAttacked:
+            colorType = "[colour='FFEE0000']";
+            break;
+    }
+    return colorType + mMessage + formatWhiteColor + "\n";
 }
