@@ -15,22 +15,38 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ROOMPORTAL_H
-#define ROOMPORTAL_H
+#ifndef ROOMPORTALWAVE_H
+#define ROOMPORTALWAVE_H
 
 #include "rooms/Room.h"
 #include "rooms/RoomType.h"
 
-class RoomPortal: public Room
+#include <vector>
+
+class CreatureDefinition;
+
+class RoomPortalWaveData
 {
 public:
-    RoomPortal(GameMap* gameMap);
+    RoomPortalWaveData() :
+        mSpawnTurnMin(0),
+        mSpawnTurnMax(-1)
+    {}
 
-    inline uint32_t getNbCreatureMaxIncrease() const
-    { return mNbCreatureMaxIncrease; }
+    int64_t mSpawnTurnMin;
+    int64_t mSpawnTurnMax;
+    //! Pair with creature class name and level
+    std::vector<std::pair<std::string, uint32_t>> mSpawnCreatureClassName;
+};
+
+class RoomPortalWave: public Room
+{
+public:
+    RoomPortalWave(GameMap* gameMap);
+    virtual ~RoomPortalWave();
 
     virtual RoomType getType() const override
-    { return RoomType::portal; }
+    { return RoomType::portalWave; }
 
     void absorbRoom(Room *r) override;
     bool removeCoveredTile(Tile* t) override;
@@ -50,8 +66,8 @@ public:
     //! \brief In addition to the standard upkeep, check to see if a new creature should be spawned.
     void doUpkeep() override;
 
-    //! \brief Creates a new creature whose class is probabalistic and adds it to the game map at the center of the portal.
-    void spawnCreature();
+    //! \brief Spawns one of the available waves
+    void spawnWave();
 
     //! \brief Portals only display claimed tiles on their ground.
     virtual bool shouldDisplayBuildingTile() const override
@@ -67,6 +83,8 @@ public:
 
     virtual void restoreInitialEntityState() override;
 
+    void addRoomPortalWaveData(RoomPortalWaveData* roomPortalWaveData);
+
 protected:
     void destroyMeshLocal() override;
 
@@ -78,15 +96,36 @@ protected:
 
 private:
     //! \brief Stores the number of turns before spawning the next creature.
-    int mSpawnCreatureCountdown;
+    uint32_t mSpawnCountdown;
+    uint32_t mSearchFoeCountdown;
+    uint32_t mTurnsBetween2Waves;
     RenderedMovableEntity* mPortalObject;
 
     double mClaimedValue;
 
-    uint32_t mNbCreatureMaxIncrease;
+    //! Stores the spawnable waves
+    std::vector<RoomPortalWaveData*> mRoomPortalWaveDataSpawnable;
+
+    //! Stores non spawnable waves
+    std::vector<RoomPortalWaveData*> mRoomPortalWaveDataNotSpawnable;
+
+    //! Stores the tiles to dig to go to the enemy dungeon temple. That allows
+    //! to change at runtime the way if a tile is claimed while going there
+    std::vector<Tile*> mWayToEnemy;
 
     //! \brief Updates the portal mesh position.
     void updatePortalPosition();
+
+    //! Spawns a wave
+    void spawnWave(RoomPortalWaveData* roomPortalWaveData, uint32_t maxCreaturesToSpawn);
+
+    //! Marks needed tiles to try to get to some player's dungeon. Returns true if an enemy dungeon
+    //! is reachable by digging and marks corresponding tiles.
+    bool handleDigging();
+
+    //! Searches for the best foe we can fight. Returns true if an enemy dungeon is reachable
+    //! without digging and false otherwise
+    bool handleSearchFoe();
 };
 
-#endif // ROOMPORTAL_H
+#endif // ROOMPORTALWAVE_H

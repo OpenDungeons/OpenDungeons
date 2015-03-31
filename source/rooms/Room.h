@@ -50,7 +50,6 @@ public:
     static std::string getRoomStreamFormat();
 
     static Room* getRoomFromStream(GameMap* gameMap, std::istream& is);
-    static Room* getRoomFromPacket(GameMap* gameMap, ODPacket& is);
 
     /*! \brief Exports the headers needed to recreate the Room. It allows to extend Room as much as wanted.
      * The content of the Room will be exported by exportToPacket.

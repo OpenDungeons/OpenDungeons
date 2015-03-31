@@ -175,7 +175,6 @@ public:
     virtual void removeFromGameMap() override;
 
     static Trap* getTrapFromStream(GameMap* gameMap, std::istream &is);
-    static Trap* getTrapFromPacket(GameMap* gameMap, ODPacket &is);
 
     virtual const TrapType getType() const = 0;
 

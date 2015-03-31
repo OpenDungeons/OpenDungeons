@@ -242,9 +242,9 @@ ProtectDungeonTemple	NULL
 7	9	1	0	1
 7	10	1	0	1
 7	11	1	0	1
-7	12	1	0	1
-7	13	1	0	1
-7	14	1	0	1
+7	12	1	0	0
+7	13	1	0	0
+7	14	1	0	0
 7	15	1	0
 7	24	2	100
 7	25	2	100
@@ -263,9 +263,9 @@ ProtectDungeonTemple	NULL
 8	9	1	0	1
 8	10	1	0	1
 8	11	1	0	1
-8	12	1	0	1
-8	13	1	0	1
-8	14	1	0	1
+8	12	1	0	0
+8	13	1	0	0
+8	14	1	0	0
 8	15	1	0
 8	24	2	100
 8	25	2	100
@@ -287,9 +287,9 @@ ProtectDungeonTemple	NULL
 9	9	1	0	1
 9	10	1	0	1
 9	11	1	0	1
-9	12	1	0	1
-9	13	1	0	1
-9	14	1	0	1
+9	12	1	0	0
+9	13	1	0	0
+9	14	1	0	0
 9	15	1	0
 9	24	2	100
 9	25	2	100
@@ -445,6 +445,9 @@ ProtectDungeonTemple	NULL
 15	44	1	0
 15	45	1	0
 16	1	1	0
+16	3	1	0	1
+16	4	1	0	0
+16	5	1	0	1
 16	24	2	100
 16	25	2	100
 16	30	1	0	2
@@ -453,6 +456,9 @@ ProtectDungeonTemple	NULL
 16	33	1	0	2
 16	34	1	0	2
 17	1	1	0
+17	3	1	0	1
+17	4	1	0	1
+17	5	1	0	1
 17	7	1	0	3
 17	9	1	0	3
 17	10	1	0	3
@@ -466,6 +472,9 @@ ProtectDungeonTemple	NULL
 17	33	1	0	2
 17	34	1	0	2
 18	1	1	0
+18	3	1	0	1
+18	4	1	0	1
+18	5	1	0	1
 18	24	2	100
 18	25	2	100
 18	30	1	0	2
@@ -474,6 +483,9 @@ ProtectDungeonTemple	NULL
 18	33	1	0	2
 18	34	1	0	2
 19	1	1	0
+19	3	1	0	1
+19	4	1	0	1
+19	5	1	0	1
 19	24	2	100
 19	25	2	100
 19	30	1	0	2
@@ -482,6 +494,9 @@ ProtectDungeonTemple	NULL
 19	33	1	0	2
 19	34	1	0	2
 20	1	1	0
+20	3	1	0	1
+20	4	1	0	1
+20	5	1	0	1
 20	24	2	100
 20	25	2	100
 20	30	1	0	2
@@ -490,9 +505,15 @@ ProtectDungeonTemple	NULL
 20	33	1	0	2
 20	34	1	0	2
 21	1	1	0
+21	3	1	0	1
+21	4	1	0	1
+21	5	1	0	1
 21	24	2	100
 21	25	2	100
 22	1	1	0
+22	3	1	0	1
+22	4	1	0	1
+22	5	1	0	1
 22	24	2	100
 22	25	2	100
 23	1	1	0
@@ -835,6 +856,36 @@ ProtectDungeonTemple	NULL
 [Rooms]
 # typeRoom	name	seatId	numTiles		Subsequent Lines: tileX	tileY
 [Room]
+4	Portal2	0	9
+7	12
+7	13
+7	14
+8	12
+8	13
+8	14
+9	12
+9	13
+9	14
+9	5
+[/Room]
+[Room]
+10	PortalWave3	0	1
+16	4
+10	50
+[Waves]
+[Wave]
+SpawnTurnMin	0
+SpawnTurnMax	-1
+[Creatures]
+BigDragon	4
+Wyvern	10
+Wyvern	1
+DwarfWorker	1
+[/Creatures]
+[/Wave]
+[/Waves]
+[/Room]
+[Room]
 1	DungeonTemple1	1	25
 7	7
 7	8
@@ -861,19 +912,6 @@ ProtectDungeonTemple	NULL
 11	9
 11	10
 11	11
-[/Room]
-[Room]
-4	Portal2	0	9
-7	12
-7	13
-7	14
-8	12
-8	13
-8	14
-9	12
-9	13
-9	14
-9	5
 [/Room]
 [Room]
 3	Treasury3	1	3

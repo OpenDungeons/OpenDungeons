@@ -174,7 +174,8 @@ public:
      * http://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
      * A more detailed description of how it works can be found there.
      */
-    std::list<Tile*> tilesBetween(int x1, int y1, int x2, int y2);
+    std::list<Tile*> tilesBetween(int x1, int y1, int x2, int y2) const;
+    std::list<Tile*> tilesBetweenWithoutDiagonals(int x1, int y1, int x2, int y2) const;
 
     //! \brief Returns the tiles visible from the given start tile within tilesWithinSightRadius.
     std::vector<Tile*> visibleTiles(int x, int y, int radius);

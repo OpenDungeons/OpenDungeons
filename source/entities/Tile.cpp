@@ -60,6 +60,8 @@ Tile::Tile(GameMap* gameMap, int x, int y, TileType type, double fullness) :
     mTileVisual         (TileVisual::nullTileVisual),
     mSelected           (false),
     mFullness           (fullness),
+    mRefundPriceRoom    (0),
+    mRefundPriceTrap    (0),
     mCoveringBuilding   (nullptr),
     mFloodFillColor     (std::vector<int>(static_cast<int>(FloodFillType::nbValues), -1)),
     mClaimedPercentage  (0.0),
@@ -133,6 +135,8 @@ void Tile::setCoveringBuilding(Building *building)
         return;
 
     std::vector<Seat*> seatsNotif;
+    // We set the tile as dirty for all seats if needed (we have to check because we
+    // don't want to refresh tiles for traps for enemy players)
     if(mCoveringBuilding != nullptr)
     {
         for(std::pair<Seat*, bool>& seatChanged : mTileChangedForSeats)
@@ -144,9 +148,6 @@ void Tile::setCoveringBuilding(Building *building)
         }
     }
     mCoveringBuilding = building;
-
-    // TODO : on server side, use Seat::mTilesStates to know if there is a building
-    // on the tile. That would avoid to send a refresh on tile.
     mIsBuilding = (mCoveringBuilding != nullptr);
     if(mCoveringBuilding != nullptr)
     {
@@ -325,6 +326,8 @@ void Tile::updateFromPacket(ODPacket& is)
 
     // We set the seat if there is one
     OD_ASSERT_TRUE(is >> mIsBuilding);
+    OD_ASSERT_TRUE(is >> mRefundPriceRoom);
+    OD_ASSERT_TRUE(is >> mRefundPriceTrap);
 
     OD_ASSERT_TRUE(is >> seatId);
 

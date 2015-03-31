@@ -208,7 +208,7 @@ bool GameMap::loadLevel(const std::string& levelFilepath)
     }
 
     // We add the rogue default seat (seatId = 0 and teamId = 0)
-    Seat* rogueSeat = Seat::getRogueSeat(this);
+    Seat* rogueSeat = Seat::createRogueSeat(this);
     if(!addSeat(rogueSeat))
     {
         OD_ASSERT_TRUE(false);
@@ -2655,9 +2655,11 @@ void GameMap::consoleAskToggleFOW()
 
 Creature* GameMap::getWorkerForPathFinding(Seat* seat)
 {
-    std::vector<Creature*> creatures = getCreaturesBySeat(seat);
-    for (Creature* creature : creatures)
+    for (Creature* creature : mCreatures)
     {
+        if(creature->getSeat() != seat)
+            continue;
+
         if (creature->getDefinition()->isWorker())
             return creature;
     }

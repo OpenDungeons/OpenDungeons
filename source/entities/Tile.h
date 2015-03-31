@@ -152,6 +152,13 @@ public:
     inline bool permitsVision() const
     { return (mFullness == 0.0); }
 
+    inline uint32_t getRefundPriceRoom() const
+    { return mRefundPriceRoom; }
+
+    inline uint32_t getRefundPriceTrap() const
+    { return mRefundPriceTrap; }
+
+
     /*! \brief This is a helper function to scroll through the list of available fullness levels.
      *
      * This function is used in the map editor when the user presses the button to
@@ -173,9 +180,6 @@ public:
     //! \brief Returns whether or not the tile has been selected.
     bool getSelected() const
     { return mSelected; }
-
-    inline bool getIsBuilding() const
-    { return mIsBuilding; }
 
     inline void setLocalPlayerHasVision(bool localPlayerHasVision)
     { mLocalPlayerHasVision = localPlayerHasVision; }
@@ -405,6 +409,11 @@ private:
     //! At 0.0, it is a ground tile. Over it is a wall.
     //! Used on server side only
     double mFullness;
+
+    //! Used on client side to know how much gold can be retrieved if the room/trap
+    //! is sold. Note that it is needed because client are not aware of rooms/traps
+    uint32_t mRefundPriceRoom;
+    uint32_t mRefundPriceTrap;
 
     std::vector<Tile*> mNeighbors;
     std::vector<Player*> mPlayersMarkingTile;

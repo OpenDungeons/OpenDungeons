@@ -121,7 +121,7 @@ void Player::pickUpEntity(GameEntity *entity)
         return;
 
     if(!entity->tryPickup(getSeat()))
-           return;
+       return;
 
     entity->pickup();
 
@@ -426,4 +426,65 @@ const PlayerEvent* Player::getNextEvent(uint32_t& index) const
     index = (index + 1) % mEvents.size();
 
     return mEvents[index];
+}
+
+void Player::markTilesForDigging(bool marked, const std::vector<Tile*>& tiles, bool asyncMsg)
+{
+    if(tiles.empty())
+        return;
+
+    std::vector<Tile*> tilesMark;
+    for(Tile* tile : tiles)
+    {
+        if(!marked)
+        {
+            getSeat()->tileMarkedDiggingNotifiedToPlayer(tile, marked);
+            tile->setMarkedForDigging(marked, this);
+            tilesMark.push_back(tile);
+            continue;
+        }
+
+        // If the tile is diggable for the client, we mark it for him
+        if(getSeat()->isTileDiggableForClient(tile))
+        {
+            getSeat()->tileMarkedDiggingNotifiedToPlayer(tile, marked);
+            tilesMark.push_back(tile);
+        }
+
+        // If the tile can be marked on server side, we mark it
+        if(!tile->isDiggable(getSeat()))
+            continue;
+
+        tile->setMarkedForDigging(marked, this);
+    }
+
+    // If human player, we notify marked tiles
+    if(!getIsHuman())
+        return;
+
+    // On client side, we ask to mark the tile
+    if(!asyncMsg)
+    {
+        ServerNotification* serverNotification = new ServerNotification(
+            ServerNotificationType::markTiles, this);
+        uint32_t nbTiles = tilesMark.size();
+        serverNotification->mPacket << marked << nbTiles;
+        for(Tile* tile : tilesMark)
+        {
+            // On client side, we ask to mark the tile
+            mGameMap->tileToPacket(serverNotification->mPacket, tile);
+        }
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
+    else
+    {
+        ServerNotification serverNotification(
+                ServerNotificationType::markTiles, this);
+        uint32_t nbTiles = tilesMark.size();
+        serverNotification.mPacket << marked << nbTiles;
+        for(Tile* tile : tilesMark)
+            mGameMap->tileToPacket(serverNotification.mPacket, tile);
+
+        ODServer::getSingleton().sendAsyncMsg(serverNotification);
+    }
 }

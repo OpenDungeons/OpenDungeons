@@ -760,6 +760,10 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     case 0:
                     {
                         // It is an inactive player
+                        Player* inactivePlayer = new Player(gameMap, 0);
+                        inactivePlayer->setNick("Inactive AI " + Ogre::StringConverter::toString(seatId));
+                        gameMap->addPlayer(inactivePlayer);
+                        seat->setPlayer(inactivePlayer);
                         break;
                     }
                     case 1:
@@ -951,38 +955,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> isDigSet);
             std::vector<Tile*> tiles = gameMap->rectangularRegion(x1, y1, x2, y2);
-            if(tiles.empty())
-                break;
-
-            std::vector<Tile*> tilesToNotifyMark;
-            // We update the server game map
-            Seat* seat = player->getSeat();
-            for(Tile* tile : tiles)
-            {
-                // If the tile is diggable on the server gamemap, we mark it
-                if(tile->isDiggable(seat))
-                    tile->setMarkedForDigging(isDigSet, player);
-
-                // On client side, if the tile can be marked, we mark it
-                if(seat->isTileDiggableForClient(tile))
-                    tilesToNotifyMark.push_back(tile);
-            }
-
-            // We notify the player of the marked tiles if any
-            if(tilesToNotifyMark.empty())
-                break;
-
-            uint32_t nbTiles = tilesToNotifyMark.size();
-            ServerNotification serverNotification(
-                ServerNotificationType::markTiles, player);
-            serverNotification.mPacket << isDigSet;
-            serverNotification.mPacket << nbTiles;
-            for(Tile* tile : tilesToNotifyMark)
-            {
-                seat->tileMarkedDiggingNotifiedToPlayer(tile, isDigSet);
-                gameMap->tileToPacket(serverNotification.mPacket, tile);
-            }
-            sendAsyncMsg(serverNotification);
+            player->markTilesForDigging(isDigSet, tiles, true);
 
             break;
         }
