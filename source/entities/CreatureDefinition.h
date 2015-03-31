@@ -22,6 +22,7 @@
 
 #include <string>
 #include <iosfwd>
+#include <cstdint>
 
 class ODPacket;
 

@@ -20,6 +20,7 @@
 
 #include <cstdint>
 #include <iosfwd>
+#include <string>
 
 class Creature;
 class GameMap;

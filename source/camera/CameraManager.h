@@ -29,6 +29,7 @@
 #include <OgreVector3.h>
 #include <OgreString.h>
 
+#include <cstdint>
 #include <set>
 
 class GameMap;

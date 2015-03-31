@@ -23,10 +23,11 @@
 #ifndef GAMEENTITY_H_
 #define GAMEENTITY_H_
 
+#include <OgreVector3.h>
 #include <cassert>
 #include <string>
 #include <vector>
-#include <OgreVector3.h>
+#include <cstdint>
 
 namespace Ogre
 {

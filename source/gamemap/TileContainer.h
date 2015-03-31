@@ -23,6 +23,7 @@
 #include <cassert>
 #include <list>
 #include <vector>
+#include <cstdint>
 
 class ODPacket;
 class TileDistance;

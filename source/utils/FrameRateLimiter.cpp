@@ -21,11 +21,11 @@
 
 namespace
 {
-    constexpr const sf::Int64 divisor = boost::micro::den;
-    constexpr const sf::Int64 minDifference = divisor / 1000;
+    const sf::Int64 divisor = boost::micro::den;
+    const sf::Int64 minDifference = divisor / 1000;
 
     template<typename T>
-    constexpr T fromFrameRate(T frameRate)
+    T fromFrameRate(T frameRate)
     {
         return divisor / frameRate;
     }
