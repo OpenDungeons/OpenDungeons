@@ -35,3 +35,8 @@ add_boost_test(CreatureDefinition
         ${SFML_LIBRARIES}
         ${Boost_LIBRARIES}
         ${OGRE_LIBRARIES})
+
+add_boost_test(Goal
+        SOURCES
+        test_Goal.cpp
+        "${SRC}/goals/Goal.cpp")

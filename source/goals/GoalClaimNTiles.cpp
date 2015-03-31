@@ -20,32 +20,30 @@
 #include "game/Player.h"
 #include "game/Seat.h"
 
-#include "gamemap/GameMap.h"
-
 #include <sstream>
 #include <iostream>
 
 GoalClaimNTiles::GoalClaimNTiles(const std::string& nName,
-        const std::string& nArguments, GameMap* gameMap) :
-        Goal(nName, nArguments, gameMap),
+        const std::string& nArguments) :
+        Goal(nName, nArguments),
         mNumberOfTiles(atoi(nArguments.c_str()))
 {
     std::cout << "\nAdding goal " << getName();
 }
 
-bool GoalClaimNTiles::isMet(Seat *s)
+bool GoalClaimNTiles::isMet(const Seat &s, const GameMap&)
 {
-    return (s->getNumClaimedTiles() >= mNumberOfTiles);
+    return (s.getNumClaimedTiles() >= mNumberOfTiles);
 }
 
-std::string GoalClaimNTiles::getSuccessMessage(Seat *s)
+std::string GoalClaimNTiles::getSuccessMessage(const Seat&)
 {
     std::stringstream tempSS;
     tempSS << "You have claimed more than " << mNumberOfTiles << " tiles.";
     return tempSS.str();
 }
 
-std::string GoalClaimNTiles::getFailedMessage(Seat *s)
+std::string GoalClaimNTiles::getFailedMessage(const Seat&)
 {
     std::stringstream tempSS;
     tempSS << "You have failed to claim more than " << mNumberOfTiles
@@ -53,10 +51,10 @@ std::string GoalClaimNTiles::getFailedMessage(Seat *s)
     return tempSS.str();
 }
 
-std::string GoalClaimNTiles::getDescription(Seat *s)
+std::string GoalClaimNTiles::getDescription(const Seat& s)
 {
     std::stringstream tempSS;
-    tempSS << "Claimed " << s->getNumClaimedTiles() << " of "
+    tempSS << "Claimed " << s.getNumClaimedTiles() << " of "
             << mNumberOfTiles << " tiles.";
     return tempSS.str();
 }

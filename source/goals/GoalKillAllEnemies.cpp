@@ -26,51 +26,51 @@
 #include <iostream>
 
 GoalKillAllEnemies::GoalKillAllEnemies(const std::string& nName,
-    const std::string& nArguments, GameMap* gameMap) :
-    Goal(nName, nArguments, gameMap)
+    const std::string& nArguments) :
+    Goal(nName, nArguments)
 {
     std::cout << "\nAdding goal " << getName();
 }
 
-bool GoalKillAllEnemies::isMet(Seat *s)
+bool GoalKillAllEnemies::isMet(const Seat &s, const GameMap& gameMap)
 {
     // Loop over all the creatures in the game map and check to see if any of them are of a different color than our seat.
-    for (Creature* creature : mGameMap->getCreatures())
+    for (Creature* creature : gameMap.getCreatures())
     {
-        if (!creature->getSeat()->isAlliedSeat(s))
+        if (!creature->getSeat()->isAlliedSeat(&s))
             return false;
     }
 
     // Considers also creature spawner rooms as enemy to be killed.
     // Temples
-    std::vector<Room*> temples = mGameMap->getRoomsByType(RoomType::dungeonTemple);
+    std::vector<Room*> temples = gameMap.getRoomsByType(RoomType::dungeonTemple);
     for (Room* temple : temples)
     {
-        if (!temple->getSeat()->isAlliedSeat(s))
+        if (!temple->getSeat()->isAlliedSeat(&s))
             return false;
     }
     // Portals
-    std::vector<Room*> portals = mGameMap->getRoomsByType(RoomType::portal);
+    std::vector<Room*> portals = gameMap.getRoomsByType(RoomType::portal);
     for (Room* portal : portals)
     {
-        if (!portal->getSeat()->isAlliedSeat(s))
+        if (!portal->getSeat()->isAlliedSeat(&s))
             return false;
     }
 
     return true;
 }
 
-std::string GoalKillAllEnemies::getSuccessMessage(Seat *s)
+std::string GoalKillAllEnemies::getSuccessMessage(const Seat&)
 {
     return "You have killed all the enemy creatures,\ntemples and portals.";
 }
 
-std::string GoalKillAllEnemies::getFailedMessage(Seat *s)
+std::string GoalKillAllEnemies::getFailedMessage(const Seat&)
 {
     return "You have failed to kill all the enemy creatures,\ntemples and portals.";
 }
 
-std::string GoalKillAllEnemies::getDescription(Seat *s)
+std::string GoalKillAllEnemies::getDescription(const Seat&)
 {
     return "Kill all enemy creatures,\ntemples and portals.";
 }

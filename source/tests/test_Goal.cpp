@@ -18,25 +18,45 @@
 #define BOOST_TEST_MODULE CreatureDefinition
 #include "BoostTestTargetConfig.h"
 
-#include "tests/mocks/TestLogManager.h"
-#include "entities/CreatureDefinition.h"
+#include "goals/Goal.h"
 
-#include <fstream>
-#include <memory>
-
-BOOST_AUTO_TEST_CASE(test_CreatureDefinition)
+struct GameMap
 {
-    //TODO: implement tests
+};
+struct Seat
+{
+};
 
-    //Create log manager instance as the functions will try to access it
-    //through the singleton interface.
-    TestLogManager t;
-    std::stringstream stream;
-    std::map<std::string, CreatureDefinition*> defMap;
-    CreatureDefinition c;
-    CreatureDefinition::writeCreatureDefinitionDiff(nullptr, &c, stream, defMap);
+class TestGoal : public Goal
+{
+public:
+    TestGoal(const std::string& nName, const std::string& nArguments)
+      : Goal(nName, nArguments)
+    {}
 
-    std::unique_ptr<CreatureDefinition> newDef(CreatureDefinition::load(stream, defMap));
-    BOOST_CHECK(newDef->getAtkRangePerLevel() == c.getAtkRangePerLevel());
-    BOOST_CHECK(newDef->getAttackRange() == c.getAttackRange());
+    virtual bool isMet(const Seat&, const GameMap&) override
+    {
+        return true;
+    }
+
+    virtual std::string getDescription(const Seat&) override
+    {
+        return "desc";
+    }
+
+    virtual std::string getSuccessMessage(const Seat&) override
+    {
+        return "success";
+    }
+    virtual std::string getFailedMessage(const Seat&) override
+    {
+        return "failed";
+    }
+};
+
+BOOST_AUTO_TEST_CASE(test_Goal)
+{
+    //TODO: Write tests once goal dependencies are testable
+    TestGoal g("name", "arguments");
+    BOOST_CHECK(g.isMet(Seat(), GameMap()));
 }

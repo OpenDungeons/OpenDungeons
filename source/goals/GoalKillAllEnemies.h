@@ -23,15 +23,15 @@
 class GoalKillAllEnemies: public Goal
 {
 public:
-    GoalKillAllEnemies(const std::string& nName, const std::string& nArguments, GameMap* gameMap);
+    GoalKillAllEnemies(const std::string& nName, const std::string& nArguments);
     virtual ~GoalKillAllEnemies()
     {}
 
     // Inherited functions
-    bool isMet(Seat *s);
-    std::string getDescription(Seat *s);
-    std::string getSuccessMessage(Seat *s);
-    std::string getFailedMessage(Seat *s);
+    bool isMet(const Seat& s, const GameMap& gameMap);
+    std::string getDescription(const Seat&);
+    std::string getSuccessMessage(const Seat&);
+    std::string getFailedMessage(const Seat&);
 };
 
 #endif // GOAKILLALLENEMIES_H

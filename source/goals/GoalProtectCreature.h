@@ -23,17 +23,15 @@
 class GoalProtectCreature: public Goal
 {
 public:
-    GoalProtectCreature(const std::string& nName, const std::string& nArguments, GameMap* gameMap);
+    GoalProtectCreature(const std::string& nName, const std::string& nArguments);
     virtual ~GoalProtectCreature()
     {}
 
     // Inherited functions
-    bool isMet(Seat *s);
-    bool isUnmet(Seat *s);
-    bool isFailed(Seat *s);
-    std::string getDescription(Seat *s);
-    std::string getSuccessMessage(Seat *s);
-    std::string getFailedMessage(Seat *s);
+    bool isMet(const Seat&, const GameMap&);
+    std::string getDescription(const Seat&);
+    std::string getSuccessMessage(const Seat&);
+    std::string getFailedMessage(const Seat&);
 
 private:
     std::string mCreatureName;

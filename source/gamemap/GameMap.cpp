@@ -1742,7 +1742,7 @@ void GameMap::removeRoom(Room *r)
     mRooms.erase(it);
 }
 
-std::vector<Room*> GameMap::getRoomsByType(RoomType type)
+std::vector<Room*> GameMap::getRoomsByType(RoomType type) const
 {
     std::vector<Room*> returnList;
     for (Room* room : mRooms)
@@ -1754,7 +1754,7 @@ std::vector<Room*> GameMap::getRoomsByType(RoomType type)
     return returnList;
 }
 
-std::vector<Room*> GameMap::getRoomsByTypeAndSeat(RoomType type, Seat* seat)
+std::vector<Room*> GameMap::getRoomsByTypeAndSeat(RoomType type, const Seat* seat)
 {
     std::vector<Room*> returnList;
     for (Room* room : mRooms)
@@ -1766,7 +1766,7 @@ std::vector<Room*> GameMap::getRoomsByTypeAndSeat(RoomType type, Seat* seat)
     return returnList;
 }
 
-std::vector<const Room*> GameMap::getRoomsByTypeAndSeat(RoomType type, Seat* seat) const
+std::vector<const Room*> GameMap::getRoomsByTypeAndSeat(RoomType type, const Seat* seat) const
 {
     std::vector<const Room*> returnList;
     for (const Room* room : mRooms)
@@ -1778,7 +1778,7 @@ std::vector<const Room*> GameMap::getRoomsByTypeAndSeat(RoomType type, Seat* sea
     return returnList;
 }
 
-unsigned int GameMap::numRoomsByTypeAndSeat(RoomType type, Seat* seat) const
+unsigned int GameMap::numRoomsByTypeAndSeat(RoomType type, const Seat* seat) const
 {
     int cptRooms = 0;
     for (Room* room : mRooms)
@@ -2438,7 +2438,7 @@ std::string GameMap::getGoalsStringForPlayer(Player* player)
         for (unsigned int i = 0; i < seat->numFailedGoals(); ++i)
         {
             Goal *tempGoal = seat->getFailedGoal(i);
-            tempSS << tempGoal->getFailedMessage(seat) << "\n";
+            tempSS << tempGoal->getFailedMessage(*seat) << "\n";
         }
     }
 
@@ -2449,7 +2449,7 @@ std::string GameMap::getGoalsStringForPlayer(Player* player)
         for (unsigned int i = 0; i < seat->numUncompleteGoals(); ++i)
         {
             Goal *tempGoal = seat->getUncompleteGoal(i);
-            tempSS << tempGoal->getDescription(seat) << "\n";
+            tempSS << tempGoal->getDescription(*seat) << "\n";
         }
     }
 
@@ -2460,7 +2460,7 @@ std::string GameMap::getGoalsStringForPlayer(Player* player)
         for (unsigned int i = 0; i < seat->numCompletedGoals(); ++i)
         {
             Goal *tempGoal = seat->getCompletedGoal(i);
-            tempSS << tempGoal->getSuccessMessage(seat) << "\n";
+            tempSS << tempGoal->getSuccessMessage(*seat) << "\n";
         }
     }
 

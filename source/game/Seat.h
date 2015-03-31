@@ -108,7 +108,7 @@ public:
     //! \brief A simple accessor function to allow for looping over the goals failed by this seat.
     Goal* getFailedGoal(unsigned int index);
 
-    unsigned int getNumClaimedTiles();
+    unsigned int getNumClaimedTiles() const;
     void setNumClaimedTiles(const unsigned int& num);
 
     //! \brief Increment the number of claimed tiles by 1.
@@ -209,7 +209,7 @@ public:
     { return mDefaultWorkerClass; }
 
     //! \brief Returns true if the given seat is allied. False otherwise
-    bool isAlliedSeat(Seat *seat);
+    bool isAlliedSeat(const Seat *seat);
 
     //! \brief Checks if the seat is allowed to do corresponding action
     bool canOwnedCreatureBePickedUpBy(const Seat* seat) const;

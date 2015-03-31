@@ -183,7 +183,7 @@ Goal* Seat::getFailedGoal(unsigned int index)
     return mFailedGoals[index];
 }
 
-unsigned int Seat::getNumClaimedTiles()
+unsigned int Seat::getNumClaimedTiles() const
 {
     return mNumClaimedTiles;
 }
@@ -207,7 +207,7 @@ unsigned int Seat::checkAllGoals()
     {
         Goal* goal = *currentGoal;
         // Start by checking if the goal has been met by this seat.
-        if (goal->isMet(this))
+        if (goal->isMet(*this, *mGameMap))
         {
             mCompletedGoals.push_back(goal);
 
@@ -232,7 +232,7 @@ unsigned int Seat::checkAllGoals()
         else
         {
             // If the goal has not been met, check to see if it cannot be met in the future.
-            if (goal->isFailed(this))
+            if (goal->isFailed(*this, *mGameMap))
             {
                 mFailedGoals.push_back(goal);
 
@@ -261,11 +261,7 @@ unsigned int Seat::checkAllGoals()
         }
     }
 
-    for(std::vector<Goal*>::iterator it = goalsToAdd.begin(); it != goalsToAdd.end(); ++it)
-    {
-        Goal* goal = *it;
-        mUncompleteGoals.push_back(goal);
-    }
+    mUncompleteGoals.insert(mUncompleteGoals.end(), goalsToAdd.begin(), goalsToAdd.end());
 
     return numUncompleteGoals();
 }
@@ -277,7 +273,7 @@ unsigned int Seat::checkAllCompletedGoals()
     while (currentGoal != mCompletedGoals.end())
     {
         // Start by checking if this previously met goal has now been unmet.
-        if ((*currentGoal)->isUnmet(this))
+        if ((*currentGoal)->isUnmet(*this, *mGameMap))
         {
             mUncompleteGoals.push_back(*currentGoal);
 
@@ -289,7 +285,7 @@ unsigned int Seat::checkAllCompletedGoals()
         else
         {
             // Next check to see if this previously met goal has now been failed.
-            if ((*currentGoal)->isFailed(this))
+            if ((*currentGoal)->isFailed(*this, *mGameMap))
             {
                 mFailedGoals.push_back(*currentGoal);
 
@@ -324,7 +320,7 @@ void Seat::goalsHasChanged()
     mHasGoalsChanged = true;
 }
 
-bool Seat::isAlliedSeat(Seat *seat)
+bool Seat::isAlliedSeat(const Seat *seat)
 {
     return getTeamId() == seat->getTeamId();
 }

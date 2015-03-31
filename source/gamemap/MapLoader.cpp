@@ -22,6 +22,7 @@
 #include "gamemap/GameMap.h"
 #include "game/Seat.h"
 #include "goals/Goal.h"
+#include "goals/GoalLoading.h"
 
 #include "entities/ChickenEntity.h"
 #include "entities/CraftedTrap.h"
@@ -196,7 +197,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         if (nextParam == "[/Goals]")
             break;
 
-        std::unique_ptr<Goal> tempGoal = Goal::instantiateFromStream(nextParam, levelFile, &gameMap);
+        std::unique_ptr<Goal> tempGoal = Goals::loadGoalFromStream(nextParam, levelFile);
 
         if (tempGoal.get() != nullptr)
             gameMap.addGoalForAllSeats(std::move(tempGoal));
@@ -633,7 +634,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     levelFile << "# " << Goal::getFormat() << "\n";
     for (auto& goal : gameMap.getGoalsForAllSeats())
     {
-        levelFile << goal.get();
+        levelFile << *goal.get();
     }
     levelFile << "[/Goals]" << std::endl;
 

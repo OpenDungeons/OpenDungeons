@@ -201,13 +201,13 @@ public:
     inline const std::vector<Room*>& getRooms() const
     { return mRooms; }
 
-    std::vector<Room*> getRoomsByType(RoomType type);
+    std::vector<Room*> getRoomsByType(RoomType type) const;
     std::vector<Room*> getRoomsByTypeAndSeat(RoomType type,
-                        Seat* seat);
+                        const Seat* seat);
     std::vector<const Room*> getRoomsByTypeAndSeat(RoomType type,
-                          Seat* seat) const;
+                          const Seat* seat) const;
     unsigned int numRoomsByTypeAndSeat(RoomType type,
-                      Seat* seat) const;
+                      const Seat* seat) const;
     std::vector<Room*> getReachableRooms(const std::vector<Room*> &vec,
                        Tile *startTile, const Creature* creature);
     std::vector<Building*> getReachableBuildingsPerSeat(Seat* seat,

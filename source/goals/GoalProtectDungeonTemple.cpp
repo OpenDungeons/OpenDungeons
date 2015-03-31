@@ -24,38 +24,38 @@
 #include <vector>
 #include <iostream>
 
-GoalProtectDungeonTemple::GoalProtectDungeonTemple(const std::string& nName, const std::string& nArguments, GameMap* gameMap) :
-    Goal(nName, nArguments, gameMap)
+GoalProtectDungeonTemple::GoalProtectDungeonTemple(const std::string& nName, const std::string& nArguments) :
+    Goal(nName, nArguments)
 {
     std::cout << "\nAdding goal " << getName();
 }
 
-bool GoalProtectDungeonTemple::isMet(Seat *s)
+bool GoalProtectDungeonTemple::isMet(const Seat& s, const GameMap& gameMap)
 {
-    return (mGameMap->numRoomsByTypeAndSeat(RoomType::dungeonTemple, s) > 0);
+    return (gameMap.numRoomsByTypeAndSeat(RoomType::dungeonTemple, &s) > 0);
 }
 
-bool GoalProtectDungeonTemple::isUnmet(Seat *s)
+bool GoalProtectDungeonTemple::isUnmet(const Seat&, const GameMap&)
 {
     return false;
 }
 
-bool GoalProtectDungeonTemple::isFailed(Seat *s)
+bool GoalProtectDungeonTemple::isFailed(const Seat& s, const GameMap& gameMap)
 {
-    return !isMet(s);
+    return !isMet(s, gameMap);
 }
 
-std::string GoalProtectDungeonTemple::getDescription(Seat *s)
+std::string GoalProtectDungeonTemple::getDescription(const Seat&)
 {
     return "Protect your dungeon temple.";
 }
 
-std::string GoalProtectDungeonTemple::getSuccessMessage(Seat *s)
+std::string GoalProtectDungeonTemple::getSuccessMessage(const Seat&)
 {
     return "Your dungeon temple is intact";
 }
 
-std::string GoalProtectDungeonTemple::getFailedMessage(Seat *s)
+std::string GoalProtectDungeonTemple::getFailedMessage(const Seat&)
 {
     return "Your dungeon temple has been destroyed";
 }

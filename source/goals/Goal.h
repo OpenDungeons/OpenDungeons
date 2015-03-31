@@ -30,20 +30,20 @@ class Goal
 {
 public:
     // Constructors
-    Goal(const std::string& nName, const std::string& nArguments, GameMap* gameMap);
+    Goal(const std::string& nName, const std::string& nArguments);
     virtual ~Goal() {}
 
     // Functions which must be overridden by child classes
-    virtual bool isMet(Seat *s) = 0;
-    virtual std::string getDescription(Seat *s) = 0;
-    virtual std::string getSuccessMessage(Seat *s) = 0;
-    virtual std::string getFailedMessage(Seat *s) = 0;
+    virtual bool isMet(const Seat&, const GameMap&) = 0;
+    virtual std::string getDescription(const Seat&) = 0;
+    virtual std::string getSuccessMessage(const Seat&) = 0;
+    virtual std::string getFailedMessage(const Seat&) = 0;
 
     // Functions which can be overridden (but do not have to be) by child classes
     virtual void doSuccessAction();
     virtual bool isVisible();
-    virtual bool isUnmet(Seat *s);
-    virtual bool isFailed(Seat *s);
+    virtual bool isUnmet(const Seat& s, const GameMap& gameMap);
+    virtual bool isFailed(const Seat&, const GameMap&);
 
     // Functions which cannot be overridden by child classes
     const std::string& getName() const
@@ -58,15 +58,13 @@ public:
     Goal* getFailureSubGoal(int index);
 
     static std::string getFormat();
-    friend std::ostream& operator<<(std::ostream& os, Goal *g);
-    static std::unique_ptr<Goal> instantiateFromStream(const std::string& goalName, std::istream& is, GameMap* gameMap);
+    friend std::ostream& operator<<(std::ostream& os, Goal& g);
 
 protected:
     std::string mName;
     std::string mArguments;
     std::vector<std::unique_ptr<Goal>> mSuccessSubGoals;
     std::vector<std::unique_ptr<Goal>> mFailureSubGoals;
-    GameMap* mGameMap;
 };
 
 #endif // GOAL_H

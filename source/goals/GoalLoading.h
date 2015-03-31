@@ -15,27 +15,20 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOALMINENGOLD_H
-#define GOALMINENGOLD_H
+#ifndef GOALLOADING_H
+#define GOALLOADING_H
 
-#include "goals/Goal.h"
+#include <memory>
+#include <string>
+#include <iosfwd>
 
-class GoalMineNGold: public Goal
+class Goal;
+
+namespace Goals
 {
-public:
-    GoalMineNGold(const std::string& nName, const std::string& nArguments);
-    virtual ~GoalMineNGold()
-    {}
+    std::unique_ptr<Goal> loadGoalFromStream(const std::string& goalName, std::istream& is);
+}
 
-    // Inherited functions
-    bool isMet(const Seat &s, const GameMap&);
-    std::string getDescription(const Seat &s);
-    std::string getSuccessMessage(const Seat &s);
-    std::string getFailedMessage(const Seat &s);
+std::ostream& operator<<(std::ostream& os, Goal &g);
 
-private:
-    int mGoldToMine;
-};
-
-#endif
-
+#endif // GOALLOADING_H

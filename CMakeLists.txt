@@ -285,8 +285,9 @@ set(OD_SOURCEFILES
     ${SRC}/gamemap/MiniMap.cpp
     ${SRC}/gamemap/TileContainer.cpp
 
-    ${SRC}/goals/GoalClaimNTiles.cpp
     ${SRC}/goals/Goal.cpp
+    ${SRC}/goals/GoalClaimNTiles.cpp
+    ${SRC}/goals/GoalLoading.cpp
     ${SRC}/goals/GoalKillAllEnemies.cpp
     ${SRC}/goals/GoalMineNGold.cpp
     ${SRC}/goals/GoalProtectCreature.cpp
