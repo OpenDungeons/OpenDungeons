@@ -144,7 +144,7 @@ bool TreasuryObject::tryDrop(Seat* seat, Tile* tile)
 
     // In editor mode, we allow to drop an object in dirt, claimed or gold tiles
     if(getGameMap()->isInEditorMode() &&
-       (tile->getType() == TileType::dirt || tile->getType() == TileType::gold || tile->getType() == TileType::rock))
+       (tile->getTileVisual() == TileVisual::dirtGround || tile->getTileVisual() == TileVisual::goldGround || tile->getTileVisual() == TileVisual::rockGround))
     {
         return true;
     }
