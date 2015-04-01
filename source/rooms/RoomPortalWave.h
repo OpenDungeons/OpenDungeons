@@ -111,10 +111,17 @@ private:
 
     //! Stores the tiles to dig to go to the enemy dungeon temple. That allows
     //! to change at runtime the way if a tile is claimed while going there
-    std::vector<Tile*> mWayToEnemy;
+    std::vector<Tile*> mMarkedTilesToEnemy;
+    std::string mTargetDungeon;
 
     //! \brief Updates the portal mesh position.
     void updatePortalPosition();
+
+    //! \brief Finds the best diggable path between tileStart and tileDest.
+    //! Note that a path is returned even if tileDest is not reachable. It should go around
+    //! the undiggable tiles
+    //! Returns true if a path was found to the dungeon and false otherwise
+    bool findBestDiggablePath(Tile* tileStart, Tile* tileDest, Creature* creature, std::vector<Tile*>& tiles);
 
     //! Spawns a wave
     void spawnWave(RoomPortalWaveData* roomPortalWaveData, uint32_t maxCreaturesToSpawn);
