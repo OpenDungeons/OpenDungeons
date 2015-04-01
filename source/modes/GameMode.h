@@ -27,6 +27,9 @@ namespace CEGUI
 class Window;
 }
 
+class ChatMessage;
+class EventMessage;
+
 enum class SpellType;
 enum class ResearchType;
 
@@ -109,6 +112,19 @@ class GameMode final : public GameEditorModeBase
 
     //! \brief Hides the settings window.
     bool hideSettingsWindow(const CEGUI::EventArgs& = {});
+
+    //! \brief Receive and display some chat text
+    void receiveChat(ChatMessage* message);
+
+    //! \brief Receive and display some event text
+    void receiveEventShortNotice(EventMessage* event);
+
+    //! \brief Refreshes the player current goals.
+    void refreshPlayerGoals(const std::string& goalsDisplayString);
+
+    //! \brief Refreshed the main ui data, such as mana, gold, ...
+    void refreshMainUI();
+
 protected:
     //! \brief The different Game Options Menu handlers
     bool showQuitMenuFromOptions(const CEGUI::EventArgs& e = {});
@@ -126,9 +142,6 @@ protected:
     //! \brief Handle the keyboard input in normal mode
     virtual bool keyReleasedNormal  (const OIS::KeyEvent &arg);
 
-    //! \brief Handle the keyboard input when chat is activated
-    virtual bool keyReleasedChat    (const OIS::KeyEvent &arg);
-
 private:
     enum InputMode
     {
@@ -143,15 +156,30 @@ private:
     int mMouseX;
     int mMouseY;
 
+    //! \brief The current input mode.
+    //! If in chat mode, then the game keyboard keys are interpreted as regular keys.
     InputMode mCurrentInputMode;
-    std::vector<OIS::KeyCode> mKeysChatPressed;
+
+    //! \brief The Chat messages in queue.
+    std::vector<ChatMessage*> mChatMessages;
+    //! \brief The game event messages in queue.
+    std::vector<EventMessage*> mEventMessages;
 
     //! \brief A simple window displaying the common game controls.
     //! Useful in the wait for a true settings menu.
     CEGUI::Window* mHelpWindow;
 
-    //! Index of the event in the event queue (for zooming automatically)
+    //! \brief The ingame chat window.
+    CEGUI::Window* mChatWindow;
+
+    //! \brief The ingame event short notice window.
+    CEGUI::Window* mEventShortNoticeWindow;
+
+    //! \brief Index of the event in the game event queue (for zooming automatically)
     uint32_t mIndexEvent;
+
+    //! \brief Update the chat and event messages seen.
+    void updateMessages(Ogre::Real update_time);
 
     //! \brief Creates the help window.
     void createHelpWindow();

@@ -17,6 +17,8 @@
 
 #include "render/TextRenderer.h"
 
+#include "utils/Helper.h"
+
 #include <Overlay/OgreOverlayManager.h>
 #include <Overlay/OgreOverlay.h>
 #include <Overlay/OgreOverlayContainer.h>
@@ -54,7 +56,8 @@ void TextRenderer::addTextBox(const std::string& ID, const std::string& text,
     textBox->setParameter("char_height", "16");
     textBox->setColour(color);
 
-    textBox->setCaption(text);
+    // Note: We make ogre handle an UTF8 string
+    textBox->setCaption(static_cast<Ogre::UTFString>(Helper::atow(text)));
 
     mPanel->addChild(textBox);
 }
@@ -65,11 +68,12 @@ void TextRenderer::removeTextBox(const std::string& ID)
     mOverlayMgr->destroyOverlayElement(ID);
 }
 
-void TextRenderer::setText(const std::string& ID, const std::string& Text)
+void TextRenderer::setText(const std::string& ID, const std::string& text)
 {
     Ogre::OverlayElement* textBox = mOverlayMgr->getOverlayElement(ID);
+    // Note: We make ogre handle an UTF8 string
     if (textBox != nullptr)
-        textBox->setCaption(Text);
+        textBox->setCaption(static_cast<Ogre::UTFString>(Helper::atow(text)));
 }
 
 void TextRenderer::setColor(const std::string& ID, const Ogre::ColourValue& color)

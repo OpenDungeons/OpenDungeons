@@ -23,6 +23,7 @@
 #include "entities/Tile.h"
 #include "network/ODClient.h"
 #include "network/ODServer.h"
+#include "network/ChatMessage.h"
 #include "game/Player.h"
 #include "game/Research.h"
 #include "game/Seat.h"
@@ -44,6 +45,7 @@
 #include <CEGUI/WindowManager.h>
 #include <CEGUI/widgets/PushButton.h>
 #include <CEGUI/widgets/ToggleButton.h>
+#include <CEGUI/widgets/Scrollbar.h>
 
 #include <OgreRoot.h>
 #include <OgreRenderWindow.h>
@@ -213,6 +215,35 @@ GameMode::GameMode(ModeManager *modeManager):
     //Spells
     connectSpellSelect(Gui::BUTTON_SPELL_CALLTOWAR, SpellType::callToWar);
     connectSpellSelect(Gui::BUTTON_SPELL_SUMMON_WORKER, SpellType::summonWorker);
+
+    // Set up the chat message window.
+    mChatWindow = guiSheet->createChild("OD/StaticImage", std::string("GameChatWindow"));
+    mChatWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 20), CEGUI::UDim(0, 35)));
+    mChatWindow->setSize(CEGUI::USize(CEGUI::UDim(0, 400), CEGUI::UDim(0, 150)));
+    mChatWindow->setProperty("FrameEnabled", "False");
+    mChatWindow->setProperty("BackgroundEnabled", "False");
+    CEGUI::Window* chatBox = mChatWindow->createChild("OD/StaticText", std::string("GameChatText"));
+    chatBox->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 0), CEGUI::UDim(0, 0)));
+    chatBox->setSize(CEGUI::USize(CEGUI::UDim(0, 400), CEGUI::UDim(0, 130)));
+    chatBox->setProperty("FrameEnabled", "False");
+    chatBox->setProperty("BackgroundEnabled", "False");
+    chatBox->setProperty("VertFormatting", "TopAligned");
+    chatBox->setProperty("HorzFormatting", "WordWrapLeftAligned");
+    chatBox->setProperty("VertScrollbar", "True");
+    CEGUI::Window* editBox = mChatWindow->createChild("OD/Editbox", std::string("GameChatEditBox"));
+    editBox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.0, 0), CEGUI::UDim(1.0, -20)));
+    editBox->setSize(CEGUI::USize(CEGUI::UDim(1.0, 0), CEGUI::UDim(0.0, 20)));
+    editBox->hide();
+
+    // Set up the event window.
+    mEventShortNoticeWindow = guiSheet->createChild("OD/StaticText", std::string("GameChatText"));
+    mEventShortNoticeWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 430), CEGUI::UDim(0, 35)));
+    mEventShortNoticeWindow->setSize(CEGUI::USize(CEGUI::UDim(0, 400), CEGUI::UDim(0, 130)));
+    mEventShortNoticeWindow->setProperty("FrameEnabled", "False");
+    mEventShortNoticeWindow->setProperty("BackgroundEnabled", "False");
+    mEventShortNoticeWindow->setProperty("VertFormatting", "TopAligned");
+    mEventShortNoticeWindow->setProperty("HorzFormatting", "WordWrapLeftAligned");
+    mEventShortNoticeWindow->setProperty("VertScrollbar", "True");
 }
 
 GameMode::~GameMode()
@@ -232,6 +263,18 @@ GameMode::~GameMode()
 
     if (mHelpWindow != nullptr)
         CEGUI::WindowManager::getSingleton().destroyWindow(mHelpWindow);
+
+    if (mChatWindow != nullptr)
+        CEGUI::WindowManager::getSingleton().destroyWindow(mChatWindow);
+
+    if (mEventShortNoticeWindow != nullptr)
+        CEGUI::WindowManager::getSingleton().destroyWindow(mEventShortNoticeWindow);
+
+    // delete the potential pending messages and events short notices.
+    for (ChatMessage* message : mChatMessages)
+        delete message;
+    for (EventMessage* message : mEventMessages)
+        delete message;
 }
 
 //! \brief Gets the CEGUI ImageColours string property (AARRGGBB format) corresponding
@@ -256,6 +299,7 @@ void GameMode::activate()
     guiSheet->getChild("ResearchTreeWindow")->hide();
     guiSheet->getChild("SettingsWindow")->hide();
     guiSheet->getChild("GameOptionsWindow")->hide();
+    guiSheet->getChild("GameChatWindow/GameChatEditBox")->hide();
 
     giveFocus();
 
@@ -977,10 +1021,13 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
         ResourceManager::getSingleton().takeScreenshot(frameListener.getRenderWindow());
         break;
 
-    case OIS::KC_RETURN:
+    case OIS::KC_RETURN: {
         mCurrentInputMode = InputModeChat;
-        frameListener.notifyChatInputMode(true);
+        CEGUI::Window* chatEditBox = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameChatWindow/GameChatEditBox");
+        chatEditBox->show();
+        chatEditBox->activate();
         break;
+    }
 
     case OIS::KC_1:
     case OIS::KC_2:
@@ -1004,29 +1051,125 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
 
 bool GameMode::keyPressedChat(const OIS::KeyEvent &arg)
 {
-    mKeysChatPressed.push_back(arg.key);
-    if(arg.key == OIS::KC_RETURN || arg.key == OIS::KC_ESCAPE)
-    {
-        mCurrentInputMode = InputModeNormal;
-        ODFrameListener::getSingleton().notifyChatInputMode(false, arg.key == OIS::KC_RETURN);
-    }
-    else if(arg.key == OIS::KC_BACK)
-    {
-        ODFrameListener::getSingleton().notifyChatCharDel();
-    }
-    else
-    {
-        ODFrameListener::getSingleton().notifyChatChar(getChatChar(arg));
-    }
+    if(arg.key != OIS::KC_RETURN && arg.key != OIS::KC_ESCAPE)
+        return true;
+
+    mCurrentInputMode = InputModeNormal;
+    CEGUI::Window* chatEditBox = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameChatWindow/GameChatEditBox");
+    chatEditBox->hide();
+
+    // Check whether something was actually typed.
+    if (chatEditBox->getText().empty())
+        return true;
+
+    ODClient::getSingleton().queueClientNotification(ClientNotificationType::chat, chatEditBox->getText().c_str());
+    chatEditBox->setText("");
     return true;
+}
+
+void GameMode::receiveChat(ChatMessage* message)
+{
+    mChatMessages.emplace_back(message);
+}
+
+void GameMode::receiveEventShortNotice(EventMessage* event)
+{
+    mEventMessages.emplace_back(event);
+}
+
+void GameMode::updateMessages(Ogre::Real update_time)
+{
+    CEGUI::Window* chatTextBox = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameChatWindow/GameChatText");
+    chatTextBox->setText("");
+    float maxChatTimeDisplay = ODFrameListener::getSingleton().getChatMaxTimeDisplay();
+
+    // Update the chat message seen.
+    auto it = mChatMessages.begin();
+    for (; it != mChatMessages.end();)
+    {
+        ChatMessage* message = *it;
+        if (message->isMessageTooOld(maxChatTimeDisplay))
+        {
+            delete message;
+            it = mChatMessages.erase(it);
+        }
+        else
+        {
+            chatTextBox->appendText(reinterpret_cast<const CEGUI::utf8*>(message->getMessageAsString().c_str()));
+            ++it;
+        }
+    }
+
+    // Ensure the latest text is shown
+    CEGUI::Scrollbar* scrollBar = reinterpret_cast<CEGUI::Scrollbar*>(chatTextBox->getChild("__auto_vscrollbar__"));
+    scrollBar->setScrollPosition(scrollBar->getDocumentSize());
+
+    // Do the same for events.
+    mEventShortNoticeWindow->setText("");
+
+    // Update the chat message seen.
+    auto it2 = mEventMessages.begin();
+    for (; it2 != mEventMessages.end();)
+    {
+        EventMessage* event = *it2;
+        if (event->isMessageTooOld(maxChatTimeDisplay))
+        {
+            delete event;
+            it2 = mEventMessages.erase(it2);
+        }
+        else
+        {
+            mEventShortNoticeWindow->appendText(reinterpret_cast<const CEGUI::utf8*>(event->getMessageAsString().c_str()));
+            ++it2;
+        }
+    }
+
+    // Ensure the latest text is shown
+    scrollBar = reinterpret_cast<CEGUI::Scrollbar*>(mEventShortNoticeWindow->getChild("__auto_vscrollbar__"));
+    scrollBar->setScrollPosition(scrollBar->getDocumentSize());
+}
+
+void GameMode::refreshMainUI()
+{
+    Seat* mySeat = mGameMap->getLocalPlayer()->getSeat();
+    CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::inGameMenu);
+
+    //! \brief Updates common info on screen.
+    CEGUI::Window* widget = guiSheet->getChild(Gui::DISPLAY_TERRITORY);
+    std::stringstream tempSS("");
+    tempSS << mySeat->getNumClaimedTiles();
+    widget->setText(tempSS.str());
+
+    widget = guiSheet->getChild(Gui::DISPLAY_CREATURES);
+    tempSS.str("");
+    tempSS << mySeat->getNumCreaturesFighters() << "/" << mySeat->getNumCreaturesFightersMax();
+    widget->setText(tempSS.str());
+
+    widget = guiSheet->getChild(Gui::DISPLAY_GOLD);
+    tempSS.str("");
+    tempSS << mySeat->getGold();
+    widget->setText(tempSS.str());
+
+    widget = guiSheet->getChild(Gui::DISPLAY_MANA);
+    tempSS.str("");
+    tempSS << mySeat->getMana() << " " << (mySeat->getManaDelta() >= 0 ? "+" : "-")
+            << mySeat->getManaDelta();
+    widget->setText(tempSS.str());
+}
+
+void GameMode::refreshPlayerGoals(const std::string& goalsDisplayString)
+{
+    CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::inGameMenu);
+    CEGUI::Window* widget = guiSheet->getChild(Gui::OBJECTIVE_TEXT);
+    widget->setText(reinterpret_cast<const CEGUI::utf8*>(goalsDisplayString.c_str()));
 }
 
 bool GameMode::keyReleased(const OIS::KeyEvent &arg)
 {
     CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyUp(static_cast<CEGUI::Key::Scan>(arg.key));
 
-    if(std::find(mKeysChatPressed.begin(), mKeysChatPressed.end(), arg.key) != mKeysChatPressed.end())
-        return keyReleasedChat(arg);
+    if (mCurrentInputMode == InputModeChat)
+        return true;
 
     return keyReleasedNormal(arg);
 }
@@ -1092,14 +1235,6 @@ bool GameMode::keyReleasedNormal(const OIS::KeyEvent &arg)
     return true;
 }
 
-bool GameMode::keyReleasedChat(const OIS::KeyEvent &arg)
-{
-    std::vector<OIS::KeyCode>::iterator it = std::find(mKeysChatPressed.begin(), mKeysChatPressed.end(), arg.key);
-    if(it != mKeysChatPressed.end())
-        mKeysChatPressed.erase(it);
-    return true;
-}
-
 void GameMode::handleHotkeys(OIS::KeyCode keycode)
 {
     ODFrameListener& frameListener = ODFrameListener::getSingleton();
@@ -1132,6 +1267,8 @@ void GameMode::onFrameStarted(const Ogre::FrameEvent& evt)
     mMiniMap.draw(*mGameMap);
     mMiniMap.swap();
 
+    updateMessages(evt.timeSinceLastFrame);
+
     refreshGuiResearch();
 }
 
@@ -1156,28 +1293,28 @@ void GameMode::notifyGuiAction(GuiAction guiAction)
 {
     switch(guiAction)
     {
-            case GuiAction::ButtonPressedCreatureWorker:
+        case GuiAction::ButtonPressedCreatureWorker:
+        {
+            if(ODClient::getSingleton().isConnected())
             {
-                if(ODClient::getSingleton().isConnected())
-                {
-                    ClientNotification *clientNotification = new ClientNotification(
-                        ClientNotificationType::askPickupWorker);
-                    ODClient::getSingleton().queueClientNotification(clientNotification);
-                }
-                break;
+                ClientNotification *clientNotification = new ClientNotification(
+                    ClientNotificationType::askPickupWorker);
+                ODClient::getSingleton().queueClientNotification(clientNotification);
             }
-            case GuiAction::ButtonPressedCreatureFighter:
+            break;
+        }
+        case GuiAction::ButtonPressedCreatureFighter:
+        {
+            if(ODClient::getSingleton().isConnected())
             {
-                if(ODClient::getSingleton().isConnected())
-                {
-                    ClientNotification *clientNotification = new ClientNotification(
-                        ClientNotificationType::askPickupFighter);
-                    ODClient::getSingleton().queueClientNotification(clientNotification);
-                }
-                break;
+                ClientNotification *clientNotification = new ClientNotification(
+                    ClientNotificationType::askPickupFighter);
+                ODClient::getSingleton().queueClientNotification(clientNotification);
             }
-            default:
-                break;
+            break;
+        }
+        default:
+            break;
     }
 }
 

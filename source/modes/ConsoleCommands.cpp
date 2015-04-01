@@ -31,7 +31,6 @@ const std::string HELPMESSAGE =
         "\n\thelp - Displays this help message."
         "\n\thelp keys - Shows the keyboard controls."
         "\n\tlist/ls - Prints out lists of creatures, classes, etc..."
-        "\n\tmaxmessages - Sets or displays the max number of chat messages to display."
         "\n\tmaxtime - Sets or displays the max time for chat messages to be displayed."
         "\n\ttermwidth - Sets the terminal width."
         "\n\n==Cheats=="
@@ -543,6 +542,7 @@ Command::Result cKeys(const Command::ArgumentList_t&, ConsoleInterface& c, Abstr
              || Zoom Out             || Home               || Wheel Down     ||\n\
              || Tilt Up              || Page Up            || -              ||\n\
              || Tilt Down            || End                || -              ||\n\
+             || Change view mode     || V                  || -              ||\n\
              || Select Tile/Creature || -                  || Left Click     ||\n\
              || Drop Creature/Gold   || -                  || Right Click    ||\n\
              || Toggle Debug Info    || F11                || -              ||\n\
@@ -562,7 +562,8 @@ Command::Result cTriggerCompositor(const Command::ArgumentList_t& args, ConsoleI
     RenderManager::getSingleton().triggerCompositor(args[1]);
     return Command::Result::SUCCESS;
 }
-}
+
+} // namespace <none>
 
 namespace ConsoleCommands
 {
@@ -609,16 +610,6 @@ void addConsoleCommands(ConsoleInterface& cl)
                                                                 "chat max time display", args, c);
                   },
                   {AbstractModeManager::ModeType::ALL});
-    cl.addCommand("maxmessages",
-                  "Sets the max number of lines displayed at once in the info text area.\n\nExample:\n"
-                  "maxmessages 4",
-                  [](const Command::ArgumentList_t& args, ConsoleInterface& c, AbstractModeManager&) {
-                          return cSetFrameListenerVar<unsigned int>(std::mem_fn(&ODFrameListener::getChatMaxMessages),
-                                                                std::mem_fn(&ODFrameListener::setChatMaxMessages),
-                                                                ODFrameListener::getSingleton(),
-                                                                "max displayed messages", args, c);
-                  },
-                   {AbstractModeManager::ModeType::ALL});
     cl.addCommand("addcreature",
                   "this seems to currently be broken",
                   cAddCreature,
@@ -723,4 +714,4 @@ void addConsoleCommands(ConsoleInterface& cl)
 
 }
 
-}
+} // namespace ConsoleCommands

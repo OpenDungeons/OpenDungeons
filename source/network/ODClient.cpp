@@ -41,6 +41,7 @@
 #include "utils/LogManager.h"
 #include "modes/ModeManager.h"
 #include "modes/MenuModeConfigureSeats.h"
+#include "modes/GameMode.h"
 #include "sound/MusicPlayer.h"
 #include "sound/SoundEffectsManager.h"
 #include "camera/CameraManager.h"
@@ -89,10 +90,8 @@ bool ODClient::processOneClientSocketMessage()
     ODComStatus comStatus = recv(packetReceived);
     if(comStatus != ODComStatus::OK)
     {
-        // Place a chat message in the queue to inform
-        // the user about the disconnect
-        frameListener->addChatMessage(new ChatMessage(ODServer::SERVER_INFORMATION,
-            "Disconnected from server."));
+        // Place an event in the queue to inform the user about the disconnection.
+        addEventMessage(new EventMessage("Disconnected from server."));
         // TODO : try to reconnect to the server
         return false;
     }
@@ -250,6 +249,7 @@ bool ODClient::processOneClientSocketMessage()
                 int32_t id;
                 OD_ASSERT_TRUE(packetReceived >> nick >> id);
                 mode->addPlayer(nick, id);
+                addEventMessage(new EventMessage("New player connected:" + nick));
             }
             break;
         }
@@ -369,21 +369,20 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotificationType::chat:
         {
-            std::string chatNick;
+            int32_t seatId;
             std::string chatMsg;
-            OD_ASSERT_TRUE(packetReceived >> chatNick >> chatMsg);
-            ChatMessage *newMessage = new ChatMessage(chatNick, chatMsg);
-            frameListener->addChatMessage(newMessage);
+            OD_ASSERT_TRUE(packetReceived >> seatId >> chatMsg);
+            Seat* seat = gameMap->getSeatById(seatId);
+            Player* player = seat ? seat->getPlayer() : nullptr;
+            addChatMessage(new ChatMessage(player, chatMsg));
             break;
         }
 
         case ServerNotificationType::chatServer:
         {
-            std::string chatMsg;
-            OD_ASSERT_TRUE(packetReceived >> chatMsg);
-            ChatMessage *newMessage = new ChatMessage(ODServer::SERVER_INFORMATION,
-                chatMsg);
-            frameListener->addChatMessage(newMessage);
+            std::string evtMsg;
+            OD_ASSERT_TRUE(packetReceived >> evtMsg);
+            addEventMessage(new EventMessage(evtMsg));
             break;
         }
 
@@ -560,7 +559,7 @@ bool ODClient::processOneClientSocketMessage()
             std::string goalsString;
             OD_ASSERT_TRUE(packetReceived >> &tmpSeat >> goalsString);
             getPlayer()->getSeat()->refreshFromSeat(&tmpSeat);
-            frameListener->refreshPlayerDisplay(goalsString);
+            refreshMainUI(goalsString);
             break;
         }
 
@@ -583,13 +582,11 @@ bool ODClient::processOneClientSocketMessage()
             OD_ASSERT_TRUE(packetReceived >> playerFightingId);
             if(getPlayer()->getId() == playerFightingId)
             {
-                frameListener->addChatMessage(new ChatMessage(ODServer::SERVER_INFORMATION,
-                    "You are under attack!"));
+                addEventMessage(new EventMessage("You are under attack!", eventShortNoticeType::beingAttacked));
             }
             else
             {
-                frameListener->addChatMessage(new ChatMessage(ODServer::SERVER_INFORMATION,
-                    "An ally is under attack!"));
+                addEventMessage(new EventMessage("An ally is under attack!", eventShortNoticeType::beingAttacked));
             }
 
             std::string fightMusic = gameMap->getLevelFightMusicFile();
@@ -942,6 +939,40 @@ void ODClient::processClientNotifications()
         }
         delete event;
     }
+}
+
+void ODClient::addChatMessage(ChatMessage* chat)
+{
+    ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
+    if (frameListener->getModeManager()->getCurrentModeType() == AbstractModeManager::GAME)
+    {
+        GameMode* gm = static_cast<GameMode*>(frameListener->getModeManager()->getCurrentMode());
+        gm->receiveChat(chat);
+    }
+    // Note: Later, we can handle other modes here.
+}
+
+void ODClient::addEventMessage(EventMessage* event)
+{
+    ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
+    if (frameListener->getModeManager()->getCurrentModeType() == AbstractModeManager::GAME)
+    {
+        GameMode* gm = static_cast<GameMode*>(frameListener->getModeManager()->getCurrentMode());
+        gm->receiveEventShortNotice(event);
+    }
+    // Note: Later, we can handle other modes here.
+}
+
+void ODClient::refreshMainUI(const std::string& goalsString)
+{
+    ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
+    if (frameListener->getModeManager()->getCurrentModeType() == AbstractModeManager::GAME)
+    {
+        GameMode* gm = static_cast<GameMode*>(frameListener->getModeManager()->getCurrentMode());
+        gm->refreshPlayerGoals(goalsString);
+        gm->refreshMainUI();
+    }
+    // Note: Later, we can handle other modes here if necessary.
 }
 
 void ODClient::sendToServer(ODPacket& packetToSend)

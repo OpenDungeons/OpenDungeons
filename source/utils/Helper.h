@@ -50,6 +50,14 @@ namespace Helper
         return t;
     }
 
+    //! \brief Turn a std::string to a wstring.
+    inline std::wstring atow(const std::string& str)
+    {
+        std::wstringstream wstrm;
+        wstrm << str.c_str();
+        return wstrm.str();
+    }
+
     /*! \brief Checks if a string contains primitive type T
      *
      *  \param str The string to be checked

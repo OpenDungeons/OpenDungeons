@@ -58,7 +58,6 @@
 #include <boost/filesystem.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-const std::string ODServer::SERVER_INFORMATION = "SERVER_INFORMATION";
 const std::string SAVEGAME_SKIRMISH_PREFIX = "SK-";
 const std::string SAVEGAME_MULTIPLAYER_PREFIX = "MP-";
 
@@ -869,11 +868,11 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             // to the Server
             std::string chatMsg;
             OD_ASSERT_TRUE(packetReceived >> chatMsg);
-            Player* player = clientSocket->getPlayer();
+            int32_t seatId = clientSocket->getPlayer()->getSeat()->getId();
+
             ODPacket packetSend;
-            std::string nick = player->getNick();
             ServerNotification notif(ServerNotificationType::chat, nullptr);
-            notif.mPacket << nick << chatMsg;
+            notif.mPacket << seatId << chatMsg;
             sendAsyncMsg(notif);
             break;
         }

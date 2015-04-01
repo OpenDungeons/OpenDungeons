@@ -21,6 +21,10 @@
 #include <SFML/System.hpp>
 #include <string>
 
+#include "network/ODServer.h"
+
+class Player;
+
 /*! \brief A data structure to store a chat message and its relevant time stamps.
  *
  * The chat message data structure is filled up and placed in a queue when a
@@ -32,20 +36,42 @@
 class ChatMessage
 {
 public:
-    ChatMessage(const std::string& nNick, const std::string& nMessage);
+    ChatMessage(Player* player, const std::string& message);
 
     inline const std::string& getMessage() const
     { return mMessage; }
 
-    inline const std::string& getClientNick() const
-    { return mClientNick; }
+    inline Player* getPlayer() const
+    { return mPlayer; }
 
     bool isMessageTooOld(float maxTimeDisplay) const;
 
+    //! \brief Computes and returns the preformatted message string.
+    std::string getMessageAsString();
+
 private:
     std::string mMessage;
-    std::string mClientNick;
-    sf::Clock   clockCreation;
+    Player* mPlayer;
+    sf::Clock mClockCreation;
+};
+
+class EventMessage
+{
+public:
+    EventMessage(const std::string& message, eventShortNoticeType type = eventShortNoticeType::genericGameInfo);
+
+    inline const std::string& getMessage() const
+    { return mMessage; }
+
+    bool isMessageTooOld(float maxTimeDisplay) const;
+
+    //! \brief Computes and returns the preformatted message string.
+    std::string getMessageAsString();
+
+private:
+    std::string mMessage;
+    eventShortNoticeType mType;
+    sf::Clock   mClockCreation;
 };
 
 #endif // CHATMESSAGE_H
