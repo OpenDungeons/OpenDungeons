@@ -24,6 +24,7 @@
 #include <string>
 #include <vector>
 #include <iosfwd>
+#include <cstdint>
 
 class Building;
 class Goal;

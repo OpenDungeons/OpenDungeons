@@ -3568,7 +3568,7 @@ bool Creature::tryDrop(Seat* seat, Tile* tile)
         return false;
 
     // If it is a worker, he can be dropped on dirt
-    if (getDefinition()->isWorker() && (tile->getType() == TileType::dirt || tile->getType() == TileType::gold))
+    if (getDefinition()->isWorker() && (tile->getTileVisual() == TileVisual::dirtGround || tile->getTileVisual() == TileVisual::goldGround))
         return true;
 
     // Every creature can be dropped on allied claimed tiles
