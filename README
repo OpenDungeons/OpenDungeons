@@ -3,7 +3,7 @@ Open Dungeons
 
 Welcome into the Open Dungeons (OD) project README file.
 
-Website: http://opendungeons.sourceforge.net/
+Website: https://opendungeons.github.io
 Forums: http://forum.freegamedev.net/viewforum.php?f=15
 Official repository: https://github.com/OpenDungeons/OpenDungeons ('development' branch)
 Media source files: https://github.com/OpenDungeons/OpenDungeons-media-source
@@ -20,7 +20,6 @@ licenses/        - License files used for game data and code
 materials/       - Materials (models texturing scripts and textures)
 models/          - Model files
 music/           - Music files
-packs/           - Ogre files useful to run the starting pop-up
 scripts/         - Our AngelScript code files
 sounds/          - Game Sounds
 
@@ -33,29 +32,29 @@ cmake/           - Helper files for CMake
 dependencies/    - All external projects
  |- angelscript/ - AngelScript SDK, our scripting language
 sources/         - All our own .cpp and .h files of the game
+tools/           - Some developers shell scripts
 .gitignore       - The files and folders that are ignored by git locally
 CMakeLists.txt   - CMake script for generating the Makefile and IDE projects
-od.cppcheck      - Project file for Cppcheck (cppcheck.sourceforge.net)
 README           - The file you are currently reading
 
 -- Coding Guideline ---
 Before you start coding you should take a glimpse at our guideline
 over at the wiki:
-  http://opendungeons.sourceforge.net/wiki/doku.php?id=code_style_guidelines
+  https://github.com/OpenDungeons/OpenDungeons/wiki/Code-Guidelines
 
 It contains a rather deep introduction on how we name, indent, structure and
 extend our code. It also has some performance optimisation tips.
 
 --- Build Instructions ---
 More detailed, and usually up to date build instructions can be found at:
-  http://opendungeons.sourceforge.net/wiki/doku.php?id=building_from_source
+  https://github.com/OpenDungeons/OpenDungeons/wiki/Compile
 
 To build the game run the following commands from the directory where this
 README file is. You will need CMake for this (http://cmake.org/).
 
     mkdir build && cd build
     cmake ..
-    make
+    make -jX    // X is the number of CPU cores that you want to allocate
     ./opendungeons
 
 To build the game, you will need to link against the following libraries:
