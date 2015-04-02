@@ -891,6 +891,7 @@ bool Tile::isFloodFillFilled() const
     {
         case TileType::dirt:
         case TileType::gold:
+        case TileType::rock:
         {
             if((mFloodFillColor[toUInt32(FloodFillType::ground)] != -1) &&
                (mFloodFillColor[toUInt32(FloodFillType::groundWater)] != -1) &&

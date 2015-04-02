@@ -2083,6 +2083,7 @@ bool GameMap::doFloodFill(Tile* tile)
         {
             case TileType::dirt:
             case TileType::gold:
+            case TileType::rock:
             {
                 hasChanged |= tile->updateFloodFillFromTile(FloodFillType::ground, neigh);
                 hasChanged |= tile->updateFloodFillFromTile(FloodFillType::groundWater, neigh);
@@ -2195,7 +2196,8 @@ void GameMap::enableFloodFill()
                 if(currentType == FloodFillType::ground)
                 {
                     if(((tile->getType() == TileType::dirt) ||
-                        (tile->getType() == TileType::gold)) &&
+                        (tile->getType() == TileType::gold) ||
+                        (tile->getType() == TileType::rock)) &&
                        (tile->floodFillValue(FloodFillType::ground) == -1))
                     {
                         isTileFound = true;
