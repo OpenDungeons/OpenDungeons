@@ -544,11 +544,11 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             // Tiles
             std::vector<Tile*> goldTiles;
             std::vector<Tile*> rockTiles;
-            for (int jj = 0; jj < mapSizeX; ++jj)
+            for (int xxx = 0; xxx < mapSizeX; ++xxx)
             {
-                for (int ii = 0; ii < mapSizeY; ++ii)
+                for (int yyy = 0; yyy < mapSizeY; ++yyy)
                 {
-                    Tile* tile = gameMap->getTile(ii,jj);
+                    Tile* tile = gameMap->getTile(xxx,yyy);
                     if(tile->getType() == TileType::gold)
                     {
                         goldTiles.push_back(tile);
