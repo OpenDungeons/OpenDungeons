@@ -275,6 +275,7 @@ void ODFrameListener::printDebugInfo()
         infoSS << "\ntriangleCount: " << mWindow->getStatistics().triangleCount;
         infoSS << "\nBatches: " << mWindow->getStatistics().batchCount;
         infoSS << "\nTurn number:  " << mGameMap->getTurnNumber();
+        infoSS << "\nCursor:  " << mModeManager->getInputManager()->mXPos << ", " << mModeManager->getInputManager()->mYPos;
         if(ODClient::getSingleton().isConnected())
         {
             int32_t gameTime = ODClient::getSingleton().getGameTimeMillis() / 1000;
