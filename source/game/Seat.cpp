@@ -361,11 +361,17 @@ void Seat::initSeat()
     if(getPlayer() == nullptr)
         return;
 
+    ConfigManager& config = ConfigManager::getSingleton();
+
     if(isRogueSeat())
+    {
+        std::string defaultWorkerClass = config.getRogueWorkerClass();
+        mDefaultWorkerClass = mGameMap->getClassDescription(defaultWorkerClass);
+        OD_ASSERT_TRUE_MSG(mDefaultWorkerClass != nullptr, "No valid default worker class for rogue seat: " + defaultWorkerClass);
         return;
+    }
 
     // Spawn pool initialisation
-    ConfigManager& config = ConfigManager::getSingleton();
     const std::vector<std::string>& pool = config.getFactionSpawnPool(mFaction);
     OD_ASSERT_TRUE_MSG(!pool.empty(), "Empty spawn pool for faction=" + mFaction);
     for(const std::string& defName : pool)

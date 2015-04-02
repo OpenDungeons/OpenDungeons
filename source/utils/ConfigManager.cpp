@@ -775,6 +775,10 @@ bool ConfigManager::loadFactions(const std::string& fileName)
             mFactions.push_back(factionName);
             mFactionDefaultWorkerClass[factionName] = workerClass;
 
+            // The first faction in the config file is also used for the rogue seat
+            if(mDefaultWorkerRogue.empty())
+                mDefaultWorkerRogue = workerClass;
+
             while(defFile.good())
             {
                 if(!(defFile >> nextParam))
