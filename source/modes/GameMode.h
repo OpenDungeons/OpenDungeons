@@ -169,12 +169,6 @@ private:
     //! Useful in the wait for a true settings menu.
     CEGUI::Window* mHelpWindow;
 
-    //! \brief The ingame chat window.
-    CEGUI::Window* mChatWindow;
-
-    //! \brief The ingame event short notice window.
-    CEGUI::Window* mEventShortNoticeWindow;
-
     //! \brief Index of the event in the game event queue (for zooming automatically)
     uint32_t mIndexEvent;
 

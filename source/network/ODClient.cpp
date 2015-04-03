@@ -582,11 +582,11 @@ bool ODClient::processOneClientSocketMessage()
             OD_ASSERT_TRUE(packetReceived >> playerFightingId);
             if(getPlayer()->getId() == playerFightingId)
             {
-                addEventMessage(new EventMessage("You are under attack!", eventShortNoticeType::beingAttacked));
+                addEventMessage(new EventMessage("You are under attack!", EventShortNoticeType::beingAttacked));
             }
             else
             {
-                addEventMessage(new EventMessage("An ally is under attack!", eventShortNoticeType::beingAttacked));
+                addEventMessage(new EventMessage("An ally is under attack!", EventShortNoticeType::beingAttacked));
             }
 
             std::string fightMusic = gameMap->getLevelFightMusicFile();

@@ -36,7 +36,7 @@ enum class ServerMode
 };
 
 //! \brief An enum used to know what kind of game event it is.
-enum class eventShortNoticeType
+enum class EventShortNoticeType
 {
     genericGameInfo,
     aboutCreatures,

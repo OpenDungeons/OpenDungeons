@@ -129,6 +129,14 @@
             <Property name="MaxSize" value="{{1,0},{1,0}}" />
             <Property name="AlwaysOnTop" value="True" />
         </Window>
+        <Window type="OD/StaticText" name="GameEventText" >
+            <Property name="Area" value="{{0.0,430},{0.0,35},{0.0,830},{0.0,160}}" />
+            <Property name="FrameEnabled" value="False" />
+            <Property name="BackgroundEnabled" value="False" />
+            <Property name="VertFormatting" value="TopAligned" />
+            <Property name="HorzFormatting" value="WordWrapLeftAligned" />
+            <Property name="VertScrollbar" value="True" />
+        </Window>
         <Window type="OD/TabControl" name="MainTabControl" >
             <Property name="Area" value="{{0,0},{1,-133},{1,-200},{1,0}}" />
             <Property name="TabHeight" value="{0,25}" />
@@ -143,5 +151,6 @@
         <LayoutImport type="DefaultWindow" filename="ResearchTree.layout" name="ResearchTreeWindowImport" />
         <LayoutImport type="DefaultWindow" filename="GameOptionsMenu.layout" name="GameOptionsMenuImport" />
         <LayoutImport type="DefaultWindow" filename="SettingsMenu.layout" name="SettingsMenuImport" />
+        <LayoutImport type="DefaultWindow" filename="ChatWindow.layout" name="ChatWindowImport" />
     </Window>
 </GUILayout>

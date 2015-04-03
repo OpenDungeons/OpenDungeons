@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout version="4" >
+    <Window type="OD/StaticImage" name="GameChatWindow" >
+        <Property name="Area" value="{{0.0,20},{0.0,35},{0.0,400},{0.0,160}}" />
+        <Property name="FrameEnabled" value="False" />
+        <Property name="BackgroundEnabled" value="False" />
+        <Window type="OD/StaticText" name="GameChatText" >
+            <Property name="Area" value="{{0.0,0},{0.0,0},{1.0,0},{1.0,-25}}" />
+            <Property name="FrameEnabled" value="False" />
+            <Property name="BackgroundEnabled" value="False" />
+            <Property name="VertFormatting" value="TopAligned" />
+            <Property name="HorzFormatting" value="WordWrapLeftAligned" />
+            <Property name="VertScrollbar" value="True" />
+        </Window>
+        <Window type="OD/Editbox" name="GameChatEditBox" >
+            <Property name="Area" value="{{0.0,0},{1.0,-25},{1.0,0},{1.0,0}}" />
+        </Window>
+    </Window>
+</GUILayout>

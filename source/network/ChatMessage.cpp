@@ -45,7 +45,7 @@ std::string ChatMessage::getMessageAsString()
     return messageStr;
 }
 
-EventMessage::EventMessage(const std::string& message, eventShortNoticeType type):
+EventMessage::EventMessage(const std::string& message, EventShortNoticeType type):
     mMessage(message),
     mType(type)
 {
@@ -62,14 +62,14 @@ std::string EventMessage::getMessageAsString()
     const std::string formatWhiteColor = "[colour='FFFFFFFF']";
     switch(mType)
     {
-        case eventShortNoticeType::aboutCreatures:
+        case EventShortNoticeType::aboutCreatures:
             colorType = "[colour='FF0000EE']";
             break;
         default:
-        case eventShortNoticeType::genericGameInfo:
+        case EventShortNoticeType::genericGameInfo:
             colorType = "[colour='FF00EE00']";
             break;
-        case eventShortNoticeType::beingAttacked:
+        case EventShortNoticeType::beingAttacked:
             colorType = "[colour='FFEE0000']";
             break;
     }

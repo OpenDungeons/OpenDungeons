@@ -215,35 +215,6 @@ GameMode::GameMode(ModeManager *modeManager):
     //Spells
     connectSpellSelect(Gui::BUTTON_SPELL_CALLTOWAR, SpellType::callToWar);
     connectSpellSelect(Gui::BUTTON_SPELL_SUMMON_WORKER, SpellType::summonWorker);
-
-    // Set up the chat message window.
-    mChatWindow = guiSheet->createChild("OD/StaticImage", std::string("GameChatWindow"));
-    mChatWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 20), CEGUI::UDim(0, 35)));
-    mChatWindow->setSize(CEGUI::USize(CEGUI::UDim(0, 400), CEGUI::UDim(0, 150)));
-    mChatWindow->setProperty("FrameEnabled", "False");
-    mChatWindow->setProperty("BackgroundEnabled", "False");
-    CEGUI::Window* chatBox = mChatWindow->createChild("OD/StaticText", std::string("GameChatText"));
-    chatBox->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 0), CEGUI::UDim(0, 0)));
-    chatBox->setSize(CEGUI::USize(CEGUI::UDim(0, 400), CEGUI::UDim(0, 130)));
-    chatBox->setProperty("FrameEnabled", "False");
-    chatBox->setProperty("BackgroundEnabled", "False");
-    chatBox->setProperty("VertFormatting", "TopAligned");
-    chatBox->setProperty("HorzFormatting", "WordWrapLeftAligned");
-    chatBox->setProperty("VertScrollbar", "True");
-    CEGUI::Window* editBox = mChatWindow->createChild("OD/Editbox", std::string("GameChatEditBox"));
-    editBox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.0, 0), CEGUI::UDim(1.0, -20)));
-    editBox->setSize(CEGUI::USize(CEGUI::UDim(1.0, 0), CEGUI::UDim(0.0, 20)));
-    editBox->hide();
-
-    // Set up the event window.
-    mEventShortNoticeWindow = guiSheet->createChild("OD/StaticText", std::string("GameChatText"));
-    mEventShortNoticeWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 430), CEGUI::UDim(0, 35)));
-    mEventShortNoticeWindow->setSize(CEGUI::USize(CEGUI::UDim(0, 400), CEGUI::UDim(0, 130)));
-    mEventShortNoticeWindow->setProperty("FrameEnabled", "False");
-    mEventShortNoticeWindow->setProperty("BackgroundEnabled", "False");
-    mEventShortNoticeWindow->setProperty("VertFormatting", "TopAligned");
-    mEventShortNoticeWindow->setProperty("HorzFormatting", "WordWrapLeftAligned");
-    mEventShortNoticeWindow->setProperty("VertScrollbar", "True");
 }
 
 GameMode::~GameMode()
@@ -263,12 +234,6 @@ GameMode::~GameMode()
 
     if (mHelpWindow != nullptr)
         CEGUI::WindowManager::getSingleton().destroyWindow(mHelpWindow);
-
-    if (mChatWindow != nullptr)
-        CEGUI::WindowManager::getSingleton().destroyWindow(mChatWindow);
-
-    if (mEventShortNoticeWindow != nullptr)
-        CEGUI::WindowManager::getSingleton().destroyWindow(mEventShortNoticeWindow);
 
     // delete the potential pending messages and events short notices.
     for (ChatMessage* message : mChatMessages)
@@ -1084,8 +1049,7 @@ void GameMode::updateMessages(Ogre::Real update_time)
     float maxChatTimeDisplay = ODFrameListener::getSingleton().getChatMaxTimeDisplay();
 
     // Update the chat message seen.
-    auto it = mChatMessages.begin();
-    for (; it != mChatMessages.end();)
+    for (auto it = mChatMessages.begin(); it != mChatMessages.end();)
     {
         ChatMessage* message = *it;
         if (message->isMessageTooOld(maxChatTimeDisplay))
@@ -1105,27 +1069,27 @@ void GameMode::updateMessages(Ogre::Real update_time)
     scrollBar->setScrollPosition(scrollBar->getDocumentSize());
 
     // Do the same for events.
-    mEventShortNoticeWindow->setText("");
+    CEGUI::Window* shortNoticeText = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameEventText");
+    shortNoticeText->setText("");
 
     // Update the chat message seen.
-    auto it2 = mEventMessages.begin();
-    for (; it2 != mEventMessages.end();)
+    for (auto it = mEventMessages.begin(); it != mEventMessages.end();)
     {
-        EventMessage* event = *it2;
+        EventMessage* event = *it;
         if (event->isMessageTooOld(maxChatTimeDisplay))
         {
             delete event;
-            it2 = mEventMessages.erase(it2);
+            it = mEventMessages.erase(it);
         }
         else
         {
-            mEventShortNoticeWindow->appendText(reinterpret_cast<const CEGUI::utf8*>(event->getMessageAsString().c_str()));
-            ++it2;
+            shortNoticeText->appendText(reinterpret_cast<const CEGUI::utf8*>(event->getMessageAsString().c_str()));
+            ++it;
         }
     }
 
     // Ensure the latest text is shown
-    scrollBar = reinterpret_cast<CEGUI::Scrollbar*>(mEventShortNoticeWindow->getChild("__auto_vscrollbar__"));
+    scrollBar = reinterpret_cast<CEGUI::Scrollbar*>(shortNoticeText->getChild("__auto_vscrollbar__"));
     scrollBar->setScrollPosition(scrollBar->getDocumentSize());
 }
 
