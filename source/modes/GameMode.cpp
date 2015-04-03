@@ -1071,7 +1071,7 @@ void GameMode::updateMessages(Ogre::Real update_time)
     float maxChatTimeDisplay = ODFrameListener::getSingleton().getChatMaxTimeDisplay();
 
     CEGUI::Window* chatTextBox = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameChatWindow/GameChatText");
-    CEGUI::Scrollbar* scrollBar = reinterpret_cast<CEGUI::Scrollbar*>(chatTextBox->getChild("__auto_vscrollbar__"));
+    CEGUI::Scrollbar* scrollBar = static_cast<CEGUI::Scrollbar*>(chatTextBox->getChild("__auto_vscrollbar__"));
     float scrollPosition = scrollBar->getScrollPosition();
 
     // Update the chat message seen if necessary.
@@ -1103,7 +1103,7 @@ void GameMode::updateMessages(Ogre::Real update_time)
 
     // Do the same for events.
     CEGUI::Window* shortNoticeText = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameEventText");
-    scrollBar = reinterpret_cast<CEGUI::Scrollbar*>(shortNoticeText->getChild("__auto_vscrollbar__"));
+    scrollBar = static_cast<CEGUI::Scrollbar*>(shortNoticeText->getChild("__auto_vscrollbar__"));
     scrollPosition = scrollBar->getScrollPosition();
 
     // Update the chat message seen if necessary.
@@ -1501,7 +1501,7 @@ void GameMode::setHelpWindowText()
         << "Your workers will fortify walls, turning them into your color. Those cannot be broken by enemies until no more "
         << "claimed tiles around are of your color." << std::endl;
     txt << std::endl << std::endl << "Be evil, be cunning, your opponents will do the same... and have fun! ;)" << std::endl;
-    textWindow->setText(txt.str());
+    textWindow->setText(reinterpret_cast<const CEGUI::utf8*>(txt.str().c_str()));
 }
 
 void GameMode::refreshResearchButtonState(ResearchType resType)
