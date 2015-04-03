@@ -63,14 +63,14 @@ std::string EventMessage::getMessageAsString()
     switch(mType)
     {
         case EventShortNoticeType::aboutCreatures:
-            colorType = "[colour='FF0000EE']";
+            colorType = "[image-size='w:16 h:16'][image='OpenDungeonsIcons/CreaturesIcon'] [colour='FF0000EE']";
             break;
         default:
         case EventShortNoticeType::genericGameInfo:
-            colorType = "[colour='FF00EE00']";
+            colorType = "[image-size='w:16 h:16'][image='OpenDungeonsIcons/HelpIcon'] [colour='FF00EE00']";
             break;
         case EventShortNoticeType::beingAttacked:
-            colorType = "[colour='FFEE0000']";
+            colorType = "[image-size='w:16 h:16'][image='OpenDungeonsIcons/SeatIcon'] [colour='FFEE0000']";
             break;
     }
     return colorType + mMessage + formatWhiteColor + "\n";
