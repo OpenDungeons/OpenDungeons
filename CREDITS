@@ -65,6 +65,7 @@ multiplayer/
 -> TestMultiplayerSmallAlliance.level  hwoarangmy              GPL 3.0
 
 skirmish/
+-> FallingKeeper.level                 hwoarangmy              GPL 3.0
 -> GreedOrMight.level                  Akien                   GPL 3.0
 -> oldTest.level
 -> Scream in the Dark.level            Bertram                 GPL 3.0

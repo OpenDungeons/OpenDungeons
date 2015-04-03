@@ -92,6 +92,9 @@ public:
     //! \brief Get the default worker creature definition spawnable according to the given faction.
     const std::string& getFactionWorkerClass(const std::string& faction) const;
 
+    const std::string& getRogueWorkerClass() const
+    { return mDefaultWorkerRogue; }
+
     inline const std::vector<std::string>& getFactions() const
     { return mFactions; }
 
@@ -168,6 +171,7 @@ private:
     int64_t mTimePayDay;
     int64_t mNbTurnsFuriousMax;
     double mMaxManaPerSeat;
+    std::string mDefaultWorkerRogue;
     std::map<const CreatureDefinition*, std::vector<const SpawnCondition*> > mCreatureSpawnConditions;
     std::map<const std::string, std::vector<const CreatureMood*> > mCreatureMoodModifiers;
     std::map<const std::string, std::vector<std::string> > mFactionSpawnPool;

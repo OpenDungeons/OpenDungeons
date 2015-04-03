@@ -434,33 +434,53 @@ void Player::markTilesForDigging(bool marked, const std::vector<Tile*>& tiles, b
         return;
 
     std::vector<Tile*> tilesMark;
-    for(Tile* tile : tiles)
-    {
-        if(!marked)
-        {
-            getSeat()->tileMarkedDiggingNotifiedToPlayer(tile, marked);
-            tile->setMarkedForDigging(marked, this);
-            tilesMark.push_back(tile);
-            continue;
-        }
-
-        // If the tile is diggable for the client, we mark it for him
-        if(getSeat()->isTileDiggableForClient(tile))
-        {
-            getSeat()->tileMarkedDiggingNotifiedToPlayer(tile, marked);
-            tilesMark.push_back(tile);
-        }
-
-        // If the tile can be marked on server side, we mark it
-        if(!tile->isDiggable(getSeat()))
-            continue;
-
-        tile->setMarkedForDigging(marked, this);
-    }
-
     // If human player, we notify marked tiles
-    if(!getIsHuman())
+    if(getIsHuman())
+    {
+        for(Tile* tile : tiles)
+        {
+            if(!marked)
+            {
+                getSeat()->tileMarkedDiggingNotifiedToPlayer(tile, marked);
+                tile->setMarkedForDigging(marked, this);
+                tilesMark.push_back(tile);
+
+                continue;
+            }
+
+            // If the tile is diggable for the client, we mark it for him
+            if(getSeat()->isTileDiggableForClient(tile))
+            {
+                getSeat()->tileMarkedDiggingNotifiedToPlayer(tile, marked);
+                tilesMark.push_back(tile);
+            }
+
+            // If the tile can be marked on server side, we mark it
+            if(!tile->isDiggable(getSeat()))
+                continue;
+
+            tile->setMarkedForDigging(marked, this);
+        }
+    }
+    else
+    {
+        for(Tile* tile : tiles)
+        {
+            if(!marked)
+            {
+                getSeat()->tileMarkedDiggingNotifiedToPlayer(tile, marked);
+                tile->setMarkedForDigging(marked, this);
+                continue;
+            }
+
+            // If the tile can be marked on server side, we mark it
+            if(!tile->isDiggable(getSeat()))
+                continue;
+
+            tile->setMarkedForDigging(marked, this);
+        }
         return;
+    }
 
     // On client side, we ask to mark the tile
     if(!asyncMsg)
