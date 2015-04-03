@@ -79,6 +79,41 @@ std::string Research::researchTypeToString(ResearchType type)
     }
 }
 
+std::string Research::researchTypeToPlayerVisibleString(ResearchType type)
+{
+    switch(type)
+    {
+        case ResearchType::nullResearchType:
+            return "No Research type";
+        case ResearchType::roomCrypt:
+            return "The Crypt Room";
+        case ResearchType::roomDormitory:
+            return "The Dormitory Room";
+        case ResearchType::roomWorkshop:
+            return "The Workshop Room";
+        case ResearchType::roomHatchery:
+            return "The Hatchery Room";
+        case ResearchType::roomLibrary:
+            return "The Library Room";
+        case ResearchType::roomTrainingHall:
+            return "The TrainingHall Room";
+        case ResearchType::roomTreasury:
+            return "The Treasury Room";
+        case ResearchType::spellCallToWar:
+            return "The 'Call to War' Spell";
+        case ResearchType::spellSummonWorker:
+            return "The 'Summon Worker' Spell";
+        case ResearchType::trapBoulder:
+            return "The Boulder Trap";
+        case ResearchType::trapCannon:
+            return "The Cannon Trap";
+        case ResearchType::trapSpike:
+            return "The Spike Trap";
+        default:
+            return "Unknown enum value:" + Helper::toString(static_cast<int>(type));
+    }
+}
+
 ODPacket& operator<<(ODPacket& os, const ResearchType& type)
 {
     os << static_cast<int32_t>(type);
