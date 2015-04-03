@@ -18,10 +18,10 @@ material Gold : RTSS/NormalMapping_MultiPass
 
         pass decal
         {
-            ambient 0.8 0.8 0.8 0.8 0.8
-            diffuse 0.8 0.8 0.8 0.8 0.8
+            ambient 0.8 0.8 0.8 0.8
+            diffuse 0.8 0.8 0.8 0.8
             specular 0.2 0.2 0.2 0.2 0.2
-            emissive 0.1 0.1 0.1 0.1 0.1
+            emissive 0.1 0.1 0.1 0.1
 
             texture_unit decalmap
             {
