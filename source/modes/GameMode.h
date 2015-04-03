@@ -190,9 +190,9 @@ private:
 
     void connectSpellSelect(const std::string& buttonName, SpellType spellType);
 
-    //! \brief Tells whether the game mode should ignore latest input.
-    //! Returns true when the input was on a relevant CEGUI widget.
-    bool shouldIgnoreInput();
+    //! \brief Tells whether the latest mouse click was made on a relevant CEGUI widget,
+    //! and thus, the game should ignore it.
+    bool isMouseDownOnCEGUIWindow();
 };
 
 #endif // GAMEMODE_H

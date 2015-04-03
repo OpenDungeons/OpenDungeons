@@ -555,7 +555,7 @@ void GameMode::handleMouseWheel(const OIS::MouseEvent& arg)
     }
 }
 
-bool GameMode::shouldIgnoreInput()
+bool GameMode::isMouseDownOnCEGUIWindow()
 {
     CEGUI::Window* currentWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getWindowContainingMouse();
 
@@ -580,7 +580,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
         return true;
 
     InputManager* inputManager = mModeManager->getInputManager();
-    inputManager->mMouseDownOnCEGUIWindow = shouldIgnoreInput();
+    inputManager->mMouseDownOnCEGUIWindow = isMouseDownOnCEGUIWindow();
     if (inputManager->mMouseDownOnCEGUIWindow)
         return true;
 
