@@ -1035,20 +1035,40 @@ bool GameMode::keyPressedChat(const OIS::KeyEvent &arg)
 void GameMode::receiveChat(ChatMessage* message)
 {
     mChatMessages.emplace_back(message);
+
+    // Adds the message right away
+    CEGUI::Window* chatTextBox = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameChatWindow/GameChatText");
+    chatTextBox->appendText(reinterpret_cast<const CEGUI::utf8*>(message->getMessageAsString().c_str()));
+
+    // Ensure the latest text is shown
+    CEGUI::Scrollbar* scrollBar = reinterpret_cast<CEGUI::Scrollbar*>(chatTextBox->getChild("__auto_vscrollbar__"));
+    scrollBar->setScrollPosition(scrollBar->getDocumentSize());
 }
 
 void GameMode::receiveEventShortNotice(EventMessage* event)
 {
     mEventMessages.emplace_back(event);
+
+    // Adds the message right away
+    CEGUI::Window* shortNoticeText = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameEventText");
+    shortNoticeText->appendText(reinterpret_cast<const CEGUI::utf8*>(event->getMessageAsString().c_str()));
+
+    // Ensure the latest text is shown
+    CEGUI::Scrollbar* scrollBar = reinterpret_cast<CEGUI::Scrollbar*>(shortNoticeText->getChild("__auto_vscrollbar__"));
+    scrollBar->setScrollPosition(scrollBar->getDocumentSize());
 }
 
 void GameMode::updateMessages(Ogre::Real update_time)
 {
-    CEGUI::Window* chatTextBox = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameChatWindow/GameChatText");
-    chatTextBox->setText("");
     float maxChatTimeDisplay = ODFrameListener::getSingleton().getChatMaxTimeDisplay();
 
-    // Update the chat message seen.
+    CEGUI::Window* chatTextBox = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameChatWindow/GameChatText");
+    CEGUI::Scrollbar* scrollBar = reinterpret_cast<CEGUI::Scrollbar*>(chatTextBox->getChild("__auto_vscrollbar__"));
+    float scrollPosition = scrollBar->getScrollPosition();
+
+    // Update the chat message seen if necessary.
+    bool messageDisplayUpdate = false;
+    CEGUI::String ceguiStr;
     for (auto it = mChatMessages.begin(); it != mChatMessages.end();)
     {
         ChatMessage* message = *it;
@@ -1056,23 +1076,31 @@ void GameMode::updateMessages(Ogre::Real update_time)
         {
             delete message;
             it = mChatMessages.erase(it);
+            messageDisplayUpdate = true;
         }
         else
         {
-            chatTextBox->appendText(reinterpret_cast<const CEGUI::utf8*>(message->getMessageAsString().c_str()));
+            ceguiStr += reinterpret_cast<const CEGUI::utf8*>(message->getMessageAsString().c_str());
             ++it;
         }
     }
 
-    // Ensure the latest text is shown
-    CEGUI::Scrollbar* scrollBar = reinterpret_cast<CEGUI::Scrollbar*>(chatTextBox->getChild("__auto_vscrollbar__"));
-    scrollBar->setScrollPosition(scrollBar->getDocumentSize());
+    if (messageDisplayUpdate)
+    {
+        chatTextBox->setText(ceguiStr);
+
+        // Restore the scrolling position when the text updates
+        scrollBar->setScrollPosition(scrollPosition);
+    }
 
     // Do the same for events.
     CEGUI::Window* shortNoticeText = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameEventText");
-    shortNoticeText->setText("");
+    scrollBar = reinterpret_cast<CEGUI::Scrollbar*>(shortNoticeText->getChild("__auto_vscrollbar__"));
+    scrollPosition = scrollBar->getScrollPosition();
 
-    // Update the chat message seen.
+    // Update the chat message seen if necessary.
+    messageDisplayUpdate = false;
+    ceguiStr.clear();
     for (auto it = mEventMessages.begin(); it != mEventMessages.end();)
     {
         EventMessage* event = *it;
@@ -1080,17 +1108,20 @@ void GameMode::updateMessages(Ogre::Real update_time)
         {
             delete event;
             it = mEventMessages.erase(it);
+            messageDisplayUpdate = true;
         }
         else
         {
-            shortNoticeText->appendText(reinterpret_cast<const CEGUI::utf8*>(event->getMessageAsString().c_str()));
+            ceguiStr += reinterpret_cast<const CEGUI::utf8*>(event->getMessageAsString().c_str());
             ++it;
         }
     }
 
-    // Ensure the latest text is shown
-    scrollBar = reinterpret_cast<CEGUI::Scrollbar*>(shortNoticeText->getChild("__auto_vscrollbar__"));
-    scrollBar->setScrollPosition(scrollBar->getDocumentSize());
+    if (messageDisplayUpdate)
+    {
+        shortNoticeText->setText(ceguiStr);
+        scrollBar->setScrollPosition(scrollPosition);
+    }
 }
 
 void GameMode::refreshMainUI()
