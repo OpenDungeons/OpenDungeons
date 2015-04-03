@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout version="4" >
+    <Window type="OD/FrameWindow" name="GameHelpWindow" >
+        <Property name="Area" value="{{0.2,0},{0.12,35},{0.8,0},{0.82,0}}" />
+        <Property name="AlwaysOnTop" value="True" />
+        <Property name="SizingEnabled" value="False" />
+        <Property name="Text" value="OpenDungeons Quick Help" />
+        <Window type="OD/StaticText" name="TextDisplay" >
+            <Property name="Area" value="{{0.0,20},{0.0,30},{1.0,-20},{1.0,-30}}" />
+            <Property name="FrameEnabled" value="False" />
+            <Property name="BackgroundEnabled" value="False" />
+            <Property name="VertFormatting" value="TopAligned" />
+            <Property name="HorzFormatting" value="WordWrapLeftAligned" />
+            <Property name="VertScrollbar" value="True" />
+        </Window>
+    </Window>
+</GUILayout>

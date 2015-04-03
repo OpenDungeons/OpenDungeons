@@ -80,7 +80,6 @@ GameMode::GameMode(ModeManager *modeManager):
     mMouseX(0),
     mMouseY(0),
     mCurrentInputMode(InputModeNormal),
-    mHelpWindow(nullptr),
     mIndexEvent(0)
 {
     // Set per default the input on the map
@@ -212,6 +211,17 @@ GameMode::GameMode(ModeManager *modeManager):
         )
     );
 
+    // Help window
+    addEventConnection(
+        guiSheet->getChild("GameHelpWindow/__auto_closebutton__")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&GameMode::hideHelpWindow, this)
+        )
+    );
+
+    // Set the help window text
+    setHelpWindowText();
+
     //Spells
     connectSpellSelect(Gui::BUTTON_SPELL_CALLTOWAR, SpellType::callToWar);
     connectSpellSelect(Gui::BUTTON_SPELL_SUMMON_WORKER, SpellType::summonWorker);
@@ -231,9 +241,6 @@ GameMode::~GameMode()
     // Now that the server is stopped, we can clear the client game map
     ODFrameListener::getSingleton().getClientGameMap()->clearAll();
     ODFrameListener::getSingleton().getClientGameMap()->processDeletionQueues();
-
-    if (mHelpWindow != nullptr)
-        CEGUI::WindowManager::getSingleton().destroyWindow(mHelpWindow);
 
     // delete the potential pending messages and events short notices.
     for (ChatMessage* message : mChatMessages)
@@ -265,6 +272,7 @@ void GameMode::activate()
     guiSheet->getChild("SettingsWindow")->hide();
     guiSheet->getChild("GameOptionsWindow")->hide();
     guiSheet->getChild("GameChatWindow/GameChatEditBox")->hide();
+    guiSheet->getChild("GameHelpWindow")->hide();
 
     giveFocus();
 
@@ -1434,61 +1442,31 @@ bool GameMode::showSettingsFromOptions(const CEGUI::EventArgs& /*e*/)
 
 bool GameMode::showHelpWindow(const CEGUI::EventArgs&)
 {
-    // We create the window only at first call.
-    // Note: If we create it in the constructor, the window gets created
-    // in the wrong gui context and is never shown...
-    createHelpWindow();
-    mHelpWindow->show();
+    CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::inGameMenu);
+    guiSheet->getChild("GameHelpWindow")->show();
     return true;
 }
 
 bool GameMode::hideHelpWindow(const CEGUI::EventArgs& /*e*/)
 {
-    if (mHelpWindow != nullptr)
-        mHelpWindow->hide();
+    CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::inGameMenu);
+    guiSheet->getChild("GameHelpWindow")->hide();
     return true;
 }
 
 bool GameMode::toggleHelpWindow(const CEGUI::EventArgs& e)
 {
-    if (mHelpWindow == nullptr || !mHelpWindow->isVisible())
+    CEGUI::Window* helpWindow = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameHelpWindow");
+    if (!helpWindow->isVisible())
         showHelpWindow(e);
     else
         hideHelpWindow(e);
     return true;
 }
 
-void GameMode::createHelpWindow()
+void GameMode::setHelpWindowText()
 {
-    if (mHelpWindow != nullptr)
-        return;
-
-    CEGUI::Window* rootWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow();
-
-    mHelpWindow = rootWindow->createChild("OD/FrameWindow", std::string("GameHelpWindow"));
-    mHelpWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.12, 0)));
-    mHelpWindow->setSize(CEGUI::USize(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.7, 0)));
-    mHelpWindow->setProperty("AlwaysOnTop", "True");
-    mHelpWindow->setProperty("SizingEnabled", "False");
-
-    CEGUI::Window* textWindow = mHelpWindow->createChild("OD/StaticText", "TextDisplay");
-    textWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 20), CEGUI::UDim(0, 30)));
-    textWindow->setSize(CEGUI::USize(CEGUI::UDim(1.0, -40), CEGUI::UDim(0.95, -40)));
-    textWindow->setProperty("FrameEnabled", "False");
-    textWindow->setProperty("BackgroundEnabled", "False");
-    textWindow->setProperty("VertFormatting", "TopAligned");
-    textWindow->setProperty("HorzFormatting", "WordWrapLeftAligned");
-    textWindow->setProperty("VertScrollbar", "True");
-
-    // Search for the autoclose button and make it work
-    CEGUI::Window* childWindow = mHelpWindow->getChild("__auto_closebutton__");
-    childWindow->subscribeEvent(CEGUI::PushButton::EventClicked,
-                                CEGUI::Event::Subscriber(&GameMode::hideHelpWindow, this));
-
-    // Set the window title
-    childWindow = mHelpWindow->getChild("__auto_titlebar__");
-    childWindow->setText("OpenDungeons Quick Help");
-
+    CEGUI::Window* textWindow = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameHelpWindow/TextDisplay");
     const std::string formatTitleOn = "[font='MedievalSharp-12'][colour='CCBBBBFF']";
     const std::string formatTitleOff = "[font='MedievalSharp-10'][colour='FFFFFFFF']";
     std::stringstream txt("");

@@ -152,5 +152,6 @@
         <LayoutImport type="DefaultWindow" filename="GameOptionsMenu.layout" name="GameOptionsMenuImport" />
         <LayoutImport type="DefaultWindow" filename="SettingsMenu.layout" name="SettingsMenuImport" />
         <LayoutImport type="DefaultWindow" filename="ChatWindow.layout" name="ChatWindowImport" />
+        <LayoutImport type="DefaultWindow" filename="HelpWindow.layout" name="HelpWindowImport" />
     </Window>
 </GUILayout>
