@@ -189,6 +189,10 @@ private:
     void refreshResearchButtonState(ResearchType resType);
 
     void connectSpellSelect(const std::string& buttonName, SpellType spellType);
+
+    //! \brief Tells whether the game mode should ignore latest input.
+    //! Returns true when the input was on a relevant CEGUI widget.
+    bool shouldIgnoreInput();
 };
 
 #endif // GAMEMODE_H

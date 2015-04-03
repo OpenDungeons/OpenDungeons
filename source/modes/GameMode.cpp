@@ -555,7 +555,23 @@ void GameMode::handleMouseWheel(const OIS::MouseEvent& arg)
     }
 }
 
-bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
+bool GameMode::shouldIgnoreInput()
+{
+    CEGUI::Window* currentWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getWindowContainingMouse();
+
+    if (currentWindow == nullptr)
+        return false;
+
+    CEGUI::String winName = currentWindow->getName();
+
+    // If the mouse press is on a CEGUI window, ignore it, except for the chat and event queues windows.
+    if (winName == "Root" || winName == "GameChatWindow" || winName == "GameChatText" || winName == "GameEventText")
+        return false;
+
+    return true;
+}
+
+bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
 {
     CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(
         Gui::convertButton(id));
@@ -563,18 +579,10 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     if (!isConnected())
         return true;
 
-    CEGUI::Window *tempWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getWindowContainingMouse();
-
     InputManager* inputManager = mModeManager->getInputManager();
-
-    // If the mouse press is on a CEGUI window ignore it
-    if (tempWindow != nullptr && tempWindow->getName().compare("Root") != 0)
-    {
-        inputManager->mMouseDownOnCEGUIWindow = true;
+    inputManager->mMouseDownOnCEGUIWindow = shouldIgnoreInput();
+    if (inputManager->mMouseDownOnCEGUIWindow)
         return true;
-    }
-
-    inputManager->mMouseDownOnCEGUIWindow = false;
 
     // There is a bug in OIS. When playing in windowed mode, if we clic outside the window
     // and then we restore the window, we will receive a clic event on the last place where
