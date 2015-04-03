@@ -709,13 +709,6 @@ bool RoomPortalWave::findBestDiggablePath(Tile* tileStart, Tile* tileDest, Creat
         if(tile == tileDest)
             return true;
 
-        if((!blockingTiles.empty()) &&
-           (blockingTiles.back().mTile == tile))
-        {
-            // We found the same tile. That means that the given seat is closed
-            return false;
-        }
-
         if(tile == nullptr)
         {
             // We reach the end of the map.
@@ -811,8 +804,7 @@ bool RoomPortalWave::findBestDiggablePath(Tile* tileStart, Tile* tileDest, Creat
                 return false;
             }
 
-            // Tile is not passable. We try to go around. If we are not already following
-            // a wall, we start to
+            // Tile is not passable. We try to go around. If we are not already following a wall, we start to
             if(lastTileBlocked == nullptr)
             {
                 // We check if we already hit this tile
