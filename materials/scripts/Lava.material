@@ -7,7 +7,7 @@ material Lava
         {
             ambient 0.0 0.0 0.0 1.000000
             diffuse 0.8 0.8 0.8 1.000000
-            specular 0.0 0.0 0.0 1.000000 0.250000
+            specular 0.0 0.0 0.0 1.000000 2.0
             emissive 0.99 0.99 0.99 1.000000
             texture_unit
             {

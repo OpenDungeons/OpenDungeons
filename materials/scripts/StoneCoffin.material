@@ -18,9 +18,9 @@ material StoneCoffin : RTSS/NormalMapping_MultiPass
 
         pass decal
         {
-            ambient 0.8 0.8 0.8 0.8
-            diffuse 0.65 0.65 0.65 0.65
-            specular 0.1 0.1 0.1 0.1 0.1
+            ambient 0.8 0.8 0.8 1.0
+            diffuse 0.65 0.65 0.65 1.0
+            specular 0.1 0.1 0.1 0.0 2.0
             emissive 0.0 0.0 0.0 0.0
 
             texture_unit decalmap
