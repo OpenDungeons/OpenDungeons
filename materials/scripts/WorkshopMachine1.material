@@ -18,10 +18,10 @@ material WorkshopMachine1 : RTSS/NormalMapping_MultiPass
 
         pass decal
         {
-            ambient 0.4 0.4 0.4 0.4 1
-            diffuse 0.4 0.4 0.4 0.4 1
-            specular 0.0 0.0 0.0 0.0 1
-            emissive 0.0 0.0 0.0 0.0 1
+            ambient 0.4 0.4 0.4 1.0
+            diffuse 0.4 0.4 0.4 1.0
+            specular 0.0 0.0 0.0 0.0 0.0
+            emissive 0.0 0.0 0.0 0.0
 
             texture_unit decalmap
             {
