@@ -1534,7 +1534,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 // We cannot save the map
                 std::string msg = "Map could not be saved because player hand is not empty";
                 ServerNotification notif(ServerNotificationType::chatServer, player);
-                notif.mPacket << msg;
+                notif.mPacket << msg << EventShortNoticeType::genericGameInfo;
                 sendAsyncMsg(notif);
                 break;
             }
@@ -1620,7 +1620,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             std::string msg = "Map saved successfully";
             MapLoader::writeGameMapToFile(levelSave.string(), *gameMap);
             ServerNotification notif(ServerNotificationType::chatServer, player);
-            notif.mPacket << msg;
+            notif.mPacket << msg << EventShortNoticeType::genericGameInfo;
             sendAsyncMsg(notif);
             break;
         }
@@ -2057,7 +2057,7 @@ bool ODServer::notifyClientMessage(ODSocketClient *clientSocket)
                 ServerNotificationType::chatServer, nullptr);
             std::string msg = clientSocket->getPlayer()->getNick()
                 + " disconnected";
-            serverNotification->mPacket << msg;
+            serverNotification->mPacket << msg << EventShortNoticeType::genericGameInfo;
             queueServerNotification(serverNotification);
         }
         // TODO : wait at least 1 minute if the client reconnects if deconnexion happens during game
@@ -2108,6 +2108,20 @@ ODSocketClient* ODServer::getClientFromPlayer(Player* player)
     }
 
     return ret;
+}
+
+ODPacket& operator<<(ODPacket& os, const EventShortNoticeType& type)
+{
+    os << static_cast<int32_t>(type);
+    return os;
+}
+
+ODPacket& operator>>(ODPacket& is, EventShortNoticeType& type)
+{
+    int32_t tmp;
+    OD_ASSERT_TRUE(is >> tmp);
+    type = static_cast<EventShortNoticeType>(tmp);
+    return is;
 }
 
 ODPacket& operator<<(ODPacket& os, const ServerMode& sm)

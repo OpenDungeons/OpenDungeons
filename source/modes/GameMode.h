@@ -165,24 +165,14 @@ private:
     //! \brief The game event messages in queue.
     std::vector<EventMessage*> mEventMessages;
 
-    //! \brief A simple window displaying the common game controls.
-    //! Useful in the wait for a true settings menu.
-    CEGUI::Window* mHelpWindow;
-
-    //! \brief The ingame chat window.
-    CEGUI::Window* mChatWindow;
-
-    //! \brief The ingame event short notice window.
-    CEGUI::Window* mEventShortNoticeWindow;
-
     //! \brief Index of the event in the game event queue (for zooming automatically)
     uint32_t mIndexEvent;
 
     //! \brief Update the chat and event messages seen.
     void updateMessages(Ogre::Real update_time);
 
-    //! \brief Creates the help window.
-    void createHelpWindow();
+    //! \brief Set the help window (quite long) text.
+    void setHelpWindowText();
 
     //! \brief A sub-function called by mouseMoved()
     //! It will handle the potential mouse wheel logic
@@ -199,6 +189,10 @@ private:
     void refreshResearchButtonState(ResearchType resType);
 
     void connectSpellSelect(const std::string& buttonName, SpellType spellType);
+
+    //! \brief Tells whether the latest mouse click was made on a relevant CEGUI widget,
+    //! and thus, the game should ignore it.
+    bool isMouseDownOnCEGUIWindow();
 };
 
 #endif // GAMEMODE_H

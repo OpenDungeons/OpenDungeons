@@ -1063,8 +1063,7 @@ unsigned long int GameMap::doMiscUpkeep()
 
         // Check the goals and move completed ones to the completedGoals list for the seat.
         //NOTE: Once seats are placed on this list, they stay there even if goals are unmet.  We may want to change this.
-        if (seat->checkAllGoals() == 0
-                && seat->numFailedGoals() == 0)
+        if (seat->checkAllGoals() == 0 && seat->numFailedGoals() == 0)
             addWinningSeat(seat);
 
         seat->mNumCreaturesFightersMax = getMaxNumberCreatures(seat);
@@ -1260,7 +1259,7 @@ void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
             mTimePayDay = 0;
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotificationType::chatServer, nullptr);
-            serverNotification->mPacket << "It's pay day !";
+            serverNotification->mPacket << "It's pay day !" << EventShortNoticeType::majorGameEvent;
             ODServer::getSingleton().queueServerNotification(serverNotification);
             for(Creature* creature : mCreatures)
             {
@@ -2018,7 +2017,7 @@ void GameMap::addWinningSeat(Seat *s)
     {
         ServerNotification* serverNotification = new ServerNotification(
             ServerNotificationType::chatServer, player);
-        serverNotification->mPacket << "You Won";
+        serverNotification->mPacket << "You Won" << EventShortNoticeType::majorGameEvent;
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 

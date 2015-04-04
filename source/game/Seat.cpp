@@ -217,6 +217,17 @@ unsigned int Seat::checkAllGoals()
 
             currentGoal = mUncompleteGoals.erase(currentGoal);
 
+            goalsHasChanged();
+
+            // Tells the player an objective has been met.
+            if(mGameMap->getTurnNumber() > 5 && getPlayer() != nullptr && getPlayer()->getIsHuman())
+            {
+                ServerNotification *serverNotification = new ServerNotification(
+                    ServerNotificationType::chatServer, getPlayer());
+
+                serverNotification->mPacket << "You have met an objective." << EventShortNoticeType::aboutObjectives;
+                ODServer::getSingleton().queueServerNotification(serverNotification);
+            }
         }
         else
         {
@@ -230,6 +241,17 @@ unsigned int Seat::checkAllGoals()
                     goalsToAdd.push_back(goal->getFailureSubGoal(i));
 
                 currentGoal = mUncompleteGoals.erase(currentGoal);
+                goalsHasChanged();
+
+                // Tells the player an objective has been failed.
+                if(mGameMap->getTurnNumber() > 5 && getPlayer() != nullptr && getPlayer()->getIsHuman())
+                {
+                    ServerNotification *serverNotification = new ServerNotification(
+                        ServerNotificationType::chatServer, getPlayer());
+
+                    serverNotification->mPacket << "You have FAILED an objective!" << EventShortNoticeType::majorGameEvent;
+                    ODServer::getSingleton().queueServerNotification(serverNotification);
+                }
             }
             else
             {
@@ -1427,6 +1449,17 @@ bool Seat::addResearch(ResearchType type)
     std::vector<ResearchType> researchDone = mResearchDone;
     researchDone.push_back(type);
     setResearchesDone(researchDone);
+
+    // Tells the player a new room/trap/spell is available.
+    if(getPlayer() != nullptr && getPlayer()->getIsHuman())
+    {
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::chatServer, getPlayer());
+
+        std::string msg = Research::researchTypeToPlayerVisibleString(type) + " is now available.";
+        serverNotification->mPacket << msg << EventShortNoticeType::aboutResearches;
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
 
     return true;
 }

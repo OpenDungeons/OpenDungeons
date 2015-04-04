@@ -36,12 +36,17 @@ enum class ServerMode
 };
 
 //! \brief An enum used to know what kind of game event it is.
-enum class eventShortNoticeType
+enum class EventShortNoticeType : int32_t
 {
     genericGameInfo,
+    majorGameEvent,
     aboutCreatures,
-    beingAttacked
+    aboutResearches,
+    aboutObjectives
 };
+
+ODPacket& operator<<(ODPacket& os, const EventShortNoticeType& type);
+ODPacket& operator>>(ODPacket& is, EventShortNoticeType& type);
 
 ODPacket& operator<<(ODPacket& os, const ServerMode& sm);
 ODPacket& operator>>(ODPacket& is, ServerMode& sm);

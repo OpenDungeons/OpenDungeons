@@ -80,7 +80,6 @@ GameMode::GameMode(ModeManager *modeManager):
     mMouseX(0),
     mMouseY(0),
     mCurrentInputMode(InputModeNormal),
-    mHelpWindow(nullptr),
     mIndexEvent(0)
 {
     // Set per default the input on the map
@@ -212,38 +211,20 @@ GameMode::GameMode(ModeManager *modeManager):
         )
     );
 
+    // Help window
+    addEventConnection(
+        guiSheet->getChild("GameHelpWindow/__auto_closebutton__")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&GameMode::hideHelpWindow, this)
+        )
+    );
+
+    // Set the help window text
+    setHelpWindowText();
+
     //Spells
     connectSpellSelect(Gui::BUTTON_SPELL_CALLTOWAR, SpellType::callToWar);
     connectSpellSelect(Gui::BUTTON_SPELL_SUMMON_WORKER, SpellType::summonWorker);
-
-    // Set up the chat message window.
-    mChatWindow = guiSheet->createChild("OD/StaticImage", std::string("GameChatWindow"));
-    mChatWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 20), CEGUI::UDim(0, 35)));
-    mChatWindow->setSize(CEGUI::USize(CEGUI::UDim(0, 400), CEGUI::UDim(0, 150)));
-    mChatWindow->setProperty("FrameEnabled", "False");
-    mChatWindow->setProperty("BackgroundEnabled", "False");
-    CEGUI::Window* chatBox = mChatWindow->createChild("OD/StaticText", std::string("GameChatText"));
-    chatBox->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 0), CEGUI::UDim(0, 0)));
-    chatBox->setSize(CEGUI::USize(CEGUI::UDim(0, 400), CEGUI::UDim(0, 130)));
-    chatBox->setProperty("FrameEnabled", "False");
-    chatBox->setProperty("BackgroundEnabled", "False");
-    chatBox->setProperty("VertFormatting", "TopAligned");
-    chatBox->setProperty("HorzFormatting", "WordWrapLeftAligned");
-    chatBox->setProperty("VertScrollbar", "True");
-    CEGUI::Window* editBox = mChatWindow->createChild("OD/Editbox", std::string("GameChatEditBox"));
-    editBox->setPosition(CEGUI::UVector2(CEGUI::UDim(0.0, 0), CEGUI::UDim(1.0, -20)));
-    editBox->setSize(CEGUI::USize(CEGUI::UDim(1.0, 0), CEGUI::UDim(0.0, 20)));
-    editBox->hide();
-
-    // Set up the event window.
-    mEventShortNoticeWindow = guiSheet->createChild("OD/StaticText", std::string("GameChatText"));
-    mEventShortNoticeWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 430), CEGUI::UDim(0, 35)));
-    mEventShortNoticeWindow->setSize(CEGUI::USize(CEGUI::UDim(0, 400), CEGUI::UDim(0, 130)));
-    mEventShortNoticeWindow->setProperty("FrameEnabled", "False");
-    mEventShortNoticeWindow->setProperty("BackgroundEnabled", "False");
-    mEventShortNoticeWindow->setProperty("VertFormatting", "TopAligned");
-    mEventShortNoticeWindow->setProperty("HorzFormatting", "WordWrapLeftAligned");
-    mEventShortNoticeWindow->setProperty("VertScrollbar", "True");
 }
 
 GameMode::~GameMode()
@@ -260,15 +241,6 @@ GameMode::~GameMode()
     // Now that the server is stopped, we can clear the client game map
     ODFrameListener::getSingleton().getClientGameMap()->clearAll();
     ODFrameListener::getSingleton().getClientGameMap()->processDeletionQueues();
-
-    if (mHelpWindow != nullptr)
-        CEGUI::WindowManager::getSingleton().destroyWindow(mHelpWindow);
-
-    if (mChatWindow != nullptr)
-        CEGUI::WindowManager::getSingleton().destroyWindow(mChatWindow);
-
-    if (mEventShortNoticeWindow != nullptr)
-        CEGUI::WindowManager::getSingleton().destroyWindow(mEventShortNoticeWindow);
 
     // delete the potential pending messages and events short notices.
     for (ChatMessage* message : mChatMessages)
@@ -300,6 +272,7 @@ void GameMode::activate()
     guiSheet->getChild("SettingsWindow")->hide();
     guiSheet->getChild("GameOptionsWindow")->hide();
     guiSheet->getChild("GameChatWindow/GameChatEditBox")->hide();
+    guiSheet->getChild("GameHelpWindow")->hide();
 
     giveFocus();
 
@@ -582,7 +555,23 @@ void GameMode::handleMouseWheel(const OIS::MouseEvent& arg)
     }
 }
 
-bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
+bool GameMode::isMouseDownOnCEGUIWindow()
+{
+    CEGUI::Window* currentWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getWindowContainingMouse();
+
+    if (currentWindow == nullptr)
+        return false;
+
+    CEGUI::String winName = currentWindow->getName();
+
+    // If the mouse press is on a CEGUI window, ignore it, except for the chat and event queues windows.
+    if (winName == "Root" || winName == "GameChatWindow" || winName == "GameChatText" || winName == "GameEventText")
+        return false;
+
+    return true;
+}
+
+bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
 {
     CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(
         Gui::convertButton(id));
@@ -590,18 +579,10 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     if (!isConnected())
         return true;
 
-    CEGUI::Window *tempWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getWindowContainingMouse();
-
     InputManager* inputManager = mModeManager->getInputManager();
-
-    // If the mouse press is on a CEGUI window ignore it
-    if (tempWindow != nullptr && tempWindow->getName().compare("Root") != 0)
-    {
-        inputManager->mMouseDownOnCEGUIWindow = true;
+    inputManager->mMouseDownOnCEGUIWindow = isMouseDownOnCEGUIWindow();
+    if (inputManager->mMouseDownOnCEGUIWindow)
         return true;
-    }
-
-    inputManager->mMouseDownOnCEGUIWindow = false;
 
     // There is a bug in OIS. When playing in windowed mode, if we clic outside the window
     // and then we restore the window, we will receive a clic event on the last place where
@@ -1070,63 +1051,93 @@ bool GameMode::keyPressedChat(const OIS::KeyEvent &arg)
 void GameMode::receiveChat(ChatMessage* message)
 {
     mChatMessages.emplace_back(message);
+
+    // Adds the message right away
+    CEGUI::Window* chatTextBox = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameChatWindow/GameChatText");
+    chatTextBox->appendText(reinterpret_cast<const CEGUI::utf8*>(message->getMessageAsString().c_str()));
+
+    // Ensure the latest text is shown
+    CEGUI::Scrollbar* scrollBar = reinterpret_cast<CEGUI::Scrollbar*>(chatTextBox->getChild("__auto_vscrollbar__"));
+    scrollBar->setScrollPosition(scrollBar->getDocumentSize());
 }
 
 void GameMode::receiveEventShortNotice(EventMessage* event)
 {
     mEventMessages.emplace_back(event);
+
+    // Adds the message right away
+    CEGUI::Window* shortNoticeText = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameEventText");
+    shortNoticeText->appendText(reinterpret_cast<const CEGUI::utf8*>(event->getMessageAsString().c_str()));
+
+    // Ensure the latest text is shown
+    CEGUI::Scrollbar* scrollBar = reinterpret_cast<CEGUI::Scrollbar*>(shortNoticeText->getChild("__auto_vscrollbar__"));
+    scrollBar->setScrollPosition(scrollBar->getDocumentSize());
 }
 
 void GameMode::updateMessages(Ogre::Real update_time)
 {
-    CEGUI::Window* chatTextBox = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameChatWindow/GameChatText");
-    chatTextBox->setText("");
     float maxChatTimeDisplay = ODFrameListener::getSingleton().getChatMaxTimeDisplay();
 
-    // Update the chat message seen.
-    auto it = mChatMessages.begin();
-    for (; it != mChatMessages.end();)
+    CEGUI::Window* chatTextBox = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameChatWindow/GameChatText");
+    CEGUI::Scrollbar* scrollBar = static_cast<CEGUI::Scrollbar*>(chatTextBox->getChild("__auto_vscrollbar__"));
+    float scrollPosition = scrollBar->getScrollPosition();
+
+    // Update the chat message seen if necessary.
+    bool messageDisplayUpdate = false;
+    CEGUI::String ceguiStr;
+    for (auto it = mChatMessages.begin(); it != mChatMessages.end();)
     {
         ChatMessage* message = *it;
         if (message->isMessageTooOld(maxChatTimeDisplay))
         {
             delete message;
             it = mChatMessages.erase(it);
+            messageDisplayUpdate = true;
         }
         else
         {
-            chatTextBox->appendText(reinterpret_cast<const CEGUI::utf8*>(message->getMessageAsString().c_str()));
+            ceguiStr += reinterpret_cast<const CEGUI::utf8*>(message->getMessageAsString().c_str());
             ++it;
         }
     }
 
-    // Ensure the latest text is shown
-    CEGUI::Scrollbar* scrollBar = reinterpret_cast<CEGUI::Scrollbar*>(chatTextBox->getChild("__auto_vscrollbar__"));
-    scrollBar->setScrollPosition(scrollBar->getDocumentSize());
+    if (messageDisplayUpdate)
+    {
+        chatTextBox->setText(ceguiStr);
+
+        // Restore the scrolling position when the text updates
+        scrollBar->setScrollPosition(scrollPosition);
+    }
 
     // Do the same for events.
-    mEventShortNoticeWindow->setText("");
+    CEGUI::Window* shortNoticeText = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameEventText");
+    scrollBar = static_cast<CEGUI::Scrollbar*>(shortNoticeText->getChild("__auto_vscrollbar__"));
+    scrollPosition = scrollBar->getScrollPosition();
 
-    // Update the chat message seen.
-    auto it2 = mEventMessages.begin();
-    for (; it2 != mEventMessages.end();)
+    // Update the chat message seen if necessary.
+    messageDisplayUpdate = false;
+    ceguiStr.clear();
+    for (auto it = mEventMessages.begin(); it != mEventMessages.end();)
     {
-        EventMessage* event = *it2;
+        EventMessage* event = *it;
         if (event->isMessageTooOld(maxChatTimeDisplay))
         {
             delete event;
-            it2 = mEventMessages.erase(it2);
+            it = mEventMessages.erase(it);
+            messageDisplayUpdate = true;
         }
         else
         {
-            mEventShortNoticeWindow->appendText(reinterpret_cast<const CEGUI::utf8*>(event->getMessageAsString().c_str()));
-            ++it2;
+            ceguiStr += reinterpret_cast<const CEGUI::utf8*>(event->getMessageAsString().c_str());
+            ++it;
         }
     }
 
-    // Ensure the latest text is shown
-    scrollBar = reinterpret_cast<CEGUI::Scrollbar*>(mEventShortNoticeWindow->getChild("__auto_vscrollbar__"));
-    scrollBar->setScrollPosition(scrollBar->getDocumentSize());
+    if (messageDisplayUpdate)
+    {
+        shortNoticeText->setText(ceguiStr);
+        scrollBar->setScrollPosition(scrollPosition);
+    }
 }
 
 void GameMode::refreshMainUI()
@@ -1439,61 +1450,31 @@ bool GameMode::showSettingsFromOptions(const CEGUI::EventArgs& /*e*/)
 
 bool GameMode::showHelpWindow(const CEGUI::EventArgs&)
 {
-    // We create the window only at first call.
-    // Note: If we create it in the constructor, the window gets created
-    // in the wrong gui context and is never shown...
-    createHelpWindow();
-    mHelpWindow->show();
+    CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::inGameMenu);
+    guiSheet->getChild("GameHelpWindow")->show();
     return true;
 }
 
 bool GameMode::hideHelpWindow(const CEGUI::EventArgs& /*e*/)
 {
-    if (mHelpWindow != nullptr)
-        mHelpWindow->hide();
+    CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::inGameMenu);
+    guiSheet->getChild("GameHelpWindow")->hide();
     return true;
 }
 
 bool GameMode::toggleHelpWindow(const CEGUI::EventArgs& e)
 {
-    if (mHelpWindow == nullptr || !mHelpWindow->isVisible())
+    CEGUI::Window* helpWindow = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameHelpWindow");
+    if (!helpWindow->isVisible())
         showHelpWindow(e);
     else
         hideHelpWindow(e);
     return true;
 }
 
-void GameMode::createHelpWindow()
+void GameMode::setHelpWindowText()
 {
-    if (mHelpWindow != nullptr)
-        return;
-
-    CEGUI::Window* rootWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow();
-
-    mHelpWindow = rootWindow->createChild("OD/FrameWindow", std::string("GameHelpWindow"));
-    mHelpWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.2, 0), CEGUI::UDim(0.12, 0)));
-    mHelpWindow->setSize(CEGUI::USize(CEGUI::UDim(0.6, 0), CEGUI::UDim(0.7, 0)));
-    mHelpWindow->setProperty("AlwaysOnTop", "True");
-    mHelpWindow->setProperty("SizingEnabled", "False");
-
-    CEGUI::Window* textWindow = mHelpWindow->createChild("OD/StaticText", "TextDisplay");
-    textWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0, 20), CEGUI::UDim(0, 30)));
-    textWindow->setSize(CEGUI::USize(CEGUI::UDim(1.0, -40), CEGUI::UDim(0.95, -40)));
-    textWindow->setProperty("FrameEnabled", "False");
-    textWindow->setProperty("BackgroundEnabled", "False");
-    textWindow->setProperty("VertFormatting", "TopAligned");
-    textWindow->setProperty("HorzFormatting", "WordWrapLeftAligned");
-    textWindow->setProperty("VertScrollbar", "True");
-
-    // Search for the autoclose button and make it work
-    CEGUI::Window* childWindow = mHelpWindow->getChild("__auto_closebutton__");
-    childWindow->subscribeEvent(CEGUI::PushButton::EventClicked,
-                                CEGUI::Event::Subscriber(&GameMode::hideHelpWindow, this));
-
-    // Set the window title
-    childWindow = mHelpWindow->getChild("__auto_titlebar__");
-    childWindow->setText("OpenDungeons Quick Help");
-
+    CEGUI::Window* textWindow = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameHelpWindow/TextDisplay");
     const std::string formatTitleOn = "[font='MedievalSharp-12'][colour='CCBBBBFF']";
     const std::string formatTitleOff = "[font='MedievalSharp-10'][colour='FFFFFFFF']";
     std::stringstream txt("");
@@ -1528,7 +1509,7 @@ void GameMode::createHelpWindow()
         << "Your workers will fortify walls, turning them into your color. Those cannot be broken by enemies until no more "
         << "claimed tiles around are of your color." << std::endl;
     txt << std::endl << std::endl << "Be evil, be cunning, your opponents will do the same... and have fun! ;)" << std::endl;
-    textWindow->setText(txt.str());
+    textWindow->setText(reinterpret_cast<const CEGUI::utf8*>(txt.str().c_str()));
 }
 
 void GameMode::refreshResearchButtonState(ResearchType resType)

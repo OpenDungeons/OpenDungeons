@@ -2740,7 +2740,7 @@ bool Creature::handleGetFee(const CreatureAction& actionItem)
                 else
                     msg = getName() + " took " + Ogre::StringConverter::toString(goldTaken) + " from its fee";
 
-                serverNotification->mPacket << msg;
+                serverNotification->mPacket << msg << EventShortNoticeType::aboutCreatures;
                 ODServer::getSingleton().queueServerNotification(serverNotification);
             }
 
@@ -4087,7 +4087,7 @@ void Creature::computeMood()
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotificationType::chatServer, getSeat()->getPlayer());
             std::string msg = getName() + " is unhappy";
-            serverNotification->mPacket << msg;
+            serverNotification->mPacket << msg << EventShortNoticeType::aboutCreatures;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
     }
@@ -4109,7 +4109,7 @@ void Creature::computeMood()
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotificationType::chatServer, getSeat()->getPlayer());
             std::string msg = getName() + " wants to leave your dungeon";
-            serverNotification->mPacket << msg;
+            serverNotification->mPacket << msg << EventShortNoticeType::aboutCreatures;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
     }
@@ -4122,7 +4122,7 @@ void Creature::computeMood()
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotificationType::chatServer, getSeat()->getPlayer());
             std::string msg = getName() + " is not under your control anymore !";
-            serverNotification->mPacket << msg;
+            serverNotification->mPacket << msg << EventShortNoticeType::aboutCreatures;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
 

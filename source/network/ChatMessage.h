@@ -58,7 +58,7 @@ private:
 class EventMessage
 {
 public:
-    EventMessage(const std::string& message, eventShortNoticeType type = eventShortNoticeType::genericGameInfo);
+    EventMessage(const std::string& message, EventShortNoticeType type = EventShortNoticeType::genericGameInfo);
 
     inline const std::string& getMessage() const
     { return mMessage; }
@@ -70,7 +70,7 @@ public:
 
 private:
     std::string mMessage;
-    eventShortNoticeType mType;
+    EventShortNoticeType mType;
     sf::Clock   mClockCreation;
 };
 

@@ -24,8 +24,12 @@
 #include <OgreRenderWindow.h>
 
 InputManager::InputManager(Ogre::RenderWindow* renderWindow):
+    mInputManager(nullptr),
+    mKeyboard(nullptr),
+    mMouse(nullptr),
     mLMouseDown(false),
     mRMouseDown(false),
+    mMouseDownOnCEGUIWindow(false),
     mXPos(0),
     mYPos(0),
     mLStartDragX(0),

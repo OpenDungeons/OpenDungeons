@@ -59,26 +59,30 @@ std::istream& operator>>(std::istream& is, ResearchType& type);
 class Research
 {
 public:
-   Research(ResearchType type, int32_t neededResearchPoints, const std::vector<const Research*>& researchDepends);
-   virtual ~Research()
-   {}
+    Research(ResearchType type, int32_t neededResearchPoints, const std::vector<const Research*>& researchDepends);
+    virtual ~Research()
+    {}
 
-   inline int32_t getNeededResearchPoints() const
-   { return mNeededResearchPoints; }
+    inline int32_t getNeededResearchPoints() const
+    { return mNeededResearchPoints; }
 
-   inline ResearchType getType() const
-   { return mType; }
+    inline ResearchType getType() const
+    { return mType; }
 
-   bool canBeResearched(const std::vector<ResearchType>& researchesDone) const;
+    bool canBeResearched(const std::vector<ResearchType>& researchesDone) const;
 
+    //! \brief The research name as used in level files.
     static std::string researchTypeToString(ResearchType type);
+
+    //! \brief The research name as seen in game events.
+    static std::string researchTypeToPlayerVisibleString(ResearchType type);
 private:
     ResearchType mType;
 
     int32_t mNeededResearchPoints;
 
-    //! List of the researches to be available. If one of them is available, the Research
-    //! can be searched
+    //! \brief List of the researches to be available. If one of them is available,
+    //! the Research can be searched.
     std::vector<const Research*> mResearchDepends;
 };
 

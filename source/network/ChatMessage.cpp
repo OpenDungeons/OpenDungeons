@@ -45,7 +45,7 @@ std::string ChatMessage::getMessageAsString()
     return messageStr;
 }
 
-EventMessage::EventMessage(const std::string& message, eventShortNoticeType type):
+EventMessage::EventMessage(const std::string& message, EventShortNoticeType type):
     mMessage(message),
     mType(type)
 {
@@ -58,20 +58,26 @@ bool EventMessage::isMessageTooOld(float maxTimeDisplay) const
 
 std::string EventMessage::getMessageAsString()
 {
-    std::string colorType;
+    std::string eventType;
     const std::string formatWhiteColor = "[colour='FFFFFFFF']";
     switch(mType)
     {
-        case eventShortNoticeType::aboutCreatures:
-            colorType = "[colour='FF0000EE']";
+        case EventShortNoticeType::genericGameInfo:
+            eventType = "[image-size='w:16 h:16'][image='OpenDungeonsIcons/HelpIcon'] [colour='FF00EE00']";
+            break;
+        case EventShortNoticeType::majorGameEvent:
+            eventType = "[image-size='w:16 h:16'][image='OpenDungeonsIcons/SeatIcon'] [colour='FFEE0000']";
+            break;
+        case EventShortNoticeType::aboutCreatures:
+            eventType = "[image-size='w:16 h:16'][image='OpenDungeonsIcons/CreaturesIcon'] [colour='FF11AA22']";
             break;
         default:
-        case eventShortNoticeType::genericGameInfo:
-            colorType = "[colour='FF00EE00']";
+        case EventShortNoticeType::aboutResearches:
+            eventType = "[image-size='w:16 h:16'][image='OpenDungeonsIcons/ResearchIcon'] [colour='FFEEEE00']";
             break;
-        case eventShortNoticeType::beingAttacked:
-            colorType = "[colour='FFEE0000']";
+        case EventShortNoticeType::aboutObjectives:
+            eventType = "[image-size='w:16 h:16'][image='OpenDungeonsIcons/ObjectivesIcon'] [colour='FF0000EE']";
             break;
     }
-    return colorType + mMessage + formatWhiteColor + "\n";
+    return eventType + mMessage + formatWhiteColor + "\n";
 }

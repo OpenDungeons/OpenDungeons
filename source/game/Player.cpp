@@ -240,7 +240,7 @@ void Player::notifyNoMoreDungeonTemple()
 
             ServerNotification *serverNotification = new ServerNotification(
             ServerNotificationType::chatServer, seat->getPlayer());
-            serverNotification->mPacket << "You lost the game";
+            serverNotification->mPacket << "You lost the game" << EventShortNoticeType::majorGameEvent;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
     }
@@ -259,14 +259,14 @@ void Player::notifyNoMoreDungeonTemple()
             {
                 ServerNotification *serverNotification = new ServerNotification(
                 ServerNotificationType::chatServer, seat->getPlayer());
-                serverNotification->mPacket << "You lost";
+                serverNotification->mPacket << "You lost" << EventShortNoticeType::majorGameEvent;
                 ODServer::getSingleton().queueServerNotification(serverNotification);
                 continue;
             }
 
             ServerNotification *serverNotification = new ServerNotification(
             ServerNotificationType::chatServer, seat->getPlayer());
-            serverNotification->mPacket << "An ally has lost";
+            serverNotification->mPacket << "An ally has lost" << EventShortNoticeType::majorGameEvent;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
     }
@@ -367,7 +367,7 @@ void Player::notifyNoTreasuryAvailable()
         std::string chatMsg = "No treasury available. You should build a bigger one";
         ServerNotification *serverNotification = new ServerNotification(
             ServerNotificationType::chatServer, this);
-        serverNotification->mPacket << chatMsg;
+        serverNotification->mPacket << chatMsg << EventShortNoticeType::majorGameEvent;
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 }
