@@ -1,56 +1,59 @@
+// DungeonTemple
 material Sphere2
 {
-	receive_shadows off
-	technique
-	{
-		pass
-		{
-			ambient 0.0 0.0 0.0 1.0
-			diffuse 0.0 0.4 0.8 1.0
-			specular 0.5 0.5 0.5 1.0 12.5
-			emissive 0.0 0.4 0.9 1.0
-		}
-	}
+    receive_shadows off
+    technique
+    {
+        pass
+        {
+            ambient 0.0 0.0 0.0 1.0
+            diffuse 0.0 0.4 0.8 1.0
+            specular 0.5 0.5 0.5 1.0 12.5
+            emissive 0.0 0.4 0.9 1.0
+        }
+    }
 }
+
 material Sphere
 {
-	receive_shadows on
-	technique
-	{
-		pass
-		{
-			ambient 0.0 0.0 0.0 1.0
-			diffuse 0.7 0.25 0.0 1.0
-			specular 0.0 0.0 0.0 1.0 12.5
-			emissive 0.95 0.35 0.0 1.0
+    receive_shadows on
+    technique
+    {
+        pass
+        {
+            ambient 0.0 0.0 0.0 1.0
+            diffuse 0.7 0.25 0.0 1.0
+            specular 0.0 0.0 0.0 1.0 12.5
+            emissive 0.95 0.35 0.0 1.0
 
-		}
-	}
+        }
+    }
 }
+
 material Stacheln
 {
-	receive_shadows on
-	technique
-	{
-		pass
-		{
-			ambient 0.0 0.0 0.0 1.0
-			diffuse 0.4 0.4 0.4 1.0
-			specular 0.0 0.0 0.0 1.0 12.5
-			emissive 0.0 0.0 0.0 1.0
-			texture_unit
-			{
-				texture DungeonTemple2.png
-				tex_address_mode wrap
-				filtering trilinear
-				colour_op alpha_blend
-			}
-			texture_unit
-			{
-				texture buvneurt_env5.png
-				colour_op_ex blend_manual src_texture src_current 0.3
-				env_map spherical
-			}
-		}
-	}
+    receive_shadows on
+    technique
+    {
+        pass
+        {
+            ambient 0.0 0.0 0.0 1.0
+            diffuse 0.4 0.4 0.4 1.0
+            specular 0.0 0.0 0.0 1.0 12.5
+            emissive 0.0 0.0 0.0 1.0
+            texture_unit
+            {
+                texture DungeonTemple2.png
+                tex_address_mode wrap
+                filtering trilinear
+                colour_op alpha_blend
+            }
+            texture_unit
+            {
+                texture buvneurt_env5.png
+                colour_op_ex blend_manual src_texture src_current 0.3
+                env_map spherical
+            }
+        }
+    }
 }

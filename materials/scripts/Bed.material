@@ -1,42 +1,43 @@
+// Bed
 import RTSS/PerPixel_SinglePass from "RTShaderSystem.material"
 material Wood : RTSS/PerPixel_SinglePass
 {
-	technique
-	{
-		pass
-		{
-			texture_unit
-			{
-				texture pine_green.png
-			}
-		}
-	}
+    technique
+    {
+        pass
+        {
+            texture_unit
+            {
+                texture pine_green.png
+            }
+        }
+    }
 }
 
 material WhiteCloth : RTSS/PerPixel_SinglePass
 {
-	technique
-	{
-		pass
-		{
-			texture_unit
-			{
-				texture White.png
-			}
-		}
-	}
+    technique
+    {
+        pass
+        {
+            texture_unit
+            {
+                texture White.png
+            }
+        }
+    }
 }
 
 material Blanket : RTSS/PerPixel_SinglePass
 {
-	technique
-	{
-		pass
-		{
-			texture_unit
-			{
-				texture shirtblack.png
-			}
-		}
-	}
+    technique
+    {
+        pass
+        {
+            texture_unit
+            {
+                texture shirtblack.png
+            }
+        }
+    }
 }

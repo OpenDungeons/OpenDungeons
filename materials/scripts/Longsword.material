@@ -1,20 +1,21 @@
+// Longsword
 material Longsword
 {
-	receive_shadows on
-	technique
-	{
-		pass
-		{
-			ambient 0.5 0.5 0.5 1.0
-			diffuse 0.56 0.56 0.56 1.0
-			specular 0.02 0.04 0.04 1.0 12.5
-			emissive 0.0 0.0 0.0 1.0
-			texture_unit
-			{
-				texture Longsword.png
-				tex_address_mode wrap
-				filtering trilinear
-			}
-		}
-	}
+    receive_shadows on
+    technique
+    {
+        pass
+        {
+            ambient 0.5 0.5 0.5 1.0
+            diffuse 0.56 0.56 0.56 1.0
+            specular 0.02 0.04 0.04 1.0 12.5
+            emissive 0.0 0.0 0.0 1.0
+            texture_unit
+            {
+                texture Longsword.png
+                tex_address_mode wrap
+                filtering trilinear
+            }
+        }
+    }
 }

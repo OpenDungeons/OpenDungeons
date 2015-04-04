@@ -1,3 +1,4 @@
+// Gnome
 import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
 material Gnome RTSS/NormalMapping_MultiPass
 {

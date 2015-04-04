@@ -33,7 +33,7 @@ material WoodBridge : RTSS/NormalMapping_MultiPass
             depth_bias 1
             texture_unit
             {
-              texture WoodBridgeMask.png
+                texture WoodBridgeMask.png
             }
         }
     }

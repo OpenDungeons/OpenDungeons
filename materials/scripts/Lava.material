@@ -1,3 +1,4 @@
+// Lava
 material Lava
 {
     receive_shadows on

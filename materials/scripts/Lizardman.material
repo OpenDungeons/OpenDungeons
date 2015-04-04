@@ -8,12 +8,11 @@ material Lizardman : RTSS/NormalMapping_MultiPass
     {
         pass lighting
         {
-
-             // Override the normal map.
-             rtshader_system
-             {
+            // Override the normal map.
+            rtshader_system
+            {
                 lighting_stage normal_map LizardmanNormal.png object_space 0 bilinear 1 -1.0
-             }
+            }
         }
 
         pass decal

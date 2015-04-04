@@ -1,3 +1,4 @@
+// Kobold
 import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
 material Kobold_skin/TEXFACE/kobold_skin6.png RTSS/NormalMapping_MultiPass
 {

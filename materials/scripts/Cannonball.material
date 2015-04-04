@@ -1,19 +1,20 @@
+// Cannonball
 import RTSS/PerPixel_SinglePass from "RTShaderSystem.material"
 material Cannonball : RTSS/PerPixel_SinglePass
 {
-	technique
-	{
-		pass
-		{
-		    ambient 1.0 1.0 1.0 1.0
-		    diffuse 1.0 1.0 1.0 1.0
-		    specular 1.0 1.0 1.0 128.0
-		    emissive 0.0 0.0 0.0 0.0
+    technique
+    {
+        pass
+        {
+            ambient 1.0 1.0 1.0 1.0
+            diffuse 1.0 1.0 1.0 1.0
+            specular 1.0 1.0 1.0 128.0
+            emissive 0.0 0.0 0.0 0.0
 
-			texture_unit
-			{
-				texture Black.png
-			}
-		}
-	}
+            texture_unit
+            {
+                texture Black.png
+            }
+        }
+    }
 }

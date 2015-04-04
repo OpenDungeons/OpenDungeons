@@ -1,3 +1,4 @@
+// Claimedwall
 import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
 material Claimedwall : RTSS/NormalMapping_MultiPass
 {
@@ -32,7 +33,7 @@ material Claimedwall : RTSS/NormalMapping_MultiPass
             depth_bias 1
             texture_unit
             {
-              texture ClaimedWallMask.png
+                texture ClaimedWallMask.png
             }
         }
     }
