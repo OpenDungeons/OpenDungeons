@@ -1,12 +1,12 @@
-// Rock_mat genrated by blender2ogre 0.6.0
+// TrollRock genrated by blender2ogre 0.6.0
 
-material Rock_mat 
+material TrollRock
 {
     receive_shadows on 
 
     technique
     {
-        pass Rock_mat
+        pass TrollRock
         {
             ambient 0.8 0.8 0.8 1.0
             diffuse 0.65 0.65 0.65 1.0

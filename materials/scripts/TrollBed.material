@@ -1,6 +1,6 @@
-// Trollbed genrated by blender2ogre 0.6.0
+// TrollBed genrated by blender2ogre 0.6.0
 import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
-material Trollbed : RTSS/NormalMapping_MultiPass
+material TrollBed : RTSS/NormalMapping_MultiPass
 {
     receive_shadows on
 

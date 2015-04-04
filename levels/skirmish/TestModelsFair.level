@@ -1033,7 +1033,7 @@ Spider12	16	13	0
 1	Orc8	Orc.mesh	18	25	0	Orc	1	0	max	100	0	0	none	none	0	none
 1	Kreatur9	Kreatur.mesh	21	25	0	Kreatur	1	0	max	100	0	0	none	none	0	none
 1	Goblin10	Goblin.mesh	24	25	0	Goblin	1	0	max	100	0	0	none	none	0	none
-1	PitDemon11	Pit_demon.mesh	27	25	0	PitDemon	1	0	max	100	0	0	none	none	0	none
+1	PitDemon11	PitDemon.mesh	27	25	0	PitDemon	1	0	max	100	0	0	none	none	0	none
 1	Spider12	Spider.mesh	18	22	0	Spider	1	0	max	100	0	0	none	none	0	none
 1	Tentacle113	Tentacle.mesh	21	22	0	Tentacle1	1	0	max	100	0	0	none	none	0	none
 1	Tentacle214	Tentacle.mesh	24	22	0	Tentacle2	1	0	max	100	0	0	none	none	0	none

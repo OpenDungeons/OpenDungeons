@@ -1,12 +1,12 @@
-// knightStatue genrated by blender2ogre 0.6.0
+// KnightStatue genrated by blender2ogre 0.6.0
 
-material knightStatue
+material KnightStatue
 {
     receive_shadows on
 
     technique
     {
-        pass knightStatue
+        pass KnightStatue
         {
             ambient 0.8 0.8 0.8 1.0
             diffuse 0.65 0.65 0.65 1.0

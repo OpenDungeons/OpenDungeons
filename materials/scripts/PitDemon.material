@@ -1,6 +1,6 @@
-// Chicken genrated by blender2ogre 0.6.0
+// PitDemon genrated by blender2ogre 0.6.0
 import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
-material Goblin-body : RTSS/NormalMapping_MultiPass
+material PitDemon : RTSS/NormalMapping_MultiPass
 {
     receive_shadows on
 
@@ -11,7 +11,7 @@ material Goblin-body : RTSS/NormalMapping_MultiPass
             // Override the normal map.
             rtshader_system
             {
-                lighting_stage normal_map GoblinNormal.png object_space 0 bilinear 1 -1.0
+                lighting_stage normal_map PitDemonNormal.png object_space 0 bilinear 1 -1.0
             }
         }
 
@@ -19,12 +19,12 @@ material Goblin-body : RTSS/NormalMapping_MultiPass
         {
             ambient 0.8 0.8 0.8 1.0
             diffuse 0.65 0.65 0.65 1.0
-            specular 0.0 0.0 0.0 0.0 2.0
+            specular 0.1 0.1 0.1 0.0 2.0
             emissive 0.0 0.0 0.0 0.0
 
             texture_unit decalmap
             {
-                texture Goblin.png
+                texture PitDemon.png
                 tex_address_mode wrap
                 scale 1.0 1.0
                 colour_op modulate

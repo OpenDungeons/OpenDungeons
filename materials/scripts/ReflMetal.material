@@ -1,5 +1,5 @@
-// Refl
-material Refl
+// ReflMetal
+material ReflMetal
 {
     technique
     {
