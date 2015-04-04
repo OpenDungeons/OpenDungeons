@@ -32,7 +32,7 @@ material Spiketrap
 
             texture_unit 
             {
-                texture Spike-trapTexture.png
+                texture Spiketrap.png
                 tex_address_mode wrap
                 scale 1.0 1.0
                 colour_op modulate

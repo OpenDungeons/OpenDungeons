@@ -11,7 +11,7 @@ material Refl
             emissive 0.0 0.0 0.0 1
             texture_unit
             {
-                texture Envmap_metal2B.png
+                texture EnvmapMetal.png
                 colour_op_ex blend_manual src_texture src_current 0.5
                 env_map spherical
             }

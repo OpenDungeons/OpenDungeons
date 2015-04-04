@@ -1,3 +1,4 @@
+// Adventurer
 import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
 material Adventurer RTSS/NormalMapping_MultiPass
 {

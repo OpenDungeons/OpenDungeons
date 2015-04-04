@@ -12,7 +12,7 @@ material Staff
             emissive 0.0 0.0 0.0 1.0
             texture_unit
             {
-                texture Staff.tga
+                texture Staff.png
                 tex_address_mode wrap
                 filtering trilinear
             }

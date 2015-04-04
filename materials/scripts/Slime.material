@@ -18,7 +18,7 @@ material Slime
             cull_software none
             texture_unit
             {
-                texture slimeDiffuse.png
+                texture Slime.png
                 tex_address_mode wrap
                 filtering trilinear
                 colour_op alpha_blend

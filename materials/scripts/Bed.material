@@ -8,7 +8,7 @@ material Wood : RTSS/PerPixel_SinglePass
         {
             texture_unit
             {
-                texture pine_green.png
+                texture BedWood.png
             }
         }
     }
@@ -36,7 +36,7 @@ material Blanket : RTSS/PerPixel_SinglePass
         {
             texture_unit
             {
-                texture shirtblack.png
+                texture BedBlanket.png
             }
         }
     }

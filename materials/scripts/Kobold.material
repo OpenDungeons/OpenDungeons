@@ -8,7 +8,7 @@ material Kobold_skin/TEXFACE/kobold_skin6.png RTSS/NormalMapping_MultiPass
         {
             texture_unit decalmap
             {
-                texture kobold_skin6.png
+                texture Kobold.png
             }
         }
     }
@@ -22,7 +22,7 @@ material Kobold_skin/TWOSIDE/TEXFACE/kobold_skin6.png RTSS/NormalMapping_MultiPa
         {
             texture_unit decalmap
             {
-                texture kobold_skin6.png
+                texture Kobold.png
             }
         }
     }

@@ -43,14 +43,14 @@ material Stacheln
             emissive 0.0 0.0 0.0 1.0
             texture_unit
             {
-                texture DungeonTemple2.png
+                texture DungeonTemple.png
                 tex_address_mode wrap
                 filtering trilinear
                 colour_op alpha_blend
             }
             texture_unit
             {
-                texture buvneurt_env5.png
+                texture EnvmapCity.png
                 colour_op_ex blend_manual src_texture src_current 0.3
                 env_map spherical
             }

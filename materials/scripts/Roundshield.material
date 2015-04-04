@@ -12,7 +12,7 @@ material Roundshield
             emissive 0.0 0.0 0.0 1.0
             texture_unit
             {
-                texture Roundshield.tga
+                texture Roundshield.png
                 tex_address_mode wrap
                 filtering trilinear
             }

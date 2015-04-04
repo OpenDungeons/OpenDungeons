@@ -14,7 +14,7 @@ material Water
             depth_write off
             texture_unit
             {
-                texture Water4.png
+                texture Water.png
                 tex_address_mode wrap
                 wave_xform scroll_x sine 0.3 0.2 0.0 0.1
                 wave_xform scroll_y sine 0.01 0.22 0.0 0.18

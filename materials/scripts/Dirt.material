@@ -9,7 +9,7 @@ material Dirt : RTSS/NormalMapping_MultiPass
             // Override the normal map.
             rtshader_system
             {
-                lighting_stage normal_map Dirt_dark_nor3.png tangent_space 0 bilinear 1 -1.0
+                lighting_stage normal_map DirtNormal.png tangent_space 0 bilinear 1 -1.0
             }
         }
 
@@ -17,7 +17,7 @@ material Dirt : RTSS/NormalMapping_MultiPass
         {
             texture_unit decalmap
             {
-                texture Dirt_darkE.png
+                texture Dirt.png
             }
         }
     }

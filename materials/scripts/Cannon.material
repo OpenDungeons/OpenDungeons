@@ -12,7 +12,7 @@ material Cannon_Metal
             emissive 0.0 0.0 0.0 1.0
             texture_unit
             {
-                texture Cannon_col.png
+                texture Cannon.png
                 tex_address_mode wrap
                 filtering trilinear
                 colour_op alpha_blend
@@ -34,7 +34,7 @@ material Cannon_Wood
             emissive 0.0 0.0 0.0 1.0
             texture_unit
             {
-                texture Cannon_col.png
+                texture Cannon.png
                 tex_address_mode wrap
                 filtering trilinear
                 colour_op alpha_blend

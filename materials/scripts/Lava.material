@@ -12,7 +12,7 @@ material Lava
             emissive 1.0 1.0 1.0 1.0
             texture_unit
             {
-                texture Lava_anim_0.png
+                texture Lava.png
                 wave_xform scroll_x sine 0.1 0.2 0.0 0.1
                 wave_xform scroll_y sine 0.01 0.22 0.0 0.18
                 scroll_anim 0.1 0.2
