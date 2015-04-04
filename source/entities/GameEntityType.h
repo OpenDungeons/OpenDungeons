@@ -1,9 +1,4 @@
 /*!
- * \file   GameEntity.h
- * \date:  16 September 2011
- * \author StefanP.MUC
- * \brief  Provides the GameEntity class, the base class for all ingame objects
- *
  *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify

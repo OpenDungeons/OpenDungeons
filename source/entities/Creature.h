@@ -289,10 +289,12 @@ public:
     //! \returns A string describing the IO format the creatures need to have in file.
     static std::string getCreatureStreamFormat();
 
-    //! NOTE: This function doesn't actually get a creature from stream,
+    //! \brief Get a creature from a stream
+    // NOTE: This function doesn't actually get a creature from stream,
     // it simply creates a creature object.
     static Creature* getCreatureFromStream(GameMap* gameMap, std::istream& is);
-    //! NOTE: This function doesn't actually get a creature the packet,
+    //! \brief Get a creature from a packet
+    // NOTE: This function doesn't actually get a creature the packet,
     // it simply creates a creature object.
     static Creature* getCreatureFromPacket(GameMap* gameMap, ODPacket& is);
     virtual void exportToPacket(ODPacket& os) const override;

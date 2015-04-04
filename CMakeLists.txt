@@ -285,7 +285,6 @@ set(OD_SOURCEFILES
     ${SRC}/game/Research.cpp
     ${SRC}/game/Seat.cpp
     ${SRC}/game/SeatFunctions.cpp
-    ${SRC}/game/Spell.cpp
 
     ${SRC}/gamemap/GameMap.cpp
     ${SRC}/gamemap/MapLoader.cpp
