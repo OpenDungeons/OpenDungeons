@@ -1048,7 +1048,7 @@ Spider12	16	13	0
 1	Dwarf223	Dwarf2.mesh	24	13	0	Dwarf2	1	0	max	100	0	0	none	Sabre	0	none
 1	Knight24	Knight.mesh	27	13	0	Knight	1	0	max	100	0	0	RustyShield	RustySword	0	none
 1	Wizard26	Wizard.mesh	27	10	0	Wizard	1	0	max	100	0	0	none	Staff	0	none
-1	Dwarf327	Dwarf3.mesh	27	7	0	Dwarf3	1	0	max	100	0	0	none	Roundshield	0	none
+1	RunelordDwarf27	RunelordDwarf.mesh	27	7	0	RunelordDwarf	1	0	max	100	0	0	none	Roundshield	0	none
 1	BigKnight28	Knight.mesh	27	4	0	BigKnight	1	0	max	100	0	0	RustyShield	RustySword	0	none
 1	Defender29	Defender.mesh	27	1	0	Defender	1	0	max	100	0	0	none	none	0	none
 [/Creatures]
