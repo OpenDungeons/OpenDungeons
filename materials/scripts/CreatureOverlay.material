@@ -1,74 +1,75 @@
+// CreatureOverlay
 material CreatureOverlay0
 {
-   technique
-   {
-      pass
-      {
-         scene_blend alpha_blend
-         texture_unit
-         {
-            texture CreatureOverlay0.png
-         }
-      }
-   }
+    technique
+    {
+        pass
+        {
+            scene_blend alpha_blend
+            texture_unit
+            {
+                texture CreatureOverlay0.png
+            }
+        }
+    }
 }
 
 material CreatureOverlay1
 {
-   technique
-   {
-      pass
-      {
-         scene_blend alpha_blend
-         texture_unit
-         {
-            texture CreatureOverlay1.png
-         }
-      }
-   }
+    technique
+    {
+        pass
+        {
+            scene_blend alpha_blend
+            texture_unit
+            {
+                texture CreatureOverlay1.png
+            }
+        }
+    }
 }
 
 material CreatureOverlay2
 {
-   technique
-   {
-      pass
-      {
-         scene_blend alpha_blend
-         texture_unit
-         {
-            texture CreatureOverlay2.png
-         }
-      }
-   }
+    technique
+    {
+        pass
+        {
+            scene_blend alpha_blend
+            texture_unit
+            {
+                texture CreatureOverlay2.png
+            }
+        }
+    }
 }
 
 material CreatureOverlay3
 {
-   technique
-   {
-      pass
-      {
-         scene_blend alpha_blend
-         texture_unit
-         {
-            texture CreatureOverlay3.png
-         }
-      }
-   }
+    technique
+    {
+        pass
+        {
+            scene_blend alpha_blend
+            texture_unit
+            {
+                texture CreatureOverlay3.png
+            }
+        }
+    }
 }
 
 material CreatureOverlay4
 {
-   technique
-   {
-      pass
-      {
-         scene_blend alpha_blend
-         texture_unit
-         {
-            texture CreatureOverlay4.png
-         }
-      }
-   }
+    technique
+    {
+        pass
+        {
+            scene_blend alpha_blend
+            texture_unit
+            {
+                texture CreatureOverlay4.png
+            }
+        }
+    }
 }

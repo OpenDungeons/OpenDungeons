@@ -1,42 +1,44 @@
+// Cannon
 material Cannon_Metal
 {
-	receive_shadows on
-	technique
-	{
-		pass
-		{
-			ambient 0.500000 0.500000 0.500000 1.000000
-			diffuse 0.077809 0.078673 0.084759 1.000000
-			specular 0.153537 0.188124 0.207497 1.000000 5.000000
-			emissive 0.000000 0.000000 0.000000 1.000000
-			texture_unit
-			{
-				texture Cannon_col.png
-				tex_address_mode wrap
-				filtering trilinear
-				colour_op alpha_blend
-			}
-		}
-	}
+    receive_shadows on
+    technique
+    {
+        pass
+        {
+            ambient 0.5 0.5 0.5 1.0
+            diffuse 0.08 0.08 0.08 1.0
+            specular 0.15 0.19 0.21 1.0 5.0
+            emissive 0.0 0.0 0.0 1.0
+            texture_unit
+            {
+                texture Cannon.png
+                tex_address_mode wrap
+                filtering trilinear
+                colour_op alpha_blend
+            }
+        }
+    }
 }
+
 material Cannon_Wood
 {
-	receive_shadows on
-	technique
-	{
-		pass
-		{
-			ambient 0.500000 0.500000 0.500000 1.000000
-			diffuse 0.327811 0.288622 0.224130 1.000000
-			specular 0.126270 0.119226 0.102900 1.000000 4.000000
-			emissive 0.000000 0.000000 0.000000 1.000000
-			texture_unit
-			{
-				texture Cannon_col.png
-				tex_address_mode wrap
-				filtering trilinear
-				colour_op alpha_blend
-			}
-		}
-	}
+    receive_shadows on
+    technique
+    {
+        pass
+        {
+            ambient 0.5 0.5 0.5 1.0
+            diffuse 0.33 0.29 0.22 1.0
+            specular 0.13 0.12 0.1 1.0 4.0
+            emissive 0.0 0.0 0.0 1.0
+            texture_unit
+            {
+                texture Cannon.png
+                tex_address_mode wrap
+                filtering trilinear
+                colour_op alpha_blend
+            }
+        }
+    }
 }

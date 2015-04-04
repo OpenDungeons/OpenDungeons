@@ -1,56 +1,59 @@
+// DungeonTemple
 material Sphere2
 {
-	receive_shadows off
-	technique
-	{
-		pass
-		{
-			ambient 0.00000 0.00000 0.00000 1.000000
-			diffuse 0.008133 0.378788 0.800000 1.000000
-			specular 0.500000 0.500000 0.500000 1.000000 12.500000
-			emissive 0.009408 0.438219 0.925520 1.000000
-		}
-	}
+    receive_shadows off
+    technique
+    {
+        pass
+        {
+            ambient 0.0 0.0 0.0 1.0
+            diffuse 0.0 0.4 0.8 1.0
+            specular 0.5 0.5 0.5 1.0 12.5
+            emissive 0.0 0.4 0.9 1.0
+        }
+    }
 }
+
 material Sphere
 {
-	receive_shadows on
-	technique
-	{
-		pass
-		{
-			ambient 0.00000 0.00000 0.00000 1.000000
-			diffuse 0.713004 0.253170 0.000506 1.000000
-			specular 0.000000 0.000000 0.000000 1.000000 12.500000
-			emissive 0.957918 0.340133 0.000680 1.000000
+    receive_shadows on
+    technique
+    {
+        pass
+        {
+            ambient 0.0 0.0 0.0 1.0
+            diffuse 0.7 0.25 0.0 1.0
+            specular 0.0 0.0 0.0 1.0 12.5
+            emissive 0.95 0.35 0.0 1.0
 
-		}
-	}
+        }
+    }
 }
+
 material Stacheln
 {
-	receive_shadows on
-	technique
-	{
-		pass
-		{
-			ambient 0.00000 0.00000 0.00000 1.000000
-			diffuse 0.409290 0.409290 0.409290 1.000000
-			specular 0.000000 0.000000 0.000000 1.000000 12.500000
-			emissive 0.000000 0.000000 0.000000 1.000000
-			texture_unit
-			{
-				texture DungeonTemple2.png
-				tex_address_mode wrap
-				filtering trilinear
-				colour_op alpha_blend
-			}
-			texture_unit
-			{
-				texture buvneurt_env5.png
-				colour_op_ex blend_manual src_texture src_current 0.3
-				env_map spherical
-			}
-		}
-	}
+    receive_shadows on
+    technique
+    {
+        pass
+        {
+            ambient 0.0 0.0 0.0 1.0
+            diffuse 0.4 0.4 0.4 1.0
+            specular 0.0 0.0 0.0 1.0 12.5
+            emissive 0.0 0.0 0.0 1.0
+            texture_unit
+            {
+                texture DungeonTemple.png
+                tex_address_mode wrap
+                filtering trilinear
+                colour_op alpha_blend
+            }
+            texture_unit
+            {
+                texture EnvmapCity.png
+                colour_op_ex blend_manual src_texture src_current 0.3
+                env_map spherical
+            }
+        }
+    }
 }

@@ -1,3 +1,4 @@
+// Wizard
 import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
 material Wizard RTSS/NormalMapping_MultiPass
 {

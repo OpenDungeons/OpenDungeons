@@ -23,14 +23,17 @@ material WoodBridge : RTSS/NormalMapping_MultiPass
         }
         pass last
         {
-            ambient 0 0 0 1
-            diffuse 1 1 1 0
+            ambient 0.0 0.0 0.0 1.0
+            diffuse 1.0 1.0 1.0 0.0
+            specular 0.0 0.0 0.0 0.0 2.0
+            emissive 0.0 0.0 0.0 0.0
+
             scene_blend add
             depth_write off
             depth_bias 1
             texture_unit
             {
-              texture WoodBridgeMask.png
+                texture WoodBridgeMask.png
             }
         }
     }

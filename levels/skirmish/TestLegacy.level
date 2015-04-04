@@ -6833,10 +6833,10 @@ ProtectDungeonTemple	NULL
 1	Wyvern_003	Wyvern	183	105	0	Wyvern	1	0	max	100	0	0	none	none	0	none
 2	Dwarf1_001	Dwarf1	201	192	0	Dwarf1	1	0	max	100	0	0	Roundshield	Sabre	0	none
 2	Dwarf2_001	Dwarf2	206	168	0	Dwarf2	1	0	max	100	0	0	none	none	0	none
-2	Dwarf3_001	Dwarf3	213	157	0	Dwarf3	1	0	max	100	0	0	none	none	0	none
+2	RunelordDwarf_001	RunelordDwarf	213	157	0	RunelordDwarf	1	0	max	100	0	0	none	none	0	none
 2	Dwarf2_002	Dwarf2	214	141	0	Dwarf2	1	0	max	100	0	0	none	none	0	none
-2	Dwarf3_002	Dwarf3	212	143	0	Dwarf3	1	0	max	100	0	0	none	none	0	none
-2	Dwarf3_003	Dwarf3	213	213	0	Dwarf3	1	0	max	100	0	0	none	none	0	none
+2	RunelordDwarf_002	RunelordDwarf	212	143	0	RunelordDwarf	1	0	max	100	0	0	none	none	0	none
+2	RunelordDwarf_003	RunelordDwarf	213	213	0	RunelordDwarf	1	0	max	100	0	0	none	none	0	none
 2	Dwarf2_003	Dwarf2	202	191	0	Dwarf2	1	0	max	100	0	0	none	Longsword	0	none
 2	Dwarf1_002	Dwarf1	201	192	0	Dwarf1	1	0	max	100	0	0	Roundshield	Longsword	0	none
 3	LizardMan_002	LizardMan	206	172	0	LizardMan	1	0	max	100	0	0	none	none	0	none

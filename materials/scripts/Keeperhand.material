@@ -1,3 +1,4 @@
+// Keeperhand
 import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
 material Keeperhand
 {
@@ -8,8 +9,8 @@ material Keeperhand
         {
             ambient 0.0 0.0 0.0 0.5
             diffuse 0.0 0.0 0.0 0.5
-            specular 0.0 0.0 0.0 0.5
-            emissive 0.0 0.0 0.0 0.5
+            specular 0.0 0.0 0.0 0.0 2.0
+            emissive 0.0 0.0 0.0 0.0
             scene_blend alpha_blend
             depth_check off
             depth_write off

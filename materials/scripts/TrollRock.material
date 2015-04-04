@@ -1,17 +1,17 @@
-// knightStatue genrated by blender2ogre 0.6.0
+// TrollRock genrated by blender2ogre 0.6.0
 
-material knightStatue
+material TrollRock
 {
-    receive_shadows on
+    receive_shadows on 
 
     technique
     {
-        pass knightStatue
+        pass TrollRock
         {
-            ambient 0.8 0.8 0.8 0.8
-            diffuse 0.65 0.65 0.65 0.65
-            specular 0.1 0.1 0.1 0.1 0.1
-            emissive 0.0 0.0 0.0 0.0
+            ambient 0.8 0.8 0.8 1.0
+            diffuse 0.65 0.65 0.65 1.0
+            specular 0.0 0.0 0.0 1.0 12.5
+            emissive 0.0 0.0 0.0 1.0
 
             alpha_to_coverage off
             colour_write on
@@ -19,7 +19,7 @@ material knightStatue
             depth_check on
             depth_func less_equal
             depth_write on
-            illumination_stage
+            illumination_stage 
             light_clip_planes off
             light_scissor off
             lighting on
@@ -30,11 +30,12 @@ material knightStatue
             shading gouraud
             transparent_sorting on
 
-            texture_unit
+            texture_unit 
             {
-                texture KnightStatue.png
+                texture TrollRock.png
                 tex_address_mode wrap
                 scale 1.0 1.0
+                tex_coord_set 0
                 colour_op modulate
             }
         }

@@ -1,3 +1,4 @@
+// Knight
 import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
 material Knight RTSS/NormalMapping_MultiPass
 {
