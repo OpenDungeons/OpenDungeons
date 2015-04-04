@@ -126,12 +126,10 @@ textures/
 -> TrainingDummy4.png                  Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?p=59621#p59621
 -> TrollBed.png                        Eugeneloza, Anagoria, Chris Chittleborough   CC-BY-SA 3.0 - http://forum.freegamedev.net/viewtopic.php?f=38&t=5866&p=62444#p62444
 -> Boulder.png                         Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?p=59832#p59832
--> Workshop.png                        Nobiax                  CC0                     http://opengameart.org/users/yughues
--> WorkshopNormal.png                  Nobiax                  CC0                     http://opengameart.org/users/yughues
--> WorkshopMachine1.png                Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
--> WorkshopMachine1Normal.png          Danimal                 CC-BY-SA 3.0            http://opengameart.org/users/danimal
--> Grimoire.png                        Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
--> GrimoireNormal.png                  Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
+-> Workshop*.png                       Nobiax                  CC0                     http://opengameart.org/users/yughues
+-> WorkshopMachine1*.png               Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
+-> WorkshopMachine2*.png               Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
+-> Grimoire*.png                       Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
 
 
 ======================
@@ -234,6 +232,7 @@ Boulder.*                              Danimal                 CC-BY-SA 3.0     
 Grimoire.mesh                          Danimal                 CC-BY-SA 3.0            http://opengameart.org/users/danimal
 Workshop.mesh                          Danimal                 CC-BY 3.0               http://opengameart.org/users/danimal
 WorkshopMachine1.mesh                  Danimal                 CC-BY 3.0               http://opengameart.org/users/danimal
+WorkshopMachine2.mesh                  Danimal                 CC-BY 3.0               http://opengameart.org/users/danimal
 
 
 
