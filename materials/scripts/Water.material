@@ -5,9 +5,9 @@ material Water
 	{
 		pass
 		{
-			ambient 0.000000 0.000000 0.000000 0.3
+			ambient 0.0 0.0 0.0 0.3
 			diffuse 0.8 0.8 0.8 0.4
-			specular 0.124594 0.124594 0.124594 0.337499 2.0
+			specular 0.12 0.12 0.12 0.34 2.0
 			emissive 0.0 0.0 0.0 0.3
 			scene_blend alpha_blend
 			depth_write off
