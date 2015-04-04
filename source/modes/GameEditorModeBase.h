@@ -20,7 +20,10 @@
 
 #include "modes/AbstractApplicationMode.h"
 
+#include "game/PlayerSelection.h"
 #include "gamemap/MiniMap.h"
+
+class EntityBase;
 
 namespace CEGUI
 {
@@ -61,7 +64,7 @@ protected:
     void updateMessages(Ogre::Real update_time);
 
     //! \brief gets a game entity from the corresponding ogre name
-    GameEntity* getEntityFromOgreName(const std::string& entityName);
+    EntityBase* getEntityFromOgreName(const std::string& entityName);
 
     CEGUI::Window* mRootWindow;
 
@@ -71,6 +74,8 @@ protected:
 
     //! \brief The minimap used in this mode
     MiniMap mMiniMap;
+protected:
+    PlayerSelection mPlayerSelection;
 private:
     //! \brief The game event messages in queue.
     std::vector<EventMessage*> mEventMessages;

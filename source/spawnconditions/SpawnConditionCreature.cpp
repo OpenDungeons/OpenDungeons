@@ -21,10 +21,10 @@
 
 #include "spawnconditions/SpawnConditionCreature.h"
 
-bool SpawnConditionCreature::computePointsForSeat(GameMap* gameMap, Seat* seat, int32_t& computedPoints) const
+bool SpawnConditionCreature::computePointsForSeat(const GameMap& gameMap, const Seat& seat, int32_t& computedPoints) const
 {
     int32_t nbCreatures = 0;
-    std::vector<Creature*> creatures = gameMap->getCreaturesBySeat(seat);
+    std::vector<Creature*> creatures = gameMap.getCreaturesBySeat(&seat);
     for(Creature* creature : creatures)
     {
         if(creature->getDefinition() == mCreatureDefinition)

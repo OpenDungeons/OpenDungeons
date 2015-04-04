@@ -28,6 +28,7 @@
 #include "entities/CraftedTrap.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
+#include "entities/EntityLoading.h"
 #include "entities/GameEntity.h"
 #include "entities/MapLight.h"
 #include "entities/MissileObject.h"
@@ -243,7 +244,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         Tile::loadFromLine(entire_line, tempTile);
         tempTile->computeTileVisual();
 
-        tempTile->addToGameMap();
+        gameMap.addTile(tempTile);
     }
 
     gameMap.setAllFullnessAndNeighbors();
@@ -580,7 +581,7 @@ bool readGameEntity(GameMap& gameMap, const std::string& item, GameEntityType ty
         entire_line += nextParam;
 
         std::stringstream ss(entire_line);
-        GameEntity* entity = GameEntity::getGameEntityeEntityFromStream(&gameMap, type, ss);
+        GameEntity* entity = Entities::getGameEntityFromStream(&gameMap, type, ss);
         OD_ASSERT_TRUE(entity != nullptr);
         if(entity == nullptr)
             return false;
@@ -657,7 +658,6 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
             if (!tempTile->isClaimed() && tempTile->getType() == TileType::dirt && tempTile->getFullness() >= 100.0)
                 continue;
 
-            tempTile->exportHeadersToStream(levelFile);
             tempTile->exportToStream(levelFile);
             levelFile << std::endl;
         }

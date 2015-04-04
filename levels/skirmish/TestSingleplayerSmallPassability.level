@@ -45,9 +45,9 @@ trapBoulder
 KillAllEnemies	NULL
 ClaimNTiles	40
 + 1
-0x44cdf70MineNGold	20
+MineNGold	20
 + 1
-0x450e130ProtectDungeonTemple	NULL
+ProtectDungeonTemple	NULL
 [/Goals]
 
 [Tiles]

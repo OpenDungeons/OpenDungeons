@@ -30,6 +30,7 @@
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
 #include "entities/CreatureSound.h"
+#include "entities/EntityLoading.h"
 #include "entities/Tile.h"
 #include "ODApplication.h"
 #include "rooms/RoomTreasury.h"
@@ -414,12 +415,13 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotificationType::addEntity:
         {
-            GameEntity* entity = GameEntity::getGameEntityFromPacket(gameMap, packetReceived);
+            GameEntity* entity = Entities::getGameEntityFromPacket(gameMap, packetReceived);
             if(entity == nullptr)
                 break;
             entity->addToGameMap();
             entity->createMesh();
             entity->restoreEntityState();
+            entity->setPosition(entity->getPosition(), false);
             break;
         }
 

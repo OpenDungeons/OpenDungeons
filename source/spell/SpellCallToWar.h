@@ -19,6 +19,7 @@
 #define SPELLCALLTOWAR_H
 
 #include "spell/Spell.h"
+#include "spell/SpellType.h"
 
 class GameMap;
 

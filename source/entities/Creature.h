@@ -75,7 +75,7 @@ class Creature: public MovableGameEntity
     friend class ODClient;
 public:
     //! \brief Constructor for creatures. It generates an unique name
-    Creature(GameMap* gameMap, const CreatureDefinition* definition);
+    Creature(GameMap* gameMap, const CreatureDefinition* definition, Seat* seat, Ogre::Vector3 position = Ogre::Vector3(0.0f,0.0f,0.0f));
     virtual ~Creature();
 
     virtual GameEntityType getObjectType() const
@@ -289,7 +289,11 @@ public:
     //! \returns A string describing the IO format the creatures need to have in file.
     static std::string getCreatureStreamFormat();
 
+    //! NOTE: This function doesn't actually get a creature from stream,
+    // it simply creates a creature object.
     static Creature* getCreatureFromStream(GameMap* gameMap, std::istream& is);
+    //! NOTE: This function doesn't actually get a creature the packet,
+    // it simply creates a creature object.
     static Creature* getCreatureFromPacket(GameMap* gameMap, ODPacket& is);
     virtual void exportToPacket(ODPacket& os) const override;
     virtual void importFromPacket(ODPacket& is) override;
@@ -371,6 +375,12 @@ public:
 
     void fireCreatureRefreshIfNeeded();
 
+    //! \brief Load creature definition according to @mDefinitionString
+    // This should be called before createMesh. This was formerly in CreateMesh
+    // but is now split out since this is needed on the server, while the mesh isn't.
+    // This is normally called by the constructor, but creatures loaded from the map files
+    // use a different constructor, and this is then called by the gameMap when other details have been loaded.
+    void setupDefinition(GameMap& gameMap, const CreatureDefinition& defaultWorkerCreatureDefinition);
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();

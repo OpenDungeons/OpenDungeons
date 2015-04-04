@@ -25,6 +25,7 @@
 #include "game/Player.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
+#include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/Random.h"
@@ -180,8 +181,7 @@ void RoomPortal::doUpkeep()
 void RoomPortal::spawnCreature()
 {
     // We check if a creature can spawn
-    Seat* seat = getSeat();
-    const CreatureDefinition* classToSpawn = seat->getNextFighterClassToSpawn();
+    const CreatureDefinition* classToSpawn = getSeat()->getNextFighterClassToSpawn(*getGameMap(), ConfigManager::getSingleton());
     if (classToSpawn == nullptr)
         return;
 
@@ -192,21 +192,19 @@ void RoomPortal::spawnCreature()
     if (mPortalObject != nullptr)
         mPortalObject->setAnimationState("Triggered", false);
 
+    Ogre::Real xPos = static_cast<Ogre::Real>(centralTile->getX());
+    Ogre::Real yPos = static_cast<Ogre::Real>(centralTile->getY());
+
     // Create a new creature and copy over the class-based creature parameters.
-    Creature* newCreature = new Creature(getGameMap(), classToSpawn);
+    Creature* newCreature = new Creature(getGameMap(), classToSpawn, getSeat(), Ogre::Vector3(xPos, yPos, 0.0f));
 
     LogManager::getSingleton().logMessage("RoomPortal name=" + getName()
         + "spawns a creature class=" + classToSpawn->getClassName()
         + ", name=" + newCreature->getName() + ", seatId=" + Helper::toString(getSeat()->getId()));
 
-    Ogre::Real xPos = static_cast<Ogre::Real>(centralTile->getX());
-    Ogre::Real yPos = static_cast<Ogre::Real>(centralTile->getY());
-
-    newCreature->setSeat(getSeat());
     newCreature->addToGameMap();
-    Ogre::Vector3 spawnPosition(xPos, yPos, 0.0f);
     newCreature->createMesh();
-    newCreature->setPosition(spawnPosition, false);
+    newCreature->setPosition(newCreature->getPosition(), false);
 
     mSpawnCreatureCountdown = Random::Uint(30, 50);
 }

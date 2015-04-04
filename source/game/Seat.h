@@ -27,6 +27,7 @@
 #include <cstdint>
 
 class Building;
+class ConfigManager;
 class Goal;
 class ODPacket;
 class GameMap;
@@ -202,14 +203,14 @@ public:
     void setMapSize(int x, int y);
 
     //! \brief Returns the next fighter creature class to spawn.
-    const CreatureDefinition* getNextFighterClassToSpawn();
+    const CreatureDefinition* getNextFighterClassToSpawn(const GameMap& gameMap, const ConfigManager& configManager );
 
     //! \brief Returns the first (default) worker class definition.
     inline const CreatureDefinition* getWorkerClassToSpawn()
     { return mDefaultWorkerClass; }
 
     //! \brief Returns true if the given seat is allied. False otherwise
-    bool isAlliedSeat(const Seat *seat);
+    bool isAlliedSeat(const Seat *seat) const;
 
     //! \brief Checks if the seat is allowed to do corresponding action
     bool canOwnedCreatureBePickedUpBy(const Seat* seat) const;

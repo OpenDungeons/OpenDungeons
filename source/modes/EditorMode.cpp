@@ -30,7 +30,7 @@
 #include "entities/MapLight.h"
 #include "entities/Tile.h"
 #include "game/Seat.h"
-#include "traps/Trap.h"
+#include "traps/TrapType.h"
 #include "game/Player.h"
 #include "render/RenderManager.h"
 #include "camera/CameraManager.h"
@@ -60,13 +60,13 @@ namespace
     public:
         bool operator()(const CEGUI::EventArgs& e)
         {
-            gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::changeTile);
-            editorMode->setTileVisual(tileVisual);
+            playerSelection.setCurrentAction(SelectedAction::changeTile);
+            editorMode.setTileVisual(tileVisual);
             return true;
         }
         TileVisual tileVisual;
-        GameMap* gameMap;
-        EditorMode* editorMode;
+        PlayerSelection& playerSelection;
+        EditorMode& editorMode;
     };
 }
 
@@ -185,37 +185,37 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
     InputManager* inputManager = mModeManager->getInputManager();
 
     Player* player = mGameMap->getLocalPlayer();
-    Player::SelectedAction playerSelectedAction = player->getCurrentAction();
-    if (playerSelectedAction != Player::SelectedAction::none)
+    SelectedAction playerSelectedAction = mPlayerSelection.getCurrentAction();
+    if (playerSelectedAction != SelectedAction::none)
     {
         TextRenderer::getSingleton().moveText(ODApplication::POINTER_INFO_STRING,
             static_cast<Ogre::Real>(arg.state.X.abs + 30), static_cast<Ogre::Real>(arg.state.Y.abs));
 
         switch(playerSelectedAction)
         {
-            case Player::SelectedAction::buildRoom:
+            case SelectedAction::buildRoom:
             {
-                RoomType selectedRoomType = player->getNewRoomType();
+                RoomType selectedRoomType = mPlayerSelection.getNewRoomType();
                 TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(Rooms::getRoomNameFromRoomType(selectedRoomType)));
                 break;
             }
-            case Player::SelectedAction::buildTrap:
+            case SelectedAction::buildTrap:
             {
-                TrapType selectedTrapType = player->getNewTrapType();
-                TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(Trap::getTrapNameFromTrapType(selectedTrapType)));
+                TrapType selectedTrapType = mPlayerSelection.getNewTrapType();
+                TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(Traps::getTrapNameFromTrapType(selectedTrapType)));
                 break;
             }
-            case Player::SelectedAction::changeTile:
+            case SelectedAction::changeTile:
             {
                 TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(Tile::tileVisualToString(mCurrentTileVisual)));
                 break;
             }
-            case Player::SelectedAction::destroyRoom:
+            case SelectedAction::destroyRoom:
             {
                 TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Destroy room");
                 break;
             }
-            case Player::SelectedAction::destroyTrap:
+            case SelectedAction::destroyTrap:
             {
                 TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Destroy trap");
                 break;
@@ -242,7 +242,7 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
         std::string resultName = itr->movable->getName();
 
         // Checks which tile we are on (if any)
-        GameEntity* entity = getEntityFromOgreName(resultName);
+        EntityBase* entity = getEntityFromOgreName(resultName);
         if((entity == nullptr) ||
            (entity->getObjectType() != GameEntityType::tile))
         {
@@ -260,7 +260,7 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
         }
 
         // If we don't drag anything, there is no affected tiles to compute.
-        if (!inputManager->mLMouseDown || player->getCurrentAction() == Player::SelectedAction::none)
+        if (!inputManager->mLMouseDown || mPlayerSelection.getCurrentAction() == SelectedAction::none)
             break;
 
         for (int jj = 0; jj < mGameMap->getMapSizeY(); ++jj)
@@ -363,7 +363,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
             std::string resultName = itr->movable->getName();
 
-            GameEntity* entity = getEntityFromOgreName(resultName);
+            EntityBase* entity = getEntityFromOgreName(resultName);
             if (entity == nullptr || !entity->canDisplayStatsWindow(mGameMap->getLocalPlayer()->getSeat()))
                 continue;
 
@@ -383,7 +383,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         inputManager->mRStartDragY = inputManager->mYPos;
 
         // Stop creating rooms, traps, etc.
-        mGameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::none);
+        mPlayerSelection.setCurrentAction(SelectedAction::none);
         mCurrentTileVisual = TileVisual::nullTileVisual;
         TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "");
 
@@ -426,7 +426,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
                 std::string resultName = itr->movable->getName();
 
-                GameEntity* entity = getEntityFromOgreName(resultName);
+                EntityBase* entity = getEntityFromOgreName(resultName);
                 if (entity == nullptr || !entity->canSlap(mGameMap->getLocalPlayer()->getSeat()))
                     continue;
 
@@ -452,7 +452,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
     // Check whether the player is already placing rooms or traps.
     Player* player = mGameMap->getLocalPlayer();
-    if (player && (player->getCurrentAction() != Player::SelectedAction::none))
+    if (mPlayerSelection.getCurrentAction() != SelectedAction::none)
     {
         // Skip picking up creatures when placing rooms or traps
         // as creatures often get in the way.
@@ -467,7 +467,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
         std::string resultName = itr->movable->getName();
 
-        GameEntity* entity = getEntityFromOgreName(resultName);
+        EntityBase* entity = getEntityFromOgreName(resultName);
         if (entity == nullptr || !entity->tryPickup(player->getSeat()))
             continue;
 
@@ -519,9 +519,9 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
     inputManager->mLMouseDown = false;
 
     // On the client:  Inform the server about what we are doing
-    switch(mGameMap->getLocalPlayer()->getCurrentAction())
+    switch(mPlayerSelection.getCurrentAction())
     {
-        case Player::SelectedAction::changeTile:
+        case SelectedAction::changeTile:
         {
             TileType tileType = TileType::nullTileType;
             int seatId = -1;
@@ -565,9 +565,9 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
             ODClient::getSingleton().queueClientNotification(clientNotification);
             break;
         }
-        case Player::SelectedAction::buildRoom:
+        case SelectedAction::buildRoom:
         {
-            int intRoomType = static_cast<int>(mGameMap->getLocalPlayer()->getNewRoomType());
+            int intRoomType = static_cast<int>(mPlayerSelection.getNewRoomType());
             ClientNotification *clientNotification = new ClientNotification(
                 ClientNotificationType::editorAskBuildRoom);
             clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
@@ -576,18 +576,18 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
             ODClient::getSingleton().queueClientNotification(clientNotification);
             break;
         }
-        case Player::SelectedAction::buildTrap:
+        case SelectedAction::buildTrap:
         {
             ClientNotification *clientNotification = new ClientNotification(
                 ClientNotificationType::editorAskBuildTrap);
-            int intTrapType = static_cast<int>(mGameMap->getLocalPlayer()->getNewTrapType());
+            int intTrapType = static_cast<int>(mPlayerSelection.getNewTrapType());
             clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
             clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
             clientNotification->mPacket << intTrapType << mCurrentSeatId;
             ODClient::getSingleton().queueClientNotification(clientNotification);
             break;
         }
-        case Player::SelectedAction::destroyRoom:
+        case SelectedAction::destroyRoom:
         {
             ClientNotification *clientNotification = new ClientNotification(
                 ClientNotificationType::editorAskDestroyRoomTiles);
@@ -596,7 +596,7 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
             ODClient::getSingleton().queueClientNotification(clientNotification);
             break;
         }
-        case Player::SelectedAction::destroyTrap:
+        case SelectedAction::destroyTrap:
         {
             ClientNotification *clientNotification = new ClientNotification(
                 ClientNotificationType::editorAskDestroyTrapTiles);
@@ -989,7 +989,7 @@ void EditorMode::connectTileSelect(const std::string& buttonName, TileVisual til
     addEventConnection(
         mRootWindow->getChild(buttonName)->subscribeEvent(
           CEGUI::PushButton::EventClicked,
-          CEGUI::Event::Subscriber(TileSelector{tileVisual, mGameMap, this})
+          CEGUI::Event::Subscriber(TileSelector{tileVisual, mPlayerSelection, *this})
         )
     );
 }

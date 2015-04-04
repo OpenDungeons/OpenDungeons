@@ -19,8 +19,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef RENDERMANAGER_H_
-#define RENDERMANAGER_H_
+#ifndef RENDERMANAGER_H
+#define RENDERMANAGER_H
 
 #include <deque>
 #include <string>
@@ -90,8 +90,8 @@ public:
     static std::string consoleListAnimationsForMesh(const std::string& meshName);
 
     //Render request functions
-    void rrRefreshTile(const Tile* curTile, const Player* localPlayer);
-    void rrCreateTile(Tile* curTile, Player* localPlayer);
+    void rrRefreshTile(const Tile& curTile, const GameMap& gameMap, const Player& localPlayer);
+    void rrCreateTile(Tile& curTile, const GameMap& gameMap, const Player& localPlayer);
     void rrDestroyTile(Tile* curTile);
     void rrTemporalMarkTile(Tile* curTile);
     void rrCreateRenderedMovableEntity(RenderedMovableEntity* curRenderedMovableEntity);
@@ -170,4 +170,4 @@ private:
     bool mCreatureTextOverlayDisplayed;
 };
 
-#endif // RENDERMANAGER_H_
+#endif // RENDERMANAGER_H

@@ -125,12 +125,14 @@ void RoomCrypt::doUpkeep()
         if((p.second.first == nullptr) || (p.second.second == -1))
             continue;
 
+        ConfigManager& configManager = ConfigManager::getSingleton();
+
         ++p.second.second;
-        if(p.second.second < ConfigManager::getSingleton().getRoomConfigInt32("CryptRotNbTurns"))
+        if(p.second.second < configManager.getRoomConfigInt32("CryptRotNbTurns"))
             continue;
 
         // We add the rotten creature points to the room and release the active spot
-        double coef = 1.0 + static_cast<double>(mNumActiveSpots - mCentralActiveSpotTiles.size()) * ConfigManager::getSingleton().getRoomConfigDouble("CryptBonusWallActiveSpot");
+        double coef = 1.0 + static_cast<double>(mNumActiveSpots - mCentralActiveSpotTiles.size()) * configManager.getRoomConfigDouble("CryptBonusWallActiveSpot");
         Creature* c = p.second.first;
         mRottenPoints += static_cast<int32_t>(c->getMaxHp() * coef);
 
@@ -139,28 +141,28 @@ void RoomCrypt::doUpkeep()
         p.second.first = nullptr;
         p.second.second = -1;
 
-        int32_t maxCreatures = ConfigManager::getSingleton().getMaxCreaturesPerSeatAbsolute();
+        int32_t maxCreatures = configManager.getMaxCreaturesPerSeatAbsolute();
         int32_t numCreatures = getGameMap()->getCreaturesBySeat(getSeat()).size();
-        int32_t cryptPointsForSpawn = ConfigManager::getSingleton().getRoomConfigInt32("CryptPointsForSpawn");
+        int32_t cryptPointsForSpawn = configManager.getRoomConfigInt32("CryptPointsForSpawn");
         if((numCreatures < maxCreatures) &&
            (mRottenPoints >= cryptPointsForSpawn))
         {
             Tile* tileSpawn = p.first;
             mRottenPoints -= cryptPointsForSpawn;
-            const std::string& className = ConfigManager::getSingleton().getRoomConfigString("CryptSpawnClass");
+            const std::string& className = configManager.getRoomConfigString("CryptSpawnClass");
             const CreatureDefinition* classToSpawn = getGameMap()->getClassDescription(className);
             OD_ASSERT_TRUE_MSG(classToSpawn != nullptr, "className=" + className);
             if(classToSpawn == nullptr)
                 continue;
             // Create a new creature and copy over the class-based creature parameters.
-            Creature *newCreature = new Creature(getGameMap(), classToSpawn);
-            newCreature->setSeat(getSeat());
+            Creature *newCreature = new Creature(getGameMap(),
+                                                 classToSpawn, getSeat());
 
             // Add the creature to the gameMap and create meshes so it is visible.
             newCreature->addToGameMap();
-            Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(tileSpawn->getX()), static_cast<Ogre::Real>(tileSpawn->getY()), static_cast<Ogre::Real>(0.0));
+            newCreature->setPosition(Ogre::Vector3(tileSpawn->getX(),
+                          tileSpawn->getY(), 0.0f), false);
             newCreature->createMesh();
-            newCreature->setPosition(spawnPosition, false);
         }
     }
 }

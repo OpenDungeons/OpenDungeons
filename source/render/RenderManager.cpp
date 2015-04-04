@@ -201,28 +201,28 @@ void RenderManager::updateRenderAnimations(Ogre::Real timeSinceLastFrame)
 
 }
 
-void RenderManager::rrRefreshTile(const Tile* curTile, const Player* localPlayer)
+void RenderManager::rrRefreshTile(const Tile& curTile, const GameMap& gameMap, const Player& localPlayer)
 {
-    std::string tileName = curTile->getOgreNamePrefix() + curTile->getName();
-    if (curTile->getEntityNode() == nullptr)
+    std::string tileName = curTile.getOgreNamePrefix() + curTile.getName();
+    if (curTile.getEntityNode() == nullptr)
         return;
 
     Ogre::Vector3 scale;
-    std::string meshName = curTile->getMeshName();
+    std::string meshName = curTile.getMeshName();
     const Seat* seatColorize = nullptr;
-    const TileSetValue& tileSetValue = curTile->getGameMap()->getMeshForTile(curTile);
+    const TileSetValue& tileSetValue = gameMap.getMeshForTile(&curTile);
     bool isCustomMesh = false;
     if(meshName.empty())
     {
         // We compute the mesh
         meshName = tileSetValue.getMeshName();
-        scale = curTile->getGameMap()->getTileSetScale();
+        scale = gameMap.getTileSetScale();
     }
     else
     {
         //Tile has a covering building.
         isCustomMesh = true;
-        scale = curTile->getScale();
+        scale = curTile.getScale();
     }
 
     bool newMesh = false;
@@ -290,36 +290,36 @@ void RenderManager::rrRefreshTile(const Tile* curTile, const Player* localPlayer
         // On client side, the seat is set only when the tile is claimed. So, if the
         // seat is not nullptr, we are sure it is fully claimed and we can colorize
         // the tile
-        seatColorize = curTile->getSeat();
+        seatColorize = curTile.getSeat();
     }
 
     // We only mark vision on ground tiles (except lava and water)
     bool vision = true;
-    switch(curTile->getTileVisual())
+    switch(curTile.getTileVisual())
     {
         case TileVisual::claimedGround:
         case TileVisual::dirtGround:
         case TileVisual::goldGround:
         case TileVisual::rockGround:
-            vision = curTile->getLocalPlayerHasVision();
+            vision = curTile.getLocalPlayerHasVision();
             break;
         default:
             break;
     }
 
-    bool isMarked = curTile->getMarkedForDigging(localPlayer);
+    bool isMarked = curTile.getMarkedForDigging(&localPlayer);
     colourizeEntity(ent, seatColorize, isMarked, vision);
 }
 
-void RenderManager::rrCreateTile(Tile* curTile, Player* localPlayer)
+void RenderManager::rrCreateTile(Tile& curTile, const GameMap& gameMap, const Player& localPlayer)
 {
-    std::string tileName = curTile->getOgreNamePrefix() + curTile->getName();
+    std::string tileName = curTile.getOgreNamePrefix() + curTile.getName();
     Ogre::SceneNode* node = mSceneManager->getRootSceneNode()->createChildSceneNode(tileName + "_node");
-    curTile->setParentSceneNode(node->getParentSceneNode());
-    curTile->setEntityNode(node);
-    node->setPosition(static_cast<Ogre::Real>(curTile->getX()), static_cast<Ogre::Real>(curTile->getY()), 0);
+    curTile.setParentSceneNode(node->getParentSceneNode());
+    curTile.setEntityNode(node);
+    node->setPosition(static_cast<Ogre::Real>(curTile.getX()), static_cast<Ogre::Real>(curTile.getY()), 0);
 
-    rrRefreshTile(curTile, localPlayer);
+    rrRefreshTile(curTile, gameMap, localPlayer);
 }
 
 void RenderManager::rrDestroyTile(Tile* curTile)

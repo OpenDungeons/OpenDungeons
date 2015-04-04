@@ -20,8 +20,10 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GAMEENTITY_H_
-#define GAMEENTITY_H_
+#ifndef GAMEENTITY_H
+#define GAMEENTITY_H
+
+#include "entities/EntityBase.h"
 
 #include <OgreVector3.h>
 #include <cassert>
@@ -41,31 +43,6 @@ class Player;
 class Seat;
 class Tile;
 
-enum class GameEntityType
-{
-    unknown,
-    creature,
-    room,
-    trap,
-    tile,
-    mapLight,
-    spell,
-    buildingObject,
-    treasuryObject,
-    chickenEntity,
-    smallSpiderEntity,
-    craftedTrap,
-    missileObject,
-    persistentObject,
-    trapEntity,
-    researchEntity
-};
-
-ODPacket& operator<<(ODPacket& os, const GameEntityType& type);
-ODPacket& operator>>(ODPacket& is, GameEntityType& type);
-std::ostream& operator<<(std::ostream& os, const GameEntityType& type);
-std::istream& operator>>(std::istream& is, GameEntityType& type);
-
 //! This enum is used to know how carryable entities should be prioritized from lowest
 //! to highest
 enum class EntityCarryType
@@ -84,7 +61,7 @@ enum class EntityCarryType
  * and initialised with a good default value in the default constructor.
  * Member variables are private and only accessed through getters and setters.
  */
-class GameEntity
+class GameEntity : public EntityBase
 {
   public:
     //! \brief Default constructor with default values
@@ -94,16 +71,9 @@ class GameEntity
           std::string     meshName   = std::string(),
           Seat*           seat        = nullptr
           ) :
-    mPosition          (Ogre::Vector3::ZERO),
-    mName              (name),
-    mMeshName          (meshName),
-    mMeshExists        (false),
-    mSeat              (seat),
-    mIsDeleteRequested (false),
+    EntityBase(name, meshName, seat),
     mGameMap           (gameMap),
-    mIsOnMap           (true),
-    mParentSceneNode   (nullptr),
-    mEntityNode        (nullptr)
+    mIsOnMap           (true)
     {
         assert(mGameMap != nullptr);
     }
@@ -111,81 +81,16 @@ class GameEntity
     virtual ~GameEntity() {}
 
     // ===== GETTERS =====
-    std::string getOgreNamePrefix() const;
-
-    //! \brief Get the name of the object
-    inline const std::string& getName() const
-    { return mName; }
-
-    //! \brief Get the mesh name of the object
-    inline const std::string& getMeshName() const
-    { return mMeshName; }
-
-    //! \brief Get the seat that the object belongs to
-    inline Seat* getSeat() const
-    { return mSeat; }
-
-    //! \brief Get if the mesh is already existing
-    inline bool isMeshExisting() const
-    { return mMeshExists; }
 
     //! \brief Get if the object can be attacked or not
     virtual bool isAttackable(Tile* tile, Seat* seat) const
     { return false; }
 
-    //! \brief Get the type of this object
-    virtual GameEntityType getObjectType() const = 0;
-
     //! \brief Pointer to the GameMap
     inline GameMap* getGameMap() const
     { return mGameMap; }
 
-    virtual const Ogre::Vector3& getPosition() const
-    { return mPosition; }
-
-    inline Ogre::SceneNode* getParentSceneNode() const
-    { return mParentSceneNode; }
-
-    inline Ogre::SceneNode* getEntityNode() const
-    { return mEntityNode; }
-
-    virtual const Ogre::Vector3& getScale() const
-    { return Ogre::Vector3::UNIT_SCALE; }
-
-    // ===== SETTERS =====
-    //! \brief Set the name of the entity
-    inline void setName(const std::string& name)
-    { mName = name; }
-
-    //! \brief Set the name of the mesh file
-    inline void setMeshName(const std::string& meshName)
-    { mMeshName = meshName; }
-
-    //! \brief Sets the seat this object belongs to
-    inline void setSeat(Seat* seat)
-    { mSeat = seat; }
-
-    //! \brief Set if the mesh exists
-    inline void setMeshExisting(bool isExisting)
-    { mMeshExists = isExisting; }
-
-    //! \brief Set the new entity position. If isMove is true, that means that the entity was
-    //! already on map and is moving. If false, it means that the entity was not on map (for example
-    //! if being dropped or created).
-    virtual void setPosition(const Ogre::Vector3& v, bool isMove)
-    { mPosition = v; }
-
-    inline void setParentSceneNode(Ogre::SceneNode* sceneNode)
-    { mParentSceneNode = sceneNode; }
-
-    inline void setEntityNode(Ogre::SceneNode* sceneNode)
-    { mEntityNode = sceneNode; }
-
     // ===== METHODS =====
-    //! \brief Function that calls the mesh creation. If the mesh is already created, does nothing
-    void createMesh();
-    //! \brief Function that calls the mesh destruction. If the mesh is not created, does nothing
-    void destroyMesh();
     //! \brief Function that schedules the object destruction. This function should not be called twice
     void deleteYourself();
 
@@ -223,23 +128,6 @@ class GameEntity
     virtual void setIsOnMap(bool isOnMap)
     { mIsOnMap = isOnMap; }
 
-    //! \brief Called when the stat windows is displayed
-    virtual bool canDisplayStatsWindow(Seat* seat)
-    { return false; }
-    virtual void createStatsWindow()
-    {}
-
-    //! \brief Called when the entity is being slapped
-    virtual bool canSlap(Seat* seat)
-    { return false; }
-    virtual void slap()
-    {}
-
-    //! \brief Called when the entity is being picked up /dropped
-    virtual bool tryPickup(Seat* seat)
-    { return false; }
-    virtual void pickup()
-    {}
     virtual bool tryDrop(Seat* seat, Tile* tile)
     { return false; }
     virtual void drop(const Ogre::Vector3& v)
@@ -289,6 +177,8 @@ class GameEntity
     virtual void restoreInitialEntityState()
     {}
 
+    static std::string getGameEntityStreamFormat();
+
     /*! \brief Exports the headers needed to recreate the GameEntity. For example, for missile objects
      * type cannon, it exports GameEntityType::missileObject and MissileType::oneHit. The content of the
      * GameEntityType will be exported by exportToPacket. exportHeadersTo* should export the needed information
@@ -307,21 +197,7 @@ class GameEntity
     virtual void importFromStream(std::istream& is);
     virtual void exportToPacket(ODPacket& os) const;
     virtual void importFromPacket(ODPacket& is);
-
-    static GameEntity* getGameEntityeEntityFromStream(GameMap* gameMap, GameEntityType type, std::istream& is);
-    static GameEntity* getGameEntityFromPacket(GameMap* gameMap, ODPacket& is);
-
-    static std::string getGameEntityStreamFormat();
-
   protected:
-    //! \brief Function that implements the mesh creation
-    virtual void createMeshLocal() {};
-
-    //! \brief Function that implements the mesh deletion
-    virtual void destroyMeshLocal() {};
-
-    //! \brief The position of this object
-    Ogre::Vector3 mPosition;
 
     //! \brief Called while moving the entity to add it to the tile it gets on
     virtual bool addEntityToTile(Tile* tile);
@@ -336,34 +212,12 @@ class GameEntity
     std::vector<Seat*> mSeatsWithVisionNotified;
 
   private:
-    //! brief The name of the entity
-    std::string mName;
-
-    //! \brief The name of the mesh
-    std::string mMeshName;
-
-    //! \brief Stores the existence state of the mesh
-    bool mMeshExists;
-
-    //! \brief The seat that the object belongs to
-    Seat* mSeat;
-
-    //! \brief A flag saying whether the object has been requested to delete
-    bool mIsDeleteRequested;
-
     //! \brief Pointer to the GameMap object.
     GameMap* mGameMap;
 
     //! \brief Whether the entity is on map or not (for example, when it is
     //! picked up, it is not on map)
     bool mIsOnMap;
-
-    //! Used by the renderer to save the scene node this entity belongs to. This is useful
-    //! when the entity is removed from the scene (during pickup for example)
-    Ogre::SceneNode* mParentSceneNode;
-
-    //! Used by the renderer to save this entity's node
-    Ogre::SceneNode* mEntityNode;
 };
 
-#endif // GAMEENTITY_H_
+#endif // GAMEENTITY_H

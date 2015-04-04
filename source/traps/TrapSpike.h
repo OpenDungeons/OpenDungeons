@@ -19,6 +19,7 @@
 #define TRAPSPIKE_H
 
 #include "Trap.h"
+#include "traps/TrapType.h"
 
 class TrapSpike : public Trap
 {

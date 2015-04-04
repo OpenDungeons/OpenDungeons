@@ -32,11 +32,6 @@ class Research;
 class Seat;
 class Tile;
 
-enum class SpellType;
-enum class RoomType;
-enum class TrapType;
-enum class ResearchType;
-
 enum class PlayerEventType
 {
     nullType,
@@ -96,18 +91,6 @@ class Player
 {
     friend class Seat;
 public:
-    enum SelectedAction
-    {
-        none,
-        buildRoom,
-        buildTrap,
-        castSpell,
-        changeTile,
-        selectTile,
-        destroyRoom,
-        destroyTrap
-    };
-
     enum class Direction
     {
         left = -1,
@@ -171,31 +154,8 @@ public:
     inline const std::vector<GameEntity*>& getObjectsInHand()
     { return mObjectsInHand; }
 
-    inline const RoomType getNewRoomType()
-    { return mNewRoomType; }
-
-    inline const SelectedAction getCurrentAction()
-    { return mCurrentAction; }
-
-    inline void setNewRoomType(RoomType newRoomType)
-    { mNewRoomType = newRoomType; }
-
-    inline const TrapType getNewTrapType() const
-    { return mNewTrapType; }
-
-    inline void setNewTrapType(TrapType newTrapType)
-    { mNewTrapType = newTrapType; }
-
-    inline const SpellType getNewSpellType() const
-    { return mNewSpellType; }
-
-    inline void setNewSpellType(SpellType newSpellType)
-    { mNewSpellType = newSpellType; }
-
     inline bool getHasLost() const
     { return mHasLost; }
-
-    void setCurrentAction(SelectedAction action);
 
     //! \brief Notify the player is fighting
     //! Should be called on the server game map for human players only. tile represents
@@ -231,11 +191,6 @@ private:
     //! every AI player has an id = 0.
     //! ID is unique only for human players
     int32_t mId;
-    //! \brief Room, trap or Spell tile type the player is currently willing to place on map.
-    RoomType mNewRoomType;
-    TrapType mNewTrapType;
-    SpellType mNewSpellType;
-    SelectedAction mCurrentAction;
 
     GameMap* mGameMap;
     Seat *mSeat;

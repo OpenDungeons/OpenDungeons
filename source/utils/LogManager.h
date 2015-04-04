@@ -55,4 +55,9 @@ private:
     LogManager& operator=(const LogManager&) = delete;
 };
 
+inline void OD_LOG_MESSAGE(const std::string& message)
+{
+    LogManager::getSingleton().logMessage(message);
+}
+
 #endif // LOGMANAGER_H

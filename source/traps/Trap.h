@@ -18,6 +18,8 @@
 #ifndef TRAP_H
 #define TRAP_H
 
+#include "entities/Building.h"
+
 #include <string>
 #include <vector>
 #include <iosfwd>
@@ -32,20 +34,8 @@ class TrapEntity;
 class RenderedMovableEntity;
 class ODPacket;
 
-#include "entities/Building.h"
+enum class TrapType;
 
-enum class TrapType
-{
-    nullTrapType = 0,
-    cannon,
-    spike,
-    boulder
-};
-
-std::istream& operator>>(std::istream& is, TrapType& tt);
-std::ostream& operator<<(std::ostream& os, const TrapType& tt);
-ODPacket& operator>>(ODPacket& is, TrapType& tt);
-ODPacket& operator<<(ODPacket& os, const TrapType& tt);
 
 //! \brief A small class telling whether a trap tile is activated.
 class TrapTileData : public TileData
@@ -177,8 +167,6 @@ public:
     static Trap* getTrapFromStream(GameMap* gameMap, std::istream &is);
 
     virtual const TrapType getType() const = 0;
-
-    static std::string getTrapNameFromTrapType(TrapType t);
 
     static int costPerTile(TrapType t);
 

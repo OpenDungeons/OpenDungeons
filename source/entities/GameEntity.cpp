@@ -22,19 +22,7 @@
 
 #include "entities/GameEntity.h"
 
-#include "entities/BuildingObject.h"
-#include "entities/ChickenEntity.h"
-#include "entities/CraftedTrap.h"
-#include "entities/Creature.h"
-#include "entities/MapLight.h"
-#include "entities/MissileObject.h"
-#include "entities/PersistentObject.h"
-#include "entities/RenderedMovableEntity.h"
-#include "entities/ResearchEntity.h"
-#include "entities/SmallSpiderEntity.h"
 #include "entities/Tile.h"
-#include "entities/TrapEntity.h"
-#include "entities/TreasuryObject.h"
 
 #include "game/Player.h"
 #include "game/Seat.h"
@@ -44,30 +32,8 @@
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
 
-#include "render/RenderManager.h"
-#include "rooms/Room.h"
-#include "spell/Spell.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
-
-void GameEntity::createMesh()
-{
-    if (mMeshExists)
-        return;
-
-    mMeshExists = true;
-    createMeshLocal();
-}
-
-void GameEntity::destroyMesh()
-{
-    if(!mMeshExists)
-        return;
-
-    mMeshExists = false;
-
-    destroyMeshLocal();
-}
 
 void GameEntity::deleteYourself()
 {
@@ -265,6 +231,12 @@ void GameEntity::fireRemoveEntityToSeatsWithVision()
     mSeatsWithVisionNotified.clear();
 }
 
+std::string GameEntity::getGameEntityStreamFormat()
+{
+    return "SeatId\tName\tMeshName\tPosX\tPosY\tPosZ";
+}
+
+
 void GameEntity::exportHeadersToStream(std::ostream& os) const
 {
     // GameEntity are saved in the level file per type. For this reason, there is no
@@ -324,208 +296,4 @@ void GameEntity::importFromStream(std::istream& is)
     OD_ASSERT_TRUE(is >> mPosition.x >> mPosition.y >> mPosition.z);
 }
 
-std::string GameEntity::getGameEntityStreamFormat()
-{
-    return "SeatId\tName\tMeshName\tPosX\tPosY\tPosZ";
-}
 
-GameEntity* GameEntity::getGameEntityeEntityFromStream(GameMap* gameMap, GameEntityType type, std::istream& is)
-{
-    GameEntity* entity = nullptr;
-    switch(type)
-    {
-        case GameEntityType::buildingObject:
-        {
-            // Building objects are not stored in level files, we should not be here
-            OD_ASSERT_TRUE(false);
-            break;
-        }
-        case GameEntityType::chickenEntity:
-        {
-            entity = ChickenEntity::getChickenEntityFromStream(gameMap, is);
-            break;
-        }
-        case GameEntityType::craftedTrap:
-        {
-            entity = CraftedTrap::getCraftedTrapFromStream(gameMap, is);
-            break;
-        }
-        case GameEntityType::creature:
-        {
-            entity = Creature::getCreatureFromStream(gameMap, is);
-            break;
-        }
-        case GameEntityType::mapLight:
-        {
-            entity = MapLight::getMapLightFromStream(gameMap, is);
-            break;
-        }
-        case GameEntityType::missileObject:
-        {
-            entity = MissileObject::getMissileObjectFromStream(gameMap, is);
-            break;
-        }
-        case GameEntityType::persistentObject:
-        {
-            // Persistent objects are not stored in level files, we should not be here
-            OD_ASSERT_TRUE(false);
-            break;
-        }
-        case GameEntityType::smallSpiderEntity:
-        {
-            // Small spiders are not stored in level files, we should not be here
-            OD_ASSERT_TRUE(false);
-            break;
-        }
-        case GameEntityType::spell:
-        {
-            entity = Spell::getSpellFromStream(gameMap, is);
-            break;
-        }
-        case GameEntityType::trapEntity:
-        {
-            // Trap entities are handled by the trap
-            OD_ASSERT_TRUE(false);
-            break;
-        }
-        case GameEntityType::treasuryObject:
-        {
-            entity = TreasuryObject::getTreasuryObjectFromStream(gameMap, is);
-            break;
-        }
-        case GameEntityType::researchEntity:
-        {
-            entity = ResearchEntity::getResearchEntityFromStream(gameMap, is);
-            break;
-        }
-        default:
-        {
-            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Helper::toString(
-                static_cast<int>(type)));
-            break;
-        }
-    }
-
-    OD_ASSERT_TRUE(entity != nullptr);
-    if(entity == nullptr)
-        return nullptr;
-
-    entity->importFromStream(is);
-    return entity;
-}
-
-GameEntity* GameEntity::getGameEntityFromPacket(GameMap* gameMap, ODPacket& is)
-{
-    GameEntity* entity = nullptr;
-    GameEntityType type;
-    OD_ASSERT_TRUE(is >> type);
-    switch(type)
-    {
-        case GameEntityType::buildingObject:
-        {
-            entity = BuildingObject::getBuildingObjectFromPacket(gameMap, is);
-            break;
-        }
-        case GameEntityType::chickenEntity:
-        {
-            entity = ChickenEntity::getChickenEntityFromPacket(gameMap, is);
-            break;
-        }
-        case GameEntityType::craftedTrap:
-        {
-            entity = CraftedTrap::getCraftedTrapFromPacket(gameMap, is);
-            break;
-        }
-        case GameEntityType::creature:
-        {
-            entity = Creature::getCreatureFromPacket(gameMap, is);
-            break;
-        }
-        case GameEntityType::mapLight:
-        {
-            entity = MapLight::getMapLightFromPacket(gameMap, is);
-            break;
-        }
-        case GameEntityType::missileObject:
-        {
-            entity = MissileObject::getMissileObjectFromPacket(gameMap, is);
-            break;
-        }
-        case GameEntityType::persistentObject:
-        {
-            entity = PersistentObject::getPersistentObjectFromPacket(gameMap, is);
-            break;
-        }
-        case GameEntityType::smallSpiderEntity:
-        {
-            entity = SmallSpiderEntity::getSmallSpiderEntityFromPacket(gameMap, is);
-            break;
-        }
-        case GameEntityType::spell:
-        {
-            entity = Spell::getSpellFromPacket(gameMap, is);
-            break;
-        }
-        case GameEntityType::trapEntity:
-        {
-            entity = TrapEntity::getTrapEntityFromPacket(gameMap, is);
-            break;
-        }
-        case GameEntityType::treasuryObject:
-        {
-            entity = TreasuryObject::getTreasuryObjectFromPacket(gameMap, is);
-            break;
-        }
-        case GameEntityType::researchEntity:
-        {
-            entity = ResearchEntity::getResearchEntityFromPacket(gameMap, is);
-            break;
-        }
-        default:
-        {
-            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Helper::toString(
-                static_cast<int>(type)));
-            break;
-        }
-    }
-
-    OD_ASSERT_TRUE(entity != nullptr);
-    if(entity == nullptr)
-        return nullptr;
-
-    entity->importFromPacket(is);
-    return entity;
-}
-
-std::string GameEntity::getOgreNamePrefix() const
-{
-    return Helper::toString(static_cast<int32_t>(getObjectType())) + "-";
-}
-
-ODPacket& operator<<(ODPacket& os, const GameEntityType& type)
-{
-    os << static_cast<int32_t>(type);
-    return os;
-}
-
-ODPacket& operator>>(ODPacket& is, GameEntityType& type)
-{
-    int32_t tmp;
-    OD_ASSERT_TRUE(is >> tmp);
-    type = static_cast<GameEntityType>(tmp);
-    return is;
-}
-
-std::ostream& operator<<(std::ostream& os, const GameEntityType& type)
-{
-    os << static_cast<int32_t>(type);
-    return os;
-}
-
-std::istream& operator>>(std::istream& is, GameEntityType& type)
-{
-    int32_t tmp;
-    OD_ASSERT_TRUE(is >> tmp);
-    type = static_cast<GameEntityType>(tmp);
-    return is;
-}

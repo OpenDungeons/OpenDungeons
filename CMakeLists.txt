@@ -260,7 +260,10 @@ set(OD_SOURCEFILES
     ${SRC}/entities/CreatureAction.cpp
     ${SRC}/entities/CreatureDefinition.cpp
     ${SRC}/entities/CreatureSound.cpp
+    ${SRC}/entities/EntityBase.cpp
+    ${SRC}/entities/EntityLoading.cpp
     ${SRC}/entities/GameEntity.cpp
+    ${SRC}/entities/GameEntityType.cpp
     ${SRC}/entities/MapLight.cpp
     ${SRC}/entities/MissileBoulder.cpp
     ${SRC}/entities/MissileObject.cpp
@@ -271,13 +274,17 @@ set(OD_SOURCEFILES
     ${SRC}/entities/ResearchEntity.cpp
     ${SRC}/entities/SmallSpiderEntity.cpp
     ${SRC}/entities/Tile.cpp
+    ${SRC}/entities/TileFunctions.cpp
     ${SRC}/entities/TrapEntity.cpp
     ${SRC}/entities/TreasuryObject.cpp
     ${SRC}/entities/Weapon.cpp
 
     ${SRC}/game/Player.cpp
+    ${SRC}/game/PlayerFunctions.cpp
+    ${SRC}/game/PlayerSelection.cpp
     ${SRC}/game/Research.cpp
     ${SRC}/game/Seat.cpp
+    ${SRC}/game/SeatFunctions.cpp
     ${SRC}/game/Spell.cpp
 
     ${SRC}/gamemap/GameMap.cpp
@@ -353,11 +360,13 @@ set(OD_SOURCEFILES
     ${SRC}/spell/Spell.cpp
     ${SRC}/spell/SpellCallToWar.cpp
     ${SRC}/spell/SpellSummonWorker.cpp
+    ${SRC}/spell/SpellType.cpp
 
     ${SRC}/traps/Trap.cpp
     ${SRC}/traps/TrapBoulder.cpp
     ${SRC}/traps/TrapCannon.cpp
     ${SRC}/traps/TrapSpike.cpp
+    ${SRC}/traps/TrapType.cpp
 
     ${SRC}/utils/ConfigManager.cpp
     ${SRC}/utils/FrameRateLimiter.cpp

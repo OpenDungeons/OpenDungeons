@@ -36,10 +36,12 @@
 #include "sound/MusicPlayer.h"
 #include "sound/SoundEffectsManager.h"
 #include "spell/Spell.h"
+#include "spell/SpellType.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/ResourceManager.h"
 #include "traps/Trap.h"
+#include "traps/TrapType.h"
 
 #include <CEGUI/WindowManager.h>
 #include <CEGUI/widgets/PushButton.h>
@@ -60,12 +62,12 @@ namespace
     public:
         bool operator()(const CEGUI::EventArgs& e)
         {
-            gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::castSpell);
-            gameMap->getLocalPlayer()->setNewSpellType(spellType);
+            playerSelection.setCurrentAction(SelectedAction::castSpell);
+            playerSelection.setNewSpellType(spellType);
             return true;
         }
         SpellType spellType;
-        GameMap* gameMap;
+        PlayerSelection& playerSelection;
     };
 }
 //! \brief Colors used by the room/trap/spell text overlay
@@ -303,15 +305,15 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
     // If we have a room or trap (or later spell) selected, show what we have selected
     // TODO: This should be changed, or combined with an icon or something later.
     Player* player = mGameMap->getLocalPlayer();
-    if (player->getCurrentAction() != Player::SelectedAction::none)
+    if (mPlayerSelection.getCurrentAction() != SelectedAction::none)
     {
         TextRenderer& textRenderer = TextRenderer::getSingleton();
         textRenderer.moveText(ODApplication::POINTER_INFO_STRING,
             static_cast<Ogre::Real>(arg.state.X.abs + 30), static_cast<Ogre::Real>(arg.state.Y.abs));
 
-        switch(player->getCurrentAction())
+        switch(mPlayerSelection.getCurrentAction())
         {
-            case Player::SelectedAction::buildRoom:
+            case SelectedAction::buildRoom:
             {
                 int nbTile = 1;
                 // If the player is dragging to build, we display the total price the room/trap will cost.
@@ -324,7 +326,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 }
 
                 int gold = player->getSeat()->getGold();
-                RoomType selectedRoomType = player->getNewRoomType();
+                RoomType selectedRoomType = mPlayerSelection.getNewRoomType();
                 int price = Room::costPerTile(selectedRoomType) * nbTile;
 
                 // Check whether the room type is the first treasury tile.
@@ -339,7 +341,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                     + " [" + Ogre::StringConverter::toString(price)+ "]");
                 break;
             }
-            case Player::SelectedAction::buildTrap:
+            case SelectedAction::buildTrap:
             {
                 int nbTile = 1;
                 // If the player is dragging to build, we display the total price the room/trap will cost.
@@ -352,15 +354,15 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 }
 
                 int gold = player->getSeat()->getGold();
-                TrapType selectedTrapType = player->getNewTrapType();
+                TrapType selectedTrapType = mPlayerSelection.getNewTrapType();
                 int price = Trap::costPerTile(selectedTrapType) * nbTile;
                 const Ogre::ColourValue& textColor = (gold < price) ? red : white;
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
-                textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Trap::getTrapNameFromTrapType(selectedTrapType))
+                textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Traps::getTrapNameFromTrapType(selectedTrapType))
                     + " [" + Ogre::StringConverter::toString(price)+ "]");
                 break;
             }
-            case Player::SelectedAction::castSpell:
+            case SelectedAction::castSpell:
             {
                 // If the player is dragging to build, we display the total price the room/trap will cost.
                 // If he is not, we display the price for 1 tile.
@@ -378,7 +380,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 }
 
                 int mana = player->getSeat()->getMana();
-                SpellType selectedSpellType = player->getNewSpellType();
+                SpellType selectedSpellType = mPlayerSelection.getNewSpellType();
                 int price = Spell::getSpellCost(mGameMap, selectedSpellType, tiles, player);
                 const Ogre::ColourValue& textColor = (mana < price) ? red : white;
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
@@ -386,7 +388,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                     + " [" + Ogre::StringConverter::toString(price)+ "]");
                 break;
             }
-            case Player::SelectedAction::destroyRoom:
+            case SelectedAction::destroyRoom:
             {
                 int goldRetrieved = 0;
                 std::vector<Tile*> tiles;
@@ -410,7 +412,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                     + Ogre::StringConverter::toString(goldRetrieved)+ "]");
                 break;
             }
-            case Player::SelectedAction::destroyTrap:
+            case SelectedAction::destroyTrap:
             {
                 int goldRetrieved = 0;
                 std::vector<Tile*> tiles;
@@ -455,8 +457,8 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
         // Check to see if the current query result is a tile.
         std::string resultName = itr->movable->getName();
 
-        GameEntity* entity = getEntityFromOgreName(resultName);
-        if((player->getCurrentAction() == Player::SelectedAction::none) &&
+        EntityBase* entity = getEntityFromOgreName(resultName);
+        if((mPlayerSelection.getCurrentAction() == SelectedAction::none) &&
            (entity != nullptr) &&
            (entity->getObjectType() == GameEntityType::creature))
         {
@@ -493,7 +495,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
     }
 
     // If we don't drag anything, there is no affected tiles to compute.
-    if (!inputManager->mLMouseDown || player->getCurrentAction() == Player::SelectedAction::none)
+    if (!inputManager->mLMouseDown || mPlayerSelection.getCurrentAction() == SelectedAction::none)
         return true;
 
     // COmpute selected tiles
@@ -605,7 +607,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
 
             std::string resultName = itr->movable->getName();
 
-            GameEntity* entity = getEntityFromOgreName(resultName);
+            EntityBase* entity = getEntityFromOgreName(resultName);
             if (entity == nullptr || !entity->canDisplayStatsWindow(mGameMap->getLocalPlayer()->getSeat()))
                 continue;
 
@@ -625,7 +627,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
         inputManager->mRStartDragY = inputManager->mYPos;
 
         // Stop creating rooms, traps, etc.
-        mGameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::none);
+        mPlayerSelection.setCurrentAction(SelectedAction::none);
         TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "");
 
         if(mGameMap->getLocalPlayer()->numObjectsInHand() > 0)
@@ -660,7 +662,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
 
                 std::string resultName = itr->movable->getName();
 
-                GameEntity* entity = getEntityFromOgreName(resultName);
+                EntityBase* entity = getEntityFromOgreName(resultName);
                 if (entity == nullptr || !entity->canSlap(mGameMap->getLocalPlayer()->getSeat()))
                     continue;
 
@@ -689,11 +691,13 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
 
     // Check whether the player is already placing rooms or traps.
     bool skipPickUp = false;
-    Player* player = mGameMap->getLocalPlayer();
-    if (player && (player->getCurrentAction() != Player::SelectedAction::none))
+    if (mPlayerSelection.getCurrentAction() != SelectedAction::none)
     {
         skipPickUp = true;
     }
+
+    Player* player = mGameMap->getLocalPlayer();
+    OD_ASSERT_TRUE_MSG(player, "LOCAL PLAYER DOES NOT EXIST!!");
 
     // See if the mouse is over any creatures
     for (;itr != result.end(); ++itr)
@@ -708,7 +712,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
 
         std::string resultName = itr->movable->getName();
 
-        GameEntity* entity = getEntityFromOgreName(resultName);
+        EntityBase* entity = getEntityFromOgreName(resultName);
         if (entity == nullptr || !entity->tryPickup(player->getSeat()))
             continue;
 
@@ -726,7 +730,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
     }
 
     // If we are doing nothing and we click on a tile, it is a tile selection
-    if(player->getCurrentAction() == Player::SelectedAction::none)
+    if(mPlayerSelection.getCurrentAction() == SelectedAction::none)
     {
         for (itr = result.begin(); itr != result.end(); ++itr)
         {
@@ -735,7 +739,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
 
             std::string resultName = itr->movable->getName();
 
-            GameEntity* entity = getEntityFromOgreName(resultName);
+            EntityBase* entity = getEntityFromOgreName(resultName);
             // Checks which tile we are on (if any)
             if((entity == nullptr) ||
                (entity->getObjectType() != GameEntityType::tile))
@@ -743,7 +747,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
                 continue;
             }
 
-            player->setCurrentAction(Player::SelectedAction::selectTile);
+            mPlayerSelection.setCurrentAction(SelectedAction::selectTile);
             break;
         }
     }
@@ -794,9 +798,9 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     inputManager->mLMouseDown = false;
 
     // On the client:  Inform the server about what we are doing
-    switch(mGameMap->getLocalPlayer()->getCurrentAction())
+    switch(mPlayerSelection.getCurrentAction())
     {
-        case Player::SelectedAction::selectTile:
+        case SelectedAction::selectTile:
         {
             ClientNotification *clientNotification = new ClientNotification(
                 ClientNotificationType::askMarkTiles);
@@ -804,40 +808,40 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
             clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
             clientNotification->mPacket << mDigSetBool;
             ODClient::getSingleton().queueClientNotification(clientNotification);
-            mGameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::none);
+            mPlayerSelection.setCurrentAction(SelectedAction::none);
             break;
         }
-        case Player::SelectedAction::buildRoom:
+        case SelectedAction::buildRoom:
         {
             ClientNotification *clientNotification = new ClientNotification(
                 ClientNotificationType::askBuildRoom);
             clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
             clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
-            clientNotification->mPacket << mGameMap->getLocalPlayer()->getNewRoomType();
+            clientNotification->mPacket << mPlayerSelection.getNewRoomType();
             ODClient::getSingleton().queueClientNotification(clientNotification);
             break;
         }
-        case Player::SelectedAction::buildTrap:
+        case SelectedAction::buildTrap:
         {
             ClientNotification *clientNotification = new ClientNotification(
                 ClientNotificationType::askBuildTrap);
             clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
             clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
-            clientNotification->mPacket << mGameMap->getLocalPlayer()->getNewTrapType();
+            clientNotification->mPacket << mPlayerSelection.getNewTrapType();
             ODClient::getSingleton().queueClientNotification(clientNotification);
             break;
         }
-        case Player::SelectedAction::castSpell:
+        case SelectedAction::castSpell:
         {
             ClientNotification *clientNotification = new ClientNotification(
                 ClientNotificationType::askCastSpell);
             clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
             clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
-            clientNotification->mPacket << mGameMap->getLocalPlayer()->getNewSpellType();
+            clientNotification->mPacket << mPlayerSelection.getNewSpellType();
             ODClient::getSingleton().queueClientNotification(clientNotification);
             break;
         }
-        case Player::SelectedAction::destroyRoom:
+        case SelectedAction::destroyRoom:
         {
             ClientNotification *clientNotification = new ClientNotification(
                 ClientNotificationType::askSellRoomTiles);
@@ -846,7 +850,7 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
             ODClient::getSingleton().queueClientNotification(clientNotification);
             break;
         }
-        case Player::SelectedAction::destroyTrap:
+        case SelectedAction::destroyTrap:
         {
             ClientNotification *clientNotification = new ClientNotification(
                 ClientNotificationType::askSellTrapTiles);
@@ -1544,7 +1548,7 @@ void GameMode::connectSpellSelect(const std::string& buttonName, SpellType spell
     addEventConnection(
         mRootWindow->getChild(buttonName)->subscribeEvent(
           CEGUI::PushButton::EventClicked,
-          CEGUI::Event::Subscriber(SpellSelector{spellType, mGameMap})
+          CEGUI::Event::Subscriber(SpellSelector{spellType, mPlayerSelection})
         )
     );
 }

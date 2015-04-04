@@ -29,6 +29,7 @@
 #include "traps/TrapCannon.h"
 #include "traps/TrapSpike.h"
 #include "traps/TrapBoulder.h"
+#include "traps/TrapType.h"
 #include "utils/Random.h"
 #include "game/Player.h"
 #include "utils/ConfigManager.h"
@@ -78,27 +79,6 @@ Trap* Trap::getTrapFromStream(GameMap* gameMap, std::istream &is)
     tempTrap->importFromStream(is);
 
     return tempTrap;
-}
-
-std::string Trap::getTrapNameFromTrapType(TrapType t)
-{
-    switch (t)
-    {
-        case TrapType::nullTrapType:
-            return "NullTrapType";
-
-        case TrapType::cannon:
-            return "Cannon";
-
-        case TrapType::spike:
-            return "Spike";
-
-        case TrapType::boulder:
-            return "Boulder";
-
-        default:
-            return "UnknownTrapType enum=" + Helper::toString(static_cast<int>(t));
-    }
 }
 
 int Trap::costPerTile(TrapType t)
@@ -661,34 +641,4 @@ void Trap::claimForSeat(Seat* seat, Tile* tile, double danceRate)
 
     trapTileData->mHP = 0.0;
     tile->claimTile(seat);
-}
-
-std::istream& operator>>(std::istream& is, TrapType& tt)
-{
-    uint32_t tmp;
-    is >> tmp;
-    tt = static_cast<TrapType>(tmp);
-    return is;
-}
-
-std::ostream& operator<<(std::ostream& os, const TrapType& tt)
-{
-    uint32_t tmp = static_cast<uint32_t>(tt);
-    os << tmp;
-    return os;
-}
-
-ODPacket& operator>>(ODPacket& is, TrapType& tt)
-{
-    uint32_t tmp;
-    is >> tmp;
-    tt = static_cast<TrapType>(tmp);
-    return is;
-}
-
-ODPacket& operator<<(ODPacket& os, const TrapType& tt)
-{
-    uint32_t tmp = static_cast<uint32_t>(tt);
-    os << tmp;
-    return os;
 }

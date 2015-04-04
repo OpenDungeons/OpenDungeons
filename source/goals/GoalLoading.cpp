@@ -111,17 +111,17 @@ std::ostream& operator<<(std::ostream& os, Goal &g)
     subGoals = g.numSuccessSubGoals();
     if (subGoals > 0)
     {
-      os << "+ " << subGoals << "\n";
-      for (unsigned int i = 0; i < subGoals; ++i)
-        os << g.getSuccessSubGoal(i);
+        os << "+ " << subGoals << "\n";
+        for (unsigned int i = 0; i < subGoals; ++i)
+            os << *g.getSuccessSubGoal(i);
     }
 
     subGoals = g.numFailureSubGoals();
     if (subGoals > 0)
     {
-      os << "- " << subGoals << "\n";
-      for (unsigned int i = 0; i < subGoals; ++i)
-        os << g.getFailureSubGoal(i);
+        os << "- " << subGoals << "\n";
+        for (unsigned int i = 0; i < subGoals; ++i)
+            os << *g.getFailureSubGoal(i);
     }
 
     return os;

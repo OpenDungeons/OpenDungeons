@@ -28,6 +28,7 @@
 
 #include "spell/SpellSummonWorker.h"
 #include "spell/SpellCallToWar.h"
+#include "spell/SpellType.h"
 
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
@@ -295,34 +296,4 @@ void Spell::exportHeadersToPacket(ODPacket& os) const
 {
     RenderedMovableEntity::exportHeadersToPacket(os);
     os << getSpellType();
-}
-
-std::istream& operator>>(std::istream& is, SpellType& tt)
-{
-    uint32_t tmp;
-    is >> tmp;
-    tt = static_cast<SpellType>(tmp);
-    return is;
-}
-
-std::ostream& operator<<(std::ostream& os, const SpellType& tt)
-{
-    uint32_t tmp = static_cast<uint32_t>(tt);
-    os << tmp;
-    return os;
-}
-
-ODPacket& operator>>(ODPacket& is, SpellType& tt)
-{
-    uint32_t tmp;
-    is >> tmp;
-    tt = static_cast<SpellType>(tmp);
-    return is;
-}
-
-ODPacket& operator<<(ODPacket& os, const SpellType& tt)
-{
-    uint32_t tmp = static_cast<uint32_t>(tt);
-    os << tmp;
-    return os;
 }

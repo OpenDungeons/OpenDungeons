@@ -21,11 +21,11 @@
 
 #include "spawnconditions/SpawnConditionRoom.h"
 
-bool SpawnConditionRoom::computePointsForSeat(GameMap* gameMap, Seat* seat, int32_t& computedPoints) const
+bool SpawnConditionRoom::computePointsForSeat(const GameMap& gameMap, const Seat& seat, int32_t& computedPoints) const
 {
     int32_t nbActiveSpots = 0;
-    std::vector<Room*> rooms = gameMap->getRoomsByTypeAndSeat(mRoomType, seat);
-    for(Room* room : rooms)
+    std::vector<const Room*> rooms = gameMap.getRoomsByTypeAndSeat(mRoomType, &seat);
+    for(const Room* room : rooms)
     {
         nbActiveSpots += room->getNumActiveSpots();
     }
