@@ -71,7 +71,7 @@ Player::Player(GameMap* gameMap, int32_t id) :
     mSeat(nullptr),
     mIsHuman(false),
     mNoTreasuryAvailableTime(0.0f),
-    mIsPlayerLostSent(false)
+    mHasLost(false)
 {
 }
 
@@ -208,10 +208,10 @@ void Player::rotateHand(Direction d)
 
 void Player::notifyNoMoreDungeonTemple()
 {
-    if(mIsPlayerLostSent)
+    if(mHasLost)
         return;
 
-    mIsPlayerLostSent = true;
+    mHasLost = true;
     // We check if there is still a player in the team with a dungeon temple. If yes, we notify the player he lost his dungeon
     // if no, we notify the team they lost
     std::vector<Room*> dungeonTemples = mGameMap->getRoomsByType(RoomType::dungeonTemple);

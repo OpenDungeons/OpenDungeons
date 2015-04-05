@@ -656,10 +656,13 @@ void RenderManager::rrDestroyMapLightVisualIndicator(MapLight* curMapLight)
 void RenderManager::rrPickUpEntity(GameEntity* curEntity, Player* localPlayer)
 {
     Ogre::Entity* ent = mSceneManager->getEntity("keeperHandEnt");
-    mHandAnimationState = ent->getAnimationState("Pickup");
-    mHandAnimationState->setTimePosition(0);
-    mHandAnimationState->setLoop(false);
-    mHandAnimationState->setEnabled(true);
+    if(ent->hasAnimationState("Pickup"))
+    {
+        mHandAnimationState = ent->getAnimationState("Pickup");
+        mHandAnimationState->setTimePosition(0);
+        mHandAnimationState->setLoop(false);
+        mHandAnimationState->setEnabled(true);
+    }
 
     // Detach the entity from its scene node
     Ogre::SceneNode* curEntityNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
@@ -685,10 +688,13 @@ void RenderManager::rrPickUpEntity(GameEntity* curEntity, Player* localPlayer)
 void RenderManager::rrDropHand(GameEntity* curEntity, Player* localPlayer)
 {
     Ogre::Entity* ent = mSceneManager->getEntity("keeperHandEnt");
-    mHandAnimationState = ent->getAnimationState("Drop");
-    mHandAnimationState->setTimePosition(0);
-    mHandAnimationState->setLoop(false);
-    mHandAnimationState->setEnabled(true);
+    if(ent->hasAnimationState("Drop"))
+    {
+        mHandAnimationState = ent->getAnimationState("Drop");
+        mHandAnimationState->setTimePosition(0);
+        mHandAnimationState->setLoop(false);
+        mHandAnimationState->setEnabled(true);
+    }
 
     // Detach the entity from the "hand" scene node
     Ogre::SceneNode* curEntityNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
@@ -1143,10 +1149,13 @@ void RenderManager::setHoveredTile(int tileX, int tileY)
 void RenderManager::entitySlapped()
 {
     Ogre::Entity* ent = mSceneManager->getEntity("keeperHandEnt");
-    mHandAnimationState = ent->getAnimationState("Slap");
-    mHandAnimationState->setTimePosition(0);
-    mHandAnimationState->setLoop(false);
-    mHandAnimationState->setEnabled(true);
+    if(ent->hasAnimationState("Slap"))
+    {
+        mHandAnimationState = ent->getAnimationState("Slap");
+        mHandAnimationState->setTimePosition(0);
+        mHandAnimationState->setLoop(false);
+        mHandAnimationState->setEnabled(true);
+    }
 }
 
 std::string RenderManager::rrBuildSkullFlagMaterial(const std::string& materialNameBase,
