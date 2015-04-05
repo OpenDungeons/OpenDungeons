@@ -56,7 +56,15 @@ RenderedMovableEntity* RoomWorkshop::notifyActiveSpotCreated(ActiveSpotPlace pla
             Ogre::Real x = static_cast<Ogre::Real>(tile->getX()) + X_OFFSET_SPOT;
             Ogre::Real y = static_cast<Ogre::Real>(tile->getY()) + Y_OFFSET_SPOT;
             mUnusedSpots.push_back(tile);
-            return loadBuildingObject(getGameMap(), "WorkshopMachine1", tile, x, y, 30.0, false);
+            int result = Random::Int(0, 3);
+            if(result < 2)
+                return loadBuildingObject(getGameMap(), "WorkshopMachine1", tile, x, y, 30.0, false);
+            else
+            {
+                RenderedMovableEntity* ret = loadBuildingObject(getGameMap(), "WorkshopMachine2", tile, x, y, 40.0, false);
+                ret->setAnimationState("Loop");
+                return ret;
+            }
         }
         case ActiveSpotPlace::activeSpotLeft:
         {
