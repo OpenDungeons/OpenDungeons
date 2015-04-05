@@ -192,6 +192,9 @@ public:
     inline void setNewSpellType(SpellType newSpellType)
     { mNewSpellType = newSpellType; }
 
+    inline bool getHasLost() const
+    { return mHasLost; }
+
     void setCurrentAction(SelectedAction action);
 
     //! \brief Notify the player is fighting
@@ -250,7 +253,7 @@ private:
     //! the player should be notified again that he has no free space to store gold.
     float mNoTreasuryAvailableTime;
 
-    bool mIsPlayerLostSent;
+    bool mHasLost;
 
     //! \brief List of tiles there is an event on. Used on client and server
     std::vector<PlayerEvent*> mEvents;
