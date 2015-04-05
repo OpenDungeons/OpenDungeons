@@ -60,11 +60,7 @@ RenderedMovableEntity* RoomWorkshop::notifyActiveSpotCreated(ActiveSpotPlace pla
             if(result < 2)
                 return loadBuildingObject(getGameMap(), "WorkshopMachine1", tile, x, y, 30.0, false);
             else
-            {
-                RenderedMovableEntity* ret = loadBuildingObject(getGameMap(), "WorkshopMachine2", tile, x, y, 40.0, false);
-                ret->setAnimationState("Loop");
-                return ret;
-            }
+                return loadBuildingObject(getGameMap(), "WorkshopMachine2", tile, x, y, 30.0, false, 1.0, "Loop");
         }
         case ActiveSpotPlace::activeSpotLeft:
         {

@@ -170,7 +170,8 @@ RenderedMovableEntity* Building::getBuildingObjectFromTile(Tile* tile)
 }
 
 RenderedMovableEntity* Building::loadBuildingObject(GameMap* gameMap, const std::string& meshName,
-    Tile* targetTile, double rotationAngle, bool hideCoveredTile, float opacity)
+    Tile* targetTile, double rotationAngle, bool hideCoveredTile, float opacity,
+    const std::string& initialAnimationState, bool initialAnimationLoop)
 {
     if (targetTile == nullptr)
         targetTile = getCentralTile();
@@ -180,11 +181,13 @@ RenderedMovableEntity* Building::loadBuildingObject(GameMap* gameMap, const std:
         return nullptr;
 
     return loadBuildingObject(gameMap, meshName, targetTile, static_cast<double>(targetTile->getX()),
-        static_cast<double>(targetTile->getY()), rotationAngle, hideCoveredTile, opacity);
+        static_cast<double>(targetTile->getY()), rotationAngle, hideCoveredTile, opacity,
+        initialAnimationState, initialAnimationLoop);
 }
 
 RenderedMovableEntity* Building::loadBuildingObject(GameMap* gameMap, const std::string& meshName,
-    Tile* targetTile, double x, double y, double rotationAngle, bool hideCoveredTile, float opacity)
+    Tile* targetTile, double x, double y, double rotationAngle, bool hideCoveredTile, float opacity,
+    const std::string& initialAnimationState, bool initialAnimationLoop)
 {
     std::string baseName;
     if(targetTile == nullptr)
@@ -194,7 +197,8 @@ RenderedMovableEntity* Building::loadBuildingObject(GameMap* gameMap, const std:
 
     Ogre::Vector3 position(static_cast<Ogre::Real>(x), static_cast<Ogre::Real>(y), 0);
     BuildingObject* obj = new BuildingObject(gameMap, baseName, meshName,
-        position, static_cast<Ogre::Real>(rotationAngle), hideCoveredTile, opacity);
+        position, static_cast<Ogre::Real>(rotationAngle), hideCoveredTile, opacity,
+        initialAnimationState, initialAnimationLoop);
 
     return obj;
 }

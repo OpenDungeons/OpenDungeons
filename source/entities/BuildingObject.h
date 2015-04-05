@@ -33,7 +33,8 @@ class BuildingObject: public RenderedMovableEntity
 {
 public:
     BuildingObject(GameMap* gameMap, const std::string& buildingName, const std::string& meshName,
-        const Ogre::Vector3& position, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity = 1.0f);
+        const Ogre::Vector3& position, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity = 1.0f,
+        const std::string& initialAnimationState = "", bool initialAnimationLoop = true);
     BuildingObject(GameMap* gameMap);
 
     virtual GameEntityType getObjectType() const override

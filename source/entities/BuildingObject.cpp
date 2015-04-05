@@ -31,8 +31,9 @@
 #include <iostream>
 
 BuildingObject::BuildingObject(GameMap* gameMap, const std::string& buildingName, const std::string& meshName,
-        const Ogre::Vector3& position, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity) :
-    RenderedMovableEntity(gameMap, buildingName, meshName, rotationAngle, hideCoveredTile, opacity)
+        const Ogre::Vector3& position, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity,
+        const std::string& initialAnimationState, bool initialAnimationLoop) :
+    RenderedMovableEntity(gameMap, buildingName, meshName, rotationAngle, hideCoveredTile, opacity, initialAnimationState, initialAnimationLoop)
 {
     mPosition = position;
 }
