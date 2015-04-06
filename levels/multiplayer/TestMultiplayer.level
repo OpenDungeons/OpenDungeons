@@ -6034,8 +6034,8 @@ ProtectDungeonTemple	NULL
 3	Goblin3	Goblin	161	201	0	Goblin	1	0	max	100	0	0	none	none	0	none
 5	PitDemon5	PitDemon	159	202	0	PitDemon	1	0	max	100	0	0	none	none	0	none
 2	Wizard7	Wizard	199	311	0	Wizard	1	0	max	100	0	0	Staff	none	0	none
-3	Tentacle18	Tentacle1	162	198	0	Tentacle1	1	0	max	100	0	0	none	none	0	none
-4	Tentacle29	Tentacle2	158	201	0	Tentacle2	1	0	max	100	0	0	none	none	0	none
+3	TentacleAlbine8	TentacleAlbine	162	198	0	TentacleAlbine	1	0	max	100	0	0	none	none	0	none
+4	TentacleGreen9	TentacleGreen	158	201	0	TentacleGreen	1	0	max	100	0	0	none	none	0	none
 5	Troll10	Troll	186	235	0	Troll	1	0	max	100	0	0	none	none	0	none
 2	Knight_c2	Knight	192	311	0	Knight	1	0	max	100	0	0	Roundshield	Longsword	0	none
 3	Knight_c3	Knight	192	314	0	Knight	1	0	max	100	0	0	Roundshield	Longsword	0	none

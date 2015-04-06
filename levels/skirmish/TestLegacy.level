@@ -6802,8 +6802,8 @@ ProtectDungeonTemple	NULL
 1	Spider6	Spider	198	231	0	Spider	1	0	max	100	0	0	none	none	0	none
 1	CaveHornet1	CaveHornet	198	231	0	CaveHornet	1	0	max	100	0	0	none	none	0	none
 2	Wizard7	Wizard	190	229	0	Wizard	1	0	max	100	0	0	Staff	none	0	none
-3	Tentacle18	Tentacle1	186	229	0	Tentacle1	1	0	max	100	0	0	none	none	0	none
-4	Tentacle29	Tentacle2	203	230	0	Tentacle2	1	0	max	100	0	0	none	none	0	none
+3	TentacleAlbine8	TentacleAlbine	186	229	0	TentacleAlbine	1	0	max	100	0	0	none	none	0	none
+4	TentacleGreen9	TentacleGreen	203	230	0	TentacleGreen	1	0	max	100	0	0	none	none	0	none
 5	Troll10	Troll	209	231	0	Troll	1	0	max	100	0	0	none	none	0	none
 1	Troll11	Troll	193	214	0	Troll	1	0	max	100	0	0	Roundshield	Longsword	0	none
 1	Knight_c1	Knight	198	233	0	Knight	1	0	max	100	0	0	Roundshield	Longsword	0	none

@@ -839,7 +839,7 @@ Wyvern6	17	18	0
 Orc8	13	15	0
 Goblin10	17	16	0
 Troll15	15	14	0
-Tentacle214	14	14	0
+TentacleGreen14	14	14	0
 Spider12	16	13	0
 [/Room]
 [Room]
@@ -1035,8 +1035,8 @@ Spider12	16	13	0
 1	Goblin10	Goblin.mesh	24	25	0	Goblin	1	0	max	100	0	0	none	none	0	none
 1	PitDemon11	PitDemon.mesh	27	25	0	PitDemon	1	0	max	100	0	0	none	none	0	none
 1	Spider12	Spider.mesh	18	22	0	Spider	1	0	max	100	0	0	none	none	0	none
-1	Tentacle113	Tentacle.mesh	21	22	0	Tentacle1	1	0	max	100	0	0	none	none	0	none
-1	Tentacle214	Tentacle.mesh	24	22	0	Tentacle2	1	0	max	100	0	0	none	none	0	none
+1	TentacleAlbine13	TentacleAlbine.mesh	21	22	0	TentacleAlbine	1	0	max	100	0	0	none	none	0	none
+1	TentacleGreen14	TentacleGreen.mesh	24	22	0	TentacleGreen	1	0	max	100	0	0	none	none	0	none
 1	Troll15	Troll.mesh	27	22	0	Troll	1	0	max	100	0	0	none	none	0	none
 1	LizardMan16	Lizardman.mesh	21	19	0	LizardMan	1	0	max	100	0	0	none	none	0	none
 1	CaveHornet17	CaveHornet.mesh	24	19	0	CaveHornet	1	0	max	100	0	0	none	none	0	none
