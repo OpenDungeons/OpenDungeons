@@ -747,6 +747,10 @@ bool RoomPortalWave::findBestDiggablePath(Tile* tileStart, Tile* tileDest, Creat
             tile = getGameMap()->getTile(lastTileBlocked->getX() + rotations.back().first, lastTileBlocked->getY() + rotations.back().second);
         }
 
+        // A nullptr tile is possible if we are searching near the map border after applying the rotation
+        if(tile == nullptr)
+            continue;
+
         bool isTilePassable = false;
         // If the tile is walkable, no need to dig it
         if(creature->canGoThroughTile(tile))
