@@ -2082,7 +2082,6 @@ void ODServer::stopServer()
 
 void ODServer::notifyExit()
 {
-    ODSocketServer::stopServer();
     while(!mServerNotificationQueue.empty())
     {
         delete mServerNotificationQueue.front();
