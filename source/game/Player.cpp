@@ -482,6 +482,10 @@ void Player::markTilesForDigging(bool marked, const std::vector<Tile*>& tiles, b
         return;
     }
 
+    // If no tile to mark, we do not send the message
+    if(tilesMark.empty())
+        return;
+
     // On client side, we ask to mark the tile
     if(!asyncMsg)
     {
