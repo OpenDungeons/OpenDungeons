@@ -2403,7 +2403,7 @@ bool Creature::handleAttackAction(const CreatureAction& actionItem)
 
     decreaseAwakeness(0.5);
 
-    // Give a small amount of experince to the creature we hit.
+    // Give a small amount of experience to the creature we hit.
     if(attackedObject->getObjectType() == GameEntityType::creature)
     {
         Creature* tempCreature = static_cast<Creature*>(attackedObject);
