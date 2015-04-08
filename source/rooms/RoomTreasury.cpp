@@ -31,7 +31,7 @@
 
 #include <string>
 
-static const int maxGoldinTile = 5000;
+static const int maxGoldinTile = 1000;
 
 RoomTreasury::RoomTreasury(GameMap* gameMap) :
     Room(gameMap),

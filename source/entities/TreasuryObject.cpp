@@ -227,13 +227,13 @@ const char* TreasuryObject::getMeshNameForGold(int gold)
     if (gold <= 0)
         return "";
 
-    if (gold <= 1250)
+    if (gold <= 250)
         return "GoldstackLv1";
 
-    if (gold <= 2500)
+    if (gold <= 500)
         return "GoldstackLv2";
 
-    if (gold <= 3750)
+    if (gold <= 750)
         return "GoldstackLv3";
 
     return "GoldstackLv4";
