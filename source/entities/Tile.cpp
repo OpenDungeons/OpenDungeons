@@ -721,6 +721,10 @@ void Tile::claimForSeat(Seat* seat, double nDanceRate)
         mClaimedPercentage -= nDanceRate;
         if (mClaimedPercentage <= 0.0)
         {
+            // We notify the old seat that the tile is lost
+            if(getSeat() != nullptr)
+                getSeat()->notifyTileClaimedByEnemy(this);
+
             // The tile is not yet claimed, but it is now an allied seat.
             mClaimedPercentage *= -1.0;
             setSeat(seat);
