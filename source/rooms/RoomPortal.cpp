@@ -208,7 +208,7 @@ void RoomPortal::spawnCreature()
     newCreature->createMesh();
     newCreature->setPosition(spawnPosition, false);
 
-    mSpawnCreatureCountdown = Random::Uint(15, 30);
+    mSpawnCreatureCountdown = Random::Uint(30, 50);
 }
 
 void RoomPortal::setupRoom(const std::string& name, Seat* seat, const std::vector<Tile*>& tiles)

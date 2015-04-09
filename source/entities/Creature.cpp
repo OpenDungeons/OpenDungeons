@@ -2399,11 +2399,11 @@ bool Creature::handleAttackAction(const CreatureAction& actionItem)
     // Do the damage and award experience points to both creatures.
     double damageDone = attackedObject->takeDamage(this, getPhysicalDamage(range), getMagicalDamage(range), attackedTile);
     double expGained;
-    expGained = 1.0 + 0.2 * std::pow(damageDone, 1.3);
+    expGained = 1.2 + 0.2 * std::pow(damageDone, 1.3);
 
     decreaseAwakeness(0.5);
 
-    // Give a small amount of experince to the creature we hit.
+    // Give a small amount of experience to the creature we hit.
     if(attackedObject->getObjectType() == GameEntityType::creature)
     {
         Creature* tempCreature = static_cast<Creature*>(attackedObject);

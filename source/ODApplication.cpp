@@ -133,10 +133,10 @@ ODApplication::ODApplication()
     ogreRoot.addFrameListener(&frameListener);
     ogreRoot.startRendering();
 
-    logManager.logMessage("Stopping server...");
-    server.stopServer();
     logManager.logMessage("Disconnecting client...");
     client.disconnect();
+    logManager.logMessage("Stopping server...");
+    server.stopServer();
     ogreRoot.removeFrameListener(&frameListener);
     Ogre::RTShader::ShaderGenerator::destroy();
     ogreRoot.destroyRenderTarget(renderWindow);
