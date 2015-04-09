@@ -3,8 +3,8 @@ OpenDungeons_Version:0.5.0  # The version of OpenDungeons which created this fil
 [Info]
 Name	The Bridge
 Description	The first to take gold in the middle will have a chance to survive...
-Music	yd_Searching_ingame.ogg
-FightMusic	The_Dark_Amulet.ogg
+Music	Searching_yd.ogg
+FightMusic	TheDarkAmulet_MP.ogg
 [/Info]
 
 [Seats]
