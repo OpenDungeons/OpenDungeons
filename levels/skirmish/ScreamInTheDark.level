@@ -40,7 +40,7 @@ trapBoulder
 [/Seat]
 [Seat]
 seatId	2
-teamId	2
+teamId	1
 player	AI
 faction	Keeper
 startingX	10
@@ -70,7 +70,7 @@ trapBoulder
 [/Seat]
 [Seat]
 seatId	3
-teamId	3
+teamId	2
 player	AI
 faction	Keeper
 startingX	10
@@ -100,7 +100,7 @@ trapBoulder
 [/Seat]
 [Seat]
 seatId	4
-teamId	4
+teamId	3
 player	AI
 faction	Keeper
 startingX	10
@@ -130,7 +130,7 @@ trapBoulder
 [/Seat]
 [Seat]
 seatId	5
-teamId	5
+teamId	4
 player	AI
 faction	Keeper
 startingX	10
