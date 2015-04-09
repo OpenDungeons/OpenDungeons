@@ -74,8 +74,7 @@ public:
     GameMap(bool isServerGameMap);
     ~GameMap();
 
-    inline const std::string serverStr()
-    { return std::string( mIsServerGameMap ? "SERVER - " : "CLIENT - "); }
+    const std::string serverStr();
 
     //! \brief Tells whether the game map is currently used for the map editor mode
     //! or for a standard game session.

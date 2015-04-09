@@ -169,6 +169,14 @@ GameMap::~GameMap()
     processDeletionQueues();
 }
 
+const std::string GameMap::serverStr()
+{
+    if (mIsServerGameMap)
+        return std::string("SERVER - ");
+
+    return std::string("CLIENT (" + getLocalPlayerNick() + ") - ");
+}
+
 bool GameMap::isInEditorMode() const
 {
     if (isServerGameMap())

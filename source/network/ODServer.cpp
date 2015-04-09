@@ -2050,13 +2050,13 @@ bool ODServer::notifyClientMessage(ODSocketClient *clientSocket)
     bool ret = processClientNotifications(clientSocket);
     if(!ret)
     {
-        LogManager::getSingleton().logMessage("Client disconnected state=" + clientSocket->getState());
+        LogManager::getSingleton().logMessage("Client (" + clientSocket->getPlayer()->getNick()
+                                              + ") disconnected state=" + clientSocket->getState());
         if(std::string("ready").compare(clientSocket->getState()) == 0)
         {
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotificationType::chatServer, nullptr);
-            std::string msg = clientSocket->getPlayer()->getNick()
-                + " disconnected";
+            std::string msg = clientSocket->getPlayer()->getNick() + " disconnected.";
             serverNotification->mPacket << msg << EventShortNoticeType::genericGameInfo;
             queueServerNotification(serverNotification);
         }

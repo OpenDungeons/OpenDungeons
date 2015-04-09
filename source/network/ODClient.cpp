@@ -90,8 +90,9 @@ bool ODClient::processOneClientSocketMessage()
     ODComStatus comStatus = recv(packetReceived);
     if(comStatus != ODComStatus::OK)
     {
+        std::string message = getPlayer() ? getPlayer()->getNick() + " disconnected from the server." : "A player disconnected.";
         // Place an event in the queue to inform the user about the disconnection.
-        addEventMessage(new EventMessage("Disconnected from server."));
+        addEventMessage(new EventMessage(message));
         // TODO : try to reconnect to the server
         return false;
     }
@@ -249,7 +250,7 @@ bool ODClient::processOneClientSocketMessage()
                 int32_t id;
                 OD_ASSERT_TRUE(packetReceived >> nick >> id);
                 mode->addPlayer(nick, id);
-                addEventMessage(new EventMessage("New player connected:" + nick));
+                addEventMessage(new EventMessage(nick + " is now connected."));
             }
             break;
         }
@@ -431,7 +432,7 @@ bool ODClient::processOneClientSocketMessage()
         {
             int64_t turnNum;
             OD_ASSERT_TRUE(packetReceived >> turnNum);
-            logManager.logMessage("Client received turnStarted="
+            logManager.logMessage("Client (" + getPlayer()->getNick() + ") received turnStarted="
                 + boost::lexical_cast<std::string>(turnNum));
             gameMap->setTurnNumber(turnNum);
 
