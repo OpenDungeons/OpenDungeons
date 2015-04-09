@@ -3,8 +3,8 @@ OpenDungeons_Version:0.5.0  # The version of OpenDungeons which created this fil
 [Info]
 Name	\[Test\] Small (2 vs 2)
 Description	A small test map for the multiplayer mode in 2v2, left against right side...
-Music	yd_Searching_ingame.ogg
-FightMusic	The_Dark_Amulet.ogg
+Music	Searching_yd.ogg
+FightMusic	TheDarkAmulet_MP.ogg
 [/Info]
 
 [Seats]

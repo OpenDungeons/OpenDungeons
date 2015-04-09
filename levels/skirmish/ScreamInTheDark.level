@@ -3,8 +3,8 @@ OpenDungeons_Version:0.5.0  # The version of OpenDungeons which created this fil
 [Info]
 Name	Scream in the dark...
 Description	A classic death match. North against south side...
-Music	yd_Searching_ingame.ogg
-FightMusic	The_Dark_Amulet.ogg
+Music	Searching_yd.ogg
+FightMusic	TheDarkAmulet_MP.ogg
 [/Info]
 
 [Seats]
