@@ -20,7 +20,6 @@
             <Property name="Area" value="{{0.5,-80},{0,136},{0.5,80},{0,169}}" />
             <Property name="IconImage" value="OpenDungeonsIcons/SaveIcon" />
             <Property name="Text" value="Save Game (F5)" />
-            <Property name="TooltipText" value="Not implemented yet" />
         </Window>
         <Window type="OD/IconButton" name="LoadGameButton" >
             <Property name="Area" value="{{0.5,-80},{0,180},{0.5,80},{0,213}}" />
