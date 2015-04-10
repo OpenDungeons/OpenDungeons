@@ -26,6 +26,7 @@ material GoblinKnife : RTSS/NormalMapping_MultiPass
             {
                 texture GoblinKnife.png
                 tex_address_mode wrap
+                tex_coord_set 1
                 scale 1.0 1.0
                 colour_op modulate
             }
