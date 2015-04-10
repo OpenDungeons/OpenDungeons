@@ -474,7 +474,7 @@ void Seat::initSeat()
                     OD_ASSERT_TRUE_MSG(false, "Tile=" + Tile::displayAsString(tile));
                     continue;
                 }
-                mTilesStates[tile->getX()][tile->getY()].mTileVisual = tileState.mTileVisual;
+                mTilesStates[tile->getX()][tile->getY()] = tileState;
 
                 // Then, we export tile state to the client
                 mGameMap->tileToPacket(serverNotification->mPacket, tile);
