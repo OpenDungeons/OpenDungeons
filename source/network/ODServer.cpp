@@ -496,7 +496,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             }
 
             // Tell the client to load the given map
-            LogManager::getSingleton().logMessage("Level relative path sent to client: " + gameMap->getLevelFileName());
+            LogManager::getSingleton().logMessage("Level sent to client: " + gameMap->getLevelName());
             setClientState(clientSocket, "loadLevel");
             int32_t mapSizeX = gameMap->getMapSizeX();
             int32_t mapSizeY = gameMap->getMapSizeY();
@@ -506,7 +506,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             packet << version;
             packet << mapSizeX << mapSizeY;
             // Map infos
-            packet << gameMap->getLevelFileName();
+            packet << gameMap->getLevelName();
             packet << gameMap->getLevelDescription();
             packet << gameMap->getLevelMusicFile();
             packet << gameMap->getLevelFightMusicFile();
