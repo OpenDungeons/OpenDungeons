@@ -19,6 +19,7 @@
 
 #include "game/Player.h"
 #include "gamemap/GameMap.h"
+#include "network/ChatMessage.h"
 #include "render/Gui.h"
 #include "render/ODFrameListener.h"
 #include "rooms/RoomType.h"
@@ -26,6 +27,7 @@
 #include "utils/Helper.h"
 
 #include <CEGUI/widgets/PushButton.h>
+#include <CEGUI/widgets/Scrollbar.h>
 
 namespace {
     //Functors for binding gui actions to spell/room/trap selection.
@@ -124,6 +126,16 @@ GameEditorModeBase::GameEditorModeBase(ModeManager *modeManager, ModeManager::Mo
     connectGuiAction(Gui::BUTTON_CREATURE_FIGHTER, AbstractApplicationMode::GuiAction::ButtonPressedCreatureFighter);
 }
 
+GameEditorModeBase::~GameEditorModeBase()
+{
+    // delete the potential pending messages and events short notices.
+    for (ChatMessage* message : mChatMessages)
+        delete message;
+    for (EventMessage* message : mEventMessages)
+        delete message;
+
+}
+
 void GameEditorModeBase::connectGuiAction(const std::string& buttonName, AbstractApplicationMode::GuiAction action)
 {
     addEventConnection(
@@ -179,4 +191,70 @@ void GameEditorModeBase::connectTrapSelect(const std::string& buttonName, TrapTy
           CEGUI::Event::Subscriber(TrapSelector{trapType, mGameMap})
         )
     );
+}
+
+void GameEditorModeBase::onFrameStarted(const Ogre::FrameEvent& evt)
+{
+    updateMessages(evt.timeSinceLastFrame);
+}
+
+void GameEditorModeBase::receiveChat(ChatMessage* message)
+{
+    mChatMessages.emplace_back(message);
+
+    // Adds the message right away
+    CEGUI::Window* chatTextBox = mRootWindow->getChild("GameChatWindow/GameChatText");
+    chatTextBox->appendText(reinterpret_cast<const CEGUI::utf8*>(message->getMessageAsString().c_str()));
+
+    // Ensure the latest text is shown
+    CEGUI::Scrollbar* scrollBar = reinterpret_cast<CEGUI::Scrollbar*>(chatTextBox->getChild("__auto_vscrollbar__"));
+    scrollBar->setScrollPosition(scrollBar->getDocumentSize());
+}
+
+void GameEditorModeBase::receiveEventShortNotice(EventMessage* event)
+{
+    mEventMessages.emplace_back(event);
+
+    // Adds the message right away
+    CEGUI::Window* shortNoticeText = mRootWindow->getChild("GameEventText");
+    shortNoticeText->appendText(reinterpret_cast<const CEGUI::utf8*>(event->getMessageAsString().c_str()));
+
+    // Ensure the latest text is shown
+    CEGUI::Scrollbar* scrollBar = reinterpret_cast<CEGUI::Scrollbar*>(shortNoticeText->getChild("__auto_vscrollbar__"));
+    scrollBar->setScrollPosition(scrollBar->getDocumentSize());
+}
+
+void GameEditorModeBase::updateMessages(Ogre::Real update_time)
+{
+    float maxChatTimeDisplay = ODFrameListener::getSingleton().getEventMaxTimeDisplay();
+
+    // Update the event message seen if necessary.
+    CEGUI::Window* shortNoticeText = mRootWindow->getChild("GameEventText");
+    CEGUI::Scrollbar* scrollBar = static_cast<CEGUI::Scrollbar*>(shortNoticeText->getChild("__auto_vscrollbar__"));
+    float scrollPosition = scrollBar->getScrollPosition();
+
+    // Update the chat message seen if necessary.
+    bool messageDisplayUpdate = false;
+    CEGUI::String ceguiStr;
+    for (auto it = mEventMessages.begin(); it != mEventMessages.end();)
+    {
+        EventMessage* event = *it;
+        if (event->isMessageTooOld(maxChatTimeDisplay))
+        {
+            delete event;
+            it = mEventMessages.erase(it);
+            messageDisplayUpdate = true;
+        }
+        else
+        {
+            ceguiStr += reinterpret_cast<const CEGUI::utf8*>(event->getMessageAsString().c_str());
+            ++it;
+        }
+    }
+
+    if (messageDisplayUpdate)
+    {
+        shortNoticeText->setText(ceguiStr);
+        scrollBar->setScrollPosition(scrollPosition);
+    }
 }

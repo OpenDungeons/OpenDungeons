@@ -171,5 +171,7 @@
         </Window>
         <LayoutImport type="DefaultWindow" filename="EditorOptionsMenu.layout" name="EditorOptionsMenuImport" />
         <LayoutImport type="DefaultWindow" filename="QuitMenu.layout" name="EditorQuitMenuImport" />
+        <LayoutImport type="DefaultWindow" filename="EventWindow.layout" name="EventWindowImport" />
+        <LayoutImport type="DefaultWindow" filename="ChatWindow.layout" name="ChatWindowImport" />
     </Window>
 </GUILayout>

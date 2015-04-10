@@ -27,9 +27,6 @@ namespace CEGUI
 class Window;
 }
 
-class ChatMessage;
-class EventMessage;
-
 enum class SpellType;
 enum class ResearchType;
 
@@ -113,12 +110,6 @@ class GameMode final : public GameEditorModeBase
     //! \brief Hides the settings window.
     bool hideSettingsWindow(const CEGUI::EventArgs& = {});
 
-    //! \brief Receive and display some chat text
-    void receiveChat(ChatMessage* message);
-
-    //! \brief Receive and display some event text
-    void receiveEventShortNotice(EventMessage* event);
-
     //! \brief Refreshes the player current goals.
     void refreshPlayerGoals(const std::string& goalsDisplayString);
 
@@ -160,16 +151,8 @@ private:
     //! If in chat mode, then the game keyboard keys are interpreted as regular keys.
     InputMode mCurrentInputMode;
 
-    //! \brief The Chat messages in queue.
-    std::vector<ChatMessage*> mChatMessages;
-    //! \brief The game event messages in queue.
-    std::vector<EventMessage*> mEventMessages;
-
     //! \brief Index of the event in the game event queue (for zooming automatically)
     uint32_t mIndexEvent;
-
-    //! \brief Update the chat and event messages seen.
-    void updateMessages(Ogre::Real update_time);
 
     //! \brief Set the help window (quite long) text.
     void setHelpWindowText();

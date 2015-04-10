@@ -956,23 +956,36 @@ void ODClient::processClientNotifications()
 void ODClient::addChatMessage(ChatMessage* chat)
 {
     ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
-    if (frameListener->getModeManager()->getCurrentModeType() == AbstractModeManager::GAME)
+    switch(frameListener->getModeManager()->getCurrentModeType())
     {
-        GameMode* gm = static_cast<GameMode*>(frameListener->getModeManager()->getCurrentMode());
-        gm->receiveChat(chat);
+        case AbstractModeManager::GAME:
+        {
+            GameEditorModeBase* gm = static_cast<GameEditorModeBase*>(frameListener->getModeManager()->getCurrentMode());
+            gm->receiveChat(chat);
+            break;
+        }
+        // Note: Later, we can handle other modes here.
+        default:
+            break;
     }
-    // Note: Later, we can handle other modes here.
 }
 
 void ODClient::addEventMessage(EventMessage* event)
 {
     ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
-    if (frameListener->getModeManager()->getCurrentModeType() == AbstractModeManager::GAME)
+    switch(frameListener->getModeManager()->getCurrentModeType())
     {
-        GameMode* gm = static_cast<GameMode*>(frameListener->getModeManager()->getCurrentMode());
-        gm->receiveEventShortNotice(event);
+        case AbstractModeManager::GAME:
+        case AbstractModeManager::EDITOR:
+        {
+            GameEditorModeBase* gm = static_cast<GameEditorModeBase*>(frameListener->getModeManager()->getCurrentMode());
+            gm->receiveEventShortNotice(event);
+            break;
+        }
+        // Note: Later, we can handle other modes here.
+        default:
+            break;
     }
-    // Note: Later, we can handle other modes here.
 }
 
 void ODClient::refreshMainUI(const std::string& goalsString)

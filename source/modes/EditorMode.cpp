@@ -84,7 +84,7 @@ EditorMode::EditorMode(ModeManager* modeManager):
 
     ODFrameListener::getSingleton().getCameraManager()->setDefaultView();
 
-    CEGUI::Window* rootWindow = modeManager->getGui().getGuiSheet(Gui::guiSheet::editorModeGui);
+    CEGUI::Window* rootWindow = mRootWindow;
 
     // The Quit menu handlers
     addEventConnection(
@@ -154,11 +154,12 @@ void EditorMode::activate()
 {
     // Loads the corresponding Gui sheet.
     getModeManager().getGui().loadGuiSheet(Gui::editorModeGui);
-    CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::editorModeGui);
+    CEGUI::Window* guiSheet = mRootWindow;
     guiSheet->getChild("EditorOptionsWindow")->hide();
     guiSheet->getChild("ConfirmExit")->hide();
     // Hide also the Replay check-box as it doesn't make sense for the editor
     guiSheet->getChild("ConfirmExit/SaveReplayCheckbox")->hide();
+    guiSheet->getChild("GameChatWindow/GameChatEditBox")->hide();
 
     giveFocus();
 
@@ -616,25 +617,25 @@ void EditorMode::updateCursorText()
     std::stringstream textSS;
 
     // Update the fullness info
-    CEGUI::Window *posWin = getModeManager().getGui().getGuiSheet(Gui::editorModeGui)->getChild(Gui::EDITOR_FULLNESS);
+    CEGUI::Window *posWin = mRootWindow->getChild(Gui::EDITOR_FULLNESS);
     textSS.str("");
     textSS << "Tile Fullness (T): " << mCurrentFullness << "%";
     posWin->setText(textSS.str());
 
     // Update the cursor position
-    posWin = getModeManager().getGui().getGuiSheet(Gui::editorModeGui)->getChild(Gui::EDITOR_CURSOR_POS);
+    posWin = mRootWindow->getChild(Gui::EDITOR_CURSOR_POS);
     textSS.str("");
     textSS << "Cursor: x: " << mMouseX << ", y: " << mMouseY;
     posWin->setText(textSS.str());
 
     // Update the seat id
-    posWin = getModeManager().getGui().getGuiSheet(Gui::editorModeGui)->getChild(Gui::EDITOR_SEAT_ID);
+    posWin = mRootWindow->getChild(Gui::EDITOR_SEAT_ID);
     textSS.str("");
     textSS << "Seat id (Y): " << mCurrentSeatId;
     posWin->setText(textSS.str());
 
     // Update the seat id
-    posWin = getModeManager().getGui().getGuiSheet(Gui::editorModeGui)->getChild(Gui::EDITOR_CREATURE_SPAWN);
+    posWin = mRootWindow->getChild(Gui::EDITOR_CREATURE_SPAWN);
     textSS.str("");
     const CreatureDefinition* def = mGameMap->getClassDescription(mCurrentCreatureIndex);
     if(def == nullptr)
@@ -849,6 +850,8 @@ void EditorMode::handleHotkeys(OIS::KeyCode keycode)
 //! Rendering methods
 void EditorMode::onFrameStarted(const Ogre::FrameEvent& evt)
 {
+    GameEditorModeBase::onFrameStarted(evt);
+
     //Update the minimap
     CameraManager& cameraManager = *ODFrameListener::getSingleton().getCameraManager();
     mMiniMap.updateCameraInfo(cameraManager.getCameraViewTarget(),
@@ -909,7 +912,7 @@ void EditorMode::notifyGuiAction(GuiAction guiAction)
 
 bool EditorMode::toggleOptionsWindow(const CEGUI::EventArgs& /*arg*/)
 {
-    CEGUI::Window* options = getModeManager().getGui().getGuiSheet(Gui::editorModeGui)->getChild("EditorOptionsWindow");
+    CEGUI::Window* options = mRootWindow->getChild("EditorOptionsWindow");
     if (options == nullptr)
         return true;
 
@@ -922,7 +925,7 @@ bool EditorMode::toggleOptionsWindow(const CEGUI::EventArgs& /*arg*/)
 
 bool EditorMode::showQuitMenuFromOptions(const CEGUI::EventArgs& /*arg*/)
 {
-    CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::editorModeGui);
+    CEGUI::Window* guiSheet = mRootWindow;
     guiSheet->getChild("ConfirmExit")->show();
     guiSheet->getChild("EditorOptionsWindow")->hide();
     return true;
@@ -942,13 +945,13 @@ bool EditorMode::onSaveButtonClickFromOptions(const CEGUI::EventArgs& /*arg*/)
 
 bool EditorMode::showQuitMenu(const CEGUI::EventArgs& /*arg*/)
 {
-    getModeManager().getGui().getGuiSheet(Gui::editorModeGui)->getChild("ConfirmExit")->show();
+    mRootWindow->getChild("ConfirmExit")->show();
     return true;
 }
 
 bool EditorMode::hideQuitMenu(const CEGUI::EventArgs& /*arg*/)
 {
-    getModeManager().getGui().getGuiSheet(Gui::editorModeGui)->getChild("ConfirmExit")->hide();
+    mRootWindow->getChild("ConfirmExit")->hide();
     return true;
 }
 
@@ -962,7 +965,7 @@ bool EditorMode::onClickYesQuitMenu(const CEGUI::EventArgs& /*arg*/)
 void EditorMode::refreshGuiResearch()
 {
     // We show/hide the icons depending on available researches
-    CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::editorModeGui);
+    CEGUI::Window* guiSheet = mRootWindow;
     guiSheet->getChild(Gui::BUTTON_DORMITORY)->show();
     guiSheet->getChild(Gui::BUTTON_TREASURY)->show();
     guiSheet->getChild(Gui::BUTTON_HATCHERY)->show();
