@@ -67,7 +67,8 @@ ODServer::ODServer() :
     mServerMode(ServerMode::ModeNone),
     mServerState(ServerState::StateNone),
     mGameMap(new GameMap(true)),
-    mSeatsConfigured(false)
+    mSeatsConfigured(false),
+    mPlayerConfig(nullptr)
 {
 }
 
@@ -82,6 +83,8 @@ bool ODServer::startServer(const std::string& levelFilename, ServerMode mode)
     logManager.logMessage("Asked to launch server with levelFilename=" + levelFilename);
 
     mSeatsConfigured = false;
+    mDisconnectedPlayers.clear();
+    mPlayerConfig = nullptr;
 
     // Start the server socket listener as well as the server socket thread
     if (isConnected())
@@ -147,7 +150,8 @@ void ODServer::sendMsg(Player* player, ODPacket& packet)
     }
 
     ODSocketClient* client = getClientFromPlayer(player);
-    if(client == nullptr)
+    if((client == nullptr) &&
+       (std::find(mDisconnectedPlayers.begin(), mDisconnectedPlayers.end(), player) == mDisconnectedPlayers.end()))
     {
         ServerNotificationType type;
         OD_ASSERT_TRUE(packet >> type);
@@ -620,6 +624,15 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             if(seats.empty())
                 break;
 
+            // By default, the first player to connect is the one allowed to configure game
+            if(mPlayerConfig == nullptr)
+            {
+                mPlayerConfig = curPlayer;
+                ODPacket packetSend;
+                packetSend << ServerNotificationType::playerConfigChange;
+                sendMsgToClient(clientSocket, packetSend);
+            }
+
             Seat* seat = seats[0];
             seat->setPlayer(curPlayer);
             //This makes sure the player is deleted on exit.
@@ -647,6 +660,15 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         {
             if(std::string("ready").compare(clientSocket->getState()) != 0)
                 return false;
+
+            // By default, the first player to connect is the one allowed to configure game
+            if(mPlayerConfig == nullptr)
+            {
+                mPlayerConfig = clientSocket->getPlayer();
+                ODPacket packetSend;
+                packetSend << ServerNotificationType::playerConfigChange;
+                sendMsgToClient(clientSocket, packetSend);
+            }
 
             ODPacket packetSend;
             // We notify to the newly connected player all the currently connected players (including himself
@@ -1527,6 +1549,10 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         case ClientNotificationType::askSaveMap:
         {
             Player* player = clientSocket->getPlayer();
+            // Only the player allowed to configure the game can save games
+            if(mPlayerConfig != player)
+                break;
+
             const boost::filesystem::path levelPath(gameMap->getLevelFileName());
             std::string fileLevel = levelPath.filename().string();
             // In editor mode, we don't allow a player to have creatures in hand while saving map
@@ -2067,6 +2093,11 @@ bool ODServer::notifyClientMessage(ODSocketClient *clientSocket)
             serverNotification->mPacket << msg << EventShortNoticeType::genericGameInfo;
             queueServerNotification(serverNotification);
         }
+
+        if(mSeatsConfigured)
+        {
+            mDisconnectedPlayers.push_back(clientSocket->getPlayer());
+        }
         // TODO : wait at least 1 minute if the client reconnects if deconnexion happens during game
     }
     return ret;
@@ -2076,6 +2107,10 @@ void ODServer::stopServer()
 {
     // We start by stopping server to make sure no new message comes
     ODSocketServer::stopServer();
+
+    mSeatsConfigured = false;
+    mDisconnectedPlayers.clear();
+    mPlayerConfig = nullptr;
 
     // Now that the server is stopped, we can remove all pending messages
     while(!mServerNotificationQueue.empty())

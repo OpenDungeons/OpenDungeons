@@ -87,6 +87,9 @@ class ODClient: public Ogre::Singleton<ODClient>,
 
     const std::string& getLevelFilename() {return mLevelFilename;}
 
+    inline bool getIsPlayerConfig() const
+    { return mIsPlayerConfig; }
+
  private:
     bool processOneClientSocketMessage();
 
@@ -105,6 +108,9 @@ class ODClient: public Ogre::Singleton<ODClient>,
     std::string mLevelFilename;
 
     std::deque<ClientNotification*> mClientNotificationQueue;
+
+    // true if the server told us we are allowed to configure the game. False otherwise
+    bool mIsPlayerConfig;
 
 };
 

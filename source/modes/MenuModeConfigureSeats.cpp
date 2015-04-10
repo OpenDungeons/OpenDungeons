@@ -44,7 +44,8 @@ const std::string COMBOBOX_PLAYER_FACTION_PREFIX = "ComboPlayerFactionSeat";
 const std::string COMBOBOX_PLAYER_PREFIX = "ComboPlayerSeat";
 
 MenuModeConfigureSeats::MenuModeConfigureSeats(ModeManager *modeManager):
-    AbstractApplicationMode(modeManager, ModeManager::MENU_CONFIGURE_SEATS)
+    AbstractApplicationMode(modeManager, ModeManager::MENU_CONFIGURE_SEATS),
+    mIsActivePlayerConfig(false)
 {
     CEGUI::Window* window = modeManager->getGui().getGuiSheet(Gui::guiSheet::configureSeats);
     addEventConnection(
@@ -106,10 +107,7 @@ void MenuModeConfigureSeats::activate()
     msgWin->setText("Loading...");
     msgWin->setVisible(false);
 
-    if(ODServer::getSingleton().isConnected())
-        tmpWin->setText("Please configure map : " + gameMap->getLevelName());
-    else
-        tmpWin->setText("Host is configuring map : " + gameMap->getLevelName());
+    tmpWin->setText("Configure map : " + gameMap->getLevelName());
 
     const std::vector<std::string>& factions = ConfigManager::getSingleton().getFactions();
     const CEGUI::Image* selImg = &CEGUI::ImageManager::getSingleton().get("OpenDungeonsSkin/SelectionBrush");
@@ -134,7 +132,7 @@ void MenuModeConfigureSeats::activate()
         }
     }
 
-    bool enabled = ODServer::getSingleton().isConnected();
+    bool enabled = false;
 
     for(Seat* seat : seats)
     {
@@ -302,7 +300,7 @@ bool MenuModeConfigureSeats::launchSelectedButtonPressed(const CEGUI::EventArgs&
 {
     // We send to the server the associations faction/seat/player
     // It will be responsible to disconnect the unselected players
-    if(!ODServer::getSingleton().isConnected())
+    if(!mIsActivePlayerConfig)
         return true;
 
     fireSeatConfigurationToServer(true);
@@ -323,7 +321,7 @@ bool MenuModeConfigureSeats::goBack(const CEGUI::EventArgs&)
 
 bool MenuModeConfigureSeats::comboChanged(const CEGUI::EventArgs& ea)
 {
-    if(!ODServer::getSingleton().isConnected())
+    if(!mIsActivePlayerConfig)
         return true;
 
     // If the combo changed is a player and he was already in another combo, we remove him from the combo
@@ -390,7 +388,7 @@ void MenuModeConfigureSeats::addPlayer(const std::string& nick, int32_t id)
         }
     }
 
-    if(!ODServer::getSingleton().isConnected())
+    if(!mIsActivePlayerConfig)
         return;
 
     fireSeatConfigurationToServer(false);
@@ -430,7 +428,7 @@ void MenuModeConfigureSeats::removePlayer(int32_t id)
         break;
     }
 
-    if(!ODServer::getSingleton().isConnected())
+    if(!mIsActivePlayerConfig)
         return;
 
     fireSeatConfigurationToServer(false);
@@ -532,10 +530,40 @@ void MenuModeConfigureSeats::fireSeatConfigurationToServer(bool isFinal)
     ODClient::getSingleton().queueClientNotification(notif);
 }
 
+void MenuModeConfigureSeats::activatePlayerConfig()
+{
+    mIsActivePlayerConfig = true;
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
+    CEGUI::Window* listPlayersWindow = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers");
+    listPlayersWindow->setText("Please configure map : " + gameMap->getLevelName());
+    bool enabled = true;
+
+    for(int seatId : mSeatIds)
+    {
+        std::string name;
+        CEGUI::Window* combo;
+
+        name = TEXT_SEAT_ID_PREFIX + Ogre::StringConverter::toString(seatId);
+        combo = listPlayersWindow->getChild(name);
+        combo->setEnabled(enabled);
+
+        name = COMBOBOX_PLAYER_PREFIX + Ogre::StringConverter::toString(seatId);
+        combo = listPlayersWindow->getChild(name);
+        combo->setEnabled(enabled);
+
+        name = COMBOBOX_TEAM_ID_PREFIX + Ogre::StringConverter::toString(seatId);
+        combo = listPlayersWindow->getChild(name);
+        combo->setEnabled(enabled);
+    }
+
+    CEGUI::Window* startButton = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers/LaunchGameButton");
+    startButton->setEnabled(enabled);
+}
+
 void MenuModeConfigureSeats::refreshSeatConfiguration(ODPacket& packet)
 {
-    // We don't refresh seats on server side
-    if(ODServer::getSingleton().isConnected())
+    // We don't refresh seats for the player configuring the game
+    if(mIsActivePlayerConfig)
         return;
 
     CEGUI::Window* playersWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers");

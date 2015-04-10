@@ -53,7 +53,8 @@
 template<> ODClient* Ogre::Singleton<ODClient>::msSingleton = nullptr;
 
 ODClient::ODClient() :
-    ODSocketClient()
+    ODSocketClient(),
+    mIsPlayerConfig(false)
 {
 }
 
@@ -221,6 +222,15 @@ bool ODClient::processOneClientSocketMessage()
             if(getSource() == ODSource::file)
                 return false;
             break;
+        }
+
+        case ServerNotificationType::playerConfigChange:
+        {
+            if(frameListener->getModeManager()->getCurrentModeType() != ModeManager::ModeType::MENU_CONFIGURE_SEATS)
+                break;
+
+            MenuModeConfigureSeats* mode = static_cast<MenuModeConfigureSeats*>(frameListener->getModeManager()->getCurrentMode());
+            mode->activatePlayerConfig();
         }
 
         case ServerNotificationType::seatConfigurationRefresh:
@@ -985,6 +995,7 @@ void ODClient::sendToServer(ODPacket& packetToSend)
 bool ODClient::connect(const std::string& host, const int port)
 {
     LogManager& logManager = LogManager::getSingleton();
+    mIsPlayerConfig = false;
     // Start the server socket listener as well as the server socket thread
     if (ODClient::getSingleton().isConnected())
     {
@@ -1007,6 +1018,7 @@ bool ODClient::connect(const std::string& host, const int port)
 bool ODClient::replay(const std::string& filename)
 {
     LogManager& logManager = LogManager::getSingleton();
+    mIsPlayerConfig = false;
     // Start the server socket listener as well as the server socket thread
     if (ODClient::getSingleton().isConnected())
     {
@@ -1033,6 +1045,8 @@ void ODClient::disconnect(bool keepReplay)
         delete mClientNotificationQueue.front();
         mClientNotificationQueue.pop_front();
     }
+
+    mIsPlayerConfig = false;
 }
 
 void ODClient::notifyExit()
