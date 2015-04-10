@@ -56,6 +56,7 @@ ConfigManager::ConfigManager(const std::string& configPath) :
     mTimePayDay(300),
     mNbTurnsFuriousMax(120),
     mMaxManaPerSeat(250000.0),
+    mClaimingWallPenalty(0.8),
     mCreatureDefinitionDefaultWorker(nullptr)
 {
     mCreatureDefinitionDefaultWorker = new CreatureDefinition(DefaultWorkerCreatureDefinition,
@@ -500,6 +501,13 @@ bool ConfigManager::loadGlobalGameConfig(std::stringstream& configFile)
         {
             configFile >> nextParam;
             mMaxManaPerSeat = Helper::toDouble(nextParam);
+            // Not mandatory
+        }
+
+        if(nextParam == "ClaimingWallPenalty")
+        {
+            configFile >> nextParam;
+            mClaimingWallPenalty = Helper::toDouble(nextParam);
             // Not mandatory
         }
     }
