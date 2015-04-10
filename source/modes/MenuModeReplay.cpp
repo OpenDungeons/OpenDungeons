@@ -192,6 +192,8 @@ bool MenuModeReplay::listReplaysClicked(const CEGUI::EventArgs&)
     if(replaySelectList->getSelectedCount() == 0)
         return true;
 
+    getModeManager().getGui().playButtonClickSound();
+
     CEGUI::ListboxItem* selItem = replaySelectList->getFirstSelectedItem();
     int id = selItem->getID();
 
