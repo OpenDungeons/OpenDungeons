@@ -366,6 +366,9 @@ public:
     inline CreatureOverlayHealthValue getOverlayHealthValue() const
     { return mOverlayHealthValue; }
 
+    inline int32_t getNbTurnsWithoutBattle() const
+    { return mNbTurnsWithoutBattle; }
+
     void fireCreatureRefreshIfNeeded();
 
 protected:
@@ -455,6 +458,7 @@ private:
     Room*           mJobRoom;
     Room*           mEatRoom;
     CEGUI::Window*  mStatsWindow;
+    int32_t         mNbTurnsWithoutBattle;
 
     //! \brief Every tiles within the creature sight radius, used for common actions.
     std::vector<Tile*>              mTilesWithinSightRadius;
