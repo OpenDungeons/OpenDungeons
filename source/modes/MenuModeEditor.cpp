@@ -218,6 +218,8 @@ bool MenuModeEditor::updateDescription(const CEGUI::EventArgs&)
         return true;
     }
 
+    getModeManager().getGui().playButtonClickSound();
+
     CEGUI::ListboxItem* selItem = levelSelectList->getFirstSelectedItem();
     int id = selItem->getID();
 

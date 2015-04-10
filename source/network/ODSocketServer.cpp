@@ -85,59 +85,58 @@ void ODSocketServer::doTask(int timeoutMs)
         }
 
         // Check if a client tries to connect or to communicate
-        if(isSockReady)
+        if(!isSockReady)
+            continue;
+
+        if(mSockSelector.isReady(mSockListener))
         {
-            if(mSockSelector.isReady(mSockListener))
+            // New connection
+            sf::Socket::Status status = mSockListener.accept(mNewClient->mSockClient);
+
+            if (status == sf::Socket::Done)
             {
                 // New connection
-                sf::Socket::Status status = mSockListener.accept(
-                    mNewClient->mSockClient);
-
-                if (status == sf::Socket::Done)
+                LogManager::getSingleton().logMessage("New client connected.");
+                if(notifyNewConnection(mNewClient))
                 {
-                    // New connection
-                    LogManager::getSingleton().logMessage("New client connected");
-                    if(notifyNewConnection(mNewClient))
-                    {
-                        // The server wants to keep the client
-                        mNewClient->mSource = ODSocketClient::ODSource::network;
-                        mSockSelector.add(mNewClient->mSockClient);
-                        mSockClients.push_back(mNewClient);
+                    // The server wants to keep the client
+                    mNewClient->mSource = ODSocketClient::ODSource::network;
+                    mSockSelector.add(mNewClient->mSockClient);
+                    mSockClients.push_back(mNewClient);
 
-                        mNewClient = new ODSocketClient;
-                        LogManager::getSingleton().logMessage("New client accepted");
-                    }
-                    else
-                    {
-                        LogManager::getSingleton().logMessage("New client refused");
-                    }
+                    mNewClient = new ODSocketClient;
+                    LogManager::getSingleton().logMessage("New client accepted.");
                 }
                 else
                 {
-                    // Error
-                    LogManager::getSingleton().logMessage("ERROR : Could not listen to server port error="
-                        + Ogre::StringConverter::toString(status));
+                    LogManager::getSingleton().logMessage("New client refused.");
                 }
             }
             else
             {
+                // Error
+                LogManager::getSingleton().logMessage("ERROR : Could not listen to server port error="
+                    + Ogre::StringConverter::toString(status));
+            }
+        }
+        else
+        {
 
-                for(std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end();)
+            for(std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end();)
+            {
+                ODSocketClient* client = *it;
+                if((mSockSelector.isReady(client->mSockClient)) &&
+                    (!notifyClientMessage(client)))
                 {
-                    ODSocketClient* client = *it;
-                    if((mSockSelector.isReady(client->mSockClient)) &&
-                       (!notifyClientMessage(client)))
-                    {
-                        // The server wants to remove the client
-                        it = mSockClients.erase(it);
-                        mSockSelector.remove(client->mSockClient);
-                        client->disconnect();
-                        delete client;
-                    }
-                    else
-                    {
-                        ++it;
-                    }
+                    // The server wants to remove the client
+                    it = mSockClients.erase(it);
+                    mSockSelector.remove(client->mSockClient);
+                    client->disconnect();
+                    delete client;
+                }
+                else
+                {
+                    ++it;
                 }
             }
         }

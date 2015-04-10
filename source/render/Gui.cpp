@@ -89,13 +89,10 @@ Gui::Gui(SoundEffectsManager* soundEffectsManager, const std::string& ceguiLogFi
     mSheets[replayMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
     mSheets[loadSavedGameMenu]->getChild("VersionText")->setText(ODApplication::VERSION);
 
-    //Add sound to button clicks and selection
+    // Add sound to button clicks
     CEGUI::GlobalEventSet& ges = CEGUI::GlobalEventSet::getSingleton();
     ges.subscribeEvent(
         CEGUI::PushButton::EventNamespace + "/" + CEGUI::PushButton::EventClicked,
-        CEGUI::Event::Subscriber(&Gui::playButtonClickSound, this));
-    ges.subscribeEvent(
-        CEGUI::Listbox::EventNamespace + "/" + CEGUI::Listbox::EventSelectionChanged,
         CEGUI::Event::Subscriber(&Gui::playButtonClickSound, this));
 }
 

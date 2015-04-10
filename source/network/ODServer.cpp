@@ -496,7 +496,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             }
 
             // Tell the client to load the given map
-            LogManager::getSingleton().logMessage("Level relative path sent to client: " + gameMap->getLevelFileName());
+            LogManager::getSingleton().logMessage("Level sent to client: " + gameMap->getLevelName());
             setClientState(clientSocket, "loadLevel");
             int32_t mapSizeX = gameMap->getMapSizeX();
             int32_t mapSizeY = gameMap->getMapSizeY();
@@ -506,7 +506,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             packet << version;
             packet << mapSizeX << mapSizeY;
             // Map infos
-            packet << gameMap->getLevelFileName();
+            packet << gameMap->getLevelName();
             packet << gameMap->getLevelDescription();
             packet << gameMap->getLevelMusicFile();
             packet << gameMap->getLevelFightMusicFile();
@@ -607,6 +607,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             curPlayer->setIsHuman(true);
             clientSocket->setPlayer(curPlayer);
             setClientState(clientSocket, "ready");
+
+            LogManager::getSingleton().logMessage("Player id: " + Helper::toString(playerId) + " nickname is: " + clientNick);
 
             if(mServerMode != ServerMode::ModeEditor)
                 break;
@@ -2050,13 +2052,18 @@ bool ODServer::notifyClientMessage(ODSocketClient *clientSocket)
     bool ret = processClientNotifications(clientSocket);
     if(!ret)
     {
-        LogManager::getSingleton().logMessage("Client disconnected state=" + clientSocket->getState());
+        std::string nick = clientSocket->getPlayer() ? clientSocket->getPlayer()->getNick() : std::string();
+        std::string message = nick.empty() ?
+                              "Client disconnected state=" + clientSocket->getState() :
+                              "Client (" + nick + ") disconnected state=" + clientSocket->getState();
+        LogManager::getSingleton().logMessage(message);
         if(std::string("ready").compare(clientSocket->getState()) == 0)
         {
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotificationType::chatServer, nullptr);
-            std::string msg = clientSocket->getPlayer()->getNick()
-                + " disconnected";
+            std::string msg = nick.empty() ?
+                              "A client disconnected." :
+                              nick + " disconnected.";
             serverNotification->mPacket << msg << EventShortNoticeType::genericGameInfo;
             queueServerNotification(serverNotification);
         }

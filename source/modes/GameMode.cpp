@@ -870,13 +870,13 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     return true;
 }
 
-bool GameMode::keyPressed(const OIS::KeyEvent &arg)
+bool GameMode::keyPressed(const OIS::KeyEvent& arg)
 {
     // Inject key to Gui
     CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyDown(static_cast<CEGUI::Key::Scan>(arg.key));
     CEGUI::System::getSingleton().getDefaultGUIContext().injectChar(arg.text);
 
-    if((mCurrentInputMode == InputModeChat) && isChatKey(arg))
+    if((mCurrentInputMode == InputModeChat))
         return keyPressedChat(arg);
 
     return keyPressedNormal(arg);
@@ -1032,11 +1032,20 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
 
 bool GameMode::keyPressedChat(const OIS::KeyEvent &arg)
 {
-    if(arg.key != OIS::KC_RETURN && arg.key != OIS::KC_ESCAPE)
+    // If one presses Escape while in chat mode, let's simply quit it.
+    CEGUI::Window* chatEditBox = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameChatWindow/GameChatEditBox");
+    if (arg.key == OIS::KC_ESCAPE)
+    {
+        mCurrentInputMode = InputModeNormal;
+        chatEditBox->setText("");
+        chatEditBox->hide();
+        return true;
+    }
+
+    if(arg.key != OIS::KC_RETURN)
         return true;
 
     mCurrentInputMode = InputModeNormal;
-    CEGUI::Window* chatEditBox = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameChatWindow/GameChatEditBox");
     chatEditBox->hide();
 
     // Check whether something was actually typed.
@@ -1076,47 +1085,16 @@ void GameMode::receiveEventShortNotice(EventMessage* event)
 
 void GameMode::updateMessages(Ogre::Real update_time)
 {
-    float maxChatTimeDisplay = ODFrameListener::getSingleton().getChatMaxTimeDisplay();
+    float maxChatTimeDisplay = ODFrameListener::getSingleton().getEventMaxTimeDisplay();
 
-    CEGUI::Window* chatTextBox = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameChatWindow/GameChatText");
-    CEGUI::Scrollbar* scrollBar = static_cast<CEGUI::Scrollbar*>(chatTextBox->getChild("__auto_vscrollbar__"));
+    // Update the event message seen if necessary.
+    CEGUI::Window* shortNoticeText = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameEventText");
+    CEGUI::Scrollbar* scrollBar = static_cast<CEGUI::Scrollbar*>(shortNoticeText->getChild("__auto_vscrollbar__"));
     float scrollPosition = scrollBar->getScrollPosition();
 
     // Update the chat message seen if necessary.
     bool messageDisplayUpdate = false;
     CEGUI::String ceguiStr;
-    for (auto it = mChatMessages.begin(); it != mChatMessages.end();)
-    {
-        ChatMessage* message = *it;
-        if (message->isMessageTooOld(maxChatTimeDisplay))
-        {
-            delete message;
-            it = mChatMessages.erase(it);
-            messageDisplayUpdate = true;
-        }
-        else
-        {
-            ceguiStr += reinterpret_cast<const CEGUI::utf8*>(message->getMessageAsString().c_str());
-            ++it;
-        }
-    }
-
-    if (messageDisplayUpdate)
-    {
-        chatTextBox->setText(ceguiStr);
-
-        // Restore the scrolling position when the text updates
-        scrollBar->setScrollPosition(scrollPosition);
-    }
-
-    // Do the same for events.
-    CEGUI::Window* shortNoticeText = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameEventText");
-    scrollBar = static_cast<CEGUI::Scrollbar*>(shortNoticeText->getChild("__auto_vscrollbar__"));
-    scrollPosition = scrollBar->getScrollPosition();
-
-    // Update the chat message seen if necessary.
-    messageDisplayUpdate = false;
-    ceguiStr.clear();
     for (auto it = mEventMessages.begin(); it != mEventMessages.end();)
     {
         EventMessage* event = *it;

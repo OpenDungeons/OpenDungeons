@@ -155,10 +155,10 @@ public:
     static const std::string REM_BUTTON_BACK;
     static const std::string REM_LIST_REPLAYS;
 
-private:
     //! \brief Callback function that plays a button click sound.
-    bool playButtonClickSound(const CEGUI::EventArgs& e);
+    bool playButtonClickSound(const CEGUI::EventArgs& e = {});
 
+private:
     std::map<guiSheet, CEGUI::Window*> mSheets;
 
     SoundEffectsManager* mSoundEffectsManager;

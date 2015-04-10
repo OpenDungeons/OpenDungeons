@@ -31,7 +31,7 @@ const std::string HELPMESSAGE =
         "\n\thelp - Displays this help message."
         "\n\thelp keys - Shows the keyboard controls."
         "\n\tlist/ls - Prints out lists of creatures, classes, etc..."
-        "\n\tmaxtime - Sets or displays the max time for chat messages to be displayed."
+        "\n\tmaxtime - Sets or displays the max time for event messages to be displayed."
         "\n\ttermwidth - Sets the terminal width."
         "\n\n==Cheats=="
         "\n\taddcreature - Adds a creature."
@@ -604,10 +604,10 @@ void addConsoleCommands(ConsoleInterface& cl)
                   "Sets the max time (in seconds) a message will be displayed in the info text area.\n\nExample:\n"
                   "maxtime 5",
                   [](const Command::ArgumentList_t& args, ConsoleInterface& c, AbstractModeManager&) {
-                          return cSetFrameListenerVar<float>(std::mem_fn(&ODFrameListener::getChatMaxTimeDisplay),
-                                                                std::mem_fn(&ODFrameListener::setChatMaxTimeDisplay),
+                          return cSetFrameListenerVar<float>(std::mem_fn(&ODFrameListener::getEventMaxTimeDisplay),
+                                                                std::mem_fn(&ODFrameListener::setEventMaxTimeDisplay),
                                                                 ODFrameListener::getSingleton(),
-                                                                "chat max time display", args, c);
+                                                                "event max time display", args, c);
                   },
                   {AbstractModeManager::ModeType::ALL});
     cl.addCommand("addcreature",
