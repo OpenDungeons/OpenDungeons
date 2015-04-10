@@ -79,11 +79,11 @@ public:
 
     void requestExit();
 
-    inline float getChatMaxTimeDisplay() const
-    { return mChatMaxTimeDisplay; }
+    inline float getEventMaxTimeDisplay() const
+    { return mEventMaxTimeDisplay; }
 
-    inline void setChatMaxTimeDisplay(float chatMaxTimeDisplay)
-    { mChatMaxTimeDisplay = chatMaxTimeDisplay; }
+    inline void setEventMaxTimeDisplay(float eventMaxTimeDisplay)
+    { mEventMaxTimeDisplay = eventMaxTimeDisplay; }
 
     //! \brief Toggle the display of debug info (default key used to do that: F11)
     void toggleDebugInfo()
@@ -178,7 +178,9 @@ private:
 
     bool                 mShowDebugInfo;
     bool                 mContinue;
-    float                mChatMaxTimeDisplay;
+
+    //! \brief The amount of time in seconds an event message will be displayed.
+    float                mEventMaxTimeDisplay;
 
     //! \brief Reference to the Ogre ray scene query handler. Don't delete it.
     Ogre::RaySceneQuery* mRaySceneQuery;

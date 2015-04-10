@@ -125,12 +125,6 @@ protected:
         mEventConnections.emplace_back(conn);
     }
 
-    //! \brief Returns true if the key is to be processed by the chat.
-    //! False otherwise. If false is returned, the key will be processed
-    //! by the normal function even if in chat mode
-    virtual bool isChatKey          (const OIS::KeyEvent &arg);
-    virtual int getChatChar         (const OIS::KeyEvent &arg);
-
     // foreign reference, don't delete it.
     ModeManager* mModeManager;
 

@@ -76,7 +76,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::Overlay
     mModeManager(new ModeManager(renderWindow, gui)),
     mShowDebugInfo(false),
     mContinue(true),
-    mChatMaxTimeDisplay(20.0f),
+    mEventMaxTimeDisplay(20.0f),
     mRaySceneQuery(nullptr),
     mExitRequested(false),
     mCameraManager(mRenderManager->getSceneManager(), mGameMap.get(), renderWindow),
