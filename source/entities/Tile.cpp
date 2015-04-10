@@ -37,6 +37,7 @@
 
 #include "traps/Trap.h"
 
+#include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
@@ -711,6 +712,10 @@ void Tile::claimForSeat(Seat* seat, double nDanceRate)
         return;
     }
 
+    // Claiming walls is less efficient than claiming ground
+    if(getFullness() > 0)
+        nDanceRate *= ConfigManager::getSingleton().getClaimingWallPenalty();
+
     // If the seat is allied, we add to it. If it is an enemy seat, we subtract from it.
     if (getSeat() != nullptr && getSeat()->isAlliedSeat(seat))
     {
@@ -721,6 +726,10 @@ void Tile::claimForSeat(Seat* seat, double nDanceRate)
         mClaimedPercentage -= nDanceRate;
         if (mClaimedPercentage <= 0.0)
         {
+            // We notify the old seat that the tile is lost
+            if(getSeat() != nullptr)
+                getSeat()->notifyTileClaimedByEnemy(this);
+
             // The tile is not yet claimed, but it is now an allied seat.
             mClaimedPercentage *= -1.0;
             setSeat(seat);

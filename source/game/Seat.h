@@ -219,6 +219,7 @@ public:
 
     void clearTilesWithVision();
     void notifyVisionOnTile(Tile* tile);
+    void notifyTileClaimedByEnemy(Tile* tile);
 
     //! \brief Returns true if this seat can see the given tile and false otherwise
     bool hasVisionOnTile(Tile* tile);

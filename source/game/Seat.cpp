@@ -474,7 +474,7 @@ void Seat::initSeat()
                     OD_ASSERT_TRUE_MSG(false, "Tile=" + Tile::displayAsString(tile));
                     continue;
                 }
-                mTilesStates[tile->getX()][tile->getY()].mTileVisual = tileState.mTileVisual;
+                mTilesStates[tile->getX()][tile->getY()] = tileState;
 
                 // Then, we export tile state to the client
                 mGameMap->tileToPacket(serverNotification->mPacket, tile);
@@ -597,6 +597,23 @@ bool Seat::hasVisionOnTile(Tile* tile)
     TileStateNotified& stateTile = mTilesStates[tile->getX()][tile->getY()];
 
     return stateTile.mVisionTurnCurrent;
+}
+
+void Seat::notifyTileClaimedByEnemy(Tile* tile)
+{
+    if(mPlayer == nullptr)
+        return;
+    if(!mPlayer->getIsHuman())
+        return;
+
+    OD_ASSERT_TRUE_MSG(tile->getX() < static_cast<int>(mTilesStates.size()), "Tile=" + Tile::displayAsString(tile));
+    OD_ASSERT_TRUE_MSG(tile->getY() < static_cast<int>(mTilesStates[tile->getX()].size()), "Tile=" + Tile::displayAsString(tile));
+    TileStateNotified& tileState = mTilesStates[tile->getX()][tile->getY()];
+
+    // By default, we set the tile like if it was not claimed anymore
+    tileState.mSeatIdOwner = -1;
+    tileState.mTileVisual = TileVisual::dirtGround;
+    tileState.mVisionTurnCurrent = true;
 }
 
 void Seat::notifyChangedVisibleTiles()

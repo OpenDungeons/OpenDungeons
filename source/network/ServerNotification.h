@@ -43,6 +43,8 @@ enum class ServerNotificationType
     clientRejected,
     seatConfigurationRefresh,
 
+    playerConfigChange,
+
     chat,
     chatServer,
 

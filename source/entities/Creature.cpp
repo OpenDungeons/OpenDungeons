@@ -112,6 +112,7 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
     mJobRoom                 (nullptr),
     mEatRoom                 (nullptr),
     mStatsWindow             (nullptr),
+    mNbTurnsWithoutBattle    (0),
     mForceAction             (forcedActionNone),
     mCarriedEntity           (nullptr),
     mCarriedEntityDestType   (GameEntityType::unknown),
@@ -190,6 +191,7 @@ Creature::Creature(GameMap* gameMap) :
     mJobRoom                 (nullptr),
     mEatRoom                 (nullptr),
     mStatsWindow             (nullptr),
+    mNbTurnsWithoutBattle    (0),
     mForceAction             (forcedActionNone),
     mCarriedEntity           (nullptr),
     mCarriedEntityDestType   (GameEntityType::unknown),
@@ -747,6 +749,8 @@ void Creature::doUpkeep()
         computeMood();
         mMoodCooldownTurns = Random::Int(0, 5);
     }
+
+    ++mNbTurnsWithoutBattle;
 
     decidePrioritaryAction();
 
@@ -2393,6 +2397,8 @@ bool Creature::handleAttackAction(const CreatureAction& actionItem)
 
     fireCreatureSound(CreatureSoundType::ATTACK);
 
+    mNbTurnsWithoutBattle = 0;
+
     // Calculate how much damage we do.
     Tile* myTile = getPositionTile();
     Ogre::Real range = getGameMap()->crowDistance(myTile, attackedTile);
@@ -3381,6 +3387,7 @@ std::string Creature::getStatsText()
 
 double Creature::takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile *tileTakingDamage)
 {
+    mNbTurnsWithoutBattle = 0;
     physicalDamage = std::max(physicalDamage - getPhysicalDefense(), 0.0);
     magicalDamage = std::max(magicalDamage - getMagicalDefense(), 0.0);
     double damageDone = std::min(mHp, physicalDamage + magicalDamage);

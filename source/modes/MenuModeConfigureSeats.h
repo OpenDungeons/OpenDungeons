@@ -49,9 +49,11 @@ public:
     void addPlayer(const std::string& nick, int32_t id);
     void removePlayer(int32_t id);
 
+    void activatePlayerConfig();
     void refreshSeatConfiguration(ODPacket& packet);
 
 private:
+    bool mIsActivePlayerConfig;
     std::vector<int> mSeatIds;
     std::vector<std::pair<std::string, int32_t> > mPlayers;
 

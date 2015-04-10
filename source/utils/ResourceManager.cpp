@@ -297,12 +297,19 @@ void ResourceManager::setupUserDataFolders()
     mShaderCachePath = mUserDataPath + SHADERCACHESUBPATH;
 
     // Backup the Ogre log files from the previous three instances
-    if(boost::filesystem::exists(mOgreLogFile + ".2"))
-        boost::filesystem::rename(mOgreLogFile + ".2", mOgreLogFile + ".3");
-    if(boost::filesystem::exists(mOgreLogFile + ".1"))
-        boost::filesystem::rename(mOgreLogFile + ".1", mOgreLogFile + ".2");
-    if(boost::filesystem::exists(mOgreLogFile))
-        boost::filesystem::rename(mOgreLogFile, mOgreLogFile + ".1");
+    try
+    {
+        if(boost::filesystem::exists(mOgreLogFile + ".2"))
+            boost::filesystem::rename(mOgreLogFile + ".2", mOgreLogFile + ".3");
+        if(boost::filesystem::exists(mOgreLogFile + ".1"))
+            boost::filesystem::rename(mOgreLogFile + ".1", mOgreLogFile + ".2");
+        if(boost::filesystem::exists(mOgreLogFile))
+            boost::filesystem::rename(mOgreLogFile, mOgreLogFile + ".1");
+    }
+    catch(const boost::filesystem::filesystem_error& e)
+    {
+        std::cerr << "ERROR: couldn't rename logs " << e.what() <<  std::endl;
+    }
 }
 
 void ResourceManager::setupOgreResources(uint16_t shaderLanguageVersion)

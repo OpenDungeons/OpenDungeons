@@ -111,6 +111,9 @@ private:
     ServerState mServerState;
     GameMap *mGameMap;
     bool mSeatsConfigured;
+    //! Player allowed to configure the lobby, save the game, ...
+    Player* mPlayerConfig;
+    std::vector<Player*> mDisconnectedPlayers;
 
     std::deque<ServerNotification*> mServerNotificationQueue;
     std::deque<ServerConsoleCommand*> mConsoleCommandQueue;

@@ -50,6 +50,8 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "clientRejected";
         case ServerNotificationType::seatConfigurationRefresh:
             return "seatConfigurationRefresh";
+        case ServerNotificationType::playerConfigChange:
+            return "playerConfigChange";
         case ServerNotificationType::chat:
             return "chat";
         case ServerNotificationType::chatServer:

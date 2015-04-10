@@ -22,6 +22,7 @@
 #include "creaturemood/CreatureMoodFee.h"
 #include "creaturemood/CreatureMoodHpLoss.h"
 #include "creaturemood/CreatureMoodHunger.h"
+#include "creaturemood/CreatureMoodTurnsWithoutFight.h"
 
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
@@ -120,6 +121,22 @@ CreatureMood* CreatureMood::load(std::istream& defFile)
             int32_t moodModifier = Helper::toInt(nextParam);
 
             def = new CreatureMoodHunger(startHunger, moodModifier);
+        }
+
+        if (nextParam == "TurnsWithoutFight")
+        {
+            if(!(defFile >> nextParam))
+                break;
+            int32_t nbTurnsWithoutFightMin = Helper::toInt(nextParam);
+            if(!(defFile >> nextParam))
+                break;
+            int32_t nbTurnsWithoutFightMax = Helper::toInt(nextParam);
+            if(!(defFile >> nextParam))
+                break;
+            int32_t moodModifier = Helper::toInt(nextParam);
+
+            def = new CreatureMoodTurnsWithoutFight(nbTurnsWithoutFightMin,
+                nbTurnsWithoutFightMax, moodModifier);
         }
     }
     OD_ASSERT_TRUE(false);
