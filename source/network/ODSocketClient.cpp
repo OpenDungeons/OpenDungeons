@@ -30,7 +30,7 @@ bool ODSocketClient::connect(const std::string& host, const int port)
 {
     mSource = ODSource::none;
     // As we use selector, there is no need to set the socket as not-blocking
-    sf::Socket::Status status = mSockClient.connect(host, port);
+    sf::Socket::Status status = mSockClient.connect(host, port, sf::seconds(5));
     if (status != sf::Socket::Done)
     {
         LogManager::getSingleton().logMessage("ERROR : Could not connect to distant server status="

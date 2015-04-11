@@ -72,53 +72,46 @@ void MenuModeMultiplayerClient::activate()
     gameMap->setGamePaused(true);
 
     CEGUI::Window* mainWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::multiplayerClientMenu);
-    mainWin->getChild(Gui::MPM_TEXT_LOADING)->hide();
+    mainWin->getChild(Gui::MPM_TEXT_LOADING)->setText("");
 }
 
 bool MenuModeMultiplayerClient::clientButtonPressed(const CEGUI::EventArgs&)
 {
-    CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::multiplayerClientMenu)->getChild(Gui::MPM_EDIT_IP);
-    CEGUI::Editbox* editIp = static_cast<CEGUI::Editbox*>(tmpWin);
+    CEGUI::Editbox* editIp = static_cast<CEGUI::Editbox*>(
+                                 getModeManager().getGui().getGuiSheet(Gui::multiplayerClientMenu)->getChild(Gui::MPM_EDIT_IP));
     const std::string ip = editIp->getText().c_str();
+
+    CEGUI::Window* infoText = getModeManager().getGui().getGuiSheet(Gui::multiplayerClientMenu)->getChild(Gui::MPM_TEXT_LOADING);
 
     if (ip.empty())
     {
-        tmpWin = getModeManager().getGui().getGuiSheet(Gui::multiplayerClientMenu)->getChild(Gui::MPM_TEXT_LOADING);
-        tmpWin->setText("Please enter a server IP.");
-        tmpWin->show();
+        infoText->setText("Please enter a server IP.");
         return true;
     }
 
-    tmpWin = getModeManager().getGui().getGuiSheet(Gui::multiplayerClientMenu)->getChild(Gui::MPM_EDIT_NICK);
-    CEGUI::Editbox* editNick = static_cast<CEGUI::Editbox*>(tmpWin);
+    CEGUI::Editbox* editNick = static_cast<CEGUI::Editbox*>(
+                                   getModeManager().getGui().getGuiSheet(Gui::multiplayerClientMenu)->getChild(Gui::MPM_EDIT_NICK));
     std::string nick = editNick->getText().c_str();
     if (nick.empty())
     {
-        tmpWin = getModeManager().getGui().getGuiSheet(Gui::multiplayerClientMenu)->getChild(Gui::MPM_TEXT_LOADING);
-        tmpWin->setText("Please enter a nickname.");
-        tmpWin->show();
+        infoText->setText("Please enter a nickname.");
         return true;
     }
     else if (nick.length() > 20)
     {
-        tmpWin = getModeManager().getGui().getGuiSheet(Gui::multiplayerClientMenu)->getChild(Gui::MPM_TEXT_LOADING);
-        tmpWin->setText("Please enter a shorter nickname. (20 letters max.)");
-        tmpWin->show();
+        infoText->setText("Please enter a shorter nickname. (20 letters max.)");
         return true;
     }
-
-    tmpWin = getModeManager().getGui().getGuiSheet(Gui::multiplayerClientMenu)->getChild(Gui::MPM_TEXT_LOADING);
-    tmpWin->setText("Loading...");
-    tmpWin->show();
 
     ODFrameListener::getSingleton().getClientGameMap()->setLocalPlayerNick(nick);
 
     if(!ODClient::getSingleton().connect(ip, ConfigManager::getSingleton().getNetworkPort()))
     {
         // Error while connecting
-        tmpWin = getModeManager().getGui().getGuiSheet(Gui::multiplayerClientMenu)->getChild(Gui::MPM_TEXT_LOADING);
-        tmpWin->setText("Could not connect to: " + ip);
+        infoText->setText("Could not connect to: " + ip);
         return true;
     }
+
+    infoText->setText("Loading...");
     return true;
 }
