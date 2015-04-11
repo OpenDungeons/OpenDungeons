@@ -178,8 +178,8 @@ textures/
 -> Troll{,Normal,Rock}.png
 -> TrollBed*.png                       Eugeneloza, Anagoria, Chris Chittleborough   CC-BY-SA 3.0 - http://forum.freegamedev.net/viewtopic.php?f=38&t=5866&p=62444#p62444
 -> Water.png
--> WeaponShield1.png                   YD, Danimal             CC-BY 3.0               http://opengameart.org/users/yd
--> WeaponShield2.png                   YD, Danimal             CC-BY 3.0               http://opengameart.org/users/yd
+-> WeaponShield1*.png                  YD, Danimal             CC-BY 3.0               http://opengameart.org/users/yd
+-> WeaponShield2*.png                  YD, Danimal             CC-BY 3.0               http://opengameart.org/users/yd
 -> White.png                           Public domain, too simple to be licensed
 -> Wizard.png
 -> WoodBridge*.png
