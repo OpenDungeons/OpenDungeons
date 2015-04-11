@@ -23,7 +23,6 @@
 #include "entities/Tile.h"
 #include "network/ODClient.h"
 #include "network/ODServer.h"
-#include "network/ChatMessage.h"
 #include "game/Player.h"
 #include "game/Research.h"
 #include "game/Seat.h"

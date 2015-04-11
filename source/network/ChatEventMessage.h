@@ -15,8 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CHATMESSAGE_H
-#define CHATMESSAGE_H
+#ifndef CHATEVENTMESSAGE_H
+#define CHATEVENTMESSAGE_H
 
 #include <SFML/System.hpp>
 #include <string>
@@ -44,15 +44,12 @@ public:
     inline Player* getPlayer() const
     { return mPlayer; }
 
-    bool isMessageTooOld(float maxTimeDisplay) const;
-
     //! \brief Computes and returns the preformatted message string.
     std::string getMessageAsString();
 
 private:
     std::string mMessage;
     Player* mPlayer;
-    sf::Clock mClockCreation;
 };
 
 class EventMessage
@@ -74,4 +71,4 @@ private:
     sf::Clock   mClockCreation;
 };
 
-#endif // CHATMESSAGE_H
+#endif // CHATEVENTMESSAGE_H

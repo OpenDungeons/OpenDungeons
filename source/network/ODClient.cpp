@@ -21,7 +21,7 @@
 #include "network/ServerNotification.h"
 #include "render/ODFrameListener.h"
 #include "render/RenderManager.h"
-#include "network/ChatMessage.h"
+#include "network/ChatEventMessage.h"
 #include "gamemap/GameMap.h"
 #include "game/Seat.h"
 #include "game/Player.h"

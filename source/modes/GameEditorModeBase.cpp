@@ -19,7 +19,7 @@
 
 #include "game/Player.h"
 #include "gamemap/GameMap.h"
-#include "network/ChatMessage.h"
+#include "network/ChatEventMessage.h"
 #include "render/Gui.h"
 #include "render/ODFrameListener.h"
 #include "rooms/RoomType.h"
@@ -110,7 +110,7 @@ GameEditorModeBase::GameEditorModeBase(ModeManager *modeManager, ModeManager::Mo
     connectRoomSelect(Gui::BUTTON_TRAININGHALL, RoomType::trainingHall);
     connectRoomSelect(Gui::BUTTON_TREASURY, RoomType::treasury);
 
-    //Traps
+    // Traps
     addEventConnection(
         rootWindow->getChild(Gui::BUTTON_DESTROY_TRAP)->subscribeEvent(
             CEGUI::Window::EventMouseClick,
@@ -121,19 +121,29 @@ GameEditorModeBase::GameEditorModeBase(ModeManager *modeManager, ModeManager::Mo
     connectTrapSelect(Gui::BUTTON_TRAP_CANNON, TrapType::cannon);
     connectTrapSelect(Gui::BUTTON_TRAP_SPIKE, TrapType::spike);
 
-    //Creature buttons
+    // Creature buttons
     connectGuiAction(Gui::BUTTON_CREATURE_WORKER, AbstractApplicationMode::GuiAction::ButtonPressedCreatureWorker);
     connectGuiAction(Gui::BUTTON_CREATURE_FIGHTER, AbstractApplicationMode::GuiAction::ButtonPressedCreatureFighter);
 }
 
 GameEditorModeBase::~GameEditorModeBase()
 {
-    // delete the potential pending messages and events short notices.
-    for (ChatMessage* message : mChatMessages)
-        delete message;
+    // Delete the potential pending event messages
     for (EventMessage* message : mEventMessages)
         delete message;
+}
 
+void GameEditorModeBase::deactivate()
+{
+    // Clear up any events and chat messages.
+
+    // Delete the potential pending event messages
+    for (EventMessage* message : mEventMessages)
+        delete message;
+    mEventMessages.clear();
+
+    mRootWindow->getChild("GameChatWindow/GameChatText")->setText("");
+    mRootWindow->getChild("GameEventText")->setText("");
 }
 
 void GameEditorModeBase::connectGuiAction(const std::string& buttonName, AbstractApplicationMode::GuiAction action)
@@ -200,8 +210,6 @@ void GameEditorModeBase::onFrameStarted(const Ogre::FrameEvent& evt)
 
 void GameEditorModeBase::receiveChat(ChatMessage* message)
 {
-    mChatMessages.emplace_back(message);
-
     // Adds the message right away
     CEGUI::Window* chatTextBox = mRootWindow->getChild("GameChatWindow/GameChatText");
     chatTextBox->appendText(reinterpret_cast<const CEGUI::utf8*>(message->getMessageAsString().c_str()));
@@ -209,6 +217,9 @@ void GameEditorModeBase::receiveChat(ChatMessage* message)
     // Ensure the latest text is shown
     CEGUI::Scrollbar* scrollBar = reinterpret_cast<CEGUI::Scrollbar*>(chatTextBox->getChild("__auto_vscrollbar__"));
     scrollBar->setScrollPosition(scrollBar->getDocumentSize());
+
+    // Delete it now we don't need it anymore.
+    delete message;
 }
 
 void GameEditorModeBase::receiveEventShortNotice(EventMessage* event)

@@ -6,7 +6,7 @@ This file is listing each files present in this repository, its author and its c
 Each corresponding license is fully described in the licenses/ folder.
 Other text files (.txt, .cpp, .h, .sh, ...), except licensing, are licensed using the GPL 3.0 license.
 
-Latest update: 2015/04/05
+Latest update: 2015/04/11
 
 
 =============================
@@ -98,95 +98,95 @@ scripts/
 textures/
 -> *.png                               Titus Tscharntke        CC0                     http://www.burningwell.org/ - photo sources for textures
 -> AdventurerBed.png                   PantherOne              CC0                     http://opengameart.org/content/tent-pack
--> Adventurer.png                      
+-> Adventurer.png
 -> Anvil*.png                          Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
--> BedBlanket.png                      
--> BedWood.png                         
+-> BedBlanket.png
+-> BedWood.png
 -> Black.png                           Public domain, too simple to be licensed
--> Bookcase*.png                       
--> Bookshelf*.png                      
+-> Bookcase*.png
+-> Bookshelf*.png
 -> Boulder.png                         Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?p=59832#p59832
--> Cannon.png                          
+-> Cannon.png
 -> Cavehornet*.png                     Skorpio                 CC-BY-SA 3.0, GPL 3.0
 -> CelticCross*.png                    Yughues                 CC0                     http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
 -> ChickenCoop*.png                    Dm3d                    CC-BY-SA 3.0            http://opengameart.org/content/chicken-coop
--> Chicken.png                         
+-> Chicken.png
 -> Chimney*.png                        Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
--> Claimed*.png                        
+-> Claimed*.png
 -> CreatureOverlay*.png                hwoarangmy              CC-BY-SA 3.0
 -> Crypt*.png                          Yughues                 CC0                     http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
 -> Defender*.png                       Anthony Myers           CC-BY 3.0               http://forum.freegamedev.net/viewtopic.php?p=61450#p61450
--> Dirt*.png                           
--> Dojo*.png                           
--> Dormitory*.png                      
+-> Dirt*.png
+-> Dojo*.png
+-> Dormitory*.png
 -> DragonBed.png                       Dm3d                    GPL 2.0/GPL 3.0/CC-BY-SA 3.0  http://opengameart.org/content/goldpile
 -> Dragon{,Normal}.png
--> DungeonTemple*.png                  
--> Dwarf*.png                          
--> EnvmapCity.png                      
--> EnvmapMetal.png                     
--> Farm*.png                           
+-> DungeonTemple*.png
+-> Dwarf*.png
+-> EnvmapCity.png
+-> EnvmapMetal.png
+-> Farm*.png
 -> Forge*.png                          Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
 -> Foundry*.png                        Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
--> Gnome.png                           
+-> Gnome.png
 -> Goblin{,Normal}.png                 xGhostx7                CC0                     http://www.blendswap.com/blends/view/72394
 -> GoblinBed*.png                      Chris Chittleborough    CC-BY-SA 3.0            http://en.wikipedia.org/wiki/File:Round_hay_bale,_partially_eaten.jpg
 -> GoblinKnife*.png                    Wind astella            CC-BY 3.0               http://opengameart.org/content/wind-weapon-pack-1
 -> GoldGround.png                      Dirt.png's author, Akien
--> Gold{,Normal}.png                   
--> GoldStacks*.png                     
+-> Gold{,Normal}.png
+-> GoldStacks*.png
 -> Grimoire*.png                       Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
 -> Grindstone*.png                     Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
 -> Hammock*.png                        Luke.RUSTLTD, Nobiax    CC0                     http://forum.freegamedev.net/viewtopic.php?p=59983#p59983
 -> ImpBed*.png                         Nobiax CC0 and J. W. Bjerk (magic circle) CC-BY3 or GPL3 - http://opengameart.org/content/painterly-spell-icons-part-3 - http://opengameart.org/users/yughues
--> Keeperhand*.png                     
--> Knight.png                          
+-> Keeperhand*.png
+-> Knight.png
 -> KnightStatue.png                    Yughues                 CC0                     http://forum.freegamedev.net/viewtopic.php?p=60771#p6071
--> Kobold.png                          
--> Kreator*.png                        
+-> Kobold.png
+-> Kreator*.png
 -> Lamp*.png                           Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?
--> Lava.png                            
--> Library*.png                        
+-> Lava.png
+-> Library*.png
 -> LizardmanBed*.png                   Nobiax, public domain   CC0                     http://forum.freegamedev.net/viewtopic.php?p=60197#p60197
--> Lizardman{,Normal}.png              
--> Longsword.png                       
+-> Lizardman{,Normal}.png
+-> Longsword.png
 -> OrcBed*.png                         Bart, p0ss              CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=60191#p60191
--> Orc{,Normal}.png                    
--> PitDemon*.png                       
--> Podium*.png                         
+-> Orc{,Normal}.png
+-> PitDemon*.png
+-> Podium*.png
 -> Portal{,Normal}.png                 Yughues                 CC0                     http://opengameart.org/users/yughues
--> PortalVortex.png                    
+-> PortalVortex.png
 -> RangerBed*.png                      PantherOne              CC0                     http://opengameart.org/content/tent-pack
--> Rock.png                            
--> Roundshield.png                     
--> RunelordDwarf*.png                  
--> Scarab*.png                         
+-> Rock.png
+-> Roundshield.png
+-> RunelordDwarf*.png
+-> Scarab*.png
 -> Slime.png                           Grefuntor               CC-BY 3.0, CC-BY-SA 3.0, GPL 2.0+ - http://opengameart.org/content/slime-mold
 -> SmallSpider.png                     Skorpio                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=60887#p60851
 -> Spider{,Normal}.png                 DennisH2010             CC-BY 3.0               http://www.blendswap.com/blends/view/26798
 -> SpiderBed*.png                      Eugeneloza, Nobiax      CC0                     http://forum.freegamedev.net/viewtopic.php?p=60089#p60089
 -> Spiketrap.png                       P0ss, Danimal           CC-BY 3.0               http://opengameart.org/content/spyke-trap-low-poly
--> Staff.png                           
+-> Staff.png
 -> StoneCoffin*.png                    Yughues                 CC0                     http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
--> Tentacle{Albine,Green,Normal}.png   
+-> Tentacle{Albine,Green,Normal}.png
 -> TentacleBed*.png                    West                    CC0                     http://forum.freegamedev.net/viewtopic.php?p=60091#p60091
--> TrainingDummy1*.png                 
+-> TrainingDummy1*.png
 -> TrainingDummy2*.png                 Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59239#p59239
 -> TrainingDummy3*.png                 P0ss                    CC-BY 3.0               http://forum.freegamedev.net/viewtopic.php?p=59351#p59351
 -> TrainingDummy4*.png                 Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?p=59621#p59621
--> Treasury*.png                       
--> Troll{,Normal,Rock}.png             
+-> Treasury*.png
+-> Troll{,Normal,Rock}.png
 -> TrollBed*.png                       Eugeneloza, Anagoria, Chris Chittleborough   CC-BY-SA 3.0 - http://forum.freegamedev.net/viewtopic.php?f=38&t=5866&p=62444#p62444
--> Water.png                           
+-> Water.png
+-> WeaponShield1*.png                  YD, Danimal             CC-BY 3.0               http://opengameart.org/users/yd
+-> WeaponShield2*.png                  YD, Danimal             CC-BY 3.0               http://opengameart.org/users/yd
 -> White.png                           Public domain, too simple to be licensed
--> Wizard.png                          
--> WoodBridge*.png                     
+-> Wizard.png
+-> WoodBridge*.png
 -> Workshop{,Normal}.png               Nobiax                  CC0                     http://opengameart.org/users/yughues
 -> WorkshopMachine1*.png               Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
 -> WorkshopMachine2*.png               Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
--> Wyvern*.png                         
--> WeaponShield1.png               YD, Danimal         CC-BY 3.0            http://opengameart.org/users/yd
--> WeaponShield2.png               YD, Danimal         CC-BY 3.0            http://opengameart.org/users/yd
+-> Wyvern*.png
 
 ======================
 ==  Models: models/ ==
@@ -279,14 +279,14 @@ Troll.*                                Dm3d                    CC-BY-SA 3.0     
 TrollBed.mesh                          Eugeneloza              CC0                     http://forum.freegamedev.net/viewtopic.php?f=38&t=5866&p=62444#p62444
 TrollRock.mesh                         Dm3d                    CC-BY-SA 3.0            http://opengameart.org/content/rock-golem
 Water*                                 Skorpio                 CC-BY-SA 3.0, GPL 3.0
+WeaponShield1.mesh                     YD, Danimal             CC-BY 3.0               http://opengameart.org/users/yd
+WeaponShield2.mesh                     YD, Rshackleford, Danimal CC-BY 3.0             http://opengameart.org/users/rshackleford
 Wizard.*                               Skorpio                 CC-BY-SA 3.0, GPL 3.0
 WoodBridge.mesh                        Danimal                 CC-BY 3.0               http://opengameart.org/users/danimal
 Workshop.mesh                          Danimal                 CC-BY 3.0               http://opengameart.org/users/danimal
 WorkshopMachine1.mesh                  Danimal                 CC-BY 3.0               http://opengameart.org/users/danimal
 WorkshopMachine2.*                     Danimal                 CC-BY 3.0               http://opengameart.org/users/danimal
 Wyvern.*                               Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
-WeaponShield1.png               YD, Danimal         CC-BY 3.0            http://opengameart.org/users/yd
-WeaponShield2.png               YD, Rshackleford, Danimal         CC-BY 3.0            http://opengameart.org/users/rshackleford
 
 
 ====================

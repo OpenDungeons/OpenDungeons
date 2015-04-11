@@ -48,7 +48,12 @@ public:
     //! \brief Receive and display some event text
     void receiveEventShortNotice(EventMessage* event);
 
+    //! \brief Called when the mode is activated.
     virtual void activate() = 0;
+
+    //! \brief Called when the mode is activated.
+    void deactivate() override;
+
 protected:
     void connectGuiAction(const std::string& buttonName, AbstractApplicationMode::GuiAction action);
 
@@ -67,8 +72,6 @@ protected:
     //! \brief The minimap used in this mode
     MiniMap mMiniMap;
 private:
-    //! \brief The Chat messages in queue.
-    std::vector<ChatMessage*> mChatMessages;
     //! \brief The game event messages in queue.
     std::vector<EventMessage*> mEventMessages;
 
