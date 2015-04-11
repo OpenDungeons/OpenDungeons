@@ -72,6 +72,9 @@ public:
     inline uint32_t getNetworkPort() const
     { return mNetworkPort; }
 
+    inline uint32_t getMultiplayerClientJoinTimeout() const
+    { return mMultiplayerClientJoinTimeout; }
+
     inline uint32_t getBaseSpawnPoint() const
     { return mBaseSpawnPoint; }
 
@@ -161,6 +164,7 @@ private:
     std::string mFilenameResearches;
     std::string mFilenameTilesets;
     uint32_t mNetworkPort;
+    uint32_t mMultiplayerClientJoinTimeout;
     uint32_t mBaseSpawnPoint;
     uint32_t mCreatureDeathCounter;
     uint32_t mMaxCreaturesPerSeatAbsolute;

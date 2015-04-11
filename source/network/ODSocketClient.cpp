@@ -18,6 +18,7 @@
 #include "ODSocketClient.h"
 #include "network/ODPacket.h"
 
+#include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
 #include "utils/ResourceManager.h"
 
@@ -30,7 +31,8 @@ bool ODSocketClient::connect(const std::string& host, const int port)
 {
     mSource = ODSource::none;
     // As we use selector, there is no need to set the socket as not-blocking
-    sf::Socket::Status status = mSockClient.connect(host, port, sf::seconds(5));
+    uint32_t timeout = ConfigManager::getSingleton().getMultiplayerClientJoinTimeout();
+    sf::Socket::Status status = mSockClient.connect(host, port, sf::milliseconds(timeout));
     if (status != sf::Socket::Done)
     {
         LogManager::getSingleton().logMessage("ERROR : Could not connect to distant server status="
