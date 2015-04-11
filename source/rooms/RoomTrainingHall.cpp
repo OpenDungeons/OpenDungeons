@@ -59,8 +59,7 @@ RenderedMovableEntity* RoomTrainingHall::notifyActiveSpotCreated(ActiveSpotPlace
         {
             y += OFFSET_DUMMY;
             mUnusedDummies.push_back(tile);
-            int meshID = Random::Int(1, 4);
-            switch(meshID)
+            switch(Random::Int(1, 4))
             {
                 case 1:
                     return loadBuildingObject(getGameMap(), "TrainingDummy1", tile, x, y, 0.0, false);
