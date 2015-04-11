@@ -24,8 +24,6 @@ Name                                   Author                  License          
 
 Name                                   Author                  License                 Source URL
 ------------------------------------------------------------------------------------------------------------------------
-MedievalSharp-Bold.ttf                 wmk69 (wmk69@o2.pl)     OFL (Open Font License) http://openfontlibrary.org/en/font/medievalsharp
-MedievalSharp-*.font                   OD Team                 GPL 3.0
 OD.project                             Bertram                 GPL 3.0                 CEED Project file.
 ODBackgrounds.imageset                 OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
 ODBackgrounds.png                      OD Team                 CC-BY-SA 3.0
@@ -35,7 +33,6 @@ ODMainMenuBackground.imageset          Bertram                 GPL 3.0
 ODMainMenuBackground.png               Vagner                  CC-BY-SA 3.0            http://opengameart.org/content/mammon-angel-of-darkness
 ODMainMenuButtons.imageset             Bertram                 GPL 3.0
 ODMainMenuButtons.png                  StumpyStrust            CC-BY-SA 3.0            http://opengameart.org/content/fantasy-ui-box
-ogrefonts.fontdef                      OD Team                 GPL 3.0
 OpenDungeons.looknfeel                 OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
 OpenDungeonsIcons.imageset             OD Team                 GPL 3.0
 OpenDungeonsIcons.png                  OD Team                 CC-BY-SA 3.0
@@ -43,6 +40,12 @@ OpenDungeonsSkin.imageset              OD Team                 MIT              
 OpenDungeonsSkin.png                   Bertram, StumpyStrust   CC-BY-SA 3.0            Own made GUI based on: http://opengameart.org/content/fantasy-ui-box
 OpenDungeonsSkin.scheme                OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
 *.layout                               OD Team                 MIT                     CEGUI files based on the TaharezLook gui sample - http://cegui.org.uk
+
+fonts/
+-> LiberationSans-Bold.ttf             Red Hat                 OFL (Open Font License) https://fedorahosted.org/liberation-fonts/
+-> MedievalSharp-Bold.ttf              wmk69 (wmk69@o2.pl)     OFL (Open Font License) http://openfontlibrary.org/en/font/medievalsharp
+-> *.font                              OD Team                 GPL 3.0
+-> ogrefonts.fontdef                   OD Team                 GPL 3.0
 
 schemas/
 -> Animation.xsd                       OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
