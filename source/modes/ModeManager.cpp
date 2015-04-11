@@ -145,14 +145,16 @@ void ModeManager::checkModeChange()
         return;
 
     if(mRequestedMode == PREV)
+    {
         removeMode();
+    }
     else
     {
+        mApplicationModes.back()->deactivate();
+
         if(mDiscardActualMode)
-        {
-            mApplicationModes.back()->deactivate();
             mApplicationModes.pop_back();
-        }
+
         addMode(mRequestedMode);
     }
 
