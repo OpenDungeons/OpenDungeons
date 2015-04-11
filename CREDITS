@@ -185,7 +185,8 @@ textures/
 -> WorkshopMachine1*.png               Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
 -> WorkshopMachine2*.png               Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
 -> Wyvern*.png                         
-
+-> WeaponShield1.png               YD, Danimal         CC-BY 3.0            http://opengameart.org/users/yd
+-> WeaponShield2.png               YD, Danimal         CC-BY 3.0            http://opengameart.org/users/yd
 
 ======================
 ==  Models: models/ ==
@@ -284,6 +285,8 @@ Workshop.mesh                          Danimal                 CC-BY 3.0        
 WorkshopMachine1.mesh                  Danimal                 CC-BY 3.0               http://opengameart.org/users/danimal
 WorkshopMachine2.*                     Danimal                 CC-BY 3.0               http://opengameart.org/users/danimal
 Wyvern.*                               Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
+WeaponShield1.png               YD, Danimal         CC-BY 3.0            http://opengameart.org/users/yd
+WeaponShield2.png               YD, Rshackleford, Danimal         CC-BY 3.0            http://opengameart.org/users/rshackleford
 
 
 ====================
