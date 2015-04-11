@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout version="4" >
+    <Window type="OD/StaticText" name="GameEventText" >
+        <Property name="Area" value="{{0.0,430},{0.0,35},{0.0,830},{0.0,160}}" />
+        <Property name="FrameEnabled" value="False" />
+        <Property name="BackgroundEnabled" value="False" />
+        <Property name="VertFormatting" value="TopAligned" />
+        <Property name="HorzFormatting" value="WordWrapLeftAligned" />
+        <Property name="VertScrollbar" value="True" />
+    </Window>
+</GUILayout>

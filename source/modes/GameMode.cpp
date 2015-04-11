@@ -45,7 +45,6 @@
 #include <CEGUI/WindowManager.h>
 #include <CEGUI/widgets/PushButton.h>
 #include <CEGUI/widgets/ToggleButton.h>
-#include <CEGUI/widgets/Scrollbar.h>
 
 #include <OgreRoot.h>
 #include <OgreRenderWindow.h>
@@ -87,7 +86,7 @@ GameMode::GameMode(ModeManager *modeManager):
 
     ODFrameListener::getSingleton().getCameraManager()->setDefaultView();
 
-    CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::inGameMenu);
+    CEGUI::Window* guiSheet = mRootWindow;
 
     //Help window
     addEventConnection(
@@ -231,7 +230,7 @@ GameMode::~GameMode()
 {
     CEGUI::ToggleButton* checkBox =
         dynamic_cast<CEGUI::ToggleButton*>(
-            getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild(
+            mRootWindow->getChild(
                 Gui::EXIT_CONFIRMATION_POPUP)->getChild("SaveReplayCheckbox"));
     if(ODClient::getSingleton().isConnected())
         ODClient::getSingleton().disconnect(checkBox->isSelected());
@@ -241,12 +240,6 @@ GameMode::~GameMode()
     // Now that the server is stopped, we can clear the client game map
     ODFrameListener::getSingleton().getClientGameMap()->clearAll();
     ODFrameListener::getSingleton().getClientGameMap()->processDeletionQueues();
-
-    // delete the potential pending messages and events short notices.
-    for (ChatMessage* message : mChatMessages)
-        delete message;
-    for (EventMessage* message : mEventMessages)
-        delete message;
 }
 
 //! \brief Gets the CEGUI ImageColours string property (AARRGGBB format) corresponding
@@ -265,7 +258,7 @@ void GameMode::activate()
     gui.loadGuiSheet(Gui::inGameMenu);
 
     // Hides the exit pop-up and certain buttons only used by the editor.
-    CEGUI::Window* guiSheet = gui.getGuiSheet(Gui::inGameMenu);
+    CEGUI::Window* guiSheet = mRootWindow;
     guiSheet->getChild(Gui::EXIT_CONFIRMATION_POPUP)->hide();
     guiSheet->getChild("ObjectivesWindow")->hide();
     guiSheet->getChild("ResearchTreeWindow")->hide();
@@ -1004,7 +997,7 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
 
     case OIS::KC_RETURN: {
         mCurrentInputMode = InputModeChat;
-        CEGUI::Window* chatEditBox = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameChatWindow/GameChatEditBox");
+        CEGUI::Window* chatEditBox = mRootWindow->getChild("GameChatWindow/GameChatEditBox");
         chatEditBox->show();
         chatEditBox->activate();
         break;
@@ -1033,7 +1026,7 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
 bool GameMode::keyPressedChat(const OIS::KeyEvent &arg)
 {
     // If one presses Escape while in chat mode, let's simply quit it.
-    CEGUI::Window* chatEditBox = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameChatWindow/GameChatEditBox");
+    CEGUI::Window* chatEditBox = mRootWindow->getChild("GameChatWindow/GameChatEditBox");
     if (arg.key == OIS::KC_ESCAPE)
     {
         mCurrentInputMode = InputModeNormal;
@@ -1057,71 +1050,10 @@ bool GameMode::keyPressedChat(const OIS::KeyEvent &arg)
     return true;
 }
 
-void GameMode::receiveChat(ChatMessage* message)
-{
-    mChatMessages.emplace_back(message);
-
-    // Adds the message right away
-    CEGUI::Window* chatTextBox = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameChatWindow/GameChatText");
-    chatTextBox->appendText(reinterpret_cast<const CEGUI::utf8*>(message->getMessageAsString().c_str()));
-
-    // Ensure the latest text is shown
-    CEGUI::Scrollbar* scrollBar = reinterpret_cast<CEGUI::Scrollbar*>(chatTextBox->getChild("__auto_vscrollbar__"));
-    scrollBar->setScrollPosition(scrollBar->getDocumentSize());
-}
-
-void GameMode::receiveEventShortNotice(EventMessage* event)
-{
-    mEventMessages.emplace_back(event);
-
-    // Adds the message right away
-    CEGUI::Window* shortNoticeText = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameEventText");
-    shortNoticeText->appendText(reinterpret_cast<const CEGUI::utf8*>(event->getMessageAsString().c_str()));
-
-    // Ensure the latest text is shown
-    CEGUI::Scrollbar* scrollBar = reinterpret_cast<CEGUI::Scrollbar*>(shortNoticeText->getChild("__auto_vscrollbar__"));
-    scrollBar->setScrollPosition(scrollBar->getDocumentSize());
-}
-
-void GameMode::updateMessages(Ogre::Real update_time)
-{
-    float maxChatTimeDisplay = ODFrameListener::getSingleton().getEventMaxTimeDisplay();
-
-    // Update the event message seen if necessary.
-    CEGUI::Window* shortNoticeText = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameEventText");
-    CEGUI::Scrollbar* scrollBar = static_cast<CEGUI::Scrollbar*>(shortNoticeText->getChild("__auto_vscrollbar__"));
-    float scrollPosition = scrollBar->getScrollPosition();
-
-    // Update the chat message seen if necessary.
-    bool messageDisplayUpdate = false;
-    CEGUI::String ceguiStr;
-    for (auto it = mEventMessages.begin(); it != mEventMessages.end();)
-    {
-        EventMessage* event = *it;
-        if (event->isMessageTooOld(maxChatTimeDisplay))
-        {
-            delete event;
-            it = mEventMessages.erase(it);
-            messageDisplayUpdate = true;
-        }
-        else
-        {
-            ceguiStr += reinterpret_cast<const CEGUI::utf8*>(event->getMessageAsString().c_str());
-            ++it;
-        }
-    }
-
-    if (messageDisplayUpdate)
-    {
-        shortNoticeText->setText(ceguiStr);
-        scrollBar->setScrollPosition(scrollPosition);
-    }
-}
-
 void GameMode::refreshMainUI()
 {
     Seat* mySeat = mGameMap->getLocalPlayer()->getSeat();
-    CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::inGameMenu);
+    CEGUI::Window* guiSheet = mRootWindow;
 
     //! \brief Updates common info on screen.
     CEGUI::Window* widget = guiSheet->getChild(Gui::DISPLAY_TERRITORY);
@@ -1148,8 +1080,7 @@ void GameMode::refreshMainUI()
 
 void GameMode::refreshPlayerGoals(const std::string& goalsDisplayString)
 {
-    CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::inGameMenu);
-    CEGUI::Window* widget = guiSheet->getChild(Gui::OBJECTIVE_TEXT);
+    CEGUI::Window* widget = mRootWindow->getChild(Gui::OBJECTIVE_TEXT);
     widget->setText(reinterpret_cast<const CEGUI::utf8*>(goalsDisplayString.c_str()));
 }
 
@@ -1248,6 +1179,7 @@ void GameMode::handleHotkeys(OIS::KeyCode keycode)
 
 void GameMode::onFrameStarted(const Ogre::FrameEvent& evt)
 {
+    GameEditorModeBase::onFrameStarted(evt);
     //Update the minimap
     //TODO: We should add some check to only update this if the camera has moved, or map changed
     CameraManager& cameraManager = *ODFrameListener::getSingleton().getCameraManager();
@@ -1255,8 +1187,6 @@ void GameMode::onFrameStarted(const Ogre::FrameEvent& evt)
                               cameraManager.getActiveCameraNode()->getOrientation().getRoll().valueRadians());
     mMiniMap.draw(*mGameMap);
     mMiniMap.swap();
-
-    updateMessages(evt.timeSinceLastFrame);
 
     refreshGuiResearch();
 }
@@ -1269,11 +1199,11 @@ void GameMode::popupExit(bool pause)
 {
     if(pause)
     {
-        getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild(Gui::EXIT_CONFIRMATION_POPUP)->show();
+        mRootWindow->getChild(Gui::EXIT_CONFIRMATION_POPUP)->show();
     }
     else
     {
-        getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild(Gui::EXIT_CONFIRMATION_POPUP)->hide();
+        mRootWindow->getChild(Gui::EXIT_CONFIRMATION_POPUP)->hide();
     }
     mGameMap->setGamePaused(pause);
 }
@@ -1309,19 +1239,19 @@ void GameMode::notifyGuiAction(GuiAction guiAction)
 
 bool GameMode::showObjectivesWindow(const CEGUI::EventArgs&)
 {
-    getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("ObjectivesWindow")->show();
+    mRootWindow->getChild("ObjectivesWindow")->show();
     return true;
 }
 
 bool GameMode::hideObjectivesWindow(const CEGUI::EventArgs&)
 {
-    getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("ObjectivesWindow")->hide();
+    mRootWindow->getChild("ObjectivesWindow")->hide();
     return true;
 }
 
 bool GameMode::toggleObjectivesWindow(const CEGUI::EventArgs& e)
 {
-    CEGUI::Window* objectives = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("ObjectivesWindow");
+    CEGUI::Window* objectives = mRootWindow->getChild("ObjectivesWindow");
 
     if (objectives->isVisible())
         hideObjectivesWindow(e);
@@ -1332,19 +1262,19 @@ bool GameMode::toggleObjectivesWindow(const CEGUI::EventArgs& e)
 
 bool GameMode::showResearchWindow(const CEGUI::EventArgs&)
 {
-    getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("ResearchTreeWindow")->show();
+    mRootWindow->getChild("ResearchTreeWindow")->show();
     return true;
 }
 
 bool GameMode::hideResearchWindow(const CEGUI::EventArgs&)
 {
-    getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("ResearchTreeWindow")->hide();
+    mRootWindow->getChild("ResearchTreeWindow")->hide();
     return true;
 }
 
 bool GameMode::toggleResearchWindow(const CEGUI::EventArgs& e)
 {
-    CEGUI::Window* research = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("ResearchTreeWindow");
+    CEGUI::Window* research = mRootWindow->getChild("ResearchTreeWindow");
 
     if (research->isVisible())
         hideResearchWindow(e);
@@ -1355,19 +1285,19 @@ bool GameMode::toggleResearchWindow(const CEGUI::EventArgs& e)
 
 bool GameMode::showOptionsWindow(const CEGUI::EventArgs&)
 {
-    getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameOptionsWindow")->show();
+    mRootWindow->getChild("GameOptionsWindow")->show();
     return true;
 }
 
 bool GameMode::hideOptionsWindow(const CEGUI::EventArgs& /*e*/)
 {
-    getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameOptionsWindow")->hide();
+    mRootWindow->getChild("GameOptionsWindow")->hide();
     return true;
 }
 
 bool GameMode::toggleOptionsWindow(const CEGUI::EventArgs& e)
 {
-    CEGUI::Window* options = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameOptionsWindow");
+    CEGUI::Window* options = mRootWindow->getChild("GameOptionsWindow");
 
     if (options->isVisible())
         hideOptionsWindow(e);
@@ -1378,31 +1308,28 @@ bool GameMode::toggleOptionsWindow(const CEGUI::EventArgs& e)
 
 bool GameMode::hideSettingsWindow(const CEGUI::EventArgs&)
 {
-    getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("SettingsWindow")->hide();
+    mRootWindow->getChild("SettingsWindow")->hide();
     return true;
 }
 
 bool GameMode::showQuitMenuFromOptions(const CEGUI::EventArgs& /*e*/)
 {
-    CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::inGameMenu);
-    guiSheet->getChild("GameOptionsWindow")->hide();
+    mRootWindow->getChild("GameOptionsWindow")->hide();
     popupExit(!mGameMap->getGamePaused());
     return true;
 }
 
 bool GameMode::showObjectivesFromOptions(const CEGUI::EventArgs& /*e*/)
 {
-    CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::inGameMenu);
-    guiSheet->getChild("GameOptionsWindow")->hide();
-    guiSheet->getChild("ObjectivesWindow")->show();
+    mRootWindow->getChild("GameOptionsWindow")->hide();
+    mRootWindow->getChild("ObjectivesWindow")->show();
     return true;
 }
 
 bool GameMode::showResearchFromOptions(const CEGUI::EventArgs& /*e*/)
 {
-    CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::inGameMenu);
-    guiSheet->getChild("GameOptionsWindow")->hide();
-    guiSheet->getChild("ResearchTreeWindow")->show();
+    mRootWindow->getChild("GameOptionsWindow")->hide();
+    mRootWindow->getChild("ResearchTreeWindow")->show();
     return true;
 }
 
@@ -1420,29 +1347,26 @@ bool GameMode::saveGame(const CEGUI::EventArgs& /*e*/)
 
 bool GameMode::showSettingsFromOptions(const CEGUI::EventArgs& /*e*/)
 {
-    CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::inGameMenu);
-    guiSheet->getChild("GameOptionsWindow")->hide();
-    guiSheet->getChild("SettingsWindow")->show();
+    mRootWindow->getChild("GameOptionsWindow")->hide();
+    mRootWindow->getChild("SettingsWindow")->show();
     return true;
 }
 
 bool GameMode::showHelpWindow(const CEGUI::EventArgs&)
 {
-    CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::inGameMenu);
-    guiSheet->getChild("GameHelpWindow")->show();
+    mRootWindow->getChild("GameHelpWindow")->show();
     return true;
 }
 
 bool GameMode::hideHelpWindow(const CEGUI::EventArgs& /*e*/)
 {
-    CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::inGameMenu);
-    guiSheet->getChild("GameHelpWindow")->hide();
+    mRootWindow->getChild("GameHelpWindow")->hide();
     return true;
 }
 
 bool GameMode::toggleHelpWindow(const CEGUI::EventArgs& e)
 {
-    CEGUI::Window* helpWindow = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameHelpWindow");
+    CEGUI::Window* helpWindow = mRootWindow->getChild("GameHelpWindow");
     if (!helpWindow->isVisible())
         showHelpWindow(e);
     else
@@ -1452,7 +1376,7 @@ bool GameMode::toggleHelpWindow(const CEGUI::EventArgs& e)
 
 void GameMode::setHelpWindowText()
 {
-    CEGUI::Window* textWindow = getModeManager().getGui().getGuiSheet(Gui::inGameMenu)->getChild("GameHelpWindow/TextDisplay");
+    CEGUI::Window* textWindow = mRootWindow->getChild("GameHelpWindow/TextDisplay");
     const std::string formatTitleOn = "[font='MedievalSharp-12'][colour='CCBBBBFF']";
     const std::string formatTitleOff = "[font='MedievalSharp-10'][colour='FFFFFFFF']";
     std::stringstream txt("");
@@ -1560,7 +1484,7 @@ void GameMode::refreshResearchButtonState(ResearchType resType)
     }
 
     // We show/hide the icons depending on available researches
-    CEGUI::Window* guiSheet = getModeManager().getGui().getGuiSheet(Gui::inGameMenu);
+    CEGUI::Window* guiSheet = mRootWindow;
     CEGUI::Window* researchGui = guiSheet->getChild("ResearchTreeWindow");
 
     CEGUI::Window* researchButton = researchGui->getChild(ceguiWidgetName);

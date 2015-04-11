@@ -27,6 +27,9 @@ namespace CEGUI
     class Window;
 }
 
+class ChatMessage;
+class EventMessage;
+
 enum class RoomType;
 enum class TrapType;
 
@@ -35,9 +38,22 @@ class GameEditorModeBase : public AbstractApplicationMode
 {
 public:
     GameEditorModeBase(ModeManager *modeManager, ModeManager::ModeType modeType, CEGUI::Window* rootWindow);
+    ~GameEditorModeBase();
+
+    void onFrameStarted(const Ogre::FrameEvent& evt) override;
+
+    //! \brief Receive and display some chat text
+    void receiveChat(ChatMessage* message);
+
+    //! \brief Receive and display some event text
+    void receiveEventShortNotice(EventMessage* event);
+
     virtual void activate() = 0;
 protected:
     void connectGuiAction(const std::string& buttonName, AbstractApplicationMode::GuiAction action);
+
+    //! \brief Update the chat and event messages seen.
+    void updateMessages(Ogre::Real update_time);
 
     //! \brief gets a game entity from the corresponding ogre name
     GameEntity* getEntityFromOgreName(const std::string& entityName);
@@ -51,6 +67,11 @@ protected:
     //! \brief The minimap used in this mode
     MiniMap mMiniMap;
 private:
+    //! \brief The Chat messages in queue.
+    std::vector<ChatMessage*> mChatMessages;
+    //! \brief The game event messages in queue.
+    std::vector<EventMessage*> mEventMessages;
+
     //! \brief Minimap click event handler
     bool onMinimapClick(const CEGUI::EventArgs& arg);
 
