@@ -202,11 +202,11 @@ bool MenuModeReplay::listReplaysClicked(const CEGUI::EventArgs&)
     std::string errorMsg;
     if(checkReplayValid(mFilesList[id], mapDescription, errorMsg))
     {
-        descTxt->setText(mapDescription);
+        descTxt->setText(reinterpret_cast<const CEGUI::utf8*>(mapDescription.c_str()));
     }
     else
     {
-        descTxt->setText(errorMsg);
+        descTxt->setText(reinterpret_cast<const CEGUI::utf8*>(errorMsg.c_str()));
     }
     return true;
 }

@@ -91,9 +91,7 @@ bool MenuModeMultiplayerClient::clientButtonPressed(const CEGUI::EventArgs&)
 
     tmpWin = getModeManager().getGui().getGuiSheet(Gui::multiplayerClientMenu)->getChild(Gui::MPM_EDIT_NICK);
     CEGUI::Editbox* editNick = static_cast<CEGUI::Editbox*>(tmpWin);
-    std::string str = editNick->getText().c_str();
-    // Remove potential characters leading to crash.
-    std::string nick = boost::locale::conv::to_utf<char>(str, "Ascii");
+    std::string nick = editNick->getText().c_str();
     if (nick.empty())
     {
         tmpWin = getModeManager().getGui().getGuiSheet(Gui::multiplayerClientMenu)->getChild(Gui::MPM_TEXT_LOADING);
