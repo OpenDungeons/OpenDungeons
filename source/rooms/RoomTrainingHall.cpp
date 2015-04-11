@@ -51,49 +51,51 @@ void RoomTrainingHall::absorbRoom(Room *r)
 
 RenderedMovableEntity* RoomTrainingHall::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
 {
+    Ogre::Real x = static_cast<Ogre::Real>(tile->getX());
+    Ogre::Real y = static_cast<Ogre::Real>(tile->getY());
     switch(place)
     {
         case ActiveSpotPlace::activeSpotCenter:
         {
-            Ogre::Real x = static_cast<Ogre::Real>(tile->getX());
-            Ogre::Real y = static_cast<Ogre::Real>(tile->getY());
             y += OFFSET_DUMMY;
             mUnusedDummies.push_back(tile);
-            int result = Random::Int(0, 5);
-            if(result < 2)
-                return loadBuildingObject(getGameMap(), "TrainingDummy2", tile, x, y, 0.0, false);
-            else if (result < 4)
-                return loadBuildingObject(getGameMap(), "TrainingDummy3", tile, x, y, 0.0, false);
-            else
-                return loadBuildingObject(getGameMap(), "TrainingDummy4", tile, x, y, 0.0, false);
+            switch(Random::Int(1, 4))
+            {
+                case 1:
+                    return loadBuildingObject(getGameMap(), "TrainingDummy1", tile, x, y, 0.0, false);
+                case 2:
+                    return loadBuildingObject(getGameMap(), "TrainingDummy2", tile, x, y, 0.0, false);
+                case 3:
+                    return loadBuildingObject(getGameMap(), "TrainingDummy3", tile, x, y, 0.0, false);
+                case 4:
+                    return loadBuildingObject(getGameMap(), "TrainingDummy4", tile, x, y, 0.0, false);
+                default:
+                    break;
+            }
         }
         case ActiveSpotPlace::activeSpotLeft:
         {
-            Ogre::Real x = static_cast<Ogre::Real>(tile->getX());
-            Ogre::Real y = static_cast<Ogre::Real>(tile->getY());
             x -= OFFSET_DUMMY;
-            return loadBuildingObject(getGameMap(), "TrainingDummy1", tile, x, y, 90.0, false);
+            std::string meshName = Random::Int(1, 2) > 1 ? "WeaponShield2" : "WeaponShield1";
+            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 90.0, false);
         }
         case ActiveSpotPlace::activeSpotRight:
         {
-            Ogre::Real x = static_cast<Ogre::Real>(tile->getX());
-            Ogre::Real y = static_cast<Ogre::Real>(tile->getY());
             x += OFFSET_DUMMY;
-            return loadBuildingObject(getGameMap(), "TrainingDummy1", tile, x, y, 270.0, false);
+            std::string meshName = Random::Int(1, 2) > 1 ? "WeaponShield2" : "WeaponShield1";
+            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 270.0, false);
         }
         case ActiveSpotPlace::activeSpotTop:
         {
-            Ogre::Real x = static_cast<Ogre::Real>(tile->getX());
-            Ogre::Real y = static_cast<Ogre::Real>(tile->getY());
             y += OFFSET_DUMMY;
-            return loadBuildingObject(getGameMap(), "TrainingDummy1", tile, x, y, 0.0, false);
+            std::string meshName = Random::Int(1, 2) > 1 ? "WeaponShield2" : "WeaponShield1";
+            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 0.0, false);
         }
         case ActiveSpotPlace::activeSpotBottom:
         {
-            Ogre::Real x = static_cast<Ogre::Real>(tile->getX());
-            Ogre::Real y = static_cast<Ogre::Real>(tile->getY());
             y -= OFFSET_DUMMY;
-            return loadBuildingObject(getGameMap(), "TrainingDummy1", tile, x, y, 180.0, false);
+            std::string meshName = Random::Int(1, 2) > 1 ? "WeaponShield2" : "WeaponShield1";
+            return loadBuildingObject(getGameMap(), meshName, tile, x, y, 180.0, false);
         }
         default:
             break;
