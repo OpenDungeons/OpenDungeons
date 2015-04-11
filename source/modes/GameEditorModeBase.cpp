@@ -128,7 +128,7 @@ GameEditorModeBase::GameEditorModeBase(ModeManager *modeManager, ModeManager::Mo
 
 GameEditorModeBase::~GameEditorModeBase()
 {
-    // delete the potential pending event messages
+    // Delete the potential pending event messages
     for (EventMessage* message : mEventMessages)
         delete message;
 }
@@ -137,9 +137,10 @@ void GameEditorModeBase::deactivate()
 {
     // Clear up any events and chat messages.
 
-    // delete the potential pending event messages
+    // Delete the potential pending event messages
     for (EventMessage* message : mEventMessages)
         delete message;
+    mEventMessages.clear();
 
     mRootWindow->getChild("GameChatWindow/GameChatText")->setText("");
     mRootWindow->getChild("GameEventText")->setText("");
