@@ -35,6 +35,7 @@ bool ODSocketClient::connect(const std::string& host, const int port)
     {
         LogManager::getSingleton().logMessage("ERROR : Could not connect to distant server status="
             + Ogre::StringConverter::toString(status));
+        mSockClient.disconnect();
         return false;
     }
     mSockSelector.add(mSockClient);
