@@ -110,7 +110,7 @@ GameEditorModeBase::GameEditorModeBase(ModeManager *modeManager, ModeManager::Mo
     connectRoomSelect(Gui::BUTTON_TRAININGHALL, RoomType::trainingHall);
     connectRoomSelect(Gui::BUTTON_TREASURY, RoomType::treasury);
 
-    //Traps
+    // Traps
     addEventConnection(
         rootWindow->getChild(Gui::BUTTON_DESTROY_TRAP)->subscribeEvent(
             CEGUI::Window::EventMouseClick,
@@ -121,7 +121,7 @@ GameEditorModeBase::GameEditorModeBase(ModeManager *modeManager, ModeManager::Mo
     connectTrapSelect(Gui::BUTTON_TRAP_CANNON, TrapType::cannon);
     connectTrapSelect(Gui::BUTTON_TRAP_SPIKE, TrapType::spike);
 
-    //Creature buttons
+    // Creature buttons
     connectGuiAction(Gui::BUTTON_CREATURE_WORKER, AbstractApplicationMode::GuiAction::ButtonPressedCreatureWorker);
     connectGuiAction(Gui::BUTTON_CREATURE_FIGHTER, AbstractApplicationMode::GuiAction::ButtonPressedCreatureFighter);
 }
@@ -131,7 +131,18 @@ GameEditorModeBase::~GameEditorModeBase()
     // delete the potential pending event messages
     for (EventMessage* message : mEventMessages)
         delete message;
+}
 
+void GameEditorModeBase::deactivate()
+{
+    // Clear up any events and chat messages.
+
+    // delete the potential pending event messages
+    for (EventMessage* message : mEventMessages)
+        delete message;
+
+    mRootWindow->getChild("GameChatWindow/GameChatText")->setText("");
+    mRootWindow->getChild("GameEventText")->setText("");
 }
 
 void GameEditorModeBase::connectGuiAction(const std::string& buttonName, AbstractApplicationMode::GuiAction action)

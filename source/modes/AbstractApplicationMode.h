@@ -80,9 +80,13 @@ public:
         return mModeManager->getInputManager()->mKeyboard;
     }
 
-    //! Called when activating a new mode
+    //! \brief Called when activating a new mode
     //! Used for example, to load the corresponding Gui Sheet
     virtual void activate() = 0;
+
+    //! \brief Called when the mode is being deactivated.
+    virtual void deactivate()
+    {}
 
     bool regressMode(const CEGUI::EventArgs& = {})
     {

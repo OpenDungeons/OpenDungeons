@@ -48,7 +48,12 @@ public:
     //! \brief Receive and display some event text
     void receiveEventShortNotice(EventMessage* event);
 
+    //! \brief Called when the mode is activated.
     virtual void activate() = 0;
+
+    //! \brief Called when the mode is activated.
+    void deactivate() override;
+
 protected:
     void connectGuiAction(const std::string& buttonName, AbstractApplicationMode::GuiAction action);
 

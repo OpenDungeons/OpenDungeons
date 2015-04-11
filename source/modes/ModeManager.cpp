@@ -132,6 +132,7 @@ void ModeManager::removeMode()
     }
     else if (mApplicationModes.size() > 1)
     {
+        mApplicationModes.back()->deactivate();
         mApplicationModes.pop_back();
     }
 
@@ -149,6 +150,7 @@ void ModeManager::checkModeChange()
     {
         if(mDiscardActualMode)
         {
+            mApplicationModes.back()->deactivate();
             mApplicationModes.pop_back();
         }
         addMode(mRequestedMode);
