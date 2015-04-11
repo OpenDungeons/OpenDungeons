@@ -43,7 +43,7 @@ template<> ConfigManager* Ogre::Singleton<ConfigManager>::msSingleton = nullptr;
 
 ConfigManager::ConfigManager(const std::string& configPath) :
     mNetworkPort(0),
-    mMultiplayerClientJoinTimeout(5000),
+    mClientConnectionTimeout(5000),
     mBaseSpawnPoint(10),
     mCreatureDeathCounter(10),
     mMaxCreaturesPerSeatAbsolute(30),
@@ -456,10 +456,10 @@ bool ConfigManager::loadGlobalGameConfig(std::stringstream& configFile)
             paramsOk |= 1;
         }
 
-        if(nextParam == "MultiplayerClientJoinTimeout")
+        if(nextParam == "ClientConnectionTimeout")
         {
             configFile >> nextParam;
-            mMultiplayerClientJoinTimeout = Helper::toUInt32(nextParam);
+            mClientConnectionTimeout = Helper::toUInt32(nextParam);
             // Not mandatory
         }
 
