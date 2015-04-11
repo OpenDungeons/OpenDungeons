@@ -67,8 +67,6 @@ protected:
     //! \brief The minimap used in this mode
     MiniMap mMiniMap;
 private:
-    //! \brief The Chat messages in queue.
-    std::vector<ChatMessage*> mChatMessages;
     //! \brief The game event messages in queue.
     std::vector<EventMessage*> mEventMessages;
 

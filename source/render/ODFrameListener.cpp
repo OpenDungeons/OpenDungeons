@@ -30,7 +30,6 @@
 #include "modes/GameMode.h"
 #include "network/ODServer.h"
 #include "network/ODClient.h"
-#include "network/ChatMessage.h"
 #include "render/Gui.h"
 #include "render/RenderManager.h"
 #include "render/TextRenderer.h"

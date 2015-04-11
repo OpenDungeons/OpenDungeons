@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "network/ChatMessage.h"
+#include "network/ChatEventMessage.h"
 
 #include "game/Player.h"
 #include "game/Seat.h"
@@ -27,11 +27,6 @@ ChatMessage::ChatMessage(Player* player, const std::string& message) :
     mMessage(message),
     mPlayer(player)
 {
-}
-
-bool ChatMessage::isMessageTooOld(float maxTimeDisplay) const
-{
-    return mClockCreation.getElapsedTime().asSeconds() > maxTimeDisplay;
 }
 
 std::string ChatMessage::getMessageAsString()

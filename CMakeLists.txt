@@ -312,7 +312,7 @@ set(OD_SOURCEFILES
     ${SRC}/modes/MenuModeSkirmish.cpp
     ${SRC}/modes/ModeManager.cpp
 
-    ${SRC}/network/ChatMessage.cpp
+    ${SRC}/network/ChatEventMessage.cpp
     ${SRC}/network/ClientNotification.cpp
     ${SRC}/network/ODClient.cpp
     ${SRC}/network/ODPacket.cpp
