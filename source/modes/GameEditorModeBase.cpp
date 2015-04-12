@@ -131,19 +131,18 @@ GameEditorModeBase::~GameEditorModeBase()
     // Delete the potential pending event messages
     for (EventMessage* message : mEventMessages)
         delete message;
+
+    // Clear up any events and chat messages.
+    mRootWindow->getChild("GameChatWindow/GameChatText")->setText("");
+    mRootWindow->getChild("GameEventText")->setText("");
 }
 
 void GameEditorModeBase::deactivate()
 {
-    // Clear up any events and chat messages.
-
     // Delete the potential pending event messages
     for (EventMessage* message : mEventMessages)
         delete message;
     mEventMessages.clear();
-
-    mRootWindow->getChild("GameChatWindow/GameChatText")->setText("");
-    mRootWindow->getChild("GameEventText")->setText("");
 }
 
 void GameEditorModeBase::connectGuiAction(const std::string& buttonName, AbstractApplicationMode::GuiAction action)
