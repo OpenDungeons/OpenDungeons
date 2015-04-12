@@ -371,14 +371,23 @@ void MenuModeConfigureSeats::addPlayer(const std::string& nick, int32_t id)
     CEGUI::Window* playersWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers");
     bool isPlayerSet = false;
 
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     mPlayers.push_back(std::pair<std::string, int32_t>(nick, id));
     for(int seatId : mSeatIds)
     {
+        Seat* seat = gameMap->getSeatById(seatId);
+        if(seat->getPlayerType().compare(Seat::PLAYER_TYPE_INACTIVE) == 0)
+            continue;
+
+        if(seat->getPlayerType().compare(Seat::PLAYER_TYPE_AI) == 0)
+            continue;
+
         std::string name = COMBOBOX_PLAYER_PREFIX + Helper::toString(seatId);
         CEGUI::Combobox* combo = static_cast<CEGUI::Combobox*>(playersWin->getChild(name));
         CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(nick, id);
         item->setSelectionBrushImage(selImg);
         combo->addItem(item);
+
         // If a combo is empty, we set it to the player nick
         if(!isPlayerSet && (combo->getSelectedItem() == nullptr))
         {
@@ -540,20 +549,33 @@ void MenuModeConfigureSeats::activatePlayerConfig()
 
     for(int seatId : mSeatIds)
     {
-        std::string name;
-        CEGUI::Window* combo;
+        Seat* seat = gameMap->getSeatById(seatId);
 
-        name = TEXT_SEAT_ID_PREFIX + Ogre::StringConverter::toString(seatId);
-        combo = listPlayersWindow->getChild(name);
-        combo->setEnabled(enabled);
+        std::string name;
+        CEGUI::Combobox* combo;
+
+        name = COMBOBOX_PLAYER_FACTION_PREFIX + Ogre::StringConverter::toString(seatId);
+        combo = static_cast<CEGUI::Combobox*>(listPlayersWindow->getChild(name));
+        if(combo->getItemCount() > 1)
+            combo->setEnabled(enabled);
 
         name = COMBOBOX_PLAYER_PREFIX + Ogre::StringConverter::toString(seatId);
-        combo = listPlayersWindow->getChild(name);
-        combo->setEnabled(enabled);
+        combo = static_cast<CEGUI::Combobox*>(listPlayersWindow->getChild(name));
+        if(enabled)
+        {
+            if((seat->getPlayerType().compare(Seat::PLAYER_TYPE_INACTIVE) != 0) &&
+               (seat->getPlayerType().compare(Seat::PLAYER_TYPE_AI) != 0))
+            {
+                combo->setEnabled(enabled);
+            }
+        }
+        else
+            combo->setEnabled(enabled);
 
         name = COMBOBOX_TEAM_ID_PREFIX + Ogre::StringConverter::toString(seatId);
-        combo = listPlayersWindow->getChild(name);
-        combo->setEnabled(enabled);
+        combo = static_cast<CEGUI::Combobox*>(listPlayersWindow->getChild(name));
+        if(combo->getItemCount() > 1)
+            combo->setEnabled(enabled);
     }
 
     CEGUI::Window* startButton = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers/LaunchGameButton");
