@@ -92,12 +92,13 @@ bool MenuModeMultiplayerClient::clientButtonPressed(const CEGUI::EventArgs&)
     CEGUI::Editbox* editNick = static_cast<CEGUI::Editbox*>(
                                    getModeManager().getGui().getGuiSheet(Gui::multiplayerClientMenu)->getChild(Gui::MPM_EDIT_NICK));
     std::string nick = editNick->getText().c_str();
-    if (nick.empty())
+    CEGUI::String nickCeguiStr = reinterpret_cast<const CEGUI::utf8*>(nick.c_str());
+    if (nickCeguiStr.empty())
     {
         infoText->setText("Please enter a nickname.");
         return true;
     }
-    else if (nick.length() > 20)
+    else if (nickCeguiStr.length() > 20)
     {
         infoText->setText("Please enter a shorter nickname. (20 letters max.)");
         return true;

@@ -160,7 +160,8 @@ void ODServer::sendMsg(Player* player, ODPacket& packet)
         return;
     }
 
-    sendMsgToClient(client, packet);
+    if(client != nullptr)
+        sendMsgToClient(client, packet);
 }
 
 void ODServer::queueConsoleCommand(ServerConsoleCommand* cc)
