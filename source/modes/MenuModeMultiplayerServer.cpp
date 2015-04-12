@@ -146,9 +146,7 @@ bool MenuModeMultiplayerServer::serverButtonPressed(const CEGUI::EventArgs&)
 
     tmpWin = getModeManager().getGui().getGuiSheet(Gui::multiplayerServerMenu)->getChild(Gui::MPM_EDIT_NICK);
     CEGUI::Editbox* editNick = static_cast<CEGUI::Editbox*>(tmpWin);
-    const std::string& str = editNick->getText().c_str();
-    // Remove potential characters leading to crash.
-    std::string nick = boost::locale::conv::to_utf<char>(str, "Ascii");
+    std::string nick = editNick->getText().c_str();
     if (nick.empty())
     {
         tmpWin = getModeManager().getGui().getGuiSheet(Gui::multiplayerServerMenu)->getChild(Gui::MPM_TEXT_LOADING);
@@ -217,6 +215,6 @@ bool MenuModeMultiplayerServer::updateDescription(const CEGUI::EventArgs&)
     int id = selItem->getID();
 
     std::string description = mDescriptionList[id];
-    descTxt->setText(description);
+    descTxt->setText(reinterpret_cast<const CEGUI::utf8*>(description.c_str()));
     return true;
 }

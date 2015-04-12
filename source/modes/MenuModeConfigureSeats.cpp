@@ -107,7 +107,7 @@ void MenuModeConfigureSeats::activate()
     msgWin->setText("Loading...");
     msgWin->setVisible(false);
 
-    tmpWin->setText("Configure map : " + gameMap->getLevelName());
+    tmpWin->setText(reinterpret_cast<const CEGUI::utf8*>(std::string("Configure map : " + gameMap->getLevelName()).c_str()));
 
     const std::vector<std::string>& factions = ConfigManager::getSingleton().getFactions();
     const CEGUI::Image* selImg = &CEGUI::ImageManager::getSingleton().get("OpenDungeonsSkin/SelectionBrush");
@@ -384,7 +384,7 @@ void MenuModeConfigureSeats::addPlayer(const std::string& nick, int32_t id)
 
         std::string name = COMBOBOX_PLAYER_PREFIX + Helper::toString(seatId);
         CEGUI::Combobox* combo = static_cast<CEGUI::Combobox*>(playersWin->getChild(name));
-        CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(nick, id);
+        CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(reinterpret_cast<const CEGUI::utf8*>(nick.c_str()), id);
         item->setSelectionBrushImage(selImg);
         combo->addItem(item);
 

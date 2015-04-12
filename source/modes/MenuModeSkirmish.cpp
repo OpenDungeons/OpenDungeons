@@ -187,7 +187,7 @@ bool MenuModeSkirmish::updateDescription(const CEGUI::EventArgs&)
     int id = selItem->getID();
 
     std::string description = mDescriptionList[id];
-    descTxt->setText(description);
+    descTxt->setText(reinterpret_cast<const CEGUI::utf8*>(description.c_str()));
 
     return true;
 }

@@ -12,9 +12,11 @@
             <Property name="VertFormatting" value="TopAligned" />
             <Property name="HorzFormatting" value="WordWrapLeftAligned" />
             <Property name="VertScrollbar" value="True" />
+            <Property name="Font" value="LiberationSans-10" />
         </Window>
         <Window type="OD/Editbox" name="GameChatEditBox" >
             <Property name="Area" value="{{0.0,0},{1.0,-25},{1.0,0},{1.0,0}}" />
+            <Property name="Font" value="LiberationSans-10" />
         </Window>
     </Window>
 </GUILayout>
