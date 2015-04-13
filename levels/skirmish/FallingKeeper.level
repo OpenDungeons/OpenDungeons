@@ -2138,7 +2138,7 @@ ProtectDungeonTemple	NULL
 SpawnTurnMin	0
 SpawnTurnMax	500
 [Creatures]
-DwarfWorker	2
+DwarfWorker	12
 Adventurer	2
 Adventurer	2
 Wizard	2
@@ -2149,10 +2149,10 @@ Knight	2
 SpawnTurnMin	700
 SpawnTurnMax	1500
 [Creatures]
-DwarfWorker	5
-Adventurer	5
-Adventurer	5
-Wizard	5
+DwarfWorker	15
+Adventurer	3
+Adventurer	3
+Wizard	4
 Knight	5
 Knight	5
 Knight	5
@@ -2163,13 +2163,13 @@ SpawnTurnMin	1000
 SpawnTurnMax	-1
 [Creatures]
 DwarfWorker	15
-Knight	15
-Knight	15
-Knight	15
-Wizard	15
-Wizard	15
-BigKnight	15
-BigKnight	15
+Knight	5
+Knight	5
+Knight	5
+Wizard	6
+Wizard	6
+BigKnight	7
+BigKnight	7
 [/Creatures]
 [/Wave]
 [Wave]
@@ -2177,15 +2177,15 @@ SpawnTurnMin	2500
 SpawnTurnMax	-1
 [Creatures]
 DwarfWorker	25
-Knight	25
-Knight	25
-Knight	25
-Wizard	25
-Wizard	25
-BigKnight	25
-BigKnight	25
-BigKnight	25
-BigKnight	25
+Knight	7
+Knight	7
+Knight	7
+Wizard	8
+Wizard	8
+BigKnight	10
+BigKnight	11
+BigKnight	12
+BigKnight	12
 [/Creatures]
 [/Wave]
 [/Waves]
