@@ -93,6 +93,7 @@ The numbers preceded by a hash (e.g. #9) reference GitHub issue numbers on our r
 * New training dummy and wall models for the training hall (#656)
 * New troll bed (#503)
 * New goblin + bed (#438 #449)
+* New grimoire model (#544)
 * New gold ground tile (#536)
 * Fixed material errors (#529 #570 #606)
 * Spring cleaning: unused textures, models and materials dropped (#492 #579)
@@ -171,6 +172,7 @@ The numbers preceded by a hash (e.g. #9) reference GitHub issue numbers on our r
   - Creatures can eat them visually and calm their hunger.
 * Forge (not actually useful in this release)
 * Library (not actually useful in this release)
+* Crypt: spawns gnomes when you let enemy creatures decay there (#322)
 * Add support to destroy a room using a new button. Destroying a room gives back half the tiles price (#108)
 * Add support to disable a room for a specific player in a specific level (#86)
 
