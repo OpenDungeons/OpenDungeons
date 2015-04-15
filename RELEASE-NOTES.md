@@ -5,6 +5,115 @@ This file contains the subsequent release notes for each version of OpenDungeons
 The numbers preceded by a hash (e.g. #9) reference GitHub issue numbers on our repository at https://github.com/OpenDungeons/OpenDungeons
 
 
+### Version 0.5.0
+
+**Highlights:**
+
+* Fog of War implemented
+* Spell system implemented with two spells: Summon Worker and Call to War
+* Research logic and UI implemented: rooms, spells and traps should now be researched in the library
+* Saving/loading feature
+* Creatures pay day implemented
+* Portals can be claimed and can generate rogue waves that attack keepers
+* Traps must be crafted in the workshop
+* Creatures mood implemented
+* Creature overlays show relevant information on hover (or when pressing ALT)
+* Many GUI improvements
+
+**General:**
+
+* Saving/loading feature (#531 #534)
+* Many hardcoded values were made configurable via config files
+* Rooms and traps prices are configurable (#346)
+* Tileset configuration and biomes support (#14)
+* Test levels are noted as such (#381)
+* Backup the last three game logs (#567)
+* Packaging/installation improvements:
+  - Provide an appdata.xml file (#356)
+  - Drop bundled FreeMono.ttf font (#366)
+  - Install engine config files in the proper arch-dependent path (#400)
+  - Link icon with the game window and executable on Windows (#202)
+* Removed the broken Culling Manager (#170)
+* Disable angelscript as it is not used currently (#504)
+* Code abstration to prepare unit tests (#592)
+* Lots of bug fixes
+
+**Gameplay:**
+
+* Implemented the Fog of War (#295)
+  - Implemented trap vision logic (#408)
+* Implemented creatures pay day (#431)
+* Implemented spells support and made workers spawned only via a spell (#16)
+* Implemented the Call to War spell (#484)
+* Implemented the library's research logic + research tree (#411 #508)
+* Portals can be claimabled (#588)
+* The max number of creatures is configurable and influenced by the number of claimed portals (#588)
+* Implemented rogue portal waves (#594 #607)
+* Gold dropped on the floor follows the same mesh logic as the one in treasury rooms (#279)
+* Improved the camera perspective (#345)
+* Readded default viewpoint support and made the V key cycle the viewpoints (#494)
+* AI repairs damaged rooms (#375)
+* Revised the creature spawning logic (#568)
+* Updated the help window content (#548)
+
+**Rooms:**
+
+* The workshop replaces the forge for traps. The forge will be used later to craft creature's equipment (#459)
+* Traps are crafted in the workshop only when needed (#469)
+
+**Creatures:**
+
+* Workers: Gold dug from gold tiles is now visually carried (#407)
+* Improved creature vision processing (#396)
+* Added support to make creature prefer certain jobs (#354)
+* Implemented creature mood (#11)
+* Improved wall claiming order (#282)
+* Research entities should be brought to the temple center (#576)
+* Many fixes to workers and fighters behaviour
+
+**UI:**
+
+* Added the research tree GUI, currently not interactive (#517)
+* Skull flag system to see current creatures health + level + team color (#519)
+* Console code cleaned up and using CEGUI (#134 #299)
+* Chat and event messages handling upgrade (#638 #642 #647 #654)
+* Fixed tooltips behaviour (#337 #397)
+* Added a check box, permitting to disable replay creation when quitting the game (#406)
+* Improved the UI of Combo-boxes/Check-boxes, ... from generic to OD-like (#419)
+* Display the number of controlled fighting creatures (#562)
+* The keeper hand is used as an icon and is above the GUI (#547 #420)
+
+**Graphics:**
+
+* Better light handling (#446 #453 #456)
+* Support for normals (#514)
+* Added normals for many materials
+* Use more keeper hand animations (#350)
+* New workshop and corresponding elements (#609 #612)
+* New training dummy and wall models for the training hall (#656)
+* New troll bed (#503)
+* New goblin + bed (#438 #449)
+* New gold ground tile (#536)
+* Fixed material errors (#529 #570 #606)
+* Spring cleaning: unused textures, models and materials dropped (#492 #579)
+
+**Editor:**
+
+* Fixed adding/moving lights (#19 #20 #486)
+* Fixed seeing traps in the map editor (#455)
+* Made adding portals/temple possible via the editor (#192)
+
+**Balancing:**
+
+* Decreased amount of gold stored in each treasury tile to 1000
+* Reduced creature walking speed by 10%
+* Set armor increase/level to 0.1 for all creatures
+* Raised experience gained from battle
+* Creature regain mood points when hitting other creatures (#649)
+* Reduced workers claiming rate (#650)
+* Increased portal cooldown (+25%)
+
+
 ### Version 0.4.9 - 22 December 2014
 
 **Highlights:**
@@ -17,13 +126,14 @@ The numbers preceded by a hash (e.g. #9) reference GitHub issue numbers on our r
 * Revamped UI
 * Replay mode
 
-**Code-related:**
+**General:**
 
 * The game is stable and does not crash at exit
 * The game does use threads only when needed (through sf::Thread)
 * The code has been reviewed, is following conventions and does not use not GPL'ed code (#91)
 * The license of every files is clear and defined in the CREDITS file (#93)
 * Fix CMake basic invocation flags handling (#97 #42 #57 #58)
+* Lots of bug fixes
 
 **Game logic:**
 
