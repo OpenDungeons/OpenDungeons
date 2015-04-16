@@ -46,7 +46,7 @@ The numbers preceded by a hash (e.g. #9) reference GitHub issue numbers on our r
 * Implemented spells support and made workers spawned only via a spell (#16)
 * Implemented the Call to War spell (#484)
 * Implemented the library's research logic + research tree (#411 #508)
-* Portals can be claimabled (#588)
+* Portals can be claimed (#588)
 * The max number of creatures is configurable and influenced by the number of claimed portals (#588)
 * Implemented rogue portal waves (#594 #607)
 * Gold dropped on the floor follows the same mesh logic as the one in treasury rooms (#279)
@@ -60,6 +60,7 @@ The numbers preceded by a hash (e.g. #9) reference GitHub issue numbers on our r
 
 * The workshop replaces the forge for traps. The forge will be used later to craft creature's equipment (#459)
 * Traps are crafted in the workshop only when needed (#469)
+* Add support to disable a room for a specific player in a specific level (#86)
 
 **Creatures:**
 
@@ -174,7 +175,6 @@ The numbers preceded by a hash (e.g. #9) reference GitHub issue numbers on our r
 * Library (not actually useful in this release)
 * Crypt: spawns gnomes when you let enemy creatures decay there (#322)
 * Add support to destroy a room using a new button. Destroying a room gives back half the tiles price (#108)
-* Add support to disable a room for a specific player in a specific level (#86)
 
 **Creature behaviour:**
 
