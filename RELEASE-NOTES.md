@@ -123,6 +123,7 @@ The numbers preceded by a hash (e.g. #9) reference GitHub issue numbers on our r
 * Multiplayer mode implemented using a server/client logic
 * Functional AI implemented
 * Core gameplay better defined
+* Traps support
 * Gameplay elements are configurable via ini-style files: levels, creatures characteristics, equipment, rooms and traps behaviour
 * Lots of new rooms
 * Revamped UI
@@ -174,7 +175,7 @@ The numbers preceded by a hash (e.g. #9) reference GitHub issue numbers on our r
 * Forge (not actually useful in this release)
 * Library (not actually useful in this release)
 * Crypt: spawns gnomes when you let enemy creatures decay there (#322)
-* Add support to destroy a room using a new button. Destroying a room gives back half the tiles price (#108)
+* Add support to destroy rooms or traps using a new button to get a refund of half their price (#108)
 
 **Creature behaviour:**
 
