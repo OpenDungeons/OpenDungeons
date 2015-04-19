@@ -774,7 +774,7 @@ void TileContainer::buildTileDistance(int distance)
     // other ones when they mask vision to help calculate visible tiles
     for(TileDistance& tileDistance : mTileDistance)
     {
-        // We dont process the first tile
+        // We don't process the first tile
         if(tileDistance.getDiffX() == 0 && tileDistance.getDiffY() == 0)
             continue;
 
@@ -1001,7 +1001,7 @@ std::vector<Tile*> TileContainer::visibleTiles(int x, int y, int radius)
     int radiusSquared = radius * radius;
 
     // To have all the tiles around, we process mTileDistance 8 times.
-    // Because of the symetry, there will be some duplicates (horizontal and diagonal
+    // Because of the symmetry, there will be some duplicates (horizontal and diagonal
     // tiles). We will process in, this order (c being the starting tile):
     // 514
     // 2c0

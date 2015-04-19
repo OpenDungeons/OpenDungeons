@@ -1496,7 +1496,7 @@ bool Creature::handleClaimTileAction(const CreatureAction& actionItem)
             // bar for success approaches 0 as numTiles approaches N so this will be guaranteed to succeed at,
             // or before the time we get to the last unclaimed tile.  The bar for success is also lowered
             // according to how many neighbors are already claimed.
-            //NOTE: The bar can be negative, when this happens we are guarenteed to use this candidate tile.
+            //NOTE: The bar can be negative, when this happens we are guaranteed to use this candidate tile.
             double bar = 1.0 - (numNeighborsClaimed / 4.0) - (tempUnsigned / static_cast<double>(claimableTiles.size() - 1));
             if (Random::Double(0.0, 1.0) >= bar)
                 break;
@@ -2051,7 +2051,7 @@ bool Creature::handleJobAction(const CreatureAction& actionItem)
             if(!getSeat()->canOwnedCreatureUseRoomFrom(room->getSeat()))
                 continue;
 
-            // It is the room responsability to test if the creature is suited for working in it
+            // It is the room responsibility to test if the creature is suited for working in it
             if(room->hasOpenCreatureSpot(this) && room->addCreatureUsingRoom(this))
             {
                 mJobRoom = room;
@@ -2098,7 +2098,7 @@ bool Creature::handleJobAction(const CreatureAction& actionItem)
                 return true;
             }
 
-            // It is the room responsability to test if the creature is suited for working in it
+            // It is the room responsibility to test if the creature is suited for working in it
             if(room->hasOpenCreatureSpot(this) && room->addCreatureUsingRoom(this))
             {
                 mJobRoom = room;
@@ -2990,7 +2990,7 @@ bool Creature::checkLevelUp()
     // Check the returned value.
     double newXP = mDefinition->getXPNeededWhenLevel(getLevel());
 
-    // An error occured
+    // An error occurred
     OD_ASSERT_TRUE(newXP > 0.0);
     if (newXP <= 0.0)
         return false;
@@ -4056,7 +4056,7 @@ void Creature::fireCreatureSound(CreatureSoundType sound)
 
 void Creature::itsPayDay()
 {
-    // Rogue creatures do not have to be payed
+    // Rogue creatures do not have to be paid
     if(getSeat()->isRogueSeat())
         return;
 

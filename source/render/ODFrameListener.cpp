@@ -176,7 +176,7 @@ bool ODFrameListener::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
     if(!mExitRequested)
     {
-        // Updates animations independant from the server new turn event
+        // Updates animations independent from the server new turn event
         updateAnimations(evt.timeSinceLastFrame);
     }
 

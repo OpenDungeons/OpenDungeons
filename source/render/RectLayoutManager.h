@@ -135,12 +135,12 @@ protected:
 	// This gets calculated "on the fly"
 	unsigned short mMaxRectHeight;
 
-	// An overlapping rectangle is moved on Y axis (Above or Below) untill
+	// An overlapping rectangle is moved on Y axis (Above or Below) until
 	//  a place is found where it doesn't overlap any other rectangle.
 	// mDepth is the number of times an overlapping rectangle will be moved
 	//  in order to find a non-overlapping place.
 	//
-	// (mDepth = 0) - the search will go on untill a place is found.
+	// (mDepth = 0) - the search will go on until a place is found.
 	// (mDepth > 0) - the search will go on <mDepth> times
 	unsigned short mDepth;
 

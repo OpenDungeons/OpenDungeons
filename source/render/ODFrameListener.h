@@ -196,7 +196,7 @@ private:
     //! \brief Actually exit application
     void exitApplication();
 
-    //! \brief Updates server-turn independant creature animation, audio, and overall rendering.
+    //! \brief Updates server-turn independent creature animation, audio, and overall rendering.
     void updateAnimations(Ogre::Real timeSinceLastFrame);
 };
 

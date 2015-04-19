@@ -306,12 +306,12 @@ void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)
         Ogre::Vector3 flightDirection = mCameraFlightDestination - viewTarget;
         radius = flightDirection.normalise();
 
-        // If we are withing the stopping distance of the target, then quit flying.
+        // If we are within the stopping distance of the target, then quit flying.
         // Otherwise we move towards the destination.
 
         if (radius <= 0.25)
         {
-            // We are withing the stopping distance of the target destination
+            // We are within the stopping distance of the target destination
             // so stop flying towards it.
             mCameraIsFlying = false;
         }
@@ -425,7 +425,7 @@ Ogre::Vector3 CameraManager::getCameraViewTarget() const
     Ogre::Vector3 offset = position.z * viewDirection;
     offset.z = 0.0;
 
-    // The location we are looking at is then simply the camera's positon plus
+    // The location we are looking at is then simply the camera's position plus
     // the view offset computed above.  We zero the z-value on the target for
     // consistency.
     Ogre::Vector3 target = position + offset;

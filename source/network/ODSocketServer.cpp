@@ -75,7 +75,7 @@ void ODSocketServer::doTask(int timeoutMs)
         if(timeoutMs != 0)
         {
             // We adapt the timeout so that the function returns after timeoutMs
-            // even if events occured
+            // even if events occurred
             int timeoutMsAdjusted = std::max(1, timeoutMs - mClockMainTask.getElapsedTime().asMilliseconds());
             isSockReady = mSockSelector.wait(sf::milliseconds(timeoutMsAdjusted));
         }
