@@ -24,7 +24,7 @@ multiplayer game by using the corresponding menus.
 
 ### Be part of the community
 
-As free software afficionados, we value community-based development and
+As free software aficionados, we value community-based development and
 welcome any willing contributor regardless of their skills. Giving us
 feedback about the gameplay, or reporting bugs on our tracker, is already
 a very relevant way of contributing to the development of this game,

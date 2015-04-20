@@ -33,7 +33,7 @@ struct asSMessageInfo;
 class CScriptBuilder;
 class CameraManager;
 
-/*! \brief This singleton initialises AngelScript and provides all neccessary functions to
+/*! \brief This singleton initialises AngelScript and provides all necessary functions to
  *         execute script code, including registering our own classes, templated reference
  *         classes and several helper functions.
  */

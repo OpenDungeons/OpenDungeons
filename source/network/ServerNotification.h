@@ -31,7 +31,7 @@ class Player;
 
 enum class ServerNotificationType
 {
-    // Negociation for multiplayer
+    // Negotiation for multiplayer
     loadLevel, // Tells the client to load the level: + string LevelFilename
     pickNick,
     addPlayers,

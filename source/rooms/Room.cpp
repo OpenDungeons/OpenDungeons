@@ -306,7 +306,7 @@ void Room::checkForRoomAbsorbtion()
             continue;
 
         absorbRoom(room);
-        // All the tiles from the absorbed room have been transfered to this one
+        // All the tiles from the absorbed room have been transferred to this one
         // No need to delete it since it will be removed during its next upkeep
         isRoomAbsorbed = true;
     }

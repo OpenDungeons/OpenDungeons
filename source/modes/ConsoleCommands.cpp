@@ -571,7 +571,7 @@ namespace ConsoleCommands
 void addConsoleCommands(ConsoleInterface& cl)
 {
     cl.addCommand("ambientlight",
-                   "The 'ambientlight' command sets the minumum light that every object in the scene is illuminated with. "
+                   "The 'ambientlight' command sets the minimum light that every object in the scene is illuminated with. "
                    "It takes as it's argument and RGB triplet whose values for red, green, and blue range from 0.0 to 1.0.\n\nExample:\n"
                    "ambientlight 0.4 0.6 0.5\n\nThe above command sets the ambient light color to red=0.4, green=0.6, and blue = 0.5.",
                    cAmbientLight,

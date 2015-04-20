@@ -32,7 +32,7 @@ enum class CreatureActionType
     digTile, // (worker only) Dig out a tile, i.e. decrease its fullness.
     claimTile, // (worker only) "Dance" on tile to change its color.
     claimWallTile, // (worker only) "Dance" next to wall tile to change its color and set it as reinforced.
-    attackObject, // Do damage to an attackableObject withing range, if not in range begin maneuvering.
+    attackObject, // Do damage to an attackableObject within range, if not in range begin maneuvering.
     findHome, // (fighters only) Try to find a "home" tile in a dormitory somewhere where the creature can sleep.
     findHomeForced, // Try to find a "home" tile in the dormitory where the creature is
     sleep, // (fighters only) Try to go to its home tile to and sleep when it gets there.

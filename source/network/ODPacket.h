@@ -53,7 +53,7 @@
  * This way, if the function signature changes or if the data type is different (int vs long for example) on
  * different platforms, there will be an error when compiling instead of a probable buggy behaviour at runtime.
  * When dealing with class/structure, the best is to use directly the variables themselves, no getter/setter.
- * For exemple, You should NOT do :
+ * For example, You should NOT do :
  * Emission : packet << creature->getHp();
  * Reception : double hp;
  *             packet >> hp;

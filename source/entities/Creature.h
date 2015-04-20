@@ -321,12 +321,12 @@ public:
     bool isJobRoom(Room* room);
     bool isEatRoom(Room* room);
 
-    //! \brief Allows to change the room the creature is using (when room absorbtion for example). Beware, the room
+    //! \brief Allows to change the room the creature is using (when room absorption for example). Beware, the room
     //! change logic has to be handled elsewhere
     inline void changeJobRoom(Room* newRoom)
     { mJobRoom = newRoom; }
 
-    //! \brief Allows to change the room the creature is using (when room absorbtion for example). Beware, the room
+    //! \brief Allows to change the room the creature is using (when room absorption for example). Beware, the room
     //! change logic has to be handled elsewhere
     inline void changeEatRoom(Room* newRoom)
     { mEatRoom = newRoom; }

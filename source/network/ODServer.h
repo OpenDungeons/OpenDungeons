@@ -54,7 +54,7 @@ ODPacket& operator>>(ODPacket& is, ServerMode& sm);
 /**
  * When playing single player or multiplayer, there is always one reference gamemap. It is
  * the one on ODServer. There is also a client gamemap in ODFrameListener which is supposed to be
- * a "copy" from the server gamemap containing only the usefull information for the player.
+ * a "copy" from the server gamemap containing only the useful information for the player.
  * The server has its own thread to update the server gamemap. When a relevant change occurs,
  * the server sends messages to the clients so that they know they should update the client gamemaps.
  * The server gamemap should only be accessed from the server thread because it is not thread safe.
@@ -136,7 +136,7 @@ private:
 
     /*! \brief The function running in server-mode which listens for messages from an individual, already connected, client.
      *
-     * This function recieves TCP packets one at a time from a connected client,
+     * This function receives TCP packets one at a time from a connected client,
      * decodes them, and carries out requests for the client, returning any
      * results.
      * \returns false When the client has disconnected.

@@ -249,7 +249,7 @@ class GameEntity
     void fireDropEntity(Player* playerPicking, Tile* tile);
 
     //! \brief Called each turn with the list of seats that have vision on the tile where the entity is. It should handle
-    //! messages to notify players that gain/loose vision
+    //! messages to notify players that gain/lose vision
     virtual void notifySeatsWithVision(const std::vector<Seat*>& seats);
     //! \brief Functions to add/remove a seat with vision
     virtual void addSeatWithVision(Seat* seat, bool async);

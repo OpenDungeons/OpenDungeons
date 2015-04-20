@@ -291,7 +291,7 @@ void ODServer::serverThread()
     double turnLengthMs = 1000.0 / ODApplication::turnsPerSecond;
     while(isConnected())
     {
-        // doTask sould return after the length of 1 turn even if their are communications. When
+        // doTask should return after the length of 1 turn even if their are communications. When
         // it returns, we can launch next turn.
         doTask(static_cast<int32_t>(turnLengthMs));
 

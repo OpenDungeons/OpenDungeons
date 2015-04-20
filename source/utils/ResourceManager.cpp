@@ -2,7 +2,7 @@
  * \file   ResourceManager.cpp
  * \date   12 April 2011
  * \author StefanP.MUC
- * \brief  This class handles all the resources (pathes, files) needed by the
+ * \brief  This class handles all the resources (paths, files) needed by the
  *         sound and graphics facilities.
  *
  *  Copyright (C) 2011-2015  OpenDungeons Team
