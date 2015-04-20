@@ -363,6 +363,7 @@ set(OD_SOURCEFILES
     ${SRC}/utils/Helper.cpp
     ${SRC}/utils/LogManager.cpp
     ${SRC}/utils/LogManagerOgre.cpp
+    ${SRC}/utils/StackTraceWinMinGW.cpp
     ${SRC}/utils/Random.cpp
     ${SRC}/utils/ResourceManager.cpp
     ${SRC}/utils/StackTracePrint.cpp
@@ -526,6 +527,12 @@ endif()
 
 # The name of the OGRE Overlay library is available as CMAKE variable, also discovering debug versions correctly; please leave it like that!
 target_link_libraries(${PROJECT_BINARY_NAME} ${OGRE_Overlay_LIBRARY})
+
+# With MinGW, we link needed libraries to display stacktrace on uncatched exception
+if(MINGW)
+# used for displaying the backtrace when the game segfaults
+    target_link_libraries(${PROJECT_BINARY_NAME} imagehlp bfd intl iberty z)
+endif()
 
 # MSVC automatically links boost
 if(NOT MSVC)

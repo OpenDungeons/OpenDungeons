@@ -43,6 +43,10 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#if defined __MINGW32__
+#include "utils/StackTraceWinMinGW.h"
+#endif // defined __MINGW32__
+
 INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT)
 #else
 int main(int argc, char** argv)
@@ -60,6 +64,9 @@ int main(int argc, char** argv)
             << SIGSEGV << strsignal(SIGSEGV) << std::endl;
         exit(EXIT_FAILURE);
     }
+#elif defined __MINGW32__
+    // To log segfaults
+    StackTraceWinMinGW trace("crash.log");
 #endif //!WIN32
     try
     {
