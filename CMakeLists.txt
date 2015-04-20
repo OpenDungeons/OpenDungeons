@@ -630,7 +630,9 @@ if(UNIX)
 
     set(OD_DOC         ${CMAKE_SOURCE_DIR}/AUTHORS
                        ${CMAKE_SOURCE_DIR}/CREDITS
-                       ${CMAKE_SOURCE_DIR}/FAQ.txt)
+                       ${CMAKE_SOURCE_DIR}/LICENSE.md
+                       ${CMAKE_SOURCE_DIR}/README.md
+                       ${CMAKE_SOURCE_DIR}/RELEASE-NOTES.md)
 
     # Install required game files: binary, configuration files and resources
     install(TARGETS ${PROJECT_BINARY_NAME}
