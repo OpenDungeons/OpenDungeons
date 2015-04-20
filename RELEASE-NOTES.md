@@ -5,7 +5,7 @@ This file contains the subsequent release notes for each version of OpenDungeons
 The numbers preceded by a hash (e.g. #9) reference GitHub issue numbers on our repository at https://github.com/OpenDungeons/OpenDungeons
 
 
-### Version 0.5.0
+### Version 0.5.0 - 20 April 2015
 
 **Highlights:**
 
@@ -36,6 +36,7 @@ The numbers preceded by a hash (e.g. #9) reference GitHub issue numbers on our r
 * Removed the broken Culling Manager (#170)
 * Disable angelscript as it is not used currently (#504)
 * Code abstration to prepare unit tests (#592)
+* Win32 build now produces a backtrace upon segfault (#680)
 * Lots of bug fixes
 
 **Gameplay:**
