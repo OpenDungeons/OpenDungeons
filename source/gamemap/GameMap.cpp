@@ -42,6 +42,7 @@
 #include "game/Seat.h"
 
 #include "gamemap/Pathfinding.h"
+#include "gamemap/TileSet.h"
 
 #include "modes/ModeManager.h"
 
@@ -171,7 +172,7 @@ GameMap::~GameMap()
     processDeletionQueues();
 }
 
-const std::string GameMap::serverStr()
+std::string GameMap::serverStr()
 {
     if (mIsServerGameMap)
         return std::string("SERVER - ");
@@ -244,8 +245,6 @@ bool GameMap::loadLevel(const std::string& levelFilepath)
 
 bool GameMap::createNewMap(int sizeX, int sizeY)
 {
-    stringstream ss;
-
     if (!allocateMapMemory(sizeX, sizeY))
         return false;
 
@@ -3015,6 +3014,11 @@ const TileSetValue& GameMap::getMeshForTile(const Tile* tile) const
     }
 
     return mTileSet->getTileValues(tile->getTileVisual()).at(index);
+}
+
+const Ogre::Vector3& GameMap::getTileSetScale() const
+{
+    return mTileSet->getScale();
 }
 
 uint32_t GameMap::getMaxNumberCreatures(Seat* seat) const

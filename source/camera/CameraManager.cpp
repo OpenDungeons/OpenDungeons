@@ -21,7 +21,7 @@
 
 #include "camera/CameraManager.h"
 
-#include "gamemap/GameMap.h"
+#include "gamemap/TileContainer.h"
 #include "sound/SoundEffectsManager.h"
 #include "utils/LogManager.h"
 
@@ -49,7 +49,7 @@ const Ogre::Degree ROTATION_SPEED = Ogre::Degree(90);
 //! Default orientation on the X Axis
 const Ogre::Real DEFAULT_X_AXIS_VIEW = 25.0;
 
-CameraManager::CameraManager(Ogre::SceneManager* sceneManager, GameMap* gm, Ogre::RenderWindow* renderWindow) :
+CameraManager::CameraManager(Ogre::SceneManager* sceneManager, TileContainer* gm, Ogre::RenderWindow* renderWindow) :
     mCircleMode(false),
     mCatmullSplineMode(false),
     mFirstIter(true),

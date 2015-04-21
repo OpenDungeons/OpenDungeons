@@ -290,6 +290,7 @@ set(OD_SOURCEFILES
     ${SRC}/gamemap/MapLoader.cpp
     ${SRC}/gamemap/MiniMap.cpp
     ${SRC}/gamemap/TileContainer.cpp
+    ${SRC}/gamemap/TileSet.cpp
 
     ${SRC}/goals/Goal.cpp
     ${SRC}/goals/GoalClaimNTiles.cpp
