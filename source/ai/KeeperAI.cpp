@@ -31,6 +31,7 @@
 #include "rooms/RoomTrainingHall.h"
 #include "rooms/RoomTreasury.h"
 #include "spell/Spell.h"
+#include "spell/SpellType.h"
 #include "utils/LogManager.h"
 #include "utils/Random.h"
 

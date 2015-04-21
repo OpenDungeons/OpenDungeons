@@ -24,6 +24,7 @@
 #include "gamemap/MiniMap.h"
 
 #include "entities/Tile.h"
+#include "game/Player.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 

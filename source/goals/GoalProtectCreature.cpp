@@ -22,45 +22,35 @@
 #include "game/Player.h"
 #include "gamemap/GameMap.h"
 
-GoalProtectCreature::GoalProtectCreature(const std::string& nName, const std::string& nArguments, GameMap* gameMap) :
-    Goal(nName, nArguments, gameMap),
+GoalProtectCreature::GoalProtectCreature(const std::string& nName, const std::string& nArguments) :
+    Goal(nName, nArguments),
     mCreatureName(nArguments)
 {
     std::cout << "\nAdding goal " << getName() << "\tCreature name: "
               << mCreatureName;
 }
 
-bool GoalProtectCreature::isMet(Seat *s)
+bool GoalProtectCreature::isMet(const Seat&, const GameMap& gameMap)
 {
     // Check to see if the creature exists on the game map.
-    const Creature *tempCreature = mGameMap->getCreature(mCreatureName);
+    const Creature *tempCreature = gameMap.getCreature(mCreatureName);
     if (tempCreature != nullptr)
         return (tempCreature->getHP() > 0.0);
 
     return false;
 }
 
-bool GoalProtectCreature::isUnmet(Seat *s)
-{
-    return false;
-}
-
-bool GoalProtectCreature::isFailed(Seat *s)
-{
-    return !isMet(s);
-}
-
-std::string GoalProtectCreature::getSuccessMessage(Seat *s)
+std::string GoalProtectCreature::getSuccessMessage(const Seat&)
 {
     return mCreatureName + " is still alive";
 }
 
-std::string GoalProtectCreature::getFailedMessage(Seat *s)
+std::string GoalProtectCreature::getFailedMessage(const Seat&)
 {
     return mCreatureName + " is not alive";
 }
 
-std::string GoalProtectCreature::getDescription(Seat *s)
+std::string GoalProtectCreature::getDescription(const Seat&)
 {
     return "Protect the creature named " + mCreatureName + ".";
 }

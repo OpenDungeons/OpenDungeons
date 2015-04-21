@@ -19,6 +19,7 @@
 #define TRAPBOULDER_H
 
 #include "traps/Trap.h"
+#include "traps/TrapType.h"
 
 class TrapBoulder : public Trap
 {

@@ -33,6 +33,7 @@
 #include "game/Seat.h"
 
 #include "gamemap/GameMap.h"
+#include "gamemap/Pathfinding.h"
 
 #include "network/ODClient.h"
 #include "network/ODServer.h"
@@ -48,6 +49,7 @@
 #include "sound/SoundEffectsManager.h"
 
 #include "spell/Spell.h"
+#include "spell/SpellType.h"
 
 #include "traps/Trap.h"
 
@@ -78,7 +80,7 @@
 
 static const int NB_TURN_FLEE_MAX = 5;
 
-Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
+Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition, Seat* seat, Ogre::Vector3 position) :
     MovableGameEntity        (gameMap),
     mPhysicalAttack          (1.0),
     mMagicalAttack           (0.0),
@@ -125,6 +127,9 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
     mNeedFireRefresh         (false)
 
 {
+    //TODO: This should be set in initialiser list in parent classes
+    setSeat(seat);
+    mPosition = position;
     setMeshName(definition->getMeshName());
     setName(getGameMap()->nextUniqueNameCreature(definition->getClassName()));
 
@@ -155,6 +160,8 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition) :
 
     if(mDefinition->getWeaponSpawnR().compare("none") != 0)
         mWeaponR = gameMap->getWeapon(mDefinition->getWeaponSpawnR());
+
+    setupDefinition(*gameMap, *ConfigManager::getSingleton().getCreatureDefinitionDefaultWorker());
 }
 
 Creature::Creature(GameMap* gameMap) :
@@ -215,54 +222,6 @@ Creature::~Creature()
 void Creature::createMeshLocal()
 {
     MovableGameEntity::createMeshLocal();
-
-    bool setHpToStrHp = false;
-    if(mDefinition == nullptr)
-    {
-        // If the classname corresponds to the default worker CreatureDefinition, we use
-        // the dedicated class. The correct one will be set after the seat is initialized
-        if(mDefinitionString.compare(ConfigManager::DefaultWorkerCreatureDefinition) != 0)
-        {
-            mDefinition = getGameMap()->getClassDescription(mDefinitionString);
-        }
-        else
-        {
-            // If we are in editor mode, we take the default worker class. Otherwise, we take
-            // the default worker from the seat faction
-            if(getGameMap()->isInEditorMode())
-                mDefinition = ConfigManager::getSingleton().getCreatureDefinitionDefaultWorker();
-            else
-                mDefinition = getSeat()->getWorkerClassToSpawn();
-        }
-
-        OD_ASSERT_TRUE_MSG(mDefinition != nullptr, "Definition=" + mDefinitionString);
-
-        if(getGameMap()->isServerGameMap())
-        {
-            setHpToStrHp = true;
-
-            // name
-            if (getName().compare("autoname") == 0)
-            {
-                std::string name = getGameMap()->nextUniqueNameCreature(mDefinition->getClassName());
-                setName(name);
-            }
-        }
-    }
-
-    buildStats();
-
-    // Now, the max hp is known. If needed, we set it
-    if(setHpToStrHp)
-    {
-        if(mHpString.compare("max") == 0)
-            mHp = mMaxHP;
-        else
-            mHp = Helper::toDouble(mHpString);
-
-        computeCreatureOverlayHealthValue();
-    }
-
     if(!getGameMap()->isServerGameMap())
     {
         RenderManager::getSingleton().rrCreateCreature(this);
@@ -469,6 +428,7 @@ void Creature::buildStats()
 
 Creature* Creature::getCreatureFromStream(GameMap* gameMap, std::istream& is)
 {
+    //TODO - Handle load errors
     Creature* creature = new Creature(gameMap);
     return creature;
 }
@@ -559,6 +519,7 @@ void Creature::importFromPacket(ODPacket& is)
         mWeaponR = getGameMap()->getWeapon(tempString);
         OD_ASSERT_TRUE_MSG(mWeaponR != nullptr, "Unknown weapon name=" + tempString);
     }
+    setupDefinition(*getGameMap(), *ConfigManager::getSingleton().getCreatureDefinitionDefaultWorker());
 }
 
 void Creature::setPosition(const Ogre::Vector3& v, bool isMove)
@@ -2289,7 +2250,7 @@ bool Creature::handleEatingAction(const CreatureAction& actionItem)
         int tempInt = Random::Uint(0, tempRooms.size() - 1);
         tempRoom = tempRooms[tempInt];
         tempRooms.erase(tempRooms.begin() + tempInt);
-        double tempDouble = 1.0 / (maxDistance - getGameMap()->crowDistance(myTile, tempRoom->getCoveredTile(0)));
+        double tempDouble = 1.0 / (maxDistance - Pathfinding::distanceTile(*myTile, *tempRoom->getCoveredTile(0)));
         if (Random::Double(0.0, 1.0) < tempDouble)
             break;
         --nbTry;
@@ -2401,7 +2362,7 @@ bool Creature::handleAttackAction(const CreatureAction& actionItem)
 
     // Calculate how much damage we do.
     Tile* myTile = getPositionTile();
-    Ogre::Real range = getGameMap()->crowDistance(myTile, attackedTile);
+    Ogre::Real range = Pathfinding::distanceTile(*myTile, *attackedTile);
     // Do the damage and award experience points to both creatures.
     double damageDone = attackedObject->takeDamage(this, getPhysicalDamage(range), getMagicalDamage(range), attackedTile);
     double expGained;
@@ -4031,6 +3992,57 @@ void Creature::fireCreatureRefreshIfNeeded()
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 }
+
+void Creature::setupDefinition(GameMap& gameMap, const CreatureDefinition& defaultWorkerCreatureDefinition)
+{
+    bool setHpToStrHp = false;
+    if(mDefinition == nullptr)
+    {
+        // If the classname corresponds to the default worker CreatureDefinition, we use
+        // the dedicated class. The correct one will be set after the seat is initialized
+        if(!mDefinitionString.empty() &&  mDefinitionString.compare(ConfigManager::DefaultWorkerCreatureDefinition) != 0)
+        {
+            mDefinition = gameMap.getClassDescription(mDefinitionString);
+        }
+        else
+        {
+            // If we are in editor mode, we take the default worker class. Otherwise, we take
+            // the default worker from the seat faction
+            if(gameMap.isInEditorMode() || !mSeat)
+                mDefinition = &defaultWorkerCreatureDefinition;
+            else
+                mDefinition = getSeat()->getWorkerClassToSpawn();
+        }
+
+        OD_ASSERT_TRUE_MSG(mDefinition != nullptr, "Definition=" + mDefinitionString);
+
+        if(getGameMap()->isServerGameMap())
+        {
+            setHpToStrHp = true;
+
+            // name
+            if (getName().compare("autoname") == 0)
+            {
+                std::string name = getGameMap()->nextUniqueNameCreature(mDefinition->getClassName());
+                setName(name);
+            }
+        }
+    }
+
+    buildStats();
+
+    // Now, the max hp is known. If needed, we set it
+    if(setHpToStrHp)
+    {
+        if(mHpString.compare("max") == 0)
+            mHp = mMaxHP;
+        else
+            mHp = Helper::toDouble(mHpString);
+
+        computeCreatureOverlayHealthValue();
+    }
+}
+
 
 void Creature::fireCreatureSound(CreatureSoundType sound)
 {

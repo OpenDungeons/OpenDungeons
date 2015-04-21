@@ -19,6 +19,7 @@
 #define TRAPCANNON_H
 
 #include "Trap.h"
+#include "traps/TrapType.h"
 
 class ODPacket;
 

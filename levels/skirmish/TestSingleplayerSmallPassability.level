@@ -16,7 +16,7 @@ faction	Keeper
 startingX	1
 startingY	1
 colorId	1
-gold	1000
+gold	999999
 goldMined	100
 mana	500
 [ResearchDone]
@@ -26,16 +26,16 @@ roomHatchery
 roomLibrary
 trapCannon
 spellSummonWorker
-[/ResearchDone]
-[ResearchNotAllowed]
-[/ResearchNotAllowed]
-[ResearchPending]
 roomTrainingHall
 spellCallToWar
 trapSpike
 roomWorkshop
 roomCrypt
 trapBoulder
+[/ResearchDone]
+[ResearchNotAllowed]
+[/ResearchNotAllowed]
+[ResearchPending]
 [/ResearchPending]
 [/Seat]
 [/Seats]
@@ -45,12 +45,8 @@ trapBoulder
 KillAllEnemies	NULL
 ClaimNTiles	40
 + 1
-ClaimNTiles	60
 MineNGold	20
 + 1
-MineNGold	50
-+ 1
-MineNGold	100
 ProtectDungeonTemple	NULL
 [/Goals]
 

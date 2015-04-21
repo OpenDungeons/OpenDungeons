@@ -18,7 +18,7 @@
 #ifndef TILE_H
 #define TILE_H
 
-#include "entities/GameEntity.h"
+#include "entities/EntityBase.h"
 
 #include <OgreVector3.h>
 
@@ -28,6 +28,7 @@
 
 class Building;
 class Creature;
+class GameEntity;
 class Player;
 class Room;
 class MapLight;
@@ -97,10 +98,13 @@ enum class FloodFillType
  * the tile has been dug out.  Additionally the tile contains lists of the
  * entities located within it to aid in AI calculations.
  */
-class Tile : public GameEntity
+class Tile : public EntityBase
 {
 public:
     Tile(GameMap* gameMap, int x = 0, int y = 0, TileType type = TileType::dirt, double fullness = 100.0);
+
+    virtual ~Tile()
+    {}
 
     virtual GameEntityType getObjectType() const
     { return GameEntityType::tile; }
@@ -124,11 +128,6 @@ public:
     //! \brief Sets the tile type (rock, claimed, etc.).
     inline void setTileVisual(TileVisual tileVisual)
     { mTileVisual = tileVisual; }
-
-    virtual void addToGameMap();
-    //! Tiles cannot be removed
-    virtual void removeFromGameMap()
-    {}
 
     /*! \brief A mutator to change how "filled in" the tile is.
      *
@@ -175,7 +174,7 @@ public:
     { return mScale; }
 
     //! \brief Marks the tile as being selected through a mouse click or drag.
-    void setSelected(bool ss, Player* pp);
+    void setSelected(bool ss, const Player* pp);
 
     //! \brief Returns whether or not the tile has been selected.
     bool getSelected() const
@@ -188,7 +187,7 @@ public:
     { return mLocalPlayerHasVision; }
 
     //! \brief Set the tile digging mark for the given player.
-    void setMarkedForDigging(bool s, Player* p);
+    void setMarkedForDigging(bool s, const Player* p);
 
     //! \brief This accessor function returns whether or not the tile has been marked to be dug out by a given Player p.
     bool getMarkedForDigging(const Player* p) const;
@@ -201,8 +200,8 @@ public:
     bool isMarkedForDiggingByAnySeat();
 
     //! \brief Add/Remove a player to the vector of players who have marked this tile for digging.
-    void addPlayerMarkingTile(Player *p);
-    void removePlayerMarkingTile(Player *p);
+    void addPlayerMarkingTile(const Player *p);
+    void removePlayerMarkingTile(const Player *p);
 
     //! \brief This function adds an entity to the list of entities in this tile.
     bool addEntity(GameEntity *entity);
@@ -243,7 +242,7 @@ public:
     //! \brief Tells whether the tile is diggable by dig-capable creatures.
     //! \brief The player seat.
     //! The function will check whether a tile is not already a reinforced wall owned by another team.
-    bool isDiggable(Seat* seat) const;
+    bool isDiggable(const Seat* seat) const;
 
     //! \brief Tells whether the tile fullness is empty (ground tile) and can be claimed by the given seat.
     bool isGroundClaimable(Seat* seat) const;
@@ -253,7 +252,7 @@ public:
     bool isWallClaimable(Seat* seat);
 
     //! \brief Tells whether the tile is claimed for the given seat.
-    bool isClaimedForSeat(Seat* seat) const;
+    bool isClaimedForSeat(const Seat* seat) const;
 
     //! \brief Tells whether the tile is claimed for the given seat.
     bool isClaimed() const;
@@ -265,7 +264,7 @@ public:
     //! \brief Tells whether a room can be built upon this tile.
     bool isBuildableUpon(Seat* seat) const;
 
-    void exportToStream(std::ostream& os) const override;
+    void exportToStream(std::ostream& os) const;
 
     static std::string getFormat();
 
@@ -273,7 +272,7 @@ public:
     static void loadFromLine(const std::string& line, Tile *t);
 
     //! \brief Override of packet export function from gameEntity. Should not be used
-    void exportToPacket(ODPacket& os) const override;
+    void exportToPacket(ODPacket& os) const;
 
     /*! \brief Updates the tile from the data sent by the server so that it is correctly displayed and used
      */
@@ -304,28 +303,6 @@ public:
     static bool checkTileName(const std::string& tileName, int& x, int& y);
 
     static std::string displayAsString(const Tile* tile);
-
-    void doUpkeep()
-    {}
-
-    void receiveExp(double experience)
-    {}
-
-    double takeDamage(GameEntity* attacker, double physicalDamage,
-                      double magicalDamage, Tile *tileTakingDamage)
-    { return 0.0; }
-
-    double getHP(Tile *tile) const
-    { return 0.0; }
-
-    std::vector<Tile*> getCoveredTiles()
-    { return std::vector<Tile*>(); }
-
-    Tile* getCoveredTile(int index)
-    { return nullptr; }
-
-    uint32_t numCoveredTiles()
-    { return 0; }
 
     //! \brief Fills entities with all the attackable creatures in the Tile. If invert is true,
     //! the list will be filled with the enemies with the given seat. If invert is false, it will be filled
@@ -385,12 +362,12 @@ public:
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
-    // Tiles do not trigger add/remove events
-    void fireAddEntity(Seat* seat, bool async)
-    {}
-    void fireRemoveEntity(Seat* seat)
-    {}
 private:
+    GameMap* getGameMap() const
+    {
+        return mGameMap;
+    }
+
     //! \brief The tile position
     int mX, mY;
 
@@ -416,7 +393,7 @@ private:
     uint32_t mRefundPriceTrap;
 
     std::vector<Tile*> mNeighbors;
-    std::vector<Player*> mPlayersMarkingTile;
+    std::vector<const Player*> mPlayersMarkingTile;
     std::vector<std::pair<Seat*, bool>> mTileChangedForSeats;
     std::vector<Seat*> mSeatsWithVision;
 
@@ -446,6 +423,8 @@ private:
     { mFullness = f; }
 
     void setDirtyForAllSeats();
+
+    GameMap* mGameMap;
 };
 
 #endif // TILE_H

@@ -17,13 +17,12 @@
 
 #include "GameEditorModeBase.h"
 
-#include "game/Player.h"
 #include "gamemap/GameMap.h"
 #include "network/ChatEventMessage.h"
 #include "render/Gui.h"
 #include "render/ODFrameListener.h"
 #include "rooms/RoomType.h"
-#include "traps/Trap.h"
+#include "traps/TrapType.h"
 #include "utils/Helper.h"
 
 #include <CEGUI/widgets/PushButton.h>
@@ -36,35 +35,35 @@ namespace {
     public:
         bool operator()(const CEGUI::EventArgs& e)
         {
-            gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildRoom);
-            gameMap->getLocalPlayer()->setNewRoomType(roomType);
+            playerSelection.setCurrentAction(SelectedAction::buildRoom);
+            playerSelection.setNewRoomType(roomType);
             return true;
         }
         RoomType roomType;
-        GameMap* gameMap;
+        PlayerSelection& playerSelection;
     };
     class TrapSelector
     {
     public:
         bool operator()(const CEGUI::EventArgs& e)
         {
-            gameMap->getLocalPlayer()->setCurrentAction(Player::SelectedAction::buildTrap);
-            gameMap->getLocalPlayer()->setNewTrapType(trapType);
+            playerSelection.setCurrentAction(SelectedAction::buildTrap);
+            playerSelection.setNewTrapType(trapType);
             return true;
         }
         TrapType trapType;
-        GameMap* gameMap;
+        PlayerSelection& playerSelection;
     };
     class ActionSelector
     {
     public:
         bool operator()(const CEGUI::EventArgs& e)
         {
-            gameMap->getLocalPlayer()->setCurrentAction(action);
+            playerSelection.setCurrentAction(action);
             return true;
         }
-        Player::SelectedAction action;
-        GameMap* gameMap;
+        SelectedAction action;
+        PlayerSelection& playerSelection;
     };
     //! \brief Functor for calling notifyGuiAction
     // only used in game and editor currently.
@@ -73,11 +72,11 @@ namespace {
     public:
         bool operator()(const CEGUI::EventArgs&)
         {
-            mode->notifyGuiAction(action);
+            mode.notifyGuiAction(action);
             return true;
         }
         AbstractApplicationMode::GuiAction action;
-        GameEditorModeBase* mode;
+        GameEditorModeBase& mode;
     };
 }
 
@@ -97,7 +96,7 @@ GameEditorModeBase::GameEditorModeBase(ModeManager *modeManager, ModeManager::Mo
     addEventConnection(
         rootWindow->getChild(Gui::BUTTON_DESTROY_ROOM)->subscribeEvent(
             CEGUI::Window::EventMouseClick,
-            CEGUI::Event::Subscriber(ActionSelector{Player::SelectedAction::destroyRoom, mGameMap})
+            CEGUI::Event::Subscriber(ActionSelector{SelectedAction::destroyRoom, mPlayerSelection})
         )
     );
     connectRoomSelect(Gui::BUTTON_CRYPT, RoomType::crypt);
@@ -114,7 +113,7 @@ GameEditorModeBase::GameEditorModeBase(ModeManager *modeManager, ModeManager::Mo
     addEventConnection(
         rootWindow->getChild(Gui::BUTTON_DESTROY_TRAP)->subscribeEvent(
             CEGUI::Window::EventMouseClick,
-            CEGUI::Event::Subscriber(ActionSelector{Player::SelectedAction::destroyTrap, mGameMap})
+            CEGUI::Event::Subscriber(ActionSelector{SelectedAction::destroyTrap, mPlayerSelection})
         )
     );
     connectTrapSelect(Gui::BUTTON_TRAP_BOULDER, TrapType::boulder);
@@ -150,12 +149,12 @@ void GameEditorModeBase::connectGuiAction(const std::string& buttonName, Abstrac
     addEventConnection(
         mRootWindow->getChild(buttonName)->subscribeEvent(
           CEGUI::PushButton::EventClicked,
-          CEGUI::Event::Subscriber(GuiNotifier{action, this})
+          CEGUI::Event::Subscriber(GuiNotifier{action, *this})
         )
     );
 }
 
-GameEntity* GameEditorModeBase::getEntityFromOgreName(const std::string& entityName)
+EntityBase* GameEditorModeBase::getEntityFromOgreName(const std::string& entityName)
 {
     // We check the prefix to know the kind of object the user clicked. Then, we call the corresponding
     // GameMap function to retrieve the entity
@@ -165,7 +164,7 @@ GameEntity* GameEditorModeBase::getEntityFromOgreName(const std::string& entityN
 
     int32_t intGameEntityType = Helper::toInt(entityName.substr(0, index));
     GameEntityType type = static_cast<GameEntityType>(intGameEntityType);
-    return mGameMap->getEntityFromTypeAndName(type, entityName.substr(index + 1));
+    return mGameMap->getBaseEntityFromTypeAndName(type, entityName.substr(index + 1));
 }
 
 
@@ -187,7 +186,7 @@ void GameEditorModeBase::connectRoomSelect(const std::string& buttonName, RoomTy
     addEventConnection(
         mRootWindow->getChild(buttonName)->subscribeEvent(
           CEGUI::PushButton::EventClicked,
-          CEGUI::Event::Subscriber(RoomSelector{roomType, mGameMap})
+          CEGUI::Event::Subscriber(RoomSelector{roomType, mPlayerSelection})
         )
     );
 }
@@ -197,7 +196,7 @@ void GameEditorModeBase::connectTrapSelect(const std::string& buttonName, TrapTy
     addEventConnection(
         mRootWindow->getChild(buttonName)->subscribeEvent(
           CEGUI::PushButton::EventClicked,
-          CEGUI::Event::Subscriber(TrapSelector{trapType, mGameMap})
+          CEGUI::Event::Subscriber(TrapSelector{trapType, mPlayerSelection})
         )
     );
 }

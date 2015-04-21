@@ -41,6 +41,8 @@
 #include "game/Player.h"
 #include "game/Seat.h"
 
+#include "gamemap/Pathfinding.h"
+
 #include "modes/ModeManager.h"
 
 #include "network/ODServer.h"
@@ -254,7 +256,7 @@ bool GameMap::createNewMap(int sizeX, int sizeY)
             Tile* tile = new Tile(this, ii, jj);
             tile->setName(Tile::buildName(ii, jj));
             tile->setType(TileType::dirt);
-            tile->addToGameMap();
+            addTile(tile);
         }
     }
 
@@ -533,7 +535,7 @@ CreatureDefinition* GameMap::getClassDescriptionForTuning(const std::string& nam
     return def;
 }
 
-std::vector<Creature*> GameMap::getCreaturesByAlliedSeat(Seat* seat)
+std::vector<Creature*> GameMap::getCreaturesByAlliedSeat(const Seat* seat) const
 {
     std::vector<Creature*> tempVector;
 
@@ -547,7 +549,7 @@ std::vector<Creature*> GameMap::getCreaturesByAlliedSeat(Seat* seat)
     return tempVector;
 }
 
-std::vector<Creature*> GameMap::getCreaturesBySeat(Seat* seat)
+std::vector<Creature*> GameMap::getCreaturesBySeat(const Seat* seat) const
 {
     std::vector<Creature*> tempVector;
 
@@ -905,68 +907,122 @@ void GameMap::createAllEntities()
 {
     mTileSet = ConfigManager::getSingleton().getTileSet(mTileSetName);
 
-    std::vector<GameEntity*> entities;
-    // Create OGRE entities for map tiles
-    for (int jj = 0; jj < getMapSizeY(); ++jj)
+    for (Creature* creature : mCreatures)
     {
-        for (int ii = 0; ii < getMapSizeX(); ++ii)
+        //Set up definition for creature. This was previously done in createMesh for some reason.
+        creature->setupDefinition(*this, *ConfigManager::getSingleton().getCreatureDefinitionDefaultWorker());
+        //Doesn't do anything currently.
+        //creature->restoreInitialEntityState();
+    }
+
+    if(isServerGameMap())
+    {
+        // Set positions and update active spots
+        for (RenderedMovableEntity* rendered : mRenderedMovableEntities)
         {
-            getTile(ii,jj)->createMesh();
+            rendered->setPosition(rendered->getPosition(), false);
+        }
+
+        for (Room* room : mRooms)
+        {
+            room->updateActiveSpots();
+        }
+
+        for (Spell* spell : mSpells)
+        {
+            spell->setPosition(spell->getPosition(), false);
+        }
+
+        for (Trap* trap : mTraps)
+        {
+            trap->updateActiveSpots();
+        }
+
+        for (Creature* creature : mCreatures)
+        {
+            //Set up definition for creature. This was previously done in createMesh for some reason.
+            creature->setupDefinition(*this, *ConfigManager::getSingleton().getCreatureDefinitionDefaultWorker());
+            //Set position to update info on what tile the creature is in.
+            creature->setPosition(creature->getPosition(), false);
+            //Doesn't do anything currently.
+            //creature->restoreInitialEntityState();
+        }
+    }
+    else
+    {
+        // On client we create meshes
+        // Create OGRE entities for map tiles
+        for (int jj = 0; jj < getMapSizeY(); ++jj)
+        {
+            for (int ii = 0; ii < getMapSizeX(); ++ii)
+            {
+                getTile(ii,jj)->createMesh();
+            }
+        }
+
+        // Create OGRE entities for rendered entities
+        for (RenderedMovableEntity* rendered : mRenderedMovableEntities)
+        {
+            rendered->createMesh();
+            rendered->setPosition(rendered->getPosition(), false);
+        }
+
+        // Create OGRE entities for the creatures
+        for (Creature* creature : mCreatures)
+        {
+            creature->setupDefinition(*this, *ConfigManager::getSingleton().getCreatureDefinitionDefaultWorker());
+            creature->createMesh();
+            creature->setPosition(creature->getPosition(), false);
+        }
+
+        // Create OGRE entities for the map lights.
+        for (MapLight* mapLight: mMapLights)
+        {
+            mapLight->createMesh();
+            mapLight->setPosition(mapLight->getPosition(), false);
+        }
+
+        // Create OGRE entities for the rooms
+        for (Room* room : mRooms)
+        {
+            room->createMesh();
+        }
+
+        // Create OGRE entities for the rooms
+        for (Trap* trap : mTraps)
+        {
+            trap->createMesh();
+        }
+
+        // Create OGRE entities for spells
+        for (Spell* spell : mSpells)
+        {
+            spell->createMesh();
+            spell->setPosition(spell->getPosition(), false);
         }
     }
 
-    // Create OGRE entities for rendered entities
-    for (RenderedMovableEntity* rendered : mRenderedMovableEntities)
-    {
-        rendered->createMesh();
-        rendered->setPosition(rendered->getPosition(), false);
-        entities.push_back(rendered);
-    }
-
-    // Create OGRE entities for the creatures
-    for (Creature* creature : mCreatures)
-    {
-        creature->createMesh();
-        creature->setPosition(creature->getPosition(), false);
-        entities.push_back(creature);
-    }
-
-    // Create OGRE entities for the map lights.
-    for (MapLight* mapLight: mMapLights)
-    {
-        mapLight->createMesh();
-        mapLight->setPosition(mapLight->getPosition(), false);
-    }
-
-    // Create OGRE entities for the rooms
     for (Room* room : mRooms)
     {
-        room->createMesh();
-        room->updateActiveSpots();
-        entities.push_back(room);
+        room->restoreInitialEntityState();
     }
 
-    // Create OGRE entities for the rooms
     for (Trap* trap : mTraps)
     {
-        trap->createMesh();
-        trap->updateActiveSpots();
-        entities.push_back(trap);
+        trap->restoreInitialEntityState();
     }
 
-    // Create OGRE entities for spells
+    //Doesn't do anything currently
+    /*
     for (Spell* spell : mSpells)
     {
-        spell->createMesh();
-        spell->setPosition(spell->getPosition(), false);
-        entities.push_back(spell);
+        spell->restoreInitialEntityState();
     }
 
-    for(GameEntity* entity : entities)
+    for (RenderedMovableEntity* rendered : mRenderedMovableEntities)
     {
-        // We restore the initial states
-        entity->restoreInitialEntityState();
-    }
+        rendered->restoreInitialEntityState();
+    }*/
 
     LogManager::getSingleton().logMessage("entities created");
 }
@@ -1328,8 +1384,8 @@ std::list<Tile*> GameMap::findBestPath(const Creature* creature, Tile* tileStart
     // We start by sorting the vector
     std::vector<Tile*> possibleDestsTmp = possibleDests;
     std::sort(possibleDestsTmp.begin(), possibleDestsTmp.end(), [this, &tileStart](Tile* tile1, Tile* tile2){
-              Ogre::Real d1 = crowDistance(tile1, tileStart);
-              Ogre::Real d2 = crowDistance(tile2, tileStart);
+              int d1 = Pathfinding::squaredDistanceTile(*tile1, *tileStart);
+              int d2 = Pathfinding::squaredDistanceTile(*tile2, *tileStart);
               return d1 < d2;
         });
 
@@ -1340,7 +1396,7 @@ std::list<Tile*> GameMap::findBestPath(const Creature* creature, Tile* tileStart
             continue;
 
         // The first reachable tile is the best by default
-        Ogre::Real dist = crowDistance(tile, tileStart);
+        Ogre::Real dist = std::hypotf(tile->getX() - tileStart->getX(), tile->getY() - tileStart->getY());
         if(chosenTile == nullptr)
         {
             chosenTile = tile;
@@ -1742,7 +1798,7 @@ void GameMap::removeRoom(Room *r)
     mRooms.erase(it);
 }
 
-std::vector<Room*> GameMap::getRoomsByType(RoomType type)
+std::vector<Room*> GameMap::getRoomsByType(RoomType type) const
 {
     std::vector<Room*> returnList;
     for (Room* room : mRooms)
@@ -1754,7 +1810,7 @@ std::vector<Room*> GameMap::getRoomsByType(RoomType type)
     return returnList;
 }
 
-std::vector<Room*> GameMap::getRoomsByTypeAndSeat(RoomType type, Seat* seat)
+std::vector<Room*> GameMap::getRoomsByTypeAndSeat(RoomType type, const Seat* seat)
 {
     std::vector<Room*> returnList;
     for (Room* room : mRooms)
@@ -1766,7 +1822,7 @@ std::vector<Room*> GameMap::getRoomsByTypeAndSeat(RoomType type, Seat* seat)
     return returnList;
 }
 
-std::vector<const Room*> GameMap::getRoomsByTypeAndSeat(RoomType type, Seat* seat) const
+std::vector<const Room*> GameMap::getRoomsByTypeAndSeat(RoomType type, const Seat* seat) const
 {
     std::vector<const Room*> returnList;
     for (const Room* room : mRooms)
@@ -1778,7 +1834,7 @@ std::vector<const Room*> GameMap::getRoomsByTypeAndSeat(RoomType type, Seat* sea
     return returnList;
 }
 
-unsigned int GameMap::numRoomsByTypeAndSeat(RoomType type, Seat* seat) const
+unsigned int GameMap::numRoomsByTypeAndSeat(RoomType type, const Seat* seat) const
 {
     int cptRooms = 0;
     for (Room* room : mRooms)
@@ -2060,20 +2116,6 @@ void GameMap::clearGoalsForAllSeats()
     mGoalsForAllSeats.clear();
 }
 
-Ogre::Real GameMap::crowDistance(Tile *t1, Tile *t2)
-{
-    if (t1 != nullptr && t2 != nullptr)
-        return crowDistance(t1->getX(), t2->getX(), t1->getY(), t2->getY());
-    else
-        return -1.0f;
-}
-
-Ogre::Real GameMap::crowDistance(int x1, int x2, int y1, int y2)
-{
-    return sqrt(pow(static_cast<Ogre::Real>(x2 - x1), 2.0f)
-                + pow(static_cast<Ogre::Real>(y2 - y1), 2.0f));
-}
-
 bool GameMap::doFloodFill(Tile* tile)
 {
     if (!mFloodFillEnabled)
@@ -2339,20 +2381,6 @@ std::list<Tile*> GameMap::path(const Creature* creature, Tile* destination, bool
                 creature, creature->getSeat(), throughDiggableTiles);
 }
 
-Ogre::Real GameMap::crowDistance(Creature *c1, Creature *c2)
-{
-    //TODO:  This is sub-optimal, improve it.
-    Tile* tempTile1 = c1->getPositionTile();
-    Tile* tempTile2 = c2->getPositionTile();
-    return crowDistance(tempTile1->getX(), tempTile1->getY(), tempTile2->getX(), tempTile2->getY());
-}
-
-Ogre::Real GameMap::squaredCrowDistance(Tile *t1, Tile *t2) const
-{
-    return std::pow(static_cast<Ogre::Real>(t2->getX() - t1->getX()), 2.0f)
-        + std::pow(static_cast<Ogre::Real>(t2->getY() - t1->getY()), 2.0f);
-}
-
 void GameMap::processDeletionQueues()
 {
     while (!mEntitiesToDelete.empty())
@@ -2438,7 +2466,7 @@ std::string GameMap::getGoalsStringForPlayer(Player* player)
         for (unsigned int i = 0; i < seat->numFailedGoals(); ++i)
         {
             Goal *tempGoal = seat->getFailedGoal(i);
-            tempSS << tempGoal->getFailedMessage(seat) << "\n";
+            tempSS << tempGoal->getFailedMessage(*seat) << "\n";
         }
     }
 
@@ -2449,7 +2477,7 @@ std::string GameMap::getGoalsStringForPlayer(Player* player)
         for (unsigned int i = 0; i < seat->numUncompleteGoals(); ++i)
         {
             Goal *tempGoal = seat->getUncompleteGoal(i);
-            tempSS << tempGoal->getDescription(seat) << "\n";
+            tempSS << tempGoal->getDescription(*seat) << "\n";
         }
     }
 
@@ -2460,7 +2488,7 @@ std::string GameMap::getGoalsStringForPlayer(Player* player)
         for (unsigned int i = 0; i < seat->numCompletedGoals(); ++i)
         {
             Goal *tempGoal = seat->getCompletedGoal(i);
-            tempSS << tempGoal->getSuccessMessage(seat) << "\n";
+            tempSS << tempGoal->getSuccessMessage(*seat) << "\n";
         }
     }
 
@@ -2588,21 +2616,26 @@ GameEntity* GameMap::getEntityFromTypeAndName(GameEntityType entityType,
         case GameEntityType::mapLight:
             return getMapLight(entityName);
 
-        case GameEntityType::tile:
-        {
-            int x, y;
-            if(!Tile::checkTileName(entityName, x, y))
-                return nullptr;
-
-            return getTile(x, y);
-        }
-
         default:
             break;
     }
 
     return nullptr;
 }
+
+EntityBase* GameMap::getBaseEntityFromTypeAndName(GameEntityType entityType, const string& entityName)
+{
+    if(entityType == GameEntityType::tile)
+    {
+        int x, y;
+        if(!Tile::checkTileName(entityName, x, y))
+            return nullptr;
+
+        return getTile(x, y);
+    }
+    return getEntityFromTypeAndName(entityType, entityName);
+}
+
 
 void GameMap::logFloodFileTiles()
 {

@@ -87,11 +87,10 @@ void SpellSummonWorker::castSpellSummonWorker(GameMap* gameMap, const std::vecto
             continue;
 
         // Create a new creature and copy over the class-based creature parameters.
-        Creature* newCreature = new Creature(gameMap, classToSpawn);
+        Creature* newCreature = new Creature(gameMap, classToSpawn, player->getSeat());
         LogManager::getSingleton().logMessage("Spawning a creature class=" + classToSpawn->getClassName()
             + ", name=" + newCreature->getName() + ", seatId=" + Ogre::StringConverter::toString(player->getSeat()->getId()));
 
-        newCreature->setSeat(player->getSeat());
         newCreature->addToGameMap();
         Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(tile->getX()),
                                     static_cast<Ogre::Real>(tile->getY()),

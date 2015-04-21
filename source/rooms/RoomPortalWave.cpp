@@ -23,6 +23,7 @@
 #include "entities/Tile.h"
 #include "game/Player.h"
 #include "game/Seat.h"
+#include "gamemap/Pathfinding.h"
 #include "gamemap/GameMap.h"
 #include "spell/SpellCallToWar.h"
 #include "utils/ConfigManager.h"
@@ -304,7 +305,7 @@ void RoomPortalWave::spawnWave(RoomPortalWaveData* roomPortalWaveData, uint32_t 
             continue;
         }
 
-        Creature* newCreature = new Creature(getGameMap(), classToSpawn);
+        Creature* newCreature = new Creature(getGameMap(), classToSpawn, getSeat(), spawnPosition);
         newCreature->setLevel(p.second);
         newCreature->setHP(newCreature->getMaxHp());
 
@@ -312,10 +313,9 @@ void RoomPortalWave::spawnWave(RoomPortalWaveData* roomPortalWaveData, uint32_t 
             + "spawns a creature class=" + classToSpawn->getClassName()
             + ", name=" + newCreature->getName() + ", seatId=" + Helper::toString(getSeat()->getId()));
 
-        newCreature->setSeat(getSeat());
         newCreature->addToGameMap();
         newCreature->createMesh();
-        newCreature->setPosition(spawnPosition, false);
+        newCreature->setPosition(newCreature->getPosition(), false);
 
         ++maxCreaturesToSpawn;
     }
@@ -527,7 +527,7 @@ bool RoomPortalWave::handleSearchFoe()
             continue;
 
         auto it = tileDungeons.begin();
-        Ogre::Real templeDist = getGameMap()->squaredCrowDistance(tileStart, tile);
+        Ogre::Real templeDist = Pathfinding::squaredDistanceTile(*tileStart, *tile);
         while(it != tileDungeons.end())
         {
             if(templeDist < it->second)
@@ -647,7 +647,7 @@ bool RoomPortalWave::handleDigging()
             continue;
 
         auto it = tileDungeons.begin();
-        Ogre::Real templeDist = getGameMap()->squaredCrowDistance(tileStart, tile);
+        Ogre::Real templeDist = Pathfinding::squaredDistanceTile(*tileStart, *tile);
         while(it != tileDungeons.end())
         {
             if(templeDist < it->second)

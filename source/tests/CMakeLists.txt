@@ -35,3 +35,30 @@ add_boost_test(CreatureDefinition
         ${SFML_LIBRARIES}
         ${Boost_LIBRARIES}
         ${OGRE_LIBRARIES})
+
+add_boost_test(Goal
+        SOURCES
+        test_Goal.cpp
+        "${SRC}/goals/Goal.cpp")
+
+add_boost_test(Tile
+        SOURCES
+        test_Tile.cpp
+        "${SRC}/entities/Tile.cpp"
+        "${SRC}/entities/EntityBase.cpp"
+        "${SRC}/game/Player.cpp"
+        "${SRC}/game/Seat.cpp"
+        "${SRC}/goals/Goal.cpp"
+        "${SRC}/network/ODPacket.cpp"
+        "${SRC}/utils/Helper.cpp"
+        "${SRC}/utils/LogManager.cpp"
+        "${SRC}/tests/mocks/SeatMockImpl.cpp"
+        "${SRC}/tests/mocks/TileMockImpl.cpp"
+        LIBRARIES
+        ${Boost_LIBRARIES}
+        ${OGRE_LIBRARIES}
+        ${SFML_LIBRARIES})
+
+add_boost_test(Pathfinding
+        SOURCES
+        test_Pathfinding.cpp)

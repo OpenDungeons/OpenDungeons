@@ -47,6 +47,7 @@
 #include "rooms/RoomTreasury.h"
 #include "rooms/RoomType.h"
 #include "spell/Spell.h"
+#include "spell/SpellType.h"
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/ResourceManager.h"
@@ -1137,7 +1138,6 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 sendAsyncMsg(serverNotification);
             }
 
-            room->createMesh();
             room->checkForRoomAbsorbtion();
             room->updateActiveSpots();
             break;
@@ -1301,7 +1301,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             if(!player->getSeat()->isTrapAvailable(type))
             {
                 LogManager::getSingleton().logMessage("WARNING: player " + player->getNick()
-                    + " asked to cast a spell not available: " + Trap::getTrapNameFromTrapType(type));
+                    + " asked to cast a spell not available: " + Traps::getTrapNameFromTrapType(type));
                 break;
             }
 
@@ -1344,7 +1344,6 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             trap->setupTrap(gameMap->nextUniqueNameTrap(trap->getMeshName()), player->getSeat(), tiles);
             trap->addToGameMap();
-            trap->createMesh();
             trap->updateActiveSpots();
             break;
         }
@@ -1847,7 +1846,6 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 sendAsyncMsg(serverNotification);
             }
 
-            room->createMesh();
             room->checkForRoomAbsorbtion();
             room->updateActiveSpots();
             break;
@@ -1920,7 +1918,6 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             trap->setupTrap(gameMap->nextUniqueNameTrap(trap->getMeshName()), seat, tiles);
             trap->addToGameMap();
-            trap->createMesh();
             trap->updateActiveSpots();
             break;
         }
@@ -1941,10 +1938,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             OD_ASSERT_TRUE(classToSpawn != nullptr);
             if(classToSpawn == nullptr)
                 break;
-            Creature* newCreature = new Creature(gameMap, classToSpawn);
-            newCreature->setSeat(seatCreature);
+            Creature* newCreature = new Creature(gameMap, classToSpawn, seatCreature);
             newCreature->addToGameMap();
-            newCreature->createMesh();
             // In editor mode, every player has vision
             for(Seat* seat : gameMap->getSeats())
             {
@@ -1974,10 +1969,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             OD_ASSERT_TRUE_MSG(classToSpawn != nullptr, "Couldn't spawn creature class=" + className);
             if(classToSpawn == nullptr)
                 break;
-            Creature* newCreature = new Creature(gameMap, classToSpawn);
-            newCreature->setSeat(seatCreature);
+            Creature* newCreature = new Creature(gameMap, classToSpawn, seatCreature);
             newCreature->addToGameMap();
-            newCreature->createMesh();
             // In editor mode, every player has vision
             for(Seat* seat : gameMap->getSeats())
             {
@@ -2018,7 +2011,6 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             mapLight->setName(gameMap->nextUniqueNameMapLight());
             mapLight->setPosition(Ogre::Vector3(0.0, 0.0, 3.75), false);
             mapLight->addToGameMap();
-            mapLight->createMesh();
             // In editor mode, every player has vision
             for(Seat* seat : gameMap->getSeats())
             {

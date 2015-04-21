@@ -36,10 +36,11 @@
 class Building;
 class Tile;
 class Creature;
+class GameEntity;
 class Player;
 class Trap;
 class Seat;
-class GameEntity;
+class EntityBase;
 class Goal;
 class MapLight;
 class MovableGameEntity;
@@ -128,8 +129,8 @@ public:
     { return mIsFOWActivated; }
 
     //! \brief Returns a vector containing all the creatures controlled by the given seat.
-    std::vector<Creature*> getCreaturesByAlliedSeat(Seat* seat);
-    std::vector<Creature*> getCreaturesBySeat(Seat* seat);
+    std::vector<Creature*> getCreaturesByAlliedSeat(const Seat* seat) const;
+    std::vector<Creature*> getCreaturesBySeat(const Seat* seat) const;
 
     inline const std::vector<Creature*>& getCreatures() const
     { return mCreatures; }
@@ -201,13 +202,13 @@ public:
     inline const std::vector<Room*>& getRooms() const
     { return mRooms; }
 
-    std::vector<Room*> getRoomsByType(RoomType type);
+    std::vector<Room*> getRoomsByType(RoomType type) const;
     std::vector<Room*> getRoomsByTypeAndSeat(RoomType type,
-                        Seat* seat);
+                        const Seat* seat);
     std::vector<const Room*> getRoomsByTypeAndSeat(RoomType type,
-                          Seat* seat) const;
+                          const Seat* seat) const;
     unsigned int numRoomsByTypeAndSeat(RoomType type,
-                      Seat* seat) const;
+                      const Seat* seat) const;
     std::vector<Room*> getReachableRooms(const std::vector<Room*> &vec,
                        Tile *startTile, const Creature* creature);
     std::vector<Building*> getReachableBuildingsPerSeat(Seat* seat,
@@ -362,16 +363,6 @@ public:
     //! \brief Loops over the visibleTiles and returns any carryable entity in those tiles
     std::vector<GameEntity*> getVisibleCarryableEntities(const std::vector<Tile*>& visibleTiles);
 
-    /** \brief Returns the as the crow flies distance between tiles located at the two coordinates given.
-     * If tiles do not exist at these locations the function returns -1.0.
-     */
-    Ogre::Real crowDistance(int x1, int x2, int y1, int y2);
-    Ogre::Real crowDistance(Tile *t1, Tile *t2);
-    Ogre::Real crowDistance(Creature *c1, Creature *c2);
-
-    //! \brief Returns the squared distance between 2 tiles
-    Ogre::Real squaredCrowDistance(Tile *t1, Tile *t2) const;
-
     //! \brief Checks the neighboor tiles to see if the floodfill can be used. Floodfill consists on tagging all contiguous tiles
     //! to be able to know before computing it if a path exists between 2 tiles. We do that to avoid computing paths when we
     //! already know that no path exists.
@@ -468,6 +459,8 @@ public:
     void clearActiveObjects();
     GameEntity* getEntityFromTypeAndName(GameEntityType entityType,
         const std::string& entityName);
+    EntityBase* getBaseEntityFromTypeAndName(GameEntityType entityType,
+                                             const std::string& entityName);
 
     //! brief Functions to add/remove/get Spells
     inline const std::vector<Spell*>& getSpells() const

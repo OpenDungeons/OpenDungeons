@@ -26,6 +26,7 @@
 #include "gamemap/GameMap.h"
 
 #include "traps/Trap.h"
+#include "traps/TrapType.h"
 
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"

@@ -201,28 +201,28 @@ void RenderManager::updateRenderAnimations(Ogre::Real timeSinceLastFrame)
 
 }
 
-void RenderManager::rrRefreshTile(const Tile* curTile, const Player* localPlayer)
+void RenderManager::rrRefreshTile(const Tile& curTile, const GameMap& gameMap, const Player& localPlayer)
 {
-    std::string tileName = curTile->getOgreNamePrefix() + curTile->getName();
-    if (curTile->getEntityNode() == nullptr)
+    std::string tileName = curTile.getOgreNamePrefix() + curTile.getName();
+    if (curTile.getEntityNode() == nullptr)
         return;
 
     Ogre::Vector3 scale;
-    std::string meshName = curTile->getMeshName();
+    std::string meshName = curTile.getMeshName();
     const Seat* seatColorize = nullptr;
-    const TileSetValue& tileSetValue = curTile->getGameMap()->getMeshForTile(curTile);
+    const TileSetValue& tileSetValue = gameMap.getMeshForTile(&curTile);
     bool isCustomMesh = false;
     if(meshName.empty())
     {
         // We compute the mesh
         meshName = tileSetValue.getMeshName();
-        scale = curTile->getGameMap()->getTileSetScale();
+        scale = gameMap.getTileSetScale();
     }
     else
     {
         //Tile has a covering building.
         isCustomMesh = true;
-        scale = curTile->getScale();
+        scale = curTile.getScale();
     }
 
     bool newMesh = false;
@@ -290,36 +290,36 @@ void RenderManager::rrRefreshTile(const Tile* curTile, const Player* localPlayer
         // On client side, the seat is set only when the tile is claimed. So, if the
         // seat is not nullptr, we are sure it is fully claimed and we can colorize
         // the tile
-        seatColorize = curTile->getSeat();
+        seatColorize = curTile.getSeat();
     }
 
     // We only mark vision on ground tiles (except lava and water)
     bool vision = true;
-    switch(curTile->getTileVisual())
+    switch(curTile.getTileVisual())
     {
         case TileVisual::claimedGround:
         case TileVisual::dirtGround:
         case TileVisual::goldGround:
         case TileVisual::rockGround:
-            vision = curTile->getLocalPlayerHasVision();
+            vision = curTile.getLocalPlayerHasVision();
             break;
         default:
             break;
     }
 
-    bool isMarked = curTile->getMarkedForDigging(localPlayer);
+    bool isMarked = curTile.getMarkedForDigging(&localPlayer);
     colourizeEntity(ent, seatColorize, isMarked, vision);
 }
 
-void RenderManager::rrCreateTile(Tile* curTile, Player* localPlayer)
+void RenderManager::rrCreateTile(Tile& curTile, const GameMap& gameMap, const Player& localPlayer)
 {
-    std::string tileName = curTile->getOgreNamePrefix() + curTile->getName();
+    std::string tileName = curTile.getOgreNamePrefix() + curTile.getName();
     Ogre::SceneNode* node = mSceneManager->getRootSceneNode()->createChildSceneNode(tileName + "_node");
-    curTile->setParentSceneNode(node->getParentSceneNode());
-    curTile->setEntityNode(node);
-    node->setPosition(static_cast<Ogre::Real>(curTile->getX()), static_cast<Ogre::Real>(curTile->getY()), 0);
+    curTile.setParentSceneNode(node->getParentSceneNode());
+    curTile.setEntityNode(node);
+    node->setPosition(static_cast<Ogre::Real>(curTile.getX()), static_cast<Ogre::Real>(curTile.getY()), 0);
 
-    rrRefreshTile(curTile, localPlayer);
+    rrRefreshTile(curTile, gameMap, localPlayer);
 }
 
 void RenderManager::rrDestroyTile(Tile* curTile)
@@ -1059,51 +1059,58 @@ std::string RenderManager::setMaterialOpacity(const std::string& materialName, f
     if (opacity != 1.0f)
         newMaterialName << "_alpha_" << static_cast<int>(opacity * 255.0f);
 
-    Ogre::MaterialPtr newMaterial = Ogre::MaterialPtr(Ogre::MaterialManager::getSingleton().getByName(newMaterialName.str()));
+    Ogre::MaterialPtr requestedMaterial = Ogre::MaterialManager::getSingleton().getByName(newMaterialName.str());
 
     // If this texture has been copied and colourized, we can return
-    if (!newMaterial.isNull())
+    if (!requestedMaterial.isNull())
         return newMaterialName.str();
 
     // If not yet, then do so
-    newMaterial = Ogre::MaterialPtr(Ogre::MaterialManager::getSingleton().getByName(materialName))->clone(newMaterialName.str());
+    Ogre::MaterialPtr oldMaterial = Ogre::MaterialManager::getSingleton().getByName(materialName);
+    //std::cout << "\nMaterial does not exist, creating a new one.";
+    Ogre::MaterialPtr newMaterial = oldMaterial->clone(newMaterialName.str());
+    bool cloned = mShaderGenerator->cloneShaderBasedTechniques(oldMaterial->getName(), oldMaterial->getGroup(),
+                                                               newMaterial->getName(), newMaterial->getGroup());
+    if(!cloned)
+    {
+        LogManager::getSingleton().logMessage("Failed to clone rtss for material: " + materialName, LogMessageLevel::CRITICAL);
+    }
 
     // Loop over the techniques for the new material
-    for (unsigned int j = 0; j < newMaterial->getNumTechniques(); ++j)
+    for (auto i = 0; i < newMaterial->getNumTechniques(); ++i)
     {
-        Ogre::Technique* technique = newMaterial->getTechnique(j);
-        if (technique->getNumPasses() == 0)
-            continue;
-
-        // Color the material with yellow on the latest pass
-        // so we're sure to see the taint.
-        Ogre::Pass* pass = technique->getPass(technique->getNumPasses() - 1);
-        Ogre::ColourValue color = pass->getEmissive();
-        color.a = opacity;
-        pass->setEmissive(color);
-
-        color = pass->getSpecular();
-        color.a = opacity;
-        pass->setSpecular(color);
-
-        color = pass->getAmbient();
-        color.a = opacity;
-        pass->setAmbient(color);
-
-        color = pass->getDiffuse();
-        color.a = opacity;
-        pass->setDiffuse(color);
-
-        if (opacity < 1.0f)
+        Ogre::Technique* technique = newMaterial->getTechnique(i);
+        for(auto j = 0; j < technique->getNumPasses(); ++j)
         {
-            pass->setSceneBlending(Ogre::SBT_TRANSPARENT_ALPHA);
-            pass->setDepthWriteEnabled(false);
-        }
-        else
-        {
-            // Use sane default, but this should never happen...
-            pass->setSceneBlending(Ogre::SBT_MODULATE);
-            pass->setDepthWriteEnabled(true);
+            // Set alpha value for all passes
+            Ogre::Pass* pass = technique->getPass(j);
+            Ogre::ColourValue color = pass->getEmissive();
+            color.a = opacity;
+            pass->setEmissive(color);
+
+            color = pass->getSpecular();
+            color.a = opacity;
+            pass->setSpecular(color);
+
+            color = pass->getAmbient();
+            color.a = opacity;
+            pass->setAmbient(color);
+
+            color = pass->getDiffuse();
+            color.a = opacity;
+            pass->setDiffuse(color);
+
+            if (opacity < 1.0f)
+            {
+                pass->setSceneBlending(Ogre::SBT_TRANSPARENT_ALPHA);
+                pass->setDepthWriteEnabled(false);
+            }
+            else
+            {
+                // Use sane default, but this should never happen...
+                pass->setSceneBlending(Ogre::SBT_MODULATE);
+                pass->setDepthWriteEnabled(true);
+            }
         }
     }
 

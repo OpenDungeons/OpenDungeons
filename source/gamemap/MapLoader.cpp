@@ -22,11 +22,13 @@
 #include "gamemap/GameMap.h"
 #include "game/Seat.h"
 #include "goals/Goal.h"
+#include "goals/GoalLoading.h"
 
 #include "entities/ChickenEntity.h"
 #include "entities/CraftedTrap.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
+#include "entities/EntityLoading.h"
 #include "entities/GameEntity.h"
 #include "entities/MapLight.h"
 #include "entities/MissileObject.h"
@@ -196,7 +198,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         if (nextParam == "[/Goals]")
             break;
 
-        std::unique_ptr<Goal> tempGoal = Goal::instantiateFromStream(nextParam, levelFile, &gameMap);
+        std::unique_ptr<Goal> tempGoal = Goals::loadGoalFromStream(nextParam, levelFile);
 
         if (tempGoal.get() != nullptr)
             gameMap.addGoalForAllSeats(std::move(tempGoal));
@@ -242,7 +244,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         Tile::loadFromLine(entire_line, tempTile);
         tempTile->computeTileVisual();
 
-        tempTile->addToGameMap();
+        gameMap.addTile(tempTile);
     }
 
     gameMap.setAllFullnessAndNeighbors();
@@ -579,7 +581,7 @@ bool readGameEntity(GameMap& gameMap, const std::string& item, GameEntityType ty
         entire_line += nextParam;
 
         std::stringstream ss(entire_line);
-        GameEntity* entity = GameEntity::getGameEntityeEntityFromStream(&gameMap, type, ss);
+        GameEntity* entity = Entities::getGameEntityFromStream(&gameMap, type, ss);
         OD_ASSERT_TRUE(entity != nullptr);
         if(entity == nullptr)
             return false;
@@ -633,7 +635,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     levelFile << "# " << Goal::getFormat() << "\n";
     for (auto& goal : gameMap.getGoalsForAllSeats())
     {
-        levelFile << goal.get();
+        levelFile << *goal.get();
     }
     levelFile << "[/Goals]" << std::endl;
 
@@ -656,7 +658,6 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
             if (!tempTile->isClaimed() && tempTile->getType() == TileType::dirt && tempTile->getFullness() >= 100.0)
                 continue;
 
-            tempTile->exportHeadersToStream(levelFile);
             tempTile->exportToStream(levelFile);
             levelFile << std::endl;
         }

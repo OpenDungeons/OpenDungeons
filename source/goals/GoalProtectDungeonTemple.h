@@ -24,17 +24,17 @@ class GoalProtectDungeonTemple: public Goal
 {
 public:
     // Constructors
-    GoalProtectDungeonTemple(const std::string& nName, const std::string& nArguments, GameMap* gameMap);
+    GoalProtectDungeonTemple(const std::string& nName, const std::string& nArguments);
     virtual ~GoalProtectDungeonTemple()
     {}
 
     // Inherited functions
-    bool isMet(Seat *s);
-    bool isUnmet(Seat *s);
-    bool isFailed(Seat *s);
-    std::string getDescription(Seat *s);
-    std::string getSuccessMessage(Seat *s);
-    std::string getFailedMessage(Seat *s);
+    bool isMet(const Seat& s, const GameMap& gameMap);
+    bool isUnmet(const Seat&, const GameMap& gameMap);
+    bool isFailed(const Seat&, const GameMap& gameMap);
+    std::string getDescription(const Seat&);
+    std::string getSuccessMessage(const Seat&);
+    std::string getFailedMessage(const Seat&);
 };
 
 #endif // GOALPROTECTDUNGEONTEMPLE_H

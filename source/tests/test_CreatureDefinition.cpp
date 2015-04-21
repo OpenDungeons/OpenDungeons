@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define BOOST_TEST_MODULE ODPacket
+#define BOOST_TEST_MODULE CreatureDefinition
 #include "BoostTestTargetConfig.h"
 
 #include "tests/mocks/TestLogManager.h"

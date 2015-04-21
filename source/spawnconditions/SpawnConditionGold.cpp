@@ -19,12 +19,12 @@
 
 #include "spawnconditions/SpawnConditionGold.h"
 
-bool SpawnConditionGold::computePointsForSeat(GameMap* gameMap, Seat* seat, int32_t& computedPoints) const
+bool SpawnConditionGold::computePointsForSeat(const GameMap&, const Seat& seat, int32_t& computedPoints) const
 {
-    if(seat->getGold() < mNbGoldMin)
+    if(seat.getGold() < mNbGoldMin)
         return false;
 
-    int diffGold = (seat->getGold() - mNbGoldMin) / 100;
+    int diffGold = (seat.getGold() - mNbGoldMin) / 100;
 
     computedPoints = diffGold * mPointsPerAdditional100Gold;
     return true;

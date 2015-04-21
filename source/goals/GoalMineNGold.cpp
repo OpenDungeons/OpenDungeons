@@ -20,39 +20,37 @@
 #include "game/Player.h"
 #include "game/Seat.h"
 
-#include "gamemap/GameMap.h"
-
 #include <sstream>
 #include <iostream>
 
-GoalMineNGold::GoalMineNGold(const std::string& nName, const std::string& nArguments, GameMap* gameMap) :
-        Goal(nName, nArguments, gameMap),
+GoalMineNGold::GoalMineNGold(const std::string& nName, const std::string& nArguments) :
+        Goal(nName, nArguments),
         mGoldToMine(atoi(nArguments.c_str()))
 {
     std::cout << "\nAdding goal " << getName();
 }
 
-bool GoalMineNGold::isMet(Seat *s)
+bool GoalMineNGold::isMet(const Seat &s, const GameMap&)
 {
-    return (s->getGoldMined() >= mGoldToMine);
+    return (s.getGoldMined() >= mGoldToMine);
 }
 
-std::string GoalMineNGold::getDescription(Seat *s)
+std::string GoalMineNGold::getDescription(const Seat &s)
 {
     std::stringstream tempSS;
-    tempSS << "Mined " << s->getGoldMined() << " of " << mGoldToMine
+    tempSS << "Mined " << s.getGoldMined() << " of " << mGoldToMine
             << " gold coins.";
     return tempSS.str();
 }
 
-std::string GoalMineNGold::getSuccessMessage(Seat *s)
+std::string GoalMineNGold::getSuccessMessage(const Seat &s)
 {
     std::stringstream tempSS;
     tempSS << "You have mined more than " << mGoldToMine << " gold coins.";
     return tempSS.str();
 }
 
-std::string GoalMineNGold::getFailedMessage(Seat *s)
+std::string GoalMineNGold::getFailedMessage(const Seat &s)
 {
     std::stringstream tempSS;
     tempSS << "You have failed to mine more than " << mGoldToMine

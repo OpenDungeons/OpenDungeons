@@ -15,16 +15,20 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SPELL_H
-#define SPELL_H
+#ifndef GOALLOADING_H
+#define GOALLOADING_H
 
-class Creature;
+#include <memory>
+#include <string>
+#include <iosfwd>
 
-class Spell
+class Goal;
+
+namespace Goals
 {
-public:
-    static double heal(int spellLevel, Creature *targetCreature,
-                        double hp, double maxMana);
-};
+    std::unique_ptr<Goal> loadGoalFromStream(const std::string& goalName, std::istream& is);
+}
 
-#endif // SPELL_H
+std::ostream& operator<<(std::ostream& os, Goal &g);
+
+#endif // GOALLOADING_H

@@ -39,7 +39,7 @@ public:
 
     //! \brief Checks if this spawning condition is met for the given gameMap/Seat. Returns true if the conditions are met and
     //! false otherwise. If true, computedPoints will be set to the additional points (can be < 0).
-    virtual bool computePointsForSeat(GameMap* gameMap, Seat* seat, int32_t& computedPoints) const = 0;
+    virtual bool computePointsForSeat(const GameMap& gameMap, const Seat& seat, int32_t& computedPoints) const = 0;
 
     static const std::vector<const SpawnCondition*> EMPTY_SPAWNCONDITIONS;
 };

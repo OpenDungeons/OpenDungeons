@@ -23,17 +23,7 @@
 class GameMap;
 class ODPacket;
 
-enum class SpellType
-{
-    nullSpellType = 0,
-    summonWorker,
-    callToWar
-};
-
-std::istream& operator>>(std::istream& is, SpellType& tt);
-std::ostream& operator<<(std::ostream& os, const SpellType& tt);
-ODPacket& operator>>(ODPacket& is, SpellType& tt);
-ODPacket& operator<<(ODPacket& os, const SpellType& tt);
+enum class SpellType;
 
 /*! \class Spell
  *  \brief Defines a spell
