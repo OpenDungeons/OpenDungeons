@@ -38,27 +38,27 @@ public:
 
     TileSetValue(const std::string& meshName, const std::string& materialName,
                  Ogre::Real rotationX, Ogre::Real rotationY,Ogre::Real rotationZ) :
-                 mMeshName(meshName),
-                 mMaterialName(materialName),
-                 mRotationX(rotationX),
-                 mRotationY(rotationY),
-                 mRotationZ(rotationZ)
-                 {}
+        mMeshName(meshName),
+        mMaterialName(materialName),
+        mRotationX(rotationX),
+        mRotationY(rotationY),
+        mRotationZ(rotationZ)
+    {}
 
-                 inline const std::string& getMeshName() const
-                 { return mMeshName; }
+    inline const std::string& getMeshName() const
+    { return mMeshName; }
 
-                 inline const std::string& getMaterialName() const
-                 { return mMaterialName; }
+    inline const std::string& getMaterialName() const
+    { return mMaterialName; }
 
-                 inline Ogre::Real getRotationX() const
-                 { return mRotationX; }
+    inline Ogre::Real getRotationX() const
+    { return mRotationX; }
 
-                 inline Ogre::Real getRotationY() const
-                 { return mRotationY; }
+    inline Ogre::Real getRotationY() const
+    { return mRotationY; }
 
-                 inline Ogre::Real getRotationZ() const
-                 { return mRotationZ; }
+    inline Ogre::Real getRotationZ() const
+    { return mRotationZ; }
 
 private:
     std::string mMeshName;
