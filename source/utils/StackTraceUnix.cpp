@@ -1,9 +1,4 @@
-/*! \file   StackTracePrint.cpp
- *  \author paul424
- *  \date   Sun Jun 22 18:16:35 CEST 2014
- *  \brief  Namespace StackTracePrint containing functions for call
- *  stack printing ( by default after program crash).
- *
+/*
  *  Copyright (C) 2011-2015  OpenDungeons Team
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -20,22 +15,78 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if not defined WIN32 && defined (__i386__) || defined (__x86_64__)  // Only for supported platforms
-
 #include "utils/StackTracePrint.h"
+
+#include <SFML/System.hpp>
 
 #include <cxxabi.h>
 #include <execinfo.h>
 #include <unistd.h>
+#include <signal.h>
+#include <ucontext.h>
 
 #include <iostream>
-#include <string.h>
+#include <cstring>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
-void StackTracePrint::critErrHandler(int sig_num, siginfo_t* info, void* ucontext)
+//! \brief This structure mirrors the one found in /usr/include/asm/ucontext.h
+//! \note: Its members should stay same named.
+typedef struct _sig_ucontext
+{
+    unsigned long     uc_flags;
+    struct ucontext*  uc_link;
+    stack_t           uc_stack;
+    struct sigcontext uc_mcontext;
+    sigset_t          uc_sigmask;
+} sig_ucontext_t;
+
+class StackTracePrintPrivateData
+{
+public:
+    StackTracePrintPrivateData()
+    {
+        //Init the error hanlder used to get a full stacktrace when crashing
+        struct sigaction sigact;
+        std::memset(&sigact, 0, sizeof(sigact));
+        sigact.sa_sigaction = critErrHandler;
+        sigact.sa_flags = SA_RESTART | SA_SIGINFO;
+        if (sigaction(SIGSEGV, &sigact, nullptr) != 0)
+        {
+            std::cerr << "error setting signal handler for: "
+                << SIGSEGV << strsignal(SIGSEGV) << std::endl;
+            exit(EXIT_FAILURE);
+        }
+    }
+    
+    static void critErrHandler(int sig_num, siginfo_t* info, void* ucontext);
+};
+
+static sf::Mutex gMutex;
+
+StackTracePrintPrivateData* StackTracePrint::mPrivateData = nullptr;
+
+StackTracePrint::StackTracePrint(const std::string& crashFilePath)
+{
+    sf::Lock lock(gMutex);
+
+    if(mPrivateData != nullptr)
+        throw std::exception();
+
+    mPrivateData = new StackTracePrintPrivateData;
+}
+
+StackTracePrint::~StackTracePrint()
+{
+    if(mPrivateData != nullptr)
+    {
+        delete mPrivateData;
+        mPrivateData = nullptr;
+    }
+}
+
+void StackTracePrintPrivateData::critErrHandler(int sig_num, siginfo_t* info, void* ucontext)
 {
 // Prevent running a function that isn't supported on certain platforms.
 #if not defined (__i386__) & not defined (__x86_64__)
@@ -130,5 +181,3 @@ void StackTracePrint::critErrHandler(int sig_num, siginfo_t* info, void* ucontex
 
     exit(EXIT_FAILURE);
 }
-
-#endif // supported platforms

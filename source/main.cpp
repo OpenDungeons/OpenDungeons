@@ -29,45 +29,24 @@
 #define __USE_GNU
 #endif
 
+#include "utils/StackTracePrint.h"
 #include "ODApplication.h"
 
 #include <OgrePlatform.h>
 #include <OgreException.h>
 
-#if !defined (WIN32) && (defined (__i386__) | defined (__x86_64__))  // Only for supported platforms
-#include "utils/StackTraceUnix.h"
-#include <iostream>
-#endif //WIN32
-
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-
-#if defined __MINGW32__
-#include "utils/StackTraceWinMinGW.h"
-#endif // defined __MINGW32__
 
 INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT)
 #else
 int main(int argc, char** argv)
 #endif
 {
-#if !defined (WIN32) && (defined (__i386__) | defined (__x86_64__))
-//Init the error hanlder used to get a full stacktrace when crashing
-    struct sigaction sigact;
-    std::memset(&sigact, 0, sizeof(sigact));
-    sigact.sa_sigaction = StackTracePrint::critErrHandler;
-    sigact.sa_flags = SA_RESTART | SA_SIGINFO;
-    if (sigaction(SIGSEGV, &sigact, nullptr) != 0)
-    {
-        std::cerr << "error setting signal handler for: "
-            << SIGSEGV << strsignal(SIGSEGV) << std::endl;
-        exit(EXIT_FAILURE);
-    }
-#elif defined __MINGW32__
     // To log segfaults
-    StackTraceWinMinGW trace("crash.log");
-#endif //!WIN32
+    StackTracePrint trace("crash.log");
+
     try
     {
         ODApplication od;

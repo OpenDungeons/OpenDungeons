@@ -374,12 +374,18 @@ set(OD_SOURCEFILES
     ${SRC}/utils/LogManagerOgre.cpp
     ${SRC}/utils/Random.cpp
     ${SRC}/utils/ResourceManager.cpp
-    ${SRC}/utils/StackTraceUnix.cpp
-    ${SRC}/utils/StackTraceWinMinGW.cpp
 
     ${SRC}/ODApplication.cpp
     ${SRC}/main.cpp
 )
+
+IF (MINGW)
+    SET(OD_SOURCEFILES ${OD_SOURCEFILES} ${SRC}/utils/StackTraceWinMinGW.cpp)
+ELSEIF(UNIX)
+    SET(OD_SOURCEFILES ${OD_SOURCEFILES} ${SRC}/utils/StackTraceUnix.cpp)
+ELSE()
+    SET(OD_SOURCEFILES ${OD_SOURCEFILES} ${SRC}/utils/StackTraceStub.cpp)
+ENDIF ()
 
 # Adds the Windows icon resource file when building on windows.
 IF (WIN32)
