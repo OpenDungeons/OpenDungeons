@@ -372,10 +372,10 @@ set(OD_SOURCEFILES
     ${SRC}/utils/Helper.cpp
     ${SRC}/utils/LogManager.cpp
     ${SRC}/utils/LogManagerOgre.cpp
-    ${SRC}/utils/StackTraceWinMinGW.cpp
     ${SRC}/utils/Random.cpp
     ${SRC}/utils/ResourceManager.cpp
-    ${SRC}/utils/StackTracePrint.cpp
+    ${SRC}/utils/StackTraceUnix.cpp
+    ${SRC}/utils/StackTraceWinMinGW.cpp
 
     ${SRC}/ODApplication.cpp
     ${SRC}/main.cpp

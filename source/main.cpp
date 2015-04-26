@@ -35,7 +35,7 @@
 #include <OgreException.h>
 
 #if !defined (WIN32) && (defined (__i386__) | defined (__x86_64__))  // Only for supported platforms
-#include "utils/StackTracePrint.h"
+#include "utils/StackTraceUnix.h"
 #include <iostream>
 #endif //WIN32
 
