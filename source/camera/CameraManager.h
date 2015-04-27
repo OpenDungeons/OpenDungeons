@@ -32,7 +32,7 @@
 #include <cstdint>
 #include <set>
 
-class GameMap;
+class TileContainer;
 
 // The min/max camera height in tile size
 const Ogre::Real MIN_CAMERA_Z = 3.0;
@@ -62,7 +62,7 @@ public:
         fullStop
     };
 
-    CameraManager(Ogre::SceneManager* sceneManager, GameMap* gameMap, Ogre::RenderWindow* renderWindow);
+    CameraManager(Ogre::SceneManager* sceneManager, TileContainer* gameMap, Ogre::RenderWindow* renderWindow);
     ~CameraManager()
     {}
 
@@ -190,7 +190,7 @@ private:
     Ogre::Camera* mActiveCamera;
     Ogre::SceneNode* mActiveCameraNode;
 
-    GameMap* mGameMap;
+    TileContainer* mGameMap;
 
     //! \brief Is true when a camera is flying to a given position.
     bool            mCameraIsFlying;

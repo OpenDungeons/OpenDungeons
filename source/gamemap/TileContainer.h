@@ -18,86 +18,15 @@
 #ifndef TILECONTAINER_H
 #define TILECONTAINER_H
 
-#include <OgreVector3.h>
-#include <bitset>
 #include <cassert>
 #include <list>
 #include <vector>
-#include <cstdint>
 
 class ODPacket;
 class TileDistance;
 class Tile;
 
 enum class TileType;
-enum class TileVisual;
-
-class TileSetValue
-{
-public:
-    TileSetValue() :
-        mRotationX(0.0),
-        mRotationY(0.0),
-        mRotationZ(0.0)
-    {}
-
-    TileSetValue(const std::string& meshName, const std::string& materialName,
-            Ogre::Real rotationX, Ogre::Real rotationY,Ogre::Real rotationZ) :
-        mMeshName(meshName),
-        mMaterialName(materialName),
-        mRotationX(rotationX),
-        mRotationY(rotationY),
-        mRotationZ(rotationZ)
-    {}
-
-    inline const std::string& getMeshName() const
-    { return mMeshName; }
-
-    inline const std::string& getMaterialName() const
-    { return mMaterialName; }
-
-    inline Ogre::Real getRotationX() const
-    { return mRotationX; }
-
-    inline Ogre::Real getRotationY() const
-    { return mRotationY; }
-
-    inline Ogre::Real getRotationZ() const
-    { return mRotationZ; }
-
-private:
-    std::string mMeshName;
-    std::string mMaterialName;
-    Ogre::Real mRotationX;
-    Ogre::Real mRotationY;
-    Ogre::Real mRotationZ;
-};
-
-class TileSet
-{
-public:
-    TileSet(const Ogre::Vector3& scale);
-
-    std::vector<TileSetValue>& configureTileValues(TileVisual tileVisual);
-
-    const std::vector<TileSetValue>& getTileValues(TileVisual tileVisual) const;
-
-    inline const Ogre::Vector3& getScale() const
-    { return mScale; }
-
-    //! Returns true if the 2 tiles are linked and false otherwise.
-    //! Used on client side only
-    bool areLinked(const Tile* tile1, const Tile* tile2) const;
-
-    void addTileLink(TileVisual tileVisual1, TileVisual tileVisual2);
-
-private:
-    std::vector<std::vector<TileSetValue>> mTileValues;
-    Ogre::Vector3 mScale;
-    //! Represents the links between tiles. The uint is used as a bit array.
-    //! The index in the vector corresponds to the TileVisual
-    std::vector<uint32_t> mTileLinks;
-};
 
 class TileContainer
 {
@@ -115,12 +44,7 @@ public:
     //! \brief Adds the address of a new tile to be stored in this TileContainer.
     void setTileNeighbors(Tile *t);
 
-    /*! \brief Returns a pointer to the tile at location (x, y) (const version).
-     *
-     * The tile pointers are stored internally in a map so calls to this function
-     * have a complexity O(log(N)) where N is the number of tiles in the map.
-     * This function does not lock.
-     */
+    //! \brief Returns a pointer to the tile at location (x, y) (const version).
     inline Tile* getTile(int xx, int yy) const
     {
         assert(mTiles != nullptr);
@@ -137,12 +61,6 @@ public:
     //! The tile informations are not embedded, only the needed to identify the tile
     void tileToPacket(ODPacket& packet, Tile* tile) const;
     Tile* tileFromPacket(ODPacket& packet) const;
-
-    TileType getSafeTileType(const Tile* tt) const;
-    bool getSafeTileFullness(const Tile* tt) const;
-
-    //! \brief Returns the number of tile pointers currently stored in this TileContainer.
-    unsigned int numTiles();
 
     //! \brief Returns all the valid tiles in the rectangular region specified by the two corner points given.
     std::vector<Tile*> rectangularRegion(int x1, int y1, int x2, int y2);
@@ -166,8 +84,6 @@ public:
     int getMapSizeY() const
     { return mMapSizeY; }
 
-    static bool sortByDistSquared(const TileDistance& tileDist1, const TileDistance& tileDist2);
-
     /*! \brief Returns a list of valid tiles along a straight line from (x1, y1) to (x2, y2)
      * independently from their fullness or type.
      *
@@ -176,7 +92,6 @@ public:
      * A more detailed description of how it works can be found there.
      */
     std::list<Tile*> tilesBetween(int x1, int y1, int x2, int y2) const;
-    std::list<Tile*> tilesBetweenWithoutDiagonals(int x1, int y1, int x2, int y2) const;
 
     //! \brief Returns the tiles visible from the given start tile within tilesWithinSightRadius.
     std::vector<Tile*> visibleTiles(int x, int y, int radius);

@@ -15,8 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _GAMEMAP_H_
-#define _GAMEMAP_H_
+#ifndef GAMEMAP_H
+#define GAMEMAP_H
 
 #include "gamemap/TileContainer.h"
 
@@ -32,6 +32,8 @@
 #include <map>
 #include <memory>
 #include <string>
+
+#include <OgreVector3.h>
 
 class Building;
 class Tile;
@@ -50,6 +52,8 @@ class CreatureMood;
 class RenderedMovableEntity;
 class Room;
 class Spell;
+class TileSet;
+class TileSetValue;
 
 enum class GameEntityType;
 enum class FloodFillType;
@@ -75,7 +79,7 @@ public:
     GameMap(bool isServerGameMap);
     ~GameMap();
 
-    const std::string serverStr();
+    std::string serverStr();
 
     //! \brief Tells whether the game map is currently used for the map editor mode
     //! or for a standard game session.
@@ -312,9 +316,6 @@ public:
     inline void setLevelFightMusicFile(const std::string& levelFightMusicFile)
     { mMapInfoFightMusicFile = levelFightMusicFile; }
 
-    void createTilesMeshes(void);
-    void hideAllTiles(void);
-
     std::string getGoalsStringForPlayer(Player* player);
 
     //! \brief Loops over all the creatures and calls their individual doTurn methods,
@@ -498,9 +499,7 @@ public:
     { return mTileSetName; }
 
     const TileSetValue& getMeshForTile(const Tile* tile) const;
-    inline const Ogre::Vector3& getTileSetScale() const
-    { return mTileSet->getScale(); }
-
+    const Ogre::Vector3& getTileSetScale() const;
 private:
     void replaceFloodFill(FloodFillType floodFillType, int colorOld, int colorNew);
 
@@ -611,4 +610,4 @@ private:
     void updatePlayerTime(Ogre::Real timeSinceLastFrame);
 };
 
-#endif // _GAMEMAP_H_
+#endif // GAMEMAP_H

@@ -21,22 +21,28 @@
 
 #include "render/RenderManager.h"
 
-#include "gamemap/GameMap.h"
-#include "rooms/Room.h"
-#include "entities/RenderedMovableEntity.h"
-#include "entities/MapLight.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
+#include "entities/GameEntity.h"
+#include "entities/MapLight.h"
+#include "entities/MovableGameEntity.h"
+#include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 #include "entities/Weapon.h"
+
 #include "game/Player.h"
-#include "render/CreatureOverlayStatus.h"
-#include "utils/ResourceManager.h"
 #include "game/Seat.h"
-#include "entities/MovableGameEntity.h"
+
+#include "gamemap/GameMap.h"
+#include "gamemap/TileSet.h"
+
+#include "render/CreatureOverlayStatus.h"
+
+#include "rooms/Room.h"
+
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
-#include "entities/GameEntity.h"
+#include "utils/ResourceManager.h"
 
 #include <OgreMesh.h>
 #include <OgreBone.h>

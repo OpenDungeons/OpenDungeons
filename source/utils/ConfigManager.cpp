@@ -15,6 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "utils/ConfigManager.h"
+
 #include "entities/CreatureDefinition.h"
 #include "entities/Tile.h"
 #include "entities/Weapon.h"
@@ -23,11 +25,10 @@
 
 #include "game/Research.h"
 
-#include "gamemap/TileContainer.h"
+#include "gamemap/TileSet.h"
 
 #include "spawnconditions/SpawnCondition.h"
 
-#include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
