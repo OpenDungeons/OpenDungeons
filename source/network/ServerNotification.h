@@ -85,6 +85,8 @@ enum class ServerNotificationType
     researchWaiting, // Tells the client a research entity is waiting for research info data
     researchesDone,
 
+    setSpellCooldown,
+
     playerEvents,
 
     exit

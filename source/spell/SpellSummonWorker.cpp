@@ -27,6 +27,8 @@
 
 #include "gamemap/GameMap.h"
 
+#include "spell/SpellType.h"
+
 #include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
 
@@ -68,6 +70,8 @@ int SpellSummonWorker::getSpellSummonWorkerCost(GameMap* gameMap, const std::vec
 
 void SpellSummonWorker::castSpellSummonWorker(GameMap* gameMap, const std::vector<Tile*>& tiles, Player* player)
 {
+    player->setSpellCooldownTurns(SpellType::summonWorker, ConfigManager::getSingleton().getSpellConfigUInt32("SummonWorkerCooldown"));
+
     // Creates a creature from the first worker class found for the given faction.
     const CreatureDefinition* classToSpawn = player->getSeat()->getWorkerClassToSpawn();
 

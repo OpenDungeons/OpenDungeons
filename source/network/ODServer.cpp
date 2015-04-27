@@ -1371,6 +1371,15 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             if(tiles.empty())
                 break;
 
+            uint32_t cooldown = player->getSpellCooldownTurns(spellType);
+            if(cooldown > 0)
+            {
+                LogManager::getSingleton().logMessage("WARNING: player " + player->getNick()
+                    + " asked to cast a spell " + Spell::getSpellNameFromSpellType(spellType) + " before end of cooldown: "
+                    + Helper::toString(cooldown));
+                break;
+            }
+
             int manaRequired = Spell::getSpellCost(gameMap, spellType, tiles, player);
             if(!player->getSeat()->takeMana(manaRequired))
                 break;

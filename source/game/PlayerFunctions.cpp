@@ -29,7 +29,9 @@
 #include "rooms/Room.h"
 #include "rooms/RoomType.h"
 #include "spell/Spell.h"
+#include "spell/SpellType.h"
 #include "traps/Trap.h"
+#include "utils/Helper.h"
 #include "utils/LogManager.h"
 
 #include <OgreStringConverter.h>
@@ -359,13 +361,7 @@ void Player::markTilesForDigging(bool marked, const std::vector<Tile*>& tiles, b
 
 void Player::upkeepPlayer(double timeSinceLastUpkeep)
 {
-    for(uint32_t& cooldown : mSpellsCooldown)
-    {
-        if(cooldown <= 0)
-            continue;
-
-        --cooldown;
-    }
+    decreaseSpellCooldowns();
 
     // Specific stuff for human players
     if(!getIsHuman())
@@ -420,4 +416,23 @@ void Player::upkeepPlayer(double timeSinceLastUpkeep)
 
     if(isEventListUpdated)
         fireEvents();
+}
+
+void Player::setSpellCooldownTurns(SpellType spellType, uint32_t cooldown)
+{
+    uint32_t spellIndex = static_cast<uint32_t>(spellType);
+    if(spellIndex >= mSpellsCooldown.size())
+    {
+        OD_ASSERT_TRUE_MSG(false, "seatId=" + Helper::toString(getId()) + ", spellType=" + Spell::getSpellNameFromSpellType(spellType));
+        return;
+    }
+
+    mSpellsCooldown[spellIndex] = cooldown;
+    if(mGameMap->isServerGameMap())
+    {
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::setSpellCooldown, this);
+        serverNotification->mPacket << spellType << cooldown;
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
 }

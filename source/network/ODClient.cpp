@@ -45,6 +45,7 @@
 #include "modes/GameMode.h"
 #include "sound/MusicPlayer.h"
 #include "sound/SoundEffectsManager.h"
+#include "spell/SpellType.h"
 #include "camera/CameraManager.h"
 
 #include <boost/lexical_cast.hpp>
@@ -447,6 +448,8 @@ bool ODClient::processOneClientSocketMessage()
             logManager.logMessage("Client (" + getPlayer()->getNick() + ") received turnStarted="
                 + boost::lexical_cast<std::string>(turnNum));
             gameMap->setTurnNumber(turnNum);
+
+            getPlayer()->decreaseSpellCooldowns();
 
             // We acknowledge the new turn to the server so that he knows we are
             // ready for next one
@@ -914,6 +917,14 @@ bool ODClient::processOneClientSocketMessage()
             }
 
             getPlayer()->updateEvents(events);
+            break;
+        }
+        case ServerNotificationType::setSpellCooldown:
+        {
+            SpellType spellType;
+            uint32_t cooldown;
+            OD_ASSERT_TRUE(packetReceived >> spellType >> cooldown);
+            getPlayer()->setSpellCooldownTurns(spellType, cooldown);
             break;
         }
 

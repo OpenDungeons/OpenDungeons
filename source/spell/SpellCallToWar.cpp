@@ -78,6 +78,7 @@ int SpellCallToWar::getSpellCallToWarCost(GameMap* gameMap, const std::vector<Ti
 
 void SpellCallToWar::castSpellCallToWar(GameMap* gameMap, const std::vector<Tile*>& tiles, Player* player)
 {
+    player->setSpellCooldownTurns(SpellType::callToWar, ConfigManager::getSingleton().getSpellConfigUInt32("CallToWarCooldown"));
     for(Tile* tile : tiles)
     {
         if(tile->getFullness() > 0)

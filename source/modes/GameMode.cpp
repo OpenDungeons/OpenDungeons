@@ -379,8 +379,19 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                         tiles.push_back(tile);
                 }
 
-                int mana = player->getSeat()->getMana();
                 SpellType selectedSpellType = mPlayerSelection.getNewSpellType();
+                uint32_t cooldown = player->getSpellCooldownTurns(selectedSpellType);
+                if(cooldown > 0)
+                {
+                    double remainingTime = static_cast<double>(cooldown) / ODApplication::turnsPerSecond;
+                    textRenderer.setColor(ODApplication::POINTER_INFO_STRING, red);
+                    textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Spell::getSpellNameFromSpellType(selectedSpellType))
+                        + " (" + Helper::toString(remainingTime, 2)+ " s)");
+
+                    break;
+                }
+
+                int mana = player->getSeat()->getMana();
                 int price = Spell::getSpellCost(mGameMap, selectedSpellType, tiles, player);
                 const Ogre::ColourValue& textColor = (mana < price) ? red : white;
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
