@@ -41,7 +41,7 @@ public:
      *  successful call.
      *  \param frameTime Time elapsed since last call in seconds.
      */
-    virtual bool doTurn(double frameTime) = 0;
+    virtual bool doTurn(double timeSinceLastTurn) = 0;
 
 protected:
     virtual bool initialize(const std::string& parameters);

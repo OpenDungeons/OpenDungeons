@@ -320,9 +320,9 @@ public:
 
     //! \brief Loops over all the creatures and calls their individual doTurn methods,
     //! also check goals and do the upkeep.
-    void doTurn();
+    void doTurn(double timeSinceLastTurn);
 
-    void doPlayerAITurn(double frameTime);
+    void doPlayerAITurn(double timeSinceLastTurn);
 
     //! \brief Tells whether a path exists between two tiles for the given creature.
     bool pathExists(const Creature* creature, Tile* tileStart, Tile* tileEnd);
@@ -600,14 +600,10 @@ private:
 
     //! \brief Updates different entities states.
     //! Updates active objects (creatures, rooms, ...), goals, count each team Workers, gold, mana and claimed tiles.
-    unsigned long int doMiscUpkeep();
+    unsigned long int doMiscUpkeep(double timeSinceLastTurn);
 
     //! \brief Resets the unique numbers
     void resetUniqueNumbers();
-
-    //! \brief Updates every player's time value so they can handle timed events like fighting music
-    //! Used on the server game map only.
-    void updatePlayerTime(Ogre::Real timeSinceLastFrame);
 };
 
 #endif // GAMEMAP_H

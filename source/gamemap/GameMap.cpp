@@ -1073,12 +1073,12 @@ Creature* GameMap::getCreature(const std::string& cName) const
     return nullptr;
 }
 
-void GameMap::doTurn()
+void GameMap::doTurn(double timeSinceLastTurn)
 {
-    std::cout << "\nComputing turn " << mTurnNumber << std::endl;
+    std::cout << "\nComputing turn " << mTurnNumber << ", timeSinceLastTurn=" << timeSinceLastTurn << std::endl;
     unsigned int numCallsTo_path_atStart = mNumCallsTo_path;
 
-    uint32_t miscUpkeepTime = doMiscUpkeep();
+    uint32_t miscUpkeepTime = doMiscUpkeep(timeSinceLastTurn);
 
     // Count how many creatures the player controls
     for(Creature* creature : mCreatures)
@@ -1103,16 +1103,31 @@ void GameMap::doTurn()
               << "miscUpkeepTime=" << miscUpkeepTime << std::endl;
 }
 
-void GameMap::doPlayerAITurn(double frameTime)
+void GameMap::doPlayerAITurn(double timeSinceLastTurn)
 {
-    mAiManager.doTurn(frameTime);
+    mAiManager.doTurn(timeSinceLastTurn);
 }
 
-unsigned long int GameMap::doMiscUpkeep()
+unsigned long int GameMap::doMiscUpkeep(double timeSinceLastTurn)
 {
     Tile *tempTile;
     Ogre::Timer stopwatch;
     unsigned long int timeTaken;
+
+    // We check if it is pay day
+    mTimePayDay += timeSinceLastTurn;
+    if((mTimePayDay >= ConfigManager::getSingleton().getTimePayDay()))
+    {
+        mTimePayDay = 0;
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::chatServer, nullptr);
+        serverNotification->mPacket << "It's pay day !" << EventShortNoticeType::majorGameEvent;
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+        for(Creature* creature : mCreatures)
+        {
+            creature->itsPayDay();
+        }
+    }
 
     // Loop over all the filled seats in the game and check all the unfinished goals for each seat.
     // Add any seats with no remaining goals to the winningSeats vector.
@@ -1120,6 +1135,8 @@ unsigned long int GameMap::doMiscUpkeep()
     {
         if(seat->getPlayer() == nullptr)
             continue;
+
+        seat->getPlayer()->upkeepPlayer(timeSinceLastTurn);
 
         // Check the previously completed goals to make sure they are still met.
         seat->checkAllCompletedGoals();
@@ -1309,42 +1326,6 @@ void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
 
             currentAnimatedObject->update(timeSinceLastFrame);
         }
-    }
-
-    if(isServerGameMap())
-    {
-        updatePlayerTime(timeSinceLastFrame);
-
-        // We check if it is pay day
-        mTimePayDay += timeSinceLastFrame;
-        if((mTimePayDay >= ConfigManager::getSingleton().getTimePayDay()))
-        {
-            mTimePayDay = 0;
-            ServerNotification *serverNotification = new ServerNotification(
-                ServerNotificationType::chatServer, nullptr);
-            serverNotification->mPacket << "It's pay day !" << EventShortNoticeType::majorGameEvent;
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-            for(Creature* creature : mCreatures)
-            {
-                creature->itsPayDay();
-            }
-        }
-        return;
-    }
-}
-
-void GameMap::updatePlayerTime(Ogre::Real timeSinceLastFrame)
-{
-    // Updates fighting time for server players
-    for (Player* player : mPlayers)
-    {
-        if (player == nullptr)
-            continue;
-
-        if (!player->getIsHuman())
-            continue;
-
-        player->updateTime(timeSinceLastFrame);
     }
 }
 

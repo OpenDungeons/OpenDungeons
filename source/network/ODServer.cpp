@@ -196,7 +196,7 @@ void ODServer::processServerCommandQueue()
     }
 }
 
-void ODServer::startNewTurn(double timeSinceLastFrame)
+void ODServer::startNewTurn(double timeSinceLastTurn)
 {
     GameMap* gameMap = mGameMap;
     int64_t turn = gameMap->getTurnNumber();
@@ -219,7 +219,7 @@ void ODServer::startNewTurn(double timeSinceLastFrame)
     if(mServerMode == ServerMode::ModeEditor)
         gameMap->updateVisibleEntities();
 
-    gameMap->updateAnimations(timeSinceLastFrame);
+    gameMap->updateAnimations(timeSinceLastTurn);
 
     // We notify the clients about what they got
     for (ODSocketClient* sock : mSockClients)
@@ -265,8 +265,8 @@ void ODServer::startNewTurn(double timeSinceLastFrame)
         case ServerMode::ModeGameMultiPlayer:
         case ServerMode::ModeGameLoaded:
         {
-            gameMap->doTurn();
-            gameMap->doPlayerAITurn(timeSinceLastFrame);
+            gameMap->doTurn(timeSinceLastTurn);
+            gameMap->doPlayerAITurn(timeSinceLastTurn);
             break;
         }
         case ServerMode::ModeEditor:

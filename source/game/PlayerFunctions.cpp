@@ -208,59 +208,6 @@ void Player::notifyNoMoreDungeonTemple()
     }
 }
 
-void Player::updateTime(Ogre::Real timeSinceLastUpdate)
-{
-    // Handle fighting time
-    bool wasFightHappening = false;
-    bool isFightHappening = false;
-    bool isEventListUpdated = false;
-    for(auto it = mEvents.begin(); it != mEvents.end();)
-    {
-        PlayerEvent* event = *it;
-        if(event->getType() != PlayerEventType::fight)
-        {
-            ++it;
-            continue;
-        }
-
-        wasFightHappening = true;
-
-        float timeRemain = event->getTimeRemain();
-        if(timeRemain > timeSinceLastUpdate)
-        {
-            isFightHappening = true;
-            timeRemain -= timeSinceLastUpdate;
-            event->setTimeRemain(timeRemain);
-            ++it;
-            continue;
-        }
-
-        // This event is outdated, we remove it
-        isEventListUpdated = true;
-        delete event;
-        it = mEvents.erase(it);
-    }
-
-    if(wasFightHappening && !isFightHappening)
-    {
-        // Notify the player he is no longer under attack.
-        ServerNotification *serverNotification = new ServerNotification(
-            ServerNotificationType::playerNoMoreFighting, this);
-        ODServer::getSingleton().queueServerNotification(serverNotification);
-    }
-
-    if(mNoTreasuryAvailableTime > 0.0f)
-    {
-        if(mNoTreasuryAvailableTime > timeSinceLastUpdate)
-            mNoTreasuryAvailableTime -= timeSinceLastUpdate;
-        else
-            mNoTreasuryAvailableTime = 0.0f;
-    }
-
-    if(isEventListUpdated)
-        fireEvents();
-}
-
 void Player::notifyTeamFighting(Player* player, Tile* tile)
 {
     // We check if there is a fight event currently near this tile. If yes, we update
@@ -408,4 +355,69 @@ void Player::markTilesForDigging(bool marked, const std::vector<Tile*>& tiles, b
 
         ODServer::getSingleton().sendAsyncMsg(serverNotification);
     }
+}
+
+void Player::upkeepPlayer(double timeSinceLastUpkeep)
+{
+    for(uint32_t& cooldown : mSpellsCooldown)
+    {
+        if(cooldown <= 0)
+            continue;
+
+        --cooldown;
+    }
+
+    // Specific stuff for human players
+    if(!getIsHuman())
+        return;
+
+    // Handle fighting time
+    bool wasFightHappening = false;
+    bool isFightHappening = false;
+    bool isEventListUpdated = false;
+    for(auto it = mEvents.begin(); it != mEvents.end();)
+    {
+        PlayerEvent* event = *it;
+        if(event->getType() != PlayerEventType::fight)
+        {
+            ++it;
+            continue;
+        }
+
+        wasFightHappening = true;
+
+        float timeRemain = event->getTimeRemain();
+        if(timeRemain > timeSinceLastUpkeep)
+        {
+            isFightHappening = true;
+            timeRemain -= timeSinceLastUpkeep;
+            event->setTimeRemain(timeRemain);
+            ++it;
+            continue;
+        }
+
+        // This event is outdated, we remove it
+        isEventListUpdated = true;
+        delete event;
+        it = mEvents.erase(it);
+    }
+
+    if(wasFightHappening && !isFightHappening)
+    {
+        // Notify the player he is no longer under attack.
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::playerNoMoreFighting, this);
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
+
+    if(mNoTreasuryAvailableTime > 0.0f)
+    {
+        if(mNoTreasuryAvailableTime > timeSinceLastUpkeep)
+            mNoTreasuryAvailableTime -= timeSinceLastUpkeep;
+        else
+            mNoTreasuryAvailableTime = 0.0f;
+    }
+
+    if(isEventListUpdated)
+        fireEvents();
 }

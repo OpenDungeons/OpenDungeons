@@ -166,10 +166,6 @@ public:
     //! Should be called on the server game map for human players only
     void notifyNoTreasuryAvailable();
 
-    //! \brief Allows to handle timed events like fighting music
-    //! Should be called on the server game map for human players only
-    void updateTime(Ogre::Real timeSinceLastUpdate);
-
     void fireEvents();
 
     //! Called on client side to update the current list of events. Note that
@@ -184,6 +180,9 @@ public:
 
     //! Marks the tiles for digging and send the refresh event to concerned player if human
     void markTilesForDigging(bool marked, const std::vector<Tile*>& tiles, bool asyncMsg);
+
+    //! Called each turn, it should handle Seat upkeep
+    void upkeepPlayer(double timeSinceLastUpkeep);
 
 private:
     //! \brief Player ID is only used during seat configuration phase

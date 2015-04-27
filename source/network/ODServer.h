@@ -123,7 +123,7 @@ private:
     ODSocketClient* getClientFromPlayer(Player* player);
 
     //! \brief Called when a new turn started.
-    void startNewTurn(double timeSinceLastFrame);
+    void startNewTurn(double timeSinceLastTurn);
 
     /*! \brief Monitors mServerNotificationQueue for new events and informs the clients about them.
      *

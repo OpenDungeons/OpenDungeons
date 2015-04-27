@@ -48,11 +48,11 @@ bool AIManager::assignAI(Player& player, const std::string& type, const std::str
     return true;
 }
 
-bool AIManager::doTurn(double frameTime)
+bool AIManager::doTurn(double timeSinceLastTurn)
 {
     for(BaseAI* ai : mAiList)
     {
-        ai->doTurn(frameTime);
+        ai->doTurn(timeSinceLastTurn);
     }
     return true;
 }
