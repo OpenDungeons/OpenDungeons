@@ -27,7 +27,7 @@ class SpellSummonWorker : public Spell
 public:
     static int getSpellSummonWorkerCost(GameMap* gameMap, const std::vector<Tile*>& tiles, Player* player);
 
-    static void castSpellSummonWorker(GameMap* gameMap, const std::vector<Tile*>& tiles, Player* player);
+    static void castSpellSummonWorker(GameMap* gameMap, const std::vector<Tile*>& tiles, Player* player, int manaSpent);
 };
 
 #endif // SPELLSUMMONWORKER_H

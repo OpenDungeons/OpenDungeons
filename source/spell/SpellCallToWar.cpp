@@ -21,6 +21,7 @@
 #include "entities/Tile.h"
 
 #include "game/Player.h"
+#include "game/Seat.h"
 
 #include "gamemap/GameMap.h"
 
@@ -65,20 +66,25 @@ int SpellCallToWar::getSpellCallToWarCost(GameMap* gameMap, const std::vector<Ti
     // Call to war can be cast on every tile where fullness = 0 (no matter type or vision)
     int32_t priceTotal = 0;
     int32_t pricePerTile = ConfigManager::getSingleton().getSpellConfigInt32("CallToWarPrice");
+    int32_t playerMana = static_cast<int32_t>(player->getSeat()->getMana());
     for(Tile* tile : tiles)
     {
         if(tile->isFullTile())
             continue;
 
         priceTotal += pricePerTile;
+        playerMana -= pricePerTile;
+        if(playerMana < pricePerTile)
+            return priceTotal;
     }
 
     return priceTotal;
 }
 
-void SpellCallToWar::castSpellCallToWar(GameMap* gameMap, const std::vector<Tile*>& tiles, Player* player)
+void SpellCallToWar::castSpellCallToWar(GameMap* gameMap, const std::vector<Tile*>& tiles, Player* player, int manaSpent)
 {
     player->setSpellCooldownTurns(SpellType::callToWar, ConfigManager::getSingleton().getSpellConfigUInt32("CallToWarCooldown"));
+    int32_t pricePerTile = ConfigManager::getSingleton().getSpellConfigInt32("CallToWarPrice");
     for(Tile* tile : tiles)
     {
         if(tile->getFullness() > 0)
@@ -92,6 +98,10 @@ void SpellCallToWar::castSpellCallToWar(GameMap* gameMap, const std::vector<Tile
                                     static_cast<Ogre::Real>(0.0));
         spell->createMesh();
         spell->setPosition(spawnPosition, false);
+
+        manaSpent -= pricePerTile;
+        if(manaSpent < pricePerTile)
+            return;
     }
 }
 

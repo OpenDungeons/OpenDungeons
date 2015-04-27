@@ -167,7 +167,7 @@ int Spell::getSpellCost(GameMap* gameMap, SpellType type, const std::vector<Tile
     }
 }
 
-void Spell::castSpell(GameMap* gameMap, SpellType type, const std::vector<Tile*>& tiles, Player* player)
+void Spell::castSpell(GameMap* gameMap, SpellType type, const std::vector<Tile*>& tiles, Player* player, int manaSpent)
 {
     switch (type)
     {
@@ -179,13 +179,13 @@ void Spell::castSpell(GameMap* gameMap, SpellType type, const std::vector<Tile*>
 
         case SpellType::summonWorker:
         {
-            SpellSummonWorker::castSpellSummonWorker(gameMap, tiles, player);
+            SpellSummonWorker::castSpellSummonWorker(gameMap, tiles, player, manaSpent);
             break;
         }
 
         case SpellType::callToWar:
         {
-            SpellCallToWar::castSpellCallToWar(gameMap, tiles, player);
+            SpellCallToWar::castSpellCallToWar(gameMap, tiles, player, manaSpent);
             break;
         }
 

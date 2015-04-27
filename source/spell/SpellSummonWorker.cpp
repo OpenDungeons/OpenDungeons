@@ -41,6 +41,8 @@ int SpellSummonWorker::getSpellSummonWorkerCost(GameMap* gameMap, const std::vec
     int32_t priceTotal = 0;
     int32_t pricePerWorker = ConfigManager::getSingleton().getSpellConfigInt32("SummonWorkerBasePrice");
     int32_t maxMana = static_cast<int32_t>(ConfigManager::getSingleton().getMaxManaPerSeat());
+    int32_t nbWorkersSummoned = 0;
+    int32_t playerMana = static_cast<int32_t>(player->getSeat()->getMana());
     if(nbWorkers > nbFreeWorkers)
     {
         pricePerWorker *= std::pow(2, nbWorkers - nbFreeWorkers);
@@ -55,9 +57,22 @@ int SpellSummonWorker::getSpellSummonWorkerCost(GameMap* gameMap, const std::vec
 
         ++nbWorkers;
         if(nbWorkers <= nbFreeWorkers)
+        {
+            ++nbWorkersSummoned;
             continue;
+        }
 
-        priceTotal += pricePerWorker;
+        int32_t newPrice = priceTotal + pricePerWorker;
+        if(newPrice > playerMana)
+        {
+            // If the spell is more expensive than the mana we have, we return the last maximum we can afford.
+            if(nbWorkersSummoned == 0)
+                return newPrice;
+            else
+                return priceTotal;
+        }
+        ++nbWorkersSummoned;
+        priceTotal = newPrice;
         pricePerWorker *= 2;
 
         // To avoid having a too big price (its exponential), we break if we are over the max mana
@@ -68,7 +83,7 @@ int SpellSummonWorker::getSpellSummonWorkerCost(GameMap* gameMap, const std::vec
     return priceTotal;
 }
 
-void SpellSummonWorker::castSpellSummonWorker(GameMap* gameMap, const std::vector<Tile*>& tiles, Player* player)
+void SpellSummonWorker::castSpellSummonWorker(GameMap* gameMap, const std::vector<Tile*>& tiles, Player* player, int manaSpent)
 {
     player->setSpellCooldownTurns(SpellType::summonWorker, ConfigManager::getSingleton().getSpellConfigUInt32("SummonWorkerCooldown"));
 
@@ -82,6 +97,7 @@ void SpellSummonWorker::castSpellSummonWorker(GameMap* gameMap, const std::vecto
         return;
     }
 
+    std::vector<Tile*> tilesCastable;
     for(Tile* tile : tiles)
     {
         if(tile->getFullness() > 0)
@@ -90,7 +106,35 @@ void SpellSummonWorker::castSpellSummonWorker(GameMap* gameMap, const std::vecto
         if(!tile->isClaimedForSeat(player->getSeat()))
             continue;
 
-        // Create a new creature and copy over the class-based creature parameters.
+        tilesCastable.push_back(tile);
+    }
+
+    if(tilesCastable.empty())
+        return;
+
+    std::random_shuffle(tilesCastable.begin(), tilesCastable.end());
+    int32_t nbFreeWorkers = ConfigManager::getSingleton().getSpellConfigInt32("SummonWorkerNbFree");
+    int32_t nbWorkers = gameMap->getNbWorkersForSeat(player->getSeat());
+    int32_t priceTotal = 0;
+    int32_t pricePerWorker = ConfigManager::getSingleton().getSpellConfigInt32("SummonWorkerBasePrice");
+    if(nbWorkers > nbFreeWorkers)
+    {
+        pricePerWorker *= std::pow(2, nbWorkers - nbFreeWorkers);
+    }
+    for(Tile* tile : tilesCastable)
+    {
+        ++nbWorkers;
+        if(nbWorkers > nbFreeWorkers)
+        {
+            int32_t newPrice = priceTotal + pricePerWorker;
+            if(newPrice > manaSpent)
+                return;
+
+            priceTotal = newPrice;
+            pricePerWorker *= 2;
+        }
+
+         // Create a new creature and copy over the class-based creature parameters.
         Creature* newCreature = new Creature(gameMap, classToSpawn, player->getSeat());
         LogManager::getSingleton().logMessage("Spawning a creature class=" + classToSpawn->getClassName()
             + ", name=" + newCreature->getName() + ", seatId=" + Ogre::StringConverter::toString(player->getSeat()->getId()));
@@ -101,6 +145,5 @@ void SpellSummonWorker::castSpellSummonWorker(GameMap* gameMap, const std::vecto
                                     static_cast<Ogre::Real>(0.0));
         newCreature->createMesh();
         newCreature->setPosition(spawnPosition, false);
-    }
+   }
 }
-

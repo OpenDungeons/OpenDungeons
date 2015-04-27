@@ -51,7 +51,7 @@ public:
 
     static int getSpellCost(GameMap* gameMap, SpellType type, const std::vector<Tile*>& tiles, Player* player);
 
-    static void castSpell(GameMap* gameMap, SpellType type, const std::vector<Tile*>& tiles, Player* player);
+    static void castSpell(GameMap* gameMap, SpellType type, const std::vector<Tile*>& tiles, Player* player, int manaSpent);
 
     //! \brief Some spells can be cast where the caster do not have vision. In this case, we
     //! want him and his allies to see the spell even if they don't have vision on the tile

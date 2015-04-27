@@ -771,7 +771,7 @@ bool KeeperAI::handleWorkers()
        (Random::Int(0, nbWorkers * 3) == 0))
     {
         mPlayer.getSeat()->takeMana(mana);
-        Spell::castSpell(&mGameMap, SpellType::summonWorker, tiles, &mPlayer);
+        Spell::castSpell(&mGameMap, SpellType::summonWorker, tiles, &mPlayer, mana);
         return true;
     }
 

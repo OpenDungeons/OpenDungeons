@@ -1384,7 +1384,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             if(!player->getSeat()->takeMana(manaRequired))
                 break;
 
-            Spell::castSpell(mGameMap, spellType, tiles, player);
+            Spell::castSpell(mGameMap, spellType, tiles, player, manaRequired);
             break;
         }
 

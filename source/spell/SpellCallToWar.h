@@ -38,7 +38,7 @@ public:
 
     static int getSpellCallToWarCost(GameMap* gameMap, const std::vector<Tile*>& tiles, Player* player);
 
-    static void castSpellCallToWar(GameMap* gameMap, const std::vector<Tile*>& tiles, Player* player);
+    static void castSpellCallToWar(GameMap* gameMap, const std::vector<Tile*>& tiles, Player* player, int manaSpent);
 };
 
 #endif // SPELLCALLTOWAR_H
