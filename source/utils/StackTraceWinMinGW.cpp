@@ -19,7 +19,7 @@
 
 #include <SFML/System.hpp>
 
-#define PACKAGE "OpenDungeon"
+#define PACKAGE "OpenDungeons"
 
 #include <windows.h>
 #include <excpt.h>

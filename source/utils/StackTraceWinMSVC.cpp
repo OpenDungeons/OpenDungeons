@@ -19,8 +19,6 @@
 
 #include <SFML/System.hpp>
 
-#define PACKAGE "OpenDungeon"
-
 #include <windows.h>
 #include <excpt.h>
 #include <imagehlp.h>
