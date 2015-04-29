@@ -128,6 +128,11 @@ namespace Helper
     //! \brief Returns the string representation of a CEGUI color from an Ogre ColourValue.
     //! \format AARRGGBB hex format.
     std::string getCEGUIColorFromOgreColourValue(const Ogre::ColourValue& color);
+
+    //! \brief Gets the CEGUI ImageColours string property (AARRGGBB format for each corners) corresponding
+    //! to the given Ogre ColourValue.
+    // ex: "tl:FF0000FF tr:FF0000FF bl:FF0000FF br:FF0000FF"
+    std::string getImageColoursStringFromColourValue(const Ogre::ColourValue& color);
 }
 
 #endif // HELPER_H_

@@ -243,15 +243,6 @@ GameMode::~GameMode()
     ODFrameListener::getSingleton().getClientGameMap()->processDeletionQueues();
 }
 
-//! \brief Gets the CEGUI ImageColours string property (AARRGGBB format) corresponding
-//! to the given Ogre ColourValue.
-std::string getImageColoursStringFromColourValue(const Ogre::ColourValue& color)
-{
-    std::string colourStr = Helper::getCEGUIColorFromOgreColourValue(color);
-    std::string imageColours = "tl:" + colourStr + " tr:" + colourStr + " bl:" + colourStr + " br:" + colourStr;
-    return imageColours;
-}
-
 void GameMode::activate()
 {
     // Loads the corresponding Gui sheet.
@@ -273,9 +264,7 @@ void GameMode::activate()
     // Play the game music.
     MusicPlayer::getSingleton().play(mGameMap->getLevelMusicFile()); // in game music
 
-    // Show the player seat color on the horizontal pipe - AARRGGBB format
-    // ex: "tl:FF0000FF tr:FF0000FF bl:FF0000FF br:FF0000FF"
-    std::string colorStr = getImageColoursStringFromColourValue(mGameMap->getLocalPlayer()->getSeat()->getColorValue());
+    std::string colorStr = Helper::getImageColoursStringFromColourValue(mGameMap->getLocalPlayer()->getSeat()->getColorValue());
     guiSheet->getChild("HorizontalPipe")->setProperty("ImageColours", colorStr);
 
     if(mGameMap->getTurnNumber() != -1)
