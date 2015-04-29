@@ -4220,10 +4220,12 @@
         <PropertyDefinition initialValue="CentreAligned" name="VertLabelFormatting" />
         <PropertyDefinition initialValue="CentreAligned" name="HorzLabelFormatting" />
         <PropertyDefinition initialValue="" name="ButtonImage" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="FFFFFFFF" name="ButtonImageColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="OpenDungeonsSkin/ButtonHoverEffect" name="HoverImage" redrawOnWrite="true" />
         <PropertyDefinition initialValue="OpenDungeonsSkin/ButtonPushedEffect" name="PushedImage" redrawOnWrite="true" />
         <PropertyDefinition initialValue="OpenDungeonsSkin/ButtonDisabledEffect" name="DisabledImage" redrawOnWrite="true" />
         <PropertyDefinition initialValue="" name="StateImage" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="FFFFFFFF" name="StateImageColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="Stretched" name="VertImageFormatting" redrawOnWrite="true" />
         <PropertyDefinition initialValue="Stretched" name="HorzImageFormatting" redrawOnWrite="true" />
         <ImagerySection name="label">
@@ -4264,6 +4266,7 @@
                     <Dim type="Height"><UnifiedDim scale="0.8" type="Height" /></Dim>
                 </Area>
                 <ImageProperty name="ButtonImage" />
+                <ColourRectProperty name="ButtonImageColour" />
                 <VertFormatProperty name="VertImageFormatting" />
                 <HorzFormatProperty name="HorzImageFormatting" />
             </ImageryComponent>
@@ -4275,6 +4278,7 @@
                     <Dim type="Height"><AbsoluteDim value="20" type="Height" /></Dim>
                 </Area>
                 <ImageProperty name="StateImage" />
+                <ColourRectProperty name="StateImageColour" />
                 <VertFormatProperty name="VertImageFormatting" />
                 <HorzFormatProperty name="HorzImageFormatting" />
             </ImageryComponent>
@@ -4305,6 +4309,7 @@
                     <Dim type="Height"><UnifiedDim scale="0.8" type="Height" /></Dim>
                 </Area>
                 <ImageProperty name="ButtonImage" />
+                <ColourRectProperty name="ButtonImageColour" />
                 <VertFormatProperty name="VertImageFormatting" />
                 <HorzFormatProperty name="HorzImageFormatting" />
             </ImageryComponent>
@@ -4316,6 +4321,7 @@
                     <Dim type="Height"><AbsoluteDim value="20" type="Height" /></Dim>
                 </Area>
                 <ImageProperty name="StateImage" />
+                <ColourRectProperty name="StateImageColour" />
                 <VertFormatProperty name="VertImageFormatting" />
                 <HorzFormatProperty name="HorzImageFormatting" />
             </ImageryComponent>
@@ -4357,6 +4363,7 @@
                     <Dim type="Height"><UnifiedDim scale="0.8" type="Height" /></Dim>
                 </Area>
                 <ImageProperty name="ButtonImage" />
+                <ColourRectProperty name="ButtonImageColour" />
                 <VertFormatProperty name="VertImageFormatting" />
                 <HorzFormatProperty name="HorzImageFormatting" />
             </ImageryComponent>
@@ -4368,6 +4375,7 @@
                     <Dim type="Height"><AbsoluteDim value="20" type="Height" /></Dim>
                 </Area>
                 <ImageProperty name="StateImage" />
+                <ColourRectProperty name="StateImageColour" />
                 <VertFormatProperty name="VertImageFormatting" />
                 <HorzFormatProperty name="HorzImageFormatting" />
             </ImageryComponent>
@@ -4436,6 +4444,7 @@
         <PropertyDefinition initialValue="CentreAligned" name="VertLabelFormatting" />
         <PropertyDefinition initialValue="CentreAligned" name="HorzLabelFormatting" />
         <PropertyDefinition initialValue="" name="IconImage" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="FFFFFFFF" name="IconImageColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="OpenDungeonsSkin/ButtonHoverEffect" name="HoverImage" redrawOnWrite="true" />
         <PropertyDefinition initialValue="OpenDungeonsSkin/ButtonPushedEffect" name="PushedImage" redrawOnWrite="true" />
         <PropertyDefinition initialValue="OpenDungeonsSkin/ButtonDisabledEffect" name="DisabledImage" redrawOnWrite="true" />
@@ -4479,6 +4488,7 @@
                     <Dim type="Height"><UnifiedDim scale="0.8" type="Height" /></Dim>
                 </Area>
                 <ImageProperty name="IconImage" />
+                <ColourRectProperty name="IconImageColour" />
                 <VertFormatProperty name="VertImageFormatting" />
                 <HorzFormatProperty name="HorzImageFormatting" />
             </ImageryComponent>
@@ -4509,6 +4519,7 @@
                     <Dim type="Height"><UnifiedDim scale="0.8" type="Height" /></Dim>
                 </Area>
                 <ImageProperty name="IconImage" />
+                <ColourRectProperty name="IconImageColour" />
                 <VertFormatProperty name="VertImageFormatting" />
                 <HorzFormatProperty name="HorzImageFormatting" />
             </ImageryComponent>
@@ -4550,6 +4561,7 @@
                     <Dim type="Height"><UnifiedDim scale="0.8" type="Height" /></Dim>
                 </Area>
                 <ImageProperty name="IconImage" />
+                <ColourRectProperty name="IconImageColour" />
                 <VertFormatProperty name="VertImageFormatting" />
                 <HorzFormatProperty name="HorzImageFormatting" />
             </ImageryComponent>
