@@ -1,6 +1,7 @@
 <Falagard version="7">
 
     <WidgetLook name="OD/Button">
+        <Property name="WantsMultiClickEvents" value="False" />
         <PropertyDefinition initialValue="FFFFFFFF" name="NormalTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FFFFFFFF" name="HoverTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FFFFFFFF" name="PushedTextColour" redrawOnWrite="true" />
@@ -160,6 +161,7 @@
     </WidgetLook>
 
     <WidgetLook name="OD/MainMenuButton">
+        <Property name="WantsMultiClickEvents" value="False" />
         <PropertyDefinition initialValue="FFFFFFFF" name="NormalTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FFFFFFFF" name="HoverTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FFFFFFFF" name="PushedTextColour" redrawOnWrite="true" />
@@ -319,6 +321,7 @@
     </WidgetLook>
 
     <WidgetLook name="OD/InvisibleButton">
+        <Property name="WantsMultiClickEvents" value="False" />
         <PropertyDefinition initialValue="FFFFFFFF" name="NormalTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FFFFFFFF" name="HoverTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FFFFFFFF" name="PushedTextColour" redrawOnWrite="true" />
@@ -452,6 +455,7 @@
 
 
     <WidgetLook name="OD/RadioButton">
+        <Property name="WantsMultiClickEvents" value="False" />
         <PropertyDefinition initialValue="FFFFFFFF" name="NormalTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FFFFFFFF" name="HoverTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FFFFFFFF" name="PushedTextColour" redrawOnWrite="true" />
@@ -482,7 +486,7 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-        <ImageProperty name="InitialImage" />
+                <ImageProperty name="InitialImage" />
                 <VertFormat type="CentreAligned" />
                 <HorzFormat type="LeftAligned" />
             </ImageryComponent>
@@ -573,6 +577,7 @@
     </WidgetLook>
 
     <WidgetLook name="OD/Checkbox">
+        <Property name="WantsMultiClickEvents" value="False" />
         <PropertyDefinition initialValue="FFFFFFFF" name="NormalTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FFFFFFFF" name="HoverTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FFFFFFFF" name="PushedTextColour" redrawOnWrite="true" />
@@ -2282,6 +2287,7 @@
     </WidgetLook>
 
     <WidgetLook name="OD/ComboBoxButton">
+        <Property name="WantsMultiClickEvents" value="False" />
         <PropertyDefinition initialValue="FFFFFFFF" name="NormalTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FFFFFFFF" name="HoverTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FFFFFFFF" name="PushedTextColour" redrawOnWrite="true" />
@@ -4206,6 +4212,7 @@
     </WidgetLook>
 
     <WidgetLook name="OD/ImageButton">
+        <Property name="WantsMultiClickEvents" value="False" />
         <PropertyDefinition initialValue="FFFFFFFF" name="NormalTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FFFFFFFF" name="HoverTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FFFFFFFF" name="PushedTextColour" redrawOnWrite="true" />
@@ -4421,6 +4428,7 @@
     </WidgetLook>
 
     <WidgetLook name="OD/IconButton">
+        <Property name="WantsMultiClickEvents" value="False" />
         <PropertyDefinition initialValue="FFFFFFFF" name="NormalTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FFFFFFFF" name="HoverTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FFFFFFFF" name="PushedTextColour" redrawOnWrite="true" />
@@ -4602,6 +4610,7 @@
     </WidgetLook>
 
     <WidgetLook name="OD/GameTabButton">
+        <Property name="WantsMultiClickEvents" value="False" />
         <PropertyDefinition initialValue="" name="NormalImage" redrawOnWrite="true" />
         <PropertyDefinition initialValue="OpenDungeonsSkin/ButtonHoverEffect" name="HoverImage" redrawOnWrite="true" />
         <PropertyDefinition initialValue="OpenDungeonsSkin/ButtonPushedEffect" name="PushedImage" redrawOnWrite="true" />
