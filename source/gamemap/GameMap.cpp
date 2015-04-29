@@ -169,7 +169,6 @@ GameMap::GameMap(bool isServerGameMap) :
 GameMap::~GameMap()
 {
     clearAll();
-    processDeletionQueues();
 }
 
 std::string GameMap::serverStr()
@@ -292,8 +291,6 @@ void GameMap::clearAll()
     clearTiles();
     clearCreatureMoodModifiers();
 
-    clearActiveObjects();
-
     clearGoalsForAllSeats();
     clearSeats();
     mLocalPlayer = nullptr;
@@ -306,6 +303,65 @@ void GameMap::clearAll()
     resetUniqueNumbers();
     mIsFOWActivated = true;
     mTimePayDay = 0;
+
+    processActiveObjectsChanges();
+    processDeletionQueues();
+
+    // We check if the different vectors are empty
+    if(!mActiveObjects.empty())
+    {
+        OD_ASSERT_TRUE_MSG(false, "mActiveObjects not empty size=" + Helper::toString(mActiveObjects.size()));
+        for(GameEntity* entity : mActiveObjects)
+        {
+            OD_ASSERT_TRUE_MSG(false, "entity not removed=" + entity->getName());
+        }
+        mActiveObjects.clear();
+    }
+    if(!mActiveObjectsToAdd.empty())
+    {
+        OD_ASSERT_TRUE_MSG(false, "mActiveObjectsToAdd not empty size=" + Helper::toString(mActiveObjectsToAdd.size()));
+        for(GameEntity* entity : mActiveObjectsToAdd)
+        {
+            OD_ASSERT_TRUE_MSG(false, "entity not removed=" + entity->getName());
+        }
+        mActiveObjectsToAdd.clear();
+    }
+    if(!mActiveObjectsToRemove.empty())
+    {
+        OD_ASSERT_TRUE_MSG(false, "mActiveObjectsToRemove not empty size=" + Helper::toString(mActiveObjectsToRemove.size()));
+        for(GameEntity* entity : mActiveObjectsToRemove)
+        {
+            OD_ASSERT_TRUE_MSG(false, "entity not removed=" + entity->getName());
+        }
+        mActiveObjectsToRemove.clear();
+    }
+    if(!mAnimatedObjects.empty())
+    {
+        OD_ASSERT_TRUE_MSG(false, "mAnimatedObjects not empty size=" + Helper::toString(mAnimatedObjects.size()));
+        for(GameEntity* entity : mAnimatedObjects)
+        {
+            OD_ASSERT_TRUE_MSG(false, "entity not removed=" + entity->getName());
+        }
+        mAnimatedObjects.clear();
+    }
+    if(!mEntitiesToDelete.empty())
+    {
+        OD_ASSERT_TRUE_MSG(false, "mEntitiesToDelete not empty size=" + Helper::toString(mEntitiesToDelete.size()));
+        for(GameEntity* entity : mEntitiesToDelete)
+        {
+            OD_ASSERT_TRUE_MSG(false, "entity not removed=" + entity->getName());
+        }
+        mEntitiesToDelete.clear();
+    }
+    if(!mGameEntityClientUpkeep.empty())
+    {
+        OD_ASSERT_TRUE_MSG(false, "mGameEntityClientUpkeep not empty size=" + Helper::toString(mGameEntityClientUpkeep.size()));
+        for(GameEntity* entity : mGameEntityClientUpkeep)
+        {
+            OD_ASSERT_TRUE_MSG(false, "entity not removed=" + entity->getName());
+        }
+        mGameEntityClientUpkeep.clear();
+    }
 }
 
 void GameMap::clearCreatures()
@@ -365,13 +421,6 @@ void GameMap::clearRenderedMovableEntities()
     }
 
     mRenderedMovableEntities.clear();
-}
-
-void GameMap::clearActiveObjects()
-{
-    mActiveObjects.clear();
-    mActiveObjectsToAdd.clear();
-    mActiveObjectsToRemove.clear();
 }
 
 void GameMap::clearPlayers()
@@ -788,11 +837,6 @@ Creature* GameMap::getFighterToPickupBySeat(Seat* seat)
         return otherFighter;
 
     return nullptr;
-}
-
-void GameMap::clearAnimatedObjects()
-{
-    mAnimatedObjects.clear();
 }
 
 void GameMap::addAnimatedObject(MovableGameEntity *a)
@@ -2373,6 +2417,9 @@ void GameMap::processDeletionQueues()
 
 void GameMap::processActiveObjectsChanges()
 {
+    if(!isServerGameMap())
+        return;
+
     // We add the queued active objects
     while (!mActiveObjectsToAdd.empty())
     {
@@ -3014,4 +3061,115 @@ uint32_t GameMap::getMaxNumberCreatures(Seat* seat) const
     }
 
     return std::min(nbCreatures, ConfigManager::getSingleton().getMaxCreaturesPerSeatAbsolute());
+}
+
+void GameMap::playerSelects(std::vector<EntityBase*>& entities, int tileX1, int tileY1, int tileX2,
+    int tileY2, SelectionTileAllowed tileAllowed, SelectionEntityWanted entityWanted, Player* player)
+{
+    std::vector<Tile*> tiles = rectangularRegion(tileX1, tileY1, tileX2, tileY2);
+    for(Tile* tile : tiles)
+    {
+        switch(tileAllowed)
+        {
+            case SelectionTileAllowed::groundClaimedOwned:
+            {
+                if(tile->isFullTile())
+                    continue;
+
+                if(tile->getSeat() == nullptr)
+                    continue;
+
+                if(!tile->isClaimed())
+                    continue;
+
+                if(player->getSeat() != tile->getSeat())
+                    continue;
+
+                break;
+            }
+            case SelectionTileAllowed::groundClaimedAllied:
+            {
+                if(tile->isFullTile())
+                    continue;
+
+                if(tile->getSeat() == nullptr)
+                    continue;
+
+                if(!tile->isClaimed())
+                    continue;
+
+                if(!player->getSeat()->isAlliedSeat(tile->getSeat()))
+                    continue;
+
+                break;
+            }
+            case SelectionTileAllowed::groundClaimedNotEnemy:
+            {
+                if(tile->isFullTile())
+                    continue;
+
+                if(tile->getSeat() == nullptr)
+                    continue;
+
+                if(tile->isClaimed() && !player->getSeat()->isAlliedSeat(tile->getSeat()))
+                    continue;
+
+                break;
+            }
+            case SelectionTileAllowed::groundTiles:
+            {
+                if(tile->isFullTile())
+                    continue;
+
+                break;
+            }
+            default:
+            {
+                static bool logMsg = false;
+                if(!logMsg)
+                {
+                    logMsg = true;
+                    OD_ASSERT_TRUE_MSG(false, "Wrong SelectionTileAllowed int=" + Helper::toString(static_cast<uint32_t>(tileAllowed)));
+                }
+                continue;
+            }
+        }
+
+        if(entityWanted == SelectionEntityWanted::tiles)
+        {
+            entities.push_back(tile);
+            continue;
+        }
+
+        tile->fillWithEntities(entities, entityWanted, player);
+    }
+}
+
+void GameMap::addClientUpkeepEntity(GameEntity* entity)
+{
+    // GameEntityClientUpkeep objects are only used on client side
+    if(isServerGameMap())
+        return;
+
+    mGameEntityClientUpkeep.push_back(entity);
+}
+
+void GameMap::removeClientUpkeepEntity(GameEntity* entity)
+{
+    auto it = std::find(mGameEntityClientUpkeep.begin(), mGameEntityClientUpkeep.end(), entity);
+    if(it == mGameEntityClientUpkeep.end())
+        return;
+
+    mGameEntityClientUpkeep.erase(it);
+}
+
+void GameMap::clientUpKeep(int64_t turnNumber)
+{
+    mTurnNumber = turnNumber;
+    mLocalPlayer->decreaseSpellCooldowns();
+
+    for(GameEntity* entity : mGameEntityClientUpkeep)
+    {
+        entity->clientUpkeep();
+    }
 }

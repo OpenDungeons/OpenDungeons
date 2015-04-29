@@ -36,6 +36,8 @@ trapCannon
 trapSpike
 roomCrypt
 trapBoulder
+spellCreatureHeal
+spellCreatureExplode
 [/ResearchPending]
 [/Seat]
 [Seat]
@@ -4140,49 +4142,49 @@ ProtectDungeonTemple	NULL
 [/EquipmentDefinitions]
 
 [Creatures]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon
-1	Kobold90	Kobold	51	16	0	Kobold	1	0	max	100	0	0	none	none	0	none
-1	Kobold91	Kobold	51	16	0	Kobold	1	0	max	100	0	0	none	none	0	none
-2	Kobold92	Kobold	7	55	0	Kobold	1	0	max	100	0	0	none	none	0	none
-2	Kobold93	Kobold	7	55	0	Kobold	1	0	max	100	0	0	none	none	0	none
-3	Kobold94	Kobold	91	55	0	Kobold	1	0	max	100	0	0	none	none	0	none
-3	Kobold95	Kobold	91	55	0	Kobold	1	0	max	100	0	0	none	none	0	none
-4	Kobold96	Kobold	47	94	0	Kobold	1	0	max	100	0	0	none	none	0	none
-4	Kobold97	Kobold	47	94	0	Kobold	1	0	max	100	0	0	none	none	0	none
-0	Dwarf99	RunelordDwarf	9	15	0	RunelordDwarf	1	0	max	100	0	0	Roundshield	Longsword	0	none
-0	Dwarf98	RunelordDwarf	9	16	0	RunelordDwarf	1	0	max	100	0	0	Roundshield	Longsword	0	none
-0	Dwarf97	RunelordDwarf	9	17	0	RunelordDwarf	1	0	max	100	0	0	Roundshield	Longsword	0	none
-0	Dwarf96	RunelordDwarf	9	18	0	RunelordDwarf	1	0	max	100	0	0	Roundshield	Longsword	0	none
-0	Dwarf95	RunelordDwarf	9	19	0	RunelordDwarf	1	0	max	100	0	0	Roundshield	Longsword	0	none
-0	Dwarf94	RunelordDwarf	9	20	0	RunelordDwarf	1	0	max	100	0	0	Roundshield	Longsword	0	none
-0	Dwarf93	RunelordDwarf	9	21	0	RunelordDwarf	1	0	max	100	0	0	Roundshield	Longsword	0	none
-0	Knight90	Knight	46	42	0	Knight	1	0	max	100	0	0	Roundshield	Longsword	0	none
-0	Knight91	Knight	47	42	0	Knight	1	0	max	100	0	0	Roundshield	Longsword	0	none
-0	Knight92	Knight	48	42	0	Knight	1	0	max	100	0	0	Roundshield	Sabre	0	none
-0	Knight93	Knight	49	42	0	Knight	1	0	max	100	0	0	Roundshield	Sabre	0	none
-0	Knight94	Knight	50	42	0	Knight	1	0	max	100	0	0	Roundshield	Sabre	0	none
-0	Knight95	Knight	51	42	0	Knight	1	0	max	100	0	0	Roundshield	Longsword	0	none
-0	Knight96	Knight	52	42	0	Knight	1	0	max	100	0	0	Longsword	Longsword	0	none
-0	Knight97	Knight	49	41	0	Knight	1	0	max	100	0	0	Longsword	Longsword	0	none
-0	Dragon90	Dragon	86	20	0	Dragon	1	0	max	100	0	0	none	none	0	none
-0	Dragon91	Dragon	92	20	0	Dragon	1	0	max	100	0	0	none	none	0	none
-0	Dragon92	Dragon	89	25	0	Dragon	1	0	max	100	0	0	none	none	0	none
-0	Dragon93	Dragon	96	18	0	Dragon	1	0	max	100	0	0	none	none	0	none
-0	Tentacle90	TentacleGreen	73	23	0	TentacleGreen	1	0	max	100	0	0	none	none	0	none
-0	Tentacle91	TentacleGreen	73	23	0	TentacleGreen	1	0	max	100	0	0	none	none	0	none
-0	Tentacle92	TentacleGreen	73	23	0	TentacleGreen	1	0	max	100	0	0	none	none	0	none
-0	Tentacle93	TentacleGreen	73	23	0	TentacleGreen	1	0	max	100	0	0	none	none	0	none
-0	Tentacle94	TentacleGreen	75	12	0	TentacleGreen	1	0	max	100	0	0	none	none	0	none
-0	Tentacle95	TentacleGreen	75	12	0	TentacleGreen	1	0	max	100	0	0	none	none	0	none
-0	Tentacle96	TentacleGreen	75	12	0	TentacleGreen	1	0	max	100	0	0	none	none	0	none
-0	Tentacle97	TentacleGreen	75	12	0	TentacleGreen	1	0	max	100	0	0	none	none	0	none
-0	Tentacle98	TentacleGreen	72	5	0	TentacleGreen	1	0	max	100	0	0	none	none	0	none
-0	Tentacle99	TentacleGreen	72	5	0	TentacleGreen	1	0	max	100	0	0	none	none	0	none
-0	Tentacle100	TentacleGreen	69	37	0	TentacleGreen	1	0	max	100	0	0	none	none	0	none
-0	Tentacle101	TentacleGreen	69	37	0	TentacleGreen	1	0	max	100	0	0	none	none	0	none
-0	Tentacle102	TentacleGreen	69	37	0	TentacleGreen	1	0	max	100	0	0	none	none	0	none
-4	PitDemon90	PitDemon	48	57	0	PitDemon	1	0	max	100	0	0	none	none	0	none
-4	PitDemon91	PitDemon	50	57	0	PitDemon	10	0	max	100	0	0	none	none	0	none
+# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
+1	Kobold90	Kobold	51	16	0	Kobold	1	0	max	100	0	0	none	none	0	none	0
+1	Kobold91	Kobold	51	16	0	Kobold	1	0	max	100	0	0	none	none	0	none	0
+2	Kobold92	Kobold	7	55	0	Kobold	1	0	max	100	0	0	none	none	0	none	0
+2	Kobold93	Kobold	7	55	0	Kobold	1	0	max	100	0	0	none	none	0	none	0
+3	Kobold94	Kobold	91	55	0	Kobold	1	0	max	100	0	0	none	none	0	none	0
+3	Kobold95	Kobold	91	55	0	Kobold	1	0	max	100	0	0	none	none	0	none	0
+4	Kobold96	Kobold	47	94	0	Kobold	1	0	max	100	0	0	none	none	0	none	0
+4	Kobold97	Kobold	47	94	0	Kobold	1	0	max	100	0	0	none	none	0	none	0
+0	Dwarf99	RunelordDwarf	9	15	0	RunelordDwarf	1	0	max	100	0	0	Roundshield	Longsword	0	none	0
+0	Dwarf98	RunelordDwarf	9	16	0	RunelordDwarf	1	0	max	100	0	0	Roundshield	Longsword	0	none	0
+0	Dwarf97	RunelordDwarf	9	17	0	RunelordDwarf	1	0	max	100	0	0	Roundshield	Longsword	0	none	0
+0	Dwarf96	RunelordDwarf	9	18	0	RunelordDwarf	1	0	max	100	0	0	Roundshield	Longsword	0	none	0
+0	Dwarf95	RunelordDwarf	9	19	0	RunelordDwarf	1	0	max	100	0	0	Roundshield	Longsword	0	none	0
+0	Dwarf94	RunelordDwarf	9	20	0	RunelordDwarf	1	0	max	100	0	0	Roundshield	Longsword	0	none	0
+0	Dwarf93	RunelordDwarf	9	21	0	RunelordDwarf	1	0	max	100	0	0	Roundshield	Longsword	0	none	0
+0	Knight90	Knight	46	42	0	Knight	1	0	max	100	0	0	Roundshield	Longsword	0	none	0
+0	Knight91	Knight	47	42	0	Knight	1	0	max	100	0	0	Roundshield	Longsword	0	none	0
+0	Knight92	Knight	48	42	0	Knight	1	0	max	100	0	0	Roundshield	Sabre	0	none	0
+0	Knight93	Knight	49	42	0	Knight	1	0	max	100	0	0	Roundshield	Sabre	0	none	0
+0	Knight94	Knight	50	42	0	Knight	1	0	max	100	0	0	Roundshield	Sabre	0	none	0
+0	Knight95	Knight	51	42	0	Knight	1	0	max	100	0	0	Roundshield	Longsword	0	none	0
+0	Knight96	Knight	52	42	0	Knight	1	0	max	100	0	0	Longsword	Longsword	0	none	0
+0	Knight97	Knight	49	41	0	Knight	1	0	max	100	0	0	Longsword	Longsword	0	none	0
+0	Dragon90	Dragon	86	20	0	Dragon	1	0	max	100	0	0	none	none	0	none	0
+0	Dragon91	Dragon	92	20	0	Dragon	1	0	max	100	0	0	none	none	0	none	0
+0	Dragon92	Dragon	89	25	0	Dragon	1	0	max	100	0	0	none	none	0	none	0
+0	Dragon93	Dragon	96	18	0	Dragon	1	0	max	100	0	0	none	none	0	none	0
+0	Tentacle90	TentacleGreen	73	23	0	TentacleGreen	1	0	max	100	0	0	none	none	0	none	0
+0	Tentacle91	TentacleGreen	73	23	0	TentacleGreen	1	0	max	100	0	0	none	none	0	none	0
+0	Tentacle92	TentacleGreen	73	23	0	TentacleGreen	1	0	max	100	0	0	none	none	0	none	0
+0	Tentacle93	TentacleGreen	73	23	0	TentacleGreen	1	0	max	100	0	0	none	none	0	none	0
+0	Tentacle94	TentacleGreen	75	12	0	TentacleGreen	1	0	max	100	0	0	none	none	0	none	0
+0	Tentacle95	TentacleGreen	75	12	0	TentacleGreen	1	0	max	100	0	0	none	none	0	none	0
+0	Tentacle96	TentacleGreen	75	12	0	TentacleGreen	1	0	max	100	0	0	none	none	0	none	0
+0	Tentacle97	TentacleGreen	75	12	0	TentacleGreen	1	0	max	100	0	0	none	none	0	none	0
+0	Tentacle98	TentacleGreen	72	5	0	TentacleGreen	1	0	max	100	0	0	none	none	0	none	0
+0	Tentacle99	TentacleGreen	72	5	0	TentacleGreen	1	0	max	100	0	0	none	none	0	none	0
+0	Tentacle100	TentacleGreen	69	37	0	TentacleGreen	1	0	max	100	0	0	none	none	0	none	0
+0	Tentacle101	TentacleGreen	69	37	0	TentacleGreen	1	0	max	100	0	0	none	none	0	none	0
+0	Tentacle102	TentacleGreen	69	37	0	TentacleGreen	1	0	max	100	0	0	none	none	0	none	0
+4	PitDemon90	PitDemon	48	57	0	PitDemon	1	0	max	100	0	0	none	none	0	none	0
+4	PitDemon91	PitDemon	50	57	0	PitDemon	10	0	max	100	0	0	none	none	0	none	0
 [/Creatures]
 
 [Spells]

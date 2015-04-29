@@ -428,7 +428,7 @@ void Player::setSpellCooldownTurns(SpellType spellType, uint32_t cooldown)
     }
 
     mSpellsCooldown[spellIndex] = cooldown;
-    if(mGameMap->isServerGameMap())
+    if(mGameMap->isServerGameMap() && getIsHuman())
     {
         ServerNotification *serverNotification = new ServerNotification(
             ServerNotificationType::setSpellCooldown, this);

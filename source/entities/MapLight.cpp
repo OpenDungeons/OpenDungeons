@@ -90,13 +90,14 @@ void MapLight::removeFromGameMap()
     setIsOnMap(false);
     getGameMap()->removeAnimatedObject(this);
 
+    Tile* posTile = getPositionTile();
+    if(posTile != nullptr)
+        posTile->removeEntity(this);
+
     if(!getGameMap()->isServerGameMap())
         return;
 
     fireRemoveEntityToSeatsWithVision();
-    Tile* posTile = getPositionTile();
-    if(posTile != nullptr)
-        posTile->removeEntity(this);
 }
 
 std::vector<Tile*> MapLight::getCoveredTiles()

@@ -36,9 +36,10 @@ public:
 
     void slap() override;
 
-    static int getSpellCallToWarCost(GameMap* gameMap, const std::vector<Tile*>& tiles, Player* player);
+    static int getSpellCallToWarCost(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
+        int tileX1, int tileY1, int tileX2, int tileY2, Player* player);
 
-    static void castSpellCallToWar(GameMap* gameMap, const std::vector<Tile*>& tiles, Player* player, int manaSpent);
+    static void castSpellCallToWar(GameMap* gameMap, const std::vector<EntityBase*>& targets, Player* player);
 };
 
 #endif // SPELLCALLTOWAR_H

@@ -36,6 +36,8 @@ trapCannon
 trapSpike
 roomCrypt
 trapBoulder
+spellCreatureHeal
+spellCreatureExplode
 [/ResearchPending]
 [/Seat]
 [Seat]
@@ -4507,35 +4509,35 @@ ProtectDungeonTemple	NULL
 [/EquipmentDefinitions]
 
 [Creatures]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon
-0	Spider1	Spider	17	67	0	Spider	2	0	max	100	0	0	none	none	0	none
-0	Spider2	Spider	16	67	0	Spider	2	0	max	100	0	0	none	none	0	none
-0	Spider3	Spider	15	67	0	Spider	2	0	max	100	0	0	none	none	0	none
-0	Spider4	Spider	16	68	0	Spider	2	0	max	100	0	0	none	none	0	none
-0	Spider5	Spider	16	66	0	Spider	2	0	max	100	0	0	none	none	0	none
-0	Spider6	Spider	83	33	0	Spider	2	0	max	100	0	0	none	none	0	none
-0	Spider7	Spider	84	33	0	Spider	2	0	max	100	0	0	none	none	0	none
-0	Spider8	Spider	82	33	0	Spider	2	0	max	100	0	0	none	none	0	none
-0	Spider9	Spider	83	34	0	Spider	2	0	max	100	0	0	none	none	0	none
-0	Spider10	Spider	83	32	0	Spider	2	0	max	100	0	0	none	none	0	none
-0	Spider11	Spider	50	41	0	Spider	3	0	max	100	0	0	none	none	0	none
-0	Spider12	Spider	51	43	0	Spider	3	0	max	100	0	0	none	none	0	none
-0	Spider13	Spider	50	45	0	Spider	3	0	max	100	0	0	none	none	0	none
-0	Spider14	Spider	51	47	0	Spider	3	0	max	100	0	0	none	none	0	none
-0	Spider15	Spider	50	53	0	Spider	3	0	max	100	0	0	none	none	0	none
-0	Spider16	Spider	51	55	0	Spider	3	0	max	100	0	0	none	none	0	none
-0	Spider17	Spider	50	57	0	Spider	3	0	max	100	0	0	none	none	0	none
-0	Spider18	Spider	51	59	0	Spider	3	0	max	100	0	0	none	none	0	none
-0	Spider20	Spider	15	33	0	Spider	3	0	max	100	0	0	none	none	0	none
-0	Spider21	Spider	16	33	0	Spider	3	0	max	100	0	0	none	none	0	none
-0	Spider22	Spider	16	34	0	Spider	3	0	max	100	0	0	none	none	0	none
-0	Spider23	Spider	17	33	0	Spider	3	0	max	100	0	0	none	none	0	none
-0	Spider24	Spider	16	32	0	Spider	3	0	max	100	0	0	none	none	0	none
-0	Spider25	Spider	83	66	0	Spider	3	0	max	100	0	0	none	none	0	none
-0	Spider26	Spider	82	67	0	Spider	3	0	max	100	0	0	none	none	0	none
-0	Spider27	Spider	83	67	0	Spider	3	0	max	100	0	0	none	none	0	none
-0	Spider28	Spider	84	67	0	Spider	3	0	max	100	0	0	none	none	0	none
-0	Spider29	Spider	83	68	0	Spider	3	0	max	100	0	0	none	none	0	none
+# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
+0	Spider1	Spider	17	67	0	Spider	2	0	max	100	0	0	none	none	0	none	0
+0	Spider2	Spider	16	67	0	Spider	2	0	max	100	0	0	none	none	0	none	0
+0	Spider3	Spider	15	67	0	Spider	2	0	max	100	0	0	none	none	0	none	0
+0	Spider4	Spider	16	68	0	Spider	2	0	max	100	0	0	none	none	0	none	0
+0	Spider5	Spider	16	66	0	Spider	2	0	max	100	0	0	none	none	0	none	0
+0	Spider6	Spider	83	33	0	Spider	2	0	max	100	0	0	none	none	0	none	0
+0	Spider7	Spider	84	33	0	Spider	2	0	max	100	0	0	none	none	0	none	0
+0	Spider8	Spider	82	33	0	Spider	2	0	max	100	0	0	none	none	0	none	0
+0	Spider9	Spider	83	34	0	Spider	2	0	max	100	0	0	none	none	0	none	0
+0	Spider10	Spider	83	32	0	Spider	2	0	max	100	0	0	none	none	0	none	0
+0	Spider11	Spider	50	41	0	Spider	3	0	max	100	0	0	none	none	0	none	0
+0	Spider12	Spider	51	43	0	Spider	3	0	max	100	0	0	none	none	0	none	0
+0	Spider13	Spider	50	45	0	Spider	3	0	max	100	0	0	none	none	0	none	0
+0	Spider14	Spider	51	47	0	Spider	3	0	max	100	0	0	none	none	0	none	0
+0	Spider15	Spider	50	53	0	Spider	3	0	max	100	0	0	none	none	0	none	0
+0	Spider16	Spider	51	55	0	Spider	3	0	max	100	0	0	none	none	0	none	0
+0	Spider17	Spider	50	57	0	Spider	3	0	max	100	0	0	none	none	0	none	0
+0	Spider18	Spider	51	59	0	Spider	3	0	max	100	0	0	none	none	0	none	0
+0	Spider20	Spider	15	33	0	Spider	3	0	max	100	0	0	none	none	0	none	0
+0	Spider21	Spider	16	33	0	Spider	3	0	max	100	0	0	none	none	0	none	0
+0	Spider22	Spider	16	34	0	Spider	3	0	max	100	0	0	none	none	0	none	0
+0	Spider23	Spider	17	33	0	Spider	3	0	max	100	0	0	none	none	0	none	0
+0	Spider24	Spider	16	32	0	Spider	3	0	max	100	0	0	none	none	0	none	0
+0	Spider25	Spider	83	66	0	Spider	3	0	max	100	0	0	none	none	0	none	0
+0	Spider26	Spider	82	67	0	Spider	3	0	max	100	0	0	none	none	0	none	0
+0	Spider27	Spider	83	67	0	Spider	3	0	max	100	0	0	none	none	0	none	0
+0	Spider28	Spider	84	67	0	Spider	3	0	max	100	0	0	none	none	0	none	0
+0	Spider29	Spider	83	68	0	Spider	3	0	max	100	0	0	none	none	0	none	0
 [/Creatures]
 
 [Spells]

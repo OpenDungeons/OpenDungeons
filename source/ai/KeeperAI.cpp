@@ -757,10 +757,12 @@ bool KeeperAI::handleWorkers()
 
     mCooldownWorkers = Random::Int(3,10);
 
-    Tile* central = getDungeonTemple()->getCentralTile();
-    std::vector<Tile*> tiles;
-    tiles.push_back(central);
-    int summonCost = Spell::getSpellCost(&mGameMap, SpellType::summonWorker, tiles, &mPlayer);
+    // We want to use the first covered tile because the central might be destroyed and enemy claimed
+    // and, if it is the case, we will not be able to spawn a worker.
+    Tile* tile = getDungeonTemple()->getCoveredTile(0);
+    std::vector<EntityBase*> tiles;
+    int summonCost = Spell::getSpellCost(tiles, &mGameMap, SpellType::summonWorker,
+        tile->getX(), tile->getY(), tile->getX(), tile->getY(), &mPlayer);
     int mana = static_cast<int>(mPlayer.getSeat()->getMana());
     if(mana < summonCost)
         return false;
@@ -771,7 +773,7 @@ bool KeeperAI::handleWorkers()
        (Random::Int(0, nbWorkers * 3) == 0))
     {
         mPlayer.getSeat()->takeMana(mana);
-        Spell::castSpell(&mGameMap, SpellType::summonWorker, tiles, &mPlayer, mana);
+        Spell::castSpell(&mGameMap, SpellType::summonWorker, tiles, &mPlayer);
         return true;
     }
 

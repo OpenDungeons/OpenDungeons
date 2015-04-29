@@ -36,6 +36,8 @@ trapCannon
 trapSpike
 roomCrypt
 trapBoulder
+spellCreatureHeal
+spellCreatureExplode
 [/ResearchPending]
 [/Seat]
 [Seat]
@@ -5147,8 +5149,28 @@ ProtectDungeonTemple	NULL
 9	5
 [/Room]
 [Room]
-3	Treasury25	4	1
-86	88
+3	Treasury30	4	1
+81	92
+[/Room]
+[Room]
+3	Treasury31	4	1
+81	88
+[/Room]
+[Room]
+3	Treasury29	4	1
+92	87
+[/Room]
+[Room]
+3	Treasury28	4	1
+83	87
+[/Room]
+[Room]
+3	Treasury27	4	1
+90	88
+[/Room]
+[Room]
+3	Treasury26	4	1
+88	87
 [/Room]
 [Room]
 3	Treasury24	4	8
@@ -5162,28 +5184,8 @@ ProtectDungeonTemple	NULL
 90	92
 [/Room]
 [Room]
-3	Treasury26	4	1
-88	87
-[/Room]
-[Room]
-3	Treasury27	4	1
-90	88
-[/Room]
-[Room]
-3	Treasury28	4	1
-83	87
-[/Room]
-[Room]
-3	Treasury29	4	1
-92	87
-[/Room]
-[Room]
-3	Treasury31	4	1
-81	88
-[/Room]
-[Room]
-3	Treasury30	4	1
-81	92
+3	Treasury25	4	1
+86	88
 [/Room]
 [Room]
 5	Workshop22	4	30
@@ -5436,11 +5438,11 @@ ProtectDungeonTemple	NULL
 [/EquipmentDefinitions]
 
 [Creatures]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon
-5	Dragon1	Dragon	13	55	0	Dragon	10	0	max	100	0	0	none	none	0	none
-5	Dragon2	Dragon	13	54	0	Dragon	10	0	max	100	0	0	none	none	0	none
-5	Dragon3	Dragon	87	58	0	Dragon	10	0	max	100	0	0	none	none	0	none
-5	Dragon4	Dragon	87	57	0	Dragon	10	0	max	100	0	0	none	none	0	none
+# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
+5	Dragon1	Dragon	13	55	0	Dragon	10	0	max	100	0	0	none	none	0	none	0
+5	Dragon2	Dragon	13	54	0	Dragon	10	0	max	100	0	0	none	none	0	none	0
+5	Dragon3	Dragon	87	58	0	Dragon	10	0	max	100	0	0	none	none	0	none	0
+5	Dragon4	Dragon	87	57	0	Dragon	10	0	max	100	0	0	none	none	0	none	0
 [/Creatures]
 
 [Spells]

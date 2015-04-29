@@ -97,8 +97,13 @@ class GameEntity : public EntityBase
     //! \brief Retrieves the position tile from the game map
     Tile* getPositionTile() const;
 
-    //! \brief defines what happens on each turn with this object
+    //! \brief defines what happens on each turn with this object on server side
     virtual void doUpkeep() = 0;
+
+    //! \brief defines what happens on each turn with this object on client side. Note
+    //! that they need to register to GameMap::addClientUpkeepEntity
+    virtual void clientUpkeep()
+    {}
 
     //! \brief Returns a list of the tiles that this object is in/covering.  For creatures and other small objects
     //! this will be a single tile, for larger objects like rooms this will be 1 or more tiles.

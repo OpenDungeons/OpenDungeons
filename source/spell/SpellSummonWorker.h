@@ -25,9 +25,10 @@ class GameMap;
 class SpellSummonWorker : public Spell
 {
 public:
-    static int getSpellSummonWorkerCost(GameMap* gameMap, const std::vector<Tile*>& tiles, Player* player);
+    static int getSpellSummonWorkerCost(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
+        int tileX1, int tileY1, int tileX2, int tileY2, Player* player);
 
-    static void castSpellSummonWorker(GameMap* gameMap, const std::vector<Tile*>& tiles, Player* player, int manaSpent);
+    static void castSpellSummonWorker(GameMap* gameMap, const std::vector<EntityBase*>& targets, Player* player);
 };
 
 #endif // SPELLSUMMONWORKER_H

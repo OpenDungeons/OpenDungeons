@@ -89,7 +89,6 @@ void MenuModeReplay::activate()
 
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->clearAll();
-    gameMap->processDeletionQueues();
     gameMap->setGamePaused(true);
 
     CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::replayMenu)->getChild(Gui::REM_LIST_REPLAYS);

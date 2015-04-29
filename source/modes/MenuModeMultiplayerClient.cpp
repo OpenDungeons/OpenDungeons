@@ -68,7 +68,6 @@ void MenuModeMultiplayerClient::activate()
 
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->clearAll();
-    gameMap->processDeletionQueues();
     gameMap->setGamePaused(true);
 
     CEGUI::Window* mainWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::multiplayerClientMenu);

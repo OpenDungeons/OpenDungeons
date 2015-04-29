@@ -84,7 +84,6 @@ void MenuModeEditor::activate()
 
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->clearAll();
-    gameMap->processDeletionQueues();
     gameMap->setGamePaused(true);
 
     CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::editorMenu)->getChild(Gui::EDM_LIST_LEVELS);

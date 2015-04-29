@@ -421,9 +421,9 @@ ProtectDungeonTemple	NULL
 7	9	1	0	1
 7	10	1	0	1
 7	11	1	0	1
-7	12	1	0	1
-7	13	1	0	1
-7	14	1	0	1
+7	12	1	0	0
+7	13	1	0	0
+7	14	1	0	0
 7	15	1	0
 7	16	1	0
 7	17	1	0
@@ -471,9 +471,9 @@ ProtectDungeonTemple	NULL
 8	9	1	0	1
 8	10	1	0	1
 8	11	1	0	1
-8	12	1	0	1
-8	13	1	0	1
-8	14	1	0	1
+8	12	1	0	0
+8	13	1	0	0
+8	14	1	0	0
 8	15	1	0
 8	16	1	0
 8	17	1	0
@@ -521,9 +521,9 @@ ProtectDungeonTemple	NULL
 9	9	1	0	1
 9	10	1	0	1
 9	11	1	0	1
-9	12	1	0	1
-9	13	1	0	1
-9	14	1	0	1
+9	12	1	0	0
+9	13	1	0	0
+9	14	1	0	0
 9	15	1	0
 9	16	1	0
 9	17	1	0
@@ -2560,6 +2560,19 @@ ProtectDungeonTemple	NULL
 [Rooms]
 # typeRoom	name	seatId	numTiles		Subsequent Lines: tileX	tileY
 [Room]
+4	Portal2	0	9
+7	12
+7	13
+7	14
+8	12
+8	13
+8	14
+9	12
+9	13
+9	14
+9	10
+[/Room]
+[Room]
 1	DungeonTemple1	1	25
 7	7
 7	8
@@ -2588,19 +2601,6 @@ ProtectDungeonTemple	NULL
 11	11
 [/Room]
 [Room]
-4	Portal2	0	9
-7	12
-7	13
-7	14
-8	12
-8	13
-8	14
-9	12
-9	13
-9	14
-9	10
-[/Room]
-[Room]
 3	Treasury3	1	3
 12	7
 12	8
@@ -2624,8 +2624,8 @@ ProtectDungeonTemple	NULL
 [/EquipmentDefinitions]
 
 [Creatures]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon
-0	Scarab1	Scarab	37	42	0	Scarab	1	0	max	100	0	0	none	none	0	none
+# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
+0	Scarab1	Scarab	37	42	0	Scarab	1	0	max	100	0	0	none	none	0	none	0
 [/Creatures]
 
 [Spells]

@@ -973,6 +973,10 @@ bool Seat::isSpellAvailable(SpellType type) const
             return isResearchDone(ResearchType::spellSummonWorker);
         case SpellType::callToWar:
             return isResearchDone(ResearchType::spellCallToWar);
+        case SpellType::creatureHeal:
+            return isResearchDone(ResearchType::spellCreatureHeal);
+        case SpellType::creatureExplode:
+            return isResearchDone(ResearchType::spellCreatureExplode);
         default:
             OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Helper::toString(
                 static_cast<int>(type)) + " for seatId " + Helper::toString(getId()));

@@ -49,9 +49,15 @@ public:
 
     static std::string getSpellNameFromSpellType(SpellType t);
 
-    static int getSpellCost(GameMap* gameMap, SpellType type, const std::vector<Tile*>& tiles, Player* player);
+    //! Returns the spell cost required to cast the spell for the given player. targets will
+    //! be filled with the suitable targets. Note that if there are more targets than available mana,
+    //! most spells will fill targets until no more mana is left (chosen randomly between available
+    //! targets)
+    static int getSpellCost(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
+        int tileX1, int tileY1, int tileX2, int tileY2, Player* player);
 
-    static void castSpell(GameMap* gameMap, SpellType type, const std::vector<Tile*>& tiles, Player* player, int manaSpent);
+    //! Casts the spell. In most of the cases, targets should be the vector filled by getSpellCost
+    static void castSpell(GameMap* gameMap, SpellType type, const std::vector<EntityBase*>& targets, Player* player);
 
     //! \brief Some spells can be cast where the caster do not have vision. In this case, we
     //! want him and his allies to see the spell even if they don't have vision on the tile

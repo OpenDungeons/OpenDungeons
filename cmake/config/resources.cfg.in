@@ -4,6 +4,7 @@ FileSystem=materials/RTShaderLib/materials
 FileSystem=materials/scripts
 FileSystem=materials/textures
 FileSystem=models
+FileSystem=particles
 
 [GUI]
 FileSystem=gui

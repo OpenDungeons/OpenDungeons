@@ -89,7 +89,6 @@ void MenuModeMultiplayerServer::activate()
 
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->clearAll();
-    gameMap->processDeletionQueues();
     gameMap->setGamePaused(true);
 
     CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::multiplayerServerMenu)->getChild(Gui::MPM_LIST_LEVELS);

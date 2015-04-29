@@ -447,10 +447,8 @@ bool ODClient::processOneClientSocketMessage()
             OD_ASSERT_TRUE(packetReceived >> turnNum);
             logManager.logMessage("Client (" + getPlayer()->getNick() + ") received turnStarted="
                 + boost::lexical_cast<std::string>(turnNum));
-            gameMap->setTurnNumber(turnNum);
 
-            getPlayer()->decreaseSpellCooldowns();
-
+            gameMap->clientUpKeep(turnNum);
             // We acknowledge the new turn to the server so that he knows we are
             // ready for next one
             ODPacket packSend;
@@ -505,6 +503,10 @@ bool ODClient::processOneClientSocketMessage()
             OD_ASSERT_TRUE_MSG(entity != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
             if(entity == nullptr)
                 break;
+
+            Tile* tile = entity->getPositionTile();
+            if(tile != nullptr)
+                tile->removeEntity(entity);
 
             tempPlayer->pickUpEntity(entity);
             break;
@@ -824,6 +826,10 @@ bool ODClient::processOneClientSocketMessage()
             OD_ASSERT_TRUE_MSG(carried != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", carriedName=" + carriedName);
             if(carried == nullptr)
                 break;
+
+            Tile* tile = carried->getPositionTile();
+            if(tile != nullptr)
+                tile->removeEntity(carried);
 
             RenderManager::getSingleton().rrCarryEntity(carrier, carried);
             break;

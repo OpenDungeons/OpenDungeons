@@ -28,6 +28,8 @@ enum class SpellType
     nullSpellType = 0,
     summonWorker,
     callToWar,
+    creatureHeal,
+    creatureExplode,
     nbSpells
 };
 

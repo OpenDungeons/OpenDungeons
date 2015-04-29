@@ -271,10 +271,7 @@ void MovableGameEntity::setPosition(const Ogre::Vector3& v, bool isMove)
         return;
 
     if(!getGameMap()->isServerGameMap())
-    {
         RenderManager::getSingleton().rrMoveEntity(this, v);
-        return;
-    }
 
     Tile* tile = getPositionTile();
     OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());

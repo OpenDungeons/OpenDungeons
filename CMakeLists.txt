@@ -244,6 +244,10 @@ set(OD_SOURCEFILES
     ${SRC}/camera/CameraManager.cpp
     ${SRC}/camera/HermiteCatmullSpline.cpp
 
+    ${SRC}/creatureeffect/CreatureEffect.cpp
+    ${SRC}/creatureeffect/CreatureEffectHeal.cpp
+    ${SRC}/creatureeffect/CreatureEffectExplode.cpp
+
     ${SRC}/creaturemood/CreatureMood.cpp
     ${SRC}/creaturemood/CreatureMoodAwakness.cpp
     ${SRC}/creaturemood/CreatureMoodCreature.cpp
@@ -359,6 +363,8 @@ set(OD_SOURCEFILES
 
     ${SRC}/spell/Spell.cpp
     ${SRC}/spell/SpellCallToWar.cpp
+    ${SRC}/spell/SpellCreatureExplode.cpp
+    ${SRC}/spell/SpellCreatureHeal.cpp
     ${SRC}/spell/SpellSummonWorker.cpp
     ${SRC}/spell/SpellType.cpp
 
@@ -615,7 +621,7 @@ configure_file(${CMAKE_CONFIG_DIR}/opendungeons.6.in ${CMAKE_BINARY_DIR}/opendun
 # pointing to the game resources so that the game can be run in place
 # NOTE: This won't work on FAT filesystems
 if(NOT CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR)
-    foreach(RES config gui levels materials models music scripts sounds)
+    foreach(RES config gui levels materials models music particles scripts sounds)
         if(NOT EXISTS ${CMAKE_BINARY_DIR}/${RES})
             message(STATUS "Creating symlink to ${CMAKE_SOURCE_DIR}/${RES} in ${CMAKE_BINARY_DIR}")
             if(UNIX)

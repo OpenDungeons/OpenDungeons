@@ -83,7 +83,6 @@ void MenuModeSkirmish::activate()
 
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->clearAll();
-    gameMap->processDeletionQueues();
     gameMap->setGamePaused(true);
 
     CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_LIST_LEVELS);

@@ -1366,11 +1366,6 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 break;
             }
 
-            std::vector<Tile*> tiles = gameMap->rectangularRegion(x1, y1, x2, y2);
-
-            if(tiles.empty())
-                break;
-
             uint32_t cooldown = player->getSpellCooldownTurns(spellType);
             if(cooldown > 0)
             {
@@ -1380,11 +1375,12 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 break;
             }
 
-            int manaRequired = Spell::getSpellCost(gameMap, spellType, tiles, player);
+            std::vector<EntityBase*> targets;
+            int manaRequired = Spell::getSpellCost(targets, gameMap, spellType, x1, y1, x2, y2, player);
             if(!player->getSeat()->takeMana(manaRequired))
                 break;
 
-            Spell::castSpell(mGameMap, spellType, tiles, player, manaRequired);
+            Spell::castSpell(mGameMap, spellType, targets, player);
             break;
         }
 
@@ -2121,7 +2117,6 @@ void ODServer::stopServer()
         mServerNotificationQueue.pop_front();
     }
     mGameMap->clearAll();
-    mGameMap->processDeletionQueues();
 }
 
 void ODServer::notifyExit()
