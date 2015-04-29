@@ -38,6 +38,7 @@
         <Window type="OD/IconButton" name="QuitGameButton" >
             <Property name="Area" value="{{0.5,-80},{0,278},{0.5,80},{0,311}}" />
             <Property name="IconImage" value="OpenDungeonsIcons/AbortIcon" />
+            <Property name="IconImageColour" value="FFBB0000" />
             <Property name="Text" value="Quit Game" />
             <Property name="TooltipText" value="Quit the current game..." />
         </Window>

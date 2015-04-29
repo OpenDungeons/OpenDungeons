@@ -1497,24 +1497,28 @@ void GameMode::refreshResearchButtonState(ResearchType resType)
         guiSheet->getChild(ceguiWidgetButtonName)->show();
         researchButton->setText("");
         researchButton->setProperty("StateImage", okIcon);
+        researchButton->setProperty("StateImageColour", "FF00BB00");
         researchButton->setEnabled(false);
     }
     else if (localPlayerSeat->hasResearchWaitingForType(resType))
     {
         researchButton->setText("");
         researchButton->setProperty("StateImage", flagIcon);
+        researchButton->setProperty("StateImageColour", "FFBB0000");
         researchButton->setEnabled(false);
     }
     else if (localPlayerSeat->getCurrentResearchType() == resType)
     {
         researchButton->setText("");
         researchButton->setProperty("StateImage", inProgressIcon);
+        researchButton->setProperty("StateImageColour", "FFBBBB00");
         researchButton->setEnabled(true);
     }
     else if (queueNumber > 0)
     {
         researchButton->setText(Helper::toString(queueNumber));
         researchButton->setProperty("StateImage", pendingIcon);
+        researchButton->setProperty("StateImageColour", "FFFFFFFF");
         researchButton->setEnabled(true);
     }
     else
