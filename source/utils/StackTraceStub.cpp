@@ -15,26 +15,37 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STACKTRACEPRINT_H
-#define STACKTRACEPRINT_H
+#include "utils/StackTracePrint.h"
 
-#include <string>
+#include <SFML/System.hpp>
 
-class StackTracePrintPrivateData;
-
-//! Class that allows to catch uncaught segfaults and to log the corresponding callstack
-//! This class is a singleton and will throw an exception if created more than once
-//! This class will hook exception when created and release the hook when released. Thus,
-//! it should be instancied as long as segfaults need to be detected.
-class StackTracePrint
+class StackTracePrintPrivateData
 {
 public:
-    StackTracePrint(const std::string& crashFilePath);
-    virtual ~StackTracePrint();
-
-private:
-    //! This class is a singleton and will throw an exception if created more than once
-    static StackTracePrintPrivateData* mPrivateData;
+    StackTracePrintPrivateData()
+    {
+    }
 };
 
-#endif // STACKTRACEPRINT_H
+static sf::Mutex gMutex;
+
+StackTracePrintPrivateData* StackTracePrint::mPrivateData = nullptr;
+
+StackTracePrint::StackTracePrint(const std::string& crashFilePath)
+{
+    sf::Lock lock(gMutex);
+
+    if(mPrivateData != nullptr)
+        throw std::exception();
+
+    mPrivateData = new StackTracePrintPrivateData;
+}
+
+StackTracePrint::~StackTracePrint()
+{
+    if(mPrivateData != nullptr)
+    {
+        delete mPrivateData;
+        mPrivateData = nullptr;
+    }
+}

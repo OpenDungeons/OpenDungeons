@@ -15,11 +15,11 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if defined __MINGW32__
-
-#include "utils/StackTraceWinMinGW.h"
+#include "utils/StackTracePrint.h"
 
 #include <SFML/System.hpp>
+
+#define PACKAGE "OpenDungeon"
 
 #include <windows.h>
 #include <excpt.h>
@@ -56,33 +56,64 @@ struct BfdSearchData
     unsigned int line;
 };
 
+class StackTracePrintPrivateData
+{
+public:
+    StackTracePrintPrivateData(const std::string& crashFilePath) :
+        mCrashFilePath(crashFilePath)
+    {
+        mInstance = this;
+        mExceptionFilterId = SetUnhandledExceptionFilter(exceptionFilter);
+    }
+
+    virtual ~StackTracePrintPrivateData()
+    {
+        if (mExceptionFilterId != nullptr)
+        {
+            SetUnhandledExceptionFilter(mExceptionFilterId);
+            mExceptionFilterId = nullptr;
+        }
+    }
+
+    static LONG WINAPI exceptionFilter(LPEXCEPTION_POINTERS info);
+    static void bfdSectionCallback(bfd* abfd, asection* sec, void* voidData);
+
+    int bfdInitCtx(std::ofstream& crashFile, struct BfdCtx* bfdCtx, const char * procName);
+    void bfdCloseCtx(struct BfdCtx* bfdCtx);
+
+    LPTOP_LEVEL_EXCEPTION_FILTER mExceptionFilterId;
+
+    std::string mCrashFilePath;
+
+    static StackTracePrintPrivateData* mInstance;
+};
+
+StackTracePrintPrivateData* StackTracePrintPrivateData::mInstance = nullptr;
+
 static sf::Mutex gMutex;
 
-StackTraceWinMinGW* StackTraceWinMinGW::mInstance = nullptr;
+StackTracePrintPrivateData* StackTracePrint::mPrivateData = nullptr;
 
-StackTraceWinMinGW::StackTraceWinMinGW(const std::string& crashFilePath) :
-    mExceptionFilterId(nullptr),
-    mCrashFilePath(crashFilePath)
+StackTracePrint::StackTracePrint(const std::string& crashFilePath)
 {
     sf::Lock lock(gMutex);
 
-    if(mInstance != nullptr)
+    if(mPrivateData != nullptr)
         throw std::exception();
 
-    mInstance = this;
-    mExceptionFilterId = SetUnhandledExceptionFilter(exceptionFilter);
+    mPrivateData = new StackTracePrintPrivateData(crashFilePath);
 }
 
-StackTraceWinMinGW::~StackTraceWinMinGW()
+StackTracePrint::~StackTracePrint()
 {
-    if (mExceptionFilterId != nullptr)
+    if(mPrivateData != nullptr)
     {
-        SetUnhandledExceptionFilter(mExceptionFilterId);
-        mExceptionFilterId = nullptr;
+        delete mPrivateData;
+        mPrivateData = nullptr;
     }
 }
 
-void StackTraceWinMinGW::bfdSectionCallback(bfd* abfd, asection* sec, void* voidData)
+void StackTracePrintPrivateData::bfdSectionCallback(bfd* abfd, asection* sec, void* voidData)
 {
 	struct BfdSearchData *data = static_cast<struct BfdSearchData*>(voidData);
 
@@ -107,7 +138,7 @@ void StackTraceWinMinGW::bfdSectionCallback(bfd* abfd, asection* sec, void* void
     data->line = line;
 }
 
-int StackTraceWinMinGW::bfdInitCtx(std::ofstream& crashFile, struct BfdCtx* bfdCtx, const char * procName)
+int StackTracePrintPrivateData::bfdInitCtx(std::ofstream& crashFile, struct BfdCtx* bfdCtx, const char * procName)
 {
     bfdCtx->handle = nullptr;
     bfdCtx->symbol = nullptr;
@@ -150,7 +181,7 @@ int StackTraceWinMinGW::bfdInitCtx(std::ofstream& crashFile, struct BfdCtx* bfdC
     return 0;
 }
 
-void StackTraceWinMinGW::bfdCloseCtx(struct BfdCtx* bfdCtx)
+void StackTracePrintPrivateData::bfdCloseCtx(struct BfdCtx* bfdCtx)
 {
     if(bfdCtx)
     {
@@ -162,7 +193,7 @@ void StackTraceWinMinGW::bfdCloseCtx(struct BfdCtx* bfdCtx)
     }
 }
 
-LONG WINAPI StackTraceWinMinGW::exceptionFilter(LPEXCEPTION_POINTERS info)
+LONG WINAPI StackTracePrintPrivateData::exceptionFilter(LPEXCEPTION_POINTERS info)
 {
     std::ofstream crashFile(mInstance->mCrashFilePath);
 
@@ -277,5 +308,3 @@ LONG WINAPI StackTraceWinMinGW::exceptionFilter(LPEXCEPTION_POINTERS info)
 
     return 0;
 }
-
-#endif // defined __MINGW32__
