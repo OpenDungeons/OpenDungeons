@@ -3069,8 +3069,8 @@ void Creature::refreshCreature(ODPacket& packet)
             continue;
 
         CreatureParticleEffect cpe(effectName, effectScript, nbTurns);
-        mCreatureParticleEffects.push_back(cpe);
         RenderManager::getSingleton().rrCreatureAddParticleEffect(this, cpe);
+        mCreatureParticleEffects.push_back(cpe);
     }
 }
 
