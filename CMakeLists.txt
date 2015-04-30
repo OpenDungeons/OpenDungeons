@@ -588,8 +588,8 @@ endif()
 
 if(WIN32)
     #On windows, use current directory for plugins and data for now
-    set(OD_OGRE_PLUGIN_DIR_REL "plugins")
-    set(OD_OGRE_PLUGIN_DIR_DBG "plugins")
+    set(OD_OGRE_PLUGIN_DIR_REL "")
+    set(OD_OGRE_PLUGIN_DIR_DBG "")
 else()
     set(OD_OGRE_PLUGIN_DIR_REL ${OGRE_PLUGIN_DIR_REL})
     set(OD_OGRE_PLUGIN_DIR_DBG ${OGRE_PLUGIN_DIR_DBG})

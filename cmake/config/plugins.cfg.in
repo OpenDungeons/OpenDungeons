@@ -5,7 +5,7 @@ PluginFolder=@OD_OGRE_PLUGIN_DIR_REL@
 
 # Define plugins
 Plugin=RenderSystem_GL
-#Plugin=Plugin_ParticleFX
+Plugin=Plugin_ParticleFX
 
 #This is a card specific library, installed on some systems but not on others
 #Cg is also obsolete and nonfree
