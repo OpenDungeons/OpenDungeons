@@ -71,7 +71,7 @@ void Tile::destroyMeshLocal()
     if(getGameMap()->isServerGameMap())
         return;
 
-    RenderManager::getSingleton().rrDestroyTile(this);
+    RenderManager::getSingleton().rrDestroyTile(*this);
 }
 
 bool Tile::isBuildableUpon(Seat* seat) const
