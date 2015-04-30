@@ -282,24 +282,13 @@ Command::Result cCreatureVisDebug(const Command::ArgumentList_t& args, ConsoleIn
         return Command::Result::FAILED;
     }
 
-    if (creature->getHasVisualDebuggingEntities())
-    {
-        const std::string& name = creature->getName();
-        ServerConsoleCommand* cc = new SCCDisplayCreatureVisualDebug(name, false);
-        ODServer::getSingleton().queueConsoleCommand(cc);
+    const std::string& name = creature->getName();
+    ServerConsoleCommand* cc = new SCCDisplayCreatureVisualDebug(name);
+    ODServer::getSingleton().queueConsoleCommand(cc);
 
-        c.print("\nVisual debugging entities destroyed for creature: "
-                          + args[1] + "\n");
-    }
-    else
-    {
-        const std::string& name = creature->getName();
-        ServerConsoleCommand* cc = new SCCDisplayCreatureVisualDebug(name, true);
-        ODServer::getSingleton().queueConsoleCommand(cc);
+    c.print("\nVisual debugging entities toggling asked for creature: "
+                      + args[1] + "\n");
 
-        c.print("\nVisual debugging entities created for creature: "
-                          + args[1] + "\n");
-    }
     return Command::Result::SUCCESS;
 }
 

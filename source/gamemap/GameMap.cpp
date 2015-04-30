@@ -2691,12 +2691,13 @@ void GameMap::consoleSetCreatureDestination(const std::string& creatureName, int
     creature->setDestination(tile);
 }
 
-void GameMap::consoleDisplayCreatureVisualDebug(const std::string& creatureName, bool enable)
+void GameMap::consoleToggleCreatureVisualDebug(const std::string& creatureName)
 {
     Creature* creature = getCreature(creatureName);
     if(creature == nullptr)
         return;
 
+    bool enable = !creature->getHasVisualDebuggingEntities();
     if(enable)
         creature->computeVisualDebugEntities();
     else

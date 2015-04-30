@@ -127,10 +127,10 @@ class GameEntity : public EntityBase
     virtual void addToGameMap() = 0;
     virtual void removeFromGameMap() = 0;
 
-    virtual bool getIsOnMap()
+    inline bool getIsOnMap() const
     { return mIsOnMap; }
 
-    virtual void setIsOnMap(bool isOnMap)
+    inline void setIsOnMap(bool isOnMap)
     { mIsOnMap = isOnMap; }
 
     virtual bool tryDrop(Seat* seat, Tile* tile)
