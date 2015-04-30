@@ -176,9 +176,7 @@ void RoomTrainingHall::refreshCreaturesDummies()
 
 bool RoomTrainingHall::hasOpenCreatureSpot(Creature* c)
 {
-    // Creatures can only train to level 10 at a trainingHall.
-    //TODO: Check to see if the trainingHall has been upgraded to allow training to a higher level.
-    if (c->getLevel() > 10)
+    if (c->getLevel() >= ConfigManager::getSingleton().getRoomConfigUInt32("TrainHallMaxTrainingLevel"))
         return false;
 
     // We accept all creatures as soon as there are free dummies
