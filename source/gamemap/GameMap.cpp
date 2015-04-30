@@ -310,7 +310,7 @@ void GameMap::clearAll()
     // We check if the different vectors are empty
     if(!mActiveObjects.empty())
     {
-        OD_ASSERT_TRUE_MSG(false, "mActiveObjects not empty size=" + Helper::toString(mActiveObjects.size()));
+        OD_ASSERT_TRUE_MSG(false, "mActiveObjects not empty size=" + Helper::toString(static_cast<uint32_t>(mActiveObjects.size())));
         for(GameEntity* entity : mActiveObjects)
         {
             OD_ASSERT_TRUE_MSG(false, "entity not removed=" + entity->getName());
@@ -319,7 +319,7 @@ void GameMap::clearAll()
     }
     if(!mActiveObjectsToAdd.empty())
     {
-        OD_ASSERT_TRUE_MSG(false, "mActiveObjectsToAdd not empty size=" + Helper::toString(mActiveObjectsToAdd.size()));
+        OD_ASSERT_TRUE_MSG(false, "mActiveObjectsToAdd not empty size=" + Helper::toString(static_cast<uint32_t>(mActiveObjectsToAdd.size())));
         for(GameEntity* entity : mActiveObjectsToAdd)
         {
             OD_ASSERT_TRUE_MSG(false, "entity not removed=" + entity->getName());
@@ -328,7 +328,7 @@ void GameMap::clearAll()
     }
     if(!mActiveObjectsToRemove.empty())
     {
-        OD_ASSERT_TRUE_MSG(false, "mActiveObjectsToRemove not empty size=" + Helper::toString(mActiveObjectsToRemove.size()));
+        OD_ASSERT_TRUE_MSG(false, "mActiveObjectsToRemove not empty size=" + Helper::toString(static_cast<uint32_t>(mActiveObjectsToRemove.size())));
         for(GameEntity* entity : mActiveObjectsToRemove)
         {
             OD_ASSERT_TRUE_MSG(false, "entity not removed=" + entity->getName());
@@ -337,7 +337,7 @@ void GameMap::clearAll()
     }
     if(!mAnimatedObjects.empty())
     {
-        OD_ASSERT_TRUE_MSG(false, "mAnimatedObjects not empty size=" + Helper::toString(mAnimatedObjects.size()));
+        OD_ASSERT_TRUE_MSG(false, "mAnimatedObjects not empty size=" + Helper::toString(static_cast<uint32_t>(mAnimatedObjects.size())));
         for(GameEntity* entity : mAnimatedObjects)
         {
             OD_ASSERT_TRUE_MSG(false, "entity not removed=" + entity->getName());
@@ -346,7 +346,7 @@ void GameMap::clearAll()
     }
     if(!mEntitiesToDelete.empty())
     {
-        OD_ASSERT_TRUE_MSG(false, "mEntitiesToDelete not empty size=" + Helper::toString(mEntitiesToDelete.size()));
+        OD_ASSERT_TRUE_MSG(false, "mEntitiesToDelete not empty size=" + Helper::toString(static_cast<uint32_t>(mEntitiesToDelete.size())));
         for(GameEntity* entity : mEntitiesToDelete)
         {
             OD_ASSERT_TRUE_MSG(false, "entity not removed=" + entity->getName());
@@ -355,7 +355,7 @@ void GameMap::clearAll()
     }
     if(!mGameEntityClientUpkeep.empty())
     {
-        OD_ASSERT_TRUE_MSG(false, "mGameEntityClientUpkeep not empty size=" + Helper::toString(mGameEntityClientUpkeep.size()));
+        OD_ASSERT_TRUE_MSG(false, "mGameEntityClientUpkeep not empty size=" + Helper::toString(static_cast<uint32_t>(mGameEntityClientUpkeep.size())));
         for(GameEntity* entity : mGameEntityClientUpkeep)
         {
             OD_ASSERT_TRUE_MSG(false, "entity not removed=" + entity->getName());
