@@ -187,7 +187,7 @@ public:
 
     void setSpellCooldownTurns(SpellType spellType, uint32_t cooldown);
 
-    //! Called each turn, it should handle Seat upkeep
+    //! Called each turn, it should handle Player upkeep on server side
     void upkeepPlayer(double timeSinceLastUpkeep);
 
     //! Decreases cooldown for all spells. Used on both server and client sides

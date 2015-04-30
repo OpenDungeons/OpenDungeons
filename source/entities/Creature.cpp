@@ -3045,7 +3045,7 @@ void Creature::refreshCreature(ODPacket& packet)
     OD_ASSERT_TRUE(packet >> nbEffects);
 
     // We copy the list of effects currently on this creature. That will allow to
-    // apply only effects we were not allowed of
+    // check if the effect is already known and only display the effect if it is not
     std::vector<CreatureParticleEffect> currentEffects = mCreatureParticleEffects;
     while(nbEffects > 0)
     {
