@@ -413,6 +413,10 @@ public:
 
     virtual void restoreEntityState() override;
 
+    //! Called on client side and server side. true if the creature is hurt and false
+    //! if at max HP or above
+    bool isHurt() const;
+
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();

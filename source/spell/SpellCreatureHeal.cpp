@@ -62,6 +62,11 @@ int SpellCreatureHeal::getSpellCreatureHealCost(std::vector<EntityBase*>& target
             continue;
         }
 
+        // Only hurt creatures can be healed
+        Creature* creature = static_cast<Creature*>(target);
+        if(!creature->isHurt())
+            continue;
+
         targets.push_back(target);
 
         priceTotal += pricePerTile;

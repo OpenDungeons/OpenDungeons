@@ -4340,6 +4340,17 @@ void Creature::clientUpkeep()
     }
 }
 
+bool Creature::isHurt() const
+{
+    //On server side, we test HP
+    if(getGameMap()->isServerGameMap())
+        return getHP() < getMaxHp();
+
+    // On client side, we test overlay value
+    return mOverlayHealthValue != CreatureOverlayHealthValue::full;
+
+}
+
 void Creature::restoreEntityState()
 {
     MovableGameEntity::restoreEntityState();

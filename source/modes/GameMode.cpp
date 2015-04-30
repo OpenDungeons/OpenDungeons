@@ -398,9 +398,9 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                     break;
                 }
 
+                std::vector<EntityBase*> targets;
+                int price = Spell::getSpellCost(targets, mGameMap, selectedSpellType, tileX1, tileY1, tileX2, tileY2, player);
                 int mana = player->getSeat()->getMana();
-                std::vector<EntityBase*> tiles;
-                int price = Spell::getSpellCost(tiles, mGameMap, selectedSpellType, tileX1, tileY1, tileX2, tileY2, player);
                 const Ogre::ColourValue& textColor = (mana < price) ? red : white;
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
                 textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Spell::getSpellNameFromSpellType(selectedSpellType))
