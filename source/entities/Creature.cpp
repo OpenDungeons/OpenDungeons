@@ -2784,8 +2784,7 @@ bool Creature::handleGetFee(const CreatureAction& actionItem)
                 ODServer::getSingleton().queueServerNotification(serverNotification);
             }
 
-            // We cannot carry more than our fee
-            mGoldCarried = std::min(mGoldCarried + goldTaken, mDefinition->getFee(getLevel()));
+            mGoldCarried += goldTaken;
             if(mGoldFee <= 0)
             {
                 // We were able to take all the gold. We can do something else
