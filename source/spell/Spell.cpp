@@ -98,7 +98,7 @@ Spell* Spell::getSpellFromStream(GameMap* gameMap, std::istream &is)
         case SpellType::nullSpellType:
             return nullptr;
         case SpellType::summonWorker:
-            OD_ASSERT_TRUE_MSG(false, "summonWorker should not be in packet");
+            OD_ASSERT_TRUE_MSG(false, "summonWorker should not be in stream");
             return nullptr;
         case SpellType::callToWar:
             return new SpellCallToWar(gameMap);
