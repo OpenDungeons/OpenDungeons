@@ -21,9 +21,7 @@
 #include "gamemap/MiniMap.h"
 #include "gamemap/MapLoader.h"
 #include "render/ODFrameListener.h"
-#include "utils/LogManager.h"
 #include "render/Gui.h"
-#include "utils/ResourceManager.h"
 #include "render/TextRenderer.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
@@ -40,6 +38,10 @@
 #include "network/ODServer.h"
 #include "ODApplication.h"
 #include "entities/RenderedMovableEntity.h"
+
+#include "utils/LogManager.h"
+#include "utils/ResourceManager.h"
+#include "utils/Helper.h"
 
 #include <OgreEntity.h>
 #include <OgreRoot.h>
@@ -84,43 +86,41 @@ EditorMode::EditorMode(ModeManager* modeManager):
 
     ODFrameListener::getSingleton().getCameraManager()->setDefaultView();
 
-    CEGUI::Window* rootWindow = mRootWindow;
-
     // The Quit menu handlers
     addEventConnection(
-        rootWindow->getChild("ConfirmExit/__auto_closebutton__")->subscribeEvent(
+        mRootWindow->getChild("ConfirmExit/__auto_closebutton__")->subscribeEvent(
             CEGUI::Window::EventMouseClick,
             CEGUI::Event::Subscriber(&EditorMode::hideQuitMenu, this)
     ));
     addEventConnection(
-        rootWindow->getChild("ConfirmExit/NoOption")->subscribeEvent(
+        mRootWindow->getChild("ConfirmExit/NoOption")->subscribeEvent(
             CEGUI::Window::EventMouseClick,
             CEGUI::Event::Subscriber(&EditorMode::hideQuitMenu, this)
     ));
     addEventConnection(
-        rootWindow->getChild("ConfirmExit/YesOption")->subscribeEvent(
+        mRootWindow->getChild("ConfirmExit/YesOption")->subscribeEvent(
             CEGUI::Window::EventMouseClick,
             CEGUI::Event::Subscriber(&EditorMode::onClickYesQuitMenu, this)
     ));
 
     // The options menu handlers
     addEventConnection(
-        rootWindow->getChild("OptionsButton")->subscribeEvent(
+        mRootWindow->getChild("OptionsButton")->subscribeEvent(
             CEGUI::Window::EventMouseClick,
             CEGUI::Event::Subscriber(&EditorMode::toggleOptionsWindow, this)
     ));
     addEventConnection(
-        rootWindow->getChild("EditorOptionsWindow/__auto_closebutton__")->subscribeEvent(
+        mRootWindow->getChild("EditorOptionsWindow/__auto_closebutton__")->subscribeEvent(
             CEGUI::Window::EventMouseClick,
             CEGUI::Event::Subscriber(&EditorMode::toggleOptionsWindow, this)
     ));
     addEventConnection(
-        rootWindow->getChild("EditorOptionsWindow/SaveLevelButton")->subscribeEvent(
+        mRootWindow->getChild("EditorOptionsWindow/SaveLevelButton")->subscribeEvent(
             CEGUI::Window::EventMouseClick,
             CEGUI::Event::Subscriber(&EditorMode::onSaveButtonClickFromOptions, this)
     ));
     addEventConnection(
-        rootWindow->getChild("EditorOptionsWindow/QuitEditorButton")->subscribeEvent(
+        mRootWindow->getChild("EditorOptionsWindow/QuitEditorButton")->subscribeEvent(
             CEGUI::Window::EventMouseClick,
             CEGUI::Event::Subscriber(&EditorMode::showQuitMenuFromOptions, this)
     ));
@@ -136,6 +136,8 @@ EditorMode::EditorMode(ModeManager* modeManager):
     connectTileSelect(Gui::EDITOR_LAVA_BUTTON,TileVisual::lavaGround);
     connectTileSelect(Gui::EDITOR_ROCK_BUTTON,TileVisual::rockGround);
     connectTileSelect(Gui::EDITOR_WATER_BUTTON,TileVisual::waterGround);
+
+    updateFlagColor();
 }
 
 EditorMode::~EditorMode()
@@ -727,6 +729,7 @@ bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
     case OIS::KC_Y:
         mCurrentSeatId = mGameMap->nextSeatId(mCurrentSeatId);
         updateCursorText();
+        updateFlagColor();
         break;
 
     //Toggle mCurrentCreatureIndex
@@ -992,4 +995,10 @@ void EditorMode::connectTileSelect(const std::string& buttonName, TileVisual til
           CEGUI::Event::Subscriber(TileSelector{tileVisual, mPlayerSelection, *this})
         )
     );
+}
+
+void EditorMode::updateFlagColor()
+{
+    std::string colorStr = Helper::getImageColoursStringFromColourValue(mGameMap->getSeatById(mCurrentSeatId)->getColorValue());
+    mRootWindow->getChild("HorizontalPipe/SeatIdDisplay/Icon")->setProperty("ImageColours", colorStr);
 }

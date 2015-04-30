@@ -166,4 +166,11 @@ namespace Helper
                                 + Helper::intTo2Hex(static_cast<int>(color.b * 255.0f));
         return colourStr;
     }
+
+    std::string getImageColoursStringFromColourValue(const Ogre::ColourValue& color)
+    {
+        std::string colourStr = Helper::getCEGUIColorFromOgreColourValue(color);
+        std::string imageColours = "tl:" + colourStr + " tr:" + colourStr + " bl:" + colourStr + " br:" + colourStr;
+        return imageColours;
+    }
 } // namespace Helper
