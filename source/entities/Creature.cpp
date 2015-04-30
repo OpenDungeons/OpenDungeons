@@ -588,6 +588,23 @@ void Creature::setPosition(const Ogre::Vector3& v, bool isMove)
 void Creature::drop(const Ogre::Vector3& v)
 {
     setIsOnMap(true);
+    if(!getGameMap()->isServerGameMap())
+    {
+        const double offset = 0.3;
+        Ogre::Vector3 vRandom(v);
+        if(v.x > 0)
+            vRandom.x += Random::Double(-offset, offset);
+
+        if(v.y > 0)
+            vRandom.y += Random::Double(-offset, offset);
+
+        if(v.z > 0)
+            vRandom.z += Random::Double(-offset, offset);
+
+        setPosition(vRandom, false);
+        return;
+    }
+
     setPosition(v, false);
     mForceAction = forcedActionSearchAction;
     if(getHasVisualDebuggingEntities())
@@ -3504,11 +3521,6 @@ void Creature::receiveExp(double experience)
     mExp += experience;
 }
 
-bool Creature::getHasVisualDebuggingEntities()
-{
-    return mHasVisualDebuggingEntities;
-}
-
 bool Creature::isActionInList(CreatureActionType action)
 {
     for (std::deque<CreatureAction>::iterator it = mActionQueue.begin(); it != mActionQueue.end(); ++it)
@@ -3581,6 +3593,9 @@ void Creature::pickup()
     Tile* tile = getPositionTile();
     if(tile != nullptr)
         tile->removeEntity(this);
+
+    if(!getGameMap()->isServerGameMap())
+        return;
 
     if(getHasVisualDebuggingEntities())
         computeVisualDebugEntities();
@@ -4357,6 +4372,29 @@ void Creature::restoreEntityState()
     {
         RenderManager::getSingleton().rrCreatureAddParticleEffect(this, cpe);
     }
+}
+
+void Creature::addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z)
+{
+    const double offset = 0.3;
+    if(getGameMap()->isServerGameMap())
+    {
+        MovableGameEntity::addDestination(x, y, z);
+        return;
+    }
+
+    if(x > 0)
+        x += Random::Double(-offset, offset);
+
+    if(y > 0)
+        y += Random::Double(-offset, offset);
+
+    if(z > 0)
+        z += Random::Double(-offset, offset);
+
+    Ogre::Vector3 destination(x, y, z);
+
+    mWalkQueue.push_back(destination);
 }
 
 ODPacket& operator<<(ODPacket& os, const CreatureOverlayHealthValue& value)

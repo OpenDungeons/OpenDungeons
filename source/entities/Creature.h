@@ -295,7 +295,8 @@ public:
     void destroyVisualDebugEntities();
 
     //! \brief An accessor to return whether or not the creature has OGRE entities for its visual debugging entities.
-    bool getHasVisualDebuggingEntities();
+    inline bool getHasVisualDebuggingEntities() const
+    { return mHasVisualDebuggingEntities; }
 
     virtual const Ogre::Vector3& getScale() const
     { return mScale; }
@@ -412,6 +413,8 @@ public:
     virtual void clientUpkeep() override;
 
     virtual void restoreEntityState() override;
+
+    void addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z = 0.0f) override;
 
     //! Called on client side and server side. true if the creature is hurt and false
     //! if at max HP or above
