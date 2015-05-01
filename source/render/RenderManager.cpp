@@ -182,7 +182,7 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     //up the lighing for some of the rtshader materials.
     Ogre::SceneNode* dummyNode = mHandKeeperMesh->createChildSceneNode("Dummy_node");
     dummyNode->setScale(Ogre::Vector3(0.00000001f, 0.00000001f, 0.00000001f));
-    Ogre::Entity* dummyEnt = mSceneManager->createEntity("Dirt_00000000.mesh");
+    Ogre::Entity* dummyEnt = mSceneManager->createEntity("Dirt_fl_0000.mesh");
     dummyEnt->setLightMask(0);
     dummyEnt->setCastShadows(false);
     dummyNode->attachObject(dummyEnt);
