@@ -919,6 +919,10 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
         saveGame();
         break;
 
+    case OIS::KC_F9:
+        RenderManager::getSingleton().rrToggleHandSelectorVisibility();
+        break;
+
     case OIS::KC_F10:
         toggleOptionsWindow();
         break;

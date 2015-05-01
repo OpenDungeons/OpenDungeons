@@ -85,7 +85,9 @@ RenderManager::RenderManager(Ogre::OverlaySystem* overlaySystem) :
     mCurrentFOVy(0.0f),
     mFactorWidth(0.0f),
     mFactorHeight(0.0f),
-    mCreatureTextOverlayDisplayed(false)
+    mCreatureTextOverlayDisplayed(false),
+    mHandSquareSelectorVisibility(0),
+    mHandKeeperHandVisibility(0)
 {
     // Use Ogre::SceneType enum instead of string to identify the scene manager type; this is more robust!
     mSceneManager = Ogre::Root::getSingleton().createSceneManager(Ogre::ST_INTERIOR, "SceneManager");
@@ -192,6 +194,9 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     mHandLight->setSpecularColour(Ogre::ColourValue(0.65, 0.65, 0.45));
     mHandLight->setPosition(0.0f, 0.0f, KEEPER_HAND_WORLD_Z);
     mHandLight->setAttenuation(7, 1.0, 0.00, 0.3);
+
+    mHandSquareSelectorNode->setVisible(mHandSquareSelectorVisibility == 0);
+    mHandKeeperMesh->setVisible(mHandKeeperHandVisibility == 0);
 }
 
 void RenderManager::updateRenderAnimations(Ogre::Real timeSinceLastFrame)
@@ -1060,6 +1065,22 @@ void RenderManager::rrSetCreaturesTextOverlay(GameMap& gameMap, bool value)
 void RenderManager::rrTemporaryDisplayCreaturesTextOverlay(Creature* creature, Ogre::Real timeToDisplay)
 {
     creature->getOverlayStatus()->setTemporaryDisplayTime(timeToDisplay);
+}
+
+void RenderManager::rrToggleHandSelectorVisibility()
+{
+    if((mHandSquareSelectorVisibility & 0x01) == 0)
+        mHandSquareSelectorVisibility |= 0x01;
+    else
+        mHandSquareSelectorVisibility &= ~0x01;
+
+    if((mHandKeeperHandVisibility & 0x01) == 0)
+        mHandKeeperHandVisibility |= 0x01;
+    else
+        mHandKeeperHandVisibility &= ~0x01;
+
+    mHandSquareSelectorNode->setVisible(mHandSquareSelectorVisibility == 0);
+    mHandKeeperMesh->setVisible(mHandKeeperHandVisibility == 0);
 }
 
 void RenderManager::setEntityOpacity(Ogre::Entity* ent, float opacity)

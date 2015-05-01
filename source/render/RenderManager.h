@@ -122,6 +122,7 @@ public:
     void rrReleaseCarriedEntity(Creature* carrier, GameEntity* carried);
     void rrCreatureAddParticleEffect(Creature* creature, CreatureParticleEffect& cpe);
     void rrCreatureRemoveParticleEffect(Creature* creature, const CreatureParticleEffect& cpe);
+    void rrToggleHandSelectorVisibility();
 
     //! \brief Toggles the creatures text overlay
     void rrSetCreaturesTextOverlay(GameMap& gameMap, bool value);
@@ -172,6 +173,10 @@ private:
 
     //! \brief True if the creatures are currently displaying their text overlay
     bool mCreatureTextOverlayDisplayed;
+
+    //! Bit array to allow to display tile selector/hand (= 0) or not (!= 0)
+    uint32_t mHandSquareSelectorVisibility;
+    uint32_t mHandKeeperHandVisibility;
 };
 
 #endif // RENDERMANAGER_H
