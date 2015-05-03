@@ -30,6 +30,7 @@
 #include "spell/SpellCallToWar.h"
 #include "spell/SpellCreatureHeal.h"
 #include "spell/SpellCreatureExplode.h"
+#include "spell/SpellManager.h"
 #include "spell/SpellType.h"
 
 #include "utils/Helper.h"
@@ -160,7 +161,7 @@ int Spell::getSpellCost(std::vector<EntityBase*>& targets, GameMap* gameMap, Spe
             return 0;
 
         case SpellType::summonWorker:
-            return SpellSummonWorker::getSpellSummonWorkerCost(targets, gameMap, type,
+            return SpellManager::getSpellCost(targets, gameMap, type,
                 tileX1, tileY1, tileX2, tileY2, player);
 
         case SpellType::callToWar:
@@ -193,7 +194,7 @@ void Spell::castSpell(GameMap* gameMap, SpellType type, const std::vector<Entity
         }
         case SpellType::summonWorker:
         {
-            SpellSummonWorker::castSpellSummonWorker(gameMap, targets, player);
+            SpellManager::castSpell(gameMap, type, targets, player);
             break;
         }
         case SpellType::callToWar:
@@ -203,7 +204,7 @@ void Spell::castSpell(GameMap* gameMap, SpellType type, const std::vector<Entity
         }
         case SpellType::creatureHeal:
         {
-            SpellCreatureHeal::castSpellCreatureHeal(gameMap, targets, player);
+//            SpellManager::castSpell(gameMap, type, targets, player);
             break;
         }
         case SpellType::creatureExplode:

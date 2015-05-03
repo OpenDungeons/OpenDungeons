@@ -26,7 +26,12 @@ class ODPacket;
 enum class SpellType;
 
 /*! \class Spell
- *  \brief Defines a spell
+ *  \brief Defines a spell. To be usable in game, a spell must register by creating a global class SpellManagerRegister.
+ *         A Spell have to have the following static functions (otherwise, it won't be registrable):
+ *         - getSpellCost
+ *         - castSpell
+ *         - getSpellFromStream
+ *         - getSpellFromPacket
  */
 class Spell : public RenderedMovableEntity
 {

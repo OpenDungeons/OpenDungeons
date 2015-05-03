@@ -28,12 +28,15 @@
 #include "gamemap/GameMap.h"
 
 #include "spell/SpellType.h"
+#include "spell/SpellManager.h"
 
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
 #include <OgreStringConverter.h>
+
+SpellManagerRegister<SpellSummonWorker> reg(SpellType::summonWorker);
 
 int SpellSummonWorker::getSpellSummonWorkerCost(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
     int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
