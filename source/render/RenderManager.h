@@ -92,9 +92,9 @@ public:
     static std::string consoleListAnimationsForMesh(const std::string& meshName);
 
     //Render request functions
-    void rrRefreshTile(const Tile& curTile, const GameMap& gameMap, const Player& localPlayer);
-    void rrCreateTile(Tile& curTile, const GameMap& gameMap, const Player& localPlayer);
-    void rrDestroyTile(Tile* curTile);
+    void rrRefreshTile(const Tile& tile, const GameMap& gameMap, const Player& localPlayer);
+    void rrCreateTile(Tile& tile, const GameMap& gameMap, const Player& localPlayer);
+    void rrDestroyTile(Tile& tile);
     void rrTemporalMarkTile(Tile* curTile);
     void rrCreateRenderedMovableEntity(RenderedMovableEntity* curRenderedMovableEntity);
     void rrDestroyRenderedMovableEntity(RenderedMovableEntity* curRenderedMovableEntity);
@@ -122,6 +122,7 @@ public:
     void rrReleaseCarriedEntity(Creature* carrier, GameEntity* carried);
     void rrCreatureAddParticleEffect(Creature* creature, CreatureParticleEffect& cpe);
     void rrCreatureRemoveParticleEffect(Creature* creature, const CreatureParticleEffect& cpe);
+    void rrToggleHandSelectorVisibility();
 
     //! \brief Toggles the creatures text overlay
     void rrSetCreaturesTextOverlay(GameMap& gameMap, bool value);
@@ -172,6 +173,10 @@ private:
 
     //! \brief True if the creatures are currently displaying their text overlay
     bool mCreatureTextOverlayDisplayed;
+
+    //! Bit array to allow to display tile selector/hand (= 0) or not (!= 0)
+    uint32_t mHandSquareSelectorVisibility;
+    uint32_t mHandKeeperHandVisibility;
 };
 
 #endif // RENDERMANAGER_H

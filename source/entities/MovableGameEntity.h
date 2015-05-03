@@ -40,7 +40,7 @@ public:
      *
      * This function also notify the server so that relevant clients are informed about the change.
      */
-    void addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z = 0.0);
+    virtual void addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z = 0.0);
 
     //! \brief Checks if the destination queue is empty
     bool isMoving();

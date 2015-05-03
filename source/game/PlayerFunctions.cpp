@@ -252,7 +252,7 @@ void Player::notifyNoTreasuryAvailable()
         std::string chatMsg = "No treasury available. You should build a bigger one";
         ServerNotification *serverNotification = new ServerNotification(
             ServerNotificationType::chatServer, this);
-        serverNotification->mPacket << chatMsg;
+        serverNotification->mPacket << chatMsg << EventShortNoticeType::genericGameInfo;
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 }

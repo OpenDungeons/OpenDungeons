@@ -85,7 +85,9 @@ RenderManager::RenderManager(Ogre::OverlaySystem* overlaySystem) :
     mCurrentFOVy(0.0f),
     mFactorWidth(0.0f),
     mFactorHeight(0.0f),
-    mCreatureTextOverlayDisplayed(false)
+    mCreatureTextOverlayDisplayed(false),
+    mHandSquareSelectorVisibility(0),
+    mHandKeeperHandVisibility(0)
 {
     // Use Ogre::SceneType enum instead of string to identify the scene manager type; this is more robust!
     mSceneManager = Ogre::Root::getSingleton().createSceneManager(Ogre::ST_INTERIOR, "SceneManager");
@@ -180,7 +182,7 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     //up the lighing for some of the rtshader materials.
     Ogre::SceneNode* dummyNode = mHandKeeperMesh->createChildSceneNode("Dummy_node");
     dummyNode->setScale(Ogre::Vector3(0.00000001f, 0.00000001f, 0.00000001f));
-    Ogre::Entity* dummyEnt = mSceneManager->createEntity("Dirt_00000000.mesh");
+    Ogre::Entity* dummyEnt = mSceneManager->createEntity("Dirt_fl_0000.mesh");
     dummyEnt->setLightMask(0);
     dummyEnt->setCastShadows(false);
     dummyNode->attachObject(dummyEnt);
@@ -192,6 +194,9 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     mHandLight->setSpecularColour(Ogre::ColourValue(0.65, 0.65, 0.45));
     mHandLight->setPosition(0.0f, 0.0f, KEEPER_HAND_WORLD_Z);
     mHandLight->setAttenuation(7, 1.0, 0.00, 0.3);
+
+    mHandSquareSelectorNode->setVisible(mHandSquareSelectorVisibility == 0);
+    mHandKeeperMesh->setVisible(mHandKeeperHandVisibility == 0);
 }
 
 void RenderManager::updateRenderAnimations(Ogre::Real timeSinceLastFrame)
@@ -210,16 +215,16 @@ void RenderManager::updateRenderAnimations(Ogre::Real timeSinceLastFrame)
 
 }
 
-void RenderManager::rrRefreshTile(const Tile& curTile, const GameMap& gameMap, const Player& localPlayer)
+void RenderManager::rrRefreshTile(const Tile& tile, const GameMap& gameMap, const Player& localPlayer)
 {
-    std::string tileName = curTile.getOgreNamePrefix() + curTile.getName();
-    if (curTile.getEntityNode() == nullptr)
+    if (tile.getEntityNode() == nullptr)
         return;
 
+    std::string tileName = tile.getOgreNamePrefix() + tile.getName();
     Ogre::Vector3 scale;
-    std::string meshName = curTile.getMeshName();
+    std::string meshName = tile.getMeshName();
     const Seat* seatColorize = nullptr;
-    const TileSetValue& tileSetValue = gameMap.getMeshForTile(&curTile);
+    const TileSetValue& tileSetValue = gameMap.getMeshForTile(&tile);
     bool isCustomMesh = false;
     if(meshName.empty())
     {
@@ -231,7 +236,7 @@ void RenderManager::rrRefreshTile(const Tile& curTile, const GameMap& gameMap, c
     {
         //Tile has a covering building.
         isCustomMesh = true;
-        scale = curTile.getScale();
+        scale = tile.getScale();
     }
 
     bool newMesh = false;
@@ -299,84 +304,86 @@ void RenderManager::rrRefreshTile(const Tile& curTile, const GameMap& gameMap, c
         // On client side, the seat is set only when the tile is claimed. So, if the
         // seat is not nullptr, we are sure it is fully claimed and we can colorize
         // the tile
-        seatColorize = curTile.getSeat();
+        seatColorize = tile.getSeat();
     }
 
     // We only mark vision on ground tiles (except lava and water)
     bool vision = true;
-    switch(curTile.getTileVisual())
+    switch(tile.getTileVisual())
     {
         case TileVisual::claimedGround:
         case TileVisual::dirtGround:
         case TileVisual::goldGround:
         case TileVisual::rockGround:
-            vision = curTile.getLocalPlayerHasVision();
+            vision = tile.getLocalPlayerHasVision();
             break;
         default:
             break;
     }
 
-    bool isMarked = curTile.getMarkedForDigging(&localPlayer);
+    bool isMarked = tile.getMarkedForDigging(&localPlayer);
     colourizeEntity(ent, seatColorize, isMarked, vision);
 }
 
-void RenderManager::rrCreateTile(Tile& curTile, const GameMap& gameMap, const Player& localPlayer)
+void RenderManager::rrCreateTile(Tile& tile, const GameMap& gameMap, const Player& localPlayer)
 {
-    std::string tileName = curTile.getOgreNamePrefix() + curTile.getName();
+    std::string tileName = tile.getOgreNamePrefix() + tile.getName();
     Ogre::SceneNode* node = mSceneManager->getRootSceneNode()->createChildSceneNode(tileName + "_node");
-    curTile.setParentSceneNode(node->getParentSceneNode());
-    curTile.setEntityNode(node);
-    node->setPosition(static_cast<Ogre::Real>(curTile.getX()), static_cast<Ogre::Real>(curTile.getY()), 0);
+    tile.setParentSceneNode(node->getParentSceneNode());
+    tile.setEntityNode(node);
+    node->setPosition(static_cast<Ogre::Real>(tile.getX()), static_cast<Ogre::Real>(tile.getY()), 0);
 
-    rrRefreshTile(curTile, gameMap, localPlayer);
+    rrRefreshTile(tile, gameMap, localPlayer);
 }
 
-void RenderManager::rrDestroyTile(Tile* curTile)
+void RenderManager::rrDestroyTile(Tile& tile)
 {
-    if (mSceneManager->hasEntity(curTile->getOgreNamePrefix() + curTile->getName()))
+    if (tile.getEntityNode() == nullptr)
+        return;
+
+    Ogre::Entity* ent = mSceneManager->getEntity(tile.getOgreNamePrefix() + tile.getName());
+    std::string selectorName = ent->getName() + "_selection_indicator";
+    if(mSceneManager->hasEntity(selectorName))
     {
-        Ogre::Entity* ent = mSceneManager->getEntity(curTile->getOgreNamePrefix() + curTile->getName());
-        Ogre::SceneNode* node = mSceneManager->getSceneNode(curTile->getOgreNamePrefix() + curTile->getName() + "_node");
-        node->detachAllObjects();
-        mSceneManager->destroySceneNode(node->getName());
-        mSceneManager->destroyEntity(ent);
-        curTile->setParentSceneNode(nullptr);
-        curTile->setEntityNode(nullptr);
+        Ogre::SceneNode* selectorNode = mSceneManager->getSceneNode(selectorName + "Node");
+        Ogre::Entity* selectorEnt = mSceneManager->getEntity(selectorName);
+        tile.getEntityNode()->removeChild(selectorNode);
+        selectorNode->detachObject(selectorEnt);
+        mSceneManager->destroySceneNode(selectorNode);
+        mSceneManager->destroyEntity(selectorEnt);
     }
+    tile.getEntityNode()->detachObject(ent);
+    mSceneManager->destroySceneNode(tile.getEntityNode());
+    mSceneManager->destroyEntity(ent);
+    tile.setParentSceneNode(nullptr);
+    tile.setEntityNode(nullptr);
 }
 
 void RenderManager::rrTemporalMarkTile(Tile* curTile)
 {
     Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
     Ogre::Entity* ent;
-    std::stringstream ss;
-    std::stringstream ss2;
 
     bool bb = curTile->getSelected();
 
-    ss.str(std::string());
-    ss << curTile->getOgreNamePrefix();
-    ss << curTile->getName();
-    ss << "_selection_indicator";
-
-    if (mSceneMgr->hasEntity(ss.str()))
+    std::string tileName = curTile->getOgreNamePrefix() + curTile->getName();
+    std::string selectorName = tileName + "_selection_indicator";
+    if (mSceneMgr->hasEntity(selectorName))
     {
-        ent = mSceneMgr->getEntity(ss.str());
+        ent = mSceneMgr->getEntity(selectorName);
     }
     else
     {
-        ss2.str(std::string());
-        ss2 << curTile->getOgreNamePrefix();
-        ss2 << curTile->getName();
-        ss2 << "_node";
-        ent = mSceneMgr->createEntity(ss.str(), "SquareSelector.mesh");
+        std::string tileNodeName = tileName + "_node";
+        ent = mSceneMgr->createEntity(selectorName, "SquareSelector.mesh");
         ent->setLightMask(0);
         ent->setCastShadows(false);
-        Ogre::SceneNode* node = mSceneManager->getSceneNode(ss2.str())->createChildSceneNode(ss.str()+"Node");
-        node->setInheritScale(false);
-        node->scale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,
+        Ogre::SceneNode* tileNode = mSceneManager->getSceneNode(tileNodeName);
+        Ogre::SceneNode* selectorNode = tileNode->createChildSceneNode(selectorName + "Node");
+        selectorNode->setInheritScale(false);
+        selectorNode->scale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,
                                   BLENDER_UNITS_PER_OGRE_UNIT, 0.45 * BLENDER_UNITS_PER_OGRE_UNIT));
-        node->attachObject(ent);
+        selectorNode->attachObject(ent);
     }
 
     ent->setVisible(bb);
@@ -1058,6 +1065,22 @@ void RenderManager::rrSetCreaturesTextOverlay(GameMap& gameMap, bool value)
 void RenderManager::rrTemporaryDisplayCreaturesTextOverlay(Creature* creature, Ogre::Real timeToDisplay)
 {
     creature->getOverlayStatus()->setTemporaryDisplayTime(timeToDisplay);
+}
+
+void RenderManager::rrToggleHandSelectorVisibility()
+{
+    if((mHandSquareSelectorVisibility & 0x01) == 0)
+        mHandSquareSelectorVisibility |= 0x01;
+    else
+        mHandSquareSelectorVisibility &= ~0x01;
+
+    if((mHandKeeperHandVisibility & 0x01) == 0)
+        mHandKeeperHandVisibility |= 0x01;
+    else
+        mHandKeeperHandVisibility &= ~0x01;
+
+    mHandSquareSelectorNode->setVisible(mHandSquareSelectorVisibility == 0);
+    mHandKeeperMesh->setVisible(mHandKeeperHandVisibility == 0);
 }
 
 void RenderManager::setEntityOpacity(Ogre::Entity* ent, float opacity)

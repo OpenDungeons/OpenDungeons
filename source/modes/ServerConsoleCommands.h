@@ -87,20 +87,18 @@ private:
 class SCCDisplayCreatureVisualDebug : public ServerConsoleCommand
 {
 public:
-    SCCDisplayCreatureVisualDebug(const std::string& creatureName, bool enable):
-        mCreatureName(creatureName),
-        mEnable(enable)
+    SCCDisplayCreatureVisualDebug(const std::string& creatureName):
+        mCreatureName(creatureName)
     {
     }
 
 protected:
     virtual void execute(GameMap* gameMap)
     {
-        gameMap->consoleDisplayCreatureVisualDebug(mCreatureName, mEnable);
+        gameMap->consoleToggleCreatureVisualDebug(mCreatureName);
     }
 private:
     std::string mCreatureName;
-    bool mEnable;
 };
 
 class SCCDisplaySeatVisualDebug : public ServerConsoleCommand
