@@ -1,0 +1,23 @@
+material SpellCreatureHeal
+{
+    technique
+    {
+        pass
+        {
+            lighting off
+            scene_blend add
+            depth_write off
+            diffuse vertexcolour
+
+            point_sprites on
+            point_size 1
+            point_size_attenuation on
+
+            texture_unit
+            {
+                texture flare.png
+            }
+        }
+    }
+}
+

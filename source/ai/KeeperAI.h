@@ -25,7 +25,7 @@ class KeeperAI : public BaseAI
 
 public:
     KeeperAI(GameMap& gameMap, Player& player, const std::string& parameters = std::string());
-    virtual bool doTurn(double frameTime);
+    virtual bool doTurn(double timeSinceLastTurn);
 
 protected:
     //! \brief Checks if the AI has a treasury. If not, we search for the first available tile

@@ -28,6 +28,8 @@
 
 #include "spell/SpellSummonWorker.h"
 #include "spell/SpellCallToWar.h"
+#include "spell/SpellCreatureHeal.h"
+#include "spell/SpellCreatureExplode.h"
 #include "spell/SpellType.h"
 
 #include "utils/Helper.h"
@@ -74,13 +76,14 @@ void Spell::removeFromGameMap()
     setIsOnMap(false);
     getGameMap()->removeAnimatedObject(this);
 
+    Tile* posTile = getPositionTile();
+    if(posTile != nullptr)
+        posTile->removeEntity(this);
+
     if(!getGameMap()->isServerGameMap())
         return;
 
     fireRemoveEntityToSeatsWithVision();
-    Tile* posTile = getPositionTile();
-    if(posTile != nullptr)
-        posTile->removeEntity(this);
 
     getGameMap()->removeActiveObject(this);
 }
@@ -135,19 +138,21 @@ std::string Spell::getSpellNameFromSpellType(SpellType type)
     {
         case SpellType::nullSpellType:
             return "NullSpellType";
-
         case SpellType::summonWorker:
             return "SummonWorker";
-
         case SpellType::callToWar:
             return "callToWar";
-
+        case SpellType::creatureHeal:
+            return "creatureHeal";
+        case SpellType::creatureExplode:
+            return "creatureExplode";
         default:
             return "UnknownSpellType=" + Helper::toString(static_cast<int32_t>(type));
     }
 }
 
-int Spell::getSpellCost(GameMap* gameMap, SpellType type, const std::vector<Tile*>& tiles, Player* player)
+int Spell::getSpellCost(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
+        int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
 {
     switch (type)
     {
@@ -155,10 +160,20 @@ int Spell::getSpellCost(GameMap* gameMap, SpellType type, const std::vector<Tile
             return 0;
 
         case SpellType::summonWorker:
-            return SpellSummonWorker::getSpellSummonWorkerCost(gameMap, tiles, player);
+            return SpellSummonWorker::getSpellSummonWorkerCost(targets, gameMap, type,
+                tileX1, tileY1, tileX2, tileY2, player);
 
         case SpellType::callToWar:
-            return SpellCallToWar::getSpellCallToWarCost(gameMap, tiles, player);
+            return SpellCallToWar::getSpellCallToWarCost(targets, gameMap, type,
+                tileX1, tileY1, tileX2, tileY2, player);
+
+        case SpellType::creatureHeal:
+            return SpellCreatureHeal::getSpellCreatureHealCost(targets, gameMap, type,
+                tileX1, tileY1, tileX2, tileY2, player);
+
+        case SpellType::creatureExplode:
+            return SpellCreatureExplode::getSpellCreatureExplodeCost(targets, gameMap, type,
+                tileX1, tileY1, tileX2, tileY2, player);
 
         default:
             OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(
@@ -167,7 +182,7 @@ int Spell::getSpellCost(GameMap* gameMap, SpellType type, const std::vector<Tile
     }
 }
 
-void Spell::castSpell(GameMap* gameMap, SpellType type, const std::vector<Tile*>& tiles, Player* player)
+void Spell::castSpell(GameMap* gameMap, SpellType type, const std::vector<EntityBase*>& targets, Player* player)
 {
     switch (type)
     {
@@ -176,19 +191,26 @@ void Spell::castSpell(GameMap* gameMap, SpellType type, const std::vector<Tile*>
             OD_ASSERT_TRUE_MSG(false, "Wrong spell casted by " + player->getNick());
             break;
         }
-
         case SpellType::summonWorker:
         {
-            SpellSummonWorker::castSpellSummonWorker(gameMap, tiles, player);
+            SpellSummonWorker::castSpellSummonWorker(gameMap, targets, player);
             break;
         }
-
         case SpellType::callToWar:
         {
-            SpellCallToWar::castSpellCallToWar(gameMap, tiles, player);
+            SpellCallToWar::castSpellCallToWar(gameMap, targets, player);
             break;
         }
-
+        case SpellType::creatureHeal:
+        {
+            SpellCreatureHeal::castSpellCreatureHeal(gameMap, targets, player);
+            break;
+        }
+        case SpellType::creatureExplode:
+        {
+            SpellCreatureExplode::castSpellCreatureExplode(gameMap, targets, player);
+            break;
+        }
         default:
         {
             OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(

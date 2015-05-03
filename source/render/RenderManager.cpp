@@ -49,6 +49,7 @@
 #include <OgreSkeleton.h>
 #include <OgreSkeletonInstance.h>
 #include <OgreMaterialManager.h>
+#include <OgreParticleSystem.h>
 #include <OgreTechnique.h>
 #include <OgreSubEntity.h>
 #include <OgreSceneManager.h>
@@ -152,6 +153,8 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     node2->scale(Ogre::Vector3(static_cast<Ogre::Real>(1.0 / BLENDER_UNITS_PER_OGRE_UNIT),
                                static_cast<Ogre::Real>(1.0 / BLENDER_UNITS_PER_OGRE_UNIT),
                                static_cast<Ogre::Real>(1.0 / BLENDER_UNITS_PER_OGRE_UNIT)));
+
+    Ogre::ParticleSystem::setDefaultNonVisibleUpdateTimeout(5);
 
     Ogre::Entity* keeperHandEnt = mSceneManager->createEntity("keeperHandEnt", "Keeperhand.mesh");
     keeperHandEnt->setLightMask(0);
@@ -509,17 +512,19 @@ void RenderManager::rrDestroyCreature(Creature* curCreature)
         curCreature->setOverlayStatus(nullptr);
     }
 
+    curCreature->clearParticleSystems();
+
     std::string creatureName = curCreature->getOgreNamePrefix() + curCreature->getName();
     if (mSceneManager->hasEntity(creatureName))
     {
+        Ogre::SceneNode* creatureNode = curCreature->getEntityNode();
         Ogre::Entity* ent = mSceneManager->getEntity(creatureName);
-        Ogre::SceneNode* node = mSceneManager->getSceneNode(creatureName + "_node");
-        node->detachObject(ent);
-        mCreatureSceneNode->removeChild(node);
+        creatureNode->detachObject(ent);
+        mCreatureSceneNode->removeChild(creatureNode);
         curCreature->setParentSceneNode(nullptr);
         curCreature->setEntityNode(nullptr);
         mSceneManager->destroyEntity(ent);
-        mSceneManager->destroySceneNode(node->getName());
+        mSceneManager->destroySceneNode(creatureNode->getName());
     }
 }
 
@@ -865,6 +870,25 @@ void RenderManager::rrMoveMapLightFlicker(MapLight* mapLight, const Ogre::Vector
         return;
 
     mapLight->getFlickerNode()->setPosition(position);
+}
+
+void RenderManager::rrCreatureAddParticleEffect(Creature* creature, CreatureParticleEffect& cpe)
+{
+    Ogre::SceneNode* node = creature->getEntityNode();
+    if(!cpe.mScript.empty())
+        cpe.mParticleSystem = mSceneManager->createParticleSystem(cpe.mName, cpe.mScript);
+
+    node->attachObject(cpe.mParticleSystem);
+}
+
+void RenderManager::rrCreatureRemoveParticleEffect(Creature* creature, const CreatureParticleEffect& cpe)
+{
+    if(cpe.mParticleSystem == nullptr)
+        return;
+
+    Ogre::SceneNode* node = creature->getEntityNode();
+    node->detachObject(cpe.mParticleSystem);
+    mSceneManager->destroyParticleSystem(cpe.mParticleSystem);
 }
 
 std::string RenderManager::consoleListAnimationsForMesh(const std::string& meshName)

@@ -35,7 +35,7 @@ public:
     virtual ~AIManager();
 
     bool assignAI(Player& player, const std::string& type, const std::string& params = std::string());
-    bool doTurn(double frameTime);
+    bool doTurn(double timeSinceLastTurn);
     void clearAIList();
 
 private:

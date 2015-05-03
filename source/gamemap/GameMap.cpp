@@ -169,7 +169,6 @@ GameMap::GameMap(bool isServerGameMap) :
 GameMap::~GameMap()
 {
     clearAll();
-    processDeletionQueues();
 }
 
 std::string GameMap::serverStr()
@@ -292,8 +291,6 @@ void GameMap::clearAll()
     clearTiles();
     clearCreatureMoodModifiers();
 
-    clearActiveObjects();
-
     clearGoalsForAllSeats();
     clearSeats();
     mLocalPlayer = nullptr;
@@ -306,6 +303,65 @@ void GameMap::clearAll()
     resetUniqueNumbers();
     mIsFOWActivated = true;
     mTimePayDay = 0;
+
+    processActiveObjectsChanges();
+    processDeletionQueues();
+
+    // We check if the different vectors are empty
+    if(!mActiveObjects.empty())
+    {
+        OD_ASSERT_TRUE_MSG(false, "mActiveObjects not empty size=" + Helper::toString(static_cast<uint32_t>(mActiveObjects.size())));
+        for(GameEntity* entity : mActiveObjects)
+        {
+            OD_ASSERT_TRUE_MSG(false, "entity not removed=" + entity->getName());
+        }
+        mActiveObjects.clear();
+    }
+    if(!mActiveObjectsToAdd.empty())
+    {
+        OD_ASSERT_TRUE_MSG(false, "mActiveObjectsToAdd not empty size=" + Helper::toString(static_cast<uint32_t>(mActiveObjectsToAdd.size())));
+        for(GameEntity* entity : mActiveObjectsToAdd)
+        {
+            OD_ASSERT_TRUE_MSG(false, "entity not removed=" + entity->getName());
+        }
+        mActiveObjectsToAdd.clear();
+    }
+    if(!mActiveObjectsToRemove.empty())
+    {
+        OD_ASSERT_TRUE_MSG(false, "mActiveObjectsToRemove not empty size=" + Helper::toString(static_cast<uint32_t>(mActiveObjectsToRemove.size())));
+        for(GameEntity* entity : mActiveObjectsToRemove)
+        {
+            OD_ASSERT_TRUE_MSG(false, "entity not removed=" + entity->getName());
+        }
+        mActiveObjectsToRemove.clear();
+    }
+    if(!mAnimatedObjects.empty())
+    {
+        OD_ASSERT_TRUE_MSG(false, "mAnimatedObjects not empty size=" + Helper::toString(static_cast<uint32_t>(mAnimatedObjects.size())));
+        for(GameEntity* entity : mAnimatedObjects)
+        {
+            OD_ASSERT_TRUE_MSG(false, "entity not removed=" + entity->getName());
+        }
+        mAnimatedObjects.clear();
+    }
+    if(!mEntitiesToDelete.empty())
+    {
+        OD_ASSERT_TRUE_MSG(false, "mEntitiesToDelete not empty size=" + Helper::toString(static_cast<uint32_t>(mEntitiesToDelete.size())));
+        for(GameEntity* entity : mEntitiesToDelete)
+        {
+            OD_ASSERT_TRUE_MSG(false, "entity not removed=" + entity->getName());
+        }
+        mEntitiesToDelete.clear();
+    }
+    if(!mGameEntityClientUpkeep.empty())
+    {
+        OD_ASSERT_TRUE_MSG(false, "mGameEntityClientUpkeep not empty size=" + Helper::toString(static_cast<uint32_t>(mGameEntityClientUpkeep.size())));
+        for(GameEntity* entity : mGameEntityClientUpkeep)
+        {
+            OD_ASSERT_TRUE_MSG(false, "entity not removed=" + entity->getName());
+        }
+        mGameEntityClientUpkeep.clear();
+    }
 }
 
 void GameMap::clearCreatures()
@@ -365,13 +421,6 @@ void GameMap::clearRenderedMovableEntities()
     }
 
     mRenderedMovableEntities.clear();
-}
-
-void GameMap::clearActiveObjects()
-{
-    mActiveObjects.clear();
-    mActiveObjectsToAdd.clear();
-    mActiveObjectsToRemove.clear();
 }
 
 void GameMap::clearPlayers()
@@ -790,11 +839,6 @@ Creature* GameMap::getFighterToPickupBySeat(Seat* seat)
     return nullptr;
 }
 
-void GameMap::clearAnimatedObjects()
-{
-    mAnimatedObjects.clear();
-}
-
 void GameMap::addAnimatedObject(MovableGameEntity *a)
 {
     mAnimatedObjects.push_back(a);
@@ -1073,12 +1117,12 @@ Creature* GameMap::getCreature(const std::string& cName) const
     return nullptr;
 }
 
-void GameMap::doTurn()
+void GameMap::doTurn(double timeSinceLastTurn)
 {
-    std::cout << "\nComputing turn " << mTurnNumber << std::endl;
+    std::cout << "\nComputing turn " << mTurnNumber << ", timeSinceLastTurn=" << timeSinceLastTurn << std::endl;
     unsigned int numCallsTo_path_atStart = mNumCallsTo_path;
 
-    uint32_t miscUpkeepTime = doMiscUpkeep();
+    uint32_t miscUpkeepTime = doMiscUpkeep(timeSinceLastTurn);
 
     // Count how many creatures the player controls
     for(Creature* creature : mCreatures)
@@ -1103,16 +1147,31 @@ void GameMap::doTurn()
               << "miscUpkeepTime=" << miscUpkeepTime << std::endl;
 }
 
-void GameMap::doPlayerAITurn(double frameTime)
+void GameMap::doPlayerAITurn(double timeSinceLastTurn)
 {
-    mAiManager.doTurn(frameTime);
+    mAiManager.doTurn(timeSinceLastTurn);
 }
 
-unsigned long int GameMap::doMiscUpkeep()
+unsigned long int GameMap::doMiscUpkeep(double timeSinceLastTurn)
 {
     Tile *tempTile;
     Ogre::Timer stopwatch;
     unsigned long int timeTaken;
+
+    // We check if it is pay day
+    mTimePayDay += timeSinceLastTurn;
+    if((mTimePayDay >= ConfigManager::getSingleton().getTimePayDay()))
+    {
+        mTimePayDay = 0;
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::chatServer, nullptr);
+        serverNotification->mPacket << "It's pay day !" << EventShortNoticeType::majorGameEvent;
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+        for(Creature* creature : mCreatures)
+        {
+            creature->itsPayDay();
+        }
+    }
 
     // Loop over all the filled seats in the game and check all the unfinished goals for each seat.
     // Add any seats with no remaining goals to the winningSeats vector.
@@ -1120,6 +1179,8 @@ unsigned long int GameMap::doMiscUpkeep()
     {
         if(seat->getPlayer() == nullptr)
             continue;
+
+        seat->getPlayer()->upkeepPlayer(timeSinceLastTurn);
 
         // Check the previously completed goals to make sure they are still met.
         seat->checkAllCompletedGoals();
@@ -1309,42 +1370,6 @@ void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
 
             currentAnimatedObject->update(timeSinceLastFrame);
         }
-    }
-
-    if(isServerGameMap())
-    {
-        updatePlayerTime(timeSinceLastFrame);
-
-        // We check if it is pay day
-        mTimePayDay += timeSinceLastFrame;
-        if((mTimePayDay >= ConfigManager::getSingleton().getTimePayDay()))
-        {
-            mTimePayDay = 0;
-            ServerNotification *serverNotification = new ServerNotification(
-                ServerNotificationType::chatServer, nullptr);
-            serverNotification->mPacket << "It's pay day !" << EventShortNoticeType::majorGameEvent;
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-            for(Creature* creature : mCreatures)
-            {
-                creature->itsPayDay();
-            }
-        }
-        return;
-    }
-}
-
-void GameMap::updatePlayerTime(Ogre::Real timeSinceLastFrame)
-{
-    // Updates fighting time for server players
-    for (Player* player : mPlayers)
-    {
-        if (player == nullptr)
-            continue;
-
-        if (!player->getIsHuman())
-            continue;
-
-        player->updateTime(timeSinceLastFrame);
     }
 }
 
@@ -2392,6 +2417,9 @@ void GameMap::processDeletionQueues()
 
 void GameMap::processActiveObjectsChanges()
 {
+    if(!isServerGameMap())
+        return;
+
     // We add the queued active objects
     while (!mActiveObjectsToAdd.empty())
     {
@@ -3033,4 +3061,115 @@ uint32_t GameMap::getMaxNumberCreatures(Seat* seat) const
     }
 
     return std::min(nbCreatures, ConfigManager::getSingleton().getMaxCreaturesPerSeatAbsolute());
+}
+
+void GameMap::playerSelects(std::vector<EntityBase*>& entities, int tileX1, int tileY1, int tileX2,
+    int tileY2, SelectionTileAllowed tileAllowed, SelectionEntityWanted entityWanted, Player* player)
+{
+    std::vector<Tile*> tiles = rectangularRegion(tileX1, tileY1, tileX2, tileY2);
+    for(Tile* tile : tiles)
+    {
+        switch(tileAllowed)
+        {
+            case SelectionTileAllowed::groundClaimedOwned:
+            {
+                if(tile->isFullTile())
+                    continue;
+
+                if(tile->getSeat() == nullptr)
+                    continue;
+
+                if(!tile->isClaimed())
+                    continue;
+
+                if(player->getSeat() != tile->getSeat())
+                    continue;
+
+                break;
+            }
+            case SelectionTileAllowed::groundClaimedAllied:
+            {
+                if(tile->isFullTile())
+                    continue;
+
+                if(tile->getSeat() == nullptr)
+                    continue;
+
+                if(!tile->isClaimed())
+                    continue;
+
+                if(!player->getSeat()->isAlliedSeat(tile->getSeat()))
+                    continue;
+
+                break;
+            }
+            case SelectionTileAllowed::groundClaimedNotEnemy:
+            {
+                if(tile->isFullTile())
+                    continue;
+
+                if(tile->getSeat() == nullptr)
+                    continue;
+
+                if(tile->isClaimed() && !player->getSeat()->isAlliedSeat(tile->getSeat()))
+                    continue;
+
+                break;
+            }
+            case SelectionTileAllowed::groundTiles:
+            {
+                if(tile->isFullTile())
+                    continue;
+
+                break;
+            }
+            default:
+            {
+                static bool logMsg = false;
+                if(!logMsg)
+                {
+                    logMsg = true;
+                    OD_ASSERT_TRUE_MSG(false, "Wrong SelectionTileAllowed int=" + Helper::toString(static_cast<uint32_t>(tileAllowed)));
+                }
+                continue;
+            }
+        }
+
+        if(entityWanted == SelectionEntityWanted::tiles)
+        {
+            entities.push_back(tile);
+            continue;
+        }
+
+        tile->fillWithEntities(entities, entityWanted, player);
+    }
+}
+
+void GameMap::addClientUpkeepEntity(GameEntity* entity)
+{
+    // GameEntityClientUpkeep objects are only used on client side
+    if(isServerGameMap())
+        return;
+
+    mGameEntityClientUpkeep.push_back(entity);
+}
+
+void GameMap::removeClientUpkeepEntity(GameEntity* entity)
+{
+    auto it = std::find(mGameEntityClientUpkeep.begin(), mGameEntityClientUpkeep.end(), entity);
+    if(it == mGameEntityClientUpkeep.end())
+        return;
+
+    mGameEntityClientUpkeep.erase(it);
+}
+
+void GameMap::clientUpKeep(int64_t turnNumber)
+{
+    mTurnNumber = turnNumber;
+    mLocalPlayer->decreaseSpellCooldowns();
+
+    for(GameEntity* entity : mGameEntityClientUpkeep)
+    {
+        entity->clientUpkeep();
+    }
 }

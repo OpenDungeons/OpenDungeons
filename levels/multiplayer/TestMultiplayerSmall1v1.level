@@ -36,6 +36,8 @@ trapSpike
 roomWorkshop
 roomCrypt
 trapBoulder
+spellCreatureHeal
+spellCreatureExplode
 [/ResearchPending]
 [/Seat]
 [Seat]
@@ -559,7 +561,7 @@ ProtectDungeonTemple	NULL
 [/EquipmentDefinitions]
 
 [Creatures]
-# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon
+# SeatId	Name	MeshName	PosX	PosY	PosZ	ClassName	Level	CurrentXP	CurrentHP	CurrentAwakeness	CurrentHunger	GoldToDeposit	LeftWeapon	RightWeapon	CarriedResearch	CarriedWeapon	NbCreatureEffects	N*CreatureEffects
 [/Creatures]
 
 [Spells]

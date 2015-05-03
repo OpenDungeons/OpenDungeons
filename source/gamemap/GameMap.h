@@ -60,6 +60,23 @@ enum class FloodFillType;
 enum class RoomType;
 enum class SpellType;
 
+enum class SelectionTileAllowed
+{
+    groundClaimedOwned,
+    groundClaimedAllied,
+    groundClaimedNotEnemy, // allied + not claimed
+    groundTiles
+};
+
+enum class SelectionEntityWanted
+{
+    tiles,
+    creatureAliveOwned,
+    creatureAliveAllied,
+    creatureAliveEnemy,
+    creatureAlive
+};
+
 /*! \brief The class which stores the entire game state on the server and a subset of this on each client.
  *
  * This class is one of the key classes in the OpenDungeons game.  The map
@@ -143,10 +160,12 @@ public:
     Creature* getFighterToPickupBySeat(Seat* seat);
 
     //! \brief Animated objects related functions.
-    void clearAnimatedObjects();
     void addAnimatedObject(MovableGameEntity *a);
     void removeAnimatedObject(MovableGameEntity *a);
     MovableGameEntity* getAnimatedObject(const std::string& name) const;
+
+    void addClientUpkeepEntity(GameEntity* entity);
+    void removeClientUpkeepEntity(GameEntity* entity);
 
     void addActiveObject(GameEntity* a);
     void removeActiveObject(GameEntity* a);
@@ -320,9 +339,9 @@ public:
 
     //! \brief Loops over all the creatures and calls their individual doTurn methods,
     //! also check goals and do the upkeep.
-    void doTurn();
+    void doTurn(double timeSinceLastTurn);
 
-    void doPlayerAITurn(double frameTime);
+    void doPlayerAITurn(double timeSinceLastTurn);
 
     //! \brief Tells whether a path exists between two tiles for the given creature.
     bool pathExists(const Creature* creature, Tile* tileStart, Tile* tileEnd);
@@ -457,7 +476,6 @@ public:
     void removeRenderedMovableEntity(RenderedMovableEntity *obj);
     RenderedMovableEntity* getRenderedMovableEntity(const std::string& name);
     void clearRenderedMovableEntities();
-    void clearActiveObjects();
     GameEntity* getEntityFromTypeAndName(GameEntityType entityType,
         const std::string& entityName);
     EntityBase* getBaseEntityFromTypeAndName(GameEntityType entityType,
@@ -500,6 +518,13 @@ public:
 
     const TileSetValue& getMeshForTile(const Tile* tile) const;
     const Ogre::Vector3& getTileSetScale() const;
+
+    void playerSelects(std::vector<EntityBase*>& entities, int tileX1, int tileY1, int tileX2,
+        int tileY2, SelectionTileAllowed tileAllowed, SelectionEntityWanted entityWanted, Player* player);
+
+    //! Called on client side each time a new turn is received
+    void clientUpKeep(int64_t turnNumber);
+
 private:
     void replaceFloodFill(FloodFillType floodFillType, int colorOld, int colorNew);
 
@@ -563,6 +588,9 @@ private:
     //! \brief Common player goals
     std::vector<std::unique_ptr<Goal>> mGoalsForAllSeats;
 
+    //! \brief Entities that want to be notified for upkeep on client side
+    std::vector<GameEntity*> mGameEntityClientUpkeep;
+
     //! \brief Tells whether the map color flood filling is enabled.
     bool mFloodFillEnabled;
 
@@ -600,14 +628,10 @@ private:
 
     //! \brief Updates different entities states.
     //! Updates active objects (creatures, rooms, ...), goals, count each team Workers, gold, mana and claimed tiles.
-    unsigned long int doMiscUpkeep();
+    unsigned long int doMiscUpkeep(double timeSinceLastTurn);
 
     //! \brief Resets the unique numbers
     void resetUniqueNumbers();
-
-    //! \brief Updates every player's time value so they can handle timed events like fighting music
-    //! Used on the server game map only.
-    void updatePlayerTime(Ogre::Real timeSinceLastFrame);
 };
 
 #endif // GAMEMAP_H

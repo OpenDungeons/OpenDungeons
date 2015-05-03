@@ -70,6 +70,8 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "entityPickedUp";
         case ServerNotificationType::entityDropped:
             return "entityDropped";
+        case ServerNotificationType::entitySlapped:
+            return "entitySlapped";
         case ServerNotificationType::addEntity:
             return "addEntity";
         case ServerNotificationType::removeEntity:
@@ -108,6 +110,8 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "researchTree";
         case ServerNotificationType::researchesDone:
             return "researchesDone";
+        case ServerNotificationType::setSpellCooldown:
+            return "setSpellCooldown";
         case ServerNotificationType::playerEvents:
             return "playerEvents";
         case ServerNotificationType::exit:

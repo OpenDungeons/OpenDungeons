@@ -43,6 +43,8 @@ class BuildingObject;
 class PersistentObject;
 class ODPacket;
 
+enum class SelectionEntityWanted;
+
 //! Tile types a tile can be
 enum class TileType
 {
@@ -315,6 +317,10 @@ public:
     void fillWithCarryableEntities(std::vector<GameEntity*>& entities);
     void fillWithChickenEntities(std::vector<GameEntity*>& entities);
     void fillWithCraftedTraps(std::vector<GameEntity*>& entities);
+
+    //TODO: see if this function can replace the ones above (if not too much used)
+    //! Fills the given vector with corresponding entities on this tile.
+    void fillWithEntities(std::vector<EntityBase*>& entities, SelectionEntityWanted entityWanted, Player* player) const;
 
     //! \brief Computes the visible tiles and tags them to know which are visible
     void computeVisibleTiles();

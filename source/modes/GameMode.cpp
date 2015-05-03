@@ -225,6 +225,8 @@ GameMode::GameMode(ModeManager *modeManager):
     //Spells
     connectSpellSelect(Gui::BUTTON_SPELL_CALLTOWAR, SpellType::callToWar);
     connectSpellSelect(Gui::BUTTON_SPELL_SUMMON_WORKER, SpellType::summonWorker);
+    connectSpellSelect(Gui::BUTTON_SPELL_CREATURE_HEAL, SpellType::creatureHeal);
+    connectSpellSelect(Gui::BUTTON_SPELL_CREATURE_EXPLODE, SpellType::creatureExplode);
 }
 
 GameMode::~GameMode()
@@ -240,7 +242,6 @@ GameMode::~GameMode()
 
     // Now that the server is stopped, we can clear the client game map
     ODFrameListener::getSingleton().getClientGameMap()->clearAll();
-    ODFrameListener::getSingleton().getClientGameMap()->processDeletionQueues();
 }
 
 void GameMode::activate()
@@ -353,24 +354,42 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
             }
             case SelectedAction::castSpell:
             {
-                // If the player is dragging to build, we display the total price the room/trap will cost.
+                // If the player is dragging to build, we display the total price the spell will cost.
                 // If he is not, we display the price for 1 tile.
-                std::vector<Tile*> tiles;
+                int tileX1;
+                int tileY1;
+                int tileX2;
+                int tileY2;
                 if(inputManager->mLMouseDown)
                 {
-                    tiles = mGameMap->rectangularRegion(inputManager->mXPos,
-                        inputManager->mYPos, inputManager->mLStartDragX, inputManager->mLStartDragY);
+                    tileX1 = inputManager->mXPos;
+                    tileY1 = inputManager->mYPos;
+                    tileX2 = inputManager->mLStartDragX;
+                    tileY2 = inputManager->mLStartDragY;
                 }
                 else
                 {
-                    Tile* tile = mGameMap->getTile(inputManager->mXPos, inputManager->mYPos);
-                    if(tile != nullptr)
-                        tiles.push_back(tile);
+                    tileX1 = inputManager->mXPos;
+                    tileY1 = inputManager->mYPos;
+                    tileX2 = inputManager->mXPos;
+                    tileY2 = inputManager->mYPos;
                 }
 
-                int mana = player->getSeat()->getMana();
                 SpellType selectedSpellType = mPlayerSelection.getNewSpellType();
-                int price = Spell::getSpellCost(mGameMap, selectedSpellType, tiles, player);
+                uint32_t cooldown = player->getSpellCooldownTurns(selectedSpellType);
+                if(cooldown > 0)
+                {
+                    double remainingTime = static_cast<double>(cooldown) / ODApplication::turnsPerSecond;
+                    textRenderer.setColor(ODApplication::POINTER_INFO_STRING, red);
+                    textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Spell::getSpellNameFromSpellType(selectedSpellType))
+                        + " (" + Helper::toString(remainingTime, 2)+ " s)");
+
+                    break;
+                }
+
+                std::vector<EntityBase*> targets;
+                int price = Spell::getSpellCost(targets, mGameMap, selectedSpellType, tileX1, tileY1, tileX2, tileY2, player);
+                int mana = player->getSeat()->getMana();
                 const Ogre::ColourValue& textColor = (mana < price) ? red : white;
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
                 textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Spell::getSpellNameFromSpellType(selectedSpellType))
@@ -1472,6 +1491,14 @@ void GameMode::refreshResearchButtonState(ResearchType resType)
         case ResearchType::spellCallToWar:
             ceguiWidgetName = "AttackSkills/CallToWarButton";
             ceguiWidgetButtonName = Gui::BUTTON_SPELL_CALLTOWAR;
+            break;
+        case ResearchType::spellCreatureHeal:
+            ceguiWidgetName = "MagicSkills/CreatureHealButton";
+            ceguiWidgetButtonName = Gui::BUTTON_SPELL_CREATURE_HEAL;
+            break;
+        case ResearchType::spellCreatureExplode:
+            ceguiWidgetName = "AttackSkills/CreatureExplodeButton";
+            ceguiWidgetButtonName = Gui::BUTTON_SPELL_CREATURE_EXPLODE;
             break;
     }
 

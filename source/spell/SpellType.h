@@ -27,7 +27,10 @@ enum class SpellType
 {
     nullSpellType = 0,
     summonWorker,
-    callToWar
+    callToWar,
+    creatureHeal,
+    creatureExplode,
+    nbSpells
 };
 
 std::istream& operator>>(std::istream& is, SpellType& tt);

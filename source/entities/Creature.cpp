@@ -17,6 +17,8 @@
 
 #include "entities/Creature.h"
 
+#include "creatureeffect/CreatureEffect.h"
+
 #include "creaturemood/CreatureMood.h"
 
 #include "entities/ChickenEntity.h"
@@ -124,7 +126,8 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition, Seat*
     mFirstTurnFurious        (-1),
     mOverlayHealthValue      (CreatureOverlayHealthValue::full),
     mOverlayStatus           (nullptr),
-    mNeedFireRefresh         (false)
+    mNeedFireRefresh         (false),
+    mParticleSystemsNumber   (0)
 
 {
     //TODO: This should be set in initialiser list in parent classes
@@ -208,7 +211,8 @@ Creature::Creature(GameMap* gameMap) :
     mFirstTurnFurious        (-1),
     mOverlayHealthValue      (CreatureOverlayHealthValue::full),
     mOverlayStatus           (nullptr),
-    mNeedFireRefresh         (false)
+    mNeedFireRefresh         (false),
+    mParticleSystemsNumber   (0)
 {
     setIsOnMap(false);
 
@@ -217,6 +221,10 @@ Creature::Creature(GameMap* gameMap) :
 
 Creature::~Creature()
 {
+    for(const std::pair<CreatureEffect*, std::string>& effect : mCreatureEffects)
+        delete effect.first;
+
+    mCreatureEffects.clear();
 }
 
 void Creature::createMeshLocal()
@@ -273,6 +281,7 @@ void Creature::addToGameMap()
     getGameMap()->addCreature(this);
     setIsOnMap(true);
     getGameMap()->addAnimatedObject(this);
+    getGameMap()->addClientUpkeepEntity(this);
 
     if(!getGameMap()->isServerGameMap())
         return;
@@ -284,7 +293,12 @@ void Creature::removeFromGameMap()
 {
     getGameMap()->removeCreature(this);
     getGameMap()->removeAnimatedObject(this);
+    getGameMap()->removeClientUpkeepEntity(this);
     setIsOnMap(false);
+
+    Tile* posTile = getPositionTile();
+    if(posTile != nullptr)
+        posTile->removeEntity(this);
 
     if(!getGameMap()->isServerGameMap())
         return;
@@ -296,10 +310,6 @@ void Creature::removeFromGameMap()
         home->releaseTileForSleeping(getHomeTile(), this);
     }
 
-    Tile* posTile = getPositionTile();
-    if(posTile != nullptr)
-        posTile->removeEntity(this);
-
     fireRemoveEntityToSeatsWithVision();
     getGameMap()->removeActiveObject(this);
 }
@@ -310,8 +320,9 @@ std::string Creature::getCreatureStreamFormat()
     if(!format.empty())
         format += "\t";
 
-    format += "ClassName\tLevel\tCurrentXP\tCurrentHP\tCurrentAwakeness\t"
-           "CurrentHunger\tGoldToDeposit\tLeftWeapon\tRightWeapon\tCarriedResearch\tCarriedWeapon";
+    format += "ClassName\tLevel\tCurrentXP\tCurrentHP\tCurrentAwakeness"
+            "\tCurrentHunger\tGoldToDeposit\tLeftWeapon\tRightWeapon\tCarriedResearch\tCarriedWeapon"
+            "\tNbCreatureEffects\tN*CreatureEffects";
 
     return format;
 }
@@ -341,6 +352,14 @@ void Creature::exportToStream(std::ostream& os) const
     os << "\t" << mResearchTypeDropDeath;
 
     os << "\t" << mWeaponDropDeath;
+
+    uint32_t nbEffects = mCreatureEffects.size();
+    os << "\t" << nbEffects;
+    for(const std::pair<CreatureEffect*, std::string>& effect : mCreatureEffects)
+    {
+        os << "\t";
+        CreatureEffect::write(*effect.first, os);
+    }
 }
 
 void Creature::importFromStream(std::istream& is)
@@ -384,6 +403,19 @@ void Creature::importFromStream(std::istream& is)
     OD_ASSERT_TRUE(is >> mWeaponDropDeath);
 
     mLevel = std::min(MAX_LEVEL, mLevel);
+
+    uint32_t nbEffects;
+    OD_ASSERT_TRUE(is >> nbEffects);
+    while(nbEffects > 0)
+    {
+        --nbEffects;
+        CreatureEffect* effect = CreatureEffect::load(is);
+        if(effect == nullptr)
+            continue;
+
+
+        addCreatureEffect(effect);
+    }
 }
 
 void Creature::buildStats()
@@ -475,6 +507,15 @@ void Creature::exportToPacket(ODPacket& os) const
         os << mWeaponR->getName();
     else
         os << "none";
+
+    uint32_t nbEffects = mCreatureEffects.size();
+    os << nbEffects;
+    for(const std::pair<CreatureEffect*, std::string>& effect : mCreatureEffects)
+    {
+        os << effect.second;
+        os << effect.first->getParticleEffectScript();
+        os << effect.first->getNbTurnsEffect();
+    }
 }
 
 void Creature::importFromPacket(ODPacket& is)
@@ -518,6 +559,21 @@ void Creature::importFromPacket(ODPacket& is)
     {
         mWeaponR = getGameMap()->getWeapon(tempString);
         OD_ASSERT_TRUE_MSG(mWeaponR != nullptr, "Unknown weapon name=" + tempString);
+    }
+
+    uint32_t nbEffects;
+    OD_ASSERT_TRUE(is >> nbEffects);
+
+    while(nbEffects > 0)
+    {
+        --nbEffects;
+
+        std::string effectName;
+        std::string effectScript;
+        uint32_t nbTurns;
+        OD_ASSERT_TRUE(is >> effectName >> effectScript >> nbTurns);
+        CreatureParticleEffect cpe(effectName, effectScript, nbTurns);
+        mCreatureParticleEffects.push_back(cpe);
     }
     setupDefinition(*getGameMap(), *ConfigManager::getSingleton().getCreatureDefinitionDefaultWorker());
 }
@@ -611,6 +667,23 @@ void Creature::setLevel(unsigned int level)
 
 void Creature::doUpkeep()
 {
+    // We apply creature effects if the creature is alive
+    if(getHP() > 0.0)
+    {
+        for(auto it = mCreatureEffects.begin(); it != mCreatureEffects.end();)
+        {
+            std::pair<CreatureEffect*, std::string>& effect = *it;
+            if(effect.first->upkeepEffect(*this))
+            {
+                ++it;
+                continue;
+            }
+
+            delete effect.first;
+            it = mCreatureEffects.erase(it);
+        }
+    }
+
     // if creature is not on map, we do nothing
     if(!getIsOnMap())
         return;
@@ -2967,6 +3040,38 @@ void Creature::refreshCreature(ODPacket& packet)
     OD_ASSERT_TRUE(packet >> mLevel);
     OD_ASSERT_TRUE(packet >> mOverlayHealthValue);
     RenderManager::getSingleton().rrScaleEntity(this);
+
+    uint32_t nbEffects;
+    OD_ASSERT_TRUE(packet >> nbEffects);
+
+    // We copy the list of effects currently on this creature. That will allow to
+    // check if the effect is already known and only display the effect if it is not
+    std::vector<CreatureParticleEffect> currentEffects = mCreatureParticleEffects;
+    while(nbEffects > 0)
+    {
+        --nbEffects;
+
+        std::string effectName;
+        std::string effectScript;
+        uint32_t nbTurns;
+        OD_ASSERT_TRUE(packet >> effectName >> effectScript >> nbTurns);
+        bool isEffectAlreadyDisplayed = false;
+        for(CreatureParticleEffect& effect : currentEffects)
+        {
+            if(effect.mName.compare(effectName) != 0)
+                continue;
+
+            isEffectAlreadyDisplayed = true;
+            break;
+        }
+
+        if(isEffectAlreadyDisplayed)
+            continue;
+
+        CreatureParticleEffect cpe(effectName, effectScript, nbTurns);
+        RenderManager::getSingleton().rrCreatureAddParticleEffect(this, cpe);
+        mCreatureParticleEffects.push_back(cpe);
+    }
 }
 
 void Creature::updateTilesInSight()
@@ -3371,7 +3476,8 @@ double Creature::takeDamage(GameEntity* attacker, double physicalDamage, double 
         return damageDone;
 
     bool flee = true;
-    if(attacker->getObjectType() == GameEntityType::creature)
+    if((attacker != nullptr) &&
+       (attacker->getObjectType() == GameEntityType::creature))
     {
         Creature* creatureAttacking = static_cast<Creature*>(attacker);
         if(creatureAttacking->getDefinition()->isWorker())
@@ -3989,6 +4095,15 @@ void Creature::fireCreatureRefreshIfNeeded()
         serverNotification->mPacket << name;
         serverNotification->mPacket << mLevel;
         serverNotification->mPacket << mOverlayHealthValue;
+
+        uint32_t nbCreatureEffect = mCreatureEffects.size();
+        serverNotification->mPacket << nbCreatureEffect;
+        for(std::pair<CreatureEffect*, std::string>& effect : mCreatureEffects)
+        {
+            serverNotification->mPacket << effect.second;
+            serverNotification->mPacket << effect.first->getParticleEffectScript();
+            serverNotification->mPacket << effect.first->getNbTurnsEffect();
+        }
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 }
@@ -4182,6 +4297,66 @@ void Creature::computeCreatureOverlayHealthValue()
     {
         mOverlayHealthValue = value;
         mNeedFireRefresh = true;
+    }
+}
+
+void Creature::addCreatureEffect(CreatureEffect* effect)
+{
+    std::string effectName = nextParticleSystemsName(effect->getParticleEffectScript());
+
+    mCreatureEffects.push_back(std::pair<CreatureEffect*, std::string>(effect, effectName));
+
+    mNeedFireRefresh = true;
+}
+
+std::string Creature::nextParticleSystemsName(const std::string& effectName)
+{
+    return getName() + "_Particle" + Helper::toString(mParticleSystemsNumber);
+}
+
+void Creature::clearParticleSystems()
+{
+    for(CreatureParticleEffect& cpe : mCreatureParticleEffects)
+    {
+        RenderManager::getSingleton().rrCreatureRemoveParticleEffect(this, cpe);
+    }
+    mCreatureParticleEffects.clear();
+}
+
+void Creature::clientUpkeep()
+{
+    for(auto it = mCreatureParticleEffects.begin(); it != mCreatureParticleEffects.end();)
+    {
+        CreatureParticleEffect& cpe = *it;
+        if(cpe.mNbTurnsEffect > 0)
+        {
+            --cpe.mNbTurnsEffect;
+            ++it;
+            continue;
+        }
+
+        RenderManager::getSingleton().rrCreatureRemoveParticleEffect(this, cpe);
+        it = mCreatureParticleEffects.erase(it);
+    }
+}
+
+bool Creature::isHurt() const
+{
+    //On server side, we test HP
+    if(getGameMap()->isServerGameMap())
+        return getHP() < getMaxHp();
+
+    // On client side, we test overlay value
+    return mOverlayHealthValue != CreatureOverlayHealthValue::full;
+
+}
+
+void Creature::restoreEntityState()
+{
+    MovableGameEntity::restoreEntityState();
+    for(CreatureParticleEffect& cpe : mCreatureParticleEffects)
+    {
+        RenderManager::getSingleton().rrCreatureAddParticleEffect(this, cpe);
     }
 }
 

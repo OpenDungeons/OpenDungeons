@@ -16,6 +16,7 @@
  */
 
 #include "entities/Building.h"
+#include "entities/Creature.h"
 #include "entities/GameEntity.h"
 #include "entities/Tile.h"
 #include "entities/TreasuryObject.h"
@@ -288,9 +289,6 @@ void Tile::setMarkedForDiggingForAllPlayersExcept(bool s, Seat* exceptSeat)
 
 bool Tile::addEntity(GameEntity *entity)
 {
-    if(!getGameMap()->isServerGameMap())
-        return true;
-
     if(std::find(mEntitiesInTile.begin(), mEntitiesInTile.end(), entity) != mEntitiesInTile.end())
         return false;
 
@@ -300,9 +298,6 @@ bool Tile::addEntity(GameEntity *entity)
 
 bool Tile::removeEntity(GameEntity *entity)
 {
-    if(!getGameMap()->isServerGameMap())
-        return true;
-
     std::vector<GameEntity*>::iterator it = std::find(mEntitiesInTile.begin(), mEntitiesInTile.end(), entity);
     if(it == mEntitiesInTile.end())
         return false;
@@ -538,6 +533,92 @@ void Tile::fillWithCraftedTraps(std::vector<GameEntity*>& entities)
 
         if(entity->getObjectType() != GameEntityType::craftedTrap)
             continue;
+
+        if (std::find(entities.begin(), entities.end(), entity) == entities.end())
+            entities.push_back(entity);
+    }
+}
+
+void Tile::fillWithEntities(std::vector<EntityBase*>& entities, SelectionEntityWanted entityWanted, Player* player) const
+{
+    for(GameEntity* entity : mEntitiesInTile)
+    {
+        OD_ASSERT_TRUE(entity != nullptr);
+        if(entity == nullptr)
+            continue;
+
+        switch(entityWanted)
+        {
+            case SelectionEntityWanted::creatureAliveOwned:
+            {
+                if(entity->getObjectType() != GameEntityType::creature)
+                    continue;
+
+                if(player->getSeat() != entity->getSeat())
+                    continue;
+
+                Creature* creature = static_cast<Creature*>(entity);
+                if(creature->getHP() <= 0)
+                    continue;
+
+                break;
+            }
+            case SelectionEntityWanted::creatureAliveAllied:
+            {
+                if(entity->getObjectType() != GameEntityType::creature)
+                    continue;
+
+                if(entity->getSeat() == nullptr)
+                    continue;
+
+                if(!player->getSeat()->isAlliedSeat(entity->getSeat()))
+                    continue;
+
+                Creature* creature = static_cast<Creature*>(entity);
+                if(creature->getHP() <= 0)
+                    continue;
+
+                break;
+            }
+            case SelectionEntityWanted::creatureAliveEnemy:
+            {
+                if(entity->getObjectType() != GameEntityType::creature)
+                    continue;
+
+                if(entity->getSeat() == nullptr)
+                    continue;
+
+                if(player->getSeat()->isAlliedSeat(entity->getSeat()))
+                    continue;
+
+                Creature* creature = static_cast<Creature*>(entity);
+                if(creature->getHP() <= 0)
+                    continue;
+
+                break;
+            }
+            case SelectionEntityWanted::creatureAlive:
+            {
+                if(entity->getObjectType() != GameEntityType::creature)
+                    continue;
+
+                Creature* creature = static_cast<Creature*>(entity);
+                if(creature->getHP() <= 0)
+                    continue;
+
+                break;
+            }
+            default:
+            {
+                static bool logMsg = false;
+                if(!logMsg)
+                {
+                    logMsg = true;
+                    OD_ASSERT_TRUE_MSG(false, "Wrong SelectionEntityWanted int=" + Helper::toString(static_cast<uint32_t>(entityWanted)));
+                }
+                continue;
+            }
+        }
 
         if (std::find(entities.begin(), entities.end(), entity) == entities.end())
             entities.push_back(entity);

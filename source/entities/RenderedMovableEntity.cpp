@@ -114,13 +114,14 @@ void RenderedMovableEntity::removeFromGameMap()
     setIsOnMap(false);
     getGameMap()->removeAnimatedObject(this);
 
+    Tile* posTile = getPositionTile();
+    if(posTile != nullptr)
+        posTile->removeEntity(this);
+
     if(!getGameMap()->isServerGameMap())
         return;
 
     fireRemoveEntityToSeatsWithVision();
-    Tile* posTile = getPositionTile();
-    if(posTile != nullptr)
-        posTile->removeEntity(this);
 
     getGameMap()->removeActiveObject(this);
 }

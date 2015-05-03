@@ -19,6 +19,11 @@
                 <Property name="ButtonImage" value="OpenDungeonsIcons/CallToWarButton" />
                 <Property name="TooltipText" value="Spell: Call to War" />
             </Window>
+            <Window type="OD/ImageButton" name="CreatureExplodeButton" >
+                <Property name="Area" value="{{0.2,-25},{0,75},{0.2,25},{0,125}}" />
+                <Property name="ButtonImage" value="OpenDungeonsIcons/CreatureExplodeButton" />
+                <Property name="TooltipText" value="Spell: Creature Explode" />
+            </Window>
         </Window>
         <Window type="OD/StaticImage" name="TacticSkills" >
             <Property name="Area" value="{{0,205},{0,35},{0,385},{1,-20}}" />
@@ -69,7 +74,7 @@
                 <Property name="TooltipText" value="Room: Library" />
             </Window>
             <Window type="OD/ImageButton" name="CryptButton" >
-                <Property name="Area" value="{{0.5,-25},{0,75},{0.5,25},{0,125}}" />
+                <Property name="Area" value="{{0.3,-25},{0,75},{0.3,25},{0,125}}" />
                 <Property name="ButtonImage" value="OpenDungeonsIcons/CryptButton" />
                 <Property name="TooltipText" value="Room: Crypt" />
             </Window>
@@ -77,6 +82,11 @@
                 <Property name="Area" value="{{0.3,-25},{0,15},{0.3,25},{0,65}}" />
                 <Property name="ButtonImage" value="OpenDungeonsIcons/SummonWorkerButton" />
                 <Property name="TooltipText" value="Spell: Summon Worker" />
+            </Window>
+            <Window type="OD/ImageButton" name="CreatureHealButton" >
+                <Property name="Area" value="{{0.7,-25},{0,75},{0.7,25},{0,125}}" />
+                <Property name="ButtonImage" value="OpenDungeonsIcons/CreatureHealButton" />
+                <Property name="TooltipText" value="Spell: Creature Heal" />
             </Window>
         </Window>
     </Window>

@@ -31,10 +31,11 @@
 #include <string>
 #include <deque>
 
-class GameMap;
 class Creature;
+class CreatureEffect;
 class CreatureDefinition;
 class CreatureOverlayStatus;
+class GameMap;
 class ODPacket;
 class Room;
 class Weapon;
@@ -46,6 +47,11 @@ enum class CreatureSoundType;
 namespace CEGUI
 {
 class Window;
+}
+
+namespace Ogre
+{
+class ParticleSystem;
 }
 
 enum class CreatureOverlayHealthValue
@@ -60,6 +66,21 @@ enum class CreatureOverlayHealthValue
 ODPacket& operator<<(ODPacket& os, const CreatureOverlayHealthValue& value);
 ODPacket& operator>>(ODPacket& is, CreatureOverlayHealthValue& value);
 
+class CreatureParticleEffect
+{
+public:
+    CreatureParticleEffect(const std::string& name, const std::string& script, uint32_t nbTurnsEffect) :
+        mName(name),
+        mScript(script),
+        mParticleSystem(nullptr),
+        mNbTurnsEffect(nbTurnsEffect)
+    {}
+
+    std::string mName;
+    std::string mScript;
+    Ogre::ParticleSystem* mParticleSystem;
+    uint32_t mNbTurnsEffect;
+};
 /*! \class Creature Creature.h
  *  \brief Position, status, and AI state for a single game creature.
  *
@@ -378,11 +399,24 @@ public:
     void fireCreatureRefreshIfNeeded();
 
     //! \brief Load creature definition according to @mDefinitionString
-    // This should be called before createMesh. This was formerly in CreateMesh
-    // but is now split out since this is needed on the server, while the mesh isn't.
-    // This is normally called by the constructor, but creatures loaded from the map files
-    // use a different constructor, and this is then called by the gameMap when other details have been loaded.
+    //! This should be called before createMesh. This was formerly in CreateMesh
+    //! but is now split out since this is needed on the server, while the mesh isn't.
+    //! This is normally called by the constructor, but creatures loaded from the map files
+    //! use a different constructor, and this is then called by the gameMap when other details have been loaded.
     void setupDefinition(GameMap& gameMap, const CreatureDefinition& defaultWorkerCreatureDefinition);
+
+    void addCreatureEffect(CreatureEffect* effect);
+
+    void clearParticleSystems();
+
+    virtual void clientUpkeep() override;
+
+    virtual void restoreEntityState() override;
+
+    //! Called on client side and server side. true if the creature is hurt and false
+    //! if at max HP or above
+    bool isHurt() const;
+
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
@@ -528,6 +562,16 @@ private:
     //! level or HP)
     bool                            mNeedFireRefresh;
 
+    //! Stores the effects currently affecting this creature. The string represents the
+    //! effect name (should be unique per creature)
+    std::vector<std::pair<CreatureEffect*, std::string>> mCreatureEffects;
+
+    //! Unique number allowing to have unique names for particle systems attached to this creature
+    uint32_t mParticleSystemsNumber;
+
+    //! Particle systems attached on this creature
+    std::vector<CreatureParticleEffect> mCreatureParticleEffects;
+
     //! \brief The logic in the idle function is basically to roll a dice and, if the value allows, push an action to test if
     //! it is possible. To avoid testing several times the same action, we check in mActionTry if the action as already been
     //! tried. If yes and forcePush is false, the action won't be pushed and pushAction will return false. If the action has
@@ -658,6 +702,8 @@ private:
     void engageAlliedNaturalEnemy(Creature* attacker);
 
     void computeCreatureOverlayHealthValue();
+
+    std::string nextParticleSystemsName(const std::string& effectName);
 };
 
 #endif // CREATURE_H

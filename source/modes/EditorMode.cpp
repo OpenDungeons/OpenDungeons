@@ -149,7 +149,6 @@ EditorMode::~EditorMode()
 
     // Now that the server is stopped, we can clear the client game map
     ODFrameListener::getSingleton().getClientGameMap()->clearAll();
-    ODFrameListener::getSingleton().getClientGameMap()->processDeletionQueues();
 }
 
 void EditorMode::activate()
@@ -981,6 +980,8 @@ void EditorMode::refreshGuiResearch()
     guiSheet->getChild(Gui::BUTTON_TRAP_BOULDER)->show();
     guiSheet->getChild(Gui::BUTTON_SPELL_SUMMON_WORKER)->show();
     guiSheet->getChild(Gui::BUTTON_SPELL_CALLTOWAR)->show();
+    guiSheet->getChild(Gui::BUTTON_SPELL_CREATURE_HEAL)->show();
+    guiSheet->getChild(Gui::BUTTON_SPELL_CREATURE_EXPLODE)->show();
 
     // We also display the editor only buttons
     guiSheet->getChild(Gui::BUTTON_TEMPLE)->show();

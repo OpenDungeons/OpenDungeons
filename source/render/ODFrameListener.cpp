@@ -120,7 +120,6 @@ ODFrameListener::~ODFrameListener()
         exitApplication();
 
     mGameMap->clearAll();
-    mGameMap->processDeletionQueues();
 }
 
 void ODFrameListener::requestExit()
@@ -135,7 +134,6 @@ void ODFrameListener::exitApplication()
     ODClient::getSingleton().notifyExit();
     ODServer::getSingleton().notifyExit();
     mGameMap->clearAll();
-    mGameMap->processDeletionQueues();
     mRenderManager->getSceneManager()->destroyQuery(mRaySceneQuery);
 
     Ogre::LogManager::getSingleton().logMessage("Remove listener registration");

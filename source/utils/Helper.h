@@ -104,10 +104,10 @@ namespace Helper
     inline Ogre::Real toReal(const std::string& text)
     { return Ogre::StringConverter::parseReal(text); }
 
-    inline std::string toString(float f)
-    { return Ogre::StringConverter::toString(f); }
-    inline std::string toString(double d)
-    { return Ogre::StringConverter::toString(d); }
+    inline std::string toString(float f, unsigned short precision = 6)
+    { return Ogre::StringConverter::toString(f, precision); }
+    inline std::string toString(double d, unsigned short precision = 6)
+    { return Ogre::StringConverter::toString(d, precision); }
     inline std::string toString(int8_t d)
     { return Ogre::StringConverter::toString(d); }
     inline std::string toString(uint8_t d)

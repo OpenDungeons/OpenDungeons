@@ -32,6 +32,8 @@ class Research;
 class Seat;
 class Tile;
 
+enum class SpellType;
+
 enum class PlayerEventType
 {
     nullType,
@@ -166,10 +168,6 @@ public:
     //! Should be called on the server game map for human players only
     void notifyNoTreasuryAvailable();
 
-    //! \brief Allows to handle timed events like fighting music
-    //! Should be called on the server game map for human players only
-    void updateTime(Ogre::Real timeSinceLastUpdate);
-
     void fireEvents();
 
     //! Called on client side to update the current list of events. Note that
@@ -184,6 +182,16 @@ public:
 
     //! Marks the tiles for digging and send the refresh event to concerned player if human
     void markTilesForDigging(bool marked, const std::vector<Tile*>& tiles, bool asyncMsg);
+
+    uint32_t getSpellCooldownTurns(SpellType spellType);
+
+    void setSpellCooldownTurns(SpellType spellType, uint32_t cooldown);
+
+    //! Called each turn, it should handle Player upkeep on server side
+    void upkeepPlayer(double timeSinceLastUpkeep);
+
+    //! Decreases cooldown for all spells. Used on both server and client sides
+    void decreaseSpellCooldowns();
 
 private:
     //! \brief Player ID is only used during seat configuration phase
@@ -212,6 +220,8 @@ private:
 
     //! \brief List of tiles there is an event on. Used on client and server
     std::vector<PlayerEvent*> mEvents;
+
+    std::vector<uint32_t> mSpellsCooldown;
 
     //! \brief A simple mutator function to put the given entity into the player's hand,
     //! note this should NOT be called directly for creatures on the map,

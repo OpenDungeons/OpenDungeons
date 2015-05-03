@@ -26,9 +26,11 @@
 #include <string>
 #include <OgreSingleton.h>
 #include <OgreMath.h>
+#include <cstdint>
 
 class GameMap;
 class Building;
+class CreatureParticleEffect;
 class Seat;
 class Tile;
 class GameEntity;
@@ -118,6 +120,8 @@ public:
     void rrMoveMapLightFlicker(MapLight* mapLight, const Ogre::Vector3& position);
     void rrCarryEntity(Creature* carrier, GameEntity* carried);
     void rrReleaseCarriedEntity(Creature* carrier, GameEntity* carried);
+    void rrCreatureAddParticleEffect(Creature* creature, CreatureParticleEffect& cpe);
+    void rrCreatureRemoveParticleEffect(Creature* creature, const CreatureParticleEffect& cpe);
 
     //! \brief Toggles the creatures text overlay
     void rrSetCreaturesTextOverlay(GameMap& gameMap, bool value);

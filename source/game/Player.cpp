@@ -20,6 +20,7 @@
 #include "game/Seat.h"
 #include "rooms/RoomType.h"
 #include "spell/Spell.h"
+#include "spell/SpellType.h"
 #include "traps/Trap.h"
 #include "network/ODPacket.h"
 #include "utils/Helper.h"
@@ -33,7 +34,8 @@ Player::Player(GameMap* gameMap, int32_t id) :
     mSeat(nullptr),
     mIsHuman(false),
     mNoTreasuryAvailableTime(0.0f),
-    mHasLost(false)
+    mHasLost(false),
+    mSpellsCooldown(std::vector<uint32_t>(static_cast<uint32_t>(SpellType::nbSpells), 0))
 {
 }
 
@@ -114,3 +116,25 @@ const PlayerEvent* Player::getNextEvent(uint32_t& index) const
     return mEvents[index];
 }
 
+uint32_t Player::getSpellCooldownTurns(SpellType spellType)
+{
+    uint32_t spellIndex = static_cast<uint32_t>(spellType);
+    if(spellIndex >= mSpellsCooldown.size())
+    {
+        OD_ASSERT_TRUE_MSG(false, "seatId=" + Helper::toString(getId()) + ", spellType=" + Spell::getSpellNameFromSpellType(spellType));
+        return 0;
+    }
+
+    return mSpellsCooldown[spellIndex];
+}
+
+void Player::decreaseSpellCooldowns()
+{
+    for(uint32_t& cooldown : mSpellsCooldown)
+    {
+        if(cooldown <= 0)
+            continue;
+
+        --cooldown;
+    }
+}
