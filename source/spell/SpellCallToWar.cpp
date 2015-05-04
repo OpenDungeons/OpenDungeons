@@ -94,6 +94,7 @@ int SpellCallToWar::getSpellCost(std::vector<EntityBase*>& targets, GameMap* gam
             continue;
         }
 
+        targets.push_back(target);
         priceTotal += pricePerTile;
         playerMana -= pricePerTile;
         if(playerMana < pricePerTile)
