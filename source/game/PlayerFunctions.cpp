@@ -28,7 +28,7 @@
 #include "render/RenderManager.h"
 #include "rooms/Room.h"
 #include "rooms/RoomType.h"
-#include "spell/Spell.h"
+#include "spell/SpellManager.h"
 #include "spell/SpellType.h"
 #include "traps/Trap.h"
 #include "utils/Helper.h"
@@ -423,7 +423,7 @@ void Player::setSpellCooldownTurns(SpellType spellType, uint32_t cooldown)
     uint32_t spellIndex = static_cast<uint32_t>(spellType);
     if(spellIndex >= mSpellsCooldown.size())
     {
-        OD_ASSERT_TRUE_MSG(false, "seatId=" + Helper::toString(getId()) + ", spellType=" + Spell::getSpellNameFromSpellType(spellType));
+        OD_ASSERT_TRUE_MSG(false, "seatId=" + Helper::toString(getId()) + ", spellType=" + SpellManager::getSpellNameFromSpellType(spellType));
         return;
     }
 

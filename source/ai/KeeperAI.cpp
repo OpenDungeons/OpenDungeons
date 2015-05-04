@@ -30,7 +30,7 @@
 #include "rooms/RoomLibrary.h"
 #include "rooms/RoomTrainingHall.h"
 #include "rooms/RoomTreasury.h"
-#include "spell/Spell.h"
+#include "spell/SpellManager.h"
 #include "spell/SpellType.h"
 #include "utils/LogManager.h"
 #include "utils/Random.h"
@@ -761,7 +761,7 @@ bool KeeperAI::handleWorkers()
     // and, if it is the case, we will not be able to spawn a worker.
     Tile* tile = getDungeonTemple()->getCoveredTile(0);
     std::vector<EntityBase*> tiles;
-    int summonCost = Spell::getSpellCost(tiles, &mGameMap, SpellType::summonWorker,
+    int summonCost = SpellManager::getSpellCost(tiles, &mGameMap, SpellType::summonWorker,
         tile->getX(), tile->getY(), tile->getX(), tile->getY(), &mPlayer);
     int mana = static_cast<int>(mPlayer.getSeat()->getMana());
     if(mana < summonCost)
@@ -773,7 +773,7 @@ bool KeeperAI::handleWorkers()
        (Random::Int(0, nbWorkers * 3) == 0))
     {
         mPlayer.getSeat()->takeMana(mana);
-        Spell::castSpell(&mGameMap, SpellType::summonWorker, tiles, &mPlayer);
+        SpellManager::castSpell(&mGameMap, SpellType::summonWorker, tiles, &mPlayer);
         return true;
     }
 

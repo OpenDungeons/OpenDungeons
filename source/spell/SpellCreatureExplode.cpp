@@ -27,11 +27,16 @@
 
 #include "gamemap/GameMap.h"
 
+#include "spell/SpellType.h"
+#include "spell/SpellManager.h"
+
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-int SpellCreatureExplode::getSpellCreatureExplodeCost(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
+static SpellManagerRegister<SpellCreatureExplode> reg(SpellType::creatureExplode, "creatureExplode");
+
+int SpellCreatureExplode::getSpellCost(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
     int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
 {
     int32_t priceTotal = 0;
@@ -72,7 +77,7 @@ int SpellCreatureExplode::getSpellCreatureExplodeCost(std::vector<EntityBase*>& 
     return priceTotal;
 }
 
-void SpellCreatureExplode::castSpellCreatureExplode(GameMap* gameMap, const std::vector<EntityBase*>& targets, Player* player)
+void SpellCreatureExplode::castSpell(GameMap* gameMap, const std::vector<EntityBase*>& targets, Player* player)
 {
     player->setSpellCooldownTurns(SpellType::creatureExplode, ConfigManager::getSingleton().getSpellConfigUInt32("CreatureExplodeCooldown"));
     for(EntityBase* target : targets)
@@ -107,3 +112,14 @@ void SpellCreatureExplode::castSpellCreatureExplode(GameMap* gameMap, const std:
     }
 }
 
+Spell* SpellCreatureExplode::getSpellFromStream(GameMap* gameMap, std::istream &is)
+{
+    OD_ASSERT_TRUE_MSG(false, "SpellCreatureExplode cannot be read from stream");
+    return nullptr;
+}
+
+Spell* SpellCreatureExplode::getSpellFromPacket(GameMap* gameMap, ODPacket &is)
+{
+    OD_ASSERT_TRUE_MSG(false, "SpellCreatureExplode cannot be read from packet");
+    return nullptr;
+}

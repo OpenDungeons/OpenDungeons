@@ -27,11 +27,16 @@
 
 #include "gamemap/GameMap.h"
 
+#include "spell/SpellType.h"
+#include "spell/SpellManager.h"
+
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-int SpellCreatureHeal::getSpellCreatureHealCost(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
+static SpellManagerRegister<SpellCreatureHeal> reg(SpellType::creatureHeal, "creatureHeal");
+
+int SpellCreatureHeal::getSpellCost(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
     int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
 {
     int32_t priceTotal = 0;
@@ -76,7 +81,7 @@ int SpellCreatureHeal::getSpellCreatureHealCost(std::vector<EntityBase*>& target
     return priceTotal;
 }
 
-void SpellCreatureHeal::castSpellCreatureHeal(GameMap* gameMap, const std::vector<EntityBase*>& targets, Player* player)
+void SpellCreatureHeal::castSpell(GameMap* gameMap, const std::vector<EntityBase*>& targets, Player* player)
 {
     player->setSpellCooldownTurns(SpellType::creatureHeal, ConfigManager::getSingleton().getSpellConfigUInt32("CreatureHealCooldown"));
     for(EntityBase* target : targets)
@@ -111,3 +116,14 @@ void SpellCreatureHeal::castSpellCreatureHeal(GameMap* gameMap, const std::vecto
     }
 }
 
+Spell* SpellCreatureHeal::getSpellFromStream(GameMap* gameMap, std::istream &is)
+{
+    OD_ASSERT_TRUE_MSG(false, "SpellCreatureHeal cannot be read from stream");
+    return nullptr;
+}
+
+Spell* SpellCreatureHeal::getSpellFromPacket(GameMap* gameMap, ODPacket &is)
+{
+    OD_ASSERT_TRUE_MSG(false, "SpellCreatureHeal cannot be read from packet");
+    return nullptr;
+}

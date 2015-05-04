@@ -33,6 +33,7 @@
 #include "gamemap/GameMap.h"
 #include "network/ODPacket.h"
 #include "spell/Spell.h"
+#include "spell/SpellManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
@@ -91,7 +92,7 @@ GameEntity* getGameEntityFromStream(GameMap* gameMap, GameEntityType type, std::
         }
         case GameEntityType::spell:
         {
-            entity = Spell::getSpellFromStream(gameMap, is);
+            entity = SpellManager::getSpellFromStream(gameMap, is);
             break;
         }
         case GameEntityType::trapEntity:
@@ -175,7 +176,7 @@ GameEntity* getGameEntityFromPacket(GameMap* gameMap, ODPacket& is)
         }
         case GameEntityType::spell:
         {
-            entity = Spell::getSpellFromPacket(gameMap, is);
+            entity = SpellManager::getSpellFromPacket(gameMap, is);
             break;
         }
         case GameEntityType::trapEntity:

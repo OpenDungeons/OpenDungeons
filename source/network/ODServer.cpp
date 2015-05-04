@@ -46,7 +46,7 @@
 #include "rooms/RoomTrainingHall.h"
 #include "rooms/RoomTreasury.h"
 #include "rooms/RoomType.h"
-#include "spell/Spell.h"
+#include "spell/SpellManager.h"
 #include "spell/SpellType.h"
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
@@ -1362,7 +1362,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             if(!player->getSeat()->isSpellAvailable(spellType))
             {
                 LogManager::getSingleton().logMessage("WARNING: player " + player->getNick()
-                    + " asked to cast a spell not available: " + Spell::getSpellNameFromSpellType(spellType));
+                    + " asked to cast a spell not available: " + SpellManager::getSpellNameFromSpellType(spellType));
                 break;
             }
 
@@ -1370,17 +1370,17 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             if(cooldown > 0)
             {
                 LogManager::getSingleton().logMessage("WARNING: player " + player->getNick()
-                    + " asked to cast a spell " + Spell::getSpellNameFromSpellType(spellType) + " before end of cooldown: "
+                    + " asked to cast a spell " + SpellManager::getSpellNameFromSpellType(spellType) + " before end of cooldown: "
                     + Helper::toString(cooldown));
                 break;
             }
 
             std::vector<EntityBase*> targets;
-            int manaRequired = Spell::getSpellCost(targets, gameMap, spellType, x1, y1, x2, y2, player);
+            int manaRequired = SpellManager::getSpellCost(targets, gameMap, spellType, x1, y1, x2, y2, player);
             if(!player->getSeat()->takeMana(manaRequired))
                 break;
 
-            Spell::castSpell(mGameMap, spellType, targets, player);
+            SpellManager::castSpell(mGameMap, spellType, targets, player);
             break;
         }
 

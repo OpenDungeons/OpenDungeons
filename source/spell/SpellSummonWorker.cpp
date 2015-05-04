@@ -36,9 +36,9 @@
 
 #include <OgreStringConverter.h>
 
-SpellManagerRegister<SpellSummonWorker> reg(SpellType::summonWorker);
+static SpellManagerRegister<SpellSummonWorker> reg(SpellType::summonWorker, "summonWorker");
 
-int SpellSummonWorker::getSpellSummonWorkerCost(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
+int SpellSummonWorker::getSpellCost(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
     int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
 {
     std::vector<EntityBase*> tiles;
@@ -109,7 +109,7 @@ int SpellSummonWorker::getSpellSummonWorkerCost(std::vector<EntityBase*>& target
     return priceTotal;
 }
 
-void SpellSummonWorker::castSpellSummonWorker(GameMap* gameMap, const std::vector<EntityBase*>& targets, Player* player)
+void SpellSummonWorker::castSpell(GameMap* gameMap, const std::vector<EntityBase*>& targets, Player* player)
 {
     player->setSpellCooldownTurns(SpellType::summonWorker, ConfigManager::getSingleton().getSpellConfigUInt32("SummonWorkerCooldown"));
     // Creates a creature from the first worker class found for the given faction.
@@ -148,4 +148,16 @@ void SpellSummonWorker::castSpellSummonWorker(GameMap* gameMap, const std::vecto
         newCreature->createMesh();
         newCreature->setPosition(spawnPosition, false);
    }
+}
+
+Spell* SpellSummonWorker::getSpellFromStream(GameMap* gameMap, std::istream &is)
+{
+    OD_ASSERT_TRUE_MSG(false, "SpellSummonWorker cannot be read from stream");
+    return nullptr;
+}
+
+Spell* SpellSummonWorker::getSpellFromPacket(GameMap* gameMap, ODPacket &is)
+{
+    OD_ASSERT_TRUE_MSG(false, "SpellSummonWorker cannot be read from packet");
+    return nullptr;
 }

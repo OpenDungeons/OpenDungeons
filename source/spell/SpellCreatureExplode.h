@@ -26,10 +26,13 @@ class GameMap;
 class SpellCreatureExplode : public Spell
 {
 public:
-    static int getSpellCreatureExplodeCost(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
+    static int getSpellCost(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
         int tileX1, int tileY1, int tileX2, int tileY2, Player* player);
 
-    static void castSpellCreatureExplode(GameMap* gameMap, const std::vector<EntityBase*>& targets, Player* player);
+    static void castSpell(GameMap* gameMap, const std::vector<EntityBase*>& targets, Player* player);
+
+    static Spell* getSpellFromStream(GameMap* gameMap, std::istream &is);
+    static Spell* getSpellFromPacket(GameMap* gameMap, ODPacket &is);
 };
 
 #endif // SPELLCREATUREEXPLODE_H

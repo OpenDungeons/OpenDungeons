@@ -25,13 +25,18 @@
 
 #include "gamemap/GameMap.h"
 
+#include "spell/SpellManager.h"
+
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
+
+static SpellManagerRegister<SpellCallToWar> reg(SpellType::callToWar, "callToWar");
+
 // TODO : use the correct mesh when available
 SpellCallToWar::SpellCallToWar(GameMap* gameMap) :
-    Spell(gameMap, getSpellNameFromSpellType(getSpellType()), "TrainingDummy1", 0.0,
+    Spell(gameMap, SpellManager::getSpellNameFromSpellType(getSpellType()), "TrainingDummy1", 0.0,
         ConfigManager::getSingleton().getSpellConfigInt32("CallToWarNbTurnsMax"),
         "Triggered", true)
 {
@@ -62,7 +67,7 @@ void SpellCallToWar::slap()
     deleteYourself();
 }
 
-int SpellCallToWar::getSpellCallToWarCost(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
+int SpellCallToWar::getSpellCost(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
     int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
 {
     // Call to war can be cast on every tile where fullness = 0 (no matter type or vision)
@@ -98,7 +103,7 @@ int SpellCallToWar::getSpellCallToWarCost(std::vector<EntityBase*>& targets, Gam
     return priceTotal;
 }
 
-void SpellCallToWar::castSpellCallToWar(GameMap* gameMap, const std::vector<EntityBase*>& targets, Player* player)
+void SpellCallToWar::castSpell(GameMap* gameMap, const std::vector<EntityBase*>& targets, Player* player)
 {
     player->setSpellCooldownTurns(SpellType::callToWar, ConfigManager::getSingleton().getSpellConfigUInt32("CallToWarCooldown"));
     for(EntityBase* target : targets)
@@ -124,5 +129,15 @@ void SpellCallToWar::castSpellCallToWar(GameMap* gameMap, const std::vector<Enti
         spell->createMesh();
         spell->setPosition(spawnPosition, false);
     }
+}
+
+Spell* SpellCallToWar::getSpellFromStream(GameMap* gameMap, std::istream &is)
+{
+    return new SpellCallToWar(gameMap);
+}
+
+Spell* SpellCallToWar::getSpellFromPacket(GameMap* gameMap, ODPacket &is)
+{
+    return new SpellCallToWar(gameMap);
 }
 
