@@ -328,7 +328,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 const Ogre::ColourValue& textColor = (gold < price) ? red : white;
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
                 textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Rooms::getRoomNameFromRoomType(selectedRoomType))
-                    + " [" + Ogre::StringConverter::toString(price)+ "]");
+                    + " [" + Ogre::StringConverter::toString(price)+ " Gold]");
                 break;
             }
             case SelectedAction::buildTrap:
@@ -349,7 +349,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 const Ogre::ColourValue& textColor = (gold < price) ? red : white;
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
                 textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Traps::getTrapNameFromTrapType(selectedTrapType))
-                    + " [" + Ogre::StringConverter::toString(price)+ "]");
+                    + " [" + Ogre::StringConverter::toString(price)+ " Gold]");
                 break;
             }
             case SelectedAction::castSpell:
@@ -393,7 +393,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 const Ogre::ColourValue& textColor = (mana < price) ? red : white;
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
                 textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(SpellManager::getSpellNameFromSpellType(selectedSpellType))
-                    + " [" + Ogre::StringConverter::toString(price)+ "]");
+                    + " [" + Ogre::StringConverter::toString(price)+ " Mana]");
                 break;
             }
             case SelectedAction::destroyRoom:
@@ -417,7 +417,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, white);
                 textRenderer.setText(ODApplication::POINTER_INFO_STRING, "Destroy room ["
-                    + Ogre::StringConverter::toString(goldRetrieved)+ "]");
+                    + Ogre::StringConverter::toString(goldRetrieved)+ " Gold]");
                 break;
             }
             case SelectedAction::destroyTrap:
@@ -441,7 +441,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, white);
                 textRenderer.setText(ODApplication::POINTER_INFO_STRING, "Destroy trap ["
-                    + Ogre::StringConverter::toString(goldRetrieved)+ "]");
+                    + Ogre::StringConverter::toString(goldRetrieved)+ " Gold]");
                 break;
             }
             default:

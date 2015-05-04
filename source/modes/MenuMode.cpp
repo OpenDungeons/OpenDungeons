@@ -17,10 +17,12 @@
 
 #include "MenuMode.h"
 
-#include "render/Gui.h"
+#include "ODApplication.h"
 #include "gamemap/GameMap.h"
-#include "render/ODFrameListener.h"
 #include "modes/ModeManager.h"
+#include "render/Gui.h"
+#include "render/ODFrameListener.h"
+#include "render/TextRenderer.h"
 #include "sound/MusicPlayer.h"
 
 #include <CEGUI/widgets/PushButton.h>
@@ -65,6 +67,8 @@ void MenuMode::activate()
     getModeManager().getGui().loadGuiSheet(Gui::mainMenu);
 
     giveFocus();
+
+    TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "");
 
     // Play the main menu music
     // TODO: Make this configurable.
