@@ -9,13 +9,14 @@ material SpellCreatureHeal
             depth_write off
             diffuse vertexcolour
 
-            point_sprites on
-            point_size 1
-            point_size_attenuation on
+            // Disabled because not working with intel graphics
+            //point_sprites on
+            //point_size 1
+            //point_size_attenuation on
 
             texture_unit
             {
-                texture flare.png
+                texture Heartflare.png
             }
         }
     }

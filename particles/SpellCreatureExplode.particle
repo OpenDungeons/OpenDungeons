@@ -19,8 +19,9 @@ particle_system SpellCreatureExplode
         direction               0 1 0
         velocity                5
         duration                0.1
-        repeat_delay_min        1
-        repeat_delay_max        3
+        // Don't start the emitter more than once.
+        //repeat_delay_min        1
+        //repeat_delay_max        3
         width           1
         height          1
         depth           0

@@ -2,6 +2,7 @@
 particle_system SpellCreatureHeal
 {
     material        SpellCreatureHeal
+    point_rendering false
     particle_width	1
     particle_height 1
     cull_each       false
