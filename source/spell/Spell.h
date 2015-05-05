@@ -26,7 +26,12 @@ class ODPacket;
 enum class SpellType;
 
 /*! \class Spell
- *  \brief Defines a spell
+ *  \brief Defines a spell. To be usable in game, a spell must register by creating a global class SpellManagerRegister.
+ *         A Spell have to have the following static functions (otherwise, it won't be registrable):
+ *         - getSpellCost
+ *         - castSpell
+ *         - getSpellFromStream
+ *         - getSpellFromPacket
  */
 class Spell : public RenderedMovableEntity
 {
@@ -39,25 +44,10 @@ public:
     virtual GameEntityType getObjectType() const
     { return GameEntityType::spell; }
 
-    static Spell* getSpellFromStream(GameMap* gameMap, std::istream &is);
-    static Spell* getSpellFromPacket(GameMap* gameMap, ODPacket &is);
-
     virtual SpellType getSpellType() const = 0;
 
     virtual void addToGameMap() override;
     virtual void removeFromGameMap() override;
-
-    static std::string getSpellNameFromSpellType(SpellType t);
-
-    //! Returns the spell cost required to cast the spell for the given player. targets will
-    //! be filled with the suitable targets. Note that if there are more targets than available mana,
-    //! most spells will fill targets until no more mana is left (chosen randomly between available
-    //! targets)
-    static int getSpellCost(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
-        int tileX1, int tileY1, int tileX2, int tileY2, Player* player);
-
-    //! Casts the spell. In most of the cases, targets should be the vector filled by getSpellCost
-    static void castSpell(GameMap* gameMap, SpellType type, const std::vector<EntityBase*>& targets, Player* player);
 
     //! \brief Some spells can be cast where the caster do not have vision. In this case, we
     //! want him and his allies to see the spell even if they don't have vision on the tile

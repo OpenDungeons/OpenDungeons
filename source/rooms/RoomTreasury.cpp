@@ -17,17 +17,18 @@
 
 #include "rooms/RoomTreasury.h"
 
-#include "game/Player.h"
-#include "game/Seat.h"
-#include "gamemap/GameMap.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 #include "entities/TreasuryObject.h"
-#include "utils/Helper.h"
-#include "utils/LogManager.h"
+#include "game/Player.h"
+#include "game/Seat.h"
+#include "gamemap/GameMap.h"
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
 #include "sound/SoundEffectsManager.h"
+#include "utils/Helper.h"
+#include "utils/LogManager.h"
+#include "utils/Random.h"
 
 #include <string>
 
@@ -207,7 +208,13 @@ void RoomTreasury::updateMeshesForTile(Tile* tile, RoomTreasuryTileData* roomTre
 
     if (gold > 0)
     {
-        RenderedMovableEntity* ro = loadBuildingObject(getGameMap(), newMeshName, tile, 0.0, false);
+        const double offset = 0.2;
+        double posX = static_cast<double>(tile->getX());
+        double posY = static_cast<double>(tile->getY());
+        posX += Random::Double(-offset, offset);
+        posY += Random::Double(-offset, offset);
+        double angle = Random::Double(0.0, 360);
+        RenderedMovableEntity* ro = loadBuildingObject(getGameMap(), newMeshName, tile, posX, posY, angle, false);
         addBuildingObject(tile, ro);
     }
 

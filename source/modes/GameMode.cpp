@@ -35,7 +35,7 @@
 #include "rooms/RoomType.h"
 #include "sound/MusicPlayer.h"
 #include "sound/SoundEffectsManager.h"
-#include "spell/Spell.h"
+#include "spell/SpellManager.h"
 #include "spell/SpellType.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
@@ -328,7 +328,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 const Ogre::ColourValue& textColor = (gold < price) ? red : white;
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
                 textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Rooms::getRoomNameFromRoomType(selectedRoomType))
-                    + " [" + Ogre::StringConverter::toString(price)+ "]");
+                    + " [" + Ogre::StringConverter::toString(price)+ " Gold]");
                 break;
             }
             case SelectedAction::buildTrap:
@@ -349,7 +349,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 const Ogre::ColourValue& textColor = (gold < price) ? red : white;
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
                 textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Traps::getTrapNameFromTrapType(selectedTrapType))
-                    + " [" + Ogre::StringConverter::toString(price)+ "]");
+                    + " [" + Ogre::StringConverter::toString(price)+ " Gold]");
                 break;
             }
             case SelectedAction::castSpell:
@@ -381,19 +381,19 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 {
                     double remainingTime = static_cast<double>(cooldown) / ODApplication::turnsPerSecond;
                     textRenderer.setColor(ODApplication::POINTER_INFO_STRING, red);
-                    textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Spell::getSpellNameFromSpellType(selectedSpellType))
+                    textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(SpellManager::getSpellNameFromSpellType(selectedSpellType))
                         + " (" + Helper::toString(remainingTime, 2)+ " s)");
 
                     break;
                 }
 
                 std::vector<EntityBase*> targets;
-                int price = Spell::getSpellCost(targets, mGameMap, selectedSpellType, tileX1, tileY1, tileX2, tileY2, player);
+                int price = SpellManager::getSpellCost(targets, mGameMap, selectedSpellType, tileX1, tileY1, tileX2, tileY2, player);
                 int mana = player->getSeat()->getMana();
                 const Ogre::ColourValue& textColor = (mana < price) ? red : white;
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
-                textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Spell::getSpellNameFromSpellType(selectedSpellType))
-                    + " [" + Ogre::StringConverter::toString(price)+ "]");
+                textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(SpellManager::getSpellNameFromSpellType(selectedSpellType))
+                    + " [" + Ogre::StringConverter::toString(price)+ " Mana]");
                 break;
             }
             case SelectedAction::destroyRoom:
@@ -417,7 +417,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, white);
                 textRenderer.setText(ODApplication::POINTER_INFO_STRING, "Destroy room ["
-                    + Ogre::StringConverter::toString(goldRetrieved)+ "]");
+                    + Ogre::StringConverter::toString(goldRetrieved)+ " Gold]");
                 break;
             }
             case SelectedAction::destroyTrap:
@@ -441,7 +441,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, white);
                 textRenderer.setText(ODApplication::POINTER_INFO_STRING, "Destroy trap ["
-                    + Ogre::StringConverter::toString(goldRetrieved)+ "]");
+                    + Ogre::StringConverter::toString(goldRetrieved)+ " Gold]");
                 break;
             }
             default:

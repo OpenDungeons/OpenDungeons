@@ -365,6 +365,7 @@ set(OD_SOURCEFILES
     ${SRC}/spell/SpellCallToWar.cpp
     ${SRC}/spell/SpellCreatureExplode.cpp
     ${SRC}/spell/SpellCreatureHeal.cpp
+    ${SRC}/spell/SpellManager.cpp
     ${SRC}/spell/SpellSummonWorker.cpp
     ${SRC}/spell/SpellType.cpp
 
