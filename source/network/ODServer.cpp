@@ -1377,6 +1377,11 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             std::vector<EntityBase*> targets;
             int manaRequired = SpellManager::getSpellCost(targets, gameMap, spellType, x1, y1, x2, y2, player);
+
+            // If there are no suitable targets, we do not cast the spell (and, thus, do not decrease mana or trigger countdown
+            if(targets.empty())
+                break;
+
             if(!player->getSeat()->takeMana(manaRequired))
                 break;
 
