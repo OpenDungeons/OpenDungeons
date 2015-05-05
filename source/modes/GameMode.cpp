@@ -317,7 +317,11 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 
                 int gold = player->getSeat()->getGold();
                 RoomType selectedRoomType = mPlayerSelection.getNewRoomType();
-                int price = Room::costPerTile(selectedRoomType) * nbTile;
+                int price;
+                if(nbTile > 0)
+                    price = Room::costPerTile(selectedRoomType) * nbTile;
+                else
+                    price = Room::costPerTile(selectedRoomType);
 
                 // Check whether the room type is the first treasury tile.
                 // In that case, the cost of the first tile is 0, to prevent the player from being stuck
@@ -325,7 +329,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 if (nbTile > 0 && selectedRoomType == RoomType::treasury && player->getSeat()->getNbTreasuries() == 0)
                     price -= Room::costPerTile(selectedRoomType);
 
-                const Ogre::ColourValue& textColor = (gold < price) ? red : white;
+                const Ogre::ColourValue& textColor = ((gold < price) || (nbTile == 0 && inputManager->mLMouseDown)) ? red : white;
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
                 textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Rooms::getRoomNameFromRoomType(selectedRoomType))
                     + " [" + Ogre::StringConverter::toString(price)+ " Gold]");
@@ -345,8 +349,13 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 
                 int gold = player->getSeat()->getGold();
                 TrapType selectedTrapType = mPlayerSelection.getNewTrapType();
-                int price = Trap::costPerTile(selectedTrapType) * nbTile;
-                const Ogre::ColourValue& textColor = (gold < price) ? red : white;
+                int price;
+                if(nbTile > 0)
+                    price = Trap::costPerTile(selectedTrapType) * nbTile;
+                else
+                    price = Trap::costPerTile(selectedTrapType);
+
+                const Ogre::ColourValue& textColor = ((gold < price) || (nbTile == 0 && inputManager->mLMouseDown)) ? red : white;
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
                 textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Traps::getTrapNameFromTrapType(selectedTrapType))
                     + " [" + Ogre::StringConverter::toString(price)+ " Gold]");
@@ -390,7 +399,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 std::vector<EntityBase*> targets;
                 int price = SpellManager::getSpellCost(targets, mGameMap, selectedSpellType, tileX1, tileY1, tileX2, tileY2, player);
                 int mana = player->getSeat()->getMana();
-                const Ogre::ColourValue& textColor = (mana < price) ? red : white;
+                const Ogre::ColourValue& textColor = ((mana < price) || (targets.empty() && inputManager->mLMouseDown)) ? red : white;
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
                 textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(SpellManager::getSpellNameFromSpellType(selectedSpellType))
                     + " [" + Ogre::StringConverter::toString(price)+ " Mana]");

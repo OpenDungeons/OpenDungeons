@@ -45,19 +45,20 @@ int SpellSummonWorker::getSpellCost(std::vector<EntityBase*>& targets, GameMap* 
     gameMap->playerSelects(tiles, tileX1, tileY1, tileX2, tileY2, SelectionTileAllowed::groundClaimedAllied,
         SelectionEntityWanted::tiles, player);
 
-    if(tiles.empty())
-        return 0;
-
     int32_t nbFreeWorkers = ConfigManager::getSingleton().getSpellConfigInt32("SummonWorkerNbFree");
     int32_t nbWorkers = gameMap->getNbWorkersForSeat(player->getSeat());
-    int32_t priceTotal = 0;
     int32_t pricePerWorker = ConfigManager::getSingleton().getSpellConfigInt32("SummonWorkerBasePrice");
-    int32_t nbWorkersSummoned = 0;
-    int32_t playerMana = static_cast<int32_t>(player->getSeat()->getMana());
     if(nbWorkers > nbFreeWorkers)
     {
         pricePerWorker *= std::pow(2, nbWorkers - nbFreeWorkers);
     }
+
+    if(tiles.empty())
+        return pricePerWorker;
+
+    int32_t priceTotal = 0;
+    int32_t nbWorkersSummoned = 0;
+    int32_t playerMana = static_cast<int32_t>(player->getSeat()->getMana());
 
     for(EntityBase* target : tiles)
     {

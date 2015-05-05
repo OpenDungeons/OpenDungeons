@@ -75,11 +75,11 @@ int SpellCallToWar::getSpellCost(std::vector<EntityBase*>& targets, GameMap* gam
     gameMap->playerSelects(tiles, tileX1, tileY1, tileX2, tileY2, SelectionTileAllowed::groundTiles,
         SelectionEntityWanted::tiles, player);
 
+    int32_t pricePerTile = ConfigManager::getSingleton().getSpellConfigInt32("CallToWarPrice");
     if(tiles.empty())
-        return 0;
+        return pricePerTile;
 
     int32_t priceTotal = 0;
-    int32_t pricePerTile = ConfigManager::getSingleton().getSpellConfigInt32("CallToWarPrice");
     int32_t playerMana = static_cast<int32_t>(player->getSeat()->getMana());
     for(EntityBase* target : tiles)
     {

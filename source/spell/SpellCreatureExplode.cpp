@@ -50,7 +50,7 @@ int SpellCreatureExplode::getSpellCost(std::vector<EntityBase*>& targets, GameMa
         SelectionEntityWanted::creatureAliveEnemy, player);
 
     if(creatures.empty())
-        return 0;
+        return pricePerTile;
 
     std::random_shuffle(creatures.begin(), creatures.end());
     for(EntityBase* target : creatures)
