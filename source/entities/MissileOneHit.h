@@ -33,7 +33,8 @@ class MissileOneHit: public MissileObject
 {
 public:
     MissileOneHit(GameMap* gameMap, Seat* seat, const std::string& senderName, const std::string& meshName,
-        const Ogre::Vector3& direction, double physicalDamage, double magicalDamage, bool damageAllies);
+        const std::string& particleScript, const Ogre::Vector3& direction, double physicalDamage, double magicalDamage,
+        bool damageAllies);
     MissileOneHit(GameMap* gameMap);
 
     virtual MissileObjectType getMissileType() const override
@@ -43,6 +44,8 @@ public:
 
     void exportToStream(std::ostream& os) const override;
     void importFromStream(std::istream& is) override;
+    void exportToPacket(ODPacket& os) const override;
+    void importFromPacket(ODPacket& is) override;
 
     static MissileOneHit* getMissileOneHitFromStream(GameMap* gameMap, std::istream& is);
     static MissileOneHit* getMissileOneHitFromPacket(GameMap* gameMap, ODPacket& packet);

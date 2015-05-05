@@ -466,6 +466,11 @@ ProtectDungeonTemple	NULL
 17	10	1	0	3
 17	12	1	0	3
 17	13	1	0	3
+17	15	1	0	1
+17	16	1	0	1
+17	17	1	0	1
+17	18	1	0	1
+17	19	1	0	1
 17	24	2	100
 17	25	2	100
 17	30	1	0	2
@@ -477,6 +482,12 @@ ProtectDungeonTemple	NULL
 18	3	1	0	1
 18	4	1	0	1
 18	5	1	0	1
+18	13	1	0
+18	15	1	0	1
+18	16	1	0	1
+18	17	1	0	1
+18	18	1	0	1
+18	19	1	0	1
 18	24	2	100
 18	25	2	100
 18	30	1	0	2
@@ -488,6 +499,12 @@ ProtectDungeonTemple	NULL
 19	3	1	0	1
 19	4	1	0	1
 19	5	1	0	1
+19	13	1	0
+19	15	1	0	1
+19	16	1	0	1
+19	17	1	0	1
+19	18	1	0	1
+19	19	1	0	1
 19	24	2	100
 19	25	2	100
 19	30	1	0	2
@@ -499,6 +516,12 @@ ProtectDungeonTemple	NULL
 20	3	1	0	1
 20	4	1	0	1
 20	5	1	0	1
+20	13	1	0
+20	15	1	0	1
+20	16	1	0	1
+20	17	1	0	1
+20	18	1	0	1
+20	19	1	0	1
 20	24	2	100
 20	25	2	100
 20	30	1	0	2
@@ -510,12 +533,14 @@ ProtectDungeonTemple	NULL
 21	3	1	0	1
 21	4	1	0	1
 21	5	1	0	1
+21	13	1	0
 21	24	2	100
 21	25	2	100
 22	1	1	0
 22	3	1	0	1
 22	4	1	0	1
 22	5	1	0	1
+22	13	1	0	1
 22	24	2	100
 22	25	2	100
 23	1	1	0
@@ -1247,6 +1272,7 @@ DwarfWorker	1
 2	DefaultWorker3	Kobold.mesh	12	9	0	DefaultWorker	1	0	max	100	0	0	none	none	0	none	0
 0	Wyvern2	Wyvern.mesh	18	32	0	Wyvern	1	0	max	100	0	0	none	none	0	none	1	1	100	SpellCreatureExplode	0.01
 1	TentacleAlbine6	TentacleAlbine	11	5	0	TentacleAlbine	1	0	max	100	0	0	none	none	0	none	0
+0	Wizard1	Wizard.mesh	20	19	0	Wizard	1	0	max	100	0	0	RustyShield	none	0	none	0
 [/Creatures]
 
 [Spells]

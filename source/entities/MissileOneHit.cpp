@@ -25,11 +25,17 @@
 #include <iostream>
 
 MissileOneHit::MissileOneHit(GameMap* gameMap, Seat* seat, const std::string& senderName, const std::string& meshName,
-        const Ogre::Vector3& direction, double physicalDamage, double magicalDamage, bool damageAllies) :
+        const std::string& particleScript, const Ogre::Vector3& direction, double physicalDamage, double magicalDamage,
+        bool damageAllies) :
     MissileObject(gameMap, seat, senderName, meshName, direction, damageAllies),
     mPhysicalDamage(physicalDamage),
     mMagicalDamage(magicalDamage)
 {
+    if(!particleScript.empty())
+    {
+        EntityParticleEffect* effect = new EntityParticleEffect(nextParticleSystemsName(), particleScript, -1);
+        mEntityParticleEffects.push_back(effect);
+    }
 }
 
 MissileOneHit::MissileOneHit(GameMap* gameMap) :
@@ -67,6 +73,13 @@ void MissileOneHit::exportToStream(std::ostream& os) const
     MissileObject::exportToStream(os);
     os << mPhysicalDamage << "\t";
     os << mMagicalDamage << "\t";
+
+    uint32_t nbEffects = mEntityParticleEffects.size();
+    os << "\t" << nbEffects;
+    for(EntityParticleEffect* effect : mEntityParticleEffects)
+    {
+        os << "\t" << effect->mScript;
+    }
 }
 
 void MissileOneHit::importFromStream(std::istream& is)
@@ -74,4 +87,46 @@ void MissileOneHit::importFromStream(std::istream& is)
     MissileObject::importFromStream(is);
     OD_ASSERT_TRUE(is >> mPhysicalDamage);
     OD_ASSERT_TRUE(is >> mMagicalDamage);
+    uint32_t nbEffects;
+    OD_ASSERT_TRUE(is >> nbEffects);
+    while(nbEffects > 0)
+    {
+        --nbEffects;
+        std::string effectScript;
+        OD_ASSERT_TRUE(is >> effectScript);
+        EntityParticleEffect* effect = new EntityParticleEffect(nextParticleSystemsName(), effectScript, -1);
+        mEntityParticleEffects.push_back(effect);
+    }
+}
+
+void MissileOneHit::exportToPacket(ODPacket& os) const
+{
+    MissileObject::exportToPacket(os);
+    uint32_t nbEffects = mEntityParticleEffects.size();
+    os << nbEffects;
+    for(EntityParticleEffect* effect : mEntityParticleEffects)
+    {
+        os << effect->mName;
+        os << effect->mScript;
+        os << effect->mNbTurnsEffect;
+    }
+}
+
+void MissileOneHit::importFromPacket(ODPacket& is)
+{
+    MissileObject::importFromPacket(is);
+    uint32_t nbEffects;
+    OD_ASSERT_TRUE(is >> nbEffects);
+
+    while(nbEffects > 0)
+    {
+        --nbEffects;
+
+        std::string effectName;
+        std::string effectScript;
+        uint32_t nbTurns;
+        OD_ASSERT_TRUE(is >> effectName >> effectScript >> nbTurns);
+        EntityParticleEffect* effect = new EntityParticleEffect(effectName, effectScript, nbTurns);
+        mEntityParticleEffects.push_back(effect);
+    }
 }

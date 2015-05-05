@@ -25,6 +25,7 @@
 #include "entities/CreatureAction.h"
 #include "entities/CreatureDefinition.h"
 #include "entities/CreatureSound.h"
+#include "entities/MissileOneHit.h"
 #include "entities/ResearchEntity.h"
 #include "entities/Tile.h"
 #include "entities/TreasuryObject.h"
@@ -81,6 +82,7 @@
 #endif
 
 static const int NB_TURN_FLEE_MAX = 5;
+const Ogre::Real CANNON_MISSILE_HEIGHT = 0.3;
 
 CreatureParticuleEffect::~CreatureParticuleEffect()
 {
@@ -2456,11 +2458,37 @@ bool Creature::handleAttackAction(const CreatureAction& actionItem)
     // Calculate how much damage we do.
     Tile* myTile = getPositionTile();
     Ogre::Real range = Pathfinding::distanceTile(*myTile, *attackedTile);
-    // Do the damage and award experience points to both creatures.
-    double damageDone = attackedObject->takeDamage(this, getPhysicalDamage(range), getMagicalDamage(range), attackedTile);
-    double expGained;
-    expGained = 1.2 + 0.2 * std::pow(damageDone, 1.3);
+    double physicalDamage = getPhysicalDamage(range);
+    double magicalDamage = getMagicalDamage(range);
 
+    double expGained;
+    if(range > 1.0)
+    {
+        Ogre::Vector3 position;
+        position.x = static_cast<Ogre::Real>(myTile->getX());
+        position.y = static_cast<Ogre::Real>(myTile->getY());
+        position.z = CANNON_MISSILE_HEIGHT;
+        MissileOneHit* missile = new MissileOneHit(getGameMap(), getSeat(), getName(), "Cannonball",
+            "MissileMagic", walkDirection, physicalDamage, magicalDamage, false);
+        missile->addToGameMap();
+        missile->createMesh();
+        missile->setPosition(position, false);
+        missile->setMoveSpeed(3.0);
+        // We don't want the missile to stay idle for 1 turn. Because we are in a doUpkeep context,
+        // we can safely call the missile doUpkeep as we know the engine will not call it the turn
+        // it has been added
+        missile->doUpkeep();
+
+        // Ranged creatures get a fixed amount of experience
+        expGained = 1.5;
+    }
+    else
+    {
+        double damageDone = attackedObject->takeDamage(this, physicalDamage, magicalDamage, attackedTile);
+        expGained = 1.2 + 0.2 * std::pow(damageDone, 1.3);
+    }
+
+    // Do the damage and award experience points to both creatures.
     decreaseAwakeness(0.5);
 
     // Give a small amount of experience to the creature we hit.
