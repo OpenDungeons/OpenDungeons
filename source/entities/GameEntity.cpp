@@ -32,6 +32,8 @@
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
 
+#include "render/RenderManager.h"
+
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
@@ -296,4 +298,56 @@ void GameEntity::importFromStream(std::istream& is)
     OD_ASSERT_TRUE(is >> mPosition.x >> mPosition.y >> mPosition.z);
 }
 
+void GameEntity::destroyMeshLocal()
+{
+    EntityBase::destroyMeshLocal();
+    clearParticleSystems();
+}
 
+void GameEntity::clearParticleSystems()
+{
+    for(EntityParticleEffect* effect : mEntityParticleEffects)
+    {
+        RenderManager::getSingleton().rrEntityRemoveParticleEffect(this, effect->mParticleSystem);
+        delete effect;
+    }
+    mEntityParticleEffects.clear();
+}
+
+std::string GameEntity::nextParticleSystemsName()
+{
+    return getName() + "_Particle" + Helper::toString(mParticleSystemsNumber);
+}
+
+void GameEntity::clientUpkeep()
+{
+    for(auto it = mEntityParticleEffects.begin(); it != mEntityParticleEffects.end();)
+    {
+        EntityParticleEffect* cpe = *it;
+        // We check if it is a permanent effect
+        if(cpe->mNbTurnsEffect < 0)
+            continue;
+
+        // We check if the effect is still active
+        if(cpe->mNbTurnsEffect > 0)
+        {
+            --cpe->mNbTurnsEffect;
+            ++it;
+            continue;
+        }
+
+        // Remove the effect
+        RenderManager::getSingleton().rrEntityRemoveParticleEffect(this, cpe->mParticleSystem);
+        it = mEntityParticleEffects.erase(it);
+        delete cpe;
+    }
+}
+
+void GameEntity::restoreEntityState()
+{
+    for(EntityParticleEffect* cpe : mEntityParticleEffects)
+    {
+        cpe->mParticleSystem = RenderManager::getSingleton().rrEntityAddParticleEffect(this,
+            cpe->mName, cpe->mScript);
+    }
+}

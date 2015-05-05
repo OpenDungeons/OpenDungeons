@@ -370,6 +370,7 @@ void MovableGameEntity::importFromPacket(ODPacket& is)
 
 void MovableGameEntity::restoreEntityState()
 {
+    GameEntity::restoreEntityState();
     if(!mPrevAnimationState.empty())
     {
         setAnimationSpeedFactor(mAnimationSpeedFactor);

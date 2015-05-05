@@ -1245,7 +1245,7 @@ DwarfWorker	1
 3	Orc3	Orc	3	20	0	Orc	1	0	0	100	0	0	none	none	0	none	0
 0	Wyvern1	Wyvern	15	18	0	Wyvern	1	0	max	100	0	0	none	none	4	none	0
 2	DefaultWorker3	Kobold.mesh	12	9	0	DefaultWorker	1	0	max	100	0	0	none	none	0	none	0
-0	Wyvern2	Wyvern.mesh	18	32	0	Wyvern	1	0	max	100	0	0	none	none	0	none	0
+0	Wyvern2	Wyvern.mesh	18	32	0	Wyvern	1	0	max	100	0	0	none	none	0	none	1	1	100	SpellCreatureExplode	0.01
 1	TentacleAlbine6	TentacleAlbine	11	5	0	TentacleAlbine	1	0	max	100	0	0	none	none	0	none	0
 [/Creatures]
 

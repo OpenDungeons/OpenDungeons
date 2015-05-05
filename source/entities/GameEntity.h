@@ -34,6 +34,7 @@
 namespace Ogre
 {
 class SceneNode;
+class ParticleSystem;
 } //End namespace Ogre
 
 class Creature;
@@ -52,6 +53,22 @@ enum class EntityCarryType
     researchEntity,
     craftedTrap,
     gold
+};
+
+class EntityParticleEffect
+{
+public:
+    EntityParticleEffect(const std::string& name, const std::string& script, uint32_t nbTurnsEffect) :
+        mName(name),
+        mScript(script),
+        mParticleSystem(nullptr),
+        mNbTurnsEffect(nbTurnsEffect)
+    {}
+
+    std::string mName;
+    std::string mScript;
+    Ogre::ParticleSystem* mParticleSystem;
+    uint32_t mNbTurnsEffect;
 };
 
 /*! \class GameEntity GameEntity.h
@@ -73,7 +90,8 @@ class GameEntity : public EntityBase
           ) :
     EntityBase(name, meshName, seat),
     mGameMap           (gameMap),
-    mIsOnMap           (true)
+    mIsOnMap           (true),
+    mParticleSystemsNumber   (0)
     {
         assert(mGameMap != nullptr);
     }
@@ -102,8 +120,7 @@ class GameEntity : public EntityBase
 
     //! \brief defines what happens on each turn with this object on client side. Note
     //! that they need to register to GameMap::addClientUpkeepEntity
-    virtual void clientUpkeep()
-    {}
+    virtual void clientUpkeep();
 
     //! \brief Returns a list of the tiles that this object is in/covering.  For creatures and other small objects
     //! this will be a single tile, for larger objects like rooms this will be 1 or more tiles.
@@ -171,8 +188,7 @@ class GameEntity : public EntityBase
     //! It should restore the entity state (if it was dead before the client got vision, it should
     //! be dead on the ground for example).
     //! Note that this function is to be called on client side only
-    virtual void restoreEntityState()
-    {}
+    virtual void restoreEntityState();
 
     /*! This function should be called on server side on entities loaded from level files and only them. It will
      * be called after all entities are created and added to the gamemap on all of them to allow to restore
@@ -202,6 +218,9 @@ class GameEntity : public EntityBase
     virtual void importFromStream(std::istream& is);
     virtual void exportToPacket(ODPacket& os) const;
     virtual void importFromPacket(ODPacket& is);
+
+    virtual void destroyMeshLocal();
+
   protected:
 
     //! \brief Called while moving the entity to add it to the tile it gets on
@@ -216,6 +235,14 @@ class GameEntity : public EntityBase
     virtual void fireRemoveEntity(Seat* seat) = 0;
     std::vector<Seat*> mSeatsWithVisionNotified;
 
+    //! List of particle effects affecting this entity. Note that the particle effects are not saved on the entity automatically
+    //! when exporting to stream or packet because some might build them alone and saving them would break level and saved
+    //! games compatibility. If it becomes usefull later, it can be done.
+    std::vector<EntityParticleEffect*> mEntityParticleEffects;
+
+    //! Constructs a particle system based on this entity name
+    std::string nextParticleSystemsName();
+
   private:
     //! \brief Pointer to the GameMap object.
     GameMap* mGameMap;
@@ -223,6 +250,12 @@ class GameEntity : public EntityBase
     //! \brief Whether the entity is on map or not (for example, when it is
     //! picked up, it is not on map)
     bool mIsOnMap;
+
+    //! Unique number allowing to have unique names for particle systems attached to this creature
+    uint32_t mParticleSystemsNumber;
+
+    void clearParticleSystems();
+
 };
 
 #endif // GAMEENTITY_H

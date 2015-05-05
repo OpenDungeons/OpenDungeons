@@ -519,8 +519,6 @@ void RenderManager::rrDestroyCreature(Creature* curCreature)
         curCreature->setOverlayStatus(nullptr);
     }
 
-    curCreature->clearParticleSystems();
-
     std::string creatureName = curCreature->getOgreNamePrefix() + curCreature->getName();
     if (mSceneManager->hasEntity(creatureName))
     {
@@ -879,23 +877,28 @@ void RenderManager::rrMoveMapLightFlicker(MapLight* mapLight, const Ogre::Vector
     mapLight->getFlickerNode()->setPosition(position);
 }
 
-void RenderManager::rrCreatureAddParticleEffect(Creature* creature, CreatureParticleEffect& cpe)
+Ogre::ParticleSystem* RenderManager::rrEntityAddParticleEffect(GameEntity* entity, const std::string& particleName,
+    const std::string& particleScript)
 {
-    Ogre::SceneNode* node = creature->getEntityNode();
-    if(!cpe.mScript.empty())
-        cpe.mParticleSystem = mSceneManager->createParticleSystem(cpe.mName, cpe.mScript);
+    Ogre::SceneNode* node = entity->getEntityNode();
+    if(particleScript.empty())
+        return nullptr;
 
-    node->attachObject(cpe.mParticleSystem);
+    Ogre::ParticleSystem* particleSystem = mSceneManager->createParticleSystem(particleName, particleScript);
+
+    node->attachObject(particleSystem);
+
+    return particleSystem;
 }
 
-void RenderManager::rrCreatureRemoveParticleEffect(Creature* creature, const CreatureParticleEffect& cpe)
+void RenderManager::rrEntityRemoveParticleEffect(GameEntity* entity, Ogre::ParticleSystem* particleSystem)
 {
-    if(cpe.mParticleSystem == nullptr)
+    if(particleSystem == nullptr)
         return;
 
-    Ogre::SceneNode* node = creature->getEntityNode();
-    node->detachObject(cpe.mParticleSystem);
-    mSceneManager->destroyParticleSystem(cpe.mParticleSystem);
+    Ogre::SceneNode* node = entity->getEntityNode();
+    node->detachObject(particleSystem);
+    mSceneManager->destroyParticleSystem(particleSystem);
 }
 
 std::string RenderManager::consoleListAnimationsForMesh(const std::string& meshName)
