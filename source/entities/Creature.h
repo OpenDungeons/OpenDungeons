@@ -54,6 +54,21 @@ namespace Ogre
 class ParticleSystem;
 }
 
+//! Class used on server side to link creature effects (spells, slap, ...) with particle effects
+class CreatureParticuleEffect : public EntityParticleEffect
+{
+public:
+    CreatureParticuleEffect(const std::string& name, const std::string& script, uint32_t nbTurnsEffect,
+            CreatureEffect* effect) :
+        EntityParticleEffect(name, script, nbTurnsEffect),
+        mEffect(effect)
+    {}
+
+    virtual ~CreatureParticuleEffect();
+
+    CreatureEffect* mEffect;
+};
+
 enum class CreatureOverlayHealthValue
 {
     full = 0,
@@ -66,21 +81,6 @@ enum class CreatureOverlayHealthValue
 ODPacket& operator<<(ODPacket& os, const CreatureOverlayHealthValue& value);
 ODPacket& operator>>(ODPacket& is, CreatureOverlayHealthValue& value);
 
-class CreatureParticleEffect
-{
-public:
-    CreatureParticleEffect(const std::string& name, const std::string& script, uint32_t nbTurnsEffect) :
-        mName(name),
-        mScript(script),
-        mParticleSystem(nullptr),
-        mNbTurnsEffect(nbTurnsEffect)
-    {}
-
-    std::string mName;
-    std::string mScript;
-    Ogre::ParticleSystem* mParticleSystem;
-    uint32_t mNbTurnsEffect;
-};
 /*! \class Creature Creature.h
  *  \brief Position, status, and AI state for a single game creature.
  *
@@ -406,13 +406,8 @@ public:
     //! use a different constructor, and this is then called by the gameMap when other details have been loaded.
     void setupDefinition(GameMap& gameMap, const CreatureDefinition& defaultWorkerCreatureDefinition);
 
+    //! Called on server side to add an effect (spell, slap, ...) to this creature
     void addCreatureEffect(CreatureEffect* effect);
-
-    void clearParticleSystems();
-
-    virtual void clientUpkeep() override;
-
-    virtual void restoreEntityState() override;
 
     void addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z = 0.0f) override;
 
@@ -565,16 +560,6 @@ private:
     //! level or HP)
     bool                            mNeedFireRefresh;
 
-    //! Stores the effects currently affecting this creature. The string represents the
-    //! effect name (should be unique per creature)
-    std::vector<std::pair<CreatureEffect*, std::string>> mCreatureEffects;
-
-    //! Unique number allowing to have unique names for particle systems attached to this creature
-    uint32_t mParticleSystemsNumber;
-
-    //! Particle systems attached on this creature
-    std::vector<CreatureParticleEffect> mCreatureParticleEffects;
-
     //! \brief The logic in the idle function is basically to roll a dice and, if the value allows, push an action to test if
     //! it is possible. To avoid testing several times the same action, we check in mActionTry if the action as already been
     //! tried. If yes and forcePush is false, the action won't be pushed and pushAction will return false. If the action has
@@ -705,8 +690,6 @@ private:
     void engageAlliedNaturalEnemy(Creature* attacker);
 
     void computeCreatureOverlayHealthValue();
-
-    std::string nextParticleSystemsName(const std::string& effectName);
 };
 
 #endif // CREATURE_H

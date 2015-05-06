@@ -25,6 +25,7 @@
 #include "entities/CreatureAction.h"
 #include "entities/CreatureDefinition.h"
 #include "entities/CreatureSound.h"
+#include "entities/MissileOneHit.h"
 #include "entities/ResearchEntity.h"
 #include "entities/Tile.h"
 #include "entities/TreasuryObject.h"
@@ -81,6 +82,15 @@
 #endif
 
 static const int NB_TURN_FLEE_MAX = 5;
+const Ogre::Real CANNON_MISSILE_HEIGHT = 0.3;
+
+CreatureParticuleEffect::~CreatureParticuleEffect()
+{
+    if(mEffect != nullptr)
+        delete mEffect;
+
+    mEffect = nullptr;
+}
 
 Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition, Seat* seat, Ogre::Vector3 position) :
     MovableGameEntity        (gameMap),
@@ -126,8 +136,7 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition, Seat*
     mFirstTurnFurious        (-1),
     mOverlayHealthValue      (CreatureOverlayHealthValue::full),
     mOverlayStatus           (nullptr),
-    mNeedFireRefresh         (false),
-    mParticleSystemsNumber   (0)
+    mNeedFireRefresh         (false)
 
 {
     //TODO: This should be set in initialiser list in parent classes
@@ -211,8 +220,7 @@ Creature::Creature(GameMap* gameMap) :
     mFirstTurnFurious        (-1),
     mOverlayHealthValue      (CreatureOverlayHealthValue::full),
     mOverlayStatus           (nullptr),
-    mNeedFireRefresh         (false),
-    mParticleSystemsNumber   (0)
+    mNeedFireRefresh         (false)
 {
     setIsOnMap(false);
 
@@ -221,10 +229,6 @@ Creature::Creature(GameMap* gameMap) :
 
 Creature::~Creature()
 {
-    for(const std::pair<CreatureEffect*, std::string>& effect : mCreatureEffects)
-        delete effect.first;
-
-    mCreatureEffects.clear();
 }
 
 void Creature::createMeshLocal()
@@ -353,12 +357,13 @@ void Creature::exportToStream(std::ostream& os) const
 
     os << "\t" << mWeaponDropDeath;
 
-    uint32_t nbEffects = mCreatureEffects.size();
+    uint32_t nbEffects = mEntityParticleEffects.size();
     os << "\t" << nbEffects;
-    for(const std::pair<CreatureEffect*, std::string>& effect : mCreatureEffects)
+    for(EntityParticleEffect* effect : mEntityParticleEffects)
     {
+        CreatureParticuleEffect* creatureParticuleEffect = static_cast<CreatureParticuleEffect*>(effect);
         os << "\t";
-        CreatureEffect::write(*effect.first, os);
+        CreatureEffect::write(*creatureParticuleEffect->mEffect, os);
     }
 }
 
@@ -508,13 +513,13 @@ void Creature::exportToPacket(ODPacket& os) const
     else
         os << "none";
 
-    uint32_t nbEffects = mCreatureEffects.size();
+    uint32_t nbEffects = mEntityParticleEffects.size();
     os << nbEffects;
-    for(const std::pair<CreatureEffect*, std::string>& effect : mCreatureEffects)
+    for(EntityParticleEffect* effect : mEntityParticleEffects)
     {
-        os << effect.second;
-        os << effect.first->getParticleEffectScript();
-        os << effect.first->getNbTurnsEffect();
+        os << effect->mName;
+        os << effect->mScript;
+        os << effect->mNbTurnsEffect;
     }
 }
 
@@ -572,8 +577,8 @@ void Creature::importFromPacket(ODPacket& is)
         std::string effectScript;
         uint32_t nbTurns;
         OD_ASSERT_TRUE(is >> effectName >> effectScript >> nbTurns);
-        CreatureParticleEffect cpe(effectName, effectScript, nbTurns);
-        mCreatureParticleEffects.push_back(cpe);
+        EntityParticleEffect* effect = new EntityParticleEffect(effectName, effectScript, nbTurns);
+        mEntityParticleEffects.push_back(effect);
     }
     setupDefinition(*getGameMap(), *ConfigManager::getSingleton().getCreatureDefinitionDefaultWorker());
 }
@@ -687,17 +692,17 @@ void Creature::doUpkeep()
     // We apply creature effects if the creature is alive
     if(getHP() > 0.0)
     {
-        for(auto it = mCreatureEffects.begin(); it != mCreatureEffects.end();)
+        for(auto it = mEntityParticleEffects.begin(); it != mEntityParticleEffects.end();)
         {
-            std::pair<CreatureEffect*, std::string>& effect = *it;
-            if(effect.first->upkeepEffect(*this))
+            CreatureParticuleEffect* effect = static_cast<CreatureParticuleEffect*>(*it);
+            if(effect->mEffect->upkeepEffect(*this))
             {
                 ++it;
                 continue;
             }
 
-            delete effect.first;
-            it = mCreatureEffects.erase(it);
+            delete effect;
+            it = mEntityParticleEffects.erase(it);
         }
     }
 
@@ -2453,11 +2458,37 @@ bool Creature::handleAttackAction(const CreatureAction& actionItem)
     // Calculate how much damage we do.
     Tile* myTile = getPositionTile();
     Ogre::Real range = Pathfinding::distanceTile(*myTile, *attackedTile);
-    // Do the damage and award experience points to both creatures.
-    double damageDone = attackedObject->takeDamage(this, getPhysicalDamage(range), getMagicalDamage(range), attackedTile);
-    double expGained;
-    expGained = 1.2 + 0.2 * std::pow(damageDone, 1.3);
+    double physicalDamage = getPhysicalDamage(range);
+    double magicalDamage = getMagicalDamage(range);
 
+    double expGained;
+    if(range > 1.0)
+    {
+        Ogre::Vector3 position;
+        position.x = static_cast<Ogre::Real>(myTile->getX());
+        position.y = static_cast<Ogre::Real>(myTile->getY());
+        position.z = CANNON_MISSILE_HEIGHT;
+        MissileOneHit* missile = new MissileOneHit(getGameMap(), getSeat(), getName(), "Cannonball",
+            "MissileMagic", walkDirection, physicalDamage, magicalDamage, false);
+        missile->addToGameMap();
+        missile->createMesh();
+        missile->setPosition(position, false);
+        missile->setMoveSpeed(3.0);
+        // We don't want the missile to stay idle for 1 turn. Because we are in a doUpkeep context,
+        // we can safely call the missile doUpkeep as we know the engine will not call it the turn
+        // it has been added
+        missile->doUpkeep();
+
+        // Ranged creatures get a fixed amount of experience
+        expGained = 1.5;
+    }
+    else
+    {
+        double damageDone = attackedObject->takeDamage(this, physicalDamage, magicalDamage, attackedTile);
+        expGained = 1.2 + 0.2 * std::pow(damageDone, 1.3);
+    }
+
+    // Do the damage and award experience points to both creatures.
     decreaseAwakeness(0.5);
 
     // Give a small amount of experience to the creature we hit.
@@ -3062,7 +3093,7 @@ void Creature::refreshCreature(ODPacket& packet)
 
     // We copy the list of effects currently on this creature. That will allow to
     // check if the effect is already known and only display the effect if it is not
-    std::vector<CreatureParticleEffect> currentEffects = mCreatureParticleEffects;
+    std::vector<EntityParticleEffect*> currentEffects = mEntityParticleEffects;
     while(nbEffects > 0)
     {
         --nbEffects;
@@ -3072,9 +3103,9 @@ void Creature::refreshCreature(ODPacket& packet)
         uint32_t nbTurns;
         OD_ASSERT_TRUE(packet >> effectName >> effectScript >> nbTurns);
         bool isEffectAlreadyDisplayed = false;
-        for(CreatureParticleEffect& effect : currentEffects)
+        for(EntityParticleEffect* effect : currentEffects)
         {
-            if(effect.mName.compare(effectName) != 0)
+            if(effect->mName.compare(effectName) != 0)
                 continue;
 
             isEffectAlreadyDisplayed = true;
@@ -3084,9 +3115,10 @@ void Creature::refreshCreature(ODPacket& packet)
         if(isEffectAlreadyDisplayed)
             continue;
 
-        CreatureParticleEffect cpe(effectName, effectScript, nbTurns);
-        RenderManager::getSingleton().rrCreatureAddParticleEffect(this, cpe);
-        mCreatureParticleEffects.push_back(cpe);
+        EntityParticleEffect* effect = new EntityParticleEffect(effectName, effectScript, nbTurns);
+        effect->mParticleSystem = RenderManager::getSingleton().rrEntityAddParticleEffect(this,
+            effect->mName, effect->mScript);
+        mEntityParticleEffects.push_back(effect);
     }
 }
 
@@ -4110,13 +4142,13 @@ void Creature::fireCreatureRefreshIfNeeded()
         serverNotification->mPacket << mLevel;
         serverNotification->mPacket << mOverlayHealthValue;
 
-        uint32_t nbCreatureEffect = mCreatureEffects.size();
+        uint32_t nbCreatureEffect = mEntityParticleEffects.size();
         serverNotification->mPacket << nbCreatureEffect;
-        for(std::pair<CreatureEffect*, std::string>& effect : mCreatureEffects)
+        for(EntityParticleEffect* effect : mEntityParticleEffects)
         {
-            serverNotification->mPacket << effect.second;
-            serverNotification->mPacket << effect.first->getParticleEffectScript();
-            serverNotification->mPacket << effect.first->getNbTurnsEffect();
+            serverNotification->mPacket << effect->mName;
+            serverNotification->mPacket << effect->mScript;
+            serverNotification->mPacket << effect->mNbTurnsEffect;
         }
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
@@ -4316,42 +4348,13 @@ void Creature::computeCreatureOverlayHealthValue()
 
 void Creature::addCreatureEffect(CreatureEffect* effect)
 {
-    std::string effectName = nextParticleSystemsName(effect->getParticleEffectScript());
+    std::string effectName = nextParticleSystemsName();
 
-    mCreatureEffects.push_back(std::pair<CreatureEffect*, std::string>(effect, effectName));
+    CreatureParticuleEffect* particleEffect = new CreatureParticuleEffect(effectName, effect->getParticleEffectScript(),
+        effect->getNbTurnsEffect(), effect);
+    mEntityParticleEffects.push_back(particleEffect);
 
     mNeedFireRefresh = true;
-}
-
-std::string Creature::nextParticleSystemsName(const std::string& effectName)
-{
-    return getName() + "_Particle" + Helper::toString(mParticleSystemsNumber);
-}
-
-void Creature::clearParticleSystems()
-{
-    for(CreatureParticleEffect& cpe : mCreatureParticleEffects)
-    {
-        RenderManager::getSingleton().rrCreatureRemoveParticleEffect(this, cpe);
-    }
-    mCreatureParticleEffects.clear();
-}
-
-void Creature::clientUpkeep()
-{
-    for(auto it = mCreatureParticleEffects.begin(); it != mCreatureParticleEffects.end();)
-    {
-        CreatureParticleEffect& cpe = *it;
-        if(cpe.mNbTurnsEffect > 0)
-        {
-            --cpe.mNbTurnsEffect;
-            ++it;
-            continue;
-        }
-
-        RenderManager::getSingleton().rrCreatureRemoveParticleEffect(this, cpe);
-        it = mCreatureParticleEffects.erase(it);
-    }
 }
 
 bool Creature::isHurt() const
@@ -4363,15 +4366,6 @@ bool Creature::isHurt() const
     // On client side, we test overlay value
     return mOverlayHealthValue != CreatureOverlayHealthValue::full;
 
-}
-
-void Creature::restoreEntityState()
-{
-    MovableGameEntity::restoreEntityState();
-    for(CreatureParticleEffect& cpe : mCreatureParticleEffects)
-    {
-        RenderManager::getSingleton().rrCreatureAddParticleEffect(this, cpe);
-    }
 }
 
 void Creature::addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z)

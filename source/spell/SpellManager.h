@@ -74,6 +74,8 @@ public:
     //! be filled with the suitable targets. Note that if there are more targets than available mana,
     //! most spells will fill targets until no more mana is left (chosen randomly between available
     //! targets)
+    //! If no target is available, this function should return the mana needed for 1 target and
+    //! targets vector should be empty
     static int getSpellCost(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
         int tileX1, int tileY1, int tileX2, int tileY2, Player* player);
 

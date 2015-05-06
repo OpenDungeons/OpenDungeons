@@ -30,7 +30,6 @@
 
 class GameMap;
 class Building;
-class CreatureParticleEffect;
 class Seat;
 class Tile;
 class GameEntity;
@@ -43,10 +42,11 @@ class Weapon;
 
 namespace Ogre
 {
+class AnimationState;
+class OverlaySystem;
 class SceneManager;
 class SceneNode;
-class OverlaySystem;
-class AnimationState;
+class ParticleSystem;
 
 namespace RTShader {
     class ShaderGenerator;
@@ -120,8 +120,9 @@ public:
     void rrMoveMapLightFlicker(MapLight* mapLight, const Ogre::Vector3& position);
     void rrCarryEntity(Creature* carrier, GameEntity* carried);
     void rrReleaseCarriedEntity(Creature* carrier, GameEntity* carried);
-    void rrCreatureAddParticleEffect(Creature* creature, CreatureParticleEffect& cpe);
-    void rrCreatureRemoveParticleEffect(Creature* creature, const CreatureParticleEffect& cpe);
+    Ogre::ParticleSystem* rrEntityAddParticleEffect(GameEntity* entity, const std::string& particleName,
+        const std::string& particleScript);
+    void rrEntityRemoveParticleEffect(GameEntity* entity, Ogre::ParticleSystem* particleSystem);
     void rrToggleHandSelectorVisibility();
 
     //! \brief Toggles the creatures text overlay
