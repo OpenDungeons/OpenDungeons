@@ -6,7 +6,7 @@ This file is listing each files present in this repository, its author and its c
 Each corresponding license is fully described in the licenses/ folder.
 Other text files (.txt, .cpp, .h, .sh, ...), except licensing, are licensed using the GPL 3.0 license.
 
-Latest update: 2015/05/05
+Latest update: 2015/05/06
 
 
 =============================
@@ -129,6 +129,7 @@ textures/
 -> EnvmapCity.png
 -> EnvmapMetal.png
 -> Farm*.png
+-> Flare.png                           Bertram                 CC0
 -> Forge*.png                          Nobiax                  CC0                     http://forum.freegamedev.net/viewtopic.php?p=59714#p59714
 -> Foundry*.png                        Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
 -> Gnome.png
@@ -141,7 +142,7 @@ textures/
 -> Grimoire*.png                       Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
 -> Grindstone*.png                     Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
 -> Hammock*.png                        Luke.RUSTLTD, Nobiax    CC0                     http://forum.freegamedev.net/viewtopic.php?p=59983#p59983
--> Heartflare.png                      Bertram                 CC0
+-> Heartflare.png                      Bertram                 CC-BY-SA 3.0            Own made flare + heart icon grom game-icons.net
 -> ImpBed*.png                         Nobiax CC0 and J. W. Bjerk (magic circle) CC-BY3 or GPL3 - http://opengameart.org/content/painterly-spell-icons-part-3 - http://opengameart.org/users/yughues
 -> Keeperhand*.png
 -> Knight.png
