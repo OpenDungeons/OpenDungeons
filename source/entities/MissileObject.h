@@ -23,6 +23,7 @@
 #include <string>
 #include <iosfwd>
 
+class Building;
 class Creature;
 class Room;
 class GameMap;
@@ -43,8 +44,10 @@ std::istream& operator>>(std::istream& is, MissileObjectType& rot);
 class MissileObject: public RenderedMovableEntity
 {
 public:
-    MissileObject(GameMap* gameMap, Seat* seat, const std::string& senderName,
-        const std::string& meshName, const Ogre::Vector3& direction, bool damageAllies);
+    //! If the missile is sent against a building, tileBuildingTarget should contain it. If the tile is reached,
+    //! the building will be damaged. If the target is not a building, tileBuildingTarget should be nullptr
+    MissileObject(GameMap* gameMap, Seat* seat, const std::string& senderName, const std::string& meshName,
+        const Ogre::Vector3& direction, Tile* tileBuildingTarget, bool damageAllies);
     MissileObject(GameMap* gameMap);
 
     virtual void doUpkeep();
@@ -61,6 +64,11 @@ public:
      */
     virtual bool hitCreature(GameEntity* entity)
     { return false; }
+
+    /*! brief Function called when the missile hits the target building. After returning, the missile will be destroyed
+     */
+    virtual void hitTargetBuilding(Tile* tile, Building* target)
+    {}
 
     virtual GameEntityType getObjectType() const override
     { return GameEntityType::missileObject; }
@@ -81,6 +89,7 @@ private:
         Ogre::Vector3& destination, std::list<Tile*>& tiles);
     Ogre::Vector3 mDirection;
     bool mIsMissileAlive;
+    Tile* mTileBuildingTarget;
     bool mDamageAllies;
 };
 

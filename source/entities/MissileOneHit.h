@@ -34,13 +34,15 @@ class MissileOneHit: public MissileObject
 public:
     MissileOneHit(GameMap* gameMap, Seat* seat, const std::string& senderName, const std::string& meshName,
         const std::string& particleScript, const Ogre::Vector3& direction, double physicalDamage, double magicalDamage,
-        bool damageAllies);
+        Tile* tileBuildingTarget, bool damageAllies);
     MissileOneHit(GameMap* gameMap);
 
     virtual MissileObjectType getMissileType() const override
     { return MissileObjectType::oneHit; }
 
     virtual bool hitCreature(GameEntity* entity) override;
+
+    virtual void hitTargetBuilding(Tile* tile, Building* target) override;
 
     void exportToStream(std::ostream& os) const override;
     void importFromStream(std::istream& is) override;

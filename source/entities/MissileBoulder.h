@@ -33,7 +33,7 @@ class MissileBoulder: public MissileObject
 {
 public:
     MissileBoulder(GameMap* gameMap, Seat* seat, const std::string& senderName, const std::string& meshName,
-        const Ogre::Vector3& direction, double damage);
+        const Ogre::Vector3& direction, double damage, Tile* tileBuildingTarget);
     MissileBoulder(GameMap* gameMap);
 
     virtual MissileObjectType getMissileType() const override

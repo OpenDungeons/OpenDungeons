@@ -17,6 +17,7 @@
 
 #include "entities/MissileOneHit.h"
 
+#include "entities/Building.h"
 #include "gamemap/GameMap.h"
 #include "network/ODPacket.h"
 #include "utils/LogManager.h"
@@ -26,8 +27,8 @@
 
 MissileOneHit::MissileOneHit(GameMap* gameMap, Seat* seat, const std::string& senderName, const std::string& meshName,
         const std::string& particleScript, const Ogre::Vector3& direction, double physicalDamage, double magicalDamage,
-        bool damageAllies) :
-    MissileObject(gameMap, seat, senderName, meshName, direction, damageAllies),
+        Tile* tileBuildingTarget, bool damageAllies) :
+    MissileObject(gameMap, seat, senderName, meshName, direction, tileBuildingTarget, damageAllies),
     mPhysicalDamage(physicalDamage),
     mMagicalDamage(magicalDamage)
 {
@@ -54,6 +55,11 @@ bool MissileOneHit::hitCreature(GameEntity* entity)
     Tile* hitTile = tiles[0];
     entity->takeDamage(this, mPhysicalDamage, mMagicalDamage, hitTile);
     return false;
+}
+
+void MissileOneHit::hitTargetBuilding(Tile* tile, Building* target)
+{
+    target->takeDamage(this, mPhysicalDamage, mMagicalDamage, tile);
 }
 
 MissileOneHit* MissileOneHit::getMissileOneHitFromStream(GameMap* gameMap, std::istream& is)

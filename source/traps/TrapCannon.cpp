@@ -63,7 +63,7 @@ bool TrapCannon::shoot(Tile* tile)
     direction = direction - position;
     direction.normalise();
     MissileOneHit* missile = new MissileOneHit(getGameMap(), getSeat(), getName(), "Cannonball",
-        "", direction, Random::Double(mMinDamage, mMaxDamage), 0.0, false);
+        "", direction, Random::Double(mMinDamage, mMaxDamage), 0.0, nullptr, false);
     missile->addToGameMap();
     missile->createMesh();
     missile->setPosition(position, false);

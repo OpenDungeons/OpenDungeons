@@ -2643,6 +2643,12 @@ GameEntity* GameMap::getEntityFromTypeAndName(GameEntityType entityType,
         case GameEntityType::mapLight:
             return getMapLight(entityName);
 
+        case GameEntityType::room:
+            return getRoomByName(entityName);
+
+        case GameEntityType::trap:
+            return getTrapByName(entityName);
+
         default:
             break;
     }
