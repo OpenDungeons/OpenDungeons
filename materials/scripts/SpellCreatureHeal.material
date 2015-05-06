@@ -1,3 +1,5 @@
+// Heal Spell material
+
 material SpellCreatureHeal
 {
     technique
@@ -9,7 +11,7 @@ material SpellCreatureHeal
             depth_write off
             diffuse vertexcolour
 
-            // Disabled because not working with intel graphics
+            // Disabled because not working with intel graphic drivers
             //point_sprites on
             //point_size 1
             //point_size_attenuation on
