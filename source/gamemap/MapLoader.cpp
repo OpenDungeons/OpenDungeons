@@ -43,6 +43,7 @@
 #include "spell/Spell.h"
 
 #include "traps/Trap.h"
+#include "traps/TrapManager.h"
 
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
@@ -310,11 +311,12 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         if (nextParam != "[Trap]")
             return false;
 
-        Trap* tempTrap = Trap::getTrapFromStream(&gameMap, levelFile);
+        Trap* tempTrap = TrapManager::getTrapFromStream(&gameMap, levelFile);
         OD_ASSERT_TRUE(tempTrap != nullptr);
         if(tempTrap == nullptr)
             return false;
 
+        tempTrap->importFromStream(levelFile);
         tempTrap->addToGameMap();
 
         levelFile >> nextParam;

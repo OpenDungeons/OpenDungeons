@@ -37,8 +37,4 @@ std::ostream& operator<<(std::ostream& os, const TrapType& tt);
 ODPacket& operator>>(ODPacket& is, TrapType& tt);
 ODPacket& operator<<(ODPacket& os, const TrapType& tt);
 
-namespace Traps
-{
-std::string getTrapNameFromTrapType(TrapType t);
-};
 #endif // TRAPTYPE_H

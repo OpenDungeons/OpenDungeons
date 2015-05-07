@@ -44,6 +44,7 @@
 #include "spell/SpellType.h"
 
 #include "traps/Trap.h"
+#include "traps/TrapManager.h"
 #include "traps/TrapType.h"
 
 #include "utils/ConfigManager.h"
@@ -1456,7 +1457,7 @@ void Seat::exportTileToPacket(ODPacket& os, Tile* tile) const
         {
             Trap* trap = static_cast<Trap*>(tileState.mBuilding);
             if(trap->getSeat() == this)
-                refundPriceTrap = (Trap::costPerTile(trap->getType()) / 2);
+                refundPriceTrap = (TrapManager::costPerTile(trap->getType()) / 2);
         }
     }
     os << isBuilding;

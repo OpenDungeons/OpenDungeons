@@ -33,9 +33,8 @@
 #include "entities/Tile.h"
 #include "entities/Weapon.h"
 #include "traps/Trap.h"
-#include "traps/TrapCannon.h"
-#include "traps/TrapSpike.h"
-#include "traps/TrapBoulder.h"
+#include "traps/TrapType.h"
+#include "traps/TrapManager.h"
 #include "rooms/RoomManager.h"
 #include "rooms/RoomType.h"
 #include "spell/SpellManager.h"
@@ -1019,7 +1018,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             if(!player->getSeat()->isRoomAvailable(type))
             {
                 LogManager::getSingleton().logMessage("WARNING: player " + player->getNick()
-                    + " asked to cast a spell not available: " + Rooms::getRoomNameFromRoomType(type));
+                    + " asked to cast a spell not available: " + RoomManager::getRoomNameFromRoomType(type));
                 break;
             }
 
@@ -1087,59 +1086,26 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> type);
             Player* player = clientSocket->getPlayer();
-            std::vector<Tile*> tiles = gameMap->getBuildableTilesForPlayerInArea(x1,
-                y1, x2, y2, player);
 
-            // We check if the trap is available. It is not normal to receive a message
-            // asking to build an unbuildable trap since the client should only display
-            // available traps
+            // We check if the room is available. It is not normal to receive a message
+            // asking to build an unbuildable room since the client should only display
+            // available rooms
             if(!player->getSeat()->isTrapAvailable(type))
             {
                 LogManager::getSingleton().logMessage("WARNING: player " + player->getNick()
-                    + " asked to cast a spell not available: " + Traps::getTrapNameFromTrapType(type));
+                    + " asked to cast a spell not available: " + TrapManager::getTrapNameFromTrapType(type));
                 break;
             }
 
+            std::vector<Tile*> tiles;
+            int price = TrapManager::getTrapCost(tiles, gameMap, type, x1, y1, x2, y2, player);
             if(tiles.empty())
                 break;
 
-            int goldRequired = tiles.size() * Trap::costPerTile(type);
-            if(!gameMap->withdrawFromTreasuries(goldRequired, player->getSeat()))
+            if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
                 break;
 
-            Trap* trap = nullptr;
-            switch (type)
-            {
-                case TrapType::nullTrapType:
-                {
-                    trap = nullptr;
-                    break;
-                }
-                case TrapType::cannon:
-                {
-                    trap = new TrapCannon(gameMap);
-                    break;
-                }
-                case TrapType::spike:
-                {
-                    trap = new TrapSpike(gameMap);
-                    break;
-                }
-                case TrapType::boulder:
-                {
-                    trap = new TrapBoulder(gameMap);
-                    break;
-                }
-                default:
-                    OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(
-                        static_cast<int>(type)));
-            }
-            if(trap == nullptr)
-                break;
-
-            trap->setupTrap(gameMap->nextUniqueNameTrap(trap->getMeshName()), player->getSeat(), tiles);
-            trap->addToGameMap();
-            trap->updateActiveSpots();
+            TrapManager::buildTrap(gameMap, type, tiles, player->getSeat());
             break;
         }
 
@@ -1190,69 +1156,16 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2);
             Player* player = clientSocket->getPlayer();
-            std::vector<Tile*> tiles = gameMap->rectangularRegion(x1, y1, x2, y2);
+
+            std::vector<Tile*> tiles;
+            int goldRetrieved = TrapManager::getRefundPrice(tiles, gameMap, x1, y1, x2, y2, player);
 
             if(tiles.empty())
                 break;
 
-            int goldRetrieved = 0;
-            std::set<Trap*> trapsImpacted;
-            std::vector<Tile*> sentTiles;
-            for(Tile* tile : tiles)
-            {
-                if(tile->getCoveringTrap() == nullptr)
-                    continue;
+            TrapManager::sellTrapTiles(gameMap, tiles);
 
-                Trap* trap = tile->getCoveringTrap();
-                if(!trap->canSeatSellBuilding(player->getSeat()))
-                    continue;
-
-                trapsImpacted.insert(trap);
-                sentTiles.push_back(tile);
-                goldRetrieved += Trap::costPerTile(trap->getType()) / 2;
-                OD_ASSERT_TRUE(trap->removeCoveredTile(tile));
-            }
-
-            // We notify the clients with vision of the changed tiles. Note that we need
-            // to calculate per seat since the could have vision on different parts of the building
-            std::map<Seat*,std::vector<Tile*>> tilesPerSeat;
-            const std::vector<Seat*>& seats = gameMap->getSeats();
-            for(Seat* seat : seats)
-            {
-                if(seat->getPlayer() == nullptr)
-                    continue;
-                if(!seat->getPlayer()->getIsHuman())
-                    continue;
-
-                for(Tile* tile : sentTiles)
-                {
-                    if(!seat->hasVisionOnTile(tile))
-                        continue;
-
-                    tile->changeNotifiedForSeat(seat);
-                    tilesPerSeat[seat].push_back(tile);
-                }
-            }
-
-            for(const std::pair<Seat* const,std::vector<Tile*>>& p : tilesPerSeat)
-            {
-                uint32_t nbTiles = p.second.size();
-                ServerNotification serverNotification(
-                    ServerNotificationType::refreshTiles, p.first->getPlayer());
-                serverNotification.mPacket << nbTiles;
-                for(Tile* tile : p.second)
-                {
-                    gameMap->tileToPacket(serverNotification.mPacket, tile);
-                    p.first->updateTileStateForSeat(tile);
-                    p.first->exportTileToPacket(serverNotification.mPacket, tile);
-                }
-                sendAsyncMsg(serverNotification);
-            }
-
-            // We update active spots of each impacted rooms
-            for(Trap* trap : trapsImpacted)
-                trap->updateActiveSpots();
-
+            // Note : no need to handle the free treasury tile because if there is no treasury tile, gold will be 0 anyway
             gameMap->addGoldToSeat(goldRetrieved, player->getSeat()->getId());
             break;
         }
@@ -1269,59 +1182,16 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             if(tiles.empty())
                 break;
 
-            std::set<Trap*> trapsImpacted;
             std::vector<Tile*> sentTiles;
             for(Tile* tile : tiles)
             {
                 if(tile->getCoveringTrap() == nullptr)
                     continue;
 
-                Trap* trap = tile->getCoveringTrap();
-                trapsImpacted.insert(trap);
                 sentTiles.push_back(tile);
-                OD_ASSERT_TRUE(trap->removeCoveredTile(tile));
             }
 
-            // We notify the clients with vision of the changed tiles. Note that we need
-            // to calculate per seat since the could have vision on different parts of the building
-            std::map<Seat*,std::vector<Tile*>> tilesPerSeat;
-            const std::vector<Seat*>& seats = gameMap->getSeats();
-            for(Seat* seat : seats)
-            {
-                if(seat->getPlayer() == nullptr)
-                    continue;
-                if(!seat->getPlayer()->getIsHuman())
-                    continue;
-
-                for(Tile* tile : sentTiles)
-                {
-                    if(!seat->hasVisionOnTile(tile))
-                        continue;
-
-                    tile->changeNotifiedForSeat(seat);
-                    tilesPerSeat[seat].push_back(tile);
-                }
-            }
-
-            for(const std::pair<Seat* const,std::vector<Tile*>>& p : tilesPerSeat)
-            {
-                uint32_t nbTiles = p.second.size();
-                ServerNotification serverNotification(
-                    ServerNotificationType::refreshTiles, p.first->getPlayer());
-                serverNotification.mPacket << nbTiles;
-                for(Tile* tile : p.second)
-                {
-                    gameMap->tileToPacket(serverNotification.mPacket, tile);
-                    p.first->updateTileStateForSeat(tile);
-                    p.first->exportTileToPacket(serverNotification.mPacket, tile);
-                }
-                sendAsyncMsg(serverNotification);
-            }
-
-            // We update active spots of each impacted rooms
-            for(Trap* trap : trapsImpacted)
-                trap->updateActiveSpots();
-
+            TrapManager::sellTrapTiles(gameMap, sentTiles);
             break;
         }
 
@@ -1569,10 +1439,10 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             OD_ASSERT_TRUE_MSG(seat != nullptr, "seatId=" + Ogre::StringConverter::toString(seatId));
             std::vector<Tile*> selectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
             std::vector<Tile*> tiles;
-            // We start by changing the tiles so that the trap can be built
+            // We start by changing the tiles so that the room can be built
             for(Tile* tile : selectedTiles)
             {
-                // We do not change tiles where there is something
+                // We do not change tiles where there is something on the tile
                 if(tile->getCoveringBuilding() != nullptr)
                     continue;
                 tiles.push_back(tile);
@@ -1582,48 +1452,15 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 {
                     tile->setType(TileType::dirt);
                 }
-                tile->setSeat(seat);
                 tile->setFullness(0.0);
+                tile->claimTile(seat);
                 tile->computeTileVisual();
             }
 
             if(tiles.empty())
                 break;
 
-            Trap* trap = nullptr;
-            switch (type)
-            {
-                case TrapType::nullTrapType:
-                {
-                    trap = nullptr;
-                    break;
-                }
-                case TrapType::cannon:
-                {
-                    trap = new TrapCannon(gameMap);
-                    break;
-                }
-                case TrapType::spike:
-                {
-                    trap = new TrapSpike(gameMap);
-                    break;
-                }
-                case TrapType::boulder:
-                {
-                    trap = new TrapBoulder(gameMap);
-                    break;
-                }
-                default:
-                    OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(
-                        static_cast<int>(type)));
-            }
-
-            if(trap == nullptr)
-                break;
-
-            trap->setupTrap(gameMap->nextUniqueNameTrap(trap->getMeshName()), seat, tiles);
-            trap->addToGameMap();
-            trap->updateActiveSpots();
+            TrapManager::buildTrap(gameMap, type, tiles, seat);
             break;
         }
 

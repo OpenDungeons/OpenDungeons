@@ -373,6 +373,7 @@ set(OD_SOURCEFILES
     ${SRC}/traps/Trap.cpp
     ${SRC}/traps/TrapBoulder.cpp
     ${SRC}/traps/TrapCannon.cpp
+    ${SRC}/traps/TrapManager.cpp
     ${SRC}/traps/TrapSpike.cpp
     ${SRC}/traps/TrapType.cpp
 

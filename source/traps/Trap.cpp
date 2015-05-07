@@ -26,9 +26,7 @@
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "entities/RenderedMovableEntity.h"
-#include "traps/TrapCannon.h"
-#include "traps/TrapSpike.h"
-#include "traps/TrapBoulder.h"
+#include "traps/TrapManager.h"
 #include "traps/TrapType.h"
 #include "utils/Random.h"
 #include "game/Player.h"
@@ -46,60 +44,6 @@ Trap::Trap(GameMap* gameMap) :
     mMinDamage(0.0),
     mMaxDamage(0.0)
 {
-}
-
-Trap* Trap::getTrapFromStream(GameMap* gameMap, std::istream &is)
-{
-    Trap* tempTrap = nullptr;
-    TrapType nType;
-    is >> nType;
-
-    switch (nType)
-    {
-        case TrapType::nullTrapType:
-            tempTrap = nullptr;
-            break;
-        case TrapType::cannon:
-            tempTrap = TrapCannon::getTrapCannonFromStream(gameMap, is);
-            break;
-        case TrapType::spike:
-            tempTrap = TrapSpike::getTrapSpikeFromStream(gameMap, is);
-            break;
-        case TrapType::boulder:
-            tempTrap = TrapBoulder::getTrapBoulderFromStream(gameMap, is);
-            break;
-        default:
-            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(
-                static_cast<int>(nType)));
-    }
-
-    if(tempTrap == nullptr)
-        return nullptr;
-
-    tempTrap->importFromStream(is);
-
-    return tempTrap;
-}
-
-int Trap::costPerTile(TrapType t)
-{
-    switch (t)
-    {
-        case TrapType::nullTrapType:
-            return 0;
-
-        case TrapType::cannon:
-            return ConfigManager::getSingleton().getTrapConfigInt32("CannonCostPerTile");
-
-        case TrapType::spike:
-            return ConfigManager::getSingleton().getTrapConfigInt32("SpikeCostPerTile");
-
-        case TrapType::boulder:
-            return ConfigManager::getSingleton().getTrapConfigInt32("BoulderCostPerTile");
-
-        default:
-            return 0;
-    }
 }
 
 void Trap::addToGameMap()
@@ -331,26 +275,6 @@ void Trap::setupTrap(const std::string& name, Seat* seat, const std::vector<Tile
 
         tile->setCoveringBuilding(this);
     }
-}
-
-int32_t Trap::getNeededWorkshopPointsPerTrap(TrapType trapType)
-{
-    switch(trapType)
-    {
-        case TrapType::nullTrapType:
-            return 0;
-        case TrapType::cannon:
-            return ConfigManager::getSingleton().getTrapConfigInt32("CannonWorkshopPointsPerTile");
-        case TrapType::spike:
-            return ConfigManager::getSingleton().getTrapConfigInt32("SpikeWorkshopPointsPerTile");
-        case TrapType::boulder:
-            return ConfigManager::getSingleton().getTrapConfigInt32("BoulderWorkshopPointsPerTile");
-        default:
-            OD_ASSERT_TRUE_MSG(false, "Asked for wrong trap type=" + Ogre::StringConverter::toString(static_cast<int32_t>(trapType)));
-            break;
-    }
-    // We shouldn't go here
-    return 0;
 }
 
 bool Trap::hasCarryEntitySpot(GameEntity* carriedEntity)
@@ -641,4 +565,73 @@ void Trap::claimForSeat(Seat* seat, Tile* tile, double danceRate)
 
     trapTileData->mHP = 0.0;
     tile->claimTile(seat);
+}
+
+void Trap::buildTrapDefault(GameMap* gameMap, Trap* trap, const std::vector<Tile*>& tiles, Seat* seat)
+{
+    trap->setupTrap(gameMap->nextUniqueNameTrap(trap->getMeshName()), seat, tiles);
+    trap->addToGameMap();
+    trap->createMesh();
+
+    if((seat->getPlayer() != nullptr) &&
+       (seat->getPlayer()->getIsHuman()))
+    {
+        // We notify the clients with vision of the changed tiles. Note that we need
+        // to calculate per seat since they could have vision on different parts of the building
+        std::map<Seat*,std::vector<Tile*>> tilesPerSeat;
+        const std::vector<Seat*>& seats = gameMap->getSeats();
+        for(Seat* tmpSeat : seats)
+        {
+            if(tmpSeat->getPlayer() == nullptr)
+                continue;
+            if(!tmpSeat->getPlayer()->getIsHuman())
+                continue;
+
+            for(Tile* tile : tiles)
+            {
+                if(!tmpSeat->hasVisionOnTile(tile))
+                    continue;
+
+                tile->changeNotifiedForSeat(tmpSeat);
+                tilesPerSeat[tmpSeat].push_back(tile);
+            }
+        }
+
+        for(const std::pair<Seat* const,std::vector<Tile*>>& p : tilesPerSeat)
+        {
+            uint32_t nbTiles = p.second.size();
+            ServerNotification serverNotification(
+                ServerNotificationType::refreshTiles, p.first->getPlayer());
+            serverNotification.mPacket << nbTiles;
+            for(Tile* tile : p.second)
+            {
+                gameMap->tileToPacket(serverNotification.mPacket, tile);
+                p.first->updateTileStateForSeat(tile);
+                p.first->exportTileToPacket(serverNotification.mPacket, tile);
+            }
+            ODServer::getSingleton().sendAsyncMsg(serverNotification);
+        }
+    }
+
+    trap->updateActiveSpots();
+}
+
+int Trap::getTrapCostDefault(std::vector<Tile*>& tiles, GameMap* gameMap, TrapType type,
+    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+{
+    std::vector<Tile*> buildableTiles = gameMap->getBuildableTilesForPlayerInArea(tileX1,
+        tileY1, tileX2, tileY2, player);
+
+    if(buildableTiles.empty())
+        return TrapManager::costPerTile(type);
+
+    int nbTiles = 0;
+
+    for(Tile* tile : buildableTiles)
+    {
+        tiles.push_back(tile);
+        ++nbTiles;
+    }
+
+    return nbTiles * TrapManager::costPerTile(type);
 }

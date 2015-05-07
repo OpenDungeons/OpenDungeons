@@ -16,14 +16,18 @@
  */
 
 #include "traps/TrapBoulder.h"
-#include "network/ODPacket.h"
+
 #include "entities/Tile.h"
-#include "gamemap/GameMap.h"
 #include "entities/MissileBoulder.h"
 #include "entities/TrapEntity.h"
+#include "gamemap/GameMap.h"
+#include "network/ODPacket.h"
+#include "traps/TrapManager.h"
 #include "utils/ConfigManager.h"
 #include "utils/Random.h"
 #include "utils/LogManager.h"
+
+static TrapManagerRegister<TrapBoulder> reg(TrapType::boulder, "Boulder");
 
 const std::string TrapBoulder::MESH_BOULDER = "Boulder";
 
@@ -95,4 +99,21 @@ bool TrapBoulder::shoot(Tile* tile)
 TrapEntity* TrapBoulder::getTrapEntity(Tile* tile)
 {
     return new TrapEntity(getGameMap(), getName(), MESH_BOULDER, tile, 0.0, false, isActivated(tile) ? 1.0f : 0.5f);
+}
+
+int TrapBoulder::getTrapCost(std::vector<Tile*>& tiles, GameMap* gameMap, TrapType type,
+    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+{
+    return getTrapCostDefault(tiles, gameMap, type, tileX1, tileY1, tileX2, tileY2, player);
+}
+
+void TrapBoulder::buildTrap(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat* seat)
+{
+    TrapBoulder* room = new TrapBoulder(gameMap);
+    buildTrapDefault(gameMap, room, tiles, seat);
+}
+
+Trap* TrapBoulder::getTrapFromStream(GameMap* gameMap, std::istream& is)
+{
+    return new TrapBoulder(gameMap);
 }
