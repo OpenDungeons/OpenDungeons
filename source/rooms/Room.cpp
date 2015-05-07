@@ -597,6 +597,19 @@ void Room::restoreInitialEntityState()
     }
 }
 
+int Room::getCostRepair(std::vector<Tile*>& tiles)
+{
+    if(getCoveredTilesDestroyed().empty())
+        return 0;
+
+    if(!canBeRepaired())
+        return 0;
+
+    tiles = getCoveredTilesDestroyed();
+    int nbTiles = static_cast<int>(tiles.size());
+    return nbTiles * RoomManager::costPerTile(getType());
+}
+
 bool Room::sortForMapSave(Room* r1, Room* r2)
 {
     // We sort room by seat id then meshName

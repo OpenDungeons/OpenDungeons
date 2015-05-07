@@ -90,6 +90,8 @@ public:
 
     bool canBeRepaired() const;
 
+    virtual int getCostRepair(std::vector<Tile*>& tiles);
+
     virtual void restoreInitialEntityState() override;
 
     static bool sortForMapSave(Room* r1, Room* r2);

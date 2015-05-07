@@ -502,9 +502,6 @@ public:
     //! \brief Adds and removes the active objects queued
     void processActiveObjectsChanges();
 
-    void fillBuildableTilesAndPriceForPlayerInArea(int x1, int y1, int x2, int y2,
-        Player* player, RoomType type, std::vector<Tile*>& tiles, int& goldRequired);
-
     void updateVisibleEntities();
 
     inline const std::vector<RenderedMovableEntity*>& getRenderedMovableEntities() const

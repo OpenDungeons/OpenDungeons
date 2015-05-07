@@ -23,14 +23,9 @@
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "rooms/Room.h"
-#include "rooms/RoomCrypt.h"
-#include "rooms/RoomDormitory.h"
 #include "rooms/RoomManager.h"
-#include "rooms/RoomWorkshop.h"
-#include "rooms/RoomHatchery.h"
-#include "rooms/RoomLibrary.h"
-#include "rooms/RoomTrainingHall.h"
 #include "rooms/RoomTreasury.h"
+#include "rooms/RoomType.h"
 #include "spell/SpellManager.h"
 #include "spell/SpellType.h"
 #include "utils/LogManager.h"
@@ -132,17 +127,15 @@ bool KeeperAI::checkTreasury()
                    mGameMap.pathExists(worker, central, neigh))
                 {
                     std::vector<Tile*> tiles;
-                    int goldRequired;
-                    mGameMap.fillBuildableTilesAndPriceForPlayerInArea(neigh->getX(), neigh->getY(),
-                        neigh->getX(), neigh->getY(), &mPlayer, RoomType::treasury, tiles, goldRequired);
+                    int goldRequired = RoomManager::getRoomCost(tiles, &mGameMap, RoomType::treasury, neigh->getX(), neigh->getY(),
+                        neigh->getX(), neigh->getY(), &mPlayer);
                     if (tiles.empty())
                         return false;
 
                     if(!mGameMap.withdrawFromTreasuries(goldRequired, mPlayer.getSeat()))
                         return false;
 
-                    Room* room = new RoomTreasury(&mGameMap);
-                    buildRoom(room, tiles);
+                    RoomManager::buildRoom(&mGameMap, RoomType::treasury, tiles, mPlayer.getSeat());
                     mCooldownCheckTreasury = Random::Int(10,30);
                     return true;
                 }
@@ -249,17 +242,15 @@ bool KeeperAI::checkTreasury()
         return true;
 
     std::vector<Tile*> tiles;
-    int goldRequired;
-    mGameMap.fillBuildableTilesAndPriceForPlayerInArea(firstAvailableTile->getX(), firstAvailableTile->getY(),
-        firstAvailableTile->getX(), firstAvailableTile->getY(), &mPlayer, RoomType::treasury, tiles, goldRequired);
+    int goldRequired = RoomManager::getRoomCost(tiles, &mGameMap, RoomType::treasury, firstAvailableTile->getX(), firstAvailableTile->getY(),
+        firstAvailableTile->getX(), firstAvailableTile->getY(), &mPlayer);
     if (tiles.empty())
         return false;
 
     if(!mGameMap.withdrawFromTreasuries(goldRequired, mPlayer.getSeat()))
         return false;
 
-    Room* room = new RoomTreasury(&mGameMap);
-    buildRoom(room, tiles);
+    RoomManager::buildRoom(&mGameMap, RoomType::treasury, tiles, mPlayer.getSeat());
     mCooldownCheckTreasury = Random::Int(10,30);
     return true;
 }
@@ -499,17 +490,15 @@ bool KeeperAI::buildMostNeededRoom()
         if(mPlayer.getSeat()->isRoomAvailable(RoomType::dormitory) && nbDormitory == 0)
         {
             std::vector<Tile*> tiles;
-            int goldRequired;
-            mGameMap.fillBuildableTilesAndPriceForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-                mRoomPosY + mRoomSize - 1, &mPlayer, RoomType::dormitory, tiles, goldRequired);
+            int goldRequired = RoomManager::getRoomCost(tiles, &mGameMap, RoomType::dormitory, mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
+                mRoomPosY + mRoomSize - 1, &mPlayer);
             if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
                 return false;
 
             if(!mGameMap.withdrawFromTreasuries(goldRequired, mPlayer.getSeat()))
                 return false;
 
-            Room* room = new RoomDormitory(&mGameMap);
-            buildRoom(room, tiles);
+            RoomManager::buildRoom(&mGameMap, RoomType::dormitory, tiles, mPlayer.getSeat());
             return true;
         }
     }
@@ -530,17 +519,15 @@ bool KeeperAI::buildMostNeededRoom()
         if((emptyStorage < 100) && (totalGold < 20000))
         {
             std::vector<Tile*> tiles;
-            int goldRequired;
-            mGameMap.fillBuildableTilesAndPriceForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-                mRoomPosY + mRoomSize - 1, &mPlayer, RoomType::treasury, tiles, goldRequired);
+            int goldRequired = RoomManager::getRoomCost(tiles, &mGameMap, RoomType::treasury, mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
+                mRoomPosY + mRoomSize - 1, &mPlayer);
             if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
                 return false;
 
             if(!mGameMap.withdrawFromTreasuries(goldRequired, mPlayer.getSeat()))
                 return false;
 
-            Room* room = new RoomTreasury(&mGameMap);
-            buildRoom(room, tiles);
+            RoomManager::buildRoom(&mGameMap, RoomType::treasury, tiles, mPlayer.getSeat());
             return true;
         }
     }
@@ -551,17 +538,15 @@ bool KeeperAI::buildMostNeededRoom()
         if(rooms.empty())
         {
             std::vector<Tile*> tiles;
-            int goldRequired;
-            mGameMap.fillBuildableTilesAndPriceForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-                mRoomPosY + mRoomSize - 1, &mPlayer, RoomType::hatchery, tiles, goldRequired);
+            int goldRequired = RoomManager::getRoomCost(tiles, &mGameMap, RoomType::hatchery, mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
+                mRoomPosY + mRoomSize - 1, &mPlayer);
             if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
                 return false;
 
             if(!mGameMap.withdrawFromTreasuries(goldRequired, mPlayer.getSeat()))
                 return false;
 
-            Room* room = new RoomHatchery(&mGameMap);
-            buildRoom(room, tiles);
+            RoomManager::buildRoom(&mGameMap, RoomType::hatchery, tiles, mPlayer.getSeat());
             return true;
         }
     }
@@ -572,17 +557,15 @@ bool KeeperAI::buildMostNeededRoom()
         if(rooms.empty())
         {
             std::vector<Tile*> tiles;
-            int goldRequired;
-            mGameMap.fillBuildableTilesAndPriceForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-                mRoomPosY + mRoomSize - 1, &mPlayer, RoomType::trainingHall, tiles, goldRequired);
+            int goldRequired = RoomManager::getRoomCost(tiles, &mGameMap, RoomType::trainingHall, mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
+                mRoomPosY + mRoomSize - 1, &mPlayer);
             if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
                 return false;
 
             if(!mGameMap.withdrawFromTreasuries(goldRequired, mPlayer.getSeat()))
                 return false;
 
-            Room* room = new RoomTrainingHall(&mGameMap);
-            buildRoom(room, tiles);
+            RoomManager::buildRoom(&mGameMap, RoomType::trainingHall, tiles, mPlayer.getSeat());
             return true;
         }
     }
@@ -593,17 +576,15 @@ bool KeeperAI::buildMostNeededRoom()
         if(rooms.empty())
         {
             std::vector<Tile*> tiles;
-            int goldRequired;
-            mGameMap.fillBuildableTilesAndPriceForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-                mRoomPosY + mRoomSize - 1, &mPlayer, RoomType::workshop, tiles, goldRequired);
+            int goldRequired = RoomManager::getRoomCost(tiles, &mGameMap, RoomType::workshop, mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
+                mRoomPosY + mRoomSize - 1, &mPlayer);
             if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
                 return false;
 
             if(!mGameMap.withdrawFromTreasuries(goldRequired, mPlayer.getSeat()))
                 return false;
 
-            Room* room = new RoomWorkshop(&mGameMap);
-            buildRoom(room, tiles);
+            RoomManager::buildRoom(&mGameMap, RoomType::workshop, tiles, mPlayer.getSeat());
             return true;
         }
     }
@@ -614,17 +595,15 @@ bool KeeperAI::buildMostNeededRoom()
         if(rooms.empty())
         {
             std::vector<Tile*> tiles;
-            int goldRequired;
-            mGameMap.fillBuildableTilesAndPriceForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-                mRoomPosY + mRoomSize - 1, &mPlayer, RoomType::library, tiles, goldRequired);
+            int goldRequired = RoomManager::getRoomCost(tiles, &mGameMap, RoomType::library, mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
+                mRoomPosY + mRoomSize - 1, &mPlayer);
             if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
                 return false;
 
             if(!mGameMap.withdrawFromTreasuries(goldRequired, mPlayer.getSeat()))
                 return false;
 
-            Room* room = new RoomLibrary(&mGameMap);
-            buildRoom(room, tiles);
+            RoomManager::buildRoom(&mGameMap, RoomType::library, tiles, mPlayer.getSeat());
             return true;
         }
     }
@@ -635,17 +614,15 @@ bool KeeperAI::buildMostNeededRoom()
         if(rooms.empty())
         {
             std::vector<Tile*> tiles;
-            int goldRequired;
-            mGameMap.fillBuildableTilesAndPriceForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-                mRoomPosY + mRoomSize - 1, &mPlayer, RoomType::crypt, tiles, goldRequired);
+            int goldRequired = RoomManager::getRoomCost(tiles, &mGameMap, RoomType::crypt, mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
+                mRoomPosY + mRoomSize - 1, &mPlayer);
             if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
                 return false;
 
             if(!mGameMap.withdrawFromTreasuries(goldRequired, mPlayer.getSeat()))
                 return false;
 
-            Room* room = new RoomCrypt(&mGameMap);
-            buildRoom(room, tiles);
+            RoomManager::buildRoom(&mGameMap, RoomType::crypt, tiles, mPlayer.getSeat());
             return true;
         }
     }
@@ -654,17 +631,15 @@ bool KeeperAI::buildMostNeededRoom()
     if(mPlayer.getSeat()->isRoomAvailable(RoomType::dormitory) && nbDormitory == 1)
     {
         std::vector<Tile*> tiles;
-        int goldRequired;
-        mGameMap.fillBuildableTilesAndPriceForPlayerInArea(mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
-            mRoomPosY + mRoomSize - 1, &mPlayer, RoomType::dormitory, tiles, goldRequired);
+        int goldRequired = RoomManager::getRoomCost(tiles, &mGameMap, RoomType::dormitory, mRoomPosX, mRoomPosY, mRoomPosX + mRoomSize - 1,
+            mRoomPosY + mRoomSize - 1, &mPlayer);
         if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
             return false;
 
         if(!mGameMap.withdrawFromTreasuries(goldRequired, mPlayer.getSeat()))
             return false;
 
-        Room* room = new RoomDormitory(&mGameMap);
-        buildRoom(room, tiles);
+        RoomManager::buildRoom(&mGameMap, RoomType::dormitory, tiles, mPlayer.getSeat());
         return true;
     }
 
@@ -792,74 +767,22 @@ bool KeeperAI::repairRooms()
     mCooldownRepairRooms = Random::Int(60,150);
 
     Seat* seat = mPlayer.getSeat();
-    std::vector<Tile*> tilesToRepair;
     for(Room* room : mGameMap.getRooms())
     {
         if(room->getSeat() != seat)
             continue;
 
-        if(!room->canBeRepaired())
-            continue;
-
-        const std::vector<Tile*>& tiles = room->getCoveredTilesDestroyed();
+        std::vector<Tile*> tiles;
+        int goldRequired = room->getCostRepair(tiles);
         if(tiles.empty())
             continue;
 
-        for(Tile* tile : tiles)
-        {
-            if(!tile->isBuildableUpon(seat))
-                continue;
+        RoomType type = room->getType();
 
-            tilesToRepair.push_back(tile);
-        }
+        if(!mGameMap.withdrawFromTreasuries(goldRequired, mPlayer.getSeat()))
+            return false;
 
-        if(!tilesToRepair.empty())
-        {
-            RoomType type = room->getType();
-            int goldRequired = RoomManager::costPerTile(type) * tilesToRepair.size();
-
-            if(!mGameMap.withdrawFromTreasuries(goldRequired, mPlayer.getSeat()))
-                return false;
-
-            Room* room = nullptr;
-            switch(type)
-            {
-                case RoomType::crypt:
-                    room = new RoomCrypt(&mGameMap);
-                    break;
-                case RoomType::dormitory:
-                    room = new RoomDormitory(&mGameMap);
-                    break;
-                case RoomType::workshop:
-                    room = new RoomWorkshop(&mGameMap);
-                    break;
-                case RoomType::hatchery:
-                    room = new RoomHatchery(&mGameMap);
-                    break;
-                case RoomType::library:
-                    room = new RoomLibrary(&mGameMap);
-                    break;
-                case RoomType::trainingHall:
-                    room = new RoomTrainingHall(&mGameMap);
-                    break;
-                case RoomType::treasury:
-                    room = new RoomTreasury(&mGameMap);
-                    break;
-                default:
-                    OD_ASSERT_TRUE_MSG(false, "roomType=" + Rooms::getRoomNameFromRoomType(type));
-                    break;
-            }
-            if(room != nullptr)
-            {
-                buildRoom(room, tilesToRepair);
-                return true;
-            }
-            else
-            {
-                // We couldn't find the room type. We try another one
-                tilesToRepair.clear();
-            }
-        }
+        RoomManager::buildRoom(&mGameMap, type, tiles, mPlayer.getSeat());
     }
 
     return false;
