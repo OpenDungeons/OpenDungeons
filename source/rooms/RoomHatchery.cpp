@@ -23,7 +23,7 @@
 #include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
 
-static RoomManagerRegister<RoomHatchery> reg(RoomType::hatchery, "hatchery");
+static RoomManagerRegister<RoomHatchery> reg(RoomType::hatchery, "Hatchery");
 
 const double CHICKEN_SPEED = 0.4;
 

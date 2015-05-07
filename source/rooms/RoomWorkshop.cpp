@@ -28,6 +28,7 @@
 #include "rooms/RoomManager.h"
 
 #include "traps/Trap.h"
+#include "traps/TrapManager.h"
 #include "traps/TrapType.h"
 
 #include "utils/ConfigManager.h"
@@ -35,7 +36,7 @@
 #include "utils/LogManager.h"
 #include "utils/Random.h"
 
-static RoomManagerRegister<RoomWorkshop> reg(RoomType::workshop, "workshop");
+static RoomManagerRegister<RoomWorkshop> reg(RoomType::workshop, "Workshop");
 
 const Ogre::Real X_OFFSET_CREATURE = 0.7;
 const Ogre::Real Y_OFFSET_CREATURE = 0.0;
@@ -358,7 +359,7 @@ void RoomWorkshop::doUpkeep()
     }
 
     // We check if we have enough Workshop points for the currently crafted trap
-    int32_t pointsNeeded = Trap::getNeededWorkshopPointsPerTrap(mTrapType);
+    int32_t pointsNeeded = TrapManager::getNeededWorkshopPointsPerTrap(mTrapType);
     if(mPoints < pointsNeeded)
         return;
 

@@ -26,7 +26,7 @@
 #include "utils/LogManager.h"
 #include "utils/Random.h"
 
-static RoomManagerRegister<RoomCrypt> reg(RoomType::crypt, "crypt");
+static RoomManagerRegister<RoomCrypt> reg(RoomType::crypt, "Crypt");
 
 const int32_t OFFSET_TILE_X = 0;
 const int32_t OFFSET_TILE_Y = -1;

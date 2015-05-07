@@ -125,9 +125,9 @@ template <typename T>
 class RoomManagerRegister
 {
 public:
-    RoomManagerRegister(RoomType RoomType, const std::string& name)
+    RoomManagerRegister(RoomType type, const std::string& name)
     {
-        RoomManager::registerRoom(RoomType, name, &RoomManager::getRoomCostReg<T>,
+        RoomManager::registerRoom(type, name, &RoomManager::getRoomCostReg<T>,
             &RoomManager::buildRoomReg<T>, &RoomManager::getRoomFromStreamReg<T>);
     }
 

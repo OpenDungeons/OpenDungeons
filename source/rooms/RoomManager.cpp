@@ -68,8 +68,8 @@ Room* RoomFunctions::getRoomFromStreamFunc(GameMap* gameMap, RoomType type, std:
 
 std::vector<RoomFunctions>& getRoomFunctions()
 {
-    static std::vector<RoomFunctions> RoomList(static_cast<uint32_t>(RoomType::nbRooms));
-    return RoomList;
+    static std::vector<RoomFunctions> roomList(static_cast<uint32_t>(RoomType::nbRooms));
+    return roomList;
 }
 
 int RoomManager::getRoomCost(std::vector<Tile*>& targets, GameMap* gameMap, RoomType type,
