@@ -1,0 +1,49 @@
+// MysteryBox genrated by blender2ogre 0.6.0
+
+material MysteryBox 
+{
+    receive_shadows on 
+
+    technique
+    {
+        pass MysteryBox
+        {
+            ambient 0.800000011920929 0.800000011920929 0.800000011920929 1.0
+            diffuse 0.6400000190734865 0.6400000190734865 0.6400000190734865 1.0
+            specular 0.03783784061670303 0.03783784061670303 0.03783784061670303 1.0 20.25
+            emissive 0.0 0.0 0.0 1.0
+
+            alpha_to_coverage off
+            colour_write on
+            cull_hardware clockwise
+            depth_check on
+            depth_func less_equal
+            depth_write on
+            illumination_stage 
+            light_clip_planes off
+            light_scissor off
+            lighting on
+            normalise_normals off
+            polygon_mode solid
+            scene_blend one zero
+            scene_blend_op add
+            shading gouraud
+            transparent_sorting on
+
+            texture_unit 
+            {
+                texture MysteryBox.png
+                tex_address_mode wrap
+                scale 1.0 1.0
+                colour_op modulate
+            }
+            texture_unit 
+            {
+                texture MysteryBoxNormal.png
+                tex_address_mode wrap
+                scale 1.0 1.0
+                colour_op modulate
+            }
+        }
+    }
+}
