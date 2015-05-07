@@ -134,6 +134,9 @@ void MissileObject::doUpkeep()
                (!building->getSeat()->isAlliedSeat(mSeat)))
             {
                 hitTargetBuilding(mTileBuildingTarget, building);
+                mIsMissileAlive = false;
+                destination.x = static_cast<Ogre::Real>(tmpTile->getX());
+                destination.y = static_cast<Ogre::Real>(tmpTile->getY());
             }
         }
 

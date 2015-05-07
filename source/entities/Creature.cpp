@@ -2453,6 +2453,12 @@ bool Creature::handleAttackAction(const CreatureAction& actionItem)
         position.y = static_cast<Ogre::Real>(myTile->getY());
         position.z = CANNON_MISSILE_HEIGHT;
         Tile* tileBuilding = nullptr;
+        Ogre::Vector3 missileDirection(static_cast<Ogre::Real>(attackedTile->getX()),
+            static_cast<Ogre::Real>(attackedTile->getY()),
+            CANNON_MISSILE_HEIGHT);
+        missileDirection = missileDirection - position;
+        missileDirection.normalise();
+
         switch(attackedObject->getObjectType())
         {
             case GameEntityType::room:
@@ -2466,7 +2472,7 @@ bool Creature::handleAttackAction(const CreatureAction& actionItem)
         }
 
         MissileOneHit* missile = new MissileOneHit(getGameMap(), getSeat(), getName(), "Cannonball",
-            "MissileMagic", walkDirection, physicalDamage, magicalDamage, tileBuilding, false);
+            "MissileMagic", missileDirection, physicalDamage, magicalDamage, tileBuilding, false);
         missile->addToGameMap();
         missile->createMesh();
         missile->setPosition(position, false);
