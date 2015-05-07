@@ -49,8 +49,6 @@ public:
 
     static std::string getRoomStreamFormat();
 
-    static Room* getRoomFromStream(GameMap* gameMap, std::istream& is);
-
     /*! \brief Exports the headers needed to recreate the Room. It allows to extend Room as much as wanted.
      * The content of the Room will be exported by exportToPacket.
      */
@@ -60,7 +58,14 @@ public:
 
     virtual RoomType getType() const = 0;
 
-    static int costPerTile(RoomType t);
+    //! Computes the room cost by checking the buildable tiles within the given rectangular
+    //! and returns its cost (by computing nbTiles * costPerTile). tiles will be filled
+    //! with the buildable tiles.
+    //! Note that this is a helper function used because most rooms will use it for computing
+    //! cost.
+    static int getRoomCostDefault(std::vector<Tile*>& tiles, GameMap* gameMap, RoomType type,
+        int tileX1, int tileY1, int tileX2, int tileY2, Player* player);
+    static void buildRoomDefault(GameMap* gameMap, Room* room, const std::vector<Tile*>& tiles, Seat* seat);
 
     static bool compareTile(Tile* tile1, Tile* tile2);
 

@@ -25,10 +25,13 @@
 #include "game/Research.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
+#include "rooms/RoomManager.h"
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/Random.h"
+
+static RoomManagerRegister<RoomLibrary> reg(RoomType::library, "library");
 
 const Ogre::Real OFFSET_CREATURE = 0.3;
 const Ogre::Real OFFSET_SPOT = 0.3;
@@ -359,4 +362,21 @@ void RoomLibrary::getCreatureWantedPos(Creature* creature, Tile* tileSpot,
 RoomLibraryTileData* RoomLibrary::createTileData(Tile* tile)
 {
     return new RoomLibraryTileData;
+}
+
+int RoomLibrary::getRoomCost(std::vector<Tile*>& tiles, GameMap* gameMap, RoomType type,
+    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+{
+    return getRoomCostDefault(tiles, gameMap, type, tileX1, tileY1, tileX2, tileY2, player);
+}
+
+void RoomLibrary::buildRoom(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat* seat)
+{
+    RoomLibrary* room = new RoomLibrary(gameMap);
+    buildRoomDefault(gameMap, room, tiles, seat);
+}
+
+Room* RoomLibrary::getRoomFromStream(GameMap* gameMap, std::istream& is)
+{
+    return new RoomLibrary(gameMap);
 }

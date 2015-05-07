@@ -34,7 +34,8 @@ enum class RoomType
     library,
     hatchery,
     crypt,
-    portalWave
+    portalWave,
+    nbRooms     // Must be the last in this enum
 };
 
 namespace Rooms

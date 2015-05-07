@@ -16,10 +16,14 @@
  */
 
 #include "rooms/RoomHatchery.h"
+
 #include "entities/Tile.h"
 #include "entities/ChickenEntity.h"
+#include "rooms/RoomManager.h"
 #include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
+
+static RoomManagerRegister<RoomHatchery> reg(RoomType::hatchery, "hatchery");
 
 const double CHICKEN_SPEED = 0.4;
 
@@ -96,4 +100,21 @@ void RoomHatchery::doUpkeep()
 bool RoomHatchery::hasOpenCreatureSpot(Creature* c)
 {
     return mNumActiveSpots > mCreaturesUsingRoom.size();
+}
+
+int RoomHatchery::getRoomCost(std::vector<Tile*>& tiles, GameMap* gameMap, RoomType type,
+    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+{
+    return getRoomCostDefault(tiles, gameMap, type, tileX1, tileY1, tileX2, tileY2, player);
+}
+
+void RoomHatchery::buildRoom(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat* seat)
+{
+    RoomHatchery* room = new RoomHatchery(gameMap);
+    buildRoomDefault(gameMap, room, tiles, seat);
+}
+
+Room* RoomHatchery::getRoomFromStream(GameMap* gameMap, std::istream& is)
+{
+    return new RoomHatchery(gameMap);
 }

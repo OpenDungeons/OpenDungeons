@@ -35,6 +35,7 @@
 #include "render/RenderManager.h"
 
 #include "rooms/Room.h"
+#include "rooms/RoomManager.h"
 #include "rooms/RoomType.h"
 
 #include "spawnconditions/SpawnCondition.h"
@@ -1449,7 +1450,7 @@ void Seat::exportTileToPacket(ODPacket& os, Tile* tile) const
         {
             Room* room = static_cast<Room*>(tileState.mBuilding);
             if(room->getSeat() == this)
-                refundPriceRoom = (Room::costPerTile(room->getType()) / 2);
+                refundPriceRoom = (RoomManager::costPerTile(room->getType()) / 2);
         }
         else if(tileState.mBuilding->getObjectType() == GameEntityType::trap)
         {

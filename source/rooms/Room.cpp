@@ -25,17 +25,8 @@
 #include "game/Player.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
-#include "rooms/RoomCrypt.h"
-#include "rooms/RoomDormitory.h"
-#include "rooms/RoomDungeonTemple.h"
-#include "rooms/RoomHatchery.h"
-#include "rooms/RoomLibrary.h"
-#include "rooms/RoomPortal.h"
-#include "rooms/RoomPortalWave.h"
-#include "rooms/RoomTrainingHall.h"
-#include "rooms/RoomTreasury.h"
+#include "rooms/RoomManager.h"
 #include "rooms/RoomType.h"
-#include "rooms/RoomWorkshop.h"
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
@@ -180,99 +171,6 @@ Creature* Room::getCreatureUsingRoom(unsigned index)
 std::string Room::getRoomStreamFormat()
 {
     return "typeRoom\tname\tseatId\tnumTiles\t\tSubsequent Lines: tileX\ttileY";
-}
-
-Room* Room::getRoomFromStream(GameMap* gameMap, std::istream& is)
-{
-    Room* tempRoom = nullptr;
-    RoomType nType;
-    is >> nType;
-
-    switch (nType)
-    {
-        case RoomType::nullRoomType:
-            tempRoom = nullptr;
-            break;
-        case RoomType::dormitory:
-            tempRoom = new RoomDormitory(gameMap);
-            break;
-        case RoomType::treasury:
-            tempRoom = new RoomTreasury(gameMap);
-            break;
-        case RoomType::portal:
-            tempRoom = new RoomPortal(gameMap);
-            break;
-        case RoomType::dungeonTemple:
-            tempRoom = new RoomDungeonTemple(gameMap);
-            break;
-        case RoomType::workshop:
-            tempRoom = new RoomWorkshop(gameMap);
-            break;
-        case RoomType::trainingHall:
-            tempRoom = new RoomTrainingHall(gameMap);
-            break;
-        case RoomType::library:
-            tempRoom = new RoomLibrary(gameMap);
-            break;
-        case RoomType::hatchery:
-            tempRoom = new RoomHatchery(gameMap);
-            break;
-        case RoomType::crypt:
-            tempRoom = new RoomCrypt(gameMap);
-            break;
-        case RoomType::portalWave:
-            tempRoom = new RoomPortalWave(gameMap);
-            break;
-        default:
-            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(
-                static_cast<int>(nType)));
-    }
-
-    if(tempRoom == nullptr)
-        return nullptr;
-
-    tempRoom->importFromStream(is);
-
-    return tempRoom;
-}
-
-int Room::costPerTile(RoomType t)
-{
-    switch (t)
-    {
-    case RoomType::nullRoomType:
-        return 0;
-
-    case RoomType::dungeonTemple:
-        return 0;
-
-    case RoomType::portal:
-        return 0;
-
-    case RoomType::treasury:
-        return ConfigManager::getSingleton().getRoomConfigInt32("TreasuryCostPerTile");
-
-    case RoomType::dormitory:
-        return ConfigManager::getSingleton().getRoomConfigInt32("DormitoryCostPerTile");
-
-    case RoomType::hatchery:
-        return ConfigManager::getSingleton().getRoomConfigInt32("HatcheryCostPerTile");
-
-    case RoomType::workshop:
-        return ConfigManager::getSingleton().getRoomConfigInt32("WorkshopCostPerTile");
-
-    case RoomType::trainingHall:
-        return ConfigManager::getSingleton().getRoomConfigInt32("TrainHallCostPerTile");
-
-    case RoomType::library:
-        return ConfigManager::getSingleton().getRoomConfigInt32("LibraryCostPerTile");
-
-    case RoomType::crypt:
-        return ConfigManager::getSingleton().getRoomConfigInt32("CryptCostPerTile");
-
-    default:
-        return 0;
-    }
 }
 
 void Room::setupRoom(const std::string& name, Seat* seat, const std::vector<Tile*>& tiles)
@@ -710,3 +608,72 @@ bool Room::sortForMapSave(Room* r1, Room* r2)
     return seatId1 < seatId2;
 }
 
+void Room::buildRoomDefault(GameMap* gameMap, Room* room, const std::vector<Tile*>& tiles, Seat* seat)
+{
+    room->setupRoom(gameMap->nextUniqueNameRoom(room->getMeshName()), seat, tiles);
+    room->addToGameMap();
+    room->createMesh();
+
+    if((seat->getPlayer() != nullptr) &&
+       (seat->getPlayer()->getIsHuman()))
+    {
+        // We notify the clients with vision of the changed tiles. Note that we need
+        // to calculate per seat since they could have vision on different parts of the building
+        std::map<Seat*,std::vector<Tile*>> tilesPerSeat;
+        const std::vector<Seat*>& seats = gameMap->getSeats();
+        for(Seat* tmpSeat : seats)
+        {
+            if(tmpSeat->getPlayer() == nullptr)
+                continue;
+            if(!tmpSeat->getPlayer()->getIsHuman())
+                continue;
+
+            for(Tile* tile : tiles)
+            {
+                if(!tmpSeat->hasVisionOnTile(tile))
+                    continue;
+
+                tile->changeNotifiedForSeat(tmpSeat);
+                tilesPerSeat[tmpSeat].push_back(tile);
+            }
+        }
+
+        for(const std::pair<Seat* const,std::vector<Tile*>>& p : tilesPerSeat)
+        {
+            uint32_t nbTiles = p.second.size();
+            ServerNotification serverNotification(
+                ServerNotificationType::refreshTiles, p.first->getPlayer());
+            serverNotification.mPacket << nbTiles;
+            for(Tile* tile : p.second)
+            {
+                gameMap->tileToPacket(serverNotification.mPacket, tile);
+                p.first->updateTileStateForSeat(tile);
+                p.first->exportTileToPacket(serverNotification.mPacket, tile);
+            }
+            ODServer::getSingleton().sendAsyncMsg(serverNotification);
+        }
+    }
+
+    room->checkForRoomAbsorbtion();
+    room->updateActiveSpots();
+}
+
+int Room::getRoomCostDefault(std::vector<Tile*>& tiles, GameMap* gameMap, RoomType type,
+    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+{
+    std::vector<Tile*> buildableTiles = gameMap->getBuildableTilesForPlayerInArea(tileX1,
+        tileY1, tileX2, tileY2, player);
+
+    if(buildableTiles.empty())
+        return RoomManager::costPerTile(type);
+
+    int nbTiles = 0;
+
+    for(Tile* tile : buildableTiles)
+    {
+        tiles.push_back(tile);
+        ++nbTiles;
+    }
+
+    return nbTiles * RoomManager::costPerTile(type);
+}

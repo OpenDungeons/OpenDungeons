@@ -25,6 +25,7 @@
 #include "rooms/Room.h"
 #include "rooms/RoomCrypt.h"
 #include "rooms/RoomDormitory.h"
+#include "rooms/RoomManager.h"
 #include "rooms/RoomWorkshop.h"
 #include "rooms/RoomHatchery.h"
 #include "rooms/RoomLibrary.h"
@@ -111,7 +112,7 @@ bool KeeperAI::checkTreasury()
 
     // A treasury can be built if we have none (in this case, it is free). Otherwise,
     // we check if we have enough gold
-    if(nbTilesTreasuries > 0 && totalGold < Room::costPerTile(RoomType::treasury))
+    if(nbTilesTreasuries > 0 && totalGold < RoomManager::costPerTile(RoomType::treasury))
         return false;
 
     Tile* central = getDungeonTemple()->getCentralTile();
@@ -815,7 +816,7 @@ bool KeeperAI::repairRooms()
         if(!tilesToRepair.empty())
         {
             RoomType type = room->getType();
-            int goldRequired = Room::costPerTile(type) * tilesToRepair.size();
+            int goldRequired = RoomManager::costPerTile(type) * tilesToRepair.size();
 
             if(!mGameMap.withdrawFromTreasuries(goldRequired, mPlayer.getSeat()))
                 return false;

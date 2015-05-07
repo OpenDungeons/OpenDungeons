@@ -25,6 +25,7 @@
 #include "game/Seat.h"
 #include "gamemap/Pathfinding.h"
 #include "gamemap/GameMap.h"
+#include "rooms/RoomManager.h"
 #include "spell/SpellCallToWar.h"
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
@@ -32,6 +33,8 @@
 #include "utils/Random.h"
 
 #include <vector>
+
+static RoomManagerRegister<RoomPortalWave> reg(RoomType::portalWave, "portalWave");
 
 class TileSearch
 {
@@ -863,4 +866,21 @@ bool RoomPortalWave::findBestDiggablePath(Tile* tileStart, Tile* tileDest, Creat
             tile = getGameMap()->getTile(tile->getX() + rotations.back().first, tile->getY() + rotations.back().second);
         }
     }
+}
+
+int RoomPortalWave::getRoomCost(std::vector<Tile*>& tiles, GameMap* gameMap, RoomType type,
+    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+{
+    return getRoomCostDefault(tiles, gameMap, type, tileX1, tileY1, tileX2, tileY2, player);
+}
+
+void RoomPortalWave::buildRoom(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat* seat)
+{
+    RoomPortalWave* room = new RoomPortalWave(gameMap);
+    buildRoomDefault(gameMap, room, tiles, seat);
+}
+
+Room* RoomPortalWave::getRoomFromStream(GameMap* gameMap, std::istream& is)
+{
+    return new RoomPortalWave(gameMap);
 }

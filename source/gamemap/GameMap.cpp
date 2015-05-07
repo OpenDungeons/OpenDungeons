@@ -53,6 +53,7 @@
 
 #include "rooms/Room.h"
 #include "rooms/RoomDungeonTemple.h"
+#include "rooms/RoomManager.h"
 #include "rooms/RoomPortal.h"
 #include "rooms/RoomTreasury.h"
 #include "rooms/RoomType.h"
@@ -2836,6 +2837,8 @@ GameEntity* GameMap::getClosestTileWhereGameEntityFromList(std::vector<GameEntit
     return closestGameEntity;
 }
 
+// TODO: replace in the keeper AI calls to fillBuildableTilesAndPriceForPlayerInArea by
+// calls to the RoomManager
 void GameMap::fillBuildableTilesAndPriceForPlayerInArea(int x1, int y1, int x2, int y2,
     Player* player, RoomType type, std::vector<Tile*>& tiles, int& goldRequired)
 {
@@ -2845,7 +2848,7 @@ void GameMap::fillBuildableTilesAndPriceForPlayerInArea(int x1, int y1, int x2, 
     if(tiles.empty())
         return;
 
-    int costPerTile = Room::costPerTile(type);
+    int costPerTile = RoomManager::costPerTile(type);
     goldRequired = tiles.size() * costPerTile;
 
     // The first treasury tile doesn't cost anything to prevent a player from being stuck

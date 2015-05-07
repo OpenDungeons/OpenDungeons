@@ -346,6 +346,7 @@ set(OD_SOURCEFILES
     ${SRC}/rooms/RoomDungeonTemple.cpp
     ${SRC}/rooms/RoomHatchery.cpp
     ${SRC}/rooms/RoomLibrary.cpp
+    ${SRC}/rooms/RoomManager.cpp
     ${SRC}/rooms/RoomPortal.cpp
     ${SRC}/rooms/RoomPortalWave.cpp
     ${SRC}/rooms/RoomType.cpp

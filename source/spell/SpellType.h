@@ -30,7 +30,7 @@ enum class SpellType
     callToWar,
     creatureHeal,
     creatureExplode,
-    nbSpells
+    nbSpells     // Must be the last in this enum
 };
 
 std::istream& operator>>(std::istream& is, SpellType& tt);

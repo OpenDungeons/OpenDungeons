@@ -38,6 +38,7 @@
 #include "entities/Weapon.h"
 
 #include "rooms/Room.h"
+#include "rooms/RoomManager.h"
 
 #include "spell/Spell.h"
 
@@ -274,10 +275,12 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         if(!gameMap.isServerGameMap())
             continue;
 
-        Room* tempRoom = Room::getRoomFromStream(&gameMap, levelFile);
+        Room* tempRoom = RoomManager::getRoomFromStream(&gameMap, levelFile);
         OD_ASSERT_TRUE(tempRoom != nullptr);
         if(tempRoom == nullptr)
             return false;
+
+        tempRoom->importFromStream(levelFile);
 
         tempRoom->addToGameMap();
 

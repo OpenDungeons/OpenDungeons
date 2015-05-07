@@ -28,7 +28,8 @@ enum class TrapType
     nullTrapType = 0,
     cannon,
     spike,
-    boulder
+    boulder,
+    nbTraps     // Must be the last in this enum
 };
 
 std::istream& operator>>(std::istream& is, TrapType& tt);

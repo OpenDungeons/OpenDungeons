@@ -23,7 +23,10 @@
 #include "entities/PersistentObject.h"
 #include "entities/ResearchEntity.h"
 #include "entities/Tile.h"
+#include "rooms/RoomManager.h"
 #include "utils/LogManager.h"
+
+static RoomManagerRegister<RoomDungeonTemple> reg(RoomType::dungeonTemple, "dungeonTemple");
 
 RoomDungeonTemple::RoomDungeonTemple(GameMap* gameMap) :
     Room(gameMap),
@@ -162,4 +165,21 @@ void RoomDungeonTemple::restoreInitialEntityState()
         mTempleObject->notifyRemoveAsked();
 
     Room::restoreInitialEntityState();
+}
+
+int RoomDungeonTemple::getRoomCost(std::vector<Tile*>& tiles, GameMap* gameMap, RoomType type,
+    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+{
+    return getRoomCostDefault(tiles, gameMap, type, tileX1, tileY1, tileX2, tileY2, player);
+}
+
+void RoomDungeonTemple::buildRoom(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat* seat)
+{
+    RoomDungeonTemple* room = new RoomDungeonTemple(gameMap);
+    buildRoomDefault(gameMap, room, tiles, seat);
+}
+
+Room* RoomDungeonTemple::getRoomFromStream(GameMap* gameMap, std::istream& is)
+{
+    return new RoomDungeonTemple(gameMap);
 }
