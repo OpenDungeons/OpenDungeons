@@ -106,7 +106,7 @@ void ChickenEntity::doUpkeep()
     {
         mChickenState = ChickenState::dying;
         clearDestinations();
-        setAnimationState("Die", false);
+        setAnimationState(EntityAnimation::die_anim, false);
         return;
     }
 
@@ -141,7 +141,7 @@ void ChickenEntity::doUpkeep()
     Ogre::Real y = static_cast<Ogre::Real>(tileDest->getY());
 
     addDestination(x, y);
-    setAnimationState("Walk");
+    setAnimationState(EntityAnimation::walk_anim);
 }
 
 void ChickenEntity::addTileToListIfPossible(int x, int y, Room* currentHatchery, std::vector<Tile*>& possibleTileMove)
