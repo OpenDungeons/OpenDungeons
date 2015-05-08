@@ -3087,9 +3087,24 @@ bool Creature::checkLevelUp()
 
 void Creature::refreshCreature(ODPacket& packet)
 {
+    int seatId;
     OD_ASSERT_TRUE(packet >> mLevel);
+    OD_ASSERT_TRUE(packet >> seatId);
     OD_ASSERT_TRUE(packet >> mOverlayHealthValue);
     RenderManager::getSingleton().rrScaleEntity(this);
+
+    if(getSeat()->getId() != seatId)
+    {
+        Seat* seat = getGameMap()->getSeatById(seatId);
+        if(seat == nullptr)
+        {
+            OD_ASSERT_TRUE_MSG(false, "Creature " + getName() + ", wrong seatId=" + Helper::toString(seatId));
+        }
+        else
+        {
+            setSeat(seat);
+        }
+    }
 
     uint32_t nbEffects;
     OD_ASSERT_TRUE(packet >> nbEffects);
@@ -4138,11 +4153,13 @@ void Creature::fireCreatureRefreshIfNeeded()
         if(!seat->getPlayer()->getIsHuman())
             continue;
 
+        int seatId = getSeat()->getId();
         const std::string& name = getName();
         ServerNotification *serverNotification = new ServerNotification(
             ServerNotificationType::creatureRefresh, seat->getPlayer());
         serverNotification->mPacket << name;
         serverNotification->mPacket << mLevel;
+        serverNotification->mPacket << seatId;
         serverNotification->mPacket << mOverlayHealthValue;
 
         uint32_t nbCreatureEffect = mEntityParticleEffects.size();
@@ -4319,6 +4336,7 @@ void Creature::computeMood()
         clearActionQueue();
         stopJob();
         stopEating();
+        mNeedFireRefresh = true;
         if (getHomeTile() != nullptr)
         {
             RoomDormitory* home = static_cast<RoomDormitory*>(getHomeTile()->getCoveringBuilding());
