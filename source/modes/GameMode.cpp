@@ -228,6 +228,12 @@ GameMode::GameMode(ModeManager *modeManager):
     connectSpellSelect(Gui::BUTTON_SPELL_SUMMON_WORKER, SpellType::summonWorker);
     connectSpellSelect(Gui::BUTTON_SPELL_CREATURE_HEAL, SpellType::creatureHeal);
     connectSpellSelect(Gui::BUTTON_SPELL_CREATURE_EXPLOSION, SpellType::creatureExplosion);
+
+    // Set tab tooltips here, since it's not feasible on CEGUI without a hack.
+    setTabButtonToolTip("Rooms", "Rooms");
+    setTabButtonToolTip("Traps", "Traps");
+    setTabButtonToolTip("Spells", "Spells");
+    setTabButtonToolTip("Creatures", "Creatures");
 }
 
 GameMode::~GameMode()

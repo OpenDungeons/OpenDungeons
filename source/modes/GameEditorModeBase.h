@@ -76,6 +76,15 @@ protected:
     MiniMap mMiniMap;
 protected:
     PlayerSelection mPlayerSelection;
+
+    //! \brief Set the given tooltip to the given tabButton CEGUI auto window.
+    //! This is done this way as it is not possible to set it in layout files
+    //! without a hack on autowindows.
+    void setTabButtonToolTip(const std::string& buttonName, const std::string& tooltip);
+
+    //! \brief Get the tab button auto-created widget corresponding to the tab name given.
+    //! Returns nullptr is none.
+    CEGUI::Window* getTabButtonWidget(const std::string& tabName);
 private:
     //! \brief The game event messages in queue.
     std::vector<EventMessage*> mEventMessages;

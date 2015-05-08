@@ -138,6 +138,14 @@ EditorMode::EditorMode(ModeManager* modeManager):
     connectTileSelect(Gui::EDITOR_WATER_BUTTON,TileVisual::waterGround);
 
     updateFlagColor();
+
+    // Set tab tooltips here, since it's not feasible on CEGUI without a hack.
+    setTabButtonToolTip("Tiles", "Tiles");
+    setTabButtonToolTip("Rooms", "Rooms");
+    setTabButtonToolTip("Traps", "Traps");
+    setTabButtonToolTip("Spells", "Spells/Gift Boxes");
+    setTabButtonToolTip("Lights", "Lights");
+    setTabButtonToolTip("Creatures", "Creatures");
 }
 
 EditorMode::~EditorMode()

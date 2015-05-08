@@ -267,3 +267,24 @@ void GameEditorModeBase::updateMessages(Ogre::Real update_time)
         scrollBar->setScrollPosition(scrollPosition);
     }
 }
+
+CEGUI::Window* GameEditorModeBase::getTabButtonWidget(const std::string& tabName)
+{
+    CEGUI::Window* win = nullptr;
+    // NOTE: The mother tab widget must be named MainTabControl for this to work.
+    std::string buttonName = "MainTabControl/__auto_TabPane__Buttons/__auto_btn" + tabName;
+    try {
+        win = mRootWindow->getChild(buttonName);
+    }
+    catch (std::exception& e)
+    {
+    }
+    return win;
+}
+
+void GameEditorModeBase::setTabButtonToolTip(const std::string& buttonName, const std::string& tooltip)
+{
+    CEGUI::Window* win = getTabButtonWidget(buttonName);
+    if (win != nullptr)
+        win->setTooltipText(tooltip);
+}
