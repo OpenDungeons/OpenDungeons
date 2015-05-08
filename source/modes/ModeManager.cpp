@@ -28,20 +28,19 @@
 #include "modes/MenuModeLoad.h"
 #include "modes/GameMode.h"
 #include "modes/EditorMode.h"
-#include "modes/ConsoleMode.h"
-#include "modes/FppMode.h"
 #include "utils/MakeUnique.h"
 
 
-ModeManager::ModeManager(Ogre::RenderWindow* renderWindow, Gui* gui)
-  : mInputManager(renderWindow), mGui(gui), mConsoleMode(Utils::make_unique<ConsoleMode>(this)), mIsInConsole(false),
-    mRequestedMode(ModeType::NONE), mDiscardActualMode(false)
+ModeManager::ModeManager(Ogre::RenderWindow* renderWindow, Gui* gui) :
+    mInputManager(renderWindow),
+    mGui(gui),
+    mRequestedMode(ModeType::NONE)
 {
     mInputManager.mKeyboard->setTextTranslation(OIS::Keyboard::Unicode);
 
     // Loads the main menu
-    mApplicationModes.emplace_back(Utils::make_unique<MenuMode>(this));
-    mApplicationModes.back()->activate();
+    mCurrentApplicationMode = Utils::make_unique<MenuMode>(this);
+    mCurrentApplicationMode->activate();
 }
 
 ModeManager::~ModeManager()
@@ -50,93 +49,12 @@ ModeManager::~ModeManager()
 
 AbstractApplicationMode* ModeManager::getCurrentMode()
 {
-    if (mIsInConsole)
-        return mConsoleMode.get();
-
-    return mApplicationModes.back().get();
+    return mCurrentApplicationMode.get();
 }
 
-ModeManager::ModeType ModeManager::getCurrentModeType()
+ModeManager::ModeType ModeManager::getCurrentModeType() const
 {
-    return getCurrentMode()->getModeType();
-}
-
-ModeManager::ModeType ModeManager::getCurrentModeTypeExceptConsole() const
-{
-    return mApplicationModes.back()->getModeType();
-}
-
-void ModeManager::addMode(ModeType mt)
-{
-    // Check the current mode and return if it was already active.
-    if (mApplicationModes.back()->getModeType() == mt)
-        return;
-
-    switch(mt)
-    {
-    // We use a unique console instance.
-    case CONSOLE:
-        mIsInConsole = true;
-        mConsoleMode->activate();
-        return;
-        break;
-    case MENU:
-        mApplicationModes.emplace_back(Utils::make_unique<MenuMode>(this));
-        break;
-    case MENU_SKIRMISH:
-        mApplicationModes.emplace_back(Utils::make_unique<MenuModeSkirmish>(this));
-        break;
-    case MENU_REPLAY:
-        mApplicationModes.emplace_back(Utils::make_unique<MenuModeReplay>(this));
-        break;
-    case MENU_MULTIPLAYER_CLIENT:
-        mApplicationModes.emplace_back(Utils::make_unique<MenuModeMultiplayerClient>(this));
-        break;
-    case MENU_MULTIPLAYER_SERVER:
-        mApplicationModes.emplace_back(Utils::make_unique<MenuModeMultiplayerServer>(this));
-        break;
-    case MENU_EDITOR:
-        mApplicationModes.emplace_back(Utils::make_unique<MenuModeEditor>(this));
-        break;
-    case MENU_CONFIGURE_SEATS:
-        mApplicationModes.emplace_back(Utils::make_unique<MenuModeConfigureSeats>(this));
-        break;
-    case GAME:
-        mApplicationModes.emplace_back(Utils::make_unique<GameMode>(this));
-        break;
-    case EDITOR:
-        mApplicationModes.emplace_back(Utils::make_unique<EditorMode>(this));
-        break;
-    case FPP:
-        mApplicationModes.emplace_back(Utils::make_unique<FppMode>(this));
-        break;
-    case MENU_LOAD_SAVEDGAME:
-        mApplicationModes.emplace_back(Utils::make_unique<MenuModeLoad>(this));
-        break;
-    default:
-        break;
-    }
-
-    // We're no more in console mode.
-    mIsInConsole = false;
-
-    mApplicationModes.back()->activate();
-}
-
-void ModeManager::removeMode()
-{
-    // If we were in the console, we simply switch back
-    if (mIsInConsole)
-    {
-        mIsInConsole = false;
-    }
-    else if (mApplicationModes.size() > 1)
-    {
-        mApplicationModes.back()->deactivate();
-        mApplicationModes.pop_back();
-    }
-
-    mApplicationModes.back()->activate();
+    return mCurrentApplicationMode->getModeType();
 }
 
 void ModeManager::checkModeChange()
@@ -144,22 +62,51 @@ void ModeManager::checkModeChange()
     if (mRequestedMode == NONE)
         return;
 
-    if(mRequestedMode == PREV)
-    {
-        removeMode();
-    }
-    else
-    {
-        mApplicationModes.back()->deactivate();
+    if (mCurrentApplicationMode->getModeType() == mRequestedMode)
+        return;
 
-        if(mDiscardActualMode)
-            mApplicationModes.pop_back();
+    mCurrentApplicationMode->deactivate();
+    mCurrentApplicationMode = nullptr;
 
-        addMode(mRequestedMode);
+    switch(mRequestedMode)
+    {
+    case MAIN_MENU:
+        mCurrentApplicationMode = Utils::make_unique<MenuMode>(this);
+        break;
+    case MENU_SKIRMISH:
+        mCurrentApplicationMode = Utils::make_unique<MenuModeSkirmish>(this);
+        break;
+    case MENU_REPLAY:
+        mCurrentApplicationMode = Utils::make_unique<MenuModeReplay>(this);
+        break;
+    case MENU_MULTIPLAYER_CLIENT:
+        mCurrentApplicationMode = Utils::make_unique<MenuModeMultiplayerClient>(this);
+        break;
+    case MENU_MULTIPLAYER_SERVER:
+        mCurrentApplicationMode = Utils::make_unique<MenuModeMultiplayerServer>(this);
+        break;
+    case MENU_EDITOR:
+        mCurrentApplicationMode = Utils::make_unique<MenuModeEditor>(this);
+        break;
+    case MENU_CONFIGURE_SEATS:
+        mCurrentApplicationMode = Utils::make_unique<MenuModeConfigureSeats>(this);
+        break;
+    case GAME:
+        mCurrentApplicationMode = Utils::make_unique<GameMode>(this);
+        break;
+    case EDITOR:
+        mCurrentApplicationMode = Utils::make_unique<EditorMode>(this);
+        break;
+    case MENU_LOAD_SAVEDGAME:
+        mCurrentApplicationMode = Utils::make_unique<MenuModeLoad>(this);
+        break;
+    default:
+        break;
     }
+
+    mCurrentApplicationMode->activate();
 
     mRequestedMode = NONE;
-    mDiscardActualMode = false;
 }
 
 void ModeManager::update(const Ogre::FrameEvent& evt)

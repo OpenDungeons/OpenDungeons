@@ -43,7 +43,7 @@ const std::string COMBOBOX_TEAM_ID_PREFIX = "ComboTeam";
 const std::string COMBOBOX_PLAYER_FACTION_PREFIX = "ComboPlayerFactionSeat";
 const std::string COMBOBOX_PLAYER_PREFIX = "ComboPlayerSeat";
 
-MenuModeConfigureSeats::MenuModeConfigureSeats(ModeManager *modeManager):
+MenuModeConfigureSeats::MenuModeConfigureSeats(ModeManager* modeManager):
     AbstractApplicationMode(modeManager, ModeManager::MENU_CONFIGURE_SEATS),
     mIsActivePlayerConfig(false)
 {
@@ -60,7 +60,7 @@ MenuModeConfigureSeats::MenuModeConfigureSeats(ModeManager *modeManager):
             CEGUI::Event::Subscriber(&MenuModeConfigureSeats::goBack, this)
         )
     );
-    subscribeCloseButton(*window->getChild("ListPlayers"));
+
     addEventConnection(
         window->getChild("ListPlayers/__auto_closebutton__")->subscribeEvent(
             CEGUI::PushButton::EventClicked,
@@ -309,13 +309,29 @@ bool MenuModeConfigureSeats::launchSelectedButtonPressed(const CEGUI::EventArgs&
 
 bool MenuModeConfigureSeats::goBack(const CEGUI::EventArgs&)
 {
+    ServerMode serverMode = ODServer::getSingleton().getServerMode();
+
     // We disconnect client and, if we are server, the server
     ODClient::getSingleton().disconnect();
     if(ODServer::getSingleton().isConnected())
     {
         ODServer::getSingleton().stopServer();
     }
-    regressMode();
+
+    // Go to the previous menu according to the serverMode
+    switch(serverMode)
+    {
+        case ServerMode::ModeEditor:
+        case ServerMode::ModeGameLoaded:
+        case ServerMode::ModeGameMultiPlayer:
+            // TODO: Make it possible to tell whether we were hosting or joining.
+        default:
+            getModeManager().requestMode(AbstractModeManager::MAIN_MENU);
+            break;
+        case ServerMode::ModeGameSinglePlayer:
+            getModeManager().requestMode(AbstractModeManager::MENU_SKIRMISH);
+            break;
+    }
     return true;
 }
 

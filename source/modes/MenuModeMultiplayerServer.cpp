@@ -68,12 +68,15 @@ MenuModeMultiplayerServer::MenuModeMultiplayerServer(ModeManager *modeManager):
     addEventConnection(
         window->getChild(Gui::MPM_BUTTON_BACK)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&MenuModeMultiplayerServer::regressMode,
-                                     static_cast<AbstractApplicationMode*>(this))
+            CEGUI::Event::Subscriber(&MenuModeMultiplayerServer::goBack, this)
         )
     );
-
-    subscribeCloseButton(*window->getChild("LevelWindowFrame"));
+    addEventConnection(
+        window->getChild("LevelWindowFrame/__auto_closebutton__")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&MenuModeMultiplayerServer::goBack, this)
+        )
+    );
 }
 
 void MenuModeMultiplayerServer::activate()
@@ -216,5 +219,11 @@ bool MenuModeMultiplayerServer::updateDescription(const CEGUI::EventArgs&)
 
     std::string description = mDescriptionList[id];
     descTxt->setText(reinterpret_cast<const CEGUI::utf8*>(description.c_str()));
+    return true;
+}
+
+bool MenuModeMultiplayerServer::goBack(const CEGUI::EventArgs &)
+{
+    getModeManager().requestMode(AbstractModeManager::MAIN_MENU);
     return true;
 }

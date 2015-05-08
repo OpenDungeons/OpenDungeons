@@ -29,6 +29,7 @@
 
 namespace
 {
+    //FIXME: Rename this into mainmenumode.
 //! \brief Helper functor to change modes
 class ModeChanger
 {
@@ -45,7 +46,7 @@ public:
 }
 
 MenuMode::MenuMode(ModeManager *modeManager):
-    AbstractApplicationMode(modeManager, ModeManager::MENU)
+    AbstractApplicationMode(modeManager, ModeManager::MAIN_MENU)
 {
     connectModeChangeEvent(Gui::MM_BUTTON_MAPEDITOR, AbstractModeManager::ModeType::MENU_EDITOR);
     connectModeChangeEvent(Gui::MM_BUTTON_START_SKIRMISH, AbstractModeManager::ModeType::MENU_SKIRMISH);

@@ -73,7 +73,7 @@ public:
     //! \brief Check if this command is allowed in the speficied mode.
     bool isAllowedInMode(ModeType mode) const
     {
-        return mAllowedModes[static_cast<std::size_t>(ModeType::ALL)] || mAllowedModes[static_cast<std::size_t>(mode)];
+        return mAllowedModes[static_cast<std::size_t>(mode)];
     }
 
 private:

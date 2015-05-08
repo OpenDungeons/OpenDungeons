@@ -17,6 +17,8 @@
 
 #include "modes/GameMode.h"
 
+#include "modes/ConsoleMode.h"
+
 #include "ODApplication.h"
 #include "camera/CameraManager.h"
 #include "entities/Creature.h"
@@ -80,11 +82,10 @@ GameMode::GameMode(ModeManager *modeManager):
     mDigSetBool(false),
     mMouseX(0),
     mMouseY(0),
-    mCurrentInputMode(InputModeNormal),
     mIndexEvent(0)
 {
     // Set per default the input on the map
-    mModeManager->getInputManager()->mMouseDownOnCEGUIWindow = false;
+    mModeManager->getInputManager().mMouseDownOnCEGUIWindow = false;
 
     ODFrameListener::getSingleton().getCameraManager()->setDefaultView();
 
@@ -187,8 +188,7 @@ GameMode::GameMode(ModeManager *modeManager):
     addEventConnection(
         guiSheet->getChild(Gui::EXIT_CONFIRMATION_POPUP_YES_BUTTON)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&GameMode::regressMode,
-                                     static_cast<AbstractApplicationMode*>(this))
+            CEGUI::Event::Subscriber(&GameMode::onClickYesQuitMenu, this)
         )
     );
 
@@ -297,7 +297,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
     if (!isConnected())
         return true;
 
-    InputManager* inputManager = mModeManager->getInputManager();
+    InputManager& inputManager = mModeManager->getInputManager();
 
     // If we have a room or trap (or later spell) selected, show what we have selected
     // TODO: This should be changed, or combined with an icon or something later.
@@ -318,26 +318,26 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 int tileY1;
                 int tileX2;
                 int tileY2;
-                if(inputManager->mLMouseDown)
+                if(inputManager.mLMouseDown)
                 {
-                    tileX1 = inputManager->mXPos;
-                    tileY1 = inputManager->mYPos;
-                    tileX2 = inputManager->mLStartDragX;
-                    tileY2 = inputManager->mLStartDragY;
+                    tileX1 = inputManager.mXPos;
+                    tileY1 = inputManager.mYPos;
+                    tileX2 = inputManager.mLStartDragX;
+                    tileY2 = inputManager.mLStartDragY;
                 }
                 else
                 {
-                    tileX1 = inputManager->mXPos;
-                    tileY1 = inputManager->mYPos;
-                    tileX2 = inputManager->mXPos;
-                    tileY2 = inputManager->mYPos;
+                    tileX1 = inputManager.mXPos;
+                    tileY1 = inputManager.mYPos;
+                    tileX2 = inputManager.mXPos;
+                    tileY2 = inputManager.mYPos;
                 }
 
                 RoomType selectedRoomType = mPlayerSelection.getNewRoomType();
                 std::vector<Tile*> tiles;
                 int price = RoomManager::getRoomCost(tiles, mGameMap, selectedRoomType, tileX1, tileY1, tileX2, tileY2, player);
                 int gold = player->getSeat()->getGold();
-                const Ogre::ColourValue& textColor = ((gold < price) || (tiles.empty() && inputManager->mLMouseDown)) ? red : white;
+                const Ogre::ColourValue& textColor = ((gold < price) || (tiles.empty() && inputManager.mLMouseDown)) ? red : white;
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
                 textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(RoomManager::getRoomNameFromRoomType(selectedRoomType))
                     + " [" + Helper::toString(price)+ " Gold]");
@@ -351,26 +351,26 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 int tileY1;
                 int tileX2;
                 int tileY2;
-                if(inputManager->mLMouseDown)
+                if(inputManager.mLMouseDown)
                 {
-                    tileX1 = inputManager->mXPos;
-                    tileY1 = inputManager->mYPos;
-                    tileX2 = inputManager->mLStartDragX;
-                    tileY2 = inputManager->mLStartDragY;
+                    tileX1 = inputManager.mXPos;
+                    tileY1 = inputManager.mYPos;
+                    tileX2 = inputManager.mLStartDragX;
+                    tileY2 = inputManager.mLStartDragY;
                 }
                 else
                 {
-                    tileX1 = inputManager->mXPos;
-                    tileY1 = inputManager->mYPos;
-                    tileX2 = inputManager->mXPos;
-                    tileY2 = inputManager->mYPos;
+                    tileX1 = inputManager.mXPos;
+                    tileY1 = inputManager.mYPos;
+                    tileX2 = inputManager.mXPos;
+                    tileY2 = inputManager.mYPos;
                 }
 
                 TrapType selectedTrapType = mPlayerSelection.getNewTrapType();
                 std::vector<Tile*> tiles;
                 int price = TrapManager::getTrapCost(tiles, mGameMap, selectedTrapType, tileX1, tileY1, tileX2, tileY2, player);
                 int gold = player->getSeat()->getGold();
-                const Ogre::ColourValue& textColor = ((gold < price) || (tiles.empty() && inputManager->mLMouseDown)) ? red : white;
+                const Ogre::ColourValue& textColor = ((gold < price) || (tiles.empty() && inputManager.mLMouseDown)) ? red : white;
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
                 textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(TrapManager::getTrapNameFromTrapType(selectedTrapType))
                     + " [" + Helper::toString(price)+ " Gold]");
@@ -384,19 +384,19 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 int tileY1;
                 int tileX2;
                 int tileY2;
-                if(inputManager->mLMouseDown)
+                if(inputManager.mLMouseDown)
                 {
-                    tileX1 = inputManager->mXPos;
-                    tileY1 = inputManager->mYPos;
-                    tileX2 = inputManager->mLStartDragX;
-                    tileY2 = inputManager->mLStartDragY;
+                    tileX1 = inputManager.mXPos;
+                    tileY1 = inputManager.mYPos;
+                    tileX2 = inputManager.mLStartDragX;
+                    tileY2 = inputManager.mLStartDragY;
                 }
                 else
                 {
-                    tileX1 = inputManager->mXPos;
-                    tileY1 = inputManager->mYPos;
-                    tileX2 = inputManager->mXPos;
-                    tileY2 = inputManager->mYPos;
+                    tileX1 = inputManager.mXPos;
+                    tileY1 = inputManager.mYPos;
+                    tileX2 = inputManager.mXPos;
+                    tileY2 = inputManager.mYPos;
                 }
 
                 SpellType selectedSpellType = mPlayerSelection.getNewSpellType();
@@ -414,7 +414,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 std::vector<EntityBase*> targets;
                 int price = SpellManager::getSpellCost(targets, mGameMap, selectedSpellType, tileX1, tileY1, tileX2, tileY2, player);
                 int mana = player->getSeat()->getMana();
-                const Ogre::ColourValue& textColor = ((mana < price) || (targets.empty() && inputManager->mLMouseDown)) ? red : white;
+                const Ogre::ColourValue& textColor = ((mana < price) || (targets.empty() && inputManager.mLMouseDown)) ? red : white;
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
                 textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(SpellManager::getSpellNameFromSpellType(selectedSpellType))
                     + " [" + Helper::toString(price)+ " Mana]");
@@ -426,19 +426,19 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 int tileY1;
                 int tileX2;
                 int tileY2;
-                if(inputManager->mLMouseDown)
+                if(inputManager.mLMouseDown)
                 {
-                    tileX1 = inputManager->mXPos;
-                    tileY1 = inputManager->mYPos;
-                    tileX2 = inputManager->mLStartDragX;
-                    tileY2 = inputManager->mLStartDragY;
+                    tileX1 = inputManager.mXPos;
+                    tileY1 = inputManager.mYPos;
+                    tileX2 = inputManager.mLStartDragX;
+                    tileY2 = inputManager.mLStartDragY;
                 }
                 else
                 {
-                    tileX1 = inputManager->mXPos;
-                    tileY1 = inputManager->mYPos;
-                    tileX2 = inputManager->mXPos;
-                    tileY2 = inputManager->mYPos;
+                    tileX1 = inputManager.mXPos;
+                    tileY1 = inputManager.mYPos;
+                    tileX2 = inputManager.mXPos;
+                    tileY2 = inputManager.mYPos;
                 }
                 std::vector<Tile*> tiles;
                 int price = RoomManager::getRefundPrice(tiles, mGameMap, tileX1, tileY1, tileX2, tileY2, player);
@@ -454,19 +454,19 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 int tileY1;
                 int tileX2;
                 int tileY2;
-                if(inputManager->mLMouseDown)
+                if(inputManager.mLMouseDown)
                 {
-                    tileX1 = inputManager->mXPos;
-                    tileY1 = inputManager->mYPos;
-                    tileX2 = inputManager->mLStartDragX;
-                    tileY2 = inputManager->mLStartDragY;
+                    tileX1 = inputManager.mXPos;
+                    tileY1 = inputManager.mYPos;
+                    tileX2 = inputManager.mLStartDragX;
+                    tileY2 = inputManager.mLStartDragY;
                 }
                 else
                 {
-                    tileX1 = inputManager->mXPos;
-                    tileY1 = inputManager->mYPos;
-                    tileX2 = inputManager->mXPos;
-                    tileY2 = inputManager->mYPos;
+                    tileX1 = inputManager.mXPos;
+                    tileY1 = inputManager.mYPos;
+                    tileX2 = inputManager.mXPos;
+                    tileY2 = inputManager.mYPos;
                 }
                 std::vector<Tile*> tiles;
                 int price = TrapManager::getRefundPrice(tiles, mGameMap, tileX1, tileY1, tileX2, tileY2, player);
@@ -525,17 +525,17 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
     if(tileClicked == nullptr)
         return true;
 
-    inputManager->mXPos = tileClicked->getX();
-    inputManager->mYPos = tileClicked->getY();
-    if (mMouseX != inputManager->mXPos || mMouseY != inputManager->mYPos)
+    inputManager.mXPos = tileClicked->getX();
+    inputManager.mYPos = tileClicked->getY();
+    if (mMouseX != inputManager.mXPos || mMouseY != inputManager.mYPos)
     {
-        mMouseX = inputManager->mXPos;
-        mMouseY = inputManager->mYPos;
+        mMouseX = inputManager.mXPos;
+        mMouseY = inputManager.mYPos;
         RenderManager::getSingleton().setHoveredTile(mMouseX, mMouseY);
     }
 
     // If we don't drag anything, there is no affected tiles to compute.
-    if (!inputManager->mLMouseDown || mPlayerSelection.getCurrentAction() == SelectedAction::none)
+    if (!inputManager.mLMouseDown || mPlayerSelection.getCurrentAction() == SelectedAction::none)
         return true;
 
     // COmpute selected tiles
@@ -548,10 +548,10 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
     }
 
     // Loop over the tiles in the rectangular selection region and set their setSelected flag accordingly.
-    std::vector<Tile*> affectedTiles = mGameMap->rectangularRegion(inputManager->mXPos,
-                                                                    inputManager->mYPos,
-                                                                    inputManager->mLStartDragX,
-                                                                    inputManager->mLStartDragY);
+    std::vector<Tile*> affectedTiles = mGameMap->rectangularRegion(inputManager.mXPos,
+                                                                    inputManager.mYPos,
+                                                                    inputManager.mLStartDragX,
+                                                                    inputManager.mLStartDragY);
 
     for(Tile* tile : affectedTiles)
     {
@@ -613,9 +613,9 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
     if (!isConnected())
         return true;
 
-    InputManager* inputManager = mModeManager->getInputManager();
-    inputManager->mMouseDownOnCEGUIWindow = isMouseDownOnCEGUIWindow();
-    if (inputManager->mMouseDownOnCEGUIWindow)
+    InputManager& inputManager = mModeManager->getInputManager();
+    inputManager.mMouseDownOnCEGUIWindow = isMouseDownOnCEGUIWindow();
+    if (inputManager.mMouseDownOnCEGUIWindow)
         return true;
 
     // There is a bug in OIS. When playing in windowed mode, if we clic outside the window
@@ -662,9 +662,9 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
     // Right mouse button down
     if (id == OIS::MB_Right)
     {
-        inputManager->mRMouseDown = true;
-        inputManager->mRStartDragX = inputManager->mXPos;
-        inputManager->mRStartDragY = inputManager->mYPos;
+        inputManager.mRMouseDown = true;
+        inputManager.mRStartDragX = inputManager.mXPos;
+        inputManager.mRStartDragY = inputManager.mYPos;
 
         // Stop creating rooms, traps, etc.
         mPlayerSelection.setCurrentAction(SelectedAction::none);
@@ -673,7 +673,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
         if(mGameMap->getLocalPlayer()->numObjectsInHand() > 0)
         {
             // If we right clicked with the mouse over a valid map tile, try to drop what we have in hand on the map.
-            Tile *curTile = mGameMap->getTile(inputManager->mXPos, inputManager->mYPos);
+            Tile *curTile = mGameMap->getTile(inputManager.mXPos, inputManager.mYPos);
 
             if (curTile == nullptr)
                 return true;
@@ -725,9 +725,9 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
         return true;
 
     // Left mouse button down
-    inputManager->mLMouseDown = true;
-    inputManager->mLStartDragX = inputManager->mXPos;
-    inputManager->mLStartDragY = inputManager->mYPos;
+    inputManager.mLMouseDown = true;
+    inputManager.mLStartDragX = inputManager.mXPos;
+    inputManager.mLStartDragY = inputManager.mYPos;
 
     // Check whether the player is already placing rooms or traps.
     bool skipPickUp = false;
@@ -794,7 +794,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
 
     // If we are in a game we store the opposite of whether this tile is marked for digging or not, this allows us to mark tiles
     // by dragging out a selection starting from an unmarcked tile, or unmark them by starting the drag from a marked one.
-    Tile *tempTile = mGameMap->getTile(inputManager->mXPos, inputManager->mYPos);
+    Tile* tempTile = mGameMap->getTile(inputManager.mXPos, inputManager.mYPos);
 
     if (tempTile != nullptr)
         mDigSetBool = !(tempTile->getMarkedForDigging(mGameMap->getLocalPlayer()));
@@ -806,10 +806,10 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 {
     CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(Gui::convertButton(id));
 
-    InputManager* inputManager = mModeManager->getInputManager();
+    InputManager& inputManager = mModeManager->getInputManager();
 
     // If the mouse press was on a CEGUI window ignore it
-    if (inputManager->mMouseDownOnCEGUIWindow)
+    if (inputManager.mMouseDownOnCEGUIWindow)
         return true;
 
     if (!isConnected())
@@ -827,7 +827,7 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     // Right mouse button up
     if (id == OIS::MB_Right)
     {
-        inputManager->mRMouseDown = false;
+        inputManager.mRMouseDown = false;
         return true;
     }
 
@@ -835,7 +835,7 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         return true;
 
     // Left mouse button up
-    inputManager->mLMouseDown = false;
+    inputManager.mLMouseDown = false;
 
     // On the client:  Inform the server about what we are doing
     switch(mPlayerSelection.getCurrentAction())
@@ -844,8 +844,8 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         {
             ClientNotification *clientNotification = new ClientNotification(
                 ClientNotificationType::askMarkTiles);
-            clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
-            clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
+            clientNotification->mPacket << inputManager.mXPos << inputManager.mYPos;
+            clientNotification->mPacket << inputManager.mLStartDragX << inputManager.mLStartDragY;
             clientNotification->mPacket << mDigSetBool;
             ODClient::getSingleton().queueClientNotification(clientNotification);
             mPlayerSelection.setCurrentAction(SelectedAction::none);
@@ -855,8 +855,8 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         {
             ClientNotification *clientNotification = new ClientNotification(
                 ClientNotificationType::askBuildRoom);
-            clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
-            clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
+            clientNotification->mPacket << inputManager.mXPos << inputManager.mYPos;
+            clientNotification->mPacket << inputManager.mLStartDragX << inputManager.mLStartDragY;
             clientNotification->mPacket << mPlayerSelection.getNewRoomType();
             ODClient::getSingleton().queueClientNotification(clientNotification);
             break;
@@ -865,8 +865,8 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         {
             ClientNotification *clientNotification = new ClientNotification(
                 ClientNotificationType::askBuildTrap);
-            clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
-            clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
+            clientNotification->mPacket << inputManager.mXPos << inputManager.mYPos;
+            clientNotification->mPacket << inputManager.mLStartDragX << inputManager.mLStartDragY;
             clientNotification->mPacket << mPlayerSelection.getNewTrapType();
             ODClient::getSingleton().queueClientNotification(clientNotification);
             break;
@@ -875,8 +875,8 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         {
             ClientNotification *clientNotification = new ClientNotification(
                 ClientNotificationType::askCastSpell);
-            clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
-            clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
+            clientNotification->mPacket << inputManager.mXPos << inputManager.mYPos;
+            clientNotification->mPacket << inputManager.mLStartDragX << inputManager.mLStartDragY;
             clientNotification->mPacket << mPlayerSelection.getNewSpellType();
             ODClient::getSingleton().queueClientNotification(clientNotification);
             break;
@@ -885,8 +885,8 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         {
             ClientNotification *clientNotification = new ClientNotification(
                 ClientNotificationType::askSellRoomTiles);
-            clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
-            clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
+            clientNotification->mPacket << inputManager.mXPos << inputManager.mYPos;
+            clientNotification->mPacket << inputManager.mLStartDragX << inputManager.mLStartDragY;
             ODClient::getSingleton().queueClientNotification(clientNotification);
             break;
         }
@@ -894,8 +894,8 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         {
             ClientNotification *clientNotification = new ClientNotification(
                 ClientNotificationType::askSellTrapTiles);
-            clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
-            clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
+            clientNotification->mPacket << inputManager.mXPos << inputManager.mYPos;
+            clientNotification->mPacket << inputManager.mLStartDragX << inputManager.mLStartDragY;
             ODClient::getSingleton().queueClientNotification(clientNotification);
             break;
         }
@@ -912,10 +912,16 @@ bool GameMode::keyPressed(const OIS::KeyEvent& arg)
     CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyDown(static_cast<CEGUI::Key::Scan>(arg.key));
     CEGUI::System::getSingleton().getDefaultGUIContext().injectChar(arg.text);
 
-    if((mCurrentInputMode == InputModeChat))
-        return keyPressedChat(arg);
-
-    return keyPressedNormal(arg);
+    switch (mCurrentInputMode)
+    {
+        case InputModeChat:
+            return keyPressedChat(arg);
+        case InputModeConsole:
+            return getConsole()->keyPressed(arg);
+        case InputModeNormal:
+        default:
+            return keyPressedNormal(arg);
+    }
 }
 
 bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
@@ -954,7 +960,7 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
 
     case OIS::KC_GRAVE:
     case OIS::KC_F12:
-        mModeManager->requestConsoleMode();
+        enterConsole();
         break;
 
     case OIS::KC_LEFT:
@@ -1135,7 +1141,7 @@ bool GameMode::keyReleased(const OIS::KeyEvent &arg)
 {
     CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyUp(static_cast<CEGUI::Key::Scan>(arg.key));
 
-    if (mCurrentInputMode == InputModeChat)
+    if (mCurrentInputMode == InputModeChat || mCurrentInputMode == InputModeConsole)
         return true;
 
     return keyReleasedNormal(arg);
@@ -1205,22 +1211,19 @@ bool GameMode::keyReleasedNormal(const OIS::KeyEvent &arg)
 void GameMode::handleHotkeys(OIS::KeyCode keycode)
 {
     ODFrameListener& frameListener = ODFrameListener::getSingleton();
-    InputManager* inputManager = mModeManager->getInputManager();
+    InputManager& inputManager = mModeManager->getInputManager();
 
     //keycode minus two because the codes are shifted by two against the actual number
     unsigned int keynumber = keycode - 2;
 
     if (getKeyboard()->isModifierDown(OIS::Keyboard::Shift))
     {
-        inputManager->mHotkeyLocationIsValid[keynumber] = true;
-        inputManager->mHotkeyLocation[keynumber] = frameListener.getCameraViewTarget();
+        inputManager.mHotkeyLocationIsValid[keynumber] = true;
+        inputManager.mHotkeyLocation[keynumber] = frameListener.getCameraViewTarget();
     }
-    else
+    else if (inputManager.mHotkeyLocationIsValid[keynumber])
     {
-        if (inputManager->mHotkeyLocationIsValid[keynumber])
-        {
-            frameListener.cameraFlyTo(inputManager->mHotkeyLocation[keynumber]);
-        }
+        frameListener.cameraFlyTo(inputManager.mHotkeyLocation[keynumber]);
     }
 }
 
@@ -1282,6 +1285,12 @@ void GameMode::notifyGuiAction(GuiAction guiAction)
         default:
             break;
     }
+}
+
+bool GameMode::onClickYesQuitMenu(const CEGUI::EventArgs& /*arg*/)
+{
+    mModeManager->requestMode(AbstractModeManager::MAIN_MENU);
+    return true;
 }
 
 bool GameMode::showObjectivesWindow(const CEGUI::EventArgs&)

@@ -17,6 +17,8 @@
 
 #include "modes/EditorMode.h"
 
+#include "modes/ConsoleMode.h"
+
 #include "gamemap/GameMap.h"
 #include "gamemap/MiniMap.h"
 #include "gamemap/MapLoader.h"
@@ -82,7 +84,7 @@ EditorMode::EditorMode(ModeManager* modeManager):
     mMouseY(0)
 {
     // Set per default the input on the map
-    mModeManager->getInputManager()->mMouseDownOnCEGUIWindow = false;
+    mModeManager->getInputManager().mMouseDownOnCEGUIWindow = false;
 
     ODFrameListener::getSingleton().getCameraManager()->setDefaultView();
 
@@ -191,7 +193,7 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
     if (!isConnected())
         return true;
 
-    InputManager* inputManager = mModeManager->getInputManager();
+    InputManager& inputManager = mModeManager->getInputManager();
 
     Player* player = mGameMap->getLocalPlayer();
     SelectedAction playerSelectedAction = mPlayerSelection.getCurrentAction();
@@ -258,18 +260,18 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
             continue;
         }
         Tile* tile = static_cast<Tile*>(entity);
-        inputManager->mXPos = tile->getX();
-        inputManager->mYPos = tile->getY();
-        if (mMouseX != inputManager->mXPos || mMouseY != inputManager->mYPos)
+        inputManager.mXPos = tile->getX();
+        inputManager.mYPos = tile->getY();
+        if (mMouseX != inputManager.mXPos || mMouseY != inputManager.mYPos)
         {
-            mMouseX = inputManager->mXPos;
-            mMouseY = inputManager->mYPos;
+            mMouseX = inputManager.mXPos;
+            mMouseY = inputManager.mYPos;
             RenderManager::getSingleton().setHoveredTile(mMouseX, mMouseY);
             updateCursorText();
         }
 
         // If we don't drag anything, there is no affected tiles to compute.
-        if (!inputManager->mLMouseDown || mPlayerSelection.getCurrentAction() == SelectedAction::none)
+        if (!inputManager.mLMouseDown || mPlayerSelection.getCurrentAction() == SelectedAction::none)
             break;
 
         for (int jj = 0; jj < mGameMap->getMapSizeY(); ++jj)
@@ -281,10 +283,10 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
         }
 
         // Loop over the tiles in the rectangular selection region and set their setSelected flag accordingly.
-        std::vector<Tile*> affectedTiles = mGameMap->rectangularRegion(inputManager->mXPos,
-                                                                        inputManager->mYPos,
-                                                                        inputManager->mLStartDragX,
-                                                                        inputManager->mLStartDragY);
+        std::vector<Tile*> affectedTiles = mGameMap->rectangularRegion(inputManager.mXPos,
+                                                                        inputManager.mYPos,
+                                                                        inputManager.mLStartDragX,
+                                                                        inputManager.mLStartDragY);
 
         for( std::vector<Tile*>::iterator itr = affectedTiles.begin(); itr != affectedTiles.end(); ++itr)
         {
@@ -335,16 +337,16 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
     CEGUI::Window *tempWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getWindowContainingMouse();
 
-    InputManager* inputManager = mModeManager->getInputManager();
+    InputManager& inputManager = mModeManager->getInputManager();
 
     // If the mouse press is on a CEGUI window ignore it
     if (tempWindow != nullptr && tempWindow->getName().compare("EDITORGUI") != 0)
     {
-        inputManager->mMouseDownOnCEGUIWindow = true;
+        inputManager.mMouseDownOnCEGUIWindow = true;
         return true;
     }
 
-    inputManager->mMouseDownOnCEGUIWindow = false;
+    inputManager.mMouseDownOnCEGUIWindow = false;
 
     // There is a bug in OIS. When playing in windowed mode, if we clic outside the window
     // and then we restore the window, we will receive a clic event on the last place where
@@ -387,9 +389,9 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     // Right mouse button down
     if (id == OIS::MB_Right)
     {
-        inputManager->mRMouseDown = true;
-        inputManager->mRStartDragX = inputManager->mXPos;
-        inputManager->mRStartDragY = inputManager->mYPos;
+        inputManager.mRMouseDown = true;
+        inputManager.mRStartDragX = inputManager.mXPos;
+        inputManager.mRStartDragY = inputManager.mYPos;
 
         // Stop creating rooms, traps, etc.
         mPlayerSelection.setCurrentAction(SelectedAction::none);
@@ -397,7 +399,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "");
 
         // If we right clicked with the mouse over a valid map tile, try to drop a creature onto the map.
-        Tile *curTile = mGameMap->getTile(inputManager->mXPos, inputManager->mYPos);
+        Tile* curTile = mGameMap->getTile(inputManager.mXPos, inputManager.mYPos);
 
         if (curTile == nullptr)
             return true;
@@ -406,7 +408,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         if(mGameMap->getLocalPlayer()->numObjectsInHand() > 0)
         {
             // If we right clicked with the mouse over a valid map tile, try to drop what we have in hand on the map.
-            Tile *curTile = mGameMap->getTile(inputManager->mXPos, inputManager->mYPos);
+            Tile* curTile = mGameMap->getTile(inputManager.mXPos, inputManager.mYPos);
 
             if (curTile == nullptr)
                 return true;
@@ -455,9 +457,9 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         return true;
 
     // Left mouse button down
-    inputManager->mLMouseDown = true;
-    inputManager->mLStartDragX = inputManager->mXPos;
-    inputManager->mLStartDragY = inputManager->mYPos;
+    inputManager.mLMouseDown = true;
+    inputManager.mLStartDragX = inputManager.mXPos;
+    inputManager.mLStartDragY = inputManager.mYPos;
 
     // Check whether the player is already placing rooms or traps.
     Player* player = mGameMap->getLocalPlayer();
@@ -496,13 +498,13 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     return true;
 }
 
-bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
+bool EditorMode::mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
 {
     CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(Gui::convertButton(id));
 
-    InputManager* inputManager = mModeManager->getInputManager();
+    InputManager& inputManager = mModeManager->getInputManager();
     // If the mouse press was on a CEGUI window ignore it
-    if (inputManager->mMouseDownOnCEGUIWindow)
+    if (inputManager.mMouseDownOnCEGUIWindow)
         return true;
 
     // Unselect all tiles
@@ -517,7 +519,7 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
     // Right mouse button up
     if (id == OIS::MB_Right)
     {
-        inputManager->mRMouseDown = false;
+        inputManager.mRMouseDown = false;
         return true;
     }
 
@@ -525,7 +527,7 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
         return true;
 
     // Left mouse button up
-    inputManager->mLMouseDown = false;
+    inputManager.mLMouseDown = false;
 
     // On the client:  Inform the server about what we are doing
     switch(mPlayerSelection.getCurrentAction())
@@ -566,8 +568,8 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
             }
             ClientNotification *clientNotification = new ClientNotification(
                 ClientNotificationType::editorAskChangeTiles);
-            clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
-            clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
+            clientNotification->mPacket << inputManager.mXPos << inputManager.mYPos;
+            clientNotification->mPacket << inputManager.mLStartDragX << inputManager.mLStartDragY;
             clientNotification->mPacket << tileType;
             clientNotification->mPacket << fullness;
             clientNotification->mPacket << seatId;
@@ -579,8 +581,8 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
             int intRoomType = static_cast<int>(mPlayerSelection.getNewRoomType());
             ClientNotification *clientNotification = new ClientNotification(
                 ClientNotificationType::editorAskBuildRoom);
-            clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
-            clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
+            clientNotification->mPacket << inputManager.mXPos << inputManager.mYPos;
+            clientNotification->mPacket << inputManager.mLStartDragX << inputManager.mLStartDragY;
             clientNotification->mPacket << intRoomType << mCurrentSeatId;
             ODClient::getSingleton().queueClientNotification(clientNotification);
             break;
@@ -590,8 +592,8 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
             ClientNotification *clientNotification = new ClientNotification(
                 ClientNotificationType::editorAskBuildTrap);
             int intTrapType = static_cast<int>(mPlayerSelection.getNewTrapType());
-            clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
-            clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
+            clientNotification->mPacket << inputManager.mXPos << inputManager.mYPos;
+            clientNotification->mPacket << inputManager.mLStartDragX << inputManager.mLStartDragY;
             clientNotification->mPacket << intTrapType << mCurrentSeatId;
             ODClient::getSingleton().queueClientNotification(clientNotification);
             break;
@@ -600,8 +602,8 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
         {
             ClientNotification *clientNotification = new ClientNotification(
                 ClientNotificationType::editorAskDestroyRoomTiles);
-            clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
-            clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
+            clientNotification->mPacket << inputManager.mXPos << inputManager.mYPos;
+            clientNotification->mPacket << inputManager.mLStartDragX << inputManager.mLStartDragY;
             ODClient::getSingleton().queueClientNotification(clientNotification);
             break;
         }
@@ -609,8 +611,8 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
         {
             ClientNotification *clientNotification = new ClientNotification(
                 ClientNotificationType::editorAskDestroyTrapTiles);
-            clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
-            clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
+            clientNotification->mPacket << inputManager.mXPos << inputManager.mYPos;
+            clientNotification->mPacket << inputManager.mLStartDragX << inputManager.mLStartDragY;
             ODClient::getSingleton().queueClientNotification(clientNotification);
             break;
         }
@@ -657,11 +659,17 @@ void EditorMode::updateCursorText()
 
 bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
 {
-    ODFrameListener& frameListener = ODFrameListener::getSingleton();
-
-    // Inject key to Gui
+    // Inject key to the gui currently displayed
     CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyDown(static_cast<CEGUI::Key::Scan>(arg.key));
     CEGUI::System::getSingleton().getDefaultGUIContext().injectChar(arg.text);
+
+    if (mCurrentInputMode == InputModeChat)
+        return true;
+
+    if (mCurrentInputMode == InputModeConsole)
+        return getConsole()->keyPressed(arg);
+
+    ODFrameListener& frameListener = ODFrameListener::getSingleton();
 
     switch (arg.key)
     {
@@ -679,7 +687,7 @@ bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
 
     case OIS::KC_GRAVE:
     case OIS::KC_F12:
-        mModeManager->requestConsoleMode();
+        enterConsole();
         break;
 
     case OIS::KC_LEFT:
@@ -782,6 +790,9 @@ bool EditorMode::keyReleased(const OIS::KeyEvent& arg)
 {
     CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyUp(static_cast<CEGUI::Key::Scan>(arg.key));
 
+    if (mCurrentInputMode == InputModeChat || mCurrentInputMode == InputModeConsole)
+        return true;
+
     ODFrameListener& frameListener = ODFrameListener::getSingleton();
 
     switch (arg.key)
@@ -843,17 +854,17 @@ void EditorMode::handleHotkeys(OIS::KeyCode keycode)
     unsigned int keynumber = keycode - 2;
 
     ODFrameListener& frameListener = ODFrameListener::getSingleton();
-    InputManager* inputManager = mModeManager->getInputManager();
+    InputManager& inputManager = mModeManager->getInputManager();
 
     if (getKeyboard()->isModifierDown(OIS::Keyboard::Shift))
     {
-        inputManager->mHotkeyLocationIsValid[keynumber] = true;
-        inputManager->mHotkeyLocation[keynumber] = frameListener.getCameraViewTarget();
+        inputManager.mHotkeyLocationIsValid[keynumber] = true;
+        inputManager.mHotkeyLocation[keynumber] = frameListener.getCameraViewTarget();
     }
     else
     {
-        if (inputManager->mHotkeyLocationIsValid[keynumber])
-            frameListener.cameraFlyTo(inputManager->mHotkeyLocation[keynumber]);
+        if (inputManager.mHotkeyLocationIsValid[keynumber])
+            frameListener.cameraFlyTo(inputManager.mHotkeyLocation[keynumber]);
     }
 }
 
@@ -968,7 +979,7 @@ bool EditorMode::hideQuitMenu(const CEGUI::EventArgs& /*arg*/)
 bool EditorMode::onClickYesQuitMenu(const CEGUI::EventArgs& /*arg*/)
 {
     //TODO: Test whether the level was modified and ask accordingly.
-    regressMode();
+    mModeManager->requestMode(AbstractModeManager::MAIN_MENU);
     return true;
 }
 

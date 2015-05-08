@@ -44,8 +44,7 @@ MenuModeReplay::MenuModeReplay(ModeManager *modeManager):
     addEventConnection(
         window->getChild(Gui::REM_BUTTON_BACK)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&MenuModeReplay::regressMode,
-                                     static_cast<AbstractApplicationMode*>(this))
+            CEGUI::Event::Subscriber(&MenuModeReplay::goBack, this)
         )
     );
     addEventConnection(
@@ -72,7 +71,12 @@ MenuModeReplay::MenuModeReplay(ModeManager *modeManager):
             CEGUI::Event::Subscriber(&MenuModeReplay::launchSelectedButtonPressed, this)
         )
     );
-    subscribeCloseButton(*window->getChild("LevelWindowFrame"));
+    addEventConnection(
+        window->getChild("LevelWindowFrame/__auto_closebutton__")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&MenuModeReplay::goBack, this)
+        )
+    );
 }
 
 void MenuModeReplay::activate()
@@ -250,5 +254,11 @@ bool MenuModeReplay::checkReplayValid(const std::string& replayFileName, std::st
         return false;
     }
 
+    return true;
+}
+
+bool MenuModeReplay::goBack(const CEGUI::EventArgs &)
+{
+    getModeManager().requestMode(AbstractModeManager::MAIN_MENU);
     return true;
 }

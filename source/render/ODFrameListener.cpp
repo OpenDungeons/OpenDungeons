@@ -105,7 +105,7 @@ void ODFrameListener::windowResized(Ogre::RenderWindow* rw)
     int left, top;
     rw->getMetrics(width, height, depth, left, top);
 
-    const OIS::MouseState &ms = mModeManager->getInputManager()->mMouse->getMouseState();
+    const OIS::MouseState &ms = mModeManager->getInputManager().mMouse->getMouseState();
     ms.width = width;
     ms.height = height;
 
@@ -262,7 +262,7 @@ Ogre::RaySceneQueryResult& ODFrameListener::doRaySceneQuery(const OIS::MouseEven
 void ODFrameListener::printDebugInfo()
 {
     std::stringstream infoSS;
-    if (getModeManager()->getCurrentModeTypeExceptConsole() == ModeManager::GAME && mGameMap->getTurnNumber() == -1)
+    if (getModeManager()->getCurrentModeType() == ModeManager::GAME && mGameMap->getTurnNumber() == -1)
     {
         infoSS << "Waiting for players...\n";
     }
@@ -272,7 +272,7 @@ void ODFrameListener::printDebugInfo()
         infoSS << "\ntriangleCount: " << mWindow->getStatistics().triangleCount;
         infoSS << "\nBatches: " << mWindow->getStatistics().batchCount;
         infoSS << "\nTurn number:  " << mGameMap->getTurnNumber();
-        infoSS << "\nCursor:  " << mModeManager->getInputManager()->mXPos << ", " << mModeManager->getInputManager()->mYPos;
+        infoSS << "\nCursor:  " << mModeManager->getInputManager().mXPos << ", " << mModeManager->getInputManager().mYPos;
         if(ODClient::getSingleton().isConnected())
         {
             int32_t gameTime = ODClient::getSingleton().getGameTimeMillis() / 1000;

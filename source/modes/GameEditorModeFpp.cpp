@@ -15,21 +15,20 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FPPMODE_H
-#define FPPMODE_H
+#include "GameEditorModeFpp.h"
 
-#include "AbstractApplicationMode.h"
+#include "render/Gui.h"
 
-class FppMode: public AbstractApplicationMode
+GameEditorModeFpp::GameEditorModeFpp()
 {
- public:
-    FppMode(ModeManager*);
+}
 
-    virtual ~FppMode();
+GameEditorModeFpp::~GameEditorModeFpp()
+{
+}
 
-    //! \brief Called when the game mode is activated
-    //! Used to call the corresponding Gui Sheet.
-    void activate();
-};
-
-#endif // FPPMODE_H
+void GameEditorModeFpp::activate(Gui& gui)
+{
+    // Loads the corresponding Gui sheet.
+    gui.loadGuiSheet(Gui::hideGui);
+}

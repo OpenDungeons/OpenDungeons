@@ -211,7 +211,7 @@ bool ODClient::processOneClientSocketMessage()
                 case ServerMode::ModeGameSinglePlayer:
                 case ServerMode::ModeGameMultiPlayer:
                 case ServerMode::ModeGameLoaded:
-                    frameListener->getModeManager()->requestConfigureSeatsMode(true);
+                    frameListener->getModeManager()->requestMode(AbstractModeManager::MENU_CONFIGURE_SEATS);
                     break;
                 case ServerMode::ModeEditor:
                     break;
@@ -349,10 +349,10 @@ bool ODClient::processOneClientSocketMessage()
                 case ServerMode::ModeGameSinglePlayer:
                 case ServerMode::ModeGameMultiPlayer:
                 case ServerMode::ModeGameLoaded:
-                    frameListener->getModeManager()->requestGameMode(true);
+                    frameListener->getModeManager()->requestMode(AbstractModeManager::GAME);
                     break;
                 case ServerMode::ModeEditor:
-                    frameListener->getModeManager()->requestEditorMode(true);
+                    frameListener->getModeManager()->requestMode(AbstractModeManager::EDITOR);
                     break;
                 default:
                     OD_ASSERT_TRUE_MSG(false,"Unknown server mode=" + Ogre::StringConverter::toString(static_cast<int32_t>(serverMode)));

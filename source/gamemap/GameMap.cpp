@@ -185,7 +185,7 @@ bool GameMap::isInEditorMode() const
     if (isServerGameMap())
         return (ODServer::getSingleton().getServerMode() == ServerMode::ModeEditor);
 
-    return (ODFrameListener::getSingleton().getModeManager()->getCurrentModeTypeExceptConsole() == ModeManager::EDITOR);
+    return (ODFrameListener::getSingleton().getModeManager()->getCurrentModeType() == ModeManager::EDITOR);
 }
 
 bool GameMap::loadLevel(const std::string& levelFilepath)

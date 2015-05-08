@@ -30,6 +30,7 @@ public:
     void activate() final override;
 
     bool clientButtonPressed(const CEGUI::EventArgs&);
+    bool goBack(const CEGUI::EventArgs&);
 };
 
 #endif // MENUMODEMULTIPLAYERCLIENT_H

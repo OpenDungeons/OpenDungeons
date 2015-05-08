@@ -193,7 +193,7 @@ Command::Result cList(const Command::ArgumentList_t& args, ConsoleInterface& c, 
     }
     else if (args[1].compare("network") == 0)
     {
-        if (mm.getCurrentModeTypeExceptConsole() == AbstractModeManager::EDITOR)
+        if (mm.getCurrentModeType() == AbstractModeManager::EDITOR)
         {
             stringStr << "You are currently in the map editor.";
         }
@@ -564,13 +564,13 @@ void addConsoleCommands(ConsoleInterface& cl)
                    "It takes as it's argument and RGB triplet whose values for red, green, and blue range from 0.0 to 1.0.\n\nExample:\n"
                    "ambientlight 0.4 0.6 0.5\n\nThe above command sets the ambient light color to red=0.4, green=0.6, and blue = 0.5.",
                    cAmbientLight,
-                   {AbstractModeManager::ModeType::ALL});
+                   {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});
     cl.addCommand("fps",
                   "'fps' (framespersecond) for short is a utility which displays or sets the maximum framerate at which the"
                   "rendering will attempt to update the screen.\n\nExample:\n"
                   "fps 35\n\nThe above command will set the current maximum framerate to 35 turns per second.",
                   cFPS,
-                  {AbstractModeManager::ModeType::ALL});
+                  {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});
     cl.addCommand("nearclip",
                    "Sets the minimal viewpoint clipping distance. Objects nearer than that won't be rendered.\n\nE.g.: nearclip 3.0",
                    [](const Command::ArgumentList_t& args, ConsoleInterface& c, AbstractModeManager&) {
@@ -579,7 +579,7 @@ void addConsoleCommands(ConsoleInterface& cl)
                                                                  ODFrameListener::getSingleton(),
                                                                  "near clip distance", args, c);
                     },
-                       {AbstractModeManager::ModeType::ALL});
+                  {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});
     cl.addCommand("farclip",
                   "Sets the maximal viewpoint clipping distance. Objects farther than that won't be rendered.\n\nE.g.: farclip 30.0",
                   [](const Command::ArgumentList_t& args, ConsoleInterface& c, AbstractModeManager&) {
@@ -588,7 +588,7 @@ void addConsoleCommands(ConsoleInterface& cl)
                                                                 ODFrameListener::getSingleton(),
                                                                 "far clip distance", args, c);
                   },
-                  {AbstractModeManager::ModeType::ALL});
+                  {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});
     cl.addCommand("maxtime",
                   "Sets the max time (in seconds) a message will be displayed in the info text area.\n\nExample:\n"
                   "maxtime 5",
@@ -598,7 +598,7 @@ void addConsoleCommands(ConsoleInterface& cl)
                                                                 ODFrameListener::getSingleton(),
                                                                 "event max time display", args, c);
                   },
-                  {AbstractModeManager::ModeType::ALL});
+                  {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});
     cl.addCommand("addcreature",
                   "this seems to currently be broken",
                   cAddCreature,
@@ -682,12 +682,12 @@ void addConsoleCommands(ConsoleInterface& cl)
     cl.addCommand("listmeshanims",
                    "'listmeshanims' lists all the animations for the given mesh.",
                    cListMeshAnims,
-                   {AbstractModeManager::ModeType::ALL},
+                   {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR},
                    {"listmeshanimations"});
     cl.addCommand("keys",
                    "list keys",
                    cKeys,
-                   {AbstractModeManager::ModeType::ALL});
+                   {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});
     cl.addCommand("triggercompositor",
                    "Starts the given compositor. The compositor must exist.\n\nExample:\n"
                    "triggercompositor blacknwhite",
@@ -699,7 +699,7 @@ void addConsoleCommands(ConsoleInterface& cl)
                         c.print(HELPMESSAGE);
                         return Command::Result::SUCCESS;
                    },
-                   {AbstractModeManager::ModeType::ALL});
+                   {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});
 
 }
 

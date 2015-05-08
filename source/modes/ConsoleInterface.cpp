@@ -25,7 +25,7 @@ ConsoleInterface::ConsoleInterface(PrintFunction_t printFunction)
    addCommand("help",
               ">help Lists available commands\n>help <command> displays description for <command>",
               ConsoleInterface::helpCommand,
-              {ModeType::ALL}
+              {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR}
               );
 }
 

@@ -17,6 +17,8 @@
 
 #include "GameEditorModeBase.h"
 
+#include "ConsoleMode.h"
+
 #include "gamemap/GameMap.h"
 #include "network/ChatEventMessage.h"
 #include "render/Gui.h"
@@ -24,6 +26,7 @@
 #include "rooms/RoomType.h"
 #include "traps/TrapType.h"
 #include "utils/Helper.h"
+#include "utils/MakeUnique.h"
 
 #include <CEGUI/widgets/PushButton.h>
 #include <CEGUI/widgets/Scrollbar.h>
@@ -80,11 +83,13 @@ namespace {
     };
 }
 
-GameEditorModeBase::GameEditorModeBase(ModeManager *modeManager, ModeManager::ModeType modeType, CEGUI::Window* rootWindow)
-    : AbstractApplicationMode(modeManager, modeType),
-      mRootWindow(rootWindow),
-      mGameMap(ODFrameListener::getSingletonPtr()->getClientGameMap()),
-      mMiniMap(rootWindow->getChild(Gui::MINIMAP))
+GameEditorModeBase::GameEditorModeBase(ModeManager* modeManager, ModeManager::ModeType modeType, CEGUI::Window* rootWindow) :
+    AbstractApplicationMode(modeManager, modeType),
+    mCurrentInputMode(InputModeNormal),
+    mRootWindow(rootWindow),
+    mGameMap(ODFrameListener::getSingletonPtr()->getClientGameMap()),
+    mMiniMap(rootWindow->getChild(Gui::MINIMAP)),
+    mConsoleMode(Utils::make_unique<ConsoleMode>(modeManager))
 {
     addEventConnection(
         rootWindow->getChild(Gui::MINIMAP)->subscribeEvent(
@@ -287,4 +292,18 @@ void GameEditorModeBase::setTabButtonToolTip(const std::string& buttonName, cons
     CEGUI::Window* win = getTabButtonWidget(buttonName);
     if (win != nullptr)
         win->setTooltipText(tooltip);
+}
+
+void GameEditorModeBase::enterConsole()
+{
+    // We use a unique console instance.
+    mCurrentInputMode = InputModeConsole;
+    mConsoleMode->activate();
+}
+
+void GameEditorModeBase::leaveConsole()
+{
+    // We're no more in console mode.
+    mCurrentInputMode = InputModeNormal;
+    activate();
 }

@@ -47,12 +47,15 @@ MenuModeMultiplayerClient::MenuModeMultiplayerClient(ModeManager *modeManager):
     addEventConnection(
         window->getChild(Gui::MPM_BUTTON_BACK)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&MenuModeMultiplayerClient::regressMode,
-                                     static_cast<AbstractApplicationMode*>(this))
+            CEGUI::Event::Subscriber(&MenuModeMultiplayerClient::goBack, this)
         )
     );
-
-    subscribeCloseButton(*window->getChild("LevelWindowFrame"));
+    addEventConnection(
+        window->getChild("LevelWindowFrame/__auto_closebutton__")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&MenuModeMultiplayerClient::goBack, this)
+        )
+    );
 }
 
 void MenuModeMultiplayerClient::activate()
@@ -113,5 +116,11 @@ bool MenuModeMultiplayerClient::clientButtonPressed(const CEGUI::EventArgs&)
     }
 
     infoText->setText("Loading...");
+    return true;
+}
+
+bool MenuModeMultiplayerClient::goBack(const CEGUI::EventArgs &)
+{
+    getModeManager().requestMode(AbstractModeManager::MAIN_MENU);
     return true;
 }

@@ -15,23 +15,23 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "FppMode.h"
+#ifndef GAMEEDITORMODEFPP_H
+#define GAMEEDITORMODEFPP_H
 
-#include "render/Gui.h"
+class Gui;
 
-FppMode::FppMode(ModeManager *modeManager):
-    AbstractApplicationMode(modeManager, ModeManager::FPP)
+//! \brief The Fpp mode (First person point of view mode) is a special input mode
+//! used when the player is possessing a creature.
+class GameEditorModeFpp
 {
-}
+ public:
+    GameEditorModeFpp();
 
-FppMode::~FppMode()
-{
-}
+    virtual ~GameEditorModeFpp();
 
-void FppMode::activate()
-{
-    // Loads the corresponding Gui sheet.
-    getModeManager().getGui().loadGuiSheet(Gui::hideGui);
+    //! \brief Called when the Fpp mode is activated
+    //! Used to call the corresponding Gui Sheet.
+    void activate(Gui& gui);
+};
 
-    giveFocus();
-}
+#endif // GAMEEDITORMODEFPP_H

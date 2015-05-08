@@ -33,17 +33,17 @@ class Listbox;
 class Editbox;
 }
 
-class ConsoleMode: public AbstractApplicationMode
+class ConsoleMode
 {
 public:
 
     ConsoleMode(ModeManager*);
 
-    virtual bool keyPressed(const OIS::KeyEvent &arg) final override;
+    bool keyPressed(const OIS::KeyEvent &arg);
 
     //! \brief Called when the game mode is activated
     //! Used to call the corresponding Gui Sheet.
-    void activate() final override;
+    void activate();
 
 private:
     void printToConsole(const std::string& text);
@@ -53,6 +53,10 @@ private:
 
     CEGUI::Listbox* mConsoleHistoryWindow;
     CEGUI::Editbox* mEditboxWindow;
+
+    ModeManager* mModeManager;
+
+    bool leaveConsole(const CEGUI::EventArgs& e = {});
 };
 
 #endif // CONSOLEMODE_H
