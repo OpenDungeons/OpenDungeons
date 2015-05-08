@@ -1,6 +1,6 @@
-// Explode spell material file
+// Explosion spell material file
 
-material SpellCreatureExplode
+material SpellCreatureExplosion
 {
 	technique
 	{

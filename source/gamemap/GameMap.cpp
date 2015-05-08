@@ -58,7 +58,7 @@
 #include "rooms/RoomTreasury.h"
 #include "rooms/RoomType.h"
 
-#include "spell/Spell.h"
+#include "spells/Spell.h"
 
 #include "traps/Trap.h"
 

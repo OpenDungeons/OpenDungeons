@@ -40,8 +40,8 @@
 
 #include "spawnconditions/SpawnCondition.h"
 
-#include "spell/Spell.h"
-#include "spell/SpellType.h"
+#include "spells/Spell.h"
+#include "spells/SpellType.h"
 
 #include "traps/Trap.h"
 #include "traps/TrapManager.h"
@@ -977,8 +977,8 @@ bool Seat::isSpellAvailable(SpellType type) const
             return isResearchDone(ResearchType::spellCallToWar);
         case SpellType::creatureHeal:
             return isResearchDone(ResearchType::spellCreatureHeal);
-        case SpellType::creatureExplode:
-            return isResearchDone(ResearchType::spellCreatureExplode);
+        case SpellType::creatureExplosion:
+            return isResearchDone(ResearchType::spellCreatureExplosion);
         default:
             OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Helper::toString(
                 static_cast<int>(type)) + " for seatId " + Helper::toString(getId()));

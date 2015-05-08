@@ -246,7 +246,7 @@ set(OD_SOURCEFILES
 
     ${SRC}/creatureeffect/CreatureEffect.cpp
     ${SRC}/creatureeffect/CreatureEffectHeal.cpp
-    ${SRC}/creatureeffect/CreatureEffectExplode.cpp
+    ${SRC}/creatureeffect/CreatureEffectExplosion.cpp
 
     ${SRC}/creaturemood/CreatureMood.cpp
     ${SRC}/creaturemood/CreatureMoodAwakness.cpp
@@ -362,13 +362,13 @@ set(OD_SOURCEFILES
     ${SRC}/spawnconditions/SpawnConditionGold.cpp
     ${SRC}/spawnconditions/SpawnConditionRoom.cpp
 
-    ${SRC}/spell/Spell.cpp
-    ${SRC}/spell/SpellCallToWar.cpp
-    ${SRC}/spell/SpellCreatureExplode.cpp
-    ${SRC}/spell/SpellCreatureHeal.cpp
-    ${SRC}/spell/SpellManager.cpp
-    ${SRC}/spell/SpellSummonWorker.cpp
-    ${SRC}/spell/SpellType.cpp
+    ${SRC}/spells/Spell.cpp
+    ${SRC}/spells/SpellCallToWar.cpp
+    ${SRC}/spells/SpellCreatureExplosion.cpp
+    ${SRC}/spells/SpellCreatureHeal.cpp
+    ${SRC}/spells/SpellManager.cpp
+    ${SRC}/spells/SpellSummonWorker.cpp
+    ${SRC}/spells/SpellType.cpp
 
     ${SRC}/traps/Trap.cpp
     ${SRC}/traps/TrapBoulder.cpp

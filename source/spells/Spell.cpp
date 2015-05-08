@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "spell/Spell.h"
+#include "spells/Spell.h"
 
 #include "entities/Tile.h"
 
@@ -26,12 +26,12 @@
 
 #include "network/ODPacket.h"
 
-#include "spell/SpellSummonWorker.h"
-#include "spell/SpellCallToWar.h"
-#include "spell/SpellCreatureHeal.h"
-#include "spell/SpellCreatureExplode.h"
-#include "spell/SpellManager.h"
-#include "spell/SpellType.h"
+#include "spells/SpellSummonWorker.h"
+#include "spells/SpellCallToWar.h"
+#include "spells/SpellCreatureHeal.h"
+#include "spells/SpellCreatureExplosion.h"
+#include "spells/SpellManager.h"
+#include "spells/SpellType.h"
 
 #include "utils/Helper.h"
 #include "utils/LogManager.h"

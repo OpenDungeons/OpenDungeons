@@ -45,7 +45,7 @@
 #include "modes/GameMode.h"
 #include "sound/MusicPlayer.h"
 #include "sound/SoundEffectsManager.h"
-#include "spell/SpellType.h"
+#include "spells/SpellType.h"
 #include "camera/CameraManager.h"
 
 #include <boost/lexical_cast.hpp>

@@ -35,8 +35,8 @@
 #include "rooms/RoomType.h"
 #include "sound/MusicPlayer.h"
 #include "sound/SoundEffectsManager.h"
-#include "spell/SpellManager.h"
-#include "spell/SpellType.h"
+#include "spells/SpellManager.h"
+#include "spells/SpellType.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/ResourceManager.h"
@@ -227,7 +227,7 @@ GameMode::GameMode(ModeManager *modeManager):
     connectSpellSelect(Gui::BUTTON_SPELL_CALLTOWAR, SpellType::callToWar);
     connectSpellSelect(Gui::BUTTON_SPELL_SUMMON_WORKER, SpellType::summonWorker);
     connectSpellSelect(Gui::BUTTON_SPELL_CREATURE_HEAL, SpellType::creatureHeal);
-    connectSpellSelect(Gui::BUTTON_SPELL_CREATURE_EXPLODE, SpellType::creatureExplode);
+    connectSpellSelect(Gui::BUTTON_SPELL_CREATURE_EXPLOSION, SpellType::creatureExplosion);
 }
 
 GameMode::~GameMode()
@@ -1526,9 +1526,9 @@ void GameMode::refreshResearchButtonState(ResearchType resType)
             ceguiWidgetName = "MagicSkills/CreatureHealButton";
             ceguiWidgetButtonName = Gui::BUTTON_SPELL_CREATURE_HEAL;
             break;
-        case ResearchType::spellCreatureExplode:
-            ceguiWidgetName = "AttackSkills/CreatureExplodeButton";
-            ceguiWidgetButtonName = Gui::BUTTON_SPELL_CREATURE_EXPLODE;
+        case ResearchType::spellCreatureExplosion:
+            ceguiWidgetName = "AttackSkills/CreatureExplosionButton";
+            ceguiWidgetButtonName = Gui::BUTTON_SPELL_CREATURE_EXPLOSION;
             break;
     }
 

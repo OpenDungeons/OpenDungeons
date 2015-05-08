@@ -19,8 +19,8 @@
 
 #include "game/Seat.h"
 #include "rooms/RoomType.h"
-#include "spell/SpellManager.h"
-#include "spell/SpellType.h"
+#include "spells/SpellManager.h"
+#include "spells/SpellType.h"
 #include "traps/Trap.h"
 #include "network/ODPacket.h"
 #include "utils/Helper.h"

@@ -15,29 +15,23 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SPELLTYPE_H
-#define SPELLTYPE_H
+#ifndef SPELLSUMMONWORKER_H
+#define SPELLSUMMONWORKER_H
 
-#include <iosfwd>
-#include <string>
+#include "spells/Spell.h"
 
-class ODPacket;
+class GameMap;
 
-enum class SpellType
+class SpellSummonWorker : public Spell
 {
-    nullSpellType = 0,
-    summonWorker,
-    callToWar,
-    creatureHeal,
-    creatureExplode,
-    nbSpells     // Must be the last in this enum
+public:
+    static int getSpellCost(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
+        int tileX1, int tileY1, int tileX2, int tileY2, Player* player);
+
+    static void castSpell(GameMap* gameMap, const std::vector<EntityBase*>& targets, Player* player);
+
+    static Spell* getSpellFromStream(GameMap* gameMap, std::istream &is);
+    static Spell* getSpellFromPacket(GameMap* gameMap, ODPacket &is);
 };
 
-std::istream& operator>>(std::istream& is, SpellType& tt);
-std::ostream& operator<<(std::ostream& os, const SpellType& tt);
-
-ODPacket& operator>>(ODPacket& is, SpellType& tt);
-ODPacket& operator<<(ODPacket& os, const SpellType& tt);
-
-
-#endif // SPELLTYPE_H
+#endif // SPELLSUMMONWORKER_H

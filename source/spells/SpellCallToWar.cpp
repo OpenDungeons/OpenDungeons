@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "spell/SpellCallToWar.h"
+#include "spells/SpellCallToWar.h"
 
 #include "entities/Creature.h"
 #include "entities/Tile.h"
@@ -25,7 +25,7 @@
 
 #include "gamemap/GameMap.h"
 
-#include "spell/SpellManager.h"
+#include "spells/SpellManager.h"
 
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"

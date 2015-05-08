@@ -29,9 +29,9 @@
             <Property name="InheritsAlpha" value="False" />
             <Property name="Visible" value="False" />
         </Window>
-        <Window type="OD/GameTabButton" name="CreatureExplodeButton" >
+        <Window type="OD/GameTabButton" name="CreatureExplosionButton" >
             <Property name="Area" value="{{0,280},{0,25},{0,340},{0,85}}" />
-            <Property name="NormalImage" value="OpenDungeonsIcons/CreatureExplodeButton" />
+            <Property name="NormalImage" value="OpenDungeonsIcons/CreatureExplosionButton" />
             <Property name="TooltipText" value="Casts a spell that damages enemy creatures on allied tiles" />
             <Property name="InheritsAlpha" value="False" />
             <Property name="Visible" value="False" />

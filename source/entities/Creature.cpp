@@ -51,8 +51,8 @@
 
 #include "sound/SoundEffectsManager.h"
 
-#include "spell/Spell.h"
-#include "spell/SpellType.h"
+#include "spells/Spell.h"
+#include "spells/SpellType.h"
 
 #include "traps/Trap.h"
 

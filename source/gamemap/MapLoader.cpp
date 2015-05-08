@@ -40,7 +40,7 @@
 #include "rooms/Room.h"
 #include "rooms/RoomManager.h"
 
-#include "spell/Spell.h"
+#include "spells/Spell.h"
 
 #include "traps/Trap.h"
 #include "traps/TrapManager.h"

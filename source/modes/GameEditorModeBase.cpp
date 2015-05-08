@@ -29,7 +29,7 @@
 #include <CEGUI/widgets/Scrollbar.h>
 
 namespace {
-    //Functors for binding gui actions to spell/room/trap selection.
+    //Functors for binding gui actions to spells/room/trap selection.
     class RoomSelector
     {
     public:

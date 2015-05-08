@@ -15,9 +15,9 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "spell/SpellCreatureExplode.h"
+#include "spells/SpellCreatureHeal.h"
 
-#include "creatureeffect/CreatureEffectExplode.h"
+#include "creatureeffect/CreatureEffectHeal.h"
 
 #include "entities/Creature.h"
 #include "entities/Tile.h"
@@ -27,16 +27,16 @@
 
 #include "gamemap/GameMap.h"
 
-#include "spell/SpellType.h"
-#include "spell/SpellManager.h"
+#include "spells/SpellType.h"
+#include "spells/SpellManager.h"
 
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-static SpellManagerRegister<SpellCreatureExplode> reg(SpellType::creatureExplode, "creatureExplode");
+static SpellManagerRegister<SpellCreatureHeal> reg(SpellType::creatureHeal, "creatureHeal");
 
-int SpellCreatureExplode::getSpellCost(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
+int SpellCreatureHeal::getSpellCost(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
     int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
 {
     int32_t priceTotal = 0;
@@ -47,7 +47,7 @@ int SpellCreatureExplode::getSpellCost(std::vector<EntityBase*>& targets, GameMa
 
     std::vector<EntityBase*> creatures;
     gameMap->playerSelects(creatures, tileX1, tileY1, tileX2, tileY2, SelectionTileAllowed::groundClaimedAllied,
-        SelectionEntityWanted::creatureAliveEnemy, player);
+        SelectionEntityWanted::creatureAliveOwned, player);
 
     if(creatures.empty())
         return pricePerTile;
@@ -69,6 +69,11 @@ int SpellCreatureExplode::getSpellCost(std::vector<EntityBase*>& targets, GameMa
             continue;
         }
 
+        // Only hurt creatures can be healed
+        Creature* creature = static_cast<Creature*>(target);
+        if(!creature->isHurt())
+            continue;
+
         targets.push_back(target);
 
         priceTotal += pricePerTile;
@@ -78,9 +83,9 @@ int SpellCreatureExplode::getSpellCost(std::vector<EntityBase*>& targets, GameMa
     return priceTotal;
 }
 
-void SpellCreatureExplode::castSpell(GameMap* gameMap, const std::vector<EntityBase*>& targets, Player* player)
+void SpellCreatureHeal::castSpell(GameMap* gameMap, const std::vector<EntityBase*>& targets, Player* player)
 {
-    player->setSpellCooldownTurns(SpellType::creatureExplode, ConfigManager::getSingleton().getSpellConfigUInt32("CreatureExplodeCooldown"));
+    player->setSpellCooldownTurns(SpellType::creatureHeal, ConfigManager::getSingleton().getSpellConfigUInt32("CreatureHealCooldown"));
     for(EntityBase* target : targets)
     {
         if(target->getObjectType() != GameEntityType::creature)
@@ -106,21 +111,21 @@ void SpellCreatureExplode::castSpell(GameMap* gameMap, const std::vector<EntityB
             continue;
         }
 
-        CreatureEffectExplode* effect = new CreatureEffectExplode(ConfigManager::getSingleton().getSpellConfigUInt32("CreatureExplodeDuration"),
-            ConfigManager::getSingleton().getSpellConfigDouble("CreatureExplodeValue"),
-            "SpellCreatureExplode");
+        CreatureEffectHeal* effect = new CreatureEffectHeal(ConfigManager::getSingleton().getSpellConfigUInt32("CreatureHealDuration"),
+            ConfigManager::getSingleton().getSpellConfigDouble("CreatureHealValue"),
+            "SpellCreatureHeal");
         creature->addCreatureEffect(effect);
     }
 }
 
-Spell* SpellCreatureExplode::getSpellFromStream(GameMap* gameMap, std::istream &is)
+Spell* SpellCreatureHeal::getSpellFromStream(GameMap* gameMap, std::istream &is)
 {
-    OD_ASSERT_TRUE_MSG(false, "SpellCreatureExplode cannot be read from stream");
+    OD_ASSERT_TRUE_MSG(false, "SpellCreatureHeal cannot be read from stream");
     return nullptr;
 }
 
-Spell* SpellCreatureExplode::getSpellFromPacket(GameMap* gameMap, ODPacket &is)
+Spell* SpellCreatureHeal::getSpellFromPacket(GameMap* gameMap, ODPacket &is)
 {
-    OD_ASSERT_TRUE_MSG(false, "SpellCreatureExplode cannot be read from packet");
+    OD_ASSERT_TRUE_MSG(false, "SpellCreatureHeal cannot be read from packet");
     return nullptr;
 }

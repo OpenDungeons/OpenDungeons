@@ -15,32 +15,32 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CREATUREEFFECTEXPLODE_H
-#define CREATUREEFFECTEXPLODE_H
+#ifndef CREATUREEFFECTEXPLOSION_H
+#define CREATUREEFFECTEXPLOSION_H
 
 #include "creatureeffect/CreatureEffect.h"
 
-class CreatureEffectExplode : public CreatureEffect
+class CreatureEffectExplosion : public CreatureEffect
 {
 public:
-    CreatureEffectExplode(uint32_t nbTurnsEffect, double effectValue, const std::string& particleEffectName) :
+    CreatureEffectExplosion(uint32_t nbTurnsEffect, double effectValue, const std::string& particleEffectName) :
         CreatureEffect(nbTurnsEffect, particleEffectName),
         mEffectValue(effectValue)
     {}
 
-    virtual ~CreatureEffectExplode()
+    virtual ~CreatureEffectExplosion()
     {}
 
     virtual CreatureEffectType getCreatureEffectType() const override
-    { return CreatureEffectType::explode; }
+    { return CreatureEffectType::explosion; }
 
-    static CreatureEffectExplode* load(std::istream& is);
+    static CreatureEffectExplosion* load(std::istream& is);
 
 protected:
     virtual void applyEffect(Creature& creature) override;
     virtual void exportToStream(std::ostream& os) const override;
     virtual void importFromStream(std::istream& is) override;
-    CreatureEffectExplode() :
+    CreatureEffectExplosion() :
         CreatureEffect(),
         mEffectValue(0.0)
     {}
@@ -49,4 +49,4 @@ private:
     double mEffectValue;
 };
 
-#endif // CREATUREEFFECTEXPLODE_H
+#endif // CREATUREEFFECTEXPLOSION_H

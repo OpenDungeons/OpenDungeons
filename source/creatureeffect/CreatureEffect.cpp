@@ -18,7 +18,7 @@
 #include "creatureeffect/CreatureEffect.h"
 
 #include "creatureeffect/CreatureEffectHeal.h"
-#include "creatureeffect/CreatureEffectExplode.h"
+#include "creatureeffect/CreatureEffectExplosion.h"
 
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
@@ -39,8 +39,8 @@ CreatureEffect* CreatureEffect::load(std::istream& is)
     {
         case CreatureEffectType::heal:
             return CreatureEffectHeal::load(is);
-        case CreatureEffectType::explode:
-            return CreatureEffectExplode::load(is);
+        case CreatureEffectType::explosion:
+            return CreatureEffectExplosion::load(is);
         default:
             OD_ASSERT_TRUE_MSG(false, "Unallowed enum value=" + Helper::toString(static_cast<int32_t>(effectType)));
             return nullptr;

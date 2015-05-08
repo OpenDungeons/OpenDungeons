@@ -26,7 +26,7 @@
 #include "gamemap/Pathfinding.h"
 #include "gamemap/GameMap.h"
 #include "rooms/RoomManager.h"
-#include "spell/SpellCallToWar.h"
+#include "spells/SpellCallToWar.h"
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"

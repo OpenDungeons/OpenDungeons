@@ -1,7 +1,7 @@
 
-particle_system SpellCreatureExplode
+particle_system SpellCreatureExplosion
 {
-    material SpellCreatureExplode
+    material SpellCreatureExplosion
     point_rendering            false
     particle_width             1
     particle_height            1

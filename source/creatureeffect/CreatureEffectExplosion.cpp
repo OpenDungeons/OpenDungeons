@@ -15,12 +15,12 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "creatureeffect/CreatureEffectExplode.h"
+#include "creatureeffect/CreatureEffectExplosion.h"
 
 #include "entities/Creature.h"
 #include "utils/LogManager.h"
 
-void CreatureEffectExplode::applyEffect(Creature& creature)
+void CreatureEffectExplosion::applyEffect(Creature& creature)
 {
     if(creature.getHP() <= 0.0)
         return;
@@ -29,20 +29,20 @@ void CreatureEffectExplode::applyEffect(Creature& creature)
     creature.takeDamage(nullptr, 0.0, mEffectValue, posTile);
 }
 
-CreatureEffectExplode* CreatureEffectExplode::load(std::istream& is)
+CreatureEffectExplosion* CreatureEffectExplosion::load(std::istream& is)
 {
-    CreatureEffectExplode* effect = new CreatureEffectExplode;
+    CreatureEffectExplosion* effect = new CreatureEffectExplosion;
     effect->importFromStream(is);
     return effect;
 }
 
-void CreatureEffectExplode::exportToStream(std::ostream& os) const
+void CreatureEffectExplosion::exportToStream(std::ostream& os) const
 {
     CreatureEffect::exportToStream(os);
     os << "\t" << mEffectValue;
 }
 
-void CreatureEffectExplode::importFromStream(std::istream& is)
+void CreatureEffectExplosion::importFromStream(std::istream& is)
 {
     CreatureEffect::importFromStream(is);
     OD_ASSERT_TRUE(is >> mEffectValue);

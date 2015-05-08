@@ -15,11 +15,11 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "spell/SpellManager.h"
+#include "spells/SpellManager.h"
 
 #include "network/ODPacket.h"
 
-#include "spell/SpellType.h"
+#include "spells/SpellType.h"
 
 #include "utils/Helper.h"
 #include "utils/LogManager.h"

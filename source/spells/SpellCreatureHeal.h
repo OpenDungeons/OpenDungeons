@@ -15,14 +15,15 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SPELLSUMMONWORKER_H
-#define SPELLSUMMONWORKER_H
+#ifndef SPELLCREATUREHEAL_H
+#define SPELLCREATUREHEAL_H
 
-#include "spell/Spell.h"
+#include "spells/Spell.h"
+#include "spells/SpellType.h"
 
 class GameMap;
 
-class SpellSummonWorker : public Spell
+class SpellCreatureHeal : public Spell
 {
 public:
     static int getSpellCost(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
@@ -34,4 +35,4 @@ public:
     static Spell* getSpellFromPacket(GameMap* gameMap, ODPacket &is);
 };
 
-#endif // SPELLSUMMONWORKER_H
+#endif // SPELLCREATUREHEAL_H

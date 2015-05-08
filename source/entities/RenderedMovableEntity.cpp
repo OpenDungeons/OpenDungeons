@@ -38,7 +38,7 @@
 
 #include "render/RenderManager.h"
 
-#include "spell/Spell.h"
+#include "spells/Spell.h"
 
 #include "utils/LogManager.h"
 #include "utils/Helper.h"

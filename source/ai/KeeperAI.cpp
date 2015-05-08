@@ -26,8 +26,8 @@
 #include "rooms/RoomManager.h"
 #include "rooms/RoomTreasury.h"
 #include "rooms/RoomType.h"
-#include "spell/SpellManager.h"
-#include "spell/SpellType.h"
+#include "spells/SpellManager.h"
+#include "spells/SpellType.h"
 #include "utils/LogManager.h"
 #include "utils/Random.h"
 

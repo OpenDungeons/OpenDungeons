@@ -19,10 +19,10 @@
                 <Property name="ButtonImage" value="OpenDungeonsIcons/CallToWarButton" />
                 <Property name="TooltipText" value="Spell: Call to War" />
             </Window>
-            <Window type="OD/ImageButton" name="CreatureExplodeButton" >
+            <Window type="OD/ImageButton" name="CreatureExplosionButton" >
                 <Property name="Area" value="{{0.2,-25},{0,75},{0.2,25},{0,125}}" />
-                <Property name="ButtonImage" value="OpenDungeonsIcons/CreatureExplodeButton" />
-                <Property name="TooltipText" value="Spell: Creature Explode" />
+                <Property name="ButtonImage" value="OpenDungeonsIcons/CreatureExplosionButton" />
+                <Property name="TooltipText" value="Spell: Creature Explosion" />
             </Window>
         </Window>
         <Window type="OD/StaticImage" name="TacticSkills" >

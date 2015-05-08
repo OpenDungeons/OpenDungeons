@@ -981,7 +981,7 @@ void EditorMode::refreshGuiResearch()
     guiSheet->getChild(Gui::BUTTON_SPELL_SUMMON_WORKER)->show();
     guiSheet->getChild(Gui::BUTTON_SPELL_CALLTOWAR)->show();
     guiSheet->getChild(Gui::BUTTON_SPELL_CREATURE_HEAL)->show();
-    guiSheet->getChild(Gui::BUTTON_SPELL_CREATURE_EXPLODE)->show();
+    guiSheet->getChild(Gui::BUTTON_SPELL_CREATURE_EXPLOSION)->show();
 
     // We also display the editor only buttons
     guiSheet->getChild(Gui::BUTTON_TEMPLE)->show();

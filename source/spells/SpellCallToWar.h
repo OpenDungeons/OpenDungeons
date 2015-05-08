@@ -18,8 +18,8 @@
 #ifndef SPELLCALLTOWAR_H
 #define SPELLCALLTOWAR_H
 
-#include "spell/Spell.h"
-#include "spell/SpellType.h"
+#include "spells/Spell.h"
+#include "spells/SpellType.h"
 
 class GameMap;
 

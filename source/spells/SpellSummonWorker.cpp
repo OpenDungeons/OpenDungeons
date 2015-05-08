@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "spell/SpellSummonWorker.h"
+#include "spells/SpellSummonWorker.h"
 
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
@@ -27,8 +27,8 @@
 
 #include "gamemap/GameMap.h"
 
-#include "spell/SpellType.h"
-#include "spell/SpellManager.h"
+#include "spells/SpellType.h"
+#include "spells/SpellManager.h"
 
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"

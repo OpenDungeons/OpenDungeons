@@ -15,9 +15,9 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "spell/SpellCreatureHeal.h"
+#include "spells/SpellCreatureExplosion.h"
 
-#include "creatureeffect/CreatureEffectHeal.h"
+#include "creatureeffect/CreatureEffectExplosion.h"
 
 #include "entities/Creature.h"
 #include "entities/Tile.h"
@@ -27,16 +27,16 @@
 
 #include "gamemap/GameMap.h"
 
-#include "spell/SpellType.h"
-#include "spell/SpellManager.h"
+#include "spells/SpellType.h"
+#include "spells/SpellManager.h"
 
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-static SpellManagerRegister<SpellCreatureHeal> reg(SpellType::creatureHeal, "creatureHeal");
+static SpellManagerRegister<SpellCreatureExplosion> reg(SpellType::creatureExplosion, "creatureExplosion");
 
-int SpellCreatureHeal::getSpellCost(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
+int SpellCreatureExplosion::getSpellCost(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
     int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
 {
     int32_t priceTotal = 0;
@@ -47,7 +47,7 @@ int SpellCreatureHeal::getSpellCost(std::vector<EntityBase*>& targets, GameMap* 
 
     std::vector<EntityBase*> creatures;
     gameMap->playerSelects(creatures, tileX1, tileY1, tileX2, tileY2, SelectionTileAllowed::groundClaimedAllied,
-        SelectionEntityWanted::creatureAliveOwned, player);
+        SelectionEntityWanted::creatureAliveEnemy, player);
 
     if(creatures.empty())
         return pricePerTile;
@@ -69,11 +69,6 @@ int SpellCreatureHeal::getSpellCost(std::vector<EntityBase*>& targets, GameMap* 
             continue;
         }
 
-        // Only hurt creatures can be healed
-        Creature* creature = static_cast<Creature*>(target);
-        if(!creature->isHurt())
-            continue;
-
         targets.push_back(target);
 
         priceTotal += pricePerTile;
@@ -83,9 +78,9 @@ int SpellCreatureHeal::getSpellCost(std::vector<EntityBase*>& targets, GameMap* 
     return priceTotal;
 }
 
-void SpellCreatureHeal::castSpell(GameMap* gameMap, const std::vector<EntityBase*>& targets, Player* player)
+void SpellCreatureExplosion::castSpell(GameMap* gameMap, const std::vector<EntityBase*>& targets, Player* player)
 {
-    player->setSpellCooldownTurns(SpellType::creatureHeal, ConfigManager::getSingleton().getSpellConfigUInt32("CreatureHealCooldown"));
+    player->setSpellCooldownTurns(SpellType::creatureExplosion, ConfigManager::getSingleton().getSpellConfigUInt32("CreatureExplosionCooldown"));
     for(EntityBase* target : targets)
     {
         if(target->getObjectType() != GameEntityType::creature)
@@ -111,21 +106,21 @@ void SpellCreatureHeal::castSpell(GameMap* gameMap, const std::vector<EntityBase
             continue;
         }
 
-        CreatureEffectHeal* effect = new CreatureEffectHeal(ConfigManager::getSingleton().getSpellConfigUInt32("CreatureHealDuration"),
-            ConfigManager::getSingleton().getSpellConfigDouble("CreatureHealValue"),
-            "SpellCreatureHeal");
+        CreatureEffectExplosion* effect = new CreatureEffectExplosion(ConfigManager::getSingleton().getSpellConfigUInt32("CreatureExplosionDuration"),
+            ConfigManager::getSingleton().getSpellConfigDouble("CreatureExplosionValue"),
+            "SpellCreatureExplosion");
         creature->addCreatureEffect(effect);
     }
 }
 
-Spell* SpellCreatureHeal::getSpellFromStream(GameMap* gameMap, std::istream &is)
+Spell* SpellCreatureExplosion::getSpellFromStream(GameMap* gameMap, std::istream &is)
 {
-    OD_ASSERT_TRUE_MSG(false, "SpellCreatureHeal cannot be read from stream");
+    OD_ASSERT_TRUE_MSG(false, "SpellCreatureExplosion cannot be read from stream");
     return nullptr;
 }
 
-Spell* SpellCreatureHeal::getSpellFromPacket(GameMap* gameMap, ODPacket &is)
+Spell* SpellCreatureExplosion::getSpellFromPacket(GameMap* gameMap, ODPacket &is)
 {
-    OD_ASSERT_TRUE_MSG(false, "SpellCreatureHeal cannot be read from packet");
+    OD_ASSERT_TRUE_MSG(false, "SpellCreatureExplosion cannot be read from packet");
     return nullptr;
 }

@@ -18,7 +18,7 @@
 #include "game/PlayerSelection.h"
 
 #include "rooms/RoomType.h"
-#include "spell/SpellType.h"
+#include "spells/SpellType.h"
 #include "traps/TrapType.h"
 
 PlayerSelection::PlayerSelection()

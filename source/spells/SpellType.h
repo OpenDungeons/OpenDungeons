@@ -15,24 +15,29 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SPELLCREATUREEXPLODE_H
-#define SPELLCREATUREEXPLODE_H
+#ifndef SPELLTYPE_H
+#define SPELLTYPE_H
 
-#include "spell/Spell.h"
-#include "spell/SpellType.h"
+#include <iosfwd>
+#include <string>
 
-class GameMap;
+class ODPacket;
 
-class SpellCreatureExplode : public Spell
+enum class SpellType
 {
-public:
-    static int getSpellCost(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
-        int tileX1, int tileY1, int tileX2, int tileY2, Player* player);
-
-    static void castSpell(GameMap* gameMap, const std::vector<EntityBase*>& targets, Player* player);
-
-    static Spell* getSpellFromStream(GameMap* gameMap, std::istream &is);
-    static Spell* getSpellFromPacket(GameMap* gameMap, ODPacket &is);
+    nullSpellType = 0,
+    summonWorker,
+    callToWar,
+    creatureHeal,
+    creatureExplosion,
+    nbSpells     // Must be the last in this enum
 };
 
-#endif // SPELLCREATUREEXPLODE_H
+std::istream& operator>>(std::istream& is, SpellType& tt);
+std::ostream& operator<<(std::ostream& os, const SpellType& tt);
+
+ODPacket& operator>>(ODPacket& is, SpellType& tt);
+ODPacket& operator<<(ODPacket& os, const SpellType& tt);
+
+
+#endif // SPELLTYPE_H
