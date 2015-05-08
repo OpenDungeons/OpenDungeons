@@ -21,9 +21,12 @@
 #include "entities/SmallSpiderEntity.h"
 #include "entities/Tile.h"
 #include "gamemap/GameMap.h"
+#include "rooms/RoomManager.h"
 #include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
 #include "utils/Random.h"
+
+static RoomManagerRegister<RoomCrypt> reg(RoomType::crypt, "Crypt");
 
 const int32_t OFFSET_TILE_X = 0;
 const int32_t OFFSET_TILE_Y = -1;
@@ -269,4 +272,21 @@ void RoomCrypt::importFromStream(std::istream& is)
     Room::importFromStream(is);
     OD_ASSERT_TRUE(is >> mRottenPoints);
     // We do not save rotten creatures. They will automatically be carried again by workers
+}
+
+int RoomCrypt::getRoomCost(std::vector<Tile*>& tiles, GameMap* gameMap, RoomType type,
+    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+{
+    return getRoomCostDefault(tiles, gameMap, type, tileX1, tileY1, tileX2, tileY2, player);
+}
+
+void RoomCrypt::buildRoom(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat* seat)
+{
+    RoomCrypt* room = new RoomCrypt(gameMap);
+    buildRoomDefault(gameMap, room, tiles, seat);
+}
+
+Room* RoomCrypt::getRoomFromStream(GameMap* gameMap, std::istream& is)
+{
+    return new RoomCrypt(gameMap);
 }

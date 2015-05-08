@@ -34,14 +34,9 @@ enum class RoomType
     library,
     hatchery,
     crypt,
-    portalWave
+    portalWave,
+    nbRooms     // Must be the last in this enum
 };
-
-namespace Rooms
-{
-    std::string getRoomNameFromRoomType(RoomType t);
-    RoomType getRoomTypeFromRoomName(const std::string& name);
-}
 
 std::istream& operator>>(std::istream& is, RoomType& rt);
 std::ostream& operator<<(std::ostream& os, const RoomType& rt);

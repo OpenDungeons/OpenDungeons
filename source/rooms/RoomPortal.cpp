@@ -25,6 +25,7 @@
 #include "game/Player.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
+#include "rooms/RoomManager.h"
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
@@ -33,6 +34,8 @@
 #include <OgreStringConverter.h>
 
 #include <cmath>
+
+static RoomManagerRegister<RoomPortal> reg(RoomType::portal, "Portal");
 
 const double CLAIMED_VALUE_PER_TILE = 1.0;
 
@@ -263,4 +266,21 @@ void RoomPortal::restoreInitialEntityState()
         mPortalObject->notifyRemoveAsked();
 
     Room::restoreInitialEntityState();
+}
+
+int RoomPortal::getRoomCost(std::vector<Tile*>& tiles, GameMap* gameMap, RoomType type,
+    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+{
+    return getRoomCostDefault(tiles, gameMap, type, tileX1, tileY1, tileX2, tileY2, player);
+}
+
+void RoomPortal::buildRoom(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat* seat)
+{
+    RoomPortal* room = new RoomPortal(gameMap);
+    buildRoomDefault(gameMap, room, tiles, seat);
+}
+
+Room* RoomPortal::getRoomFromStream(GameMap* gameMap, std::istream& is)
+{
+    return new RoomPortal(gameMap);
 }

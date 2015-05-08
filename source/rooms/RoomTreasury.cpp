@@ -25,12 +25,15 @@
 #include "gamemap/GameMap.h"
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
+#include "rooms/RoomManager.h"
 #include "sound/SoundEffectsManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/Random.h"
 
 #include <string>
+
+static RoomManagerRegister<RoomTreasury> reg(RoomType::treasury, "Treasury");
 
 static const int maxGoldinTile = 1000;
 
@@ -251,4 +254,25 @@ void RoomTreasury::notifyCarryingStateChanged(Creature* carrier, GameEntity* car
 RoomTreasuryTileData* RoomTreasury::createTileData(Tile* tile)
 {
     return new RoomTreasuryTileData;
+}
+
+int RoomTreasury::getRoomCost(std::vector<Tile*>& tiles, GameMap* gameMap, RoomType type,
+    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+{
+    int price = getRoomCostDefault(tiles, gameMap, type, tileX1, tileY1, tileX2, tileY2, player);
+    if (price > 0 && player->getSeat()->getNbTreasuries() == 0)
+        price -= RoomManager::costPerTile(type);
+
+    return price;
+}
+
+void RoomTreasury::buildRoom(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat* seat)
+{
+    RoomTreasury* room = new RoomTreasury(gameMap);
+    buildRoomDefault(gameMap, room, tiles, seat);
+}
+
+Room* RoomTreasury::getRoomFromStream(GameMap* gameMap, std::istream& is)
+{
+    return new RoomTreasury(gameMap);
 }

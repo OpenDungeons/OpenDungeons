@@ -25,13 +25,18 @@
 
 #include "gamemap/GameMap.h"
 
+#include "rooms/RoomManager.h"
+
 #include "traps/Trap.h"
+#include "traps/TrapManager.h"
 #include "traps/TrapType.h"
 
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/Random.h"
+
+static RoomManagerRegister<RoomWorkshop> reg(RoomType::workshop, "Workshop");
 
 const Ogre::Real X_OFFSET_CREATURE = 0.7;
 const Ogre::Real Y_OFFSET_CREATURE = 0.0;
@@ -354,7 +359,7 @@ void RoomWorkshop::doUpkeep()
     }
 
     // We check if we have enough Workshop points for the currently crafted trap
-    int32_t pointsNeeded = Trap::getNeededWorkshopPointsPerTrap(mTrapType);
+    int32_t pointsNeeded = TrapManager::getNeededWorkshopPointsPerTrap(mTrapType);
     if(mPoints < pointsNeeded)
         return;
 
@@ -450,4 +455,21 @@ void RoomWorkshop::importFromStream(std::istream& is)
 RoomWorkshopTileData* RoomWorkshop::createTileData(Tile* tile)
 {
     return new RoomWorkshopTileData;
+}
+
+int RoomWorkshop::getRoomCost(std::vector<Tile*>& tiles, GameMap* gameMap, RoomType type,
+    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+{
+    return getRoomCostDefault(tiles, gameMap, type, tileX1, tileY1, tileX2, tileY2, player);
+}
+
+void RoomWorkshop::buildRoom(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat* seat)
+{
+    RoomWorkshop* room = new RoomWorkshop(gameMap);
+    buildRoomDefault(gameMap, room, tiles, seat);
+}
+
+Room* RoomWorkshop::getRoomFromStream(GameMap* gameMap, std::istream& is)
+{
+    return new RoomWorkshop(gameMap);
 }

@@ -31,7 +31,7 @@
 #include "render/ODFrameListener.h"
 #include "render/RenderManager.h"
 #include "render/TextRenderer.h"
-#include "rooms/Room.h"
+#include "rooms/RoomManager.h"
 #include "rooms/RoomType.h"
 #include "sound/MusicPlayer.h"
 #include "sound/SoundEffectsManager.h"
@@ -41,6 +41,7 @@
 #include "utils/LogManager.h"
 #include "utils/ResourceManager.h"
 #include "traps/Trap.h"
+#include "traps/TrapManager.h"
 #include "traps/TrapType.h"
 
 #include <CEGUI/WindowManager.h>
@@ -305,60 +306,68 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
         {
             case SelectedAction::buildRoom:
             {
-                int nbTile = 1;
-                // If the player is dragging to build, we display the total price the room/trap will cost.
+                // If the player is dragging to build, we display the total price the spell will cost.
                 // If he is not, we display the price for 1 tile.
+                int tileX1;
+                int tileY1;
+                int tileX2;
+                int tileY2;
                 if(inputManager->mLMouseDown)
                 {
-                    std::vector<Tile*> buildableTiles = mGameMap->getBuildableTilesForPlayerInArea(inputManager->mXPos,
-                        inputManager->mYPos, inputManager->mLStartDragX, inputManager->mLStartDragY, player);
-                    nbTile = buildableTiles.size();
+                    tileX1 = inputManager->mXPos;
+                    tileY1 = inputManager->mYPos;
+                    tileX2 = inputManager->mLStartDragX;
+                    tileY2 = inputManager->mLStartDragY;
+                }
+                else
+                {
+                    tileX1 = inputManager->mXPos;
+                    tileY1 = inputManager->mYPos;
+                    tileX2 = inputManager->mXPos;
+                    tileY2 = inputManager->mYPos;
                 }
 
-                int gold = player->getSeat()->getGold();
                 RoomType selectedRoomType = mPlayerSelection.getNewRoomType();
-                int price;
-                if(nbTile > 0)
-                    price = Room::costPerTile(selectedRoomType) * nbTile;
-                else
-                    price = Room::costPerTile(selectedRoomType);
-
-                // Check whether the room type is the first treasury tile.
-                // In that case, the cost of the first tile is 0, to prevent the player from being stuck
-                // with no means to earn money.
-                if (nbTile > 0 && selectedRoomType == RoomType::treasury && player->getSeat()->getNbTreasuries() == 0)
-                    price -= Room::costPerTile(selectedRoomType);
-
-                const Ogre::ColourValue& textColor = ((gold < price) || (nbTile == 0 && inputManager->mLMouseDown)) ? red : white;
+                std::vector<Tile*> tiles;
+                int price = RoomManager::getRoomCost(tiles, mGameMap, selectedRoomType, tileX1, tileY1, tileX2, tileY2, player);
+                int gold = player->getSeat()->getGold();
+                const Ogre::ColourValue& textColor = ((gold < price) || (tiles.empty() && inputManager->mLMouseDown)) ? red : white;
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
-                textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Rooms::getRoomNameFromRoomType(selectedRoomType))
-                    + " [" + Ogre::StringConverter::toString(price)+ " Gold]");
+                textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(RoomManager::getRoomNameFromRoomType(selectedRoomType))
+                    + " [" + Helper::toString(price)+ " Gold]");
                 break;
             }
             case SelectedAction::buildTrap:
             {
-                int nbTile = 1;
-                // If the player is dragging to build, we display the total price the room/trap will cost.
+                // If the player is dragging to build, we display the total price the spell will cost.
                 // If he is not, we display the price for 1 tile.
+                int tileX1;
+                int tileY1;
+                int tileX2;
+                int tileY2;
                 if(inputManager->mLMouseDown)
                 {
-                    std::vector<Tile*> buildableTiles = mGameMap->getBuildableTilesForPlayerInArea(inputManager->mXPos,
-                        inputManager->mYPos, inputManager->mLStartDragX, inputManager->mLStartDragY, player);
-                    nbTile = buildableTiles.size();
+                    tileX1 = inputManager->mXPos;
+                    tileY1 = inputManager->mYPos;
+                    tileX2 = inputManager->mLStartDragX;
+                    tileY2 = inputManager->mLStartDragY;
+                }
+                else
+                {
+                    tileX1 = inputManager->mXPos;
+                    tileY1 = inputManager->mYPos;
+                    tileX2 = inputManager->mXPos;
+                    tileY2 = inputManager->mYPos;
                 }
 
-                int gold = player->getSeat()->getGold();
                 TrapType selectedTrapType = mPlayerSelection.getNewTrapType();
-                int price;
-                if(nbTile > 0)
-                    price = Trap::costPerTile(selectedTrapType) * nbTile;
-                else
-                    price = Trap::costPerTile(selectedTrapType);
-
-                const Ogre::ColourValue& textColor = ((gold < price) || (nbTile == 0 && inputManager->mLMouseDown)) ? red : white;
+                std::vector<Tile*> tiles;
+                int price = TrapManager::getTrapCost(tiles, mGameMap, selectedTrapType, tileX1, tileY1, tileX2, tileY2, player);
+                int gold = player->getSeat()->getGold();
+                const Ogre::ColourValue& textColor = ((gold < price) || (tiles.empty() && inputManager->mLMouseDown)) ? red : white;
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
-                textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(Traps::getTrapNameFromTrapType(selectedTrapType))
-                    + " [" + Ogre::StringConverter::toString(price)+ " Gold]");
+                textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(TrapManager::getTrapNameFromTrapType(selectedTrapType))
+                    + " [" + Helper::toString(price)+ " Gold]");
                 break;
             }
             case SelectedAction::castSpell:
@@ -402,55 +411,63 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 const Ogre::ColourValue& textColor = ((mana < price) || (targets.empty() && inputManager->mLMouseDown)) ? red : white;
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
                 textRenderer.setText(ODApplication::POINTER_INFO_STRING, std::string(SpellManager::getSpellNameFromSpellType(selectedSpellType))
-                    + " [" + Ogre::StringConverter::toString(price)+ " Mana]");
+                    + " [" + Helper::toString(price)+ " Mana]");
                 break;
             }
             case SelectedAction::destroyRoom:
             {
-                int goldRetrieved = 0;
-                std::vector<Tile*> tiles;
+                int tileX1;
+                int tileY1;
+                int tileX2;
+                int tileY2;
                 if(inputManager->mLMouseDown)
                 {
-                    tiles = mGameMap->rectangularRegion(inputManager->mXPos,
-                        inputManager->mYPos, inputManager->mLStartDragX, inputManager->mLStartDragY);
+                    tileX1 = inputManager->mXPos;
+                    tileY1 = inputManager->mYPos;
+                    tileX2 = inputManager->mLStartDragX;
+                    tileY2 = inputManager->mLStartDragY;
                 }
                 else
                 {
-                    Tile* tile = mGameMap->getTile(inputManager->mXPos, inputManager->mYPos);
-                    if(tile != nullptr)
-                        tiles.push_back(tile);
+                    tileX1 = inputManager->mXPos;
+                    tileY1 = inputManager->mYPos;
+                    tileX2 = inputManager->mXPos;
+                    tileY2 = inputManager->mYPos;
                 }
-
-                for(Tile* tile : tiles)
-                    goldRetrieved += tile->getRefundPriceRoom();
+                std::vector<Tile*> tiles;
+                int price = RoomManager::getRefundPrice(tiles, mGameMap, tileX1, tileY1, tileX2, tileY2, player);
 
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, white);
                 textRenderer.setText(ODApplication::POINTER_INFO_STRING, "Destroy room ["
-                    + Ogre::StringConverter::toString(goldRetrieved)+ " Gold]");
+                    + Ogre::StringConverter::toString(price)+ " Gold]");
                 break;
             }
             case SelectedAction::destroyTrap:
             {
-                int goldRetrieved = 0;
-                std::vector<Tile*> tiles;
+                int tileX1;
+                int tileY1;
+                int tileX2;
+                int tileY2;
                 if(inputManager->mLMouseDown)
                 {
-                    tiles = mGameMap->rectangularRegion(inputManager->mXPos,
-                        inputManager->mYPos, inputManager->mLStartDragX, inputManager->mLStartDragY);
+                    tileX1 = inputManager->mXPos;
+                    tileY1 = inputManager->mYPos;
+                    tileX2 = inputManager->mLStartDragX;
+                    tileY2 = inputManager->mLStartDragY;
                 }
                 else
                 {
-                    Tile* tile = mGameMap->getTile(inputManager->mXPos, inputManager->mYPos);
-                    if(tile != nullptr)
-                        tiles.push_back(tile);
+                    tileX1 = inputManager->mXPos;
+                    tileY1 = inputManager->mYPos;
+                    tileX2 = inputManager->mXPos;
+                    tileY2 = inputManager->mYPos;
                 }
-
-                for(Tile* tile : tiles)
-                    goldRetrieved += tile->getRefundPriceTrap();
+                std::vector<Tile*> tiles;
+                int price = TrapManager::getRefundPrice(tiles, mGameMap, tileX1, tileY1, tileX2, tileY2, player);
 
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, white);
                 textRenderer.setText(ODApplication::POINTER_INFO_STRING, "Destroy trap ["
-                    + Ogre::StringConverter::toString(goldRetrieved)+ " Gold]");
+                    + Ogre::StringConverter::toString(price)+ " Gold]");
                 break;
             }
             default:

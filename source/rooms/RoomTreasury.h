@@ -68,6 +68,11 @@ public:
     Tile* askSpotForCarriedEntity(GameEntity* carriedEntity);
     void notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity);
 
+    static int getRoomCost(std::vector<Tile*>& tiles, GameMap* gameMap, RoomType type,
+        int tileX1, int tileY1, int tileX2, int tileY2, Player* player);
+    static void buildRoom(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat* seat);
+    static Room* getRoomFromStream(GameMap* gameMap, std::istream& is);
+
 protected:
     RoomTreasuryTileData* createTileData(Tile* tile) override;
     // Because treasury do not use active spots, we don't want the default

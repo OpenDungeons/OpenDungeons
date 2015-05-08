@@ -28,11 +28,11 @@
 #include "entities/MapLight.h"
 #include "entities/Tile.h"
 #include "game/Seat.h"
-#include "traps/TrapType.h"
+#include "traps/TrapManager.h"
 #include "game/Player.h"
 #include "render/RenderManager.h"
 #include "camera/CameraManager.h"
-#include "rooms/RoomType.h"
+#include "rooms/RoomManager.h"
 #include "sound/MusicPlayer.h"
 #include "network/ODClient.h"
 #include "network/ODServer.h"
@@ -197,13 +197,13 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
             case SelectedAction::buildRoom:
             {
                 RoomType selectedRoomType = mPlayerSelection.getNewRoomType();
-                TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(Rooms::getRoomNameFromRoomType(selectedRoomType)));
+                TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(RoomManager::getRoomNameFromRoomType(selectedRoomType)));
                 break;
             }
             case SelectedAction::buildTrap:
             {
                 TrapType selectedTrapType = mPlayerSelection.getNewTrapType();
-                TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(Traps::getTrapNameFromTrapType(selectedTrapType)));
+                TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(TrapManager::getTrapNameFromTrapType(selectedTrapType)));
                 break;
             }
             case SelectedAction::changeTile:

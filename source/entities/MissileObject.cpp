@@ -17,10 +17,11 @@
 
 #include "entities/MissileObject.h"
 
+#include "entities/Building.h"
 #include "entities/MissileBoulder.h"
 #include "entities/MissileOneHit.h"
 #include "entities/Tile.h"
-
+#include "game/Seat.h"
 #include "gamemap/GameMap.h"
 #include "network/ODPacket.h"
 #include "utils/Helper.h"
@@ -28,11 +29,12 @@
 
 #include <iostream>
 
-MissileObject::MissileObject(GameMap* gameMap, Seat* seat, const std::string& senderName,
-        const std::string& meshName, const Ogre::Vector3& direction, bool damageAllies) :
+MissileObject::MissileObject(GameMap* gameMap, Seat* seat, const std::string& senderName, const std::string& meshName,
+        const Ogre::Vector3& direction, Tile* tileBuildingTarget, bool damageAllies) :
     RenderedMovableEntity(gameMap, senderName, meshName, 0.0f, false),
     mDirection(direction),
     mIsMissileAlive(true),
+    mTileBuildingTarget(tileBuildingTarget),
     mDamageAllies(damageAllies)
 {
     setSeat(seat);
@@ -42,6 +44,7 @@ MissileObject::MissileObject(GameMap* gameMap) :
     RenderedMovableEntity(gameMap),
     mDirection(Ogre::Vector3::ZERO),
     mIsMissileAlive(true),
+    mTileBuildingTarget(nullptr),
     mDamageAllies(false)
 {
 }
@@ -119,6 +122,24 @@ void MissileObject::doUpkeep()
         }
         lastTile = tmpTile;
 
+        // If we are aiming a building, we check if we hit
+        if((mTileBuildingTarget != nullptr) &&
+           (mTileBuildingTarget == tmpTile))
+        {
+            // We hit
+            Building* building = mTileBuildingTarget->getCoveringBuilding();
+            // Note that building may be null here is the building got destroyed before the missile gets there
+            if((building != nullptr) &&
+               (building->isAttackable(mTileBuildingTarget, mSeat)) &&
+               (!building->getSeat()->isAlliedSeat(mSeat)))
+            {
+                hitTargetBuilding(mTileBuildingTarget, building);
+                mIsMissileAlive = false;
+                destination.x = static_cast<Ogre::Real>(tmpTile->getX());
+                destination.y = static_cast<Ogre::Real>(tmpTile->getY());
+            }
+        }
+
         std::vector<Tile*> tileVector;
         tileVector.push_back(tmpTile);
         std::vector<GameEntity*> enemyCreatures = getGameMap()->getVisibleCreatures(tileVector, getSeat(), true);
@@ -156,8 +177,8 @@ bool MissileObject::computeDestination(const Ogre::Vector3& position, double mov
         Ogre::Vector3& destination, std::list<Tile*>& tiles)
 {
     destination = position + (moveDist * direction);
-    tiles = getGameMap()->tilesBetween(static_cast<int>(position.x),
-        static_cast<int>(position.y), static_cast<int>(destination.x), static_cast<int>(destination.y));
+    tiles = getGameMap()->tilesBetween(Helper::round(position.x),
+        Helper::round(position.y), Helper::round(destination.x), Helper::round(destination.y));
     OD_ASSERT_TRUE(!tiles.empty());
     if(tiles.empty())
         return false;

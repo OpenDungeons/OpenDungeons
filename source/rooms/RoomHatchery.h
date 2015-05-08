@@ -37,6 +37,11 @@ public:
     virtual void doUpkeep();
     virtual bool hasOpenCreatureSpot(Creature* c);
 
+    static int getRoomCost(std::vector<Tile*>& tiles, GameMap* gameMap, RoomType type,
+        int tileX1, int tileY1, int tileX2, int tileY2, Player* player);
+    static void buildRoom(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat* seat);
+    static Room* getRoomFromStream(GameMap* gameMap, std::istream& is);
+
 protected:
     virtual RenderedMovableEntity* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
     virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);

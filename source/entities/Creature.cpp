@@ -2423,23 +2423,7 @@ bool Creature::handleAttackAction(const CreatureAction& actionItem)
     mAttackWarmupTime = mDefinition->getAttackWarmupTime();
 
     Tile* attackedTile = actionItem.getTile();
-    GameEntity* attackedObject = nullptr;
-    switch(actionItem.getEntityType())
-    {
-        case GameEntityType::creature:
-            attackedObject = getGameMap()->getCreature(actionItem.getEntityName());
-            break;
-        case GameEntityType::room:
-            attackedObject = getGameMap()->getRoomByName(actionItem.getEntityName());
-            break;
-        case GameEntityType::trap:
-            attackedObject = getGameMap()->getTrapByName(actionItem.getEntityName());
-            break;
-        default:
-            OD_ASSERT_TRUE_MSG(false, "entityType=" + Ogre::StringConverter::toString(static_cast<int>(actionItem.getEntityType()))
-                + ", name=" + getName());
-            break;
-    }
+    GameEntity* attackedObject = getGameMap()->getEntityFromTypeAndName(actionItem.getEntityType(), actionItem.getEntityName());
     // attackedObject can be nullptr if the entity died between the time we started to chase it and the time we strike
     if(attackedObject == nullptr)
         return true;
@@ -2468,8 +2452,27 @@ bool Creature::handleAttackAction(const CreatureAction& actionItem)
         position.x = static_cast<Ogre::Real>(myTile->getX());
         position.y = static_cast<Ogre::Real>(myTile->getY());
         position.z = CANNON_MISSILE_HEIGHT;
+        Tile* tileBuilding = nullptr;
+        Ogre::Vector3 missileDirection(static_cast<Ogre::Real>(attackedTile->getX()),
+            static_cast<Ogre::Real>(attackedTile->getY()),
+            CANNON_MISSILE_HEIGHT);
+        missileDirection = missileDirection - position;
+        missileDirection.normalise();
+
+        switch(attackedObject->getObjectType())
+        {
+            case GameEntityType::room:
+            case GameEntityType::trap:
+            {
+                tileBuilding = attackedTile;
+                break;
+            }
+            default:
+                break;
+        }
+
         MissileOneHit* missile = new MissileOneHit(getGameMap(), getSeat(), getName(), "Cannonball",
-            "MissileMagic", walkDirection, physicalDamage, magicalDamage, false);
+            "MissileMagic", missileDirection, physicalDamage, magicalDamage, tileBuilding, false);
         missile->addToGameMap();
         missile->createMesh();
         missile->setPosition(position, false);

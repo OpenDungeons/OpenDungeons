@@ -35,6 +35,7 @@
 #include "render/RenderManager.h"
 
 #include "rooms/Room.h"
+#include "rooms/RoomManager.h"
 #include "rooms/RoomType.h"
 
 #include "spawnconditions/SpawnCondition.h"
@@ -43,6 +44,7 @@
 #include "spell/SpellType.h"
 
 #include "traps/Trap.h"
+#include "traps/TrapManager.h"
 #include "traps/TrapType.h"
 
 #include "utils/ConfigManager.h"
@@ -1449,13 +1451,13 @@ void Seat::exportTileToPacket(ODPacket& os, Tile* tile) const
         {
             Room* room = static_cast<Room*>(tileState.mBuilding);
             if(room->getSeat() == this)
-                refundPriceRoom = (Room::costPerTile(room->getType()) / 2);
+                refundPriceRoom = (RoomManager::costPerTile(room->getType()) / 2);
         }
         else if(tileState.mBuilding->getObjectType() == GameEntityType::trap)
         {
             Trap* trap = static_cast<Trap*>(tileState.mBuilding);
             if(trap->getSeat() == this)
-                refundPriceTrap = (Trap::costPerTile(trap->getType()) / 2);
+                refundPriceTrap = (TrapManager::costPerTile(trap->getType()) / 2);
         }
     }
     os << isBuilding;

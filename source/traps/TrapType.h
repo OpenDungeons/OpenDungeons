@@ -28,7 +28,8 @@ enum class TrapType
     nullTrapType = 0,
     cannon,
     spike,
-    boulder
+    boulder,
+    nbTraps     // Must be the last in this enum
 };
 
 std::istream& operator>>(std::istream& is, TrapType& tt);
@@ -36,8 +37,4 @@ std::ostream& operator<<(std::ostream& os, const TrapType& tt);
 ODPacket& operator>>(ODPacket& is, TrapType& tt);
 ODPacket& operator<<(ODPacket& os, const TrapType& tt);
 
-namespace Traps
-{
-std::string getTrapNameFromTrapType(TrapType t);
-};
 #endif // TRAPTYPE_H

@@ -53,17 +53,6 @@ Room* BaseAI::getDungeonTemple()
         return nullptr;
 }
 
-bool BaseAI::buildRoom(Room* room, const std::vector<Tile*>& tiles)
-{
-    room->setupRoom(mGameMap.nextUniqueNameRoom(room->getMeshName()), mPlayer.getSeat(), tiles);
-    room->addToGameMap();
-    room->createMesh();
-    room->checkForRoomAbsorbtion();
-    room->updateActiveSpots();
-
-    return true;
-}
-
 bool BaseAI::shouldGroundTileBeConsideredForBestPlaceForRoom(Tile* tile, Seat* mPlayerSeat)
 {
     switch(tile->getType())

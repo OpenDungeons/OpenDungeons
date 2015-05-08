@@ -346,6 +346,7 @@ set(OD_SOURCEFILES
     ${SRC}/rooms/RoomDungeonTemple.cpp
     ${SRC}/rooms/RoomHatchery.cpp
     ${SRC}/rooms/RoomLibrary.cpp
+    ${SRC}/rooms/RoomManager.cpp
     ${SRC}/rooms/RoomPortal.cpp
     ${SRC}/rooms/RoomPortalWave.cpp
     ${SRC}/rooms/RoomType.cpp
@@ -372,6 +373,7 @@ set(OD_SOURCEFILES
     ${SRC}/traps/Trap.cpp
     ${SRC}/traps/TrapBoulder.cpp
     ${SRC}/traps/TrapCannon.cpp
+    ${SRC}/traps/TrapManager.cpp
     ${SRC}/traps/TrapSpike.cpp
     ${SRC}/traps/TrapType.cpp
 

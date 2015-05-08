@@ -17,13 +17,16 @@
 
 #include "traps/TrapSpike.h"
 
+#include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 #include "entities/TrapEntity.h"
 #include "gamemap/GameMap.h"
-#include "entities/RenderedMovableEntity.h"
+#include "traps/TrapManager.h"
 #include "utils/ConfigManager.h"
 #include "utils/Random.h"
 #include "utils/LogManager.h"
+
+static TrapManagerRegister<TrapSpike> reg(TrapType::spike, "Spike");
 
 const std::string TrapSpike::MESH_SPIKE = "Spiketrap";
 
@@ -76,4 +79,21 @@ TrapSpike* TrapSpike::getTrapSpikeFromPacket(GameMap* gameMap, ODPacket &is)
 {
     TrapSpike* trap = new TrapSpike(gameMap);
     return trap;
+}
+
+int TrapSpike::getTrapCost(std::vector<Tile*>& tiles, GameMap* gameMap, TrapType type,
+    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+{
+    return getTrapCostDefault(tiles, gameMap, type, tileX1, tileY1, tileX2, tileY2, player);
+}
+
+void TrapSpike::buildTrap(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat* seat)
+{
+    TrapSpike* room = new TrapSpike(gameMap);
+    buildTrapDefault(gameMap, room, tiles, seat);
+}
+
+Trap* TrapSpike::getTrapFromStream(GameMap* gameMap, std::istream& is)
+{
+    return new TrapSpike(gameMap);
 }

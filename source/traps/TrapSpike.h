@@ -50,6 +50,12 @@ public:
     { return true; }
 
     virtual TrapEntity* getTrapEntity(Tile* tile);
+
+    static int getTrapCost(std::vector<Tile*>& tiles, GameMap* gameMap, TrapType type,
+        int tileX1, int tileY1, int tileX2, int tileY2, Player* player);
+    static void buildTrap(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat* seat);
+    static Trap* getTrapFromStream(GameMap* gameMap, std::istream& is);
+
 };
 
 #endif // TRAPSPIKE_H

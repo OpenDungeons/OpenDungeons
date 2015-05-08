@@ -52,27 +52,3 @@ ODPacket& operator<<(ODPacket& os, const TrapType& tt)
     os << tmp;
     return os;
 }
-
-namespace Traps
-{
-std::string getTrapNameFromTrapType(TrapType t)
-{
-    switch (t)
-    {
-        case TrapType::nullTrapType:
-            return "NullTrapType";
-
-        case TrapType::cannon:
-            return "Cannon";
-
-        case TrapType::spike:
-            return "Spike";
-
-        case TrapType::boulder:
-            return "Boulder";
-
-        default:
-            return "UnknownTrapType enum=" + Helper::toString(static_cast<int>(t));
-    }
-}
-}

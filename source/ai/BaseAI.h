@@ -46,7 +46,6 @@ public:
 protected:
     virtual bool initialize(const std::string& parameters);
     Room* getDungeonTemple();
-    bool buildRoom(Room* room, const std::vector<Tile*>& tiles);
 
     //! \brief Searches for the best place where to place a room around the given tile. It will take
     //! into account any constructible tile (even if not digged yet). On success, it returns true and bestX

@@ -22,10 +22,13 @@
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 #include "gamemap/GameMap.h"
+#include "rooms/RoomManager.h"
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/Random.h"
+
+static RoomManagerRegister<RoomTrainingHall> reg(RoomType::trainingHall, "TrainingHall");
 
 const Ogre::Real RoomTrainingHall::OFFSET_CREATURE = 0.3;
 const Ogre::Real RoomTrainingHall::OFFSET_DUMMY = 0.3;
@@ -288,4 +291,21 @@ void RoomTrainingHall::doUpkeep()
             }
         }
     }
+}
+
+int RoomTrainingHall::getRoomCost(std::vector<Tile*>& tiles, GameMap* gameMap, RoomType type,
+    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+{
+    return getRoomCostDefault(tiles, gameMap, type, tileX1, tileY1, tileX2, tileY2, player);
+}
+
+void RoomTrainingHall::buildRoom(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat* seat)
+{
+    RoomTrainingHall* room = new RoomTrainingHall(gameMap);
+    buildRoomDefault(gameMap, room, tiles, seat);
+}
+
+Room* RoomTrainingHall::getRoomFromStream(GameMap* gameMap, std::istream& is)
+{
+    return new RoomTrainingHall(gameMap);
 }

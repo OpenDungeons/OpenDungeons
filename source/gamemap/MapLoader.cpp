@@ -38,10 +38,12 @@
 #include "entities/Weapon.h"
 
 #include "rooms/Room.h"
+#include "rooms/RoomManager.h"
 
 #include "spell/Spell.h"
 
 #include "traps/Trap.h"
+#include "traps/TrapManager.h"
 
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
@@ -274,10 +276,12 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         if(!gameMap.isServerGameMap())
             continue;
 
-        Room* tempRoom = Room::getRoomFromStream(&gameMap, levelFile);
+        Room* tempRoom = RoomManager::getRoomFromStream(&gameMap, levelFile);
         OD_ASSERT_TRUE(tempRoom != nullptr);
         if(tempRoom == nullptr)
             return false;
+
+        tempRoom->importFromStream(levelFile);
 
         tempRoom->addToGameMap();
 
@@ -307,11 +311,12 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         if (nextParam != "[Trap]")
             return false;
 
-        Trap* tempTrap = Trap::getTrapFromStream(&gameMap, levelFile);
+        Trap* tempTrap = TrapManager::getTrapFromStream(&gameMap, levelFile);
         OD_ASSERT_TRUE(tempTrap != nullptr);
         if(tempTrap == nullptr)
             return false;
 
+        tempTrap->importFromStream(levelFile);
         tempTrap->addToGameMap();
 
         levelFile >> nextParam;

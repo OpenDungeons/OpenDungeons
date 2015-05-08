@@ -164,11 +164,7 @@ public:
     virtual void addToGameMap() override;
     virtual void removeFromGameMap() override;
 
-    static Trap* getTrapFromStream(GameMap* gameMap, std::istream &is);
-
     virtual const TrapType getType() const = 0;
-
-    static int costPerTile(TrapType t);
 
     //! Traps can be claimed by enemy seats
     virtual bool isClaimable(Seat* seat) const override;
@@ -188,7 +184,6 @@ public:
     virtual bool removeCoveredTile(Tile* t);
     virtual void updateActiveSpots();
 
-    static int32_t getNeededWorkshopPointsPerTrap(TrapType trapType);
     virtual int32_t getNbNeededCraftedTrap() const;
 
     bool hasCarryEntitySpot(GameEntity* carriedEntity);
@@ -209,6 +204,10 @@ public:
     virtual void importTileDataFromStream(std::istream& is, Tile* tile, TileData* tileData) override;
 
     static std::string getTrapStreamFormat();
+
+    static void buildTrapDefault(GameMap* gameMap, Trap* trap, const std::vector<Tile*>& tiles, Seat* seat);
+    static int getTrapCostDefault(std::vector<Tile*>& tiles, GameMap* gameMap, TrapType type,
+        int tileX1, int tileY1, int tileX2, int tileY2, Player* player);
 
 protected:
     virtual TrapTileData* createTileData(Tile* tile) override;

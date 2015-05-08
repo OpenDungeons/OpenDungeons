@@ -16,14 +16,18 @@
  */
 
 #include "traps/TrapCannon.h"
-#include "network/ODPacket.h"
+
 #include "entities/Tile.h"
 #include "entities/TrapEntity.h"
 #include "entities/MissileOneHit.h"
 #include "gamemap/GameMap.h"
+#include "network/ODPacket.h"
+#include "traps/TrapManager.h"
 #include "utils/ConfigManager.h"
 #include "utils/Random.h"
 #include "utils/LogManager.h"
+
+static TrapManagerRegister<TrapCannon> reg(TrapType::cannon, "Cannon");
 
 const std::string TrapCannon::MESH_CANON = "Cannon";
 const Ogre::Real CANNON_MISSILE_HEIGHT = 0.3;
@@ -63,7 +67,7 @@ bool TrapCannon::shoot(Tile* tile)
     direction = direction - position;
     direction.normalise();
     MissileOneHit* missile = new MissileOneHit(getGameMap(), getSeat(), getName(), "Cannonball",
-        "", direction, Random::Double(mMinDamage, mMaxDamage), 0.0, false);
+        "", direction, Random::Double(mMinDamage, mMaxDamage), 0.0, nullptr, false);
     missile->addToGameMap();
     missile->createMesh();
     missile->setPosition(position, false);
@@ -90,4 +94,21 @@ TrapCannon* TrapCannon::getTrapCannonFromPacket(GameMap* gameMap, ODPacket &is)
 {
     TrapCannon* trap = new TrapCannon(gameMap);
     return trap;
+}
+
+int TrapCannon::getTrapCost(std::vector<Tile*>& tiles, GameMap* gameMap, TrapType type,
+    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+{
+    return getTrapCostDefault(tiles, gameMap, type, tileX1, tileY1, tileX2, tileY2, player);
+}
+
+void TrapCannon::buildTrap(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat* seat)
+{
+    TrapCannon* room = new TrapCannon(gameMap);
+    buildTrapDefault(gameMap, room, tiles, seat);
+}
+
+Trap* TrapCannon::getTrapFromStream(GameMap* gameMap, std::istream& is)
+{
+    return new TrapCannon(gameMap);
 }

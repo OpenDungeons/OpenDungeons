@@ -18,6 +18,7 @@
 #include "entities/CreatureDefinition.h"
 
 #include "network/ODPacket.h"
+#include "rooms/RoomManager.h"
 #include "rooms/RoomType.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
@@ -668,7 +669,7 @@ void CreatureDefinition::writeCreatureDefinitionDiff(
         file << "    [RoomAffinity]" << std::endl;
         for(const CreatureRoomAffinity& roomAffinity : def2->mRoomAffinity)
         {
-            file << "    " << Rooms::getRoomNameFromRoomType(roomAffinity.getRoomType());
+            file << "    " << RoomManager::getRoomNameFromRoomType(roomAffinity.getRoomType());
             file << "\t" << roomAffinity.getLikeness();
             file << "\t" << roomAffinity.getEfficiency();
             file << std::endl;
@@ -794,7 +795,7 @@ void CreatureDefinition::loadRoomAffinity(std::stringstream& defFile, CreatureDe
         }
         double efficiency = Helper::toDouble(nextParam);
 
-        RoomType roomType = Rooms::getRoomTypeFromRoomName(roomName);
+        RoomType roomType = RoomManager::getRoomTypeFromRoomName(roomName);
         OD_ASSERT_TRUE_MSG(roomType != RoomType::nullRoomType, "Unknown room name=" + roomName);
         if(roomType == RoomType::nullRoomType)
             continue;

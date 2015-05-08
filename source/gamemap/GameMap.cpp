@@ -53,6 +53,7 @@
 
 #include "rooms/Room.h"
 #include "rooms/RoomDungeonTemple.h"
+#include "rooms/RoomManager.h"
 #include "rooms/RoomPortal.h"
 #include "rooms/RoomTreasury.h"
 #include "rooms/RoomType.h"
@@ -2643,6 +2644,12 @@ GameEntity* GameMap::getEntityFromTypeAndName(GameEntityType entityType,
         case GameEntityType::mapLight:
             return getMapLight(entityName);
 
+        case GameEntityType::room:
+            return getRoomByName(entityName);
+
+        case GameEntityType::trap:
+            return getTrapByName(entityName);
+
         default:
             break;
     }
@@ -2828,28 +2835,6 @@ GameEntity* GameMap::getClosestTileWhereGameEntityFromList(std::vector<GameEntit
     }
 
     return closestGameEntity;
-}
-
-void GameMap::fillBuildableTilesAndPriceForPlayerInArea(int x1, int y1, int x2, int y2,
-    Player* player, RoomType type, std::vector<Tile*>& tiles, int& goldRequired)
-{
-    goldRequired = 0;
-    tiles = getBuildableTilesForPlayerInArea(x1, y1, x2, y2, player);
-
-    if(tiles.empty())
-        return;
-
-    int costPerTile = Room::costPerTile(type);
-    goldRequired = tiles.size() * costPerTile;
-
-    // The first treasury tile doesn't cost anything to prevent a player from being stuck
-    // without any means to get gold.
-    // Thus, we check whether it is the current attempt and we remove the cost of one tile.
-    if (type == RoomType::treasury
-            && numRoomsByTypeAndSeat(RoomType::treasury, player->getSeat()) == 0)
-    {
-        goldRequired -= costPerTile;
-    }
 }
 
 void GameMap::updateVisibleEntities()
