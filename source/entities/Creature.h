@@ -69,18 +69,6 @@ public:
     CreatureEffect* mEffect;
 };
 
-enum class CreatureOverlayHealthValue
-{
-    full = 0,
-    threeQuarters = 1,
-    half = 2,
-    oneQuarter = 3,
-    nearDeath = 4
-};
-
-ODPacket& operator<<(ODPacket& os, const CreatureOverlayHealthValue& value);
-ODPacket& operator>>(ODPacket& is, CreatureOverlayHealthValue& value);
-
 /*! \class Creature Creature.h
  *  \brief Position, status, and AI state for a single game creature.
  *
@@ -98,6 +86,8 @@ public:
     //! \brief Constructor for creatures. It generates an unique name
     Creature(GameMap* gameMap, const CreatureDefinition* definition, Seat* seat, Ogre::Vector3 position = Ogre::Vector3(0.0f,0.0f,0.0f));
     virtual ~Creature();
+
+    static const uint32_t NB_OVERLAY_HEALTH_VALUES;
 
     virtual GameEntityType getObjectType() const
     { return GameEntityType::creature; }
@@ -391,7 +381,7 @@ public:
     inline int32_t getGoldFee() const
     { return mGoldFee; }
 
-    inline CreatureOverlayHealthValue getOverlayHealthValue() const
+    inline uint32_t getOverlayHealthValue() const
     { return mOverlayHealthValue; }
 
     inline int32_t getNbTurnsWithoutBattle() const
@@ -550,7 +540,7 @@ private:
 
     //! \brief Represents the life value displayed on client side. We do not notify each HP change
     //! to avoid too many communication. But when mOverlayHealthValue changes, we will
-    CreatureOverlayHealthValue      mOverlayHealthValue;
+    uint32_t                        mOverlayHealthValue;
 
     //! Used by the renderer to save this entity's overlay. It is its rensponsability
     //! to allocate/delete this pointer

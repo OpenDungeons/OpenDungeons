@@ -84,6 +84,8 @@
 static const int NB_TURN_FLEE_MAX = 5;
 const Ogre::Real CANNON_MISSILE_HEIGHT = 0.3;
 
+const uint32_t Creature::NB_OVERLAY_HEALTH_VALUES = 8;
+
 CreatureParticuleEffect::~CreatureParticuleEffect()
 {
     if(mEffect != nullptr)
@@ -134,7 +136,7 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition, Seat*
     mMoodValue               (CreatureMoodLevel::Neutral),
     mMoodPoints              (0),
     mFirstTurnFurious        (-1),
-    mOverlayHealthValue      (CreatureOverlayHealthValue::full),
+    mOverlayHealthValue      (0),
     mOverlayStatus           (nullptr),
     mNeedFireRefresh         (false)
 
@@ -218,7 +220,7 @@ Creature::Creature(GameMap* gameMap) :
     mMoodValue               (CreatureMoodLevel::Neutral),
     mMoodPoints              (0),
     mFirstTurnFurious        (-1),
-    mOverlayHealthValue      (CreatureOverlayHealthValue::full),
+    mOverlayHealthValue      (0),
     mOverlayStatus           (nullptr),
     mNeedFireRefresh         (false)
 {
@@ -4350,15 +4352,18 @@ void Creature::computeCreatureOverlayHealthValue()
     if(!getGameMap()->isServerGameMap())
         return;
 
-    CreatureOverlayHealthValue value = CreatureOverlayHealthValue::nearDeath;
-    if(getHP() == getMaxHp())
-        value = CreatureOverlayHealthValue::full;
-    else if(getHP() >= (getMaxHp() * 0.75))
-        value = CreatureOverlayHealthValue::threeQuarters;
-    else if(getHP() >= (getMaxHp() * 0.5))
-        value = CreatureOverlayHealthValue::half;
-    else if(getHP() >= (getMaxHp() * 0.25))
-        value = CreatureOverlayHealthValue::oneQuarter;
+    uint32_t value = 0;
+    uint32_t nbSteps = NB_OVERLAY_HEALTH_VALUES - 1;
+    double healthStep = getMaxHp() / static_cast<double>(nbSteps);
+    double tmpHealth = getMaxHp();
+    double hp = getHP();
+    for(value = 0; value < nbSteps; ++value)
+    {
+        if(hp >= tmpHealth)
+            break;
+
+        tmpHealth -= healthStep;
+    }
 
     if(mOverlayHealthValue != value)
     {
@@ -4384,8 +4389,8 @@ bool Creature::isHurt() const
     if(getGameMap()->isServerGameMap())
         return getHP() < getMaxHp();
 
-    // On client side, we test overlay value
-    return mOverlayHealthValue != CreatureOverlayHealthValue::full;
+    // On client side, we test overlay value. 0 represents full health
+    return mOverlayHealthValue > 0;
 
 }
 
@@ -4410,18 +4415,4 @@ void Creature::addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z)
     Ogre::Vector3 destination(x, y, z);
 
     mWalkQueue.push_back(destination);
-}
-
-ODPacket& operator<<(ODPacket& os, const CreatureOverlayHealthValue& value)
-{
-    os << static_cast<int32_t>(value);
-    return os;
-}
-
-ODPacket& operator>>(ODPacket& is, CreatureOverlayHealthValue& value)
-{
-    int32_t tmp;
-    OD_ASSERT_TRUE(is >> tmp);
-    value = static_cast<CreatureOverlayHealthValue>(tmp);
-    return is;
 }

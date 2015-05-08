@@ -24,8 +24,6 @@ class Creature;
 class MovableTextOverlay;
 class Seat;
 
-enum class CreatureOverlayHealthValue;
-
 namespace Ogre
 {
     class Entity;
@@ -44,12 +42,12 @@ public:
     void update(Ogre::Real timeSincelastFrame);
 
 private:
-    void updateMaterial(Seat* seat, CreatureOverlayHealthValue value);
+    void updateMaterial(Seat* seat, uint32_t value);
 
     Creature* mCreature;
     Seat* mSeat;
     MovableTextOverlay* mMovableTextOverlay;
-    CreatureOverlayHealthValue mHealthValue;
+    uint32_t mHealthValue;
     unsigned int mLevel;
     bool mDisplay;
     Ogre::Real mTimeToDisplay;

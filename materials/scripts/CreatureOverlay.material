@@ -73,3 +73,48 @@ material CreatureOverlay4
         }
     }
 }
+
+material CreatureOverlay5
+{
+    technique
+    {
+        pass
+        {
+            scene_blend alpha_blend
+            texture_unit
+            {
+                texture CreatureOverlay5.png
+            }
+        }
+    }
+}
+
+material CreatureOverlay6
+{
+    technique
+    {
+        pass
+        {
+            scene_blend alpha_blend
+            texture_unit
+            {
+                texture CreatureOverlay6.png
+            }
+        }
+    }
+}
+
+material CreatureOverlay7
+{
+    technique
+    {
+        pass
+        {
+            scene_blend alpha_blend
+            texture_unit
+            {
+                texture CreatureOverlay7.png
+            }
+        }
+    }
+}

@@ -27,7 +27,7 @@ CreatureOverlayStatus::CreatureOverlayStatus(Creature* creature, Ogre::Entity* e
         Ogre::Camera* cam) :
     mCreature(creature),
     mMovableTextOverlay(nullptr),
-    mHealthValue(CreatureOverlayHealthValue::full),
+    mHealthValue(0),
     mLevel(0),
     mDisplay(false),
     mTimeToDisplay(0.0)
@@ -61,13 +61,13 @@ void CreatureOverlayStatus::setTemporaryDisplayTime(Ogre::Real timeToDisplay)
     mMovableTextOverlay->setDisplay(true);
 }
 
-void CreatureOverlayStatus::updateMaterial(Seat* seat, CreatureOverlayHealthValue value)
+void CreatureOverlayStatus::updateMaterial(Seat* seat, uint32_t value)
 {
    // We adapt the material
     mHealthValue = value;
     mSeat = seat;
     std::string material = RenderManager::getSingleton().rrBuildSkullFlagMaterial(
-        "CreatureOverlay" + Helper::toString(static_cast<uint32_t>(mHealthValue)),
+        "CreatureOverlay" + Helper::toString(mHealthValue),
         mSeat->getColorValue());
     mMovableTextOverlay->setMaterialName(material);
 }
