@@ -107,11 +107,12 @@
         </Window>
         <Window type="OD/TabControl" name="MainTabControl" >
             <Property name="Area" value="{{0,0},{1,-133},{1,-200},{1,0}}" />
-            <Property name="TabHeight" value="{0,25}" />
+            <Property name="TabHeight" value="{0,35}" />
             <Property name="RiseOnClickEnabled" value="False" />
             <Window type="DefaultWindow" name="Tiles" >
                 <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
-                <Property name="Text" value="Tiles" />
+                <Property name="Text" value="[image-size='w:28 h:28'][image='OpenDungeonsIcons/TerritoryIcon']" />
+                <Property name="TooltipText" value="Tiles" />
                 <Property name="MaxSize" value="{{1,0},{1,0}}" />
                 <Property name="RiseOnClickEnabled" value="False" />
                 <Window type="OD/GameTabButton" name="DirtButton" >
@@ -157,7 +158,8 @@
             <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuCreatures.layout" name="CreaturesImport" />
             <Window type="DefaultWindow" name="Lights" >
                 <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
-                <Property name="Text" value="Lights" />
+                <Property name="Text" value="[image-size='w:32 h:32'][image='OpenDungeonsIcons/MapLightButton']" />
+                <Property name="TooltipText" value="Lights" />
                 <Property name="MaxSize" value="{{1,0},{1,0}}" />
                 <Property name="Visible" value="False" />
                 <Property name="RiseOnClickEnabled" value="False" />

@@ -3,7 +3,8 @@
 <GUILayout version="4" >
     <Window type="DefaultWindow" name="Spells" >
         <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
-        <Property name="Text" value="Spells" />
+        <Property name="Text" value="[image-size='w:32 h:32'][image='OpenDungeonsIcons/SpellsButton']" />
+        <Property name="TooltipText" value="Spells" />
         <Property name="MaxSize" value="{{1,0},{1,0}}" />
         <Property name="Visible" value="False" />
         <Property name="RiseOnClickEnabled" value="False" />

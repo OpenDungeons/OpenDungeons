@@ -3,10 +3,11 @@
 <GUILayout version="4" >
     <Window type="DefaultWindow" name="Traps" >
         <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
-        <Property name="Text" value="Traps" />
+        <Property name="Text" value="[image-size='w:32 h:32'][image='OpenDungeonsIcons/WorkshopButton']" />
         <Property name="MaxSize" value="{{1,0},{1,0}}" />
         <Property name="Visible" value="False" />
         <Property name="RiseOnClickEnabled" value="False" />
+        <Property name="TooltipText" value="Traps" />
         <Window type="OD/GameTabButton" name="DestroyTrapButton" >
             <Property name="Area" value="{{0,20},{0,25},{0,80},{0,85}}" />
             <Property name="NormalImage" value="OpenDungeonsIcons/DestroyTrapButton" />

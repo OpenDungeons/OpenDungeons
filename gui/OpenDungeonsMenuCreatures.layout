@@ -3,7 +3,8 @@
 <GUILayout version="4" >
     <Window type="DefaultWindow" name="Creatures" >
         <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
-        <Property name="Text" value="Creatures" />
+        <Property name="Text" value="[image-size='w:30 h:30'][image='OpenDungeonsIcons/CreaturesIcon']" />
+        <Property name="TooltipText" value="Creatures" />
         <Property name="MaxSize" value="{{1,0},{1,0}}" />
         <Property name="Visible" value="False" />
         <Property name="RiseOnClickEnabled" value="False" />
