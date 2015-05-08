@@ -152,10 +152,10 @@
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
             </Window>
-            <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuRooms.layout" name="RoomsImport" />
-            <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuTraps.layout" name="TrapImport" />
-            <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuSpells.layout" name="SpellImport" />
-            <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuCreatures.layout" name="CreaturesImport" />
+            <LayoutImport type="DefaultWindow" filename="WindowTabRooms.layout" name="RoomsImport" />
+            <LayoutImport type="DefaultWindow" filename="WindowTabTraps.layout" name="TrapImport" />
+            <LayoutImport type="DefaultWindow" filename="WindowTabSpells.layout" name="SpellImport" />
+            <LayoutImport type="DefaultWindow" filename="WindowTabCreatures.layout" name="CreaturesImport" />
             <Window type="DefaultWindow" name="Lights" >
                 <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
                 <Property name="Text" value="[image-size='w:32 h:32'][image='OpenDungeonsIcons/MapLightButton']" />
@@ -171,9 +171,9 @@
                 </Window>
             </Window>
         </Window>
-        <LayoutImport type="DefaultWindow" filename="EditorOptionsMenu.layout" name="EditorOptionsMenuImport" />
-        <LayoutImport type="DefaultWindow" filename="QuitMenu.layout" name="EditorQuitMenuImport" />
-        <LayoutImport type="DefaultWindow" filename="EventWindow.layout" name="EventWindowImport" />
-        <LayoutImport type="DefaultWindow" filename="ChatWindow.layout" name="ChatWindowImport" />
+        <LayoutImport type="DefaultWindow" filename="WindowEditorOptions.layout" name="EditorOptionsMenuImport" />
+        <LayoutImport type="DefaultWindow" filename="WindowQuit.layout" name="EditorQuitMenuImport" />
+        <LayoutImport type="DefaultWindow" filename="WindowEvent.layout" name="EventWindowImport" />
+        <LayoutImport type="DefaultWindow" filename="WindowChat.layout" name="ChatWindowImport" />
     </Window>
 </GUILayout>

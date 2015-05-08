@@ -1,6 +1,6 @@
 <GUIScheme name="OpenDungeons" version="5">
-    <Imageset filename="OpenDungeonsSkin.imageset" name="OpenDungeonsSkin" />
-    <Imageset filename="OpenDungeonsIcons.imageset" name="OpenDungeonsIcons" />
+    <Imageset filename="ODSkin.imageset" name="OpenDungeonsSkin" />
+    <Imageset filename="ODIcons.imageset" name="OpenDungeonsIcons" />
     <Imageset filename="ODLogo.imageset" name="ODLogo" />
     <Imageset filename="ODBackgrounds.imageset" name="ODBackgrounds" />
     <Imageset filename="ODMainMenuButtons.imageset" name="ODMainMenuButtons" />
@@ -8,7 +8,7 @@
     <Font filename="fonts/LiberationSans-10.font" name="LiberationSans-10" />
     <Font filename="fonts/MedievalSharp-10.font" name="MedievalSharp-10" />
     <Font filename="fonts/MedievalSharp-12.font" name="MedievalSharp-12" />
-    <LookNFeel filename="OpenDungeons.looknfeel" />
+    <LookNFeel filename="OD.looknfeel" />
     <WindowRendererSet filename="CEGUICoreWindowRendererSet" />
     <FalagardMapping lookNFeel="OD/Button" renderer="Core/Button" targetType="CEGUI/PushButton" windowType="OD/Button" />
     <FalagardMapping lookNFeel="OD/Button" renderer="Core/Button" targetType="CEGUI/PushButton" windowType="OD/SystemButton" />

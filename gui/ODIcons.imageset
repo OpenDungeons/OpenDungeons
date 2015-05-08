@@ -1,4 +1,4 @@
-<Imageset autoScaled="false" imagefile="OpenDungeonsIcons.png" name="OpenDungeonsIcons" nativeHorzRes="800" nativeVertRes="600" version="2">
+<Imageset autoScaled="false" imagefile="ODIcons.png" name="OpenDungeonsIcons" nativeHorzRes="800" nativeVertRes="600" version="2">
     <Image height="28" name="GoldCoin" width="24" xPos="4" yPos="2" />
     <Image height="28" name="TerritoryIcon" width="28" xPos="34" yPos="2" />
     <Image height="30" name="ManaIcon" width="30" xPos="65" yPos="1" />

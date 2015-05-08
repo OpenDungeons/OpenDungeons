@@ -45,7 +45,7 @@ Gui::Gui(SoundEffectsManager* soundEffectsManager, const std::string& ceguiLogFi
     CEGUI::System::create(renderer, &rp, static_cast<CEGUI::XMLParser*>(nullptr), &ic, nullptr, "",
                           ceguiLogFileName);
 
-    CEGUI::SchemeManager::getSingleton().createFromFile("OpenDungeonsSkin.scheme");
+    CEGUI::SchemeManager::getSingleton().createFromFile("ODSkin.scheme");
 
     // We want Ogre overlays to be displayed in front of CEGUI. According to
     // http://cegui.org.uk/forum/viewtopic.php?f=10&t=5694
@@ -68,17 +68,17 @@ Gui::Gui(SoundEffectsManager* soundEffectsManager, const std::string& ceguiLogFi
     CEGUI::Window* myHide = wmgr->createWindow("DefaultWindow", "DummyWindow");
     mSheets[hideGui] = myHide;
 
-    mSheets[inGameMenu] = wmgr->loadLayoutFromFile("OpenDungeonsGameModeMenu.layout");
-    mSheets[mainMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMainMenu.layout");
-    mSheets[skirmishMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuSkirmish.layout");
-    mSheets[multiplayerClientMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuMultiplayerClient.layout");
-    mSheets[multiplayerServerMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuMultiplayerServer.layout");
-    mSheets[editorModeGui] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorModeMenu.layout");
-    mSheets[editorMenu] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorMenu.layout");
-    mSheets[configureSeats] =  wmgr->loadLayoutFromFile("OpenDungeonsMenuConfigureSeats.layout");
-    mSheets[replayMenu] =  wmgr->loadLayoutFromFile("OpenDungeonsMenuReplay.layout");
-    mSheets[loadSavedGameMenu] =  wmgr->loadLayoutFromFile("OpenDungeonsMenuLoad.layout");
-    mSheets[console] = wmgr->loadLayoutFromFile("OpenDungeonsConsole.layout");
+    mSheets[inGameMenu] = wmgr->loadLayoutFromFile("ModeGame.layout");
+    mSheets[mainMenu] = wmgr->loadLayoutFromFile("MenuMain.layout");
+    mSheets[skirmishMenu] = wmgr->loadLayoutFromFile("MenuSkirmish.layout");
+    mSheets[multiplayerClientMenu] = wmgr->loadLayoutFromFile("MenuMultiplayerClient.layout");
+    mSheets[multiplayerServerMenu] = wmgr->loadLayoutFromFile("MenuMultiplayerServer.layout");
+    mSheets[editorModeGui] =  wmgr->loadLayoutFromFile("ModeEditor.layout");
+    mSheets[editorMenu] =  wmgr->loadLayoutFromFile("MenuEditor.layout");
+    mSheets[configureSeats] =  wmgr->loadLayoutFromFile("MenuConfigureSeats.layout");
+    mSheets[replayMenu] =  wmgr->loadLayoutFromFile("MenuReplay.layout");
+    mSheets[loadSavedGameMenu] =  wmgr->loadLayoutFromFile("MenuLoad.layout");
+    mSheets[console] = wmgr->loadLayoutFromFile("WindowConsole.layout");
 
     // Set the game version
     mSheets[mainMenu]->getChild("VersionText")->setText(ODApplication::VERSION);

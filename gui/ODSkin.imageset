@@ -1,4 +1,4 @@
-<Imageset autoScaled="false" imagefile="OpenDungeonsSkin.png" name="OpenDungeonsSkin" nativeHorzRes="800" nativeVertRes="600" version="2">
+<Imageset autoScaled="false" imagefile="ODSkin.png" name="OpenDungeonsSkin" nativeHorzRes="800" nativeVertRes="600" version="2">
     <Image height="4" name="ButtonTopLeftNormal" width="4" xPos="67" yPos="20" />
     <Image height="8" name="ButtonMiddleNormal" width="32" xPos="71" yPos="24" />
     <Image height="4" name="ButtonTopRightNormal" width="4" xPos="103" yPos="20" />

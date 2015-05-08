@@ -133,18 +133,18 @@
             <Property name="Area" value="{{0,0},{1,-133},{1,-200},{1,0}}" />
             <Property name="TabHeight" value="{0,35}" />
             <Property name="RiseOnClickEnabled" value="False" />
-            <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuRooms.layout" name="RoomsImport" />
-            <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuTraps.layout" name="TrapsImport" />
-            <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuSpells.layout" name="SpellImport" />
-            <LayoutImport type="DefaultWindow" filename="OpenDungeonsMenuCreatures.layout" name="CreaturesImport" />
+            <LayoutImport type="DefaultWindow" filename="WindowTabRooms.layout" name="RoomsImport" />
+            <LayoutImport type="DefaultWindow" filename="WindowTabTraps.layout" name="TrapsImport" />
+            <LayoutImport type="DefaultWindow" filename="WindowTabSpells.layout" name="SpellImport" />
+            <LayoutImport type="DefaultWindow" filename="WindowTabCreatures.layout" name="CreaturesImport" />
         </Window>
-        <LayoutImport type="DefaultWindow" filename="QuitMenu.layout" name="QuitMenuImport" />
-        <LayoutImport type="DefaultWindow" filename="ObjectivesWindow.layout" name="ObjectivesWindowImport" />
-        <LayoutImport type="DefaultWindow" filename="ResearchTree.layout" name="ResearchTreeWindowImport" />
-        <LayoutImport type="DefaultWindow" filename="GameOptionsMenu.layout" name="GameOptionsMenuImport" />
-        <LayoutImport type="DefaultWindow" filename="SettingsMenu.layout" name="SettingsMenuImport" />
-        <LayoutImport type="DefaultWindow" filename="EventWindow.layout" name="EventWindowImport" />
-        <LayoutImport type="DefaultWindow" filename="ChatWindow.layout" name="ChatWindowImport" />
-        <LayoutImport type="DefaultWindow" filename="HelpWindow.layout" name="HelpWindowImport" />
+        <LayoutImport type="DefaultWindow" filename="WindowQuit.layout" name="QuitMenuImport" />
+        <LayoutImport type="DefaultWindow" filename="WindowObjectives.layout" name="ObjectivesWindowImport" />
+        <LayoutImport type="DefaultWindow" filename="WindowResearchTree.layout" name="ResearchTreeWindowImport" />
+        <LayoutImport type="DefaultWindow" filename="WindowGameOptions.layout" name="GameOptionsMenuImport" />
+        <LayoutImport type="DefaultWindow" filename="WindowSettings.layout" name="SettingsMenuImport" />
+        <LayoutImport type="DefaultWindow" filename="WindowEvent.layout" name="EventWindowImport" />
+        <LayoutImport type="DefaultWindow" filename="WindowChat.layout" name="ChatWindowImport" />
+        <LayoutImport type="DefaultWindow" filename="WindowHelp.layout" name="HelpWindowImport" />
     </Window>
 </GUILayout>
