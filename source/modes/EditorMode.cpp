@@ -141,13 +141,7 @@ EditorMode::EditorMode(ModeManager* modeManager):
 
     updateFlagColor();
 
-    // Set tab tooltips here, since it's not feasible on CEGUI without a hack.
-    setTabButtonToolTip("Tiles", "Tiles");
-    setTabButtonToolTip("Rooms", "Rooms");
-    setTabButtonToolTip("Traps", "Traps");
-    setTabButtonToolTip("Spells", "Spells/Gift Boxes");
-    setTabButtonToolTip("Lights", "Lights");
-    setTabButtonToolTip("Creatures", "Creatures");
+    syncTabButtonTooltips(Gui::EDITOR);
 }
 
 EditorMode::~EditorMode()

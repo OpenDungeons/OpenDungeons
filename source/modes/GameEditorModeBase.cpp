@@ -273,25 +273,37 @@ void GameEditorModeBase::updateMessages(Ogre::Real update_time)
     }
 }
 
-CEGUI::Window* GameEditorModeBase::getTabButtonWidget(const std::string& tabName)
+void GameEditorModeBase::syncTabButtonTooltips(const CEGUI::String& tabControlName)
 {
-    CEGUI::Window* win = nullptr;
-    // NOTE: The mother tab widget must be named MainTabControl for this to work.
-    std::string buttonName = "MainTabControl/__auto_TabPane__Buttons/__auto_btn" + tabName;
+    // For each pane, we setup the corresponding tab button name.
+    CEGUI::Window* tabControl = nullptr;
     try {
-        win = mRootWindow->getChild(buttonName);
+        tabControl = mRootWindow->getChild(tabControlName + "/__auto_TabPane__");
     }
     catch (std::exception& e)
     {
     }
-    return win;
-}
+    if (tabControl == nullptr)
+        return;
 
-void GameEditorModeBase::setTabButtonToolTip(const std::string& buttonName, const std::string& tooltip)
-{
-    CEGUI::Window* win = getTabButtonWidget(buttonName);
-    if (win != nullptr)
-        win->setTooltipText(tooltip);
+    for(size_t i = 0; i < tabControl->getChildCount(); ++i)
+    {
+        CEGUI::Window* paneWin = tabControl->getChildAtIdx(i);
+
+        // Try to get the tabButton corresponding widget.
+        CEGUI::Window* tabButton = nullptr;
+        CEGUI::String buttonName = tabControlName + "/__auto_TabPane__Buttons/__auto_btn" + paneWin->getName();
+        try {
+            tabButton = mRootWindow->getChild(buttonName);
+        }
+        catch (std::exception& e)
+        {
+        }
+        if (tabButton == nullptr)
+            continue;
+
+        tabButton->setTooltipText(paneWin->getProperty<CEGUI::String>("TooltipText"));
+    }
 }
 
 void GameEditorModeBase::enterConsole()
