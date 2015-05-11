@@ -117,6 +117,8 @@ class GameMode final : public GameEditorModeBase
     void refreshMainUI();
 
 protected:
+    bool onClickYesQuitMenu(const CEGUI::EventArgs& /*arg*/);
+
     //! \brief The different Game Options Menu handlers
     bool showQuitMenuFromOptions(const CEGUI::EventArgs& e = {});
     bool showObjectivesFromOptions(const CEGUI::EventArgs& e = {});
@@ -134,11 +136,6 @@ protected:
     virtual bool keyReleasedNormal  (const OIS::KeyEvent &arg);
 
 private:
-    enum InputMode
-    {
-        InputModeNormal,
-        InputModeChat
-    };
     //! \brief Sets whether a tile must marked or unmarked for digging.
     //! this value is based on the first marked flag tile selected.
     bool mDigSetBool;
@@ -146,10 +143,6 @@ private:
     //! \brief Stores the lastest mouse cursor and light positions.
     int mMouseX;
     int mMouseY;
-
-    //! \brief The current input mode.
-    //! If in chat mode, then the game keyboard keys are interpreted as regular keys.
-    InputMode mCurrentInputMode;
 
     //! \brief Index of the event in the game event queue (for zooming automatically)
     uint32_t mIndexEvent;

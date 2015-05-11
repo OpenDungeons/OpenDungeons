@@ -42,7 +42,7 @@ MovableGameEntity::MovableGameEntity(GameMap* gameMap, const std::string& initia
     mPrevAnimationState(initialAnimationState),
     mPrevAnimationStateLoop(initialAnimationLoop),
     mAnimationSpeedFactor(1.0),
-    mDestinationAnimationState("Idle"),
+    mDestinationAnimationState(EntityAnimation::idle_anim),
     mWalkDirection(Ogre::Vector3::ZERO),
     mAnimationTime(0.0)
 {

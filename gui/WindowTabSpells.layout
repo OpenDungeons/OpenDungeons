@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout version="4" >
+    <Window type="DefaultWindow" name="Spells" >
+        <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
+        <Property name="Text" value="[image-size='w:32 h:32'][image='OpenDungeonsIcons/SpellsButton']" />
+        <Property name="TooltipText" value="Spells" />
+        <Property name="MaxSize" value="{{1,0},{1,0}}" />
+        <Property name="Visible" value="False" />
+        <Property name="RiseOnClickEnabled" value="False" />
+        <Window type="OD/GameTabButton" name="SummonWorkerButton" >
+            <Property name="Area" value="{{0,100},{0,25},{0,160},{0,85}}" />
+            <Property name="NormalImage" value="OpenDungeonsIcons/SummonWorkerButton" />
+            <Property name="TooltipText" value="Summon a worker" />
+            <Property name="InheritsAlpha" value="False" />
+            <Property name="Visible" value="False" />
+        </Window>
+        <Window type="OD/GameTabButton" name="CallToWarButton" >
+            <Property name="Area" value="{{0,160},{0,25},{0,220},{0,85}}" />
+            <Property name="NormalImage" value="OpenDungeonsIcons/CallToWarButton" />
+            <Property name="TooltipText" value="Casts a spell that calls available creatures" />
+            <Property name="InheritsAlpha" value="False" />
+            <Property name="Visible" value="False" />
+        </Window>
+        <Window type="OD/GameTabButton" name="CreatureHealButton" >
+            <Property name="Area" value="{{0,220},{0,25},{0,280},{0,85}}" />
+            <Property name="NormalImage" value="OpenDungeonsIcons/CreatureHealButton" />
+            <Property name="TooltipText" value="Casts a spell that heals owned creatures on allied tiles" />
+            <Property name="InheritsAlpha" value="False" />
+            <Property name="Visible" value="False" />
+        </Window>
+        <Window type="OD/GameTabButton" name="CreatureExplosionButton" >
+            <Property name="Area" value="{{0,280},{0,25},{0,340},{0,85}}" />
+            <Property name="NormalImage" value="OpenDungeonsIcons/CreatureExplosionButton" />
+            <Property name="TooltipText" value="Casts a spell that damages enemy creatures on allied tiles" />
+            <Property name="InheritsAlpha" value="False" />
+            <Property name="Visible" value="False" />
+        </Window>
+    </Window>
+</GUILayout>

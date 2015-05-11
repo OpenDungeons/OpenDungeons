@@ -58,7 +58,7 @@
 #include "rooms/RoomTreasury.h"
 #include "rooms/RoomType.h"
 
-#include "spell/Spell.h"
+#include "spells/Spell.h"
 
 #include "traps/Trap.h"
 
@@ -185,7 +185,7 @@ bool GameMap::isInEditorMode() const
     if (isServerGameMap())
         return (ODServer::getSingleton().getServerMode() == ServerMode::ModeEditor);
 
-    return (ODFrameListener::getSingleton().getModeManager()->getCurrentModeTypeExceptConsole() == ModeManager::EDITOR);
+    return (ODFrameListener::getSingleton().getModeManager()->getCurrentModeType() == ModeManager::EDITOR);
 }
 
 bool GameMap::loadLevel(const std::string& levelFilepath)

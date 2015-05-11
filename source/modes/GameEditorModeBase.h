@@ -24,6 +24,7 @@
 #include "gamemap/MiniMap.h"
 
 class EntityBase;
+class GameEditorModeConsole;
 
 namespace CEGUI
 {
@@ -57,7 +58,20 @@ public:
     //! \brief Called when the mode is activated.
     void deactivate() override;
 
+    //! \brief Leave the console.
+    void leaveConsole();
 protected:
+    enum InputMode
+    {
+        InputModeNormal,
+        InputModeChat,
+        InputModeConsole
+    };
+
+    //! \brief The current input mode.
+    //! If in chat mode, then the game keyboard keys are interpreted as regular keys.
+    InputMode mCurrentInputMode;
+
     void connectGuiAction(const std::string& buttonName, AbstractApplicationMode::GuiAction action);
 
     //! \brief Update the chat and event messages seen.
@@ -66,6 +80,7 @@ protected:
     //! \brief gets a game entity from the corresponding ogre name
     EntityBase* getEntityFromOgreName(const std::string& entityName);
 
+    //! \brief The main CEGUI window.
     CEGUI::Window* mRootWindow;
 
     //! \brief A reference to the game map used by the game mode
@@ -74,16 +89,32 @@ protected:
 
     //! \brief The minimap used in this mode
     MiniMap mMiniMap;
-protected:
+
     PlayerSelection mPlayerSelection;
+
+    //! \brief Set the tab button tooltip according to the pane tooltip for every tabs
+    //! in the 'tabControlName' widget.
+    //! \param tabControlName The tab control widget name. Eg: "parentWidget/tabControlName"
+    //! \note This permits to workaround a CEGUI design issue.
+    void syncTabButtonTooltips(const CEGUI::String& tabControlName);
+
+    //! \brief Enter the console.
+    void enterConsole();
+
+    //! \brief Get the console component.
+    GameEditorModeConsole* getConsole()
+    { return mConsole.get(); }
 private:
     //! \brief The game event messages in queue.
     std::vector<EventMessage*> mEventMessages;
 
+    //! \brief The console instance.
+    std::unique_ptr<GameEditorModeConsole> mConsole;
+
     //! \brief Minimap click event handler
     bool onMinimapClick(const CEGUI::EventArgs& arg);
 
-    //helper functions to connect buttons to entities
+    //! \brief helper functions to connect buttons to entities
     void connectRoomSelect(const std::string& buttonName, RoomType roomType);
     void connectTrapSelect(const std::string& buttonName, TrapType trapType);
 };

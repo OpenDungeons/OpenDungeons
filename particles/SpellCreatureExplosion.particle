@@ -1,0 +1,44 @@
+
+particle_system SpellCreatureExplosion
+{
+    material SpellCreatureExplosion
+    point_rendering            false
+    particle_width             1
+    particle_height            1
+    cull_each                  false
+    quota                      1000
+    emit_emitter_quota         10
+    billboard_type             point
+
+    emitter Box
+    {
+        angle                   180
+        colour                  1 0 0
+        emission_rate           1000
+        time_to_live            0.5
+        direction               0 1 0
+        velocity                5
+        duration                0.1
+        // Don't start the emitter more than once.
+        //repeat_delay_min        1
+        //repeat_delay_max        3
+        width           1
+        height          1
+        depth           0
+    }
+
+    // Make em float downwards
+    affector LinearForce
+    {
+        force_vector            0 -1 0
+        force_application       add
+    }
+
+    affector ColourInterpolator
+    {
+        time0                   0
+        colour0                 1 0 0
+        time1                   1
+        colour1                 1 1 0
+    }
+}

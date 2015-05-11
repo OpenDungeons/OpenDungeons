@@ -36,7 +36,7 @@ class AbstractApplicationMode :
     public OIS::KeyListener
 {
 public:
-    AbstractApplicationMode(ModeManager *modeManager, ModeManager::ModeType modeType):
+    AbstractApplicationMode(ModeManager* modeManager, ModeManager::ModeType modeType):
         mModeManager(modeManager),
         mModeType(modeType)
     {}
@@ -72,12 +72,12 @@ public:
 
     virtual OIS::Mouse* getMouse()
     {
-        return mModeManager->getInputManager()->mMouse;
+        return mModeManager->getInputManager().mMouse;
     }
 
     virtual OIS::Keyboard* getKeyboard()
     {
-        return mModeManager->getInputManager()->mKeyboard;
+        return mModeManager->getInputManager().mKeyboard;
     }
 
     //! \brief Called when activating a new mode
@@ -87,17 +87,6 @@ public:
     //! \brief Called when the mode is being deactivated.
     virtual void deactivate()
     {}
-
-    bool regressMode(const CEGUI::EventArgs& = {})
-    {
-        mModeManager->requestUnloadToParentMode();
-        return true;
-    }
-
-    ModeManager::ModeType getModeType() const
-    {
-        return mModeType;
-    }
 
     //! \brief Makes the handling of louse and keyboard interact with this mode.
     virtual void giveFocus();
@@ -116,23 +105,27 @@ public:
         return true;
     }
 
+    ModeManager::ModeType getModeType() const
+    { return mModeType; }
+
+    //! \brief Common goBack function requesting previous game mode.
+    virtual bool goBack(const CEGUI::EventArgs& e = {});
+
 protected:
     ModeManager& getModeManager()
     {
         return *mModeManager;
     }
 
-    void subscribeCloseButton(CEGUI::Window& rootWindow);
-
     inline void addEventConnection(CEGUI::Event::Connection conn)
     {
         mEventConnections.emplace_back(conn);
     }
 
-    // foreign reference, don't delete it.
+    //! \brief Foreign reference, don't delete it.
     ModeManager* mModeManager;
 
-    // The game mode type;
+    //! The corresponding mode type enum value.
     ModeManager::ModeType mModeType;
 
 private:

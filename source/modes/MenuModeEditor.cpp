@@ -46,7 +46,7 @@ MenuModeEditor::MenuModeEditor(ModeManager *modeManager):
     addEventConnection(
         window->getChild(Gui::EDM_BUTTON_BACK)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&MenuModeEditor::regressMode,
+            CEGUI::Event::Subscriber(&AbstractApplicationMode::goBack,
                                      static_cast<AbstractApplicationMode*>(this))
         )
     );
@@ -68,7 +68,13 @@ MenuModeEditor::MenuModeEditor(ModeManager *modeManager):
             CEGUI::Event::Subscriber(&MenuModeEditor::updateDescription, this)
         )
     );
-    subscribeCloseButton(*window->getChild("LevelWindowFrame"));
+    addEventConnection(
+        window->getChild("LevelWindowFrame/__auto_closebutton__")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&AbstractApplicationMode::goBack,
+                                     static_cast<AbstractApplicationMode*>(this))
+        )
+    );
 }
 
 void MenuModeEditor::activate()

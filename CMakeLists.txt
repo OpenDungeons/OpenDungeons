@@ -17,7 +17,7 @@ set(AS_LIBRARY_NAME "angelscript")
 
 # Project version
 set(OD_MAJOR_VERSION 0)
-set(OD_MINOR_VERSION 5)
+set(OD_MINOR_VERSION 6)
 set(OD_PATCH_LEVEL   0)
 
 # Set the project version ready to be used in the code.
@@ -246,7 +246,7 @@ set(OD_SOURCEFILES
 
     ${SRC}/creatureeffect/CreatureEffect.cpp
     ${SRC}/creatureeffect/CreatureEffectHeal.cpp
-    ${SRC}/creatureeffect/CreatureEffectExplode.cpp
+    ${SRC}/creatureeffect/CreatureEffectExplosion.cpp
 
     ${SRC}/creaturemood/CreatureMood.cpp
     ${SRC}/creaturemood/CreatureMoodAwakness.cpp
@@ -308,13 +308,12 @@ set(OD_SOURCEFILES
     ${SRC}/modes/Command.cpp
     ${SRC}/modes/ConsoleCommands.cpp
     ${SRC}/modes/ConsoleInterface.cpp
-    ${SRC}/modes/ConsoleMode.cpp
     ${SRC}/modes/EditorMode.cpp
-    ${SRC}/modes/FppMode.cpp
     ${SRC}/modes/GameMode.cpp
     ${SRC}/modes/GameEditorModeBase.cpp
+    ${SRC}/modes/GameEditorModeConsole.cpp
     ${SRC}/modes/InputManager.cpp
-    ${SRC}/modes/MenuMode.cpp
+    ${SRC}/modes/MenuModeMain.cpp
     ${SRC}/modes/MenuModeConfigureSeats.cpp
     ${SRC}/modes/MenuModeEditor.cpp
     ${SRC}/modes/MenuModeLoad.cpp
@@ -362,13 +361,13 @@ set(OD_SOURCEFILES
     ${SRC}/spawnconditions/SpawnConditionGold.cpp
     ${SRC}/spawnconditions/SpawnConditionRoom.cpp
 
-    ${SRC}/spell/Spell.cpp
-    ${SRC}/spell/SpellCallToWar.cpp
-    ${SRC}/spell/SpellCreatureExplode.cpp
-    ${SRC}/spell/SpellCreatureHeal.cpp
-    ${SRC}/spell/SpellManager.cpp
-    ${SRC}/spell/SpellSummonWorker.cpp
-    ${SRC}/spell/SpellType.cpp
+    ${SRC}/spells/Spell.cpp
+    ${SRC}/spells/SpellCallToWar.cpp
+    ${SRC}/spells/SpellCreatureExplosion.cpp
+    ${SRC}/spells/SpellCreatureHeal.cpp
+    ${SRC}/spells/SpellManager.cpp
+    ${SRC}/spells/SpellSummonWorker.cpp
+    ${SRC}/spells/SpellType.cpp
 
     ${SRC}/traps/Trap.cpp
     ${SRC}/traps/TrapBoulder.cpp

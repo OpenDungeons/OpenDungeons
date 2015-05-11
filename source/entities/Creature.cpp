@@ -51,8 +51,8 @@
 
 #include "sound/SoundEffectsManager.h"
 
-#include "spell/Spell.h"
-#include "spell/SpellType.h"
+#include "spells/Spell.h"
+#include "spells/SpellType.h"
 
 #include "traps/Trap.h"
 
@@ -239,7 +239,7 @@ void Creature::createMeshLocal()
         RenderManager::getSingleton().rrCreateCreature(this);
 
         // By default, we set the creature in idle state
-        RenderManager::getSingleton().rrSetObjectAnimationState(this, "Idle", true);
+        RenderManager::getSingleton().rrSetObjectAnimationState(this, EntityAnimation::idle_anim, true);
     }
 
     createMeshWeapons();
@@ -719,7 +719,7 @@ void Creature::doUpkeep()
             stopJob();
             stopEating();
             clearDestinations();
-            setAnimationState("Die", false);
+            setAnimationState(EntityAnimation::die_anim, false);
 
             // We drop what we are carrying
             Tile* myTile = getPositionTile();
@@ -1030,7 +1030,7 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
 {
     double diceRoll = Random::Double(0.0, 1.0);
 
-    setAnimationState("Idle");
+    setAnimationState(EntityAnimation::idle_anim);
 
     if(mDefinition->isWorker() && mForceAction == forcedActionSearchAction)
     {
@@ -1191,7 +1191,7 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
         }
 
         // If the home tile is not accessible, we wander
-        wanderRandomly("Flee");
+        wanderRandomly(EntityAnimation::flee_anim);
         return false;
     }
 
@@ -1261,7 +1261,7 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
             // If we are 5 tiles from the call to war, we don't go there
             if (setWalkPath(tempPath, 5, false))
             {
-                setAnimationState("Walk");
+                setAnimationState(EntityAnimation::walk_anim);
                 pushAction(CreatureActionType::walkToTile, true);
                 return false;
             }
@@ -1465,7 +1465,7 @@ bool Creature::handleClaimTileAction(const CreatureAction& actionItem)
                 // If we found a neighbor that is claimed for our side than we can start
                 // dancing on this tile.  If there is "left over" claiming that can be done
                 // it will spill over into neighboring tiles until it is gone.
-                setAnimationState("Claim");
+                setAnimationState(EntityAnimation::claim_anim);
                 myTile->claimForSeat(getSeat(), mClaimRate);
                 receiveExp(1.5 * (mClaimRate / (0.35 + 0.05 * getLevel())));
 
@@ -1496,7 +1496,7 @@ bool Creature::handleClaimTileAction(const CreatureAction& actionItem)
                 {
                     clearDestinations();
                     addDestination(static_cast<Ogre::Real>(tempTile->getX()), static_cast<Ogre::Real>(tempTile->getY()));
-                    setAnimationState("Walk");
+                    setAnimationState(EntityAnimation::walk_anim);
                     return false;
                 }
             }
@@ -1640,7 +1640,7 @@ bool Creature::handleClaimWallTileAction(const CreatureAction& actionItem)
         // Dig out the tile by decreasing the tile's fullness.
         Ogre::Vector3 walkDirection(tempTile->getX() - getPosition().x, tempTile->getY() - getPosition().y, 0);
         walkDirection.normalise();
-        setAnimationState("Claim", true, walkDirection);
+        setAnimationState(EntityAnimation::claim_anim, true, walkDirection);
         tempTile->claimForSeat(getSeat(), mClaimRate);
         receiveExp(1.5 * mClaimRate / 20.0);
 
@@ -1687,7 +1687,7 @@ bool Creature::handleClaimWallTileAction(const CreatureAction& actionItem)
     // If the path is a legitimate path, walk down it to the tile to be dug out
     if (setWalkPath(chosenPath, 2, false))
     {
-        setAnimationState("Walk");
+        setAnimationState(EntityAnimation::walk_anim);
         pushAction(CreatureActionType::walkToTile, true);
         return false;
     }
@@ -1733,7 +1733,7 @@ bool Creature::handleDigTileAction(const CreatureAction& actionItem)
         // Dig out the tile by decreasing the tile's fullness.
         Ogre::Vector3 walkDirection(tempTile->getX() - getPosition().x, tempTile->getY() - getPosition().y, 0);
         walkDirection.normalise();
-        setAnimationState("Dig", true, walkDirection);
+        setAnimationState(EntityAnimation::dig_anim, true, walkDirection);
         double amountDug = tempTile->digOut(mDigRate, true);
         if(amountDug > 0.0)
         {
@@ -1743,7 +1743,7 @@ bool Creature::handleDigTileAction(const CreatureAction& actionItem)
             if (tempTile->getFullness() == 0.0)
             {
                 receiveExp(2.5);
-                setAnimationState("Walk");
+                setAnimationState(EntityAnimation::walk_anim);
 
                 // Walk to the newly dug out tile.
                 addDestination(static_cast<Ogre::Real>(tempTile->getX()), static_cast<Ogre::Real>(tempTile->getY()));
@@ -1859,7 +1859,7 @@ bool Creature::handleDigTileAction(const CreatureAction& actionItem)
             // If the path is a legitimate path, walk down it to the tile to be dug out
             if (setWalkPath(walkPath, 2, false))
             {
-                setAnimationState("Walk");
+                setAnimationState(EntityAnimation::walk_anim);
                 pushAction(CreatureActionType::walkToTile, true);
                 return false;
             }
@@ -1962,7 +1962,7 @@ bool Creature::handleFindHomeAction(const CreatureAction& actionItem)
             std::list<Tile*> tempPath = getGameMap()->path(this, tempTile);
             if (setWalkPath(tempPath, 1, false))
             {
-                setAnimationState("Walk");
+                setAnimationState(EntityAnimation::walk_anim);
                 pushAction(CreatureActionType::walkToTile, true);
                 return false;
             }
@@ -2030,7 +2030,7 @@ bool Creature::handleFindHomeAction(const CreatureAction& actionItem)
     {
         if (setWalkPath(tempPath, 2, false))
         {
-            setAnimationState("Walk");
+            setAnimationState(EntityAnimation::walk_anim);
             pushAction(CreatureActionType::walkToTile, true);
             return false;
         }
@@ -2145,7 +2145,7 @@ bool Creature::handleJobAction(const CreatureAction& actionItem)
                 std::list<Tile*> tempPath = getGameMap()->path(this, tileDest);
                 if (setWalkPath(tempPath, 0, false))
                 {
-                    setAnimationState("Walk");
+                    setAnimationState(EntityAnimation::walk_anim);
                     pushAction(CreatureActionType::walkToTile, true);
                     return false;
                 }
@@ -2179,7 +2179,7 @@ bool Creature::handleJobAction(const CreatureAction& actionItem)
                 std::list<Tile*> tempPath = getGameMap()->path(this, tileDest);
                 if (setWalkPath(tempPath, 0, false))
                 {
-                    setAnimationState("Walk");
+                    setAnimationState(EntityAnimation::walk_anim);
                     pushAction(CreatureActionType::walkToTile, true);
                     return false;
                 }
@@ -2213,7 +2213,7 @@ bool Creature::handleEatingAction(const CreatureAction& actionItem)
     {
         --mEatCooldown;
         // We do nothing
-        setAnimationState("Idle");
+        setAnimationState(EntityAnimation::idle_anim);
         return false;
     }
 
@@ -2276,7 +2276,7 @@ bool Creature::handleEatingAction(const CreatureAction& actionItem)
             computeCreatureOverlayHealthValue();
             Ogre::Vector3 walkDirection = Ogre::Vector3(closestChickenTile->getX(), closestChickenTile->getY(), 0) - getPosition();
             walkDirection.normalise();
-            setAnimationState("Attack1", false, walkDirection);
+            setAnimationState(EntityAnimation::attack_anim, false, walkDirection);
             return false;
         }
 
@@ -2301,7 +2301,7 @@ bool Creature::handleEatingAction(const CreatureAction& actionItem)
 
         if(setWalkPath(pathToChicken, 0, false))
         {
-            setAnimationState("Walk");
+            setAnimationState(EntityAnimation::walk_anim);
             pushAction(CreatureActionType::walkToTile, true);
             return false;
         }
@@ -2363,7 +2363,7 @@ bool Creature::handleEatingAction(const CreatureAction& actionItem)
     std::list<Tile*> tempPath = getGameMap()->path(this, tempTile);
     if (tempPath.size() < maxDistance && setWalkPath(tempPath, 2, false))
     {
-        setAnimationState("Walk");
+        setAnimationState(EntityAnimation::walk_anim);
         pushAction(CreatureActionType::walkToTile, true);
         return false;
     }
@@ -2433,7 +2433,7 @@ bool Creature::handleAttackAction(const CreatureAction& actionItem)
     // Turn to face the creature we are attacking and set the animation state to Attack.
     Ogre::Vector3 walkDirection(attackedTile->getX() - getPosition().x, attackedTile->getY() - getPosition().y, 0);
     walkDirection.normalise();
-    setAnimationState("Attack1", false, walkDirection);
+    setAnimationState(EntityAnimation::attack_anim, false, walkDirection);
 
     fireCreatureSound(CreatureSoundType::ATTACK);
 
@@ -2591,7 +2591,7 @@ bool Creature::handleSleepAction(const CreatureAction& actionItem)
     else
     {
         // We are at the home tile so sleep.
-        setAnimationState("Sleep");
+        setAnimationState(EntityAnimation::sleep_anim, false);
         // Improve awakeness
         mAwakeness += 1.5;
         if (mAwakeness > 100.0)
@@ -2634,7 +2634,7 @@ bool Creature::handleFleeAction(const CreatureAction& actionItem)
             result.resize(5);
             if (setWalkPath(result, 2, false))
             {
-                setAnimationState("Flee");
+                setAnimationState(EntityAnimation::flee_anim);
                 pushAction(CreatureActionType::walkToTile, true);
                 return true;
             }
@@ -2642,7 +2642,7 @@ bool Creature::handleFleeAction(const CreatureAction& actionItem)
     }
 
     // No dungeon temple is acessible or we are too near. We will wander randomly
-    wanderRandomly("Flee");
+    wanderRandomly(EntityAnimation::flee_anim);
     return false;
 }
 
@@ -2862,7 +2862,7 @@ bool Creature::handleGetFee(const CreatureAction& actionItem)
             std::list<Tile*> result = getGameMap()->path(this, tile);
             if (setWalkPath(result, 0, false))
             {
-                setAnimationState("Walk");
+                setAnimationState(EntityAnimation::walk_anim);
                 pushAction(CreatureActionType::walkToTile, true);
                 return true;
             }
@@ -2917,7 +2917,7 @@ bool Creature::handleLeaveDungeon(const CreatureAction& actionItem)
         std::list<Tile*> result = getGameMap()->path(this, tile);
         if (setWalkPath(result, 0, false))
         {
-            setAnimationState("Walk");
+            setAnimationState(EntityAnimation::walk_anim);
             pushAction(CreatureActionType::walkToTile, true);
             return true;
         }
@@ -3714,7 +3714,7 @@ bool Creature::setDestination(Tile* tile)
 
     if (setWalkPath(result, 2, false))
     {
-        setAnimationState("Walk");
+        setAnimationState(EntityAnimation::walk_anim);
         pushAction(CreatureActionType::walkToTile, true);
         return true;
     }
@@ -3743,7 +3743,7 @@ bool Creature::fightClosestObjectInList(const std::vector<GameEntity*>& listObje
     {
         // We couldn't find a way to the foe. We wander somewhere else
         popAction();
-        wanderRandomly("Walk");
+        wanderRandomly(EntityAnimation::walk_anim);
         return true;
     }
 
@@ -3779,7 +3779,7 @@ bool Creature::fightClosestObjectInList(const std::vector<GameEntity*>& listObje
 
     if (setWalkPath(tempPath, 1, false))
     {
-        setAnimationState("Walk");
+        setAnimationState(EntityAnimation::walk_anim);
         pushAction(CreatureActionType::walkToTile, true);
     }
 
@@ -3856,13 +3856,13 @@ bool Creature::fightInRangeObjectInList(const std::vector<GameEntity*>& listObje
     {
         // We couldn't find a way to the foe. We wander somewhere else
         popAction();
-        wanderRandomly("Walk");
+        wanderRandomly(EntityAnimation::walk_anim);
         return true;
     }
 
     if (setWalkPath(tempPath, 1, false))
     {
-        setAnimationState("Walk");
+        setAnimationState(EntityAnimation::walk_anim);
         pushAction(CreatureActionType::walkToTile, true);
     }
 

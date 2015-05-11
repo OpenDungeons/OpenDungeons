@@ -37,7 +37,6 @@ AbstractApplicationMode::~AbstractApplicationMode()
 
 bool AbstractApplicationMode::isConnected()
 {
-    //TODO: isConnected is used in some places to know if the game is started. We should use something better
     return (ODServer::getSingleton().isConnected() || ODClient::getSingleton().isConnected());
 }
 
@@ -68,9 +67,6 @@ bool AbstractApplicationMode::keyPressed(const OIS::KeyEvent& arg)
 {
     switch (arg.key)
     {
-    case OIS::KC_ESCAPE:
-        regressMode();
-        break;
     default:
         CEGUI::System::getSingleton().getDefaultGUIContext().injectChar(
             static_cast<CEGUI::String::value_type>(arg.text));
@@ -89,16 +85,12 @@ bool AbstractApplicationMode::keyReleased(const OIS::KeyEvent& arg)
 
 void AbstractApplicationMode::giveFocus()
 {
-    mModeManager->getInputManager()->mMouse->setEventCallback(this);
-    mModeManager->getInputManager()->mKeyboard->setEventCallback(this);
+    mModeManager->getInputManager().mMouse->setEventCallback(this);
+    mModeManager->getInputManager().mKeyboard->setEventCallback(this);
 }
 
-void AbstractApplicationMode::subscribeCloseButton(CEGUI::Window& rootWindow)
+bool AbstractApplicationMode::goBack(const CEGUI::EventArgs&)
 {
-    CEGUI::Window* closeButton = rootWindow.getChild("__auto_closebutton__");
-    addEventConnection(
-        closeButton->subscribeEvent(
-          CEGUI::PushButton::EventClicked,
-          CEGUI::Event::Subscriber(&AbstractApplicationMode::regressMode,
-              this)));
+    mModeManager->requestPreviousMode();
+    return true;
 }

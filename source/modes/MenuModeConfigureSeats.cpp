@@ -43,7 +43,7 @@ const std::string COMBOBOX_TEAM_ID_PREFIX = "ComboTeam";
 const std::string COMBOBOX_PLAYER_FACTION_PREFIX = "ComboPlayerFactionSeat";
 const std::string COMBOBOX_PLAYER_PREFIX = "ComboPlayerSeat";
 
-MenuModeConfigureSeats::MenuModeConfigureSeats(ModeManager *modeManager):
+MenuModeConfigureSeats::MenuModeConfigureSeats(ModeManager* modeManager):
     AbstractApplicationMode(modeManager, ModeManager::MENU_CONFIGURE_SEATS),
     mIsActivePlayerConfig(false)
 {
@@ -60,7 +60,7 @@ MenuModeConfigureSeats::MenuModeConfigureSeats(ModeManager *modeManager):
             CEGUI::Event::Subscriber(&MenuModeConfigureSeats::goBack, this)
         )
     );
-    subscribeCloseButton(*window->getChild("ListPlayers"));
+
     addEventConnection(
         window->getChild("ListPlayers/__auto_closebutton__")->subscribeEvent(
             CEGUI::PushButton::EventClicked,
@@ -315,7 +315,8 @@ bool MenuModeConfigureSeats::goBack(const CEGUI::EventArgs&)
     {
         ODServer::getSingleton().stopServer();
     }
-    regressMode();
+
+    getModeManager().requestPreviousMode();
     return true;
 }
 

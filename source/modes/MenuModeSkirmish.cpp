@@ -62,11 +62,17 @@ MenuModeSkirmish::MenuModeSkirmish(ModeManager *modeManager):
     addEventConnection(
         window->getChild(Gui::SKM_BUTTON_BACK)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&MenuModeSkirmish::regressMode,
+            CEGUI::Event::Subscriber(&AbstractApplicationMode::goBack,
                                      static_cast<AbstractApplicationMode*>(this))
         )
     );
-    subscribeCloseButton(*window->getChild("LevelWindowFrame"));
+    addEventConnection(
+        window->getChild("LevelWindowFrame/__auto_closebutton__")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&AbstractApplicationMode::goBack,
+                                     static_cast<AbstractApplicationMode*>(this))
+        )
+    );
 }
 
 void MenuModeSkirmish::activate()

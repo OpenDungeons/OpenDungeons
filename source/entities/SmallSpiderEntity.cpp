@@ -105,14 +105,14 @@ void SmallSpiderEntity::doUpkeep()
 
     if(moves.empty())
     {
-        setAnimationState("Idle");
+        setAnimationState(EntityAnimation::idle_anim);
         return;
     }
 
     for(Tile* tileDest : moves)
         addDestination(static_cast<Ogre::Real>(tileDest->getX()), static_cast<Ogre::Real>(tileDest->getY()));
 
-    setAnimationState("Walk");
+    setAnimationState(EntityAnimation::walk_anim);
 }
 
 bool SmallSpiderEntity::canSlap(Seat* seat)

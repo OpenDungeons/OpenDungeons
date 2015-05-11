@@ -1043,7 +1043,7 @@ bool ConfigManager::loadResearches(const std::string& fileName)
     int32_t pointsTrapSpike = 0;
     int32_t pointsSpellCallToWar = 0;
     int32_t pointsSpellCreatureHeal = 0;
-    int32_t pointsSpellCreatureExplode = 0;
+    int32_t pointsSpellCreatureExplosion = 0;
 
     LogManager::getSingleton().logMessage("Load Researches file: " + fileName);
     std::stringstream defFile;
@@ -1118,9 +1118,9 @@ bool ConfigManager::loadResearches(const std::string& fileName)
             continue;
         }
 
-        if(nextParam == "SpellCreatureExplode")
+        if(nextParam == "SpellCreatureExplosion")
         {
-            defFile >> pointsSpellCreatureExplode;
+            defFile >> pointsSpellCreatureExplosion;
             continue;
         }
     }
@@ -1171,9 +1171,9 @@ bool ConfigManager::loadResearches(const std::string& fileName)
     mResearches.push_back(research);
 
     depends.clear();
-    // CreatureExplode depends on CreatureHeal
+    // CreatureExplosion depends on CreatureHeal
     depends.push_back(research);
-    research = new Research(ResearchType::spellCreatureExplode, pointsSpellCreatureExplode, depends);
+    research = new Research(ResearchType::spellCreatureExplosion, pointsSpellCreatureExplosion, depends);
     mResearches.push_back(research);
     return true;
 }

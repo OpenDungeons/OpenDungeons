@@ -834,13 +834,33 @@ void RenderManager::rrSetObjectAnimationState(MovableGameEntity* curAnimatedObje
     std::string anim = animation;
 
     // Handle the case where this entity does not have the requested animation.
-    if (!objectEntity->getSkeleton()->hasAnimation(anim))
+    while (!objectEntity->getSkeleton()->hasAnimation(anim))
     {
         // Try to change the unexisting animation to a close existing one.
-        if (anim == "Flee")
-            anim = "Walk";
+        if (anim == EntityAnimation::sleep_anim)
+        {
+            anim = EntityAnimation::die_anim;
+            continue;
+        }
+        else if (anim == EntityAnimation::die_anim)
+        {
+            anim = EntityAnimation::idle_anim;
+            break;
+        }
+
+        if (anim == EntityAnimation::flee_anim)
+        {
+            anim = EntityAnimation::walk_anim;
+        }
+        else if (anim == EntityAnimation::dig_anim || anim == EntityAnimation::claim_anim)
+        {
+            anim = EntityAnimation::attack_anim;
+        }
         else
-            anim = "Idle";
+        {
+            anim = EntityAnimation::idle_anim;
+            break;
+        }
     }
 
     if (objectEntity->getSkeleton()->hasAnimation(anim))

@@ -105,7 +105,7 @@ public:
     static const std::string BUTTON_SPELL_SUMMON_WORKER;
     static const std::string BUTTON_SPELL_CALLTOWAR;
     static const std::string BUTTON_SPELL_CREATURE_HEAL;
-    static const std::string BUTTON_SPELL_CREATURE_EXPLODE;
+    static const std::string BUTTON_SPELL_CREATURE_EXPLOSION;
     static const std::string TAB_CREATURES;
     static const std::string BUTTON_CREATURE_WORKER;
     static const std::string BUTTON_CREATURE_FIGHTER;

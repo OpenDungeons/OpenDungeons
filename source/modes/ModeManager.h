@@ -27,7 +27,6 @@
 #include <memory>
 
 class AbstractApplicationMode;
-class ConsoleMode;
 class CameraManager;
 class Gui;
 
@@ -46,109 +45,23 @@ public:
     void update(const Ogre::FrameEvent& evt);
 
     AbstractApplicationMode* getCurrentMode();
-    ModeType getCurrentModeType();
+    ModeType getCurrentModeType() const;
 
-    //! \brief Get current mode, if console, get underlying mode.
-    ModeType getCurrentModeTypeExceptConsole() const;
-
-    //! \brief Request loading main menu mode at next update
-    void requestMenuMode(bool discardActualMode = false)
-    {
-        mRequestedMode = ModeManager::MENU;
-        mDiscardActualMode = discardActualMode;
-    }
-
-    //! \brief Request loading level selection menu mode at next update
-    void requestMenuSingleplayerMode(bool discardActualMode = false)
-    {
-        mRequestedMode = ModeManager::MENU_SKIRMISH;
-        mDiscardActualMode = discardActualMode;
-    }
-
-    //! \brief Request loading level selection menu mode at next update
-    void requestMenuReplayMode(bool discardActualMode = false)
-    {
-        mRequestedMode = ModeManager::MENU_REPLAY;
-        mDiscardActualMode = discardActualMode;
-    }
-
-    //! \brief Request Multiplayer menu mode at next update
-    void requestMenuMultiplayerClientMode(bool discardActualMode = false)
-    {
-        mRequestedMode = ModeManager::MENU_MULTIPLAYER_CLIENT;
-        mDiscardActualMode = discardActualMode;
-    }
-
-    //! \brief Request Multiplayer menu mode at next update
-    void requestMenuMultiplayerServerMode(bool discardActualMode = false)
-    {
-        mRequestedMode = ModeManager::MENU_MULTIPLAYER_SERVER;
-        mDiscardActualMode = discardActualMode;
-    }
-
-    //! \brief Request Editor menu mode at next update
-    void requestMenuEditorMode(bool discardActualMode = false)
-    {
-        mRequestedMode = ModeManager::MENU_EDITOR;
-        mDiscardActualMode = discardActualMode;
-    }
-
-    //! \brief Request loading editor mode at next update
-    void requestEditorMode(bool discardActualMode = false)
-    {
-        mRequestedMode = ModeManager::EDITOR;
-        mDiscardActualMode = discardActualMode;
-    }
-
-    //! \brief Request loading console mode at next update
-    void requestConsoleMode(bool discardActualMode = false)
-    {
-        mRequestedMode = ModeManager::CONSOLE;
-        mDiscardActualMode = discardActualMode;
-    }
-
-    //! \brief Request loading FPP mode at next update
-    void requestFppMode(bool discardActualMode = false)
-    {
-        mRequestedMode = ModeManager::FPP;
-        mDiscardActualMode = discardActualMode;
-    }
-
-    //! \brief Request loading game mode at next update
-    void requestGameMode(bool discardActualMode = false)
-    {
-        mRequestedMode = ModeType::GAME;
-        mDiscardActualMode = discardActualMode;
-     }
-
-    //! \brief Request loading the game seat configuration screen
-    void requestConfigureSeatsMode(bool discardActualMode = false)
-    {
-        mRequestedMode = ModeType::MENU_CONFIGURE_SEATS;
-        mDiscardActualMode = discardActualMode;
-    }
-
-    void requestMode(ModeType mode)
+    //! \brief Request loading the given game mode
+    void requestMode(ModeType mode, bool keepCurrentModeInHistory = true)
     {
         mRequestedMode = mode;
+        mStoreCurrentModeAtChange = keepCurrentModeInHistory;
     }
 
-    //! \brief Request unloading the current mode and activate the parent one
-    //! at next update
-    void requestUnloadToParentMode()
-    {
-        mRequestedMode = PREV;
-    }
+    //! \brief Request to load the previous mode type.
+    void requestPreviousMode();
 
-    InputManager* getInputManager()
-    {
-        return &mInputManager;
-    }
+    InputManager& getInputManager()
+    { return mInputManager; }
 
     Gui& getGui()
-    {
-        return *mGui;
-    }
+    { return *mGui; }
 
 private:
     //! \brief The common input manager instance
@@ -157,29 +70,21 @@ private:
     //! \brief Pointer to the GUI instance
     Gui* mGui;
 
-    //! \brief A unique console mode instance, shared between game modes.
-    std::unique_ptr<ConsoleMode> mConsoleMode;
+    //! \brief The currently loaded mode.
+    std::unique_ptr<AbstractApplicationMode> mCurrentApplicationMode;
 
-    //! \brief Tells whether the user is in console mode.
-    bool mIsInConsole;
-
-    //! \brief The vector containing the loaded modes.
-    //! The active one is either the last one, or the console when
-    //! mIsInConsole is equal to true.
-    std::vector<std::unique_ptr<AbstractApplicationMode>> mApplicationModes;
+    //! \brief Stores the order of modes loaded. Useful when used to go back to the previous mode.
+    std::vector<ModeType> mPreviousModeTypes;
 
     //! \brief Tells which new mode is requested.
     ModeManager::ModeType mRequestedMode;
 
-    //! \brief When the new mode will be set, if true, the actual one will be
-    //! discarded. That allows to use temporary menu
-    bool mDiscardActualMode;
+    //! \brief Tells whether the current mode should be kept in history
+    //! when changing from the current mode.
+    bool mStoreCurrentModeAtChange;
 
     //! \brief Actually change the mode if needed
     void checkModeChange();
-
-    void addMode(ModeType);
-    void removeMode();
 };
 
 #endif // MODEMANAGER_H

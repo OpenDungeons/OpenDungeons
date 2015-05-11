@@ -32,8 +32,8 @@
 #include "entities/TreasuryObject.h"
 #include "gamemap/GameMap.h"
 #include "network/ODPacket.h"
-#include "spell/Spell.h"
-#include "spell/SpellManager.h"
+#include "spells/Spell.h"
+#include "spells/SpellManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 

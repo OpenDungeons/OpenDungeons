@@ -44,7 +44,7 @@ MenuModeLoad::MenuModeLoad(ModeManager *modeManager):
     addEventConnection(
         window->getChild("LevelWindowFrame/BackButton")->subscribeEvent(
             CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&MenuModeLoad::regressMode,
+            CEGUI::Event::Subscriber(&AbstractApplicationMode::goBack,
                                      static_cast<AbstractApplicationMode*>(this))
         )
     );
@@ -72,7 +72,13 @@ MenuModeLoad::MenuModeLoad(ModeManager *modeManager):
             CEGUI::Event::Subscriber(&MenuModeLoad::launchSelectedButtonPressed, this)
         )
     );
-    subscribeCloseButton(*window->getChild("LevelWindowFrame"));
+    addEventConnection(
+        window->getChild("LevelWindowFrame/__auto_closebutton__")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&AbstractApplicationMode::goBack,
+                                     static_cast<AbstractApplicationMode*>(this))
+        )
+    );
 }
 
 void MenuModeLoad::activate()

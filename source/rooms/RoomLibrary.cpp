@@ -162,7 +162,7 @@ bool RoomLibrary::addCreatureUsingRoom(Creature* creature)
         creature->setWalkPath(pathToSpot, 0, false);
         // We add the last step to take account of the offset
         creature->addDestination(wantedX, wantedY);
-        creature->setAnimationState("Walk");
+        creature->setAnimationState(EntityAnimation::walk_anim);
     }
 
     return true;
@@ -238,14 +238,14 @@ void RoomLibrary::doUpkeep()
         {
             if (creature->getJobCooldown() > 0)
             {
-                creature->setAnimationState("Idle");
+                creature->setAnimationState(EntityAnimation::idle_anim);
                 creature->setJobCooldown(creature->getJobCooldown() - 1);
             }
             else
             {
                 Ogre::Vector3 walkDirection(ro->getPosition().x - creature->getPosition().x, ro->getPosition().y - creature->getPosition().y, 0);
                 walkDirection.normalise();
-                creature->setAnimationState("Attack1", false, walkDirection);
+                creature->setAnimationState(EntityAnimation::attack_anim, false, walkDirection);
 
                 ro->setAnimationState("Triggered", false);
 

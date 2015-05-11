@@ -1,0 +1,57 @@
+<GUIScheme name="OpenDungeons" version="5">
+    <Imageset filename="ODSkin.imageset" name="OpenDungeonsSkin" />
+    <Imageset filename="ODIcons.imageset" name="OpenDungeonsIcons" />
+    <Imageset filename="ODLogo.imageset" name="ODLogo" />
+    <Imageset filename="ODBackgrounds.imageset" name="ODBackgrounds" />
+    <Imageset filename="ODMainMenuButtons.imageset" name="ODMainMenuButtons" />
+    <Imageset filename="ODMainMenuBackground.imageset" name="ODMainMenuBackground" />
+    <Font filename="fonts/LiberationSans-10.font" name="LiberationSans-10" />
+    <Font filename="fonts/MedievalSharp-10.font" name="MedievalSharp-10" />
+    <Font filename="fonts/MedievalSharp-12.font" name="MedievalSharp-12" />
+    <LookNFeel filename="OD.looknfeel" />
+    <WindowRendererSet filename="CEGUICoreWindowRendererSet" />
+    <FalagardMapping lookNFeel="OD/Button" renderer="Core/Button" targetType="CEGUI/PushButton" windowType="OD/Button" />
+    <FalagardMapping lookNFeel="OD/Button" renderer="Core/Button" targetType="CEGUI/PushButton" windowType="OD/SystemButton" />
+    <FalagardMapping lookNFeel="OD/ImageButton" renderer="Core/Button" targetType="CEGUI/PushButton" windowType="OD/ImageButton" />
+    <FalagardMapping lookNFeel="OD/IconButton" renderer="Core/Button" targetType="CEGUI/PushButton" windowType="OD/IconButton" />
+    <FalagardMapping lookNFeel="OD/GameTabButton" renderer="Core/Button" targetType="CEGUI/PushButton" windowType="OD/GameTabButton" />
+    <FalagardMapping lookNFeel="OD/InvisibleButton" renderer="Core/Button" targetType="CEGUI/PushButton" windowType="OD/InvisibleButton" />
+    <FalagardMapping lookNFeel="OD/MainMenuButton" renderer="Core/Button" targetType="CEGUI/PushButton" windowType="OD/MainMenuButton" />
+    <FalagardMapping lookNFeel="OD/Checkbox" renderer="Core/ToggleButton" targetType="CEGUI/ToggleButton" windowType="OD/Checkbox" />
+    <FalagardMapping lookNFeel="OD/RadioButton" renderer="Core/ToggleButton" targetType="CEGUI/RadioButton" windowType="OD/RadioButton" />
+    <FalagardMapping lookNFeel="OD/FrameWindow" renderer="Core/FrameWindow" targetType="CEGUI/FrameWindow" windowType="OD/FrameWindow" />
+    <FalagardMapping lookNFeel="OD/Titlebar" renderer="Core/Titlebar" targetType="CEGUI/Titlebar" windowType="OD/Titlebar" />
+    <FalagardMapping lookNFeel="OD/Editbox" renderer="Core/Editbox" targetType="CEGUI/Editbox" windowType="OD/Editbox" />
+    <FalagardMapping lookNFeel="OD/MultiLineEditbox" renderer="Core/MultiLineEditbox" targetType="CEGUI/MultiLineEditbox" windowType="OD/MultiLineEditbox" />
+    <FalagardMapping lookNFeel="OD/Menubar" renderer="Core/Menubar" targetType="CEGUI/Menubar" windowType="OD/Menubar" />
+    <FalagardMapping lookNFeel="OD/PopupMenu" renderer="Core/PopupMenu" targetType="CEGUI/PopupMenu" windowType="OD/PopupMenu" />
+    <FalagardMapping lookNFeel="OD/MenuItem" renderer="Core/MenuItem" targetType="CEGUI/MenuItem" windowType="OD/MenuItem" />
+    <FalagardMapping lookNFeel="OD/AltProgressBar" renderer="Core/ProgressBar" targetType="CEGUI/ProgressBar" windowType="OD/AlternateProgressBar" />
+    <FalagardMapping lookNFeel="OD/ProgressBar" renderer="Core/ProgressBar" targetType="CEGUI/ProgressBar" windowType="OD/ProgressBar" />
+    <FalagardMapping lookNFeel="OD/VUMeter" renderer="Core/ProgressBar" targetType="CEGUI/ProgressBar" windowType="OD/VUMeter" />
+    <FalagardMapping lookNFeel="OD/VerticalScrollbar" renderer="Core/Scrollbar" targetType="CEGUI/Scrollbar" windowType="OD/VerticalScrollbar" />
+    <FalagardMapping lookNFeel="OD/HorizontalScrollbar" renderer="Core/Scrollbar" targetType="CEGUI/Scrollbar" windowType="OD/HorizontalScrollbar" />
+    <FalagardMapping lookNFeel="OD/VerticalScrollbarThumb" renderer="Core/Button" targetType="CEGUI/Thumb" windowType="OD/VerticalScrollbarThumb" />
+    <FalagardMapping lookNFeel="OD/HorizontalScrollbarThumb" renderer="Core/Button" targetType="CEGUI/Thumb" windowType="OD/HorizontalScrollbarThumb" />
+    <FalagardMapping lookNFeel="OD/TabButton" renderer="Core/TabButton" targetType="CEGUI/TabButton" windowType="OD/TabButton" />
+    <FalagardMapping lookNFeel="OD/TabControl" renderer="Core/TabControl" targetType="CEGUI/TabControl" windowType="OD/TabControl" />
+    <FalagardMapping lookNFeel="OD/TabContentPane" renderer="Core/Default" targetType="DefaultWindow" windowType="OD/TabContentPane" />
+    <FalagardMapping lookNFeel="OD/TabButtonPane" renderer="Core/Default" targetType="DefaultWindow" windowType="OD/TabButtonPane" />
+    <FalagardMapping lookNFeel="OD/ComboDropList" renderer="Core/Listbox" targetType="CEGUI/ComboDropList" windowType="OD/ComboDropList" />
+    <FalagardMapping lookNFeel="OD/ComboEditbox" renderer="Core/Editbox" targetType="CEGUI/Editbox" windowType="OD/ComboEditbox" />
+    <FalagardMapping lookNFeel="OD/ComboBoxButton" renderer="Core/Button" targetType="CEGUI/PushButton" windowType="OD/ComboBoxButton" />
+    <FalagardMapping lookNFeel="OD/Combobox" renderer="Core/Default" targetType="CEGUI/Combobox" windowType="OD/Combobox" />
+    <FalagardMapping lookNFeel="OD/Listbox" renderer="Core/Listbox" targetType="CEGUI/Listbox" windowType="OD/Listbox" />
+    <FalagardMapping lookNFeel="OD/ListHeader" renderer="Core/ListHeader" targetType="CEGUI/ListHeader" windowType="OD/ListHeader" />
+    <FalagardMapping lookNFeel="OD/ListHeaderSegment" renderer="Core/ListHeaderSegment" targetType="CEGUI/ListHeaderSegment" windowType="OD/ListHeaderSegment" />
+    <FalagardMapping lookNFeel="OD/MultiColumnList" renderer="Core/MultiColumnList" targetType="CEGUI/MultiColumnList" windowType="OD/MultiColumnList" />
+    <FalagardMapping lookNFeel="OD/HorizontalSlider" renderer="Core/Slider" targetType="CEGUI/Slider" windowType="OD/HorizontalSlider" />
+    <FalagardMapping lookNFeel="OD/HorizontalSliderThumb" renderer="Core/Button" targetType="CEGUI/Thumb" windowType="OD/HorizontalSliderThumb" />
+    <FalagardMapping lookNFeel="OD/VerticalSlider" renderer="Core/Slider" targetType="CEGUI/Slider" windowType="OD/VerticalSlider" />
+    <FalagardMapping lookNFeel="OD/VerticalSliderThumb" renderer="Core/Button" targetType="CEGUI/Thumb" windowType="OD/VerticalSliderThumb" />
+    <FalagardMapping lookNFeel="OD/ScrollablePane" renderer="Core/ScrollablePane" targetType="CEGUI/ScrollablePane" windowType="OD/ScrollablePane" />
+    <FalagardMapping lookNFeel="OD/Spinner" renderer="Core/Default" targetType="CEGUI/Spinner" windowType="OD/Spinner" />
+    <FalagardMapping lookNFeel="OD/Tooltip" renderer="Core/Tooltip" targetType="CEGUI/Tooltip" windowType="OD/Tooltip" />
+    <FalagardMapping lookNFeel="OD/StaticImage" renderer="Core/StaticImage" targetType="DefaultWindow" windowType="OD/StaticImage" />
+    <FalagardMapping lookNFeel="OD/StaticText" renderer="Core/StaticText" targetType="DefaultWindow" windowType="OD/StaticText" />
+</GUIScheme>

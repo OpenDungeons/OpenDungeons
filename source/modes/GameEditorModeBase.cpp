@@ -17,6 +17,8 @@
 
 #include "GameEditorModeBase.h"
 
+#include "GameEditorModeConsole.h"
+
 #include "gamemap/GameMap.h"
 #include "network/ChatEventMessage.h"
 #include "render/Gui.h"
@@ -24,12 +26,13 @@
 #include "rooms/RoomType.h"
 #include "traps/TrapType.h"
 #include "utils/Helper.h"
+#include "utils/MakeUnique.h"
 
 #include <CEGUI/widgets/PushButton.h>
 #include <CEGUI/widgets/Scrollbar.h>
 
 namespace {
-    //Functors for binding gui actions to spell/room/trap selection.
+    //Functors for binding gui actions to spells/room/trap selection.
     class RoomSelector
     {
     public:
@@ -80,11 +83,13 @@ namespace {
     };
 }
 
-GameEditorModeBase::GameEditorModeBase(ModeManager *modeManager, ModeManager::ModeType modeType, CEGUI::Window* rootWindow)
-    : AbstractApplicationMode(modeManager, modeType),
-      mRootWindow(rootWindow),
-      mGameMap(ODFrameListener::getSingletonPtr()->getClientGameMap()),
-      mMiniMap(rootWindow->getChild(Gui::MINIMAP))
+GameEditorModeBase::GameEditorModeBase(ModeManager* modeManager, ModeManager::ModeType modeType, CEGUI::Window* rootWindow) :
+    AbstractApplicationMode(modeManager, modeType),
+    mCurrentInputMode(InputModeNormal),
+    mRootWindow(rootWindow),
+    mGameMap(ODFrameListener::getSingletonPtr()->getClientGameMap()),
+    mMiniMap(rootWindow->getChild(Gui::MINIMAP)),
+    mConsole(Utils::make_unique<GameEditorModeConsole>(modeManager))
 {
     addEventConnection(
         rootWindow->getChild(Gui::MINIMAP)->subscribeEvent(
@@ -266,4 +271,51 @@ void GameEditorModeBase::updateMessages(Ogre::Real update_time)
         shortNoticeText->setText(ceguiStr);
         scrollBar->setScrollPosition(scrollPosition);
     }
+}
+
+void GameEditorModeBase::syncTabButtonTooltips(const CEGUI::String& tabControlName)
+{
+    // For each pane, we setup the corresponding tab button name.
+    CEGUI::Window* tabControl = nullptr;
+    try {
+        tabControl = mRootWindow->getChild(tabControlName + "/__auto_TabPane__");
+    }
+    catch (std::exception& e)
+    {
+    }
+    if (tabControl == nullptr)
+        return;
+
+    for(size_t i = 0; i < tabControl->getChildCount(); ++i)
+    {
+        CEGUI::Window* paneWin = tabControl->getChildAtIdx(i);
+
+        // Try to get the tabButton corresponding widget.
+        CEGUI::Window* tabButton = nullptr;
+        CEGUI::String buttonName = tabControlName + "/__auto_TabPane__Buttons/__auto_btn" + paneWin->getName();
+        try {
+            tabButton = mRootWindow->getChild(buttonName);
+        }
+        catch (std::exception& e)
+        {
+        }
+        if (tabButton == nullptr)
+            continue;
+
+        tabButton->setTooltipText(paneWin->getProperty<CEGUI::String>("TooltipText"));
+    }
+}
+
+void GameEditorModeBase::enterConsole()
+{
+    // We use a unique console instance.
+    mCurrentInputMode = InputModeConsole;
+    mConsole->activate();
+}
+
+void GameEditorModeBase::leaveConsole()
+{
+    // We're no more in console mode.
+    mCurrentInputMode = InputModeNormal;
+    activate();
 }

@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(test_ConsoleInterface)
                                         }
                                         return Command::Result::SUCCESS;
                                     },
-                                 {ModeManager::ModeType::ALL}
+                                 {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR}
 
             )
         );
