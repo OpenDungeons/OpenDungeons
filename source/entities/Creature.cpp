@@ -2591,7 +2591,7 @@ bool Creature::handleSleepAction(const CreatureAction& actionItem)
     else
     {
         // We are at the home tile so sleep.
-        setAnimationState(EntityAnimation::sleep_anim);
+        setAnimationState(EntityAnimation::sleep_anim, false);
         // Improve awakeness
         mAwakeness += 1.5;
         if (mAwakeness > 100.0)
