@@ -187,6 +187,7 @@ const std::string Gui::EXIT_CONFIRMATION_POPUP_NO_BUTTON = "ConfirmExit/NoOption
 const std::string Gui::SKM_TEXT_LOADING = "LoadingText";
 const std::string Gui::SKM_BUTTON_LAUNCH = "LevelWindowFrame/LaunchGameButton";
 const std::string Gui::SKM_BUTTON_BACK = "LevelWindowFrame/BackButton";
+const std::string Gui::SKM_LIST_LEVEL_TYPES = "LevelWindowFrame/LevelTypeSelect";
 const std::string Gui::SKM_LIST_LEVELS = "LevelWindowFrame/LevelSelect";
 
 const std::string Gui::MPM_TEXT_LOADING = "LoadingText";

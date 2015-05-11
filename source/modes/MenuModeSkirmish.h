@@ -30,11 +30,15 @@ public:
     void activate() final override;
 
     bool launchSelectedButtonPressed(const CEGUI::EventArgs&);
-    bool updateDescription(const CEGUI::EventArgs&);
+    bool updateDescription(const CEGUI::EventArgs& e = {});
 
 private:
     std::vector<std::string> mFilesList;
     std::vector<std::string> mDescriptionList;
+
+    //! \brief Update the level list
+    //! according to the level type chosen.
+    bool updateFilesList(const CEGUI::EventArgs& e = {});
 };
 
 #endif // MENUMODESKIRMISH_H
