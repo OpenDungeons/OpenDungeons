@@ -17,7 +17,7 @@
 
 #include "modes/GameMode.h"
 
-#include "modes/ConsoleMode.h"
+#include "modes/GameEditorModeConsole.h"
 
 #include "ODApplication.h"
 #include "camera/CameraManager.h"

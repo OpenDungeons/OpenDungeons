@@ -17,7 +17,7 @@
 
 #include "modes/EditorMode.h"
 
-#include "modes/ConsoleMode.h"
+#include "modes/GameEditorModeConsole.h"
 
 #include "gamemap/GameMap.h"
 #include "gamemap/MiniMap.h"

@@ -15,8 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CONSOLEMODE_H
-#define CONSOLEMODE_H
+#ifndef GAMEEDITORMODECONSOLE_H
+#define GAMEEDITORMODECONSOLE_H
 
 #include "AbstractApplicationMode.h"
 
@@ -33,11 +33,11 @@ class Listbox;
 class Editbox;
 }
 
-class ConsoleMode
+class GameEditorModeConsole
 {
 public:
 
-    ConsoleMode(ModeManager*);
+    GameEditorModeConsole(ModeManager*);
 
     bool keyPressed(const OIS::KeyEvent &arg);
 
@@ -59,4 +59,4 @@ private:
     bool leaveConsole(const CEGUI::EventArgs& e = {});
 };
 
-#endif // CONSOLEMODE_H
+#endif // GAMEEDITORMODECONSOLE_H

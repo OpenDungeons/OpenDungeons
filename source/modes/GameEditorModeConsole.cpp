@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ConsoleMode.h"
+#include "GameEditorModeConsole.h"
 
 #include "modes/ConsoleCommands.h"
 #include "render/Gui.h"
@@ -31,8 +31,8 @@
 #include <functional>
 #include <cassert>
 
-ConsoleMode::ConsoleMode(ModeManager* modeManager):
-    mConsoleInterface(std::bind(&ConsoleMode::printToConsole, this, std::placeholders::_1)),
+GameEditorModeConsole::GameEditorModeConsole(ModeManager* modeManager):
+    mConsoleInterface(std::bind(&GameEditorModeConsole::printToConsole, this, std::placeholders::_1)),
     mModeManager(modeManager)
 {
     ConsoleCommands::addConsoleCommands(mConsoleInterface);
@@ -46,26 +46,26 @@ ConsoleMode::ConsoleMode(ModeManager* modeManager):
     mEditboxWindow = static_cast<CEGUI::Editbox*>(editbox);
     CEGUI::Window* sendButton = consoleRootWindow->getChild("SendButton");
     sendButton->subscribeEvent(CEGUI::PushButton::EventClicked,
-                               CEGUI::Event::Subscriber(&ConsoleMode::executeCurrentPrompt, this));
+                               CEGUI::Event::Subscriber(&GameEditorModeConsole::executeCurrentPrompt, this));
     mEditboxWindow->subscribeEvent(CEGUI::Editbox::EventTextAccepted,
-                                   CEGUI::Event::Subscriber(&ConsoleMode::executeCurrentPrompt, this));
+                                   CEGUI::Event::Subscriber(&GameEditorModeConsole::executeCurrentPrompt, this));
 
     mConsoleHistoryWindow->getVertScrollbar()->setEndLockEnabled(true);
 
     // Permits closing the console.
     CEGUI::Window* closeButton = consoleRootWindow->getChild("__auto_closebutton__");
     closeButton->subscribeEvent(CEGUI::PushButton::EventClicked,
-                                CEGUI::Event::Subscriber(&ConsoleMode::leaveConsole, this));
+                                CEGUI::Event::Subscriber(&GameEditorModeConsole::leaveConsole, this));
 }
 
-void ConsoleMode::activate()
+void GameEditorModeConsole::activate()
 {
     // Loads the corresponding Gui sheet.
     mModeManager->getGui().loadGuiSheet(Gui::console);
     mEditboxWindow->activate();
 }
 
-bool ConsoleMode::keyPressed(const OIS::KeyEvent &arg)
+bool GameEditorModeConsole::keyPressed(const OIS::KeyEvent &arg)
 {
     switch(arg.key)
     {
@@ -109,12 +109,12 @@ bool ConsoleMode::keyPressed(const OIS::KeyEvent &arg)
     return true;
 }
 
-void ConsoleMode::printToConsole(const std::string& text)
+void GameEditorModeConsole::printToConsole(const std::string& text)
 {
     mConsoleHistoryWindow->addItem(new CEGUI::ListboxTextItem(text));
 }
 
-bool ConsoleMode::executeCurrentPrompt(const CEGUI::EventArgs& e)
+bool GameEditorModeConsole::executeCurrentPrompt(const CEGUI::EventArgs& e)
 {
     mConsoleInterface.tryExecuteCommand(mEditboxWindow->getText().c_str(),
                                         mModeManager->getCurrentModeType(),
@@ -123,7 +123,7 @@ bool ConsoleMode::executeCurrentPrompt(const CEGUI::EventArgs& e)
     return true;
 }
 
-bool ConsoleMode::leaveConsole(const CEGUI::EventArgs& /*e*/)
+bool GameEditorModeConsole::leaveConsole(const CEGUI::EventArgs& /*e*/)
 {
     if (mModeManager->getCurrentModeType() != AbstractModeManager::GAME
         && mModeManager->getCurrentModeType() != AbstractModeManager::EDITOR)

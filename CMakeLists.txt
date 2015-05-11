@@ -308,10 +308,10 @@ set(OD_SOURCEFILES
     ${SRC}/modes/Command.cpp
     ${SRC}/modes/ConsoleCommands.cpp
     ${SRC}/modes/ConsoleInterface.cpp
-    ${SRC}/modes/ConsoleMode.cpp
     ${SRC}/modes/EditorMode.cpp
     ${SRC}/modes/GameMode.cpp
     ${SRC}/modes/GameEditorModeBase.cpp
+    ${SRC}/modes/GameEditorModeConsole.cpp
     ${SRC}/modes/InputManager.cpp
     ${SRC}/modes/MenuModeMain.cpp
     ${SRC}/modes/MenuModeConfigureSeats.cpp

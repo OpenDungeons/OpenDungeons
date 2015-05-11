@@ -24,7 +24,7 @@
 #include "gamemap/MiniMap.h"
 
 class EntityBase;
-class ConsoleMode;
+class GameEditorModeConsole;
 
 namespace CEGUI
 {
@@ -105,14 +105,14 @@ protected:
     void enterConsole();
 
     //! \brief Get the console component.
-    ConsoleMode* getConsole()
-    { return mConsoleMode.get(); }
+    GameEditorModeConsole* getConsole()
+    { return mConsole.get(); }
 private:
     //! \brief The game event messages in queue.
     std::vector<EventMessage*> mEventMessages;
 
-    //! \brief The console mode instance.
-    std::unique_ptr<ConsoleMode> mConsoleMode;
+    //! \brief The console instance.
+    std::unique_ptr<GameEditorModeConsole> mConsole;
 
     //! \brief Minimap click event handler
     bool onMinimapClick(const CEGUI::EventArgs& arg);

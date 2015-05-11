@@ -17,7 +17,7 @@
 
 #include "GameEditorModeBase.h"
 
-#include "ConsoleMode.h"
+#include "GameEditorModeConsole.h"
 
 #include "gamemap/GameMap.h"
 #include "network/ChatEventMessage.h"
@@ -89,7 +89,7 @@ GameEditorModeBase::GameEditorModeBase(ModeManager* modeManager, ModeManager::Mo
     mRootWindow(rootWindow),
     mGameMap(ODFrameListener::getSingletonPtr()->getClientGameMap()),
     mMiniMap(rootWindow->getChild(Gui::MINIMAP)),
-    mConsoleMode(Utils::make_unique<ConsoleMode>(modeManager))
+    mConsole(Utils::make_unique<GameEditorModeConsole>(modeManager))
 {
     addEventConnection(
         rootWindow->getChild(Gui::MINIMAP)->subscribeEvent(
@@ -298,7 +298,7 @@ void GameEditorModeBase::enterConsole()
 {
     // We use a unique console instance.
     mCurrentInputMode = InputModeConsole;
-    mConsoleMode->activate();
+    mConsole->activate();
 }
 
 void GameEditorModeBase::leaveConsole()
