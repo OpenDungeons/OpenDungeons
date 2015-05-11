@@ -20,9 +20,6 @@
 
 #include "modes/AbstractApplicationMode.h"
 
-//TODO: Add Fpp support
-//#include "GameEditorModeFpp.h"
-
 #include "game/PlayerSelection.h"
 #include "gamemap/MiniMap.h"
 
@@ -92,9 +89,6 @@ protected:
 
     //! \brief The minimap used in this mode
     MiniMap mMiniMap;
-
-    //! \brief The FPP mode, used when possessing a creature.
-    //GameEditorModeFpp mFppMode;
 
     PlayerSelection mPlayerSelection;
 

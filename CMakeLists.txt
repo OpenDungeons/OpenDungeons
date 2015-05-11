@@ -312,7 +312,6 @@ set(OD_SOURCEFILES
     ${SRC}/modes/EditorMode.cpp
     ${SRC}/modes/GameMode.cpp
     ${SRC}/modes/GameEditorModeBase.cpp
-    ${SRC}/modes/GameEditorModeFpp.cpp
     ${SRC}/modes/InputManager.cpp
     ${SRC}/modes/MenuMode.cpp
     ${SRC}/modes/MenuModeConfigureSeats.cpp

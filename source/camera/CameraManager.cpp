@@ -81,10 +81,6 @@ CameraManager::CameraManager(Ogre::SceneManager* sceneManager, TileContainer* gm
                                               MAX_CAMERA_Z / 2.0),
                                               Ogre::Degree(0.0), Ogre::Degree(DEFAULT_X_AXIS_VIEW));
 
-    // FPP camera node. Disabled for now, until we readd the FPP game mode.
-    //createCamera("FPP", 0.02, 30.0);
-    //createCameraNode("FPP", Ogre::Vector3(), Ogre::Degree(0), Ogre::Degree(75), Ogre::Degree(0));
-
     setActiveCamera("RTS");
     setActiveCameraNode("RTS");
 
@@ -175,17 +171,6 @@ void CameraManager::createViewport(Ogre::RenderWindow* renderWindow)
     LogManager* logManager = LogManager::getSingletonPtr();
     logManager->logMessage("Creating viewport...");
 }
-/*
-void CameraManager::setFPPCamera(Creature* cc)
-{
-    // That should be done in the RenderManager
-#if 0
-    Ogre::SceneNode* tmpNode = mSceneManager->getSceneNode("FPP_node");
-    tmpNode->getParentSceneNode()->removeChild(tmpNode);
-    tmpNode->setInheritOrientation(true);
-    cc->getEntityNode()->addChild(tmpNode);
-#endif // 0
-}*/
 
 Ogre::SceneNode* CameraManager::getActiveCameraNode()
 {

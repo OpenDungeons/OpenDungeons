@@ -81,8 +81,6 @@ public:
         mAlpha = 0;
     }
 
-//    void setFPPCamera(Creature*);
-
     inline const Ogre::Vector3& getTranslateVectorAccel() const
     {
         return mTranslateVectorAccel;
