@@ -37,20 +37,18 @@ public:
         Ogre::Camera* cam);
     ~CreatureOverlayStatus();
 
-    void setDisplay(bool display);
-    void setTemporaryDisplayTime(Ogre::Real timeToDisplay);
+    void displayHealthOverlay(Ogre::Real timeToDisplay);
     void update(Ogre::Real timeSincelastFrame);
 
 private:
-    void updateMaterial(Seat* seat, uint32_t value);
+    void updateHealth(Seat* seat, uint32_t value, unsigned int level);
 
     Creature* mCreature;
     Seat* mSeat;
     MovableTextOverlay* mMovableTextOverlay;
     uint32_t mHealthValue;
     unsigned int mLevel;
-    bool mDisplay;
-    Ogre::Real mTimeToDisplay;
+    std::vector<uint32_t> mOverlayIds;
 };
 
 #endif // CREATUREOVERLAYSTATUS_H

@@ -23,85 +23,74 @@
 #include "render/RenderManager.h"
 #include "utils/Helper.h"
 
+enum class CreatureOverlays
+{
+    health,
+    status,
+    nbCreatureOverlays
+};
+
 CreatureOverlayStatus::CreatureOverlayStatus(Creature* creature, Ogre::Entity* ent,
         Ogre::Camera* cam) :
     mCreature(creature),
     mMovableTextOverlay(nullptr),
     mHealthValue(0),
     mLevel(0),
-    mDisplay(false),
-    mTimeToDisplay(0.0)
+    mOverlayIds(std::vector<uint32_t>(static_cast<uint32_t>(CreatureOverlays::nbCreatureOverlays), 0))
 {
     mMovableTextOverlay = new MovableTextOverlay(creature->getName(),
-        ent, cam, "MedievalSharp", 16, Ogre::ColourValue::White, "");
-    mMovableTextOverlay->setCaption(Helper::toString(creature->getLevel()));
-    mLevel = creature->getLevel();
-    mSeat = creature->getSeat();
-    mMovableTextOverlay->forceTextArea(42,42);
-    mMovableTextOverlay->setDisplay(false);
+        ent, cam);
 
-    updateMaterial(mCreature->getSeat(), mCreature->getOverlayHealthValue());
+    uint32_t healthId = mMovableTextOverlay->createChildOverlay("MedievalSharp", 16, Ogre::ColourValue::White, "");
+    mOverlayIds[static_cast<uint32_t>(CreatureOverlays::health)] = healthId;
+    mMovableTextOverlay->setCaption(healthId, Helper::toString(creature->getLevel()));
+    mMovableTextOverlay->forceTextArea(healthId, 42,42);
+    mMovableTextOverlay->displayOverlay(healthId, 0);
+
+    updateHealth(mCreature->getSeat(), mCreature->getOverlayHealthValue(), mCreature->getLevel());
 }
 
 CreatureOverlayStatus::~CreatureOverlayStatus()
 {
-    setDisplay(false);
     delete mMovableTextOverlay;
 }
 
-void CreatureOverlayStatus::setDisplay(bool display)
+void CreatureOverlayStatus::displayHealthOverlay(Ogre::Real timeToDisplay)
 {
-    mDisplay = display;
-    mMovableTextOverlay->setDisplay(display);
+    uint32_t healthId = mOverlayIds[static_cast<uint32_t>(CreatureOverlays::health)];
+    mMovableTextOverlay->displayOverlay(healthId, timeToDisplay);
 }
 
-void CreatureOverlayStatus::setTemporaryDisplayTime(Ogre::Real timeToDisplay)
+void CreatureOverlayStatus::updateHealth(Seat* seat, uint32_t value, unsigned int level)
 {
-    mTimeToDisplay = timeToDisplay;
-    mMovableTextOverlay->setDisplay(true);
-}
-
-void CreatureOverlayStatus::updateMaterial(Seat* seat, uint32_t value)
-{
-   // We adapt the material
-    mHealthValue = value;
-    mSeat = seat;
-    std::string material = RenderManager::getSingleton().rrBuildSkullFlagMaterial(
+    // We adapt the material
+    if((mHealthValue != value) ||
+        (mSeat != seat))
+    {
+        mHealthValue = value;
+        mSeat = seat;
+        std::string material = RenderManager::getSingleton().rrBuildSkullFlagMaterial(
         "CreatureOverlay" + Helper::toString(mHealthValue),
         mSeat->getColorValue());
-    mMovableTextOverlay->setMaterialName(material);
+        uint32_t healthId = mOverlayIds[static_cast<uint32_t>(CreatureOverlays::health)];
+        mMovableTextOverlay->setMaterialName(healthId, material);
+    }
+
+    if(mLevel != level)
+    {
+        mLevel = level;
+        uint32_t healthId = mOverlayIds[static_cast<uint32_t>(CreatureOverlays::health)];
+        mMovableTextOverlay->setCaption(healthId, Helper::toString(mLevel));
+    }
 }
 
 void CreatureOverlayStatus::update(Ogre::Real timeSincelastFrame)
 {
     if((mCreature->getOverlayHealthValue() != mHealthValue) ||
-       (mCreature->getSeat() != mSeat))
+       (mCreature->getSeat() != mSeat) ||
+       (mCreature->getLevel() != mLevel))
     {
-        updateMaterial(mCreature->getSeat(), mCreature->getOverlayHealthValue());
-    }
-
-    if(mLevel != mCreature->getLevel())
-    {
-        mLevel = mCreature->getLevel();
-        mMovableTextOverlay->setCaption(Helper::toString(mLevel));
-    }
-
-    if(mTimeToDisplay > 0.0)
-    {
-        if(mDisplay)
-        {
-            mTimeToDisplay = 0.0;
-        }
-        else if(timeSincelastFrame < mTimeToDisplay)
-        {
-            mTimeToDisplay -= timeSincelastFrame;
-        }
-        else
-        {
-            // We don't need to show the overlay anymore
-            mTimeToDisplay = 0.0;
-            mMovableTextOverlay->setDisplay(false);
-        }
+        updateHealth(mCreature->getSeat(), mCreature->getOverlayHealthValue(), mCreature->getLevel());
     }
 
     mMovableTextOverlay->update(timeSincelastFrame);

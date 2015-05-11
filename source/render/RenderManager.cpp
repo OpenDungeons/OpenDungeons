@@ -508,7 +508,7 @@ void RenderManager::rrCreateCreature(Creature* curCreature)
     CreatureOverlayStatus* creatureOverlay = new CreatureOverlayStatus(curCreature, ent, cam);
     curCreature->setOverlayStatus(creatureOverlay);
 
-    creatureOverlay->setDisplay(mCreatureTextOverlayDisplayed);
+    creatureOverlay->displayHealthOverlay(mCreatureTextOverlayDisplayed ? -1.0 : 0.0);
 }
 
 void RenderManager::rrDestroyCreature(Creature* curCreature)
@@ -1082,12 +1082,12 @@ void RenderManager::rrSetCreaturesTextOverlay(GameMap& gameMap, bool value)
 {
     mCreatureTextOverlayDisplayed = value;
     for(Creature* creature : gameMap.getCreatures())
-        creature->getOverlayStatus()->setDisplay(mCreatureTextOverlayDisplayed);
+        creature->getOverlayStatus()->displayHealthOverlay(mCreatureTextOverlayDisplayed ? -1.0 : 0.0);
 }
 
 void RenderManager::rrTemporaryDisplayCreaturesTextOverlay(Creature* creature, Ogre::Real timeToDisplay)
 {
-    creature->getOverlayStatus()->setTemporaryDisplayTime(timeToDisplay);
+    creature->getOverlayStatus()->displayHealthOverlay(timeToDisplay);
 }
 
 void RenderManager::rrToggleHandSelectorVisibility()
