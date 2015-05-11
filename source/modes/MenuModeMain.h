@@ -15,15 +15,15 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MENUMODE_H
-#define MENUMODE_H
+#ifndef MENUMODEMAIN_H
+#define MENUMODEMAIN_H
 
 #include "AbstractApplicationMode.h"
 
-class MenuMode: public AbstractApplicationMode
+class MenuModeMain: public AbstractApplicationMode
 {
 public:
-    MenuMode(ModeManager*);
+    MenuModeMain(ModeManager*);
 
     //! \brief Called when the game mode is activated
     //! Used to call the corresponding Gui Sheet.
@@ -34,4 +34,4 @@ private:
     bool quitButtonPressed(const CEGUI::EventArgs&);
 };
 
-#endif // MENUMODE_H
+#endif // MENUMODEMAIN_H

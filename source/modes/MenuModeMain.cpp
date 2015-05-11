@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MenuMode.h"
+#include "MenuModeMain.h"
 
 #include "ODApplication.h"
 #include "gamemap/GameMap.h"
@@ -29,7 +29,6 @@
 
 namespace
 {
-    //FIXME: Rename this into mainmenumode.
 //! \brief Helper functor to change modes
 class ModeChanger
 {
@@ -40,12 +39,12 @@ public:
         return true;
     }
 
-    MenuMode* mMode;
+    MenuModeMain* mMode;
     AbstractModeManager::ModeType mNewMode;
 };
-}
+} // namespace
 
-MenuMode::MenuMode(ModeManager *modeManager):
+MenuModeMain::MenuModeMain(ModeManager *modeManager):
     AbstractApplicationMode(modeManager, ModeManager::MENU_MAIN)
 {
     connectModeChangeEvent(Gui::MM_BUTTON_MAPEDITOR, AbstractModeManager::ModeType::MENU_EDITOR);
@@ -57,12 +56,12 @@ MenuMode::MenuMode(ModeManager *modeManager):
     addEventConnection(
         getModeManager().getGui().getGuiSheet(Gui::mainMenu)->getChild(Gui::MM_BUTTON_QUIT)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&MenuMode::quitButtonPressed, this)
+            CEGUI::Event::Subscriber(&MenuModeMain::quitButtonPressed, this)
         )
     );
 }
 
-void MenuMode::activate()
+void MenuModeMain::activate()
 {
     // Loads the corresponding Gui sheet.
     getModeManager().getGui().loadGuiSheet(Gui::mainMenu);
@@ -80,7 +79,7 @@ void MenuMode::activate()
     gameMap->setGamePaused(true);
 }
 
-void MenuMode::connectModeChangeEvent(const std::string& buttonName, AbstractModeManager::ModeType mode)
+void MenuModeMain::connectModeChangeEvent(const std::string& buttonName, AbstractModeManager::ModeType mode)
 {
     CEGUI::Window* window = getModeManager().getGui().getGuiSheet(Gui::mainMenu);
 
@@ -92,7 +91,7 @@ void MenuMode::connectModeChangeEvent(const std::string& buttonName, AbstractMod
     );
 }
 
-bool MenuMode::quitButtonPressed(const CEGUI::EventArgs&)
+bool MenuModeMain::quitButtonPressed(const CEGUI::EventArgs&)
 {
     ODFrameListener::getSingletonPtr()->requestExit();
     return true;

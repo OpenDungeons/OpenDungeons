@@ -18,7 +18,7 @@
 #include "modes/ModeManager.h"
 
 #include "modes/InputManager.h"
-#include "modes/MenuMode.h"
+#include "modes/MenuModeMain.h"
 #include "modes/MenuModeConfigureSeats.h"
 #include "modes/MenuModeSkirmish.h"
 #include "modes/MenuModeMultiplayerClient.h"
@@ -39,7 +39,7 @@ ModeManager::ModeManager(Ogre::RenderWindow* renderWindow, Gui* gui) :
     mInputManager.mKeyboard->setTextTranslation(OIS::Keyboard::Unicode);
 
     // Loads the main menu
-    mCurrentApplicationMode = Utils::make_unique<MenuMode>(this);
+    mCurrentApplicationMode = Utils::make_unique<MenuModeMain>(this);
     mCurrentApplicationMode->activate();
 }
 
@@ -89,7 +89,7 @@ void ModeManager::checkModeChange()
     switch(mRequestedMode)
     {
     case MENU_MAIN:
-        mCurrentApplicationMode = Utils::make_unique<MenuMode>(this);
+        mCurrentApplicationMode = Utils::make_unique<MenuModeMain>(this);
         // In that case, we are at the root menu and should ensure to have
         // a clean mode type history
         mPreviousModeTypes.clear();
