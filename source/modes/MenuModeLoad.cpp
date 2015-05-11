@@ -44,7 +44,8 @@ MenuModeLoad::MenuModeLoad(ModeManager *modeManager):
     addEventConnection(
         window->getChild("LevelWindowFrame/BackButton")->subscribeEvent(
             CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&MenuModeLoad::goBack, this)
+            CEGUI::Event::Subscriber(&AbstractApplicationMode::goBack,
+                                     static_cast<AbstractApplicationMode*>(this))
         )
     );
     addEventConnection(
@@ -74,7 +75,8 @@ MenuModeLoad::MenuModeLoad(ModeManager *modeManager):
     addEventConnection(
         window->getChild("LevelWindowFrame/__auto_closebutton__")->subscribeEvent(
             CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&MenuModeLoad::goBack, this)
+            CEGUI::Event::Subscriber(&AbstractApplicationMode::goBack,
+                                     static_cast<AbstractApplicationMode*>(this))
         )
     );
 }
@@ -219,11 +221,5 @@ bool MenuModeLoad::updateDescription(const CEGUI::EventArgs&)
 
     descTxt->setText(mapDescription);
 
-    return true;
-}
-
-bool MenuModeLoad::goBack(const CEGUI::EventArgs &)
-{
-    getModeManager().requestMode(AbstractModeManager::MAIN_MENU);
     return true;
 }

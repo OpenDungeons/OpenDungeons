@@ -979,7 +979,7 @@ bool EditorMode::hideQuitMenu(const CEGUI::EventArgs& /*arg*/)
 bool EditorMode::onClickYesQuitMenu(const CEGUI::EventArgs& /*arg*/)
 {
     //TODO: Test whether the level was modified and ask accordingly.
-    mModeManager->requestMode(AbstractModeManager::MAIN_MENU);
+    mModeManager->requestMode(AbstractModeManager::MENU_MAIN);
     return true;
 }
 

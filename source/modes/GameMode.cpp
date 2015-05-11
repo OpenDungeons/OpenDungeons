@@ -1289,7 +1289,7 @@ void GameMode::notifyGuiAction(GuiAction guiAction)
 
 bool GameMode::onClickYesQuitMenu(const CEGUI::EventArgs& /*arg*/)
 {
-    mModeManager->requestMode(AbstractModeManager::MAIN_MENU);
+    mModeManager->requestMode(AbstractModeManager::MENU_MAIN);
     return true;
 }
 

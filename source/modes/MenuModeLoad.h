@@ -32,7 +32,7 @@ public:
     bool launchSelectedButtonPressed(const CEGUI::EventArgs&);
     bool deleteSelectedButtonPressed(const CEGUI::EventArgs&);
     bool updateDescription(const CEGUI::EventArgs&);
-    bool goBack(const CEGUI::EventArgs&);
+
 private:
     std::vector<std::string> mFilesList;
 };

@@ -46,7 +46,7 @@ public:
 }
 
 MenuMode::MenuMode(ModeManager *modeManager):
-    AbstractApplicationMode(modeManager, ModeManager::MAIN_MENU)
+    AbstractApplicationMode(modeManager, ModeManager::MENU_MAIN)
 {
     connectModeChangeEvent(Gui::MM_BUTTON_MAPEDITOR, AbstractModeManager::ModeType::MENU_EDITOR);
     connectModeChangeEvent(Gui::MM_BUTTON_START_SKIRMISH, AbstractModeManager::ModeType::MENU_SKIRMISH);

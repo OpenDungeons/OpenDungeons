@@ -62,13 +62,15 @@ MenuModeSkirmish::MenuModeSkirmish(ModeManager *modeManager):
     addEventConnection(
         window->getChild(Gui::SKM_BUTTON_BACK)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&MenuModeSkirmish::goBack, this)
+            CEGUI::Event::Subscriber(&AbstractApplicationMode::goBack,
+                                     static_cast<AbstractApplicationMode*>(this))
         )
     );
     addEventConnection(
         window->getChild("LevelWindowFrame/__auto_closebutton__")->subscribeEvent(
             CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&MenuModeSkirmish::goBack, this)
+            CEGUI::Event::Subscriber(&AbstractApplicationMode::goBack,
+                                     static_cast<AbstractApplicationMode*>(this))
         )
     );
 }
@@ -192,11 +194,5 @@ bool MenuModeSkirmish::updateDescription(const CEGUI::EventArgs&)
     std::string description = mDescriptionList[id];
     descTxt->setText(reinterpret_cast<const CEGUI::utf8*>(description.c_str()));
 
-    return true;
-}
-
-bool MenuModeSkirmish::goBack(const CEGUI::EventArgs &)
-{
-    getModeManager().requestMode(AbstractModeManager::MAIN_MENU);
     return true;
 }

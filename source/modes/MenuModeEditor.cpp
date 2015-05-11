@@ -46,7 +46,8 @@ MenuModeEditor::MenuModeEditor(ModeManager *modeManager):
     addEventConnection(
         window->getChild(Gui::EDM_BUTTON_BACK)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&MenuModeEditor::goBack, this)
+            CEGUI::Event::Subscriber(&AbstractApplicationMode::goBack,
+                                     static_cast<AbstractApplicationMode*>(this))
         )
     );
     addEventConnection(
@@ -70,7 +71,8 @@ MenuModeEditor::MenuModeEditor(ModeManager *modeManager):
     addEventConnection(
         window->getChild("LevelWindowFrame/__auto_closebutton__")->subscribeEvent(
             CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&MenuModeEditor::goBack, this)
+            CEGUI::Event::Subscriber(&AbstractApplicationMode::goBack,
+                                     static_cast<AbstractApplicationMode*>(this))
         )
     );
 }
@@ -230,10 +232,3 @@ bool MenuModeEditor::updateDescription(const CEGUI::EventArgs&)
     descTxt->setText(description);
     return true;
 }
-
-bool MenuModeEditor::goBack(const CEGUI::EventArgs &)
-{
-    getModeManager().requestMode(AbstractModeManager::MAIN_MENU);
-    return true;
-}
-

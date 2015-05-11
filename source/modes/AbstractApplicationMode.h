@@ -108,6 +108,9 @@ public:
     ModeManager::ModeType getModeType() const
     { return mModeType; }
 
+    //! \brief Common goBack function requesting previous game mode.
+    virtual bool goBack(const CEGUI::EventArgs& e = {});
+
 protected:
     ModeManager& getModeManager()
     {

@@ -32,7 +32,7 @@ public:
     bool launchSelectedButtonPressed(const CEGUI::EventArgs&);
     bool deleteSelectedButtonPressed(const CEGUI::EventArgs&);
     bool listReplaysClicked(const CEGUI::EventArgs&);
-    bool goBack(const CEGUI::EventArgs&);
+
 private:
     bool checkReplayValid(const std::string& replayFileName, std::string& mapDescription, std::string& errorMsg);
 

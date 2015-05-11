@@ -88,3 +88,9 @@ void AbstractApplicationMode::giveFocus()
     mModeManager->getInputManager().mMouse->setEventCallback(this);
     mModeManager->getInputManager().mKeyboard->setEventCallback(this);
 }
+
+bool AbstractApplicationMode::goBack(const CEGUI::EventArgs&)
+{
+    mModeManager->requestPreviousMode();
+    return true;
+}

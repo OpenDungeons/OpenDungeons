@@ -309,8 +309,6 @@ bool MenuModeConfigureSeats::launchSelectedButtonPressed(const CEGUI::EventArgs&
 
 bool MenuModeConfigureSeats::goBack(const CEGUI::EventArgs&)
 {
-    ServerMode serverMode = ODServer::getSingleton().getServerMode();
-
     // We disconnect client and, if we are server, the server
     ODClient::getSingleton().disconnect();
     if(ODServer::getSingleton().isConnected())
@@ -318,20 +316,7 @@ bool MenuModeConfigureSeats::goBack(const CEGUI::EventArgs&)
         ODServer::getSingleton().stopServer();
     }
 
-    // Go to the previous menu according to the serverMode
-    switch(serverMode)
-    {
-        case ServerMode::ModeEditor:
-        case ServerMode::ModeGameLoaded:
-        case ServerMode::ModeGameMultiPlayer:
-            // TODO: Make it possible to tell whether we were hosting or joining.
-        default:
-            getModeManager().requestMode(AbstractModeManager::MAIN_MENU);
-            break;
-        case ServerMode::ModeGameSinglePlayer:
-            getModeManager().requestMode(AbstractModeManager::MENU_SKIRMISH);
-            break;
-    }
+    getModeManager().requestPreviousMode();
     return true;
 }
 

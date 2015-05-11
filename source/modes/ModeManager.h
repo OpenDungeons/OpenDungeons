@@ -48,10 +48,10 @@ public:
     ModeType getCurrentModeType() const;
 
     //! \brief Request loading the given game mode
-    void requestMode(ModeType mode)
-    {
-        mRequestedMode = mode;
-    }
+    void requestMode(ModeType mode);
+
+    //! \brief Request to load the previous mode type.
+    void requestPreviousMode();
 
     InputManager& getInputManager()
     {
@@ -72,6 +72,9 @@ private:
 
     //! \brief The currently loaded mode.
     std::unique_ptr<AbstractApplicationMode> mCurrentApplicationMode;
+
+    //! \brief Stores the order of modes loaded. Useful when used to go back to the previous mode.
+    std::vector<ModeType> mPreviousModeTypes;
 
     //! \brief Tells which new mode is requested.
     ModeManager::ModeType mRequestedMode;

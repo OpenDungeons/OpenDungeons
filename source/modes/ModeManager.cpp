@@ -57,6 +57,24 @@ ModeManager::ModeType ModeManager::getCurrentModeType() const
     return mCurrentApplicationMode->getModeType();
 }
 
+void ModeManager::requestMode(ModeType mode)
+{
+    mPreviousModeTypes.push_back(mCurrentApplicationMode->getModeType());
+    mRequestedMode = mode;
+}
+
+void ModeManager::requestPreviousMode()
+{
+    if (mPreviousModeTypes.empty())
+    {
+        mRequestedMode = MENU_MAIN;
+        return;
+    }
+
+    mRequestedMode = mPreviousModeTypes.back();
+    mPreviousModeTypes.pop_back();
+}
+
 void ModeManager::checkModeChange()
 {
     if (mRequestedMode == NONE)
@@ -70,8 +88,11 @@ void ModeManager::checkModeChange()
 
     switch(mRequestedMode)
     {
-    case MAIN_MENU:
+    case MENU_MAIN:
         mCurrentApplicationMode = Utils::make_unique<MenuMode>(this);
+        // In that case, we are at the root menu and should ensure to have
+        // a clean mode type history
+        mPreviousModeTypes.clear();
         break;
     case MENU_SKIRMISH:
         mCurrentApplicationMode = Utils::make_unique<MenuModeSkirmish>(this);
