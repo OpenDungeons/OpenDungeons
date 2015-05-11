@@ -48,20 +48,20 @@ public:
     ModeType getCurrentModeType() const;
 
     //! \brief Request loading the given game mode
-    void requestMode(ModeType mode);
+    void requestMode(ModeType mode, bool keepCurrentModeInHistory = true)
+    {
+        mRequestedMode = mode;
+        mStoreCurrentModeAtChange = keepCurrentModeInHistory;
+    }
 
     //! \brief Request to load the previous mode type.
     void requestPreviousMode();
 
     InputManager& getInputManager()
-    {
-        return mInputManager;
-    }
+    { return mInputManager; }
 
     Gui& getGui()
-    {
-        return *mGui;
-    }
+    { return *mGui; }
 
 private:
     //! \brief The common input manager instance
@@ -78,6 +78,10 @@ private:
 
     //! \brief Tells which new mode is requested.
     ModeManager::ModeType mRequestedMode;
+
+    //! \brief Tells whether the current mode should be kept in history
+    //! when changing from the current mode.
+    bool mStoreCurrentModeAtChange;
 
     //! \brief Actually change the mode if needed
     void checkModeChange();

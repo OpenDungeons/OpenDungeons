@@ -34,7 +34,8 @@
 ModeManager::ModeManager(Ogre::RenderWindow* renderWindow, Gui* gui) :
     mInputManager(renderWindow),
     mGui(gui),
-    mRequestedMode(ModeType::NONE)
+    mRequestedMode(ModeType::NONE),
+    mStoreCurrentModeAtChange(true)
 {
     mInputManager.mKeyboard->setTextTranslation(OIS::Keyboard::Unicode);
 
@@ -57,12 +58,6 @@ ModeManager::ModeType ModeManager::getCurrentModeType() const
     return mCurrentApplicationMode->getModeType();
 }
 
-void ModeManager::requestMode(ModeType mode)
-{
-    mPreviousModeTypes.push_back(mCurrentApplicationMode->getModeType());
-    mRequestedMode = mode;
-}
-
 void ModeManager::requestPreviousMode()
 {
     if (mPreviousModeTypes.empty())
@@ -73,6 +68,11 @@ void ModeManager::requestPreviousMode()
 
     mRequestedMode = mPreviousModeTypes.back();
     mPreviousModeTypes.pop_back();
+
+    // Don't store current mode when changing it
+    // Otherwise, we could loop between two modes
+    // when going backward more than one time.
+    mStoreCurrentModeAtChange = false;
 }
 
 void ModeManager::checkModeChange()
@@ -82,6 +82,9 @@ void ModeManager::checkModeChange()
 
     if (mCurrentApplicationMode->getModeType() == mRequestedMode)
         return;
+
+    // Keep the previous mode in mind.
+    ModeType previousMode = mCurrentApplicationMode->getModeType();
 
     mCurrentApplicationMode->deactivate();
     mCurrentApplicationMode = nullptr;
@@ -93,6 +96,7 @@ void ModeManager::checkModeChange()
         // In that case, we are at the root menu and should ensure to have
         // a clean mode type history
         mPreviousModeTypes.clear();
+        previousMode = NONE;
         break;
     case MENU_SKIRMISH:
         mCurrentApplicationMode = Utils::make_unique<MenuModeSkirmish>(this);
@@ -126,6 +130,10 @@ void ModeManager::checkModeChange()
     }
 
     mCurrentApplicationMode->activate();
+
+    // Add the previous mode to mode types history when relevant.
+    if (previousMode != NONE && mStoreCurrentModeAtChange)
+        mPreviousModeTypes.push_back(previousMode);
 
     mRequestedMode = NONE;
 }
