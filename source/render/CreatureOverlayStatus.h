@@ -41,13 +41,16 @@ public:
     void update(Ogre::Real timeSincelastFrame);
 
 private:
-    void updateHealth(Seat* seat, uint32_t value, unsigned int level);
+    void updateHealth();
+    void updateStatus(Ogre::Real timeSincelastFrame);
 
     Creature* mCreature;
     Seat* mSeat;
     MovableTextOverlay* mMovableTextOverlay;
     uint32_t mHealthValue;
     unsigned int mLevel;
+    Ogre::Real mTimeDisplayStatus;
+    uint32_t mStatus;
     std::vector<uint32_t> mOverlayIds;
 };
 

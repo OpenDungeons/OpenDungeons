@@ -137,6 +137,7 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition, Seat*
     mMoodPoints              (0),
     mFirstTurnFurious        (-1),
     mOverlayHealthValue      (0),
+    mOverlayMoodValue        (0),
     mOverlayStatus           (nullptr),
     mNeedFireRefresh         (false)
 
@@ -221,6 +222,7 @@ Creature::Creature(GameMap* gameMap) :
     mMoodPoints              (0),
     mFirstTurnFurious        (-1),
     mOverlayHealthValue      (0),
+    mOverlayMoodValue        (0),
     mOverlayStatus           (nullptr),
     mNeedFireRefresh         (false)
 {
@@ -504,6 +506,7 @@ void Creature::exportToPacket(ODPacket& os) const
     os << mMagicalDefense;
     os << mWeaponlessAtkRange;
     os << mOverlayHealthValue;
+    os << mOverlayMoodValue;
 
     if(mWeaponL != nullptr)
         os << mWeaponL->getName();
@@ -553,6 +556,7 @@ void Creature::importFromPacket(ODPacket& is)
     OD_ASSERT_TRUE(is >> mMagicalDefense);
     OD_ASSERT_TRUE(is >> mWeaponlessAtkRange);
     OD_ASSERT_TRUE(is >> mOverlayHealthValue);
+    OD_ASSERT_TRUE(is >> mOverlayMoodValue);
 
     OD_ASSERT_TRUE(is >> tempString);
     if(tempString != "none")
@@ -805,6 +809,7 @@ void Creature::doUpkeep()
     else if(!getSeat()->isRogueSeat())
     {
         computeMood();
+        computeCreatureOverlayMoodValue();
         mMoodCooldownTurns = Random::Int(0, 5);
     }
 
@@ -3093,6 +3098,7 @@ void Creature::refreshCreature(ODPacket& packet)
     OD_ASSERT_TRUE(packet >> mLevel);
     OD_ASSERT_TRUE(packet >> seatId);
     OD_ASSERT_TRUE(packet >> mOverlayHealthValue);
+    OD_ASSERT_TRUE(packet >> mOverlayMoodValue);
     RenderManager::getSingleton().rrScaleEntity(this);
 
     if(getSeat()->getId() != seatId)
@@ -4163,6 +4169,7 @@ void Creature::fireCreatureRefreshIfNeeded()
         serverNotification->mPacket << mLevel;
         serverNotification->mPacket << seatId;
         serverNotification->mPacket << mOverlayHealthValue;
+        serverNotification->mPacket << mOverlayMoodValue;
 
         uint32_t nbCreatureEffect = mEntityParticleEffects.size();
         serverNotification->mPacket << nbCreatureEffect;
@@ -4368,6 +4375,38 @@ void Creature::computeCreatureOverlayHealthValue()
     if(mOverlayHealthValue != value)
     {
         mOverlayHealthValue = value;
+        mNeedFireRefresh = true;
+    }
+}
+
+void Creature::computeCreatureOverlayMoodValue()
+{
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    uint32_t value = 0;
+    if(mMoodValue == CreatureMoodLevel::Angry)
+        value |= 0x0001;
+    else if(mMoodValue == CreatureMoodLevel::Furious)
+        value |= 0x0002;
+
+    if(isActionInList(CreatureActionType::getFee))
+        value |= 0x0004;
+
+    if(isActionInList(CreatureActionType::leaveDungeon))
+        value |= 0x0008;
+
+    // TODO: handle KO state
+
+    if(mHunger >= 80.0)
+        value |= 0x0020;
+
+    if(mAwakeness <= 20.0)
+        value |= 0x0040;
+
+    if(mOverlayMoodValue != value)
+    {
+        mOverlayMoodValue = value;
         mNeedFireRefresh = true;
     }
 }

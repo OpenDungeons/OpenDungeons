@@ -1,0 +1,105 @@
+// CreatureOverlay
+material CreatureOverlayStatus_1
+{
+    technique
+    {
+        pass
+        {
+            scene_blend alpha_blend
+            texture_unit
+            {
+                texture CreatureAngry.png
+            }
+        }
+    }
+}
+
+material CreatureOverlayStatus_2
+{
+    technique
+    {
+        pass
+        {
+            scene_blend alpha_blend
+            texture_unit
+            {
+                texture CreatureFurious.png
+            }
+        }
+    }
+}
+
+material CreatureOverlayStatus_4
+{
+    technique
+    {
+        pass
+        {
+            scene_blend alpha_blend
+            texture_unit
+            {
+                texture CreaturePaid.png
+            }
+        }
+    }
+}
+
+material CreatureOverlayStatus_8
+{
+    technique
+    {
+        pass
+        {
+            scene_blend alpha_blend
+            texture_unit
+            {
+                texture CreatureLeaving.png
+            }
+        }
+    }
+}
+
+material CreatureOverlayStatus_16
+{
+    technique
+    {
+        pass
+        {
+            scene_blend alpha_blend
+            texture_unit
+            {
+                texture CreatureKO.png
+            }
+        }
+    }
+}
+
+material CreatureOverlayStatus_32
+{
+    technique
+    {
+        pass
+        {
+            scene_blend alpha_blend
+            texture_unit
+            {
+                texture CreatureHungry.png
+            }
+        }
+    }
+}
+
+material CreatureOverlayStatus_64
+{
+    technique
+    {
+        pass
+        {
+            scene_blend alpha_blend
+            texture_unit
+            {
+                texture CreatureSleepy.png
+            }
+        }
+    }
+}

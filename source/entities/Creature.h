@@ -384,6 +384,9 @@ public:
     inline uint32_t getOverlayHealthValue() const
     { return mOverlayHealthValue; }
 
+    inline uint32_t getOverlayMoodValue() const
+    { return mOverlayMoodValue; }
+
     inline int32_t getNbTurnsWithoutBattle() const
     { return mNbTurnsWithoutBattle; }
 
@@ -542,7 +545,10 @@ private:
     //! to avoid too many communication. But when mOverlayHealthValue changes, we will
     uint32_t                        mOverlayHealthValue;
 
-    //! Used by the renderer to save this entity's overlay. It is its rensponsability
+    //! \brief Represents the mood of the creature. It is a bit array
+    uint32_t                        mOverlayMoodValue;
+
+    //! Used by the renderer to save this entity's overlay. It is its responsability
     //! to allocate/delete this pointer
     CreatureOverlayStatus*          mOverlayStatus;
 
@@ -680,6 +686,8 @@ private:
     void engageAlliedNaturalEnemy(Creature* attacker);
 
     void computeCreatureOverlayHealthValue();
+
+    void computeCreatureOverlayMoodValue();
 };
 
 #endif // CREATURE_H
