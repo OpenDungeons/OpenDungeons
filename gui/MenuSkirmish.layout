@@ -35,8 +35,12 @@
             <Property name="MaxSize" value="{{0,790},{0,470}}" />
             <Property name="MinSize" value="{{0,630},{0,420}}" />
             <Property name="AlwaysOnTop" value="True" />
+            <Window type="OD/Combobox" name="LevelTypeSelect" >
+                <Property name="Area" value="{{0,20},{0,35},{0.5,-25},{0,100}}" />
+                <Property name="ReadOnly" value="True" />
+            </Window>
             <Window type="OD/Listbox" name="LevelSelect" >
-                <Property name="Area" value="{{0,15},{0,40},{0.5,-20},{0.7,0}}" />
+                <Property name="Area" value="{{0,15},{0,65},{0.5,-20},{0.7,0}}" />
                 <Property name="ForceVertScrollbar" value="True" />
                 <Property name="Sort" value="True" />
             </Window>

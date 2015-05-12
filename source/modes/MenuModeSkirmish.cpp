@@ -34,13 +34,27 @@
 #include <CEGUI/CEGUI.h>
 #include "boost/filesystem.hpp"
 
-const std::string LEVEL_PATH = "levels/skirmish/";
+const std::string LEVEL_SKM_PATH = "levels/skirmish/";
+const std::string LEVEL_MPM_PATH = "levels/multiplayer/";
 const std::string LEVEL_EXTENSION = ".level";
 
-MenuModeSkirmish::MenuModeSkirmish(ModeManager *modeManager):
+MenuModeSkirmish::MenuModeSkirmish(ModeManager* modeManager):
     AbstractApplicationMode(modeManager, ModeManager::MENU_SKIRMISH)
 {
     CEGUI::Window* window = modeManager->getGui().getGuiSheet(Gui::guiSheet::skirmishMenu);
+
+    // Fills the Level type combo box with the available level types.
+    const CEGUI::Image* selImg = &CEGUI::ImageManager::getSingleton().get("OpenDungeonsSkin/SelectionBrush");
+    CEGUI::Combobox* levelTypeCb = static_cast<CEGUI::Combobox*>(window->getChild(Gui::SKM_LIST_LEVEL_TYPES));
+
+    CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem("Skirmish Levels", 0);
+    item->setSelectionBrushImage(selImg);
+    levelTypeCb->addItem(item);
+
+    item = new CEGUI::ListboxTextItem("Lan Solo", 1);
+    item->setSelectionBrushImage(selImg);
+    levelTypeCb->addItem(item);
+
     addEventConnection(
         window->getChild(Gui::SKM_BUTTON_LAUNCH)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
@@ -73,6 +87,13 @@ MenuModeSkirmish::MenuModeSkirmish(ModeManager *modeManager):
                                      static_cast<AbstractApplicationMode*>(this))
         )
     );
+
+    addEventConnection(
+        window->getChild(Gui::SKM_LIST_LEVEL_TYPES)->subscribeEvent(
+            CEGUI::Combobox::EventListSelectionAccepted,
+            CEGUI::Event::Subscriber(&MenuModeSkirmish::updateFilesList, this)
+        )
+    );
 }
 
 void MenuModeSkirmish::activate()
@@ -86,21 +107,44 @@ void MenuModeSkirmish::activate()
     // TODO: Make this configurable.
     MusicPlayer::getSingleton().play("OpenDungeonsMainTheme_pZi.ogg");
 
-
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->clearAll();
     gameMap->setGamePaused(true);
 
-    CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_LIST_LEVELS);
-    CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);
+    // Select skirmish
+    CEGUI::Combobox* levelTypeCb = static_cast<CEGUI::Combobox*>(getModeManager().getGui().
+                                       getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_LIST_LEVEL_TYPES));
+    levelTypeCb->setItemSelectState(static_cast<size_t>(0), true);
+    updateFilesList();
+}
 
-    tmpWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);
-    tmpWin->hide();
+bool MenuModeSkirmish::updateFilesList(const CEGUI::EventArgs&)
+{
+    CEGUI::Window* window = getModeManager().getGui().getGuiSheet(Gui::guiSheet::skirmishMenu);
+    CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(window->getChild(Gui::SKM_LIST_LEVELS));
+
+    CEGUI::Combobox* levelTypeCb = static_cast<CEGUI::Combobox*>(window->getChild(Gui::SKM_LIST_LEVEL_TYPES));
+
+    CEGUI::Window* loadText = window->getChild(Gui::SKM_TEXT_LOADING);
+    loadText->setText("");
     mFilesList.clear();
     mDescriptionList.clear();
     levelSelectList->resetList();
 
-    std::string levelPath = ResourceManager::getSingleton().getGameDataPath() + LEVEL_PATH;
+
+    std::string levelPath;
+    size_t selection = levelTypeCb->getItemIndex(levelTypeCb->getSelectedItem());
+    switch (selection)
+    {
+        default:
+        case 0:
+            levelPath = ResourceManager::getSingleton().getGameDataPath() + LEVEL_SKM_PATH;
+            break;
+        case 1:
+            levelPath = ResourceManager::getSingleton().getGameDataPath() + LEVEL_MPM_PATH;
+            break;
+    }
+
     if(Helper::fillFilesList(levelPath, mFilesList, LEVEL_EXTENSION))
     {
         for (uint32_t n = 0; n < mFilesList.size(); ++n)
@@ -128,6 +172,9 @@ void MenuModeSkirmish::activate()
             levelSelectList->addItem(item);
         }
     }
+
+    updateDescription();
+    return true;
 }
 
 bool MenuModeSkirmish::launchSelectedButtonPressed(const CEGUI::EventArgs&)

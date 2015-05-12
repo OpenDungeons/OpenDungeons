@@ -137,6 +137,7 @@ public:
     static const std::string SKM_TEXT_LOADING;
     static const std::string SKM_BUTTON_LAUNCH;
     static const std::string SKM_BUTTON_BACK;
+    static const std::string SKM_LIST_LEVEL_TYPES;
     static const std::string SKM_LIST_LEVELS;
     static const std::string MPM_TEXT_LOADING;
     static const std::string MPM_BUTTON_SERVER;
