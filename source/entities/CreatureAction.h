@@ -64,6 +64,15 @@ public:
     inline int32_t getNbTurns() const
     { return mNbTurns; }
 
+    inline void increaseNbTurnActive()
+    { ++mNbTurnsActive; }
+
+    inline int32_t getNbTurnsActive() const
+    { return mNbTurnsActive; }
+
+    inline void clearNbTurnsActive()
+    { mNbTurnsActive = 0; }
+
     inline const std::string& getEntityName() const
     { return mEntityName; }
 
@@ -83,7 +92,10 @@ private:
     GameEntityType mEntityType;
     std::string mEntityName;
     Tile* mTile;
+    //! Number of turns the action is in the creature pending actions
     int32_t mNbTurns;
+    //! Number of turns the action is the one active
+    int32_t mNbTurnsActive;
 };
 
 #endif // CREATUREACTION_H

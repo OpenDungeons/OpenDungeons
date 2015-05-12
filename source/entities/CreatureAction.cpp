@@ -25,7 +25,8 @@ CreatureAction::CreatureAction(const CreatureActionType actionType, GameEntityTy
     mEntityType(entityType),
     mEntityName(entityName),
     mTile(tile),
-    mNbTurns(0)
+    mNbTurns(0),
+    mNbTurnsActive(0)
 {
     // We check mandatory items according to action type
     switch(mActionType)

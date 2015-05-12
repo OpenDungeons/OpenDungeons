@@ -824,6 +824,9 @@ void Creature::doUpkeep()
 
     mActionTry.clear();
 
+    if(!mActionQueue.empty())
+        mActionQueue.front().increaseNbTurnActive();
+
     do
     {
         ++loops;
@@ -1177,6 +1180,8 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
     // If a fighter is weak, he should try to sleep
     if (isWeak && !mDefinition->isWorker())
     {
+        // If a fighter is weak, it should not care about forced action
+        mForceAction = forcedActionNone;
         if((mHomeTile != nullptr) && (getGameMap()->pathExists(this, getPositionTile(), mHomeTile)))
         {
             if(pushAction(CreatureActionType::sleep))
@@ -2597,8 +2602,11 @@ bool Creature::handleSleepAction(const CreatureAction& actionItem)
     }
     else
     {
-        // We are at the home tile so sleep.
-        setAnimationState(EntityAnimation::sleep_anim, false);
+        // We are at the home tile so sleep. If it is the first time we are sleeping,
+        // we send the animation
+        if(actionItem.getNbTurnsActive() == 0)
+            setAnimationState(EntityAnimation::sleep_anim, false);
+
         // Improve awakeness
         mAwakeness += 1.5;
         if (mAwakeness > 100.0)
@@ -3613,6 +3621,7 @@ bool Creature::pushAction(CreatureAction action, bool forcePush)
             return false;
     }
 
+    action.clearNbTurnsActive();
     mActionQueue.push_front(action);
     return true;
 }
@@ -3620,6 +3629,8 @@ bool Creature::pushAction(CreatureAction action, bool forcePush)
 void Creature::popAction()
 {
     mActionQueue.pop_front();
+    if(!mActionQueue.empty())
+        mActionQueue.front().clearNbTurnsActive();
 }
 
 CreatureAction Creature::peekAction()
