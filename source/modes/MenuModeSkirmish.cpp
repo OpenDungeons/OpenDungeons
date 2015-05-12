@@ -44,9 +44,16 @@ MenuModeSkirmish::MenuModeSkirmish(ModeManager* modeManager):
     CEGUI::Window* window = modeManager->getGui().getGuiSheet(Gui::guiSheet::skirmishMenu);
 
     // Fills the Level type combo box with the available level types.
+    const CEGUI::Image* selImg = &CEGUI::ImageManager::getSingleton().get("OpenDungeonsSkin/SelectionBrush");
     CEGUI::Combobox* levelTypeCb = static_cast<CEGUI::Combobox*>(window->getChild(Gui::SKM_LIST_LEVEL_TYPES));
-    levelTypeCb->addItem(new CEGUI::ListboxTextItem("Skirmish Levels", 0));
-    levelTypeCb->addItem(new CEGUI::ListboxTextItem("Lan Solo", 1));
+
+    CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem("Skirmish Levels", 0);
+    item->setSelectionBrushImage(selImg);
+    levelTypeCb->addItem(item);
+
+    item = new CEGUI::ListboxTextItem("Lan Solo", 1);
+    item->setSelectionBrushImage(selImg);
+    levelTypeCb->addItem(item);
 
     addEventConnection(
         window->getChild(Gui::SKM_BUTTON_LAUNCH)->subscribeEvent(

@@ -38,7 +38,6 @@
             <Window type="OD/Combobox" name="LevelTypeSelect" >
                 <Property name="Area" value="{{0,20},{0,35},{0.5,-25},{0,100}}" />
                 <Property name="ReadOnly" value="True" />
-                <Property name="MultiSelect" value="False" />
             </Window>
             <Window type="OD/Listbox" name="LevelSelect" >
                 <Property name="Area" value="{{0,15},{0,65},{0.5,-20},{0.7,0}}" />
