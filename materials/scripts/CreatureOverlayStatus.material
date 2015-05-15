@@ -1,5 +1,5 @@
 // CreatureOverlay
-material CreatureOverlay0
+material CreatureOverlayStatus_1
 {
     technique
     {
@@ -8,13 +8,13 @@ material CreatureOverlay0
             scene_blend alpha_blend
             texture_unit
             {
-                texture CreatureOverlay0.png
+                texture CreatureAngry.png
             }
         }
     }
 }
 
-material CreatureOverlay1
+material CreatureOverlayStatus_2
 {
     technique
     {
@@ -23,13 +23,13 @@ material CreatureOverlay1
             scene_blend alpha_blend
             texture_unit
             {
-                texture CreatureOverlay1.png
+                texture CreatureFurious.png
             }
         }
     }
 }
 
-material CreatureOverlay2
+material CreatureOverlayStatus_4
 {
     technique
     {
@@ -38,13 +38,13 @@ material CreatureOverlay2
             scene_blend alpha_blend
             texture_unit
             {
-                texture CreatureOverlay2.png
+                texture CreaturePaid.png
             }
         }
     }
 }
 
-material CreatureOverlay3
+material CreatureOverlayStatus_8
 {
     technique
     {
@@ -53,13 +53,13 @@ material CreatureOverlay3
             scene_blend alpha_blend
             texture_unit
             {
-                texture CreatureOverlay3.png
+                texture CreatureLeaving.png
             }
         }
     }
 }
 
-material CreatureOverlay4
+material CreatureOverlayStatus_16
 {
     technique
     {
@@ -68,13 +68,13 @@ material CreatureOverlay4
             scene_blend alpha_blend
             texture_unit
             {
-                texture CreatureOverlay4.png
+                texture CreatureKO.png
             }
         }
     }
 }
 
-material CreatureOverlay5
+material CreatureOverlayStatus_32
 {
     technique
     {
@@ -83,13 +83,13 @@ material CreatureOverlay5
             scene_blend alpha_blend
             texture_unit
             {
-                texture CreatureOverlay5.png
+                texture CreatureHungry.png
             }
         }
     }
 }
 
-material CreatureOverlay6
+material CreatureOverlayStatus_64
 {
     technique
     {
@@ -98,22 +98,7 @@ material CreatureOverlay6
             scene_blend alpha_blend
             texture_unit
             {
-                texture CreatureOverlay6.png
-            }
-        }
-    }
-}
-
-material CreatureOverlay7
-{
-    technique
-    {
-        pass
-        {
-            scene_blend alpha_blend
-            texture_unit
-            {
-                texture CreatureOverlay7.png
+                texture CreatureSleepy.png
             }
         }
     }

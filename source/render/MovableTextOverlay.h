@@ -24,59 +24,34 @@
 #include "Overlay/OgreOverlayContainer.h"
 #include "Overlay/OgreOverlayManager.h"
 
-class MovableTextOverlay
+class ChildOverlay
 {
-public:
-    MovableTextOverlay(const Ogre::String & name, const Ogre::MovableObject *followedMov,
-        Ogre::Camera* camera, const Ogre::String& fontName, Ogre::Real charHeight,
+    friend class MovableTextOverlay;
+private:
+    ChildOverlay(const Ogre::String& fontName, Ogre::Real charHeight,
         const Ogre::ColourValue& color, const Ogre::String& materialName);
 
-    virtual ~MovableTextOverlay();
-
-    //! Set the text displayed
-    void setCaption(const Ogre::String& caption);
-
-    //! Forces the text area size
-    void forceTextArea(Ogre::Real textWidth, Ogre::Real textHeight);
-
-    //! Changes the material displayed on the overlay
-    void setMaterialName(const Ogre::String& materialName);
-
-    inline const Ogre::String& getName() const
-    { return mName; }
-
-    inline const Ogre::String& getCaption() const
-    { return mCaption; }
-
-    inline const bool isOnScreen() const
-    { return mOnScreen; }
-
-    inline const bool isDisplayed() const
-    { return mDisplayed; }
-
-    inline const std::string& getMaterialName() const
-    { return mMaterialName; }
-
-    void setDisplay(bool display);
-    void update(Ogre::Real timeSincelastFrame);
-
-private:
     //! Computes the best size for the text to display
     void computeTextArea();
 
-    //! Computes the position of the head of the followed entity in the screen coordinates. Returns true if
-    //! the entity is on screen and position contains the position where the text should be displayed and false otherwise
-    bool computeOverlayPositionHead(Ogre::Vector2& position);
+    void setCaption(const Ogre::String& caption);
 
-    const Ogre::String mName;
-    const Ogre::MovableObject* mFollowedMov;
+    void forceTextArea(Ogre::Real textWidth, Ogre::Real textHeight);
 
-    Ogre::Overlay* mOverlay;
+    void displayOverlay(Ogre::Real time);
+
+    void setMaterialName(const Ogre::String& materialName);
+
+    void update(Ogre::Real timeSincelastFrame);
+
+    bool isDisplayed();
+
+    Ogre::Real getWidth();
+
+    Ogre::Real getHeight();
+
     Ogre::OverlayContainer* mOverlayContainer;
     Ogre::OverlayElement* mOverlayText;
-
-    //! true if the text should be displayed
-    bool mDisplayed;
 
     //! the Material used in the overlay
     Ogre::String mMaterialName;
@@ -96,16 +71,55 @@ private:
     //! Forced height in pixels
     Ogre::Real mForcedHeight;
 
+    //! Height a char has for the wanted font
+    Ogre::Real mCharHeight;
+
+    Ogre::Real mTimeToDisplay;
+
+    //! Font used to display the text
+    Ogre::Font* mFont;
+};
+
+class MovableTextOverlay
+{
+public:
+    MovableTextOverlay(const Ogre::String& name, const Ogre::MovableObject *followedMov,
+        Ogre::Camera* camera);
+
+    virtual ~MovableTextOverlay();
+
+    //! Creates a new ChildOverlay associated with this Text Overlay and returns its ID
+    uint32_t createChildOverlay(const Ogre::String& fontName, Ogre::Real charHeight,
+        const Ogre::ColourValue& color, const Ogre::String& materialName);
+
+    //! Set the text displayed
+    void setCaption(uint32_t childOverlayId, const Ogre::String& caption);
+
+    //! Forces the text area size
+    void forceTextArea(uint32_t childOverlayId, Ogre::Real textWidth, Ogre::Real textHeight);
+
+    void setMaterialName(uint32_t childOverlayId, const Ogre::String& materialName);
+
+    //! Displays the overlay during time seconds. If time < 0, the overlay will be always displayed
+    void displayOverlay(uint32_t childOverlayId, Ogre::Real time);
+    void update(Ogre::Real timeSincelastFrame);
+
+private:
+    //! Computes the position of the head of the followed entity in the screen coordinates. Returns true if
+    //! the entity is on screen and position contains the position where the text should be displayed and false otherwise
+    bool computeOverlayPositionHead(Ogre::Vector2& position);
+
+    const Ogre::String mName;
+    const Ogre::MovableObject* mFollowedMov;
+
+    Ogre::Overlay* mOverlay;
+
     //! true if the upper vertices projections of the MovableObject are on screen
     bool mOnScreen;
 
     //! The camera used to display the scene
     const Ogre::Camera* mCamera;
 
-    //! Height a char has for the wanted font
-    Ogre::Real mCharHeight;
-
-    //! Font used to display the text
-    Ogre::Font* mFont;
+    std::vector<ChildOverlay> mChildOverlays;
 };
 #endif // MOVABLETEXTOVERLAY_H

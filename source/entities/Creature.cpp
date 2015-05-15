@@ -84,6 +84,8 @@
 static const int NB_TURN_FLEE_MAX = 5;
 const Ogre::Real CANNON_MISSILE_HEIGHT = 0.3;
 
+const uint32_t Creature::NB_OVERLAY_HEALTH_VALUES = 8;
+
 CreatureParticuleEffect::~CreatureParticuleEffect()
 {
     if(mEffect != nullptr)
@@ -134,7 +136,8 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition, Seat*
     mMoodValue               (CreatureMoodLevel::Neutral),
     mMoodPoints              (0),
     mFirstTurnFurious        (-1),
-    mOverlayHealthValue      (CreatureOverlayHealthValue::full),
+    mOverlayHealthValue      (0),
+    mOverlayMoodValue        (0),
     mOverlayStatus           (nullptr),
     mNeedFireRefresh         (false)
 
@@ -218,7 +221,8 @@ Creature::Creature(GameMap* gameMap) :
     mMoodValue               (CreatureMoodLevel::Neutral),
     mMoodPoints              (0),
     mFirstTurnFurious        (-1),
-    mOverlayHealthValue      (CreatureOverlayHealthValue::full),
+    mOverlayHealthValue      (0),
+    mOverlayMoodValue        (0),
     mOverlayStatus           (nullptr),
     mNeedFireRefresh         (false)
 {
@@ -502,6 +506,7 @@ void Creature::exportToPacket(ODPacket& os) const
     os << mMagicalDefense;
     os << mWeaponlessAtkRange;
     os << mOverlayHealthValue;
+    os << mOverlayMoodValue;
 
     if(mWeaponL != nullptr)
         os << mWeaponL->getName();
@@ -551,6 +556,7 @@ void Creature::importFromPacket(ODPacket& is)
     OD_ASSERT_TRUE(is >> mMagicalDefense);
     OD_ASSERT_TRUE(is >> mWeaponlessAtkRange);
     OD_ASSERT_TRUE(is >> mOverlayHealthValue);
+    OD_ASSERT_TRUE(is >> mOverlayMoodValue);
 
     OD_ASSERT_TRUE(is >> tempString);
     if(tempString != "none")
@@ -803,6 +809,7 @@ void Creature::doUpkeep()
     else if(!getSeat()->isRogueSeat())
     {
         computeMood();
+        computeCreatureOverlayMoodValue();
         mMoodCooldownTurns = Random::Int(0, 5);
     }
 
@@ -816,6 +823,9 @@ void Creature::doUpkeep()
     unsigned int loops = 0;
 
     mActionTry.clear();
+
+    if(!mActionQueue.empty())
+        mActionQueue.front().increaseNbTurnActive();
 
     do
     {
@@ -1170,6 +1180,8 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
     // If a fighter is weak, he should try to sleep
     if (isWeak && !mDefinition->isWorker())
     {
+        // If a fighter is weak, it should not care about forced action
+        mForceAction = forcedActionNone;
         if((mHomeTile != nullptr) && (getGameMap()->pathExists(this, getPositionTile(), mHomeTile)))
         {
             if(pushAction(CreatureActionType::sleep))
@@ -2590,8 +2602,11 @@ bool Creature::handleSleepAction(const CreatureAction& actionItem)
     }
     else
     {
-        // We are at the home tile so sleep.
-        setAnimationState(EntityAnimation::sleep_anim, false);
+        // We are at the home tile so sleep. If it is the first time we are sleeping,
+        // we send the animation
+        if(actionItem.getNbTurnsActive() == 0)
+            setAnimationState(EntityAnimation::sleep_anim, false);
+
         // Improve awakeness
         mAwakeness += 1.5;
         if (mAwakeness > 100.0)
@@ -3087,9 +3102,25 @@ bool Creature::checkLevelUp()
 
 void Creature::refreshCreature(ODPacket& packet)
 {
+    int seatId;
     OD_ASSERT_TRUE(packet >> mLevel);
+    OD_ASSERT_TRUE(packet >> seatId);
     OD_ASSERT_TRUE(packet >> mOverlayHealthValue);
+    OD_ASSERT_TRUE(packet >> mOverlayMoodValue);
     RenderManager::getSingleton().rrScaleEntity(this);
+
+    if(getSeat()->getId() != seatId)
+    {
+        Seat* seat = getGameMap()->getSeatById(seatId);
+        if(seat == nullptr)
+        {
+            OD_ASSERT_TRUE_MSG(false, "Creature " + getName() + ", wrong seatId=" + Helper::toString(seatId));
+        }
+        else
+        {
+            setSeat(seat);
+        }
+    }
 
     uint32_t nbEffects;
     OD_ASSERT_TRUE(packet >> nbEffects);
@@ -3590,6 +3621,7 @@ bool Creature::pushAction(CreatureAction action, bool forcePush)
             return false;
     }
 
+    action.clearNbTurnsActive();
     mActionQueue.push_front(action);
     return true;
 }
@@ -3597,6 +3629,8 @@ bool Creature::pushAction(CreatureAction action, bool forcePush)
 void Creature::popAction()
 {
     mActionQueue.pop_front();
+    if(!mActionQueue.empty())
+        mActionQueue.front().clearNbTurnsActive();
 }
 
 CreatureAction Creature::peekAction()
@@ -4138,12 +4172,15 @@ void Creature::fireCreatureRefreshIfNeeded()
         if(!seat->getPlayer()->getIsHuman())
             continue;
 
+        int seatId = getSeat()->getId();
         const std::string& name = getName();
         ServerNotification *serverNotification = new ServerNotification(
             ServerNotificationType::creatureRefresh, seat->getPlayer());
         serverNotification->mPacket << name;
         serverNotification->mPacket << mLevel;
+        serverNotification->mPacket << seatId;
         serverNotification->mPacket << mOverlayHealthValue;
+        serverNotification->mPacket << mOverlayMoodValue;
 
         uint32_t nbCreatureEffect = mEntityParticleEffects.size();
         serverNotification->mPacket << nbCreatureEffect;
@@ -4319,6 +4356,7 @@ void Creature::computeMood()
         clearActionQueue();
         stopJob();
         stopEating();
+        mNeedFireRefresh = true;
         if (getHomeTile() != nullptr)
         {
             RoomDormitory* home = static_cast<RoomDormitory*>(getHomeTile()->getCoveringBuilding());
@@ -4332,19 +4370,54 @@ void Creature::computeCreatureOverlayHealthValue()
     if(!getGameMap()->isServerGameMap())
         return;
 
-    CreatureOverlayHealthValue value = CreatureOverlayHealthValue::nearDeath;
-    if(getHP() == getMaxHp())
-        value = CreatureOverlayHealthValue::full;
-    else if(getHP() >= (getMaxHp() * 0.75))
-        value = CreatureOverlayHealthValue::threeQuarters;
-    else if(getHP() >= (getMaxHp() * 0.5))
-        value = CreatureOverlayHealthValue::half;
-    else if(getHP() >= (getMaxHp() * 0.25))
-        value = CreatureOverlayHealthValue::oneQuarter;
+    uint32_t value = 0;
+    uint32_t nbSteps = NB_OVERLAY_HEALTH_VALUES - 1;
+    double healthStep = getMaxHp() / static_cast<double>(nbSteps);
+    double tmpHealth = getMaxHp();
+    double hp = getHP();
+    for(value = 0; value < nbSteps; ++value)
+    {
+        if(hp >= tmpHealth)
+            break;
+
+        tmpHealth -= healthStep;
+    }
 
     if(mOverlayHealthValue != value)
     {
         mOverlayHealthValue = value;
+        mNeedFireRefresh = true;
+    }
+}
+
+void Creature::computeCreatureOverlayMoodValue()
+{
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    uint32_t value = 0;
+    if(mMoodValue == CreatureMoodLevel::Angry)
+        value |= 0x0001;
+    else if(mMoodValue == CreatureMoodLevel::Furious)
+        value |= 0x0002;
+
+    if(isActionInList(CreatureActionType::getFee))
+        value |= 0x0004;
+
+    if(isActionInList(CreatureActionType::leaveDungeon))
+        value |= 0x0008;
+
+    // TODO: handle KO state
+
+    if(mHunger >= 80.0)
+        value |= 0x0020;
+
+    if(mAwakeness <= 20.0)
+        value |= 0x0040;
+
+    if(mOverlayMoodValue != value)
+    {
+        mOverlayMoodValue = value;
         mNeedFireRefresh = true;
     }
 }
@@ -4366,8 +4439,8 @@ bool Creature::isHurt() const
     if(getGameMap()->isServerGameMap())
         return getHP() < getMaxHp();
 
-    // On client side, we test overlay value
-    return mOverlayHealthValue != CreatureOverlayHealthValue::full;
+    // On client side, we test overlay value. 0 represents full health
+    return mOverlayHealthValue > 0;
 
 }
 
@@ -4392,18 +4465,4 @@ void Creature::addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z)
     Ogre::Vector3 destination(x, y, z);
 
     mWalkQueue.push_back(destination);
-}
-
-ODPacket& operator<<(ODPacket& os, const CreatureOverlayHealthValue& value)
-{
-    os << static_cast<int32_t>(value);
-    return os;
-}
-
-ODPacket& operator>>(ODPacket& is, CreatureOverlayHealthValue& value)
-{
-    int32_t tmp;
-    OD_ASSERT_TRUE(is >> tmp);
-    value = static_cast<CreatureOverlayHealthValue>(tmp);
-    return is;
 }

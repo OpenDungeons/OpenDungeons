@@ -24,8 +24,6 @@ class Creature;
 class MovableTextOverlay;
 class Seat;
 
-enum class CreatureOverlayHealthValue;
-
 namespace Ogre
 {
     class Entity;
@@ -39,20 +37,21 @@ public:
         Ogre::Camera* cam);
     ~CreatureOverlayStatus();
 
-    void setDisplay(bool display);
-    void setTemporaryDisplayTime(Ogre::Real timeToDisplay);
+    void displayHealthOverlay(Ogre::Real timeToDisplay);
     void update(Ogre::Real timeSincelastFrame);
 
 private:
-    void updateMaterial(Seat* seat, CreatureOverlayHealthValue value);
+    void updateHealth();
+    void updateStatus(Ogre::Real timeSincelastFrame);
 
     Creature* mCreature;
     Seat* mSeat;
     MovableTextOverlay* mMovableTextOverlay;
-    CreatureOverlayHealthValue mHealthValue;
+    uint32_t mHealthValue;
     unsigned int mLevel;
-    bool mDisplay;
-    Ogre::Real mTimeToDisplay;
+    Ogre::Real mTimeDisplayStatus;
+    uint32_t mStatus;
+    std::vector<uint32_t> mOverlayIds;
 };
 
 #endif // CREATUREOVERLAYSTATUS_H
