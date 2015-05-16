@@ -109,6 +109,7 @@ public:
     virtual ~Tile()
     {}
 
+    static const uint32_t NO_FLOODFILL;
     virtual GameEntityType getObjectType() const
     { return GameEntityType::tile; }
 
@@ -132,18 +133,8 @@ public:
     inline void setTileVisual(TileVisual tileVisual)
     { mTileVisual = tileVisual; }
 
-    /*! \brief A mutator to change how "filled in" the tile is.
-     *
-     * Additionally this function reloads the proper mesh to display to the user
-     * how full the tile is.  It also determines the orientation of the
-     * tile to make corners display correctly.  Both of these tasks are
-     * accomplished by setting the fullnessMeshNumber variable which is
-     * concatenated to the tile's type to determine the mesh to load, e.g.
-     * Rock104.mesh for a rocky tile which has all 4 sides shown because it is an
-     * "island" with all four sides visible.  Claimed102.mesh would be a fully
-     * filled in tile but only two sides are drawn because it borders full tiles on
-     * 2 sides.
-     */
+    //! \brief A mutator to change how "filled in" the tile is.
+    //! Additionally this function refreshes floodfill if needed (if a tile becomes walkable)
     void setFullness(double f);
 
     //! \brief An accessor which returns the tile's fullness which should range from 0 to 100.
@@ -338,25 +329,24 @@ public:
 
     void resetFloodFill();
 
-    static inline uint32_t toUInt32(FloodFillType type)
-    { return static_cast<uint32_t>(type); }
-
     static std::string toString(FloodFillType type);
 
-    int floodFillValue(FloodFillType type) const;
-
-    bool isSameFloodFill(FloodFillType type, Tile* tile) const;
+    bool isSameFloodFill(Seat* seat, FloodFillType type, Tile* tile) const;
 
     //! Updates the floodfill from the given tile if floodfill is not already set.
     //! returns true if the floodfill has been updated and false otherwise
-    bool updateFloodFillFromTile(FloodFillType type, Tile* tile);
+    bool updateFloodFillFromTile(Seat* seat, FloodFillType type, Tile* tile);
 
     //! Sets the floodfill value corresponding at type to newValue
-    void replaceFloodFill(FloodFillType type, int newValue);
+    void replaceFloodFill(Seat* seat, FloodFillType type, uint32_t newValue);
+
+    void copyFloodFillToOtherSeats(Seat* seatToCopy);
+
+    uint32_t getFloodFillValue(Seat* seat, FloodFillType type) const;
 
     void logFloodFill() const;
 
-    bool isFloodFillFilled() const;
+    bool isFloodFillFilled(Seat* seat) const;
 
     //! Refresh the tile visual according to the tile parameters (type, claimed, ...).
     //! Used only on server side
@@ -366,14 +356,15 @@ public:
     //! server and client
     bool isFullTile() const;
 
+    //! Sets the number of teams in this gamemap (after seat configuration). This number includes the rogue team.
+    void setTeamsNumber(uint32_t nbTeams);
+
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
 private:
-    GameMap* getGameMap() const
-    {
-        return mGameMap;
-    }
+    inline GameMap* getGameMap() const
+    { return mGameMap; }
 
     //! \brief The tile position
     int mX, mY;
@@ -408,7 +399,8 @@ private:
     std::vector<GameEntity*> mEntitiesInTile;
 
     Building* mCoveringBuilding;
-    std::vector<int> mFloodFillColor;
+    //! Floodfill values per seat and per floodfill type
+    std::vector<std::vector<uint32_t>> mFloodFillColor;
 
     //! \brief The tile claiming. Used on server side only
     double mClaimedPercentage;

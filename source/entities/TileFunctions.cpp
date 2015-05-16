@@ -50,7 +50,8 @@ void Tile::setFullness(double f)
     if ((oldFullness > 0.0) && (mFullness == 0.0))
     {
         // Do a flood fill to update the contiguous region touching the tile.
-        getGameMap()->refreshFloodFill(this);
+        for(Seat* seat : mGameMap->getSeats())
+            getGameMap()->refreshFloodFill(seat, this);
     }
 }
 

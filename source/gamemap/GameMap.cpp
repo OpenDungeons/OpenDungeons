@@ -440,6 +440,7 @@ void GameMap::resetUniqueNumbers()
     mUniqueNumberRenderedMovableEntity = 0;
     mUniqueNumberTrap = 0;
     mUniqueNumberMapLight = 0;
+    mUniqueFloodFillValue = 0;
 }
 
 void GameMap::addClassDescription(const CreatureDefinition *c)
@@ -1458,20 +1459,20 @@ bool GameMap::pathExists(const Creature* creature, Tile* tileStart, Tile* tileEn
         (creature->getMoveSpeedWater() > 0.0) &&
         (creature->getMoveSpeedLava() > 0.0))
     {
-        return tileStart->isSameFloodFill(FloodFillType::groundWaterLava, tileEnd);
+        return tileStart->isSameFloodFill(creature->getSeat(), FloodFillType::groundWaterLava, tileEnd);
     }
     if((creature->getMoveSpeedGround() > 0.0) &&
         (creature->getMoveSpeedWater() > 0.0))
     {
-        return tileStart->isSameFloodFill(FloodFillType::groundWater, tileEnd);
+        return tileStart->isSameFloodFill(creature->getSeat(), FloodFillType::groundWater, tileEnd);
     }
     if((creature->getMoveSpeedGround() > 0.0) &&
         (creature->getMoveSpeedLava() > 0.0))
     {
-        return tileStart->isSameFloodFill(FloodFillType::groundLava, tileEnd);
+        return tileStart->isSameFloodFill(creature->getSeat(), FloodFillType::groundLava, tileEnd);
     }
 
-    return tileStart->isSameFloodFill(FloodFillType::ground, tileEnd);
+    return tileStart->isSameFloodFill(creature->getSeat(), FloodFillType::ground, tileEnd);
 }
 
 std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* creature, Seat* seat, bool throughDiggableTiles)
@@ -2073,7 +2074,6 @@ bool GameMap::addSeat(Seat *s)
             return false;
         }
     }
-    s->setIndex(mSeats.size());
     mSeats.push_back(s);
 
     // Add the goals for all seats to this seat.
@@ -2141,12 +2141,12 @@ void GameMap::clearGoalsForAllSeats()
     mGoalsForAllSeats.clear();
 }
 
-bool GameMap::doFloodFill(Tile* tile)
+bool GameMap::doFloodFill(Seat* seat, Tile* tile)
 {
     if (!mFloodFillEnabled)
         return false;
 
-    if(tile->isFloodFillFilled())
+    if(tile->isFloodFillFilled(seat))
         return false;
 
     bool hasChanged = false;
@@ -2159,22 +2159,22 @@ bool GameMap::doFloodFill(Tile* tile)
             case TileType::gold:
             case TileType::rock:
             {
-                hasChanged |= tile->updateFloodFillFromTile(FloodFillType::ground, neigh);
-                hasChanged |= tile->updateFloodFillFromTile(FloodFillType::groundWater, neigh);
-                hasChanged |= tile->updateFloodFillFromTile(FloodFillType::groundLava, neigh);
-                hasChanged |= tile->updateFloodFillFromTile(FloodFillType::groundWaterLava, neigh);
+                hasChanged |= tile->updateFloodFillFromTile(seat, FloodFillType::ground, neigh);
+                hasChanged |= tile->updateFloodFillFromTile(seat, FloodFillType::groundWater, neigh);
+                hasChanged |= tile->updateFloodFillFromTile(seat, FloodFillType::groundLava, neigh);
+                hasChanged |= tile->updateFloodFillFromTile(seat, FloodFillType::groundWaterLava, neigh);
                 break;
             }
             case TileType::water:
             {
-                hasChanged |= tile->updateFloodFillFromTile(FloodFillType::groundWater, neigh);
-                hasChanged |= tile->updateFloodFillFromTile(FloodFillType::groundWaterLava, neigh);
+                hasChanged |= tile->updateFloodFillFromTile(seat, FloodFillType::groundWater, neigh);
+                hasChanged |= tile->updateFloodFillFromTile(seat, FloodFillType::groundWaterLava, neigh);
                 break;
             }
             case TileType::lava:
             {
-                hasChanged |= tile->updateFloodFillFromTile(FloodFillType::groundLava, neigh);
-                hasChanged |= tile->updateFloodFillFromTile(FloodFillType::groundWaterLava, neigh);
+                hasChanged |= tile->updateFloodFillFromTile(seat, FloodFillType::groundLava, neigh);
+                hasChanged |= tile->updateFloodFillFromTile(seat, FloodFillType::groundWaterLava, neigh);
                 break;
             }
             default:
@@ -2182,31 +2182,31 @@ bool GameMap::doFloodFill(Tile* tile)
         }
 
         // If the tile is fully filled, no need to continue
-        if(tile->isFloodFillFilled())
+        if(tile->isFloodFillFilled(seat))
             return true;
     }
 
     return hasChanged;
 }
 
-void GameMap::replaceFloodFill(FloodFillType floodFillType, int colorOld, int colorNew)
+void GameMap::replaceFloodFill(Seat* seat, FloodFillType floodFillType, uint32_t colorOld, uint32_t colorNew)
 {
     for (int jj = 0; jj < getMapSizeY(); ++jj)
     {
         for (int ii = 0; ii < getMapSizeX(); ++ii)
         {
             Tile* tile = getTile(ii,jj);
-            if(tile->floodFillValue(floodFillType) != colorOld)
+            if(tile->getFloodFillValue(seat, floodFillType) != colorOld)
                 continue;
 
-            tile->replaceFloodFill(floodFillType, colorNew);
+            tile->replaceFloodFill(seat, floodFillType, colorNew);
         }
     }
 }
 
-void GameMap::refreshFloodFill(Tile* tile)
+void GameMap::refreshFloodFill(Seat* seat, Tile* tile)
 {
-    std::vector<int> colors(Tile::toUInt32(FloodFillType::nbValues), -1);
+    std::vector<uint32_t> colors(static_cast<uint32_t>(FloodFillType::nbValues), Tile::NO_FLOODFILL);
 
     // If the tile has opened a new place, we use the same floodfillcolor for all the areas
     for(Tile* neigh : tile->getAllNeighbors())
@@ -2214,16 +2214,16 @@ void GameMap::refreshFloodFill(Tile* tile)
         for(uint32_t i = 0; i < colors.size(); ++i)
         {
             FloodFillType type = static_cast<FloodFillType>(i);
-            if(colors[i] == -1)
+            if(colors[i] == Tile::NO_FLOODFILL)
             {
-                colors[i] = neigh->floodFillValue(type);
-                tile->updateFloodFillFromTile(type, neigh);
+                colors[i] = neigh->getFloodFillValue(seat, type);
+                tile->updateFloodFillFromTile(seat, type, neigh);
             }
-            else if((colors[i] != -1) &&
-               (neigh->floodFillValue(type) != -1) &&
-               (neigh->floodFillValue(type) != colors[i]))
+            else if((colors[i] != Tile::NO_FLOODFILL) &&
+               (neigh->getFloodFillValue(seat, type) != Tile::NO_FLOODFILL) &&
+               (neigh->getFloodFillValue(seat, type) != colors[i]))
             {
-                replaceFloodFill(type, neigh->floodFillValue(type), colors[i]);
+                replaceFloodFill(seat, type, neigh->getFloodFillValue(seat, type), colors[i]);
             }
         }
     }
@@ -2252,7 +2252,9 @@ void GameMap::enableFloodFill()
     // thoses, we will deal with water/lava remaining (there can be some left if
     // surrounded by not passable tiles).
     FloodFillType currentType = FloodFillType::ground;
-    int floodFillValue = 0;
+    // We do the floodfill for the rogue seat. Then, once it is done, we copy for the other seats.
+    // If there are locked doors, floodfill will be refreshed when they are added
+    Seat* rogueSeat = getSeatRogue();
     while(true)
     {
         int yy = 0;
@@ -2272,43 +2274,43 @@ void GameMap::enableFloodFill()
                     if(((tile->getType() == TileType::dirt) ||
                         (tile->getType() == TileType::gold) ||
                         (tile->getType() == TileType::rock)) &&
-                       (tile->floodFillValue(FloodFillType::ground) == -1))
+                       (tile->getFloodFillValue(rogueSeat, FloodFillType::ground) == Tile::NO_FLOODFILL))
                     {
                         isTileFound = true;
-                        if(tile->floodFillValue(FloodFillType::ground) == -1)
-                            tile->replaceFloodFill(FloodFillType::ground, ++floodFillValue);
-                        if(tile->floodFillValue(FloodFillType::groundWater) == -1)
-                            tile->replaceFloodFill(FloodFillType::groundWater, ++floodFillValue);
-                        if(tile->floodFillValue(FloodFillType::groundLava) == -1)
-                            tile->replaceFloodFill(FloodFillType::groundLava, ++floodFillValue);
-                        if(tile->floodFillValue(FloodFillType::groundWaterLava) == -1)
-                            tile->replaceFloodFill(FloodFillType::groundWaterLava, ++floodFillValue);
+                        if(tile->getFloodFillValue(rogueSeat, FloodFillType::ground) == Tile::NO_FLOODFILL)
+                            tile->replaceFloodFill(rogueSeat, FloodFillType::ground, nextUniqueFloodFillValue());
+                        if(tile->getFloodFillValue(rogueSeat, FloodFillType::groundWater) == Tile::NO_FLOODFILL)
+                            tile->replaceFloodFill(rogueSeat, FloodFillType::groundWater, nextUniqueFloodFillValue());
+                        if(tile->getFloodFillValue(rogueSeat, FloodFillType::groundLava) == Tile::NO_FLOODFILL)
+                            tile->replaceFloodFill(rogueSeat, FloodFillType::groundLava, nextUniqueFloodFillValue());
+                        if(tile->getFloodFillValue(rogueSeat, FloodFillType::groundWaterLava) == Tile::NO_FLOODFILL)
+                            tile->replaceFloodFill(rogueSeat, FloodFillType::groundWaterLava, nextUniqueFloodFillValue());
                         break;
                     }
                 }
                 else if(currentType == FloodFillType::groundWater)
                 {
                     if((tile->getType() == TileType::water) &&
-                       (tile->floodFillValue(FloodFillType::groundWater) == -1))
+                       (tile->getFloodFillValue(rogueSeat, FloodFillType::groundWater) == Tile::NO_FLOODFILL))
                     {
                         isTileFound = true;
-                        if(tile->floodFillValue(FloodFillType::groundWater) == -1)
-                            tile->replaceFloodFill(FloodFillType::groundWater, ++floodFillValue);
-                        if(tile->floodFillValue(FloodFillType::groundWaterLava) == -1)
-                            tile->replaceFloodFill(FloodFillType::groundWaterLava, ++floodFillValue);
+                        if(tile->getFloodFillValue(rogueSeat, FloodFillType::groundWater) == Tile::NO_FLOODFILL)
+                            tile->replaceFloodFill(rogueSeat, FloodFillType::groundWater, nextUniqueFloodFillValue());
+                        if(tile->getFloodFillValue(rogueSeat, FloodFillType::groundWaterLava) == Tile::NO_FLOODFILL)
+                            tile->replaceFloodFill(rogueSeat, FloodFillType::groundWaterLava, nextUniqueFloodFillValue());
                         break;
                     }
                 }
                 else if(currentType == FloodFillType::groundLava)
                 {
                     if((tile->getType() == TileType::lava) &&
-                       (tile->floodFillValue(FloodFillType::groundLava) == -1))
+                       (tile->getFloodFillValue(rogueSeat, FloodFillType::groundLava) == Tile::NO_FLOODFILL))
                     {
                         isTileFound = true;
-                        if(tile->floodFillValue(FloodFillType::groundLava) == -1)
-                            tile->replaceFloodFill(FloodFillType::groundLava, ++floodFillValue);
-                        if(tile->floodFillValue(FloodFillType::groundWaterLava) == -1)
-                            tile->replaceFloodFill(FloodFillType::groundWaterLava, ++floodFillValue);
+                        if(tile->getFloodFillValue(rogueSeat, FloodFillType::groundLava) == Tile::NO_FLOODFILL)
+                            tile->replaceFloodFill(rogueSeat, FloodFillType::groundLava, nextUniqueFloodFillValue());
+                        if(tile->getFloodFillValue(rogueSeat, FloodFillType::groundWaterLava) == Tile::NO_FLOODFILL)
+                            tile->replaceFloodFill(rogueSeat, FloodFillType::groundWaterLava, nextUniqueFloodFillValue());
                         break;
                     }
                 }
@@ -2357,7 +2359,7 @@ void GameMap::enableFloodFill()
             for(int xx = 0; xx < getMapSizeX(); ++xx)
             {
                 Tile* tile = getTile(xx, yy);
-                if(doFloodFill(tile))
+                if(doFloodFill(rogueSeat, tile))
                     ++nbTiles;
             }
 
@@ -2367,7 +2369,7 @@ void GameMap::enableFloodFill()
                 for(int xx = getMapSizeX() - 1; xx >= 0; --xx)
                 {
                     Tile* tile = getTile(xx, yy);
-                    if(doFloodFill(tile))
+                    if(doFloodFill(rogueSeat, tile))
                         ++nbTiles;
                 }
             }
@@ -2377,6 +2379,19 @@ void GameMap::enableFloodFill()
                 --yy;
             else
                 ++yy;
+        }
+    }
+
+    // We copy floodfill for all seats
+    for(int xx = 0; xx < getMapSizeX(); ++xx)
+    {
+        for(int yy = 0; yy < getMapSizeY(); ++yy)
+        {
+            Tile* tile = getTile(xx, yy);
+            if(tile == nullptr)
+                continue;
+
+            tile->copyFloodFillToOtherSeats(rogueSeat);
         }
     }
 }
@@ -3158,4 +3173,47 @@ void GameMap::clientUpKeep(int64_t turnNumber)
     {
         entity->clientUpkeep();
     }
+}
+
+void GameMap::notifySeatsConfigured()
+{
+    mTeamIds.clear();
+    // We always add the rogue team id
+    mTeamIds.push_back(0);
+
+    for(Seat* seat : mSeats)
+    {
+        if(seat->isRogueSeat())
+            continue;
+
+        uint32_t teamIndex = 0;
+        for(int teamId : mTeamIds)
+        {
+            if(teamId == seat->getTeamId())
+                break;
+
+            ++teamIndex;
+        }
+
+        // If the team id was not in the list, save it
+        if(teamIndex == mTeamIds.size())
+            mTeamIds.push_back(seat->getTeamId());
+
+        seat->setTeamIndex(teamIndex);
+    }
+
+    uint32_t nbTeams = mTeamIds.size();
+    for(int xxx = 0; xxx < getMapSizeX(); ++xxx)
+    {
+        for(int yyy = 0; yyy < getMapSizeY(); ++yyy)
+        {
+            Tile* tile = getTile(xxx, yyy);
+            if(tile == nullptr)
+                continue;
+
+            tile->setTeamsNumber(nbTeams);
+        }
+    }
+    // Now that team ids are set and tiles are configured, we can compute floodfill
+    enableFloodFill();
 }

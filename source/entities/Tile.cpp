@@ -39,6 +39,8 @@
 const std::string TILE_PREFIX = "Tile_";
 const std::string TILE_SCANF = TILE_PREFIX + "%i_%i";
 
+const uint32_t Tile::NO_FLOODFILL = 0;
+
 Tile::Tile(GameMap* gameMap, int x, int y, TileType type, double fullness) :
     EntityBase({}, {}),
     mX                  (x),
@@ -50,7 +52,6 @@ Tile::Tile(GameMap* gameMap, int x, int y, TileType type, double fullness) :
     mRefundPriceRoom    (0),
     mRefundPriceTrap    (0),
     mCoveringBuilding   (nullptr),
-    mFloodFillColor     (std::vector<int>(static_cast<int>(FloodFillType::nbValues), -1)),
     mClaimedPercentage  (0.0),
     mScale              (Ogre::Vector3::ZERO),
     mIsBuilding         (false),
@@ -450,10 +451,10 @@ bool Tile::checkTileName(const std::string& tileName, int& x, int& y)
 
 std::string Tile::toString(FloodFillType type)
 {
-    return Helper::toString(toUInt32(type));
+    return Helper::toString(static_cast<uint32_t>(type));
 }
 
-bool Tile::isFloodFillFilled() const
+bool Tile::isFloodFillFilled(Seat* seat) const
 {
     if(getFullness() > 0.0)
         return true;
@@ -464,10 +465,10 @@ bool Tile::isFloodFillFilled() const
         case TileType::gold:
         case TileType::rock:
         {
-            if((mFloodFillColor[toUInt32(FloodFillType::ground)] != -1) &&
-               (mFloodFillColor[toUInt32(FloodFillType::groundWater)] != -1) &&
-               (mFloodFillColor[toUInt32(FloodFillType::groundLava)] != -1) &&
-               (mFloodFillColor[toUInt32(FloodFillType::groundWaterLava)] != -1))
+            if((getFloodFillValue(seat, FloodFillType::ground) != NO_FLOODFILL) &&
+               (getFloodFillValue(seat, FloodFillType::groundWater) != NO_FLOODFILL) &&
+               (getFloodFillValue(seat, FloodFillType::groundLava) != NO_FLOODFILL) &&
+               (getFloodFillValue(seat, FloodFillType::groundWaterLava) != NO_FLOODFILL))
             {
                 return true;
             }
@@ -475,8 +476,8 @@ bool Tile::isFloodFillFilled() const
         }
         case TileType::water:
         {
-            if((mFloodFillColor[toUInt32(FloodFillType::groundWater)] != -1) &&
-               (mFloodFillColor[toUInt32(FloodFillType::groundWaterLava)] != -1))
+            if((getFloodFillValue(seat, FloodFillType::groundWater) != NO_FLOODFILL) &&
+               (getFloodFillValue(seat, FloodFillType::groundWaterLava) != NO_FLOODFILL))
             {
                 return true;
             }
@@ -484,8 +485,8 @@ bool Tile::isFloodFillFilled() const
         }
         case TileType::lava:
         {
-            if((mFloodFillColor[toUInt32(FloodFillType::groundLava)] != -1) &&
-               (mFloodFillColor[toUInt32(FloodFillType::groundWaterLava)] != -1))
+            if((getFloodFillValue(seat, FloodFillType::groundLava) != NO_FLOODFILL) &&
+               (getFloodFillValue(seat, FloodFillType::groundWaterLava) != NO_FLOODFILL))
             {
                 return true;
             }
@@ -498,44 +499,116 @@ bool Tile::isFloodFillFilled() const
     return false;
 }
 
-bool Tile::isSameFloodFill(FloodFillType type, Tile* tile) const
+bool Tile::isSameFloodFill(Seat* seat, FloodFillType type, Tile* tile) const
 {
-    return mFloodFillColor[toUInt32(type)] == tile->mFloodFillColor[toUInt32(type)];
+    return getFloodFillValue(seat, type) == tile->getFloodFillValue(seat, type);
 }
 
 void Tile::resetFloodFill()
 {
-    for(int& floodFillValue : mFloodFillColor)
+    for(std::vector<uint32_t>& values : mFloodFillColor)
     {
-        floodFillValue = -1;
+        for(uint32_t& floodFillValue : values)
+        {
+            floodFillValue = NO_FLOODFILL;
+        }
     }
 }
 
-int Tile::floodFillValue(FloodFillType type) const
+bool Tile::updateFloodFillFromTile(Seat* seat, FloodFillType type, Tile* tile)
 {
-    uint32_t intFloodFill = toUInt32(type);
-    OD_ASSERT_TRUE_MSG(intFloodFill < mFloodFillColor.size(), Helper::toString(intFloodFill));
-    if(intFloodFill >= mFloodFillColor.size())
-        return -1;
+    if(seat->getTeamIndex() >= mFloodFillColor.size())
+    {
+        static bool logMsg = false;
+        if(!logMsg)
+        {
+            logMsg = true;
+            OD_ASSERT_TRUE_MSG(false, "Wrong floodfill seat index seatId=" + Helper::toString(seat->getId())
+                + ", seatIndex=" + Helper::toString(seat->getTeamIndex()) + ", floodfillsize=" + Helper::toString(static_cast<uint32_t>(mFloodFillColor.size())));
+        }
+        return false;
+    }
 
-    return mFloodFillColor[intFloodFill];
-}
+    std::vector<uint32_t>& values = mFloodFillColor[seat->getTeamIndex()];
+    uint32_t intType = static_cast<uint32_t>(type);
+    if(intType >= values.size())
+    {
+        static bool logMsg = false;
+        if(!logMsg)
+        {
+            logMsg = true;
+            OD_ASSERT_TRUE_MSG(false, "Wrong floodfill seat index seatId=" + Helper::toString(seat->getId())
+                + ", intType=" + Helper::toString(intType) + ", floodfillsize=" + Helper::toString(static_cast<uint32_t>(values.size())));
+        }
+        return false;
+    }
 
-bool Tile::updateFloodFillFromTile(FloodFillType type, Tile* tile)
-{
-    if((floodFillValue(type) != -1) ||
-       (tile->floodFillValue(type) == -1))
+    if((values[intType] != NO_FLOODFILL) ||
+       (tile->getFloodFillValue(seat, type) == NO_FLOODFILL))
     {
         return false;
     }
 
-    mFloodFillColor[toUInt32(type)] = tile->mFloodFillColor[toUInt32(type)];
+    values[intType] = tile->getFloodFillValue(seat, type);
     return true;
 }
 
-void Tile::replaceFloodFill(FloodFillType type, int newValue)
+void Tile::replaceFloodFill(Seat* seat, FloodFillType type, uint32_t newValue)
 {
-    mFloodFillColor[toUInt32(type)] = newValue;
+    if(seat->getTeamIndex() >= mFloodFillColor.size())
+    {
+        static bool logMsg = false;
+        if(!logMsg)
+        {
+            logMsg = true;
+            OD_ASSERT_TRUE_MSG(false, "Wrong floodfill seat index seatId=" + Helper::toString(seat->getId())
+                + ", seatIndex=" + Helper::toString(seat->getTeamIndex()) + ", floodfillsize=" + Helper::toString(static_cast<uint32_t>(mFloodFillColor.size())));
+        }
+        return;
+    }
+
+    std::vector<uint32_t>& values = mFloodFillColor[seat->getTeamIndex()];
+    uint32_t intType = static_cast<uint32_t>(type);
+    if(intType >= values.size())
+    {
+        static bool logMsg = false;
+        if(!logMsg)
+        {
+            logMsg = true;
+            OD_ASSERT_TRUE_MSG(false, "Wrong floodfill seat index seatId=" + Helper::toString(seat->getId())
+                + ", intType=" + Helper::toString(intType) + ", floodfillsize=" + Helper::toString(static_cast<uint32_t>(values.size())));
+        }
+        return;
+    }
+
+    values[intType] = newValue;
+}
+
+void Tile::copyFloodFillToOtherSeats(Seat* seatToCopy)
+{
+    if(seatToCopy->getTeamIndex() >= mFloodFillColor.size())
+    {
+        static bool logMsg = false;
+        if(!logMsg)
+        {
+            logMsg = true;
+            OD_ASSERT_TRUE_MSG(false, "Wrong floodfill seat index seatId=" + Helper::toString(seatToCopy->getId())
+                + ", seatIndex=" + Helper::toString(seatToCopy->getTeamIndex()) + ", floodfillsize=" + Helper::toString(static_cast<uint32_t>(mFloodFillColor.size())));
+        }
+        return;
+    }
+
+    std::vector<uint32_t>& valuesToCopy = mFloodFillColor[seatToCopy->getTeamIndex()];
+    for(uint32_t indexFloodFill = 0; indexFloodFill < mFloodFillColor.size(); ++indexFloodFill)
+    {
+        if(seatToCopy->getTeamIndex() == indexFloodFill)
+            continue;
+
+        std::vector<uint32_t>& values = mFloodFillColor[indexFloodFill];
+        for(uint32_t intType = 0; intType < static_cast<uint32_t>(FloodFillType::nbValues); ++intType)
+            values[intType] = valuesToCopy[intType];
+
+    }
 }
 
 void Tile::logFloodFill() const
@@ -543,12 +616,14 @@ void Tile::logFloodFill() const
     std::string str = "Tile floodfill : " + Tile::displayAsString(this)
         + " - fullness=" + Helper::toString(getFullness())
         + " - seatId=" + std::string(getSeat() == nullptr ? "-1" : Helper::toString(getSeat()->getId()));
-    int cpt = 0;
-    for(const int& floodFill : mFloodFillColor)
+    for(const std::vector<uint32_t>& values : mFloodFillColor)
     {
-        str += ", [" + Helper::toString(cpt) + "]=" +
-            Helper::toString(floodFill);
-        ++cpt;
+        int cpt = 0;
+        for(const uint32_t& floodFill : values)
+        {
+            str += ", [" + Helper::toString(cpt) + "]=" + Helper::toString(floodFill);
+            ++cpt;
+        }
     }
     LogManager::getSingleton().logMessage(str);
 }
@@ -678,6 +753,42 @@ void Tile::computeTileVisual()
             mTileVisual = TileVisual::nullTileVisual;
             return;
     }
+}
+
+uint32_t Tile::getFloodFillValue(Seat* seat, FloodFillType type) const
+{
+    if(seat->getTeamIndex() >= mFloodFillColor.size())
+    {
+        static bool logMsg = false;
+        if(!logMsg)
+        {
+            logMsg = true;
+            OD_ASSERT_TRUE_MSG(false, "Wrong floodfill seat index seatId=" + Helper::toString(seat->getId())
+                + ", seatIndex=" + Helper::toString(seat->getTeamIndex()) + ", floodfillsize=" + Helper::toString(static_cast<uint32_t>(mFloodFillColor.size())));
+        }
+        return NO_FLOODFILL;
+    }
+
+    const std::vector<uint32_t>& values = mFloodFillColor[seat->getTeamIndex()];
+    uint32_t intType = static_cast<uint32_t>(type);
+    if(intType >= values.size())
+    {
+        static bool logMsg = false;
+        if(!logMsg)
+        {
+            logMsg = true;
+            OD_ASSERT_TRUE_MSG(false, "Wrong floodfill seat index seatId=" + Helper::toString(seat->getId())
+                + ", intType=" + Helper::toString(intType) + ", floodfillsize=" + Helper::toString(static_cast<uint32_t>(values.size())));
+        }
+        return NO_FLOODFILL;
+    }
+
+    return values.at(intType);
+}
+
+void Tile::setTeamsNumber(uint32_t nbTeams)
+{
+    mFloodFillColor = std::vector<std::vector<uint32_t>>(nbTeams, std::vector<uint32_t>(static_cast<uint32_t>(FloodFillType::nbValues), NO_FLOODFILL));
 }
 
 std::string Tile::displayAsString(const Tile* tile)
