@@ -136,18 +136,6 @@ bool TrapDoor::canDoorBeOnTile(GameMap* gameMap, Tile* tile)
     return false;
 }
 
-TrapDoor* TrapDoor::getTrapDoorFromStream(GameMap* gameMap, std::istream &is)
-{
-    TrapDoor* trap = new TrapDoor(gameMap);
-    return trap;
-}
-
-TrapDoor* TrapDoor::getTrapDoorFromPacket(GameMap* gameMap, ODPacket &is)
-{
-    TrapDoor* trap = new TrapDoor(gameMap);
-    return trap;
-}
-
 int TrapDoor::getTrapCost(std::vector<Tile*>& tiles, GameMap* gameMap, TrapType type,
     int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
 {

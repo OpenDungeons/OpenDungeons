@@ -84,18 +84,6 @@ TrapEntity* TrapCannon::getTrapEntity(Tile* tile)
     return new TrapEntity(getGameMap(), getName(), MESH_CANON, tile, 90.0, false, isActivated(tile) ? 1.0f : 0.5f);
 }
 
-TrapCannon* TrapCannon::getTrapCannonFromStream(GameMap* gameMap, std::istream &is)
-{
-    TrapCannon* trap = new TrapCannon(gameMap);
-    return trap;
-}
-
-TrapCannon* TrapCannon::getTrapCannonFromPacket(GameMap* gameMap, ODPacket &is)
-{
-    TrapCannon* trap = new TrapCannon(gameMap);
-    return trap;
-}
-
 int TrapCannon::getTrapCost(std::vector<Tile*>& tiles, GameMap* gameMap, TrapType type,
     int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
 {

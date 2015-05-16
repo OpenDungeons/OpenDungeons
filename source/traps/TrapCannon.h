@@ -30,9 +30,6 @@ public:
 
     TrapCannon(GameMap* gameMap);
 
-    static TrapCannon* getTrapCannonFromStream(GameMap* gameMap, std::istream &is);
-    static TrapCannon* getTrapCannonFromPacket(GameMap* gameMap, ODPacket &is);
-
     virtual const TrapType getType() const
     { return TrapType::cannon; }
 

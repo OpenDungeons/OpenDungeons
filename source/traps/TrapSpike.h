@@ -28,9 +28,6 @@ public:
 
     TrapSpike(GameMap* gameMap);
 
-    static TrapSpike* getTrapSpikeFromStream(GameMap* gameMap, std::istream &is);
-    static TrapSpike* getTrapSpikeFromPacket(GameMap* gameMap, ODPacket &is);
-
     virtual const TrapType getType() const
     { return TrapType::spike; }
 

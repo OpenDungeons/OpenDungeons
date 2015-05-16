@@ -30,9 +30,6 @@ public:
 
     static const std::string MESH_DOOR;
 
-    static TrapDoor* getTrapDoorFromStream(GameMap* gameMap, std::istream &is);
-    static TrapDoor* getTrapDoorFromPacket(GameMap* gameMap, ODPacket &is);
-
     virtual const TrapType getType() const
     { return TrapType::doorWooden; }
 
