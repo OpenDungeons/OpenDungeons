@@ -21,6 +21,8 @@
 #include "Trap.h"
 #include "traps/TrapType.h"
 
+class DoorEntity;
+
 class TrapDoor : public Trap
 {
 public:
@@ -53,7 +55,7 @@ public:
 
     virtual void activate(Tile* tile) override;
 
-    virtual void notifyDoorSlapped(Tile* tile);
+    virtual void notifyDoorSlapped(DoorEntity* doorEntity, Tile* tile);
 
     virtual TrapEntity* getTrapEntity(Tile* tile) override;
 

@@ -29,10 +29,13 @@
 #include <iostream>
 
 DoorEntity::DoorEntity(GameMap* gameMap, Seat* seat, const std::string& buildingName, const std::string& meshName,
-        Tile* tile, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity) :
+        Tile* tile, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity,
+        const std::string& initialAnimationState, bool initialAnimationLoop) :
     TrapEntity(gameMap, buildingName, meshName, tile, rotationAngle, hideCoveredTile, opacity)
 {
     setSeat(seat);
+    mPrevAnimationState = initialAnimationState;
+    mPrevAnimationStateLoop = initialAnimationLoop;
 }
 
 DoorEntity::DoorEntity(GameMap* gameMap) :
@@ -113,7 +116,7 @@ void DoorEntity::slap()
     }
 
     TrapDoor* trapDoor = static_cast<TrapDoor*>(trap);
-    trapDoor->notifyDoorSlapped(posTile);
+    trapDoor->notifyDoorSlapped(this, posTile);
 }
 
 DoorEntity* DoorEntity::getDoorEntityFromPacket(GameMap* gameMap, ODPacket& is)

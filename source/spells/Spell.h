@@ -37,7 +37,7 @@ class Spell : public RenderedMovableEntity
 {
 public:
     Spell(GameMap* gameMap, const std::string& baseName, const std::string& meshName, Ogre::Real rotationAngle,
-        int32_t nbTurns, const std::string& initialAnimationState = "", bool initialAnimationLoop = true);
+        int32_t nbTurns);
     virtual ~Spell()
     {}
 

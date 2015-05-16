@@ -30,7 +30,9 @@
 
 static TrapManagerRegister<TrapDoor> reg(TrapType::doorWooden, "DoorWooden");
 
-const std::string TrapDoor::MESH_DOOR = "TentacleAlbine";
+const std::string TrapDoor::MESH_DOOR = "TentacleGreen";
+const std::string ANIMATION_OPEN = "Squeeze";
+const std::string ANIMATION_CLOSE = "Dance";
 
 TrapDoor::TrapDoor(GameMap* gameMap) :
     Trap(gameMap),
@@ -45,7 +47,8 @@ TrapDoor::TrapDoor(GameMap* gameMap) :
 
 TrapEntity* TrapDoor::getTrapEntity(Tile* tile)
 {
-    return new DoorEntity(getGameMap(), getSeat(), getName(), MESH_DOOR, tile, 0.0, true, isActivated(tile) ? 1.0f : 0.7f);
+    return new DoorEntity(getGameMap(), getSeat(), getName(), MESH_DOOR, tile, 0.0, false, isActivated(tile) ? 1.0f : 0.7f,
+        ANIMATION_OPEN, true);
 }
 
 bool TrapDoor::isAttackable(Tile* tile, Seat* seat) const
@@ -89,13 +92,19 @@ void TrapDoor::doUpkeep()
     Trap::doUpkeep();
 }
 
-void TrapDoor::notifyDoorSlapped(Tile* tile)
+void TrapDoor::notifyDoorSlapped(DoorEntity* doorEntity, Tile* tile)
 {
-     mIsLocked = !mIsLocked;
+    mIsLocked = !mIsLocked;
+
+    if(mIsLocked)
+        doorEntity->setAnimationState(ANIMATION_CLOSE, true);
+    else
+        doorEntity->setAnimationState(ANIMATION_OPEN, true);
+
     if(!isActivated(tile))
         return;
 
-     getGameMap()->doorLock(tile, getSeat(), mIsLocked);
+    getGameMap()->doorLock(tile, getSeat(), mIsLocked);
 }
 
 bool TrapDoor::canDoorBeOnTile(GameMap* gameMap, Tile* tile)

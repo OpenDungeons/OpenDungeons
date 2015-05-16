@@ -37,9 +37,10 @@ static SpellManagerRegister<SpellCallToWar> reg(SpellType::callToWar, "callToWar
 // TODO : use the correct mesh when available
 SpellCallToWar::SpellCallToWar(GameMap* gameMap) :
     Spell(gameMap, SpellManager::getSpellNameFromSpellType(getSpellType()), "TrainingDummy1", 0.0,
-        ConfigManager::getSingleton().getSpellConfigInt32("CallToWarNbTurnsMax"),
-        "Triggered", true)
+        ConfigManager::getSingleton().getSpellConfigInt32("CallToWarNbTurnsMax"))
 {
+    mPrevAnimationState = "Triggered";
+    mPrevAnimationStateLoop = true;
 }
 
 SpellCallToWar::~SpellCallToWar()

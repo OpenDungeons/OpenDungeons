@@ -34,13 +34,10 @@
 
 #include "OgreAnimationState.h"
 
-MovableGameEntity::MovableGameEntity(GameMap* gameMap, const std::string& initialAnimationState,
-        bool initialAnimationLoop) :
+MovableGameEntity::MovableGameEntity(GameMap* gameMap) :
     GameEntity(gameMap),
     mAnimationState(nullptr),
     mMoveSpeed(1.0),
-    mPrevAnimationState(initialAnimationState),
-    mPrevAnimationStateLoop(initialAnimationLoop),
     mAnimationSpeedFactor(1.0),
     mDestinationAnimationState(EntityAnimation::idle_anim),
     mWalkDirection(Ogre::Vector3::ZERO),

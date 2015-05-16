@@ -37,9 +37,8 @@
 #include "utils/LogManager.h"
 
 Spell::Spell(GameMap* gameMap, const std::string& baseName, const std::string& meshName, Ogre::Real rotationAngle,
-        int32_t nbTurns, const std::string& initialAnimationState, bool initialAnimationLoop) :
-    RenderedMovableEntity(gameMap, baseName, meshName, rotationAngle, false, 1.0f,
-        initialAnimationState, initialAnimationLoop),
+        int32_t nbTurns) :
+    RenderedMovableEntity(gameMap, baseName, meshName, rotationAngle, false, 1.0f),
         mNbTurns(nbTurns)
 {
 }
