@@ -3220,18 +3220,25 @@ void GameMap::doorLock(Tile* tileDoor, Seat* seat, bool locked)
 
     // We save the list of the creatures that are on the same floodfill as the door tile. Then, we will check if the path
     // is still valid
-    std::vector<Creature*> creatures = getCreaturesBySeat(seat);
-    for(auto it = creatures.begin(); it != creatures.end();)
+    std::vector<Creature*> creatures;
+    for(Seat* alliedSeat : getSeats())
     {
-        Creature* creature = *it;
-        if(pathExists(creature, tileDoor, creature->getPositionTile()))
+        if((alliedSeat != seat) &&
+           (!alliedSeat->isAlliedSeat(seat)))
         {
-            ++it;
             continue;
         }
 
-        it = creatures.erase(it);
+        std::vector<Creature*> alliedCreatures = getCreaturesBySeat(seat);
+        for(Creature* creature : alliedCreatures)
+        {
+            if(!pathExists(creature, tileDoor, creature->getPositionTile()))
+                continue;
+
+            creatures.push_back(creature);
+        }
     }
+
     std::vector<uint32_t> colors(static_cast<uint32_t>(FloodFillType::nbValues), Tile::NO_FLOODFILL);
     Tile* tileChange = nullptr;
     uint32_t nbTilesNotFull = 0;
