@@ -27,6 +27,7 @@
 #include "traps/Trap.h"
 #include "traps/TrapBoulder.h"
 #include "traps/TrapCannon.h"
+#include "traps/TrapDoor.h"
 #include "traps/TrapSpike.h"
 
 #include "utils/Helper.h"
@@ -57,6 +58,7 @@ const Ogre::Vector3& CraftedTrap::getScale() const
 
 const std::string& CraftedTrap::getMeshFromTrapType(TrapType trapType)
 {
+    // TODO: let the TrapManager handle that
     switch(trapType)
     {
         case TrapType::nullTrapType:
@@ -67,6 +69,8 @@ const std::string& CraftedTrap::getMeshFromTrapType(TrapType trapType)
             return TrapSpike::MESH_SPIKE;
         case TrapType::boulder:
             return TrapBoulder::MESH_BOULDER;
+        case TrapType::doorWooden:
+            return TrapDoor::MESH_DOOR;
         default:
             OD_ASSERT_TRUE_MSG(false, "Wrong enum asked for CraftedTrap " + getName() + ", trapType="
                 + Helper::toString(static_cast<uint32_t>(trapType)));

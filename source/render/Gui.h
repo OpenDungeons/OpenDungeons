@@ -97,6 +97,7 @@ public:
     static const std::string BUTTON_PORTAL;
     static const std::string BUTTON_DESTROY_ROOM;
     static const std::string TAB_TRAPS;
+    static const std::string BUTTON_TRAP_DOOR_WOODEN;
     static const std::string BUTTON_TRAP_CANNON;
     static const std::string BUTTON_TRAP_SPIKE;
     static const std::string BUTTON_TRAP_BOULDER;

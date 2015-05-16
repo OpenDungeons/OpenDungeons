@@ -408,6 +408,10 @@ public:
     //! if at max HP or above
     bool isHurt() const;
 
+    //! Checks if the creature current walk path is still valid. This will be called if tiles passability changes (for
+    //! example if a door is closed)
+    void checkWalkPathValid();
+
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();

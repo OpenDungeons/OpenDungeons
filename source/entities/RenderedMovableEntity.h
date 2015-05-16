@@ -46,24 +46,24 @@ public:
     bool getHideCoveredTile() const
     { return mHideCoveredTile; }
 
-    virtual void doUpkeep()
+    virtual void doUpkeep() override
     {}
 
-    virtual const Ogre::Vector3& getScale() const;
+    virtual const Ogre::Vector3& getScale() const override;
 
     void receiveExp(double experience)
     {}
 
-    double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile* tileTakingDamage)
+    double takeDamage(GameEntity* attacker, double physicalDamage, double magicalDamage, Tile* tileTakingDamage) override
     { return 0.0; }
 
-    double getHP(Tile *tile) const
+    double getHP(Tile *tile) const override
     { return 0; }
 
     //! \brief Conform: GameEntity functions handling covered tiles
-    std::vector<Tile*> getCoveredTiles();
-    Tile* getCoveredTile(int index);
-    uint32_t numCoveredTiles();
+    std::vector<Tile*> getCoveredTiles() override;
+    Tile* getCoveredTile(int index) override;
+    uint32_t numCoveredTiles() override;
 
     Ogre::Real getRotationAngle() const
     { return mRotationAngle; }
@@ -73,8 +73,8 @@ public:
 
     virtual void setMeshOpacity(float opacity);
 
-    virtual void pickup();
-    virtual void drop(const Ogre::Vector3& v);
+    virtual void pickup() override;
+    virtual void drop(const Ogre::Vector3& v) override;
 
     //! Notify the RenderedMovableEntity that it is asked to be removed. If it returns
     //! true, it can be removed. Otherwise, that means that it should not. That allows
@@ -91,10 +91,13 @@ public:
     static std::string getRenderedMovableEntityStreamFormat();
 
 protected:
-    virtual void createMeshLocal();
-    virtual void destroyMeshLocal();
-    virtual void fireAddEntity(Seat* seat, bool async);
-    virtual void fireRemoveEntity(Seat* seat);
+    virtual void createMeshLocal() override;
+    virtual void destroyMeshLocal() override;
+    virtual void fireAddEntity(Seat* seat, bool async) override;
+    virtual void fireRemoveEntity(Seat* seat) override;
+
+    std::string mBaseName;
+
 private:
     Ogre::Real mRotationAngle;
     bool mHideCoveredTile;

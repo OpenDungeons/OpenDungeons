@@ -122,6 +122,7 @@ GameEditorModeBase::GameEditorModeBase(ModeManager* modeManager, ModeManager::Mo
         )
     );
     connectTrapSelect(Gui::BUTTON_TRAP_BOULDER, TrapType::boulder);
+    connectTrapSelect(Gui::BUTTON_TRAP_DOOR_WOODEN, TrapType::doorWooden);
     connectTrapSelect(Gui::BUTTON_TRAP_CANNON, TrapType::cannon);
     connectTrapSelect(Gui::BUTTON_TRAP_SPIKE, TrapType::spike);
 

@@ -15,27 +15,32 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRAPTYPE_H
-#define TRAPTYPE_H
+#ifndef DOORENTITY_H
+#define DOORENTITY_H
 
-#include <iosfwd>
+#include "entities/TrapEntity.h"
+
 #include <string>
 
+class Seat;
 class ODPacket;
 
-enum class TrapType
+class DoorEntity: public TrapEntity
 {
-    nullTrapType = 0,
-    cannon,
-    spike,
-    boulder,
-    doorWooden,
-    nbTraps     // Must be the last in this enum
+public:
+    DoorEntity(GameMap* gameMap, Seat* seat, const std::string& buildingName, const std::string& meshName,
+        Tile* tile, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity = 1.0f);
+    DoorEntity(GameMap* gameMap);
+
+    virtual TrapEntityType getTrapEntityType() const override
+    { return TrapEntityType::doorEntity; }
+
+    bool canSlap(Seat* seat);
+    void slap();
+
+    static DoorEntity* getDoorEntityFromPacket(GameMap* gameMap, ODPacket& is);
+    virtual void exportToPacket(ODPacket& os) const override;
+    virtual void importFromPacket(ODPacket& is) override;
 };
 
-std::istream& operator>>(std::istream& is, TrapType& tt);
-std::ostream& operator<<(std::ostream& os, const TrapType& tt);
-ODPacket& operator>>(ODPacket& is, TrapType& tt);
-ODPacket& operator<<(ODPacket& os, const TrapType& tt);
-
-#endif // TRAPTYPE_H
+#endif // DOORENTITY_H

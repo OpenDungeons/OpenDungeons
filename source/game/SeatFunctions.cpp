@@ -989,6 +989,7 @@ bool Seat::isSpellAvailable(SpellType type) const
 
 bool Seat::isRoomAvailable(RoomType type) const
 {
+    // TODO: use the RoomManager to map RoomType with ResearchType
     switch(type)
     {
         case RoomType::treasury:
@@ -1015,6 +1016,7 @@ bool Seat::isRoomAvailable(RoomType type) const
 
 bool Seat::isTrapAvailable(TrapType type) const
 {
+    // TODO: use the TrapManager to map RoomType with ResearchType
     switch(type)
     {
         case TrapType::boulder:
@@ -1023,6 +1025,8 @@ bool Seat::isTrapAvailable(TrapType type) const
             return isResearchDone(ResearchType::trapCannon);
         case TrapType::spike:
             return isResearchDone(ResearchType::trapSpike);
+        case TrapType::doorWooden:
+            return isResearchDone(ResearchType::trapDoorWooden);
         default:
             OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Helper::toString(
                 static_cast<int>(type)) + " for seatId " + Helper::toString(getId()));

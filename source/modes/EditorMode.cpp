@@ -988,6 +988,7 @@ void EditorMode::refreshGuiResearch()
     guiSheet->getChild(Gui::BUTTON_CRYPT)->show();
     guiSheet->getChild(Gui::BUTTON_TRAININGHALL)->show();
     guiSheet->getChild(Gui::BUTTON_WORKSHOP)->show();
+    guiSheet->getChild(Gui::BUTTON_TRAP_DOOR_WOODEN)->show();
     guiSheet->getChild(Gui::BUTTON_TRAP_CANNON)->show();
     guiSheet->getChild(Gui::BUTTON_TRAP_SPIKE)->show();
     guiSheet->getChild(Gui::BUTTON_TRAP_BOULDER)->show();

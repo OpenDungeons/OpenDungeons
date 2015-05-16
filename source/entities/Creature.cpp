@@ -3675,6 +3675,13 @@ bool Creature::canGoThroughTile(const Tile* tile) const
     if(tile == nullptr)
         return false;
 
+    // Check if the covering building allows this creature to go through
+    if((tile->getCoveringBuilding() != nullptr) &&
+       (!tile->getCoveringBuilding()->canCreatureGoThroughTile(this, tile)))
+    {
+        return false;
+    }
+
     switch(tile->getType())
     {
         case TileType::dirt:
@@ -4465,4 +4472,30 @@ void Creature::addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z)
     Ogre::Vector3 destination(x, y, z);
 
     mWalkQueue.push_back(destination);
+}
+
+void Creature::checkWalkPathValid()
+{
+    bool stop = false;
+    for(const Ogre::Vector3& dest : mWalkQueue)
+    {
+        Tile* tile = getGameMap()->getTile(Helper::round(dest.x), Helper::round(dest.y));
+        if(tile == nullptr)
+        {
+            stop = true;
+            break;
+        }
+
+        if(!canGoThroughTile(tile))
+        {
+            stop = true;
+            break;
+        }
+    }
+
+    if(!stop)
+        return;
+
+    // There is an unpassable tile in our way. We stop what we are doing
+    clearDestinations();
 }

@@ -1452,7 +1452,9 @@ bool GameMap::pathExists(const Creature* creature, Tile* tileStart, Tile* tileEn
     if(!mFloodFillEnabled)
         return true;
 
-    if(creature == nullptr || !creature->canGoThroughTile(tileStart) || !creature->canGoThroughTile(tileEnd))
+    // We check if the tile we are heading to is walkable. We don't do the same for the start tile because it might
+    //not be the case if a creature is on a door tile while it is closed
+    if(creature == nullptr || !creature->canGoThroughTile(tileEnd))
         return false;
 
     if((creature->getMoveSpeedGround() > 0.0) &&
@@ -1497,7 +1499,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* c
     if (!throughDiggableTiles && !pathExists(creature, start, destination))
         return returnList;
 
-    AstarEntry *currentEntry = new AstarEntry(getTile(x1, y1), x1, y1, x2, y2);
+    AstarEntry *currentEntry = new AstarEntry(start, x1, y1, x2, y2);
     AstarEntry neighbor;
 
     std::vector<AstarEntry*> openList;
@@ -1578,7 +1580,10 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* c
             neighbor.setTile(neighborTile);
 
             bool processNeighbor = false;
-            if(creature->canGoThroughTile(neighbor.getTile()))
+            // We process the tile if the creature can go through. But if it is the first tile that is
+            // not passable, we also process it. That happens if a door is closed
+            if((creature->canGoThroughTile(neighbor.getTile())) ||
+               (neighbor.getTile() == start))
             {
                 processNeighbor = true;
                 // We set passability for the 4 adjacent tiles only
@@ -3173,6 +3178,144 @@ void GameMap::clientUpKeep(int64_t turnNumber)
     {
         entity->clientUpkeep();
     }
+}
+
+void GameMap::doorLock(Tile* tileDoor, Seat* seat, bool locked)
+{
+    if(!locked)
+    {
+        // When a door is unlocked, we check all its neighboors to find a floodfill value for each possible
+        // tile type and set the same for all neighboor tiles
+        std::vector<uint32_t> colors(static_cast<uint32_t>(FloodFillType::nbValues), Tile::NO_FLOODFILL);
+
+        for(uint32_t i = 0; i < colors.size(); ++i)
+        {
+            FloodFillType type = static_cast<FloodFillType>(i);
+            if(colors[i] == Tile::NO_FLOODFILL)
+                colors[i] = tileDoor->getFloodFillValue(seat, type);
+        }
+
+        // Now, we check all neighboors and replace floodfill values if different
+        for(uint32_t i = 0; i < colors.size(); ++i)
+        {
+            if(colors[i] == Tile::NO_FLOODFILL)
+                continue;
+
+            FloodFillType type = static_cast<FloodFillType>(i);
+            for(Tile* neigh : tileDoor->getAllNeighbors())
+            {
+                uint32_t neighColor = neigh->getFloodFillValue(seat, type);
+                if(neighColor == Tile::NO_FLOODFILL)
+                    continue;
+
+                if(neighColor == colors[i])
+                    continue;
+
+                replaceFloodFill(seat, type, neighColor, colors[i]);
+            }
+        }
+
+        return;
+    }
+
+    // We save the list of the creatures that are on the same floodfill as the door tile. Then, we will check if the path
+    // is still valid
+    std::vector<Creature*> creatures = getCreaturesBySeat(seat);
+    for(auto it = creatures.begin(); it != creatures.end();)
+    {
+        Creature* creature = *it;
+        if(pathExists(creature, tileDoor, creature->getPositionTile()))
+        {
+            ++it;
+            continue;
+        }
+
+        it = creatures.erase(it);
+    }
+    std::vector<uint32_t> colors(static_cast<uint32_t>(FloodFillType::nbValues), Tile::NO_FLOODFILL);
+    Tile* tileChange = nullptr;
+    uint32_t nbTilesNotFull = 0;
+    for(Tile* neigh : tileDoor->getAllNeighbors())
+    {
+        // We look for the second not full tile and replace its floodfillvalues (the second is better than
+        // the first in case a door is placed next to the gamemap border)
+        if(neigh->isFullTile())
+            continue;
+
+        ++nbTilesNotFull;
+        if(nbTilesNotFull >= 2)
+        {
+            tileChange = neigh;
+            break;
+        }
+    }
+
+    // If there is no tile to change, leaving
+    if(tileChange == nullptr)
+        return;
+
+    // We only change tiles floodfilled like tileChange. That will avoid changing floodfill on tiles closed by
+    // another closed door or something
+    std::vector<uint32_t> colorsToChange(static_cast<uint32_t>(FloodFillType::nbValues), Tile::NO_FLOODFILL);
+    for(uint32_t i = 0; i < colors.size(); ++i)
+    {
+        FloodFillType type = static_cast<FloodFillType>(i);
+        uint32_t tileChangeColor = tileChange->getFloodFillValue(seat, type);
+        if(tileChangeColor == Tile::NO_FLOODFILL)
+            continue;
+
+        colorsToChange[i] = tileChangeColor;
+        colors[i] = nextUniqueFloodFillValue();
+    }
+
+    std::vector<Tile*> tiles;
+    tiles.push_back(tileChange);
+    while(!tiles.empty())
+    {
+        Tile* tile = tiles.back();
+        tiles.pop_back();
+
+        // We add the neighboor tiles if they are floodfilled as tileChange
+        for(Tile* neigh : tile->getAllNeighbors())
+        {
+            // We don't want to consider the door tile
+            if(neigh == tileDoor)
+                continue;
+
+            for(uint32_t i = 0; i < colors.size(); ++i)
+            {
+                if(colors[i] == Tile::NO_FLOODFILL)
+                    continue;
+
+                FloodFillType type = static_cast<FloodFillType>(i);
+                uint32_t neighColor = neigh->getFloodFillValue(seat, type);
+                if(neighColor == Tile::NO_FLOODFILL)
+                    continue;
+
+                if((neighColor == colorsToChange[i]) &&
+                   (std::find(tiles.begin(), tiles.end(), tile) == tiles.end()))
+                {
+                    tiles.push_back(neigh);
+                    break;
+                }
+            }
+        }
+
+        // We replace floodillcolor for the current tile
+        for(uint32_t i = 0; i < colors.size(); ++i)
+        {
+            FloodFillType type = static_cast<FloodFillType>(i);
+            if(colors[i] == Tile::NO_FLOODFILL)
+                continue;
+
+            if(tile->getFloodFillValue(seat, type) == colorsToChange[i])
+                tile->replaceFloodFill(seat, type, colors[i]);
+        }
+    }
+
+    // We check if a creature from the given seat has a path through the door and stop it if there is
+    for(Creature* creature : creatures)
+        creature->checkWalkPathValid();
 }
 
 void GameMap::notifySeatsConfigured()

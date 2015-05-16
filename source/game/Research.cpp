@@ -78,6 +78,8 @@ std::string Research::researchTypeToString(ResearchType type)
             return "trapCannon";
         case ResearchType::trapSpike:
             return "trapSpike";
+        case ResearchType::trapDoorWooden:
+            return "trapDoorWooden";
         default:
             return "Unknown enum value:" + Helper::toString(static_cast<int>(type));
     }

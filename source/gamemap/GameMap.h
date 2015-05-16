@@ -524,6 +524,11 @@ public:
     //! Called on client side each time a new turn is received
     void clientUpKeep(int64_t turnNumber);
 
+    //! Updates floodfill for the given seat. If locked is true, creatures from the given seat would
+    //! not be allowed to go through the tile. If locked is false, creatures from the given seat will be
+    //! allowed to go through tile
+    void doorLock(Tile* tileDoor, Seat* seat, bool locked);
+
     void notifySeatsConfigured();
 
     const std::vector<int>& getTeamIds() const

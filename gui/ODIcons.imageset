@@ -13,6 +13,7 @@
     <Image height="60" name="CannonButton" width="60" xPos="2" yPos="450" />
     <Image height="60" name="SpikeTrapButton" width="60" xPos="66" yPos="450" />
     <Image height="60" name="BoulderTrapButton" width="60" xPos="130" yPos="450" />
+    <Image height="60" name="WoodenDoorTrapButton" width="60" xPos="194" yPos="194" />
     <Image height="60" name="DestroyTrapButton" width="60" xPos="450" yPos="130" />
     <Image height="60" name="WorkerButton" width="60" xPos="2" yPos="386" />
     <Image height="60" name="FighterButton" width="60" xPos="66" yPos="386" />

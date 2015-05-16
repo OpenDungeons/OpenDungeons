@@ -70,6 +70,7 @@ public:
     //! most rooms will fail to build.
     //! If no target is available, this function should return the gold needed for 1 target and
     //! targets vector should be empty
+    //! Returns the gold price the room will cost. If < 0, it means the room cannot be built
     static int getRoomCost(std::vector<Tile*>& targets, GameMap* gameMap, RoomType type,
         int tileX1, int tileY1, int tileX2, int tileY2, Player* player);
 
@@ -86,6 +87,8 @@ public:
 
     static RoomType getRoomTypeFromRoomName(const std::string& name);
 
+    //! Returns the price the player will get back if he sells the rooms in the selected area. If < 0,
+    //! it means that the rooms cannot be sold
     static int getRefundPrice(std::vector<Tile*>& tiles, GameMap* gameMap,
         int tileX1, int tileY1, int tileX2, int tileY2, Player* player);
 

@@ -54,6 +54,7 @@ RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap, const std::string
         Ogre::Real rotationAngle, bool hideCoveredTile, float opacity, const std::string& initialAnimationState,
         bool initialAnimationLoop) :
     MovableGameEntity(gameMap, initialAnimationState, initialAnimationLoop),
+    mBaseName(baseName),
     mRotationAngle(rotationAngle),
     mHideCoveredTile(hideCoveredTile),
     mOpacity(opacity)

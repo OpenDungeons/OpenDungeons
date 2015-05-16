@@ -26,6 +26,15 @@
 class Seat;
 class ODPacket;
 
+enum class TrapEntityType
+{
+    trapEntity,
+    doorEntity
+};
+
+ODPacket& operator<<(ODPacket& os, const TrapEntityType& type);
+ODPacket& operator>>(ODPacket& is, TrapEntityType& type);
+
 class TrapEntity: public PersistentObject
 {
 public:
@@ -36,6 +45,9 @@ public:
     virtual GameEntityType getObjectType() const override
     { return GameEntityType::trapEntity; }
 
+    virtual TrapEntityType getTrapEntityType() const
+    { return TrapEntityType::trapEntity; }
+
     virtual bool isVisibleForSeat(Seat* seat);
 
     void seatsSawTriggering(const std::vector<Seat*>& seats);
@@ -44,6 +56,8 @@ public:
 
     const std::vector<Seat*>& getSeatsNotHidden() const
     { return mSeatsNotHidden; }
+
+    virtual void exportHeadersToPacket(ODPacket& os) const override;
 
     static TrapEntity* getTrapEntityFromPacket(GameMap* gameMap, ODPacket& is);
 

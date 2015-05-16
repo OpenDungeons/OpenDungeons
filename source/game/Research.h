@@ -42,6 +42,7 @@ enum class ResearchType
     trapBoulder,
     trapCannon,
     trapSpike,
+    trapDoorWooden,
 
     // Spells
     spellSummonWorker,
