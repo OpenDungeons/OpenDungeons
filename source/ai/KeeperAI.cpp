@@ -783,6 +783,9 @@ bool KeeperAI::repairRooms()
             return false;
 
         RoomManager::buildRoom(&mGameMap, type, tiles, mPlayer.getSeat());
+        // We only repair one room at a time. Note that if we want to repair more than one room at a time, we should pay
+        // attention to not modify the room list (if room absorbed in RoomManager::buildRoom) while iterating it
+        break;
     }
 
     return false;
