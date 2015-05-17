@@ -835,7 +835,7 @@ void Creature::doUpkeep()
         // Carry out the current task
         if (!mActionQueue.empty())
         {
-            CreatureAction topActionItem = peekAction();
+            CreatureAction topActionItem = mActionQueue.front();
             switch (topActionItem.getType())
             {
                 case CreatureActionType::idle:
@@ -1350,8 +1350,7 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
                 {
                     // We found a worker so find a tile near the worker to walk to.  See if the worker is digging.
                     Tile* tempTile = mReachableAlliedObjects[i]->getCoveredTile(0);
-                    if (static_cast<Creature*>(mReachableAlliedObjects[i])->peekAction().getType()
-                            == CreatureActionType::digTile)
+                    if (static_cast<Creature*>(mReachableAlliedObjects[i])->isActionInList(CreatureActionType::digTile))
                     {
                         // Worker is digging, get near it since it could expose enemies.
                         int x = static_cast<int>(static_cast<double>(tempTile->getX()) + 3.0
@@ -1881,7 +1880,7 @@ bool Creature::handleDigTileAction(const CreatureAction& actionItem)
     // If none of our neighbors are marked for digging we got here too late.
     // Finish digging
     mForceAction = forcedActionNone;
-    bool isDigging = (peekAction().getType() == CreatureActionType::digTile);
+    bool isDigging = isActionInList(CreatureActionType::digTile);
     if (isDigging)
     {
         popAction();
@@ -3630,11 +3629,6 @@ void Creature::popAction()
     mActionQueue.pop_front();
     if(!mActionQueue.empty())
         mActionQueue.front().clearNbTurnsActive();
-}
-
-CreatureAction Creature::peekAction()
-{
-    return mActionQueue.front();
 }
 
 bool Creature::tryPickup(Seat* seat)

@@ -566,7 +566,6 @@ private:
     //! not been tested or if forcePush is true, the action will be pushed and pushAction will return true
     bool pushAction(CreatureAction action, bool forcePush = false);
     void popAction();
-    CreatureAction peekAction();
 
     //! \brief Picks a destination far away in the visible tiles and goes there
     //! Returns true if a valid Tile was found. The creature will go there
