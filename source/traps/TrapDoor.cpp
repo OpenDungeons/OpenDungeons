@@ -41,22 +41,14 @@ TrapDoor::TrapDoor(GameMap* gameMap) :
     mReloadTime = 0;
     mMinDamage = 0;
     mMaxDamage = 0;
-    mNbShootsBeforeDeactivation = 1;
-    setMeshName("Spike");
+    mNbShootsBeforeDeactivation = -1;
+    setMeshName("DoorWooden");
 }
 
 TrapEntity* TrapDoor::getTrapEntity(Tile* tile)
 {
     return new DoorEntity(getGameMap(), getSeat(), getName(), MESH_DOOR, tile, 0.0, false, isActivated(tile) ? 1.0f : 0.7f,
         ANIMATION_OPEN, true);
-}
-
-bool TrapDoor::isAttackable(Tile* tile, Seat* seat) const
-{
-    if(getSeat()->isAlliedSeat(seat))
-        return false;
-
-    return true;
 }
 
 void TrapDoor::activate(Tile* tile)
@@ -164,6 +156,15 @@ void TrapDoor::buildTrap(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat
 {
     TrapDoor* room = new TrapDoor(gameMap);
     buildTrapDefault(gameMap, room, tiles, seat);
+}
+
+bool TrapDoor::permitsVision(Tile* tile)
+{
+    TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData.at(tile));
+    if (!trapTileData->isActivated())
+        return true;
+
+    return !mIsLocked;
 }
 
 Trap* TrapDoor::getTrapFromStream(GameMap* gameMap, std::istream& is)

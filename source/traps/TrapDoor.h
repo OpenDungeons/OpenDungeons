@@ -33,13 +33,11 @@ public:
     virtual const TrapType getType() const
     { return TrapType::doorWooden; }
 
-    // Wooden Doors cannot attack
+    // We return true to make sure every creature with vision on the door tile can see it
     virtual bool shoot(Tile* tile) override
-    { return false; }
+    { return true; }
 
     virtual void doUpkeep() override;
-
-    virtual bool isAttackable(Tile* tile, Seat* seat) const override;
 
     //! \brief There is no building tile for this trap
     virtual bool shouldDisplayBuildingTile() const override
@@ -62,6 +60,8 @@ public:
     //! Returns true is tiles North and South (or east and west) are suitable to have a door on the
     //! given tile
     static bool canDoorBeOnTile(GameMap* gameMap, Tile* tile);
+
+    virtual bool permitsVision(Tile* tile) override;
 
     static int getTrapCost(std::vector<Tile*>& tiles, GameMap* gameMap, TrapType type,
         int tileX1, int tileY1, int tileX2, int tileY2, Player* player);

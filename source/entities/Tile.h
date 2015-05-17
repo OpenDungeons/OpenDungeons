@@ -142,8 +142,7 @@ public:
     { return mFullness; }
 
     //! \brief Tells whether a creature can see through a tile
-    inline bool permitsVision() const
-    { return (mFullness == 0.0); }
+    bool permitsVision();
 
     inline uint32_t getRefundPriceRoom() const
     { return mRefundPriceRoom; }

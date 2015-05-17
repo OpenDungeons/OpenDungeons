@@ -739,3 +739,17 @@ bool Tile::isFullTile() const
         }
     }
 }
+
+bool Tile::permitsVision()
+{
+    if(isFullTile())
+        return false;
+
+    if((getCoveringBuilding() != nullptr) &&
+       (!getCoveringBuilding()->permitsVision(this)))
+    {
+        return false;
+    }
+
+    return true;
+}

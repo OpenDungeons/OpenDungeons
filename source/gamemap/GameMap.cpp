@@ -1454,7 +1454,7 @@ bool GameMap::pathExists(const Creature* creature, Tile* tileStart, Tile* tileEn
 
     // We check if the tile we are heading to is walkable. We don't do the same for the start tile because it might
     //not be the case if a creature is on a door tile while it is closed
-    if(creature == nullptr || !creature->canGoThroughTile(tileEnd))
+    if(creature == nullptr)
         return false;
 
     if((creature->getMoveSpeedGround() > 0.0) &&

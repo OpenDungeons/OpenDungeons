@@ -3178,7 +3178,6 @@ std::vector<GameEntity*> Creature::getReachableAttackableObjects(const std::vect
 {
     std::vector<GameEntity*> tempVector;
     Tile* myTile = getPositionTile();
-    std::list<Tile*> tempPath;
 
     // Loop over the vector of objects we are supposed to check.
     for (unsigned int i = 0; i < objectsToCheck.size(); ++i)
