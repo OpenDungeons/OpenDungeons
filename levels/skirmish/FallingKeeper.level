@@ -32,9 +32,11 @@ spellSummonWorker
 [ResearchPending]
 roomTrainingHall
 spellCallToWar
+trapDoorWooden
 trapSpike
 roomWorkshop
 roomCrypt
+trapDoorWooden
 trapBoulder
 spellCreatureHeal
 spellCreatureExplosion
@@ -64,6 +66,7 @@ spellSummonWorker
 [ResearchPending]
 roomTrainingHall
 spellCallToWar
+trapDoorWooden
 trapSpike
 roomWorkshop
 roomCrypt
