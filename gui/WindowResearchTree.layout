@@ -15,12 +15,12 @@
                 <Property name="TooltipText" value="Room: Training Hall" />
             </Window>
             <Window type="OD/ImageButton" name="CallToWarButton" >
-                <Property name="Area" value="{{0.5,-25},{0,75},{0.5,25},{0,125}}" />
+                <Property name="Area" value="{{0.3,-25},{0,75},{0.3,25},{0,125}}" />
                 <Property name="ButtonImage" value="OpenDungeonsIcons/CallToWarButton" />
                 <Property name="TooltipText" value="Spell: Call to War" />
             </Window>
             <Window type="OD/ImageButton" name="CreatureExplosionButton" >
-                <Property name="Area" value="{{0.2,-25},{0,75},{0.2,25},{0,125}}" />
+                <Property name="Area" value="{{0.7,-25},{0,75},{0.7,25},{0,125}}" />
                 <Property name="ButtonImage" value="OpenDungeonsIcons/CreatureExplosionButton" />
                 <Property name="TooltipText" value="Spell: Creature Explosion" />
             </Window>
