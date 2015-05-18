@@ -254,8 +254,6 @@ class GameEntity : public EntityBase
     //! Unique number allowing to have unique names for particle systems attached to this creature
     uint32_t mParticleSystemsNumber;
 
-    void clearParticleSystems();
-
 };
 
 #endif // GAMEENTITY_H

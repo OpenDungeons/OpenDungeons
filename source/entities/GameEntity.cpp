@@ -301,16 +301,15 @@ void GameEntity::importFromStream(std::istream& is)
 void GameEntity::destroyMeshLocal()
 {
     EntityBase::destroyMeshLocal();
-    clearParticleSystems();
-}
-
-void GameEntity::clearParticleSystems()
-{
-    for(EntityParticleEffect* effect : mEntityParticleEffects)
+    if(!getGameMap()->isServerGameMap())
     {
-        RenderManager::getSingleton().rrEntityRemoveParticleEffect(this, effect->mParticleSystem);
-        delete effect;
+        for(EntityParticleEffect* effect : mEntityParticleEffects)
+            RenderManager::getSingleton().rrEntityRemoveParticleEffect(this, effect->mParticleSystem);
     }
+
+    for(EntityParticleEffect* effect : mEntityParticleEffects)
+        delete effect;
+
     mEntityParticleEffects.clear();
 }
 
@@ -323,31 +322,31 @@ void GameEntity::clientUpkeep()
 {
     for(auto it = mEntityParticleEffects.begin(); it != mEntityParticleEffects.end();)
     {
-        EntityParticleEffect* cpe = *it;
+        EntityParticleEffect* effect = *it;
         // We check if it is a permanent effect
-        if(cpe->mNbTurnsEffect < 0)
+        if(effect->mNbTurnsEffect < 0)
             continue;
 
         // We check if the effect is still active
-        if(cpe->mNbTurnsEffect > 0)
+        if(effect->mNbTurnsEffect > 0)
         {
-            --cpe->mNbTurnsEffect;
+            --effect->mNbTurnsEffect;
             ++it;
             continue;
         }
 
         // Remove the effect
-        RenderManager::getSingleton().rrEntityRemoveParticleEffect(this, cpe->mParticleSystem);
+        RenderManager::getSingleton().rrEntityRemoveParticleEffect(this, effect->mParticleSystem);
         it = mEntityParticleEffects.erase(it);
-        delete cpe;
+        delete effect;
     }
 }
 
 void GameEntity::restoreEntityState()
 {
-    for(EntityParticleEffect* cpe : mEntityParticleEffects)
+    for(EntityParticleEffect* effect : mEntityParticleEffects)
     {
-        cpe->mParticleSystem = RenderManager::getSingleton().rrEntityAddParticleEffect(this,
-            cpe->mName, cpe->mScript);
+        effect->mParticleSystem = RenderManager::getSingleton().rrEntityAddParticleEffect(this,
+            effect->mName, effect->mScript);
     }
 }
