@@ -34,8 +34,6 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-#include <OgreStringConverter.h>
-
 static SpellManagerRegister<SpellSummonWorker> reg(SpellType::summonWorker, "summonWorker");
 
 int SpellSummonWorker::getSpellCost(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
@@ -140,7 +138,7 @@ void SpellSummonWorker::castSpell(GameMap* gameMap, const std::vector<EntityBase
          // Create a new creature and copy over the class-based creature parameters.
         Creature* newCreature = new Creature(gameMap, classToSpawn, player->getSeat());
         LogManager::getSingleton().logMessage("Spawning a creature class=" + classToSpawn->getClassName()
-            + ", name=" + newCreature->getName() + ", seatId=" + Ogre::StringConverter::toString(player->getSeat()->getId()));
+            + ", name=" + newCreature->getName() + ", seatId=" + Helper::toString(player->getSeat()->getId()));
 
         newCreature->addToGameMap();
         Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(tile->getX()),

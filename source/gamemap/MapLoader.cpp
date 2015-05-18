@@ -916,20 +916,20 @@ bool getMapInfo(const std::string& fileName, LevelInfo& levelInfo)
         std::string str;
 
         if (playerSeatNumber > 0)
-            str += "Player slot(s): " + Ogre::StringConverter::toString(playerSeatNumber);
+            str += "Player slot(s): " + Helper::toString(playerSeatNumber);
         if (AISeatNumber > 0)
         {
             if(!str.empty())
                 str += " / ";
 
-            str += "AI: " + Ogre::StringConverter::toString(AISeatNumber);
+            str += "AI: " + Helper::toString(AISeatNumber);
         }
         if (seatConfigurable > 0)
         {
             if(!str.empty())
                 str += " / ";
 
-            str += "Configurable: " + Ogre::StringConverter::toString(seatConfigurable);
+            str += "Configurable: " + Helper::toString(seatConfigurable);
         }
 
         mapInfo << str << std::endl << std::endl;

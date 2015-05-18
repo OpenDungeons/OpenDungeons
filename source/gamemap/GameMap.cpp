@@ -68,7 +68,6 @@
 #include "utils/ResourceManager.h"
 
 #include <OgreTimer.h>
-#include <OgreStringConverter.h>
 
 #include <iostream>
 #include <sstream>
@@ -455,7 +454,7 @@ void GameMap::addWeapon(const Weapon* weapon)
 
 const Weapon* GameMap::getWeapon(int index)
 {
-    OD_ASSERT_TRUE_MSG(index < static_cast<int>(mWeapons.size()), "index=" + Ogre::StringConverter::toString(index));
+    OD_ASSERT_TRUE_MSG(index < static_cast<int>(mWeapons.size()), "index=" + Helper::toString(index));
     if(index >= static_cast<int>(mWeapons.size()))
         return nullptr;
 
@@ -525,7 +524,7 @@ void GameMap::saveLevelEquipments(std::ofstream& levelFile)
 void GameMap::addCreature(Creature *cc)
 {
     LogManager::getSingleton().logMessage(serverStr() + "Adding Creature " + cc->getName()
-        + ", seatId=" + (cc->getSeat() != nullptr ? Ogre::StringConverter::toString(cc->getSeat()->getId()) : std::string("null")));
+        + ", seatId=" + (cc->getSeat() != nullptr ? Helper::toString(cc->getSeat()->getId()) : std::string("null")));
 
     mCreatures.push_back(cc);
 }
@@ -1807,7 +1806,7 @@ void GameMap::addRoom(Room *r)
 {
     int nbTiles = r->numCoveredTiles();
     LogManager::getSingleton().logMessage(serverStr() + "Adding room " + r->getName() + ", nbTiles="
-        + Ogre::StringConverter::toString(nbTiles) + ", seatId=" + Ogre::StringConverter::toString(r->getSeat()->getId()));
+        + Helper::toString(nbTiles) + ", seatId=" + Helper::toString(r->getSeat()->getId()));
     for(Tile* tile : r->getCoveredTiles())
     {
         LogManager::getSingleton().logMessage(serverStr() + "Adding room " + r->getName() + ", tile=" + Tile::displayAsString(tile));
@@ -1969,7 +1968,7 @@ void GameMap::addTrap(Trap *trap)
 {
     int nbTiles = trap->numCoveredTiles();
     LogManager::getSingleton().logMessage(serverStr() + "Adding trap " + trap->getName() + ", nbTiles="
-        + Ogre::StringConverter::toString(nbTiles) + ", seatId=" + Ogre::StringConverter::toString(trap->getSeat()->getId()));
+        + Helper::toString(nbTiles) + ", seatId=" + Helper::toString(trap->getSeat()->getId()));
 
     mTraps.push_back(trap);
 }
@@ -2590,7 +2589,7 @@ std::string GameMap::nextUniqueNameCreature(const std::string& className)
     do
     {
         ++mUniqueNumberCreature;
-        ret = className + Ogre::StringConverter::toString(mUniqueNumberCreature);
+        ret = className + Helper::toString(mUniqueNumberCreature);
     } while(getCreature(ret) != nullptr);
     return ret;
 }
@@ -2601,7 +2600,7 @@ std::string GameMap::nextUniqueNameRoom(const std::string& meshName)
     do
     {
         ++mUniqueNumberRoom;
-        ret = meshName + Ogre::StringConverter::toString(mUniqueNumberRoom);
+        ret = meshName + Helper::toString(mUniqueNumberRoom);
     } while(getRoomByName(ret) != nullptr);
     return ret;
 }
@@ -2612,7 +2611,7 @@ std::string GameMap::nextUniqueNameRenderedMovableEntity(const std::string& base
     do
     {
         ++mUniqueNumberRenderedMovableEntity;
-        ret = RenderedMovableEntity::RENDEREDMOVABLEENTITY_PREFIX + baseName + "_" + Ogre::StringConverter::toString(mUniqueNumberRenderedMovableEntity);
+        ret = RenderedMovableEntity::RENDEREDMOVABLEENTITY_PREFIX + baseName + "_" + Helper::toString(mUniqueNumberRenderedMovableEntity);
     } while(getRenderedMovableEntity(ret) != nullptr);
     return ret;
 }
@@ -2623,7 +2622,7 @@ std::string GameMap::nextUniqueNameTrap(const std::string& meshName)
     do
     {
         ++mUniqueNumberTrap;
-        ret = meshName + "_" + Ogre::StringConverter::toString(mUniqueNumberTrap);
+        ret = meshName + "_" + Helper::toString(mUniqueNumberTrap);
     } while(getTrapByName(ret) != nullptr);
     return ret;
 }
@@ -2634,7 +2633,7 @@ std::string GameMap::nextUniqueNameMapLight()
     do
     {
         ++mUniqueNumberMapLight;
-        ret = MapLight::MAPLIGHT_NAME_PREFIX + Ogre::StringConverter::toString(mUniqueNumberMapLight);
+        ret = MapLight::MAPLIGHT_NAME_PREFIX + Helper::toString(mUniqueNumberMapLight);
     } while(getMapLight(ret) != nullptr);
     return ret;
 }

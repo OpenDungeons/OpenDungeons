@@ -742,7 +742,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         {
             // We change server state to make sure no new client will be accepted
             OD_ASSERT_TRUE_MSG(mServerState == ServerState::StateConfiguration, "Wrong server state="
-                + Ogre::StringConverter::toString(static_cast<int>(mServerState)));
+                + Helper::toString(static_cast<int>(mServerState)));
             mServerState = ServerState::StateGame;
 
             std::vector<Seat*> seats = gameMap->getSeats();
@@ -777,7 +777,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     {
                         // It is an inactive player
                         Player* inactivePlayer = new Player(gameMap, 0);
-                        inactivePlayer->setNick("Inactive AI " + Ogre::StringConverter::toString(seatId));
+                        inactivePlayer->setNick("Inactive AI " + Helper::toString(seatId));
                         gameMap->addPlayer(inactivePlayer);
                         seat->setPlayer(inactivePlayer);
                         break;
@@ -788,7 +788,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                         // We set player id = 0 for AI players. ID is only used during seat configuration phase
                         // During the game, one should use the seat ID to identify a player
                         Player* aiPlayer = new Player(gameMap, 0);
-                        aiPlayer->setNick("Keeper AI " + Ogre::StringConverter::toString(seatId));
+                        aiPlayer->setNick("Keeper AI " + Helper::toString(seatId));
                         gameMap->addPlayer(aiPlayer);
                         seat->setPlayer(aiPlayer);
                         gameMap->assignAI(*aiPlayer, "KeeperAI");
@@ -834,7 +834,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 {
                     Player* player = client->getPlayer();
                     LogManager::getSingleton().logMessage("Rejecting player id="
-                        + Ogre::StringConverter::toString(player->getId())
+                        + Helper::toString(player->getId())
                         + ", nick=" + player->getNick());
                     setClientState(client, "rejected");
                     sendMsgToClient(client, packetSend);
@@ -903,7 +903,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             Player *player = clientSocket->getPlayer();
             GameEntity* entity = gameMap->getEntityFromTypeAndName(entityType, entityName);
-            OD_ASSERT_TRUE_MSG(entity != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
+            OD_ASSERT_TRUE_MSG(entity != nullptr, "entityType=" + Helper::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
             if(entity == nullptr)
                 break;
             bool allowPickup = entity->tryPickup(player->getSeat());
@@ -911,7 +911,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             {
                 LogManager::getSingleton().logMessage("player=" + player->getNick()
                         + " could not pickup entity entityType="
-                        + Ogre::StringConverter::toString(static_cast<int32_t>(entityType))
+                        + Helper::toString(static_cast<int32_t>(entityType))
                         + ", entityName=" + entityName);
                 break;
             }
@@ -984,7 +984,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             Player* player = clientSocket->getPlayer();
             OD_ASSERT_TRUE(packetReceived >> entityType >> entityName);
             GameEntity* entity = gameMap->getEntityFromTypeAndName(entityType, entityName);
-            OD_ASSERT_TRUE_MSG(entity != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
+            OD_ASSERT_TRUE_MSG(entity != nullptr, "entityType=" + Helper::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
             if(entity == nullptr)
                 break;
 
@@ -993,7 +993,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             {
                 LogManager::getSingleton().logMessage("player=" + player->getNick()
                         + " could not slap entity entityType="
-                        + Ogre::StringConverter::toString(static_cast<int32_t>(entityType))
+                        + Helper::toString(static_cast<int32_t>(entityType))
                         + ", entityName=" + entityName);
                 break;
             }
@@ -1058,7 +1058,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         case ClientNotificationType::editorAskDestroyRoomTiles:
         {
             OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
-                + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
+                + Helper::toString(static_cast<int>(mServerMode)));
             int x1, y1, x2, y2;
 
             OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2);
@@ -1174,7 +1174,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         case ClientNotificationType::editorAskDestroyTrapTiles:
         {
             OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
-                + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
+                + Helper::toString(static_cast<int>(mServerMode)));
             int x1, y1, x2, y2;
 
             OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2);
@@ -1332,7 +1332,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         case ClientNotificationType::editorAskChangeTiles:
         {
             OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
-                + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
+                + Helper::toString(static_cast<int>(mServerMode)));
             int x1, y1, x2, y2;
             TileType tileType;
             double tileFullness;
@@ -1392,14 +1392,14 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         case ClientNotificationType::editorAskBuildRoom:
         {
             OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
-                + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
+                + Helper::toString(static_cast<int>(mServerMode)));
             int x1, y1, x2, y2;
             int seatId;
             RoomType type;
 
             OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> type >> seatId);
             Seat* seat = gameMap->getSeatById(seatId);
-            OD_ASSERT_TRUE_MSG(seat != nullptr, "seatId=" + Ogre::StringConverter::toString(seatId));
+            OD_ASSERT_TRUE_MSG(seat != nullptr, "seatId=" + Helper::toString(seatId));
             std::vector<Tile*> selectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
             std::vector<Tile*> tiles;
             // We start by changing the tiles so that the room can be built
@@ -1430,14 +1430,14 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         case ClientNotificationType::editorAskBuildTrap:
         {
             OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
-                + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
+                + Helper::toString(static_cast<int>(mServerMode)));
             int x1, y1, x2, y2;
             int seatId;
             TrapType type;
 
             OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> type >> seatId);
             Seat* seat = gameMap->getSeatById(seatId);
-            OD_ASSERT_TRUE_MSG(seat != nullptr, "seatId=" + Ogre::StringConverter::toString(seatId));
+            OD_ASSERT_TRUE_MSG(seat != nullptr, "seatId=" + Helper::toString(seatId));
             std::vector<Tile*> selectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
             std::vector<Tile*> tiles;
             // We start by changing the tiles so that the room can be built
@@ -1468,12 +1468,12 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         case ClientNotificationType::editorCreateWorker:
         {
             OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
-                + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
+                + Helper::toString(static_cast<int>(mServerMode)));
             Player* player = clientSocket->getPlayer();
             int seatId;
             OD_ASSERT_TRUE(packetReceived >> seatId);
             Seat* seatCreature = gameMap->getSeatById(seatId);
-            OD_ASSERT_TRUE_MSG(seatCreature != nullptr, "seatId=" + Ogre::StringConverter::toString(seatId));
+            OD_ASSERT_TRUE_MSG(seatCreature != nullptr, "seatId=" + Helper::toString(seatId));
             if(seatCreature == nullptr)
                 break;
 
@@ -1501,13 +1501,13 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         case ClientNotificationType::editorCreateFighter:
         {
             OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
-                + Ogre::StringConverter::toString(static_cast<int>(mServerMode)));
+                + Helper::toString(static_cast<int>(mServerMode)));
             Player* player = clientSocket->getPlayer();
             int seatId;
             std::string className;
             OD_ASSERT_TRUE(packetReceived >> seatId >> className);
             Seat* seatCreature = gameMap->getSeatById(seatId);
-            OD_ASSERT_TRUE_MSG(seatCreature != nullptr, "seatId=" + Ogre::StringConverter::toString(seatId));
+            OD_ASSERT_TRUE_MSG(seatCreature != nullptr, "seatId=" + Helper::toString(seatId));
             const CreatureDefinition *classToSpawn = gameMap->getClassDescription(className);
             OD_ASSERT_TRUE_MSG(classToSpawn != nullptr, "Couldn't spawn creature class=" + className);
             if(classToSpawn == nullptr)

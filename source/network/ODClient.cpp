@@ -216,7 +216,7 @@ bool ODClient::processOneClientSocketMessage()
                 case ServerMode::ModeEditor:
                     break;
                 default:
-                    OD_ASSERT_TRUE_MSG(false,"Unknown server mode=" + Ogre::StringConverter::toString(static_cast<int32_t>(serverMode)));
+                    OD_ASSERT_TRUE_MSG(false,"Unknown server mode=" + Helper::toString(static_cast<int32_t>(serverMode)));
                     break;
             }
             // If we are watching a replay, we force stopping the processing loop to
@@ -249,7 +249,7 @@ bool ODClient::processOneClientSocketMessage()
         {
             if(frameListener->getModeManager()->getCurrentModeType() != ModeManager::ModeType::MENU_CONFIGURE_SEATS)
             {
-                OD_ASSERT_TRUE_MSG(false, "Wrong mode " + Ogre::StringConverter::toString(frameListener->getModeManager()->getCurrentModeType()));
+                OD_ASSERT_TRUE_MSG(false, "Wrong mode " + Helper::toString(frameListener->getModeManager()->getCurrentModeType()));
                 break;
             }
 
@@ -271,7 +271,7 @@ bool ODClient::processOneClientSocketMessage()
         {
             if(frameListener->getModeManager()->getCurrentModeType() != ModeManager::ModeType::MENU_CONFIGURE_SEATS)
             {
-                OD_ASSERT_TRUE_MSG(false, "Wrong mode " + Ogre::StringConverter::toString(frameListener->getModeManager()->getCurrentModeType()));
+                OD_ASSERT_TRUE_MSG(false, "Wrong mode " + Helper::toString(frameListener->getModeManager()->getCurrentModeType()));
                 break;
             }
 
@@ -317,7 +317,7 @@ bool ODClient::processOneClientSocketMessage()
             // If should be in seat configuration. If we are rejected, we regress mode
             ModeManager::ModeType modeType = frameListener->getModeManager()->getCurrentModeType();
             OD_ASSERT_TRUE_MSG(modeType == ModeManager::ModeType::MENU_CONFIGURE_SEATS, "Wrong mode type="
-                + Ogre::StringConverter::toString(static_cast<int>(modeType)));
+                + Helper::toString(static_cast<int>(modeType)));
             if(modeType != ModeManager::ModeType::MENU_CONFIGURE_SEATS)
                 break;
 
@@ -355,11 +355,11 @@ bool ODClient::processOneClientSocketMessage()
                     frameListener->getModeManager()->requestMode(AbstractModeManager::EDITOR);
                     break;
                 default:
-                    OD_ASSERT_TRUE_MSG(false,"Unknown server mode=" + Ogre::StringConverter::toString(static_cast<int32_t>(serverMode)));
+                    OD_ASSERT_TRUE_MSG(false,"Unknown server mode=" + Helper::toString(static_cast<int32_t>(serverMode)));
             }
 
             Seat *tempSeat = gameMap->getSeatById(seatId);
-            OD_ASSERT_TRUE_MSG(tempSeat != nullptr, "seatId=" + Ogre::StringConverter::toString(seatId));
+            OD_ASSERT_TRUE_MSG(tempSeat != nullptr, "seatId=" + Helper::toString(seatId));
 
             // We reset the renderer
             RenderManager::getSingleton().clearRenderer();
@@ -432,7 +432,7 @@ bool ODClient::processOneClientSocketMessage()
             std::string entityName;
             OD_ASSERT_TRUE(packetReceived >> entityType >> entityName);
             GameEntity* entity = gameMap->getEntityFromTypeAndName(entityType, entityName);
-            OD_ASSERT_TRUE_MSG(entity != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
+            OD_ASSERT_TRUE_MSG(entity != nullptr, "entityType=" + Helper::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
             if(entity == nullptr)
                 break;
 
@@ -495,12 +495,12 @@ bool ODClient::processOneClientSocketMessage()
             std::string entityName;
             OD_ASSERT_TRUE(packetReceived >> seatId >> entityType >> entityName);
             Player *tempPlayer = gameMap->getPlayerBySeatId(seatId);
-            OD_ASSERT_TRUE_MSG(tempPlayer != nullptr, "seatId=" + Ogre::StringConverter::toString(seatId));
+            OD_ASSERT_TRUE_MSG(tempPlayer != nullptr, "seatId=" + Helper::toString(seatId));
             if(tempPlayer == nullptr)
                 break;
 
             GameEntity* entity = gameMap->getEntityFromTypeAndName(entityType, entityName);
-            OD_ASSERT_TRUE_MSG(entity != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
+            OD_ASSERT_TRUE_MSG(entity != nullptr, "entityType=" + Helper::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
             if(entity == nullptr)
                 break;
 
@@ -516,7 +516,7 @@ bool ODClient::processOneClientSocketMessage()
         {
             int seatId;
             OD_ASSERT_TRUE(packetReceived >> seatId);
-            OD_ASSERT_TRUE_MSG(gameMap->getLocalPlayer()->getSeat()->getId() == seatId, "seatId=" + Ogre::StringConverter::toString(seatId));
+            OD_ASSERT_TRUE_MSG(gameMap->getLocalPlayer()->getSeat()->getId() == seatId, "seatId=" + Helper::toString(seatId));
             if (gameMap->getLocalPlayer()->getSeat()->getId() != seatId)
                 break;
 
@@ -564,7 +564,7 @@ bool ODClient::processOneClientSocketMessage()
             double moveSpeed;
             OD_ASSERT_TRUE(packetReceived >> objName >> moveSpeed);
             MovableGameEntity *obj = gameMap->getAnimatedObject(objName);
-            OD_ASSERT_TRUE_MSG(obj != nullptr, "objName=" + objName + ", moveSpeed=" + Ogre::StringConverter::toString(moveSpeed));
+            OD_ASSERT_TRUE_MSG(obj != nullptr, "objName=" + objName + ", moveSpeed=" + Helper::toString(moveSpeed));
             if (obj == nullptr)
                 break;
 
@@ -699,7 +699,7 @@ bool ODClient::processOneClientSocketMessage()
             bool isDebugVisibleTilesActive;
             OD_ASSERT_TRUE(packetReceived >> seatId >> isDebugVisibleTilesActive);
             Seat* seat = gameMap->getSeatById(seatId);
-            OD_ASSERT_TRUE_MSG(seat != nullptr, "seatId=" + Ogre::StringConverter::toString(seatId));
+            OD_ASSERT_TRUE_MSG(seat != nullptr, "seatId=" + Helper::toString(seatId));
             if(seat == nullptr)
                 break;
 
@@ -823,7 +823,7 @@ bool ODClient::processOneClientSocketMessage()
                 break;
 
             GameEntity* carried = gameMap->getEntityFromTypeAndName(entityType, carriedName);
-            OD_ASSERT_TRUE_MSG(carried != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", carriedName=" + carriedName);
+            OD_ASSERT_TRUE_MSG(carried != nullptr, "entityType=" + Helper::toString(static_cast<int32_t>(entityType)) + ", carriedName=" + carriedName);
             if(carried == nullptr)
                 break;
 
@@ -848,7 +848,7 @@ bool ODClient::processOneClientSocketMessage()
                 break;
 
             GameEntity* carried = gameMap->getEntityFromTypeAndName(entityType, carriedName);
-            OD_ASSERT_TRUE_MSG(carried != nullptr, "entityType=" + Ogre::StringConverter::toString(static_cast<int32_t>(entityType)) + ", carriedName=" + carriedName);
+            OD_ASSERT_TRUE_MSG(carried != nullptr, "entityType=" + Helper::toString(static_cast<int32_t>(entityType)) + ", carriedName=" + carriedName);
             if(carried == nullptr)
                 break;
 

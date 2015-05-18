@@ -266,7 +266,7 @@ std::vector<Tile*> Building::getCoveredTiles()
 Tile* Building::getCoveredTile(int index)
 {
     OD_ASSERT_TRUE_MSG(index < static_cast<int>(mCoveredTiles.size()), "name=" + getName()
-        + ", index=" + Ogre::StringConverter::toString(index));
+        + ", index=" + Helper::toString(index));
 
     if(index >= static_cast<int>(mCoveredTiles.size()))
         return nullptr;
@@ -334,8 +334,8 @@ double Building::takeDamage(GameEntity* attacker, double physicalDamage, double 
 
 std::string Building::getNameTile(Tile* tile)
 {
-    return getMeshName() + "_tile_" + Ogre::StringConverter::toString(tile->getX())
-        + "_" + Ogre::StringConverter::toString(tile->getY());
+    return getMeshName() + "_tile_" + Helper::toString(tile->getX())
+        + "_" + Helper::toString(tile->getY());
 }
 
 bool Building::isAttackable(Tile* tile, Seat* seat) const

@@ -1592,7 +1592,7 @@ const CreatureDefinition* Seat::getNextFighterClassToSpawn(const GameMap& gameMa
     }
 
     // It is not normal to come here
-    OD_ASSERT_TRUE_MSG(false, "seatId=" + Ogre::StringConverter::toString(getId()));
+    OD_ASSERT_TRUE_MSG(false, "seatId=" + Helper::toString(getId()));
     return nullptr;
 }
 

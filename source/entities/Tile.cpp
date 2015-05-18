@@ -691,7 +691,7 @@ bool Tile::hasChangedForSeat(Seat* seat) const
 
         return seatChanged.second;
     }
-    OD_ASSERT_TRUE_MSG(false, "Unknown seat id=" + Ogre::StringConverter::toString(seat->getId()));
+    OD_ASSERT_TRUE_MSG(false, "Unknown seat id=" + Helper::toString(seat->getId()));
     return false;
 }
 
@@ -793,6 +793,6 @@ void Tile::setTeamsNumber(uint32_t nbTeams)
 
 std::string Tile::displayAsString(const Tile* tile)
 {
-    return "[" + Ogre::StringConverter::toString(tile->getX()) + ","
-         + Ogre::StringConverter::toString(tile->getY())+ "]";
+    return "[" + Helper::toString(tile->getX()) + ","
+         + Helper::toString(tile->getY())+ "]";
 }

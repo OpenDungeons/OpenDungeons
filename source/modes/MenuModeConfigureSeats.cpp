@@ -144,17 +144,17 @@ void MenuModeConfigureSeats::activate()
         std::string name;
         CEGUI::Combobox* combo;
 
-        name = TEXT_SEAT_ID_PREFIX + Ogre::StringConverter::toString(seat->getId());
+        name = TEXT_SEAT_ID_PREFIX + Helper::toString(seat->getId());
         CEGUI::DefaultWindow* textSeatId = static_cast<CEGUI::DefaultWindow*>(winMgr.createWindow("OD/StaticText", name));
         tmpWin->addChild(textSeatId);
         Ogre::ColourValue seatColor = seat->getColorValue();
         seatColor.a = 1.0f; // Restore the color opacity
         textSeatId->setArea(CEGUI::UDim(0,20), CEGUI::UDim(0,65 + offset), CEGUI::UDim(0.3,0), CEGUI::UDim(0,30));
-        textSeatId->setText("[colour='" + Helper::getCEGUIColorFromOgreColourValue(seatColor) + "']Seat "  + Ogre::StringConverter::toString(seat->getId()));
+        textSeatId->setText("[colour='" + Helper::getCEGUIColorFromOgreColourValue(seatColor) + "']Seat "  + Helper::toString(seat->getId()));
         textSeatId->setProperty("FrameEnabled", "False");
         textSeatId->setProperty("BackgroundEnabled", "False");;
 
-        name = COMBOBOX_PLAYER_FACTION_PREFIX + Ogre::StringConverter::toString(seat->getId());
+        name = COMBOBOX_PLAYER_FACTION_PREFIX + Helper::toString(seat->getId());
         combo = static_cast<CEGUI::Combobox*>(winMgr.createWindow("OD/Combobox", name));
         tmpWin->addChild(combo);
         combo->setArea(CEGUI::UDim(0,100), CEGUI::UDim(0,70 + offset), CEGUI::UDim(0.3,0), CEGUI::UDim(0,200));
@@ -200,7 +200,7 @@ void MenuModeConfigureSeats::activate()
         }
         combo->subscribeEvent(CEGUI::Combobox::EventListSelectionAccepted, CEGUI::SubscriberSlot(&MenuModeConfigureSeats::comboChanged, this));
 
-        name = COMBOBOX_PLAYER_PREFIX + Ogre::StringConverter::toString(seat->getId());
+        name = COMBOBOX_PLAYER_PREFIX + Helper::toString(seat->getId());
         combo = static_cast<CEGUI::Combobox*>(winMgr.createWindow("OD/Combobox", name));
         tmpWin->addChild(combo);
         combo->setArea(CEGUI::UDim(0.5,10), CEGUI::UDim(0,70 + offset), CEGUI::UDim(0.3,0), CEGUI::UDim(0,200));
@@ -248,7 +248,7 @@ void MenuModeConfigureSeats::activate()
         }
         combo->subscribeEvent(CEGUI::Combobox::EventListSelectionAccepted, CEGUI::SubscriberSlot(&MenuModeConfigureSeats::comboChanged, this));
 
-        name = COMBOBOX_TEAM_ID_PREFIX + Ogre::StringConverter::toString(seat->getId());
+        name = COMBOBOX_TEAM_ID_PREFIX + Helper::toString(seat->getId());
         combo = static_cast<CEGUI::Combobox*>(winMgr.createWindow("OD/Combobox", name));
         tmpWin->addChild(combo);
         combo->setArea(CEGUI::UDim(1,-80), CEGUI::UDim(0,70 + offset), CEGUI::UDim(0,60), CEGUI::UDim(0,200));
@@ -257,13 +257,13 @@ void MenuModeConfigureSeats::activate()
         combo->setSortingEnabled(true);
         const std::vector<int>& availableTeamIds = seat->getAvailableTeamIds();
         OD_ASSERT_TRUE_MSG(!availableTeamIds.empty(), "Empty availableTeamIds for seat id="
-            + Ogre::StringConverter::toString(seat->getId()));
+            + Helper::toString(seat->getId()));
         if(availableTeamIds.size() > 1)
         {
             uint32_t cptTeamId = 0;
             for(int teamId : availableTeamIds)
             {
-                CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(Ogre::StringConverter::toString(teamId), teamId);
+                CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(Helper::toString(teamId), teamId);
                 item->setSelectionBrushImage(selImg);
                 combo->addItem(item);
                 // At creation, we set the combo to the first available choice
@@ -278,7 +278,7 @@ void MenuModeConfigureSeats::activate()
         else if(!availableTeamIds.empty())
         {
             int teamId = availableTeamIds[0];
-            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(Ogre::StringConverter::toString(teamId), teamId);
+            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(Helper::toString(teamId), teamId);
             item->setSelectionBrushImage(selImg);
             combo->addItem(item);
             combo->setText(item->getText());
@@ -555,12 +555,12 @@ void MenuModeConfigureSeats::activatePlayerConfig()
         std::string name;
         CEGUI::Combobox* combo;
 
-        name = COMBOBOX_PLAYER_FACTION_PREFIX + Ogre::StringConverter::toString(seatId);
+        name = COMBOBOX_PLAYER_FACTION_PREFIX + Helper::toString(seatId);
         combo = static_cast<CEGUI::Combobox*>(listPlayersWindow->getChild(name));
         if(combo->getItemCount() > 1)
             combo->setEnabled(enabled);
 
-        name = COMBOBOX_PLAYER_PREFIX + Ogre::StringConverter::toString(seatId);
+        name = COMBOBOX_PLAYER_PREFIX + Helper::toString(seatId);
         combo = static_cast<CEGUI::Combobox*>(listPlayersWindow->getChild(name));
         if(enabled)
         {
@@ -573,7 +573,7 @@ void MenuModeConfigureSeats::activatePlayerConfig()
         else
             combo->setEnabled(enabled);
 
-        name = COMBOBOX_TEAM_ID_PREFIX + Ogre::StringConverter::toString(seatId);
+        name = COMBOBOX_TEAM_ID_PREFIX + Helper::toString(seatId);
         combo = static_cast<CEGUI::Combobox*>(listPlayersWindow->getChild(name));
         if(combo->getItemCount() > 1)
             combo->setEnabled(enabled);

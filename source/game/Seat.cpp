@@ -73,8 +73,8 @@ Seat::Seat(GameMap* gameMap) :
 void Seat::setTeamId(int teamId)
 {
     OD_ASSERT_TRUE_MSG(std::find(mAvailableTeamIds.begin(), mAvailableTeamIds.end(),
-        teamId) != mAvailableTeamIds.end(), "Unknown team id=" + Ogre::StringConverter::toString(teamId)
-        + ", for seat id=" + Ogre::StringConverter::toString(getId()));
+        teamId) != mAvailableTeamIds.end(), "Unknown team id=" + Helper::toString(teamId)
+        + ", for seat id=" + Helper::toString(getId()));
     OD_ASSERT_TRUE_MSG(teamId != 0 || isRogueSeat(), "Invalid rogue team id for seat id=" + Helper::toString(getId()));
     mTeamId = teamId;
 }

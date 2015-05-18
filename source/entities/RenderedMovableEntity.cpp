@@ -218,7 +218,7 @@ std::vector<Tile*> RenderedMovableEntity::getCoveredTiles()
 Tile* RenderedMovableEntity::getCoveredTile(int index)
 {
     OD_ASSERT_TRUE_MSG(index == 0, "name=" + getName()
-        + ", index=" + Ogre::StringConverter::toString(index));
+        + ", index=" + Helper::toString(index));
 
     if(index > 0)
         return nullptr;

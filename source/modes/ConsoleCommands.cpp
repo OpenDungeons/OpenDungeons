@@ -82,7 +82,7 @@ Command::Result cAmbientLight(const Command::ArgumentList_t& args, ConsoleInterf
     {
         // Display the current ambient light values.
         Ogre::ColourValue curLight = mSceneMgr->getAmbientLight();
-        c.print("Current ambient light is:" + Ogre::StringConverter::toString(curLight));
+        c.print("Current ambient light is:" + Helper::toString(curLight));
         return Command::Result::SUCCESS;
     }
     else if(args.size() >= 4)
@@ -92,7 +92,7 @@ Command::Result cAmbientLight(const Command::ArgumentList_t& args, ConsoleInterf
 
         mSceneMgr->setAmbientLight(v);
         c.print("\nAmbient light set to:\n" +
-                Ogre::StringConverter::toString(v));
+                Helper::toString(v));
     }
     else
     {
@@ -430,7 +430,7 @@ Command::Result cSetCameraFOVy(const Command::ArgumentList_t& args, ConsoleInter
     Ogre::Camera* cam = ODFrameListener::getSingleton().getCameraManager()->getActiveCamera();
     if(args.size() < 2)
     {
-        c.print("Camera FOVy :" + Ogre::StringConverter::toString(cam->getFOVy()));
+        c.print("Camera FOVy :" + Helper::toString(cam->getFOVy()));
     }
     else
     {
