@@ -46,9 +46,9 @@ class MissileObject: public RenderedMovableEntity
 public:
     //! If the missile is sent against a building, tileBuildingTarget should contain it. If the tile is reached,
     //! the building will be damaged. If the target is not a building, tileBuildingTarget should be nullptr
-    MissileObject(GameMap* gameMap, Seat* seat, const std::string& senderName, const std::string& meshName,
+    MissileObject(GameMap* gameMap, bool isOnServerMap, Seat* seat, const std::string& senderName, const std::string& meshName,
         const Ogre::Vector3& direction, Tile* tileBuildingTarget, bool damageAllies);
-    MissileObject(GameMap* gameMap);
+    MissileObject(GameMap* gameMap, bool isOnServerMap);
 
     virtual void doUpkeep();
 

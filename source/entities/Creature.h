@@ -84,7 +84,7 @@ class Creature: public MovableGameEntity
     friend class ODClient;
 public:
     //! \brief Constructor for creatures. It generates an unique name
-    Creature(GameMap* gameMap, const CreatureDefinition* definition, Seat* seat, Ogre::Vector3 position = Ogre::Vector3(0.0f,0.0f,0.0f));
+    Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinition* definition, Seat* seat, Ogre::Vector3 position = Ogre::Vector3(0.0f,0.0f,0.0f));
     virtual ~Creature();
 
     static const uint32_t NB_OVERLAY_HEALTH_VALUES;
@@ -431,7 +431,7 @@ private:
     void destroyMeshWeapons();
 
     //! \brief Constructor for sending creatures through network. It should not be used in game.
-    Creature(GameMap* gameMap);
+    Creature(GameMap* gameMap, bool isOnServerMap);
 
     //! \brief Natural physical and magical attack and defense (without equipment)
     double mPhysicalAttack;

@@ -34,8 +34,8 @@
 
 #include "OgreAnimationState.h"
 
-MovableGameEntity::MovableGameEntity(GameMap* gameMap) :
-    GameEntity(gameMap),
+MovableGameEntity::MovableGameEntity(GameMap* gameMap, bool isOnServerMap) :
+    GameEntity(gameMap, isOnServerMap),
     mAnimationState(nullptr),
     mMoveSpeed(1.0),
     mAnimationSpeedFactor(1.0),
@@ -49,7 +49,7 @@ void MovableGameEntity::setMoveSpeed(double s)
 {
     mMoveSpeed = s;
 
-    if (!getGameMap()->isServerGameMap())
+    if (!getIsOnServerMap())
         return;
 
     for(Seat* seat : mSeatsWithVisionNotified)
@@ -73,7 +73,7 @@ void MovableGameEntity::addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z)
 
     mWalkQueue.push_back(destination);
 
-    if (!getGameMap()->isServerGameMap())
+    if (!getIsOnServerMap())
         return;
 
     for(Seat* seat : mSeatsWithVisionNotified)
@@ -129,7 +129,7 @@ void MovableGameEntity::clearDestinations()
     mWalkQueue.clear();
     stopWalking();
 
-    if (!getGameMap()->isServerGameMap())
+    if (!getIsOnServerMap())
         return;
 
     for(Seat* seat : mSeatsWithVisionNotified)
@@ -156,7 +156,7 @@ void MovableGameEntity::stopWalking()
 void MovableGameEntity::setWalkDirection(const Ogre::Vector3& direction)
 {
     mWalkDirection = direction;
-    if(getGameMap()->isServerGameMap())
+    if(getIsOnServerMap())
         return;
 
     RenderManager::getSingleton().rrOrientEntityToward(this, direction);
@@ -185,7 +185,7 @@ void MovableGameEntity::setAnimationState(const std::string& state, bool loop, c
     // would be nice to increase speed factor
     setAnimationSpeedFactor(1.0);
 
-    if (getGameMap()->isServerGameMap())
+    if(getIsOnServerMap())
     {
         fireObjectAnimationState(state, loop, direction);
         return;
@@ -211,7 +211,7 @@ void MovableGameEntity::update(Ogre::Real timeSinceLastFrame)
          * static_cast<double>(timeSinceLastFrame)
          * getAnimationSpeedFactor());
     mAnimationTime += addedTime;
-    if (!getGameMap()->isServerGameMap() && getAnimationState() != nullptr)
+    if (!getIsOnServerMap() && getAnimationState() != nullptr)
         getAnimationState()->addTime(static_cast<Ogre::Real>(addedTime));
 
     if (mWalkQueue.empty())
@@ -267,7 +267,7 @@ void MovableGameEntity::setPosition(const Ogre::Vector3& v, bool isMove)
     if(!getIsOnMap())
         return;
 
-    if(!getGameMap()->isServerGameMap())
+    if(!getIsOnServerMap())
         RenderManager::getSingleton().rrMoveEntity(this, v);
 
     Tile* tile = getPositionTile();

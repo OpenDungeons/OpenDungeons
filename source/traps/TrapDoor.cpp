@@ -47,7 +47,7 @@ TrapDoor::TrapDoor(GameMap* gameMap) :
 
 TrapEntity* TrapDoor::getTrapEntity(Tile* tile)
 {
-    return new DoorEntity(getGameMap(), getSeat(), getName(), MESH_DOOR, tile, 0.0, false, isActivated(tile) ? 1.0f : 0.7f,
+    return new DoorEntity(getGameMap(), true, getSeat(), getName(), MESH_DOOR, tile, 0.0, false, isActivated(tile) ? 1.0f : 0.7f,
         ANIMATION_OPEN, true);
 }
 

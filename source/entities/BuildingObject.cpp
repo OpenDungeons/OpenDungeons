@@ -30,23 +30,23 @@
 
 #include <iostream>
 
-BuildingObject::BuildingObject(GameMap* gameMap, const std::string& buildingName, const std::string& meshName,
+BuildingObject::BuildingObject(GameMap* gameMap, bool isOnServerMap, const std::string& buildingName, const std::string& meshName,
         const Ogre::Vector3& position, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity,
         const std::string& initialAnimationState, bool initialAnimationLoop) :
-    RenderedMovableEntity(gameMap, buildingName, meshName, rotationAngle, hideCoveredTile, opacity)
+    RenderedMovableEntity(gameMap, isOnServerMap, buildingName, meshName, rotationAngle, hideCoveredTile, opacity)
 {
     mPosition = position;
     mPrevAnimationState = initialAnimationState;
     mPrevAnimationStateLoop = initialAnimationLoop;
 }
 
-BuildingObject::BuildingObject(GameMap* gameMap) :
-    RenderedMovableEntity(gameMap)
+BuildingObject::BuildingObject(GameMap* gameMap, bool isOnServerMap) :
+    RenderedMovableEntity(gameMap, isOnServerMap)
 {
 }
 
 BuildingObject* BuildingObject::getBuildingObjectFromPacket(GameMap* gameMap, ODPacket& is)
 {
-    BuildingObject* obj = new BuildingObject(gameMap);
+    BuildingObject* obj = new BuildingObject(gameMap, false);
     return obj;
 }

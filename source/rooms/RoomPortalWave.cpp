@@ -170,10 +170,6 @@ void RoomPortalWave::updateActiveSpots()
 
 void RoomPortalWave::updatePortalPosition()
 {
-    // Only the server game map should load objects.
-    if (!getGameMap()->isServerGameMap())
-        return;
-
     // Delete all previous rooms meshes and recreate a central one.
     removeAllBuildingObjects();
     mPortalObject = nullptr;
@@ -182,7 +178,7 @@ void RoomPortalWave::updatePortalPosition()
     if (centralTile == nullptr)
         return;
 
-    mPortalObject = new PersistentObject(getGameMap(), getName(), "KnightCoffin", centralTile, 0.0, false);
+    mPortalObject = new PersistentObject(getGameMap(), true, getName(), "KnightCoffin", centralTile, 0.0, false);
     addBuildingObject(centralTile, mPortalObject);
 
     mPortalObject->setAnimationState("Idle");
@@ -308,7 +304,7 @@ void RoomPortalWave::spawnWave(RoomPortalWaveData* roomPortalWaveData, uint32_t 
             continue;
         }
 
-        Creature* newCreature = new Creature(getGameMap(), classToSpawn, getSeat(), spawnPosition);
+        Creature* newCreature = new Creature(getGameMap(), true, classToSpawn, getSeat(), spawnPosition);
         newCreature->setLevel(p.second);
         newCreature->setHP(newCreature->getMaxHp());
 
@@ -558,7 +554,7 @@ bool RoomPortalWave::handleSearchFoe()
 
     // No call to war. We cast it at the closest dungeon (they are sorted in tileDungeons)
     Tile* tile = tileDungeons[0].first;
-    SpellCallToWar* spell = new SpellCallToWar(getGameMap());
+    SpellCallToWar* spell = new SpellCallToWar(getGameMap(), true);
     spell->setSeat(getSeat());
     spell->addToGameMap();
     Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(tile->getX()),

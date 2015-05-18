@@ -29,9 +29,9 @@
 
 #include <iostream>
 
-MissileObject::MissileObject(GameMap* gameMap, Seat* seat, const std::string& senderName, const std::string& meshName,
+MissileObject::MissileObject(GameMap* gameMap, bool isOnServerMap, Seat* seat, const std::string& senderName, const std::string& meshName,
         const Ogre::Vector3& direction, Tile* tileBuildingTarget, bool damageAllies) :
-    RenderedMovableEntity(gameMap, senderName, meshName, 0.0f, false),
+    RenderedMovableEntity(gameMap, isOnServerMap, senderName, meshName, 0.0f, false),
     mDirection(direction),
     mIsMissileAlive(true),
     mTileBuildingTarget(tileBuildingTarget),
@@ -40,8 +40,8 @@ MissileObject::MissileObject(GameMap* gameMap, Seat* seat, const std::string& se
     setSeat(seat);
 }
 
-MissileObject::MissileObject(GameMap* gameMap) :
-    RenderedMovableEntity(gameMap),
+MissileObject::MissileObject(GameMap* gameMap, bool isOnServerMap) :
+    RenderedMovableEntity(gameMap, isOnServerMap),
     mDirection(Ogre::Vector3::ZERO),
     mIsMissileAlive(true),
     mTileBuildingTarget(nullptr),

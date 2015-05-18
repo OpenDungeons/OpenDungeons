@@ -104,7 +104,7 @@ enum class FloodFillType
 class Tile : public EntityBase
 {
 public:
-    Tile(GameMap* gameMap, int x = 0, int y = 0, TileType type = TileType::dirt, double fullness = 100.0);
+    Tile(GameMap* gameMap, bool isOnServerMap, int x = 0, int y = 0, TileType type = TileType::dirt, double fullness = 100.0);
 
     virtual ~Tile()
     {}
@@ -423,6 +423,8 @@ private:
     void setDirtyForAllSeats();
 
     GameMap* mGameMap;
+
+    const bool mIsOnServerMap;
 };
 
 #endif // TILE_H

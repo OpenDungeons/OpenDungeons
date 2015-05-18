@@ -271,7 +271,7 @@ void RoomLibrary::doUpkeep()
                     return;
                 }
 
-                ResearchEntity* researchEntity = new ResearchEntity(getGameMap(), getName(), researchDone->getType());
+                ResearchEntity* researchEntity = new ResearchEntity(getGameMap(), true, getName(), researchDone->getType());
                 researchEntity->setSeat(getSeat());
                 researchEntity->addToGameMap();
                 Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(spawnTile->getX()), static_cast<Ogre::Real>(spawnTile->getY()), static_cast<Ogre::Real>(0.0));

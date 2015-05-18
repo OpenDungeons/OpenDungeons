@@ -28,18 +28,18 @@
 
 #include <iostream>
 
-DoorEntity::DoorEntity(GameMap* gameMap, Seat* seat, const std::string& buildingName, const std::string& meshName,
+DoorEntity::DoorEntity(GameMap* gameMap, bool isOnServerMap, Seat* seat, const std::string& buildingName, const std::string& meshName,
         Tile* tile, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity,
         const std::string& initialAnimationState, bool initialAnimationLoop) :
-    TrapEntity(gameMap, buildingName, meshName, tile, rotationAngle, hideCoveredTile, opacity)
+    TrapEntity(gameMap, isOnServerMap, buildingName, meshName, tile, rotationAngle, hideCoveredTile, opacity)
 {
     setSeat(seat);
     mPrevAnimationState = initialAnimationState;
     mPrevAnimationStateLoop = initialAnimationLoop;
 }
 
-DoorEntity::DoorEntity(GameMap* gameMap) :
-    TrapEntity(gameMap)
+DoorEntity::DoorEntity(GameMap* gameMap, bool isOnServerMap) :
+    TrapEntity(gameMap, isOnServerMap)
 {
 }
 
@@ -83,7 +83,7 @@ bool DoorEntity::canSlap(Seat* seat)
 
 void DoorEntity::slap()
 {
-    if(!getGameMap()->isServerGameMap())
+    if(!getIsOnServerMap())
         return;
 
     // TODO : We notify the trap that it should change the floodfill for owning seat. It should be
@@ -121,6 +121,6 @@ void DoorEntity::slap()
 
 DoorEntity* DoorEntity::getDoorEntityFromPacket(GameMap* gameMap, ODPacket& is)
 {
-    DoorEntity* obj = new DoorEntity(gameMap);
+    DoorEntity* obj = new DoorEntity(gameMap, false);
     return obj;
 }

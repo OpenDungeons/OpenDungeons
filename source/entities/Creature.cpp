@@ -94,8 +94,8 @@ CreatureParticuleEffect::~CreatureParticuleEffect()
     mEffect = nullptr;
 }
 
-Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition, Seat* seat, Ogre::Vector3 position) :
-    MovableGameEntity        (gameMap),
+Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinition* definition, Seat* seat, Ogre::Vector3 position) :
+    MovableGameEntity        (gameMap, isOnServerMap),
     mPhysicalAttack          (1.0),
     mMagicalAttack           (0.0),
     mPhysicalDefense         (3.0),
@@ -179,8 +179,8 @@ Creature::Creature(GameMap* gameMap, const CreatureDefinition* definition, Seat*
     setupDefinition(*gameMap, *ConfigManager::getSingleton().getCreatureDefinitionDefaultWorker());
 }
 
-Creature::Creature(GameMap* gameMap) :
-    MovableGameEntity        (gameMap),
+Creature::Creature(GameMap* gameMap, bool isOnServerMap) :
+    MovableGameEntity        (gameMap, isOnServerMap),
     mPhysicalAttack          (1.0),
     mMagicalAttack           (0.0),
     mPhysicalDefense         (3.0),
@@ -238,7 +238,7 @@ Creature::~Creature()
 void Creature::createMeshLocal()
 {
     MovableGameEntity::createMeshLocal();
-    if(!getGameMap()->isServerGameMap())
+    if(!getIsOnServerMap())
     {
         RenderManager::getSingleton().rrCreateCreature(this);
 
@@ -253,7 +253,7 @@ void Creature::destroyMeshLocal()
 {
     destroyMeshWeapons();
     MovableGameEntity::destroyMeshLocal();
-    if(getGameMap()->isServerGameMap())
+    if(getIsOnServerMap())
         return;
 
     destroyStatsWindow();
@@ -262,7 +262,7 @@ void Creature::destroyMeshLocal()
 
 void Creature::createMeshWeapons()
 {
-    if(getGameMap()->isServerGameMap())
+    if(getIsOnServerMap())
         return;
 
     if(mWeaponL != nullptr)
@@ -274,7 +274,7 @@ void Creature::createMeshWeapons()
 
 void Creature::destroyMeshWeapons()
 {
-    if(getGameMap()->isServerGameMap())
+    if(getIsOnServerMap())
         return;
 
     if(mWeaponL != nullptr)
@@ -291,7 +291,7 @@ void Creature::addToGameMap()
     getGameMap()->addAnimatedObject(this);
     getGameMap()->addClientUpkeepEntity(this);
 
-    if(!getGameMap()->isServerGameMap())
+    if(!getIsOnServerMap())
         return;
 
     getGameMap()->addActiveObject(this);
@@ -308,7 +308,7 @@ void Creature::removeFromGameMap()
     if(posTile != nullptr)
         posTile->removeEntity(this);
 
-    if(!getGameMap()->isServerGameMap())
+    if(!getIsOnServerMap())
         return;
 
     // If the creature has a homeTile where it sleeps, its bed needs to be destroyed.
@@ -470,13 +470,13 @@ void Creature::buildStats()
 Creature* Creature::getCreatureFromStream(GameMap* gameMap, std::istream& is)
 {
     //TODO - Handle load errors
-    Creature* creature = new Creature(gameMap);
+    Creature* creature = new Creature(gameMap, true);
     return creature;
 }
 
 Creature* Creature::getCreatureFromPacket(GameMap* gameMap, ODPacket& is)
 {
-    Creature* creature = new Creature(gameMap);
+    Creature* creature = new Creature(gameMap, false);
     return creature;
 }
 
@@ -599,7 +599,7 @@ void Creature::setPosition(const Ogre::Vector3& v, bool isMove)
 void Creature::drop(const Ogre::Vector3& v)
 {
     setIsOnMap(true);
-    if(!getGameMap()->isServerGameMap())
+    if(!getIsOnServerMap())
     {
         const double offset = 0.3;
         Ogre::Vector3 vRandom(v);
@@ -648,13 +648,13 @@ void Creature::update(Ogre::Real timeSinceLastFrame)
     // Update the visual debugging entities
     //if we are standing in a different tile than we were last turn
     if (mHasVisualDebuggingEntities &&
-        getGameMap()->isServerGameMap() &&
+        getIsOnServerMap() &&
         (getPositionTile() != previousPositionTile))
     {
         computeVisualDebugEntities();
     }
 
-    if (getGameMap()->isServerGameMap())
+    if (getIsOnServerMap())
     {
         // Reduce the attack warmup time left for creatures on the server side
         // When they are attacking
@@ -734,7 +734,7 @@ void Creature::doUpkeep()
             {
                 if(mGoldCarried > 0)
                 {
-                    TreasuryObject* obj = new TreasuryObject(getGameMap(), mGoldCarried);
+                    TreasuryObject* obj = new TreasuryObject(getGameMap(), true, mGoldCarried);
                     obj->addToGameMap();
                     Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(myTile->getX()),
                                                 static_cast<Ogre::Real>(myTile->getY()), 0.0f);
@@ -744,7 +744,7 @@ void Creature::doUpkeep()
 
                 if(mResearchTypeDropDeath != ResearchType::nullResearchType)
                 {
-                    ResearchEntity* researchEntity = new ResearchEntity(getGameMap(),
+                    ResearchEntity* researchEntity = new ResearchEntity(getGameMap(), getIsOnServerMap(),
                         "DroppedBy" + getName(), mResearchTypeDropDeath);
                     researchEntity->addToGameMap();
                     Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(myTile->getX()),
@@ -1778,7 +1778,7 @@ bool Creature::handleDigTileAction(const CreatureAction& actionItem)
     if (mGoldCarried >= mDefinition->getMaxGoldCarryable())
     {
         // We create the treasury object and push action to deposit it
-        TreasuryObject* obj = new TreasuryObject(getGameMap(), mGoldCarried);
+        TreasuryObject* obj = new TreasuryObject(getGameMap(), true, mGoldCarried);
         mGoldCarried = 0;
         Ogre::Vector3 pos(static_cast<Ogre::Real>(myTile->getX()), static_cast<Ogre::Real>(myTile->getY()), 0.0f);
         obj->addToGameMap();
@@ -1886,7 +1886,7 @@ bool Creature::handleDigTileAction(const CreatureAction& actionItem)
         popAction();
         if(mGoldCarried > 0)
         {
-            TreasuryObject* obj = new TreasuryObject(getGameMap(), mGoldCarried);
+            TreasuryObject* obj = new TreasuryObject(getGameMap(), true, mGoldCarried);
             mGoldCarried = 0;
             Ogre::Vector3 pos(static_cast<Ogre::Real>(myTile->getX()), static_cast<Ogre::Real>(myTile->getY()), 0.0f);
             obj->addToGameMap();
@@ -2482,7 +2482,7 @@ bool Creature::handleAttackAction(const CreatureAction& actionItem)
                 break;
         }
 
-        MissileOneHit* missile = new MissileOneHit(getGameMap(), getSeat(), getName(), "Cannonball",
+        MissileOneHit* missile = new MissileOneHit(getGameMap(), getIsOnServerMap(), getSeat(), getName(), "Cannonball",
             "MissileMagic", missileDirection, physicalDamage, magicalDamage, tileBuilding, false);
         missile->addToGameMap();
         missile->createMesh();
@@ -3286,7 +3286,7 @@ std::vector<GameEntity*> Creature::getVisibleForce(Seat* seat, bool invert)
 
 void Creature::computeVisualDebugEntities()
 {
-    if(!getGameMap()->isServerGameMap())
+    if(!getIsOnServerMap())
         return;
 
     mHasVisualDebuggingEntities = true;
@@ -3318,7 +3318,7 @@ void Creature::computeVisualDebugEntities()
 
 void Creature::refreshVisualDebugEntities(const std::vector<Tile*>& tiles)
 {
-    if(getGameMap()->isServerGameMap())
+    if(getIsOnServerMap())
         return;
 
     mHasVisualDebuggingEntities = true;
@@ -3352,7 +3352,7 @@ void Creature::refreshVisualDebugEntities(const std::vector<Tile*>& tiles)
 
 void Creature::stopComputeVisualDebugEntities()
 {
-    if(!getGameMap()->isServerGameMap())
+    if(!getIsOnServerMap())
         return;
 
     mHasVisualDebuggingEntities = false;
@@ -3367,7 +3367,7 @@ void Creature::stopComputeVisualDebugEntities()
 
 void Creature::destroyVisualDebugEntities()
 {
-    if(getGameMap()->isServerGameMap())
+    if(getIsOnServerMap())
         return;
 
     mHasVisualDebuggingEntities = false;
@@ -3540,7 +3540,7 @@ double Creature::takeDamage(GameEntity* attacker, double physicalDamage, double 
     mHp -= damageDone;
     computeCreatureOverlayHealthValue();
 
-    if(!getGameMap()->isServerGameMap())
+    if(!getIsOnServerMap())
         return damageDone;
 
     Player* player = getGameMap()->getPlayerBySeat(getSeat());
@@ -3656,7 +3656,7 @@ void Creature::pickup()
     if(tile != nullptr)
         tile->removeEntity(this);
 
-    if(!getGameMap()->isServerGameMap())
+    if(!getIsOnServerMap())
         return;
 
     if(getHasVisualDebuggingEntities())
@@ -3976,7 +3976,7 @@ void Creature::notifyEntityCarryOff(const Ogre::Vector3& position)
 
 void Creature::carryEntity(GameEntity* carriedEntity)
 {
-    if(!getGameMap()->isServerGameMap())
+    if(!getIsOnServerMap())
         return;
 
     OD_ASSERT_TRUE(carriedEntity != nullptr);
@@ -4001,7 +4001,7 @@ void Creature::carryEntity(GameEntity* carriedEntity)
 
 void Creature::releaseCarriedEntity()
 {
-    if(!getGameMap()->isServerGameMap())
+    if(!getIsOnServerMap())
         return;
 
     GameEntity* carriedEntity = mCarriedEntity;
@@ -4084,7 +4084,7 @@ bool Creature::canSlap(Seat* seat)
 
 void Creature::slap()
 {
-    if(!getGameMap()->isServerGameMap())
+    if(!getIsOnServerMap())
         return;
 
     // In editor mode, we remove the creature
@@ -4217,7 +4217,7 @@ void Creature::setupDefinition(GameMap& gameMap, const CreatureDefinition& defau
 
         OD_ASSERT_TRUE_MSG(mDefinition != nullptr, "Definition=" + mDefinitionString);
 
-        if(getGameMap()->isServerGameMap())
+        if(getIsOnServerMap())
         {
             setHpToStrHp = true;
 
@@ -4367,7 +4367,7 @@ void Creature::computeMood()
 
 void Creature::computeCreatureOverlayHealthValue()
 {
-    if(!getGameMap()->isServerGameMap())
+    if(!getIsOnServerMap())
         return;
 
     uint32_t value = 0;
@@ -4392,7 +4392,7 @@ void Creature::computeCreatureOverlayHealthValue()
 
 void Creature::computeCreatureOverlayMoodValue()
 {
-    if(!getGameMap()->isServerGameMap())
+    if(!getIsOnServerMap())
         return;
 
     uint32_t value = 0;
@@ -4436,7 +4436,7 @@ void Creature::addCreatureEffect(CreatureEffect* effect)
 bool Creature::isHurt() const
 {
     //On server side, we test HP
-    if(getGameMap()->isServerGameMap())
+    if(getIsOnServerMap())
         return getHP() < getMaxHp();
 
     // On client side, we test overlay value. 0 represents full health
@@ -4447,7 +4447,7 @@ bool Creature::isHurt() const
 void Creature::addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z)
 {
     const double offset = 0.3;
-    if(getGameMap()->isServerGameMap())
+    if(getIsOnServerMap())
     {
         MovableGameEntity::addDestination(x, y, z);
         return;

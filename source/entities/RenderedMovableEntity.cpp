@@ -50,9 +50,9 @@ const std::string RenderedMovableEntity::RENDEREDMOVABLEENTITY_PREFIX = "Rendere
 
 const Ogre::Vector3 SCALE(0.7,0.7,0.7);
 
-RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap, const std::string& baseName, const std::string& nMeshName,
+RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap, bool isOnServerMap, const std::string& baseName, const std::string& nMeshName,
         Ogre::Real rotationAngle, bool hideCoveredTile, float opacity) :
-    MovableGameEntity(gameMap),
+    MovableGameEntity(gameMap, isOnServerMap),
     mBaseName(baseName),
     mRotationAngle(rotationAngle),
     mHideCoveredTile(hideCoveredTile),
@@ -63,8 +63,8 @@ RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap, const std::string
     setName(gameMap->nextUniqueNameRenderedMovableEntity(baseName));
 }
 
-RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap) :
-    MovableGameEntity(gameMap),
+RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap, bool isOnServerMap) :
+    MovableGameEntity(gameMap, isOnServerMap),
     mRotationAngle(0.0),
     mHideCoveredTile(false),
     mOpacity(1.0f)
@@ -80,7 +80,7 @@ void RenderedMovableEntity::createMeshLocal()
 {
     MovableGameEntity::createMeshLocal();
 
-    if(getGameMap()->isServerGameMap())
+    if(getIsOnServerMap())
         return;
 
     RenderManager::getSingleton().rrCreateRenderedMovableEntity(this);
@@ -90,7 +90,7 @@ void RenderedMovableEntity::destroyMeshLocal()
 {
     MovableGameEntity::destroyMeshLocal();
 
-    if(getGameMap()->isServerGameMap())
+    if(getIsOnServerMap())
         return;
 
     RenderManager::getSingleton().rrDestroyRenderedMovableEntity(this);
@@ -102,7 +102,7 @@ void RenderedMovableEntity::addToGameMap()
     setIsOnMap(true);
     getGameMap()->addAnimatedObject(this);
 
-    if(!getGameMap()->isServerGameMap())
+    if(!getIsOnServerMap())
         return;
 
     getGameMap()->addActiveObject(this);
@@ -118,7 +118,7 @@ void RenderedMovableEntity::removeFromGameMap()
     if(posTile != nullptr)
         posTile->removeEntity(this);
 
-    if(!getGameMap()->isServerGameMap())
+    if(!getIsOnServerMap())
         return;
 
     fireRemoveEntityToSeatsWithVision();
@@ -133,7 +133,7 @@ void RenderedMovableEntity::setMeshOpacity(float opacity)
 
     mOpacity = opacity;
 
-    if(getGameMap()->isServerGameMap())
+    if(getIsOnServerMap())
     {
         for(Seat* seat : mSeatsWithVisionNotified)
         {

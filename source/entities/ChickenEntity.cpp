@@ -31,8 +31,8 @@
 const int32_t NB_TURNS_OUTSIDE_HATCHERY_BEFORE_DIE = 30;
 const int32_t NB_TURNS_DIE_BEFORE_REMOVE = 5;
 
-ChickenEntity::ChickenEntity(GameMap* gameMap, const std::string& hatcheryName) :
-    RenderedMovableEntity(gameMap, hatcheryName, "Chicken", 0.0f, false),
+ChickenEntity::ChickenEntity(GameMap* gameMap, bool isOnServerMap, const std::string& hatcheryName) :
+    RenderedMovableEntity(gameMap, isOnServerMap, hatcheryName, "Chicken", 0.0f, false),
     mChickenState(ChickenState::free),
     mNbTurnOutsideHatchery(0),
     mNbTurnDie(0),
@@ -40,8 +40,8 @@ ChickenEntity::ChickenEntity(GameMap* gameMap, const std::string& hatcheryName) 
 {
 }
 
-ChickenEntity::ChickenEntity(GameMap* gameMap) :
-    RenderedMovableEntity(gameMap),
+ChickenEntity::ChickenEntity(GameMap* gameMap, bool isOnServerMap) :
+    RenderedMovableEntity(gameMap, isOnServerMap),
     mChickenState(ChickenState::free),
     mNbTurnOutsideHatchery(0),
     mNbTurnDie(0),
@@ -182,7 +182,7 @@ bool ChickenEntity::tryPickup(Seat* seat)
     // We do not let it be picked up as it will be removed during next upkeep. However, this is
     // true only on server side. On client side, if a chicken is available, it can be picked up (it will
     // be up to the server to validate or not) because the client do not know the chicken state.
-    if(getGameMap()->isServerGameMap() && (mChickenState != ChickenState::free))
+    if(getIsOnServerMap() && (mChickenState != ChickenState::free))
         return false;
 
     Tile* tile = getPositionTile();
@@ -259,7 +259,7 @@ bool ChickenEntity::canSlap(Seat* seat)
     // We do not let it be picked up as it will be removed during next upkeep. However, this is
     // true only on server side. On client side, if a chicken is available, it can be picked up (it will
     // be up to the server to validate or not) because the client do not know the chicken state.
-    if(getGameMap()->isServerGameMap() && (mChickenState != ChickenState::free))
+    if(getIsOnServerMap() && (mChickenState != ChickenState::free))
         return false;
 
     Tile* tile = getPositionTile();
@@ -281,13 +281,13 @@ bool ChickenEntity::canSlap(Seat* seat)
 
 ChickenEntity* ChickenEntity::getChickenEntityFromStream(GameMap* gameMap, std::istream& is)
 {
-    ChickenEntity* obj = new ChickenEntity(gameMap);
+    ChickenEntity* obj = new ChickenEntity(gameMap, true);
     return obj;
 }
 
 ChickenEntity* ChickenEntity::getChickenEntityFromPacket(GameMap* gameMap, ODPacket& is)
 {
-    ChickenEntity* obj = new ChickenEntity(gameMap);
+    ChickenEntity* obj = new ChickenEntity(gameMap, false);
     return obj;
 }
 

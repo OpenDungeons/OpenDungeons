@@ -40,16 +40,16 @@ const std::string EMPTY_STRING;
 
 const Ogre::Vector3 SCALE(0.5,0.5,0.5);
 
-ResearchEntity::ResearchEntity(GameMap* gameMap, const std::string& libraryName, ResearchType researchType) :
-    RenderedMovableEntity(gameMap, libraryName, "Grimoire", 0.0f, false, 1.0f),
+ResearchEntity::ResearchEntity(GameMap* gameMap, bool isOnServerMap, const std::string& libraryName, ResearchType researchType) :
+    RenderedMovableEntity(gameMap, isOnServerMap, libraryName, "Grimoire", 0.0f, false, 1.0f),
     mResearchType(researchType)
 {
     mPrevAnimationState = "Loop";
     mPrevAnimationStateLoop = true;
 }
 
-ResearchEntity::ResearchEntity(GameMap* gameMap) :
-    RenderedMovableEntity(gameMap)
+ResearchEntity::ResearchEntity(GameMap* gameMap, bool isOnServerMap) :
+    RenderedMovableEntity(gameMap, isOnServerMap)
 {
 }
 
@@ -85,13 +85,13 @@ void ResearchEntity::notifyEntityCarryOff(const Ogre::Vector3& position)
 
 ResearchEntity* ResearchEntity::getResearchEntityFromStream(GameMap* gameMap, std::istream& is)
 {
-    ResearchEntity* obj = new ResearchEntity(gameMap);
+    ResearchEntity* obj = new ResearchEntity(gameMap, true);
     return obj;
 }
 
 ResearchEntity* ResearchEntity::getResearchEntityFromPacket(GameMap* gameMap, ODPacket& is)
 {
-    ResearchEntity* obj = new ResearchEntity(gameMap);
+    ResearchEntity* obj = new ResearchEntity(gameMap, false);
     return obj;
 }
 

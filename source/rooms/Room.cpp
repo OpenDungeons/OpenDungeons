@@ -55,9 +55,6 @@ void Room::addToGameMap()
 {
     getGameMap()->addRoom(this);
     setIsOnMap(true);
-    if(!getGameMap()->isServerGameMap())
-        return;
-
     getGameMap()->addActiveObject(this);
 }
 
@@ -65,9 +62,6 @@ void Room::removeFromGameMap()
 {
     getGameMap()->removeRoom(this);
     setIsOnMap(false);
-    if(!getGameMap()->isServerGameMap())
-        return;
-
     for(Seat* seat : getGameMap()->getSeats())
     {
         for(Tile* tile : mCoveredTiles)
@@ -97,22 +91,19 @@ void Room::absorbRoom(Room *r)
     mNumActiveSpots += r->mNumActiveSpots;
 
     // Every creature working in this room should go to the new one (this is used in the server map only)
-    if(getGameMap()->isServerGameMap())
+    for(Creature* creature : r->mCreaturesUsingRoom)
     {
-        for(Creature* creature : r->mCreaturesUsingRoom)
+        if(creature->isJobRoom(r))
+            creature->changeJobRoom(this);
+        else if(creature->isEatRoom(r))
+            creature->changeEatRoom(this);
+        else
         {
-            if(creature->isJobRoom(r))
-                creature->changeJobRoom(this);
-            else if(creature->isEatRoom(r))
-                creature->changeEatRoom(this);
-            else
-            {
-                OD_ASSERT_TRUE_MSG(false, "creature=" + creature->getName() + ", oldRoom=" + r->getName() + ", newRoom=" + getName());
-            }
+            OD_ASSERT_TRUE_MSG(false, "creature=" + creature->getName() + ", oldRoom=" + r->getName() + ", newRoom=" + getName());
         }
-        mCreaturesUsingRoom.insert(mCreaturesUsingRoom.end(), r->mCreaturesUsingRoom.begin(), r->mCreaturesUsingRoom.end());
-        r->mCreaturesUsingRoom.clear();
     }
+    mCreaturesUsingRoom.insert(mCreaturesUsingRoom.end(), r->mCreaturesUsingRoom.begin(), r->mCreaturesUsingRoom.end());
+    r->mCreaturesUsingRoom.clear();
 
     mBuildingObjects.insert(r->mBuildingObjects.begin(), r->mBuildingObjects.end());
     r->mBuildingObjects.clear();
@@ -215,10 +206,6 @@ void Room::checkForRoomAbsorbtion()
 
 void Room::updateActiveSpots()
 {
-    // Active spots are handled by the server only
-    if(!getGameMap()->isServerGameMap())
-        return;
-
     std::vector<Tile*> centralActiveSpotTiles;
     std::vector<Tile*> leftWallsActiveSpotTiles;
     std::vector<Tile*> rightWallsActiveSpotTiles;

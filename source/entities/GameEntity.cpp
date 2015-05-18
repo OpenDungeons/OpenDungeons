@@ -37,6 +37,22 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
+GameEntity::GameEntity(
+          GameMap*        gameMap,
+          bool            isOnServerMap,
+          std::string     name,
+          std::string     meshName,
+          Seat*           seat
+          ) :
+    EntityBase(name, meshName, seat),
+    mGameMap           (gameMap),
+    mIsOnMap           (true),
+    mParticleSystemsNumber   (0),
+    mIsOnServerMap     (isOnServerMap)
+{
+    assert(mGameMap != nullptr);
+}
+
 void GameEntity::deleteYourself()
 {
     destroyMesh();
@@ -301,7 +317,7 @@ void GameEntity::importFromStream(std::istream& is)
 void GameEntity::destroyMeshLocal()
 {
     EntityBase::destroyMeshLocal();
-    if(!getGameMap()->isServerGameMap())
+    if(!getIsOnServerMap())
     {
         for(EntityParticleEffect* effect : mEntityParticleEffects)
             RenderManager::getSingleton().rrEntityRemoveParticleEffect(this, effect->mParticleSystem);

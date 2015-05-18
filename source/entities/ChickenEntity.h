@@ -32,8 +32,8 @@ class ODPacket;
 class ChickenEntity: public RenderedMovableEntity
 {
 public:
-    ChickenEntity(GameMap* gameMap, const std::string& hatcheryName);
-    ChickenEntity(GameMap* gameMap);
+    ChickenEntity(GameMap* gameMap, bool isOnServerMap, const std::string& hatcheryName);
+    ChickenEntity(GameMap* gameMap, bool isOnServerMap);
 
     virtual void doUpkeep() override;
 

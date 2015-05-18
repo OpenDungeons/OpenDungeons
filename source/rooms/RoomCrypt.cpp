@@ -115,7 +115,7 @@ void RoomCrypt::doUpkeep()
         if(Random::Int(1, 10) > 1)
             continue;
 
-        SmallSpiderEntity* spider = new SmallSpiderEntity(getGameMap(), getName(), 10);
+        SmallSpiderEntity* spider = new SmallSpiderEntity(getGameMap(), true, getName(), 10);
         Ogre::Vector3 pos(static_cast<Ogre::Real>(tile->getX()), static_cast<Ogre::Real>(tile->getY()), 0.0f);
         spider->addToGameMap();
         spider->createMesh();
@@ -158,8 +158,7 @@ void RoomCrypt::doUpkeep()
             if(classToSpawn == nullptr)
                 continue;
             // Create a new creature and copy over the class-based creature parameters.
-            Creature *newCreature = new Creature(getGameMap(),
-                                                 classToSpawn, getSeat());
+            Creature* newCreature = new Creature(getGameMap(), true, classToSpawn, getSeat());
 
             // Add the creature to the gameMap and create meshes so it is visible.
             newCreature->addToGameMap();

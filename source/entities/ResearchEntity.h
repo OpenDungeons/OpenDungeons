@@ -34,8 +34,8 @@ enum class ResearchType;
 class ResearchEntity: public RenderedMovableEntity
 {
 public:
-    ResearchEntity(GameMap* gameMap, const std::string& libraryName, ResearchType researchType);
-    ResearchEntity(GameMap* gameMap);
+    ResearchEntity(GameMap* gameMap, bool isOnServerMap, const std::string& libraryName, ResearchType researchType);
+    ResearchEntity(GameMap* gameMap, bool isOnServerMap);
 
     virtual GameEntityType getObjectType() const override
     { return GameEntityType::researchEntity; }

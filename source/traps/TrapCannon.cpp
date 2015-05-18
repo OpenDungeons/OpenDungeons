@@ -66,7 +66,7 @@ bool TrapCannon::shoot(Tile* tile)
     position.z = CANNON_MISSILE_HEIGHT;
     direction = direction - position;
     direction.normalise();
-    MissileOneHit* missile = new MissileOneHit(getGameMap(), getSeat(), getName(), "Cannonball",
+    MissileOneHit* missile = new MissileOneHit(getGameMap(), true, getSeat(), getName(), "Cannonball",
         "", direction, Random::Double(mMinDamage, mMaxDamage), 0.0, nullptr, false);
     missile->addToGameMap();
     missile->createMesh();
@@ -81,7 +81,7 @@ bool TrapCannon::shoot(Tile* tile)
 
 TrapEntity* TrapCannon::getTrapEntity(Tile* tile)
 {
-    return new TrapEntity(getGameMap(), getName(), MESH_CANON, tile, 90.0, false, isActivated(tile) ? 1.0f : 0.5f);
+    return new TrapEntity(getGameMap(), true, getName(), MESH_CANON, tile, 90.0, false, isActivated(tile) ? 1.0f : 0.5f);
 }
 
 int TrapCannon::getTrapCost(std::vector<Tile*>& tiles, GameMap* gameMap, TrapType type,

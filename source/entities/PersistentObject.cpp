@@ -31,9 +31,9 @@
 
 #include <iostream>
 
-PersistentObject::PersistentObject(GameMap* gameMap, const std::string& buildingName, const std::string& meshName,
+PersistentObject::PersistentObject(GameMap* gameMap, bool isOnServerMap, const std::string& buildingName, const std::string& meshName,
         Tile* tile, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity) :
-    RenderedMovableEntity(gameMap, buildingName, meshName, rotationAngle, hideCoveredTile, opacity),
+    RenderedMovableEntity(gameMap, isOnServerMap, buildingName, meshName, rotationAngle, hideCoveredTile, opacity),
     mTile(tile),
     mIsWorking(true)
 {
@@ -42,14 +42,14 @@ PersistentObject::PersistentObject(GameMap* gameMap, const std::string& building
     mPosition.z = 0;
 }
 
-PersistentObject::PersistentObject(GameMap* gameMap) :
-    RenderedMovableEntity(gameMap)
+PersistentObject::PersistentObject(GameMap* gameMap, bool isOnServerMap) :
+    RenderedMovableEntity(gameMap, isOnServerMap)
 {
 }
 
 PersistentObject* PersistentObject::getPersistentObjectFromPacket(GameMap* gameMap, ODPacket& is)
 {
-    PersistentObject* obj = new PersistentObject(gameMap);
+    PersistentObject* obj = new PersistentObject(gameMap, false);
     return obj;
 }
 

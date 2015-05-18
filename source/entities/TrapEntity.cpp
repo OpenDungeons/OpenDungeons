@@ -29,14 +29,14 @@
 
 #include <iostream>
 
-TrapEntity::TrapEntity(GameMap* gameMap, const std::string& buildingName, const std::string& meshName,
+TrapEntity::TrapEntity(GameMap* gameMap, bool isOnServerMap, const std::string& buildingName, const std::string& meshName,
         Tile* tile, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity) :
-    PersistentObject(gameMap, buildingName, meshName, tile, rotationAngle, hideCoveredTile, opacity)
+    PersistentObject(gameMap, isOnServerMap, buildingName, meshName, tile, rotationAngle, hideCoveredTile, opacity)
 {
 }
 
-TrapEntity::TrapEntity(GameMap* gameMap) :
-    PersistentObject(gameMap)
+TrapEntity::TrapEntity(GameMap* gameMap, bool isOnServerMap) :
+    PersistentObject(gameMap, isOnServerMap)
 {
 }
 
@@ -49,10 +49,10 @@ TrapEntity* TrapEntity::getTrapEntityFromPacket(GameMap* gameMap, ODPacket& is)
     switch(trapEntityType)
     {
         case TrapEntityType::trapEntity:
-            trapEntity = new TrapEntity(gameMap);
+            trapEntity = new TrapEntity(gameMap, false);
             break;
         case TrapEntityType::doorEntity:
-            trapEntity = new DoorEntity(gameMap);
+            trapEntity = new DoorEntity(gameMap, false);
             break;
         default:
             OD_ASSERT_TRUE_MSG(false, "Unknown TrapEntityType=" + Helper::toString(static_cast<uint32_t>(trapEntityType)));
