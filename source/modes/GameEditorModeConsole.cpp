@@ -45,17 +45,34 @@ GameEditorModeConsole::GameEditorModeConsole(ModeManager* modeManager):
     CEGUI::Window* editbox = consoleRootWindow->getChild("Editbox");
     mEditboxWindow = static_cast<CEGUI::Editbox*>(editbox);
     CEGUI::Window* sendButton = consoleRootWindow->getChild("SendButton");
-    sendButton->subscribeEvent(CEGUI::PushButton::EventClicked,
-                               CEGUI::Event::Subscriber(&GameEditorModeConsole::executeCurrentPrompt, this));
-    mEditboxWindow->subscribeEvent(CEGUI::Editbox::EventTextAccepted,
-                                   CEGUI::Event::Subscriber(&GameEditorModeConsole::executeCurrentPrompt, this));
+
+    addEventConnection(
+        sendButton->subscribeEvent(CEGUI::PushButton::EventClicked,
+                                   CEGUI::Event::Subscriber(&GameEditorModeConsole::executeCurrentPrompt, this))
+    );
+
+    addEventConnection(
+        mEditboxWindow->subscribeEvent(CEGUI::Editbox::EventTextAccepted,
+                                       CEGUI::Event::Subscriber(&GameEditorModeConsole::executeCurrentPrompt, this))
+    );
 
     mConsoleHistoryWindow->getVertScrollbar()->setEndLockEnabled(true);
 
     // Permits closing the console.
     CEGUI::Window* closeButton = consoleRootWindow->getChild("__auto_closebutton__");
-    closeButton->subscribeEvent(CEGUI::PushButton::EventClicked,
-                                CEGUI::Event::Subscriber(&GameEditorModeConsole::leaveConsole, this));
+    addEventConnection(
+        closeButton->subscribeEvent(CEGUI::PushButton::EventClicked,
+                                    CEGUI::Event::Subscriber(&GameEditorModeConsole::leaveConsole, this))
+    );
+}
+
+GameEditorModeConsole::~GameEditorModeConsole()
+{
+    //Disconnect all event connections.
+    for(CEGUI::Event::Connection& c : mEventConnections)
+    {
+        c->disconnect();
+    }
 }
 
 void GameEditorModeConsole::activate()

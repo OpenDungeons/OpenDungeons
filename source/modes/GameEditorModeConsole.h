@@ -39,6 +39,8 @@ public:
 
     GameEditorModeConsole(ModeManager*);
 
+    ~GameEditorModeConsole();
+
     bool keyPressed(const OIS::KeyEvent &arg);
 
     //! \brief Called when the game mode is activated
@@ -57,6 +59,14 @@ private:
     ModeManager* mModeManager;
 
     bool leaveConsole(const CEGUI::EventArgs& e = {});
+
+    inline void addEventConnection(CEGUI::Event::Connection conn)
+    {
+        mEventConnections.emplace_back(conn);
+    }
+
+    // Vector of cegui event bindings to be cleared on exiting the mode
+    std::vector<CEGUI::Event::Connection> mEventConnections;
 };
 
 #endif // GAMEEDITORMODECONSOLE_H

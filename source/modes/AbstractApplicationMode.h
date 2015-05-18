@@ -125,7 +125,7 @@ protected:
     //! \brief Foreign reference, don't delete it.
     ModeManager* mModeManager;
 
-    //! The corresponding mode type enum value.
+    //! \brief The corresponding mode type enum value.
     ModeManager::ModeType mModeType;
 
 private:
