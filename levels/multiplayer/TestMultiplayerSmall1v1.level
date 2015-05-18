@@ -32,6 +32,7 @@ spellSummonWorker
 [ResearchPending]
 roomTrainingHall
 spellCallToWar
+trapDoorWooden
 trapSpike
 roomWorkshop
 roomCrypt
@@ -64,6 +65,7 @@ spellSummonWorker
 [ResearchPending]
 roomTrainingHall
 spellCallToWar
+trapDoorWooden
 trapSpike
 roomWorkshop
 roomCrypt

@@ -76,6 +76,7 @@ public:
     //! targets)
     //! If no target is available, this function should return the mana needed for 1 target and
     //! targets vector should be empty
+    //! Returns the mana the spell will cost. If < 0, it means the spell cannot be cast
     static int getSpellCost(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
         int tileX1, int tileY1, int tileX2, int tileY2, Player* player);
 

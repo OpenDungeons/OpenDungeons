@@ -250,7 +250,6 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
     }
 
     gameMap.setAllFullnessAndNeighbors();
-    gameMap.enableFloodFill();
 
     // Read in the rooms
     levelFile >> nextParam;

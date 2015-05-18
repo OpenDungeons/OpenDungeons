@@ -332,6 +332,12 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 RoomType selectedRoomType = mPlayerSelection.getNewRoomType();
                 std::vector<Tile*> tiles;
                 int price = RoomManager::getRoomCost(tiles, mGameMap, selectedRoomType, tileX1, tileY1, tileX2, tileY2, player);
+                if(price < 0)
+                {
+                    textRenderer.setColor(ODApplication::POINTER_INFO_STRING, red);
+                    textRenderer.setText(ODApplication::POINTER_INFO_STRING, "Cannot build " + std::string(RoomManager::getRoomNameFromRoomType(selectedRoomType)) + " here");
+                    break;
+                }
                 int gold = player->getSeat()->getGold();
                 const Ogre::ColourValue& textColor = ((gold < price) || (tiles.empty() && inputManager.mLMouseDown)) ? red : white;
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
@@ -365,6 +371,12 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 TrapType selectedTrapType = mPlayerSelection.getNewTrapType();
                 std::vector<Tile*> tiles;
                 int price = TrapManager::getTrapCost(tiles, mGameMap, selectedTrapType, tileX1, tileY1, tileX2, tileY2, player);
+                if(price < 0)
+                {
+                    textRenderer.setColor(ODApplication::POINTER_INFO_STRING, red);
+                    textRenderer.setText(ODApplication::POINTER_INFO_STRING, "Cannot build " + std::string(TrapManager::getTrapNameFromTrapType(selectedTrapType)) + " here");
+                    break;
+                }
                 int gold = player->getSeat()->getGold();
                 const Ogre::ColourValue& textColor = ((gold < price) || (tiles.empty() && inputManager.mLMouseDown)) ? red : white;
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
@@ -409,6 +421,12 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 
                 std::vector<EntityBase*> targets;
                 int price = SpellManager::getSpellCost(targets, mGameMap, selectedSpellType, tileX1, tileY1, tileX2, tileY2, player);
+                if(price < 0)
+                {
+                    textRenderer.setColor(ODApplication::POINTER_INFO_STRING, red);
+                    textRenderer.setText(ODApplication::POINTER_INFO_STRING, "Cannot cast " + std::string(SpellManager::getSpellNameFromSpellType(selectedSpellType)) + " here");
+                    break;
+                }
                 int mana = player->getSeat()->getMana();
                 const Ogre::ColourValue& textColor = ((mana < price) || (targets.empty() && inputManager.mLMouseDown)) ? red : white;
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, textColor);
@@ -438,6 +456,12 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 }
                 std::vector<Tile*> tiles;
                 int price = RoomManager::getRefundPrice(tiles, mGameMap, tileX1, tileY1, tileX2, tileY2, player);
+                if(price < 0)
+                {
+                    textRenderer.setColor(ODApplication::POINTER_INFO_STRING, red);
+                    textRenderer.setText(ODApplication::POINTER_INFO_STRING, "Cannot destroy room");
+                    break;
+                }
 
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, white);
                 textRenderer.setText(ODApplication::POINTER_INFO_STRING, "Destroy room ["
@@ -466,6 +490,12 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                 }
                 std::vector<Tile*> tiles;
                 int price = TrapManager::getRefundPrice(tiles, mGameMap, tileX1, tileY1, tileX2, tileY2, player);
+                if(price < 0)
+                {
+                    textRenderer.setColor(ODApplication::POINTER_INFO_STRING, red);
+                    textRenderer.setText(ODApplication::POINTER_INFO_STRING, "Cannot destroy trap");
+                    break;
+                }
 
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, white);
                 textRenderer.setText(ODApplication::POINTER_INFO_STRING, "Destroy trap ["
@@ -1512,6 +1542,10 @@ void GameMode::refreshResearchButtonState(ResearchType resType)
         case ResearchType::trapBoulder:
             ceguiWidgetName = "TacticSkills/BoulderTrapButton";
             ceguiWidgetButtonName = Gui::BUTTON_TRAP_BOULDER;
+            break;
+        case ResearchType::trapDoorWooden:
+            ceguiWidgetName = "TacticSkills/WoodenDoorTrapButton";
+            ceguiWidgetButtonName = Gui::BUTTON_TRAP_DOOR_WOODEN;
             break;
         case ResearchType::roomLibrary:
             ceguiWidgetName = "MagicSkills/LibraryButton";

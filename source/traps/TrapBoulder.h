@@ -28,9 +28,6 @@ public:
 
     TrapBoulder(GameMap* gameMap);
 
-    static TrapBoulder* getTrapBoulderFromStream(GameMap* gameMap, std::istream &is);
-    static TrapBoulder* getTrapBoulderFromPacket(GameMap* gameMap, ODPacket &is);
-
     virtual const TrapType getType() const
     { return TrapType::boulder; }
 

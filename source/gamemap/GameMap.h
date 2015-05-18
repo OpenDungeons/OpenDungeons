@@ -386,8 +386,8 @@ public:
     //! \brief Checks the neighboor tiles to see if the floodfill can be used. Floodfill consists on tagging all contiguous tiles
     //! to be able to know before computing it if a path exists between 2 tiles. We do that to avoid computing paths when we
     //! already know that no path exists.
-    bool doFloodFill(Tile* tile);
-    void refreshFloodFill(Tile* tile);
+    bool doFloodFill(Seat* seat, Tile* tile);
+    void refreshFloodFill(Seat* seat, Tile* tile);
 
     //! \brief Temporarily disables the flood fill computations on this game map.
     void disableFloodFill()
@@ -471,6 +471,8 @@ public:
     std::string nextUniqueNameRenderedMovableEntity(const std::string& baseName);
     std::string nextUniqueNameTrap(const std::string& meshName);
     std::string nextUniqueNameMapLight();
+    inline uint32_t nextUniqueFloodFillValue()
+    { return ++mUniqueFloodFillValue; }
 
     void addRenderedMovableEntity(RenderedMovableEntity *obj);
     void removeRenderedMovableEntity(RenderedMovableEntity *obj);
@@ -522,8 +524,18 @@ public:
     //! Called on client side each time a new turn is received
     void clientUpKeep(int64_t turnNumber);
 
+    //! Updates floodfill for the given seat. If locked is true, creatures from the given seat would
+    //! not be allowed to go through the tile. If locked is false, creatures from the given seat will be
+    //! allowed to go through tile
+    void doorLock(Tile* tileDoor, Seat* seat, bool locked);
+
+    void notifySeatsConfigured();
+
+    const std::vector<int>& getTeamIds() const
+    { return mTeamIds; }
+
 private:
-    void replaceFloodFill(FloodFillType floodFillType, int colorOld, int colorNew);
+    void replaceFloodFill(Seat* seat, FloodFillType floodFillType, uint32_t colorOld, uint32_t colorNew);
 
     //! \brief Tells whether this game map instance is used as a reference by the server-side,
     //! or as a standard client game map.
@@ -545,6 +557,7 @@ private:
     int mUniqueNumberRenderedMovableEntity;
     int mUniqueNumberTrap;
     int mUniqueNumberMapLight;
+    uint32_t mUniqueFloodFillValue;
 
     //! \brief When paused, the GameMap is not updated.
     bool mIsPaused;
@@ -611,6 +624,8 @@ private:
     std::vector<RenderedMovableEntity*> mRenderedMovableEntities;
 
     std::vector<Spell*> mSpells;
+
+    std::vector<int> mTeamIds;
 
     //! AI Handling manager
     AIManager mAiManager;

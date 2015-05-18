@@ -42,8 +42,7 @@ namespace EntityAnimation
 class MovableGameEntity : public GameEntity
 {
 public:
-    MovableGameEntity(GameMap* gameMap, const std::string& initialAnimationState = "",
-        bool initialAnimationLoop = true);
+    MovableGameEntity(GameMap* gameMap);
 
     virtual ~MovableGameEntity()
     {}
@@ -106,13 +105,13 @@ public:
 
 protected:
     std::deque<Ogre::Vector3> mWalkQueue;
+    std::string mPrevAnimationState;
+    bool mPrevAnimationStateLoop;
 
 private:
     void fireObjectAnimationState(const std::string& state, bool loop, const Ogre::Vector3& direction);
     Ogre::AnimationState* mAnimationState;
     double mMoveSpeed;
-    std::string mPrevAnimationState;
-    bool mPrevAnimationStateLoop;
     double mAnimationSpeedFactor;
     std::string mDestinationAnimationState;
     Ogre::Vector3 mWalkDirection;

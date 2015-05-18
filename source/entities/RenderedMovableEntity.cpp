@@ -51,9 +51,9 @@ const std::string RenderedMovableEntity::RENDEREDMOVABLEENTITY_PREFIX = "Rendere
 const Ogre::Vector3 SCALE(0.7,0.7,0.7);
 
 RenderedMovableEntity::RenderedMovableEntity(GameMap* gameMap, const std::string& baseName, const std::string& nMeshName,
-        Ogre::Real rotationAngle, bool hideCoveredTile, float opacity, const std::string& initialAnimationState,
-        bool initialAnimationLoop) :
-    MovableGameEntity(gameMap, initialAnimationState, initialAnimationLoop),
+        Ogre::Real rotationAngle, bool hideCoveredTile, float opacity) :
+    MovableGameEntity(gameMap),
+    mBaseName(baseName),
     mRotationAngle(rotationAngle),
     mHideCoveredTile(hideCoveredTile),
     mOpacity(opacity)

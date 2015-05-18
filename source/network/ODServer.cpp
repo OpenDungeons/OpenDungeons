@@ -874,6 +874,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             }
 
             mSeatsConfigured = true;
+            gameMap->notifySeatsConfigured();
             break;
         }
 

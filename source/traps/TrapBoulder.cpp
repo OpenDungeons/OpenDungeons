@@ -41,18 +41,6 @@ TrapBoulder::TrapBoulder(GameMap* gameMap) :
     setMeshName("Boulder");
 }
 
-TrapBoulder* TrapBoulder::getTrapBoulderFromStream(GameMap* gameMap, std::istream &is)
-{
-    TrapBoulder* trap = new TrapBoulder(gameMap);
-    return trap;
-}
-
-TrapBoulder* TrapBoulder::getTrapBoulderFromPacket(GameMap* gameMap, ODPacket &is)
-{
-    TrapBoulder* trap = new TrapBoulder(gameMap);
-    return trap;
-}
-
 bool TrapBoulder::shoot(Tile* tile)
 {
     std::vector<Tile*> tiles = tile->getAllNeighbors();

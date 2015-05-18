@@ -835,7 +835,7 @@ void Creature::doUpkeep()
         // Carry out the current task
         if (!mActionQueue.empty())
         {
-            CreatureAction topActionItem = peekAction();
+            CreatureAction topActionItem = mActionQueue.front();
             switch (topActionItem.getType())
             {
                 case CreatureActionType::idle:
@@ -1350,8 +1350,7 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
                 {
                     // We found a worker so find a tile near the worker to walk to.  See if the worker is digging.
                     Tile* tempTile = mReachableAlliedObjects[i]->getCoveredTile(0);
-                    if (static_cast<Creature*>(mReachableAlliedObjects[i])->peekAction().getType()
-                            == CreatureActionType::digTile)
+                    if (static_cast<Creature*>(mReachableAlliedObjects[i])->isActionInList(CreatureActionType::digTile))
                     {
                         // Worker is digging, get near it since it could expose enemies.
                         int x = static_cast<int>(static_cast<double>(tempTile->getX()) + 3.0
@@ -1881,7 +1880,7 @@ bool Creature::handleDigTileAction(const CreatureAction& actionItem)
     // If none of our neighbors are marked for digging we got here too late.
     // Finish digging
     mForceAction = forcedActionNone;
-    bool isDigging = (peekAction().getType() == CreatureActionType::digTile);
+    bool isDigging = isActionInList(CreatureActionType::digTile);
     if (isDigging)
     {
         popAction();
@@ -3178,7 +3177,6 @@ std::vector<GameEntity*> Creature::getReachableAttackableObjects(const std::vect
 {
     std::vector<GameEntity*> tempVector;
     Tile* myTile = getPositionTile();
-    std::list<Tile*> tempPath;
 
     // Loop over the vector of objects we are supposed to check.
     for (unsigned int i = 0; i < objectsToCheck.size(); ++i)
@@ -3633,11 +3631,6 @@ void Creature::popAction()
         mActionQueue.front().clearNbTurnsActive();
 }
 
-CreatureAction Creature::peekAction()
-{
-    return mActionQueue.front();
-}
-
 bool Creature::tryPickup(Seat* seat)
 {
     if(!getIsOnMap())
@@ -3674,6 +3667,13 @@ bool Creature::canGoThroughTile(const Tile* tile) const
 {
     if(tile == nullptr)
         return false;
+
+    // Check if the covering building allows this creature to go through
+    if((tile->getCoveringBuilding() != nullptr) &&
+       (!tile->getCoveringBuilding()->canCreatureGoThroughTile(this, tile)))
+    {
+        return false;
+    }
 
     switch(tile->getType())
     {
@@ -4465,4 +4465,30 @@ void Creature::addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z)
     Ogre::Vector3 destination(x, y, z);
 
     mWalkQueue.push_back(destination);
+}
+
+void Creature::checkWalkPathValid()
+{
+    bool stop = false;
+    for(const Ogre::Vector3& dest : mWalkQueue)
+    {
+        Tile* tile = getGameMap()->getTile(Helper::round(dest.x), Helper::round(dest.y));
+        if(tile == nullptr)
+        {
+            stop = true;
+            break;
+        }
+
+        if(!canGoThroughTile(tile))
+        {
+            stop = true;
+            break;
+        }
+    }
+
+    if(!stop)
+        return;
+
+    // There is an unpassable tile in our way. We stop what we are doing
+    clearDestinations();
 }

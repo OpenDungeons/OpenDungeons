@@ -29,6 +29,7 @@ enum class TrapType
     cannon,
     spike,
     boulder,
+    doorWooden,
     nbTraps     // Must be the last in this enum
 };
 

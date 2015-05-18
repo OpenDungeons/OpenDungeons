@@ -16,6 +16,7 @@
  */
 
 #include "entities/TrapEntity.h"
+#include "entities/DoorEntity.h"
 
 #include "network/ODPacket.h"
 
@@ -23,6 +24,7 @@
 
 #include "gamemap/GameMap.h"
 
+#include "utils/Helper.h"
 #include "utils/LogManager.h"
 
 #include <iostream>
@@ -40,8 +42,23 @@ TrapEntity::TrapEntity(GameMap* gameMap) :
 
 TrapEntity* TrapEntity::getTrapEntityFromPacket(GameMap* gameMap, ODPacket& is)
 {
-    TrapEntity* obj = new TrapEntity(gameMap);
-    return obj;
+    TrapEntityType trapEntityType;
+    is >> trapEntityType;
+
+    TrapEntity* trapEntity = nullptr;
+    switch(trapEntityType)
+    {
+        case TrapEntityType::trapEntity:
+            trapEntity = new TrapEntity(gameMap);
+            break;
+        case TrapEntityType::doorEntity:
+            trapEntity = new DoorEntity(gameMap);
+            break;
+        default:
+            OD_ASSERT_TRUE_MSG(false, "Unknown TrapEntityType=" + Helper::toString(static_cast<uint32_t>(trapEntityType)));
+            break;
+    }
+    return trapEntity;
 }
 
 bool TrapEntity::isVisibleForSeat(Seat* seat)
@@ -90,4 +107,24 @@ void TrapEntity::notifySeatsWithVision(const std::vector<Seat*>& seats)
         }
         PersistentObject::notifySeatsWithVision(seatsToNotify);
     }
+}
+
+void TrapEntity::exportHeadersToPacket(ODPacket& os) const
+{
+    PersistentObject::exportHeadersToPacket(os);
+    os << getTrapEntityType();
+}
+
+ODPacket& operator<<(ODPacket& os, const TrapEntityType& type)
+{
+    os << static_cast<int32_t>(type);
+    return os;
+}
+
+ODPacket& operator>>(ODPacket& is, TrapEntityType& type)
+{
+    int32_t tmp;
+    OD_ASSERT_TRUE(is >> tmp);
+    type = static_cast<TrapEntityType>(tmp);
+    return is;
 }

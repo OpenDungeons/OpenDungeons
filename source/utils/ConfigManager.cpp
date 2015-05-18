@@ -1039,6 +1039,7 @@ bool ConfigManager::loadResearches(const std::string& fileName)
     int32_t pointsRoomWorkshop = 0;
     int32_t pointsRoomTrainingHall = 0;
     int32_t pointsTrapCannon = 0;
+    int32_t pointsTrapWoodenDoor = 0;
     int32_t pointsTrapBoulder = 0;
     int32_t pointsTrapSpike = 0;
     int32_t pointsSpellCallToWar = 0;
@@ -1094,6 +1095,12 @@ bool ConfigManager::loadResearches(const std::string& fileName)
             continue;
         }
 
+        if(nextParam == "TrapWoodenDoorPoints")
+        {
+            defFile >> pointsTrapWoodenDoor;
+            continue;
+        }
+
         if(nextParam == "TrapBoulderPoints")
         {
             defFile >> pointsTrapBoulder;
@@ -1142,6 +1149,10 @@ bool ConfigManager::loadResearches(const std::string& fileName)
     // Crypt depends on Workshop
     depends.push_back(research);
     research = new Research(ResearchType::roomCrypt, pointsRoomCrypt, depends);
+    mResearches.push_back(research);
+
+    depends.clear();
+    research = new Research(ResearchType::trapDoorWooden, pointsTrapWoodenDoor, depends);
     mResearches.push_back(research);
 
     depends.clear();

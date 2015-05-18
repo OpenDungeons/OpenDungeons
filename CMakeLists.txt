@@ -264,6 +264,7 @@ set(OD_SOURCEFILES
     ${SRC}/entities/CreatureAction.cpp
     ${SRC}/entities/CreatureDefinition.cpp
     ${SRC}/entities/CreatureSound.cpp
+    ${SRC}/entities/DoorEntity.cpp
     ${SRC}/entities/EntityBase.cpp
     ${SRC}/entities/EntityLoading.cpp
     ${SRC}/entities/GameEntity.cpp
@@ -372,6 +373,7 @@ set(OD_SOURCEFILES
     ${SRC}/traps/Trap.cpp
     ${SRC}/traps/TrapBoulder.cpp
     ${SRC}/traps/TrapCannon.cpp
+    ${SRC}/traps/TrapDoor.cpp
     ${SRC}/traps/TrapManager.cpp
     ${SRC}/traps/TrapSpike.cpp
     ${SRC}/traps/TrapType.cpp

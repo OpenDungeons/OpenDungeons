@@ -261,8 +261,14 @@ int TrapManager::costPerTile(TrapType t)
         case TrapType::boulder:
             return ConfigManager::getSingleton().getTrapConfigInt32("BoulderCostPerTile");
 
+        case TrapType::doorWooden:
+            return ConfigManager::getSingleton().getTrapConfigInt32("WoodenDoorCostPerTile");
+
         default:
+        {
+            OD_ASSERT_TRUE_MSG(false, "Unknown enum for getting trap cost " + getTrapNameFromTrapType(t));
             return 0;
+        }
     }
 }
 
@@ -278,8 +284,10 @@ int32_t TrapManager::getNeededWorkshopPointsPerTrap(TrapType trapType)
             return ConfigManager::getSingleton().getTrapConfigInt32("SpikeWorkshopPointsPerTile");
         case TrapType::boulder:
             return ConfigManager::getSingleton().getTrapConfigInt32("BoulderWorkshopPointsPerTile");
+        case TrapType::doorWooden:
+            return ConfigManager::getSingleton().getTrapConfigInt32("WoodenDoorPointsPerTile");
         default:
-            OD_ASSERT_TRUE_MSG(false, "Asked for wrong trap type=" + Ogre::StringConverter::toString(static_cast<int32_t>(trapType)));
+            OD_ASSERT_TRUE_MSG(false, "Asked for wrong trap type=" + getTrapNameFromTrapType(trapType));
             break;
     }
     // We shouldn't go here

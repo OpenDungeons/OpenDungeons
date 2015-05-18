@@ -93,13 +93,15 @@ public:
 
     bool decreaseShoot()
     {
-        if (mNbShootsBeforeDeactivation > 1)
+        if(mNbShootsBeforeDeactivation < 0)
+            return true;
+
+        if(mNbShootsBeforeDeactivation > 1)
         {
             --mNbShootsBeforeDeactivation;
             return true;
         }
 
-        mNbShootsBeforeDeactivation = 0;
         return false;
     }
 

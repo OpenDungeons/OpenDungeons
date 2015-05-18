@@ -138,11 +138,11 @@ public:
     inline int getId() const
     { return mId; }
 
-    inline uint32_t getIndex() const
-    { return mIndex; }
+    inline uint32_t getTeamIndex() const
+    { return mTeamIndex; }
 
-    inline void setIndex(uint32_t index)
-    { mIndex = index; }
+    inline void setTeamIndex(uint32_t index)
+    { mTeamIndex = index; }
 
     inline const std::string& getFaction() const
     { return mFaction; }
@@ -430,8 +430,9 @@ private:
     //! \brief The seat id. Allows to identify this seat. Must be unique per level file.
     int mId;
 
-    //! \brief Index in the gamemap. Must be set when the seat is added to the gamemap and never changed after
-    uint32_t mIndex;
+    //! \brief Index of the team in the gamemap (from 0 to N). Must be set when the seat is added to the gamemap
+    //! and never changed after
+    uint32_t mTeamIndex;
 
     //! \brief The number of treasuries the player owns. Useful to display the first free tile on client side.
     int mNbTreasuries;

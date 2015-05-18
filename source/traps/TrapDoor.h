@@ -15,45 +15,62 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRAPSPIKE_H
-#define TRAPSPIKE_H
+#ifndef TRAPDOOR_H
+#define TRAPDOOR_H
 
 #include "Trap.h"
 #include "traps/TrapType.h"
 
-class TrapSpike : public Trap
+class DoorEntity;
+
+class TrapDoor : public Trap
 {
 public:
-    static const std::string MESH_SPIKE;
+    TrapDoor(GameMap* gameMap);
 
-    TrapSpike(GameMap* gameMap);
+    static const std::string MESH_DOOR;
 
     virtual const TrapType getType() const
-    { return TrapType::spike; }
+    { return TrapType::doorWooden; }
 
-    virtual bool shoot(Tile* tile);
-    virtual bool isAttackable(Tile* tile, Seat* seat) const
-    {
-        return false;
-    }
+    // We return true to make sure every creature with vision on the door tile can see it
+    virtual bool shoot(Tile* tile) override
+    { return true; }
+
+    virtual void doUpkeep() override;
 
     //! \brief There is no building tile for this trap
-    virtual bool shouldDisplayBuildingTile() const
+    virtual bool shouldDisplayBuildingTile() const override
     { return false; }
 
     //! \brief The trap object covers the whole tile under
     //! but while it built, the ground tile still must be shown.
-    virtual bool shouldDisplayGroundTile() const
+    virtual bool shouldDisplayGroundTile() const override
     { return true; }
 
-    virtual TrapEntity* getTrapEntity(Tile* tile);
+    virtual void activate(Tile* tile) override;
+
+    virtual void notifyDoorSlapped(DoorEntity* doorEntity, Tile* tile);
+
+    virtual TrapEntity* getTrapEntity(Tile* tile) override;
+
+    virtual bool canCreatureGoThroughTile(const Creature* creature, const Tile* tile) const override
+    { return !mIsLocked; }
+
+    //! Returns true is tiles North and South (or east and west) are suitable to have a door on the
+    //! given tile
+    static bool canDoorBeOnTile(GameMap* gameMap, Tile* tile);
+
+    virtual bool permitsVision(Tile* tile) override;
 
     static int getTrapCost(std::vector<Tile*>& tiles, GameMap* gameMap, TrapType type,
         int tileX1, int tileY1, int tileX2, int tileY2, Player* player);
     static void buildTrap(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat* seat);
     static Trap* getTrapFromStream(GameMap* gameMap, std::istream& is);
 
+private:
+    bool mIsLocked;
 };
 
-#endif // TRAPSPIKE_H
+#endif // TRAPDOOR_H
 

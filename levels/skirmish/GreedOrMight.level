@@ -32,6 +32,7 @@ spellSummonWorker
 roomTrainingHall
 spellCallToWar
 roomWorkshop
+trapDoorWooden
 trapCannon
 trapSpike
 roomCrypt
@@ -64,6 +65,7 @@ spellSummonWorker
 roomTrainingHall
 spellCallToWar
 roomWorkshop
+trapDoorWooden
 trapCannon
 trapSpike
 roomCrypt
@@ -94,6 +96,7 @@ spellSummonWorker
 roomTrainingHall
 spellCallToWar
 roomWorkshop
+trapDoorWooden
 trapCannon
 trapSpike
 roomCrypt

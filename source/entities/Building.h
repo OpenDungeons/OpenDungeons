@@ -172,6 +172,12 @@ public:
 
     virtual void notifySeatVision(Tile* tile, Seat* seat);
 
+    virtual bool canCreatureGoThroughTile(const Creature* creature, const Tile* tile) const
+    { return true; }
+
+    virtual bool permitsVision(Tile* tile)
+    { return true; }
+
 protected:
     //! This will be called when tiles will be added to the building. By overriding it,
     //! child classes can expand TileData and add the data they need

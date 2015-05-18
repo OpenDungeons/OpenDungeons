@@ -69,18 +69,6 @@ TrapEntity* TrapSpike::getTrapEntity(Tile* tile)
     return new TrapEntity(getGameMap(), getName(), MESH_SPIKE, tile, 0.0, true, isActivated(tile) ? 1.0f : 0.7f);
 }
 
-TrapSpike* TrapSpike::getTrapSpikeFromStream(GameMap* gameMap, std::istream &is)
-{
-    TrapSpike* trap = new TrapSpike(gameMap);
-    return trap;
-}
-
-TrapSpike* TrapSpike::getTrapSpikeFromPacket(GameMap* gameMap, ODPacket &is)
-{
-    TrapSpike* trap = new TrapSpike(gameMap);
-    return trap;
-}
-
 int TrapSpike::getTrapCost(std::vector<Tile*>& tiles, GameMap* gameMap, TrapType type,
     int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
 {

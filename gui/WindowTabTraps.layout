@@ -35,5 +35,12 @@
             <Property name="InheritsAlpha" value="False" />
             <Property name="Visible" value="False" />
         </Window>
+        <Window type="OD/GameTabButton" name="WoodenDoorTrapButton" >
+            <Property name="Area" value="{{0,280},{0,25},{0,340},{0,85}}" />
+            <Property name="NormalImage" value="OpenDungeonsIcons/WoodenDoorTrapButton" />
+            <Property name="TooltipText" value="Build a wooden door" />
+            <Property name="InheritsAlpha" value="False" />
+            <Property name="Visible" value="False" />
+        </Window>
     </Window>
 </GUILayout>

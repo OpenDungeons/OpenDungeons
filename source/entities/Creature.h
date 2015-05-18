@@ -408,6 +408,10 @@ public:
     //! if at max HP or above
     bool isHurt() const;
 
+    //! Checks if the creature current walk path is still valid. This will be called if tiles passability changes (for
+    //! example if a door is closed)
+    void checkWalkPathValid();
+
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
@@ -562,7 +566,6 @@ private:
     //! not been tested or if forcePush is true, the action will be pushed and pushAction will return true
     bool pushAction(CreatureAction action, bool forcePush = false);
     void popAction();
-    CreatureAction peekAction();
 
     //! \brief Picks a destination far away in the visible tiles and goes there
     //! Returns true if a valid Tile was found. The creature will go there
