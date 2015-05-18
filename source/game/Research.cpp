@@ -119,6 +119,8 @@ std::string Research::researchTypeToPlayerVisibleString(ResearchType type)
             return "The Cannon Trap";
         case ResearchType::trapSpike:
             return "The Spike Trap";
+        case ResearchType::trapDoorWooden:
+            return "The Wooden Door";
         default:
             return "Unknown enum value:" + Helper::toString(static_cast<int>(type));
     }
