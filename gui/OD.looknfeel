@@ -958,6 +958,7 @@
                 </Dim>
             </Area>
             <Property name="AlwaysOnTop" value="False" />
+            <Property name="WantsMultiClickEvents" value="False" />
         </Child>
         <Child nameSuffix="__auto_closebutton__" type="OD/SystemButton">
             <Area>
