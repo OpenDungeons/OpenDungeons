@@ -109,6 +109,10 @@ std::string Research::researchTypeToPlayerVisibleString(ResearchType type)
             return "The 'Call to War' Spell";
         case ResearchType::spellSummonWorker:
             return "The 'Summon Worker' Spell";
+        case ResearchType::spellCreatureHeal:
+            return "The 'Heal' Spell";
+        case ResearchType::spellCreatureExplosion:
+            return "The 'Explosion' Spell";
         case ResearchType::trapBoulder:
             return "The Boulder Trap";
         case ResearchType::trapCannon:
