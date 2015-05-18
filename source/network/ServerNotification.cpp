@@ -16,9 +16,9 @@
  */
 
 #include "network/ServerNotification.h"
-#include "utils/LogManager.h"
 
-#include <OgreStringConverter.h>
+#include "utils/Helper.h"
+#include "utils/LogManager.h"
 
 ServerNotification::ServerNotification(ServerNotificationType type,
     Player* concernedPlayer)
@@ -118,7 +118,7 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "exit";
         default:
             LogManager::getSingleton().logMessage("ERROR: Unknown enum for ServerNotificationType="
-                + Ogre::StringConverter::toString(static_cast<int>(type)));
+                + Helper::toString(static_cast<int>(type)));
     }
     return "";
 }

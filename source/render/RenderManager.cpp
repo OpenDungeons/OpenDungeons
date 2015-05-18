@@ -1244,7 +1244,7 @@ void RenderManager::entitySlapped()
 std::string RenderManager::rrBuildSkullFlagMaterial(const std::string& materialNameBase,
         const Ogre::ColourValue& color)
 {
-    std::string materialNameToUse = materialNameBase + "_" + Ogre::StringConverter::toString(color);
+    std::string materialNameToUse = materialNameBase + "_" + Helper::toString(color);
 
     Ogre::MaterialPtr requestedMaterial = Ogre::MaterialPtr(Ogre::MaterialManager::getSingleton().getByName(materialNameToUse));
 

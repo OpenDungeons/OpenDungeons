@@ -19,10 +19,9 @@
 #include "network/ODPacket.h"
 
 #include "utils/ConfigManager.h"
+#include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/ResourceManager.h"
-
-#include <OgreStringConverter.h>
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/filesystem.hpp>
@@ -37,7 +36,7 @@ bool ODSocketClient::connect(const std::string& host, const int port)
     if (status != sf::Socket::Done)
     {
         LogManager::getSingleton().logMessage("ERROR : Could not connect to distant server status="
-            + Ogre::StringConverter::toString(status));
+            + Helper::toString(status));
         mSockClient.disconnect();
         return false;
     }
@@ -151,7 +150,7 @@ ODSocketClient::ODComStatus ODSocketClient::send(ODPacket& s)
         return ODComStatus::OK;
 
     LogManager::getSingleton().logMessage("ERROR : Could not send data from client status="
-        + Ogre::StringConverter::toString(status));
+        + Helper::toString(status));
     return ODComStatus::Error;
 }
 
@@ -180,7 +179,7 @@ ODSocketClient::ODComStatus ODSocketClient::recv(ODPacket& s)
                     return ODComStatus::NotReady;
             }
             LogManager::getSingleton().logMessage("ERROR : Could not receive data from client status="
-                + Ogre::StringConverter::toString(status));
+                + Helper::toString(status));
             return ODComStatus::Error;
         }
         case ODSource::file:

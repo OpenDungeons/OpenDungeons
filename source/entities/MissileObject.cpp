@@ -258,7 +258,7 @@ MissileObject* MissileObject::getMissileObjectFromStream(GameMap* gameMap, std::
             break;
         }
         default:
-            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(
+            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Helper::toString(
                 static_cast<int>(type)));
             break;
     }
@@ -283,7 +283,7 @@ MissileObject* MissileObject::getMissileObjectFromPacket(GameMap* gameMap, ODPac
             break;
         }
         default:
-            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Ogre::StringConverter::toString(
+            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Helper::toString(
                 static_cast<int>(type)));
             break;
     }

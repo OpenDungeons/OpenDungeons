@@ -19,10 +19,10 @@
 #include "network/ODPacket.h"
 #include "game/Player.h"
 
+#include "utils/Helper.h"
 #include "utils/LogManager.h"
 
 #include <SFML/System.hpp>
-#include <OgreStringConverter.h>
 
 ODSocketServer::ODSocketServer():
     mThread(nullptr),
@@ -46,7 +46,7 @@ bool ODSocketServer::createServer(int listeningPort)
     if (status != sf::Socket::Done)
     {
         LogManager::getSingleton().logMessage("ERROR : Could not listen to server port status="
-            + Ogre::StringConverter::toString(status));
+            + Helper::toString(status));
         return false;
     }
 
@@ -116,7 +116,7 @@ void ODSocketServer::doTask(int timeoutMs)
             {
                 // Error
                 LogManager::getSingleton().logMessage("ERROR : Could not listen to server port error="
-                    + Ogre::StringConverter::toString(status));
+                    + Helper::toString(status));
             }
         }
         else

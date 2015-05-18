@@ -34,8 +34,6 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
-#include <OgreStringConverter.h>
-
 //! \brief The number of seconds the local player must stay out of danger to trigger the calm music again.
 const float BATTLE_TIME_COUNT = 10.0f;
 //! \brief Minimum distance to consider that a new event of the same type is in another place
@@ -98,7 +96,7 @@ bool Player::isDropHandPossible(Tile *t, unsigned int index)
 GameEntity* Player::dropHand(Tile *t, unsigned int index)
 {
     // Add the creature to the map
-    OD_ASSERT_TRUE_MSG(index < mObjectsInHand.size(), "playerNick=" + getNick() + ", index=" + Ogre::StringConverter::toString(index));
+    OD_ASSERT_TRUE_MSG(index < mObjectsInHand.size(), "playerNick=" + getNick() + ", index=" + Helper::toString(index));
     if(index >= mObjectsInHand.size())
         return nullptr;
 

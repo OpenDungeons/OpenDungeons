@@ -31,8 +31,6 @@
 #include "utils/LogManager.h"
 #include "utils/Random.h"
 
-#include <OgreStringConverter.h>
-
 #include <cmath>
 
 static RoomManagerRegister<RoomPortal> reg(RoomType::portal, "Portal");

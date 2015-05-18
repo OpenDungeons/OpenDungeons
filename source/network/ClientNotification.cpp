@@ -17,8 +17,7 @@
 
 #include "ClientNotification.h"
 #include "utils/LogManager.h"
-
-#include <OgreStringConverter.h>
+#include "utils/Helper.h"
 
 ClientNotification::ClientNotification(ClientNotificationType type):
         mType(type)
@@ -88,7 +87,7 @@ std::string ClientNotification::typeString(ClientNotificationType type)
             return "editorAskCreateMapLight";
         default:
             LogManager::getSingleton().logMessage("ERROR: Unknown enum for ClientNotificationType="
-                + Ogre::StringConverter::toString(static_cast<int>(type)));
+                + Helper::toString(static_cast<int>(type)));
     }
     return "";
 }

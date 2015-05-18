@@ -1049,6 +1049,17 @@ bool Seat::addResearch(ResearchType type)
     researchDone.push_back(type);
     setResearchesDone(researchDone);
 
+    // Tells the player a new room/trap/spell is available.
+    if(getPlayer() != nullptr && getPlayer()->getIsHuman())
+    {
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::chatServer, getPlayer());
+
+        std::string msg = Research::researchTypeToPlayerVisibleString(type) + " is now available.";
+        serverNotification->mPacket << msg << EventShortNoticeType::aboutResearches;
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
+
     return true;
 }
 
@@ -1592,7 +1603,7 @@ const CreatureDefinition* Seat::getNextFighterClassToSpawn(const GameMap& gameMa
     }
 
     // It is not normal to come here
-    OD_ASSERT_TRUE_MSG(false, "seatId=" + Ogre::StringConverter::toString(getId()));
+    OD_ASSERT_TRUE_MSG(false, "seatId=" + Helper::toString(getId()));
     return nullptr;
 }
 

@@ -145,8 +145,8 @@ void RoomTrainingHall::refreshCreaturesDummies()
         return;
 
     OD_ASSERT_TRUE_MSG(mUnusedDummies.size() >= mCreaturesUsingRoom.size(),
-        "mUnusedDummies.size()=" + Ogre::StringConverter::toString(static_cast<int>(mUnusedDummies.size()))
-        + "mCreaturesUsingRoom.size()=" + Ogre::StringConverter::toString(static_cast<int>(mCreaturesUsingRoom.size())));
+        "mUnusedDummies.size()=" + Helper::toString(static_cast<int>(mUnusedDummies.size()))
+        + "mCreaturesUsingRoom.size()=" + Helper::toString(static_cast<int>(mCreaturesUsingRoom.size())));
 
     for(Creature* creature : mCreaturesUsingRoom)
     {
@@ -277,7 +277,7 @@ void RoomTrainingHall::doUpkeep()
                 ro->setAnimationState("Triggered", false);
                 const CreatureRoomAffinity& creatureRoomAffinity = creature->getDefinition()->getRoomAffinity(getType());
                 OD_ASSERT_TRUE_MSG(creatureRoomAffinity.getRoomType() == getType(), "name=" + getName() + ", creature=" + creature->getName()
-                    + ", creatureRoomAffinityType=" + Ogre::StringConverter::toString(static_cast<int>(creatureRoomAffinity.getRoomType())));
+                    + ", creatureRoomAffinityType=" + Helper::toString(static_cast<int>(creatureRoomAffinity.getRoomType())));
 
                 // We add a bonus per wall active spots
                 double coef = 1.0 + static_cast<double>(mNumActiveSpots - mCentralActiveSpotTiles.size()) * ConfigManager::getSingleton().getRoomConfigDouble("TrainHallBonusWallActiveSpot");

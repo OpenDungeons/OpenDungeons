@@ -24,8 +24,8 @@
     <Image height="60" name="PortalButton" width="60" xPos="386" yPos="194" />
     <Image height="60" name="SummonWorkerButton" width="60" xPos="2" yPos="322" />
     <Image height="60" name="CallToWarButton" width="60" xPos="66" yPos="322" />
-    <Image height="60" name="CreatureHealButton" width="60" xPos="128" yPos="320" />
-    <Image height="60" name="CreatureExplosionButton" width="60" xPos="192" yPos="320" />
+    <Image height="64" name="CreatureHealButton" width="64" xPos="128" yPos="320" />
+    <Image height="64" name="CreatureExplosionButton" width="64" xPos="192" yPos="320" />
     <Image height="60" name="MapLightButton" width="60" xPos="450" yPos="66" />
     <Image height="64" name="RoomsButton" width="64" xPos="0" yPos="256" />
     <Image height="64" name="SpellsButton" width="64" xPos="64" yPos="256" />

@@ -927,7 +927,7 @@ void Creature::doUpkeep()
     if(loops >= 20)
     {
         LogManager::getSingleton().logMessage("> 20 loops in Creature::doUpkeep name:" + getName() +
-                " seat id: " + Ogre::StringConverter::toString(getSeat()->getId()) + ". Breaking out..");
+                " seat id: " + Helper::toString(getSeat()->getId()) + ". Breaking out..");
     }
 }
 
@@ -2841,9 +2841,9 @@ bool Creature::handleGetFee(const CreatureAction& actionItem)
                 std::string msg;
                 // We don't display the same message if we have taken all our fee or only a part of it
                 if(mGoldFee <= 0)
-                    msg = getName() + " took its fee: " + Ogre::StringConverter::toString(goldTaken);
+                    msg = getName() + " took its fee: " + Helper::toString(goldTaken);
                 else
-                    msg = getName() + " took " + Ogre::StringConverter::toString(goldTaken) + " from its fee";
+                    msg = getName() + " took " + Helper::toString(goldTaken) + " from its fee";
 
                 serverNotification->mPacket << msg << EventShortNoticeType::aboutCreatures;
                 ODServer::getSingleton().queueServerNotification(serverNotification);
@@ -3392,7 +3392,7 @@ std::vector<Tile*> Creature::getCoveredTiles()
 Tile* Creature::getCoveredTile(int index)
 {
     OD_ASSERT_TRUE_MSG(index == 0, "name=" + getName()
-        + ", index=" + Ogre::StringConverter::toString(index));
+        + ", index=" + Helper::toString(index));
 
     if(index > 0)
         return nullptr;
@@ -3520,12 +3520,12 @@ std::string Creature::getStatsText()
     for(std::deque<Ogre::Vector3>::iterator it = mWalkQueue.begin(); it != mWalkQueue.end(); ++it)
     {
         Ogre::Vector3& dest = *it;
-        tempSS << Ogre::StringConverter::toString(dest) << "/";
+        tempSS << Helper::toString(dest) << "/";
     }
     tempSS << std::endl;
     tempSS << "Seat id: " << getSeat()->getId() << std::endl;
     tempSS << "Team id: " << getSeat()->getTeamId() << std::endl;
-    tempSS << "Position: " << Ogre::StringConverter::toString(getPosition()) << std::endl;
+    tempSS << "Position: " << Helper::toString(getPosition()) << std::endl;
     tempSS << "Mood: " << CreatureMood::toString(mMoodValue) << std::endl;
     tempSS << "MoodPoints: " << Helper::toString(mMoodPoints) << std::endl;
     return tempSS.str();

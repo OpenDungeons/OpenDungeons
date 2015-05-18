@@ -120,6 +120,12 @@ namespace Helper
     { return Ogre::StringConverter::toString(d); }
     inline std::string toString(uint32_t d)
     { return Ogre::StringConverter::toString(d); }
+    inline std::string toString(const Ogre::Vector3& v)
+    { return Ogre::StringConverter::toString(v); }
+    inline std::string toString(const Ogre::Radian& r)
+    { return Ogre::StringConverter::toString(r); }
+    inline std::string toString(const Ogre::ColourValue& c)
+    { return Ogre::StringConverter::toString(c); }
 
     //! \brief Converts an int value into a 2 digits-long Hex string value.
     //! \example 256 -> FF

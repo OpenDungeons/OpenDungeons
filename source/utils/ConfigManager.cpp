@@ -226,7 +226,7 @@ bool ConfigManager::loadGlobalConfig(const std::string& configPath)
 
     if(paramsOk != 0x07)
     {
-        OD_ASSERT_TRUE_MSG(false, "Not enough parameters for config file paramsOk=" + Ogre::StringConverter::toString(paramsOk));
+        OD_ASSERT_TRUE_MSG(false, "Not enough parameters for config file paramsOk=" + Helper::toString(paramsOk));
         return false;
     }
 
@@ -281,7 +281,7 @@ bool ConfigManager::loadGlobalConfigDefinitionFiles(std::stringstream& configFil
 
         if(paramsOk != 0x03)
         {
-            OD_ASSERT_TRUE_MSG(false, "Missing parameters paramsOk=" + Ogre::StringConverter::toString(paramsOk));
+            OD_ASSERT_TRUE_MSG(false, "Missing parameters paramsOk=" + Helper::toString(paramsOk));
             return false;
         }
 
@@ -339,7 +339,7 @@ bool ConfigManager::loadGlobalConfigDefinitionFiles(std::stringstream& configFil
 
     if(filesOk != 0x3FF)
     {
-        OD_ASSERT_TRUE_MSG(false, "Missing parameter file filesOk=" + Ogre::StringConverter::toString(filesOk));
+        OD_ASSERT_TRUE_MSG(false, "Missing parameter file filesOk=" + Helper::toString(filesOk));
         return false;
     }
 
@@ -428,7 +428,7 @@ bool ConfigManager::loadGlobalConfigSeatColors(std::stringstream& configFile)
 
         if(paramsOk != 0x0F)
         {
-            OD_ASSERT_TRUE_MSG(false, "Missing parameters paramsOk=" + Ogre::StringConverter::toString(paramsOk));
+            OD_ASSERT_TRUE_MSG(false, "Missing parameters paramsOk=" + Helper::toString(paramsOk));
             return false;
         }
 
@@ -523,7 +523,7 @@ bool ConfigManager::loadGlobalGameConfig(std::stringstream& configFile)
 
     if(paramsOk != 0x01)
     {
-        OD_ASSERT_TRUE_MSG(false, "Missing parameters paramsOk=" + Ogre::StringConverter::toString(paramsOk));
+        OD_ASSERT_TRUE_MSG(false, "Missing parameters paramsOk=" + Helper::toString(paramsOk));
         return false;
     }
 

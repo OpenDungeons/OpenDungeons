@@ -465,7 +465,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, white);
                 textRenderer.setText(ODApplication::POINTER_INFO_STRING, "Destroy room ["
-                    + Ogre::StringConverter::toString(price)+ " Gold]");
+                    + Helper::toString(price)+ " Gold]");
                 break;
             }
             case SelectedAction::destroyTrap:
@@ -499,7 +499,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 
                 textRenderer.setColor(ODApplication::POINTER_INFO_STRING, white);
                 textRenderer.setText(ODApplication::POINTER_INFO_STRING, "Destroy trap ["
-                    + Ogre::StringConverter::toString(price)+ " Gold]");
+                    + Helper::toString(price)+ " Gold]");
                 break;
             }
             default:

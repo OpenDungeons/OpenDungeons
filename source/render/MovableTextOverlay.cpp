@@ -183,7 +183,7 @@ uint32_t MovableTextOverlay::createChildOverlay(const Ogre::String& fontName, Og
     childOverlay.mOverlayText->setColour(color);
 
     childOverlay.mOverlayText->setParameter("font_name", fontName);
-    childOverlay.mOverlayText->setParameter("char_height", Ogre::StringConverter::toString(charHeight));
+    childOverlay.mOverlayText->setParameter("char_height", Helper::toString(charHeight));
     childOverlay.mOverlayText->setParameter("horz_align", "center");
     childOverlay.mOverlayText->setParameter("vert_align", "top");
 

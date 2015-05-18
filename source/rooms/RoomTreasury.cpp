@@ -77,7 +77,7 @@ bool RoomTreasury::removeCoveredTile(Tile* t)
         {
             LogManager::getSingleton().logMessage("Room " + getName()
                 + ", tile=" + Tile::displayAsString(t) + " releases gold amount = "
-                + Ogre::StringConverter::toString(value));
+                + Helper::toString(value));
             TreasuryObject* obj = new TreasuryObject(getGameMap(), value);
             obj->addToGameMap();
             Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(t->getX()),
@@ -198,7 +198,7 @@ int RoomTreasury::withdrawGold(int gold)
 void RoomTreasury::updateMeshesForTile(Tile* tile, RoomTreasuryTileData* roomTreasuryTileData)
 {
     int gold = roomTreasuryTileData->mGoldInTile;
-    OD_ASSERT_TRUE_MSG(gold <= maxGoldinTile, "room=" + getName() + ", gold=" + Ogre::StringConverter::toString(gold));
+    OD_ASSERT_TRUE_MSG(gold <= maxGoldinTile, "room=" + getName() + ", gold=" + Helper::toString(gold));
 
     // If the mesh has not changed we do not need to do anything.
     std::string newMeshName = TreasuryObject::getMeshNameForGold(gold);
