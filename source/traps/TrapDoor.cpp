@@ -17,6 +17,7 @@
 
 #include "traps/TrapDoor.h"
 
+#include "entities/Creature.h"
 #include "entities/DoorEntity.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
@@ -165,6 +166,30 @@ bool TrapDoor::permitsVision(Tile* tile)
         return true;
 
     return !mIsLocked;
+}
+
+bool TrapDoor::canCreatureGoThroughTile(const Creature* creature, Tile* tile) const
+{
+    const TrapTileData* trapTileData = static_cast<const TrapTileData*>(mTileData.at(tile));
+    if (!trapTileData->isActivated())
+        return true;
+
+    if(!mIsLocked)
+        return true;
+
+    // Enemy units can go through doors. We need that otherwise, they won't be able to
+    // get to the door. But in any case, if they are not fighting, we let them go. If
+    // they are fighting, we don't
+    if(getSeat()->isAlliedSeat(creature->getSeat()))
+        return false;
+
+    if(creature->isActionInList(CreatureActionType::fight) ||
+       creature->isActionInList(CreatureActionType::flee))
+    {
+        return false;
+    }
+
+    return true;
 }
 
 Trap* TrapDoor::getTrapFromStream(GameMap* gameMap, std::istream& is)

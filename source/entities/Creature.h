@@ -263,7 +263,7 @@ public:
     void receiveExp(double experience);
 
     //! \brief Returns true if the given action is queued in the action list. False otherwise
-    bool isActionInList(CreatureActionType action);
+    bool isActionInList(CreatureActionType action) const;
 
     inline const std::deque<CreatureAction>& getActionQueue()
     { return mActionQueue; }
@@ -356,7 +356,7 @@ public:
     void stopEating();
 
     //! \brief Tells whether the creature can go through the given tile.
-    bool canGoThroughTile(const Tile* tile) const;
+    bool canGoThroughTile(Tile* tile) const;
 
     virtual EntityCarryType getEntityCarryType();
     virtual void notifyEntityCarryOn(Creature* carrier);

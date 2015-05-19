@@ -3585,11 +3585,10 @@ void Creature::receiveExp(double experience)
     mExp += experience;
 }
 
-bool Creature::isActionInList(CreatureActionType action)
+bool Creature::isActionInList(CreatureActionType action) const
 {
-    for (std::deque<CreatureAction>::iterator it = mActionQueue.begin(); it != mActionQueue.end(); ++it)
+    for (const CreatureAction& ca : mActionQueue)
     {
-        CreatureAction& ca = *it;
         if (ca.getType() == action)
             return true;
     }
@@ -3672,7 +3671,7 @@ void Creature::pickup()
         computeVisualDebugEntities();
 }
 
-bool Creature::canGoThroughTile(const Tile* tile) const
+bool Creature::canGoThroughTile(Tile* tile) const
 {
     if(tile == nullptr)
         return false;

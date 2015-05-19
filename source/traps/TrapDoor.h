@@ -54,8 +54,7 @@ public:
 
     virtual TrapEntity* getTrapEntity(Tile* tile) override;
 
-    virtual bool canCreatureGoThroughTile(const Creature* creature, const Tile* tile) const override
-    { return !mIsLocked; }
+    virtual bool canCreatureGoThroughTile(const Creature* creature, Tile* tile) const override;
 
     //! Returns true is tiles North and South (or east and west) are suitable to have a door on the
     //! given tile

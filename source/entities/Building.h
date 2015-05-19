@@ -172,7 +172,7 @@ public:
 
     virtual void notifySeatVision(Tile* tile, Seat* seat);
 
-    virtual bool canCreatureGoThroughTile(const Creature* creature, const Tile* tile) const
+    virtual bool canCreatureGoThroughTile(const Creature* creature, Tile* tile) const
     { return true; }
 
     virtual bool permitsVision(Tile* tile)
