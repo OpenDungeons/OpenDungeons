@@ -564,7 +564,7 @@ private:
     //! it is possible. To avoid testing several times the same action, we check in mActionTry if the action as already been
     //! tried. If yes and forcePush is false, the action won't be pushed and pushAction will return false. If the action has
     //! not been tested or if forcePush is true, the action will be pushed and pushAction will return true
-    bool pushAction(CreatureAction action, bool forcePush = false);
+    bool pushAction(CreatureAction action, bool popCurrentIfPush, bool forcePush);
     void popAction();
 
     //! \brief Picks a destination far away in the visible tiles and goes there
