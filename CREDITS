@@ -193,6 +193,8 @@ textures/
 -> WorkshopMachine2*.png               Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
 -> MysteryBox.png                      Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
 -> MysteryBoxNormal.png                Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
+-> WoodenDoor.png                      Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
+-> WoodenDoorNormal.png                Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
 -> Wyvern*.png
 
 ======================
@@ -294,6 +296,7 @@ Workshop.mesh                          Danimal                 CC-BY 3.0        
 WorkshopMachine1.mesh                  Danimal                 CC-BY 3.0               http://opengameart.org/users/danimal
 WorkshopMachine2.*                     Danimal                 CC-BY 3.0               http://opengameart.org/users/danimal
 MysteryBox.mesh                        Danimal                 CC-BY 3.0               http://opengameart.org/users/danimal
+WoodenDoor.mesh                        Danimal                 CC-BY-SA 3.0            http://opengameart.org/users/danimal
 Wyvern.*                               Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
 
 
