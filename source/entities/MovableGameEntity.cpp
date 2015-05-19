@@ -40,14 +40,17 @@ MovableGameEntity::MovableGameEntity(GameMap* gameMap, bool isOnServerMap) :
     mMoveSpeed(1.0),
     mAnimationSpeedFactor(1.0),
     mDestinationAnimationState(EntityAnimation::idle_anim),
+    mDestinationAnimationLoop(false),
+    mDestinationAnimationDirection(Ogre::Vector3::ZERO),
     mWalkDirection(Ogre::Vector3::ZERO),
     mAnimationTime(0.0)
 {
 }
 
-void MovableGameEntity::setMoveSpeed(double s)
+void MovableGameEntity::setMoveSpeed(double moveSpeed, double animationSpeed)
 {
-    mMoveSpeed = s;
+    mMoveSpeed = moveSpeed;
+    mAnimationSpeedFactor = animationSpeed;
 
     if (!getIsOnServerMap())
         return;
@@ -62,7 +65,7 @@ void MovableGameEntity::setMoveSpeed(double s)
         const std::string& name = getName();
         ServerNotification *serverNotification = new ServerNotification(
             ServerNotificationType::setMoveSpeed, seat->getPlayer());
-        serverNotification->mPacket << name << s;
+        serverNotification->mPacket << name << moveSpeed << animationSpeed;
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 }
@@ -150,7 +153,18 @@ void MovableGameEntity::clearDestinations()
 void MovableGameEntity::stopWalking()
 {
     // Set the animation state of this object to the state that was set for it to enter into after it reaches it's destination.
-    setAnimationState(mDestinationAnimationState);
+    if(mDestinationAnimationState.empty())
+        return;
+
+    if(mDestinationAnimationDirection == Ogre::Vector3::ZERO)
+        mDestinationAnimationDirection = mWalkDirection;
+
+    setAnimationState(mDestinationAnimationState, mDestinationAnimationLoop, mDestinationAnimationDirection);
+
+    // We reset the destination state
+    mDestinationAnimationState.clear();
+    mDestinationAnimationLoop = false;
+    mDestinationAnimationDirection = Ogre::Vector3::ZERO;
 }
 
 void MovableGameEntity::setWalkDirection(const Ogre::Vector3& direction)
@@ -174,6 +188,30 @@ void MovableGameEntity::setAnimationState(const std::string& state, bool loop, c
         return;
     }
 
+    // On server side, we update the entity
+    if(getIsOnServerMap())
+    {
+        mAnimationTime = 0;
+        mPrevAnimationState = state;
+        mPrevAnimationStateLoop = loop;
+
+        if(direction != Ogre::Vector3::ZERO)
+            setWalkDirection(direction);
+
+        fireObjectAnimationState(state, loop, direction);
+        return;
+    }
+
+    // On client side, if the entity has reached its destination, we change the animation. Otherwise, we save
+    // the wanted animation that will be set when it has arrived by stopWalking
+    if(!mWalkQueue.empty())
+    {
+        mDestinationAnimationState = state;
+        mDestinationAnimationLoop = loop;
+        mDestinationAnimationDirection = direction;
+        return;
+    }
+
     mAnimationTime = 0;
     mPrevAnimationState = state;
     mPrevAnimationStateLoop = loop;
@@ -181,27 +219,7 @@ void MovableGameEntity::setAnimationState(const std::string& state, bool loop, c
     if(direction != Ogre::Vector3::ZERO)
         setWalkDirection(direction);
 
-    // NOTE : if we add support to increase speed like a spell or slapping, it
-    // would be nice to increase speed factor
-    setAnimationSpeedFactor(1.0);
-
-    if(getIsOnServerMap())
-    {
-        fireObjectAnimationState(state, loop, direction);
-        return;
-    }
-
     RenderManager::getSingleton().rrSetObjectAnimationState(this, state, loop);
-}
-
-double MovableGameEntity::getAnimationSpeedFactor()
-{
-    return mAnimationSpeedFactor;
-}
-
-void MovableGameEntity::setAnimationSpeedFactor(double f)
-{
-    mAnimationSpeedFactor = f;
 }
 
 void MovableGameEntity::update(Ogre::Real timeSinceLastFrame)
@@ -370,7 +388,6 @@ void MovableGameEntity::restoreEntityState()
     GameEntity::restoreEntityState();
     if(!mPrevAnimationState.empty())
     {
-        setAnimationSpeedFactor(mAnimationSpeedFactor);
         RenderManager::getSingleton().rrSetObjectAnimationState(this, mPrevAnimationState, mPrevAnimationStateLoop);
 
         if(mWalkDirection != Ogre::Vector3::ZERO)

@@ -562,13 +562,14 @@ bool ODClient::processOneClientSocketMessage()
         {
             std::string objName;
             double moveSpeed;
-            OD_ASSERT_TRUE(packetReceived >> objName >> moveSpeed);
+            double animationSpeed;
+            OD_ASSERT_TRUE(packetReceived >> objName >> moveSpeed >> animationSpeed);
             MovableGameEntity *obj = gameMap->getAnimatedObject(objName);
-            OD_ASSERT_TRUE_MSG(obj != nullptr, "objName=" + objName + ", moveSpeed=" + Helper::toString(moveSpeed));
+            OD_ASSERT_TRUE_MSG(obj != nullptr, "objName=" + objName + ", moveSpeed=" + Helper::toString(moveSpeed) + ", animationSpeed=" + Helper::toString(animationSpeed));
             if (obj == nullptr)
                 break;
 
-            obj->setMoveSpeed(moveSpeed);
+            obj->setMoveSpeed(moveSpeed, animationSpeed);
             break;
         }
 

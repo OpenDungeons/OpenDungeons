@@ -2484,7 +2484,7 @@ bool Creature::handleAttackAction(const CreatureAction& actionItem)
         missile->addToGameMap();
         missile->createMesh();
         missile->setPosition(position, false);
-        missile->setMoveSpeed(3.0);
+        missile->setMoveSpeed(3.0, 1.0);
         // We don't want the missile to stay idle for 1 turn. Because we are in a doUpkeep context,
         // we can safely call the missile doUpkeep as we know the engine will not call it the turn
         // it has been added

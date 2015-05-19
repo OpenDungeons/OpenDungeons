@@ -73,12 +73,12 @@ public:
     virtual double getMoveSpeed() const
     { return mMoveSpeed; }
 
-    virtual void setMoveSpeed(double s);
+    virtual void setMoveSpeed(double moveSpeed, double animationSpeed);
 
     virtual void setAnimationState(const std::string& state, bool loop = true, const Ogre::Vector3& direction = Ogre::Vector3::ZERO);
 
-    virtual double getAnimationSpeedFactor();
-    virtual void setAnimationSpeedFactor(double f);
+    inline double getAnimationSpeedFactor() const
+    { return mAnimationSpeedFactor; }
 
     //! \brief Updates the entity path, movement, and direction
     //! \param timeSinceLastFrame the elapsed time since last displayed frame in seconds.
@@ -114,6 +114,8 @@ private:
     double mMoveSpeed;
     double mAnimationSpeedFactor;
     std::string mDestinationAnimationState;
+    bool mDestinationAnimationLoop;
+    Ogre::Vector3 mDestinationAnimationDirection;
     Ogre::Vector3 mWalkDirection;
     double mAnimationTime;
 };

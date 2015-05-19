@@ -88,7 +88,7 @@ void RoomHatchery::doUpkeep()
         Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(chickenCoopTile->getX()),
                                     static_cast<Ogre::Real>(chickenCoopTile->getY()), 0.0f);
         chicken->setPosition(spawnPosition, false);
-        chicken->setMoveSpeed(CHICKEN_SPEED);
+        chicken->setMoveSpeed(CHICKEN_SPEED, 1.0);
         ++nbChickens;
         if(nbChickens >= mNumActiveSpots)
             break;
