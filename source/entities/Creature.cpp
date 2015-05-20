@@ -3619,13 +3619,7 @@ bool Creature::pushAction(CreatureAction action, bool popCurrentIfPush, bool for
     }
 
     if(popCurrentIfPush && !mActionQueue.empty())
-    {
-// DAN_TEST
-if(mActionQueue.front().getType() == CreatureActionType::claimTile)
-    mActionQueue.front();
-
         mActionQueue.pop_front();
-    }
 
     action.clearNbTurnsActive();
     mActionQueue.push_front(action);

@@ -51,19 +51,17 @@ public:
     bool isMoving();
 
 
-    /*! \brief Replaces a object's current walk queue with a new path. During the
+    /*! \brief Replaces an object's current walk queue with a new path. During the
      * walk, the entity will play walkAnim (looped). When it gets to the wanted position,
      * it will play endAnim (looped or not depending on loopEndAnim).
      */
-    void setWalkPath(const std::string& walkAnim, const std::string& endAnim,
-        bool loopEndAnim, const std::vector<Ogre::Vector3>& path);
+    void setWalkPath(const std::string& walkAnim, const std::string& endAnim, bool loopEndAnim, const std::vector<Ogre::Vector3>& path);
 
     /*! \brief Converts a tile list to a vector of Ogre::Vector3
      *
      * If skipFirst is true, the first tile in the list will be skipped
      */
-    static void tileToVector3(const std::list<Tile*>& tiles, std::vector<Ogre::Vector3>& path,
-        bool skipFirst, Ogre::Real z);
+    static void tileToVector3(const std::list<Tile*>& tiles, std::vector<Ogre::Vector3>& path, bool skipFirst, Ogre::Real z);
 
     //! \brief Clears all future destinations from the walk queue, stops the object where it is, and sets its animation state.
     //! This is a server side function
