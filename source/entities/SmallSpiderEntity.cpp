@@ -77,7 +77,7 @@ void SmallSpiderEntity::doUpkeep()
     if(isMoving())
         return;
 
-    std::vector<Tile*> moves;
+    std::vector<Ogre::Vector3> moves;
     // We randomly choose some tiles to walk
     int posX = tile->getX();
     int posY = tile->getY();
@@ -98,7 +98,8 @@ void SmallSpiderEntity::doUpkeep()
             break;
 
         Tile* tileDest = possibleTileMove[Random::Uint(0, possibleTileMove.size() - 1)];
-        moves.push_back(tileDest);
+        Ogre::Vector3 dest(static_cast<Ogre::Real>(tileDest->getX()), static_cast<Ogre::Real>(tileDest->getY()), 0.0);
+        moves.push_back(dest);
         posX = tileDest->getX();
         posY = tileDest->getY();
     }
@@ -109,10 +110,7 @@ void SmallSpiderEntity::doUpkeep()
         return;
     }
 
-    for(Tile* tileDest : moves)
-        addDestination(static_cast<Ogre::Real>(tileDest->getX()), static_cast<Ogre::Real>(tileDest->getY()));
-
-    setAnimationState(EntityAnimation::walk_anim);
+    setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, moves);
 }
 
 bool SmallSpiderEntity::canSlap(Seat* seat)

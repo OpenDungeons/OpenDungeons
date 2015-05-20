@@ -105,8 +105,7 @@ void ChickenEntity::doUpkeep()
     if(mIsSlapped || (mNbTurnOutsideHatchery >= NB_TURNS_OUTSIDE_HATCHERY_BEFORE_DIE))
     {
         mChickenState = ChickenState::dying;
-        clearDestinations();
-        setAnimationState(EntityAnimation::die_anim, false);
+        clearDestinations(EntityAnimation::die_anim, false);
         return;
     }
 
@@ -137,11 +136,10 @@ void ChickenEntity::doUpkeep()
 
     uint32_t indexTile = Random::Uint(0, possibleTileMove.size() - 1);
     Tile* tileDest = possibleTileMove[indexTile];
-    Ogre::Real x = static_cast<Ogre::Real>(tileDest->getX());
-    Ogre::Real y = static_cast<Ogre::Real>(tileDest->getY());
-
-    addDestination(x, y);
-    setAnimationState(EntityAnimation::walk_anim);
+    Ogre::Vector3 v (static_cast<Ogre::Real>(tileDest->getX()), static_cast<Ogre::Real>(tileDest->getY()), 0.0);
+    std::vector<Ogre::Vector3> path;
+    path.push_back(v);
+    setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
 }
 
 void ChickenEntity::addTileToListIfPossible(int x, int y, Room* currentHatchery, std::vector<Tile*>& possibleTileMove)
@@ -247,7 +245,7 @@ bool ChickenEntity::eatChicken(Creature* creature)
 
     OD_ASSERT_TRUE(tile->removeEntity(this));
     mChickenState = ChickenState::eaten;
-    clearDestinations();
+    clearDestinations(EntityAnimation::idle_anim, true);
     return true;
 }
 

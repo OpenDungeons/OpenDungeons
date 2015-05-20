@@ -402,7 +402,7 @@ public:
     //! Called on server side to add an effect (spell, slap, ...) to this creature
     void addCreatureEffect(CreatureEffect* effect);
 
-    void addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z = 0.0f) override;
+    virtual void correctEntityMovePosition(Ogre::Vector3& position) override;
 
     //! Called on client side and server side. true if the creature is hurt and false
     //! if at max HP or above

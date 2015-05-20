@@ -50,8 +50,7 @@ enum class ServerNotificationType
 
     turnStarted,
 
-    animatedObjectAddDestination,
-    animatedObjectClearDestinations,
+    animatedObjectSetWalkPath,
     setObjectAnimationState,
     setMoveSpeed,
     entityPickedUp,

@@ -157,7 +157,7 @@ void RenderedMovableEntity::setMeshOpacity(float opacity)
 void RenderedMovableEntity::pickup()
 {
     setIsOnMap(false);
-    clearDestinations();
+    clearDestinations(EntityAnimation::idle_anim, true);
 }
 
 void RenderedMovableEntity::drop(const Ogre::Vector3& v)

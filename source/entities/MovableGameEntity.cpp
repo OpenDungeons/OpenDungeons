@@ -70,69 +70,51 @@ void MovableGameEntity::setMoveSpeed(double moveSpeed, double animationSpeed)
     }
 }
 
-void MovableGameEntity::addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z)
-{
-    Ogre::Vector3 destination(x, y, z);
-
-    mWalkQueue.push_back(destination);
-
-    if (!getIsOnServerMap())
-        return;
-
-    for(Seat* seat : mSeatsWithVisionNotified)
-    {
-        if(seat->getPlayer() == nullptr)
-            continue;
-        if(!seat->getPlayer()->getIsHuman())
-            continue;
-
-        const std::string& name = getName();
-        ServerNotification *serverNotification = new ServerNotification(
-            ServerNotificationType::animatedObjectAddDestination, seat->getPlayer());
-        serverNotification->mPacket << name << destination;
-        ODServer::getSingleton().queueServerNotification(serverNotification);
-    }
-}
-
 bool MovableGameEntity::isMoving()
 {
     return !mWalkQueue.empty();
 }
 
-bool MovableGameEntity::setWalkPath(std::list<Tile*> path,
-                                    unsigned int minDestinations, bool addFirstStop)
+void MovableGameEntity::tileToVector3(const std::list<Tile*>& tiles, std::vector<Ogre::Vector3>& path,
+    bool skipFirst, Ogre::Real z)
 {
-    // Remove any existing stops from the walk queue.
-    clearDestinations();
-
-    // Verify that the given path is long enough to be considered valid.
-    if (path.size() >= minDestinations)
+    for(Tile* tile : tiles)
     {
-        std::list<Tile*>::iterator itr = path.begin();
-
-        // If we are not supposed to add the first tile in the path to the destination queue, then we skip over it.
-        if (!addFirstStop)
-            ++itr;
-
-        // Loop over the path adding each tile as a destination in the walkQueue.
-        while (itr != path.end())
+        if(skipFirst)
         {
-            addDestination((*itr)->getX(), (*itr)->getY());
-            ++itr;
+            skipFirst = false;
+            continue;
         }
 
-        return true;
+        Ogre::Vector3 dest(static_cast<Ogre::Real>(tile->getX()), static_cast<Ogre::Real>(tile->getY()), z);
+        path.push_back(dest);
     }
-
-    return false;
 }
 
-void MovableGameEntity::clearDestinations()
+void MovableGameEntity::setWalkPath(const std::string& walkAnim, const std::string& endAnim,
+        bool loopEndAnim, const std::vector<Ogre::Vector3>& path)
 {
     mWalkQueue.clear();
-    stopWalking();
+    // We set the animation after clearing mWalkQueue and before filling it to be
+    // sure it is empty when we set it
+    if(!path.empty())
+        setAnimationState(walkAnim);
 
-    if (!getIsOnServerMap())
+    for(const Ogre::Vector3& dest : path)
+        mWalkQueue.push_back(dest);
+
+    if(path.empty())
+    {
+        setAnimationState(endAnim, loopEndAnim);
+    }
+    else
+    {
+        // We save the wanted animation
+        mDestinationAnimationState = endAnim;
+        mDestinationAnimationLoop = loopEndAnim;
+    }
+
+    if(!getIsOnServerMap())
         return;
 
     for(Seat* seat : mSeatsWithVisionNotified)
@@ -143,9 +125,35 @@ void MovableGameEntity::clearDestinations()
             continue;
 
         const std::string& name = getName();
+        uint32_t nbDest = mWalkQueue.size();
         ServerNotification *serverNotification = new ServerNotification(
-            ServerNotificationType::animatedObjectClearDestinations, seat->getPlayer());
-        serverNotification->mPacket << name;
+            ServerNotificationType::animatedObjectSetWalkPath, seat->getPlayer());
+        serverNotification->mPacket << name << walkAnim << endAnim << loopEndAnim << nbDest;
+        for(const Ogre::Vector3& v : mWalkQueue)
+            serverNotification->mPacket << v;
+
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
+}
+
+void MovableGameEntity::clearDestinations(const std::string& animation, bool loopAnim)
+{
+    mWalkQueue.clear();
+    stopWalking();
+
+    for(Seat* seat : mSeatsWithVisionNotified)
+    {
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+
+        const std::string& name = getName();
+        const std::string emptyString;
+        uint32_t nbDest = 0;
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::animatedObjectSetWalkPath, seat->getPlayer());
+        serverNotification->mPacket << name << emptyString << animation << loopAnim << nbDest;
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 }
@@ -375,11 +383,12 @@ void MovableGameEntity::importFromPacket(ODPacket& is)
 
     int32_t nbDestinations;
     OD_ASSERT_TRUE(is >> nbDestinations);
+    mWalkQueue.clear();
     for(int32_t i = 0; i < nbDestinations; ++i)
     {
         Ogre::Vector3 dest;
         OD_ASSERT_TRUE(is >> dest);
-        addDestination(dest.x, dest.y, dest.z);
+        mWalkQueue.push_back(dest);
     }
 }
 

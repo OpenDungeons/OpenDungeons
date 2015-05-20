@@ -80,6 +80,7 @@ void MissileObject::doUpkeep()
     std::list<Tile*> tiles;
     mIsMissileAlive = computeDestination(position, moveDist, mDirection, destination, tiles);
 
+    std::vector<Ogre::Vector3> path;
     Tile* lastTile = nullptr;
     while(!tiles.empty() && mIsMissileAlive)
     {
@@ -100,7 +101,7 @@ void MissileObject::doUpkeep()
             {
                 position.x = static_cast<Ogre::Real>(lastTile->getX());
                 position.y = static_cast<Ogre::Real>(lastTile->getY());
-                addDestination(position.x, position.y, position.z);
+                path.push_back(position);
                 // We compute next position
                 mDirection = nextDirection;
                 mIsMissileAlive = computeDestination(position, moveDist, mDirection, destination, tiles);
@@ -170,7 +171,8 @@ void MissileObject::doUpkeep()
         }
     }
 
-    addDestination(destination.x, destination.y, destination.z);
+    path.push_back(destination);
+    setWalkPath(EntityAnimation::idle_anim, EntityAnimation::idle_anim, true, path);
 }
 
 bool MissileObject::computeDestination(const Ogre::Vector3& position, double moveDist, const Ogre::Vector3& direction,

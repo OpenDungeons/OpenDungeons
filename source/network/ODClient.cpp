@@ -463,28 +463,32 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotificationType::animatedObjectAddDestination:
+        case ServerNotificationType::animatedObjectSetWalkPath:
         {
             std::string objName;
-            Ogre::Vector3 vect;
-            OD_ASSERT_TRUE(packetReceived >> objName >> vect);
+            std::string walkAnim;
+            std::string endAnim;
+            bool loopEndAnim;
+            uint32_t nbDest;
+            OD_ASSERT_TRUE(packetReceived >> objName >> walkAnim >> endAnim >> loopEndAnim >> nbDest);
+
             MovableGameEntity *tempAnimatedObject = gameMap->getAnimatedObject(objName);
-            OD_ASSERT_TRUE_MSG(tempAnimatedObject != nullptr, "objName=" + objName);
-            if (tempAnimatedObject != nullptr)
-                tempAnimatedObject->addDestination(vect.x, vect.y, vect.z);
+            if(tempAnimatedObject == nullptr)
+            {
+                OD_ASSERT_TRUE_MSG(false, "objName=" + objName);
+                break;
+            }
 
-            break;
-        }
-
-        case ServerNotificationType::animatedObjectClearDestinations:
-        {
-            std::string objName;
-            OD_ASSERT_TRUE(packetReceived >> objName);
-            MovableGameEntity *tempAnimatedObject = gameMap->getAnimatedObject(objName);
-            OD_ASSERT_TRUE_MSG(tempAnimatedObject != nullptr, "objName=" + objName);
-            if (tempAnimatedObject != nullptr)
-                tempAnimatedObject->clearDestinations();
-
+            std::vector<Ogre::Vector3> path;
+            while(nbDest > 0)
+            {
+                --nbDest;
+                Ogre::Vector3 dest;
+                OD_ASSERT_TRUE(packetReceived >> dest);
+                tempAnimatedObject->correctEntityMovePosition(dest);
+                path.push_back(dest);
+            }
+            tempAnimatedObject->setWalkPath(walkAnim, endAnim, loopEndAnim, path);
             break;
         }
 

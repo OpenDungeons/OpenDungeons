@@ -2713,7 +2713,6 @@ void GameMap::consoleSetCreatureDestination(const std::string& creatureName, int
     if(creature->getPositionTile() == nullptr)
         return;
     creature->clearActionQueue();
-    creature->clearDestinations();
     creature->setDestination(tile);
 }
 
