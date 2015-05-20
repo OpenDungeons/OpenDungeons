@@ -1457,7 +1457,7 @@ bool Creature::handleClaimTileAction(const CreatureAction& actionItem)
         if (Random::Int(0, 10) < 5)
         {
             // We don't pop action to continue claiming after carrying entity
-            if(pushAction(CreatureActionType::carryEntity, true, false))
+            if(pushAction(CreatureActionType::carryEntity, false, false))
                 return true;
         }
     }
@@ -1490,32 +1490,37 @@ bool Creature::handleClaimTileAction(const CreatureAction& actionItem)
     // claimable, find candidates for claiming.
     // Start by checking the neighbor tiles of the one we are already in
     std::vector<Tile*> neighbors = myTile->getAllNeighbors();
+    std::random_shuffle(neighbors.begin(), neighbors.end());
     while (!neighbors.empty())
     {
         // If the current neighbor is claimable, walk into it and skip to the end of this turn
-        int tempInt = Random::Uint(0, neighbors.size() - 1);
-        Tile* tempTile = neighbors[tempInt];
-        if (tempTile != nullptr && tempTile->getFullness() == 0.0
-            && tempTile->isGroundClaimable(getSeat()))
-        {
-            // The neighbor tile is a potential candidate for claiming, to be an actual candidate
-            // though it must have a neighbor of its own that is already claimed for our side.
-            for (Tile* tempTile2 : tempTile->getAllNeighbors())
-            {
-                if (tempTile2->isClaimedForSeat(getSeat())
-                        && tempTile2->getClaimedPercentage() >= 1.0)
-                {
-                    Ogre::Vector3 v (static_cast<Ogre::Real>(tempTile->getX()), static_cast<Ogre::Real>(tempTile->getY()), 0.0);
-                    std::vector<Ogre::Vector3> path;
-                    path.push_back(v);
-                    setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
-                    pushAction(CreatureActionType::walkToTile, false, true);
-                    return false;
-                }
-            }
-        }
+        Tile* tempTile = neighbors.back();
+        neighbors.pop_back();
+        if(tempTile == nullptr)
+            continue;
+        if(tempTile->isFullTile())
+            continue;
+        if(!tempTile->isGroundClaimable(getSeat()))
+            continue;
 
-        neighbors.erase(neighbors.begin() + tempInt);
+        // The neighbor tile is a potential candidate for claiming, to be an actual candidate
+        // though it must have a neighbor of its own that is already claimed for our side.
+        for(Tile* tempTile2 : tempTile->getAllNeighbors())
+        {
+            if(tempTile2->isFullTile())
+                continue;
+            if(!tempTile2->isClaimedForSeat(getSeat()))
+                continue;
+            if(tempTile2->getClaimedPercentage() < 1.0)
+                continue;
+
+            Ogre::Vector3 dest(static_cast<Ogre::Real>(tempTile->getX()), static_cast<Ogre::Real>(tempTile->getY()), 0.0);
+            std::vector<Ogre::Vector3> path;
+            path.push_back(dest);
+            setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
+            pushAction(CreatureActionType::walkToTile, false, true);
+            return false;
+        }
     }
 
     //cout << "\nLooking at the visible tiles to see if I can claim a tile.";
@@ -1524,18 +1529,24 @@ bool Creature::handleClaimTileAction(const CreatureAction& actionItem)
     for (Tile* tempTile : mTilesWithinSightRadius)
     {
         // if this tile is not fully claimed yet or the tile is of another player's color
-        if (tempTile != nullptr && tempTile->getFullness() == 0.0
-            && tempTile->isGroundClaimable(getSeat()))
+        if(tempTile == nullptr)
+            continue;
+        if(tempTile->isFullTile())
+            continue;
+        if(!tempTile->isGroundClaimable(getSeat()))
+            continue;
+
+        // Check to see if one of the tile's neighbors is claimed for our color
+        for (Tile* t : tempTile->getAllNeighbors())
         {
-            // Check to see if one of the tile's neighbors is claimed for our color
-            for (Tile* t : tempTile->getAllNeighbors())
-            {
-                if (t->isClaimedForSeat(getSeat())
-                        && t->getClaimedPercentage() >= 1.0)
-                {
-                    claimableTiles.push_back(t);
-                }
-            }
+            if(t->isFullTile())
+                continue;
+            if(!t->isClaimedForSeat(getSeat()))
+                continue;
+            if(t->getClaimedPercentage() < 1.0)
+                continue;
+
+            claimableTiles.push_back(t);
         }
     }
 
@@ -1557,8 +1568,14 @@ bool Creature::handleClaimTileAction(const CreatureAction& actionItem)
             // Count how many of the candidate tile's neighbors are already claimed.
             for (Tile* t : tempTile->getAllNeighbors())
             {
-                if (t->isClaimedForSeat(getSeat()) && t->getClaimedPercentage() >= 1.0)
-                    ++numNeighborsClaimed;
+                if(t->isFullTile())
+                    continue;
+                if(!t->isClaimedForSeat(getSeat()))
+                    continue;
+                if(t->getClaimedPercentage() < 1.0)
+                    continue;
+
+                ++numNeighborsClaimed;
             }
 
             // Pick a random number in [0:1], if this number is high enough, than use this tile to claim.  The
@@ -3602,7 +3619,13 @@ bool Creature::pushAction(CreatureAction action, bool popCurrentIfPush, bool for
     }
 
     if(popCurrentIfPush && !mActionQueue.empty())
+    {
+// DAN_TEST
+if(mActionQueue.front().getType() == CreatureActionType::claimTile)
+    mActionQueue.front();
+
         mActionQueue.pop_front();
+    }
 
     action.clearNbTurnsActive();
     mActionQueue.push_front(action);
