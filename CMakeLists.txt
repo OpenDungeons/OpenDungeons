@@ -432,7 +432,7 @@ endif()
 #This has to cover the versions not already known by CMake
 set(Boost_ADDITIONAL_VERSIONS 1.47 1.47.0 1.47.1 1.55.0)
 
-set(OD_BOOST_COMPONENTS system filesystem locale)
+set(OD_BOOST_COMPONENTS system filesystem locale program_options)
 
 if(WIN32 AND ${OGRE_FOUND})
     # On windows we can try to use boost from the Ogre SDK instead

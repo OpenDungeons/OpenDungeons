@@ -23,7 +23,6 @@
 
 #include "render/ODFrameListener.h"
 #include "render/TextRenderer.h"
-#include "render/RenderManager.h"
 #include "sound/MusicPlayer.h"
 #include "sound/SoundEffectsManager.h"
 #include "render/Gui.h"
@@ -40,11 +39,13 @@
 #include <Overlay/OgreOverlaySystem.h>
 #include <RTShaderSystem/OgreShaderGenerator.h>
 
+#include <boost/program_options.hpp>
+
 #include <string>
 #include <sstream>
 #include <fstream>
 
-ODApplication::ODApplication()
+void ODApplication::startGame(boost::program_options::variables_map& options)
 {
     {
         //NOTE: This prevents a segmentation fault from OpenGL on exit.
@@ -56,7 +57,7 @@ ODApplication::ODApplication()
     Random::initialize();
     //NOTE: The order of initialisation of the different "manager" classes is important,
     //as many of them depend on each other.
-    ResourceManager resMgr;
+    ResourceManager resMgr(options);
     std::cout << "Creating OGRE::Root instance; Plugins path: " << resMgr.getPluginsPath()
               << "; config file: " << resMgr.getCfgFile()
               << "; log file: " << resMgr.getLogFile() << std::endl;
@@ -140,10 +141,6 @@ ODApplication::ODApplication()
     ogreRoot.removeFrameListener(&frameListener);
     Ogre::RTShader::ShaderGenerator::destroy();
     ogreRoot.destroyRenderTarget(renderWindow);
-}
-
-ODApplication::~ODApplication()
-{
 }
 
 void ODApplication::displayErrorMessage(const std::string& message, LogManager& logger)
