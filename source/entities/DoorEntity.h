@@ -28,10 +28,10 @@ class ODPacket;
 class DoorEntity: public TrapEntity
 {
 public:
-    DoorEntity(GameMap* gameMap, Seat* seat, const std::string& buildingName, const std::string& meshName,
+    DoorEntity(GameMap* gameMap, bool isOnServerMap, Seat* seat, const std::string& buildingName, const std::string& meshName,
         Tile* tile, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity,
         const std::string& initialAnimationState, bool initialAnimationLoop);
-    DoorEntity(GameMap* gameMap);
+    DoorEntity(GameMap* gameMap, bool isOnServerMap);
 
     virtual TrapEntityType getTrapEntityType() const override
     { return TrapEntityType::doorEntity; }

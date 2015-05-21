@@ -84,7 +84,7 @@ class Creature: public MovableGameEntity
     friend class ODClient;
 public:
     //! \brief Constructor for creatures. It generates an unique name
-    Creature(GameMap* gameMap, const CreatureDefinition* definition, Seat* seat, Ogre::Vector3 position = Ogre::Vector3(0.0f,0.0f,0.0f));
+    Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinition* definition, Seat* seat, Ogre::Vector3 position = Ogre::Vector3(0.0f,0.0f,0.0f));
     virtual ~Creature();
 
     static const uint32_t NB_OVERLAY_HEALTH_VALUES;
@@ -161,7 +161,7 @@ public:
 
     bool setDestination(Tile* tile);
 
-    void drop(const Ogre::Vector3& v);
+    void drop(const Ogre::Vector3& v) override;
 
     void setHP(double nHP);
 
@@ -263,7 +263,7 @@ public:
     void receiveExp(double experience);
 
     //! \brief Returns true if the given action is queued in the action list. False otherwise
-    bool isActionInList(CreatureActionType action);
+    bool isActionInList(CreatureActionType action) const;
 
     inline const std::deque<CreatureAction>& getActionQueue()
     { return mActionQueue; }
@@ -356,7 +356,7 @@ public:
     void stopEating();
 
     //! \brief Tells whether the creature can go through the given tile.
-    bool canGoThroughTile(const Tile* tile) const;
+    bool canGoThroughTile(Tile* tile) const;
 
     virtual EntityCarryType getEntityCarryType();
     virtual void notifyEntityCarryOn(Creature* carrier);
@@ -402,7 +402,7 @@ public:
     //! Called on server side to add an effect (spell, slap, ...) to this creature
     void addCreatureEffect(CreatureEffect* effect);
 
-    void addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z = 0.0f) override;
+    virtual void correctEntityMovePosition(Ogre::Vector3& position) override;
 
     //! Called on client side and server side. true if the creature is hurt and false
     //! if at max HP or above
@@ -431,7 +431,7 @@ private:
     void destroyMeshWeapons();
 
     //! \brief Constructor for sending creatures through network. It should not be used in game.
-    Creature(GameMap* gameMap);
+    Creature(GameMap* gameMap, bool isOnServerMap);
 
     //! \brief Natural physical and magical attack and defense (without equipment)
     double mPhysicalAttack;
@@ -564,7 +564,7 @@ private:
     //! it is possible. To avoid testing several times the same action, we check in mActionTry if the action as already been
     //! tried. If yes and forcePush is false, the action won't be pushed and pushAction will return false. If the action has
     //! not been tested or if forcePush is true, the action will be pushed and pushAction will return true
-    bool pushAction(CreatureAction action, bool forcePush = false);
+    bool pushAction(CreatureAction action, bool popCurrentIfPush, bool forcePush);
     void popAction();
 
     //! \brief Picks a destination far away in the visible tiles and goes there

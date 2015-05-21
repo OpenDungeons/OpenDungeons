@@ -34,8 +34,8 @@ enum class TrapType;
 class CraftedTrap: public RenderedMovableEntity
 {
 public:
-    CraftedTrap(GameMap* gameMap, const std::string& workshopName, TrapType trapType);
-    CraftedTrap(GameMap* gameMap);
+    CraftedTrap(GameMap* gameMap, bool isOnServerMap, const std::string& workshopName, TrapType trapType);
+    CraftedTrap(GameMap* gameMap, bool isOnServerMap);
 
     virtual GameEntityType getObjectType() const override
     { return GameEntityType::craftedTrap; }

@@ -40,14 +40,14 @@ const std::string EMPTY_STRING;
 
 const Ogre::Vector3 SCALE(0.5,0.5,0.5);
 
-CraftedTrap::CraftedTrap(GameMap* gameMap, const std::string& workshopName, TrapType trapType) :
-    RenderedMovableEntity(gameMap, workshopName, getMeshFromTrapType(trapType), 0.0f, false),
+CraftedTrap::CraftedTrap(GameMap* gameMap, bool isOnServerMap, const std::string& workshopName, TrapType trapType) :
+    RenderedMovableEntity(gameMap, isOnServerMap, workshopName, getMeshFromTrapType(trapType), 0.0f, false),
     mTrapType(trapType)
 {
 }
 
-CraftedTrap::CraftedTrap(GameMap* gameMap) :
-    RenderedMovableEntity(gameMap)
+CraftedTrap::CraftedTrap(GameMap* gameMap, bool isOnServerMap) :
+    RenderedMovableEntity(gameMap, isOnServerMap)
 {
 }
 
@@ -106,13 +106,13 @@ void CraftedTrap::notifyEntityCarryOff(const Ogre::Vector3& position)
 
 CraftedTrap* CraftedTrap::getCraftedTrapFromStream(GameMap* gameMap, std::istream& is)
 {
-    CraftedTrap* obj = new CraftedTrap(gameMap);
+    CraftedTrap* obj = new CraftedTrap(gameMap, true);
     return obj;
 }
 
 CraftedTrap* CraftedTrap::getCraftedTrapFromPacket(GameMap* gameMap, ODPacket& is)
 {
-    CraftedTrap* obj = new CraftedTrap(gameMap);
+    CraftedTrap* obj = new CraftedTrap(gameMap, false);
     return obj;
 }
 

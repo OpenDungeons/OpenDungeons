@@ -29,11 +29,14 @@
 #define __USE_GNU
 #endif
 
+#include "utils/ResourceManager.h"
 #include "utils/StackTracePrint.h"
 #include "ODApplication.h"
 
 #include <OgrePlatform.h>
 #include <OgreException.h>
+
+#include <boost/program_options.hpp>
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -49,7 +52,38 @@ int main(int argc, char** argv)
 
     try
     {
+        boost::program_options::options_description desc("Allowed options");
+        // By default, we only add help option. The rest will be added by ConfigManager
+        // to make sure it is done at the same location
+        desc.add_options()
+            ("help", "produce help message")
+        ;
+        ResourceManager::buildCommandOptions(desc);
+
+        boost::program_options::variables_map options;
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+        std::vector<std::string> listArgs = boost::program_options::split_winmain(strCmdLine);
+        boost::program_options::store(boost::program_options::command_line_parser(listArgs).options(desc).run(), options);
+#else
+        boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(desc).run(), options);
+#endif
+        boost::program_options::notify(options);
+
+        if (options.count("help"))
+        {
+            std::stringstream ss;
+            ss << "OpenDungeons version: " << ODApplication::VERSION << "\n";
+            ss << desc;
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+            MessageBox(0, ss.str().c_str(), "Help", MB_OK | MB_TASKMODAL);
+#else
+            std::cout << ss.str() << "\n";
+#endif
+            return 0;
+        }
+
         ODApplication od;
+        od.startGame(options);
     }
     catch (Ogre::Exception& e)
     {

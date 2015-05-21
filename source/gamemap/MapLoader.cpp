@@ -241,7 +241,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         entire_line += nextParam;
         //std::cout << "Entire line: " << entire_line << std::endl;
 
-        Tile* tempTile = new Tile(&gameMap);
+        Tile* tempTile = new Tile(&gameMap, true);
 
         Tile::loadFromLine(entire_line, tempTile);
         tempTile->computeTileVisual();

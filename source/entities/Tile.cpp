@@ -41,7 +41,7 @@ const std::string TILE_SCANF = TILE_PREFIX + "%i_%i";
 
 const uint32_t Tile::NO_FLOODFILL = 0;
 
-Tile::Tile(GameMap* gameMap, int x, int y, TileType type, double fullness) :
+Tile::Tile(GameMap* gameMap, bool isOnServerMap, int x, int y, TileType type, double fullness) :
     EntityBase({}, {}),
     mX                  (x),
     mY                  (y),
@@ -56,7 +56,8 @@ Tile::Tile(GameMap* gameMap, int x, int y, TileType type, double fullness) :
     mScale              (Ogre::Vector3::ZERO),
     mIsBuilding         (false),
     mLocalPlayerHasVision   (false),
-    mGameMap(gameMap)
+    mGameMap(gameMap),
+    mIsOnServerMap(isOnServerMap)
 {
     setSeat(nullptr);
     computeTileVisual();
@@ -641,7 +642,7 @@ bool Tile::isClaimedForSeat(const Seat* seat) const
 
 bool Tile::isClaimed() const
 {
-    if(!getGameMap()->isServerGameMap())
+    if(!mIsOnServerMap)
         return ((mTileVisual == TileVisual::claimedGround) || (mTileVisual == TileVisual::claimedFull));
 
     if(getSeat() == nullptr)

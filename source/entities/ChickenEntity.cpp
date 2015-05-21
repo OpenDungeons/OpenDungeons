@@ -31,8 +31,8 @@
 const int32_t NB_TURNS_OUTSIDE_HATCHERY_BEFORE_DIE = 30;
 const int32_t NB_TURNS_DIE_BEFORE_REMOVE = 5;
 
-ChickenEntity::ChickenEntity(GameMap* gameMap, const std::string& hatcheryName) :
-    RenderedMovableEntity(gameMap, hatcheryName, "Chicken", 0.0f, false),
+ChickenEntity::ChickenEntity(GameMap* gameMap, bool isOnServerMap, const std::string& hatcheryName) :
+    RenderedMovableEntity(gameMap, isOnServerMap, hatcheryName, "Chicken", 0.0f, false),
     mChickenState(ChickenState::free),
     mNbTurnOutsideHatchery(0),
     mNbTurnDie(0),
@@ -40,8 +40,8 @@ ChickenEntity::ChickenEntity(GameMap* gameMap, const std::string& hatcheryName) 
 {
 }
 
-ChickenEntity::ChickenEntity(GameMap* gameMap) :
-    RenderedMovableEntity(gameMap),
+ChickenEntity::ChickenEntity(GameMap* gameMap, bool isOnServerMap) :
+    RenderedMovableEntity(gameMap, isOnServerMap),
     mChickenState(ChickenState::free),
     mNbTurnOutsideHatchery(0),
     mNbTurnDie(0),
@@ -105,8 +105,7 @@ void ChickenEntity::doUpkeep()
     if(mIsSlapped || (mNbTurnOutsideHatchery >= NB_TURNS_OUTSIDE_HATCHERY_BEFORE_DIE))
     {
         mChickenState = ChickenState::dying;
-        clearDestinations();
-        setAnimationState(EntityAnimation::die_anim, false);
+        clearDestinations(EntityAnimation::die_anim, false);
         return;
     }
 
@@ -137,11 +136,10 @@ void ChickenEntity::doUpkeep()
 
     uint32_t indexTile = Random::Uint(0, possibleTileMove.size() - 1);
     Tile* tileDest = possibleTileMove[indexTile];
-    Ogre::Real x = static_cast<Ogre::Real>(tileDest->getX());
-    Ogre::Real y = static_cast<Ogre::Real>(tileDest->getY());
-
-    addDestination(x, y);
-    setAnimationState(EntityAnimation::walk_anim);
+    Ogre::Vector3 v (static_cast<Ogre::Real>(tileDest->getX()), static_cast<Ogre::Real>(tileDest->getY()), 0.0);
+    std::vector<Ogre::Vector3> path;
+    path.push_back(v);
+    setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
 }
 
 void ChickenEntity::addTileToListIfPossible(int x, int y, Room* currentHatchery, std::vector<Tile*>& possibleTileMove)
@@ -182,7 +180,7 @@ bool ChickenEntity::tryPickup(Seat* seat)
     // We do not let it be picked up as it will be removed during next upkeep. However, this is
     // true only on server side. On client side, if a chicken is available, it can be picked up (it will
     // be up to the server to validate or not) because the client do not know the chicken state.
-    if(getGameMap()->isServerGameMap() && (mChickenState != ChickenState::free))
+    if(getIsOnServerMap() && (mChickenState != ChickenState::free))
         return false;
 
     Tile* tile = getPositionTile();
@@ -247,7 +245,7 @@ bool ChickenEntity::eatChicken(Creature* creature)
 
     OD_ASSERT_TRUE(tile->removeEntity(this));
     mChickenState = ChickenState::eaten;
-    clearDestinations();
+    clearDestinations(EntityAnimation::idle_anim, true);
     return true;
 }
 
@@ -259,7 +257,7 @@ bool ChickenEntity::canSlap(Seat* seat)
     // We do not let it be picked up as it will be removed during next upkeep. However, this is
     // true only on server side. On client side, if a chicken is available, it can be picked up (it will
     // be up to the server to validate or not) because the client do not know the chicken state.
-    if(getGameMap()->isServerGameMap() && (mChickenState != ChickenState::free))
+    if(getIsOnServerMap() && (mChickenState != ChickenState::free))
         return false;
 
     Tile* tile = getPositionTile();
@@ -281,13 +279,13 @@ bool ChickenEntity::canSlap(Seat* seat)
 
 ChickenEntity* ChickenEntity::getChickenEntityFromStream(GameMap* gameMap, std::istream& is)
 {
-    ChickenEntity* obj = new ChickenEntity(gameMap);
+    ChickenEntity* obj = new ChickenEntity(gameMap, true);
     return obj;
 }
 
 ChickenEntity* ChickenEntity::getChickenEntityFromPacket(GameMap* gameMap, ODPacket& is)
 {
-    ChickenEntity* obj = new ChickenEntity(gameMap);
+    ChickenEntity* obj = new ChickenEntity(gameMap, false);
     return obj;
 }
 

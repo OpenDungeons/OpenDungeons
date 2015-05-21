@@ -42,43 +42,50 @@ namespace EntityAnimation
 class MovableGameEntity : public GameEntity
 {
 public:
-    MovableGameEntity(GameMap* gameMap);
+    MovableGameEntity(GameMap* gameMap, bool isOnServerMap);
 
     virtual ~MovableGameEntity()
     {}
-
-    /*! \brief Adds a position in 3d space to an animated object's walk queue and, if necessary, starts it walking.
-     *
-     * This function also notify the server so that relevant clients are informed about the change.
-     */
-    virtual void addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z = 0.0);
 
     //! \brief Checks if the destination queue is empty
     bool isMoving();
 
 
-    /*! \brief Replaces a object's current walk queue with a new path.
-     *
-     * This replacement is done if, and only if, the new path is at least minDestinations
-     * long; if addFirstStop is false the new path will start with the second entry in path.
+    /*! \brief Replaces an object's current walk queue with a new path. During the
+     * walk, the entity will play walkAnim (looped). When it gets to the wanted position,
+     * it will play endAnim (looped or not depending on loopEndAnim).
      */
-    bool setWalkPath(std::list<Tile*> path, unsigned int minDestinations, bool addFirstStop);
+    void setWalkPath(const std::string& walkAnim, const std::string& endAnim, bool loopEndAnim, const std::vector<Ogre::Vector3>& path);
+
+    /*! \brief Converts a tile list to a vector of Ogre::Vector3
+     *
+     * If skipFirst is true, the first tile in the list will be skipped
+     */
+    static void tileToVector3(const std::list<Tile*>& tiles, std::vector<Ogre::Vector3>& path, bool skipFirst, Ogre::Real z);
 
     //! \brief Clears all future destinations from the walk queue, stops the object where it is, and sets its animation state.
-    void clearDestinations();
+    //! This is a server side function
+    void clearDestinations(const std::string& animation, bool loopAnim);
 
     //! \brief Stops the object where it is, and sets its animation state.
     virtual void stopWalking();
 
+    //! \brief Clients side function that corrects entities moves to allow several entities
+    //! to be on the same tile
+    virtual void correctEntityMovePosition(Ogre::Vector3& position)
+    {}
+
+    virtual void correctDropPosition(Ogre::Vector3& position) override;
+
     virtual double getMoveSpeed() const
     { return mMoveSpeed; }
 
-    virtual void setMoveSpeed(double s);
+    virtual void setMoveSpeed(double moveSpeed, double animationSpeed);
 
     virtual void setAnimationState(const std::string& state, bool loop = true, const Ogre::Vector3& direction = Ogre::Vector3::ZERO);
 
-    virtual double getAnimationSpeedFactor();
-    virtual void setAnimationSpeedFactor(double f);
+    inline double getAnimationSpeedFactor() const
+    { return mAnimationSpeedFactor; }
 
     //! \brief Updates the entity path, movement, and direction
     //! \param timeSinceLastFrame the elapsed time since last displayed frame in seconds.
@@ -114,6 +121,8 @@ private:
     double mMoveSpeed;
     double mAnimationSpeedFactor;
     std::string mDestinationAnimationState;
+    bool mDestinationAnimationLoop;
+    Ogre::Vector3 mDestinationAnimationDirection;
     Ogre::Vector3 mWalkDirection;
     double mAnimationTime;
 };

@@ -251,7 +251,7 @@ bool GameMap::createNewMap(int sizeX, int sizeY)
     {
         for (int ii = 0; ii < mMapSizeX; ++ii)
         {
-            Tile* tile = new Tile(this, ii, jj);
+            Tile* tile = new Tile(this, isServerGameMap(), ii, jj);
             tile->setName(Tile::buildName(ii, jj));
             tile->setType(TileType::dirt);
             addTile(tile);
@@ -2713,7 +2713,6 @@ void GameMap::consoleSetCreatureDestination(const std::string& creatureName, int
     if(creature->getPositionTile() == nullptr)
         return;
     creature->clearActionQueue();
-    creature->clearDestinations();
     creature->setDestination(tile);
 }
 

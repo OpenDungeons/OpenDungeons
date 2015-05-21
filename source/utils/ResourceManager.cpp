@@ -52,6 +52,8 @@
 #include "utils/LogManager.h"
 #include "utils/Helper.h"
 
+#include <boost/program_options.hpp>
+
 template<> ResourceManager* Ogre::Singleton<ResourceManager>::msSingleton = nullptr;
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 && defined(OD_DEBUG)
 //On windows, if the application is compiled in debug mode, use the plugins with debug prefix.
@@ -80,16 +82,16 @@ const std::string ResourceManager::RESOURCEGROUPSOUND = "Sound";
  *  directory, on OS X however you must provide the full path, the helper
  *  function macBundlePath does this for us.
  */
-ResourceManager::ResourceManager() :
+ResourceManager::ResourceManager(boost::program_options::variables_map& options) :
         mGameDataPath("./"),
         mUserDataPath("./"),
         mUserConfigPath("./")
 {
-    setupDataPath();
-    setupUserDataFolders();
+    setupDataPath(options);
+    setupUserDataFolders(options);
 }
 
-void ResourceManager::setupDataPath()
+void ResourceManager::setupDataPath(boost::program_options::variables_map& options)
 {
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
     //TODO - Test osx support
@@ -176,7 +178,7 @@ void ResourceManager::setupDataPath()
     mLanguagePath = mGameDataPath + LANGUAGESUBPATH;
 }
 
-void ResourceManager::setupUserDataFolders()
+void ResourceManager::setupUserDataFolders(boost::program_options::variables_map& options)
 {
     // Empty the members so we can check their validity later.
     mUserDataPath.clear();
@@ -292,7 +294,17 @@ void ResourceManager::setupUserDataFolders()
     }
 
     mOgreCfgFile = mUserConfigPath + CONFIGFILENAME;
-    mOgreLogFile = mUserDataPath + LOGFILENAME;
+    if(options.count("log") > 0)
+    {
+        // We change log file
+        mOgreLogFile = mUserDataPath + options["log"].as<std::string>();
+    }
+    else
+    {
+        // Default log file
+        mOgreLogFile = mUserDataPath + LOGFILENAME;
+    }
+
     mCeguiLogFile = mUserDataPath + CEGUILOGFILENAME;
     mShaderCachePath = mUserDataPath + SHADERCACHESUBPATH;
 
@@ -410,4 +422,11 @@ void ResourceManager::takeScreenshot(Ogre::RenderTarget* renderTarget)
     ss << "ODscreenshot_" << boost::posix_time::second_clock::local_time()
        << "_" << screenShotCounter++ << ".png";
     renderTarget->writeContentsToFile(getUserDataPath() + ss.str());
+}
+
+void ResourceManager::buildCommandOptions(boost::program_options::options_description& desc)
+{
+    desc.add_options()
+        ("log", boost::program_options::value<std::string>(), "log file to use")
+    ;
 }

@@ -73,12 +73,12 @@ bool RoomTreasury::removeCoveredTile(Tile* t)
     if(roomTreasuryTileData->mGoldInTile > 0)
     {
         int value = roomTreasuryTileData->mGoldInTile;
-        if(getGameMap()->isServerGameMap() && (value > 0))
+        if(value > 0)
         {
             LogManager::getSingleton().logMessage("Room " + getName()
                 + ", tile=" + Tile::displayAsString(t) + " releases gold amount = "
                 + Helper::toString(value));
-            TreasuryObject* obj = new TreasuryObject(getGameMap(), value);
+            TreasuryObject* obj = new TreasuryObject(getGameMap(), true, value);
             obj->addToGameMap();
             Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(t->getX()),
                                         static_cast<Ogre::Real>(t->getY()), 0.0f);
@@ -143,9 +143,6 @@ int RoomTreasury::depositGold(int gold, Tile *tile)
         return wasDeposited;
 
     mGoldChanged = true;
-
-    if(getGameMap()->isServerGameMap() == false)
-        return wasDeposited;
 
     // Tells the client to play a deposit gold sound. For now, we only send it to the players
     // with vision on tile

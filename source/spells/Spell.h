@@ -36,7 +36,7 @@ enum class SpellType;
 class Spell : public RenderedMovableEntity
 {
 public:
-    Spell(GameMap* gameMap, const std::string& baseName, const std::string& meshName, Ogre::Real rotationAngle,
+    Spell(GameMap* gameMap, bool isOnServerMap, const std::string& baseName, const std::string& meshName, Ogre::Real rotationAngle,
         int32_t nbTurns);
     virtual ~Spell()
     {}

@@ -30,8 +30,8 @@ class ODPacket;
 class TreasuryObject: public RenderedMovableEntity
 {
 public:
-    TreasuryObject(GameMap* gameMap, int goldValue);
-    TreasuryObject(GameMap* gameMap);
+    TreasuryObject(GameMap* gameMap, bool isOnServerMap, int goldValue);
+    TreasuryObject(GameMap* gameMap, bool isOnServerMap);
 
     virtual void doUpkeep() override;
 

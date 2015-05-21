@@ -27,15 +27,15 @@
 #include <istream>
 #include <ostream>
 
-TreasuryObject::TreasuryObject(GameMap* gameMap, int goldValue) :
-    RenderedMovableEntity(gameMap, "Treasury_", getMeshNameForGold(goldValue), 0.0f, false),
+TreasuryObject::TreasuryObject(GameMap* gameMap, bool isOnServerMap, int goldValue) :
+    RenderedMovableEntity(gameMap, isOnServerMap, "Treasury_", getMeshNameForGold(goldValue), 0.0f, false),
     mGoldValue(goldValue),
     mHasGoldValueChanged(false)
 {
 }
 
-TreasuryObject::TreasuryObject(GameMap* gameMap) :
-    RenderedMovableEntity(gameMap),
+TreasuryObject::TreasuryObject(GameMap* gameMap, bool isOnServerMap) :
+    RenderedMovableEntity(gameMap, isOnServerMap),
     mGoldValue(0),
     mHasGoldValueChanged(false)
 {
@@ -95,7 +95,7 @@ void TreasuryObject::doUpkeep()
             removeFromGameMap();
             deleteYourself();
 
-            TreasuryObject* obj = new TreasuryObject(getGameMap(), mGoldValue);
+            TreasuryObject* obj = new TreasuryObject(getGameMap(), true, mGoldValue);
             obj->addToGameMap();
             Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(tile->getX()),
                                         static_cast<Ogre::Real>(tile->getY()), 0.0f);
@@ -112,7 +112,7 @@ bool TreasuryObject::tryPickup(Seat* seat)
 
     // We do not let it be picked up as it will be removed during next upkeep. However, this is
     // true only on server side. On client side, if a treasury is available, it can be picked up.
-    if(getGameMap()->isServerGameMap() && (mGoldValue <= 0))
+    if(getIsOnServerMap() && (mGoldValue <= 0))
         return false;
 
     Tile* tile = getPositionTile();
@@ -241,13 +241,13 @@ const char* TreasuryObject::getMeshNameForGold(int gold)
 
 TreasuryObject* TreasuryObject::getTreasuryObjectFromStream(GameMap* gameMap, std::istream& is)
 {
-    TreasuryObject* obj = new TreasuryObject(gameMap);
+    TreasuryObject* obj = new TreasuryObject(gameMap, true);
     return obj;
 }
 
 TreasuryObject* TreasuryObject::getTreasuryObjectFromPacket(GameMap* gameMap, ODPacket& is)
 {
-    TreasuryObject* obj = new TreasuryObject(gameMap);
+    TreasuryObject* obj = new TreasuryObject(gameMap, false);
     return obj;
 }
 

@@ -70,7 +70,7 @@ void RoomDungeonTemple::updateActiveSpots()
 void RoomDungeonTemple::updateTemplePosition()
 {
     // Only the server game map should load objects.
-    if (!getGameMap()->isServerGameMap())
+    if (!getIsOnServerMap())
         return;
 
     // Delete all previous rooms meshes and recreate a central one.
@@ -81,7 +81,7 @@ void RoomDungeonTemple::updateTemplePosition()
     if (centralTile == nullptr)
         return;
 
-    mTempleObject = new PersistentObject(getGameMap(), getName(), "DungeonTempleObject", centralTile, 0.0, false);
+    mTempleObject = new PersistentObject(getGameMap(), true, getName(), "DungeonTempleObject", centralTile, 0.0, false);
     addBuildingObject(centralTile, mTempleObject);
 }
 

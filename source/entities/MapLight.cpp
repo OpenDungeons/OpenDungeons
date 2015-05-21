@@ -34,10 +34,10 @@
 
 const std::string MapLight::MAPLIGHT_NAME_PREFIX = "Map_light_";
 
-MapLight::MapLight(GameMap* gameMap, Ogre::Real diffRed, Ogre::Real diffGreen, Ogre::Real diffBlue,
+MapLight::MapLight(GameMap* gameMap, bool isOnServerMap, Ogre::Real diffRed, Ogre::Real diffGreen, Ogre::Real diffBlue,
         Ogre::Real specRed, Ogre::Real specGreen, Ogre::Real specBlue,
         Ogre::Real attenRange, Ogre::Real attenConst, Ogre::Real attenLin, Ogre::Real attenQuad) :
-    MovableGameEntity                   (gameMap),
+    MovableGameEntity                   (gameMap, isOnServerMap),
     mThetaX                             (0.0),
     mThetaY                             (0.0),
     mThetaZ                             (0.0),
@@ -58,7 +58,7 @@ void MapLight::createMeshLocal()
 {
     MovableGameEntity::createMeshLocal();
 
-    if(getGameMap()->isServerGameMap())
+    if(getIsOnServerMap())
         return;
 
     // Only show the visual light entity if we are in editor mode
@@ -69,7 +69,7 @@ void MapLight::destroyMeshLocal()
 {
     MovableGameEntity::destroyMeshLocal();
 
-    if(getGameMap()->isServerGameMap())
+    if(getIsOnServerMap())
         return;
 
     RenderManager::getSingleton().rrDestroyMapLightVisualIndicator(this);
@@ -94,7 +94,7 @@ void MapLight::removeFromGameMap()
     if(posTile != nullptr)
         posTile->removeEntity(this);
 
-    if(!getGameMap()->isServerGameMap())
+    if(!getIsOnServerMap())
         return;
 
     fireRemoveEntityToSeatsWithVision();
@@ -129,7 +129,7 @@ uint32_t MapLight::numCoveredTiles()
 void MapLight::update(Ogre::Real timeSinceLastFrame)
 {
   //Disabled for now.
-/*    if(getGameMap()->isServerGameMap())
+/*    if(getIsOnServerMap())
         return;
 
     mThetaX += static_cast<Ogre::Real>(mFactorX * 3.0 * timeSinceLastFrame);
@@ -250,7 +250,7 @@ bool MapLight::canSlap(Seat* seat)
 
 void MapLight::slap()
 {
-    if(!getGameMap()->isServerGameMap())
+    if(!getIsOnServerMap())
         return;
 
     if(!getIsOnMap())
@@ -272,13 +272,13 @@ std::string MapLight::getMapLightStreamFormat()
 
 MapLight* MapLight::getMapLightFromStream(GameMap* gameMap, std::istream& is)
 {
-    MapLight* mapLight = new MapLight(gameMap);
+    MapLight* mapLight = new MapLight(gameMap, true);
     return mapLight;
 }
 
 MapLight* MapLight::getMapLightFromPacket(GameMap* gameMap, ODPacket& is)
 {
-    MapLight* mapLight = new MapLight(gameMap);
+    MapLight* mapLight = new MapLight(gameMap, false);
     return mapLight;
 }
 

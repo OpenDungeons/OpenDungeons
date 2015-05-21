@@ -17,6 +17,7 @@
 
 #include "traps/TrapDoor.h"
 
+#include "entities/Creature.h"
 #include "entities/DoorEntity.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
@@ -30,9 +31,9 @@
 
 static TrapManagerRegister<TrapDoor> reg(TrapType::doorWooden, "DoorWooden");
 
-const std::string TrapDoor::MESH_DOOR = "TentacleGreen";
-const std::string ANIMATION_OPEN = "Squeeze";
-const std::string ANIMATION_CLOSE = "Dance";
+const std::string TrapDoor::MESH_DOOR = "WoodenDoor";
+const std::string TrapDoor::ANIMATION_OPEN = "Open";
+const std::string TrapDoor::ANIMATION_CLOSE = "Close";
 
 TrapDoor::TrapDoor(GameMap* gameMap) :
     Trap(gameMap),
@@ -47,8 +48,19 @@ TrapDoor::TrapDoor(GameMap* gameMap) :
 
 TrapEntity* TrapDoor::getTrapEntity(Tile* tile)
 {
-    return new DoorEntity(getGameMap(), getSeat(), getName(), MESH_DOOR, tile, 0.0, false, isActivated(tile) ? 1.0f : 0.7f,
-        ANIMATION_OPEN, true);
+    Ogre::Real rotation = 90.0;
+    Tile* tileW = getGameMap()->getTile(tile->getX() - 1, tile->getY());
+    Tile* tileE = getGameMap()->getTile(tile->getX() + 1, tile->getY());
+
+    if((tileW != nullptr) &&
+       (tileE != nullptr) &&
+       tileW->isFullTile() &&
+       tileE->isFullTile())
+    {
+        rotation = 0.0;
+    }
+    return new DoorEntity(getGameMap(), true, getSeat(), getName(), MESH_DOOR, tile, rotation, false, isActivated(tile) ? 1.0f : 0.7f,
+        ANIMATION_OPEN, false);
 }
 
 void TrapDoor::activate(Tile* tile)
@@ -89,9 +101,9 @@ void TrapDoor::notifyDoorSlapped(DoorEntity* doorEntity, Tile* tile)
     mIsLocked = !mIsLocked;
 
     if(mIsLocked)
-        doorEntity->setAnimationState(ANIMATION_CLOSE, true);
+        doorEntity->setAnimationState(ANIMATION_CLOSE, false);
     else
-        doorEntity->setAnimationState(ANIMATION_OPEN, true);
+        doorEntity->setAnimationState(ANIMATION_OPEN, false);
 
     if(!isActivated(tile))
         return;
@@ -165,6 +177,30 @@ bool TrapDoor::permitsVision(Tile* tile)
         return true;
 
     return !mIsLocked;
+}
+
+bool TrapDoor::canCreatureGoThroughTile(const Creature* creature, Tile* tile) const
+{
+    const TrapTileData* trapTileData = static_cast<const TrapTileData*>(mTileData.at(tile));
+    if (!trapTileData->isActivated())
+        return true;
+
+    if(!mIsLocked)
+        return true;
+
+    // Enemy units can go through doors. We need that otherwise, they won't be able to
+    // get to the door. But in any case, if they are not fighting, we let them go. If
+    // they are fighting, we don't
+    if(getSeat()->isAlliedSeat(creature->getSeat()))
+        return false;
+
+    if(creature->isActionInList(CreatureActionType::fight) ||
+       creature->isActionInList(CreatureActionType::flee))
+    {
+        return false;
+    }
+
+    return true;
 }
 
 Trap* TrapDoor::getTrapFromStream(GameMap* gameMap, std::istream& is)

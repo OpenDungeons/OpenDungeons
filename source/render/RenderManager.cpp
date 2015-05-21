@@ -718,7 +718,9 @@ void RenderManager::rrDropHand(GameEntity* curEntity, Player* localPlayer)
 
     // Attach the creature from the creature scene node
     curEntity->getParentSceneNode()->addChild(curEntityNode);
-    curEntityNode->setPosition(curEntity->getPosition());
+    Ogre::Vector3 position = curEntity->getPosition();
+    curEntity->correctDropPosition(position);
+    curEntityNode->setPosition(position);
     curEntityNode->setScale(curEntity->getScale());
 
     // Move the other creatures in the player's hand to replace the dropped one

@@ -35,8 +35,8 @@
 static SpellManagerRegister<SpellCallToWar> reg(SpellType::callToWar, "callToWar");
 
 // TODO : use the correct mesh when available
-SpellCallToWar::SpellCallToWar(GameMap* gameMap) :
-    Spell(gameMap, SpellManager::getSpellNameFromSpellType(getSpellType()), "TrainingDummy1", 0.0,
+SpellCallToWar::SpellCallToWar(GameMap* gameMap, bool isOnServerMap) :
+    Spell(gameMap, isOnServerMap, SpellManager::getSpellNameFromSpellType(getSpellType()), "TrainingDummy1", 0.0,
         ConfigManager::getSingleton().getSpellConfigInt32("CallToWarNbTurnsMax"))
 {
     mPrevAnimationState = "Triggered";
@@ -61,7 +61,7 @@ bool SpellCallToWar::canSlap(Seat* seat)
 
 void SpellCallToWar::slap()
 {
-    if(!getGameMap()->isServerGameMap())
+    if(!getIsOnServerMap())
         return;
 
     removeFromGameMap();
@@ -122,7 +122,7 @@ void SpellCallToWar::castSpell(GameMap* gameMap, const std::vector<EntityBase*>&
         }
 
         Tile* tile = static_cast<Tile*>(target);
-        SpellCallToWar* spell = new SpellCallToWar(gameMap);
+        SpellCallToWar* spell = new SpellCallToWar(gameMap, true);
         spell->setSeat(player->getSeat());
         spell->addToGameMap();
         Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(tile->getX()),
@@ -135,11 +135,11 @@ void SpellCallToWar::castSpell(GameMap* gameMap, const std::vector<EntityBase*>&
 
 Spell* SpellCallToWar::getSpellFromStream(GameMap* gameMap, std::istream &is)
 {
-    return new SpellCallToWar(gameMap);
+    return new SpellCallToWar(gameMap, true);
 }
 
 Spell* SpellCallToWar::getSpellFromPacket(GameMap* gameMap, ODPacket &is)
 {
-    return new SpellCallToWar(gameMap);
+    return new SpellCallToWar(gameMap, false);
 }
 

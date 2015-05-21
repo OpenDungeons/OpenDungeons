@@ -29,9 +29,9 @@
 
 #include <iostream>
 
-MissileObject::MissileObject(GameMap* gameMap, Seat* seat, const std::string& senderName, const std::string& meshName,
+MissileObject::MissileObject(GameMap* gameMap, bool isOnServerMap, Seat* seat, const std::string& senderName, const std::string& meshName,
         const Ogre::Vector3& direction, Tile* tileBuildingTarget, bool damageAllies) :
-    RenderedMovableEntity(gameMap, senderName, meshName, 0.0f, false),
+    RenderedMovableEntity(gameMap, isOnServerMap, senderName, meshName, 0.0f, false),
     mDirection(direction),
     mIsMissileAlive(true),
     mTileBuildingTarget(tileBuildingTarget),
@@ -40,8 +40,8 @@ MissileObject::MissileObject(GameMap* gameMap, Seat* seat, const std::string& se
     setSeat(seat);
 }
 
-MissileObject::MissileObject(GameMap* gameMap) :
-    RenderedMovableEntity(gameMap),
+MissileObject::MissileObject(GameMap* gameMap, bool isOnServerMap) :
+    RenderedMovableEntity(gameMap, isOnServerMap),
     mDirection(Ogre::Vector3::ZERO),
     mIsMissileAlive(true),
     mTileBuildingTarget(nullptr),
@@ -80,6 +80,7 @@ void MissileObject::doUpkeep()
     std::list<Tile*> tiles;
     mIsMissileAlive = computeDestination(position, moveDist, mDirection, destination, tiles);
 
+    std::vector<Ogre::Vector3> path;
     Tile* lastTile = nullptr;
     while(!tiles.empty() && mIsMissileAlive)
     {
@@ -100,7 +101,7 @@ void MissileObject::doUpkeep()
             {
                 position.x = static_cast<Ogre::Real>(lastTile->getX());
                 position.y = static_cast<Ogre::Real>(lastTile->getY());
-                addDestination(position.x, position.y, position.z);
+                path.push_back(position);
                 // We compute next position
                 mDirection = nextDirection;
                 mIsMissileAlive = computeDestination(position, moveDist, mDirection, destination, tiles);
@@ -170,7 +171,8 @@ void MissileObject::doUpkeep()
         }
     }
 
-    addDestination(destination.x, destination.y, destination.z);
+    path.push_back(destination);
+    setWalkPath(EntityAnimation::idle_anim, EntityAnimation::idle_anim, true, path);
 }
 
 bool MissileObject::computeDestination(const Ogre::Vector3& position, double moveDist, const Ogre::Vector3& direction,

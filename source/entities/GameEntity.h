@@ -84,17 +84,11 @@ class GameEntity : public EntityBase
     //! \brief Default constructor with default values
     GameEntity(
           GameMap*        gameMap,
+          bool            isOnServerMap,
           std::string     name       = std::string(),
           std::string     meshName   = std::string(),
           Seat*           seat        = nullptr
-          ) :
-    EntityBase(name, meshName, seat),
-    mGameMap           (gameMap),
-    mIsOnMap           (true),
-    mParticleSystemsNumber   (0)
-    {
-        assert(mGameMap != nullptr);
-    }
+          );
 
     virtual ~GameEntity() {}
 
@@ -107,6 +101,9 @@ class GameEntity : public EntityBase
     //! \brief Pointer to the GameMap
     inline GameMap* getGameMap() const
     { return mGameMap; }
+
+    inline bool getIsOnServerMap() const
+    { return mIsOnServerMap; }
 
     // ===== METHODS =====
     //! \brief Function that schedules the object destruction. This function should not be called twice
@@ -221,6 +218,11 @@ class GameEntity : public EntityBase
 
     virtual void destroyMeshLocal();
 
+    //! Used on client side to correct drop position to avoid all dropped entities
+    //! to be on the exact same position (center of the tile)
+    virtual void correctDropPosition(Ogre::Vector3& position)
+    {}
+
   protected:
 
     //! \brief Called while moving the entity to add it to the tile it gets on
@@ -254,8 +256,7 @@ class GameEntity : public EntityBase
     //! Unique number allowing to have unique names for particle systems attached to this creature
     uint32_t mParticleSystemsNumber;
 
-    void clearParticleSystems();
-
+    const bool mIsOnServerMap;
 };
 
 #endif // GAMEENTITY_H

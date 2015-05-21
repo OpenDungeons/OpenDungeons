@@ -82,13 +82,13 @@ void RoomHatchery::doUpkeep()
     // We spawn 1 chicken per chicken coop (until chickens are maxed)
     for(Tile* chickenCoopTile : mCentralActiveSpotTiles)
     {
-        ChickenEntity* chicken = new ChickenEntity(getGameMap(), getName());
+        ChickenEntity* chicken = new ChickenEntity(getGameMap(), true, getName());
         chicken->addToGameMap();
         chicken->createMesh();
         Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(chickenCoopTile->getX()),
                                     static_cast<Ogre::Real>(chickenCoopTile->getY()), 0.0f);
         chicken->setPosition(spawnPosition, false);
-        chicken->setMoveSpeed(CHICKEN_SPEED);
+        chicken->setMoveSpeed(CHICKEN_SPEED, 1.0);
         ++nbChickens;
         if(nbChickens >= mNumActiveSpots)
             break;

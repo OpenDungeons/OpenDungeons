@@ -29,27 +29,31 @@
 
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
+#include "utils/Random.h"
 
 #include "ODApplication.h"
 
 #include "OgreAnimationState.h"
 
-MovableGameEntity::MovableGameEntity(GameMap* gameMap) :
-    GameEntity(gameMap),
+MovableGameEntity::MovableGameEntity(GameMap* gameMap, bool isOnServerMap) :
+    GameEntity(gameMap, isOnServerMap),
     mAnimationState(nullptr),
     mMoveSpeed(1.0),
     mAnimationSpeedFactor(1.0),
     mDestinationAnimationState(EntityAnimation::idle_anim),
+    mDestinationAnimationLoop(false),
+    mDestinationAnimationDirection(Ogre::Vector3::ZERO),
     mWalkDirection(Ogre::Vector3::ZERO),
     mAnimationTime(0.0)
 {
 }
 
-void MovableGameEntity::setMoveSpeed(double s)
+void MovableGameEntity::setMoveSpeed(double moveSpeed, double animationSpeed)
 {
-    mMoveSpeed = s;
+    mMoveSpeed = moveSpeed;
+    mAnimationSpeedFactor = animationSpeed;
 
-    if (!getGameMap()->isServerGameMap())
+    if (!getIsOnServerMap())
         return;
 
     for(Seat* seat : mSeatsWithVisionNotified)
@@ -62,31 +66,7 @@ void MovableGameEntity::setMoveSpeed(double s)
         const std::string& name = getName();
         ServerNotification *serverNotification = new ServerNotification(
             ServerNotificationType::setMoveSpeed, seat->getPlayer());
-        serverNotification->mPacket << name << s;
-        ODServer::getSingleton().queueServerNotification(serverNotification);
-    }
-}
-
-void MovableGameEntity::addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z)
-{
-    Ogre::Vector3 destination(x, y, z);
-
-    mWalkQueue.push_back(destination);
-
-    if (!getGameMap()->isServerGameMap())
-        return;
-
-    for(Seat* seat : mSeatsWithVisionNotified)
-    {
-        if(seat->getPlayer() == nullptr)
-            continue;
-        if(!seat->getPlayer()->getIsHuman())
-            continue;
-
-        const std::string& name = getName();
-        ServerNotification *serverNotification = new ServerNotification(
-            ServerNotificationType::animatedObjectAddDestination, seat->getPlayer());
-        serverNotification->mPacket << name << destination;
+        serverNotification->mPacket << name << moveSpeed << animationSpeed;
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 }
@@ -96,40 +76,46 @@ bool MovableGameEntity::isMoving()
     return !mWalkQueue.empty();
 }
 
-bool MovableGameEntity::setWalkPath(std::list<Tile*> path,
-                                    unsigned int minDestinations, bool addFirstStop)
+void MovableGameEntity::tileToVector3(const std::list<Tile*>& tiles, std::vector<Ogre::Vector3>& path,
+    bool skipFirst, Ogre::Real z)
 {
-    // Remove any existing stops from the walk queue.
-    clearDestinations();
-
-    // Verify that the given path is long enough to be considered valid.
-    if (path.size() >= minDestinations)
+    for(Tile* tile : tiles)
     {
-        std::list<Tile*>::iterator itr = path.begin();
-
-        // If we are not supposed to add the first tile in the path to the destination queue, then we skip over it.
-        if (!addFirstStop)
-            ++itr;
-
-        // Loop over the path adding each tile as a destination in the walkQueue.
-        while (itr != path.end())
+        if(skipFirst)
         {
-            addDestination((*itr)->getX(), (*itr)->getY());
-            ++itr;
+            skipFirst = false;
+            continue;
         }
 
-        return true;
+        Ogre::Vector3 dest(static_cast<Ogre::Real>(tile->getX()), static_cast<Ogre::Real>(tile->getY()), z);
+        path.push_back(dest);
     }
-
-    return false;
 }
 
-void MovableGameEntity::clearDestinations()
+void MovableGameEntity::setWalkPath(const std::string& walkAnim, const std::string& endAnim,
+        bool loopEndAnim, const std::vector<Ogre::Vector3>& path)
 {
     mWalkQueue.clear();
-    stopWalking();
+    // We set the animation after clearing mWalkQueue and before filling it to be
+    // sure it is empty when we set it
+    if(!path.empty())
+        setAnimationState(walkAnim);
 
-    if (!getGameMap()->isServerGameMap())
+    for(const Ogre::Vector3& dest : path)
+        mWalkQueue.push_back(dest);
+
+    if(path.empty())
+    {
+        setAnimationState(endAnim, loopEndAnim);
+    }
+    else
+    {
+        // We save the wanted animation
+        mDestinationAnimationState = endAnim;
+        mDestinationAnimationLoop = loopEndAnim;
+    }
+
+    if(!getIsOnServerMap())
         return;
 
     for(Seat* seat : mSeatsWithVisionNotified)
@@ -140,9 +126,35 @@ void MovableGameEntity::clearDestinations()
             continue;
 
         const std::string& name = getName();
+        uint32_t nbDest = mWalkQueue.size();
         ServerNotification *serverNotification = new ServerNotification(
-            ServerNotificationType::animatedObjectClearDestinations, seat->getPlayer());
-        serverNotification->mPacket << name;
+            ServerNotificationType::animatedObjectSetWalkPath, seat->getPlayer());
+        serverNotification->mPacket << name << walkAnim << endAnim << loopEndAnim << nbDest;
+        for(const Ogre::Vector3& v : mWalkQueue)
+            serverNotification->mPacket << v;
+
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
+}
+
+void MovableGameEntity::clearDestinations(const std::string& animation, bool loopAnim)
+{
+    mWalkQueue.clear();
+    stopWalking();
+
+    for(Seat* seat : mSeatsWithVisionNotified)
+    {
+        if(seat->getPlayer() == nullptr)
+            continue;
+        if(!seat->getPlayer()->getIsHuman())
+            continue;
+
+        const std::string& name = getName();
+        const std::string emptyString;
+        uint32_t nbDest = 0;
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotificationType::animatedObjectSetWalkPath, seat->getPlayer());
+        serverNotification->mPacket << name << emptyString << animation << loopAnim << nbDest;
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 }
@@ -150,13 +162,24 @@ void MovableGameEntity::clearDestinations()
 void MovableGameEntity::stopWalking()
 {
     // Set the animation state of this object to the state that was set for it to enter into after it reaches it's destination.
-    setAnimationState(mDestinationAnimationState);
+    if(mDestinationAnimationState.empty())
+        return;
+
+    if(mDestinationAnimationDirection == Ogre::Vector3::ZERO)
+        mDestinationAnimationDirection = mWalkDirection;
+
+    setAnimationState(mDestinationAnimationState, mDestinationAnimationLoop, mDestinationAnimationDirection);
+
+    // We reset the destination state
+    mDestinationAnimationState.clear();
+    mDestinationAnimationLoop = false;
+    mDestinationAnimationDirection = Ogre::Vector3::ZERO;
 }
 
 void MovableGameEntity::setWalkDirection(const Ogre::Vector3& direction)
 {
     mWalkDirection = direction;
-    if(getGameMap()->isServerGameMap())
+    if(getIsOnServerMap())
         return;
 
     RenderManager::getSingleton().rrOrientEntityToward(this, direction);
@@ -174,6 +197,30 @@ void MovableGameEntity::setAnimationState(const std::string& state, bool loop, c
         return;
     }
 
+    // On server side, we update the entity
+    if(getIsOnServerMap())
+    {
+        mAnimationTime = 0;
+        mPrevAnimationState = state;
+        mPrevAnimationStateLoop = loop;
+
+        if(direction != Ogre::Vector3::ZERO)
+            setWalkDirection(direction);
+
+        fireObjectAnimationState(state, loop, direction);
+        return;
+    }
+
+    // On client side, if the entity has reached its destination, we change the animation. Otherwise, we save
+    // the wanted animation that will be set when it has arrived by stopWalking
+    if(!mWalkQueue.empty())
+    {
+        mDestinationAnimationState = state;
+        mDestinationAnimationLoop = loop;
+        mDestinationAnimationDirection = direction;
+        return;
+    }
+
     mAnimationTime = 0;
     mPrevAnimationState = state;
     mPrevAnimationStateLoop = loop;
@@ -181,27 +228,7 @@ void MovableGameEntity::setAnimationState(const std::string& state, bool loop, c
     if(direction != Ogre::Vector3::ZERO)
         setWalkDirection(direction);
 
-    // NOTE : if we add support to increase speed like a spell or slapping, it
-    // would be nice to increase speed factor
-    setAnimationSpeedFactor(1.0);
-
-    if (getGameMap()->isServerGameMap())
-    {
-        fireObjectAnimationState(state, loop, direction);
-        return;
-    }
-
     RenderManager::getSingleton().rrSetObjectAnimationState(this, state, loop);
-}
-
-double MovableGameEntity::getAnimationSpeedFactor()
-{
-    return mAnimationSpeedFactor;
-}
-
-void MovableGameEntity::setAnimationSpeedFactor(double f)
-{
-    mAnimationSpeedFactor = f;
 }
 
 void MovableGameEntity::update(Ogre::Real timeSinceLastFrame)
@@ -211,7 +238,7 @@ void MovableGameEntity::update(Ogre::Real timeSinceLastFrame)
          * static_cast<double>(timeSinceLastFrame)
          * getAnimationSpeedFactor());
     mAnimationTime += addedTime;
-    if (!getGameMap()->isServerGameMap() && getAnimationState() != nullptr)
+    if (!getIsOnServerMap() && getAnimationState() != nullptr)
         getAnimationState()->addTime(static_cast<Ogre::Real>(addedTime));
 
     if (mWalkQueue.empty())
@@ -267,7 +294,7 @@ void MovableGameEntity::setPosition(const Ogre::Vector3& v, bool isMove)
     if(!getIsOnMap())
         return;
 
-    if(!getGameMap()->isServerGameMap())
+    if(!getIsOnServerMap())
         RenderManager::getSingleton().rrMoveEntity(this, v);
 
     Tile* tile = getPositionTile();
@@ -357,11 +384,12 @@ void MovableGameEntity::importFromPacket(ODPacket& is)
 
     int32_t nbDestinations;
     OD_ASSERT_TRUE(is >> nbDestinations);
+    mWalkQueue.clear();
     for(int32_t i = 0; i < nbDestinations; ++i)
     {
         Ogre::Vector3 dest;
         OD_ASSERT_TRUE(is >> dest);
-        addDestination(dest.x, dest.y, dest.z);
+        mWalkQueue.push_back(dest);
     }
 }
 
@@ -370,7 +398,6 @@ void MovableGameEntity::restoreEntityState()
     GameEntity::restoreEntityState();
     if(!mPrevAnimationState.empty())
     {
-        setAnimationSpeedFactor(mAnimationSpeedFactor);
         RenderManager::getSingleton().rrSetObjectAnimationState(this, mPrevAnimationState, mPrevAnimationStateLoop);
 
         if(mWalkDirection != Ogre::Vector3::ZERO)
@@ -380,4 +407,17 @@ void MovableGameEntity::restoreEntityState()
         if(getAnimationState() != nullptr)
             getAnimationState()->addTime(mAnimationTime);
     }
+}
+
+void MovableGameEntity::correctDropPosition(Ogre::Vector3& position)
+{
+    const double offset = 0.3;
+    if(position.x > 0)
+        position.x += Random::Double(-offset, offset);
+
+    if(position.y > 0)
+        position.y += Random::Double(-offset, offset);
+
+    if(position.z > 0)
+        position.z += Random::Double(-offset, offset);
 }

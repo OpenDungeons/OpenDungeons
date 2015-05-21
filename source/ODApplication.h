@@ -24,15 +24,27 @@
 
 #include <string>
 
+namespace boost
+{
+namespace program_options
+{
+class variables_map;
+}
+}
+
 class LogManager;
 
 //! \brief Base class which manages the startup of OpenDungeons.
 class ODApplication
 {
 public:
+    ODApplication()
+    {}
+    ~ODApplication()
+    {}
+
     //! \brief Initializes the Application along with the ResourceManager
-    ODApplication();
-    ~ODApplication();
+    void startGame(boost::program_options::variables_map& options);
 
     //! \brief Display a GUI error message
     static void displayErrorMessage(const std::string& message, LogManager& logger);

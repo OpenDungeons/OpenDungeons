@@ -196,7 +196,7 @@ RenderedMovableEntity* Building::loadBuildingObject(GameMap* gameMap, const std:
         baseName = getName() + "_" + Tile::displayAsString(targetTile);
 
     Ogre::Vector3 position(static_cast<Ogre::Real>(x), static_cast<Ogre::Real>(y), 0);
-    BuildingObject* obj = new BuildingObject(gameMap, baseName, meshName,
+    BuildingObject* obj = new BuildingObject(gameMap, getIsOnServerMap(), baseName, meshName,
         position, static_cast<Ogre::Real>(rotationAngle), hideCoveredTile, opacity,
         initialAnimationState, initialAnimationLoop);
 
@@ -315,7 +315,7 @@ double Building::takeDamage(GameEntity* attacker, double physicalDamage, double 
     tileData->mHP -= damageDone;
 
     GameMap* gameMap = getGameMap();
-    if(!gameMap->isServerGameMap())
+    if(!getIsOnServerMap())
         return damageDone;
 
     Seat* seat = getSeat();

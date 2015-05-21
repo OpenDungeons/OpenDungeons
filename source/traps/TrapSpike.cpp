@@ -66,7 +66,7 @@ bool TrapSpike::shoot(Tile* tile)
 
 TrapEntity* TrapSpike::getTrapEntity(Tile* tile)
 {
-    return new TrapEntity(getGameMap(), getName(), MESH_SPIKE, tile, 0.0, true, isActivated(tile) ? 1.0f : 0.7f);
+    return new TrapEntity(getGameMap(), true, getName(), MESH_SPIKE, tile, 0.0, true, isActivated(tile) ? 1.0f : 0.7f);
 }
 
 int TrapSpike::getTrapCost(std::vector<Tile*>& tiles, GameMap* gameMap, TrapType type,

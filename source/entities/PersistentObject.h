@@ -41,9 +41,9 @@ class ODPacket;
 class PersistentObject: public RenderedMovableEntity
 {
 public:
-    PersistentObject(GameMap* gameMap, const std::string& buildingName, const std::string& meshName,
+    PersistentObject(GameMap* gameMap, bool isOnServerMap, const std::string& buildingName, const std::string& meshName,
         Tile* tile, Ogre::Real rotationAngle, bool hideCoveredTile, float opacity = 1.0f);
-    PersistentObject(GameMap* gameMap);
+    PersistentObject(GameMap* gameMap, bool isOnServerMap);
 
     virtual GameEntityType getObjectType() const override
     { return GameEntityType::persistentObject; }

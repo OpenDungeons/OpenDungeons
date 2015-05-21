@@ -59,7 +59,7 @@ void Tile::createMeshLocal()
 {
     EntityBase::createMeshLocal();
 
-    if(getGameMap()->isServerGameMap())
+    if(mIsOnServerMap)
         return;
 
     RenderManager::getSingleton().rrCreateTile(*this, *getGameMap(), *getGameMap()->getLocalPlayer());
@@ -69,7 +69,7 @@ void Tile::destroyMeshLocal()
 {
     EntityBase::destroyMeshLocal();
 
-    if(getGameMap()->isServerGameMap())
+    if(mIsOnServerMap)
         return;
 
     RenderManager::getSingleton().rrDestroyTile(*this);
@@ -262,7 +262,7 @@ void Tile::refreshMesh()
     if (!isMeshExisting())
         return;
 
-    if(getGameMap()->isServerGameMap())
+    if(mIsOnServerMap)
         return;
 
     RenderManager::getSingleton().rrRefreshTile(*this, *getGameMap(), *getGameMap()->getLocalPlayer());
@@ -628,7 +628,7 @@ void Tile::fillWithEntities(std::vector<EntityBase*>& entities, SelectionEntityW
 
 bool Tile::addTreasuryObject(TreasuryObject* obj)
 {
-    if(!getGameMap()->isServerGameMap())
+    if(!mIsOnServerMap)
         return true;
 
     if (std::find(mEntitiesInTile.begin(), mEntitiesInTile.end(), obj) != mEntitiesInTile.end())
@@ -703,7 +703,7 @@ void Tile::computeVisibleTiles()
 
 void Tile::setDirtyForAllSeats()
 {
-    if(!getGameMap()->isServerGameMap())
+    if(!mIsOnServerMap)
         return;
 
     for(std::pair<Seat*, bool>& seatChanged : mTileChangedForSeats)
@@ -721,7 +721,7 @@ void Tile::notifyEntitiesSeatsWithVision()
 
 bool Tile::isFullTile() const
 {
-    if(getGameMap()->isServerGameMap())
+    if(mIsOnServerMap)
     {
         return getFullness() > 0.0;
     }

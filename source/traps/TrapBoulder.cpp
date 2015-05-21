@@ -69,12 +69,12 @@ bool TrapBoulder::shoot(Tile* tile)
     position.y = static_cast<Ogre::Real>(tile->getY());
     position.z = 0;
     direction.normalise();
-    MissileBoulder* missile = new MissileBoulder(getGameMap(), getSeat(), getName(), "Boulder",
+    MissileBoulder* missile = new MissileBoulder(getGameMap(), true, getSeat(), getName(), "Boulder",
         direction, Random::Double(mMinDamage, mMaxDamage), nullptr);
     missile->addToGameMap();
     missile->createMesh();
     missile->setPosition(position, false);
-    missile->setMoveSpeed(ConfigManager::getSingleton().getTrapConfigDouble("BoulderSpeed"));
+    missile->setMoveSpeed(ConfigManager::getSingleton().getTrapConfigDouble("BoulderSpeed"), 1.0);
     // We don't want the missile to stay idle for 1 turn. Because we are in a doUpkeep context,
     // we can safely call the missile doUpkeep as we know the engine will not call it the turn
     // it has been added
@@ -86,7 +86,7 @@ bool TrapBoulder::shoot(Tile* tile)
 
 TrapEntity* TrapBoulder::getTrapEntity(Tile* tile)
 {
-    return new TrapEntity(getGameMap(), getName(), MESH_BOULDER, tile, 0.0, false, isActivated(tile) ? 1.0f : 0.5f);
+    return new TrapEntity(getGameMap(), true, getName(), MESH_BOULDER, tile, 0.0, false, isActivated(tile) ? 1.0f : 0.5f);
 }
 
 int TrapBoulder::getTrapCost(std::vector<Tile*>& tiles, GameMap* gameMap, TrapType type,

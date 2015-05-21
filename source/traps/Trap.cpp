@@ -50,9 +50,6 @@ void Trap::addToGameMap()
 {
     getGameMap()->addTrap(this);
     setIsOnMap(true);
-    if(!getGameMap()->isServerGameMap())
-        return;
-
     getGameMap()->addActiveObject(this);
 }
 
@@ -60,9 +57,6 @@ void Trap::removeFromGameMap()
 {
     getGameMap()->removeTrap(this);
     setIsOnMap(false);
-    if(!getGameMap()->isServerGameMap())
-        return;
-
     for(Seat* seat : getGameMap()->getSeats())
     {
         for(Tile* tile : mCoveredTiles)
@@ -121,8 +115,7 @@ void Trap::doUpkeep()
 
             // Warn the player the trap has triggered
             GameMap* gameMap = getGameMap();
-            if (gameMap->isServerGameMap())
-                gameMap->playerIsFighting(gameMap->getPlayerBySeat(getSeat()), tile);
+            gameMap->playerIsFighting(gameMap->getPlayerBySeat(getSeat()), tile);
         }
     }
 }
@@ -161,10 +154,6 @@ bool Trap::removeCoveredTile(Tile* t)
 
 void Trap::updateActiveSpots()
 {
-    // Active spots are handled by the server only
-    if(!getGameMap()->isServerGameMap())
-        return;
-
     // For a trap, by default, every tile is an active spot
     for(std::pair<Tile* const, TileData*>& p : mTileData)
     {

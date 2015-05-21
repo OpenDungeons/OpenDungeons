@@ -122,10 +122,6 @@ void RoomPortal::updateActiveSpots()
 
 void RoomPortal::updatePortalPosition()
 {
-    // Only the server game map should load objects.
-    if (!getGameMap()->isServerGameMap())
-        return;
-
     // Delete all previous rooms meshes and recreate a central one.
     removeAllBuildingObjects();
     mPortalObject = nullptr;
@@ -134,7 +130,7 @@ void RoomPortal::updatePortalPosition()
     if (centralTile == nullptr)
         return;
 
-    mPortalObject = new PersistentObject(getGameMap(), getName(), "PortalObject", centralTile, 0.0, false);
+    mPortalObject = new PersistentObject(getGameMap(), true, getName(), "PortalObject", centralTile, 0.0, false);
     addBuildingObject(centralTile, mPortalObject);
 
     mPortalObject->setAnimationState("Idle");
@@ -197,7 +193,7 @@ void RoomPortal::spawnCreature()
     Ogre::Real yPos = static_cast<Ogre::Real>(centralTile->getY());
 
     // Create a new creature and copy over the class-based creature parameters.
-    Creature* newCreature = new Creature(getGameMap(), classToSpawn, getSeat(), Ogre::Vector3(xPos, yPos, 0.0f));
+    Creature* newCreature = new Creature(getGameMap(), true, classToSpawn, getSeat(), Ogre::Vector3(xPos, yPos, 0.0f));
 
     LogManager::getSingleton().logMessage("RoomPortal name=" + getName()
         + "spawns a creature class=" + classToSpawn->getClassName()

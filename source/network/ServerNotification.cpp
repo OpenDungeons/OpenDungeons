@@ -58,10 +58,8 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "chatServer";
         case ServerNotificationType::turnStarted:
             return "turnStarted";
-        case ServerNotificationType::animatedObjectAddDestination:
-            return "animatedObjectAddDestination";
-        case ServerNotificationType::animatedObjectClearDestinations:
-            return "animatedObjectClearDestinations";
+        case ServerNotificationType::animatedObjectSetWalkPath:
+            return "animatedObjectSetWalkPath";
         case ServerNotificationType::setObjectAnimationState:
             return "setObjectAnimationState";
         case ServerNotificationType::setMoveSpeed:

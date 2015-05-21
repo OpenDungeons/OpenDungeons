@@ -1481,7 +1481,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             OD_ASSERT_TRUE(classToSpawn != nullptr);
             if(classToSpawn == nullptr)
                 break;
-            Creature* newCreature = new Creature(gameMap, classToSpawn, seatCreature);
+            Creature* newCreature = new Creature(gameMap, true, classToSpawn, seatCreature);
             newCreature->addToGameMap();
             // In editor mode, every player has vision
             for(Seat* seat : gameMap->getSeats())
@@ -1512,7 +1512,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             OD_ASSERT_TRUE_MSG(classToSpawn != nullptr, "Couldn't spawn creature class=" + className);
             if(classToSpawn == nullptr)
                 break;
-            Creature* newCreature = new Creature(gameMap, classToSpawn, seatCreature);
+            Creature* newCreature = new Creature(gameMap, true, classToSpawn, seatCreature);
             newCreature->addToGameMap();
             // In editor mode, every player has vision
             for(Seat* seat : gameMap->getSeats())
@@ -1550,7 +1550,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         case ClientNotificationType::editorAskCreateMapLight:
         {
             Player* player = clientSocket->getPlayer();
-            MapLight* mapLight = new MapLight(gameMap);
+            MapLight* mapLight = new MapLight(gameMap, true);
             mapLight->setName(gameMap->nextUniqueNameMapLight());
             mapLight->setPosition(Ogre::Vector3(0.0, 0.0, 3.75), false);
             mapLight->addToGameMap();

@@ -171,10 +171,12 @@ bool RoomWorkshop::addCreatureUsingRoom(Creature* creature)
         if(pathToSpot.empty())
             return true;
 
-        creature->setWalkPath(pathToSpot, 0, false);
+        std::vector<Ogre::Vector3> path;
+        Creature::tileToVector3(pathToSpot, path, true, 0.0);
         // We add the last step to take account of the offset
-        creature->addDestination(wantedX, wantedY);
-        creature->setAnimationState(EntityAnimation::walk_anim);
+        Ogre::Vector3 dest(wantedX, wantedY, 0.0);
+        path.push_back(dest);
+        creature->setWalkPath(EntityAnimation::walk_anim, EntityAnimation::idle_anim, true, path);
     }
 
     return true;
@@ -369,7 +371,7 @@ void RoomWorkshop::doUpkeep()
     if(tileCraftedTrap == nullptr)
         return;
 
-    CraftedTrap* craftedTrap = new CraftedTrap(getGameMap(), getName(), mTrapType);
+    CraftedTrap* craftedTrap = new CraftedTrap(getGameMap(), true, getName(), mTrapType);
     craftedTrap->setSeat(getSeat());
     craftedTrap->addToGameMap();
     Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(tileCraftedTrap->getX()), static_cast<Ogre::Real>(tileCraftedTrap->getY()), static_cast<Ogre::Real>(0.0));

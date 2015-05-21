@@ -136,7 +136,7 @@ void SpellSummonWorker::castSpell(GameMap* gameMap, const std::vector<EntityBase
 
         Tile* tile = static_cast<Tile*>(target);
          // Create a new creature and copy over the class-based creature parameters.
-        Creature* newCreature = new Creature(gameMap, classToSpawn, player->getSeat());
+        Creature* newCreature = new Creature(gameMap, true, classToSpawn, player->getSeat());
         LogManager::getSingleton().logMessage("Spawning a creature class=" + classToSpawn->getClassName()
             + ", name=" + newCreature->getName() + ", seatId=" + Helper::toString(player->getSeat()->getId()));
 

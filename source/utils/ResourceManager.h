@@ -32,12 +32,25 @@ namespace Ogre {
   class RenderTarget;
 }
 
+namespace boost
+{
+namespace program_options
+{
+class options_description;
+class variables_map;
+}
+}
+
 class ResourceManager : public Ogre::Singleton<ResourceManager>
 {
 public:
-    ResourceManager();
+    ResourceManager(boost::program_options::variables_map& options);
     ~ResourceManager()
     {}
+
+    //! Helper function for building options descriptions. Note that it has to be static because
+    //! the ResourceManager singleton will not be built when this list is constructed
+    static void buildCommandOptions(boost::program_options::options_description& desc);
 
     //! \brief Initializes the Ogre resources path
     //! \note Used after the Ogre Root initialization
@@ -163,12 +176,12 @@ private:
     static const std::string RESOURCEGROUPSOUND;
 
     //! \brief Setup user data and config path
-    void setupUserDataFolders();
+    void setupUserDataFolders(boost::program_options::variables_map& options);
 
     //! \brief Setup the game data path
     //! \note If game data path is found in the current folder,
     //! then the local data path will be used.
-    void setupDataPath();
+    void setupDataPath(boost::program_options::variables_map& options);
 };
 
 #endif // RESOURCEMANAGER_H_

@@ -65,9 +65,9 @@ public:
 class Building : public GameEntity
 {
 public:
-    //! \brief Default constructor with default values
+    //! \brief Default constructor with default values. Buildings are used only on server map
     Building(GameMap* gameMap) :
-        GameEntity(gameMap)
+        GameEntity(gameMap, true)
     {}
 
     virtual ~Building();
@@ -172,7 +172,7 @@ public:
 
     virtual void notifySeatVision(Tile* tile, Seat* seat);
 
-    virtual bool canCreatureGoThroughTile(const Creature* creature, const Tile* tile) const
+    virtual bool canCreatureGoThroughTile(const Creature* creature, Tile* tile) const
     { return true; }
 
     virtual bool permitsVision(Tile* tile)
