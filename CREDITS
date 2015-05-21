@@ -66,23 +66,20 @@ Name                                   Author                  License          
 multiplayer/
 -> GreedOrMight.level                  Akien                   GPL 3.0
 -> ScreamInTheDark.level               Bertram                 GPL 3.0
--> TestMultiplayer.level               hwoarangmy              GPL 3.0
+-> TestBigMap.level                    hwoarangmy              GPL 3.0
 -> TestMultiplayerSmall1v1.level       hwoarangmy              GPL 3.0
 -> TestMultiplayerSmallAlliance.level  hwoarangmy              GPL 3.0
 -> TestMultiplayerSmallFreeForAll.level hwoarangmy             GPL 3.0
+-> TheBridge.level                     Bertram                 GPL 3.0
 
 skirmish/
 -> FallingKeeper.level                 hwoarangmy              GPL 3.0
--> GreedOrMight.level                  Akien                   GPL 3.0
--> ScreamInTheDark.level               Bertram                 GPL 3.0
 -> StonekeepSiege.level                Danimal                 GPL 3.0
 -> TestLegacy.level                    OD Team                 GPL 3.0
 -> TestModelsFair.level                Akien                   GPL 3.0
--> TestSingleplayer.level              hwoarangmy              GPL 3.0
 -> TestSingleplayerSmall.level         hwoarangmy              GPL 3.0
 -> TestSingleplayerSmallEmpty.level    hwoarangmy              GPL 3.0
 -> TestSingleplayerSmallPassability.level hwoarangmy           GPL 3.0
--> TheBridge.level                     Bertram                 GPL 3.0
 
 template.level                         OD Team                 GPL 3.0
 
