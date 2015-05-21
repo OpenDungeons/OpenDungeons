@@ -218,6 +218,11 @@ class GameEntity : public EntityBase
 
     virtual void destroyMeshLocal();
 
+    //! Used on client side to correct drop position to avoid all dropped entities
+    //! to be on the exact same position (center of the tile)
+    virtual void correctDropPosition(Ogre::Vector3& position)
+    {}
+
   protected:
 
     //! \brief Called while moving the entity to add it to the tile it gets on

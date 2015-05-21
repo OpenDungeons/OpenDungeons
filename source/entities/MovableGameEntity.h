@@ -75,6 +75,8 @@ public:
     virtual void correctEntityMovePosition(Ogre::Vector3& position)
     {}
 
+    virtual void correctDropPosition(Ogre::Vector3& position) override;
+
     virtual double getMoveSpeed() const
     { return mMoveSpeed; }
 

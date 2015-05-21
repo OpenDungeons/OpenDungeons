@@ -29,6 +29,7 @@
 
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
+#include "utils/Random.h"
 
 #include "ODApplication.h"
 
@@ -406,4 +407,17 @@ void MovableGameEntity::restoreEntityState()
         if(getAnimationState() != nullptr)
             getAnimationState()->addTime(mAnimationTime);
     }
+}
+
+void MovableGameEntity::correctDropPosition(Ogre::Vector3& position)
+{
+    const double offset = 0.3;
+    if(position.x > 0)
+        position.x += Random::Double(-offset, offset);
+
+    if(position.y > 0)
+        position.y += Random::Double(-offset, offset);
+
+    if(position.z > 0)
+        position.z += Random::Double(-offset, offset);
 }

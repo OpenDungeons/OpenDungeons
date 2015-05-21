@@ -599,24 +599,10 @@ void Creature::setPosition(const Ogre::Vector3& v, bool isMove)
 void Creature::drop(const Ogre::Vector3& v)
 {
     setIsOnMap(true);
-    if(!getIsOnServerMap())
-    {
-        const double offset = 0.3;
-        Ogre::Vector3 vRandom(v);
-        if(v.x > 0)
-            vRandom.x += Random::Double(-offset, offset);
-
-        if(v.y > 0)
-            vRandom.y += Random::Double(-offset, offset);
-
-        if(v.z > 0)
-            vRandom.z += Random::Double(-offset, offset);
-
-        setPosition(vRandom, false);
-        return;
-    }
-
     setPosition(v, false);
+    if(!getIsOnServerMap())
+        return;
+
     mForceAction = forcedActionSearchAction;
     if(getHasVisualDebuggingEntities())
         computeVisualDebugEntities();

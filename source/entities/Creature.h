@@ -161,7 +161,7 @@ public:
 
     bool setDestination(Tile* tile);
 
-    void drop(const Ogre::Vector3& v);
+    void drop(const Ogre::Vector3& v) override;
 
     void setHP(double nHP);
 
