@@ -20,19 +20,21 @@ gold	99999999
 goldMined	100
 mana	500
 [ResearchDone]
-roomTreasury
+roomCrypt
 roomDormitory
 roomHatchery
 roomLibrary
-trapDoorWooden
-trapCannon
-trapBoulder
-spellSummonWorker
 roomTrainingHall
-spellCallToWar
-trapSpike
+roomTreasury
 roomWorkshop
-roomCrypt
+trapBoulder
+trapCannon
+trapDoorWooden
+trapSpike
+spellCallToWar
+spellCreatureHeal
+spellCreatureExplosion
+spellSummonWorker
 [/ResearchDone]
 [ResearchNotAllowed]
 [/ResearchNotAllowed]
@@ -1012,6 +1014,22 @@ Spider12	16	13	0
 21	8	1
 22	8	1
 23	8	1
+[/Trap]
+[Trap]
+4	DoorWooden_1	1	1
+9	14	0	10	0	0	1	0
+[/Trap]
+[Trap]
+4	DoorWooden_2	1	1
+12	9	0	10	0	0	1	0
+[/Trap]
+[Trap]
+4	DoorWooden_3	1	1
+6	9	0	10	0	0	1	0
+[/Trap]
+[Trap]
+4	DoorWooden_4	1	1
+9	6	0	10	0	0	1	0
 [/Trap]
 [/Traps]
 
