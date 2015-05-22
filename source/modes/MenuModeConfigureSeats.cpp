@@ -113,25 +113,7 @@ void MenuModeConfigureSeats::activate()
     const CEGUI::Image* selImg = &CEGUI::ImageManager::getSingleton().get("OpenDungeonsSkin/SelectionBrush");
     const std::vector<Seat*>& seats = gameMap->getSeats();
 
-    ServerMode serverMode = ODServer::getSingleton().getServerMode();
     int offset = 0;
-    int bestSeatHumanSeatId = -1;
-    // We start by searching for the most suitable seat for local player. If we find a seat
-    // for human only, it is the one. If not, we use the first a human can use
-    for(Seat* seat : seats)
-    {
-        if(seat->getPlayerType().compare(Seat::PLAYER_TYPE_HUMAN) == 0)
-        {
-            bestSeatHumanSeatId = seat->getId();
-            break;
-        }
-        else if((bestSeatHumanSeatId == -1) &&
-                (seat->getPlayerType().compare(Seat::PLAYER_TYPE_CHOICE) == 0))
-        {
-            bestSeatHumanSeatId = seat->getId();
-        }
-    }
-
     bool enabled = false;
 
     for(Seat* seat : seats)
@@ -228,23 +210,6 @@ void MenuModeConfigureSeats::activate()
             CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(Seat::PLAYER_TYPE_AI, 1);
             item->setSelectionBrushImage(selImg);
             combo->addItem(item);
-
-            // If we are not in multiplayer mode, we set all the players to AI except the best we could find
-            // The unset players will be set when a player connects
-            // Note that when loading a game, this is useless because no seat with choice should be possible
-            switch(serverMode)
-            {
-                case ServerMode::ModeGameMultiPlayer:
-                case ServerMode::ModeGameLoaded:
-                    break;
-                default:
-                    if(seat->getId() != bestSeatHumanSeatId)
-                    {
-                        combo->setItemSelectState(item, true);
-                        combo->setText(item->getText());
-                    }
-                    break;
-            }
         }
         combo->subscribeEvent(CEGUI::Combobox::EventListSelectionAccepted, CEGUI::SubscriberSlot(&MenuModeConfigureSeats::comboChanged, this));
 
@@ -303,7 +268,8 @@ bool MenuModeConfigureSeats::launchSelectedButtonPressed(const CEGUI::EventArgs&
     if(!mIsActivePlayerConfig)
         return true;
 
-    fireSeatConfigurationToServer(true);
+    ClientNotification* notif = new ClientNotification(ClientNotificationType::seatConfigurationSet);
+    ODClient::getSingleton().queueClientNotification(notif);
     return true;
 }
 
@@ -322,9 +288,6 @@ bool MenuModeConfigureSeats::goBack(const CEGUI::EventArgs&)
 
 bool MenuModeConfigureSeats::comboChanged(const CEGUI::EventArgs& ea)
 {
-    if(!mIsActivePlayerConfig)
-        return true;
-
     // If the combo changed is a player and he was already in another combo, we remove him from the combo
     CEGUI::Combobox* comboSel = static_cast<CEGUI::Combobox*>(static_cast<const CEGUI::WindowEventArgs&>(ea).window);
     CEGUI::ListboxItem* selItem = comboSel->getSelectedItem();
@@ -362,7 +325,7 @@ bool MenuModeConfigureSeats::comboChanged(const CEGUI::EventArgs& ea)
         }
     }
 
-    fireSeatConfigurationToServer(false);
+    fireSeatConfigurationToServer();
     return true;
 }
 
@@ -370,7 +333,6 @@ void MenuModeConfigureSeats::addPlayer(const std::string& nick, int32_t id)
 {
     const CEGUI::Image* selImg = &CEGUI::ImageManager::getSingleton().get("OpenDungeonsSkin/SelectionBrush");
     CEGUI::Window* playersWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers");
-    bool isPlayerSet = false;
 
     GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     mPlayers.push_back(std::pair<std::string, int32_t>(nick, id));
@@ -388,20 +350,7 @@ void MenuModeConfigureSeats::addPlayer(const std::string& nick, int32_t id)
         CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(reinterpret_cast<const CEGUI::utf8*>(nick.c_str()), id);
         item->setSelectionBrushImage(selImg);
         combo->addItem(item);
-
-        // If a combo is empty, we set it to the player nick
-        if(!isPlayerSet && (combo->getSelectedItem() == nullptr))
-        {
-            combo->setItemSelectState(item, true);
-            combo->setText(item->getText());
-            isPlayerSet = true;
-        }
     }
-
-    if(!mIsActivePlayerConfig)
-        return;
-
-    fireSeatConfigurationToServer(false);
 }
 
 void MenuModeConfigureSeats::removePlayer(int32_t id)
@@ -437,65 +386,18 @@ void MenuModeConfigureSeats::removePlayer(int32_t id)
         }
         break;
     }
-
-    if(!mIsActivePlayerConfig)
-        return;
-
-    fireSeatConfigurationToServer(false);
 }
 
-void MenuModeConfigureSeats::fireSeatConfigurationToServer(bool isFinal)
+void MenuModeConfigureSeats::fireSeatConfigurationToServer()
 {
     CEGUI::Window* playersWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers");
-    CEGUI::Combobox* combo;
-    CEGUI::ListboxItem*	selItem;
-    if(isFinal)
-    {
-        // We start by checking that every seat is well configured.
-        for(int seatId : mSeatIds)
-        {
-            std::string name;
-            name = COMBOBOX_PLAYER_FACTION_PREFIX + Helper::toString(seatId);
-            combo = static_cast<CEGUI::Combobox*>(playersWin->getChild(name));
-            selItem = combo->getSelectedItem();
-            if(selItem == nullptr)
-            {
-                CEGUI::Window* msgWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("LoadingText");
-                msgWin->setText("Faction is not well configured for seat " + Helper::toString(seatId));
-                msgWin->setVisible(true);
-                return;
-            }
-            name = COMBOBOX_PLAYER_PREFIX + Helper::toString(seatId);
-            combo = static_cast<CEGUI::Combobox*>(playersWin->getChild(name));
-            selItem = combo->getSelectedItem();
-            if(selItem == nullptr)
-            {
-                CEGUI::Window* msgWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("LoadingText");
-                msgWin->setText("Player is not well configured for seat " + Helper::toString(seatId));
-                msgWin->setVisible(true);
-                return;
-            }
-            name = COMBOBOX_TEAM_ID_PREFIX + Helper::toString(seatId);
-            combo = static_cast<CEGUI::Combobox*>(playersWin->getChild(name));
-            selItem = combo->getSelectedItem();
-            if(selItem == nullptr)
-            {
-                CEGUI::Window* msgWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("LoadingText");
-                msgWin->setText("Player is not well configured for seat " + Helper::toString(seatId));
-                msgWin->setVisible(true);
-                return;
-            }
-        }
-    }
 
-    ClientNotification* notif;
-    if(isFinal)
-        notif = new ClientNotification(ClientNotificationType::seatConfigurationSet);
-    else
-        notif = new ClientNotification(ClientNotificationType::seatConfigurationRefresh);
+    ClientNotification* notif = new ClientNotification(ClientNotificationType::seatConfigurationRefresh);
 
     for(int seatId : mSeatIds)
     {
+        CEGUI::Combobox* combo;
+        CEGUI::ListboxItem*	selItem;
         std::string name;
         notif->mPacket << seatId;
         name = COMBOBOX_PLAYER_FACTION_PREFIX + Helper::toString(seatId);
@@ -503,7 +405,7 @@ void MenuModeConfigureSeats::fireSeatConfigurationToServer(bool isFinal)
         selItem = combo->getSelectedItem();
         if(selItem != nullptr)
         {
-            uint32_t factionIndex = selItem->getID();
+            int32_t factionIndex = static_cast<int32_t>(selItem->getID());
             notif->mPacket << true << factionIndex;
         }
         else
@@ -585,37 +487,34 @@ void MenuModeConfigureSeats::activatePlayerConfig()
 
 void MenuModeConfigureSeats::refreshSeatConfiguration(ODPacket& packet)
 {
-    // We don't refresh seats for the player configuring the game
-    if(mIsActivePlayerConfig)
-        return;
-
     CEGUI::Window* playersWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers");
-    CEGUI::Combobox* combo;
-    bool isSelected;
     for(int seatId : mSeatIds)
     {
+        CEGUI::Combobox* combo;
+        bool isSelected;
         int seatIdPacket;
         OD_ASSERT_TRUE(packet >> seatIdPacket);
-        OD_ASSERT_TRUE(seatId == seatIdPacket);
+        OD_ASSERT_TRUE_MSG(seatId == seatIdPacket, "seatId=" + Helper::toString(seatId) + ", seatIdPacket=" + Helper::toString(seatIdPacket));
         std::string name;
         name = COMBOBOX_PLAYER_FACTION_PREFIX + Helper::toString(seatId);
         combo = static_cast<CEGUI::Combobox*>(playersWin->getChild(name));
         OD_ASSERT_TRUE(packet >> isSelected);
-        uint32_t factionIndex = 0;
         if(isSelected)
         {
+            int32_t factionIndex = -1;
             OD_ASSERT_TRUE(packet >> factionIndex);
-        }
-        for(uint32_t i = 0; i < combo->getItemCount(); ++i)
-        {
-            CEGUI::ListboxItem* selItem = combo->getListboxItemFromIndex(i);
-            if(isSelected && selItem->getID() == factionIndex)
+            uint32_t id = static_cast<uint32_t>(factionIndex);
+            for(uint32_t i = 0; i < combo->getItemCount(); ++i)
             {
-                combo->setItemSelectState(selItem, true);
-                combo->setText(selItem->getText());
+                CEGUI::ListboxItem* selItem = combo->getListboxItemFromIndex(i);
+                if(isSelected && selItem->getID() == id)
+                {
+                    combo->setItemSelectState(selItem, true);
+                    combo->setText(selItem->getText());
+                }
+                else
+                    combo->setItemSelectState(selItem, false);
             }
-            else
-                combo->setItemSelectState(selItem, false);
         }
 
         name = COMBOBOX_PLAYER_PREFIX + Helper::toString(seatId);

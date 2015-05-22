@@ -66,7 +66,10 @@ Seat::Seat(GameMap* gameMap) :
     mIsDebuggingVision(false),
     mResearchPoints(0),
     mCurrentResearch(nullptr),
-    mGuiResearchNeedsRefresh(false)
+    mGuiResearchNeedsRefresh(false),
+    mConfigPlayerId(-1),
+    mConfigTeamId(-1),
+    mConfigFactionIndex(-1)
 {
 }
 

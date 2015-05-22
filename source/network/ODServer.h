@@ -152,6 +152,8 @@ private:
 
     //! \brief Sends the packet to the given player. If player is nullptr, the packet is sent to every connected player
     void sendMsg(Player* player, ODPacket& packet);
+
+    void fireSeatConfigurationRefresh(Player* player);
 };
 
 #endif // ODSERVER_H

@@ -91,6 +91,15 @@ bool ODServer::startServer(const std::string& levelFilename, ServerMode mode)
         return false;
     }
 
+    // Set up the socket to listen on the specified port
+    if (!createServer(ConfigManager::getSingleton().getNetworkPort()))
+    {
+        mServerMode = ServerMode::ModeNone;
+        mServerState = ServerState::StateNone;
+        logManager.logMessage("ERROR:  Server could not create server socket!");
+        return false;
+    }
+
     // Read in the map. The map loading should be happen here and not in the server thread to
     // make sure it is valid before launching the server.
     mServerMode = mode;
@@ -104,13 +113,78 @@ bool ODServer::startServer(const std::string& levelFilename, ServerMode mode)
         return false;
     }
 
-    // Set up the socket to listen on the specified port
-    if (!createServer(ConfigManager::getSingleton().getNetworkPort()))
+    // We configure what is fixed (fixed AI, faction or team). While iterating seats, we keep in mind if there is
+    // at least a human only seat. If yes, we configure all player type choosable to AI. If not, we configure all player
+    // type choosable to AI except the first one.
+    uint32_t nbSeatsHuman = 0;
+    const std::vector<std::string>& factions = ConfigManager::getSingleton().getFactions();
+    for(Seat* seat : gameMap->getSeats())
     {
-        mServerMode = ServerMode::ModeNone;
-        mServerState = ServerState::StateNone;
-        logManager.logMessage("ERROR:  Server could not create server socket!");
-        return false;
+        if(seat->isRogueSeat())
+            continue;
+
+        // Player faction
+        if(seat->getFaction().compare(Seat::PLAYER_FACTION_CHOICE) != 0)
+        {
+            uint32_t cptFaction = 0;
+            for(const std::string& faction : factions)
+            {
+                if(seat->getFaction().compare(faction) == 0)
+                    break;
+
+                ++cptFaction;
+            }
+            // If the faction is not found, we set it to the first defined
+            if(cptFaction >= factions.size())
+                cptFaction = 0;
+
+            seat->setConfigFactionIndex(cptFaction);
+        }
+
+        // Player type
+        if(seat->getPlayerType().compare(Seat::PLAYER_TYPE_INACTIVE) == 0)
+            seat->setConfigPlayerId(0);
+        else if(seat->getPlayerType().compare(Seat::PLAYER_TYPE_AI) == 0)
+            seat->setConfigPlayerId(1);
+        else if(seat->getPlayerType().compare(Seat::PLAYER_TYPE_HUMAN) == 0)
+            ++nbSeatsHuman;
+
+        // Player team
+        const std::vector<int>& availableTeamIds = seat->getAvailableTeamIds();
+        if(availableTeamIds.size() == 1)
+        {
+            seat->setConfigTeamId(availableTeamIds.front());
+        }
+    }
+
+    // In single player, we set seats that can be choosen to
+    if(mServerMode != ServerMode::ModeGameSinglePlayer)
+        return true;
+
+    for(Seat* seat : gameMap->getSeats())
+    {
+        if(seat->isRogueSeat())
+            continue;
+
+        // Player faction to the first one defined
+        if(seat->getFaction().compare(Seat::PLAYER_FACTION_CHOICE) == 0)
+            seat->setConfigFactionIndex(0);
+
+        // Player type to AI
+        if(seat->getPlayerType().compare(Seat::PLAYER_TYPE_CHOICE) == 0)
+        {
+            if(nbSeatsHuman == 0)
+                ++nbSeatsHuman;
+            else
+                seat->setConfigPlayerId(1);
+        }
+
+        // Player team to first one available
+        const std::vector<int>& availableTeamIds = seat->getAvailableTeamIds();
+        if(availableTeamIds.size() > 1)
+        {
+            seat->setConfigTeamId(availableTeamIds.front());
+        }
     }
 
     return true;
@@ -674,7 +748,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             }
 
             ODPacket packetSend;
-            // We notify to the newly connected player all the currently connected players (including himself
+            // We notify to the newly connected player all the currently connected players (including himself)
             uint32_t nbPlayers = mSockClients.size();
             packetSend << ServerNotificationType::addPlayers << nbPlayers;
             for (ODSocketClient* client : mSockClients)
@@ -699,15 +773,47 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
                 sendMsgToClient(client, packetSend);
             }
+
+            // Then we look for the first available human seat and assign the player there (if available)
+            Seat* seatToUse = nullptr;
+            // If we find an unused human only seat, we use it. If not, we take the first choosable
+            for(Seat* seat : gameMap->getSeats())
+            {
+                if(seat->isRogueSeat())
+                    continue;
+                if((seat->getPlayerType().compare(Seat::PLAYER_TYPE_HUMAN) != 0) &&
+                   (seat->getPlayerType().compare(Seat::PLAYER_TYPE_CHOICE) != 0))
+                {
+                    continue;
+                }
+
+                if(seat->getConfigPlayerId() != -1)
+                    continue;
+
+                //Suitable seat
+                if(seat->getPlayerType().compare(Seat::PLAYER_TYPE_HUMAN) == 0)
+                {
+                    seatToUse = seat;
+                    break;
+                }
+
+                if(seatToUse == nullptr)
+                    seatToUse = seat;
+            }
+
+            if(seatToUse != nullptr)
+            {
+                seatToUse->setConfigPlayerId(clientSocket->getPlayer()->getId());
+                fireSeatConfigurationRefresh(clientSocket->getPlayer());
+            }
+
             break;
         }
 
         case ClientNotificationType::seatConfigurationRefresh:
         {
-            std::vector<Seat*> seats = gameMap->getSeats();
-            ODPacket packetSend;
-            packetSend << ServerNotificationType::seatConfigurationRefresh;
-            for(Seat* seat : seats)
+            const std::vector<std::string>& factions = ConfigManager::getSingleton().getFactions();
+            for(Seat* seat : gameMap->getSeats())
             {
                 // Rogue seat do not have to be configured
                 if(seat->isRogueSeat())
@@ -716,35 +822,35 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 int seatId;
                 bool isSet;
                 OD_ASSERT_TRUE(packetReceived >> seatId);
-                OD_ASSERT_TRUE(seatId == seat->getId());
-                packetSend << seatId;
+                OD_ASSERT_TRUE_MSG(seatId == seat->getId(), "seatId=" + Helper::toString(seatId) + ", seat->getId()=" + Helper::toString(seat->getId()));
 
                 OD_ASSERT_TRUE(packetReceived >> isSet);
-                packetSend << isSet;
+                int32_t factionIndex = -1;
                 if(isSet)
                 {
-                    uint32_t factionIndex;
                     OD_ASSERT_TRUE(packetReceived >> factionIndex);
-                    packetSend << factionIndex;
+                    if(static_cast<uint32_t>(factionIndex) >= factions.size())
+                        factionIndex = -1;
                 }
+                seat->setConfigFactionIndex(factionIndex);
+
                 OD_ASSERT_TRUE(packetReceived >> isSet);
-                packetSend << isSet;
+                int32_t playerId = -1;
                 if(isSet)
                 {
-                    int32_t playerId;
                     OD_ASSERT_TRUE(packetReceived >> playerId);
-                    packetSend << playerId;
                 }
+                seat->setConfigPlayerId(playerId);
+
                 OD_ASSERT_TRUE(packetReceived >> isSet);
-                packetSend << isSet;
+                int32_t teamId = -1;
                 if(isSet)
                 {
-                    int32_t teamId;
                     OD_ASSERT_TRUE(packetReceived >> teamId);
-                    packetSend << teamId;
                 }
+                seat->setConfigTeamId(teamId);
             }
-            sendMsg(nullptr, packetSend);
+            fireSeatConfigurationRefresh(nullptr);
             break;
         }
 
@@ -753,35 +859,52 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             // We change server state to make sure no new client will be accepted
             OD_ASSERT_TRUE_MSG(mServerState == ServerState::StateConfiguration, "Wrong server state="
                 + Helper::toString(static_cast<int>(mServerState)));
-            mServerState = ServerState::StateGame;
 
-            std::vector<Seat*> seats = gameMap->getSeats();
-            const std::vector<std::string>& factions = ConfigManager::getSingleton().getFactions();
-            for(Seat* seat : seats)
+            bool isConfigured = true;
+            for(Seat* seat : gameMap->getSeats())
             {
                 // Rogue seat do not have to be configured
                 if(seat->isRogueSeat())
                     continue;
 
-                int seatId;
-                bool isSet;
-                uint32_t factionIndex;
-                int32_t playerId;
-                int32_t teamId;
-                OD_ASSERT_TRUE(packetReceived >> seatId);
-                OD_ASSERT_TRUE(seatId == seat->getId());
-                OD_ASSERT_TRUE(packetReceived >> isSet);
-                // It is not acceptable to have an incompletely configured seat
-                OD_ASSERT_TRUE(isSet);
-                OD_ASSERT_TRUE(packetReceived >> factionIndex);
-                OD_ASSERT_TRUE(factionIndex < factions.size());
-                seat->setFaction(factions[factionIndex]);
+                int seatId = seat->getId();
+                if(seat->getConfigPlayerId() == -1)
+                {
+                    LogManager::getSingleton().logMessage("ERROR: player not configured seatId=" + Helper::toString(seatId) + ", ConfigPlayerId=" + Helper::toString(seat->getConfigPlayerId()));
+                    isConfigured = false;
+                    break;
+                }
+                if(seat->getConfigTeamId() == -1)
+                {
+                    LogManager::getSingleton().logMessage("ERROR: player not configured seatId=" + Helper::toString(seatId) + ", ConfigTeamId=" + Helper::toString(seat->getConfigTeamId()));
+                    isConfigured = false;
+                    break;
+                }
+                if(seat->getConfigFactionIndex() == -1)
+                {
+                    LogManager::getSingleton().logMessage("ERROR: player not configured seatId=" + Helper::toString(seatId) + ", ConfigFactionIndex=" + Helper::toString(seat->getConfigFactionIndex()));
+                    isConfigured = false;
+                    break;
+                }
+            }
 
-                OD_ASSERT_TRUE(packetReceived >> isSet);
-                // It is not acceptable to have an incompletely configured seat
-                OD_ASSERT_TRUE(isSet);
-                OD_ASSERT_TRUE(packetReceived >> playerId);
-                switch(playerId)
+            // If configuration is not complete, we don't go further
+            if(!isConfigured)
+                break;
+
+            mServerState = ServerState::StateGame;
+
+            const std::vector<std::string>& factions = ConfigManager::getSingleton().getFactions();
+            for(Seat* seat : gameMap->getSeats())
+            {
+                // Rogue seat do not have to be configured
+                if(seat->isRogueSeat())
+                    continue;
+
+                seat->setFaction(factions[seat->getConfigFactionIndex()]);
+
+                int seatId = seat->getId();
+                switch(seat->getConfigPlayerId())
                 {
                     case 0:
                     {
@@ -810,7 +933,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                         for (ODSocketClient* client : mSockClients)
                         {
                             if((client->getState().compare("ready") == 0) &&
-                               (client->getPlayer()->getId() == playerId))
+                               (client->getPlayer()->getId() == seat->getConfigPlayerId()))
                             {
                                 seat->setPlayer(client->getPlayer());
                                 gameMap->addPlayer(client->getPlayer());
@@ -820,12 +943,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                         break;
                     }
                 }
-
-                OD_ASSERT_TRUE(packetReceived >> isSet);
-                // It is not acceptable to have an incompletely configured seat
-                OD_ASSERT_TRUE(isSet);
-                OD_ASSERT_TRUE(packetReceived >> teamId);
-                seat->setTeamId(teamId);
+                seat->setTeamId(seat->getConfigTeamId());
             }
 
             // Now, we can disconnect the players that were not configured
@@ -877,9 +995,9 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 sendMsgToClient(client, packetSend);
             }
 
-            for(Seat* seat : seats)
+            for(Seat* seat : gameMap->getSeats())
             {
-                // We initialize the seat
+                // We initialize the seats
                 seat->initSeat();
             }
 
@@ -1705,6 +1823,55 @@ bool ODServer::waitEndGame()
 
     mThread->wait();
     return true;
+}
+
+void ODServer::fireSeatConfigurationRefresh(Player* player)
+{
+    ODPacket packetSend;
+    packetSend << ServerNotificationType::seatConfigurationRefresh;
+    for(Seat* seat : mGameMap->getSeats())
+    {
+        // Rogue seat do not have to be configured
+        if(seat->isRogueSeat())
+            continue;
+
+        int seatId = seat->getId();
+        packetSend << seatId;
+
+        int32_t factionIndex = seat->getConfigFactionIndex();
+        if(factionIndex == -1)
+        {
+            packetSend << false;
+        }
+        else
+        {
+            packetSend << true;
+            packetSend << factionIndex;
+        }
+
+        int32_t playerId = seat->getConfigPlayerId();
+        if(playerId == -1)
+        {
+            packetSend << false;
+        }
+        else
+        {
+            packetSend << true;
+            packetSend << playerId;
+        }
+
+        int32_t teamId = seat->getConfigTeamId();
+        if(teamId == -1)
+        {
+            packetSend << false;
+        }
+        else
+        {
+            packetSend << true;
+            packetSend << teamId;
+        }
+    }
+    sendMsg(player, packetSend);
 }
 
 ODPacket& operator<<(ODPacket& os, const EventShortNoticeType& type)
