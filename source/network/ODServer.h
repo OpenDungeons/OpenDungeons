@@ -101,6 +101,11 @@ class ODServer: public Ogre::Singleton<ODServer>,
 
     void notifyExit();
 
+    //! This function will block the calling thread until the game is launched and
+    //! all the clients disconnect. Then, it will return true if everything went well
+    //! and false if there is an error (server not launched or system error)
+    bool waitEndGame();
+
 protected:
     bool notifyNewConnection(ODSocketClient *sock);
     bool notifyClientMessage(ODSocketClient *sock);

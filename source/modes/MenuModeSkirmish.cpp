@@ -25,7 +25,6 @@
 #include "render/ODFrameListener.h"
 #include "network/ODServer.h"
 #include "network/ODClient.h"
-#include "ODApplication.h"
 #include "utils/LogManager.h"
 #include "gamemap/MapLoader.h"
 #include "utils/ConfigManager.h"
@@ -34,8 +33,6 @@
 #include <CEGUI/CEGUI.h>
 #include "boost/filesystem.hpp"
 
-const std::string LEVEL_SKM_PATH = "levels/skirmish/";
-const std::string LEVEL_MPM_PATH = "levels/multiplayer/";
 const std::string LEVEL_EXTENSION = ".level";
 
 MenuModeSkirmish::MenuModeSkirmish(ModeManager* modeManager):
@@ -138,10 +135,10 @@ bool MenuModeSkirmish::updateFilesList(const CEGUI::EventArgs&)
     {
         default:
         case 0:
-            levelPath = ResourceManager::getSingleton().getGameDataPath() + LEVEL_SKM_PATH;
+            levelPath = ResourceManager::getSingleton().getLevelPathSkirmish();
             break;
         case 1:
-            levelPath = ResourceManager::getSingleton().getGameDataPath() + LEVEL_MPM_PATH;
+            levelPath = ResourceManager::getSingleton().getLevelPathMultiplayer();
             break;
     }
 

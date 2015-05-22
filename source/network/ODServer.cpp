@@ -84,7 +84,8 @@ bool ODServer::startServer(const std::string& levelFilename, ServerMode mode)
         logManager.logMessage("Couldn't start server: The server is already connected");
         return false;
     }
-    if (ODClient::getSingleton().isConnected())
+    if ((ODClient::getSingletonPtr() != nullptr) &&
+        ODClient::getSingleton().isConnected())
     {
         logManager.logMessage("Couldn't start server: The client is already connected");
         return false;
@@ -281,11 +282,20 @@ void ODServer::serverThread()
     GameMap* gameMap = mGameMap;
     sf::Clock clock;
     double turnLengthMs = 1000.0 / ODApplication::turnsPerSecond;
-    while(isConnected())
+    bool isClientConnected = true;
+    while(isConnected() && isClientConnected)
     {
         // doTask should return after the length of 1 turn even if their are communications. When
         // it returns, we can launch next turn.
         doTask(static_cast<int32_t>(turnLengthMs));
+        // If all the clients are disconnected during a game, we close the server
+        if((mServerState == ServerState::StateGame) &&
+           (mSockClients.empty()))
+        {
+            // Time to stop the game
+            isClientConnected = false;
+            continue;
+        }
 
         if(gameMap->getTurnNumber() == -1)
         {
@@ -1644,6 +1654,7 @@ void ODServer::stopServer()
     // We start by stopping server to make sure no new message comes
     ODSocketServer::stopServer();
 
+    mServerState = ServerState::StateNone;
     mSeatsConfigured = false;
     mDisconnectedPlayers.clear();
     mPlayerConfig = nullptr;
@@ -1684,6 +1695,16 @@ ODSocketClient* ODServer::getClientFromPlayer(Player* player)
     }
 
     return ret;
+}
+
+bool ODServer::waitEndGame()
+{
+    // If the server is not launched, we don't allow to wait for end of game
+    if(mServerState == ServerState::StateNone)
+        return false;
+
+    mThread->wait();
+    return true;
 }
 
 ODPacket& operator<<(ODPacket& os, const EventShortNoticeType& type)

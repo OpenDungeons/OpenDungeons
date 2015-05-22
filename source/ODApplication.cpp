@@ -27,6 +27,7 @@
 #include "sound/SoundEffectsManager.h"
 #include "render/Gui.h"
 #include "utils/ResourceManager.h"
+#include "utils/LogManagerFile.h"
 #include "utils/LogManagerOgre.h"
 #include "utils/Random.h"
 #include "utils/ConfigManager.h"
@@ -47,6 +48,44 @@
 
 void ODApplication::startGame(boost::program_options::variables_map& options)
 {
+    ResourceManager resMgr(options);
+    if(resMgr.isServerMode())
+        startServer();
+    else
+        startClient();
+}
+
+void ODApplication::startServer()
+{
+    ResourceManager& resMgr = ResourceManager::getSingleton();
+    LogManagerFile logManager(resMgr.getLogFile());
+    logManager.setLogDetail(LogMessageLevel::TRIVIAL);
+
+    LogManager::getSingleton().logMessage("Initializing");
+
+    Random::initialize();
+    ConfigManager configManager(resMgr.getConfigPath());
+    LogManager::getSingleton().logMessage("Launching server");
+
+    ODServer server;
+    if(!server.startServer(resMgr.getServerModeLevel(), ServerMode::ModeGameMultiPlayer))
+    {
+        LogManager::getSingleton().logMessage("ERROR: Could not start server !!!");
+        return;
+    }
+
+    if(!server.waitEndGame())
+    {
+        LogManager::getSingleton().logMessage("ERROR: Could not wait for end of game !!!");
+        return;
+    }
+
+    logManager.logMessage("Stopping server...");
+    server.stopServer();
+}
+
+void ODApplication::startClient()
+{
     {
         //NOTE: This prevents a segmentation fault from OpenGL on exit.
         //Creating the object sets up an OpenAL context using a static object
@@ -54,10 +93,10 @@ void ODApplication::startGame(boost::program_options::variables_map& options)
         //the application segfaults on exit for some reason.
         sf::Music m;
     }
+    ResourceManager& resMgr = ResourceManager::getSingleton();
     Random::initialize();
     //NOTE: The order of initialisation of the different "manager" classes is important,
     //as many of them depend on each other.
-    ResourceManager resMgr(options);
     std::cout << "Creating OGRE::Root instance; Plugins path: " << resMgr.getPluginsPath()
               << "; config file: " << resMgr.getCfgFile()
               << "; log file: " << resMgr.getLogFile() << std::endl;

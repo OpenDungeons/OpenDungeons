@@ -58,6 +58,12 @@ public:
 private:
     ODApplication(const ODApplication&) = delete;
     ODApplication& operator=(const ODApplication&) = delete;
+
+    //! Normal launch mode. Creates everything to be client and server
+    void startClient();
+    //! Server mode. Creates only the needed to launch a level. Note that this is to
+    //! be used without gui
+    void startServer();
 };
 
 #endif // ODAPPLICATION_H

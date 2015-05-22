@@ -25,7 +25,6 @@
 #include "render/ODFrameListener.h"
 #include "network/ODServer.h"
 #include "network/ODClient.h"
-#include "ODApplication.h"
 #include "utils/LogManager.h"
 #include "gamemap/MapLoader.h"
 #include "utils/ConfigManager.h"
@@ -35,7 +34,6 @@
 #include <boost/filesystem.hpp>
 #include <boost/locale.hpp>
 
-const std::string LEVEL_PATH = "levels/multiplayer/";
 const std::string LEVEL_EXTENSION = ".level";
 
 MenuModeMultiplayerServer::MenuModeMultiplayerServer(ModeManager *modeManager):
@@ -105,7 +103,7 @@ void MenuModeMultiplayerServer::activate()
     mDescriptionList.clear();
     levelSelectList->resetList();
 
-    std::string levelPath = ResourceManager::getSingleton().getGameDataPath() + LEVEL_PATH;
+    std::string levelPath = ResourceManager::getSingleton().getLevelPathMultiplayer();
     if(Helper::fillFilesList(levelPath, mFilesList, LEVEL_EXTENSION))
     {
         for (uint32_t n = 0; n < mFilesList.size(); ++n)

@@ -25,7 +25,6 @@
 #include "render/ODFrameListener.h"
 #include "network/ODServer.h"
 #include "network/ODClient.h"
-#include "ODApplication.h"
 #include "utils/LogManager.h"
 #include "gamemap/MapLoader.h"
 #include "utils/ResourceManager.h"

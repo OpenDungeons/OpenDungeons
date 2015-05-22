@@ -70,9 +70,9 @@ class ODSocketServer
         std::vector<ODSocketClient*> mSockClients;
         void setClientState(ODSocketClient* client, const std::string& state);
         virtual void serverThread() = 0;
+        sf::Thread* mThread;
 
     private:
-        sf::Thread* mThread;
         sf::TcpListener mSockListener;
         sf::SocketSelector mSockSelector;
         sf::Clock mClockMainTask;
