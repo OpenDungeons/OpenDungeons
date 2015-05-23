@@ -112,6 +112,7 @@ protected:
     void serverThread();
 
 private:
+    uint32_t mUniqueNumberPlayer;
     ServerMode mServerMode;
     ServerState mServerState;
     GameMap *mGameMap;
@@ -126,6 +127,7 @@ private:
     std::map<ODSocketClient*, std::vector<std::string>> mCreaturesInfoWanted;
 
     ODSocketClient* getClientFromPlayer(Player* player);
+    ODSocketClient* getClientFromPlayerId(int32_t playerId);
 
     //! \brief Called when a new turn started.
     void startNewTurn(double timeSinceLastTurn);
@@ -153,7 +155,7 @@ private:
     //! \brief Sends the packet to the given player. If player is nullptr, the packet is sent to every connected player
     void sendMsg(Player* player, ODPacket& packet);
 
-    void fireSeatConfigurationRefresh(Player* player);
+    void fireSeatConfigurationRefresh();
 };
 
 #endif // ODSERVER_H

@@ -56,6 +56,7 @@ const std::string SAVEGAME_MULTIPLAYER_PREFIX = "MP-";
 template<> ODServer* Ogre::Singleton<ODServer>::msSingleton = nullptr;
 
 ODServer::ODServer() :
+    mUniqueNumberPlayer(0),
     mServerMode(ServerMode::ModeNone),
     mServerState(ServerState::StateNone),
     mGameMap(new GameMap(true)),
@@ -112,6 +113,7 @@ bool ODServer::startServer(const std::string& levelFilename, ServerMode mode)
         logManager.logMessage("Couldn't start server. The level file can't be loaded: " + levelFilename);
         return false;
     }
+    mUniqueNumberPlayer = 0;
 
     // We configure what is fixed (fixed AI, faction or team). While iterating seats, we keep in mind if there is
     // at least a human only seat. If yes, we configure all player type choosable to AI. If not, we configure all player
@@ -546,6 +548,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         if(std::string("ready").compare(clientSocket->getState()) != 0)
             return (status != ODSocketClient::ODComStatus::Error);
 
+        LogManager::getSingleton().logMessage("Disconnected player: " + clientSocket->getPlayer()->getNick());
         // We notify
         uint32_t nbPlayers = 1;
         ODPacket packetSend;
@@ -553,6 +556,32 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         int32_t id = clientSocket->getPlayer()->getId();
         packetSend << id;
         sendMsg(nullptr, packetSend);
+
+        ODSocketClient* otherHumanConnected = nullptr;
+        for(Seat* seat : gameMap->getSeats())
+        {
+            if(seat->getConfigPlayerId() == id)
+            {
+                seat->setConfigPlayerId(-1);
+                if(clientSocket->getPlayer() == mPlayerConfig)
+                    mPlayerConfig = nullptr;
+            }
+
+            if(seat->getConfigPlayerId() < 10)
+                continue;
+
+            otherHumanConnected = getClientFromPlayerId(seat->getConfigPlayerId());
+        }
+        if((mPlayerConfig == nullptr) &&
+           (otherHumanConnected != nullptr))
+        {
+            mPlayerConfig = otherHumanConnected->getPlayer();
+            ODPacket packetSend;
+            packetSend << ServerNotificationType::playerConfigChange;
+            sendMsgToClient(otherHumanConnected, packetSend);
+
+            LogManager::getSingleton().logMessage("Changing game host to " + mPlayerConfig->getNick());
+        }
         return (status != ODSocketClient::ODComStatus::Error);
     }
 
@@ -682,7 +711,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             OD_ASSERT_TRUE(packetReceived >> clientNick);
 
             // NOTE : playerId 0 is reserved for inactive players and 1 is reserved for AI
-            int32_t playerId = mSockClients.size() + 10;
+            int32_t playerId = mUniqueNumberPlayer + 10;
+            mUniqueNumberPlayer++;
             Player* curPlayer = new Player(gameMap, playerId);
             curPlayer->setNick(clientNick);
             curPlayer->setIsHuman(true);
@@ -742,12 +772,14 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             if(mPlayerConfig == nullptr)
             {
                 mPlayerConfig = clientSocket->getPlayer();
+                LogManager::getSingleton().logMessage("New player host: " + mPlayerConfig->getNick());
                 ODPacket packetSend;
                 packetSend << ServerNotificationType::playerConfigChange;
                 sendMsgToClient(clientSocket, packetSend);
             }
 
             ODPacket packetSend;
+            LogManager::getSingleton().logMessage("New player: " + clientSocket->getPlayer()->getNick());
             // We notify to the newly connected player all the currently connected players (including himself)
             uint32_t nbPlayers = mSockClients.size();
             packetSend << ServerNotificationType::addPlayers << nbPlayers;
@@ -803,8 +835,9 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             if(seatToUse != nullptr)
             {
+                LogManager::getSingleton().logMessage("Player: " + clientSocket->getPlayer()->getNick() + " on seat " + Helper::toString(seatToUse->getId()));
                 seatToUse->setConfigPlayerId(clientSocket->getPlayer()->getId());
-                fireSeatConfigurationRefresh(clientSocket->getPlayer());
+                fireSeatConfigurationRefresh();
             }
 
             break;
@@ -850,7 +883,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 }
                 seat->setConfigTeamId(teamId);
             }
-            fireSeatConfigurationRefresh(nullptr);
+            fireSeatConfigurationRefresh();
             break;
         }
 
@@ -1801,18 +1834,24 @@ void ODServer::notifyExit()
 
 ODSocketClient* ODServer::getClientFromPlayer(Player* player)
 {
-    ODSocketClient* ret = nullptr;
-
     for (ODSocketClient* client : mSockClients)
     {
         if(client->getPlayer() == player)
-        {
-            ret = client;
-            break;
-        }
+            return client;
     }
 
-    return ret;
+    return nullptr;
+}
+
+ODSocketClient* ODServer::getClientFromPlayerId(int32_t playerId)
+{
+    for (ODSocketClient* client : mSockClients)
+    {
+        if(client->getPlayer()->getId() == playerId)
+            return client;
+    }
+
+    return nullptr;
 }
 
 bool ODServer::waitEndGame()
@@ -1825,7 +1864,7 @@ bool ODServer::waitEndGame()
     return true;
 }
 
-void ODServer::fireSeatConfigurationRefresh(Player* player)
+void ODServer::fireSeatConfigurationRefresh()
 {
     ODPacket packetSend;
     packetSend << ServerNotificationType::seatConfigurationRefresh;
@@ -1871,7 +1910,7 @@ void ODServer::fireSeatConfigurationRefresh(Player* player)
             packetSend << teamId;
         }
     }
-    sendMsg(player, packetSend);
+    sendMsg(nullptr, packetSend);
 }
 
 ODPacket& operator<<(ODPacket& os, const EventShortNoticeType& type)

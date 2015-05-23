@@ -50,6 +50,8 @@ void LogManagerFile::logMessage(const std::string& message, LogMessageLevel lml,
 
     sf::Lock lock(gMutex);
     mFileLog << ss.str();
+    mFileLog.flush();
+    std::cout << ss.str();
 }
 
 void LogManagerFile::setLogDetail(LogMessageLevel ll)
