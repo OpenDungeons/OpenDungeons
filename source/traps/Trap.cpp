@@ -112,10 +112,6 @@ void Trap::doUpkeep()
 
             for(Seat* seat : trapEntity->getSeatsNotHidden())
                 seat->setVisibleBuildingOnTile(this, tile);
-
-            // Warn the player the trap has triggered
-            GameMap* gameMap = getGameMap();
-            gameMap->playerIsFighting(gameMap->getPlayerBySeat(getSeat()), tile);
         }
     }
 }
