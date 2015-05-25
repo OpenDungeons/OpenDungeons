@@ -39,11 +39,6 @@ void LogManagerFile::logMessage(const std::string& message, LogMessageLevel lml,
     static std::locale loc(std::wcout.getloc(),
         new boost::posix_time::time_facet("%Y%m%d_%H%M%S"));
 
-// TODO: try
-//    static boost::posix_time::time_facet tf("%Y%m%d_%H%M%S");
-//    static std::locale loc(std::wcout.getloc(), &tf);
-
-
     std::stringstream ss;
     ss.imbue(loc);
     ss << "[" << boost::posix_time::second_clock::local_time() << "] " << message << "\n";

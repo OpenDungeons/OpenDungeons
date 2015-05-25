@@ -397,7 +397,7 @@ void MenuModeConfigureSeats::fireSeatConfigurationToServer()
     for(int seatId : mSeatIds)
     {
         CEGUI::Combobox* combo;
-        CEGUI::ListboxItem*	selItem;
+        CEGUI::ListboxItem* selItem;
         std::string name;
         notif->mPacket << seatId;
         name = COMBOBOX_PLAYER_FACTION_PREFIX + Helper::toString(seatId);
