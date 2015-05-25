@@ -102,7 +102,7 @@ void Seat::initSeat()
 
     // Spawn pool initialisation
     const std::vector<std::string>& pool = config.getFactionSpawnPool(mFaction);
-    OD_ASSERT_TRUE_MSG(!pool.empty(), "Empty spawn pool for faction=" + mFaction);
+    OD_ASSERT_TRUE_MSG(!pool.empty(), "Empty spawn pool seatId=" + Helper::toString(mId) + ", faction=" + mFaction);
     for(const std::string& defName : pool)
     {
         const CreatureDefinition* def = mGameMap->getClassDescription(defName);
@@ -116,7 +116,7 @@ void Seat::initSeat()
     // Get the default worker class
     std::string defaultWorkerClass = config.getFactionWorkerClass(mFaction);
     mDefaultWorkerClass = mGameMap->getClassDescription(defaultWorkerClass);
-    OD_ASSERT_TRUE_MSG(mDefaultWorkerClass != nullptr, "No valid default worker class for faction: " + mFaction);
+    OD_ASSERT_TRUE_MSG(mDefaultWorkerClass != nullptr, "No valid default worker class for seatId=" + Helper::toString(mId) + ", faction: " + mFaction);
 
     // We use a temporary vector to allow the corresponding functions to check the vector validity
     // and reject its content if it is not valid

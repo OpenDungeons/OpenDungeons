@@ -233,6 +233,7 @@ bool ODClient::processOneClientSocketMessage()
 
             MenuModeConfigureSeats* mode = static_cast<MenuModeConfigureSeats*>(frameListener->getModeManager()->getCurrentMode());
             mode->activatePlayerConfig();
+            break;
         }
 
         case ServerNotificationType::seatConfigurationRefresh:

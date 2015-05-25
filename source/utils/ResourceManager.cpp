@@ -83,6 +83,7 @@ const std::string ResourceManager::RESOURCEGROUPSOUND = "Sound";
  *  function macBundlePath does this for us.
  */
 ResourceManager::ResourceManager(boost::program_options::variables_map& options) :
+        mServerMode(false),
         mGameDataPath("./"),
         mUserDataPath("./"),
         mUserConfigPath("./")
@@ -305,6 +306,20 @@ void ResourceManager::setupUserDataFolders(boost::program_options::variables_map
         mOgreLogFile = mUserDataPath + LOGFILENAME;
     }
 
+    if(options.count("server") > 0)
+    {
+        // We change log file
+        mServerMode = true;
+        std::string filePath = getLevelPathMultiplayer() + options["server"].as<std::string>();
+        boost::filesystem::path level(filePath);
+        if(!boost::filesystem::exists(level))
+        {
+            std::cerr << "Wanted level not found: " << filePath <<  std::endl;
+            exit(1);
+        }
+        mServerModeLevel = level.string();
+    }
+
     mCeguiLogFile = mUserDataPath + CEGUILOGFILENAME;
     mShaderCachePath = mUserDataPath + SHADERCACHESUBPATH;
 
@@ -428,5 +443,16 @@ void ResourceManager::buildCommandOptions(boost::program_options::options_descri
 {
     desc.add_options()
         ("log", boost::program_options::value<std::string>(), "log file to use")
+        ("server", boost::program_options::value<std::string>(), "Launches the game on server mode and opens the given level")
     ;
+}
+
+std::string ResourceManager::getLevelPathSkirmish() const
+{
+    return getGameDataPath() + "levels/skirmish/";
+}
+
+std::string ResourceManager::getLevelPathMultiplayer() const
+{
+    return getGameDataPath() + "levels/multiplayer/";
 }

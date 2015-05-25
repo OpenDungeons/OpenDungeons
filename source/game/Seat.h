@@ -150,6 +150,24 @@ public:
     inline void setFaction(const std::string& faction)
     { mFaction = faction; }
 
+    inline int32_t getConfigPlayerId() const
+    { return mConfigPlayerId; }
+
+    inline void setConfigPlayerId(int32_t configPlayerId)
+    { mConfigPlayerId = configPlayerId; }
+
+    inline int32_t getConfigTeamId() const
+    { return mConfigTeamId; }
+
+    inline void setConfigTeamId(int32_t configTeamId)
+    { mConfigTeamId = configTeamId; }
+
+    inline int32_t getConfigFactionIndex() const
+    { return mConfigFactionIndex; }
+
+    inline void setConfigFactionIndex(int32_t configFactionIndex)
+    { mConfigFactionIndex = configFactionIndex; }
+
     inline const std::string& getColorId() const
     { return mColorId; }
 
@@ -460,6 +478,11 @@ private:
 
     //! \brief Researches not allowed. Used on server side only
     std::vector<ResearchType> mResearchNotAllowed;
+
+    //! \brief During seat configuration, we save temporary player id here
+    int32_t mConfigPlayerId;
+    int32_t mConfigTeamId;
+    int32_t mConfigFactionIndex;
 
     //! \brief On server side: Sets mCurrentResearch to the first entry in mResearchPending. If the pending
     //! list in empty, mCurrentResearch will be set to null

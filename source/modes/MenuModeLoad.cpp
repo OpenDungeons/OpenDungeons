@@ -26,7 +26,6 @@
 #include "network/ODServer.h"
 #include "network/ODClient.h"
 #include "network/ServerNotification.h"
-#include "ODApplication.h"
 #include "utils/LogManager.h"
 #include "gamemap/MapLoader.h"
 #include "utils/ConfigManager.h"

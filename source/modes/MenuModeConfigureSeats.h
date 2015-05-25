@@ -57,7 +57,7 @@ private:
     std::vector<int> mSeatIds;
     std::vector<std::pair<std::string, int32_t> > mPlayers;
 
-    void fireSeatConfigurationToServer(bool isFinal);
+    void fireSeatConfigurationToServer();
 };
 
 #endif // MENUMODECONFIGURESEATS_H

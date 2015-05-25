@@ -101,12 +101,18 @@ class ODServer: public Ogre::Singleton<ODServer>,
 
     void notifyExit();
 
+    //! This function will block the calling thread until the game is launched and
+    //! all the clients disconnect. Then, it will return true if everything went well
+    //! and false if there is an error (server not launched or system error)
+    bool waitEndGame();
+
 protected:
     bool notifyNewConnection(ODSocketClient *sock);
     bool notifyClientMessage(ODSocketClient *sock);
     void serverThread();
 
 private:
+    uint32_t mUniqueNumberPlayer;
     ServerMode mServerMode;
     ServerState mServerState;
     GameMap *mGameMap;
@@ -121,6 +127,7 @@ private:
     std::map<ODSocketClient*, std::vector<std::string>> mCreaturesInfoWanted;
 
     ODSocketClient* getClientFromPlayer(Player* player);
+    ODSocketClient* getClientFromPlayerId(int32_t playerId);
 
     //! \brief Called when a new turn started.
     void startNewTurn(double timeSinceLastTurn);
@@ -147,6 +154,8 @@ private:
 
     //! \brief Sends the packet to the given player. If player is nullptr, the packet is sent to every connected player
     void sendMsg(Player* player, ODPacket& packet);
+
+    void fireSeatConfigurationRefresh();
 };
 
 #endif // ODSERVER_H

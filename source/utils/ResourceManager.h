@@ -123,7 +123,20 @@ public:
     inline const std::string& getCeguiLogFile() const
     { return mCeguiLogFile; }
 
+    std::string getLevelPathSkirmish() const;
+
+    std::string getLevelPathMultiplayer() const;
+
+    inline bool isServerMode() const
+    { return mServerMode; }
+
+    inline const std::string& getServerModeLevel() const
+    { return mServerModeLevel; }
+
 private:
+    bool mServerMode;
+    std::string mServerModeLevel;
+
     //! \brief The application data path
     //! \example "/usr/share/game/opendungeons" on linux
     //! \example "C:/opendungeons" on windows
