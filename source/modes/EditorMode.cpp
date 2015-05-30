@@ -260,7 +260,6 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
         {
             mMouseX = inputManager.mXPos;
             mMouseY = inputManager.mYPos;
-            RenderManager::getSingleton().setHoveredTile(mMouseX, mMouseY);
             updateCursorText();
         }
 

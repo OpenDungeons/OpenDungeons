@@ -19,14 +19,13 @@
 
 #include "entities/Creature.h"
 #include "entities/Tile.h"
-
 #include "game/Player.h"
 #include "game/Seat.h"
-
 #include "gamemap/GameMap.h"
-
+#include "modes/InputCommand.h"
+#include "modes/InputManager.h"
+#include "network/ODClient.h"
 #include "spells/SpellManager.h"
-
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
@@ -68,69 +67,77 @@ void SpellCallToWar::slap()
     deleteYourself();
 }
 
-int SpellCallToWar::getSpellCost(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
-    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+void SpellCallToWar::checkSpellCast(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
 {
-    // Call to war can be cast on every tile where fullness = 0 (no matter type or vision)
-    std::vector<EntityBase*> tiles;
-    gameMap->playerSelects(tiles, tileX1, tileY1, tileX2, tileY2, SelectionTileAllowed::groundTiles,
-        SelectionEntityWanted::tiles, player);
+    Player* player = gameMap->getLocalPlayer();
 
-    int32_t pricePerTile = ConfigManager::getSingleton().getSpellConfigInt32("CallToWarPrice");
-    if(tiles.empty())
-        return pricePerTile;
+    Tile* tile = gameMap->getTile(inputManager.mXPos, inputManager.mYPos);
+    if(tile == nullptr)
+        return;
 
-    int32_t priceTotal = 0;
     int32_t playerMana = static_cast<int32_t>(player->getSeat()->getMana());
-    for(EntityBase* target : tiles)
+    int32_t price = ConfigManager::getSingleton().getSpellConfigInt32("CallToWarPrice");
+    if(inputManager.mCommandState == InputCommandState::infoOnly)
     {
-        if(target->getObjectType() != GameEntityType::tile)
+        if(playerMana < price)
         {
-            static bool logMsg = false;
-            if(!logMsg)
-            {
-                logMsg = true;
-                OD_ASSERT_TRUE_MSG(false, "Wrong target name=" + target->getName() + ", type=" + Helper::toString(static_cast<int32_t>(target->getObjectType())));
-            }
-            continue;
+            std::string txt = formatSpellPrice(SpellType::callToWar, price);
+            inputCommand.displayText(Ogre::ColourValue::Red, txt);
         }
-
-        targets.push_back(target);
-        priceTotal += pricePerTile;
-        playerMana -= pricePerTile;
-        if(playerMana < pricePerTile)
-            return priceTotal;
+        else
+        {
+            std::string txt = formatSpellPrice(SpellType::callToWar, price);
+            inputCommand.displayText(Ogre::ColourValue::White, txt);
+        }
+        inputCommand.selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos,
+            inputManager.mYPos);
+        return;
     }
 
-    return priceTotal;
+    if(inputManager.mCommandState == InputCommandState::building)
+    {
+        std::string txt = formatSpellPrice(SpellType::callToWar, price);
+        inputCommand.displayText(Ogre::ColourValue::White, txt);
+        std::vector<Tile*> tiles;
+        tiles.push_back(tile);
+        inputCommand.selectTiles(tiles);
+        return;
+    }
+
+    inputCommand.unselectAllTiles();
+
+    ClientNotification *clientNotification = SpellManager::createSpellClientNotification(SpellType::callToWar);
+    gameMap->tileToPacket(clientNotification->mPacket, tile);
+
+    ODClient::getSingleton().queueClientNotification(clientNotification);
 }
 
-void SpellCallToWar::castSpell(GameMap* gameMap, const std::vector<EntityBase*>& targets, Player* player)
+bool SpellCallToWar::castSpell(GameMap* gameMap, Player* player, ODPacket& packet)
 {
-    player->setSpellCooldownTurns(SpellType::callToWar, ConfigManager::getSingleton().getSpellConfigUInt32("CallToWarCooldown"));
-    for(EntityBase* target : targets)
-    {
-        if(target->getObjectType() != GameEntityType::tile)
-        {
-            static bool logMsg = false;
-            if(!logMsg)
-            {
-                logMsg = true;
-                OD_ASSERT_TRUE_MSG(false, "Wrong target name=" + target->getName() + ", type=" + Helper::toString(static_cast<int32_t>(target->getObjectType())));
-            }
-            continue;
-        }
+    Tile* tile = gameMap->tileFromPacket(packet);
+    if(tile == nullptr)
+        return false;
 
-        Tile* tile = static_cast<Tile*>(target);
-        SpellCallToWar* spell = new SpellCallToWar(gameMap, true);
-        spell->setSeat(player->getSeat());
-        spell->addToGameMap();
-        Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(tile->getX()),
-                                    static_cast<Ogre::Real>(tile->getY()),
-                                    static_cast<Ogre::Real>(0.0));
-        spell->createMesh();
-        spell->setPosition(spawnPosition, false);
-    }
+    int32_t playerMana = static_cast<int32_t>(player->getSeat()->getMana());
+    int32_t manaCost = ConfigManager::getSingleton().getSpellConfigInt32("CallToWarPrice");
+    if(playerMana < manaCost)
+        return false;
+
+    if(!player->getSeat()->takeMana(manaCost))
+        return false;
+
+    player->setSpellCooldownTurns(SpellType::callToWar, ConfigManager::getSingleton().getSpellConfigUInt32("CallToWarCooldown"));
+
+    SpellCallToWar* spell = new SpellCallToWar(gameMap, true);
+    spell->setSeat(player->getSeat());
+    spell->addToGameMap();
+    Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(tile->getX()),
+                                static_cast<Ogre::Real>(tile->getY()),
+                                static_cast<Ogre::Real>(0.0));
+    spell->createMesh();
+    spell->setPosition(spawnPosition, false);
+
+    return true;
 }
 
 Spell* SpellCallToWar::getSpellFromStream(GameMap* gameMap, std::istream &is)

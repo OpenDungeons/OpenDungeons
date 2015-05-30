@@ -1273,10 +1273,9 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
         case ClientNotificationType::askCastSpell:
         {
-            int x1, y1, x2, y2;
             SpellType spellType;
 
-            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> spellType);
+            OD_ASSERT_TRUE(packetReceived >> spellType);
             Player* player = clientSocket->getPlayer();
 
             // We check if the spell is available. It is not normal to receive a message
@@ -1298,17 +1297,9 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 break;
             }
 
-            std::vector<EntityBase*> targets;
-            int manaRequired = SpellManager::getSpellCost(targets, gameMap, spellType, x1, y1, x2, y2, player);
-
-            // If there are no suitable targets, we do not cast the spell (and, thus, do not decrease mana or trigger countdown
-            if(targets.empty())
+            if(!SpellManager::castSpell(gameMap, spellType, player, packetReceived))
                 break;
 
-            if(!player->getSeat()->takeMana(manaRequired))
-                break;
-
-            SpellManager::castSpell(mGameMap, spellType, targets, player);
             break;
         }
 

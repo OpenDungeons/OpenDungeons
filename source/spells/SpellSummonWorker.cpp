@@ -20,107 +20,55 @@
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
 #include "entities/Tile.h"
-
 #include "game/Player.h"
-
 #include "game/Seat.h"
-
 #include "gamemap/GameMap.h"
-
+#include "modes/InputCommand.h"
+#include "modes/InputManager.h"
+#include "network/ODClient.h"
 #include "spells/SpellType.h"
 #include "spells/SpellManager.h"
-
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
 static SpellManagerRegister<SpellSummonWorker> reg(SpellType::summonWorker, "summonWorker");
 
-int SpellSummonWorker::getSpellCost(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
-    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+void SpellSummonWorker::checkSpellCast(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
 {
-    std::vector<EntityBase*> tiles;
-    gameMap->playerSelects(tiles, tileX1, tileY1, tileX2, tileY2, SelectionTileAllowed::groundClaimedAllied,
-        SelectionEntityWanted::tiles, player);
+    Player* player = gameMap->getLocalPlayer();
+    int32_t playerMana = static_cast<int32_t>(player->getSeat()->getMana());
+
+    if(inputManager.mCommandState == InputCommandState::infoOnly)
+    {
+        int32_t price = getNextWorkerPriceForPlayer(gameMap, player);
+        if(playerMana < price)
+        {
+            std::string txt = formatSpellPrice(SpellType::summonWorker, price);
+            inputCommand.displayText(Ogre::ColourValue::Red, txt);
+        }
+        else
+        {
+            std::string txt = formatSpellPrice(SpellType::summonWorker, price);
+            inputCommand.displayText(Ogre::ColourValue::White, txt);
+        }
+        inputCommand.selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos, inputManager.mYPos);
+        return;
+    }
+
+    std::vector<EntityBase*> targets;
+    gameMap->playerSelects(targets, inputManager.mXPos, inputManager.mYPos, inputManager.mLStartDragX,
+        inputManager.mLStartDragY, SelectionTileAllowed::groundClaimedAllied, SelectionEntityWanted::tiles, player);
 
     int32_t nbFreeWorkers = ConfigManager::getSingleton().getSpellConfigInt32("SummonWorkerNbFree");
     int32_t nbWorkers = gameMap->getNbWorkersForSeat(player->getSeat());
     int32_t pricePerWorker = ConfigManager::getSingleton().getSpellConfigInt32("SummonWorkerBasePrice");
     if(nbWorkers > nbFreeWorkers)
-    {
         pricePerWorker *= std::pow(2, nbWorkers - nbFreeWorkers);
-    }
-
-    if(tiles.empty())
-        return pricePerWorker;
 
     int32_t priceTotal = 0;
-    int32_t nbWorkersSummoned = 0;
-    int32_t playerMana = static_cast<int32_t>(player->getSeat()->getMana());
 
-    for(EntityBase* target : tiles)
-    {
-        if(target->getObjectType() != GameEntityType::tile)
-        {
-            static bool logMsg = false;
-            if(!logMsg)
-            {
-                logMsg = true;
-                OD_ASSERT_TRUE_MSG(false, "Wrong target name=" + target->getName() + ", type=" + Helper::toString(static_cast<int32_t>(target->getObjectType())));
-            }
-            continue;
-        }
-
-        ++nbWorkers;
-        if(nbWorkers <= nbFreeWorkers)
-        {
-            ++nbWorkersSummoned;
-            continue;
-        }
-
-        int32_t newPrice = priceTotal + pricePerWorker;
-        if(newPrice > playerMana)
-        {
-            // If the spell is more expensive than the mana we have, we return the last maximum we can afford.
-            if(nbWorkersSummoned > 0)
-                break;
-
-            return newPrice;
-        }
-        ++nbWorkersSummoned;
-        priceTotal = newPrice;
-        pricePerWorker *= 2;
-    }
-
-    if(nbWorkersSummoned <= 0)
-        return priceTotal;
-
-    std::random_shuffle(tiles.begin(), tiles.end());
-    for(EntityBase* tile : tiles)
-    {
-        if(nbWorkersSummoned <= 0)
-            break;
-
-        --nbWorkersSummoned;
-        targets.push_back(tile);
-    }
-
-    return priceTotal;
-}
-
-void SpellSummonWorker::castSpell(GameMap* gameMap, const std::vector<EntityBase*>& targets, Player* player)
-{
-    player->setSpellCooldownTurns(SpellType::summonWorker, ConfigManager::getSingleton().getSpellConfigUInt32("SummonWorkerCooldown"));
-    // Creates a creature from the first worker class found for the given faction.
-    const CreatureDefinition* classToSpawn = player->getSeat()->getWorkerClassToSpawn();
-
-    if (classToSpawn == nullptr)
-    {
-        OD_ASSERT_TRUE_MSG(false, "No worker creature definition, class=nullptr, player="
-            + player->getNick());
-        return;
-    }
-
+    std::vector<Tile*> tiles;
     for(EntityBase* target : targets)
     {
         if(target->getObjectType() != GameEntityType::tile)
@@ -135,7 +83,106 @@ void SpellSummonWorker::castSpell(GameMap* gameMap, const std::vector<EntityBase
         }
 
         Tile* tile = static_cast<Tile*>(target);
-         // Create a new creature and copy over the class-based creature parameters.
+        ++nbWorkers;
+        if(nbWorkers <= nbFreeWorkers)
+        {
+            tiles.push_back(tile);
+            continue;
+        }
+
+        int32_t newPrice = priceTotal + pricePerWorker;
+        if(newPrice > playerMana)
+                break;
+
+        tiles.push_back(tile);
+        priceTotal = newPrice;
+        pricePerWorker *= 2;
+    }
+
+    if(inputManager.mCommandState == InputCommandState::building)
+    {
+        std::string txt = formatSpellPrice(SpellType::summonWorker, priceTotal);
+        inputCommand.displayText(Ogre::ColourValue::White, txt);
+        inputCommand.selectTiles(tiles);
+        return;
+    }
+
+    inputCommand.unselectAllTiles();
+
+    ClientNotification *clientNotification = SpellManager::createSpellClientNotification(SpellType::summonWorker);
+    uint32_t nbTiles = tiles.size();
+    clientNotification->mPacket << nbTiles;
+    for(Tile* tile : tiles)
+        gameMap->tileToPacket(clientNotification->mPacket, tile);
+
+    ODClient::getSingleton().queueClientNotification(clientNotification);
+}
+
+bool SpellSummonWorker::castSpell(GameMap* gameMap, Player* player, ODPacket& packet)
+{
+    uint32_t nbTiles;
+    OD_ASSERT_TRUE(packet >> nbTiles);
+    std::vector<Tile*> tiles;
+    while(nbTiles > 0)
+    {
+        --nbTiles;
+        Tile* tile = gameMap->tileFromPacket(packet);
+        if(tile == nullptr)
+            return false;
+
+        tiles.push_back(tile);
+    }
+
+    if(tiles.empty())
+        return false;
+
+    return summonWorkersOnTiles(gameMap, player, tiles);
+}
+
+bool SpellSummonWorker::summonWorkersOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles)
+{
+    // Creates a creature from the first worker class found for the given faction.
+    const CreatureDefinition* classToSpawn = player->getSeat()->getWorkerClassToSpawn();
+
+    if (classToSpawn == nullptr)
+    {
+        OD_ASSERT_TRUE_MSG(false, "No worker creature definition, class=nullptr, player=" + player->getNick());
+        return false;
+    }
+
+    int32_t nbFreeWorkers = ConfigManager::getSingleton().getSpellConfigInt32("SummonWorkerNbFree");
+    int32_t nbWorkers = gameMap->getNbWorkersForSeat(player->getSeat());
+    int32_t pricePerWorker = ConfigManager::getSingleton().getSpellConfigInt32("SummonWorkerBasePrice");
+    if(nbWorkers > nbFreeWorkers)
+        pricePerWorker *= std::pow(2, nbWorkers - nbFreeWorkers);
+
+    int32_t playerMana = static_cast<int32_t>(player->getSeat()->getMana());
+    int32_t manaCost = pricePerWorker;
+
+    std::vector<Tile*> tilesSummon;
+    for(Tile* tile : tiles)
+    {
+        if(nbWorkers < nbFreeWorkers)
+        {
+            tilesSummon.push_back(tile);
+            ++nbWorkers;
+            continue;
+        }
+
+        if(playerMana < manaCost)
+            break;
+
+        tilesSummon.push_back(tile);
+        ++nbWorkers;
+        manaCost += pricePerWorker;
+        pricePerWorker *= 2;
+    }
+
+    if(!player->getSeat()->takeMana(manaCost))
+        return false;
+
+    for(Tile* tile : tilesSummon)
+    {
         Creature* newCreature = new Creature(gameMap, true, classToSpawn, player->getSeat());
         LogManager::getSingleton().logMessage("Spawning a creature class=" + classToSpawn->getClassName()
             + ", name=" + newCreature->getName() + ", seatId=" + Helper::toString(player->getSeat()->getId()));
@@ -146,7 +193,24 @@ void SpellSummonWorker::castSpell(GameMap* gameMap, const std::vector<EntityBase
                                     static_cast<Ogre::Real>(0.0));
         newCreature->createMesh();
         newCreature->setPosition(spawnPosition, false);
-   }
+    }
+
+    player->setSpellCooldownTurns(SpellType::summonWorker, ConfigManager::getSingleton().getSpellConfigUInt32("SummonWorkerCooldown"));
+
+    return true;
+}
+
+int32_t SpellSummonWorker::getNextWorkerPriceForPlayer(GameMap* gameMap, Player* player)
+{
+    int32_t nbWorkers = gameMap->getNbWorkersForSeat(player->getSeat());
+    int32_t nbFreeWorkers = ConfigManager::getSingleton().getSpellConfigInt32("SummonWorkerNbFree");
+    if(nbWorkers < nbFreeWorkers)
+        return 0;
+
+    int32_t price = ConfigManager::getSingleton().getSpellConfigInt32("SummonWorkerBasePrice");
+    price *= std::pow(2, nbWorkers - nbFreeWorkers);
+
+    return price;
 }
 
 Spell* SpellSummonWorker::getSpellFromStream(GameMap* gameMap, std::istream &is)

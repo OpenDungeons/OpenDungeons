@@ -15,24 +15,30 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SPELLCREATUREEXPLOSION_H
-#define SPELLCREATUREEXPLOSION_H
+#ifndef INPUTCOMMAND_H
+#define INPUTCOMMAND_H
 
-#include "spells/Spell.h"
-#include "spells/SpellType.h"
+#include <string>
+#include <vector>
 
-class GameMap;
-class InputCommand;
-class InputManager;
+namespace Ogre
+{
+class ColourValue;
+}
 
-class SpellCreatureExplosion : public Spell
+class Tile;
+
+//! Abstract class used for spell manager clients (on client side)
+class InputCommand
 {
 public:
-    static void checkSpellCast(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
-    static bool castSpell(GameMap* gameMap, Player* player, ODPacket& packet);
-
-    static Spell* getSpellFromStream(GameMap* gameMap, std::istream &is);
-    static Spell* getSpellFromPacket(GameMap* gameMap, ODPacket &is);
+    //! \brief Notify the InputCommand that we want to display tiles within given square
+    //! as selected for the local player
+    virtual void selectSquaredTiles(int tileX1, int tileY1, int tileX2, int tileY2) = 0;
+    virtual void selectTiles(const std::vector<Tile*> tiles) = 0;
+    //! \brief Notify the InputCommand that we want to display the given text to the local player
+    virtual void displayText(const Ogre::ColourValue& txtColour, const std::string& txt) = 0;
 };
 
-#endif // SPELLCREATUREEXPLOSION_H
+
+#endif // INPUTCOMMAND_H

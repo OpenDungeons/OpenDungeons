@@ -80,13 +80,11 @@ RenderManager::RenderManager(Ogre::OverlaySystem* overlaySystem) :
     mViewport(nullptr),
     mShaderGenerator(nullptr),
     mHandLight(nullptr),
-    mHandSquareSelectorNode(nullptr),
     mHandKeeperMesh(nullptr),
     mCurrentFOVy(0.0f),
     mFactorWidth(0.0f),
     mFactorHeight(0.0f),
     mCreatureTextOverlayDisplayed(false),
-    mHandSquareSelectorVisibility(0),
     mHandKeeperHandVisibility(0)
 {
     // Use Ogre::SceneType enum instead of string to identify the scene manager type; this is more robust!
@@ -138,21 +136,12 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     // Sets the overall world lighting.
     mSceneManager->setAmbientLight(Ogre::ColourValue(0.3, 0.3, 0.3));
 
-    // Create the scene nodes that will follow the mouse pointer.
-    // Create the single tile selection mesh
-    Ogre::Entity* squareSelectorEnt = mSceneManager->createEntity("SquareSelector", "SquareSelector.mesh");
-    squareSelectorEnt->setLightMask(0);
-    squareSelectorEnt->setCastShadows(false);
-    mHandSquareSelectorNode = mSceneManager->getRootSceneNode()->createChildSceneNode("SquareSelectorNode");
-    mHandSquareSelectorNode->translate(Ogre::Vector3(0, 0, 0));
-    mHandSquareSelectorNode->scale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,
-                              BLENDER_UNITS_PER_OGRE_UNIT, 0.45 * BLENDER_UNITS_PER_OGRE_UNIT));
-    mHandSquareSelectorNode->attachObject(squareSelectorEnt);
-    Ogre::SceneNode *node2 = mHandSquareSelectorNode->createChildSceneNode("Hand_node");
-    node2->setPosition(static_cast<Ogre::Real>(0.0),
+    // Create the nodes that will follow the mouse pointer.
+    Ogre::SceneNode *handNode = mSceneManager->getRootSceneNode()->createChildSceneNode("Hand_node");
+    handNode->setPosition(static_cast<Ogre::Real>(0.0),
                        static_cast<Ogre::Real>(0.0 / BLENDER_UNITS_PER_OGRE_UNIT),
                        static_cast<Ogre::Real>(3.0 / BLENDER_UNITS_PER_OGRE_UNIT));
-    node2->scale(Ogre::Vector3(static_cast<Ogre::Real>(1.0 / BLENDER_UNITS_PER_OGRE_UNIT),
+    handNode->scale(Ogre::Vector3(static_cast<Ogre::Real>(1.0 / BLENDER_UNITS_PER_OGRE_UNIT),
                                static_cast<Ogre::Real>(1.0 / BLENDER_UNITS_PER_OGRE_UNIT),
                                static_cast<Ogre::Real>(1.0 / BLENDER_UNITS_PER_OGRE_UNIT)));
 
@@ -195,7 +184,6 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     mHandLight->setPosition(0.0f, 0.0f, KEEPER_HAND_WORLD_Z);
     mHandLight->setAttenuation(7, 1.0, 0.00, 0.3);
 
-    mHandSquareSelectorNode->setVisible(mHandSquareSelectorVisibility == 0);
     mHandKeeperMesh->setVisible(mHandKeeperHandVisibility == 0);
 }
 
@@ -1094,17 +1082,11 @@ void RenderManager::rrTemporaryDisplayCreaturesTextOverlay(Creature* creature, O
 
 void RenderManager::rrToggleHandSelectorVisibility()
 {
-    if((mHandSquareSelectorVisibility & 0x01) == 0)
-        mHandSquareSelectorVisibility |= 0x01;
-    else
-        mHandSquareSelectorVisibility &= ~0x01;
-
     if((mHandKeeperHandVisibility & 0x01) == 0)
         mHandKeeperHandVisibility |= 0x01;
     else
         mHandKeeperHandVisibility &= ~0x01;
 
-    mHandSquareSelectorNode->setVisible(mHandSquareSelectorVisibility == 0);
     mHandKeeperMesh->setVisible(mHandKeeperHandVisibility == 0);
 }
 
@@ -1224,11 +1206,6 @@ void RenderManager::moveCursor(float relX, float relY)
 void RenderManager::moveWorldCoords(Ogre::Real x, Ogre::Real y)
 {
     mHandLight->setPosition(x, y, KEEPER_HAND_WORLD_Z);
-}
-
-void RenderManager::setHoveredTile(int tileX, int tileY)
-{
-    mHandSquareSelectorNode->setPosition(static_cast<Ogre::Real>(tileX), static_cast<Ogre::Real>(tileY), 0.0f);
 }
 
 void RenderManager::entitySlapped()

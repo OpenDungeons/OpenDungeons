@@ -345,6 +345,11 @@ bool ODClient::processOneClientSocketMessage()
             OD_ASSERT_TRUE(packetReceived >> serverMode);
 
             // Now that the we have received all needed information, we can launch the requested mode
+            LogManager::getSingleton().logMessage("Starting game map");
+            gameMap->setGamePaused(false);
+            // Create ogre entities for the tiles, rooms, and creatures
+            gameMap->createAllEntities();
+
             switch(serverMode)
             {
                 case ServerMode::ModeGameSinglePlayer:

@@ -176,6 +176,11 @@ std::string Spell::getSpellStreamFormat()
     return "typeSpell\t" + format;
 }
 
+std::string Spell::formatSpellPrice(SpellType type, uint32_t price)
+{
+    return SpellManager::getSpellNameFromSpellType(type) + " [" + Helper::toString(price)+ " Mana]";
+}
+
 void Spell::exportHeadersToStream(std::ostream& os) const
 {
     RenderedMovableEntity::exportHeadersToStream(os);

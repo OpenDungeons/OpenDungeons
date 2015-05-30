@@ -26,8 +26,7 @@
 #include "rooms/RoomManager.h"
 #include "rooms/RoomTreasury.h"
 #include "rooms/RoomType.h"
-#include "spells/SpellManager.h"
-#include "spells/SpellType.h"
+#include "spells/SpellSummonWorker.h"
 #include "utils/LogManager.h"
 #include "utils/Random.h"
 
@@ -735,21 +734,23 @@ bool KeeperAI::handleWorkers()
 
     // We want to use the first covered tile because the central might be destroyed and enemy claimed
     // and, if it is the case, we will not be able to spawn a worker.
-    Tile* tile = getDungeonTemple()->getCoveredTile(0);
-    std::vector<EntityBase*> tiles;
-    int summonCost = SpellManager::getSpellCost(tiles, &mGameMap, SpellType::summonWorker,
-        tile->getX(), tile->getY(), tile->getX(), tile->getY(), &mPlayer);
     int mana = static_cast<int>(mPlayer.getSeat()->getMana());
+    int summonCost = SpellSummonWorker::getNextWorkerPriceForPlayer(&mGameMap, &mPlayer);
     if(mana < summonCost)
         return false;
+
 
     // If we have less than 4 workers or we have the chance, we summon
     int nbWorkers = mGameMap.getNbWorkersForSeat(mPlayer.getSeat());
     if((nbWorkers < 4) ||
        (Random::Int(0, nbWorkers * 3) == 0))
     {
-        mPlayer.getSeat()->takeMana(mana);
-        SpellManager::castSpell(&mGameMap, SpellType::summonWorker, tiles, &mPlayer);
+        Tile* tile = getDungeonTemple()->getCoveredTile(0);
+        std::vector<Tile*> tiles;
+        tiles.push_back(tile);
+        if(!SpellSummonWorker::summonWorkersOnTiles(&mGameMap, &mPlayer, tiles))
+            return false;
+
         return true;
     }
 

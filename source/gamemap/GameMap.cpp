@@ -1341,23 +1341,6 @@ int GameMap::getNbFightersForSeat(Seat* seat) const
 
 void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
 {
-    // During the first turn, we setup everything
-    if(getTurnNumber() == 0 && !isServerGameMap())
-    {
-        assert(getTile(0, 0) != nullptr);
-        //NOTE: This test is a workaround to prevent this being called more than once.
-        //This should probably be fixed in a better way.
-        if(!getTile(0, 0)->isMeshExisting())
-        {
-            LogManager::getSingleton().logMessage("Starting game map");
-
-            setGamePaused(false);
-
-            // Create ogre entities for the tiles, rooms, and creatures
-            createAllEntities();
-        }
-    }
-
     if(mIsPaused)
         return;
 

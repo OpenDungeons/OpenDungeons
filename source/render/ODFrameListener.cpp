@@ -27,7 +27,6 @@
 #include "gamemap/GameMap.h"
 #include "modes/AbstractApplicationMode.h"
 #include "modes/ModeManager.h"
-#include "modes/GameMode.h"
 #include "network/ODServer.h"
 #include "network/ODClient.h"
 #include "render/Gui.h"

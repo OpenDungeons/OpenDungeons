@@ -82,7 +82,6 @@ public:
     //!  moveWorldCoords sends the world coords where the map light is
     void moveCursor(float relX, float relY);
     void moveWorldCoords(Ogre::Real x, Ogre::Real y);
-    void setHoveredTile(int tileX, int tileY);
     void entitySlapped();
 
     static const Ogre::Real BLENDER_UNITS_PER_OGRE_UNIT;
@@ -166,7 +165,6 @@ private:
 
     //! For the keeper hand
     Ogre::Light* mHandLight;
-    Ogre::SceneNode* mHandSquareSelectorNode;
     Ogre::SceneNode* mHandKeeperMesh;
     Ogre::Radian mCurrentFOVy;
     Ogre::Real mFactorWidth;
@@ -175,8 +173,7 @@ private:
     //! \brief True if the creatures are currently displaying their text overlay
     bool mCreatureTextOverlayDisplayed;
 
-    //! Bit array to allow to display tile selector/hand (= 0) or not (!= 0)
-    uint32_t mHandSquareSelectorVisibility;
+    //! Bit array to allow to display tile hand (= 0) or not (!= 0)
     uint32_t mHandKeeperHandVisibility;
 };
 

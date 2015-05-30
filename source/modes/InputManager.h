@@ -32,6 +32,13 @@ namespace Ogre
   class RenderWindow;
 }
 
+enum class InputCommandState
+{
+    infoOnly, // When the player is only moving mouse (but not building)
+    building, // When the player is building (but has not validated he build)
+    validated // When the player is happy with the build and wants to build
+};
+
 class InputManager
 {
 public:
@@ -52,6 +59,7 @@ public:
     int                 mXPos, mYPos;
     int                 mLStartDragX, mLStartDragY;
     int                 mRStartDragX, mRStartDragY;
+    InputCommandState   mCommandState;
 };
 
 #endif // INPUTMANAGER_H
