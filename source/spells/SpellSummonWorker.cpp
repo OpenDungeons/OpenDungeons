@@ -157,7 +157,7 @@ bool SpellSummonWorker::summonWorkersOnTiles(GameMap* gameMap, Player* player, c
         pricePerWorker *= std::pow(2, nbWorkers - nbFreeWorkers);
 
     int32_t playerMana = static_cast<int32_t>(player->getSeat()->getMana());
-    int32_t manaCost = pricePerWorker;
+    int32_t priceTotal = 0;
 
     std::vector<Tile*> tilesSummon;
     for(Tile* tile : tiles)
@@ -169,16 +169,16 @@ bool SpellSummonWorker::summonWorkersOnTiles(GameMap* gameMap, Player* player, c
             continue;
         }
 
-        if(playerMana < manaCost)
-            break;
+        int32_t newPrice = priceTotal + pricePerWorker;
+        if(newPrice > playerMana)
+                break;
 
         tilesSummon.push_back(tile);
-        ++nbWorkers;
-        manaCost += pricePerWorker;
+        priceTotal = newPrice;
         pricePerWorker *= 2;
     }
 
-    if(!player->getSeat()->takeMana(manaCost))
+    if(!player->getSeat()->takeMana(priceTotal))
         return false;
 
     for(Tile* tile : tilesSummon)
