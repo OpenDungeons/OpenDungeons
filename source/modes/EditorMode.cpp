@@ -332,6 +332,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         inputManager.mRStartDragY = inputManager.mYPos;
 
         // Stop creating rooms, traps, etc.
+        unselectAllTiles();
         mPlayerSelection.setCurrentAction(SelectedAction::none);
         mCurrentTileVisual = TileVisual::nullTileVisual;
         TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "");
@@ -486,7 +487,6 @@ void EditorMode::updateCursorText()
     posWin = mRootWindow->getChild(Gui::EDITOR_SEAT_ID);
     textSS.str("");
     textSS << "Seat id (Y): " << getModeManager().getInputManager().mSeatIdSelected;
-;
     posWin->setText(textSS.str());
 
     // Update the seat id
@@ -916,6 +916,8 @@ void EditorMode::checkInputCommand()
 
     switch(mPlayerSelection.getCurrentAction())
     {
+        case SelectedAction::changeTile:
+            break;
         case SelectedAction::buildRoom:
             RoomManager::checkBuildRoomEditor(mGameMap, mPlayerSelection.getNewRoomType(), inputManager, *this);
             return;
@@ -934,4 +936,63 @@ void EditorMode::checkInputCommand()
         default:
             return;
     }
+
+    if(inputManager.mCommandState == InputCommandState::infoOnly)
+    {
+        selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos,
+            inputManager.mYPos);
+        displayText(Ogre::ColourValue::White, Tile::tileVisualToString(mCurrentTileVisual));
+        return;
+    }
+
+    if(inputManager.mCommandState == InputCommandState::building)
+    {
+        selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mLStartDragX,
+            inputManager.mLStartDragY);
+        displayText(Ogre::ColourValue::White, Tile::tileVisualToString(mCurrentTileVisual));
+        return;
+    }
+
+    unselectAllTiles();
+    displayText(Ogre::ColourValue::White, "");
+
+    TileType tileType = TileType::nullTileType;
+    double fullness = mCurrentFullness;
+    int seatId = -1;
+    switch(mCurrentTileVisual)
+    {
+        case TileVisual::dirtGround:
+            tileType = TileType::dirt;
+            break;
+        case TileVisual::goldGround:
+            tileType = TileType::gold;
+            break;
+        case TileVisual::rockGround:
+            tileType = TileType::rock;
+            break;
+        case TileVisual::claimedGround:
+        case TileVisual::claimedFull:
+            tileType = TileType::dirt;
+            seatId = inputManager.mSeatIdSelected;
+            break;
+        case TileVisual::waterGround:
+            tileType = TileType::water;
+            fullness = 0.0;
+            break;
+        case TileVisual::lavaGround:
+            tileType = TileType::lava;
+            fullness = 0.0;
+            break;
+        default:
+            return;
+    }
+
+    ClientNotification *clientNotification = new ClientNotification(
+        ClientNotificationType::editorAskChangeTiles);
+    clientNotification->mPacket << inputManager.mXPos << inputManager.mYPos;
+    clientNotification->mPacket << inputManager.mLStartDragX << inputManager.mLStartDragY;
+    clientNotification->mPacket << tileType;
+    clientNotification->mPacket << fullness;
+    clientNotification->mPacket << seatId;
+    ODClient::getSingleton().queueClientNotification(clientNotification);
 }
