@@ -1671,6 +1671,12 @@ bool Creature::handleClaimWallTileAction(const CreatureAction& actionItem)
 
     // Find paths to all of the neighbor tiles for all of the visible wall tiles.
     std::vector<Tile*> wallTiles = getVisibleClaimableWallTiles();
+    if(wallTiles.empty())
+    {
+        mForceAction = forcedActionNone;
+        popAction();
+        return true;
+    }
 
     // Take the shortest path.
     unsigned int shortestPath = 10000;
