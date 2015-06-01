@@ -17,22 +17,25 @@
 
 #include "traps/Trap.h"
 
-#include "network/ODServer.h"
-#include "network/ServerNotification.h"
 #include "entities/CraftedTrap.h"
 #include "entities/Creature.h"
+#include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 #include "entities/TrapEntity.h"
+#include "game/Player.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
-#include "entities/RenderedMovableEntity.h"
+#include "modes/InputCommand.h"
+#include "modes/InputManager.h"
+#include "network/ODClient.h"
+#include "network/ODServer.h"
+#include "network/ServerNotification.h"
 #include "traps/TrapManager.h"
 #include "traps/TrapType.h"
-#include "utils/Random.h"
-#include "game/Player.h"
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
+#include "utils/Random.h"
 
 #include <istream>
 #include <ostream>
@@ -280,13 +283,13 @@ bool Trap::hasCarryEntitySpot(GameEntity* carriedEntity)
 Tile* Trap::askSpotForCarriedEntity(GameEntity* carriedEntity)
 {
     OD_ASSERT_TRUE_MSG(carriedEntity->getObjectType() == GameEntityType::craftedTrap,
-        "room=" + getName() + ", entity=" + carriedEntity->getName());
+        "Trap=" + getName() + ", entity=" + carriedEntity->getName());
     if(carriedEntity->getObjectType() != GameEntityType::craftedTrap)
         return nullptr;
 
     CraftedTrap* craftedTrap = static_cast<CraftedTrap*>(carriedEntity);
     OD_ASSERT_TRUE_MSG(craftedTrap->getTrapType() == getType(),
-        "room=" + getName() + ", entity=" + carriedEntity->getName());
+        "Trap=" + getName() + ", entity=" + carriedEntity->getName());
     if(craftedTrap->getTrapType() != getType())
         return nullptr;
 
@@ -551,9 +554,101 @@ void Trap::claimForSeat(Seat* seat, Tile* tile, double danceRate)
     trapTileData->mHP = 0.0;
     tile->claimTile(seat);
 }
-
-void Trap::buildTrapDefault(GameMap* gameMap, Trap* trap, const std::vector<Tile*>& tiles, Seat* seat)
+std::string Trap::formatTrapPrice(TrapType type, uint32_t price)
 {
+    return TrapManager::getTrapNameFromTrapType(type) + " [" + Helper::toString(price)+ " gold]";
+}
+
+void Trap::checkBuildTrapDefault(GameMap* gameMap, TrapType type, const InputManager& inputManager, InputCommand& inputCommand)
+{
+    Player* player = gameMap->getLocalPlayer();
+    int32_t pricePerTarget = TrapManager::costPerTile(type);
+    int32_t playerGold = static_cast<int32_t>(player->getSeat()->getGold());
+    if(inputManager.mCommandState == InputCommandState::infoOnly)
+    {
+        if(playerGold < pricePerTarget)
+        {
+            std::string txt = formatTrapPrice(type, pricePerTarget);
+            inputCommand.displayText(Ogre::ColourValue::Red, txt);
+        }
+        else
+        {
+            std::string txt = formatTrapPrice(type, pricePerTarget);
+            inputCommand.displayText(Ogre::ColourValue::White, txt);
+        }
+        inputCommand.selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos,
+            inputManager.mYPos);
+        return;
+    }
+
+    std::vector<Tile*> buildableTiles = gameMap->getBuildableTilesForPlayerInArea(inputManager.mXPos,
+        inputManager.mYPos, inputManager.mLStartDragX, inputManager.mLStartDragY, player);
+
+    if(inputManager.mCommandState == InputCommandState::building)
+        inputCommand.selectTiles(buildableTiles);
+
+    if(buildableTiles.empty())
+    {
+        std::string txt = formatTrapPrice(type, 0);
+        inputCommand.displayText(Ogre::ColourValue::White, txt);
+        return;
+    }
+
+    int32_t priceTotal = static_cast<int32_t>(buildableTiles.size()) * pricePerTarget;
+    if(playerGold < priceTotal)
+    {
+        std::string txt = formatTrapPrice(type, priceTotal);
+        inputCommand.displayText(Ogre::ColourValue::Red, txt);
+        return;
+    }
+
+    std::string txt = formatTrapPrice(type, priceTotal);
+    inputCommand.displayText(Ogre::ColourValue::White, txt);
+
+    if(inputManager.mCommandState != InputCommandState::validated)
+        return;
+
+    ClientNotification *clientNotification = TrapManager::createTrapClientNotification(type);
+    uint32_t nbTiles = buildableTiles.size();
+    clientNotification->mPacket << nbTiles;
+    for(Tile* tile : buildableTiles)
+        gameMap->tileToPacket(clientNotification->mPacket, tile);
+
+    ODClient::getSingleton().queueClientNotification(clientNotification);
+}
+
+bool Trap::getTrapTilesDefault(std::vector<Tile*>& tiles, GameMap* gameMap, Player* player, ODPacket& packet)
+{
+    uint32_t nbTiles;
+    OD_ASSERT_TRUE(packet >> nbTiles);
+
+    while(nbTiles > 0)
+    {
+        --nbTiles;
+        Tile* tile = gameMap->tileFromPacket(packet);
+        if(tile == nullptr)
+        {
+            OD_ASSERT_TRUE(false);
+            return false;
+        }
+
+        if(!tile->isBuildableUpon(player->getSeat()))
+        {
+            OD_ASSERT_TRUE_MSG(false, "tile=" + Tile::displayAsString(tile) + ", seatId=" + Helper::toString(player->getSeat()->getId()));
+            continue;
+        }
+
+        tiles.push_back(tile);
+    }
+
+    return true;
+}
+
+bool Trap::buildTrapDefault(GameMap* gameMap, Trap* trap, Seat* seat, const std::vector<Tile*>& tiles)
+{
+    if(tiles.empty())
+        return false;
+
     trap->setupTrap(gameMap->nextUniqueNameTrap(trap->getMeshName()), seat, tiles);
     trap->addToGameMap();
     trap->createMesh();
@@ -599,24 +694,93 @@ void Trap::buildTrapDefault(GameMap* gameMap, Trap* trap, const std::vector<Tile
     }
 
     trap->updateActiveSpots();
+
+    return true;
 }
 
-int Trap::getTrapCostDefault(std::vector<Tile*>& tiles, GameMap* gameMap, TrapType type,
-    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+void Trap::checkBuildTrapDefaultEditor(GameMap* gameMap, TrapType type, const InputManager& inputManager, InputCommand& inputCommand)
 {
-    std::vector<Tile*> buildableTiles = gameMap->getBuildableTilesForPlayerInArea(tileX1,
-        tileY1, tileX2, tileY2, player);
-
-    if(buildableTiles.empty())
-        return TrapManager::costPerTile(type);
-
-    int nbTiles = 0;
-
-    for(Tile* tile : buildableTiles)
+    std::string txt = TrapManager::getTrapNameFromTrapType(type);
+    inputCommand.displayText(Ogre::ColourValue::White, txt);
+    if(inputManager.mCommandState == InputCommandState::infoOnly)
     {
-        tiles.push_back(tile);
-        ++nbTiles;
+        inputCommand.selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos,
+            inputManager.mYPos);
+        return;
     }
 
-    return nbTiles * TrapManager::costPerTile(type);
+    std::vector<Tile*> tiles = gameMap->rectangularRegion(inputManager.mXPos,
+        inputManager.mYPos, inputManager.mLStartDragX, inputManager.mLStartDragY);
+
+    std::vector<Tile*> buildableTiles;
+    for(Tile* tile : tiles)
+    {
+        // We accept any tile if there is no building
+        if(tile->getIsBuilding())
+            continue;
+
+        buildableTiles.push_back(tile);
+    }
+    if(inputManager.mCommandState == InputCommandState::building)
+    {
+        inputCommand.selectTiles(buildableTiles);
+        return;
+    }
+
+    ClientNotification *clientNotification = TrapManager::createTrapClientNotificationEditor(type);
+    uint32_t nbTiles = buildableTiles.size();
+    int32_t seatId = inputManager.mSeatIdSelected;
+    clientNotification->mPacket << seatId;
+    clientNotification->mPacket << nbTiles;
+    for(Tile* tile : buildableTiles)
+        gameMap->tileToPacket(clientNotification->mPacket, tile);
+
+    ODClient::getSingleton().queueClientNotification(clientNotification);
+}
+
+bool Trap::buildTrapDefaultEditor(GameMap* gameMap, Trap* trap, ODPacket& packet)
+{
+    int32_t seatId;
+    OD_ASSERT_TRUE(packet >> seatId);
+    Seat* seatTrap = gameMap->getSeatById(seatId);
+    if(seatTrap == nullptr)
+    {
+        OD_ASSERT_TRUE_MSG(false, "seatId=" + Helper::toString(seatId));
+        return false;
+    }
+
+    std::vector<Tile*> tiles;
+    uint32_t nbTiles;
+    OD_ASSERT_TRUE(packet >> nbTiles);
+
+    while(nbTiles > 0)
+    {
+        --nbTiles;
+        Tile* tile = gameMap->tileFromPacket(packet);
+        if(tile == nullptr)
+        {
+            OD_ASSERT_TRUE(false);
+            return false;
+        }
+
+        // If the tile is not buildable, we change it
+        if(tile->getCoveringBuilding() != nullptr)
+        {
+            OD_ASSERT_TRUE_MSG(false, "tile=" + Tile::displayAsString(tile) + ", seatId=" + Helper::toString(seatId));
+            continue;
+        }
+
+        tiles.push_back(tile);
+        if((tile->getType() != TileType::gold) &&
+           (tile->getType() != TileType::dirt))
+        {
+            tile->setType(TileType::dirt);
+        }
+        tile->setFullness(0.0);
+        tile->claimTile(seatTrap);
+        tile->computeTileVisual();
+    }
+
+
+    return buildTrapDefault(gameMap, trap, seatTrap, tiles);
 }

@@ -22,10 +22,15 @@
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 #include "entities/TrapEntity.h"
+#include "game/Player.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
+#include "modes/InputCommand.h"
+#include "modes/InputManager.h"
+#include "network/ODClient.h"
 #include "traps/TrapManager.h"
 #include "utils/ConfigManager.h"
+#include "utils/Helper.h"
 #include "utils/Random.h"
 #include "utils/LogManager.h"
 
@@ -111,6 +116,205 @@ void TrapDoor::notifyDoorSlapped(DoorEntity* doorEntity, Tile* tile)
     getGameMap()->doorLock(tile, getSeat(), mIsLocked);
 }
 
+void TrapDoor::checkBuildTrap(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
+{
+    Player* player = gameMap->getLocalPlayer();
+    TrapType type = TrapType::doorWooden;
+    // We only allow 1 tile for door trap
+    Tile* tile = gameMap->getTile(inputManager.mXPos, inputManager.mYPos);
+    if(tile == nullptr)
+    {
+        inputCommand.unselectAllTiles();
+        return;
+    }
+
+    int32_t pricePerTarget = TrapManager::costPerTile(type);
+    int32_t playerGold = static_cast<int32_t>(player->getSeat()->getGold());
+    if(inputManager.mCommandState == InputCommandState::infoOnly)
+    {
+        if(playerGold < pricePerTarget)
+        {
+            std::string txt = formatTrapPrice(type, pricePerTarget);
+            inputCommand.displayText(Ogre::ColourValue::Red, txt);
+        }
+        else
+        {
+            std::string txt = formatTrapPrice(type, pricePerTarget);
+            inputCommand.displayText(Ogre::ColourValue::White, txt);
+        }
+        inputCommand.selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos,
+            inputManager.mYPos);
+        return;
+    }
+
+    if(inputManager.mCommandState == InputCommandState::building)
+    {
+        std::vector<Tile*> tiles;
+        tiles.push_back(tile);
+        inputCommand.selectTiles(tiles);
+        if(!tile->isBuildableUpon(player->getSeat()) ||
+           !canDoorBeOnTile(gameMap, tile))
+        {
+            inputCommand.displayText(Ogre::ColourValue::Red, "Cannot place door on this tile");
+        }
+        else if(playerGold < pricePerTarget)
+        {
+            std::string txt = formatTrapPrice(type, pricePerTarget);
+            inputCommand.displayText(Ogre::ColourValue::Red, txt);
+        }
+        else
+        {
+            std::string txt = formatTrapPrice(type, pricePerTarget);
+            inputCommand.displayText(Ogre::ColourValue::White, txt);
+        }
+        return;
+    }
+
+    if(!tile->isBuildableUpon(player->getSeat()) ||
+       !canDoorBeOnTile(gameMap, tile))
+    {
+        return;
+    }
+
+    ClientNotification *clientNotification = TrapManager::createTrapClientNotification(type);
+    gameMap->tileToPacket(clientNotification->mPacket, tile);
+
+    ODClient::getSingleton().queueClientNotification(clientNotification);
+}
+
+bool TrapDoor::buildTrap(GameMap* gameMap, Player* player, ODPacket& packet)
+{
+    Tile* tile = gameMap->tileFromPacket(packet);
+    if(tile == nullptr)
+        return false;
+
+    if(!tile->isBuildableUpon(player->getSeat()))
+        return false;
+
+    if(!canDoorBeOnTile(gameMap, tile))
+        return false;
+
+    // The door tile is ok
+    int32_t pricePerTarget = TrapManager::costPerTile(TrapType::doorWooden);
+    if(!gameMap->withdrawFromTreasuries(pricePerTarget, player->getSeat()))
+        return false;
+
+    TrapDoor* trap = new TrapDoor(gameMap);
+    std::vector<Tile*> tiles;
+    tiles.push_back(tile);
+    return buildTrapDefault(gameMap, trap, player->getSeat(), tiles);
+}
+
+void TrapDoor::checkBuildTrapEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
+{
+    Seat* seat = gameMap->getSeatById(inputManager.mSeatIdSelected);
+    if(seat == nullptr)
+    {
+        OD_ASSERT_TRUE_MSG(false, "seatId=" + Helper::toString(inputManager.mSeatIdSelected));
+        return;
+    }
+
+    TrapType type = TrapType::doorWooden;
+    // We only allow 1 tile for door trap
+    Tile* tile = gameMap->getTile(inputManager.mXPos, inputManager.mYPos);
+    if(tile == nullptr)
+    {
+        inputCommand.unselectAllTiles();
+        return;
+    }
+
+    if(inputManager.mCommandState == InputCommandState::infoOnly)
+    {
+        std::string txt = TrapManager::getTrapNameFromTrapType(type);
+        inputCommand.displayText(Ogre::ColourValue::White, txt);
+        inputCommand.selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos,
+            inputManager.mYPos);
+        return;
+    }
+
+    if(inputManager.mCommandState == InputCommandState::building)
+    {
+        std::vector<Tile*> tiles;
+        tiles.push_back(tile);
+        inputCommand.selectTiles(tiles);
+        // We accept any tile if there is no building and there are 2 full surrounding tiles
+        if(tile->getIsBuilding() ||
+           !canDoorBeOnTile(gameMap, tile))
+        {
+            inputCommand.displayText(Ogre::ColourValue::Red, "Cannot place door on this tile");
+        }
+        else
+        {
+            std::string txt = TrapManager::getTrapNameFromTrapType(type);
+            inputCommand.displayText(Ogre::ColourValue::White, txt);
+        }
+        return;
+    }
+
+    if(!canDoorBeOnTile(gameMap, tile))
+        return;
+
+    ClientNotification *clientNotification = TrapManager::createTrapClientNotificationEditor(type);
+    int32_t seatId = inputManager.mSeatIdSelected;
+    clientNotification->mPacket << seatId;
+    gameMap->tileToPacket(clientNotification->mPacket, tile);
+
+    ODClient::getSingleton().queueClientNotification(clientNotification);
+}
+
+bool TrapDoor::buildTrapEditor(GameMap* gameMap, ODPacket& packet)
+{
+    int32_t seatId;
+    OD_ASSERT_TRUE(packet >> seatId);
+    Seat* seatTrap = gameMap->getSeatById(seatId);
+    if(seatTrap == nullptr)
+    {
+        OD_ASSERT_TRUE_MSG(false, "seatId=" + Helper::toString(seatId));
+        return false;
+    }
+
+    Tile* tile = gameMap->tileFromPacket(packet);
+    if(tile == nullptr)
+        return false;
+
+    // If the tile is not buildable, we change it
+    if(tile->getCoveringBuilding() != nullptr)
+    {
+        OD_ASSERT_TRUE_MSG(false, "tile=" + Tile::displayAsString(tile) + ", seatId=" + Helper::toString(seatId));
+        return false;
+    }
+
+    if(!canDoorBeOnTile(gameMap, tile))
+        return false;
+
+    if((tile->getType() != TileType::gold) &&
+       (tile->getType() != TileType::dirt))
+    {
+        tile->setType(TileType::dirt);
+    }
+    tile->setFullness(0.0);
+    tile->claimTile(seatTrap);
+    tile->computeTileVisual();
+
+    std::vector<Tile*> tiles;
+    tiles.push_back(tile);
+    TrapDoor* trap = new TrapDoor(gameMap);
+    return buildTrapDefault(gameMap, trap, seatTrap, tiles);
+}
+
+bool TrapDoor::buildTrapOnTile(GameMap* gameMap, Player* player, Tile* tile)
+{
+    int32_t pricePerTarget = TrapManager::costPerTile(TrapType::doorWooden);
+    int32_t price = pricePerTarget;
+    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+        return false;
+
+    std::vector<Tile*> tiles;
+    tiles.push_back(tile);
+    TrapDoor* trap = new TrapDoor(gameMap);
+    return buildTrapDefault(gameMap, trap, player->getSeat(), tiles);
+}
+
 bool TrapDoor::canDoorBeOnTile(GameMap* gameMap, Tile* tile)
 {
     // We check if the tile is suitable. It can only be built on 2 full tiles
@@ -138,36 +342,6 @@ bool TrapDoor::canDoorBeOnTile(GameMap* gameMap, Tile* tile)
     }
 
     return false;
-}
-
-int TrapDoor::getTrapCost(std::vector<Tile*>& tiles, GameMap* gameMap, TrapType type,
-    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
-{
-    std::vector<Tile*> buildableTiles = gameMap->getBuildableTilesForPlayerInArea(tileX1,
-        tileY1, tileX2, tileY2, player);
-
-    if(buildableTiles.empty())
-        return TrapManager::costPerTile(type);
-
-    // We cannot build more than 1 door at a time. If more than 1 buildable tile is selected, we consider
-    // it is a problem
-    if(buildableTiles.size() > 1)
-        return -1;
-
-    Tile* tile = buildableTiles[0];
-    if(canDoorBeOnTile(gameMap, tile))
-    {
-        tiles.push_back(tile);
-        return TrapManager::costPerTile(type);
-    }
-
-    return -1;
-}
-
-void TrapDoor::buildTrap(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat* seat)
-{
-    TrapDoor* room = new TrapDoor(gameMap);
-    buildTrapDefault(gameMap, room, tiles, seat);
 }
 
 bool TrapDoor::permitsVision(Tile* tile)

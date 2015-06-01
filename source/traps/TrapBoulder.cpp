@@ -20,6 +20,7 @@
 #include "entities/Tile.h"
 #include "entities/MissileBoulder.h"
 #include "entities/TrapEntity.h"
+#include "game/Player.h"
 #include "gamemap/GameMap.h"
 #include "network/ODPacket.h"
 #include "traps/TrapManager.h"
@@ -89,16 +90,46 @@ TrapEntity* TrapBoulder::getTrapEntity(Tile* tile)
     return new TrapEntity(getGameMap(), true, getName(), MESH_BOULDER, tile, 0.0, false, isActivated(tile) ? 1.0f : 0.5f);
 }
 
-int TrapBoulder::getTrapCost(std::vector<Tile*>& tiles, GameMap* gameMap, TrapType type,
-    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+void TrapBoulder::checkBuildTrap(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
 {
-    return getTrapCostDefault(tiles, gameMap, type, tileX1, tileY1, tileX2, tileY2, player);
+    checkBuildTrapDefault(gameMap, TrapType::boulder, inputManager, inputCommand);
 }
 
-void TrapBoulder::buildTrap(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat* seat)
+bool TrapBoulder::buildTrap(GameMap* gameMap, Player* player, ODPacket& packet)
 {
-    TrapBoulder* room = new TrapBoulder(gameMap);
-    buildTrapDefault(gameMap, room, tiles, seat);
+    std::vector<Tile*> tiles;
+    if(!getTrapTilesDefault(tiles, gameMap, player, packet))
+        return false;
+
+    int32_t pricePerTarget = TrapManager::costPerTile(TrapType::boulder);
+    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+        return false;
+
+    TrapBoulder* trap = new TrapBoulder(gameMap);
+    return buildTrapDefault(gameMap, trap, player->getSeat(), tiles);
+}
+
+void TrapBoulder::checkBuildTrapEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
+{
+    checkBuildTrapDefaultEditor(gameMap, TrapType::boulder, inputManager, inputCommand);
+}
+
+bool TrapBoulder::buildTrapEditor(GameMap* gameMap, ODPacket& packet)
+{
+    TrapBoulder* trap = new TrapBoulder(gameMap);
+    return buildTrapDefaultEditor(gameMap, trap, packet);
+}
+
+bool TrapBoulder::buildTrapOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles)
+{
+    int32_t pricePerTarget = TrapManager::costPerTile(TrapType::boulder);
+    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+        return false;
+
+    TrapBoulder* trap = new TrapBoulder(gameMap);
+    return buildTrapDefault(gameMap, trap, player->getSeat(), tiles);
 }
 
 Trap* TrapBoulder::getTrapFromStream(GameMap* gameMap, std::istream& is)

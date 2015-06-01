@@ -922,6 +922,12 @@ void EditorMode::checkInputCommand()
         case SelectedAction::destroyRoom:
             RoomManager::checkSellRoomTilesEditor(mGameMap, inputManager, *this);
             return;
+        case SelectedAction::buildTrap:
+            TrapManager::checkBuildTrapEditor(mGameMap, mPlayerSelection.getNewTrapType(), inputManager, *this);
+            return;
+        case SelectedAction::destroyTrap:
+            TrapManager::checkSellTrapTilesEditor(mGameMap, inputManager, *this);
+            return;
         case SelectedAction::castSpell:
             // TODO: create research entity with corresponding spell
             return;

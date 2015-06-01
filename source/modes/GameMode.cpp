@@ -1404,6 +1404,12 @@ void GameMode::checkInputCommand()
         case SelectedAction::castSpell:
             SpellManager::checkSpellCast(mGameMap, mPlayerSelection.getNewSpellType(), inputManager, *this);
             return;
+        case SelectedAction::buildTrap:
+            TrapManager::checkBuildTrap(mGameMap, mPlayerSelection.getNewTrapType(), inputManager, *this);
+            return;
+        case SelectedAction::destroyTrap:
+            TrapManager::checkSellTrapTiles(mGameMap, inputManager, *this);
+            return;
         default:
             return;
     }

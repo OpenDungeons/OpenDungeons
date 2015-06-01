@@ -1214,31 +1214,27 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
         case ClientNotificationType::askBuildTrap:
         {
-            int x1, y1, x2, y2;
             TrapType type;
 
-            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> type);
+            OD_ASSERT_TRUE(packetReceived >> type);
             Player* player = clientSocket->getPlayer();
 
-            // We check if the room is available. It is not normal to receive a message
-            // asking to build an unbuildable room since the client should only display
+            // We check if the trap is available. It is not normal to receive a message
+            // asking to build an unbuildable trap since the client should only display
             // available rooms
             if(!player->getSeat()->isTrapAvailable(type))
             {
-                LogManager::getSingleton().logMessage("WARNING: player " + player->getNick()
-                    + " asked to cast a spell not available: " + TrapManager::getTrapNameFromTrapType(type));
+                LogManager::getSingleton().logMessage("WARNING: player seatId=" + Helper::toString(player->getSeat()->getId())
+                    + " asked to build a trap not available: " + TrapManager::getTrapNameFromTrapType(type));
                 break;
             }
 
-            std::vector<Tile*> tiles;
-            int price = TrapManager::getTrapCost(tiles, gameMap, type, x1, y1, x2, y2, player);
-            if(tiles.empty())
+            if(!TrapManager::buildTrap(gameMap, type, player, packetReceived))
+            {
+                LogManager::getSingleton().logMessage("WARNING: player seatId=" + Helper::toString(player->getSeat()->getId())
+                    + " couldn't build trap: " + TrapManager::getTrapNameFromTrapType(type));
                 break;
-
-            if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
-                break;
-
-            TrapManager::buildTrap(gameMap, type, tiles, player->getSeat());
+            }
             break;
         }
 
@@ -1276,46 +1272,20 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
         case ClientNotificationType::askSellTrapTiles:
         {
-            int x1, y1, x2, y2;
-
-            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2);
-            Player* player = clientSocket->getPlayer();
-
-            std::vector<Tile*> tiles;
-            int goldRetrieved = TrapManager::getRefundPrice(tiles, gameMap, x1, y1, x2, y2, player);
-
-            if(tiles.empty())
-                break;
-
-            TrapManager::sellTrapTiles(gameMap, tiles);
-
-            // Note : no need to handle the free treasury tile because if there is no treasury tile, gold will be 0 anyway
-            gameMap->addGoldToSeat(goldRetrieved, player->getSeat()->getId());
+            TrapManager::sellTrapTilesEditor(gameMap, packetReceived);
             break;
         }
 
         case ClientNotificationType::editorAskDestroyTrapTiles:
         {
-            OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
-                + Helper::toString(static_cast<int>(mServerMode)));
-            int x1, y1, x2, y2;
-
-            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2);
-            std::vector<Tile*> tiles = gameMap->rectangularRegion(x1, y1, x2, y2);
-
-            if(tiles.empty())
-                break;
-
-            std::vector<Tile*> sentTiles;
-            for(Tile* tile : tiles)
+            if(mServerMode != ServerMode::ModeEditor)
             {
-                if(tile->getCoveringTrap() == nullptr)
-                    continue;
-
-                sentTiles.push_back(tile);
+                OD_ASSERT_TRUE_MSG(false, "Received editor command while wrong mode mode"
+                    + Helper::toString(static_cast<int>(mServerMode)));
+                break;
             }
 
-            TrapManager::sellTrapTiles(gameMap, sentTiles);
+            TrapManager::sellTrapTilesEditor(gameMap, packetReceived);
             break;
         }
 
@@ -1536,39 +1506,23 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
         case ClientNotificationType::editorAskBuildTrap:
         {
-            OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
-                + Helper::toString(static_cast<int>(mServerMode)));
-            int x1, y1, x2, y2;
-            int seatId;
+            if(mServerMode != ServerMode::ModeEditor)
+            {
+                OD_ASSERT_TRUE_MSG(false, "Received editor command while wrong mode mode"
+                    + Helper::toString(static_cast<int>(mServerMode)));
+                break;
+            }
             TrapType type;
 
-            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> type >> seatId);
-            Seat* seat = gameMap->getSeatById(seatId);
-            OD_ASSERT_TRUE_MSG(seat != nullptr, "seatId=" + Helper::toString(seatId));
-            std::vector<Tile*> selectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
-            std::vector<Tile*> tiles;
-            // We start by changing the tiles so that the room can be built
-            for(Tile* tile : selectedTiles)
+            OD_ASSERT_TRUE(packetReceived >> type);
+
+            Player* player = clientSocket->getPlayer();
+            if(!TrapManager::buildTrapEditor(gameMap, type, packetReceived))
             {
-                // We do not change tiles where there is something on the tile
-                if(tile->getCoveringBuilding() != nullptr)
-                    continue;
-                tiles.push_back(tile);
-
-                if((tile->getType() != TileType::gold) &&
-                   (tile->getType() != TileType::dirt))
-                {
-                    tile->setType(TileType::dirt);
-                }
-                tile->setFullness(0.0);
-                tile->claimTile(seat);
-                tile->computeTileVisual();
-            }
-
-            if(tiles.empty())
+                LogManager::getSingleton().logMessage("WARNING: player seatId=" + Helper::toString(player->getSeat()->getId())
+                    + " couldn't build trap: " + TrapManager::getTrapNameFromTrapType(type));
                 break;
-
-            TrapManager::buildTrap(gameMap, type, tiles, seat);
+            }
             break;
         }
 

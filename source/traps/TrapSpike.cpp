@@ -20,6 +20,7 @@
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 #include "entities/TrapEntity.h"
+#include "game/Player.h"
 #include "gamemap/GameMap.h"
 #include "traps/TrapManager.h"
 #include "utils/ConfigManager.h"
@@ -69,16 +70,46 @@ TrapEntity* TrapSpike::getTrapEntity(Tile* tile)
     return new TrapEntity(getGameMap(), true, getName(), MESH_SPIKE, tile, 0.0, true, isActivated(tile) ? 1.0f : 0.7f);
 }
 
-int TrapSpike::getTrapCost(std::vector<Tile*>& tiles, GameMap* gameMap, TrapType type,
-    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+void TrapSpike::checkBuildTrap(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
 {
-    return getTrapCostDefault(tiles, gameMap, type, tileX1, tileY1, tileX2, tileY2, player);
+    checkBuildTrapDefault(gameMap, TrapType::spike, inputManager, inputCommand);
 }
 
-void TrapSpike::buildTrap(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat* seat)
+bool TrapSpike::buildTrap(GameMap* gameMap, Player* player, ODPacket& packet)
 {
-    TrapSpike* room = new TrapSpike(gameMap);
-    buildTrapDefault(gameMap, room, tiles, seat);
+    std::vector<Tile*> tiles;
+    if(!getTrapTilesDefault(tiles, gameMap, player, packet))
+        return false;
+
+    int32_t pricePerTarget = TrapManager::costPerTile(TrapType::spike);
+    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+        return false;
+
+    TrapSpike* trap = new TrapSpike(gameMap);
+    return buildTrapDefault(gameMap, trap, player->getSeat(), tiles);
+}
+
+void TrapSpike::checkBuildTrapEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
+{
+    checkBuildTrapDefaultEditor(gameMap, TrapType::spike, inputManager, inputCommand);
+}
+
+bool TrapSpike::buildTrapEditor(GameMap* gameMap, ODPacket& packet)
+{
+    TrapSpike* trap = new TrapSpike(gameMap);
+    return buildTrapDefaultEditor(gameMap, trap, packet);
+}
+
+bool TrapSpike::buildTrapOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles)
+{
+    int32_t pricePerTarget = TrapManager::costPerTile(TrapType::spike);
+    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+        return false;
+
+    TrapSpike* trap = new TrapSpike(gameMap);
+    return buildTrapDefault(gameMap, trap, player->getSeat(), tiles);
 }
 
 Trap* TrapSpike::getTrapFromStream(GameMap* gameMap, std::istream& is)

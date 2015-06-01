@@ -20,6 +20,7 @@
 #include "entities/Tile.h"
 #include "entities/TrapEntity.h"
 #include "entities/MissileOneHit.h"
+#include "game/Player.h"
 #include "gamemap/GameMap.h"
 #include "network/ODPacket.h"
 #include "traps/TrapManager.h"
@@ -84,16 +85,46 @@ TrapEntity* TrapCannon::getTrapEntity(Tile* tile)
     return new TrapEntity(getGameMap(), true, getName(), MESH_CANON, tile, 90.0, false, isActivated(tile) ? 1.0f : 0.5f);
 }
 
-int TrapCannon::getTrapCost(std::vector<Tile*>& tiles, GameMap* gameMap, TrapType type,
-    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+void TrapCannon::checkBuildTrap(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
 {
-    return getTrapCostDefault(tiles, gameMap, type, tileX1, tileY1, tileX2, tileY2, player);
+    checkBuildTrapDefault(gameMap, TrapType::cannon, inputManager, inputCommand);
 }
 
-void TrapCannon::buildTrap(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat* seat)
+bool TrapCannon::buildTrap(GameMap* gameMap, Player* player, ODPacket& packet)
 {
-    TrapCannon* room = new TrapCannon(gameMap);
-    buildTrapDefault(gameMap, room, tiles, seat);
+    std::vector<Tile*> tiles;
+    if(!getTrapTilesDefault(tiles, gameMap, player, packet))
+        return false;
+
+    int32_t pricePerTarget = TrapManager::costPerTile(TrapType::cannon);
+    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+        return false;
+
+    TrapCannon* trap = new TrapCannon(gameMap);
+    return buildTrapDefault(gameMap, trap, player->getSeat(), tiles);
+}
+
+void TrapCannon::checkBuildTrapEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
+{
+    checkBuildTrapDefaultEditor(gameMap, TrapType::cannon, inputManager, inputCommand);
+}
+
+bool TrapCannon::buildTrapEditor(GameMap* gameMap, ODPacket& packet)
+{
+    TrapCannon* trap = new TrapCannon(gameMap);
+    return buildTrapDefaultEditor(gameMap, trap, packet);
+}
+
+bool TrapCannon::buildTrapOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles)
+{
+    int32_t pricePerTarget = TrapManager::costPerTile(TrapType::cannon);
+    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+        return false;
+
+    TrapCannon* trap = new TrapCannon(gameMap);
+    return buildTrapDefault(gameMap, trap, player->getSeat(), tiles);
 }
 
 Trap* TrapCannon::getTrapFromStream(GameMap* gameMap, std::istream& is)
