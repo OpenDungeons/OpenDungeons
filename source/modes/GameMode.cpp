@@ -352,10 +352,6 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
         inputManager.mLStartDragY = inputManager.mYPos;
     }
 
-    // If we don't drag anything, there is no affected tiles to compute.
-    if (!inputManager.mLMouseDown || mPlayerSelection.getCurrentAction() == SelectedAction::none)
-        return true;
-
     return true;
 }
 
@@ -465,13 +461,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
         // Stop creating rooms, traps, etc.
         inputManager.mLStartDragX = inputManager.mXPos;
         inputManager.mLStartDragY = inputManager.mYPos;
-        for (int jj = 0; jj < mGameMap->getMapSizeY(); ++jj)
-        {
-            for (int ii = 0; ii < mGameMap->getMapSizeX(); ++ii)
-            {
-                mGameMap->getTile(ii, jj)->setSelected(false, mGameMap->getLocalPlayer());
-            }
-        }
+        unselectAllTiles();
         mPlayerSelection.setCurrentAction(SelectedAction::none);
         TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "");
 
@@ -620,15 +610,6 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
     if (!isConnected())
         return true;
-
-    // Unselect all tiles
-    for (int jj = 0; jj < mGameMap->getMapSizeY(); ++jj)
-    {
-        for (int ii = 0; ii < mGameMap->getMapSizeX(); ++ii)
-        {
-            mGameMap->getTile(ii,jj)->setSelected(false, mGameMap->getLocalPlayer());
-        }
-    }
 
     // Right mouse button up
     if (id == OIS::MB_Right)
@@ -1376,6 +1357,17 @@ void GameMode::selectSquaredTiles(int tileX1, int tileY1, int tileX2, int tileY2
 
 void GameMode::selectTiles(const std::vector<Tile*> tiles)
 {
+    unselectAllTiles();
+
+    Player* player = mGameMap->getLocalPlayer();
+    for(Tile* tile : tiles)
+    {
+        tile->setSelected(true, player);
+    }
+}
+
+void GameMode::unselectAllTiles()
+{
     Player* player = mGameMap->getLocalPlayer();
     // Compute selected tiles
     for (int jj = 0; jj < mGameMap->getMapSizeY(); ++jj)
@@ -1384,12 +1376,6 @@ void GameMode::selectTiles(const std::vector<Tile*> tiles)
         {
             mGameMap->getTile(ii, jj)->setSelected(false, player);
         }
-    }
-
-
-    for(Tile* tile : tiles)
-    {
-        tile->setSelected(true, player);
     }
 }
 
@@ -1409,6 +1395,12 @@ void GameMode::checkInputCommand()
     {
         case SelectedAction::selectTile:
             break;
+        case SelectedAction::buildRoom:
+            RoomManager::checkBuildRoom(mGameMap, mPlayerSelection.getNewRoomType(), inputManager, *this);
+            return;
+        case SelectedAction::destroyRoom:
+            RoomManager::checkSellRoomTiles(mGameMap, inputManager, *this);
+            return;
         case SelectedAction::castSpell:
             SpellManager::checkSpellCast(mGameMap, mPlayerSelection.getNewSpellType(), inputManager, *this);
             return;
@@ -1416,18 +1408,20 @@ void GameMode::checkInputCommand()
             return;
     }
 
-    selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mLStartDragX,
-        inputManager.mLStartDragY);
-
-    if(inputManager.mCommandState == InputCommandState::validated)
+    if(inputManager.mCommandState == InputCommandState::building)
     {
-        ClientNotification *clientNotification = new ClientNotification(
-            ClientNotificationType::askMarkTiles);
-        clientNotification->mPacket << inputManager.mXPos << inputManager.mYPos;
-        clientNotification->mPacket << inputManager.mLStartDragX << inputManager.mLStartDragY;
-        clientNotification->mPacket << mDigSetBool;
-        ODClient::getSingleton().queueClientNotification(clientNotification);
-        mPlayerSelection.setCurrentAction(SelectedAction::none);
+        selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mLStartDragX,
+            inputManager.mLStartDragY);
         return;
     }
+
+    unselectAllTiles();
+
+    ClientNotification *clientNotification = new ClientNotification(
+        ClientNotificationType::askMarkTiles);
+    clientNotification->mPacket << inputManager.mXPos << inputManager.mYPos;
+    clientNotification->mPacket << inputManager.mLStartDragX << inputManager.mLStartDragY;
+    clientNotification->mPacket << mDigSetBool;
+    ODClient::getSingleton().queueClientNotification(clientNotification);
+    mPlayerSelection.setCurrentAction(SelectedAction::none);
 }

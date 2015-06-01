@@ -36,6 +36,7 @@ InputManager::InputManager(Ogre::RenderWindow* renderWindow):
     mLStartDragY(0),
     mRStartDragX(0),
     mRStartDragY(0),
+    mSeatIdSelected(0),
     mCommandState(InputCommandState::infoOnly)
 {
     LogManager::getSingleton().logMessage("*** Initializing OIS - Input Manager ***");

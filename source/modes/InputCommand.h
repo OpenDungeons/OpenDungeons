@@ -36,6 +36,7 @@ public:
     //! as selected for the local player
     virtual void selectSquaredTiles(int tileX1, int tileY1, int tileX2, int tileY2) = 0;
     virtual void selectTiles(const std::vector<Tile*> tiles) = 0;
+    virtual void unselectAllTiles() = 0;
     //! \brief Notify the InputCommand that we want to display the given text to the local player
     virtual void displayText(const Ogre::ColourValue& txtColour, const std::string& txt) = 0;
 };

@@ -1168,10 +1168,9 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
         case ClientNotificationType::askBuildRoom:
         {
-            int x1, y1, x2, y2;
             RoomType type;
 
-            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> type);
+            OD_ASSERT_TRUE(packetReceived >> type);
             Player* player = clientSocket->getPlayer();
 
             // We check if the room is available. It is not normal to receive a message
@@ -1179,65 +1178,37 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             // available rooms
             if(!player->getSeat()->isRoomAvailable(type))
             {
-                LogManager::getSingleton().logMessage("WARNING: player " + player->getNick()
-                    + " asked to cast a spell not available: " + RoomManager::getRoomNameFromRoomType(type));
+                LogManager::getSingleton().logMessage("WARNING: player seatId=" + Helper::toString(player->getSeat()->getId())
+                    + " asked to build a room not available: " + RoomManager::getRoomNameFromRoomType(type));
                 break;
             }
 
-            std::vector<Tile*> tiles;
-            int price = RoomManager::getRoomCost(tiles, gameMap, type, x1, y1, x2, y2, player);
-            if(tiles.empty())
+            if(!RoomManager::buildRoom(gameMap, type, player, packetReceived))
+            {
+                LogManager::getSingleton().logMessage("WARNING: player seatId=" + Helper::toString(player->getSeat()->getId())
+                    + " couldn't build room: " + RoomManager::getRoomNameFromRoomType(type));
                 break;
-
-            if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
-                break;
-
-            RoomManager::buildRoom(gameMap, type, tiles, player->getSeat());
+            }
             break;
         }
 
         case ClientNotificationType::askSellRoomTiles:
         {
-            int x1, y1, x2, y2;
-
-            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2);
             Player* player = clientSocket->getPlayer();
-
-            std::vector<Tile*> tiles;
-            int goldRetrieved = RoomManager::getRefundPrice(tiles, gameMap, x1, y1, x2, y2, player);
-
-            if(tiles.empty())
-                break;
-
-            RoomManager::sellRoomTiles(gameMap, tiles);
-
-            // Note : no need to handle the free treasury tile because if there is no treasury tile, gold will be 0 anyway
-            gameMap->addGoldToSeat(goldRetrieved, player->getSeat()->getId());
+            RoomManager::sellRoomTiles(gameMap, player, packetReceived);
             break;
         }
 
         case ClientNotificationType::editorAskDestroyRoomTiles:
         {
-            OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
-                + Helper::toString(static_cast<int>(mServerMode)));
-            int x1, y1, x2, y2;
-
-            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2);
-            std::vector<Tile*> tiles = gameMap->rectangularRegion(x1, y1, x2, y2);
-
-            if(tiles.empty())
-                break;
-
-            std::vector<Tile*> sentTiles;
-            for(Tile* tile : tiles)
+            if(mServerMode != ServerMode::ModeEditor)
             {
-                if(tile->getCoveringRoom() == nullptr)
-                    continue;
-
-                sentTiles.push_back(tile);
+                OD_ASSERT_TRUE_MSG(false, "Received editor command while wrong mode mode"
+                    + Helper::toString(static_cast<int>(mServerMode)));
+                break;
             }
 
-            RoomManager::sellRoomTiles(gameMap, sentTiles);
+            RoomManager::sellRoomTilesEditor(gameMap, packetReceived);
             break;
         }
 
@@ -1543,39 +1514,23 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
         case ClientNotificationType::editorAskBuildRoom:
         {
-            OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
-                + Helper::toString(static_cast<int>(mServerMode)));
-            int x1, y1, x2, y2;
-            int seatId;
+            if(mServerMode != ServerMode::ModeEditor)
+            {
+                OD_ASSERT_TRUE_MSG(false, "Received editor command while wrong mode mode"
+                    + Helper::toString(static_cast<int>(mServerMode)));
+                break;
+            }
             RoomType type;
 
-            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> type >> seatId);
-            Seat* seat = gameMap->getSeatById(seatId);
-            OD_ASSERT_TRUE_MSG(seat != nullptr, "seatId=" + Helper::toString(seatId));
-            std::vector<Tile*> selectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
-            std::vector<Tile*> tiles;
-            // We start by changing the tiles so that the room can be built
-            for(Tile* tile : selectedTiles)
+            OD_ASSERT_TRUE(packetReceived >> type);
+
+            Player* player = clientSocket->getPlayer();
+            if(!RoomManager::buildRoomEditor(gameMap, type, packetReceived))
             {
-                // We do not change tiles where there is something on the tile
-                if(tile->getCoveringBuilding() != nullptr)
-                    continue;
-                tiles.push_back(tile);
-
-                if((tile->getType() != TileType::gold) &&
-                   (tile->getType() != TileType::dirt))
-                {
-                    tile->setType(TileType::dirt);
-                }
-                tile->setFullness(0.0);
-                tile->claimTile(seat);
-                tile->computeTileVisual();
-            }
-
-            if(tiles.empty())
+                LogManager::getSingleton().logMessage("WARNING: player seatId=" + Helper::toString(player->getSeat()->getId())
+                    + " couldn't build room: " + RoomManager::getRoomNameFromRoomType(type));
                 break;
-
-            RoomManager::buildRoom(gameMap, type, tiles, seat);
+            }
             break;
         }
 

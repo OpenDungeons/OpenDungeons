@@ -117,6 +117,12 @@ class GameMode final : public GameEditorModeBase, public InputCommand
     //! \brief Refreshed the main ui data, such as mana, gold, ...
     void refreshMainUI();
 
+    void selectSquaredTiles(int tileX1, int tileY1, int tileX2, int tileY2) override;
+    void selectTiles(const std::vector<Tile*> tiles) override;
+    void unselectAllTiles() override;
+
+    void displayText(const Ogre::ColourValue& txtColour, const std::string& txt) override;
+
 protected:
     bool onClickYesQuitMenu(const CEGUI::EventArgs& /*arg*/);
 
@@ -135,12 +141,6 @@ protected:
 
     //! \brief Handle the keyboard input in normal mode
     virtual bool keyReleasedNormal  (const OIS::KeyEvent &arg);
-
-    void selectSquaredTiles(int tileX1, int tileY1, int tileX2, int tileY2) override;
-
-    void selectTiles(const std::vector<Tile*> tiles) override;
-
-    void displayText(const Ogre::ColourValue& txtColour, const std::string& txt) override;
 
 private:
     //! \brief Sets whether a tile must marked or unmarked for digging.

@@ -59,6 +59,8 @@ public:
     int                 mXPos, mYPos;
     int                 mLStartDragX, mLStartDragY;
     int                 mRStartDragX, mRStartDragY;
+    //! \brief In editor mode, it contains the selected seat Id. In gamemode, it is not used
+    int                 mSeatIdSelected;
     InputCommandState   mCommandState;
 };
 

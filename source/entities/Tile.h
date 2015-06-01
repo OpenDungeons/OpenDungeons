@@ -358,6 +358,11 @@ public:
     //! Sets the number of teams in this gamemap (after seat configuration). This number includes the rogue team.
     void setTeamsNumber(uint32_t nbTeams);
 
+    //! \brief returns true if there is a building on this tile and false otherwise.
+    //! client side function
+    bool getIsBuilding() const
+    { return mIsBuilding; }
+
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();

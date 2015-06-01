@@ -18,6 +18,7 @@
 #include "rooms/RoomDormitory.h"
 
 #include "entities/Tile.h"
+#include "game/Player.h"
 #include "gamemap/GameMap.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Creature.h"
@@ -316,16 +317,46 @@ RoomDormitoryTileData* RoomDormitory::createTileData(Tile* tile)
     return new RoomDormitoryTileData;
 }
 
-int RoomDormitory::getRoomCost(std::vector<Tile*>& tiles, GameMap* gameMap, RoomType type,
-    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+void RoomDormitory::checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
 {
-    return getRoomCostDefault(tiles, gameMap, type, tileX1, tileY1, tileX2, tileY2, player);
+    checkBuildRoomDefault(gameMap, RoomType::dormitory, inputManager, inputCommand);
 }
 
-void RoomDormitory::buildRoom(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat* seat)
+bool RoomDormitory::buildRoom(GameMap* gameMap, Player* player, ODPacket& packet)
+{
+    std::vector<Tile*> tiles;
+    if(!getRoomTilesDefault(tiles, gameMap, player, packet))
+        return false;
+
+    int32_t pricePerTarget = RoomManager::costPerTile(RoomType::dormitory);
+    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+        return false;
+
+    RoomDormitory* room = new RoomDormitory(gameMap);
+    return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
+}
+
+void RoomDormitory::checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
+{
+    checkBuildRoomDefaultEditor(gameMap, RoomType::dormitory, inputManager, inputCommand);
+}
+
+bool RoomDormitory::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
 {
     RoomDormitory* room = new RoomDormitory(gameMap);
-    buildRoomDefault(gameMap, room, tiles, seat);
+    return buildRoomDefaultEditor(gameMap, room, packet);
+}
+
+bool RoomDormitory::buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles)
+{
+    int32_t pricePerTarget = RoomManager::costPerTile(RoomType::dormitory);
+    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+        return false;
+
+    RoomDormitory* room = new RoomDormitory(gameMap);
+    return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
 }
 
 Room* RoomDormitory::getRoomFromStream(GameMap* gameMap, std::istream& is)

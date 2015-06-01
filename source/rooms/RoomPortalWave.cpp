@@ -864,16 +864,26 @@ bool RoomPortalWave::findBestDiggablePath(Tile* tileStart, Tile* tileDest, Creat
     }
 }
 
-int RoomPortalWave::getRoomCost(std::vector<Tile*>& tiles, GameMap* gameMap, RoomType type,
-    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+void RoomPortalWave::checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
 {
-    return getRoomCostDefault(tiles, gameMap, type, tileX1, tileY1, tileX2, tileY2, player);
+    // Not buildable on game mode
 }
 
-void RoomPortalWave::buildRoom(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat* seat)
+bool RoomPortalWave::buildRoom(GameMap* gameMap, Player* player, ODPacket& packet)
+{
+    // Not buildable on game mode
+    return false;
+}
+
+void RoomPortalWave::checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
+{
+    checkBuildRoomDefaultEditor(gameMap, RoomType::portalWave, inputManager, inputCommand);
+}
+
+bool RoomPortalWave::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
 {
     RoomPortalWave* room = new RoomPortalWave(gameMap);
-    buildRoomDefault(gameMap, room, tiles, seat);
+    return buildRoomDefaultEditor(gameMap, room, packet);
 }
 
 Room* RoomPortalWave::getRoomFromStream(GameMap* gameMap, std::istream& is)

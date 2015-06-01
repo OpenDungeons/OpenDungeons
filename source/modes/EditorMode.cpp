@@ -78,7 +78,6 @@ EditorMode::EditorMode(ModeManager* modeManager):
     GameEditorModeBase(modeManager, ModeManager::EDITOR, modeManager->getGui().getGuiSheet(Gui::guiSheet::editorModeGui)),
     mCurrentTileVisual(TileVisual::nullTileVisual),
     mCurrentFullness(100.0),
-    mCurrentSeatId(0),
     mCurrentCreatureIndex(0),
     mMouseX(0),
     mMouseY(0)
@@ -173,7 +172,7 @@ void EditorMode::activate()
 
     // By default, we set the current seat id to the connected player
     Player* player = mGameMap->getLocalPlayer();
-    mCurrentSeatId = player->getSeat()->getId();
+    getModeManager().getInputManager().mSeatIdSelected = player->getSeat()->getId();
 
     refreshGuiResearch();
 
@@ -188,47 +187,16 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
         return true;
 
     InputManager& inputManager = mModeManager->getInputManager();
+    inputManager.mCommandState = (inputManager.mLMouseDown ? InputCommandState::building : InputCommandState::infoOnly);
 
-    Player* player = mGameMap->getLocalPlayer();
-    SelectedAction playerSelectedAction = mPlayerSelection.getCurrentAction();
-    if (playerSelectedAction != SelectedAction::none)
-    {
-        TextRenderer::getSingleton().moveText(ODApplication::POINTER_INFO_STRING,
-            static_cast<Ogre::Real>(arg.state.X.abs + 30), static_cast<Ogre::Real>(arg.state.Y.abs));
+    // If we have a room/trap/spell selected, show it
+    // TODO: This should be changed, or combined with an icon or something later.
+    TextRenderer& textRenderer = TextRenderer::getSingleton();
+    textRenderer.moveText(ODApplication::POINTER_INFO_STRING,
+        static_cast<Ogre::Real>(arg.state.X.abs + 30), static_cast<Ogre::Real>(arg.state.Y.abs));
 
-        switch(playerSelectedAction)
-        {
-            case SelectedAction::buildRoom:
-            {
-                RoomType selectedRoomType = mPlayerSelection.getNewRoomType();
-                TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(RoomManager::getRoomNameFromRoomType(selectedRoomType)));
-                break;
-            }
-            case SelectedAction::buildTrap:
-            {
-                TrapType selectedTrapType = mPlayerSelection.getNewTrapType();
-                TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(TrapManager::getTrapNameFromTrapType(selectedTrapType)));
-                break;
-            }
-            case SelectedAction::changeTile:
-            {
-                TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, std::string(Tile::tileVisualToString(mCurrentTileVisual)));
-                break;
-            }
-            case SelectedAction::destroyRoom:
-            {
-                TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Destroy room");
-                break;
-            }
-            case SelectedAction::destroyTrap:
-            {
-                TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Destroy trap");
-                break;
-            }
-            default :
-                break;
-        }
-    }
+    // We notify current selection input
+    checkInputCommand();
 
     handleMouseWheel(arg);
 
@@ -261,29 +229,6 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
             mMouseX = inputManager.mXPos;
             mMouseY = inputManager.mYPos;
             updateCursorText();
-        }
-
-        // If we don't drag anything, there is no affected tiles to compute.
-        if (!inputManager.mLMouseDown || mPlayerSelection.getCurrentAction() == SelectedAction::none)
-            break;
-
-        for (int jj = 0; jj < mGameMap->getMapSizeY(); ++jj)
-        {
-            for (int ii = 0; ii < mGameMap->getMapSizeX(); ++ii)
-            {
-                mGameMap->getTile(ii, jj)->setSelected(false, player);
-            }
-        }
-
-        // Loop over the tiles in the rectangular selection region and set their setSelected flag accordingly.
-        std::vector<Tile*> affectedTiles = mGameMap->rectangularRegion(inputManager.mXPos,
-                                                                        inputManager.mYPos,
-                                                                        inputManager.mLStartDragX,
-                                                                        inputManager.mLStartDragY);
-
-        for( std::vector<Tile*>::iterator itr = affectedTiles.begin(); itr != affectedTiles.end(); ++itr)
-        {
-            (*itr)->setSelected(true, player);
         }
 
         break;
@@ -496,18 +441,10 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID id
     CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(Gui::convertButton(id));
 
     InputManager& inputManager = mModeManager->getInputManager();
+    inputManager.mCommandState = InputCommandState::validated;
     // If the mouse press was on a CEGUI window ignore it
     if (inputManager.mMouseDownOnCEGUIWindow)
         return true;
-
-    // Unselect all tiles
-    for (int jj = 0; jj < mGameMap->getMapSizeY(); ++jj)
-    {
-        for (int ii = 0; ii < mGameMap->getMapSizeX(); ++ii)
-        {
-            mGameMap->getTile(ii,jj)->setSelected(false, mGameMap->getLocalPlayer());
-        }
-    }
 
     // Right mouse button up
     if (id == OIS::MB_Right)
@@ -522,96 +459,9 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID id
     // Left mouse button up
     inputManager.mLMouseDown = false;
 
-    // On the client:  Inform the server about what we are doing
-    switch(mPlayerSelection.getCurrentAction())
-    {
-        case SelectedAction::changeTile:
-        {
-            TileType tileType = TileType::nullTileType;
-            int seatId = -1;
-            double fullness = mCurrentFullness;
-            switch(mCurrentTileVisual)
-            {
-                case TileVisual::nullTileVisual:
-                    return true;
-                case TileVisual::dirtGround:
-                    tileType = TileType::dirt;
-                    break;
-                case TileVisual::goldGround:
-                    tileType = TileType::gold;
-                    break;
-                case TileVisual::rockGround:
-                    tileType = TileType::rock;
-                    break;
-                case TileVisual::claimedGround:
-                case TileVisual::claimedFull:
-                    tileType = TileType::dirt;
-                    seatId = mCurrentSeatId;
-                    break;
-                case TileVisual::waterGround:
-                    tileType = TileType::water;
-                    fullness = 0.0;
-                    break;
-                case TileVisual::lavaGround:
-                    tileType = TileType::lava;
-                    fullness = 0.0;
-                    break;
-                default:
-                    return true;
-            }
-            ClientNotification *clientNotification = new ClientNotification(
-                ClientNotificationType::editorAskChangeTiles);
-            clientNotification->mPacket << inputManager.mXPos << inputManager.mYPos;
-            clientNotification->mPacket << inputManager.mLStartDragX << inputManager.mLStartDragY;
-            clientNotification->mPacket << tileType;
-            clientNotification->mPacket << fullness;
-            clientNotification->mPacket << seatId;
-            ODClient::getSingleton().queueClientNotification(clientNotification);
-            break;
-        }
-        case SelectedAction::buildRoom:
-        {
-            int intRoomType = static_cast<int>(mPlayerSelection.getNewRoomType());
-            ClientNotification *clientNotification = new ClientNotification(
-                ClientNotificationType::editorAskBuildRoom);
-            clientNotification->mPacket << inputManager.mXPos << inputManager.mYPos;
-            clientNotification->mPacket << inputManager.mLStartDragX << inputManager.mLStartDragY;
-            clientNotification->mPacket << intRoomType << mCurrentSeatId;
-            ODClient::getSingleton().queueClientNotification(clientNotification);
-            break;
-        }
-        case SelectedAction::buildTrap:
-        {
-            ClientNotification *clientNotification = new ClientNotification(
-                ClientNotificationType::editorAskBuildTrap);
-            int intTrapType = static_cast<int>(mPlayerSelection.getNewTrapType());
-            clientNotification->mPacket << inputManager.mXPos << inputManager.mYPos;
-            clientNotification->mPacket << inputManager.mLStartDragX << inputManager.mLStartDragY;
-            clientNotification->mPacket << intTrapType << mCurrentSeatId;
-            ODClient::getSingleton().queueClientNotification(clientNotification);
-            break;
-        }
-        case SelectedAction::destroyRoom:
-        {
-            ClientNotification *clientNotification = new ClientNotification(
-                ClientNotificationType::editorAskDestroyRoomTiles);
-            clientNotification->mPacket << inputManager.mXPos << inputManager.mYPos;
-            clientNotification->mPacket << inputManager.mLStartDragX << inputManager.mLStartDragY;
-            ODClient::getSingleton().queueClientNotification(clientNotification);
-            break;
-        }
-        case SelectedAction::destroyTrap:
-        {
-            ClientNotification *clientNotification = new ClientNotification(
-                ClientNotificationType::editorAskDestroyTrapTiles);
-            clientNotification->mPacket << inputManager.mXPos << inputManager.mYPos;
-            clientNotification->mPacket << inputManager.mLStartDragX << inputManager.mLStartDragY;
-            ODClient::getSingleton().queueClientNotification(clientNotification);
-            break;
-        }
-        default:
-            return true;
-    }
+    // We notify current selection input
+    checkInputCommand();
+
     return true;
 }
 
@@ -635,7 +485,8 @@ void EditorMode::updateCursorText()
     // Update the seat id
     posWin = mRootWindow->getChild(Gui::EDITOR_SEAT_ID);
     textSS.str("");
-    textSS << "Seat id (Y): " << mCurrentSeatId;
+    textSS << "Seat id (Y): " << getModeManager().getInputManager().mSeatIdSelected;
+;
     posWin->setText(textSS.str());
 
     // Update the seat id
@@ -733,9 +584,9 @@ bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
         updateCursorText();
         break;
 
-    //Toggle mCurrentSeatId
+    //Toggle selected seat ID
     case OIS::KC_Y:
-        mCurrentSeatId = mGameMap->nextSeatId(mCurrentSeatId);
+        getModeManager().getInputManager().mSeatIdSelected = mGameMap->nextSeatId(getModeManager().getInputManager().mSeatIdSelected);
         updateCursorText();
         updateFlagColor();
         break;
@@ -888,7 +739,7 @@ void EditorMode::notifyGuiAction(GuiAction guiAction)
                 {
                     ClientNotification *clientNotification = new ClientNotification(
                         ClientNotificationType::editorCreateWorker);
-                    clientNotification->mPacket << mCurrentSeatId;
+                    clientNotification->mPacket << getModeManager().getInputManager().mSeatIdSelected;
                     ODClient::getSingleton().queueClientNotification(clientNotification);
                 }
                 break;
@@ -903,7 +754,7 @@ void EditorMode::notifyGuiAction(GuiAction guiAction)
                         break;
                     ClientNotification *clientNotification = new ClientNotification(
                         ClientNotificationType::editorCreateFighter);
-                    clientNotification->mPacket << mCurrentSeatId;
+                    clientNotification->mPacket << getModeManager().getInputManager().mSeatIdSelected;
                     clientNotification->mPacket << def->getClassName();
                     ODClient::getSingleton().queueClientNotification(clientNotification);
                 }
@@ -1013,6 +864,68 @@ void EditorMode::connectTileSelect(const std::string& buttonName, TileVisual til
 
 void EditorMode::updateFlagColor()
 {
-    std::string colorStr = Helper::getImageColoursStringFromColourValue(mGameMap->getSeatById(mCurrentSeatId)->getColorValue());
+    std::string colorStr = Helper::getImageColoursStringFromColourValue(
+        mGameMap->getSeatById(getModeManager().getInputManager().mSeatIdSelected)->getColorValue());
     mRootWindow->getChild("HorizontalPipe/SeatIdDisplay/Icon")->setProperty("ImageColours", colorStr);
+}
+
+void EditorMode::selectSquaredTiles(int tileX1, int tileY1, int tileX2, int tileY2)
+{
+    // Loop over the tiles in the rectangular selection region and set their setSelected flag accordingly.
+    std::vector<Tile*> affectedTiles = mGameMap->rectangularRegion(tileX1,
+        tileY1, tileX2, tileY2);
+
+    selectTiles(affectedTiles);
+}
+
+void EditorMode::selectTiles(const std::vector<Tile*> tiles)
+{
+    unselectAllTiles();
+
+    Player* player = mGameMap->getLocalPlayer();
+    for(Tile* tile : tiles)
+    {
+        tile->setSelected(true, player);
+    }
+}
+
+void EditorMode::unselectAllTiles()
+{
+    Player* player = mGameMap->getLocalPlayer();
+    // Compute selected tiles
+    for (int jj = 0; jj < mGameMap->getMapSizeY(); ++jj)
+    {
+        for (int ii = 0; ii < mGameMap->getMapSizeX(); ++ii)
+        {
+            mGameMap->getTile(ii, jj)->setSelected(false, player);
+        }
+    }
+}
+
+void EditorMode::displayText(const Ogre::ColourValue& txtColour, const std::string& txt)
+{
+    TextRenderer& textRenderer = TextRenderer::getSingleton();
+    textRenderer.setColor(ODApplication::POINTER_INFO_STRING, txtColour);
+    textRenderer.setText(ODApplication::POINTER_INFO_STRING, txt);
+}
+
+void EditorMode::checkInputCommand()
+{
+    // In the editor mode, by default, we do nothing if mouse dragged while no action selected
+    const InputManager& inputManager = mModeManager->getInputManager();
+
+    switch(mPlayerSelection.getCurrentAction())
+    {
+        case SelectedAction::buildRoom:
+            RoomManager::checkBuildRoomEditor(mGameMap, mPlayerSelection.getNewRoomType(), inputManager, *this);
+            return;
+        case SelectedAction::destroyRoom:
+            RoomManager::checkSellRoomTilesEditor(mGameMap, inputManager, *this);
+            return;
+        case SelectedAction::castSpell:
+            // TODO: create research entity with corresponding spell
+            return;
+        default:
+            return;
+    }
 }

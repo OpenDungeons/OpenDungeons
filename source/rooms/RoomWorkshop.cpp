@@ -22,15 +22,12 @@
 #include "entities/CreatureDefinition.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
-
+#include "game/Player.h"
 #include "gamemap/GameMap.h"
-
 #include "rooms/RoomManager.h"
-
 #include "traps/Trap.h"
 #include "traps/TrapManager.h"
 #include "traps/TrapType.h"
-
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
@@ -459,16 +456,46 @@ RoomWorkshopTileData* RoomWorkshop::createTileData(Tile* tile)
     return new RoomWorkshopTileData;
 }
 
-int RoomWorkshop::getRoomCost(std::vector<Tile*>& tiles, GameMap* gameMap, RoomType type,
-    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+void RoomWorkshop::checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
 {
-    return getRoomCostDefault(tiles, gameMap, type, tileX1, tileY1, tileX2, tileY2, player);
+    checkBuildRoomDefault(gameMap, RoomType::workshop, inputManager, inputCommand);
 }
 
-void RoomWorkshop::buildRoom(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat* seat)
+bool RoomWorkshop::buildRoom(GameMap* gameMap, Player* player, ODPacket& packet)
+{
+    std::vector<Tile*> tiles;
+    if(!getRoomTilesDefault(tiles, gameMap, player, packet))
+        return false;
+
+    int32_t pricePerTarget = RoomManager::costPerTile(RoomType::workshop);
+    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+        return false;
+
+    RoomWorkshop* room = new RoomWorkshop(gameMap);
+    return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
+}
+
+bool RoomWorkshop::buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles)
+{
+    int32_t pricePerTarget = RoomManager::costPerTile(RoomType::crypt);
+    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+        return false;
+
+    RoomWorkshop* room = new RoomWorkshop(gameMap);
+    return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
+}
+
+void RoomWorkshop::checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
+{
+    checkBuildRoomDefaultEditor(gameMap, RoomType::workshop, inputManager, inputCommand);
+}
+
+bool RoomWorkshop::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
 {
     RoomWorkshop* room = new RoomWorkshop(gameMap);
-    buildRoomDefault(gameMap, room, tiles, seat);
+    return buildRoomDefaultEditor(gameMap, room, packet);
 }
 
 Room* RoomWorkshop::getRoomFromStream(GameMap* gameMap, std::istream& is)

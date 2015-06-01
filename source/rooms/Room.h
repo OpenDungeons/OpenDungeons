@@ -23,10 +23,13 @@
 #include <string>
 #include <iosfwd>
 
+class GameMap;
+class InputCommand;
+class InputManager;
+class ODPacket;
 class Seat;
 class RenderedMovableEntity;
-class GameMap;
-class ODPacket;
+
 enum class RoomType;
 
 class Room : public Building
@@ -58,14 +61,17 @@ public:
 
     virtual RoomType getType() const = 0;
 
-    //! Computes the room cost by checking the buildable tiles within the given rectangular
-    //! and returns its cost (by computing nbTiles * costPerTile). tiles will be filled
-    //! with the buildable tiles.
-    //! Note that this is a helper function used because most rooms will use it for computing
-    //! cost.
-    static int getRoomCostDefault(std::vector<Tile*>& tiles, GameMap* gameMap, RoomType type,
-        int tileX1, int tileY1, int tileX2, int tileY2, Player* player);
-    static void buildRoomDefault(GameMap* gameMap, Room* room, const std::vector<Tile*>& tiles, Seat* seat);
+    static std::string formatRoomPrice(RoomType type, uint32_t price);
+
+    //! \brief Computes the room cost by checking the buildable tiles according to the given inputManager
+    //! and updates the inputCommand with (price/buildable tiles)
+    //! Note that rooms that use checkBuildRoomDefault should also use buildRoomDefault and vice-versa
+    //! to make sure everything works if the data sent/received are changed
+    static void checkBuildRoomDefault(GameMap* gameMap, RoomType type, const InputManager& inputManager, InputCommand& inputCommand);
+    static bool getRoomTilesDefault(std::vector<Tile*>& tiles, GameMap* gameMap, Player* player, ODPacket& packet);
+    static bool buildRoomDefault(GameMap* gameMap, Room* room, Seat* seat, const std::vector<Tile*>& tiles);
+    static void checkBuildRoomDefaultEditor(GameMap* gameMap, RoomType type, const InputManager& inputManager, InputCommand& inputCommand);
+    static bool buildRoomDefaultEditor(GameMap* gameMap, Room* room, ODPacket& packet);
 
     static bool compareTile(Tile* tile1, Tile* tile2);
 
@@ -88,9 +94,13 @@ public:
     //! if so, it aborbs them
     void checkForRoomAbsorbtion();
 
+    //! \brief returns true if the room can be repaired and there are destroyed tiles. false otherwise.
     bool canBeRepaired() const;
 
-    virtual int getCostRepair(std::vector<Tile*>& tiles);
+    virtual int getCostRepair();
+
+    //! \brief Repairs the destroyed tiles of the room
+    virtual void repairRoom();
 
     virtual void restoreInitialEntityState() override;
 

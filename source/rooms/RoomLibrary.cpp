@@ -22,6 +22,7 @@
 #include "entities/RenderedMovableEntity.h"
 #include "entities/ResearchEntity.h"
 #include "entities/Tile.h"
+#include "game/Player.h"
 #include "game/Research.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
@@ -366,16 +367,46 @@ RoomLibraryTileData* RoomLibrary::createTileData(Tile* tile)
     return new RoomLibraryTileData;
 }
 
-int RoomLibrary::getRoomCost(std::vector<Tile*>& tiles, GameMap* gameMap, RoomType type,
-    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+void RoomLibrary::checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
 {
-    return getRoomCostDefault(tiles, gameMap, type, tileX1, tileY1, tileX2, tileY2, player);
+    checkBuildRoomDefault(gameMap, RoomType::library, inputManager, inputCommand);
 }
 
-void RoomLibrary::buildRoom(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat* seat)
+bool RoomLibrary::buildRoom(GameMap* gameMap, Player* player, ODPacket& packet)
+{
+    std::vector<Tile*> tiles;
+    if(!getRoomTilesDefault(tiles, gameMap, player, packet))
+        return false;
+
+    int32_t pricePerTarget = RoomManager::costPerTile(RoomType::library);
+    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+        return false;
+
+    RoomLibrary* room = new RoomLibrary(gameMap);
+    return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
+}
+
+bool RoomLibrary::buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles)
+{
+    int32_t pricePerTarget = RoomManager::costPerTile(RoomType::library);
+    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+        return false;
+
+    RoomLibrary* room = new RoomLibrary(gameMap);
+    return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
+}
+
+void RoomLibrary::checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
+{
+    checkBuildRoomDefaultEditor(gameMap, RoomType::library, inputManager, inputCommand);
+}
+
+bool RoomLibrary::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
 {
     RoomLibrary* room = new RoomLibrary(gameMap);
-    buildRoomDefault(gameMap, room, tiles, seat);
+    return buildRoomDefaultEditor(gameMap, room, packet);
 }
 
 Room* RoomLibrary::getRoomFromStream(GameMap* gameMap, std::istream& is)
