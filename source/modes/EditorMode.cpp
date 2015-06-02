@@ -917,7 +917,8 @@ void EditorMode::checkInputCommand()
     switch(mPlayerSelection.getCurrentAction())
     {
         case SelectedAction::changeTile:
-            break;
+            handlePlayerActionChangeTile();
+            return;
         case SelectedAction::buildRoom:
             RoomManager::checkBuildRoomEditor(mGameMap, mPlayerSelection.getNewRoomType(), inputManager, *this);
             return;
@@ -936,7 +937,11 @@ void EditorMode::checkInputCommand()
         default:
             return;
     }
+}
 
+void EditorMode::handlePlayerActionChangeTile()
+{
+    const InputManager& inputManager = mModeManager->getInputManager();
     if(inputManager.mCommandState == InputCommandState::infoOnly)
     {
         selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos,

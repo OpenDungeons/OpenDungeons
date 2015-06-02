@@ -54,7 +54,8 @@ Tile::Tile(GameMap* gameMap, bool isOnServerMap, int x, int y, TileType type, do
     mCoveringBuilding   (nullptr),
     mClaimedPercentage  (0.0),
     mScale              (Ogre::Vector3::ZERO),
-    mIsBuilding         (false),
+    mIsRoom             (false),
+    mIsTrap             (false),
     mLocalPlayerHasVision   (false),
     mGameMap(gameMap),
     mIsOnServerMap(isOnServerMap)

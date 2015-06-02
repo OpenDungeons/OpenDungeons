@@ -20,7 +20,6 @@
 #include "entities/Tile.h"
 #include "game/Player.h"
 #include "goals/Goal.h"
-#include "network/ODPacket.h"
 #include "rooms/RoomType.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"

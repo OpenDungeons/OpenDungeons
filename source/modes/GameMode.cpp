@@ -1394,8 +1394,11 @@ void GameMode::checkInputCommand()
     switch(mPlayerSelection.getCurrentAction())
     {
         case SelectedAction::none:
+            handlePlayerActionNone();
+            return;
         case SelectedAction::selectTile:
-            break;
+            handlePlayerActionSelectTile();
+            return;
         case SelectedAction::buildRoom:
             RoomManager::checkBuildRoom(mGameMap, mPlayerSelection.getNewRoomType(), inputManager, *this);
             return;
@@ -1414,7 +1417,25 @@ void GameMode::checkInputCommand()
         default:
             return;
     }
+}
 
+void GameMode::handlePlayerActionNone()
+{
+    const InputManager& inputManager = mModeManager->getInputManager();
+    // We only display the selection cursor on the hovered tile
+    if(inputManager.mCommandState == InputCommandState::validated)
+    {
+        unselectAllTiles();
+        return;
+    }
+
+    selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos,
+        inputManager.mYPos);
+}
+
+void GameMode::handlePlayerActionSelectTile()
+{
+    const InputManager& inputManager = mModeManager->getInputManager();
     if(inputManager.mCommandState == InputCommandState::infoOnly)
     {
         selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos,

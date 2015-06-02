@@ -111,6 +111,7 @@ private:
 
     //! \brief Called when there is a mouse input change
     void checkInputCommand();
+    void handlePlayerActionChangeTile();
 };
 
 #endif // EDITORMODE_H

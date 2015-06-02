@@ -79,7 +79,7 @@ bool Tile::isBuildableUpon(Seat* seat) const
 {
     if(isFullTile())
         return false;
-    if(mIsBuilding)
+    if(getIsBuilding())
         return false;
     if(!isClaimedForSeat(seat))
         return false;
@@ -106,7 +106,8 @@ void Tile::setCoveringBuilding(Building *building)
         }
     }
     mCoveringBuilding = building;
-    mIsBuilding = (mCoveringBuilding != nullptr);
+    mIsRoom = (getCoveringRoom() != nullptr);
+    mIsTrap = (getCoveringTrap() != nullptr);
     if(mCoveringBuilding != nullptr)
     {
         for(std::pair<Seat*, bool>& seatChanged : mTileChangedForSeats)
@@ -151,7 +152,8 @@ void Tile::updateFromPacket(ODPacket& is)
     std::stringstream ss;
 
     // We set the seat if there is one
-    OD_ASSERT_TRUE(is >> mIsBuilding);
+    OD_ASSERT_TRUE(is >> mIsRoom);
+    OD_ASSERT_TRUE(is >> mIsTrap);
     OD_ASSERT_TRUE(is >> mRefundPriceRoom);
     OD_ASSERT_TRUE(is >> mRefundPriceTrap);
 

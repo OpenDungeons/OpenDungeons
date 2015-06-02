@@ -268,6 +268,7 @@ public:
     void exportToPacket(ODPacket& os) const;
 
     /*! \brief Updates the tile from the data sent by the server so that it is correctly displayed and used
+     *  The packet is filled in Seat::exportTileToPacket
      */
     void updateFromPacket(ODPacket& is);
 
@@ -360,8 +361,12 @@ public:
 
     //! \brief returns true if there is a building on this tile and false otherwise.
     //! client side function
-    bool getIsBuilding() const
-    { return mIsBuilding; }
+    inline bool getIsBuilding() const
+    { return mIsRoom || mIsTrap; }
+    inline bool getIsRoom() const
+    { return mIsRoom; }
+    inline bool getIsTrap() const
+    { return mIsTrap; }
 
 protected:
     virtual void createMeshLocal();
@@ -413,7 +418,8 @@ private:
 
     //! \brief True if a building is on this tile. False otherwise. It is used on client side because the clients do not know about
     //! buildings. However, it needs to know the tiles where a building is to display the room/trap costs.
-    bool mIsBuilding;
+    bool mIsRoom;
+    bool mIsTrap;
 
     //! \brief Used on client side. true if the local player has vision, false otherwise.
     bool mLocalPlayerHasVision;

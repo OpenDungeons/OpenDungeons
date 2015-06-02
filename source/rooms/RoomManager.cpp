@@ -223,7 +223,7 @@ void RoomManager::checkSellRoomTiles(GameMap* gameMap, const InputManager& input
         // We do not differentiate between room and trap (because there is no way to know on client side).
         // Note that price = 0 doesn't mean that the building is not a room
         Tile* tile = gameMap->getTile(inputManager.mXPos, inputManager.mYPos);
-        if((tile == nullptr) || (!tile->getIsBuilding()) || (tile->getSeat() != player->getSeat()))
+        if((tile == nullptr) || (!tile->getIsRoom()) || (tile->getSeat() != player->getSeat()))
         {
             std::string txt = formatSellRoom(0);
             inputCommand.displayText(Ogre::ColourValue::White, txt);
@@ -246,7 +246,7 @@ void RoomManager::checkSellRoomTiles(GameMap* gameMap, const InputManager& input
     uint32_t priceTotal = 0;
     for(Tile* tile : tiles)
     {
-        if(!tile->getIsBuilding())
+        if(!tile->getIsRoom())
             continue;
 
         if(tile->getSeat() != player->getSeat())
@@ -365,7 +365,7 @@ void RoomManager::checkSellRoomTilesEditor(GameMap* gameMap, const InputManager&
         // We do not differentiate between room and trap (because there is no way to know on client side).
         // Note that price = 0 doesn't mean that the building is not a room
         Tile* tile = gameMap->getTile(inputManager.mXPos, inputManager.mYPos);
-        if((tile == nullptr) || (!tile->getIsBuilding()))
+        if((tile == nullptr) || (!tile->getIsRoom()))
         {
             inputCommand.displayText(Ogre::ColourValue::White, "Remove tiles");
             inputCommand.selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos, inputManager.mYPos);
@@ -384,7 +384,7 @@ void RoomManager::checkSellRoomTilesEditor(GameMap* gameMap, const InputManager&
         inputManager.mYPos, inputManager.mLStartDragX, inputManager.mLStartDragY);
     for(Tile* tile : tiles)
     {
-        if(!tile->getIsBuilding())
+        if(!tile->getIsRoom())
             continue;
 
         sellTiles.push_back(tile);

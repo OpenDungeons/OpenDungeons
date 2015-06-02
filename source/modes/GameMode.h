@@ -175,6 +175,8 @@ private:
 
     //! \brief Called when there is a mouse input change
     void checkInputCommand();
+    void handlePlayerActionNone();
+    void handlePlayerActionSelectTile();
 };
 
 #endif // GAMEMODE_H

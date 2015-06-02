@@ -1457,25 +1457,29 @@ void Seat::exportTileToPacket(ODPacket& os, Tile* tile) const
         meshName.clear();
         scale = Ogre::Vector3::ZERO;
     }
-    bool isBuilding = (tileState.mBuilding != nullptr);
+    bool isRoom = false;
+    bool isTrap = false;
     uint32_t refundPriceRoom = 0;
     uint32_t refundPriceTrap = 0;
     if(tileState.mBuilding != nullptr)
     {
         if(tileState.mBuilding->getObjectType() == GameEntityType::room)
         {
+            isRoom = true;
             Room* room = static_cast<Room*>(tileState.mBuilding);
             if(room->getSeat() == this)
                 refundPriceRoom = (RoomManager::costPerTile(room->getType()) / 2);
         }
         else if(tileState.mBuilding->getObjectType() == GameEntityType::trap)
         {
+            isTrap = true;
             Trap* trap = static_cast<Trap*>(tileState.mBuilding);
             if(trap->getSeat() == this)
                 refundPriceTrap = (TrapManager::costPerTile(trap->getType()) / 2);
         }
     }
-    os << isBuilding;
+    os << isRoom;
+    os << isTrap;
     os << refundPriceRoom;
     os << refundPriceTrap;
     os << tileSeatId;
