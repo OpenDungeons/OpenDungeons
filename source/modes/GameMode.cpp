@@ -1393,6 +1393,7 @@ void GameMode::checkInputCommand()
 
     switch(mPlayerSelection.getCurrentAction())
     {
+        case SelectedAction::none:
         case SelectedAction::selectTile:
             break;
         case SelectedAction::buildRoom:
@@ -1412,6 +1413,13 @@ void GameMode::checkInputCommand()
             return;
         default:
             return;
+    }
+
+    if(inputManager.mCommandState == InputCommandState::infoOnly)
+    {
+        selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos,
+            inputManager.mYPos);
+        return;
     }
 
     if(inputManager.mCommandState == InputCommandState::building)
