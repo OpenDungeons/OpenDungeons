@@ -259,13 +259,13 @@ RoomTreasuryTileData* RoomTreasury::createTileData(Tile* tile)
 void RoomTreasury::checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
 {
     Player* player = gameMap->getLocalPlayer();
-    std::vector<Room*> treasuriesOwned = gameMap->getRoomsByTypeAndSeat(RoomType::treasury, player->getSeat());
+    int nbTreasuries = player->getSeat()->getNbTreasuries();
     int32_t pricePerTarget = RoomManager::costPerTile(RoomType::treasury);
     int32_t playerGold = static_cast<int32_t>(player->getSeat()->getGold());
     if(inputManager.mCommandState == InputCommandState::infoOnly)
     {
         // First treasury tile is free
-        if(treasuriesOwned.empty())
+        if(nbTreasuries <= 0)
             pricePerTarget = 0;
 
         if(playerGold < pricePerTarget)
@@ -297,7 +297,7 @@ void RoomTreasury::checkBuildRoom(GameMap* gameMap, const InputManager& inputMan
 
     int32_t priceTotal = static_cast<int32_t>(buildableTiles.size()) * pricePerTarget;
     // First treasury tile is free
-    if(treasuriesOwned.empty())
+    if(nbTreasuries <= 0)
         priceTotal -= pricePerTarget;
 
     if(playerGold < priceTotal)
