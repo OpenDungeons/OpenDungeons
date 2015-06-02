@@ -40,6 +40,34 @@
 #include <istream>
 #include <ostream>
 
+
+void TrapTileData::fireSeatsSawTriggering()
+{
+    if(mTrapEntity == nullptr)
+        return;
+
+    for(Seat* seat : mSeatsVision)
+        mTrapEntity->seatSawTriggering(seat);
+}
+
+void TrapTileData::seatSawTriggering(Seat* seat)
+{
+    if(std::find(mSeatsVision.begin(), mSeatsVision.end(), seat) != mSeatsVision.end())
+        return;
+
+    mSeatsVision.push_back(seat);
+    if(mTrapEntity == nullptr)
+        return;
+
+    mTrapEntity->seatSawTriggering(seat);
+}
+
+void TrapTileData::seatsSawTriggering(const std::vector<Seat*>& seats)
+{
+    for(Seat* seat : seats)
+        seatSawTriggering(seat);
+}
+
 Trap::Trap(GameMap* gameMap) :
     Building(gameMap),
     mNbShootsBeforeDeactivation(0),
@@ -110,10 +138,9 @@ void Trap::doUpkeep()
                 deactivate(tile);
 
             const std::vector<Seat*>& seats = tile->getSeatsWithVision();
-            TrapEntity* trapEntity = trapTileData->getTrapEntity();
-            trapEntity->seatsSawTriggering(seats);
+            trapTileData->seatsSawTriggering(seats);
 
-            for(Seat* seat : trapEntity->getSeatsNotHidden())
+            for(Seat* seat : trapTileData->mSeatsVision)
                 seat->setVisibleBuildingOnTile(this, tile);
         }
     }
@@ -190,15 +217,13 @@ RenderedMovableEntity* Trap::notifyActiveSpotCreated(Tile* tile)
     if(trapEntity == nullptr)
         return nullptr;
 
-    // Allied seats with the creator do see the trap from the start
-    trapEntity->seatSawTriggering(getSeat());
-    trapEntity->seatsSawTriggering(getSeat()->getAlliedSeats());
-
-    for(Seat* seat : trapEntity->getSeatsNotHidden())
-        seat->setVisibleBuildingOnTile(this, tile);
-
     TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData[tile]);
     trapTileData->setTrapEntity(trapEntity);
+    trapTileData->fireSeatsSawTriggering();
+
+    for(Seat* seat : trapTileData->mSeatsVision)
+        seat->setVisibleBuildingOnTile(this, tile);
+
     return trapEntity;
 }
 
@@ -253,6 +278,8 @@ void Trap::setupTrap(const std::string& name, Seat* seat, const std::vector<Tile
 {
     setName(name);
     setSeat(seat);
+    std::vector<Seat*> alliedSeats = seat->getAlliedSeats();
+    alliedSeats.push_back(seat);
     for(Tile* tile : tiles)
     {
         mCoveredTiles.push_back(tile);
@@ -260,7 +287,8 @@ void Trap::setupTrap(const std::string& name, Seat* seat, const std::vector<Tile
         mTileData[tile] = trapTileData;
         trapTileData->mHP = DEFAULT_TILE_HP;
         trapTileData->setReloadTime(mReloadTime);
-
+        // Allied seats with the creator do see the trap from the start
+        trapTileData->seatsSawTriggering(alliedSeats);
         tile->setCoveringBuilding(this);
     }
 }
@@ -373,8 +401,7 @@ bool Trap::isAttackable(Tile* tile, Seat* seat) const
     }
 
     TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData.at(tile));
-    const std::vector<Seat*>& seatsNotHidden = trapTileData->getTrapEntity()->getSeatsNotHidden();
-    if(std::find(seatsNotHidden.begin(), seatsNotHidden.end(), seat) == seatsNotHidden.end())
+    if(std::find(trapTileData->mSeatsVision.begin(), trapTileData->mSeatsVision.end(), seat) == trapTileData->mSeatsVision.end())
         return false;
 
     return true;
@@ -392,6 +419,7 @@ void Trap::restoreInitialEntityState()
         for(Seat* seat : p.second->mSeatsVision)
             seat->setVisibleBuildingOnTile(this, p.first);
 
+        trapTileData->seatsSawTriggering(trapTileData->mSeatsVision);
         TrapEntity* trapEntity = trapTileData->getTrapEntity();
         if(trapEntity == nullptr)
         {
@@ -399,9 +427,8 @@ void Trap::restoreInitialEntityState()
             continue;
         }
 
-        trapEntity->seatsSawTriggering(trapTileData->mSeatsVision);
         trapEntity->notifySeatsWithVision(trapTileData->mSeatsVision);
-        for(Seat* seat : trapEntity->getSeatsNotHidden())
+        for(Seat* seat : trapTileData->mSeatsVision)
             seat->setVisibleBuildingOnTile(this, p.first);
     }
 }
@@ -518,11 +545,7 @@ bool Trap::isTileVisibleForSeat(Tile* tile, Seat* seat) const
     }
 
     const TrapTileData* trapTileData = static_cast<TrapTileData*>(mTileData.at(tile));
-    if(trapTileData->getTrapEntity() == nullptr)
-        return false;
-
-    const std::vector<Seat*>& seatsNotHidden = trapTileData->getTrapEntity()->getSeatsNotHidden();
-    if(std::find(seatsNotHidden.begin(), seatsNotHidden.end(), seat) == seatsNotHidden.end())
+    if(std::find(trapTileData->mSeatsVision.begin(), trapTileData->mSeatsVision.end(), seat) == trapTileData->mSeatsVision.end())
         return false;
 
     return true;
@@ -653,8 +676,6 @@ bool Trap::buildTrapDefault(GameMap* gameMap, Trap* trap, Seat* seat, const std:
     trap->addToGameMap();
     trap->createMesh();
 
-    trap->updateActiveSpots();
-
     if((seat->getPlayer() != nullptr) &&
        (seat->getPlayer()->getIsHuman()))
     {
@@ -694,6 +715,8 @@ bool Trap::buildTrapDefault(GameMap* gameMap, Trap* trap, Seat* seat, const std:
             ODServer::getSingleton().sendAsyncMsg(serverNotification);
         }
     }
+
+    trap->updateActiveSpots();
 
     return true;
 }

@@ -140,6 +140,10 @@ public:
     inline void setRemoveTrap(bool removeTrap)
     { mRemoveTrap = removeTrap; }
 
+    void fireSeatsSawTriggering();
+    void seatSawTriggering(Seat* seat);
+    void seatsSawTriggering(const std::vector<Seat*>& seats);
+
     double mClaimedValue;
 
 private:

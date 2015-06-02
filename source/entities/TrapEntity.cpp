@@ -73,12 +73,6 @@ bool TrapEntity::isVisibleForSeat(Seat* seat)
     return true;
 }
 
-void TrapEntity::seatsSawTriggering(const std::vector<Seat*>& seats)
-{
-    for(Seat* seat : seats)
-        seatSawTriggering(seat);
-}
-
 void TrapEntity::seatSawTriggering(Seat* seat)
 {
     if(std::find(mSeatsNotHidden.begin(), mSeatsNotHidden.end(), seat) != mSeatsNotHidden.end())
