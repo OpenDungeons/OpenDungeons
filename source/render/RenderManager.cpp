@@ -79,8 +79,8 @@ RenderManager::RenderManager(Ogre::OverlaySystem* overlaySystem) :
     mHandAnimationState(nullptr),
     mViewport(nullptr),
     mShaderGenerator(nullptr),
-    mHandLight(nullptr),
-    mHandKeeperMesh(nullptr),
+    mHandKeeperNode(nullptr),
+    mHandKeeperPickupNode(nullptr),
     mCurrentFOVy(0.0f),
     mFactorWidth(0.0f),
     mFactorHeight(0.0f),
@@ -137,13 +137,13 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     mSceneManager->setAmbientLight(Ogre::ColourValue(0.3, 0.3, 0.3));
 
     // Create the nodes that will follow the mouse pointer.
-    Ogre::SceneNode *handNode = mSceneManager->getRootSceneNode()->createChildSceneNode("Hand_node");
-    handNode->setPosition(static_cast<Ogre::Real>(0.0),
-                       static_cast<Ogre::Real>(0.0 / BLENDER_UNITS_PER_OGRE_UNIT),
-                       static_cast<Ogre::Real>(3.0 / BLENDER_UNITS_PER_OGRE_UNIT));
-    handNode->scale(Ogre::Vector3(static_cast<Ogre::Real>(1.0 / BLENDER_UNITS_PER_OGRE_UNIT),
-                               static_cast<Ogre::Real>(1.0 / BLENDER_UNITS_PER_OGRE_UNIT),
-                               static_cast<Ogre::Real>(1.0 / BLENDER_UNITS_PER_OGRE_UNIT)));
+    mHandKeeperPickupNode = mSceneManager->getRootSceneNode()->createChildSceneNode("Hand_node");
+    mHandKeeperPickupNode->setPosition(static_cast<Ogre::Real>(0.0),
+                       static_cast<Ogre::Real>(0.0),
+                       static_cast<Ogre::Real>(KEEPER_HAND_WORLD_Z));
+    mHandKeeperPickupNode->scale(static_cast<Ogre::Real>(1.0),
+                       static_cast<Ogre::Real>(1.0),
+                       static_cast<Ogre::Real>(0.15));
 
     Ogre::ParticleSystem::setDefaultNonVisibleUpdateTimeout(5);
 
@@ -157,19 +157,18 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
 
     Ogre::OverlayManager& overlayManager = Ogre::OverlayManager::getSingleton();
     Ogre::Overlay* handKeeperOverlay = overlayManager.create(keeperHandEnt->getName() + "_Ov");
-    mHandKeeperMesh = mSceneManager->createSceneNode(keeperHandEnt->getName() + "_node");
-    mHandKeeperMesh->attachObject(keeperHandEnt);
-    mHandKeeperMesh->setScale(0.12f, 0.12f, 0.12f);
-    mHandKeeperMesh->setPosition(0.0f, 0.0f, -KEEPER_HAND_POS_Z);
-    handKeeperOverlay->add3D(mHandKeeperMesh);
-    mHandKeeperMesh->setVisible(true);
+    mHandKeeperNode = mSceneManager->createSceneNode(keeperHandEnt->getName() + "_node");
+    mHandKeeperNode->attachObject(keeperHandEnt);
+    mHandKeeperNode->setScale(0.12f, 0.12f, 0.12f);
+    mHandKeeperNode->setPosition(0.0f, 0.0f, -KEEPER_HAND_POS_Z);
+    handKeeperOverlay->add3D(mHandKeeperNode);
     handKeeperOverlay->show();
 
     //Add a too small to be visible dummy dirt tile to the hand node
     //so that there will allways be a dirt tile "visible"
     //This is an ugly workaround for issue where destroying some entities messes
     //up the lighing for some of the rtshader materials.
-    Ogre::SceneNode* dummyNode = mHandKeeperMesh->createChildSceneNode("Dummy_node");
+    Ogre::SceneNode* dummyNode = mHandKeeperNode->createChildSceneNode("Dummy_node");
     dummyNode->setScale(Ogre::Vector3(0.00000001f, 0.00000001f, 0.00000001f));
     Ogre::Entity* dummyEnt = mSceneManager->createEntity("Dirt_fl_0000.mesh");
     dummyEnt->setLightMask(0);
@@ -177,14 +176,14 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     dummyNode->attachObject(dummyEnt);
 
     // Create the light which follows the single tile selection mesh
-    mHandLight = mSceneManager->createLight("MouseLight");
-    mHandLight->setType(Ogre::Light::LT_POINT);
-    mHandLight->setDiffuseColour(Ogre::ColourValue(0.65, 0.65, 0.45));
-    mHandLight->setSpecularColour(Ogre::ColourValue(0.65, 0.65, 0.45));
-    mHandLight->setPosition(0.0f, 0.0f, KEEPER_HAND_WORLD_Z);
-    mHandLight->setAttenuation(7, 1.0, 0.00, 0.3);
+    Ogre::Light* handLight = mSceneManager->createLight("MouseLight");
+    handLight->setType(Ogre::Light::LT_POINT);
+    handLight->setDiffuseColour(Ogre::ColourValue(0.65, 0.65, 0.45));
+    handLight->setSpecularColour(Ogre::ColourValue(0.65, 0.65, 0.45));
+    handLight->setAttenuation(7, 1.0, 0.00, 0.3);
+    mHandKeeperPickupNode->attachObject(handLight);
 
-    mHandKeeperMesh->setVisible(mHandKeeperHandVisibility == 0);
+    mHandKeeperNode->setVisible(mHandKeeperHandVisibility == 0);
 }
 
 void RenderManager::updateRenderAnimations(Ogre::Real timeSinceLastFrame)
@@ -673,20 +672,12 @@ void RenderManager::rrPickUpEntity(GameEntity* curEntity, Player* localPlayer)
     curEntity->getParentSceneNode()->removeChild(curEntityNode);
 
     // Attach the creature to the hand scene node
-    mSceneManager->getSceneNode("Hand_node")->addChild(curEntityNode);
+    mHandKeeperPickupNode->addChild(curEntityNode);
     Ogre::Vector3 scale = curEntity->getScale();
     scale *= 0.33;
     curEntityNode->setScale(scale);
 
-    // Move the other creatures in the player's hand to make room for the one just picked up.
-    int i = 0;
-    const std::vector<GameEntity*>& objectsInHand = localPlayer->getObjectsInHand();
-    for (GameEntity* tmpEntity : objectsInHand)
-    {
-        Ogre::SceneNode* tmpEntityNode = mSceneManager->getSceneNode(tmpEntity->getOgreNamePrefix() + tmpEntity->getName() + "_node");
-        tmpEntityNode->setPosition(static_cast<Ogre::Real>(i % 6 + 1), static_cast<Ogre::Real>(i / 6), static_cast<Ogre::Real>(0.0));
-        ++i;
-    }
+    rrOrderHand(localPlayer);
 }
 
 void RenderManager::rrDropHand(GameEntity* curEntity, Player* localPlayer)
@@ -702,7 +693,7 @@ void RenderManager::rrDropHand(GameEntity* curEntity, Player* localPlayer)
 
     // Detach the entity from the "hand" scene node
     Ogre::SceneNode* curEntityNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
-    mSceneManager->getSceneNode("Hand_node")->removeChild(curEntityNode);
+    mHandKeeperPickupNode->removeChild(curEntityNode);
 
     // Attach the creature from the creature scene node
     curEntity->getParentSceneNode()->addChild(curEntityNode);
@@ -711,13 +702,21 @@ void RenderManager::rrDropHand(GameEntity* curEntity, Player* localPlayer)
     curEntityNode->setPosition(position);
     curEntityNode->setScale(curEntity->getScale());
 
-    // Move the other creatures in the player's hand to replace the dropped one
+    rrOrderHand(localPlayer);
+}
+
+void RenderManager::rrOrderHand(Player* localPlayer)
+{
+    // Move the other creatures in the player's hand to make room for the one just picked up.
     int i = 0;
     const std::vector<GameEntity*>& objectsInHand = localPlayer->getObjectsInHand();
     for (GameEntity* tmpEntity : objectsInHand)
     {
-        Ogre::SceneNode* tmpEntityNode = mSceneManager->getSceneNode(tmpEntity->getOgreNamePrefix() + tmpEntity->getName() + "_node");
-        tmpEntityNode->setPosition(static_cast<Ogre::Real>(i % 6 + 1), static_cast<Ogre::Real>(i / 6), static_cast<Ogre::Real>(0.0));
+        Ogre::Vector3 pos;
+        pos.x = static_cast<Ogre::Real>(i % 6 + 1) * 0.5;
+        pos.y = static_cast<Ogre::Real>(i / 6) * 0.5;
+        pos.z = 0;
+        tmpEntity->getEntityNode()->setPosition(pos);
         ++i;
     }
 }
@@ -1087,7 +1086,7 @@ void RenderManager::rrToggleHandSelectorVisibility()
     else
         mHandKeeperHandVisibility &= ~0x01;
 
-    mHandKeeperMesh->setVisible(mHandKeeperHandVisibility == 0);
+    mHandKeeperNode->setVisible(mHandKeeperHandVisibility == 0);
 }
 
 void RenderManager::setEntityOpacity(Ogre::Entity* ent, float opacity)
@@ -1200,12 +1199,12 @@ void RenderManager::moveCursor(float relX, float relY)
         }
     }
 
-    mHandKeeperMesh->setPosition(mFactorWidth * (relX - 0.5f), mFactorHeight * (0.5f - relY), -KEEPER_HAND_POS_Z);
+    mHandKeeperNode->setPosition(mFactorWidth * (relX - 0.5f), mFactorHeight * (0.5f - relY), -KEEPER_HAND_POS_Z);
 }
 
 void RenderManager::moveWorldCoords(Ogre::Real x, Ogre::Real y)
 {
-    mHandLight->setPosition(x, y, KEEPER_HAND_WORLD_Z);
+    mHandKeeperPickupNode->setPosition(x, y, KEEPER_HAND_WORLD_Z);
 }
 
 void RenderManager::entitySlapped()

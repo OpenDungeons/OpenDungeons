@@ -135,6 +135,9 @@ public:
 
 private:
 
+    //! \brief Correctly places entities in hand next to the keeper hand
+    void rrOrderHand(Player* localPlayer);
+
     //! \brief Colorize the material with the corresponding team id color.
     //! \note If the material (wall tiles only) is marked for digging, a yellow color is added
     //! to the given color.
@@ -164,8 +167,8 @@ private:
     Ogre::RTShader::ShaderGenerator* mShaderGenerator;
 
     //! For the keeper hand
-    Ogre::Light* mHandLight;
-    Ogre::SceneNode* mHandKeeperMesh;
+    Ogre::SceneNode* mHandKeeperNode;
+    Ogre::SceneNode* mHandKeeperPickupNode;
     Ogre::Radian mCurrentFOVy;
     Ogre::Real mFactorWidth;
     Ogre::Real mFactorHeight;
