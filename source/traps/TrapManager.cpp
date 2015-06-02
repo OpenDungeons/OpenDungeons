@@ -225,7 +225,6 @@ void TrapManager::checkSellTrapTiles(GameMap* gameMap, const InputManager& input
         Tile* tile = gameMap->getTile(inputManager.mXPos, inputManager.mYPos);
         if((tile == nullptr) || (!tile->getIsBuilding()) || (tile->getSeat() != player->getSeat()))
         {
-            inputCommand.unselectAllTiles();
             std::string txt = formatSellTrap(0);
             inputCommand.displayText(Ogre::ColourValue::White, txt);
             inputCommand.selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos, inputManager.mYPos);
@@ -247,10 +246,8 @@ void TrapManager::checkSellTrapTiles(GameMap* gameMap, const InputManager& input
     uint32_t priceTotal = 0;
     for(Tile* tile : tiles)
     {
-        // FIXME: ATM, building is not refreshed when building a trap on client side. For this reason,
-        // we accept any tile as soon as it is claimed by the correct seat
-//        if(!tile->getIsBuilding())
-//            continue;
+        if(!tile->getIsBuilding())
+            continue;
 
         if(tile->getSeat() != player->getSeat())
             continue;
@@ -266,6 +263,8 @@ void TrapManager::checkSellTrapTiles(GameMap* gameMap, const InputManager& input
         inputCommand.displayText(Ogre::ColourValue::White, txt);
         return;
     }
+
+    inputCommand.unselectAllTiles();
 
     ClientNotification *clientNotification = new ClientNotification(
         ClientNotificationType::askSellTrapTiles);
@@ -368,7 +367,6 @@ void TrapManager::checkSellTrapTilesEditor(GameMap* gameMap, const InputManager&
         Tile* tile = gameMap->getTile(inputManager.mXPos, inputManager.mYPos);
         if((tile == nullptr) || (!tile->getIsBuilding()))
         {
-            inputCommand.unselectAllTiles();
             inputCommand.displayText(Ogre::ColourValue::White, "Remove tiles");
             inputCommand.selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos, inputManager.mYPos);
             return;
@@ -386,10 +384,8 @@ void TrapManager::checkSellTrapTilesEditor(GameMap* gameMap, const InputManager&
         inputManager.mYPos, inputManager.mLStartDragX, inputManager.mLStartDragY);
     for(Tile* tile : tiles)
     {
-        // FIXME: ATM, building is not refreshed when building a trap on client side. For this reason,
-        // we accept any tile as soon as it is claimed by the correct seat
-//        if(!tile->getIsBuilding())
-//            continue;
+        if(!tile->getIsBuilding())
+            continue;
 
         sellTiles.push_back(tile);
     }
@@ -400,6 +396,8 @@ void TrapManager::checkSellTrapTilesEditor(GameMap* gameMap, const InputManager&
         inputCommand.displayText(Ogre::ColourValue::White, "Remove tiles");
         return;
     }
+
+    inputCommand.unselectAllTiles();
 
     ClientNotification *clientNotification = new ClientNotification(
         ClientNotificationType::editorAskDestroyTrapTiles);

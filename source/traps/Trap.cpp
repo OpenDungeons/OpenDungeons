@@ -653,6 +653,8 @@ bool Trap::buildTrapDefault(GameMap* gameMap, Trap* trap, Seat* seat, const std:
     trap->addToGameMap();
     trap->createMesh();
 
+    trap->updateActiveSpots();
+
     if((seat->getPlayer() != nullptr) &&
        (seat->getPlayer()->getIsHuman()))
     {
@@ -692,8 +694,6 @@ bool Trap::buildTrapDefault(GameMap* gameMap, Trap* trap, Seat* seat, const std:
             ODServer::getSingleton().sendAsyncMsg(serverNotification);
         }
     }
-
-    trap->updateActiveSpots();
 
     return true;
 }

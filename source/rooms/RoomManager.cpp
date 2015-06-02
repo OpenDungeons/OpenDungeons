@@ -225,7 +225,6 @@ void RoomManager::checkSellRoomTiles(GameMap* gameMap, const InputManager& input
         Tile* tile = gameMap->getTile(inputManager.mXPos, inputManager.mYPos);
         if((tile == nullptr) || (!tile->getIsBuilding()) || (tile->getSeat() != player->getSeat()))
         {
-            inputCommand.unselectAllTiles();
             std::string txt = formatSellRoom(0);
             inputCommand.displayText(Ogre::ColourValue::White, txt);
             inputCommand.selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos, inputManager.mYPos);
@@ -264,6 +263,8 @@ void RoomManager::checkSellRoomTiles(GameMap* gameMap, const InputManager& input
         inputCommand.displayText(Ogre::ColourValue::White, txt);
         return;
     }
+
+    inputCommand.unselectAllTiles();
 
     ClientNotification *clientNotification = new ClientNotification(
         ClientNotificationType::askSellRoomTiles);
@@ -366,7 +367,6 @@ void RoomManager::checkSellRoomTilesEditor(GameMap* gameMap, const InputManager&
         Tile* tile = gameMap->getTile(inputManager.mXPos, inputManager.mYPos);
         if((tile == nullptr) || (!tile->getIsBuilding()))
         {
-            inputCommand.unselectAllTiles();
             inputCommand.displayText(Ogre::ColourValue::White, "Remove tiles");
             inputCommand.selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos, inputManager.mYPos);
             return;
@@ -396,6 +396,8 @@ void RoomManager::checkSellRoomTilesEditor(GameMap* gameMap, const InputManager&
         inputCommand.displayText(Ogre::ColourValue::White, "Remove tiles");
         return;
     }
+
+    inputCommand.unselectAllTiles();
 
     ClientNotification *clientNotification = new ClientNotification(
         ClientNotificationType::editorAskDestroyRoomTiles);

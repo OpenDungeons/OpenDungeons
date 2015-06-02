@@ -1272,7 +1272,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
         case ClientNotificationType::askSellTrapTiles:
         {
-            TrapManager::sellTrapTilesEditor(gameMap, packetReceived);
+            Player* player = clientSocket->getPlayer();
+            TrapManager::sellTrapTiles(gameMap, player->getSeat(), packetReceived);
             break;
         }
 
