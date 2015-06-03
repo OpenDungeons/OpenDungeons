@@ -74,6 +74,7 @@ public:
     static void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
     static bool buildRoomEditor(GameMap* gameMap, ODPacket& packet);
     static Room* getRoomFromStream(GameMap* gameMap, std::istream& is);
+    static int32_t getRoomCostForPlayer(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles);
 
 protected:
     RoomTreasuryTileData* createTileData(Tile* tile) override;

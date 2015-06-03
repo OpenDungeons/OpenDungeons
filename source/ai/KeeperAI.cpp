@@ -251,7 +251,7 @@ bool KeeperAI::checkTreasury()
 
     std::vector<Tile*> tiles;
     tiles.push_back(firstAvailableTile);
-    int goldRequired = static_cast<int>(tiles.size()) * RoomManager::costPerTile(RoomType::treasury);
+    int32_t goldRequired = RoomTreasury::getRoomCostForPlayer(&mGameMap, &mPlayer, tiles);
 
     if(!mGameMap.withdrawFromTreasuries(goldRequired, mPlayer.getSeat()))
         return false;

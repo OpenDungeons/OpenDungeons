@@ -328,13 +328,7 @@ bool RoomTreasury::buildRoom(GameMap* gameMap, Player* player, ODPacket& packet)
     if(!getRoomTilesDefault(tiles, gameMap, player, packet))
         return false;
 
-    int32_t pricePerTarget = RoomManager::costPerTile(RoomType::treasury);
-    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
-    // First treasury tile is free
-    std::vector<Room*> treasuriesOwned = gameMap->getRoomsByTypeAndSeat(RoomType::treasury, player->getSeat());
-    if(treasuriesOwned.empty())
-        price -= pricePerTarget;
-
+    int32_t price = getRoomCostForPlayer(gameMap, player, tiles);
     if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
         return false;
 
@@ -391,8 +385,7 @@ bool RoomTreasury::buildRoom(GameMap* gameMap, Player* player, ODPacket& packet)
 
 bool RoomTreasury::buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles)
 {
-    int32_t pricePerTarget = RoomManager::costPerTile(RoomType::treasury);
-    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+    int32_t price = getRoomCostForPlayer(gameMap, player, tiles);
     if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
         return false;
 
@@ -414,4 +407,16 @@ bool RoomTreasury::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
 Room* RoomTreasury::getRoomFromStream(GameMap* gameMap, std::istream& is)
 {
     return new RoomTreasury(gameMap);
+}
+
+int32_t RoomTreasury::getRoomCostForPlayer(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles)
+{
+    int32_t pricePerTarget = RoomManager::costPerTile(RoomType::treasury);
+    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+    // First treasury tile is free
+    std::vector<Room*> treasuriesOwned = gameMap->getRoomsByTypeAndSeat(RoomType::treasury, player->getSeat());
+    if(treasuriesOwned.empty())
+        price -= pricePerTarget;
+
+    return price;
 }
