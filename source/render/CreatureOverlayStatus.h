@@ -20,6 +20,8 @@
 
 #include <OgrePrerequisites.h>
 
+#include <cstdint>
+
 class Creature;
 class MovableTextOverlay;
 class Seat;
