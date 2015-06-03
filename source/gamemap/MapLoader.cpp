@@ -266,9 +266,11 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
             continue;
 
         Room* tempRoom = RoomManager::getRoomFromStream(&gameMap, levelFile);
-        OD_ASSERT_TRUE(tempRoom != nullptr);
         if(tempRoom == nullptr)
+        {
+            OD_LOG_ERR("unexpected null room");
             return false;
+        }
 
         tempRoom->importFromStream(levelFile);
 
@@ -300,9 +302,11 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
             return false;
 
         Trap* tempTrap = TrapManager::getTrapFromStream(&gameMap, levelFile);
-        OD_ASSERT_TRUE(tempTrap != nullptr);
         if(tempTrap == nullptr)
+        {
+            OD_LOG_ERR("unexpected null trap");
             return false;
+        }
 
         tempTrap->importFromStream(levelFile);
         tempTrap->addToGameMap();
@@ -335,9 +339,11 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 
         std::stringstream ss(entire_line);
         MapLight* tempLight = MapLight::getMapLightFromStream(&gameMap, ss);
-        OD_ASSERT_TRUE(tempLight != nullptr);
         if(tempLight == nullptr)
+        {
+            OD_LOG_ERR("unexpected null map light");
             return false;
+        }
         tempLight->importFromStream(ss);
         tempLight->setName(gameMap.nextUniqueNameMapLight());
         tempLight->addToGameMap();
@@ -360,7 +366,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 
             if (nextParam != "[CreatureMood]")
             {
-                OD_ASSERT_TRUE_MSG(false, "Invalid CreatureMood format. Line was " + nextParam);
+                OD_LOG_ERR("Invalid CreatureMood format. Line was " + nextParam);
                 return false;
             }
 
@@ -368,7 +374,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
                     break;
             if (nextParam != "CreatureMoodName")
             {
-                OD_ASSERT_TRUE_MSG(false, "Invalid CreatureMoodName format. Line was " + nextParam);
+                OD_LOG_ERR("Invalid CreatureMoodName format. Line was " + nextParam);
                 return false;
             }
             std::string moodModifierName;
@@ -385,7 +391,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 
                 if (nextParam != "[MoodModifier]")
                 {
-                    OD_ASSERT_TRUE_MSG(false, "Invalid CreatureMood MoodModifier format. nextParam=" + nextParam);
+                    OD_LOG_ERR("Invalid CreatureMood MoodModifier format. nextParam=" + nextParam);
                     return false;
                 }
 
@@ -393,7 +399,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
                 CreatureMood* def = CreatureMood::load(levelFile);
                 if (def == nullptr)
                 {
-                    OD_ASSERT_TRUE_MSG(false, "Invalid CreatureMood MoodModifier definition");
+                    OD_LOG_ERR("Invalid CreatureMood MoodModifier definition");
                     return false;
                 }
                 moodModifiers.push_back(def);
@@ -498,9 +504,11 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 
         std::stringstream ss(entire_line);
         Creature* tempCreature = Creature::getCreatureFromStream(&gameMap, ss);
-        OD_ASSERT_TRUE(tempCreature != nullptr);
         if(tempCreature == nullptr)
+        {
+            OD_LOG_ERR("unexpected null creature");
             return false;
+        }
 
         tempCreature->importFromStream(ss);
         tempCreature->addToGameMap();
@@ -570,9 +578,11 @@ bool readGameEntity(GameMap& gameMap, const std::string& item, GameEntityType ty
 
         std::stringstream ss(entire_line);
         GameEntity* entity = Entities::getGameEntityFromStream(&gameMap, type, ss);
-        OD_ASSERT_TRUE(entity != nullptr);
         if(entity == nullptr)
+        {
+            OD_LOG_ERR("unexpected null entity type=" + Helper::toString(static_cast<uint32_t>(type)));
             return false;
+        }
 
         entity->addToGameMap();
         ++nbEntity;

@@ -532,7 +532,11 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
     }
 
     Player* player = mGameMap->getLocalPlayer();
-    OD_ASSERT_TRUE_MSG(player, "LOCAL PLAYER DOES NOT EXIST!!");
+    if(player == nullptr)
+    {
+        OD_LOG_ERR("LOCAL PLAYER DOES NOT EXIST!!");
+        return true;
+    }
 
     // See if the mouse is over any creatures
     for (;itr != result.end(); ++itr)

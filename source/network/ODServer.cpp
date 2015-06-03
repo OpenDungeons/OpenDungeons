@@ -341,7 +341,7 @@ void ODServer::startNewTurn(double timeSinceLastTurn)
             break;
         case ServerMode::ModeNone:
             // It is not normal to have no mode selected and starting turns
-            OD_ASSERT_TRUE(false);
+            OD_LOG_ERR("Wrong none server mode");
             break;
         default:
             break;
@@ -479,9 +479,11 @@ void ODServer::processServerNotifications()
         ServerNotification *event = mServerNotificationQueue.front();
         mServerNotificationQueue.pop_front();
 
-        OD_ASSERT_TRUE(event != nullptr);
         if(event == nullptr)
+        {
+            OD_LOG_ERR("unexpected null event");
             continue;
+        }
 
         switch (event->mType)
         {
@@ -726,9 +728,11 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             // On editor mode, we configure automatically seats
             mServerState = ServerState::StateGame;
             const std::vector<Seat*>& seats = gameMap->getSeats();
-            OD_ASSERT_TRUE(!seats.empty());
             if(seats.empty())
+            {
+                OD_LOG_ERR("unexpected empty seats in gamemap");
                 break;
+            }
 
             // By default, the first player to connect is the one allowed to configure game
             if(mPlayerConfig == nullptr)
@@ -889,8 +893,11 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         case ClientNotificationType::seatConfigurationSet:
         {
             // We change server state to make sure no new client will be accepted
-            OD_ASSERT_TRUE_MSG(mServerState == ServerState::StateConfiguration, "Wrong server state="
-                + Helper::toString(static_cast<int>(mServerState)));
+            if(mServerState != ServerState::StateConfiguration)
+            {
+                OD_LOG_ERR("Wrong server state=" + Helper::toString(static_cast<int>(mServerState)));
+                break;
+            }
 
             bool isConfigured = true;
             for(Seat* seat : gameMap->getSeats())
@@ -1063,9 +1070,11 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             Player *player = clientSocket->getPlayer();
             GameEntity* entity = gameMap->getEntityFromTypeAndName(entityType, entityName);
-            OD_ASSERT_TRUE_MSG(entity != nullptr, "entityType=" + Helper::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
             if(entity == nullptr)
+            {
+                OD_LOG_ERR("entityType=" + Helper::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
                 break;
+            }
             bool allowPickup = entity->tryPickup(player->getSeat());
             if(!allowPickup)
             {
@@ -1084,21 +1093,20 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         {
             Player *player = clientSocket->getPlayer();
             Tile* tile = gameMap->tileFromPacket(packetReceived);
-            OD_ASSERT_TRUE(tile != nullptr);
-            if(tile != nullptr)
+            if(tile == nullptr)
             {
-                if(player->isDropHandPossible(tile, 0))
-                {
-                    // We notify the players
-                    OD_ASSERT_TRUE(player->dropHand(tile, 0) != nullptr);
-                }
-                else
-                {
-                    OD_LOG_INF("player=" + player->getNick()
-                        + " could not drop entity in hand on tile "
-                        + Tile::displayAsString(tile));
-                }
+                OD_LOG_ERR("player seatId=" + Helper::toString(player->getSeat()->getId())
+                    + " send wrong tile");
+                break;
             }
+            if(!player->isDropHandPossible(tile, 0))
+            {
+                OD_LOG_ERR("player seatId=" + Helper::toString(player->getSeat()->getId())
+                    + " could not drop entity in hand on tile "
+                    + Tile::displayAsString(tile));
+                break;
+            }
+            player->dropHand(tile, 0);
             break;
         }
 
@@ -1144,10 +1152,11 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             Player* player = clientSocket->getPlayer();
             OD_ASSERT_TRUE(packetReceived >> entityType >> entityName);
             GameEntity* entity = gameMap->getEntityFromTypeAndName(entityType, entityName);
-            OD_ASSERT_TRUE_MSG(entity != nullptr, "entityType=" + Helper::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
             if(entity == nullptr)
+            {
+                OD_LOG_ERR("entityType=" + Helper::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
                 break;
-
+            }
 
             if(!entity->canSlap(player->getSeat()))
             {
@@ -1202,7 +1211,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         {
             if(mServerMode != ServerMode::ModeEditor)
             {
-                OD_ASSERT_TRUE_MSG(false, "Received editor command while wrong mode mode"
+                OD_LOG_ERR("Received editor command while wrong mode mode"
                     + Helper::toString(static_cast<int>(mServerMode)));
                 break;
             }
@@ -1280,7 +1289,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         {
             if(mServerMode != ServerMode::ModeEditor)
             {
-                OD_ASSERT_TRUE_MSG(false, "Received editor command while wrong mode mode"
+                OD_LOG_ERR("Received editor command while wrong mode mode"
                     + Helper::toString(static_cast<int>(mServerMode)));
                 break;
             }
@@ -1396,13 +1405,13 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                             else
                             {
                                 // We couldn't find any prefix. That's not normal
-                                OD_ASSERT_TRUE_MSG(false, "fileLevel=" + fileLevel);
+                                OD_LOG_ERR("fileLevel=" + fileLevel);
                                 ss << fileLevel;
                             }
                         }
                         break;
                     default:
-                        OD_ASSERT_TRUE_MSG(false, "mode=" + Helper::toString(static_cast<int>(mServerMode)));
+                        OD_LOG_ERR("mode=" + Helper::toString(static_cast<int>(mServerMode)));
                         ss << fileLevel;
                         break;
                 }
@@ -1424,8 +1433,11 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
         case ClientNotificationType::editorAskChangeTiles:
         {
-            OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
-                + Helper::toString(static_cast<int>(mServerMode)));
+            if(mServerMode != ServerMode::ModeEditor)
+            {
+                OD_LOG_ERR("Received editor command while wrong mode mode" + Helper::toString(static_cast<int>(mServerMode)));
+                break;
+            }
             int x1, y1, x2, y2;
             TileType tileType;
             double tileFullness;
@@ -1486,7 +1498,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         {
             if(mServerMode != ServerMode::ModeEditor)
             {
-                OD_ASSERT_TRUE_MSG(false, "Received editor command while wrong mode mode"
+                OD_LOG_ERR("Received editor command while wrong mode mode"
                     + Helper::toString(static_cast<int>(mServerMode)));
                 break;
             }
@@ -1508,7 +1520,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         {
             if(mServerMode != ServerMode::ModeEditor)
             {
-                OD_ASSERT_TRUE_MSG(false, "Received editor command while wrong mode mode"
+                OD_LOG_ERR("Received editor command while wrong mode mode"
                     + Helper::toString(static_cast<int>(mServerMode)));
                 break;
             }
@@ -1528,20 +1540,27 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
         case ClientNotificationType::editorCreateWorker:
         {
-            OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
-                + Helper::toString(static_cast<int>(mServerMode)));
+            if(mServerMode != ServerMode::ModeEditor)
+            {
+                OD_LOG_ERR("Received editor command while wrong mode mode" + Helper::toString(static_cast<int>(mServerMode)));
+                break;
+            }
             Player* player = clientSocket->getPlayer();
             int seatId;
             OD_ASSERT_TRUE(packetReceived >> seatId);
             Seat* seatCreature = gameMap->getSeatById(seatId);
-            OD_ASSERT_TRUE_MSG(seatCreature != nullptr, "seatId=" + Helper::toString(seatId));
             if(seatCreature == nullptr)
+            {
+                OD_LOG_ERR("seatId=" + Helper::toString(seatId));
                 break;
+            }
 
             const CreatureDefinition *classToSpawn = ConfigManager::getSingleton().getCreatureDefinitionDefaultWorker();
-            OD_ASSERT_TRUE(classToSpawn != nullptr);
             if(classToSpawn == nullptr)
+            {
+                OD_LOG_ERR("unexpected null classToSpawn for getCreatureDefinitionDefaultWorker");
                 break;
+            }
             Creature* newCreature = new Creature(gameMap, true, classToSpawn, seatCreature);
             newCreature->addToGameMap();
             // In editor mode, every player has vision
@@ -1561,18 +1580,27 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
         case ClientNotificationType::editorCreateFighter:
         {
-            OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
-                + Helper::toString(static_cast<int>(mServerMode)));
+            if(mServerMode != ServerMode::ModeEditor)
+            {
+                OD_LOG_ERR("Received editor command while wrong mode mode" + Helper::toString(static_cast<int>(mServerMode)));
+                break;
+            }
             Player* player = clientSocket->getPlayer();
             int seatId;
             std::string className;
             OD_ASSERT_TRUE(packetReceived >> seatId >> className);
             Seat* seatCreature = gameMap->getSeatById(seatId);
-            OD_ASSERT_TRUE_MSG(seatCreature != nullptr, "seatId=" + Helper::toString(seatId));
-            const CreatureDefinition *classToSpawn = gameMap->getClassDescription(className);
-            OD_ASSERT_TRUE_MSG(classToSpawn != nullptr, "Couldn't spawn creature class=" + className);
-            if(classToSpawn == nullptr)
+            if(seatCreature == nullptr)
+            {
+                OD_LOG_ERR("seatId=" + Helper::toString(seatId));
                 break;
+            }
+            const CreatureDefinition *classToSpawn = gameMap->getClassDescription(className);
+            if(classToSpawn == nullptr)
+            {
+                OD_LOG_ERR("Couldn't spawn creature class=" + className);
+                break;
+            }
             Creature* newCreature = new Creature(gameMap, true, classToSpawn, seatCreature);
             newCreature->addToGameMap();
             // In editor mode, every player has vision
@@ -1641,16 +1669,12 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
 bool ODServer::notifyNewConnection(ODSocketClient *clientSocket)
 {
-    GameMap* gameMap = mGameMap;
-    if (gameMap == nullptr)
-        return false;
-
     switch(mServerState)
     {
         case ServerState::StateNone:
         {
             // It is not normal to receive new connexions while not connected. We are in an unexpected state
-            OD_ASSERT_TRUE(false);
+            OD_LOG_ERR("Unexpected none server mode");
             return false;
         }
         case ServerState::StateConfiguration:

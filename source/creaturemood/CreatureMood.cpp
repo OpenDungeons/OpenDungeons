@@ -45,7 +45,7 @@ std::string CreatureMood::toString(CreatureMoodLevel moodLevel)
         case CreatureMoodLevel::Furious:
             return "Furious";
         default:
-            OD_ASSERT_TRUE_MSG(false, "moodLevel=" + Helper::toString(static_cast<int>(moodLevel)));
+            OD_LOG_ERR("moodLevel=" + Helper::toString(static_cast<int>(moodLevel)));
             return "";
     }
 }
@@ -65,7 +65,7 @@ CreatureMood* CreatureMood::load(std::istream& defFile)
         if(def != nullptr)
         {
             // The previous line was a valid def so we should have had an ending tag
-            OD_ASSERT_TRUE_MSG(false, "nextParam=" + nextParam);
+            OD_LOG_ERR("nextParam=" + nextParam);
             return def;
         }
 

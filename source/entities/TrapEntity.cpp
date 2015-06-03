@@ -55,7 +55,7 @@ TrapEntity* TrapEntity::getTrapEntityFromPacket(GameMap* gameMap, ODPacket& is)
             trapEntity = new DoorEntity(gameMap, false);
             break;
         default:
-            OD_ASSERT_TRUE_MSG(false, "Unknown TrapEntityType=" + Helper::toString(static_cast<uint32_t>(trapEntityType)));
+            OD_LOG_ERR("Unknown TrapEntityType=" + Helper::toString(static_cast<uint32_t>(trapEntityType)));
             break;
     }
     return trapEntity;

@@ -72,7 +72,7 @@ const std::string& CraftedTrap::getMeshFromTrapType(TrapType trapType)
         case TrapType::doorWooden:
             return TrapDoor::MESH_DOOR;
         default:
-            OD_ASSERT_TRUE_MSG(false, "Wrong enum asked for CraftedTrap " + getName() + ", trapType="
+            OD_LOG_ERR("Wrong enum asked for CraftedTrap " + getName() + ", trapType="
                 + Helper::toString(static_cast<uint32_t>(trapType)));
     }
 
@@ -82,9 +82,11 @@ const std::string& CraftedTrap::getMeshFromTrapType(TrapType trapType)
 void CraftedTrap::notifyEntityCarryOn(Creature* carrier)
 {
     Tile* myTile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
     if(myTile == nullptr)
+    {
+        OD_LOG_ERR("name=" + getName());
         return;
+    }
 
     setIsOnMap(false);
     setSeat(carrier->getSeat());
@@ -97,9 +99,11 @@ void CraftedTrap::notifyEntityCarryOff(const Ogre::Vector3& position)
     setIsOnMap(true);
 
     Tile* myTile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
     if(myTile == nullptr)
+    {
+        OD_LOG_ERR("name=" + getName());
         return;
+    }
 
     myTile->addEntity(this);
 }

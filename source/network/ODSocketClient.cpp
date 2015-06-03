@@ -161,7 +161,7 @@ ODSocketClient::ODComStatus ODSocketClient::recv(ODPacket& s)
         case ODSource::none:
         {
             // We should not try to send anything until connected
-            OD_ASSERT_TRUE(false);
+            OD_LOG_ERR("Unexpected null server mode");
             return ODComStatus::Error;
         }
         case ODSource::network:

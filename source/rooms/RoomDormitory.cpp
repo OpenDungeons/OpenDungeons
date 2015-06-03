@@ -37,11 +37,14 @@ RoomDormitory::RoomDormitory(GameMap* gameMap) :
 
 void RoomDormitory::absorbRoom(Room *r)
 {
-    RoomDormitory* oldRoom = static_cast<RoomDormitory*>(r);
-    if (oldRoom == nullptr)
+    if(r->getType() != getType())
+    {
+        OD_LOG_ERR("Trying to merge incompatible rooms: " + getName() + ", type=" + RoomManager::getRoomNameFromRoomType(getType()) + ", with " + r->getName() + ", type=" + RoomManager::getRoomNameFromRoomType(r->getType()));
         return;
+    }
 
     // We transfert the building objects
+    RoomDormitory* oldRoom = static_cast<RoomDormitory*>(r);
     mBedRoomObjectsInfo.insert(mBedRoomObjectsInfo.end(),
         oldRoom->mBedRoomObjectsInfo.begin(), oldRoom->mBedRoomObjectsInfo.end());
     oldRoom->mBedRoomObjectsInfo.clear();
@@ -59,7 +62,7 @@ bool RoomDormitory::removeCoveredTile(Tile* t)
 
     if(mTileData.count(t) <= 0)
     {
-        OD_ASSERT_TRUE_MSG(false, "room=" + getName() + ", tile=" + Tile::displayAsString(t));
+        OD_LOG_ERR("room=" + getName() + ", tile=" + Tile::displayAsString(t));
         return false;
     }
 
@@ -159,7 +162,11 @@ bool RoomDormitory::releaseTileForSleeping(Tile* t, Creature* c)
     }
 
     Tile* homeTile = c->getHomeTile();
-    OD_ASSERT_TRUE_MSG(homeTile != nullptr, "creatureName=" + c->getName());
+    if(homeTile == nullptr)
+    {
+        OD_LOG_ERR("creatureName=" + c->getName());
+        return false;
+    }
     c->setHomeTile(nullptr);
 
     // Make the building object delete itself and remove it from the map
@@ -297,13 +304,13 @@ void RoomDormitory::restoreInitialEntityState()
         Creature* creature = getGameMap()->getCreature(bedLoad.getCreatureName());
         if(creature == nullptr)
         {
-            OD_ASSERT_TRUE_MSG(false, "creatureName=" + bedLoad.getCreatureName());
+            OD_LOG_ERR("creatureName=" + bedLoad.getCreatureName());
             continue;
         }
         Tile* tile = getGameMap()->getTile(bedLoad.getTileX(), bedLoad.getTileY());
         if(creature == nullptr)
         {
-            OD_ASSERT_TRUE_MSG(false, "tile x=" + Helper::toString(bedLoad.getTileX())
+            OD_LOG_ERR("tile x=" + Helper::toString(bedLoad.getTileX())
                 + ", y=" + Helper::toString(bedLoad.getTileY()));
             continue;
         }

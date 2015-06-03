@@ -749,9 +749,11 @@ void EditorMode::notifyGuiAction(GuiAction guiAction)
                 if(ODClient::getSingleton().isConnected())
                 {
                     const CreatureDefinition* def = mGameMap->getClassDescription(mCurrentCreatureIndex);
-                    OD_ASSERT_TRUE(def != nullptr);
                     if(def == nullptr)
+                    {
+                        OD_LOG_ERR("unexpected null CreatureDefinition mCurrentCreatureIndex=" + Helper::toString(mCurrentCreatureIndex));
                         break;
+                    }
                     ClientNotification *clientNotification = new ClientNotification(
                         ClientNotificationType::editorCreateFighter);
                     clientNotification->mPacket << getModeManager().getInputManager().mSeatIdSelected;

@@ -166,9 +166,11 @@ void RoomTrainingHall::refreshCreaturesDummies()
         {
             // We move to the good tile
             std::list<Tile*> pathToDummy = getGameMap()->path(creature, tileDummy);
-            OD_ASSERT_TRUE(!pathToDummy.empty());
             if(pathToDummy.empty())
+            {
+                OD_LOG_ERR("unexpected empty pathToDummy");
                 continue;
+            }
 
             std::vector<Ogre::Vector3> path;
             Creature::tileToVector3(pathToDummy, path, true, 0.0);
@@ -206,9 +208,11 @@ bool RoomTrainingHall::addCreatureUsingRoom(Creature* creature)
     {
         // We move to the good tile
         std::list<Tile*> pathToDummy = getGameMap()->path(creature, tileDummy);
-        OD_ASSERT_TRUE(!pathToDummy.empty());
         if(pathToDummy.empty())
+        {
+            OD_LOG_ERR("unexpected empty pathToDummy");
             return true;
+        }
 
         std::vector<Ogre::Vector3> path;
         Creature::tileToVector3(pathToDummy, path, true, 0.0);
@@ -227,9 +231,11 @@ void RoomTrainingHall::removeCreatureUsingRoom(Creature* c)
     if(mCreaturesDummies.count(c) > 0)
     {
         Tile* tileDummy = mCreaturesDummies[c];
-        OD_ASSERT_TRUE(tileDummy != nullptr);
         if(tileDummy == nullptr)
+        {
+            OD_LOG_ERR("unexpected null tileDummy");
             return;
+        }
         mUnusedDummies.push_back(tileDummy);
         mCreaturesDummies.erase(c);
     }
@@ -252,20 +258,27 @@ void RoomTrainingHall::doUpkeep()
         Tile* tileDummy = p.second;
         Tile* tileCreature = creature->getPositionTile();
         if(tileCreature == nullptr)
+        {
+            OD_LOG_ERR("unexpected null tileCreature");
             continue;
+        }
 
         Ogre::Real wantedX = static_cast<Ogre::Real>(tileDummy->getX());
         Ogre::Real wantedY = static_cast<Ogre::Real>(tileDummy->getY()) - OFFSET_CREATURE;
 
         RenderedMovableEntity* ro = getBuildingObjectFromTile(tileDummy);
-        OD_ASSERT_TRUE(ro != nullptr);
         if(ro == nullptr)
+        {
+            OD_LOG_ERR("unexpected null building object");
             continue;
+        }
         // We consider that the creature is in the good place if it is in the expected tile and not moving
         Tile* expectedDest = getGameMap()->getTile(Helper::round(wantedX), Helper::round(wantedY));
-        OD_ASSERT_TRUE_MSG(expectedDest != nullptr, "room=" + getName() + ", creature=" + creature->getName());
         if(expectedDest == nullptr)
+        {
+            OD_LOG_ERR("room=" + getName() + ", creature=" + creature->getName());
             continue;
+        }
         if((tileCreature == expectedDest) &&
            !creature->isMoving())
         {

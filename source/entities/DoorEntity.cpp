@@ -58,7 +58,7 @@ void DoorEntity::importFromPacket(ODPacket& is)
     Seat* seat = getGameMap()->getSeatById(seatId);
     if(seat == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "Couldn't get seat id=" + Helper::toString(seatId) + ", name=" + getName());
+        OD_LOG_ERR("Couldn't get seat id=" + Helper::toString(seatId) + ", name=" + getName());
         return;
     }
     setSeat(seat);
@@ -67,9 +67,11 @@ void DoorEntity::importFromPacket(ODPacket& is)
 bool DoorEntity::canSlap(Seat* seat)
 {
     Tile* tile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
     if(tile == nullptr)
+    {
+        OD_LOG_ERR("entityName=" + getName());
         return false;
+    }
 
     if(getGameMap()->isInEditorMode())
         return true;
@@ -92,7 +94,7 @@ void DoorEntity::slap()
     Trap* trap = getGameMap()->getTrapByName(mBaseName);
     if(trap == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "name=" + getName() + ", trapname=" + mBaseName);
+        OD_LOG_ERR("name=" + getName() + ", trapname=" + mBaseName);
         return;
     }
 
@@ -103,7 +105,7 @@ void DoorEntity::slap()
 
         default:
         {
-            OD_ASSERT_TRUE_MSG(false, "name=" + getName() + ", wrong type=" + TrapManager::getTrapNameFromTrapType(trap->getType()));
+            OD_LOG_ERR("name=" + getName() + ", wrong type=" + TrapManager::getTrapNameFromTrapType(trap->getType()));
             return;
         }
     }
@@ -111,7 +113,7 @@ void DoorEntity::slap()
     Tile* posTile = getPositionTile();
     if(posTile == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "name=" + getName());
+        OD_LOG_ERR("name=" + getName());
         return;
     }
 

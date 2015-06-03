@@ -87,7 +87,7 @@ void SpellCreatureHeal::checkSpellCast(GameMap* gameMap, const InputManager& inp
             if(!logMsg)
             {
                 logMsg = true;
-                OD_ASSERT_TRUE_MSG(false, "Wrong target name=" + target->getName() + ", type=" + Helper::toString(static_cast<int32_t>(target->getObjectType())));
+                OD_LOG_ERR("Wrong target name=" + target->getName() + ", type=" + Helper::toString(static_cast<int32_t>(target->getObjectType())));
             }
             continue;
         }
@@ -131,20 +131,20 @@ bool SpellCreatureHeal::castSpell(GameMap* gameMap, Player* player, ODPacket& pa
         Creature* creature = gameMap->getCreature(creatureName);
         if(creature == nullptr)
         {
-            OD_ASSERT_TRUE_MSG(false, "creatureName=" + creatureName);
+            OD_LOG_ERR("creatureName=" + creatureName);
             continue;
         }
 
         if(!creature->getSeat()->isAlliedSeat(player->getSeat()))
         {
-            OD_ASSERT_TRUE_MSG(false, "creatureName=" + creatureName);
+            OD_LOG_ERR("creatureName=" + creatureName);
             continue;
         }
 
         Tile* pos = creature->getPositionTile();
         if(pos == nullptr)
         {
-            OD_ASSERT_TRUE_MSG(false, "creatureName=" + creatureName);
+            OD_LOG_ERR("creatureName=" + creatureName);
             continue;
         }
 
@@ -185,12 +185,12 @@ bool SpellCreatureHeal::castSpell(GameMap* gameMap, Player* player, ODPacket& pa
 
 Spell* SpellCreatureHeal::getSpellFromStream(GameMap* gameMap, std::istream &is)
 {
-    OD_ASSERT_TRUE_MSG(false, "SpellCreatureHeal cannot be read from stream");
+    OD_LOG_ERR("SpellCreatureHeal cannot be read from stream");
     return nullptr;
 }
 
 Spell* SpellCreatureHeal::getSpellFromPacket(GameMap* gameMap, ODPacket &is)
 {
-    OD_ASSERT_TRUE_MSG(false, "SpellCreatureHeal cannot be read from packet");
+    OD_LOG_ERR("SpellCreatureHeal cannot be read from packet");
     return nullptr;
 }

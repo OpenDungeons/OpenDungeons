@@ -50,7 +50,7 @@ GameEntity* getGameEntityFromStream(GameMap* gameMap, GameEntityType type, std::
         case GameEntityType::buildingObject:
         {
             // Building objects are not stored in level files, we should not be here
-            OD_ASSERT_TRUE(false);
+            OD_LOG_ERR("Cannot create entity from stream");
             break;
         }
         case GameEntityType::chickenEntity:
@@ -81,13 +81,13 @@ GameEntity* getGameEntityFromStream(GameMap* gameMap, GameEntityType type, std::
         case GameEntityType::persistentObject:
         {
             // Persistent objects are not stored in level files, we should not be here
-            OD_ASSERT_TRUE(false);
+            OD_LOG_ERR("Cannot create entity from stream");
             break;
         }
         case GameEntityType::smallSpiderEntity:
         {
             // Small spiders are not stored in level files, we should not be here
-            OD_ASSERT_TRUE(false);
+            OD_LOG_ERR("Cannot create entity from stream");
             break;
         }
         case GameEntityType::spell:
@@ -98,7 +98,7 @@ GameEntity* getGameEntityFromStream(GameMap* gameMap, GameEntityType type, std::
         case GameEntityType::trapEntity:
         {
             // Trap entities are handled by the trap
-            OD_ASSERT_TRUE(false);
+            OD_LOG_ERR("Cannot create entity from stream");
             break;
         }
         case GameEntityType::treasuryObject:
@@ -113,15 +113,17 @@ GameEntity* getGameEntityFromStream(GameMap* gameMap, GameEntityType type, std::
         }
         default:
         {
-            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Helper::toString(
+            OD_LOG_ERR("Unknown enum value : " + Helper::toString(
                 static_cast<int>(type)));
             break;
         }
     }
 
-    OD_ASSERT_TRUE(entity != nullptr);
     if(entity == nullptr)
+    {
+        OD_LOG_ERR("null entity type=" + Helper::toString(static_cast<uint32_t>(type)));
         return nullptr;
+    }
 
     entity->importFromStream(is);
     return entity;
@@ -196,15 +198,17 @@ GameEntity* getGameEntityFromPacket(GameMap* gameMap, ODPacket& is)
         }
         default:
         {
-            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Helper::toString(
-                static_cast<int>(type)));
+            OD_LOG_ERR("Unknown enum value : " + Helper::toString(static_cast<int>(type)));
             break;
         }
     }
 
     OD_ASSERT_TRUE(entity != nullptr);
     if(entity == nullptr)
+    {
+        OD_LOG_ERR("null entity type=" + Helper::toString(static_cast<int>(type)));
         return nullptr;
+    }
 
     entity->importFromPacket(is);
     return entity;

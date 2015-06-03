@@ -48,7 +48,7 @@ void RoomFunctions::checkBuildRoomFunc(GameMap* gameMap, RoomType type, const In
 {
     if(mCheckBuildRoomFunc == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "null mCheckBuildRoom function Room=" + Helper::toString(static_cast<uint32_t>(type)));
+        OD_LOG_ERR("null mCheckBuildRoom function Room=" + Helper::toString(static_cast<uint32_t>(type)));
         return;
     }
 
@@ -59,7 +59,7 @@ bool RoomFunctions::buildRoomFunc(GameMap* gameMap, RoomType type, Player* playe
 {
     if(mBuildRoomFunc == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "null mBuildRoomFunc function Room=" + Helper::toString(static_cast<uint32_t>(type)));
+        OD_LOG_ERR("null mBuildRoomFunc function Room=" + Helper::toString(static_cast<uint32_t>(type)));
         return false;
     }
 
@@ -70,7 +70,7 @@ void RoomFunctions::checkBuildRoomEditorFunc(GameMap* gameMap, RoomType type, co
 {
     if(mCheckBuildRoomEditorFunc == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "null mCheckBuildRoomEditorFund function Room=" + Helper::toString(static_cast<uint32_t>(type)));
+        OD_LOG_ERR("null mCheckBuildRoomEditorFund function Room=" + Helper::toString(static_cast<uint32_t>(type)));
         return;
     }
 
@@ -81,7 +81,7 @@ bool RoomFunctions::buildRoomEditorFunc(GameMap* gameMap, RoomType type, ODPacke
 {
     if(mBuildRoomEditorFunc == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "null mBuildRoomEditorFunc function Room=" + Helper::toString(static_cast<uint32_t>(type)));
+        OD_LOG_ERR("null mBuildRoomEditorFunc function Room=" + Helper::toString(static_cast<uint32_t>(type)));
         return false;
     }
 
@@ -92,7 +92,7 @@ Room* RoomFunctions::getRoomFromStreamFunc(GameMap* gameMap, RoomType type, std:
 {
     if(mGetRoomFromStreamFunc == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "null mGetRoomFromStreamFunc function Room=" + Helper::toString(static_cast<uint32_t>(type)));
+        OD_LOG_ERR("null mGetRoomFromStreamFunc function Room=" + Helper::toString(static_cast<uint32_t>(type)));
         return nullptr;
     }
 
@@ -104,7 +104,7 @@ void RoomManager::checkBuildRoom(GameMap* gameMap, RoomType type, const InputMan
     uint32_t index = static_cast<uint32_t>(type);
     if(index >= getRoomFunctions().size())
     {
-        OD_ASSERT_TRUE_MSG(false, "type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index));
         return;
     }
 
@@ -117,7 +117,7 @@ bool RoomManager::buildRoom(GameMap* gameMap, RoomType type, Player* player, ODP
     uint32_t index = static_cast<uint32_t>(type);
     if(index >= getRoomFunctions().size())
     {
-        OD_ASSERT_TRUE_MSG(false, "type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index));
         return false;
     }
 
@@ -130,7 +130,7 @@ void RoomManager::checkBuildRoomEditor(GameMap* gameMap, RoomType type, const In
     uint32_t index = static_cast<uint32_t>(type);
     if(index >= getRoomFunctions().size())
     {
-        OD_ASSERT_TRUE_MSG(false, "type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index));
         return;
     }
 
@@ -143,7 +143,7 @@ bool RoomManager::buildRoomEditor(GameMap* gameMap, RoomType type, ODPacket& pac
     uint32_t index = static_cast<uint32_t>(type);
     if(index >= getRoomFunctions().size())
     {
-        OD_ASSERT_TRUE_MSG(false, "type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index));
         return false;
     }
 
@@ -158,7 +158,7 @@ Room* RoomManager::getRoomFromStream(GameMap* gameMap, std::istream& is)
     uint32_t index = static_cast<uint32_t>(type);
     if(index >= getRoomFunctions().size())
     {
-        OD_ASSERT_TRUE_MSG(false, "type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index));
         return nullptr;
     }
 
@@ -171,7 +171,7 @@ const std::string& RoomManager::getRoomNameFromRoomType(RoomType type)
     uint32_t index = static_cast<uint32_t>(type);
     if(index >= getRoomFunctions().size())
     {
-        OD_ASSERT_TRUE_MSG(false, "type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index));
         return EMPTY_STRING;
     }
     RoomFunctions& roomFuncs = getRoomFunctions()[index];
@@ -188,7 +188,7 @@ RoomType RoomManager::getRoomTypeFromRoomName(const std::string& name)
             return static_cast<RoomType>(i);
     }
 
-    OD_ASSERT_TRUE_MSG(false, "Cannot find Room name=" + name);
+    OD_LOG_ERR("Cannot find Room name=" + name);
     return RoomType::nullRoomType;
 }
 
@@ -202,7 +202,7 @@ void RoomManager::registerRoom(RoomType type, const std::string& name,
     uint32_t index = static_cast<uint32_t>(type);
     if(index >= getRoomFunctions().size())
     {
-        OD_ASSERT_TRUE_MSG(false, "type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index));
         return;
     }
 
@@ -289,7 +289,7 @@ void RoomManager::sellRoomTiles(GameMap* gameMap, Player* player, ODPacket& pack
         Tile* tile = gameMap->tileFromPacket(packet);
         if(tile == nullptr)
         {
-            OD_ASSERT_TRUE_MSG(false, "tile=" + Tile::displayAsString(tile));
+            OD_LOG_ERR("tile=" + Tile::displayAsString(tile));
             continue;
         }
         Room* room = tile->getCoveringRoom();
@@ -301,7 +301,7 @@ void RoomManager::sellRoomTiles(GameMap* gameMap, Player* player, ODPacket& pack
 
         if(!room->removeCoveredTile(tile))
         {
-            OD_ASSERT_TRUE_MSG(false, "room=" + room->getName() + ", tile=" + Tile::displayAsString(tile) + ", seatId=" + Helper::toString(player->getSeat()->getId()));
+            OD_LOG_ERR("room=" + room->getName() + ", tile=" + Tile::displayAsString(tile) + ", seatId=" + Helper::toString(player->getSeat()->getId()));
             continue;
         }
 
@@ -421,7 +421,7 @@ void RoomManager::sellRoomTilesEditor(GameMap* gameMap, ODPacket& packet)
         Tile* tile = gameMap->tileFromPacket(packet);
         if(tile == nullptr)
         {
-            OD_ASSERT_TRUE_MSG(false, "tile=" + Tile::displayAsString(tile));
+            OD_LOG_ERR("tile=" + Tile::displayAsString(tile));
             continue;
         }
         Room* room = tile->getCoveringRoom();
@@ -430,7 +430,7 @@ void RoomManager::sellRoomTilesEditor(GameMap* gameMap, ODPacket& packet)
 
         if(!room->removeCoveredTile(tile))
         {
-            OD_ASSERT_TRUE_MSG(false, "room=" + room->getName() + ", tile=" + Tile::displayAsString(tile));
+            OD_LOG_ERR("room=" + room->getName() + ", tile=" + Tile::displayAsString(tile));
             continue;
         }
 

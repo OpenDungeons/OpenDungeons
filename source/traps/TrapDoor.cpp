@@ -82,7 +82,7 @@ void TrapDoor::doUpkeep()
         {
             if(mTileData.count(tile) <= 0)
             {
-                OD_ASSERT_TRUE_MSG(false, "trap=" + getName() + ", tile=" + Tile::displayAsString(tile));
+                OD_LOG_ERR("trap=" + getName() + ", tile=" + Tile::displayAsString(tile));
                 return;
             }
 
@@ -210,7 +210,7 @@ void TrapDoor::checkBuildTrapEditor(GameMap* gameMap, const InputManager& inputM
     Seat* seat = gameMap->getSeatById(inputManager.mSeatIdSelected);
     if(seat == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "seatId=" + Helper::toString(inputManager.mSeatIdSelected));
+        OD_LOG_ERR("seatId=" + Helper::toString(inputManager.mSeatIdSelected));
         return;
     }
 
@@ -269,7 +269,7 @@ bool TrapDoor::buildTrapEditor(GameMap* gameMap, ODPacket& packet)
     Seat* seatTrap = gameMap->getSeatById(seatId);
     if(seatTrap == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "seatId=" + Helper::toString(seatId));
+        OD_LOG_ERR("seatId=" + Helper::toString(seatId));
         return false;
     }
 
@@ -280,7 +280,7 @@ bool TrapDoor::buildTrapEditor(GameMap* gameMap, ODPacket& packet)
     // If the tile is not buildable, we change it
     if(tile->getCoveringBuilding() != nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "tile=" + Tile::displayAsString(tile) + ", seatId=" + Helper::toString(seatId));
+        OD_LOG_ERR("tile=" + Tile::displayAsString(tile) + ", seatId=" + Helper::toString(seatId));
         return false;
     }
 

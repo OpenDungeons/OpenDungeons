@@ -121,7 +121,7 @@ uint32_t Player::getSpellCooldownTurns(SpellType spellType)
     uint32_t spellIndex = static_cast<uint32_t>(spellType);
     if(spellIndex >= mSpellsCooldown.size())
     {
-        OD_ASSERT_TRUE_MSG(false, "seatId=" + Helper::toString(getId()) + ", spellType=" + SpellManager::getSpellNameFromSpellType(spellType));
+        OD_LOG_ERR("seatId=" + Helper::toString(getId()) + ", spellType=" + SpellManager::getSpellNameFromSpellType(spellType));
         return 0;
     }
 

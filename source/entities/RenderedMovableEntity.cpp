@@ -217,11 +217,11 @@ std::vector<Tile*> RenderedMovableEntity::getCoveredTiles()
 
 Tile* RenderedMovableEntity::getCoveredTile(int index)
 {
-    OD_ASSERT_TRUE_MSG(index == 0, "name=" + getName()
-        + ", index=" + Helper::toString(index));
-
     if(index > 0)
+    {
+        OD_LOG_ERR("name=" + getName() + ", index=" + Helper::toString(index));
         return nullptr;
+    }
 
     return getPositionTile();
 }

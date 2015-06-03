@@ -427,7 +427,7 @@ Tile* TileContainer::tileFromPacket(ODPacket& packet) const
     Tile* tile = getTile(x, y);
     if(tile == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "tile=" + Helper::toString(x) + "," + Helper::toString(y));
+        OD_LOG_ERR("tile=" + Helper::toString(x) + "," + Helper::toString(y));
     }
     return tile;
 }

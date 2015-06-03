@@ -33,7 +33,7 @@ void SpellFunctions::checkSpellCastFunc(GameMap* gameMap, SpellType type, const 
 {
     if(mCheckSpellCastFunc == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "null mCheckSpellCastFunc function spell=" + Helper::toString(static_cast<uint32_t>(type)));
+        OD_LOG_ERR("null mCheckSpellCastFunc function spell=" + Helper::toString(static_cast<uint32_t>(type)));
         return;
     }
 
@@ -44,7 +44,7 @@ bool SpellFunctions::castSpellFunc(GameMap* gameMap, SpellType type, Player* pla
 {
     if(mCastSpellFunc == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "null mCastSpellFunc function spell=" + Helper::toString(static_cast<uint32_t>(type)));
+        OD_LOG_ERR("null mCastSpellFunc function spell=" + Helper::toString(static_cast<uint32_t>(type)));
         return false;
     }
 
@@ -55,7 +55,7 @@ Spell* SpellFunctions::getSpellFromStreamFunc(GameMap* gameMap, SpellType type, 
 {
     if(mGetSpellFromStreamFunc == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "null mGetSpellFromStreamFunc function spell=" + Helper::toString(static_cast<uint32_t>(type)));
+        OD_LOG_ERR("null mGetSpellFromStreamFunc function spell=" + Helper::toString(static_cast<uint32_t>(type)));
         return nullptr;
     }
 
@@ -66,7 +66,7 @@ Spell* SpellFunctions::getSpellFromPacketFunc(GameMap* gameMap, SpellType type, 
 {
     if(mGetSpellFromPacketFunc == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "null mGetSpellFromPacketFunc function spell=" + Helper::toString(static_cast<uint32_t>(type)));
+        OD_LOG_ERR("null mGetSpellFromPacketFunc function spell=" + Helper::toString(static_cast<uint32_t>(type)));
         return nullptr;
     }
 
@@ -85,7 +85,7 @@ void SpellManager::checkSpellCast(GameMap* gameMap, SpellType type, const InputM
     uint32_t index = static_cast<uint32_t>(type);
     if(index >= getSpellFunctions().size())
     {
-        OD_ASSERT_TRUE_MSG(false, "type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index));
         return;
     }
 
@@ -109,7 +109,7 @@ bool SpellManager::castSpell(GameMap* gameMap, SpellType type, Player* player, O
     uint32_t index = static_cast<uint32_t>(type);
     if(index >= getSpellFunctions().size())
     {
-        OD_ASSERT_TRUE_MSG(false, "type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index));
         return false;
     }
 
@@ -124,7 +124,7 @@ Spell* SpellManager::getSpellFromStream(GameMap* gameMap, std::istream& is)
     uint32_t index = static_cast<uint32_t>(type);
     if(index >= getSpellFunctions().size())
     {
-        OD_ASSERT_TRUE_MSG(false, "type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index));
         return nullptr;
     }
 
@@ -139,7 +139,7 @@ Spell* SpellManager::getSpellFromPacket(GameMap* gameMap, ODPacket& is)
     uint32_t index = static_cast<uint32_t>(type);
     if(index >= getSpellFunctions().size())
     {
-        OD_ASSERT_TRUE_MSG(false, "type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index));
         return nullptr;
     }
 
@@ -152,7 +152,7 @@ const std::string& SpellManager::getSpellNameFromSpellType(SpellType type)
     uint32_t index = static_cast<uint32_t>(type);
     if(index >= getSpellFunctions().size())
     {
-        OD_ASSERT_TRUE_MSG(false, "type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index));
         return EMPTY_STRING;
     }
     SpellFunctions& spellFuncs = getSpellFunctions()[index];
@@ -169,7 +169,7 @@ SpellType SpellManager::getSpellTypeFromSpellName(const std::string& name)
             return static_cast<SpellType>(i);
     }
 
-    OD_ASSERT_TRUE_MSG(false, "Cannot find spell name=" + name);
+    OD_LOG_ERR("Cannot find spell name=" + name);
     return SpellType::nullSpellType;
 }
 
@@ -182,7 +182,7 @@ void SpellManager::registerSpell(SpellType type, const std::string& name,
     uint32_t index = static_cast<uint32_t>(type);
     if(index >= getSpellFunctions().size())
     {
-        OD_ASSERT_TRUE_MSG(false, "type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index));
         return;
     }
 

@@ -298,18 +298,26 @@ void MovableGameEntity::setPosition(const Ogre::Vector3& v, bool isMove)
         RenderManager::getSingleton().rrMoveEntity(this, v);
 
     Tile* tile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
     if(tile == nullptr)
+    {
+        OD_LOG_ERR("entityName=" + getName());
         return;
+    }
     if(isMove && (tile == oldTile))
         return;
 
     if((oldTile != nullptr) && isMove)
     {
-        OD_ASSERT_TRUE_MSG(removeEntityFromTile(oldTile), "name=" + getName());
+        if(!removeEntityFromTile(oldTile))
+        {
+            OD_LOG_ERR("name=" + getName());
+        }
     }
 
-    OD_ASSERT_TRUE_MSG(addEntityToTile(tile), "name=" + getName());
+    if(!addEntityToTile(tile))
+    {
+        OD_LOG_ERR("name=" + getName());
+    }
 }
 
 void MovableGameEntity::fireObjectAnimationState(const std::string& state, bool loop, const Ogre::Vector3& direction)

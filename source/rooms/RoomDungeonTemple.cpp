@@ -102,10 +102,11 @@ bool RoomDungeonTemple::hasCarryEntitySpot(GameEntity* carriedEntity)
 
 Tile* RoomDungeonTemple::askSpotForCarriedEntity(GameEntity* carriedEntity)
 {
-    OD_ASSERT_TRUE_MSG(carriedEntity->getObjectType() == GameEntityType::researchEntity,
-        "room=" + getName() + ", entity=" + carriedEntity->getName());
     if(carriedEntity->getObjectType() != GameEntityType::researchEntity)
+    {
+        OD_LOG_ERR("room=" + getName() + ", entity=" + carriedEntity->getName());
         return nullptr;
+    }
 
     // We accept any researchEntity
     return getCentralTile();
@@ -113,10 +114,11 @@ Tile* RoomDungeonTemple::askSpotForCarriedEntity(GameEntity* carriedEntity)
 
 void RoomDungeonTemple::notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity)
 {
-    OD_ASSERT_TRUE_MSG(carriedEntity->getObjectType() == GameEntityType::researchEntity,
-        "room=" + getName() + ", entity=" + carriedEntity->getName());
     if(carriedEntity->getObjectType() != GameEntityType::researchEntity)
+    {
+        OD_LOG_ERR("room=" + getName() + ", entity=" + carriedEntity->getName());
         return;
+    }
 
     // We check if the carrier is at the expected destination. If not on the wanted tile,
     // we don't accept the researchEntity
@@ -140,20 +142,20 @@ void RoomDungeonTemple::restoreInitialEntityState()
     // because it will empty the list
     if(mTempleObject == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "roomDungeonTemple=" + getName());
+        OD_LOG_ERR("roomDungeonTemple=" + getName());
         return;
     }
 
     Tile* tileTempleObject = mTempleObject->getPositionTile();
     if(tileTempleObject == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "roomDungeonTemple=" + getName() + ", mTempleObject=" + mTempleObject->getName());
+        OD_LOG_ERR("roomDungeonTemple=" + getName() + ", mTempleObject=" + mTempleObject->getName());
         return;
     }
     TileData* tileData = mTileData[tileTempleObject];
     if(tileData == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "roomDungeonTemple=" + getName() + ", tile=" + Tile::displayAsString(tileTempleObject));
+        OD_LOG_ERR("roomDungeonTemple=" + getName() + ", tile=" + Tile::displayAsString(tileTempleObject));
         return;
     }
 

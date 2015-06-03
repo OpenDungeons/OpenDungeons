@@ -142,7 +142,7 @@ bool KeeperAI::checkTreasury()
 
                     if(!RoomTreasury::buildRoomOnTiles(&mGameMap, &mPlayer, tiles))
                     {
-                        OD_ASSERT_TRUE_MSG(false, "seatId=" + Helper::toString(mPlayer.getSeat()->getId()));
+                        OD_LOG_ERR("seatId=" + Helper::toString(mPlayer.getSeat()->getId()));
                         return false;
                     }
                     return true;
@@ -258,7 +258,7 @@ bool KeeperAI::checkTreasury()
 
     if(!RoomTreasury::buildRoomOnTiles(&mGameMap, &mPlayer, tiles))
     {
-        OD_ASSERT_TRUE_MSG(false, "seatId=" + Helper::toString(mPlayer.getSeat()->getId()));
+        OD_LOG_ERR("seatId=" + Helper::toString(mPlayer.getSeat()->getId()));
         return false;
     }
 
@@ -279,9 +279,9 @@ bool KeeperAI::handleRooms()
     if(mRoomSize != -1)
     {
         Tile* tile = mGameMap.getTile(mRoomPosX, mRoomPosY);
-        OD_ASSERT_TRUE(tile != nullptr);
         if(tile == nullptr)
         {
+            OD_LOG_ERR("mRoomPosX=" + Helper::toString(mRoomPosX) + ", mRoomPosY=" + Helper::toString(mRoomPosY));
             mRoomSize = -1;
             return false;
         }
@@ -313,7 +313,11 @@ bool KeeperAI::handleRooms()
     mRoomPosY = bestY;
 
     Tile* tileDest = mGameMap.getTile(mRoomPosX, mRoomPosY);
-    OD_ASSERT_TRUE_MSG(tileDest != nullptr, "tileDest=" + Tile::displayAsString(tileDest));
+    if(tileDest != nullptr)
+    {
+        OD_LOG_ERR("tileDest=" + Tile::displayAsString(tileDest) + ", mRoomPosX=" + Helper::toString(mRoomPosX) + ", mRoomPosY=" + Helper::toString(mRoomPosY));
+        return false;
+    }
     if(!digWayToTile(central, tileDest))
         return false;
 
@@ -322,9 +326,11 @@ bool KeeperAI::handleRooms()
         for(int yy = 0; yy < mRoomSize; ++yy)
         {
             Tile* tile = mGameMap.getTile(mRoomPosX + xx, mRoomPosY + yy);
-            OD_ASSERT_TRUE(tile != nullptr);
             if(tile == nullptr)
+            {
+                OD_LOG_ERR("xx=" + Helper::toString(mRoomPosX + xx) + ", yy=" + Helper::toString(mRoomPosY + yy));
                 continue;
+            }
 
             tile->setMarkedForDigging(true, &mPlayer);
         }
@@ -511,7 +517,7 @@ bool KeeperAI::buildMostNeededRoom()
 
             if(!RoomDormitory::buildRoomOnTiles(&mGameMap, &mPlayer, tiles))
             {
-                OD_ASSERT_TRUE_MSG(false, "seatId=" + Helper::toString(mPlayer.getSeat()->getId()));
+                OD_LOG_ERR("seatId=" + Helper::toString(mPlayer.getSeat()->getId()));
                 return false;
             }
             return true;
@@ -545,7 +551,7 @@ bool KeeperAI::buildMostNeededRoom()
 
             if(!RoomTreasury::buildRoomOnTiles(&mGameMap, &mPlayer, tiles))
             {
-                OD_ASSERT_TRUE_MSG(false, "seatId=" + Helper::toString(mPlayer.getSeat()->getId()));
+                OD_LOG_ERR("seatId=" + Helper::toString(mPlayer.getSeat()->getId()));
                 return false;
             }
             return true;
@@ -569,7 +575,7 @@ bool KeeperAI::buildMostNeededRoom()
 
             if(!RoomHatchery::buildRoomOnTiles(&mGameMap, &mPlayer, tiles))
             {
-                OD_ASSERT_TRUE_MSG(false, "seatId=" + Helper::toString(mPlayer.getSeat()->getId()));
+                OD_LOG_ERR("seatId=" + Helper::toString(mPlayer.getSeat()->getId()));
                 return false;
             }
             return true;
@@ -593,7 +599,7 @@ bool KeeperAI::buildMostNeededRoom()
 
             if(!RoomTrainingHall::buildRoomOnTiles(&mGameMap, &mPlayer, tiles))
             {
-                OD_ASSERT_TRUE_MSG(false, "seatId=" + Helper::toString(mPlayer.getSeat()->getId()));
+                OD_LOG_ERR("seatId=" + Helper::toString(mPlayer.getSeat()->getId()));
                 return false;
             }
             return true;
@@ -617,7 +623,7 @@ bool KeeperAI::buildMostNeededRoom()
 
             if(!RoomWorkshop::buildRoomOnTiles(&mGameMap, &mPlayer, tiles))
             {
-                OD_ASSERT_TRUE_MSG(false, "seatId=" + Helper::toString(mPlayer.getSeat()->getId()));
+                OD_LOG_ERR("seatId=" + Helper::toString(mPlayer.getSeat()->getId()));
                 return false;
             }
             return true;
@@ -641,7 +647,7 @@ bool KeeperAI::buildMostNeededRoom()
 
             if(!RoomLibrary::buildRoomOnTiles(&mGameMap, &mPlayer, tiles))
             {
-                OD_ASSERT_TRUE_MSG(false, "seatId=" + Helper::toString(mPlayer.getSeat()->getId()));
+                OD_LOG_ERR("seatId=" + Helper::toString(mPlayer.getSeat()->getId()));
                 return false;
             }
             return true;
@@ -665,7 +671,7 @@ bool KeeperAI::buildMostNeededRoom()
 
             if(!RoomCrypt::buildRoomOnTiles(&mGameMap, &mPlayer, tiles))
             {
-                OD_ASSERT_TRUE_MSG(false, "seatId=" + Helper::toString(mPlayer.getSeat()->getId()));
+                OD_LOG_ERR("seatId=" + Helper::toString(mPlayer.getSeat()->getId()));
                 return false;
             }
             return true;
@@ -687,7 +693,7 @@ bool KeeperAI::buildMostNeededRoom()
 
         if(!RoomDormitory::buildRoomOnTiles(&mGameMap, &mPlayer, tiles))
         {
-            OD_ASSERT_TRUE_MSG(false, "seatId=" + Helper::toString(mPlayer.getSeat()->getId()));
+            OD_LOG_ERR("seatId=" + Helper::toString(mPlayer.getSeat()->getId()));
             return false;
         }
         return true;
@@ -699,7 +705,11 @@ bool KeeperAI::buildMostNeededRoom()
 void KeeperAI::saveWoundedCreatures()
 {
     Tile* dungeonTempleTile = getDungeonTemple()->getCentralTile();
-    OD_ASSERT_TRUE(dungeonTempleTile != nullptr);
+    if(dungeonTempleTile == nullptr)
+    {
+        OD_LOG_ERR("keeperAi=" + mPlayer.getNick());
+        return;
+    }
 
     Seat* seat = mPlayer.getSeat();
     std::vector<Creature*> creatures = mGameMap.getCreaturesBySeat(seat);
@@ -724,8 +734,7 @@ void KeeperAI::saveWoundedCreatures()
 
         mPlayer.pickUpEntity(creature);
 
-        OD_ASSERT_TRUE_MSG(mPlayer.dropHand(dungeonTempleTile) == creature, "dungeonTempleTile=" + dungeonTempleTile->getName()
-            + ", creature=" + creature->getName());
+        mPlayer.dropHand(dungeonTempleTile);
     }
 }
 
@@ -736,9 +745,6 @@ void KeeperAI::handleDefense()
         --mCooldownDefense;
         return;
     }
-
-    Tile* dungeonTempleTile = getDungeonTemple()->getCentralTile();
-    OD_ASSERT_TRUE(dungeonTempleTile != nullptr);
 
     Seat* seat = mPlayer.getSeat();
     // We drop creatures nearby owned or allied attacked creatures
@@ -765,7 +771,7 @@ void KeeperAI::handleDefense()
             if(creatureToDrop->tryDrop(seat, neigh))
             {
                 mPlayer.pickUpEntity(creatureToDrop);
-                OD_ASSERT_TRUE(mPlayer.dropHand(neigh) == creatureToDrop);
+                mPlayer.dropHand(neigh);
                 mCooldownDefense = Random::Int(0,5);
                 return;
             }

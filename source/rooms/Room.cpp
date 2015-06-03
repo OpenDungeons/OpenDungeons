@@ -102,7 +102,7 @@ void Room::absorbRoom(Room *r)
             creature->changeEatRoom(this);
         else
         {
-            OD_ASSERT_TRUE_MSG(false, "creature=" + creature->getName() + ", oldRoom=" + r->getName() + ", newRoom=" + getName());
+            OD_LOG_ERR("creature=" + creature->getName() + ", oldRoom=" + r->getName() + ", newRoom=" + getName());
         }
     }
     mCreaturesUsingRoom.insert(mCreaturesUsingRoom.end(), r->mCreaturesUsingRoom.begin(), r->mCreaturesUsingRoom.end());
@@ -531,7 +531,7 @@ void Room::importTileDataFromStream(std::istream& is, Tile* tile, TileData* tile
         Seat* seat = gameMap->getSeatById(seatId);
         if(seat == nullptr)
         {
-            OD_ASSERT_TRUE_MSG(false, "room=" + getName() + ", seatId=" + Helper::toString(seatId));
+            OD_LOG_ERR("room=" + getName() + ", seatId=" + Helper::toString(seatId));
             continue;
         }
         tileData->mSeatsVision.push_back(seat);
@@ -733,13 +733,13 @@ bool Room::getRoomTilesDefault(std::vector<Tile*>& tiles, GameMap* gameMap, Play
         Tile* tile = gameMap->tileFromPacket(packet);
         if(tile == nullptr)
         {
-            OD_ASSERT_TRUE(false);
+            OD_LOG_ERR("unexpected null tile");
             return false;
         }
 
         if(!tile->isBuildableUpon(player->getSeat()))
         {
-            OD_ASSERT_TRUE_MSG(false, "tile=" + Tile::displayAsString(tile) + ", seatId=" + Helper::toString(player->getSeat()->getId()));
+            OD_LOG_ERR("tile=" + Tile::displayAsString(tile) + ", seatId=" + Helper::toString(player->getSeat()->getId()));
             continue;
         }
 
@@ -851,7 +851,7 @@ bool Room::buildRoomDefaultEditor(GameMap* gameMap, Room* room, ODPacket& packet
     Seat* seatRoom = gameMap->getSeatById(seatId);
     if(seatRoom == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "seatId=" + Helper::toString(seatId));
+        OD_LOG_ERR("seatId=" + Helper::toString(seatId));
         return false;
     }
 
@@ -865,14 +865,14 @@ bool Room::buildRoomDefaultEditor(GameMap* gameMap, Room* room, ODPacket& packet
         Tile* tile = gameMap->tileFromPacket(packet);
         if(tile == nullptr)
         {
-            OD_ASSERT_TRUE(false);
+            OD_LOG_ERR("unexpected null tile room=" + room->getName());
             return false;
         }
 
         // If the tile is not buildable, we change it
         if(tile->getCoveringBuilding() != nullptr)
         {
-            OD_ASSERT_TRUE_MSG(false, "tile=" + Tile::displayAsString(tile) + ", seatId=" + Helper::toString(seatId));
+            OD_LOG_ERR("tile=" + Tile::displayAsString(tile) + ", seatId=" + Helper::toString(seatId));
             continue;
         }
 

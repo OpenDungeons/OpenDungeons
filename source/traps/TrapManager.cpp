@@ -48,7 +48,7 @@ void TrapFunctions::checkBuildTrapFunc(GameMap* gameMap, TrapType type, const In
 {
     if(mCheckBuildTrapFunc == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "null mCheckBuildTrap function Trap=" + Helper::toString(static_cast<uint32_t>(type)));
+        OD_LOG_ERR("null mCheckBuildTrap function Trap=" + Helper::toString(static_cast<uint32_t>(type)));
         return;
     }
 
@@ -59,7 +59,7 @@ bool TrapFunctions::buildTrapFunc(GameMap* gameMap, TrapType type, Player* playe
 {
     if(mBuildTrapFunc == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "null mBuildTrapFunc function Trap=" + Helper::toString(static_cast<uint32_t>(type)));
+        OD_LOG_ERR("null mBuildTrapFunc function Trap=" + Helper::toString(static_cast<uint32_t>(type)));
         return false;
     }
 
@@ -70,7 +70,7 @@ void TrapFunctions::checkBuildTrapEditorFunc(GameMap* gameMap, TrapType type, co
 {
     if(mCheckBuildTrapEditorFunc == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "null mCheckBuildTrapEditorFund function Trap=" + Helper::toString(static_cast<uint32_t>(type)));
+        OD_LOG_ERR("null mCheckBuildTrapEditorFund function Trap=" + Helper::toString(static_cast<uint32_t>(type)));
         return;
     }
 
@@ -81,7 +81,7 @@ bool TrapFunctions::buildTrapEditorFunc(GameMap* gameMap, TrapType type, ODPacke
 {
     if(mBuildTrapEditorFunc == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "null mBuildTrapEditorFunc function Trap=" + Helper::toString(static_cast<uint32_t>(type)));
+        OD_LOG_ERR("null mBuildTrapEditorFunc function Trap=" + Helper::toString(static_cast<uint32_t>(type)));
         return false;
     }
 
@@ -92,7 +92,7 @@ Trap* TrapFunctions::getTrapFromStreamFunc(GameMap* gameMap, TrapType type, std:
 {
     if(mGetTrapFromStreamFunc == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "null mGetTrapFromStreamFunc function Trap=" + Helper::toString(static_cast<uint32_t>(type)));
+        OD_LOG_ERR("null mGetTrapFromStreamFunc function Trap=" + Helper::toString(static_cast<uint32_t>(type)));
         return nullptr;
     }
 
@@ -104,7 +104,7 @@ void TrapManager::checkBuildTrap(GameMap* gameMap, TrapType type, const InputMan
     uint32_t index = static_cast<uint32_t>(type);
     if(index >= getTrapFunctions().size())
     {
-        OD_ASSERT_TRUE_MSG(false, "type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index));
         return;
     }
 
@@ -117,7 +117,7 @@ bool TrapManager::buildTrap(GameMap* gameMap, TrapType type, Player* player, ODP
     uint32_t index = static_cast<uint32_t>(type);
     if(index >= getTrapFunctions().size())
     {
-        OD_ASSERT_TRUE_MSG(false, "type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index));
         return false;
     }
 
@@ -130,7 +130,7 @@ void TrapManager::checkBuildTrapEditor(GameMap* gameMap, TrapType type, const In
     uint32_t index = static_cast<uint32_t>(type);
     if(index >= getTrapFunctions().size())
     {
-        OD_ASSERT_TRUE_MSG(false, "type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index));
         return;
     }
 
@@ -143,7 +143,7 @@ bool TrapManager::buildTrapEditor(GameMap* gameMap, TrapType type, ODPacket& pac
     uint32_t index = static_cast<uint32_t>(type);
     if(index >= getTrapFunctions().size())
     {
-        OD_ASSERT_TRUE_MSG(false, "type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index));
         return false;
     }
 
@@ -158,7 +158,7 @@ Trap* TrapManager::getTrapFromStream(GameMap* gameMap, std::istream& is)
     uint32_t index = static_cast<uint32_t>(type);
     if(index >= getTrapFunctions().size())
     {
-        OD_ASSERT_TRUE_MSG(false, "type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index));
         return nullptr;
     }
 
@@ -171,7 +171,7 @@ const std::string& TrapManager::getTrapNameFromTrapType(TrapType type)
     uint32_t index = static_cast<uint32_t>(type);
     if(index >= getTrapFunctions().size())
     {
-        OD_ASSERT_TRUE_MSG(false, "type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index));
         return EMPTY_STRING;
     }
     TrapFunctions& trapFuncs = getTrapFunctions()[index];
@@ -188,7 +188,7 @@ TrapType TrapManager::getTrapTypeFromTrapName(const std::string& name)
             return static_cast<TrapType>(i);
     }
 
-    OD_ASSERT_TRUE_MSG(false, "Cannot find Trap name=" + name);
+    OD_LOG_ERR("Cannot find Trap name=" + name);
     return TrapType::nullTrapType;
 }
 
@@ -202,7 +202,7 @@ void TrapManager::registerTrap(TrapType type, const std::string& name,
     uint32_t index = static_cast<uint32_t>(type);
     if(index >= getTrapFunctions().size())
     {
-        OD_ASSERT_TRUE_MSG(false, "type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index));
         return;
     }
 
@@ -289,7 +289,7 @@ void TrapManager::sellTrapTiles(GameMap* gameMap, Seat* seatSell, ODPacket& pack
         Tile* tile = gameMap->tileFromPacket(packet);
         if(tile == nullptr)
         {
-            OD_ASSERT_TRUE_MSG(false, "tile=" + Tile::displayAsString(tile));
+            OD_LOG_ERR("tile=" + Tile::displayAsString(tile));
             continue;
         }
         Trap* trap = tile->getCoveringTrap();
@@ -301,7 +301,7 @@ void TrapManager::sellTrapTiles(GameMap* gameMap, Seat* seatSell, ODPacket& pack
 
         if(!trap->removeCoveredTile(tile))
         {
-            OD_ASSERT_TRUE_MSG(false, "trap=" + trap->getName() + ", tile=" + Tile::displayAsString(tile) + ", seatId=" + Helper::toString(seatSell->getId()));
+            OD_LOG_ERR("trap=" + trap->getName() + ", tile=" + Tile::displayAsString(tile) + ", seatId=" + Helper::toString(seatSell->getId()));
             continue;
         }
 
@@ -421,7 +421,7 @@ void TrapManager::sellTrapTilesEditor(GameMap* gameMap, ODPacket& packet)
         Tile* tile = gameMap->tileFromPacket(packet);
         if(tile == nullptr)
         {
-            OD_ASSERT_TRUE_MSG(false, "tile=" + Tile::displayAsString(tile));
+            OD_LOG_ERR("tile=" + Tile::displayAsString(tile));
             continue;
         }
         Trap* trap = tile->getCoveringTrap();
@@ -430,7 +430,7 @@ void TrapManager::sellTrapTilesEditor(GameMap* gameMap, ODPacket& packet)
 
         if(!trap->removeCoveredTile(tile))
         {
-            OD_ASSERT_TRUE_MSG(false, "trap=" + trap->getName() + ", tile=" + Tile::displayAsString(tile));
+            OD_LOG_ERR("trap=" + trap->getName() + ", tile=" + Tile::displayAsString(tile));
             continue;
         }
 
@@ -500,7 +500,7 @@ int TrapManager::costPerTile(TrapType t)
 
         default:
         {
-            OD_ASSERT_TRUE_MSG(false, "Unknown enum for getting trap cost " + getTrapNameFromTrapType(t));
+            OD_LOG_ERR("Unknown enum for getting trap cost " + getTrapNameFromTrapType(t));
             return 0;
         }
     }
@@ -535,7 +535,7 @@ int32_t TrapManager::getNeededWorkshopPointsPerTrap(TrapType trapType)
         case TrapType::doorWooden:
             return ConfigManager::getSingleton().getTrapConfigInt32("WoodenDoorPointsPerTile");
         default:
-            OD_ASSERT_TRUE_MSG(false, "Asked for wrong trap type=" + getTrapNameFromTrapType(trapType));
+            OD_LOG_ERR("Asked for wrong trap type=" + getTrapNameFromTrapType(trapType));
             break;
     }
     // We shouldn't go here

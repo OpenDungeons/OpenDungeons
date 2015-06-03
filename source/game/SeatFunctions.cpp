@@ -54,8 +54,11 @@
 
 void Seat::setPlayer(Player* player)
 {
-    OD_ASSERT_TRUE_MSG(mPlayer == nullptr, "A player=" + mPlayer->getNick() + " already on seat id="
-    + Helper::toString(getId()) + ", newNick=" + player->getNick());
+    if(mPlayer != nullptr)
+    {
+        OD_LOG_ERR("A player=" + mPlayer->getNick() + " already on seat id="
+            + Helper::toString(getId()) + ", newNick=" + player->getNick());
+    }
 
     mPlayer = player;
     player->mSeat = this;
@@ -78,8 +81,17 @@ bool Seat::hasVisionOnTile(Tile* tile)
     if(!mPlayer->getIsHuman())
         return true;
 
-    OD_ASSERT_TRUE_MSG(tile->getX() < static_cast<int>(mTilesStates.size()), "Tile=" + Tile::displayAsString(tile));
-    OD_ASSERT_TRUE_MSG(tile->getY() < static_cast<int>(mTilesStates[tile->getX()].size()), "Tile=" + Tile::displayAsString(tile));
+    if(tile->getX() >= static_cast<int>(mTilesStates.size()))
+    {
+        OD_LOG_ERR("Tile=" + Tile::displayAsString(tile));
+        return false;
+    }
+    if(tile->getY() >= static_cast<int>(mTilesStates[tile->getX()].size()))
+    {
+        OD_LOG_ERR("Tile=" + Tile::displayAsString(tile));
+        return false;
+    }
+
     TileStateNotified& stateTile = mTilesStates[tile->getX()][tile->getY()];
 
     return stateTile.mVisionTurnCurrent;
@@ -106,9 +118,11 @@ void Seat::initSeat()
     for(const std::string& defName : pool)
     {
         const CreatureDefinition* def = mGameMap->getClassDescription(defName);
-        OD_ASSERT_TRUE_MSG(def != nullptr, "defName=" + defName);
         if(def == nullptr)
+        {
+            OD_LOG_ERR("defName=" + defName);
             continue;
+        }
 
         mSpawnPool.push_back(std::pair<const CreatureDefinition*, bool>(def, false));
     }
@@ -136,9 +150,11 @@ void Seat::initSeat()
         for(std::pair<std::pair<int, int> const, TileStateNotified>& p : mTilesStateLoaded)
         {
             Tile* tile = mGameMap->getTile(p.first.first, p.first.second);
-            OD_ASSERT_TRUE_MSG(tile != nullptr, "tile=" + Tile::displayAsString(tile));
             if(tile == nullptr)
+            {
+                OD_LOG_ERR("tile=" + Tile::displayAsString(tile));
                 continue;
+            }
 
             // We check if the tile is marked
             if(p.second.mMarkedForDigging)
@@ -173,12 +189,12 @@ void Seat::initSeat()
                 // game is saved again
                 if(tile->getX() >= static_cast<int>(mTilesStates.size()))
                 {
-                    OD_ASSERT_TRUE_MSG(false, "Tile=" + Tile::displayAsString(tile));
+                    OD_LOG_ERR("Tile=" + Tile::displayAsString(tile));
                     continue;
                 }
                 if(tile->getY() >= static_cast<int>(mTilesStates[tile->getX()].size()))
                 {
-                    OD_ASSERT_TRUE_MSG(false, "Tile=" + Tile::displayAsString(tile));
+                    OD_LOG_ERR("Tile=" + Tile::displayAsString(tile));
                     continue;
                 }
                 mTilesStates[tile->getX()][tile->getY()] = tileState;
@@ -980,7 +996,7 @@ bool Seat::isSpellAvailable(SpellType type) const
         case SpellType::creatureExplosion:
             return isResearchDone(ResearchType::spellCreatureExplosion);
         default:
-            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Helper::toString(
+            OD_LOG_ERR("Unknown enum value : " + Helper::toString(
                 static_cast<int>(type)) + " for seatId " + Helper::toString(getId()));
             return false;
     }
@@ -1007,7 +1023,7 @@ bool Seat::isRoomAvailable(RoomType type) const
         case RoomType::crypt:
             return isResearchDone(ResearchType::roomCrypt);
         default:
-            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Helper::toString(
+            OD_LOG_ERR("Unknown enum value : " + Helper::toString(
                 static_cast<int>(type)) + " for seatId " + Helper::toString(getId()));
             return false;
     }
@@ -1028,7 +1044,7 @@ bool Seat::isTrapAvailable(TrapType type) const
         case TrapType::doorWooden:
             return isResearchDone(ResearchType::trapDoorWooden);
         default:
-            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Helper::toString(
+            OD_LOG_ERR("Unknown enum value : " + Helper::toString(
                 static_cast<int>(type)) + " for seatId " + Helper::toString(getId()));
             return false;
     }
@@ -1287,7 +1303,7 @@ void Seat::setResearchTree(const std::vector<ResearchType>& researches)
             {
                 // Invalid research. This might be allowed in the gui to enter invalid
                 // values. In this case, we should remove the assert
-                OD_ASSERT_TRUE_MSG(false, "Unallowed research: " + Research::researchTypeToString(researchType));
+                OD_LOG_ERR("Unallowed research: " + Research::researchTypeToString(researchType));
                 return;
             }
             const Research* research = nullptr;
@@ -1303,7 +1319,7 @@ void Seat::setResearchTree(const std::vector<ResearchType>& researches)
             if(research == nullptr)
             {
                 // We found an unknow research
-                OD_ASSERT_TRUE_MSG(false, "Unknow research: " + Research::researchTypeToString(researchType));
+                OD_LOG_ERR("Unknow research: " + Research::researchTypeToString(researchType));
                 return;
             }
 
@@ -1311,7 +1327,7 @@ void Seat::setResearchTree(const std::vector<ResearchType>& researches)
             {
                 // Invalid research. This might be allowed in the gui to enter invalid
                 // values. In this case, we should remove the assert
-                OD_ASSERT_TRUE_MSG(false, "Unallowed research: " + Research::researchTypeToString(researchType));
+                OD_LOG_ERR("Unallowed research: " + Research::researchTypeToString(researchType));
                 return;
             }
 
@@ -1349,12 +1365,16 @@ void Seat::setResearchTree(const std::vector<ResearchType>& researches)
 
 void Seat::updateTileStateForSeat(Tile* tile)
 {
-/*    if(!mPlayer->getIsHuman())
+    if(tile->getX() >= static_cast<int>(mTilesStates.size()))
     {
+        OD_LOG_ERR("Tile=" + Tile::displayAsString(tile));
         return;
-    }*/
-    OD_ASSERT_TRUE_MSG(tile->getX() < static_cast<int>(mTilesStates.size()), "Tile=" + Tile::displayAsString(tile));
-    OD_ASSERT_TRUE_MSG(tile->getY() < static_cast<int>(mTilesStates[tile->getX()].size()), "Tile=" + Tile::displayAsString(tile));
+    }
+    if(tile->getY() >= static_cast<int>(mTilesStates[tile->getX()].size()))
+    {
+        OD_LOG_ERR("Tile=" + Tile::displayAsString(tile));
+        return;
+    }
 
     TileStateNotified& tileState = mTilesStates[tile->getX()][tile->getY()];
     tileState.mTileVisual = tile->getTileVisual();
@@ -1364,7 +1384,7 @@ void Seat::updateTileStateForSeat(Tile* tile)
         case TileVisual::claimedGround:
             if(tile->getSeat() == nullptr)
             {
-                OD_ASSERT_TRUE_MSG(false, "Tile=" + Tile::displayAsString(tile));
+                OD_LOG_ERR("Tile=" + Tile::displayAsString(tile));
             }
             else
             {
@@ -1401,8 +1421,16 @@ void Seat::setVisibleBuildingOnTile(Building* building, Tile* tile)
     if(!getPlayer()->getIsHuman())
         return;
 
-    OD_ASSERT_TRUE_MSG(tile->getX() < static_cast<int>(mTilesStates.size()), "Tile=" + Tile::displayAsString(tile));
-    OD_ASSERT_TRUE_MSG(tile->getY() < static_cast<int>(mTilesStates[tile->getX()].size()), "Tile=" + Tile::displayAsString(tile));
+    if(tile->getX() >= static_cast<int>(mTilesStates.size()))
+    {
+        OD_LOG_ERR("Tile=" + Tile::displayAsString(tile));
+        return;
+    }
+    if(tile->getY() >= static_cast<int>(mTilesStates[tile->getX()].size()))
+    {
+        OD_LOG_ERR("Tile=" + Tile::displayAsString(tile));
+        return;
+    }
 
     TileStateNotified& tileState = mTilesStates[tile->getX()][tile->getY()];
 
@@ -1417,17 +1445,25 @@ void Seat::exportTileToPacket(ODPacket& os, Tile* tile) const
 {
     if(getPlayer() == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "SeatId=" + Helper::toString(getId()));
+        OD_LOG_ERR("SeatId=" + Helper::toString(getId()));
         return;
     }
     if(!getPlayer()->getIsHuman())
     {
-        OD_ASSERT_TRUE_MSG(false, "SeatId=" + Helper::toString(getId()));
+        OD_LOG_ERR("SeatId=" + Helper::toString(getId()));
         return;
     }
 
-    OD_ASSERT_TRUE_MSG(tile->getX() < static_cast<int>(mTilesStates.size()), "Tile=" + Tile::displayAsString(tile));
-    OD_ASSERT_TRUE_MSG(tile->getY() < static_cast<int>(mTilesStates[tile->getX()].size()), "Tile=" + Tile::displayAsString(tile));
+    if(tile->getX() >= static_cast<int>(mTilesStates.size()))
+    {
+        OD_LOG_ERR("Tile=" + Tile::displayAsString(tile));
+        return;
+    }
+    if(tile->getY() >= static_cast<int>(mTilesStates[tile->getX()].size()))
+    {
+        OD_LOG_ERR("Tile=" + Tile::displayAsString(tile));
+        return;
+    }
 
     const TileStateNotified& tileState = mTilesStates[tile->getX()][tile->getY()];
 
@@ -1495,8 +1531,16 @@ void Seat::notifyBuildingRemovedFromGameMap(Building* building, Tile* tile)
     if(!getPlayer()->getIsHuman())
         return;
 
-    OD_ASSERT_TRUE_MSG(tile->getX() < static_cast<int>(mTilesStates.size()), "Tile=" + Tile::displayAsString(tile));
-    OD_ASSERT_TRUE_MSG(tile->getY() < static_cast<int>(mTilesStates[tile->getX()].size()), "Tile=" + Tile::displayAsString(tile));
+    if(tile->getX() >= static_cast<int>(mTilesStates.size()))
+    {
+        OD_LOG_ERR("Tile=" + Tile::displayAsString(tile));
+        return;
+    }
+    if(tile->getY() >= static_cast<int>(mTilesStates[tile->getX()].size()))
+    {
+        OD_LOG_ERR("Tile=" + Tile::displayAsString(tile));
+        return;
+    }
 
     TileStateNotified& tileState = mTilesStates[tile->getX()][tile->getY()];
     if(tileState.mBuilding == building)
@@ -1510,8 +1554,16 @@ void Seat::tileMarkedDiggingNotifiedToPlayer(Tile* tile, bool isDigSet)
     if(!getPlayer()->getIsHuman())
         return;
 
-    OD_ASSERT_TRUE_MSG(tile->getX() < static_cast<int>(mTilesStates.size()), "Tile=" + Tile::displayAsString(tile));
-    OD_ASSERT_TRUE_MSG(tile->getY() < static_cast<int>(mTilesStates[tile->getX()].size()), "Tile=" + Tile::displayAsString(tile));
+    if(tile->getX() >= static_cast<int>(mTilesStates.size()))
+    {
+        OD_LOG_ERR("Tile=" + Tile::displayAsString(tile));
+        return;
+    }
+    if(tile->getY() >= static_cast<int>(mTilesStates[tile->getX()].size()))
+    {
+        OD_LOG_ERR("Tile=" + Tile::displayAsString(tile));
+        return;
+    }
 
     TileStateNotified& tileState = mTilesStates[tile->getX()][tile->getY()];
     tileState.mMarkedForDigging = isDigSet;
@@ -1521,8 +1573,16 @@ bool Seat::isTileDiggableForClient(Tile* tile) const
 {
     if(!getPlayer()->getIsHuman())
         return false;
-    OD_ASSERT_TRUE_MSG(tile->getX() < static_cast<int>(mTilesStates.size()), "Tile=" + Tile::displayAsString(tile));
-    OD_ASSERT_TRUE_MSG(tile->getY() < static_cast<int>(mTilesStates[tile->getX()].size()), "Tile=" + Tile::displayAsString(tile));
+    if(tile->getX() >= static_cast<int>(mTilesStates.size()))
+    {
+        OD_LOG_ERR("Tile=" + Tile::displayAsString(tile));
+        return false;
+    }
+    if(tile->getY() >= static_cast<int>(mTilesStates[tile->getX()].size()))
+    {
+        OD_LOG_ERR("Tile=" + Tile::displayAsString(tile));
+        return false;
+    }
 
     const TileStateNotified& tileState = mTilesStates[tile->getX()][tile->getY()];
     // Handle non claimed
@@ -1544,7 +1604,11 @@ bool Seat::isTileDiggableForClient(Tile* tile) const
     }
 
     // Should be claimed tile
-    OD_ASSERT_TRUE_MSG(tileState.mTileVisual == TileVisual::claimedFull, "mTileVisual=" + Tile::tileVisualToString(tileState.mTileVisual));
+    if(tileState.mTileVisual != TileVisual::claimedFull)
+    {
+        OD_LOG_ERR("mTileVisual=" + Tile::tileVisualToString(tileState.mTileVisual));
+        return false;
+    }
 
     // It is claimed. If it is by the given seat team, it can be dug
     Seat* seat = mGameMap->getSeatById(tileState.mSeatIdOwner);
@@ -1607,7 +1671,7 @@ const CreatureDefinition* Seat::getNextFighterClassToSpawn(const GameMap& gameMa
     }
 
     // It is not normal to come here
-    OD_ASSERT_TRUE_MSG(false, "seatId=" + Helper::toString(getId()));
+    OD_LOG_ERR("seatId=" + Helper::toString(getId()));
     return nullptr;
 }
 

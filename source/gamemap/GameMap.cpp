@@ -221,7 +221,7 @@ bool GameMap::loadLevel(const std::string& levelFilepath)
     Seat* rogueSeat = Seat::createRogueSeat(this);
     if(!addSeat(rogueSeat))
     {
-        OD_ASSERT_TRUE(false);
+        OD_LOG_ERR("Couldn't add rogue seat");
         delete rogueSeat;
     }
 
@@ -310,55 +310,55 @@ void GameMap::clearAll()
     // We check if the different vectors are empty
     if(!mActiveObjects.empty())
     {
-        OD_ASSERT_TRUE_MSG(false, "mActiveObjects not empty size=" + Helper::toString(static_cast<uint32_t>(mActiveObjects.size())));
+        OD_LOG_ERR("mActiveObjects not empty size=" + Helper::toString(static_cast<uint32_t>(mActiveObjects.size())));
         for(GameEntity* entity : mActiveObjects)
         {
-            OD_ASSERT_TRUE_MSG(false, "entity not removed=" + entity->getName());
+            OD_LOG_ERR("entity not removed=" + entity->getName());
         }
         mActiveObjects.clear();
     }
     if(!mActiveObjectsToAdd.empty())
     {
-        OD_ASSERT_TRUE_MSG(false, "mActiveObjectsToAdd not empty size=" + Helper::toString(static_cast<uint32_t>(mActiveObjectsToAdd.size())));
+        OD_LOG_ERR("mActiveObjectsToAdd not empty size=" + Helper::toString(static_cast<uint32_t>(mActiveObjectsToAdd.size())));
         for(GameEntity* entity : mActiveObjectsToAdd)
         {
-            OD_ASSERT_TRUE_MSG(false, "entity not removed=" + entity->getName());
+            OD_LOG_ERR("entity not removed=" + entity->getName());
         }
         mActiveObjectsToAdd.clear();
     }
     if(!mActiveObjectsToRemove.empty())
     {
-        OD_ASSERT_TRUE_MSG(false, "mActiveObjectsToRemove not empty size=" + Helper::toString(static_cast<uint32_t>(mActiveObjectsToRemove.size())));
+        OD_LOG_ERR("mActiveObjectsToRemove not empty size=" + Helper::toString(static_cast<uint32_t>(mActiveObjectsToRemove.size())));
         for(GameEntity* entity : mActiveObjectsToRemove)
         {
-            OD_ASSERT_TRUE_MSG(false, "entity not removed=" + entity->getName());
+            OD_LOG_ERR("entity not removed=" + entity->getName());
         }
         mActiveObjectsToRemove.clear();
     }
     if(!mAnimatedObjects.empty())
     {
-        OD_ASSERT_TRUE_MSG(false, "mAnimatedObjects not empty size=" + Helper::toString(static_cast<uint32_t>(mAnimatedObjects.size())));
+        OD_LOG_ERR("mAnimatedObjects not empty size=" + Helper::toString(static_cast<uint32_t>(mAnimatedObjects.size())));
         for(GameEntity* entity : mAnimatedObjects)
         {
-            OD_ASSERT_TRUE_MSG(false, "entity not removed=" + entity->getName());
+            OD_LOG_ERR("entity not removed=" + entity->getName());
         }
         mAnimatedObjects.clear();
     }
     if(!mEntitiesToDelete.empty())
     {
-        OD_ASSERT_TRUE_MSG(false, "mEntitiesToDelete not empty size=" + Helper::toString(static_cast<uint32_t>(mEntitiesToDelete.size())));
+        OD_LOG_ERR("mEntitiesToDelete not empty size=" + Helper::toString(static_cast<uint32_t>(mEntitiesToDelete.size())));
         for(GameEntity* entity : mEntitiesToDelete)
         {
-            OD_ASSERT_TRUE_MSG(false, "entity not removed=" + entity->getName());
+            OD_LOG_ERR("entity not removed=" + entity->getName());
         }
         mEntitiesToDelete.clear();
     }
     if(!mGameEntityClientUpkeep.empty())
     {
-        OD_ASSERT_TRUE_MSG(false, "mGameEntityClientUpkeep not empty size=" + Helper::toString(static_cast<uint32_t>(mGameEntityClientUpkeep.size())));
+        OD_LOG_ERR("mGameEntityClientUpkeep not empty size=" + Helper::toString(static_cast<uint32_t>(mGameEntityClientUpkeep.size())));
         for(GameEntity* entity : mGameEntityClientUpkeep)
         {
-            OD_ASSERT_TRUE_MSG(false, "entity not removed=" + entity->getName());
+            OD_LOG_ERR("entity not removed=" + entity->getName());
         }
         mGameEntityClientUpkeep.clear();
     }
@@ -454,9 +454,11 @@ void GameMap::addWeapon(const Weapon* weapon)
 
 const Weapon* GameMap::getWeapon(int index)
 {
-    OD_ASSERT_TRUE_MSG(index < static_cast<int>(mWeapons.size()), "index=" + Helper::toString(index));
     if(index >= static_cast<int>(mWeapons.size()))
+    {
+        OD_LOG_ERR("index=" + Helper::toString(index));
         return nullptr;
+    }
 
     std::pair<const Weapon*,Weapon*>& def = mWeapons[index];
     if(def.second != nullptr)
@@ -534,9 +536,11 @@ void GameMap::removeCreature(Creature *c)
     OD_LOG_INF(serverStr() + "Removing Creature " + c->getName());
 
     std::vector<Creature*>::iterator it = std::find(mCreatures.begin(), mCreatures.end(), c);
-    OD_ASSERT_TRUE_MSG(it != mCreatures.end(), "creature name=" + c->getName());
     if(it == mCreatures.end())
+    {
+        OD_LOG_ERR("creature name=" + c->getName());
         return;
+    }
 
     mCreatures.erase(it);
 }
@@ -877,9 +881,11 @@ void GameMap::removeRenderedMovableEntity(RenderedMovableEntity *obj)
     OD_LOG_INF(serverStr() + "Removing rendered object " + obj->getName()
         + ",MeshName=" + obj->getMeshName());
     std::vector<RenderedMovableEntity*>::iterator it = std::find(mRenderedMovableEntities.begin(), mRenderedMovableEntities.end(), obj);
-    OD_ASSERT_TRUE_MSG(it != mRenderedMovableEntities.end(), "obj name=" + obj->getName());
     if(it == mRenderedMovableEntities.end())
+    {
+        OD_LOG_ERR("obj name=" + obj->getName());
         return;
+    }
 
     mRenderedMovableEntities.erase(it);
 }
@@ -1725,9 +1731,11 @@ std::vector<GameEntity*> GameMap::getVisibleForce(const std::vector<Tile*>& visi
     // Loop over the visible tiles
     for (Tile* tile : visibleTiles)
     {
-        OD_ASSERT_TRUE(tile != nullptr);
         if(tile == nullptr)
+        {
+            OD_LOG_ERR("unexpected null tile");
             continue;
+        }
 
         tile->fillWithAttackableCreatures(returnList, seat, enemyForce);
         tile->fillWithAttackableRoom(returnList, seat, enemyForce);
@@ -1744,9 +1752,11 @@ std::vector<GameEntity*> GameMap::getVisibleCreatures(const std::vector<Tile*>& 
     // Loop over the visible tiles
     for (Tile* tile : visibleTiles)
     {
-        OD_ASSERT_TRUE(tile != nullptr);
         if(tile == nullptr)
+        {
+            OD_LOG_ERR("unexpected null tile");
             continue;
+        }
 
         tile->fillWithAttackableCreatures(returnList, seat, enemyCreatures);
     }
@@ -1761,9 +1771,11 @@ std::vector<GameEntity*> GameMap::getVisibleCarryableEntities(const std::vector<
     // Loop over the visible tiles
     for (Tile* tile : visibleTiles)
     {
-        OD_ASSERT_TRUE(tile != nullptr);
         if(tile == nullptr)
+        {
+            OD_LOG_ERR("unexpected null tile");
             continue;
+        }
 
         tile->fillWithCarryableEntities(returnList);
     }
@@ -1803,9 +1815,11 @@ void GameMap::removeRoom(Room *r)
     // Rooms are removed when absorbed by another room or when they have no more tile
     // In both cases, the client have enough information to do that alone so no need to notify him
     std::vector<Room*>::iterator it = std::find(mRooms.begin(), mRooms.end(), r);
-    OD_ASSERT_TRUE_MSG(it != mRooms.end(), "Room name=" + r->getName());
     if(it == mRooms.end())
+    {
+        OD_LOG_ERR("Room name=" + r->getName());
         return;
+    }
 
     mRooms.erase(it);
 }
@@ -1959,9 +1973,11 @@ void GameMap::removeTrap(Trap *t)
 {
     OD_LOG_INF(serverStr() + "Removing trap " + t->getName());
     std::vector<Trap*>::iterator it = std::find(mTraps.begin(), mTraps.end(), t);
-    OD_ASSERT_TRUE_MSG(it != mTraps.end(), "Trap name=" + t->getName());
     if(it == mTraps.end())
+    {
+        OD_LOG_ERR("Trap name=" + t->getName());
         return;
+    }
 
     mTraps.erase(it);
 }
@@ -2019,9 +2035,11 @@ void GameMap::removeMapLight(MapLight *m)
     OD_LOG_INF(serverStr() + "Removing MapLight " + m->getName());
 
     std::vector<MapLight*>::iterator it = std::find(mMapLights.begin(), mMapLights.end(), m);
-    OD_ASSERT_TRUE_MSG(it != mMapLights.end(), "MapLight name=" + m->getName());
     if(it == mMapLights.end())
+    {
+        OD_LOG_ERR("MapLight name=" + m->getName());
         return;
+    }
 
     mMapLights.erase(it);
 }
@@ -2048,15 +2066,17 @@ void GameMap::clearSeats()
 
 bool GameMap::addSeat(Seat *s)
 {
-    OD_ASSERT_TRUE(s != nullptr);
-    if (s == nullptr)
+    if(s == nullptr)
+    {
+        OD_LOG_ERR("unexpected null seat");
         return false;
+    }
 
     for(Seat* seat : mSeats)
     {
         if(seat->getId() == s->getId())
         {
-            OD_ASSERT_TRUE_MSG(false, "Duplicated seat id=" + Helper::toString(seat->getId()));
+            OD_LOG_ERR("Duplicated seat id=" + Helper::toString(seat->getId()));
             return false;
         }
     }
@@ -2331,7 +2351,7 @@ void GameMap::enableFloodFill()
                     break;
                 }
                 default:
-                    OD_ASSERT_TRUE_MSG(false, "Unexpected enum value=" + Tile::toString(currentType));
+                    OD_LOG_ERR("Unexpected enum value=" + Tile::toString(currentType));
                     break;
             }
         }
@@ -2436,9 +2456,12 @@ void GameMap::processActiveObjectsChanges()
         GameEntity* ge = mActiveObjectsToRemove.front();
         mActiveObjectsToRemove.pop_front();
         std::vector<GameEntity*>::iterator it = std::find(mActiveObjects.begin(), mActiveObjects.end(), ge);
-        OD_ASSERT_TRUE_MSG(it != mActiveObjects.end(), "name=" + ge->getName());
-        if(it != mActiveObjects.end())
-            mActiveObjects.erase(it);
+        if(it == mActiveObjects.end())
+        {
+            OD_LOG_ERR("name=" + ge->getName());
+            continue;
+        }
+        mActiveObjects.erase(it);
     }
 }
 
@@ -2819,10 +2842,13 @@ GameEntity* GameMap::getClosestTileWhereGameEntityFromList(std::vector<GameEntit
     {
         GameEntity* gameEntity = *itObj;
         std::vector<Tile*> tiles = gameEntity->getCoveredTiles();
-        for(std::vector<Tile*>::iterator itTile = tiles.begin(); itTile != tiles.end(); ++itTile)
+        for(Tile* tile : tiles)
         {
-            Tile* tile = *itTile;
-            OD_ASSERT_TRUE(tile != nullptr);
+            if(tile == nullptr)
+            {
+                OD_LOG_ERR("unexpected null tile");
+                continue;
+            }
             double dist = std::pow(static_cast<double>(std::abs(tile->getX() - origin->getX())), 2);
             dist += std::pow(static_cast<double>(std::abs(tile->getY() - origin->getY())), 2);
             if(closestGameEntity == nullptr || dist < shortestDist)
@@ -2875,9 +2901,11 @@ bool GameMap::addCreatureMoodModifiers(const std::string& name,
     const std::vector<CreatureMood*>& moodModifiers)
 {
     uint32_t nb = mCreatureMoodModifiers.count(name);
-    OD_ASSERT_TRUE_MSG(nb <= 0, "Duplicate mood modifier=" + name);
     if(nb > 0)
+    {
+        OD_LOG_ERR("Duplicate mood modifier=" + name);
         return false;
+    }
 
     mCreatureMoodModifiers[name] = moodModifiers;
     return true;
@@ -2943,9 +2971,11 @@ void GameMap::removeSpell(Spell *spell)
     OD_LOG_INF(serverStr() + "Removing spell " + spell->getName()
         + ",MeshName=" + spell->getMeshName());
     std::vector<Spell*>::iterator it = std::find(mSpells.begin(), mSpells.end(), spell);
-    OD_ASSERT_TRUE_MSG(it != mSpells.end(), "spell name=" + spell->getName());
     if(it == mSpells.end())
+    {
+        OD_LOG_ERR("spell name=" + spell->getName());
         return;
+    }
 
     mSpells.erase(it);
 }
@@ -2992,8 +3022,6 @@ std::vector<Spell*> GameMap::getSpellsBySeatAndType(Seat* seat, SpellType type) 
 
 const TileSetValue& GameMap::getMeshForTile(const Tile* tile) const
 {
-    OD_ASSERT_TRUE(!isServerGameMap());
-
     int index = 0;
     for(int i = 0; i < 4; ++i)
     {
@@ -3115,7 +3143,7 @@ void GameMap::playerSelects(std::vector<EntityBase*>& entities, int tileX1, int 
                 if(!logMsg)
                 {
                     logMsg = true;
-                    OD_ASSERT_TRUE_MSG(false, "Wrong SelectionTileAllowed int=" + Helper::toString(static_cast<uint32_t>(tileAllowed)));
+                    OD_LOG_ERR("Wrong SelectionTileAllowed int=" + Helper::toString(static_cast<uint32_t>(tileAllowed)));
                 }
                 continue;
             }

@@ -42,7 +42,7 @@ CreatureEffect* CreatureEffect::load(std::istream& is)
         case CreatureEffectType::explosion:
             return CreatureEffectExplosion::load(is);
         default:
-            OD_ASSERT_TRUE_MSG(false, "Unallowed enum value=" + Helper::toString(static_cast<int32_t>(effectType)));
+            OD_LOG_ERR("Unallowed enum value=" + Helper::toString(static_cast<int32_t>(effectType)));
             return nullptr;
     }
 }

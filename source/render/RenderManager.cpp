@@ -538,9 +538,11 @@ void RenderManager::rrOrientEntityToward(MovableGameEntity* gameEntity, const Og
 
 void RenderManager::rrScaleEntity(GameEntity* entity)
 {
-    OD_ASSERT_TRUE_MSG(entity->getEntityNode() != nullptr, "entity=" + entity->getName());
     if(entity->getEntityNode() == nullptr)
+    {
+        OD_LOG_ERR("entity=" + entity->getName());
         return;
+    }
 
     entity->getEntityNode()->setScale(entity->getScale());
 }
@@ -870,18 +872,22 @@ void RenderManager::rrSetObjectAnimationState(MovableGameEntity* curAnimatedObje
 }
 void RenderManager::rrMoveEntity(GameEntity* entity, const Ogre::Vector3& position)
 {
-    OD_ASSERT_TRUE_MSG(entity->getEntityNode() != nullptr, "Entity do not have node=" + entity->getName());
     if(entity->getEntityNode() == nullptr)
+    {
+        OD_LOG_ERR("Entity do not have node=" + entity->getName());
         return;
+    }
 
     entity->getEntityNode()->setPosition(position);
 }
 
 void RenderManager::rrMoveMapLightFlicker(MapLight* mapLight, const Ogre::Vector3& position)
 {
-    OD_ASSERT_TRUE_MSG(mapLight->getFlickerNode() != nullptr, "MapLight do not have flicker=" + mapLight->getName());
     if(mapLight->getFlickerNode() == nullptr)
+    {
+        OD_LOG_ERR("MapLight do not have flicker=" + mapLight->getName());
         return;
+    }
 
     mapLight->getFlickerNode()->setPosition(position);
 }
@@ -1236,7 +1242,7 @@ std::string RenderManager::rrBuildSkullFlagMaterial(const std::string& materialN
     if(!mShaderGenerator->cloneShaderBasedTechniques(oldMaterial->getName(), oldMaterial->getGroup(),
             newMaterial->getName(), newMaterial->getGroup()))
     {
-        OD_ASSERT_TRUE_MSG(false, "Failed to clone rtss for material: " + materialNameBase);
+        OD_LOG_ERR("Failed to clone rtss for material: " + materialNameBase);
     }
 
     for (unsigned int j = 0; j < newMaterial->getNumTechniques(); ++j)

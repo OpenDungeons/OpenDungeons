@@ -310,16 +310,18 @@ bool Trap::hasCarryEntitySpot(GameEntity* carriedEntity)
 
 Tile* Trap::askSpotForCarriedEntity(GameEntity* carriedEntity)
 {
-    OD_ASSERT_TRUE_MSG(carriedEntity->getObjectType() == GameEntityType::craftedTrap,
-        "Trap=" + getName() + ", entity=" + carriedEntity->getName());
     if(carriedEntity->getObjectType() != GameEntityType::craftedTrap)
+    {
+        OD_LOG_ERR("Trap=" + getName() + ", entity=" + carriedEntity->getName());
         return nullptr;
+    }
 
     CraftedTrap* craftedTrap = static_cast<CraftedTrap*>(carriedEntity);
-    OD_ASSERT_TRUE_MSG(craftedTrap->getTrapType() == getType(),
-        "Trap=" + getName() + ", entity=" + carriedEntity->getName());
     if(craftedTrap->getTrapType() != getType())
+    {
+        OD_LOG_ERR("Trap=" + getName() + ", entity=" + carriedEntity->getName());
         return nullptr;
+    }
 
     for(Tile* tile : mCoveredTiles)
     {
@@ -359,9 +361,9 @@ void Trap::notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEnti
 
         // We check if the carrier is at the expected destination
         Tile* carrierTile = carrier->getPositionTile();
-        OD_ASSERT_TRUE_MSG(carrierTile != nullptr, "carrier=" + carrier->getName());
         if(carrierTile == nullptr)
         {
+            OD_LOG_ERR("carrier=" + carrier->getName());
             trapTileData->setCarriedCraftedTrap(nullptr);
             return;
         }
@@ -396,7 +398,7 @@ bool Trap::isAttackable(Tile* tile, Seat* seat) const
     // We check if the trap is hidden for this seat
     if(mTileData.count(tile) <= 0)
     {
-        OD_ASSERT_TRUE_MSG(false, "name=" + getName() + ", tile=" + Tile::displayAsString(tile));
+        OD_LOG_ERR("name=" + getName() + ", tile=" + Tile::displayAsString(tile));
         return false;
     }
 
@@ -423,7 +425,7 @@ void Trap::restoreInitialEntityState()
         TrapEntity* trapEntity = trapTileData->getTrapEntity();
         if(trapEntity == nullptr)
         {
-            OD_ASSERT_TRUE_MSG(false, "tile=" + Tile::displayAsString(p.first));
+            OD_LOG_ERR("tile=" + Tile::displayAsString(p.first));
             continue;
         }
 
@@ -524,7 +526,7 @@ void Trap::importTileDataFromStream(std::istream& is, Tile* tile, TileData* tile
         Seat* seat = gameMap->getSeatById(seatId);
         if(seat == nullptr)
         {
-            OD_ASSERT_TRUE_MSG(false, "trap=" + getName() + ", seatId=" + Helper::toString(seatId));
+            OD_LOG_ERR("trap=" + getName() + ", seatId=" + Helper::toString(seatId));
             continue;
         }
         trapTileData->mSeatsVision.push_back(seat);
@@ -540,7 +542,7 @@ bool Trap::isTileVisibleForSeat(Tile* tile, Seat* seat) const
 {
     if(mTileData.count(tile) <= 0)
     {
-        OD_ASSERT_TRUE_MSG(false, "trap=" + getName() + ", tile=" + Tile::displayAsString(tile));
+        OD_LOG_ERR("trap=" + getName() + ", tile=" + Tile::displayAsString(tile));
         return false;
     }
 
@@ -563,7 +565,7 @@ void Trap::claimForSeat(Seat* seat, Tile* tile, double danceRate)
 {
     if(mTileData.count(tile) <= 0)
     {
-        OD_ASSERT_TRUE_MSG(false, "trap=" + getName() + ", tile=" + Tile::displayAsString(tile));
+        OD_LOG_ERR("trap=" + getName() + ", tile=" + Tile::displayAsString(tile));
         return;
     }
 
@@ -651,13 +653,13 @@ bool Trap::getTrapTilesDefault(std::vector<Tile*>& tiles, GameMap* gameMap, Play
         Tile* tile = gameMap->tileFromPacket(packet);
         if(tile == nullptr)
         {
-            OD_ASSERT_TRUE(false);
+            OD_LOG_ERR("unexpected null tile");
             return false;
         }
 
         if(!tile->isBuildableUpon(player->getSeat()))
         {
-            OD_ASSERT_TRUE_MSG(false, "tile=" + Tile::displayAsString(tile) + ", seatId=" + Helper::toString(player->getSeat()->getId()));
+            OD_LOG_ERR("tile=" + Tile::displayAsString(tile) + ", seatId=" + Helper::toString(player->getSeat()->getId()));
             continue;
         }
 
@@ -768,7 +770,7 @@ bool Trap::buildTrapDefaultEditor(GameMap* gameMap, Trap* trap, ODPacket& packet
     Seat* seatTrap = gameMap->getSeatById(seatId);
     if(seatTrap == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "seatId=" + Helper::toString(seatId));
+        OD_LOG_ERR("seatId=" + Helper::toString(seatId));
         return false;
     }
 
@@ -782,14 +784,14 @@ bool Trap::buildTrapDefaultEditor(GameMap* gameMap, Trap* trap, ODPacket& packet
         Tile* tile = gameMap->tileFromPacket(packet);
         if(tile == nullptr)
         {
-            OD_ASSERT_TRUE(false);
+            OD_LOG_ERR("unexpected null tile");
             return false;
         }
 
         // If the tile is not buildable, we change it
         if(tile->getCoveringBuilding() != nullptr)
         {
-            OD_ASSERT_TRUE_MSG(false, "tile=" + Tile::displayAsString(tile) + ", seatId=" + Helper::toString(seatId));
+            OD_LOG_ERR("tile=" + Tile::displayAsString(tile) + ", seatId=" + Helper::toString(seatId));
             continue;
         }
 

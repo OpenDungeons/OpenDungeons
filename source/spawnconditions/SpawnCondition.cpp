@@ -48,7 +48,7 @@ SpawnCondition* SpawnCondition::load(std::istream& defFile)
         if(condition != nullptr)
         {
             // The previous line was a valid condition so we should have had an ending tag
-            OD_ASSERT_TRUE_MSG(false, "nextParam=" + nextParam);
+            OD_LOG_ERR("nextParam=" + nextParam);
             return condition;
         }
         if (nextParam == "Room")
@@ -58,7 +58,7 @@ SpawnCondition* SpawnCondition::load(std::istream& defFile)
             RoomType roomType = RoomManager::getRoomTypeFromRoomName(nextParam);
             if(roomType == RoomType::nullRoomType)
             {
-                OD_ASSERT_TRUE_MSG(false, "nextParam=" + nextParam);
+                OD_LOG_ERR("nextParam=" + nextParam);
                 break;
             }
             if(!(defFile >> nextParam))
@@ -78,7 +78,7 @@ SpawnCondition* SpawnCondition::load(std::istream& defFile)
             const CreatureDefinition* creatureDefinition = ConfigManager::getSingleton().getCreatureDefinition(nextParam);
             if(creatureDefinition == nullptr)
             {
-                OD_ASSERT_TRUE_MSG(false, "nextParam=" + nextParam);
+                OD_LOG_ERR("nextParam=" + nextParam);
                 return nullptr;
             }
             if(!(defFile >> nextParam))
@@ -103,6 +103,6 @@ SpawnCondition* SpawnCondition::load(std::istream& defFile)
             condition = new SpawnConditionGold(nbGoldMin, pointsPerAdditional100Gold);
         }
     }
-    OD_ASSERT_TRUE(false);
+    OD_LOG_ERR("Couldn't read spawn condition");
     return nullptr;
 }

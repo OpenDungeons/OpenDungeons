@@ -300,7 +300,7 @@ void RoomPortalWave::spawnWave(RoomPortalWaveData* roomPortalWaveData, uint32_t 
         const CreatureDefinition* classToSpawn = getGameMap()->getClassDescription(p.first);
         if(classToSpawn == nullptr)
         {
-            OD_ASSERT_TRUE_MSG(false, "RoomPortalWave=" + getName() + ", wrong creature class=" + p.first);
+            OD_LOG_ERR("RoomPortalWave=" + getName() + ", wrong creature class=" + p.first);
             continue;
         }
 
@@ -371,7 +371,7 @@ void RoomPortalWave::importFromStream(std::istream& is)
     OD_ASSERT_TRUE(is >> str);
     if(str != "[Waves]")
     {
-        OD_ASSERT_TRUE_MSG(false, "RoomPortalWave=" + getName() + ", str=" + str);
+        OD_LOG_ERR("RoomPortalWave=" + getName() + ", str=" + str);
         return;
     }
     while(true)
@@ -382,7 +382,7 @@ void RoomPortalWave::importFromStream(std::istream& is)
 
         if(str != "[Wave]")
         {
-            OD_ASSERT_TRUE_MSG(false, "RoomPortalWave=" + getName() + ", str=" + str);
+            OD_LOG_ERR("RoomPortalWave=" + getName() + ", str=" + str);
             return;
         }
 
@@ -390,7 +390,7 @@ void RoomPortalWave::importFromStream(std::istream& is)
         OD_ASSERT_TRUE(is >> str);
         if(str != "SpawnTurnMin")
         {
-            OD_ASSERT_TRUE_MSG(false, "RoomPortalWave=" + getName() + ", str=" + str);
+            OD_LOG_ERR("RoomPortalWave=" + getName() + ", str=" + str);
             delete roomPortalWaveData;
             return;
         }
@@ -399,7 +399,7 @@ void RoomPortalWave::importFromStream(std::istream& is)
         OD_ASSERT_TRUE(is >> str);
         if(str != "SpawnTurnMax")
         {
-            OD_ASSERT_TRUE_MSG(false, "RoomPortalWave=" + getName() + ", str=" + str);
+            OD_LOG_ERR("RoomPortalWave=" + getName() + ", str=" + str);
             delete roomPortalWaveData;
             return;
         }
@@ -408,7 +408,7 @@ void RoomPortalWave::importFromStream(std::istream& is)
         OD_ASSERT_TRUE(is >> str);
         if(str != "[Creatures]")
         {
-            OD_ASSERT_TRUE_MSG(false, "RoomPortalWave=" + getName() + ", str=" + str);
+            OD_LOG_ERR("RoomPortalWave=" + getName() + ", str=" + str);
             delete roomPortalWaveData;
             return;
         }
@@ -429,7 +429,7 @@ void RoomPortalWave::importFromStream(std::istream& is)
         OD_ASSERT_TRUE(is >> str);
         if(str != "[/Wave]")
         {
-            OD_ASSERT_TRUE_MSG(false, "RoomPortalWave=" + getName() + ", str=" + str);
+            OD_LOG_ERR("RoomPortalWave=" + getName() + ", str=" + str);
             delete roomPortalWaveData;
             return;
         }
@@ -444,20 +444,20 @@ void RoomPortalWave::restoreInitialEntityState()
     // because it will empty the list
     if(mPortalObject == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "RoomPortalWave=" + getName());
+        OD_LOG_ERR("RoomPortalWave=" + getName());
         return;
     }
 
     Tile* tilePortalObject = mPortalObject->getPositionTile();
     if(tilePortalObject == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "RoomPortalWave=" + getName() + ", mPortalObject=" + mPortalObject->getName());
+        OD_LOG_ERR("RoomPortalWave=" + getName() + ", mPortalObject=" + mPortalObject->getName());
         return;
     }
     TileData* tileData = mTileData[tilePortalObject];
     if(tileData == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "RoomPortalWave=" + getName() + ", tile=" + Tile::displayAsString(tilePortalObject));
+        OD_LOG_ERR("RoomPortalWave=" + getName() + ", tile=" + Tile::displayAsString(tilePortalObject));
         return;
     }
 
@@ -489,14 +489,14 @@ bool RoomPortalWave::handleSearchFoe()
 {
     if(mPortalObject == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "room=" + getName());
+        OD_LOG_ERR("room=" + getName());
         return false;
     }
 
     Tile* tileStart = mPortalObject->getPositionTile();
     if(tileStart == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "room=" + getName());
+        OD_LOG_ERR("room=" + getName());
         return false;
     }
 
@@ -574,14 +574,14 @@ bool RoomPortalWave::handleDigging()
 
     if(mPortalObject == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "room=" + getName());
+        OD_LOG_ERR("room=" + getName());
         return false;
     }
 
     Tile* tileStart = mPortalObject->getPositionTile();
     if(tileStart == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "room=" + getName());
+        OD_LOG_ERR("room=" + getName());
         return false;
     }
 
@@ -803,7 +803,7 @@ bool RoomPortalWave::findBestDiggablePath(Tile* tileStart, Tile* tileDest, Creat
             tile = getGameMap()->getTile(tile->getX() - rotations.back().first, tile->getY() - rotations.back().second);
             if(tile == nullptr)
             {
-                OD_ASSERT_TRUE_MSG(false, "room=" + getName());
+                OD_LOG_ERR("room=" + getName());
                 return false;
             }
 

@@ -49,6 +49,11 @@ RoomPortal::RoomPortal(GameMap* gameMap) :
 
 void RoomPortal::absorbRoom(Room *r)
 {
+    if(r->getType() != getType())
+    {
+        OD_LOG_ERR("Trying to merge incompatible rooms: " + getName() + ", type=" + RoomManager::getRoomNameFromRoomType(getType()) + ", with " + r->getName() + ", type=" + RoomManager::getRoomNameFromRoomType(r->getType()));
+        return;
+    }
     RoomPortal* oldRoom = static_cast<RoomPortal*>(r);
     mClaimedValue += oldRoom->mClaimedValue;
     // We keep the number of creatures increased by this portal
@@ -235,20 +240,20 @@ void RoomPortal::restoreInitialEntityState()
     // because it will empty the list
     if(mPortalObject == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "roomPortal=" + getName());
+        OD_LOG_ERR("roomPortal=" + getName());
         return;
     }
 
     Tile* tilePortalObject = mPortalObject->getPositionTile();
     if(tilePortalObject == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "roomPortal=" + getName() + ", mPortalObject=" + mPortalObject->getName());
+        OD_LOG_ERR("roomPortal=" + getName() + ", mPortalObject=" + mPortalObject->getName());
         return;
     }
     TileData* tileData = mTileData[tilePortalObject];
     if(tileData == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "roomPortal=" + getName() + ", tile=" + Tile::displayAsString(tilePortalObject));
+        OD_LOG_ERR("roomPortal=" + getName() + ", tile=" + Tile::displayAsString(tilePortalObject));
         return;
     }
 

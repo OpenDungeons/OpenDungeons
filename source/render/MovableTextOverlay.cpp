@@ -35,7 +35,11 @@ ChildOverlay::ChildOverlay(const Ogre::String& fontName, Ogre::Real charHeight,
     mTimeToDisplay(0),
     mFont(dynamic_cast<Ogre::Font*>(Ogre::FontManager::getSingleton().getByName(fontName).getPointer()))
 {
-    OD_ASSERT_TRUE_MSG(mFont != nullptr, "fontName=" + fontName);
+    if(mFont == nullptr)
+    {
+        OD_LOG_ERR("fontName=" + fontName);
+        return;
+    }
     mFont->load();
 }
 
@@ -196,7 +200,7 @@ void MovableTextOverlay::setCaption(uint32_t childOverlayId, const Ogre::String&
 {
     if(childOverlayId >= mChildOverlays.size())
     {
-        OD_ASSERT_TRUE_MSG(false, "childOverlayId=" + Helper::toString(childOverlayId));
+        OD_LOG_ERR("childOverlayId=" + Helper::toString(childOverlayId));
         return;
     }
 
@@ -208,7 +212,7 @@ void MovableTextOverlay::forceTextArea(uint32_t childOverlayId, Ogre::Real textW
 {
     if(childOverlayId >= mChildOverlays.size())
     {
-        OD_ASSERT_TRUE_MSG(false, "childOverlayId=" + Helper::toString(childOverlayId));
+        OD_LOG_ERR("childOverlayId=" + Helper::toString(childOverlayId));
         return;
     }
 
@@ -220,7 +224,7 @@ void MovableTextOverlay::setMaterialName(uint32_t childOverlayId, const Ogre::St
 {
     if(childOverlayId >= mChildOverlays.size())
     {
-        OD_ASSERT_TRUE_MSG(false, "childOverlayId=" + Helper::toString(childOverlayId));
+        OD_LOG_ERR("childOverlayId=" + Helper::toString(childOverlayId));
         return;
     }
 
@@ -259,7 +263,7 @@ void MovableTextOverlay::displayOverlay(uint32_t childOverlayId, Ogre::Real time
 {
     if(childOverlayId >= mChildOverlays.size())
     {
-        OD_ASSERT_TRUE_MSG(false, "childOverlayId=" + Helper::toString(childOverlayId));
+        OD_LOG_ERR("childOverlayId=" + Helper::toString(childOverlayId));
         return;
     }
 

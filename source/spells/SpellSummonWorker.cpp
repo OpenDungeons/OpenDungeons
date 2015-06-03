@@ -77,7 +77,7 @@ void SpellSummonWorker::checkSpellCast(GameMap* gameMap, const InputManager& inp
             if(!logMsg)
             {
                 logMsg = true;
-                OD_ASSERT_TRUE_MSG(false, "Wrong target name=" + target->getName() + ", type=" + Helper::toString(static_cast<int32_t>(target->getObjectType())));
+                OD_LOG_ERR("Wrong target name=" + target->getName() + ", type=" + Helper::toString(static_cast<int32_t>(target->getObjectType())));
             }
             continue;
         }
@@ -146,7 +146,7 @@ bool SpellSummonWorker::summonWorkersOnTiles(GameMap* gameMap, Player* player, c
 
     if (classToSpawn == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "No worker creature definition, class=nullptr, player=" + player->getNick());
+        OD_LOG_ERR("No worker creature definition, class=nullptr, player=" + player->getNick());
         return false;
     }
 
@@ -215,12 +215,12 @@ int32_t SpellSummonWorker::getNextWorkerPriceForPlayer(GameMap* gameMap, Player*
 
 Spell* SpellSummonWorker::getSpellFromStream(GameMap* gameMap, std::istream &is)
 {
-    OD_ASSERT_TRUE_MSG(false, "SpellSummonWorker cannot be read from stream");
+    OD_LOG_ERR("SpellSummonWorker cannot be read from stream");
     return nullptr;
 }
 
 Spell* SpellSummonWorker::getSpellFromPacket(GameMap* gameMap, ODPacket &is)
 {
-    OD_ASSERT_TRUE_MSG(false, "SpellSummonWorker cannot be read from packet");
+    OD_LOG_ERR("SpellSummonWorker cannot be read from packet");
     return nullptr;
 }

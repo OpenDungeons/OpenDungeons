@@ -27,13 +27,13 @@ static CreatureRoomAffinity EMPTY_AFFINITY(RoomType::nullRoomType, 0, 0);
 
 double CreatureDefinition::getXPNeededWhenLevel(unsigned int level) const
 {
-    // This should never happen
-    OD_ASSERT_TRUE(level < MAX_LEVEL);
-    OD_ASSERT_TRUE(level < mXPTable.size());
-    OD_ASSERT_TRUE(level > 0);
     // Return 0.0, meaning there is an error.
     if (level >= MAX_LEVEL || level < 1 || level >= mXPTable.size())
+    {
+        // This should never happen
+        OD_LOG_ERR("level=" + Helper::toString(level));
         return 0.0;
+    }
 
     return mXPTable[level - 1];
 }
@@ -194,7 +194,7 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
             auto it = defMap.find(baseDefinition);
             if(it == defMap.end())
             {
-                OD_ASSERT_TRUE_MSG(false, "Couldn't find base class " + baseDefinition);
+                OD_LOG_ERR("Couldn't find base class " + baseDefinition);
                 return false;
             }
             *creatureDef = *(it->second);
@@ -497,7 +497,7 @@ bool CreatureDefinition::update(CreatureDefinition* creatureDef, std::stringstre
 
     if (name.empty())
     {
-        OD_ASSERT_TRUE(false);
+        OD_LOG_ERR("Cannot have empty creature def name");
         return false;
     }
     creatureDef->mClassName = name;
@@ -712,9 +712,11 @@ void CreatureDefinition::writeCreatureDefinitionDiff(
 
 void CreatureDefinition::loadXPTable(std::stringstream& defFile, CreatureDefinition* creatureDef)
 {
-    OD_ASSERT_TRUE(creatureDef != nullptr);
     if (creatureDef == nullptr)
+    {
+        OD_LOG_ERR("Cannot load null creature def");
         return;
+    }
 
     std::string nextParam;
     bool exit = false;
@@ -738,9 +740,11 @@ void CreatureDefinition::loadXPTable(std::stringstream& defFile, CreatureDefinit
         }
 
         // Ignore values after the max level
-        OD_ASSERT_TRUE(i < MAX_LEVEL - 1);
         if (i >= MAX_LEVEL - 1)
+        {
+            OD_LOG_ERR("creatureDef=" + creatureDef->getClassName() + ", i=" + Helper::toString(i < MAX_LEVEL - 1));
             continue;
+        }
 
         creatureDef->mXPTable[i++] = Helper::toDouble(nextParam);
     }
@@ -750,7 +754,10 @@ void CreatureDefinition::loadRoomAffinity(std::stringstream& defFile, CreatureDe
 {
     OD_ASSERT_TRUE(creatureDef != nullptr);
     if (creatureDef == nullptr)
+    {
+        OD_LOG_ERR("Cannot load room afinity for null creatureDef");
         return;
+    }
 
     std::string nextParam;
     bool exit = false;
@@ -796,9 +803,11 @@ void CreatureDefinition::loadRoomAffinity(std::stringstream& defFile, CreatureDe
         double efficiency = Helper::toDouble(nextParam);
 
         RoomType roomType = RoomManager::getRoomTypeFromRoomName(roomName);
-        OD_ASSERT_TRUE_MSG(roomType != RoomType::nullRoomType, "Unknown room name=" + roomName);
         if(roomType == RoomType::nullRoomType)
+        {
+            OD_LOG_ERR("Unknown room name=" + roomName);
             continue;
+        }
 
         // We sort the CreatureRoomAffinity from the most liked to the less
         std::vector<CreatureRoomAffinity>::iterator it = creatureDef->mRoomAffinity.begin();
