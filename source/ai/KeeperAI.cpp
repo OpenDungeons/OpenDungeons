@@ -313,7 +313,7 @@ bool KeeperAI::handleRooms()
     mRoomPosY = bestY;
 
     Tile* tileDest = mGameMap.getTile(mRoomPosX, mRoomPosY);
-    if(tileDest != nullptr)
+    if(tileDest == nullptr)
     {
         OD_LOG_ERR("tileDest=" + Tile::displayAsString(tileDest) + ", mRoomPosX=" + Helper::toString(mRoomPosX) + ", mRoomPosY=" + Helper::toString(mRoomPosY));
         return false;
