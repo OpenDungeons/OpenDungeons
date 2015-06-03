@@ -27,7 +27,6 @@ GoalMineNGold::GoalMineNGold(const std::string& nName, const std::string& nArgum
         Goal(nName, nArguments),
         mGoldToMine(atoi(nArguments.c_str()))
 {
-    std::cout << "\nAdding goal " << getName();
 }
 
 bool GoalMineNGold::isMet(const Seat &s, const GameMap&)

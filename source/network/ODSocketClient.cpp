@@ -35,13 +35,13 @@ bool ODSocketClient::connect(const std::string& host, const int port)
     sf::Socket::Status status = mSockClient.connect(host, port, sf::milliseconds(timeout));
     if (status != sf::Socket::Done)
     {
-        LogManager::getSingleton().logMessage("ERROR : Could not connect to distant server status="
+        OD_LOG_ERR("Could not connect to distant server status="
             + Helper::toString(status));
         mSockClient.disconnect();
         return false;
     }
     mSockSelector.add(mSockClient);
-    LogManager::getSingleton().logMessage("Connected to server successfully");
+    OD_LOG_INF("Connected to server successfully");
     static std::locale loc(std::wcout.getloc(), new boost::posix_time::time_facet("%Y%m%d_%H%M%S"));
     std::ostringstream ss;
     ss.imbue(loc);
@@ -56,7 +56,7 @@ bool ODSocketClient::connect(const std::string& host, const int port)
 
 bool ODSocketClient::replay(const std::string& filename)
 {
-    LogManager::getSingleton().logMessage("Reading replay from file " + filename);
+    OD_LOG_INF("Reading replay from file " + filename);
     mReplayInputStream.open(filename, std::ios::in | std::ios::binary);
     mGameClock.restart();
     mSource = ODSource::file;
@@ -149,7 +149,7 @@ ODSocketClient::ODComStatus ODSocketClient::send(ODPacket& s)
     if (status == sf::Socket::Done)
         return ODComStatus::OK;
 
-    LogManager::getSingleton().logMessage("ERROR : Could not send data from client status="
+    OD_LOG_ERR("Could not send data from client status="
         + Helper::toString(status));
     return ODComStatus::Error;
 }
@@ -178,7 +178,7 @@ ODSocketClient::ODComStatus ODSocketClient::recv(ODPacket& s)
             {
                     return ODComStatus::NotReady;
             }
-            LogManager::getSingleton().logMessage("ERROR : Could not receive data from client status="
+            OD_LOG_ERR("Could not receive data from client status="
                 + Helper::toString(status));
             return ODComStatus::Error;
         }

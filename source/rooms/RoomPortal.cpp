@@ -195,7 +195,7 @@ void RoomPortal::spawnCreature()
     // Create a new creature and copy over the class-based creature parameters.
     Creature* newCreature = new Creature(getGameMap(), true, classToSpawn, getSeat(), Ogre::Vector3(xPos, yPos, 0.0f));
 
-    LogManager::getSingleton().logMessage("RoomPortal name=" + getName()
+    OD_LOG_INF("RoomPortal name=" + getName()
         + "spawns a creature class=" + classToSpawn->getClassName()
         + ", name=" + newCreature->getName() + ", seatId=" + Helper::toString(getSeat()->getId()));
 

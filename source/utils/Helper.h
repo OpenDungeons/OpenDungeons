@@ -50,6 +50,19 @@ namespace Helper
         return t;
     }
 
+    /*! \brief Converts a primitive type T to a string
+     *
+     *  \param str The string to be converted
+     *  \return The converted primitive number
+     */
+    template<typename T>
+    std::string TTostring(T t)
+    {
+        std::stringstream ss;
+        ss << t;
+        return ss.str();
+    }
+
     //! \brief Turn a std::string to a wstring.
     inline std::wstring atow(const std::string& str)
     {
@@ -120,6 +133,10 @@ namespace Helper
     { return Ogre::StringConverter::toString(d); }
     inline std::string toString(uint32_t d)
     { return Ogre::StringConverter::toString(d); }
+    inline std::string toString(int64_t d)
+    { return TTostring(d); }
+    inline std::string toString(uint64_t d)
+    { return TTostring(d); }
     inline std::string toString(const Ogre::Vector3& v)
     { return Ogre::StringConverter::toString(v); }
     inline std::string toString(const Ogre::Radian& r)

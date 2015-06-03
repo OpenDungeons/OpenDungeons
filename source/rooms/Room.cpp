@@ -79,7 +79,7 @@ void Room::removeFromGameMap()
 
 void Room::absorbRoom(Room *r)
 {
-    LogManager::getSingleton().logMessage(getGameMap()->serverStr() + "Room=" + getName() + " is absorbing room=" + r->getName());
+    OD_LOG_INF(getGameMap()->serverStr() + "Room=" + getName() + " is absorbing room=" + r->getName());
 
     mCentralActiveSpotTiles.insert(mCentralActiveSpotTiles.end(), r->mCentralActiveSpotTiles.begin(), r->mCentralActiveSpotTiles.end());
     r->mCentralActiveSpotTiles.clear();
@@ -629,7 +629,7 @@ void Room::repairRoom()
         if(!tile->isBuildableUpon(getSeat()))
             continue;
 
-        LogManager::getSingleton().logMessage("Repairing room=" + getName() + ", tile=" + Tile::displayAsString(tile));
+        OD_LOG_INF("Repairing room=" + getName() + ", tile=" + Tile::displayAsString(tile));
 
         mCoveredTiles.push_back(tile);
         TileData* tileData;

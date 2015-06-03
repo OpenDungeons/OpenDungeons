@@ -22,6 +22,8 @@
 
 #include "utils/Helper.h"
 
+#include "utils/LogManager.h"
+
 #include <boost/filesystem.hpp>
 #include <fstream>
 
@@ -130,7 +132,7 @@ namespace Helper
         std::ifstream baseLevelFile(fileName.c_str(), std::ifstream::in);
         if (!baseLevelFile.good())
         {
-            std::cerr << "ERROR: File not found:  " << fileName << "\n\n\n";
+            OD_LOG_WRN("File not found=" + fileName);
             return false;
         }
 

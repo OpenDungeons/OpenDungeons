@@ -84,9 +84,6 @@ bool ODClient::processOneClientSocketMessage()
     if(!isDataAvailable())
         return false;
 
-    // Get a reference to the LogManager
-    LogManager& logManager = LogManager::getSingleton();
-
     ODPacket packetReceived;
 
     // Check if data available
@@ -345,7 +342,7 @@ bool ODClient::processOneClientSocketMessage()
             OD_ASSERT_TRUE(packetReceived >> serverMode);
 
             // Now that the we have received all needed information, we can launch the requested mode
-            LogManager::getSingleton().logMessage("Starting game map");
+            OD_LOG_INF("Starting game map");
             gameMap->setGamePaused(false);
             // Create ogre entities for the tiles, rooms, and creatures
             gameMap->createAllEntities();
@@ -451,7 +448,7 @@ bool ODClient::processOneClientSocketMessage()
         {
             int64_t turnNum;
             OD_ASSERT_TRUE(packetReceived >> turnNum);
-            logManager.logMessage("Client (" + getPlayer()->getNick() + ") received turnStarted="
+            OD_LOG_INF("Client (" + getPlayer()->getNick() + ") received turnStarted="
                 + boost::lexical_cast<std::string>(turnNum));
 
             gameMap->clientUpKeep(turnNum);
@@ -947,7 +944,7 @@ bool ODClient::processOneClientSocketMessage()
 
         default:
         {
-            logManager.logMessage("ERROR:  Unknown server command:"
+            OD_LOG_ERR("Unknown server command:"
                 + Helper::toString(static_cast<int>(serverCommand)));
             break;
         }
@@ -1037,12 +1034,11 @@ void ODClient::sendToServer(ODPacket& packetToSend)
 
 bool ODClient::connect(const std::string& host, const int port)
 {
-    LogManager& logManager = LogManager::getSingleton();
     mIsPlayerConfig = false;
     // Start the server socket listener as well as the server socket thread
     if (ODClient::getSingleton().isConnected())
     {
-        logManager.logMessage("Couldn't try to connect: The client is already connected");
+        OD_LOG_INF("Couldn't try to connect: The client is already connected");
         return false;
     }
 
@@ -1060,12 +1056,11 @@ bool ODClient::connect(const std::string& host, const int port)
 
 bool ODClient::replay(const std::string& filename)
 {
-    LogManager& logManager = LogManager::getSingleton();
     mIsPlayerConfig = false;
     // Start the server socket listener as well as the server socket thread
     if (ODClient::getSingleton().isConnected())
     {
-        logManager.logMessage("Couldn't try to launch replay: The client is already connected");
+        OD_LOG_INF("Couldn't try to launch replay: The client is already connected");
         return false;
     }
 

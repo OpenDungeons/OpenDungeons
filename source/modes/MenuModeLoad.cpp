@@ -142,7 +142,7 @@ bool MenuModeLoad::launchSelectedButtonPressed(const CEGUI::EventArgs&)
     // In single player mode, we act as a server
     if(!ODServer::getSingleton().startServer(level, ServerMode::ModeGameLoaded))
     {
-        LogManager::getSingleton().logMessage("ERROR: Could not start server for single player game !!!");
+        OD_LOG_ERR("Could not start server for single player game !!!");
         tmpWin = getModeManager().getGui().getGuiSheet(Gui::loadSavedGameMenu)->getChild("LoadingText");
         tmpWin->setText("ERROR: Could not start server for single player game !!!");
         tmpWin->show();
@@ -151,7 +151,7 @@ bool MenuModeLoad::launchSelectedButtonPressed(const CEGUI::EventArgs&)
 
     if(!ODClient::getSingleton().connect("localhost", ConfigManager::getSingleton().getNetworkPort()))
     {
-        LogManager::getSingleton().logMessage("ERROR: Could not connect to server for single player game !!!");
+        OD_LOG_ERR("Could not connect to server for single player game !!!");
         tmpWin = getModeManager().getGui().getGuiSheet(Gui::loadSavedGameMenu)->getChild("LoadingText");
         tmpWin->setText("Error: Couldn't connect to local server!");
         tmpWin->show();
@@ -179,7 +179,7 @@ bool MenuModeLoad::deleteSelectedButtonPressed(const CEGUI::EventArgs&)
     const std::string& levelFile = mFilesList[id];
     if(!boost::filesystem::remove(levelFile))
     {
-        LogManager::getSingleton().logMessage("ERROR: Could not delete saved game !!!");
+        OD_LOG_ERR("Could not delete saved game !!!");
         tmpWin = getModeManager().getGui().getGuiSheet(Gui::loadSavedGameMenu)->getChild("LoadingText");
         tmpWin->setText("Error: Couldn't delete saved game!");
         tmpWin->show();

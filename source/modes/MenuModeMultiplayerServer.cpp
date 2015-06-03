@@ -179,7 +179,7 @@ bool MenuModeMultiplayerServer::serverButtonPressed(const CEGUI::EventArgs&)
     // We are a server
     if(!ODServer::getSingleton().startServer(level, ServerMode::ModeGameMultiPlayer))
     {
-        LogManager::getSingleton().logMessage("ERROR: Could not start server for multi player game !!!");
+        OD_LOG_ERR("Could not start server for multi player game !!!");
         tmpWin = getModeManager().getGui().getGuiSheet(Gui::multiplayerServerMenu)->getChild(Gui::MPM_TEXT_LOADING);
         tmpWin->setText("ERROR: Could not start server for multi player game !!!");
         tmpWin->show();
@@ -189,7 +189,7 @@ bool MenuModeMultiplayerServer::serverButtonPressed(const CEGUI::EventArgs&)
     // We connect ourself
     if(!ODClient::getSingleton().connect("localhost", ConfigManager::getSingleton().getNetworkPort()))
     {
-        LogManager::getSingleton().logMessage("ERROR: Could not connect to server for multi player game !!!");
+        OD_LOG_ERR("Could not connect to server for multi player game !!!");
         tmpWin = getModeManager().getGui().getGuiSheet(Gui::multiplayerServerMenu)->getChild(Gui::MPM_TEXT_LOADING);
         tmpWin->setText("Error: Couldn't connect to local server!");
         tmpWin->show();

@@ -548,20 +548,20 @@ bool Seat::importSeatFromStream(std::istream& is)
     OD_ASSERT_TRUE(is >> str);
     if(str != "seatId")
     {
-        LogManager::getSingleton().logMessage("WARNING: expected seatId and read " + str);
+        OD_LOG_INF("WARNING: expected seatId and read " + str);
         return false;
     }
     OD_ASSERT_TRUE(is >> mId);
     if(mId == 0)
     {
-        LogManager::getSingleton().logMessage("WARNING: Forbidden seatId used");
+        OD_LOG_INF("WARNING: Forbidden seatId used");
         return false;
     }
 
     OD_ASSERT_TRUE(is >> str);
     if(str != "teamId")
     {
-        LogManager::getSingleton().logMessage("WARNING: expected teamId and read " + str);
+        OD_LOG_INF("WARNING: expected teamId and read " + str);
         return false;
     }
     OD_ASSERT_TRUE(is >> str);
@@ -572,7 +572,7 @@ bool Seat::importSeatFromStream(std::istream& is)
         int teamId = Helper::toInt(strTeamId);
         if(teamId == 0)
         {
-            LogManager::getSingleton().logMessage("WARNING: forbidden teamId in seat id=" + Helper::toString(mId));
+            OD_LOG_INF("WARNING: forbidden teamId in seat id=" + Helper::toString(mId));
             continue;
         }
 
@@ -582,7 +582,7 @@ bool Seat::importSeatFromStream(std::istream& is)
     OD_ASSERT_TRUE(is >> str);
     if(str != "player")
     {
-        LogManager::getSingleton().logMessage("WARNING: expected player and read " + str);
+        OD_LOG_INF("WARNING: expected player and read " + str);
         return false;
     }
     OD_ASSERT_TRUE(is >> mPlayerType);
@@ -590,7 +590,7 @@ bool Seat::importSeatFromStream(std::istream& is)
     OD_ASSERT_TRUE(is >> str);
     if(str != "faction")
     {
-        LogManager::getSingleton().logMessage("WARNING: expected faction and read " + str);
+        OD_LOG_INF("WARNING: expected faction and read " + str);
         return false;
     }
     OD_ASSERT_TRUE(is >> mFaction);
@@ -598,7 +598,7 @@ bool Seat::importSeatFromStream(std::istream& is)
     OD_ASSERT_TRUE(is >> str);
     if(str != "startingX")
     {
-        LogManager::getSingleton().logMessage("WARNING: expected startingX and read " + str);
+        OD_LOG_INF("WARNING: expected startingX and read " + str);
         return false;
     }
     OD_ASSERT_TRUE(is >> mStartingX);
@@ -606,7 +606,7 @@ bool Seat::importSeatFromStream(std::istream& is)
     OD_ASSERT_TRUE(is >> str);
     if(str != "startingY")
     {
-        LogManager::getSingleton().logMessage("WARNING: expected startingY and read " + str);
+        OD_LOG_INF("WARNING: expected startingY and read " + str);
         return false;
     }
     OD_ASSERT_TRUE(is >> mStartingY);
@@ -614,7 +614,7 @@ bool Seat::importSeatFromStream(std::istream& is)
     OD_ASSERT_TRUE(is >> str);
     if(str != "colorId")
     {
-        LogManager::getSingleton().logMessage("WARNING: expected colorId and read " + str);
+        OD_LOG_INF("WARNING: expected colorId and read " + str);
         return false;
     }
     OD_ASSERT_TRUE(is >> mColorId);
@@ -622,7 +622,7 @@ bool Seat::importSeatFromStream(std::istream& is)
     OD_ASSERT_TRUE(is >> str);
     if(str != "gold")
     {
-        LogManager::getSingleton().logMessage("WARNING: expected gold and read " + str);
+        OD_LOG_INF("WARNING: expected gold and read " + str);
         return false;
     }
     OD_ASSERT_TRUE(is >> mGold);
@@ -630,7 +630,7 @@ bool Seat::importSeatFromStream(std::istream& is)
     OD_ASSERT_TRUE(is >> str);
     if(str != "goldMined")
     {
-        LogManager::getSingleton().logMessage("WARNING: expected goldMined and read " + str);
+        OD_LOG_INF("WARNING: expected goldMined and read " + str);
         return false;
     }
     OD_ASSERT_TRUE(is >> mGoldMined);
@@ -638,7 +638,7 @@ bool Seat::importSeatFromStream(std::istream& is)
     OD_ASSERT_TRUE(is >> str);
     if(str != "mana")
     {
-        LogManager::getSingleton().logMessage("WARNING: expected mana and read " + str);
+        OD_LOG_INF("WARNING: expected mana and read " + str);
         return false;
     }
     OD_ASSERT_TRUE(is >> mMana);
@@ -649,7 +649,7 @@ bool Seat::importSeatFromStream(std::istream& is)
     OD_ASSERT_TRUE(is >> str);
     if(str != "[ResearchDone]")
     {
-        LogManager::getSingleton().logMessage("WARNING: expected [ResearchDone] and read " + str);
+        OD_LOG_INF("WARNING: expected [ResearchDone] and read " + str);
         return false;
     }
     while(true)
@@ -679,7 +679,7 @@ bool Seat::importSeatFromStream(std::istream& is)
     OD_ASSERT_TRUE(is >> str);
     if(str != "[ResearchNotAllowed]")
     {
-        LogManager::getSingleton().logMessage("WARNING: expected [ResearchNotAllowed] and read " + str);
+        OD_LOG_INF("WARNING: expected [ResearchNotAllowed] and read " + str);
         return false;
     }
 
@@ -713,7 +713,7 @@ bool Seat::importSeatFromStream(std::istream& is)
     OD_ASSERT_TRUE(is >> str);
     if(str != "[ResearchPending]")
     {
-        LogManager::getSingleton().logMessage("WARNING: expected [ResearchPending] and read " + str);
+        OD_LOG_INF("WARNING: expected [ResearchPending] and read " + str);
         return false;
     }
 
@@ -774,7 +774,7 @@ bool Seat::importSeatFromStream(std::istream& is)
     OD_ASSERT_TRUE(is >> str);
     if(str != "[markedTiles]")
     {
-        LogManager::getSingleton().logMessage("WARNING: expected [markedTiles] and read " + str);
+        OD_LOG_INF("WARNING: expected [markedTiles] and read " + str);
         return false;
     }
 
@@ -797,7 +797,7 @@ bool Seat::importSeatFromStream(std::istream& is)
     OD_ASSERT_TRUE(is >> str);
     if(str != "[/Seat]")
     {
-        LogManager::getSingleton().logMessage("WARNING: expected [/Seat] and read " + str);
+        OD_LOG_INF("WARNING: expected [/Seat] and read " + str);
         return false;
     }
 
@@ -1661,7 +1661,7 @@ int Seat::readTilesVisualInitialStates(TileVisual tileVisual, std::istream& is)
 
     if(str != "[" + Tile::tileVisualToString(tileVisual) + "]")
     {
-        LogManager::getSingleton().logMessage("WARNING: expected [" + Tile::tileVisualToString(tileVisual) + "] and read " + str);
+        OD_LOG_INF("WARNING: expected [" + Tile::tileVisualToString(tileVisual) + "] and read " + str);
         return -1;
     }
 

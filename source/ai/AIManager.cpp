@@ -40,7 +40,7 @@ bool AIManager::assignAI(Player& player, const std::string& type, const std::str
 
     if(ai == nullptr)
     {
-        LogManager::getSingleton().logMessage("Couldn't find requested AI type=" + type);
+        OD_LOG_INF("Couldn't find requested AI type=" + type);
         return false;
     }
 

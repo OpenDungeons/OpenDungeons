@@ -39,7 +39,7 @@ InputManager::InputManager(Ogre::RenderWindow* renderWindow):
     mSeatIdSelected(0),
     mCommandState(InputCommandState::infoOnly)
 {
-    LogManager::getSingleton().logMessage("*** Initializing OIS - Input Manager ***");
+    OD_LOG_INF("*** Initializing OIS - Input Manager ***");
 
     for (int i = 0; i < 10; ++i)
     {
@@ -85,7 +85,7 @@ InputManager::InputManager(Ogre::RenderWindow* renderWindow):
 
 InputManager::~InputManager()
 {
-    LogManager::getSingleton().logMessage("*** Destroying Input Manager ***");
+    OD_LOG_INF("*** Destroying Input Manager ***");
     mInputManager->destroyInputObject(mMouse);
     mInputManager->destroyInputObject(mKeyboard);
     OIS::InputManager::destroyInputSystem(mInputManager);

@@ -112,7 +112,7 @@ void RenderManager::triggerCompositor(const std::string& compositorName)
 
 void RenderManager::createScene(Ogre::Viewport* nViewport)
 {
-    LogManager::getSingleton().logMessage("Creating scene...");
+    OD_LOG_INF("Creating scene...");
 
     mViewport = nViewport;
 
@@ -449,7 +449,7 @@ void RenderManager::rrUpdateEntityOpacity(RenderedMovableEntity* entity)
     Ogre::Entity* ogreEnt = mSceneManager->hasEntity(entStr) ? mSceneManager->getEntity(entStr) : nullptr;
     if (ogreEnt == nullptr)
     {
-        LogManager::getSingleton().logMessage("Update opacity: Couldn't find entity: " + entStr);
+        OD_LOG_INF("Update opacity: Couldn't find entity: " + entStr);
         return;
     }
 
@@ -551,7 +551,7 @@ void RenderManager::rrCreateWeapon(Creature* curCreature, const Weapon* curWeapo
     std::string weaponName = curWeapon->getOgreNamePrefix() + hand;
     if(!ent->getSkeleton()->hasBone(weaponName))
     {
-        LogManager::getSingleton().logMessage("WARNING: Tried to add weapons to entity \"" + ent->getName() + " \" using model \"" +
+        OD_LOG_INF("WARNING: Tried to add weapons to entity \"" + ent->getName() + " \" using model \"" +
                               ent->getMesh()->getName() + "\" that is missing the required bone \"" +
                               curWeapon->getOgreNamePrefix() + hand + "\"");
         return;
@@ -993,7 +993,7 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, co
                                                  newMaterial->getName(), newMaterial->getGroup());
     if(!cloned)
     {
-        LogManager::getSingleton().logMessage("Failed to clone rtss for material: " + materialName, LogMessageLevel::CRITICAL);
+        OD_LOG_ERR("Failed to clone rtss for material: " + materialName);
     }
 
     // Loop over the techniques for the new material
@@ -1132,7 +1132,7 @@ std::string RenderManager::setMaterialOpacity(const std::string& materialName, f
                                                                newMaterial->getName(), newMaterial->getGroup());
     if(!cloned)
     {
-        LogManager::getSingleton().logMessage("Failed to clone rtss for material: " + materialName, LogMessageLevel::CRITICAL);
+        OD_LOG_ERR("Failed to clone rtss for material: " + materialName);
     }
 
     // Loop over the techniques for the new material

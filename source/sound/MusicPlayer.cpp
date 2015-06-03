@@ -156,8 +156,7 @@ MusicPlayer::MusicPlayer(const std::string& musicFilesPath, Ogre::StringVectorPt
     mCurrentTrack(std::string()),
     mIsPlaying(false)
 {
-    LogManager& logMgr = LogManager::getSingleton();
-    logMgr.logMessage("Loading music...");
+    OD_LOG_INF("Loading music...");
 
     /* Create sound objects for all files, Sound objects should be deleted
      * automatically by the sound manager.
@@ -165,7 +164,7 @@ MusicPlayer::MusicPlayer(const std::string& musicFilesPath, Ogre::StringVectorPt
     for(const std::string& trackName : *musicFilesList)
     {
         std::unique_ptr<ODMusic> track(new ODMusic());
-        logMgr.logMessage("Loading: " + trackName);
+        OD_LOG_INF("Loading: " + trackName);
 
         if(track->loadFromFile(musicFilesPath + trackName))
         {
@@ -175,11 +174,11 @@ MusicPlayer::MusicPlayer(const std::string& musicFilesPath, Ogre::StringVectorPt
 
     if(mTracks.empty())
     {
-        logMgr.logMessage("No music files loaded... no music will be played");
+        OD_LOG_INF("No music files loaded... no music will be played");
     }
     else
     {
-        logMgr.logMessage("Music loading done");
+        OD_LOG_INF("Music loading done");
         mLoaded = true;
     }
 }

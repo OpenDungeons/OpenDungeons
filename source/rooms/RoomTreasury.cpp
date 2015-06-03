@@ -78,7 +78,7 @@ bool RoomTreasury::removeCoveredTile(Tile* t)
         int value = roomTreasuryTileData->mGoldInTile;
         if(value > 0)
         {
-            LogManager::getSingleton().logMessage("Room " + getName()
+            OD_LOG_INF("Room " + getName()
                 + ", tile=" + Tile::displayAsString(t) + " releases gold amount = "
                 + Helper::toString(value));
             TreasuryObject* obj = new TreasuryObject(getGameMap(), true, value);

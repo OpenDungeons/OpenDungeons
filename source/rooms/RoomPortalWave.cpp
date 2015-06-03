@@ -308,7 +308,7 @@ void RoomPortalWave::spawnWave(RoomPortalWaveData* roomPortalWaveData, uint32_t 
         newCreature->setLevel(p.second);
         newCreature->setHP(newCreature->getMaxHp());
 
-        LogManager::getSingleton().logMessage("RoomPortalWave name=" + getName()
+        OD_LOG_INF("RoomPortalWave name=" + getName()
             + "spawns a creature class=" + classToSpawn->getClassName()
             + ", name=" + newCreature->getName() + ", seatId=" + Helper::toString(getSeat()->getId()));
 

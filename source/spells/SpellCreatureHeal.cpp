@@ -151,7 +151,7 @@ bool SpellCreatureHeal::castSpell(GameMap* gameMap, Player* player, ODPacket& pa
         // That can happen if the creature is not in perfect synchronization and is not on a claimed tile on the server gamemap
         if(!pos->isClaimedForSeat(player->getSeat()))
         {
-            LogManager::getSingleton().logMessage("WARNING : " + creatureName + ", tile=" + Tile::displayAsString(pos));
+            OD_LOG_INF("WARNING : " + creatureName + ", tile=" + Tile::displayAsString(pos));
             continue;
         }
 

@@ -25,14 +25,19 @@
 #define OD_STRING_S(x) #x
 #define OD_STRING_S_(x) OD_STRING_S(x)
 #define S__LINE__ OD_STRING_S_(__LINE__)
-#define OD_ASSERT_TRUE(a)        if(!(a)) LogManager::getSingleton().logMessage("ERROR: Assert failed file " + std::string(__FILE__) + " line " + std::string(S__LINE__))
-#define OD_ASSERT_TRUE_MSG(a,b)  if(!(a)) LogManager::getSingleton().logMessage("ERROR: Assert failed file " + std::string(__FILE__) + " line " + std::string(S__LINE__) + std::string(" info : ") + b)
+#define OD_LOG_ERR(a)      LogManager::getSingleton().logMessage("ERROR: " + std::string(__FILE__) + " line " + std::string(S__LINE__) + (a), LogMessageLevel::CRITICAL)
+#define OD_LOG_WRN(a)      LogManager::getSingleton().logMessage("WARNING: " + std::string(__FILE__) + " line " + std::string(S__LINE__) + (a), LogMessageLevel::WARNING)
+#define OD_LOG_INF(a)      LogManager::getSingleton().logMessage(a, LogMessageLevel::NORMAL)
+#define OD_LOG_DBG(a)      LogManager::getSingleton().logMessage(a, LogMessageLevel::TRIVIAL)
+#define OD_ASSERT_TRUE(a)        if(!(a)) LogManager::getSingleton().logMessage("ERROR: Assert failed file " + std::string(__FILE__) + " line " + std::string(S__LINE__), LogMessageLevel::CRITICAL)
+#define OD_ASSERT_TRUE_MSG(a,b)  if(!(a)) LogManager::getSingleton().logMessage("ERROR: Assert failed file " + std::string(__FILE__) + " line " + std::string(S__LINE__) + std::string(" info : ") + b, LogMessageLevel::CRITICAL)
 
 
 enum class LogMessageLevel
 {
     TRIVIAL = 1,
     NORMAL,
+    WARNING,
     CRITICAL
 };
 
@@ -42,8 +47,7 @@ class LogManager : public Ogre::Singleton<LogManager>
 public:
     LogManager() {};
     //! \brief Log a message to the game log.
-    virtual void logMessage(const std::string& message, LogMessageLevel lml = LogMessageLevel::NORMAL,
-                    bool maskDebug = false, bool addTimeStamp = false) = 0;
+    virtual void logMessage(const std::string& message, LogMessageLevel lml) = 0;
 
     //! \brief Set the log detail level.
     //Messages lower than this level will be filtered.
@@ -54,10 +58,5 @@ private:
     LogManager(const LogManager&) = delete;
     LogManager& operator=(const LogManager&) = delete;
 };
-
-inline void OD_LOG_MESSAGE(const std::string& message)
-{
-    LogManager::getSingleton().logMessage(message);
-}
 
 #endif // LOGMANAGER_H

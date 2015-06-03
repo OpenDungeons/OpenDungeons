@@ -892,7 +892,7 @@ void Creature::doUpkeep()
                     break;
 
                 default:
-                    LogManager::getSingleton().logMessage("ERROR:  Unhandled action type in Creature::doUpkeep():" + topActionItem.toString()
+                    OD_LOG_ERR("Unhandled action type in Creature::doUpkeep():" + topActionItem.toString()
                         + ", action=" + Helper::toString(static_cast<int>(topActionItem.getType())));
                     popAction();
                     loopBack = false;
@@ -901,7 +901,7 @@ void Creature::doUpkeep()
         }
         else
         {
-            LogManager::getSingleton().logMessage("ERROR:  Creature has empty action queue in doUpkeep(), this should not happen.");
+            OD_LOG_ERR("Creature has empty action queue in doUpkeep(), this should not happen.");
             loopBack = false;
         }
     } while (loopBack && loops < 20);
@@ -911,7 +911,7 @@ void Creature::doUpkeep()
 
     if(loops >= 20)
     {
-        LogManager::getSingleton().logMessage("> 20 loops in Creature::doUpkeep name:" + getName() +
+        OD_LOG_INF("> 20 loops in Creature::doUpkeep name:" + getName() +
                 " seat id: " + Helper::toString(getSeat()->getId()) + ". Breaking out..");
     }
 }
@@ -4045,7 +4045,7 @@ void Creature::releaseCarriedEntity()
     {
         // We couldn't find the destination. This can happen if it has been destroyed while
         // we were carrying the entity
-        LogManager::getSingleton().logMessage("Couldn't carry entity=" + carriedEntity->getName()
+        OD_LOG_INF("Couldn't carry entity=" + carriedEntity->getName()
             + " to entity name=" + carriedEntityDestName);
         return;
     }

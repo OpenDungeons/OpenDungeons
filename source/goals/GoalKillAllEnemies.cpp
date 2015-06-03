@@ -29,7 +29,6 @@ GoalKillAllEnemies::GoalKillAllEnemies(const std::string& nName,
     const std::string& nArguments) :
     Goal(nName, nArguments)
 {
-    std::cout << "\nAdding goal " << getName();
 }
 
 bool GoalKillAllEnemies::isMet(const Seat &s, const GameMap& gameMap)

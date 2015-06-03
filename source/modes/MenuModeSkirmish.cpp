@@ -198,7 +198,7 @@ bool MenuModeSkirmish::launchSelectedButtonPressed(const CEGUI::EventArgs&)
     // In single player mode, we act as a server
     if(!ODServer::getSingleton().startServer(level, ServerMode::ModeGameSinglePlayer))
     {
-        LogManager::getSingleton().logMessage("ERROR: Could not start server for single player game !!!");
+        OD_LOG_ERR("Could not start server for single player game !!!");
         tmpWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);
         tmpWin->setText("ERROR: Could not start server for single player game !!!");
         tmpWin->show();
@@ -207,7 +207,7 @@ bool MenuModeSkirmish::launchSelectedButtonPressed(const CEGUI::EventArgs&)
 
     if(!ODClient::getSingleton().connect("localhost", ConfigManager::getSingleton().getNetworkPort()))
     {
-        LogManager::getSingleton().logMessage("ERROR: Could not connect to server for single player game !!!");
+        OD_LOG_ERR("Could not connect to server for single player game !!!");
         tmpWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);
         tmpWin->setText("Error: Couldn't connect to local server!");
         tmpWin->show();

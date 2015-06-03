@@ -72,8 +72,7 @@ ODServer::~ODServer()
 
 bool ODServer::startServer(const std::string& levelFilename, ServerMode mode)
 {
-    LogManager& logManager = LogManager::getSingleton();
-    logManager.logMessage("Asked to launch server with levelFilename=" + levelFilename);
+    OD_LOG_INF("Asked to launch server with levelFilename=" + levelFilename);
 
     mSeatsConfigured = false;
     mDisconnectedPlayers.clear();
@@ -82,13 +81,13 @@ bool ODServer::startServer(const std::string& levelFilename, ServerMode mode)
     // Start the server socket listener as well as the server socket thread
     if (isConnected())
     {
-        logManager.logMessage("Couldn't start server: The server is already connected");
+        OD_LOG_INF("Couldn't start server: The server is already connected");
         return false;
     }
     if ((ODClient::getSingletonPtr() != nullptr) &&
         ODClient::getSingleton().isConnected())
     {
-        logManager.logMessage("Couldn't start server: The client is already connected");
+        OD_LOG_INF("Couldn't start server: The client is already connected");
         return false;
     }
 
@@ -97,7 +96,7 @@ bool ODServer::startServer(const std::string& levelFilename, ServerMode mode)
     {
         mServerMode = ServerMode::ModeNone;
         mServerState = ServerState::StateNone;
-        logManager.logMessage("ERROR:  Server could not create server socket!");
+        OD_LOG_ERR("Server could not create server socket!");
         return false;
     }
 
@@ -110,7 +109,7 @@ bool ODServer::startServer(const std::string& levelFilename, ServerMode mode)
     {
         mServerMode = ServerMode::ModeNone;
         mServerState = ServerState::StateNone;
-        logManager.logMessage("Couldn't start server. The level file can't be loaded: " + levelFilename);
+        OD_LOG_INF("Couldn't start server. The level file can't be loaded: " + levelFilename);
         return false;
     }
     mUniqueNumberPlayer = 0;
@@ -408,7 +407,7 @@ void ODServer::serverThread()
                 serverNotification->mPacket << static_cast<int64_t>(0);
                 queueServerNotification(serverNotification);
 
-                LogManager::getSingleton().logMessage("Server ready, starting game");
+                OD_LOG_INF("Server ready, starting game");
                 gameMap->setTurnNumber(0);
                 gameMap->setGamePaused(false);
 
@@ -487,7 +486,7 @@ void ODServer::processServerNotifications()
         switch (event->mType)
         {
             case ServerNotificationType::turnStarted:
-                LogManager::getSingleton().logMessage("Server sends newturn="
+                OD_LOG_INF("Server sends newturn="
                     + boost::lexical_cast<std::string>(gameMap->getTurnNumber()));
                 sendMsg(event->mConcernedPlayer, event->mPacket);
                 break;
@@ -548,7 +547,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         if(std::string("ready").compare(clientSocket->getState()) != 0)
             return (status != ODSocketClient::ODComStatus::Error);
 
-        LogManager::getSingleton().logMessage("Disconnected player: " + clientSocket->getPlayer()->getNick());
+        OD_LOG_INF("Disconnected player: " + clientSocket->getPlayer()->getNick());
         // We notify
         uint32_t nbPlayers = 1;
         ODPacket packetSend;
@@ -580,7 +579,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             packetSend << ServerNotificationType::playerConfigChange;
             sendMsgToClient(otherHumanConnected, packetSend);
 
-            LogManager::getSingleton().logMessage("Changing game host to " + mPlayerConfig->getNick());
+            OD_LOG_INF("Changing game host to " + mPlayerConfig->getNick());
         }
         return (status != ODSocketClient::ODComStatus::Error);
     }
@@ -600,13 +599,13 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             // If the version is different, we refuse the client
             if(version.compare(std::string("OpenDungeons V ") + ODApplication::VERSION) != 0)
             {
-                LogManager::getSingleton().logMessage("Server rejected client. Application version mismatch: required= "
+                OD_LOG_INF("Server rejected client. Application version mismatch: required= "
                     + ODApplication::VERSION + ", received=" + version);
                 return false;
             }
 
             // Tell the client to load the given map
-            LogManager::getSingleton().logMessage("Level sent to client: " + gameMap->getLevelName());
+            OD_LOG_INF("Level sent to client: " + gameMap->getLevelName());
             setClientState(clientSocket, "loadLevel");
             int32_t mapSizeX = gameMap->getMapSizeX();
             int32_t mapSizeY = gameMap->getMapSizeY();
@@ -719,7 +718,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             clientSocket->setPlayer(curPlayer);
             setClientState(clientSocket, "ready");
 
-            LogManager::getSingleton().logMessage("Player id: " + Helper::toString(playerId) + " nickname is: " + clientNick);
+            OD_LOG_INF("Player id: " + Helper::toString(playerId) + " nickname is: " + clientNick);
 
             if(mServerMode != ServerMode::ModeEditor)
                 break;
@@ -772,14 +771,14 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             if(mPlayerConfig == nullptr)
             {
                 mPlayerConfig = clientSocket->getPlayer();
-                LogManager::getSingleton().logMessage("New player host: " + mPlayerConfig->getNick());
+                OD_LOG_INF("New player host: " + mPlayerConfig->getNick());
                 ODPacket packetSend;
                 packetSend << ServerNotificationType::playerConfigChange;
                 sendMsgToClient(clientSocket, packetSend);
             }
 
             ODPacket packetSend;
-            LogManager::getSingleton().logMessage("New player: " + clientSocket->getPlayer()->getNick());
+            OD_LOG_INF("New player: " + clientSocket->getPlayer()->getNick());
             // We notify to the newly connected player all the currently connected players (including himself)
             uint32_t nbPlayers = mSockClients.size();
             packetSend << ServerNotificationType::addPlayers << nbPlayers;
@@ -835,7 +834,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             if(seatToUse != nullptr)
             {
-                LogManager::getSingleton().logMessage("Player: " + clientSocket->getPlayer()->getNick() + " on seat " + Helper::toString(seatToUse->getId()));
+                OD_LOG_INF("Player: " + clientSocket->getPlayer()->getNick() + " on seat " + Helper::toString(seatToUse->getId()));
                 seatToUse->setConfigPlayerId(clientSocket->getPlayer()->getId());
                 fireSeatConfigurationRefresh();
             }
@@ -903,19 +902,19 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 int seatId = seat->getId();
                 if(seat->getConfigPlayerId() == -1)
                 {
-                    LogManager::getSingleton().logMessage("ERROR: player not configured seatId=" + Helper::toString(seatId) + ", ConfigPlayerId=" + Helper::toString(seat->getConfigPlayerId()));
+                    OD_LOG_ERR("player not configured seatId=" + Helper::toString(seatId) + ", ConfigPlayerId=" + Helper::toString(seat->getConfigPlayerId()));
                     isConfigured = false;
                     break;
                 }
                 if(seat->getConfigTeamId() == -1)
                 {
-                    LogManager::getSingleton().logMessage("ERROR: player not configured seatId=" + Helper::toString(seatId) + ", ConfigTeamId=" + Helper::toString(seat->getConfigTeamId()));
+                    OD_LOG_ERR("player not configured seatId=" + Helper::toString(seatId) + ", ConfigTeamId=" + Helper::toString(seat->getConfigTeamId()));
                     isConfigured = false;
                     break;
                 }
                 if(seat->getConfigFactionIndex() == -1)
                 {
-                    LogManager::getSingleton().logMessage("ERROR: player not configured seatId=" + Helper::toString(seatId) + ", ConfigFactionIndex=" + Helper::toString(seat->getConfigFactionIndex()));
+                    OD_LOG_ERR("player not configured seatId=" + Helper::toString(seatId) + ", ConfigFactionIndex=" + Helper::toString(seat->getConfigFactionIndex()));
                     isConfigured = false;
                     break;
                 }
@@ -994,7 +993,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 for(ODSocketClient* client : clientsToRemove)
                 {
                     Player* player = client->getPlayer();
-                    LogManager::getSingleton().logMessage("Rejecting player id="
+                    OD_LOG_INF("Rejecting player id="
                         + Helper::toString(player->getId())
                         + ", nick=" + player->getNick());
                     setClientState(client, "rejected");
@@ -1070,7 +1069,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             bool allowPickup = entity->tryPickup(player->getSeat());
             if(!allowPickup)
             {
-                LogManager::getSingleton().logMessage("player=" + player->getNick()
+                OD_LOG_INF("player=" + player->getNick()
                         + " could not pickup entity entityType="
                         + Helper::toString(static_cast<int32_t>(entityType))
                         + ", entityName=" + entityName);
@@ -1095,7 +1094,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 }
                 else
                 {
-                    LogManager::getSingleton().logMessage("player=" + player->getNick()
+                    OD_LOG_INF("player=" + player->getNick()
                         + " could not drop entity in hand on tile "
                         + Tile::displayAsString(tile));
                 }
@@ -1152,7 +1151,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             if(!entity->canSlap(player->getSeat()))
             {
-                LogManager::getSingleton().logMessage("player=" + player->getNick()
+                OD_LOG_INF("player=" + player->getNick()
                         + " could not slap entity entityType="
                         + Helper::toString(static_cast<int32_t>(entityType))
                         + ", entityName=" + entityName);
@@ -1178,14 +1177,14 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             // available rooms
             if(!player->getSeat()->isRoomAvailable(type))
             {
-                LogManager::getSingleton().logMessage("WARNING: player seatId=" + Helper::toString(player->getSeat()->getId())
+                OD_LOG_INF("WARNING: player seatId=" + Helper::toString(player->getSeat()->getId())
                     + " asked to build a room not available: " + RoomManager::getRoomNameFromRoomType(type));
                 break;
             }
 
             if(!RoomManager::buildRoom(gameMap, type, player, packetReceived))
             {
-                LogManager::getSingleton().logMessage("WARNING: player seatId=" + Helper::toString(player->getSeat()->getId())
+                OD_LOG_INF("WARNING: player seatId=" + Helper::toString(player->getSeat()->getId())
                     + " couldn't build room: " + RoomManager::getRoomNameFromRoomType(type));
                 break;
             }
@@ -1224,14 +1223,14 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             // available rooms
             if(!player->getSeat()->isTrapAvailable(type))
             {
-                LogManager::getSingleton().logMessage("WARNING: player seatId=" + Helper::toString(player->getSeat()->getId())
+                OD_LOG_INF("WARNING: player seatId=" + Helper::toString(player->getSeat()->getId())
                     + " asked to build a trap not available: " + TrapManager::getTrapNameFromTrapType(type));
                 break;
             }
 
             if(!TrapManager::buildTrap(gameMap, type, player, packetReceived))
             {
-                LogManager::getSingleton().logMessage("WARNING: player seatId=" + Helper::toString(player->getSeat()->getId())
+                OD_LOG_INF("WARNING: player seatId=" + Helper::toString(player->getSeat()->getId())
                     + " couldn't build trap: " + TrapManager::getTrapNameFromTrapType(type));
                 break;
             }
@@ -1250,7 +1249,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             // available spells
             if(!player->getSeat()->isSpellAvailable(spellType))
             {
-                LogManager::getSingleton().logMessage("WARNING: player " + player->getNick()
+                OD_LOG_INF("WARNING: player " + player->getNick()
                     + " asked to cast a spell not available: " + SpellManager::getSpellNameFromSpellType(spellType));
                 break;
             }
@@ -1258,7 +1257,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             uint32_t cooldown = player->getSpellCooldownTurns(spellType);
             if(cooldown > 0)
             {
-                LogManager::getSingleton().logMessage("WARNING: player " + player->getNick()
+                OD_LOG_INF("WARNING: player " + player->getNick()
                     + " asked to cast a spell " + SpellManager::getSpellNameFromSpellType(spellType) + " before end of cooldown: "
                     + Helper::toString(cooldown));
                 break;
@@ -1498,7 +1497,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             Player* player = clientSocket->getPlayer();
             if(!RoomManager::buildRoomEditor(gameMap, type, packetReceived))
             {
-                LogManager::getSingleton().logMessage("WARNING: player seatId=" + Helper::toString(player->getSeat()->getId())
+                OD_LOG_INF("WARNING: player seatId=" + Helper::toString(player->getSeat()->getId())
                     + " couldn't build room: " + RoomManager::getRoomNameFromRoomType(type));
                 break;
             }
@@ -1520,7 +1519,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             Player* player = clientSocket->getPlayer();
             if(!TrapManager::buildTrapEditor(gameMap, type, packetReceived))
             {
-                LogManager::getSingleton().logMessage("WARNING: player seatId=" + Helper::toString(player->getSeat()->getId())
+                OD_LOG_INF("WARNING: player seatId=" + Helper::toString(player->getSeat()->getId())
                     + " couldn't build trap: " + TrapManager::getTrapNameFromTrapType(type));
                 break;
             }
@@ -1632,7 +1631,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
         default:
         {
-            LogManager::getSingleton().logMessage("ERROR:  Unhandled command received from client:"
+            OD_LOG_ERR("Unhandled command received from client:"
                 + Helper::toString(static_cast<int>(clientCommand)));
         }
     }
@@ -1680,7 +1679,7 @@ bool ODServer::notifyClientMessage(ODSocketClient *clientSocket)
         std::string message = nick.empty() ?
                               "Client disconnected state=" + clientSocket->getState() :
                               "Client (" + nick + ") disconnected state=" + clientSocket->getState();
-        LogManager::getSingleton().logMessage(message);
+        OD_LOG_INF(message);
         if(std::string("ready").compare(clientSocket->getState()) == 0)
         {
             ServerNotification *serverNotification = new ServerNotification(

@@ -26,8 +26,6 @@ GoalProtectCreature::GoalProtectCreature(const std::string& nName, const std::st
     Goal(nName, nArguments),
     mCreatureName(nArguments)
 {
-    std::cout << "\nAdding goal " << getName() << "\tCreature name: "
-              << mCreatureName;
 }
 
 bool GoalProtectCreature::isMet(const Seat&, const GameMap& gameMap)

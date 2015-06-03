@@ -33,7 +33,8 @@
 
 namespace Ogre
 {
-    class Log;
+class Log;
+class LogManager;
 }
 
 //! \brief Logger implementation using the logging system from ogre
@@ -41,10 +42,11 @@ class LogManagerOgre final : public LogManager
 {
 public:
     LogManagerOgre(const std::string& userDataPath);
-    void logMessage(const std::string& message, LogMessageLevel lml = LogMessageLevel::NORMAL,
-                    bool maskDebug = false, bool addTimeStamp = false) override;
+    ~LogManagerOgre();
+    void logMessage(const std::string& message, LogMessageLevel lml) override;
     void setLogDetail(LogMessageLevel ll) override;
 private:
+    Ogre::LogManager* mLogManager;
     Ogre::Log* mGameLog;
 #ifdef LOGMANAGER_USE_LOCKS
     std::mutex mLogLockMutex;

@@ -193,7 +193,7 @@ void Tile::exportToStream(std::ostream& os) const
 void Tile::exportToPacket(ODPacket& os) const
 {
     //Check to make sure this function is not called. Seat argument should be used instead
-    OD_ASSERT_TRUE_MSG(false, "tile=" + displayAsString(this));
+    OD_LOG_ERR("tile=" + displayAsString(this));
     throw std::runtime_error("ERROR: Wrong packet export function used for tile");
 }
 
@@ -627,7 +627,7 @@ void Tile::logFloodFill() const
             ++cpt;
         }
     }
-    LogManager::getSingleton().logMessage(str);
+    OD_LOG_INF(str);
 }
 
 bool Tile::isClaimedForSeat(const Seat* seat) const

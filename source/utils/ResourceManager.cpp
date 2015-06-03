@@ -380,7 +380,7 @@ void ResourceManager::setupOgreResources(uint16_t shaderLanguageVersion)
     Ogre::ResourceGroupManager& resourceGroupManager = Ogre::ResourceGroupManager::getSingleton();
     if(gpuProgramManager.isSyntaxSupported("glsl"))
     {
-        LogManager::getSingleton().logMessage("Supported shader version is: " + Helper::toString(shaderLanguageVersion));
+        OD_LOG_INF("Supported shader version is: " + Helper::toString(shaderLanguageVersion));
 
         // Add GLSL shader location for RTShader system
         resourceGroupManager.addResourceLocation(mGameDataPath + "materials/RTShaderLib/GLSL", "FileSystem", "Graphics");

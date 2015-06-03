@@ -59,33 +59,37 @@ void ODApplication::startServer()
 {
     ResourceManager& resMgr = ResourceManager::getSingleton();
     LogManagerFile logManager(resMgr.getLogFile());
-    logManager.setLogDetail(LogMessageLevel::TRIVIAL);
+    logManager.setLogDetail(LogMessageLevel::NORMAL);
 
-    LogManager::getSingleton().logMessage("Initializing");
+    OD_LOG_INF("Initializing");
 
     Random::initialize();
     ConfigManager configManager(resMgr.getConfigPath());
-    LogManager::getSingleton().logMessage("Launching server");
+    OD_LOG_INF("Launching server");
 
     ODServer server;
     if(!server.startServer(resMgr.getServerModeLevel(), ServerMode::ModeGameMultiPlayer))
     {
-        LogManager::getSingleton().logMessage("ERROR: Could not start server !!!");
+        OD_LOG_ERR("Could not start server !!!");
         return;
     }
 
     if(!server.waitEndGame())
     {
-        LogManager::getSingleton().logMessage("ERROR: Could not wait for end of game !!!");
+        OD_LOG_ERR("Could not wait for end of game !!!");
         return;
     }
 
-    logManager.logMessage("Stopping server...");
+    OD_LOG_INF("Stopping server...");
     server.stopServer();
 }
 
 void ODApplication::startClient()
 {
+    ResourceManager& resMgr = ResourceManager::getSingleton();
+    LogManagerOgre logManager(resMgr.getLogFile());
+    logManager.setLogDetail(LogMessageLevel::NORMAL);
+
     {
         //NOTE: This prevents a segmentation fault from OpenGL on exit.
         //Creating the object sets up an OpenAL context using a static object
@@ -93,20 +97,15 @@ void ODApplication::startClient()
         //the application segfaults on exit for some reason.
         sf::Music m;
     }
-    ResourceManager& resMgr = ResourceManager::getSingleton();
     Random::initialize();
     //NOTE: The order of initialisation of the different "manager" classes is important,
     //as many of them depend on each other.
-    std::cout << "Creating OGRE::Root instance; Plugins path: " << resMgr.getPluginsPath()
-              << "; config file: " << resMgr.getCfgFile()
-              << "; log file: " << resMgr.getLogFile() << std::endl;
+    OD_LOG_INF("Creating OGRE::Root instance; Plugins path: " + resMgr.getPluginsPath()
+        + "; config file: " + resMgr.getCfgFile());
 
     Ogre::Root ogreRoot(resMgr.getPluginsPath(),
-                        resMgr.getCfgFile(),
-                        resMgr.getLogFile());
+                        resMgr.getCfgFile());
 
-    LogManagerOgre logManager(resMgr.getUserDataPath());
-    logManager.setLogDetail(LogMessageLevel::TRIVIAL);
     ConfigManager configManager(resMgr.getConfigPath());
 
     /* TODO: Skip this and use root.restoreConfig()
@@ -148,7 +147,7 @@ void ODApplication::startClient()
     // http://www.ogre3d.org/forums/viewtopic.php?p=487445#p487445
     if (!Ogre::RTShader::ShaderGenerator::initialize())
     {
-        logManager.logMessage("FATAL:"
+        OD_LOG_ERR("FATAL:"
                 "Failed to initialize the Real Time Shader System, exiting");
         return;
     }
@@ -173,20 +172,13 @@ void ODApplication::startClient()
     ogreRoot.addFrameListener(&frameListener);
     ogreRoot.startRendering();
 
-    logManager.logMessage("Disconnecting client...");
+    OD_LOG_INF("Disconnecting client...");
     client.disconnect();
-    logManager.logMessage("Stopping server...");
+    OD_LOG_INF("Stopping server...");
     server.stopServer();
     ogreRoot.removeFrameListener(&frameListener);
     Ogre::RTShader::ShaderGenerator::destroy();
     ogreRoot.destroyRenderTarget(renderWindow);
-}
-
-void ODApplication::displayErrorMessage(const std::string& message, LogManager& logger)
-{
-    logger.logMessage(message, LogMessageLevel::CRITICAL);
-    Ogre::ErrorDialog e;
-    e.display(message, LogManager::GAMELOG_NAME);
 }
 
 //TODO: find some better places for some of these

@@ -45,7 +45,7 @@ bool ODSocketServer::createServer(int listeningPort)
     sf::Socket::Status status = mSockListener.listen(listeningPort);
     if (status != sf::Socket::Done)
     {
-        LogManager::getSingleton().logMessage("ERROR : Could not listen to server port status="
+        OD_LOG_ERR("Could not listen to server port status="
             + Helper::toString(status));
         return false;
     }
@@ -53,7 +53,7 @@ bool ODSocketServer::createServer(int listeningPort)
     mSockSelector.add(mSockListener);
     mNewClient = new ODSocketClient;
     mIsConnected = true;
-    LogManager::getSingleton().logMessage("Server connected and listening");
+    OD_LOG_INF("Server connected and listening");
     mThread = new sf::Thread(&ODSocketServer::serverThread, this);
     mThread->launch();
 
@@ -96,7 +96,7 @@ void ODSocketServer::doTask(int timeoutMs)
             if (status == sf::Socket::Done)
             {
                 // New connection
-                LogManager::getSingleton().logMessage("New client connected.");
+                OD_LOG_INF("New client connected.");
                 if(notifyNewConnection(mNewClient))
                 {
                     // The server wants to keep the client
@@ -105,17 +105,17 @@ void ODSocketServer::doTask(int timeoutMs)
                     mSockClients.push_back(mNewClient);
 
                     mNewClient = new ODSocketClient;
-                    LogManager::getSingleton().logMessage("New client accepted.");
+                    OD_LOG_INF("New client accepted.");
                 }
                 else
                 {
-                    LogManager::getSingleton().logMessage("New client refused.");
+                    OD_LOG_INF("New client refused.");
                 }
             }
             else
             {
                 // Error
-                LogManager::getSingleton().logMessage("ERROR : Could not listen to server port error="
+                OD_LOG_ERR("Could not listen to server port error="
                     + Helper::toString(status));
             }
         }

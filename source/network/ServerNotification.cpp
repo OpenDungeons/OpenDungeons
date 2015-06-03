@@ -115,7 +115,7 @@ std::string ServerNotification::typeString(ServerNotificationType type)
         case ServerNotificationType::exit:
             return "exit";
         default:
-            LogManager::getSingleton().logMessage("ERROR: Unknown enum for ServerNotificationType="
+            OD_LOG_ERR("Unknown enum for ServerNotificationType="
                 + Helper::toString(static_cast<int>(type)));
     }
     return "";

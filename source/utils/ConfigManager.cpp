@@ -532,7 +532,7 @@ bool ConfigManager::loadGlobalGameConfig(std::stringstream& configFile)
 
 bool ConfigManager::loadCreatureDefinitions(const std::string& fileName)
 {
-    LogManager::getSingleton().logMessage("Load creature definition file: " + fileName);
+    OD_LOG_INF("Load creature definition file: " + fileName);
     std::stringstream defFile;
     if(!Helper::readFileWithoutComments(fileName, defFile))
     {
@@ -582,7 +582,7 @@ bool ConfigManager::loadCreatureDefinitions(const std::string& fileName)
 
 bool ConfigManager::loadEquipements(const std::string& fileName)
 {
-    LogManager::getSingleton().logMessage("Load weapon definition file: " + fileName);
+    OD_LOG_INF("Load weapon definition file: " + fileName);
     std::stringstream defFile;
     if(!Helper::readFileWithoutComments(fileName, defFile))
     {
@@ -631,7 +631,7 @@ bool ConfigManager::loadEquipements(const std::string& fileName)
 
 bool ConfigManager::loadSpawnConditions(const std::string& fileName)
 {
-    LogManager::getSingleton().logMessage("Load creature spawn conditions file: " + fileName);
+    OD_LOG_INF("Load creature spawn conditions file: " + fileName);
     std::stringstream defFile;
     if(!Helper::readFileWithoutComments(fileName, defFile))
     {
@@ -717,7 +717,7 @@ bool ConfigManager::loadSpawnConditions(const std::string& fileName)
 
 bool ConfigManager::loadFactions(const std::string& fileName)
 {
-    LogManager::getSingleton().logMessage("Load factions file: " + fileName);
+    OD_LOG_INF("Load factions file: " + fileName);
     std::stringstream defFile;
     if(!Helper::readFileWithoutComments(fileName, defFile))
     {
@@ -826,7 +826,7 @@ bool ConfigManager::loadFactions(const std::string& fileName)
 
 bool ConfigManager::loadRooms(const std::string& fileName)
 {
-    LogManager::getSingleton().logMessage("Load Rooms file: " + fileName);
+    OD_LOG_INF("Load Rooms file: " + fileName);
     std::stringstream defFile;
     if(!Helper::readFileWithoutComments(fileName, defFile))
     {
@@ -859,7 +859,7 @@ bool ConfigManager::loadRooms(const std::string& fileName)
 
 bool ConfigManager::loadTraps(const std::string& fileName)
 {
-    LogManager::getSingleton().logMessage("Load traps file: " + fileName);
+    OD_LOG_INF("Load traps file: " + fileName);
     std::stringstream defFile;
     if(!Helper::readFileWithoutComments(fileName, defFile))
     {
@@ -892,7 +892,7 @@ bool ConfigManager::loadTraps(const std::string& fileName)
 
 bool ConfigManager::loadSpellConfig(const std::string& fileName)
 {
-    LogManager::getSingleton().logMessage("Load Spell config file: " + fileName);
+    OD_LOG_INF("Load Spell config file: " + fileName);
     std::stringstream defFile;
     if(!Helper::readFileWithoutComments(fileName, defFile))
     {
@@ -925,7 +925,7 @@ bool ConfigManager::loadSpellConfig(const std::string& fileName)
 
 bool ConfigManager::loadCreaturesMood(const std::string& fileName)
 {
-    LogManager::getSingleton().logMessage("Load creature spawn conditions file: " + fileName);
+    OD_LOG_INF("Load creature spawn conditions file: " + fileName);
     std::stringstream defFile;
     if(!Helper::readFileWithoutComments(fileName, defFile))
     {
@@ -1046,7 +1046,7 @@ bool ConfigManager::loadResearches(const std::string& fileName)
     int32_t pointsSpellCreatureHeal = 0;
     int32_t pointsSpellCreatureExplosion = 0;
 
-    LogManager::getSingleton().logMessage("Load Researches file: " + fileName);
+    OD_LOG_INF("Load Researches file: " + fileName);
     std::stringstream defFile;
     if(!Helper::readFileWithoutComments(fileName, defFile))
     {
@@ -1191,7 +1191,7 @@ bool ConfigManager::loadResearches(const std::string& fileName)
 
 bool ConfigManager::loadTilesets(const std::string& fileName)
 {
-    LogManager::getSingleton().logMessage("Load Tilesets file: " + fileName);
+    OD_LOG_INF("Load Tilesets file: " + fileName);
     std::stringstream defFile;
     if(!Helper::readFileWithoutComments(fileName, defFile))
     {

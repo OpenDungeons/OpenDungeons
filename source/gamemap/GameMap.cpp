@@ -523,7 +523,7 @@ void GameMap::saveLevelEquipments(std::ofstream& levelFile)
 
 void GameMap::addCreature(Creature *cc)
 {
-    LogManager::getSingleton().logMessage(serverStr() + "Adding Creature " + cc->getName()
+    OD_LOG_INF(serverStr() + "Adding Creature " + cc->getName()
         + ", seatId=" + (cc->getSeat() != nullptr ? Helper::toString(cc->getSeat()->getId()) : std::string("null")));
 
     mCreatures.push_back(cc);
@@ -531,7 +531,7 @@ void GameMap::addCreature(Creature *cc)
 
 void GameMap::removeCreature(Creature *c)
 {
-    LogManager::getSingleton().logMessage(serverStr() + "Removing Creature " + c->getName());
+    OD_LOG_INF(serverStr() + "Removing Creature " + c->getName());
 
     std::vector<Creature*>::iterator it = std::find(mCreatures.begin(), mCreatures.end(), c);
     OD_ASSERT_TRUE_MSG(it != mCreatures.end(), "creature name=" + c->getName());
@@ -867,14 +867,14 @@ MovableGameEntity* GameMap::getAnimatedObject(const std::string& name) const
 
 void GameMap::addRenderedMovableEntity(RenderedMovableEntity *obj)
 {
-    LogManager::getSingleton().logMessage(serverStr() + "Adding rendered object " + obj->getName()
+    OD_LOG_INF(serverStr() + "Adding rendered object " + obj->getName()
         + ",MeshName=" + obj->getMeshName());
     mRenderedMovableEntities.push_back(obj);
 }
 
 void GameMap::removeRenderedMovableEntity(RenderedMovableEntity *obj)
 {
-    LogManager::getSingleton().logMessage(serverStr() + "Removing rendered object " + obj->getName()
+    OD_LOG_INF(serverStr() + "Removing rendered object " + obj->getName()
         + ",MeshName=" + obj->getMeshName());
     std::vector<RenderedMovableEntity*>::iterator it = std::find(mRenderedMovableEntities.begin(), mRenderedMovableEntities.end(), obj);
     OD_ASSERT_TRUE_MSG(it != mRenderedMovableEntities.end(), "obj name=" + obj->getName());
@@ -1068,7 +1068,7 @@ void GameMap::createAllEntities()
         rendered->restoreInitialEntityState();
     }*/
 
-    LogManager::getSingleton().logMessage("entities created");
+    OD_LOG_INF("entities created");
 }
 
 void GameMap::destroyAllEntities()
@@ -1120,7 +1120,7 @@ Creature* GameMap::getCreature(const std::string& cName) const
 
 void GameMap::doTurn(double timeSinceLastTurn)
 {
-    std::cout << "\nComputing turn " << mTurnNumber << ", timeSinceLastTurn=" << timeSinceLastTurn << std::endl;
+    OD_LOG_INF("Computing turn " + Helper::toString(mTurnNumber) + ", timeSinceLastTurn=" + Helper::toString(timeSinceLastTurn));
     unsigned int numCallsTo_path_atStart = mNumCallsTo_path;
 
     uint32_t miscUpkeepTime = doMiscUpkeep(timeSinceLastTurn);
@@ -1143,9 +1143,8 @@ void GameMap::doTurn(double timeSinceLastTurn)
         ++(tempSeat->mNumCreaturesFighters);
     }
 
-    std::cout << "During this turn there were " << mNumCallsTo_path
-              - numCallsTo_path_atStart << " calls to GameMap::path()."
-              << "miscUpkeepTime=" << miscUpkeepTime << std::endl;
+    OD_LOG_INF("During this turn there were " + Helper::toString(mNumCallsTo_path - numCallsTo_path_atStart)
+        + " calls to GameMap::path(), miscUpkeepTime=" + Helper::toString(miscUpkeepTime));
 }
 
 void GameMap::doPlayerAITurn(double timeSinceLastTurn)
@@ -1670,7 +1669,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, const Creature* c
 bool GameMap::addPlayer(Player* player)
 {
     mPlayers.push_back(player);
-    LogManager::getSingleton().logMessage(serverStr() + "Added player: " + player->getNick());
+    OD_LOG_INF(serverStr() + "Added player: " + player->getNick());
     return true;
 }
 
@@ -1678,11 +1677,11 @@ bool GameMap::assignAI(Player& player, const std::string& aiType, const std::str
 {
     if (mAiManager.assignAI(player, aiType, parameters))
     {
-        LogManager::getSingleton().logMessage("Assign AI: " + aiType + ", to player: " + player.getNick());
+        OD_LOG_INF("Assign AI: " + aiType + ", to player: " + player.getNick());
         return true;
     }
 
-    LogManager::getSingleton().logMessage("Couldn't assign AI: " + aiType + ", to player: " + player.getNick());
+    OD_LOG_INF("Couldn't assign AI: " + aiType + ", to player: " + player.getNick());
     return false;
 }
 
@@ -1788,11 +1787,11 @@ void GameMap::clearRooms()
 void GameMap::addRoom(Room *r)
 {
     int nbTiles = r->numCoveredTiles();
-    LogManager::getSingleton().logMessage(serverStr() + "Adding room " + r->getName() + ", nbTiles="
+    OD_LOG_INF(serverStr() + "Adding room " + r->getName() + ", nbTiles="
         + Helper::toString(nbTiles) + ", seatId=" + Helper::toString(r->getSeat()->getId()));
     for(Tile* tile : r->getCoveredTiles())
     {
-        LogManager::getSingleton().logMessage(serverStr() + "Adding room " + r->getName() + ", tile=" + Tile::displayAsString(tile));
+        OD_LOG_INF(serverStr() + "Adding room " + r->getName() + ", tile=" + Tile::displayAsString(tile));
     }
 
     mRooms.push_back(r);
@@ -1800,7 +1799,7 @@ void GameMap::addRoom(Room *r)
 
 void GameMap::removeRoom(Room *r)
 {
-    LogManager::getSingleton().logMessage(serverStr() + "Removing room " + r->getName());
+    OD_LOG_INF(serverStr() + "Removing room " + r->getName());
     // Rooms are removed when absorbed by another room or when they have no more tile
     // In both cases, the client have enough information to do that alone so no need to notify him
     std::vector<Room*>::iterator it = std::find(mRooms.begin(), mRooms.end(), r);
@@ -1950,7 +1949,7 @@ void GameMap::clearTraps()
 void GameMap::addTrap(Trap *trap)
 {
     int nbTiles = trap->numCoveredTiles();
-    LogManager::getSingleton().logMessage(serverStr() + "Adding trap " + trap->getName() + ", nbTiles="
+    OD_LOG_INF(serverStr() + "Adding trap " + trap->getName() + ", nbTiles="
         + Helper::toString(nbTiles) + ", seatId=" + Helper::toString(trap->getSeat()->getId()));
 
     mTraps.push_back(trap);
@@ -1958,7 +1957,7 @@ void GameMap::addTrap(Trap *trap)
 
 void GameMap::removeTrap(Trap *t)
 {
-    LogManager::getSingleton().logMessage(serverStr() + "Removing trap " + t->getName());
+    OD_LOG_INF(serverStr() + "Removing trap " + t->getName());
     std::vector<Trap*>::iterator it = std::find(mTraps.begin(), mTraps.end(), t);
     OD_ASSERT_TRUE_MSG(it != mTraps.end(), "Trap name=" + t->getName());
     if(it == mTraps.end())
@@ -2011,13 +2010,13 @@ void GameMap::clearMapLights()
 
 void GameMap::addMapLight(MapLight *m)
 {
-    LogManager::getSingleton().logMessage(serverStr() + "Adding MapLight " + m->getName());
+    OD_LOG_INF(serverStr() + "Adding MapLight " + m->getName());
     mMapLights.push_back(m);
 }
 
 void GameMap::removeMapLight(MapLight *m)
 {
-    LogManager::getSingleton().logMessage(serverStr() + "Removing MapLight " + m->getName());
+    OD_LOG_INF(serverStr() + "Removing MapLight " + m->getName());
 
     std::vector<MapLight*>::iterator it = std::find(mMapLights.begin(), mMapLights.end(), m);
     OD_ASSERT_TRUE_MSG(it != mMapLights.end(), "MapLight name=" + m->getName());
@@ -2934,14 +2933,14 @@ std::vector<GameEntity*> GameMap::getNaturalEnemiesInList(const Creature* creatu
 
 void GameMap::addSpell(Spell *spell)
 {
-    LogManager::getSingleton().logMessage(serverStr() + "Adding spell " + spell->getName()
+    OD_LOG_INF(serverStr() + "Adding spell " + spell->getName()
         + ",MeshName=" + spell->getMeshName());
     mSpells.push_back(spell);
 }
 
 void GameMap::removeSpell(Spell *spell)
 {
-    LogManager::getSingleton().logMessage(serverStr() + "Removing spell " + spell->getName()
+    OD_LOG_INF(serverStr() + "Removing spell " + spell->getName()
         + ",MeshName=" + spell->getMeshName());
     std::vector<Spell*>::iterator it = std::find(mSpells.begin(), mSpells.end(), spell);
     OD_ASSERT_TRUE_MSG(it != mSpells.end(), "spell name=" + spell->getName());

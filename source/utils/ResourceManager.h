@@ -41,6 +41,8 @@ class variables_map;
 }
 }
 
+//!\brief class that handle OD ressources. Note that this class might be created before the
+//! LogManager because it handles the log filename. Thus, it should not use LogManager.
 class ResourceManager : public Ogre::Singleton<ResourceManager>
 {
 public:

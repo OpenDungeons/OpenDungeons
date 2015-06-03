@@ -242,7 +242,7 @@ Tile* Building::getCentralTile()
 
 bool Building::removeCoveredTile(Tile* t)
 {
-    LogManager::getSingleton().logMessage(getGameMap()->serverStr() + "building=" + getName() + ", removing covered tile=" + Tile::displayAsString(t));
+    OD_LOG_INF(getGameMap()->serverStr() + "building=" + getName() + ", removing covered tile=" + Tile::displayAsString(t));
     auto it = std::find(mCoveredTiles.begin(), mCoveredTiles.end(), t);
     if(it == mCoveredTiles.end())
     {

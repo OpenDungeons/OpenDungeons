@@ -25,8 +25,7 @@ class LogManagerFile final : public LogManager
 {
 public:
     LogManagerFile(const std::string& userDataPath);
-    void logMessage(const std::string& message, LogMessageLevel lml = LogMessageLevel::NORMAL,
-                    bool maskDebug = false, bool addTimeStamp = false) override;
+    void logMessage(const std::string& message, LogMessageLevel lml) override;
     void setLogDetail(LogMessageLevel ll) override;
 private:
     std::ofstream	mFileLog;

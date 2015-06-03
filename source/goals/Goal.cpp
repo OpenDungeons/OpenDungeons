@@ -17,10 +17,13 @@
 
 #include "goals/Goal.h"
 
+#include "utils/LogManager.h"
+
 Goal::Goal(const std::string& nName, const std::string& nArguments) :
     mName(nName),
     mArguments(nArguments)
 {
+    OD_LOG_INF("Adding goal " + mName);
 }
 
 void Goal::doSuccessAction()

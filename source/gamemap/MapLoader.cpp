@@ -68,20 +68,15 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
     levelFile >> nextParam;
     if (nextParam.compare(ODApplication::VERSIONSTRING) != 0)
     {
-        std::cerr
-                << "\n\n\nERROR:  Attempting to load a file produced by a different version of OpenDungeons.\n"
-                << "ERROR:  Filename:  " << fileName
-                << "\nERROR:  The file is for OpenDungeons:  " << nextParam
-                << "\nERROR:  This version of OpenDungeons:  " << ODApplication::VERSION
-                << "\n\n\n";
+        OD_LOG_WRN("Attempting to load a file produced by a different version of OpenDungeons, filename="
+            + fileName + ", file version=" + nextParam + ", odversion=" + ODApplication::VERSION);
         return false;
     }
 
     levelFile >> nextParam;
     if (nextParam != "[Info]")
     {
-        std::cout << "Invalid info start format." << std::endl;
-        std::cout << "Line was " << nextParam << std::endl;
+        OD_LOG_WRN("Invalid info start format: " + nextParam);
         return false;
     }
 
@@ -120,7 +115,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         {
             std::string musicFile = nextParam.substr(param.size());
             gameMap.setLevelMusicFile(musicFile);
-            LogManager::getSingleton().logMessage("Level Music: " + musicFile);
+            OD_LOG_INF("Level Music: " + musicFile);
             continue;
         }
 
@@ -129,7 +124,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         {
             std::string musicFile = nextParam.substr(param.size());
             gameMap.setLevelFightMusicFile(nextParam.substr(param.size()));
-            LogManager::getSingleton().logMessage("Level Fight Music: " + musicFile);
+            OD_LOG_INF("Level Fight Music: " + musicFile);
             continue;
         }
 
@@ -138,7 +133,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         {
             std::string tileSet = nextParam.substr(param.size());
             gameMap.setTileSetName(tileSet);
-            LogManager::getSingleton().logMessage("TileSet: " + tileSet);
+            OD_LOG_INF("TileSet: " + tileSet);
             continue;
         }
     }
@@ -146,8 +141,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
     levelFile >> nextParam;
     if (nextParam != "[Seats]")
     {
-        std::cout << "Invalid seats start format." << std::endl;
-        std::cout << "Line was " << nextParam << std::endl;
+        OD_LOG_WRN("Invalid seats start format=" + nextParam);
         return false;
     }
 
@@ -163,7 +157,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 
         if (nextParam != "[Seat]")
         {
-            LogManager::getSingleton().logMessage("Expected a Seat tag but got " + nextParam);
+            OD_LOG_WRN("Expected a Seat tag but got " + nextParam);
             return false;
         }
 
@@ -176,7 +170,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 
         if(!gameMap.addSeat(tempSeat))
         {
-            LogManager::getSingleton().logMessage("Couldn't add seat id="
+            OD_LOG_WRN("Couldn't add seat id="
                 + Helper::toString(tempSeat->getId()));
             delete tempSeat;
         }
@@ -186,8 +180,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
     levelFile >> nextParam;
     if (nextParam != "[Goals]")
     {
-        std::cout << "Invalid Goals start format." << std::endl;
-        std::cout << "Line was " << nextParam << std::endl;
+        OD_LOG_WRN("Invalid Goals start format=" + nextParam);
         return false;
     }
 
@@ -209,8 +202,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
     levelFile >> nextParam;
     if (nextParam != "[Tiles]")
     {
-        std::cout << "Invalid tile start format." << std::endl;
-        std::cout << "Line was " << nextParam << std::endl;
+        OD_LOG_WRN("Invalid tile start format:" + nextParam);
         return false;
     }
 
@@ -239,7 +231,6 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         std::string entire_line = nextParam;
         std::getline(levelFile, nextParam);
         entire_line += nextParam;
-        //std::cout << "Entire line: " << entire_line << std::endl;
 
         Tile* tempTile = new Tile(&gameMap, true);
 
@@ -255,8 +246,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
     levelFile >> nextParam;
     if (nextParam != "[Rooms]")
     {
-        std::cout << "Invalid Rooms start format." << std::endl;
-        std::cout << "Line was " << nextParam << std::endl;
+        OD_LOG_WRN("Invalid Rooms start format:" + nextParam);
         return false;
     }
 
@@ -293,8 +283,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
     levelFile >> nextParam;
     if (nextParam != "[Traps]")
     {
-        std::cout << "Invalid Traps start format." << std::endl;
-        std::cout << "Line was " << nextParam << std::endl;
+        OD_LOG_WRN("Invalid Traps start format:" + nextParam);
         return false;
     }
 
@@ -327,8 +316,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
     levelFile >> nextParam;
     if (nextParam != "[Lights]")
     {
-        std::cout << "Invalid Lights start format." << std::endl;
-        std::cout << "Line was " << nextParam << std::endl;
+        OD_LOG_WRN("Invalid Lights start format:" + nextParam);
         return false;
     }
 
@@ -344,7 +332,6 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         std::string entire_line = nextParam;
         std::getline(levelFile, nextParam);
         entire_line += nextParam;
-        //std::cout << "Entire line: " << entire_line << std::endl;
 
         std::stringstream ss(entire_line);
         MapLight* tempLight = MapLight::getMapLightFromStream(&gameMap, ss);
@@ -431,8 +418,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
             // Seek the [Creature] tag
             if (nextParam != "[Creature]")
             {
-                std::cout << "Invalid Creature start format." << std::endl;
-                std::cout << "Line was " << nextParam << std::endl;
+                OD_LOG_WRN("Invalid Creature start format:" + nextParam);
                 return false;
             }
 
@@ -443,7 +429,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
                 CreatureDefinition* def = gameMap.getClassDescriptionForTuning(nextParam);
                 if (def == nullptr)
                 {
-                    std::cout << "Invalid Creature definition format." << std::endl;
+                    OD_LOG_WRN("Invalid Creature definition format for " + nextParam);
                     return false;
                 }
                 if(!CreatureDefinition::update(def, levelFile, ConfigManager::getSingleton().getCreatureDefinitions()))
@@ -467,8 +453,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 
             if (nextParam != "[Equipment]")
             {
-                std::cout << "Invalid Weapon start format." << std::endl;
-                std::cout << "Line was " << nextParam << std::endl;
+                OD_LOG_WRN("Invalid Weapon start format:" + nextParam);
                 return false;
             }
 
@@ -479,7 +464,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
                 Weapon* def = gameMap.getWeaponForTuning(nextParam);
                 if (def == nullptr)
                 {
-                    std::cout << "Invalid Weapon definition format." << std::endl;
+                    OD_LOG_WRN("Invalid Weapon definition format for " + nextParam);
                     return false;
                 }
                 if(!Weapon::update(def, levelFile))
@@ -493,8 +478,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
     // Read in the actual creatures themselves
     if (nextParam != "[Creatures]")
     {
-        std::cout << "Invalid Creatures start format." << std::endl;
-        std::cout << "Line was " << nextParam << std::endl;
+        OD_LOG_WRN("Invalid Creatures start format:" + nextParam);
         return false;
     }
 
@@ -522,41 +506,41 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         tempCreature->addToGameMap();
         ++nbCreatures;
     }
-    LogManager::getSingleton().logMessage("Loaded " + Helper::toString(nbCreatures) + " creatures in level");
+    OD_LOG_INF("Loaded " + Helper::toString(nbCreatures) + " creatures in level");
 
     if(!readGameEntity(gameMap, "Spells", GameEntityType::spell, levelFile))
     {
-        LogManager::getSingleton().logMessage("Invalid Spells section");
+        OD_LOG_WRN("Invalid Spells section");
         return false;
     }
 
     if(!readGameEntity(gameMap, "CraftedTraps", GameEntityType::craftedTrap, levelFile))
     {
-        LogManager::getSingleton().logMessage("Invalid CraftedTraps section");
+        OD_LOG_WRN("Invalid CraftedTraps section");
         return false;
     }
 
     if(!readGameEntity(gameMap, "ResearchEntity", GameEntityType::researchEntity, levelFile))
     {
-        LogManager::getSingleton().logMessage("Invalid ResearchEntity section");
+        OD_LOG_WRN("Invalid ResearchEntity section");
         return false;
     }
 
     if(!readGameEntity(gameMap, "Missiles", GameEntityType::missileObject, levelFile))
     {
-        LogManager::getSingleton().logMessage("Invalid Missiles section");
+        OD_LOG_WRN("Invalid Missiles section");
         return false;
     }
 
     if(!readGameEntity(gameMap, "TreasuryObject", GameEntityType::treasuryObject, levelFile))
     {
-        LogManager::getSingleton().logMessage("Invalid TreasuryObject section");
+        OD_LOG_WRN("Invalid TreasuryObject section");
         return false;
     }
 
     if(!readGameEntity(gameMap, "Chickens", GameEntityType::chickenEntity, levelFile))
     {
-        LogManager::getSingleton().logMessage("Invalid Chickens section");
+        OD_LOG_WRN("Invalid Chickens section");
         return false;
     }
 
@@ -593,7 +577,7 @@ bool readGameEntity(GameMap& gameMap, const std::string& item, GameEntityType ty
         entity->addToGameMap();
         ++nbEntity;
     }
-    LogManager::getSingleton().logMessage("Loaded " + Helper::toString(nbEntity) + " " + item + " in level");
+    OD_LOG_INF("Loaded " + Helper::toString(nbEntity) + " " + item + " in level");
 
     return true;
 }
