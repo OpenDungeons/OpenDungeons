@@ -185,57 +185,72 @@ void ResourceManager::setupUserDataFolders(boost::program_options::variables_map
     mUserDataPath.clear();
     mUserConfigPath.clear();
 
-#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-    passwd* pw = getpwuid(getuid());
-    if(pw)
+    if(options.count("appData") > 0)
     {
-        mUserDataPath = std::string(pw->pw_dir) + "/Library/Application Support/opendungeons/";
-        mUserConfigPath = mUserDataPath + "cfg/";
-    }
-#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-    // $XDG_DATA_HOME/opendungeons/
-    // equals to: ~/.local/share/opendungeons/ most of the time
-    if (std::getenv("XDG_DATA_HOME"))
-    {
-        mUserDataPath = std::string(std::getenv("XDG_DATA_HOME")) + "/opendungeons/";
-    }
-    else
-    {
-        // We create a sane default if possible: ~/.local/share/opendungeons
-        passwd *pw = getpwuid(getuid());
-        if(pw)
+        mUserDataPath = options["appData"].as<std::string>();
+        if(!mUserDataPath.empty())
         {
-            mUserDataPath = std::string(pw->pw_dir) + "/.local/share/opendungeons/";
-        }
-    }
+            uint32_t len = mUserDataPath.length();
+            if((mUserDataPath.at(len - 1) != '/') && (mUserDataPath.at(len - 1) != '\\'))
+                mUserDataPath += '/';
 
-    // $XDG_CONFIG_HOME/opendungeons
-    // equals to: ~/.config/opendungeons/ most of the time
-    if (std::getenv("XDG_CONFIG_HOME"))
-    {
-        mUserConfigPath = std::string(std::getenv("XDG_CONFIG_HOME")) + "/opendungeons/";
+            mUserConfigPath = mUserDataPath + "cfg/";
+        }
     }
     else
     {
-        // We create a sane default if possible: ~/.config/opendungeons
-        passwd *pw = getpwuid(getuid());
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+        passwd* pw = getpwuid(getuid());
         if(pw)
         {
-            mUserConfigPath = std::string(pw->pw_dir) + "/.config/opendungeons/";
+            mUserDataPath = std::string(pw->pw_dir) + "/Library/Application Support/opendungeons/";
+            mUserConfigPath = mUserDataPath + "cfg/";
         }
-    }
+#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+        // $XDG_DATA_HOME/opendungeons/
+        // equals to: ~/.local/share/opendungeons/ most of the time
+        if (std::getenv("XDG_DATA_HOME"))
+        {
+            mUserDataPath = std::string(std::getenv("XDG_DATA_HOME")) + "/opendungeons/";
+        }
+        else
+        {
+            // We create a sane default if possible: ~/.local/share/opendungeons
+            passwd *pw = getpwuid(getuid());
+            if(pw)
+            {
+                mUserDataPath = std::string(pw->pw_dir) + "/.local/share/opendungeons/";
+            }
+        }
+
+        // $XDG_CONFIG_HOME/opendungeons
+        // equals to: ~/.config/opendungeons/ most of the time
+        if (std::getenv("XDG_CONFIG_HOME"))
+        {
+            mUserConfigPath = std::string(std::getenv("XDG_CONFIG_HOME")) + "/opendungeons/";
+        }
+        else
+        {
+            // We create a sane default if possible: ~/.config/opendungeons
+            passwd *pw = getpwuid(getuid());
+            if(pw)
+            {
+                mUserConfigPath = std::string(pw->pw_dir) + "/.config/opendungeons/";
+            }
+        }
 
 #elif OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-    char path[MAX_PATH];
-    // %APPDATA% (%USERPROFILE%\Application Data)
-    if(SUCCEEDED(SHGetFolderPathA(nullptr, CSIDL_APPDATA, nullptr, 0, path)))
-    {
-        mUserDataPath = std::string(path) + "/opendungeons/";
-        mUserConfigPath = mUserDataPath + "cfg/";
-    }
+        char path[MAX_PATH];
+        // %APPDATA% (%USERPROFILE%\Application Data)
+        if(SUCCEEDED(SHGetFolderPathA(nullptr, CSIDL_APPDATA, nullptr, 0, path)))
+        {
+            mUserDataPath = std::string(path) + "/opendungeons/";
+            mUserConfigPath = mUserDataPath + "cfg/";
+        }
 #else
 #error("Unknown platform!")
 #endif
+    }
 
     // Use local defaults if everything else failed.
     if (mUserDataPath.empty())
@@ -444,6 +459,7 @@ void ResourceManager::buildCommandOptions(boost::program_options::options_descri
     desc.add_options()
         ("log", boost::program_options::value<std::string>(), "log file to use")
         ("server", boost::program_options::value<std::string>(), "Launches the game on server mode and opens the given level")
+        ("appData", boost::program_options::value<std::string>(), "Sets appData to the given path (where logs, replays, ... are saved)")
     ;
 }
 
