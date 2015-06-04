@@ -130,6 +130,9 @@ int RoomTreasury::depositGold(int gold, Tile *tile)
         if(goldToDeposit <= 0)
             break;
 
+        if(p.second->mHP <= 0)
+            continue;
+
         // Store as much gold as we can in this tile.
         RoomTreasuryTileData* roomTreasuryTileData = static_cast<RoomTreasuryTileData*>(p.second);
         emptySpace = maxGoldinTile - roomTreasuryTileData->mGoldInTile;
