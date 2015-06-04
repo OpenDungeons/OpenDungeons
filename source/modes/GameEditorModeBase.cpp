@@ -160,20 +160,6 @@ void GameEditorModeBase::connectGuiAction(const std::string& buttonName, Abstrac
     );
 }
 
-EntityBase* GameEditorModeBase::getEntityFromOgreName(const std::string& entityName)
-{
-    // We check the prefix to know the kind of object the user clicked. Then, we call the corresponding
-    // GameMap function to retrieve the entity
-    std::string::size_type index = entityName.find("-");
-    if(index == std::string::npos)
-        return nullptr;
-
-    int32_t intGameEntityType = Helper::toInt(entityName.substr(0, index));
-    GameEntityType type = static_cast<GameEntityType>(intGameEntityType);
-    return mGameMap->getBaseEntityFromTypeAndName(type, entityName.substr(index + 1));
-}
-
-
 bool GameEditorModeBase::onMinimapClick(const CEGUI::EventArgs& arg)
 {
     const CEGUI::MouseEventArgs& mouseEvt = static_cast<const CEGUI::MouseEventArgs&>(arg);

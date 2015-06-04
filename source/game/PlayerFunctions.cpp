@@ -105,14 +105,17 @@ void Player::dropHand(Tile *t, unsigned int index)
     GameEntity *entity = mObjectsInHand[index];
     mObjectsInHand.erase(mObjectsInHand.begin() + index);
 
-    entity->drop(Ogre::Vector3(static_cast<Ogre::Real>(t->getX()),
-                               static_cast<Ogre::Real>(t->getY()), entity->getPosition().z));
-
+    Ogre::Vector3 creaturePos(static_cast<Ogre::Real>(t->getX()),
+       static_cast<Ogre::Real>(t->getY()), entity->getPosition().z);
     if(mGameMap->isServerGameMap())
     {
+        entity->drop(creaturePos);
         entity->fireDropEntity(this, t);
         return;
     }
+
+    entity->correctDropPosition(creaturePos);
+    entity->drop(creaturePos);
 
     // If this is the result of another player dropping the creature it is currently not visible so we need to create a mesh for it
     //cout << "\nthis:  " << this << "\nme:  " << gameMap->getLocalPlayer() << endl;

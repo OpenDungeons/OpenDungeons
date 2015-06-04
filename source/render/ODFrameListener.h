@@ -110,14 +110,10 @@ public:
     //! \brief Exit the game.
     bool quit(const CEGUI::EventArgs &e);
 
-    //! \brief Setup the ray scene query, use CEGUI's mouse position
-    //! This permits to get the mouse world coordinates and other entities present below it.
-    Ogre::RaySceneQueryResult& doRaySceneQuery(const OIS::MouseEvent &arg);
-
-    //! \brief Setup the ray scene query, use CEGUI's mouse position
-    //! This permits to get the mouse world coordinates and other entities present below it.
-    //! Also sets keeperHand3DPos to the 3D world position the cursor is on
-    Ogre::RaySceneQueryResult& doRaySceneQuery(const OIS::MouseEvent &arg, Ogre::Vector3& keeperHand3DPos);
+    //! \brief This permits to get the keeperHand world coordinates from the cursor position
+    //! returns true if the keeper hand position was successfully computed and false otherwise.
+    //! If it returns false, keeperHand3DPos will stay unchanged
+    bool findWorldPositionFromMouse(const OIS::MouseEvent &arg, Ogre::Vector3& keeperHand3DPos);
 
     /*! \brief Print a string in the upper right corner of the screen.
      *  Usually used for system or debug info
@@ -181,9 +177,6 @@ private:
 
     //! \brief The amount of time in seconds an event message will be displayed.
     float                mEventMaxTimeDisplay;
-
-    //! \brief Reference to the Ogre ray scene query handler. Don't delete it.
-    Ogre::RaySceneQuery* mRaySceneQuery;
 
     //! \brief To see if the frameListener wants to exit
     bool mExitRequested;

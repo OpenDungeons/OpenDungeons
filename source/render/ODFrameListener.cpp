@@ -75,7 +75,6 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::Overlay
     mShowDebugInfo(false),
     mContinue(true),
     mEventMaxTimeDisplay(20.0f),
-    mRaySceneQuery(nullptr),
     mExitRequested(false),
     mCameraManager(mRenderManager->getSceneManager(), mGameMap.get(), renderWindow),
     mFpsLimiter(DEFAULT_FRAME_RATE)
@@ -83,9 +82,6 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::Overlay
     OD_LOG_INF("Creating frame listener...");
 
     mRenderManager->createScene(mCameraManager.getViewport());
-
-    mRaySceneQuery = mRenderManager->getSceneManager()->createRayQuery(Ogre::Ray());
-    mRaySceneQuery->setQueryTypeMask(Ogre::SceneManager::ENTITY_TYPE_MASK);
 
     mRenderManager->getSceneManager()->addRenderQueueListener(this);
     //Set initial mouse clipping size
@@ -132,7 +128,6 @@ void ODFrameListener::exitApplication()
     ODClient::getSingleton().notifyExit();
     ODServer::getSingleton().notifyExit();
     mGameMap->clearAll();
-    mRenderManager->getSceneManager()->destroyQuery(mRaySceneQuery);
 
     OD_LOG_INF("Remove listener registration");
     //Remove ourself as a Window listener
@@ -223,21 +218,7 @@ bool ODFrameListener::quit(const CEGUI::EventArgs &e)
     return true;
 }
 
-Ogre::RaySceneQueryResult& ODFrameListener::doRaySceneQuery(const OIS::MouseEvent &arg)
-{
-    // Setup the ray scene query, use CEGUI's mouse position
-    CEGUI::Vector2<float> mousePos = CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().getPosition();// * mMouseScale;
-    Ogre::Ray mouseRay = mCameraManager.getActiveCamera()->getCameraToViewportRay(mousePos.d_x / float(
-            arg.state.width), mousePos.d_y / float(arg.state.height));
-
-    mRaySceneQuery->setRay(mouseRay);
-    mRaySceneQuery->setSortByDistance(true);
-
-    // Execute query
-    return mRaySceneQuery->execute();
-}
-
-Ogre::RaySceneQueryResult& ODFrameListener::doRaySceneQuery(const OIS::MouseEvent &arg, Ogre::Vector3& keeperHand3DPos)
+bool ODFrameListener::findWorldPositionFromMouse(const OIS::MouseEvent &arg, Ogre::Vector3& keeperHand3DPos)
 {
     // Setup the ray scene query, use CEGUI's mouse position
     CEGUI::Vector2<float> mousePos = CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().getPosition();// * mMouseScale;
@@ -247,13 +228,12 @@ Ogre::RaySceneQueryResult& ODFrameListener::doRaySceneQuery(const OIS::MouseEven
     Ogre::Plane groundPlane(Ogre::Vector3::UNIT_Z, RenderManager::KEEPER_HAND_WORLD_Z);
     std::pair<bool, Ogre::Real> p = mouseRay.intersects(groundPlane);
     if(p.first)
+    {
         keeperHand3DPos = mouseRay.getPoint(p.second);
+        return true;
+    }
 
-    mRaySceneQuery->setRay(mouseRay);
-    mRaySceneQuery->setSortByDistance(true);
-
-    // Execute query
-    return mRaySceneQuery->execute();
+    return false;
 
 }
 

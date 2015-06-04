@@ -70,6 +70,7 @@ enum class SelectionTileAllowed
 
 enum class SelectionEntityWanted
 {
+    any,
     tiles,
     creatureAliveOwned,
     creatureAliveAllied,

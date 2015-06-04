@@ -206,7 +206,8 @@ public:
     unsigned int numEntitiesInTile() const
     { return mEntitiesInTile.size(); }
 
-    void addNeighbor(Tile *n);Tile* getNeighbor(unsigned index);
+    void addNeighbor(Tile *n);
+    Tile* getNeighbor(unsigned index);
     const std::vector<Tile*>& getAllNeighbors() const
     { return mNeighbors; }
 

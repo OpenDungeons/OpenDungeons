@@ -29,6 +29,7 @@
 #include "game/Research.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
+#include "gamemap/PathFinding.h"
 #include "render/Gui.h"
 #include "render/ODFrameListener.h"
 #include "render/RenderManager.h"
@@ -304,45 +305,47 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 
     // Since this is a tile selection query we loop over the result set
     // and look for the first object which is actually a tile.
-    Ogre::Vector3 keeperPos;
-    Tile* tileClicked = nullptr;
-    Ogre::RaySceneQueryResult& result = ODFrameListener::getSingleton().doRaySceneQuery(arg, keeperPos);
-    RenderManager::getSingleton().moveWorldCoords(keeperPos.x, keeperPos.y);
-    for (Ogre::RaySceneQueryResult::iterator itr = result.begin(); itr != result.end(); ++itr)
-    {
-        if (itr->movable == nullptr)
-            continue;
+    Ogre::Vector3 keeperHandPos;
+    ODFrameListener::getSingleton().findWorldPositionFromMouse(arg, keeperHandPos);
+    RenderManager::getSingleton().moveWorldCoords(keeperHandPos.x, keeperHandPos.y);
 
-        // Check to see if the current query result is a tile.
-        std::string resultName = itr->movable->getName();
-
-        EntityBase* entity = getEntityFromOgreName(resultName);
-        if((mPlayerSelection.getCurrentAction() == SelectedAction::none) &&
-           (entity != nullptr) &&
-           (entity->getObjectType() == GameEntityType::creature))
-        {
-            // If we are hovering a creature with no current action, we want to display its overlay
-            // for a short time
-            Creature* creature = static_cast<Creature*>(entity);
-            RenderManager::getSingleton().rrTemporaryDisplayCreaturesTextOverlay(creature, 0.5f);
-            continue;
-        }
-
-        // If we have already set a tile, we don't search for another one (in case perspective makes us hit
-        // several tiles)
-        if(tileClicked != nullptr)
-            continue;
-
-        // Checks which tile we are on (if any)
-        if((entity != nullptr) &&
-           (entity->getObjectType() == GameEntityType::tile))
-        {
-            tileClicked = static_cast<Tile*>(entity);
-        }
-    }
-
+    int tileX = Helper::round(keeperHandPos.x);
+    int tileY = Helper::round(keeperHandPos.y);
+    Tile* tileClicked = mGameMap->getTile(tileX, tileY);
     if(tileClicked == nullptr)
         return true;
+
+    std::vector<EntityBase*> entities;
+    tileClicked->fillWithEntities(entities, SelectionEntityWanted::creatureAlive, mGameMap->getLocalPlayer());
+    // We search the closest creature alive
+    Creature* closestCreature = nullptr;
+    double closestDist = 0;
+    for(EntityBase* entity : entities)
+    {
+        if(entity->getObjectType() != GameEntityType::creature)
+        {
+            OD_LOG_ERR("entityName=" + entity->getName() + ", entityType=" + Helper::toString(static_cast<uint32_t>(entity->getObjectType())));
+            continue;
+        }
+
+        const Ogre::Vector3& entityPos = entity->getPosition();
+        double dist = Pathfinding::squaredDistance(entityPos.x, keeperHandPos.x, entityPos.y, keeperHandPos.y);
+        if(closestCreature == nullptr)
+        {
+            closestDist = dist;
+            closestCreature = static_cast<Creature*>(entity);
+            continue;
+        }
+
+        if(dist >= closestDist)
+            continue;
+
+        closestDist = dist;
+        closestCreature = static_cast<Creature*>(entity);
+    }
+
+    if(closestCreature != nullptr)
+        RenderManager::getSingleton().rrTemporaryDisplayCreaturesTextOverlay(closestCreature, 0.5f);
 
     inputManager.mXPos = tileClicked->getX();
     inputManager.mYPos = tileClicked->getY();
@@ -412,6 +415,17 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
     if (inputManager.mMouseDownOnCEGUIWindow)
         return true;
 
+    if(mGameMap->getLocalPlayer() == nullptr)
+    {
+        static bool log = true;
+        if(log)
+        {
+            log = false;
+            OD_LOG_ERR("LOCAL PLAYER DOES NOT EXIST!!");
+        }
+        return true;
+    }
+
     // There is a bug in OIS. When playing in windowed mode, if we clic outside the window
     // and then we restore the window, we will receive a clic event on the last place where
     // the mouse was.
@@ -428,28 +442,51 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
     if(mGameMap->getGamePaused())
         return true;
 
-    Ogre::RaySceneQueryResult &result = ODFrameListener::getSingleton().doRaySceneQuery(arg);
-    Ogre::RaySceneQueryResult::iterator itr = result.begin();
+    Ogre::Vector3 keeperHandPos;
+    if(!ODFrameListener::getSingleton().findWorldPositionFromMouse(arg, keeperHandPos))
+        return true;
+
+    RenderManager::getSingleton().moveWorldCoords(keeperHandPos.x, keeperHandPos.y);
+
+    int tileX = Helper::round(keeperHandPos.x);
+    int tileY = Helper::round(keeperHandPos.y);
+    Tile* tileClicked = mGameMap->getTile(tileX, tileY);
+    if(tileClicked == nullptr)
+        return true;
 
     if (id == OIS::MB_Middle)
     {
-        // See if the mouse is over any creatures
-        for (;itr != result.end(); ++itr)
+        // See if the mouse is over any entity that might display a stats window
+        std::vector<EntityBase*> entities;
+        tileClicked->fillWithEntities(entities, SelectionEntityWanted::any, mGameMap->getLocalPlayer());
+        // We search the closest creature alive
+        EntityBase* closestEntity = nullptr;
+        double closestDist = 0;
+        for(EntityBase* entity : entities)
         {
-            if (itr->movable == nullptr)
+            if(!entity->canDisplayStatsWindow(mGameMap->getLocalPlayer()->getSeat()))
                 continue;
 
-            std::string resultName = itr->movable->getName();
+            const Ogre::Vector3& entityPos = entity->getPosition();
+            double dist = Pathfinding::squaredDistance(entityPos.x, keeperHandPos.x, entityPos.y, keeperHandPos.y);
+            if(closestEntity == nullptr)
+            {
+                closestDist = dist;
+                closestEntity = entity;
+                continue;
+            }
 
-            EntityBase* entity = getEntityFromOgreName(resultName);
-            if (entity == nullptr || !entity->canDisplayStatsWindow(mGameMap->getLocalPlayer()->getSeat()))
+            if(dist >= closestDist)
                 continue;
 
-            entity->createStatsWindow();
+            closestDist = dist;
+            closestEntity = entity;
+        }
 
+        if(closestEntity == nullptr)
             return true;
 
-        }
+        closestEntity->createStatsWindow();
         return true;
     }
 
@@ -490,27 +527,37 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
         else
         {
             // No creature in hand. We check if we want to slap something
-            for (;itr != result.end(); ++itr)
+            std::vector<EntityBase*> entities;
+            tileClicked->fillWithEntities(entities, SelectionEntityWanted::any, mGameMap->getLocalPlayer());
+            // We search the closest creature alive
+            EntityBase* closestEntity = nullptr;
+            double closestDist = 0;
+            for(EntityBase* entity : entities)
             {
-                if (itr->movable == nullptr)
+                if(!entity->canSlap(mGameMap->getLocalPlayer()->getSeat()))
                     continue;
 
-                std::string resultName = itr->movable->getName();
-
-                EntityBase* entity = getEntityFromOgreName(resultName);
-                if (entity == nullptr || !entity->canSlap(mGameMap->getLocalPlayer()->getSeat()))
-                    continue;
-
-                if(ODClient::getSingleton().isConnected())
+                const Ogre::Vector3& entityPos = entity->getPosition();
+                double dist = Pathfinding::squaredDistance(entityPos.x, keeperHandPos.x, entityPos.y, keeperHandPos.y);
+                if(closestEntity == nullptr)
                 {
-                    const std::string& entityName = entity->getName();
-                    GameEntityType entityType = entity->getObjectType();
-                    ClientNotification *clientNotification = new ClientNotification(
-                        ClientNotificationType::askSlapEntity);
-                    clientNotification->mPacket << entityType << entityName;
-                    ODClient::getSingleton().queueClientNotification(clientNotification);
+                    closestDist = dist;
+                    closestEntity = entity;
+                    continue;
                 }
 
+                if(dist >= closestDist)
+                    continue;
+
+                closestDist = dist;
+                closestEntity = entity;
+            }
+
+            if(closestEntity != nullptr)
+            {
+                ODClient::getSingleton().queueClientNotification(ClientNotificationType::askSlapEntity,
+                     closestEntity->getObjectType(),
+                     closestEntity->getName());
                 return true;
             }
         }
@@ -525,78 +572,52 @@ bool GameMode::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id)
     inputManager.mLStartDragY = inputManager.mYPos;
 
     // Check whether the player is already placing rooms or traps.
-    bool skipPickUp = false;
-    if (mPlayerSelection.getCurrentAction() != SelectedAction::none)
+    if (mPlayerSelection.getCurrentAction() == SelectedAction::none)
     {
-        skipPickUp = true;
-    }
-
-    Player* player = mGameMap->getLocalPlayer();
-    if(player == nullptr)
-    {
-        OD_LOG_ERR("LOCAL PLAYER DOES NOT EXIST!!");
-        return true;
-    }
-
-    // See if the mouse is over any creatures
-    for (;itr != result.end(); ++itr)
-    {
-        // Skip picking up creatures when placing rooms or traps
-        // as creatures often get in the way.
-        if (skipPickUp)
-            break;
-
-        if (itr->movable == nullptr)
-            continue;
-
-        std::string resultName = itr->movable->getName();
-
-        EntityBase* entity = getEntityFromOgreName(resultName);
-        if (entity == nullptr || !entity->tryPickup(player->getSeat()))
-            continue;
-
-        if (ODClient::getSingleton().isConnected())
+        // See if the mouse is over any pickup-able entity
+        std::vector<EntityBase*> entities;
+        tileClicked->fillWithEntities(entities, SelectionEntityWanted::any, mGameMap->getLocalPlayer());
+        // We search the closest creature alive
+        EntityBase* closestEntity = nullptr;
+        double closestDist = 0;
+        for(EntityBase* entity : entities)
         {
-            GameEntityType entityType = entity->getObjectType();
-            const std::string& entityName = entity->getName();
-            ClientNotification *clientNotification = new ClientNotification(
-                ClientNotificationType::askEntityPickUp);
-            clientNotification->mPacket << entityType;
-            clientNotification->mPacket << entityName;
-            ODClient::getSingleton().queueClientNotification(clientNotification);
-        }
-        return true;
-    }
-
-    // If we are doing nothing and we click on a tile, it is a tile selection
-    if(mPlayerSelection.getCurrentAction() == SelectedAction::none)
-    {
-        for (itr = result.begin(); itr != result.end(); ++itr)
-        {
-            if (itr->movable == nullptr)
+            if(!entity->tryPickup(mGameMap->getLocalPlayer()->getSeat()))
                 continue;
 
-            std::string resultName = itr->movable->getName();
-
-            EntityBase* entity = getEntityFromOgreName(resultName);
-            // Checks which tile we are on (if any)
-            if((entity == nullptr) ||
-               (entity->getObjectType() != GameEntityType::tile))
+            const Ogre::Vector3& entityPos = entity->getPosition();
+            double dist = Pathfinding::squaredDistance(entityPos.x, keeperHandPos.x, entityPos.y, keeperHandPos.y);
+            if(closestEntity == nullptr)
             {
+                closestDist = dist;
+                closestEntity = entity;
                 continue;
             }
 
-            mPlayerSelection.setCurrentAction(SelectedAction::selectTile);
-            break;
+            if(dist >= closestDist)
+                continue;
+
+            closestDist = dist;
+            closestEntity = entity;
+        }
+
+        if(closestEntity != nullptr)
+        {
+            ODClient::getSingleton().queueClientNotification(ClientNotificationType::askEntityPickUp,
+                closestEntity->getObjectType(),
+                closestEntity->getName());
+            return true;
         }
     }
 
+
+    // If we are doing nothing and we click on a tile, it is a tile selection
+    if(mPlayerSelection.getCurrentAction() == SelectedAction::none)
+        mPlayerSelection.setCurrentAction(SelectedAction::selectTile);
+
     // If we are in a game we store the opposite of whether this tile is marked for digging or not, this allows us to mark tiles
     // by dragging out a selection starting from an unmarcked tile, or unmark them by starting the drag from a marked one.
-    Tile* tempTile = mGameMap->getTile(inputManager.mXPos, inputManager.mYPos);
-
-    if (tempTile != nullptr)
-        mDigSetBool = !(tempTile->getMarkedForDigging(mGameMap->getLocalPlayer()));
+    mDigSetBool = !(tileClicked->getMarkedForDigging(mGameMap->getLocalPlayer()));
 
     return true;
 }

@@ -303,7 +303,10 @@ bool Tile::removeEntity(GameEntity *entity)
 {
     std::vector<GameEntity*>::iterator it = std::find(mEntitiesInTile.begin(), mEntitiesInTile.end(), entity);
     if(it == mEntitiesInTile.end())
+    {
+        OD_LOG_ERR(getGameMap()->serverStr() + "Trying to remove not inserted entity=" + entity->getName());
         return false;
+    }
 
     mEntitiesInTile.erase(it);
     return true;
@@ -565,6 +568,11 @@ void Tile::fillWithEntities(std::vector<EntityBase*>& entities, SelectionEntityW
 
         switch(entityWanted)
         {
+            case SelectionEntityWanted::any:
+            {
+                // We accept any entity
+                break;
+            }
             case SelectionEntityWanted::creatureAliveOwned:
             {
                 if(entity->getObjectType() != GameEntityType::creature)
@@ -643,11 +651,15 @@ void Tile::fillWithEntities(std::vector<EntityBase*>& entities, SelectionEntityW
 
 bool Tile::addTreasuryObject(TreasuryObject* obj)
 {
-    if(!mIsOnServerMap)
-        return true;
-
     if (std::find(mEntitiesInTile.begin(), mEntitiesInTile.end(), obj) != mEntitiesInTile.end())
         return false;
+
+    if(!mIsOnServerMap)
+    {
+        // On client side, we add the entity to tile. Merging is relevant on server side only
+        mEntitiesInTile.push_back(obj);
+        return true;
+    }
 
     // If there is already a treasury object, we merge it
     bool isMerged = false;
