@@ -40,12 +40,17 @@ Gui::Gui(SoundEffectsManager* soundEffectsManager, const std::string& ceguiLogFi
   : mSoundEffectsManager(soundEffectsManager)
 {
     CEGUI::OgreRenderer& renderer = CEGUI::OgreRenderer::create();
+    OD_LOG_INF("OgreRenderer created");
     CEGUI::OgreResourceProvider& rp = CEGUI::OgreRenderer::createOgreResourceProvider();
+    OD_LOG_INF("OgreResourceProvider created");
     CEGUI::OgreImageCodec& ic = CEGUI::OgreRenderer::createOgreImageCodec();
+    OD_LOG_INF("OgreImageCodec created");
     CEGUI::System::create(renderer, &rp, static_cast<CEGUI::XMLParser*>(nullptr), &ic, nullptr, "",
                           reinterpret_cast<const CEGUI::utf8*>(ceguiLogFileName.c_str()));
+    OD_LOG_INF("CEGUI::System created");
 
     CEGUI::SchemeManager::getSingleton().createFromFile("ODSkin.scheme");
+    OD_LOG_INF("CEGUI::SchemeManager created");
 
     // We want Ogre overlays to be displayed in front of CEGUI. According to
     // http://cegui.org.uk/forum/viewtopic.php?f=10&t=5694
