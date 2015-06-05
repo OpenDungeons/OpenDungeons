@@ -57,11 +57,11 @@ void PlayerEvent::importFromPacket(GameMap* gameMap, ODPacket& is)
 
 void Player::pickUpEntity(GameEntity *entity)
 {
-    if (!ODServer::getSingleton().isConnected() && !ODClient::getSingleton().isConnected())
-        return;
-
     if(!entity->tryPickup(getSeat()))
+    {
+        OD_LOG_ERR("player seatId" + Helper::toString(getSeat()->getId()) + " couldn't pickup entity=" + entity->getName());
         return;
+    }
 
     entity->pickup();
 
@@ -74,12 +74,12 @@ void Player::pickUpEntity(GameEntity *entity)
         return;
     }
 
-    OD_ASSERT_TRUE(this == mGameMap->getLocalPlayer());
-    if (this == mGameMap->getLocalPlayer())
+    if (this != mGameMap->getLocalPlayer())
     {
-        // Send a render request to move the crature into the "hand"
-        RenderManager::getSingleton().rrPickUpEntity(entity, this);
+        OD_LOG_ERR("cannot pickup entity player seat=" + Helper::toString(getSeat()->getId()) + ", localPlayer seat id=" + Helper::toString(mGameMap->getLocalPlayer()->getSeat()->getId()) + ", entity=" + entity->getName());
+        return;
     }
+    RenderManager::getSingleton().rrPickUpEntity(entity, this);
 }
 
 
@@ -93,12 +93,14 @@ bool Player::isDropHandPossible(Tile *t, unsigned int index)
     return entity->tryDrop(getSeat(), t);
 }
 
-GameEntity* Player::dropHand(Tile *t, unsigned int index)
+void Player::dropHand(Tile *t, unsigned int index)
 {
     // Add the creature to the map
-    OD_ASSERT_TRUE_MSG(index < mObjectsInHand.size(), "playerNick=" + getNick() + ", index=" + Helper::toString(index));
     if(index >= mObjectsInHand.size())
-        return nullptr;
+    {
+        OD_LOG_ERR("index=" + Helper::toString(index) + ", nbObjInHand=" + Helper::toString(mObjectsInHand.size()));
+        return;
+    }
 
     GameEntity *entity = mObjectsInHand[index];
     mObjectsInHand.erase(mObjectsInHand.begin() + index);
@@ -109,20 +111,19 @@ GameEntity* Player::dropHand(Tile *t, unsigned int index)
     if(mGameMap->isServerGameMap())
     {
         entity->fireDropEntity(this, t);
-        return entity;
+        return;
     }
 
     // If this is the result of another player dropping the creature it is currently not visible so we need to create a mesh for it
     //cout << "\nthis:  " << this << "\nme:  " << gameMap->getLocalPlayer() << endl;
     //cout.flush();
-    OD_ASSERT_TRUE(this == mGameMap->getLocalPlayer());
-    if(this == mGameMap->getLocalPlayer())
+    if (this != mGameMap->getLocalPlayer())
     {
-        // Send a render request to rearrange the creatures in the hand to move them all forward 1 place
-        RenderManager::getSingleton().rrDropHand(entity, this);
+        OD_LOG_ERR("cannot pickup entity player seat=" + Helper::toString(getSeat()->getId()) + ", localPlayer seat id=" + Helper::toString(mGameMap->getLocalPlayer()->getSeat()->getId()) + ", entity=" + entity->getName());
+        return;
     }
-
-    return entity;
+    // Send a render request to rearrange the creatures in the hand to move them all forward 1 place
+    RenderManager::getSingleton().rrDropHand(entity, this);
 }
 
 void Player::rotateHand(Direction d)
@@ -421,7 +422,7 @@ void Player::setSpellCooldownTurns(SpellType spellType, uint32_t cooldown)
     uint32_t spellIndex = static_cast<uint32_t>(spellType);
     if(spellIndex >= mSpellsCooldown.size())
     {
-        OD_ASSERT_TRUE_MSG(false, "seatId=" + Helper::toString(getId()) + ", spellType=" + SpellManager::getSpellNameFromSpellType(spellType));
+        OD_LOG_ERR("seatId=" + Helper::toString(getId()) + ", spellType=" + SpellManager::getSpellNameFromSpellType(spellType));
         return;
     }
 

@@ -28,7 +28,7 @@ enum class SpellType;
 /*! \class Spell
  *  \brief Defines a spell. To be usable in game, a spell must register by creating a global class SpellManagerRegister.
  *         A Spell have to have the following static functions (otherwise, it won't be registrable):
- *         - getSpellCost
+ *         - checkSpellCast
  *         - castSpell
  *         - getSpellFromStream
  *         - getSpellFromPacket
@@ -64,6 +64,8 @@ public:
 
     static std::string getSpellStreamFormat();
 
+protected:
+    static std::string formatSpellPrice(SpellType type, uint32_t price);
 private:
     //! \brief Number of turns the spell should be displayed before automatic deletion.
     //! If < 0, the Spell will not be removed automatically

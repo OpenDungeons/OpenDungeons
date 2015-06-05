@@ -176,9 +176,11 @@ RenderedMovableEntity* Building::loadBuildingObject(GameMap* gameMap, const std:
     if (targetTile == nullptr)
         targetTile = getCentralTile();
 
-    OD_ASSERT_TRUE(targetTile != nullptr);
     if(targetTile == nullptr)
+    {
+        OD_LOG_ERR("room=" + getName());
         return nullptr;
+    }
 
     return loadBuildingObject(gameMap, meshName, targetTile, static_cast<double>(targetTile->getX()),
         static_cast<double>(targetTile->getY()), rotationAngle, hideCoveredTile, opacity,
@@ -242,11 +244,11 @@ Tile* Building::getCentralTile()
 
 bool Building::removeCoveredTile(Tile* t)
 {
-    LogManager::getSingleton().logMessage(getGameMap()->serverStr() + "building=" + getName() + ", removing covered tile=" + Tile::displayAsString(t));
+    OD_LOG_INF(getGameMap()->serverStr() + "building=" + getName() + ", removing covered tile=" + Tile::displayAsString(t));
     auto it = std::find(mCoveredTiles.begin(), mCoveredTiles.end(), t);
     if(it == mCoveredTiles.end())
     {
-        OD_ASSERT_TRUE_MSG(false, "building=" + getName() + ", removing unknown covered tile=" + Tile::displayAsString(t));
+        OD_LOG_ERR("building=" + getName() + ", removing unknown covered tile=" + Tile::displayAsString(t));
         return false;
     }
 
@@ -265,11 +267,11 @@ std::vector<Tile*> Building::getCoveredTiles()
 
 Tile* Building::getCoveredTile(int index)
 {
-    OD_ASSERT_TRUE_MSG(index < static_cast<int>(mCoveredTiles.size()), "name=" + getName()
-        + ", index=" + Helper::toString(index));
-
     if(index >= static_cast<int>(mCoveredTiles.size()))
+    {
+        OD_LOG_ERR("name=" + getName() + ", index=" + Helper::toString(index) + ", size=" + Helper::toString(mCoveredTiles.size()));
         return nullptr;
+    }
 
     return mCoveredTiles[index];
 }
@@ -284,9 +286,11 @@ double Building::getHP(Tile *tile) const
     if (tile != nullptr)
     {
         std::map<Tile*, TileData*>::const_iterator tileSearched = mTileData.find(tile);
-        OD_ASSERT_TRUE(tileSearched != mTileData.end());
         if(tileSearched == mTileData.end())
+        {
+            OD_LOG_ERR("couldn't find requested tile=" + Tile::displayAsString(tile));
             return 0.0;
+        }
 
         return tileSearched->second->mHP;
     }
@@ -306,7 +310,7 @@ double Building::takeDamage(GameEntity* attacker, double physicalDamage, double 
 {
     if(mTileData.count(tileTakingDamage) <= 0)
     {
-        OD_ASSERT_TRUE_MSG(false, "building=" + getName() + ", tile=" + Tile::displayAsString(tileTakingDamage));
+        OD_LOG_ERR("building=" + getName() + ", tile=" + Tile::displayAsString(tileTakingDamage));
         return 0.0;
     }
 
@@ -370,7 +374,7 @@ void Building::exportToStream(std::ostream& os) const
     {
         if(mTileData.count(tile) <= 0)
         {
-            OD_ASSERT_TRUE_MSG(false, "building=" + getName() + ", tile=" + Tile::displayAsString(tile));
+            OD_LOG_ERR("building=" + getName() + ", tile=" + Tile::displayAsString(tile));
             continue;
         }
         TileData* tileData = mTileData.at(tile);
@@ -387,7 +391,7 @@ void Building::exportToStream(std::ostream& os) const
     {
         if(mTileData.count(tile) <= 0)
         {
-            OD_ASSERT_TRUE_MSG(false, "building=" + getName() + ", tile=" + Tile::displayAsString(tile));
+            OD_LOG_ERR("building=" + getName() + ", tile=" + Tile::displayAsString(tile));
             continue;
         }
         TileData* tileData = mTileData.at(tile);
@@ -412,9 +416,15 @@ void Building::importFromStream(std::istream& is)
 
     OD_ASSERT_TRUE(ss >> seatId);
     Seat* seat = getGameMap()->getSeatById(seatId);
-    OD_ASSERT_TRUE_MSG(seat != nullptr, "seatId=" + Helper::toString(seatId));
+    if(seat == nullptr)
+    {
+        OD_LOG_ERR("seatId=" + Helper::toString(seatId));
+    }
     setSeat(seat);
 
+    // Allied seats can always see buildings
+    std::vector<Seat*> alliedSeats = seat->getAlliedSeats();
+    alliedSeats.push_back(seat);
     OD_ASSERT_TRUE(ss >> tilesToLoad);
     while(tilesToLoad > 0)
     {
@@ -424,14 +434,17 @@ void Building::importFromStream(std::istream& is)
         int xxx, yyy;
         OD_ASSERT_TRUE(ss >> xxx >> yyy);
         Tile* tile = getGameMap()->getTile(xxx, yyy);
-        OD_ASSERT_TRUE_MSG(tile != nullptr, "tile=" + Helper::toString(xxx) + "," + Helper::toString(yyy));
         if (tile == nullptr)
+        {
+            OD_LOG_ERR("tile=" + Helper::toString(xxx) + "," + Helper::toString(yyy));
             continue;
+        }
 
         tile->setSeat(getSeat());
 
         TileData* tileData = createTileData(tile);
         mTileData[tile] = tileData;
+        tileData->mSeatsVision = alliedSeats;
         importTileDataFromStream(ss, tile, tileData);
     }
 }
@@ -445,7 +458,7 @@ void Building::notifySeatVision(Tile* tile, Seat* seat)
         // We remove the seat
         if(it == tileData->mSeatsVision.end())
         {
-            OD_ASSERT_TRUE_MSG(false, "building=" + getName() + ", tile=" + Tile::displayAsString(tile));
+            OD_LOG_ERR("building=" + getName() + ", tile=" + Tile::displayAsString(tile));
             return;
         }
 

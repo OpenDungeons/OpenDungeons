@@ -62,9 +62,11 @@ void TreasuryObject::doUpkeep()
 
     // We check if we are on a tile where there is a treasury room. If so, we add gold there
     Tile* tile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
     if(tile == nullptr)
+    {
+        OD_LOG_ERR("entityName=" + getName());
         return;
+    }
 
     if((mGoldValue > 0) &&
        (tile->getCoveringRoom() != nullptr) &&
@@ -116,9 +118,11 @@ bool TreasuryObject::tryPickup(Seat* seat)
         return false;
 
     Tile* tile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
     if(tile == nullptr)
+    {
+        OD_LOG_ERR("entityName=" + getName());
         return false;
+    }
 
     if(!tile->isClaimedForSeat(seat) && !getGameMap()->isInEditorMode())
         return false;
@@ -130,9 +134,11 @@ void TreasuryObject::pickup()
 {
     Tile* tile = getPositionTile();
     RenderedMovableEntity::pickup();
-    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
     if(tile == nullptr)
+    {
+        OD_LOG_ERR("entityName=" + getName());
         return;
+    }
 
     tile->removeEntity(this);
 }
@@ -181,9 +187,11 @@ EntityCarryType TreasuryObject::getEntityCarryType()
 
     // If we are on a treasury not full, we doesn't allow to be carried
     Tile* myTile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
     if(myTile == nullptr)
+    {
+        OD_LOG_ERR("name=" + getName());
         return EntityCarryType::gold;
+    }
 
     if(myTile->getCoveringRoom() == nullptr)
         return EntityCarryType::gold;
@@ -201,9 +209,11 @@ EntityCarryType TreasuryObject::getEntityCarryType()
 void TreasuryObject::notifyEntityCarryOn(Creature* carrier)
 {
     Tile* myTile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
     if(myTile == nullptr)
+    {
+        OD_LOG_ERR("name=" + getName());
         return;
+    }
 
     setIsOnMap(false);
     myTile->removeEntity(this);
@@ -215,9 +225,11 @@ void TreasuryObject::notifyEntityCarryOff(const Ogre::Vector3& position)
     setIsOnMap(true);
 
     Tile* myTile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
     if(myTile == nullptr)
+    {
+        OD_LOG_ERR("name=" + getName());
         return;
+    }
 
     myTile->addTreasuryObject(this);
 }

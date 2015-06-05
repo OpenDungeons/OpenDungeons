@@ -230,7 +230,7 @@ public:
                 + ", val=" + Helper::toString(p.second);
         }
 
-        LogManager::getSingleton().logMessage(log);
+        OD_LOG_INF(log);
     }
 
     const std::vector<std::pair<uint32_t, double>>& getHiddenTilesNorth() const
@@ -397,8 +397,8 @@ void TileContainer::setTileNeighbors(Tile *t)
             break;
 
         default:
-            std::cerr << "\n\n\nERROR:  Unknown neighbor index.\n\n\n";
-            exit(1);
+            OD_LOG_ERR("Unknown neighbor index=" + Helper::toString(i));
+            continue;
         }
 
         // If the current neigbor tile exists, add the current tile as one of its
@@ -427,7 +427,7 @@ Tile* TileContainer::tileFromPacket(ODPacket& packet) const
     Tile* tile = getTile(x, y);
     if(tile == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "tile=" + Helper::toString(x) + "," + Helper::toString(y));
+        OD_LOG_ERR("tile=" + Helper::toString(x) + "," + Helper::toString(y));
     }
     return tile;
 }
@@ -436,7 +436,7 @@ bool TileContainer::allocateMapMemory(int xSize, int ySize)
 {
     if (xSize <= 0 || ySize <= 0)
     {
-        std::cerr << "Invalid map size given. Couldn't allocate map memory" << std::endl;
+        OD_LOG_ERR("Invalid map size given, xSize=" + Helper::toString(xSize) + ", ySize=" + Helper::toString(ySize));
         return false;
     }
 
@@ -461,7 +461,7 @@ bool TileContainer::allocateMapMemory(int xSize, int ySize)
     mTiles = new Tile **[mMapSizeX];
     if(!mTiles)
     {
-        std::cerr << "Failed to allocate map memory" << std::endl;
+        OD_LOG_ERR("Failed to allocate map memory");
         return false;
     }
     for(int ii = 0; ii < mMapSizeX; ++ii)

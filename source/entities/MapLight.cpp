@@ -109,11 +109,11 @@ std::vector<Tile*> MapLight::getCoveredTiles()
 
 Tile* MapLight::getCoveredTile(int index)
 {
-    OD_ASSERT_TRUE_MSG(index == 0, "name=" + getName()
-        + ", index=" + Helper::toString(index));
-
     if(index > 0)
+    {
+        OD_LOG_ERR("name=" + getName() + ", index=" + Helper::toString(index));
         return nullptr;
+    }
 
     return getPositionTile();
 }
@@ -215,9 +215,11 @@ void MapLight::pickup()
 {
     setIsOnMap(false);
     Tile* tile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
     if(tile == nullptr)
+    {
+        OD_LOG_ERR("entityName=" + getName());
         return;
+    }
     OD_ASSERT_TRUE(tile->removeEntity(this));
 }
 

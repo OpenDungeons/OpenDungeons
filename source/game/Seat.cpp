@@ -20,7 +20,6 @@
 #include "entities/Tile.h"
 #include "game/Player.h"
 #include "goals/Goal.h"
-#include "network/ODPacket.h"
 #include "rooms/RoomType.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
@@ -274,8 +273,17 @@ void Seat::notifyVisionOnTile(Tile* tile)
     if(!mPlayer->getIsHuman())
         return;
 
-    OD_ASSERT_TRUE_MSG(tile->getX() < static_cast<int>(mTilesStates.size()), "Tile=" + Tile::displayAsString(tile));
-    OD_ASSERT_TRUE_MSG(tile->getY() < static_cast<int>(mTilesStates[tile->getX()].size()), "Tile=" + Tile::displayAsString(tile));
+    if(tile->getX() >= static_cast<int>(mTilesStates.size()))
+    {
+        OD_LOG_ERR("Tile=" + Tile::displayAsString(tile));
+        return;
+    }
+    if(tile->getY() >= static_cast<int>(mTilesStates[tile->getX()].size()))
+    {
+        OD_LOG_ERR("Tile=" + Tile::displayAsString(tile));
+        return;
+    }
+
     TileStateNotified& tileState = mTilesStates[tile->getX()][tile->getY()];
     tileState.mVisionTurnCurrent = true;
 }
@@ -287,8 +295,17 @@ void Seat::notifyTileClaimedByEnemy(Tile* tile)
     if(!mPlayer->getIsHuman())
         return;
 
-    OD_ASSERT_TRUE_MSG(tile->getX() < static_cast<int>(mTilesStates.size()), "Tile=" + Tile::displayAsString(tile));
-    OD_ASSERT_TRUE_MSG(tile->getY() < static_cast<int>(mTilesStates[tile->getX()].size()), "Tile=" + Tile::displayAsString(tile));
+    if(tile->getX() >= static_cast<int>(mTilesStates.size()))
+    {
+        OD_LOG_ERR("Tile=" + Tile::displayAsString(tile));
+        return;
+    }
+    if(tile->getY() >= static_cast<int>(mTilesStates[tile->getX()].size()))
+    {
+        OD_LOG_ERR("Tile=" + Tile::displayAsString(tile));
+        return;
+    }
+
     TileStateNotified& tileState = mTilesStates[tile->getX()][tile->getY()];
 
     // By default, we set the tile like if it was not claimed anymore
@@ -301,10 +318,10 @@ const std::string Seat::getFactionFromLine(const std::string& line)
 {
     const uint32_t indexFactionInLine = 3;
     std::vector<std::string> elems = Helper::split(line, '\t');
-    OD_ASSERT_TRUE_MSG(elems.size() > indexFactionInLine, "line=" + line);
     if(elems.size() > indexFactionInLine)
         return elems[indexFactionInLine];
 
+    OD_LOG_ERR("line=" + line);
     return std::string();
 }
 

@@ -397,14 +397,20 @@ void Creature::importFromStream(std::istream& is)
     if(tempString != "none")
     {
         mWeaponL = getGameMap()->getWeapon(tempString);
-        OD_ASSERT_TRUE_MSG(mWeaponL != nullptr, "Unknown weapon name=" + tempString);
+        if(mWeaponL == nullptr)
+        {
+            OD_LOG_ERR("Unknown weapon name=" + tempString);
+        }
     }
 
     OD_ASSERT_TRUE(is >> tempString);
     if(tempString != "none")
     {
         mWeaponR = getGameMap()->getWeapon(tempString);
-        OD_ASSERT_TRUE_MSG(mWeaponR != nullptr, "Unknown weapon name=" + tempString);
+        if(mWeaponR == nullptr)
+        {
+            OD_LOG_ERR("Unknown weapon name=" + tempString);
+        }
     }
 
     OD_ASSERT_TRUE(is >> mResearchTypeDropDeath);
@@ -562,14 +568,20 @@ void Creature::importFromPacket(ODPacket& is)
     if(tempString != "none")
     {
         mWeaponL = getGameMap()->getWeapon(tempString);
-        OD_ASSERT_TRUE_MSG(mWeaponL != nullptr, "Unknown weapon name=" + tempString);
+        if(mWeaponL == nullptr)
+        {
+            OD_LOG_ERR("Unknown weapon name=" + tempString);
+        }
     }
 
     OD_ASSERT_TRUE(is >> tempString);
     if(tempString != "none")
     {
         mWeaponR = getGameMap()->getWeapon(tempString);
-        OD_ASSERT_TRUE_MSG(mWeaponR != nullptr, "Unknown weapon name=" + tempString);
+        if(mWeaponR == nullptr)
+        {
+            OD_LOG_ERR("Unknown weapon name=" + tempString);
+        }
     }
 
     uint32_t nbEffects;
@@ -714,32 +726,34 @@ void Creature::doUpkeep()
 
             // We drop what we are carrying
             Tile* myTile = getPositionTile();
-            OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
-            if(myTile != nullptr)
+            if(myTile == nullptr)
             {
-                if(mGoldCarried > 0)
-                {
-                    TreasuryObject* obj = new TreasuryObject(getGameMap(), true, mGoldCarried);
-                    obj->addToGameMap();
-                    Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(myTile->getX()),
-                                                static_cast<Ogre::Real>(myTile->getY()), 0.0f);
-                    obj->createMesh();
-                    obj->setPosition(spawnPosition, false);
-                }
-
-                if(mResearchTypeDropDeath != ResearchType::nullResearchType)
-                {
-                    ResearchEntity* researchEntity = new ResearchEntity(getGameMap(), getIsOnServerMap(),
-                        "DroppedBy" + getName(), mResearchTypeDropDeath);
-                    researchEntity->addToGameMap();
-                    Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(myTile->getX()),
-                                                static_cast<Ogre::Real>(myTile->getY()), 0.0f);
-                    researchEntity->createMesh();
-                    researchEntity->setPosition(spawnPosition, false);
-                }
-
-                // TODO: drop weapon when available
+                OD_LOG_ERR("name=" + getName());
+                return;
             }
+
+            if(mGoldCarried > 0)
+            {
+                TreasuryObject* obj = new TreasuryObject(getGameMap(), true, mGoldCarried);
+                obj->addToGameMap();
+                Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(myTile->getX()),
+                                            static_cast<Ogre::Real>(myTile->getY()), 0.0f);
+                obj->createMesh();
+                obj->setPosition(spawnPosition, false);
+            }
+
+            if(mResearchTypeDropDeath != ResearchType::nullResearchType)
+            {
+                ResearchEntity* researchEntity = new ResearchEntity(getGameMap(), getIsOnServerMap(),
+                    "DroppedBy" + getName(), mResearchTypeDropDeath);
+                researchEntity->addToGameMap();
+                Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(myTile->getX()),
+                                            static_cast<Ogre::Real>(myTile->getY()), 0.0f);
+                researchEntity->createMesh();
+                researchEntity->setPosition(spawnPosition, false);
+            }
+
+            // TODO: drop weapon when available
         }
         else if (mDeathCounter >= ConfigManager::getSingleton().getCreatureDeathCounter())
         {
@@ -892,7 +906,7 @@ void Creature::doUpkeep()
                     break;
 
                 default:
-                    LogManager::getSingleton().logMessage("ERROR:  Unhandled action type in Creature::doUpkeep():" + topActionItem.toString()
+                    OD_LOG_ERR("Unhandled action type in Creature::doUpkeep():" + topActionItem.toString()
                         + ", action=" + Helper::toString(static_cast<int>(topActionItem.getType())));
                     popAction();
                     loopBack = false;
@@ -901,7 +915,7 @@ void Creature::doUpkeep()
         }
         else
         {
-            LogManager::getSingleton().logMessage("ERROR:  Creature has empty action queue in doUpkeep(), this should not happen.");
+            OD_LOG_ERR("Creature has empty action queue in doUpkeep(), this should not happen.");
             loopBack = false;
         }
     } while (loopBack && loops < 20);
@@ -911,7 +925,7 @@ void Creature::doUpkeep()
 
     if(loops >= 20)
     {
-        LogManager::getSingleton().logMessage("> 20 loops in Creature::doUpkeep name:" + getName() +
+        OD_LOG_INF("> 20 loops in Creature::doUpkeep name:" + getName() +
                 " seat id: " + Helper::toString(getSeat()->getId()) + ". Breaking out..");
     }
 }
@@ -1671,6 +1685,12 @@ bool Creature::handleClaimWallTileAction(const CreatureAction& actionItem)
 
     // Find paths to all of the neighbor tiles for all of the visible wall tiles.
     std::vector<Tile*> wallTiles = getVisibleClaimableWallTiles();
+    if(wallTiles.empty())
+    {
+        mForceAction = forcedActionNone;
+        popAction();
+        return true;
+    }
 
     // Take the shortest path.
     unsigned int shortestPath = 10000;
@@ -2199,11 +2219,10 @@ bool Creature::handleEatingAction(const CreatureAction& actionItem)
 {
     // Current creature tile position
     Tile* myTile = getPositionTile();
-    OD_ASSERT_TRUE(myTile != nullptr);
     if(myTile == nullptr)
     {
+        OD_LOG_ERR("creature=" + getName());
         popAction();
-
         stopEating();
         return true;
     }
@@ -2265,7 +2284,11 @@ bool Creature::handleEatingAction(const CreatureAction& actionItem)
             // We eat the chicken
             std::vector<GameEntity*> chickens;
             closestChickenTile->fillWithChickenEntities(chickens);
-            OD_ASSERT_TRUE(!chickens.empty());
+            if(chickens.empty())
+            {
+                OD_LOG_ERR("name=" + getName());
+                return false;
+            }
             ChickenEntity* chicken = static_cast<ChickenEntity*>(chickens.at(0));
             chicken->eatChicken(this);
             foodEaten(ConfigManager::getSingleton().getRoomConfigDouble("HatcheryHungerPerChicken"));
@@ -2281,11 +2304,10 @@ bool Creature::handleEatingAction(const CreatureAction& actionItem)
 
         // We walk to the chicken
         std::list<Tile*> pathToChicken = getGameMap()->path(this, closestChickenTile);
-        OD_ASSERT_TRUE(!pathToChicken.empty());
         if(pathToChicken.empty())
         {
+            OD_LOG_ERR("creature=" + getName() + " empty path to chicken");
             popAction();
-
             stopEating();
             return true;
         }
@@ -2534,7 +2556,7 @@ bool Creature::handleFightAction(const CreatureAction& actionItem)
         }
 
         // We should not come here.
-        OD_ASSERT_TRUE(false);
+        OD_LOG_ERR("No reachable enemy found");
         return false;
     }
     // If there are no more enemies which are reachable, stop fighting.
@@ -2567,7 +2589,7 @@ bool Creature::handleFightAction(const CreatureAction& actionItem)
     }
 
     // We should not come here.
-    OD_ASSERT_TRUE(false);
+    OD_LOG_ERR("No enemy found");
     return false;
 }
 
@@ -2652,9 +2674,9 @@ bool Creature::handleFleeAction(const CreatureAction& actionItem)
 bool Creature::handleCarryableEntities(const CreatureAction& actionItem)
 {
     Tile* myTile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
     if(myTile == nullptr)
     {
+        OD_LOG_ERR("name=" + getName());
         popAction();
         return true;
     }
@@ -2787,7 +2809,13 @@ bool Creature::handleCarryableEntities(const CreatureAction& actionItem)
         uint32_t index = Random::Uint(0,availableEntities.size()-1);
         GameEntity* entity = availableEntities[index];
         Tile* t = entity->getPositionTile();
-        OD_ASSERT_TRUE_MSG(t != nullptr, "entity=" + entity->getName());
+        if(t == nullptr)
+        {
+            OD_LOG_ERR("entity=" + entity->getName());
+            popAction();
+            return true;
+        }
+
         if(!setDestination(t))
         {
             popAction();
@@ -2944,7 +2972,11 @@ bool Creature::handleFightAlliedNaturalEnemyAction(const CreatureAction& actionI
             stopEating();
 
             // And we attack
-            OD_ASSERT_TRUE_MSG(entityAttack->getObjectType() == GameEntityType::creature, "attacker=" + getName() + ", attacked=" + entityAttack->getName());
+            if(entityAttack->getObjectType() != GameEntityType::creature)
+            {
+                OD_LOG_ERR("attacker=" + getName() + ", attacked=" + entityAttack->getName() + ", type=" + Helper::toString(static_cast<uint32_t>(entityAttack->getObjectType())));
+                return false;
+            }
             Creature* attackedCreature = static_cast<Creature*>(entityAttack);
             attackedCreature->engageAlliedNaturalEnemy(this);
             pushAction(CreatureAction(CreatureActionType::attackObject, entityAttack->getObjectType(), entityAttack->getName(), tileAttack), false, true);
@@ -2980,9 +3012,11 @@ double Creature::getMoveSpeed() const
 
 double Creature::getMoveSpeed(Tile* tile) const
 {
-    OD_ASSERT_TRUE(tile != nullptr);
     if(tile == nullptr)
+    {
+        OD_LOG_ERR("creature=" + getName());
         return 1.0;
+    }
 
     switch(tile->getType())
     {
@@ -3075,9 +3109,11 @@ bool Creature::checkLevelUp()
     double newXP = mDefinition->getXPNeededWhenLevel(getLevel());
 
     // An error occurred
-    OD_ASSERT_TRUE(newXP > 0.0);
     if (newXP <= 0.0)
+    {
+        OD_LOG_ERR("creature=" + getName() + ", newXP=" + Helper::toString(newXP));
         return false;
+    }
 
     if (mExp < newXP)
         return false;
@@ -3099,7 +3135,7 @@ void Creature::refreshCreature(ODPacket& packet)
         Seat* seat = getGameMap()->getSeatById(seatId);
         if(seat == nullptr)
         {
-            OD_ASSERT_TRUE_MSG(false, "Creature " + getName() + ", wrong seatId=" + Helper::toString(seatId));
+            OD_LOG_ERR("Creature " + getName() + ", wrong seatId=" + Helper::toString(seatId));
         }
         else
         {
@@ -3377,11 +3413,11 @@ std::vector<Tile*> Creature::getCoveredTiles()
 
 Tile* Creature::getCoveredTile(int index)
 {
-    OD_ASSERT_TRUE_MSG(index == 0, "name=" + getName()
-        + ", index=" + Helper::toString(index));
-
     if(index > 0)
+    {
+        OD_LOG_ERR("name=" + getName() + ", index=" + Helper::toString(index));
         return nullptr;
+    }
 
     return getPositionTile();
 }
@@ -3616,7 +3652,7 @@ void Creature::popAction()
 {
     if(mActionQueue.empty())
     {
-        OD_ASSERT_TRUE_MSG(false, "Trying to popAction empty queue " + getName());
+        OD_LOG_ERR("Trying to popAction empty queue " + getName());
         return;
     }
 
@@ -3938,9 +3974,11 @@ EntityCarryType Creature::getEntityCarryType()
 void Creature::notifyEntityCarryOn(Creature* carrier)
 {
     Tile* myTile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
     if(myTile == nullptr)
+    {
+        OD_LOG_ERR("name=" + getName());
         return;
+    }
 
     setIsOnMap(false);
     myTile->removeEntity(this);
@@ -3952,9 +3990,11 @@ void Creature::notifyEntityCarryOff(const Ogre::Vector3& position)
     setIsOnMap(true);
 
     Tile* myTile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
     if(myTile == nullptr)
+    {
+        OD_LOG_ERR("name=" + getName());
         return;
+    }
 
     myTile->addEntity(this);
 }
@@ -3997,9 +4037,11 @@ void Creature::releaseCarriedEntity()
     mCarriedEntityDestType = GameEntityType::unknown;
     mCarriedEntityDestName.clear();
 
-    OD_ASSERT_TRUE_MSG(carriedEntity != nullptr, "name=" + getName());
     if(carriedEntity == nullptr)
+    {
+        OD_LOG_ERR("name=" + getName());
         return;
+    }
 
     const Ogre::Vector3& pos = getPosition();
     carriedEntity->notifyEntityCarryOff(pos);
@@ -4039,7 +4081,7 @@ void Creature::releaseCarriedEntity()
     {
         // We couldn't find the destination. This can happen if it has been destroyed while
         // we were carrying the entity
-        LogManager::getSingleton().logMessage("Couldn't carry entity=" + carriedEntity->getName()
+        OD_LOG_INF("Couldn't carry entity=" + carriedEntity->getName()
             + " to entity name=" + carriedEntityDestName);
         return;
     }
@@ -4050,9 +4092,11 @@ void Creature::releaseCarriedEntity()
 bool Creature::canSlap(Seat* seat)
 {
     Tile* tile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
     if(tile == nullptr)
+    {
+        OD_LOG_ERR("entityName=" + getName());
         return false;
+    }
 
     if(getHP() <= 0.0)
         return false;
@@ -4095,28 +4139,28 @@ void Creature::fireAddEntity(Seat* seat, bool async)
         exportToPacket(serverNotification.mPacket);
         ODServer::getSingleton().sendAsyncMsg(serverNotification);
 
-        OD_ASSERT_TRUE_MSG(mCarriedEntity == nullptr, "Trying to fire add creature in async mode name="
-            + getName() + " while carrying " + mCarriedEntity->getName());
-    }
-    else
-    {
-        ServerNotification* serverNotification = new ServerNotification(
-            ServerNotificationType::addEntity, seat->getPlayer());
-        exportHeadersToPacket(serverNotification->mPacket);
-        exportToPacket(serverNotification->mPacket);
-        ODServer::getSingleton().queueServerNotification(serverNotification);
-
         if(mCarriedEntity != nullptr)
         {
-            mCarriedEntity->addSeatWithVision(seat, false);
-
-            serverNotification = new ServerNotification(
-                ServerNotificationType::carryEntity, seat->getPlayer());
-            serverNotification->mPacket << getName() << mCarriedEntity->getObjectType();
-            serverNotification->mPacket << mCarriedEntity->getName();
-            ODServer::getSingleton().queueServerNotification(serverNotification);
+            OD_LOG_ERR("Trying to fire add creature in async mode name=" + getName() + " while carrying " + mCarriedEntity->getName());
         }
+        return;
+    }
 
+    ServerNotification* serverNotification = new ServerNotification(
+        ServerNotificationType::addEntity, seat->getPlayer());
+    exportHeadersToPacket(serverNotification->mPacket);
+    exportToPacket(serverNotification->mPacket);
+    ODServer::getSingleton().queueServerNotification(serverNotification);
+
+    if(mCarriedEntity != nullptr)
+    {
+        mCarriedEntity->addSeatWithVision(seat, false);
+
+        serverNotification = new ServerNotification(
+            ServerNotificationType::carryEntity, seat->getPlayer());
+        serverNotification->mPacket << getName() << mCarriedEntity->getObjectType();
+        serverNotification->mPacket << mCarriedEntity->getName();
+        ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 }
 
@@ -4200,7 +4244,11 @@ void Creature::setupDefinition(GameMap& gameMap, const CreatureDefinition& defau
                 mDefinition = getSeat()->getWorkerClassToSpawn();
         }
 
-        OD_ASSERT_TRUE_MSG(mDefinition != nullptr, "Definition=" + mDefinitionString);
+        if(mDefinition == nullptr)
+        {
+            OD_LOG_ERR("Definition=" + mDefinitionString);
+            return;
+        }
 
         if(getIsOnServerMap())
         {

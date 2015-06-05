@@ -72,8 +72,7 @@ ODServer::~ODServer()
 
 bool ODServer::startServer(const std::string& levelFilename, ServerMode mode)
 {
-    LogManager& logManager = LogManager::getSingleton();
-    logManager.logMessage("Asked to launch server with levelFilename=" + levelFilename);
+    OD_LOG_INF("Asked to launch server with levelFilename=" + levelFilename);
 
     mSeatsConfigured = false;
     mDisconnectedPlayers.clear();
@@ -82,13 +81,13 @@ bool ODServer::startServer(const std::string& levelFilename, ServerMode mode)
     // Start the server socket listener as well as the server socket thread
     if (isConnected())
     {
-        logManager.logMessage("Couldn't start server: The server is already connected");
+        OD_LOG_INF("Couldn't start server: The server is already connected");
         return false;
     }
     if ((ODClient::getSingletonPtr() != nullptr) &&
         ODClient::getSingleton().isConnected())
     {
-        logManager.logMessage("Couldn't start server: The client is already connected");
+        OD_LOG_INF("Couldn't start server: The client is already connected");
         return false;
     }
 
@@ -97,7 +96,7 @@ bool ODServer::startServer(const std::string& levelFilename, ServerMode mode)
     {
         mServerMode = ServerMode::ModeNone;
         mServerState = ServerState::StateNone;
-        logManager.logMessage("ERROR:  Server could not create server socket!");
+        OD_LOG_ERR("Server could not create server socket!");
         return false;
     }
 
@@ -110,7 +109,7 @@ bool ODServer::startServer(const std::string& levelFilename, ServerMode mode)
     {
         mServerMode = ServerMode::ModeNone;
         mServerState = ServerState::StateNone;
-        logManager.logMessage("Couldn't start server. The level file can't be loaded: " + levelFilename);
+        OD_LOG_INF("Couldn't start server. The level file can't be loaded: " + levelFilename);
         return false;
     }
     mUniqueNumberPlayer = 0;
@@ -342,7 +341,7 @@ void ODServer::startNewTurn(double timeSinceLastTurn)
             break;
         case ServerMode::ModeNone:
             // It is not normal to have no mode selected and starting turns
-            OD_ASSERT_TRUE(false);
+            OD_LOG_ERR("Wrong none server mode");
             break;
         default:
             break;
@@ -408,7 +407,7 @@ void ODServer::serverThread()
                 serverNotification->mPacket << static_cast<int64_t>(0);
                 queueServerNotification(serverNotification);
 
-                LogManager::getSingleton().logMessage("Server ready, starting game");
+                OD_LOG_INF("Server ready, starting game");
                 gameMap->setTurnNumber(0);
                 gameMap->setGamePaused(false);
 
@@ -480,14 +479,16 @@ void ODServer::processServerNotifications()
         ServerNotification *event = mServerNotificationQueue.front();
         mServerNotificationQueue.pop_front();
 
-        OD_ASSERT_TRUE(event != nullptr);
         if(event == nullptr)
+        {
+            OD_LOG_ERR("unexpected null event");
             continue;
+        }
 
         switch (event->mType)
         {
             case ServerNotificationType::turnStarted:
-                LogManager::getSingleton().logMessage("Server sends newturn="
+                OD_LOG_INF("Server sends newturn="
                     + boost::lexical_cast<std::string>(gameMap->getTurnNumber()));
                 sendMsg(event->mConcernedPlayer, event->mPacket);
                 break;
@@ -548,7 +549,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         if(std::string("ready").compare(clientSocket->getState()) != 0)
             return (status != ODSocketClient::ODComStatus::Error);
 
-        LogManager::getSingleton().logMessage("Disconnected player: " + clientSocket->getPlayer()->getNick());
+        OD_LOG_INF("Disconnected player: " + clientSocket->getPlayer()->getNick());
         // We notify
         uint32_t nbPlayers = 1;
         ODPacket packetSend;
@@ -580,7 +581,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             packetSend << ServerNotificationType::playerConfigChange;
             sendMsgToClient(otherHumanConnected, packetSend);
 
-            LogManager::getSingleton().logMessage("Changing game host to " + mPlayerConfig->getNick());
+            OD_LOG_INF("Changing game host to " + mPlayerConfig->getNick());
         }
         return (status != ODSocketClient::ODComStatus::Error);
     }
@@ -600,13 +601,13 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             // If the version is different, we refuse the client
             if(version.compare(std::string("OpenDungeons V ") + ODApplication::VERSION) != 0)
             {
-                LogManager::getSingleton().logMessage("Server rejected client. Application version mismatch: required= "
+                OD_LOG_INF("Server rejected client. Application version mismatch: required= "
                     + ODApplication::VERSION + ", received=" + version);
                 return false;
             }
 
             // Tell the client to load the given map
-            LogManager::getSingleton().logMessage("Level sent to client: " + gameMap->getLevelName());
+            OD_LOG_INF("Level sent to client: " + gameMap->getLevelName());
             setClientState(clientSocket, "loadLevel");
             int32_t mapSizeX = gameMap->getMapSizeX();
             int32_t mapSizeY = gameMap->getMapSizeY();
@@ -719,7 +720,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             clientSocket->setPlayer(curPlayer);
             setClientState(clientSocket, "ready");
 
-            LogManager::getSingleton().logMessage("Player id: " + Helper::toString(playerId) + " nickname is: " + clientNick);
+            OD_LOG_INF("Player id: " + Helper::toString(playerId) + " nickname is: " + clientNick);
 
             if(mServerMode != ServerMode::ModeEditor)
                 break;
@@ -727,9 +728,11 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             // On editor mode, we configure automatically seats
             mServerState = ServerState::StateGame;
             const std::vector<Seat*>& seats = gameMap->getSeats();
-            OD_ASSERT_TRUE(!seats.empty());
             if(seats.empty())
+            {
+                OD_LOG_ERR("unexpected empty seats in gamemap");
                 break;
+            }
 
             // By default, the first player to connect is the one allowed to configure game
             if(mPlayerConfig == nullptr)
@@ -772,14 +775,14 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             if(mPlayerConfig == nullptr)
             {
                 mPlayerConfig = clientSocket->getPlayer();
-                LogManager::getSingleton().logMessage("New player host: " + mPlayerConfig->getNick());
+                OD_LOG_INF("New player host: " + mPlayerConfig->getNick());
                 ODPacket packetSend;
                 packetSend << ServerNotificationType::playerConfigChange;
                 sendMsgToClient(clientSocket, packetSend);
             }
 
             ODPacket packetSend;
-            LogManager::getSingleton().logMessage("New player: " + clientSocket->getPlayer()->getNick());
+            OD_LOG_INF("New player: " + clientSocket->getPlayer()->getNick());
             // We notify to the newly connected player all the currently connected players (including himself)
             uint32_t nbPlayers = mSockClients.size();
             packetSend << ServerNotificationType::addPlayers << nbPlayers;
@@ -835,7 +838,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             if(seatToUse != nullptr)
             {
-                LogManager::getSingleton().logMessage("Player: " + clientSocket->getPlayer()->getNick() + " on seat " + Helper::toString(seatToUse->getId()));
+                OD_LOG_INF("Player: " + clientSocket->getPlayer()->getNick() + " on seat " + Helper::toString(seatToUse->getId()));
                 seatToUse->setConfigPlayerId(clientSocket->getPlayer()->getId());
                 fireSeatConfigurationRefresh();
             }
@@ -890,8 +893,11 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         case ClientNotificationType::seatConfigurationSet:
         {
             // We change server state to make sure no new client will be accepted
-            OD_ASSERT_TRUE_MSG(mServerState == ServerState::StateConfiguration, "Wrong server state="
-                + Helper::toString(static_cast<int>(mServerState)));
+            if(mServerState != ServerState::StateConfiguration)
+            {
+                OD_LOG_ERR("Wrong server state=" + Helper::toString(static_cast<int>(mServerState)));
+                break;
+            }
 
             bool isConfigured = true;
             for(Seat* seat : gameMap->getSeats())
@@ -903,19 +909,19 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 int seatId = seat->getId();
                 if(seat->getConfigPlayerId() == -1)
                 {
-                    LogManager::getSingleton().logMessage("ERROR: player not configured seatId=" + Helper::toString(seatId) + ", ConfigPlayerId=" + Helper::toString(seat->getConfigPlayerId()));
+                    OD_LOG_ERR("player not configured seatId=" + Helper::toString(seatId) + ", ConfigPlayerId=" + Helper::toString(seat->getConfigPlayerId()));
                     isConfigured = false;
                     break;
                 }
                 if(seat->getConfigTeamId() == -1)
                 {
-                    LogManager::getSingleton().logMessage("ERROR: player not configured seatId=" + Helper::toString(seatId) + ", ConfigTeamId=" + Helper::toString(seat->getConfigTeamId()));
+                    OD_LOG_ERR("player not configured seatId=" + Helper::toString(seatId) + ", ConfigTeamId=" + Helper::toString(seat->getConfigTeamId()));
                     isConfigured = false;
                     break;
                 }
                 if(seat->getConfigFactionIndex() == -1)
                 {
-                    LogManager::getSingleton().logMessage("ERROR: player not configured seatId=" + Helper::toString(seatId) + ", ConfigFactionIndex=" + Helper::toString(seat->getConfigFactionIndex()));
+                    OD_LOG_ERR("player not configured seatId=" + Helper::toString(seatId) + ", ConfigFactionIndex=" + Helper::toString(seat->getConfigFactionIndex()));
                     isConfigured = false;
                     break;
                 }
@@ -994,7 +1000,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 for(ODSocketClient* client : clientsToRemove)
                 {
                     Player* player = client->getPlayer();
-                    LogManager::getSingleton().logMessage("Rejecting player id="
+                    OD_LOG_INF("Rejecting player id="
                         + Helper::toString(player->getId())
                         + ", nick=" + player->getNick());
                     setClientState(client, "rejected");
@@ -1064,13 +1070,15 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             Player *player = clientSocket->getPlayer();
             GameEntity* entity = gameMap->getEntityFromTypeAndName(entityType, entityName);
-            OD_ASSERT_TRUE_MSG(entity != nullptr, "entityType=" + Helper::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
             if(entity == nullptr)
+            {
+                OD_LOG_ERR("entityType=" + Helper::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
                 break;
+            }
             bool allowPickup = entity->tryPickup(player->getSeat());
             if(!allowPickup)
             {
-                LogManager::getSingleton().logMessage("player=" + player->getNick()
+                OD_LOG_INF("player=" + player->getNick()
                         + " could not pickup entity entityType="
                         + Helper::toString(static_cast<int32_t>(entityType))
                         + ", entityName=" + entityName);
@@ -1085,21 +1093,20 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
         {
             Player *player = clientSocket->getPlayer();
             Tile* tile = gameMap->tileFromPacket(packetReceived);
-            OD_ASSERT_TRUE(tile != nullptr);
-            if(tile != nullptr)
+            if(tile == nullptr)
             {
-                if(player->isDropHandPossible(tile, 0))
-                {
-                    // We notify the players
-                    OD_ASSERT_TRUE(player->dropHand(tile, 0) != nullptr);
-                }
-                else
-                {
-                    LogManager::getSingleton().logMessage("player=" + player->getNick()
-                        + " could not drop entity in hand on tile "
-                        + Tile::displayAsString(tile));
-                }
+                OD_LOG_ERR("player seatId=" + Helper::toString(player->getSeat()->getId())
+                    + " send wrong tile");
+                break;
             }
+            if(!player->isDropHandPossible(tile, 0))
+            {
+                OD_LOG_ERR("player seatId=" + Helper::toString(player->getSeat()->getId())
+                    + " could not drop entity in hand on tile "
+                    + Tile::displayAsString(tile));
+                break;
+            }
+            player->dropHand(tile, 0);
             break;
         }
 
@@ -1145,14 +1152,15 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             Player* player = clientSocket->getPlayer();
             OD_ASSERT_TRUE(packetReceived >> entityType >> entityName);
             GameEntity* entity = gameMap->getEntityFromTypeAndName(entityType, entityName);
-            OD_ASSERT_TRUE_MSG(entity != nullptr, "entityType=" + Helper::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
             if(entity == nullptr)
+            {
+                OD_LOG_ERR("entityType=" + Helper::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
                 break;
-
+            }
 
             if(!entity->canSlap(player->getSeat()))
             {
-                LogManager::getSingleton().logMessage("player=" + player->getNick()
+                OD_LOG_INF("player=" + player->getNick()
                         + " could not slap entity entityType="
                         + Helper::toString(static_cast<int32_t>(entityType))
                         + ", entityName=" + entityName);
@@ -1168,10 +1176,9 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
         case ClientNotificationType::askBuildRoom:
         {
-            int x1, y1, x2, y2;
             RoomType type;
 
-            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> type);
+            OD_ASSERT_TRUE(packetReceived >> type);
             Player* player = clientSocket->getPlayer();
 
             // We check if the room is available. It is not normal to receive a message
@@ -1179,104 +1186,71 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             // available rooms
             if(!player->getSeat()->isRoomAvailable(type))
             {
-                LogManager::getSingleton().logMessage("WARNING: player " + player->getNick()
-                    + " asked to cast a spell not available: " + RoomManager::getRoomNameFromRoomType(type));
+                OD_LOG_INF("WARNING: player seatId=" + Helper::toString(player->getSeat()->getId())
+                    + " asked to build a room not available: " + RoomManager::getRoomNameFromRoomType(type));
                 break;
             }
 
-            std::vector<Tile*> tiles;
-            int price = RoomManager::getRoomCost(tiles, gameMap, type, x1, y1, x2, y2, player);
-            if(tiles.empty())
+            if(!RoomManager::buildRoom(gameMap, type, player, packetReceived))
+            {
+                OD_LOG_INF("WARNING: player seatId=" + Helper::toString(player->getSeat()->getId())
+                    + " couldn't build room: " + RoomManager::getRoomNameFromRoomType(type));
                 break;
-
-            if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
-                break;
-
-            RoomManager::buildRoom(gameMap, type, tiles, player->getSeat());
+            }
             break;
         }
 
         case ClientNotificationType::askSellRoomTiles:
         {
-            int x1, y1, x2, y2;
-
-            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2);
             Player* player = clientSocket->getPlayer();
-
-            std::vector<Tile*> tiles;
-            int goldRetrieved = RoomManager::getRefundPrice(tiles, gameMap, x1, y1, x2, y2, player);
-
-            if(tiles.empty())
-                break;
-
-            RoomManager::sellRoomTiles(gameMap, tiles);
-
-            // Note : no need to handle the free treasury tile because if there is no treasury tile, gold will be 0 anyway
-            gameMap->addGoldToSeat(goldRetrieved, player->getSeat()->getId());
+            RoomManager::sellRoomTiles(gameMap, player, packetReceived);
             break;
         }
 
         case ClientNotificationType::editorAskDestroyRoomTiles:
         {
-            OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
-                + Helper::toString(static_cast<int>(mServerMode)));
-            int x1, y1, x2, y2;
-
-            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2);
-            std::vector<Tile*> tiles = gameMap->rectangularRegion(x1, y1, x2, y2);
-
-            if(tiles.empty())
-                break;
-
-            std::vector<Tile*> sentTiles;
-            for(Tile* tile : tiles)
+            if(mServerMode != ServerMode::ModeEditor)
             {
-                if(tile->getCoveringRoom() == nullptr)
-                    continue;
-
-                sentTiles.push_back(tile);
+                OD_LOG_ERR("Received editor command while wrong mode mode"
+                    + Helper::toString(static_cast<int>(mServerMode)));
+                break;
             }
 
-            RoomManager::sellRoomTiles(gameMap, sentTiles);
+            RoomManager::sellRoomTilesEditor(gameMap, packetReceived);
             break;
         }
 
         case ClientNotificationType::askBuildTrap:
         {
-            int x1, y1, x2, y2;
             TrapType type;
 
-            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> type);
+            OD_ASSERT_TRUE(packetReceived >> type);
             Player* player = clientSocket->getPlayer();
 
-            // We check if the room is available. It is not normal to receive a message
-            // asking to build an unbuildable room since the client should only display
+            // We check if the trap is available. It is not normal to receive a message
+            // asking to build an unbuildable trap since the client should only display
             // available rooms
             if(!player->getSeat()->isTrapAvailable(type))
             {
-                LogManager::getSingleton().logMessage("WARNING: player " + player->getNick()
-                    + " asked to cast a spell not available: " + TrapManager::getTrapNameFromTrapType(type));
+                OD_LOG_INF("WARNING: player seatId=" + Helper::toString(player->getSeat()->getId())
+                    + " asked to build a trap not available: " + TrapManager::getTrapNameFromTrapType(type));
                 break;
             }
 
-            std::vector<Tile*> tiles;
-            int price = TrapManager::getTrapCost(tiles, gameMap, type, x1, y1, x2, y2, player);
-            if(tiles.empty())
+            if(!TrapManager::buildTrap(gameMap, type, player, packetReceived))
+            {
+                OD_LOG_INF("WARNING: player seatId=" + Helper::toString(player->getSeat()->getId())
+                    + " couldn't build trap: " + TrapManager::getTrapNameFromTrapType(type));
                 break;
-
-            if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
-                break;
-
-            TrapManager::buildTrap(gameMap, type, tiles, player->getSeat());
+            }
             break;
         }
 
         case ClientNotificationType::askCastSpell:
         {
-            int x1, y1, x2, y2;
             SpellType spellType;
 
-            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> spellType);
+            OD_ASSERT_TRUE(packetReceived >> spellType);
             Player* player = clientSocket->getPlayer();
 
             // We check if the spell is available. It is not normal to receive a message
@@ -1284,7 +1258,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             // available spells
             if(!player->getSeat()->isSpellAvailable(spellType))
             {
-                LogManager::getSingleton().logMessage("WARNING: player " + player->getNick()
+                OD_LOG_INF("WARNING: player " + player->getNick()
                     + " asked to cast a spell not available: " + SpellManager::getSpellNameFromSpellType(spellType));
                 break;
             }
@@ -1292,68 +1266,35 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             uint32_t cooldown = player->getSpellCooldownTurns(spellType);
             if(cooldown > 0)
             {
-                LogManager::getSingleton().logMessage("WARNING: player " + player->getNick()
+                OD_LOG_INF("WARNING: player " + player->getNick()
                     + " asked to cast a spell " + SpellManager::getSpellNameFromSpellType(spellType) + " before end of cooldown: "
                     + Helper::toString(cooldown));
                 break;
             }
 
-            std::vector<EntityBase*> targets;
-            int manaRequired = SpellManager::getSpellCost(targets, gameMap, spellType, x1, y1, x2, y2, player);
-
-            // If there are no suitable targets, we do not cast the spell (and, thus, do not decrease mana or trigger countdown
-            if(targets.empty())
+            if(!SpellManager::castSpell(gameMap, spellType, player, packetReceived))
                 break;
 
-            if(!player->getSeat()->takeMana(manaRequired))
-                break;
-
-            SpellManager::castSpell(mGameMap, spellType, targets, player);
             break;
         }
 
         case ClientNotificationType::askSellTrapTiles:
         {
-            int x1, y1, x2, y2;
-
-            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2);
             Player* player = clientSocket->getPlayer();
-
-            std::vector<Tile*> tiles;
-            int goldRetrieved = TrapManager::getRefundPrice(tiles, gameMap, x1, y1, x2, y2, player);
-
-            if(tiles.empty())
-                break;
-
-            TrapManager::sellTrapTiles(gameMap, tiles);
-
-            // Note : no need to handle the free treasury tile because if there is no treasury tile, gold will be 0 anyway
-            gameMap->addGoldToSeat(goldRetrieved, player->getSeat()->getId());
+            TrapManager::sellTrapTiles(gameMap, player->getSeat(), packetReceived);
             break;
         }
 
         case ClientNotificationType::editorAskDestroyTrapTiles:
         {
-            OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
-                + Helper::toString(static_cast<int>(mServerMode)));
-            int x1, y1, x2, y2;
-
-            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2);
-            std::vector<Tile*> tiles = gameMap->rectangularRegion(x1, y1, x2, y2);
-
-            if(tiles.empty())
-                break;
-
-            std::vector<Tile*> sentTiles;
-            for(Tile* tile : tiles)
+            if(mServerMode != ServerMode::ModeEditor)
             {
-                if(tile->getCoveringTrap() == nullptr)
-                    continue;
-
-                sentTiles.push_back(tile);
+                OD_LOG_ERR("Received editor command while wrong mode mode"
+                    + Helper::toString(static_cast<int>(mServerMode)));
+                break;
             }
 
-            TrapManager::sellTrapTiles(gameMap, sentTiles);
+            TrapManager::sellTrapTilesEditor(gameMap, packetReceived);
             break;
         }
 
@@ -1464,13 +1405,13 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                             else
                             {
                                 // We couldn't find any prefix. That's not normal
-                                OD_ASSERT_TRUE_MSG(false, "fileLevel=" + fileLevel);
+                                OD_LOG_ERR("fileLevel=" + fileLevel);
                                 ss << fileLevel;
                             }
                         }
                         break;
                     default:
-                        OD_ASSERT_TRUE_MSG(false, "mode=" + Helper::toString(static_cast<int>(mServerMode)));
+                        OD_LOG_ERR("mode=" + Helper::toString(static_cast<int>(mServerMode)));
                         ss << fileLevel;
                         break;
                 }
@@ -1492,8 +1433,11 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
         case ClientNotificationType::editorAskChangeTiles:
         {
-            OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
-                + Helper::toString(static_cast<int>(mServerMode)));
+            if(mServerMode != ServerMode::ModeEditor)
+            {
+                OD_LOG_ERR("Received editor command while wrong mode mode" + Helper::toString(static_cast<int>(mServerMode)));
+                break;
+            }
             int x1, y1, x2, y2;
             TileType tileType;
             double tileFullness;
@@ -1552,96 +1496,71 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
         case ClientNotificationType::editorAskBuildRoom:
         {
-            OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
-                + Helper::toString(static_cast<int>(mServerMode)));
-            int x1, y1, x2, y2;
-            int seatId;
+            if(mServerMode != ServerMode::ModeEditor)
+            {
+                OD_LOG_ERR("Received editor command while wrong mode mode"
+                    + Helper::toString(static_cast<int>(mServerMode)));
+                break;
+            }
             RoomType type;
 
-            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> type >> seatId);
-            Seat* seat = gameMap->getSeatById(seatId);
-            OD_ASSERT_TRUE_MSG(seat != nullptr, "seatId=" + Helper::toString(seatId));
-            std::vector<Tile*> selectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
-            std::vector<Tile*> tiles;
-            // We start by changing the tiles so that the room can be built
-            for(Tile* tile : selectedTiles)
+            OD_ASSERT_TRUE(packetReceived >> type);
+
+            Player* player = clientSocket->getPlayer();
+            if(!RoomManager::buildRoomEditor(gameMap, type, packetReceived))
             {
-                // We do not change tiles where there is something on the tile
-                if(tile->getCoveringBuilding() != nullptr)
-                    continue;
-                tiles.push_back(tile);
-
-                if((tile->getType() != TileType::gold) &&
-                   (tile->getType() != TileType::dirt))
-                {
-                    tile->setType(TileType::dirt);
-                }
-                tile->setFullness(0.0);
-                tile->claimTile(seat);
-                tile->computeTileVisual();
-            }
-
-            if(tiles.empty())
+                OD_LOG_INF("WARNING: player seatId=" + Helper::toString(player->getSeat()->getId())
+                    + " couldn't build room: " + RoomManager::getRoomNameFromRoomType(type));
                 break;
-
-            RoomManager::buildRoom(gameMap, type, tiles, seat);
+            }
             break;
         }
 
         case ClientNotificationType::editorAskBuildTrap:
         {
-            OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
-                + Helper::toString(static_cast<int>(mServerMode)));
-            int x1, y1, x2, y2;
-            int seatId;
+            if(mServerMode != ServerMode::ModeEditor)
+            {
+                OD_LOG_ERR("Received editor command while wrong mode mode"
+                    + Helper::toString(static_cast<int>(mServerMode)));
+                break;
+            }
             TrapType type;
 
-            OD_ASSERT_TRUE(packetReceived >> x1 >> y1 >> x2 >> y2 >> type >> seatId);
-            Seat* seat = gameMap->getSeatById(seatId);
-            OD_ASSERT_TRUE_MSG(seat != nullptr, "seatId=" + Helper::toString(seatId));
-            std::vector<Tile*> selectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
-            std::vector<Tile*> tiles;
-            // We start by changing the tiles so that the room can be built
-            for(Tile* tile : selectedTiles)
+            OD_ASSERT_TRUE(packetReceived >> type);
+
+            Player* player = clientSocket->getPlayer();
+            if(!TrapManager::buildTrapEditor(gameMap, type, packetReceived))
             {
-                // We do not change tiles where there is something on the tile
-                if(tile->getCoveringBuilding() != nullptr)
-                    continue;
-                tiles.push_back(tile);
-
-                if((tile->getType() != TileType::gold) &&
-                   (tile->getType() != TileType::dirt))
-                {
-                    tile->setType(TileType::dirt);
-                }
-                tile->setFullness(0.0);
-                tile->claimTile(seat);
-                tile->computeTileVisual();
-            }
-
-            if(tiles.empty())
+                OD_LOG_INF("WARNING: player seatId=" + Helper::toString(player->getSeat()->getId())
+                    + " couldn't build trap: " + TrapManager::getTrapNameFromTrapType(type));
                 break;
-
-            TrapManager::buildTrap(gameMap, type, tiles, seat);
+            }
             break;
         }
 
         case ClientNotificationType::editorCreateWorker:
         {
-            OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
-                + Helper::toString(static_cast<int>(mServerMode)));
+            if(mServerMode != ServerMode::ModeEditor)
+            {
+                OD_LOG_ERR("Received editor command while wrong mode mode" + Helper::toString(static_cast<int>(mServerMode)));
+                break;
+            }
             Player* player = clientSocket->getPlayer();
             int seatId;
             OD_ASSERT_TRUE(packetReceived >> seatId);
             Seat* seatCreature = gameMap->getSeatById(seatId);
-            OD_ASSERT_TRUE_MSG(seatCreature != nullptr, "seatId=" + Helper::toString(seatId));
             if(seatCreature == nullptr)
+            {
+                OD_LOG_ERR("seatId=" + Helper::toString(seatId));
                 break;
+            }
 
             const CreatureDefinition *classToSpawn = ConfigManager::getSingleton().getCreatureDefinitionDefaultWorker();
-            OD_ASSERT_TRUE(classToSpawn != nullptr);
             if(classToSpawn == nullptr)
+            {
+                OD_LOG_ERR("unexpected null classToSpawn for getCreatureDefinitionDefaultWorker");
                 break;
+            }
             Creature* newCreature = new Creature(gameMap, true, classToSpawn, seatCreature);
             newCreature->addToGameMap();
             // In editor mode, every player has vision
@@ -1661,18 +1580,27 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
         case ClientNotificationType::editorCreateFighter:
         {
-            OD_ASSERT_TRUE_MSG(mServerMode == ServerMode::ModeEditor, "Received editor command while wrong mode mode"
-                + Helper::toString(static_cast<int>(mServerMode)));
+            if(mServerMode != ServerMode::ModeEditor)
+            {
+                OD_LOG_ERR("Received editor command while wrong mode mode" + Helper::toString(static_cast<int>(mServerMode)));
+                break;
+            }
             Player* player = clientSocket->getPlayer();
             int seatId;
             std::string className;
             OD_ASSERT_TRUE(packetReceived >> seatId >> className);
             Seat* seatCreature = gameMap->getSeatById(seatId);
-            OD_ASSERT_TRUE_MSG(seatCreature != nullptr, "seatId=" + Helper::toString(seatId));
-            const CreatureDefinition *classToSpawn = gameMap->getClassDescription(className);
-            OD_ASSERT_TRUE_MSG(classToSpawn != nullptr, "Couldn't spawn creature class=" + className);
-            if(classToSpawn == nullptr)
+            if(seatCreature == nullptr)
+            {
+                OD_LOG_ERR("seatId=" + Helper::toString(seatId));
                 break;
+            }
+            const CreatureDefinition *classToSpawn = gameMap->getClassDescription(className);
+            if(classToSpawn == nullptr)
+            {
+                OD_LOG_ERR("Couldn't spawn creature class=" + className);
+                break;
+            }
             Creature* newCreature = new Creature(gameMap, true, classToSpawn, seatCreature);
             newCreature->addToGameMap();
             // In editor mode, every player has vision
@@ -1731,7 +1659,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
         default:
         {
-            LogManager::getSingleton().logMessage("ERROR:  Unhandled command received from client:"
+            OD_LOG_ERR("Unhandled command received from client:"
                 + Helper::toString(static_cast<int>(clientCommand)));
         }
     }
@@ -1741,16 +1669,12 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
 bool ODServer::notifyNewConnection(ODSocketClient *clientSocket)
 {
-    GameMap* gameMap = mGameMap;
-    if (gameMap == nullptr)
-        return false;
-
     switch(mServerState)
     {
         case ServerState::StateNone:
         {
             // It is not normal to receive new connexions while not connected. We are in an unexpected state
-            OD_ASSERT_TRUE(false);
+            OD_LOG_ERR("Unexpected none server mode");
             return false;
         }
         case ServerState::StateConfiguration:
@@ -1779,7 +1703,7 @@ bool ODServer::notifyClientMessage(ODSocketClient *clientSocket)
         std::string message = nick.empty() ?
                               "Client disconnected state=" + clientSocket->getState() :
                               "Client (" + nick + ") disconnected state=" + clientSocket->getState();
-        LogManager::getSingleton().logMessage(message);
+        OD_LOG_INF(message);
         if(std::string("ready").compare(clientSocket->getState()) == 0)
         {
             ServerNotification *serverNotification = new ServerNotification(

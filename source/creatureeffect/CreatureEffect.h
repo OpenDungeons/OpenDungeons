@@ -18,6 +18,7 @@
 #ifndef CREATUREEFFECT_H
 #define CREATUREEFFECT_H
 
+#include <cstdint>
 #include <istream>
 
 class Creature;

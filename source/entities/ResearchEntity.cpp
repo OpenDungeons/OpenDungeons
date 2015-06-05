@@ -61,9 +61,11 @@ const Ogre::Vector3& ResearchEntity::getScale() const
 void ResearchEntity::notifyEntityCarryOn(Creature* carrier)
 {
     Tile* myTile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
     if(myTile == nullptr)
+    {
+        OD_LOG_ERR("name=" + getName());
         return;
+    }
 
     setIsOnMap(false);
     setSeat(carrier->getSeat());
@@ -76,9 +78,11 @@ void ResearchEntity::notifyEntityCarryOff(const Ogre::Vector3& position)
     setIsOnMap(true);
 
     Tile* myTile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(myTile != nullptr, "name=" + getName());
     if(myTile == nullptr)
+    {
+        OD_LOG_ERR("name=" + getName());
         return;
+    }
 
     myTile->addEntity(this);
 }

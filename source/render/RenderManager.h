@@ -82,7 +82,6 @@ public:
     //!  moveWorldCoords sends the world coords where the map light is
     void moveCursor(float relX, float relY);
     void moveWorldCoords(Ogre::Real x, Ogre::Real y);
-    void setHoveredTile(int tileX, int tileY);
     void entitySlapped();
 
     static const Ogre::Real BLENDER_UNITS_PER_OGRE_UNIT;
@@ -136,6 +135,9 @@ public:
 
 private:
 
+    //! \brief Correctly places entities in hand next to the keeper hand
+    void rrOrderHand(Player* localPlayer);
+
     //! \brief Colorize the material with the corresponding team id color.
     //! \note If the material (wall tiles only) is marked for digging, a yellow color is added
     //! to the given color.
@@ -165,9 +167,8 @@ private:
     Ogre::RTShader::ShaderGenerator* mShaderGenerator;
 
     //! For the keeper hand
-    Ogre::Light* mHandLight;
-    Ogre::SceneNode* mHandSquareSelectorNode;
-    Ogre::SceneNode* mHandKeeperMesh;
+    Ogre::SceneNode* mHandKeeperNode;
+    Ogre::SceneNode* mHandKeeperPickupNode;
     Ogre::Radian mCurrentFOVy;
     Ogre::Real mFactorWidth;
     Ogre::Real mFactorHeight;
@@ -175,8 +176,7 @@ private:
     //! \brief True if the creatures are currently displaying their text overlay
     bool mCreatureTextOverlayDisplayed;
 
-    //! Bit array to allow to display tile selector/hand (= 0) or not (!= 0)
-    uint32_t mHandSquareSelectorVisibility;
+    //! Bit array to allow to display tile hand (= 0) or not (!= 0)
     uint32_t mHandKeeperHandVisibility;
 };
 

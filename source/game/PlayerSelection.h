@@ -63,6 +63,7 @@ public:
 
     inline void setNewSpellType(SpellType newSpellType)
     { mNewSpellType = newSpellType; }
+
 private:
     //! \brief Room, trap or Spell tile type the player has currently selected for an action
     RoomType mNewRoomType;

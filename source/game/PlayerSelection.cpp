@@ -17,6 +17,7 @@
 
 #include "game/PlayerSelection.h"
 
+#include "modes/InputCommand.h"
 #include "rooms/RoomType.h"
 #include "spells/SpellType.h"
 #include "traps/TrapType.h"

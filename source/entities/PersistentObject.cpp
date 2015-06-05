@@ -145,7 +145,10 @@ void PersistentObject::importFromPacket(ODPacket& is)
     RenderedMovableEntity::importFromPacket(is);
 
     mTile = getGameMap()->tileFromPacket(is);
-    OD_ASSERT_TRUE_MSG(mTile != nullptr, "name=" + getName());
+    if(mTile == nullptr)
+    {
+        OD_LOG_ERR("name=" + getName());
+    }
 }
 
 bool PersistentObject::notifyRemoveAsked()

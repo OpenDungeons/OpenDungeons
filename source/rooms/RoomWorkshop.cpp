@@ -22,15 +22,12 @@
 #include "entities/CreatureDefinition.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
-
+#include "game/Player.h"
 #include "gamemap/GameMap.h"
-
 #include "rooms/RoomManager.h"
-
 #include "traps/Trap.h"
 #include "traps/TrapManager.h"
 #include "traps/TrapType.h"
-
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
@@ -92,8 +89,11 @@ RenderedMovableEntity* RoomWorkshop::notifyActiveSpotCreated(ActiveSpotPlace pla
 
 void RoomWorkshop::absorbRoom(Room *r)
 {
-    OD_ASSERT_TRUE_MSG(r->getType() == getType(), "Trying to merge incompatible rooms: " + getName()
-        + ", with " + r->getName());
+    if(r->getType() != getType())
+    {
+        OD_LOG_ERR("Trying to merge incompatible rooms: " + getName() + ", type=" + RoomManager::getRoomNameFromRoomType(getType()) + ", with " + r->getName() + ", type=" + RoomManager::getRoomNameFromRoomType(r->getType()));
+        return;
+    }
     RoomWorkshop* roomAbs = static_cast<RoomWorkshop*>(r);
     mUnusedSpots.insert(mUnusedSpots.end(), roomAbs->mUnusedSpots.begin(), roomAbs->mUnusedSpots.end());
     roomAbs->mUnusedSpots.clear();
@@ -129,9 +129,12 @@ void RoomWorkshop::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
     }
 
     std::vector<Tile*>::iterator itEr = std::find(mUnusedSpots.begin(), mUnusedSpots.end(), tile);
-    OD_ASSERT_TRUE_MSG(itEr != mUnusedSpots.end(), "name=" + getName() + ", tile=" + Tile::displayAsString(tile));
-    if(itEr != mUnusedSpots.end())
-        mUnusedSpots.erase(itEr);
+    if(itEr == mUnusedSpots.end())
+    {
+        OD_LOG_ERR("name=" + getName() + ", tile=" + Tile::displayAsString(tile));
+        return;
+    }
+    mUnusedSpots.erase(itEr);
 }
 
 bool RoomWorkshop::hasOpenCreatureSpot(Creature* c)
@@ -167,9 +170,11 @@ bool RoomWorkshop::addCreatureUsingRoom(Creature* creature)
     {
         // We move to the good tile
         std::list<Tile*> pathToSpot = getGameMap()->path(creature, tileSpot);
-        OD_ASSERT_TRUE(!pathToSpot.empty());
         if(pathToSpot.empty())
+        {
+            OD_LOG_ERR("unexpected empty pathToSpot");
             return true;
+        }
 
         std::vector<Ogre::Vector3> path;
         Creature::tileToVector3(pathToSpot, path, true, 0.0);
@@ -188,9 +193,11 @@ void RoomWorkshop::removeCreatureUsingRoom(Creature* c)
     if(mCreaturesSpots.count(c) > 0)
     {
         Tile* tileSpot = mCreaturesSpots[c];
-        OD_ASSERT_TRUE(tileSpot != nullptr);
         if(tileSpot == nullptr)
+        {
+            OD_LOG_ERR("unexpected null tileSpot");
             return;
+        }
         mUnusedSpots.push_back(tileSpot);
         mCreaturesSpots.erase(c);
     }
@@ -299,21 +306,28 @@ void RoomWorkshop::doUpkeep()
         Tile* tileSpot = p.second;
         Tile* tileCreature = creature->getPositionTile();
         if(tileCreature == nullptr)
+        {
+            OD_LOG_ERR("unexpected null tileCreature");
             continue;
+        }
 
         Ogre::Real wantedX = -1;
         Ogre::Real wantedY = -1;
         getCreatureWantedPos(creature, tileSpot, wantedX, wantedY);
 
         RenderedMovableEntity* ro = getBuildingObjectFromTile(tileSpot);
-        OD_ASSERT_TRUE(ro != nullptr);
         if(ro == nullptr)
+        {
+            OD_LOG_ERR("unexpected null building object");
             continue;
+        }
         // We consider that the creature is in the good place if it is in the expected tile and not moving
         Tile* expectedDest = getGameMap()->getTile(Helper::round(wantedX), Helper::round(wantedY));
-        OD_ASSERT_TRUE_MSG(expectedDest != nullptr, "room=" + getName() + ", creature=" + creature->getName());
         if(expectedDest == nullptr)
+        {
+            OD_LOG_ERR("room=" + getName() + ", creature=" + creature->getName());
             continue;
+        }
         if((tileCreature == expectedDest) &&
            !creature->isMoving())
         {
@@ -367,9 +381,11 @@ void RoomWorkshop::doUpkeep()
 
     // We check if there is an empty tile to release the craftedTrap
     Tile* tileCraftedTrap = checkIfAvailableSpot();
-    OD_ASSERT_TRUE_MSG(tileCraftedTrap != nullptr, "room=" + getName());
     if(tileCraftedTrap == nullptr)
+    {
+        OD_LOG_ERR("room=" + getName());
         return;
+    }
 
     CraftedTrap* craftedTrap = new CraftedTrap(getGameMap(), true, getName(), mTrapType);
     craftedTrap->setSeat(getSeat());
@@ -459,16 +475,46 @@ RoomWorkshopTileData* RoomWorkshop::createTileData(Tile* tile)
     return new RoomWorkshopTileData;
 }
 
-int RoomWorkshop::getRoomCost(std::vector<Tile*>& tiles, GameMap* gameMap, RoomType type,
-    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+void RoomWorkshop::checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
 {
-    return getRoomCostDefault(tiles, gameMap, type, tileX1, tileY1, tileX2, tileY2, player);
+    checkBuildRoomDefault(gameMap, RoomType::workshop, inputManager, inputCommand);
 }
 
-void RoomWorkshop::buildRoom(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat* seat)
+bool RoomWorkshop::buildRoom(GameMap* gameMap, Player* player, ODPacket& packet)
+{
+    std::vector<Tile*> tiles;
+    if(!getRoomTilesDefault(tiles, gameMap, player, packet))
+        return false;
+
+    int32_t pricePerTarget = RoomManager::costPerTile(RoomType::workshop);
+    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+        return false;
+
+    RoomWorkshop* room = new RoomWorkshop(gameMap);
+    return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
+}
+
+bool RoomWorkshop::buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles)
+{
+    int32_t pricePerTarget = RoomManager::costPerTile(RoomType::crypt);
+    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+        return false;
+
+    RoomWorkshop* room = new RoomWorkshop(gameMap);
+    return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
+}
+
+void RoomWorkshop::checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
+{
+    checkBuildRoomDefaultEditor(gameMap, RoomType::workshop, inputManager, inputCommand);
+}
+
+bool RoomWorkshop::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
 {
     RoomWorkshop* room = new RoomWorkshop(gameMap);
-    buildRoomDefault(gameMap, room, tiles, seat);
+    return buildRoomDefaultEditor(gameMap, room, packet);
 }
 
 Room* RoomWorkshop::getRoomFromStream(GameMap* gameMap, std::istream& is)

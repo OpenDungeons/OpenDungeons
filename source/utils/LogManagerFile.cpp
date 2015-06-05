@@ -31,7 +31,7 @@ LogManagerFile::LogManagerFile(const std::string& userDataPath) :
     mFileLog.open(userDataPath);
 }
 
-void LogManagerFile::logMessage(const std::string& message, LogMessageLevel lml, bool maskDebug, bool addTimeStamp)
+void LogManagerFile::logMessage(const std::string& message, LogMessageLevel lml)
 {
     if(mLevel > lml)
         return;

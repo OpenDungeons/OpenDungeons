@@ -102,10 +102,11 @@ bool RoomDungeonTemple::hasCarryEntitySpot(GameEntity* carriedEntity)
 
 Tile* RoomDungeonTemple::askSpotForCarriedEntity(GameEntity* carriedEntity)
 {
-    OD_ASSERT_TRUE_MSG(carriedEntity->getObjectType() == GameEntityType::researchEntity,
-        "room=" + getName() + ", entity=" + carriedEntity->getName());
     if(carriedEntity->getObjectType() != GameEntityType::researchEntity)
+    {
+        OD_LOG_ERR("room=" + getName() + ", entity=" + carriedEntity->getName());
         return nullptr;
+    }
 
     // We accept any researchEntity
     return getCentralTile();
@@ -113,10 +114,11 @@ Tile* RoomDungeonTemple::askSpotForCarriedEntity(GameEntity* carriedEntity)
 
 void RoomDungeonTemple::notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEntity)
 {
-    OD_ASSERT_TRUE_MSG(carriedEntity->getObjectType() == GameEntityType::researchEntity,
-        "room=" + getName() + ", entity=" + carriedEntity->getName());
     if(carriedEntity->getObjectType() != GameEntityType::researchEntity)
+    {
+        OD_LOG_ERR("room=" + getName() + ", entity=" + carriedEntity->getName());
         return;
+    }
 
     // We check if the carrier is at the expected destination. If not on the wanted tile,
     // we don't accept the researchEntity
@@ -140,20 +142,20 @@ void RoomDungeonTemple::restoreInitialEntityState()
     // because it will empty the list
     if(mTempleObject == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "roomDungeonTemple=" + getName());
+        OD_LOG_ERR("roomDungeonTemple=" + getName());
         return;
     }
 
     Tile* tileTempleObject = mTempleObject->getPositionTile();
     if(tileTempleObject == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "roomDungeonTemple=" + getName() + ", mTempleObject=" + mTempleObject->getName());
+        OD_LOG_ERR("roomDungeonTemple=" + getName() + ", mTempleObject=" + mTempleObject->getName());
         return;
     }
     TileData* tileData = mTileData[tileTempleObject];
     if(tileData == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "roomDungeonTemple=" + getName() + ", tile=" + Tile::displayAsString(tileTempleObject));
+        OD_LOG_ERR("roomDungeonTemple=" + getName() + ", tile=" + Tile::displayAsString(tileTempleObject));
         return;
     }
 
@@ -167,16 +169,26 @@ void RoomDungeonTemple::restoreInitialEntityState()
     Room::restoreInitialEntityState();
 }
 
-int RoomDungeonTemple::getRoomCost(std::vector<Tile*>& tiles, GameMap* gameMap, RoomType type,
-    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+void RoomDungeonTemple::checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
 {
-    return getRoomCostDefault(tiles, gameMap, type, tileX1, tileY1, tileX2, tileY2, player);
+    // Not buildable in game mode
 }
 
-void RoomDungeonTemple::buildRoom(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat* seat)
+bool RoomDungeonTemple::buildRoom(GameMap* gameMap, Player* player, ODPacket& packet)
+{
+    // Not buildable in game mode
+    return false;
+}
+
+void RoomDungeonTemple::checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
+{
+    checkBuildRoomDefaultEditor(gameMap, RoomType::dungeonTemple, inputManager, inputCommand);
+}
+
+bool RoomDungeonTemple::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
 {
     RoomDungeonTemple* room = new RoomDungeonTemple(gameMap);
-    buildRoomDefault(gameMap, room, tiles, seat);
+    return buildRoomDefaultEditor(gameMap, room, packet);
 }
 
 Room* RoomDungeonTemple::getRoomFromStream(GameMap* gameMap, std::istream& is)

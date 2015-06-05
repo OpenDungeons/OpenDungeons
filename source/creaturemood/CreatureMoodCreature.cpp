@@ -46,5 +46,8 @@ int32_t CreatureMoodCreature::computeMood(const Creature* creature) const
 void CreatureMoodCreature::init(GameMap* gameMap)
 {
     mCreatureDefinition = gameMap->getClassDescription(mCreatureClass);
-    OD_ASSERT_TRUE_MSG(mCreatureDefinition != nullptr, "Unknown creature class=" + mCreatureClass);
+    if(mCreatureDefinition == nullptr)
+    {
+        OD_LOG_ERR("Unknown creature class=" + mCreatureClass);
+    }
 }

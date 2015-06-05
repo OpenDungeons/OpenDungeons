@@ -22,8 +22,11 @@
 #include <istream>
 #include <cstdint>
 
+class ClientNotification;
 class EntityBase;
 class GameMap;
+class InputCommand;
+class InputManager;
 class ODPacket;
 class Player;
 class Spell;
@@ -35,24 +38,21 @@ class SpellFunctions
 {
     friend class SpellManager;
 public:
-    typedef int (*GetSpellCostFunc)(std::vector<EntityBase*>& targets, GameMap* gameMap,
-        SpellType type, int tileX1, int tileY1, int tileX2, int tileY2, Player* player);
-    typedef void (*CastSpellFunc)(GameMap*, const std::vector<EntityBase*>&, Player*);
+    typedef void (*CheckSpellCastFunc)(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
+    typedef bool (*CastSpellFunc)(GameMap* gameMap, Player* player, ODPacket& packet);
     typedef Spell* (*GetSpellFromStreamFunc)(GameMap* gameMap, std::istream& is);
     typedef Spell* (*GetSpellFromPacketFunc)(GameMap* gameMap, ODPacket& is);
 
     SpellFunctions() :
-        mGetSpellCostFunc(nullptr),
+        mCheckSpellCastFunc(nullptr),
         mCastSpellFunc(nullptr),
         mGetSpellFromStreamFunc(nullptr),
         mGetSpellFromPacketFunc(nullptr)
     {}
 
-    int getSpellCostFunc(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
-        int tileX1, int tileY1, int tileX2, int tileY2, Player* player) const;
+    void checkSpellCastFunc(GameMap* gameMap, SpellType type, const InputManager& inputManager, InputCommand& inputCommand) const;
 
-    void castSpellFunc(GameMap* gameMap, SpellType type, const std::vector<EntityBase*>& targets,
-        Player* player) const;
+    bool castSpellFunc(GameMap* gameMap, SpellType type, Player* player, ODPacket& packet) const;
 
     Spell* getSpellFromStreamFunc(GameMap* gameMap, SpellType type, std::istream& is) const;
 
@@ -60,7 +60,7 @@ public:
 
 private:
     std::string mName;
-    GetSpellCostFunc mGetSpellCostFunc;
+    CheckSpellCastFunc mCheckSpellCastFunc;
     CastSpellFunc mCastSpellFunc;
     GetSpellFromStreamFunc mGetSpellFromStreamFunc;
     GetSpellFromPacketFunc mGetSpellFromPacketFunc;
@@ -70,19 +70,16 @@ private:
 class SpellManager
 {
 public:
-    //! Returns the spell cost required to cast the spell for the given player. targets will
-    //! be filled with the suitable targets. Note that if there are more targets than available mana,
-    //! most spells will fill targets until no more mana is left (chosen randomly between available
-    //! targets)
-    //! If no target is available, this function should return the mana needed for 1 target and
-    //! targets vector should be empty
-    //! Returns the mana the spell will cost. If < 0, it means the spell cannot be cast
-    static int getSpellCost(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
-        int tileX1, int tileY1, int tileX2, int tileY2, Player* player);
+    //! \brief Called on client side. It checks if the spell can be cast according to the given inputManager
+    //! for the given player. It should update the InputCommand to make sure it displays the correct
+    //! information (price, selection icon, ...).
+    //! An ODPacket should be sent to the server if the spell is validated with relevant data. On server side, castSpell
+    //! will be called with the data from the client and it should cast the spell if it is validated.
+    static void checkSpellCast(GameMap* gameMap, SpellType type, const InputManager& inputManager, InputCommand& inputCommand);
 
-    //! Casts the spell. In most of the cases, targets should be the vector filled by getSpellCost
-    static void castSpell(GameMap* gameMap, SpellType type, const std::vector<EntityBase*>& targets,
-        Player* player);
+    //! \brief Called on server side. Casts the spell according to the information in the packet
+    //! returns true if the spell was correctly cast and false otherwise
+    static bool castSpell(GameMap* gameMap, SpellType type, Player* player, ODPacket& packet);
 
     /*! \brief Exports the headers needed to recreate the Spell. It allows to extend Spells as much as wanted.
      * The content of the Spell will be exported by exportToPacket.
@@ -95,24 +92,29 @@ public:
 
     static SpellType getSpellTypeFromSpellName(const std::string& name);
 
+    /*! \brief Creates a ClientNotification to ask for creating a spell. It fills the packet with the needed data
+     * for the SpellManager to retrieve the spell (mainly the SpellType) so that the spells only have to handle their
+     * specific data.
+     */
+    static ClientNotification* createSpellClientNotification(SpellType type);
+
 private:
     static void registerSpell(SpellType type, const std::string& name,
-        SpellFunctions::GetSpellCostFunc getSpellCostFunc,
+        SpellFunctions::CheckSpellCastFunc checkSpellCastFunc,
         SpellFunctions::CastSpellFunc castSpellFunc,
         SpellFunctions::GetSpellFromStreamFunc getSpellFromStreamFunc,
         SpellFunctions::GetSpellFromPacketFunc getSpellFromPacketFunc);
 
     template <typename D>
-    static int getSpellCostReg(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
-        int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+    static void checkSpellCastReg(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
     {
-        return D::getSpellCost(targets, gameMap, type, tileX1, tileY1, tileX2, tileY2, player);
+        return D::checkSpellCast(gameMap, inputManager, inputCommand);
     }
 
     template <typename D>
-    static void castSpellReg(GameMap* gameMap, const std::vector<EntityBase*>& targets, Player* player)
+    static bool castSpellReg(GameMap* gameMap, Player* player, ODPacket& packet)
     {
-        D::castSpell(gameMap, targets, player);
+        return D::castSpell(gameMap, player, packet);
     }
 
     template <typename D>
@@ -136,7 +138,7 @@ class SpellManagerRegister
 public:
     SpellManagerRegister(SpellType spellType, const std::string& name)
     {
-        SpellManager::registerSpell(spellType, name, &SpellManager::getSpellCostReg<T>,
+        SpellManager::registerSpell(spellType, name, &SpellManager::checkSpellCastReg<T>,
             &SpellManager::castSpellReg<T>, &SpellManager::getSpellFromStreamReg<T>,
             &SpellManager::getSpellFromPacketReg<T>);
     }

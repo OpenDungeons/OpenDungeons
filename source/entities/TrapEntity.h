@@ -48,14 +48,10 @@ public:
     virtual TrapEntityType getTrapEntityType() const
     { return TrapEntityType::trapEntity; }
 
-    virtual bool isVisibleForSeat(Seat* seat);
+    virtual bool isVisibleForSeat(Seat* seat) override;
 
-    void seatsSawTriggering(const std::vector<Seat*>& seats);
     void seatSawTriggering(Seat* seat);
-    void notifySeatsWithVision(const std::vector<Seat*>& seats);
-
-    const std::vector<Seat*>& getSeatsNotHidden() const
-    { return mSeatsNotHidden; }
+    void notifySeatsWithVision(const std::vector<Seat*>& seats) override;
 
     virtual void exportHeadersToPacket(ODPacket& os) const override;
 

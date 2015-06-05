@@ -84,7 +84,7 @@ CameraManager::CameraManager(Ogre::SceneManager* sceneManager, TileContainer* gm
     setActiveCamera("RTS");
     setActiveCameraNode("RTS");
 
-    LogManager::getSingleton().logMessage("Created camera manager");
+    OD_LOG_INF("Created camera manager");
 }
 
 void CameraManager::createCamera(const Ogre::String& ss, double nearClip, double farClip)
@@ -99,7 +99,7 @@ void CameraManager::createCamera(const Ogre::String& ss, double nearClip, double
                                                   static_cast<Ogre::Real>(0)));
 
     mRegisteredCameraNames.insert(ss);
-    LogManager::getSingleton().logMessage("Creating " + ss + " camera...");
+    OD_LOG_INF("Creating " + ss + " camera...");
 }
 
 void CameraManager::createCameraNode(const Ogre::String& ss, Ogre::Vector3 xyz,
@@ -114,7 +114,7 @@ void CameraManager::createCameraNode(const Ogre::String& ss, Ogre::Vector3 xyz,
     node->setPosition(Ogre::Vector3(0,0,2) +  node->getPosition());
     mRegisteredCameraNodeNames.insert(ss);
 
-    LogManager::getSingleton().logMessage("Creating " + ss + "_node camera node...");
+    OD_LOG_INF("Creating " + ss + "_node camera node...");
 }
 
 void CameraManager::setNextDefaultView()
@@ -168,8 +168,7 @@ void CameraManager::createViewport(Ogre::RenderWindow* renderWindow)
 //    for(set<string>::iterator m_itr = mRegisteredCameraNames.begin(); m_itr != mRegisteredCameraNames.end() ; ++m_itr){
 //        Ogre::Camera* tmpCamera = getCamera(*m_itr);
 //    }
-    LogManager* logManager = LogManager::getSingletonPtr();
-    logManager->logMessage("Creating viewport...");
+    OD_LOG_INF("Creating viewport...");
 }
 
 Ogre::SceneNode* CameraManager::getActiveCameraNode()
@@ -179,8 +178,7 @@ Ogre::SceneNode* CameraManager::getActiveCameraNode()
 
 Ogre::SceneNode* CameraManager::setActiveCameraNode(const Ogre::String& ss)
 {
-    LogManager* logManager = LogManager::getSingletonPtr();
-    logManager->logMessage("Setting active camera node to " + ss + "_node ...");
+    OD_LOG_INF("Setting active camera node to " + ss + "_node ...");
 
     return mActiveCameraNode = mSceneManager->getSceneNode(ss + "_node");
 }
@@ -196,8 +194,7 @@ void CameraManager::setActiveCamera(const Ogre::String& ss)
     mViewport->setCamera(mActiveCamera);
     mActiveCamera->setAspectRatio(Ogre::Real(mViewport->getActualWidth()) / Ogre::Real(mViewport->getActualHeight()));
 
-    LogManager* logManager = LogManager::getSingletonPtr();
-    logManager->logMessage("Setting Active Camera to " + ss + " ...");
+    OD_LOG_INF("Setting Active Camera to " + ss + " ...");
 }
 
 void CameraManager::updateCameraFrameTime(const Ogre::Real frameTime)

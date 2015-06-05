@@ -19,6 +19,8 @@
 
 #include "entities/Tile.h"
 #include "entities/ChickenEntity.h"
+#include "game/Player.h"
+#include "gamemap/GameMap.h"
 #include "rooms/RoomManager.h"
 #include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
@@ -102,16 +104,46 @@ bool RoomHatchery::hasOpenCreatureSpot(Creature* c)
     return mNumActiveSpots > mCreaturesUsingRoom.size();
 }
 
-int RoomHatchery::getRoomCost(std::vector<Tile*>& tiles, GameMap* gameMap, RoomType type,
-    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+void RoomHatchery::checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
 {
-    return getRoomCostDefault(tiles, gameMap, type, tileX1, tileY1, tileX2, tileY2, player);
+    checkBuildRoomDefault(gameMap, RoomType::hatchery, inputManager, inputCommand);
 }
 
-void RoomHatchery::buildRoom(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat* seat)
+bool RoomHatchery::buildRoom(GameMap* gameMap, Player* player, ODPacket& packet)
+{
+    std::vector<Tile*> tiles;
+    if(!getRoomTilesDefault(tiles, gameMap, player, packet))
+        return false;
+
+    int32_t pricePerTarget = RoomManager::costPerTile(RoomType::hatchery);
+    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+        return false;
+
+    RoomHatchery* room = new RoomHatchery(gameMap);
+    return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
+}
+
+bool RoomHatchery::buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles)
+{
+    int32_t pricePerTarget = RoomManager::costPerTile(RoomType::hatchery);
+    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+        return false;
+
+    RoomHatchery* room = new RoomHatchery(gameMap);
+    return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
+}
+
+void RoomHatchery::checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
+{
+    checkBuildRoomDefaultEditor(gameMap, RoomType::hatchery, inputManager, inputCommand);
+}
+
+bool RoomHatchery::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
 {
     RoomHatchery* room = new RoomHatchery(gameMap);
-    buildRoomDefault(gameMap, room, tiles, seat);
+    return buildRoomDefaultEditor(gameMap, room, packet);
 }
 
 Room* RoomHatchery::getRoomFromStream(GameMap* gameMap, std::istream& is)

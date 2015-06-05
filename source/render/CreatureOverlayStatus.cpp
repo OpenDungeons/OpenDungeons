@@ -145,7 +145,7 @@ void CreatureOverlayStatus::updateStatus(Ogre::Real timeSincelastFrame)
             {
                 // We have looped without finding a fitting status. That is not normal since creature mood
                 // value is not 0 and we are supposed to have tried every bit
-                OD_ASSERT_TRUE_MSG(false, "mStatus=" + Helper::toString(mStatus) + ", CreatureOverlayMoodValue=" + Helper::toString(mCreature->getOverlayMoodValue()));
+                OD_LOG_ERR("mStatus=" + Helper::toString(mStatus) + ", CreatureOverlayMoodValue=" + Helper::toString(mCreature->getOverlayMoodValue()));
                 mStatus = 0;
                 return;
             }

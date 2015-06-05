@@ -19,6 +19,7 @@
 #define GAMEMODE_H
 
 #include "GameEditorModeBase.h"
+#include "modes/InputCommand.h"
 
 #include <CEGUI/EventArgs.h>
 
@@ -30,7 +31,7 @@ class Window;
 enum class SpellType;
 enum class ResearchType;
 
-class GameMode final : public GameEditorModeBase
+class GameMode final : public GameEditorModeBase, public InputCommand
 {
  public:
     GameMode(ModeManager*);
@@ -116,6 +117,12 @@ class GameMode final : public GameEditorModeBase
     //! \brief Refreshed the main ui data, such as mana, gold, ...
     void refreshMainUI();
 
+    void selectSquaredTiles(int tileX1, int tileY1, int tileX2, int tileY2) override;
+    void selectTiles(const std::vector<Tile*> tiles) override;
+    void unselectAllTiles() override;
+
+    void displayText(const Ogre::ColourValue& txtColour, const std::string& txt) override;
+
 protected:
     bool onClickYesQuitMenu(const CEGUI::EventArgs& /*arg*/);
 
@@ -139,10 +146,6 @@ private:
     //! \brief Sets whether a tile must marked or unmarked for digging.
     //! this value is based on the first marked flag tile selected.
     bool mDigSetBool;
-
-    //! \brief Stores the lastest mouse cursor and light positions.
-    int mMouseX;
-    int mMouseY;
 
     //! \brief Index of the event in the game event queue (for zooming automatically)
     uint32_t mIndexEvent;
@@ -169,6 +172,11 @@ private:
     //! \brief Tells whether the latest mouse click was made on a relevant CEGUI widget,
     //! and thus, the game should ignore it.
     bool isMouseDownOnCEGUIWindow();
+
+    //! \brief Called when there is a mouse input change
+    void checkInputCommand();
+    void handlePlayerActionNone();
+    void handlePlayerActionSelectTile();
 };
 
 #endif // GAMEMODE_H

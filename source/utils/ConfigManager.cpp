@@ -67,67 +67,67 @@ ConfigManager::ConfigManager(const std::string& configPath) :
         "Bed", 1, 2, Ogre::Vector3(0.04, 0.04, 0.04));
     if(!loadGlobalConfig(configPath))
     {
-        OD_ASSERT_TRUE(false);
+        OD_LOG_ERR("Couldn't read loadCreatureDefinitions");
         exit(1);
     }
     std::string fileName = configPath + mFilenameCreatureDefinition;
     if(!loadCreatureDefinitions(fileName))
     {
-        OD_ASSERT_TRUE(false);
+        OD_LOG_ERR("Couldn't read loadCreatureDefinitions");
         exit(1);
     }
     fileName = configPath + mFilenameEquipmentDefinition;
     if(!loadEquipements(fileName))
     {
-        OD_ASSERT_TRUE(false);
+        OD_LOG_ERR("Couldn't read loadEquipements");
         exit(1);
     }
     fileName = configPath + mFilenameSpawnConditions;
     if(!loadSpawnConditions(fileName))
     {
-        OD_ASSERT_TRUE(false);
+        OD_LOG_ERR("Couldn't read loadSpawnConditions");
         exit(1);
     }
     fileName = configPath + mFilenameFactions;
     if(!loadFactions(fileName))
     {
-        OD_ASSERT_TRUE(false);
+        OD_LOG_ERR("Couldn't read loadFactions");
         exit(1);
     }
     fileName = configPath + mFilenameRooms;
     if(!loadRooms(fileName))
     {
-        OD_ASSERT_TRUE(false);
+        OD_LOG_ERR("Couldn't read loadRooms");
         exit(1);
     }
     fileName = configPath + mFilenameTraps;
     if(!loadTraps(fileName))
     {
-        OD_ASSERT_TRUE(false);
+        OD_LOG_ERR("Couldn't read loadTraps");
         exit(1);
     }
     fileName = configPath + mFilenameSpells;
     if(!loadSpellConfig(fileName))
     {
-        OD_ASSERT_TRUE(false);
+        OD_LOG_ERR("Couldn't read loadSpellConfig");
         exit(1);
     }
     fileName = configPath + mFilenameCreaturesMood;
     if(!loadCreaturesMood(fileName))
     {
-        OD_ASSERT_TRUE(false);
+        OD_LOG_ERR("Couldn't read loadCreaturesMood");
         exit(1);
     }
     fileName = configPath + mFilenameResearches;
     if(!loadResearches(fileName))
     {
-        OD_ASSERT_TRUE(false);
+        OD_LOG_ERR("Couldn't read loadResearches");
         exit(1);
     }
     fileName = configPath + mFilenameTilesets;
     if(!loadTilesets(fileName))
     {
-        OD_ASSERT_TRUE(false);
+        OD_LOG_ERR("Couldn't read loadTilesets");
         exit(1);
     }
 }
@@ -185,7 +185,7 @@ bool ConfigManager::loadGlobalConfig(const std::string& configPath)
     std::string fileName = configPath + "global.cfg";
     if(!Helper::readFileWithoutComments(fileName, configFile))
     {
-        OD_ASSERT_TRUE_MSG(false, "Couldn't read " + fileName);
+        OD_LOG_ERR("Couldn't read " + fileName);
         return false;
     }
 
@@ -226,7 +226,7 @@ bool ConfigManager::loadGlobalConfig(const std::string& configPath)
 
     if(paramsOk != 0x07)
     {
-        OD_ASSERT_TRUE_MSG(false, "Not enough parameters for config file paramsOk=" + Helper::toString(paramsOk));
+        OD_LOG_ERR("Not enough parameters for config file paramsOk=" + Helper::toString(paramsOk));
         return false;
     }
 
@@ -247,7 +247,7 @@ bool ConfigManager::loadGlobalConfigDefinitionFiles(std::stringstream& configFil
 
         if(nextParam != "[ConfigFile]")
         {
-            OD_ASSERT_TRUE_MSG(false, "Wrong parameter read nextParam=" + nextParam);
+            OD_LOG_ERR("Wrong parameter read nextParam=" + nextParam);
             return false;
         }
 
@@ -281,7 +281,7 @@ bool ConfigManager::loadGlobalConfigDefinitionFiles(std::stringstream& configFil
 
         if(paramsOk != 0x03)
         {
-            OD_ASSERT_TRUE_MSG(false, "Missing parameters paramsOk=" + Helper::toString(paramsOk));
+            OD_LOG_ERR("Missing parameters paramsOk=" + Helper::toString(paramsOk));
             return false;
         }
 
@@ -339,7 +339,7 @@ bool ConfigManager::loadGlobalConfigDefinitionFiles(std::stringstream& configFil
 
     if(filesOk != 0x3FF)
     {
-        OD_ASSERT_TRUE_MSG(false, "Missing parameter file filesOk=" + Helper::toString(filesOk));
+        OD_LOG_ERR("Missing parameter file filesOk=" + Helper::toString(filesOk));
         return false;
     }
 
@@ -359,7 +359,7 @@ bool ConfigManager::loadGlobalConfigSeatColors(std::stringstream& configFile)
 
         if(nextParam != "[SeatColor]")
         {
-            OD_ASSERT_TRUE_MSG(false, "Wrong parameter read nextParam=" + nextParam);
+            OD_LOG_ERR("Wrong parameter read nextParam=" + nextParam);
             return false;
         }
 
@@ -389,7 +389,7 @@ bool ConfigManager::loadGlobalConfigSeatColors(std::stringstream& configFile)
                 double v = Helper::toDouble(nextParam);
                 if(v < 0.0 || v > 1.0)
                 {
-                    OD_ASSERT_TRUE_MSG(false, "Wrong parameter read nextParam=" + nextParam);
+                    OD_LOG_ERR("Wrong parameter read nextParam=" + nextParam);
                     return false;
                 }
                 colourValue.r = v;
@@ -403,7 +403,7 @@ bool ConfigManager::loadGlobalConfigSeatColors(std::stringstream& configFile)
                 double v = Helper::toDouble(nextParam);
                 if(v < 0.0 || v > 1.0)
                 {
-                    OD_ASSERT_TRUE_MSG(false, "Wrong parameter read nextParam=" + nextParam);
+                    OD_LOG_ERR("Wrong parameter read nextParam=" + nextParam);
                     return false;
                 }
                 colourValue.g = v;
@@ -417,7 +417,7 @@ bool ConfigManager::loadGlobalConfigSeatColors(std::stringstream& configFile)
                 double v = Helper::toDouble(nextParam);
                 if(v < 0.0 || v > 1.0)
                 {
-                    OD_ASSERT_TRUE_MSG(false, "Wrong parameter read nextParam=" + nextParam);
+                    OD_LOG_ERR("Wrong parameter read nextParam=" + nextParam);
                     return false;
                 }
                 colourValue.b = v;
@@ -428,7 +428,7 @@ bool ConfigManager::loadGlobalConfigSeatColors(std::stringstream& configFile)
 
         if(paramsOk != 0x0F)
         {
-            OD_ASSERT_TRUE_MSG(false, "Missing parameters paramsOk=" + Helper::toString(paramsOk));
+            OD_LOG_ERR("Missing parameters paramsOk=" + Helper::toString(paramsOk));
             return false;
         }
 
@@ -523,7 +523,7 @@ bool ConfigManager::loadGlobalGameConfig(std::stringstream& configFile)
 
     if(paramsOk != 0x01)
     {
-        OD_ASSERT_TRUE_MSG(false, "Missing parameters paramsOk=" + Helper::toString(paramsOk));
+        OD_LOG_ERR("Missing parameters paramsOk=" + Helper::toString(paramsOk));
         return false;
     }
 
@@ -532,11 +532,11 @@ bool ConfigManager::loadGlobalGameConfig(std::stringstream& configFile)
 
 bool ConfigManager::loadCreatureDefinitions(const std::string& fileName)
 {
-    LogManager::getSingleton().logMessage("Load creature definition file: " + fileName);
+    OD_LOG_INF("Load creature definition file: " + fileName);
     std::stringstream defFile;
     if(!Helper::readFileWithoutComments(fileName, defFile))
     {
-        OD_ASSERT_TRUE_MSG(false, "Couldn't read " + fileName);
+        OD_LOG_ERR("Couldn't read " + fileName);
         return false;
     }
 
@@ -545,7 +545,7 @@ bool ConfigManager::loadCreatureDefinitions(const std::string& fileName)
     defFile >> nextParam;
     if (nextParam != "[CreatureDefinitions]")
     {
-        OD_ASSERT_TRUE_MSG(false, "Invalid Creature classes start format. Line was " + nextParam);
+        OD_LOG_ERR("Invalid Creature classes start format. Line was " + nextParam);
         return false;
     }
 
@@ -563,7 +563,7 @@ bool ConfigManager::loadCreatureDefinitions(const std::string& fileName)
         // Seek the [Creature] tag
         if (nextParam != "[Creature]")
         {
-            OD_ASSERT_TRUE_MSG(false, "Invalid Creature classes start format. Line was " + nextParam);
+            OD_LOG_ERR("Invalid Creature classes start format. Line was " + nextParam);
             return false;
         }
 
@@ -571,7 +571,7 @@ bool ConfigManager::loadCreatureDefinitions(const std::string& fileName)
         CreatureDefinition* creatureDef = CreatureDefinition::load(defFile, mCreatureDefs);
         if (creatureDef == nullptr)
         {
-            OD_ASSERT_TRUE_MSG(false, "Invalid Creature classes start format");
+            OD_LOG_ERR("Invalid Creature classes start format");
             return false;
         }
         mCreatureDefs.emplace(creatureDef->getClassName(), creatureDef);
@@ -582,11 +582,11 @@ bool ConfigManager::loadCreatureDefinitions(const std::string& fileName)
 
 bool ConfigManager::loadEquipements(const std::string& fileName)
 {
-    LogManager::getSingleton().logMessage("Load weapon definition file: " + fileName);
+    OD_LOG_INF("Load weapon definition file: " + fileName);
     std::stringstream defFile;
     if(!Helper::readFileWithoutComments(fileName, defFile))
     {
-        OD_ASSERT_TRUE_MSG(false, "Couldn't read " + fileName);
+        OD_LOG_ERR("Couldn't read " + fileName);
         return false;
     }
 
@@ -595,7 +595,7 @@ bool ConfigManager::loadEquipements(const std::string& fileName)
     defFile >> nextParam;
     if (nextParam != "[EquipmentDefinitions]")
     {
-        OD_ASSERT_TRUE_MSG(false, "Invalid weapon start format. Line was " + nextParam);
+        OD_LOG_ERR("Invalid weapon start format. Line was " + nextParam);
         return false;
     }
 
@@ -612,7 +612,7 @@ bool ConfigManager::loadEquipements(const std::string& fileName)
 
         if (nextParam != "[Equipment]")
         {
-            OD_ASSERT_TRUE_MSG(false, "Invalid Weapon definition format. Line was " + nextParam);
+            OD_LOG_ERR("Invalid Weapon definition format. Line was " + nextParam);
             return false;
         }
 
@@ -620,7 +620,7 @@ bool ConfigManager::loadEquipements(const std::string& fileName)
         Weapon* weapon = Weapon::load(defFile);
         if (weapon == nullptr)
         {
-            OD_ASSERT_TRUE_MSG(false, "Invalid Weapon definition format");
+            OD_LOG_ERR("Invalid Weapon definition format");
             return false;
         }
         mWeapons.push_back(weapon);
@@ -631,11 +631,11 @@ bool ConfigManager::loadEquipements(const std::string& fileName)
 
 bool ConfigManager::loadSpawnConditions(const std::string& fileName)
 {
-    LogManager::getSingleton().logMessage("Load creature spawn conditions file: " + fileName);
+    OD_LOG_INF("Load creature spawn conditions file: " + fileName);
     std::stringstream defFile;
     if(!Helper::readFileWithoutComments(fileName, defFile))
     {
-        OD_ASSERT_TRUE_MSG(false, "Couldn't read " + fileName);
+        OD_LOG_ERR("Couldn't read " + fileName);
         return false;
     }
 
@@ -644,7 +644,7 @@ bool ConfigManager::loadSpawnConditions(const std::string& fileName)
     defFile >> nextParam;
     if (nextParam != "[SpawnConditions]")
     {
-        OD_ASSERT_TRUE_MSG(false, "Invalid creature spawn condition start format. Line was " + nextParam);
+        OD_LOG_ERR("Invalid creature spawn condition start format. Line was " + nextParam);
         return false;
     }
 
@@ -668,7 +668,7 @@ bool ConfigManager::loadSpawnConditions(const std::string& fileName)
 
         if (nextParam != "[SpawnCondition]")
         {
-            OD_ASSERT_TRUE_MSG(false, "Invalid creature spawn condition format. Line was " + nextParam);
+            OD_LOG_ERR("Invalid creature spawn condition format. Line was " + nextParam);
             return false;
         }
 
@@ -676,14 +676,14 @@ bool ConfigManager::loadSpawnConditions(const std::string& fileName)
                 break;
         if (nextParam != "CreatureClass")
         {
-            OD_ASSERT_TRUE_MSG(false, "Invalid creature spawn condition format. Line was " + nextParam);
+            OD_LOG_ERR("Invalid creature spawn condition format. Line was " + nextParam);
             return false;
         }
         defFile >> nextParam;
         const CreatureDefinition* creatureDefinition = getCreatureDefinition(nextParam);
         if(creatureDefinition == nullptr)
         {
-            OD_ASSERT_TRUE_MSG(false, "nextParam=" + nextParam);
+            OD_LOG_ERR("nextParam=" + nextParam);
             return false;
         }
 
@@ -697,7 +697,7 @@ bool ConfigManager::loadSpawnConditions(const std::string& fileName)
 
             if (nextParam != "[Condition]")
             {
-                OD_ASSERT_TRUE_MSG(false, "Invalid creature spawn condition format. nextParam=" + nextParam);
+                OD_LOG_ERR("Invalid creature spawn condition format. nextParam=" + nextParam);
                 return false;
             }
 
@@ -705,7 +705,7 @@ bool ConfigManager::loadSpawnConditions(const std::string& fileName)
             SpawnCondition* def = SpawnCondition::load(defFile);
             if (def == nullptr)
             {
-                OD_ASSERT_TRUE_MSG(false, "Invalid creature spawn condition format");
+                OD_LOG_ERR("Invalid creature spawn condition format");
                 return false;
             }
             mCreatureSpawnConditions[creatureDefinition].push_back(def);
@@ -717,11 +717,11 @@ bool ConfigManager::loadSpawnConditions(const std::string& fileName)
 
 bool ConfigManager::loadFactions(const std::string& fileName)
 {
-    LogManager::getSingleton().logMessage("Load factions file: " + fileName);
+    OD_LOG_INF("Load factions file: " + fileName);
     std::stringstream defFile;
     if(!Helper::readFileWithoutComments(fileName, defFile))
     {
-        OD_ASSERT_TRUE_MSG(false, "Couldn't read " + fileName);
+        OD_LOG_ERR("Couldn't read " + fileName);
         return false;
     }
 
@@ -730,7 +730,7 @@ bool ConfigManager::loadFactions(const std::string& fileName)
     defFile >> nextParam;
     if (nextParam != "[Factions]")
     {
-        OD_ASSERT_TRUE_MSG(false, "Invalid factions start format. Line was " + nextParam);
+        OD_LOG_ERR("Invalid factions start format. Line was " + nextParam);
         return false;
     }
 
@@ -744,7 +744,7 @@ bool ConfigManager::loadFactions(const std::string& fileName)
 
         if (nextParam != "[Faction]")
         {
-            OD_ASSERT_TRUE_MSG(false, "Invalid faction. Line was " + nextParam);
+            OD_LOG_ERR("Invalid faction. Line was " + nextParam);
             return false;
         }
 
@@ -768,7 +768,7 @@ bool ConfigManager::loadFactions(const std::string& fileName)
             }
             if(factionName.empty())
             {
-                OD_ASSERT_TRUE_MSG(false, "Empty or missing faction name is not allowed");
+                OD_LOG_ERR("Empty or missing faction name is not allowed");
                 return false;
             }
 
@@ -779,13 +779,13 @@ bool ConfigManager::loadFactions(const std::string& fileName)
             }
             if(workerClass.empty())
             {
-                OD_ASSERT_TRUE_MSG(false, "Empty or missing WorkerClass name is not allowed");
+                OD_LOG_ERR("Empty or missing WorkerClass name is not allowed");
                 return false;
             }
 
             if (nextParam != "[SpawnPool]")
             {
-                OD_ASSERT_TRUE_MSG(false, "Invalid faction. Line was " + nextParam);
+                OD_LOG_ERR("Invalid faction. Line was " + nextParam);
                 return false;
             }
 
@@ -812,9 +812,11 @@ bool ConfigManager::loadFactions(const std::string& fileName)
 
                 // We check if the creature definition exists
                 const CreatureDefinition* creatureDefinition = getCreatureDefinition(nextParam);
-                OD_ASSERT_TRUE_MSG(creatureDefinition != nullptr, "factionName=" + factionName + ", class=" + nextParam);
                 if(creatureDefinition == nullptr)
+                {
+                    OD_LOG_ERR("factionName=" + factionName + ", class=" + nextParam);
                     continue;
+                }
 
                 mFactionSpawnPool[factionName].push_back(nextParam);
             }
@@ -826,11 +828,11 @@ bool ConfigManager::loadFactions(const std::string& fileName)
 
 bool ConfigManager::loadRooms(const std::string& fileName)
 {
-    LogManager::getSingleton().logMessage("Load Rooms file: " + fileName);
+    OD_LOG_INF("Load Rooms file: " + fileName);
     std::stringstream defFile;
     if(!Helper::readFileWithoutComments(fileName, defFile))
     {
-        OD_ASSERT_TRUE_MSG(false, "Couldn't read " + fileName);
+        OD_LOG_ERR("Couldn't read " + fileName);
         return false;
     }
 
@@ -839,7 +841,7 @@ bool ConfigManager::loadRooms(const std::string& fileName)
     defFile >> nextParam;
     if (nextParam != "[Rooms]")
     {
-        OD_ASSERT_TRUE_MSG(false, "Invalid factions start format. Line was " + nextParam);
+        OD_LOG_ERR("Invalid factions start format. Line was " + nextParam);
         return false;
     }
 
@@ -859,11 +861,11 @@ bool ConfigManager::loadRooms(const std::string& fileName)
 
 bool ConfigManager::loadTraps(const std::string& fileName)
 {
-    LogManager::getSingleton().logMessage("Load traps file: " + fileName);
+    OD_LOG_INF("Load traps file: " + fileName);
     std::stringstream defFile;
     if(!Helper::readFileWithoutComments(fileName, defFile))
     {
-        OD_ASSERT_TRUE_MSG(false, "Couldn't read " + fileName);
+        OD_LOG_ERR("Couldn't read " + fileName);
         return false;
     }
 
@@ -872,7 +874,7 @@ bool ConfigManager::loadTraps(const std::string& fileName)
     defFile >> nextParam;
     if (nextParam != "[Traps]")
     {
-        OD_ASSERT_TRUE_MSG(false, "Invalid Traps start format. Line was " + nextParam);
+        OD_LOG_ERR("Invalid Traps start format. Line was " + nextParam);
         return false;
     }
 
@@ -892,11 +894,11 @@ bool ConfigManager::loadTraps(const std::string& fileName)
 
 bool ConfigManager::loadSpellConfig(const std::string& fileName)
 {
-    LogManager::getSingleton().logMessage("Load Spell config file: " + fileName);
+    OD_LOG_INF("Load Spell config file: " + fileName);
     std::stringstream defFile;
     if(!Helper::readFileWithoutComments(fileName, defFile))
     {
-        OD_ASSERT_TRUE_MSG(false, "Couldn't read " + fileName);
+        OD_LOG_ERR("Couldn't read " + fileName);
         return false;
     }
 
@@ -905,7 +907,7 @@ bool ConfigManager::loadSpellConfig(const std::string& fileName)
     defFile >> nextParam;
     if (nextParam != "[Spells]")
     {
-        OD_ASSERT_TRUE_MSG(false, "Invalid Spells start format. Line was " + nextParam);
+        OD_LOG_ERR("Invalid Spells start format. Line was " + nextParam);
         return false;
     }
 
@@ -925,11 +927,11 @@ bool ConfigManager::loadSpellConfig(const std::string& fileName)
 
 bool ConfigManager::loadCreaturesMood(const std::string& fileName)
 {
-    LogManager::getSingleton().logMessage("Load creature spawn conditions file: " + fileName);
+    OD_LOG_INF("Load creature spawn conditions file: " + fileName);
     std::stringstream defFile;
     if(!Helper::readFileWithoutComments(fileName, defFile))
     {
-        OD_ASSERT_TRUE_MSG(false, "Couldn't read " + fileName);
+        OD_LOG_ERR("Couldn't read " + fileName);
         return false;
     }
 
@@ -938,7 +940,7 @@ bool ConfigManager::loadCreaturesMood(const std::string& fileName)
     defFile >> nextParam;
     if (nextParam != "[CreaturesMood]")
     {
-        OD_ASSERT_TRUE_MSG(false, "Invalid creature spawn condition start format. Line was " + nextParam);
+        OD_LOG_ERR("Invalid creature spawn condition start format. Line was " + nextParam);
         return false;
     }
 
@@ -990,7 +992,7 @@ bool ConfigManager::loadCreaturesMood(const std::string& fileName)
 
         if (nextParam != "[CreatureMood]")
         {
-            OD_ASSERT_TRUE_MSG(false, "Invalid CreatureMood format. Line was " + nextParam);
+            OD_LOG_ERR("Invalid CreatureMood format. Line was " + nextParam);
             return false;
         }
 
@@ -998,7 +1000,7 @@ bool ConfigManager::loadCreaturesMood(const std::string& fileName)
                 break;
         if (nextParam != "CreatureMoodName")
         {
-            OD_ASSERT_TRUE_MSG(false, "Invalid CreatureMoodName format. Line was " + nextParam);
+            OD_LOG_ERR("Invalid CreatureMoodName format. Line was " + nextParam);
             return false;
         }
         std::string moodModifierName;
@@ -1015,7 +1017,7 @@ bool ConfigManager::loadCreaturesMood(const std::string& fileName)
 
             if (nextParam != "[MoodModifier]")
             {
-                OD_ASSERT_TRUE_MSG(false, "Invalid CreatureMood MoodModifier format. nextParam=" + nextParam);
+                OD_LOG_ERR("Invalid CreatureMood MoodModifier format. nextParam=" + nextParam);
                 return false;
             }
 
@@ -1023,7 +1025,7 @@ bool ConfigManager::loadCreaturesMood(const std::string& fileName)
             CreatureMood* def = CreatureMood::load(defFile);
             if (def == nullptr)
             {
-                OD_ASSERT_TRUE_MSG(false, "Invalid CreatureMood MoodModifier definition");
+                OD_LOG_ERR("Invalid CreatureMood MoodModifier definition");
                 return false;
             }
             moodModifiers.push_back(def);
@@ -1046,11 +1048,11 @@ bool ConfigManager::loadResearches(const std::string& fileName)
     int32_t pointsSpellCreatureHeal = 0;
     int32_t pointsSpellCreatureExplosion = 0;
 
-    LogManager::getSingleton().logMessage("Load Researches file: " + fileName);
+    OD_LOG_INF("Load Researches file: " + fileName);
     std::stringstream defFile;
     if(!Helper::readFileWithoutComments(fileName, defFile))
     {
-        OD_ASSERT_TRUE_MSG(false, "Couldn't read " + fileName);
+        OD_LOG_ERR("Couldn't read " + fileName);
         return false;
     }
 
@@ -1059,7 +1061,7 @@ bool ConfigManager::loadResearches(const std::string& fileName)
     defFile >> nextParam;
     if (nextParam != "[Researches]")
     {
-        OD_ASSERT_TRUE_MSG(false, "Invalid Researches start format. Line was " + nextParam);
+        OD_LOG_ERR("Invalid Researches start format. Line was " + nextParam);
         return false;
     }
 
@@ -1191,11 +1193,11 @@ bool ConfigManager::loadResearches(const std::string& fileName)
 
 bool ConfigManager::loadTilesets(const std::string& fileName)
 {
-    LogManager::getSingleton().logMessage("Load Tilesets file: " + fileName);
+    OD_LOG_INF("Load Tilesets file: " + fileName);
     std::stringstream defFile;
     if(!Helper::readFileWithoutComments(fileName, defFile))
     {
-        OD_ASSERT_TRUE_MSG(false, "Couldn't read " + fileName);
+        OD_LOG_ERR("Couldn't read " + fileName);
         return false;
     }
 
@@ -1203,7 +1205,7 @@ bool ConfigManager::loadTilesets(const std::string& fileName)
     defFile >> nextParam;
     if (nextParam != "[Tilesets]")
     {
-        OD_ASSERT_TRUE_MSG(false, "Invalid Tilesets start format. Line was " + nextParam);
+        OD_LOG_ERR("Invalid Tilesets start format. Line was " + nextParam);
         return false;
     }
 
@@ -1218,14 +1220,14 @@ bool ConfigManager::loadTilesets(const std::string& fileName)
 
         if (nextParam != "[Tileset]")
         {
-            OD_ASSERT_TRUE_MSG(false, "Expecting TileSet tag but got=" + nextParam);
+            OD_LOG_ERR("Expecting TileSet tag but got=" + nextParam);
             return false;
         }
 
         defFile >> nextParam;
         if (nextParam != "Name")
         {
-            OD_ASSERT_TRUE_MSG(false, "Expecting Name tag but got=" + nextParam);
+            OD_LOG_ERR("Expecting Name tag but got=" + nextParam);
             return false;
         }
 
@@ -1235,7 +1237,7 @@ bool ConfigManager::loadTilesets(const std::string& fileName)
         defFile >> nextParam;
         if (nextParam != "Scale")
         {
-            OD_ASSERT_TRUE_MSG(false, "Expecting Scale tag but got=" + nextParam);
+            OD_LOG_ERR("Expecting Scale tag but got=" + nextParam);
             return false;
         }
 
@@ -1250,7 +1252,7 @@ bool ConfigManager::loadTilesets(const std::string& fileName)
         defFile >> nextParam;
         if(nextParam != "[TileLink]")
         {
-            OD_ASSERT_TRUE_MSG(false, "Expecting TileLink tag but got=" + nextParam);
+            OD_LOG_ERR("Expecting TileLink tag but got=" + nextParam);
             return false;
         }
 
@@ -1263,7 +1265,7 @@ bool ConfigManager::loadTilesets(const std::string& fileName)
             TileVisual tileVisual1 = Tile::tileVisualFromString(nextParam);
             if(tileVisual1 == TileVisual::nullTileVisual)
             {
-                OD_ASSERT_TRUE_MSG(false, "Wrong TileVisual1 in tileset=" + nextParam);
+                OD_LOG_ERR("Wrong TileVisual1 in tileset=" + nextParam);
                 return false;
             }
 
@@ -1271,7 +1273,7 @@ bool ConfigManager::loadTilesets(const std::string& fileName)
             TileVisual tileVisual2 = Tile::tileVisualFromString(nextParam);
             if(tileVisual2 == TileVisual::nullTileVisual)
             {
-                OD_ASSERT_TRUE_MSG(false, "Wrong TileVisual2 in tileset=" + nextParam);
+                OD_LOG_ERR("Wrong TileVisual2 in tileset=" + nextParam);
                 return false;
             }
 
@@ -1303,7 +1305,7 @@ bool ConfigManager::loadTilesets(const std::string& fileName)
     // At least the default tileset should be defined
     if(mTileSets.count(DEFAULT_TILESET_NAME) <= 0)
     {
-        OD_ASSERT_TRUE_MSG(false, "No tileset defined with name=" + DEFAULT_TILESET_NAME);
+        OD_LOG_ERR("No tileset defined with name=" + DEFAULT_TILESET_NAME);
         return false;
     }
     return true;
@@ -1317,7 +1319,7 @@ bool ConfigManager::loadTilesetValues(std::istream& defFile, TileVisual tileVisu
     defFile >> nextParam;
     if (nextParam != beginTag)
     {
-        OD_ASSERT_TRUE_MSG(false, "Expecting " + beginTag + " tag but got=" + nextParam);
+        OD_LOG_ERR("Expecting " + beginTag + " tag but got=" + nextParam);
         return false;
     }
     while(true)
@@ -1349,7 +1351,7 @@ bool ConfigManager::loadTilesetValues(std::istream& defFile, TileVisual tileVisu
 
         if(index >= tileValues.size())
         {
-            OD_ASSERT_TRUE_MSG(false, "Tileset index too high in tileset=" + endTag + ", index=" + indexStr);
+            OD_LOG_ERR("Tileset index too high in tileset=" + endTag + ", index=" + indexStr);
             return false;
         }
 
@@ -1361,7 +1363,7 @@ const std::string& ConfigManager::getRoomConfigString(const std::string& param) 
 {
     if(mRoomsConfig.count(param) <= 0)
     {
-        OD_ASSERT_TRUE_MSG(false, "Unknown parameter param=" + param);
+        OD_LOG_ERR("Unknown parameter param=" + param);
         return EMPTY_STRING;
     }
 
@@ -1372,7 +1374,7 @@ uint32_t ConfigManager::getRoomConfigUInt32(const std::string& param) const
 {
     if(mRoomsConfig.count(param) <= 0)
     {
-        OD_ASSERT_TRUE_MSG(false, "Unknown parameter param=" + param);
+        OD_LOG_ERR("Unknown parameter param=" + param);
         return 0;
     }
 
@@ -1383,7 +1385,7 @@ int32_t ConfigManager::getRoomConfigInt32(const std::string& param) const
 {
     if(mRoomsConfig.count(param) <= 0)
     {
-        OD_ASSERT_TRUE_MSG(false, "Unknown parameter param=" + param);
+        OD_LOG_ERR("Unknown parameter param=" + param);
         return 0;
     }
 
@@ -1394,7 +1396,7 @@ double ConfigManager::getRoomConfigDouble(const std::string& param) const
 {
     if(mRoomsConfig.count(param) <= 0)
     {
-        OD_ASSERT_TRUE_MSG(false, "Unknown parameter param=" + param);
+        OD_LOG_ERR("Unknown parameter param=" + param);
         return 0.0;
     }
 
@@ -1405,7 +1407,7 @@ const std::string& ConfigManager::getTrapConfigString(const std::string& param) 
 {
     if(mTrapsConfig.count(param) <= 0)
     {
-        OD_ASSERT_TRUE_MSG(false, "Unknown parameter param=" + param);
+        OD_LOG_ERR("Unknown parameter param=" + param);
         return EMPTY_STRING;
     }
 
@@ -1416,7 +1418,7 @@ uint32_t ConfigManager::getTrapConfigUInt32(const std::string& param) const
 {
     if(mTrapsConfig.count(param) <= 0)
     {
-        OD_ASSERT_TRUE_MSG(false, "Unknown parameter param=" + param);
+        OD_LOG_ERR("Unknown parameter param=" + param);
         return 0;
     }
 
@@ -1427,7 +1429,7 @@ int32_t ConfigManager::getTrapConfigInt32(const std::string& param) const
 {
     if(mTrapsConfig.count(param) <= 0)
     {
-        OD_ASSERT_TRUE_MSG(false, "Unknown parameter param=" + param);
+        OD_LOG_ERR("Unknown parameter param=" + param);
         return 0;
     }
 
@@ -1438,7 +1440,7 @@ double ConfigManager::getTrapConfigDouble(const std::string& param) const
 {
     if(mTrapsConfig.count(param) <= 0)
     {
-        OD_ASSERT_TRUE_MSG(false, "Unknown parameter param=" + param);
+        OD_LOG_ERR("Unknown parameter param=" + param);
         return 0.0;
     }
 
@@ -1449,7 +1451,7 @@ const std::string& ConfigManager::getSpellConfigString(const std::string& param)
 {
     if(mSpellConfig.count(param) <= 0)
     {
-        OD_ASSERT_TRUE_MSG(false, "Unknown parameter param=" + param);
+        OD_LOG_ERR("Unknown parameter param=" + param);
         return EMPTY_STRING;
     }
 
@@ -1460,7 +1462,7 @@ uint32_t ConfigManager::getSpellConfigUInt32(const std::string& param) const
 {
     if(mSpellConfig.count(param) <= 0)
     {
-        OD_ASSERT_TRUE_MSG(false, "Unknown parameter param=" + param);
+        OD_LOG_ERR("Unknown parameter param=" + param);
         return 0;
     }
 
@@ -1471,7 +1473,7 @@ int32_t ConfigManager::getSpellConfigInt32(const std::string& param) const
 {
     if(mSpellConfig.count(param) <= 0)
     {
-        OD_ASSERT_TRUE_MSG(false, "Unknown parameter param=" + param);
+        OD_LOG_ERR("Unknown parameter param=" + param);
         return 0;
     }
 
@@ -1482,7 +1484,7 @@ double ConfigManager::getSpellConfigDouble(const std::string& param) const
 {
     if(mSpellConfig.count(param) <= 0)
     {
-        OD_ASSERT_TRUE_MSG(false, "Unknown parameter param=" + param);
+        OD_LOG_ERR("Unknown parameter param=" + param);
         return 0.0;
     }
 
@@ -1568,7 +1570,7 @@ const TileSet* ConfigManager::getTileSet(const std::string& tileSetName) const
     if(mTileSets.count(tileSetName) > 0)
         return mTileSets.at(tileSetName);
 
-    OD_ASSERT_TRUE_MSG(false, "Cannot find requested tileset name=" + tileSetName);
+    OD_LOG_ERR("Cannot find requested tileset name=" + tileSetName);
     // We return the default tileset
     return mTileSets.at(DEFAULT_TILESET_NAME);
 }

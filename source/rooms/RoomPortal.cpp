@@ -49,6 +49,11 @@ RoomPortal::RoomPortal(GameMap* gameMap) :
 
 void RoomPortal::absorbRoom(Room *r)
 {
+    if(r->getType() != getType())
+    {
+        OD_LOG_ERR("Trying to merge incompatible rooms: " + getName() + ", type=" + RoomManager::getRoomNameFromRoomType(getType()) + ", with " + r->getName() + ", type=" + RoomManager::getRoomNameFromRoomType(r->getType()));
+        return;
+    }
     RoomPortal* oldRoom = static_cast<RoomPortal*>(r);
     mClaimedValue += oldRoom->mClaimedValue;
     // We keep the number of creatures increased by this portal
@@ -195,7 +200,7 @@ void RoomPortal::spawnCreature()
     // Create a new creature and copy over the class-based creature parameters.
     Creature* newCreature = new Creature(getGameMap(), true, classToSpawn, getSeat(), Ogre::Vector3(xPos, yPos, 0.0f));
 
-    LogManager::getSingleton().logMessage("RoomPortal name=" + getName()
+    OD_LOG_INF("RoomPortal name=" + getName()
         + "spawns a creature class=" + classToSpawn->getClassName()
         + ", name=" + newCreature->getName() + ", seatId=" + Helper::toString(getSeat()->getId()));
 
@@ -235,20 +240,20 @@ void RoomPortal::restoreInitialEntityState()
     // because it will empty the list
     if(mPortalObject == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "roomPortal=" + getName());
+        OD_LOG_ERR("roomPortal=" + getName());
         return;
     }
 
     Tile* tilePortalObject = mPortalObject->getPositionTile();
     if(tilePortalObject == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "roomPortal=" + getName() + ", mPortalObject=" + mPortalObject->getName());
+        OD_LOG_ERR("roomPortal=" + getName() + ", mPortalObject=" + mPortalObject->getName());
         return;
     }
     TileData* tileData = mTileData[tilePortalObject];
     if(tileData == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "roomPortal=" + getName() + ", tile=" + Tile::displayAsString(tilePortalObject));
+        OD_LOG_ERR("roomPortal=" + getName() + ", tile=" + Tile::displayAsString(tilePortalObject));
         return;
     }
 
@@ -262,16 +267,26 @@ void RoomPortal::restoreInitialEntityState()
     Room::restoreInitialEntityState();
 }
 
-int RoomPortal::getRoomCost(std::vector<Tile*>& tiles, GameMap* gameMap, RoomType type,
-    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+void RoomPortal::checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
 {
-    return getRoomCostDefault(tiles, gameMap, type, tileX1, tileY1, tileX2, tileY2, player);
+    // Not buildable on game mode
 }
 
-void RoomPortal::buildRoom(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat* seat)
+bool RoomPortal::buildRoom(GameMap* gameMap, Player* player, ODPacket& packet)
+{
+    // Not buildable on game mode
+    return false;
+}
+
+void RoomPortal::checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
+{
+    return checkBuildRoomDefaultEditor(gameMap, RoomType::portal, inputManager, inputCommand);
+}
+
+bool RoomPortal::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
 {
     RoomPortal* room = new RoomPortal(gameMap);
-    buildRoomDefault(gameMap, room, tiles, seat);
+    return buildRoomDefaultEditor(gameMap, room, packet);
 }
 
 Room* RoomPortal::getRoomFromStream(GameMap* gameMap, std::istream& is)

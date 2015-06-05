@@ -137,7 +137,7 @@ public:
     bool isDropHandPossible(Tile *t, unsigned int index = 0);
 
     //! \brief Drops the creature on tile t. Returns the dropped creature
-    GameEntity* dropHand(Tile *t, unsigned int index = 0);
+    void dropHand(Tile *t, unsigned int index = 0);
 
     void rotateHand(Direction d);
 

@@ -191,7 +191,7 @@ bool MenuModeEditor::launchSelectedButtonPressed(const CEGUI::EventArgs&)
     // In single player mode, we act as a server
     if(!ODServer::getSingleton().startServer(level, ServerMode::ModeEditor))
     {
-        LogManager::getSingleton().logMessage("ERROR: Could not start server for editor !!!");
+        OD_LOG_ERR("Could not start server for editor !!!");
         tmpWin = getModeManager().getGui().getGuiSheet(Gui::editorMenu)->getChild(Gui::EDM_TEXT_LOADING);
         tmpWin->setText("ERROR: Could not start server for editor !!!");
         tmpWin->show();
@@ -199,7 +199,7 @@ bool MenuModeEditor::launchSelectedButtonPressed(const CEGUI::EventArgs&)
 
     if(!ODClient::getSingleton().connect("localhost", ConfigManager::getSingleton().getNetworkPort()))
     {
-        LogManager::getSingleton().logMessage("ERROR: Could not connect to server for editor !!!");
+        OD_LOG_ERR("Could not connect to server for editor !!!");
         tmpWin = getModeManager().getGui().getGuiSheet(Gui::editorMenu)->getChild(Gui::EDM_TEXT_LOADING);
         tmpWin->setText("Error: Couldn't connect to local server!");
         tmpWin->show();

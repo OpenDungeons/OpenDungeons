@@ -20,6 +20,7 @@
 #include "entities/Creature.h"
 #include "entities/SmallSpiderEntity.h"
 #include "entities/Tile.h"
+#include "game/Player.h"
 #include "gamemap/GameMap.h"
 #include "rooms/RoomManager.h"
 #include "utils/ConfigManager.h"
@@ -94,6 +95,11 @@ void RoomCrypt::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
 
 void RoomCrypt::absorbRoom(Room *r)
 {
+    if(r->getType() != getType())
+    {
+        OD_LOG_ERR("Trying to merge incompatible rooms: " + getName() + ", type=" + RoomManager::getRoomNameFromRoomType(getType()) + ", with " + r->getName() + ", type=" + RoomManager::getRoomNameFromRoomType(r->getType()));
+        return;
+    }
     RoomCrypt* rc = static_cast<RoomCrypt*>(r);
     mRottingCreatures.insert(rc->mRottingCreatures.begin(), rc->mRottingCreatures.end());
     rc->mRottingCreatures.clear();
@@ -154,9 +160,11 @@ void RoomCrypt::doUpkeep()
             mRottenPoints -= cryptPointsForSpawn;
             const std::string& className = configManager.getRoomConfigString("CryptSpawnClass");
             const CreatureDefinition* classToSpawn = getGameMap()->getClassDescription(className);
-            OD_ASSERT_TRUE_MSG(classToSpawn != nullptr, "className=" + className);
             if(classToSpawn == nullptr)
+            {
+                OD_LOG_ERR("className=" + className);
                 continue;
+            }
             // Create a new creature and copy over the class-based creature parameters.
             Creature* newCreature = new Creature(getGameMap(), true, classToSpawn, getSeat());
 
@@ -188,10 +196,11 @@ bool RoomCrypt::hasCarryEntitySpot(GameEntity* carriedEntity)
 
 Tile* RoomCrypt::askSpotForCarriedEntity(GameEntity* carriedEntity)
 {
-    OD_ASSERT_TRUE_MSG(carriedEntity->getObjectType() == GameEntityType::creature,
-        "room=" + getName() + ", entity=" + carriedEntity->getName());
     if(carriedEntity->getObjectType() != GameEntityType::creature)
+    {
+        OD_LOG_ERR("room=" + getName() + ", entity=" + carriedEntity->getName());
         return nullptr;
+    }
 
     Creature* creature = static_cast<Creature*>(carriedEntity);
     for(std::pair<Tile* const, std::pair<Creature*, int32_t> >& p : mRottingCreatures)
@@ -203,8 +212,7 @@ Tile* RoomCrypt::askSpotForCarriedEntity(GameEntity* carriedEntity)
             Tile* spot = p.first;
             Tile* t = getGameMap()->getTile(spot->getX() + OFFSET_TILE_X,
                 spot->getY() + OFFSET_TILE_Y);
-            OD_ASSERT_TRUE_MSG(t != nullptr, "room=" + getName() + ", spot="
-                + Tile::displayAsString(spot));
+            OD_ASSERT_TRUE_MSG(t != nullptr, "room=" + getName() + ", spot=" + Tile::displayAsString(spot));
             return t;
         }
     }
@@ -219,9 +227,9 @@ void RoomCrypt::notifyCarryingStateChanged(Creature* carrier, GameEntity* carrie
         {
             // We check if the carrier is at the expected destination
             Tile* carrierTile = carrier->getPositionTile();
-            OD_ASSERT_TRUE_MSG(carrierTile != nullptr, "carrier=" + carrier->getName());
             if(carrierTile == nullptr)
             {
+                OD_LOG_ERR("carrier=" + carrier->getName());
                 p.second.first = nullptr;
                 p.second.second = -1;
                 return;
@@ -238,14 +246,19 @@ void RoomCrypt::notifyCarryingStateChanged(Creature* carrier, GameEntity* carrie
             }
 
             // The carrier has brought the dead creature
-            OD_ASSERT_TRUE_MSG(carriedEntity->getObjectType() == GameEntityType::creature,
-                "room=" + getName() + ", entity=" + carriedEntity->getName());
+            if(carriedEntity->getObjectType() != GameEntityType::creature)
+            {
+                OD_LOG_ERR("room=" + getName() + ", entity=" + carriedEntity->getName());
+                return;
+            }
 
             Creature* deadCreature = static_cast<Creature*>(carriedEntity);
             Tile* tileDeadCreature = deadCreature->getPositionTile();
-            OD_ASSERT_TRUE_MSG(tileDeadCreature != nullptr, "deadCreature=" + deadCreature->getName());
             if(tileDeadCreature == nullptr)
+            {
+                OD_LOG_ERR("deadCreature=" + deadCreature->getName());
                 return;
+            }
             // Start rotting
             tileDeadCreature->removeEntity(deadCreature);
             deadCreature->setIsOnMap(false);
@@ -273,16 +286,46 @@ void RoomCrypt::importFromStream(std::istream& is)
     // We do not save rotten creatures. They will automatically be carried again by workers
 }
 
-int RoomCrypt::getRoomCost(std::vector<Tile*>& tiles, GameMap* gameMap, RoomType type,
-    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+void RoomCrypt::checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
 {
-    return getRoomCostDefault(tiles, gameMap, type, tileX1, tileY1, tileX2, tileY2, player);
+    checkBuildRoomDefault(gameMap, RoomType::crypt, inputManager, inputCommand);
 }
 
-void RoomCrypt::buildRoom(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat* seat)
+bool RoomCrypt::buildRoom(GameMap* gameMap, Player* player, ODPacket& packet)
+{
+    std::vector<Tile*> tiles;
+    if(!getRoomTilesDefault(tiles, gameMap, player, packet))
+        return false;
+
+    int32_t pricePerTarget = RoomManager::costPerTile(RoomType::crypt);
+    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+        return false;
+
+    RoomCrypt* room = new RoomCrypt(gameMap);
+    return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
+}
+
+void RoomCrypt::checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
+{
+    checkBuildRoomDefaultEditor(gameMap, RoomType::crypt, inputManager, inputCommand);
+}
+
+bool RoomCrypt::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
 {
     RoomCrypt* room = new RoomCrypt(gameMap);
-    buildRoomDefault(gameMap, room, tiles, seat);
+    return buildRoomDefaultEditor(gameMap, room, packet);
+}
+
+bool RoomCrypt::buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles)
+{
+    int32_t pricePerTarget = RoomManager::costPerTile(RoomType::crypt);
+    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+        return false;
+
+    RoomCrypt* room = new RoomCrypt(gameMap);
+    return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
 }
 
 Room* RoomCrypt::getRoomFromStream(GameMap* gameMap, std::istream& is)

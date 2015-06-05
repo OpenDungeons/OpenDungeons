@@ -54,7 +54,8 @@ Tile::Tile(GameMap* gameMap, bool isOnServerMap, int x, int y, TileType type, do
     mCoveringBuilding   (nullptr),
     mClaimedPercentage  (0.0),
     mScale              (Ogre::Vector3::ZERO),
-    mIsBuilding         (false),
+    mIsRoom             (false),
+    mIsTrap             (false),
     mLocalPlayerHasVision   (false),
     mGameMap(gameMap),
     mIsOnServerMap(isOnServerMap)
@@ -84,7 +85,11 @@ bool Tile::isDiggable(const Seat* seat) const
     }
 
     // Should be claimed tile
-    OD_ASSERT_TRUE_MSG(mTileVisual == TileVisual::claimedFull, "mTileVisual=" + tileVisualToString(mTileVisual));
+    if(mTileVisual != TileVisual::claimedFull)
+    {
+        OD_LOG_ERR("mTileVisual=" + tileVisualToString(mTileVisual));
+        return false;
+    }
 
     // If the wall is not claimed, it can be dug
     if(!isClaimed())
@@ -192,7 +197,7 @@ void Tile::exportToStream(std::ostream& os) const
 void Tile::exportToPacket(ODPacket& os) const
 {
     //Check to make sure this function is not called. Seat argument should be used instead
-    OD_ASSERT_TRUE_MSG(false, "tile=" + displayAsString(this));
+    OD_LOG_ERR("tile=" + displayAsString(this));
     throw std::runtime_error("ERROR: Wrong packet export function used for tile");
 }
 
@@ -422,9 +427,11 @@ double Tile::scaleDigRate(double digRate)
 
 Tile* Tile::getNeighbor(unsigned int index)
 {
-    OD_ASSERT_TRUE_MSG(index < mNeighbors.size(), "tile=" + displayAsString(this));
     if(index >= mNeighbors.size())
+    {
+        OD_LOG_ERR("tile=" + displayAsString(this) + ", index=" + Helper::toString(index) + ", size=" + Helper::toString(mNeighbors.size()));
         return nullptr;
+    }
 
     return mNeighbors[index];
 }
@@ -524,7 +531,7 @@ bool Tile::updateFloodFillFromTile(Seat* seat, FloodFillType type, Tile* tile)
         if(!logMsg)
         {
             logMsg = true;
-            OD_ASSERT_TRUE_MSG(false, "Wrong floodfill seat index seatId=" + Helper::toString(seat->getId())
+            OD_LOG_ERR("Wrong floodfill seat index seatId=" + Helper::toString(seat->getId())
                 + ", seatIndex=" + Helper::toString(seat->getTeamIndex()) + ", floodfillsize=" + Helper::toString(static_cast<uint32_t>(mFloodFillColor.size())));
         }
         return false;
@@ -538,7 +545,7 @@ bool Tile::updateFloodFillFromTile(Seat* seat, FloodFillType type, Tile* tile)
         if(!logMsg)
         {
             logMsg = true;
-            OD_ASSERT_TRUE_MSG(false, "Wrong floodfill seat index seatId=" + Helper::toString(seat->getId())
+            OD_LOG_ERR("Wrong floodfill seat index seatId=" + Helper::toString(seat->getId())
                 + ", intType=" + Helper::toString(intType) + ", floodfillsize=" + Helper::toString(static_cast<uint32_t>(values.size())));
         }
         return false;
@@ -562,7 +569,7 @@ void Tile::replaceFloodFill(Seat* seat, FloodFillType type, uint32_t newValue)
         if(!logMsg)
         {
             logMsg = true;
-            OD_ASSERT_TRUE_MSG(false, "Wrong floodfill seat index seatId=" + Helper::toString(seat->getId())
+            OD_LOG_ERR("Wrong floodfill seat index seatId=" + Helper::toString(seat->getId())
                 + ", seatIndex=" + Helper::toString(seat->getTeamIndex()) + ", floodfillsize=" + Helper::toString(static_cast<uint32_t>(mFloodFillColor.size())));
         }
         return;
@@ -576,7 +583,7 @@ void Tile::replaceFloodFill(Seat* seat, FloodFillType type, uint32_t newValue)
         if(!logMsg)
         {
             logMsg = true;
-            OD_ASSERT_TRUE_MSG(false, "Wrong floodfill seat index seatId=" + Helper::toString(seat->getId())
+            OD_LOG_ERR("Wrong floodfill seat index seatId=" + Helper::toString(seat->getId())
                 + ", intType=" + Helper::toString(intType) + ", floodfillsize=" + Helper::toString(static_cast<uint32_t>(values.size())));
         }
         return;
@@ -593,7 +600,7 @@ void Tile::copyFloodFillToOtherSeats(Seat* seatToCopy)
         if(!logMsg)
         {
             logMsg = true;
-            OD_ASSERT_TRUE_MSG(false, "Wrong floodfill seat index seatId=" + Helper::toString(seatToCopy->getId())
+            OD_LOG_ERR("Wrong floodfill seat index seatId=" + Helper::toString(seatToCopy->getId())
                 + ", seatIndex=" + Helper::toString(seatToCopy->getTeamIndex()) + ", floodfillsize=" + Helper::toString(static_cast<uint32_t>(mFloodFillColor.size())));
         }
         return;
@@ -626,7 +633,7 @@ void Tile::logFloodFill() const
             ++cpt;
         }
     }
-    LogManager::getSingleton().logMessage(str);
+    OD_LOG_INF(str);
 }
 
 bool Tile::isClaimedForSeat(const Seat* seat) const
@@ -692,7 +699,7 @@ bool Tile::hasChangedForSeat(Seat* seat) const
 
         return seatChanged.second;
     }
-    OD_ASSERT_TRUE_MSG(false, "Unknown seat id=" + Helper::toString(seat->getId()));
+    OD_LOG_ERR("Unknown seat id=" + Helper::toString(seat->getId()));
     return false;
 }
 
@@ -764,7 +771,7 @@ uint32_t Tile::getFloodFillValue(Seat* seat, FloodFillType type) const
         if(!logMsg)
         {
             logMsg = true;
-            OD_ASSERT_TRUE_MSG(false, "Wrong floodfill seat index seatId=" + Helper::toString(seat->getId())
+            OD_LOG_ERR("Wrong floodfill seat index seatId=" + Helper::toString(seat->getId())
                 + ", seatIndex=" + Helper::toString(seat->getTeamIndex()) + ", floodfillsize=" + Helper::toString(static_cast<uint32_t>(mFloodFillColor.size())));
         }
         return NO_FLOODFILL;
@@ -778,7 +785,7 @@ uint32_t Tile::getFloodFillValue(Seat* seat, FloodFillType type) const
         if(!logMsg)
         {
             logMsg = true;
-            OD_ASSERT_TRUE_MSG(false, "Wrong floodfill seat index seatId=" + Helper::toString(seat->getId())
+            OD_LOG_ERR("Wrong floodfill seat index seatId=" + Helper::toString(seat->getId())
                 + ", intType=" + Helper::toString(intType) + ", floodfillsize=" + Helper::toString(static_cast<uint32_t>(values.size())));
         }
         return NO_FLOODFILL;

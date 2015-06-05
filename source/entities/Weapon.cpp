@@ -68,9 +68,11 @@ bool Weapon::update(Weapon* weapon, std::stringstream& defFile)
         {
             defFile >> baseDefinition;
             const Weapon* def = ConfigManager::getSingleton().getWeapon(baseDefinition);
-            OD_ASSERT_TRUE_MSG(def != nullptr, "Couldn't find base class " + baseDefinition);
             if(def == nullptr)
+            {
+                OD_LOG_ERR("Couldn't find base class " + baseDefinition);
                 return false;
+            }
 
             *weapon = *def;
             continue;
@@ -143,7 +145,7 @@ bool Weapon::update(Weapon* weapon, std::stringstream& defFile)
 
     if (name.empty() || weapon->mMeshName.empty())
     {
-        OD_ASSERT_TRUE(false);
+        OD_LOG_ERR("name=" + name + ", weapon mesh name=" + weapon->mMeshName);
         return false;
     }
 

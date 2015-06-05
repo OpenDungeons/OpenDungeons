@@ -45,7 +45,7 @@ void CreatureSound::play(CreatureSoundType type, float x, float y, float z)
     uint32_t indexType = static_cast<uint32_t>(type);
     if(indexType >= static_cast<uint32_t>(CreatureSoundType::NUM_CREATURE_SOUNDS))
     {
-        OD_ASSERT_TRUE_MSG(false, "Wrong sound type=" + Helper::toString(indexType));
+        OD_LOG_ERR("Wrong sound type=" + Helper::toString(indexType));
         return;
     }
 

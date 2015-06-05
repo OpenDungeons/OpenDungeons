@@ -22,7 +22,11 @@
 #include <istream>
 #include <cstdint>
 
+class ClientNotification;
 class GameMap;
+class InputCommand;
+class InputManager;
+class ODPacket;
 class Player;
 class Room;
 class Seat;
@@ -30,53 +34,65 @@ class Tile;
 
 enum class RoomType;
 
-//! Class to gather functions used for rooms
+//! Class to gather functions used for rooms. Each room should define static functions allowing to handle them:
+//! - checkBuildRoom : called on client side to define the room data in GameMode
+//! - buildRoom : called on server side to create the room in GameMode
+//! - checkBuildRoomEditor : called on client side to define the room data in EditorMode
+//! - buildRoomEditor : called on server side to create the room in EditorMode
+//! - getRoomFromStream : called on server side when loading a level
 class RoomFunctions
 {
     friend class RoomManager;
 public:
-    typedef int (*GetRoomCostFunc)(std::vector<Tile*>& targets, GameMap* gameMap,
-        RoomType type, int tileX1, int tileY1, int tileX2, int tileY2, Player* player);
-    typedef void (*BuildRoomFunc)(GameMap*, const std::vector<Tile*>&, Seat*);
+    typedef void (*CheckBuildRoomFunc)(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
+    typedef bool (*BuildRoomFunc)(GameMap* gameMap, Player* player, ODPacket& packet);
+    typedef bool (*BuildRoomEditorFunc)(GameMap* gameMap, ODPacket& packet);
     typedef Room* (*GetRoomFromStreamFunc)(GameMap* gameMap, std::istream& is);
 
     RoomFunctions() :
-        mGetRoomCostFunc(nullptr),
+        mCheckBuildRoomFunc(nullptr),
         mBuildRoomFunc(nullptr),
+        mCheckBuildRoomEditorFunc(nullptr),
+        mBuildRoomEditorFunc(nullptr),
         mGetRoomFromStreamFunc(nullptr)
     {}
 
-    int getRoomCostFunc(std::vector<Tile*>& targets, GameMap* gameMap, RoomType type,
-        int tileX1, int tileY1, int tileX2, int tileY2, Player* player) const;
+    void checkBuildRoomFunc(GameMap* gameMap, RoomType type, const InputManager& inputManager, InputCommand& inputCommand) const;
 
-    void buildRoomFunc(GameMap* gameMap, RoomType type, const std::vector<Tile*>& targets,
-        Seat* seat) const;
+    bool buildRoomFunc(GameMap* gameMap, RoomType type, Player* player, ODPacket& packet) const;
+
+    void checkBuildRoomEditorFunc(GameMap* gameMap, RoomType type, const InputManager& inputManager, InputCommand& inputCommand) const;
+
+    bool buildRoomEditorFunc(GameMap* gameMap, RoomType type, ODPacket& packet) const;
 
     Room* getRoomFromStreamFunc(GameMap* gameMap, RoomType type, std::istream& is) const;
 
 private:
     std::string mName;
-    GetRoomCostFunc mGetRoomCostFunc;
+    CheckBuildRoomFunc mCheckBuildRoomFunc;
     BuildRoomFunc mBuildRoomFunc;
+    CheckBuildRoomFunc mCheckBuildRoomEditorFunc;
+    BuildRoomEditorFunc mBuildRoomEditorFunc;
     GetRoomFromStreamFunc mGetRoomFromStreamFunc;
-
 };
 
 class RoomManager
 {
 public:
-    //! Returns the Room cost required to build the room for the given player. targets will
-    //! be filled with the suitable tiles. Note that if there are more targets than available gold,
-    //! most rooms will fail to build.
-    //! If no target is available, this function should return the gold needed for 1 target and
-    //! targets vector should be empty
-    //! Returns the gold price the room will cost. If < 0, it means the room cannot be built
-    static int getRoomCost(std::vector<Tile*>& targets, GameMap* gameMap, RoomType type,
-        int tileX1, int tileY1, int tileX2, int tileY2, Player* player);
+    //! \brief Called on client side. It should check if the room can be built according to the given inputManager
+    //! for the given player. It should update the InputCommand to make sure it displays the correct
+    //! information (price, selection icon, ...).
+    //! An ODPacket should be sent to the server if the room is validated with relevant data. On server side, buildRoom
+    //! will be called with the data from the client and it build the room if it is validated.
+    static void checkBuildRoom(GameMap* gameMap, RoomType type, const InputManager& inputManager, InputCommand& inputCommand);
 
-    //! Builds the Room. In most of the cases, targets should be the vector filled by getRoomCost
-    static void buildRoom(GameMap* gameMap, RoomType type, const std::vector<Tile*>& targets,
-        Seat* seat);
+    //! \brief Called on server side. Builds the room according to the information in the packet
+    //! returns true if the room was correctly built and false otherwise
+    static bool buildRoom(GameMap* gameMap, RoomType type, Player* player, ODPacket& packet);
+
+    //! \brief Same as previous functions but for EditorMode
+    static void checkBuildRoomEditor(GameMap* gameMap, RoomType type, const InputManager& inputManager, InputCommand& inputCommand);
+    static bool buildRoomEditor(GameMap* gameMap, RoomType type, ODPacket& packet);
 
     /*! \brief Exports the headers needed to recreate the Room. It allows to extend Rooms as much as wanted.
      * The content of the Room will be exported by exportToStream.
@@ -87,32 +103,61 @@ public:
 
     static RoomType getRoomTypeFromRoomName(const std::string& name);
 
-    //! Returns the price the player will get back if he sells the rooms in the selected area. If < 0,
-    //! it means that the rooms cannot be sold
-    static int getRefundPrice(std::vector<Tile*>& tiles, GameMap* gameMap,
-        int tileX1, int tileY1, int tileX2, int tileY2, Player* player);
+    //! \brief Called on client side. It should check if there are room tiles to sell according
+    //! to the given inputManager for the given player. It should update the InputCommand to make
+    //! sure it displays the correct information (returned price, selection icon, ...).
+    //! An ODPacket should be sent to the server if the action is validated with relevant data. On server side,
+    //! sellRoomTiles will be called with the data from the client and it should sell the tiles if it is validated.
+    static void checkSellRoomTiles(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
 
-    static void sellRoomTiles(GameMap* gameMap, const std::vector<Tile*>& tiles);
+    //! \brief Called on server side. Sells room tiles according to the information in the packet
+    static void sellRoomTiles(GameMap* gameMap, Player* player, ODPacket& packet);
+
+    //! \brief Same as above functions but for Editor mode
+    static void checkSellRoomTilesEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
+    static void sellRoomTilesEditor(GameMap* gameMap, ODPacket& packet);
+
+    static std::string formatSellRoom(int price);
 
     static int costPerTile(RoomType t);
 
+    /*! \brief Creates a ClientNotification to ask for creating a room. It fills the packet with the needed data
+     * for the RoomManager to retrieve the spell (mainly the RoomType) so that the rooms only have to handle their
+     * specific data.
+     */
+    static ClientNotification* createRoomClientNotification(RoomType type);
+    static ClientNotification* createRoomClientNotificationEditor(RoomType type);
+
 private:
     static void registerRoom(RoomType type, const std::string& name,
-        RoomFunctions::GetRoomCostFunc getRoomCostFunc,
+        RoomFunctions::CheckBuildRoomFunc checkBuildRoomFunc,
         RoomFunctions::BuildRoomFunc buildRoomFunc,
+        RoomFunctions::CheckBuildRoomFunc checkBuildRoomEditorFunc,
+        RoomFunctions::BuildRoomEditorFunc buildRoomEditorFunc,
         RoomFunctions::GetRoomFromStreamFunc getRoomFromStreamFunc);
 
     template <typename D>
-    static int getRoomCostReg(std::vector<Tile*>& targets, GameMap* gameMap, RoomType type,
-        int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+    static void checkBuildRoomReg(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
     {
-        return D::getRoomCost(targets, gameMap, type, tileX1, tileY1, tileX2, tileY2, player);
+        D::checkBuildRoom(gameMap, inputManager, inputCommand);
     }
 
     template <typename D>
-    static void buildRoomReg(GameMap* gameMap, const std::vector<Tile*>& targets, Seat* seat)
+    static bool buildRoomReg(GameMap* gameMap, Player* player, ODPacket& packet)
     {
-        D::buildRoom(gameMap, targets, seat);
+        return D::buildRoom(gameMap, player, packet);
+    }
+
+    template <typename D>
+    static void checkBuildRoomEditorReg(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
+    {
+        D::checkBuildRoomEditor(gameMap, inputManager, inputCommand);
+    }
+
+    template <typename D>
+    static bool buildRoomEditorReg(GameMap* gameMap, ODPacket& packet)
+    {
+        return D::buildRoomEditor(gameMap, packet);
     }
 
     template <typename D>
@@ -130,8 +175,9 @@ class RoomManagerRegister
 public:
     RoomManagerRegister(RoomType type, const std::string& name)
     {
-        RoomManager::registerRoom(type, name, &RoomManager::getRoomCostReg<T>,
-            &RoomManager::buildRoomReg<T>, &RoomManager::getRoomFromStreamReg<T>);
+        RoomManager::registerRoom(type, name, &RoomManager::checkBuildRoomReg<T>,
+            &RoomManager::buildRoomReg<T>, &RoomManager::checkBuildRoomEditorReg<T>,
+            &RoomManager::buildRoomEditorReg<T>, &RoomManager::getRoomFromStreamReg<T>);
     }
 
 private:

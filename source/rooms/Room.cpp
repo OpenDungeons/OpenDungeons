@@ -17,14 +17,17 @@
 
 #include "rooms/Room.h"
 
-#include "network/ODServer.h"
-#include "network/ServerNotification.h"
 #include "entities/Creature.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
 #include "game/Player.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
+#include "modes/InputCommand.h"
+#include "modes/InputManager.h"
+#include "network/ODClient.h"
+#include "network/ODServer.h"
+#include "network/ServerNotification.h"
 #include "rooms/RoomManager.h"
 #include "rooms/RoomType.h"
 #include "utils/ConfigManager.h"
@@ -76,7 +79,7 @@ void Room::removeFromGameMap()
 
 void Room::absorbRoom(Room *r)
 {
-    LogManager::getSingleton().logMessage(getGameMap()->serverStr() + "Room=" + getName() + " is absorbing room=" + r->getName());
+    OD_LOG_INF(getGameMap()->serverStr() + "Room=" + getName() + " is absorbing room=" + r->getName());
 
     mCentralActiveSpotTiles.insert(mCentralActiveSpotTiles.end(), r->mCentralActiveSpotTiles.begin(), r->mCentralActiveSpotTiles.end());
     r->mCentralActiveSpotTiles.clear();
@@ -99,7 +102,7 @@ void Room::absorbRoom(Room *r)
             creature->changeEatRoom(this);
         else
         {
-            OD_ASSERT_TRUE_MSG(false, "creature=" + creature->getName() + ", oldRoom=" + r->getName() + ", newRoom=" + getName());
+            OD_LOG_ERR("creature=" + creature->getName() + ", oldRoom=" + r->getName() + ", newRoom=" + getName());
         }
     }
     mCreaturesUsingRoom.insert(mCreaturesUsingRoom.end(), r->mCreaturesUsingRoom.begin(), r->mCreaturesUsingRoom.end());
@@ -456,18 +459,6 @@ void Room::activeSpotCheckChange(ActiveSpotPlace place, const std::vector<Tile*>
     }
 }
 
-bool Room::canBeRepaired() const
-{
-    switch(getType())
-    {
-        case RoomType::dungeonTemple:
-        case RoomType::portal:
-            return false;
-        default:
-            return true;
-    }
-}
-
 RenderedMovableEntity* Room::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
 {
     return nullptr;
@@ -540,7 +531,7 @@ void Room::importTileDataFromStream(std::istream& is, Tile* tile, TileData* tile
         Seat* seat = gameMap->getSeatById(seatId);
         if(seat == nullptr)
         {
-            OD_ASSERT_TRUE_MSG(false, "room=" + getName() + ", seatId=" + Helper::toString(seatId));
+            OD_LOG_ERR("room=" + getName() + ", seatId=" + Helper::toString(seatId));
             continue;
         }
         tileData->mSeatsVision.push_back(seat);
@@ -584,17 +575,77 @@ void Room::restoreInitialEntityState()
     }
 }
 
-int Room::getCostRepair(std::vector<Tile*>& tiles)
+bool Room::canBeRepaired() const
 {
-    if(getCoveredTilesDestroyed().empty())
-        return 0;
+    switch(getType())
+    {
+        case RoomType::dungeonTemple:
+        case RoomType::portal:
+            return false;
+        default:
+            break;
+    }
 
+    for(Tile* tile : mCoveredTilesDestroyed)
+    {
+        // We check if the tiles can be repaired
+        if(!tile->isBuildableUpon(getSeat()))
+            continue;
+
+        return true;
+    }
+
+    return false;
+}
+
+int Room::getCostRepair()
+{
     if(!canBeRepaired())
         return 0;
 
-    tiles = getCoveredTilesDestroyed();
-    int nbTiles = static_cast<int>(tiles.size());
+    int nbTiles = 0;
+    for(Tile* tile : mCoveredTilesDestroyed)
+    {
+        // We check if the tiles can be repaired
+        if(!tile->isBuildableUpon(getSeat()))
+            continue;
+
+        ++nbTiles;
+    }
     return nbTiles * RoomManager::costPerTile(getType());
+}
+
+void Room::repairRoom()
+{
+    if(!canBeRepaired())
+        return;
+
+    while(!mCoveredTilesDestroyed.empty())
+    {
+        Tile* tile = mCoveredTilesDestroyed.back();
+        mCoveredTilesDestroyed.pop_back();
+
+        // We check if the tiles can be repaired
+        if(!tile->isBuildableUpon(getSeat()))
+            continue;
+
+        OD_LOG_INF("Repairing room=" + getName() + ", tile=" + Tile::displayAsString(tile));
+
+        mCoveredTiles.push_back(tile);
+        TileData* tileData;
+        if(mTileData.count(tile) > 0)
+            tileData = mTileData.at(tile);
+        else
+        {
+            tileData = createTileData(tile);
+            mTileData[tile] = tileData;
+        }
+        tileData->mHP = DEFAULT_TILE_HP;
+
+        tile->setCoveringBuilding(this);
+    }
+
+    updateActiveSpots();
 }
 
 bool Room::sortForMapSave(Room* r1, Room* r2)
@@ -608,8 +659,101 @@ bool Room::sortForMapSave(Room* r1, Room* r2)
     return seatId1 < seatId2;
 }
 
-void Room::buildRoomDefault(GameMap* gameMap, Room* room, const std::vector<Tile*>& tiles, Seat* seat)
+std::string Room::formatRoomPrice(RoomType type, uint32_t price)
 {
+    return RoomManager::getRoomNameFromRoomType(type) + " [" + Helper::toString(price)+ " gold]";
+}
+
+void Room::checkBuildRoomDefault(GameMap* gameMap, RoomType type, const InputManager& inputManager, InputCommand& inputCommand)
+{
+    Player* player = gameMap->getLocalPlayer();
+    int32_t pricePerTarget = RoomManager::costPerTile(type);
+    int32_t playerGold = static_cast<int32_t>(player->getSeat()->getGold());
+    if(inputManager.mCommandState == InputCommandState::infoOnly)
+    {
+        if(playerGold < pricePerTarget)
+        {
+            std::string txt = formatRoomPrice(type, pricePerTarget);
+            inputCommand.displayText(Ogre::ColourValue::Red, txt);
+        }
+        else
+        {
+            std::string txt = formatRoomPrice(type, pricePerTarget);
+            inputCommand.displayText(Ogre::ColourValue::White, txt);
+        }
+        inputCommand.selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos,
+            inputManager.mYPos);
+        return;
+    }
+
+    std::vector<Tile*> buildableTiles = gameMap->getBuildableTilesForPlayerInArea(inputManager.mXPos,
+        inputManager.mYPos, inputManager.mLStartDragX, inputManager.mLStartDragY, player);
+
+    if(inputManager.mCommandState == InputCommandState::building)
+        inputCommand.selectTiles(buildableTiles);
+
+    if(buildableTiles.empty())
+    {
+        std::string txt = formatRoomPrice(type, 0);
+        inputCommand.displayText(Ogre::ColourValue::White, txt);
+        return;
+    }
+
+    int32_t priceTotal = static_cast<int32_t>(buildableTiles.size()) * pricePerTarget;
+    if(playerGold < priceTotal)
+    {
+        std::string txt = formatRoomPrice(type, priceTotal);
+        inputCommand.displayText(Ogre::ColourValue::Red, txt);
+        return;
+    }
+
+    std::string txt = formatRoomPrice(type, priceTotal);
+    inputCommand.displayText(Ogre::ColourValue::White, txt);
+
+    if(inputManager.mCommandState != InputCommandState::validated)
+        return;
+
+    ClientNotification *clientNotification = RoomManager::createRoomClientNotification(type);
+    uint32_t nbTiles = buildableTiles.size();
+    clientNotification->mPacket << nbTiles;
+    for(Tile* tile : buildableTiles)
+        gameMap->tileToPacket(clientNotification->mPacket, tile);
+
+    ODClient::getSingleton().queueClientNotification(clientNotification);
+}
+
+bool Room::getRoomTilesDefault(std::vector<Tile*>& tiles, GameMap* gameMap, Player* player, ODPacket& packet)
+{
+    uint32_t nbTiles;
+    OD_ASSERT_TRUE(packet >> nbTiles);
+
+    while(nbTiles > 0)
+    {
+        --nbTiles;
+        Tile* tile = gameMap->tileFromPacket(packet);
+        if(tile == nullptr)
+        {
+            OD_LOG_ERR("unexpected null tile");
+            return false;
+        }
+
+        if(!tile->isBuildableUpon(player->getSeat()))
+        {
+            OD_LOG_ERR("tile=" + Tile::displayAsString(tile) + ", seatId=" + Helper::toString(player->getSeat()->getId()));
+            continue;
+        }
+
+        tiles.push_back(tile);
+    }
+
+    return true;
+}
+
+bool Room::buildRoomDefault(GameMap* gameMap, Room* room, Seat* seat, const std::vector<Tile*>& tiles)
+{
+    if(tiles.empty())
+        return false;
+
     room->setupRoom(gameMap->nextUniqueNameRoom(room->getMeshName()), seat, tiles);
     room->addToGameMap();
     room->createMesh();
@@ -656,24 +800,93 @@ void Room::buildRoomDefault(GameMap* gameMap, Room* room, const std::vector<Tile
 
     room->checkForRoomAbsorbtion();
     room->updateActiveSpots();
+
+    return true;
 }
 
-int Room::getRoomCostDefault(std::vector<Tile*>& tiles, GameMap* gameMap, RoomType type,
-    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+void Room::checkBuildRoomDefaultEditor(GameMap* gameMap, RoomType type, const InputManager& inputManager, InputCommand& inputCommand)
 {
-    std::vector<Tile*> buildableTiles = gameMap->getBuildableTilesForPlayerInArea(tileX1,
-        tileY1, tileX2, tileY2, player);
-
-    if(buildableTiles.empty())
-        return RoomManager::costPerTile(type);
-
-    int nbTiles = 0;
-
-    for(Tile* tile : buildableTiles)
+    std::string txt = RoomManager::getRoomNameFromRoomType(type);
+    inputCommand.displayText(Ogre::ColourValue::White, txt);
+    if(inputManager.mCommandState == InputCommandState::infoOnly)
     {
-        tiles.push_back(tile);
-        ++nbTiles;
+        inputCommand.selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos,
+            inputManager.mYPos);
+        return;
     }
 
-    return nbTiles * RoomManager::costPerTile(type);
+    std::vector<Tile*> tiles = gameMap->rectangularRegion(inputManager.mXPos,
+        inputManager.mYPos, inputManager.mLStartDragX, inputManager.mLStartDragY);
+
+    std::vector<Tile*> buildableTiles;
+    for(Tile* tile : tiles)
+    {
+        // We accept any tile if there is no building
+        if(tile->getIsBuilding())
+            continue;
+
+        buildableTiles.push_back(tile);
+    }
+    if(inputManager.mCommandState == InputCommandState::building)
+    {
+        inputCommand.selectTiles(buildableTiles);
+        return;
+    }
+
+    ClientNotification *clientNotification = RoomManager::createRoomClientNotificationEditor(type);
+    uint32_t nbTiles = buildableTiles.size();
+    int32_t seatId = inputManager.mSeatIdSelected;
+    clientNotification->mPacket << seatId;
+    clientNotification->mPacket << nbTiles;
+    for(Tile* tile : buildableTiles)
+        gameMap->tileToPacket(clientNotification->mPacket, tile);
+
+    ODClient::getSingleton().queueClientNotification(clientNotification);
+}
+
+bool Room::buildRoomDefaultEditor(GameMap* gameMap, Room* room, ODPacket& packet)
+{
+    int32_t seatId;
+    OD_ASSERT_TRUE(packet >> seatId);
+    Seat* seatRoom = gameMap->getSeatById(seatId);
+    if(seatRoom == nullptr)
+    {
+        OD_LOG_ERR("seatId=" + Helper::toString(seatId));
+        return false;
+    }
+
+    std::vector<Tile*> tiles;
+    uint32_t nbTiles;
+    OD_ASSERT_TRUE(packet >> nbTiles);
+
+    while(nbTiles > 0)
+    {
+        --nbTiles;
+        Tile* tile = gameMap->tileFromPacket(packet);
+        if(tile == nullptr)
+        {
+            OD_LOG_ERR("unexpected null tile room=" + room->getName());
+            return false;
+        }
+
+        // If the tile is not buildable, we change it
+        if(tile->getCoveringBuilding() != nullptr)
+        {
+            OD_LOG_ERR("tile=" + Tile::displayAsString(tile) + ", seatId=" + Helper::toString(seatId));
+            continue;
+        }
+
+        tiles.push_back(tile);
+        if((tile->getType() != TileType::gold) &&
+        (tile->getType() != TileType::dirt))
+        {
+            tile->setType(TileType::dirt);
+        }
+        tile->setFullness(0.0);
+        tile->claimTile(seatRoom);
+        tile->computeTileVisual();
+    }
+
+
+    return buildRoomDefault(gameMap, room, seatRoom, tiles);
 }

@@ -622,6 +622,8 @@ ProtectDungeonTemple	NULL
 24	5	1	25
 24	6	1	25
 24	7	1	25
+24	9	1	0	1
+24	10	1	0	1
 24	12	1	0	1
 24	13	1	0	1
 24	15	1	0	1
@@ -639,6 +641,8 @@ ProtectDungeonTemple	NULL
 25	5	1	25
 25	6	1	25
 25	7	1	25
+25	9	1	0	1
+25	10	1	0	1
 25	12	1	0	1
 25	13	1	0	1
 25	15	1	0	1
@@ -1017,19 +1021,19 @@ Spider12	16	13	0
 [/Trap]
 [Trap]
 4	DoorWooden_1	1	1
-9	14	0	10	0	0	1	0
+9	14	0
 [/Trap]
 [Trap]
 4	DoorWooden_2	1	1
-12	9	0	10	0	0	1	0
+12	9	0
 [/Trap]
 [Trap]
 4	DoorWooden_3	1	1
-6	9	0	10	0	0	1	0
+6	9	0
 [/Trap]
 [Trap]
 4	DoorWooden_4	1	1
-9	6	0	10	0	0	1	0
+9	6	0
 [/Trap]
 [/Traps]
 
@@ -1070,6 +1074,7 @@ Spider12	16	13	0
 1	RunelordDwarf27	RunelordDwarf.mesh	27	7	0	RunelordDwarf	1	0	max	100	0	0	none	Roundshield	0	none	0
 1	BigKnight28	Knight.mesh	27	4	0	BigKnight	1	0	max	100	0	0	RustyShield	RustySword	0	none	0
 1	Defender29	Defender.mesh	27	1	0	Defender	1	0	max	100	0	0	none	none	0	none	0
+0	Adventurer1	Adventurer.mesh	24	10	0	Adventurer	1	0	max	100	0	0	none	none	0	none	0
 [/Creatures]
 
 [Spells]

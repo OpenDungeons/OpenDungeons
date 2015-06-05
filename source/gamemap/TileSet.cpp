@@ -32,7 +32,7 @@ std::vector<TileSetValue>& TileSet::configureTileValues(TileVisual tileVisual)
     uint32_t tileTypeNumber = static_cast<uint32_t>(tileVisual);
     if(tileTypeNumber >= mTileValues.size())
     {
-        OD_ASSERT_TRUE_MSG(false, "Trying to get unknow tileType=" + Tile::tileVisualToString(tileVisual));
+        OD_LOG_ERR("Trying to get unknow tileType=" + Tile::tileVisualToString(tileVisual));
         return mTileValues.at(0);
     }
 
@@ -44,7 +44,7 @@ const std::vector<TileSetValue>& TileSet::getTileValues(TileVisual tileVisual) c
     uint32_t tileTypeNumber = static_cast<uint32_t>(tileVisual);
     if(tileTypeNumber >= mTileValues.size())
     {
-        OD_ASSERT_TRUE_MSG(false, "Trying to get unknow tileType=" + Tile::tileVisualToString(tileVisual));
+        OD_LOG_ERR("Trying to get unknow tileType=" + Tile::tileVisualToString(tileVisual));
         return mTileValues.at(0);
     }
 
@@ -57,12 +57,12 @@ void TileSet::addTileLink(TileVisual tileVisual1, TileVisual tileVisual2)
     uint32_t intTile2Visual = static_cast<uint32_t>(tileVisual2);
     if(intTile1Visual >= mTileLinks.size())
     {
-        OD_ASSERT_TRUE_MSG(false, "TileVisual=" + Tile::tileVisualToString(tileVisual1));
+        OD_LOG_ERR("TileVisual=" + Tile::tileVisualToString(tileVisual1));
         return;
     }
     if(intTile2Visual >= mTileLinks.size())
     {
-        OD_ASSERT_TRUE_MSG(false, "TileVisual=" + Tile::tileVisualToString(tileVisual2));
+        OD_LOG_ERR("TileVisual=" + Tile::tileVisualToString(tileVisual2));
         return;
     }
 

@@ -27,7 +27,6 @@
 #include "gamemap/GameMap.h"
 #include "modes/AbstractApplicationMode.h"
 #include "modes/ModeManager.h"
-#include "modes/GameMode.h"
 #include "network/ODServer.h"
 #include "network/ODClient.h"
 #include "render/Gui.h"
@@ -81,8 +80,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* renderWindow, Ogre::Overlay
     mCameraManager(mRenderManager->getSceneManager(), mGameMap.get(), renderWindow),
     mFpsLimiter(DEFAULT_FRAME_RATE)
 {
-    LogManager* logManager = LogManager::getSingletonPtr();
-    logManager->logMessage("Creating frame listener...");
+    OD_LOG_INF("Creating frame listener...");
 
     mRenderManager->createScene(mCameraManager.getViewport());
 
@@ -129,18 +127,18 @@ void ODFrameListener::requestExit()
 
 void ODFrameListener::exitApplication()
 {
-    LogManager::getSingleton().logMessage("Closing down.");
+    OD_LOG_INF("Closing down.");
 
     ODClient::getSingleton().notifyExit();
     ODServer::getSingleton().notifyExit();
     mGameMap->clearAll();
     mRenderManager->getSceneManager()->destroyQuery(mRaySceneQuery);
 
-    Ogre::LogManager::getSingleton().logMessage("Remove listener registration");
+    OD_LOG_INF("Remove listener registration");
     //Remove ourself as a Window listener
     Ogre::WindowEventUtilities::removeWindowEventListener(mWindow, this);
 
-    Ogre::LogManager::getSingleton().logMessage("Frame listener uninitialization done.");
+    OD_LOG_INF("Frame listener uninitialization done.");
     mInitialized = false;
 }
 

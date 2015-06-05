@@ -28,7 +28,6 @@ GoalClaimNTiles::GoalClaimNTiles(const std::string& nName,
         Goal(nName, nArguments),
         mNumberOfTiles(atoi(nArguments.c_str()))
 {
-    std::cout << "\nAdding goal " << getName();
 }
 
 bool GoalClaimNTiles::isMet(const Seat &s, const GameMap&)

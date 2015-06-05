@@ -21,6 +21,7 @@
 #include "entities/CreatureDefinition.h"
 #include "entities/RenderedMovableEntity.h"
 #include "entities/Tile.h"
+#include "game/Player.h"
 #include "gamemap/GameMap.h"
 #include "rooms/RoomManager.h"
 #include "utils/ConfigManager.h"
@@ -165,9 +166,11 @@ void RoomTrainingHall::refreshCreaturesDummies()
         {
             // We move to the good tile
             std::list<Tile*> pathToDummy = getGameMap()->path(creature, tileDummy);
-            OD_ASSERT_TRUE(!pathToDummy.empty());
             if(pathToDummy.empty())
+            {
+                OD_LOG_ERR("unexpected empty pathToDummy");
                 continue;
+            }
 
             std::vector<Ogre::Vector3> path;
             Creature::tileToVector3(pathToDummy, path, true, 0.0);
@@ -205,9 +208,11 @@ bool RoomTrainingHall::addCreatureUsingRoom(Creature* creature)
     {
         // We move to the good tile
         std::list<Tile*> pathToDummy = getGameMap()->path(creature, tileDummy);
-        OD_ASSERT_TRUE(!pathToDummy.empty());
         if(pathToDummy.empty())
+        {
+            OD_LOG_ERR("unexpected empty pathToDummy");
             return true;
+        }
 
         std::vector<Ogre::Vector3> path;
         Creature::tileToVector3(pathToDummy, path, true, 0.0);
@@ -226,9 +231,11 @@ void RoomTrainingHall::removeCreatureUsingRoom(Creature* c)
     if(mCreaturesDummies.count(c) > 0)
     {
         Tile* tileDummy = mCreaturesDummies[c];
-        OD_ASSERT_TRUE(tileDummy != nullptr);
         if(tileDummy == nullptr)
+        {
+            OD_LOG_ERR("unexpected null tileDummy");
             return;
+        }
         mUnusedDummies.push_back(tileDummy);
         mCreaturesDummies.erase(c);
     }
@@ -251,20 +258,27 @@ void RoomTrainingHall::doUpkeep()
         Tile* tileDummy = p.second;
         Tile* tileCreature = creature->getPositionTile();
         if(tileCreature == nullptr)
+        {
+            OD_LOG_ERR("unexpected null tileCreature");
             continue;
+        }
 
         Ogre::Real wantedX = static_cast<Ogre::Real>(tileDummy->getX());
         Ogre::Real wantedY = static_cast<Ogre::Real>(tileDummy->getY()) - OFFSET_CREATURE;
 
         RenderedMovableEntity* ro = getBuildingObjectFromTile(tileDummy);
-        OD_ASSERT_TRUE(ro != nullptr);
         if(ro == nullptr)
+        {
+            OD_LOG_ERR("unexpected null building object");
             continue;
+        }
         // We consider that the creature is in the good place if it is in the expected tile and not moving
         Tile* expectedDest = getGameMap()->getTile(Helper::round(wantedX), Helper::round(wantedY));
-        OD_ASSERT_TRUE_MSG(expectedDest != nullptr, "room=" + getName() + ", creature=" + creature->getName());
         if(expectedDest == nullptr)
+        {
+            OD_LOG_ERR("room=" + getName() + ", creature=" + creature->getName());
             continue;
+        }
         if((tileCreature == expectedDest) &&
            !creature->isMoving())
         {
@@ -297,16 +311,46 @@ void RoomTrainingHall::doUpkeep()
     }
 }
 
-int RoomTrainingHall::getRoomCost(std::vector<Tile*>& tiles, GameMap* gameMap, RoomType type,
-    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+void RoomTrainingHall::checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
 {
-    return getRoomCostDefault(tiles, gameMap, type, tileX1, tileY1, tileX2, tileY2, player);
+    checkBuildRoomDefault(gameMap, RoomType::trainingHall, inputManager, inputCommand);
 }
 
-void RoomTrainingHall::buildRoom(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat* seat)
+bool RoomTrainingHall::buildRoom(GameMap* gameMap, Player* player, ODPacket& packet)
+{
+    std::vector<Tile*> tiles;
+    if(!getRoomTilesDefault(tiles, gameMap, player, packet))
+        return false;
+
+    int32_t pricePerTarget = RoomManager::costPerTile(RoomType::trainingHall);
+    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+        return false;
+
+    RoomTrainingHall* room = new RoomTrainingHall(gameMap);
+    return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
+}
+
+bool RoomTrainingHall::buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles)
+{
+    int32_t pricePerTarget = RoomManager::costPerTile(RoomType::trainingHall);
+    int32_t price = static_cast<int32_t>(tiles.size()) * pricePerTarget;
+    if(!gameMap->withdrawFromTreasuries(price, player->getSeat()))
+        return false;
+
+    RoomTrainingHall* room = new RoomTrainingHall(gameMap);
+    return buildRoomDefault(gameMap, room, player->getSeat(), tiles);
+}
+
+void RoomTrainingHall::checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
+{
+    checkBuildRoomDefaultEditor(gameMap, RoomType::trainingHall, inputManager, inputCommand);
+}
+
+bool RoomTrainingHall::buildRoomEditor(GameMap* gameMap, ODPacket& packet)
 {
     RoomTrainingHall* room = new RoomTrainingHall(gameMap);
-    buildRoomDefault(gameMap, room, tiles, seat);
+    return buildRoomDefaultEditor(gameMap, room, packet);
 }
 
 Room* RoomTrainingHall::getRoomFromStream(GameMap* gameMap, std::istream& is)

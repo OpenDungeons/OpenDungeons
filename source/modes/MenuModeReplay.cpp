@@ -151,7 +151,7 @@ bool MenuModeReplay::launchSelectedButtonPressed(const CEGUI::EventArgs&)
     const std::string& replayFile = mFilesList[id];
     if(!ODClient::getSingleton().replay(replayFile))
     {
-        LogManager::getSingleton().logMessage("ERROR: Could not launch replay !!!");
+        OD_LOG_ERR("Could not launch replay !!!");
         tmpWin = getModeManager().getGui().getGuiSheet(Gui::replayMenu)->getChild(Gui::REM_TEXT_LOADING);
         tmpWin->setText("Error: Couldn't launch replay!");
         tmpWin->show();
@@ -179,7 +179,7 @@ bool MenuModeReplay::deleteSelectedButtonPressed(const CEGUI::EventArgs&)
     const std::string& replayFile = mFilesList[id];
     if(!boost::filesystem::remove(replayFile))
     {
-        LogManager::getSingleton().logMessage("ERROR: Could not delete replay !!!");
+        OD_LOG_ERR("Could not delete replay !!!");
         tmpWin = getModeManager().getGui().getGuiSheet(Gui::replayMenu)->getChild(Gui::REM_TEXT_LOADING);
         tmpWin->setText("Error: Couldn't delete replay!");
         tmpWin->show();

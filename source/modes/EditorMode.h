@@ -19,13 +19,14 @@
 #define EDITORMODE_H
 
 #include "GameEditorModeBase.h"
+#include "modes/InputCommand.h"
 
-class Gui; // Used to change the Current tile type
 class GameMap;
+class Gui; // Used to change the Current tile type
 
 enum class TileVisual;
 
-class EditorMode final: public GameEditorModeBase
+class EditorMode final: public GameEditorModeBase, public InputCommand
 {
 public:
     EditorMode(ModeManager* modeManager);
@@ -64,6 +65,12 @@ public:
     void setTileVisual(TileVisual tileVisual)
     { mCurrentTileVisual = tileVisual; }
 
+    void selectSquaredTiles(int tileX1, int tileY1, int tileX2, int tileY2) override;
+    void selectTiles(const std::vector<Tile*> tiles) override;
+    void unselectAllTiles();
+
+    void displayText(const Ogre::ColourValue& txtColour, const std::string& txt) override;
+
 private:
     void connectTileSelect(const std::string& buttonName, TileVisual tileVisual);
 
@@ -73,9 +80,6 @@ private:
     //! \brief how of the wall type is there (0 - 100.0)
     //! < 1.0 means no walls.
     double mCurrentFullness;
-
-    //! \brief Current selected seat id
-    int mCurrentSeatId;
 
     //! \brief Current selected creature to spawn
     uint32_t mCurrentCreatureIndex;
@@ -104,6 +108,10 @@ private:
 
     //! \brief Updates the flag icon color when switching seats.
     void updateFlagColor();
+
+    //! \brief Called when there is a mouse input change
+    void checkInputCommand();
+    void handlePlayerActionChangeTile();
 };
 
 #endif // EDITORMODE_H

@@ -46,9 +46,6 @@ public:
     //! \brief Initializes the Application along with the ResourceManager
     void startGame(boost::program_options::variables_map& options);
 
-    //! \brief Display a GUI error message
-    static void displayErrorMessage(const std::string& message, LogManager& logger);
-
     static double turnsPerSecond;
     static const std::string VERSION;
     static const std::string VERSIONSTRING;

@@ -20,6 +20,7 @@
 
 #include <OgreVector3.h>
 
+#include <cstdint>
 #include <string>
 
 class Tile;

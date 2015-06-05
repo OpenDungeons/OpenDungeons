@@ -22,42 +22,57 @@
 #include <istream>
 #include <cstdint>
 
+class ClientNotification;
 class GameMap;
+class InputCommand;
+class InputManager;
+class ODPacket;
 class Player;
-class Trap;
 class Seat;
 class Tile;
+class Trap;
 
 enum class TrapType;
 
-//! Class to gather functions used for traps
+//! Class to gather functions used for traps. Each trap should define static functions allowing to handle them:
+//! - checkBuildTrap : called on client side to define the trap data in GameMode
+//! - buildTrap : called on server side to create the trap in GameMode
+//! - checkBuildTrapEditor : called on client side to define the trap data in EditorMode
+//! - buildTrapEditor : called on server side to create the trap in EditorMode
+//! - getTrapFromStream : called on server side when loading a level
 class TrapFunctions
 {
     friend class TrapManager;
 public:
-    typedef int (*GetTrapCostFunc)(std::vector<Tile*>& targets, GameMap* gameMap,
-        TrapType type, int tileX1, int tileY1, int tileX2, int tileY2, Player* player);
-    typedef void (*BuildTrapFunc)(GameMap*, const std::vector<Tile*>&, Seat*);
+    typedef void (*CheckBuildTrapFunc)(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
+    typedef bool (*BuildTrapFunc)(GameMap* gameMap, Player* player, ODPacket& packet);
+    typedef bool (*BuildTrapEditorFunc)(GameMap* gameMap, ODPacket& packet);
     typedef Trap* (*GetTrapFromStreamFunc)(GameMap* gameMap, std::istream& is);
 
     TrapFunctions() :
-        mGetTrapCostFunc(nullptr),
+        mCheckBuildTrapFunc(nullptr),
         mBuildTrapFunc(nullptr),
+        mCheckBuildTrapEditorFunc(nullptr),
+        mBuildTrapEditorFunc(nullptr),
         mGetTrapFromStreamFunc(nullptr)
     {}
 
-    int getTrapCostFunc(std::vector<Tile*>& targets, GameMap* gameMap, TrapType type,
-        int tileX1, int tileY1, int tileX2, int tileY2, Player* player) const;
+    void checkBuildTrapFunc(GameMap* gameMap, TrapType type, const InputManager& inputManager, InputCommand& inputCommand) const;
 
-    void buildTrapFunc(GameMap* gameMap, TrapType type, const std::vector<Tile*>& targets,
-        Seat* seat) const;
+    bool buildTrapFunc(GameMap* gameMap, TrapType type, Player* player, ODPacket& packet) const;
+
+    void checkBuildTrapEditorFunc(GameMap* gameMap, TrapType type, const InputManager& inputManager, InputCommand& inputCommand) const;
+
+    bool buildTrapEditorFunc(GameMap* gameMap, TrapType type, ODPacket& packet) const;
 
     Trap* getTrapFromStreamFunc(GameMap* gameMap, TrapType type, std::istream& is) const;
 
 private:
     std::string mName;
-    GetTrapCostFunc mGetTrapCostFunc;
+    CheckBuildTrapFunc mCheckBuildTrapFunc;
     BuildTrapFunc mBuildTrapFunc;
+    CheckBuildTrapFunc mCheckBuildTrapEditorFunc;
+    BuildTrapEditorFunc mBuildTrapEditorFunc;
     GetTrapFromStreamFunc mGetTrapFromStreamFunc;
 
 };
@@ -65,18 +80,20 @@ private:
 class TrapManager
 {
 public:
-    //! Returns the Trap cost required to build the trap for the given player. targets will
-    //! be filled with the suitable tiles. Note that if there are more targets than available gold,
-    //! most traps will fail to build.
-    //! If no target is available, this function should return the gold needed for 1 target and
-    //! targets vector should be empty
-    //! Returns the gold price the trap will cost. If < 0, it means the trap cannot be built
-    static int getTrapCost(std::vector<Tile*>& targets, GameMap* gameMap, TrapType type,
-        int tileX1, int tileY1, int tileX2, int tileY2, Player* player);
+    //! \brief Called on client side. It should check if the trap can be built according to the given inputManager
+    //! for the given player. It should update the InputCommand to make sure it displays the correct
+    //! information (price, selection icon, ...).
+    //! An ODPacket should be sent to the server if the trap is validated with relevant data. On server side, buildTrap
+    //! will be called with the data from the client and it build the trap if it is validated.
+    static void checkBuildTrap(GameMap* gameMap, TrapType type, const InputManager& inputManager, InputCommand& inputCommand);
 
-    //! Builds the Trap. In most of the cases, targets should be the vector filled by getTrapCost
-    static void buildTrap(GameMap* gameMap, TrapType type, const std::vector<Tile*>& targets,
-        Seat* seat);
+    //! \brief Called on server side. Builds the trap according to the information in the packet
+    //! returns true if the trap was correctly built and false otherwise
+    static bool buildTrap(GameMap* gameMap, TrapType type, Player* player, ODPacket& packet);
+
+    //! \brief Same as previous functions but for EditorMode
+    static void checkBuildTrapEditor(GameMap* gameMap, TrapType type, const InputManager& inputManager, InputCommand& inputCommand);
+    static bool buildTrapEditor(GameMap* gameMap, TrapType type, ODPacket& packet);
 
     /*! \brief Exports the headers needed to recreate the Trap. It allows to extend Traps as much as wanted.
      * The content of the Trap will be exported by exportToStream.
@@ -87,34 +104,63 @@ public:
 
     static TrapType getTrapTypeFromTrapName(const std::string& name);
 
-    //! Returns the price the player will get back if he sells the traps in the selected area. If < 0,
-    //! it means that the traps cannot be sold
-    static int getRefundPrice(std::vector<Tile*>& tiles, GameMap* gameMap,
-        int tileX1, int tileY1, int tileX2, int tileY2, Player* player);
+    //! \brief Called on client side. It should check if there are trap tiles to sell according
+    //! to the given inputManager for the given player. It should update the InputCommand to make
+    //! sure it displays the correct information (returned price, selection icon, ...).
+    //! An ODPacket should be sent to the server if the action is validated with relevant data. On server side,
+    //! sellTrapTiles will be called with the data from the client and it should sell the tiles if it is validated.
+    static void checkSellTrapTiles(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
 
-    static void sellTrapTiles(GameMap* gameMap, const std::vector<Tile*>& tiles);
+    //! \brief Called on server side. Sells trap tiles according to the information in the packet
+    static void sellTrapTiles(GameMap* gameMap, Seat* seatSell, ODPacket& packet);
+
+    //! \brief Same as above functions but for Editor mode
+    static void checkSellTrapTilesEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
+    static void sellTrapTilesEditor(GameMap* gameMap, ODPacket& packet);
+
+    static std::string formatSellTrap(int price);
 
     static int costPerTile(TrapType t);
+
+    /*! \brief Creates a ClientNotification to ask for creating a trap. It fills the packet with the needed data
+     * for the TrapManager to retrieve the spell (mainly the TrapType) so that the traps only have to handle their
+     * specific data.
+     */
+    static ClientNotification* createTrapClientNotification(TrapType type);
+    static ClientNotification* createTrapClientNotificationEditor(TrapType type);
 
     static int32_t getNeededWorkshopPointsPerTrap(TrapType trapType);
 
 private:
     static void registerTrap(TrapType type, const std::string& name,
-        TrapFunctions::GetTrapCostFunc getTrapCostFunc,
+        TrapFunctions::CheckBuildTrapFunc checkBuildTrapFunc,
         TrapFunctions::BuildTrapFunc buildTrapFunc,
+        TrapFunctions::CheckBuildTrapFunc checkBuildTrapEditorFunc,
+        TrapFunctions::BuildTrapEditorFunc buildTrapEditorFunc,
         TrapFunctions::GetTrapFromStreamFunc getTrapFromStreamFunc);
 
     template <typename D>
-    static int getTrapCostReg(std::vector<Tile*>& targets, GameMap* gameMap, TrapType type,
-        int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+    static void checkBuildTrapReg(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
     {
-        return D::getTrapCost(targets, gameMap, type, tileX1, tileY1, tileX2, tileY2, player);
+        D::checkBuildTrap(gameMap, inputManager, inputCommand);
     }
 
     template <typename D>
-    static void buildTrapReg(GameMap* gameMap, const std::vector<Tile*>& targets, Seat* seat)
+    static bool buildTrapReg(GameMap* gameMap, Player* player, ODPacket& packet)
     {
-        D::buildTrap(gameMap, targets, seat);
+        return D::buildTrap(gameMap, player, packet);
+    }
+
+    template <typename D>
+    static void checkBuildTrapEditorReg(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand)
+    {
+        D::checkBuildTrapEditor(gameMap, inputManager, inputCommand);
+    }
+
+    template <typename D>
+    static bool buildTrapEditorReg(GameMap* gameMap, ODPacket& packet)
+    {
+        return D::buildTrapEditor(gameMap, packet);
     }
 
     template <typename D>
@@ -132,8 +178,9 @@ class TrapManagerRegister
 public:
     TrapManagerRegister(TrapType type, const std::string& name)
     {
-        TrapManager::registerTrap(type, name, &TrapManager::getTrapCostReg<T>,
-            &TrapManager::buildTrapReg<T>, &TrapManager::getTrapFromStreamReg<T>);
+        TrapManager::registerTrap(type, name, &TrapManager::checkBuildTrapReg<T>,
+            &TrapManager::buildTrapReg<T>, &TrapManager::checkBuildTrapEditorReg<T>,
+            &TrapManager::buildTrapEditorReg<T>, &TrapManager::getTrapFromStreamReg<T>);
     }
 
 private:

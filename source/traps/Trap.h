@@ -27,12 +27,14 @@
 class CraftedTrap;
 class Creature;
 class GameMap;
+class InputCommand;
+class InputManager;
+class ODPacket;
 class Player;
+class RenderedMovableEntity;
 class Seat;
 class Tile;
 class TrapEntity;
-class RenderedMovableEntity;
-class ODPacket;
 
 enum class TrapType;
 
@@ -138,6 +140,10 @@ public:
     inline void setRemoveTrap(bool removeTrap)
     { mRemoveTrap = removeTrap; }
 
+    void fireSeatsSawTriggering();
+    void seatSawTriggering(Seat* seat);
+    void seatsSawTriggering(const std::vector<Seat*>& seats);
+
     double mClaimedValue;
 
 private:
@@ -207,9 +213,17 @@ public:
 
     static std::string getTrapStreamFormat();
 
-    static void buildTrapDefault(GameMap* gameMap, Trap* trap, const std::vector<Tile*>& tiles, Seat* seat);
-    static int getTrapCostDefault(std::vector<Tile*>& tiles, GameMap* gameMap, TrapType type,
-        int tileX1, int tileY1, int tileX2, int tileY2, Player* player);
+    static std::string formatTrapPrice(TrapType type, uint32_t price);
+
+    //! \brief Computes the trap cost by checking the buildable tiles according to the given inputManager
+    //! and updates the inputCommand with (price/buildable tiles)
+    //! Note that traps that use checkBuildTrapDefault should also use buildTrapDefault and vice-versa
+    //! to make sure everything works if the data sent/received are changed
+    static void checkBuildTrapDefault(GameMap* gameMap, TrapType type, const InputManager& inputManager, InputCommand& inputCommand);
+    static bool getTrapTilesDefault(std::vector<Tile*>& tiles, GameMap* gameMap, Player* player, ODPacket& packet);
+    static bool buildTrapDefault(GameMap* gameMap, Trap* trap, Seat* seat, const std::vector<Tile*>& tiles);
+    static void checkBuildTrapDefaultEditor(GameMap* gameMap, TrapType type, const InputManager& inputManager, InputCommand& inputCommand);
+    static bool buildTrapDefaultEditor(GameMap* gameMap, Trap* trap, ODPacket& packet);
 
 protected:
     virtual TrapTileData* createTileData(Tile* tile) override;

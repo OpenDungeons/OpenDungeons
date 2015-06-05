@@ -79,7 +79,7 @@ bool Tile::isBuildableUpon(Seat* seat) const
 {
     if(isFullTile())
         return false;
-    if(mIsBuilding)
+    if(getIsBuilding())
         return false;
     if(!isClaimedForSeat(seat))
         return false;
@@ -106,7 +106,8 @@ void Tile::setCoveringBuilding(Building *building)
         }
     }
     mCoveringBuilding = building;
-    mIsBuilding = (mCoveringBuilding != nullptr);
+    mIsRoom = (getCoveringRoom() != nullptr);
+    mIsTrap = (getCoveringTrap() != nullptr);
     if(mCoveringBuilding != nullptr)
     {
         for(std::pair<Seat*, bool>& seatChanged : mTileChangedForSeats)
@@ -151,7 +152,8 @@ void Tile::updateFromPacket(ODPacket& is)
     std::stringstream ss;
 
     // We set the seat if there is one
-    OD_ASSERT_TRUE(is >> mIsBuilding);
+    OD_ASSERT_TRUE(is >> mIsRoom);
+    OD_ASSERT_TRUE(is >> mIsTrap);
     OD_ASSERT_TRUE(is >> mRefundPriceRoom);
     OD_ASSERT_TRUE(is >> mRefundPriceTrap);
 
@@ -441,8 +443,13 @@ void Tile::fillWithAttackableCreatures(std::vector<GameEntity*>& entities, Seat*
 {
     for(GameEntity* entity : mEntitiesInTile)
     {
-        OD_ASSERT_TRUE(entity != nullptr);
-        if((entity == nullptr) || entity->getObjectType() != GameEntityType::creature)
+        if(entity == nullptr)
+        {
+            OD_LOG_ERR("unexpected null entity in tile=" + Tile::displayAsString(this));
+            continue;
+        }
+
+        if(entity->getObjectType() != GameEntityType::creature)
             continue;
 
         if(!entity->isAttackable(this, seat))
@@ -496,9 +503,11 @@ void Tile::fillWithCarryableEntities(std::vector<GameEntity*>& entities)
 {
     for(GameEntity* entity : mEntitiesInTile)
     {
-        OD_ASSERT_TRUE(entity != nullptr);
         if(entity == nullptr)
+        {
+            OD_LOG_ERR("unexpected null entity in tile=" + Tile::displayAsString(this));
             continue;
+        }
 
         if(entity->getEntityCarryType() == EntityCarryType::notCarryable)
             continue;
@@ -512,9 +521,11 @@ void Tile::fillWithChickenEntities(std::vector<GameEntity*>& entities)
 {
     for(GameEntity* entity : mEntitiesInTile)
     {
-        OD_ASSERT_TRUE(entity != nullptr);
         if(entity == nullptr)
+        {
+            OD_LOG_ERR("unexpected null entity in tile=" + Tile::displayAsString(this));
             continue;
+        }
 
         if(entity->getObjectType() != GameEntityType::chickenEntity)
             continue;
@@ -528,9 +539,11 @@ void Tile::fillWithCraftedTraps(std::vector<GameEntity*>& entities)
 {
     for(GameEntity* entity : mEntitiesInTile)
     {
-        OD_ASSERT_TRUE(entity != nullptr);
         if(entity == nullptr)
+        {
+            OD_LOG_ERR("unexpected null entity in tile=" + Tile::displayAsString(this));
             continue;
+        }
 
         if(entity->getObjectType() != GameEntityType::craftedTrap)
             continue;
@@ -544,9 +557,11 @@ void Tile::fillWithEntities(std::vector<EntityBase*>& entities, SelectionEntityW
 {
     for(GameEntity* entity : mEntitiesInTile)
     {
-        OD_ASSERT_TRUE(entity != nullptr);
         if(entity == nullptr)
+        {
+            OD_LOG_ERR("unexpected null entity in tile=" + Tile::displayAsString(this));
             continue;
+        }
 
         switch(entityWanted)
         {
@@ -615,7 +630,7 @@ void Tile::fillWithEntities(std::vector<EntityBase*>& entities, SelectionEntityW
                 if(!logMsg)
                 {
                     logMsg = true;
-                    OD_ASSERT_TRUE_MSG(false, "Wrong SelectionEntityWanted int=" + Helper::toString(static_cast<uint32_t>(entityWanted)));
+                    OD_LOG_ERR("Wrong SelectionEntityWanted int=" + Helper::toString(static_cast<uint32_t>(entityWanted)));
                 }
                 continue;
             }
@@ -638,9 +653,11 @@ bool Tile::addTreasuryObject(TreasuryObject* obj)
     bool isMerged = false;
     for(GameEntity* entity : mEntitiesInTile)
     {
-        OD_ASSERT_TRUE(entity != nullptr);
         if(entity == nullptr)
+        {
+            OD_LOG_ERR("unexpected null entity in tile=" + Tile::displayAsString(this));
             continue;
+        }
 
         if(entity->getObjectType() != GameEntityType::treasuryObject)
             continue;

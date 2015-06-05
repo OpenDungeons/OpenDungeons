@@ -58,9 +58,11 @@ void ChickenEntity::doUpkeep()
        return;
 
     Tile* tile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
     if(tile == nullptr)
+    {
+        OD_LOG_ERR("entityName=" + getName());
         return;
+    }
 
     if(mChickenState == ChickenState::eaten)
         mChickenState = ChickenState::dead;
@@ -184,9 +186,11 @@ bool ChickenEntity::tryPickup(Seat* seat)
         return false;
 
     Tile* tile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
     if(tile == nullptr)
+    {
+        OD_LOG_ERR("entityName=" + getName());
         return false;
+    }
 
     if(getGameMap()->isInEditorMode())
         return true;
@@ -204,9 +208,11 @@ void ChickenEntity::pickup()
 {
     Tile* tile = getPositionTile();
     RenderedMovableEntity::pickup();
-    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
     if(tile == nullptr)
+    {
+        OD_LOG_ERR("entityName=" + getName());
         return;
+    }
     OD_ASSERT_TRUE(tile->removeEntity(this));
 }
 
@@ -236,9 +242,11 @@ bool ChickenEntity::tryDrop(Seat* seat, Tile* tile)
 bool ChickenEntity::eatChicken(Creature* creature)
 {
     Tile* tile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
     if(tile == nullptr)
+    {
+        OD_LOG_ERR("entityName=" + getName());
         return false;
+    }
 
     if(mChickenState != ChickenState::free)
         return false;
@@ -261,9 +269,11 @@ bool ChickenEntity::canSlap(Seat* seat)
         return false;
 
     Tile* tile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
     if(tile == nullptr)
+    {
+        OD_LOG_ERR("entityName=" + getName());
         return false;
+    }
 
     if(getGameMap()->isInEditorMode())
         return !mIsSlapped;

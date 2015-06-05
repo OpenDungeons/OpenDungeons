@@ -21,6 +21,9 @@
 #include "rooms/Room.h"
 #include "rooms/RoomType.h"
 
+class InputCommand;
+class InputManager;
+
 class RoomCrypt: public Room
 {
 public:
@@ -40,9 +43,11 @@ public:
     virtual void exportToStream(std::ostream& os) const override;
     virtual void importFromStream(std::istream& is) override;
 
-    static int getRoomCost(std::vector<Tile*>& tiles, GameMap* gameMap, RoomType type,
-        int tileX1, int tileY1, int tileX2, int tileY2, Player* player);
-    static void buildRoom(GameMap* gameMap, const std::vector<Tile*>& tiles, Seat* seat);
+    static void checkBuildRoom(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
+    static bool buildRoom(GameMap* gameMap, Player* player, ODPacket& packet);
+    static void checkBuildRoomEditor(GameMap* gameMap, const InputManager& inputManager, InputCommand& inputCommand);
+    static bool buildRoomEditor(GameMap* gameMap, ODPacket& packet);
+    static bool buildRoomOnTiles(GameMap* gameMap, Player* player, const std::vector<Tile*>& tiles);
     static Room* getRoomFromStream(GameMap* gameMap, std::istream& is);
 
 protected:

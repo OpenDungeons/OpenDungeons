@@ -65,9 +65,9 @@ void MissileObject::doUpkeep()
     }
 
     Tile* tile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
     if(tile == nullptr)
     {
+        OD_LOG_ERR("entityName=" + getName());
         removeFromGameMap();
         deleteYourself();
         return;
@@ -181,9 +181,11 @@ bool MissileObject::computeDestination(const Ogre::Vector3& position, double mov
     destination = position + (moveDist * direction);
     tiles = getGameMap()->tilesBetween(Helper::round(position.x),
         Helper::round(position.y), Helper::round(destination.x), Helper::round(destination.y));
-    OD_ASSERT_TRUE(!tiles.empty());
     if(tiles.empty())
+    {
+        OD_LOG_ERR("missile=" + getName() + " has unexpected empty tiles destination");
         return false;
+    }
 
     // If we get out of the map, we take the last tile as the destination
     if((direction.x > 0.0 && destination.x > static_cast<Ogre::Real>(getGameMap()->getMapSizeX() - 1)) ||
@@ -260,7 +262,7 @@ MissileObject* MissileObject::getMissileObjectFromStream(GameMap* gameMap, std::
             break;
         }
         default:
-            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Helper::toString(
+            OD_LOG_ERR("Unknown enum value : " + Helper::toString(
                 static_cast<int>(type)));
             break;
     }
@@ -285,7 +287,7 @@ MissileObject* MissileObject::getMissileObjectFromPacket(GameMap* gameMap, ODPac
             break;
         }
         default:
-            OD_ASSERT_TRUE_MSG(false, "Unknown enum value : " + Helper::toString(
+            OD_LOG_ERR("Unknown enum value : " + Helper::toString(
                 static_cast<int>(type)));
             break;
     }

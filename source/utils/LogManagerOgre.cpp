@@ -36,36 +36,30 @@ Ogre::LogMessageLevel toOgreLml(LogMessageLevel lml)
 
 LogManagerOgre::LogManagerOgre(const std::string& userDataPath)
 {
+    mLogManager = new Ogre::LogManager;
 #ifdef LOGMANAGER_USE_LOCKS
     /* Using a separate log if ogre doesn't have thread support as
      * as log writes from ogre itself won't be thread-safe in this case.
      */
-    mGameLog = Ogre::LogManager::getSingleton().createLog(
-        userDataPath + GAMELOG_NAME);
+    mGameLog = mLogManager->createLog(userDataPath + GAMELOG_NAME);
 #else
-    mGameLog = Ogre::LogManager::getSingleton().getDefaultLog();
+    mGameLog = mLogManager->createLog(userDataPath, true, true, false);
 #endif
+    std::cout << "Log created file=" << userDataPath << std::endl;
 }
 
-void LogManagerOgre::logMessage(const std::string& message, LogMessageLevel lml, bool maskDebug, bool addTimeStamp)
+LogManagerOgre::~LogManagerOgre()
+{
+    if(mLogManager != nullptr)
+        delete mLogManager;
+}
+
+void LogManagerOgre::logMessage(const std::string& message, LogMessageLevel lml)
 {
 #ifdef LOGMANAGER_USE_LOCKS
     std::lock_guard<std::mutex> lock(mLogLockMutex);
 #endif
-    if(addTimeStamp)
-    {
-        static std::locale loc(std::wcout.getloc(),
-            new boost::posix_time::time_facet("%Y%m%d_%H%M%S"));
-
-        std::stringstream ss;
-        ss.imbue(loc);
-        ss << "[" << boost::posix_time::second_clock::local_time() << "] " << message;
-        mGameLog->logMessage(ss.str(), toOgreLml(lml), maskDebug);
-    }
-    else
-    {
-        mGameLog->logMessage(message, toOgreLml(lml), maskDebug);
-    }
+    mGameLog->logMessage(message, toOgreLml(lml));
 }
 
 void LogManagerOgre::setLogDetail(LogMessageLevel ll)

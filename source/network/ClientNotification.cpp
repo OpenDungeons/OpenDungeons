@@ -86,7 +86,7 @@ std::string ClientNotification::typeString(ClientNotificationType type)
         case ClientNotificationType::editorAskCreateMapLight:
             return "editorAskCreateMapLight";
         default:
-            LogManager::getSingleton().logMessage("ERROR: Unknown enum for ClientNotificationType="
+            OD_LOG_ERR("Unknown enum for ClientNotificationType="
                 + Helper::toString(static_cast<int>(type)));
     }
     return "";

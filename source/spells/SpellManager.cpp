@@ -17,44 +17,45 @@
 
 #include "spells/SpellManager.h"
 
+#include "ODApplication.h"
+#include "game/Player.h"
+#include "gamemap/GameMap.h"
+#include "modes/InputCommand.h"
+#include "network/ClientNotification.h"
 #include "network/ODPacket.h"
-
 #include "spells/SpellType.h"
-
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
 const std::string EMPTY_STRING;
 
-int SpellFunctions::getSpellCostFunc(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
-    int tileX1, int tileY1, int tileX2, int tileY2, Player* player) const
+void SpellFunctions::checkSpellCastFunc(GameMap* gameMap, SpellType type, const InputManager& inputManager, InputCommand& inputCommand) const
 {
-    if(mGetSpellCostFunc == nullptr)
+    if(mCheckSpellCastFunc == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "null mGetSpellCostFunc function spell=" + Helper::toString(static_cast<uint32_t>(type)));
-        return 0;
-    }
-
-    return mGetSpellCostFunc(targets, gameMap, type, tileX1, tileY1, tileX2, tileY2, player);
-}
-
-void SpellFunctions::castSpellFunc(GameMap* gameMap, SpellType type, const std::vector<EntityBase*>& targets,
-    Player* player) const
-{
-    if(mCastSpellFunc == nullptr)
-    {
-        OD_ASSERT_TRUE_MSG(false, "null mCastSpellFunc function spell=" + Helper::toString(static_cast<uint32_t>(type)));
+        OD_LOG_ERR("null mCheckSpellCastFunc function spell=" + Helper::toString(static_cast<uint32_t>(type)));
         return;
     }
 
-    mCastSpellFunc(gameMap, targets, player);
+    mCheckSpellCastFunc(gameMap, inputManager, inputCommand);
+}
+
+bool SpellFunctions::castSpellFunc(GameMap* gameMap, SpellType type, Player* player, ODPacket& packet) const
+{
+    if(mCastSpellFunc == nullptr)
+    {
+        OD_LOG_ERR("null mCastSpellFunc function spell=" + Helper::toString(static_cast<uint32_t>(type)));
+        return false;
+    }
+
+    return mCastSpellFunc(gameMap, player, packet);
 }
 
 Spell* SpellFunctions::getSpellFromStreamFunc(GameMap* gameMap, SpellType type, std::istream& is) const
 {
     if(mGetSpellFromStreamFunc == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "null mGetSpellFromStreamFunc function spell=" + Helper::toString(static_cast<uint32_t>(type)));
+        OD_LOG_ERR("null mGetSpellFromStreamFunc function spell=" + Helper::toString(static_cast<uint32_t>(type)));
         return nullptr;
     }
 
@@ -65,7 +66,7 @@ Spell* SpellFunctions::getSpellFromPacketFunc(GameMap* gameMap, SpellType type, 
 {
     if(mGetSpellFromPacketFunc == nullptr)
     {
-        OD_ASSERT_TRUE_MSG(false, "null mGetSpellFromPacketFunc function spell=" + Helper::toString(static_cast<uint32_t>(type)));
+        OD_LOG_ERR("null mGetSpellFromPacketFunc function spell=" + Helper::toString(static_cast<uint32_t>(type)));
         return nullptr;
     }
 
@@ -79,32 +80,41 @@ std::vector<SpellFunctions>& getSpellFunctions()
     return spellList;
 }
 
-int SpellManager::getSpellCost(std::vector<EntityBase*>& targets, GameMap* gameMap, SpellType type,
-    int tileX1, int tileY1, int tileX2, int tileY2, Player* player)
+void SpellManager::checkSpellCast(GameMap* gameMap, SpellType type, const InputManager& inputManager, InputCommand& inputCommand)
 {
     uint32_t index = static_cast<uint32_t>(type);
     if(index >= getSpellFunctions().size())
     {
-        OD_ASSERT_TRUE_MSG(false, "type=" + Helper::toString(index));
-        return 0;
-    }
-
-    SpellFunctions& spellFuncs = getSpellFunctions()[index];
-    return spellFuncs.getSpellCostFunc(targets, gameMap, type, tileX1, tileY1, tileX2, tileY2, player);
-}
-
-void SpellManager::castSpell(GameMap* gameMap, SpellType type, const std::vector<EntityBase*>& targets,
-    Player* player)
-{
-    uint32_t index = static_cast<uint32_t>(type);
-    if(index >= getSpellFunctions().size())
-    {
-        OD_ASSERT_TRUE_MSG(false, "type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index));
         return;
     }
 
+    Player* player = gameMap->getLocalPlayer();
+    uint32_t cooldown = player->getSpellCooldownTurns(type);
+    if(cooldown > 0)
+    {
+        double remainingTime = static_cast<double>(cooldown) / ODApplication::turnsPerSecond;
+        std::string errorStr = getSpellNameFromSpellType(type)
+            + " (" + Helper::toString(remainingTime, 2)+ " s)";
+
+        inputCommand.displayText(Ogre::ColourValue::Red, errorStr);
+        return;
+    }
     SpellFunctions& spellFuncs = getSpellFunctions()[index];
-    spellFuncs.castSpellFunc(gameMap, type, targets, player);
+    spellFuncs.checkSpellCastFunc(gameMap, type, inputManager, inputCommand);
+}
+
+bool SpellManager::castSpell(GameMap* gameMap, SpellType type, Player* player, ODPacket& packet)
+{
+    uint32_t index = static_cast<uint32_t>(type);
+    if(index >= getSpellFunctions().size())
+    {
+        OD_LOG_ERR("type=" + Helper::toString(index));
+        return false;
+    }
+
+    SpellFunctions& spellFuncs = getSpellFunctions()[index];
+    return spellFuncs.castSpellFunc(gameMap, type, player, packet);
 }
 
 Spell* SpellManager::getSpellFromStream(GameMap* gameMap, std::istream& is)
@@ -114,7 +124,7 @@ Spell* SpellManager::getSpellFromStream(GameMap* gameMap, std::istream& is)
     uint32_t index = static_cast<uint32_t>(type);
     if(index >= getSpellFunctions().size())
     {
-        OD_ASSERT_TRUE_MSG(false, "type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index));
         return nullptr;
     }
 
@@ -129,7 +139,7 @@ Spell* SpellManager::getSpellFromPacket(GameMap* gameMap, ODPacket& is)
     uint32_t index = static_cast<uint32_t>(type);
     if(index >= getSpellFunctions().size())
     {
-        OD_ASSERT_TRUE_MSG(false, "type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index));
         return nullptr;
     }
 
@@ -142,7 +152,7 @@ const std::string& SpellManager::getSpellNameFromSpellType(SpellType type)
     uint32_t index = static_cast<uint32_t>(type);
     if(index >= getSpellFunctions().size())
     {
-        OD_ASSERT_TRUE_MSG(false, "type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index));
         return EMPTY_STRING;
     }
     SpellFunctions& spellFuncs = getSpellFunctions()[index];
@@ -159,12 +169,12 @@ SpellType SpellManager::getSpellTypeFromSpellName(const std::string& name)
             return static_cast<SpellType>(i);
     }
 
-    OD_ASSERT_TRUE_MSG(false, "Cannot find spell name=" + name);
+    OD_LOG_ERR("Cannot find spell name=" + name);
     return SpellType::nullSpellType;
 }
 
 void SpellManager::registerSpell(SpellType type, const std::string& name,
-    SpellFunctions::GetSpellCostFunc getSpellCostFunc,
+    SpellFunctions::CheckSpellCastFunc checkSpellCastFunc,
     SpellFunctions::CastSpellFunc castSpellFunc,
     SpellFunctions::GetSpellFromStreamFunc getSpellFromStreamFunc,
     SpellFunctions::GetSpellFromPacketFunc getSpellFromPacketFunc)
@@ -172,14 +182,21 @@ void SpellManager::registerSpell(SpellType type, const std::string& name,
     uint32_t index = static_cast<uint32_t>(type);
     if(index >= getSpellFunctions().size())
     {
-        OD_ASSERT_TRUE_MSG(false, "type=" + Helper::toString(index));
+        OD_LOG_ERR("type=" + Helper::toString(index));
         return;
     }
 
     SpellFunctions& spellFuncs = getSpellFunctions()[index];
     spellFuncs.mName = name;
-    spellFuncs.mGetSpellCostFunc = getSpellCostFunc;
+    spellFuncs.mCheckSpellCastFunc = checkSpellCastFunc;
     spellFuncs.mCastSpellFunc = castSpellFunc;
     spellFuncs.mGetSpellFromStreamFunc = getSpellFromStreamFunc;
     spellFuncs.mGetSpellFromPacketFunc = getSpellFromPacketFunc;
+}
+
+ClientNotification* SpellManager::createSpellClientNotification(SpellType type)
+{
+    ClientNotification *clientNotification = new ClientNotification(ClientNotificationType::askCastSpell);
+    clientNotification->mPacket << type;
+    return clientNotification;
 }

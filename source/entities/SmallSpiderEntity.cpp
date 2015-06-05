@@ -48,9 +48,9 @@ SmallSpiderEntity::SmallSpiderEntity(GameMap* gameMap, bool isOnServerMap) :
 void SmallSpiderEntity::doUpkeep()
 {
     Tile* tile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
     if(tile == nullptr)
     {
+        OD_LOG_ERR("entityName=" + getName());
         removeFromGameMap();
         deleteYourself();
         return;
@@ -116,9 +116,11 @@ void SmallSpiderEntity::doUpkeep()
 bool SmallSpiderEntity::canSlap(Seat* seat)
 {
     Tile* tile = getPositionTile();
-    OD_ASSERT_TRUE_MSG(tile != nullptr, "entityName=" + getName());
     if(tile == nullptr)
+    {
+        OD_LOG_ERR("entityName=" + getName());
         return false;
+    }
 
     Room* currentCrypt = tile->getCoveringRoom();
     if(currentCrypt == nullptr)
