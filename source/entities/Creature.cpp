@@ -148,8 +148,6 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap, const CreatureDefinitio
     setMeshName(definition->getMeshName());
     setName(getGameMap()->nextUniqueNameCreature(definition->getClassName()));
 
-    setIsOnMap(false);
-
     pushAction(CreatureActionType::idle, false, true);
 
     mMaxHP = mDefinition->getMinHp();
@@ -226,8 +224,6 @@ Creature::Creature(GameMap* gameMap, bool isOnServerMap) :
     mOverlayStatus           (nullptr),
     mNeedFireRefresh         (false)
 {
-    setIsOnMap(false);
-
     pushAction(CreatureActionType::idle, false, true);
 }
 
@@ -287,7 +283,6 @@ void Creature::destroyMeshWeapons()
 void Creature::addToGameMap()
 {
     getGameMap()->addCreature(this);
-    setIsOnMap(true);
     getGameMap()->addAnimatedObject(this);
     getGameMap()->addClientUpkeepEntity(this);
 
@@ -299,14 +294,10 @@ void Creature::addToGameMap()
 
 void Creature::removeFromGameMap()
 {
+    removeEntityFromPositionTile();
     getGameMap()->removeCreature(this);
     getGameMap()->removeAnimatedObject(this);
     getGameMap()->removeClientUpkeepEntity(this);
-    setIsOnMap(false);
-
-    Tile* posTile = getPositionTile();
-    if(posTile != nullptr)
-        posTile->removeEntity(this);
 
     if(!getIsOnServerMap())
         return;
@@ -601,17 +592,16 @@ void Creature::importFromPacket(ODPacket& is)
     setupDefinition(*getGameMap(), *ConfigManager::getSingleton().getCreatureDefinitionDefaultWorker());
 }
 
-void Creature::setPosition(const Ogre::Vector3& v, bool isMove)
+void Creature::setPosition(const Ogre::Vector3& v)
 {
-    MovableGameEntity::setPosition(v, isMove);
+    MovableGameEntity::setPosition(v);
     if(mCarriedEntity != nullptr)
         mCarriedEntity->notifyCarryMove(v);
 }
 
 void Creature::drop(const Ogre::Vector3& v)
 {
-    setIsOnMap(true);
-    setPosition(v, false);
+    setPosition(v);
     if(!getIsOnServerMap())
         return;
 
@@ -720,6 +710,7 @@ void Creature::doUpkeep()
         // Let the creature lay dead on the ground for a few turns before removing it from the GameMap.
         if (mDeathCounter == 0)
         {
+            OD_LOG_INF("Creature=" + getName() + " RIP");
             stopJob();
             stopEating();
             clearDestinations(EntityAnimation::die_anim, false);
@@ -739,7 +730,7 @@ void Creature::doUpkeep()
                 Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(myTile->getX()),
                                             static_cast<Ogre::Real>(myTile->getY()), 0.0f);
                 obj->createMesh();
-                obj->setPosition(spawnPosition, false);
+                obj->setPosition(spawnPosition);
             }
 
             if(mResearchTypeDropDeath != ResearchType::nullResearchType)
@@ -750,7 +741,7 @@ void Creature::doUpkeep()
                 Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(myTile->getX()),
                                             static_cast<Ogre::Real>(myTile->getY()), 0.0f);
                 researchEntity->createMesh();
-                researchEntity->setPosition(spawnPosition, false);
+                researchEntity->setPosition(spawnPosition);
             }
 
             // TODO: drop weapon when available
@@ -1802,7 +1793,7 @@ bool Creature::handleDigTileAction(const CreatureAction& actionItem)
         Ogre::Vector3 pos(static_cast<Ogre::Real>(myTile->getX()), static_cast<Ogre::Real>(myTile->getY()), 0.0f);
         obj->addToGameMap();
         obj->createMesh();
-        obj->setPosition(pos, false);
+        obj->setPosition(pos);
 
         std::vector<Room*> treasuries = getGameMap()->getRoomsByTypeAndSeat(RoomType::treasury, getSeat());
         treasuries = getGameMap()->getReachableRooms(treasuries, myTile, this);
@@ -1819,10 +1810,12 @@ bool Creature::handleDigTileAction(const CreatureAction& actionItem)
         if(isTreasuryAvailable)
         {
             pushAction(CreatureActionType::carryEntity, false, true);
+            return true;
         }
-        else if((getSeat() != nullptr) &&
-                (getSeat()->getPlayer() != nullptr) &&
-                (getSeat()->getPlayer()->getIsHuman()))
+
+        if((getSeat() != nullptr) &&
+            (getSeat()->getPlayer() != nullptr) &&
+            (getSeat()->getPlayer()->getIsHuman()))
         {
             getSeat()->getPlayer()->notifyNoTreasuryAvailable();
         }
@@ -1909,7 +1902,7 @@ bool Creature::handleDigTileAction(const CreatureAction& actionItem)
             Ogre::Vector3 pos(static_cast<Ogre::Real>(myTile->getX()), static_cast<Ogre::Real>(myTile->getY()), 0.0f);
             obj->addToGameMap();
             obj->createMesh();
-            obj->setPosition(pos, false);
+            obj->setPosition(pos);
 
             std::vector<Room*> treasuries = getGameMap()->getRoomsByTypeAndSeat(RoomType::treasury, getSeat());
             treasuries = getGameMap()->getReachableRooms(treasuries, myTile, this);
@@ -2495,7 +2488,7 @@ bool Creature::handleAttackAction(const CreatureAction& actionItem)
             "MissileMagic", missileDirection, physicalDamage, magicalDamage, tileBuilding, false);
         missile->addToGameMap();
         missile->createMesh();
-        missile->setPosition(position, false);
+        missile->setPosition(position);
         missile->setMoveSpeed(3.0, 1.0);
         // We don't want the missile to stay idle for 1 turn. Because we are in a doUpkeep context,
         // we can safely call the missile doUpkeep as we know the engine will not call it the turn
@@ -2925,7 +2918,6 @@ bool Creature::handleLeaveDungeon(const CreatureAction& actionItem)
             stopJob();
             stopEating();
             clearDestinations(EntityAnimation::idle_anim, true);
-            setIsOnMap(false);
 
             // Remove the creature from the game map and into the deletion queue, it will be deleted
             // when it is safe, i.e. all other pointers to it have been wiped from the program.
@@ -3678,13 +3670,9 @@ bool Creature::tryPickup(Seat* seat)
 void Creature::pickup()
 {
     // Stop the creature walking and set it off the map to prevent the AI from running on it.
-    setIsOnMap(false);
+    removeEntityFromPositionTile();
     clearDestinations(EntityAnimation::idle_anim, true);
     clearActionQueue();
-
-    Tile* tile = getPositionTile();
-    if(tile != nullptr)
-        tile->removeEntity(this);
 
     if(!getIsOnServerMap())
         return;
@@ -3973,30 +3961,13 @@ EntityCarryType Creature::getEntityCarryType()
 
 void Creature::notifyEntityCarryOn(Creature* carrier)
 {
-    Tile* myTile = getPositionTile();
-    if(myTile == nullptr)
-    {
-        OD_LOG_ERR("name=" + getName());
-        return;
-    }
-
-    setIsOnMap(false);
-    myTile->removeEntity(this);
+    removeEntityFromPositionTile();
 }
 
 void Creature::notifyEntityCarryOff(const Ogre::Vector3& position)
 {
     mPosition = position;
-    setIsOnMap(true);
-
-    Tile* myTile = getPositionTile();
-    if(myTile == nullptr)
-    {
-        OD_LOG_ERR("name=" + getName());
-        return;
-    }
-
-    myTile->addEntity(this);
+    addEntityToPositionTile();
 }
 
 void Creature::carryEntity(GameEntity* carriedEntity)
@@ -4010,6 +3981,7 @@ void Creature::carryEntity(GameEntity* carriedEntity)
     if(carriedEntity == nullptr)
         return;
 
+    OD_LOG_INF("creature=" + getName() + " is carrying " + carriedEntity->getName());
     carriedEntity->notifyEntityCarryOn(this);
 
     // We remove the carried entity from the clients gamemaps as well as the carrier
@@ -4044,6 +4016,8 @@ void Creature::releaseCarriedEntity()
     }
 
     const Ogre::Vector3& pos = getPosition();
+    OD_LOG_INF("creature=" + getName() + " is releasing carried " + carriedEntity->getName() + ", pos=" + Helper::toString(pos));
+
     carriedEntity->notifyEntityCarryOff(pos);
 
     for(Seat* seat : mSeatsWithVisionNotified)

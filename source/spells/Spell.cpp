@@ -61,7 +61,6 @@ void Spell::doUpkeep()
 void Spell::addToGameMap()
 {
     getGameMap()->addSpell(this);
-    setIsOnMap(true);
     getGameMap()->addAnimatedObject(this);
 
     if(!getIsOnServerMap())
@@ -72,13 +71,9 @@ void Spell::addToGameMap()
 
 void Spell::removeFromGameMap()
 {
+    removeEntityFromPositionTile();
     getGameMap()->removeSpell(this);
-    setIsOnMap(false);
     getGameMap()->removeAnimatedObject(this);
-
-    Tile* posTile = getPositionTile();
-    if(posTile != nullptr)
-        posTile->removeEntity(this);
 
     if(!getIsOnServerMap())
         return;

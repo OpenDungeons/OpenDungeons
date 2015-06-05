@@ -63,6 +63,7 @@ void Player::pickUpEntity(GameEntity *entity)
         return;
     }
 
+    OD_LOG_INF("player seatId=" + Helper::toString(getSeat()->getId()) + " picked up " + entity->getName());
     entity->pickup();
 
     // Start tracking this creature as being in this player's hand
@@ -86,8 +87,11 @@ void Player::pickUpEntity(GameEntity *entity)
 bool Player::isDropHandPossible(Tile *t, unsigned int index)
 {
     // if we have a creature to drop
-    if (mObjectsInHand.empty())
+    if (index >= mObjectsInHand.size())
+    {
+        OD_LOG_ERR("seatId=" + Helper::toString(getSeat()->getId()) + ", index=" + Helper::toString(index) + ", size=" + Helper::toString(mObjectsInHand.size()));
         return false;
+    }
 
     GameEntity* entity = mObjectsInHand[index];
     return entity->tryDrop(getSeat(), t);
@@ -98,24 +102,25 @@ void Player::dropHand(Tile *t, unsigned int index)
     // Add the creature to the map
     if(index >= mObjectsInHand.size())
     {
-        OD_LOG_ERR("index=" + Helper::toString(index) + ", nbObjInHand=" + Helper::toString(mObjectsInHand.size()));
+        OD_LOG_ERR("seatId=" + Helper::toString(getSeat()->getId()) + ", index=" + Helper::toString(index) + ", size=" + Helper::toString(mObjectsInHand.size()));
         return;
     }
 
     GameEntity *entity = mObjectsInHand[index];
     mObjectsInHand.erase(mObjectsInHand.begin() + index);
 
-    Ogre::Vector3 creaturePos(static_cast<Ogre::Real>(t->getX()),
+    Ogre::Vector3 pos(static_cast<Ogre::Real>(t->getX()),
        static_cast<Ogre::Real>(t->getY()), entity->getPosition().z);
     if(mGameMap->isServerGameMap())
     {
-        entity->drop(creaturePos);
+        entity->drop(pos);
         entity->fireDropEntity(this, t);
         return;
     }
 
-    entity->correctDropPosition(creaturePos);
-    entity->drop(creaturePos);
+    entity->correctDropPosition(pos);
+    OD_LOG_INF("player seatId=" + Helper::toString(getSeat()->getId()) + " drop " + entity->getName());
+    entity->drop(pos);
 
     // If this is the result of another player dropping the creature it is currently not visible so we need to create a mesh for it
     //cout << "\nthis:  " << this << "\nme:  " << gameMap->getLocalPlayer() << endl;

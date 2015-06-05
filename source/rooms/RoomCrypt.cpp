@@ -89,8 +89,10 @@ void RoomCrypt::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
 
     // If the dead creature is already rotting, we add it back to its tile so that it can continue
     // its normal dead creature life ^^
-    if(rottingCreature.second != -1)
-        tile->addEntity(rottingCreature.first);
+    if(rottingCreature.second == -1)
+        return;
+
+    rottingCreature.first->addEntityToPositionTile();
 }
 
 void RoomCrypt::absorbRoom(Room *r)
@@ -125,7 +127,7 @@ void RoomCrypt::doUpkeep()
         Ogre::Vector3 pos(static_cast<Ogre::Real>(tile->getX()), static_cast<Ogre::Real>(tile->getY()), 0.0f);
         spider->addToGameMap();
         spider->createMesh();
-        spider->setPosition(pos, false);
+        spider->setPosition(pos);
     }
 
     // We increment rotting creatures counter
@@ -170,8 +172,7 @@ void RoomCrypt::doUpkeep()
 
             // Add the creature to the gameMap and create meshes so it is visible.
             newCreature->addToGameMap();
-            newCreature->setPosition(Ogre::Vector3(tileSpawn->getX(),
-                          tileSpawn->getY(), 0.0f), false);
+            newCreature->setPosition(Ogre::Vector3(tileSpawn->getX(), tileSpawn->getY(), 0.0f));
             newCreature->createMesh();
         }
     }
@@ -260,8 +261,7 @@ void RoomCrypt::notifyCarryingStateChanged(Creature* carrier, GameEntity* carrie
                 return;
             }
             // Start rotting
-            tileDeadCreature->removeEntity(deadCreature);
-            deadCreature->setIsOnMap(false);
+            deadCreature->removeEntityFromPositionTile();
             p.second.second = 0;
             return;
         }

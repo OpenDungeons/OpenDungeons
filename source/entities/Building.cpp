@@ -88,7 +88,7 @@ void Building::addBuildingObject(Tile* targetTile, RenderedMovableEntity* obj)
     // We assume the object position has been already set (most of the time in loadBuildingObject)
     mBuildingObjects[targetTile] = obj;
     obj->addToGameMap();
-    obj->setPosition(obj->getPosition(), false);
+    obj->setPosition(obj->getPosition());
 }
 
 void Building::removeBuildingObject(Tile* tile)

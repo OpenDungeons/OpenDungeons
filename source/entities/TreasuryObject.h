@@ -41,14 +41,11 @@ public:
     virtual bool tryPickup(Seat* seat) override;
     virtual bool tryDrop(Seat* seat, Tile* tile) override;
     void mergeGold(TreasuryObject* obj);
-    void addGold(int goldValue);
 
     virtual void exportToStream(std::ostream& os) const override;
     virtual void importFromStream(std::istream& is) override;
     virtual void exportToPacket(ODPacket& os) const override;
     virtual void importFromPacket(ODPacket& is) override;
-
-    virtual void pickup() override;
 
     virtual EntityCarryType getEntityCarryType() override;
     virtual void notifyEntityCarryOn(Creature* carrier) override;
@@ -59,9 +56,8 @@ public:
     static std::string getTreasuryObjectStreamFormat();
     static TreasuryObject* getTreasuryObjectFromStream(GameMap* gameMap, std::istream& is);
     static TreasuryObject* getTreasuryObjectFromPacket(GameMap* gameMap, ODPacket& is);
-protected:
-    virtual bool addEntityToTile(Tile* tile) override;
-    virtual bool removeEntityFromTile(Tile* tile) override;
+
+    virtual void addEntityToPositionTile() override;
 
 private:
     int mGoldValue;

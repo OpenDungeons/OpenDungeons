@@ -46,7 +46,7 @@ GameEntity::GameEntity(
           ) :
     EntityBase(name, meshName, seat),
     mGameMap           (gameMap),
-    mIsOnMap           (true),
+    mIsOnMap           (false),
     mParticleSystemsNumber   (0),
     mIsOnServerMap     (isOnServerMap)
 {
@@ -72,14 +72,35 @@ Tile* GameEntity::getPositionTile() const
                                  Helper::round(tempPosition.y));
 }
 
-bool GameEntity::addEntityToTile(Tile* tile)
+void GameEntity::addEntityToPositionTile()
 {
-    return tile->addEntity(this);
+    if(getIsOnMap())
+        return;
+
+    setIsOnMap(true);
+    Tile* tile = getPositionTile();
+    if(tile == nullptr)
+    {
+        OD_LOG_ERR(getGameMap()->serverStr() + "entityName=" + getName() + ", pos=" + Helper::toString(getPosition()));
+        return;
+    }
+    OD_ASSERT_TRUE_MSG(tile->addEntity(this), getGameMap()->serverStr() + "entity=" + getName() + ", pos=" + Helper::toString(getPosition()) + ", tile=" + Tile::displayAsString(tile));
 }
 
-bool GameEntity::removeEntityFromTile(Tile* tile)
+void GameEntity::removeEntityFromPositionTile()
 {
-    return tile->removeEntity(this);
+    if(!getIsOnMap())
+        return;
+
+    setIsOnMap(false);
+    Tile* tile = getPositionTile();
+    if(tile == nullptr)
+    {
+        OD_LOG_ERR("entityName=" + getName() + ", pos=" + Helper::toString(getPosition()));
+        return;
+    }
+
+    tile->removeEntity(this);
 }
 
 void GameEntity::firePickupEntity(Player* playerPicking)

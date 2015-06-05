@@ -192,7 +192,7 @@ bool SpellSummonWorker::summonWorkersOnTiles(GameMap* gameMap, Player* player, c
                                     static_cast<Ogre::Real>(tile->getY()),
                                     static_cast<Ogre::Real>(0.0));
         newCreature->createMesh();
-        newCreature->setPosition(spawnPosition, false);
+        newCreature->setPosition(spawnPosition);
     }
 
     player->setSpellCooldownTurns(SpellType::summonWorker, ConfigManager::getSingleton().getSpellConfigUInt32("SummonWorkerCooldown"));

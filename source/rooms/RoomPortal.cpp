@@ -201,12 +201,12 @@ void RoomPortal::spawnCreature()
     Creature* newCreature = new Creature(getGameMap(), true, classToSpawn, getSeat(), Ogre::Vector3(xPos, yPos, 0.0f));
 
     OD_LOG_INF("RoomPortal name=" + getName()
-        + "spawns a creature class=" + classToSpawn->getClassName()
+        + " spawns a creature class=" + classToSpawn->getClassName()
         + ", name=" + newCreature->getName() + ", seatId=" + Helper::toString(getSeat()->getId()));
 
     newCreature->addToGameMap();
     newCreature->createMesh();
-    newCreature->setPosition(newCreature->getPosition(), false);
+    newCreature->setPosition(newCreature->getPosition());
 
     mSpawnCreatureCountdown = Random::Uint(30, 50);
 }

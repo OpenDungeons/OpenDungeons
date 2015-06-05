@@ -314,7 +314,7 @@ void RoomPortalWave::spawnWave(RoomPortalWaveData* roomPortalWaveData, uint32_t 
 
         newCreature->addToGameMap();
         newCreature->createMesh();
-        newCreature->setPosition(newCreature->getPosition(), false);
+        newCreature->setPosition(newCreature->getPosition());
 
         ++maxCreaturesToSpawn;
     }
@@ -561,7 +561,7 @@ bool RoomPortalWave::handleSearchFoe()
                                 static_cast<Ogre::Real>(tile->getY()),
                                 static_cast<Ogre::Real>(0.0));
     spell->createMesh();
-    spell->setPosition(spawnPosition, false);
+    spell->setPosition(spawnPosition);
     return true;
 }
 

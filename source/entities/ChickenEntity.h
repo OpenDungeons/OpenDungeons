@@ -62,8 +62,7 @@ private:
     {
         free,
         eaten,
-        dying,
-        dead
+        dying
     };
     ChickenState mChickenState;
     int32_t mNbTurnOutsideHatchery;

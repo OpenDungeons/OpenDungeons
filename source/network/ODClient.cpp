@@ -431,7 +431,7 @@ bool ODClient::processOneClientSocketMessage()
             entity->addToGameMap();
             entity->createMesh();
             entity->restoreEntityState();
-            entity->setPosition(entity->getPosition(), false);
+            entity->setPosition(entity->getPosition());
             break;
         }
 
@@ -447,6 +447,7 @@ bool ODClient::processOneClientSocketMessage()
                 break;
             }
 
+            entity->removeEntityFromPositionTile();
             entity->removeFromGameMap();
             entity->deleteYourself();
             break;
@@ -522,10 +523,6 @@ bool ODClient::processOneClientSocketMessage()
                 OD_LOG_ERR("entityType=" + Helper::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
                 break;
             }
-
-            Tile* tile = entity->getPositionTile();
-            if(tile != nullptr)
-                tile->removeEntity(entity);
 
             tempPlayer->pickUpEntity(entity);
             break;
@@ -869,9 +866,7 @@ bool ODClient::processOneClientSocketMessage()
                 break;
             }
 
-            Tile* tile = carried->getPositionTile();
-            if(tile != nullptr)
-                tile->removeEntity(carried);
+            carried->removeEntityFromPositionTile();
 
             RenderManager::getSingleton().rrCarryEntity(carrier, carried);
             break;
@@ -899,7 +894,7 @@ bool ODClient::processOneClientSocketMessage()
             }
 
             RenderManager::getSingleton().rrReleaseCarriedEntity(carrier, carried);
-            carried->setPosition(pos, false);
+            carried->setPosition(pos);
             break;
         }
 

@@ -970,7 +970,7 @@ void GameMap::createAllEntities()
         // Set positions and update active spots
         for (RenderedMovableEntity* rendered : mRenderedMovableEntities)
         {
-            rendered->setPosition(rendered->getPosition(), false);
+            rendered->setPosition(rendered->getPosition());
         }
 
         for (Room* room : mRooms)
@@ -980,7 +980,7 @@ void GameMap::createAllEntities()
 
         for (Spell* spell : mSpells)
         {
-            spell->setPosition(spell->getPosition(), false);
+            spell->setPosition(spell->getPosition());
         }
 
         for (Trap* trap : mTraps)
@@ -993,7 +993,7 @@ void GameMap::createAllEntities()
             //Set up definition for creature. This was previously done in createMesh for some reason.
             creature->setupDefinition(*this, *ConfigManager::getSingleton().getCreatureDefinitionDefaultWorker());
             //Set position to update info on what tile the creature is in.
-            creature->setPosition(creature->getPosition(), false);
+            creature->setPosition(creature->getPosition());
             //Doesn't do anything currently.
             //creature->restoreInitialEntityState();
         }
@@ -1014,7 +1014,7 @@ void GameMap::createAllEntities()
         for (RenderedMovableEntity* rendered : mRenderedMovableEntities)
         {
             rendered->createMesh();
-            rendered->setPosition(rendered->getPosition(), false);
+            rendered->setPosition(rendered->getPosition());
         }
 
         // Create OGRE entities for the creatures
@@ -1022,14 +1022,14 @@ void GameMap::createAllEntities()
         {
             creature->setupDefinition(*this, *ConfigManager::getSingleton().getCreatureDefinitionDefaultWorker());
             creature->createMesh();
-            creature->setPosition(creature->getPosition(), false);
+            creature->setPosition(creature->getPosition());
         }
 
         // Create OGRE entities for the map lights.
         for (MapLight* mapLight: mMapLights)
         {
             mapLight->createMesh();
-            mapLight->setPosition(mapLight->getPosition(), false);
+            mapLight->setPosition(mapLight->getPosition());
         }
 
         // Create OGRE entities for the rooms
@@ -1048,7 +1048,7 @@ void GameMap::createAllEntities()
         for (Spell* spell : mSpells)
         {
             spell->createMesh();
-            spell->setPosition(spell->getPosition(), false);
+            spell->setPosition(spell->getPosition());
         }
     }
 

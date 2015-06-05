@@ -80,14 +80,13 @@ Trap::Trap(GameMap* gameMap) :
 void Trap::addToGameMap()
 {
     getGameMap()->addTrap(this);
-    setIsOnMap(true);
     getGameMap()->addActiveObject(this);
 }
 
 void Trap::removeFromGameMap()
 {
-    getGameMap()->removeTrap(this);
     setIsOnMap(false);
+    getGameMap()->removeTrap(this);
     for(Seat* seat : getGameMap()->getSeats())
     {
         for(Tile* tile : mCoveredTiles)
@@ -276,6 +275,7 @@ bool Trap::isActivated(Tile* tile) const
 
 void Trap::setupTrap(const std::string& name, Seat* seat, const std::vector<Tile*>& tiles)
 {
+    setIsOnMap(true);
     setName(name);
     setSeat(seat);
     std::vector<Seat*> alliedSeats = seat->getAlliedSeats();
@@ -377,9 +377,7 @@ void Trap::notifyCarryingStateChanged(Creature* carrier, GameEntity* carriedEnti
 
         // The carrier has brought carried trap
         CraftedTrap* craftedTrap = trapTileData->getCarriedCraftedTrap();
-        OD_ASSERT_TRUE_MSG(tile->removeEntity(craftedTrap), "trap=" + getName()
-            + ", craftedTrap=" + craftedTrap->getName()
-            + ", tile=" + Tile::displayAsString(tile));
+        craftedTrap->removeEntityFromPositionTile();
         craftedTrap->removeFromGameMap();
         craftedTrap->deleteYourself();
         activate(tile);

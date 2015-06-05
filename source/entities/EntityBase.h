@@ -85,10 +85,8 @@ public:
     inline void setMeshExisting(bool isExisting)
     { mMeshExists = isExisting; }
 
-    //! \brief Set the new entity position. If isMove is true, that means that the entity was
-    //! already on map and is moving. If false, it means that the entity was not on map (for example
-    //! if being dropped or created).
-    virtual void setPosition(const Ogre::Vector3& v, bool isMove)
+    //! \brief Set the new entity position.
+    virtual void setPosition(const Ogre::Vector3& v)
     { mPosition = v; }
 
     inline void setParentSceneNode(Ogre::SceneNode* sceneNode)

@@ -136,10 +136,7 @@ public:
     inline const CreatureDefinition* getDefinition() const
     { return mDefinition; }
 
-    /*! \brief Changes the creature's position to a new position.
-     *  This is an overloaded function which just calls MovableGameEntity::setPosition.
-     */
-    void setPosition(const Ogre::Vector3& v, bool isMove);
+    void setPosition(const Ogre::Vector3& v) override;
 
     //! \brief Gets the move speed on the current tile.
     virtual double getMoveSpeed() const;

@@ -284,40 +284,37 @@ void MovableGameEntity::update(Ogre::Real timeSinceLastFrame)
     }
 
     setWalkDirection(walkDirection);
-    setPosition(newPosition, true);
+    setPosition(newPosition);
 }
 
-void MovableGameEntity::setPosition(const Ogre::Vector3& v, bool isMove)
+void MovableGameEntity::setPosition(const Ogre::Vector3& v)
 {
-    Tile* oldTile = getPositionTile();
-    GameEntity::setPosition(v, isMove);
-    if(!getIsOnMap())
+    Tile* oldTile = nullptr;
+    if(getIsOnMap())
+    {
+        oldTile = getPositionTile();
+        OD_ASSERT_TRUE_MSG(oldTile != nullptr, "entityName=" + getName() + ", oldPos=" + Helper::toString(getPosition()));
+    }
+
+    int newX = Helper::round(v.x);
+    int newY = Helper::round(v.y);
+    Tile* newTile = getGameMap()->getTile(newX, newY);
+    if(newTile == nullptr)
+    {
+        OD_LOG_ERR("entityName=" + getName() + ", newPos=" + Helper::toString(v));
         return;
+    }
+
+    if((oldTile != newTile) && (oldTile != nullptr))
+        removeEntityFromPositionTile();
+
+    mPosition = v;
 
     if(!getIsOnServerMap())
         RenderManager::getSingleton().rrMoveEntity(this, v);
 
-    Tile* tile = getPositionTile();
-    if(tile == nullptr)
-    {
-        OD_LOG_ERR("entityName=" + getName());
-        return;
-    }
-    if(isMove && (tile == oldTile))
-        return;
-
-    if((oldTile != nullptr) && isMove)
-    {
-        if(!removeEntityFromTile(oldTile))
-        {
-            OD_LOG_ERR("name=" + getName());
-        }
-    }
-
-    if(!addEntityToTile(tile))
-    {
-        OD_LOG_ERR("name=" + getName());
-    }
+    if(oldTile != newTile)
+        addEntityToPositionTile();
 }
 
 void MovableGameEntity::fireObjectAnimationState(const std::string& state, bool loop, const Ogre::Vector3& direction)
