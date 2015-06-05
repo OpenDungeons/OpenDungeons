@@ -163,10 +163,10 @@ bool SpellCreatureExplosion::castSpell(GameMap* gameMap, Player* player, ODPacke
 
     int32_t pricePerTarget = ConfigManager::getSingleton().getSpellConfigInt32("CreatureExplosionPrice");
     int32_t playerMana = static_cast<int32_t>(player->getSeat()->getMana());
-    int32_t nbTargets = playerMana / pricePerTarget;
+    uint32_t nbTargets = std::min(static_cast<uint32_t>(playerMana / pricePerTarget), creatures.size());
     int32_t priceTotal = nbTargets * pricePerTarget;
 
-    if(creatures.size() > static_cast<uint32_t>(nbTargets))
+    if(creatures.size() > nbTargets)
         creatures.resize(nbTargets);
 
     if(!player->getSeat()->takeMana(priceTotal))
