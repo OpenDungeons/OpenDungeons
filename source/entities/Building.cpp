@@ -422,6 +422,9 @@ void Building::importFromStream(std::istream& is)
     }
     setSeat(seat);
 
+    // Allied seats can always see buildings
+    std::vector<Seat*> alliedSeats = seat->getAlliedSeats();
+    alliedSeats.push_back(seat);
     OD_ASSERT_TRUE(ss >> tilesToLoad);
     while(tilesToLoad > 0)
     {
@@ -441,6 +444,7 @@ void Building::importFromStream(std::istream& is)
 
         TileData* tileData = createTileData(tile);
         mTileData[tile] = tileData;
+        tileData->mSeatsVision = alliedSeats;
         importTileDataFromStream(ss, tile, tileData);
     }
 }

@@ -529,7 +529,7 @@ void Trap::importTileDataFromStream(std::istream& is, Tile* tile, TileData* tile
             OD_LOG_ERR("trap=" + getName() + ", seatId=" + Helper::toString(seatId));
             continue;
         }
-        trapTileData->mSeatsVision.push_back(seat);
+        trapTileData->seatSawTriggering(seat);
     }
 }
 
