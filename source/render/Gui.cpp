@@ -43,7 +43,7 @@ Gui::Gui(SoundEffectsManager* soundEffectsManager, const std::string& ceguiLogFi
     CEGUI::OgreResourceProvider& rp = CEGUI::OgreRenderer::createOgreResourceProvider();
     CEGUI::OgreImageCodec& ic = CEGUI::OgreRenderer::createOgreImageCodec();
     CEGUI::System::create(renderer, &rp, static_cast<CEGUI::XMLParser*>(nullptr), &ic, nullptr, "",
-                          ceguiLogFileName);
+                          reinterpret_cast<const CEGUI::utf8*>(ceguiLogFileName.c_str()));
 
     CEGUI::SchemeManager::getSingleton().createFromFile("ODSkin.scheme");
 
