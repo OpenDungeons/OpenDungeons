@@ -49,7 +49,7 @@ public:
 
 private:
     void printToConsole(const std::string& text);
-    bool executeCurrentPrompt(const CEGUI::EventArgs &e);
+    bool executeCurrentPrompt(const CEGUI::EventArgs& e = {});
 
     ConsoleInterface mConsoleInterface;
 
