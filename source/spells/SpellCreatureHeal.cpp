@@ -148,6 +148,13 @@ bool SpellCreatureHeal::castSpell(GameMap* gameMap, Player* player, ODPacket& pa
             continue;
         }
 
+        if(creature->getHP() <= 0)
+        {
+            // This can happen if the creature was alive on client side but is not since we received the message
+            OD_LOG_WRN("creatureName=" + creatureName);
+            continue;
+        }
+
         // That can happen if the creature is not in perfect synchronization and is not on a claimed tile on the server gamemap
         if(!pos->isClaimedForSeat(player->getSeat()))
         {

@@ -1259,7 +1259,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             // available spells
             if(!player->getSeat()->isSpellAvailable(spellType))
             {
-                OD_LOG_INF("WARNING: player " + player->getNick()
+                OD_LOG_WRN("player " + player->getNick()
                     + " asked to cast a spell not available: " + SpellManager::getSpellNameFromSpellType(spellType));
                 break;
             }
@@ -1267,11 +1267,13 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             uint32_t cooldown = player->getSpellCooldownTurns(spellType);
             if(cooldown > 0)
             {
-                OD_LOG_INF("WARNING: player " + player->getNick()
+                OD_LOG_WRN("player " + player->getNick()
                     + " asked to cast a spell " + SpellManager::getSpellNameFromSpellType(spellType) + " before end of cooldown: "
                     + Helper::toString(cooldown));
                 break;
             }
+
+            OD_LOG_INF("Player id: " + Helper::toString(player->getSeat()->getId()) + " casts spell " + SpellManager::getSpellNameFromSpellType(spellType));
 
             if(!SpellManager::castSpell(gameMap, spellType, player, packetReceived))
                 break;

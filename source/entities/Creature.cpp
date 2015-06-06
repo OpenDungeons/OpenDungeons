@@ -4433,6 +4433,8 @@ void Creature::addCreatureEffect(CreatureEffect* effect)
 {
     std::string effectName = nextParticleSystemsName();
 
+    OD_LOG_INF("Added CreatureEffect name=" + effectName + " on creature=" + getName());
+
     CreatureParticuleEffect* particleEffect = new CreatureParticuleEffect(effectName, effect->getParticleEffectScript(),
         effect->getNbTurnsEffect(), effect);
     mEntityParticleEffects.push_back(particleEffect);

@@ -137,14 +137,21 @@ bool SpellCreatureExplosion::castSpell(GameMap* gameMap, Player* player, ODPacke
 
         if(creature->getSeat()->isAlliedSeat(player->getSeat()))
         {
-            OD_LOG_ERR("creatureName=" + creatureName);
+            OD_LOG_WRN("creatureName=" + creatureName);
             continue;
         }
 
         Tile* pos = creature->getPositionTile();
         if(pos == nullptr)
         {
-            OD_LOG_ERR("creatureName=" + creatureName);
+            OD_LOG_WRN("creatureName=" + creatureName);
+            continue;
+        }
+
+        if(creature->getHP() <= 0)
+        {
+            // This can happen if the creature was alive on client side but is not since we received the message
+            OD_LOG_WRN("creatureName=" + creatureName);
             continue;
         }
 
