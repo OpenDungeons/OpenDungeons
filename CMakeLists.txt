@@ -655,6 +655,7 @@ if(UNIX)
                        ${CMAKE_SOURCE_DIR}/materials
                        ${CMAKE_SOURCE_DIR}/models
                        ${CMAKE_SOURCE_DIR}/music
+                       ${CMAKE_SOURCE_DIR}/particles
                        ${CMAKE_SOURCE_DIR}/scripts
                        ${CMAKE_SOURCE_DIR}/sounds)
 
