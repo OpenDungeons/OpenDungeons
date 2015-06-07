@@ -108,16 +108,7 @@ void ODApplication::startClient()
 
     ConfigManager configManager(resMgr.getConfigPath());
 
-    /* TODO: Skip this and use root.restoreConfig()
-      * to load configuration settings if we are sure there are valid ones
-      * saved in ogre.cfg
-      * We should use this later (when we have an own setup options screen)
-      * to avoid having the setup dialog started on every run
-      */
-    /* TODO: create our own options menu and define good default values
-      *       (drop smaller than 800x600, AA, shadow quality, mipmaps, etc)
-      */
-    if (!ogreRoot.showConfigDialog())
+    if (!loadOgreConfig(ogreRoot))
         return;
 
     // Needed for the TextRenderer and the Render Manager
@@ -172,6 +163,9 @@ void ODApplication::startClient()
     ogreRoot.addFrameListener(&frameListener);
     ogreRoot.startRendering();
 
+    // Rendering ended, let's quit
+    ogreRoot.saveConfig();
+
     OD_LOG_INF("Disconnecting client...");
     client.disconnect();
     OD_LOG_INF("Stopping server...");
@@ -179,6 +173,41 @@ void ODApplication::startClient()
     ogreRoot.removeFrameListener(&frameListener);
     Ogre::RTShader::ShaderGenerator::destroy();
     ogreRoot.destroyRenderTarget(renderWindow);
+}
+
+bool ODApplication::loadOgreConfig(Ogre::Root& ogreRoot)
+{
+    if (ogreRoot.restoreConfig())
+        return true;
+
+    Ogre::RenderSystem* renderSystem = ogreRoot.getRenderSystemByName("OpenGL Rendering Subsystem");
+    if (renderSystem == nullptr)
+    {
+        const Ogre::RenderSystemList& renderers = ogreRoot.getAvailableRenderers();
+        if(renderers.empty())
+        {
+            OD_LOG_ERR("No valid renderer found. Exitting...");
+            return false;
+        }
+        renderSystem = *renderers.begin();
+        OD_LOG_INF("No OpenGL renderer found. Using the first available: " + renderSystem->getName());
+    }
+
+    ogreRoot.setRenderSystem(renderSystem);
+
+    // Manually set some configuration options
+    // By default, using low hardware config values.
+    renderSystem->setConfigOption("Video Mode", "800 x 600");
+    renderSystem->setConfigOption("Full Screen", "No");
+    renderSystem->setConfigOption("Display Frequency", "60 Hz");
+    renderSystem->setConfigOption("FSAA", "0");
+    renderSystem->setConfigOption("VSync", "No");
+    renderSystem->setConfigOption("RTT Preferred Mode", "FBO");
+    renderSystem->setConfigOption("Fixed Pipeline Enabled", "Yes");
+    renderSystem->setConfigOption("sRGB Gamma Conversion", "No");
+
+    ogreRoot.saveConfig();
+    return true;
 }
 
 //TODO: find some better places for some of these
