@@ -18,6 +18,7 @@
 #include "modes/EditorMode.h"
 
 #include "modes/GameEditorModeConsole.h"
+#include "modes/SettingsWindow.h"
 
 #include "gamemap/GameMap.h"
 #include "gamemap/MiniMap.h"
@@ -80,7 +81,8 @@ EditorMode::EditorMode(ModeManager* modeManager):
     mCurrentFullness(100.0),
     mCurrentCreatureIndex(0),
     mMouseX(0),
-    mMouseY(0)
+    mMouseY(0),
+    mSettings(new SettingsWindow(mRootWindow))
 {
     // Set per default the input on the map
     mModeManager->getInputManager().mMouseDownOnCEGUIWindow = false;
@@ -120,6 +122,12 @@ EditorMode::EditorMode(ModeManager* modeManager):
             CEGUI::Window::EventMouseClick,
             CEGUI::Event::Subscriber(&EditorMode::onSaveButtonClickFromOptions, this)
     ));
+    addEventConnection(
+        mRootWindow->getChild("EditorOptionsWindow/SettingsButton")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&EditorMode::showSettingsFromOptions, this)
+        )
+    );
     addEventConnection(
         mRootWindow->getChild("EditorOptionsWindow/QuitEditorButton")->subscribeEvent(
             CEGUI::Window::EventMouseClick,
@@ -790,11 +798,17 @@ bool EditorMode::toggleOptionsWindow(const CEGUI::EventArgs& /*arg*/)
     return true;
 }
 
+bool EditorMode::showSettingsFromOptions(const CEGUI::EventArgs& /*e*/)
+{
+    mRootWindow->getChild("EditorOptionsWindow")->hide();
+    mSettings->show();
+    return true;
+}
+
 bool EditorMode::showQuitMenuFromOptions(const CEGUI::EventArgs& /*arg*/)
 {
-    CEGUI::Window* guiSheet = mRootWindow;
-    guiSheet->getChild("ConfirmExit")->show();
-    guiSheet->getChild("EditorOptionsWindow")->hide();
+    mRootWindow->getChild("ConfirmExit")->show();
+    mRootWindow->getChild("EditorOptionsWindow")->hide();
     return true;
 }
 

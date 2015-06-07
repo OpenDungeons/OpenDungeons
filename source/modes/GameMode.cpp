@@ -18,6 +18,7 @@
 #include "modes/GameMode.h"
 
 #include "modes/GameEditorModeConsole.h"
+#include "modes/SettingsWindow.h"
 
 #include "ODApplication.h"
 #include "camera/CameraManager.h"
@@ -77,7 +78,8 @@ namespace
 GameMode::GameMode(ModeManager *modeManager):
     GameEditorModeBase(modeManager, ModeManager::GAME, modeManager->getGui().getGuiSheet(Gui::guiSheet::inGameMenu)),
     mDigSetBool(false),
-    mIndexEvent(0)
+    mIndexEvent(0),
+    mSettings(new SettingsWindow(mRootWindow))
 {
     // Set per default the input on the map
     mModeManager->getInputManager().mMouseDownOnCEGUIWindow = false;
@@ -165,19 +167,6 @@ GameMode::GameMode(ModeManager *modeManager):
             CEGUI::Event::Subscriber(&GameMode::showQuitMenuFromOptions, this)
         )
     );
-    //Settings window
-    addEventConnection(
-        guiSheet->getChild("SettingsWindow/CancelButton")->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&GameMode::hideSettingsWindow, this)
-        )
-    );
-    addEventConnection(
-        guiSheet->getChild("SettingsWindow/__auto_closebutton__")->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&GameMode::hideSettingsWindow, this)
-        )
-    );
 
     //Exit confirmation box
     addEventConnection(
@@ -240,6 +229,9 @@ GameMode::~GameMode()
 
     // Now that the server is stopped, we can clear the client game map
     ODFrameListener::getSingleton().getClientGameMap()->clearAll();
+
+    // Clear up the settings window.
+    delete mSettings;
 }
 
 void GameMode::activate()
@@ -1091,12 +1083,6 @@ bool GameMode::toggleOptionsWindow(const CEGUI::EventArgs& e)
     return true;
 }
 
-bool GameMode::hideSettingsWindow(const CEGUI::EventArgs&)
-{
-    mRootWindow->getChild("SettingsWindow")->hide();
-    return true;
-}
-
 bool GameMode::showQuitMenuFromOptions(const CEGUI::EventArgs& /*e*/)
 {
     mRootWindow->getChild("GameOptionsWindow")->hide();
@@ -1133,7 +1119,7 @@ bool GameMode::saveGame(const CEGUI::EventArgs& /*e*/)
 bool GameMode::showSettingsFromOptions(const CEGUI::EventArgs& /*e*/)
 {
     mRootWindow->getChild("GameOptionsWindow")->hide();
-    mRootWindow->getChild("SettingsWindow")->show();
+    mSettings->show();
     return true;
 }
 

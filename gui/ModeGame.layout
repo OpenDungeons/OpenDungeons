@@ -142,7 +142,6 @@
         <LayoutImport type="DefaultWindow" filename="WindowObjectives.layout" name="ObjectivesWindowImport" />
         <LayoutImport type="DefaultWindow" filename="WindowResearchTree.layout" name="ResearchTreeWindowImport" />
         <LayoutImport type="DefaultWindow" filename="WindowGameOptions.layout" name="GameOptionsMenuImport" />
-        <LayoutImport type="DefaultWindow" filename="WindowSettings.layout" name="SettingsMenuImport" />
         <LayoutImport type="DefaultWindow" filename="WindowEvent.layout" name="EventWindowImport" />
         <LayoutImport type="DefaultWindow" filename="WindowChat.layout" name="ChatWindowImport" />
         <LayoutImport type="DefaultWindow" filename="WindowHelp.layout" name="HelpWindowImport" />
