@@ -51,11 +51,6 @@ GameEditorModeConsole::GameEditorModeConsole(ModeManager* modeManager):
                                    CEGUI::Event::Subscriber(&GameEditorModeConsole::executeCurrentPrompt, this))
     );
 
-    addEventConnection(
-        mEditboxWindow->subscribeEvent(CEGUI::Editbox::EventTextAccepted,
-                                       CEGUI::Event::Subscriber(&GameEditorModeConsole::executeCurrentPrompt, this))
-    );
-
     mConsoleHistoryWindow->getVertScrollbar()->setEndLockEnabled(true);
 
     // Permits closing the console.
@@ -119,6 +114,10 @@ bool GameEditorModeConsole::keyPressed(const OIS::KeyEvent &arg)
             mEditboxWindow->setCaretIndex(mEditboxWindow->getText().length());
             break;
         }
+        case OIS::KC_RETURN:
+        case OIS::KC_NUMPADENTER:
+            executeCurrentPrompt();
+            break;
         default:
             break;
     }

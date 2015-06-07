@@ -776,7 +776,8 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
         ResourceManager::getSingleton().takeScreenshot(frameListener.getRenderWindow());
         break;
 
-    case OIS::KC_RETURN: {
+    case OIS::KC_RETURN:
+    case OIS::KC_NUMPADENTER: {
         mCurrentInputMode = InputModeChat;
         CEGUI::Window* chatEditBox = mRootWindow->getChild("GameChatWindow/GameChatEditBox");
         chatEditBox->show();
@@ -816,7 +817,7 @@ bool GameMode::keyPressedChat(const OIS::KeyEvent &arg)
         return true;
     }
 
-    if(arg.key != OIS::KC_RETURN)
+    if(arg.key != OIS::KC_RETURN && arg.key != OIS::KC_NUMPADENTER)
         return true;
 
     mCurrentInputMode = InputModeNormal;
