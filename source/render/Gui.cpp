@@ -39,6 +39,7 @@
 Gui::Gui(SoundEffectsManager* soundEffectsManager, const std::string& ceguiLogFileName)
   : mSoundEffectsManager(soundEffectsManager)
 {
+    OD_LOG_INF("*** Initializing CEGUI ***");
     CEGUI::OgreRenderer& renderer = CEGUI::OgreRenderer::create();
     OD_LOG_INF("OgreRenderer created");
     CEGUI::OgreResourceProvider& rp = CEGUI::OgreRenderer::createOgreResourceProvider();

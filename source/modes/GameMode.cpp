@@ -29,7 +29,7 @@
 #include "game/Research.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
-#include "gamemap/PathFinding.h"
+#include "gamemap/Pathfinding.h"
 #include "render/Gui.h"
 #include "render/ODFrameListener.h"
 #include "render/RenderManager.h"

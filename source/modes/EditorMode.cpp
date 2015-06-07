@@ -22,7 +22,7 @@
 #include "gamemap/GameMap.h"
 #include "gamemap/MiniMap.h"
 #include "gamemap/MapLoader.h"
-#include "gamemap/PathFinding.h"
+#include "gamemap/Pathfinding.h"
 #include "render/ODFrameListener.h"
 #include "render/Gui.h"
 #include "render/TextRenderer.h"
