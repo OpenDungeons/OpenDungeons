@@ -223,12 +223,12 @@ class GameEntity : public EntityBase
     virtual void correctDropPosition(Ogre::Vector3& position)
     {}
 
-  protected:
-
     //! \brief Called while moving the entity to add it to the tile it gets on
-    virtual bool addEntityToTile(Tile* tile);
+    virtual void addEntityToPositionTile();
     //! \brief Called while moving the entity to remove it from the tile it gets off
-    virtual bool removeEntityFromTile(Tile* tile);
+    virtual void removeEntityFromPositionTile();
+
+  protected:
 
     //! \brief Fires a add entity message to the player of the given seat
     virtual void fireAddEntity(Seat* seat, bool async) = 0;

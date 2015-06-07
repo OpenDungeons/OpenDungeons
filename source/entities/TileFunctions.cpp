@@ -293,20 +293,25 @@ void Tile::setMarkedForDiggingForAllPlayersExcept(bool s, Seat* exceptSeat)
 bool Tile::addEntity(GameEntity *entity)
 {
     if(std::find(mEntitiesInTile.begin(), mEntitiesInTile.end(), entity) != mEntitiesInTile.end())
+    {
+        OD_LOG_ERR(getGameMap()->serverStr() + "Trying to insert twice entity=" + entity->getName() + " on tile=" + Tile::displayAsString(this));
         return false;
+    }
 
     mEntitiesInTile.push_back(entity);
     return true;
 }
 
-bool Tile::removeEntity(GameEntity *entity)
+void Tile::removeEntity(GameEntity *entity)
 {
     std::vector<GameEntity*>::iterator it = std::find(mEntitiesInTile.begin(), mEntitiesInTile.end(), entity);
     if(it == mEntitiesInTile.end())
-        return false;
+    {
+        OD_LOG_ERR(getGameMap()->serverStr() + "Trying to remove not inserted entity=" + entity->getName() + " from tile=" + Tile::displayAsString(this));
+        return;
+    }
 
     mEntitiesInTile.erase(it);
-    return true;
 }
 
 
@@ -565,6 +570,11 @@ void Tile::fillWithEntities(std::vector<EntityBase*>& entities, SelectionEntityW
 
         switch(entityWanted)
         {
+            case SelectionEntityWanted::any:
+            {
+                // We accept any entity
+                break;
+            }
             case SelectionEntityWanted::creatureAliveOwned:
             {
                 if(entity->getObjectType() != GameEntityType::creature)
@@ -643,11 +653,18 @@ void Tile::fillWithEntities(std::vector<EntityBase*>& entities, SelectionEntityW
 
 bool Tile::addTreasuryObject(TreasuryObject* obj)
 {
-    if(!mIsOnServerMap)
-        return true;
-
     if (std::find(mEntitiesInTile.begin(), mEntitiesInTile.end(), obj) != mEntitiesInTile.end())
+    {
+        OD_LOG_ERR(getGameMap()->serverStr() + "Trying to insert twice treasury=" + obj->getName() + " on tile=" + Tile::displayAsString(this));
         return false;
+    }
+
+    if(!mIsOnServerMap)
+    {
+        // On client side, we add the entity to tile. Merging is relevant on server side only
+        mEntitiesInTile.push_back(obj);
+        return true;
+    }
 
     // If there is already a treasury object, we merge it
     bool isMerged = false;

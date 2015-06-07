@@ -1154,19 +1154,20 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             GameEntity* entity = gameMap->getEntityFromTypeAndName(entityType, entityName);
             if(entity == nullptr)
             {
-                OD_LOG_ERR("entityType=" + Helper::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
+                OD_LOG_WRN("entityType=" + Helper::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
                 break;
             }
 
             if(!entity->canSlap(player->getSeat()))
             {
-                OD_LOG_INF("player=" + player->getNick()
-                        + " could not slap entity entityType="
-                        + Helper::toString(static_cast<int32_t>(entityType))
-                        + ", entityName=" + entityName);
+                OD_LOG_INF("player seatId=" + Helper::toString(player->getSeat()->getId())
+                    + " could not slap entity entityType="
+                    + Helper::toString(static_cast<int32_t>(entityType))
+                    + ", entityName=" + entityName);
                 break;
             }
 
+            OD_LOG_INF("player seatId=" + Helper::toString(player->getSeat()->getId()) + " slapped entity " + entity->getName());
             entity->slap();
 
             ServerNotification notif(ServerNotificationType::entitySlapped, player);
@@ -1258,7 +1259,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             // available spells
             if(!player->getSeat()->isSpellAvailable(spellType))
             {
-                OD_LOG_INF("WARNING: player " + player->getNick()
+                OD_LOG_WRN("player " + player->getNick()
                     + " asked to cast a spell not available: " + SpellManager::getSpellNameFromSpellType(spellType));
                 break;
             }
@@ -1266,11 +1267,13 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             uint32_t cooldown = player->getSpellCooldownTurns(spellType);
             if(cooldown > 0)
             {
-                OD_LOG_INF("WARNING: player " + player->getNick()
+                OD_LOG_WRN("player " + player->getNick()
                     + " asked to cast a spell " + SpellManager::getSpellNameFromSpellType(spellType) + " before end of cooldown: "
                     + Helper::toString(cooldown));
                 break;
             }
+
+            OD_LOG_INF("Player id: " + Helper::toString(player->getSeat()->getId()) + " casts spell " + SpellManager::getSpellNameFromSpellType(spellType));
 
             if(!SpellManager::castSpell(gameMap, spellType, player, packetReceived))
                 break;
@@ -1641,7 +1644,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             Player* player = clientSocket->getPlayer();
             MapLight* mapLight = new MapLight(gameMap, true);
             mapLight->setName(gameMap->nextUniqueNameMapLight());
-            mapLight->setPosition(Ogre::Vector3(0.0, 0.0, 3.75), false);
+            mapLight->setPosition(Ogre::Vector3(0.0, 0.0, 3.75));
             mapLight->addToGameMap();
             // In editor mode, every player has vision
             for(Seat* seat : gameMap->getSeats())

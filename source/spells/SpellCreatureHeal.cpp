@@ -148,6 +148,13 @@ bool SpellCreatureHeal::castSpell(GameMap* gameMap, Player* player, ODPacket& pa
             continue;
         }
 
+        if(creature->getHP() <= 0)
+        {
+            // This can happen if the creature was alive on client side but is not since we received the message
+            OD_LOG_WRN("creatureName=" + creatureName);
+            continue;
+        }
+
         // That can happen if the creature is not in perfect synchronization and is not on a claimed tile on the server gamemap
         if(!pos->isClaimedForSeat(player->getSeat()))
         {
@@ -163,10 +170,10 @@ bool SpellCreatureHeal::castSpell(GameMap* gameMap, Player* player, ODPacket& pa
 
     int32_t pricePerTarget = ConfigManager::getSingleton().getSpellConfigInt32("CreatureHealPrice");
     int32_t playerMana = static_cast<int32_t>(player->getSeat()->getMana());
-    int32_t nbTargets = playerMana / pricePerTarget;
+    uint32_t nbTargets = std::min(static_cast<uint32_t>(playerMana / pricePerTarget), static_cast<uint32_t>(creatures.size()));
     int32_t priceTotal = nbTargets * pricePerTarget;
 
-    if(creatures.size() > static_cast<uint32_t>(nbTargets))
+    if(creatures.size() > nbTargets)
         creatures.resize(nbTargets);
 
     if(!player->getSeat()->takeMana(priceTotal))

@@ -22,6 +22,7 @@
 #include "gamemap/GameMap.h"
 #include "network/ODPacket.h"
 #include "rooms/RoomTreasury.h"
+#include "utils/Helper.h"
 #include "utils/LogManager.h"
 
 #include <istream>
@@ -43,20 +44,23 @@ TreasuryObject::TreasuryObject(GameMap* gameMap, bool isOnServerMap) :
 
 void TreasuryObject::mergeGold(TreasuryObject* obj)
 {
+    OD_LOG_INF("Merging treasury=" + obj->getName() + " into " + getName());
     mGoldValue += obj->mGoldValue;
     mHasGoldValueChanged = true;
     obj->mGoldValue = 0;
     obj->mHasGoldValueChanged = true;
-}
-
-void TreasuryObject::addGold(int goldValue)
-{
-    mGoldValue += goldValue;
-    mHasGoldValueChanged = true;
+    obj->setIsOnMap(false);
 }
 
 void TreasuryObject::doUpkeep()
 {
+    if(mGoldValue <= 0)
+    {
+        removeFromGameMap();
+        deleteYourself();
+        return;
+    }
+
     if(!getIsOnMap())
         return;
 
@@ -75,25 +79,24 @@ void TreasuryObject::doUpkeep()
         RoomTreasury* roomTreasury = static_cast<RoomTreasury*>(tile->getCoveringRoom());
         int goldDeposited = roomTreasury->depositGold(mGoldValue, tile);
         // We withdraw the amount we could deposit
-        addGold(-goldDeposited);
+        mGoldValue -= goldDeposited;
+        if(mGoldValue == 0)
+        {
+            removeFromGameMap();
+            deleteYourself();
+            return;
+        }
+        mHasGoldValueChanged = true;
     }
 
     // If we are empty, we can remove safely
     if(mHasGoldValueChanged)
     {
         mHasGoldValueChanged = false;
-        if(mGoldValue <= 0)
-        {
-            tile->removeEntity(this);
-            removeFromGameMap();
-            deleteYourself();
-            return;
-        }
 
         if(getMeshName().compare(getMeshNameForGold(mGoldValue)) != 0)
         {
             // The treasury fullnes changed. We remove the object and create a new one
-            tile->removeEntity(this);
             removeFromGameMap();
             deleteYourself();
 
@@ -102,7 +105,7 @@ void TreasuryObject::doUpkeep()
             Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(tile->getX()),
                                         static_cast<Ogre::Real>(tile->getY()), 0.0f);
             obj->createMesh();
-            obj->setPosition(spawnPosition, false);
+            obj->setPosition(spawnPosition);
         }
     }
 }
@@ -130,19 +133,6 @@ bool TreasuryObject::tryPickup(Seat* seat)
     return true;
 }
 
-void TreasuryObject::pickup()
-{
-    Tile* tile = getPositionTile();
-    RenderedMovableEntity::pickup();
-    if(tile == nullptr)
-    {
-        OD_LOG_ERR("entityName=" + getName());
-        return;
-    }
-
-    tile->removeEntity(this);
-}
-
 bool TreasuryObject::tryDrop(Seat* seat, Tile* tile)
 {
     if (tile->isFullTile())
@@ -166,14 +156,19 @@ bool TreasuryObject::tryDrop(Seat* seat, Tile* tile)
     return false;
 }
 
-bool TreasuryObject::addEntityToTile(Tile* tile)
+void TreasuryObject::addEntityToPositionTile()
 {
-    return tile->addTreasuryObject(this);
-}
+    if(getIsOnMap())
+        return;
 
-bool TreasuryObject::removeEntityFromTile(Tile* tile)
-{
-    return tile->removeEntity(this);
+    setIsOnMap(true);
+    Tile* tile = getPositionTile();
+    if(tile == nullptr)
+    {
+        OD_LOG_ERR(getGameMap()->serverStr() + "entityName=" + getName() + ", pos=" + Helper::toString(getPosition()));
+        return;
+    }
+    OD_ASSERT_TRUE_MSG(tile->addTreasuryObject(this), getGameMap()->serverStr() + "entity=" + getName() + ", pos=" + Helper::toString(getPosition()) + ", tile=" + Tile::displayAsString(tile));
 }
 
 EntityCarryType TreasuryObject::getEntityCarryType()
@@ -208,36 +203,22 @@ EntityCarryType TreasuryObject::getEntityCarryType()
 
 void TreasuryObject::notifyEntityCarryOn(Creature* carrier)
 {
-    Tile* myTile = getPositionTile();
-    if(myTile == nullptr)
-    {
-        OD_LOG_ERR("name=" + getName());
-        return;
-    }
-
-    setIsOnMap(false);
-    myTile->removeEntity(this);
+    removeEntityFromPositionTile();
 }
 
 void TreasuryObject::notifyEntityCarryOff(const Ogre::Vector3& position)
 {
     mPosition = position;
-    setIsOnMap(true);
-
-    Tile* myTile = getPositionTile();
-    if(myTile == nullptr)
-    {
-        OD_LOG_ERR("name=" + getName());
-        return;
-    }
-
-    myTile->addTreasuryObject(this);
+    addEntityToPositionTile();
 }
 
 const char* TreasuryObject::getMeshNameForGold(int gold)
 {
     if (gold <= 0)
+    {
+        OD_LOG_ERR("Asking mesh for empty TreasuryObject");
         return "";
+    }
 
     if (gold <= 250)
         return "GoldstackLv1";

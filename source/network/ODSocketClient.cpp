@@ -173,13 +173,19 @@ ODSocketClient::ODComStatus ODSocketClient::recv(ODPacket& s)
                     mReplayOutputStream);
                 return ODComStatus::OK;
             }
-            else if((!mSockClient.isBlocking()) &&
+
+            if((!mSockClient.isBlocking()) &&
                     (status == sf::Socket::NotReady))
             {
-                    return ODComStatus::NotReady;
+                return ODComStatus::NotReady;
             }
-            OD_LOG_ERR("Could not receive data from client status="
-                + Helper::toString(status));
+
+            if(status == sf::Socket::Disconnected)
+            {
+                OD_LOG_WRN("Socket disconnected");
+                return ODComStatus::Error;
+            }
+            OD_LOG_ERR("Could not receive data from client status=" + Helper::toString(status));
             return ODComStatus::Error;
         }
         case ODSource::file:

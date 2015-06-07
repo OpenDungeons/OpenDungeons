@@ -77,9 +77,6 @@ protected:
     //! \brief Update the chat and event messages seen.
     void updateMessages(Ogre::Real update_time);
 
-    //! \brief gets a game entity from the corresponding ogre name
-    EntityBase* getEntityFromOgreName(const std::string& entityName);
-
     //! \brief The main CEGUI window.
     CEGUI::Window* mRootWindow;
 

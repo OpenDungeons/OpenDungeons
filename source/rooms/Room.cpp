@@ -57,7 +57,6 @@ bool Room::compareTile(Tile* tile1, Tile* tile2)
 void Room::addToGameMap()
 {
     getGameMap()->addRoom(this);
-    setIsOnMap(true);
     getGameMap()->addActiveObject(this);
 }
 
@@ -169,6 +168,7 @@ std::string Room::getRoomStreamFormat()
 
 void Room::setupRoom(const std::string& name, Seat* seat, const std::vector<Tile*>& tiles)
 {
+    setIsOnMap(true);
     setName(name);
     setSeat(seat);
     for(Tile* tile : tiles)

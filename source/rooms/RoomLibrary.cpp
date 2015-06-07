@@ -293,7 +293,7 @@ void RoomLibrary::doUpkeep()
                 researchEntity->addToGameMap();
                 Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(spawnTile->getX()), static_cast<Ogre::Real>(spawnTile->getY()), static_cast<Ogre::Real>(0.0));
                 researchEntity->createMesh();
-                researchEntity->setPosition(spawnPosition, false);
+                researchEntity->setPosition(spawnPosition);
 
                 // Tell the seat a research entity is waiting to be brought to the temple.
                 getSeat()->addResearchWaiting(researchDone->getType());

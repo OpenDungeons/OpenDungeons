@@ -392,7 +392,7 @@ void RoomWorkshop::doUpkeep()
     craftedTrap->addToGameMap();
     Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(tileCraftedTrap->getX()), static_cast<Ogre::Real>(tileCraftedTrap->getY()), static_cast<Ogre::Real>(0.0));
     craftedTrap->createMesh();
-    craftedTrap->setPosition(spawnPosition, false);
+    craftedTrap->setPosition(spawnPosition);
     mPoints -= pointsNeeded;
     mTrapType = TrapType::nullTrapType;
 }

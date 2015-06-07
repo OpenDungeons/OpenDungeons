@@ -93,7 +93,7 @@ public:
 
     void setWalkDirection(const Ogre::Vector3& direction);
 
-    virtual void setPosition(const Ogre::Vector3& v, bool isMove);
+    virtual void setPosition(const Ogre::Vector3& v) override;
 
     inline void setAnimationState(Ogre::AnimationState* animationState)
     { mAnimationState = animationState; }

@@ -64,6 +64,14 @@ Tile::Tile(GameMap* gameMap, bool isOnServerMap, int x, int y, TileType type, do
     computeTileVisual();
 }
 
+Tile::~Tile()
+{
+    if(!mEntitiesInTile.empty())
+    {
+        OD_LOG_ERR("tile=" + Tile::displayAsString(this) + ", size=" + Helper::toString(mEntitiesInTile.size()));
+    }
+}
+
 bool Tile::isDiggable(const Seat* seat) const
 {
     // Handle non claimed

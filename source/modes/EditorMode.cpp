@@ -22,6 +22,7 @@
 #include "gamemap/GameMap.h"
 #include "gamemap/MiniMap.h"
 #include "gamemap/MapLoader.h"
+#include "gamemap/Pathfinding.h"
 #include "render/ODFrameListener.h"
 #include "render/Gui.h"
 #include "render/TextRenderer.h"
@@ -202,36 +203,59 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
 
     // Since this is a tile selection query we loop over the result set
     // and look for the first object which is actually a tile.
-    Ogre::Vector3 keeperPos;
-    Ogre::RaySceneQueryResult& result = ODFrameListener::getSingleton().doRaySceneQuery(arg, keeperPos);
-    RenderManager::getSingleton().moveWorldCoords(keeperPos.x, keeperPos.y);
+    Ogre::Vector3 keeperHandPos;
+    if(!ODFrameListener::getSingleton().findWorldPositionFromMouse(arg, keeperHandPos))
+        return true;
 
-    for (Ogre::RaySceneQueryResult::iterator itr = result.begin(); itr != result.end(); ++itr)
+    RenderManager::getSingleton().moveWorldCoords(keeperHandPos.x, keeperHandPos.y);
+
+    int tileX = Helper::round(keeperHandPos.x);
+    int tileY = Helper::round(keeperHandPos.y);
+    Tile* tileClicked = mGameMap->getTile(tileX, tileY);
+    if(tileClicked == nullptr)
+        return true;
+
+    std::vector<EntityBase*> entities;
+    tileClicked->fillWithEntities(entities, SelectionEntityWanted::creatureAlive, mGameMap->getLocalPlayer());
+    // We search the closest creature alive
+    Creature* closestCreature = nullptr;
+    double closestDist = 0;
+    for(EntityBase* entity : entities)
     {
-        if (itr->movable == nullptr)
-            continue;
-
-        // Check to see if the current query result is a tile.
-        std::string resultName = itr->movable->getName();
-
-        // Checks which tile we are on (if any)
-        EntityBase* entity = getEntityFromOgreName(resultName);
-        if((entity == nullptr) ||
-           (entity->getObjectType() != GameEntityType::tile))
+        if(entity->getObjectType() != GameEntityType::creature)
         {
+            OD_LOG_ERR("entityName=" + entity->getName() + ", entityType=" + Helper::toString(static_cast<uint32_t>(entity->getObjectType())));
             continue;
         }
-        Tile* tile = static_cast<Tile*>(entity);
-        inputManager.mXPos = tile->getX();
-        inputManager.mYPos = tile->getY();
-        if (mMouseX != inputManager.mXPos || mMouseY != inputManager.mYPos)
+
+        const Ogre::Vector3& entityPos = entity->getPosition();
+        double dist = Pathfinding::squaredDistance(entityPos.x, keeperHandPos.x, entityPos.y, keeperHandPos.y);
+        if(closestCreature == nullptr)
         {
-            mMouseX = inputManager.mXPos;
-            mMouseY = inputManager.mYPos;
-            updateCursorText();
+            closestDist = dist;
+            closestCreature = static_cast<Creature*>(entity);
+            continue;
         }
 
-        break;
+        if(dist >= closestDist)
+            continue;
+
+        closestDist = dist;
+        closestCreature = static_cast<Creature*>(entity);
+    }
+
+    if(closestCreature != nullptr)
+    {
+        RenderManager::getSingleton().rrTemporaryDisplayCreaturesTextOverlay(closestCreature, 0.5f);
+    }
+
+    inputManager.mXPos = tileClicked->getX();
+    inputManager.mYPos = tileClicked->getY();
+    if (mMouseX != inputManager.mXPos || mMouseY != inputManager.mYPos)
+    {
+        mMouseX = inputManager.mXPos;
+        mMouseY = inputManager.mYPos;
+        updateCursorText();
     }
 
     return true;
@@ -286,6 +310,17 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
     inputManager.mMouseDownOnCEGUIWindow = false;
 
+    if(mGameMap->getLocalPlayer() == nullptr)
+    {
+        static bool log = true;
+        if(log)
+        {
+            log = false;
+            OD_LOG_ERR("LOCAL PLAYER DOES NOT EXIST!!");
+        }
+        return true;
+    }
+
     // There is a bug in OIS. When playing in windowed mode, if we clic outside the window
     // and then we restore the window, we will receive a clic event on the last place where
     // the mouse was.
@@ -299,28 +334,52 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         return true;
     }
 
-    Ogre::RaySceneQueryResult &result = ODFrameListener::getSingleton().doRaySceneQuery(arg);
-    Ogre::RaySceneQueryResult::iterator itr = result.begin();
+    Ogre::Vector3 keeperHandPos;
+    if(!ODFrameListener::getSingleton().findWorldPositionFromMouse(arg, keeperHandPos))
+        return true;
+
+    RenderManager::getSingleton().moveWorldCoords(keeperHandPos.x, keeperHandPos.y);
+
+    int tileX = Helper::round(keeperHandPos.x);
+    int tileY = Helper::round(keeperHandPos.y);
+    Tile* tileClicked = mGameMap->getTile(tileX, tileY);
+    if(tileClicked == nullptr)
+        return true;
 
     if (id == OIS::MB_Middle)
     {
-        // See if the mouse is over any creatures
-        for (;itr != result.end(); ++itr)
+        // See if the mouse is over any entity that might display a stats window
+        std::vector<EntityBase*> entities;
+        tileClicked->fillWithEntities(entities, SelectionEntityWanted::any, mGameMap->getLocalPlayer());
+        // We search the closest creature alive
+        EntityBase* closestEntity = nullptr;
+        double closestDist = 0;
+        for(EntityBase* entity : entities)
         {
-            if (itr->movable == nullptr)
+            if(!entity->canDisplayStatsWindow(mGameMap->getLocalPlayer()->getSeat()))
                 continue;
 
-            std::string resultName = itr->movable->getName();
+            const Ogre::Vector3& entityPos = entity->getPosition();
+            double dist = Pathfinding::squaredDistance(entityPos.x, keeperHandPos.x, entityPos.y, keeperHandPos.y);
+            if(closestEntity == nullptr)
+            {
+                closestDist = dist;
+                closestEntity = entity;
+                continue;
+            }
 
-            EntityBase* entity = getEntityFromOgreName(resultName);
-            if (entity == nullptr || !entity->canDisplayStatsWindow(mGameMap->getLocalPlayer()->getSeat()))
+            if(dist >= closestDist)
                 continue;
 
-            entity->createStatsWindow();
+            closestDist = dist;
+            closestEntity = entity;
+        }
 
+        if(closestEntity == nullptr)
             return true;
 
-        }
+        closestEntity->createStatsWindow();
+
         return true;
     }
 
@@ -369,24 +428,37 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         else
         {
             // No creature in hand. We check if we want to slap something
-            for (;itr != result.end(); ++itr)
+            std::vector<EntityBase*> entities;
+            tileClicked->fillWithEntities(entities, SelectionEntityWanted::any, mGameMap->getLocalPlayer());
+            // We search the closest creature alive
+            EntityBase* closestEntity = nullptr;
+            double closestDist = 0;
+            for(EntityBase* entity : entities)
             {
-                if (itr->movable == nullptr)
+                if(!entity->canSlap(mGameMap->getLocalPlayer()->getSeat()))
                     continue;
 
-                std::string resultName = itr->movable->getName();
-
-                EntityBase* entity = getEntityFromOgreName(resultName);
-                if (entity == nullptr || !entity->canSlap(mGameMap->getLocalPlayer()->getSeat()))
-                    continue;
-
-                if(ODClient::getSingleton().isConnected())
+                const Ogre::Vector3& entityPos = entity->getPosition();
+                double dist = Pathfinding::squaredDistance(entityPos.x, keeperHandPos.x, entityPos.y, keeperHandPos.y);
+                if(closestEntity == nullptr)
                 {
-                    ODClient::getSingleton().queueClientNotification(ClientNotificationType::askSlapEntity,
-                                                                     entity->getObjectType(),
-                                                                     entity->getName());
+                    closestDist = dist;
+                    closestEntity = entity;
+                    continue;
                 }
 
+                if(dist >= closestDist)
+                    continue;
+
+                closestDist = dist;
+                closestEntity = entity;
+            }
+
+            if(closestEntity != nullptr)
+            {
+                ODClient::getSingleton().queueClientNotification(ClientNotificationType::askSlapEntity,
+                     closestEntity->getObjectType(),
+                     closestEntity->getName());
                 return true;
             }
         }
@@ -401,7 +473,6 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     inputManager.mLStartDragY = inputManager.mYPos;
 
     // Check whether the player is already placing rooms or traps.
-    Player* player = mGameMap->getLocalPlayer();
     if (mPlayerSelection.getCurrentAction() != SelectedAction::none)
     {
         // Skip picking up creatures when placing rooms or traps
@@ -409,28 +480,38 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         return true;
     }
 
-    // See if the mouse is over any creatures
-    for (;itr != result.end(); ++itr)
+    // See if the mouse is over any pickup-able entity
+    std::vector<EntityBase*> entities;
+    tileClicked->fillWithEntities(entities, SelectionEntityWanted::any, mGameMap->getLocalPlayer());
+    // We search the closest creature alive
+    EntityBase* closestEntity = nullptr;
+    double closestDist = 0;
+    for(EntityBase* entity : entities)
     {
-        if (itr->movable == nullptr)
+        if(!entity->canSlap(mGameMap->getLocalPlayer()->getSeat()))
             continue;
 
-        std::string resultName = itr->movable->getName();
-
-        EntityBase* entity = getEntityFromOgreName(resultName);
-        if (entity == nullptr || !entity->tryPickup(player->getSeat()))
-            continue;
-
-        if (ODClient::getSingleton().isConnected())
+        const Ogre::Vector3& entityPos = entity->getPosition();
+        double dist = Pathfinding::squaredDistance(entityPos.x, keeperHandPos.x, entityPos.y, keeperHandPos.y);
+        if(closestEntity == nullptr)
         {
-            GameEntityType entityType = entity->getObjectType();
-            const std::string& entityName = entity->getName();
-            ClientNotification *clientNotification = new ClientNotification(
-                ClientNotificationType::askEntityPickUp);
-            clientNotification->mPacket << entityType;
-            clientNotification->mPacket << entityName;
-            ODClient::getSingleton().queueClientNotification(clientNotification);
+            closestDist = dist;
+            closestEntity = entity;
+            continue;
         }
+
+        if(dist >= closestDist)
+            continue;
+
+        closestDist = dist;
+        closestEntity = entity;
+    }
+
+    if(closestEntity != nullptr)
+    {
+        ODClient::getSingleton().queueClientNotification(ClientNotificationType::askEntityPickUp,
+            closestEntity->getObjectType(),
+            closestEntity->getName());
         return true;
     }
 
@@ -918,6 +999,9 @@ void EditorMode::checkInputCommand()
 
     switch(mPlayerSelection.getCurrentAction())
     {
+        case SelectedAction::none:
+            handlePlayerActionNone();
+            return;
         case SelectedAction::changeTile:
             handlePlayerActionChangeTile();
             return;
@@ -1002,4 +1086,18 @@ void EditorMode::handlePlayerActionChangeTile()
     clientNotification->mPacket << fullness;
     clientNotification->mPacket << seatId;
     ODClient::getSingleton().queueClientNotification(clientNotification);
+}
+
+void EditorMode::handlePlayerActionNone()
+{
+    const InputManager& inputManager = mModeManager->getInputManager();
+    // We only display the selection cursor on the hovered tile
+    if(inputManager.mCommandState == InputCommandState::validated)
+    {
+        unselectAllTiles();
+        return;
+    }
+
+    selectSquaredTiles(inputManager.mXPos, inputManager.mYPos, inputManager.mXPos,
+        inputManager.mYPos);
 }

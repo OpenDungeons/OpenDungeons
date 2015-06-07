@@ -86,7 +86,7 @@ bool RoomTreasury::removeCoveredTile(Tile* t)
             Ogre::Vector3 spawnPosition(static_cast<Ogre::Real>(t->getX()),
                                         static_cast<Ogre::Real>(t->getY()), 0.0f);
             obj->createMesh();
-            obj->setPosition(spawnPosition, false);
+            obj->setPosition(spawnPosition);
         }
     }
 
@@ -129,6 +129,9 @@ int RoomTreasury::depositGold(int gold, Tile *tile)
     {
         if(goldToDeposit <= 0)
             break;
+
+        if(p.second->mHP <= 0)
+            continue;
 
         // Store as much gold as we can in this tile.
         RoomTreasuryTileData* roomTreasuryTileData = static_cast<RoomTreasuryTileData*>(p.second);
@@ -199,6 +202,18 @@ void RoomTreasury::updateMeshesForTile(Tile* tile, RoomTreasuryTileData* roomTre
 {
     int gold = roomTreasuryTileData->mGoldInTile;
     OD_ASSERT_TRUE_MSG(gold <= maxGoldinTile, "room=" + getName() + ", gold=" + Helper::toString(gold));
+
+    // If the tile was and is empty, nothing to do
+    if(roomTreasuryTileData->mMeshOfTile.empty() && (gold == 0))
+        return;
+
+    // If the tile was not empty but is now, we remove it
+    if(gold == 0)
+    {
+        roomTreasuryTileData->mMeshOfTile.clear();
+        removeBuildingObject(tile);
+        return;
+    }
 
     // If the mesh has not changed we do not need to do anything.
     std::string newMeshName = TreasuryObject::getMeshNameForGold(gold);

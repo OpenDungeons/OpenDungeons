@@ -60,31 +60,14 @@ const Ogre::Vector3& ResearchEntity::getScale() const
 
 void ResearchEntity::notifyEntityCarryOn(Creature* carrier)
 {
-    Tile* myTile = getPositionTile();
-    if(myTile == nullptr)
-    {
-        OD_LOG_ERR("name=" + getName());
-        return;
-    }
-
-    setIsOnMap(false);
+    removeEntityFromPositionTile();
     setSeat(carrier->getSeat());
-    myTile->removeEntity(this);
 }
 
 void ResearchEntity::notifyEntityCarryOff(const Ogre::Vector3& position)
 {
     mPosition = position;
-    setIsOnMap(true);
-
-    Tile* myTile = getPositionTile();
-    if(myTile == nullptr)
-    {
-        OD_LOG_ERR("name=" + getName());
-        return;
-    }
-
-    myTile->addEntity(this);
+    addEntityToPositionTile();
 }
 
 ResearchEntity* ResearchEntity::getResearchEntityFromStream(GameMap* gameMap, std::istream& is)

@@ -106,8 +106,7 @@ class Tile : public EntityBase
 public:
     Tile(GameMap* gameMap, bool isOnServerMap, int x = 0, int y = 0, TileType type = TileType::dirt, double fullness = 100.0);
 
-    virtual ~Tile()
-    {}
+    virtual ~Tile();
 
     static const uint32_t NO_FLOODFILL;
     virtual GameEntityType getObjectType() const
@@ -200,13 +199,14 @@ public:
     bool addEntity(GameEntity *entity);
 
     //! \brief This function removes an entity to the list of entities in this tile.
-    bool removeEntity(GameEntity *entity);
+    void removeEntity(GameEntity *entity);
 
     //! \brief This function returns the count of the number of creatures in the tile.
     unsigned int numEntitiesInTile() const
     { return mEntitiesInTile.size(); }
 
-    void addNeighbor(Tile *n);Tile* getNeighbor(unsigned index);
+    void addNeighbor(Tile *n);
+    Tile* getNeighbor(unsigned index);
     const std::vector<Tile*>& getAllNeighbors() const
     { return mNeighbors; }
 

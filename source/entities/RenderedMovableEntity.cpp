@@ -99,7 +99,6 @@ void RenderedMovableEntity::destroyMeshLocal()
 void RenderedMovableEntity::addToGameMap()
 {
     getGameMap()->addRenderedMovableEntity(this);
-    setIsOnMap(true);
     getGameMap()->addAnimatedObject(this);
 
     if(!getIsOnServerMap())
@@ -110,13 +109,9 @@ void RenderedMovableEntity::addToGameMap()
 
 void RenderedMovableEntity::removeFromGameMap()
 {
+    removeEntityFromPositionTile();
     getGameMap()->removeRenderedMovableEntity(this);
-    setIsOnMap(false);
     getGameMap()->removeAnimatedObject(this);
-
-    Tile* posTile = getPositionTile();
-    if(posTile != nullptr)
-        posTile->removeEntity(this);
 
     if(!getIsOnServerMap())
         return;
@@ -156,14 +151,13 @@ void RenderedMovableEntity::setMeshOpacity(float opacity)
 
 void RenderedMovableEntity::pickup()
 {
-    setIsOnMap(false);
+    removeEntityFromPositionTile();
     clearDestinations(EntityAnimation::idle_anim, true);
 }
 
 void RenderedMovableEntity::drop(const Ogre::Vector3& v)
 {
-    setIsOnMap(true);
-    setPosition(v, false);
+    setPosition(v);
 }
 
 void RenderedMovableEntity::fireAddEntity(Seat* seat, bool async)

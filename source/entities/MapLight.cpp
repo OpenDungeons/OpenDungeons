@@ -80,19 +80,15 @@ void MapLight::destroyMeshLocal()
 void MapLight::addToGameMap()
 {
     getGameMap()->addMapLight(this);
-    setIsOnMap(true);
     getGameMap()->addAnimatedObject(this);
 }
 
 void MapLight::removeFromGameMap()
 {
+    removeEntityFromPositionTile();
     getGameMap()->removeMapLight(this);
-    setIsOnMap(false);
     getGameMap()->removeAnimatedObject(this);
 
-    Tile* posTile = getPositionTile();
-    if(posTile != nullptr)
-        posTile->removeEntity(this);
 
     if(!getIsOnServerMap())
         return;
@@ -213,14 +209,7 @@ bool MapLight::tryPickup(Seat* seat)
 
 void MapLight::pickup()
 {
-    setIsOnMap(false);
-    Tile* tile = getPositionTile();
-    if(tile == nullptr)
-    {
-        OD_LOG_ERR("entityName=" + getName());
-        return;
-    }
-    OD_ASSERT_TRUE(tile->removeEntity(this));
+    removeEntityFromPositionTile();
 }
 
 bool MapLight::tryDrop(Seat* seat, Tile* tile)
@@ -234,8 +223,7 @@ bool MapLight::tryDrop(Seat* seat, Tile* tile)
 
 void MapLight::drop(const Ogre::Vector3& v)
 {
-    setIsOnMap(true);
-    setPosition(v, false);
+    setPosition(v);
 }
 
 bool MapLight::canSlap(Seat* seat)

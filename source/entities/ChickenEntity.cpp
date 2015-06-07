@@ -17,6 +17,7 @@
 
 #include "entities/ChickenEntity.h"
 
+#include "entities/Creature.h"
 #include "entities/Tile.h"
 #include "network/ODPacket.h"
 #include "game/Seat.h"
@@ -52,33 +53,8 @@ ChickenEntity::ChickenEntity(GameMap* gameMap, bool isOnServerMap) :
 
 void ChickenEntity::doUpkeep()
 {
-    if(!getIsOnMap())
-        return;
-    if(mChickenState == ChickenState::dead)
-       return;
-
-    Tile* tile = getPositionTile();
-    if(tile == nullptr)
-    {
-        OD_LOG_ERR("entityName=" + getName());
-        return;
-    }
-
-    if(mChickenState == ChickenState::eaten)
-        mChickenState = ChickenState::dead;
-
-    if(mChickenState == ChickenState::dying)
-    {
-        if(mNbTurnDie < NB_TURNS_DIE_BEFORE_REMOVE)
-        {
-            ++mNbTurnDie;
-            return;
-        }
-        mChickenState = ChickenState::dead;
-    }
-
     // If we are dead, we remove the chicken
-    if(mChickenState == ChickenState::dead)
+    if(mChickenState == ChickenState::eaten)
     {
         // No need to remove the chicken from its tile as it has already been in eatChicken
         // or when dying
@@ -87,6 +63,27 @@ void ChickenEntity::doUpkeep()
         return;
     }
 
+    if(!getIsOnMap())
+        return;
+
+    Tile* tile = getPositionTile();
+    if(tile == nullptr)
+    {
+        OD_LOG_ERR("entityName=" + getName());
+        return;
+    }
+
+    if(mChickenState == ChickenState::dying)
+    {
+        if(mNbTurnDie < NB_TURNS_DIE_BEFORE_REMOVE)
+        {
+            ++mNbTurnDie;
+            return;
+        }
+        removeFromGameMap();
+        deleteYourself();
+        return;
+    }
 
     Room* currentHatchery = nullptr;
     if(tile->getCoveringRoom() != nullptr)
@@ -206,14 +203,8 @@ bool ChickenEntity::tryPickup(Seat* seat)
 
 void ChickenEntity::pickup()
 {
-    Tile* tile = getPositionTile();
+    removeEntityFromPositionTile();
     RenderedMovableEntity::pickup();
-    if(tile == nullptr)
-    {
-        OD_LOG_ERR("entityName=" + getName());
-        return;
-    }
-    OD_ASSERT_TRUE(tile->removeEntity(this));
 }
 
 bool ChickenEntity::tryDrop(Seat* seat, Tile* tile)
@@ -241,17 +232,12 @@ bool ChickenEntity::tryDrop(Seat* seat, Tile* tile)
 
 bool ChickenEntity::eatChicken(Creature* creature)
 {
-    Tile* tile = getPositionTile();
-    if(tile == nullptr)
-    {
-        OD_LOG_ERR("entityName=" + getName());
-        return false;
-    }
-
     if(mChickenState != ChickenState::free)
         return false;
 
-    OD_ASSERT_TRUE(tile->removeEntity(this));
+    OD_LOG_INF("chicken=" + getName() + " eaten by " + creature->getName());
+
+    removeEntityFromPositionTile();
     mChickenState = ChickenState::eaten;
     clearDestinations(EntityAnimation::idle_anim, true);
     return true;

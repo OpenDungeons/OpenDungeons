@@ -16,37 +16,34 @@
  */
 
 #include "network/ODClient.h"
-#include "network/ODServer.h"
-#include "network/ODPacket.h"
-#include "network/ServerNotification.h"
-#include "render/ODFrameListener.h"
-#include "render/RenderManager.h"
-#include "network/ChatEventMessage.h"
-#include "gamemap/GameMap.h"
-#include "game/Seat.h"
-#include "game/Player.h"
-#include "game/Research.h"
-#include "entities/MapLight.h"
+
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
 #include "entities/CreatureSound.h"
 #include "entities/EntityLoading.h"
-#include "entities/Tile.h"
-#include "ODApplication.h"
-#include "rooms/RoomTreasury.h"
-#include "entities/TreasuryObject.h"
+#include "entities/MapLight.h"
 #include "entities/RenderedMovableEntity.h"
+#include "entities/Tile.h"
 #include "entities/Weapon.h"
-#include "utils/ConfigManager.h"
-#include "utils/Helper.h"
-#include "utils/LogManager.h"
-#include "modes/ModeManager.h"
-#include "modes/MenuModeConfigureSeats.h"
+#include "game/Player.h"
+#include "game/Research.h"
+#include "game/Seat.h"
+#include "gamemap/GameMap.h"
 #include "modes/GameMode.h"
+#include "modes/MenuModeConfigureSeats.h"
+#include "modes/ModeManager.h"
+#include "network/ChatEventMessage.h"
+#include "network/ODPacket.h"
+#include "network/ServerNotification.h"
+#include "render/ODFrameListener.h"
+#include "render/RenderManager.h"
 #include "sound/MusicPlayer.h"
 #include "sound/SoundEffectsManager.h"
 #include "spells/SpellType.h"
-#include "camera/CameraManager.h"
+#include "utils/ConfigManager.h"
+#include "utils/Helper.h"
+#include "utils/LogManager.h"
+#include "ODApplication.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -434,7 +431,7 @@ bool ODClient::processOneClientSocketMessage()
             entity->addToGameMap();
             entity->createMesh();
             entity->restoreEntityState();
-            entity->setPosition(entity->getPosition(), false);
+            entity->setPosition(entity->getPosition());
             break;
         }
 
@@ -450,6 +447,7 @@ bool ODClient::processOneClientSocketMessage()
                 break;
             }
 
+            entity->removeEntityFromPositionTile();
             entity->removeFromGameMap();
             entity->deleteYourself();
             break;
@@ -525,10 +523,6 @@ bool ODClient::processOneClientSocketMessage()
                 OD_LOG_ERR("entityType=" + Helper::toString(static_cast<int32_t>(entityType)) + ", entityName=" + entityName);
                 break;
             }
-
-            Tile* tile = entity->getPositionTile();
-            if(tile != nullptr)
-                tile->removeEntity(entity);
 
             tempPlayer->pickUpEntity(entity);
             break;
@@ -872,9 +866,7 @@ bool ODClient::processOneClientSocketMessage()
                 break;
             }
 
-            Tile* tile = carried->getPositionTile();
-            if(tile != nullptr)
-                tile->removeEntity(carried);
+            carried->removeEntityFromPositionTile();
 
             RenderManager::getSingleton().rrCarryEntity(carrier, carried);
             break;
@@ -902,7 +894,7 @@ bool ODClient::processOneClientSocketMessage()
             }
 
             RenderManager::getSingleton().rrReleaseCarriedEntity(carrier, carried);
-            carried->setPosition(pos, false);
+            carried->setPosition(pos);
             break;
         }
 

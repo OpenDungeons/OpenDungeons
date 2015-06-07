@@ -135,7 +135,7 @@ bool SpellCallToWar::castSpell(GameMap* gameMap, Player* player, ODPacket& packe
                                 static_cast<Ogre::Real>(tile->getY()),
                                 static_cast<Ogre::Real>(0.0));
     spell->createMesh();
-    spell->setPosition(spawnPosition, false);
+    spell->setPosition(spawnPosition);
 
     return true;
 }

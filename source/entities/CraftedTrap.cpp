@@ -81,31 +81,14 @@ const std::string& CraftedTrap::getMeshFromTrapType(TrapType trapType)
 
 void CraftedTrap::notifyEntityCarryOn(Creature* carrier)
 {
-    Tile* myTile = getPositionTile();
-    if(myTile == nullptr)
-    {
-        OD_LOG_ERR("name=" + getName());
-        return;
-    }
-
-    setIsOnMap(false);
+    removeEntityFromPositionTile();
     setSeat(carrier->getSeat());
-    myTile->removeEntity(this);
 }
 
 void CraftedTrap::notifyEntityCarryOff(const Ogre::Vector3& position)
 {
     mPosition = position;
-    setIsOnMap(true);
-
-    Tile* myTile = getPositionTile();
-    if(myTile == nullptr)
-    {
-        OD_LOG_ERR("name=" + getName());
-        return;
-    }
-
-    myTile->addEntity(this);
+    addEntityToPositionTile();
 }
 
 CraftedTrap* CraftedTrap::getCraftedTrapFromStream(GameMap* gameMap, std::istream& is)

@@ -700,7 +700,6 @@ void RenderManager::rrDropHand(GameEntity* curEntity, Player* localPlayer)
     // Attach the creature from the creature scene node
     curEntity->getParentSceneNode()->addChild(curEntityNode);
     Ogre::Vector3 position = curEntity->getPosition();
-    curEntity->correctDropPosition(position);
     curEntityNode->setPosition(position);
     curEntityNode->setScale(curEntity->getScale());
 

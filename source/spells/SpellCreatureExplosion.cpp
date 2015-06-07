@@ -137,14 +137,21 @@ bool SpellCreatureExplosion::castSpell(GameMap* gameMap, Player* player, ODPacke
 
         if(creature->getSeat()->isAlliedSeat(player->getSeat()))
         {
-            OD_LOG_ERR("creatureName=" + creatureName);
+            OD_LOG_WRN("creatureName=" + creatureName);
             continue;
         }
 
         Tile* pos = creature->getPositionTile();
         if(pos == nullptr)
         {
-            OD_LOG_ERR("creatureName=" + creatureName);
+            OD_LOG_WRN("creatureName=" + creatureName);
+            continue;
+        }
+
+        if(creature->getHP() <= 0)
+        {
+            // This can happen if the creature was alive on client side but is not since we received the message
+            OD_LOG_WRN("creatureName=" + creatureName);
             continue;
         }
 
@@ -163,10 +170,10 @@ bool SpellCreatureExplosion::castSpell(GameMap* gameMap, Player* player, ODPacke
 
     int32_t pricePerTarget = ConfigManager::getSingleton().getSpellConfigInt32("CreatureExplosionPrice");
     int32_t playerMana = static_cast<int32_t>(player->getSeat()->getMana());
-    int32_t nbTargets = playerMana / pricePerTarget;
+    uint32_t nbTargets = std::min(static_cast<uint32_t>(playerMana / pricePerTarget), static_cast<uint32_t>(creatures.size()));
     int32_t priceTotal = nbTargets * pricePerTarget;
 
-    if(creatures.size() > static_cast<uint32_t>(nbTargets))
+    if(creatures.size() > nbTargets)
         creatures.resize(nbTargets);
 
     if(!player->getSeat()->takeMana(priceTotal))
