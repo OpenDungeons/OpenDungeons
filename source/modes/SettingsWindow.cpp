@@ -54,13 +54,19 @@ SettingsWindow::SettingsWindow(CEGUI::Window* rootWindow):
     addEventConnection(
         mSettingsWindow->getChild("CancelButton")->subscribeEvent(
             CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&SettingsWindow::hideSettingsWindow, this)
+            CEGUI::Event::Subscriber(&SettingsWindow::cancelSettings, this)
         )
     );
     addEventConnection(
         mSettingsWindow->getChild("__auto_closebutton__")->subscribeEvent(
             CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&SettingsWindow::hideSettingsWindow, this)
+            CEGUI::Event::Subscriber(&SettingsWindow::cancelSettings, this)
+        )
+    );
+    addEventConnection(
+        mSettingsWindow->getChild("ApplyButton")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&SettingsWindow::applySettings, this)
         )
     );
 
@@ -138,8 +144,38 @@ void SettingsWindow::initWidgetConfig()
     volumeSlider->setCurrentValue(volume);
 }
 
-bool SettingsWindow::hideSettingsWindow(const CEGUI::EventArgs&)
+bool SettingsWindow::cancelSettings(const CEGUI::EventArgs&)
 {
+    initWidgetConfig();
+    hide();
+    return true;
+}
+
+bool SettingsWindow::applySettings(const CEGUI::EventArgs&)
+{
+    // Note: For now, only video settings will be stored thanks to Ogre config.
+    // But later, we may want to centralize everything in a common config file,
+    // And save volume values and other options.
+
+    // Video - TODO: Apply without a restart.
+    Ogre::Root* ogreRoot = Ogre::Root::getSingletonPtr();
+    Ogre::RenderSystem* renderer = ogreRoot->getRenderSystem();
+
+    CEGUI::Combobox* resCb = static_cast<CEGUI::Combobox*>(
+            mRootWindow->getChild("SettingsWindow/MainTabControl/Video/ResolutionCombobox"));
+    renderer->setConfigOption("Video Mode", resCb->getSelectedItem()->getText().c_str());
+
+    CEGUI::ToggleButton* fsCheckBox = static_cast<CEGUI::ToggleButton*>(
+        mRootWindow->getChild("SettingsWindow/MainTabControl/Video/FullscreenCheckbox"));
+    renderer->setConfigOption("Full Screen", (fsCheckBox->isSelected() ? "Yes" : "No"));
+
+    ogreRoot->saveConfig();
+
+    // Audio - TODO: Save in config and reload at start.
+    CEGUI::Slider* volumeSlider = static_cast<CEGUI::Slider*>(
+            mRootWindow->getChild("SettingsWindow/MainTabControl/Audio/MusicSlider"));
+    sf::Listener::setGlobalVolume(volumeSlider->getCurrentValue());
+
     hide();
     return true;
 }

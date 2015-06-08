@@ -68,8 +68,9 @@ private:
     //! \brief The root window.
     CEGUI::Window* mRootWindow;
 
-    //! \brief Hides the settings window.
-    bool hideSettingsWindow(const CEGUI::EventArgs& = {});
+    //! \brief Cancel/Apply settings.
+    bool cancelSettings(const CEGUI::EventArgs&);
+    bool applySettings(const CEGUI::EventArgs&);
 };
 
 #endif // SETTINGSWINDOW_H
