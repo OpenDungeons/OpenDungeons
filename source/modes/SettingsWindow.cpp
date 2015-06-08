@@ -78,7 +78,8 @@ SettingsWindow::~SettingsWindow()
     if (mSettingsWindow)
     {
         mSettingsWindow->hide();
-        mRootWindow->removeChild(mSettingsWindow->getID());
+        // Will be handled by the window manager. Don't do it.
+        //mRootWindow->removeChild(mSettingsWindow->getID());
         CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
         wmgr->destroyWindow(mSettingsWindow);
     }
