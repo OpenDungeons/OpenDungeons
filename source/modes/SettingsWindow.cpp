@@ -19,8 +19,15 @@
 
 #include "utils/LogManager.h"
 
+#include <CEGUI/CEGUI.h>
+#include <CEGUI/widgets/Combobox.h>
+#include <CEGUI/widgets/ToggleButton.h>
 #include <CEGUI/widgets/PushButton.h>
 #include <CEGUI/WindowManager.h>
+
+#include <OgreRoot.h>
+
+#include <SFML/Audio/Listener.hpp>
 
 SettingsWindow::SettingsWindow(CEGUI::Window* rootWindow):
     mSettingsWindow(nullptr),
@@ -56,6 +63,8 @@ SettingsWindow::SettingsWindow(CEGUI::Window* rootWindow):
             CEGUI::Event::Subscriber(&SettingsWindow::hideSettingsWindow, this)
         )
     );
+
+    initWidgetConfig();
 }
 
 SettingsWindow::~SettingsWindow()
@@ -68,10 +77,64 @@ SettingsWindow::~SettingsWindow()
 
     if (mSettingsWindow)
     {
+        mSettingsWindow->hide();
         mRootWindow->removeChild(mSettingsWindow->getID());
         CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
         wmgr->destroyWindow(mSettingsWindow);
     }
+}
+
+void SettingsWindow::initWidgetConfig()
+{
+    Ogre::Root* ogreRoot = Ogre::Root::getSingletonPtr();
+    Ogre::RenderSystem* renderer = ogreRoot->getRenderSystem();
+    Ogre::ConfigOptionMap& options = renderer->getConfigOptions();
+
+    const CEGUI::Image* selImg = &CEGUI::ImageManager::getSingleton().get("OpenDungeonsSkin/SelectionBrush");
+
+    // Get the video settings.
+    // Resolution
+    Ogre::ConfigOptionMap::const_iterator it = options.find("Video Mode");
+    if (it != options.end())
+    {
+        const Ogre::ConfigOption& video = it->second;
+        CEGUI::Combobox* resCb = static_cast<CEGUI::Combobox*>(
+            mRootWindow->getChild("SettingsWindow/MainTabControl/Video/ResolutionCombobox"));
+        resCb->setReadOnly(true);
+        resCb->setSortingEnabled(true);
+        uint32_t i = 0;
+        for (std::string res : video.possibleValues)
+        {
+            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(res, i);
+            item->setSelectionBrushImage(selImg);
+            resCb->addItem(item);
+
+            if (res == video.currentValue)
+            {
+                resCb->setItemSelectState(item, true);
+                resCb->setText(item->getText());
+            }
+            ++i;
+        }
+    }
+
+    // Fullscreen
+    it = options.find("Full Screen");
+    if (it != options.end())
+    {
+        const Ogre::ConfigOption& fullscreen = it->second;
+        CEGUI::ToggleButton* fsCheckBox = static_cast<CEGUI::ToggleButton*>(
+            mRootWindow->getChild("SettingsWindow/MainTabControl/Video/FullscreenCheckbox"));
+        fsCheckBox->setSelected((fullscreen.currentValue == "Yes"));
+    }
+
+    // The current volume level
+    float volume = sf::Listener::getGlobalVolume();
+    CEGUI::Slider* volumeSlider = static_cast<CEGUI::Slider*>(
+            mRootWindow->getChild("SettingsWindow/MainTabControl/Audio/MusicSlider"));
+    volumeSlider->setMaxValue(100);
+    volumeSlider->setClickStep(10);
+    volumeSlider->setCurrentValue(volume);
 }
 
 bool SettingsWindow::hideSettingsWindow(const CEGUI::EventArgs&)

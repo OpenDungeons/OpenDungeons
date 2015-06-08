@@ -48,7 +48,10 @@ public:
             mSettingsWindow->hide();
     }
 
-protected:
+private:
+
+    //! \brief Set the different widget values according to current config.
+    void initWidgetConfig();
 
     //! \brief Adds an event binding to be cleared on exiting the mode.
     inline void addEventConnection(CEGUI::Event::Connection conn)
@@ -56,7 +59,6 @@ protected:
         mEventConnections.emplace_back(conn);
     }
 
-private:
     //! \brief Vector of cegui event bindings to be cleared on exiting the mode
     std::vector<CEGUI::Event::Connection> mEventConnections;
 

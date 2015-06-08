@@ -20,18 +20,26 @@
 
 #include "AbstractApplicationMode.h"
 
+class SettingsWindow;
+
 class MenuModeMain: public AbstractApplicationMode
 {
 public:
     MenuModeMain(ModeManager*);
 
+    virtual ~MenuModeMain();
+
     //! \brief Called when the game mode is activated
     //! Used to call the corresponding Gui Sheet.
     void activate() final override;
 private:
+    //! \brief The Settings window
+    SettingsWindow* mSettings;
+
     //! \brief Helper function to connect a button to a mode change
     void connectModeChangeEvent(const std::string& buttonName, AbstractModeManager::ModeType mode);
     bool quitButtonPressed(const CEGUI::EventArgs&);
+    bool showSettings(const CEGUI::EventArgs&);
 };
 
 #endif // MENUMODEMAIN_H

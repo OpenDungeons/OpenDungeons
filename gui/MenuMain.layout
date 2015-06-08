@@ -57,5 +57,13 @@
             <Property name="Text" value="Quit" />
             <Property name="AlwaysOnTop" value="True" />
         </Window>
+        <Window type="OD/ImageButton" name="SettingsButton" >
+            <Property name="Area" value="{{1,-27},{0,5},{1,-2},{0,30}}" />
+            <Property name="ButtonImage" value="OpenDungeonsIcons/OptionsIcon" />
+            <Property name="AlwaysOnTop" value="True" />
+            <Property name="TooltipText" value="Options" />
+            <Property name="ClippedByParent" value="False" />
+            <Property name="Visible" value="True" />
+        </Window>
     </Window>
 </GUILayout>

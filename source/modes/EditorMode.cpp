@@ -160,6 +160,9 @@ EditorMode::~EditorMode()
 
     // Now that the server is stopped, we can clear the client game map
     ODFrameListener::getSingleton().getClientGameMap()->clearAll();
+
+    // Clear up the settings window.
+    delete mSettings;
 }
 
 void EditorMode::activate()
