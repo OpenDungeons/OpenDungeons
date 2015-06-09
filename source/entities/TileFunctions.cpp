@@ -47,7 +47,7 @@ void Tile::setFullness(double f)
         setMarkedForDiggingForAllPlayersExcept(false, nullptr);
     }
 
-    if ((oldFullness > 0.0) && (mFullness == 0.0))
+    if ((oldFullness > 0.0) && (mFullness == 0.0) && !getGameMap()->isInEditorMode())
     {
         // Do a flood fill to update the contiguous region touching the tile.
         for(Seat* seat : mGameMap->getSeats())

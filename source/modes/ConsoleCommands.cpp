@@ -516,6 +516,22 @@ Command::Result cListMeshAnims(const Command::ArgumentList_t& args, ConsoleInter
     return Command::Result::SUCCESS;
 }
 
+Command::Result cUnlockResearches(const Command::ArgumentList_t& args, ConsoleInterface& c, AbstractModeManager&)
+{
+    if (ODServer::getSingleton().isConnected())
+    {
+        ServerConsoleCommand* cc = new SCCAskUnlockResearches();
+        ODServer::getSingleton().queueConsoleCommand(cc);
+        c.print("\nAsking to unlock researches\n");
+        return Command::Result::SUCCESS;
+    }
+    else
+    {
+        c.print("\nERROR:  You can unlock researches only when you are hosting a game.\n");
+        return Command::Result::FAILED;
+    }
+}
+
 Command::Result cKeys(const Command::ArgumentList_t&, ConsoleInterface& c, AbstractModeManager&)
 {
     c.print("|| Action               || US Keyboard layout ||     Mouse      ||\n\
@@ -699,6 +715,11 @@ void addConsoleCommands(ConsoleInterface& cl)
                         return Command::Result::SUCCESS;
                    },
                    {AbstractModeManager::ModeType::GAME, AbstractModeManager::ModeType::EDITOR});
+    cl.addCommand("unlockresearches",
+                   "Unlock all researches for every seats\n"
+                   "unlockresearches",
+                   cUnlockResearches,
+                   {AbstractModeManager::ModeType::GAME});
 
 }
 

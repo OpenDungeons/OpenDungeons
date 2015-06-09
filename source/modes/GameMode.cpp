@@ -968,13 +968,6 @@ void GameMode::handleHotkeys(OIS::KeyCode keycode)
 void GameMode::onFrameStarted(const Ogre::FrameEvent& evt)
 {
     GameEditorModeBase::onFrameStarted(evt);
-    //Update the minimap
-    //TODO: We should add some check to only update this if the camera has moved, or map changed
-    CameraManager& cameraManager = *ODFrameListener::getSingleton().getCameraManager();
-    mMiniMap.updateCameraInfo(cameraManager.getCameraViewTarget(),
-                              cameraManager.getActiveCameraNode()->getOrientation().getRoll().valueRadians());
-    mMiniMap.draw(*mGameMap);
-    mMiniMap.swap();
 
     refreshGuiResearch();
 }

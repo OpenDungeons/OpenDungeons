@@ -36,6 +36,7 @@ namespace CEGUI
     class Window;
 }
 
+class CameraManager;
 class GameMap;
 
 struct Color
@@ -66,21 +67,13 @@ public:
     MiniMap(CEGUI::Window* miniMapWindow);
     ~MiniMap();
 
-    void draw(const GameMap& gameMap);
-    void swap();
+    void update(Ogre::Real timeSinceLastFrame);
 
     Ogre::uint getWidth() const
     { return mWidth; }
 
     Ogre::uint getHeight() const
     { return mHeight; }
-
-    void updateCameraInfo(Ogre::Vector3 vv, double rotation)
-    {
-        mCamera_2dPosition = Ogre::Vector2(vv.x, vv.y);
-        mCosRotation = cos(rotation);
-        mSinRotation = sin(rotation);
-    }
 
     Ogre::Vector2 camera_2dPositionFromClick(int xx, int yy);
 
@@ -125,6 +118,16 @@ private:
         *pDest++ = GG;  //G
         *pDest++ = RR;  //R
     }
+
+    inline void updateCameraInfo(Ogre::Vector3 vv, double rotation)
+    {
+        mCamera_2dPosition = Ogre::Vector2(vv.x, vv.y);
+        mCosRotation = cos(rotation);
+        mSinRotation = sin(rotation);
+    }
+
+    GameMap& mGameMap;
+    CameraManager& mCameraManager;
 };
 
 #endif // MINIMAP_H_

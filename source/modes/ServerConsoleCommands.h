@@ -176,4 +176,18 @@ private:
     std::string mArguments;
 };
 
+class SCCAskUnlockResearches : public ServerConsoleCommand
+{
+public:
+    SCCAskUnlockResearches()
+    {
+    }
+
+protected:
+    virtual void execute(GameMap* gameMap)
+    {
+        gameMap->consoleAskUnlockResearches();
+    }
+};
+
 #endif // SERVERCONSOLECOMMANDS_H

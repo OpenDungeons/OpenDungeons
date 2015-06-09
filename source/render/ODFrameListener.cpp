@@ -33,6 +33,7 @@
 #include "render/RenderManager.h"
 #include "render/TextRenderer.h"
 #include "sound/MusicPlayer.h"
+#include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/MakeUnique.h"
 
@@ -106,6 +107,13 @@ void ODFrameListener::windowResized(Ogre::RenderWindow* rw)
     //Notify CEGUI that the display size has changed.
     CEGUI::System::getSingleton().notifyDisplaySizeChanged(CEGUI::Size<float>(
             static_cast<float> (width), static_cast<float> (height)));
+}
+
+void ODFrameListener::windowClosed(Ogre::RenderWindow* rw)
+{
+    // We remove the mode manager to make sure it is destroyed before the window is. That
+    // allows to release all taken resources in the mode
+    mModeManager = nullptr;
 }
 
 ODFrameListener::~ODFrameListener()
@@ -206,7 +214,7 @@ bool ODFrameListener::frameEnded(const Ogre::FrameEvent& evt)
 void ODFrameListener::renderQueueStarted(Ogre::uint8 queueGroupId, const Ogre::String& invocation,
     bool& skipThisInvocation)
 {
-    if(queueGroupId == Ogre::RENDER_QUEUE_OVERLAY && invocation == "")
+    if(queueGroupId == RenderManager::OD_RENDER_QUEUE_ID_GUI && invocation.empty())
     {
         CEGUI::System::getSingleton().renderAllGUIContexts();
     }

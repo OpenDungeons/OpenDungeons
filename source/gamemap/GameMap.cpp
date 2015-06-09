@@ -26,57 +26,43 @@
 
 #include "creaturemood/CreatureMood.h"
 #include "creaturemood/CreatureMoodCreature.h"
-
-#include "gamemap/MapLoader.h"
-
-#include "goals/Goal.h"
-
-#include "entities/Tile.h"
 #include "entities/Creature.h"
 #include "entities/CreatureDefinition.h"
 #include "entities/MapLight.h"
 #include "entities/RenderedMovableEntity.h"
+#include "entities/Tile.h"
 #include "entities/Weapon.h"
-
 #include "game/Player.h"
+#include "game/Research.h"
 #include "game/Seat.h"
-
+#include "gamemap/MapLoader.h"
 #include "gamemap/Pathfinding.h"
 #include "gamemap/TileSet.h"
-
+#include "goals/Goal.h"
 #include "modes/ModeManager.h"
-
 #include "network/ODServer.h"
 #include "network/ServerNotification.h"
-
 #include "render/ODFrameListener.h"
-
 #include "rooms/Room.h"
-#include "rooms/RoomDungeonTemple.h"
-#include "rooms/RoomManager.h"
 #include "rooms/RoomPortal.h"
 #include "rooms/RoomTreasury.h"
 #include "rooms/RoomType.h"
-
 #include "spells/Spell.h"
-
 #include "traps/Trap.h"
-
-#include "utils/LogManager.h"
 #include "utils/ConfigManager.h"
 #include "utils/Helper.h"
+#include "utils/LogManager.h"
 #include "utils/ResourceManager.h"
 
 #include <OgreTimer.h>
 
-#include <iostream>
-#include <sstream>
 #include <algorithm>
-#include <string>
-
+#include <cassert>
 #include <cmath>
 #include <cstdlib>
-#include <cassert>
+#include <iostream>
+#include <sstream>
+#include <string>
 
 const std::string DEFAULT_NICK = "Player";
 
@@ -2755,6 +2741,21 @@ void GameMap::consoleSetLevelCreature(const std::string& creatureName, uint32_t 
 void GameMap::consoleAskToggleFOW()
 {
     mIsFOWActivated = !mIsFOWActivated;
+}
+
+void GameMap::consoleAskUnlockResearches()
+{
+    for(Seat* seat : getSeats())
+    {
+        for(uint32_t i = 0; i < static_cast<uint32_t>(ResearchType::countResearch); ++i)
+        {
+            ResearchType research = static_cast<ResearchType>(i);
+            if(seat->isResearchDone(research))
+                continue;
+
+            seat->addResearch(research);
+        }
+    }
 }
 
 Creature* GameMap::getWorkerForPathFinding(Seat* seat)

@@ -1514,8 +1514,7 @@ bool Creature::handleClaimTileAction(const CreatureAction& actionItem)
         }
     }
 
-    //cout << "\nLooking at the visible tiles to see if I can claim a tile.";
-    // If we still haven't found a tile to claim, check the rest of the visible tiles
+    // If we still haven't found a tile to claim, check the rest of the accessible tiles in radius
     std::vector<Tile*> claimableTiles;
     for (Tile* tempTile : mTilesWithinSightRadius)
     {
@@ -1536,12 +1535,13 @@ bool Creature::handleClaimTileAction(const CreatureAction& actionItem)
                 continue;
             if(t->getClaimedPercentage() < 1.0)
                 continue;
+            if(!getGameMap()->pathExists(this, myTile, t))
+                continue;
 
             claimableTiles.push_back(t);
         }
     }
 
-    //cout << "  I see " << claimableTiles.size() << " tiles I can claim.";
     // Randomly pick a claimable tile, plot a path to it and walk to it
     unsigned int tempUnsigned = 0;
     Tile* tempTile = nullptr;

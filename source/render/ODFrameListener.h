@@ -92,6 +92,8 @@ public:
     //! \brief Adjust mouse clipping area
     virtual void windowResized(Ogre::RenderWindow* rw) override;
 
+    virtual void windowClosed(Ogre::RenderWindow* rw) override;
+
     /*! \brief The main function for the OGRE 3d environment.
      *
      * This function is triggered by Ogre 3D once all the rendering has been bound to GPU,

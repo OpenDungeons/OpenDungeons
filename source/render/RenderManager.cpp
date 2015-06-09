@@ -69,18 +69,22 @@ using std::stringstream;
 
 template<> RenderManager* Ogre::Singleton<RenderManager>::msSingleton = nullptr;
 
+const uint8_t RenderManager::OD_RENDER_QUEUE_ID_GUI = 101;
+
 const Ogre::Real RenderManager::BLENDER_UNITS_PER_OGRE_UNIT = 10.0f;
 
 const Ogre::Real RenderManager::KEEPER_HAND_WORLD_Z = 20.0f / RenderManager::BLENDER_UNITS_PER_OGRE_UNIT;
 
-const Ogre::Real KEEPER_HAND_POS_Z = 10;
+const Ogre::Real KEEPER_HAND_POS_Z = 1.0;
+const Ogre::Real KEEPER_HAND_CREATURE_PICKED_OFFSET = 5.0;
+const Ogre::Real KEEPER_HAND_CREATURE_PICKED_SCALE = 5.0;
 
 RenderManager::RenderManager(Ogre::OverlaySystem* overlaySystem) :
     mHandAnimationState(nullptr),
     mViewport(nullptr),
     mShaderGenerator(nullptr),
     mHandKeeperNode(nullptr),
-    mHandKeeperPickupNode(nullptr),
+    mHandLight(nullptr),
     mCurrentFOVy(0.0f),
     mFactorWidth(0.0f),
     mFactorHeight(0.0f),
@@ -136,17 +140,9 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     // Sets the overall world lighting.
     mSceneManager->setAmbientLight(Ogre::ColourValue(0.3, 0.3, 0.3));
 
-    // Create the nodes that will follow the mouse pointer.
-    mHandKeeperPickupNode = mSceneManager->getRootSceneNode()->createChildSceneNode("Hand_node");
-    mHandKeeperPickupNode->setPosition(static_cast<Ogre::Real>(0.0),
-                       static_cast<Ogre::Real>(0.0),
-                       static_cast<Ogre::Real>(KEEPER_HAND_WORLD_Z));
-    mHandKeeperPickupNode->scale(static_cast<Ogre::Real>(1.0),
-                       static_cast<Ogre::Real>(1.0),
-                       static_cast<Ogre::Real>(0.15));
-
     Ogre::ParticleSystem::setDefaultNonVisibleUpdateTimeout(5);
 
+    // Create the nodes that will follow the mouse pointer.
     Ogre::Entity* keeperHandEnt = mSceneManager->createEntity("keeperHandEnt", "Keeperhand.mesh");
     keeperHandEnt->setLightMask(0);
     keeperHandEnt->setCastShadows(false);
@@ -154,12 +150,16 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     mHandAnimationState->setTimePosition(0);
     mHandAnimationState->setLoop(true);
     mHandAnimationState->setEnabled(true);
+    // Note that we need to render something on OD_RENDER_QUEUE_ID_GUI otherwise, Ogre
+    // will not call the render function with queue id = OD_RENDER_QUEUE_ID_GUI and the
+    // GUI will not be displayed
+    keeperHandEnt->setRenderQueueGroup(OD_RENDER_QUEUE_ID_GUI);
 
     Ogre::OverlayManager& overlayManager = Ogre::OverlayManager::getSingleton();
     Ogre::Overlay* handKeeperOverlay = overlayManager.create(keeperHandEnt->getName() + "_Ov");
     mHandKeeperNode = mSceneManager->createSceneNode(keeperHandEnt->getName() + "_node");
     mHandKeeperNode->attachObject(keeperHandEnt);
-    mHandKeeperNode->setScale(0.12f, 0.12f, 0.12f);
+    mHandKeeperNode->setScale(Ogre::Vector3::UNIT_SCALE * 0.012f * KEEPER_HAND_POS_Z);
     mHandKeeperNode->setPosition(0.0f, 0.0f, -KEEPER_HAND_POS_Z);
     handKeeperOverlay->add3D(mHandKeeperNode);
     handKeeperOverlay->show();
@@ -176,12 +176,11 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     dummyNode->attachObject(dummyEnt);
 
     // Create the light which follows the single tile selection mesh
-    Ogre::Light* handLight = mSceneManager->createLight("MouseLight");
-    handLight->setType(Ogre::Light::LT_POINT);
-    handLight->setDiffuseColour(Ogre::ColourValue(0.65, 0.65, 0.45));
-    handLight->setSpecularColour(Ogre::ColourValue(0.65, 0.65, 0.45));
-    handLight->setAttenuation(7, 1.0, 0.00, 0.3);
-    mHandKeeperPickupNode->attachObject(handLight);
+    mHandLight = mSceneManager->createLight("MouseLight");
+    mHandLight->setType(Ogre::Light::LT_POINT);
+    mHandLight->setDiffuseColour(Ogre::ColourValue(0.65, 0.65, 0.45));
+    mHandLight->setSpecularColour(Ogre::ColourValue(0.65, 0.65, 0.45));
+    mHandLight->setAttenuation(7, 1.0, 0.00, 0.3);
 
     mHandKeeperNode->setVisible(mHandKeeperHandVisibility == 0);
 }
@@ -674,9 +673,9 @@ void RenderManager::rrPickUpEntity(GameEntity* curEntity, Player* localPlayer)
     curEntity->getParentSceneNode()->removeChild(curEntityNode);
 
     // Attach the creature to the hand scene node
-    mHandKeeperPickupNode->addChild(curEntityNode);
+    mHandKeeperNode->addChild(curEntityNode);
     Ogre::Vector3 scale = curEntity->getScale();
-    scale *= 0.33;
+    scale *= KEEPER_HAND_CREATURE_PICKED_SCALE;
     curEntityNode->setScale(scale);
 
     rrOrderHand(localPlayer);
@@ -695,7 +694,7 @@ void RenderManager::rrDropHand(GameEntity* curEntity, Player* localPlayer)
 
     // Detach the entity from the "hand" scene node
     Ogre::SceneNode* curEntityNode = mSceneManager->getSceneNode(curEntity->getOgreNamePrefix() + curEntity->getName() + "_node");
-    mHandKeeperPickupNode->removeChild(curEntityNode);
+    mHandKeeperNode->removeChild(curEntityNode);
 
     // Attach the creature from the creature scene node
     curEntity->getParentSceneNode()->addChild(curEntityNode);
@@ -714,8 +713,8 @@ void RenderManager::rrOrderHand(Player* localPlayer)
     for (GameEntity* tmpEntity : objectsInHand)
     {
         Ogre::Vector3 pos;
-        pos.x = static_cast<Ogre::Real>(i % 6 + 1) * 0.5;
-        pos.y = static_cast<Ogre::Real>(i / 6) * 0.5;
+        pos.x = static_cast<Ogre::Real>(i % 6 + 1) * KEEPER_HAND_CREATURE_PICKED_OFFSET;
+        pos.y = static_cast<Ogre::Real>(i / 6) * KEEPER_HAND_CREATURE_PICKED_OFFSET;
         pos.z = 0;
         tmpEntity->getEntityNode()->setPosition(pos);
         ++i;
@@ -1209,7 +1208,7 @@ void RenderManager::moveCursor(float relX, float relY)
 
 void RenderManager::moveWorldCoords(Ogre::Real x, Ogre::Real y)
 {
-    mHandKeeperPickupNode->setPosition(x, y, KEEPER_HAND_WORLD_Z);
+    mHandLight->setPosition(x, y, KEEPER_HAND_WORLD_Z);
 }
 
 void RenderManager::entitySlapped()
