@@ -1244,6 +1244,21 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     + " couldn't build trap: " + TrapManager::getTrapNameFromTrapType(type));
                 break;
             }
+
+            // If the player is human and do not own a workshop, we warn him
+            if(!player->getIsHuman())
+                break;
+
+            std::vector<Room*> rooms = gameMap->getRoomsByTypeAndSeat(RoomType::workshop, player->getSeat());
+            if(!rooms.empty())
+                break;
+
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotificationType::chatServer, player);
+
+            std::string msg = "You need a workshop to craft the trap!";
+            serverNotification->mPacket << msg << EventShortNoticeType::genericGameInfo;
+            ODServer::getSingleton().queueServerNotification(serverNotification);
             break;
         }
 
