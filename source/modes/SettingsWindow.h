@@ -48,10 +48,19 @@ public:
             mSettingsWindow->hide();
     }
 
+    bool isVisible() const
+    {
+        if (mSettingsWindow)
+            return mSettingsWindow->isVisible();
+        return false;
+    }
+
+    bool cancelSettings(const CEGUI::EventArgs& e = {});
+
 private:
 
     //! \brief Set the different widget values according to current config.
-    void initWidgetConfig();
+    void initConfig();
 
     //! \brief Adds an event binding to be cleared on exiting the mode.
     inline void addEventConnection(CEGUI::Event::Connection conn)
@@ -68,8 +77,6 @@ private:
     //! \brief The root window.
     CEGUI::Window* mRootWindow;
 
-    //! \brief Cancel/Apply settings.
-    bool cancelSettings(const CEGUI::EventArgs&);
     bool applySettings(const CEGUI::EventArgs&);
 };
 

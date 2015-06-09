@@ -19,11 +19,12 @@
 #define EDITORMODE_H
 
 #include "GameEditorModeBase.h"
+
 #include "modes/InputCommand.h"
+#include "modes/SettingsWindow.h"
 
 class GameMap;
 class Gui; // Used to change the Current tile type
-class SettingsWindow;
 
 enum class TileVisual;
 
@@ -97,7 +98,7 @@ private:
     int mMouseY;
 
     //! \brief The settings window.
-    SettingsWindow* mSettings;
+    SettingsWindow mSettings;
 
     //! \brief A sub-function called by mouseMoved()
     //! It will handle the potential mouse wheel logic

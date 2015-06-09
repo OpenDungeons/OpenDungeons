@@ -19,7 +19,9 @@
 #define GAMEMODE_H
 
 #include "GameEditorModeBase.h"
+
 #include "modes/InputCommand.h"
+#include "modes/SettingsWindow.h"
 
 #include <CEGUI/EventArgs.h>
 
@@ -27,7 +29,6 @@ namespace CEGUI
 {
 class Window;
 }
-class SettingsWindow;
 
 enum class SpellType;
 enum class ResearchType;
@@ -149,7 +150,7 @@ private:
     uint32_t mIndexEvent;
 
     //! \brief The settings window.
-    SettingsWindow* mSettings;
+    SettingsWindow mSettings;
 
     //! \brief Set the help window (quite long) text.
     void setHelpWindowText();

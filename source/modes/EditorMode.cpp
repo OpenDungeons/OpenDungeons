@@ -18,7 +18,6 @@
 #include "modes/EditorMode.h"
 
 #include "modes/GameEditorModeConsole.h"
-#include "modes/SettingsWindow.h"
 
 #include "gamemap/GameMap.h"
 #include "gamemap/MiniMap.h"
@@ -82,7 +81,7 @@ EditorMode::EditorMode(ModeManager* modeManager):
     mCurrentCreatureIndex(0),
     mMouseX(0),
     mMouseY(0),
-    mSettings(new SettingsWindow(mRootWindow))
+    mSettings(SettingsWindow(mRootWindow))
 {
     // Set per default the input on the map
     mModeManager->getInputManager().mMouseDownOnCEGUIWindow = false;
@@ -160,9 +159,6 @@ EditorMode::~EditorMode()
 
     // Now that the server is stopped, we can clear the client game map
     ODFrameListener::getSingleton().getClientGameMap()->clearAll();
-
-    // Clear up the settings window.
-    delete mSettings;
 }
 
 void EditorMode::activate()
@@ -804,7 +800,7 @@ bool EditorMode::toggleOptionsWindow(const CEGUI::EventArgs& /*arg*/)
 bool EditorMode::showSettingsFromOptions(const CEGUI::EventArgs& /*e*/)
 {
     mRootWindow->getChild("EditorOptionsWindow")->hide();
-    mSettings->show();
+    mSettings.show();
     return true;
 }
 

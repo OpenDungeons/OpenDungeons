@@ -18,7 +18,6 @@
 #include "MenuModeMain.h"
 
 #include "modes/ModeManager.h"
-#include "modes/SettingsWindow.h"
 
 #include "ODApplication.h"
 #include "gamemap/GameMap.h"
@@ -48,7 +47,7 @@ public:
 
 MenuModeMain::MenuModeMain(ModeManager *modeManager):
     AbstractApplicationMode(modeManager, ModeManager::MENU_MAIN),
-    mSettings(new SettingsWindow(getModeManager().getGui().getGuiSheet(Gui::mainMenu)))
+    mSettings(SettingsWindow(getModeManager().getGui().getGuiSheet(Gui::mainMenu)))
 {
     connectModeChangeEvent(Gui::MM_BUTTON_MAPEDITOR, AbstractModeManager::ModeType::MENU_EDITOR);
     connectModeChangeEvent(Gui::MM_BUTTON_START_SKIRMISH, AbstractModeManager::ModeType::MENU_SKIRMISH);
@@ -67,14 +66,9 @@ MenuModeMain::MenuModeMain(ModeManager *modeManager):
     addEventConnection(
         rootWin->getChild("SettingsButton")->subscribeEvent(
             CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&MenuModeMain::showSettings, this)
+            CEGUI::Event::Subscriber(&MenuModeMain::toggleSettings, this)
         )
     );
-}
-
-MenuModeMain::~MenuModeMain()
-{
-    delete mSettings;
 }
 
 void MenuModeMain::activate()
@@ -113,8 +107,11 @@ bool MenuModeMain::quitButtonPressed(const CEGUI::EventArgs&)
     return true;
 }
 
-bool MenuModeMain::showSettings(const CEGUI::EventArgs&)
+bool MenuModeMain::toggleSettings(const CEGUI::EventArgs&)
 {
-    mSettings->show();
+    if (mSettings.isVisible())
+        mSettings.cancelSettings();
+    else
+        mSettings.show();
     return true;
 }

@@ -18,7 +18,6 @@
 #include "modes/GameMode.h"
 
 #include "modes/GameEditorModeConsole.h"
-#include "modes/SettingsWindow.h"
 
 #include "ODApplication.h"
 #include "camera/CameraManager.h"
@@ -79,7 +78,7 @@ GameMode::GameMode(ModeManager *modeManager):
     GameEditorModeBase(modeManager, ModeManager::GAME, modeManager->getGui().getGuiSheet(Gui::guiSheet::inGameMenu)),
     mDigSetBool(false),
     mIndexEvent(0),
-    mSettings(new SettingsWindow(mRootWindow))
+    mSettings(SettingsWindow(mRootWindow))
 {
     // Set per default the input on the map
     mModeManager->getInputManager().mMouseDownOnCEGUIWindow = false;
@@ -229,9 +228,6 @@ GameMode::~GameMode()
 
     // Now that the server is stopped, we can clear the client game map
     ODFrameListener::getSingleton().getClientGameMap()->clearAll();
-
-    // Clear up the settings window.
-    delete mSettings;
 }
 
 void GameMode::activate()
@@ -1119,7 +1115,7 @@ bool GameMode::saveGame(const CEGUI::EventArgs& /*e*/)
 bool GameMode::showSettingsFromOptions(const CEGUI::EventArgs& /*e*/)
 {
     mRootWindow->getChild("GameOptionsWindow")->hide();
-    mSettings->show();
+    mSettings.show();
     return true;
 }
 

@@ -70,7 +70,7 @@ SettingsWindow::SettingsWindow(CEGUI::Window* rootWindow):
         )
     );
 
-    initWidgetConfig();
+    initConfig();
 }
 
 SettingsWindow::~SettingsWindow()
@@ -91,7 +91,7 @@ SettingsWindow::~SettingsWindow()
     }
 }
 
-void SettingsWindow::initWidgetConfig()
+void SettingsWindow::initConfig()
 {
     Ogre::Root* ogreRoot = Ogre::Root::getSingletonPtr();
     Ogre::RenderSystem* renderer = ogreRoot->getRenderSystem();
@@ -146,7 +146,7 @@ void SettingsWindow::initWidgetConfig()
 
 bool SettingsWindow::cancelSettings(const CEGUI::EventArgs&)
 {
-    initWidgetConfig();
+    initConfig();
     hide();
     return true;
 }
