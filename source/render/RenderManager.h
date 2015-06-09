@@ -59,6 +59,8 @@ public:
     RenderManager(Ogre::OverlaySystem* overlaySystem);
     ~RenderManager();
 
+    static const uint8_t OD_RENDER_QUEUE_ID_GUI;
+
     inline Ogre::SceneManager* getSceneManager() const
     { return mSceneManager; }
 

@@ -69,6 +69,8 @@ using std::stringstream;
 
 template<> RenderManager* Ogre::Singleton<RenderManager>::msSingleton = nullptr;
 
+const uint8_t RenderManager::OD_RENDER_QUEUE_ID_GUI = 101;
+
 const Ogre::Real RenderManager::BLENDER_UNITS_PER_OGRE_UNIT = 10.0f;
 
 const Ogre::Real RenderManager::KEEPER_HAND_WORLD_Z = 20.0f / RenderManager::BLENDER_UNITS_PER_OGRE_UNIT;
@@ -148,6 +150,10 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     mHandAnimationState->setTimePosition(0);
     mHandAnimationState->setLoop(true);
     mHandAnimationState->setEnabled(true);
+    // Note that we need to render something on OD_RENDER_QUEUE_ID_GUI otherwise, Ogre
+    // will not call the render function with queue id = OD_RENDER_QUEUE_ID_GUI and the
+    // GUI will not be displayed
+    keeperHandEnt->setRenderQueueGroup(OD_RENDER_QUEUE_ID_GUI);
 
     Ogre::OverlayManager& overlayManager = Ogre::OverlayManager::getSingleton();
     Ogre::Overlay* handKeeperOverlay = overlayManager.create(keeperHandEnt->getName() + "_Ov");

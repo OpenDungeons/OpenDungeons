@@ -33,6 +33,7 @@
 #include "render/RenderManager.h"
 #include "render/TextRenderer.h"
 #include "sound/MusicPlayer.h"
+#include "utils/Helper.h"
 #include "utils/LogManager.h"
 #include "utils/MakeUnique.h"
 
@@ -206,7 +207,7 @@ bool ODFrameListener::frameEnded(const Ogre::FrameEvent& evt)
 void ODFrameListener::renderQueueStarted(Ogre::uint8 queueGroupId, const Ogre::String& invocation,
     bool& skipThisInvocation)
 {
-    if(queueGroupId == Ogre::RENDER_QUEUE_OVERLAY && invocation == "")
+    if(queueGroupId == RenderManager::OD_RENDER_QUEUE_ID_GUI && invocation.empty())
     {
         CEGUI::System::getSingleton().renderAllGUIContexts();
     }
