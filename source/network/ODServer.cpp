@@ -1566,6 +1566,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             }
             Creature* newCreature = new Creature(gameMap, true, classToSpawn, seatCreature);
             newCreature->addToGameMap();
+            newCreature->setPosition(Ogre::Vector3(0.0, 0.0, 0.0));
             // In editor mode, every player has vision
             for(Seat* seat : gameMap->getSeats())
             {
@@ -1606,6 +1607,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             }
             Creature* newCreature = new Creature(gameMap, true, classToSpawn, seatCreature);
             newCreature->addToGameMap();
+            newCreature->setPosition(Ogre::Vector3(0.0, 0.0, 0.0));
             // In editor mode, every player has vision
             for(Seat* seat : gameMap->getSeats())
             {
@@ -1644,8 +1646,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             Player* player = clientSocket->getPlayer();
             MapLight* mapLight = new MapLight(gameMap, true);
             mapLight->setName(gameMap->nextUniqueNameMapLight());
-            mapLight->setPosition(Ogre::Vector3(0.0, 0.0, 3.75));
             mapLight->addToGameMap();
+            mapLight->setPosition(Ogre::Vector3(0.0, 0.0, 3.75));
             // In editor mode, every player has vision
             for(Seat* seat : gameMap->getSeats())
             {
