@@ -27,8 +27,10 @@
 #include "game/Player.h"
 #include "game/Seat.h"
 #include "gamemap/GameMap.h"
+#include "render/ODFrameListener.h"
 
 #include <OgrePrerequisites.h>
+#include <OgreSceneNode.h>
 #include <OgreTextureManager.h>
 
 #include <CEGUI/BasicImage.h>
@@ -59,7 +61,9 @@ MiniMap::MiniMap(CEGUI::Window* miniMapWindow) :
             Ogre::TEX_TYPE_2D,
             mWidth, mHeight, 0, Ogre::PF_R8G8B8,
             Ogre::TU_DYNAMIC_WRITE_ONLY)),
-    mPixelBuffer(mMiniMapOgreTexture->getBuffer())
+    mPixelBuffer(mMiniMapOgreTexture->getBuffer()),
+    mGameMap(*ODFrameListener::getSingleton().getClientGameMap()),
+    mCameraManager(*ODFrameListener::getSingleton().getCameraManager())
 {
     CEGUI::Texture& miniMapTextureGui = static_cast<CEGUI::OgreRenderer*>(CEGUI::System::getSingletonPtr()
                                             ->getRenderer())->createTexture("miniMapTextureGui", mMiniMapOgreTexture);
@@ -105,23 +109,11 @@ Ogre::Vector2 MiniMap::camera_2dPositionFromClick(int xx, int yy)
     return mCamera_2dPosition;
 }
 
-void MiniMap::swap()
+void MiniMap::update(Ogre::Real timeSinceLastFrame)
 {
-    mPixelBuffer->lock(mPixelBox, Ogre::HardwareBuffer::HBL_NORMAL);
+    updateCameraInfo(mCameraManager.getCameraViewTarget(),
+          mCameraManager.getActiveCameraNode()->getOrientation().getRoll().valueRadians());
 
-    Ogre::uint8* pDest;
-    pDest = static_cast<Ogre::uint8*>(mPixelBuffer->getCurrentLock().data) - 1;
-
-    for(const Color& color : mTiles)
-    {
-        drawPixelToMemory(pDest, color.RR, color.GG, color.BB);
-    }
-
-    mPixelBuffer->unlock();
-}
-
-void MiniMap::draw(const GameMap& gameMap)
-{
     for (int ii = 0, mm = mCamera_2dPosition.x - mWidth / (2 * mGrainSize); ii < static_cast<int>(mWidth); ++mm, ii += mGrainSize)
     {
         //NOTE: (0,0) is in the bottom left in the game map, top left in textures, so we are reversing y order here.
@@ -137,14 +129,14 @@ void MiniMap::draw(const GameMap& gameMap)
              * (the empty one is the unused alpha channel)
              * this is not how it is intended/expected
              */
-            Tile* tile = gameMap.getTile(oo, pp);
+            Tile* tile = mGameMap.getTile(oo, pp);
             if(tile == nullptr)
             {
                 drawPixel(ii, jj, 0x00, 0x00, 0x00);
                 continue;
             }
 
-            if (tile->getMarkedForDigging(gameMap.getLocalPlayer()))
+            if (tile->getMarkedForDigging(mGameMap.getLocalPlayer()))
             {
                 drawPixel(ii, jj, 0xFF, 0xA8, 0x00);
                 continue;
@@ -237,4 +229,16 @@ void MiniMap::draw(const GameMap& gameMap)
     //         drawPixel(ii, jj, 0x94, 0x0, 0x94);
     //     }
     // }
+
+    mPixelBuffer->lock(mPixelBox, Ogre::HardwareBuffer::HBL_NORMAL);
+
+    Ogre::uint8* pDest;
+    pDest = static_cast<Ogre::uint8*>(mPixelBuffer->getCurrentLock().data) - 1;
+
+    for(const Color& color : mTiles)
+    {
+        drawPixelToMemory(pDest, color.RR, color.GG, color.BB);
+    }
+
+    mPixelBuffer->unlock();
 }

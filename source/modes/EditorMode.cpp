@@ -797,13 +797,6 @@ void EditorMode::handleHotkeys(OIS::KeyCode keycode)
 void EditorMode::onFrameStarted(const Ogre::FrameEvent& evt)
 {
     GameEditorModeBase::onFrameStarted(evt);
-
-    //Update the minimap
-    CameraManager& cameraManager = *ODFrameListener::getSingleton().getCameraManager();
-    mMiniMap.updateCameraInfo(cameraManager.getCameraViewTarget(),
-                              cameraManager.getActiveCameraNode()->getOrientation().getRoll().valueRadians());
-    mMiniMap.draw(*mGameMap);
-    mMiniMap.swap();
 }
 
 void EditorMode::onFrameEnded(const Ogre::FrameEvent& evt)

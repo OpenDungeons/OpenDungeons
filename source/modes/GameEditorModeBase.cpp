@@ -196,6 +196,7 @@ void GameEditorModeBase::connectTrapSelect(const std::string& buttonName, TrapTy
 void GameEditorModeBase::onFrameStarted(const Ogre::FrameEvent& evt)
 {
     updateMessages(evt.timeSinceLastFrame);
+    mMiniMap.update(evt.timeSinceLastFrame);
 }
 
 void GameEditorModeBase::receiveChat(ChatMessage* message)
