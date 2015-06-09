@@ -18,6 +18,7 @@
 #include "modes/SettingsWindow.h"
 
 #include "utils/LogManager.h"
+#include "utils/Helper.h"
 
 #include <CEGUI/CEGUI.h>
 #include <CEGUI/widgets/Combobox.h>
@@ -26,6 +27,7 @@
 #include <CEGUI/WindowManager.h>
 
 #include <OgreRoot.h>
+#include <OgreRenderWindow.h>
 
 #include <SFML/Audio/Listener.hpp>
 
@@ -157,7 +159,7 @@ bool SettingsWindow::applySettings(const CEGUI::EventArgs&)
     // But later, we may want to centralize everything in a common config file,
     // And save volume values and other options.
 
-    // Video - TODO: Apply without a restart.
+    // Video
     Ogre::Root* ogreRoot = Ogre::Root::getSingletonPtr();
     Ogre::RenderSystem* renderer = ogreRoot->getRenderSystem();
 
@@ -170,6 +172,21 @@ bool SettingsWindow::applySettings(const CEGUI::EventArgs&)
     renderer->setConfigOption("Full Screen", (fsCheckBox->isSelected() ? "Yes" : "No"));
 
     ogreRoot->saveConfig();
+
+    // Apply config
+    Ogre::RenderWindow* win = ogreRoot->getAutoCreatedWindow();
+    std::vector<std::string> resVtr = Helper::split(resCb->getSelectedItem()->getText().c_str(), 'x');
+    if (resVtr.size() == 2)
+    {
+        uint32_t width = static_cast<uint32_t>(Helper::toInt(resVtr[0]));
+        uint32_t height = static_cast<uint32_t>(Helper::toInt(resVtr[1]));
+        win->setFullscreen(fsCheckBox->isSelected(), width, height);
+
+        // In windowed mode, the window needs resizing through other means
+        // NOTE: Doesn't work when the window is maximized on certain Composers.
+        if (!fsCheckBox->isSelected())
+            win->resize(width, height);
+    }
 
     // Audio - TODO: Save in config and reload at start.
     CEGUI::Slider* volumeSlider = static_cast<CEGUI::Slider*>(
