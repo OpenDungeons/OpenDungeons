@@ -32,6 +32,10 @@ class variables_map;
 }
 }
 
+namespace Ogre {
+class Root;
+}
+
 class LogManager;
 
 //! \brief Base class which manages the startup of OpenDungeons.
@@ -60,6 +64,10 @@ private:
     void startClient();
     //! \brief Server mode. Creates only the needed to launch a level. Note that this is to be used without gui
     void startServer();
+
+    //! \brief Loads the ogre startup configuration, or create a default one if it isn't found or unrestorable.
+    //! \return Whether initialization succeeded.
+    bool loadOgreConfig(Ogre::Root& ogreRoot);
 };
 
 #endif // ODAPPLICATION_H

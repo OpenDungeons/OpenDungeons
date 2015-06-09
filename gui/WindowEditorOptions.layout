@@ -33,8 +33,8 @@
         </Window>
         <Window type="OD/IconButton" name="SettingsButton" >
             <Property name="Area" value="{{0.5,-80},{0,235},{0.5,80},{0,268}}" />
-            <Property name="Text" value="Settings (F10)" />
-            <Property name="Disabled" value="True" />
+            <Property name="Text" value="Settings" />
+            <Property name="Disabled" value="False" />
             <Property name="IconImage" value="OpenDungeonsIcons/OptionsIcon" />
             <Property name="TooltipText" value="Open the game settings window." />
         </Window>

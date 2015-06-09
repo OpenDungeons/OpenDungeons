@@ -2,18 +2,19 @@
 
 <GUILayout version="4" >
     <Window type="OD/FrameWindow" name="SettingsWindow" >
-        <Property name="Area" value="{{0,205},{0,128},{0,669},{0,581}}" />
+        <Property name="Area" value="{{0,205},{0,128},{0,669},{0,481}}" />
         <Property name="Text" value="Settings" />
+        <Property name="SizingEnabled" value="False" />
         <Window type="OD/Button" name="CancelButton" >
-            <Property name="Area" value="{{0,219},{0,394},{0,302},{0,432}}" />
+            <Property name="Area" value="{{0,219},{1,-50},{0,302},{1,-20}}" />
             <Property name="Text" value="Cancel" />
         </Window>
         <Window type="OD/Button" name="ApplyButton" >
-            <Property name="Area" value="{{0,313},{0,394},{0,399},{0,432}}" />
+            <Property name="Area" value="{{0,313},{1,-50},{0,399},{1,-20}}" />
             <Property name="Text" value="Apply" />
         </Window>
         <Window type="OD/TabControl" name="MainTabControl" >
-            <Property name="Area" value="{{0,10},{1,-422},{1,-10},{1,-70}}" />
+            <Property name="Area" value="{{0,10},{0,20},{1,-10},{1,-70}}" />
             <Property name="TabHeight" value="{0,30}" />
             <Property name="RiseOnClickEnabled" value="False" />
             <Window type="DefaultWindow" name="Video" >
@@ -22,19 +23,37 @@
                 <Property name="MaxSize" value="{{1,0},{1,0}}" />
                 <Property name="RiseOnClickEnabled" value="False" />
                 <Window type="OD/StaticText" name="ResolutionText" >
-                    <Property name="Area" value="{{0,22},{0,12},{0,184},{0,43}}" />
+                    <Property name="Area" value="{{0,22},{0,31},{0,184},{0,43}}" />
                     <Property name="MaxSize" value="{{1,0},{1,0}}" />
                     <Property name="Text" value="Resolution:" />
                     <Property name="BackgroundEnabled" value="False" />
                     <Property name="FrameEnabled" value="False" />
                 </Window>
+                <Window type="OD/Combobox" name="ResolutionCombobox" >
+                    <Property name="Area" value="{{0,22},{0,42},{0,166},{0,162}}" />
+                    <Property name="ReadOnly" value="True" />
+                </Window>
                 <Window type="OD/Checkbox" name="FullscreenCheckbox" >
                     <Property name="Area" value="{{0,222},{0,42},{0,342},{0,68}}" />
                     <Property name="Text" value="Fullscreen" />
                 </Window>
-                <Window type="OD/Combobox" name="ResolutionCombobox" >
-                    <Property name="Area" value="{{0,22},{0,42},{0,166},{0,92}}" />
+                <Window type="OD/StaticText" name="RendererText" >
+                    <Property name="Area" value="{{0,22},{0,78},{0,184},{0,90}}" />
+                    <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                    <Property name="Text" value="Renderer*:" />
+                    <Property name="BackgroundEnabled" value="False" />
+                    <Property name="FrameEnabled" value="False" />
+                    <Property name="TooltipText" value="* Needs a restart to be applied." />
+                </Window>
+                <Window type="OD/Combobox" name="RendererCombobox" >
+                    <Property name="Area" value="{{0,22},{0,90},{0,266},{0,210}}" />
                     <Property name="ReadOnly" value="True" />
+                    <Property name="TooltipText" value="* Needs a restart to be applied." />
+                </Window>
+                <Window type="OD/Checkbox" name="VSyncCheckbox" >
+                    <Property name="Area" value="{{0,22},{0,120},{0,166},{0,135}}" />
+                    <Property name="Text" value="VSync*" />
+                    <Property name="TooltipText" value="* Needs a restart to be potentially applied." />
                 </Window>
             </Window>
             <Window type="DefaultWindow" name="Audio" >
@@ -51,36 +70,10 @@
                     <Property name="FrameEnabled" value="False" />
                 </Window>
                 <Window type="OD/HorizontalSlider" name="MusicSlider" >
-                    <Property name="Area" value="{{0,32},{0,67},{0,327},{0,96}}" />
+                    <Property name="Area" value="{{0,32},{0,67},{0,327},{0,80}}" />
                     <Property name="Text" value="" />
                     <Property name="VerticalSlider" value="False" />
                     <Property name="AutoRenderingSurface" value="True" />
-                </Window>
-                <Window type="OD/StaticText" name="SoundText" >
-                    <Property name="Area" value="{{0,32},{0,100},{0,220},{0,120}}" />
-                    <Property name="MaxSize" value="{{1,0},{1,0}}" />
-                    <Property name="Text" value="Sound:" />
-                    <Property name="BackgroundEnabled" value="False" />
-                    <Property name="FrameEnabled" value="False" />
-                </Window>
-                <Window type="OD/HorizontalSlider" name="SoundSlider" >
-                    <Property name="Area" value="{{0,31},{0,129},{0,326},{0,158}}" />
-                    <Property name="Text" value="" />
-                    <Property name="VerticalSlider" value="False" />
-                    <Property name="AutoRenderingSurface" value="True" />
-                </Window>
-            </Window>
-            <Window type="DefaultWindow" name="Misc" >
-                <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
-                <Property name="Text" value="Misc" />
-                <Property name="MaxSize" value="{{1,0},{1,0}}" />
-                <Property name="Visible" value="False" />
-                <Property name="RiseOnClickEnabled" value="False" />
-                <Window type="OD/Checkbox" name="ConsoleCommandsCheckbox" >
-                    <Property name="Area" value="{{0,19},{0,22},{0,406},{0,48}}" />
-                    <Property name="Text" value="Activate console commands in multiplayer" />
-                    <Property name="AutoRenderingSurface" value="True" />
-                    <Property name="Selected" value="True" />
                 </Window>
             </Window>
         </Window>

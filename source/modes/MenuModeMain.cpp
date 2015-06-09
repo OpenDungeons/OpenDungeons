@@ -17,9 +17,10 @@
 
 #include "MenuModeMain.h"
 
+#include "modes/ModeManager.h"
+
 #include "ODApplication.h"
 #include "gamemap/GameMap.h"
-#include "modes/ModeManager.h"
 #include "render/Gui.h"
 #include "render/ODFrameListener.h"
 #include "render/TextRenderer.h"
@@ -45,7 +46,8 @@ public:
 } // namespace
 
 MenuModeMain::MenuModeMain(ModeManager *modeManager):
-    AbstractApplicationMode(modeManager, ModeManager::MENU_MAIN)
+    AbstractApplicationMode(modeManager, ModeManager::MENU_MAIN),
+    mSettings(SettingsWindow(getModeManager().getGui().getGuiSheet(Gui::mainMenu)))
 {
     connectModeChangeEvent(Gui::MM_BUTTON_MAPEDITOR, AbstractModeManager::ModeType::MENU_EDITOR);
     connectModeChangeEvent(Gui::MM_BUTTON_START_SKIRMISH, AbstractModeManager::ModeType::MENU_SKIRMISH);
@@ -57,6 +59,14 @@ MenuModeMain::MenuModeMain(ModeManager *modeManager):
         getModeManager().getGui().getGuiSheet(Gui::mainMenu)->getChild(Gui::MM_BUTTON_QUIT)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&MenuModeMain::quitButtonPressed, this)
+        )
+    );
+
+    CEGUI::Window* rootWin = getModeManager().getGui().getGuiSheet(Gui::mainMenu);
+    addEventConnection(
+        rootWin->getChild("SettingsButton")->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&MenuModeMain::toggleSettings, this)
         )
     );
 }
@@ -94,5 +104,14 @@ void MenuModeMain::connectModeChangeEvent(const std::string& buttonName, Abstrac
 bool MenuModeMain::quitButtonPressed(const CEGUI::EventArgs&)
 {
     ODFrameListener::getSingletonPtr()->requestExit();
+    return true;
+}
+
+bool MenuModeMain::toggleSettings(const CEGUI::EventArgs&)
+{
+    if (mSettings.isVisible())
+        mSettings.cancelSettings();
+    else
+        mSettings.show();
     return true;
 }

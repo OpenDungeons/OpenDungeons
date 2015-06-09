@@ -25,37 +25,38 @@
         <Window type="OD/MainMenuButton" name="StartSkirmishButton" >
             <Property name="Area" value="{{0.5,-310},{0.5,-10},{0.5,-170},{0.5,70}}" />
             <Property name="Text" value="Skirmish" />
-            <Property name="AlwaysOnTop" value="True" />
         </Window>
         <Window type="OD/MainMenuButton" name="LoadGameButton" >
             <Property name="Area" value="{{0.5,-310},{0.5,100},{0.5,-170},{0.5,180}}" />
             <Property name="Text" value="Load" />
-            <Property name="AlwaysOnTop" value="True" />
         </Window>
         <Window type="OD/MainMenuButton" name="StartMultiplayerClientButton" >
             <Property name="Area" value="{{0.5,-150},{0.5,-10},{0.5,-10},{0.5,70}}" />
             <Property name="Text" value="Join Game" />
-            <Property name="AlwaysOnTop" value="True" />
         </Window>
         <Window type="OD/MainMenuButton" name="StartMultiplayerServerButton" >
             <Property name="Area" value="{{0.5,-150},{0.5,100},{0.5,-10},{0.5,180}}" />
             <Property name="Text" value="Host Game" />
-            <Property name="AlwaysOnTop" value="True" />
         </Window>
         <Window type="OD/MainMenuButton" name="MapEditorButton" >
             <Property name="Area" value="{{0.5,10},{0.5,-10},{0.5,150},{0.5,70}}" />
             <Property name="Text" value="Map Editor" />
-            <Property name="AlwaysOnTop" value="True" />
         </Window>
         <Window type="OD/MainMenuButton" name="StartReplayButton" >
             <Property name="Area" value="{{0.5,10},{0.5,100},{0.5,150},{0.5,180}}" />
             <Property name="Text" value="Replay" />
-            <Property name="AlwaysOnTop" value="True" />
         </Window>
         <Window type="OD/MainMenuButton" name="QuitButton" >
             <Property name="Area" value="{{0.5,170},{0.5,40},{0.5,310},{0.5,120}}" />
             <Property name="Text" value="Quit" />
+        </Window>
+        <Window type="OD/ImageButton" name="SettingsButton" >
+            <Property name="Area" value="{{1,-27},{0,5},{1,-2},{0,30}}" />
+            <Property name="ButtonImage" value="OpenDungeonsIcons/OptionsIcon" />
             <Property name="AlwaysOnTop" value="True" />
+            <Property name="TooltipText" value="Options" />
+            <Property name="ClippedByParent" value="False" />
+            <Property name="Visible" value="True" />
         </Window>
     </Window>
 </GUILayout>

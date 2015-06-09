@@ -323,6 +323,7 @@ set(OD_SOURCEFILES
     ${SRC}/modes/MenuModeReplay.cpp
     ${SRC}/modes/MenuModeSkirmish.cpp
     ${SRC}/modes/ModeManager.cpp
+    ${SRC}/modes/SettingsWindow.cpp
 
     ${SRC}/network/ChatEventMessage.cpp
     ${SRC}/network/ClientNotification.cpp

@@ -19,7 +19,9 @@
 #define EDITORMODE_H
 
 #include "GameEditorModeBase.h"
+
 #include "modes/InputCommand.h"
+#include "modes/SettingsWindow.h"
 
 class GameMap;
 class Gui; // Used to change the Current tile type
@@ -55,6 +57,7 @@ public:
 
     //! \brief Options window functions
     bool toggleOptionsWindow(const CEGUI::EventArgs& arg = {});
+    bool showSettingsFromOptions(const CEGUI::EventArgs& e = {});
     bool showQuitMenuFromOptions(const CEGUI::EventArgs& arg = {});
     bool onSaveButtonClickFromOptions(const CEGUI::EventArgs& arg = {});
 
@@ -93,6 +96,9 @@ private:
     //! \brief Stores the lastest mouse cursor and light positions.
     int mMouseX;
     int mMouseY;
+
+    //! \brief The settings window.
+    SettingsWindow mSettings;
 
     //! \brief A sub-function called by mouseMoved()
     //! It will handle the potential mouse wheel logic

@@ -19,7 +19,9 @@
 #define GAMEMODE_H
 
 #include "GameEditorModeBase.h"
+
 #include "modes/InputCommand.h"
+#include "modes/SettingsWindow.h"
 
 #include <CEGUI/EventArgs.h>
 
@@ -108,9 +110,6 @@ class GameMode final : public GameEditorModeBase, public InputCommand
     bool hideOptionsWindow(const CEGUI::EventArgs& = {});
     bool toggleOptionsWindow(const CEGUI::EventArgs& = {});
 
-    //! \brief Hides the settings window.
-    bool hideSettingsWindow(const CEGUI::EventArgs& = {});
-
     //! \brief Refreshes the player current goals.
     void refreshPlayerGoals(const std::string& goalsDisplayString);
 
@@ -149,6 +148,9 @@ private:
 
     //! \brief Index of the event in the game event queue (for zooming automatically)
     uint32_t mIndexEvent;
+
+    //! \brief The settings window.
+    SettingsWindow mSettings;
 
     //! \brief Set the help window (quite long) text.
     void setHelpWindowText();
