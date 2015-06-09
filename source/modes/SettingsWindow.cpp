@@ -127,6 +127,29 @@ void SettingsWindow::initConfig()
         }
     }
 
+    // Available renderers
+    const Ogre::RenderSystemList& rdrList = ogreRoot->getAvailableRenderers();
+    Ogre::RenderSystem* renderSystem = ogreRoot->getRenderSystem();
+
+    CEGUI::Combobox* rdrCb = static_cast<CEGUI::Combobox*>(
+            mRootWindow->getChild("SettingsWindow/MainTabControl/Video/RendererCombobox"));
+    rdrCb->setReadOnly(true);
+    rdrCb->setSortingEnabled(true);
+    uint32_t i = 0;
+    for (Ogre::RenderSystem* rdr : rdrList)
+    {
+        CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(rdr->getName(), i);
+        item->setSelectionBrushImage(selImg);
+        rdrCb->addItem(item);
+
+        if (rdr == renderSystem)
+        {
+            rdrCb->setItemSelectState(item, true);
+            rdrCb->setText(item->getText());
+        }
+        ++i;
+    }
+
     // Fullscreen
     it = options.find("Full Screen");
     if (it != options.end())
@@ -135,6 +158,16 @@ void SettingsWindow::initConfig()
         CEGUI::ToggleButton* fsCheckBox = static_cast<CEGUI::ToggleButton*>(
             mRootWindow->getChild("SettingsWindow/MainTabControl/Video/FullscreenCheckbox"));
         fsCheckBox->setSelected((fullscreen.currentValue == "Yes"));
+    }
+
+    // VSync
+    it = options.find("VSync");
+    if (it != options.end())
+    {
+        const Ogre::ConfigOption& vsync = it->second;
+        CEGUI::ToggleButton* vsCheckBox = static_cast<CEGUI::ToggleButton*>(
+            mRootWindow->getChild("SettingsWindow/MainTabControl/Video/VSyncCheckbox"));
+        vsCheckBox->setSelected((vsync.currentValue == "Yes"));
     }
 
     // The current volume level
@@ -167,9 +200,18 @@ bool SettingsWindow::applySettings(const CEGUI::EventArgs&)
             mRootWindow->getChild("SettingsWindow/MainTabControl/Video/ResolutionCombobox"));
     renderer->setConfigOption("Video Mode", resCb->getSelectedItem()->getText().c_str());
 
+    // Needs to handled through custom config
+    /*CEGUI::Combobox* rdrCb = static_cast<CEGUI::Combobox*>(
+            mRootWindow->getChild("SettingsWindow/MainTabControl/Video/RendererCombobox"));*/
+    //renderer->setConfigOption("Render System", rdrCb->getSelectedItem()->getText().c_str());
+
     CEGUI::ToggleButton* fsCheckBox = static_cast<CEGUI::ToggleButton*>(
         mRootWindow->getChild("SettingsWindow/MainTabControl/Video/FullscreenCheckbox"));
     renderer->setConfigOption("Full Screen", (fsCheckBox->isSelected() ? "Yes" : "No"));
+
+    CEGUI::ToggleButton* vsCheckBox = static_cast<CEGUI::ToggleButton*>(
+        mRootWindow->getChild("SettingsWindow/MainTabControl/Video/VSyncCheckbox"));
+    renderer->setConfigOption("VSync", (vsCheckBox->isSelected() ? "Yes" : "No"));
 
     ogreRoot->saveConfig();
 
