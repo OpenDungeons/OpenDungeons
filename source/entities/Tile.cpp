@@ -95,7 +95,7 @@ bool Tile::isDiggable(const Seat* seat) const
     // Should be claimed tile
     if(mTileVisual != TileVisual::claimedFull)
     {
-        OD_LOG_ERR("mTileVisual=" + tileVisualToString(mTileVisual));
+        OD_LOG_ERR("tile=" + Tile::displayAsString(this) + ", mTileVisual=" + tileVisualToString(mTileVisual));
         return false;
     }
 
@@ -540,7 +540,9 @@ bool Tile::updateFloodFillFromTile(Seat* seat, FloodFillType type, Tile* tile)
         {
             logMsg = true;
             OD_LOG_ERR("Wrong floodfill seat index seatId=" + Helper::toString(seat->getId())
-                + ", seatIndex=" + Helper::toString(seat->getTeamIndex()) + ", floodfillsize=" + Helper::toString(static_cast<uint32_t>(mFloodFillColor.size())));
+                + ", tile=" + Tile::displayAsString(this)
+                + ", seatIndex=" + Helper::toString(seat->getTeamIndex()) + ", floodfillsize=" + Helper::toString(static_cast<uint32_t>(mFloodFillColor.size()))
+                + ", fullness=" + Helper::toString(getFullness()));
         }
         return false;
     }
@@ -554,6 +556,7 @@ bool Tile::updateFloodFillFromTile(Seat* seat, FloodFillType type, Tile* tile)
         {
             logMsg = true;
             OD_LOG_ERR("Wrong floodfill seat index seatId=" + Helper::toString(seat->getId())
+                + ", tile=" + Tile::displayAsString(this)
                 + ", intType=" + Helper::toString(intType) + ", floodfillsize=" + Helper::toString(static_cast<uint32_t>(values.size())));
         }
         return false;
@@ -578,6 +581,7 @@ void Tile::replaceFloodFill(Seat* seat, FloodFillType type, uint32_t newValue)
         {
             logMsg = true;
             OD_LOG_ERR("Wrong floodfill seat index seatId=" + Helper::toString(seat->getId())
+                + ", tile=" + Tile::displayAsString(this)
                 + ", seatIndex=" + Helper::toString(seat->getTeamIndex()) + ", floodfillsize=" + Helper::toString(static_cast<uint32_t>(mFloodFillColor.size())));
         }
         return;
@@ -592,6 +596,7 @@ void Tile::replaceFloodFill(Seat* seat, FloodFillType type, uint32_t newValue)
         {
             logMsg = true;
             OD_LOG_ERR("Wrong floodfill seat index seatId=" + Helper::toString(seat->getId())
+                + ", tile=" + Tile::displayAsString(this)
                 + ", intType=" + Helper::toString(intType) + ", floodfillsize=" + Helper::toString(static_cast<uint32_t>(values.size())));
         }
         return;
@@ -609,6 +614,7 @@ void Tile::copyFloodFillToOtherSeats(Seat* seatToCopy)
         {
             logMsg = true;
             OD_LOG_ERR("Wrong floodfill seat index seatId=" + Helper::toString(seatToCopy->getId())
+                + ", tile=" + Tile::displayAsString(this)
                 + ", seatIndex=" + Helper::toString(seatToCopy->getTeamIndex()) + ", floodfillsize=" + Helper::toString(static_cast<uint32_t>(mFloodFillColor.size())));
         }
         return;
@@ -707,7 +713,7 @@ bool Tile::hasChangedForSeat(Seat* seat) const
 
         return seatChanged.second;
     }
-    OD_LOG_ERR("Unknown seat id=" + Helper::toString(seat->getId()));
+    OD_LOG_ERR("tile=" + Tile::displayAsString(this) + ", unknown seat id=" + Helper::toString(seat->getId()));
     return false;
 }
 
@@ -780,7 +786,9 @@ uint32_t Tile::getFloodFillValue(Seat* seat, FloodFillType type) const
         {
             logMsg = true;
             OD_LOG_ERR("Wrong floodfill seat index seatId=" + Helper::toString(seat->getId())
-                + ", seatIndex=" + Helper::toString(seat->getTeamIndex()) + ", floodfillsize=" + Helper::toString(static_cast<uint32_t>(mFloodFillColor.size())));
+                + ", tile=" + Tile::displayAsString(this)
+                + ", seatIndex=" + Helper::toString(seat->getTeamIndex()) + ", floodfillsize=" + Helper::toString(static_cast<uint32_t>(mFloodFillColor.size()))
+                + ", fullness=" + Helper::toString(getFullness()));
         }
         return NO_FLOODFILL;
     }
@@ -794,6 +802,7 @@ uint32_t Tile::getFloodFillValue(Seat* seat, FloodFillType type) const
         {
             logMsg = true;
             OD_LOG_ERR("Wrong floodfill seat index seatId=" + Helper::toString(seat->getId())
+                + ", tile=" + Tile::displayAsString(this)
                 + ", intType=" + Helper::toString(intType) + ", floodfillsize=" + Helper::toString(static_cast<uint32_t>(values.size())));
         }
         return NO_FLOODFILL;
