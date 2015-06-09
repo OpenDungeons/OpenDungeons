@@ -41,7 +41,7 @@ SettingsWindow::SettingsWindow(CEGUI::Window* rootWindow):
     // Create the window child.
     CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
 
-     mSettingsWindow = wmgr->loadLayoutFromFile("WindowSettings.layout");
+    mSettingsWindow = wmgr->loadLayoutFromFile("WindowSettings.layout");
     if (mSettingsWindow == nullptr)
     {
         OD_LOG_ERR("Couldn't load the Settings Window layout!!");

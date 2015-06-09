@@ -163,9 +163,6 @@ void ODApplication::startClient()
     ogreRoot.addFrameListener(&frameListener);
     ogreRoot.startRendering();
 
-    // Rendering ended, let's quit
-    ogreRoot.saveConfig();
-
     OD_LOG_INF("Disconnecting client...");
     client.disconnect();
     OD_LOG_INF("Stopping server...");
