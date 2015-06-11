@@ -196,14 +196,36 @@ bool SettingsWindow::applySettings(const CEGUI::EventArgs&)
     Ogre::Root* ogreRoot = Ogre::Root::getSingletonPtr();
     Ogre::RenderSystem* renderer = ogreRoot->getRenderSystem();
 
+    // Changing Ogre renderer needs a restart to allow to load shaders and requested stuff
+    CEGUI::Combobox* rdrCb = static_cast<CEGUI::Combobox*>(
+    mRootWindow->getChild("SettingsWindow/MainTabControl/Video/RendererCombobox"));
+    std::string rendererName = rdrCb->getSelectedItem()->getText().c_str();
+    if (rendererName != renderer->getName())
+    {
+        renderer = ogreRoot->getRenderSystemByName(rendererName);
+        if (renderer == nullptr)
+        {
+            const Ogre::RenderSystemList& renderers = ogreRoot->getAvailableRenderers();
+            if (renderers.empty())
+            {
+                OD_LOG_ERR("No valid renderer found while searching for " + std::string(rdrCb->getSelectedItem()->getText().c_str()));
+                return false;
+            }
+            renderer = *renderers.begin();
+            OD_LOG_WRN("Wanted renderer : " + std::string(rdrCb->getSelectedItem()->getText().c_str()) + " not found. Using the first available: " + renderer->getName());
+        }
+        ogreRoot->setRenderSystem(renderer);
+        ogreRoot->saveConfig();
+        // If render changed, we need to restart game.
+        // Note that we do not change values according to the others inputs. The reason
+        // is that we don't know if the given values are acceptable for the selected renderer
+        OD_LOG_INF("Changed Ogre renderer to " + rendererName + ". We need to restart");
+        exit(0);
+    }
+
     CEGUI::Combobox* resCb = static_cast<CEGUI::Combobox*>(
             mRootWindow->getChild("SettingsWindow/MainTabControl/Video/ResolutionCombobox"));
     renderer->setConfigOption("Video Mode", resCb->getSelectedItem()->getText().c_str());
-
-    // Needs to handled through custom config
-    /*CEGUI::Combobox* rdrCb = static_cast<CEGUI::Combobox*>(
-            mRootWindow->getChild("SettingsWindow/MainTabControl/Video/RendererCombobox"));*/
-    //renderer->setConfigOption("Render System", rdrCb->getSelectedItem()->getText().c_str());
 
     CEGUI::ToggleButton* fsCheckBox = static_cast<CEGUI::ToggleButton*>(
         mRootWindow->getChild("SettingsWindow/MainTabControl/Video/FullscreenCheckbox"));

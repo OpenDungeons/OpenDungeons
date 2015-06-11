@@ -410,6 +410,11 @@ void ResourceManager::setupOgreResources(uint16_t shaderLanguageVersion)
             resourceGroupManager.addResourceLocation(mGameDataPath + "materials/RTShaderLib/GLSL/120", "FileSystem", "Graphics");
         }
     }
+
+    if (gpuProgramManager.isSyntaxSupported("hlsl"))
+    {
+        resourceGroupManager.addResourceLocation(mGameDataPath + "materials/RTShaderLib/HLSL", "FileSystem", "Graphics");
+    }
 }
 
 bool ResourceManager::hasFileEnding(const std::string& filename, const std::string& ending)
