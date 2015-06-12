@@ -31,6 +31,7 @@ namespace CEGUI
     class Window;
 }
 
+class CameraManager;
 class GameMap;
 
 //! \brief The class handling the minimap seen top-right of the in-game screen
@@ -48,6 +49,9 @@ public:
 private:
     CEGUI::Window* mMiniMapWindow;
 
+    GameMap& mGameMap;
+    CameraManager& mCameraManager;
+
     int mTopLeftCornerX;
     int mTopLeftCornerY;
 
@@ -60,6 +64,12 @@ private:
     Ogre::Real mElapsedTime;
 
     Ogre::TexturePtr mMiniMapOgreTexture;
+
+    int mCurCamPosX;
+    int mCurCamPosY;
+    Ogre::Camera* mMiniMapCam;
+
+    void updateMinimap();
 };
 
 #endif // MINIMAPCAMERA_H

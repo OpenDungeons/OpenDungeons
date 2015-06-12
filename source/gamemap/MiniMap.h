@@ -119,13 +119,6 @@ private:
         *pDest++ = RR;  //R
     }
 
-    inline void updateCameraInfo(Ogre::Vector3 vv, double rotation)
-    {
-        mCamera_2dPosition = Ogre::Vector2(vv.x, vv.y);
-        mCosRotation = cos(rotation);
-        mSinRotation = sin(rotation);
-    }
-
     GameMap& mGameMap;
     CameraManager& mCameraManager;
 };

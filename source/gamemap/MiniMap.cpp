@@ -111,8 +111,11 @@ Ogre::Vector2 MiniMap::camera_2dPositionFromClick(int xx, int yy)
 
 void MiniMap::update(Ogre::Real timeSinceLastFrame)
 {
-    updateCameraInfo(mCameraManager.getCameraViewTarget(),
-          mCameraManager.getActiveCameraNode()->getOrientation().getRoll().valueRadians());
+    Ogre::Vector3 vv = mCameraManager.getCameraViewTarget();
+    double rotation = mCameraManager.getActiveCameraNode()->getOrientation().getRoll().valueRadians();
+    mCamera_2dPosition = Ogre::Vector2(vv.x, vv.y);
+    mCosRotation = cos(rotation);
+    mSinRotation = sin(rotation);
 
     for (int ii = 0, mm = mCamera_2dPosition.x - mWidth / (2 * mGrainSize); ii < static_cast<int>(mWidth); ++mm, ii += mGrainSize)
     {
