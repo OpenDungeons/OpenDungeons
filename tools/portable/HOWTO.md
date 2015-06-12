@@ -47,33 +47,31 @@ sufficient for OD 0.4.9.
 
 ### Building the portable binary release
 
-In short: run the 3 scripts located in dist/portable, one after the other:
+In short: run the script located in dist/portable:
 
- * ```1-build-portable-binary.sh```
- * ```2-bundle-shared-libraries.sh```
- * ```3-create-portable-package.sh```
+ * ```build-portable-binary.sh```
 
 Note that the scripts must be run from the root of the source directory (i.e. 
 the directory that holds the source folder and various data folders). The 
 first script can be run with arguments which are passed directly to the CMake 
 call.
 
-The following sections give explanations about the steps performed by each 
+The following sections give explanations about the steps performed in the
 script.
 
 #### 1. Building OpenDungeons with a RPATH
 
-This is done by setting the install RPATH to $ORIGIN/lib (with the $ properly 
-escaped in the CMake call) using the CMAKE_INSTALL_RPATH variable. Since we 
-won't use ```make install``` to generate the portable archive, we also tell 
-CMake to use the install RPATH even for the output of the build step (if not, 
-it only writes the RPATH when installing the binary). In the end, we 
-initialise the OD build with:
+This is done by setting the install RPATH to $ORIGIN/lib{32,64} (with the $
+properly escaped in the CMake call) using the CMAKE_INSTALL_RPATH variable.
+Since we  won't use ```make install``` to generate the portable archive, we
+also tell CMake to use the install RPATH even for the output of the build
+step (if not, it only writes the RPATH when installing the binary). In the
+end, we initialise the OD build with:
 
 ```
 cmake -DCMAKE_SKIP_BUILD_RPATH=FALSE \
       -DCMAKE_BUILD_WITH_INSTALL_RPATH=TRUE \
-      -DCMAKE_INSTALL_RPATH="\$ORIGIN/lib"
+      -DCMAKE_INSTALL_RPATH="\$ORIGIN/lib$archsuffix"
 ```
 
 Since we don't use the install step, we must also strip the binary from the 
@@ -91,7 +89,7 @@ libboost_system.so.1.55.0 => /lib64/libboost_system.so.1.55.0
 ```
 
 Therefore we process the third word of these lines to get the path to the 
-library, and copy it in the ./lib directory that we set as the RPATH.
+library, and copy it in the ./lib{32,64} directory that we set as the RPATH.
 
 Before that, we remove all libraries that we do not want to bundle using sed. 
 The NOBUNDLE string in the 2nd script lists those variables. It might have to 
@@ -106,7 +104,8 @@ future releases.
 
 After step 2., the portable binary is ready, we just have to clean up the 
 stuff that players do not need (source code, CMake scripts, build directory, 
-etc.) and put everything in a near XZ-compressed tarball.
+etc.) and (optionally) put everything in a neat bzip-compressed tarball.
 
-We also append an arch-dependent suffix to the binary name to make it clear on 
-which arch it's meant to be run.
+The tarball can be made for one arch (thus containing the arch in the dirname,
+like "Linux32" or "Linux64") or for both arches (thus being simply named
+"Linux").
