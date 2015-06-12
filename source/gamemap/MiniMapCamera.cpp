@@ -26,6 +26,7 @@
 #include "utils/Helper.h"
 #include "utils/LogManager.h"
 
+#include <OgreHardwarePixelBuffer.h>
 #include <OgrePrerequisites.h>
 #include <OgreSceneManager.h>
 #include <OgreTextureManager.h>
@@ -76,6 +77,7 @@ MiniMapCamera::MiniMapCamera(CEGUI::Window* miniMapWindow) :
     mMiniMapCam->setFOVy(ANGLE_CAM);
 
     Ogre::RenderTarget* rt = mMiniMapOgreTexture->getBuffer()->getRenderTarget();
+    rt->addListener(this);
     rt->setAutoUpdated(false);
     mMiniMapCam->setAspectRatio(1.0);
     Ogre::Viewport* vp = rt->addViewport(mMiniMapCam);
@@ -99,12 +101,14 @@ MiniMapCamera::MiniMapCamera(CEGUI::Window* miniMapWindow) :
     mWidth = mMiniMapWindow->getUnclippedOuterRect().get().getSize().d_width;
     mHeight = mMiniMapWindow->getUnclippedOuterRect().get().getSize().d_height;
 
-    updateMinimap();
+    updateMinimapCamera();
 }
 
 MiniMapCamera::~MiniMapCamera()
 {
     mMiniMapWindow->setProperty("Image", "");
+    Ogre::RenderTarget* rt = mMiniMapOgreTexture->getBuffer()->getRenderTarget();
+    rt->removeAllListeners();
     Ogre::SceneManager* sceneManager = RenderManager::getSingleton().getSceneManager();
     sceneManager->destroyCamera(mMiniMapCam);
     Ogre::TextureManager::getSingletonPtr()->remove("miniMapOgreTexture");
@@ -140,14 +144,14 @@ void MiniMapCamera::update(Ogre::Real timeSinceLastFrame)
     if(mElapsedTime < MIN_TIME_REFRESH_SECS)
         return;
 
-    mElapsedTime -= MIN_TIME_REFRESH_SECS;
-    updateMinimap();
+    mElapsedTime = 0;
+    updateMinimapCamera();
 
     Ogre::RenderTarget* rt = mMiniMapOgreTexture->getBuffer()->getRenderTarget();
     rt->update();
 }
 
-void MiniMapCamera::updateMinimap()
+void MiniMapCamera::updateMinimapCamera()
 {
     const Ogre::Vector3& camPos = mCameraManager.getActiveCameraNode()->getPosition();
     mCurCamPosX = Helper::round(camPos.x);
@@ -157,4 +161,14 @@ void MiniMapCamera::updateMinimap()
     mMiniMapCam->setPosition(mCurCamPosX, mCurCamPosY, CAM_HEIGHT);
     mMiniMapCam->lookAt(mCurCamPosX, mCurCamPosY, 0.0);
     mMiniMapCam->roll(orientation.getRoll());
+}
+
+void MiniMapCamera::preRenderTargetUpdate(const Ogre::RenderTargetEvent& rte)
+{
+    RenderManager::getSingleton().rrMinimapRendering(false);
+}
+
+void MiniMapCamera::postRenderTargetUpdate(const Ogre::RenderTargetEvent& rte)
+{
+    RenderManager::getSingleton().rrMinimapRendering(true);
 }
