@@ -209,3 +209,37 @@ The numbers preceded by a hash (e.g. #9) reference GitHub issue numbers on our r
 * All models are displayed fine even if not yet using normals (#76 #100 #129)
 * New and improved models (including a new set of beds)
 * Added missing music/sounds (#95 #23)
+
+
+### Version 0.4.8 - 25 April 2011
+
+* Now with a new GUI, it is not completely done, but we are getting there. The mini-map and goals screen will be finished in later versions.
+* Now with a main menu. We now have the code set up for a main menu, it will nicer in the next versions.
+* Fixed a bug in the cannon trap, so it can now actually be placed. It actually also somewhat works and fires a moving projectile :)
+* A lot of code refactoring, us devs love that :D
+* Now with support for normal mapping.
+* A claim tile sound, so you can hear you Kobolds working hard for you ;)
+* A bunch of smaller bug-fixes
+* The files structure has changed, the media folder is now gone.
+* The dojo now got training dolls and training poles. (Thanks to p0ss)
+
+### Version 0.4.7 - 8 March 2011
+
+**Media Updates:**
+
+* New creature models for 8 creatures.
+* Several new meshes have been added to the game including the Portal, and the Cannon.
+* A new GUI for the game which replaces the generic one we had before and also allows you to start the game from the system menu.
+* Creatures now properly display the Die and Flee animations in combat.
+* Two basic sound effects have been added, an attack and a dig sound.
+
+**Code Updates:**
+
+* Creatures, tiles, rooms, and traps are now colored according to which team they are on.
+* Creature AI calculations have been improved so that combat now works correctly and it has been optimized significantly.
+* Creature AI is now multithreaded, and the number of active AI threads can be set via the in-game console (the default is 2).
+* Many, many bugfixes including fixing lots of race conditions present in the previous code and in the new multithreaded AI.
+
+**Distribution:**
+
+* A Windows installer (msi-package).

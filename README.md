@@ -83,6 +83,7 @@ licenses/        - License files used for game data and code
 materials/       - Materials (models texturing scripts and textures)
 models/          - Model files
 music/           - Music files
+particles/       - Particle effects scripts
 scripts/         - Our AngelScript code files
 sounds/          - Game Sounds
 AUTHORS          - List of past and current contributors
