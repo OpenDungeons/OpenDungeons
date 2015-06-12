@@ -33,8 +33,7 @@ namespace CEGUI
 class CameraManager;
 class GameMap;
 
-//! \brief The class handling the minimap seen top-right of the in-game screen
-//! FIXME: The pixel are displayed without taking in account the camera current roll value.
+//! \brief The class handling the minimap seen bottom-right of the in-game screen.
 class MiniMapCamera : public Ogre::RenderTargetListener
 {
 public:
@@ -44,6 +43,10 @@ public:
     Ogre::Vector2 camera_2dPositionFromClick(int xx, int yy);
 
     void update(Ogre::Real timeSinceLastFrame);
+
+    //! This functions allow to hook minimap rendering to adjust nodes we want to display or not
+    virtual void preRenderTargetUpdate(const Ogre::RenderTargetEvent& rte) override;
+    virtual void postRenderTargetUpdate(const Ogre::RenderTargetEvent& rte) override;
 
 private:
     CEGUI::Window* mMiniMapWindow;
@@ -69,9 +72,6 @@ private:
     Ogre::Camera* mMiniMapCam;
 
     void updateMinimapCamera();
-
-    virtual void preRenderTargetUpdate(const Ogre::RenderTargetEvent& rte);
-    virtual void postRenderTargetUpdate(const Ogre::RenderTargetEvent& rte);
 };
 
 #endif // MINIMAPCAMERA_H
