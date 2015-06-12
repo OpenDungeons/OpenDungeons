@@ -135,6 +135,11 @@ public:
     std::string rrBuildSkullFlagMaterial(const std::string& materialNameBase,
         const Ogre::ColourValue& color);
 
+    //! \brief Does requested stuff for rendering in the minimap. Each time the minimap is rendered, this function will be
+    //! called once before rendering is done with postRender = false and once when it is rendered with postRender = true.
+    //! That allows to hide stuff that we don't want to display in the minimap
+    void rrMinimapRendering(bool postRender);
+
 private:
 
     //! \brief Correctly places entities in hand next to the keeper hand
@@ -159,6 +164,7 @@ private:
     Ogre::SceneManager* mSceneManager;
 
     //! \brief Reference to the Ogre sub scene nodes. Don't delete them.
+    Ogre::SceneNode* mTileSceneNode;
     Ogre::SceneNode* mRoomSceneNode;
     Ogre::SceneNode* mCreatureSceneNode;
     Ogre::SceneNode* mLightSceneNode;

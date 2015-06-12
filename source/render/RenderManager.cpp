@@ -96,6 +96,7 @@ RenderManager::RenderManager(Ogre::OverlaySystem* overlaySystem) :
     mSceneManager->addRenderQueueListener(overlaySystem);
 
     mCreatureSceneNode = mSceneManager->getRootSceneNode()->createChildSceneNode("Creature_scene_node");
+    mTileSceneNode = mSceneManager->getRootSceneNode()->createChildSceneNode("Tile_scene_node");
     mRoomSceneNode = mSceneManager->getRootSceneNode()->createChildSceneNode("Room_scene_node");
     mLightSceneNode = mSceneManager->getRootSceneNode()->createChildSceneNode("Light_scene_node");
 }
@@ -314,7 +315,7 @@ void RenderManager::rrRefreshTile(const Tile& tile, const GameMap& gameMap, cons
 void RenderManager::rrCreateTile(Tile& tile, const GameMap& gameMap, const Player& localPlayer)
 {
     std::string tileName = tile.getOgreNamePrefix() + tile.getName();
-    Ogre::SceneNode* node = mSceneManager->getRootSceneNode()->createChildSceneNode(tileName + "_node");
+    Ogre::SceneNode* node = mTileSceneNode->createChildSceneNode(tileName + "_node");
     tile.setParentSceneNode(node->getParentSceneNode());
     tile.setEntityNode(node);
     node->setPosition(static_cast<Ogre::Real>(tile.getX()), static_cast<Ogre::Real>(tile.getY()), 0);
@@ -1259,4 +1260,10 @@ std::string RenderManager::rrBuildSkullFlagMaterial(const std::string& materialN
     }
 
     return materialNameToUse;
+}
+
+void RenderManager::rrMinimapRendering(bool postRender)
+{
+    mHandLight->setVisible(postRender);
+    mLightSceneNode->setVisible(postRender);
 }

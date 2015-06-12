@@ -23,8 +23,10 @@
 #include "gamemap/GameMap.h"
 #include "render/ODFrameListener.h"
 #include "render/RenderManager.h"
+#include "utils/Helper.h"
 #include "utils/LogManager.h"
 
+#include <OgreHardwarePixelBuffer.h>
 #include <OgrePrerequisites.h>
 #include <OgreSceneManager.h>
 #include <OgreTextureManager.h>
@@ -40,42 +42,45 @@
 #include <CEGUI/Window.h>
 #include <CEGUI/WindowManager.h>
 
+static const Ogre::Real NB_TILES_DISPLAYED_IN_MINIMAP = 30.0;
+static const Ogre::Radian ANGLE_CAM = Ogre::Degree(90.0);
+static const Ogre::Real CAM_HEIGHT = NB_TILES_DISPLAYED_IN_MINIMAP * 0.5 / Ogre::Math::Tan(ANGLE_CAM * 0.5);
 static const Ogre::uint TEXTURE_SIZE = 512;
 static const Ogre::Real MIN_TIME_REFRESH_SECS = 0.5;
 
 MiniMapCamera::MiniMapCamera(CEGUI::Window* miniMapWindow) :
     mMiniMapWindow(miniMapWindow),
+    mGameMap(*ODFrameListener::getSingleton().getClientGameMap()),
+    mCameraManager(*ODFrameListener::getSingleton().getCameraManager()),
     mTopLeftCornerX(0),
     mTopLeftCornerY(0),
     mWidth(0),
     mHeight(0),
-    mMapX(ODFrameListener::getSingleton().getClientGameMap()->getMapSizeX()),
-    mMapY(ODFrameListener::getSingleton().getClientGameMap()->getMapSizeY()),
+    mMapX(mGameMap.getMapSizeX()),
+    mMapY(mGameMap.getMapSizeY()),
     mElapsedTime(MIN_TIME_REFRESH_SECS),
     mMiniMapOgreTexture(Ogre::TextureManager::getSingletonPtr()->createManual(
             "miniMapOgreTexture",
             Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
             Ogre::TEX_TYPE_2D,
             TEXTURE_SIZE, TEXTURE_SIZE, 0, Ogre::PF_R8G8B8,
-            Ogre::TU_RENDERTARGET))
+            Ogre::TU_RENDERTARGET)),
+    mCurCamPosX(-1),
+    mCurCamPosY(-1),
+    mMiniMapCam(nullptr)
 {
     // We create a special camera that will look at the whole scene and render it in the minimap
     Ogre::SceneManager* sceneManager = RenderManager::getSingleton().getSceneManager();
-    Ogre::Camera* miniMapCam = sceneManager->createCamera("miniMapCam");
-    miniMapCam->setNearClipDistance(0.02);
-    miniMapCam->setFarClipDistance(300.0);
-    Ogre::Radian angle(Ogre::Degree(90.0));
-    miniMapCam->setFOVy(angle);
-    Ogre::Real tan = Ogre::Math::Tan(angle * 0.5);
-    Ogre::Real mapHighestSize = std::max(mMapX, mMapY);
-    Ogre::Real camHeight = mapHighestSize * 0.5 / tan;
+    mMiniMapCam = sceneManager->createCamera("miniMapCam");
+    mMiniMapCam->setNearClipDistance(0.02);
+    mMiniMapCam->setFarClipDistance(300.0);
+    mMiniMapCam->setFOVy(ANGLE_CAM);
 
     Ogre::RenderTarget* rt = mMiniMapOgreTexture->getBuffer()->getRenderTarget();
+    rt->addListener(this);
     rt->setAutoUpdated(false);
-    miniMapCam->setAspectRatio(1.0);
-    miniMapCam->setPosition(mMapX / 2.0, mMapY / 2.0, camHeight);
-    miniMapCam->lookAt(mMapX / 2.0, mMapY / 2.0, 0.0);
-    Ogre::Viewport* vp = rt->addViewport(miniMapCam);
+    mMiniMapCam->setAspectRatio(1.0);
+    Ogre::Viewport* vp = rt->addViewport(mMiniMapCam);
     vp->setClearEveryFrame(true);
     vp->setOverlaysEnabled(false);
     vp->setBackgroundColour(Ogre::ColourValue::Black);
@@ -91,19 +96,21 @@ MiniMapCamera::MiniMapCamera(CEGUI::Window* miniMapWindow) :
     imageset.setTexture(&miniMapTextureGui);
     mMiniMapWindow->setProperty("Image", CEGUI::PropertyHelper<CEGUI::Image*>::toString(&imageset));
 
-//    mMiniMapOgreTexture->load();
-
     mTopLeftCornerX = mMiniMapWindow->getUnclippedOuterRect().get().getPosition().d_x;
     mTopLeftCornerY = mMiniMapWindow->getUnclippedOuterRect().get().getPosition().d_y;
     mWidth = mMiniMapWindow->getUnclippedOuterRect().get().getSize().d_width;
     mHeight = mMiniMapWindow->getUnclippedOuterRect().get().getSize().d_height;
+
+    updateMinimapCamera();
 }
 
 MiniMapCamera::~MiniMapCamera()
 {
     mMiniMapWindow->setProperty("Image", "");
+    Ogre::RenderTarget* rt = mMiniMapOgreTexture->getBuffer()->getRenderTarget();
+    rt->removeAllListeners();
     Ogre::SceneManager* sceneManager = RenderManager::getSingleton().getSceneManager();
-    sceneManager->destroyCamera("miniMapCam");
+    sceneManager->destroyCamera(mMiniMapCam);
     Ogre::TextureManager::getSingletonPtr()->remove("miniMapOgreTexture");
     CEGUI::ImageManager::getSingletonPtr()->destroy("MiniMapImageset");
     CEGUI::System::getSingletonPtr()->getRenderer()->destroyTexture("miniMapTextureGui");
@@ -111,20 +118,23 @@ MiniMapCamera::~MiniMapCamera()
 
 Ogre::Vector2 MiniMapCamera::camera_2dPositionFromClick(int xx, int yy)
 {
+    if(mCurCamPosX == -1)
+        return Ogre::Vector2::ZERO;
+
+    if(mCurCamPosY == -1)
+        return Ogre::Vector2::ZERO;
+
+    const Ogre::Quaternion& orientation = mCameraManager.getActiveCameraNode()->getOrientation();
+    Ogre::Radian angle = orientation.getRoll();
+    Ogre::Real cos = Ogre::Math::Cos(angle);
+    Ogre::Real sin = Ogre::Math::Sin(angle);
+
     // Compute tile clicked
-    Ogre::Real coordsX;
-    if(mMapX < mMapY)
-        coordsX = ((xx - mTopLeftCornerX) * mMapY / mWidth) - (mMapY - mMapX) / 2.0;
-    else
-        coordsX = (xx - mTopLeftCornerX) * mMapX / mWidth;
+    Ogre::Real diffX = ((xx - mTopLeftCornerX) / mWidth - 0.5) * NB_TILES_DISPLAYED_IN_MINIMAP;
+    Ogre::Real diffY = ((mTopLeftCornerY - yy) / mHeight + 0.5) * NB_TILES_DISPLAYED_IN_MINIMAP;
 
-    Ogre::Real coordsY;
-    if(mMapY < mMapX)
-        coordsY = (mMapX - ((yy - mTopLeftCornerY) * mMapX / mHeight)) - (mMapX - mMapY) / 2.0;
-    else
-        coordsY = mMapY - ((yy - mTopLeftCornerY) * mMapY / mHeight);
-
-    Ogre::Vector2 pos(coordsX, coordsY);
+    Ogre::Vector2 pos(diffX * cos - diffY * sin + mCurCamPosX, diffX * sin + diffY * cos + mCurCamPosY);
+    OD_LOG_INF("Clicked minimap pos=" + Helper::toString(pos.x) + ", " + Helper::toString(pos.y));
     return pos;
 }
 
@@ -134,7 +144,31 @@ void MiniMapCamera::update(Ogre::Real timeSinceLastFrame)
     if(mElapsedTime < MIN_TIME_REFRESH_SECS)
         return;
 
-    mElapsedTime -= MIN_TIME_REFRESH_SECS;
+    mElapsedTime = 0;
+    updateMinimapCamera();
+
     Ogre::RenderTarget* rt = mMiniMapOgreTexture->getBuffer()->getRenderTarget();
     rt->update();
+}
+
+void MiniMapCamera::updateMinimapCamera()
+{
+    const Ogre::Vector3& camPos = mCameraManager.getActiveCameraNode()->getPosition();
+    mCurCamPosX = Helper::round(camPos.x);
+    mCurCamPosY = Helper::round(camPos.y);
+
+    const Ogre::Quaternion& orientation = mCameraManager.getActiveCameraNode()->getOrientation();
+    mMiniMapCam->setPosition(mCurCamPosX, mCurCamPosY, CAM_HEIGHT);
+    mMiniMapCam->lookAt(mCurCamPosX, mCurCamPosY, 0.0);
+    mMiniMapCam->roll(orientation.getRoll());
+}
+
+void MiniMapCamera::preRenderTargetUpdate(const Ogre::RenderTargetEvent& rte)
+{
+    RenderManager::getSingleton().rrMinimapRendering(false);
+}
+
+void MiniMapCamera::postRenderTargetUpdate(const Ogre::RenderTargetEvent& rte)
+{
+    RenderManager::getSingleton().rrMinimapRendering(true);
 }

@@ -18,8 +18,7 @@
 #ifndef MINIMAPCAMERA_H
 #define MINIMAPCAMERA_H
 
-#include <OgreHardwarePixelBuffer.h>
-#include <OgrePixelFormat.h>
+#include <OgreRenderTargetListener.h>
 #include <OgreTexture.h>
 #include <OgreVector2.h>
 #include <OgreVector3.h>
@@ -31,11 +30,11 @@ namespace CEGUI
     class Window;
 }
 
+class CameraManager;
 class GameMap;
 
-//! \brief The class handling the minimap seen top-right of the in-game screen
-//! FIXME: The pixel are displayed without taking in account the camera current roll value.
-class MiniMapCamera
+//! \brief The class handling the minimap seen bottom-right of the in-game screen.
+class MiniMapCamera : public Ogre::RenderTargetListener
 {
 public:
     MiniMapCamera(CEGUI::Window* miniMapWindow);
@@ -45,8 +44,15 @@ public:
 
     void update(Ogre::Real timeSinceLastFrame);
 
+    //! This functions allow to hook minimap rendering to adjust nodes we want to display or not
+    virtual void preRenderTargetUpdate(const Ogre::RenderTargetEvent& rte) override;
+    virtual void postRenderTargetUpdate(const Ogre::RenderTargetEvent& rte) override;
+
 private:
     CEGUI::Window* mMiniMapWindow;
+
+    GameMap& mGameMap;
+    CameraManager& mCameraManager;
 
     int mTopLeftCornerX;
     int mTopLeftCornerY;
@@ -60,6 +66,12 @@ private:
     Ogre::Real mElapsedTime;
 
     Ogre::TexturePtr mMiniMapOgreTexture;
+
+    int mCurCamPosX;
+    int mCurCamPosY;
+    Ogre::Camera* mMiniMapCam;
+
+    void updateMinimapCamera();
 };
 
 #endif // MINIMAPCAMERA_H

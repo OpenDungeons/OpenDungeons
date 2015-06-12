@@ -21,7 +21,7 @@
 #include "modes/AbstractApplicationMode.h"
 
 #include "game/PlayerSelection.h"
-#include "gamemap/MiniMap.h"
+#include "gamemap/MiniMapCamera.h"
 
 class EntityBase;
 class GameEditorModeConsole;
@@ -85,7 +85,7 @@ protected:
     GameMap* mGameMap;
 
     //! \brief The minimap used in this mode
-    MiniMap mMiniMap;
+    MiniMapCamera mMiniMap;
 
     PlayerSelection mPlayerSelection;
 
