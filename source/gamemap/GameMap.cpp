@@ -1155,10 +1155,35 @@ unsigned long int GameMap::doMiscUpkeep(double timeSinceLastTurn)
     if((mTimePayDay >= ConfigManager::getSingleton().getTimePayDay()))
     {
         mTimePayDay = 0;
-        ServerNotification *serverNotification = new ServerNotification(
-            ServerNotificationType::chatServer, nullptr);
-        serverNotification->mPacket << "It's pay day !" << EventShortNoticeType::majorGameEvent;
-        ODServer::getSingleton().queueServerNotification(serverNotification);
+        // We only notify players with a dungeon temple
+        for(Player* player : getPlayers())
+        {
+            if(!player->getIsHuman())
+                continue;
+
+            // We notify the player if he owns a fighter only
+            bool isCreatureSeat = false;
+            for(Creature* creature : mCreatures)
+            {
+                if(creature->getSeat() != player->getSeat())
+                    continue;
+
+                if(creature->getDefinition()->isWorker())
+                    continue;
+
+                isCreatureSeat = true;
+                break;
+            }
+
+            if(!isCreatureSeat)
+                continue;
+
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotificationType::chatServer, player);
+            serverNotification->mPacket << "It's pay day !" << EventShortNoticeType::majorGameEvent;
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+
         for(Creature* creature : mCreatures)
         {
             creature->itsPayDay();
