@@ -36,17 +36,9 @@ public:
 
     ~SettingsWindow();
 
-    void show()
-    {
-        if (mSettingsWindow)
-            mSettingsWindow->show();
-    }
+    void show();
 
-    void hide()
-    {
-        if (mSettingsWindow)
-            mSettingsWindow->hide();
-    }
+    void hide();
 
     bool isVisible() const
     {
@@ -55,12 +47,27 @@ public:
         return false;
     }
 
-    bool cancelSettings(const CEGUI::EventArgs& e = {});
+    //! \brief Called when pushing the cancel button on the settings window.
+    bool onCancelSettings(const CEGUI::EventArgs& e = {});
 
 private:
+    //! \brief Vector of cegui event bindings to be cleared on exiting the mode
+    std::vector<CEGUI::Event::Connection> mEventConnections;
+
+    //! \brief The Settings window.
+    CEGUI::Window* mSettingsWindow;
+
+    //! \brief The apply change pop-up
+    CEGUI::Window* mApplyWindow;
+
+    //! \brief The root window.
+    CEGUI::Window* mRootWindow;
 
     //! \brief Set the different widget values according to current config.
     void initConfig();
+
+    //! \brief Save the config, potentially stopping the application if it needs to.
+    void saveConfig();
 
     //! \brief Adds an event binding to be cleared on exiting the mode.
     inline void addEventConnection(CEGUI::Event::Connection conn)
@@ -68,16 +75,14 @@ private:
         mEventConnections.emplace_back(conn);
     }
 
-    //! \brief Vector of cegui event bindings to be cleared on exiting the mode
-    std::vector<CEGUI::Event::Connection> mEventConnections;
+    //! \brief Called when pushing the apply button on the settings window.
+    bool onApplySettings(const CEGUI::EventArgs&);
 
-    //! \brief The Settings window.
-    CEGUI::Window* mSettingsWindow;
+    //! \brief Called when pushing the cancel button on the change appliance popup.
+    bool onPopupCancelApplySettings(const CEGUI::EventArgs&);
 
-    //! \brief The root window.
-    CEGUI::Window* mRootWindow;
-
-    bool applySettings(const CEGUI::EventArgs&);
+    //! \brief Called when pushing the apply button on the change appliance popup.
+    bool onPopupApplySettings(const CEGUI::EventArgs&);
 };
 
 #endif // SETTINGSWINDOW_H

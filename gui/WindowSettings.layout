@@ -5,6 +5,7 @@
         <Property name="Area" value="{{0,205},{0,128},{0,669},{0,481}}" />
         <Property name="Text" value="Settings" />
         <Property name="SizingEnabled" value="False" />
+        <Property name="AlwaysOnTop" value="True" />
         <Window type="OD/Button" name="CancelButton" >
             <Property name="Area" value="{{0,219},{1,-50},{0,302},{1,-20}}" />
             <Property name="Text" value="Cancel" />
