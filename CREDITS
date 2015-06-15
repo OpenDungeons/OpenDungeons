@@ -113,6 +113,9 @@ textures/
 -> Chicken.png
 -> Chimney*.png                        Daniel74, Nobiax        CC0                     http://forum.freegamedev.net/viewtopic.php?p=59775#p59775
 -> Claimed*.png
+-> ClaimedWall.png                     Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
+-> ClaimedWallNormal.png               Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
+-> ClaimedWallMask.png                 Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
 -> CreatureOverlay*.png                hwoarangmy              CC-BY-SA 3.0
 -> Crypt*.png                          Yughues                 CC0                     http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
 -> Defender*.png                       Anthony Myers           CC-BY 3.0               http://forum.freegamedev.net/viewtopic.php?p=61450#p61450
