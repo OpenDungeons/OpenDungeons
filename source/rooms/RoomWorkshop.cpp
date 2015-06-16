@@ -331,10 +331,9 @@ void RoomWorkshop::doUpkeep()
         if((tileCreature == expectedDest) &&
            !creature->isMoving())
         {
-            if (creature->getJobCooldown() > 0)
+            if (!creature->decreaseJobCooldown())
             {
                 creature->setAnimationState(EntityAnimation::idle_anim);
-                creature->setJobCooldown(creature->getJobCooldown() - 1);
             }
             else
             {

@@ -34,7 +34,7 @@ MissileOneHit::MissileOneHit(GameMap* gameMap, bool isOnServerMap, Seat* seat, c
 {
     if(!particleScript.empty())
     {
-        EntityParticleEffect* effect = new EntityParticleEffect(nextParticleSystemsName(), particleScript, -1);
+        MissileParticuleEffectClient* effect = new MissileParticuleEffectClient(nextParticleSystemsName(), particleScript, -1);
         mEntityParticleEffects.push_back(effect);
     }
 }
@@ -100,7 +100,7 @@ void MissileOneHit::importFromStream(std::istream& is)
         --nbEffects;
         std::string effectScript;
         OD_ASSERT_TRUE(is >> effectScript);
-        EntityParticleEffect* effect = new EntityParticleEffect(nextParticleSystemsName(), effectScript, -1);
+        MissileParticuleEffectClient* effect = new MissileParticuleEffectClient(nextParticleSystemsName(), effectScript, -1);
         mEntityParticleEffects.push_back(effect);
     }
 }
@@ -132,7 +132,7 @@ void MissileOneHit::importFromPacket(ODPacket& is)
         std::string effectScript;
         uint32_t nbTurns;
         OD_ASSERT_TRUE(is >> effectName >> effectScript >> nbTurns);
-        EntityParticleEffect* effect = new EntityParticleEffect(effectName, effectScript, nbTurns);
+        MissileParticuleEffectClient* effect = new MissileParticuleEffectClient(effectName, effectScript, nbTurns);
         mEntityParticleEffects.push_back(effect);
     }
 }

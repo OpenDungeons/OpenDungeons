@@ -55,6 +55,13 @@ enum class EntityCarryType
     gold
 };
 
+enum class EntityParticleEffectType
+{
+    creature,
+    missile,
+    nbEffects
+};
+
 class EntityParticleEffect
 {
 public:
@@ -64,6 +71,11 @@ public:
         mParticleSystem(nullptr),
         mNbTurnsEffect(nbTurnsEffect)
     {}
+
+    virtual ~EntityParticleEffect()
+    {}
+
+    virtual EntityParticleEffectType getEntityParticleEffectType() = 0;
 
     std::string mName;
     std::string mScript;

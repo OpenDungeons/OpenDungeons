@@ -245,8 +245,9 @@ set(OD_SOURCEFILES
     ${SRC}/camera/HermiteCatmullSpline.cpp
 
     ${SRC}/creatureeffect/CreatureEffect.cpp
-    ${SRC}/creatureeffect/CreatureEffectHeal.cpp
     ${SRC}/creatureeffect/CreatureEffectExplosion.cpp
+    ${SRC}/creatureeffect/CreatureEffectHeal.cpp
+    ${SRC}/creatureeffect/CreatureEffectSlap.cpp
 
     ${SRC}/creaturemood/CreatureMood.cpp
     ${SRC}/creaturemood/CreatureMoodAwakness.cpp

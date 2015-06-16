@@ -40,9 +40,10 @@ class ODPacket;
 class Room;
 class Weapon;
 
+enum class CreatureEffectType;
 enum class CreatureMoodLevel;
-enum class ResearchType;
 enum class CreatureSoundType;
+enum class ResearchType;
 
 namespace CEGUI
 {
@@ -66,7 +67,22 @@ public:
 
     virtual ~CreatureParticuleEffect();
 
+    virtual EntityParticleEffectType getEntityParticleEffectType() override
+    { return EntityParticleEffectType::creature; }
+
     CreatureEffect* mEffect;
+};
+
+//! Class used on client side to display the particle effects on the creature
+class CreatureParticuleEffectClient : public EntityParticleEffect
+{
+public:
+    CreatureParticuleEffectClient(const std::string& name, const std::string& script, uint32_t nbTurnsEffect) :
+        EntityParticleEffect(name, script, nbTurnsEffect)
+    {}
+
+    virtual EntityParticleEffectType getEntityParticleEffectType() override
+    { return EntityParticleEffectType::creature; }
 };
 
 /*! \class Creature Creature.h
@@ -324,7 +340,15 @@ public:
         if(mAwakeness < 0.0)
             mAwakeness = 0.0;
     }
-    inline void setJobCooldown(int val) { mJobCooldown = val; }
+    inline bool decreaseJobCooldown()
+    {
+        if(mJobCooldown <= 0)
+            return true;
+
+        --mJobCooldown;
+        return false;
+    }
+    void setJobCooldown(int val);
     inline int getJobCooldown() { return mJobCooldown; }
     inline void foodEaten(double val)
     {
@@ -398,6 +422,10 @@ public:
 
     //! Called on server side to add an effect (spell, slap, ...) to this creature
     void addCreatureEffect(CreatureEffect* effect);
+
+    //!\brief Called on server side. Returns true if the given effect currently affects this creature
+    //! and false if not.
+    bool hasCreatureEffect(CreatureEffectType type) const;
 
     virtual void correctEntityMovePosition(Ogre::Vector3& position) override;
 
