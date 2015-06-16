@@ -584,7 +584,7 @@ void Tile::fillWithEntities(std::vector<EntityBase*>& entities, SelectionEntityW
                     continue;
 
                 Creature* creature = static_cast<Creature*>(entity);
-                if(creature->getHP() <= 0)
+                if(!creature->isAlive())
                     continue;
 
                 break;
@@ -601,7 +601,7 @@ void Tile::fillWithEntities(std::vector<EntityBase*>& entities, SelectionEntityW
                     continue;
 
                 Creature* creature = static_cast<Creature*>(entity);
-                if(creature->getHP() <= 0)
+                if(!creature->isAlive())
                     continue;
 
                 break;
@@ -618,7 +618,7 @@ void Tile::fillWithEntities(std::vector<EntityBase*>& entities, SelectionEntityW
                     continue;
 
                 Creature* creature = static_cast<Creature*>(entity);
-                if(creature->getHP() <= 0)
+                if(!creature->isAlive())
                     continue;
 
                 break;
@@ -629,7 +629,7 @@ void Tile::fillWithEntities(std::vector<EntityBase*>& entities, SelectionEntityW
                     continue;
 
                 Creature* creature = static_cast<Creature*>(entity);
-                if(creature->getHP() <= 0)
+                if(!creature->isAlive())
                     continue;
 
                 break;

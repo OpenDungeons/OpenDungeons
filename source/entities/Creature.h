@@ -123,14 +123,18 @@ public:
     inline unsigned int getLevel() const
     { return mLevel; }
 
-    inline double getHP(Tile *tile) const
-    { return getHP(); }
+    inline double getHP(Tile *tile) const override
+    { return mHp; }
 
-    double getHP() const;
+    bool isAlive() const;
 
     //! \brief Gets the maximum HP the creature can have currently
     inline double getMaxHp()const
     { return mMaxHP; }
+
+    //! \brief Gets the maximum HP the creature can have currently
+    inline double getHP()const
+    { return mHp; }
 
     //! \brief Gets the current dig rate
     inline double getDigRate() const
@@ -177,6 +181,8 @@ public:
     void drop(const Ogre::Vector3& v) override;
 
     void setHP(double nHP);
+
+    void heal(double hp);
 
     inline void setHomeTile(Tile* ht)
     { mHomeTile = ht; }

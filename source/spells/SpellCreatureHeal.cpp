@@ -148,7 +148,7 @@ bool SpellCreatureHeal::castSpell(GameMap* gameMap, Player* player, ODPacket& pa
             continue;
         }
 
-        if(creature->getHP() <= 0)
+        if(!creature->isAlive())
         {
             // This can happen if the creature was alive on client side but is not since we received the message
             OD_LOG_WRN("creatureName=" + creatureName);

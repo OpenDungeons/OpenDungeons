@@ -22,7 +22,7 @@
 
 void CreatureEffectExplosion::applyEffect(Creature& creature)
 {
-    if(creature.getHP() <= 0.0)
+    if(!creature.isAlive())
         return;
 
     Tile* posTile = creature.getPositionTile();

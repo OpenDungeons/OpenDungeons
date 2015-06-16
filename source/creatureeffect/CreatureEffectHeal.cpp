@@ -22,14 +22,13 @@
 
 void CreatureEffectHeal::applyEffect(Creature& creature)
 {
-    if(creature.getHP() <= 0.0)
+    if(!creature.isAlive())
         return;
 
-    if(creature.getHP() >= creature.getMaxHp())
+    if(!creature.isHurt())
         return;
 
-    double newHp = std::min(creature.getHP() + mEffectValue, creature.getMaxHp());
-    creature.setHP(newHp);
+    creature.heal(mEffectValue);
 }
 
 CreatureEffectHeal* CreatureEffectHeal::load(std::istream& is)

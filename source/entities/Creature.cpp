@@ -623,9 +623,19 @@ void Creature::setHP(double nHP)
     computeCreatureOverlayHealthValue();
 }
 
-double Creature::getHP() const
+void Creature::heal(double hp)
 {
-    return mHp;
+    mHp = std::min(mHp + hp, mMaxHP);
+
+    computeCreatureOverlayHealthValue();
+}
+
+bool Creature::isAlive() const
+{
+    if(getIsOnServerMap())
+        return mOverlayHealthValue < (NB_OVERLAY_HEALTH_VALUES - 1);
+
+    return mHp > 0;
 }
 
 void Creature::update(Ogre::Real timeSinceLastFrame)
@@ -4397,16 +4407,24 @@ void Creature::computeCreatureOverlayHealthValue()
         return;
 
     uint32_t value = 0;
-    uint32_t nbSteps = NB_OVERLAY_HEALTH_VALUES - 1;
-    double healthStep = getMaxHp() / static_cast<double>(nbSteps);
-    double tmpHealth = getMaxHp();
     double hp = getHP();
-    for(value = 0; value < nbSteps; ++value)
+    // Note that we make a special case for hp = 0 to avoid errors due to roundness
+    if(hp <= 0)
     {
-        if(hp >= tmpHealth)
-            break;
+        value = NB_OVERLAY_HEALTH_VALUES - 1;
+    }
+    else
+    {
+        uint32_t nbSteps = NB_OVERLAY_HEALTH_VALUES - 2;
+        double healthStep = getMaxHp() / static_cast<double>(nbSteps);
+        double tmpHealth = getMaxHp();
+        for(value = 0; value < nbSteps; ++value)
+        {
+            if(hp >= tmpHealth)
+                break;
 
-        tmpHealth -= healthStep;
+            tmpHealth -= healthStep;
+        }
     }
 
     if(mOverlayHealthValue != value)
