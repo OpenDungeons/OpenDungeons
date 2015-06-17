@@ -129,11 +129,11 @@ public:
     bool isAlive() const;
 
     //! \brief Gets the maximum HP the creature can have currently
-    inline double getMaxHp()const
+    inline double getMaxHp() const
     { return mMaxHP; }
 
     //! \brief Gets the maximum HP the creature can have currently
-    inline double getHP()const
+    inline double getHP() const
     { return mHp; }
 
     //! \brief Gets the current dig rate
