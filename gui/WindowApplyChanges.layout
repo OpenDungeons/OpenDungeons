@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout version="4" >
+    <Window type="OD/FrameWindow" name="ConfirmRestart" >
+        <Property name="Area" value="{{0.5,-200},{0.5,-100},{0.5,200},{0.5,60}}" />
+        <Property name="Text" value="Warning" />
+        <Property name="Alpha" value="0.8" />
+        <Property name="AlwaysOnTop" value="True" />
+        <Property name="SizingEnabled" value="False" />
+        <Window type="OD/StaticText" name="ApplyText" >
+            <Property name="FrameEnabled" value="False" />
+            <Property name="BackgroundEnabled" value="False" />
+            <Property name="InheritsAlpha" value="False" />
+            <Property Name="VertFormatting" Value="TopAligned" />
+            <Property name="HorzFormatting" value="WordWrapCentered" />
+            <Property name="Area" value="{{0,25},{0,30},{1,-25},{0.7,0}}" />
+            <Property name="Text" value="To actually apply this setting,&#0010;Open Dungeons needs to be stopped now.&#0010;Do you want to apply this change now?" />
+        </Window>
+        <Window type="OD/Button" name="CancelButton" >
+            <Property name="Area" value="{{0.3,-48},{0.9,-39},{0.3,44},{0.9,-5}}" />
+            <Property name="Text" value="Cancel" />
+            <Property name="InheritsAlpha" value="False" />
+        </Window>
+        <Window type="OD/Button" name="ApplyButton" >
+            <Property name="Area" value="{{0.7,-47},{0.9,-39},{0.7,45},{0.9,-5}}" />
+            <Property name="Text" value="Apply" />
+            <Property name="InheritsAlpha" value="False" />
+        </Window>
+    </Window>
+</GUILayout>

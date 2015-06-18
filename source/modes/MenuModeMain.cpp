@@ -110,7 +110,7 @@ bool MenuModeMain::quitButtonPressed(const CEGUI::EventArgs&)
 bool MenuModeMain::toggleSettings(const CEGUI::EventArgs&)
 {
     if (mSettings.isVisible())
-        mSettings.cancelSettings();
+        mSettings.onCancelSettings();
     else
         mSettings.show();
     return true;
