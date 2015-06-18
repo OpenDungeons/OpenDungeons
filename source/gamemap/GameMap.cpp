@@ -581,7 +581,7 @@ std::vector<Creature*> GameMap::getCreaturesByAlliedSeat(const Seat* seat) const
     // Loop over all the creatures in the GameMap and add them to the temp vector if their seat matches the one in parameter.
     for (Creature* creature : mCreatures)
     {
-        if (seat->isAlliedSeat(creature->getSeat()) && creature->getHP() > 0.0)
+        if (seat->isAlliedSeat(creature->getSeat()) && creature->isAlive())
             tempVector.push_back(creature);
     }
 
@@ -595,7 +595,7 @@ std::vector<Creature*> GameMap::getCreaturesBySeat(const Seat* seat) const
     // Loop over all the creatures in the GameMap and add them to the temp vector if their seat matches the one in parameter.
     for (Creature* creature : mCreatures)
     {
-        if (creature->getSeat() == seat && creature->getHP() > 0.0)
+        if (creature->getSeat() == seat && creature->isAlive())
             tempVector.push_back(creature);
     }
 
@@ -1121,7 +1121,7 @@ void GameMap::doTurn(double timeSinceLastTurn)
     for(Creature* creature : mCreatures)
     {
         // Check to see if the creature has died.
-        if (creature->getHP() <= 0.0)
+        if (!creature->isAlive())
             continue;
 
         // We only count fighters
@@ -1323,7 +1323,7 @@ int GameMap::getNbWorkersForSeat(Seat* seat) const
         if(creature->getSeat() != seat)
             continue;
 
-        if(creature->getHP() <= 0)
+        if(!creature->isAlive())
             continue;
 
         if(!creature->getDefinition()->isWorker())
@@ -1343,7 +1343,7 @@ int GameMap::getNbFightersForSeat(Seat* seat) const
         if (creature->getSeat() != seat)
             continue;
 
-        if(creature->getHP() <= 0)
+        if(!creature->isAlive())
             continue;
 
         if (creature->getDefinition()->isWorker())

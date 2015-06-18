@@ -135,16 +135,10 @@ bool KeeperAI::checkTreasury()
                 {
                     std::vector<Tile*> tiles;
                     tiles.push_back(neigh);
-                    int goldRequired = static_cast<int>(tiles.size()) * RoomManager::costPerTile(RoomType::treasury);
-
-                    if(!mGameMap.withdrawFromTreasuries(goldRequired, mPlayer.getSeat()))
-                        return false;
 
                     if(!RoomTreasury::buildRoomOnTiles(&mGameMap, &mPlayer, tiles))
-                    {
-                        OD_LOG_ERR("seatId=" + Helper::toString(mPlayer.getSeat()->getId()));
                         return false;
-                    }
+
                     return true;
                 }
             }
@@ -251,16 +245,9 @@ bool KeeperAI::checkTreasury()
 
     std::vector<Tile*> tiles;
     tiles.push_back(firstAvailableTile);
-    int32_t goldRequired = RoomTreasury::getRoomCostForPlayer(&mGameMap, &mPlayer, tiles);
-
-    if(!mGameMap.withdrawFromTreasuries(goldRequired, mPlayer.getSeat()))
-        return false;
 
     if(!RoomTreasury::buildRoomOnTiles(&mGameMap, &mPlayer, tiles))
-    {
-        OD_LOG_ERR("seatId=" + Helper::toString(mPlayer.getSeat()->getId()));
         return false;
-    }
 
     return true;
 }
@@ -510,16 +497,9 @@ bool KeeperAI::buildMostNeededRoom()
             if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
                 return false;
 
-            int goldRequired = static_cast<int>(tiles.size()) * RoomManager::costPerTile(RoomType::dormitory);
-
-            if(!mGameMap.withdrawFromTreasuries(goldRequired, mPlayer.getSeat()))
-                return false;
-
             if(!RoomDormitory::buildRoomOnTiles(&mGameMap, &mPlayer, tiles))
-            {
-                OD_LOG_ERR("seatId=" + Helper::toString(mPlayer.getSeat()->getId()));
                 return false;
-            }
+
             return true;
         }
     }
@@ -544,16 +524,9 @@ bool KeeperAI::buildMostNeededRoom()
             if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
                 return false;
 
-            int goldRequired = static_cast<int>(tiles.size()) * RoomManager::costPerTile(RoomType::treasury);
-
-            if(!mGameMap.withdrawFromTreasuries(goldRequired, mPlayer.getSeat()))
-                return false;
-
             if(!RoomTreasury::buildRoomOnTiles(&mGameMap, &mPlayer, tiles))
-            {
-                OD_LOG_ERR("seatId=" + Helper::toString(mPlayer.getSeat()->getId()));
                 return false;
-            }
+
             return true;
         }
     }
@@ -568,16 +541,9 @@ bool KeeperAI::buildMostNeededRoom()
             if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
                 return false;
 
-            int goldRequired = static_cast<int>(tiles.size()) * RoomManager::costPerTile(RoomType::hatchery);
-
-            if(!mGameMap.withdrawFromTreasuries(goldRequired, mPlayer.getSeat()))
-                return false;
-
             if(!RoomHatchery::buildRoomOnTiles(&mGameMap, &mPlayer, tiles))
-            {
-                OD_LOG_ERR("seatId=" + Helper::toString(mPlayer.getSeat()->getId()));
                 return false;
-            }
+
             return true;
         }
     }
@@ -592,16 +558,9 @@ bool KeeperAI::buildMostNeededRoom()
             if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
                 return false;
 
-            int goldRequired = static_cast<int>(tiles.size()) * RoomManager::costPerTile(RoomType::trainingHall);
-
-            if(!mGameMap.withdrawFromTreasuries(goldRequired, mPlayer.getSeat()))
-                return false;
-
             if(!RoomTrainingHall::buildRoomOnTiles(&mGameMap, &mPlayer, tiles))
-            {
-                OD_LOG_ERR("seatId=" + Helper::toString(mPlayer.getSeat()->getId()));
                 return false;
-            }
+
             return true;
         }
     }
@@ -616,16 +575,9 @@ bool KeeperAI::buildMostNeededRoom()
             if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
                 return false;
 
-            int goldRequired = static_cast<int>(tiles.size()) * RoomManager::costPerTile(RoomType::workshop);
-
-            if(!mGameMap.withdrawFromTreasuries(goldRequired, mPlayer.getSeat()))
-                return false;
-
             if(!RoomWorkshop::buildRoomOnTiles(&mGameMap, &mPlayer, tiles))
-            {
-                OD_LOG_ERR("seatId=" + Helper::toString(mPlayer.getSeat()->getId()));
                 return false;
-            }
+
             return true;
         }
     }
@@ -640,16 +592,9 @@ bool KeeperAI::buildMostNeededRoom()
             if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
                 return false;
 
-            int goldRequired = static_cast<int>(tiles.size()) * RoomManager::costPerTile(RoomType::library);
-
-            if(!mGameMap.withdrawFromTreasuries(goldRequired, mPlayer.getSeat()))
-                return false;
-
             if(!RoomLibrary::buildRoomOnTiles(&mGameMap, &mPlayer, tiles))
-            {
-                OD_LOG_ERR("seatId=" + Helper::toString(mPlayer.getSeat()->getId()));
                 return false;
-            }
+
             return true;
         }
     }
@@ -664,16 +609,9 @@ bool KeeperAI::buildMostNeededRoom()
             if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
                 return false;
 
-            int goldRequired = static_cast<int>(tiles.size()) * RoomManager::costPerTile(RoomType::crypt);
-
-            if(!mGameMap.withdrawFromTreasuries(goldRequired, mPlayer.getSeat()))
-                return false;
-
             if(!RoomCrypt::buildRoomOnTiles(&mGameMap, &mPlayer, tiles))
-            {
-                OD_LOG_ERR("seatId=" + Helper::toString(mPlayer.getSeat()->getId()));
                 return false;
-            }
+
             return true;
         }
     }
@@ -686,16 +624,9 @@ bool KeeperAI::buildMostNeededRoom()
         if (tiles.size() < static_cast<uint32_t>(mRoomSize * mRoomSize))
             return false;
 
-        int goldRequired = static_cast<int>(tiles.size()) * RoomManager::costPerTile(RoomType::dormitory);
-
-        if(!mGameMap.withdrawFromTreasuries(goldRequired, mPlayer.getSeat()))
-            return false;
-
         if(!RoomDormitory::buildRoomOnTiles(&mGameMap, &mPlayer, tiles))
-        {
-            OD_LOG_ERR("seatId=" + Helper::toString(mPlayer.getSeat()->getId()));
             return false;
-        }
+
         return true;
     }
 

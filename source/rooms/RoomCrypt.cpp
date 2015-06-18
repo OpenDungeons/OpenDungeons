@@ -184,7 +184,7 @@ bool RoomCrypt::hasCarryEntitySpot(GameEntity* carriedEntity)
         return false;
 
     Creature* creature = static_cast<Creature*>(carriedEntity);
-    if(creature->getHP() > 0.0)
+    if(creature->isAlive())
         return false;
 
     for(std::pair<Tile* const, std::pair<Creature*, int32_t> >& p : mRottingCreatures)

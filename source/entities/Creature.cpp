@@ -18,6 +18,7 @@
 #include "entities/Creature.h"
 
 #include "creatureeffect/CreatureEffect.h"
+#include "creatureeffect/CreatureEffectSlap.h"
 
 #include "creaturemood/CreatureMood.h"
 
@@ -586,7 +587,7 @@ void Creature::importFromPacket(ODPacket& is)
         std::string effectScript;
         uint32_t nbTurns;
         OD_ASSERT_TRUE(is >> effectName >> effectScript >> nbTurns);
-        EntityParticleEffect* effect = new EntityParticleEffect(effectName, effectScript, nbTurns);
+        CreatureParticuleEffectClient* effect = new CreatureParticuleEffectClient(effectName, effectScript, nbTurns);
         mEntityParticleEffects.push_back(effect);
     }
     setupDefinition(*getGameMap(), *ConfigManager::getSingleton().getCreatureDefinitionDefaultWorker());
@@ -622,9 +623,19 @@ void Creature::setHP(double nHP)
     computeCreatureOverlayHealthValue();
 }
 
-double Creature::getHP() const
+void Creature::heal(double hp)
 {
-    return mHp;
+    mHp = std::min(mHp + hp, mMaxHP);
+
+    computeCreatureOverlayHealthValue();
+}
+
+bool Creature::isAlive() const
+{
+    if(getIsOnServerMap())
+        return mOverlayHealthValue < (NB_OVERLAY_HEALTH_VALUES - 1);
+
+    return mHp > 0;
 }
 
 void Creature::update(Ogre::Real timeSinceLastFrame)
@@ -1287,7 +1298,9 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
     }
 
     // If we are sleepy, we go to sleep
-    if (!mDefinition->isWorker() && mHomeTile != nullptr && Random::Double(0.0, 1.0) < 0.2 && Random::Double(0.0, 50.0) >= mAwakeness)
+    if (!mDefinition->isWorker() &&
+        (mHomeTile != nullptr) &&
+        (Random::Double(20.0, 30.0) > mAwakeness))
     {
         // Check to see if we can work
         if(pushAction(CreatureActionType::sleep, false, false))
@@ -1295,7 +1308,8 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
     }
 
     // If we are hungry, we go to eat
-    if (!mDefinition->isWorker() && Random::Double(0.0, 1.0) < 0.2 && Random::Double(50.0, 100.0) <= mHunger)
+    if (!mDefinition->isWorker() &&
+        (Random::Double(70.0, 80.0) < mHunger))
     {
         // Check to see if we can work
         if(pushAction(CreatureActionType::eatdecided, false, false))
@@ -1303,8 +1317,8 @@ bool Creature::handleIdleAction(const CreatureAction& actionItem)
     }
 
     // Otherwise, we try to work
-    if (!mDefinition->isWorker() && Random::Double(0.0, 1.0) < 0.4
-        && Random::Double(0.0, 50.0) < mAwakeness && Random::Double(50.0, 100.0) > mHunger)
+    if (!mDefinition->isWorker() &&
+        (Random::Double(0.0, 1.0) < 0.4))
     {
         // Check to see if we can work
         if(pushAction(CreatureActionType::jobdecided, false, false))
@@ -2098,12 +2112,23 @@ bool Creature::handleJobAction(const CreatureAction& actionItem)
             break;
     }
 
-    // Randomly decide to stop working, we are more likely to stop when we are tired.
-    if (Random::Double(10.0, 30.0) > mAwakeness)
+    // If we are tired, we go to bed unless we have been slapped
+    if (!hasCreatureEffect(CreatureEffectType::slap) &&
+        (Random::Double(20.0, 30.0) > mAwakeness))
     {
         popAction();
-
         stopJob();
+        pushAction(CreatureActionType::sleep, false, false);
+        return true;
+    }
+
+    // If we are hungry, we go to bed unless we have been slapped
+    if (!hasCreatureEffect(CreatureEffectType::slap) &&
+        (Random::Double(70.0, 80.0) < mHunger))
+    {
+        popAction();
+        stopJob();
+        pushAction(CreatureActionType::eatdecided, false, false);
         return true;
     }
 
@@ -2588,13 +2613,16 @@ bool Creature::handleFightAction(const CreatureAction& actionItem)
 
 bool Creature::handleSleepAction(const CreatureAction& actionItem)
 {
-    Tile* myTile = getPositionTile();
     if (mHomeTile == nullptr)
     {
+        if(pushAction(CreatureActionType::findHome, false, false))
+            return true;
+
         popAction();
         return false;
     }
 
+    Tile* myTile = getPositionTile();
     if (myTile != mHomeTile)
     {
         // Walk to the the home tile.
@@ -3162,7 +3190,7 @@ void Creature::refreshCreature(ODPacket& packet)
         if(isEffectAlreadyDisplayed)
             continue;
 
-        EntityParticleEffect* effect = new EntityParticleEffect(effectName, effectScript, nbTurns);
+        CreatureParticuleEffectClient* effect = new CreatureParticuleEffectClient(effectName, effectScript, nbTurns);
         effect->mParticleSystem = RenderManager::getSingleton().rrEntityAddParticleEffect(this,
             effect->mName, effect->mScript);
         mEntityParticleEffects.push_back(effect);
@@ -4098,7 +4126,8 @@ void Creature::slap()
         return;
     }
 
-    // TODO : on server side, we should boost speed for a time and decrease mood/hp
+    CreatureEffectSlap* effect = new CreatureEffectSlap;
+    addCreatureEffect(effect);
     mHp -= mMaxHP * ConfigManager::getSingleton().getSlapDamagePercent() / 100.0;
     computeCreatureOverlayHealthValue();
 }
@@ -4378,16 +4407,24 @@ void Creature::computeCreatureOverlayHealthValue()
         return;
 
     uint32_t value = 0;
-    uint32_t nbSteps = NB_OVERLAY_HEALTH_VALUES - 1;
-    double healthStep = getMaxHp() / static_cast<double>(nbSteps);
-    double tmpHealth = getMaxHp();
     double hp = getHP();
-    for(value = 0; value < nbSteps; ++value)
+    // Note that we make a special case for hp = 0 to avoid errors due to roundness
+    if(hp <= 0)
     {
-        if(hp >= tmpHealth)
-            break;
+        value = NB_OVERLAY_HEALTH_VALUES - 1;
+    }
+    else
+    {
+        uint32_t nbSteps = NB_OVERLAY_HEALTH_VALUES - 2;
+        double healthStep = getMaxHp() / static_cast<double>(nbSteps);
+        double tmpHealth = getMaxHp();
+        for(value = 0; value < nbSteps; ++value)
+        {
+            if(hp >= tmpHealth)
+                break;
 
-        tmpHealth -= healthStep;
+            tmpHealth -= healthStep;
+        }
     }
 
     if(mOverlayHealthValue != value)
@@ -4442,6 +4479,28 @@ void Creature::addCreatureEffect(CreatureEffect* effect)
     mNeedFireRefresh = true;
 }
 
+bool Creature::hasCreatureEffect(CreatureEffectType type) const
+{
+    for(EntityParticleEffect* effect : mEntityParticleEffects)
+    {
+        if(effect->getEntityParticleEffectType() != EntityParticleEffectType::creature)
+        {
+            static bool logMsg = false;
+            if(!logMsg)
+            {
+                logMsg = true;
+                OD_LOG_ERR("Wrong effect on creature name=" + getName() + ", effectName=" + effect->mName + ", effectScript=" + effect->mScript);
+            }
+            continue;
+        }
+
+        CreatureParticuleEffect* creatureEffect = static_cast<CreatureParticuleEffect*>(effect);
+        if(creatureEffect->mEffect->getCreatureEffectType() == type)
+            return true;
+    }
+    return false;
+}
+
 bool Creature::isHurt() const
 {
     //On server side, we test HP
@@ -4490,4 +4549,13 @@ void Creature::checkWalkPathValid()
 
     // There is an unpassable tile in our way. We stop what we are doing
     clearDestinations(EntityAnimation::idle_anim, true);
+}
+
+void Creature::setJobCooldown(int val)
+{
+    // If the creature has been slapped, its cooldown is decreased
+    if(hasCreatureEffect(CreatureEffectType::slap))
+        val = Helper::round(static_cast<float>(val) * 0.8f);
+
+    mJobCooldown = val;
 }

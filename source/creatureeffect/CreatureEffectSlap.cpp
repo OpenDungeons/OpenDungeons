@@ -15,35 +15,20 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "creatureeffect/CreatureEffectExplosion.h"
+#include "creatureeffect/CreatureEffectSlap.h"
 
 #include "entities/Creature.h"
 #include "utils/LogManager.h"
 
-void CreatureEffectExplosion::applyEffect(Creature& creature)
+void CreatureEffectSlap::applyEffect(Creature& creature)
 {
-    if(!creature.isAlive())
-        return;
-
-    Tile* posTile = creature.getPositionTile();
-    creature.takeDamage(nullptr, 0.0, mEffectValue, posTile);
+    // We do not do anything. Having a CreatureEffectSlap in its effect queue is enough
+    // to change the creature behaviour
 }
 
-CreatureEffectExplosion* CreatureEffectExplosion::load(std::istream& is)
+CreatureEffectSlap* CreatureEffectSlap::load(std::istream& is)
 {
-    CreatureEffectExplosion* effect = new CreatureEffectExplosion;
+    CreatureEffectSlap* effect = new CreatureEffectSlap;
     effect->importFromStream(is);
     return effect;
-}
-
-void CreatureEffectExplosion::exportToStream(std::ostream& os) const
-{
-    CreatureEffect::exportToStream(os);
-    os << "\t" << mEffectValue;
-}
-
-void CreatureEffectExplosion::importFromStream(std::istream& is)
-{
-    CreatureEffect::importFromStream(is);
-    OD_ASSERT_TRUE(is >> mEffectValue);
 }

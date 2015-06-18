@@ -40,9 +40,10 @@ class ODPacket;
 class Room;
 class Weapon;
 
+enum class CreatureEffectType;
 enum class CreatureMoodLevel;
-enum class ResearchType;
 enum class CreatureSoundType;
+enum class ResearchType;
 
 namespace CEGUI
 {
@@ -66,7 +67,22 @@ public:
 
     virtual ~CreatureParticuleEffect();
 
+    virtual EntityParticleEffectType getEntityParticleEffectType() override
+    { return EntityParticleEffectType::creature; }
+
     CreatureEffect* mEffect;
+};
+
+//! Class used on client side to display the particle effects on the creature
+class CreatureParticuleEffectClient : public EntityParticleEffect
+{
+public:
+    CreatureParticuleEffectClient(const std::string& name, const std::string& script, uint32_t nbTurnsEffect) :
+        EntityParticleEffect(name, script, nbTurnsEffect)
+    {}
+
+    virtual EntityParticleEffectType getEntityParticleEffectType() override
+    { return EntityParticleEffectType::creature; }
 };
 
 /*! \class Creature Creature.h
@@ -107,14 +123,18 @@ public:
     inline unsigned int getLevel() const
     { return mLevel; }
 
-    inline double getHP(Tile *tile) const
-    { return getHP(); }
+    inline double getHP(Tile *tile) const override
+    { return mHp; }
 
-    double getHP() const;
+    bool isAlive() const;
 
     //! \brief Gets the maximum HP the creature can have currently
-    inline double getMaxHp()const
+    inline double getMaxHp() const
     { return mMaxHP; }
+
+    //! \brief Gets the maximum HP the creature can have currently
+    inline double getHP() const
+    { return mHp; }
 
     //! \brief Gets the current dig rate
     inline double getDigRate() const
@@ -161,6 +181,8 @@ public:
     void drop(const Ogre::Vector3& v) override;
 
     void setHP(double nHP);
+
+    void heal(double hp);
 
     inline void setHomeTile(Tile* ht)
     { mHomeTile = ht; }
@@ -324,7 +346,15 @@ public:
         if(mAwakeness < 0.0)
             mAwakeness = 0.0;
     }
-    inline void setJobCooldown(int val) { mJobCooldown = val; }
+    inline bool decreaseJobCooldown()
+    {
+        if(mJobCooldown <= 0)
+            return true;
+
+        --mJobCooldown;
+        return false;
+    }
+    void setJobCooldown(int val);
     inline int getJobCooldown() { return mJobCooldown; }
     inline void foodEaten(double val)
     {
@@ -398,6 +428,10 @@ public:
 
     //! Called on server side to add an effect (spell, slap, ...) to this creature
     void addCreatureEffect(CreatureEffect* effect);
+
+    //!\brief Called on server side. Returns true if the given effect currently affects this creature
+    //! and false if not.
+    bool hasCreatureEffect(CreatureEffectType type) const;
 
     virtual void correctEntityMovePosition(Ogre::Vector3& position) override;
 

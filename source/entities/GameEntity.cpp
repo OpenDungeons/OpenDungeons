@@ -352,7 +352,7 @@ void GameEntity::destroyMeshLocal()
 
 std::string GameEntity::nextParticleSystemsName()
 {
-    return getName() + "_Particle" + Helper::toString(mParticleSystemsNumber);
+    return getName() + "_Particle" + Helper::toString(++mParticleSystemsNumber);
 }
 
 void GameEntity::clientUpkeep()

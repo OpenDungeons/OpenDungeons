@@ -33,7 +33,7 @@ bool GoalProtectCreature::isMet(const Seat&, const GameMap& gameMap)
     // Check to see if the creature exists on the game map.
     const Creature *tempCreature = gameMap.getCreature(mCreatureName);
     if (tempCreature != nullptr)
-        return (tempCreature->getHP() > 0.0);
+        return (tempCreature->isAlive());
 
     return false;
 }

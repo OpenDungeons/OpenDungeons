@@ -27,7 +27,8 @@ enum class CreatureEffectType
 {
     unknown,
     heal,
-    explosion
+    explosion,
+    slap
 };
 
 std::ostream& operator<<(std::ostream& os, const CreatureEffectType& type);
