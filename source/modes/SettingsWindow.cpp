@@ -234,15 +234,6 @@ void SettingsWindow::saveConfig()
     // Video
     Ogre::RenderSystem* renderer = ogreRoot->getRenderSystem();
 
-    // Store the renderer-independent option
-    CEGUI::ToggleButton* fsCheckBox = static_cast<CEGUI::ToggleButton*>(
-        mRootWindow->getChild("SettingsWindow/MainTabControl/Video/FullscreenCheckbox"));
-    renderer->setConfigOption("Full Screen", (fsCheckBox->isSelected() ? "Yes" : "No"));
-
-    CEGUI::Combobox* resCb = static_cast<CEGUI::Combobox*>(
-            mRootWindow->getChild("SettingsWindow/MainTabControl/Video/ResolutionCombobox"));
-    renderer->setConfigOption("Video Mode", resCb->getSelectedItem()->getText().c_str());
-
     // Changing Ogre renderer needs a restart to allow to load shaders and requested stuff
     CEGUI::Combobox* rdrCb = static_cast<CEGUI::Combobox*>(
     mRootWindow->getChild("SettingsWindow/MainTabControl/Video/RendererCombobox"));
@@ -269,13 +260,20 @@ void SettingsWindow::saveConfig()
         OD_LOG_INF("Changed Ogre renderer to " + rendererName + ". We need to restart");
         exit(0);
     }
-    else
-    {
-        // Stores the renderer dependent options
-        CEGUI::ToggleButton* vsCheckBox = static_cast<CEGUI::ToggleButton*>(
-            mRootWindow->getChild("SettingsWindow/MainTabControl/Video/VSyncCheckbox"));
-        renderer->setConfigOption("VSync", (vsCheckBox->isSelected() ? "Yes" : "No"));
-    }
+
+    // Set renderer-dependent options now we know it didn't change.
+    CEGUI::ToggleButton* fsCheckBox = static_cast<CEGUI::ToggleButton*>(
+        mRootWindow->getChild("SettingsWindow/MainTabControl/Video/FullscreenCheckbox"));
+    renderer->setConfigOption("Full Screen", (fsCheckBox->isSelected() ? "Yes" : "No"));
+
+    CEGUI::Combobox* resCb = static_cast<CEGUI::Combobox*>(
+            mRootWindow->getChild("SettingsWindow/MainTabControl/Video/ResolutionCombobox"));
+    renderer->setConfigOption("Video Mode", resCb->getSelectedItem()->getText().c_str());
+
+    // Stores the renderer dependent options
+    CEGUI::ToggleButton* vsCheckBox = static_cast<CEGUI::ToggleButton*>(
+        mRootWindow->getChild("SettingsWindow/MainTabControl/Video/VSyncCheckbox"));
+    renderer->setConfigOption("VSync", (vsCheckBox->isSelected() ? "Yes" : "No"));
 
     ogreRoot->saveConfig();
 
