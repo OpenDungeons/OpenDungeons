@@ -123,6 +123,9 @@ textures/
 -> Dojo*.png
 -> Dormitory*.png
 -> DragonBed.png                       Dm3d                    GPL 2.0/GPL 3.0/CC-BY-SA 3.0  http://opengameart.org/content/goldpile
+-> DungeonClaimedWall*.png             Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
+-> DungeonClaimedWallNormal*.png       Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
+-> DungeonClaimedWallNormalMask*.png   Nobiax, Danimal         CC-BY-SA 3.0            http://opengameart.org/users/danimal
 -> Dragon{,Normal}.png
 -> DungeonTemple*.png
 -> Dwarf*.png
@@ -278,6 +281,7 @@ Staff.*                                Skorpio                 CC-BY-SA 3.0, GPL
 StoneCoffin.mesh                       Yughues                 CC0                     http://forum.freegamedev.net/viewtopic.php?p=60771#p60771
 TentacleBed.mesh                       Eugeneloza              CC0                     http://forum.freegamedev.net/viewtopic.php?p=60091#p60091
 Tentacle*.*                            Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Tileset                                Skorpio, Danimal        CC-BY-SA 3.0            http://opengameart.org/content/3d-dungeon-tileset
 TrainingDummy1.*                       Aaron Eads              CC-BY 3.0               http://forum.freegamedev.net/viewtopic.php?p=59058#p59058
 TrainingDummy2.*                       Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?f=38&t=5528&p=59348#p59239
 TrainingDummy3.*                       Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59351#p59351
