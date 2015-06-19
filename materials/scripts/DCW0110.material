@@ -1,0 +1,38 @@
+// DCW0110 genrated by blender2ogre 0.6.0
+import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
+material DCW0110 : RTSS/NormalMapping_MultiPass
+{
+    technique
+    {
+        pass lighting
+        {
+            // Override the normal map.
+            rtshader_system
+            {
+                lighting_stage normal_map DungeonClaimedWall0110Normal.png tangent_space 0 bilinear 1 -1.0
+            }
+        }
+        pass decal
+        {
+        lighting off
+            // We use blending, so that we can see the underlying texture.
+            texture_unit decalmap
+            {
+                texture DungeonClaimedWall0110.png
+            }
+        }
+        pass last
+        {
+            ambient 0.0 0.0 0.0 1.0
+            diffuse 1.0 1.0 1.0 0.0
+
+            scene_blend add
+            depth_write off
+            depth_bias 1
+            texture_unit
+            {
+                texture DungeonClaimedWallMask.png
+            }
+        }
+    }
+}
