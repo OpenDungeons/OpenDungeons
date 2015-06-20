@@ -71,6 +71,7 @@ const std::string ResourceManager::SHADERCACHESUBPATH = "shaderCache/";
 const std::string ResourceManager::CONFIGFILENAME = "ogre.cfg";
 const std::string ResourceManager::LOGFILENAME = "opendungeons.log";
 const std::string ResourceManager::CEGUILOGFILENAME = "CEGUI.log";
+const std::string ResourceManager::USERCFGFILENAME = "config.cfg";
 
 const std::string ResourceManager::RESOURCEGROUPMUSIC = "Music";
 const std::string ResourceManager::RESOURCEGROUPSOUND = "Sound";
@@ -335,6 +336,7 @@ void ResourceManager::setupUserDataFolders(boost::program_options::variables_map
         mServerModeLevel = level.string();
     }
 
+    mUserConfigFile = mUserConfigPath + USERCFGFILENAME;
     mCeguiLogFile = mUserDataPath + CEGUILOGFILENAME;
     mShaderCachePath = mUserDataPath + SHADERCACHESUBPATH;
 

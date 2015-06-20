@@ -39,7 +39,12 @@ enum class TileVisual;
 class ConfigManager : public Ogre::Singleton<ConfigManager>
 {
 public:
-    ConfigManager(const std::string& configPath);
+    //! \brief Loads the game configuration files.
+    //! \param configPath The system configuration path.
+    //! \param userConfigPath The user profile config path or empty if not used.
+    //! \note In server mode, the configuration doesn't load the user config and thus,
+    //! doesn't set the userConfigPath.
+    ConfigManager(const std::string& configPath, const std::string& userConfigPath = std::string());
     ~ConfigManager();
 
     static const std::string DefaultWorkerCreatureDefinition;
@@ -131,6 +136,22 @@ public:
     //! Returns the tileset for the given name. If the tileset is not found, returns the default tileset
     const TileSet* getTileSet(const std::string& tileSetName) const;
 
+    //! \brief Set a config value.
+    void setAudioValue(const std::string& param, const std::string& value)
+    { mAudioUserConfig[param] = value; }
+    void setVideoValue(const std::string& param, const std::string& value)
+    { mVideoUserConfig[param] = value; }
+    void setInputValue(const std::string& param, const std::string& value)
+    { mInputUserConfig[param] = value; }
+
+    //! \brief Get a config value.
+    const std::string& getAudioValue(const std::string& param) const;
+    const std::string& getVideoValue(const std::string& param) const;
+    const std::string& getInputValue(const std::string& param) const;
+
+    //! \brief Save the user configuration file.
+    bool saveUserConfig();
+
 private:
     //! \brief Function used to load the global configuration. They should return true if the configuration
     //! is ok and false if a mandatory parameter is missing
@@ -150,6 +171,9 @@ private:
     bool loadTilesets(const std::string& fileName);
     bool loadTilesetValues(std::istream& defFile, TileVisual tileVisual, std::vector<TileSetValue>& tileValues);
 
+    // \brief Loads the user configuration values, and use default ones if it cannot do it.
+    void loadUserConfig(const std::string& fileName);
+
     std::map<std::string, Ogre::ColourValue> mSeatColors;
     std::map<std::string, CreatureDefinition*> mCreatureDefs;
     std::vector<const Weapon*> mWeapons;
@@ -163,6 +187,7 @@ private:
     std::string mFilenameCreaturesMood;
     std::string mFilenameResearches;
     std::string mFilenameTilesets;
+    std::string mFilenameUserCfg;
     uint32_t mNetworkPort;
     uint32_t mClientConnectionTimeout;
     uint32_t mBaseSpawnPoint;
@@ -192,15 +217,20 @@ private:
     std::map<const std::string, std::string> mTrapsConfig;
     std::map<const std::string, std::string> mSpellConfig;
 
-    //! Default definition for the editor. At map loading, it will spawn a creature from
+    //! \brief Default definition for the editor. At map loading, it will spawn a creature from
     //! the default seat worker depending on seat faction
     CreatureDefinition* mCreatureDefinitionDefaultWorker;
 
-    //! Allowed researches
+    //! \brief Allowed researches
     std::vector<const Research*> mResearches;
 
-    //! Allowed tilesets
+    //! \brief Allowed tilesets
     std::map<std::string, const TileSet*> mTileSets;
+
+    //! \brief User config
+    std::map<std::string, std::string> mAudioUserConfig;
+    std::map<std::string, std::string> mVideoUserConfig;
+    std::map<std::string, std::string> mInputUserConfig;
 };
 
 #endif //CONFIGMANAGER_H

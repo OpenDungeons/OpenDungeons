@@ -34,6 +34,13 @@
 
 #include <boost/dynamic_bitset.hpp>
 
+enum class USER_CONFIG_CATEGORY {
+    CATEGORY_NONE  = 0,
+    CATEGORY_AUDIO = 1,
+    CATEGORY_VIDEO = 2,
+    CATEGORY_INPUT = 3
+};
+
 const std::vector<std::string> EMPTY_SPAWNPOOL;
 const std::string EMPTY_STRING;
 const std::string ConfigManager::DEFAULT_TILESET_NAME = "Default";
@@ -42,7 +49,7 @@ const std::string ConfigManager::DefaultWorkerCreatureDefinition = "DefaultWorke
 
 template<> ConfigManager* Ogre::Singleton<ConfigManager>::msSingleton = nullptr;
 
-ConfigManager::ConfigManager(const std::string& configPath) :
+ConfigManager::ConfigManager(const std::string& configPath, const std::string& userConfigPath) :
     mNetworkPort(0),
     mClientConnectionTimeout(5000),
     mBaseSpawnPoint(10),
@@ -130,6 +137,9 @@ ConfigManager::ConfigManager(const std::string& configPath) :
         OD_LOG_ERR("Couldn't read loadTilesets");
         exit(1);
     }
+
+    if (!userConfigPath.empty())
+        loadUserConfig(userConfigPath);
 }
 
 ConfigManager::~ConfigManager()
@@ -1357,6 +1367,157 @@ bool ConfigManager::loadTilesetValues(std::istream& defFile, TileVisual tileVisu
 
         tileValues[index] = TileSetValue(meshName, materialName, rotX, rotY, rotZ);
     }
+}
+
+void ConfigManager::loadUserConfig(const std::string& fileName)
+{
+    if (fileName.empty())
+        return;
+
+    mFilenameUserCfg = fileName;
+
+    OD_LOG_INF("Load user config file: " + fileName);
+    std::stringstream defFile;
+    if(!Helper::readFileWithoutComments(fileName, defFile))
+    {
+        OD_LOG_INF("Couldn't read " + fileName);
+        return;
+    }
+
+    std::string nextParam;
+    defFile >> nextParam;
+    if (nextParam != "[Configuration]")
+    {
+        OD_LOG_WRN("Invalid User configuration start format. Line was " + nextParam);
+        return;
+    }
+
+    std::string value;
+    USER_CONFIG_CATEGORY category = USER_CONFIG_CATEGORY::CATEGORY_NONE;
+    while(defFile.good())
+    {
+        if (!(defFile >> nextParam))
+        {
+            break;
+        }
+        else if (nextParam == "[/Configuration]")
+        {
+            break;
+        }
+        else if (nextParam == "[Audio]")
+        {
+            category = USER_CONFIG_CATEGORY::CATEGORY_AUDIO;
+            continue;
+        }
+        else if (nextParam == "[Video]")
+        {
+            category = USER_CONFIG_CATEGORY::CATEGORY_VIDEO;
+            continue;
+        }
+        else if (nextParam == "[Input]")
+        {
+            category = USER_CONFIG_CATEGORY::CATEGORY_INPUT;
+            continue;
+        }
+        else if (nextParam == "[/Audio]" || nextParam == "[/Video]" || nextParam == "[/Input]")
+        {
+            category = USER_CONFIG_CATEGORY::CATEGORY_NONE;
+            continue;
+        }
+        else if (!nextParam.empty())
+        {
+            defFile >> value;
+            switch(category)
+            {
+                case USER_CONFIG_CATEGORY::CATEGORY_AUDIO:
+                    mAudioUserConfig[nextParam] = value;
+                    break;
+                case USER_CONFIG_CATEGORY::CATEGORY_VIDEO:
+                    mVideoUserConfig[nextParam] = value;
+                    break;
+                case USER_CONFIG_CATEGORY::CATEGORY_INPUT:
+                    mInputUserConfig[nextParam] = value;
+                    break;
+                default:
+                    break;
+            }
+            continue;
+        }
+        else
+        {
+            continue;
+        }
+    }
+}
+
+bool ConfigManager::saveUserConfig()
+{
+    if (mFilenameUserCfg.empty())
+    {
+        OD_LOG_ERR("Can't save config. The user config file isn't set.");
+        return false;
+    }
+
+    std::ofstream userFile(mFilenameUserCfg.c_str(), std::ifstream::out);
+    if (!userFile.is_open())
+    {
+        OD_LOG_ERR("Couldn't open user config for writing: " + mFilenameUserCfg);
+        return false;
+    }
+
+    userFile << "[Configuration]" << std::endl;
+
+    userFile << "[Audio]" << std::endl;
+    for(std::pair<std::string, std::string> audio : mAudioUserConfig)
+        userFile << audio.first << "\t" << audio.second << std::endl;
+    userFile << "[/Audio]" << std::endl;
+
+    userFile << "[Video]" << std::endl;
+    for(std::pair<std::string, std::string> video : mVideoUserConfig)
+        userFile << video.first << "\t" << video.second << std::endl;
+    userFile << "[/Video]" << std::endl;
+
+    userFile << "[Input]" << std::endl;
+    for(std::pair<std::string, std::string> input : mInputUserConfig)
+        userFile << input.first << "\t" << input.second << std::endl;
+    userFile << "[/Input]" << std::endl;
+
+    userFile << "[/Configuration]" << std::endl;
+    userFile.close();
+    return true;
+}
+
+const std::string& ConfigManager::getAudioValue(const std::string& param) const
+{
+    if(mAudioUserConfig.count(param) <= 0)
+    {
+        OD_LOG_ERR("Unknown parameter param=" + param);
+        return EMPTY_STRING;
+    }
+
+    return mAudioUserConfig.at(param);
+}
+
+const std::string& ConfigManager::getVideoValue(const std::string& param) const
+{
+    if(mVideoUserConfig.count(param) <= 0)
+    {
+        OD_LOG_ERR("Unknown parameter param=" + param);
+        return EMPTY_STRING;
+    }
+
+    return mVideoUserConfig.at(param);
+}
+
+const std::string& ConfigManager::getInputValue(const std::string& param) const
+{
+    if(mInputUserConfig.count(param) <= 0)
+    {
+        OD_LOG_ERR("Unknown parameter param=" + param);
+        return EMPTY_STRING;
+    }
+
+    return mInputUserConfig.at(param);
 }
 
 const std::string& ConfigManager::getRoomConfigString(const std::string& param) const
