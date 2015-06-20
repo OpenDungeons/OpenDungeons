@@ -260,7 +260,7 @@ void SettingsWindow::saveConfig()
             OD_LOG_WRN("Wanted renderer : " + std::string(rdrCb->getSelectedItem()->getText().c_str()) + " not found. Using the first available: " + renderer->getName());
         }
         ogreRoot->setRenderSystem(renderer);
-        //config.setVideoValue("Renderer", renderer->getName());
+        config.setVideoValue("Renderer", renderer->getName());
         ogreRoot->saveConfig();
         // If render changed, we need to restart game.
         // Note that we do not change values according to the others inputs. The reason
@@ -268,6 +268,7 @@ void SettingsWindow::saveConfig()
         OD_LOG_INF("Changed Ogre renderer to " + rendererName + ". We need to restart");
         exit(0);
     }
+    config.setVideoValue("Renderer", renderer->getName());
 
     // Set renderer-dependent options now we know it didn't change.
     CEGUI::ToggleButton* fsCheckBox = static_cast<CEGUI::ToggleButton*>(
@@ -278,7 +279,7 @@ void SettingsWindow::saveConfig()
     CEGUI::Combobox* resCb = static_cast<CEGUI::Combobox*>(
             mRootWindow->getChild("SettingsWindow/MainTabControl/Video/ResolutionCombobox"));
     renderer->setConfigOption("Video Mode", resCb->getSelectedItem()->getText().c_str());
-    //config.setVideoValue("VideoMode", resCb->getSelectedItem()->getText().c_str());
+    config.setVideoValue("VideoMode", resCb->getSelectedItem()->getText().c_str());
 
     // Stores the renderer dependent options
     CEGUI::ToggleButton* vsCheckBox = static_cast<CEGUI::ToggleButton*>(

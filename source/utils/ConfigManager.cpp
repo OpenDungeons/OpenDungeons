@@ -1426,7 +1426,9 @@ void ConfigManager::loadUserConfig(const std::string& fileName)
         }
         else if (!nextParam.empty())
         {
-            defFile >> value;
+            std::string value;
+            std::getline(defFile, value);
+
             switch(category)
             {
                 case USER_CONFIG_CATEGORY::CATEGORY_AUDIO:
