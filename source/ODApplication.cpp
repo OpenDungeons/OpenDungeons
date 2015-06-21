@@ -101,12 +101,12 @@ void ODApplication::startClient()
     //NOTE: The order of initialisation of the different "manager" classes is important,
     //as many of them depend on each other.
     OD_LOG_INF("Creating OGRE::Root instance; Plugins path: " + resMgr.getPluginsPath()
-        + "; config file: " + resMgr.getCfgFile());
+        + "; config file: " + resMgr.getOgreCfgFile());
 
     Ogre::Root ogreRoot(resMgr.getPluginsPath(),
-                        resMgr.getCfgFile());
+                        resMgr.getOgreCfgFile());
 
-    ConfigManager configManager(resMgr.getConfigPath());
+    ConfigManager configManager(resMgr.getConfigPath(), resMgr.getUserCfgFile());
 
     if (!loadOgreConfig(ogreRoot))
         return;

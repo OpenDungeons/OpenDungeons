@@ -17,6 +17,7 @@
 
 #include "modes/SettingsWindow.h"
 
+#include "utils/ConfigManager.h"
 #include "utils/LogManager.h"
 #include "utils/Helper.h"
 
@@ -138,6 +139,8 @@ void SettingsWindow::initConfig()
     Ogre::RenderSystem* renderer = ogreRoot->getRenderSystem();
     Ogre::ConfigOptionMap& options = renderer->getConfigOptions();
 
+    ConfigManager& config = ConfigManager::getSingleton();
+
     const CEGUI::Image* selImg = &CEGUI::ImageManager::getSingleton().get("OpenDungeonsSkin/SelectionBrush");
 
     // Get the video settings.
@@ -210,7 +213,9 @@ void SettingsWindow::initConfig()
     }
 
     // The current volume level
-    float volume = sf::Listener::getGlobalVolume();
+    std::string volumeStr = config.getAudioValue("MusicVolume");
+    float volume = volumeStr.empty() ? sf::Listener::getGlobalVolume() : Helper::toFloat(volumeStr);
+
     CEGUI::Slider* volumeSlider = static_cast<CEGUI::Slider*>(
             mRootWindow->getChild("SettingsWindow/MainTabControl/Audio/MusicSlider"));
     volumeSlider->setMaxValue(100);
@@ -225,11 +230,13 @@ void SettingsWindow::saveConfig()
     // And save volume values and other options.
 
     Ogre::Root* ogreRoot = Ogre::Root::getSingletonPtr();
+    ConfigManager& config = ConfigManager::getSingleton();
 
     // Save config
-    // Audio - TODO: Save in config and reload at start.
+    // Audio
     CEGUI::Slider* volumeSlider = static_cast<CEGUI::Slider*>(
             mRootWindow->getChild("SettingsWindow/MainTabControl/Audio/MusicSlider"));
+    config.setAudioValue("MusicVolume", Helper::toString(volumeSlider->getCurrentValue()));
 
     // Video
     Ogre::RenderSystem* renderer = ogreRoot->getRenderSystem();
@@ -253,6 +260,7 @@ void SettingsWindow::saveConfig()
             OD_LOG_WRN("Wanted renderer : " + std::string(rdrCb->getSelectedItem()->getText().c_str()) + " not found. Using the first available: " + renderer->getName());
         }
         ogreRoot->setRenderSystem(renderer);
+        config.setVideoValue("Renderer", renderer->getName());
         ogreRoot->saveConfig();
         // If render changed, we need to restart game.
         // Note that we do not change values according to the others inputs. The reason
@@ -260,22 +268,28 @@ void SettingsWindow::saveConfig()
         OD_LOG_INF("Changed Ogre renderer to " + rendererName + ". We need to restart");
         exit(0);
     }
+    config.setVideoValue("Renderer", renderer->getName());
 
     // Set renderer-dependent options now we know it didn't change.
     CEGUI::ToggleButton* fsCheckBox = static_cast<CEGUI::ToggleButton*>(
         mRootWindow->getChild("SettingsWindow/MainTabControl/Video/FullscreenCheckbox"));
     renderer->setConfigOption("Full Screen", (fsCheckBox->isSelected() ? "Yes" : "No"));
+    config.setVideoValue("FullScreen", fsCheckBox->isSelected() ? "Yes" : "No");
 
     CEGUI::Combobox* resCb = static_cast<CEGUI::Combobox*>(
             mRootWindow->getChild("SettingsWindow/MainTabControl/Video/ResolutionCombobox"));
     renderer->setConfigOption("Video Mode", resCb->getSelectedItem()->getText().c_str());
+    config.setVideoValue("VideoMode", resCb->getSelectedItem()->getText().c_str());
 
     // Stores the renderer dependent options
     CEGUI::ToggleButton* vsCheckBox = static_cast<CEGUI::ToggleButton*>(
         mRootWindow->getChild("SettingsWindow/MainTabControl/Video/VSyncCheckbox"));
     renderer->setConfigOption("VSync", (vsCheckBox->isSelected() ? "Yes" : "No"));
+    config.setVideoValue("VSync", fsCheckBox->isSelected() ? "Yes" : "No");
 
     ogreRoot->saveConfig();
+    // TODO: Only save and handle custom config. Drop ogre config if possible.
+    config.saveUserConfig();
 
     // Apply config
 

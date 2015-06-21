@@ -116,8 +116,11 @@ public:
     inline const std::string& getShaderCachePath() const
     { return mShaderCachePath; }
 
-    inline const std::string& getCfgFile() const
+    inline const std::string& getOgreCfgFile() const
     { return mOgreCfgFile; }
+
+    inline const std::string& getUserCfgFile() const
+    { return mUserConfigFile; }
 
     inline const std::string& getLogFile() const
     { return mOgreLogFile; }
@@ -161,6 +164,7 @@ private:
     std::string mOgreCfgFile;
 
     //! \brief Main files in the user data path
+    std::string mUserConfigFile;
     std::string mOgreLogFile;
     std::string mCeguiLogFile;
     std::string mShaderCachePath;
@@ -186,6 +190,7 @@ private:
     static const std::string CONFIGFILENAME;
     static const std::string LOGFILENAME;
     static const std::string CEGUILOGFILENAME;
+    static const std::string USERCFGFILENAME;
 
     static const std::string RESOURCEGROUPMUSIC;
     static const std::string RESOURCEGROUPSOUND;
