@@ -213,7 +213,7 @@ void SettingsWindow::initConfig()
     }
 
     // The current volume level
-    std::string volumeStr = config.getAudioValue("MusicVolume");
+    std::string volumeStr = config.getAudioValue("Music Volume");
     float volume = volumeStr.empty() ? sf::Listener::getGlobalVolume() : Helper::toFloat(volumeStr);
 
     CEGUI::Slider* volumeSlider = static_cast<CEGUI::Slider*>(
@@ -236,7 +236,7 @@ void SettingsWindow::saveConfig()
     // Audio
     CEGUI::Slider* volumeSlider = static_cast<CEGUI::Slider*>(
             mRootWindow->getChild("SettingsWindow/MainTabControl/Audio/MusicSlider"));
-    config.setAudioValue("MusicVolume", Helper::toString(volumeSlider->getCurrentValue()));
+    config.setAudioValue("Music Volume", Helper::toString(volumeSlider->getCurrentValue()));
 
     // Video
     Ogre::RenderSystem* renderer = ogreRoot->getRenderSystem();
@@ -274,12 +274,12 @@ void SettingsWindow::saveConfig()
     CEGUI::ToggleButton* fsCheckBox = static_cast<CEGUI::ToggleButton*>(
         mRootWindow->getChild("SettingsWindow/MainTabControl/Video/FullscreenCheckbox"));
     renderer->setConfigOption("Full Screen", (fsCheckBox->isSelected() ? "Yes" : "No"));
-    config.setVideoValue("FullScreen", fsCheckBox->isSelected() ? "Yes" : "No");
+    config.setVideoValue("Full Screen", fsCheckBox->isSelected() ? "Yes" : "No");
 
     CEGUI::Combobox* resCb = static_cast<CEGUI::Combobox*>(
             mRootWindow->getChild("SettingsWindow/MainTabControl/Video/ResolutionCombobox"));
     renderer->setConfigOption("Video Mode", resCb->getSelectedItem()->getText().c_str());
-    config.setVideoValue("VideoMode", resCb->getSelectedItem()->getText().c_str());
+    config.setVideoValue("Video Mode", resCb->getSelectedItem()->getText().c_str());
 
     // Stores the renderer dependent options
     CEGUI::ToggleButton* vsCheckBox = static_cast<CEGUI::ToggleButton*>(

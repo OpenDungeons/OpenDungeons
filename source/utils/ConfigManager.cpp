@@ -1426,21 +1426,31 @@ void ConfigManager::loadUserConfig(const std::string& fileName)
         }
         else if (!nextParam.empty())
         {
-            std::string value;
-            std::getline(defFile, value);
+            std::string line;
+            std::getline(defFile, line);
+            // Make sure to cut the line only when encountering a tab.
+            line = nextParam + line;
+            std::vector<std::string> elements = Helper::split(line, '\t');
+            if (elements.size() != 2)
+            {
+                OD_LOG_WRN("Invalid parameter line: " + line);
+                continue;
+            }
 
             switch(category)
             {
                 case USER_CONFIG_CATEGORY::CATEGORY_AUDIO:
-                    mAudioUserConfig[nextParam] = value;
+                    mAudioUserConfig[ elements[0] ] = elements[1];
                     break;
                 case USER_CONFIG_CATEGORY::CATEGORY_VIDEO:
-                    mVideoUserConfig[nextParam] = value;
+                    mVideoUserConfig[ elements[0] ] = elements[1];
                     break;
                 case USER_CONFIG_CATEGORY::CATEGORY_INPUT:
-                    mInputUserConfig[nextParam] = value;
+                    mInputUserConfig[ elements[0] ] = elements[1];
                     break;
                 default:
+                    OD_LOG_WRN("Parameter set in unknown category. Will be ignored: "
+                               + elements[0] + ": " + elements[1]);
                     break;
             }
             continue;
