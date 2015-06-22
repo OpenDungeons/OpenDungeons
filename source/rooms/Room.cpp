@@ -62,6 +62,7 @@ void Room::addToGameMap()
 
 void Room::removeFromGameMap()
 {
+    fireEntityRemoveFromGameMap();
     getGameMap()->removeRoom(this);
     setIsOnMap(false);
     for(Seat* seat : getGameMap()->getSeats())

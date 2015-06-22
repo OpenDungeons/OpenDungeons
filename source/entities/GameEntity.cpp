@@ -148,6 +148,18 @@ void GameEntity::firePickupEntity(Player* playerPicking)
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
     }
+
+    for(auto it = mGameEntityListeners.begin(); it != mGameEntityListeners.end();)
+    {
+        GameEntityListener* listener = *it;
+        if(listener->notifyPickedUp(this))
+        {
+            ++it;
+            continue;
+        }
+
+        it = mGameEntityListeners.erase(it);
+    }
 }
 
 void GameEntity::fireDropEntity(Player* playerPicking, Tile* tile)
@@ -192,6 +204,18 @@ void GameEntity::fireDropEntity(Player* playerPicking, Tile* tile)
             getGameMap()->tileToPacket(serverNotification->mPacket, tile);
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
+    }
+
+    for(auto it = mGameEntityListeners.begin(); it != mGameEntityListeners.end();)
+    {
+        GameEntityListener* listener = *it;
+        if(listener->notifyDropped(this))
+        {
+            ++it;
+            continue;
+        }
+
+        it = mGameEntityListeners.erase(it);
     }
 }
 
@@ -385,5 +409,57 @@ void GameEntity::restoreEntityState()
     {
         effect->mParticleSystem = RenderManager::getSingleton().rrEntityAddParticleEffect(this,
             effect->mName, effect->mScript);
+    }
+}
+
+void GameEntity::addGameEntityListener(GameEntityListener* listener)
+{
+    if(std::find(mGameEntityListeners.begin(), mGameEntityListeners.end(), listener) != mGameEntityListeners.end())
+    {
+        OD_LOG_ERR("Entity=" + listener->getListenerName() + " already listening entity=" + getName());
+        return;
+    }
+    mGameEntityListeners.push_back(listener);
+}
+
+void GameEntity::removeGameEntityListener(GameEntityListener* listener)
+{
+    auto it = std::find(mGameEntityListeners.begin(), mGameEntityListeners.end(), listener);
+    if(it == mGameEntityListeners.end())
+    {
+        OD_LOG_ERR("Entity=" + listener->getListenerName() + " not listening entity=" + getName() + " but wants to stop listening");
+        return;
+    }
+
+    mGameEntityListeners.erase(it);
+}
+
+void GameEntity::fireEntityDead()
+{
+    for(auto it = mGameEntityListeners.begin(); it != mGameEntityListeners.end();)
+    {
+        GameEntityListener* listener = *it;
+        if(listener->notifyDead(this))
+        {
+            ++it;
+            continue;
+        }
+
+        it = mGameEntityListeners.erase(it);
+    }
+}
+
+void GameEntity::fireEntityRemoveFromGameMap()
+{
+    for(auto it = mGameEntityListeners.begin(); it != mGameEntityListeners.end();)
+    {
+        GameEntityListener* listener = *it;
+        if(listener->notifyRemovedFromGameMap(this))
+        {
+            ++it;
+            continue;
+        }
+
+        it = mGameEntityListeners.erase(it);
     }
 }

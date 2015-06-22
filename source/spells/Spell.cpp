@@ -71,6 +71,7 @@ void Spell::addToGameMap()
 
 void Spell::removeFromGameMap()
 {
+    fireEntityRemoveFromGameMap();
     removeEntityFromPositionTile();
     getGameMap()->removeSpell(this);
     getGameMap()->removeAnimatedObject(this);

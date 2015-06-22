@@ -85,6 +85,7 @@ void Trap::addToGameMap()
 
 void Trap::removeFromGameMap()
 {
+    fireEntityRemoveFromGameMap();
     setIsOnMap(false);
     getGameMap()->removeTrap(this);
     for(Seat* seat : getGameMap()->getSeats())

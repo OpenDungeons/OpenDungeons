@@ -20,26 +20,33 @@
 
 #include "utils/LogManager.h"
 
-CreatureAction::CreatureAction(const CreatureActionType actionType, GameEntityType entityType, const std::string& entityName, Tile* tile) :
+CreatureAction::CreatureAction(Creature* creature, const CreatureActionType actionType, GameEntity* attackedEntity, Tile* tile) :
+    mCreature(creature),
     mActionType(actionType),
-    mEntityType(entityType),
-    mEntityName(entityName),
+    mAttackedEntity(attackedEntity),
     mTile(tile),
     mNbTurns(0),
     mNbTurnsActive(0)
 {
+    OD_ASSERT_TRUE(mCreature != nullptr);
     // We check mandatory items according to action type
     switch(mActionType)
     {
         case CreatureActionType::attackObject:
-            OD_ASSERT_TRUE(!mEntityName.empty());
-            OD_ASSERT_TRUE(mEntityType != GameEntityType::unknown);
+            OD_ASSERT_TRUE(mAttackedEntity != nullptr);
             OD_ASSERT_TRUE(mTile != nullptr);
+            mAttackedEntity->addGameEntityListener(this);
             break;
 
         default:
             break;
     }
+}
+
+CreatureAction::~CreatureAction()
+{
+    if(mAttackedEntity != nullptr)
+        mAttackedEntity->removeGameEntityListener(this);
 }
 
 std::string CreatureAction::toString() const
@@ -111,4 +118,47 @@ std::string CreatureAction::toString() const
     }
 
     return "unhandledAct";
+}
+
+std::string CreatureAction::getListenerName() const
+{
+    return "Action" + mCreature->getName() + toString();
+}
+
+bool CreatureAction::notifyDead(GameEntity* entity)
+{
+    if(entity == mAttackedEntity)
+    {
+        mAttackedEntity = nullptr;
+        return false;
+    }
+    return true;
+}
+
+bool CreatureAction::notifyRemovedFromGameMap(GameEntity* entity)
+{
+    if(entity == mAttackedEntity)
+    {
+        mAttackedEntity = nullptr;
+        return false;
+    }
+    return true;
+}
+
+bool CreatureAction::notifyPickedUp(GameEntity* entity)
+{
+    if(entity == mAttackedEntity)
+    {
+        mAttackedEntity = nullptr;
+        return false;
+    }
+    return true;
+}
+
+bool CreatureAction::notifyDropped(GameEntity* entity)
+{
+    // That should not happen. For now, we only require events for attacked creatures. And when they
+    // are picked up, we should have cleared the action queue
+    OD_LOG_ERR("name=" + mCreature->getName() + ", entity=" + entity->getName());
+    return true;
 }

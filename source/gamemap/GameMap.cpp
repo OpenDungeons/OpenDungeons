@@ -635,10 +635,8 @@ Creature* GameMap::getWorkerToPickupBySeat(Seat* seat)
         bool isClaiming = false;
         bool isDigging = false;
 
-        const std::deque<CreatureAction>& actions = creature->getActionQueue();
-        for(std::deque<CreatureAction>::const_iterator itAction = actions.begin(); itAction != actions.end(); ++itAction)
+        for(const CreatureAction& action : creature->getActionQueue())
         {
-            const CreatureAction& action = *itAction;
             switch(action.getType())
             {
                 case CreatureActionType::fight:
@@ -754,10 +752,8 @@ Creature* GameMap::getFighterToPickupBySeat(Seat* seat)
         bool isFleeing = false;
         bool isBusy = false;
 
-        const std::deque<CreatureAction>& actions = creature->getActionQueue();
-        for(std::deque<CreatureAction>::const_iterator itAction = actions.begin(); itAction != actions.end(); ++itAction)
+        for(const CreatureAction& action : creature->getActionQueue())
         {
-            const CreatureAction& action = *itAction;
             switch(action.getType())
             {
                 case CreatureActionType::flee:
@@ -2691,20 +2687,6 @@ GameEntity* GameMap::getEntityFromTypeAndName(GameEntityType entityType,
 
     return nullptr;
 }
-
-EntityBase* GameMap::getBaseEntityFromTypeAndName(GameEntityType entityType, const string& entityName)
-{
-    if(entityType == GameEntityType::tile)
-    {
-        int x, y;
-        if(!Tile::checkTileName(entityName, x, y))
-            return nullptr;
-
-        return getTile(x, y);
-    }
-    return getEntityFromTypeAndName(entityType, entityName);
-}
-
 
 void GameMap::logFloodFileTiles()
 {

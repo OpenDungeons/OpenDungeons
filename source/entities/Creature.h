@@ -32,6 +32,7 @@
 #include <deque>
 
 class Creature;
+class CreatureActionWrapper;
 class CreatureEffect;
 class CreatureDefinition;
 class CreatureOverlayStatus;
@@ -595,7 +596,7 @@ private:
     //! it is possible. To avoid testing several times the same action, we check in mActionTry if the action as already been
     //! tried. If yes and forcePush is false, the action won't be pushed and pushAction will return false. If the action has
     //! not been tested or if forcePush is true, the action will be pushed and pushAction will return true
-    bool pushAction(CreatureAction action, bool popCurrentIfPush, bool forcePush);
+    bool pushAction(CreatureActionType actionType, bool popCurrentIfPush, bool forcePush, GameEntity* attackedEntity = nullptr, Tile* tile = nullptr);
     void popAction();
 
     //! \brief Picks a destination far away in the visible tiles and goes there
@@ -624,84 +625,84 @@ private:
     //! \brief A sub-function called by doTurn()
     //! This functions will handle the creature idle action logic.
     //! \return true when another action should handled after that one.
-    bool handleIdleAction(const CreatureAction& actionItem);
+    bool handleIdleAction(const CreatureActionWrapper& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will handle the creature walking action logic.
     //! \return true when another action should handled after that one.
-    bool handleWalkToTileAction(const CreatureAction& actionItem);
+    bool handleWalkToTileAction(const CreatureActionWrapper& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will handle the creature claim tile action logic.
     //! \return true when another action should handled after that one.
-    bool handleClaimTileAction(const CreatureAction& actionItem);
+    bool handleClaimTileAction(const CreatureActionWrapper& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will handle the creature claim wall tile action logic.
     //! \return true when another action should handled after that one.
-    bool handleClaimWallTileAction(const CreatureAction& actionItem);
+    bool handleClaimWallTileAction(const CreatureActionWrapper& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will handle the creature dig tile action logic.
     //! \return true when another action should handled after that one.
-    bool handleDigTileAction(const CreatureAction& actionItem);
+    bool handleDigTileAction(const CreatureActionWrapper& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will handle the creature finding home action logic.
     //! \return true when another action should handled after that one.
-    bool handleFindHomeAction(const CreatureAction& actionItem);
+    bool handleFindHomeAction(const CreatureActionWrapper& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will handle the creature job action logic.
     //! \return true when another action should handled after that one.
-    bool handleJobAction(const CreatureAction& actionItem);
+    bool handleJobAction(const CreatureActionWrapper& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will handle the creature eating action logic.
     //! \return true when another action should handled after that one.
-    bool handleEatingAction(const CreatureAction& actionItem);
+    bool handleEatingAction(const CreatureActionWrapper& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will handle the creature attack action logic.
     //! \return true when another action should handled after that one.
-    bool handleAttackAction(const CreatureAction& actionItem);
+    bool handleAttackAction(const CreatureActionWrapper& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will handle the creature fighting action logic.
     //! \return true when another action should handled after that one.
-    bool handleFightAction(const CreatureAction& actionItem);
+    bool handleFightAction(const CreatureActionWrapper& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will handle the creature sleeping action logic.
     //! \return true when another action should handled after that one.
-    bool handleSleepAction(const CreatureAction& actionItem);
+    bool handleSleepAction(const CreatureActionWrapper& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will handle the creature fleeing action logic.
     //! \return true when another action should handled after that one.
-    bool handleFleeAction(const CreatureAction& actionItem);
+    bool handleFleeAction(const CreatureActionWrapper& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will handle the creature action logic about finding a carryable entity.
     //! And trying to carry it to a suitable building
     //! \return true when another action should handled after that one.
-    bool handleCarryableEntities(const CreatureAction& actionItem);
+    bool handleCarryableEntities(const CreatureActionWrapper& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will handle the creature action logic about getting the creature fee.
     //! \return true when another action should handled after that one.
-    bool handleGetFee(const CreatureAction& actionItem);
+    bool handleGetFee(const CreatureActionWrapper& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will handle the creature action logic about trying to leave the dungeon.
     //! \return true when another action should handled after that one.
-    bool handleLeaveDungeon(const CreatureAction& actionItem);
+    bool handleLeaveDungeon(const CreatureActionWrapper& actionItem);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will handle the creature fighting action logic when
     //! fighting an allied natural enemy (when in bad mood)
     //! \return true when another action should handled after that one.
-    bool handleFightAlliedNaturalEnemyAction(const CreatureAction& actionItem);
+    bool handleFightAlliedNaturalEnemyAction(const CreatureActionWrapper& actionItem);
 
     //! \brief Restores the creature's stats according to its current level
     void buildStats();
