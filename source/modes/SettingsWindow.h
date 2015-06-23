@@ -83,6 +83,12 @@ private:
 
     //! \brief Called when pushing the apply button on the change appliance popup.
     bool onPopupApplySettings(const CEGUI::EventArgs&);
+
+    //! \brief Called when changing the music volume value.
+    bool onMusicVolumeChanged(const CEGUI::EventArgs&);
+
+    //! \brief Set the volume value in the volume setting text and slider.
+    void setMusicVolumeValue(float volume);
 };
 
 #endif // SETTINGSWINDOW_H

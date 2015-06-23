@@ -83,6 +83,16 @@ SettingsWindow::SettingsWindow(CEGUI::Window* rootWindow):
         )
     );
 
+    // Music volume slider
+    CEGUI::Slider* volumeSlider = static_cast<CEGUI::Slider*>(
+        mSettingsWindow->getChild("MainTabControl/Audio/MusicSlider"));
+    addEventConnection(
+        volumeSlider->subscribeEvent(
+            CEGUI::Slider::EventValueChanged,
+            CEGUI::Event::Subscriber(&SettingsWindow::onMusicVolumeChanged, this)
+        )
+    );
+
     // Apply Pop-up
     addEventConnection(
         mApplyWindow->getChild("CancelButton")->subscribeEvent(
@@ -213,14 +223,9 @@ void SettingsWindow::initConfig()
     }
 
     // The current volume level
-    std::string volumeStr = config.getAudioValue("MusicVolume");
+    std::string volumeStr = config.getAudioValue("Music Volume");
     float volume = volumeStr.empty() ? sf::Listener::getGlobalVolume() : Helper::toFloat(volumeStr);
-
-    CEGUI::Slider* volumeSlider = static_cast<CEGUI::Slider*>(
-            mRootWindow->getChild("SettingsWindow/MainTabControl/Audio/MusicSlider"));
-    volumeSlider->setMaxValue(100);
-    volumeSlider->setClickStep(10);
-    volumeSlider->setCurrentValue(volume);
+    setMusicVolumeValue(volume);
 }
 
 void SettingsWindow::saveConfig()
@@ -236,7 +241,7 @@ void SettingsWindow::saveConfig()
     // Audio
     CEGUI::Slider* volumeSlider = static_cast<CEGUI::Slider*>(
             mRootWindow->getChild("SettingsWindow/MainTabControl/Audio/MusicSlider"));
-    config.setAudioValue("MusicVolume", Helper::toString(volumeSlider->getCurrentValue()));
+    config.setAudioValue("Music Volume", Helper::toString(volumeSlider->getCurrentValue()));
 
     // Video
     Ogre::RenderSystem* renderer = ogreRoot->getRenderSystem();
@@ -274,12 +279,12 @@ void SettingsWindow::saveConfig()
     CEGUI::ToggleButton* fsCheckBox = static_cast<CEGUI::ToggleButton*>(
         mRootWindow->getChild("SettingsWindow/MainTabControl/Video/FullscreenCheckbox"));
     renderer->setConfigOption("Full Screen", (fsCheckBox->isSelected() ? "Yes" : "No"));
-    config.setVideoValue("FullScreen", fsCheckBox->isSelected() ? "Yes" : "No");
+    config.setVideoValue("Full Screen", fsCheckBox->isSelected() ? "Yes" : "No");
 
     CEGUI::Combobox* resCb = static_cast<CEGUI::Combobox*>(
             mRootWindow->getChild("SettingsWindow/MainTabControl/Video/ResolutionCombobox"));
     renderer->setConfigOption("Video Mode", resCb->getSelectedItem()->getText().c_str());
-    config.setVideoValue("VideoMode", resCb->getSelectedItem()->getText().c_str());
+    config.setVideoValue("Video Mode", resCb->getSelectedItem()->getText().c_str());
 
     // Stores the renderer dependent options
     CEGUI::ToggleButton* vsCheckBox = static_cast<CEGUI::ToggleButton*>(
@@ -292,9 +297,6 @@ void SettingsWindow::saveConfig()
     config.saveUserConfig();
 
     // Apply config
-
-    // Audio
-    sf::Listener::setGlobalVolume(volumeSlider->getCurrentValue());
 
     // Video
     Ogre::RenderWindow* win = ogreRoot->getAutoCreatedWindow();
@@ -404,4 +406,28 @@ bool SettingsWindow::onPopupApplySettings(const CEGUI::EventArgs&)
     saveConfig();
     // Should restart right after that.
     return true;
+}
+
+bool SettingsWindow::onMusicVolumeChanged(const CEGUI::EventArgs&)
+{
+    CEGUI::Slider* volumeSlider = static_cast<CEGUI::Slider*>(
+        mRootWindow->getChild("SettingsWindow/MainTabControl/Audio/MusicSlider"));
+    setMusicVolumeValue(volumeSlider->getCurrentValue());
+    return true;
+}
+
+void SettingsWindow::setMusicVolumeValue(float volume)
+{
+    sf::Listener::setGlobalVolume(volume);
+
+    // Set the slider position
+    CEGUI::Slider* volumeSlider = static_cast<CEGUI::Slider*>(
+            mRootWindow->getChild("SettingsWindow/MainTabControl/Audio/MusicSlider"));
+    volumeSlider->setMaxValue(100);
+    volumeSlider->setClickStep(10);
+    volumeSlider->setCurrentValue(volume);
+
+    // Set the music volume text
+    CEGUI::Window* volumeText = mRootWindow->getChild("SettingsWindow/MainTabControl/Audio/MusicText");
+    volumeText->setText("Music: " + Helper::toString(volume) + "%");
 }
