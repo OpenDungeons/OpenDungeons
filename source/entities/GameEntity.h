@@ -38,6 +38,7 @@ class ParticleSystem;
 } //End namespace Ogre
 
 class Creature;
+class GameEntity;
 class GameMap;
 class ODPacket;
 class Player;
@@ -82,6 +83,41 @@ public:
     Ogre::ParticleSystem* mParticleSystem;
     uint32_t mNbTurnsEffect;
 };
+
+/*! \brief Allows to subscribe to events happening to a GameEntity.
+ *  That will allow to save a pointer on a GameEntity and subscribe to events. If the
+ *  entity is removed from the gamemap, pickedup, ... we are sure to be notified and that
+ *  the given pointer will be valid
+ */
+class GameEntityListener
+{
+public:
+    GameEntityListener()
+    {}
+
+    virtual ~GameEntityListener()
+    {}
+
+    virtual std::string getListenerName() const = 0;
+
+    //! \brief Called when a GameEntity we asked to be notified of is dead (note that some entities
+    //! might never send this event like rooms or traps)
+    //! If false is returned, the listener will be removed from the listener list
+    virtual bool notifyDead(GameEntity* entity) = 0;
+
+    //! \brief Called when a GameEntity we asked to be notified of is removed from gamemap
+    //! If false is returned, the listener will be removed from the listener list
+    virtual bool notifyRemovedFromGameMap(GameEntity* entity) = 0;
+
+    //! \brief Called when a GameEntity we asked to be notified of is pickedup
+    //! If false is returned, the listener will be removed from the listener list
+    virtual bool notifyPickedUp(GameEntity* entity) = 0;
+
+    //! \brief Called when a GameEntity we asked to be notified of is dropped
+    //! If false is returned, the listener will be removed from the listener list
+    virtual bool notifyDropped(GameEntity* entity) = 0;
+};
+
 
 /*! \class GameEntity GameEntity.h
  *  \brief This class holds elements that are common to every object placed in the game
@@ -159,11 +195,6 @@ class GameEntity : public EntityBase
     inline void setIsOnMap(bool isOnMap)
     { mIsOnMap = isOnMap; }
 
-    virtual bool tryDrop(Seat* seat, Tile* tile)
-    { return false; }
-    virtual void drop(const Ogre::Vector3& v)
-    {}
-
     void firePickupEntity(Player* playerPicking);
     void fireDropEntity(Player* playerPicking, Tile* tile);
 
@@ -240,8 +271,10 @@ class GameEntity : public EntityBase
     //! \brief Called while moving the entity to remove it from the tile it gets off
     virtual void removeEntityFromPositionTile();
 
-  protected:
+    void addGameEntityListener(GameEntityListener* listener);
+    void removeGameEntityListener(GameEntityListener* listener);
 
+  protected:
     //! \brief Fires a add entity message to the player of the given seat
     virtual void fireAddEntity(Seat* seat, bool async) = 0;
     //! \brief Fires a remove creature message to the player of the given seat (if not null). If null, it fires to
@@ -257,7 +290,12 @@ class GameEntity : public EntityBase
     //! Constructs a particle system based on this entity name
     std::string nextParticleSystemsName();
 
+    void fireEntityDead();
+
+    void fireEntityRemoveFromGameMap();
+
   private:
+
     //! \brief Pointer to the GameMap object.
     GameMap* mGameMap;
 
@@ -269,6 +307,9 @@ class GameEntity : public EntityBase
     uint32_t mParticleSystemsNumber;
 
     const bool mIsOnServerMap;
+
+    //! \brief List of the entity listening for events (removed from gamemap, picked up, ...) on this game entity
+    std::vector<GameEntityListener*> mGameEntityListeners;
 };
 
 #endif // GAMEENTITY_H

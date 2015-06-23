@@ -109,6 +109,7 @@ void RenderedMovableEntity::addToGameMap()
 
 void RenderedMovableEntity::removeFromGameMap()
 {
+    fireEntityRemoveFromGameMap();
     removeEntityFromPositionTile();
     getGameMap()->removeRenderedMovableEntity(this);
     getGameMap()->removeAnimatedObject(this);

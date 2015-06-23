@@ -25,6 +25,7 @@
 #include <string>
 
 class Seat;
+class Tile;
 namespace Ogre
 {
     class SceneNode;
@@ -121,6 +122,12 @@ public:
     { return false; }
     virtual void pickup()
     {}
+
+    virtual bool tryDrop(Seat* seat, Tile* tile)
+    { return false; }
+    virtual void drop(const Ogre::Vector3& v)
+    {}
+
 protected:
     //! \brief Function that implements the mesh creation
     virtual void createMeshLocal() {};

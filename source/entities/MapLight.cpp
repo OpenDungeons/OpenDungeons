@@ -85,6 +85,7 @@ void MapLight::addToGameMap()
 
 void MapLight::removeFromGameMap()
 {
+    fireEntityRemoveFromGameMap();
     removeEntityFromPositionTile();
     getGameMap()->removeMapLight(this);
     getGameMap()->removeAnimatedObject(this);

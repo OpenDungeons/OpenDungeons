@@ -482,8 +482,6 @@ public:
     void clearRenderedMovableEntities();
     GameEntity* getEntityFromTypeAndName(GameEntityType entityType,
         const std::string& entityName);
-    EntityBase* getBaseEntityFromTypeAndName(GameEntityType entityType,
-                                             const std::string& entityName);
 
     //! brief Functions to add/remove/get Spells
     inline const std::vector<Spell*>& getSpells() const

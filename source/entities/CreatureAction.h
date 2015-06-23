@@ -50,10 +50,11 @@ enum class CreatureActionType
 };
 
 //! \brief A data structure to be used in the creature AI calculations.
-class CreatureAction
+class CreatureAction : public GameEntityListener
 {
 public:
-    CreatureAction(const CreatureActionType actionType, GameEntityType entityType = GameEntityType::unknown, const std::string& entityName = "", Tile* tile = nullptr);
+    CreatureAction(Creature* creature, const CreatureActionType actionType, GameEntity* attackedEntity, Tile* tile);
+    virtual ~CreatureAction();
 
     inline const CreatureActionType getType() const
     { return mActionType; }
@@ -70,27 +71,28 @@ public:
     inline int32_t getNbTurnsActive() const
     { return mNbTurnsActive; }
 
+    inline GameEntity* getAttackedEntity() const
+    { return mAttackedEntity; }
+
     inline void clearNbTurnsActive()
     { mNbTurnsActive = 0; }
-
-    inline const std::string& getEntityName() const
-    { return mEntityName; }
-
-    inline GameEntityType getEntityType() const
-    { return mEntityType; }
 
     inline Tile* getTile() const
     { return mTile; }
 
     std::string toString() const;
 
+    std::string getListenerName() const override;
+    bool notifyDead(GameEntity* entity) override;
+    bool notifyRemovedFromGameMap(GameEntity* entity) override;
+    bool notifyPickedUp(GameEntity* entity) override;
+    bool notifyDropped(GameEntity* entity) override;
+
 private:
+    CreatureAction(const CreatureAction&) = delete;
+    Creature* mCreature;
     CreatureActionType mActionType;
-    //! We save the creature name, not the pointer because in creature action, most of the time, we want to keep a reference
-    //! for some time (for example when walking towards an enemy to attack). But the creature might be dead when we reach it.
-    //! The rule of thumb would be to not keep a creature pointer here
-    GameEntityType mEntityType;
-    std::string mEntityName;
+    GameEntity* mAttackedEntity;
     Tile* mTile;
     //! Number of turns the action is in the creature pending actions
     int32_t mNbTurns;
