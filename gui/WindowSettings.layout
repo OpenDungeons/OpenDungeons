@@ -2,7 +2,7 @@
 
 <GUILayout version="4" >
     <Window type="OD/FrameWindow" name="SettingsWindow" >
-        <Property name="Area" value="{{0,205},{0,128},{0,669},{0,481}}" />
+        <Property name="Area" value="{{0,205},{0,128},{0,669},{0,600}}" />
         <Property name="Text" value="Settings" />
         <Property name="SizingEnabled" value="False" />
         <Property name="AlwaysOnTop" value="True" />
@@ -75,6 +75,8 @@
                     <Property name="Text" value="" />
                     <Property name="VerticalSlider" value="False" />
                     <Property name="AutoRenderingSurface" value="True" />
+                    <Property name="MaximumValue" value="100" />
+                    <Property name="ClickStepSize" value="5" />
                 </Window>
             </Window>
         </Window>

@@ -134,7 +134,7 @@ void MenuModeConfigureSeats::activate()
         textSeatId->setArea(CEGUI::UDim(0,20), CEGUI::UDim(0,65 + offset), CEGUI::UDim(0.3,0), CEGUI::UDim(0,30));
         textSeatId->setText("[colour='" + Helper::getCEGUIColorFromOgreColourValue(seatColor) + "']Seat "  + Helper::toString(seat->getId()));
         textSeatId->setProperty("FrameEnabled", "False");
-        textSeatId->setProperty("BackgroundEnabled", "False");;
+        textSeatId->setProperty("BackgroundEnabled", "False");
 
         name = COMBOBOX_PLAYER_FACTION_PREFIX + Helper::toString(seat->getId());
         combo = static_cast<CEGUI::Combobox*>(winMgr.createWindow("OD/Combobox", name));

@@ -63,6 +63,9 @@ private:
     //! \brief The root window.
     CEGUI::Window* mRootWindow;
 
+    //! \brief The temporary video comboboxes created depending on the video settings.
+    std::vector<CEGUI::Window*> mCustomVideoWidgets;
+
     //! \brief Set the different widget values according to current config.
     void initConfig();
 
