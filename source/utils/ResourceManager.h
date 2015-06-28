@@ -116,9 +116,6 @@ public:
     inline const std::string& getShaderCachePath() const
     { return mShaderCachePath; }
 
-    inline const std::string& getOgreCfgFile() const
-    { return mOgreCfgFile; }
-
     inline const std::string& getUserCfgFile() const
     { return mUserConfigFile; }
 
@@ -160,9 +157,6 @@ private:
     //! Same as home path + "cfg/" on Windows.
     std::string mUserConfigPath;
 
-    //! \brief The Ogre config file
-    std::string mOgreCfgFile;
-
     //! \brief Main files in the user data path
     std::string mUserConfigFile;
     std::string mOgreLogFile;
@@ -187,7 +181,6 @@ private:
     static const std::string CONFIGSUBPATH;
     static const std::string LANGUAGESUBPATH;
     static const std::string SHADERCACHESUBPATH;
-    static const std::string CONFIGFILENAME;
     static const std::string LOGFILENAME;
     static const std::string CEGUILOGFILENAME;
     static const std::string USERCFGFILENAME;

@@ -239,9 +239,12 @@ void SettingsWindow::initConfig()
     }
 
     //! First of all, clear up the previously created windows.
-    for (CEGUI::Window* win : mCustomVideoWidgets)
+    for (CEGUI::Window* win : mCustomVideoComboBoxes)
         mSettingsWindow->destroyChild(win);
-    mCustomVideoWidgets.clear();
+    mCustomVideoComboBoxes.clear();
+    for (CEGUI::Window* win : mCustomVideoTexts)
+        mSettingsWindow->destroyChild(win);
+    mCustomVideoTexts.clear();
 
     // Find every other config options and add them to the config
     CEGUI::Window* videoTab = mSettingsWindow->getChild("MainTabControl/Video");
@@ -272,8 +275,8 @@ void SettingsWindow::initConfig()
         videoCb->setSortingEnabled(true);
 
         // Register the widgets for potential later deletion.
-        mCustomVideoWidgets.push_back(videoCbText);
-        mCustomVideoWidgets.push_back(videoCb);
+        mCustomVideoTexts.push_back(videoCbText);
+        mCustomVideoComboBoxes.push_back(videoCb);
 
         // Fill the combobox with possible values.
         uint32_t cbIndex = 0;
@@ -358,8 +361,15 @@ void SettingsWindow::saveConfig()
     renderer->setConfigOption(VSYNC, (vsCheckBox->isSelected() ? "Yes" : "No"));
     config.setVideoValue(VSYNC, fsCheckBox->isSelected() ? "Yes" : "No");
 
-    ogreRoot->saveConfig();
-    // TODO: Only save and handle custom config. Drop ogre config if possible.
+    // Save renderer dependent settings and apply them.
+    for (CEGUI::Window* combo : mCustomVideoComboBoxes)
+    {
+        std::string optionName = combo->getName().c_str();
+        std::string optionValue = combo->getText().c_str();
+        renderer->setConfigOption(optionName, optionValue);
+        config.setVideoValue(optionName, optionValue);
+    }
+
     config.saveUserConfig();
 
     // Apply config

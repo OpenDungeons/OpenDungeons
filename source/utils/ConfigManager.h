@@ -152,6 +152,10 @@ public:
     //! \brief Save the user configuration file.
     bool saveUserConfig();
 
+    //! \brief Tries to restore the previous video config
+    //! To be called at startup once the user config has been loaded.
+    bool initVideoConfig(Ogre::Root& ogreRoot);
+
 private:
     //! \brief Function used to load the global configuration. They should return true if the configuration
     //! is ok and false if a mandatory parameter is missing
@@ -171,7 +175,7 @@ private:
     bool loadTilesets(const std::string& fileName);
     bool loadTilesetValues(std::istream& defFile, TileVisual tileVisual, std::vector<TileSetValue>& tileValues);
 
-    // \brief Loads the user configuration values, and use default ones if it cannot do it.
+    //! \brief Loads the user configuration values, and use default ones if it cannot do it.
     void loadUserConfig(const std::string& fileName);
 
     std::map<std::string, Ogre::ColourValue> mSeatColors;

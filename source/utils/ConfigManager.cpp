@@ -33,6 +33,7 @@
 #include "utils/LogManager.h"
 
 #include <boost/dynamic_bitset.hpp>
+#include <OgreRoot.h>
 
 enum class USER_CONFIG_CATEGORY {
     CATEGORY_NONE  = 0,
@@ -1746,4 +1747,83 @@ const TileSet* ConfigManager::getTileSet(const std::string& tileSetName) const
     OD_LOG_ERR("Cannot find requested tileset name=" + tileSetName);
     // We return the default tileset
     return mTileSets.at(DEFAULT_TILESET_NAME);
+}
+
+bool ConfigManager::initVideoConfig(Ogre::Root& ogreRoot)
+{
+    std::string rendererName = getVideoValue("Renderer");
+
+    Ogre::RenderSystem* renderSystem = ogreRoot.getRenderSystemByName(rendererName);
+    bool sameRenderer = true;
+    if (renderSystem == nullptr)
+    {
+        const Ogre::RenderSystemList& renderers = ogreRoot.getAvailableRenderers();
+        if(renderers.empty())
+        {
+            OD_LOG_ERR("No valid renderer found. Exitting...");
+            return false;
+        }
+        renderSystem = *renderers.begin();
+        OD_LOG_INF("No OpenGL renderer found. Using the first available: " + renderSystem->getName());
+        sameRenderer = false;
+    }
+
+    ogreRoot.setRenderSystem(renderSystem);
+    Ogre::ConfigOptionMap& options = renderSystem->getConfigOptions();
+
+    // If the renderer was changed, we need to reset the video options.
+    if (sameRenderer == false)
+    {
+        mVideoUserConfig.clear();
+
+        for (std::pair<Ogre::String, Ogre::ConfigOption> option : options)
+        {
+            std::string optionName = option.first;
+            Ogre::ConfigOption& values = option.second;
+            // We don't store options that are immutable or empty
+            if (values.immutable || values.possibleValues.empty())
+                continue;
+
+            setVideoValue(optionName, values.currentValue);
+        }
+    }
+    else {
+        std::vector<std::string> optionsToRemove;
+
+        // The renderer system was initialized. Let's load its new option values.
+        for (std::pair<std::string, std::string> setting : mVideoUserConfig)
+        {
+            // Check the option exists.
+            if (options.find(setting.first) == options.end())
+            {
+                optionsToRemove.push_back(setting.first);
+                continue;
+            }
+
+            // Check the desired option value exists.
+            Ogre::ConfigOption& values = options.find(setting.first)->second;
+            bool valueIsPossible = false;
+            for (std::string value : values.possibleValues)
+            {
+                if (setting.second == value)
+                {
+                    valueIsPossible = true;
+                    break;
+                }
+            }
+            if (!valueIsPossible)
+            {
+                optionsToRemove.push_back(setting.first);
+                continue;
+            }
+
+            renderSystem->setConfigOption(setting.first, setting.second);
+        }
+
+        // Removes now invalid options from the video options.
+        for (std::string option : optionsToRemove)
+            mVideoUserConfig.erase(option);
+    }
+
+    return true;
 }
