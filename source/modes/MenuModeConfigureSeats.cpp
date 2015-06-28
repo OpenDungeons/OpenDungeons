@@ -257,7 +257,7 @@ void MenuModeConfigureSeats::activate()
     tmpWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::configureSeats)->getChild("ListPlayers/LaunchGameButton");
     tmpWin->setEnabled(enabled);
 
-    // We notify the server we are ready to recceive players and configure them
+    // We notify the server we are ready to receive players and configure them
     ODClient::getSingleton().queueClientNotification(ClientNotificationType::readyForSeatConfiguration);
 }
 

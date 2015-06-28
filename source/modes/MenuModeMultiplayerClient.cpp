@@ -62,7 +62,8 @@ MenuModeMultiplayerClient::MenuModeMultiplayerClient(ModeManager *modeManager):
 void MenuModeMultiplayerClient::activate()
 {
     // Loads the corresponding Gui sheet.
-    getModeManager().getGui().loadGuiSheet(Gui::guiSheet::multiplayerClientMenu);
+    Gui& gui = getModeManager().getGui();
+    gui.loadGuiSheet(Gui::guiSheet::multiplayerClientMenu);
 
     giveFocus();
 
@@ -74,17 +75,21 @@ void MenuModeMultiplayerClient::activate()
     gameMap->clearAll();
     gameMap->setGamePaused(true);
 
-    CEGUI::Window* mainWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::multiplayerClientMenu);
+    CEGUI::Window* mainWin = gui.getGuiSheet(Gui::guiSheet::multiplayerClientMenu);
     mainWin->getChild(Gui::MPM_TEXT_LOADING)->setText("");
+
+    CEGUI::Editbox* editNick = static_cast<CEGUI::Editbox*>(mainWin->getChild(Gui::MPM_EDIT_NICK));
+    ConfigManager& config = ConfigManager::getSingleton();
+    editNick->setText(reinterpret_cast<const CEGUI::utf8*>(config.getGameValue(Config::NICKNAME).c_str()));
 }
 
 bool MenuModeMultiplayerClient::clientButtonPressed(const CEGUI::EventArgs&)
 {
-    CEGUI::Editbox* editIp = static_cast<CEGUI::Editbox*>(
-                                 getModeManager().getGui().getGuiSheet(Gui::multiplayerClientMenu)->getChild(Gui::MPM_EDIT_IP));
+    CEGUI::Window* mainWin = getModeManager().getGui().getGuiSheet(Gui::guiSheet::multiplayerClientMenu);
+    CEGUI::Editbox* editIp = static_cast<CEGUI::Editbox*>(mainWin->getChild(Gui::MPM_EDIT_IP));
     const std::string ip = editIp->getText().c_str();
 
-    CEGUI::Window* infoText = getModeManager().getGui().getGuiSheet(Gui::multiplayerClientMenu)->getChild(Gui::MPM_TEXT_LOADING);
+    CEGUI::Window* infoText = mainWin->getChild(Gui::MPM_TEXT_LOADING);
 
     if (ip.empty())
     {
@@ -92,8 +97,7 @@ bool MenuModeMultiplayerClient::clientButtonPressed(const CEGUI::EventArgs&)
         return true;
     }
 
-    CEGUI::Editbox* editNick = static_cast<CEGUI::Editbox*>(
-                                   getModeManager().getGui().getGuiSheet(Gui::multiplayerClientMenu)->getChild(Gui::MPM_EDIT_NICK));
+    CEGUI::Editbox* editNick = static_cast<CEGUI::Editbox*>(mainWin->getChild(Gui::MPM_EDIT_NICK));
     std::string nick = editNick->getText().c_str();
     CEGUI::String nickCeguiStr = reinterpret_cast<const CEGUI::utf8*>(nick.c_str());
     if (nickCeguiStr.empty())

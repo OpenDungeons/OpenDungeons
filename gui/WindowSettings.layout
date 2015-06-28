@@ -79,6 +79,24 @@
                     <Property name="ClickStepSize" value="5" />
                 </Window>
             </Window>
+            <Window type="DefaultWindow" name="Game" >
+                <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
+                <Property name="Text" value="Game" />
+                <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                <Property name="Visible" value="False" />
+                <Property name="RiseOnClickEnabled" value="False" />
+                <Window type="OD/StaticText" name="NicknameText" >
+                    <Property name="Area" value="{{0,32},{0,40},{0,150},{0,60}}" />
+                    <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                    <Property name="Text" value="Nickname:" />
+                    <Property name="BackgroundEnabled" value="False" />
+                    <Property name="FrameEnabled" value="False" />
+                </Window>
+                <Window type="OD/Editbox" name="NicknameEdit" >
+                    <Property name="Area" value="{{0,160},{0,40},{0,320},{0,60}}" />
+                    <Property name="Text" value="" />
+                </Window>
+            </Window>
         </Window>
     </Window>
 </GUILayout>

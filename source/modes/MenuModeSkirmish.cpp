@@ -113,6 +113,11 @@ void MenuModeSkirmish::activate()
                                        getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_LIST_LEVEL_TYPES));
     levelTypeCb->setItemSelectState(static_cast<size_t>(0), true);
     updateFilesList();
+
+    // Set the player name if valid. (Will use the defaut one if not.)
+    std::string nickname = ConfigManager::getSingleton().getGameValue(Config::NICKNAME);
+    if (!nickname.empty())
+        ODFrameListener::getSingleton().getClientGameMap()->setLocalPlayerNick(nickname);
 }
 
 bool MenuModeSkirmish::updateFilesList(const CEGUI::EventArgs&)
@@ -176,20 +181,16 @@ bool MenuModeSkirmish::updateFilesList(const CEGUI::EventArgs&)
 
 bool MenuModeSkirmish::launchSelectedButtonPressed(const CEGUI::EventArgs&)
 {
-    CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_LIST_LEVELS);
-    CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);
+    CEGUI::Window* mainWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu);
+    CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(mainWin->getChild(Gui::SKM_LIST_LEVELS));
 
     if(levelSelectList->getSelectedCount() == 0)
     {
-        tmpWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);
-        tmpWin->setText("Please select a level first.");
-        tmpWin->show();
+        mainWin->getChild(Gui::SKM_TEXT_LOADING)->setText("Please select a level first.");
         return true;
     }
 
-    tmpWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);
-    tmpWin->setText("Loading...");
-    tmpWin->show();
+    mainWin->getChild(Gui::SKM_TEXT_LOADING)->setText("Loading...");
 
     CEGUI::ListboxItem* selItem = levelSelectList->getFirstSelectedItem();
     int id = selItem->getID();
@@ -199,18 +200,14 @@ bool MenuModeSkirmish::launchSelectedButtonPressed(const CEGUI::EventArgs&)
     if(!ODServer::getSingleton().startServer(level, ServerMode::ModeGameSinglePlayer))
     {
         OD_LOG_ERR("Could not start server for single player game !!!");
-        tmpWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);
-        tmpWin->setText("ERROR: Could not start server for single player game !!!");
-        tmpWin->show();
+        mainWin->getChild(Gui::SKM_TEXT_LOADING)->setText("ERROR: Could not start server for single player game !!!");
         return true;
     }
 
     if(!ODClient::getSingleton().connect("localhost", ConfigManager::getSingleton().getNetworkPort()))
     {
         OD_LOG_ERR("Could not connect to server for single player game !!!");
-        tmpWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);
-        tmpWin->setText("Error: Couldn't connect to local server!");
-        tmpWin->show();
+        mainWin->getChild(Gui::SKM_TEXT_LOADING)->setText("Error: Couldn't connect to local server!");
         return true;
     }
     return true;
@@ -219,10 +216,10 @@ bool MenuModeSkirmish::launchSelectedButtonPressed(const CEGUI::EventArgs&)
 bool MenuModeSkirmish::updateDescription(const CEGUI::EventArgs&)
 {
     // Get the level corresponding id
-    CEGUI::Window* tmpWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_LIST_LEVELS);
-    CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);
+    CEGUI::Window* mainWin = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu);
+    CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(mainWin->getChild(Gui::SKM_LIST_LEVELS));
 
-    CEGUI::Window* descTxt = getModeManager().getGui().getGuiSheet(Gui::skirmishMenu)->getChild("LevelWindowFrame/MapDescriptionText");
+    CEGUI::Window* descTxt = mainWin->getChild("LevelWindowFrame/MapDescriptionText");
 
     if(levelSelectList->getSelectedCount() == 0)
     {

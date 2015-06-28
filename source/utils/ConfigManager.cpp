@@ -39,7 +39,8 @@ enum class USER_CONFIG_CATEGORY {
     CATEGORY_NONE  = 0,
     CATEGORY_AUDIO = 1,
     CATEGORY_VIDEO = 2,
-    CATEGORY_INPUT = 3
+    CATEGORY_INPUT = 3,
+    CATEGORY_GAME  = 4
 };
 
 const std::vector<std::string> EMPTY_SPAWNPOOL;
@@ -1420,7 +1421,13 @@ void ConfigManager::loadUserConfig(const std::string& fileName)
             category = USER_CONFIG_CATEGORY::CATEGORY_INPUT;
             continue;
         }
-        else if (nextParam == "[/Audio]" || nextParam == "[/Video]" || nextParam == "[/Input]")
+        else if (nextParam == "[Game]")
+        {
+            category = USER_CONFIG_CATEGORY::CATEGORY_GAME;
+            continue;
+        }
+        else if (nextParam == "[/Audio]" || nextParam == "[/Video]" || nextParam == "[/Input]"
+                 || nextParam == "[/Game]")
         {
             category = USER_CONFIG_CATEGORY::CATEGORY_NONE;
             continue;
@@ -1448,6 +1455,9 @@ void ConfigManager::loadUserConfig(const std::string& fileName)
                     break;
                 case USER_CONFIG_CATEGORY::CATEGORY_INPUT:
                     mInputUserConfig[ elements[0] ] = elements[1];
+                    break;
+                case USER_CONFIG_CATEGORY::CATEGORY_GAME:
+                    mGameUserConfig[ elements[0] ] = elements[1];
                     break;
                 default:
                     OD_LOG_WRN("Parameter set in unknown category. Will be ignored: "
@@ -1495,6 +1505,11 @@ bool ConfigManager::saveUserConfig()
         userFile << input.first << "\t" << input.second << std::endl;
     userFile << "[/Input]" << std::endl;
 
+    userFile << "[Game]" << std::endl;
+    for(std::pair<std::string, std::string> input : mGameUserConfig)
+        userFile << input.first << "\t" << input.second << std::endl;
+    userFile << "[/Game]" << std::endl;
+
     userFile << "[/Configuration]" << std::endl;
     userFile.close();
     return true;
@@ -1531,6 +1546,17 @@ const std::string& ConfigManager::getInputValue(const std::string& param) const
     }
 
     return mInputUserConfig.at(param);
+}
+
+const std::string& ConfigManager::getGameValue(const std::string& param) const
+{
+    if(mGameUserConfig.count(param) <= 0)
+    {
+        OD_LOG_ERR("Unknown parameter param=" + param);
+        return EMPTY_STRING;
+    }
+
+    return mGameUserConfig.at(param);
 }
 
 const std::string& ConfigManager::getRoomConfigString(const std::string& param) const
@@ -1751,7 +1777,7 @@ const TileSet* ConfigManager::getTileSet(const std::string& tileSetName) const
 
 bool ConfigManager::initVideoConfig(Ogre::Root& ogreRoot)
 {
-    std::string rendererName = getVideoValue("Renderer");
+    std::string rendererName = getVideoValue(Config::RENDERER);
 
     Ogre::RenderSystem* renderSystem = ogreRoot.getRenderSystemByName(rendererName);
     bool sameRenderer = true;
@@ -1760,7 +1786,7 @@ bool ConfigManager::initVideoConfig(Ogre::Root& ogreRoot)
         const Ogre::RenderSystemList& renderers = ogreRoot.getAvailableRenderers();
         if(renderers.empty())
         {
-            OD_LOG_ERR("No valid renderer found. Exitting...");
+            OD_LOG_ERR("No valid renderer found. Exiting...");
             return false;
         }
         renderSystem = *renderers.begin();

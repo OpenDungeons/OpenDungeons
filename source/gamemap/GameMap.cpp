@@ -64,7 +64,7 @@
 #include <sstream>
 #include <string>
 
-const std::string DEFAULT_NICK = "Player";
+const std::string DEFAULT_NICK = "You";
 
 using namespace std;
 

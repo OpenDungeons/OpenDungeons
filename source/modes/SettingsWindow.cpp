@@ -32,15 +32,6 @@
 
 #include <SFML/Audio/Listener.hpp>
 
-//! \brief Settings options names
-//! \brief Video
-const std::string VIDEO_MODE = "Video Mode";
-const std::string VSYNC = "VSync";
-const std::string FULL_SCREEN = "Full Screen";
-
-//! \brief Audio
-const std::string MUSIC_VOLUME = "Music Volume";
-
 SettingsWindow::SettingsWindow(CEGUI::Window* rootWindow):
     mSettingsWindow(nullptr),
     mApplyWindow(nullptr),
@@ -156,8 +147,14 @@ void SettingsWindow::initConfig()
 {
     ConfigManager& config = ConfigManager::getSingleton();
 
+    // Game
+    CEGUI::Editbox* usernameEb = static_cast<CEGUI::Editbox*>(
+            mRootWindow->getChild("SettingsWindow/MainTabControl/Game/NicknameEdit"));
+    CEGUI::String username = reinterpret_cast<const CEGUI::utf8*>(config.getGameValue(Config::NICKNAME).c_str());
+    usernameEb->setText(username);
+
     // Audio
-    std::string volumeStr = config.getAudioValue(MUSIC_VOLUME);
+    std::string volumeStr = config.getAudioValue(Config::MUSIC_VOLUME);
     float volume = volumeStr.empty() ? sf::Listener::getGlobalVolume() : Helper::toFloat(volumeStr);
     setMusicVolumeValue(volume);
 
@@ -195,7 +192,7 @@ void SettingsWindow::initConfig()
     }
 
     // Resolution
-    Ogre::ConfigOptionMap::const_iterator it = options.find(VIDEO_MODE);
+    Ogre::ConfigOptionMap::const_iterator it = options.find(Config::VIDEO_MODE);
     if (it != options.end())
     {
         const Ogre::ConfigOption& video = it->second;
@@ -220,7 +217,7 @@ void SettingsWindow::initConfig()
         }
     }
 
-    it = options.find(FULL_SCREEN);
+    it = options.find(Config::FULL_SCREEN);
     if (it != options.end())
     {
         const Ogre::ConfigOption& fullscreen = it->second;
@@ -229,7 +226,7 @@ void SettingsWindow::initConfig()
         fsCheckBox->setSelected((fullscreen.currentValue == "Yes"));
     }
 
-    it = options.find(VSYNC);
+    it = options.find(Config::VSYNC);
     if (it != options.end())
     {
         const Ogre::ConfigOption& vsync = it->second;
@@ -253,7 +250,8 @@ void SettingsWindow::initConfig()
     {
         std::string optionName = option.first;
         // Skip the main options already set.
-        if (optionName == VSYNC || optionName == FULL_SCREEN || optionName == VIDEO_MODE)
+        if (optionName == Config::VSYNC || optionName == Config::FULL_SCREEN
+            || optionName == Config::VIDEO_MODE)
             continue;
 
         Ogre::ConfigOption& config = option.second;
@@ -269,7 +267,7 @@ void SettingsWindow::initConfig()
         videoCbText->setProperty("BackgroundEnabled", "False");
 
         CEGUI::Combobox* videoCb = static_cast<CEGUI::Combobox*>(videoTab->createChild("OD/Combobox", optionName));
-        videoCb->setArea(CEGUI::UDim(0, 200), CEGUI::UDim(0, 160 + offset), CEGUI::UDim(0.3, 0),
+        videoCb->setArea(CEGUI::UDim(0, 300), CEGUI::UDim(0, 160 + offset), CEGUI::UDim(0, 130),
                          CEGUI::UDim(0, config.possibleValues.size() * 17 + 30));
         videoCb->setReadOnly(true);
         videoCb->setSortingEnabled(true);
@@ -307,10 +305,15 @@ void SettingsWindow::saveConfig()
     ConfigManager& config = ConfigManager::getSingleton();
 
     // Save config
+    // Game
+    CEGUI::Editbox* usernameEb = static_cast<CEGUI::Editbox*>(
+            mRootWindow->getChild("SettingsWindow/MainTabControl/Game/NicknameEdit"));
+    config.setGameValue(Config::NICKNAME, usernameEb->getText().c_str());
+
     // Audio
     CEGUI::Slider* volumeSlider = static_cast<CEGUI::Slider*>(
             mRootWindow->getChild("SettingsWindow/MainTabControl/Audio/MusicSlider"));
-    config.setAudioValue("Music Volume", Helper::toString(volumeSlider->getCurrentValue()));
+    config.setAudioValue(Config::MUSIC_VOLUME, Helper::toString(volumeSlider->getCurrentValue()));
 
     // Video
     Ogre::RenderSystem* renderer = ogreRoot->getRenderSystem();
@@ -334,32 +337,32 @@ void SettingsWindow::saveConfig()
             OD_LOG_WRN("Wanted renderer : " + std::string(rdrCb->getSelectedItem()->getText().c_str()) + " not found. Using the first available: " + renderer->getName());
         }
         ogreRoot->setRenderSystem(renderer);
-        config.setVideoValue("Renderer", renderer->getName());
-        ogreRoot->saveConfig();
+        config.setVideoValue(Config::RENDERER, renderer->getName());
+
         // If render changed, we need to restart game.
         // Note that we do not change values according to the others inputs. The reason
         // is that we don't know if the given values are acceptable for the selected renderer
         OD_LOG_INF("Changed Ogre renderer to " + rendererName + ". We need to restart");
         exit(0);
     }
-    config.setVideoValue("Renderer", renderer->getName());
+    config.setVideoValue(Config::RENDERER, renderer->getName());
 
     // Set renderer-dependent options now we know it didn't change.
     CEGUI::ToggleButton* fsCheckBox = static_cast<CEGUI::ToggleButton*>(
         mRootWindow->getChild("SettingsWindow/MainTabControl/Video/FullscreenCheckbox"));
-    renderer->setConfigOption(FULL_SCREEN, (fsCheckBox->isSelected() ? "Yes" : "No"));
-    config.setVideoValue(FULL_SCREEN, fsCheckBox->isSelected() ? "Yes" : "No");
+    renderer->setConfigOption(Config::FULL_SCREEN, (fsCheckBox->isSelected() ? "Yes" : "No"));
+    config.setVideoValue(Config::FULL_SCREEN, fsCheckBox->isSelected() ? "Yes" : "No");
 
     CEGUI::Combobox* resCb = static_cast<CEGUI::Combobox*>(
             mRootWindow->getChild("SettingsWindow/MainTabControl/Video/ResolutionCombobox"));
-    renderer->setConfigOption(VIDEO_MODE, resCb->getSelectedItem()->getText().c_str());
-    config.setVideoValue(VIDEO_MODE, resCb->getSelectedItem()->getText().c_str());
+    renderer->setConfigOption(Config::VIDEO_MODE, resCb->getSelectedItem()->getText().c_str());
+    config.setVideoValue(Config::VIDEO_MODE, resCb->getSelectedItem()->getText().c_str());
 
     // Stores the renderer dependent options
     CEGUI::ToggleButton* vsCheckBox = static_cast<CEGUI::ToggleButton*>(
         mRootWindow->getChild("SettingsWindow/MainTabControl/Video/VSyncCheckbox"));
-    renderer->setConfigOption(VSYNC, (vsCheckBox->isSelected() ? "Yes" : "No"));
-    config.setVideoValue(VSYNC, fsCheckBox->isSelected() ? "Yes" : "No");
+    renderer->setConfigOption(Config::VSYNC, (vsCheckBox->isSelected() ? "Yes" : "No"));
+    config.setVideoValue(Config::VSYNC, fsCheckBox->isSelected() ? "Yes" : "No");
 
     // Save renderer dependent settings and apply them.
     for (CEGUI::Window* combo : mCustomVideoComboBoxes)
